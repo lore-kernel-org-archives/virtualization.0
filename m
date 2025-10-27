@@ -1,339 +1,205 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E1632D46B1
-	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 09:55:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD7D62F6592
+	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 09:56:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761558958; cv=none; b=WxznK9Yx/xPghwSu032QzjLJG5PE6Mkby/bk9hytei7rKLpyPYUipX4p8I/3e7Lmshhm+sQQd2M0VLa2OLb0v1aiblOCQgIRUP/S7UFFCfzmsixNVZ5I8hhqWrAVG7pCCevpwfrlLsiKNV2YaOf3Ek1Isw6js8WJ60s5rKmm2fY=
+	t=1761559016; cv=none; b=W8NIrqlne1bHvSjLsM0dPZ8Cde99tn5BPGuqu+GN2ot71qNgaRSelqlkqYNyzumby8bnWnZZ8md0r7mjs/loSniPrbcZaN7cUS30MkKvky+31uhrmeIoUqv08UjwInjzsVfTA5/l+UyMmmGk28y9fm34Q6TErD8JXelvejy0LE8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761558958; c=relaxed/simple;
-	bh=DlIr/2KOdob5wx6I+VumVuTd0TLpcfLvxtmx4T2KKJk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EnEa2mJ3AhlemjXKYnZ8seUSCy9iAQv87n633ikY9Pz+XN312Oiet9bGIQMx6i3OZsKz7ags802tw9Em3c/CL6eSE/MvCkKuumk2GsWP2QDaaKPP0flBjh55c81XIR0TSuaQ7g82VsSHj8nEiqxBhOMzjYvXtziDnuaSRcVM7D0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=e3XAZrkc; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7utOYG02; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=e3XAZrkc; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7utOYG02; arc=none smtp.client-ip=195.135.223.130
+	s=arc-20240116; t=1761559016; c=relaxed/simple;
+	bh=Jv4wtk4a+YRPzNKLVeKEPNDtjfvW03UsnKGeSY5sHD0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JC3dNB1hoG5gTfr/YtZXvBTHXIePGMPwg8PV84gcV7CC9GC26nBuXOVP7hH8bP2y9x/94xJJhghDaBcZh/r0y34vdyyIB5Tx3yug/lesJx/swQ9bpgz0qYVRqXdKBEfmjYEpdP+oj7Kuax8/9XC9VqaNhY0xFLD++H8Hh1vXHzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ow+s/aox; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mFCX9Ei1; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ow+s/aox; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mFCX9Ei1; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="e3XAZrkc";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7utOYG02";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="e3XAZrkc";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7utOYG02"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ow+s/aox";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mFCX9Ei1";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ow+s/aox";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mFCX9Ei1"
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 3102921A06;
-	Mon, 27 Oct 2025 09:55:54 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id DB9981F387;
+	Mon, 27 Oct 2025 09:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1761558954; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=o/X2axDzX+ivr1meW29W28xsNkDBcfjbOaZzwberrxE=;
-	b=e3XAZrkcEcR5BgvSEz/h82Yika0pKnJoMpNX4dFNxbMTLc8Ar0TtPQ8Sbu5agYEH/+wH/E
-	ex3f/C7rxBqIXUCqf0BI2nUNSg1qPPyh7yvrFgmkqmrX/8RojlPdPkSXvQNScuFTGIjx91
-	XaT0E3M2yUm9mU4Uxv0TjnfdH8Tux34=
+	t=1761559011; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=r83Cy/mc02fZQTFlWzTU5lHgFwf03ZbG2vGkqc8Dqe0=;
+	b=ow+s/aoxLOjRuwrYB6zLW43RewS2YlHDe+e4+YKiu+gQfb2CuJNXGvxdz+0Da6TROtQYnY
+	VClDpLGFEUETyvEYahucGgKquYVRZ8OOJMHrNcPgKTeowvlEvdN8m6+CYIZhPCYScDuT48
+	pzqZQbgwbAZNtVf/I+8XLOQgY+wNxeM=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1761558954;
+	s=susede2_ed25519; t=1761559011;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=o/X2axDzX+ivr1meW29W28xsNkDBcfjbOaZzwberrxE=;
-	b=7utOYG026erpDq+H+bOruApeFx+MGDPpgsZAk/kTQXgdRB0IJL/6Df016EobF7d7TLgtJA
-	B0fL9Iwk10/RUfCw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=e3XAZrkc;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=7utOYG02
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=r83Cy/mc02fZQTFlWzTU5lHgFwf03ZbG2vGkqc8Dqe0=;
+	b=mFCX9Ei1Wemeb1PNr4c9R28kZ6hcjKgvnDSMYSLdT5iG2PybTv3JcoeuzjJB7IZQls26Bi
+	LIr3blxS6ahfl0Cg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="ow+s/aox";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=mFCX9Ei1
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1761558954; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=o/X2axDzX+ivr1meW29W28xsNkDBcfjbOaZzwberrxE=;
-	b=e3XAZrkcEcR5BgvSEz/h82Yika0pKnJoMpNX4dFNxbMTLc8Ar0TtPQ8Sbu5agYEH/+wH/E
-	ex3f/C7rxBqIXUCqf0BI2nUNSg1qPPyh7yvrFgmkqmrX/8RojlPdPkSXvQNScuFTGIjx91
-	XaT0E3M2yUm9mU4Uxv0TjnfdH8Tux34=
+	t=1761559011; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=r83Cy/mc02fZQTFlWzTU5lHgFwf03ZbG2vGkqc8Dqe0=;
+	b=ow+s/aoxLOjRuwrYB6zLW43RewS2YlHDe+e4+YKiu+gQfb2CuJNXGvxdz+0Da6TROtQYnY
+	VClDpLGFEUETyvEYahucGgKquYVRZ8OOJMHrNcPgKTeowvlEvdN8m6+CYIZhPCYScDuT48
+	pzqZQbgwbAZNtVf/I+8XLOQgY+wNxeM=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1761558954;
+	s=susede2_ed25519; t=1761559011;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=o/X2axDzX+ivr1meW29W28xsNkDBcfjbOaZzwberrxE=;
-	b=7utOYG026erpDq+H+bOruApeFx+MGDPpgsZAk/kTQXgdRB0IJL/6Df016EobF7d7TLgtJA
-	B0fL9Iwk10/RUfCw==
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=r83Cy/mc02fZQTFlWzTU5lHgFwf03ZbG2vGkqc8Dqe0=;
+	b=mFCX9Ei1Wemeb1PNr4c9R28kZ6hcjKgvnDSMYSLdT5iG2PybTv3JcoeuzjJB7IZQls26Bi
+	LIr3blxS6ahfl0Cg==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E220C13A9A;
-	Mon, 27 Oct 2025 09:55:53 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AD876136CF;
+	Mon, 27 Oct 2025 09:56:51 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id q79CNalB/2iQeAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 27 Oct 2025 09:55:53 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: dmitry.osipenko@collabora.com,
-	vivek.kasireddy@intel.com,
-	gurchetansingh@chromium.org,
-	kraxel@redhat.com,
-	airlied@redhat.com
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4] drm/virtgpu: Make vblank event dependent on the external sync
-Date: Mon, 27 Oct 2025 10:52:01 +0100
-Message-ID: <20251027095550.110562-1-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.51.1
+	id 1UPsKONB/2hreQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 27 Oct 2025 09:56:51 +0000
+Message-ID: <5daeda5a-c4d9-4a10-a5d3-c0808a23c144@suse.de>
+Date: Mon, 27 Oct 2025 10:56:51 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 3102921A06
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC][PATCH] drm/virtgpu: Make vblank event dependent on the host
+ resource
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
+ "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
+ "kraxel@redhat.com" <kraxel@redhat.com>,
+ "airlied@redhat.com" <airlied@redhat.com>
+Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+References: <20251016145230.79270-1-tzimmermann@suse.de>
+ <IA0PR11MB7185A7BA7B8CEAC46CBC0922F8F6A@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <21851b98-06ee-4e2c-8570-70e8a4fe5d86@suse.de>
+ <afc6ba14-cd95-49b9-89f5-e90fd19c8927@collabora.com>
+ <a2afbc13-0be6-46ef-a6da-9461fd30376b@collabora.com>
+ <126a0b10-a550-430c-a1b3-7e144461a0ff@suse.de>
+ <IA0PR11MB71850CA585D6E42C1E7217DDF8F3A@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <c6b44524-4e44-46e8-89b4-8f90e074431b@collabora.com>
+ <84de3c82-638a-412c-8e25-9ff507d59400@suse.de>
+ <IA0PR11MB7185DCAF9132F2CD92E42620F8F0A@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <8ac5053a-5f76-4145-a2f6-6bdd8316163e@collabora.com>
+ <c5aa4544-9ff6-4669-b8d2-f8548c4c4eda@collabora.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <c5aa4544-9ff6-4669-b8d2-f8548c4c4eda@collabora.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: DB9981F387
 X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-3.01 / 50.00];
+X-Spamd-Result: default: False [-4.51 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
 	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
 	MX_GOOD(-0.01)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
 	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
 	ARC_NA(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[7];
 	MIME_TRACE(0.00)[0:+];
-	FROM_HAS_DN(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[8];
+	TO_DN_EQ_ADDR_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
 	RCVD_TLS_ALL(0.00)[];
-	URIBL_BLOCKED(0.00)[suse.de:email,suse.de:mid,suse.de:dkim];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_DN_SOME(0.00)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim];
+	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim];
 	DKIM_TRACE(0.00)[suse.de:+]
 X-Rspamd-Action: no action
 X-Spam-Flag: NO
-X-Spam-Score: -3.01
+X-Spam-Score: -4.51
 X-Spam-Level: 
 
-For each plane, store the buffer object's sync status in the state
-of the plane's respective CRTC. During the CRTC's atomic flush,
-ignore the vblank timer if any of the CRTC's plane's buffer object
-is synchronized to an external source. Instead send the vblank event
-immediately. Avoids corner cases where a vblank event happens too
-late for the next frame to be page flipped in time.
+Hi
 
-Exporters of GEM objects sometimes interfere with the vblank timer;
-resulting in framerate drops. Hence detect this case and handle it
-as outlined above.
+Am 24.10.25 um 04:57 schrieb Dmitry Osipenko:
+> On 10/24/25 05:55, Dmitry Osipenko wrote:
+>> On 10/23/25 09:22, Kasireddy, Vivek wrote:
+>>> Also, I think you might want to limit the plane sync to host mechanism to just guest
+>>> blobs only because based on what Dmitry said the vblank timer helps in virgl/venus/
+>>> native context use-cases. That is,
+>>> @@ -138,7 +140,7 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+>>>          for (i = 0; i < new_plane_state->fb->format->num_planes; ++i) {
+>>>                  struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(new_plane_state->fb->obj[i]);
+>>>
+>>> -               if (bo->host3d_blob || bo->guest_blob) {
+>>> +               if (bo->guest_blob && !vgdev->has_virgl_3d) {
+>> Checking for obj->import_attach should be enough if it's only prime
+>> sharing that doesn't work properly with vblank timer.
+>>
+>> Please verify that only prime needs the workaround and send the updated
+>> patch.
+> Don't forget to add clarifying comment to the code explaining the
+> workaround.
 
-The vblank timer is still active and fires in regular intervals
-according to the guest display refresh. This rate limits clients
-that only wait for the next vblank to occur, such as fbcon. These
-clients would otherwise produce a very high number of frames per
-second.
+Sent out as "drm/virtgpu: Make vblank event dependent on the external sync".
 
-v4:
-- only handle imported GEM buffer objects (Dmitri, Vivek)
-- fix test for plane visibility (Vivek)
-- always enable vblank timer to make waiting clients happy
-v3:
-- disable vblank unconditionally
-- compute status on each commit
-v2:
-- enable/disable vblank timer according to buffer setup
+Best regards
+Thomas
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
-This patch was previously called "drm/virtgpu: Make vblank event
-dependent on the host resource". Earlier versions where meant for
-testing, rather than being merged. See [1] for a discussion of when
-the fixed problem happens.
+>
 
-[1] https://lore.kernel.org/dri-devel/20251016145230.79270-1-tzimmermann@suse.de/
----
- drivers/gpu/drm/virtio/virtgpu_display.c | 67 ++++++++++++++++++++++--
- drivers/gpu/drm/virtio/virtgpu_drv.h     | 15 ++++++
- drivers/gpu/drm/virtio/virtgpu_plane.c   | 28 +++++++++-
- 3 files changed, 104 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index e972d9b015a9..a4fa948023da 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -49,14 +49,71 @@
- #define drm_connector_to_virtio_gpu_output(x) \
- 	container_of(x, struct virtio_gpu_output, conn)
- 
-+static void virtio_gpu_crtc_state_destroy(struct virtio_gpu_crtc_state *vgcrtc_state)
-+{
-+	__drm_atomic_helper_crtc_destroy_state(&vgcrtc_state->base);
-+
-+	kfree(vgcrtc_state);
-+}
-+
-+static bool virtio_gpu_crtc_state_send_event_on_flush(struct virtio_gpu_crtc_state *vgcrtc_state)
-+{
-+	struct drm_crtc_state *crtc_state = &vgcrtc_state->base;
-+
-+	/*
-+	 * The CRTC's output is sync'ed if at least one plane's output
-+	 * is sync'ed to an external source. Send out vlbank event in
-+	 * atomic_flush instead of vblank timeout.
-+	 */
-+	return vgcrtc_state->plane_synced_to_ext & crtc_state->plane_mask;
-+}
-+
-+static void virtio_gpu_crtc_reset(struct drm_crtc *crtc)
-+{
-+	struct virtio_gpu_crtc_state *vgcrtc_state;
-+
-+	if (crtc->state)
-+		virtio_gpu_crtc_state_destroy(to_virtio_gpu_crtc_state(crtc->state));
-+
-+	vgcrtc_state = kzalloc(sizeof(*vgcrtc_state), GFP_KERNEL);
-+	if (vgcrtc_state)
-+		__drm_atomic_helper_crtc_reset(crtc, &vgcrtc_state->base);
-+	else
-+		__drm_atomic_helper_crtc_reset(crtc, NULL);
-+}
-+
-+static struct drm_crtc_state *virtio_gpu_crtc_atomic_duplicate_state(struct drm_crtc *crtc)
-+{
-+	struct drm_device *dev = crtc->dev;
-+	struct drm_crtc_state *crtc_state = crtc->state;
-+	struct virtio_gpu_crtc_state *new_vgcrtc_state;
-+
-+	if (drm_WARN_ON(dev, !crtc_state))
-+		return NULL;
-+
-+	new_vgcrtc_state = kzalloc(sizeof(*new_vgcrtc_state), GFP_KERNEL);
-+	if (!new_vgcrtc_state)
-+		return NULL;
-+
-+	__drm_atomic_helper_crtc_duplicate_state(crtc, &new_vgcrtc_state->base);
-+
-+	return &new_vgcrtc_state->base;
-+}
-+
-+static void virtio_gpu_crtc_atomic_destroy_state(struct drm_crtc *crtc,
-+						 struct drm_crtc_state *crtc_state)
-+{
-+	virtio_gpu_crtc_state_destroy(to_virtio_gpu_crtc_state(crtc_state));
-+}
-+
- static const struct drm_crtc_funcs virtio_gpu_crtc_funcs = {
- 	.set_config             = drm_atomic_helper_set_config,
- 	.destroy                = drm_crtc_cleanup,
- 
- 	.page_flip              = drm_atomic_helper_page_flip,
--	.reset                  = drm_atomic_helper_crtc_reset,
--	.atomic_duplicate_state = drm_atomic_helper_crtc_duplicate_state,
--	.atomic_destroy_state   = drm_atomic_helper_crtc_destroy_state,
-+	.reset                  = virtio_gpu_crtc_reset,
-+	.atomic_duplicate_state = virtio_gpu_crtc_atomic_duplicate_state,
-+	.atomic_destroy_state   = virtio_gpu_crtc_atomic_destroy_state,
- 	DRM_CRTC_VBLANK_TIMER_FUNCS,
- };
- 
-@@ -129,7 +186,9 @@ static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
- {
- 	struct drm_device *dev = crtc->dev;
- 	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state, crtc);
-+	struct virtio_gpu_crtc_state *vgcrtc_state = to_virtio_gpu_crtc_state(crtc_state);
- 	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
-+	bool send_event_on_flush = virtio_gpu_crtc_state_send_event_on_flush(vgcrtc_state);
- 	struct drm_pending_vblank_event *event;
- 
- 	/*
-@@ -147,7 +206,7 @@ static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
- 	crtc_state->event = NULL;
- 
- 	if (event) {
--		if (drm_crtc_vblank_get(crtc) == 0)
-+		if (!send_event_on_flush && drm_crtc_vblank_get(crtc) == 0)
- 			drm_crtc_arm_vblank_event(crtc, event);
- 		else
- 			drm_crtc_send_vblank_event(crtc, event);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index f17660a71a3e..acf0a62d1d73 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -195,6 +195,21 @@ struct virtio_gpu_framebuffer {
- #define to_virtio_gpu_framebuffer(x) \
- 	container_of(x, struct virtio_gpu_framebuffer, base)
- 
-+struct virtio_gpu_crtc_state {
-+	struct drm_crtc_state base;
-+
-+	/*
-+	 * Set from each plane's atomic check and depends on the plane's GEM
-+	 * buffer objects. The bit shows is the corresponding plane is already
-+	 * synchronized to an external source. Used by the CRTC for vblank
-+	 * handling. Only valid during mode setting.
-+	 */
-+	u32 plane_synced_to_ext;
-+};
-+
-+#define to_virtio_gpu_crtc_state(x) \
-+	container_of(x, struct virtio_gpu_crtc_state, base)
-+
- struct virtio_gpu_plane_state {
- 	struct drm_plane_state base;
- 	struct virtio_gpu_fence *fence;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 29e4b458ae57..634e1a930783 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -27,6 +27,7 @@
- #include <drm/drm_damage_helper.h>
- #include <drm/drm_fourcc.h>
- #include <drm/drm_gem_atomic_helper.h>
-+#include <drm/drm_gem_framebuffer_helper.h>
- #include <linux/virtio_dma_buf.h>
- #include <drm/drm_managed.h>
- #include <drm/drm_panic.h>
-@@ -104,7 +105,8 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
- 										 plane);
- 	bool is_cursor = plane->type == DRM_PLANE_TYPE_CURSOR;
- 	struct drm_crtc_state *crtc_state;
--	int ret;
-+	struct virtio_gpu_crtc_state *vgcrtc_state;
-+	int ret, i;
- 
- 	if (!new_plane_state->fb || WARN_ON(!new_plane_state->crtc))
- 		return 0;
-@@ -126,7 +128,29 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
- 						  DRM_PLANE_NO_SCALING,
- 						  DRM_PLANE_NO_SCALING,
- 						  is_cursor, true);
--	return ret;
-+	if (ret)
-+		return ret;
-+	else if (!new_plane_state->visible)
-+		return 0;
-+
-+	vgcrtc_state = to_virtio_gpu_crtc_state(crtc_state);
-+	vgcrtc_state->plane_synced_to_ext &= ~drm_plane_mask(plane);
-+
-+	for (i = 0; i < new_plane_state->fb->format->num_planes; ++i) {
-+		struct drm_gem_object *obj = drm_gem_fb_get_obj(new_plane_state->fb, i);
-+
-+		/*
-+		 * Exporters of GEM buffer objects sometimes interfere with the
-+		 * vblank timer. Mark the plane as externally synchronized if we
-+		 * find an imported GEM buffer object.
-+		 */
-+		if (drm_gem_is_imported(obj)) {
-+			vgcrtc_state->plane_synced_to_ext |= drm_plane_mask(plane);
-+			break; /* only need to find one */
-+		}
-+	}
-+
-+	return 0;
- }
- 
- /* For drm panic */
 -- 
-2.51.1
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstrasse 146, 90461 Nuernberg, Germany
+GF: Ivo Totev, Andrew Myers, Andrew McDonald, Boudien Moerman
+HRB 36809 (AG Nuernberg)
+
 
