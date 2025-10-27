@@ -1,55 +1,60 @@
-Received: from mx0a-00190b01.pphosted.com (mx0a-00190b01.pphosted.com [67.231.149.131])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B404C2F6910
-	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 10:27:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CB897464
+	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 10:47:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761560840; cv=none; b=htih1CuAb7ean3+R1hrRP2JDMX2kViQreusVbcSPGF60WBg39a4OuyzKtD/ONvs5Y9Expny9Yjapub8i/bz9qZnEZs4TLf0n5qLy7MnKLoY9NvQPzDiBxcOkdtkUo+ygOxaL9r2sBhHJoVDfvN9Bnv82n0YebNCtHmJnJ523zBg=
+	t=1761562027; cv=none; b=S7/URDspeaECGPeTOXxWx8m0886VaOgAiUHb5LLIUo2kW7X0cFpy3Wrw8vjRbVIeVMFdIU7RDlKoG8aKuMQjsTtL2FgpxOKisLc9SZ0HvnPrUbwkxpD2rm+OGNvvjOgqAVSJGqJ29EfuppbLqYbgEsc97a+ni9Gk7EYhmaFkZO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761560840; c=relaxed/simple;
-	bh=jXAAj67VByP6AXYtptL0mITMT/dGFN5VXSakFK1aluQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ndYRhE4e+GpGPX2RgcvrNT2P8ggEEf9KZmi0A8k0IyfL/uq4MdHBSlqQ+A49Phj+X/oVurYeZwGChZzyT7hmyNXbbpPaz40SiCsdH+iFL/MAje0nmdIYe7dBUAObKeGuIFVvX0SreHO6eqzWFNgBaUJ/PXtEZlXTYmXdNhoNRCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=akamai.com; spf=pass smtp.mailfrom=akamai.com; dkim=pass (2048-bit key) header.d=akamai.com header.i=@akamai.com header.b=Fon/lqKC; arc=none smtp.client-ip=67.231.149.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=akamai.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=akamai.com
+	s=arc-20240116; t=1761562027; c=relaxed/simple;
+	bh=gGZhkW7niLe2MdGyZToRUdXC6b+kReNd+C0HHnYXwL0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NcUtT0wtBLgtS0LUj2/sd7yAdNByvfvNFvjWYEwl19+06zau+GYc9Pu93x97Tm9Ac6FdQsvugvKBMlykWZK0i6NfaSNSp1Z6fWWkvTcs6JVWZDnftX66XUqXGsIO3JViSzqh2rZKRkFZyFmlDsphVAKHBmC1Gal1xc5AfC3aWOU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=mP4DIxCb; arc=none smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=akamai.com header.i=@akamai.com header.b="Fon/lqKC"
-Received: from pps.filterd (m0122333.ppops.net [127.0.0.1])
-	by mx0a-00190b01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 59RA1oEW3083451;
-	Mon, 27 Oct 2025 10:27:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=cc
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="mP4DIxCb"
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59R9CY3J027644;
+	Mon, 27 Oct 2025 10:47:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
 	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=jan2016.eng; bh=vjpGgOHUOzQBJjbmi3ZzYe0ig6bvhvg6P
-	zLW4ciotmE=; b=Fon/lqKCUNmllPTKFr/WJwBjjFND8w0JqGTOH6vAchohzKkQf
-	ZfICq86h8skzCX4V6dO5fu2Io86e5TslrImL9bqHV5c3RMOm6a2WHI95zRDpV10d
-	UD/EvSl0N7fkZBJJELJyHQAyeZMA5B5qXaN86LmdzKpU8EGXrFQZj8QvCLxFW7n2
-	IGAxwKt46/a4Zrb0xne/SHkrl+h4pUY6SnDwXn+Ox7EKVTNA86AMQc7LA1cAG83q
-	i7MX6QfjGzqKmm7UbE6Db/UtY5pheXAntDNBp1NK9RnXMmvNTl0I36jNGi6HqvUz
-	DviL8vhPHxIrkXW3YalcPaLCuknuFi0ImKXIg==
-Received: from prod-mail-ppoint5 (prod-mail-ppoint5.akamai.com [184.51.33.60])
-	by mx0a-00190b01.pphosted.com (PPS) with ESMTPS id 4a0nt8sqmn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Oct 2025 10:27:11 +0000 (GMT)
-Received: from pps.filterd (prod-mail-ppoint5.akamai.com [127.0.0.1])
-	by prod-mail-ppoint5.akamai.com (8.18.1.2/8.18.1.2) with ESMTP id 59R73c2B025840;
-	Mon, 27 Oct 2025 03:27:10 -0700
-Received: from prod-mail-relay02.akamai.com ([172.27.118.35])
-	by prod-mail-ppoint5.akamai.com (PPS) with ESMTP id 4a0vh86pyc-1;
-	Mon, 27 Oct 2025 03:27:09 -0700
-Received: from muc-lhvdhd.munich.corp.akamai.com (muc-lhvdhd.munich.corp.akamai.com [172.29.2.201])
-	by prod-mail-relay02.akamai.com (Postfix) with ESMTP id 9162C83;
-	Mon, 27 Oct 2025 10:27:08 +0000 (UTC)
-From: Nick Hudson <nhudson@akamai.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Cc: Nick Hudson <nhudson@akamai.com>, Max Tottenham <mtottenh@akamai.com>,
-        kvm@vger.kernel.org, virtualization@lists.linux.dev,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] vhost: add a new ioctl VHOST_GET_VRING_WORKER_INFO and use in net.c
-Date: Mon, 27 Oct 2025 10:26:44 +0000
-Message-Id: <20251027102644.622305-1-nhudson@akamai.com>
-X-Mailer: git-send-email 2.34.1
+	:subject:to; s=corp-2025-04-25; bh=7PK0+k6b5JOoq377B50uv8yx7Vgfp
+	66X5cOMfaPvDz0=; b=mP4DIxCbD3IMG/D9VJ+cO21iUU7RF8dpy+xXVvxO828mr
+	m9DqzitbxNdCS/xFlvrwJ/hpzzJRO8fYHfqkZTMLkuBxFPD8kqHIfJmypMc+SQoI
+	2CLbRpoTRB6+UwGXnkxiaP+trOITHgchS9d4xODyKS5rWlxfnfm+397mQI4DoZly
+	JhJcjeaDRwCYU4Vl7UvDJwOmiuTeVy9M0AD60+8zjvAzXoPJjHU1jSl3Hc3h8c4h
+	LLWUwJMrYeuXwyBGc7r99gfTN2dT41ar4A5H2WLKbPjotBo6ZkWh7nQPYIcr7zD8
+	1BTbsqJdOvXaM9wo115jWjMRuPiR4T5Fyx8qp4F5Q==
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4a0q3s31u7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 27 Oct 2025 10:47:04 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 59R8Nu1J035013;
+	Mon, 27 Oct 2025 10:47:03 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 4a19pe154u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 27 Oct 2025 10:47:03 +0000
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 59RAl2XP027073;
+	Mon, 27 Oct 2025 10:47:02 GMT
+Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.129.136.47])
+	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 4a19pe1542-1;
+	Mon, 27 Oct 2025 10:47:02 +0000
+From: Alok Tiwari <alok.a.tiwari@oracle.com>
+To: mgurtovoy@nvidia.com, izach@nvidia.com, smalin@nvidia.com,
+        vgoyal@redhat.com, stefanha@redhat.com, miklos@szeredi.hu,
+        eperezma@redhat.com, mst@redhat.com, jasowang@redhat.com,
+        virtualization@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+        alok.a.tiwari@oracle.com
+Cc: alok.a.tiwarilinux@gmail.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] virtio-fs: fix incorrect check for fsvq->kobj
+Date: Mon, 27 Oct 2025 03:46:47 -0700
+Message-ID: <20251027104658.1668537-1-alok.a.tiwari@oracle.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,151 +65,48 @@ Content-Transfer-Encoding: 8bit
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-10-27_04,2025-10-22_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxscore=0 spamscore=0
- phishscore=0 malwarescore=0 adultscore=0 suspectscore=0 mlxlogscore=999
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 bulkscore=0
+ malwarescore=0 mlxlogscore=999 suspectscore=0 phishscore=0 adultscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2510020000
- definitions=main-2510270096
-X-Authority-Analysis: v=2.4 cv=QaRrf8bv c=1 sm=1 tr=0 ts=68ff48ff cx=c_pps
- a=NpDlK6FjLPvvy7XAFEyJFw==:117 a=NpDlK6FjLPvvy7XAFEyJFw==:17
- a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=X7Ea-ya5AAAA:8
- a=s2F8ZfxWFg2Xnt8VUUoA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-GUID: 3_hAfG8Jii9R6Ttd3oyXC2qDXGaXWTnw
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI3MDA5NyBTYWx0ZWRfX0JYiNUNqObp8
- JSHsznxaXuUnKUXZEPfIh5l+6VdbhfQgEhhbg6uy1bZKkvJsbnTSBGTAKSJNmZLA4Jc+0Y8mEFr
- s3BN1ElBHHIfugkuIJ1VNg2f8XYlWrP1XHSqBD0oEhtv7M64eQR1A+POuA00bIEFhNqZ9MWbpfe
- Sz+KiyUl7g89Bl41ET/JhLkW7E/j+rs8tmsm7sX2rk7WNPgS1RhOHYsm2DuoIxA0hHd35rGgzf6
- iZDfadQ+U8y3tA3ItJ2tELK4tmQkAZaCfWzpilp5+kBhiKEmBAIWXBIP5Xk7Pk0lnKC2qmNj1jT
- tgZgMwgzqyiBerScIUmoG8dyHggPVCj0703xnXza84fpeRpNRmmFe4Muz9jhT45Vc+F2Kok75R+
- b3Iavehd92S2qd/MSPMCfJBbX+kHOg==
-X-Proofpoint-ORIG-GUID: 3_hAfG8Jii9R6Ttd3oyXC2qDXGaXWTnw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-27_04,2025-10-22_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 impostorscore=0
- priorityscore=1501 suspectscore=0 bulkscore=0 clxscore=1011 phishscore=0
- adultscore=0 spamscore=0 lowpriorityscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2510210000 definitions=main-2510270097
+ definitions=main-2510270100
+X-Proofpoint-ORIG-GUID: E0mEKcxnwKuoec3n6bjOLpgmyZIX9ddF
+X-Proofpoint-GUID: E0mEKcxnwKuoec3n6bjOLpgmyZIX9ddF
+X-Authority-Analysis: v=2.4 cv=Q57fIo2a c=1 sm=1 tr=0 ts=68ff4da8 b=1 cx=c_pps
+ a=qoll8+KPOyaMroiJ2sR5sw==:117 a=qoll8+KPOyaMroiJ2sR5sw==:17
+ a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=yPCof4ZbAAAA:8
+ a=WG1-RVo5mTiFFoM0DvIA:9 cc=ntf awl=host:12092
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI1MDAzMSBTYWx0ZWRfX9YkLGvXJ3rES
+ xVYaduPM96vexs5ZH4JS1RteCMiM0T3V5y9TLKHCJ5hcBllki/xZ0oQvxvadkhNSc3YpANm92se
+ TE9sTnWqQUFm0oclU3lkaFkUdTgt3rkEipl9/qy9oI96btOCPbk8QdYUJ3bcRESuaNO/GZvqFmi
+ LgBQAM4pn5K7zLxXrH6O2dmY2856Upi2MuPPPo3io6wcotU69aeQx4TqmhYFAUYEXQhJztfeTbR
+ uH1vW8dXA1Ez8ZaDHLKKm9UXDfJg/HHqrMGfdo3xJZKfZO7qn3muSm2TeljvrLCqh4ccsNJ7x20
+ W5c4zomi7rN2qos2Zlu2PCAUh7Fv5NW7qJ8pcxKjemGfAnGKJuhtXd7TZ4FFuxDAbODiE31OcjR
+ 7/tdZ09PeAHKRZgMVtH7jlGpyNYYy2I2DEB/p2fiVtI5kJjyOkE=
 
-The vhost_net (and vhost_sock) drivers create worker tasks to handle
-the virtual queues. Provide a new ioctl VHOST_GET_VRING_WORKER_INFO that
-can be used to determine the PID of these tasks so that, for example,
-they can be pinned to specific CPU(s).
+In virtio_fs_add_queues_sysfs(), the code incorrectly checks fs->mqs_kobj
+after calling kobject_create_and_add(). Change the check to fsvq->kobj
+(fs->mqs_kobj -> fsvq->kobj) to ensure the per-queue kobject is
+successfully created.
 
-Signed-off-by: Nick Hudson <nhudson@akamai.com>
-Reviewed-by: Max Tottenham <mtottenh@akamai.com>
+Fixes: 87cbdc396a31 ("virtio_fs: add sysfs entries for queue information")
+Signed-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>
 ---
- drivers/vhost/net.c              |  5 +++++
- drivers/vhost/vhost.c            | 16 ++++++++++++++++
- include/uapi/linux/vhost.h       |  3 +++
- include/uapi/linux/vhost_types.h | 13 +++++++++++++
- kernel/vhost_task.c              | 12 ++++++++++++
- 5 files changed, 49 insertions(+)
+ fs/fuse/virtio_fs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 35ded4330431..e86bd5d7d202 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1804,6 +1804,11 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 		return vhost_net_reset_owner(n);
- 	case VHOST_SET_OWNER:
- 		return vhost_net_set_owner(n);
-+	case VHOST_GET_VRING_WORKER_INFO:
-+		mutex_lock(&n->dev.mutex);
-+		r = vhost_worker_ioctl(&n->dev, ioctl, argp);
-+		mutex_unlock(&n->dev.mutex);
-+		return r;
- 	default:
- 		mutex_lock(&n->dev.mutex);
- 		r = vhost_dev_ioctl(&n->dev, ioctl, argp);
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 8570fdf2e14a..8b52fd5723c3 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2399,6 +2399,22 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
- 		if (ctx)
- 			eventfd_ctx_put(ctx);
- 		break;
-+	case VHOST_GET_VRING_WORKER_INFO:
-+		worker = rcu_dereference_check(vq->worker,
-+					       lockdep_is_held(&dev->mutex));
-+		if (!worker) {
-+			ret = -EINVAL;
-+			break;
-+		}
-+
-+		memset(&ring_worker_info, 0, sizeof(ring_worker_info));
-+		ring_worker_info.index = idx;
-+		ring_worker_info.worker_id = worker->id;
-+		ring_worker_info.worker_pid = task_pid_vnr(vhost_get_task(worker->vtsk));
-+
-+		if (copy_to_user(argp, &ring_worker_info, sizeof(ring_worker_info)))
-+			ret = -EFAULT;
-+		break;
- 	default:
- 		r = -ENOIOCTLCMD;
- 		break;
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index c57674a6aa0d..c32aa8c71952 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -101,6 +101,9 @@
- /* Return the vring worker's ID */
- #define VHOST_GET_VRING_WORKER _IOWR(VHOST_VIRTIO, 0x16,		\
- 				     struct vhost_vring_worker)
-+/* Return the vring worker's ID and PID */
-+#define VHOST_GET_VRING_WORKER_INFO _IOWR(VHOST_VIRTIO, 0x17,	\
-+				     struct vhost_vring_worker_info)
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 6bc7c97b017d..b2f6486fe1d5 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -373,7 +373,7 @@ static int virtio_fs_add_queues_sysfs(struct virtio_fs *fs)
  
- /* The following ioctls use eventfd file descriptors to signal and poll
-  * for events. */
-diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
-index 1c39cc5f5a31..28e00f8ade85 100644
---- a/include/uapi/linux/vhost_types.h
-+++ b/include/uapi/linux/vhost_types.h
-@@ -63,6 +63,19 @@ struct vhost_vring_worker {
- 	unsigned int worker_id;
- };
- 
-+/* Per-virtqueue worker mapping entry */
-+struct vhost_vring_worker_info {
-+	/* vring index */
-+	unsigned int index;
-+	/*
-+	 * The id of the vhost_worker returned from VHOST_NEW_WORKER or
-+	 * allocated as part of vhost_dev_set_owner.
-+	 */
-+	unsigned int worker_id;
-+
-+	__kernel_pid_t worker_pid;  /* PID/TID of worker thread, -1 if none */
-+};
-+
- /* no alignment requirement */
- struct vhost_iotlb_msg {
- 	__u64 iova;
-diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
-index 27107dcc1cbf..aa87a7f0c98a 100644
---- a/kernel/vhost_task.c
-+++ b/kernel/vhost_task.c
-@@ -67,6 +67,18 @@ static int vhost_task_fn(void *data)
- 	do_exit(0);
- }
- 
-+/**
-+ * vhost_get_task - get a pointer to the vhost_task's task_struct
-+ * @vtsk: vhost_task to return the task for
-+ *
-+ * return the vhost_task's task.
-+ */
-+struct task_struct *vhost_get_task(struct vhost_task *vtsk)
-+{
-+	return vtsk->task;
-+}
-+EXPORT_SYMBOL_GPL(vhost_get_task);
-+
- /**
-  * vhost_task_wake - wakeup the vhost_task
-  * @vtsk: vhost_task to wake
+ 		sprintf(buff, "%d", i);
+ 		fsvq->kobj = kobject_create_and_add(buff, fs->mqs_kobj);
+-		if (!fs->mqs_kobj) {
++		if (!fsvq->kobj) {
+ 			ret = -ENOMEM;
+ 			goto out_del;
+ 		}
 -- 
-2.34.1
+2.50.1
 
