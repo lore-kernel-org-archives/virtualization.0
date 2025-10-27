@@ -1,172 +1,119 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A876214807
-	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 05:34:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 577961C701F
+	for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 06:07:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761543259; cv=none; b=cGSVQ7bs3XkxWwtzvm9T0B8QmoMeds1ZokPQQjueS8uYMLx2p6s31T4zfOquV/55t5mbCRv+AnPZpnA8a39RmJVy4g8dSsn4Ar2iRYgApO3wtOHLoN5x7zN1dADVjL7S4wfDwSE34kkp4FSN22Vx1N+hIqZab/P/DtX/5sCBRj0=
+	t=1761545277; cv=none; b=UQRcL5LTor0XSF3/j4BC1DNlrY/nwQZX2cZzgreK9q16Em3vu4NIvdwMcNgCqZ6EbB1SkyPnNwXSzZpAckmGECPf99EQmRX6RDf9V81QmasTNeALY6A5UuYwuXmOGi1aOv4kwJklb/rbpFm5k3OI/JqROaqh4aD738ter5wH9Ds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761543259; c=relaxed/simple;
-	bh=VeHi30FPvS0E1mPLOV2Rmu1L/d/UXODaf1G6DymqOCM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cWFe34xHtDzqJM74nwCf5IYvvyEslsyvTiryZVpYGIgt4IDm89nbdFzZ1czEtCHv2HQOIA2pEzlcxXAzNv70GWWk2iiEthHeR4T4QHgHgC4SYsIALQpI9POAbqMWBhLDuZk6Jda7Q6fxTKNG4jWhLJJsSo08LgnF0PDkd1grgnk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HjdHXKsm; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761545277; c=relaxed/simple;
+	bh=2r27UqdYRY/th9NT3KvLaQBAFAv+vHzCvNeRmfAsipQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Dy6gcxlwWY6/ZfIslGatQ0dthj5LOvpWINCMa39OWR+BQqWwLmORDFo2yRL8jQzqH/Ia6OPXgRAoLdP14okpmx2eH/PPvXCWhSe1bf9MR9AHj+wIH0iwiKbR9mDMKJyMsSDzZ0BRbFJxt85cPoukgahgDEFr/AGhJqQY7jgPxB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Xrq2uj3k; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HjdHXKsm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761543257;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=e4poMbsgbm/wTcWkoIVEYoSm+itLN2T4gDpEs8mFFYI=;
-	b=HjdHXKsm70CqBe5/yBQltVQ2EklPdSLxhUchXRfEe0ay29sxMKRl7BrfmpmyPS4gbWp97k
-	1D54f41QWkPBmZCks0wMf7PdRhvvDGQ/gIw7auaGXCYjHjgbWe7/92GPApfQF2r2XRU9lM
-	ioOgSJn2WA8nSH8A8fA6I0nsuMDcxUY=
-Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com
- [209.85.217.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-495-LJvVwCVZNrONU2abCwIZug-1; Mon, 27 Oct 2025 01:34:15 -0400
-X-MC-Unique: LJvVwCVZNrONU2abCwIZug-1
-X-Mimecast-MFC-AGG-ID: LJvVwCVZNrONU2abCwIZug_1761543255
-Received: by mail-vs1-f70.google.com with SMTP id ada2fe7eead31-5db2984cd21so9928282137.3
-        for <virtualization@lists.linux.dev>; Sun, 26 Oct 2025 22:34:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xrq2uj3k"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-26d0fbe238bso30265875ad.3
+        for <virtualization@lists.linux.dev>; Sun, 26 Oct 2025 23:07:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1761545276; x=1762150076; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=4FyP7h5NR2Q1a8ZGF1Za3mDWy2+W/UZG/poMuoDyAsA=;
+        b=Xrq2uj3kyAKylzv9EtxAhwEAde5rpNCZJZ6ezc+DWxxnM/guVQvbHeDVwgDanClrE8
+         WWoYSc+ZS139f4ATgntifj/bWW8W+dVqg1RItl28CsmrXVaFcM9sjkLBEjWP1n85P3NV
+         e/LcXvHaWHKNRe9KKqD/QYG+zcjzFQwT2F2qU5K176JMWU7IschB89uEta8rpeWReMgh
+         uyZqLjiUOMnX2UGbLc8+zS0XTw9pr7JtPfWkC4s5mry0GlgJz3N3jNpOQ2ZLr7EPDrd3
+         hVNBNLqr3cYkVKB56QnO4WHiM+o6kqSX/JEJEvdalILei9KoiM6SJMldL0KGnuMFpTFK
+         dtTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761543255; x=1762148055;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=e4poMbsgbm/wTcWkoIVEYoSm+itLN2T4gDpEs8mFFYI=;
-        b=nASM1dthhiTuIfKl3c1yA6sWvRhAS/TInW4Oyb2C1T0SBxzzVsbCLBNNNUci/cw5gg
-         r86oy1q+QRn9lXtrY1wgYF9ZiSZKcNeYxHIdFjCWU/8lKYHMPpYSUYXFPbl7mpNM9gal
-         YxGCn8ia3Nu8GS3bFizS2YMwCUk0GWlyNh6mqegx4ItKJ8JyrKJEjDDfOG2cbGRD7DQS
-         f2VCrcJQkEgrRZQa9NGGQbRZj6ek7fACTISWSHg4tS60BVptadp5Pvavxt2P2d0Tpbo6
-         iBFdf/mun7fa7t18ReTadpLstlftumlyMIBv6Lm/pjKj8v4lJlbVp6CLwpRl9uTxtbPZ
-         wSOA==
-X-Forwarded-Encrypted: i=1; AJvYcCXS190QzpJ5+58nGtSytQexkZXwCF8dY3A+g5cCavmTys6PkwkUbmzR5flf6UGlbGWnKDTn2dv6HrqsqJCPgA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywq9r/XMi4Bl4FCwOu7wuKZvV8Ql4EtL/xFtrSIN7OOL3nrVLQA
-	KS6s8ey0CeblwBMKtajuq/BkWd84VwWgBi3iFSPozAeq+WsEXjUJS9NNLUC+21LJ3/jOckOcPu7
-	9XiKtqlSa3xn3h011tq3hUx9P9WXlOxKA/BujMMm4rngwCUezhtp+gLVYcOiWNT7hrKagxTqmHo
-	LR8NejAJ7UQvzOZ/L3IebI3AuIpr27vtsoFvMFteQLjYk=
-X-Gm-Gg: ASbGncspa3C7JxTr47Us1ZzDoQSKnCnsskKq0EZ3faz1Hwz2NC1TIdJJjTjTGQPZMU3
-	9XMbSGP2kJVrlpGFMOrNuaPtK/UvWmETaGRjXyk5TOcwueoulUTNnW+yv1Qi/hiHQd/3/cT0obE
-	UHgYCniOwEIE+uD9tclh/BpZ9IpNrOhnb3Uihl3v+yX7k/vjXZFkdo
-X-Received: by 2002:a05:6102:c94:b0:5d5:f6ae:38f0 with SMTP id ada2fe7eead31-5db3fa8297dmr3197091137.39.1761543254794;
-        Sun, 26 Oct 2025 22:34:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGXxLp95liTwOuaQHppp1XxJZ6TzkMeY4wR/alp4tgZ/UX1fVHxKyWI5KlURF6UfqUGGBV31GC1JGInptq70YY=
-X-Received: by 2002:a05:6102:c94:b0:5d5:f6ae:38f0 with SMTP id
- ada2fe7eead31-5db3fa8297dmr3197081137.39.1761543254410; Sun, 26 Oct 2025
- 22:34:14 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1761545276; x=1762150076;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4FyP7h5NR2Q1a8ZGF1Za3mDWy2+W/UZG/poMuoDyAsA=;
+        b=f8zYl81+8HCW+DIC9dVeydc7VbTH9DNFqoFgH58kHlXyfNc0wYvlRdwNwY2AU3Njr/
+         IvS2QJ7r24xQUC4ElBB38m3AU2ForJeIc2MDVajY6FSJYlk2BbdzufDn8nFyKM7xQsvD
+         2H9wjfVSjifqisEwtwFlhVPHLwDuauh1KdNk1AOzENMkNzL9Fp77G2xU/lAj8lm6urcY
+         61cX73OSZoO3QEW9dz5xr/QpwhAC0h2LlPkmOj5ve1rupJ3ALyOkTFIUBIW3RAO2noic
+         tiO8jf891+KmfHBp+N/Pc9aHQ+pfaOMGZC3qk/33R9e+o+xG2DgRVUQxNpg6RvtldWd2
+         woCQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVyKesLyKM9T3KQ/GAp83bYnSu4+lqGMzjKtUYoDx9K8lK2pU2yWjMZ9C2K4HBo0eCAzmb9qilMIexOmJhG3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx4H391E2pbNbYPf0lZLtUzV3DXQ6g6WC3XFI/oJMW1tVpyK9AP
+	EyWF+pm/6dNKJU333nBNJEMOn/U2L5jPhmN9NHjY6c1QvGknDIo5unOK
+X-Gm-Gg: ASbGncua27WqQ0cgtNr57Lr2lDjrHWK6okMJwfZo5JCGuV+wyc2kUE5367ZU4/oPM5f
+	4DiuJZoxtTAx05xX9W+MqSysm2otizO0TuQuNe2UA+OZwx6kv94xoagnMiJnrz8iDqVI0Vn1iqU
+	0nYkuJjMDTjEViCQm0Yw3OsMjeRdyKzf4pJgDkuxPgBfE+s/FlSMPxviF3wP70mYu32vto+zygr
+	1xH6B/W4d9fM/Dgxngb+5vxKSVnbMz/+hXwrNoTWyWLnzYHh91d0jDBs/AewBLquRUgrqlXjGxA
+	xuTCaiin7d3rrg9aNuE9Tm5i2/pF18d7OwZsfgh8znf1Fx0rFFA8ImZGxsTZv14kCAOhR6cm16I
+	k1IQ2jeVxN5rrDlqTzCBMSDjl923Jh2bqP1CIenq5aW0GlCv5ySZzWYK91lsqjfejAzfi18aR9I
+	ltvi4D3M/OYXgT/utPJuUUeA==
+X-Google-Smtp-Source: AGHT+IHkRBw9AN+xBRZdDNVj+3VWLhXLMgjUZyYBAk3neP09j59Fxp6vlIptXFrwVCD5MHrWoavEVA==
+X-Received: by 2002:a17:902:dad1:b0:26c:87f9:9ea7 with SMTP id d9443c01a7336-2948ba78fd1mr155483155ad.59.1761545275616;
+        Sun, 26 Oct 2025 23:07:55 -0700 (PDT)
+Received: from localhost.localdomain ([124.77.218.104])
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-29498d40a73sm69674695ad.74.2025.10.26.23.07.50
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 26 Oct 2025 23:07:55 -0700 (PDT)
+From: Miaoqian Lin <linmq006@gmail.com>
+To: schalla@marvell.com,
+	vattunuru@marvell.com,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Shijith Thotton <sthotton@marvell.com>,
+	Satha Rao <skoteshwar@marvell.com>,
+	Philipp Stanner <phasta@kernel.org>,
+	Nithin Dabilpuram <ndabilpuram@marvell.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: linmq006@gmail.com,
+	stable@vger.kernel.org
+Subject: [PATCH] virtio: vdpa: Fix reference count leak in octep_sriov_enable()
+Date: Mon, 27 Oct 2025 14:07:35 +0800
+Message-Id: <20251027060737.33815-1-linmq006@gmail.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251024074130.65580-1-xuanzhuo@linux.alibaba.com> <20251024074130.65580-3-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20251024074130.65580-3-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 27 Oct 2025 13:34:01 +0800
-X-Gm-Features: AWmQ_blDXFXKymmUmrrTzT3nQl1-sxWJV-05bny0vZMdr9XPAbpU5X67He0JoIc
-Message-ID: <CACGkMEvvjjb_KgHsGiuAvUJaGsBWoijKOz9ELfNOo_qxYWcsrw@mail.gmail.com>
-Subject: Re: [PATCH net v3 2/3] virtio-net: correct hdr_len handling for VIRTIO_NET_F_GUEST_HDRLEN
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Willem de Bruijn <willemb@google.com>, Jiri Pirko <jiri@resnulli.us>, 
-	Alvaro Karsz <alvaro.karsz@solid-run.com>, Heng Qi <hengqi@linux.alibaba.com>, 
-	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _wKVVNev_LQps_JYrbv-SOfAcaNv8FC8eYj-sDRK3jU_1761543255
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Oct 24, 2025 at 3:41=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> The commit be50da3e9d4a ("net: virtio_net: implement exact header length
-> guest feature") introduces support for the VIRTIO_NET_F_GUEST_HDRLEN
-> feature in virtio-net.
->
-> This feature requires virtio-net to set hdr_len to the actual header
-> length of the packet when transmitting, the number of
-> bytes from the start of the packet to the beginning of the
-> transport-layer payload.
->
-> However, in practice, hdr_len was being set using skb_headlen(skb),
-> which is clearly incorrect. This commit fixes that issue.
->
-> Fixes: be50da3e9d4a ("net: virtio_net: implement exact header length gues=
-t feature")
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  include/linux/virtio_net.h | 28 +++++++++++++++++++++-------
->  1 file changed, 21 insertions(+), 7 deletions(-)
->
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 4d1780848d0e..a2ade702b369 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -217,20 +217,34 @@ static inline int virtio_net_hdr_from_skb(const str=
-uct sk_buff *skb,
->
->         if (skb_is_gso(skb)) {
->                 struct skb_shared_info *sinfo =3D skb_shinfo(skb);
-> +               u16 hdr_len =3D 0;
-> +
-> +               /* In certain code paths (such as the af_packet.c receive=
- path),
-> +                * this function may be called without a transport header=
-.
-> +                */
-> +               if (skb_transport_header_was_set(skb))
-> +                       hdr_len =3D skb_transport_offset(skb);
+pci_get_device() will increase the reference count for the returned
+pci_dev, and also decrease the reference count for the input parameter
+from if it is not NULL.
 
-This deserve an independent fix?
+If we break the loop in  with 'vf_pdev' not NULL. We
+need to call pci_dev_put() to decrease the reference count.
 
->
-> -               /* This is a hint as to how much should be linear. */
-> -               hdr->hdr_len =3D __cpu_to_virtio16(little_endian,
-> -                                                skb_headlen(skb));
->                 hdr->gso_size =3D __cpu_to_virtio16(little_endian,
->                                                   sinfo->gso_size);
-> -               if (sinfo->gso_type & SKB_GSO_TCPV4)
-> +               if (sinfo->gso_type & SKB_GSO_TCPV4) {
->                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV4;
-> -               else if (sinfo->gso_type & SKB_GSO_TCPV6)
-> +                       if (hdr_len)
-> +                               hdr_len +=3D tcp_hdrlen(skb);
-> +               } else if (sinfo->gso_type & SKB_GSO_TCPV6) {
->                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_TCPV6;
-> -               else if (sinfo->gso_type & SKB_GSO_UDP_L4)
-> +                       if (hdr_len)
-> +                               hdr_len +=3D tcp_hdrlen(skb);
-> +               } else if (sinfo->gso_type & SKB_GSO_UDP_L4) {
->                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_UDP_L4;
-> -               else
-> +                       if (hdr_len)
-> +                               hdr_len +=3D sizeof(struct udphdr);
-> +               } else {
->                         return -EINVAL;
-> +               }
-> +
-> +               hdr->hdr_len =3D __cpu_to_virtio16(little_endian, hdr_len=
-);
-> +
->                 if (sinfo->gso_type & SKB_GSO_TCP_ECN)
->                         hdr->gso_type |=3D VIRTIO_NET_HDR_GSO_ECN;
->         } else
-> --
-> 2.32.0.3.g01195cf9f
->
+Found via static anlaysis and this is similar to commit c508eb042d97
+("perf/x86/intel/uncore: Fix reference count leak in sad_cfg_iio_topology()")
 
-Others look good.
+Fixes: 8b6c724cdab8 ("virtio: vdpa: vDPA driver for Marvell OCTEON DPU devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+---
+ drivers/vdpa/octeon_ep/octep_vdpa_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks
+diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+index 9e8d07078606..31a02e7fd7f2 100644
+--- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
++++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
+@@ -736,6 +736,7 @@ static int octep_sriov_enable(struct pci_dev *pdev, int num_vfs)
+ 		octep_vdpa_assign_barspace(vf_pdev, pdev, index);
+ 		if (++index == num_vfs) {
+ 			done = true;
++			pci_dev_put(vf_pdev);
+ 			break;
+ 		}
+ 	}
+-- 
+2.39.5 (Apple Git-154)
 
