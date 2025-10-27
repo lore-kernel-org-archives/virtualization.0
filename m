@@ -1,236 +1,188 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazon11012054.outbound.protection.outlook.com [40.93.195.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 665B02C0F69;
-	Mon, 27 Oct 2025 22:30:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761604234; cv=none; b=QoJWAFo2Z926v/HH0YqWgipPfHA6tTeN/Wt7hRDQTioQnsUjCCniy9P7lEgqGgvwzIFFPlHgc6jfmby5iWOf2SweD6hAlJYfRlWQuvMGi9C2p4NNq4HsTzMFZSZg675hdoI5EVbbwPTLkPOMGxkEToCaNeEd1K+stCNRWL+nLJo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761604234; c=relaxed/simple;
-	bh=PUExZlzelglFJnu5PzrDtAcNO1FsDeFqop202nIj9Ms=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nyj1RDAfUNxOqiJUKloRlV7a3ADSZ3Xst6v93dYdmlq92rY5G9Rt3KYBjLtEi4yN49uP2oxNwjYKDbpC0PpJhnNPnB8lX9Zf+dyEO5gukmcd94Q1tR1Xjqnr0B1ZSRmEpQCkNSszv3eL0vMmHPB7TI4iJejwKvsg2hjHUO1Nemg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bK+S7cqf; arc=none smtp.client-ip=192.198.163.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DCD92BF013;
+	Mon, 27 Oct 2025 23:19:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.195.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761607147; cv=fail; b=Rg0BmjnYOFdWYjTd81ybqYCudnVn+QFbb70bwfIbmZkx0WS2JxbroOK1951eFnUHAOszPmljHz0yOoBw+8Po7N7kvNY2yxZng/faMwD52vdVJT3myTYSgh+T+uXNtJuNOGO5I94DoDk6a7B+NwkEMa+5dWXblkEsKX0FlHwF7Ks=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761607147; c=relaxed/simple;
+	bh=1dLqmmZBNDKLin8ZOSmY86yMneKtKIUM5DYvbiA3FJo=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=c5Vc4PBHHk70QGoqKvYG5HCvfV4DqSxzTJGMvSYcwcTvk1jF4dHdpTjja7/Lc4W0OQJ7Nu+58KsaqSHlGc+m5NHCkwJZSU+3lXotJs4L/swlfqRJ/QHx08nsoZXSi5BJxmTVTN3ln8oj4V0keI95lb+EtM2oA5Jp7f265CoK/Rk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=mdhrGGqo; arc=fail smtp.client-ip=40.93.195.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bK+S7cqf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1761604232; x=1793140232;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=PUExZlzelglFJnu5PzrDtAcNO1FsDeFqop202nIj9Ms=;
-  b=bK+S7cqfhOj0ZdfYCFo2OCqxbHJJrIDFJcaX2iXTdest5IgokESWO5tw
-   vy91dJJ4AcR3NbLMMGCQ+7nQ2Gn+G3DuE8QNTYwZXjJhlxmfsGuIjs6Zm
-   rtIoZ9/a8F64A/zfqp+W212sI0zULYxfrGxh7NGj6iOUnCn2WcsR95U6c
-   siHEQO9TbVTx4XIFqTqNd5au0HfklCJwt7BS1o66FOXFgA+FS8VvG8qXt
-   wCrjBQodLC59f7Xbdhvhx5bNqDdNUuVi8NtA5ciRHS0FiqWeftssSGzFB
-   aeFchReCWZuESFywB6K0hZo5nt9Gz6y0/WPpCDNlF8B5DVUPMIrP4tsb0
-   A==;
-X-CSE-ConnectionGUID: rQlI/8InR9K1ZbEkOE8frQ==
-X-CSE-MsgGUID: 9fEC2o9DTy241vU6BkBXVw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="74371918"
-X-IronPort-AV: E=Sophos;i="6.19,259,1754982000"; 
-   d="scan'208";a="74371918"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2025 15:30:32 -0700
-X-CSE-ConnectionGUID: PZO6RrJGQQqqhiaIGvhGog==
-X-CSE-MsgGUID: 9pRK8rJ5TIOUDoUppIYEYg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,259,1754982000"; 
-   d="scan'208";a="222378959"
-Received: from lkp-server02.sh.intel.com (HELO 66d7546c76b2) ([10.239.97.151])
-  by orviesa001.jf.intel.com with ESMTP; 27 Oct 2025 15:30:29 -0700
-Received: from kbuild by 66d7546c76b2 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1vDVjO-000IWr-1x;
-	Mon, 27 Oct 2025 22:30:26 +0000
-Date: Tue, 28 Oct 2025 06:27:44 +0800
-From: kernel test robot <lkp@intel.com>
-To: Nick Hudson <nhudson@akamai.com>, "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc: oe-kbuild-all@lists.linux.dev, Nick Hudson <nhudson@akamai.com>,
-	Max Tottenham <mtottenh@akamai.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vhost: add a new ioctl VHOST_GET_VRING_WORKER_INFO and
- use in net.c
-Message-ID: <202510280631.i6odx2RJ-lkp@intel.com>
-References: <20251027102644.622305-1-nhudson@akamai.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="mdhrGGqo"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=AuRe8fE4zPgfktyNtevke/1EXcZ638kemfCks7E5ykkyfSlG4711npJdtTtu4vnEm/luEQG3n8/TxJr+eGW5mtMeep1mQ9h1YNlrQ6T+W5r7cg/yMqWGaV/6g5V+X3FU2wkyppNpsvtKV7fRXV7ZtkWBwNeynfVInk/fVqc2gre7CCjFSHYo24tqfJljITWEJ2Zu/6K4ssJP5nYsxS3DWyJS0Ar0SyPt2q5HSs9zgZ09/acLZnL7S0vcGvbcnFDdFAV24O5HbKlR7vncB/+bJSO44e1VK47ID3f5QwoiVSFtNPm48qR47SrG7QdxU5EPZzmvwD5k64x9itDNggRnEA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=V6WAveTRJpTI81HRvkYGG81+o9bPxldRAvLn8qBlcb4=;
+ b=y4vagTbGGnyo5/vciUTT8hpbFT7wQU87vsUh1kD0C701evscJ9LgC2laAAWr7mveWzTtdL6BZIKni+MVlSLfV/yAob/nPoG70cduBt45mz/iwgWsU9rAV+4eeyn6Jh4dp7xLV96E2ND220kBD3aKCMdMbFtzWYt/l8doLUzleZ7LchgwMUsu96FMDj/lFG3Q9jr2UcVFHsId4GXaQ45vJ3rt4Z/WqpchhlDOgfBq7BNPWOu9CYQO7vxuJhJrBzZMJeubzJGqIuxtHRADIAmCbSDNO5YzNMtC6Eu+mrNdflCoQmC5p4tEScq2oGkgnLPmovKkTx2Abry8uZCgpQfGIw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.232) smtp.rcpttodomain=8bytes.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=V6WAveTRJpTI81HRvkYGG81+o9bPxldRAvLn8qBlcb4=;
+ b=mdhrGGqowGrSQRVmPfC7jYsXljzMqhFMsZPsEFQgRoZmwPhat1f1RK6o7EN6t8+3WJwIURI7Bai6GieTlugno2NK2/TruZk5ZhPp1kdYzkHQFm3vLZeHTO2JYtu0mkRcQYmn81+PoOsjf3XialMCyAx165jsQeE4mjW0GAzFUxiNn6Xy8oF9nRxCrwioz8wbWvt7+G/5AOpvZd3GLF6CNueUlJ8Ay102A/8abbIyuew9DDtJ4AoSEnJus+mSUJTGxcjx3c/f7fW6hnxxiZBux3yyp41V9HmN00/tE181I8fmGiTrctmKz3sW/HcS3V443Sy3mxPdJg3ZNXSas0dIrg==
+Received: from SJ0PR05CA0071.namprd05.prod.outlook.com (2603:10b6:a03:332::16)
+ by SN7PR12MB7809.namprd12.prod.outlook.com (2603:10b6:806:34e::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.18; Mon, 27 Oct
+ 2025 23:18:58 +0000
+Received: from SJ1PEPF00002325.namprd03.prod.outlook.com
+ (2603:10b6:a03:332:cafe::1c) by SJ0PR05CA0071.outlook.office365.com
+ (2603:10b6:a03:332::16) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9275.9 via Frontend Transport; Mon,
+ 27 Oct 2025 23:18:58 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.232) by
+ SJ1PEPF00002325.mail.protection.outlook.com (10.167.242.88) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9275.10 via Frontend Transport; Mon, 27 Oct 2025 23:18:58 +0000
+Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
+ (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Mon, 27 Oct
+ 2025 16:18:57 -0700
+Received: from drhqmail203.nvidia.com (10.126.190.182) by
+ drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Mon, 27 Oct 2025 16:18:57 -0700
+Received: from Asurada-Nvidia (10.127.8.13) by mail.nvidia.com
+ (10.126.190.182) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
+ Transport; Mon, 27 Oct 2025 16:18:55 -0700
+Date: Mon, 27 Oct 2025 16:18:54 -0700
+From: Nicolin Chen <nicolinc@nvidia.com>
+To: <joro@8bytes.org>, <jgg@nvidia.com>, <kevin.tian@intel.com>
+CC: <suravee.suthikulpanit@amd.com>, <will@kernel.org>,
+	<robin.murphy@arm.com>, <sven@kernel.org>, <j@jannau.net>,
+	<jean-philippe@linaro.org>, <robin.clark@oss.qualcomm.com>,
+	<dwmw2@infradead.org>, <baolu.lu@linux.intel.com>, <yong.wu@mediatek.com>,
+	<matthias.bgg@gmail.com>, <angelogioacchino.delregno@collabora.com>,
+	<tjeznach@rivosinc.com>, <pjw@kernel.org>, <palmer@dabbelt.com>,
+	<aou@eecs.berkeley.edu>, <heiko@sntech.de>, <schnelle@linux.ibm.com>,
+	<mjrosato@linux.ibm.com>, <wens@csie.org>, <jernej.skrabec@gmail.com>,
+	<samuel@sholland.org>, <thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
+	<iommu@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+	<asahi@lists.linux.dev>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-arm-msm@vger.kernel.org>, <linux-mediatek@lists.infradead.org>,
+	<linux-riscv@lists.infradead.org>, <linux-rockchip@lists.infradead.org>,
+	<linux-s390@vger.kernel.org>, <linux-sunxi@lists.linux.dev>,
+	<linux-tegra@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<patches@lists.linux.dev>
+Subject: Re: [PATCH v1 02/20] iommu: Introduce a test_dev domain op and an
+ internal helper
+Message-ID: <aP/93kMokMgaWEEK@Asurada-Nvidia>
+References: <cover.1760312725.git.nicolinc@nvidia.com>
+ <32ce256a2ece5d63e99d5858f953586859818ffc.1760312725.git.nicolinc@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <20251027102644.622305-1-nhudson@akamai.com>
+In-Reply-To: <32ce256a2ece5d63e99d5858f953586859818ffc.1760312725.git.nicolinc@nvidia.com>
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SJ1PEPF00002325:EE_|SN7PR12MB7809:EE_
+X-MS-Office365-Filtering-Correlation-Id: 339f68d5-ca0d-4de3-8058-08de15af34d3
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|36860700013|82310400026|7416014|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?EY0RXe2JNZaIt7N6Sh//f9nfYFie1PnWQ8W9sClSNlojBXTU5hbXHrYyf4DP?=
+ =?us-ascii?Q?QrPuv1nnNXO3uPvnQjAW8OUxQsjAZqmMhWD4tjyZg7AJ342dGisInoELu+/M?=
+ =?us-ascii?Q?iPdy2IwTDMQcZ1x18Fk4IL03h/DY4R9vbBgv/1BA8Rbv3lP2n5swfX/tI1JB?=
+ =?us-ascii?Q?yvcoFp6xBE4gcXNqdoUTH18ZhcAKB+LsibsVfdlEximUuGH6UY5qhivFW5rO?=
+ =?us-ascii?Q?A97VdveW00KK+kqAWD96Gb8hGv7C3hKIyh8++D6ci2fhjiVaBnd93ZFLmSGa?=
+ =?us-ascii?Q?4O4JdbOyRlyhSHoiSYah8nG14wSszHspI9TYmf6ZSF5J2sNdXF8r1GhQzCd3?=
+ =?us-ascii?Q?snOuG4qY54Y9WpCVvhf8lYkKhd7DJRjltqxGZrTZ2DDQzdwL38QzJfhuJ2SM?=
+ =?us-ascii?Q?Ienr/xISFC226JmNCxy7O5NJB2q6/2KsYDFF1Hd8JfmyCVWg8UXk3ulc7Eze?=
+ =?us-ascii?Q?S/X8trf0Skx1JgXHWzCw3C9TFLmrcAsx/Os2udcTTdle0vAq8KvmT1fLtqsx?=
+ =?us-ascii?Q?9Cwx1+U6V7IEWsSMPFvnMKA8XKERV/gHSNZ4HpqKNwms461hL4BV030nRXQL?=
+ =?us-ascii?Q?i8rHFFEWhy2X7VvDZAfrcsbVQaYOQnCbrJHFpnFRk4vJwaXwNr95VVATTsq2?=
+ =?us-ascii?Q?fq/vmZ86piPDn4TNvLIhp9etOoelGIL5wuGFQ57JDZypjOhnzVEL5m9reU4z?=
+ =?us-ascii?Q?JfJ0CZ2NqqAqaJYp035dui3K8rSl5/3Rb1Fyz50h0E+At6TRFjNBQG7mWYqL?=
+ =?us-ascii?Q?Okw3d20XVtc5Ppcw1431hs8Y+1MWb2tnnG/KcMr7lvcD4TWyB3fV37IPfs6E?=
+ =?us-ascii?Q?hW3c61DBqScTHxo3ATXOgBWwl33bC3kfCEHJSZpp8SaHuR2ux2WQbSuma62R?=
+ =?us-ascii?Q?OF7b3co5xk1Ffyxe5dyAwKcAbTrMkqUQ7adPbInMK7oC1TKr2taO8K6+/iB7?=
+ =?us-ascii?Q?UeSjArQjgzNc1LUJTUMkW/iNkvu8i4YHiCigeHfxXtCyjnKam2x/srlEaf+F?=
+ =?us-ascii?Q?qq1SXRPQYt20+IeliYx9D1U5ULppep3E651EeCyTtZKTHDmSpnG4C5Odojt8?=
+ =?us-ascii?Q?0BTTwypxP1pLeNEIME60WAg6VW+V0IBZpKpbpA2AiDnPfYK9F9gNFJ72h1zv?=
+ =?us-ascii?Q?AucYZtP59KFiN7McJJYi4Bucaw01yOwdBhY2jyOd+vL0RdWjM0AFyYzjIcLd?=
+ =?us-ascii?Q?xdxR3qe+MSJied8AlrI+kViJcp4OKs+87K9uiAC1iHW1PFff1aNlULD4R70x?=
+ =?us-ascii?Q?rTQYBfCL5y3ehHAPmyhMaXgKs1qQcAPz/U0sVBpYUbaR2wwSIeA7w+3sBpmN?=
+ =?us-ascii?Q?ntY0E0veEiI1IVbGrO+RPnIhU20LDU52Rf7UIuRlO/ABT0vIohYXNY6/HxAg?=
+ =?us-ascii?Q?EvBzxn3jkL1kLnvgJcuzfzEoahZ76EkzIJxt8qd0tGkTNAcK1Eqin/JCSBuA?=
+ =?us-ascii?Q?ZO7RafIATQ1xqCXd7wBbFVQCD8ubQApGT6kp0oJzpfnBcI3hMEzGyr1kQjYX?=
+ =?us-ascii?Q?n6VlFnfMQQT0qHkLpwQa8fIYxwryLtWWllgFEn72XRnQ6uQGfL64iD8HdDC7?=
+ =?us-ascii?Q?wlklxl5soIB1pDnpcmc=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(36860700013)(82310400026)(7416014)(376014);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Oct 2025 23:18:58.2518
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 339f68d5-ca0d-4de3-8058-08de15af34d3
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SJ1PEPF00002325.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7809
 
-Hi Nick,
+On Sun, Oct 12, 2025 at 05:04:59PM -0700, Nicolin Chen wrote:
+> @@ -3479,38 +3545,19 @@ int iommu_attach_device_pasid(struct iommu_domain *domain,
+...
+> -	for_each_group_device(group, device) {
+> -		/*
+> -		 * Skip PASID validation for devices without PASID support
+> -		 * (max_pasids = 0). These devices cannot issue transactions
+> -		 * with PASID, so they don't affect group's PASID usage.
+> -		 */
+> -		if ((device->dev->iommu->max_pasids > 0) &&
+> -		    (pasid >= device->dev->iommu->max_pasids)) {
+> -			ret = -EINVAL;
+> -			goto out_unlock;
+> -		}
+> -	}
+> +
+> +	ret = __iommu_domain_test_device(domain, dev, pasid, NULL);
 
-kernel test robot noticed the following build errors:
+I realized that here it needs to be under for_each_group_device,
+as its following __iommu_set_group_pasid() calls attach_dev() on
+every group_device. So, the new code should run a test_dev() on
+every group_device to keep the consistency.
 
-[auto build test ERROR on mst-vhost/linux-next]
-[also build test ERROR on linus/master v6.18-rc3 next-20251027]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> @@ -3615,6 +3657,11 @@ int iommu_replace_device_pasid(struct iommu_domain *domain,
+>  	ret = 0;
+>  
+>  	if (curr_domain != domain) {
+> +		ret = __iommu_domain_test_device(domain, dev, pasid,
+> +						 curr_domain);
+> +		if (ret)
+> +			goto out_unlock;
+> +
+>  		ret = __iommu_set_group_pasid(domain, group,
+>  					      pasid, curr_domain);
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Nick-Hudson/vhost-add-a-new-ioctl-VHOST_GET_VRING_WORKER_INFO-and-use-in-net-c/20251027-182919
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-patch link:    https://lore.kernel.org/r/20251027102644.622305-1-nhudson%40akamai.com
-patch subject: [PATCH] vhost: add a new ioctl VHOST_GET_VRING_WORKER_INFO and use in net.c
-config: csky-randconfig-002-20251028 (https://download.01.org/0day-ci/archive/20251028/202510280631.i6odx2RJ-lkp@intel.com/config)
-compiler: csky-linux-gcc (GCC) 15.1.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251028/202510280631.i6odx2RJ-lkp@intel.com/reproduce)
+Needs the same fix above.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202510280631.i6odx2RJ-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   drivers/vhost/vhost.c: In function 'vhost_dev_ioctl':
->> drivers/vhost/vhost.c:2403:17: error: 'worker' undeclared (first use in this function)
-    2403 |                 worker = rcu_dereference_check(vq->worker,
-         |                 ^~~~~~
-   drivers/vhost/vhost.c:2403:17: note: each undeclared identifier is reported only once for each function it appears in
-   In file included from include/linux/rbtree.h:24,
-                    from include/linux/mm_types.h:11,
-                    from include/linux/mmzone.h:22,
-                    from include/linux/gfp.h:7,
-                    from include/linux/mm.h:7,
-                    from include/linux/scatterlist.h:8,
-                    from include/linux/virtio.h:7,
-                    from include/linux/virtio_config.h:7,
-                    from include/uapi/linux/vhost_types.h:16,
-                    from include/uapi/linux/vhost.h:14,
-                    from drivers/vhost/vhost.c:14:
->> drivers/vhost/vhost.c:2403:48: error: 'vq' undeclared (first use in this function); did you mean 'rq'?
-    2403 |                 worker = rcu_dereference_check(vq->worker,
-         |                                                ^~
-   include/linux/rcupdate.h:532:17: note: in definition of macro '__rcu_dereference_check'
-     532 |         typeof(*p) *local = (typeof(*p) *__force)READ_ONCE(p); \
-         |                 ^
-   drivers/vhost/vhost.c:2403:26: note: in expansion of macro 'rcu_dereference_check'
-    2403 |                 worker = rcu_dereference_check(vq->worker,
-         |                          ^~~~~~~~~~~~~~~~~~~~~
->> drivers/vhost/vhost.c:2404:65: error: 'dev' undeclared (first use in this function); did you mean 'cdev'?
-    2404 |                                                lockdep_is_held(&dev->mutex));
-         |                                                                 ^~~
-   include/linux/rcupdate.h:483:52: note: in definition of macro 'RCU_LOCKDEP_WARN'
-     483 | #define RCU_LOCKDEP_WARN(c, s) do { } while (0 && (c))
-         |                                                    ^
-   include/linux/rcupdate.h:680:9: note: in expansion of macro '__rcu_dereference_check'
-     680 |         __rcu_dereference_check((p), __UNIQUE_ID(rcu), \
-         |         ^~~~~~~~~~~~~~~~~~~~~~~
-   drivers/vhost/vhost.c:2403:26: note: in expansion of macro 'rcu_dereference_check'
-    2403 |                 worker = rcu_dereference_check(vq->worker,
-         |                          ^~~~~~~~~~~~~~~~~~~~~
-   drivers/vhost/vhost.c:2404:48: note: in expansion of macro 'lockdep_is_held'
-    2404 |                                                lockdep_is_held(&dev->mutex));
-         |                                                ^~~~~~~~~~~~~~~
->> drivers/vhost/vhost.c:2406:25: error: 'ret' undeclared (first use in this function); did you mean 'net'?
-    2406 |                         ret = -EINVAL;
-         |                         ^~~
-         |                         net
->> drivers/vhost/vhost.c:2410:25: error: 'ring_worker_info' undeclared (first use in this function); did you mean 'print_worker_info'?
-    2410 |                 memset(&ring_worker_info, 0, sizeof(ring_worker_info));
-         |                         ^~~~~~~~~~~~~~~~
-         |                         print_worker_info
->> drivers/vhost/vhost.c:2411:42: error: 'idx' undeclared (first use in this function); did you mean 'ida'?
-    2411 |                 ring_worker_info.index = idx;
-         |                                          ^~~
-         |                                          ida
->> drivers/vhost/vhost.c:2413:60: error: implicit declaration of function 'vhost_get_task'; did you mean 'vhost_get_desc'? [-Wimplicit-function-declaration]
-    2413 |                 ring_worker_info.worker_pid = task_pid_vnr(vhost_get_task(worker->vtsk));
-         |                                                            ^~~~~~~~~~~~~~
-         |                                                            vhost_get_desc
-
-
-vim +/worker +2403 drivers/vhost/vhost.c
-
-  2352	
-  2353		/* You must be the owner to do anything else */
-  2354		r = vhost_dev_check_owner(d);
-  2355		if (r)
-  2356			goto done;
-  2357	
-  2358		switch (ioctl) {
-  2359		case VHOST_SET_MEM_TABLE:
-  2360			r = vhost_set_memory(d, argp);
-  2361			break;
-  2362		case VHOST_SET_LOG_BASE:
-  2363			if (copy_from_user(&p, argp, sizeof p)) {
-  2364				r = -EFAULT;
-  2365				break;
-  2366			}
-  2367			if ((u64)(unsigned long)p != p) {
-  2368				r = -EFAULT;
-  2369				break;
-  2370			}
-  2371			for (i = 0; i < d->nvqs; ++i) {
-  2372				struct vhost_virtqueue *vq;
-  2373				void __user *base = (void __user *)(unsigned long)p;
-  2374				vq = d->vqs[i];
-  2375				mutex_lock(&vq->mutex);
-  2376				/* If ring is inactive, will check when it's enabled. */
-  2377				if (vq->private_data && !vq_log_access_ok(vq, base))
-  2378					r = -EFAULT;
-  2379				else
-  2380					vq->log_base = base;
-  2381				mutex_unlock(&vq->mutex);
-  2382			}
-  2383			break;
-  2384		case VHOST_SET_LOG_FD:
-  2385			r = get_user(fd, (int __user *)argp);
-  2386			if (r < 0)
-  2387				break;
-  2388			ctx = fd == VHOST_FILE_UNBIND ? NULL : eventfd_ctx_fdget(fd);
-  2389			if (IS_ERR(ctx)) {
-  2390				r = PTR_ERR(ctx);
-  2391				break;
-  2392			}
-  2393			swap(ctx, d->log_ctx);
-  2394			for (i = 0; i < d->nvqs; ++i) {
-  2395				mutex_lock(&d->vqs[i]->mutex);
-  2396				d->vqs[i]->log_ctx = d->log_ctx;
-  2397				mutex_unlock(&d->vqs[i]->mutex);
-  2398			}
-  2399			if (ctx)
-  2400				eventfd_ctx_put(ctx);
-  2401			break;
-  2402		case VHOST_GET_VRING_WORKER_INFO:
-> 2403			worker = rcu_dereference_check(vq->worker,
-> 2404						       lockdep_is_held(&dev->mutex));
-  2405			if (!worker) {
-> 2406				ret = -EINVAL;
-  2407				break;
-  2408			}
-  2409	
-> 2410			memset(&ring_worker_info, 0, sizeof(ring_worker_info));
-> 2411			ring_worker_info.index = idx;
-  2412			ring_worker_info.worker_id = worker->id;
-> 2413			ring_worker_info.worker_pid = task_pid_vnr(vhost_get_task(worker->vtsk));
-  2414	
-  2415			if (copy_to_user(argp, &ring_worker_info, sizeof(ring_worker_info)))
-  2416				ret = -EFAULT;
-  2417			break;
-  2418		default:
-  2419			r = -ENOIOCTLCMD;
-  2420			break;
-  2421		}
-  2422	done:
-  2423		return r;
-  2424	}
-  2425	EXPORT_SYMBOL_GPL(vhost_dev_ioctl);
-  2426	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Nicolin
