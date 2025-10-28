@@ -1,43 +1,44 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BE5370814;
-	Tue, 28 Oct 2025 20:07:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B85652D9786;
+	Tue, 28 Oct 2025 21:14:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761682076; cv=none; b=MreTTeIfLk/WSrRRfa4aVilfNZVQQs0fa0gpho6+xlboYJ6LNZFe9dyW8Fsm7F/8YWkqBg290wHWyjq6z+3R65UiGXzYimggFp/DFJEPTEeKhftIbWZh3wYX6OCVukMGRHR7yF3Fz6ODv8mTV0D5BDAKd3ZbA+EZyU/W63MjhhY=
+	t=1761686077; cv=none; b=MLJEpyJjwMp9TgV3FV8JZQrf5mjQzxU7gVKXd4KNdbk5DzllHl114P0vCP32aPgS/sayYrRrSQWqTDrofVevM7N0gxuVcoLdFCFUnXnCqVPhW3Cnbf8FOtahCrm0MXPDdh5nQVxa87E0WWYL02RZfZDjN0Z7UyzCOrj3tYUOtec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761682076; c=relaxed/simple;
-	bh=lqhcGj8AvOs5ztyB9VxiBJaNBn39P9EjaFW2eYVQxlE=;
+	s=arc-20240116; t=1761686077; c=relaxed/simple;
+	bh=pDCaA3VtdEbST9/sHZ9aSHefMi7n6DjY3k6UpztZQL0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aJkJEtzxq+R2EHF2P5UJXkg0Yp2pZBp8blHv+ahyKRiJestyPhfGgOGxViuiHC4iyoUGp+2RnVdvwlF4VivEUKbNZNsVeNZKpsX3CZ4hdwbDFPnslHXcgeyE15/UY6hXNswHQFWTDViIZ0NltqZJUXwhdlIQJfSSi70voSNLhrw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H0ADMY+N; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=pHrx9Krl00RsZygYxJRNHk1OfRdK1nDLOZ/SZyQQBs6aprJaOwPz6jr2QzD0DaBaoL7DpHOkCt16h1oyuYVpZG8WBbnfECyAWW0seFT+Buken5Wy1p0EMiYOLmdt76+2ma3/e4Ica7oJEGIRhXXZwUDerKYLVE4OVPAS+CgKTf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=opwuj9wX; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H0ADMY+N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED442C4CEE7;
-	Tue, 28 Oct 2025 20:07:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1761682076;
-	bh=lqhcGj8AvOs5ztyB9VxiBJaNBn39P9EjaFW2eYVQxlE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=H0ADMY+NtLDcGkjx+pJRYYTdyo7ne4j7NrFRzVnMLqWvtYAfIOitYnbolEvC3cT3B
-	 78XwjyJRUL+fwPcfS4UTj9jN7NaC2fH0Y4vsEtimfWgY9QfpYGAp1uSmJOl/0IGG5g
-	 7MvPrXz0+1TTviGh/9MmQlBOAzrLwk8KxtdcfnI0Jp7fgkwq1fw+YQdhZIdlxQ43oV
-	 jctJQ5trvuTDmJgPz9Jdai6smQHtEw6gUhO3OwGFUnNYt3QRASdbadfKtu4vu9nlWW
-	 eXCBAhEBsyQONBuv78Dz54/rLraHfo8P83tCnnmZchlrMSL+YprrV9TF9z64e8odfT
-	 XFV++yKc6kpfA==
-Date: Tue, 28 Oct 2025 13:07:55 -0700
-From: "Darrick J. Wong" <djwong@kernel.org>
-To: Brajesh Patil <brajeshpatil11@gmail.com>
-Cc: miklos@szeredi.hu, stefanha@redhat.com, vgoyal@redhat.com,
-	eperezma@redhat.com, virtualization@lists.linux.dev,
-	virtio-fs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org, skhan@linuxfoundation.org,
-	linux-kernel-mentees@lists.linux.dev, david.hunter.linux@gmail.com,
-	khalid@kernel.org
-Subject: Re: [PATCH] fuse: virtio_fs: add checks for FUSE protocol compliance
-Message-ID: <20251028200755.GJ6174@frogsfrogsfrogs>
-References: <20251028200311.40372-1-brajeshpatil11@gmail.com>
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="opwuj9wX"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=shB4MkKGkpHGmnR7F+tNaXY9sMT0VsGN2rfRsljJlhY=; b=opwuj9wXcdKgSQXPJMWmZ658vg
+	00cNG99rdVeKyzB08G0hX0usoim3DXl9oM4Zs8qy4+gDObVOESw5oQ71XbLvh/fFPKwjAFCzQSFSP
+	/v6xS2Ij/SiJCQg/AuciRZS15nfPwmAQcXltVUxrljdCrAW5OL4q1Ln58fYRdVfIkj7c=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1vDr1R-00CKhH-Lk; Tue, 28 Oct 2025 22:14:29 +0100
+Date: Tue, 28 Oct 2025 22:14:29 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Nick Hudson <nhudson@akamai.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Max Tottenham <mtottenh@akamai.com>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] vhost: add a new ioctl VHOST_GET_VRING_WORKER_INFO
+ and use in net.c
+Message-ID: <881d2462-895c-4ee6-a530-957a8dbac072@lunn.ch>
+References: <20251028152856.1554948-1-nhudson@akamai.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,75 +47,15 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20251028200311.40372-1-brajeshpatil11@gmail.com>
+In-Reply-To: <20251028152856.1554948-1-nhudson@akamai.com>
 
-On Wed, Oct 29, 2025 at 01:33:11AM +0530, Brajesh Patil wrote:
-> Add validation in virtio-fs to ensure the server follows the FUSE
-> protocol for response headers, addressing the existing TODO for
-> verifying protocol compliance.
-> 
-> Add checks for fuse_out_header to verify:
->  - oh->unique matches req->in.h.unique
->  - FUSE_INT_REQ_BIT is not set
->  - error codes are valid
->  - oh->len does not exceed the expected size
-> 
-> Signed-off-by: Brajesh Patil <brajeshpatil11@gmail.com>
-> ---
->  fs/fuse/virtio_fs.c | 30 +++++++++++++++++++++++++-----
->  1 file changed, 25 insertions(+), 5 deletions(-)
-> 
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 6bc7c97b017d..52e8338bf436 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -764,14 +764,34 @@ static void virtio_fs_request_complete(struct fuse_req *req,
->  {
->  	struct fuse_args *args;
->  	struct fuse_args_pages *ap;
-> -	unsigned int len, i, thislen;
-> +	struct fuse_out_header *oh;
-> +	unsigned int len, i, thislen, expected_len = 0;
->  	struct folio *folio;
->  
-> -	/*
-> -	 * TODO verify that server properly follows FUSE protocol
-> -	 * (oh.uniq, oh.len)
-> -	 */
-> +	oh = &req->out.h;
-> +
-> +	if (oh->unique == 0)
-> +		pr_warn_once("notify through fuse-virtio-fs not supported");
-> +
-> +	if ((oh->unique & ~FUSE_INT_REQ_BIT) != req->in.h.unique)
-> +		pr_warn_ratelimited("virtio-fs: unique mismatch, expected: %llu got %llu\n",
-> +				    req->in.h.unique, oh->unique & ~FUSE_INT_REQ_BIT);
+On Tue, Oct 28, 2025 at 03:28:54PM +0000, Nick Hudson wrote:
+> The vhost_net (and vhost_sock) drivers create worker tasks to handle
+> the virtual queues. Provide a new ioctl VHOST_GET_VRING_WORKER_INFO that
+> can be used to determine the PID of these tasks so that, for example,
+> they can be pinned to specific CPU(s).
 
-Er... shouldn't these be rejecting the response somehow?  Instead of
-warning that something's amiss but continuing with known bad data?
+Could you add something about the lifetime of the PID. How do you know
+the PID still belongs to the worker by the time you come to use it?
 
---D
-
-> +
-> +	WARN_ON_ONCE(oh->unique & FUSE_INT_REQ_BIT);
-> +
-> +	if (oh->error <= -ERESTARTSYS || oh->error > 0)
-> +		pr_warn_ratelimited("virtio-fs: invalid error code from server: %d\n",
-> +				    oh->error);
-> +
->  	args = req->args;
-> +
-> +	for (i = 0; i < args->out_numargs; i++)
-> +		expected_len += args->out_args[i].size;
-> +
-> +	if (oh->len > sizeof(*oh) + expected_len)
-> +		pr_warn("FUSE reply too long! got=%u expected<=%u\n",
-> +			oh->len, (unsigned int)(sizeof(*oh) + expected_len));
-> +
->  	copy_args_from_argbuf(args, req);
->  
->  	if (args->out_pages && args->page_zeroing) {
-> -- 
-> 2.43.0
-> 
-> 
+	Andrew
