@@ -1,157 +1,239 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-00190b01.pphosted.com (mx0b-00190b01.pphosted.com [67.231.157.127])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 922D432AAAC
-	for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 14:58:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E51A818991E
+	for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 15:29:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.157.127
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761663487; cv=none; b=Z2ZXdS0Szq7blhezmzV2PqAPbOgWSObNPVp12YI/+723YZ1qh01K35jAKTStrXLdzoWzuC+rCEt+HA2UP+a0SVIfNgOT0LHwd2YydZSlBZSO3YFz3qo9p4NourY1n+JBA+1kMgWaLhG8tnIXPIACUtyCkG9xJ4vIVa4pLwC2H54=
+	t=1761665354; cv=none; b=fEQcrkIqi2qeffDkie6wQxmfQrTimFg39IUtA6vyN+mgisJJDM7hxAVpljPmGh72GUYJYQL76BZADmbUaWLcQLN5jv9frcb2XmaPwjXc7jcpKco16u7uMgFQn3oJVk+3hX8zNkk3afqW2BEncMwqoS+LNAy/jUXDLLLnBlfQUWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761663487; c=relaxed/simple;
-	bh=8N/CyB3BhR9BzfFuw9y8Z5rJf3YG4p6pIZG96vMy1go=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pow2cfnl2mwXcxrNSZiTYdNKKS59GMXwaFXcDgjLRDsaN9gFFbnvsz25UGNe3hy/UgYeuZHocyyunGf4suReSXzeYKVuIN04IgNYyamYgBlRKJ+mMrAvbq7UoPVJJn/FW7bEPiAJRfHqvUt8PzEddNYzn2Om2HAhhzvLPm/za20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=adcagzGH; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1761665354; c=relaxed/simple;
+	bh=NCfCXzIFfkH6cFsk3rxSj8Jx0+Jy0Qv0I9QNFqtB8UI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=beAZWCCiIizZ2EcrtS4OSmSAfgHk6sKJpE72Bmt/AVfKSqmX2d+pq9e+sBC/sDoNtQo7epzCpz4p5fJJq1UeoTHl8iEmoCWLhv+38lbktWVG+YxwOCNW615UJqn5NLtRwGx0BCeFm8YfWmaZiEvRVxn/uMfxIxW9TTZ9KTUfwx0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=akamai.com; spf=pass smtp.mailfrom=akamai.com; dkim=pass (2048-bit key) header.d=akamai.com header.i=@akamai.com header.b=h+By7Gqw; arc=none smtp.client-ip=67.231.157.127
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=akamai.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=akamai.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="adcagzGH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761663484;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8N/CyB3BhR9BzfFuw9y8Z5rJf3YG4p6pIZG96vMy1go=;
-	b=adcagzGHnW+ZOvuDCisA1ZIJFWEf0F9ErtKWkqJtTtKllAH35TKQeDeKCODVU/GUNaG7Ya
-	UANRbe8sEx3HMsISm0RkJHaN69wVUO3nQFa/2PgLsSEqzjGM/gNymQKKkZdVfzDCdmINxY
-	Gls9v4QEqRN8z5507i6wx1FFC1Qq8fE=
-Received: from mail-yx1-f69.google.com (mail-yx1-f69.google.com
- [74.125.224.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-176-Od9tb2lQOYqHw6ZgqTzJ1g-1; Tue, 28 Oct 2025 10:58:03 -0400
-X-MC-Unique: Od9tb2lQOYqHw6ZgqTzJ1g-1
-X-Mimecast-MFC-AGG-ID: Od9tb2lQOYqHw6ZgqTzJ1g_1761663483
-Received: by mail-yx1-f69.google.com with SMTP id 956f58d0204a3-63e29ad5503so7153221d50.2
-        for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 07:58:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761663483; x=1762268283;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8N/CyB3BhR9BzfFuw9y8Z5rJf3YG4p6pIZG96vMy1go=;
-        b=Doz/UW0jOzS0Mc4kYvjFmIb2JtFRNdy4CYeHGYlHCgeUNJuOPQH/qUdXRbnCqEU034
-         Q6bcr8mDrcEfEQprzRZtuaBg98mCoNgk84eSX20lyKqUjYXNoONBTKSGi0qO3SmGsqQH
-         mCNnm6Egz7qptE4h9YD52CMnlkCyRzGgf92MTMsUQP60lTxzeOWaFVdUPskrQh6151vG
-         QVjOC951aFRrcU5RRh3ugjtpHNYJwSPHmDX/XCkhGErVBc1PRiDqpD8tCqOS/74aH0Gq
-         fw53ekynTI5D9Rde2AAyy5uCIS7rbyO8h8amvKYMUXd3dascftHM4G2EPdgrraW2XdM6
-         apZQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVqBzO602TUJbOhX37EgpXF0DP0/hzcQR0aycHNW6mohIqrGbKF4jdgUXFe6ZYdGA1Mn9SUuVczGOYB/U3YHA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxx1FPYRf66t0ogsbPnCWHwMteu3aGPeH1Cdh3Hi3COWSGAs/+S
-	SsXEvlTym0WWChAnU8ykVFKjCTHMx97pXCHB6I3xEN6iMaOcmgN5wdEhSADRRRxmEJMvoj/e1Wh
-	ugzusekUtQmIvAPa5uW2BoQdtkOQ8BGms1zrrd1VHXjEU/VJfQNH5ddcsGdJW6K9MTWes0NlHKh
-	WJkHlT4oNLyz6Q6e/qqHXV+GGzrz/4ERT8+Yko5XqcEYo=
-X-Gm-Gg: ASbGncvkRb60kqgmGg4DtzGID1qfP6nwQmu634FyCvh4dBdOOh/jrzIsYhLL/1+7Zc2
-	zBbjIPqln/xbWhfeCwokiBO55XuEOqDd7T+nQ94QSlP6Iu9yFNNNrXKq9nfk4BDTtnMsyHqLmrz
-	qKmDKee94U3i6igPWNNocKTDvGwN42Jib6YZQY5mr1bdG9W+hMUpepUZKtRG4UHw9ZgFbPLDZyW
-	aGSpVvVbtwYe4tk7sCWeC0KbcEq7K0gma7U47IxVY8=
-X-Received: by 2002:a53:acd4:0:20b0:63c:f5a6:f2ea with SMTP id 956f58d0204a3-63f6bab5397mr2747730d50.60.1761663482892;
-        Tue, 28 Oct 2025 07:58:02 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH/WTYIQ7xXhGVCT8HcoFOlFNGW08q+9o43hTP9kcxsycKYCEMDq54qPBeanzA+lWFpmCWYMaATbs7BaCevFQk=
-X-Received: by 2002:a53:acd4:0:20b0:63c:f5a6:f2ea with SMTP id
- 956f58d0204a3-63f6bab5397mr2747678d50.60.1761663481676; Tue, 28 Oct 2025
- 07:58:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=akamai.com header.i=@akamai.com header.b="h+By7Gqw"
+Received: from pps.filterd (m0050102.ppops.net [127.0.0.1])
+	by m0050102.ppops.net-00190b01. (8.18.1.11/8.18.1.11) with ESMTP id 59SEUeXD2489895;
+	Tue, 28 Oct 2025 15:29:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=jan2016.eng; bh=zEj64/+eigdpoB38YMajnvera82FtERxf
+	iJQI0UokSI=; b=h+By7GqweTiQdjkRJIgV1/sNqfaL/7lEMD+ZsBDMd4EZNNdCb
+	7scHagyObYLsLfZbXAVC2PedcHmXoFYLc3iT8laXDNKQj7g3QhIpMyzzkB5GmOc3
+	7jEj6xx6Hpt9luDiMnS3EMHrmf0U+lNrQPGJOiiNYhyyMiMII1o58yzn7eklEyvj
+	q28w+YodUwopsK9ahyLSefLW0z7AN0YFKUFdo3Jz5kh2EXIR2OqxABFbQiYartim
+	3kEaCIUplojlV2kHEHRI4dA2s6czCPTy7qh3U3jMxfUz8Ng8vDw/ZwHEtt8IbGnx
+	jqfnYX1u6rv1jRaR+ZnkHZef5se9CTcdxQ0qg==
+Received: from prod-mail-ppoint1 (prod-mail-ppoint1.akamai.com [184.51.33.18])
+	by m0050102.ppops.net-00190b01. (PPS) with ESMTPS id 4a2weya8ag-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 28 Oct 2025 15:29:09 +0000 (GMT)
+Received: from pps.filterd (prod-mail-ppoint1.akamai.com [127.0.0.1])
+	by prod-mail-ppoint1.akamai.com (8.18.1.2/8.18.1.2) with ESMTP id 59SEAXIH012449;
+	Tue, 28 Oct 2025 11:29:08 -0400
+Received: from prod-mail-relay02.akamai.com ([172.27.118.35])
+	by prod-mail-ppoint1.akamai.com (PPS) with ESMTP id 4a2yc1gbbb-1;
+	Tue, 28 Oct 2025 11:29:08 -0400
+Received: from muc-lhvdhd.munich.corp.akamai.com (muc-lhvdhd.munich.corp.akamai.com [172.29.2.201])
+	by prod-mail-relay02.akamai.com (Postfix) with ESMTP id 5072283;
+	Tue, 28 Oct 2025 15:29:07 +0000 (UTC)
+From: Nick Hudson <nhudson@akamai.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: Nick Hudson <nhudson@akamai.com>, Max Tottenham <mtottenh@akamai.com>,
+        kvm@vger.kernel.org, virtualization@lists.linux.dev,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] vhost: add a new ioctl VHOST_GET_VRING_WORKER_INFO and use in net.c
+Date: Tue, 28 Oct 2025 15:28:54 +0000
+Message-Id: <20251028152856.1554948-1-nhudson@akamai.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CAJaqyWfRmhXM8eV+=wMVKgrc8SJ98OTtBCtNDJj8ZRUM5Y9Nmg@mail.gmail.com>
- <CAO55csx2rbjxEZk5K3aKcZ501KY3Zfs8ThEQHFqQ1ZB9RSXECA@mail.gmail.com>
- <20251015040722-mutt-send-email-mst@kernel.org> <CAJaqyWcf3tz17q6G=123Xb+warf8Ckg=PLaPkzLU9hYHiUy9Zg@mail.gmail.com>
- <20251022060748-mutt-send-email-mst@kernel.org> <CAJaqyWdRN3C1nOHQjWroBPWKjc5efNfVbecpruL=Cgsk6i1FXg@mail.gmail.com>
- <20251022073231-mutt-send-email-mst@kernel.org> <CAJaqyWeDcyKKOvVdqUkpTuH3d-Tb9rBHG3ym+LC0fcmhrN_FJA@mail.gmail.com>
- <20251028100923-mutt-send-email-mst@kernel.org> <CAJaqyWePMtM8vtgm8UnGAv+_XNTnVNFSNuoqzt_Cn-CpZg46mA@mail.gmail.com>
- <20251028104154-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20251028104154-mutt-send-email-mst@kernel.org>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 28 Oct 2025 15:57:25 +0100
-X-Gm-Features: AWmQ_blFtkQy1FAJaebTbyFFQKUNvmY_l68PG6mENUqg3UT3GDXoN0f29IuNmmk
-Message-ID: <CAJaqyWc=Fhp2+m8P6cctkqG+oeXUgiGhKAsR5Ns20JMun=wvbQ@mail.gmail.com>
-Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Dragos Tatulea DE <dtatulea@nvidia.com>, jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: JfomGnYWeyftzMM8YCUTIiF9FBA6KWX3IuyoCFgYk5Q_1761663483
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-28_05,2025-10-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 suspectscore=0
+ malwarescore=0 mlxlogscore=999 spamscore=0 mlxscore=0 bulkscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2510020000 definitions=main-2510280129
+X-Authority-Analysis: v=2.4 cv=UbxciaSN c=1 sm=1 tr=0 ts=6900e145 cx=c_pps
+ a=StLZT/nZ0R8Xs+spdojYmg==:117 a=StLZT/nZ0R8Xs+spdojYmg==:17
+ a=x6icFKpwvdMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=X7Ea-ya5AAAA:8
+ a=EHjAbftWRgUkfAlJtAYA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: F9R5Oc0P0kde7f6IO1DXITIYgfYapybP
+X-Proofpoint-GUID: F9R5Oc0P0kde7f6IO1DXITIYgfYapybP
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDI4MDEzMCBTYWx0ZWRfX8dzQFMjJxKZf
+ /XzXIUHfPcI5yQc2ckPrJ6Ixiv7jU41ALCqgvMOIdtyV5qvf7TdH3Gpm869HqLqiooASU1qI1CH
+ Sp5UQHV5ksN27HHBOqR2gnAvfqJnjaUoV5+nUKBdrqGBBqNKQgvsWd5h9jy2cIZ/n01BInj/rZZ
+ lM2yz15uDtTafnQ36WYYxxfWgj3XYwTfxS/4ZtGRxbjYhWsrocwYZGNnX8H0O3+9txtp58mLRZR
+ Y3QANl1FtKN22htXgzMoy8N/IsZ6XqvFkk5Zm+k7/ahGTYjKBD/hW9fuWtT6krFfnGzP6mxs/Dv
+ 9zqKapeOMzKYRvdOw/6JENR2+mPlGhxD5+LTOMfxMXSUUvWQrv8jR1opfiSgk4tNeA2wEZbWKUJ
+ WCdaGZeziFH29xaZvrGyvlZDsSQ7Ag==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-28_05,2025-10-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 impostorscore=0
+ suspectscore=0 malwarescore=0 spamscore=0 phishscore=0 bulkscore=0
+ adultscore=0 priorityscore=1501 lowpriorityscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2510210000 definitions=main-2510280130
 
-On Tue, Oct 28, 2025 at 3:42=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Tue, Oct 28, 2025 at 03:37:09PM +0100, Eugenio Perez Martin wrote:
-> > On Tue, Oct 28, 2025 at 3:10=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Wed, Oct 22, 2025 at 02:55:18PM +0200, Eugenio Perez Martin wrote:
-> > > > On Wed, Oct 22, 2025 at 1:43=E2=80=AFPM Michael S. Tsirkin <mst@red=
-hat.com> wrote:
-> > > > >
-> > > > > On Wed, Oct 22, 2025 at 12:50:53PM +0200, Eugenio Perez Martin wr=
-ote:
-> > > > > > Let me switch to MQ as I think it illustrates the point better.
-> > > > > >
-> > > > > > IIUC the workflow:
-> > > > > > a) virtio-net sends MQ_VQ_PAIRS_SET 2 to the device
-> > > > > > b) VDUSE CVQ sends ok to the virtio-net driver
-> > > > > > c) VDUSE CVQ sends the command to the VDUSE device
-> > > > > > d) Now the virtio-net driver sends virtio-net sends MQ_VQ_PAIRS=
-_SET 1
-> > > > > > e) VDUSE CVQ sends ok to the virtio-net driver
-> > > > > >
-> > > > > > The device didn't process the MQ_VQ_PAIRS_SET 1 command at this=
- point,
-> > > > > > so it potentially uses the second rx queue. But, by the standar=
-d:
-> > > > > >
-> > > > > > The device MUST NOT queue packets on receive queues greater tha=
-n
-> > > > > > virtqueue_pairs once it has placed the VIRTIO_NET_CTRL_MQ_VQ_PA=
-IRS_SET
-> > > > > > command in a used buffer.
-> > > > > >
-> > > > > > So the driver does not expect rx buffers on that queue at all. =
-From
-> > > > > > the driver's POV, the device is invalid, and it could mark it a=
-s
-> > > > > > broken.
-> > > > >
-> > > > > ok intresting. Note that if userspace processes vqs it should pro=
-cess
-> > > > > cvq too. I don't know what to do in this case yet, I'm going on
-> > > > > vacation, let me ponder this a bit.
-> > > > >
-> > > >
-> > > > Sure.
-> > >
-> > > So let me ask you this, how are you going to handle device reset?
-> > > Same issue, it seems to me.
-> > >
-> >
-> > Well my proposal is to mark it as broken so it needs to be reset
-> > manually.
->
->
-> Heh but guest assumes after reset device does not poke at guest
-> memory, and will free up and reuse that memory.
-> If userspace still pokes at it -> plus plus ungood.
->
+The vhost_net (and vhost_sock) drivers create worker tasks to handle
+the virtual queues. Provide a new ioctl VHOST_GET_VRING_WORKER_INFO that
+can be used to determine the PID of these tasks so that, for example,
+they can be pinned to specific CPU(s).
 
-I don't get this part. Once the device is reset, the device should not
-poke at guest memory (unless it is malicious or similar). Why would it
-do it?
+Signed-off-by: Nick Hudson <nhudson@akamai.com>
+Reviewed-by: Max Tottenham <mtottenh@akamai.com>
+---
+ drivers/vhost/net.c              |  5 +++++
+ drivers/vhost/vhost.c            | 19 +++++++++++++++++++
+ include/linux/sched/vhost_task.h |  2 ++
+ include/uapi/linux/vhost.h       |  3 +++
+ include/uapi/linux/vhost_types.h | 13 +++++++++++++
+ kernel/vhost_task.c              | 12 ++++++++++++
+ 6 files changed, 54 insertions(+)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 35ded4330431..e86bd5d7d202 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1804,6 +1804,11 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
+ 		return vhost_net_reset_owner(n);
+ 	case VHOST_SET_OWNER:
+ 		return vhost_net_set_owner(n);
++	case VHOST_GET_VRING_WORKER_INFO:
++		mutex_lock(&n->dev.mutex);
++		r = vhost_worker_ioctl(&n->dev, ioctl, argp);
++		mutex_unlock(&n->dev.mutex);
++		return r;
+ 	default:
+ 		mutex_lock(&n->dev.mutex);
+ 		r = vhost_dev_ioctl(&n->dev, ioctl, argp);
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 8570fdf2e14a..20ad9d190dc3 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1012,6 +1012,7 @@ long vhost_worker_ioctl(struct vhost_dev *dev, unsigned int ioctl,
+ 			void __user *argp)
+ {
+ 	struct vhost_vring_worker ring_worker;
++	struct vhost_vring_worker_info ring_worker_info;
+ 	struct vhost_worker_state state;
+ 	struct vhost_worker *worker;
+ 	struct vhost_virtqueue *vq;
+@@ -1050,6 +1051,7 @@ long vhost_worker_ioctl(struct vhost_dev *dev, unsigned int ioctl,
+ 	/* vring worker ioctls */
+ 	case VHOST_ATTACH_VRING_WORKER:
+ 	case VHOST_GET_VRING_WORKER:
++	case VHOST_GET_VRING_WORKER_INFO:
+ 		break;
+ 	default:
+ 		return -ENOIOCTLCMD;
+@@ -1082,6 +1084,23 @@ long vhost_worker_ioctl(struct vhost_dev *dev, unsigned int ioctl,
+ 		if (copy_to_user(argp, &ring_worker, sizeof(ring_worker)))
+ 			ret = -EFAULT;
+ 		break;
++	case VHOST_GET_VRING_WORKER_INFO:
++		worker = rcu_dereference_check(vq->worker,
++					       lockdep_is_held(&dev->mutex));
++		if (!worker) {
++			ret = -EINVAL;
++			break;
++		}
++
++		memset(&ring_worker_info, 0, sizeof(ring_worker_info));
++		ring_worker_info.index = idx;
++		ring_worker_info.worker_id = worker->id;
++		ring_worker_info.worker_pid = task_pid_vnr(vhost_get_task(worker->vtsk));
++
++		if (copy_to_user(argp, &ring_worker_info, sizeof(ring_worker_info)))
++			ret = -EFAULT;
++		break;
++
+ 	default:
+ 		ret = -ENOIOCTLCMD;
+ 		break;
+diff --git a/include/linux/sched/vhost_task.h b/include/linux/sched/vhost_task.h
+index 25446c5d3508..568f9596f29e 100644
+--- a/include/linux/sched/vhost_task.h
++++ b/include/linux/sched/vhost_task.h
+@@ -11,4 +11,6 @@ void vhost_task_start(struct vhost_task *vtsk);
+ void vhost_task_stop(struct vhost_task *vtsk);
+ void vhost_task_wake(struct vhost_task *vtsk);
+ 
++struct task_struct *vhost_get_task(struct vhost_task *vtsk);
++
+ #endif /* _LINUX_SCHED_VHOST_TASK_H */
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index c57674a6aa0d..c32aa8c71952 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -101,6 +101,9 @@
+ /* Return the vring worker's ID */
+ #define VHOST_GET_VRING_WORKER _IOWR(VHOST_VIRTIO, 0x16,		\
+ 				     struct vhost_vring_worker)
++/* Return the vring worker's ID and PID */
++#define VHOST_GET_VRING_WORKER_INFO _IOWR(VHOST_VIRTIO, 0x17,	\
++				     struct vhost_vring_worker_info)
+ 
+ /* The following ioctls use eventfd file descriptors to signal and poll
+  * for events. */
+diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
+index 1c39cc5f5a31..28e00f8ade85 100644
+--- a/include/uapi/linux/vhost_types.h
++++ b/include/uapi/linux/vhost_types.h
+@@ -63,6 +63,19 @@ struct vhost_vring_worker {
+ 	unsigned int worker_id;
+ };
+ 
++/* Per-virtqueue worker mapping entry */
++struct vhost_vring_worker_info {
++	/* vring index */
++	unsigned int index;
++	/*
++	 * The id of the vhost_worker returned from VHOST_NEW_WORKER or
++	 * allocated as part of vhost_dev_set_owner.
++	 */
++	unsigned int worker_id;
++
++	__kernel_pid_t worker_pid;  /* PID/TID of worker thread, -1 if none */
++};
++
+ /* no alignment requirement */
+ struct vhost_iotlb_msg {
+ 	__u64 iova;
+diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+index 27107dcc1cbf..aa87a7f0c98a 100644
+--- a/kernel/vhost_task.c
++++ b/kernel/vhost_task.c
+@@ -67,6 +67,18 @@ static int vhost_task_fn(void *data)
+ 	do_exit(0);
+ }
+ 
++/**
++ * vhost_get_task - get a pointer to the vhost_task's task_struct
++ * @vtsk: vhost_task to return the task for
++ *
++ * return the vhost_task's task.
++ */
++struct task_struct *vhost_get_task(struct vhost_task *vtsk)
++{
++	return vtsk->task;
++}
++EXPORT_SYMBOL_GPL(vhost_get_task);
++
+ /**
+  * vhost_task_wake - wakeup the vhost_task
+  * @vtsk: vhost_task to wake
+-- 
+2.34.1
 
