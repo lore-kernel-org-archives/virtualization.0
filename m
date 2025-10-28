@@ -1,175 +1,147 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF33E1B4F2C
-	for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 14:33:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9267E3346A5
+	for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 14:37:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761661991; cv=none; b=T1Z34GXBroQh8ek2+oMEdql0n7iNKzgm6AqTAutF4WXzSjtQjCpzaJiT1UdHO0giAzwaO9GySE43YRGpGve4bRD3+7qZlHvUaVr5hlJUzVvak3fOWh7Lif+coTMBuVNpHqs2AsALlSQY0Gk4125uUGMl+DQxvlQE1eO2KxYIJko=
+	t=1761662275; cv=none; b=Dy90dMRmXLBWDo3d4hCxg4VrWNaCBO9z3N7tRMg6ZLAkKveZZ08O1tkGtJpkiXqukrOpK/fnimpx5LTqwmtUA4BRRr2CQIa5Ek3ylDEoqBZp5RpPhynz1ToIO+7lqAT4hymLL/lhaF5TwACT9O/eU1Ol+Tzyl48fZKTJyaFWkD4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761661991; c=relaxed/simple;
-	bh=NEMq1QwVWGTO1PLTTQMmdZ3LbdDaen7sDe5zlw5wwnQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gRmk9uV2RVWMeeo4Ue4YsL8ZfOhSSUYZoGdZhJ2PAuvcU4B51T7as98IOyOas+WBn1AVz7Ef/zdmVMgg0zeexCbZZHS8AC2Ueejn65q8NG7kZIMQJUG8zlFo4wvk1lNQ2hu6N+zcTQ5ykAYJ7ghwqSBI6gMsNx/xAwRRuHH8MDU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XCFbJkVo; arc=none smtp.client-ip=209.85.216.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1761662275; c=relaxed/simple;
+	bh=09NZc1BAr3Ka76OtTpIJwkZSeHbrbtpTLxSEWNV/iwI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pQPHMvN31e5uYij+1nenHHgu4cZusuk7qX//a9xeVEjGPUyMChwNRY6YQpUKBoHnUkxfDReabEcH4OQ78wVXumNcytYWhWbb/afubJoRw1ayzZZVJ2YQhXSlr45Ej2FZNFM5su311CWwWJKSWbhuyCLezi5aGR0hf8LeuhxLxpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FpYSAbFL; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XCFbJkVo"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-33f9aec69b6so8331561a91.1
-        for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 07:33:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761661989; x=1762266789; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=D93iiJ3dCsDGMRKsIegYWo/bl71Ckop0JjDdJuUp4+A=;
-        b=XCFbJkVoNsRv6p243reNE7nKRdANVSJiYXbJsmker3vX6Uxg1DnMIucQM2K803iArq
-         CjCrXVNRdKAODbCWyc5M7zxoMQHjYM8FIKRH8qypH61dQ0iC3mdAPIsvLhVCDCuyLzHG
-         4Ia6F7Ud6wYxZ3Ljywmce1c//JJ+W3IPkdHB1V8ccjfrcoS6DNw3I7Q5f0P3SB07OQgo
-         ZGdhu1O6r++Exo3XbEXWu64FEXoofZZgQyrzJxoq4bptOfKtL1Y/1G8P1aSqYVwrxLds
-         +4TYaqwFrApeb68rrfxC3jspcy4lasE/8lPrJJP/eqdu2TzBV4GMLACxOBZ9D2RaAWt/
-         rfBQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FpYSAbFL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1761662272;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=09NZc1BAr3Ka76OtTpIJwkZSeHbrbtpTLxSEWNV/iwI=;
+	b=FpYSAbFLjd24ib93Rnjhj+HVUCNFw5NHADKSgJIeaQqrK32lltTL3Zpx8szQRZKPVMFvwX
+	o5RKh+KgdSD0WGfHQzWT8sxw1Ao0PPZCmfxv9owsAMEHqo3nGVXV78yiJ3/1zh0Qnm/KuK
+	4zEgg4V+yVtsbEqH12Br1834gy8Eeo0=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-677-z5b2rmF6MJat-z8oXAJv9A-1; Tue, 28 Oct 2025 10:37:49 -0400
+X-MC-Unique: z5b2rmF6MJat-z8oXAJv9A-1
+X-Mimecast-MFC-AGG-ID: z5b2rmF6MJat-z8oXAJv9A_1761662268
+Received: by mail-lj1-f197.google.com with SMTP id 38308e7fff4ca-378e3e1c7c0so41232511fa.1
+        for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 07:37:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761661989; x=1762266789;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=D93iiJ3dCsDGMRKsIegYWo/bl71Ckop0JjDdJuUp4+A=;
-        b=CmrYidm/UrjMIpskiiqIOh8a0lCBB88G7cRh+937GiJl5SdKsp3tslvgGeROzYR9Q6
-         ALi4GFlhLIFN7eKvlT7/qZi4xp5d82TgZRxSinOpgprcyFzCvtXfXGSm7SUJuTf5hJiI
-         VcGrWZTJ7XutWXqwzwdntA3YmVoksWYg0p57+k/W520MuAjGpBXPzEtYawdjOmEdSqAk
-         1ygOdHYKZXLoiJPVgx64YGSpIJDNWLPGx4mBphrOUCuMa2aoKMpbaj/rYhTcbyju8v7M
-         1tKgLTOOHRkHcsBJJDWfqaVTwIWj0pW4S+JLY/PeMztkvLbWQ1LOu7PTsNXnXaag9TmZ
-         CUKQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVxivJky57EYt66gAHa9YsUXJeObxmro2Nu4ec8o4avJYP4t7QDf6nSFMjeT8bQISTJLvXh97m8XW6DL5CLgQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxHbGMtG1FZRt92l3z4/AIfesLeOej8g83PuDLCp3s5Ioy+UA/u
-	wBCGiFR9sJRispxaoiJmX/MYtzlB7vCzY+ZonXXPOiH5t43pf+mCYmYk
-X-Gm-Gg: ASbGnct8W2nsmoZb0AMdeyzDWTrfLn8MZBT7ye4PMLZc0xBItpzB+03CPLhozK2lG0H
-	5QYEa4pM2XoSg+6spt4/hqZLLtIged53qNSilQXddNoEJT1iE6q5hxDKsF/UWQvcSJLNSVpmPEv
-	zItY7AhCPHFHIREFQxUyzdjZGSewb2ajNyR7en/fiS/L2ONgBHx31Va6/Cq3pi82DjOgck3eS0Q
-	BN4Auc14oSMads7Y56HGrmBlVwLgaiwGuVp9H2Ke9QKO6oefzLR/TcuyE7d+SO0xBnFyInhvYab
-	yu1XgdEOYqgKkp1PFjgzKi0B4bqe3gLPZB7YzarKS317x7sYScZn/DS0phEdQieMkzUN6hTu7pW
-	76Nc9xtVzQoVeHpBI/6BDk225DABJPel5SQxTqhydLhKwhfbOgUW17WKbv3dd9JKHB3xllPzYYW
-	YJh/JiiMvaeOSreQ==
-X-Google-Smtp-Source: AGHT+IFxazy1uo7lguaYfMUdntQxPnZeb5i61czGYGQ3K0U8mqn48jz+w9wNFW2dtNumYz8Q2nBdZA==
-X-Received: by 2002:a17:90b:3905:b0:338:3221:9dc0 with SMTP id 98e67ed59e1d1-34027c0782dmr4653120a91.37.1761661988872;
-        Tue, 28 Oct 2025 07:33:08 -0700 (PDT)
-Received: from minh.192.168.1.1 ([2001:ee0:4f4c:210:c0a1:2245:cbbf:7e28])
-        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-33fed7d1fdesm12397037a91.5.2025.10.28.07.33.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Oct 2025 07:33:07 -0700 (PDT)
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Gavin Li <gavinl@nvidia.com>,
-	Gavi Teitz <gavi@nvidia.com>,
-	Parav Pandit <parav@nvidia.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Bui Quang Minh <minhquangbui99@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH net v6] virtio-net: fix received length check in big packets
-Date: Tue, 28 Oct 2025 21:31:16 +0700
-Message-ID: <20251028143116.4532-1-minhquangbui99@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20230601; t=1761662268; x=1762267068;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=09NZc1BAr3Ka76OtTpIJwkZSeHbrbtpTLxSEWNV/iwI=;
+        b=WdREUrLqdNShW2XSm/a6AWA9h+8C2UDjMJ00SOT9bIaJjhg1g6hZrm1ym87ej0lumZ
+         WaLBfymcLsUOvFB1+zP6SWAeLwkAPhM7QxmoN+M4hYfmbqoSdxRdXSq0LMsxgugLRgAY
+         V8mF7mZk+Qb/E8/WpaNmta2GAZZ4vGhd7ZmCfbLFZjwFa90ksu4TZFnt/KJR1Qia56P0
+         S9EtmO3rY0d4jPVCixaa2ZPlsnB5vsQjLDulmSZmcr4IDHCqIodVke/JBZPLaQqmG+3Z
+         MmW3ccmqMlZ6vf159ndX7vT6cBcXAg0MqiRxfI4b9IZxHl02vxJNPE3qOO2I3+GXpO6+
+         jJaQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUZiLO/oSTSXLOPu2Y9L5YtxhHu0tXCQCkLKSOCTUUV2E7qqhdblY02vGoeFRitqztwH+/COSaGsj2d9XhRDA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxH+8OdqDRCmEMkuDEMTdTz2+yfe5H75gmj69MpbKfG9S69mrqI
+	lVVZkXLCp4GV1AE/OzOfd+S2TVUJ69pl5cfFFHE3BADDmMOP5sznH6wDAuX2DStkCSSsbMGUgdb
+	0kXmqHmoz9nreuyM5+/qdTZmi2sFGDb8yXLf2RUA7F8HMoqQu5lluXqtN4q4oFpHMTIEbyXP+Yu
+	hsb3o11j5RFlP5QOx+ciwVAxZjiVk88HIS+5zK6NLoT50=
+X-Gm-Gg: ASbGnct2mz/YX3fUsMSFWUeH++Jc3VJwr6MzvYia9ocJ19UH09eCyv4/Cb7KVed3y01
+	yoPakB0puppE3FKyisAC0b4QEL35IEPWPSGG2CzmHbwCjAOi034CXpNoiC/WrQ8a2t/PCbZPxWm
+	aWKb1TwNZgiYK3Ah0PZHqhnS8qEgUtg5UoXVTPccNg0D6OGhpsRyYNxSRBlDaRe0+XnwvBGxXRx
+	dfnpL2y7vLp+BNxIpMs+as0BToktSdKdOFbM28AMtA=
+X-Received: by 2002:a2e:a917:0:b0:377:c556:68b7 with SMTP id 38308e7fff4ca-37907c99b06mr10803901fa.17.1761662267626;
+        Tue, 28 Oct 2025 07:37:47 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFH1qUNPl6ooa8Bsdv4mhpa8rES8RuOgArfXGQ7Zb+j6PUDeLzIiljeXqTefrnG6lrqdMn5JWzo4puaSyJ4lPM=
+X-Received: by 2002:a2e:a917:0:b0:377:c556:68b7 with SMTP id
+ 38308e7fff4ca-37907c99b06mr10803841fa.17.1761662267194; Tue, 28 Oct 2025
+ 07:37:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAJaqyWeiX1Tc77NcYoBbeVfKTeuKHK6hw=n_9Mk4y52k7Djr-g@mail.gmail.com>
+ <20251015030313-mutt-send-email-mst@kernel.org> <CAJaqyWfRmhXM8eV+=wMVKgrc8SJ98OTtBCtNDJj8ZRUM5Y9Nmg@mail.gmail.com>
+ <CAO55csx2rbjxEZk5K3aKcZ501KY3Zfs8ThEQHFqQ1ZB9RSXECA@mail.gmail.com>
+ <20251015040722-mutt-send-email-mst@kernel.org> <CAJaqyWcf3tz17q6G=123Xb+warf8Ckg=PLaPkzLU9hYHiUy9Zg@mail.gmail.com>
+ <20251022060748-mutt-send-email-mst@kernel.org> <CAJaqyWdRN3C1nOHQjWroBPWKjc5efNfVbecpruL=Cgsk6i1FXg@mail.gmail.com>
+ <20251022073231-mutt-send-email-mst@kernel.org> <CAJaqyWeDcyKKOvVdqUkpTuH3d-Tb9rBHG3ym+LC0fcmhrN_FJA@mail.gmail.com>
+ <20251028100923-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251028100923-mutt-send-email-mst@kernel.org>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 28 Oct 2025 15:37:09 +0100
+X-Gm-Features: AWmQ_bm_ikxtcCHfifEP3X9--_zb9nwAd7fq5zkuRGqhN1hAtFMAFJR9kqLgpas
+Message-ID: <CAJaqyWePMtM8vtgm8UnGAv+_XNTnVNFSNuoqzt_Cn-CpZg46mA@mail.gmail.com>
+Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Dragos Tatulea DE <dtatulea@nvidia.com>, jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Twq2adsdYJ78-9-0m15o6cNgq4oiKn5HgH6prrT-OuU_1761662268
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
-for big packets"), when guest gso is off, the allocated size for big
-packets is not MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on
-negotiated MTU. The number of allocated frags for big packets is stored
-in vi->big_packets_num_skbfrags.
+On Tue, Oct 28, 2025 at 3:10=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Wed, Oct 22, 2025 at 02:55:18PM +0200, Eugenio Perez Martin wrote:
+> > On Wed, Oct 22, 2025 at 1:43=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
+com> wrote:
+> > >
+> > > On Wed, Oct 22, 2025 at 12:50:53PM +0200, Eugenio Perez Martin wrote:
+> > > > Let me switch to MQ as I think it illustrates the point better.
+> > > >
+> > > > IIUC the workflow:
+> > > > a) virtio-net sends MQ_VQ_PAIRS_SET 2 to the device
+> > > > b) VDUSE CVQ sends ok to the virtio-net driver
+> > > > c) VDUSE CVQ sends the command to the VDUSE device
+> > > > d) Now the virtio-net driver sends virtio-net sends MQ_VQ_PAIRS_SET=
+ 1
+> > > > e) VDUSE CVQ sends ok to the virtio-net driver
+> > > >
+> > > > The device didn't process the MQ_VQ_PAIRS_SET 1 command at this poi=
+nt,
+> > > > so it potentially uses the second rx queue. But, by the standard:
+> > > >
+> > > > The device MUST NOT queue packets on receive queues greater than
+> > > > virtqueue_pairs once it has placed the VIRTIO_NET_CTRL_MQ_VQ_PAIRS_=
+SET
+> > > > command in a used buffer.
+> > > >
+> > > > So the driver does not expect rx buffers on that queue at all. From
+> > > > the driver's POV, the device is invalid, and it could mark it as
+> > > > broken.
+> > >
+> > > ok intresting. Note that if userspace processes vqs it should process
+> > > cvq too. I don't know what to do in this case yet, I'm going on
+> > > vacation, let me ponder this a bit.
+> > >
+> >
+> > Sure.
+>
+> So let me ask you this, how are you going to handle device reset?
+> Same issue, it seems to me.
+>
 
-Because the host announced buffer length can be malicious (e.g. the host
-vhost_net driver's get_rx_bufs is modified to announce incorrect
-length), we need a check in virtio_net receive path. Currently, the
-check is not adapted to the new change which can lead to NULL page
-pointer dereference in the below while loop when receiving length that
-is larger than the allocated one.
+Well my proposal is to mark it as broken so it needs to be reset
+manually. For example, unbinding and binding the driver in Linux. The
+point is that the driver cannot trust the device anymore as it is in
+an invalid state. Maybe suspend and reset all the vqs is also a valid
+solution to un-broke it if the device supports it but I think a race
+is unavoidable there, and I'm not sure how to communicate it to
+userspace for all kinds of devices. Incrementing rx errors could be a
+first proposal.
 
-This commit fixes the received length check corresponding to the new
-change.
-
-Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
----
-Changes in v6:
-- Fix the length check
-- Link to v5: https://lore.kernel.org/netdev/20251024150649.22906-1-minhquangbui99@gmail.com/
-Changes in v5:
-- Move the length check to receive_big
-- Link to v4: https://lore.kernel.org/netdev/20251022160623.51191-1-minhquangbui99@gmail.com/
-Changes in v4:
-- Remove unrelated changes, add more comments
-- Link to v3: https://lore.kernel.org/netdev/20251021154534.53045-1-minhquangbui99@gmail.com/
-Changes in v3:
-- Convert BUG_ON to WARN_ON_ONCE
-- Link to v2: https://lore.kernel.org/netdev/20250708144206.95091-1-minhquangbui99@gmail.com/
-Changes in v2:
-- Remove incorrect give_pages call
-- Link to v1: https://lore.kernel.org/netdev/20250706141150.25344-1-minhquangbui99@gmail.com/
----
- drivers/net/virtio_net.c | 25 ++++++++++++-------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a757cbcab87f..461ad1019c37 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -910,17 +910,6 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 		goto ok;
- 	}
- 
--	/*
--	 * Verify that we can indeed put this data into a skb.
--	 * This is here to handle cases when the device erroneously
--	 * tries to receive more than is possible. This is usually
--	 * the case of a broken device.
--	 */
--	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
--		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
--		dev_kfree_skb(skb);
--		return NULL;
--	}
- 	BUG_ON(offset >= PAGE_SIZE);
- 	while (len) {
- 		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
-@@ -2107,9 +2096,19 @@ static struct sk_buff *receive_big(struct net_device *dev,
- 				   struct virtnet_rq_stats *stats)
- {
- 	struct page *page = buf;
--	struct sk_buff *skb =
--		page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
-+	struct sk_buff *skb;
-+
-+	/* Make sure that len does not exceed the allocated size in
-+	 * add_recvbuf_big.
-+	 */
-+	if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE)) {
-+		pr_debug("%s: rx error: len %u exceeds allocate size %lu\n",
-+			 dev->name, len,
-+			 (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE);
-+		goto err;
-+	}
- 
-+	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
- 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
- 	if (unlikely(!skb))
- 		goto err;
--- 
-2.43.0
+If we want to track it in VDUSE we should implement NEEDS_RESET and
+leave all the old drivers without solution. That's why I think it is
+better to solve all the problems at once in the driver.
 
