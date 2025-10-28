@@ -1,189 +1,231 @@
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012041.outbound.protection.outlook.com [52.101.43.41])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55D8132D0E0;
-	Mon, 27 Oct 2025 23:26:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.41
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761607611; cv=fail; b=H6j4ZuivCYAfyQeqp9tnVdtcX0ZavRbBJaU+D8EKp/mbRrtpUaUgwee+801VicauxMerxdJXgJJ+a+jT/FZlFUELq/hKuhWGFGfNywc+Y6UOWSB9aNX6Z0bpmLpN4NMMAJ8FY5ugBqhDH3Zxred/yj67Fxlmjmlz9Sx+4THvHJk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761607611; c=relaxed/simple;
-	bh=o+ii9tBsf7amZgKWCTCLlW91sfViDfSss/x7ohQVrBc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=AcCECMRiUKUX2LXFGKLEmYxw4XMb0kcf377/ymjnYrej+FqOinU/Zn3RMot4QH/KjBV+i4uQys1To4yOMFeSAqTOpZOUKx324lFOX5iNgWtvXTGuzLXzFESkem1n27mgPuBYoFwd6Rtrmbw+BI8B1sF595z6Dlelq5eie8mwb2g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=lbbsG0eL; arc=fail smtp.client-ip=52.101.43.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BD431BBBE5
+	for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 00:42:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761612169; cv=none; b=JOgD47kqzPIEs2sCPLSL4ePlCLBitl5j6iE8uuv1mPySzGQRZOHCjg7RYOUTsj+tg5CqzXzzMc6eJtVtzK44hA0ST4ojWWub7VXHPpaOrxzo6Vr+aEFB4T1CBFxhh7Idy9mDJsDV7J3TI9Oib7Sv9vK5wLQuMwwW8kJTBWmcLTE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761612169; c=relaxed/simple;
+	bh=Oaec4CMUKIqFFDe8IlwQUNfn1sis7V34LfNDLJjhz+M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qNxUr+atSrKPr3MN7xipQ0zNpdMepRUnJlEqZfDojdYAwtclY5tWvD5Xujy5wLIMUqz3/rEMAl2J55POoW+Kk7b5hpgh6mQdkEWhg99xajtrA0bzvut46O0wdb9F1Q6z7qwCDPV3WXJWRl7bKYz1JDLVCyw3bVdedT0DB69T20w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gzVAMpHp; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="lbbsG0eL"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=e/S2KiMk9FPZwoDyDEbICzOjPQaXf732TJpXIs7eVqvR0baFHjpQCAQLGp1TP/pkgx3vpDNTgR9+Z0X4WLrevqCPEibdKrQ/EbFog4WpASjTMNqPTE2gjTeYOAmOoVeXMWcCJVJPs1xWn8HgSiyizDm+dqhoqAbsPlj7/iHc2lOREuE6LLcfUNLu+ufVhwv7V0Mp9xB6XSRQDDpbqAOkwBf+qY1BQCAih1d++SghJvyvyf2GjjvsGrBXnYB3HJfGVYEK0+614KocsnOdkKYFukLS9+19MaE1BDNw7WzCTLOuC4aFJSeuzUjXboUo/GoyEIGijlIZ4xVDCimS/V04yQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gx7BUMBHnYmfmeqjkgLxcm2+ZpM3DfyTQljjnYSuyrM=;
- b=ToBjWBKTaWXSuLqgwpbAuGBSURB/sVJwJ7IfuJNWgJENHidfOhH3WyunLxLw9hlzI/XKcNhfTsUMmuMxKq8oBbAWVwKYm8LhgS+Yjib0u69n41/C+2+g1dUodvlWyrE3AUe9ymfv+xY1G2s7KvSfb9j4RdTvaoLJpzeOf5l3DyOaMWtAQOe56MIq7gB9GhgGBSxeYDqAXygCeiamWSf8Ivw/faW4WZnn+yXLAmclulPxOqpZ2qNsqZ8gTK4MP7JykqMuunNRnlFkB1FhSIQI/f0ql3qR6KaRQ4wX86dM/B0K/inLvd2Ym5L6PKIZqlXiEx2R7LUHHhhdJJnGEaEeog==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gx7BUMBHnYmfmeqjkgLxcm2+ZpM3DfyTQljjnYSuyrM=;
- b=lbbsG0eLfGdRhdSdREtblJl7xUVs/fr46qiaiM3A5jlHZZQkDAmk4L62HhIXnryD9jvQBlKAIswAPcG6mTXjUBwKAOBsLFFRX3ejX0vjM2gloHWy/VgCBuRqjmXde4QvNkJHSfI7eD8kgXjiVRUli6I25QGjY+1mw4JDpmzN+aK163t21pA7pmbpg7rWtOecXM9SaCsoP2P9/HTERd08EQpfTJK7WOlP53HEpMlG9rBeCQYs4np02N0pqBgc45fZVFU+ggOMuzULXlm2t/rVSxIwujl9O18qQ59GHfWgCIBZ4LEFar/h7ih3NsiSM6tahjCwZa6MvPXpB17H7IIp2g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MN2PR12MB3613.namprd12.prod.outlook.com (2603:10b6:208:c1::17)
- by SN7PR12MB6791.namprd12.prod.outlook.com (2603:10b6:806:268::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.13; Mon, 27 Oct
- 2025 23:26:41 +0000
-Received: from MN2PR12MB3613.namprd12.prod.outlook.com
- ([fe80::1b3b:64f5:9211:608b]) by MN2PR12MB3613.namprd12.prod.outlook.com
- ([fe80::1b3b:64f5:9211:608b%4]) with mapi id 15.20.9253.017; Mon, 27 Oct 2025
- 23:26:41 +0000
-Date: Mon, 27 Oct 2025 20:26:40 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Nicolin Chen <nicolinc@nvidia.com>
-Cc: joro@8bytes.org, kevin.tian@intel.com, suravee.suthikulpanit@amd.com,
-	will@kernel.org, robin.murphy@arm.com, sven@kernel.org,
-	j@jannau.net, jean-philippe@linaro.org,
-	robin.clark@oss.qualcomm.com, dwmw2@infradead.org,
-	baolu.lu@linux.intel.com, yong.wu@mediatek.com,
-	matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com,
-	tjeznach@rivosinc.com, pjw@kernel.org, palmer@dabbelt.com,
-	aou@eecs.berkeley.edu, heiko@sntech.de, schnelle@linux.ibm.com,
-	mjrosato@linux.ibm.com, wens@csie.org, jernej.skrabec@gmail.com,
-	samuel@sholland.org, thierry.reding@gmail.com, jonathanh@nvidia.com,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
-	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
-	patches@lists.linux.dev
-Subject: Re: [PATCH v1 03/20] iommu/arm-smmu-v3: Implement
- arm_smmu_domain_test_dev
-Message-ID: <20251027232640.GE1018328@nvidia.com>
-References: <cover.1760312725.git.nicolinc@nvidia.com>
- <f52e8079148a673641d2858700c49fa0c81022aa.1760312725.git.nicolinc@nvidia.com>
- <20251020163231.GX316284@nvidia.com>
- <aPaWsEg1Y3XqsA3E@Asurada-Nvidia>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aPaWsEg1Y3XqsA3E@Asurada-Nvidia>
-X-ClientProxiedBy: MN2PR01CA0049.prod.exchangelabs.com (2603:10b6:208:23f::18)
- To MN2PR12MB3613.namprd12.prod.outlook.com (2603:10b6:208:c1::17)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gzVAMpHp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1761612166;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4S4XxcpkkVefNpOn6q/1PCcyZWnz2c3jb89kMwD+Dak=;
+	b=gzVAMpHpeSrI5EGcG+s/qHABSdX1q3UI2E5wTBlosIM+AZ0bxmORWn9xttDvTnLvtE/+lR
+	O1shjJrRKGULEbQ1jHOJx6ThQn3e2yMZL5VS7gAU7ecFUh3VhB4Fhqy+7oA4Ih81vWoZwG
+	ma4ryLDn2fZQqWC3XK8/ycB/J8CsdLA=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-361-D1OHS-k4MpiP9HLBtQQG5w-1; Mon, 27 Oct 2025 20:42:44 -0400
+X-MC-Unique: D1OHS-k4MpiP9HLBtQQG5w-1
+X-Mimecast-MFC-AGG-ID: D1OHS-k4MpiP9HLBtQQG5w_1761612164
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-336b646768eso5541888a91.1
+        for <virtualization@lists.linux.dev>; Mon, 27 Oct 2025 17:42:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761612164; x=1762216964;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4S4XxcpkkVefNpOn6q/1PCcyZWnz2c3jb89kMwD+Dak=;
+        b=jJ5TzSDjpbiABJcztZwld+ziOMqrd6d57bfwEzz0hs8KX4iSqGebSnlxD88vntfC7J
+         SCiLQURhRDRVS94AEzYx3fqNi/a/PWILL87mn+l2kCCBjwbAtYCOp4xo9DaxylJO5Dum
+         ra+XCAq4Dm1qh87DX9UIURxe0EGQ5B0GNEfYMKkLvuj+glQSUierjBKJ5zLbvkaRa2ol
+         25IuzyvR3dD0RKfMVJLbetDLo3yrVwVfqF3ktdEl2A+S45mh+zUiBvzdT3mBopeT0kE2
+         DGl/gnA3ttwWY+QopCUnrPyfAgHkW3w/h6/PiooIzMGf6PsMsOJOaqfUeaH/EOCXYIO8
+         U4Sg==
+X-Forwarded-Encrypted: i=1; AJvYcCUjmKIGiNRQU07fMo31eTx71EJ3+OgEi6kUgBMmIUHbAKyqLsN3ucJpxCovEw0ITuGpgySn8yFcyOHVoF+3Og==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz03GDG8bcM8L/fHIkkt3qWhK03pOY2s0p8g37Cb1LCPR2cSUcb
+	dgUGletpxIqw2mPxozCcjdBVgweNzUxvyyqNMZCO9BTKV+KNVMZwRApopqOkDel22QxEQxdIubN
+	C0ZMDrBlNFWHJ2SKA10IfsRmgXC42+ZnrVmoU1D0I0SKvlyLBc1MaP12pjNM9RBX6Zuf1M68SAr
+	EoSXglTc1oA4fLkQNUOBlSCC9UZSH+dAVOMWsF8jL82NQ=
+X-Gm-Gg: ASbGnctIeIv7Itd+z+rRF+canp+n2SLtEyb4YtYueVPSj6m7L52DJMXOh3KqcMD8RzP
+	WYdKDJrbMTm0NcbYtxhJQ5Fc9RSReAaRrbZ1/Cw7wjDcLZ5EP8GFYLDF15jPiX+NyQzyx0RFDkL
+	QsA8VtDTVUtA4q6c/gQUgBFuJmWB63CIeZNEHZzvulRINodbX4iFEt1var
+X-Received: by 2002:a17:90b:56cc:b0:330:6d2f:1b5d with SMTP id 98e67ed59e1d1-34027aac137mr1890124a91.26.1761612163812;
+        Mon, 27 Oct 2025 17:42:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGeNHCkzvcBmGGrJKaZzXODCr5cxEfASlCJa7QDO1rQohJ+NiOJXFwAxYkL7H35SEY2hZXkIcNLNUTEFlIZH4E=
+X-Received: by 2002:a17:90b:56cc:b0:330:6d2f:1b5d with SMTP id
+ 98e67ed59e1d1-34027aac137mr1890105a91.26.1761612163245; Mon, 27 Oct 2025
+ 17:42:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MN2PR12MB3613:EE_|SN7PR12MB6791:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6d6454cd-481c-4edc-ba5b-08de15b048af
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?KYIr0W99nu7jT8pnol/aQsy6rRlolAzh6rp4ejtemDxSkQj0Oab7vcwJF3nF?=
- =?us-ascii?Q?/pmps/1fTrKl0OQCkI4g7feku1jews9DoVidmiNVmuSQYJDTCfZag83zFGqb?=
- =?us-ascii?Q?UaDBlr1z+4k6JteM1+CBaVpcS8GVvlrgfBRTbezfcLt4nWXlBqlhqHSwq4oF?=
- =?us-ascii?Q?7lqBHYbmrSGXLd6l0ZrifZ5cMw9CppMZHLhjiECtrW5WhWRnSSzG1dNcw2RE?=
- =?us-ascii?Q?TujflS6EKrchfu+4ylM/Skw0juKwbvolsOSTEeUuPYiFVvuGvUCiTJoJyzOi?=
- =?us-ascii?Q?Qjad9NxxDztGiKrt1siGCQ2eWbruPstyNd5U3yqBkCgF880C+4zzeAjoKLdA?=
- =?us-ascii?Q?/mofGtibK6TMbVo/SnbLBe9EzkfiIVTWFIBBdj4iZvXILijpWe3RifI9888l?=
- =?us-ascii?Q?fz+/IYvAwvgVlM/zbazJcDd6o4y5P+3jVhopG5+OCrzUtLjwsM4HlQympNy/?=
- =?us-ascii?Q?jaBqnvrLLXyJ4CPPQVyC9hGCl0xC1d56eCte5k7Ve1iW3f+CcofMPN4r6fe6?=
- =?us-ascii?Q?BPnHaln4bkyLTnDlCoejcNhbktwPlRDl5O7EzVoEBsl0i65F893peJJXERur?=
- =?us-ascii?Q?936DO6sg0kXiwaTj1W6uwSXOED3ow64Y1lFeqHC7eeHuQ9ajzUsex/F3Bfz9?=
- =?us-ascii?Q?m9GlasYUPDx4e8AXA0BYhxwaZo60rpJhlYRQ+B9FMrNFZ3qn3MYf9FnJrLER?=
- =?us-ascii?Q?ta1ximCGlmNkkjzS+Y/fsqPtTkvV4RdTqA/QBh8U0sqIeHYeX1etVyimOp10?=
- =?us-ascii?Q?KlvubpB0AzIbfQ1vNZ/Zo8qop1Me/m3497kiSUpUOpX/0T2gZSfd81lklOfz?=
- =?us-ascii?Q?cQEqQzBChhx5WdZtXwnM0R7P1PG+1RsnjpYKI7CwYt2XjnbGiC/iTl11iXLc?=
- =?us-ascii?Q?qX5Brn13nNxMcZ7VN/GVUa8HMKMidelqpwg71j0yiSMrtsblJspwm5zLAcMN?=
- =?us-ascii?Q?3W8zZMAIJhR8Uem5twr2qDI0nnXtUUYMhLE5A/eK4TIZbeVuP8t1punlaVVv?=
- =?us-ascii?Q?FikWu/cmn1+g95laHdj3ITi2eEXu3SVc9wAyU6MEcSSaJ6vrCJO4+mo93qCd?=
- =?us-ascii?Q?sY72J4BMYYN8vHvnjIVapjcuzd7ZfeORGGTqwD7NJQ8jomykyHRSchOx1rOe?=
- =?us-ascii?Q?JwvHrmlHNplinEIL2vaPkotJup7Ufmo65vfLecBxzBmBrVM6unlM4C5ZXRQu?=
- =?us-ascii?Q?abba8R1bwg16Bq0m1Yu9D4lyZaT9kEgeiYrb02MIoC+J5Chop7U9PUtjX8OZ?=
- =?us-ascii?Q?ljNbqZpTdzddHnS2ATV1t7hCH11aEZ0mPUPfJMi8Ka+oRVCJxeNTst+IMDdg?=
- =?us-ascii?Q?8NNg0GGqx6xvTugfzLT3e32+Idfu0Nz01ynRYPtm2KmV07ZYmOtwApTUAqPz?=
- =?us-ascii?Q?OHAVP+u1Ef4HVlLaUQLD3XGy5r6LkWeo/rp7QrF/7RSs1+hvcWrsfEY7AvHj?=
- =?us-ascii?Q?iqAesM2uxQRQQdmYleb2zkA0elPG/fQ/?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB3613.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?MdrKUo1VRvzK62ai/Ce5i3rd/ggQghPW5IwFzh3JwTRyJLj51LXcbE1qm6DG?=
- =?us-ascii?Q?qoVwazo/PqKA53fFRKSAydecMrOID5xwSQwPsJqHaJGcDsrdQRb2lLIMW6VU?=
- =?us-ascii?Q?ikhfwen91iyI2lRgjkuMD+hP5O1uNqgMBGW2hOcz/a/zWDDofsNr6Dj11IJG?=
- =?us-ascii?Q?80laEhLFU1euloFOzQQyC2TORVEwDRqDVKbv2eyzsqQSSmiD8CbJnxrxiqQp?=
- =?us-ascii?Q?qDwol+CUhrjWszpLN6IPnBsS6DhLYE43XVkV+VHQv28NBbYAgTiA0uBIiNWe?=
- =?us-ascii?Q?TYLolxNZMSmqO102TUi+h35U1ycBba9blzm+7qLEc9x9sulJQKHZZN5oN0sk?=
- =?us-ascii?Q?NZyWa8tqqCiYaLSm1+cjnuubrIvK5t9XEqhavO/Vd0V/Aw7t7Ef/E4fb6+w+?=
- =?us-ascii?Q?hHaO4ffA9UQvdT/8Qcm7pLbud8sGqBbmt+FTVKvSlDR34SVshnvUnO822v2+?=
- =?us-ascii?Q?nlwz/hYGzOD83dJm235aE1bTEBrguXRsgnRJwy+mDZ6gwcHiNSo+uaxdcYo4?=
- =?us-ascii?Q?OxuQS7vTNbTkgER+M09TjHQgL7K4idKlT2k1ELgbSuyPq+LwYvQfHAqPgX46?=
- =?us-ascii?Q?I3joIGtsl31ej4xFRswRPI6ouV4P04VkrT+vNWt0Zwrnuoo18YukjPoSZxKS?=
- =?us-ascii?Q?IAmpxKsMl8NdqMDBuXTDVqk6GNOw42YWcNWIK67lVlAGHRq85j1ygGgGkVZ8?=
- =?us-ascii?Q?dTiFa7DYGfmQ/GGI70mgL7RBvxr0AMSlzHG0rFx8ol4joPiBeUp+coaMJh2m?=
- =?us-ascii?Q?Q890+lTdYuY9FQRzg61L28FwO90Ph/QeGNO+UJKOetBu0ZpXCytKQdqRlWdE?=
- =?us-ascii?Q?5YK1BsF49FnUjRrHkZeq0pYzdzTt/pox63N23huoJ2MpjXt7ms66GLGo5bM9?=
- =?us-ascii?Q?YZ4CAGmOt5WcbaHIcMv8mEZcsMRMlxMAIqK4tVynFENlnDktTpJhSkNOTLVA?=
- =?us-ascii?Q?xpvgTpImdqhQe4FY5sIAw9Izr2VpnSEotoMkd9vS82mjlTIEY0hWlP21pTw6?=
- =?us-ascii?Q?+tEHo+6sFdRcZVKyuAYdziVsuK93do2slGOYijf3Pw4+W4gT+xxih/lY1sXl?=
- =?us-ascii?Q?ZfThhgFB8k+YQt+pJpYO5yY5jFybePzdfn+pHFLK0n5zanMYc+DYPlIxm2xB?=
- =?us-ascii?Q?hkLpOUzkj+ERsy71elxD3NgvO5QW54XDRZxoy3CuXo8EIiDHt7iuJgF31r0L?=
- =?us-ascii?Q?p+4Xard/7ipqDR0ujMKGI2y+ifuCvNt5nmCq0ibqk8sZXli0SZkVYNLZ/efy?=
- =?us-ascii?Q?Fop/RLYUMvske19LLPzC/xVYVk5s7LuU99JAccNCB057r3xHzEYPI2+FFxRv?=
- =?us-ascii?Q?EA6JrtmGCQfKWCd49IzPa+8o5EyjY8gZ6XCIu1tJtBPdktCV9efhmPzp82Dv?=
- =?us-ascii?Q?4IAvIqqVq12Yg+sunNZBc3QfBXdK/aiEaOoxRuoS2Fce7c8ggV7SbCL/yLeZ?=
- =?us-ascii?Q?BW1f+9GUaQlgF8AuY6hlsMIdI+LiSZ7UbzH9SpLm6rGCRqVaFEJVxluIcc4o?=
- =?us-ascii?Q?3pZotqaKg9Jm+RqASe2dq6+g5WTDmbIHsz9PpPMLD4o7A3SWV6LRS+zI/Y0B?=
- =?us-ascii?Q?HMumaGqdCHK0ZbBygN8=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6d6454cd-481c-4edc-ba5b-08de15b048af
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3613.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Oct 2025 23:26:41.3272
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: gb50Z1dqxSylnIaT5cxXN938vYkZ2jSHVc1zxEWuhYypV5RUfbPszxmS8O59p4Uy
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB6791
+References: <20251027102644.622305-1-nhudson@akamai.com>
+In-Reply-To: <20251027102644.622305-1-nhudson@akamai.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 28 Oct 2025 08:42:32 +0800
+X-Gm-Features: AWmQ_bklpkUHU7-3U6X8wKJFt2zjBDUD0EycaiSZymIdh7dZBD-GL8V0CTdBW5Y
+Message-ID: <CACGkMEtyX6n9uLMmo7X08tFS-V6QZoDVTxhE53h9sLDPNBKnKw@mail.gmail.com>
+Subject: Re: [PATCH] vhost: add a new ioctl VHOST_GET_VRING_WORKER_INFO and
+ use in net.c
+To: Nick Hudson <nhudson@akamai.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Max Tottenham <mtottenh@akamai.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: dfeNcsIEHJuvu0FKv1SNirHKI62gAopKxVCtQyKptcw_1761612164
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 20, 2025 at 01:08:16PM -0700, Nicolin Chen wrote:
+On Mon, Oct 27, 2025 at 6:27=E2=80=AFPM Nick Hudson <nhudson@akamai.com> wr=
+ote:
+>
+> The vhost_net (and vhost_sock) drivers create worker tasks to handle
+> the virtual queues. Provide a new ioctl VHOST_GET_VRING_WORKER_INFO that
+> can be used to determine the PID of these tasks so that, for example,
+> they can be pinned to specific CPU(s).
+>
+> Signed-off-by: Nick Hudson <nhudson@akamai.com>
+> Reviewed-by: Max Tottenham <mtottenh@akamai.com>
+> ---
+>  drivers/vhost/net.c              |  5 +++++
+>  drivers/vhost/vhost.c            | 16 ++++++++++++++++
+>  include/uapi/linux/vhost.h       |  3 +++
+>  include/uapi/linux/vhost_types.h | 13 +++++++++++++
+>  kernel/vhost_task.c              | 12 ++++++++++++
+>  5 files changed, 49 insertions(+)
+>
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 35ded4330431..e86bd5d7d202 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -1804,6 +1804,11 @@ static long vhost_net_ioctl(struct file *f, unsign=
+ed int ioctl,
+>                 return vhost_net_reset_owner(n);
+>         case VHOST_SET_OWNER:
+>                 return vhost_net_set_owner(n);
+> +       case VHOST_GET_VRING_WORKER_INFO:
+> +               mutex_lock(&n->dev.mutex);
+> +               r =3D vhost_worker_ioctl(&n->dev, ioctl, argp);
+> +               mutex_unlock(&n->dev.mutex);
+> +               return r;
+>         default:
+>                 mutex_lock(&n->dev.mutex);
+>                 r =3D vhost_dev_ioctl(&n->dev, ioctl, argp);
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 8570fdf2e14a..8b52fd5723c3 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2399,6 +2399,22 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned=
+ int ioctl, void __user *argp)
+>                 if (ctx)
+>                         eventfd_ctx_put(ctx);
+>                 break;
+> +       case VHOST_GET_VRING_WORKER_INFO:
+> +               worker =3D rcu_dereference_check(vq->worker,
+> +                                              lockdep_is_held(&dev->mute=
+x));
+> +               if (!worker) {
+> +                       ret =3D -EINVAL;
+> +                       break;
+> +               }
+> +
+> +               memset(&ring_worker_info, 0, sizeof(ring_worker_info));
+> +               ring_worker_info.index =3D idx;
+> +               ring_worker_info.worker_id =3D worker->id;
+> +               ring_worker_info.worker_pid =3D task_pid_vnr(vhost_get_ta=
+sk(worker->vtsk));
+> +
+> +               if (copy_to_user(argp, &ring_worker_info, sizeof(ring_wor=
+ker_info)))
+> +                       ret =3D -EFAULT;
+> +               break;
+>         default:
+>                 r =3D -ENOIOCTLCMD;
+>                 break;
+> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> index c57674a6aa0d..c32aa8c71952 100644
+> --- a/include/uapi/linux/vhost.h
+> +++ b/include/uapi/linux/vhost.h
+> @@ -101,6 +101,9 @@
+>  /* Return the vring worker's ID */
+>  #define VHOST_GET_VRING_WORKER _IOWR(VHOST_VIRTIO, 0x16,               \
+>                                      struct vhost_vring_worker)
+> +/* Return the vring worker's ID and PID */
+> +#define VHOST_GET_VRING_WORKER_INFO _IOWR(VHOST_VIRTIO, 0x17,  \
+> +                                    struct vhost_vring_worker_info)
+>
+>  /* The following ioctls use eventfd file descriptors to signal and poll
+>   * for events. */
+> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_=
+types.h
+> index 1c39cc5f5a31..28e00f8ade85 100644
+> --- a/include/uapi/linux/vhost_types.h
+> +++ b/include/uapi/linux/vhost_types.h
+> @@ -63,6 +63,19 @@ struct vhost_vring_worker {
+>         unsigned int worker_id;
+>  };
+>
+> +/* Per-virtqueue worker mapping entry */
+> +struct vhost_vring_worker_info {
+> +       /* vring index */
+> +       unsigned int index;
+> +       /*
+> +        * The id of the vhost_worker returned from VHOST_NEW_WORKER or
+> +        * allocated as part of vhost_dev_set_owner.
+> +        */
+> +       unsigned int worker_id;
 
-> > I don't see any reasonable way to mitigate this??
-> 
-> Right. It can't simply go through a regular attach_dev call since
-> driver wouldn't expect any inconsistency in the core.
-> 
-> Driver would have to be aware of the reset state, and make a copy
-> of the old domain's CD/STE to use for a test_dev() during a reset.
+I'm not sure the above two are a must and exposing internal workd_id
+seems not like a good idea.
 
-It seems convoluted :\
+> +
+> +       __kernel_pid_t worker_pid;  /* PID/TID of worker thread, -1 if no=
+ne */
 
-IDK if you want to do that some kind of "attach but really don't" flag
-so all the tracking was kept, just the STE was forced to blocking.
+Instead of exposing the worker PID, I wonder if it's simple to just
+having a better naming of the worker instead of a simple:
 
-Then since all the fake attaches are tracked and validated switching
-to a real ste shouldn't fail.
+        snprintf(name, sizeof(name), "vhost-%d", current->pid);
 
-For instance SMMU could continue to build the CD table and act like
-the CD is active, but the STE wouldn't point to it.
+> +};
+> +
+>  /* no alignment requirement */
+>  struct vhost_iotlb_msg {
+>         __u64 iova;
+> diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+> index 27107dcc1cbf..aa87a7f0c98a 100644
+> --- a/kernel/vhost_task.c
+> +++ b/kernel/vhost_task.c
+> @@ -67,6 +67,18 @@ static int vhost_task_fn(void *data)
+>         do_exit(0);
+>  }
+>
+> +/**
+> + * vhost_get_task - get a pointer to the vhost_task's task_struct
+> + * @vtsk: vhost_task to return the task for
+> + *
+> + * return the vhost_task's task.
+> + */
+> +struct task_struct *vhost_get_task(struct vhost_task *vtsk)
+> +{
+> +       return vtsk->task;
+> +}
+> +EXPORT_SYMBOL_GPL(vhost_get_task);
+> +
+>  /**
+>   * vhost_task_wake - wakeup the vhost_task
+>   * @vtsk: vhost_task to wake
+> --
+> 2.34.1
+>
 
-Basically, this approach doesn't seem to solve all the problems, it
-reduces them sure, but there are still enough gaps.
+Thanks
 
-So I think we either have to live with them and call it a user bug to
-change the domain improperly during FLR.. If it happens dump the
-translation into blocking and move on..
-
-Or we have to do some kind of fake attach tracking which doesn't sound
-appealing..
-
-Jason
