@@ -1,113 +1,228 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010071.outbound.protection.outlook.com [40.93.198.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FC5A332EC9
-	for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 15:58:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 067081F4174;
+	Tue, 28 Oct 2025 17:08:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.71
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761667130; cv=pass; b=WW/m9tIlhqhqy4p471dtB3+N6sdG+YRwFkyeXfEkwtn1azWXFtc20KQJuXa8IHsosaanbTDGPDC9vHFn6dHhY3Kk+W0yZL+bKLKMnXjaly/sed5t6/qC3is2Y83qk9Y0izBZw6ws6jB9lnl3BQwJoDRXffpFohLyOo86LWyYT3M=
+	t=1761671322; cv=fail; b=FBJWbEngHsSp3mbTnGeoITyA2Tz1ngXHeRe50uvQAZR9oWd3O/ZBoo9ddIKXETpCgHu0J/tKBfY8h+OkguddjrYuscbAj4QdkOq8qfLETBdiDfTei3Nl5ezkjhPcGmw3MSfF99rGSKSNSVjtnPevlqho2uDU7gqNVMEAn8/LIzc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761667130; c=relaxed/simple;
-	bh=Tzj+JKvOXSJ2Fcc82c75H9G0ldUt1gcx+SXGAJYA1uU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZQ2cgAlGcr97lKbYilnFrYsuFqAEl5g2HF6R8bn7/V+BjGNUt+qx9lGk0o/bbGHSjf70WGutOFK+FMXjL25za40lEfKyGRAEyxy0WmLZdXOR0MVUGrr/JzY+oFcR0fCLnHZTWD/7iwugrdjzPBjxVapOEXgeMkklOtWwdqWdBWk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=OjmQQZVE; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1761671322; c=relaxed/simple;
+	bh=x37b2wCHAMnDl+7m9JReQ5I5jhZMv4I6KWBtVD1WNzQ=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=c+MvuE+DEwLV2nFoFmyOk6Q+bXAnIF9UG1qmRJKduaMzgJ39RNDfYVDzL56lr9Vsrl+nJAWBoruxI9xmWI7z2e9VRTddVpOcctLRE3rZVEfXqpibBUzwgE4SeSH0nzxtcH9IL2R70Btzv9hoqQvP4cSLdyBuW4ANO8DrygMiMkc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=rcLDVuoV; arc=fail smtp.client-ip=40.93.198.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="OjmQQZVE"
-ARC-Seal: i=1; a=rsa-sha256; t=1761667118; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=iijX9Izz0uG8wktjqRaepdAW7Voi45MDynx6tzFeVUWXux7/lNY7KUdKek282mPagZ4l3rlmtl5Nwflquwx68RbQhBNp/UomEdBE7pZzLPJi8pRa1EFvHWg47JiDeu2hO1v9QlWXtONjG2NeOMeNUpO/9JkZY0xbedZnCbSS/cM=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1761667118; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=efnwSCEsXITjibbdoGIyNdBFDpkKA+IsZHmoTSS+4Cg=; 
-	b=UQNjv/HZUj/DOb+mENrPNtI29zga+jU0eIpKQHKxIeaGX99kIdE0c5aLjBJZllg9LC067lAKemqGmlt1cB6+qFyjecIOqCVCSo94ETsFcqarHOiO5fVYcRkKuNg/WKD8pgkruPsJ7DIQVqDNiQJGtQ+sOw+eLDqypyEGjwxQQ30=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1761667118;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=efnwSCEsXITjibbdoGIyNdBFDpkKA+IsZHmoTSS+4Cg=;
-	b=OjmQQZVE4SdKQtG7N+LPM4dW+IHd1vQSLhb/k66m+8bni9RGgP/VklwABYTxQwby
-	1ujDiyMw6Ejcx7UE+4hqI7TAl59OIrORkmMjmL8cowueAl8PmxLbkDFp6RW3CMoZ/3q
-	oh9HUoKE2g1LyMALzqrnyIVbamgcVt3qvlFwSUag=
-Received: by mx.zohomail.com with SMTPS id 1761667115040634.8837214497644;
-	Tue, 28 Oct 2025 08:58:35 -0700 (PDT)
-Message-ID: <1e4a29e7-bf98-4193-962a-66fd251e2c72@collabora.com>
-Date: Tue, 28 Oct 2025 18:58:28 +0300
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="rcLDVuoV"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=bkeQrgc6oeJekCtHuJbVCSZX7U2cpqYKj8w/vba8YAghD2tFlJ3/AAoFivcyJ1gvgQ+Xf4z3TEIshkiswD042US8MebZC6HTqV8zA5CdG/EHFGCmv/aVgI73lB0nqCAAiQ06gh9vr/rTEhPodJPcvFW3VaZPJ2KtqcKuW8iFsZoENnwUBmVLP0+CXzccUwQaU5u9IVbunGMuysy/ntP3g+EFf5WUXD4dlDo5JbDYbdHz+jJBNvSzYo3Ec/tOfuM0Nhbk9GyWMTcipGaB3qsDAv/Rm1G/uJk2zCUtkj+tH3Al23k4KR+iwre06/zNDN0xMksRnbZ/ePIQ5Swf2cU4Zg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=4n68TRcX2UffFvOiuQ17asKgvI8ZSzg4qgnuf5YnYNY=;
+ b=SnDqjVIp7kpYoZ5AL+nyZhDE4jQd//VM5CFC5g/bSS1cWYW4SxNJlRCPeZNNMi9y+EBIjybnXc72ZlXF+K+j1XtRSzVMdbeC9tJIoX3fpDjr9yCXYDfm2IR1jO5UHAKlWh6CzBRof6Zpn3KHGn8wSD/NxS27sAxXZkGmZFajNA+bIk9uIz7NRAujdh8SxhpcTIkF+FkKNkbD0SiVWIE6CRwweumvnXGy5/0jDe99Fq8GCWWMAbpI6zWz/PCriMipZqc/sGHa4oHD7jRa4dRHJIQBhcpesNgSwXT2RDE2UruoAL8Yu79Mr1U51O7+YnwGWbBWzp9FeiJhpqfxV2dA9Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=4n68TRcX2UffFvOiuQ17asKgvI8ZSzg4qgnuf5YnYNY=;
+ b=rcLDVuoVpdU8dMHGNvDcKH+O1fx8ASdteJubLOt1yq2DdRB9frk8xUzw3yoDmVt5H9oKgfgfPsdz29d6IvwtmGfcAkhVwfgF1m+6Sw8bd23MZhjFnUu+Ns2XugLEntCfgA3Yt7//PZhI1GLc4mDJL2CF8jHx6jS2DelOd5POxYU=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from PH0PR12MB7982.namprd12.prod.outlook.com (2603:10b6:510:28d::5)
+ by SJ0PR12MB8091.namprd12.prod.outlook.com (2603:10b6:a03:4d5::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.18; Tue, 28 Oct
+ 2025 17:08:36 +0000
+Received: from PH0PR12MB7982.namprd12.prod.outlook.com
+ ([fe80::bfd5:ffcf:f153:636a]) by PH0PR12MB7982.namprd12.prod.outlook.com
+ ([fe80::bfd5:ffcf:f153:636a%5]) with mapi id 15.20.9253.018; Tue, 28 Oct 2025
+ 17:08:36 +0000
+Message-ID: <8197d961-4f59-4324-bba9-e6879b405673@amd.com>
+Date: Tue, 28 Oct 2025 10:08:30 -0700
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 19/22] vfio/pci: Convert all PCI drivers to
+ get_region_info_caps
+To: Jason Gunthorpe <jgg@nvidia.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>, David Airlie
+ <airlied@gmail.com>, Alex Williamson <alex.williamson@redhat.com>,
+ Ankit Agrawal <ankita@nvidia.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Brett Creeley <brett.creeley@amd.com>, dri-devel@lists.freedesktop.org,
+ Eric Auger <eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+ Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ intel-gfx@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+ Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
+ Longfang Liu <liulongfang@huawei.com>,
+ Matthew Rosato <mjrosato@linux.ibm.com>,
+ Nikhil Agarwal <nikhil.agarwal@amd.com>, Nipun Gupta <nipun.gupta@amd.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Halil Pasic <pasic@linux.ibm.com>, Pranjal Shrivastava <praan@google.com>,
+ qat-linux@intel.com, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Simona Vetter <simona@ffwll.ch>, Shameer Kolothum <skolothumtho@nvidia.com>,
+ Mostafa Saleh <smostafa@google.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
+ Vineeth Vijayan <vneethv@linux.ibm.com>, Yishai Hadas <yishaih@nvidia.com>,
+ Zhenyu Wang <zhenyuw.linux@gmail.com>, Zhi Wang <zhi.wang.linux@gmail.com>
+Cc: patches@lists.linux.dev
+References: <19-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+Content-Language: en-US
+From: Brett Creeley <bcreeley@amd.com>
+In-Reply-To: <19-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SJ0PR05CA0043.namprd05.prod.outlook.com
+ (2603:10b6:a03:33f::18) To PH0PR12MB7982.namprd12.prod.outlook.com
+ (2603:10b6:510:28d::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] drm/virtgpu: Make vblank event dependent on the
- external sync
-To: Thomas Zimmermann <tzimmermann@suse.de>, vivek.kasireddy@intel.com,
- gurchetansingh@chromium.org, kraxel@redhat.com, airlied@redhat.com
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev
-References: <20251027095550.110562-1-tzimmermann@suse.de>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20251027095550.110562-1-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR12MB7982:EE_|SJ0PR12MB8091:EE_
+X-MS-Office365-Filtering-Correlation-Id: 242a6d57-dc60-42de-51f1-08de1644a1a4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|7416014|366016|1800799024|921020|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?cW8reEI1VDVnUG5YbjVrOWJkeWpTNTZaT3R0eDY0dCsyMDVSUmdhUkcrUGVq?=
+ =?utf-8?B?S21Xd2N1eFRhQmwyUTdIVDZNVzJRN1pnaGJocEd3azB6c0tHcTZnUXV6S2Z1?=
+ =?utf-8?B?RGR4YU5IUDNIVnMvL2l1RnFOYnpjOSt5SmRiZkVRTzZzY3o1NHRzMXdQUEc2?=
+ =?utf-8?B?Wk1laFFXTEUxTTI2c0pqMG80MWVHSTErSjJWcWZnbTc4VlkzcEVGZXRrNXFJ?=
+ =?utf-8?B?NCt1eGFoWDBpczJoYmdXT2JtVVpUQURRaGlWT3ZjNnM0T0dPd2RCcXI3RVMy?=
+ =?utf-8?B?SkpZZWhucGlzYUQ4RG9pUHVQejNRWWM1cW1UQVNMQWtBYkNobk9WQ1RJcUpE?=
+ =?utf-8?B?U2svcllBT0ZUTEt6eElpNjlaVllqU3ZpRDdpRkU4U0RJRHdxeERwdzRLZUhM?=
+ =?utf-8?B?QmN4bEtIQjNTV0Z5b2gxZ2lyQk9SVGhoNnFDWmVoZSs1SzFtejJhSC93Nm9a?=
+ =?utf-8?B?RDlxa2QrMlg4TVRXQnBDZHdwbjRxZTNhREQ3enBDbEFDcW9rVkM0aUxVVUww?=
+ =?utf-8?B?SjZjUStkUWZpZEFVMXEvVDJqMy9jUU93Y1FadlJ3c08waHNOQlVLUllBMy9u?=
+ =?utf-8?B?OW52VFNZSStmT2FBSGFuRHRWdTZEcmU1cEc3dmJsZTc4bm9wV0IxNlNtVTJ5?=
+ =?utf-8?B?OTlDbW53ZmQveXpOOXhmc0pkOGFwNlJ2Q1VVOFR3blNGVTJpeHcySEZOWG4r?=
+ =?utf-8?B?V0FpNHc1OHF0VGM0Nk4wZGhRUGo4RFhBZzYwZUU2OGgrQ2wySHFwbUIya2l2?=
+ =?utf-8?B?bDZxanNscmNwVnV4bytrSWt5V3pvWHdqOFNJVG1MQlZGK0Y0dnBmZ1liY09x?=
+ =?utf-8?B?MUIrUEloMHlHL1FIQXZTdXJCbGxQd0FzSWV4TU1UbVRGbUxQbWNZcWZCd0w5?=
+ =?utf-8?B?UXZHUS9uWUZKZWpYcVl5VE1oRkkwOGl5RjdxT2pHcW1lRnNFcWhDZkVRcVRP?=
+ =?utf-8?B?NXJyakZhYXN6bnhBMjZocG1JU2VDUW5LYlJNQy9vTmdPbndHR1d6TkxQVHp4?=
+ =?utf-8?B?NWliZS8wKzVMK3BZYlU5Y2UvSWNGUklCbDZHb0NXT3lLNVN2NHhOYTRqV0Nr?=
+ =?utf-8?B?NFlmUGFoM3FocFlTbnpLT2QzUWM4Z2cvcVo3SVNPS0FSNzFxRWpUSU9FNnlv?=
+ =?utf-8?B?REhtY092cU9lenNsSnhncnBDVS83Mzdkd01xRFlLeVE1MEo5Y0NjbVBmRTRV?=
+ =?utf-8?B?dE5vZ3hSUTF4RUgyMUZWeWE0bktNQ2EveHJsRXJPVE5kWEl3RUU3M2FuN0xP?=
+ =?utf-8?B?ZnNQV1FzN1hGV2FMaElBL2d4UGpVNkJFdlRtRkwyTTVLWGdYL2ZoWmllYWdW?=
+ =?utf-8?B?dEQ3UDhTdW5SUjZBaFlYemQ5NnhYNHl6NHIwdVlqTWtKalpYSmRnRm8zSnlT?=
+ =?utf-8?B?KzRQKzJjeXZ5Y2pycnh6eE9FcllXQzdFWTVUS3NwQXR4MlVOam9RMVhWaUFo?=
+ =?utf-8?B?NFVkc0JhZ0JnaHdMZTFERXBRK2tIMksranpaVEVCM0lwYXkxRlM0UC9sNElI?=
+ =?utf-8?B?ZCs5VXEzNUl6MnJ1UEpVQXViR3JCMS9lUUNVWXhnby9QYzVIaGhMbE5MYzVp?=
+ =?utf-8?B?ZFRsMUU1UGloK3Q5VUZSaGxxbUhHaG5Jenh5MzExeEQrOFRVQlBQOElOL04v?=
+ =?utf-8?B?b2dBSHlLbSthRnA5dksvRk01dEhxaENWSU9RUllObTdMbmpvMUFmM3kwbk5z?=
+ =?utf-8?B?dWd6YjArTVM4bVpSSGQ0U2NsTm1TLzRRL2p0MTR4YVd0bHNhWlFLTW1Ga2hv?=
+ =?utf-8?B?YlN6UGhmaU1EUHNYMXMwNnBic3RNblAzMWYyYnFBeDJRS04yS1c2dXppYkdC?=
+ =?utf-8?B?WEQ3Tk9Dc3p2bTkxVUpZOWFDMFR6aDFYMnFKRURhYnFPV2xWYmJobS9hbnpr?=
+ =?utf-8?B?dlpRYzRDUEpBUUN0eTk0cmVOMlArNjU2YTVnU2c2RStwUnhxVFZrOHE5dkxJ?=
+ =?utf-8?B?bzcvNUFvUjBUWGRhNnRxK2QwOEwyVUtlMW9PNlVLT1BuNDY3UVkrVXNLdWFi?=
+ =?utf-8?Q?LjIHXv9RQMjadOv1dw6bDuX6uqDqQA=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB7982.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024)(921020)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?S1hxekFYdVhGV1k0MmJaalZyVGFMNi9QUWZ1eUdiQ0xGenBGMDZ6RGpPMGkz?=
+ =?utf-8?B?c3JaUWkrYWFPWHRiVnNUV3JlRzZ2R21xT3QyUy8waU1tSU01NlRDajZPS1pk?=
+ =?utf-8?B?OWdNYWpUeVIzSEJ2eTJHY1RvcEZScGZtMFQ2b1FTTjlYMW42WGF4Y2NkdkUr?=
+ =?utf-8?B?WlViTGFsWi9xdTg2ZWk0TkRvY2UwVS9OT0FlVzJkWEVkWXVUOTFsTHNLZUhw?=
+ =?utf-8?B?REF4WHU0SVUzUkZwRWtEaUY1a1REbEZxaGFLeFI1WGtCdVRsVE9XTzlvK1pO?=
+ =?utf-8?B?MDRYa1podUQwWFNIZXduTk50U2llN3ZHZ1pIWE1jZWt5R0FNbHlZV0tZN1hQ?=
+ =?utf-8?B?dEZRL0xMc3hWTWtFNkVORU1Fb2p4UzltY1JRM1lUc3hIM1JhWU84WnpTOUZi?=
+ =?utf-8?B?c2M5ZnJBeXlTQjV3azVtQlZzeWlMYUhpK0Ura1lXWjlFZGc1RGVKVVBMbzlx?=
+ =?utf-8?B?Tk9jbDJkZ1U3N1hEU2FxWmpwenVmRE5SNElQcnVhZDZ4YmljcnRsMFF4TU1N?=
+ =?utf-8?B?YWpBRGtHOTRCNURna0k5aVY5MkRUdHNzV1lxOE9FRnBVbGdXMmFQVVNOZ2ZE?=
+ =?utf-8?B?azhON0VFMkZ6REh5enBwdEdMYXhiY1JNNzY2RjR4R3VTNFR0Ykl4Si84YTcv?=
+ =?utf-8?B?RWlocTNRd3RIU3hzTDR6VSt5V1M2U1orb2VvRFhVazAvVWpENzFqKzFZVU9u?=
+ =?utf-8?B?TkJ5ajBjRW9wZytZazA0OW03a0VhVlBiWEtYQldkN1F2V1Y3cmRCZUxGNUZY?=
+ =?utf-8?B?SDZTY0prN0lDbVpmUnlaVEdVOFNHQ1FLVGpXTUNpSklaWGVlRDMyWjZYUlJm?=
+ =?utf-8?B?S1lWdWQxUUtSRFBlcUlrVUNwaktWZ2s3K1lhVWd5ZkRCQ0hsakNNTjhLNW43?=
+ =?utf-8?B?cGlZalJXUXNKNXV0TmlXbDNDVUl1bVk2dUN0QjV3MndHWXpBOUpwaytYTmxp?=
+ =?utf-8?B?SFlRcTg4WUFzMFNkY1hnb0NMQk83S21Qc2gxODlQQ25GaEcxM0hLSzNvQ3Qx?=
+ =?utf-8?B?UEpWVmhjdE9UN1kzU041TGtVcm1xYlVjc2NGNDl3eVdMekg2Z1cwazZQZVZX?=
+ =?utf-8?B?b2puU2hzRllRREE2d1F2Z003UllxRUpaYlFxS1pJZVVMR1JWUURyVHBma2lF?=
+ =?utf-8?B?MjA4eHFpbDdKZmFySUNsNWdaQURvWGFyVVM5cTRxTFQ0eTVxOHprdFZ4d0d4?=
+ =?utf-8?B?Mk9DeWtaT0tIY2dnVi82bTNWazlxSVpZR2FPWVc2c3UvWkR2eDBKUHN3cis1?=
+ =?utf-8?B?cUpJL0pjcjV0WDIyQndQaUJ1WGEvYlpqMFRzeEZtOWc1MFh0V0x4YUV2TmFJ?=
+ =?utf-8?B?eU9rb0VKM1k2aHgyaUV2NDFtS01DK2hCUW5sU1B0eVIydk9EdWZwMHAzYlVZ?=
+ =?utf-8?B?eUc0TlY1N3NHYk9NVGsxdnlGdkxvUS9oNmpFV1doUVNYeXZ3NG5ocThHVGdj?=
+ =?utf-8?B?ODIxNnJkRjNZUWE3bm9ZQmJiMGhyVXRiNXZUd1I1ZCs5ZmloUm4zVVk0WHla?=
+ =?utf-8?B?eE1OeW5UZXNRN2d6M3FSMitjdlpqV1FWU1lVblZLaG4yTnNqRktYK2FPUWIy?=
+ =?utf-8?B?TG83M1RPUVdLK3FDTTMyZVIvTkRlYVVFbjc4ZFZveHo5QWxZcDREWmZ5UlJy?=
+ =?utf-8?B?MnZBWVF1ZzJDMTJJcUlRREJvREF1TVdZOCs1cFVNVFJ2c0swWmFBZnkrc0No?=
+ =?utf-8?B?bkV3cFdsOEFDeGlkZVU1ZHBoemlNSEo4MXJzczRXek1lenJkajErQ2x0Z3Ey?=
+ =?utf-8?B?ZEJqM1FTWHdrc21qaDhQalBpa0o0ZUhydlR5VW1LTGppQ2YzNkR1NnN2MDhw?=
+ =?utf-8?B?QUZyay83Zkl1MWxiQjA2a0lMcDJoWUhvcWhROUVSRzFiVGtZZDJEaHo1YmtY?=
+ =?utf-8?B?MzI0V3kzQklaSGdRWEo5SkxNblB2S0VMQVd4bTRQeC9XOGp4WS94WEpydStI?=
+ =?utf-8?B?ZmM0MEg0SkZXM1QrTlhNWUNXL2lwUnpPdUp1TGZQeGVmSDBvRm1qTEpVelB6?=
+ =?utf-8?B?SFpsLzMvVmtEL3IzWjE0eEdINmJKbS8rZmVZNXN2S2Z1bzlUUi9zV3BHdS9z?=
+ =?utf-8?B?K3I1Tmt1N1NkU2wwN0FXS3Y0a1hLK3JJZ1V0clpjd2NhYXBoT2s1UjFpZzI2?=
+ =?utf-8?Q?Kg7ii+J+UsXRuJJVaAIhoJJaw?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 242a6d57-dc60-42de-51f1-08de1644a1a4
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB7982.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Oct 2025 17:08:36.1400
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8zJsaiHMh0spV9gGE7jB0Oa54Php4I5u9pW10MCMOe9voqrg2BA1J+NAGPNbI4VnRAMyyewnmCdR9vr4W5wBFA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB8091
 
-On 10/27/25 12:52, Thomas Zimmermann wrote:
-> For each plane, store the buffer object's sync status in the state
-> of the plane's respective CRTC. During the CRTC's atomic flush,
-> ignore the vblank timer if any of the CRTC's plane's buffer object
-> is synchronized to an external source. Instead send the vblank event
-> immediately. Avoids corner cases where a vblank event happens too
-> late for the next frame to be page flipped in time.
+
+
+On 10/23/2025 4:09 PM, Jason Gunthorpe wrote:
+> Caution: This message originated from an External Source. Use proper caution when opening attachments, clicking links, or responding.
 > 
-> Exporters of GEM objects sometimes interfere with the vblank timer;
-> resulting in framerate drops. Hence detect this case and handle it
-> as outlined above.
 > 
-> The vblank timer is still active and fires in regular intervals
-> according to the guest display refresh. This rate limits clients
-> that only wait for the next vblank to occur, such as fbcon. These
-> clients would otherwise produce a very high number of frames per
-> second.
+> Since the core function signature changes it has to flow up to all
+> drivers.
 > 
-> v4:
-> - only handle imported GEM buffer objects (Dmitri, Vivek)
-> - fix test for plane visibility (Vivek)
-> - always enable vblank timer to make waiting clients happy
-> v3:
-> - disable vblank unconditionally
-> - compute status on each commit
-> v2:
-> - enable/disable vblank timer according to buffer setup
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
-> This patch was previously called "drm/virtgpu: Make vblank event
-> dependent on the host resource". Earlier versions where meant for
-> testing, rather than being merged. See [1] for a discussion of when
-> the fixed problem happens.
+>   .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  30 ++---
+>   drivers/vfio/pci/mlx5/main.c                  |   2 +-
+>   drivers/vfio/pci/nvgrace-gpu/main.c           |  51 ++-------
+>   drivers/vfio/pci/pds/vfio_dev.c               |   2 +-
+>   drivers/vfio/pci/qat/main.c                   |   2 +-
+>   drivers/vfio/pci/vfio_pci.c                   |   2 +-
+>   drivers/vfio/pci/vfio_pci_core.c              | 103 +++++++-----------
+>   drivers/vfio/pci/virtio/common.h              |   3 +-
+>   drivers/vfio/pci/virtio/legacy_io.c           |  26 ++---
+>   drivers/vfio/pci/virtio/main.c                |   6 +-
+>   include/linux/vfio_pci_core.h                 |   3 +-
+>   11 files changed, 80 insertions(+), 150 deletions(-)
 > 
-> [1] https://lore.kernel.org/dri-devel/20251016145230.79270-1-
-> tzimmermann@suse.de/
-> ---
->  drivers/gpu/drm/virtio/virtgpu_display.c | 67 ++++++++++++++++++++++--
->  drivers/gpu/drm/virtio/virtgpu_drv.h     | 15 ++++++
->  drivers/gpu/drm/virtio/virtgpu_plane.c   | 28 +++++++++-
->  3 files changed, 104 insertions(+), 6 deletions(-)
 
-No problems spotted. I'd only extended comment in the code explicitly
-stating that drm_gem_is_imported() is the workaround, might edit it on
-applying. Will wait for Vivek's feedback. Thanks.
+<snip>
 
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> diff --git a/drivers/vfio/pci/pds/vfio_dev.c b/drivers/vfio/pci/pds/vfio_dev.c
+> index 1946bc75d99b49..be103c74e96957 100644
+> --- a/drivers/vfio/pci/pds/vfio_dev.c
+> +++ b/drivers/vfio/pci/pds/vfio_dev.c
+> @@ -195,7 +195,7 @@ static const struct vfio_device_ops pds_vfio_ops = {
+>          .open_device = pds_vfio_open_device,
+>          .close_device = pds_vfio_close_device,
+>          .ioctl = vfio_pci_core_ioctl,
+> -       .get_region_info = vfio_pci_ioctl_get_region_info,
+> +       .get_region_info_caps = vfio_pci_ioctl_get_region_info,
+>          .device_feature = vfio_pci_core_ioctl_feature,
+>          .read = vfio_pci_core_read,
+>          .write = vfio_pci_core_write,
 
--- 
-Best regards,
-Dmitry
+LGTM. Thanks.
+
+Reviewed-by: Brett Creeley <brett.creeley@amd.com>
+
+<snip>
