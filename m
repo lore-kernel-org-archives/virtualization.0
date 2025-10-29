@@ -1,170 +1,343 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EBBB2C2369
-	for <virtualization@lists.linux.dev>; Wed, 29 Oct 2025 00:37:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBC7423E35B
+	for <virtualization@lists.linux.dev>; Wed, 29 Oct 2025 01:06:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761698228; cv=none; b=UQs8EK+Hbxc5v+E0L1h5+YoqxDYNdJ1+VxPXqvXNPSMSjkDb0+70AojhJTuluEz8xlOcxGCl4rSKpjeBrTmC88Z1fx6CH2qbTRhAb1ORYZL1D/MOtInuZP19/Bi1p10Xdzfb4O2jjwwjra2CvcFZa67YsFFZm9s5USCUrVS9pTA=
+	t=1761699967; cv=none; b=An12Wxh3UKQJR+Hm0l5MtpYL7WL+8udU6czccKgOvdXPsLwgjjMmBwnYgkfySa9a3CXhwAZ4wyJLH/tEWPLvy+xmiIdWJ6PCrq8eEULY2VhI2u4N78FQ+w7WYUiaaUnb4o7LKRG0VlYvL/KPdE40fQolOdclddaj5kyT3ippWQU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761698228; c=relaxed/simple;
-	bh=z2KxUywKM/o4sjXFIMx/mY+Zmwl/FX3Tzo88dQEt2xs=;
+	s=arc-20240116; t=1761699967; c=relaxed/simple;
+	bh=4rKXcsEqAaajDIbcVK5FPPjANzPZ+F4xSPgFyTeC6As=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FF1Geig1RUZSgMhNVSzI5neMRbi7FF82V+LPaTeD6SANnsgibTi10/4BxN0E2twLhAL81IrOtBF8Lr0UjdlxhHXAE+1y0O8+Z/nj34W+bGHdpxl/1tdxA6RgLt6a2lIM7vTILfQ1LosbFky7ikaQSR+wJoRA4CG4Cl/OPRTOMJU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SqKqCy3H; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=geb7UUXqTpkjWlozK2aLejnKjCkbGzgTgkQfhvuHNSXvQZ0QafZeOn05nv3mbhs6Tlj8EJza5X4VkozH7+RFumsNUO3/N+Oy+4QjEkn+1Z4Bggado8h//F2d0+mx8oUanXVSYvJo7c08DM6FtRD5iwpPUTl7sIUiMSCXw19rLZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fbmkzoOw; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SqKqCy3H"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fbmkzoOw"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761698226;
+	s=mimecast20190719; t=1761699964;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=z2KxUywKM/o4sjXFIMx/mY+Zmwl/FX3Tzo88dQEt2xs=;
-	b=SqKqCy3HOkbeW/a6ipLPP0dtoWBpmtUS0Cj+CBN9PAVTx3iZWYgI4cEa6jIXD0YoyiAwkU
-	N1AjdERdyDp2NQx9fG9axt2A0V1T1ImP7bD9OHAIkG0svLWS9gJ2/mj62vwbaCrNcWMtGr
-	Dc2riachxeeYuaCYo0Kdp8o/MTJiA2g=
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
- [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=LqvZkVwS4D/DMvfxtfY0zM5tRus8vTjeQLDhqse9kWE=;
+	b=fbmkzoOwX1t+R8MD3FCYUkw2kciR8cM7khha/TPRAPB0QCJLhD1hnTOpdxTROiD+NR/ar/
+	61bm9i9Ea/2j3sckRuJguPFuf/JqnG4utUbbAtE2C+0NjbGtIwUYBhKDA1cBgV2KHjrHL/
+	OWPlrspDUxlHImc2yryJziGXjS5vS60=
+Received: from mail-ua1-f71.google.com (mail-ua1-f71.google.com
+ [209.85.222.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-588-ws79M0VNPzusPrDzFjF4bQ-1; Tue, 28 Oct 2025 20:37:04 -0400
-X-MC-Unique: ws79M0VNPzusPrDzFjF4bQ-1
-X-Mimecast-MFC-AGG-ID: ws79M0VNPzusPrDzFjF4bQ_1761698223
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-290cd61855eso56367805ad.1
-        for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 17:37:04 -0700 (PDT)
+ us-mta-255-Kx_p2IixMA-CL0u0LcPFDg-1; Tue, 28 Oct 2025 21:06:03 -0400
+X-MC-Unique: Kx_p2IixMA-CL0u0LcPFDg-1
+X-Mimecast-MFC-AGG-ID: Kx_p2IixMA-CL0u0LcPFDg_1761699963
+Received: by mail-ua1-f71.google.com with SMTP id a1e0cc1a2514c-932cfea9060so2932324241.0
+        for <virtualization@lists.linux.dev>; Tue, 28 Oct 2025 18:06:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761698223; x=1762303023;
+        d=1e100.net; s=20230601; t=1761699963; x=1762304763;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=z2KxUywKM/o4sjXFIMx/mY+Zmwl/FX3Tzo88dQEt2xs=;
-        b=AP4OtVVFZoCmkfSn2FQBn7Njt/tKRHQ4Y1it4hBPd+DWfJQrI820ulSaXwEOegCnaU
-         Lwxy+J+Vki3gBaY8qD8pRqQaJ+dGD9CL5DX2RG+69/MSkhHfGMQYJ7ZOXkAL3W3nn9Hx
-         /5YhADEecL19zUcsNrk4IM+RZSUjC0Zkwz37FBzMIQB9kTOFB9+OD58Eqei4v62M04Ob
-         hrvie0A5WnHOvJEEV8PW0WiPoRdeJJz3mibm82JC2LnJXq/gsk325rAUlbGOupuwMvRt
-         iGxlPLc09kGkNrRe4eJ6IvsJv54O7Q6ub4RTf/g0Niq9/1njFJQzCPLEOc6RmH5GJ7uQ
-         cZxA==
-X-Forwarded-Encrypted: i=1; AJvYcCWa55rZxitMuTYKUGUBoEWsdqjgOclBhUnms1sreGKABbKANJPUPwFwvF10qZHjiWea+3WMCDoMMs5/yAJTUw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywv+kO1GsIpUd67PCnLMr2Zb0yT7Bi2UpefTjR4GGqCrwJH77uM
-	PCjduo5vHJlgIYrAV9YlxuZxPSWWtCewvOMn7mS45neo1kZXmJTheH8gdTbP/DolIoDWxsZ/ep3
-	MznYW8vvEshVgoY+yzQSbJpNHGgn2/V3LpkuBT0/3DxzOUGcJNDfP644FrTCfH3EzObQF1OyKIT
-	rFM8DfAE/hpWSDrwz/lKDqNTZ3yegKiFKalJrGwuv0MkA=
-X-Gm-Gg: ASbGncv9U+J/pQMugJo7BnbZ6qnhFYj8gIvNGIY8tNjlofaMBSfexCBRjIK/QewxThS
-	5Ar7B8asIb23LeP7X3nue5JahshAhqeczsqEd5Lw7b8xafOap7aT2I6/swEEEuz8Tta6vVVWUKI
-	VnaTBP2/PTcLvvDzsayLhASP0ysXq2YT6S0a8U5NBFvLKH9cURAvsV
-X-Received: by 2002:a17:903:18c:b0:25c:76f1:b024 with SMTP id d9443c01a7336-294dee3572dmr10317065ad.25.1761698223396;
-        Tue, 28 Oct 2025 17:37:03 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE/SiMLBBOrGOScV5jwu3LEgWMNSKEpwIxmJj+/O/Qz7kK4bu5+UPkMl7kc61nl2u6Eqbd9szURp9TnMPpT23k=
-X-Received: by 2002:a17:903:18c:b0:25c:76f1:b024 with SMTP id
- d9443c01a7336-294dee3572dmr10316805ad.25.1761698222965; Tue, 28 Oct 2025
- 17:37:02 -0700 (PDT)
+        bh=LqvZkVwS4D/DMvfxtfY0zM5tRus8vTjeQLDhqse9kWE=;
+        b=MTofzWs/qo+OB0+nyP6qw+rKZMr4Yy7yrsENRYk1F/lwIxxcaGpw/IDaKemFtDMpQs
+         T5+NJXRsfeI9VMV/JRoowXPF8dvmrhZqYCRN+pYYC0d31z9hflsm4TLRUyPWgELvud/s
+         2FKsk8s+fMBLG2uE/a2GG4tTI/oDhIH4uDS0kCu4IEKZqvhfned0rxADnAgOAD3h4cE3
+         Mah2aQTLpMlRIYhA3zKIHonCtSS+2joVSDp/SVUb07dlh+aYk0L3vo8H0qoLAlM3rJSS
+         GEEb3eVboA3m0V+jVJVSQ/nej3lmFhf41Gc+XTN/YMmT075m6e/vV+etKSbx6FTW6Zt5
+         jvtw==
+X-Forwarded-Encrypted: i=1; AJvYcCUa8f4o9A2vSr8/HEZQ4gtQeEOK+63Gz/DlQtSAmlivsw0D61dgHIBTB+AWWR2JhOnmcAFC6kKb5A4MqAlQbA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzNnC9OFbqm+691rQZlWpqcJuGndKLC5zVRVYcdfD4fCNyUCnUU
+	tF9UnD15fMN1apn9dJl8cg0buWbU+S/x6UTsAd1UzKFG/GA7uy32QkSD6QBLS/pKs5jnbEL257h
+	7WyfCfvVWU251FcodPckmPGMf1t+CU57jVPfeL4ffo01sR9PqVx2DudQY4uSYrvMIN2defILRmx
+	45SqkWxQbgqrLSdGVOZlt1bspVdqlNoIwa/Q0HVreH89w=
+X-Gm-Gg: ASbGncv9kGVmn9Synk1/2/6fAcM248Da/1//hp63fpTp8y/nbmgQ6kB8FLuvouHsAJ9
+	aZHWM8ihG2a7HvkZu23/W4sRJjiSfk6x0BvJIJeitgZ/b1sRLQ/XLFfJL3xrWg81zGJIlz4qvxa
+	6QoEWXyDAUj8EdFsI8SwZcfXxjA3uwrBxgr8rbxj7qICBjvQ5VP95v9lSR
+X-Received: by 2002:a05:6102:c89:b0:5d5:f6ae:38cd with SMTP id ada2fe7eead31-5db906bf09fmr320208137.44.1761699962674;
+        Tue, 28 Oct 2025 18:06:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFI/zaw38+AhmGbx6A3agVStmL8oTqW3Nz5bSSlh7PFtDfaccTBJ4Rd1laBz7CD0TnxQIXxp/IVhKrIuqX/41k=
+X-Received: by 2002:a05:6102:c89:b0:5d5:f6ae:38cd with SMTP id
+ ada2fe7eead31-5db906bf09fmr320197137.44.1761699962213; Tue, 28 Oct 2025
+ 18:06:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CAJaqyWfRmhXM8eV+=wMVKgrc8SJ98OTtBCtNDJj8ZRUM5Y9Nmg@mail.gmail.com>
- <CAO55csx2rbjxEZk5K3aKcZ501KY3Zfs8ThEQHFqQ1ZB9RSXECA@mail.gmail.com>
- <20251015040722-mutt-send-email-mst@kernel.org> <CAJaqyWcf3tz17q6G=123Xb+warf8Ckg=PLaPkzLU9hYHiUy9Zg@mail.gmail.com>
- <20251022060748-mutt-send-email-mst@kernel.org> <CAJaqyWdRN3C1nOHQjWroBPWKjc5efNfVbecpruL=Cgsk6i1FXg@mail.gmail.com>
- <20251022073231-mutt-send-email-mst@kernel.org> <CAJaqyWeDcyKKOvVdqUkpTuH3d-Tb9rBHG3ym+LC0fcmhrN_FJA@mail.gmail.com>
- <20251028100923-mutt-send-email-mst@kernel.org> <CAJaqyWePMtM8vtgm8UnGAv+_XNTnVNFSNuoqzt_Cn-CpZg46mA@mail.gmail.com>
- <20251028104154-mutt-send-email-mst@kernel.org> <CAJaqyWc=Fhp2+m8P6cctkqG+oeXUgiGhKAsR5Ns20JMun=wvbQ@mail.gmail.com>
-In-Reply-To: <CAJaqyWc=Fhp2+m8P6cctkqG+oeXUgiGhKAsR5Ns20JMun=wvbQ@mail.gmail.com>
+References: <20251028030341.46023-1-jasowang@redhat.com> <20251028101144-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251028101144-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 29 Oct 2025 08:36:51 +0800
-X-Gm-Features: AWmQ_blHBTuatMSJPDVuJEjsd9mldfKukgTo-6k1-Y6oj3d-VR92-lkw7uaPq1E
-Message-ID: <CACGkMEsv3SXnQ74bQKadcOr5Ztv-O-VZ8Zgfdq7mXqXN_Yrg0Q@mail.gmail.com>
-Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Yongji Xie <xieyongji@bytedance.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Dragos Tatulea DE <dtatulea@nvidia.com>
+Date: Wed, 29 Oct 2025 09:05:47 +0800
+X-Gm-Features: AWmQ_blsWiXuIt1RoBQUCAMZu2u9gBaPh9UlZ-pGRBO9KBYUDMeLmbYbRVF99MU
+Message-ID: <CACGkMEu9AMtTn6cZjW=N+OJZMLqgaiLiAS6V0EhuA7fSeXJ69A@mail.gmail.com>
+Subject: Re: [PATCH net] virtio-net: calculate header alignment mask based on features
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, andrew+netdev@lunn.ch, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vaKmC5eVhaSdPg-gHkhGhVvB9KdNnGsDAK82JJqSPXc_1761698223
+X-Mimecast-MFC-PROC-ID: AI4FyVBXXyhV4PGQUuKiX7Q_U3T1L1Lg9W8css52RYU_1761699963
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 28, 2025 at 10:58=E2=80=AFPM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
+On Tue, Oct 28, 2025 at 10:39=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com=
+> wrote:
 >
-> On Tue, Oct 28, 2025 at 3:42=E2=80=AFPM Michael S. Tsirkin <mst@redhat.co=
-m> wrote:
-> >
-> > On Tue, Oct 28, 2025 at 03:37:09PM +0100, Eugenio Perez Martin wrote:
-> > > On Tue, Oct 28, 2025 at 3:10=E2=80=AFPM Michael S. Tsirkin <mst@redha=
-t.com> wrote:
-> > > >
-> > > > On Wed, Oct 22, 2025 at 02:55:18PM +0200, Eugenio Perez Martin wrot=
-e:
-> > > > > On Wed, Oct 22, 2025 at 1:43=E2=80=AFPM Michael S. Tsirkin <mst@r=
-edhat.com> wrote:
-> > > > > >
-> > > > > > On Wed, Oct 22, 2025 at 12:50:53PM +0200, Eugenio Perez Martin =
-wrote:
-> > > > > > > Let me switch to MQ as I think it illustrates the point bette=
-r.
-> > > > > > >
-> > > > > > > IIUC the workflow:
-> > > > > > > a) virtio-net sends MQ_VQ_PAIRS_SET 2 to the device
-> > > > > > > b) VDUSE CVQ sends ok to the virtio-net driver
-> > > > > > > c) VDUSE CVQ sends the command to the VDUSE device
-> > > > > > > d) Now the virtio-net driver sends virtio-net sends MQ_VQ_PAI=
-RS_SET 1
-> > > > > > > e) VDUSE CVQ sends ok to the virtio-net driver
-> > > > > > >
-> > > > > > > The device didn't process the MQ_VQ_PAIRS_SET 1 command at th=
-is point,
-> > > > > > > so it potentially uses the second rx queue. But, by the stand=
-ard:
-> > > > > > >
-> > > > > > > The device MUST NOT queue packets on receive queues greater t=
-han
-> > > > > > > virtqueue_pairs once it has placed the VIRTIO_NET_CTRL_MQ_VQ_=
-PAIRS_SET
-> > > > > > > command in a used buffer.
-> > > > > > >
-> > > > > > > So the driver does not expect rx buffers on that queue at all=
-. From
-> > > > > > > the driver's POV, the device is invalid, and it could mark it=
- as
-> > > > > > > broken.
-> > > > > >
-> > > > > > ok intresting. Note that if userspace processes vqs it should p=
-rocess
-> > > > > > cvq too. I don't know what to do in this case yet, I'm going on
-> > > > > > vacation, let me ponder this a bit.
-> > > > > >
-> > > > >
-> > > > > Sure.
-> > > >
-> > > > So let me ask you this, how are you going to handle device reset?
-> > > > Same issue, it seems to me.
-> > > >
-> > >
-> > > Well my proposal is to mark it as broken so it needs to be reset
-> > > manually.
-> >
-> >
-> > Heh but guest assumes after reset device does not poke at guest
-> > memory, and will free up and reuse that memory.
-> > If userspace still pokes at it -> plus plus ungood.
-> >
+> On Tue, Oct 28, 2025 at 11:03:41AM +0800, Jason Wang wrote:
+> > Commit 56a06bd40fab ("virtio_net: enable gso over UDP tunnel support.")
+> > switches to check the alignment of the virtio_net_hdr_v1_hash_tunnel
+> > even when doing the transmission even if the feature is not
+> > negotiated. This will cause
 >
-> I don't get this part. Once the device is reset, the device should not
-> poke at guest memory (unless it is malicious or similar). Why would it
-> do it?
 >
+> you mean this causes
+>
+> >a series performance degradation of pktgen
+> > as the skb->data can't satisfy the alignment requirement due to the
+> > increase of the header size then virtio-net must prepare at least 2
+> > sgs with indirect descriptors which will introduce overheads in the
+>
+>
+> introduces, accordinglt
+>
+> > device.
+> >
+> > Fixing this by calculate the header alignment during probe so when
+> > tunnel gso is not negotiated, we can less strict.
+> >
+> > Pktgen in guest + XDP_DROP on TAP + vhost_net shows the TX PPS is
+> > recovered from 2.4Mpps to 4.45Mpps.
+> >
+> > Note that we still need a way to recover the performance when tunnel
+> > gso is enabled, probably a new vnet header format.
+>
+> you mean improve, not recover as such
 
-At least for this case virtio-vDPA + VDUSE, there's no way for the
-userspace to poke after reset since everything is done via IOTLB.
+The PPS drops to 2.4Mpps after the 56a06bd40fab, so this patch
+recovers it the number before 56a06bd40fab.
 
-For other devices, if we want this extra safety, we need to enable swiotlb.
+>
+>
+> >
+> > Fixes: 56a06bd40fab ("virtio_net: enable gso over UDP tunnel support.")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/net/virtio_net.c | 21 +++++++++++++++------
+> >  1 file changed, 15 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 31bd32bdecaf..5b851df749c0 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -441,6 +441,9 @@ struct virtnet_info {
+> >       /* Packet virtio header size */
+> >       u8 hdr_len;
+> >
+> > +     /* header alignment */
+> > +     size_t hdr_align;
+> > +
+>
+> It makes no sense to have u8 for length but size_t for alignment,
+> and u8 would fit in a memory hole we have, anyway.
+
+Oh right.
+
+
+>
+> >       /* Work struct for delayed refilling if we run low on memory. */
+> >       struct delayed_work refill;
+> >
+> > @@ -3308,8 +3311,9 @@ static int xmit_skb(struct send_queue *sq, struct=
+ sk_buff *skb, bool orphan)
+> >       pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
+> >
+> >       can_push =3D vi->any_header_sg &&
+> > -             !((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
+> > +             !((unsigned long)skb->data & (vi->hdr_align - 1)) &&
+>
+>
+> So let me get it straight.
+> We use the alignment check to be able to cast to the correct type.
+> The issue is that alignment for the header changed.
+>
+> virtio_net_hdr_v1 has 2 byte alignment, but:
+>
+>
+>
+> struct virtio_net_hdr_v1_hash {
+>         struct virtio_net_hdr_v1 hdr;
+>         __le32 hash_value;
+> #define VIRTIO_NET_HASH_REPORT_NONE            0
+> #define VIRTIO_NET_HASH_REPORT_IPv4            1
+> #define VIRTIO_NET_HASH_REPORT_TCPv4           2
+> #define VIRTIO_NET_HASH_REPORT_UDPv4           3
+> #define VIRTIO_NET_HASH_REPORT_IPv6            4
+> #define VIRTIO_NET_HASH_REPORT_TCPv6           5
+> #define VIRTIO_NET_HASH_REPORT_UDPv6           6
+> #define VIRTIO_NET_HASH_REPORT_IPv6_EX         7
+> #define VIRTIO_NET_HASH_REPORT_TCPv6_EX        8
+> #define VIRTIO_NET_HASH_REPORT_UDPv6_EX        9
+>         __le16 hash_report;
+>         __le16 padding;
+> };
+>
+>
+> has 4 byte due to hash_value, and accordingly:
+>
+>
+> struct virtio_net_hdr_v1_hash_tunnel {
+>         struct virtio_net_hdr_v1_hash hash_hdr;
+>         __le16 outer_th_offset;
+>         __le16 inner_nh_offset;
+> };
+>
+>
+> now is 4 byte aligned so everything is messed up:
+> net tends not to be 4 byte aligned.
+>
+>
+>
+>
+> >               !skb_header_cloned(skb) && skb_headroom(skb) >=3D hdr_len=
+;
+> > +
+> >       /* Even if we can, don't push here yet as this would skew
+> >        * csum_start offset below. */
+> >       if (can_push)
+> > @@ -6926,15 +6930,20 @@ static int virtnet_probe(struct virtio_device *=
+vdev)
+> >       }
+> >
+> >       if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) |=
+|
+> > -         virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
+> > +         virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO)) {
+> >               vi->hdr_len =3D sizeof(struct virtio_net_hdr_v1_hash_tunn=
+el);
+> > -     else if (vi->has_rss_hash_report)
+> > +             vi->hdr_align =3D __alignof__(struct virtio_net_hdr_v1_ha=
+sh_tunnel);
+> > +     } else if (vi->has_rss_hash_report) {
+> >               vi->hdr_len =3D sizeof(struct virtio_net_hdr_v1_hash);
+> > -     else if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF) ||
+> > -              virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+> > +             vi->hdr_align =3D __alignof__(struct virtio_net_hdr_v1_ha=
+sh);
+> > +     } else if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF) ||
+> > +             virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+> >               vi->hdr_len =3D sizeof(struct virtio_net_hdr_mrg_rxbuf);
+> > -     else
+> > +             vi->hdr_align =3D __alignof__(struct virtio_net_hdr_mrg_r=
+xbuf);
+> > +     } else {
+> >               vi->hdr_len =3D sizeof(struct virtio_net_hdr);
+> > +             vi->hdr_align =3D __alignof__(struct virtio_net_hdr);
+> > +     }
+> >
+> >       if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO_CS=
+UM))
+> >               vi->rx_tnl_csum =3D true;
+>
+> So how about just fixing the root cause then?
+> Like this (untested, if you agree pls take over this):
+>
+> ---
+>
+> virtio_net: fix alignment for virtio_net_hdr_v1_hash
+>
+>
+> changing alignment of header would mean it's no longer safe to cast a 2
+> byte aligned pointer between formats. Use two 16 bit fields to make it 2
+> byte aligned as previously.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+This looks indeed better, will go this way.
+
+>
+> --
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 31bd32bdecaf..02ce5316f47d 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2535,6 +2535,13 @@ static struct sk_buff *receive_mergeable(struct ne=
+t_device *dev,
+>         return NULL;
+>  }
+>
+> +static inline u16
+
+Should be u32.
+
+> +virtio_net_hash_value(const struct virtio_net_hdr_v1_hash *hdr_hash)
+> +{
+> +       return __le16_to_cpu(hdr_hash->hash_value_lo) |
+> +               (__le16_to_cpu(hdr_hash->hash_value_hi) << 16);
+> +}
+> +
+>  static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr=
+_hash,
+>                                 struct sk_buff *skb)
+>  {
+> @@ -2561,7 +2568,7 @@ static void virtio_skb_set_hash(const struct virtio=
+_net_hdr_v1_hash *hdr_hash,
+>         default:
+>                 rss_hash_type =3D PKT_HASH_TYPE_NONE;
+>         }
+> -       skb_set_hash(skb, __le32_to_cpu(hdr_hash->hash_value), rss_hash_t=
+ype);
+> +       skb_set_hash(skb, virtio_net_hash_value(hdr_hash), rss_hash_type)=
+;
+>  }
+>
+>  static void virtnet_receive_done(struct virtnet_info *vi, struct receive=
+_queue *rq,
+> @@ -3307,6 +3314,10 @@ static int xmit_skb(struct send_queue *sq, struct =
+sk_buff *skb, bool orphan)
+>
+>         pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
+>
+> +       /* Make sure it's safe to cast between formats */
+> +       BUILD_BUG_ON(__alignof__(*hdr) !=3D __alignof__(hdr->hash_hdr));
+> +       BUILD_BUG_ON(__alignof__(*hdr) !=3D __alignof__(hdr->hash_hdr.hdr=
+));
+> +
+>         can_push =3D vi->any_header_sg &&
+>                 !((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
+>                 !skb_header_cloned(skb) && skb_headroom(skb) >=3D hdr_len=
+;
+> @@ -6755,7 +6766,7 @@ static int virtnet_xdp_rx_hash(const struct xdp_md =
+*_ctx, u32 *hash,
+>                 hash_report =3D VIRTIO_NET_HASH_REPORT_NONE;
+>
+>         *rss_type =3D virtnet_xdp_rss_type[hash_report];
+> -       *hash =3D __le32_to_cpu(hdr_hash->hash_value);
+> +       *hash =3D virtio_net_hash_value(hdr_hash);
+>         return 0;
+>  }
+>
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_=
+net.h
+> index 8bf27ab8bcb4..1db45b01532b 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -193,7 +193,8 @@ struct virtio_net_hdr_v1 {
+>
+>  struct virtio_net_hdr_v1_hash {
+>         struct virtio_net_hdr_v1 hdr;
+> -       __le32 hash_value;
+> +       __le16 hash_value_lo;
+> +       __le16 hash_value_hi;
+>  #define VIRTIO_NET_HASH_REPORT_NONE            0
+>  #define VIRTIO_NET_HASH_REPORT_IPv4            1
+>  #define VIRTIO_NET_HASH_REPORT_TCPv4           2
+>
 
 Thanks
 
