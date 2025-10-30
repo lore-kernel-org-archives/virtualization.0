@@ -1,165 +1,193 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B3A9270EC1
-	for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 08:49:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 611F6350A25
+	for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 10:00:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761814153; cv=none; b=VBXdxyRPIkKBCRR8hCZbGubj7UD+jKMMFtqZ+qvH2kaz1jdYeSr6BSjviwCbt1ARpcDiVm1mm2jA3S4eQ+iMrnKLvGYNyGdqGENeU7HHEtVq86y3BMmsYTvn12GThHqTCLj1hRzXOvOO3+22FAQXNFwJxJkt3AW3i1IdgF7R/1M=
+	t=1761818442; cv=none; b=Uqr0UKO4USW062DuKjcMjUOPSSd/hbrL0ud4zExlhKbwG+KqivVoTAjGNZkwKH7DdfdSUfUZ2XSeQzqJGGO9nxQpBzKomTLIBXMPuSzUPXATlkNTTMG4Z1w/ypfr3Zxl6Uo7jYSvN4qXuCE4ebwa5QX6gXr9Epn2cT6y1mcSaSM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761814153; c=relaxed/simple;
-	bh=fqQSBxOlZJnuHFrFErST1mQ64bzEwVQ1F3XskwMHnXY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=K+i+YcgNHWibEItg1eTV8ulwJJrPb4T9/EgxjqIa9QjdtcxAKCwDfrfb9VW8sRpLOA7t825kUdHJO0idgBFtB9MiGI4rnSR4w3BXB9XE9KzUoP1peaCJwAz1Pg8Z1CPhfY/mHDPl4Sr35bRDSWpbG95n0M0XfsHbwMQadaO26cU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DhjbCpTZ; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1761818442; c=relaxed/simple;
+	bh=6Zmb0CcRgFbIaMtsVnZLTnR5lwdm4wr07MAo5Dn8B9g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lvkyFBS6M/8i2anWl7mh56nN8lljRTcOpVunVpjlIG8NXAiGeyhWGVi+N/qvk+HShI5YdRIdOGLpW+ScyBQu+uUMKh5ytwDSu31gKmieQ9t3BHlqLAUKNxMQlIx2QgQigNz7JCWLWWyana1e06KQc9kKMmQAGfj/fjoVG9/t5TE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IlSEP3aM; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DhjbCpTZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IlSEP3aM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761814150;
+	s=mimecast20190719; t=1761818438;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qiyL2OA2YNAdRRB+5nVcHVWUWiPtQAfn/t7VDsJNQ+E=;
-	b=DhjbCpTZyBNjq0b+EC8IqkPHYOwOgipt2u0l0gOulQejA7+2eYQTPHKv4MNBZpdn+6UygC
-	xyStQooihWtbXTqVG+M6AospulznfVdeAeWgBmfYm86GlC5st3MWLHoZDe6xMxr08i9zzw
-	MMCsBbLweE/SLom8OZAOdAPkBZ95Z1M=
-Received: from mail-vk1-f197.google.com (mail-vk1-f197.google.com
- [209.85.221.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-275-wYDXSO6lOq6fSptjwr3jDg-1; Thu, 30 Oct 2025 04:49:08 -0400
-X-MC-Unique: wYDXSO6lOq6fSptjwr3jDg-1
-X-Mimecast-MFC-AGG-ID: wYDXSO6lOq6fSptjwr3jDg_1761814148
-Received: by mail-vk1-f197.google.com with SMTP id 71dfb90a1353d-554e68b14cbso291989e0c.3
-        for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 01:49:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761814148; x=1762418948;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=qiyL2OA2YNAdRRB+5nVcHVWUWiPtQAfn/t7VDsJNQ+E=;
-        b=O8+HHgtUZi2VDntF/WSw/BW6cW1P9IGYEYa1T+rB+CSoiIvRRgdx5wyUEq082udlCB
-         k/FIszMOW0NaYGzitD5rZG0XE2WlJShKQN7K/OgXtvgQAfr5qPOC98lhwCYDz4aD6tjh
-         YUR6oV3F+T3RdjRbB1AURNQDWe2JLcUA2/H9726rUDFjrb59BCd7fuvpxR/GKkafhxq4
-         Am66jQQNpMzBpChn8dhHfhULWlRi6RjCBaBUaUf4kRQRaFbBOpq4gz/um1aQ0c1CTWYB
-         pJCT6SGEfbdaYRMi+6Md0QOoxoHqtbA1sxChlAZkOBxb+Yv5nJ0lKSF1ca2dt2kVQnDT
-         84jg==
-X-Forwarded-Encrypted: i=1; AJvYcCXdb4WM6MzD3eNIY4t3cI1IVXwOHlS4J1nXmp7TfR2vgEelv2UtRHl5NOUqM/5JisKzX3mhjIz1NCkMQYS+nA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx0r0He6wqO8eeMHsj8Vnjb7mZzEdPq9qqU7lDmbVic4qt5AbJb
-	ydc/8eRlaOXR/T1MPzXUDU+BzPqUMYG3ep53tGywYX6K8r85+Wt6rJo0rLdeSfdHwWKZyMCxOyM
-	pyI/Ln8zwZfQTuPO7TwM1m4jMQSDF+Poxv76faaTk7qKhz8min88KEcwAI0y4eKzeN5bKMLweEw
-	2J5xeXSFeafvDZ6LODzQ82eB39aZlyep3Lqke1WkS/JeQ=
-X-Gm-Gg: ASbGncvmT/y11bQ+5a+WF9eK2r4Wmv6bhIKjRVwn1bTEgNUQJIJQzBr8oceLeEKzFSv
-	EbBdxkLaEB8gprHqQ0VbMWr9SSzyxhpCuaBjyRClbfPRqYAH7VtpYYBPLh7Oq1eY+/VCQppC+UD
-	rCB8SkuzG0CVQlhE2MVDOe8NtenyVoG6IziEaai3a0ER/3JukHPEWNwE0F
-X-Received: by 2002:a05:6102:f10:b0:5db:374f:8b99 with SMTP id ada2fe7eead31-5db906624d6mr1907770137.21.1761814148100;
-        Thu, 30 Oct 2025 01:49:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG+WCljcFXG5ydfbrxYlPEyAo/Pz8VVviP2Glb40OxQFPWIBiKNqzK9X5R/4oPQ1sIsKfCzs0t2wOTgpOfc8Bw=
-X-Received: by 2002:a05:6102:f10:b0:5db:374f:8b99 with SMTP id
- ada2fe7eead31-5db906624d6mr1907764137.21.1761814147726; Thu, 30 Oct 2025
- 01:49:07 -0700 (PDT)
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=/LyUf28TK2Ud2Xqy4Ix3qqmyppSH1l61Pl6v1q/hRNU=;
+	b=IlSEP3aM+2PoLgGHx2zgMGgGngLv42xcdpEez6DJsnat0i4zejcsql7hFRygSIM3Dcbken
+	HMiPf1bPzQ2xC5CbH5eMVhb6gcbInrrW30wDh64tu2g5VIlSj+1hLu4mJRRNBU4WOpqsaE
+	+ezSQ0u+btgyykG5QrZG5MnVtKWbqC8=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-219-fztXhvwFMU-5s6fa_n6Qow-1; Thu,
+ 30 Oct 2025 06:00:34 -0400
+X-MC-Unique: fztXhvwFMU-5s6fa_n6Qow-1
+X-Mimecast-MFC-AGG-ID: fztXhvwFMU-5s6fa_n6Qow_1761818432
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2C0BD180AE03;
+	Thu, 30 Oct 2025 10:00:32 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.225.22])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E0FDF19560B6;
+	Thu, 30 Oct 2025 10:00:27 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: "Michael S . Tsirkin " <mst@redhat.com>
+Cc: Yongji Xie <xieyongji@bytedance.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Laurent Vivier <lvivier@redhat.com>,
+	Maxime Coquelin <mcoqueli@redhat.com>,
+	virtualization@lists.linux.dev,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	jasowang@redhat.com,
+	Cindy Lu <lulu@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v8 0/6] Add multiple address spaces support to VDUSE
+Date: Thu, 30 Oct 2025 11:00:19 +0100
+Message-ID: <20251030100025.95113-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CADZSLS0zp9rqP2=vCh8eHVH_U+g+k_8pitV939u9Ls8ZPEMfJQ@mail.gmail.com>
- <zfddiyxykxaoev4wbaxh6ml6czew44k5mt4jsxylpbybnqbs6y@rcfi5dpy5qv4>
- <CADZSLS1KPX6rgCkdDPqqyYC-R3oBWDGb8o26QQXaG5U4R=8zzA@mail.gmail.com>
- <w5oshdtp3wdhydjmh6htwtgb6keyml2teft7ihu277tbktzbp6@mweh7pyfwlrl>
- <CADZSLS0A_EEi46U_zF+ssfgXWqg_YwekwOsCiNTbbKg3ueNhRQ@mail.gmail.com>
- <y7jhsbztzc5cy75354pauxq7xs6rcnsimhdlnkcd52j4dislke@7gtn5te2uonk> <CADZSLS0RR0DCWKD9QjEPJ2EmwKZBh5ftOCcT13_Hn+mQQz-anQ@mail.gmail.com>
-In-Reply-To: <CADZSLS0RR0DCWKD9QjEPJ2EmwKZBh5ftOCcT13_Hn+mQQz-anQ@mail.gmail.com>
-From: Wenli Quan <wquan@redhat.com>
-Date: Thu, 30 Oct 2025 16:48:56 +0800
-X-Gm-Features: AWmQ_bkGwmSsYQMolBIrVokyCC1QhyK30E7yFd_oYDo1evJJGE86tWxvz0zjFjs
-Message-ID: <CADZSLS1usmoE7pkW3Nqw6QkCp4sObU0xjRXYhSb1+p1K3vFAEg@mail.gmail.com>
-Subject: Re: Host Crash when re-running vDPA device creation script after interruption
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: psJYq2W6ilL_vV9m4abMu1nm4HVBTe6aOYaY0fqgUMk_1761814148
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Wed, Oct 29, 2025 at 2:07=E2=80=AFPM Wenli Quan <wquan@redhat.com> wrote=
-:
->
-> On Tue, Oct 28, 2025 at 4:56=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.c=
-om> wrote:
-> >
-> > On Thu, Jul 10, 2025 at 06:18:39PM +0800, Wenli Quan wrote:
-> > > On Wed, Jul 9, 2025 at 9:08=E2=80=AFPM Dragos Tatulea <dtatulea@nvidi=
-a.com> wrote:
-> > > >
-> > > > On Wed, Jul 09, 2025 at 08:59:13PM +0800, Wenli Quan wrote:
-> > > > > On Wed, Jul 9, 2025 at 6:38=E2=80=AFPM Dragos Tatulea <dtatulea@n=
-vidia.com> wrote:
-> > > > > >
-> > > > > > On Wed, Jul 09, 2025 at 05:36:04PM +0800, Wenli Quan wrote:
-> > > > > > > I am reporting an issue where the host system crashes when re=
--running
-> > > > > > > a script that creates a vDPA device after interrupting its pr=
-evious
-> > > > > > > execution. I am attaching the script for your analysis, as I =
-am unsure
-> > > > > > > of the exact step causing the crash.
-> > > > > > >
-> > > > > > Thanks for catching this Wenli. We'll look into it.
-> > > > > >
-> > > > > > > # uname -r
-> > > > > > > 6.16.0-rc2
-> > > > > > > # sh vdpa-setup.sh  0000:b5:00.1 1
-> > > > > > > interrupted by pressing Ctrl+C
-> > > > > > Could you specify during which stage of the script do you inter=
-rupt it?
-> > > > >
-> > > > > Interrupted after running for a few seconds.
-> > > > >
-> > > > I was not yet able to reproduce the issue.
-> > > >
-> > > > Could you print out the commands of the debug script so that we can=
- see
-> > > > where it was interrupted? set -x should be enough.
-> > >
-> > > I tried again many times, just to reproduce once. the following scrip=
-t
-> > > for your inference. but it doesn=E2=80=99t cause a crash every time.
-> > >
-> > Hi Wenli,
-> >
-> > Could you try re-running this again please with the latest mainline as =
-I
-> > was not able to reproduce it.
->
-> Sure, I will retest it and update the result here.
+When used by vhost-vDPA bus driver for VM, the control virtqueue
+should be shadowed via userspace VMM (QEMU) instead of being assigned
+directly to Guest. This is because QEMU needs to know the device state
+in order to start and stop device correctly (e.g for Live Migration).
 
-Hello Dragos
+This requies to isolate the memory mapping for control virtqueue
+presented by vhost-vDPA to prevent guest from accessing it directly.
 
-I have re-tested with 6.18.0-rc3+, and the issue could no longer be reprodu=
-ced.
+This series add support to multiple address spaces in VDUSE device
+allowing selective virtqueue isolation through address space IDs (ASID).
 
-Best Regards, wenli
->
-> Best Regards, wenli
->
-> >
-> > There was a relevant fix [0] recently that might make a difference.
-> > This was merged as commit
-> > 6b4be64fd9fe ("net/mlx5e: Harden uplink netdev access against device un=
-bind")
-> > in mainline.
-> >
-> > [0] https://lore.kernel.org/all/1757939074-617281-2-git-send-email-tari=
-qt@nvidia.com/
-> >
-> > Thanks,
-> > Dragos
-> >
+The VDUSE device needs to report:
+* Number of virtqueue groups
+* Association of each vq group with each virtqueue
+* Number of address spaces supported.
+
+Then, the vDPA driver can modify the ASID assigned to each VQ group to
+isolate the memory AS.  This aligns VDUSE with vdpa_sim and nvidia mlx5
+devices which already support ASID.
+
+This helps to isolate the environments for the virtqueues that will not
+be assigned directly. E.g in the case of virtio-net, the control
+virtqueue will not be assigned directly to guest.
+
+Also, to be able to test this patch, the user needs to manually revert
+56e71885b034 ("vduse: Temporarily fail if control queue feature requested").
+
+Tested by creating a VDUSE device OVS with and without MQ, and live migrating
+between two hosts back and forth while maintaining ping alive in all the
+stages.  All tested with and without lockdep.
+
+PATCH v8:
+* Revert the change from mutex to rwlock (MST).
+
+PATCH v7:
+* Fix not taking the write lock in the registering vdpa device error path
+  (Jason).
+
+PATCH v6:
+* Make vdpa_dev_add use gotos for error handling (MST).
+* s/(dev->api_version < 1) ?/(dev->api_version < VDUSE_API_VERSION_1) ?/
+  in group and nas handling at device creation (MST).
+* Fix struct name not matching in the doc.
+* s/sepparate/separate (MST).
+
+PATCH v5:
+* Properly return errno if copy_to_user returns >0 in VDUSE_IOTLB_GET_FD
+  ioctl (Jason).
+* Properly set domain bounce size to divide equally between nas (Jason).
+* Revert core vdpa changes (Jason).
+* Fix group == ngroup case in checking VQ_SETUP argument (Jason).
+* Exclude "padding" member from the only >V1 members in
+  vduse_dev_request.
+
+PATCH v4:
+* Consider config->nas == 0 and config->ngroups == 0 as a fail (Jason).
+* Revert the "invalid vq group" concept and assume 0 if not set.
+* Divide each domain bounce size between the device bounce size (Jason).
+* Revert unneeded addr = NULL assignment (Jason)
+* Change if (x && (y || z)) return to if (x) { if (y) return; if (z)
+  return; } (Jason)
+* Change a bad multiline comment, using @ caracter instead of * (Jason).
+
+PATCH v3:
+* Make the default group an invalid group as long as VDUSE device does
+  not set it to some valid u32 value.  Modify the vdpa core to take that
+  into account (Jason).  Adapt all the virtio_map_ops callbacks to it.
+* Make setting status DRIVER_OK fail if vq group is not valid.
+* Create the VDUSE_DEV_MAX_GROUPS and VDUSE_DEV_MAX_AS instead of using a magic
+  number
+* Remove the _int name suffix from struct vduse_vq_group.
+* Get the vduse domain through the vduse_as in the map functions (Jason).
+* Squash the patch implementing the AS logic with the patch creating the
+  vduse_as struct (Jason).
+
+PATCH v2:
+* Now the vq group is in vduse_vq_config struct instead of issuing one
+  VDUSE message per vq.
+* Convert the use of mutex to rwlock (Xie Yongji).
+
+PATCH v1:
+* Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+* Using vduse_vq_group_int directly instead of an empty struct in union
+  virtio_map.
+
+RFC v3:
+* Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
+  value to reduce memory consumption, but vqs are already limited to
+  that value and userspace VDUSE is able to allocate that many vqs.  Also, it's
+  a dynamic array now.  Same with ASID.
+* Move the valid vq groups range check to vduse_validate_config.
+* Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
+* Use of array_index_nospec in VDUSE device ioctls.
+* Move the umem mutex to asid struct so there is no contention between
+  ASIDs.
+* Remove the descs vq group capability as it will not be used and we can
+  add it on top.
+* Do not ask for vq groups in number of vq groups < 2.
+* Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
+  VDUSE_IOTLB_GET_INFO.
+
+RFC v2:
+* Cache group information in kernel, as we need to provide the vq map
+  tokens properly.
+* Add descs vq group to optimize SVQ forwarding and support indirect
+  descriptors out of the box.
+* Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
+  part of the struct is the same.
+* Fixes detected testing with OVS+VDUSE.
+
+Eugenio Pérez (6):
+  vduse: add v1 API definition
+  vduse: add vq group support
+  vduse: return internal vq group struct as map token
+  vduse: refactor vdpa_dev_add for goto err handling
+  vduse: add vq group asid support
+  vduse: bump version number
+
+ drivers/vdpa/vdpa_user/vduse_dev.c | 474 ++++++++++++++++++++++-------
+ include/linux/virtio.h             |   6 +-
+ include/uapi/linux/vduse.h         |  67 +++-
+ 3 files changed, 433 insertions(+), 114 deletions(-)
+
+-- 
+2.51.0
 
