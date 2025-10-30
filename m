@@ -1,100 +1,104 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF63972618
-	for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 12:18:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761826730; cv=none; b=Fms8AMBpHF0XPxPny7hovPiOPlmk+KJKIbErH5RPbcZWGaUzMLtNKeUJnAamrmlEfoqUoGBAaVnvJiBwTmmrc+gNBty5+x3U7QBnUsB/hLu2k/riALT/gtD8gVSyHXVQEC8tPgzP7oYkoqci38gxrXYIGBHA5P90gug/VJQCtZo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761826730; c=relaxed/simple;
-	bh=wnhbQmh4ahC8PKdCzcYNoFOto08zipbrJDQpVkPseTY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OJ6zLjots2+yXMPVb7KAgJTE/30d+N3LLuNZ+6b4qJ7W3gBb9H17w6q/BS4JXl733LLPD2VX8P4BzN49wk6OucZbkRDGQ9JPZc4ZXr3lEC+1LyuOC6cYOkI7awCg+GQJYNsFTKPcFIbGsZiSJA6mhZ6YGww2CYqMoo6RYalo7VI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=Hn1dPaju; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E81A32475C7
+	for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 13:54:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761832477; cv=pass; b=l+la9vQubd/Z+0x2MtRFdpbsgp7sgnZ+UtVXz8mVZXGdBmVwWK3FyZ7k5+uXMP2gnB9L12sU3XaugaSwjcwYXncziuguaCOZr+X81VHjY/KEpcxaglO97mXpx1AQQaMewXp3Ks70EfKy2ErciJ9xJxGalhuhLOZvnSRX/9iWdZw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761832477; c=relaxed/simple;
+	bh=gG69vOS4owHfFEYrg95UN90rUdCbB5rpYm9q4EKd7Sk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JI4MNpiSBQ6QrahKYNKvsGlD+JlPhWHr8stIuPQ49GkePz6gGOBP8E9qCNTXaOZ7DMl2TCcWGOXHNfTnkaAe71bJrWYA8gyk09lllfSqewEz6gcbKISDjGc312cqAj9NxNlX9taCF64AQgd83Xh70O2/Dfe3rBozNzz+PXimiiI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=e9rOttoZ; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="Hn1dPaju"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-33d7589774fso1357578a91.0
-        for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 05:18:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1761826728; x=1762431528; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SV3Wyms5GctmoxFgrHuylYNeXPRM7QEqyLlsa9U1RVE=;
-        b=Hn1dPajuljkfbTSZA26UXHz1oLV9GZ7LvCYtzconimKe0nDfBNfrxZP2/FW0FLJsX3
-         PTlviDh6FAFkXye3zH3AETBMw38/ymyTFEgmeyQy0nFKPGtNEQlU0bwQinPBpUm4R9Az
-         Qs0U8BUB9WdF3dEfghEMuTbsDUN3SDzityQ5EOyeKD75bs/bGOxCEiURpFBphsggPMz7
-         x2ktj32PJqRS3FeYlN+R+lB6VxCDwyOrn/jcQGWwnjRTuqX2IZ61Md5fsQZwb7j49Xsu
-         ZYeaZcq5gbWIkYjgKcbYW4efEkAtDRxQ3dXHRDno8QKRN+fPwdB4Qg0UODpn38HSuc6w
-         kYJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761826728; x=1762431528;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SV3Wyms5GctmoxFgrHuylYNeXPRM7QEqyLlsa9U1RVE=;
-        b=dfEsdAl1TqtrLU3TEkbeoicgw6jE/AkQsgbydnPa8nBAiN6UQ3OJhVxsetbLGBbPf4
-         ZTgZqjHcubaXtH7as0UF+bYHzxq1fCggAwbwGwqc/rbdiqdFnakQZkV/RnpRsS8QA/ju
-         SFjpS/LYL7ANBocCT5S5nT7sfHaSkivZMIDzMWq+YSOfgPLi84d28k6vn1gnsnJYVywK
-         iS2QDSt3SSrrLsP5lCA01XKY2X1nOcUxS7figsfpRyUD5fjqmXUrqKZ2gAUdh6Wbu5HW
-         R8RSLoq5Yr1W40CCfGP/4mxXvkzZEGZChIBchCFgjq4UdD2aoJe/j9rgFgng7rLJYKA9
-         JB1Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVf6HGDbWQ33LBn4YkGLizLmcyjxZ6sKYcH2tUixS48zC8mKpwahVf5xm7KbS5aC+tnqcxVOBr7W8WwQSwxxA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/R1r+ZGMQ1WIg68o9X2DMOEVm1GTnjonrwMBSr47N7uZnc/RO
-	QLNNeiWqrBZqkX1mM+FniVsajoR4BXgAD8PSYd7Ji+zlB0lPbhGuGMT45mP7wGnviwkbtbzjynR
-	rg3SO5DJz25Ma8b3QIUuCcitzJNsBgL3YeNpLjmTn
-X-Gm-Gg: ASbGnct+s+d5/DJ/8yGbOw3NgxuRi3BeWNDYGBAlSKmiXmFw2So4Sras62NNqyiQrXD
-	NNB7x84w0X9IK5teVQm/bwk5o2RHnu8Vw7bukrF25wEe+1QlZgkObjplSMMHcxkrqXZ9NgPbtlQ
-	Qu4IsEQlTZ1o5ZQcKGn+S/sj/nP8RMJMK1djSXrpux6EgpOxKJRNNyB0sf5usLT4Dd5+NqSeYEz
-	6au0TJB0J26rOrV1hdAOgzA5DdEEJrOvUEBkrKB+8DAsqxHBYKBO2ErbUNvsBz2G4OwoysvNtS7
-	OeeX5N0=
-X-Google-Smtp-Source: AGHT+IEAOTMFK3D5taJ3KPSJjji4K5xecEJyo6FAdbfI1bayrytkxTVqsVBKlawrgvajLnMKq8BLOieel/imjS8/7jA=
-X-Received: by 2002:a17:90b:1c87:b0:33f:ee05:56e7 with SMTP id
- 98e67ed59e1d1-3404c404985mr3892931a91.16.1761826727860; Thu, 30 Oct 2025
- 05:18:47 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="e9rOttoZ"
+ARC-Seal: i=1; a=rsa-sha256; t=1761832466; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=FzYZntJKMkc6jsJ7bjZiUbB791tiHH/p29gqyqDFzb2NwrpXKYwukBnqKR2rsUkjNTTWdR4M2DSGlYzAxjPSkAnc74hRS5hil5LV5ZmgBcnPxAy/o65ONHMqXGnggbOGKxdQrIIZz6fGQADOTBPq0KwHT7v9usm5mSUO9xwW3LE=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1761832466; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=YCCgzhf13qQVgC2HQHI9hDseJtU+Xb2EjrNgBTnf72Q=; 
+	b=WhKOTXGT68qMNuLsuWd/u+jpf7XXM6r9CnNWAVhNZ8DnvB/RXCT9GQonOSLH4joB274WAj0C7PHR9R55UA/l+qGITT9ypCLLNhpuB/FjenI/eze4aiA3D4EynjhslT2DaV9ebySWyJqmP4lpcrvLCjieQg4YAKt+K8+XpY9bSy0=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1761832466;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=YCCgzhf13qQVgC2HQHI9hDseJtU+Xb2EjrNgBTnf72Q=;
+	b=e9rOttoZnV98AsHZGbq8pwV8Pzs0/LkVkfbIzSZFf7hiu7Jzhu0WtEigKkGJ1F88
+	NE0nO0soNMNYNHHldpWvjt4PJqLI5i0jevtlX+3n7OelSmsHpLUGT6BMcP9MhVgbNxf
+	4RwVR14YIkWNpuKvY7L8frw4EENMgsvCoSuQmmUw=
+Received: by mx.zohomail.com with SMTPS id 1761832463981354.8844547118065;
+	Thu, 30 Oct 2025 06:54:23 -0700 (PDT)
+Message-ID: <b54f8527-5ce3-449a-ac96-6b4686d1b108@collabora.com>
+Date: Thu, 30 Oct 2025 16:54:20 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251030100025.95113-1-eperezma@redhat.com> <20251030100025.95113-3-eperezma@redhat.com>
-In-Reply-To: <20251030100025.95113-3-eperezma@redhat.com>
-From: Yongji Xie <xieyongji@bytedance.com>
-Date: Thu, 30 Oct 2025 20:18:36 +0800
-X-Gm-Features: AWmQ_bmiKDcTTVrpLtfWQHLoVOAgkHmCC4dbaQET0qDlzDFIGwHDaLhNbSek-Lo
-Message-ID: <CACycT3tUQuQLgxE1-++izeKZLbdzKWUt9a5ukRW52HCjm3V1ZQ@mail.gmail.com>
-Subject: Re: [PATCH v8 2/6] vduse: add vq group support
-To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
-	Maxime Coquelin <mcoqueli@redhat.com>, virtualization@lists.linux.dev, 
-	Stefano Garzarella <sgarzare@redhat.com>, Jason Wang <jasowang@redhat.com>, Cindy Lu <lulu@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] drm/virtgpu: Make vblank event dependent on the
+ external sync
+To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
+ "kraxel@redhat.com" <kraxel@redhat.com>,
+ "airlied@redhat.com" <airlied@redhat.com>
+Cc: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+References: <20251027095550.110562-1-tzimmermann@suse.de>
+ <1e4a29e7-bf98-4193-962a-66fd251e2c72@collabora.com>
+ <IA0PR11MB718584C85B844B3ED6115858F8FAA@IA0PR11MB7185.namprd11.prod.outlook.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <IA0PR11MB718584C85B844B3ED6115858F8FAA@IA0PR11MB7185.namprd11.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On Thu, Oct 30, 2025 at 6:01=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redhat=
-.com> wrote:
->
-> This allows separate the different virtqueues in groups that shares the
-> same address space.  Asking the VDUSE device for the groups of the vq at
-> the beginning as they're needed for the DMA API.
->
-> Allocating 3 vq groups as net is the device that need the most groups:
-> * Dataplane (guest passthrough)
-> * CVQ
-> * Shadowed vrings.
->
-> Future versions of the series can include dynamic allocation of the
-> groups array so VDUSE can declare more groups.
->
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+On 10/29/25 08:47, Kasireddy, Vivek wrote:
+> I applied this patch and tested 3 different scenarios:
+> 1) blob=true + imported buffers
+> root@localhost:weston_upstream/weston# ./build/clients/weston-simple-egl -o &
+> Using config: r8g8b8a0
+> has EGL_EXT_buffer_age and EGL_EXT_swap_buffers_with_damage
+> has EGL_EXT_surface_compression
+> 245 frames in 5 seconds: 49.000000 fps
+> 236 frames in 5 seconds: 47.200001 fps
+> 279 frames in 5 seconds: 55.799999 fps
+> 240 frames in 5 seconds: 48.000000 fps
+> 244 frames in 5 seconds: 48.799999 fps
+> 283 frames in 5 seconds: 56.599998 fps
+> 274 frames in 5 seconds: 54.799999 fps
+> 
+> 2) blob=true
+> root@localhost:/weston_upstream/weston# ./build/clients/weston-simple-egl -o &
+> Using config: r8g8b8a0
+> has EGL_EXT_buffer_age and EGL_EXT_swap_buffers_with_damage
+> has EGL_EXT_surface_compression
+> 167 frames in 5 seconds: 33.400002 fps
+> 208 frames in 5 seconds: 41.599998 fps
+> 203 frames in 5 seconds: 40.599998 fps
+> 252 frames in 5 seconds: 50.400002 fps
+> 180 frames in 5 seconds: 36.000000 fps
+> 219 frames in 5 seconds: 43.799999 fps
+> 176 frames in 5 seconds: 35.200001 fps
+> 220 frames in 5 seconds: 44.000000 fps
 
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+Thanks for the testing.
 
-Thanks,
-Yongji
+For the second scenario I'm getting better result, it's 55-60fps for me.
+Given that this is a SW rendering, curious whether that's because you're
+testing on a lower end machine(?)
+
+-- 
+Best regards,
+Dmitry
