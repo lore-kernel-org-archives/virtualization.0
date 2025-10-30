@@ -1,145 +1,140 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACCD832B99D
-	for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 02:40:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0734432ABE0
+	for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 02:42:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761792034; cv=none; b=A1KsGK03lx4sMY6aAzsJOy7vU7PtUJC5o0dJssNo88yI4yYTQm7f4PPHpRNPmTOsnnHz5H39VKXKg/t1tKTE5hSrKmpTREi/bKpyWwrJu0s7Eq6GdeJx7Sys+ng53bEYXKSmp77iVS9MHzhfycWT70EBjWK52mSVZK8FyutVdsA=
+	t=1761792170; cv=none; b=UwRT9j6YJPoR95uIrEJvuZ50sXWcJ87zyHAwXWMTyf8l1wGatavbXe4jsJoZN2HsQIU1C+5XaSWKsQqJdkl3CiUhUmTKOFLjVCsksST9QHlOF1b34mi9R5XCh4BBLAfyspKuQzY5vTcml0M5bLeJni/RrpRs8/LGsZmB/OAYNyk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761792034; c=relaxed/simple;
-	bh=dM/PC+xgLDFQa74JGMOEWbPEyQbhx65hYn2Ifshodvo=;
+	s=arc-20240116; t=1761792170; c=relaxed/simple;
+	bh=eEnpiMSXYQvSVbkRm+5dPeWzUqqgY5BA2tW5hs88yxM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MdSSQbZ8157PndF3asKPFNlGIFInP+Ut9EATQKu2YHQKcCOkMRwrjQ6dflUqucLA24qtYEWueO7kj0DMY0Fe2+FAjeZv8BIhH4EHVGt1y2Y/n/Uw5odDKdxHwESET/48Ljrnc0kIX2DQ+FP6vFKjNN77wdbpHqjkccgbX4x/NKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VcNzs3SB; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=ifLIsOzOvmqzlPy4UKw1U5JCCUW481C/YMYVCDd5j3o3A5ylj6LqBNPEUQHZH5ywTfEJfSIZ37Be/km+ioSd4U6mNwoJrJJpAw9CaPc7ciNFZhAaJQnqiKhblqovYGrj3kji+X35lv17wI7mgChiyVDg7Np9LEc5Azs7b92Dtns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RTkbcLUP; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VcNzs3SB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RTkbcLUP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1761792029;
+	s=mimecast20190719; t=1761792166;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=0s8hKYa9ITmFWQHj91VS7CotRvqtXLR4K9Qz/fibwBY=;
-	b=VcNzs3SBWVhJHbK+4wc2yLqcqOtYELv2gaJiCkDl1tSK750JTBOkEoUUOOqNJkMw4PktSn
-	IKmySNpU5H2/XdSr8zlgtCRwZiAxnZ7IKw8oWq1G4Dx1nktDvw3geVoX6Wo7l0ddFp7Slv
-	8seCFrpXJirjT9+YdNoARrcDiff9DJY=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=0/ZCYcZbkclIBTLFnAz2fA6NECmLLYytFhAcPGYaB5Y=;
+	b=RTkbcLUPpLUJlw7uCOAA2NYMPkzFTrJLLF7ShE1D3W9AiWq607ZgWL83Xad3kENtyUEVjk
+	+xbqaoWhsBY8xRLtMH0kHrKg2tEc00k2TAxPqnZ7LX0RKTbAHBaVZ1EPyxcXsh2D1mTQHX
+	I1EgZUP82oZ6k7sC2psafPEizWaA40c=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-457-kulxTXZ3NYeiZpG9vePTpw-1; Wed, 29 Oct 2025 22:40:28 -0400
-X-MC-Unique: kulxTXZ3NYeiZpG9vePTpw-1
-X-Mimecast-MFC-AGG-ID: kulxTXZ3NYeiZpG9vePTpw_1761792028
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-33be01bcda8so529247a91.2
-        for <virtualization@lists.linux.dev>; Wed, 29 Oct 2025 19:40:28 -0700 (PDT)
+ us-mta-549-gOdbBq2OMAeJ243foZN5Hw-1; Wed, 29 Oct 2025 22:42:43 -0400
+X-MC-Unique: gOdbBq2OMAeJ243foZN5Hw-1
+X-Mimecast-MFC-AGG-ID: gOdbBq2OMAeJ243foZN5Hw_1761792162
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-33da1f30fdfso1197144a91.3
+        for <virtualization@lists.linux.dev>; Wed, 29 Oct 2025 19:42:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761792027; x=1762396827;
+        d=1e100.net; s=20230601; t=1761792162; x=1762396962;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0s8hKYa9ITmFWQHj91VS7CotRvqtXLR4K9Qz/fibwBY=;
-        b=QvhUgLJ79fQqsSxz4YfZu2eU8+wQYF0M0ARKSQbsnpNNb6SLnbiKbdSzM5YoFp2wGW
-         HGzQKNlJlsv2fDVJBZIR/LYCArgSjzGeG0uyJbwTSvQMnMgn7XAL2w856tjVBQlkhG1m
-         mvEu92TgrqJHPuU6/H0Gsystgv0CVQd47NLOQvKyaMQPDKMy7UwG8+pnFOdXI/W/PHqh
-         rxZ4aBR6sMq+b9OyzmnLS0/Prh/6HRAcEgywaBMuUrcueCdL2uNuOy8FbYcFi6Jrkk+J
-         Re5MklNfZPwKGKdipnTQmfrkMRcQIzkjUH8Gmu90Ztix6DQRbC3aZZX2TLph8L8mMhaV
-         clEQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWOeBnVWgfACm8DoeT1Qar4zjJ8hxfkMYJKnMN/tdqQkFb4KDEAGeeA7HadXkzEm+SHTuFdIhcGTnx55OwVnQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyKiWXW0OeOG1GjzOaqeJPIK8xilo0HLin7FcoFbULWRN6TzFq2
-	PjxCTu8fQVgVzSy4glu7eesnRxKHN1JnDvvA9i9dA3OOORP8ghB0GyL5U1GdrU4CoRTS+uW49wP
-	vAy6jq+A9EEz6vKXru5xjSWCxJJJk+W92e2kNE3UHfDpDa3DDQTU4R8TxXkGT/f7zG9eZA+fYIN
-	UawJld/F6yiI5V1/OaqdKk4Ak1jNMugD4RO5L9KYAtZPc=
-X-Gm-Gg: ASbGncviyo8sJjF8eyDPHwnhOgfFfhrUqzkWrgtZ8ThICPGsNvTGRck2PRuF0SPwior
-	Rb9i+OH+8766VucDf1hut9Ftu/GRrZiLjwjWQGesxohMOteQ91bSs7gp8NxijO5vmnKYA0hRhsk
-	VD3H/DedoTwKsERZYPpfDDLB/btEIgcczLQzM9MhaiqMBh7h0QK7pZ6kmZ
-X-Received: by 2002:a17:90b:38cb:b0:32d:e07f:3236 with SMTP id 98e67ed59e1d1-3403a2a22a8mr5144786a91.22.1761792027564;
-        Wed, 29 Oct 2025 19:40:27 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHxdZBU+hUTBze+ZZkKwu5UhZkdiKIT5O7KOjW1YBOrYbWd5C2ghkE1vXaxfsDpwDAAagjZ/xZ641rpd3lEA94=
-X-Received: by 2002:a17:90b:38cb:b0:32d:e07f:3236 with SMTP id
- 98e67ed59e1d1-3403a2a22a8mr5144766a91.22.1761792027079; Wed, 29 Oct 2025
- 19:40:27 -0700 (PDT)
+        bh=0/ZCYcZbkclIBTLFnAz2fA6NECmLLYytFhAcPGYaB5Y=;
+        b=eIC1xuwfL2zL1/R2ZIDh+QvvHbtz8VZ2qKDp4H+HWg8/aTY8Xq2ym5NNEeowwVlamj
+         E94pG7SWOrIScduA7/C2DDirGhVHa7RbVb9u15QBNKEdQJbB9aAEwjbeBGBwWR4Supk6
+         YhRzZ6gMZvXn+EYeifMOgChlDKxy9eIW/1TuFF/ZOqeSSkayETjssBndjhxcpKln+IhA
+         kKyalkWhMRLWqdOVF8/ooMIa6F66A17NA/V5hm6bz1YyT+enSZtbvD0OPuzA9cc3Q7zv
+         umUtFIBJQHJoGFKaxZWDFb3xoQdivhDKBud4eFdTPZnXaWpiPosJ2EoL8Utvx5yaoKYJ
+         kVTA==
+X-Forwarded-Encrypted: i=1; AJvYcCXZp7k07LB3aqv+oe1Pyn/8v7FEAyXAGne5wwf8BuqFZX1H8jkkG+HA3swSvIKiZXYVarn7UbINTPyXNeNICg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxnmTWLqjPN6bJiEy8nz1tURrJpVIHcYuU68kFM8jthtvKrzwWs
+	WBAFDEKM/m23qG5EYKN+qY/tL3qOr39XTwy2qRwVaj229SFbFjYxofkYNm8vsPZsdjKOEbkW72b
+	6Lq315ncfTEwLXvh6wzDUwYs4MlopRVZEaO7VV6nk/M7NHJF2c5CVTY3fv1mkk8oDZwKT27L4pK
+	cOyyDTdcSuobL0oAA1TpoHjRWmOH2svc8tl6fkUuVNYbI=
+X-Gm-Gg: ASbGncsz8jsMFewTWoIJPfs+RT+8gwYWBHTMOr5y/cC3Ek43VYSMquwKh9QB0DX2i3u
+	If2bRQh85wxGipgGQxhALpmLWH65nmtOJ2fhy2ZByLB1JjUVo2luZxy4i5ZPU4H0NvHzySQr0v7
+	3UErYqgyyNahdT8Xm/oH2XUKBw+xTbxw2jIzRl7Y6ZdZ8vQ7WJr1QbCIOL
+X-Received: by 2002:a17:90b:2802:b0:33f:ebc2:634 with SMTP id 98e67ed59e1d1-3404c3f4a5cmr1771788a91.9.1761792162284;
+        Wed, 29 Oct 2025 19:42:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGIVn1Bb5rNjXC5IPex9+DZAuDNurvVlJkJYxl4qjxLsMlWBCjHB2c4xxBH7QS96+rjUVkYNMjDamTWV5i87o4=
+X-Received: by 2002:a17:90b:2802:b0:33f:ebc2:634 with SMTP id
+ 98e67ed59e1d1-3404c3f4a5cmr1771757a91.9.1761792161884; Wed, 29 Oct 2025
+ 19:42:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251029012434.75576-1-jasowang@redhat.com> <d0f1f8f5-8edf-4409-a3ee-376828f85618@redhat.com>
-In-Reply-To: <d0f1f8f5-8edf-4409-a3ee-376828f85618@redhat.com>
+References: <20251029030913.20423-1-xuanzhuo@linux.alibaba.com> <20251029030913.20423-3-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20251029030913.20423-3-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 30 Oct 2025 10:40:13 +0800
-X-Gm-Features: AWmQ_bkmfB-ebhx_3KwfLp1OlCEHIG3UAVOBmcyIQzJgycGoPag4AUi2K5pwkoM
-Message-ID: <CACGkMEsTd6uCOCre8HK=5G14zu+xVOPOORZ2xcV_n9Kg6w8F5Q@mail.gmail.com>
-Subject: Re: [PATCH net] virtio_net: fix alignment for virtio_net_hdr_v1_hash
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date: Thu, 30 Oct 2025 10:42:28 +0800
+X-Gm-Features: AWmQ_bny5IxrU5zz8cJv4O8XuvV3My3M8eqi2dffdnZElWpOCXh_fsT9qM8wFG4
+Message-ID: <CACGkMEszWAc_552TmyqH1grZLDK7ZO_dJ7mr1JD+YK=BphFJZQ@mail.gmail.com>
+Subject: Re: [PATCH net v4 2/4] virtio-net: Ensure hdr_len is not set unless
+ the header is forwarded to the device.
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Heng Qi <hengqi@linux.alibaba.com>, Willem de Bruijn <willemb@google.com>, 
+	Jiri Pirko <jiri@resnulli.us>, Alvaro Karsz <alvaro.karsz@solid-run.com>, 
+	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ZrDU87bliTfOmO6ukyjCmphUjQcdYJWtuhfbN20r1uM_1761792028
+X-Mimecast-MFC-PROC-ID: JJJIQV-8JwufjbvUTktEFE4-TOMKaDlovimreeUtlaw_1761792162
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 29, 2025 at 4:20=E2=80=AFPM Paolo Abeni <pabeni@redhat.com> wro=
-te:
+On Wed, Oct 29, 2025 at 11:09=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
 >
-> On 10/29/25 2:24 AM, Jason Wang wrote:
-> > From: "Michael S. Tsirkin" <mst@redhat.com>
-> >
-> > Changing alignment of header would mean it's no longer safe to cast a
-> > 2 byte aligned pointer between formats. Use two 16 bit fields to make
-> > it 2 byte aligned as previously.
-> >
-> > This fixes the performance regression since
-> > commit ("virtio_net: enable gso over UDP tunnel support.") as it uses
-> > virtio_net_hdr_v1_hash_tunnel which embeds
-> > virtio_net_hdr_v1_hash. Pktgen in guest + XDP_DROP on TAP + vhost_net
-> > shows the TX PPS is recovered from 2.4Mpps to 4.45Mpps.
-> >
-> > Fixes: 56a06bd40fab ("virtio_net: enable gso over UDP tunnel support.")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> Although `virtio_net_hdr_from_skb` is used in several places outside of
+> `virtio-net.c`, the `hdr_len` field is only utilized by the device
+> according to the specification. Therefore, we do not need to set
+> `hdr_len` unless the header is actually passed to the device.
 >
-> Whoops, I replied to the older thread before reading this one.
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+
+I wonder if this will cause any issue consider hdr_len is just a hint.
+
+E.g device needs to survive from hdr_len =3D 0.
+
+> ---
+>  include/linux/virtio_net.h | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
 >
-> Acked-by: Paolo Abeni <pabeni@redhat.com>
-
-I apologize, build will be broken since
-
-commit b2284768c6b32aa224ca7d0ef0741beb434f03aa
-Author: Jason Wang <jasowang@redhat.com>
-Date:   Wed Oct 22 11:44:21 2025 +0800
-
-    virtio-net: zero unused hash fields
-
-I will prepare a new version.
-
-Btw, it looks like there's an uAPI change that may break builds of the
-userspace:
-
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_ne=
-t.h
-index 8bf27ab8bcb4..1db45b01532b 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -193,7 +193,8 @@ struct virtio_net_hdr_v1 {
-
- struct virtio_net_hdr_v1_hash {
-        struct virtio_net_hdr_v1 hdr;
--       __le32 hash_value;
-+       __le16 hash_value_lo;
-+       __le16 hash_value_hi;
-
-We can have a kernel only version for this but it probably means we
-need a kernel only version for all the future extension of vnet
-header?
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 4d1780848d0e..710ae0d2d336 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -218,9 +218,14 @@ static inline int virtio_net_hdr_from_skb(const stru=
+ct sk_buff *skb,
+>         if (skb_is_gso(skb)) {
+>                 struct skb_shared_info *sinfo =3D skb_shinfo(skb);
+>
+> -               /* This is a hint as to how much should be linear. */
+> -               hdr->hdr_len =3D __cpu_to_virtio16(little_endian,
+> -                                                skb_headlen(skb));
+> +               /* In certain code paths (such as the af_packet.c receive=
+ path),
+> +                * this function may be called without a transport header=
+.
+> +                * In this case, we do not need to set the hdr_len.
+> +                */
+> +               if (skb_transport_header_was_set(skb))
+> +                       hdr->hdr_len =3D __cpu_to_virtio16(little_endian,
+> +                                                        skb_headlen(skb)=
+);
+> +
+>                 hdr->gso_size =3D __cpu_to_virtio16(little_endian,
+>                                                   sinfo->gso_size);
+>                 if (sinfo->gso_type & SKB_GSO_TCPV4)
+> --
+> 2.32.0.3.g01195cf9f
+>
 
 Thanks
-
->
 
