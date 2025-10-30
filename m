@@ -1,178 +1,272 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011050.outbound.protection.outlook.com [40.93.194.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82B5426A1B5
-	for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 14:44:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761835492; cv=none; b=AFok20qTCFBFSuPv9BOFluQ9UDx0Jln1glHPR7+YsbPW1VKeojs3F11bdN4GIdZZSC1o8DggmHKeeSap8zFfUZLEoLq+prREtpuaHKKZUbgOLz0H79BdHpPh4Jb1nedY6LfOV3IRZbHWsR1mzjgAV8Ef6ciuuHKKqk0igsfT7nQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761835492; c=relaxed/simple;
-	bh=gG6Rxpv+5xwuYbGpv4ZcUhGKoTxFro2YHfn3sG0/O64=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aWMVAkqjVcZDkBxloppgen8GCuxsh1hw7hV4qlhetc83iWlELpua6iH2YlERwfRl80YtorcaO6VrMVF1DUC2l92oG4TngKRlOfBPG2lWa75pBKKaJWh/xPMK22jiYrmjaddOoSuyj/+9QDzE6IjuA9BbbiKjjwDX1Rwa8S4kv1o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aJnw5mhw; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA0EF304982;
+	Thu, 30 Oct 2025 19:44:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761853467; cv=fail; b=lMHtaCwt3ei+5uAwGcWVMWWcVxesD1yAiCVy6tzoE4xNYLbPtCnu2EvVT/LBVK/RUhxAUaGgz+hKpsyQehI3POFOd8AxotbBJh+E/iKWpc/F459SD58h2joG3Rn3M+liO5UkOY2ujFi6weJZOu+tttiNfjYxsw8X3a7xDK3ClQw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761853467; c=relaxed/simple;
+	bh=km3IrBxS0fDii0DFfWD2ce+QuN+G5cMYAHhB1XNP5VU=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rgxK53mYuXNyEv71W8ZJrarmzppS9Q3jx/DgGzI14ABBhTFFKhi2vQKthjco51XtaF425Rfvdfm5Vmp3zId4xC3V/apKyeBcqFeA0y2QrakR2HkaLLc2j6lYWPt1g6pXLUn8tHj35CHXk/8Fo/oNM06/efE//WaO1l0h7v3HqCQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=n636A038; arc=fail smtp.client-ip=40.93.194.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aJnw5mhw"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-29509084e3bso3710765ad.1
-        for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 07:44:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761835489; x=1762440289; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=8i0KSYhBekRhZe3f+zVYiMKfUdeY1w53Ec33PFErQRM=;
-        b=aJnw5mhwsjsIIaY+3pmw4UccNmi7YhlLtEP6FqW4nbzp8F8WELYRqNhDpJBZDwzTml
-         EeKIsQzzi7HT1bSfYMnNFb4DNfPvHF9+vxWERlOlbX8HryRMVRHMofbyEzirKJ4PPn78
-         OhglzPeRu/bKiYEF+R0Y2r6ms3GcE0ZF0BqR7+55+ukjZSYzjijLdY6Ir6+52/wQ9B0Y
-         zd8e/WiDDndcUIPeLkBqt2FmhZpiNi8HvFIgKxiYeoH5GW8IGPrtlO6QeB4mR2yE8zG+
-         CroKmE/+XVleuL4rQAeUVuqReqiaL8ZFICNbGO1aVdzviK0MTvlFNmIzx4PU8+9kn56X
-         Xvzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761835489; x=1762440289;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8i0KSYhBekRhZe3f+zVYiMKfUdeY1w53Ec33PFErQRM=;
-        b=TajOjzUfNY4MK9mCKeYuCP37R5rmgnmyRoIjcmlfvkCwCZgHn7XPlNfb/46Dw3DyLx
-         ED4JGnuB/78Db8/ZVbr784L1jC8zsdv0ZI8d9/TDIlxPJQL8C2FrtqyGIJreaFGGrtqv
-         fnFgGTeVEfVZQ+T3gvR6chiFJgDxyjwgn9iiruXXjNHo5jAK2ovJvNj/0bYxVZpzRe+g
-         3ouRqK844IHcQWwXVkdrzFJz/BFbNKK1g9sJsghyChZgHH5oavTFmsN+kFH9S8/66EOc
-         X4OD9nlyFlA3r4NeIyIhy9NrWAJZf5Ww0jg7oqFv19VZP3t3ENLV1lxXzlySERuqt2A/
-         f2OA==
-X-Forwarded-Encrypted: i=1; AJvYcCVA/8zt7QMuUVK8RyC8sx4pDrjaudgVE4hxxEsVAEMf/69Lv42w1nZg4mUo8RZl+WMFnYim3X3fK3QiUdMg1g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyB5TsK/6seSIHuqOiUxOBdXb6mmRiLEPxPIH27fJqMonelo+sg
-	3R5FWz0ZVm+NaZx1AZpIO4+cYuYxMA8xY/qXPWrmdgk0HIFDbPnRUSjV
-X-Gm-Gg: ASbGncslvLyM1ByXg/gfTXUFrdNi67ASjCsB3/XpVgag8uJnVoTwyTPEq/sLDt7KYpM
-	iZaGgf7zyO7YeflRiYDqIB4vZXAnDJLhbjZVCtKWH3XvqqMPhjbb43J+xc3qv6lhS90mAOYvzXf
-	dA+Uu5ynKralTLCC4b8ImJL4Ugjl3wdNMiNYbZwQ5io+nckRERPbskPQ1KfKde+qooh6oSoEiOE
-	3pMig89Hyl2dJH+sUZ3rw5+rT9u/46ORYEO3wAyO/AbfoQkoE8hFwFVgoHGWVe3ozBHLBYw4fLp
-	CQ4j/ifEGlJYmQ/5raR9m1DHhCr4C6ogAVo1If4WvV40upuc6ZTfLcEWFMJSM0M/bcZRLnGa3uU
-	TsXiN45resrv43LaSlRB145eeOXBzh0K7gJv30tLquiF/EvpXh67b5YKCD3LoncRXddD018uDpw
-	u/F+3sKdJ50nkg8w==
-X-Google-Smtp-Source: AGHT+IFKdzh5PqIDW+UtJroUaPTVHXn8ZahZ8UZQ7XX0MsdR/YUksfFQ5V7KobNywlg1F1FyaLwELg==
-X-Received: by 2002:a17:903:247:b0:266:57f7:25f5 with SMTP id d9443c01a7336-294ed098015mr40411365ad.7.1761835488722;
-        Thu, 30 Oct 2025 07:44:48 -0700 (PDT)
-Received: from minh.192.168.1.1 ([2001:ee0:4f4c:210:f227:4662:b8d4:840c])
-        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-29498e41159sm188520295ad.91.2025.10.30.07.44.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Oct 2025 07:44:48 -0700 (PDT)
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Gavin Li <gavinl@nvidia.com>,
-	Gavi Teitz <gavi@nvidia.com>,
-	Parav Pandit <parav@nvidia.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Bui Quang Minh <minhquangbui99@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH net v7] virtio-net: fix received length check in big packets
-Date: Thu, 30 Oct 2025 21:44:38 +0700
-Message-ID: <20251030144438.7582-1-minhquangbui99@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="n636A038"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=tIt9Al490i85L/oS8knO96IcmdOLqGL6rKZpVgdB3eYlm3PO01plIwtpJB/974p69qzQ6OFV+E/i8oQGd1AqtUJxSNUk4RIlcWIlamGj+5ez+jsynQrLvS2YFbTB4FMuqNFOMau4VsWXD/jtvEshD8cBHvWYcqEQcvXS4WL0Nm0VMNdm6uTUJuMT7r+jc3cR2N72Z8DSs9UtD70bBcc8Vbes+Fo997dMo4Q1W1xT1S/MXY2zynGJbsTyX7n55c6m2Xf0NoGkpzCbpqsida021exIo9KvHtHHq+Ym49m6P9u3UyyeEaqijqUDD5+5E4yBReFYkewa+anhf4YyErvA2Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=LvqEx1G2ygyvTN3lLDG32I0dvexEIahM9G3t/0OYeS8=;
+ b=FawP3FyzvIxNVh/0d5o5G7gK5f0eAL+L45k6jMGLpYVyBCVwaocmr9C5ry+hNVfmUZldU2SPY5nlqdZwkM3PjOTEuMfjx2DfYsz0GItDSj6rQWGUoSElynzdk5pNwLvk18A0GulLjJqXKrv/+/KOAn2OYsyZ2FKz7R2M9yaDKf16xO8GWLrMzl7ZxtPsx+mwh710e3sybSU7dIBXtL7HiOVYDo1ReVJECn8SOmVd2X8+3MW2XsJpYloFkxgLqw1MI4/z+kc6I6lplg61dQGrt+RjtfSE30FfI2PB9p0y5qf3D4zXfpQ4L0V3xcOuE7kqb6gBJwgj6TVs+UklWq2HGA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=intel.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=LvqEx1G2ygyvTN3lLDG32I0dvexEIahM9G3t/0OYeS8=;
+ b=n636A038RwCuAU+b0PzE9Od2AG9Ue5KZ+Q6m2/9T5vbIjK543e/0nboc3Vo0EpB3Dhp3qfSfO2j1o0in8PaY9iI3xLC80AvDeks/2iweUpRVgXDezvqexfhOfis3Z5tvdahDGjqOLnxAlK/HrB5vrqpdur9Y6zPiO/+E82Zi6jkAsimFm9nV01k4GJjePTWB29EBf21QQxgigtCVsgHCCuiXYzWQuzz2z4vwBaWeMco6S2hwQ37upYP2L7VKgdXRMd8mDjxxOoKjUVDd69jvUTPv1PKRzwmq2LIiPDmOyUyx+TkkaYXCcnreHlq1OrciN9lG161pNe4QnNzSMuTsZA==
+Received: from BN9PR03CA0769.namprd03.prod.outlook.com (2603:10b6:408:13a::24)
+ by SJ0PR12MB6968.namprd12.prod.outlook.com (2603:10b6:a03:47b::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9275.12; Thu, 30 Oct
+ 2025 19:44:21 +0000
+Received: from BN2PEPF0000449E.namprd02.prod.outlook.com
+ (2603:10b6:408:13a:cafe::85) by BN9PR03CA0769.outlook.office365.com
+ (2603:10b6:408:13a::24) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9275.14 via Frontend Transport; Thu,
+ 30 Oct 2025 19:44:15 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ BN2PEPF0000449E.mail.protection.outlook.com (10.167.243.149) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9253.7 via Frontend Transport; Thu, 30 Oct 2025 19:44:21 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Thu, 30 Oct
+ 2025 12:44:03 -0700
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Thu, 30 Oct
+ 2025 12:44:03 -0700
+Received: from Asurada-Nvidia (10.127.8.13) by mail.nvidia.com (10.129.68.10)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20 via Frontend
+ Transport; Thu, 30 Oct 2025 12:44:01 -0700
+Date: Thu, 30 Oct 2025 12:43:59 -0700
+From: Nicolin Chen <nicolinc@nvidia.com>
+To: "Tian, Kevin" <kevin.tian@intel.com>
+CC: "joro@8bytes.org" <joro@8bytes.org>, "jgg@nvidia.com" <jgg@nvidia.com>,
+	"suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
+	"will@kernel.org" <will@kernel.org>, "robin.murphy@arm.com"
+	<robin.murphy@arm.com>, "sven@kernel.org" <sven@kernel.org>, "j@jannau.net"
+	<j@jannau.net>, "jean-philippe@linaro.org" <jean-philippe@linaro.org>,
+	"robin.clark@oss.qualcomm.com" <robin.clark@oss.qualcomm.com>,
+	"dwmw2@infradead.org" <dwmw2@infradead.org>, "baolu.lu@linux.intel.com"
+	<baolu.lu@linux.intel.com>, "yong.wu@mediatek.com" <yong.wu@mediatek.com>,
+	"matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
+	"angelogioacchino.delregno@collabora.com"
+	<angelogioacchino.delregno@collabora.com>, "tjeznach@rivosinc.com"
+	<tjeznach@rivosinc.com>, "pjw@kernel.org" <pjw@kernel.org>,
+	"palmer@dabbelt.com" <palmer@dabbelt.com>, "aou@eecs.berkeley.edu"
+	<aou@eecs.berkeley.edu>, "heiko@sntech.de" <heiko@sntech.de>,
+	"schnelle@linux.ibm.com" <schnelle@linux.ibm.com>, "mjrosato@linux.ibm.com"
+	<mjrosato@linux.ibm.com>, "wens@csie.org" <wens@csie.org>,
+	"jernej.skrabec@gmail.com" <jernej.skrabec@gmail.com>, "samuel@sholland.org"
+	<samuel@sholland.org>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+	"jonathanh@nvidia.com" <jonathanh@nvidia.com>, "iommu@lists.linux.dev"
+	<iommu@lists.linux.dev>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "asahi@lists.linux.dev"
+	<asahi@lists.linux.dev>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-arm-msm@vger.kernel.org"
+	<linux-arm-msm@vger.kernel.org>, "linux-mediatek@lists.infradead.org"
+	<linux-mediatek@lists.infradead.org>, "linux-riscv@lists.infradead.org"
+	<linux-riscv@lists.infradead.org>, "linux-rockchip@lists.infradead.org"
+	<linux-rockchip@lists.infradead.org>, "linux-s390@vger.kernel.org"
+	<linux-s390@vger.kernel.org>, "linux-sunxi@lists.linux.dev"
+	<linux-sunxi@lists.linux.dev>, "linux-tegra@vger.kernel.org"
+	<linux-tegra@vger.kernel.org>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "patches@lists.linux.dev"
+	<patches@lists.linux.dev>
+Subject: Re: [PATCH v1 02/20] iommu: Introduce a test_dev domain op and an
+ internal helper
+Message-ID: <aQO//+6/B/WbdK2h@Asurada-Nvidia>
+References: <cover.1760312725.git.nicolinc@nvidia.com>
+ <32ce256a2ece5d63e99d5858f953586859818ffc.1760312725.git.nicolinc@nvidia.com>
+ <BN9PR11MB5276D10BD480FE66881870B08CFBA@BN9PR11MB5276.namprd11.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <BN9PR11MB5276D10BD480FE66881870B08CFBA@BN9PR11MB5276.namprd11.prod.outlook.com>
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN2PEPF0000449E:EE_|SJ0PR12MB6968:EE_
+X-MS-Office365-Filtering-Correlation-Id: fc59e19b-660d-4245-4f39-08de17ecb8cd
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|1800799024|376014|82310400026|36860700013;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?coK9pFakNqZRASNqG9fe3/gaEPZb8DlHiclo4EwaWEkWZAKKl8GlJNWz4wrR?=
+ =?us-ascii?Q?zr6ViIzANRUVty7P99UfaFiscK6nLpr28ZYfvN+3ieH8u5EU0PlZdzTG/Afy?=
+ =?us-ascii?Q?9HtkE76k8HFPo2wEF7vzBuNyCHWwLVui7AE1MCsT0DFS+ERvONEuzQyaJKeu?=
+ =?us-ascii?Q?9lsMlb89vAivBHTVROLFdkCFPOvoUSk3ulS9U8LWkKCQNQbw9FCgoB/Dps5M?=
+ =?us-ascii?Q?aSc0meAcs1ZuPZyhpdcD/2P/yGkpqUSNKm7timTw822b4HHBlezHDD6xtKBO?=
+ =?us-ascii?Q?d9cVxKl88MNbGNqrOGCyV9o9GhJHxC7ldYqicslM9TQpw6gpM2ugh5z/IST4?=
+ =?us-ascii?Q?S69EL6HnJjEztdEhfXopBiRbSVZT0m3aCX9Vj1f6D8iHzlroOvHMCmwJ+QSz?=
+ =?us-ascii?Q?DmBPTmC6NuhTH38HAsU54abx43pd1jp1VM5AOtne09fvdzKaghdvuPkAkCPM?=
+ =?us-ascii?Q?XO4yeMOTS21GC4MSKdXnteGNrh9SHqFFSPzkgGoK3qlAap8V6VzLD7FfUTvd?=
+ =?us-ascii?Q?wGukH/5GQqklCtNw2se3iLpyJKq+yhh/p7x1Oh7DAaUwQLwQjjhn9VveSwuH?=
+ =?us-ascii?Q?1857KxQeN3PTGK5vwLoSrc36xZnaKV4Y1NGZGq/RjhokDp3qKYTmVDAsvgrQ?=
+ =?us-ascii?Q?F9JiGn9dj0FwWNOA1FmjZ6CaW5rwKM3RmtGlxJRwyjQi0/hVnrPvDiAqanBy?=
+ =?us-ascii?Q?IXO0TNdS7RqvcbpeG2KKyNlC7QAI6CzO02EXM7dKamonTcYhzhYuzDcQtKEh?=
+ =?us-ascii?Q?MM8FIwAQOnhXCNkPS+hEANX/WJ5fjurKBYbHr8dv6l9WzKD2cEEuByaP2FNP?=
+ =?us-ascii?Q?s2HH/3fYRVASoag9C6ZsoJ+XquGxFVd5/qX7dnt3t0fECWt1C+Ei616YPRLr?=
+ =?us-ascii?Q?tCdTAEMsMQaTW3hQnA2bqdbA7OoKoPNeXlogC4psRj66SNa+kAm5zqbHVlAi?=
+ =?us-ascii?Q?0HRRGi1rUlrR6/yNkXFnD2xOcaNv4yJBvpab7GMpJovLEyDLQYKREvxpVTWU?=
+ =?us-ascii?Q?siryXShKBvANj84uEopBeG28/O+oT0AkYNFwm0l7ALhI5ybfgQ2jk51pSONe?=
+ =?us-ascii?Q?3gZQR/E3Ztarm+j92prFSIn/R5b4n3BN4OmlQyyhuQcEkNKv1sN9oebOlAmx?=
+ =?us-ascii?Q?loHctz0qkAx71sLMMkvs95YDc5KPTmYQnJ762Jq+UMRFjAFT4iT82Jri1FTv?=
+ =?us-ascii?Q?XA2/NI6euISdRqATCUafc/tZMdbnkVUEAF65vDqv9wJJpu99o6lC975E2Wp+?=
+ =?us-ascii?Q?vGXluXdS0JBIshFii2XnCUAHDPFAC021nPCiN1b4AcYRo6YMdx2qysYqlich?=
+ =?us-ascii?Q?8jvJHA1MxtV9ktf1E3pTn4J1eyHyjAp/nOAEUN2xHLRpyz7/sXAgrvbyYWfz?=
+ =?us-ascii?Q?dRHUAURlBpSrw+12M00B+tqMj30axKiQHXpCE1E3y5CHcMF0TbXep0yd55ee?=
+ =?us-ascii?Q?r86P+evwtILnuGLvonMgKy7l9L06kp/9dmgrUZKiE3jjzuQiGM/md/q6pG3G?=
+ =?us-ascii?Q?PiXfZGRB1lHNUfpK3AQPB7bmpLA7+uqbGm9u7Q32CqbsvkZb8YdYUUhFXKpH?=
+ =?us-ascii?Q?lcz3iGBIFP3flMEcEyQ=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(7416014)(1800799024)(376014)(82310400026)(36860700013);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Oct 2025 19:44:21.1890
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: fc59e19b-660d-4245-4f39-08de17ecb8cd
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN2PEPF0000449E.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6968
 
-Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
-for big packets"), when guest gso is off, the allocated size for big
-packets is not MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on
-negotiated MTU. The number of allocated frags for big packets is stored
-in vi->big_packets_num_skbfrags.
+On Thu, Oct 30, 2025 at 08:47:18AM +0000, Tian, Kevin wrote:
+> It might need more work to meet this requirement. e.g. after patch4
+> I could still spot other errors easily in the attach path:
+> 
+> intel_iommu_attach_device()
+>   iopf_for_domain_set()
+>     intel_iommu_enable_iopf():
+> 
+>         if (!info->pri_enabled)
+>                 return -ENODEV;
 
-Because the host announced buffer length can be malicious (e.g. the host
-vhost_net driver's get_rx_bufs is modified to announce incorrect
-length), we need a check in virtio_net receive path. Currently, the
-check is not adapted to the new change which can lead to NULL page
-pointer dereference in the below while loop when receiving length that
-is larger than the allocated one.
+Yea, I missed that.
 
-This commit fixes the received length check corresponding to the new
-change.
+> intel_iommu_attach_device()
+>   dmar_domain_attach_device()
+>     domain_attach_iommu():
+>       
+>        curr = xa_cmpxchg(&domain->iommu_array, iommu->seq_id,
+>                           NULL, info, GFP_KERNEL);
+>         if (curr) {
+>                 ret = xa_err(curr) ? : -EBUSY;
+>                 goto err_clear;
+>         }
 
-Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
----
-Changes in v7:
-- Fix typos
-- Link to v6: https://lore.kernel.org/netdev/20251028143116.4532-1-minhquangbui99@gmail.com/
-Changes in v6:
-- Fix the length check
-- Link to v5: https://lore.kernel.org/netdev/20251024150649.22906-1-minhquangbui99@gmail.com/
-Changes in v5:
-- Move the length check to receive_big
-- Link to v4: https://lore.kernel.org/netdev/20251022160623.51191-1-minhquangbui99@gmail.com/
-Changes in v4:
-- Remove unrelated changes, add more comments
-- Link to v3: https://lore.kernel.org/netdev/20251021154534.53045-1-minhquangbui99@gmail.com/
-Changes in v3:
-- Convert BUG_ON to WARN_ON_ONCE
-- Link to v2: https://lore.kernel.org/netdev/20250708144206.95091-1-minhquangbui99@gmail.com/
-Changes in v2:
-- Remove incorrect give_pages call
-- Link to v1: https://lore.kernel.org/netdev/20250706141150.25344-1-minhquangbui99@gmail.com/
----
- drivers/net/virtio_net.c | 25 ++++++++++++-------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+There is actually an xa_load() in this function:
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a757cbcab87f..421b9aa190a0 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -910,17 +910,6 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 		goto ok;
- 	}
- 
--	/*
--	 * Verify that we can indeed put this data into a skb.
--	 * This is here to handle cases when the device erroneously
--	 * tries to receive more than is possible. This is usually
--	 * the case of a broken device.
--	 */
--	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
--		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
--		dev_kfree_skb(skb);
--		return NULL;
--	}
- 	BUG_ON(offset >= PAGE_SIZE);
- 	while (len) {
- 		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
-@@ -2107,9 +2096,19 @@ static struct sk_buff *receive_big(struct net_device *dev,
- 				   struct virtnet_rq_stats *stats)
- {
- 	struct page *page = buf;
--	struct sk_buff *skb =
--		page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
-+	struct sk_buff *skb;
-+
-+	/* Make sure that len does not exceed the size allocated in
-+	 * add_recvbuf_big.
-+	 */
-+	if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE)) {
-+		pr_debug("%s: rx error: len %u exceeds allocated size %lu\n",
-+			 dev->name, len,
-+			 (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE);
-+		goto err;
-+	}
- 
-+	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
- 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
- 	if (unlikely(!skb))
- 		goto err;
--- 
-2.43.0
+	curr = xa_load(&domain->iommu_array, iommu->seq_id);
+	if (curr) {
+		curr->refcnt++;
+		kfree(info);
+		return 0;
+	}
 
+	[...]
+
+	info->refcnt	= 1;
+	info->did	= num;
+	info->iommu	= iommu;
+	curr = xa_cmpxchg(&domain->iommu_array, iommu->seq_id,
+			  NULL, info, GFP_KERNEL);
+	if (curr) {
+		ret = xa_err(curr) ? : -EBUSY;
+		goto err_clear;
+	}
+
+It seems that this xa_cmpxchg could be just xa_store()?
+
+> intel_iommu_attach_device()
+>   dmar_domain_attach_device()
+>     domain_setup_first_level()
+>       __domain_setup_first_level()
+>         intel_pasid_setup_first_level():
+
+Yea. There are a few others in the track also..
+
+>         pte = intel_pasid_get_entry(dev, pasid);
+>         if (!pte) {
+>                 spin_unlock(&iommu->lock);
+>                 return -ENODEV;
+>         }
+> 
+>         if (pasid_pte_is_present(pte)) {
+>                 spin_unlock(&iommu->lock);
+>                 return -EBUSY;
+>         }
+
+Hmm, this is fenced by iommu->lock and can race with !attach_dev
+callbacks. It might be difficult to shift these to test_dev..
+
+> On the other hand, how do we communicate whatever errors returned
+> by attach_dev in the reset_done path back to userspace? As noted above
+> resource allocation failures could still occur in attach_dev, but userspace
+> may think the requested attach in middle of a reset has succeeded as
+> long as it passes the test_dev check.
+
+That's a legit point. Jason pointed out that we would end up with
+some inconsistency between driver and core as well, at the SMMUv3
+patch. So, this test_dev doesn't seemingly solve our problem very
+well..
+
+> Does it work better to block the attaching process upon ongoing reset
+> and wake it up later upon reset_done to resume attach?
+
+Yea, I think returning -EBUSY would be the simplest solution like
+we did in the previous version.
+
+But the concern is that VF might not be aware of a PF reset, so it
+can still race an attachment, which would be -EBUSY as well. Then,
+if its driver doesn't retry/defer the attach, this might break it?
+
+FWIW, I am thinking of another design based on Jason's remarks:
+https://lore.kernel.org/linux-iommu/aQBopHFub8wyQh5C@Asurada-Nvidia/
+
+So, instead of core initiating the round trip between the blocking
+domain and group->domain, it forwards dev_reset_prepare/done to the
+driver where it does a low-level attachment that wouldn't fail:
+  For SMMUv3, it's an STE update.
+  For intel_iommu, it seems to be the context table update?
+
+Then, any concurrent would be allowed to carry on to go through all
+the compatibility/sanity checks as usual, but it would bypass the
+final step: STE or context table update.
+
+Thanks
+Nicolin
