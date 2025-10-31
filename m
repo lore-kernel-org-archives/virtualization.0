@@ -1,237 +1,171 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A0832472BD
-	for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 05:05:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761887107; cv=fail; b=KOQGroC+0GgEWu7FNOBjQ/o3oshtpVIP7QloMepMO0pTm/6Xi0Czj/VOGg/KPlR3QkvEt1442lUALLqW+c23Wndv0n4PawYwRO03rH6fmA48jeHTTQx8GU92nKllvZHLI+O5hGlSl0vVQdNIZaPYYvRsLJQGCvvsJ1RvCpw8/3k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761887107; c=relaxed/simple;
-	bh=epYl88CvOKsuhich0D2cMHeK7SjpliiULYQJxHi5x4E=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=r7WKeoqzkQN/dpxbKUa99r8qxg6TllueCpqfBO9Jil6gkID48z0NK0JAu994rP8zn7uY9RDWCKHjObZ9058snq2oDq1NhFXnIUADIBubTmg5bFW/3skBiElaCR11vhdF1UTWH9w+kt75Tc/EMt0QDHs0e9K1Ym8ytzecFeNGzPE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=A266HDVS; arc=fail smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B37E2E54DE
+	for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 06:06:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761890777; cv=none; b=i7hskyoNAJnx6B2WWO+JOa9Ia6PaeUViOLXmO66NBqcMBtX5+TmxWhBU4UjWSSG7euPLA+m+w9mFERfvpDieWBreuSsFao00lFM5RXpZPcxJvJKr7pd92S7qOxClhRYf3wcRYpJr5Kqcjagg6QnaM/o4P0Z4IGfwV2kL6dKczLQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761890777; c=relaxed/simple;
+	bh=uzKsr8p0ZgM+SLgICEjgau4Cc9/3BVPso+PqdA0y7L8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SdVv3oDUymPKAYpwh6Bbm0NQQM6/+TZfMeVvWvU2LBuRaz35sXSmdhxG/IRR9CV9c+EuOl1CBZsS8qTEnOclHCq5R1WV9BsxgL8KNOkeyAArrKeIWJSQo4zTGlXdiJE7iR0uu8Bx2KhvPDnLr9eBEqio+h7iH9AVD7UeOwGXsc0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FoAGExTF; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="A266HDVS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1761887104; x=1793423104;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=epYl88CvOKsuhich0D2cMHeK7SjpliiULYQJxHi5x4E=;
-  b=A266HDVSKKuZEJRhIi9UsBXXxQfPLsoEEqKHTEZprYCjQyLcXFhtBwCp
-   uOvfHRytaeZr2+BSsIbK/7Z8wFwCyOCLKfbJmb/Q7H06+W4oFgNo0Te0K
-   gMWfVUGYWhdFBouB8LKKG9bpN9uOEsydL3gStxpGaCObRKikHmx4225WD
-   C/bfVT6a7cw3ndpYUPciSaM6UeYisVnStX48W/sNn2iwSU4VBCsGMGpeH
-   yTnPPYuEcfpCqke00/Nrzs5jhwyv6S5NazAA7hrfJB3JWk2x45CtdKbaA
-   5mzxp4do8Y5PJCh3leEkYWZCoO2pyzyKPq2AOTQE9GnXvkcVu/Deob4W4
-   Q==;
-X-CSE-ConnectionGUID: sX/CTG2+S7uXvUACu8WNzg==
-X-CSE-MsgGUID: Tvwp4WAhTEuwtluxr0EjSQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11598"; a="74333636"
-X-IronPort-AV: E=Sophos;i="6.19,268,1754982000"; 
-   d="scan'208";a="74333636"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2025 22:05:02 -0700
-X-CSE-ConnectionGUID: TagunKvfRLeDq3MJ/XceTg==
-X-CSE-MsgGUID: Fb2hpigQQ6CQMW0MN4m0nA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,268,1754982000"; 
-   d="scan'208";a="185828240"
-Received: from fmsmsx902.amr.corp.intel.com ([10.18.126.91])
-  by fmviesa007.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2025 22:05:01 -0700
-Received: from FMSMSX901.amr.corp.intel.com (10.18.126.90) by
- fmsmsx902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27; Thu, 30 Oct 2025 22:05:01 -0700
-Received: from fmsedg902.ED.cps.intel.com (10.1.192.144) by
- FMSMSX901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27 via Frontend Transport; Thu, 30 Oct 2025 22:05:01 -0700
-Received: from PH8PR06CU001.outbound.protection.outlook.com (40.107.209.48) by
- edgegateway.intel.com (192.55.55.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27; Thu, 30 Oct 2025 22:05:01 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ySi83rhqKZBpBXBQpF9NMFxRvZ+oTt6IrNFWztw8btKiIQ5dZUDnVNc6XnM8GE1PMkTCiURxFxG2xxoIHItmIDzpRoepgmp7pEnzvkJN0IdxHCpeLO6t3OSG28i17Ew+93Jdi4Ooqhi6XRmGp5Eyf2yBbOMbnW48NoEo0TyecH+0F4jTAp32rD+cKG14/QRlLTo6u85O5Mzl/fBuYt16azEMIPw28BkqVEdLU73vJJmUzMeE1RZ7BCt4piDP1HdwS/0eFfioCcWctYdCLhx0dArgnklRqn5cnHCaqnkHXstnTZHXvTrvQdU44HDI7gRoZHSjiGrFXLCzGgeA0Kqtag==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=epYl88CvOKsuhich0D2cMHeK7SjpliiULYQJxHi5x4E=;
- b=nwXin0mkOO3PznVxgyp0lla8iuXKUDE8sehzsMpTFnYTDTjnAVYigPiQo7Odmw6480lIsfZ9JWJk2vp6CGRIXd7orGP13q9wgYdQgMKncTV2fznSVoYaD7f+UmVUFb2zOTVsg7ydtLHu9YLqVLAehisq9K/uyb970wp0uyAxWWiNxDI2EfcGwXmsTDPUw4MC4QHD68+2bJ6Q02xO0rmXEOF8xybsGkA16v6770B2KhxKad5i98X6A0j86v8vI9RB+0v92F8osSXSkIq9PpCtaP60QMC43XUQ8ibzJGXpxDegVuHKK0SBkOdHfFWHB7GBDgl8yp0S/WMDsZyc1pwlkQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from CH3PR11MB7177.namprd11.prod.outlook.com (2603:10b6:610:153::8)
- by IA0PR11MB7813.namprd11.prod.outlook.com (2603:10b6:208:402::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9275.13; Fri, 31 Oct
- 2025 05:04:53 +0000
-Received: from CH3PR11MB7177.namprd11.prod.outlook.com
- ([fe80::271b:c621:d244:6105]) by CH3PR11MB7177.namprd11.prod.outlook.com
- ([fe80::271b:c621:d244:6105%4]) with mapi id 15.20.9275.013; Fri, 31 Oct 2025
- 05:04:53 +0000
-From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, Thomas Zimmermann
-	<tzimmermann@suse.de>, "gurchetansingh@chromium.org"
-	<gurchetansingh@chromium.org>, "kraxel@redhat.com" <kraxel@redhat.com>,
-	"airlied@redhat.com" <airlied@redhat.com>
-CC: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-Subject: RE: [PATCH v4] drm/virtgpu: Make vblank event dependent on the
- external sync
-Thread-Topic: [PATCH v4] drm/virtgpu: Make vblank event dependent on the
- external sync
-Thread-Index: AQHcRyfvcpYOJVPbTkGCrlhdg7m/dLTXuRYAgADddcCAAiSGAIAAgIJg
-Date: Fri, 31 Oct 2025 05:04:53 +0000
-Message-ID: <CH3PR11MB7177B04D32239354CD6A609EF8F8A@CH3PR11MB7177.namprd11.prod.outlook.com>
-References: <20251027095550.110562-1-tzimmermann@suse.de>
- <1e4a29e7-bf98-4193-962a-66fd251e2c72@collabora.com>
- <IA0PR11MB718584C85B844B3ED6115858F8FAA@IA0PR11MB7185.namprd11.prod.outlook.com>
- <b54f8527-5ce3-449a-ac96-6b4686d1b108@collabora.com>
-In-Reply-To: <b54f8527-5ce3-449a-ac96-6b4686d1b108@collabora.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CH3PR11MB7177:EE_|IA0PR11MB7813:EE_
-x-ms-office365-filtering-correlation-id: 7fbd4983-935e-40bf-9f70-08de183b073e
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700021;
-x-microsoft-antispam-message-info: =?us-ascii?Q?5DiVSo11nnldZJiSlJlI4dVvjZyCrjwS4FIcyAinezydxa/RjTm+PQDYExrN?=
- =?us-ascii?Q?73U43CvfTCpVkyP5LgOjgsKAG1yOImjERzEx6ICijytKpNmGbTWEPE7ABgYa?=
- =?us-ascii?Q?kF+IFK0LJK6iP9qFPUJxu2fx1f8P4wV2Gi+O+z3MXpnFCLGavNCmR0RjXYGk?=
- =?us-ascii?Q?phcW9CR9+60PTDjgg+/Vm4r+kLYM/pyGW7rHiVBSLhYi+ez9PONzrqYYBkpd?=
- =?us-ascii?Q?/H8DXM+m9H2egfA3siXyOPc4Lqm3NYqQI9C1FBcJO2QpjQLEJ2S7UuZQvfGN?=
- =?us-ascii?Q?Ti8mDUg0QAV4UOXQurcPBBnlLJ78tfVLao+czNxMNZ2Fd6i+KzToCLYlXvV0?=
- =?us-ascii?Q?MKWI3xKNbXNiqTVxu8BcfQHgToPzQL/PSoVanbqHi6nr57yApNlrFFO/98td?=
- =?us-ascii?Q?xP9Zn2VpotdhNdL6Su7LAs35RaMTQNYO+8DLiCi36b8ipsgPTMLk2DwTBOqM?=
- =?us-ascii?Q?0SGnBZCtUjuHLW2JKn1IMuiQFlvYVYXalqlI6xQbHKxHCLPCSzcCCA/sgccn?=
- =?us-ascii?Q?QldDeTgy52IdN1/5ei0Sr59jCWWwAPshpzkH1VofpdoX5GLm/OBAYzt/MILO?=
- =?us-ascii?Q?+1nW34t5JxCLrTfyUFQ3c6eel1CbIglLd84BZCYv5I4gBY7oOuxI8ehTJ+Wm?=
- =?us-ascii?Q?Q6cw4gWpTUUuUVKTGiDe7Lhk3Hrpq4GQ1Z8L5dtPc5Ie/5JauHEdKdmAzQKl?=
- =?us-ascii?Q?2yos4/ZVFD/teP8COLWJqoMDM6XU72K+EHpTjLRAWnvOu4a/xkXNgBDUgX0I?=
- =?us-ascii?Q?kcV89hE8GaTz8rTdxqe2OyoYGfjzqMHSicbK9fPffvbRPz56MWW90wayvA1q?=
- =?us-ascii?Q?WUl4wtcxxytlMO20FUgNAunlBA4XtO8lMzpzRFstulJ1gmzYZwRmK+IhwpnC?=
- =?us-ascii?Q?NXxAKi/3uUHiqX4vW42NvgnMyechZe4O+qPHkE3bttA8wJ00r1b++RLxvazs?=
- =?us-ascii?Q?Sk48qaMe327Zzumjg2RlBPoQqKdT9zsvMd1uQsqC9hS9nJKLExc+2IrTBPiK?=
- =?us-ascii?Q?zEwSRpCEQwo331k0LACSrSIJ2kzo4QQVw0URPW3CA2pvaq0znSk3DZgwOSb/?=
- =?us-ascii?Q?utrDA+ExEpDdUTwEQNhKh1hjllFIXHendvA/XfODqvhQnREZGzIPx3DrUieV?=
- =?us-ascii?Q?7sCY+N0CYXzGkc5kBNPNgUI8+Li68vxHtlfwbcpPcuq8iZfAAu+ZijZ4vZnO?=
- =?us-ascii?Q?RVd93vrO6M2IrQAteXI1hSph4QSMQ8T6PRWqSQUdvWbGh+mp8eXUZEdIV8+Z?=
- =?us-ascii?Q?72OAoqR1rUClKE3po3Zz7D+GqR+6w6oOB52gfm3cqoPx+7H+7/KuaoPXiONB?=
- =?us-ascii?Q?XkRX0xT4JxPD6FxIoNhXXK6JaCP3TvpauJkmd+ym+FK3EX3fIzkgM/ZRpS+T?=
- =?us-ascii?Q?3dr4dsZil4I4QgMzyda3lglayK/E8XUCQuZqQW8G3SzlJNPyTjyw1QgdXA2T?=
- =?us-ascii?Q?LvgPPmemyyUs4sTviza8XwM0NhvMecb/q0pq5ZdkTLkHVxpgcf6dJ0dImOGg?=
- =?us-ascii?Q?d4mq6EK0aUlWQor3JXVq86t8kRcrdfkSTpSW?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR11MB7177.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?1ICO/QTR4s8lzkATOAelOhT9PuWIm+0llY/C7BOi9/YoOKr6iH+bdBttx/oF?=
- =?us-ascii?Q?IJRpwQdWEK6cPHnsNmr62XOZtBer2864hoAjPsKzoILxbgSyie0OtBLuQBM0?=
- =?us-ascii?Q?s8HBJUZQDTHofm19GWCsPSdIkx4dKwM4PjSsR1bXU/pWcFqEQczinhx36es2?=
- =?us-ascii?Q?0gDA3PuX/3OrodXy6pAxt2rZjUZ6I4WyvoTZdMcIEo/pXjWWvhBXrnyMWADP?=
- =?us-ascii?Q?pjTZYrSop6Hnwch1GqdXn08UDKtIBF0OuvrBOe97Tm6b51Lao7ccSGW5t8GH?=
- =?us-ascii?Q?lPCpj3p9Sqcnc8OwJ5vSV4PMxR/DuR8Wg178aiSDQlhXVgKHM6j+u5RZW+jR?=
- =?us-ascii?Q?rGmhdNo/St5MteosUtkeKD53ivA3f/csWkr/Ljf1PyOoEf3+VyoQK5e4i1u8?=
- =?us-ascii?Q?h9qYg5JuhMu07XC7DRYrK1CbKg2usI0xwcGFbzUXQkkEODpXtURBg4202uMd?=
- =?us-ascii?Q?of/l/NT3U5q+iv2rnbn/g6znW5pt2Vlc8cnmWollCMpFQ+SPREc1dSyhfcFP?=
- =?us-ascii?Q?Pdgs7xg2NysbPCHnDlwNdC1hyXmmOvLceWV3Oejq+5qybzeuq8ZuP+S/ZQnF?=
- =?us-ascii?Q?MAtwl+2gG+MvXP3cSt6EI3KffJHmeTYl01FDd7tarbcYW6mDEkK17xuym9i6?=
- =?us-ascii?Q?yOJgsr+qyVq3pdnmQibUP9JadbCQPaYiGilyeEF4vrNLByPpH/KnMH5/nTKc?=
- =?us-ascii?Q?9DsMsn69BQyHoNWp5FNdJMHk8kxzTj+2n5G9hehZTeHZADn+HLoj/vwe4LrD?=
- =?us-ascii?Q?uq996SjnqsVBTBbO1ufbyg2ojl7WMIgfxE0ufb5n7RFEJCCeDZbHAPbUqIXI?=
- =?us-ascii?Q?+UOmjms7hNpnCmKE/CA+j0ZaprekG3ZwCpIJJud5EsnludqWVBHiE5jcv7Gh?=
- =?us-ascii?Q?4ffhoNI7Iy2oc9E4qNNLipnMOdLlcx5/wtTc4FOlmJ33H/assyPm6sENmW3T?=
- =?us-ascii?Q?KgKU0f99L2jqB+TQi6i/hCEno+dFbCOHRfLEfiZmpMfKoysOwNJfff2HjUbf?=
- =?us-ascii?Q?M0s+csyoWyJJZDg9/iy1UWZJmoYWUlKYphpunCB62inzhCgT6mldqkU4anSi?=
- =?us-ascii?Q?vb12y8BdkP/pBMkuvDguzyepq0NplXmr6xfz6gQSSxKercLPs2IaUL/BCFnG?=
- =?us-ascii?Q?La9t24uV0xtbACylrJjENZ9zY8lDdvJVRjvVfvA80qPGOZPDRPk5+Xie4D3W?=
- =?us-ascii?Q?CDOlgtkqVIEwmhMA41b1otIMZNT43ROvE8RB5TT9Kk+VtO7w55MChsVTGftr?=
- =?us-ascii?Q?uGkDcG03ZIsYpRxIgsqL+LST1vTJq9n9Jp0PiN0ILpi9D+01HNTz6zBqZLui?=
- =?us-ascii?Q?zlrKKvj6bF0uEbGN67rr9co1q39oM5F+OObekmaVXYV3eotzZnvK2+d8gTNl?=
- =?us-ascii?Q?X9G82keemnoV4wWbOCGi/j5cVaPBiLK45gPBWEjPDm0ManE1nBZfGmnU7FiU?=
- =?us-ascii?Q?cS2dSNNAiTFw4M3xPzFtVapFa5KBJS4iK8pIwT0sV+TFwd88N2Wj5XsClIqL?=
- =?us-ascii?Q?FnqsMs6GP1owqF+f37UkSL8qo8ygovpXid+jEzWXOIcuOZOj9dKk6MIZNL3A?=
- =?us-ascii?Q?bxLWwiZNoVrmtACplNu9YFoYDCrdRPI0ttVLAJFt?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FoAGExTF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1761890773;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=+bCrk/NYYmYlKBsMjf6Y0gKt7P2+73Hm3s9fxJ/Q+sk=;
+	b=FoAGExTF79kTZ/cca5BoXsCs3OUqZD6LQQnhZL1T2yKWxhb+mboPu6R/VlG00+R4RSfDii
+	unBC9PZDUMZ4Tlz0PAfyq+zSPeOc9nAi3X4pM58m4M9Ol/wz9p/jRkbXcCTgeCXVGYnXiC
+	XS49UR2hEy2dBDRI3tpadUsnVzJBd8o=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-618-7ClablYyO1OVe2uC7hp5hQ-1; Fri,
+ 31 Oct 2025 02:06:09 -0400
+X-MC-Unique: 7ClablYyO1OVe2uC7hp5hQ-1
+X-Mimecast-MFC-AGG-ID: 7ClablYyO1OVe2uC7hp5hQ_1761890768
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 79D581953958;
+	Fri, 31 Oct 2025 06:06:07 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.72.120.6])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 96EE21955BE3;
+	Fri, 31 Oct 2025 06:05:55 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	andrew+netdev@lunn.ch,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH net V2] virtio_net: fix alignment for virtio_net_hdr_v1_hash
+Date: Fri, 31 Oct 2025 14:05:51 +0800
+Message-ID: <20251031060551.126-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR11MB7177.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7fbd4983-935e-40bf-9f70-08de183b073e
-X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Oct 2025 05:04:53.6455
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: hVb/I2TKb9BoavBTW3k0G+4CGxPMI+0DenN6/sxAIeyZD+ojvXo0OGGfpF2hfBVCaMoAQYjE1yeaFRgnWts731TrPMcu2nRubb1nJJdsm9o=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR11MB7813
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Hi Dmitry,
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-> Subject: Re: [PATCH v4] drm/virtgpu: Make vblank event dependent on the
-> external sync
->=20
-> On 10/29/25 08:47, Kasireddy, Vivek wrote:
-> > I applied this patch and tested 3 different scenarios:
-> > 1) blob=3Dtrue + imported buffers
-> > root@localhost:weston_upstream/weston# ./build/clients/weston-simple-
-> egl -o &
-> > Using config: r8g8b8a0
-> > has EGL_EXT_buffer_age and EGL_EXT_swap_buffers_with_damage
-> > has EGL_EXT_surface_compression
-> > 245 frames in 5 seconds: 49.000000 fps
-> > 236 frames in 5 seconds: 47.200001 fps
-> > 279 frames in 5 seconds: 55.799999 fps
-> > 240 frames in 5 seconds: 48.000000 fps
-> > 244 frames in 5 seconds: 48.799999 fps
-> > 283 frames in 5 seconds: 56.599998 fps
-> > 274 frames in 5 seconds: 54.799999 fps
-> >
-> > 2) blob=3Dtrue
-> > root@localhost:/weston_upstream/weston# ./build/clients/weston-simple-
-> egl -o &
-> > Using config: r8g8b8a0
-> > has EGL_EXT_buffer_age and EGL_EXT_swap_buffers_with_damage
-> > has EGL_EXT_surface_compression
-> > 167 frames in 5 seconds: 33.400002 fps
-> > 208 frames in 5 seconds: 41.599998 fps
-> > 203 frames in 5 seconds: 40.599998 fps
-> > 252 frames in 5 seconds: 50.400002 fps
-> > 180 frames in 5 seconds: 36.000000 fps
-> > 219 frames in 5 seconds: 43.799999 fps
-> > 176 frames in 5 seconds: 35.200001 fps
-> > 220 frames in 5 seconds: 44.000000 fps
->=20
-> Thanks for the testing.
->=20
-> For the second scenario I'm getting better result, it's 55-60fps for me.
-> Given that this is a SW rendering, curious whether that's because you're
-> testing on a lower end machine(?)
-I am testing with a dGPU (B60) on the Host where I am running Gnome Xorg
-but I am running Gnome Wayland in the Guest. What compositors are you
-running on the Host and Guest? Kwin? Also, could you please share your
-Qemu launch parameters as well so that we can try to figure out the reason
-for the performance discrepancy?
+Changing alignment of header would mean it's no longer safe to cast a
+2 byte aligned pointer between formats. Use two 16 bit fields to make
+it 2 byte aligned as previously.
 
-Thanks,
-Vivek
-=20
+This fixes the performance regression since
+commit ("virtio_net: enable gso over UDP tunnel support.") as it uses
+virtio_net_hdr_v1_hash_tunnel which embeds
+virtio_net_hdr_v1_hash. Pktgen in guest + XDP_DROP on TAP + vhost_net
+shows the TX PPS is recovered from 2.4Mpps to 4.45Mpps.
 
->=20
-> --
-> Best regards,
-> Dmitry
+Fixes: 56a06bd40fab ("virtio_net: enable gso over UDP tunnel support.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes since V1:
+- Fix build issues of virtio_net_hdr_tnl_from_skb()
+---
+ drivers/net/virtio_net.c        | 15 +++++++++++++--
+ include/linux/virtio_net.h      |  3 ++-
+ include/uapi/linux/virtio_net.h |  3 ++-
+ 3 files changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 8e8a179aaa49..e6e650bc3bc3 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2539,6 +2539,13 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 	return NULL;
+ }
+ 
++static inline u32
++virtio_net_hash_value(const struct virtio_net_hdr_v1_hash *hdr_hash)
++{
++	return __le16_to_cpu(hdr_hash->hash_value_lo) |
++		(__le16_to_cpu(hdr_hash->hash_value_hi) << 16);
++}
++
+ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
+ 				struct sk_buff *skb)
+ {
+@@ -2565,7 +2572,7 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
+ 	default:
+ 		rss_hash_type = PKT_HASH_TYPE_NONE;
+ 	}
+-	skb_set_hash(skb, __le32_to_cpu(hdr_hash->hash_value), rss_hash_type);
++	skb_set_hash(skb, virtio_net_hash_value(hdr_hash), rss_hash_type);
+ }
+ 
+ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *rq,
+@@ -3311,6 +3318,10 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+ 
+ 	pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
+ 
++	/* Make sure it's safe to cast between formats */
++	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->hash_hdr));
++	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->hash_hdr.hdr));
++
+ 	can_push = vi->any_header_sg &&
+ 		!((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
+ 		!skb_header_cloned(skb) && skb_headroom(skb) >= hdr_len;
+@@ -6750,7 +6761,7 @@ static int virtnet_xdp_rx_hash(const struct xdp_md *_ctx, u32 *hash,
+ 		hash_report = VIRTIO_NET_HASH_REPORT_NONE;
+ 
+ 	*rss_type = virtnet_xdp_rss_type[hash_report];
+-	*hash = __le32_to_cpu(hdr_hash->hash_value);
++	*hash = virtio_net_hash_value(hdr_hash);
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 4d1780848d0e..b673c31569f3 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -401,7 +401,8 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+ 	if (!tnl_hdr_negotiated)
+ 		return -EINVAL;
+ 
+-        vhdr->hash_hdr.hash_value = 0;
++	vhdr->hash_hdr.hash_value_lo = 0;
++	vhdr->hash_hdr.hash_value_hi = 0;
+         vhdr->hash_hdr.hash_report = 0;
+         vhdr->hash_hdr.padding = 0;
+ 
+diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+index 8bf27ab8bcb4..1db45b01532b 100644
+--- a/include/uapi/linux/virtio_net.h
++++ b/include/uapi/linux/virtio_net.h
+@@ -193,7 +193,8 @@ struct virtio_net_hdr_v1 {
+ 
+ struct virtio_net_hdr_v1_hash {
+ 	struct virtio_net_hdr_v1 hdr;
+-	__le32 hash_value;
++	__le16 hash_value_lo;
++	__le16 hash_value_hi;
+ #define VIRTIO_NET_HASH_REPORT_NONE            0
+ #define VIRTIO_NET_HASH_REPORT_IPv4            1
+ #define VIRTIO_NET_HASH_REPORT_TCPv4           2
+-- 
+2.31.1
+
