@@ -1,60 +1,60 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B6412EC57B
-	for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 06:52:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AFC078F59
+	for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 07:01:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761893533; cv=none; b=D3/yLyM/xcA5iNiD0+7l49ZYf1BcjMwayT2VqYcy66X+Gz+ICUvCs4vUIgEqa1+3qXFPVvFLZk2D2/d98NjsztxExU4I03dsGw70/Xfa4scx/VXdhgoiYVCpmpy4uq2QyXyEfzCQ70aS6VTBbgSTYxTUw5ueCL8PGB5z3QuhfSc=
+	t=1761894080; cv=none; b=Ot7a/lY9V++Cv90qPRSphRtqWRFIbhRFKA8JT00b5ydQRPZ+WYpVYB2xorKoqpI2ww8QdP3Vw8dWneXITq/y4lJOJPRxHx9Q3Dk/0YE6wZQ3TH+GxCwTtz06ZTyHJrDXbOKl0Dd7jLtSTRW0Su5q4eOSFrMxDd73QZlyh735HtQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761893533; c=relaxed/simple;
-	bh=g7BtJVCW0fucQ7ZU5dmC/iRb1HlJ+OWINL/FohJU+XI=;
+	s=arc-20240116; t=1761894080; c=relaxed/simple;
+	bh=q12KDfEkhxXl6/bpkJTQjJy91PPPOKSp6gIdjXvXM+k=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OGwjCm5GhDFRfG+Hpfr5r9EUNvveQ5xnJtt2ZQ7BgdnlDKr24gtfAQKojP5lbpyNJ8pzwx0jPkw9iCy7MqoaUtGeknrRH0mTnYPvAlpWsXOk3REsRPbguDEyZtY0NDXu1CY3rjtVXQoXa16n3IiXbEHr8ztXvl6mzWWxY/O0OGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=k/29Hej0; arc=none smtp.client-ip=209.85.210.182
+	 To:Cc:Content-Type; b=PJAcW1e2r76dN28pc2EsETlR4nq9OCFp+bsrOPf8uhh620Xmmak+f+qRvH7izpGyRSHhY7qVshUh4lRz/4YMF6zdWMu64qIJq6qG7CUtiacdpQV3H6yuglXe8EYmmwkWxa0r18OBnx5tMzepLSqOY+HcpHdspXKMY+h9XPv2Fpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=SzX1YlBu; arc=none smtp.client-ip=209.85.216.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="k/29Hej0"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-7a74b13f4f8so921970b3a.1
-        for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 23:52:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="SzX1YlBu"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-33e0008d3b3so2008632a91.3
+        for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 00:01:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1761893530; x=1762498330; darn=lists.linux.dev;
+        d=bytedance.com; s=google; t=1761894078; x=1762498878; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yHI7ZDinPpB5ekRk47oKd2XVRhGBo9zPmMBjTT7u/Xg=;
-        b=k/29Hej0upz4v7Ian7y4ksjRy/I3f2R6rFd/uPKwSxX7GGKFj9MYNA8aDEatB5EiyQ
-         X9eiYfWHdHng0zA0YrPVpu6FOGOiYhnDmwfq68LsHTfn7ufgiphic4AnWMbEk9486lPC
-         L/0F/vOSkm3YPhhf+cwGlZEGeRyH9G5lmNm7IRgL+l/DobRbDNhQJUv+USqhdVvlIoqj
-         UvbWUsIK6XFuLinsDh0eOimAYXlVXukIpSh0ae5mgyORtOdiL23U3JKwOT08NjjT8bd+
-         6FeaEGhpXdI0oFf35Wgkvz86iH3vHPoN1XA8K+rNcPhB0dfObfIEkbkXlB+2/M1gR1V4
-         cYwg==
+        bh=Wn3uuAbqAI8xe0K1MlWuHQhr0lEGAe8UaHyzaH8poqA=;
+        b=SzX1YlBuBz+nGxDoAJrxY7aIh2G7S1KY6QldraddN4ztfnfnUE010LOY2W6hQpShpY
+         P2AY8NMYcsj7xAMZow8Zwn1mLb0dt7pVAdX4WlgEGfE3XI4p2cSFTGz7vPS3CfZpbyyh
+         GxBig9IYrkE/QufvNNn7OdfXh6U/yBInDvbq6TkEtWaztQI+0VpspsMwhmeicngATUR7
+         eVlXKdV1Q15hUEJtj+4u0igdRpoip4Gq3acYtAX0OY1RAY9n8J9Q2HBpwBHYMmr1g5+r
+         j11PbBNhwUM7MWdqCk6KCHdLqndazTv4qc+4Xl8NBzM9B44WoEjookASHyvCtWabec6W
+         riXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761893530; x=1762498330;
+        d=1e100.net; s=20230601; t=1761894078; x=1762498878;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yHI7ZDinPpB5ekRk47oKd2XVRhGBo9zPmMBjTT7u/Xg=;
-        b=lzsLNvLULcRJV86m/V+V/oxLM+EF80JDDtiRJsLzRgnwKqHp6yR4vZF1gp4N+gCtBR
-         HBkCL7yS3yx6uh3Dtbh4AJkU2K4iB+OQ+csWXhVRM2q0ZqhPTrmD/WoP32l2vOEVzBkj
-         AMtgYhxo6GuLeitPA+IReThNZhIXw2bqmIiAKXlZ/lUuHB7iAC+rYK1Sl826MUkhTVrO
-         VTFUyfvR/yB6kG4h9FqcqFJAtrIdNtv5pqkeAzHnSK1puHiXHjXMgfFcBzkt9krCgmKf
-         MNN46As2jK+jxi0E+flUCNw4iIbYw/tVyTDFQkjzLSLEQjfuoiFmLD4gmwFDjugguIQH
-         0O1w==
-X-Forwarded-Encrypted: i=1; AJvYcCWH9m6hX5RBShAoehFgXC87CLpfw0WxT4yD1MaI1t4FGwjm7nmbbB4UMLtyjsDNIc/dD59Y3eVCKnUI6xo+Qw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz+ieVZfpnkkB8xLVFdX9nmJA/3RWyNdx+veu8uLkubrkoUXXzw
-	/hNyNi4cr5/Aj1jmVkpY7+05aJFpiT9qZp/T8dtufbm76KKBybBFAuVD4QC4/6pcjfWguDhHWgz
-	1WhvicBnsK+Bx3aQTeRgQKCxBOCpAX45SAWabun+L
-X-Gm-Gg: ASbGncuWJnue9V2OaPfAlaIhiHPCJ1v4IJ+ttLAd3O7B4GAtYmHtw3ti2G+Od9qhgnP
-	MJYL2rexlWqb2zOmxOIvrGh5n/0Mk3l2ld69cOVPdXuZ65olkrBhgSdQ9t5e+NybHmANhdT7MKr
-	ex3WQKi8gSakaDGhcKswObz3AVsOl/s2UyISicNyRAPn0Lxf7O2VioVx4OdyryWoFkBks6G/tYy
-	OlEmWv4oAn3KooBxqsI691hbkunMQbZgd+21nt3RvUeT0W1P6ThIzOhwRRp6WyuKbM0XDQ/yp/H
-	YLEAIcR6V5ChPpeYTlq5Y5kZd0kOIcV4g9s6+uU=
-X-Google-Smtp-Source: AGHT+IGIQwiVb3E4NVLYpMIcalD1uCVMlDKgpUYTlQ3wzwk5EEQzdhGxEzoe0QbmOQct/QXq0kIV6SvxeQ8OLwBZgmk=
-X-Received: by 2002:a17:902:c406:b0:24b:25f:5f81 with SMTP id
- d9443c01a7336-2951a3eacaamr42061215ad.17.1761893529498; Thu, 30 Oct 2025
- 23:52:09 -0700 (PDT)
+        bh=Wn3uuAbqAI8xe0K1MlWuHQhr0lEGAe8UaHyzaH8poqA=;
+        b=G60EtAln0vv0TdV6wFdgWD8qxifUFVCiGFZiJuFvpJPihAYzkoUA2PxEf54nQAGTqP
+         oiCe+pfQBt7TpY5gb0rf7/JtbqmJcusukNg+GTpBCFZ9daXlS4cQOxUM9XMHFZeqXKAI
+         k7zc+X2MOgrbyaDEf62o6HTqc2y4cmBA4NEkgXUyDmJDXiCAcZ5UbDLtTTp7BYyAaqqB
+         ee4xLO6XoetxZYvt8Q8coeu0eo55DPLeaJD3bGi1dsTyY0PDXjbgurK16enpEE6bOvN+
+         2gTkwjHIfZClo3ll/C8/vZEQ/H3tAXGT1glRmkvaLZwqkSXG1MCIP5QjUk0C256+YNwq
+         fqXw==
+X-Forwarded-Encrypted: i=1; AJvYcCW6Vd4DJkUOoZxNioWkk2K4QlkLSAzBxv+9+x8wfVPHkpJS7ZiQEEClpuVKZ5y9oIhyW5w/ekFJaXGA23gc3Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxzgNVLSRUq/nn9MAG7Jrc/t+VZh9T/XB9F+84ZONh3A/geBTns
+	7H0qxiwrLhjZNv6zcbB95rCjQ5ZgQMk3iQRz2shD6i+vouJN5rUdg5p4wCJ/iAH+2BHEvcAjtv6
+	0JmX+/A1mGX4OqPaxWhz6Ex7bFKoyx5/8PjAwNxr1
+X-Gm-Gg: ASbGncvz3sGpoVJPvdz97Z6bQz2mKaAbCgm0c9GfxfmBm5y6td1RzYY8uj6b9s0Pvoa
+	5f1+38Ahucfh+feNGCcbiKHWuo8FLeCqF4nrIzD9jZ8EEfNHAVfB8dnEFyPU03hsh3ArY8RvF7j
+	TDeZZKUGmse9EYO+iOROwWX6e6aoyp0luR+isNv3Z8jelA9SzFVGvg/okDmCPGqSxW9ElOKxgbJ
+	eLTzgo3tj7zWE+3w8P02XAVc7NH/EV9v6ebWyfAhMI5l7Utl33rMK7lntzIo2/Bs44nTbXHdtj1
+	Ub0vgjuvQnOoMwb7BE59KkWHWlNK
+X-Google-Smtp-Source: AGHT+IHvJ5b6u1Qktl2Zll7CNkYolmqAtjWX5d1nDDzUpnoONbbWcYjJvw0MF2Jr7nmM35PDSy57jIuWhVz7fMMx59o=
+X-Received: by 2002:a17:90b:3f8b:b0:32b:a332:7a0a with SMTP id
+ 98e67ed59e1d1-34082fab188mr2999301a91.1.1761894077979; Fri, 31 Oct 2025
+ 00:01:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -65,10 +65,10 @@ References: <20251030100025.95113-1-eperezma@redhat.com> <20251030100025.95113-6
  <CACycT3sYzQM88dkqHiT-g9eRtfo-8PjW7XcRtZ=5q++=By4RVw@mail.gmail.com> <CAJaqyWexPHJiZjC+RPvVH4J6gS55fCOfPQmKay2eWO-nqrjcRQ@mail.gmail.com>
 In-Reply-To: <CAJaqyWexPHJiZjC+RPvVH4J6gS55fCOfPQmKay2eWO-nqrjcRQ@mail.gmail.com>
 From: Yongji Xie <xieyongji@bytedance.com>
-Date: Fri, 31 Oct 2025 14:51:57 +0800
-X-Gm-Features: AWmQ_blyhQLqU95y8Dt-2lfdh-Wxc7mHiwK3MCUZG7vaGiPo4msuexTlZcf9nWs
-Message-ID: <CACycT3vdEAF1m5+UdDDoimQqUCTAmYVJ8cotcnUq+yQu0q8yqQ@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH v8 5/6] vduse: add vq group asid support
+Date: Fri, 31 Oct 2025 15:01:06 +0800
+X-Gm-Features: AWmQ_bmtgpETmCi0MGzGulnV_O9k88UXrZWEB3j_ApUVZHRFhCreX9iRMKEcR78
+Message-ID: <CACycT3v4zp_uDRA6ELwcZB287TYLsJfx34EepAhSRJ+w6B0hvw@mail.gmail.com>
+Subject: Re: Re: [PATCH v8 5/6] vduse: add vq group asid support
 To: Eugenio Perez Martin <eperezma@redhat.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
 	Maxime Coquelin <mcoqueli@redhat.com>, virtualization@lists.linux.dev, 
@@ -389,3 +389,14 @@ io_map token, struct page *page,
 > That would be great indeed! Can you expand on this, what protects here
 > from the moment the two syscalls are issues from userland?
 >
+
+The domain mutex lock is introduced in commit
+d4438d23eeeef8bb1b3a8abe418abffd60bb544a ("vduse: Delay iova domain
+creation"). It's used to prevent concurrent execution between
+vdpa_dev_add() and some vduse device ioctl which needs to access the
+iova domain such as VDUSE_IOTLB_REG_UMEM/DEREG_UMEM. But the dma ops
+would not be called until vdpa_dev_add() completed, so the mutex lock
+is not needed.
+
+Thanks,
+Yongji
