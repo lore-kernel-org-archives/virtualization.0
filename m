@@ -1,183 +1,391 @@
-Received: from mail-yx1-f42.google.com (mail-yx1-f42.google.com [74.125.224.42])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B6852DCF4C
-	for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 06:37:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B6412EC57B
+	for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 06:52:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761892672; cv=none; b=CXV+ZlhlkDrCe030Uk0UsBnu+U0ALd0BVX8brd4CekiC2Lelz4Buslp4z7q3kG/vVVf92KeEP0pHdzCZAEt/ZI9enJA8GPlaL1d9IO2mMT9eUEGnVdQqsXIGZittcr2V6+1TFqpyKB6N0gEwdc/mcEzMa80eVWUEmVYzzLNT5Nw=
+	t=1761893533; cv=none; b=D3/yLyM/xcA5iNiD0+7l49ZYf1BcjMwayT2VqYcy66X+Gz+ICUvCs4vUIgEqa1+3qXFPVvFLZk2D2/d98NjsztxExU4I03dsGw70/Xfa4scx/VXdhgoiYVCpmpy4uq2QyXyEfzCQ70aS6VTBbgSTYxTUw5ueCL8PGB5z3QuhfSc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761892672; c=relaxed/simple;
-	bh=2Ad22H+YKv3fYSdPT9lbgu9VOjM2ntNDuMEpDFLqgtw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cOz24fwRqBhTtlu9KsPZZdkZm622eBY5iif80Bplnc0+DiXHFAX15DiLIMSAoDXkjZmyhWziFRxyEQSwx4/OwbXsdMaik/WmtCLN0w5QGJHKnp09B3KreZRlClz5IZH+6cxveQjo6TAWDMdoTKwqqjMc/kEKksETkvGqp1f6r2I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ABqfQp04; arc=none smtp.client-ip=74.125.224.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1761893533; c=relaxed/simple;
+	bh=g7BtJVCW0fucQ7ZU5dmC/iRb1HlJ+OWINL/FohJU+XI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OGwjCm5GhDFRfG+Hpfr5r9EUNvveQ5xnJtt2ZQ7BgdnlDKr24gtfAQKojP5lbpyNJ8pzwx0jPkw9iCy7MqoaUtGeknrRH0mTnYPvAlpWsXOk3REsRPbguDEyZtY0NDXu1CY3rjtVXQoXa16n3IiXbEHr8ztXvl6mzWWxY/O0OGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=k/29Hej0; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ABqfQp04"
-Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-63d0692136bso2328377d50.1
-        for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 23:37:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="k/29Hej0"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-7a74b13f4f8so921970b3a.1
+        for <virtualization@lists.linux.dev>; Thu, 30 Oct 2025 23:52:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1761892669; x=1762497469; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=kS/Ba8wi03ja6q2G16rK+mBdR0oPZku80viIJSVlHq8=;
-        b=ABqfQp04Y51wV5nxMdIa2DLoxQVAm+WYOUhTlQqqpTotYUPTiOowf49Vlhrt8ciQRk
-         inAPEfCDkLJU92WAp2xjOnM3eQv/7gSfMP0Dx3IA2zWuaqvIeP+XYfab2kLRJw5THzpW
-         IEBTRtl2SUtnzAkth35HvJ3DpKoSyR7mBIMEx4jUmO+uDD67LtvBjNElTn9mrM+tIZdb
-         aymqYjty6cz9RMx90r+rA8bTKywzxY8G911ag1gVEOcoKo/gk4fCG7Kyw4TX8SB2trHY
-         FWjRXFF8bXD5HxMOd1aZ9ExvUCcqtsI4tNf0/MziruHZv/TffZi+wK2W/lSwnEwXUv5F
-         hr4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761892669; x=1762497469;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=bytedance.com; s=google; t=1761893530; x=1762498330; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=kS/Ba8wi03ja6q2G16rK+mBdR0oPZku80viIJSVlHq8=;
-        b=jbigYNt2DIVAbwsttrxyX8VgcxDM3g7DiS9J4MsoyODwRjMiRjiR5cWR57uOCAQrGE
-         fqnQulnLi9cUcZ5x8Kh/CCP+fjwWHQ2QCzH75ZLgcE3bsDY7HgS2APpbkxlxumERudHW
-         FPdtjC69MHcE/iZtd1DieAbUfY23BmxOuj54etSZK52HKgiHhL0L71MnMz3uqwuB27iR
-         ofdkGMEG4daZLODTN/Yj4ACYVZRLMyBeBLblo8T+a3bVYaPMuv7gt+TPAQ3bJkBqm0os
-         6J7Ec3CxaOfPRBELvyg2vVUGfgLKd4cE+lvFlgMa683oppsmNsou6QWRGwdcyfjCJCjX
-         4RlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWw2xgVEO6KWXbnq4xlj3DGCjXlodsZMn6P1NX4zEX/vRXxW8yZS+hKcJ8YshuNAvlrgCeeokpPCt69cR1Sqg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzYXfjJ0siihFl+ktxvRhFCY944Huq59WXwNldKayIFp8rJpC+I
-	zEJ+hfAcxFD4nDEC2XhxjjVAZYtCXfsZeH/bsPiIoAoy/EIXD1EldTDk
-X-Gm-Gg: ASbGncv6/BpvK87syB8MVNQUX3j3VMQs0pBKSnpxhoOX6ePovYctRReO4t+nd43D/Sd
-	X/SJqOQ36xo17TDvq12KeNPhXzFVskhRceEknREYuf269oCohyUxqeCBEayz0nqzFbQQ/nLxuUB
-	KJ1WTEDujGohHMUVEkVHw3Jkf9Hjc/Kv5t5AgAuvJYrcGEqr5w/ZZjjs0RzyDqD/JDQ7SlhJ24R
-	vMiVLHKpXF++KBP5X2cxh5vH0J56VnPARg+wcFrMlt1PuCz5cFh5B0seN324H4Jl0doU8U4KYIC
-	8wX3xe2ps/XGNQeJ2lXety7Q0Yte8IdeCuzbyvYbewO+mTPfzRmhNqM3/MY22TAMqIX1qPmaYEj
-	G1/rwysOpPZUGB5URX9nYyk+ALTFPsICBK46/Rb9XRiF1YbEuDzFCK21K6Hahn86srnVNaJyCiO
-	DAxq7rC6WiJNip5XPXzMFFntXCfHvQ9mirRQNYfog=
-X-Google-Smtp-Source: AGHT+IE8N0NuNxDPSMdh3gqIxDWFygZpV4mjnnnjXKw/xdAOq6rsstqv2KVKzg0erHaerfWTmEpODA==
-X-Received: by 2002:a05:690e:282:b0:63f:8734:36a0 with SMTP id 956f58d0204a3-63f92272105mr1346690d50.21.1761892669464;
-        Thu, 30 Oct 2025 23:37:49 -0700 (PDT)
-Received: from vegg ([2402:a00:163:2ce9:84ab:c8ef:8e7:edf3])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-7864c667d3dsm2850837b3.42.2025.10.30.23.37.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Oct 2025 23:37:48 -0700 (PDT)
-Date: Fri, 31 Oct 2025 12:07:40 +0530
-From: Brajesh Patil <brajeshpatil11@gmail.com>
-To: "Darrick J. Wong" <djwong@kernel.org>
-Cc: miklos@szeredi.hu, stefanha@redhat.com, vgoyal@redhat.com,
-	eperezma@redhat.com, virtualization@lists.linux.dev,
-	virtio-fs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org, skhan@linuxfoundation.org,
-	linux-kernel-mentees@lists.linux.dev, david.hunter.linux@gmail.com,
-	khalid@kernel.org
-Subject: Re: [PATCH] fuse: virtio_fs: add checks for FUSE protocol compliance
-Message-ID: <20251031063740.tyeewgtp7zo2gdi3@vegg>
-References: <20251028200311.40372-1-brajeshpatil11@gmail.com>
- <20251028200755.GJ6174@frogsfrogsfrogs>
- <c7zugpb4pzquasx67zypnuk2irxvb7cp5puwuw3rncy6gb5wdn@qigavsewium3>
- <20251029060108.GR4015566@frogsfrogsfrogs>
+        bh=yHI7ZDinPpB5ekRk47oKd2XVRhGBo9zPmMBjTT7u/Xg=;
+        b=k/29Hej0upz4v7Ian7y4ksjRy/I3f2R6rFd/uPKwSxX7GGKFj9MYNA8aDEatB5EiyQ
+         X9eiYfWHdHng0zA0YrPVpu6FOGOiYhnDmwfq68LsHTfn7ufgiphic4AnWMbEk9486lPC
+         L/0F/vOSkm3YPhhf+cwGlZEGeRyH9G5lmNm7IRgL+l/DobRbDNhQJUv+USqhdVvlIoqj
+         UvbWUsIK6XFuLinsDh0eOimAYXlVXukIpSh0ae5mgyORtOdiL23U3JKwOT08NjjT8bd+
+         6FeaEGhpXdI0oFf35Wgkvz86iH3vHPoN1XA8K+rNcPhB0dfObfIEkbkXlB+2/M1gR1V4
+         cYwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761893530; x=1762498330;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yHI7ZDinPpB5ekRk47oKd2XVRhGBo9zPmMBjTT7u/Xg=;
+        b=lzsLNvLULcRJV86m/V+V/oxLM+EF80JDDtiRJsLzRgnwKqHp6yR4vZF1gp4N+gCtBR
+         HBkCL7yS3yx6uh3Dtbh4AJkU2K4iB+OQ+csWXhVRM2q0ZqhPTrmD/WoP32l2vOEVzBkj
+         AMtgYhxo6GuLeitPA+IReThNZhIXw2bqmIiAKXlZ/lUuHB7iAC+rYK1Sl826MUkhTVrO
+         VTFUyfvR/yB6kG4h9FqcqFJAtrIdNtv5pqkeAzHnSK1puHiXHjXMgfFcBzkt9krCgmKf
+         MNN46As2jK+jxi0E+flUCNw4iIbYw/tVyTDFQkjzLSLEQjfuoiFmLD4gmwFDjugguIQH
+         0O1w==
+X-Forwarded-Encrypted: i=1; AJvYcCWH9m6hX5RBShAoehFgXC87CLpfw0WxT4yD1MaI1t4FGwjm7nmbbB4UMLtyjsDNIc/dD59Y3eVCKnUI6xo+Qw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz+ieVZfpnkkB8xLVFdX9nmJA/3RWyNdx+veu8uLkubrkoUXXzw
+	/hNyNi4cr5/Aj1jmVkpY7+05aJFpiT9qZp/T8dtufbm76KKBybBFAuVD4QC4/6pcjfWguDhHWgz
+	1WhvicBnsK+Bx3aQTeRgQKCxBOCpAX45SAWabun+L
+X-Gm-Gg: ASbGncuWJnue9V2OaPfAlaIhiHPCJ1v4IJ+ttLAd3O7B4GAtYmHtw3ti2G+Od9qhgnP
+	MJYL2rexlWqb2zOmxOIvrGh5n/0Mk3l2ld69cOVPdXuZ65olkrBhgSdQ9t5e+NybHmANhdT7MKr
+	ex3WQKi8gSakaDGhcKswObz3AVsOl/s2UyISicNyRAPn0Lxf7O2VioVx4OdyryWoFkBks6G/tYy
+	OlEmWv4oAn3KooBxqsI691hbkunMQbZgd+21nt3RvUeT0W1P6ThIzOhwRRp6WyuKbM0XDQ/yp/H
+	YLEAIcR6V5ChPpeYTlq5Y5kZd0kOIcV4g9s6+uU=
+X-Google-Smtp-Source: AGHT+IGIQwiVb3E4NVLYpMIcalD1uCVMlDKgpUYTlQ3wzwk5EEQzdhGxEzoe0QbmOQct/QXq0kIV6SvxeQ8OLwBZgmk=
+X-Received: by 2002:a17:902:c406:b0:24b:25f:5f81 with SMTP id
+ d9443c01a7336-2951a3eacaamr42061215ad.17.1761893529498; Thu, 30 Oct 2025
+ 23:52:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251029060108.GR4015566@frogsfrogsfrogs>
+References: <20251030100025.95113-1-eperezma@redhat.com> <20251030100025.95113-6-eperezma@redhat.com>
+ <CACycT3sYzQM88dkqHiT-g9eRtfo-8PjW7XcRtZ=5q++=By4RVw@mail.gmail.com> <CAJaqyWexPHJiZjC+RPvVH4J6gS55fCOfPQmKay2eWO-nqrjcRQ@mail.gmail.com>
+In-Reply-To: <CAJaqyWexPHJiZjC+RPvVH4J6gS55fCOfPQmKay2eWO-nqrjcRQ@mail.gmail.com>
+From: Yongji Xie <xieyongji@bytedance.com>
+Date: Fri, 31 Oct 2025 14:51:57 +0800
+X-Gm-Features: AWmQ_blyhQLqU95y8Dt-2lfdh-Wxc7mHiwK3MCUZG7vaGiPo4msuexTlZcf9nWs
+Message-ID: <CACycT3vdEAF1m5+UdDDoimQqUCTAmYVJ8cotcnUq+yQu0q8yqQ@mail.gmail.com>
+Subject: Re: [External] Re: [PATCH v8 5/6] vduse: add vq group asid support
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	Maxime Coquelin <mcoqueli@redhat.com>, virtualization@lists.linux.dev, 
+	Stefano Garzarella <sgarzare@redhat.com>, Jason Wang <jasowang@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 28, 2025 at 11:01:08PM -0700, Darrick J. Wong wrote:
-> On Wed, Oct 29, 2025 at 08:58:30AM +0530, Brajesh Patil wrote:
-> > On Tue, Oct 28, 2025 at 01:07:55PM -0700, Darrick J. Wong wrote:
-> > > On Wed, Oct 29, 2025 at 01:33:11AM +0530, Brajesh Patil wrote:
-> > > > Add validation in virtio-fs to ensure the server follows the FUSE
-> > > > protocol for response headers, addressing the existing TODO for
-> > > > verifying protocol compliance.
-> > > > 
-> > > > Add checks for fuse_out_header to verify:
-> > > >  - oh->unique matches req->in.h.unique
-> > > >  - FUSE_INT_REQ_BIT is not set
-> > > >  - error codes are valid
-> > > >  - oh->len does not exceed the expected size
-> > > > 
-> > > > Signed-off-by: Brajesh Patil <brajeshpatil11@gmail.com>
-> > > > ---
-> > > >  fs/fuse/virtio_fs.c | 30 +++++++++++++++++++++++++-----
-> > > >  1 file changed, 25 insertions(+), 5 deletions(-)
-> > > > 
-> > > > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> > > > index 6bc7c97b017d..52e8338bf436 100644
-> > > > --- a/fs/fuse/virtio_fs.c
-> > > > +++ b/fs/fuse/virtio_fs.c
-> > > > @@ -764,14 +764,34 @@ static void virtio_fs_request_complete(struct fuse_req *req,
-> > > >  {
-> > > >  	struct fuse_args *args;
-> > > >  	struct fuse_args_pages *ap;
-> > > > -	unsigned int len, i, thislen;
-> > > > +	struct fuse_out_header *oh;
-> > > > +	unsigned int len, i, thislen, expected_len = 0;
-> > > >  	struct folio *folio;
-> > > >  
-> > > > -	/*
-> > > > -	 * TODO verify that server properly follows FUSE protocol
-> > > > -	 * (oh.uniq, oh.len)
-> > > > -	 */
-> > > > +	oh = &req->out.h;
-> > > > +
-> > > > +	if (oh->unique == 0)
-> > > > +		pr_warn_once("notify through fuse-virtio-fs not supported");
-> > > > +
-> > > > +	if ((oh->unique & ~FUSE_INT_REQ_BIT) != req->in.h.unique)
-> > > > +		pr_warn_ratelimited("virtio-fs: unique mismatch, expected: %llu got %llu\n",
-> > > > +				    req->in.h.unique, oh->unique & ~FUSE_INT_REQ_BIT);
-> > > 
-> > > Er... shouldn't these be rejecting the response somehow?  Instead of
-> > > warning that something's amiss but continuing with known bad data?
-> > > 
-> > > --D
+On Fri, Oct 31, 2025 at 2:31=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Thu, Oct 30, 2025 at 12:52=E2=80=AFPM Yongji Xie <xieyongji@bytedance.=
+com> wrote:
+> >
+> > On Thu, Oct 30, 2025 at 6:01=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@re=
+dhat.com> wrote:
 > > >
-> > 
-> > Right, continuing here is unsafe.
-> > 
-> > I plan to update the code so that in case of any header validation
-> > failure (e.g. unique mismatch, invalid error, length mismatch), it
-> > should skip copying data and jump directly to the section that marks
-> > request as complete
-> > 
-> > Does this seem like a feasible approach?
-> 
-> Yeah, I think you can just set req->out.h.error to some errno (EIO?) and
-> jump to fuse_request_end, sort of like what fuse_dev_do_write sort of
-> does.  I think that sends the errno back to whatever code initiated the
-> request.  I don't know if virtiofs should be throwing an error back to
-> the server?
-> 
-> --D
-> 
-
-I think it is okay to set oh.error in fuse_dev_do_write as it is a server side
-reply. But as virtio_fs is on the client side and oh.error has been set by
-virtiofsd, I think so we should not overwrite oh.error. Instead, if we
-encounter an error in any of the if conditions, skip copying arguments and jump
-to the line clear_bit(FR_SENT, &req->flags).
-
-> > > > +
-> > > > +	WARN_ON_ONCE(oh->unique & FUSE_INT_REQ_BIT);
-> > > > +
-> > > > +	if (oh->error <= -ERESTARTSYS || oh->error > 0)
-> > > > +		pr_warn_ratelimited("virtio-fs: invalid error code from server: %d\n",
-> > > > +				    oh->error);
-> > > > +
-> > > >  	args = req->args;
-> > > > +
-> > > > +	for (i = 0; i < args->out_numargs; i++)
-> > > > +		expected_len += args->out_args[i].size;
-> > > > +
-> > > > +	if (oh->len > sizeof(*oh) + expected_len)
-> > > > +		pr_warn("FUSE reply too long! got=%u expected<=%u\n",
-> > > > +			oh->len, (unsigned int)(sizeof(*oh) + expected_len));
-> > > > +
-> > > >  	copy_args_from_argbuf(args, req);
-> > > >  
-> > > >  	if (args->out_pages && args->page_zeroing) {
-> > > > -- 
-> > > > 2.43.0
-> > > > 
-> > > > 
+> > > Add support for assigning Address Space Identifiers (ASIDs) to each V=
+Q
+> > > group.  This enables mapping each group into a distinct memory space.
+> > >
+> > > Now that the driver can change ASID in the middle of operation, the
+> > > domain that each vq address point is also protected by domain_lock.
+> > >
+> > > Acked-by: Jason Wang <jasowang@redhat.com>
+> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > ---
+> > > v8:
+> > > * Revert the mutex to rwlock change, it needs proper profiling to
+> > >   justify it.
+> > >
+> > > v7:
+> > > * Take write lock in the error path (Jason).
+> > >
+> > > v6:
+> > > * Make vdpa_dev_add use gotos for error handling (MST).
+> > > * s/(dev->api_version < 1) ?/(dev->api_version < VDUSE_API_VERSION_1)=
+ ?/
+> > >   (MST).
+> > > * Fix struct name not matching in the doc.
+> > >
+> > > v5:
+> > > * Properly return errno if copy_to_user returns >0 in VDUSE_IOTLB_GET=
+_FD
+> > >   ioctl (Jason).
+> > > * Properly set domain bounce size to divide equally between nas (Jaso=
+n).
+> > > * Exclude "padding" member from the only >V1 members in
+> > >   vduse_dev_request.
+> > >
+> > > v4:
+> > > * Divide each domain bounce size between the device bounce size (Jaso=
+n).
+> > > * revert unneeded addr =3D NULL assignment (Jason)
+> > > * Change if (x && (y || z)) return to if (x) { if (y) return; if (z)
+> > >   return; } (Jason)
+> > > * Change a bad multiline comment, using @ caracter instead of * (Jaso=
+n).
+> > > * Consider config->nas =3D=3D 0 as a fail (Jason).
+> > >
+> > > v3:
+> > > * Get the vduse domain through the vduse_as in the map functions
+> > >   (Jason).
+> > > * Squash with the patch creating the vduse_as struct (Jason).
+> > > * Create VDUSE_DEV_MAX_AS instead of comparing agains a magic number
+> > >   (Jason)
+> > >
+> > > v2:
+> > > * Convert the use of mutex to rwlock.
+> > >
+> > > RFC v3:
+> > > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a low=
+er
+> > >   value to reduce memory consumption, but vqs are already limited to
+> > >   that value and userspace VDUSE is able to allocate that many vqs.
+> > > * Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
+> > >   VDUSE_IOTLB_GET_INFO.
+> > > * Use of array_index_nospec in VDUSE device ioctls.
+> > > * Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
+> > > * Move the umem mutex to asid struct so there is no contention betwee=
+n
+> > >   ASIDs.
+> > >
+> > > RFC v2:
+> > > * Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
+> > >   part of the struct is the same.
+> > > ---
+> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 348 ++++++++++++++++++++-------=
+--
+> > >  include/uapi/linux/vduse.h         |  53 ++++-
+> > >  2 files changed, 292 insertions(+), 109 deletions(-)
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_u=
+ser/vduse_dev.c
+> > > index 97be04f73fbf..c6909d73d06d 100644
+> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > @@ -41,6 +41,7 @@
+> > >
+> > >  #define VDUSE_DEV_MAX (1U << MINORBITS)
+> > >  #define VDUSE_DEV_MAX_GROUPS 0xffff
+> > > +#define VDUSE_DEV_MAX_AS 0xffff
+> > >  #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
+> > >  #define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
+> > >  #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
+> > > @@ -86,7 +87,14 @@ struct vduse_umem {
+> > >         struct mm_struct *mm;
+> > >  };
+> > >
+> > > +struct vduse_as {
+> > > +       struct vduse_iova_domain *domain;
+> > > +       struct vduse_umem *umem;
+> > > +       struct mutex mem_lock;
+> > > +};
+> > > +
+> > >  struct vduse_vq_group {
+> > > +       struct vduse_as *as;
+> > >         struct vduse_dev *dev;
+> > >  };
+> > >
+> > > @@ -94,7 +102,7 @@ struct vduse_dev {
+> > >         struct vduse_vdpa *vdev;
+> > >         struct device *dev;
+> > >         struct vduse_virtqueue **vqs;
+> > > -       struct vduse_iova_domain *domain;
+> > > +       struct vduse_as *as;
+> > >         char *name;
+> > >         struct mutex lock;
+> > >         spinlock_t msg_lock;
+> > > @@ -122,9 +130,8 @@ struct vduse_dev {
+> > >         u32 vq_num;
+> > >         u32 vq_align;
+> > >         u32 ngroups;
+> > > -       struct vduse_umem *umem;
+> > > +       u32 nas;
+> > >         struct vduse_vq_group *groups;
+> > > -       struct mutex mem_lock;
+> > >         unsigned int bounce_size;
+> > >         struct mutex domain_lock;
+> > >  };
+> > > @@ -314,7 +321,7 @@ static int vduse_dev_set_status(struct vduse_dev =
+*dev, u8 status)
+> > >         return vduse_dev_msg_sync(dev, &msg);
+> > >  }
+> > >
+> > > -static int vduse_dev_update_iotlb(struct vduse_dev *dev,
+> > > +static int vduse_dev_update_iotlb(struct vduse_dev *dev, u32 asid,
+> > >                                   u64 start, u64 last)
+> > >  {
+> > >         struct vduse_dev_msg msg =3D { 0 };
+> > > @@ -323,8 +330,14 @@ static int vduse_dev_update_iotlb(struct vduse_d=
+ev *dev,
+> > >                 return -EINVAL;
+> > >
+> > >         msg.req.type =3D VDUSE_UPDATE_IOTLB;
+> > > -       msg.req.iova.start =3D start;
+> > > -       msg.req.iova.last =3D last;
+> > > +       if (dev->api_version < VDUSE_API_VERSION_1) {
+> > > +               msg.req.iova.start =3D start;
+> > > +               msg.req.iova.last =3D last;
+> > > +       } else {
+> > > +               msg.req.iova_v2.start =3D start;
+> > > +               msg.req.iova_v2.last =3D last;
+> > > +               msg.req.iova_v2.asid =3D asid;
+> > > +       }
+> > >
+> > >         return vduse_dev_msg_sync(dev, &msg);
+> > >  }
+> > > @@ -436,14 +449,29 @@ static __poll_t vduse_dev_poll(struct file *fil=
+e, poll_table *wait)
+> > >         return mask;
+> > >  }
+> > >
+> > > +/* Force set the asid to a vq group without a message to the VDUSE d=
+evice */
+> > > +static void vduse_set_group_asid_nomsg(struct vduse_dev *dev,
+> > > +                                      unsigned int group, unsigned i=
+nt asid)
+> > > +{
+> > > +       mutex_lock(&dev->domain_lock);
+> > > +       dev->groups[group].as =3D &dev->as[asid];
+> > > +       mutex_unlock(&dev->domain_lock);
+> > > +}
+> > > +
+> > >  static void vduse_dev_reset(struct vduse_dev *dev)
+> > >  {
+> > >         int i;
+> > > -       struct vduse_iova_domain *domain =3D dev->domain;
+> > >
+> > >         /* The coherent mappings are handled in vduse_dev_free_cohere=
+nt() */
+> > > -       if (domain && domain->bounce_map)
+> > > -               vduse_domain_reset_bounce_map(domain);
+> > > +       for (i =3D 0; i < dev->nas; i++) {
+> > > +               struct vduse_iova_domain *domain =3D dev->as[i].domai=
+n;
+> > > +
+> > > +               if (domain && domain->bounce_map)
+> > > +                       vduse_domain_reset_bounce_map(domain);
+> > > +       }
+> > > +
+> > > +       for (i =3D 0; i < dev->ngroups; i++)
+> > > +               vduse_set_group_asid_nomsg(dev, i, 0);
+> > >
+> > >         down_write(&dev->rwsem);
+> > >
+> > > @@ -623,6 +651,29 @@ static union virtio_map vduse_get_vq_map(struct =
+vdpa_device *vdpa, u16 idx)
+> > >         return ret;
+> > >  }
+> > >
+> > > +static int vduse_set_group_asid(struct vdpa_device *vdpa, unsigned i=
+nt group,
+> > > +                               unsigned int asid)
+> > > +{
+> > > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > +       struct vduse_dev_msg msg =3D { 0 };
+> > > +       int r;
+> > > +
+> > > +       if (dev->api_version < VDUSE_API_VERSION_1 ||
+> > > +           group >=3D dev->ngroups || asid >=3D dev->nas)
+> > > +               return -EINVAL;
+> > > +
+> > > +       msg.req.type =3D VDUSE_SET_VQ_GROUP_ASID;
+> > > +       msg.req.vq_group_asid.group =3D group;
+> > > +       msg.req.vq_group_asid.asid =3D asid;
+> > > +
+> > > +       r =3D vduse_dev_msg_sync(dev, &msg);
+> > > +       if (r < 0)
+> > > +               return r;
+> > > +
+> > > +       vduse_set_group_asid_nomsg(dev, group, asid);
+> > > +       return 0;
+> > > +}
+> > > +
+> > >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx=
+,
+> > >                                 struct vdpa_vq_state *state)
+> > >  {
+> > > @@ -794,13 +845,13 @@ static int vduse_vdpa_set_map(struct vdpa_devic=
+e *vdpa,
+> > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > >         int ret;
+> > >
+> > > -       ret =3D vduse_domain_set_map(dev->domain, iotlb);
+> > > +       ret =3D vduse_domain_set_map(dev->as[asid].domain, iotlb);
+> > >         if (ret)
+> > >                 return ret;
+> > >
+> > > -       ret =3D vduse_dev_update_iotlb(dev, 0ULL, ULLONG_MAX);
+> > > +       ret =3D vduse_dev_update_iotlb(dev, asid, 0ULL, ULLONG_MAX);
+> > >         if (ret) {
+> > > -               vduse_domain_clear_map(dev->domain, iotlb);
+> > > +               vduse_domain_clear_map(dev->as[asid].domain, iotlb);
+> > >                 return ret;
+> > >         }
+> > >
+> > > @@ -843,6 +894,7 @@ static const struct vdpa_config_ops vduse_vdpa_co=
+nfig_ops =3D {
+> > >         .get_vq_affinity        =3D vduse_vdpa_get_vq_affinity,
+> > >         .reset                  =3D vduse_vdpa_reset,
+> > >         .set_map                =3D vduse_vdpa_set_map,
+> > > +       .set_group_asid         =3D vduse_set_group_asid,
+> > >         .get_vq_map             =3D vduse_get_vq_map,
+> > >         .free                   =3D vduse_vdpa_free,
+> > >  };
+> > > @@ -858,9 +910,10 @@ static void vduse_dev_sync_single_for_device(uni=
+on virtio_map token,
+> > >                 return;
+> > >
+> > >         vdev =3D token.group->dev;
+> > > -       domain =3D vdev->domain;
+> > > -
+> > > +       mutex_lock(&vdev->domain_lock);
+> > > +       domain =3D token.group->as->domain;
+> > >         vduse_domain_sync_single_for_device(domain, dma_addr, size, d=
+ir);
+> > > +       mutex_unlock(&vdev->domain_lock);
+> > >  }
+> > >
+> > >  static void vduse_dev_sync_single_for_cpu(union virtio_map token,
+> > > @@ -874,9 +927,10 @@ static void vduse_dev_sync_single_for_cpu(union =
+virtio_map token,
+> > >                 return;
+> > >
+> > >         vdev =3D token.group->dev;
+> > > -       domain =3D vdev->domain;
+> > > -
+> > > +       mutex_lock(&vdev->domain_lock);
+> > > +       domain =3D token.group->as->domain;
+> > >         vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir)=
+;
+> > > +       mutex_unlock(&vdev->domain_lock);
+> > >  }
+> > >
+> > >  static dma_addr_t vduse_dev_map_page(union virtio_map token, struct =
+page *page,
+> > > @@ -886,14 +940,18 @@ static dma_addr_t vduse_dev_map_page(union virt=
+io_map token, struct page *page,
+> > >  {
+> > >         struct vduse_dev *vdev;
+> > >         struct vduse_iova_domain *domain;
+> > > +       dma_addr_t r;
+> > >
+> > >         if (!token.group)
+> > >                 return DMA_MAPPING_ERROR;
+> > >
+> > >         vdev =3D token.group->dev;
+> > > -       domain =3D vdev->domain;
+> > > +       mutex_lock(&vdev->domain_lock);
+> >
+> > The mutex_lock can't be used here since the dma ops might be called in
+> > atomic context. And I think we can just remove it since creation and
+> > deletion operations of the iova domain are guaranteed not to execute
+> > concurrently with I/O operations.
+> >
+>
+> That would be great indeed! Can you expand on this, what protects here
+> from the moment the two syscalls are issues from userland?
+>
