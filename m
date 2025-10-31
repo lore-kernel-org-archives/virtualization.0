@@ -1,402 +1,252 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AFC078F59
-	for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 07:01:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3841348463
+	for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 12:21:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761894080; cv=none; b=Ot7a/lY9V++Cv90qPRSphRtqWRFIbhRFKA8JT00b5ydQRPZ+WYpVYB2xorKoqpI2ww8QdP3Vw8dWneXITq/y4lJOJPRxHx9Q3Dk/0YE6wZQ3TH+GxCwTtz06ZTyHJrDXbOKl0Dd7jLtSTRW0Su5q4eOSFrMxDd73QZlyh735HtQ=
+	t=1761913281; cv=none; b=LWo99GCzlFwUupLv81Mp09Y2etV3RvHcV+o1VofPUP8QeqThRuYeE0QwGGo1PtV3rCW+79g/isBE/KDQ1zhbjHDi43h81xZmrXJerSYtDMiX/C4GVmXGyv1CGeBUM/M3zeBj4xVXNPr3J5g/gcFQXwYHQxYYXYicqQybCHYHC7s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761894080; c=relaxed/simple;
-	bh=q12KDfEkhxXl6/bpkJTQjJy91PPPOKSp6gIdjXvXM+k=;
+	s=arc-20240116; t=1761913281; c=relaxed/simple;
+	bh=dNEsyz9/fjHmgiXJALdzGhqysk9Jy/a3WOK15fNNKck=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PJAcW1e2r76dN28pc2EsETlR4nq9OCFp+bsrOPf8uhh620Xmmak+f+qRvH7izpGyRSHhY7qVshUh4lRz/4YMF6zdWMu64qIJq6qG7CUtiacdpQV3H6yuglXe8EYmmwkWxa0r18OBnx5tMzepLSqOY+HcpHdspXKMY+h9XPv2Fpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=SzX1YlBu; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	 To:Cc:Content-Type; b=uwTGCCU5Wsqe0GVLjze2TpLx+V7HZ5LefAs/cGLSCtNGW1oET57Cdx/avZbbYe8Spa6qyhKcNp5OQxUsP9AiOscBQxJEay1EEgkHApabFJfWxY7pBCH06tlD0D4+G8Onyxd22klgRD4EuUUuRHamCzfywwrXc+4vYg08+vxDa5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h/u77MOE; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="SzX1YlBu"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-33e0008d3b3so2008632a91.3
-        for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 00:01:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1761894078; x=1762498878; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Wn3uuAbqAI8xe0K1MlWuHQhr0lEGAe8UaHyzaH8poqA=;
-        b=SzX1YlBuBz+nGxDoAJrxY7aIh2G7S1KY6QldraddN4ztfnfnUE010LOY2W6hQpShpY
-         P2AY8NMYcsj7xAMZow8Zwn1mLb0dt7pVAdX4WlgEGfE3XI4p2cSFTGz7vPS3CfZpbyyh
-         GxBig9IYrkE/QufvNNn7OdfXh6U/yBInDvbq6TkEtWaztQI+0VpspsMwhmeicngATUR7
-         eVlXKdV1Q15hUEJtj+4u0igdRpoip4Gq3acYtAX0OY1RAY9n8J9Q2HBpwBHYMmr1g5+r
-         j11PbBNhwUM7MWdqCk6KCHdLqndazTv4qc+4Xl8NBzM9B44WoEjookASHyvCtWabec6W
-         riXA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h/u77MOE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1761913278;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sUwKOyluTKFUudeOxZ3owrromDAOtIhl6Ta/vPwuydw=;
+	b=h/u77MOE2Ay3CkjzFNJd6fwKCLcKEjA8OQ7kHaJHw9XK4YgRHssBIi5a0rOvDYvMFH08gD
+	i/Oyxq0xDg4RHr+hTLMQBqCbGJUlW7bIat4nMFsGRV7irSsRKrlbNfNSqId/WjtCAZ9e1d
+	yC9vvDE8QoZIjuYwb5Oad9ESOyA0QA4=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-631-NlODOVRWOJ2WWOyx_HMTQw-1; Fri, 31 Oct 2025 08:21:15 -0400
+X-MC-Unique: NlODOVRWOJ2WWOyx_HMTQw-1
+X-Mimecast-MFC-AGG-ID: NlODOVRWOJ2WWOyx_HMTQw_1761913274
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-63e0b49cd15so2570016a12.0
+        for <virtualization@lists.linux.dev>; Fri, 31 Oct 2025 05:21:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761894078; x=1762498878;
+        d=1e100.net; s=20230601; t=1761913274; x=1762518074;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Wn3uuAbqAI8xe0K1MlWuHQhr0lEGAe8UaHyzaH8poqA=;
-        b=G60EtAln0vv0TdV6wFdgWD8qxifUFVCiGFZiJuFvpJPihAYzkoUA2PxEf54nQAGTqP
-         oiCe+pfQBt7TpY5gb0rf7/JtbqmJcusukNg+GTpBCFZ9daXlS4cQOxUM9XMHFZeqXKAI
-         k7zc+X2MOgrbyaDEf62o6HTqc2y4cmBA4NEkgXUyDmJDXiCAcZ5UbDLtTTp7BYyAaqqB
-         ee4xLO6XoetxZYvt8Q8coeu0eo55DPLeaJD3bGi1dsTyY0PDXjbgurK16enpEE6bOvN+
-         2gTkwjHIfZClo3ll/C8/vZEQ/H3tAXGT1glRmkvaLZwqkSXG1MCIP5QjUk0C256+YNwq
-         fqXw==
-X-Forwarded-Encrypted: i=1; AJvYcCW6Vd4DJkUOoZxNioWkk2K4QlkLSAzBxv+9+x8wfVPHkpJS7ZiQEEClpuVKZ5y9oIhyW5w/ekFJaXGA23gc3Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxzgNVLSRUq/nn9MAG7Jrc/t+VZh9T/XB9F+84ZONh3A/geBTns
-	7H0qxiwrLhjZNv6zcbB95rCjQ5ZgQMk3iQRz2shD6i+vouJN5rUdg5p4wCJ/iAH+2BHEvcAjtv6
-	0JmX+/A1mGX4OqPaxWhz6Ex7bFKoyx5/8PjAwNxr1
-X-Gm-Gg: ASbGncvz3sGpoVJPvdz97Z6bQz2mKaAbCgm0c9GfxfmBm5y6td1RzYY8uj6b9s0Pvoa
-	5f1+38Ahucfh+feNGCcbiKHWuo8FLeCqF4nrIzD9jZ8EEfNHAVfB8dnEFyPU03hsh3ArY8RvF7j
-	TDeZZKUGmse9EYO+iOROwWX6e6aoyp0luR+isNv3Z8jelA9SzFVGvg/okDmCPGqSxW9ElOKxgbJ
-	eLTzgo3tj7zWE+3w8P02XAVc7NH/EV9v6ebWyfAhMI5l7Utl33rMK7lntzIo2/Bs44nTbXHdtj1
-	Ub0vgjuvQnOoMwb7BE59KkWHWlNK
-X-Google-Smtp-Source: AGHT+IHvJ5b6u1Qktl2Zll7CNkYolmqAtjWX5d1nDDzUpnoONbbWcYjJvw0MF2Jr7nmM35PDSy57jIuWhVz7fMMx59o=
-X-Received: by 2002:a17:90b:3f8b:b0:32b:a332:7a0a with SMTP id
- 98e67ed59e1d1-34082fab188mr2999301a91.1.1761894077979; Fri, 31 Oct 2025
- 00:01:17 -0700 (PDT)
+        bh=sUwKOyluTKFUudeOxZ3owrromDAOtIhl6Ta/vPwuydw=;
+        b=geUqdF8F8pXqAAR1sEF+hpb2p2wxNgQe2zDYYtm9IIBJnHCg6bZrkMh/wRDH/WMbAZ
+         ZrTPXMnDco2GK3gOdp4+Oy1s1FlpIqixmrEok4AZwPH+nPdW3bF9kJo8WriVGhx6U1Id
+         88rxZejT6/dG5eM70K+vjcKmkUZ47YzX2DwDHYjv8J0Uqt3+OZbZhUNbL1HIr7TYDofg
+         +k9P7RwU6D3QL8/0ZzMLgHrOWFUnbjx8VyaCcWBUKISDb0X+r4Q8iYgTBN+hSmYzhoyX
+         bLLArPIHzRzOwrFJ2l0EQir0hYdBLUFLvIRWGyTOkOdrKxwvWxty2a6amYYAEsMOUfC4
+         Uc1w==
+X-Forwarded-Encrypted: i=1; AJvYcCWUexNnYt2G1Vhpgdidh0g2DN8OUu0fznMGtFImrmXbcx/rwL8AKN4/K4R+TMw5/OwtZZ6W8f/eUPOkQmsezg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyMY9LULX5E5XIn1R0q9dibdwWWU2IdtlsL74Lx5Im5V7yU5AIj
+	3h9HEOsH0u+onIC98A781nYyFJCMf9IEREPfB1FumKw/qtN/FZ4pHavRMbKzHiSDhEa3sLCo6O7
+	IqmRk0JxB61kOQnxjO0PFFtc3x0gKN+ljIaTkYmjUI6kuSgRD3Vja2L87tYzv+frYZ5/0OZdWmO
+	WSZcIWRYDbOnle9BYG0JVv6yHe5WvXys29mfomleE724k=
+X-Gm-Gg: ASbGnct5jETuXfD9r6yRHbPpWer8fLZQRQWlT0HzcLF84ptmy4aiA6bp7GsHwI3yNYD
+	XMn0wlp+n5HcIEu/H4IdHBMTKpPrM6HZdXwRB4GHaDeORhYWUN8C5s38NtQDS2d9th+YR3br308
+	iw61DNrhmtrMmMS0uPtaHbEig4hdo6CHTHRDkjpE2dIPmpM29SHZStKg==
+X-Received: by 2002:a05:6402:268e:b0:63e:2d46:cc5d with SMTP id 4fb4d7f45d1cf-64076f71156mr2639091a12.7.1761913274264;
+        Fri, 31 Oct 2025 05:21:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE/Fg/d8n1FygAt9C8iITIr/MFTt7Px6ZvAbp5bcXhaAojwuNapTMQWGvKPz3qAk5AhCrGGK2uxWoEXbc58yYM=
+X-Received: by 2002:a05:6402:268e:b0:63e:2d46:cc5d with SMTP id
+ 4fb4d7f45d1cf-64076f71156mr2639055a12.7.1761913273764; Fri, 31 Oct 2025
+ 05:21:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251030100025.95113-1-eperezma@redhat.com> <20251030100025.95113-6-eperezma@redhat.com>
- <CACycT3sYzQM88dkqHiT-g9eRtfo-8PjW7XcRtZ=5q++=By4RVw@mail.gmail.com> <CAJaqyWexPHJiZjC+RPvVH4J6gS55fCOfPQmKay2eWO-nqrjcRQ@mail.gmail.com>
-In-Reply-To: <CAJaqyWexPHJiZjC+RPvVH4J6gS55fCOfPQmKay2eWO-nqrjcRQ@mail.gmail.com>
-From: Yongji Xie <xieyongji@bytedance.com>
-Date: Fri, 31 Oct 2025 15:01:06 +0800
-X-Gm-Features: AWmQ_bmtgpETmCi0MGzGulnV_O9k88UXrZWEB3j_ApUVZHRFhCreX9iRMKEcR78
-Message-ID: <CACycT3v4zp_uDRA6ELwcZB287TYLsJfx34EepAhSRJ+w6B0hvw@mail.gmail.com>
-Subject: Re: Re: [PATCH v8 5/6] vduse: add vq group asid support
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
-	Maxime Coquelin <mcoqueli@redhat.com>, virtualization@lists.linux.dev, 
-	Stefano Garzarella <sgarzare@redhat.com>, Jason Wang <jasowang@redhat.com>, Cindy Lu <lulu@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel <linux-kernel@vger.kernel.org>
+References: <20240108131039.2234044-1-Mikhail.Golubev-Ciuchea@opensynergy.com>
+ <27327622.1r3eYUQgxm@fedora.fritz.box> <aPdU93e2RQy5MHQr@fedora>
+ <28156189.1r3eYUQgxm@fedora.fritz.box> <aPeHbKES6yHkh5Rj@fedora>
+In-Reply-To: <aPeHbKES6yHkh5Rj@fedora>
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Date: Fri, 31 Oct 2025 13:21:02 +0100
+X-Gm-Features: AWmQ_bmWfyMfD1zverJ1ufhNFgKPX2AvwLjdAsskFXlhQ-Z7R9j1OZE63m7EKMI
+Message-ID: <CAHYGQ0x9ZDZ9R3s_X7irXkQ0dCGbe7CQa_-zOcf19-QqDrapRw@mail.gmail.com>
+Subject: Re: [PATCH v5] can: virtio: Initial virtio CAN driver.
+To: Francesco Valla <francesco@valla.it>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Paolo Abeni <pabeni@redhat.com>, 
+	Harald Mommer <harald.mommer@opensynergy.com>, 
+	Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>, 
+	Wolfgang Grandegger <wg@grandegger.com>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>, linux-kernel@vger.kernel.org, 
+	linux-can@vger.kernel.org, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev, development@redaril.me
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: xq6Fvgj9vKCrZ_LwEZmAC2vblYdr2OWF7KCVISImGkY_1761913274
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 31, 2025 at 2:31=E2=80=AFPM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
+On Tue, Oct 21, 2025 at 3:15=E2=80=AFPM Matias Ezequiel Vara Larsen
+<mvaralar@redhat.com> wrote:
 >
-> On Thu, Oct 30, 2025 at 12:52=E2=80=AFPM Yongji Xie <xieyongji@bytedance.=
-com> wrote:
+> On Tue, Oct 21, 2025 at 02:08:35PM +0200, Francesco Valla wrote:
+> > On Tuesday, 21 October 2025 at 11:40:07 Matias Ezequiel Vara Larsen <mv=
+aralar@redhat.com> wrote:
+> > > On Mon, Oct 20, 2025 at 11:24:15PM +0200, Francesco Valla wrote:
+> > > > On Monday, 20 October 2025 at 16:56:08 Matias Ezequiel Vara Larsen =
+<mvaralar@redhat.com> wrote:
+> > > > > On Tue, Oct 14, 2025 at 06:01:07PM +0200, Francesco Valla wrote:
+> > > > > > On Tuesday, 14 October 2025 at 12:15:12 Matias Ezequiel Vara La=
+rsen <mvaralar@redhat.com> wrote:
+> > > > > > > On Thu, Sep 11, 2025 at 10:59:40PM +0200, Francesco Valla wro=
+te:
+> > > > > > > > Hello Mikhail, Harald,
+> > > > > > > >
+> > > > > > > > hoping there will be a v6 of this patch soon, a few comment=
+s:
+> > > > > > > >
+> > > > > > > > On Monday, 8 January 2024 at 14:10:35 Mikhail Golubev-Ciuch=
+ea <Mikhail.Golubev-Ciuchea@opensynergy.com> wrote:
+> > > > > > > >
+> > > > > > > > [...]
+> > > > > > > > > +
+> > > > > > > > > +/* Compare with m_can.c/m_can_echo_tx_event() */
+> > > > > > > > > +static int virtio_can_read_tx_queue(struct virtqueue *vq=
+)
+> > > > > > > > > +{
+> > > > > > > > > +       struct virtio_can_priv *can_priv =3D vq->vdev->pr=
+iv;
+> > > > > > > > > +       struct net_device *dev =3D can_priv->dev;
+> > > > > > > > > +       struct virtio_can_tx *can_tx_msg;
+> > > > > > > > > +       struct net_device_stats *stats;
+> > > > > > > > > +       unsigned long flags;
+> > > > > > > > > +       unsigned int len;
+> > > > > > > > > +       u8 result;
+> > > > > > > > > +
+> > > > > > > > > +       stats =3D &dev->stats;
+> > > > > > > > > +
+> > > > > > > > > +       /* Protect list and virtio queue operations */
+> > > > > > > > > +       spin_lock_irqsave(&can_priv->tx_lock, flags);
+> > > > > > > > > +
+> > > > > > > > > +       can_tx_msg =3D virtqueue_get_buf(vq, &len);
+> > > > > > > > > +       if (!can_tx_msg) {
+> > > > > > > > > +               spin_unlock_irqrestore(&can_priv->tx_lock=
+, flags);
+> > > > > > > > > +               return 0; /* No more data */
+> > > > > > > > > +       }
+> > > > > > > > > +
+> > > > > > > > > +       if (unlikely(len < sizeof(struct virtio_can_tx_in=
+))) {
+> > > > > > > > > +               netdev_err(dev, "TX ACK: Device sent no r=
+esult code\n");
+> > > > > > > > > +               result =3D VIRTIO_CAN_RESULT_NOT_OK; /* K=
+eep things going */
+> > > > > > > > > +       } else {
+> > > > > > > > > +               result =3D can_tx_msg->tx_in.result;
+> > > > > > > > > +       }
+> > > > > > > > > +
+> > > > > > > > > +       if (can_priv->can.state < CAN_STATE_BUS_OFF) {
+> > > > > > > > > +               /* Here also frames with result !=3D VIRT=
+IO_CAN_RESULT_OK are
+> > > > > > > > > +                * echoed. Intentional to bring a waiting=
+ process in an upper
+> > > > > > > > > +                * layer to an end.
+> > > > > > > > > +                * TODO: Any better means to indicate a p=
+roblem here?
+> > > > > > > > > +                */
+> > > > > > > > > +               if (result !=3D VIRTIO_CAN_RESULT_OK)
+> > > > > > > > > +                       netdev_warn(dev, "TX ACK: Result =
+=3D %u\n", result);
+> > > > > > > >
+> > > > > > > > Maybe an error frame reporting CAN_ERR_CRTL_UNSPEC would be=
+ better?
+> > > > > > > >
+> > > > > > > I am not sure. In xilinx_can.c, CAN_ERR_CRTL_UNSPEC is indica=
+ted during
+> > > > > > > a problem in the rx path and this is the tx path. I think the=
+ comment
+> > > > > > > refers to improving the way the driver informs this error to =
+the user
+> > > > > > > but I may be wrong.
+> > > > > > >
+> > > > > >
+> > > > > > Since we have no detail of what went wrong here, I suggested
+> > > > > > CAN_ERR_CRTL_UNSPEC as it is "unspecified error", to be coupled=
+ with a
+> > > > > > controller error with id CAN_ERR_CRTL; however, a different err=
+or might be
+> > > > > > more appropriate.
+> > > > > >
+> > > > > > For sure, at least in my experience, having a warn printed to k=
+msg is *not*
+> > > > > > enough, as the application sending the message(s) would not be =
+able to detect
+> > > > > > the error.
+> > > > > >
+> > > > > >
+> > > > > > > > For sure, counting the known errors as valid tx_packets and=
+ tx_bytes
+> > > > > > > > is misleading.
+> > > > > > > >
+> > > > > > >
+> > > > > > > I'll remove the counters below.
+> > > > > > >
+> > > > > >
+> > > > > > We don't really know what's wrong here - the packet might have =
+been sent and
+> > > > > > and then not ACK'ed, as well as any other error condition (as i=
+t happens in the
+> > > > > > reference implementation from the original authors [1]). Echoin=
+g the packet
+> > > > > > only "to bring a waiting process in an upper layer to an end" a=
+nd incrementing
+> > > > > > counters feels wrong, but maybe someone more expert than me can=
+ advise better
+> > > > > > here.
+> > > > > >
+> > > > > >
+> > > > >
+> > > > > I agree. IIUC, in case there has been a problem during transmissi=
+on, I
+> > > > > should 1) indicate this by injecting a CAN_ERR_CRTL_UNSPEC packag=
+e with
+> > > > > netif_rx() and 2) use can_free_echo_skb() and increment the tx_er=
+ror
+> > > > > stats. Is this correct?
+> > > > >
+> > > > > Matias
+> > > > >
+> > > > >
+> > > >
+> > > > That's my understanding too! stats->tx_dropped should be the right =
+value to
+> > > > increment (see for example [1]).
+> > > >
+> > > > [1] https://elixir.bootlin.com/linux/v6.17.3/source/drivers/net/can=
+/ctucanfd/ctucanfd_base.c#L1035
+> > > >
+> > >
+> > > I think the counter to increment would be stats->tx_errors in this ca=
+se ...
+> > >
 > >
-> > On Thu, Oct 30, 2025 at 6:01=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@re=
-dhat.com> wrote:
-> > >
-> > > Add support for assigning Address Space Identifiers (ASIDs) to each V=
-Q
-> > > group.  This enables mapping each group into a distinct memory space.
-> > >
-> > > Now that the driver can change ASID in the middle of operation, the
-> > > domain that each vq address point is also protected by domain_lock.
-> > >
-> > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > ---
-> > > v8:
-> > > * Revert the mutex to rwlock change, it needs proper profiling to
-> > >   justify it.
-> > >
-> > > v7:
-> > > * Take write lock in the error path (Jason).
-> > >
-> > > v6:
-> > > * Make vdpa_dev_add use gotos for error handling (MST).
-> > > * s/(dev->api_version < 1) ?/(dev->api_version < VDUSE_API_VERSION_1)=
- ?/
-> > >   (MST).
-> > > * Fix struct name not matching in the doc.
-> > >
-> > > v5:
-> > > * Properly return errno if copy_to_user returns >0 in VDUSE_IOTLB_GET=
-_FD
-> > >   ioctl (Jason).
-> > > * Properly set domain bounce size to divide equally between nas (Jaso=
-n).
-> > > * Exclude "padding" member from the only >V1 members in
-> > >   vduse_dev_request.
-> > >
-> > > v4:
-> > > * Divide each domain bounce size between the device bounce size (Jaso=
-n).
-> > > * revert unneeded addr =3D NULL assignment (Jason)
-> > > * Change if (x && (y || z)) return to if (x) { if (y) return; if (z)
-> > >   return; } (Jason)
-> > > * Change a bad multiline comment, using @ caracter instead of * (Jaso=
-n).
-> > > * Consider config->nas =3D=3D 0 as a fail (Jason).
-> > >
-> > > v3:
-> > > * Get the vduse domain through the vduse_as in the map functions
-> > >   (Jason).
-> > > * Squash with the patch creating the vduse_as struct (Jason).
-> > > * Create VDUSE_DEV_MAX_AS instead of comparing agains a magic number
-> > >   (Jason)
-> > >
-> > > v2:
-> > > * Convert the use of mutex to rwlock.
-> > >
-> > > RFC v3:
-> > > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a low=
-er
-> > >   value to reduce memory consumption, but vqs are already limited to
-> > >   that value and userspace VDUSE is able to allocate that many vqs.
-> > > * Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
-> > >   VDUSE_IOTLB_GET_INFO.
-> > > * Use of array_index_nospec in VDUSE device ioctls.
-> > > * Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
-> > > * Move the umem mutex to asid struct so there is no contention betwee=
-n
-> > >   ASIDs.
-> > >
-> > > RFC v2:
-> > > * Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
-> > >   part of the struct is the same.
-> > > ---
-> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 348 ++++++++++++++++++++-------=
---
-> > >  include/uapi/linux/vduse.h         |  53 ++++-
-> > >  2 files changed, 292 insertions(+), 109 deletions(-)
-> > >
-> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_u=
-ser/vduse_dev.c
-> > > index 97be04f73fbf..c6909d73d06d 100644
-> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > @@ -41,6 +41,7 @@
-> > >
-> > >  #define VDUSE_DEV_MAX (1U << MINORBITS)
-> > >  #define VDUSE_DEV_MAX_GROUPS 0xffff
-> > > +#define VDUSE_DEV_MAX_AS 0xffff
-> > >  #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
-> > >  #define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
-> > >  #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
-> > > @@ -86,7 +87,14 @@ struct vduse_umem {
-> > >         struct mm_struct *mm;
-> > >  };
-> > >
-> > > +struct vduse_as {
-> > > +       struct vduse_iova_domain *domain;
-> > > +       struct vduse_umem *umem;
-> > > +       struct mutex mem_lock;
-> > > +};
-> > > +
-> > >  struct vduse_vq_group {
-> > > +       struct vduse_as *as;
-> > >         struct vduse_dev *dev;
-> > >  };
-> > >
-> > > @@ -94,7 +102,7 @@ struct vduse_dev {
-> > >         struct vduse_vdpa *vdev;
-> > >         struct device *dev;
-> > >         struct vduse_virtqueue **vqs;
-> > > -       struct vduse_iova_domain *domain;
-> > > +       struct vduse_as *as;
-> > >         char *name;
-> > >         struct mutex lock;
-> > >         spinlock_t msg_lock;
-> > > @@ -122,9 +130,8 @@ struct vduse_dev {
-> > >         u32 vq_num;
-> > >         u32 vq_align;
-> > >         u32 ngroups;
-> > > -       struct vduse_umem *umem;
-> > > +       u32 nas;
-> > >         struct vduse_vq_group *groups;
-> > > -       struct mutex mem_lock;
-> > >         unsigned int bounce_size;
-> > >         struct mutex domain_lock;
-> > >  };
-> > > @@ -314,7 +321,7 @@ static int vduse_dev_set_status(struct vduse_dev =
-*dev, u8 status)
-> > >         return vduse_dev_msg_sync(dev, &msg);
-> > >  }
-> > >
-> > > -static int vduse_dev_update_iotlb(struct vduse_dev *dev,
-> > > +static int vduse_dev_update_iotlb(struct vduse_dev *dev, u32 asid,
-> > >                                   u64 start, u64 last)
-> > >  {
-> > >         struct vduse_dev_msg msg =3D { 0 };
-> > > @@ -323,8 +330,14 @@ static int vduse_dev_update_iotlb(struct vduse_d=
-ev *dev,
-> > >                 return -EINVAL;
-> > >
-> > >         msg.req.type =3D VDUSE_UPDATE_IOTLB;
-> > > -       msg.req.iova.start =3D start;
-> > > -       msg.req.iova.last =3D last;
-> > > +       if (dev->api_version < VDUSE_API_VERSION_1) {
-> > > +               msg.req.iova.start =3D start;
-> > > +               msg.req.iova.last =3D last;
-> > > +       } else {
-> > > +               msg.req.iova_v2.start =3D start;
-> > > +               msg.req.iova_v2.last =3D last;
-> > > +               msg.req.iova_v2.asid =3D asid;
-> > > +       }
-> > >
-> > >         return vduse_dev_msg_sync(dev, &msg);
-> > >  }
-> > > @@ -436,14 +449,29 @@ static __poll_t vduse_dev_poll(struct file *fil=
-e, poll_table *wait)
-> > >         return mask;
-> > >  }
-> > >
-> > > +/* Force set the asid to a vq group without a message to the VDUSE d=
-evice */
-> > > +static void vduse_set_group_asid_nomsg(struct vduse_dev *dev,
-> > > +                                      unsigned int group, unsigned i=
-nt asid)
-> > > +{
-> > > +       mutex_lock(&dev->domain_lock);
-> > > +       dev->groups[group].as =3D &dev->as[asid];
-> > > +       mutex_unlock(&dev->domain_lock);
-> > > +}
-> > > +
-> > >  static void vduse_dev_reset(struct vduse_dev *dev)
-> > >  {
-> > >         int i;
-> > > -       struct vduse_iova_domain *domain =3D dev->domain;
-> > >
-> > >         /* The coherent mappings are handled in vduse_dev_free_cohere=
-nt() */
-> > > -       if (domain && domain->bounce_map)
-> > > -               vduse_domain_reset_bounce_map(domain);
-> > > +       for (i =3D 0; i < dev->nas; i++) {
-> > > +               struct vduse_iova_domain *domain =3D dev->as[i].domai=
-n;
-> > > +
-> > > +               if (domain && domain->bounce_map)
-> > > +                       vduse_domain_reset_bounce_map(domain);
-> > > +       }
-> > > +
-> > > +       for (i =3D 0; i < dev->ngroups; i++)
-> > > +               vduse_set_group_asid_nomsg(dev, i, 0);
-> > >
-> > >         down_write(&dev->rwsem);
-> > >
-> > > @@ -623,6 +651,29 @@ static union virtio_map vduse_get_vq_map(struct =
-vdpa_device *vdpa, u16 idx)
-> > >         return ret;
-> > >  }
-> > >
-> > > +static int vduse_set_group_asid(struct vdpa_device *vdpa, unsigned i=
-nt group,
-> > > +                               unsigned int asid)
-> > > +{
-> > > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > > +       struct vduse_dev_msg msg =3D { 0 };
-> > > +       int r;
-> > > +
-> > > +       if (dev->api_version < VDUSE_API_VERSION_1 ||
-> > > +           group >=3D dev->ngroups || asid >=3D dev->nas)
-> > > +               return -EINVAL;
-> > > +
-> > > +       msg.req.type =3D VDUSE_SET_VQ_GROUP_ASID;
-> > > +       msg.req.vq_group_asid.group =3D group;
-> > > +       msg.req.vq_group_asid.asid =3D asid;
-> > > +
-> > > +       r =3D vduse_dev_msg_sync(dev, &msg);
-> > > +       if (r < 0)
-> > > +               return r;
-> > > +
-> > > +       vduse_set_group_asid_nomsg(dev, group, asid);
-> > > +       return 0;
-> > > +}
-> > > +
-> > >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx=
-,
-> > >                                 struct vdpa_vq_state *state)
-> > >  {
-> > > @@ -794,13 +845,13 @@ static int vduse_vdpa_set_map(struct vdpa_devic=
-e *vdpa,
-> > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > >         int ret;
-> > >
-> > > -       ret =3D vduse_domain_set_map(dev->domain, iotlb);
-> > > +       ret =3D vduse_domain_set_map(dev->as[asid].domain, iotlb);
-> > >         if (ret)
-> > >                 return ret;
-> > >
-> > > -       ret =3D vduse_dev_update_iotlb(dev, 0ULL, ULLONG_MAX);
-> > > +       ret =3D vduse_dev_update_iotlb(dev, asid, 0ULL, ULLONG_MAX);
-> > >         if (ret) {
-> > > -               vduse_domain_clear_map(dev->domain, iotlb);
-> > > +               vduse_domain_clear_map(dev->as[asid].domain, iotlb);
-> > >                 return ret;
-> > >         }
-> > >
-> > > @@ -843,6 +894,7 @@ static const struct vdpa_config_ops vduse_vdpa_co=
-nfig_ops =3D {
-> > >         .get_vq_affinity        =3D vduse_vdpa_get_vq_affinity,
-> > >         .reset                  =3D vduse_vdpa_reset,
-> > >         .set_map                =3D vduse_vdpa_set_map,
-> > > +       .set_group_asid         =3D vduse_set_group_asid,
-> > >         .get_vq_map             =3D vduse_get_vq_map,
-> > >         .free                   =3D vduse_vdpa_free,
-> > >  };
-> > > @@ -858,9 +910,10 @@ static void vduse_dev_sync_single_for_device(uni=
-on virtio_map token,
-> > >                 return;
-> > >
-> > >         vdev =3D token.group->dev;
-> > > -       domain =3D vdev->domain;
-> > > -
-> > > +       mutex_lock(&vdev->domain_lock);
-> > > +       domain =3D token.group->as->domain;
-> > >         vduse_domain_sync_single_for_device(domain, dma_addr, size, d=
-ir);
-> > > +       mutex_unlock(&vdev->domain_lock);
-> > >  }
-> > >
-> > >  static void vduse_dev_sync_single_for_cpu(union virtio_map token,
-> > > @@ -874,9 +927,10 @@ static void vduse_dev_sync_single_for_cpu(union =
-virtio_map token,
-> > >                 return;
-> > >
-> > >         vdev =3D token.group->dev;
-> > > -       domain =3D vdev->domain;
-> > > -
-> > > +       mutex_lock(&vdev->domain_lock);
-> > > +       domain =3D token.group->as->domain;
-> > >         vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir)=
-;
-> > > +       mutex_unlock(&vdev->domain_lock);
-> > >  }
-> > >
-> > >  static dma_addr_t vduse_dev_map_page(union virtio_map token, struct =
-page *page,
-> > > @@ -886,14 +940,18 @@ static dma_addr_t vduse_dev_map_page(union virt=
-io_map token, struct page *page,
-> > >  {
-> > >         struct vduse_dev *vdev;
-> > >         struct vduse_iova_domain *domain;
-> > > +       dma_addr_t r;
-> > >
-> > >         if (!token.group)
-> > >                 return DMA_MAPPING_ERROR;
-> > >
-> > >         vdev =3D token.group->dev;
-> > > -       domain =3D vdev->domain;
-> > > +       mutex_lock(&vdev->domain_lock);
+> > I don't fully agree. tx_errors is for CAN frames that got transmitted b=
+ut then
+> > lead to an error (e.g.: no ACK), while here we might be dealing with fr=
+ames
+> > that didn't even manage to reach the transmission queue [1].
 > >
-> > The mutex_lock can't be used here since the dma ops might be called in
-> > atomic context. And I think we can just remove it since creation and
-> > deletion operations of the iova domain are guaranteed not to execute
-> > concurrently with I/O operations.
-> >
+> Let's use tx_dropped then, I honestly do not have an strong opinion
+> about it. We can change that later if we are not happy.
 >
-> That would be great indeed! Can you expand on this, what protects here
-> from the moment the two syscalls are issues from userland?
->
+> Matias
 
-The domain mutex lock is introduced in commit
-d4438d23eeeef8bb1b3a8abe418abffd60bb544a ("vduse: Delay iova domain
-creation"). It's used to prevent concurrent execution between
-vdpa_dev_add() and some vduse device ioctl which needs to access the
-iova domain such as VDUSE_IOTLB_REG_UMEM/DEREG_UMEM. But the dma ops
-would not be called until vdpa_dev_add() completed, so the mutex lock
-is not needed.
+Just sent v6 in https://lore.kernel.org/all/aQJRnX7OpFRY%2F1+H@fedora/
 
-Thanks,
-Yongji
+Matias
+
