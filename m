@@ -1,64 +1,64 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97A632D9EDA
-	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 07:19:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89EFB2BDC14
+	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 07:30:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762154366; cv=none; b=bzOpHunkiE9vMzYrQW3ZRzWiMvzGwuAipRc13go25koHLd8XQEYr9Gw+TN3zjhzAxah2pRONp+vcYXFjNkcjmx+VG+Zv/BcZvFa7862OpgJy5j/8KNYbFDdLwrTMd/KQTlZcdMF+BlTxydCqy0zqNszpZH7wtIOwd/YEzp3I+G4=
+	t=1762155030; cv=none; b=JL2F2k9HtPu67ulTfd1G2prfRIvCRdxTi0NiRZAmw7gES0rx2GOsjVxmZTBzck6P5tqiGJ6083vQd7kPIZNeBMgDCbey8EL6v95lFa9+K/HFcugrd1GbtXhAoO0E44RtfU6y8iV5b8tEFdLsYFToPWm8g9cuojRxbsBV/hxrG8A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762154366; c=relaxed/simple;
-	bh=bTu+sl9W2Jx7okIIkeQnTAXEp3nqEUfmyMval1/FNXk=;
+	s=arc-20240116; t=1762155030; c=relaxed/simple;
+	bh=tcJ9j0rjVgX0LlfeiyBdhL1zp92EWqORHcfEAw97Bb8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VCqiIOVVGq0P8mY/nOhbDJlT7J5+5snjtaSVyhCf6fmGg5JPK2WB20nZPg3xVJP8sYL2yt38sPo/qtUzRLYpTfJMHKJHNPi9wr3tkOlOB8ZcVmAOntcHA6pCI3fZBFYWVBd6X2Go8lD7grl7HGD7517dOWbDyiC3+UyLdnIeKDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Uf1Z1AMx; arc=none smtp.client-ip=209.85.214.178
+	 Content-Type:Content-Disposition:In-Reply-To; b=Nmreq00h6uka+oMchz3vMVR2CEM8kLBw/RKhm2v39mzCAEaU8X91L2sPRHRjGtmHXPnxCj0UhDTrYtp7OGPxBKCvj69h9FPZ/3k1e9PIV7GVMkJTGnWJyT9F3p1bR+v47Ij0UuLWWDJpTlik8OeTSxceYFAzdbTYwcYjQogv/38=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=nwfOJ+X4; arc=none smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Uf1Z1AMx"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-27d67abd215so382155ad.0
-        for <virtualization@lists.linux.dev>; Sun, 02 Nov 2025 23:19:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nwfOJ+X4"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-27d67abd215so384745ad.0
+        for <virtualization@lists.linux.dev>; Sun, 02 Nov 2025 23:30:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1762154364; x=1762759164; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1762155028; x=1762759828; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=o0HFTQsa219SiFwfMSsmBPJDLvHU+B5q0B3I9fdpwts=;
-        b=Uf1Z1AMxGvwvEyhc6k2ha2xRgpsNikztS0w1k5Ra7ENJRcI/0FxLRH+bNQqdyyJRw4
-         1Urk7sAlsMgtpVvil5V5JDxpleD+mtAzhuNSfOvE/wOlhgqwQtKSgxka8MdFGduyp6HD
-         A9Kl2pB37RufLjdvudy5S5xlfDPP6HvNRilJaWKcag7qyr1ItlUgBELGFQILrP8QrzJ9
-         veD+5s+9nICeFDR06wxzj6ZWaO9F+z/nWeXYIYV7ZeTBP5bbL3tm3Dr5QNa8ZmbkBHuE
-         rTZRDnM0kEZuRzqyqtr5KnTdXtCnrfW+CYadAjCdy5TeUhe94BXkN0iVmfitJEEjU6bD
-         L5zw==
+        bh=W00R51s/bFZ7FSKiqSW+6LDxOwjjTftHVYebWZvSUlk=;
+        b=nwfOJ+X4u627NjUHasSTjSImso/7eKaviE2U/+lcgM4KRW2mrg3WLhk/361Ll9Nfst
+         VoVJO9F/wtwZzjL6zo62aoo8xAWhrGlYDiLgrCTrDMQ0U7ocdvMdFbkgVBf22CoRdimp
+         dMwp8SjtdISph9l58PepQyg8RIUeQCXlowxFx4+FW2qYymJWyGLQOr4xiIIQUGWRGXbH
+         53XSPJHi7TIzyORDtjf5WV89b2+M/bOyMCRTeTp9TyMC7oWUr5FJqsyoKfZ3qbAV5RkJ
+         pB5MikwFYkjfj8bH1btICMHJkbNBjci62cTlSpnOAsbiVDb2sVWOYKo0d+gFZrJVuXpi
+         8vfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762154364; x=1762759164;
+        d=1e100.net; s=20230601; t=1762155028; x=1762759828;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=o0HFTQsa219SiFwfMSsmBPJDLvHU+B5q0B3I9fdpwts=;
-        b=qoOkdHWyUqR1avVATWKrhPN0nYHVOM2ezJIAlSoJEacnXhNTEpUeTNCLXJaVSGuaHK
-         i8cvNCtgaJ9X6OipDMl1nKIuLlRiAVLXJgsomrnPFKGyyuvgnkSU5IDmctLco+2znl6k
-         sbg3Gk2w9DkwqQ01z2uRwDgVXhXZ5zgRtDybxhI1acRXcMTOBII+fYcDU9jYmfwy32AR
-         vn6zSC296P2cJ1SrCET1xhVTL7zQz43smJZZXXkrC7besSKQ+roRZk7TgXBTHieGbUiA
-         gDU54kOe/NSuIoJlIok5wZJ5PWZHjra+6Vr6/2g+JSoxXVVZTC+wbMkrVUDAOJlHbAJf
-         FLjQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUgfJVG26kQh89bP3C3HaokktWekdOLk+J8IQoWnRONpLO3Dw+3wou96sUNCZ/d+o5mmXRoyTOZ6nxCdiNO+A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyDYg9x3SmrxJPwF2gbBS3gvnUJhfuxFU36kWDoaG36QP2sHrqL
-	TwzR5osi3jAvoUZy4TERcFgKZUMk27ldfkncLDy0dte1U85P3P26C/hDRorI4r00JQ==
-X-Gm-Gg: ASbGncvbqpPXxSKFqe7DIispYrudkQnbYGEOOfydqlFjxyttVUQ+aZ5RzTB0k66n8fc
-	l4sRxMHz9I9WypG7uKezxkGvzx4XL8DrStB4zlbFKElxe/NAZMMeXBbFJ+EBV9VUu+mym+uuQ5F
-	gWCtt0fz7mqmcN0CoBOTSQgdVRFdrJNi2aDJX60s/Lso4gcWljD1FOWyCtAkuaG8o+T4kWJc9T2
-	O27QFAc+2L4JMqc0599ovK3Y4/i6nSAUSnj0tuvmg37Xtniydo93/h2xw43kqWugKRfCHehDpXP
-	yReJD06WMGQmkU1pRb5BJA9RTaROI4l5fIlFuD9UPIDl7wv+poTyYxxu3TT1aMO9SaRGHJTz12p
-	Y0AYsMCd3pdz2SDnb6IhoEMX471fZVrAgf8OpQDBP6cZEnEH2J2eqT7yHtkmvl+rJhl9I7U4z+w
-	nGVdtemqWZyy3xWkcol+beI0QkVi23ehPx0yu92TlcYNQYMXdT
-X-Google-Smtp-Source: AGHT+IHBQG+HPW97p+DH7DuUW/9lAGzWwwSGGkvrgXSHhhLN9zwUvIOn1ehyN1vXIvTruEG3QceI6g==
-X-Received: by 2002:a17:903:228e:b0:295:1351:f63e with SMTP id d9443c01a7336-29554b86336mr7219425ad.10.1762154363599;
-        Sun, 02 Nov 2025 23:19:23 -0800 (PST)
+        bh=W00R51s/bFZ7FSKiqSW+6LDxOwjjTftHVYebWZvSUlk=;
+        b=YU1NX40qXoGNWxE6xWfL5MaokZ1fKxBJB1/OEQmAEcZGyL6O3+8CE4UPeDe0Bpi4GY
+         6vEmq2vhj6E8RBYRd87CIHP7GZ29/A0FRtXVHqzEQuUctVWKY3orIIth38HF+YYwSErX
+         kxHzDfHAfdg3xnIQl2r/qloyQpkFgwz2yqgne6UY8t+KPtZzOuvR9AHL/P43We//71nW
+         srxUSXNmXwTibmNPZJp33YpnM6QOgng7FCGyRa+T8Aq3cYU/huX2M03OUvQUnYIDMoVX
+         11/wqVDfJlfScEYi2fvtGJw/unX5ubiCWx78MwVPnVWJtCm5bwBB5AwQa3jnM6Xi63ls
+         rHYg==
+X-Forwarded-Encrypted: i=1; AJvYcCVkw2WtbWiXae9XL6+ggQ4zDSbPp5VPtTBOdiKB9B4vUWfi+qIyljMgz+gBdFUJ60si0GS9Zfi5w1HvDDB2+g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz2y37fh3odcowslGPKhpl1V9hP6tS9f6/cRtkaAznnZF7of6eq
+	SzG6tBiVIsmSVJu5sZb4uAv5v4agnX6cKkfp29dS57Jv1KbpE4p3WmNwPC39ReiKIQ==
+X-Gm-Gg: ASbGnctdgZQbvZ5eNzFIAIAK6EpdqPi9+huduCtsjsBHfZ8If9rSM9gFutdDKMAu/Ht
+	LEa6GuYevQkhlhYCO07fjlRAU8CfnPxugWPu+rkEa0ez5+9lwkvhPog5U6MRgltxtMRgedtdlIu
+	IpSgE+e0Cy84wtECeXNzwwyrpMk2johw73JP3EDJKNrJvIQu2I9akBiM/0mnFAIz1qTAeWHVhU/
+	5Su37hkTtwOVgEzlHzRdnWS8uhYYNKcqmEPcAoE333RaCu6A37dm6bbUFKKWE6qFTuRYyMAHW88
+	v/MN6u2n9cheiHv0j3qJJ8dBfOUojLSsXLPnobnkW5MV63tb2c6OVyrk3//Z2MOxImEAMyvnMnt
+	JNnfWP6Xe15GAy7u6bpVUDw7qc4f4jOyj212DJlNNKKXwYXOSJEarRCNCDb9rUxPJFtW3O40hDo
+	I8/A3DJcuJU1EtRlreWTij5imhGborM2MOUCJCrA==
+X-Google-Smtp-Source: AGHT+IFjaXH+x0wDYP1YTleZ6beMQ7i4yOeGqaMcf/YJxMNIbFnQkDy7S1c8+nxpPDJ2MzqKvGx2GQ==
+X-Received: by 2002:a17:903:1a70:b0:295:28a4:f0b3 with SMTP id d9443c01a7336-295549cab2dmr7007095ad.0.1762155027242;
+        Sun, 02 Nov 2025 23:30:27 -0800 (PST)
 Received: from google.com (164.210.142.34.bc.googleusercontent.com. [34.142.210.164])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34050992e91sm13497150a91.7.2025.11.02.23.19.16
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-340acfa77b8sm8320159a91.18.2025.11.02.23.30.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Nov 2025 23:19:23 -0800 (PST)
-Date: Mon, 3 Nov 2025 07:19:13 +0000
+        Sun, 02 Nov 2025 23:30:26 -0800 (PST)
+Date: Mon, 3 Nov 2025 07:30:16 +0000
 From: Pranjal Shrivastava <praan@google.com>
 To: Jason Gunthorpe <jgg@nvidia.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -93,10 +93,10 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	Yishai Hadas <yishaih@nvidia.com>,
 	Zhenyu Wang <zhenyuw.linux@gmail.com>,
 	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 08/22] vfio/mbochs: Provide a get_region_info op
-Message-ID: <aQhXcaRDSXkmPuCb@google.com>
+Subject: Re: [PATCH 10/22] vfio/fsl: Provide a get_region_info op
+Message-ID: <aQhaCAAliYQVNjgK@google.com>
 References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
- <8-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <10-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -105,17 +105,18 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+In-Reply-To: <10-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 
-On Thu, Oct 23, 2025 at 08:09:22PM -0300, Jason Gunthorpe wrote:
-> Move it out of mbochs_ioctl() and re-indent it.
+On Thu, Oct 23, 2025 at 08:09:24PM -0300, Jason Gunthorpe wrote:
+> Move it out of vfio_fsl_mc_ioctl() and re-indent it.
 > 
 > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->  samples/vfio-mdev/mbochs.c | 56 +++++++++++++++++++++-----------------
->  1 file changed, 31 insertions(+), 25 deletions(-)
+>  drivers/vfio/fsl-mc/vfio_fsl_mc.c | 55 +++++++++++++++++--------------
+>  1 file changed, 31 insertions(+), 24 deletions(-)
 > 
 
 Acked-by: Pranjal Shrivastava <praan@google.com>
 
-- Praan
+Thanks,
+Praan
