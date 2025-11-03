@@ -1,147 +1,130 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8F46285CAE
-	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 05:56:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A841328CF5E
+	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 05:58:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762149415; cv=none; b=ioHorbizg2+rWm8NgDMSl/kYSSjC2UwO01986mdgdWbF+F9pG6auEPC5Dx8hKYhEltvBlHv2xRZjHRep1fqdAfeczFi3uQRE9PEgc57I+byYqZwIeJkEC0J7+9mz7QCOzmgirOXOiHCZwhSgjigGLxh6Zw+61SkFOs32ujJrSfM=
+	t=1762149489; cv=none; b=GLQnx0JyYmIGtmN/1g2K5Kfy+EyA8dNONSHG4utiy5uppwLyfukef96evSJtmiZzE9Onn2bq/Wz2JHUKd5Qeynl48l3u+sv6/ro9N5ZXq/iCEtn3xw2lKvl5aGpKug4es5G6mu5qOLtwoPOc+lJKwLW5olttxTlTxM5mHk95jsA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762149415; c=relaxed/simple;
-	bh=UMPaZUWzV3Sm6RTTcZV+IfJzOzax8Ccpxq+TavsawBQ=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=VB6Ux3zdPivD9dZoMd6KuPl/JEBgyPnPC3j3Sh1aDvvNCKJ+g/eueUFyD292e68NNtK5LcuYPEl+SJ9jyY0se3IKVavnyrK7YSHeLSrASybHk/RyXNdtES0rxDk/+Wpe7wwxy9GcOCWPDOiuwkeTghcsELBG3w9HMEWxfjQfnlg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=s/88iQW+; arc=none smtp.client-ip=115.124.30.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1762149489; c=relaxed/simple;
+	bh=COnfabRE25CHEyik36bmtXTyjtL97X8u2YW/C0gU2+c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qWgV2d10gI45UXOiK8xDZcGikR7oaNqCy5SC4uGUGGn1uO+q0cHXMEiIDMR03dRy6AfcnL84FFKeM6Sss8UBL3r2vPubjY6ZRTz2Z8EqCEHEfBYh5ToTq8m2KFjUZN1OfzhPxpP3kXMZzaB/5y3GH+8GibK2zuLVACuGMSeFmyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=T6GPGEJB; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="s/88iQW+"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1762149409; h=Message-ID:Subject:Date:From:To;
-	bh=Wf5UamBtc1C2iB7hfBSedWXwlFsIRhKJbTDCZQ1GFNQ=;
-	b=s/88iQW+/Ol68Cbcq5mxlTeIt+MudLEXEbUbZp1PfzBL1nk92NpRGz5c1prUOpM2fY62NiPnr1+OWk+nffUKimxL6JaqSb8j5xsP2BZGdsqtrGax+5Mkg9rUq/hDWw2v+5bKqOLPjFZY4Q1iX9rY8+JoDP8a7Fqoq+Wyh4IX0Ic=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WrXoEDB_1762149408 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 03 Nov 2025 13:56:48 +0800
-Message-ID: <1762149401.6256416-7-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net v7] virtio-net: fix received length check in big packets
-Date: Mon, 3 Nov 2025 13:56:41 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Gavin Li <gavinl@nvidia.com>,
- Gavi Teitz <gavi@nvidia.com>,
- Parav Pandit <parav@nvidia.com>,
- virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org,
- Bui Quang Minh <minhquangbui99@gmail.com>,
- stable@vger.kernel.org,
- netdev@vger.kernel.org
-References: <20251030144438.7582-1-minhquangbui99@gmail.com>
-In-Reply-To: <20251030144438.7582-1-minhquangbui99@gmail.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="T6GPGEJB"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-295c64cb951so73685ad.0
+        for <virtualization@lists.linux.dev>; Sun, 02 Nov 2025 21:58:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1762149486; x=1762754286; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=jNN38kSQW+Z67K4qsM9EOBHtmYi+rj4bbcXqoaYoYec=;
+        b=T6GPGEJBLVshs1WOyYAd/m0Cg9WEgR0Zi1WSAnkDInY5x7eTV1/b8b+fS+nFfyxZ3Z
+         pvQzo37j+OY8dH7kRG1HQEQEJon9rKIobPc0TIePK41WCCbq2VbZYf3MqhuyJfzIEVBp
+         o0A8Es2JcqFv71ydjILcaP+ncbb1scqH7JbZcipvLW7yjAgcn9NiK64dxoN2nxFkK8rW
+         0Hl+MwuRiIsq2qKzj5IygVZeS1T7JzG2Dy/RFdcF0zi5htCdOYId5o2kzcmlNr+ME+sl
+         DO0GKjbZjySIBsJER0RwSwiWQVjtdCE4IQcndRc7QrQfFw/6M+V5XDwF5LqzWaFyntb8
+         +mnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762149486; x=1762754286;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jNN38kSQW+Z67K4qsM9EOBHtmYi+rj4bbcXqoaYoYec=;
+        b=hWq9bbNvhyOmXxaIYDdYoyQnHdNS2CK/n604ugY2/5g3DS88hzLJaYhx+GnEz4noru
+         NKI2va5tMcDhjEqXBYgJV/H09o9jhHT1RWhBNlZT8tWvUbCiM8BC+ia7QierSkiEvYE8
+         MBPfyJ1OERq8dY1bdW0+SpViV/xT8WueNMBpc/AayWdnMK82D/rt/AZNqY2zX26wPnQ5
+         +QLXQSTKUpFVkAih1cnsiQhaRTx8QrHofN+AiWFxTsT3LR+tk/KXByMc6ytn5jyW87gb
+         D+5stSBpxL4YSN54xte3rsNtJYRCumbpZbb2E1gOkRf00EvHhRIUUQE4VYHluEdJ50d0
+         HRCQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXR8VOxcbG9+EDJbbVIGoDxmCxyTEJAdcKkhxoAeNWvxgJXl1sgjzwt6VAd7FiFVHFrdhaV60yatVzVM+552A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxbcSa5MzGpPTLQGukbyRA/9EGOLBP+CDw5TSTPXa9o2CGlJdAQ
+	F07U/aoD6X/S8eE8C6HjjBxKkn9/zQhn7HRfoESLajz+a1bz+CPqbzQs83MrxHMnnw==
+X-Gm-Gg: ASbGnctGXl+/ErDHArxnYuORtV/TvQigQhhBaO/+g/weTX1a3UiIRvHFCN1al4gm6pa
+	iG/hGfo5N7Zwfpf9TGewgAvYBGzQGsU3EObxEyfDVuU1YXmIPeFUGToKARFD5yrjh6ow0tIaeBA
+	RoP6bRrK4vaeLEAE0BIeTaakzOCiVZNKYbDP1wHl4J1pfBUx2cneqAhQ/Wr/0hRhkdpzD3EO6b2
+	GlzdJecrQzpc6VU78COkSZ6aaWzwPxm7w1p+vtaMlxPCMS+QSMwWx4p+j/StvHrnblahdBRQ5uG
+	JCBp8g0J5QgjlhJGNQ23zlfREXCOABmsG9o/yOJAGWSNd1Y3WZGyuQDgPDCTGonk56OPnz7Jmat
+	c9/FIS3AIozeqGnn5R4QPALXU3JKoQMytdUBJnNg896LxX86eVDxwXVwSfh0jvm4enhRX7Vrvws
+	x8NLqOeP73nck9blXciLNCYsIMjUb84Qm3XV2lrnwdZ5Y7axP+
+X-Google-Smtp-Source: AGHT+IHe2S0n2gwZ091UPBX6ERfL1n+n8BtlVw9vlL1yBRvzccFZt3lfIo5NNtd6hxmzG7hv2JOREg==
+X-Received: by 2002:a17:902:f68e:b0:295:5138:10f2 with SMTP id d9443c01a7336-29556599a23mr4787225ad.11.1762149485582;
+        Sun, 02 Nov 2025 21:58:05 -0800 (PST)
+Received: from google.com (164.210.142.34.bc.googleusercontent.com. [34.142.210.164])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3407f26e0a6sm5783366a91.5.2025.11.02.21.57.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 02 Nov 2025 21:58:04 -0800 (PST)
+Date: Mon, 3 Nov 2025 05:57:54 +0000
+From: Pranjal Shrivastava <praan@google.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	David Airlie <airlied@gmail.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	dri-devel@lists.freedesktop.org, Eric Auger <eric.auger@redhat.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>, intel-gfx@lists.freedesktop.org,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+	Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
+	Longfang Liu <liulongfang@huawei.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>, qat-linux@intel.com,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Shameer Kolothum <skolothumtho@nvidia.com>,
+	Mostafa Saleh <smostafa@google.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	virtualization@lists.linux.dev,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Yishai Hadas <yishaih@nvidia.com>,
+	Zhenyu Wang <zhenyuw.linux@gmail.com>,
+	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
+Subject: Re: [PATCH 01/22] vfio: Provide a get_region_info op
+Message-ID: <aQhEYq9YVzbBlWnC@google.com>
+References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <1-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 
-On Thu, 30 Oct 2025 21:44:38 +0700, Bui Quang Minh <minhquangbui99@gmail.com> wrote:
-> Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
-> for big packets"), when guest gso is off, the allocated size for big
-> packets is not MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on
-> negotiated MTU. The number of allocated frags for big packets is stored
-> in vi->big_packets_num_skbfrags.
->
-> Because the host announced buffer length can be malicious (e.g. the host
-> vhost_net driver's get_rx_bufs is modified to announce incorrect
-> length), we need a check in virtio_net receive path. Currently, the
-> check is not adapted to the new change which can lead to NULL page
-> pointer dereference in the below while loop when receiving length that
-> is larger than the allocated one.
->
-> This commit fixes the received length check corresponding to the new
-> change.
->
-> Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-
+On Thu, Oct 23, 2025 at 08:09:15PM -0300, Jason Gunthorpe wrote:
+> Instead of hooking the general ioctl op, have the core code directly
+> decode VFIO_DEVICE_GET_REGION_INFO and call an op just for it.
+> 
+> This is intended to allow mechanical changes to the drivers to pull their
+> VFIO_DEVICE_GET_REGION_INFO int oa function. Later patches will improve
+> the function signature to consolidate more code.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
-> Changes in v7:
-> - Fix typos
-> - Link to v6: https://lore.kernel.org/netdev/20251028143116.4532-1-minhquangbui99@gmail.com/
-> Changes in v6:
-> - Fix the length check
-> - Link to v5: https://lore.kernel.org/netdev/20251024150649.22906-1-minhquangbui99@gmail.com/
-> Changes in v5:
-> - Move the length check to receive_big
-> - Link to v4: https://lore.kernel.org/netdev/20251022160623.51191-1-minhquangbui99@gmail.com/
-> Changes in v4:
-> - Remove unrelated changes, add more comments
-> - Link to v3: https://lore.kernel.org/netdev/20251021154534.53045-1-minhquangbui99@gmail.com/
-> Changes in v3:
-> - Convert BUG_ON to WARN_ON_ONCE
-> - Link to v2: https://lore.kernel.org/netdev/20250708144206.95091-1-minhquangbui99@gmail.com/
-> Changes in v2:
-> - Remove incorrect give_pages call
-> - Link to v1: https://lore.kernel.org/netdev/20250706141150.25344-1-minhquangbui99@gmail.com/
-> ---
->  drivers/net/virtio_net.c | 25 ++++++++++++-------------
->  1 file changed, 12 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index a757cbcab87f..421b9aa190a0 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -910,17 +910,6 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
->  		goto ok;
->  	}
->
-> -	/*
-> -	 * Verify that we can indeed put this data into a skb.
-> -	 * This is here to handle cases when the device erroneously
-> -	 * tries to receive more than is possible. This is usually
-> -	 * the case of a broken device.
-> -	 */
-> -	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
-> -		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
-> -		dev_kfree_skb(skb);
-> -		return NULL;
-> -	}
->  	BUG_ON(offset >= PAGE_SIZE);
->  	while (len) {
->  		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
-> @@ -2107,9 +2096,19 @@ static struct sk_buff *receive_big(struct net_device *dev,
->  				   struct virtnet_rq_stats *stats)
->  {
->  	struct page *page = buf;
-> -	struct sk_buff *skb =
-> -		page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
-> +	struct sk_buff *skb;
-> +
-> +	/* Make sure that len does not exceed the size allocated in
-> +	 * add_recvbuf_big.
-> +	 */
-> +	if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE)) {
-> +		pr_debug("%s: rx error: len %u exceeds allocated size %lu\n",
-> +			 dev->name, len,
-> +			 (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE);
-> +		goto err;
-> +	}
->
-> +	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
->  	u64_stats_add(&stats->bytes, len - vi->hdr_len);
->  	if (unlikely(!skb))
->  		goto err;
-> --
-> 2.43.0
->
+>  drivers/vfio/pci/vfio_pci_core.c | 9 ++++++---
+>  drivers/vfio/vfio_main.c         | 7 +++++++
+>  include/linux/vfio.h             | 2 ++
+>  include/linux/vfio_pci_core.h    | 2 ++
+>  4 files changed, 17 insertions(+), 3 deletions(-)
+> 
+
+Reviewed-by: Pranjal Shrivastava <praan@google.com>
+
+Thanks,
+Praan
