@@ -1,64 +1,64 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AB152F9DBC
-	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 09:55:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B54C2F9DB1
+	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 09:57:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762163744; cv=none; b=Y8hnSnZr1ONGnbsw2cn4ssp2JEc+2Xbns/WEjYSaQ3ALq5KEUtF8rRNeJLi9gQwMaQZmIqqJY83Hgpt9bfGgPLomQ/v9Mdu8EdzZtb8ZuLyRVsYsmy1xNosnzIF8Ilw1aeu9nCFNURaEMIKCo1NQtz4BjBoIp8S7YPKyIll3XTc=
+	t=1762163864; cv=none; b=rDesBTFBm0nIoR4prB8dIbd9uempqjdl8fM9KVaApsZCAvd3qLs78UGneMHSUUptm2SqihGj0CnS83/gBdel5PYar6D0ZYCOxprkX9cf2WGFPSlKmvOkNpAcQKv4QKqV71UaHh0TemybaickFa045281QURR1pU5HoQPkj1NBek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762163744; c=relaxed/simple;
-	bh=i8L9n6bZwkPz17FpheWU6M/n9dfpcR4hkCB+s7fwei4=;
+	s=arc-20240116; t=1762163864; c=relaxed/simple;
+	bh=j9P0kJvHthnqO2tx4rHoHS+OgDbwMwn9qSk75uLg2Os=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OGdvxFD4+c5VIfp+d1ITCiUpGAghZaXd38p3sJQRajEcoPabLqYWg07iYHleXmbHVeXD36KrH3QmZYp9F8vSbMooOMgMOPKn7H3OuKTvqpMOq5+jhim22obUF9M88WNfEt2gn/WY/jVa1+MxLgpno4v47TWnxlGK1e8/lfAY9R4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=TJwzt7un; arc=none smtp.client-ip=209.85.128.45
+	 Content-Type:Content-Disposition:In-Reply-To; b=tlLZqfHUnE6ORClVMzER5fAFMTqX51Snpb748idvXA4TzoKp2Q7BiEgSHRFNjme0S9BusfJddM39gnQJVg7NlFBD7E9nym/4SSs+McOvAzu9zgAcRfqtMYLt4Lk6bkVJYII09vQq+PDVRg3VlSVVQYFN6DG3ZH0XgAIKz280Itk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hl0PRJVG; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="TJwzt7un"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-470ff2f6e56so81185e9.0
-        for <virtualization@lists.linux.dev>; Mon, 03 Nov 2025 01:55:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hl0PRJVG"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-470ff2f6e56so81495e9.0
+        for <virtualization@lists.linux.dev>; Mon, 03 Nov 2025 01:57:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1762163740; x=1762768540; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1762163860; x=1762768660; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/iKwbtWviZdAY+4F++DJl0rWWY/RQA9LSGiuI2/hl/A=;
-        b=TJwzt7unbMkp13Jw9k7vyRgWJIk+B2pigamOHsjV7onXWSM/m7WDqnHlVkuCxKq+iv
-         dOX9KQf8qjUw62V6FIpcndKkzHR3Bii2lgcTERldtX5ZD2eM5IYXI+kqwXS1UCJpByX6
-         TxDsj5oU6oKlpeD+sE5pJqQfPdRO2T3DfJjBs7pxPUYX72s3pWC8asEm1+VwQzjvRrZC
-         18wefMNtORtrmqfFYjVS72374bob4uzpteJCCmM7kh2uCDTnTk7jLsoWRRfGPatvH7qX
-         pEnt3LjhGNMkcV98qebimJP5b2EmQvDtyMHyQ//JIpvbX5EabeTOX4CtHpqGOF/n9lDD
-         fDrw==
+        bh=4Gxg1uZruJtA4YMzZuNynPGAWW8m9xdZihRPr7yINg8=;
+        b=hl0PRJVG9x81hjm8Gt+uhetHOzDn5fQA0mEL4bReEF0w1jkYQinMrRAUOIhIQMgeB7
+         PnotclyKkeWURt1VPWDoKt5l6oVbDbQxxG2Jywb1QaZWI6fX7UraqQM/2i8IOg7VYt3G
+         cGW8hIhaP3/kducNQQLooHWYuFlpeALPxp+l7CsPHY4gVl2G4ZbSbw7ybN0kicV/HbCH
+         VImnW5USCuFFIbtVCtQN//6gsULeivL/mA3ZDDxG99h7B7q0Mw8gqGtIjH+71cgJoWJk
+         0URFRrcfqu2HVw8U/09qiXFJhey5E77wIWn1LPU6u33R8/2e20XAHKXNJn5ULxOFbFNW
+         pJ6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762163740; x=1762768540;
+        d=1e100.net; s=20230601; t=1762163860; x=1762768660;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/iKwbtWviZdAY+4F++DJl0rWWY/RQA9LSGiuI2/hl/A=;
-        b=FUIVHe2oRiCEdowpoSbXGsLVWl7br1rH30RltHG75HbMqljpSDC7dbUUGaWe3qMRIp
-         TlXofUmq8RluAZ+c3f2G6n1XwRwVivWIHomh34aZXoqpPRJH7xvcQZCIxsy5hXIZO/aW
-         K2mc4dm0tlwe+iSWyv4HSDQdkXQYWOkd9kyEUBJ/g+E1/mi4mYCf4RVrWZSTxQQq0odH
-         CgJp2f81HkosAZ50pP6VYClfRSXL9GRyRmvsV8erA9CgS3zPi2bpX+lfJIHpjvG8AzV3
-         HE3j9cKR53CJiJ8jJM1/9fTDdrafPWi6QSRNLiYQC3qqamOjIQGkOW0bREN/YYw+ab6Z
-         TOvw==
-X-Forwarded-Encrypted: i=1; AJvYcCUIgDRnU+wI1SJApa2M277bkDt5SRMcr1UwYB67B1JHut8FiML4jhC6YPx4G3GQZZgXFeFB6mRrlwyD86MJUw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxfxnzyiLybYQJEy1JWSecrQEiYJpbGQZtE9b6A/tqW1Q4K55Lf
-	E5ecixNqO7WHelnXduqNmEf9n3p3DkM0lAJfPTKd7ym9oAK9dfmAE9Re49q0yo2ZMQ==
-X-Gm-Gg: ASbGnct7oB3881iNq02cpm/6JcGORzGL1DBOM/c6QAgF9pz8oJ2AruuZfmUhhTLhpTU
-	hNW3DNu914cUVE3ttgZCImxdAeTrFAOWFp7lsIKSDCdqFfmQXJJL5nngGDi9Tv0AABqwZK3giEt
-	BqyfZ18Q1+nPoso7FkCjB5GnPLLJBrc4Y6veH1psKfW/8i6rg9xz+HXbt4rAX2qHaNlavyFTpHY
-	uZrqr+8kmOgvPDSrOKTc49L4c++zIaZyX8SNitnZZniZBCuMx9kUDFMzMUxFMnY7hOE6r+Hl6K5
-	OMoCehLMXgFsuZ24SjLGimbT916age4/nLaxzw7Pd83p00IiA6IJPilGxz33xhTux2j4mEOdwAI
-	2+XmCqfRcjVxwpYwkdkwDZVDwqFhmSO/XIqTTs7PF/tQbuFfjNuRZ4vm4uScEPQbj41Mr51ZigI
-	WnmXbkhYSM96uTwGlUnLiEs9eKLctk4Z+iHd7mRZl7rVZ8HZsFbw==
-X-Google-Smtp-Source: AGHT+IHAx+AWORE9paLXTzRW7mKzqe0hb2wtQ9DF+W6v23M9Vo/fGIuffOpRO4zhYPoMBhdyXFmsSw==
-X-Received: by 2002:a05:600c:8a0d:20b0:477:255c:bea8 with SMTP id 5b1f17b1804b1-4773da9baeemr5918155e9.7.1762163740369;
-        Mon, 03 Nov 2025 01:55:40 -0800 (PST)
+        bh=4Gxg1uZruJtA4YMzZuNynPGAWW8m9xdZihRPr7yINg8=;
+        b=p1hufQ69V1sAFn+3kkB+SZDsaMkviGpK6gtRF4QzRaQKvny4ssoXgHMrPcmWxTiX7y
+         IR7MbKcVgVTUdPSo30ofwvZlToFCP7Rqftj9BeUOfG3sKtjXoilaz8UIwVaN5U94trBv
+         pvJUc7a1vYnNcQUbRQfaBi8lDZjsNFm6mwR9iXiGF8X7/Vobya5CadpgfQlCTkCEqPTX
+         ciP73fTlvK2JXNTZL9UFDXas7ijsW5C/yUI1Yli+cNTpoSWufEcKHqvzCtDfBaJpkERK
+         SC6OF0KsULK8HWgIEtSnJjzGJUejOijfxdS7LsIlRAkS3f9JlLEs/Lo72MJhUoyWVZAh
+         bt6g==
+X-Forwarded-Encrypted: i=1; AJvYcCXMYBW6S7L/LlGTQQwztL7kgnykp8Ml3vGwdkgg29bfTpIITX8jSKKj87f2FdNWD2APZLvakf5ToEeMPVzgeg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxG3jUKMHJEkeIgFAhbeuEZI9bR7zcYXe1CAizzGh6kBA6Xt0cN
+	HsfTc9SkudRPMDIg7ZltQo0vr5Edoab7B+TiTfzJcU05Hqc+un5vFa4MDNZmH0RB2g==
+X-Gm-Gg: ASbGncvosPcf5T09KD2P8w+4OCoU8iHNHW1REr/NYBxSfQ27eb7AqQ9tsVw78iKfYIF
+	QlBt+pwguMbYDxZtzsQXzmX0S1JD4rlotDKiViOSfiHhRKKreaQcXsLBfvAZ95pgqWahdIw+23o
+	e+tPs4XUJDp1CT+WvUEcxFvxkXF6XIqfkN/zZy6dsc4t9Bo8A2HoEOKXktTNq7ayS+3KRKugHf6
+	IIniudcM0jPMPuXgA3TZkE+hndHAg4pFZi3GPu8zOX5ES4llT71YqSM/HGnUPVHKkta1pRk6Kjj
+	xiEMUrpdQCjVxYwty0Y2MMDPXJF4OES4STjLxldG2Qv8pgR7yAO/Udew8ya1kxsNSLZ/n7PhGwS
+	PyOQfNI1NsOwGZVaGLMEWuTTKblzfT1dWiSNtaw8hY2pUXEIB+sqdPil5fTOXuPE748Txo3RzHB
+	e9aPxbNuOLGmVhgoBIuARjJJ96KYLjcnmYGvOty2Sq45fRH5BGTQ==
+X-Google-Smtp-Source: AGHT+IGLdHq84lPWuC9+6LJzgqfOJA4DO6nS6TVGXk5Ftt4X8sQj+LIHdpfQT0AOQR/zxEXR5CFwjw==
+X-Received: by 2002:a05:600c:8711:b0:45f:2940:d194 with SMTP id 5b1f17b1804b1-4773cdce892mr7234625e9.2.1762163860205;
+        Mon, 03 Nov 2025 01:57:40 -0800 (PST)
 Received: from google.com (54.140.140.34.bc.googleusercontent.com. [34.140.140.54])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-429c13ebfe8sm19975798f8f.35.2025.11.03.01.55.39
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-429c11182e3sm19786186f8f.11.2025.11.03.01.57.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Nov 2025 01:55:39 -0800 (PST)
-Date: Mon, 3 Nov 2025 09:55:36 +0000
+        Mon, 03 Nov 2025 01:57:39 -0800 (PST)
+Date: Mon, 3 Nov 2025 09:57:36 +0000
 From: Mostafa Saleh <smostafa@google.com>
 To: Jason Gunthorpe <jgg@nvidia.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -93,10 +93,10 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	Yishai Hadas <yishaih@nvidia.com>,
 	Zhenyu Wang <zhenyuw.linux@gmail.com>,
 	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 14/22] vfio: Require drivers to implement get_region_info
-Message-ID: <aQh8GG15d_-Ge2Xx@google.com>
+Subject: Re: [PATCH 20/22] vfio/platform: Convert to get_region_info_caps
+Message-ID: <aQh8kE9DrbxS2x1e@google.com>
 References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
- <14-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <20-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -105,44 +105,109 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <14-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+In-Reply-To: <20-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 
-On Thu, Oct 23, 2025 at 08:09:28PM -0300, Jason Gunthorpe wrote:
-> Remove the fallback through the ioctl callback, no drivers use this now.
+On Thu, Oct 23, 2025 at 08:09:34PM -0300, Jason Gunthorpe wrote:
+> Remove the duplicate code and change info to a pointer. caps are not used.
 > 
 > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
 Reviewed-by: Mostafa Saleh <smostafa@google.com>
 
+Also, I smoke tested this on Qemu.
+
 Thanks,
 Mostafa
 
 > ---
->  drivers/vfio/vfio_main.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+>  drivers/vfio/platform/vfio_amba.c             |  2 +-
+>  drivers/vfio/platform/vfio_platform.c         |  2 +-
+>  drivers/vfio/platform/vfio_platform_common.c  | 24 ++++++-------------
+>  drivers/vfio/platform/vfio_platform_private.h |  3 ++-
+>  4 files changed, 11 insertions(+), 20 deletions(-)
 > 
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index a390163ce706c4..f056e82ba35075 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -1297,13 +1297,13 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
->  		break;
+> diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
+> index d600deaf23b6d7..fa754f203b2dfc 100644
+> --- a/drivers/vfio/platform/vfio_amba.c
+> +++ b/drivers/vfio/platform/vfio_amba.c
+> @@ -115,7 +115,7 @@ static const struct vfio_device_ops vfio_amba_ops = {
+>  	.open_device	= vfio_platform_open_device,
+>  	.close_device	= vfio_platform_close_device,
+>  	.ioctl		= vfio_platform_ioctl,
+> -	.get_region_info = vfio_platform_ioctl_get_region_info,
+> +	.get_region_info_caps = vfio_platform_ioctl_get_region_info,
+>  	.read		= vfio_platform_read,
+>  	.write		= vfio_platform_write,
+>  	.mmap		= vfio_platform_mmap,
+> diff --git a/drivers/vfio/platform/vfio_platform.c b/drivers/vfio/platform/vfio_platform.c
+> index 0e85c914b65105..a4d3ace3e02dda 100644
+> --- a/drivers/vfio/platform/vfio_platform.c
+> +++ b/drivers/vfio/platform/vfio_platform.c
+> @@ -101,7 +101,7 @@ static const struct vfio_device_ops vfio_platform_ops = {
+>  	.open_device	= vfio_platform_open_device,
+>  	.close_device	= vfio_platform_close_device,
+>  	.ioctl		= vfio_platform_ioctl,
+> -	.get_region_info = vfio_platform_ioctl_get_region_info,
+> +	.get_region_info_caps = vfio_platform_ioctl_get_region_info,
+>  	.read		= vfio_platform_read,
+>  	.write		= vfio_platform_write,
+>  	.mmap		= vfio_platform_mmap,
+> diff --git a/drivers/vfio/platform/vfio_platform_common.c b/drivers/vfio/platform/vfio_platform_common.c
+> index 3ebd50fb78fbb7..c2990b7e900fa5 100644
+> --- a/drivers/vfio/platform/vfio_platform_common.c
+> +++ b/drivers/vfio/platform/vfio_platform_common.c
+> @@ -273,30 +273,20 @@ int vfio_platform_open_device(struct vfio_device *core_vdev)
+>  EXPORT_SYMBOL_GPL(vfio_platform_open_device);
 >  
->  	case VFIO_DEVICE_GET_REGION_INFO:
-> -		if (!device->ops->get_region_info)
-> -			goto ioctl_fallback;
-> -		ret = device->ops->get_region_info(device, uptr);
-> +		if (unlikely(!device->ops->get_region_info))
-> +			ret = -EINVAL;
-> +		else
-> +			ret = device->ops->get_region_info(device, uptr);
->  		break;
+>  int vfio_platform_ioctl_get_region_info(struct vfio_device *core_vdev,
+> -					struct vfio_region_info __user *arg)
+> +					struct vfio_region_info *info,
+> +					struct vfio_info_cap *caps)
+>  {
+>  	struct vfio_platform_device *vdev =
+>  		container_of(core_vdev, struct vfio_platform_device, vdev);
+> -	struct vfio_region_info info;
+> -	unsigned long minsz;
 >  
->  	default:
-> -ioctl_fallback:
->  		if (unlikely(!device->ops->ioctl))
->  			ret = -EINVAL;
->  		else
+> -	minsz = offsetofend(struct vfio_region_info, offset);
+> -
+> -	if (copy_from_user(&info, arg, minsz))
+> -		return -EFAULT;
+> -
+> -	if (info.argsz < minsz)
+> -		return -EINVAL;
+> -
+> -	if (info.index >= vdev->num_regions)
+> +	if (info->index >= vdev->num_regions)
+>  		return -EINVAL;
+>  
+>  	/* map offset to the physical address  */
+> -	info.offset = VFIO_PLATFORM_INDEX_TO_OFFSET(info.index);
+> -	info.size = vdev->regions[info.index].size;
+> -	info.flags = vdev->regions[info.index].flags;
+> -
+> -	return copy_to_user(arg, &info, minsz) ? -EFAULT : 0;
+> +	info->offset = VFIO_PLATFORM_INDEX_TO_OFFSET(info->index);
+> +	info->size = vdev->regions[info->index].size;
+> +	info->flags = vdev->regions[info->index].flags;
+> +	return 0;
+>  }
+>  EXPORT_SYMBOL_GPL(vfio_platform_ioctl_get_region_info);
+>  
+> diff --git a/drivers/vfio/platform/vfio_platform_private.h b/drivers/vfio/platform/vfio_platform_private.h
+> index a6008320e77bae..05084212a76eb6 100644
+> --- a/drivers/vfio/platform/vfio_platform_private.h
+> +++ b/drivers/vfio/platform/vfio_platform_private.h
+> @@ -86,7 +86,8 @@ void vfio_platform_close_device(struct vfio_device *core_vdev);
+>  long vfio_platform_ioctl(struct vfio_device *core_vdev,
+>  			 unsigned int cmd, unsigned long arg);
+>  int vfio_platform_ioctl_get_region_info(struct vfio_device *core_vdev,
+> -					struct vfio_region_info __user *arg);
+> +					struct vfio_region_info *info,
+> +					struct vfio_info_cap *caps);
+>  ssize_t vfio_platform_read(struct vfio_device *core_vdev,
+>  			   char __user *buf, size_t count,
+>  			   loff_t *ppos);
 > -- 
 > 2.43.0
 > 
