@@ -1,64 +1,64 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD53F347C3
-	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 06:41:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A990222FE0E
+	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 06:43:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762152114; cv=none; b=LK1AjNVcJ5pDoSF1tuTuRLp+ibI+l3lMr905gCaVNfD08uepf74iNuLL10MJDqN6gwP218w17G9nU3KweINirn+u4hl3xJ/lDUt+E5KPRJsxjqS8SZPdjE8SqGnWG4/qslA4PkxMc17mforLbeMrY7rZpStYGmrt0mqq0dyMpbo=
+	t=1762152201; cv=none; b=bIwxHtq2QNZpmp8iHSwtQeWtI8iXU1KNg/Ss8hJa6RlRBHAzMHRR3RrtmJC8ECCrUJxetEdqs5XA2AitL5qGX3hsnV5NIZudD01ZhxZdcVRq84qEMi0/vayIc5nuL6l8m2nHhSPvd/6KVldTpLVFNAsJw/rV0NFJCZoRlXGJhzM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762152114; c=relaxed/simple;
-	bh=+CzUqqO06i/e7Ypbz0z7VulGOd2vXLPuLoDoGKacS4A=;
+	s=arc-20240116; t=1762152201; c=relaxed/simple;
+	bh=4+2jNttfGJTUArM3tzL5Y2lmRNiEYuzuOIQmI+CPwVc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dpQuT6n6aZ0wiwq+jFJS6sS8mJoBYFf8hqLbiL/vkk87gq6vUo73Ejj2V4BoHBTHam3f9WCK3GQbWw6ievFeZqurX7k2ku9rXHHLj9nHCbenaIeCjkp2LO2VQdlh0EUSGbtbot41dcuimcTbhc2wR44CYQlvyrdOre8RC5ZRRqM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=zHXC5Gvv; arc=none smtp.client-ip=209.85.214.180
+	 Content-Type:Content-Disposition:In-Reply-To; b=DU+goV4KWZIQRglDkO0eBhvo7X4ygMpxUBuMJWRMN2QHPWvHreZlNHOLk3BY+av+YtnkIXAUhMOgtA70T1lm3VrAOG0a7ypBfa4E7rIEpO4bvnMWrpSN7JaRBYg+pZ3GfO53er0Oi0w7M6Fj/JPPYjhaMOsb83717JhKcKbEk0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=SXLhEqru; arc=none smtp.client-ip=209.85.214.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="zHXC5Gvv"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-294f3105435so334095ad.1
-        for <virtualization@lists.linux.dev>; Sun, 02 Nov 2025 22:41:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="SXLhEqru"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-295c64cb951so79855ad.0
+        for <virtualization@lists.linux.dev>; Sun, 02 Nov 2025 22:43:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1762152112; x=1762756912; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1762152199; x=1762756999; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=xy09bbBV2an4SjPwDAIo8320NA2LlnNWvmRboTY817s=;
-        b=zHXC5Gvv+SlmVCaUcJ0TifIW4sy88vZX1oP8trkVmHfnBQ0miEJBF+F6ASM3pu7d0s
-         Wbr89m1Y337X4AfATfaLwbKJ4fKEytvq4SWL6pnD5eiX4CSeKcjqs2tO5ksdLPfF2RGD
-         qEt3OisRD9ZjEia7dUpLMLASDxsiLTBR/MWiFzQDlVMfyl4H2hS74xP3E3XruPYvblRL
-         0sLYJnOJGQCI9VkJWiYSdQ0oTenisYcga9TT1abcTApp64Qhd3EDdNUKUHK6xG7JgGn0
-         1WCX6ISpAtobetVBDo0jT7ms/uiqchtBet8+SkTIk/RCK37lK7zLfSV/4GEAYQtFXLew
-         xAzg==
+        bh=vxS6TWyQqtdZLWaYvGIMM/0/SSg5nejyyCdpsoAJAw4=;
+        b=SXLhEqruuH1+Fm7S1gprZ7EUNn43TFgKl5JBnj1w5PDIr3JUHgV69LqfxJQGWb/PSZ
+         zwzj0GxKoEQgxcE7HFZ00rxMV/5aGbzUy8z3ix+WU3pLhrn0I0kKMMHXtcCwyBYQKVDX
+         rpJb+7g8zsMphgS26ChhtddRdGJ8hWqpv1RrO/Xuz2BdAt4OUHiaBvftUDl/zJgyxO7j
+         sAiXHZ7XUfVu6ib2o7lnyykQJzYAfI7yYo5NLfjBQSQUiI0a1hP5YLpO6zcQL859CANA
+         fDlJEc00DfA00Yh3zhjpi7hlm3a5D7GZNOfW5ady3jG/QV2kR3SjCZleELFnfwOPmIVY
+         EzUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762152112; x=1762756912;
+        d=1e100.net; s=20230601; t=1762152199; x=1762756999;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xy09bbBV2an4SjPwDAIo8320NA2LlnNWvmRboTY817s=;
-        b=his5fTB6dFbKpO5MhGghTq73nHIUL7dK5SG1YRplbuWmsFrZlCmsAuLYM5kvyRfMu/
-         uEySAilbUzggZ/PEyiPPqd2QT3Q4EAwBvHdbXKjb5xVHRmoZ8jKf8nrvwakzav2TTI29
-         6GsFLU1V1rpVA5I/rB7Dek46suec6j4f0QDJ4MlxCVxX2qsoyiZTaV4Ub+b/Y5lQITyC
-         ssTgHdylNBa4uBCU5U9Nf2Q+ouvKmoPaBpDsFpLOX7PhUIdZ6++MYrHD5CCL/cDm2O8r
-         ppbjBca3iRS/gp5C+CURWRCv/PgqylcoF/18PHFJualUeJOnivQ4owMRyIKzO/WdMM6Q
-         RuPA==
-X-Forwarded-Encrypted: i=1; AJvYcCU/el0+c6YLJ58iMMuzilna2cDNh+Nz7VgjZnmY+q0Bl4/4/0aLA6i61MDSHms1s5QwFqQGsW4migzJUbjEqg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwKn6tmqk2v6T4qJVyd59bx9BY6Ue8Ya65KQo7C6LI4fQ/E3zgm
-	+iVhVtFk130q+cinBqrQaJtVRfBZHB9/32EgvLhh3CnzFLDPmrLrAFzhQRu3Wj0Xng==
-X-Gm-Gg: ASbGncvZ+Z8SNRq6+hbaHXx3mc0SrJzx7aHbBt72bZUL80YCw3wJ4RfKnvdZRRfG+Cc
-	XlBhEp/bvnQF/jrEfHIyRwwezigEigrWOU8J3LacmyNL2nupamzsGUhMGvpfX+4nI+WrpH0yJts
-	TNVoQS0QbkYhdoCGlo6VVaMEqrk0ADYsIbv8pjz60ms5n9HFCsJj3G0+RHKk9CVvyYaLnSCLwnJ
-	WjVgrgEEaqwlZOYKGKDmZVvvd6YvlP0LsxvmV13dV0R8bZkD+230zsTNxZ+95kqcmegeqo6BU+z
-	B3Qyyslc3a+a+DwAxBHEQcOxpsAdycHl7whQ2Uu2PlVpMlP/jf87u0fzFWIg5yzaePaBih5BI0f
-	xqKsVcECvVRxHBLvrIYLGOD0GO1z4BxiePRrgSoK7ax4os5m7LI95wlDQ4bzfVLlOcgh9BbXcev
-	80SQI+0ZI9+Aid1n/zEr14vMYKQvq56gXs2pMoAiYfXZ/sSfmK
-X-Google-Smtp-Source: AGHT+IGU3X/bvekwg5vtQ6XJGr9uQJGWUTHzyQr+Es6KbcLgu8QfXVso61Ocr0oWX8j6FOttuRoGtw==
-X-Received: by 2002:a17:903:1ce:b0:292:b6a0:80df with SMTP id d9443c01a7336-29554bb5aaemr5658455ad.10.1762152111810;
-        Sun, 02 Nov 2025 22:41:51 -0800 (PST)
+        bh=vxS6TWyQqtdZLWaYvGIMM/0/SSg5nejyyCdpsoAJAw4=;
+        b=Mb4p7xHX4nQlcIridnUBvRXBMa5LU3YVFhgpeydYUA80yjTXn2lC0mVqMtUNCm+kom
+         /xbGxn+YbSSB5W1TVXhqvThYY3FWhFY2wEqaaZE3RBxniGjZ0xbu6rJM4DUUZVbdy2OD
+         QcuopA4vhNL/55FmA+yyukvaWsirIkB8umvpamk4i/tfSdoDNdsCiZV8JPsdtEqYAp6U
+         yybbd71qj2stpX3hzBn0Jj+tIt8hznRbarfqzCKh4qiQBTPDm8ah4D6fb7kujOaoHjbn
+         vt1LNyvqTgf+V0FVpuRmXdJ3TQ70TH10US8GNc53SnK9aF0IrEVCTcMr7ByeNtpuSiAd
+         007A==
+X-Forwarded-Encrypted: i=1; AJvYcCVk9N624ynyiAdKk+qEYbTIyzgQDcDyEK6c6pdeJ43hQdGouZ0N5E+qAzDlJQo638UgHnRWAV0VnT169/hijg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwHo4ZfXxxOvXgIl73a3PAMbkTgBBfSwBtk5FwZBugFyXW+s/1c
+	ZM9pRR/guSTdg6qGD4HDK3Z+MjGeRfvN7UJJORzHrH7a2TRte/Y7mUGdAHvhr3Xkqg==
+X-Gm-Gg: ASbGncvUYSDQZv6ZDwhuoah0d918QLe2C7kKn0GedS/YEkXpe7Tj4zVMLfRq9K5ZjoO
+	dUyOsSxkDAIC81D67Pd40cd3y8ladhHPUHkQRr3SfKW0AvxDBR3H4Pqkg8M8odU3wuWLWxAYV05
+	WFSEOteUVcvpDZiFcTS9BKf9uAqSvOtsLC8MaMqT9qKsbkIHmkJKvbN+snhd/IjZGDFZkW+eb1F
+	bTeLAUaEYHL8A4BsSU0xl1xzbC25KOJbb3q4Y/ArfOdwwDAmjc2WMP/7KtkcqUp+VQzvp56MlCg
+	A4zkQtaax/IohIQjY9j0g5yjOXVTJytU0bSgPF/HB4yFmG9wyONSprnxPIc2Y3KPW6vaZrgckKE
+	eFmnCkWUKYZcQOcPb+9IrP7pH0mneIZ9Gs93m2mQOYujRmOsJQYK2gADr7FXBwPEY1PaSNBcIfE
+	uDuyaSnmWp/IW3sYCaLwnK2/3SzGOV/rQH2gm4PAdFhmcOJV9X
+X-Google-Smtp-Source: AGHT+IEazENwFhX4zlZOAPlLrsglGHn3aC4ae1C3vchxLK4wgltvDYn1olscExUoutjpE7Up5ejKXA==
+X-Received: by 2002:a17:903:2f81:b0:295:5405:46be with SMTP id d9443c01a7336-295562f73a8mr5347545ad.1.1762152198351;
+        Sun, 02 Nov 2025 22:43:18 -0800 (PST)
 Received: from google.com (164.210.142.34.bc.googleusercontent.com. [34.142.210.164])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2952696eb6bsm105902925ad.58.2025.11.02.22.41.44
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2954d5ee092sm80708835ad.62.2025.11.02.22.43.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Nov 2025 22:41:51 -0800 (PST)
-Date: Mon, 3 Nov 2025 06:41:41 +0000
+        Sun, 02 Nov 2025 22:43:17 -0800 (PST)
+Date: Mon, 3 Nov 2025 06:43:07 +0000
 From: Pranjal Shrivastava <praan@google.com>
 To: Jason Gunthorpe <jgg@nvidia.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -93,10 +93,10 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
 	Yishai Hadas <yishaih@nvidia.com>,
 	Zhenyu Wang <zhenyuw.linux@gmail.com>,
 	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 04/22] vfio/nvgrace: Convert to the get_region_info op
-Message-ID: <aQhOpec7prJD3zKm@google.com>
+Subject: Re: [PATCH 05/22] vfio/pci: Fill in the missing get_region_info ops
+Message-ID: <aQhO-5Ka4b8Mcwxf@google.com>
 References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
- <4-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <5-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -105,15 +105,23 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+In-Reply-To: <5-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
 
-On Thu, Oct 23, 2025 at 08:09:18PM -0300, Jason Gunthorpe wrote:
-> Change the signature of nvgrace_gpu_ioctl_get_region_info()
+On Thu, Oct 23, 2025 at 08:09:19PM -0300, Jason Gunthorpe wrote:
+> Now that every variant driver provides a get_region_info op remove the
+> ioctl based dispatch from vfio_pci_core_ioctl().
 > 
 > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > ---
->  drivers/vfio/pci/nvgrace-gpu/main.c | 15 ++++++---------
->  1 file changed, 6 insertions(+), 9 deletions(-)
+>  drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c | 1 +
+>  drivers/vfio/pci/mlx5/main.c                   | 1 +
+>  drivers/vfio/pci/nvgrace-gpu/main.c            | 1 +
+>  drivers/vfio/pci/pds/vfio_dev.c                | 1 +
+>  drivers/vfio/pci/qat/main.c                    | 1 +
+>  drivers/vfio/pci/vfio_pci.c                    | 1 +
+>  drivers/vfio/pci/vfio_pci_core.c               | 2 --
+>  drivers/vfio/pci/virtio/main.c                 | 2 ++
+>  8 files changed, 8 insertions(+), 2 deletions(-)
 > 
 
 Reviewed-by: Pranjal Shrivastava <praan@google.com>
