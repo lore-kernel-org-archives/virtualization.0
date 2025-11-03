@@ -1,216 +1,147 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE5F628C035
-	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 05:53:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8F46285CAE
+	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 05:56:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762149189; cv=none; b=EAsGasbFEE9a4E6e6Jg46QXjXBK7g6bF+k3H+B8r6qeA2wolXTEdhX0twyZ62eWK2fCTdbvk/ZDeNkX43+/4GFLeQC4SdT0AcLZz6IKmVvjVKt8jpk2R5iM50qrCQKl3GH9b7zPZWDqTRIDZTJHLV0ZJ8gNOl8csJKBB0lLiWGY=
+	t=1762149415; cv=none; b=ioHorbizg2+rWm8NgDMSl/kYSSjC2UwO01986mdgdWbF+F9pG6auEPC5Dx8hKYhEltvBlHv2xRZjHRep1fqdAfeczFi3uQRE9PEgc57I+byYqZwIeJkEC0J7+9mz7QCOzmgirOXOiHCZwhSgjigGLxh6Zw+61SkFOs32ujJrSfM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762149189; c=relaxed/simple;
-	bh=4BspCf86vbIia40I49o6bkPUwiTNmvBXFuaa8dzhugg=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=tUW7jTb8Xn4aVqJYlQewtQj6SlT9AWi1g50wG5pOf9RQ8rGrLpXC+5DRk5U1nx5ncDZw9dg9Qt90j6e8WxTTJi+dj8pyHKI12RbRkreTuaOWCt0Mh4QYxFUexisAhpHBHcVuzpU2I3VI8N/gX64XWeABcg/uqv84eIOGYyuDB20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=atWmmoYp; arc=none smtp.client-ip=115.124.30.132
+	s=arc-20240116; t=1762149415; c=relaxed/simple;
+	bh=UMPaZUWzV3Sm6RTTcZV+IfJzOzax8Ccpxq+TavsawBQ=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=VB6Ux3zdPivD9dZoMd6KuPl/JEBgyPnPC3j3Sh1aDvvNCKJ+g/eueUFyD292e68NNtK5LcuYPEl+SJ9jyY0se3IKVavnyrK7YSHeLSrASybHk/RyXNdtES0rxDk/+Wpe7wwxy9GcOCWPDOiuwkeTghcsELBG3w9HMEWxfjQfnlg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=s/88iQW+; arc=none smtp.client-ip=115.124.30.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="atWmmoYp"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="s/88iQW+"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1762149182; h=Message-ID:Subject:Date:From:To;
-	bh=Y4LQcn2dUfRQQ0yXMJpCXP0K66RO9bdEkYFxMNILUI8=;
-	b=atWmmoYpsWPgBsLnE+IMX0V+GHtAhzz6UcXu5MYEzcwLNsYEz8U4/WnDvqSqvo9XK1NUKnL3OktdXOU5CSFLuZkTeiNT42/rPSEtR5rj8MJAezwQwj3D6DY2rwNax11EF4gH4ckBb6Q8dKxPDW+YHZzXytlsNlUKO63RV1mN1Fw=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WrXRvuM_1762149181 cluster:ay36)
+	t=1762149409; h=Message-ID:Subject:Date:From:To;
+	bh=Wf5UamBtc1C2iB7hfBSedWXwlFsIRhKJbTDCZQ1GFNQ=;
+	b=s/88iQW+/Ol68Cbcq5mxlTeIt+MudLEXEbUbZp1PfzBL1nk92NpRGz5c1prUOpM2fY62NiPnr1+OWk+nffUKimxL6JaqSb8j5xsP2BZGdsqtrGax+5Mkg9rUq/hDWw2v+5bKqOLPjFZY4Q1iX9rY8+JoDP8a7Fqoq+Wyh4IX0Ic=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WrXoEDB_1762149408 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 03 Nov 2025 13:53:02 +0800
-Message-ID: <1762149174.8174753-6-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v6 04/12] virtio: Expose object create and destroy API
-Date: Mon, 3 Nov 2025 13:52:54 +0800
+          Mon, 03 Nov 2025 13:56:48 +0800
+Message-ID: <1762149401.6256416-7-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net v7] virtio-net: fix received length check in big packets
+Date: Mon, 3 Nov 2025 13:56:41 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Daniel Jurgens <danielj@nvidia.com>
-Cc: <virtualization@lists.linux.dev>,
- <parav@nvidia.com>,
- <shshitrit@nvidia.com>,
- <yohadt@nvidia.com>,
- <xuanzhuo@linux.alibaba.com>,
- <eperezma@redhat.com>,
- <shameerali.kolothum.thodi@huawei.com>,
- <jgg@ziepe.ca>,
- <kevin.tian@intel.com>,
- <kuba@kernel.org>,
- <andrew+netdev@lunn.ch>,
- <edumazet@google.com>,
- Daniel Jurgens <danielj@nvidia.com>,
- <netdev@vger.kernel.org>,
- <mst@redhat.com>,
- <jasowang@redhat.com>,
- <alex.williamson@redhat.com>,
- <pabeni@redhat.com>
-References: <20251027173957.2334-1-danielj@nvidia.com>
- <20251027173957.2334-5-danielj@nvidia.com>
-In-Reply-To: <20251027173957.2334-5-danielj@nvidia.com>
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Gavin Li <gavinl@nvidia.com>,
+ Gavi Teitz <gavi@nvidia.com>,
+ Parav Pandit <parav@nvidia.com>,
+ virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org,
+ Bui Quang Minh <minhquangbui99@gmail.com>,
+ stable@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <20251030144438.7582-1-minhquangbui99@gmail.com>
+In-Reply-To: <20251030144438.7582-1-minhquangbui99@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Mon, 27 Oct 2025 12:39:49 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
-> Object create and destroy were implemented specifically for dev parts
-> device objects. Create general purpose APIs for use by upper layer
-> drivers.
+On Thu, 30 Oct 2025 21:44:38 +0700, Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+> Since commit 4959aebba8c0 ("virtio-net: use mtu size as buffer length
+> for big packets"), when guest gso is off, the allocated size for big
+> packets is not MAX_SKB_FRAGS * PAGE_SIZE anymore but depends on
+> negotiated MTU. The number of allocated frags for big packets is stored
+> in vi->big_packets_num_skbfrags.
 >
-> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> Because the host announced buffer length can be malicious (e.g. the host
+> vhost_net driver's get_rx_bufs is modified to announce incorrect
+> length), we need a check in virtio_net receive path. Currently, the
+> check is not adapted to the new change which can lead to NULL page
+> pointer dereference in the below while loop when receiving length that
+> is larger than the allocated one.
+>
+> This commit fixes the received length check corresponding to the new
+> change.
+>
+> Fixes: 4959aebba8c0 ("virtio-net: use mtu size as buffer length for big packets")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 
 Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
->
 > ---
-> v4: Moved this logic from virtio_pci_modern to new file
->     virtio_admin_commands.
-> v5: Added missing params, and synced names in comments (Alok Tiwari)
+> Changes in v7:
+> - Fix typos
+> - Link to v6: https://lore.kernel.org/netdev/20251028143116.4532-1-minhquangbui99@gmail.com/
+> Changes in v6:
+> - Fix the length check
+> - Link to v5: https://lore.kernel.org/netdev/20251024150649.22906-1-minhquangbui99@gmail.com/
+> Changes in v5:
+> - Move the length check to receive_big
+> - Link to v4: https://lore.kernel.org/netdev/20251022160623.51191-1-minhquangbui99@gmail.com/
+> Changes in v4:
+> - Remove unrelated changes, add more comments
+> - Link to v3: https://lore.kernel.org/netdev/20251021154534.53045-1-minhquangbui99@gmail.com/
+> Changes in v3:
+> - Convert BUG_ON to WARN_ON_ONCE
+> - Link to v2: https://lore.kernel.org/netdev/20250708144206.95091-1-minhquangbui99@gmail.com/
+> Changes in v2:
+> - Remove incorrect give_pages call
+> - Link to v1: https://lore.kernel.org/netdev/20250706141150.25344-1-minhquangbui99@gmail.com/
 > ---
->  drivers/virtio/virtio_admin_commands.c | 75 ++++++++++++++++++++++++++
->  include/linux/virtio_admin.h           | 44 +++++++++++++++
->  2 files changed, 119 insertions(+)
+>  drivers/net/virtio_net.c | 25 ++++++++++++-------------
+>  1 file changed, 12 insertions(+), 13 deletions(-)
 >
-> diff --git a/drivers/virtio/virtio_admin_commands.c b/drivers/virtio/virtio_admin_commands.c
-> index 94751d16b3c4..2b80548ba3bc 100644
-> --- a/drivers/virtio/virtio_admin_commands.c
-> +++ b/drivers/virtio/virtio_admin_commands.c
-> @@ -88,3 +88,78 @@ int virtio_admin_cap_set(struct virtio_device *vdev,
->  	return err;
->  }
->  EXPORT_SYMBOL_GPL(virtio_admin_cap_set);
-> +
-> +int virtio_admin_obj_create(struct virtio_device *vdev,
-> +			    u16 obj_type,
-> +			    u32 obj_id,
-> +			    u16 group_type,
-> +			    u64 group_member_id,
-> +			    const void *obj_specific_data,
-> +			    size_t obj_specific_data_size)
-> +{
-> +	size_t data_size = sizeof(struct virtio_admin_cmd_resource_obj_create_data);
-> +	struct virtio_admin_cmd_resource_obj_create_data *obj_create_data;
-> +	struct virtio_admin_cmd cmd = {};
-> +	struct scatterlist data_sg;
-> +	void *data;
-> +	int err;
-> +
-> +	if (!vdev->config->admin_cmd_exec)
-> +		return -EOPNOTSUPP;
-> +
-> +	data_size += obj_specific_data_size;
-> +	data = kzalloc(data_size, GFP_KERNEL);
-> +	if (!data)
-> +		return -ENOMEM;
-> +
-> +	obj_create_data = data;
-> +	obj_create_data->hdr.type = cpu_to_le16(obj_type);
-> +	obj_create_data->hdr.id = cpu_to_le32(obj_id);
-> +	memcpy(obj_create_data->resource_obj_specific_data, obj_specific_data,
-> +	       obj_specific_data_size);
-> +	sg_init_one(&data_sg, data, data_size);
-> +
-> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_RESOURCE_OBJ_CREATE);
-> +	cmd.group_type = cpu_to_le16(group_type);
-> +	cmd.group_member_id = cpu_to_le64(group_member_id);
-> +	cmd.data_sg = &data_sg;
-> +
-> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
-> +	kfree(data);
-> +
-> +	return err;
-> +}
-> +EXPORT_SYMBOL_GPL(virtio_admin_obj_create);
-> +
-> +int virtio_admin_obj_destroy(struct virtio_device *vdev,
-> +			     u16 obj_type,
-> +			     u32 obj_id,
-> +			     u16 group_type,
-> +			     u64 group_member_id)
-> +{
-> +	struct virtio_admin_cmd_resource_obj_cmd_hdr *data;
-> +	struct virtio_admin_cmd cmd = {};
-> +	struct scatterlist data_sg;
-> +	int err;
-> +
-> +	if (!vdev->config->admin_cmd_exec)
-> +		return -EOPNOTSUPP;
-> +
-> +	data = kzalloc(sizeof(*data), GFP_KERNEL);
-> +	if (!data)
-> +		return -ENOMEM;
-> +
-> +	data->type = cpu_to_le16(obj_type);
-> +	data->id = cpu_to_le32(obj_id);
-> +	sg_init_one(&data_sg, data, sizeof(*data));
-> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_RESOURCE_OBJ_DESTROY);
-> +	cmd.group_type = cpu_to_le16(group_type);
-> +	cmd.group_member_id = cpu_to_le64(group_member_id);
-> +	cmd.data_sg = &data_sg;
-> +
-> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
-> +	kfree(data);
-> +
-> +	return err;
-> +}
-> +EXPORT_SYMBOL_GPL(virtio_admin_obj_destroy);
-> diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
-> index 36df97b6487a..039b996f73ec 100644
-> --- a/include/linux/virtio_admin.h
-> +++ b/include/linux/virtio_admin.h
-> @@ -77,4 +77,48 @@ int virtio_admin_cap_set(struct virtio_device *vdev,
->  			 const void *caps,
->  			 size_t cap_size);
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index a757cbcab87f..421b9aa190a0 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -910,17 +910,6 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>  		goto ok;
+>  	}
 >
-> +/**
-> + * virtio_admin_obj_create - Create an object on a virtio device
-> + * @vdev: the virtio device
-> + * @obj_type: type of object to create
-> + * @obj_id: ID for the new object
-> + * @group_type: administrative group type for the operation
-> + * @group_member_id: member identifier within the administrative group
-> + * @obj_specific_data: object-specific data for creation
-> + * @obj_specific_data_size: size of the object-specific data in bytes
-> + *
-> + * Creates a new object on the virtio device with the specified type and ID.
-> + * The object may require object-specific data for proper initialization.
-> + *
-> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
-> + * operations or object creation, or a negative error code on other failures.
-> + */
-> +int virtio_admin_obj_create(struct virtio_device *vdev,
-> +			    u16 obj_type,
-> +			    u32 obj_id,
-> +			    u16 group_type,
-> +			    u64 group_member_id,
-> +			    const void *obj_specific_data,
-> +			    size_t obj_specific_data_size);
+> -	/*
+> -	 * Verify that we can indeed put this data into a skb.
+> -	 * This is here to handle cases when the device erroneously
+> -	 * tries to receive more than is possible. This is usually
+> -	 * the case of a broken device.
+> -	 */
+> -	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
+> -		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
+> -		dev_kfree_skb(skb);
+> -		return NULL;
+> -	}
+>  	BUG_ON(offset >= PAGE_SIZE);
+>  	while (len) {
+>  		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
+> @@ -2107,9 +2096,19 @@ static struct sk_buff *receive_big(struct net_device *dev,
+>  				   struct virtnet_rq_stats *stats)
+>  {
+>  	struct page *page = buf;
+> -	struct sk_buff *skb =
+> -		page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
+> +	struct sk_buff *skb;
 > +
-> +/**
-> + * virtio_admin_obj_destroy - Destroy an object on a virtio device
-> + * @vdev: the virtio device
-> + * @obj_type: type of object to destroy
-> + * @obj_id: ID of the object to destroy
-> + * @group_type: administrative group type for the operation
-> + * @group_member_id: member identifier within the administrative group
-> + *
-> + * Destroys an existing object on the virtio device with the specified type
-> + * and ID.
-> + *
-> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
-> + * operations or object destruction, or a negative error code on other failures.
-> + */
-> +int virtio_admin_obj_destroy(struct virtio_device *vdev,
-> +			     u16 obj_type,
-> +			     u32 obj_id,
-> +			     u16 group_type,
-> +			     u64 group_member_id);
-> +
->  #endif /* _LINUX_VIRTIO_ADMIN_H */
+> +	/* Make sure that len does not exceed the size allocated in
+> +	 * add_recvbuf_big.
+> +	 */
+> +	if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE)) {
+> +		pr_debug("%s: rx error: len %u exceeds allocated size %lu\n",
+> +			 dev->name, len,
+> +			 (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE);
+> +		goto err;
+> +	}
+>
+> +	skb = page_to_skb(vi, rq, page, 0, len, PAGE_SIZE, 0);
+>  	u64_stats_add(&stats->bytes, len - vi->hdr_len);
+>  	if (unlikely(!skb))
+>  		goto err;
 > --
-> 2.50.1
+> 2.43.0
 >
