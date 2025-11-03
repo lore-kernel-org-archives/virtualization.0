@@ -1,31 +1,31 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 297CEB663
-	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 03:20:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0169AFC0A
+	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 03:22:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762140044; cv=none; b=r2md5bu91tWPVLuXGnxt6wRTUsevo86l+GyoPtTdoaj1l6ktJxHVLakaIX7bGw8rbjOpDukbvunGj/ArFdYlefvJWNL3ABwbrJmFPwekjxul8JAApA8WgR7HA7JXIXbUBcX/oxGnOaVRoHNfOinV9PXqI5vqX6f5LhlRQ7zqy2k=
+	t=1762140161; cv=none; b=MfGLHyg8IzqilAcpDORjzrMI1oQBDJhSqOD89RYEUBkTANbezFsyrTDgojdHea2LTMicUyXxW0VC7vEa/1l+ysxVc3n29O8w5Nw7UKSl4JPq8H29Xx9/FnpUJr0NyeaJ5/UqSe1YU7G9mojAcbeFRFS1hZGJ/hDByteO5iGEF2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762140044; c=relaxed/simple;
-	bh=4c/A7NNNK9QoaDFxZg6r47GxUbHOmq/oakDwXzHp40A=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=KU13LmjnuWBI2cypAPwh9dljWKjHm/k5TvW2hkgNBWGdLJx8LLwLiBlBt/yyfSHamVlMOWb2vAbe4FJznanu+CjCpn3faZ40be72Fl9xz/mwHs1mq2nWB7nbD+cNv+mDGIg0wKfVq0XHOydz5maKTKNIbn0/IOyhqci6g7jY5xw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=H/xz4Wzt; arc=none smtp.client-ip=115.124.30.111
+	s=arc-20240116; t=1762140161; c=relaxed/simple;
+	bh=sQbM1Usji7obZ4f7BiPWXDsuUHJYnmu/tNCvVzOW76I=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=gVKxP6Gvzz7ZV9QtVb8EJQA+0JXOixH1vGF6LHzAbeK7W2Z8nNWkiosKktwo4ue/+17hKnFnC0ZbXWm2HP7D8Gb2Q6wDHrL5Pmovk62bbJErZSZI63VcRPNDvNfAOWex1iKNqGAB/ApjYNeCJJ0dXQDpZxZ/Y37uht1pVh/tnpY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=EU44aYuJ; arc=none smtp.client-ip=115.124.30.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="H/xz4Wzt"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="EU44aYuJ"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1762140032; h=Message-ID:Subject:Date:From:To;
-	bh=XR3m05PCYe26NaEo7gSokKWSdIdeXNLE2m41pVXWW1E=;
-	b=H/xz4Wzt1N36Hf6zP57XJXWMupPJ2P2P7E2ptmHneh0W6YGiB1RlWQcj8PqeVy2J/sx+5EC4qXNMjOjZCYx7WwZYJj27PE/WFILPg6AfdvVvPfq9faufYQeBFt3tPgXB7ur2NLxrT3lSfxdViNkJcDtJc2mkCefrEM+7p7fN2hA=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WrVn7AG_1762140031 cluster:ay36)
+	t=1762140151; h=Message-ID:Subject:Date:From:To;
+	bh=XUPRiHrtMviqg9/C9XvShbkr/rv4ccn+d9IC2suGa4E=;
+	b=EU44aYuJYfHE5a0FjPbEQo+5v3Pm2mmwTbViFqYzABLLs/igHtGM7qiAQUCjrfyWhtc76IdNUC8mw9BUDPCK63RqBy7uzJK0OaeL9jIMTq5xSMBTy7o8uOf04WsTebZlk6+sFpmaXLYl/Kk8QTFCpM/7E0Ma5qgVkdKIFzs7sho=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WrVmmfD_1762140150 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 03 Nov 2025 11:20:31 +0800
-Message-ID: <1762140025.5593016-6-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v6 09/12] virtio_net: Implement IPv4 ethtool flow rules
-Date: Mon, 3 Nov 2025 11:20:25 +0800
+          Mon, 03 Nov 2025 11:22:30 +0800
+Message-ID: <1762140143.4049902-7-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 08/12] virtio_net: Use existing classifier if possible
+Date: Mon, 3 Nov 2025 11:22:23 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Daniel Jurgens <danielj@nvidia.com>
 Cc: <virtualization@lists.linux.dev>,
@@ -47,22 +47,17 @@ Cc: <virtualization@lists.linux.dev>,
  <alex.williamson@redhat.com>,
  <pabeni@redhat.com>
 References: <20251027173957.2334-1-danielj@nvidia.com>
- <20251027173957.2334-10-danielj@nvidia.com>
-In-Reply-To: <20251027173957.2334-10-danielj@nvidia.com>
+ <20251027173957.2334-9-danielj@nvidia.com>
+In-Reply-To: <20251027173957.2334-9-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Mon, 27 Oct 2025 12:39:54 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
-> Add support for IP_USER type rules from ethtool.
->
-> Example:
-> $ ethtool -U ens9 flow-type ip4 src-ip 192.168.51.101 action -1
-> Added rule with ID 1
->
-> The example rule will drop packets with the source IP specified.
+On Mon, 27 Oct 2025 12:39:53 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
+> Classifiers can be used by more than one rule. If there is an existing
+> classifier, use it instead of creating a new one.
 >
 > Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
 > Reviewed-by: Parav Pandit <parav@nvidia.com>
@@ -72,204 +67,126 @@ Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
 > ---
 > v4:
->     - Fixed bug in protocol check of parse_ip4
->     - (u8 *) to (void *) casting.
->     - Alignment issues.
+>     - Fixed typo in commit message
+>     - for (int -> for (
 > ---
->  drivers/net/virtio_net.c | 122 ++++++++++++++++++++++++++++++++++++---
->  1 file changed, 115 insertions(+), 7 deletions(-)
+>  drivers/net/virtio_net.c | 42 +++++++++++++++++++++++++++-------------
+>  1 file changed, 29 insertions(+), 13 deletions(-)
 >
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index d94ac72fc02c..79313627e1a5 100644
+> index 73194b51c318..d94ac72fc02c 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-> @@ -6884,6 +6884,34 @@ static bool validate_eth_mask(const struct virtnet_ff *ff,
->  	return true;
->  }
->
-> +static bool validate_ip4_mask(const struct virtnet_ff *ff,
-> +			      const struct virtio_net_ff_selector *sel,
-> +			      const struct virtio_net_ff_selector *sel_cap)
-> +{
-> +	bool partial_mask = !!(sel_cap->flags & VIRTIO_NET_FF_MASK_F_PARTIAL_MASK);
-> +	struct iphdr *cap, *mask;
-> +
-> +	cap = (struct iphdr *)&sel_cap->mask;
-> +	mask = (struct iphdr *)&sel->mask;
-> +
-> +	if (mask->saddr &&
-> +	    !check_mask_vs_cap(&mask->saddr, &cap->saddr,
-> +			       sizeof(__be32), partial_mask))
-> +		return false;
-> +
-> +	if (mask->daddr &&
-> +	    !check_mask_vs_cap(&mask->daddr, &cap->daddr,
-> +			       sizeof(__be32), partial_mask))
-> +		return false;
-> +
-> +	if (mask->protocol &&
-> +	    !check_mask_vs_cap(&mask->protocol, &cap->protocol,
-> +			       sizeof(u8), partial_mask))
-> +		return false;
-> +
-> +	return true;
-> +}
-> +
->  static bool validate_mask(const struct virtnet_ff *ff,
->  			  const struct virtio_net_ff_selector *sel)
->  {
-> @@ -6895,11 +6923,36 @@ static bool validate_mask(const struct virtnet_ff *ff,
->  	switch (sel->type) {
->  	case VIRTIO_NET_FF_MASK_TYPE_ETH:
->  		return validate_eth_mask(ff, sel, sel_cap);
-> +
-> +	case VIRTIO_NET_FF_MASK_TYPE_IPV4:
-> +		return validate_ip4_mask(ff, sel, sel_cap);
->  	}
->
+> @@ -6806,6 +6806,7 @@ struct virtnet_ethtool_rule {
+>  /* The classifier struct must be the last field in this struct */
+>  struct virtnet_classifier {
+>  	size_t size;
+> +	refcount_t refcount;
+>  	u32 id;
+>  	struct virtio_net_resource_obj_ff_classifier classifier;
+>  };
+> @@ -6899,11 +6900,24 @@ static bool validate_mask(const struct virtnet_ff *ff,
 >  	return false;
 >  }
 >
-> +static void parse_ip4(struct iphdr *mask, struct iphdr *key,
-> +		      const struct ethtool_rx_flow_spec *fs)
-> +{
-> +	const struct ethtool_usrip4_spec *l3_mask = &fs->m_u.usr_ip4_spec;
-> +	const struct ethtool_usrip4_spec *l3_val  = &fs->h_u.usr_ip4_spec;
-> +
-> +	mask->saddr = l3_mask->ip4src;
-> +	mask->daddr = l3_mask->ip4dst;
-> +	key->saddr = l3_val->ip4src;
-> +	key->daddr = l3_val->ip4dst;
-> +
-> +	if (l3_mask->proto) {
-> +		mask->protocol = l3_mask->proto;
-> +		key->protocol = l3_val->proto;
+> -static int setup_classifier(struct virtnet_ff *ff, struct virtnet_classifier *c)
+> +static int setup_classifier(struct virtnet_ff *ff,
+> +			    struct virtnet_classifier **c)
+>  {
+> +	struct virtnet_classifier *tmp;
+> +	unsigned long i;
+>  	int err;
+>
+> -	err = xa_alloc(&ff->classifiers, &c->id, c,
+> +	xa_for_each(&ff->classifiers, i, tmp) {
+> +		if ((*c)->size == tmp->size &&
+> +		    !memcmp(&tmp->classifier, &(*c)->classifier, tmp->size)) {
+> +			refcount_inc(&tmp->refcount);
+> +			kfree(*c);
+> +			*c = tmp;
+> +			goto out;
+> +		}
 > +	}
-> +}
 > +
-> +static bool has_ipv4(u32 flow_type)
-> +{
-> +	return flow_type == IP_USER_FLOW;
-> +}
-> +
->  static int setup_classifier(struct virtnet_ff *ff,
->  			    struct virtnet_classifier **c)
->  {
-> @@ -7034,6 +7087,7 @@ static bool supported_flow_type(const struct ethtool_rx_flow_spec *fs)
->  {
->  	switch (fs->flow_type) {
->  	case ETHER_FLOW:
-> +	case IP_USER_FLOW:
->  		return true;
->  	}
+> +	err = xa_alloc(&ff->classifiers, &(*c)->id, *c,
+>  		       XA_LIMIT(0, le32_to_cpu(ff->ff_caps->classifiers_limit) - 1),
+>  		       GFP_KERNEL);
+>  	if (err)
+> @@ -6911,29 +6925,30 @@ static int setup_classifier(struct virtnet_ff *ff, struct virtnet_classifier *c)
 >
-> @@ -7062,11 +7116,23 @@ static int validate_flow_input(struct virtnet_ff *ff,
->  }
+>  	err = virtio_admin_obj_create(ff->vdev,
+>  				      VIRTIO_NET_RESOURCE_OBJ_FF_CLASSIFIER,
+> -				      c->id,
+> +				      (*c)->id,
+>  				      VIRTIO_ADMIN_GROUP_TYPE_SELF,
+>  				      0,
+> -				      &c->classifier,
+> -				      c->size);
+> +				      &(*c)->classifier,
+> +				      (*c)->size);
+>  	if (err)
+>  		goto err_xarray;
 >
->  static void calculate_flow_sizes(struct ethtool_rx_flow_spec *fs,
-> -				 size_t *key_size, size_t *classifier_size,
-> -				 int *num_hdrs)
-> +				size_t *key_size, size_t *classifier_size,
-> +				int *num_hdrs)
->  {
-> +	size_t size = sizeof(struct ethhdr);
-> +
->  	*num_hdrs = 1;
->  	*key_size = sizeof(struct ethhdr);
-> +
-> +	if (fs->flow_type == ETHER_FLOW)
-> +		goto done;
-> +
-> +	++(*num_hdrs);
-> +	if (has_ipv4(fs->flow_type))
-> +		size += sizeof(struct iphdr);
-> +
-> +done:
-> +	*key_size = size;
->  	/*
->  	 * The classifier size is the size of the classifier header, a selector
->  	 * header for each type of header in the match criteria, and each header
-> @@ -7078,8 +7144,9 @@ static void calculate_flow_sizes(struct ethtool_rx_flow_spec *fs,
->  }
->
->  static void setup_eth_hdr_key_mask(struct virtio_net_ff_selector *selector,
-> -				   u8 *key,
-> -				   const struct ethtool_rx_flow_spec *fs)
-> +				  u8 *key,
-> +				  const struct ethtool_rx_flow_spec *fs,
-> +				  int num_hdrs)
->  {
->  	struct ethhdr *eth_m = (struct ethhdr *)&selector->mask;
->  	struct ethhdr *eth_k = (struct ethhdr *)key;
-> @@ -7087,8 +7154,33 @@ static void setup_eth_hdr_key_mask(struct virtio_net_ff_selector *selector,
->  	selector->type = VIRTIO_NET_FF_MASK_TYPE_ETH;
->  	selector->length = sizeof(struct ethhdr);
->
-> -	memcpy(eth_m, &fs->m_u.ether_spec, sizeof(*eth_m));
-> -	memcpy(eth_k, &fs->h_u.ether_spec, sizeof(*eth_k));
-> +	if (num_hdrs > 1) {
-> +		eth_m->h_proto = cpu_to_be16(0xffff);
-> +		eth_k->h_proto = cpu_to_be16(ETH_P_IP);
-> +	} else {
-> +		memcpy(eth_m, &fs->m_u.ether_spec, sizeof(*eth_m));
-> +		memcpy(eth_k, &fs->h_u.ether_spec, sizeof(*eth_k));
-> +	}
-> +}
-> +
-> +static int setup_ip_key_mask(struct virtio_net_ff_selector *selector,
-> +			     u8 *key,
-> +			     const struct ethtool_rx_flow_spec *fs)
-> +{
-> +	struct iphdr *v4_m = (struct iphdr *)&selector->mask;
-> +	struct iphdr *v4_k = (struct iphdr *)key;
-> +
-> +	selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV4;
-> +	selector->length = sizeof(struct iphdr);
-> +
-> +	if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
-> +	    fs->h_u.usr_ip4_spec.tos ||
-> +	    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4)
-> +		return -EOPNOTSUPP;
-> +
-> +	parse_ip4(v4_m, v4_k, fs);
-> +
-> +	return 0;
->  }
->
->  static int
-> @@ -7110,6 +7202,13 @@ validate_classifier_selectors(struct virtnet_ff *ff,
+> +	refcount_set(&(*c)->refcount, 1);
+> +out:
 >  	return 0;
+>
+>  err_xarray:
+> -	xa_erase(&ff->classifiers, c->id);
+> +	xa_erase(&ff->classifiers, (*c)->id);
+>
+>  	return err;
 >  }
 >
-> +static
-> +struct virtio_net_ff_selector *next_selector(struct virtio_net_ff_selector *sel)
-> +{
-> +	return (void *)sel + sizeof(struct virtio_net_ff_selector) +
-> +		sel->length;
-> +}
-> +
->  static int build_and_insert(struct virtnet_ff *ff,
->  			    struct virtnet_ethtool_rule *eth_rule)
+> -static void destroy_classifier(struct virtnet_ff *ff,
+> -			       u32 classifier_id)
+> +static void try_destroy_classifier(struct virtnet_ff *ff, u32 classifier_id)
 >  {
-> @@ -7147,8 +7246,17 @@ static int build_and_insert(struct virtnet_ff *ff,
->  	classifier->count = num_hdrs;
->  	selector = (void *)&classifier->selectors[0];
+>  	struct virtnet_classifier *c;
 >
-> -	setup_eth_hdr_key_mask(selector, key, fs);
-> +	setup_eth_hdr_key_mask(selector, key, fs, num_hdrs);
-> +	if (num_hdrs == 1)
-> +		goto validate;
-> +
-> +	selector = next_selector(selector);
-> +
-> +	err = setup_ip_key_mask(selector, key + sizeof(struct ethhdr), fs);
-> +	if (err)
-> +		goto err_classifier;
+>  	c = xa_load(&ff->classifiers, classifier_id);
+> -	if (c) {
+> +	if (c && refcount_dec_and_test(&c->refcount)) {
+>  		virtio_admin_obj_destroy(ff->vdev,
+>  					 VIRTIO_NET_RESOURCE_OBJ_FF_CLASSIFIER,
+>  					 c->id,
+> @@ -6957,7 +6972,7 @@ static void destroy_ethtool_rule(struct virtnet_ff *ff,
+>  				 0);
 >
-> +validate:
->  	err = validate_classifier_selectors(ff, classifier, num_hdrs);
+>  	xa_erase(&ff->ethtool.rules, eth_rule->flow_spec.location);
+> -	destroy_classifier(ff, eth_rule->classifier_id);
+> +	try_destroy_classifier(ff, eth_rule->classifier_id);
+>  	kfree(eth_rule);
+>  }
+>
+> @@ -7082,8 +7097,9 @@ validate_classifier_selectors(struct virtnet_ff *ff,
+>  			      int num_hdrs)
+>  {
+>  	struct virtio_net_ff_selector *selector = (void *)classifier->selectors;
+> +	int i;
+>
+> -	for (int i = 0; i < num_hdrs; i++) {
+> +	for (i = 0; i < num_hdrs; i++) {
+>  		if (!validate_mask(ff, selector))
+>  			return -EINVAL;
+>
+> @@ -7137,14 +7153,14 @@ static int build_and_insert(struct virtnet_ff *ff,
 >  	if (err)
 >  		goto err_key;
+>
+> -	err = setup_classifier(ff, c);
+> +	err = setup_classifier(ff, &c);
+>  	if (err)
+>  		goto err_classifier;
+>
+>  	err = insert_rule(ff, eth_rule, c->id, key, key_size);
+>  	if (err) {
+>  		/* destroy_classifier will free the classifier */
+> -		destroy_classifier(ff, c->id);
+> +		try_destroy_classifier(ff, c->id);
+>  		goto err_key;
+>  	}
+>
 > --
 > 2.50.1
 >
