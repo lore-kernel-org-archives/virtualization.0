@@ -1,31 +1,31 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BC01288C25
-	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 05:52:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E31A9288CA6
+	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 05:52:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762149150; cv=none; b=mMpAxB2K+Rv8yIjZbWbWB/ivnqgP4luht5jDN81b9kgYt+6K9uWE+5i0xtrXFhF2ViD6J187enZEE5gmrB8fxbgJVPehkIMcNFWX/puGgEksrSPbXwYD8zXBnZoOb8dsSX0Noi+xE9OZrwhBPhhMeKg0sHh2xDATTZxIBa83CVk=
+	t=1762149176; cv=none; b=XQAgw85BZKgRdq941ycycZ0cmfwmiQauaKfPdkO4hDtZXvd0CNRT1IUpCYA7HO5mHtAco0LmOh8S7HyzROq/2z/KF7Jv1HVU4kiXjxV9Yyde+ufXGCNBOWZ3em5uZ52skBiRI+Xo2X/IjlzyazvVIh85uHyAfLmpptWefoVlnqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762149150; c=relaxed/simple;
-	bh=h1q1IXh9U3iBuNiSm2KO8xYBEesiDIHbHwi3p7ms9uw=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=L201dgqsbhcoN5RbEWJ/QkKwiT1ixZvjYXok0pGKjtsQ42BwVyctpSva0+WJRW7wmHJB722SATqeTP7j5FCxR/fwjsbAQaBdbg3HbwvDVsqExcEKa+Lv//PABvCt0T5nzjWdw1NpHASjTlFQ294/aF3bTPFqGek6oOYWvxXMESY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=MXJYJZbl; arc=none smtp.client-ip=115.124.30.131
+	s=arc-20240116; t=1762149176; c=relaxed/simple;
+	bh=zcMkwW0x34qAVK+Gi9DmGs4fFmtH5GVrhRvu3XvX4T0=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=l/3OEDN/V36kxBKEtlQR5c23JfTmj4N62Kis0rdZSumERyR7q8uT0RZis/r01DhAWf/ILN8ozW+yLRwFDQfOdkPtMGs7BxMVq7R44VoYrWLzDV9ZAl997D3mtG2iVXR6RC517oiLud3kbrBH2Naa0oR2RPNtaEt9BK4ecLqcijQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=LCkiMYbN; arc=none smtp.client-ip=115.124.30.132
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="MXJYJZbl"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="LCkiMYbN"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1762149145; h=Message-ID:Subject:Date:From:To;
-	bh=afTtka6ni8L8kr17yyNJs3Rfnbnht7lmYWlbw1okYkk=;
-	b=MXJYJZbltftzag9qW+xr1cDTvne9TSoxRkoTlFFoAMpplfHQlCLsvDwghWwhkxkpJvX7meeKhu26UGZnCUq2/qqKnyzmjzX33PKqD0a+szp93dP1S8Z6Z92saE3o7ExcmYpFB8GjqLfawDDqf9fAsWZUroWj/J5WOZOR8D56SeY=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WrXRvfi_1762149144 cluster:ay36)
+	t=1762149166; h=Message-ID:Subject:Date:From:To;
+	bh=uHXQIEPQHfzyowKtuqiY+I1LiLblY4jDxFtXd1NQhdI=;
+	b=LCkiMYbNAloFjrvdqt4/CU5WSP5+1pTbojmGPTI8l602xLOAWMMZC9hg9hSCzIH+99pR13r1NCDFCs6+Vb9DsHbQY3wq7tE0moSw2EJEWwLNiTzQFYzWytWDKAEc+n02C8/wNT+szjLoaey/7Yh5yaKAeRu2pLmYwFs+LxtUGbQ=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WrX5Bfb_1762149165 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Mon, 03 Nov 2025 13:52:25 +0800
-Message-ID: <1762149138.1701145-4-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v6 02/12] virtio: Add config_op for admin commands
-Date: Mon, 3 Nov 2025 13:52:18 +0800
+          Mon, 03 Nov 2025 13:52:46 +0800
+Message-ID: <1762149157.163677-5-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 03/12] virtio: Expose generic device capability operations
+Date: Mon, 3 Nov 2025 13:52:37 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Daniel Jurgens <danielj@nvidia.com>
 Cc: <virtualization@lists.linux.dev>,
@@ -47,74 +47,258 @@ Cc: <virtualization@lists.linux.dev>,
  <alex.williamson@redhat.com>,
  <pabeni@redhat.com>
 References: <20251027173957.2334-1-danielj@nvidia.com>
- <20251027173957.2334-3-danielj@nvidia.com>
-In-Reply-To: <20251027173957.2334-3-danielj@nvidia.com>
+ <20251027173957.2334-4-danielj@nvidia.com>
+In-Reply-To: <20251027173957.2334-4-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Mon, 27 Oct 2025 12:39:47 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
-> This will allow device drivers to issue administration commands.
+On Mon, 27 Oct 2025 12:39:48 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
+> Currently querying and setting capabilities is restricted to a single
+> capability and contained within the virtio PCI driver. However, each
+> device type has generic and device specific capabilities, that may be
+> queried and set. In subsequent patches virtio_net will query and set
+> flow filter capabilities.
 >
 > Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
 > Reviewed-by: Parav Pandit <parav@nvidia.com>
+
 
 Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
 >
 > ---
-> v4: New patch for v4
+> v4: Moved this logic from virtio_pci_modern to new file
+>     virtio_admin_commands.
 > ---
->  drivers/virtio/virtio_pci_modern.c | 2 ++
->  include/linux/virtio_config.h      | 6 ++++++
->  2 files changed, 8 insertions(+)
+>  drivers/virtio/Makefile                |  2 +-
+>  drivers/virtio/virtio_admin_commands.c | 90 ++++++++++++++++++++++++++
+>  include/linux/virtio_admin.h           | 80 +++++++++++++++++++++++
+>  include/uapi/linux/virtio_pci.h        |  7 +-
+>  4 files changed, 176 insertions(+), 3 deletions(-)
+>  create mode 100644 drivers/virtio/virtio_admin_commands.c
+>  create mode 100644 include/linux/virtio_admin.h
 >
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index ff11de5b3d69..acc3f958f96a 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -1236,6 +1236,7 @@ static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
->  	.get_shm_region  = vp_get_shm_region,
->  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
->  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
-> +	.admin_cmd_exec = vp_modern_admin_cmd_exec,
+> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> index eefcfe90d6b8..2b4a204dde33 100644
+> --- a/drivers/virtio/Makefile
+> +++ b/drivers/virtio/Makefile
+> @@ -1,5 +1,5 @@
+>  # SPDX-License-Identifier: GPL-2.0
+> -obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
+> +obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o virtio_admin_commands.o
+>  obj-$(CONFIG_VIRTIO_ANCHOR) += virtio_anchor.o
+>  obj-$(CONFIG_VIRTIO_PCI_LIB) += virtio_pci_modern_dev.o
+>  obj-$(CONFIG_VIRTIO_PCI_LIB_LEGACY) += virtio_pci_legacy_dev.o
+> diff --git a/drivers/virtio/virtio_admin_commands.c b/drivers/virtio/virtio_admin_commands.c
+> new file mode 100644
+> index 000000000000..94751d16b3c4
+> --- /dev/null
+> +++ b/drivers/virtio/virtio_admin_commands.c
+> @@ -0,0 +1,90 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +
+> +#include <linux/virtio.h>
+> +#include <linux/virtio_config.h>
+> +#include <linux/virtio_admin.h>
+> +
+> +int virtio_admin_cap_id_list_query(struct virtio_device *vdev,
+> +				   struct virtio_admin_cmd_query_cap_id_result *data)
+> +{
+> +	struct virtio_admin_cmd cmd = {};
+> +	struct scatterlist result_sg;
+> +
+> +	if (!vdev->config->admin_cmd_exec)
+> +		return -EOPNOTSUPP;
+> +
+> +	sg_init_one(&result_sg, data, sizeof(*data));
+> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_CAP_ID_LIST_QUERY);
+> +	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
+> +	cmd.result_sg = &result_sg;
+> +
+> +	return vdev->config->admin_cmd_exec(vdev, &cmd);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_admin_cap_id_list_query);
+> +
+> +int virtio_admin_cap_get(struct virtio_device *vdev,
+> +			 u16 id,
+> +			 void *caps,
+> +			 size_t cap_size)
+> +{
+> +	struct virtio_admin_cmd_cap_get_data *data;
+> +	struct virtio_admin_cmd cmd = {};
+> +	struct scatterlist result_sg;
+> +	struct scatterlist data_sg;
+> +	int err;
+> +
+> +	if (!vdev->config->admin_cmd_exec)
+> +		return -EOPNOTSUPP;
+> +
+> +	data = kzalloc(sizeof(*data), GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	data->id = cpu_to_le16(id);
+> +	sg_init_one(&data_sg, data, sizeof(*data));
+> +	sg_init_one(&result_sg, caps, cap_size);
+> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_DEVICE_CAP_GET);
+> +	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
+> +	cmd.data_sg = &data_sg;
+> +	cmd.result_sg = &result_sg;
+> +
+> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
+> +	kfree(data);
+> +
+> +	return err;
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_admin_cap_get);
+> +
+> +int virtio_admin_cap_set(struct virtio_device *vdev,
+> +			 u16 id,
+> +			 const void *caps,
+> +			 size_t cap_size)
+> +{
+> +	struct virtio_admin_cmd_cap_set_data *data;
+> +	struct virtio_admin_cmd cmd = {};
+> +	struct scatterlist data_sg;
+> +	size_t data_size;
+> +	int err;
+> +
+> +	if (!vdev->config->admin_cmd_exec)
+> +		return -EOPNOTSUPP;
+> +
+> +	data_size = sizeof(*data) + cap_size;
+> +	data = kzalloc(data_size, GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	data->id = cpu_to_le16(id);
+> +	memcpy(data->cap_specific_data, caps, cap_size);
+> +	sg_init_one(&data_sg, data, data_size);
+> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_DRIVER_CAP_SET);
+> +	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
+> +	cmd.data_sg = &data_sg;
+> +	cmd.result_sg = NULL;
+> +
+> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
+> +	kfree(data);
+> +
+> +	return err;
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_admin_cap_set);
+> diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
+> new file mode 100644
+> index 000000000000..36df97b6487a
+> --- /dev/null
+> +++ b/include/linux/virtio_admin.h
+> @@ -0,0 +1,80 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only
+> + *
+> + * Header file for virtio admin operations
+> + */
+> +#include <uapi/linux/virtio_pci.h>
+> +
+> +#ifndef _LINUX_VIRTIO_ADMIN_H
+> +#define _LINUX_VIRTIO_ADMIN_H
+> +
+> +struct virtio_device;
+> +
+> +/**
+> + * VIRTIO_CAP_IN_LIST - Check if a capability is supported in the capability list
+> + * @cap_list: Pointer to capability list structure containing supported_caps array
+> + * @cap: Capability ID to check
+> + *
+> + * The cap_list contains a supported_caps array of little-endian 64-bit integers
+> + * where each bit represents a capability. Bit 0 of the first element represents
+> + * capability ID 0, bit 1 represents capability ID 1, and so on.
+> + *
+> + * Return: 1 if capability is supported, 0 otherwise
+> + */
+> +#define VIRTIO_CAP_IN_LIST(cap_list, cap) \
+> +	(!!(1 & (le64_to_cpu(cap_list->supported_caps[cap / 64]) >> cap % 64)))
+> +
+> +/**
+> + * virtio_admin_cap_id_list_query - Query the list of available capability IDs
+> + * @vdev: The virtio device to query
+> + * @data: Pointer to result structure (must be heap allocated)
+> + *
+> + * This function queries the virtio device for the list of available capability
+> + * IDs that can be used with virtio_admin_cap_get() and virtio_admin_cap_set().
+> + * The result is stored in the provided data structure.
+> + *
+> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
+> + * operations or capability queries, or a negative error code on other failures.
+> + */
+> +int virtio_admin_cap_id_list_query(struct virtio_device *vdev,
+> +				   struct virtio_admin_cmd_query_cap_id_result *data);
+> +
+> +/**
+> + * virtio_admin_cap_get - Get capability data for a specific capability ID
+> + * @vdev: The virtio device
+> + * @id: Capability ID to retrieve
+> + * @caps: Pointer to capability data structure (must be heap allocated)
+> + * @cap_size: Size of the capability data structure
+> + *
+> + * This function retrieves a specific capability from the virtio device.
+> + * The capability data is stored in the provided buffer. The caller must
+> + * ensure the buffer is large enough to hold the capability data.
+> + *
+> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
+> + * operations or capability retrieval, or a negative error code on other failures.
+> + */
+> +int virtio_admin_cap_get(struct virtio_device *vdev,
+> +			 u16 id,
+> +			 void *caps,
+> +			 size_t cap_size);
+> +
+> +/**
+> + * virtio_admin_cap_set - Set capability data for a specific capability ID
+> + * @vdev: The virtio device
+> + * @id: Capability ID to set
+> + * @caps: Pointer to capability data structure (must be heap allocated)
+> + * @cap_size: Size of the capability data structure
+> + *
+> + * This function sets a specific capability on the virtio device.
+> + * The capability data is read from the provided buffer and applied
+> + * to the device. The device may validate the capability data before
+> + * applying it.
+> + *
+> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
+> + * operations or capability setting, or a negative error code on other failures.
+> + */
+> +int virtio_admin_cap_set(struct virtio_device *vdev,
+> +			 u16 id,
+> +			 const void *caps,
+> +			 size_t cap_size);
+> +
+> +#endif /* _LINUX_VIRTIO_ADMIN_H */
+> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> index c691ac210ce2..0d5ca0cff629 100644
+> --- a/include/uapi/linux/virtio_pci.h
+> +++ b/include/uapi/linux/virtio_pci.h
+> @@ -315,15 +315,18 @@ struct virtio_admin_cmd_notify_info_result {
+>
+>  #define VIRTIO_DEV_PARTS_CAP 0x0000
+>
+> +/* Update this value to largest implemented cap number. */
+> +#define VIRTIO_ADMIN_MAX_CAP 0x0fff
+> +
+>  struct virtio_dev_parts_cap {
+>  	__u8 get_parts_resource_objects_limit;
+>  	__u8 set_parts_resource_objects_limit;
 >  };
 >
->  static const struct virtio_config_ops virtio_pci_config_ops = {
-> @@ -1256,6 +1257,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
->  	.get_shm_region  = vp_get_shm_region,
->  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
->  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
-> +	.admin_cmd_exec = vp_modern_admin_cmd_exec,
+> -#define MAX_CAP_ID __KERNEL_DIV_ROUND_UP(VIRTIO_DEV_PARTS_CAP + 1, 64)
+> +#define VIRTIO_ADMIN_CAP_ID_ARRAY_SIZE __KERNEL_DIV_ROUND_UP(VIRTIO_ADMIN_MAX_CAP, 64)
+>
+>  struct virtio_admin_cmd_query_cap_id_result {
+> -	__le64 supported_caps[MAX_CAP_ID];
+> +	__le64 supported_caps[VIRTIO_ADMIN_CAP_ID_ARRAY_SIZE];
 >  };
 >
->  /* the PCI probing function */
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 16001e9f9b39..19606609254e 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -108,6 +108,10 @@ struct virtqueue_info {
->   *	Returns 0 on success or error status
->   *	If disable_vq_and_reset is set, then enable_vq_after_reset must also be
->   *	set.
-> + * @admin_cmd_exec: Execute an admin VQ command.
-> + *	vdev: the virtio_device
-> + *	cmd: the command to execute
-> + *	Returns 0 on success or error status
->   */
->  struct virtio_config_ops {
->  	void (*get)(struct virtio_device *vdev, unsigned offset,
-> @@ -137,6 +141,8 @@ struct virtio_config_ops {
->  			       struct virtio_shm_region *region, u8 id);
->  	int (*disable_vq_and_reset)(struct virtqueue *vq);
->  	int (*enable_vq_after_reset)(struct virtqueue *vq);
-> +	int (*admin_cmd_exec)(struct virtio_device *vdev,
-> +			      struct virtio_admin_cmd *cmd);
->  };
->
->  /**
+>  struct virtio_admin_cmd_cap_get_data {
 > --
 > 2.50.1
 >
