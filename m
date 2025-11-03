@@ -1,164 +1,428 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF57623D7EC
-	for <virtualization@lists.linux.dev>; Sun,  2 Nov 2025 16:39:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7740E283CB1
+	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 02:41:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762101572; cv=none; b=Bv2P2lmhk7tddieMzFK16uq3+TGCWpMRUAU4p8t5aAvEC+O/73swlRPEdemJ+emF+qSrjJTwVGWgL0YMklRfCWzaRERJbL5XkgYiMD9B7oxlNtdNpM/wvs5aC3tGsx45jm3W59zAyJOe/2gwtwNiC6zNeQ6aCEcapcTEXbnqGhA=
+	t=1762137677; cv=none; b=n58e+brnulXdRk8SIQzJossO7jSI6M7uErxKv/Ldv3wQDpjrtOvJLv7hAXhukXUFAi0HqFBi7xemu+f8zpLKLh19HyDorxt4CSrE/D6UXcnSKBSupJU68X7shk0QsBhpeK9iSvT2Y4EUw5Ah3R8nNAQZoS3nxTO4AW7glItepdY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762101572; c=relaxed/simple;
-	bh=/wk0r2WF7kQ5J/280jubxtFtMyKSbwHx02KsbYzueY4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oHElUUSd12Us5i171oyFT9AgvjEp40ffHA8O9mfpaVcTdJlpYQhRrGkoucCnui1t7/MYHwmBNKQFtLj7i65iy+E0xJuU1O9KCSq4Dr9iGhejkb2eibWcQqZ5EqxP2vUEnQMXzzxEfIGvrNYRxAXoPWFJlFgBzkbtCenP/N0N/Gc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=MofBD+Fv; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=KnAiAV88; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1762137677; c=relaxed/simple;
+	bh=3iIDhyJRNh7ENpsxthv8AsY1YpFG6pJth7i2K7n2+1M=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=ewW+xi2qvX6dOaS7an/QoSW9WT6SacZ5GyITD+rqHQmeadXZpNFSCxVGXr6EyFyZzXRRVrEUzzybD0Nw2vEE8naLhgfdsdFTuC3k5CkMrLdgkyn8jCZUjmmYk6ltE5Sme3TzIU3vq1+KIrzf7Uuc3B7n5TI80nN4c5mpi/AbqxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=fO8LgHIX; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="MofBD+Fv";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="KnAiAV88"
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5A29uMwO3991243
-	for <virtualization@lists.linux.dev>; Sun, 2 Nov 2025 16:39:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=Vsudp5PRE81p+UL97II9GrFo
-	Q82PxOzVdfpShaNANXY=; b=MofBD+FvgCKPFuq3/UZeyNcPO7m4lbnHivOxOn7h
-	/9eQpsVBicILU9Wyi7oVMysvN7k7Mw9FwfT4cK38MU7Xn9j/1v/0p6/Jf6+/PVhO
-	gWjMNLjyOeisd7CIbEtHAh3y7coy+AFabvbvPQNy5jnA6RaGEUMgR++iZmAmLSpe
-	FcF9U8T7xzAOGwsxol6eOhhJkNqSmZlDbcZrzrZiAZn9Ez/KyqbMLuBybNFobZGt
-	AKrAXmbeaQ/JJrjNAqJO71reaAmJEanyzsfP6lFJkKGi84AHIyY/ZHYgjIvjNIlD
-	VzG8fDkGWx/j74iJT8C/kUi3FZfSjsTjW7BgeK1e/d4lMA==
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4a5ae32bpr-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Sun, 02 Nov 2025 16:39:29 +0000 (GMT)
-Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-4ecf77618a5so121879721cf.3
-        for <virtualization@lists.linux.dev>; Sun, 02 Nov 2025 08:39:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1762101569; x=1762706369; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Vsudp5PRE81p+UL97II9GrFoQ82PxOzVdfpShaNANXY=;
-        b=KnAiAV888Z9+b6BYxlC3S4mGyf18EGWTNNXgYc1z5xMTwswE1Sn7H86icxcoLt3gou
-         Y/p+ABmYz7gvlKPyADS2dIlb7l/qZ3qB2+EqQjFVAjNcyGMnY9GGbr4tQJsmjwwyiYML
-         ByFkIkAHHb79u8pGIT0KEETBH9lxDzJo2vS2YjgzZz7+2d0IObiwPUmftRSmCVR3Whz7
-         j+fVKv5DJxho/LR/bOhCXhIt7GF9SeI8ALp7vgHFzZZ8DDYOtb3oK1J5r7cvqzNBgPbK
-         faFSqKRIbcnh9RD3m6gDAHSe+7OH13tAehl97Y/QFO7vMiV5VIJgp0EqtwC6NChxwTMM
-         ydRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762101569; x=1762706369;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Vsudp5PRE81p+UL97II9GrFoQ82PxOzVdfpShaNANXY=;
-        b=pYCpvwFnbibIglSVnvUd25b6WQZ9jDDG+CfMeTCt900n0hZhcRZ21t7WNK0CGDDZS5
-         sx6H2Cp+n5/otb8PnJ0qc8wz/vdyeAsjFBK0TN22aFUnZGtNR9RAZtueaIGfGoNhw2wX
-         sT8hy0hg382hr4WiXrc7t8BmDpesBcRKnmcCkVWTdBJRVFP43mGUmU7g6HxPsyj43QKm
-         eEU1CwChqoY/I34jR7whQc50s3Vs4uq5vUtbdz7nXscD7XN3Xlrs7gfqD7dK22zeZ6fo
-         RjVq+pZt/t1F4rOFHwLihJh2ht/N2OPWxAdLo8o1KwU1S/3ngJ158yvKi7wyjcPd6Taw
-         iMHQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWTrZHtpEBEz4MdjDSsnDwlP0OYpl8AHSx7LzxOr1XXsmSk8J0EC2AMDhiifI1DBCNz4EW0Z78vsAlT5sg2/w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yya7c/6A+t497z6Kqq1XncnVWGS3mYyYHJTl63arHXGp3h65bz7
-	JviMHMsLqkF5rQts+uwtI5i8ZQ9AdPf8sH22HhfyilIDLReFX11Vo3VWZKquJfzFGJb2OZtDy7O
-	DZ6aPKtSRdpv1PrQoCSI0iUW9pyGutPcdx/QY9+aUaQQhg6VQnFHJorlOKQkQV3KIFpm+HA==
-X-Gm-Gg: ASbGncvherpQA/IvGjIKW7E9zp7COkPUNfQYlAFI4ClVoWDwKg3LEfewzI+8pXQEPVa
-	vihLZayW30StMfGVGPOpNX04NgXI+zDZv7G663WAQihp324LUMu7PTnmDuf4VAIWJVSHEVDHXMG
-	lZorKqvgC3ht3ohl/huMngwu6jc7mALoZP5MTEIcDw7vORbh6MV9/oO0BzfOW1T8alxcfoOGcb7
-	PHcyD7CvwUL8UYGCt+EVqoUUfjeHhrpyjv3B2qY5hBjQTF8DfXgt4WOp872twXsd8sOOYEd8+tM
-	xifu1qHj1lqoqJ2HDedw++SRvHZr2Bzs+Endt7G1Dy+biBUmRfy+bbkx3ZDtAT3zCPKtDfcbyBq
-	nuIcpBzC6Z+v9k4gPH8848ASk6CTvOikY+lHQfrIZAxtgCD39MThdty+CN1IcRkr0r7h4ajWi9d
-	85UHKPezBXvZwh
-X-Received: by 2002:a05:622a:834f:b0:4ed:423d:48d4 with SMTP id d75a77b69052e-4ed423d4eccmr57411141cf.54.1762101568697;
-        Sun, 02 Nov 2025 08:39:28 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFBDCWJDKPzqxu7f2En5m/zHiJp5IOVrgHqGPH6qz1rOivQAZXaoWbSK0Fgiw9Mg8qUeB+6cA==
-X-Received: by 2002:a05:622a:834f:b0:4ed:423d:48d4 with SMTP id d75a77b69052e-4ed423d4eccmr57410861cf.54.1762101568242;
-        Sun, 02 Nov 2025 08:39:28 -0800 (PST)
-Received: from umbar.lan (2001-14ba-a0c3-3a00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a0c3:3a00:264b:feff:fe8b:be8a])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-594282be8adsm789469e87.51.2025.11.02.08.39.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Nov 2025 08:39:27 -0800 (PST)
-Date: Sun, 2 Nov 2025 18:39:25 +0200
-From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
-        maarten.lankhorst@linux.intel.com, geert@linux-m68k.org,
-        tomi.valkeinen@ideasonboard.com, dri-devel@lists.freedesktop.org,
-        linux-mediatek@lists.infradead.org, freedreno@lists.freedesktop.org,
-        linux-arm-msm@vger.kernel.org, imx@lists.linux.dev,
-        linux-samsung-soc@vger.kernel.org, nouveau@lists.freedesktop.org,
-        virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org,
-        linux-renesas-soc@vger.kernel.org, linux-rockchip@lists.infradead.org,
-        linux-tegra@vger.kernel.org, intel-xe@lists.freedesktop.org,
-        xen-devel@lists.xenproject.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>, Sean Paul <sean@poorly.run>,
-        Marijn Suijten <marijn.suijten@somainline.org>
-Subject: Re: [PATCH v6 13/25] drm/msm: Compute dumb-buffer sizes with
- drm_mode_size_dumb()
-Message-ID: <vptw5tquup34e3jen62znnw26qe76f3pys4lpsal5g3czwev6y@2q724ibos7by>
-References: <20250821081918.79786-1-tzimmermann@suse.de>
- <20250821081918.79786-14-tzimmermann@suse.de>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="fO8LgHIX"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1762137664; h=Message-ID:Subject:Date:From:To;
+	bh=mcC6dGl4b3SryYRQ9v58/IETVE4DO4Chu23OHluYFJQ=;
+	b=fO8LgHIXd0aPOV8nkDhSSqpUEnkacUOSuKkjk/vBaesq8iwAj2nnq1r7weSB07meyGBqpLZn+6K39nC5BO84dt987NpmT9PEMdxoki4QSpbOERKJ9BCNDQSn+H/wZMDOH+vWG+pb2k1H0Qraw1jFo0G9iAhGNOYDcj0wtxHIKkY=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WrVPRYG_1762137662 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 03 Nov 2025 10:41:03 +0800
+Message-ID: <1762137535.4086246-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v6 05/12] virtio_net: Query and set flow filter caps
+Date: Mon, 3 Nov 2025 10:38:55 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: <virtualization@lists.linux.dev>,
+ <parav@nvidia.com>,
+ <shshitrit@nvidia.com>,
+ <yohadt@nvidia.com>,
+ <xuanzhuo@linux.alibaba.com>,
+ <eperezma@redhat.com>,
+ <shameerali.kolothum.thodi@huawei.com>,
+ <jgg@ziepe.ca>,
+ <kevin.tian@intel.com>,
+ <kuba@kernel.org>,
+ <andrew+netdev@lunn.ch>,
+ <edumazet@google.com>,
+ Daniel Jurgens <danielj@nvidia.com>,
+ <netdev@vger.kernel.org>,
+ <mst@redhat.com>,
+ <jasowang@redhat.com>,
+ <alex.williamson@redhat.com>,
+ <pabeni@redhat.com>
+References: <20251027173957.2334-1-danielj@nvidia.com>
+ <20251027173957.2334-6-danielj@nvidia.com>
+In-Reply-To: <20251027173957.2334-6-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250821081918.79786-14-tzimmermann@suse.de>
-X-Proofpoint-ORIG-GUID: MK6_b1nUqA2lKFGNa96P-t8P5em9pVVc
-X-Proofpoint-GUID: MK6_b1nUqA2lKFGNa96P-t8P5em9pVVc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTAyMDE1NCBTYWx0ZWRfX9efXmX7aXjMU
- 7UfHm/bDghDTXGqSPz3hbb7ZeZ6x4wC9DyEVAVaXEtQLpblS0LkTpxsOMrMl+rnSaME+jgrsHPy
- aX5dcQEQPbk9JSUMVJPq2FlLwpVJeY2OLxejXAe/pxZo/KbCPsIDo5es6we81XiSolEHtEJmPB/
- CmhT6JhULO1FRq1pp6JJIR31YLQkk3zTZelGSGWYlaefEYBqw6jPfjrt++ZD8WoS48M2r0SALEv
- hIFcJW+CVBi2CHvLOC8hEVutKRTtbYtNZr+l3+RdKkeA4C0FYZ3I72G4QSnLWY4e8mSgMs3pBxm
- T2nixYPKhqOEpalGAcSaVv3DP9c4KfjP+U1+g7aUn7laZZzRhhPyVenFXubMnFYngLK3WNiQPHU
- gOqpwxrWBX3YMhDVCVqtaF/rMNm13g==
-X-Authority-Analysis: v=2.4 cv=CfUFJbrl c=1 sm=1 tr=0 ts=69078942 cx=c_pps
- a=EVbN6Ke/fEF3bsl7X48z0g==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=6UeiqGixMTsA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=KKAkSRfTAAAA:8 a=pGLkceISAAAA:8 a=COk6AnOGAAAA:8 a=tVI0ZWmoAAAA:8
- a=4vBwfh3hQKJL6CJddaEA:9 a=CjuIK1q_8ugA:10 a=a_PwQJl-kcHnX1M80qC6:22
- a=cvBusfyB2V15izCimMoJ:22 a=TjNXssC_j7lpFel5tvFf:22 a=-BPWgnxRz2uhmvdm1NTO:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-02_02,2025-10-29_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 impostorscore=0 spamscore=0 bulkscore=0
- adultscore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501 clxscore=1011
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2510240001 definitions=main-2511020154
 
-On Thu, Aug 21, 2025 at 10:17:20AM +0200, Thomas Zimmermann wrote:
-> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch
-> and buffer size. Alignment is specified in bytes, but the hardware
-> requires the scanline pitch to be a multiple of 32 pixels. Therefore
-> compute the byte size of 32 pixels in the given color mode and align
-> the pitch accordingly. This replaces the existing code in the driver's
-> align_pitch() helper.
-> 
-> v3:
-> - clarify pitch alignment in commit message (Dmitry)
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-> Cc: Rob Clark <robdclark@gmail.com>
-> Cc: Abhinav Kumar <quic_abhinavk@quicinc.com>
-> Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-> Cc: Sean Paul <sean@poorly.run>
-> Cc: Marijn Suijten <marijn.suijten@somainline.org>
+On Mon, 27 Oct 2025 12:39:50 -0500, Daniel Jurgens <danielj@nvidia.com> wrote:
+> When probing a virtnet device, attempt to read the flow filter
+> capabilities. In order to use the feature the caps must also
+> be set. For now setting what was read is sufficient.
+>
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
 > ---
->  drivers/gpu/drm/msm/msm_gem.c | 27 +++++++++++++++++++++++++--
->  1 file changed, 25 insertions(+), 2 deletions(-)
-> 
+> v4:
+>     - Validate the length in the selector caps
+>     - Removed __free usage.
+>     - Removed for(int.
+> v5:
+>     - Remove unneed () after MAX_SEL_LEN macro (test bot)
+> v6:
+>     - Fix sparse warning "array of flexible structures" Jakub K/Simon H
+>     - Use new variable and validate ff_mask_size before set_cap. MST
+> ---
+>  drivers/net/virtio_net.c           | 171 +++++++++++++++++++++++++++++
+>  include/linux/virtio_admin.h       |   1 +
+>  include/uapi/linux/virtio_net_ff.h |  91 +++++++++++++++
+>  3 files changed, 263 insertions(+)
+>  create mode 100644 include/uapi/linux/virtio_net_ff.h
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index a757cbcab87f..a9fde879fdbf 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -26,6 +26,9 @@
+>  #include <net/netdev_rx_queue.h>
+>  #include <net/netdev_queues.h>
+>  #include <net/xdp_sock_drv.h>
+> +#include <linux/virtio_admin.h>
+> +#include <net/ipv6.h>
+> +#include <net/ip.h>
+>
+>  static int napi_weight = NAPI_POLL_WEIGHT;
+>  module_param(napi_weight, int, 0444);
+> @@ -281,6 +284,14 @@ static const struct virtnet_stat_desc virtnet_stats_tx_speed_desc_qstat[] = {
+>  	VIRTNET_STATS_DESC_TX_QSTAT(speed, ratelimit_packets, hw_drop_ratelimits),
+>  };
+>
+> +struct virtnet_ff {
+> +	struct virtio_device *vdev;
+> +	bool ff_supported;
+> +	struct virtio_net_ff_cap_data *ff_caps;
+> +	struct virtio_net_ff_cap_mask_data *ff_mask;
+> +	struct virtio_net_ff_actions *ff_actions;
+> +};
+> +
+>  #define VIRTNET_Q_TYPE_RX 0
+>  #define VIRTNET_Q_TYPE_TX 1
+>  #define VIRTNET_Q_TYPE_CQ 2
+> @@ -493,6 +504,8 @@ struct virtnet_info {
+>  	struct failover *failover;
+>
+>  	u64 device_stats_cap;
+> +
+> +	struct virtnet_ff ff;
+>  };
+>
+>  struct padded_vnet_hdr {
+> @@ -6753,6 +6766,160 @@ static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
+>  	.xmo_rx_hash			= virtnet_xdp_rx_hash,
+>  };
+>
+> +static size_t get_mask_size(u16 type)
+> +{
+> +	switch (type) {
+> +	case VIRTIO_NET_FF_MASK_TYPE_ETH:
+> +		return sizeof(struct ethhdr);
+> +	case VIRTIO_NET_FF_MASK_TYPE_IPV4:
+> +		return sizeof(struct iphdr);
+> +	case VIRTIO_NET_FF_MASK_TYPE_IPV6:
+> +		return sizeof(struct ipv6hdr);
+> +	case VIRTIO_NET_FF_MASK_TYPE_TCP:
+> +		return sizeof(struct tcphdr);
+> +	case VIRTIO_NET_FF_MASK_TYPE_UDP:
+> +		return sizeof(struct udphdr);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +#define MAX_SEL_LEN (sizeof(struct ipv6hdr))
+> +
+> +static void virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
+> +{
+> +	size_t ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data) +
+> +			      sizeof(struct virtio_net_ff_selector) *
+> +			      VIRTIO_NET_FF_MASK_TYPE_MAX;
+> +	struct virtio_admin_cmd_query_cap_id_result *cap_id_list;
 
-This broke kms_getfb@getfb-reject-nv12 and kms_getfb@getfb2-accept-nv12
-IGT tests. I'll submit a fix separately.
+I think using `__free(kfree)` is appropriate here.
 
--- 
-With best wishes
-Dmitry
+> +	struct virtio_net_ff_selector *sel;
+> +	size_t real_ff_mask_size;
+> +	int err;
+> +	int i;
+> +
+> +	cap_id_list = kzalloc(sizeof(*cap_id_list), GFP_KERNEL);
+> +	if (!cap_id_list)
+> +		return;
+> +
+> +	err = virtio_admin_cap_id_list_query(vdev, cap_id_list);
+> +	if (err)
+> +		goto err_cap_list;
+> +
+> +	if (!(VIRTIO_CAP_IN_LIST(cap_id_list,
+> +				 VIRTIO_NET_FF_RESOURCE_CAP) &&
+> +	      VIRTIO_CAP_IN_LIST(cap_id_list,
+> +				 VIRTIO_NET_FF_SELECTOR_CAP) &&
+> +	      VIRTIO_CAP_IN_LIST(cap_id_list,
+> +				 VIRTIO_NET_FF_ACTION_CAP)))
+> +		goto err_cap_list;
+> +
+> +	ff->ff_caps = kzalloc(sizeof(*ff->ff_caps), GFP_KERNEL);
+> +	if (!ff->ff_caps)
+> +		goto err_cap_list;
+> +
+> +	err = virtio_admin_cap_get(vdev,
+> +				   VIRTIO_NET_FF_RESOURCE_CAP,
+> +				   ff->ff_caps,
+> +				   sizeof(*ff->ff_caps));
+> +
+> +	if (err)
+> +		goto err_ff;
+> +
+> +	/* VIRTIO_NET_FF_MASK_TYPE start at 1 */
+> +	for (i = 1; i <= VIRTIO_NET_FF_MASK_TYPE_MAX; i++)
+> +		ff_mask_size += get_mask_size(i);
+> +
+> +	ff->ff_mask = kzalloc(ff_mask_size, GFP_KERNEL);
+> +	if (!ff->ff_mask)
+> +		goto err_ff;
+> +
+> +	err = virtio_admin_cap_get(vdev,
+> +				   VIRTIO_NET_FF_SELECTOR_CAP,
+> +				   ff->ff_mask,
+> +				   ff_mask_size);
+> +
+> +	if (err)
+> +		goto err_ff_mask;
+> +
+> +	ff->ff_actions = kzalloc(sizeof(*ff->ff_actions) +
+> +					VIRTIO_NET_FF_ACTION_MAX,
+> +					GFP_KERNEL);
+> +	if (!ff->ff_actions)
+> +		goto err_ff_mask;
+> +
+> +	err = virtio_admin_cap_get(vdev,
+> +				   VIRTIO_NET_FF_ACTION_CAP,
+> +				   ff->ff_actions,
+> +				   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
+> +
+> +	if (err)
+> +		goto err_ff_action;
+> +
+> +	err = virtio_admin_cap_set(vdev,
+> +				   VIRTIO_NET_FF_RESOURCE_CAP,
+> +				   ff->ff_caps,
+> +				   sizeof(*ff->ff_caps));
+> +	if (err)
+> +		goto err_ff_action;
+> +
+> +	real_ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data);
+> +	sel = (void *)&ff->ff_mask->selectors[0];
+> +
+> +	for (i = 0; i < ff->ff_mask->count; i++) {
+> +		if (sel->length > MAX_SEL_LEN) {
+> +			err = -EINVAL;
+> +			goto err_ff_action;
+> +		}
+> +		real_ff_mask_size += sizeof(struct virtio_net_ff_selector) + sel->length;
+> +		sel = (void *)sel + sizeof(*sel) + sel->length;
+> +	}
+> +
+> +	if (real_ff_mask_size > ff_mask_size) {
+> +		err = -EINVAL;
+> +		goto err_ff_action;
+> +	}
+> +
+> +	err = virtio_admin_cap_set(vdev,
+> +				   VIRTIO_NET_FF_SELECTOR_CAP,
+> +				   ff->ff_mask,
+> +				   ff_mask_size);
+> +	if (err)
+> +		goto err_ff_action;
+> +
+> +	err = virtio_admin_cap_set(vdev,
+> +				   VIRTIO_NET_FF_ACTION_CAP,
+> +				   ff->ff_actions,
+> +				   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
+> +	if (err)
+> +		goto err_ff_action;
+> +
+> +	ff->vdev = vdev;
+> +	ff->ff_supported = true;
+> +
+> +	kfree(cap_id_list);
+> +
+> +	return;
+> +
+> +err_ff_action:
+> +	kfree(ff->ff_actions);
+> +err_ff_mask:
+> +	kfree(ff->ff_mask);
+> +err_ff:
+> +	kfree(ff->ff_caps);
+> +err_cap_list:
+> +	kfree(cap_id_list);
+> +}
+> +
+> +static void virtnet_ff_cleanup(struct virtnet_ff *ff)
+> +{
+> +	if (!ff->ff_supported)
+> +		return;
+> +
+> +	kfree(ff->ff_actions);
+> +	kfree(ff->ff_mask);
+> +	kfree(ff->ff_caps);
+> +}
+> +
+>  static int virtnet_probe(struct virtio_device *vdev)
+>  {
+>  	int i, err = -ENOMEM;
+> @@ -7116,6 +7283,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	}
+>  	vi->guest_offloads_capable = vi->guest_offloads;
+>
+> +	virtnet_ff_init(&vi->ff, vi->vdev);
+> +
+
+I believe we should handle errors appropriately if `virtnet_ff_init` encounters
+any issues.
+
+Thanks.
+
+
+>  	rtnl_unlock();
+>
+>  	err = virtnet_cpu_notif_add(vi);
+> @@ -7131,6 +7300,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>
+>  free_unregister_netdev:
+>  	unregister_netdev(dev);
+> +	virtnet_ff_cleanup(&vi->ff);
+>  free_failover:
+>  	net_failover_destroy(vi->failover);
+>  free_vqs:
+> @@ -7180,6 +7350,7 @@ static void virtnet_remove(struct virtio_device *vdev)
+>  	virtnet_free_irq_moder(vi);
+>
+>  	unregister_netdev(vi->dev);
+> +	virtnet_ff_cleanup(&vi->ff);
+>
+>  	net_failover_destroy(vi->failover);
+>
+> diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
+> index 039b996f73ec..db0f42346ca9 100644
+> --- a/include/linux/virtio_admin.h
+> +++ b/include/linux/virtio_admin.h
+> @@ -3,6 +3,7 @@
+>   * Header file for virtio admin operations
+>   */
+>  #include <uapi/linux/virtio_pci.h>
+> +#include <uapi/linux/virtio_net_ff.h>
+>
+>  #ifndef _LINUX_VIRTIO_ADMIN_H
+>  #define _LINUX_VIRTIO_ADMIN_H
+> diff --git a/include/uapi/linux/virtio_net_ff.h b/include/uapi/linux/virtio_net_ff.h
+> new file mode 100644
+> index 000000000000..bd7a194a9959
+> --- /dev/null
+> +++ b/include/uapi/linux/virtio_net_ff.h
+> @@ -0,0 +1,91 @@
+> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
+> + *
+> + * Header file for virtio_net flow filters
+> + */
+> +#ifndef _LINUX_VIRTIO_NET_FF_H
+> +#define _LINUX_VIRTIO_NET_FF_H
+> +
+> +#include <linux/types.h>
+> +#include <linux/kernel.h>
+> +
+> +#define VIRTIO_NET_FF_RESOURCE_CAP 0x800
+> +#define VIRTIO_NET_FF_SELECTOR_CAP 0x801
+> +#define VIRTIO_NET_FF_ACTION_CAP 0x802
+> +
+> +/**
+> + * struct virtio_net_ff_cap_data - Flow filter resource capability limits
+> + * @groups_limit: maximum number of flow filter groups supported by the device
+> + * @classifiers_limit: maximum number of classifiers supported by the device
+> + * @rules_limit: maximum number of rules supported device-wide across all groups
+> + * @rules_per_group_limit: maximum number of rules allowed in a single group
+> + * @last_rule_priority: priority value associated with the lowest-priority rule
+> + * @selectors_per_classifier_limit: maximum selectors allowed in one classifier
+> + *
+> + * The limits are reported by the device and describe resource capacities for
+> + * flow filters. Multi-byte fields are little-endian.
+> + */
+> +struct virtio_net_ff_cap_data {
+> +	__le32 groups_limit;
+> +	__le32 classifiers_limit;
+> +	__le32 rules_limit;
+> +	__le32 rules_per_group_limit;
+> +	__u8 last_rule_priority;
+> +	__u8 selectors_per_classifier_limit;
+> +};
+> +
+> +/**
+> + * struct virtio_net_ff_selector - Selector mask descriptor
+> + * @type: selector type, one of VIRTIO_NET_FF_MASK_TYPE_* constants
+> + * @flags: selector flags, see VIRTIO_NET_FF_MASK_F_* constants
+> + * @reserved: must be set to 0 by the driver and ignored by the device
+> + * @length: size in bytes of @mask
+> + * @reserved1: must be set to 0 by the driver and ignored by the device
+> + * @mask: variable-length mask payload for @type, length given by @length
+> + *
+> + * A selector describes a header mask that a classifier can apply. The format
+> + * of @mask depends on @type.
+> + */
+> +struct virtio_net_ff_selector {
+> +	__u8 type;
+> +	__u8 flags;
+> +	__u8 reserved[2];
+> +	__u8 length;
+> +	__u8 reserved1[3];
+> +	__u8 mask[];
+> +};
+> +
+> +#define VIRTIO_NET_FF_MASK_TYPE_ETH  1
+> +#define VIRTIO_NET_FF_MASK_TYPE_IPV4 2
+> +#define VIRTIO_NET_FF_MASK_TYPE_IPV6 3
+> +#define VIRTIO_NET_FF_MASK_TYPE_TCP  4
+> +#define VIRTIO_NET_FF_MASK_TYPE_UDP  5
+> +#define VIRTIO_NET_FF_MASK_TYPE_MAX  VIRTIO_NET_FF_MASK_TYPE_UDP
+> +
+> +/**
+> + * struct virtio_net_ff_cap_mask_data - Supported selector mask formats
+> + * @count: number of entries in @selectors
+> + * @reserved: must be set to 0 by the driver and ignored by the device
+> + * @selectors: array of supported selector descriptors
+> + */
+> +struct virtio_net_ff_cap_mask_data {
+> +	__u8 count;
+> +	__u8 reserved[7];
+> +	__u8 selectors[];
+> +};
+> +#define VIRTIO_NET_FF_MASK_F_PARTIAL_MASK (1 << 0)
+> +
+> +#define VIRTIO_NET_FF_ACTION_DROP 1
+> +#define VIRTIO_NET_FF_ACTION_RX_VQ 2
+> +#define VIRTIO_NET_FF_ACTION_MAX  VIRTIO_NET_FF_ACTION_RX_VQ
+> +/**
+> + * struct virtio_net_ff_actions - Supported flow actions
+> + * @count: number of supported actions in @actions
+> + * @reserved: must be set to 0 by the driver and ignored by the device
+> + * @actions: array of action identifiers (VIRTIO_NET_FF_ACTION_*)
+> + */
+> +struct virtio_net_ff_actions {
+> +	__u8 count;
+> +	__u8 reserved[7];
+> +	__u8 actions[];
+> +};
+> +#endif
+> --
+> 2.50.1
+>
