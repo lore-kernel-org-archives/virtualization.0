@@ -1,148 +1,96 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from unicom146.biz-email.net (unicom146.biz-email.net [210.51.26.146])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF4642C21CA
-	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 07:39:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 738B42BE7C3
+	for <virtualization@lists.linux.dev>; Mon,  3 Nov 2025 07:44:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.51.26.146
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762155591; cv=none; b=hbFQLMuTcMa/MaZCWHwZDZrJOjdfSAxem2vsC2NwlvpzyFlajMkszVfdC9WR6/dDannemc5op5/O8P7Rlh2eA0Z0QH6oV+Ae8VpgqJMxW9l6IQKmavdjJy+BWpfBhsHfrGzK/uNLEjYHaAgR3PWYBmpvTgbhhCWyHak64AwLXn0=
+	t=1762155871; cv=none; b=Cl68MwlRmTn/d5cBW3fGQ+Nw1PKTLfzwChno4NlHnJr+aFlAolUZlfbb19zWfbN/IZkMDOHh7fuD1+DLWupDEIZ8aFzv8SubvnZTxCnn8mZjLZEz/ecc3A2dwbpk2pDpHS2UwOa6e5EzkwwMBapxKb21jU1/SQl6jFAcNIkSPTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762155591; c=relaxed/simple;
-	bh=30R4PwwoDn0ue1N2GS0GOY1SWIFA7GBPa8q4kx5mc+o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MROv1cPa0O9yoGNsYUWX7EUXli4BWCipn4hb8JUKTUxSDkugUHROr0KKB6BhxCeKy1BW2LBdnQYD1KJyKzxYZnKHB5wuT8Htwk9EiUir6PrxxEGT2qxzFbNFiAQjnuKPSnLbYu+hGe0+FeCgU9jwW9Kq7AJ3dAPZzwYb7Uvcckg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BjRsGULq; arc=none smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BjRsGULq"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-295c64cb951so89435ad.0
-        for <virtualization@lists.linux.dev>; Sun, 02 Nov 2025 23:39:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1762155588; x=1762760388; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=zzwh3KfEQpKPksD5Xn4ZAd8EEqdDZL8lWisUmSvX4T0=;
-        b=BjRsGULq7DgerW7LBG4GUfrwkuPLwnyBpFI6ejm2GJcDVZVK6Cj4rg+t1oE+QAhJne
-         clpio00o/XqQbT3h40xsHwjGh6k9f6fkvdFnhjwSmp1SebPwoBG4Mwi8Aw2uz6U/eYKH
-         UToQUsLAwrKVSy/YEu43ryGVzFdbu71tJ2C2dAmLGN644hBIMbh4oPwfsc48hBfTZR0l
-         7ftYbk8Ta0I100LnOMZJ4pU2smuzLHgm76CCEGf+MJF+HTsMp4xezIX8c22bO+QAKLhz
-         3MzNFDIpmF/Kjn956Xzq7DFKGik6H39ouI8jCEY+oPH8WmUCKC2xzCunGvPiz/7RLyII
-         CAJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762155588; x=1762760388;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zzwh3KfEQpKPksD5Xn4ZAd8EEqdDZL8lWisUmSvX4T0=;
-        b=dhLj3T9oxgPCb2PR48xnarZJ288qvJ1g9eDXUZkT5LYUcAWFxYQPlLdFCycKIG1pzU
-         KsqseyqGA8aUeYGGDQYgMrS2til2GVtXGiCMZ14l428dEOxbxPh6NDoacoAsRx60Vn30
-         cn5a4B4nfFmKHkzlnwJdsVTRuRmS8gSOrrTzNAqJlyyzRR/BhtzUiAE3CORi1SbrOswF
-         GDHZeIT6iQ0y5X6A8UA4EMx0EbbRgTdgrJPfolo2tOrLsh/D3c1LRuDdNLt4hJxF2y+9
-         a4IMeY7AWizqmA9G/YRfr7fVRGS3V71qorei2pDE5XhEUqcQ5l46GvX/XFbPTyxG3OkU
-         hG+g==
-X-Forwarded-Encrypted: i=1; AJvYcCVnlFiGQnwMnAkjI/qPuLvNBu6eLtKKmrwPBm1OGCzBE86bXJgNQYSY5sGNwIirBkzhAs0cIeBBkd6AwOhszg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy9v/Ii1gUVYFc+1AL5+L67jbQ1OuR8MkjmB5MVuM4QBooPGRti
-	WumYXRmGmvI85f/JPULRHtbB63P9sdnFHkeH+gEf83mmqDx9g7euNmYDGNNbca0E2Q==
-X-Gm-Gg: ASbGncvv/djXFsuY9HLQBb0bA6Ro1t83IWuK++N//Y0rZ4aVh3BbfQAyy8Oqb6SIfb3
-	7sC87Y0koYuWW871XO8UAglF6LpRVpKunvR6c5LK2k8OuwEg0ObERWO+t3wSY7BkFHj7CXUlIgx
-	YpDOpmS2edI9Fd6F635cLjMjIkj9cA/rL3sUMR5hSuSMHhqeYglOQAwstSrrFlo8p1kVIeTr0cj
-	kTf+DL4vC7/n3ZhOx4aB59hO+0JRNRxOACv90q7yRpMWdQUOAQMoQ6fePHlvk2rvMNC7jZRyPDl
-	BZwW7qcjhf9MeHqiQjRk4bSV1NfU6Myc8jH02y+c4WiFT8SCvUd/8HI7ANK2Ww17Tg4HH04WYzB
-	RxZN+KNqqYmcUykpoXVfctPD25D2CtvYVIEmgDdFgYRtAJ4qekS4grUcgAMZovi5W0jstz8XZae
-	C1Dd5PULecWZpV92tE6vC1MLKsRMfI3mVDsFIOmdPgZx7Z8V6t
-X-Google-Smtp-Source: AGHT+IGoX/eRPHIgiRFzzACV20d0ftHJvRprPrWC1Oq8kyrn4muK0Mu+0fpj1flmH53tBH91iPLzGw==
-X-Received: by 2002:a17:902:ea0d:b0:24b:1741:1a4c with SMTP id d9443c01a7336-295549f6bcbmr6601575ad.0.1762155587782;
-        Sun, 02 Nov 2025 23:39:47 -0800 (PST)
-Received: from google.com (164.210.142.34.bc.googleusercontent.com. [34.142.210.164])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2952e9a399csm102714425ad.33.2025.11.02.23.39.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Nov 2025 23:39:47 -0800 (PST)
-Date: Mon, 3 Nov 2025 07:39:37 +0000
-From: Pranjal Shrivastava <praan@google.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	David Airlie <airlied@gmail.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Brett Creeley <brett.creeley@amd.com>,
-	dri-devel@lists.freedesktop.org, Eric Auger <eric.auger@redhat.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>, intel-gfx@lists.freedesktop.org,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
-	Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
-	Longfang Liu <liulongfang@huawei.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>, qat-linux@intel.com,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Shameer Kolothum <skolothumtho@nvidia.com>,
-	Mostafa Saleh <smostafa@google.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	virtualization@lists.linux.dev,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Yishai Hadas <yishaih@nvidia.com>,
-	Zhenyu Wang <zhenyuw.linux@gmail.com>,
-	Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 14/22] vfio: Require drivers to implement get_region_info
-Message-ID: <aQhcOYVbY-LqOjW5@google.com>
-References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
- <14-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+	s=arc-20240116; t=1762155871; c=relaxed/simple;
+	bh=mqtTEHnfdDj7ufOnIaA3taPobJloaDUr/In/jZdqmZQ=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=i1KqVCYzKoRl3nX5LzyTPZFOg3qsRJRwX6S10vjBX5eNyARkIuuZuSY6Jo51qqY/bje76OzuV16tlnDTvjbU5LhR366nNK0ZEHmQBAe+sOaY4MoR0xRid8pX4hFFyP6Yyp+mL8xwZNg4JX2skQYa54dyuxtpwsI6J7U7t85PDrY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=inspur.com; spf=pass smtp.mailfrom=inspur.com; arc=none smtp.client-ip=210.51.26.146
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=inspur.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=inspur.com
+Received: from Jtjnmail201614.home.langchao.com
+        by unicom146.biz-email.net ((D)) with ASMTP (SSL) id 202511031544212240;
+        Mon, 03 Nov 2025 15:44:21 +0800
+Received: from jtjnmailAR02.home.langchao.com (10.100.2.43) by
+ Jtjnmail201614.home.langchao.com (10.100.2.14) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.58; Mon, 3 Nov 2025 15:44:21 +0800
+Received: from inspur.com (10.100.2.107) by jtjnmailAR02.home.langchao.com
+ (10.100.2.43) with Microsoft SMTP Server id 15.1.2507.58 via Frontend
+ Transport; Mon, 3 Nov 2025 15:44:21 +0800
+Received: from localhost.localdomain.com (unknown [10.94.13.117])
+	by app3 (Coremail) with SMTP id awJkCsDw_vlUXQhp9sMJAA--.15676S4;
+	Mon, 03 Nov 2025 15:44:21 +0800 (CST)
+From: Chu Guangqing <chuguangqing@inspur.com>
+To: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<eperezma@redhat.com>, <andrew+netdev@lunn.ch>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>
+CC: <virtualization@lists.linux.dev>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Chu Guangqing <chuguangqing@inspur.com>
+Subject: [PATCH] virtio_net: Fix a typo error in virtio_net
+Date: Mon, 3 Nov 2025 15:43:05 +0800
+Message-ID: <20251103074305.4727-1-chuguangqing@inspur.com>
+X-Mailer: git-send-email 2.43.7
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <14-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: awJkCsDw_vlUXQhp9sMJAA--.15676S4
+X-Coremail-Antispam: 1UD129KBjvdXoWrKw4DZw45uw1fAr48GryDWrg_yoWfurc_uw
+	1UZr43tws5Kr4Y9ay5Cw4rAFW5Ka1kWF4kGF9xK3ySkF98uF13WF9FvFyDGFZrX39Fyr1r
+	GFsxGFn8A34fZjkaLaAFLSUrUUUU1b8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUbTkFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+	A2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_GcCE
+	3s1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s
+	1ln4kS14v26r1Y6r17M2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02
+	F40Ex7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4I
+	kC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4II
+	rI8v6xkF7I0E8cxan2IY04v7MxkF7I0En4kS14v26r4a6rW5MxAIw28IcxkI7VAKI48JMx
+	C20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAF
+	wI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20x
+	vE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v2
+	0xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxV
+	W8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x0pRfcTQUUUUU=
+X-CM-SenderInfo: 5fkxw35dqj1xlqj6x0hvsx2hhfrp/
+X-CM-DELIVERINFO: =?B?aGgYCpRRTeOiUs3aOqHZ50hzsfHKF9Ds6CbXmDm38RucXu3DYXJR7Zlh9zE0nt/Iac
+	D+KRUjP8h4mBi1RxM9Ia5pGzwGWIFG12ndAMRSAp2L3HO3jalIbuAhB7ycZuhkKUFH9M9G
+	hF5mfmemBa/tI1nkgFQ=
+Content-Type: text/plain
+tUid: 202511031544215cf76b7d677404249b6809f204a42c80
+X-Abuse-Reports-To: service@corp-email.com
+Abuse-Reports-To: service@corp-email.com
+X-Complaints-To: service@corp-email.com
+X-Report-Abuse-To: service@corp-email.com
 
-On Thu, Oct 23, 2025 at 08:09:28PM -0300, Jason Gunthorpe wrote:
-> Remove the fallback through the ioctl callback, no drivers use this now.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/vfio/vfio_main.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
-> index a390163ce706c4..f056e82ba35075 100644
-> --- a/drivers/vfio/vfio_main.c
-> +++ b/drivers/vfio/vfio_main.c
-> @@ -1297,13 +1297,13 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
->  		break;
->  
->  	case VFIO_DEVICE_GET_REGION_INFO:
-> -		if (!device->ops->get_region_info)
-> -			goto ioctl_fallback;
-> -		ret = device->ops->get_region_info(device, uptr);
-> +		if (unlikely(!device->ops->get_region_info))
-> +			ret = -EINVAL;
+Fix the spelling error of "separate".
 
-Nit: Let's also add a warn/err log here highliting that the device
-doesn't populate the get_region_info op?
+Signed-off-by: Chu Guangqing <chuguangqing@inspur.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> +		else
-> +			ret = device->ops->get_region_info(device, uptr);
->  		break;
->  
->  	default:
-> -ioctl_fallback:
->  		if (unlikely(!device->ops->ioctl))
->  			ret = -EINVAL;
->  		else
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 8e8a179aaa49..1e6f5e650f11 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3760,7 +3760,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+ 	 * (2) no user configuration.
+ 	 *
+ 	 * During rss command processing, device updates queue_pairs using rss.max_tx_vq. That is,
+-	 * the device updates queue_pairs together with rss, so we can skip the sperate queue_pairs
++	 * the device updates queue_pairs together with rss, so we can skip the separate queue_pairs
+ 	 * update (VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET below) and return directly.
+ 	 */
+ 	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
+-- 
+2.43.7
 
-Reviewed-by: Pranjal Shrivastava <praan@google.com>
-
-Thanks,
-Praan
