@@ -1,63 +1,65 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DDDF280024
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Nov 2025 08:02:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 648B52459CF
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Nov 2025 08:02:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762329739; cv=none; b=TBz15nFbb+SQOS4t2g/uSjTjL2Ubb8P8NQZrlfOdMKgv1btMmLvVG93vj9UoPcvoimCzFSUOCywvj80Gfi99uU/8dVD4m/7eoto+q5GSNb6zzgHwfWfnPJKFSJ0XKLniAuFaBLMYZptUsQ2v7/dLthOE+eWV9fCkhKk+gpuUxXY=
+	t=1762329749; cv=none; b=b91XcDIM4O9zxf9K0hbwdP3J1PmT4OoQbyC7DV3U3LBzKPDlPYd7jEm1G1gQtcXwnE1rb6XY3uwq28+gbpU2rR/ll+Eq27T55Ef2sTzsAdMf9i8E2xLnEHjIYJ8YOT3Nku8PMlPK0gdbFh2hh8hiEu52Weodyao0AZiTMrLI/+8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762329739; c=relaxed/simple;
-	bh=eMxORmOzUuI5OdwDROOfx+2eROrvTAMSvHg6lfs+y/Q=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=F37kHGgOx1YHc9e4CID5445+CjR/l0tXjuxTg92KVwYoL3qciM576G8+jloJ1EJBMUm2S4E0TIn7xKYc+aMQKq+DceYTZmiZibG1vFINrMJyUu6K3xNz6H5BHVbim/gF5DCoAPo28oTu2kiLCZIYI+keG+NXlg9Ebc4/iQxvXQg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QovKIbdo; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1762329749; c=relaxed/simple;
+	bh=Im/jbFW1PXu0DyD1OsaZtf76+zTzKi9bRkHMucf1rck=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=raL/G85jVLO3+eefQHcvVzupN5eUg1MakTdNgqEEc4fF0oDVDb31osLeGQR2RaZSZu/6qO51zpNO3OWCrnesCNDdv69pyoewoIZZD4tknzgrnOyE9YaPHW8lW8eJ+/w7m3bCShm8EyY029R2T47XRShfWfBWhaIOcLUAFaCT6XM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZfPJun02; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QovKIbdo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZfPJun02"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C21FD6128D
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Nov 2025 08:02:16 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id F228A6128D
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Nov 2025 08:02:27 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -5.792
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 4ecm8dmpfOoW for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Nov 2025 08:02:16 +0000 (UTC)
+ id bxvdKdSt4c4S for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Nov 2025 08:02:27 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org C7E4F61287
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org E06A261287
 Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C7E4F61287
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E06A261287
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QovKIbdo
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZfPJun02
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C7E4F61287
-	for <virtualization@lists.linux-foundation.org>; Wed,  5 Nov 2025 08:02:13 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E06A261287
+	for <virtualization@lists.linux-foundation.org>; Wed,  5 Nov 2025 08:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762329732;
+	s=mimecast20190719; t=1762329745;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=w6f8wSwHsRTwr+h58t/mZjZ7NV8Io6r807CbA2kYWRE=;
-	b=QovKIbdonHhOgajWURmYPw8FSK6D3IXWBdpwj4vtuBDxFtamNNzZatlh3JyPlAyiYERNnb
-	uLd+ul2LLOZJtXGUDUPL4dc138vnigYB1m+wDBlv+d3w7Wb29HGsLVez/cLn7qobMcMqUY
-	Zf6af+HGsk2b100DPNra+oqPWO0Ol2U=
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ad3uiUpFv6Lo0Ng/XdnYT78e+HaMv60E5R89kEybRmM=;
+	b=ZfPJun02TVkdvMv3LQnFlhWdiBnaQDVQGPMekrztzJH82yCmeb0psMD2+zuv8CL51a5xW7
+	FujwBVRI7nbLrGMxFotZ/H9WZhyUL5cNlxiyIYIeWQv3FJCv1KaErT/BJlrAMg6qyOXUDL
+	Dm0mFQXpmg+/k0FVdmSqY+NVKHQaUMA=
 Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-612-C-jwHh3MN1SrklTbB3Q5Dw-1; Wed,
- 05 Nov 2025 03:02:11 -0500
-X-MC-Unique: C-jwHh3MN1SrklTbB3Q5Dw-1
-X-Mimecast-MFC-AGG-ID: C-jwHh3MN1SrklTbB3Q5Dw_1762329730
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-694-3ijyQgS6N9GqiK0tXUBx1w-1; Wed,
+ 05 Nov 2025 03:02:24 -0500
+X-MC-Unique: 3ijyQgS6N9GqiK0tXUBx1w-1
+X-Mimecast-MFC-AGG-ID: 3ijyQgS6N9GqiK0tXUBx1w_1762329743
 Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1D8D71956080;
-	Wed,  5 Nov 2025 08:02:10 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0A24C1956095;
+	Wed,  5 Nov 2025 08:02:23 +0000 (UTC)
 Received: from server.redhat.com (unknown [10.72.112.48])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2F3001800451;
-	Wed,  5 Nov 2025 08:02:05 +0000 (UTC)
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 902881800451;
+	Wed,  5 Nov 2025 08:02:19 +0000 (UTC)
 From: Cindy Lu <lulu@redhat.com>
 To: lulu@redhat.com,
 	dtatulea@nvidia.com,
@@ -66,9 +68,11 @@ To: lulu@redhat.com,
 	netdev@vger.kernel.org,
 	virtualization@lists.linux-foundation.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] vdpa/mlx5: update mlx_features with driver state check
-Date: Wed,  5 Nov 2025 16:01:41 +0800
-Message-ID: <20251105080151.1115698-1-lulu@redhat.com>
+Subject: [PATCH 2/2] vdpa/mlx5: update MAC address handling in mlx5_vdpa_set_attr()
+Date: Wed,  5 Nov 2025 16:01:42 +0800
+Message-ID: <20251105080151.1115698-2-lulu@redhat.com>
+In-Reply-To: <20251105080151.1115698-1-lulu@redhat.com>
+References: <20251105080151.1115698-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -78,38 +82,56 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-Add logic in mlx5_vdpa_set_attr() to ensure the VIRTIO_NET_F_MAC
-feature bit is properly set only when the device is not yet in
-the DRIVER_OK (running) state.
+Improve MAC address handling in mlx5_vdpa_set_attr() to ensure
+that old MAC entries are properly removed from the MPFS table
+before adding a new one. The new MAC address is then added to
+both the MPFS and VLAN tables.
 
-This makes the MAC address visible in the output of:
+Warnings are issued if deleting or adding a MAC entry fails, but
+the function continues to execute in order to keep the configuration
+as consistent as possible with the hardware state.
 
- vdpa dev config show -jp
-
-when the device is created without an initial MAC address.
+This change fixes an issue where the updated MAC address would not
+take effect until the qemu was rebooted
 
 Signed-off-by: Cindy Lu <lulu@redhat.com>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 82034efb74fc..e38aa3a335fc 100644
+index e38aa3a335fc..4bc39cb76268 100644
 --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -4057,6 +4057,12 @@ static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
- 	ndev = to_mlx5_vdpa_ndev(mvdev);
- 	mdev = mvdev->mdev;
- 	config = &ndev->config;
-+	if (!(ndev->mvdev.status & VIRTIO_CONFIG_S_DRIVER_OK)) {
-+		ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MAC);
-+	} else {
-+		mlx5_vdpa_warn(mvdev, "device running, skip updating MAC\n");
-+		return err;
-+	}
- 
+@@ -4067,10 +4067,26 @@ static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
  	down_write(&ndev->reslock);
  	if (add_config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
+ 		pfmdev = pci_get_drvdata(pci_physfn(mdev->pdev));
+-		err = mlx5_mpfs_add_mac(pfmdev, config->mac);
+-		if (!err)
++		if (!is_zero_ether_addr(ndev->config.mac)) {
++			if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
++				mlx5_vdpa_warn(mvdev,"failed to delete old MAC %pM from MPFS table\n",
++					ndev->config.mac);
++			}
++		}
++		err = mlx5_mpfs_add_mac(pfmdev, (u8 *)add_config->net.mac);
++		if (!err) {
++			mac_vlan_del(ndev, config->mac, 0, false);
+ 			ether_addr_copy(config->mac, add_config->net.mac);
++		} else {
++			mlx5_vdpa_warn(mvdev,"failed to add new MAC %pM to MPFS table\n",
++				(u8 *)add_config->net.mac);
++			up_write(&ndev->reslock);
++			return err;
++		}
+ 	}
++	if (mac_vlan_add(ndev, ndev->config.mac, 0, false))
++		mlx5_vdpa_warn(mvdev,"failed to add new MAC %pM to vlan table\n",
++			       (u8 *)add_config->net.mac);
+ 
+ 	up_write(&ndev->reslock);
+ 	return err;
 -- 
 2.45.0
 
