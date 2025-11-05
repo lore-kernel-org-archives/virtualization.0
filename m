@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86B21253950;
-	Wed,  5 Nov 2025 01:10:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE7C22333B;
+	Wed,  5 Nov 2025 01:30:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762305042; cv=none; b=tx3bsyqduBhSLtze10GSAUG8VMwDBloc+o0rxUxbVf7Kfq1Tmo6PBof9unGywe8buJhqm6zef34vApybGT7sorgK7kisA49QYbacDbPfmjyEPTkZmxzYNKJqxcW+HztiJAgFQf2RjDuxACX09yrY6lH4TrR5D9oLUjio3P9z5TQ=
+	t=1762306241; cv=none; b=pdYtRDpiqe2EXdX4ZDrGFrVcyL8C27ZU4CNnw5RPpvzWUibd44V6gRN08NrdBAnVwFLJRB4ZLmVUM1kStLPxV/VI20ErplcFNUu0NfPpl6ATxFOQ6IKF0DaoHHKTCWzlteXuwh3n8Aqe0rqxsNQzCcrHa52ONgFUnLFNY3Sit+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762305042; c=relaxed/simple;
-	bh=y2L9qWm7lVvSl6LGUzqpLXLrlGl1utfai5roLg1NNQk=;
+	s=arc-20240116; t=1762306241; c=relaxed/simple;
+	bh=m9CPZcYZOOI/nQBexZwcz/64lD79NljFqckfJOXcEjc=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=eMVA9/P+q0vSjb06Zm/F9/II5lO1120NDsWEXsObiHU0ChRWGzzV5wqZzL/cUBcJlnnl6g4LsNKim6G8OGwnxy4b6n1Wj9p40ZzXcgjTlKIRlVNqbAW44w4e2zpMvZV7dZRfAfS5rzWeI4NQ5EIYoBrlvSxCJV1800rUdvWKJ90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XtmWGRVS; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=ffpx1cliqJse+DMN9DYfCRTc5+8gKdQRawkqgcrDeH25Fh1FBDgjTzoy0DYv5FoFLQpBw4mdC0vQr0/5iwpWJr7F36IZeaG5gDd/+BCviLk1RLdE+aiKH+JSxt2A1PV2g6YWLaOJx4LwP7YMUQMzndMRWOwVsaomD25taFgWKNo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I30xFna2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XtmWGRVS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62828C116D0;
-	Wed,  5 Nov 2025 01:10:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I30xFna2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D69DC4CEF7;
+	Wed,  5 Nov 2025 01:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762305042;
-	bh=y2L9qWm7lVvSl6LGUzqpLXLrlGl1utfai5roLg1NNQk=;
+	s=k20201202; t=1762306241;
+	bh=m9CPZcYZOOI/nQBexZwcz/64lD79NljFqckfJOXcEjc=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=XtmWGRVSb6I4rD34kjuTUi6R9fauoOtkN3e9qpFdNnpEfNKI3D9tt5LeKm3PEjBRA
-	 ff5mzFqnMrjbgERXI2i+rKtwwSQlPYDpYX/tg4pueC16JbIxhFfDBLKPXWooN+Rt1r
-	 s5uypyclP8HzJLhUCfzRj2Wzkn3G7EDFpGY6Ei9GIIumofwKlo/QBoJTrjE4mWv5mV
-	 HOXm6R13ciq2HpchI/WRDY8xu5h+/0zXwMSW7yj+47+VK3IOLQIThbU9RwZk4LEfhF
-	 /p44sZrRaX+Ow4Y0rTXEwNV512uIxOJVTE/Q3xhAkrvU0/IIYo+t3Z8roiwcYQ99ze
-	 uHoZxsCubvztQ==
+	b=I30xFna2DPSgdjczbL7e+ZdHQuM16VQfE3M3AS9DOOPrKbnTbCOp+2L223TWSl+4P
+	 WxtLNcE1fXma4eQRQWIdyLCJIfV4JeMAz97dNFc/8l4SSyQhMFdrIH0jSOd6ftWSch
+	 ZoACrXqSvGohdS/qOpw91p4KQ6PcEp80Aaw8ItAyBcvsPhSEgNRDEi0sIT8wBRItlG
+	 1ygXwb6HyaUBxbZOVt3XlmXJZV6DcrM8LFngL/KZdTEH2yv264K22S99mHiehnd5ZO
+	 IFB9WUYhGFinU5a65kWuTfRWHlbEhlnctZl1PfYeQhOEFRSngw8Iu/QGQj2sWxe41X
+	 VsvAD+lWao6tg==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70A6B380AA54;
-	Wed,  5 Nov 2025 01:10:17 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3412B380AA54;
+	Wed,  5 Nov 2025 01:30:16 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -37,36 +37,43 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH] virtio_net: Fix a typo error in virtio_net
+Subject: Re: [PATCH net V2] virtio_net: fix alignment for
+ virtio_net_hdr_v1_hash
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <176230501599.3047110.9620420576012479457.git-patchwork-notify@kernel.org>
-Date: Wed, 05 Nov 2025 01:10:15 +0000
-References: <20251103074305.4727-1-chuguangqing@inspur.com>
-In-Reply-To: <20251103074305.4727-1-chuguangqing@inspur.com>
-To: Chu Guangqing <chuguangqing@inspur.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
+ <176230621499.3052151.14134188371623590372.git-patchwork-notify@kernel.org>
+Date: Wed, 05 Nov 2025 01:30:14 +0000
+References: <20251031060551.126-1-jasowang@redhat.com>
+In-Reply-To: <20251031060551.126-1-jasowang@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 
 Hello:
 
-This patch was applied to netdev/net-next.git (main)
+This patch was applied to netdev/net.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Mon, 3 Nov 2025 15:43:05 +0800 you wrote:
-> Fix the spelling error of "separate".
+On Fri, 31 Oct 2025 14:05:51 +0800 you wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
 > 
-> Signed-off-by: Chu Guangqing <chuguangqing@inspur.com>
-> ---
->  drivers/net/virtio_net.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Changing alignment of header would mean it's no longer safe to cast a
+> 2 byte aligned pointer between formats. Use two 16 bit fields to make
+> it 2 byte aligned as previously.
+> 
+> This fixes the performance regression since
+> commit ("virtio_net: enable gso over UDP tunnel support.") as it uses
+> virtio_net_hdr_v1_hash_tunnel which embeds
+> virtio_net_hdr_v1_hash. Pktgen in guest + XDP_DROP on TAP + vhost_net
+> shows the TX PPS is recovered from 2.4Mpps to 4.45Mpps.
+> 
+> [...]
 
 Here is the summary with links:
-  - virtio_net: Fix a typo error in virtio_net
-    https://git.kernel.org/netdev/net-next/c/f4b2786fb14b
+  - [net,V2] virtio_net: fix alignment for virtio_net_hdr_v1_hash
+    https://git.kernel.org/netdev/net/c/c3838262b824
 
 You are awesome, thank you!
 -- 
