@@ -1,237 +1,163 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 726E52EA479
-	for <virtualization@lists.linux.dev>; Wed,  5 Nov 2025 08:56:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18B7F26B95B
+	for <virtualization@lists.linux.dev>; Wed,  5 Nov 2025 09:03:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762332968; cv=none; b=eKh/gqHuFq8GsXj9HqNhBI4PjECuOewwsYAidCEtFutq3aOqHtShWaEX7IvchRRAXFSkGXcrQB6JCVJW4bsBGd1/tBKVPOmb8N3tBsZLUZOmgAfEpKH78K6n7Dk2p/4+Nf3bbArncurTtl7QqEPDqdFTGd/RrdIBwzfD66ZqvcA=
+	t=1762333410; cv=none; b=bY79yHd1k/pNam9h70tGeymhiyLGc1sKBILR0esaMt8BzN9v69KsQQBaDQkutY7PpzKstURf8N8c9fqVBO8FH8QEQ48j0BQaWC0OTLfmJI/sp+95Y+5xivbe8g/7VEH2wJLD3LGTZ90skfT5bX9utk6PTkQ4fGHrYtqlvWpOt5g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762332968; c=relaxed/simple;
-	bh=oJGJS4nXaQ61TXEogNa9taQo9bk8Fwfzwr2oTD4WwYM=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=QMQmDgOUmbcsntm7UMi9tH0vInMplJpS3RS+i0VU07K7s4FS0rRCxOn3sQQ0njUf+oeb4oatGpXjINJO6pBYzXmOfN8ugtzz5mxlfW60t14AjijdQs6y78DMuv/zf5dLAYswRvaGsy1Vk2OrgkD9cA0qmydbGLlADQC0HDy7nco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=bg52srM7; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=EncCWgQr; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1762333410; c=relaxed/simple;
+	bh=7Zg7klTggaE2eo70HRPP2YBG1uUkbzJOxLKYewFYTmk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CuJekBcVNqO7cNDtGLo0JakFe05Ppodeodo6StatptBIW93S2FNWF+I+nyaMVUPjEuqZldlkeMm9ZMaqud7GTpKyRLKJaci351hcn1dsj5xMhvIANzZA1ttZzpjoi6T3FmthE4Z2L2OixrdW6r2AdMW15ghlXwU2I4kShZdu1Ig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g/xRzeRe; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="bg52srM7";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="EncCWgQr"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5A58DMlm2996780
-	for <virtualization@lists.linux.dev>; Wed, 5 Nov 2025 08:56:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	+4r01cBcj0AKibi5Hc2qNneGYRhe8Tf+S2yS7RxAZTY=; b=bg52srM7OBz0Xfa1
-	aJMvl8svOyOEtbuEnl8D69t0dknhlONY6LVll+Egfyqsl4LHKXYwWlZ4WiWeWh9z
-	9xhp+/EKeX57LdQ7SG2mfRP4qvKTq/rmSfcOnfRYYvRvqoBp1UdtO1x9J3cSyItW
-	gjph+ma26clSHCQXKGyt+qgt05nun/QcOERLWWVSQ1b7wwlIj5z8B1Xkttly3Nt6
-	Rej1/W6yXYxdTiDSGUU187+Q1At4dRfgifTy6Fay1PzZKgqRrZJCgKOH2bz0wqND
-	qKITDcgH6WUuSZTPe5IHeua4ovg7sCxds4l87Vef1isQxgJ0L+HQ2eUpFYXEOZ/1
-	YbcaaA==
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com [209.85.216.72])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4a7c7jm6ns-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Wed, 05 Nov 2025 08:56:05 +0000 (GMT)
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-341616a6fb7so2783310a91.0
-        for <virtualization@lists.linux.dev>; Wed, 05 Nov 2025 00:56:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1762332965; x=1762937765; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=+4r01cBcj0AKibi5Hc2qNneGYRhe8Tf+S2yS7RxAZTY=;
-        b=EncCWgQrxDrJZghICXJV8WxphMoWEu8RFEpuNWo1B295t8O+/1AcEl7Nu2qOcolw5D
-         6W80ere/O864K5nOrv1qf6Wj+/dkP+WWPuuXvYtq8Nsg64j+iHfQOnf7gnw08kp5U9hC
-         lWPu9JmmeEHIcPXzPlio7NblxihBTwTkb7kXHY03T33evQqdc7P5fFgOOwBMsF1B0Dt0
-         lA4k3niddYqJMV7iUobIh7h1eA+QOOXFfc8a6EdCc2nyLlZABJyczxlD+qX1uqNtRjzH
-         AQhqx45ZCDhxjN//RDaZGps/1yuhZlW+b4FUB164D4IWpc4UQQdKsIWN4rki7kmPabWd
-         pBMw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g/xRzeRe"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1762333408;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7Zg7klTggaE2eo70HRPP2YBG1uUkbzJOxLKYewFYTmk=;
+	b=g/xRzeRehRG3TymRtZNkNp+3BqyC4vTLUTbeowzVzC0QgCNRZddK36edVAOnSjFO8Aljhc
+	ihTgQ99HwgVIbFdmkAHUemMVb+HdkKbtJK4Cm+Aatw5gIA2IK+6BrmKRXwVI6j3UJ5Budf
+	E8TVW2K7XBCpetBy2pD0icoh/qo0y64=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-110-LrGgwTGhMveT3l-evbTM4Q-1; Wed, 05 Nov 2025 04:03:26 -0500
+X-MC-Unique: LrGgwTGhMveT3l-evbTM4Q-1
+X-Mimecast-MFC-AGG-ID: LrGgwTGhMveT3l-evbTM4Q_1762333406
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-7849f565200so110784497b3.0
+        for <virtualization@lists.linux.dev>; Wed, 05 Nov 2025 01:03:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762332965; x=1762937765;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+4r01cBcj0AKibi5Hc2qNneGYRhe8Tf+S2yS7RxAZTY=;
-        b=sMNivOzYWrCureSeZtCeZ9NOboUuaKZLxiYNJvn/+yopOt+cUP6hhNj13gnSy7QKeU
-         DTtPNZUS7Ny3Gs9vBTH0qbc7uiQT23EMwh9m0qoYMhBe1YRYA/AGUlM4ORJQcPcznHGi
-         783HznqdrHO6rF0tr+0bZxNwimamA33MOa3ZGPRe9XMiJGHMskBWkPGjwwT3yZ9zesPD
-         kO2FRBX98V0a+1+rKhiBmJeIMvH7hvT43h8H7o+Usf3C8XPLfK6ZXoY5OmWLz7CwdCKR
-         wS611TgKwLsbvmbu8j9Z0lUo43KlZyFrQWplCa87rUXSeu0tqw5kkrJIUnBVhctOL/6J
-         MTGA==
-X-Forwarded-Encrypted: i=1; AJvYcCU1Ovv7IlNQHvKB/inL7KXpk3XfTQGiciUcmF6LvgXKqssHzGcWeiphksC2mxTo+18PPuNAU0q4GKPtJ0RWrQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzhQygtOBS4UjIMjYye9E0d5mB5W2J4c/roshwqV+JeOIxIDWcb
-	tgQNUybiSw+ERLluPjXMahxcrjico1RyyvZ9S8dJC3Pe6lsz8TP/McVyImod5mTh0cxHvS/jO5/
-	weu69CLKn360TNYIbt3e8sdWEnNeIm9TF/VXHrlXe7RFz+aapx1BMAeufitiacaBZPZl0nA==
-X-Gm-Gg: ASbGncspXUUY9Ct2vYjylq5syNarkrM2C7+GlnIAlXV4N1c7TxZYnLJwmlD2grcyxr8
-	gG1bkllUisT/OuXeRguBC+J2t8KYLMKd6FVpzVWmGax0qhwrbz2tRckLncGHLf+ALanFw87mTsJ
-	RZXAwjTUUELLp4Y4LGGJb75mWZIlYPLh8WxAU0C4wXiOaTGmJYhx5eWdYOSf5XjEsGBLSg5eeZf
-	t03twteaBOxyjPsqOQ3wvrKCIFNrWGssJlf/tLsAd3QM9ICBFa0J25nNW2Q/jGFj+CmSwLyORNZ
-	z+4wFFKWcSlHGBORR2RIRqLRZqMS0yP0mlpKQ70mbpkkMnfcpYjWleoyn6HWs9QTAqSXPT6SrIS
-	4ZfqMlGoXFM6kMrYsvtl72nVo68/JXtozk/S29q8/izEoneEEHA==
-X-Received: by 2002:a17:90b:3a05:b0:340:b501:7b7d with SMTP id 98e67ed59e1d1-341a6c49502mr3114064a91.14.1762332964791;
-        Wed, 05 Nov 2025 00:56:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHwKiJ7zgSa+228im7zp+Q42NqbROs8wd+PnIwXJA8GHjOS9VLD4PkkXBCe8JYBWhPvt4X5LQ==
-X-Received: by 2002:a17:90b:3a05:b0:340:b501:7b7d with SMTP id 98e67ed59e1d1-341a6c49502mr3114013a91.14.1762332964143;
-        Wed, 05 Nov 2025 00:56:04 -0800 (PST)
-Received: from [10.53.169.133] (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3417bcc031bsm3012089a91.2.2025.11.05.00.56.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Nov 2025 00:56:03 -0800 (PST)
-Message-ID: <8910d20d-dc47-4a12-9e83-204174154663@oss.qualcomm.com>
-Date: Wed, 5 Nov 2025 16:56:01 +0800
+        d=1e100.net; s=20230601; t=1762333406; x=1762938206;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7Zg7klTggaE2eo70HRPP2YBG1uUkbzJOxLKYewFYTmk=;
+        b=YHOs1s6Jbyvv+Bue3MpDKzRiJ2PPAoPngUT+0Of67YtPa+7UYUjc8+mAGPduLANeLv
+         NuRmG28TlDYrvcqfoGr6rcIqYNpWOB8tswyA/9IVqsMYYORqYZB7RDHsAdI4L5/qkB9E
+         JhWBOwZ4XuREaOo287PmqLgM6I6PA45yYCjCjXuPDCvk5hicxEdMsVkQ2sWNjdUQnETW
+         tk26koMt6rWBAmzqaQfevI9KswEyZxuzwF/m6x08yNjPE4qsprv5X8/2q2wlwxMQbqmw
+         NQRHJsYU0LW5ABAzsJm0+HkUlk7Fu65Y77NDNiKsZSs2/2TCBVdPjwgNn53hyCpreMiX
+         zEAQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWcadaAHpdbr5sa9AP7ncSsquruVtZV7dks5pC6J3A+xWSdL4k+c8Q3lKWCWmfqVJs3LrMuedH163yAKnQC/A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzmHJC9DH1BLze0+TLrwA5IGCjOWx80b3bBLtmzspTojmpH0bcN
+	aNs1TZUVKoVK0lfopW5hM5gNazD9WzEx9gUOybWXNB3+lQA2ZVZT/111qvskjS1L+I21h1QJNhT
+	hZS3EOThdQADNm8MBaD9doV3TRwIZqkk2zXqwG52aW0VkK5pCLPlRBH/gbeaBwgKdbdFBWCW6Vn
+	UHos43dDs4XFhHjPS12vh/WpTe56Lefzn3CTAmmgV3jfSpDDgkT5A=
+X-Gm-Gg: ASbGnctogCHnsuD3Mn76FOOxF33/2KmYSPK5KB0OtlfqRtq14KcjeJj2vtaDAs7j2Li
+	rUIwN1Q7Xl6Tam1LodOzuLksI9A+nzMmuFgwd9MO3bpiMXsRrfPqmyd/XXpSR9hlUohm0EU+cKq
+	oTLuO4zx3y308YKT6ioqqpxJMvwvBu+fAKTzJAplPP+vt+rCKDvNyMW3mR
+X-Received: by 2002:a05:690c:4a83:b0:786:25e9:387c with SMTP id 00721157ae682-786a4122ff7mr20366947b3.20.1762333405599;
+        Wed, 05 Nov 2025 01:03:25 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEilkswvviU63NttoK9MAtDFSXL1klsWKg3ry/D6U8PAbuievzJBvc9ooYm/cnkzdsbMNWKMgQJMe+NxJKm6VE=
+X-Received: by 2002:a05:690c:4a83:b0:786:25e9:387c with SMTP id
+ 00721157ae682-786a4122ff7mr20366677b3.20.1762333405163; Wed, 05 Nov 2025
+ 01:03:25 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_blk: NULL out vqs to avoid double free on failed
- resume
-From: Cong Zhang <cong.zhang@oss.qualcomm.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        linux-arm-msm@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        pavan.kondeti@oss.qualcomm.com
-References: <20251021-virtio_double_free-v1-1-4dd0cfd258f1@oss.qualcomm.com>
- <20251021085030-mutt-send-email-mst@kernel.org>
- <CACGkMEsU3+OWv=6mvQgP2iGL3Pe09=8PkTVA=2d9DPQ_SbTNSA@mail.gmail.com>
- <20251022014453-mutt-send-email-mst@kernel.org>
- <20251022030050-mutt-send-email-mst@kernel.org>
- <f7401703-e912-4d61-b206-f9f1de930092@oss.qualcomm.com>
-Content-Language: en-US
-In-Reply-To: <f7401703-e912-4d61-b206-f9f1de930092@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA1MDA2NSBTYWx0ZWRfX/GgLNdfyUPEe
- cD0thLh7sgrNYCPLThda2kWUj/+ndoQW/ENUCedSbxopLohfhGtQ4Hoiea+569sOWiXGb+G8m3l
- I84Oe7W+YFnWA9smEOo5Q/gDB9Obq2Lvbcl/9vgO1tFE/A1J3bwRQACTIHdLV+oyIK1kxtNoS71
- vVdXuTyQbwa6B+OSybv6q5qZx5TFHumdtXJn64TTqf6iwbA+ml4t6zyhjOYHRlw8ggd58byNCjn
- mlIxz6v9oJvi3djuNUtY4rQAAAPRBxPDCY1yi/6IiNwyjWmXUBXwS7CBPWOgZjq+dWCPUHAPWFW
- thjQeVtmge6t+/SjeYIEutshjpr7T+B8hmMQxxSDpdVlPxOqQDCbWFuj+zBEj1rVjc2oYncDMOh
- nM1B7lVR8FCHxal3Kj2ChCqsfgmB9Q==
-X-Proofpoint-ORIG-GUID: BqBlvZTgDSHVIDmt8Nx_c_bLUofSKBNH
-X-Proofpoint-GUID: BqBlvZTgDSHVIDmt8Nx_c_bLUofSKBNH
-X-Authority-Analysis: v=2.4 cv=DvNbOW/+ c=1 sm=1 tr=0 ts=690b1125 cx=c_pps
- a=RP+M6JBNLl+fLTcSJhASfg==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=20KFwNOVAAAA:8 a=EUspDBNiAAAA:8
- a=0_t0tbNFZAkfsDOXaUgA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=iS9zxrgQBfv6-_F4QbHw:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-05_03,2025-11-03_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 malwarescore=0 phishscore=0 bulkscore=0
- lowpriorityscore=0 priorityscore=1501 adultscore=0 suspectscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2510240001 definitions=main-2511050065
+References: <CAJaqyWfRmhXM8eV+=wMVKgrc8SJ98OTtBCtNDJj8ZRUM5Y9Nmg@mail.gmail.com>
+ <CAO55csx2rbjxEZk5K3aKcZ501KY3Zfs8ThEQHFqQ1ZB9RSXECA@mail.gmail.com>
+ <20251015040722-mutt-send-email-mst@kernel.org> <CAJaqyWcf3tz17q6G=123Xb+warf8Ckg=PLaPkzLU9hYHiUy9Zg@mail.gmail.com>
+ <20251022060748-mutt-send-email-mst@kernel.org> <CAJaqyWdRN3C1nOHQjWroBPWKjc5efNfVbecpruL=Cgsk6i1FXg@mail.gmail.com>
+ <20251022073231-mutt-send-email-mst@kernel.org> <CAJaqyWeDcyKKOvVdqUkpTuH3d-Tb9rBHG3ym+LC0fcmhrN_FJA@mail.gmail.com>
+ <20251028100923-mutt-send-email-mst@kernel.org> <CAJaqyWePMtM8vtgm8UnGAv+_XNTnVNFSNuoqzt_Cn-CpZg46mA@mail.gmail.com>
+ <20251028104154-mutt-send-email-mst@kernel.org> <CAJaqyWc=Fhp2+m8P6cctkqG+oeXUgiGhKAsR5Ns20JMun=wvbQ@mail.gmail.com>
+In-Reply-To: <CAJaqyWc=Fhp2+m8P6cctkqG+oeXUgiGhKAsR5Ns20JMun=wvbQ@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 5 Nov 2025 10:02:48 +0100
+X-Gm-Features: AWmQ_bkDV3_RqhR4tpzBJK2B9JtMwFO734bGByXhsKE9cCp88mfSiZ6NtU5azgc
+Message-ID: <CAJaqyWf1Sn7CE+VOptZprDgniRNo=8-ZzmcS5YMOeW=tP4nfBQ@mail.gmail.com>
+Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Dragos Tatulea DE <dtatulea@nvidia.com>, jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 7WOhGcJFEzXbJ70nX6bEfZyifCBS_7gxheBcByKXvtc_1762333406
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Oct 28, 2025 at 3:57=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Tue, Oct 28, 2025 at 3:42=E2=80=AFPM Michael S. Tsirkin <mst@redhat.co=
+m> wrote:
+> >
+> > On Tue, Oct 28, 2025 at 03:37:09PM +0100, Eugenio Perez Martin wrote:
+> > > On Tue, Oct 28, 2025 at 3:10=E2=80=AFPM Michael S. Tsirkin <mst@redha=
+t.com> wrote:
+> > > >
+> > > > On Wed, Oct 22, 2025 at 02:55:18PM +0200, Eugenio Perez Martin wrot=
+e:
+> > > > > On Wed, Oct 22, 2025 at 1:43=E2=80=AFPM Michael S. Tsirkin <mst@r=
+edhat.com> wrote:
+> > > > > >
+> > > > > > On Wed, Oct 22, 2025 at 12:50:53PM +0200, Eugenio Perez Martin =
+wrote:
+> > > > > > > Let me switch to MQ as I think it illustrates the point bette=
+r.
+> > > > > > >
+> > > > > > > IIUC the workflow:
+> > > > > > > a) virtio-net sends MQ_VQ_PAIRS_SET 2 to the device
+> > > > > > > b) VDUSE CVQ sends ok to the virtio-net driver
+> > > > > > > c) VDUSE CVQ sends the command to the VDUSE device
+> > > > > > > d) Now the virtio-net driver sends virtio-net sends MQ_VQ_PAI=
+RS_SET 1
+> > > > > > > e) VDUSE CVQ sends ok to the virtio-net driver
+> > > > > > >
+> > > > > > > The device didn't process the MQ_VQ_PAIRS_SET 1 command at th=
+is point,
+> > > > > > > so it potentially uses the second rx queue. But, by the stand=
+ard:
+> > > > > > >
+> > > > > > > The device MUST NOT queue packets on receive queues greater t=
+han
+> > > > > > > virtqueue_pairs once it has placed the VIRTIO_NET_CTRL_MQ_VQ_=
+PAIRS_SET
+> > > > > > > command in a used buffer.
+> > > > > > >
+> > > > > > > So the driver does not expect rx buffers on that queue at all=
+. From
+> > > > > > > the driver's POV, the device is invalid, and it could mark it=
+ as
+> > > > > > > broken.
+> > > > > >
+> > > > > > ok intresting. Note that if userspace processes vqs it should p=
+rocess
+> > > > > > cvq too. I don't know what to do in this case yet, I'm going on
+> > > > > > vacation, let me ponder this a bit.
+> > > > > >
+> > > > >
+> > > > > Sure.
+> > > >
+> > > > So let me ask you this, how are you going to handle device reset?
+> > > > Same issue, it seems to me.
+> > > >
+> > >
+> > > Well my proposal is to mark it as broken so it needs to be reset
+> > > manually.
+> >
+> >
+> > Heh but guest assumes after reset device does not poke at guest
+> > memory, and will free up and reuse that memory.
+> > If userspace still pokes at it -> plus plus ungood.
+> >
+>
+> I don't get this part. Once the device is reset, the device should not
+> poke at guest memory (unless it is malicious or similar). Why would it
+> do it?
 
-
-On 10/22/2025 4:02 PM, Cong Zhang wrote:
-> 
-> 
-> On 10/22/2025 3:01 PM, Michael S. Tsirkin wrote:
->> On Wed, Oct 22, 2025 at 01:45:38AM -0400, Michael S. Tsirkin wrote:
->>> On Wed, Oct 22, 2025 at 12:19:19PM +0800, Jason Wang wrote:
->>>> On Tue, Oct 21, 2025 at 8:58 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->>>>>
->>>>> On Tue, Oct 21, 2025 at 07:07:56PM +0800, Cong Zhang wrote:
->>>>>> The vblk->vqs releases during freeze. If resume fails before vblk->vqs
->>>>>> is allocated, later freeze/remove may attempt to free vqs again.
->>>>>> Set vblk->vqs to NULL after freeing to avoid double free.
->>>>>>
->>>>>> Signed-off-by: Cong Zhang <cong.zhang@oss.qualcomm.com>
->>>>>> ---
->>>>>> The patch fixes a double free issue that occurs in virtio_blk during
->>>>>> freeze/resume.
->>>>>> The issue is caused by:
->>>>>> 1. During the first freeze, vblk->vqs is freed but pointer is not set to
->>>>>>    NULL.
->>>>>> 2. Virtio block device fails before vblk->vqs is allocated during resume.
->>>>>> 3. During the next freeze, vblk->vqs gets freed again, causing the
->>>>>>    double free crash.
->>>>>
->>>>> this part I don't get. if restore fails, how can freeze be called
->>>>> again?
->>>>
->>>> For example, could it be triggered by the user?
->>>>
->>>> Thanks
->>>
->>> I don't know - were you able to trigger it? how?
->>
->> Sorry I mean the submitter of course.
->>
-> 
-> Let me add more details:
-> Autosleep is enabled in this case. When the system wakes up from
-> suspend, it will call virtio_device_restore. The failure happens in the
-> virtio_device_restore function before vblk->vqs has been allocated. The
-> system still gets woken up after the failure happens. Since autosleep is
-> enabled and there is no wakelock being held, the system will try to
-> suspend again. Then virtio_device_freeze will be called and causes the
-> issue.
-> 
-
-Gentle reminder.
-Please let me know if you need any additional information.
-
->>>
->>>>>
->>>>>> ---
->>>>>>  drivers/block/virtio_blk.c | 13 ++++++++++++-
->>>>>>  1 file changed, 12 insertions(+), 1 deletion(-)
->>>>>>
->>>>>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->>>>>> index f061420dfb10c40b21765b173fab7046aa447506..746795066d7f56a01c9a9c0344d24f9fa06841eb 100644
->>>>>> --- a/drivers/block/virtio_blk.c
->>>>>> +++ b/drivers/block/virtio_blk.c
->>>>>> @@ -1026,8 +1026,13 @@ static int init_vq(struct virtio_blk *vblk)
->>>>>>  out:
->>>>>>       kfree(vqs);
->>>>>>       kfree(vqs_info);
->>>>>> -     if (err)
->>>>>> +     if (err) {
->>>>>>               kfree(vblk->vqs);
->>>>>> +             /*
->>>>>> +              * Set to NULL to prevent freeing vqs again during freezing.
->>>>>> +              */
->>>>>> +             vblk->vqs = NULL;
->>>>>> +     }
->>>>>>       return err;
->>>>>>  }
->>>>>>
->>>>>
->>>>>> @@ -1598,6 +1603,12 @@ static int virtblk_freeze_priv(struct virtio_device *vdev)
->>>>>>
->>>>>>       vdev->config->del_vqs(vdev);
->>>>>>       kfree(vblk->vqs);
->>>>>> +     /*
->>>>>> +      * Set to NULL to prevent freeing vqs again after a failed vqs
->>>>>> +      * allocation during resume. Note that kfree() already handles NULL
->>>>>> +      * pointers safely.
->>>>>> +      */
->>>>>> +     vblk->vqs = NULL;
->>>>>>
->>>>>>       return 0;
->>>>>>  }
->>>>>>
->>>>>> ---
->>>>>> base-commit: 8e2755d7779a95dd61d8997ebce33ff8b1efd3fb
->>>>>> change-id: 20250926-virtio_double_free-7ab880d82a17
->>>>>>
->>>>>> Best regards,
->>>>>> --
->>>>>> Cong Zhang <cong.zhang@oss.qualcomm.com>
->>>>>
->>
-> 
+Friendly ping.
 
