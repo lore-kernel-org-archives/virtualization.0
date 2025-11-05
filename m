@@ -1,115 +1,169 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-a2-smtp.messagingengine.com (fhigh-a2-smtp.messagingengine.com [103.168.172.153])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 803C92367BA
-	for <virtualization@lists.linux.dev>; Wed,  5 Nov 2025 19:24:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 929EF26ED55;
+	Wed,  5 Nov 2025 20:48:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762370647; cv=none; b=Ru8gKqs9rp+tK8glhAFEkgVvWPyi3z0HfK2++NfrA7DjazB6S+gfUt87b2TMHgGCKZjlnuuoVIV8kaTZraZo/d0pZ+g7gUzsgEqTIQit5p+WDkJZGvUYumAKPPFKsYd7QbLK4pc1ABmSaes4YT4xuLRimJxeb8b+3IarkFZgYgY=
+	t=1762375719; cv=none; b=iNXegemmBH2YuweRKsGDjlLLqrSh+4JZi7+53Ihv4LfRp7R9/EbQHd7Ijya9RJCUjo1SUcyiAJ4pzOgYh0FYg19/ts8sZfvn+U2SSIs9rB0yUTV86dpgCiu+Xso1sAdcKJaBG3FOUf4eRD8wvrT5qQY+2ifSnPDtl2c/2QcPDBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762370647; c=relaxed/simple;
-	bh=z2ZuAl6m8mQF8bCGTrIOO7EDrjCj2YFxDmYFrGwTZ88=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ggnNqWMSHIwYgMkdg4HFmaHK/FKncjVmwm33nZ26hHzVXgvaOqPmZjDEmC74+9PZmHaIb1Vjno9jsFXseRuOhVHbmb8RdMA8uWdxjw7xUCbOsthLhsP/XhKw7YBPalPQpfaft5sbEdYlZvCNg4AmTsvjjeWHA13pR4xo9deyolo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DonHrQQZ; arc=none smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1762375719; c=relaxed/simple;
+	bh=XjX2Gu+czV/t+mrHM5omQPaJbXT57OwcqoDhbRZ9AEo=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=uynWcSbKk07MGWL14ROSO54iCvJx0wW241R5MRRc5os917hgnKSG2n4lsPrSmnefINMDBvlnVWFzy4PWU7pG3wSD02Kx6mHPMDHJ0UjDHHdDedcBoX6CmDBATlq1UWA7f1E/BACnXRNK6YFkk1O62M76YKzbHViIQIGpnLt6P3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=ggyPflQg; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=F9WfphXM; arc=none smtp.client-ip=103.168.172.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DonHrQQZ"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-781421f5bf5so1422517b3.3
-        for <virtualization@lists.linux.dev>; Wed, 05 Nov 2025 11:24:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762370643; x=1762975443; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=SCfZbCx1ZjFQUpQxhvpq9tTfc/hY+795vC8k5TIfi5U=;
-        b=DonHrQQZZgrPf6QGobRk8nzmwYr9voG4ab62rwFQWQj8XIR6/VLWA1l6KbBlaHcK05
-         XlURIvnuQOrgH4dIpoWlxzss/KrhpuUs8N3axxSHjN8ewPdgOxxgj1ByQ177FETBphf/
-         StN4xWD9XplWatuZeXVm6ryq9wvLmaMu6lUqLTxs/8w+R2MgHQLqpiYChVtB0sGIzuXT
-         81LBEy1RocmOr5wig7PQjy3CLHdiHQPCHGXqYAPGqyIdfS0duLa5zWPSImlowDJ8I1k3
-         h/7PjP0KtZxrVgqGx6J1+J7UtqclHdbk+k3WliaDx/TI13JsYk+qwMoFT75ee0dHgxWE
-         1rpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762370643; x=1762975443;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SCfZbCx1ZjFQUpQxhvpq9tTfc/hY+795vC8k5TIfi5U=;
-        b=ATuKof2bnNElHRveNcRga1QnL5T173mLEgX4cDetfE1vAJ/ShNqmauvex8Ze9MLvcj
-         nL4YeIXskOfaxLRyAOYIgk+7QpotsJieM3RJlgRM4s2kTbsw0G3s34q2UV0L+oYI7aAB
-         BPUL0ah+kasWx3EybkLrFQrMqWFaZOGFTv7IXEMTy084yo7T6TmvWYsl3CIENJoCdyvG
-         z3A8sH4g0e2KjFCMiO7H2yzTdOEtI9mbiEAwJr8U1agK+uhQpmbC7/hLcmVRLhX9Lpda
-         YXt9zpu2gD6zJg3g0EsGLwfp0Rc8jLlyMKnIgVLcPWhH5h9C3aIeL0tgyjSuBT9efUXB
-         UbOw==
-X-Forwarded-Encrypted: i=1; AJvYcCX+Bw1wRmEnTFYEgswl7OmZlgC3vor+dohYREuOvp0r1D4ViljRujUJSgfXjFCGx0SAma55CkQl6HJljm+BLQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyBReYjbO0Dh2Vdw16IWd9zLKIFJenV9URF3v9w7wJsQqavAbvh
-	T3e6jD0A9wV9i7LaI3y4HsXYU+xUsoQWVbKwUaPQ12r8Q8ynh6nuSUOR
-X-Gm-Gg: ASbGnct+E7Yjx+myRoyjjuspP383HQQSNtQ5NthaAmF+bdfzTzRI0fUZuNWUYdE67AY
-	OlpRnjVGk/FdgAbCkzySpgEmzwdoi+4YpYNTZvpuOs9rYh/1CAE9DGUuGFNVpmOTT22aBJhoFeU
-	GqDCUusqWQrWMKkdjmeYTGeOpjN5Epb0IEp76mJZxLFUeZGmnCR3HkgXSwZIW3uYuim4SdVjaD4
-	r/sn3Neld8wAn23ZqOISCP5d2tpnxfMr9knjfi9GhKeKE8QzfNfrC9J18M0CxcZ3d2advcWMxaA
-	qJQfFdqoC7/942XBhm6I7tBS1ZwQYhqmojenyXaaH64wij86z9fKJXIyrSsDYtQvuaUs1zvaxyG
-	O56naEm2+G5bYidx6lFVR3m81eSDF86YsVTb1qyeYcMeBjI+/9k/g+3U3qART6j8tqLe7LaYrII
-	EtxWvMhFzMU4HfoA32IBvuHmFfQdkjkhuaaKTu
-X-Google-Smtp-Source: AGHT+IGzkMph0aR1AuSLsLz+NyiUmW9UyqgkXIKscDfhGHTikd7KQOHT6TykmLaTJLeIJUZrZX00oA==
-X-Received: by 2002:a05:690c:61c5:b0:786:a774:e415 with SMTP id 00721157ae682-786a774e5d7mr54395367b3.56.1762370643208;
-        Wed, 05 Nov 2025 11:24:03 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:74::])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-640b5ca403asm61413d50.8.2025.11.05.11.24.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Nov 2025 11:24:02 -0800 (PST)
-Date: Wed, 5 Nov 2025 11:24:00 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Simon Horman <horms@kernel.org>,
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v2 10/12] selftests/vsock: add 1.37 to tested
- virtme-ng versions
-Message-ID: <aQukUFyuN+iJ1zv9@devvm11784.nha0.facebook.com>
-References: <20251104-vsock-selftests-fixes-and-improvements-v2-0-ca2070fd1601@meta.com>
- <20251104-vsock-selftests-fixes-and-improvements-v2-10-ca2070fd1601@meta.com>
- <csgl7tb7jxlmbkn5jqjoiraa4a5vatmd3t4fv4duue5ftukphy@tem4fwdinmti>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="ggyPflQg";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="F9WfphXM"
+Received: from phl-compute-09.internal (phl-compute-09.internal [10.202.2.49])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 7DDCA140012B;
+	Wed,  5 Nov 2025 15:48:34 -0500 (EST)
+Received: from phl-mailfrontend-01 ([10.202.2.162])
+  by phl-compute-09.internal (MEProxy); Wed, 05 Nov 2025 15:48:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1762375714;
+	 x=1762462114; bh=ohNL1+6zNNmYIdt9oX7AGViWYMx2eZbUzhURanHRVqc=; b=
+	ggyPflQgHh6TLSYrPr5qAFAFzbvv/EUJGhXQZWZjIngcQ43LuqyXJoVstaFGVwyO
+	8v/2eh8QVzB66hrc9OF4ls1c0jlRa/OaC6c4hFXmdTK65pXhjKYNXNrwvDxhCzLb
+	cIhCYO+t1C3CPtuc1rIK/4NdHtSxycUflS+P/I6qOi2HtevQThAbAj23aH+VG8dV
+	btV2Od3y1OwYcnbfTx9hIi0982VRVrYeQ5bHkAg/oMeUTOZwHW1U1Gx+NkLZUFBl
+	MGaH/NWpVbGreZvA3OJ/qzkofm/LfVW066+8Im87qf8OjWvKeHPlTcBgCNuNHQ6Z
+	7Rw4zk2jH0/ZNoAK1C7bLQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1762375714; x=
+	1762462114; bh=ohNL1+6zNNmYIdt9oX7AGViWYMx2eZbUzhURanHRVqc=; b=F
+	9WfphXMWcIW8a8omrOiJRS4vq2bjM0yAjPJ9s0+pgvj+pgr5niiwhnu6oSFnp6ts
+	dztx1dQOJYjnrNZST1cEDOqwE/FieKKvMJ+0x42WQztd9rkvYEiChxYrVQbQca4i
+	WjpOogdTI2VTz+mg5eFPiss4p1F+WykfHxUILSPHtMIVLfrVt8mRUD3Fk1HyAwH1
+	YMg8acFFDVdv6UE23skQpxrCas3yT0p4hXodsq8ObTOHf1OC/EyoK/ua0yRdwMy6
+	hde1ERzOPT09iH7tb/PJpbex49Xt/dmkLaZ+lXhfGpTuF++Q4xFVT950A8qRn6RE
+	/oXXTTvYOByWlWk7YRAbA==
+X-ME-Sender: <xms:IbgLaZP21oYZAefMJOmF5Mm3c7Lv5X9PhAZF1wVTxXzMhOVaG4gDwQ>
+    <xme:IbgLaVLkT4Zs-ARkdCFuq-0_ZRGqfRQScGVtd9GnT1mWtasvp7PrwPsmCp8AOteH9
+    OeCu0nEjvzTGdVZYmV7iZrUBuzsBMedOWfoU1MxHbAE42ZG39pr>
+X-ME-Received: <xmr:IbgLacgVqytAa8Jgc3CefYGptOjO4IlFqkd6YKB13ltqMVAS6QHVTnXs>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddukeegledtucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkjghfgggtgfesthejredttddtvdenucfhrhhomheptehlvgigucgh
+    ihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrfgrth
+    htvghrnhepteetudelgeekieegudegleeuvdffgeehleeivddtfeektdekkeehffehudet
+    hffhnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hlvgigsehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopeegtddpmhhouggvpehs
+    mhhtphhouhhtpdhrtghpthhtohepphhrrggrnhesghhoohhglhgvrdgtohhmpdhrtghpth
+    htohepjhhgghesnhhvihguihgrrdgtohhmpdhrtghpthhtoheprghgohhruggvvghvsehl
+    ihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheprghirhhlihgvugesghhmrghilhdrtg
+    homhdprhgtphhtthhopegrlhgvgidrfihilhhlihgrmhhsohhnsehrvgguhhgrthdrtgho
+    mhdprhgtphhtthhopegrnhhkihhtrgesnhhvihguihgrrdgtohhmpdhrtghpthhtohepsg
+    horhhnthhrrggvghgvrheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopegsrhgv
+    thhtrdgtrhgvvghlvgihsegrmhgurdgtohhmpdhrtghpthhtohepughrihdquggvvhgvlh
+    eslhhishhtshdrfhhrvggvuggvshhkthhophdrohhrgh
+X-ME-Proxy: <xmx:IbgLabf4MeGhfi3gNmowE7mD37sHgNH2WDwF5uz_DRckxmZNEl2TVw>
+    <xmx:IbgLac6GnpBjn1Obw1EEsjUzeywMCKsH8b3lTrDAOXZowAalTuV3Ow>
+    <xmx:IbgLachtNFumMNL4vC2n74-G33nTJUMKGlJq_2E4NSbPxZ3-5jNX4g>
+    <xmx:IbgLabH9DtlfEpWnYK7pUkApvb-syRCS2ZP9nP-8RLj2oglsb2bBzQ>
+    <xmx:IrgLaceGyGmekenMqPNiLCD9fPFtA4ot0EGM5UOvgQtmC9TptrzEqdzp>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 5 Nov 2025 15:48:30 -0500 (EST)
+Date: Wed, 5 Nov 2025 13:48:29 -0700
+From: Alex Williamson <alex@shazbot.org>
+To: Pranjal Shrivastava <praan@google.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ David Airlie <airlied@gmail.com>,
+ Alex Williamson <alex.williamson@redhat.com>,
+ Ankit Agrawal <ankita@nvidia.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Brett Creeley <brett.creeley@amd.com>, dri-devel@lists.freedesktop.org,
+ Eric Auger <eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+ Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ intel-gfx@lists.freedesktop.org,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Kevin Tian <kevin.tian@intel.com>, kvm@vger.kernel.org,
+ Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
+ Longfang Liu <liulongfang@huawei.com>,
+ Matthew Rosato <mjrosato@linux.ibm.com>,
+ Nikhil Agarwal <nikhil.agarwal@amd.com>,
+ Nipun Gupta <nipun.gupta@amd.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Halil Pasic <pasic@linux.ibm.com>, qat-linux@intel.com,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
+ Shameer Kolothum <skolothumtho@nvidia.com>,
+ Mostafa Saleh <smostafa@google.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ Yishai Hadas <yishaih@nvidia.com>, Zhenyu Wang <zhenyuw.linux@gmail.com>,
+ Zhi Wang <zhi.wang.linux@gmail.com>, patches@lists.linux.dev
+Subject: Re: [PATCH 14/22] vfio: Require drivers to implement
+ get_region_info
+Message-ID: <20251105134829.333243dd.alex@shazbot.org>
+In-Reply-To: <aQhcOYVbY-LqOjW5@google.com>
+References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+	<14-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+	<aQhcOYVbY-LqOjW5@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <csgl7tb7jxlmbkn5jqjoiraa4a5vatmd3t4fv4duue5ftukphy@tem4fwdinmti>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 05, 2025 at 03:48:09PM +0100, Stefano Garzarella wrote:
-> On Tue, Nov 04, 2025 at 02:39:00PM -0800, Bobby Eshleman wrote:
-> > From: Bobby Eshleman <bobbyeshleman@meta.com>
+On Mon, 3 Nov 2025 07:39:37 +0000
+Pranjal Shrivastava <praan@google.com> wrote:
+
+> On Thu, Oct 23, 2025 at 08:09:28PM -0300, Jason Gunthorpe wrote:
+> > Remove the fallback through the ioctl callback, no drivers use this now.
 > > 
-> > Testing with 1.37 shows all tests passing but emits the warning:
-> > 
-> > warning: vng version 'virtme-ng 1.37' has not been tested and may not function properly.
-> > 	The following versions have been tested: 1.33 1.36
-> > 
-> > This patch adds 1.37 to the virtme-ng versions to get rid of the above
-> > warning.
-> > 
-> > Reviewed-by: Simon Horman <horms@kernel.org>
-> > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+> > Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 > > ---
-> > tools/testing/selftests/vsock/vmtest.sh | 2 +-
-> > 1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> 
-> I'm just worried that the list will explode. Perhaps in the future we should
-> just define the minimum version that we are sure we can support and the
-> maximum that we have tested.
-> 
-> Stefano
-> 
+> >  drivers/vfio/vfio_main.c | 8 ++++----
+> >  1 file changed, 4 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> > index a390163ce706c4..f056e82ba35075 100644
+> > --- a/drivers/vfio/vfio_main.c
+> > +++ b/drivers/vfio/vfio_main.c
+> > @@ -1297,13 +1297,13 @@ static long vfio_device_fops_unl_ioctl(struct file *filep,
+> >  		break;
+> >  
+> >  	case VFIO_DEVICE_GET_REGION_INFO:
+> > -		if (!device->ops->get_region_info)
+> > -			goto ioctl_fallback;
+> > -		ret = device->ops->get_region_info(device, uptr);
+> > +		if (unlikely(!device->ops->get_region_info))
+> > +			ret = -EINVAL;  
 
-Sounds like a good approach.
+Nit, typically I would have expected a success oriented flow, ie.
 
-Best,
-Bobby
+		if (likely(device->ops->get_region_info))
+			ret = device->ops->get_region_info(device, uptr);
+		else
+			ret = -EINVAL;
+
+But it goes away in the next patch, so *shrug*.
+
+> 
+> Nit: Let's also add a warn/err log here highliting that the device
+> doesn't populate the get_region_info op?
+
+Are devices required to implement regions?  If so, it'd be more
+appropriate to fail the device registration in __vfio_register_dev()
+for the missing op than wait for an ioctl.  However, here in the device
+agnostic layer of vfio, I think the answer leans more towards no, we
+could theoretically have a device with no regions.  We also want to be
+careful not to introduce a WARN_ON that's user trigger'able.  Thanks,
+
+Alex
