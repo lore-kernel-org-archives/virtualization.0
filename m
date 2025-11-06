@@ -1,214 +1,149 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E91A31FC8
-	for <virtualization@lists.linux.dev>; Thu,  6 Nov 2025 04:07:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BFE12BEC45
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Nov 2025 04:08:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762402033; cv=none; b=XKCIl8vJ6LDVzuCzkEzFUJ1sA0gapJtWRJkeDFO2MHgdYiKAiQdm/iFhD5E+ZP7BnkoKY0Non6647efx2FTM3T/jNd0OIZCB3kQ9VQvajfIKeH0p56Qn3H/vzNvlrhjKJEKDynXmy5x8obbjIwjMul3KdWvWn5mcxLoEL20+Ou4=
+	t=1762402098; cv=none; b=WT1ml96+bVCGSUtip1DfQLLGSspIcPtZP1DLhPc18EoFfmdlr6IJGS7f7lsaIxLUnghm7rnOJV8b59nhjow2DDBdgkc4CW7YIIw2atJR/Rpr39I77GektYki7v6FAUM0X7iO36HqlyZE/XshdbJCfp7EabJHyA0ni73eA6MGAws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762402033; c=relaxed/simple;
-	bh=/j8IwCwfnUpo7t3t7ZYWNOWrViZy1XGN5IE6aVd3q2w=;
+	s=arc-20240116; t=1762402098; c=relaxed/simple;
+	bh=/clFG5PxzG9CFjAwwukXLsQUq87vBTuWgGXa+2pm7nA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=afK2LjOekCVZaeT7jQnye8MJLZi8Va6N7w4PEcO5WNiccj5NRU/MIwrdP5VojazOUf5Ksd63WfdpjrToofybepFzGyV6RASu30pewAh+pu9llGU5gd5aPMy4oilFABZrCX9YLuDE03sBC0TQBnj5pmSi+WC3fX+n3IXtaQVXVn0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gvuVx+v7; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=IW/R+3dWEPkoXXOc7QRTfpBXaZhPnj95Lvs/OJGnW+n8D/d61p6CSZgWb390EMYY4BvfcG+Y3aetct/c/yJ3APzzjt26PiS4DXOnPo4fC1xJpZ4+g9pDvpSSEParQdPUGs575w8OgpdOsDSbQyUsVM0ees1S0OlaLL5u16y5G+g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QP8C6bzo; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gvuVx+v7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QP8C6bzo"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id A208E41186
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Nov 2025 04:08:16 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 40UqfamV_GMw for <virtualization@lists.linux-foundation.org>;
+ Thu,  6 Nov 2025 04:08:15 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org C04EA41142
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C04EA41142
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QP8C6bzo
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C04EA41142
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Nov 2025 04:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762402030;
+	s=mimecast20190719; t=1762402092;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=LoU2+gnsfiuqREd6bvWYLEq5UZ7fNohYOQZcwDScec8=;
-	b=gvuVx+v78xd0tcog4OULvqa4bk8K29wAp7R0parQT0F5kms5NYIqSZpzLSmoR+JuLqZID2
-	DRh+U0EgQU68BZ62ypjwppc8YAZIy2ZnNhh51Dbq2jm2kgU0aXhNE3AS6LddDxfFVDkKbr
-	pCacl1q2nB3e7aGKrQ4vGpPOG2RtRQk=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=4ErEHllqGXQa1rX1HuSUsA/o+LeE0c0+S+I56A0yD3w=;
+	b=QP8C6bzoZEn7okfiij2nsu84f0dt/vKggNVrdxFrugXL+LGj+4qhpWiF5S9HXfcLcNE0i3
+	IYP63WCtf7CPl3KDATjbx9Wj+U0qYXvq0BYUKJKY0ls7l9z/4GGZMk0vC+8U165p9YD/g/
+	8/GklBAv6rGqZYED4JxGhqEdrYUl+Zw=
+Received: from mail-ua1-f72.google.com (mail-ua1-f72.google.com
+ [209.85.222.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-558-gNDfkDqpNs6LLRghBvkh2Q-1; Wed, 05 Nov 2025 23:07:09 -0500
-X-MC-Unique: gNDfkDqpNs6LLRghBvkh2Q-1
-X-Mimecast-MFC-AGG-ID: gNDfkDqpNs6LLRghBvkh2Q_1762402029
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-3405c46a22eso728584a91.2
-        for <virtualization@lists.linux.dev>; Wed, 05 Nov 2025 20:07:09 -0800 (PST)
+ us-mta-145-tUsPBmhoN2CJxLMP4RdRrw-1; Wed, 05 Nov 2025 23:08:10 -0500
+X-MC-Unique: tUsPBmhoN2CJxLMP4RdRrw-1
+X-Mimecast-MFC-AGG-ID: tUsPBmhoN2CJxLMP4RdRrw_1762402089
+Received: by mail-ua1-f72.google.com with SMTP id a1e0cc1a2514c-932cb539eceso297225241.2
+        for <virtualization@lists.linux-foundation.org>; Wed, 05 Nov 2025 20:08:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762402029; x=1763006829;
+        d=1e100.net; s=20230601; t=1762402089; x=1763006889;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=LoU2+gnsfiuqREd6bvWYLEq5UZ7fNohYOQZcwDScec8=;
-        b=SPd8aOrPgHWloFP1MDqdYsxPvAMaR7rkEtcyqNpbQaRATVOTpoepADwdOUXc8TfiBT
-         QKNK/0S8doYmeENCKYeOCgLJ/kY3U5wIcNHY3/8Nssp4mxCNfOx+QxwITjASWKnwJcoG
-         H2/LmtpG0PuCVE0wW1wmT3mCSn/PlajLNqI1KOy8XTLusgdYiMjdU3B7mUiRzCyj99ts
-         6JjUK0CfmMfHcUz2Rcg/POJEKVmMDeI0hKcqundUuQjgHRzdazfFaP/k5KK129x72WjB
-         HKRWlItWipSoa+dELmkAcP33DacoJ0IlJSJfwtM/YUAFtfbNXgPJoVvrxkviSLD4k9xN
-         JfuA==
-X-Forwarded-Encrypted: i=1; AJvYcCXqYdv07Uwbm4QnDpeigPsmWnB1+PzNvLEESm7W+bqGDpRp15xxbjb6nWzuC0eEB8gZkLAZK2fCmXZgrGmrrA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx3t6kEaZrLHkIVGM/ShklE9ugPH5ZtTC/5njQ8HTvqt/Ouy2Y3
-	JelRbHApMOfTpXpGwLQPJ0CIl7lU5p/lwK+E0gv7forWlDV9bzB3YWIlq9ftvGz7kP4rEu5b+QD
-	AEZocFvEmVuMVBTTSnUZVQzB4unLz4SBymNzItMY/bIgrLtPdb1dhr8HrGjFxxizeGJVSj/hv+S
-	zUKjOcJDb3ORbk32vUdD3JqFPdAgv3Xbd4A/D5HVoiIeg=
-X-Gm-Gg: ASbGnctZJprfUjsCBjo29l32QDc0CJWDojncB1GGXw5ftS8nEvh5uXLRNHMxQiuGoND
-	Yq9Bv4o37PcT6wzEMCXcTTpE18BTNla3kAyvVd7EI2JzV1sF03NLj0LoeWRCOPQvFNvwpejTC4Z
-	VPay0/lepycSfEXH2oBrzr09eq6YIy6spWAC/Pp4R/38/1xxuyqPSh/KYi
-X-Received: by 2002:a17:90b:1f88:b0:340:c060:4d44 with SMTP id 98e67ed59e1d1-341a6c4d7aamr7027669a91.14.1762402028619;
-        Wed, 05 Nov 2025 20:07:08 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGgxzLPmIUN23c30q2w75GF2Oo+BHzJVke+jXJuO4CwdOMsjKJErSE1VijPnPth7Jf9XW5Vf/Zgdu/s2JTjPzA=
-X-Received: by 2002:a17:90b:1f88:b0:340:c060:4d44 with SMTP id
- 98e67ed59e1d1-341a6c4d7aamr7027630a91.14.1762402028159; Wed, 05 Nov 2025
- 20:07:08 -0800 (PST)
+        bh=4ErEHllqGXQa1rX1HuSUsA/o+LeE0c0+S+I56A0yD3w=;
+        b=FFWOxuz281cUgPJQRzmar8aMDHqTljtYqiJTf9q3NtGmztkqXsXaKQkFqn3KD52ZMa
+         FEtdbfXBEHeOmeZHqsXyeM7TKRf0udw6w2OhN7hPpbW35nR0oejwzIX+OfqGaCJx9QL7
+         AoD1c8oqSs/Pwnn1OiHNP087t2z0oXcAG4U8EsrVpR9H6ouKuI3zL/YfT1YdOZWmxWfb
+         HyKuB8SjEEmQPeeWXCce+/iUcQLZ4sEXr8yBZtWnhfQ/nor7V20NY9GgU6yE/jsMek2Z
+         8o92I10s7brQ+rkzIw3rcU0sZzFvdlEN7QgdEW7W5GPr0HjED9filCNSUFpTIoQK9+Kf
+         YCQw==
+X-Forwarded-Encrypted: i=1; AJvYcCWt3AZmriOhGMvn6a0Ob9ETHJIEjwlkvlWqWnkqSJ2jN1Q2fsArRmObk90sjNcTjGDTETn9U/OAmgx4GphpCw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwP6uhI3dNdI9zw8BPPhWOiNCYzPqGy4tZR/DFypgQ0gUSL092o
+	mq969hPpFtvOXm7OYTzXHQyhiUJOZT0iCNhcorqaYBKuvZ6hVxzv/JOikKvonwtDgbWhosXgYxb
+	53PGmO27IWtOjTziIgIY5XrKfq3v/qkNQO8cywiPNoN6IoXDbmQQM4Dg2vA4MOHp+iM1CWnGenQ
+	w1H0sUmWSyoXT7IpgvkFJz0sI3Rc3G6fO9EAn/EtgZlo7Tk338n0MZ7doLqg==
+X-Gm-Gg: ASbGnctx6M5dSAQsKILJLjKGmoQdgUtcMl3wliekSRbtAjbF9JMLrYSVe5z0kZAO56r
+	3fyNp5b+ZyeiCN5sLgE5B4hksxUcudQQNZaQ+3byKALxCSH53IGk0pq4MWhNWmOd7RRwCLEVWdJ
+	SoeD/yICulwzuCgyc+lCUS2/1AQ6PG/xIFN9yx3U2HhdquwaOhLj99iNTG
+X-Received: by 2002:a05:6102:2ac2:b0:5db:ca19:f02f with SMTP id ada2fe7eead31-5dd88ef0787mr2077865137.9.1762402089472;
+        Wed, 05 Nov 2025 20:08:09 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGsGQZaJVQOEVAkyZ4GeLriyj8SNnSrORtKtMKUrl76u33NNLwRG6BIbywMULZtgOZQKt+9Amf1gB0m2UWnG7g=
+X-Received: by 2002:a05:6102:2ac2:b0:5db:ca19:f02f with SMTP id
+ ada2fe7eead31-5dd88ef0787mr2077859137.9.1762402089047; Wed, 05 Nov 2025
+ 20:08:09 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251021-virtio_double_free-v1-1-4dd0cfd258f1@oss.qualcomm.com>
- <20251021085030-mutt-send-email-mst@kernel.org> <CACGkMEsU3+OWv=6mvQgP2iGL3Pe09=8PkTVA=2d9DPQ_SbTNSA@mail.gmail.com>
- <20251022014453-mutt-send-email-mst@kernel.org> <20251022030050-mutt-send-email-mst@kernel.org>
- <f7401703-e912-4d61-b206-f9f1de930092@oss.qualcomm.com> <8910d20d-dc47-4a12-9e83-204174154663@oss.qualcomm.com>
-In-Reply-To: <8910d20d-dc47-4a12-9e83-204174154663@oss.qualcomm.com>
+References: <20251105080151.1115698-1-lulu@redhat.com>
+In-Reply-To: <20251105080151.1115698-1-lulu@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 6 Nov 2025 12:06:56 +0800
-X-Gm-Features: AWmQ_bl1nw_u7Z9-YxAPWR_NNGdbr60ykEVvrchMvodD52Y0yrObCchz2OB8nro
-Message-ID: <CACGkMEuD43oH7zshX-Jf+nvxZmkw730vcX4fcFH9+2z6b_8O-g@mail.gmail.com>
-Subject: Re: [PATCH] virtio_blk: NULL out vqs to avoid double free on failed resume
-To: Cong Zhang <cong.zhang@oss.qualcomm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>, 
-	linux-arm-msm@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	pavan.kondeti@oss.qualcomm.com
+Date: Thu, 6 Nov 2025 12:07:55 +0800
+X-Gm-Features: AWmQ_blkjcF91oRQFm8CV6EBB0pbTNMJW4V9b4A10CbddPExXzNM8-bAP5bZeBQ
+Message-ID: <CACGkMEvriYoN2XZLmB0KcJmH4hVT3iYj3QV_ypfgHSQNwv296w@mail.gmail.com>
+Subject: Re: [PATCH 1/2] vdpa/mlx5: update mlx_features with driver state check
+To: Cindy Lu <lulu@redhat.com>
+Cc: dtatulea@nvidia.com, mst@redhat.com, netdev@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: F7pMvuQGRezVqoV67AjxkDBFwDH_O7lLZ0isHXfcEiw_1762402029
+X-Mimecast-MFC-PROC-ID: lS93WQLnVE2ltIzQKHKl04WWzBFnhxAVKPMhId1zFVQ_1762402089
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 5, 2025 at 4:56=E2=80=AFPM Cong Zhang <cong.zhang@oss.qualcomm.=
-com> wrote:
+On Wed, Nov 5, 2025 at 4:02=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
 >
+> Add logic in mlx5_vdpa_set_attr() to ensure the VIRTIO_NET_F_MAC
+> feature bit is properly set only when the device is not yet in
+> the DRIVER_OK (running) state.
 >
+> This makes the MAC address visible in the output of:
 >
-> On 10/22/2025 4:02 PM, Cong Zhang wrote:
-> >
-> >
-> > On 10/22/2025 3:01 PM, Michael S. Tsirkin wrote:
-> >> On Wed, Oct 22, 2025 at 01:45:38AM -0400, Michael S. Tsirkin wrote:
-> >>> On Wed, Oct 22, 2025 at 12:19:19PM +0800, Jason Wang wrote:
-> >>>> On Tue, Oct 21, 2025 at 8:58=E2=80=AFPM Michael S. Tsirkin <mst@redh=
-at.com> wrote:
-> >>>>>
-> >>>>> On Tue, Oct 21, 2025 at 07:07:56PM +0800, Cong Zhang wrote:
-> >>>>>> The vblk->vqs releases during freeze. If resume fails before vblk-=
->vqs
-> >>>>>> is allocated, later freeze/remove may attempt to free vqs again.
-> >>>>>> Set vblk->vqs to NULL after freeing to avoid double free.
-> >>>>>>
-> >>>>>> Signed-off-by: Cong Zhang <cong.zhang@oss.qualcomm.com>
-> >>>>>> ---
-> >>>>>> The patch fixes a double free issue that occurs in virtio_blk duri=
-ng
-> >>>>>> freeze/resume.
-> >>>>>> The issue is caused by:
-> >>>>>> 1. During the first freeze, vblk->vqs is freed but pointer is not =
-set to
-> >>>>>>    NULL.
-> >>>>>> 2. Virtio block device fails before vblk->vqs is allocated during =
-resume.
-> >>>>>> 3. During the next freeze, vblk->vqs gets freed again, causing the
-> >>>>>>    double free crash.
-> >>>>>
-> >>>>> this part I don't get. if restore fails, how can freeze be called
-> >>>>> again?
-> >>>>
-> >>>> For example, could it be triggered by the user?
-> >>>>
-> >>>> Thanks
-> >>>
-> >>> I don't know - were you able to trigger it? how?
-> >>
-> >> Sorry I mean the submitter of course.
-> >>
-> >
-> > Let me add more details:
-> > Autosleep is enabled in this case. When the system wakes up from
-> > suspend, it will call virtio_device_restore. The failure happens in the
-> > virtio_device_restore function before vblk->vqs has been allocated. The
-> > system still gets woken up after the failure happens. Since autosleep i=
-s
-> > enabled and there is no wakelock being held, the system will try to
-> > suspend again. Then virtio_device_freeze will be called and causes the
-> > issue.
-> >
+>  vdpa dev config show -jp
 >
-> Gentle reminder.
-> Please let me know if you need any additional information.
+> when the device is created without an initial MAC address.
+>
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> ---
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
+x5_vnet.c
+> index 82034efb74fc..e38aa3a335fc 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -4057,6 +4057,12 @@ static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev=
+ *v_mdev, struct vdpa_device *
+>         ndev =3D to_mlx5_vdpa_ndev(mvdev);
+>         mdev =3D mvdev->mdev;
+>         config =3D &ndev->config;
+> +       if (!(ndev->mvdev.status & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> +               ndev->mvdev.mlx_features |=3D BIT_ULL(VIRTIO_NET_F_MAC);
+> +       } else {
+> +               mlx5_vdpa_warn(mvdev, "device running, skip updating MAC\=
+n");
+> +               return err;
+> +       }
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+I don't get the logic here, mgmt risk themselve for such races or what
+would happen if we don't do this?
 
 Thanks
 
 >
-> >>>
-> >>>>>
-> >>>>>> ---
-> >>>>>>  drivers/block/virtio_blk.c | 13 ++++++++++++-
-> >>>>>>  1 file changed, 12 insertions(+), 1 deletion(-)
-> >>>>>>
-> >>>>>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk=
-.c
-> >>>>>> index f061420dfb10c40b21765b173fab7046aa447506..746795066d7f56a01c=
-9a9c0344d24f9fa06841eb 100644
-> >>>>>> --- a/drivers/block/virtio_blk.c
-> >>>>>> +++ b/drivers/block/virtio_blk.c
-> >>>>>> @@ -1026,8 +1026,13 @@ static int init_vq(struct virtio_blk *vblk)
-> >>>>>>  out:
-> >>>>>>       kfree(vqs);
-> >>>>>>       kfree(vqs_info);
-> >>>>>> -     if (err)
-> >>>>>> +     if (err) {
-> >>>>>>               kfree(vblk->vqs);
-> >>>>>> +             /*
-> >>>>>> +              * Set to NULL to prevent freeing vqs again during f=
-reezing.
-> >>>>>> +              */
-> >>>>>> +             vblk->vqs =3D NULL;
-> >>>>>> +     }
-> >>>>>>       return err;
-> >>>>>>  }
-> >>>>>>
-> >>>>>
-> >>>>>> @@ -1598,6 +1603,12 @@ static int virtblk_freeze_priv(struct virti=
-o_device *vdev)
-> >>>>>>
-> >>>>>>       vdev->config->del_vqs(vdev);
-> >>>>>>       kfree(vblk->vqs);
-> >>>>>> +     /*
-> >>>>>> +      * Set to NULL to prevent freeing vqs again after a failed v=
-qs
-> >>>>>> +      * allocation during resume. Note that kfree() already handl=
-es NULL
-> >>>>>> +      * pointers safely.
-> >>>>>> +      */
-> >>>>>> +     vblk->vqs =3D NULL;
-> >>>>>>
-> >>>>>>       return 0;
-> >>>>>>  }
-> >>>>>>
-> >>>>>> ---
-> >>>>>> base-commit: 8e2755d7779a95dd61d8997ebce33ff8b1efd3fb
-> >>>>>> change-id: 20250926-virtio_double_free-7ab880d82a17
-> >>>>>>
-> >>>>>> Best regards,
-> >>>>>> --
-> >>>>>> Cong Zhang <cong.zhang@oss.qualcomm.com>
-> >>>>>
-> >>
-> >
+>         down_write(&ndev->reslock);
+>         if (add_config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
+> --
+> 2.45.0
 >
 
