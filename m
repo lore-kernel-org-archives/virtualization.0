@@ -1,105 +1,163 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C637823B616
-	for <virtualization@lists.linux.dev>; Thu,  6 Nov 2025 06:44:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68D8A29B8DB
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Nov 2025 07:33:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762411469; cv=none; b=ppAaRLQo2+yJH84NgmrNi72fgUaBUfhwDXuL6QUxaLurJXf66d5eiDD+Oh92ALVwkkj+hLB7cGMdyLrJtcJSCqICIGGPN8CV2hupQkYRKvqgvUhwOAbV6Pyn+3QPo7GWxwm+FY8vPIY8hl9tx8uVG9c3M3aZiNch22PFHTgGFfk=
+	t=1762414410; cv=none; b=a2GyFMBygc5hgOUUNpi0DOGagTBA42XPfJEeNMelxbg+TdKw5tfWLj0Pqa+As2GJtCZCP/+BysurL+ORWc8oswwSZUM/3LYa6Q2LASmAxY84VOYCh3x5PPYQeZhQ0vwzp3ZGyciIqc3IZHifoVzn0h+taPCPhYK9fhoZYZ+kLrs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762411469; c=relaxed/simple;
-	bh=4aOwbplGzocz2ayqjqOgyLj5sAO0MgzGCQLCTpyfFfM=;
+	s=arc-20240116; t=1762414410; c=relaxed/simple;
+	bh=Z6rDoDbBzZehN05laYqSOz5TF+zWduNfgDpGobbtTm4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oEPfLS+ircwbnkAdmglLc4rSMJGRkkmS96G97ZMeX6lzlUGsfzBKauaveY5Qbhkvck78LOXgqdu/2cbLtog0uEWFf0X7w+876FTEFUMI8nZuZtRd8Pt9ROtEyez0/FVS/svv5idNflwKexRUNULx6wKQFvVppY+L0gzgHBttml8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gfPcwJmO; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=TqtrMLtd6npYgiFn+Q0Ep9HlYVwA3AZ1sx2Vhue716W3OcQDTL4CMrTwqJpnMwog+8j2tC//poEjyljQOAlxG5vE1Bi0RMmWFXEfaQTaGDEBSqiEHQBkcCUeohQkJ3yjlGKcg2Tjg7K+LxmlUE0Sd/MUq6te6Ifs2xINkZFvh1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iOQ7qcUg; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gfPcwJmO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iOQ7qcUg"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0E701411E5
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Nov 2025 07:33:29 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id N0qxXmrJWEuV for <virtualization@lists.linux-foundation.org>;
+ Thu,  6 Nov 2025 07:33:28 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E619D4111B
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E619D4111B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iOQ7qcUg
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E619D4111B
+	for <virtualization@lists.linux-foundation.org>; Thu,  6 Nov 2025 07:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762411466;
+	s=mimecast20190719; t=1762414405;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=4aOwbplGzocz2ayqjqOgyLj5sAO0MgzGCQLCTpyfFfM=;
-	b=gfPcwJmOj+BEFPX0Te79OstjxGbpRzhmqok6VVdMGBFNAJ4J/1iAYvPR1vjZxj5m5IYnZe
-	GhWBY1V/SPjpUCBUZdTXRWCRViCodevM0juNfDiZNWUDbE1NSQ1mF+RUtKD7UM3FHtMSdu
-	wYpQ1wAWMYcrXVtpKypwT4SYeHsELoc=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CYAde5e7XRo2nCFdsgkjpp8tUcZhDMLUB3jHCGqkjtg=;
+	b=iOQ7qcUgR97zNz+PCohNQW93bGReZDuyBye0SwfKzLHvAREC34u4E9HUyucltYFd6aUm9Q
+	G3MhmT47izEwxQ7AcpjSf3vsspT+u0DXJntfsOLDd8B1GLiv/F1PK31UTxPYvN5flatzP9
+	1A7/LZ1ZbsLp3QxOh4l/6QajrzumzEk=
+Received: from mail-vs1-f72.google.com (mail-vs1-f72.google.com
+ [209.85.217.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-168-hTcmEGjnMAWuJJ8pnRdq7w-1; Thu, 06 Nov 2025 01:44:25 -0500
-X-MC-Unique: hTcmEGjnMAWuJJ8pnRdq7w-1
-X-Mimecast-MFC-AGG-ID: hTcmEGjnMAWuJJ8pnRdq7w_1762411464
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-294a938fa37so2533265ad.2
-        for <virtualization@lists.linux.dev>; Wed, 05 Nov 2025 22:44:25 -0800 (PST)
+ us-mta-300-Y6cGs3uCMXuFHJXqg4amhQ-1; Thu, 06 Nov 2025 02:33:24 -0500
+X-MC-Unique: Y6cGs3uCMXuFHJXqg4amhQ-1
+X-Mimecast-MFC-AGG-ID: Y6cGs3uCMXuFHJXqg4amhQ_1762414404
+Received: by mail-vs1-f72.google.com with SMTP id ada2fe7eead31-5dd83dae672so199170137.0
+        for <virtualization@lists.linux-foundation.org>; Wed, 05 Nov 2025 23:33:24 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762411464; x=1763016264;
+        d=1e100.net; s=20230601; t=1762414404; x=1763019204;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4aOwbplGzocz2ayqjqOgyLj5sAO0MgzGCQLCTpyfFfM=;
-        b=jYZfVA0zAGVX1rF4Oz/IPX1OpdIQZHWsg/ugbYP13kxmDFfHNF+Lm84lcTL5PdlwCE
-         bn+dRre96mnwwMp0v+hCiUspkJxlf2BnOabAXiercyFEG4UI9DOgquWUfmGt5nO1qPFO
-         hg2FJbCwEzgamg5NhMN4W1mZlbCEtg+04CqLrlksQwwKviSrr+A0CfPBpkfQvezE1YZt
-         Lq8OuYVDoOJ9sPIlbrXETF4UB8gcn7mbhHw7IJhmLBcKyxUK2BaTe60taRpC0MDtgxFr
-         0qWcXgnm7pujeZdJ36lCVBj+Q0UNR9B+zlXjI105MqXiVjEkDQJSmlvMxl4hwpl8dPTR
-         BUcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWcmd5/i5zV5JYCTYzrbAmOb/lz+5DGeN/fe0DCuTfpL5Uzi+OI7Vti1tRwXWD0phmOFf7Ktnpcdocgu8zapw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywp88gUTVbKk5jNJ/LqJkLvQIUc5Lltf7iX1sFQGdqNriMGqo6M
-	t8ksswAOiGuWW8Qzy0NL8aALd4YQO48KsCND7i2A/77rlYr1RGoCdjUZb8j+3jd8WavOSzlWDv/
-	VTRwY0ErsZoMuPDG4fBONnrvJJJ1z0XgDB9sPsg+7ihX00vXdz8GNjfMBr3em1MiLDHuRgn6S5R
-	gBsBmJMc2k8NGLJB01eaD0TpS4oSIA/lc57btybQultEyplyvD4g1ZBNJl
-X-Gm-Gg: ASbGncsGjuF5JYQWO6ktpHM12H3MJTO1ZJ4Je5jNu1mdxuO+5KV6pUnLu+UdoPemW6q
-	1fSHS1GoLo3ryPYVzrqsn8zJRYUGlKvn6JOGLiaSmSERCVvudxASChPZJiy0jq1/m/3zsqHe0DM
-	z2BGenjdHdGz4Oc0pp5fNPYfjewMvY0E6GhzlLcMq108bshfMArovDtsjF
-X-Received: by 2002:a17:903:1b63:b0:28e:7567:3c4b with SMTP id d9443c01a7336-2962ad1ef5amr84646355ad.16.1762411463889;
-        Wed, 05 Nov 2025 22:44:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFmNZkWVFrgyX6IG8QwdVbXXabDAgmhxboOVYqMKs84MfgEvO2GkEnqgYjqE4lmrXZf+XuZQPTBJ4U9ZXyvnqU=
-X-Received: by 2002:a17:903:1b63:b0:28e:7567:3c4b with SMTP id
- d9443c01a7336-2962ad1ef5amr84646045ad.16.1762411463463; Wed, 05 Nov 2025
- 22:44:23 -0800 (PST)
+        bh=CYAde5e7XRo2nCFdsgkjpp8tUcZhDMLUB3jHCGqkjtg=;
+        b=sMebYQD4XOL1CWkHtl0yAWokiRouUNA7FkzvBR/48+hR+Uw2p8zzkKtfxXxU4D3tUO
+         OS9kau8bhQ97dOTWpIc6/ffd6pNKtiCldXTt7j7R3oyqdN/g7hu335Lu4QFz55txnw52
+         Khtv1nNhEBd8p1OlpuOIFUHTTlfXJsKaU1eu00gmU1gl4821ZY5Sul5TBvos3Tbz4Gpe
+         i5sgml/AvmENd9nmqVkTUsdokANvKB4Ukeu2O2mycIdObuF1BBxkLg+LuaihWqzw8qm+
+         nkwTe3/bA/lSaJMyIr6BoCbnPoL5zQnaPAA/drjtP6mZpxP1HwD5qxi99wYDpMePQFRB
+         fGLw==
+X-Forwarded-Encrypted: i=1; AJvYcCUsJ11zoPs/tvI3v11EuChD+eoP9YjVXSWPOMFZzNn/XDD57aDjzq7bj3L8CSA2dGSDe3M0lvbfD1mDQ6ngMQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxrLA7Noj3LDJser+zlWkNt9Q1Acfj8jlsSxHtTar3X/M05rxFb
+	8vkTQPP/ybJGCY/pkDf0POGyc0cpBEKCBoM6mdtyVXSC8XBkEd/4OI2K2t4sHVpJLkQmhQNxPF8
+	GGNgXYMGcvbw+wgx9FFkRj8IIH3vj22GdArdIKDt/OZuaBsgEkKfsRuO8P05gkn+fbJbZAl7+pc
+	stqwy6XFG7zhjKiAkkdIWy0LBB7Zf5PVfsvt/fjzX8WF3lIHLGQFuRvT93ig==
+X-Gm-Gg: ASbGncvoAusEehwDJ3zl4rRGxacC8A7AY4HjxUPuHlvRfS+wmmXJUL22Rl9hh7VMXkA
+	8WHaFDns9xeGvT6KdNoOKi/ICtTUmnGz1N33dRUTLbwlwKMb+Bc7dRblq0gHugdxjXXtSJfQn3P
+	wH/7qzscfH33EB2EC1eJ6pt0SdCdJVGyT3tKNJNTLL0SgHugHAjj7D+cDT
+X-Received: by 2002:a05:6102:3053:b0:5db:d07c:218d with SMTP id ada2fe7eead31-5dd9fdb4d0fmr879048137.15.1762414403865;
+        Wed, 05 Nov 2025 23:33:23 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHfgJ5v70iJc90m1C5a8kGqaC50su+K78cw6ZlEPzjU2+a4nohKdaZgEJEwG3WrJX689N8V+NwxJorp4vWreDI=
+X-Received: by 2002:a05:6102:3053:b0:5db:d07c:218d with SMTP id
+ ada2fe7eead31-5dd9fdb4d0fmr879040137.15.1762414403476; Wed, 05 Nov 2025
+ 23:33:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251029033559.83145-1-hsukrut3@gmail.com>
-In-Reply-To: <20251029033559.83145-1-hsukrut3@gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 6 Nov 2025 14:44:12 +0800
-X-Gm-Features: AWmQ_blG6rCuODjNHXnzSBsblyAMCOBCmeR3DLx53_79KRl2HplNxsN72I3qYKo
-Message-ID: <CACGkMEs=xB3nZZMaQC6m15Gm+K9fiS68twD4vOgQid-B0BQ8Qw@mail.gmail.com>
-Subject: Re: [PATCH] virtio: document @vaddr in virtqueue_map_free_coherent
- kernel-doc comment
-To: Sukrut Heroorkar <hsukrut3@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	"open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux.dev>, open list <linux-kernel@vger.kernel.org>, 
-	shuah@kernel.org, david.hunter.linux@gmail.com
+References: <20251105080151.1115698-1-lulu@redhat.com> <miwqc3uxmvvs5efvcqv7s4boajxjgko2ecqkyeqk62e4pwjexa@qi24ta7rftx6>
+In-Reply-To: <miwqc3uxmvvs5efvcqv7s4boajxjgko2ecqkyeqk62e4pwjexa@qi24ta7rftx6>
+From: Cindy Lu <lulu@redhat.com>
+Date: Thu, 6 Nov 2025 15:32:42 +0800
+X-Gm-Features: AWmQ_bnoiY8Gk32PJh58YA8qenD4YokFKdcWQ14qjx3RkyIPx105xiGyaIgP11w
+Message-ID: <CACLfguWr37_OON9f7T3=tu87Fp1ZDm2gKxREikAUCnD8+McVvQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] vdpa/mlx5: update mlx_features with driver state check
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: mst@redhat.com, jasowang@redhat.com, netdev@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wrwlICgZva8d6ZO2fwGfEzNlKYu2JTrmuOiK9rHRSCQ_1762411464
+X-Mimecast-MFC-PROC-ID: BD8riPYbGP4BQMt24Qow7P8EnsmoTEq--WTNeYsS25Y_1762414404
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 29, 2025 at 11:36=E2=80=AFAM Sukrut Heroorkar <hsukrut3@gmail.c=
-om> wrote:
->
-> Building with W=3D1 reports:
-> Warning: drivers/virtio/virtio_ring.c:3174 function parameter 'vaddr'
-> not described in 'virtqueue_map_free_coherent'
->
-> The @vaddr parameter was introduced when virtqueue_map_free_coherent
-> was added in order to provide map operations to virtio device, but it
-> was never documented. Document @vaddr to silence this warning.
->
-> Fixes: bee8c7c24b73 ("virtio: introduce map ops in virtio core")
-> Signed-off-by: Sukrut Heroorkar <hsukrut3@gmail.com>
+whie
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks
+On Wed, Nov 5, 2025 at 6:03=E2=80=AFPM Dragos Tatulea <dtatulea@nvidia.com>=
+ wrote:
+>
+> Thanks for your patches!
+>
+> On Wed, Nov 05, 2025 at 04:01:41PM +0800, Cindy Lu wrote:
+> > Add logic in mlx5_vdpa_set_attr() to ensure the VIRTIO_NET_F_MAC
+> > feature bit is properly set only when the device is not yet in
+> > the DRIVER_OK (running) state.
+> >
+> > This makes the MAC address visible in the output of:
+> >
+> >  vdpa dev config show -jp
+> >
+> > when the device is created without an initial MAC address.
+> >
+> So when the random MAC address is assigned it is not currently shown?
+> I don't fully understand the motivation.
+>
+Yes, when the device was created without a MAC address, the
+VIRTIO_NET_F_MAC bit wasn=E2=80=99t set during dev_add, so it wasn=E2=80=99=
+t
+displayed. At this time the mac address is 0. I think we can remove
+the VIRTIO_NET_F_MAC bit check when showing it.
+> > Signed-off-by: Cindy Lu <lulu@redhat.com>
+>
+> > ---
+> >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+> > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/=
+mlx5_vnet.c
+> > index 82034efb74fc..e38aa3a335fc 100644
+> > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > @@ -4057,6 +4057,12 @@ static int mlx5_vdpa_set_attr(struct vdpa_mgmt_d=
+ev *v_mdev, struct vdpa_device *
+> >       ndev =3D to_mlx5_vdpa_ndev(mvdev);
+> >       mdev =3D mvdev->mdev;
+> >       config =3D &ndev->config;
+>
+> > +     if (!(ndev->mvdev.status & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> > +             ndev->mvdev.mlx_features |=3D BIT_ULL(VIRTIO_NET_F_MAC);
+> > +     } else {
+> > +             mlx5_vdpa_warn(mvdev, "device running, skip updating MAC\=
+n");
+> > +             return err;
+> The err is EOPNOTSUPP. Is this the right error?
+will fix this
+>
+> > +     }
+> >
+> Why is this block not under the reslock?
+>
+will fix this
+> Thanks,
+> Dragos
+>
 
