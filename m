@@ -1,67 +1,66 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E2FB2F7ACD
-	for <virtualization@lists.linux.dev>; Fri,  7 Nov 2025 00:50:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D4CA2FD1AA
+	for <virtualization@lists.linux.dev>; Fri,  7 Nov 2025 00:50:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762476603; cv=none; b=nQGQJBZDOd6n1EwIB/5k3TtToht5GMDoG9WKt5+Qf3FaFfKMOHYZoDdkv20hMLZF4go0A2wTeSP6T+yBJMKCv+PrN9azJCgKaXYojROrYw3DefY815hVQt1Knn8YNdKd8HLlCIM/6cUWhjfvjy3vl8eRCo3CEYHIBmAmYj3TAxo=
+	t=1762476605; cv=none; b=Z+jkGhmf6YXQEMiygHiyDAZDa5kzv3IKGe9WBADa9XsZ0u/NGXVovKDtX3yDxl+K40FimlRvqbiykZb+HsTNE+5pxH7YVGZWY+zkhEfgPCMGM3+Yy/ynohl8TW7aGCHp53T0FW3ooNXUbPID0/mjH05xDa1Is5xpxEHlSdWWPOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762476603; c=relaxed/simple;
-	bh=3X7FcSuFEkDk3JDUhogHRIfC2C0s4TSTiHdkuzapQSE=;
+	s=arc-20240116; t=1762476605; c=relaxed/simple;
+	bh=iMU473kfbxLIfx41vDd7YtatXvonwJ3nvGqIOn/zk5I=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ZRLufmgKzngkumtdf/1CJ+Je1XqeC+6QTV/4+EBW5VDIhaKjkBl41qJIYcjpFwbfuyoc1ZfmW6WHFBHAplSk8rpCd8MGO6cZI7KHxP956KrHFN09fbhVpzGmHiZLVS2K9wlJZsk+SrdywtDUdsc6TsD8Ldea3Utc7VwPOl1GPiM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HUZwjCN3; arc=none smtp.client-ip=209.85.214.176
+	 In-Reply-To:To:Cc; b=kssXzk0kYXa4/NnfM8VNYoSR4VfraYb7744qJ6RIWtpQ1ZcWGaTB8Be2SX8qKIoE9JYZoR8ncqzw8UmARxSn3ZqdJ9rANlaYQaNlGfz42caKvbS4fmohzl18ZB1+byUf7ABM+nd1niaBOBa3ABwACHn9Wu+UG3AsnN6kwgbT/j0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KGiZIhg2; arc=none smtp.client-ip=209.85.215.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HUZwjCN3"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2955623e6faso1910095ad.1
-        for <virtualization@lists.linux.dev>; Thu, 06 Nov 2025 16:50:01 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KGiZIhg2"
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-b67ae7e76abso119094a12.3
+        for <virtualization@lists.linux.dev>; Thu, 06 Nov 2025 16:50:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762476601; x=1763081401; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1762476602; x=1763081402; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=08hYWGEnuRuvo8cclYTSCBGU9hHXXt88CsOLxaqCDS4=;
-        b=HUZwjCN31xdtQcR1jlmEoZdRLarY0iMdSUI+pQg6wbf3ZM23cwrhxOn5MMp5azQb2z
-         4dFSX43NRPgqEikzxcT34W3AWxBiQWcvi/q/b1QaJZaKBrWriVaQJ0+n6XE9MdIAa69u
-         t9Z9xxqANDOpvpMmcp2yOft7JWiRG9a+vM+WtkxcfCfPpkvh8awv80ccYNpHUGSpzMIF
-         UVg/ePSlMOk5+ygY6zJr8owgEz/h53TSPW+Rk27eLH1GzXDdCmS++Q8TxI4HrbZsmOkT
-         ButHt9LfsBSI6VfPUcZdrOGlEnjrMRqFQylpTzmyFof+xwz2rlcKWHUn8hF1mL4jyCRV
-         hC3Q==
+        bh=uegf6nxs6P81Dwl5DQm2UBLSV3f9YHB+8bNv996m32s=;
+        b=KGiZIhg2GR1YGPypZ7qbK77l8VZtkxTpSkqbfyiCVzaZRsXaJWVvLPgtvgNOXhh6Wv
+         6fNAYHLGCx/K4aaEJbcGLPB3rwpDQUTTRTURqRpuOMuSPQ4FGquXDPGYz8FeCWb0e59u
+         a/q9yg/iMh3QDDnZaGThQQervpmAce5S5lHXu6Zuuhcz6vK0fsC5pZJTwMJ51eO4f3nW
+         nuPSyVl7TZ4UD73xGvjHYdks8lGIsBAW11ykhLGk0hZOO7wfqqxRE3c7jEbZiwfCPJ5J
+         BewbkPX9K7DrqI95+o/9zlQ6ZCet2S5ZjVFNnwKiOQI9Ttmu634+l0rC9X7NIwlgwu+0
+         CRkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762476601; x=1763081401;
+        d=1e100.net; s=20230601; t=1762476602; x=1763081402;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=08hYWGEnuRuvo8cclYTSCBGU9hHXXt88CsOLxaqCDS4=;
-        b=vN/ovTpfyDkDKKLiXlVsPxfhxYbhXxHuU2Z97xn64KWAzLnr4wSQjATfZh3HKiZyfa
-         17Z5R1Q6IKnQ3P7WyJYFnborqQANq/Ruac6dY2fxJRCdvjsBgNT+eipJcrLyMVyggzz6
-         QSLLenE7/NcDtuVTDWqSxYa/WdAYhg61+gnmsya1AIaVeeXRoj8iQI8qxE9anBmvFNm3
-         nAoctyX5HF7cIP1cudkAw7uaLXdqyTz+HvaAPi5a/tRLRElRyWXVZMplknAzFDw1aGy5
-         NLE1uZkj/VdyhQ5Fx8TEX7Y58L+4MoZ52RVl4Mn/8Azte8swQZU9iIMWmxezYtrKD4ep
-         44Tg==
-X-Gm-Message-State: AOJu0YxdYzGk0DHWzY0L6KgM0M9oNfKptrmfBcshjYtqJzEcxVn3C649
-	IpsA3M3dyf+cEZZoPplmdMijEMd9MQ2sRAeYTk0gSUW+KwovVxUicaCy
-X-Gm-Gg: ASbGncvxGLzkUFPULolsKqaGErEugDDwzEUQVVqQlLiRnzqNXC26GYYmlCi7hpUDYMD
-	QkDflVYPqC3dvsFuxt/X1P4iMzp3pHwpDWrBf0TdLFI26MPMFDBSRY6JyXvtbpatVQODMKhcelV
-	rRplaM7zfiWVioGplkIDGJoF0QVa67wLm/TToace8Ql5YtboecxXJv0HtBDJDQ+uwY8mphCN4dr
-	TCETm+Lc9jVp8g8YpqDD5RGK4z4KVvXj8pt5ezBDj3Zj5RFIyY7lBWrM7OyMqSCWKqus6yGtf8V
-	lrDF7lk2Ub3QhaxWzM+uxw2ox69km5q+CpB3DER6VxqXa/U5YaF+AQsaLkwRqO66E6unir8qKAJ
-	K1IzWAAkBmXs12dL843/6KN2NCN1PidUf29TB+xGgU6U94IeeN8Z66mhG+v+iEUQFud/jZ3XjfQ
-	==
-X-Google-Smtp-Source: AGHT+IGJA+8g6wRjaGXZk+uvhQ1e9D6dzx/VUNrIZDpEGW28OcBzHMx9m6/c+9slJaL7jTXyZDCNaQ==
-X-Received: by 2002:a17:903:384f:b0:270:e595:a440 with SMTP id d9443c01a7336-297c040a72bmr17286965ad.25.1762476600328;
-        Thu, 06 Nov 2025 16:50:00 -0800 (PST)
-Received: from localhost ([2a03:2880:2ff:73::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29651c7409esm40775685ad.64.2025.11.06.16.49.59
+        bh=uegf6nxs6P81Dwl5DQm2UBLSV3f9YHB+8bNv996m32s=;
+        b=YfVaBv+I1SD1lbr6/4v5pvc63ITiGzirdaz6KZlHwH2Ho0QuTcm7sUFhl5GBS9BsRF
+         yjNZOWZiNoCw2HrNKTkJPwQL1jcSlpIXvWYEDoIMuJyEy0d9Gu/e2TNfuDIqrGW+o9cG
+         u2cvwnTnnuzdd5ujf5gQmyO3K3cwMvsH2/dKA7kujEQxpzZ2cB+2SWHHvsSct8utDcwP
+         OY5PG2YLvNsrlshdny1DEbH/kVQPW5wKBQ9KWgiFoDeiaekIjp5QA8jshpEkz5a9Q2gF
+         KwAMurmpxAJRgl2QksaEfcvyTEw7K/dGjl2x452rKkwaOFr2HaKP/3PUR5bjrGT0kREJ
+         yobg==
+X-Gm-Message-State: AOJu0YwVDeR1IKhB1PrPAFFv0WB7tPREUfRobxoQmPfPgJ6FhkTawsOm
+	vNgDrUGXo0EYTJt77wrdzxqjSY73gOIst0UDyfefFOr1TQT16UfozuHA
+X-Gm-Gg: ASbGncvDbTRhylySnLHqapRbLSVghAZkGALIe8Wwi8ufV4CKeFfo4n3GrT4rT5nXBiL
+	ixvt2PwHFy9nzUVJY/AxbU6t8XXYAEF9kQM9eOrT3FCCF9rHY9Ipdp3d0Pf9jUi8MY606gCnP02
+	ICUax0csEsNqIg92SnP25C6MQfGs0tWIG+LEss5qPeSAjmEL+Yv5GpdYznUOWpFnmuVJrInDTII
+	29//hWNXxpNOlyM3U7oNLFfJpvWry6sH/qsws7zidEjpuu1GFgmBdnJGaJceP2nW8jIhByF+lN5
+	Bt6DykZB8HVrXerDzi86rxYRpkw1d8So8D7x7R8tnNtj7wPZpemyFBVEq/B3p5fYgtrpWVdsyGz
+	I7W+nty8Zzs9YbNGQ+igyfisSDayM7UUQQBCX5/+vH0em96AIcHvxefY0evPB2oQQdDJYwwzN
+X-Google-Smtp-Source: AGHT+IEn4ofaJtpDiBFAzxzfLcnblypBsnuT/tfNp8v2pmgiedvOY3KtH3CWotZWmHCTlxnnmEILUA==
+X-Received: by 2002:a17:902:ecca:b0:295:a1a5:baee with SMTP id d9443c01a7336-297c03d28dfmr16719935ad.4.1762476602405;
+        Thu, 06 Nov 2025 16:50:02 -0800 (PST)
+Received: from localhost ([2a03:2880:2ff:6::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29651c778a5sm41166315ad.73.2025.11.06.16.50.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Nov 2025 16:50:00 -0800 (PST)
+        Thu, 06 Nov 2025 16:50:02 -0800 (PST)
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Thu, 06 Nov 2025 16:49:53 -0800
-Subject: [PATCH net-next v3 09/11] selftests/vsock: add 1.37 to tested
- virtme-ng versions
+Date: Thu, 06 Nov 2025 16:49:55 -0800
+Subject: [PATCH net-next v3 11/11] selftests/vsock: disable shellcheck
+ SC2317 and SC2119
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,45 +69,42 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251106-vsock-selftests-fixes-and-improvements-v3-9-519372e8a07b@meta.com>
+Message-Id: <20251106-vsock-selftests-fixes-and-improvements-v3-11-519372e8a07b@meta.com>
 References: <20251106-vsock-selftests-fixes-and-improvements-v3-0-519372e8a07b@meta.com>
 In-Reply-To: <20251106-vsock-selftests-fixes-and-improvements-v3-0-519372e8a07b@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>
 Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
  linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Bobby Eshleman <bobbyeshleman@meta.com>, Simon Horman <horms@kernel.org>
+ Bobby Eshleman <bobbyeshleman@meta.com>
 X-Mailer: b4 0.14.3
 
 From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Testing with 1.37 shows all tests passing but emits the warning:
+Disable shellcheck rules SC2317 an SC2119. These rules are being
+triggered due to false positives. For SC2317, many `return
+"${KSFT_PASS}"` lines are reported as unreachable, even though they are
+executed during normal runs. For SC2119, the fact that
+log_guest/log_host accept either stdin or arguments triggers SC2119,
+despite being valid.
 
-warning: vng version 'virtme-ng 1.37' has not been tested and may not function properly.
-	The following versions have been tested: 1.33 1.36
-
-This patch adds 1.37 to the virtme-ng versions to get rid of the above
-warning.
-
-Reviewed-by: Simon Horman <horms@kernel.org>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 ---
- tools/testing/selftests/vsock/vmtest.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/vsock/vmtest.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index 7962bc40d055..a5c33b475a39 100755
+index cde048bd7fe6..bda1ad173ad1 100755
 --- a/tools/testing/selftests/vsock/vmtest.sh
 +++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -170,7 +170,7 @@ check_vng() {
- 	local version
- 	local ok
+@@ -7,6 +7,8 @@
+ #		* virtme-ng
+ #		* busybox-static (used by virtme-ng)
+ #		* qemu	(used by virtme-ng)
++#
++# shellcheck disable=SC2317,SC2119
  
--	tested_versions=("1.33" "1.36")
-+	tested_versions=("1.33" "1.36" "1.37")
- 	version="$(vng --version)"
- 
- 	ok=0
+ readonly SCRIPT_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+ readonly KERNEL_CHECKOUT=$(realpath "${SCRIPT_DIR}"/../../../../)
 
 -- 
 2.47.3
