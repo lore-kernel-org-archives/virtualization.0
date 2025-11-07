@@ -1,151 +1,189 @@
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from canpmsgout03.his.huawei.com (canpmsgout03.his.huawei.com [113.46.200.218])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3592720C038
-	for <virtualization@lists.linux.dev>; Fri,  7 Nov 2025 01:09:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EB862F5A11;
+	Fri,  7 Nov 2025 01:29:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762477775; cv=none; b=Gm03+bwaZyxgkgYgu/xzTFe6+dZ3itZoX5s//yUBa8QzWKb7uChajJU2Ofm5FHOYPFfQXoJJIJG7fedGlwi5pJG/X6CNGJlB+ft8Mb53iPf4ZD2GhUj9uH2PfXcgMpNTOKJqokRlZ6YXZv/5+cwgrzLs/h+UJWlvwbC1eJe4ZxY=
+	t=1762478982; cv=none; b=ZpXjCIb8me+2Oj8350TEPQQzGFM9/OxCTvAZMmipehivgVwQJZ7hRLvZhCgfak72tUnDq8x/mFaW1REOlDQ8dRFB+AM/IplspztaKMOTYkiImSlcF20LgANLuVwehez19GFgyovbU5APPZiNTj7Z+sD8pB0wNu5llvl66XeHYd0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762477775; c=relaxed/simple;
-	bh=y8GsXoMpZfP1FEGzB5PcqGcDnM/GiApM178nf5o2DdU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uF4WFzXQXDkge4ZgR/ccw7dA8VqaZVgfK6W7RGLwayrPzevcZDk588PyCZP1dG7JHO4aY0ck+I2qH9tydCh3Ekfyg0UQre54WVCPfwBoyrA/LGuyF+GvB7Kn/7t/9DhguqsMBMelLq96v0ROSs/xwAdXJ7NjIYVuNOMBCSc5SL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JgrFyxph; arc=none smtp.client-ip=209.85.128.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1762478982; c=relaxed/simple;
+	bh=vFYO6EUXFyJCZCY3t3KbQ4nugoGhpeBquhJAKhoMHWw=;
+	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=lzpdWwNU33MrRhif3sFqQGIfVib+IHPveBKJ2xvjSeKRvwG5gdFVt7CwyYPO7sEZDYVfH+psMPPsGs6PP08jRXdSATFJHIuOoSxYA9uDS2MEEKrgdGVvu7AN2CSDEzDgsQltAu2SycPTnGe519akvAsHsFHR0lvVxfVEZRo/+2E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=ewhpz3Pd; arc=none smtp.client-ip=113.46.200.218
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JgrFyxph"
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-786943affbaso2125367b3.0
-        for <virtualization@lists.linux.dev>; Thu, 06 Nov 2025 17:09:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762477772; x=1763082572; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=IvUJ3GAHgLW25cDlFG6h0rQPjnjrIg13OTjYu0f9NLQ=;
-        b=JgrFyxphhe2qopjzes8TzjYQ1gGAEoxb2V7YdzUNJqBwec9ApN5PrDhmjnbMbCyOOT
-         L+askwe1E3TrjQPXjCLe6IHAAh58bxRCQukjGIPp3WgmZDoWawXP6OAEVzEYYR/iU2ZB
-         RxFBAs+Qi6B6ZonAHtgOG8O0E3a+ls09sSVHxTXqojWRH0JnSblnY9wsi3UP0v9BAvCy
-         G2OQgdeQjRhdeem28qkddx8FQjmWEK/HvgFiwEgwDfC6CCU8D7boq/wKhiFHheDeAlDl
-         0n+M5BF+7yMJGo+cmVlfG+78ZbcUcS06etYC4UXps8gE7/PiRHtJfLUc/QQ7prQxdVej
-         4/NQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762477772; x=1763082572;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=IvUJ3GAHgLW25cDlFG6h0rQPjnjrIg13OTjYu0f9NLQ=;
-        b=iSTttvJma5BZehp+uXOiDs0M0+RV4boN6sjSfRTtYCXDkuDFrDN+lwYgyEmaTsI+cL
-         4rnvwfWQDSCqQuAA8pacB4TKd9DAsP3oK3HzMh0l9683/C45+N8l/fiPuVazquBTd2vt
-         3/GxD4ZRYJo5T19Wq0AGFziz8mmP7Mg0xorEKkwz//uwRIdDMknIamu3j2TvwNu0g85F
-         3y0RMKOHPGqMS3ffuFXKbQhdSjn3mP07tdUwAR9nopr8tDVz9XcULKShL5W5LyHf73+c
-         vL0co1d6S/lCTdW/W2cj1+abjf0YVy17YJohpTEiSfCpx3c1hGv1C3/ucyjkJH5VTuen
-         l1fA==
-X-Forwarded-Encrypted: i=1; AJvYcCXILMJl/BS1qKgzPAzrgOfJgAkLgADAsAwn4ku64c3HYGCySkVoQzL9wW39DcH/ZhUy+lAb78uDjKcAljIGrg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyTTHh498wZKJyO8NpYaTuiqFoKEmyC4A2ApBpcEw9krKDd2SA8
-	fz5ToUeCKGxevpAeG/wuVrzOs2BQBq16lk8sHrW6ezy71Gw58GCnyXrG
-X-Gm-Gg: ASbGnctOMd6xYQRgHolNV9E+XL3ZWiJIG8BxECkCc/lsmSBJeFvo3LIo6kG1MZ3w5lX
-	YqLbvVECdQuJluo+Y8k1So9GFoCrcJUDtLIyTBZmr5mvunOn37YebhW73GOO3TQW7xF7n62924d
-	TZbpvTVawhx2RhmQH9JQ87pvsyOw5poz7TGWhHFjGXqRJkV05oyqI1+tT5drD1RiVC515BfXrtA
-	CyCQFQHNprEFAkJIgWhPYM/NxxulX+w+FIcfHtB+rUGd08AOFiKMViyDhPSuP9s7wtNbJyuay/8
-	2KyeCgPJ47QpMR2YyA0SEWuSMJQtuk919A3fFaTrZ4vulaBJFgJ/NIgvOuup9O+1NSoMnmYfIFD
-	PgvE/yG6oX8gTlWz8h0hi8u7HkPXPM7jA2wrVSutCJuMP1rMLX4c01j+A27PX68XdQ3JNDgG0oG
-	iLSH+BbeUFxR+OptdLC+/9Hcctu7KkdKsEkX2I
-X-Google-Smtp-Source: AGHT+IGIiNSL9xH9R1nGKHm9qDA5dUwel2Gn4NDFwi23AY7T7XKy/BbtnkHOptWZ8jTsfq60FDuFzg==
-X-Received: by 2002:a05:690c:6808:b0:786:a817:77a0 with SMTP id 00721157ae682-787c5346349mr13381347b3.31.1762477772177;
-        Thu, 06 Nov 2025 17:09:32 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:71::])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-787b1598d0asm13031717b3.29.2025.11.06.17.09.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Nov 2025 17:09:31 -0800 (PST)
-Date: Thu, 6 Nov 2025 17:09:30 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	berrange@redhat.com, Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v8 01/14] vsock: a per-net vsock NS mode state
-Message-ID: <aQ1Gyp87UYnr/VAO@devvm11784.nha0.facebook.com>
-References: <20251023-vsock-vmtest-v8-0-dea984d02bb0@meta.com>
- <20251023-vsock-vmtest-v8-1-dea984d02bb0@meta.com>
- <iiakzdk7n7onhu5sncjd7poh5sk34nrtvusbiulsel5uswuekv@p2yzmblg6xx7>
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="ewhpz3Pd"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=xeRQu+SYyXX4GV9ChTkeRHphOYQxpyYIT8412wlVrEE=;
+	b=ewhpz3Pd5N8b+zREBJhYALlUCEZD+ZqBQj3IP36ZRJp8z6vbRJONBBHKLPdl9t15MEoGvtzdn
+	ISg06aXnQWFhToZmVPm/T3Gvr3pZZl6p5AozEhn5wiCa4+aPK2U6dN3eyJlB0Cv2fJyTOCpCdlr
+	UqklBc8/YX0jBIIqXZVpwmI=
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by canpmsgout03.his.huawei.com (SkyGuard) with ESMTPS id 4d2hJX39z7zpSt8;
+	Fri,  7 Nov 2025 09:27:56 +0800 (CST)
+Received: from dggpemf500015.china.huawei.com (unknown [7.185.36.143])
+	by mail.maildlp.com (Postfix) with ESMTPS id 0B687140109;
+	Fri,  7 Nov 2025 09:29:30 +0800 (CST)
+Received: from [10.67.121.110] (10.67.121.110) by
+ dggpemf500015.china.huawei.com (7.185.36.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Fri, 7 Nov 2025 09:29:27 +0800
+Subject: Re: [PATCH 02/22] vfio/hisi: Convert to the get_region_info op
+To: Pranjal Shrivastava <praan@google.com>, Jason Gunthorpe <jgg@nvidia.com>
+CC: Alexander Gordeev <agordeev@linux.ibm.com>, David Airlie
+	<airlied@gmail.com>, Alex Williamson <alex.williamson@redhat.com>, Ankit
+ Agrawal <ankita@nvidia.com>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>, Brett Creeley <brett.creeley@amd.com>,
+	<dri-devel@lists.freedesktop.org>, Eric Auger <eric.auger@redhat.com>, Eric
+ Farman <farman@linux.ibm.com>, Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+	<intel-gfx@lists.freedesktop.org>, Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Kevin Tian
+	<kevin.tian@intel.com>, <kvm@vger.kernel.org>, Kirti Wankhede
+	<kwankhede@nvidia.com>, <linux-s390@vger.kernel.org>, Matthew Rosato
+	<mjrosato@linux.ibm.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>, Nipun
+ Gupta <nipun.gupta@amd.com>, Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>, <qat-linux@intel.com>, Rodrigo Vivi
+	<rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>, Shameer Kolothum
+	<skolothumtho@nvidia.com>, Mostafa Saleh <smostafa@google.com>, Sven Schnelle
+	<svens@linux.ibm.com>, Tvrtko Ursulin <tursulin@ursulin.net>,
+	<virtualization@lists.linux.dev>, Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Yishai Hadas <yishaih@nvidia.com>, Zhenyu Wang <zhenyuw.linux@gmail.com>, Zhi
+ Wang <zhi.wang.linux@gmail.com>, <patches@lists.linux.dev>
+References: <0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <2-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com>
+ <aQhGTwg4kpuP8pgF@google.com>
+From: liulongfang <liulongfang@huawei.com>
+Message-ID: <3f7f1781-6d39-a452-ffcc-053c286950a4@huawei.com>
+Date: Fri, 7 Nov 2025 09:29:27 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <iiakzdk7n7onhu5sncjd7poh5sk34nrtvusbiulsel5uswuekv@p2yzmblg6xx7>
+In-Reply-To: <aQhGTwg4kpuP8pgF@google.com>
+Content-Type: text/plain; charset="gbk"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
+ dggpemf500015.china.huawei.com (7.185.36.143)
 
-On Thu, Nov 06, 2025 at 05:16:29PM +0100, Stefano Garzarella wrote:
-> On Thu, Oct 23, 2025 at 11:27:40AM -0700, Bobby Eshleman wrote:
-> > From: Bobby Eshleman <bobbyeshleman@meta.com>
+On 2025/11/3 14:06, Pranjal Shrivastava wrote:
+> On Thu, Oct 23, 2025 at 08:09:16PM -0300, Jason Gunthorpe wrote:
+>> Change the function signature of hisi_acc_vfio_pci_ioctl()
+>> and re-indent it.
+>>
+>> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+>> ---
+>>  .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    | 57 +++++++++----------
+>>  1 file changed, 27 insertions(+), 30 deletions(-)
+>>
+>> diff --git a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+>> index fde33f54e99ec5..f06dcfcf09599f 100644
+>> --- a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+>> +++ b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+>> @@ -1324,43 +1324,39 @@ static ssize_t hisi_acc_vfio_pci_read(struct vfio_device *core_vdev,
+>>  	return vfio_pci_core_read(core_vdev, buf, new_count, ppos);
+>>  }
+>>  
+>> -static long hisi_acc_vfio_pci_ioctl(struct vfio_device *core_vdev, unsigned int cmd,
+>> -				    unsigned long arg)
+>> +static int hisi_acc_vfio_get_region(struct vfio_device *core_vdev,
+>> +				    struct vfio_region_info __user *arg)
+>>  {
+>> -	if (cmd == VFIO_DEVICE_GET_REGION_INFO) {
+>> -		struct vfio_pci_core_device *vdev =
+>> -			container_of(core_vdev, struct vfio_pci_core_device, vdev);
+>> -		struct pci_dev *pdev = vdev->pdev;
+>> -		struct vfio_region_info info;
+>> -		unsigned long minsz;
+>> +	struct vfio_pci_core_device *vdev =
+>> +		container_of(core_vdev, struct vfio_pci_core_device, vdev);
+>> +	struct pci_dev *pdev = vdev->pdev;
+>> +	struct vfio_region_info info;
+>> +	unsigned long minsz;
+>>  
+>> -		minsz = offsetofend(struct vfio_region_info, offset);
+>> +	minsz = offsetofend(struct vfio_region_info, offset);
+>>  
+>> -		if (copy_from_user(&info, (void __user *)arg, minsz))
+>> -			return -EFAULT;
+>> +	if (copy_from_user(&info, arg, minsz))
+>> +		return -EFAULT;
+>>  
+>> -		if (info.argsz < minsz)
+>> -			return -EINVAL;
+>> +	if (info.argsz < minsz)
+>> +		return -EINVAL;
+>>  
+>> -		if (info.index == VFIO_PCI_BAR2_REGION_INDEX) {
+>> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+>> +	if (info.index != VFIO_PCI_BAR2_REGION_INDEX)
+>> +		return vfio_pci_ioctl_get_region_info(core_vdev, arg);
+>>  
+> 
+> I'm curious to learn the reason for flipping polarity here? (apart from
+> readability).
+>
 
-[...]
+Here, since the function's behavior has been reversed, the internal processing
+is also inverted accordingly.
 
-> > @@ -65,6 +66,7 @@ struct vsock_sock {
-> > 	u32 peer_shutdown;
-> > 	bool sent_request;
-> > 	bool ignore_connecting_rst;
-> > +	enum vsock_net_mode net_mode;
-> > 
-> > 	/* Protected by lock_sock(sk) */
-> > 	u64 buffer_size;
-> > @@ -256,4 +258,58 @@ static inline bool vsock_msgzerocopy_allow(const struct vsock_transport *t)
-> > {
-> > 	return t->msgzerocopy_allow && t->msgzerocopy_allow();
-> > }
-> > +
-> > +static inline enum vsock_net_mode vsock_net_mode(struct net *net)
-> > +{
-> > +	enum vsock_net_mode ret;
-> > +
-> > +	spin_lock_bh(&net->vsock.lock);
-> > +	ret = net->vsock.mode;
-> 
-> Do we really need a spin_lock just to set/get a variable?
-> What about WRITE_ONCE/READ_ONCE and/or atomic ?
-> 
-> Not a strong opinion, just to check if we can do something like this:
-> 
-> static inline enum vsock_net_mode vsock_net_mode(struct net *net)
-> {
->     return READ_ONCE(net->vsock.mode);
-> }
-> 
-> static inline bool vsock_net_write_mode(struct net *net, u8 mode)
-> {
->     // Or using test_and_set_bit() if you prefer
->     if (xchg(&net->vsock.mode_locked, true))
->         return false;
-> 
->     WRITE_ONCE(net->vsock.mode, mode);
->     return true;
-> }
-> 
+Thanks.
+Longfang.
 
-I think that works and seems worth it to avoid the lock on the read
-side. I'll move this over for the next rev.
-
-[...]
-
-Best,
-Bobby
+>> -			/*
+>> -			 * ACC VF dev BAR2 region consists of both functional
+>> -			 * register space and migration control register space.
+>> -			 * Report only the functional region to Guest.
+>> -			 */
+>> -			info.size = pci_resource_len(pdev, info.index) / 2;
+>> +	info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+>>  
+>> -			info.flags = VFIO_REGION_INFO_FLAG_READ |
+>> -					VFIO_REGION_INFO_FLAG_WRITE |
+>> -					VFIO_REGION_INFO_FLAG_MMAP;
+>> +	/*
+>> +	 * ACC VF dev BAR2 region consists of both functional
+>> +	 * register space and migration control register space.
+>> +	 * Report only the functional region to Guest.
+>> +	 */
+>> +	info.size = pci_resource_len(pdev, info.index) / 2;
+>>  
+>> -			return copy_to_user((void __user *)arg, &info, minsz) ?
+>> -					    -EFAULT : 0;
+>> -		}
+>> -	}
+>> -	return vfio_pci_core_ioctl(core_vdev, cmd, arg);
+>> +	info.flags = VFIO_REGION_INFO_FLAG_READ | VFIO_REGION_INFO_FLAG_WRITE |
+>> +		     VFIO_REGION_INFO_FLAG_MMAP;
+>> +
+>> +	return copy_to_user(arg, &info, minsz) ? -EFAULT : 0;
+>>  }
+>>  
+>>  static int hisi_acc_vf_debug_check(struct seq_file *seq, struct vfio_device *vdev)
+>> @@ -1557,7 +1553,8 @@ static const struct vfio_device_ops hisi_acc_vfio_pci_migrn_ops = {
+>>  	.release = vfio_pci_core_release_dev,
+>>  	.open_device = hisi_acc_vfio_pci_open_device,
+>>  	.close_device = hisi_acc_vfio_pci_close_device,
+>> -	.ioctl = hisi_acc_vfio_pci_ioctl,
+>> +	.ioctl = vfio_pci_core_ioctl,
+>> +	.get_region_info = hisi_acc_vfio_get_region,
+>>  	.device_feature = vfio_pci_core_ioctl_feature,
+>>  	.read = hisi_acc_vfio_pci_read,
+>>  	.write = hisi_acc_vfio_pci_write,
+> 
+> The change seems to maintain original functionality and LGTM.
+> Acked-by: Pranjal Shrivastava <praan@google.com>
+> 
+> Thanks,
+> Praan
+> .
+> 
