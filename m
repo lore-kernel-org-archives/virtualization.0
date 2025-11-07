@@ -1,143 +1,267 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BYAPR05CU005.outbound.protection.outlook.com (mail-westusazon11010036.outbound.protection.outlook.com [52.101.85.36])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4D652F692C
-	for <virtualization@lists.linux.dev>; Fri,  7 Nov 2025 15:49:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762530570; cv=none; b=lKsEWDf038rNxefFDFK2kdkw8FzNpGao3WRXRhch1srtGyO2uObuLvT95eFj4UDkX5G7xm5PUaPEgfJ9CKgvAJLLSS7q2AK+TIlREU4w1h2cVbc+aP85YeJ2MVu8i7L2i6B6iFlRLOvZrdYNleWvEp0F6kvnhfjf6prxdT/tkjI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762530570; c=relaxed/simple;
-	bh=8Qe5l67vygPXJazkcPWfkfCqsb/KeWBfBeAs0hHVwfc=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6502027145F;
+	Fri,  7 Nov 2025 17:41:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.85.36
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762537305; cv=fail; b=AcbYaCnoJrtd9izpkp5wnUOck77x7kyh2CnQfGK9dKo54Vy6gYA7pt66D3y8vT4LBoC/U635xLlNTVEeYNwfxPgHsQa6s6fM+dhQQiv+2RJraaIU9eKZCnLrD87PpT4BNxlmBTPZmi6w2Rcdjnz6puT98XG73tOQVMr3SnKSslw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762537305; c=relaxed/simple;
+	bh=/XdmGWUZ1hByFn+oAbM0l1/H0+SjDdon/y/REaPXYL8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=NMIsTqrX2z9dG1ANNTdoMO/6+J1EQ69/09MGku1PAfv818FvQuHdJmW2NrCUPEHvKucDuNdT2Pt75Q84bIrnTvFBqjM6w7xEPyuBFchPqFEi3BWckKmwcOpafunrqGNfFyL0iVzrNRVW2/J4iS6OqMfglMVCLDkgmLlhkqtwM+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=XrKmXksy; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	 Content-Type:MIME-Version; b=GvVF85GpKlwty7fqpwSHArhWJ2mnGaCqmf/gFx8IqTPTqKIrJBnkoW2vA0AxWaglETnHS4OlxRrr/P1VhEmKLUFnBzGhxJzStWLbBOWZKn5gwyRVp5ucTXDkAUvm5TDWtUW/AnnNm1i8vs6+Rw35Mtmh0uQVZ0O3gP5DR43jI4Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=LllH6/96; arc=fail smtp.client-ip=52.101.85.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="XrKmXksy"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-4710665e7deso4308925e9.1
-        for <virtualization@lists.linux.dev>; Fri, 07 Nov 2025 07:49:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1762530567; x=1763135367; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=X3/wHkVzF7HOlD53dUl3XTlhc18km5IWf6+9u8QQV6U=;
-        b=XrKmXksy7sa5nFUYDnPFLbOl4we77ZHFb3iCB5ZCE4LdsVDxcNf6cSe2X4vGP69DoL
-         I/D7D7u/PS0uSdhPzEqYTtxU2wyGehskxTzswVNFn9S8Hp1J0Z6AP7MVrA0pyYatd5am
-         cAWfvQo63GVWhXT8zyRCB96yxRNx0HcqkDP/UWrKyaP0hLliHnalS5uMO0tpdtQ8WlZ2
-         wA7vrqtzbcWSVFeBSxztuW3UTEiVVMejZ3OKkNw7DJT9gg2ur3LqZYhCHcSX3UIrJ8oM
-         BA1pSF2+Djh27Qxa5Vs5PnE65e6qnQko2+7fDTbCs6WMmb4QOeTpfogzEIr5zX3Fd7W0
-         UZvA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762530567; x=1763135367;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=X3/wHkVzF7HOlD53dUl3XTlhc18km5IWf6+9u8QQV6U=;
-        b=t6BG0cDsZlVhexRio/vjyOCMcaLnx8BUWNPP/YGHtZ8/MK8I6PGeHfz3wJeAofOGSq
-         iqMnLxG+SnUWFKv+FKM+QJ3zTQCOZcugiuVf/ZAHKM/OAedM2qSLmbCpBbzhzoyG8GN+
-         +h+3gwBVezMVJMBquvyJhEtb8VC09uuuTh+UjmxCfhFVITqS6xm4lNaSjkJ2KaEH04xV
-         B/UhHYI3v47iBGm9oR2F/wkIWBqfn9j9gyf5W7cvcytf7Vnsy8YcCzkwwrMcWU8Gw959
-         pzWSlQyQn0ElIXl4y2Aoi26X4NOkvSpZv4gO9os9dDYu6RDdJOlsk3hv/d0WHeQyHRU6
-         /NaQ==
-X-Forwarded-Encrypted: i=1; AJvYcCULT1Yn/2rhTUPPdfIG/nilj8T0dE9N1vTca4avlVSQ+kFmleUPT119jcyh2DnJT5dxcySj5RdlYCscAVfBhA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxfcS2dY4ksRylLIR6zUphk7gFRaRULc9DrcNd9Y4A5ugAcBnWM
-	eGbJC8biK4o6lo+IoYL4/BS2QIiG8IBwatSs4mZ3Pn2fIKiK0ncO/18YgcG4IrDh0DA=
-X-Gm-Gg: ASbGncsa2y5FzbaIC1s7N9h15T0e0LcgSWxVAUIN92eeDlFX+pOq1UfEt4LwxSdhmb5
-	iYGQcb7CCYqabMD24ZOhW71IfnGUcfCbzMYtuH3lhMcF73X6l4jSLr3L2S4tXD6iLLCrTqyXVp3
-	S2g0vlpwRJi/Jkl0bmQRCuyI9u+Tx6R8kF+lhW8yPEG8JbJmKlp5rFuxnMJm/3Gx2+6Y5IM9ydw
-	T0xmVcZcsYSsQEHiMktP5QJniPe79Hpd9W/QWZoIwNzhzrgE2ydkHMGyNPuxYf8p9eVgXT3FvRj
-	Bif04d2eMR4ui7FzWmXI39uhhJCZNmVWM3h9OUCJTwzxNxg4VIAUSXADmZRTLNZ9y2fbvV0DXTC
-	QuvaRgQLudkA4onKQ3sfJHbDcuoBD4v/q+jhyrN98IBjX4X6lRoR7YlQ3QCcryJf28kNRknDj/f
-	whRDa2K3gVGyVUqLLFJM1UAAdE
-X-Google-Smtp-Source: AGHT+IH+t3ILybAlPyFaXUrRQDx8y58mbbGb3fzyHsPfpJT0b7oXiH55FZlJkshBo5S1iuffxBxqQg==
-X-Received: by 2002:a05:600c:3515:b0:477:5ccb:e19a with SMTP id 5b1f17b1804b1-4776bcae631mr33761005e9.11.1762530567005;
-        Fri, 07 Nov 2025 07:49:27 -0800 (PST)
-Received: from localhost.localdomain ([2a00:6d43:105:c401:e307:1a37:2e76:ce91])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42abe62bf40sm5875338f8f.9.2025.11.07.07.49.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Nov 2025 07:49:26 -0800 (PST)
-From: Marco Crivellari <marco.crivellari@suse.com>
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: Tejun Heo <tj@kernel.org>,
-	Lai Jiangshan <jiangshanlai@gmail.com>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Marco Crivellari <marco.crivellari@suse.com>,
-	Michal Hocko <mhocko@suse.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	David Hildenbrand <david@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio Perez <eperezma@redhat.com>
-Subject: [PATCH 2/2] vduse: add WQ_PERCPU to alloc_workqueue users
-Date: Fri,  7 Nov 2025 16:49:17 +0100
-Message-ID: <20251107154917.313090-3-marco.crivellari@suse.com>
-X-Mailer: git-send-email 2.51.1
-In-Reply-To: <20251107154917.313090-1-marco.crivellari@suse.com>
-References: <20251107154917.313090-1-marco.crivellari@suse.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="LllH6/96"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Gr7BgZMxJp1Bb13ck9UsED3rRwKceuxKBJJHWxiV2XTz3gPyK8VM/vsJ8mUajBRVd+0/53IdyOR0LsuSnvFoRWj9tP/czIqQarHRuu1hsbAyLl7bopi2lbdcBSijMkMDD2n8/62FoXUexD7etEEg8mZO5A9B5FD5rv9PslUmB6IL6nwkK5XJLfyDLcO7orL4GMhYHyngEnHeCf4vgfhUiGgKLntmoTZK5mo5Cq/JlWHo3Eh7mc6C1oOMw3185dBSrhE7w8bYc1s7YLGoVMxg3bOUQW5iMJZ7GFOtkWHUx2Eoc0s7CbquJAdOHor+oEWCoFwQHhtrMFAfHseiY10DsQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=29fWgNKhmQP+In0rAZrq4QS2FZYdxruVJmI4g1EJYB4=;
+ b=VzpX5+ioHBZG9t8a2TEj5JYvcRuQME62sVImh2IaHzSsyrnH/5DoGqJ3lxm/QSVNb5Z0bE1BbFFJSONdlJCk2MwRVrNmSxhtTMsY9KE2EiLYJs9jjDpI8FjTenBtiV+V9/Y64Xr6Q0pbTtuDfKAoKwlMSAYT+WHMc9QzfMyfmBw5nbCmLHCxrXgPCdkS5pNGvZvGR10weTsGrMH7U/oHgv5N1wealSdjuCxd9fRNOq+hyjh99QbYjRSTq8sL+3FS5FvJYa/DgWu/hdJ9ILNJU39/ZbA5zr2zstzYTntbOG0opN5ZhPcp7BCnNuBtC2QWM/67cyrXdC1X1ppzLxZo6Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=29fWgNKhmQP+In0rAZrq4QS2FZYdxruVJmI4g1EJYB4=;
+ b=LllH6/96VRG1iB/cH4kSjeXX5/eWxuDY0vXNzMU6tlQHbZYV7Q4GsUIuM3qNUXQ+64UMYluroUJOdYsuIsNorxyCqgUGXCvo2x4Iy5m8J7agnoIqu0w4GwZdkr5305E24yKtnTViemwx0DAteZ9Tn/j8zx9HSal/BHv4K+YbAn/tGqetY1lYCibN4VTYt/PKSBrj8WXjYqNmpeFj8wystJ+8MHGjYTIaxDcCDmf2ql4hKEaOTEZRIHcDIXVQldoI9cPMIZn5GwLDShO1rgf58cnamJP4E7j2o8JLc6b8EGBZNvzsYnQe3PBAIK/dmevDDo+/zlGX1sRWKRdvkNg6hg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MN2PR12MB3613.namprd12.prod.outlook.com (2603:10b6:208:c1::17)
+ by PH7PR12MB8826.namprd12.prod.outlook.com (2603:10b6:510:26a::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.12; Fri, 7 Nov
+ 2025 17:41:39 +0000
+Received: from MN2PR12MB3613.namprd12.prod.outlook.com
+ ([fe80::1b3b:64f5:9211:608b]) by MN2PR12MB3613.namprd12.prod.outlook.com
+ ([fe80::1b3b:64f5:9211:608b%4]) with mapi id 15.20.9298.006; Fri, 7 Nov 2025
+ 17:41:39 +0000
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+	David Airlie <airlied@gmail.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	dri-devel@lists.freedesktop.org,
+	Eric Auger <eric.auger@redhat.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	intel-gfx@lists.freedesktop.org,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	kvm@vger.kernel.org,
+	Kirti Wankhede <kwankhede@nvidia.com>,
+	linux-s390@vger.kernel.org,
+	Longfang Liu <liulongfang@huawei.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	qat-linux@intel.com,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Shameer Kolothum <skolothumtho@nvidia.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	virtualization@lists.linux.dev,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Yishai Hadas <yishaih@nvidia.com>,
+	Zhenyu Wang <zhenyuw.linux@gmail.com>,
+	Zhi Wang <zhi.wang.linux@gmail.com>
+Cc: Kevin Tian <kevin.tian@intel.com>,
+	patches@lists.linux.dev,
+	Pranjal Shrivastava <praan@google.com>,
+	Mostafa Saleh <smostafa@google.com>
+Subject: [PATCH v2 06/22] vfio/mtty: Provide a get_region_info op
+Date: Fri,  7 Nov 2025 13:41:22 -0400
+Message-ID: <6-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+In-Reply-To: <0-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+References:
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BL1PR13CA0447.namprd13.prod.outlook.com
+ (2603:10b6:208:2c3::32) To MN2PR12MB3613.namprd12.prod.outlook.com
+ (2603:10b6:208:c1::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MN2PR12MB3613:EE_|PH7PR12MB8826:EE_
+X-MS-Office365-Filtering-Correlation-Id: a158fe60-42df-4ed5-d9d8-08de1e24e824
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?ZodgfdvqpQf0qe73D2Kkfd8lh85oUENQi8j+Npdrq/QHUvKyaaTMI7ubLB1z?=
+ =?us-ascii?Q?WDCix2XgEOeSDxV3waMRfw/ZIo7TX4/Wbj5n3t64rTmfYIbuFPFee8eAl1uu?=
+ =?us-ascii?Q?+5Mg3zgLaU4osVnPl5faoJF7OI6sjKOosd1akzxfeMtdjBZKhKbEoexwShrr?=
+ =?us-ascii?Q?0SZMXP/T+OXAUm5Vxb3dJoyyHDmOsQXGyjgBnbgQfcv4372QE1hTLx6dZiMI?=
+ =?us-ascii?Q?SomNbIqntF0z5GfW3NTfVyh282XXDW0WCRJNrJTEBnla+1ThdNZKlRNl8TcJ?=
+ =?us-ascii?Q?4rpW/a0A+mxOOQ3JTZ+L48LJNpCeYzDyuDoFttFEyWXD8yCi/O/wHo5/aqtg?=
+ =?us-ascii?Q?sFDEz4vj4cPfU2sITj/vKhJBk0FF3ZTEnGgle0Es9sf1eHAGKZzLZocZTVaF?=
+ =?us-ascii?Q?TNJmIxsRXEIP7Bu4NiASq8N1JubQUpksPmahSSvG46osD5SPdicKNskVRFhq?=
+ =?us-ascii?Q?IFPNeFOnzlo+AIErpmFzOr7i0WA/xP61CN0tZgxjcLHmgp0PDI9hd4EAhlbA?=
+ =?us-ascii?Q?AoKHWYjpIT1KbkZ0ivSBP239dSvXGNGwHKrlBl1Ugx047042Mx15m2R5S7Wp?=
+ =?us-ascii?Q?j+paz+ClfQ9OAfbg4C0sXGSdhZnFUjBL2c9EO4sJ6Ka9MUZjJy+hR7n/Bx0k?=
+ =?us-ascii?Q?3uHCwGTy4bsV+jdZGehQaBq3IFfn2kJ2ES6QrDKYc7+DXs3TjM/luumte4qP?=
+ =?us-ascii?Q?jBxE8x1kyK9k9vxiNgm+LRbyiFMgLE5tbaAtTnBM43+5VEqwbHlYfDi42DYW?=
+ =?us-ascii?Q?UVz8VcF4UhyVhU6iiU0t2nmfAdqLA76dZBm4Ys8QqOrDBb23TC0rjPGCpUFD?=
+ =?us-ascii?Q?4zPsW0zOnoRKGHSjUDmZUZJOkzueDuKof5ngS2wwn+5qkmabBJnnfsbAPSch?=
+ =?us-ascii?Q?n3nl+vsvaJYW4yLg8eqwg3aOILA1anORhHyGG/haRveJjvjntUf9l7ji2GeG?=
+ =?us-ascii?Q?1vayqy8zYmfQGicoOe4t8PruHUWvqme5kH2EL36ZgOmEB8DRk9zdoIaELZ9L?=
+ =?us-ascii?Q?cE2ivqEmZt8T31zjMY+uZt1Ttpei06Cl6gPeqlNZjkzrqKbKW1QnJfsziHkh?=
+ =?us-ascii?Q?SbuctJcQKpsU8LyjR7/JS2YRqkhaV9ZpmUQpy+ZP1wewHOmV+roJgUgk6n3k?=
+ =?us-ascii?Q?bqxTM/kAkG7wy/VlLsmkNGDUqPyVxnOnK5azMUOAA95M3JzYhr/BjG7lMREY?=
+ =?us-ascii?Q?Lw/XdEx3Dl3stqvGDNTQZq0jfT5AYr24bx1GG9D0bRnrv/o3LPkhwiJQF4Ax?=
+ =?us-ascii?Q?Wtw92WdvzwhNp8caY7TSel04RKMfDDe674gHOrLwUnFKZS08mHPBZwgZ6ey/?=
+ =?us-ascii?Q?nB4NTDyRWc5GY4joORey8VaqNVHQa7qL0yxxRPLIHO+3tjKgSabIlag3y5DJ?=
+ =?us-ascii?Q?CNB/TGg9uOiaF0UfyY45p+WGOld36Qtub4XV+gxz6ZG8okEZHhGWRgnUVSJ/?=
+ =?us-ascii?Q?mOJCQ/ckrJlaOZMzifcxPpcd+3R8IV8KJBAf+WaYfawigJ6h+SauT3I0X38w?=
+ =?us-ascii?Q?CqDcAdZmx0Af5mo=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB3613.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?F0y/rQD8Uh5aq/ML7UEf+1hgBoyKtFdQdyVBG5wXUT/QL9JmdYmhHerhFMos?=
+ =?us-ascii?Q?SiCpEZT09Y9k87xG9FUyaa1hqSxOvEjrX1YfSIcNYieOKOu0Y79d5lMQqEBd?=
+ =?us-ascii?Q?2p0iJDCmRlTOxyCsZLoBaI4UrQjyXnqI1xAiFylQ0bAkj44Ep0KZ60BFngBb?=
+ =?us-ascii?Q?E6PVToVpSINaRjLn6wB/pTZ4kGSA2jTxc6BIaQf8Ku+Lxfd5bps5rytk5749?=
+ =?us-ascii?Q?3abUF9Sg+8xYKmdfB7uKWm+k84MG0ghpCQ6pj0XNt8L3RitF2fekkcx2NXS1?=
+ =?us-ascii?Q?VDLU/l8RsBlTEOCM9cKxFsoms3mLD5UYPJjmte06r7wGbiFJfOxzB5uOfrba?=
+ =?us-ascii?Q?pJMezmjl1QpRc5jczRIwmAjOjmQcQ0TzVQrxeDweLmE5yFr5V/Ot6mgefL4G?=
+ =?us-ascii?Q?bSvu9rlKqrbebHhDixorEgsf45Uy6NBqoNi48fziHR3P6/OJ4CHtmA1ho7TM?=
+ =?us-ascii?Q?jkR6aCkAYC5FeUF+Hj833qp6BmhvnHbBIy8NtiN1muh5swZ3di9BaYcGfufa?=
+ =?us-ascii?Q?333RRSg7u3yD9hgm3KTYsbsn0QgunaJzX+Z8FsTQXlRCzs1djrWqVJ7ujQqY?=
+ =?us-ascii?Q?TCl9hTVzce7Hf8dLId84teVnv9F+hYMRa/y5UX37fJhlaDm95JPH6Cg9B98U?=
+ =?us-ascii?Q?SqzZiJF7T5bBcXSPf++aszye3Clsq850x3Mcoj3sie4W71nLzFd3gybG2jsN?=
+ =?us-ascii?Q?1xSJUMukMBHSwUmHNCEghtCbFre4uS4VbROuEcabGJolMDXw7gamIEwq9jhy?=
+ =?us-ascii?Q?wZlFcrEZMb75aLhJD0KzkpeZOK2pUgLocDzWQClN0mAu1aCpXSKhJujGaaK/?=
+ =?us-ascii?Q?8pG917UtQMIIE5SKVEWxHVumgKOAxLsAyUhmoKTBysNuuVw6aYfQ2a+rqlAP?=
+ =?us-ascii?Q?3jVXg6aEI9rdrMl4/DujNBsFLnXTASm4eaeWzuCemAYZwKAk45Vg4Zwc3vz7?=
+ =?us-ascii?Q?hssluAWpTUCIJcxvDpYNFih0+g1J5NXDp2kCbp0NNsc3qVopdmhjJM4F4Baa?=
+ =?us-ascii?Q?/ve6Jw7yL9Jcny6BhhUIaAIr4KF+DGyZFD+g5BoefFC7rkI/CBK49o91UMoN?=
+ =?us-ascii?Q?I5kqZAdjns/uXpC8Dubp9lGc/JKXAcwqSgMrqwNVGH6mdvUBP96G0S6HfRe+?=
+ =?us-ascii?Q?ZwApbAMmNqX8TKjN4LCP6zzyb6tZeINNk9QjDYJHDzLMoNprbtDBIIBNOsxj?=
+ =?us-ascii?Q?4J4azTcMRKqugQnLHPv1pDiBnLHykvtHv7RH/t2XDofXKB3RcqXwewQfecPS?=
+ =?us-ascii?Q?q2lt6KUe0G1YgrgxAXh/xlB1rw1wKtvyll2JMwpbdmbhYMtnkDA8RV8OWPP9?=
+ =?us-ascii?Q?JLyH5E/Kn032O+PbvuH8c9sYw+UraQJ25UjHXj/4j80E1WFGwChtVmDCQUCi?=
+ =?us-ascii?Q?U743m5MaTesBD7KLL9HRg+L788BufbVBa2aF8HeGItr9uQiIZT/s19lSbkZc?=
+ =?us-ascii?Q?7+EhQbXwEqKSLyCJuqPROjQKhvBJdmIYlJuWScWq4D4Rf3N/QqU9nRsmn/+y?=
+ =?us-ascii?Q?TKe2ZdhlzlFS/a42jKsnx3jLtnvvan1sQ3mKy3IwzoCVbrG7BVAZ2OBVraHL?=
+ =?us-ascii?Q?Phz7+tRZ5AgecsEKT/A=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a158fe60-42df-4ed5-d9d8-08de1e24e824
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3613.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Nov 2025 17:41:39.7060
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: YXdQfAdZCvwQHggmB+mLWDio9YqSTYcBn3izIqX3i1QaYqOu9svc9RWWUlWAFMgE
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB8826
 
-Currently if a user enqueues a work item using schedule_delayed_work() the
-used wq is "system_wq" (per-cpu wq) while queue_delayed_work() use
-WORK_CPU_UNBOUND (used when a cpu is not specified). The same applies to
-schedule_work() that is using system_wq and queue_work(), that makes use
-again of WORK_CPU_UNBOUND.
-This lack of consistency cannot be addressed without refactoring the API.
+Move it out of mtty_ioctl() and re-indent it.
 
-alloc_workqueue() treats all queues as per-CPU by default, while unbound
-workqueues must opt-in via WQ_UNBOUND.
-
-This default is suboptimal: most workloads benefit from unbound queues,
-allowing the scheduler to place worker threads where they’re needed and
-reducing noise when CPUs are isolated.
-
-This continues the effort to refactor workqueue APIs, which began with
-the introduction of new workqueues and a new alloc_workqueue flag in:
-
-commit 128ea9f6ccfb ("workqueue: Add system_percpu_wq and system_dfl_wq")
-commit 930c2ea566af ("workqueue: Add new WQ_PERCPU flag")
-
-This change adds a new WQ_PERCPU flag to explicitly request
-alloc_workqueue() to be per-cpu when WQ_UNBOUND has not been specified.
-
-With the introduction of the WQ_PERCPU flag (equivalent to !WQ_UNBOUND),
-any alloc_workqueue() caller that doesn’t explicitly specify WQ_UNBOUND
-must now use WQ_PERCPU.
-
-Once migration is complete, WQ_UNBOUND can be removed and unbound will
-become the implicit default.
-
-Suggested-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Marco Crivellari <marco.crivellari@suse.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Acked-by: Pranjal Shrivastava <praan@google.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ samples/vfio-mdev/mtty.c | 53 ++++++++++++++++++++++------------------
+ 1 file changed, 29 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index e7bced0b5542..ae357d014564 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -2173,7 +2173,8 @@ static int vduse_init(void)
- 	if (!vduse_irq_wq)
- 		goto err_wq;
+diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
+index 59eefe2fed10ca..b27f9b93471bc5 100644
+--- a/samples/vfio-mdev/mtty.c
++++ b/samples/vfio-mdev/mtty.c
+@@ -1785,6 +1785,34 @@ static int mtty_get_device_info(struct vfio_device_info *dev_info)
+ 	return 0;
+ }
  
--	vduse_irq_bound_wq = alloc_workqueue("vduse-irq-bound", WQ_HIGHPRI, 0);
-+	vduse_irq_bound_wq = alloc_workqueue("vduse-irq-bound",
-+					     WQ_HIGHPRI | WQ_PERCPU, 0);
- 	if (!vduse_irq_bound_wq)
- 		goto err_bound_wq;
++static int mtty_ioctl_get_region_info(struct vfio_device *vdev,
++				      struct vfio_region_info __user *arg)
++{
++	struct mdev_state *mdev_state =
++		container_of(vdev, struct mdev_state, vdev);
++	struct vfio_region_info info;
++	void *cap_type = NULL;
++	u16 cap_type_id = 0;
++	unsigned long minsz;
++	int ret;
++
++	minsz = offsetofend(struct vfio_region_info, offset);
++
++	if (copy_from_user(&info, arg, minsz))
++		return -EFAULT;
++
++	if (info.argsz < minsz)
++		return -EINVAL;
++
++	ret = mtty_get_region_info(mdev_state, &info, &cap_type_id, &cap_type);
++	if (ret)
++		return ret;
++
++	if (copy_to_user(arg, &info, minsz))
++		return -EFAULT;
++	return 0;
++}
++
+ static long mtty_ioctl(struct vfio_device *vdev, unsigned int cmd,
+ 			unsigned long arg)
+ {
+@@ -1817,30 +1845,6 @@ static long mtty_ioctl(struct vfio_device *vdev, unsigned int cmd,
  
+ 		return 0;
+ 	}
+-	case VFIO_DEVICE_GET_REGION_INFO:
+-	{
+-		struct vfio_region_info info;
+-		u16 cap_type_id = 0;
+-		void *cap_type = NULL;
+-
+-		minsz = offsetofend(struct vfio_region_info, offset);
+-
+-		if (copy_from_user(&info, (void __user *)arg, minsz))
+-			return -EFAULT;
+-
+-		if (info.argsz < minsz)
+-			return -EINVAL;
+-
+-		ret = mtty_get_region_info(mdev_state, &info, &cap_type_id,
+-					   &cap_type);
+-		if (ret)
+-			return ret;
+-
+-		if (copy_to_user((void __user *)arg, &info, minsz))
+-			return -EFAULT;
+-
+-		return 0;
+-	}
+ 
+ 	case VFIO_DEVICE_GET_IRQ_INFO:
+ 	{
+@@ -1949,6 +1953,7 @@ static const struct vfio_device_ops mtty_dev_ops = {
+ 	.read = mtty_read,
+ 	.write = mtty_write,
+ 	.ioctl = mtty_ioctl,
++	.get_region_info = mtty_ioctl_get_region_info,
+ 	.bind_iommufd	= vfio_iommufd_emulated_bind,
+ 	.unbind_iommufd	= vfio_iommufd_emulated_unbind,
+ 	.attach_ioas	= vfio_iommufd_emulated_attach_ioas,
 -- 
-2.51.1
+2.43.0
 
