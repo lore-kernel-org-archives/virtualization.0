@@ -1,64 +1,64 @@
-Received: from mail-yx1-f52.google.com (mail-yx1-f52.google.com [74.125.224.52])
+Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B96E32D9EF0
-	for <virtualization@lists.linux.dev>; Fri,  7 Nov 2025 02:52:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBDC32040B6
+	for <virtualization@lists.linux.dev>; Fri,  7 Nov 2025 03:07:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762483941; cv=none; b=dv2rlwsPpyK4w2DlFwFEwzvVtf7nwc+HCGqtUlgvIfkQ8nMUYSIfOg9+7CvEn0Obl1CDIH6rKP9uQP/IMx9AZINtq6bob5maPIkAEXc4lfZ1O4FBkB0BKtJVu8oO3lPol0eMG0FhYuq1nYkwIr7+QaBkAXqBtoGobhYrlNxi19E=
+	t=1762484829; cv=none; b=HynvQ4F66sdS7b6/GkpDZduxvzfcTFconFEKVDD8ixTDqmrls108jUlE5mFZsXBr405sRYOPQG6RzAFvwjmtwRu4anKa3niim+48djFMrh0Up/LVJnHx61Jv03cqxjXa6WHUzp+KtFwsEXBs6HmJDSVC3bj+BkbmA75ewHPHaNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762483941; c=relaxed/simple;
-	bh=LGZkf7YP6OLV6kK3Rv7CYUIiRvg3i+u7/aOFPhkBPKg=;
+	s=arc-20240116; t=1762484829; c=relaxed/simple;
+	bh=808AlwEZ1o2mA4OcdatRSl+Gb85ZdMLrOwB3CyxK1Ks=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=URxQYwFCpE26Omkd30aroVDCj1xQOXNE8NIBHU1uTNFtOBBO7lnqxJiLi70YPrIcWxNW9s6yQVAkAAk50q2DEKqBKqXDydrUBl+cTJURUnjsnMnLTY6YTpp9a7eM6o9lHKzSEfu05QzmwuqZjMSGhQFg57RdinGUSgFBttZuY28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P1S1HCqK; arc=none smtp.client-ip=74.125.224.52
+	 Content-Type:Content-Disposition:In-Reply-To; b=Qf/K6Pa/pDpPZOz5pVxHB/W9UGUaAMcbFStG61CkXz2mvPCcNXVC5Y0tbMNDs32pVVIf2OFSMCUByqAp6JZcrSZRkIefLWaAM2T/bYys/WMLordb6nEEQv0WtQmwhr5M7F4E5wGVphSPVojLAcXOvoZn4t5saAIFyklzNZxa17s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U57d9286; arc=none smtp.client-ip=209.85.128.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P1S1HCqK"
-Received: by mail-yx1-f52.google.com with SMTP id 956f58d0204a3-63fd493ea10so366415d50.0
-        for <virtualization@lists.linux.dev>; Thu, 06 Nov 2025 18:52:18 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U57d9286"
+Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-7864cef1976so4062617b3.0
+        for <virtualization@lists.linux.dev>; Thu, 06 Nov 2025 19:07:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762483938; x=1763088738; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1762484826; x=1763089626; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=to+M3YH5XNWJ8sgc76iueqXwuR+T+gGj83wJZ0qaDfw=;
-        b=P1S1HCqK+SBDbmG9VeAg2gEZqQhS71Xj1C2HHWhoJUg8RBeRInwFxLfqLw5U40rlQ4
-         VJ0+yZo4jHld2KxgruXfAR6aElbM/OmDjwzec15xZlDQGDnjEux5CqfCiUr/dlRtl/oQ
-         g7jYFhGsyZ26SJ3Nl6TlJwTJEIfWzQh9olJV6gNSbR45vDR6hKlcKa4MNP90yEdZnZTp
-         jByb3dDStgVrA6S4ztNnc/iP8RsAlwAQGesfFZy70ERjABaalsPwWR8bzAQ6q5EsJRg5
-         FsLd8n82fEBOXba20oChs3KURcbpFrzo51vw59m4EulHtni77TkWvdcmLwPuW+ITyxPu
-         hB4Q==
+        bh=hR77XGy8gKTpCV+3sSlL3axBPG4R/F86P0C6FJqRU38=;
+        b=U57d9286kjl++rxzhJWXAqNezvu6PxC9F5/pV4c7Gx1Z8rZVhUG7w8ooZaQIsFpeVf
+         uTGpAyu1fdST/TpYu27I7S01RGtJhTffnWsw6CM3NKbaAo/pI3q527GhBSZQ3QABc+Uw
+         QwAMWVcjQoOcTDkhPC5cjrA9b0V7wn+ovxASTQv1I5GLcjuM3v2+jrZNwhQKwOql3xCZ
+         3/+62kceCVsXuN18sHwk5JL1CD8nguXuUOxiriDwPtPJwQziRZGaMWByX6+923ZqhPiK
+         eE1ILrbQg4/h5/bTl/Rrv9ztpHGFK/eU63YZ/NYmm+TD2HIb9joKadVgd1svb0ztIhbN
+         LQyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762483938; x=1763088738;
+        d=1e100.net; s=20230601; t=1762484827; x=1763089627;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=to+M3YH5XNWJ8sgc76iueqXwuR+T+gGj83wJZ0qaDfw=;
-        b=QhgjHshWFDw4ciehDrL964gnUJ8OL+na9B3J4tPQGxp7A17FFNEST2vLCLdep1GElJ
-         X/2z3VHuie68wZi4wBD0fS3A16EhecBexo78sbaLKUPM8pVnKsCVo88uNrHhWmFcuPjT
-         bFk93kww4S3wI+/F2d8spMyDxzUis3/O59WdnnYoXHT2QoSpJ2xAUgm9kzuDvCTy+cSn
-         NTO3V0kJVLqoRpp+C2D1NyrvKftOKglIvxzDTMCdQA/3gPF/CFEvSJr8BIWZA1azO0jy
-         g1ijFlqAblt7xT4cpPUWreFOuBYr91I2qigl0y+QzJ5xPwiVBvVUy2DwAexWjKPhoxf3
-         m17w==
-X-Forwarded-Encrypted: i=1; AJvYcCXSD5Yykgu1m5XwvhQmmujqJLQBlYp6c+HvNIdgfxb+mrHEqpOF+FUHNXQcNPmrDMkzlvcy+1nC1+y2EWAwaA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxNwDz4+hWOTtUTiQTa9qW8TjuLWXix5ojLiCGutwD/czpGOrsC
-	wQBh7URftvP5SJJLnpbMEpYOBHwsFDEy9vN+7b0ECKvXFChR0CaQAGTW
-X-Gm-Gg: ASbGncu77JGNYVYl0eIBchTlEIE0fOqwKEBN9VbY6z/dlJbLOVfsBTkIZ1porYDZp4E
-	tJ5/QG8u9exCqzxjijjCtvOfJQeffqHPbgxTCW23rVqAOA7NqEjyE+AJ6/bICqxDZikALP8RIVB
-	skAhR28kvsJnr7JNtwD/RBKyKkzS8ZcVilWAvrtUhwE+r86rPxXNvkPWed5FNrYGGhkAGanLysu
-	jxxsEZg4aUO5v9DnP7hCxM11oFLM4NOu8DHTO8YS9QrrIUjw89WmovdJRBMLaJ90U+0YVUXml90
-	ljimbEKhLzUqEGryXYM3ZBM5BmPlwoxR8ux+AlTyxczhw1CFEvTnNUayYx4ZRrfxdOnIW03Ov0C
-	F06fCdL5kbLcXFRNxSMkp24sprTNgpiDahoABZ2ngRPepqlwUOJGXY5H96CWak71dWXgAFe0Cak
-	sk5xHvlf1Tl6qAbvNP5cOmvgak7/dT2l33MiW7
-X-Google-Smtp-Source: AGHT+IEjmJ3F7jVxmWzAKOE8ZCFLH8yvuCjB7m8mU8An6yxSyAVDGX/tJUnPe0dCIHSXZMA38QvYjg==
-X-Received: by 2002:a05:690e:4185:b0:63e:1563:4801 with SMTP id 956f58d0204a3-640c9d699f7mr96467d50.22.1762483937682;
-        Thu, 06 Nov 2025 18:52:17 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:41::])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-640b5ca70f7sm1358837d50.12.2025.11.06.18.52.16
+        bh=hR77XGy8gKTpCV+3sSlL3axBPG4R/F86P0C6FJqRU38=;
+        b=H3rjU/vhO5vJTATx6h/RANrDK/iBDHIfKyewofa9BTmVCRYMvqoZqGKt8RAz3Jhw0i
+         nQ5gTcRrUMTLDr+Zt1NjnLwImEHGv/j0MbyuagBjbnMiFNX2GcEtAgtd9yiD6jYCmAU2
+         7luC3/aPi/x42ctrNsD2eHyTiiJz/DXWSavU4GdoCiad7UlH/+7UyNgUuifx0Rs1iKCd
+         JrXRKqV66jK63QKGdSJuuiL6V5jl8Mf5eRjZDtk+uhq78y7d3pBf9usa+26oBr6rKvZJ
+         xih8QkkxF5W84z6YkhQC8OaEL7gejlTF77k1mH/X12Auo3tVEiFUYIMFlxTpC2oSsQci
+         NXPg==
+X-Forwarded-Encrypted: i=1; AJvYcCWFqMR33Hxl4kx2YeV+9jEtdQQqT9mfq0yGB9mWSXmVQhGA6vGzMrttWY/pSPfRlm9DKUL2uyhPPQAK2kjJFg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwUyLwLRGX1Gs8b+T7ExSjEWds8sfCHHsSp6IrfUQgDe1oUCgPK
+	8Np/WFhJpxIvKU4N2AciCE7MvGpmzBpCS/WPxXXq1idMiRN9IGJVS2wB
+X-Gm-Gg: ASbGnctV+QxcA9lK0T6iT6ybfKgeEgcDhNx6lZrHGn/rc6KBhr6djzsQ4o4OfTzrP8D
+	qyL7BQgPcP6QK9gOjZ4hnSbnBh/9NOzMvEzywPtwmSNpob/l53CGs7ZhA+GjI1MGUAY57EOpnoS
+	ilVrvIWonQgb7DfCq6lKyY71I0Oe4/dmyQq6FmMAelx4rJ39D9QSmfQWi2SDxQ8kOk/r+MCRtAj
+	8ilwfRL9+XJFa30BlsLELNoGAUDYgnrq9mHXx+Y2XKHOT+YFg370mp6W/4ia6R3NnZ5OVui3DHn
+	nVTYE29dst3hNyJH/GsES2agVCYeHpsr7o3Me9tGv1CYbq+I32KXAIEblkxrH9ebJqsS5XtI1Ad
+	1xFkmt3sGfLMl0ND1kxXcoY7Yih/+53LuEUHalzbE08ItvGnJfrjIKyQZ6bxAAdpwzQJTAnRteY
+	rpXCYO7EVT408VVc9KMWAlQr/Ri3Joo4lrV3ca
+X-Google-Smtp-Source: AGHT+IFB590VLlupKmRJu3Xg8gkOtJWd0diOwJuCAD9JFt31fECUBp8uUIrK8y6sj/IrmT+p0bOb1A==
+X-Received: by 2002:a05:690c:d84:b0:783:7768:55e6 with SMTP id 00721157ae682-787caaeead8mr1823477b3.13.1762484826556;
+        Thu, 06 Nov 2025 19:07:06 -0800 (PST)
+Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:5b::])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-787c68c4025sm2798627b3.26.2025.11.06.19.07.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Nov 2025 18:52:17 -0800 (PST)
-Date: Thu, 6 Nov 2025 18:52:15 -0800
+        Thu, 06 Nov 2025 19:07:06 -0800 (PST)
+Date: Thu, 6 Nov 2025 19:07:04 -0800
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
 To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>,
@@ -80,12 +80,11 @@ Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>,
 	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
 	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
 	berrange@redhat.com, Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v8 06/14] vsock/virtio: add netns to virtio
- transport common
-Message-ID: <aQ1e3/DZbgnYw4Ja@devvm11784.nha0.facebook.com>
+Subject: Re: [PATCH net-next v8 07/14] vhost/vsock: add netns support
+Message-ID: <aQ1iWCvSdrat1Y5v@devvm11784.nha0.facebook.com>
 References: <20251023-vsock-vmtest-v8-0-dea984d02bb0@meta.com>
- <20251023-vsock-vmtest-v8-6-dea984d02bb0@meta.com>
- <hkwlp6wpiik35zesxqfe6uw7m6uayd4tcbvrg55qhhej3ox33q@lah2dwed477g>
+ <20251023-vsock-vmtest-v8-7-dea984d02bb0@meta.com>
+ <juxkmz3vskdopukejobv745j6qqx45hhcdjtjw7gcpgz6fj5ws@ckz7dvyup6mq>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -94,115 +93,95 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <hkwlp6wpiik35zesxqfe6uw7m6uayd4tcbvrg55qhhej3ox33q@lah2dwed477g>
+In-Reply-To: <juxkmz3vskdopukejobv745j6qqx45hhcdjtjw7gcpgz6fj5ws@ckz7dvyup6mq>
 
-On Thu, Nov 06, 2025 at 05:20:05PM +0100, Stefano Garzarella wrote:
-> On Thu, Oct 23, 2025 at 11:27:45AM -0700, Bobby Eshleman wrote:
+On Thu, Nov 06, 2025 at 05:21:35PM +0100, Stefano Garzarella wrote:
+> On Thu, Oct 23, 2025 at 11:27:46AM -0700, Bobby Eshleman wrote:
 > > From: Bobby Eshleman <bobbyeshleman@meta.com>
 > > 
-> > Enable network namespace support in the virtio-vsock common transport
-> > layer by declaring namespace pointers in the transmit and receive
-> > paths.
+> > Add the ability to isolate vhost-vsock flows using namespaces.
 > > 
-> > The changes include:
-> > 1. Add a 'net' field to virtio_vsock_pkt_info to carry the namespace
-> >   pointer for outgoing packets.
-> > 2. Store the namespace and namespace mode in the skb control buffer when
-> >   allocating packets (except for VIRTIO_VSOCK_OP_RST packets which do
-> >   not have an associated socket).
-> > 3. Retrieve namespace information from skbs on the receive path for
-> >   lookups using vsock_find_connected_socket_net() and
-> >   vsock_find_bound_socket_net().
+> > The VM, via the vhost_vsock struct, inherits its namespace from the
+> > process that opens the vhost-vsock device. vhost_vsock lookup functions
+> > are modified to take into account the mode (e.g., if CIDs are matching
+> > but modes don't align, then return NULL).
 > > 
-> > This allows users of virtio transport common code
-> > (vhost-vsock/virtio-vsock) to later enable namespace support.
+> > vhost_vsock now acquires a reference to the namespace.
 > > 
 > > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 > > ---
 > > Changes in v7:
-> > - add comment explaining the !vsk case in virtio_transport_alloc_skb()
+> > - remove the check_global flag of vhost_vsock_get(), that logic was both
+> >  wrong and not necessary, reuse vsock_net_check_mode() instead
+> > - remove 'delete me' comment
+> > Changes in v5:
+> > - respect pid namespaces when assigning namespace to vhost_vsock
 > > ---
-> > include/linux/virtio_vsock.h            |  1 +
-> > net/vmw_vsock/virtio_transport_common.c | 21 +++++++++++++++++++--
-> > 2 files changed, 20 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-> > index 29290395054c..f90646f82993 100644
-> > --- a/include/linux/virtio_vsock.h
-> > +++ b/include/linux/virtio_vsock.h
-> > @@ -217,6 +217,7 @@ struct virtio_vsock_pkt_info {
-> > 	u32 remote_cid, remote_port;
-> > 	struct vsock_sock *vsk;
-> > 	struct msghdr *msg;
-> > +	struct net *net;
-> > 	u32 pkt_len;
-> > 	u16 type;
-> > 	u16 op;
-> > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> > index dcc8a1d5851e..b8e52c71920a 100644
-> > --- a/net/vmw_vsock/virtio_transport_common.c
-> > +++ b/net/vmw_vsock/virtio_transport_common.c
-> > @@ -316,6 +316,15 @@ static struct sk_buff *virtio_transport_alloc_skb(struct virtio_vsock_pkt_info *
-> > 					 info->flags,
-> > 					 zcopy);
-> > 
-> > +	/*
-> > +	 * If there is no corresponding socket, then we don't have a
-> > +	 * corresponding namespace. This only happens For VIRTIO_VSOCK_OP_RST.
-> > +	 */
-> 
-> So, in virtio_transport_recv_pkt() should we check that `net` is not set?
-> 
-> Should we set it to NULL here?
-> 
-
-Sounds good to me.
-
-> > +	if (vsk) {
-> > +		virtio_vsock_skb_set_net(skb, info->net);
-> 
-> Ditto here about the net refcnt, can the net disappear?
-> Should we use get_net() in some way, or the socket will prevent that?
-> 
-
-As long as the socket has an outstanding skb it can't be destroyed and
-so will have a reference to the net, that is after skb_set_owner_w() and
-freeing... so I think this is okay.
-
-But, maybe we could simplify the implied relationship between skb, sk,
-and net by removing the VIRTIO_VSOCK_SKB_CB(skb)->net entirely, and only
-ever referring to sock_net(skb->sk)? I remember originally having a
-reason for adding it to the cb, but my hunch is it that it was probably
-some confusion over the !vsk case.
-
-WDYT?
+> > drivers/vhost/vsock.c | 44 ++++++++++++++++++++++++++++++++++----------
+> > 1 file changed, 34 insertions(+), 10 deletions(-)
 
 [...]
 
-> > 
-> > 	return virtio_transport_send_pkt_info(vsk, &info);
-> > @@ -1578,7 +1593,9 @@ static bool virtio_transport_valid_type(u16 type)
-> > void virtio_transport_recv_pkt(struct virtio_transport *t,
-> > 			       struct sk_buff *skb)
+> > static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
 > > {
-> > +	enum vsock_net_mode net_mode = virtio_vsock_skb_net_mode(skb);
-> > 	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
-> > +	struct net *net = virtio_vsock_skb_net(skb);
+> > +
+> > 	struct vhost_virtqueue **vqs;
+> > 	struct vhost_vsock *vsock;
+> > +	struct net *net;
+> > 	int ret;
+> > 
+> > 	/* This struct is large and allocation could fail, fall back to vmalloc
+> > @@ -669,6 +684,14 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+> > 		goto out;
+> > 	}
+> > 
+> > +	net = current->nsproxy->net_ns;
+> > +	vsock->net = get_net_track(net, &vsock->ns_tracker, GFP_KERNEL);
+> > +
+> > +	/* Cache the mode of the namespace so that if that netns mode changes,
+> > +	 * the vhost_vsock will continue to function as expected.
+> > +	 */
 > 
-> Okay, so this is where the skb net is read, so why we touch the virtio-vsock
-> driver (virtio_transport.c) in the other patch where we changed just
-> af_vsock.c?
-> 
-> IMO we should move that change here, or in a separate commit.
-> Or maybe I missed some dependency :-)
+> I think we should document this in the commit description and in both we
+> should add also the reason. (IIRC, it was to simplify everything and prevent
+> a VM from changing modes when running and then tracking all its packets)
 > 
 
-100% agree.
+Sounds good!
 
-> Thanks,
-> Stefano
+> > +	vsock->net_mode = vsock_net_mode(net);
+> > +
+> > 	vsock->guest_cid = 0; /* no CID assigned yet */
+> > 	vsock->seqpacket_allow = false;
+> > 
+> > @@ -708,7 +731,7 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
+> > 	 */
+> > 
+> > 	/* If the peer is still valid, no need to reset connection */
+> > -	if (vhost_vsock_get(vsk->remote_addr.svm_cid))
+> > +	if (vhost_vsock_get(vsk->remote_addr.svm_cid, sock_net(sk), vsk->net_mode))
+> > 		return;
+> > 
+> > 	/* If the close timeout is pending, let it expire.  This avoids races
+> > @@ -753,6 +776,7 @@ static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
+> > 	virtio_vsock_skb_queue_purge(&vsock->send_pkt_queue);
+> > 
+> > 	vhost_dev_cleanup(&vsock->dev);
+> > +	put_net_track(vsock->net, &vsock->ns_tracker);
+> 
+> Doing this after virtio_vsock_skb_queue_purge() should ensure that all skbs
+> have been drained, so there should be no one flying with this netns. Perhaps
+> this clarifies my doubts about the skb net, but should we do something
+> similar for loopback as well?
+
+100% - for loopback the skb purge is done in the net exit hook, which is
+called just before netns destruction. Maybe it is worth commenting that
+context there too.
+
+> And maybe we should document that also in the virtio_vsock_skb_cb.
 > 
 
-Thanks!
+sgtm!
 
--Bobby
+Best,
+Bobby
