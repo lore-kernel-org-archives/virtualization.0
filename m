@@ -1,293 +1,310 @@
-Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010055.outbound.protection.outlook.com [52.101.46.55])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D8572E2846
-	for <virtualization@lists.linux.dev>; Fri,  7 Nov 2025 04:16:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.46.55
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762489013; cv=fail; b=jFgW4sxYGMSD/vWx1nxLV68NTOh7D9SCAVq5SeAaEMjgLiWOqn9uQRc79ZLVURpfmKVYWIhsVWL6OQcifoupivCCg2oTcgIMnBsKLSrM+kqTLQFrePl29zNokmwla4rTOVZvuaH1L1PM59zBZ0YWXHNsz3gb/sw9+yYofwxxK0U=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762489013; c=relaxed/simple;
-	bh=fJ+cxr47p4NnE3n2LM/h8RvqRzdlwpURLvVcNk7SJ48=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mNvgt2FTXVOLX1xUIYsdlEnBDl6vQEWGdeWyJGTrMp3R4F+dfqlKPqOffJw5NDdc/qKxXLzsdT4Jj4DuPkAokXWI4OuMLBWSTUhSCTT65y9CtPmR6KlsjEk4kExRcMXS+sQQicHbiMkUNQA2RQy0PNJkVKFIg8RXd51YxIaQW8Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=BHGHwUgo; arc=fail smtp.client-ip=52.101.46.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D5DC318141
+	for <virtualization@lists.linux.dev>; Fri,  7 Nov 2025 13:54:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762523654; cv=none; b=VNuUmoEm3rZCtjOgpGl8Pq7H50dWgD/IQTGYUkcKagfRqslErMvSAs02GBGeZc3G/BLlOV0HI1zJjFwvMeO8DBwHvBvBEM3VSakrHCFvYSoJVd9l1Sk6r5i5XdDCRaKRTqmLyZmakdaaLGCHzHRmzsOIMMEz17soQSYJVkjYrSc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762523654; c=relaxed/simple;
+	bh=E14IezpC06bozES2UpXxS2wwzQ9Qirf+gMnM88tjbms=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=F7gfOyPrbfqfMCJs9R6z6JId3sU7oOUfksStdfOi++Mzf/K4ZsA7s5Hjy1UY7QXfxA7AnBcz44Uo55wDobTzKcXC30kKo7Uj/CpZdKkVSWn6TTIG0eHW2udqn83cSPrv2rON19frMNlm31EqGAxPwIv6sv9PshKhGH1zyLrxuT0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JjWuutRa; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="BHGHwUgo"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=qMvQpjQCJB6bhdjTHI+GJ4bOhNBLkz/8KT7pFvEMORE9IxlKE20AZm3U9H49vAVFlzjeSz7mhSBzuXXc4usLLHWSNOyOw4zdADHwZPAnmSvkbpPSbA7s+DGYfKPHutoU+lhcg8G477I50U3tJXLalphTndTFeD11aWciPuO8dVk0oUtog/5qkTJglLmBucz/WRi5sef0dtutdwNDDF1h50GG+y9HTVvafE4Sp2MBZmXTW6gYZb7JmmK26AKbTLfWb6Npa8D1pWOIsOLqhw4/BpRyv6g+K8mQmGDq7phKB9rguNK0If8gab4t0jhHjhfjctKh7g08QkQTsUMCuJNftQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Td2MbBlSsqwKc4KC9F/+HUdg61E/V7VbP5Zmgx4zeFw=;
- b=KjnvvLok1C7RV0YKqVxQ93vxaNiAOwb4NoAy2CMLzvssZjwgapJdqUsF6TG1ga4l4yYKoDBKMJ/KAFAA2iKHjcl8CyeekVtKcdq6gKOHXdF7fE0YlGQfdN0EpMNl+gCSEpoaBdMU1HrHQsST6JqfGt1EaWSdUbosiA0iWz7QERNA70l/7M7ubV1KZHWfQb/H00X7tal1ELYjS1H7OlMrapdADUbeLV8SwsuAWNyiirL3g8GWjspEwRjbagyqPMLIuX5s9Ir3J+Ee9Boue9w1QB2rF2tHCLN9Fn8N/e70IUDclo8BKxKqWhNUbyr4dMIrKTOIws+P8QzC7kfzN9dmFg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Td2MbBlSsqwKc4KC9F/+HUdg61E/V7VbP5Zmgx4zeFw=;
- b=BHGHwUgoGb1qbvbrxNQezrI0GCPYCImTj24RqWn1p03hlnYmk1IVWiPjEJVh2vALfHpA2j2NNDpccZDJccblH+bUbPVLQ4B7StLhYHo//h1WRlDfC1isTOj07FQSUs8ICG6wtA3vWCPqpPvNC4Zupdknz6WcpF13ekfA5GGAxX2QZHzgppol7C7ZbQaR0G4QBGPvVXE1k3xoUr7v8mFLv+N7tTErjh9VdEAIhEF9HORQ66gCtWQTiRUcNa6iIeZF80fe4FUcAbtfq6YFHdY9yHmyxdqC+/nRNl+dBsKoSG2B6boQ9pxN+al0BWwdLst6aUHFSOApGeannBUA46aAog==
-Received: from DS7PR03CA0005.namprd03.prod.outlook.com (2603:10b6:5:3b8::10)
- by DS0PR12MB8787.namprd12.prod.outlook.com (2603:10b6:8:14e::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.12; Fri, 7 Nov
- 2025 04:16:46 +0000
-Received: from DS3PEPF0000C37B.namprd04.prod.outlook.com
- (2603:10b6:5:3b8:cafe::23) by DS7PR03CA0005.outlook.office365.com
- (2603:10b6:5:3b8::10) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9275.15 via Frontend Transport; Fri,
- 7 Nov 2025 04:16:46 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- DS3PEPF0000C37B.mail.protection.outlook.com (10.167.23.5) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9298.6 via Frontend Transport; Fri, 7 Nov 2025 04:16:46 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Thu, 6 Nov
- 2025 20:16:35 -0800
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Thu, 6 Nov
- 2025 20:16:35 -0800
-Received: from vdi.nvidia.com (10.127.8.14) by mail.nvidia.com (10.129.68.8)
- with Microsoft SMTP Server id 15.2.2562.20 via Frontend Transport; Thu, 6 Nov
- 2025 20:16:33 -0800
-From: Daniel Jurgens <danielj@nvidia.com>
-To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
-	<pabeni@redhat.com>
-CC: <virtualization@lists.linux.dev>, <parav@nvidia.com>,
-	<shshitrit@nvidia.com>, <yohadt@nvidia.com>, <xuanzhuo@linux.alibaba.com>,
-	<eperezma@redhat.com>, <shameerali.kolothum.thodi@huawei.com>,
-	<jgg@ziepe.ca>, <kevin.tian@intel.com>, <kuba@kernel.org>,
-	<andrew+netdev@lunn.ch>, <edumazet@google.com>, Daniel Jurgens
-	<danielj@nvidia.com>
-Subject: [PATCH net-next v9 12/12] virtio_net: Add get ethtool flow rules ops
-Date: Thu, 6 Nov 2025 22:15:22 -0600
-Message-ID: <20251107041523.1928-13-danielj@nvidia.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20251107041523.1928-1-danielj@nvidia.com>
-References: <20251107041523.1928-1-danielj@nvidia.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JjWuutRa"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1762523650;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QTpKPy13RMZO36DAikV4BfOXCjD/6H+oEEf0w/pf88o=;
+	b=JjWuutRaH3hSVRcCJYAG/ELCWaDkfx/K/5L9dxIxDiIardAD98qt0lZcZlu/UH57kXKmLc
+	ytTqBAXcsbi3lOXfwYcBnRzdbKMrtWih/tOI85h7FgRZGHHsKVOGgctGUlU3C8oxy3vOP5
+	UeFtaUeHt1knK2BEwzc7k66VifvUY6Y=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-461-2iE4AZnKPfaEuZPb_ynanw-1; Fri, 07 Nov 2025 08:54:09 -0500
+X-MC-Unique: 2iE4AZnKPfaEuZPb_ynanw-1
+X-Mimecast-MFC-AGG-ID: 2iE4AZnKPfaEuZPb_ynanw_1762523648
+Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-64095177aedso1181885a12.2
+        for <virtualization@lists.linux.dev>; Fri, 07 Nov 2025 05:54:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762523648; x=1763128448;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QTpKPy13RMZO36DAikV4BfOXCjD/6H+oEEf0w/pf88o=;
+        b=n7zx75+/du83e0vqBuEsbRg0JrB3IemtI1YFn3jfrROBOBEzx+ukORjMnCN4YPa17j
+         Iem8rYccQk0p/qE/xq2SNLArcDda7GEMGH+IsBBq1senLDxlIxfFx3B3zl70SH20yT+Y
+         PbfDg9Nb4dzm6Nu5y07sVw6DMS2t2sjhapJZsa6i8fVLdn0Zr5WhBYFCbEVs/BYuajR5
+         0a4twsEuf1ydFTMTOvIdK5crqhZZNaVMVc12b9bTrNWhiZfXsECh6G3Gybflise1Ij6v
+         1P/5xxckQ3H7pyJp8C/E1KyIY8aXRoa+ArafC1px61xgfCVwvaXCh9Y9P//wypEUf82+
+         DS2Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUPj2fKhaTYOGTkD8/vELCERC7hDd2n33P9kE1QAQzYdkJeTKpQmWggce15nPt0hI19FYa2q8eIadjm9GRsnQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw19VZ/ZUgctR8eKvSUXHXyN530Bc60p0zfoPRatcJ7v+rf9dB9
+	L9YRERCIrC5bEX3nnPMe6LpLIZ9/L+9PvzhuvoSPfD3av6u7ZjFNUQeDmRoV87XsBmGESpJKwss
+	H6c+vjtG8aa5JeOYChkstngfVyr44QBMaNUAv1bniBF8pLVIBrFhXokFxBRWNMrAUfPAy
+X-Gm-Gg: ASbGncviJsrCyTa+CBIA/Y2vddT6c9nzegrU/vJZWHMp3XQCZJ/QUDDtrXB0wcbCBkn
+	AXr2r76uF2BPUZytYmV6TK5ZSCEiWENRVFrmmilEDxHrhNcI3gwMOO2siwJo181EZ6ABBTrnvQd
+	bk0qgjNOiujP12TBLHsYVyQ1yP5w52lRUFrvQfepec3LTibtxMTucZ9iDD5roRf9gEoBUEAKCHB
+	TdQfz5rEB4gfxvqlqoU1TzfIPDnxT5UV2iXVWtRnXeJb/0MH4hHMpaXnv0RwSGZCJUdqnpnpvca
+	Ww3jGOnscEsYS1q0Y5d9MqyZZHyFZyK4SkPdjXwdx6x0zF8OFZhJBf2BC/uaEhIPELzt+uFdQgb
+	/5OEWbUa9vsZIaKNszjwD9P7QX2iUhOBdu9DwM3MfAd2DY26m6DY=
+X-Received: by 2002:a05:6402:20d2:20b0:640:bce5:77a9 with SMTP id 4fb4d7f45d1cf-6413f070315mr2790157a12.32.1762523647735;
+        Fri, 07 Nov 2025 05:54:07 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHPBnKz6/VPxLTQ77JDwVmANubEoFCRnIC6yzVJFSSR3npksqZxhrXKE1ZmuNlEg+WLoqaVoA==
+X-Received: by 2002:a05:6402:20d2:20b0:640:bce5:77a9 with SMTP id 4fb4d7f45d1cf-6413f070315mr2790133a12.32.1762523647203;
+        Fri, 07 Nov 2025 05:54:07 -0800 (PST)
+Received: from sgarzare-redhat (host-79-46-200-153.retail.telecomitalia.it. [79.46.200.153])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6412a27d68dsm3299465a12.9.2025.11.07.05.54.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Nov 2025 05:54:06 -0800 (PST)
+Date: Fri, 7 Nov 2025 14:53:28 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, berrange@redhat.com, Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH net-next v8 04/14] vsock: add netns to vsock core
+Message-ID: <767jcion4jrguxsbshfap6dgncuhlgts2a5ybka5vdyos4x57d@ezkx72irws2h>
+References: <20251023-vsock-vmtest-v8-0-dea984d02bb0@meta.com>
+ <20251023-vsock-vmtest-v8-4-dea984d02bb0@meta.com>
+ <zxy7e4xihxujtlcnqjdgfxaqckfurop77eukbose74nzaxyv64@7djyz3gv4eys>
+ <aQ1TXjb8AWIzgAu4@devvm11784.nha0.facebook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS3PEPF0000C37B:EE_|DS0PR12MB8787:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9f388651-f634-4cdb-93f2-08de1db47774
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|1800799024|36860700013|82310400026;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?5IrVshpFmb5tQT79SU+5qyEQzTC/qXrT7tk4NZDhLE1ONR4w1R/Hw5kQTj5m?=
- =?us-ascii?Q?I8GVpCA58dvJgKGlk7priM4CWPdz/BYXc5kFuXFzcmpKmNmK4KtVb3dISt1l?=
- =?us-ascii?Q?JJwN2TKTpn67GHkYaCqj7kPSeURC2e6XOlW8gbbYdmyOkr0JJjloFMsG0H3h?=
- =?us-ascii?Q?OklYbjQOQ2AVhQdVXRTK8d64WumDtddBjSdmS3m+kt+4x+cxFWMi4XKbSYX0?=
- =?us-ascii?Q?/scU6qJB3sRMHfgHEW2mPd7XpakhAdOLndlpnf56RRbFzTmk0rWrlXNUBAc+?=
- =?us-ascii?Q?jPk8AXczXbOj8VMjs1DIM6K+q3ZlL3MBsHh8VjfoKngc4hAyKeNFEsggzJzo?=
- =?us-ascii?Q?2GCpxkCx5dOsuo+vidyrO/1oNqhSY6xHFW2uUp881oS/RcKXEfsn7afgZl9W?=
- =?us-ascii?Q?2/tEZ4pbE0NijPSBms8ff6bNubTtPJWHbbx8UQp9X/IWuLcWcLA4vdM0S7H7?=
- =?us-ascii?Q?OA91vtdmeClqXKNLpiS4C/nzC5M06bl5k3tGShLGXXsrOhumB7QV7V3ho0Hh?=
- =?us-ascii?Q?7aC4d8Ana+mestvSM0g5EhBU3sFjPAqhQHSLTzbxkCxkDnBEl7Qkj62LWWO7?=
- =?us-ascii?Q?BNUV1Uwts2A4U6+01H/iqVYnfYwqdiXQ5Btig+4JsILkOUqocPIBiNu3cGrA?=
- =?us-ascii?Q?KQO73li1FkH5h4dGnMX4DuZb6129xtszeYVOHmVB/VJo/4U2YzefRzihF/4v?=
- =?us-ascii?Q?C6mNove1EoMDhgn7iHQHaZeNp77Yg4oNYMyd/YmAY9N+VGJaJLPlS9lx6RFH?=
- =?us-ascii?Q?lbFCbinM9e6a3n4zluOsIwYJughYbLqaj5ZbpUHjotAbi4mqGTQRmvlMtC9t?=
- =?us-ascii?Q?uXXZbk6hZLmYUMkKHEbttFXCHxwblwEy76QmElXfJ6AS1TWSo21tR9yQnQk5?=
- =?us-ascii?Q?rtrBiJB0jFHzfQHTNfg+KZmTuem0wpoQaeIVMLdwPeXJewgGEJmfKMn0Hnsz?=
- =?us-ascii?Q?2HqbzBsL3abNBHSgGkSnpyw1lBXOVi34Bxs963K9Dcw9AVfmquFqwgwFqoyk?=
- =?us-ascii?Q?assmmPYsyld03ybzAP+7z8ceYkhXx23wjY/bQsAogvuFjCG4lky2ie7B6Swo?=
- =?us-ascii?Q?kvBTNSBoS/yt19dAy2VimaQsoTaVCJZsn8fHo7D7Z6++U0yvTzaQkJqpzXY8?=
- =?us-ascii?Q?dpYFBZ0XB8/YBZ2Nf20MI8zNhGraPXz1CM5a8AduDOrWGLh2lsfc4RrYckdN?=
- =?us-ascii?Q?VzqG8dK0erIfqZE8jUqTJgfElPNrcGlNZ759ST41KwSl4QDtwB37/VMxZM1W?=
- =?us-ascii?Q?CNIKPw9h1zdAOwRvDyaZIyV6/jgsRUH2opfQVVVT3Tb+d1kjAWb+xU6lEsUk?=
- =?us-ascii?Q?NXwYSMXb2sUG3jeHVux4j3qD94C1GpNLMUudWV9hg1jf8GdPpUnlrrwymptX?=
- =?us-ascii?Q?fFNHaHdx/Yx/DKBVW1h0cy6Xd999bv0z2xuXgNZl5WFgba4/CfE3luYX64zj?=
- =?us-ascii?Q?ZKB9bBKmhELRjit/xNv8D8jPOKuBtd+9LxfqKdPy220Cbu0m5YDGe4RL/qof?=
- =?us-ascii?Q?BhIaBTNCb6BU43w4LwOxMK0hTPu8FL6tr7TqF7GAb3l4mfuFCUbVBdOswxWI?=
- =?us-ascii?Q?CS9a3b+XZ3EQBUBQYuE=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(36860700013)(82310400026);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Nov 2025 04:16:46.7199
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9f388651-f634-4cdb-93f2-08de1db47774
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DS3PEPF0000C37B.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8787
+In-Reply-To: <aQ1TXjb8AWIzgAu4@devvm11784.nha0.facebook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 5tVSyM7iacd50xpTgvwGYIbbahjUhQYKystEuBSPRMs_1762523648
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-- Get total number of rules. There's no user interface for this. It is
-  used to allocate an appropriately sized buffer for getting all the
-  rules.
+On Thu, Nov 06, 2025 at 06:03:10PM -0800, Bobby Eshleman wrote:
+>On Thu, Nov 06, 2025 at 05:18:00PM +0100, Stefano Garzarella wrote:
+>> On Thu, Oct 23, 2025 at 11:27:43AM -0700, Bobby Eshleman wrote:
+>> > From: Bobby Eshleman <bobbyeshleman@meta.com>
+>> >
+>> > Add netns logic to vsock core. Additionally, modify transport hook
+>> > prototypes to be used by later transport-specific patches (e.g.,
+>> > *_seqpacket_allow()).
+>> >
+>> > Namespaces are supported primarily by changing socket lookup functions
+>> > (e.g., vsock_find_connected_socket()) to take into account the socket
+>> > namespace and the namespace mode before considering a candidate socket a
+>> > "match".
+>> >
+>> > Introduce a dummy namespace struct, __vsock_global_dummy_net, to be
+>> > used by transports that do not support namespacing. This dummy always
+>> > has mode "global" to preserve previous CID behavior.
+>> >
+>> > This patch also introduces the sysctl /proc/sys/net/vsock/ns_mode that
+>> > accepts the "global" or "local" mode strings.
+>> >
+>> > The transports (besides vhost) are modified to use the global dummy,
+>> > which makes them behave as if always in the global namespace. Vhost is
+>> > an exception because it inherits its namespace from the process that
+>> > opens the vhost device.
+>> >
+>> > Add netns functionality (initialization, passing to transports, procfs,
+>> > etc...) to the af_vsock socket layer. Later patches that add netns
+>> > support to transports depend on this patch.
+>> >
+>> > seqpacket_allow() callbacks are modified to take a vsk so that transport
+>> > implementations can inspect sock_net(sk) and vsk->net_mode when performing
+>> > lookups (e.g., vhost does this in its future netns patch). Because the
+>> > API change affects all transports, it seemed more appropriate to make
+>> > this internal API change in the "vsock core" patch then in the "vhost"
+>> > patch.
+>> >
+>> > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+>> > ---
+>> > Changes in v7:
+>> > - hv_sock: fix hyperv build error
+>> > - explain why vhost does not use the dummy
+>> > - explain usage of __vsock_global_dummy_net
+>> > - explain why VSOCK_NET_MODE_STR_MAX is 8 characters
+>> > - use switch-case in vsock_net_mode_string()
+>> > - avoid changing transports as much as possible
+>> > - add vsock_find_{bound,connected}_socket_net()
+>> > - rename `vsock_hdr` to `sysctl_hdr`
+>> > - add virtio_vsock_alloc_linear_skb() wrapper for setting dummy net and
+>> >  global mode for virtio-vsock, move skb->cb zero-ing into wrapper
+>> > - explain seqpacket_allow() change
+>> > - move net setting to __vsock_create() instead of vsock_create() so
+>> >  that child sockets also have their net assigned upon accept()
+>> >
+>> > Changes in v6:
+>> > - unregister sysctl ops in vsock_exit()
+>> > - af_vsock: clarify description of CID behavior
+>> > - af_vsock: fix buf vs buffer naming, and length checking
+>> > - af_vsock: fix length checking w/ correct ctl_table->maxlen
+>> >
+>> > Changes in v5:
+>> > - vsock_global_net() -> vsock_global_dummy_net()
+>> > - update comments for new uAPI
+>> > - use /proc/sys/net/vsock/ns_mode instead of /proc/net/vsock_ns_mode
+>> > - add prototype changes so patch remains compilable
+>> > ---
+>> > drivers/vhost/vsock.c            |   4 +-
+>> > include/linux/virtio_vsock.h     |  21 ++++
+>> > include/net/af_vsock.h           |  14 ++-
+>> > net/vmw_vsock/af_vsock.c         | 264 ++++++++++++++++++++++++++++++++++++---
+>> > net/vmw_vsock/virtio_transport.c |   7 +-
+>> > net/vmw_vsock/vsock_loopback.c   |   4 +-
+>> > 6 files changed, 288 insertions(+), 26 deletions(-)
+>> >
+>> > diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>> > index ae01457ea2cd..34adf0cf9124 100644
+>> > --- a/drivers/vhost/vsock.c
+>> > +++ b/drivers/vhost/vsock.c
+>> > @@ -404,7 +404,7 @@ static bool vhost_transport_msgzerocopy_allow(void)
+>> > 	return true;
+>> > }
+>> >
+>> > -static bool vhost_transport_seqpacket_allow(u32 remote_cid);
+>> > +static bool vhost_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid);
+>> >
+>> > static struct virtio_transport vhost_transport = {
+>> > 	.transport = {
+>> > @@ -460,7 +460,7 @@ static struct virtio_transport vhost_transport = {
+>> > 	.send_pkt = vhost_transport_send_pkt,
+>> > };
+>> >
+>> > -static bool vhost_transport_seqpacket_allow(u32 remote_cid)
+>> > +static bool vhost_transport_seqpacket_allow(struct vsock_sock *vsk, u32 remote_cid)
+>> > {
+>> > 	struct vhost_vsock *vsock;
+>> > 	bool seqpacket_allow = false;
+>> > diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>> > index 7f334a32133c..29290395054c 100644
+>> > --- a/include/linux/virtio_vsock.h
+>> > +++ b/include/linux/virtio_vsock.h
+>> > @@ -153,6 +153,27 @@ static inline void virtio_vsock_skb_set_net_mode(struct sk_buff *skb,
+>> > 	VIRTIO_VSOCK_SKB_CB(skb)->net_mode = net_mode;
+>> > }
+>> >
+>> > +static inline struct sk_buff *
+>> > +virtio_vsock_alloc_rx_skb(unsigned int size, gfp_t mask)
+>> > +{
+>> > +	struct sk_buff *skb;
+>> > +
+>> > +	skb = virtio_vsock_alloc_linear_skb(size, mask);
+>> > +	if (!skb)
+>> > +		return NULL;
+>> > +
+>> > +	memset(skb->head, 0, VIRTIO_VSOCK_SKB_HEADROOM);
+>> > +
+>> > +	/* virtio-vsock does not yet support namespaces, so on receive
+>> > +	 * we force legacy namespace behavior using the global dummy net
+>> > +	 * and global net mode.
+>> > +	 */
+>> > +	virtio_vsock_skb_set_net(skb, vsock_global_dummy_net());
+>> > +	virtio_vsock_skb_set_net_mode(skb, VSOCK_NET_MODE_GLOBAL);
+>> > +
+>> > +	return skb;
+>> > +}
+>>
+>> Why we are introducing this change in this patch?
+>>
+>> Where the net of the virtio's skb is read?
+>>
+>
+>Oh good point, this is a weird place for this. I'll move this to where
+>it is actually used.
+>
+>[...]
+>
+>> >
+>> > +static int vsock_net_mode_string(const struct ctl_table *table, int write,
+>> > +				 void *buffer, size_t *lenp, loff_t *ppos)
+>> > +{
+>> > +	char data[VSOCK_NET_MODE_STR_MAX] = {0};
+>> > +	enum vsock_net_mode mode;
+>> > +	struct ctl_table tmp;
+>> > +	struct net *net;
+>> > +	int ret;
+>> > +
+>> > +	if (!table->data || !table->maxlen || !*lenp) {
+>> > +		*lenp = 0;
+>> > +		return 0;
+>> > +	}
+>> > +
+>> > +	net = current->nsproxy->net_ns;
+>> > +	tmp = *table;
+>> > +	tmp.data = data;
+>> > +
+>> > +	if (!write) {
+>> > +		const char *p;
+>> > +
+>> > +		mode = vsock_net_mode(net);
+>> > +
+>> > +		switch (mode) {
+>> > +		case VSOCK_NET_MODE_GLOBAL:
+>> > +			p = VSOCK_NET_MODE_STR_GLOBAL;
+>> > +			break;
+>> > +		case VSOCK_NET_MODE_LOCAL:
+>> > +			p = VSOCK_NET_MODE_STR_LOCAL;
+>> > +			break;
+>> > +		default:
+>> > +			WARN_ONCE(true, "netns has invalid vsock mode");
+>> > +			*lenp = 0;
+>> > +			return 0;
+>> > +		}
+>> > +
+>> > +		strscpy(data, p, sizeof(data));
+>> > +		tmp.maxlen = strlen(p);
+>> > +	}
+>> > +
+>> > +	ret = proc_dostring(&tmp, write, buffer, lenp, ppos);
+>> > +	if (ret)
+>> > +		return ret;
+>> > +
+>> > +	if (write) {
+>>
+>> Do we need to check some capability, e.g. CAP_NET_ADMIN ?
+>>
+>
+>We get that for free via the sysctl_net registration, through this path
+>on open (CAP_NET_ADMIN is checked in net_ctl_permissions):
+>
+>	net_ctl_permissions+1
+>	sysctl_perm+24
+>	proc_sys_permission+117
+>	inode_permission+217
+>	link_path_walk+162
+>	path_openat+152
+>	do_filp_open+171
+>	do_sys_openat2+98
+>	__x64_sys_openat+69
+>	do_syscall_64+93
+>
+>Verified with:
+>
+>cp /bin/echo /tmp/echo_netadmin
+>setcap cap_net_admin+ep /tmp/echo_netadmin
+>
+>(non-root user fails with regular echo, succeeds with
+>/tmp/echo_netadmin)
 
-- Get specific rule
-$ ethtool -u ens9 rule 0
-	Filter: 0
-		Rule Type: UDP over IPv4
-		Src IP addr: 0.0.0.0 mask: 255.255.255.255
-		Dest IP addr: 192.168.5.2 mask: 0.0.0.0
-		TOS: 0x0 mask: 0xff
-		Src port: 0 mask: 0xffff
-		Dest port: 4321 mask: 0x0
-		Action: Direct to queue 16
+Thanks for checking!
 
-- Get all rules:
-$ ethtool -u ens9
-31 RX rings available
-Total 2 rules
-
-Filter: 0
-        Rule Type: UDP over IPv4
-        Src IP addr: 0.0.0.0 mask: 255.255.255.255
-        Dest IP addr: 192.168.5.2 mask: 0.0.0.0
-...
-
-Filter: 1
-        Flow Type: Raw Ethernet
-        Src MAC addr: 00:00:00:00:00:00 mask: FF:FF:FF:FF:FF:FF
-        Dest MAC addr: 08:11:22:33:44:54 mask: 00:00:00:00:00:00
-
-Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-Reviewed-by: Parav Pandit <parav@nvidia.com>
-Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
-v4: Answered questions about rules_limit overflow with no changes.
----
- drivers/net/virtio_net.c | 78 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 78 insertions(+)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 576ce44d7166..cfa4e204e2ce 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -306,6 +306,13 @@ static int virtnet_ethtool_flow_insert(struct virtnet_ff *ff,
- 				       struct ethtool_rx_flow_spec *fs,
- 				       u16 curr_queue_pairs);
- static int virtnet_ethtool_flow_remove(struct virtnet_ff *ff, int location);
-+static int virtnet_ethtool_get_flow_count(struct virtnet_ff *ff,
-+					  struct ethtool_rxnfc *info);
-+static int virtnet_ethtool_get_flow(struct virtnet_ff *ff,
-+				    struct ethtool_rxnfc *info);
-+static int
-+virtnet_ethtool_get_all_flows(struct virtnet_ff *ff,
-+			      struct ethtool_rxnfc *info, u32 *rule_locs);
- 
- #define VIRTNET_Q_TYPE_RX 0
- #define VIRTNET_Q_TYPE_TX 1
-@@ -5649,6 +5656,28 @@ static u32 virtnet_get_rx_ring_count(struct net_device *dev)
- 	return vi->curr_queue_pairs;
- }
- 
-+static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info, u32 *rule_locs)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	int rc = 0;
-+
-+	switch (info->cmd) {
-+	case ETHTOOL_GRXCLSRLCNT:
-+		rc = virtnet_ethtool_get_flow_count(&vi->ff, info);
-+		break;
-+	case ETHTOOL_GRXCLSRULE:
-+		rc = virtnet_ethtool_get_flow(&vi->ff, info);
-+		break;
-+	case ETHTOOL_GRXCLSRLALL:
-+		rc = virtnet_ethtool_get_all_flows(&vi->ff, info, rule_locs);
-+		break;
-+	default:
-+		rc = -EOPNOTSUPP;
-+	}
-+
-+	return rc;
-+}
-+
- static int virtnet_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-@@ -5690,6 +5719,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_rxfh_fields = virtnet_get_hashflow,
- 	.set_rxfh_fields = virtnet_set_hashflow,
- 	.get_rx_ring_count = virtnet_get_rx_ring_count,
-+	.get_rxnfc = virtnet_get_rxnfc,
- 	.set_rxnfc = virtnet_set_rxnfc,
- };
- 
-@@ -7609,6 +7639,54 @@ static int virtnet_ethtool_flow_remove(struct virtnet_ff *ff, int location)
- 	return err;
- }
- 
-+static int virtnet_ethtool_get_flow_count(struct virtnet_ff *ff,
-+					  struct ethtool_rxnfc *info)
-+{
-+	if (!ff->ff_supported)
-+		return -EOPNOTSUPP;
-+
-+	info->rule_cnt = ff->ethtool.num_rules;
-+	info->data = le32_to_cpu(ff->ff_caps->rules_limit) | RX_CLS_LOC_SPECIAL;
-+
-+	return 0;
-+}
-+
-+static int virtnet_ethtool_get_flow(struct virtnet_ff *ff,
-+				    struct ethtool_rxnfc *info)
-+{
-+	struct virtnet_ethtool_rule *eth_rule;
-+
-+	if (!ff->ff_supported)
-+		return -EOPNOTSUPP;
-+
-+	eth_rule = xa_load(&ff->ethtool.rules, info->fs.location);
-+	if (!eth_rule)
-+		return -ENOENT;
-+
-+	info->fs = eth_rule->flow_spec;
-+
-+	return 0;
-+}
-+
-+static int
-+virtnet_ethtool_get_all_flows(struct virtnet_ff *ff,
-+			      struct ethtool_rxnfc *info, u32 *rule_locs)
-+{
-+	struct virtnet_ethtool_rule *eth_rule;
-+	unsigned long i = 0;
-+	int idx = 0;
-+
-+	if (!ff->ff_supported)
-+		return -EOPNOTSUPP;
-+
-+	xa_for_each(&ff->ethtool.rules, i, eth_rule)
-+		rule_locs[idx++] = i;
-+
-+	info->data = le32_to_cpu(ff->ff_caps->rules_limit);
-+
-+	return 0;
-+}
-+
- static size_t get_mask_size(u16 type)
- {
- 	switch (type) {
--- 
-2.50.1
+Stefano
 
