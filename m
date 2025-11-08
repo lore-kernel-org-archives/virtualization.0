@@ -1,160 +1,144 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AAE82957B6;
-	Fri,  7 Nov 2025 20:04:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FE101E3DE5
+	for <virtualization@lists.linux.dev>; Sat,  8 Nov 2025 16:01:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762545851; cv=none; b=NaaT//OnlmqBSO5BP5rHfDjLQ26pBrOvpbliMEG1PVZZhKkBm7slPoOvghBb8BxLxiSQXm/k1ePf6bKRcSwvcyziKnxWCE+j242eJk+uK2z9ggihbyVm+qdKRgYCgYwFkzwAWTSAu1cnN2nnUVh4X3hZZq8k+a5/xajEBCZqPvk=
+	t=1762617714; cv=none; b=SGhiSH24g+YZHaGmJoFJz7XC8EA7G01rO+46mAv9uSfYaHprBT/boptFeNmIgehFZKMn0ar0k24tVq63r1qXBUoi7hQD2VlqsGeOIQtuwMVcXzcMaE3ZeyIbBjq1BMmlCG4m6EU6sxqklqHvci8bGdcajoNG2+iBBZupXsWC3d4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762545851; c=relaxed/simple;
-	bh=OnBpoAqeH6gMRGM+S3RxuTIZcip+Pqgz3dyqnSZG+VM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=fOousZuyFw1Ek/YrxfA4tS26nxPCcxFkSR98XAPeQq18NjS9GDxjQXyYk2jvAd3zAKsC0woW33iDMRTo8QQDHm22ist5uRcQkbkOGGPZ9ZGocKfV4wOOkLFRRFVK+wUNuevY0NkHf8JDyMrfOuSVxgXtJOEFSWvVTfCkdj1yveE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H39ZqBg6; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1762617714; c=relaxed/simple;
+	bh=GL2KSL5/GCvtcabkEDmH0mQRKHpNR6LFtcdCsXg/aoY=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=t31xquVbRCAquqxYYcofTfLR9PtjzG5ih0nBFQeFNEdG1thSMuug1z+j549TyxXTDcP7QcM8l4HIEj5pp2PMAWC03w+miZSAA/NuP9YwwCa2wkUKm0jQeSAhAKIxWF5cW9ebD8XbNn/qg6WFlRo6ElI7ekIfKQ6Uzyg45q6ZsbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kSAIZ5N/; arc=none smtp.client-ip=209.85.210.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H39ZqBg6"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5A7HNkEL024261;
-	Fri, 7 Nov 2025 20:03:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=2eGLYm
-	e5VwHp+AJZ/CpMtGPReJuK3FwyynF7wHhYkvA=; b=H39ZqBg6ELRsBI8IqrWREp
-	rhjL78rKsc96eOnL+X5Cy2rr1ljlpPFGcKy8nLRx/mcTHG0vrAXUO52e/Lha6zSk
-	5FIvQoiTzXmy4DhsWEKCjb+EjadjqYG/3mbmWJU35Rc/X+P8HaeEt+G7kHqh76RS
-	f63pbxQTgZUPyeIVYtUltuWwbhKaqbyl0Nm1mcn+wlQsrj4nzpgfG4ic86WIZpvf
-	WNJdtDrlWEQpVD58ESxjxMl6tVOzYnIYYzYfpVn0kmLwcOMPmTa7nZ3az3W2hV99
-	B7dcHjR0UD4TVMutSYrtVjIFbQ3y9cRqPxr4G8rfDosq2TyWgJcys2AyOvUBbxLw
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a9n4egp43-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Nov 2025 20:03:57 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5A7K3vMY021721;
-	Fri, 7 Nov 2025 20:03:57 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4a9n4egp3v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Nov 2025 20:03:57 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5A7JIojI012861;
-	Fri, 7 Nov 2025 20:03:56 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4a5y82cbg0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Nov 2025 20:03:56 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5A7K3sHQ27853452
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Nov 2025 20:03:54 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A43D58059;
-	Fri,  7 Nov 2025 20:03:54 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 841DB5805E;
-	Fri,  7 Nov 2025 20:03:50 +0000 (GMT)
-Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.62.231])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  7 Nov 2025 20:03:50 +0000 (GMT)
-Message-ID: <8cfa84e31a275db3d85431e18836a5ed921f1cfd.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 18/22] vfio/ccw: Convert to get_region_info_caps
-From: Eric Farman <farman@linux.ibm.com>
-To: Jason Gunthorpe <jgg@nvidia.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        David Airlie <airlied@gmail.com>,
-        Alex
- Williamson <alex.williamson@redhat.com>,
-        Ankit Agrawal	
- <ankita@nvidia.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Brett Creeley <brett.creeley@amd.com>, dri-devel@lists.freedesktop.org,
-        Eric Auger <eric.auger@redhat.com>,
-        Giovanni Cabiddu
- <giovanni.cabiddu@intel.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Heiko
- Carstens <hca@linux.ibm.com>,
-        intel-gfx@lists.freedesktop.org,
-        Jani Nikula
- <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen
- <joonas.lahtinen@linux.intel.com>,
-        kvm@vger.kernel.org, Kirti Wankhede
- <kwankhede@nvidia.com>,
-        linux-s390@vger.kernel.org, Longfang Liu
- <liulongfang@huawei.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Nikhil
- Agarwal <nikhil.agarwal@amd.com>,
-        Nipun Gupta	 <nipun.gupta@amd.com>,
-        Peter
- Oberparleiter <oberpar@linux.ibm.com>,
-        Halil Pasic	 <pasic@linux.ibm.com>, qat-linux@intel.com,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Simona Vetter
- <simona@ffwll.ch>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Sven
- Schnelle <svens@linux.ibm.com>,
-        Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Yishai Hadas <yishaih@nvidia.com>,
-        Zhenyu Wang <zhenyuw.linux@gmail.com>,
-        Zhi Wang <zhi.wang.linux@gmail.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, patches@lists.linux.dev,
-        Pranjal
- Shrivastava <praan@google.com>,
-        Mostafa Saleh <smostafa@google.com>
-Date: Fri, 07 Nov 2025 15:03:49 -0500
-In-Reply-To: <18-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
-References: <18-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kSAIZ5N/"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-7aad4823079so1523660b3a.0
+        for <virtualization@lists.linux.dev>; Sat, 08 Nov 2025 08:01:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1762617711; x=1763222511; darn=lists.linux.dev;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=pk+ftSCmg1CG/nltRR0t8BMNABaT0VYcCFBYbPRrPVI=;
+        b=kSAIZ5N/mnFdoTRiaPUZC1AXC1vvJbyfAhS5+Dk3fOO85hPh24tIr1hq6Qv2xVU4D2
+         +zQl+5QRzLUkkyNMtY9MvUZUZPgMv56/rSCXb/3PBDgesj7Xe00tw+Gl1oteqttc5xmW
+         Lc/kPxrivBW6qoMDpywq76GwjbHvhEfpRARl2r5D9qNbVD8qUtyyMz6d36IuGZspBy/R
+         8rUcW/7/xAU6TK8WgU+xpI6vsv85fl9P2w4alHsYzT9U+TYsSracqOSJ58oRyD8UtwGh
+         fitXRcmRHOROfsSbqrTtNw0dJR7t4dghYOh0JDET1kPZpmeZzTqYd9BD65+YlrNSyE//
+         hkpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762617711; x=1763222511;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pk+ftSCmg1CG/nltRR0t8BMNABaT0VYcCFBYbPRrPVI=;
+        b=IVJ3W4jMmDViEqtNpRbo9YiE+FaCAbcFn5UNBH+TKeDloAVxx8vpuu6Cek3Vv+MrtB
+         Co7OheqAknjEwvVgyhbMPPOBYrnCVQV+oOc434eg4NhTV+mXIoXq27ZbTxfPro1bUc/k
+         WHkZmUwHkS4E/V6/a8eQXlhMGi7VSFRFdqecCT3ZvnjfrYCLGLvuHRY55xDyFhpDBQcG
+         YKvKoitD3z9fsMoNvi7Gd8xolSZATS7rzz2PNs1fX7ZOmoDXRJZi2uEP4dtg8mDJA7iv
+         AE1M8HNoRDrU/u9xHRnugTgfl0NiKfdxiopgAM3VL8zThkrWGU+c+mXrlekPXPBDbBKM
+         pKOQ==
+X-Gm-Message-State: AOJu0YzY//KBZSxwI6BhsXalskeuQcXHCt+4neJZlSw2v5h0nTBcF+Dz
+	Rt/8dzm3OOqFPtkqd5tGvhzxR6X2maGcrZN00+xv32I/9uqsh1gxj6Ez
+X-Gm-Gg: ASbGncvsGCqbYd1XTcFrHnNFvqACr+1cBcIXQuYEj2NsAvRwfo+ni0oO7Cf+J01umMz
+	im0MykuqlLiXGDXyX0oN54CSPCkErG4DcSRGlEbSd0/fBeY0cDqiv59uXQ98QpugICgIelt7ydR
+	Z+R1K8doidXGOykC/lrugQEBdAJdK/ghdBrX3YOZR/zfpIRizDwoxS4R6VdMzzGJ5HrGfYikPDX
+	p/tKpuvL0NUzBHppoMyYyIR/N9A/hVak9D699cDD9mN14Ryu+v0cswecTqYxn0zf5tYtKsFyqyj
+	zCSw6aNKWLVxv1x/QtVy4gZjUEntajoxizZ9XNKif232X/G61u45qYIFwMyTGS1A5tnapXUvgwn
+	yeOZwzbxpMyUGEmk9hsPW9WOxRHEavmLaGqiCOrI0lGmi3NKG7K5hPz7m/FfdkELX6JXOUd8I
+X-Google-Smtp-Source: AGHT+IEHIM0+igw1l8cTysPn1b2itALVEX3/urDFw2r0A+vpNa/C7teOEzoE2qf9or+CsSDT9YZpYQ==
+X-Received: by 2002:a05:6a00:4f8c:b0:77f:2b7d:edf1 with SMTP id d2e1a72fcca58-7b226f8d5e4mr3563547b3a.16.1762617710732;
+        Sat, 08 Nov 2025 08:01:50 -0800 (PST)
+Received: from localhost ([2a03:2880:2ff:8::])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7b0c9c0763csm6374312b3a.19.2025.11.08.08.01.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 08 Nov 2025 08:01:50 -0800 (PST)
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+Subject: [PATCH net-next v4 00/12] selftests/vsock: refactor and improve
+ vmtest infrastructure
+Date: Sat, 08 Nov 2025 08:00:51 -0800
+Message-Id: <20251108-vsock-selftests-fixes-and-improvements-v4-0-d5e8d6c87289@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=fdWgCkQF c=1 sm=1 tr=0 ts=690e50ae cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=QyXUC8HyAAAA:8 a=Ikd4Dj_1AAAA:8 a=VnNF1IyMAAAA:8 a=U2-HQc-8H8NLPWOta0UA:9
- a=NqO74GWdXPXpGKcKHaDJD/ajO6k=:19 a=QEXdDO2ut3YA:10 a=nl4s5V0KI7Kw-pW0DWrs:22
- a=pHzHmUro8NiASowvMSCR:22 a=xoEH_sTeL_Rfw54TyV31:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTA3MDE0MyBTYWx0ZWRfX0Ed6DsP/EZpl
- R6JNco0yAlxO/SwHuhy/AjpJC4v10LGM9p9nyzzdUQU5j4P+m2gpIt8WRq5EkfPQi4qaUD6t2mb
- yOYGARGXYv1qbCcNBzEV8tQKHLI2XVtjuxmjCfvXZUDMEx2MEIXrEkLafWB0w+xu7fJS2haJjoQ
- 1kqlZ9BiceN43foEgbtTh7CuM9XJr1EkxP7tiyMkMGQgRpEh8EtnFIL2QmzDNxkfO/26/8TLqRr
- tYeA6tMDk12aEbnr435o8Jy7trcOgbPIwUr1zZBmuZ8OlhIALt44KXpkjEpA2HsUu2AIZccXwxu
- 4LNZur2JEcuUyxPbc5uIKJPoGccBQ61NZogNRn12XCXpfmOwJbNhxRTQTjxM55BxIJrVNx6DzTz
- 781V0hJCcLUEzrQpiS0GQ1q9v5odWw==
-X-Proofpoint-GUID: E27P93uknM2eSl9_5brOvfeQ8jl7TC6I
-X-Proofpoint-ORIG-GUID: _2DmvAYtew7Y7XdQl82VWE9yY_26JjyR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-07_06,2025-11-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0
- spamscore=0 clxscore=1011 phishscore=0 suspectscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511070143
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIADRpD2kC/52Oy2rDMBBFf0XM2lP0slV7lf8oXdjWqBGtpaARI
+ iX430tMIV2Gru/lnHMDphKJYRI3KNQix5xgErYTsJ7n9EEYPUwCtNS9klph47x+ItNXqMSVMcQ
+ rMc7JY9wuJTfaKFVG2TtrZQiLDjN0Ai6FjidM4g0SVUx0rfDeCThHrrl8HwVNHfuvTD8rawolW
+ hqdCV6vtKjTRnV+WfN2V/+LRp4W5UY/2ME8aPfeZh6NSg5PUw1K7NVonKbXWbrlD3Xf9x+YcLC
+ MiQEAAA==
+X-Change-ID: 20251021-vsock-selftests-fixes-and-improvements-057440ffb2fa
+To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Simon Horman <horms@kernel.org>, Bobby Eshleman <bobbyeshleman@meta.com>
+X-Mailer: b4 0.14.3
 
-On Fri, 2025-11-07 at 13:41 -0400, Jason Gunthorpe wrote:
-> Remove the duplicate code and flatten the call chain.
->=20
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/s390/cio/vfio_ccw_ops.c | 55 +++++----------------------------
->  1 file changed, 7 insertions(+), 48 deletions(-)
+Hey all,
 
-Nice.
+This patch series refactors the vsock selftest VM infrastructure to
+improve test run times, improve logging, and prepare for future tests
+which make heavy usage of these refactored functions and have new
+requirements such as simultaneous QEMU processes.
 
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
+These patches were broken off from this prior series:
+https://lore.kernel.org/all/20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com/
+
+To: Stefano Garzarella <sgarzare@redhat.com>
+To: Shuah Khan <shuah@kernel.org>
+Cc: virtualization@lists.linux.dev
+Cc: netdev@vger.kernel.org
+Cc: linux-kselftest@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Simon Horman <horms@kernel.org>
+
+Changes in v4:
+- fix messed up rebase (wrt check_result() and shared_vm_test() patches)
+- more consistent variable quotes style
+- use associative array for pidfiles, remove after terminate
+- Link to v3: https://lore.kernel.org/r/20251106-vsock-selftests-fixes-and-improvements-v3-0-519372e8a07b@meta.com
+
+Changes in v3:
+- see per-patch changes
+- Link to v2: https://lore.kernel.org/all/20251104-vsock-selftests-fixes-and-improvements-v2-0-ca2070fd1601@meta.com
+
+Changes in v2:
+- remove "Fixes" for some patches because they do not fix bugs in
+  kselftest runs (some fix bugs only when using bash args that kselftest
+  does not use or otherwise prepare functions for new usage)
+- broke out one fixes patch for "net"
+- per-patch changes
+- add patch for shellcheck declaration to disable false positives
+- Link to v1: https://lore.kernel.org/r/20251022-vsock-selftests-fixes-and-improvements-v1-0-edeb179d6463@meta.com
+
+---
+Bobby Eshleman (12):
+      selftests/vsock: improve logging in vmtest.sh
+      selftests/vsock: make wait_for_listener() work even if pipefail is on
+      selftests/vsock: reuse logic for vsock_test through wrapper functions
+      selftests/vsock: avoid multi-VM pidfile collisions with QEMU
+      selftests/vsock: do not unconditionally die if qemu fails
+      selftests/vsock: speed up tests by reducing the QEMU pidfile timeout
+      selftests/vsock: add check_result() for pass/fail counting
+      selftests/vsock: identify and execute tests that can re-use VM
+      selftests/vsock: add BUILD=0 definition
+      selftests/vsock: add 1.37 to tested virtme-ng versions
+      selftests/vsock: add vsock_loopback module loading
+      selftests/vsock: disable shellcheck SC2317 and SC2119
+
+ tools/testing/selftests/vsock/vmtest.sh | 346 +++++++++++++++++++++-----------
+ 1 file changed, 233 insertions(+), 113 deletions(-)
+---
+base-commit: a0c3aefb08cd81864b17c23c25b388dba90b9dad
+change-id: 20251021-vsock-selftests-fixes-and-improvements-057440ffb2fa
+
+Best regards,
+-- 
+Bobby Eshleman <bobbyeshleman@meta.com>
+
