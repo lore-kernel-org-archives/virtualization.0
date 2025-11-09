@@ -1,110 +1,144 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-a2-smtp.messagingengine.com (fhigh-a2-smtp.messagingengine.com [103.168.172.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08EC42DECB9;
-	Sun,  9 Nov 2025 11:54:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 194C52F549E
+	for <virtualization@lists.linux.dev>; Sun,  9 Nov 2025 17:04:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762689250; cv=none; b=gqNLgx3zqoegrXJnh2L1rUH1eZ3rZ8QVB5GVZ+Bxv12ZbTc5OtvygD5xIqzfJ3pYmq+T2v2ob3rBHaTnnG3JKbMDDtn9d6zYKIhZfmzxcKyAcyYz20/g9TkRxR7hCzgHqgJJzdRUHXacHlunjoAc1O8XcuKsNDJYZWgq9oVinF8=
+	t=1762707893; cv=none; b=hzuZdPQF29Cs1FDH+jWOLOPCyF1y+YFbxDWEZ3rvDbmYEsf/ik/0muPGom5wdPjeQ3EIP3jtxMOnKapFp/8WATuF7QvVa2C0nEgm8REh8I0VsiwMd62nZs2vJxYssQ2lQ125GbABF3BiqmiGj0EbvBAz2IUQ8dPtRpRg5Gn4IGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762689250; c=relaxed/simple;
-	bh=qMI82FSP6fLOot/rSu0OSi8+FrtRlHvHpIOYbeczqn0=;
+	s=arc-20240116; t=1762707893; c=relaxed/simple;
+	bh=KisPtllEHK/H0ws6st20YaQiPYBOY0W+JoW+T6KxhY8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EmlVqbZQyMqLksR5cNtykdVxe0OZOu09xXXPbb60S6XmMSpq/vQS/BB5DuBUueC3avZ6kEKB0fFLgBJj8tKH7+RExuGmqxDUDa9LaGkhWh5Xy278SN3wOW/9YxVtcc1ZWIfQm9Y3wbapJkN6BIV92oA4JhxVyTgpoqRxKH12o8M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tY4wTb1t; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=TZBNGRPJKNxNdvD9L1Th6/PhXqptsBJIF0tYdrjnyhLFAYDxC/KgF/pILaW3aTNi2HmLcYIVQ3nXoDQRPtmZ/eo58ytJ3mdv8E8jPYwAjlBxkqmD19Dkl9Oc75kv8BxNMSNsew9UMOYH8EFMkT2DLdhENQdcX6lg4LSM9/SelQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=Qhd1vocq; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=fvM1UJ89; arc=none smtp.client-ip=103.168.172.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tY4wTb1t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BE19C19421;
-	Sun,  9 Nov 2025 11:54:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762689247;
-	bh=qMI82FSP6fLOot/rSu0OSi8+FrtRlHvHpIOYbeczqn0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=tY4wTb1tT0bsdnv9d1axVIrJFU1xXJsvkQHKv79pDxGxia+ye7cZTq2Mm6uyylzrr
-	 M7aw2e/2OmH1lU5aYiuyFj51gn8QHOPO053AK5haTOgPquC7NWOcEJReFKR74zxL4s
-	 5jjwvjcEf4aBxEZqKZLVA8kflXimWsoeww6roS3lhwE6xX/sMigRgA3hFv7joy6VtR
-	 4KQ6+Ab2EFYuiH91vx/BoOFORlHc+Z1y+ipWAA9V5Oe/BtgnM/lprfBW30CQnKcGs7
-	 eKiwEutUweHUMRORbFMQJ+k8rgMa+AjboUm7K6kw6YWeGMHmp+yrmTrUz3Fp7BUt0b
-	 ClazXFVBF/O4w==
-Date: Sun, 9 Nov 2025 13:54:02 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Tariq Toukan <tariqt@nvidia.com>, Jakub Kicinski <kuba@kernel.org>
-Cc: Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jason Gunthorpe <jgg@ziepe.ca>, Saeed Mahameed <saeedm@nvidia.com>,
-	Mark Bloch <mbloch@nvidia.com>,
-	Dragos Tatulea <dtatulea@nvidia.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>, linux-rdma@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev, Gal Pressman <gal@nvidia.com>,
-	Edward Srouji <edwards@nvidia.com>,
-	Moshe Shemesh <moshe@nvidia.com>,
-	Akiva Goldberger <agoldberger@nvidia.com>
-Subject: Re: [PATCH net] mlx5: Fix default values in create CQ
-Message-ID: <20251109115402.GJ15456@unreal>
-References: <1762681743-1084694-1-git-send-email-tariqt@nvidia.com>
+	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="Qhd1vocq";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="fvM1UJ89"
+Received: from phl-compute-12.internal (phl-compute-12.internal [10.202.2.52])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 1FE451400186;
+	Sun,  9 Nov 2025 12:04:50 -0500 (EST)
+Received: from phl-mailfrontend-02 ([10.202.2.163])
+  by phl-compute-12.internal (MEProxy); Sun, 09 Nov 2025 12:04:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm2; t=1762707890; x=1762794290; bh=9CRgYtIjiH
+	H9mDR9Nco6TCvjT7WwV9QHDL5PFYPtnfQ=; b=Qhd1vocqYrjwNWmLc3WdbcsC07
+	oeN9AUk4ltypSDRnZdbo5sOWGN7jkTzGw2IPYfCodG9S9nEbAM1sdyewnQ4VFAWH
+	vAYjJe1SglT0J/4oHPClvgbplJm50Wodok0OexIDaNHbZewsnsDZmdOLKbp5u6C6
+	yJ/xlB0KgtU1vcbmrSEnSAx0WasVqSjnDoYPKf7KLBtZGNhz/BJ4GuSl1/fBn1D7
+	ZSp269bOZzxy99BHDmbZnPPFlAK+gDMpm9o53H7lsQnPQMAavJkBM//2RlRkRcxc
+	LBcKwh8zpHQ+LRr0LmpKwkynsWGWNr9+R2D2jY9H9HJThIieqTONO6hUqwWA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+	1762707890; x=1762794290; bh=9CRgYtIjiHH9mDR9Nco6TCvjT7WwV9QHDL5
+	PFYPtnfQ=; b=fvM1UJ89sMUKPSCVQb8cOYg5fWDUUdv1Sxdu3lKwxCY4RYXGWdL
+	mNXrNKDo1t/xmlT+JSGRzFdf9ufUoFf3GtLChME28rF0vX0oYPwglQegtEAoNo46
+	y4xObXMkgoGOp4s087KIpyaKvfq2BYhm/dylz4gouLRslU4FmE5PUlJMOAxWw7uK
+	x4wM4KBu6EGBaDOSaTR4vPgBHM1C0erBSszBjPWge4GRFUJEIXZSj2QSgXS24wTz
+	q0Qk7ist9/kjC3RX9+U+K6O0DXNFJCgzFoc8+FxBhB7pmySjx4rhGB63rHZrgpTW
+	mWVTfEeqlCm79pZX13jkULGgKn6B0RgIgtA==
+X-ME-Sender: <xms:sckQaUg5NbslTe-7FnTz_ODDi448kHepN9R1pzIUewSmo9gjR-yhRA>
+    <xme:sckQadeGKvlKL40rtbPgonZc5aBZX9Ju04vpjSjQzdEqsXZjTj34Or9pOy7sznih3
+    ig6l_3nC0X_s8fl_3kqYefZdH1e4vcNQIji173C4hnmo2DwREI2>
+X-ME-Received: <xmr:sckQab0DWG0rJCN2evcIAW37ZpwRpS2AYSxqRUpRxR2NMUpq9faR3_4uXqG4539pb4IncU5nOTpLtCy_Hl_wmqv6SHZBdbOY54d_TW33>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggdduleehleejucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkfhggtggujgesghdtsfertddtvdenucfhrhhomheptehlhihsshgr
+    ucftohhsshcuoehhihesrghlhihsshgrrdhisheqnecuggftrfgrthhtvghrnheptdejue
+    etkeehfeeuleeugfevieffkefhteefiedvfeehuefhjeegvdeiffeihfeinecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhsrg
+    drihhspdhnsggprhgtphhtthhopeduhedpmhhouggvpehsmhhtphhouhhtpdhrtghpthht
+    ohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgvthdprhgtphhtthhopegvughumhgrii
+    gvthesghhoohhglhgvrdgtohhmpdhrtghpthhtohepfihilhhlvghmsgesghhoohhglhgv
+    rdgtohhmpdhrtghpthhtohepkhhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtthhope
+    hhvghnghhqiheslhhinhhugidrrghlihgsrggsrgdrtghomhdprhgtphhtthhopeiguhgr
+    nhiihhhuoheslhhinhhugidrrghlihgsrggsrgdrtghomhdprhgtphhtthhopehvihhrth
+    hurghlihiirghtihhonheslhhishhtshdrlhhinhhugidruggvvhdprhgtphhtthhopegr
+    nhgurhgvfidonhgvthguvghvsehluhhnnhdrtghhpdhrtghpthhtohepvghpvghrvgiimh
+    grsehrvgguhhgrthdrtghomh
+X-ME-Proxy: <xmx:sckQaRo1o1D4P7Ca-hd0nYBRiByCi6NpkvfaIGAuBSBaidX0b833Dg>
+    <xmx:sckQabgC1pGTXbbb3LcqV9HjLjzjdpXg3sxVwDOZdJJODaTLUOTZ1Q>
+    <xmx:sckQadnX4yPPaCJjyoPmggE-BbzyJ1PxsCrvi9FMTF5GXzOo_MM6kA>
+    <xmx:sckQaUplTTph2KbU5ByROPJFEggwRG41BF4xShSABf7xGkAQlLmnMQ>
+    <xmx:sskQaeWtqFQeR38FLysPx8rHNRSf-GWOLW17CGFMIuppydc6zNFUiJ5O>
+Feedback-ID: i12284293:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 9 Nov 2025 12:04:48 -0500 (EST)
+Received: by mbp.qyliss.net (Postfix, from userid 1000)
+	id 82A92691A321; Sun, 09 Nov 2025 18:04:47 +0100 (CET)
+Date: Sun, 9 Nov 2025 18:04:47 +0100
+From: Alyssa Ross <hi@alyssa.is>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Heng Qi <hengqi@linux.alibaba.com>, 
+	Willem de Bruijn <willemb@google.com>, Jiri Pirko <jiri@resnulli.us>, 
+	Alvaro Karsz <alvaro.karsz@solid-run.com>, virtualization@lists.linux.dev
+Subject: Re: [PATCH net v4 1/4] virtio-net: fix incorrect flags recording in
+ big mode
+Message-ID: <aoiyv6uhkup4fjjrbdplwulmhxivpdxfw5cisgxhdideiomjrd@7cu6uhkfqoxx>
+References: <20251029030913.20423-1-xuanzhuo@linux.alibaba.com>
+ <20251029030913.20423-2-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="4x6p5yr7pt2zzcg4"
 Content-Disposition: inline
-In-Reply-To: <1762681743-1084694-1-git-send-email-tariqt@nvidia.com>
+In-Reply-To: <20251029030913.20423-2-xuanzhuo@linux.alibaba.com>
 
-On Sun, Nov 09, 2025 at 11:49:03AM +0200, Tariq Toukan wrote:
-> From: Akiva Goldberger <agoldberger@nvidia.com>
-> 
-> Currently, CQs without a completion function are assigned the
-> mlx5_add_cq_to_tasklet function by default. This is problematic since
-> only user CQs created through the mlx5_ib driver are intended to use
-> this function.
-> 
-> Additionally, all CQs that will use doorbells instead of polling for
-> completions must call mlx5_cq_arm. However, the default CQ creation flow
-> leaves a valid value in the CQ's arm_db field, allowing FW to send
-> interrupts to polling-only CQs in certain corner cases.
-> 
-> These two factors would allow a polling-only kernel CQ to be triggered
-> by an EQ interrupt and call a completion function intended only for user
-> CQs, causing a null pointer exception.
-> 
-> Some areas in the driver have prevented this issue with one-off fixes
-> but did not address the root cause.
-> 
-> This patch fixes the described issue by adding defaults to the create CQ
-> flow. It adds a default dummy completion function to protect against
-> null pointer exceptions, and it sets an invalid command sequence number
-> by default in kernel CQs to prevent the FW from sending an interrupt to
-> the CQ until it is armed. User CQs are responsible for their own
-> initialization values.
-> 
-> Callers of mlx5_core_create_cq are responsible for changing the
-> completion function and arming the CQ per their needs.
-> 
-> Fixes: cdd04f4d4d71 ("net/mlx5: Add support to create SQ and CQ for ASO")
-> Signed-off-by: Akiva Goldberger <agoldberger@nvidia.com>
-> Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-> Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+
+--4x6p5yr7pt2zzcg4
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Subject: Re: [PATCH net v4 1/4] virtio-net: fix incorrect flags recording in
+ big mode
+MIME-Version: 1.0
+
+On Wed, Oct 29, 2025 at 11:09:10AM +0800, Xuan Zhuo wrote:
+> The purpose of commit 703eec1b2422 ("virtio_net: fixing XDP for fully
+> checksummed packets handling") is to record the flags in advance, as
+> their value may be overwritten in the XDP case. However, the flags
+> recorded under big mode are incorrect, because in big mode, the passed
+> buf does not point to the rx buffer, but rather to the page of the
+> submitted buffer. This commit fixes this issue.
+>
+> For the small mode, the commit c11a49d58ad2 ("virtio_net: Fix mismatched
+> buf address when unmapping for small packets") fixed it.
+>
+> Fixes: 703eec1b2422 ("virtio_net: fixing XDP for fully checksummed packets handling")
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
 > ---
->  drivers/infiniband/hw/mlx5/cq.c               | 11 +++++---
+>  drivers/net/virtio_net.c | 16 +++++++++++-----
+>  1 file changed, 11 insertions(+), 5 deletions(-)
 
-It can safely go to net as we already sent our rdma-rc PR to Linus
-and won't have any fixes in drivers/infiniband/hw/mlx5/cq.c in this
-cycle.
+Fixes my networking with CSUM offload enabled in Cloud Hypervisor, thanks!
 
-Acked-by: Leon Romanovsky <leon@kernel.org>
+Tested-by: Alyssa Ross <hi@alyssa.is>
 
-Thanks
+--4x6p5yr7pt2zzcg4
+Content-Type: application/pgp-signature; name="signature.asc"
 
->  drivers/net/ethernet/mellanox/mlx5/core/cq.c  | 23 +++++++++++++--
->  .../net/ethernet/mellanox/mlx5/core/en_main.c |  1 -
->  .../ethernet/mellanox/mlx5/core/fpga/conn.c   | 15 +++++-----
->  .../mellanox/mlx5/core/steering/hws/send.c    |  7 -----
->  .../mellanox/mlx5/core/steering/sws/dr_send.c | 28 +++++--------------
->  drivers/vdpa/mlx5/net/mlx5_vnet.c             |  6 ++--
->  include/linux/mlx5/cq.h                       |  1 +
->  8 files changed, 44 insertions(+), 48 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRV/neXydHjZma5XLJbRZGEIw/wogUCaRDJrgAKCRBbRZGEIw/w
+oqsaAQD50NHyep7KNpIOM8rPTkXTBAkvuIdnILhstAXwxyKGFwD8CFVC8o0MxRca
+3TX4LsnC+ef6TXIhAznKqgvgYUoXaAY=
+=BMsX
+-----END PGP SIGNATURE-----
+
+--4x6p5yr7pt2zzcg4--
