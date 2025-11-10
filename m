@@ -1,143 +1,116 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C6962E6CBB
-	for <virtualization@lists.linux.dev>; Mon, 10 Nov 2025 07:40:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D152D30F54C
+	for <virtualization@lists.linux.dev>; Mon, 10 Nov 2025 12:52:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762760409; cv=none; b=IcDHpDr4m/wae6PLiDXKyoJTg1SGWFfSlaGP6oFh5lNGch3tqdpAwkj/hGg06RZtOoy/E0MHpM2eS8L3p4h9RdTEZeGm4upnZ+/sxiWnu3CJywQ92Y0i5ZJXmAlGQSWUtgdoLNmuDj4FSkoMp+IPdozLPltQpfX3lm3eCBPl4j0=
+	t=1762779149; cv=none; b=Fv54UakWj2rGflDgIB5h/M3/xlJPUcz8/IuspVkDYwsQKJwQC7lIuQw3Yqy9l9qpIxJ/q2kzuEQPYR10UnWatQwk4in95R8EfPouYkENv7e13FuyRnqV7y9HgKpgkUpBEsj3KFxtOhIPA4Y1HO95vvP9M36AbxdwEs3zgxZ/uBU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762760409; c=relaxed/simple;
-	bh=nXUsL3pd42Tuep6RruSB+1iDVpue0OZhhCe98VFS0mU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TB0DW7Exib4h83R2oqb9Lz5pd9BT+Ax0AECQ1PJFBKH9f6MGDVCj5ytOvdN76BPQQyLJetyjI0xDDOj/NAf9cfFAErrxRat8gs9PKGSktlnMbdtN87mRz5GKlneeIzmoPC0ew1AyS65fJNgV/X0Up6VDluAlio5BapW84fJ+z00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L69a+lIe; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1762779149; c=relaxed/simple;
+	bh=xjUeeV053GJKecTR0AWKzoeAhMEw0ZfcFmMTQxeOML0=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=rhjLxTsCx749aAbQ8k6HWVmLV2JAqQuXx2gZlzyuNYT9sM28AScQMykjooVXDTQFqOueEqpG0QRU98XfQj9zDC8VYjvQoX6vO+UW/n4e035uvJ6uXmGcglDUb4FFhtxs1Y9q0J9D1gt/R6+th2RQQO3tY4/YauRnokVNebxaOvk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SrbBoSNh; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L69a+lIe"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SrbBoSNh"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762760406;
+	s=mimecast20190719; t=1762779146;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=nXUsL3pd42Tuep6RruSB+1iDVpue0OZhhCe98VFS0mU=;
-	b=L69a+lIe1cvtuNtiT+FHL5UBnKGrad9fIIfTK4xjY8rfmxGQJUz3N6q5IdaNuTvxUTsR87
-	ci0D+3HNfnxvoGfFJm1RyR5GWWNLIq8Zlac1oBhOMsWafLXKTtQ9GE46cam3GRo/Wl6KKq
-	IIxNs+Ql3dX5bwTxHq6LC/vtM7JVqHg=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-34-l727PMNUNRWKJlp_ajI4yg-1; Mon, 10 Nov 2025 02:40:03 -0500
-X-MC-Unique: l727PMNUNRWKJlp_ajI4yg-1
-X-Mimecast-MFC-AGG-ID: l727PMNUNRWKJlp_ajI4yg_1762760402
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-340bc4ef67fso3162604a91.3
-        for <virtualization@lists.linux.dev>; Sun, 09 Nov 2025 23:40:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762760402; x=1763365202;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=nXUsL3pd42Tuep6RruSB+1iDVpue0OZhhCe98VFS0mU=;
-        b=Cwbx8V8Ab34UrvNjUQE3oB7dt73WTau5Ys6gZMwqx/Yp+YsGTlm0fgHcCyHAMufXL3
-         b+Yi8odtjuforDH6VGWz+XhHc3bTkY0jcG1IvIU1utSKK3BqmFBLRddk9slekUtHjeJH
-         /inKqg11H3Q5e+Wg2wkjgPh64o5x7nQcpILyA8IqSlKIIBNF/shnBPiIQKg/iCzBhP8+
-         kO4QsG0l5aatNwvv2W0jgBR9Ij/tLsu9cWQrcRTXlu3q3wEe3cyGTU06yfvOELwAspIc
-         eJIrbDzzftsOgm1lHjfvA5LP0s/arBQMEVr5g5GU5QHLPi/RXMesVpnqZTFsA01C66IE
-         zs/w==
-X-Forwarded-Encrypted: i=1; AJvYcCVqZSiL9F2PXa8n0fFdEaTTxm1Bk498NV69yPIyZMi7/Ul9j7goQ3EcKRVSZsAlhxG0jYpKHW/gJI/xjWhR8Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxU2lyZe0fBSy7ApaCV4szReNWb0yEyQ4Os9KPJD0NkIAxNoEWd
-	y3jabmPxIcMtspkbLw5nfMLC8HvuI0+L1mJgMFbk6myoLxPE5o/aHvXEaPHlcnJvAdjw0Zqx8UZ
-	ZkWXVMtFNYRmc9zhMaC6vPPi1ENsFVFzArvRee+w/+ULmp+sBJsy0MyS9QHn9b44RfgS5P/1IN6
-	1th1CRLP1dvf0bQJbupEXDxvg+vLtJimy13Faw8L7J+Bo=
-X-Gm-Gg: ASbGnctrkjhVoMWjwq1uUDUd2Ep7G2eYxmoNJ4a8UUf0ZrB4CEIfpoQpmbZAAGibEPY
-	eOZHGyGuH0BZkamd3q35g8tc6MPpvIq8Pxwl131jcsgMEcLmFDw8bw9iUPPEifYGWIonOq5orXr
-	mLmUWmLy8b8Of48l073I2EYzolYp5kGyVOxv8mB6SKlqKXsTIQ3+hz
-X-Received: by 2002:a17:90b:3b84:b0:321:9366:5865 with SMTP id 98e67ed59e1d1-3436cd0f021mr8151403a91.33.1762760402367;
-        Sun, 09 Nov 2025 23:40:02 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHpZv4/GqlxGQNFyCLng8oTk+dP+M0w4ibTMZFdafThizDamPVmq0k7Ru5Fk/gcw2HySNAQRTdsddDt/AZwDuM=
-X-Received: by 2002:a17:90b:3b84:b0:321:9366:5865 with SMTP id
- 98e67ed59e1d1-3436cd0f021mr8151372a91.33.1762760401914; Sun, 09 Nov 2025
- 23:40:01 -0800 (PST)
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=JcJYU3WDwqdzIu+aLHL5NcHMFk3kNTsHllL5m0lKIkE=;
+	b=SrbBoSNh3W47CCBtbv4dvfZAT88GevPgUj+ydQVl+99WZ2CGlVpHlJA3g3MbZ7VEaOnK3X
+	p8sCRKbYHtJWdZuPGLoGDTUaYWs5cs+GHh9UtQPGYmu0BJqUD42Of52Kg1E6u8AR8dXsf3
+	ENaQ8V+is7wpkJQSFiV1WXY8Jpeq9UE=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-331-UwUdTfggPuSep0266AaU8g-1; Mon,
+ 10 Nov 2025 07:52:23 -0500
+X-MC-Unique: UwUdTfggPuSep0266AaU8g-1
+X-Mimecast-MFC-AGG-ID: UwUdTfggPuSep0266AaU8g_1762779142
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7B9231800370;
+	Mon, 10 Nov 2025 12:52:21 +0000 (UTC)
+Received: from slp-asahi.redhat.com (unknown [10.44.32.9])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2612F30001B9;
+	Mon, 10 Nov 2025 12:52:14 +0000 (UTC)
+From: Sergio Lopez <slp@redhat.com>
+To: David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Simona Vetter <simona@ffwll.ch>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: Sergio Lopez <slp@redhat.com>
+Subject: [PATCH 0/3] drm/virtio: introduce F_BLOB_ALIGNMENT support
+Date: Mon, 10 Nov 2025 13:52:10 +0100
+Message-ID: <20251110125213.12633-1-slp@redhat.com>
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251029030913.20423-1-xuanzhuo@linux.alibaba.com>
- <20251029030913.20423-4-xuanzhuo@linux.alibaba.com> <CACGkMEu=Zs-T0WyD7mrWjuRDdufvRiz2DM=98neD+L2npP5_dQ@mail.gmail.com>
- <20251109163911-mutt-send-email-mst@kernel.org> <CACGkMEtxfZh=66TSTC2B8TdXWP-fsTrYFkfz5aOViYkZmmcvxg@mail.gmail.com>
- <20251110022550-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20251110022550-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 10 Nov 2025 15:39:50 +0800
-X-Gm-Features: AWmQ_blnEJl7cPeCvJMqReQfNUsbW7dyqVeRIgseANe1h5mGpbCdQEhT5aHtNXY
-Message-ID: <CACGkMEt+czNGi_KFgnHkZteNVNmBc7ND_xh7R=uNDo-ZumFEfA@mail.gmail.com>
-Subject: Re: [PATCH net v4 3/4] virtio-net: correct hdr_len handling for VIRTIO_NET_F_GUEST_HDRLEN
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Heng Qi <hengqi@linux.alibaba.com>, Willem de Bruijn <willemb@google.com>, 
-	Jiri Pirko <jiri@resnulli.us>, Alvaro Karsz <alvaro.karsz@solid-run.com>, 
-	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: A63IMDDXQrZ4IwsxlJ-lxBQmHZyToYp1OKIglQ-3VSY_1762760402
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Mon, Nov 10, 2025 at 3:27=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Mon, Nov 10, 2025 at 03:16:08PM +0800, Jason Wang wrote:
-> > On Mon, Nov 10, 2025 at 5:41=E2=80=AFAM Michael S. Tsirkin <mst@redhat.=
-com> wrote:
-> > >
-> > > On Thu, Oct 30, 2025 at 10:53:01AM +0800, Jason Wang wrote:
-> > > > On Wed, Oct 29, 2025 at 11:09=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.=
-alibaba.com> wrote:
-> > > > >
-> > > > > The commit be50da3e9d4a ("net: virtio_net: implement exact header=
- length
-> > > > > guest feature") introduces support for the VIRTIO_NET_F_GUEST_HDR=
-LEN
-> > > > > feature in virtio-net.
-> > > > >
-> > > > > This feature requires virtio-net to set hdr_len to the actual hea=
-der
-> > > > > length of the packet when transmitting, the number of
-> > > > > bytes from the start of the packet to the beginning of the
-> > > > > transport-layer payload.
-> > > > >
-> > > > > However, in practice, hdr_len was being set using skb_headlen(skb=
-),
-> > > > > which is clearly incorrect. This commit fixes that issue.
-> > > >
-> > > > I still think it would be more safe to check the feature
-> > >
-> > > which feature VIRTIO_NET_F_GUEST_HDRLEN ?
-> > >
-> >
-> > Yes.
-> >
-> > Thanks
->
-> Seems more conservative for sure, though an extra mode to maintain isn't
-> great. Hmm?
+There's an incresing number of machines supporting multiple page sizes
+and on these machines the host and a guest can be running, each one,
+with a different page size.
 
-Considering it's not a lot of code, it might be worth it to reduce the risk=
-.
+For what pertains to virtio-gpu, this is not a problem if the page size
+of the guest happens to be bigger or equal than the host, but will
+potentially lead to failures in memory allocations and/or mappings
+otherwise.
 
-But I'm fine if you think we can go with this patch.
+To deal with this, the virtio-spec was extended to introduce with the
+VIRTIO_GPU_F_BLOB_ALIGNMENT feature [1]. If this feature is negotiated,
+we must use the "blob_alignment" field in the config to ensure every
+CREATE_BLOB and MAP_BLOB is properly aligned before sending it to the
+device.
 
-Thanks
+We also introduce the VIRTGPU_PARAM_BLOB_ALIGNMENT parameter to allow
+userspace to query the alignment restrictions for blobs.
 
->
-> --
-> MST
->
+This supersedes "drm/virtio: introduce the HOST_PAGE_SIZE feature" [2].
+
+[1] https://github.com/oasis-tcs/virtio-spec/commit/f9abfd55cb663837dda1153b826216dcf4d25b84
+[2] https://lkml.org/lkml/2024/7/23/438
+
+Sergio Lopez (3):
+  drm/virtio: support VIRTIO_GPU_F_BLOB_ALIGNMENT
+  drm/virtio: honor blob_alignment requirements
+  drm/virtio: add VIRTGPU_PARAM_BLOB_ALIGNMENT to params
+
+ drivers/gpu/drm/virtio/virtgpu_drv.c    |  1 +
+ drivers/gpu/drm/virtio/virtgpu_drv.h    |  4 +++-
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c  |  5 +++++
+ drivers/gpu/drm/virtio/virtgpu_kms.c    | 14 +++++++++++---
+ drivers/gpu/drm/virtio/virtgpu_object.c |  6 ++++--
+ drivers/gpu/drm/virtio/virtgpu_prime.c  |  7 +++++--
+ drivers/gpu/drm/virtio/virtgpu_vq.c     | 12 +++++++++++-
+ drivers/gpu/drm/virtio/virtgpu_vram.c   | 10 ++++++++--
+ include/uapi/drm/virtgpu_drm.h          |  1 +
+ include/uapi/linux/virtio_gpu.h         |  9 +++++++++
+ 10 files changed, 58 insertions(+), 11 deletions(-)
+
+-- 
+2.51.0
 
