@@ -1,47 +1,47 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEA8C30CD8E
-	for <virtualization@lists.linux.dev>; Mon, 10 Nov 2025 12:52:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8969E309F01
+	for <virtualization@lists.linux.dev>; Mon, 10 Nov 2025 12:52:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762779155; cv=none; b=XYwftKWRCUCaoLsCnoGnFqfynCO8LAZW+n8j41/3Fg2DcJPVnGlW8wFzvDHYnvEotg2iioTkZQCkJe1o2NVlNlocjaOtXEnmAlkzys1lyUTZfu5t8S13Ftqk/Yg0mDDfkKasEqMe4EeT4FmZP6Z0Y2QTe0hMao38EEjuhKKF2cQ=
+	t=1762779162; cv=none; b=Sbru1VlMYBzB7EYt9oyUNaj87HMPZq1o1C3Wm+uRiQZlF2cOyO/xhgabpt/Il4TODtISCK+guZW8832dfdBcdcSPi2/yx6ojNZ+BsiwHZ8Ej8WKs/h/We+t5prZFfjc3X7ab0QVOjvNYMw1zUkdyfGhnV7FYxeE/4pQWi6qyFZI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762779155; c=relaxed/simple;
-	bh=msV+3PGK1IlzoX291OHjE3Fb39LCJTcnII+7EdPQDg0=;
+	s=arc-20240116; t=1762779162; c=relaxed/simple;
+	bh=5JCcdsXoNi64NNYxeB7Qk4LeZtZ5p3C9XsRvRPTjj7w=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=T7PD7GpAGEiUtWnEJ29F1/Z2XU5DdB/ece3ezoJPCSwM5jLHIDaWticV9N8T5p2AypyaPoci3RT7n0U3h1BK4frBpv3cWIl3A+ol7o0OK3vbjjDs3eSVC7CfFP6UjDQKQzE8rkpX+0/WebMN/KPVGE3v+q0+LbV007EsOju7tEo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a81jLLo3; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=EIKM+dCSHqzrODx61FORq6iB7qVyPMmZFN/Mm1vfNr6jw0iiy1iNLB/s6oKPYFfF3oAw9vOGBfPcZVTqAFUbagQoLtoEs2zWrw4t83bdws6xEegYDUHf8AgyjSLM5H2pjimIpEhQr4uqHTfYvdA6qKd7UgPM0iqOTHpWnALXsSQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ba5sb8JT; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a81jLLo3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ba5sb8JT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762779152;
+	s=mimecast20190719; t=1762779159;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YhjrYEq8XnNMU4XXDx2ie3d/iAcWWiyDFgL48OSZJOg=;
-	b=a81jLLo3RgTN9nCYR19JWZVNIQWV7SIgl/S8yi+N++0CU4v2/0m+9aaCLbpaIyBNz9RsFF
-	nF04bHZdztNSL9SsvPWDrTZUUcEidm3O8SUFEEsPw2cydHBM4W9wegdR/puPybmr0mbfZl
-	/fKl1miDoxgUoUS69k2mNf4y0tRj5OY=
+	bh=jdF0qcLAT3KqrA3rNU9xsRjKWO55qxtf2gsPNynjwVI=;
+	b=Ba5sb8JTHnHbiiQ4pfvY+FSx86oCnWCp0TteJM4k33/ATVWPJgFPpa/bX/2XPDSdqKieMt
+	LS3AjZo53DrmCYUWku0OL/VSAQnZUtBEDp4L8jp/zBdgnHbFnObA+3cODx04c2kBlLSHOJ
+	/XQm3Ax+81TXb5H7R+kWLvUevKqH6To=
 Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-376-Vn3RM_FrMHGbuiJyBxaxsA-1; Mon,
- 10 Nov 2025 07:52:30 -0500
-X-MC-Unique: Vn3RM_FrMHGbuiJyBxaxsA-1
-X-Mimecast-MFC-AGG-ID: Vn3RM_FrMHGbuiJyBxaxsA_1762779148
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-590-LhhL5zLGMpid6bnqNvANMQ-1; Mon,
+ 10 Nov 2025 07:52:36 -0500
+X-MC-Unique: LhhL5zLGMpid6bnqNvANMQ-1
+X-Mimecast-MFC-AGG-ID: LhhL5zLGMpid6bnqNvANMQ_1762779154
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id F0FE819560A1;
-	Mon, 10 Nov 2025 12:52:27 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4288D195608E;
+	Mon, 10 Nov 2025 12:52:34 +0000 (UTC)
 Received: from slp-asahi.redhat.com (unknown [10.44.32.9])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0D6D23000601;
-	Mon, 10 Nov 2025 12:52:21 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8214230001B9;
+	Mon, 10 Nov 2025 12:52:28 +0000 (UTC)
 From: Sergio Lopez <slp@redhat.com>
 To: David Airlie <airlied@redhat.com>,
 	Gerd Hoffmann <kraxel@redhat.com>,
@@ -60,9 +60,9 @@ To: David Airlie <airlied@redhat.com>,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
 Cc: Sergio Lopez <slp@redhat.com>
-Subject: [PATCH 1/3] drm/virtio: support VIRTIO_GPU_F_BLOB_ALIGNMENT
-Date: Mon, 10 Nov 2025 13:52:11 +0100
-Message-ID: <20251110125213.12633-2-slp@redhat.com>
+Subject: [PATCH 2/3] drm/virtio: honor blob_alignment requirements
+Date: Mon, 10 Nov 2025 13:52:12 +0100
+Message-ID: <20251110125213.12633-3-slp@redhat.com>
 In-Reply-To: <20251110125213.12633-1-slp@redhat.com>
 References: <20251110125213.12633-1-slp@redhat.com>
 Precedence: bulk
@@ -74,116 +74,134 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Support VIRTIO_GPU_F_BLOB_ALIGNMENT, a feature that indicates the device
-provides a valid blob_alignment field in its configuration, and that
-both RESOURCE_CREATE_BLOB and RESOURCE_MAP_BLOB requests must be aligned
-to that value.
+If VIRTIO_GPU_F_BLOB_ALIGNMENT has been negotiated, both
+CREATE_BLOB and MAP_BLOB requests must be aligned to blob_alignment.
+
+Introduce checks to ensure we don't send invalid requests to the
+device.
 
 Signed-off-by: Sergio Lopez <slp@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.c |  1 +
- drivers/gpu/drm/virtio/virtgpu_drv.h |  2 ++
- drivers/gpu/drm/virtio/virtgpu_kms.c | 14 +++++++++++---
- include/uapi/linux/virtio_gpu.h      |  9 +++++++++
- 4 files changed, 23 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h    |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_object.c |  6 ++++--
+ drivers/gpu/drm/virtio/virtgpu_prime.c  |  7 +++++--
+ drivers/gpu/drm/virtio/virtgpu_vq.c     | 12 +++++++++++-
+ drivers/gpu/drm/virtio/virtgpu_vram.c   | 10 ++++++++--
+ 5 files changed, 29 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index 71c6ccad4b99..ad675ee18b01 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -162,6 +162,7 @@ static unsigned int features[] = {
- 	VIRTIO_GPU_F_RESOURCE_UUID,
- 	VIRTIO_GPU_F_RESOURCE_BLOB,
- 	VIRTIO_GPU_F_CONTEXT_INIT,
-+	VIRTIO_GPU_F_BLOB_ALIGNMENT,
- };
- static struct virtio_driver virtio_gpu_driver = {
- 	.feature_table = features,
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index f17660a71a3e..d1fa386a5a99 100644
+index d1fa386a5a99..11a55d4ccd54 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
 +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -257,6 +257,7 @@ struct virtio_gpu_device {
- 	bool has_resource_blob;
- 	bool has_host_visible;
- 	bool has_context_init;
-+	bool has_blob_alignment;
- 	struct virtio_shm_region host_visible_region;
- 	struct drm_mm host_visible_mm;
+@@ -433,7 +433,7 @@ int virtio_gpu_cmd_map(struct virtio_gpu_device *vgdev,
+ void virtio_gpu_cmd_unmap(struct virtio_gpu_device *vgdev,
+ 			  struct virtio_gpu_object *bo);
  
-@@ -270,6 +271,7 @@ struct virtio_gpu_device {
- 	uint32_t num_capsets;
- 	uint64_t capset_id_mask;
- 	struct list_head cap_cache;
-+	uint32_t blob_alignment;
+-void
++int
+ virtio_gpu_cmd_resource_create_blob(struct virtio_gpu_device *vgdev,
+ 				    struct virtio_gpu_object *bo,
+ 				    struct virtio_gpu_object_params *params,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index e6363c887500..6118344bff84 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -246,8 +246,10 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 		if (params->blob_mem == VIRTGPU_BLOB_MEM_GUEST)
+ 			bo->guest_blob = true;
  
- 	/* protects uuid state when exporting */
- 	spinlock_t resource_export_lock;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 1c15cbf326b7..a20b62041f03 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -123,7 +123,7 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 	struct virtio_gpu_device *vgdev;
- 	/* this will expand later */
- 	struct virtqueue *vqs[2];
--	u32 num_scanouts, num_capsets;
-+	u32 num_scanouts, num_capsets, blob_alignment;
- 	int ret = 0;
+-		virtio_gpu_cmd_resource_create_blob(vgdev, bo, params,
+-						    ents, nents);
++		ret = virtio_gpu_cmd_resource_create_blob(vgdev, bo, params,
++							  ents, nents);
++		if (ret)
++			goto err_put_objs;
+ 	} else if (params->virgl) {
+ 		virtio_gpu_cmd_resource_create_3d(vgdev, bo, params,
+ 						  objs, fence);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+index ce49282198cb..06593496c53f 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_prime.c
++++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+@@ -257,8 +257,11 @@ static int virtgpu_dma_buf_init_obj(struct drm_device *dev,
+ 	params.blob_flags = VIRTGPU_BLOB_FLAG_USE_SHAREABLE;
+ 	params.size = attach->dmabuf->size;
  
- 	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
-@@ -197,14 +197,22 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_CONTEXT_INIT))
- 		vgdev->has_context_init = true;
+-	virtio_gpu_cmd_resource_create_blob(vgdev, bo, &params,
+-					    ents, nents);
++	ret = virtio_gpu_cmd_resource_create_blob(vgdev, bo, &params,
++						  ents, nents);
++	if (ret)
++		goto err_import;
++
+ 	bo->guest_blob = true;
  
-+	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_BLOB_ALIGNMENT)) {
-+		vgdev->has_blob_alignment = true;
-+		virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
-+				blob_alignment, &blob_alignment);
-+		vgdev->blob_alignment = blob_alignment;
+ 	dma_buf_unpin(attach);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 8181b22b9b46..d558ba2d213a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -1393,6 +1393,10 @@ int virtio_gpu_cmd_map(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_vbuffer *vbuf;
+ 	struct virtio_gpu_resp_map_info *resp_buf;
+ 
++	if (vgdev->has_blob_alignment &&
++	    !IS_ALIGNED(offset, vgdev->blob_alignment))
++		return -EINVAL;
++
+ 	resp_buf = kzalloc(sizeof(*resp_buf), GFP_KERNEL);
+ 	if (!resp_buf)
+ 		return -ENOMEM;
+@@ -1426,7 +1430,7 @@ void virtio_gpu_cmd_unmap(struct virtio_gpu_device *vgdev,
+ 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
+ }
+ 
+-void
++int
+ virtio_gpu_cmd_resource_create_blob(struct virtio_gpu_device *vgdev,
+ 				    struct virtio_gpu_object *bo,
+ 				    struct virtio_gpu_object_params *params,
+@@ -1436,6 +1440,10 @@ virtio_gpu_cmd_resource_create_blob(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_resource_create_blob *cmd_p;
+ 	struct virtio_gpu_vbuffer *vbuf;
+ 
++	if (vgdev->has_blob_alignment &&
++	    !IS_ALIGNED(params->size, vgdev->blob_alignment))
++		return -EINVAL;
++
+ 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+ 	memset(cmd_p, 0, sizeof(*cmd_p));
+ 
+@@ -1456,6 +1464,8 @@ virtio_gpu_cmd_resource_create_blob(struct virtio_gpu_device *vgdev,
+ 
+ 	if (nents)
+ 		bo->attached = true;
++
++	return 0;
+ }
+ 
+ void virtio_gpu_cmd_set_scanout_blob(struct virtio_gpu_device *vgdev,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
+index 5ad3b7c6f73c..6c402eca5726 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vram.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
+@@ -216,8 +216,14 @@ int virtio_gpu_vram_create(struct virtio_gpu_device *vgdev,
+ 		return ret;
+ 	}
+ 
+-	virtio_gpu_cmd_resource_create_blob(vgdev, &vram->base, params, NULL,
+-					    0);
++	ret = virtio_gpu_cmd_resource_create_blob(vgdev, &vram->base, params,
++						  NULL, 0);
++	if (ret) {
++		drm_gem_free_mmap_offset(obj);
++		kfree(vram);
++		return ret;
 +	}
 +
- 	DRM_INFO("features: %cvirgl %cedid %cresource_blob %chost_visible",
- 		 vgdev->has_virgl_3d    ? '+' : '-',
- 		 vgdev->has_edid        ? '+' : '-',
- 		 vgdev->has_resource_blob ? '+' : '-',
- 		 vgdev->has_host_visible ? '+' : '-');
- 
--	DRM_INFO("features: %ccontext_init\n",
--		 vgdev->has_context_init ? '+' : '-');
-+	DRM_INFO("features: %ccontext_init %cblob_alignment\n",
-+		 vgdev->has_context_init ? '+' : '-',
-+		 vgdev->has_blob_alignment ? '+' : '-');
- 
- 	ret = virtio_find_vqs(vgdev->vdev, 2, vqs, vqs_info, NULL);
- 	if (ret) {
-diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
-index be109777d10d..4f530d90058c 100644
---- a/include/uapi/linux/virtio_gpu.h
-+++ b/include/uapi/linux/virtio_gpu.h
-@@ -64,6 +64,14 @@
-  * context_init and multiple timelines
-  */
- #define VIRTIO_GPU_F_CONTEXT_INIT        4
-+/*
-+ * The device provides a valid blob_alignment
-+ * field in its configuration and both
-+ * VIRTIO_GPU_CMD_RESOURCE_CREATE_BLOB and
-+ * VIRTIO_GPU_CMD_RESOURCE_MAP_BLOB requests
-+ * must be aligned to that value.
-+ */
-+#define VIRTIO_GPU_F_BLOB_ALIGNMENT      5
- 
- enum virtio_gpu_ctrl_type {
- 	VIRTIO_GPU_UNDEFINED = 0,
-@@ -365,6 +373,7 @@ struct virtio_gpu_config {
- 	__le32 events_clear;
- 	__le32 num_scanouts;
- 	__le32 num_capsets;
-+	__le32 blob_alignment;
- };
- 
- /* simple formats for fbcon/X use */
+ 	if (params->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE) {
+ 		ret = virtio_gpu_vram_map(&vram->base);
+ 		if (ret) {
 -- 
 2.51.0
 
