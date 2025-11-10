@@ -1,157 +1,140 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15EE1272E56
-	for <virtualization@lists.linux.dev>; Mon, 10 Nov 2025 16:10:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 271602ED15D
+	for <virtualization@lists.linux.dev>; Mon, 10 Nov 2025 20:30:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762791055; cv=none; b=a463FKFz+oi0f57aHc6GEnSTuZ6ekUsvg5Z/i01Eo9xoHE+jcJ4trayFQ7P/hrsNRWOFeT1ruiN4HGAdot5TpJ0HiH2gGcNLS0zIgdrRZ0ax2wBerSPCWzJxLWPRjsMk6W99v3DI6qcwuh0XeWZjLAxVQAzsrOACeXwQ4U+SSsc=
+	t=1762806645; cv=none; b=ZXVGMGMoMQydYK76wwt8GLB7MA/++hmtHCW3+zElN0dqSOX7MHc+0IwK0aM0ydA3TmOlLnULjgrTaITyarcCL1HfZ7qkdJtjvbvau5lFeWpFPUz66RCsshMHaG6f7KJxFbY661eWYRquZW1uoPbGCQAz/abg15op0j6fMqB9xZg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762791055; c=relaxed/simple;
-	bh=yWwqc79ICtjxfNEwAhdveBII+kI6tv7V46J5xGUbxqU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TF5hXY/cuQG0SfiAFDEL2tXf6nUW81xyEcmeOOA9lYDqzllRMGU574c8s8+zG92poBWVVqWi6VkOEW82Pa+UJTWbLr/3OdJdlF1NDkBJ6aMmN3qoMYnSCXwUptOJzmiQyt3zdT4iL4QRqb96QCkRrVsmAD0Tn3Mwg6Cv7Raq2Hc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EWgnCEPm; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1762806645; c=relaxed/simple;
+	bh=XPCALEKMTqvrYzdXKp4012lIXgr9shCCsxUVs1Kr7cc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=KCbt4oTUfiGYA/MOxjdsQ0ojAFDp1vPIZdbjhwF8+ikq2+LBDH6jFeW9gmD7p7wuMbtozK6bg0I2wg04e5D9OC3v6xXFaRukFNpGfLqwGWVO7GpH7pvM/RncXjZIp3bLLnJpi6GSKJ+6gMjNM7CrvnNiPhDxxS+8+9V8LIfzhI0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jA6I0krM; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EWgnCEPm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762791051;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BcHc3rh06YWG1Go43rMQsJeOtpbumA9Fnt4ZDm9Fg9Q=;
-	b=EWgnCEPmrLHoDP8+s8JWioZEogvHO8lMQujTWIwx128kpIMIHK/RDVU+3PdZ03gt5/s2Nd
-	N4auRo8E2LCQyWiRkZVGcY/rsf+Ig6lxCQPy2UD/WE+5mjBmFH34oq3H0F2J7cFM42JDSC
-	KAYBX43ettHPKOY35da3REicUgnKU8M=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-501-R6EkkL23M6yqbR6PDigDDw-1; Mon, 10 Nov 2025 11:10:49 -0500
-X-MC-Unique: R6EkkL23M6yqbR6PDigDDw-1
-X-Mimecast-MFC-AGG-ID: R6EkkL23M6yqbR6PDigDDw_1762791047
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4775f51ce36so31083125e9.1
-        for <virtualization@lists.linux.dev>; Mon, 10 Nov 2025 08:10:48 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jA6I0krM"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-7acd9a03ba9so2528001b3a.1
+        for <virtualization@lists.linux.dev>; Mon, 10 Nov 2025 12:30:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1762806643; x=1763411443; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ro8LfVFs4vPgQTzcnnWdFnGjc8mt7GRah6t2C6MZm1M=;
+        b=jA6I0krMa/b6+dSvump29POdIZ+0twNhArsE7XriNqGmsdVH/FqUxS5vej9nlkDF9T
+         qizlH+NAEdb+0NwgYlyP2mzwfCau8yE3ThTlz8QpD16zsDk1qLMrTUS3iQMjyCgJitHM
+         hOkcyIhQuxN1fwE84Y4EgZxp87DmfXeQ0uXluzVh3yuZps8QvR1l9rSMQOQKeS/jt/zr
+         HuXSOd1lbxSvROmCJ4VGlFoyFR2q/KVhmGgNLCPtiw9hY1vEcq/cxLXeXq1GaMoK9Ykq
+         x8nk6C4Ikyjo6756qYfcTkU+tgw4pXEYyGaMm/Dzi2FXwKMR7nAbvKphlgxQsGde9Ja3
+         HcXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762791047; x=1763395847;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BcHc3rh06YWG1Go43rMQsJeOtpbumA9Fnt4ZDm9Fg9Q=;
-        b=k5yUDku/VPGRljoTNreK1vaeGiRwjgfBzSH/8ju4787wtFG66MjG851uYCP2H0myI+
-         ebXjLKihj/wQ1NtWTFnB71XgLZ3IKPq3gCurMEkwixtyWPp7VT82Ybhhweuz44LIra1H
-         yQWudx+UwYYivj5EKN9+pl5PffKk8QkaYHGWHN6tp88CfF0ZkpmPgWKe65acasUC2VXg
-         aWNlCBs1hCwhR63JlSmM9sZun9I6vaeTMQhaLJMWcAh2M76RWCAaUq2vyto7PXCaIsXF
-         iJgQVrjr45Ls//188rzZbSorJWVAFQqlurcNPDQ8OqHpY071vzb9L9nNlAP78vUA64af
-         HB7w==
-X-Forwarded-Encrypted: i=1; AJvYcCVYmA/MegExVBv+EViIRCEMshNmZNhTgLomIc5y7PbpnfwgQrGsXT8QVxrFd389fPoBA13Pv5+3cNXnbIS6bw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwgQyJVP86cHlZCvtCiH3soPTq2rrvV6cgpWF2LITDRo8bvGIUU
-	QLUkyg6i8cj2pSiHrwak3O4BPEni72RtKyMOwZYqxZGtgqnrVzuJbzMA4IYrC72Wx1xdjN1caV3
-	/OiCLePgkbJLRBCjY4DVAEh3jfKDQUeMN3yfz1o+kaQNKeE0Q/zIAVTpRi0L4rBltcp6X
-X-Gm-Gg: ASbGnctEOYqZ6cpZp6wprkMo1qp65nXyrjafD5wDO6+9pvFDTZrRYw72aKIys50QeXs
-	6XDQBkZLjxnXvwczwK6PVHW7/4MNlYSVdqIUMTJSnXLq58dbROLdY4crbZwfjZBcuaHLXNnyKvm
-	5DGEWzW2s6bZVbZ/IJ2Oc4IvPNpxpPtg2zqt/vVwwEGxT/Xb7i1jCQb7sTBwgItpp8rJs6PYYj0
-	m4zS6nl59U4iIC33B4z6brRl9+jCI0BIlujjHfKowFLLbATpLDqr+vh1dYmasEa1+CyTA0ccMKW
-	HQ/ElmvstRreBnhjqz+54fjmiiPPwIsjteQ4A+OXTIqvSNxDmwL+mghCK+1MwusJY5k=
-X-Received: by 2002:a05:600c:46ce:b0:46e:4b79:551 with SMTP id 5b1f17b1804b1-47773288bbfmr90576175e9.31.1762791047363;
-        Mon, 10 Nov 2025 08:10:47 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHlSd9E64YfjmEcCoLlPhCD+mhQhwPyWeJ7FNhdbF5w48th7xgvNaehDUYwbRr0JRyKdDFjYQ==
-X-Received: by 2002:a05:600c:46ce:b0:46e:4b79:551 with SMTP id 5b1f17b1804b1-47773288bbfmr90575765e9.31.1762791046799;
-        Mon, 10 Nov 2025 08:10:46 -0800 (PST)
-Received: from redhat.com ([2a0d:6fc0:1536:2700:9203:49b4:a0d:b580])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4776bccd41bsm208552935e9.2.2025.11.10.08.10.45
+        d=1e100.net; s=20230601; t=1762806643; x=1763411443;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ro8LfVFs4vPgQTzcnnWdFnGjc8mt7GRah6t2C6MZm1M=;
+        b=XWg53xXAR0iLKxPHrmXlheX3wnqQL95Of7HNDpU8Yt+cp9ZcH7OTjvGxi5WkTtHNkG
+         x+6WGh0q1zleaJJx53+s1c23W9vzEVrzYExgtlPs3KMWzvEy9GGV/B+grAfMVa0TpDu/
+         cPPsnqUE4CMJnSaDQl/bzOD6EIRZT6LIs9m6n7RALps2mRV6QKojXVD9z49++/co24GJ
+         nubOUcsbt+lGgd1ijTRPS7Lx49LOmitf824/Nrqx52k88x435pSpGdvDllGuxkvriSU1
+         fQwX0Jg537FWHXVp+lOi5BIfEYJnPnoonqby9wkNZ/MzYpYHjWSzvcmPB5GJpWJDQBP4
+         IyCg==
+X-Gm-Message-State: AOJu0Yyq2RwD5QaEByfVxWIG/fnMZAMzMO6cq6DeG/t7BRaXbGBc9Mpm
+	d8wyDImxCfOO0QrQtaQ7YNUdLBA10z1p2pYqm9reUefuTnrTg10Hk+HV
+X-Gm-Gg: ASbGncvQMvxj4ODDF47f50NEo5uOSicw42FQu5Uu5EMsUwmfPEiwS1MXcUze3o39cjr
+	I8viXxtJATb9IrQMhoKZ3PTGOjjpTKhXGsiFOd9OsKXMpAU9P8UgKul3oP5BiSoaLtWRfVElr1Y
+	pcbmHq5IoBVG4Mod4KMtUjjr38kncK42gFv+0e1g3OQpnbO9ubJ0/8XLD5xkF0cjcY9qq5V9pJZ
+	z3SVV7XcK+PvgjiFBdIBcJ9ziVnNwp1A/qcU6H7hQg/pYvslm8/BWp5skdmGY6vYh/yjxo/WD4y
+	hN+HAeXgazbbXrXjmZBAOgi4GNxH66LbaaSv5je+Z/rcAq7qtVlW9eV/Mfm4kxqC4U44+Q3h3RH
+	e0JBwZvVWxQVtCODxFEzGvhqPl7OwxKhm5JnJR41jfjphrqJIYgtcxnBozIrt41isN3nJI7/RzN
+	NwFdVBi6NCZJkf8OpB
+X-Google-Smtp-Source: AGHT+IGkzYVEYBFXghKEZPwUaZCu1Fha5OHUKNcP3PPtxc6UkSUM+cKWRwlTckCHb6/fSObwrLGs6Q==
+X-Received: by 2002:a05:6a00:b53:b0:7a2:7237:79ff with SMTP id d2e1a72fcca58-7b225acd9admr10942610b3a.7.1762806643188;
+        Mon, 10 Nov 2025 12:30:43 -0800 (PST)
+Received: from crl-3.node2.local ([125.63.65.162])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7b0cc17a688sm12920048b3a.40.2025.11.10.12.30.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Nov 2025 08:10:46 -0800 (PST)
-Date: Mon, 10 Nov 2025 11:10:43 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Heng Qi <hengqi@linux.alibaba.com>,
-	Willem de Bruijn <willemb@google.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net v4 3/4] virtio-net: correct hdr_len handling for
- VIRTIO_NET_F_GUEST_HDRLEN
-Message-ID: <20251110110751-mutt-send-email-mst@kernel.org>
-References: <20251029030913.20423-1-xuanzhuo@linux.alibaba.com>
- <20251029030913.20423-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEu=Zs-T0WyD7mrWjuRDdufvRiz2DM=98neD+L2npP5_dQ@mail.gmail.com>
- <20251109163911-mutt-send-email-mst@kernel.org>
- <CACGkMEtxfZh=66TSTC2B8TdXWP-fsTrYFkfz5aOViYkZmmcvxg@mail.gmail.com>
- <20251110022550-mutt-send-email-mst@kernel.org>
- <CACGkMEt+czNGi_KFgnHkZteNVNmBc7ND_xh7R=uNDo-ZumFEfA@mail.gmail.com>
+        Mon, 10 Nov 2025 12:30:42 -0800 (PST)
+From: Kriish Sharma <kriish.sharma2006@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Kriish Sharma <kriish.sharma2006@gmail.com>
+Subject: [PATCH] virtio: fix kernel-doc for mapping/free_coherent functions
+Date: Mon, 10 Nov 2025 20:29:20 +0000
+Message-Id: <20251110202920.2250244-1-kriish.sharma2006@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEt+czNGi_KFgnHkZteNVNmBc7ND_xh7R=uNDo-ZumFEfA@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: WA0zUrrO-RCgBTWPQ9awgvy6fZnuzvua4GbR4RWOLPE_1762791047
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Mon, Nov 10, 2025 at 03:39:50PM +0800, Jason Wang wrote:
-> On Mon, Nov 10, 2025 at 3:27 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Mon, Nov 10, 2025 at 03:16:08PM +0800, Jason Wang wrote:
-> > > On Mon, Nov 10, 2025 at 5:41 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Thu, Oct 30, 2025 at 10:53:01AM +0800, Jason Wang wrote:
-> > > > > On Wed, Oct 29, 2025 at 11:09 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > > > > >
-> > > > > > The commit be50da3e9d4a ("net: virtio_net: implement exact header length
-> > > > > > guest feature") introduces support for the VIRTIO_NET_F_GUEST_HDRLEN
-> > > > > > feature in virtio-net.
-> > > > > >
-> > > > > > This feature requires virtio-net to set hdr_len to the actual header
-> > > > > > length of the packet when transmitting, the number of
-> > > > > > bytes from the start of the packet to the beginning of the
-> > > > > > transport-layer payload.
-> > > > > >
-> > > > > > However, in practice, hdr_len was being set using skb_headlen(skb),
-> > > > > > which is clearly incorrect. This commit fixes that issue.
-> > > > >
-> > > > > I still think it would be more safe to check the feature
-> > > >
-> > > > which feature VIRTIO_NET_F_GUEST_HDRLEN ?
-> > > >
-> > >
-> > > Yes.
-> > >
-> > > Thanks
-> >
-> > Seems more conservative for sure, though an extra mode to maintain isn't
-> > great. Hmm?
-> 
-> Considering it's not a lot of code, it might be worth it to reduce the risk.
-> 
-> But I'm fine if you think we can go with this patch.
-> 
-> Thanks
+Documentation build reported:
 
-hard to say what does "not a lot of code" mean here.
-but generally if VIRTIO_NET_F_GUEST_HDRLEN is not set
-just doing a quick skb_headlen and not poking at
-the transport things sounds like a win.
+  WARNING: ./drivers/virtio/virtio_ring.c:3174 function parameter 'vaddr' not described in 'virtqueue_map_free_coherent'
+  WARNING: ./drivers/virtio/virtio_ring.c:3308 expecting prototype for virtqueue_mapping_error(). Prototype was for virtqueue_map_mapping_error() instead
 
-I'd like to at least see the patch along the lines you propose,
-and we will judge if it's too much mess to support.
+The kernel-doc block for virtqueue_map_free_coherent() omitted the @vaddr parameter, and
+the kernel-doc header for virtqueue_map_mapping_error() used the wrong function name
+(virtqueue_mapping_error) instead of the actual function name.
 
+This change updates:
 
-> >
-> > --
-> > MST
-> >
+  - the function name in the comment to virtqueue_map_mapping_error()
+  - adds the missing @vaddr description in the comment for virtqueue_map_free_coherent()
+
+Fixes: b41cb3bcf67f ("virtio: rename dma helpers")
+Signed-off-by: Kriish Sharma <kriish.sharma2006@gmail.com>
+---
+ drivers/virtio/virtio_ring.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 7b6205253b46..ddab68959671 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -3166,6 +3166,7 @@ EXPORT_SYMBOL_GPL(virtqueue_map_alloc_coherent);
+  * @vdev: the virtio device we are talking to
+  * @map: metadata for performing mapping
+  * @size: the size of the buffer
++ * @vaddr: the virtual address that needs to be freed
+  * @map_handle: the mapped address that needs to be freed
+  *
+  */
+@@ -3190,7 +3191,7 @@ EXPORT_SYMBOL_GPL(virtqueue_map_free_coherent);
+  * @dir: mapping direction
+  * @attrs: mapping attributes
+  *
+- * Returns mapped address. Caller should check that by virtqueue_mapping_error().
++ * Returns mapped address. Caller should check that by virtqueue_map_mapping_error().
+  */
+ dma_addr_t virtqueue_map_page_attrs(const struct virtqueue *_vq,
+ 				    struct page *page,
+@@ -3249,7 +3250,7 @@ EXPORT_SYMBOL_GPL(virtqueue_unmap_page_attrs);
+  * The caller calls this to do dma mapping in advance. The DMA address can be
+  * passed to this _vq when it is in pre-mapped mode.
+  *
+- * return mapped address. Caller should check that by virtqueue_mapping_error().
++ * return mapped address. Caller should check that by virtqueue_map_mapping_error().
+  */
+ dma_addr_t virtqueue_map_single_attrs(const struct virtqueue *_vq, void *ptr,
+ 				      size_t size,
+@@ -3299,7 +3300,7 @@ void virtqueue_unmap_single_attrs(const struct virtqueue *_vq,
+ EXPORT_SYMBOL_GPL(virtqueue_unmap_single_attrs);
+ 
+ /**
+- * virtqueue_mapping_error - check dma address
++ * virtqueue_map_mapping_error - check dma address
+  * @_vq: the struct virtqueue we're talking about.
+  * @addr: DMA address
+  *
+-- 
+2.34.1
 
