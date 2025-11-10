@@ -1,172 +1,293 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B19831A58D
-	for <virtualization@lists.linux.dev>; Sun,  9 Nov 2025 21:47:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762724828; cv=none; b=Pon8CoMEJIPo3W8uRjuvSiFnAKb+OdHnvNhnkACZDU+CaT6ka55Jai+w/8ybeQ13UHIiLqy5HNUIMUVisQj7NCNO7IFQ8sy+FafADXK/2X8LWxERgf1dfyQQ15Ig2yjki42I6JhQDieC99xY8wkkeBS6oV9v7HZ95dWAblog6L0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762724828; c=relaxed/simple;
-	bh=8bHPJqkcpiWZiLm7GJ4WrZrYa8pHR79dKB5UTVQ/U6w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=JFJgGBO0Z7xT6xAB05GaY7Yco4fp5pAJPshiSKjcWuDKf1gnFb1U+Z+QXX+YOvF4ln8ABXji9o6990rggyuXgCMFHo1TL2wHWCxEKX5DlH0lu3CLfu6XmPDvkUeJnuPdmj702kDdgqNLCjni8j1Qcc5g2BhCZU3IqUShCiLaNYk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ckBQtCeM; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F224184E
+	for <virtualization@lists.linux.dev>; Mon, 10 Nov 2025 01:00:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762736454; cv=fail; b=JdMwfqZfvyFlB3sRwevs4fb+xI59vICffq2Rn4u+IL2tCGbzQWKCODnT+tYbbhjaevNx1wHQGm/ww3EY7SxHlpBPvq6D2pvupA6nOvS0PIEngJPBY0pqd9DFVHIEOepLTg75YQZMNnWK34bZwkzOGBldVsIJJ8dUi1Htobg6R5A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762736454; c=relaxed/simple;
+	bh=YtJzDaEwIwOY93Ch4gV8ekkPQ/vFHUYteBaNAdTZ15c=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=lA3yhelEyvpqwo8Qioa2XwhT85GVJyovDB74E8zHxL6+fI0WSE+pw5YJDNzk3hKPZJ/b7Vghws9nnHFsOjQyBlyfMDHZuxysf7T8oXGvHC27TNN5tD3V37jPphvOtBTuqRfW16WATfDY11AuUThI1j18ZpETh0kkmvPfQv9JxHw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NMbgc2T8; arc=fail smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ckBQtCeM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762724825;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=MpPgJNNfQcmsOxPYyH1pXdl4WpjxS9YLpOkwsCYYikE=;
-	b=ckBQtCeM51vSRBgoTQSMgfSHFQfJEyJwy2IHOs3O8HDHursMhyt8C9B9GJCuSS3kGLcjJ+
-	7OL5iQjTjBe4I4rzEx7xLhWHmrZUgEO333xlpeocyxeyu2bGa21hbPFsnTgREP2LkgtksL
-	oTJN/S2DZJY6z67jB5xUtoKgozUzCFY=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-570-qXX86PAqOm-BuEFfWFjtaA-1; Sun, 09 Nov 2025 16:47:02 -0500
-X-MC-Unique: qXX86PAqOm-BuEFfWFjtaA-1
-X-Mimecast-MFC-AGG-ID: qXX86PAqOm-BuEFfWFjtaA_1762724821
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-42b2f79759bso1008503f8f.2
-        for <virtualization@lists.linux.dev>; Sun, 09 Nov 2025 13:47:01 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762724821; x=1763329621;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MpPgJNNfQcmsOxPYyH1pXdl4WpjxS9YLpOkwsCYYikE=;
-        b=PdBoGLTu6xhPT1hzEB8EjfiDRazKqWcVGN2ElH2rBFzY2gM7LciHWRc8QEZSA8ALs4
-         EgEPLru7FkjD1rV8X2G5qnjJBH3zJMReuYu6OoiRsXoBcb50iLsHDgxEZDXu6rKrTfnY
-         50xmfISBwGa5IkL32L2w/bpiaLj4KFQmXXrxoi3gkPD74tttvKNDHBdwgQPPWSnXonMg
-         rWOJqywk+sG4D2LckFZyZhTacEZH5gigHGtVhFpX9duqnHJM2Z0XL42vVSFWJ8O05+ea
-         cRgR7DycnxbusIlS4ZEfFQLXBYIdgRlHheH7N6N/VAL5arX6XyaJyJyFarnS3UeO609o
-         JN3g==
-X-Forwarded-Encrypted: i=1; AJvYcCW+OUIg4coH+P6cuu4c/nLtXt7C2I7jTCZAKDGbdCROMAj9Clk1ZXR17s1vyICYENpmtJZ9mXWraIUg0kwtUA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx0B4+BNqYCEB1Dlggze2mPU2pzxqgCRUbeVFmQnYJfDyo/HBoT
-	QE6ZecfawNGe67L4EvrtwvDSjcyhuq61l/Mkk9jV+Lw9fmdqvihd/YXqB1BqA7l10Rdu8wiZuhG
-	Lumdnm+wAvlnTgHXHfoEah7I1QpJMZCgEMt+VLBKLv4pFVq8shEJizWn1R23j3IDncMK3
-X-Gm-Gg: ASbGncvMYnp4Gk+nS4666ybVRr5gV8AYyS6tW9SwH+o+kXIRg+IQNPZduoQT9hTs8ul
-	i1lqiO2YVOiDRly2/+M8RRJwV8YWa2+30K/dR+hfyVdL/FurLm4KhCj/5P7c1X4Y7b99ZBjuRLT
-	j8tuW+uOAQz8cdChJLs5+Gu7bBDeY+N4fLqhCRRXewDUEOcWLeHGzUd1zK6Q+7pIL4ShbpHhMHa
-	yri55T0LJMtZ/pA/UKKjnS+aVKPCmqT4jp9Krcj/DMKHwKH5IxrxPJBIv9ain2mkMujBBYlcTY+
-	dgc8Kvg2N7Rer7F4ChZOK0OERfX56rxTkbOgHaybZxC6qlsm/KneEFBZV+urfBv7Yp0=
-X-Received: by 2002:a5d:5d0e:0:b0:429:f051:84bf with SMTP id ffacd0b85a97d-42b2dc16b22mr4397035f8f.6.1762724820763;
-        Sun, 09 Nov 2025 13:47:00 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGChrGnO/pUJIQy+0U7o2SKTCKjvG5QquXtb6ys9S/qAwgWsCeTMU6fAYrQrooQfJU9X4rYyw==
-X-Received: by 2002:a5d:5d0e:0:b0:429:f051:84bf with SMTP id ffacd0b85a97d-42b2dc16b22mr4397025f8f.6.1762724820326;
-        Sun, 09 Nov 2025 13:47:00 -0800 (PST)
-Received: from redhat.com ([2a0d:6fc0:1536:2700:9203:49b4:a0d:b580])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42abe62bfa0sm19252079f8f.5.2025.11.09.13.46.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Nov 2025 13:46:59 -0800 (PST)
-Date: Sun, 9 Nov 2025 16:46:56 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Maxime Coquelin <mcoqueli@redhat.com>,
-	Yongji Xie <xieyongji@bytedance.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Dragos Tatulea DE <dtatulea@nvidia.com>, jasowang@redhat.com
-Subject: Re: [RFC 1/2] virtio_net: timeout control virtqueue commands
-Message-ID: <20251109164528-mutt-send-email-mst@kernel.org>
-References: <CAJaqyWcf3tz17q6G=123Xb+warf8Ckg=PLaPkzLU9hYHiUy9Zg@mail.gmail.com>
- <20251022060748-mutt-send-email-mst@kernel.org>
- <CAJaqyWdRN3C1nOHQjWroBPWKjc5efNfVbecpruL=Cgsk6i1FXg@mail.gmail.com>
- <20251022073231-mutt-send-email-mst@kernel.org>
- <CAJaqyWeDcyKKOvVdqUkpTuH3d-Tb9rBHG3ym+LC0fcmhrN_FJA@mail.gmail.com>
- <20251028100923-mutt-send-email-mst@kernel.org>
- <CAJaqyWePMtM8vtgm8UnGAv+_XNTnVNFSNuoqzt_Cn-CpZg46mA@mail.gmail.com>
- <20251028104154-mutt-send-email-mst@kernel.org>
- <CAJaqyWc=Fhp2+m8P6cctkqG+oeXUgiGhKAsR5Ns20JMun=wvbQ@mail.gmail.com>
- <CAJaqyWf1Sn7CE+VOptZprDgniRNo=8-ZzmcS5YMOeW=tP4nfBQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NMbgc2T8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1762736453; x=1794272453;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=YtJzDaEwIwOY93Ch4gV8ekkPQ/vFHUYteBaNAdTZ15c=;
+  b=NMbgc2T8Pbqv+U19A3xqo+ZSCbHTpMQYMleqgt+Dd4hsFniKARvOxVue
+   +ADKnh4s1mEMtENm+QLnebjHkIgXAT7J0c4Kfd+r1vKYuV4/rbRdyqDnn
+   QvjSpFaxbhX3KtTJYkLFO1SfwBG4A2lpVq8SdwXSIFmeoBHPcq+8ER5QE
+   g5MIBzrh+g/QaUIFofOij5Bj2t2p/W5hmpEBNFgRdKizboM8srKmLOoS3
+   gxfqEX+L73n7sPuctkLTUk1N5gRSUMBlppP+rPIvfOKZxSq8+jEmQ9Qe0
+   rx6AJaR/HWZrW+7k6QhUWhV7ZXzbhvO6cDg4fe34qaFaEMHT9oXN7JtU6
+   Q==;
+X-CSE-ConnectionGUID: G9YZKYNGThanCPUfemybrQ==
+X-CSE-MsgGUID: UUAkHlhxT1m5+OQFbXhjBg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11608"; a="75082065"
+X-IronPort-AV: E=Sophos;i="6.19,292,1754982000"; 
+   d="scan'208";a="75082065"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2025 17:00:52 -0800
+X-CSE-ConnectionGUID: uH3KosINRSOjGEeLoy2+iw==
+X-CSE-MsgGUID: SNxRMaBETm+1IHswdOFj4g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,292,1754982000"; 
+   d="scan'208";a="188287218"
+Received: from fmsmsx901.amr.corp.intel.com ([10.18.126.90])
+  by orviesa009.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2025 17:00:52 -0800
+Received: from FMSMSX901.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27; Sun, 9 Nov 2025 17:00:51 -0800
+Received: from fmsedg902.ED.cps.intel.com (10.1.192.144) by
+ FMSMSX901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27 via Frontend Transport; Sun, 9 Nov 2025 17:00:51 -0800
+Received: from BYAPR05CU005.outbound.protection.outlook.com (52.101.85.36) by
+ edgegateway.intel.com (192.55.55.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27; Sun, 9 Nov 2025 17:00:50 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=oZBigmvZ+x6/9gL5Xte3L1JYOjjD/srm7JaFMAy1Y5d5XX56SFeOD+bGqk6nHNwb+L6YHi/2gtBWdTrbvaDkCSoacY65mpYdacs9M6HsiRmUYspsZuqPr3TtpFo/hqZXqJV8w1ATF3ff6UpsNVWoqdtxlhCdUoRyqF/ZIBmsEoOIHueNOUhz+/GohEVIVU+Qd3qHZ2dtfW3LCy2swlOpZCifqZSLppRbyZ6XmpmJ1YPF+ZxGHbhg4saTeLhNVWMeWeYTAi/MuhknQ9ktsgpzgjfx2toxf1efeZTP7FNNckj7GYZeWTZ+JLfPtJXaIRuNhIRwEDxYMgA4YOp5Wi/WRg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=YtJzDaEwIwOY93Ch4gV8ekkPQ/vFHUYteBaNAdTZ15c=;
+ b=B8TMXGY1ZfIo9T7fqCe55kmWMLJ4fTq3WEnW5R0DIei9SnHW6XUVpPGsMa5eR5u9+vQ4JWSepSzh68UC5lnvx0uSa7Rbq5CckYEiKdeDb40cjwkc5NsICtONec0UJBieENtDA7VOELXRDCJkgJbTyw7ESWAAxBltpNDRrKxktwsOYiCP7wqZGruPE1U13g1M3yZ2z3kjY/rkr6rL1dEC7c6ztFHyWfnAMxA3UeT9OXbjoNGam+/ImbY+VT7Fyc4X8ZjDSt2hI0Mp78dtWo2I+pNnKt+SEd+Mk2W+6N3nlcY7TRaAXOPNs85XFhUvywXssQ5HRA30xnRMo8sPsHp90A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from IA0PR11MB7185.namprd11.prod.outlook.com (2603:10b6:208:432::20)
+ by PH7PR11MB6499.namprd11.prod.outlook.com (2603:10b6:510:1f0::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.9; Mon, 10 Nov
+ 2025 01:00:49 +0000
+Received: from IA0PR11MB7185.namprd11.prod.outlook.com
+ ([fe80::dd3b:ce77:841a:722b]) by IA0PR11MB7185.namprd11.prod.outlook.com
+ ([fe80::dd3b:ce77:841a:722b%3]) with mapi id 15.20.9298.015; Mon, 10 Nov 2025
+ 01:00:48 +0000
+From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, Thomas Zimmermann
+	<tzimmermann@suse.de>, "gurchetansingh@chromium.org"
+	<gurchetansingh@chromium.org>, "kraxel@redhat.com" <kraxel@redhat.com>,
+	"airlied@redhat.com" <airlied@redhat.com>
+CC: "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Subject: RE: [PATCH v4] drm/virtgpu: Make vblank event dependent on the
+ external sync
+Thread-Topic: [PATCH v4] drm/virtgpu: Make vblank event dependent on the
+ external sync
+Thread-Index: AQHcRyfvcpYOJVPbTkGCrlhdg7m/dLTXuRYAgADddcCAAiSGAIAAgIJggApc9YCAAGsDQA==
+Date: Mon, 10 Nov 2025 01:00:48 +0000
+Message-ID: <IA0PR11MB71859CA8214A1CED151004C4F8CEA@IA0PR11MB7185.namprd11.prod.outlook.com>
+References: <20251027095550.110562-1-tzimmermann@suse.de>
+ <1e4a29e7-bf98-4193-962a-66fd251e2c72@collabora.com>
+ <IA0PR11MB718584C85B844B3ED6115858F8FAA@IA0PR11MB7185.namprd11.prod.outlook.com>
+ <b54f8527-5ce3-449a-ac96-6b4686d1b108@collabora.com>
+ <CH3PR11MB7177B04D32239354CD6A609EF8F8A@CH3PR11MB7177.namprd11.prod.outlook.com>
+ <f99e94e2-2357-4645-8d6e-2d234d7d2e12@collabora.com>
+In-Reply-To: <f99e94e2-2357-4645-8d6e-2d234d7d2e12@collabora.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: IA0PR11MB7185:EE_|PH7PR11MB6499:EE_
+x-ms-office365-filtering-correlation-id: 292ed3d2-ebc3-4d9e-cd71-08de1ff49656
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|376014|38070700021;
+x-microsoft-antispam-message-info: =?us-ascii?Q?JtrY6KPf6hFvic+MHOaqiw2+Vr2JuTYXCCJGjk52BNstJxV1Dq8tAc38xlmU?=
+ =?us-ascii?Q?Bb2VXKmbCjPdKdKByamaaq/bGt3Dzd0HP1+JIGceoVVnjqADUOaxq4ge5tkz?=
+ =?us-ascii?Q?fnleEgL2jeKfg8LorkRJKHqmz8zfcq8FlcxmqDBXi24GGghHA0luCJ2Psm/6?=
+ =?us-ascii?Q?CBRzvRrrlOQZPtpcFsYfKBBZeY2pt2f4Iq2nbC5uw+9QDl/zI3vEt8e3bRh4?=
+ =?us-ascii?Q?RqkMRc5zTmoWhGcEjPnq72kJ6/5sSxKiOHAuwNkER41vgQOt7Isysp58GKoa?=
+ =?us-ascii?Q?yYqRB6HAJHc4Es+dMJHM81FIZDcUhIVPlbCLMODJypd9QSwjRrvrBywoVuQY?=
+ =?us-ascii?Q?oOfXcob816fb0n2eU4zFN3g2VjyNmy/UZ3eTC71rgEmJpkA5U6Rai3KIyjW+?=
+ =?us-ascii?Q?jlTfTfuUX4gmFXtrv/TeLEU7N/A0g0EKPCk/HmpvVEbRJfU371Z2p2Oye38J?=
+ =?us-ascii?Q?SdMDgA27AURud+mUa/MTxvXktkOIK6aZRgSJwfqDVuKV/3MuI5ybnh3P8SV1?=
+ =?us-ascii?Q?Ll/jNUPUpKBuxS9gqPc3NgaKljO4v/A0VZGNj1FNv3MJJz4aclX/UsR8ht77?=
+ =?us-ascii?Q?yu/IymFAqjxwsRQ3X44dgmJz+CmykptMq3fVjANXqdI6iSQ38iP2zR/j6juz?=
+ =?us-ascii?Q?DlfBrG/pjN48Kj5oElzjkyWZrr5GL/TatiyWtH86REStxCkcNRGrjA65F7wk?=
+ =?us-ascii?Q?EySg6dT5adi49ePSUvhkF/lZmz6QVd66zuOIvG0v/i/pzEXefvJAJX3TRbNX?=
+ =?us-ascii?Q?1i1DoS2HLJ0l632YwUkYZROlh9HTO/5uaYIqCiiTx8UA6aHaFDfhdHJxvzla?=
+ =?us-ascii?Q?GyBcDEb+LtSYVFbuc4rCzETF829pM/28/+eNZa/v0KJkP6fqcSNyp6FHq8sH?=
+ =?us-ascii?Q?cC8aLkGBDq9AjEk4bo6lXOu4T0MimilFCX9r6VItq/JSaSNQHWgsFH8eGSgR?=
+ =?us-ascii?Q?JL6vN6fMu3Ch10Z10O4HMH7K2ejdEYHt1rV/bxgiL3jDE597myL7C2ncGowW?=
+ =?us-ascii?Q?73shQ7y9jKcGVnbK4xUFbW6Y0qbGSBCszf9mgEO/DI5PHwD0AK2O6b1cse4H?=
+ =?us-ascii?Q?0+4DfwO7i1yUnY+syzguqdom081l8TUC+iw/gWsky9wnQNSdfkTuLMyKBY39?=
+ =?us-ascii?Q?bUuEXLgGW2oQNUgZrEmbn+FejYBZ8Ud2W0zFsGsS5eCmZ+XewXtDa0aX/pl/?=
+ =?us-ascii?Q?iWxT8jvDrsfDIW5izCLet2rGGefjcutZMUcBWsSMtNnXr61qzmjq6kgAKlNv?=
+ =?us-ascii?Q?zJVrH9GlHr2jhA3ZHQTq1Y/3UT7kikRszHw0Eu91aB/MJoj5maHqjY3ccurn?=
+ =?us-ascii?Q?DSkKsaCBhMDtNF41adI4/1s/0q97/S9LH25SsssupEsfwFyhx7eZsxlGdFwU?=
+ =?us-ascii?Q?g7khoBMeAUg07704MiIi2UoHCUu042C8GyqG90ViCyCoifnzIKptG6ZCobWu?=
+ =?us-ascii?Q?Sw6bmp0WmrII0pwfJVAaEGCSCXufwaO9tPo9uKy8Kvqe90LvnzsqCuYfBP7c?=
+ =?us-ascii?Q?7EiZkD84qkhXA2btGs82vw6RbppVFj0Xu3DF?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR11MB7185.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(38070700021);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?zCfcy+QJYiBCnpmbr0B9G/YmWLMKy3zLF/Qoww4cmrz5y7v2XTYkXeJD32aF?=
+ =?us-ascii?Q?SA4CXInMKzImQbVsbFDPtVfOXUsdkPDPi7Z5qS9r1LiNiT+BFtrHJMd4X4VY?=
+ =?us-ascii?Q?hKDnk0ULprXR7bkQ6X3KZAb0jkNTfnitpeqAbFhX6cV0XNRPkwVyA5soJA94?=
+ =?us-ascii?Q?HuJ34zixGSelyZNyvejJSvT7DO9ZJChaXQj4sqYUZRObbvHQ3bsYErdhPVfJ?=
+ =?us-ascii?Q?KC6ZDL9hpgX+TXCeD2MJ+E6ALEGFx1LMEWzQ40E59kMEH6HRRx4H6d6+KS1P?=
+ =?us-ascii?Q?OW4SWrfEJMAYDABegBNGReQmTYVvhpIwaf/KcvdaSZ5cXOjYdpcdnWrxaGhb?=
+ =?us-ascii?Q?+kE8f5UCgvYLuATPzDYQ26KqeslvcU59vUj5yd5tK16ljTwnVYwVQ/2l4RCw?=
+ =?us-ascii?Q?1heX7teg6zuVQossMZ1G9d1p1cCVGx6aC6xo9/VVWSJQ3TlGihWlWREgPufW?=
+ =?us-ascii?Q?GyxwSknheRKqB18h+/MlagiOB5g3qlCbY6pRci2v6LGDe4Vg0eIMuuJllZeq?=
+ =?us-ascii?Q?FYivD5jawZqRtSdZ5eENXkhqDA0azSpClZpYSMfZ+qdXMlFkEWzCuDGmh2Qn?=
+ =?us-ascii?Q?4xQQkhrGkwCAsTJdfGfrb552AYU7TMCNHEYyJwm4bw+MPDIN3tHQwGmsITj3?=
+ =?us-ascii?Q?V+xMZdZLexD0VqFKuziiVHdDPUbgV/lu2iix7Jp0izkGmCMzkMVHSUtnMdRc?=
+ =?us-ascii?Q?gjXcoIP0O+uv/FKnhgip+byHfUF5YKF/tt+sNLUUSehaRmYIulHGXPl3YlA7?=
+ =?us-ascii?Q?rUIygP6hySOVZ/o1q1rOJBICqwZ9UeOvIon79KBSFQFUZtr7/X1XdPN8Myf7?=
+ =?us-ascii?Q?mqaUdw9C43AjkQRGE99UflhykvoTQjdXBPefZHsDkEJ7C5hYQAPQ4ClxWwok?=
+ =?us-ascii?Q?B4mN2w/XEsCowGClchDLMNf/6BN3EqR034Iew82D94omXYifCqwJPhFpzRna?=
+ =?us-ascii?Q?laZExW8xPuRuxMFEmZuSvB6xZU4Glt+WHo1zQGyl95m4irQvOAuOgJftCoTV?=
+ =?us-ascii?Q?CYS6R/KBQ47QOvkWpBR4l3xBvGzpZ985gL8NfnWhacYLmRCUmLPG7E3oG+0l?=
+ =?us-ascii?Q?C0/wq9KaadVZPFxE9aJPGJFCUxEDRjJeV5ucaZggzMfoUTzjfFNnGmhAxnRd?=
+ =?us-ascii?Q?EXKAwo6y4vledJwqrr9Ijtz8cgvh3Ar5OPeyp/m05CDWEd7LkebN3jph3Qgs?=
+ =?us-ascii?Q?5ggljjYTlBrqw8+TcXr08pSJRQprMkfpdb6iPqpDcgIqFgR/tAwKtD/K7B3K?=
+ =?us-ascii?Q?4pAZiJJlj03HJ4m5YpfB73lUvWYvTD0AztnG71lBpTW2Q8pW53Ja0n/Afm7T?=
+ =?us-ascii?Q?9feVrh5e7Liz/6Yx54vTSzuVyfLaxNXTVSXfdFfmgyYVDD1jLk3u8v0pPlcQ?=
+ =?us-ascii?Q?xFXz82ETb2hs+9vNanAa3NPtf/OoOp9HGfZtHocl7K+v7vHMiPIFIH4W2L06?=
+ =?us-ascii?Q?cJ+gcha/S4mSpKo24S2q6ZuN/Z9gsivAN0KFgs60BkWJcRVWLcj8ECJGRurl?=
+ =?us-ascii?Q?kdaBCXxU/jc7Dy55L0L2AtJr8IcEAr4GO2QTnaDvzuuhHWDli20oTVYvmPL5?=
+ =?us-ascii?Q?OS79Fj2FjxEKUt+iojhrZxNAugaEsM66nnRAJNFr?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAJaqyWf1Sn7CE+VOptZprDgniRNo=8-ZzmcS5YMOeW=tP4nfBQ@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 4VZNaUrnZAul6f7QwLm2I8ozfFbMJuwLB264emvuzfw_1762724821
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: IA0PR11MB7185.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 292ed3d2-ebc3-4d9e-cd71-08de1ff49656
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Nov 2025 01:00:48.7500
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: tN6DkrvCIrxj/2ueZJujbSF4ODE2GQQt2O+xqHvpspFQWJXwY9i9SwRikat8M9g4dvVlaxjOK0Mjd/aCrIBsGDZ170uHDHFVUBeBry0sqac=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR11MB6499
+X-OriginatorOrg: intel.com
 
-On Wed, Nov 05, 2025 at 10:02:48AM +0100, Eugenio Perez Martin wrote:
-> On Tue, Oct 28, 2025 at 3:57 PM Eugenio Perez Martin
-> <eperezma@redhat.com> wrote:
+Hi Dmitry,
+
+> Subject: Re: [PATCH v4] drm/virtgpu: Make vblank event dependent on the
+> external sync
+>=20
+> On 10/31/25 08:04, Kasireddy, Vivek wrote:
+> > Hi Dmitry,
 > >
-> > On Tue, Oct 28, 2025 at 3:42 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Tue, Oct 28, 2025 at 03:37:09PM +0100, Eugenio Perez Martin wrote:
-> > > > On Tue, Oct 28, 2025 at 3:10 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > >
-> > > > > On Wed, Oct 22, 2025 at 02:55:18PM +0200, Eugenio Perez Martin wrote:
-> > > > > > On Wed, Oct 22, 2025 at 1:43 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Wed, Oct 22, 2025 at 12:50:53PM +0200, Eugenio Perez Martin wrote:
-> > > > > > > > Let me switch to MQ as I think it illustrates the point better.
-> > > > > > > >
-> > > > > > > > IIUC the workflow:
-> > > > > > > > a) virtio-net sends MQ_VQ_PAIRS_SET 2 to the device
-> > > > > > > > b) VDUSE CVQ sends ok to the virtio-net driver
-> > > > > > > > c) VDUSE CVQ sends the command to the VDUSE device
-> > > > > > > > d) Now the virtio-net driver sends virtio-net sends MQ_VQ_PAIRS_SET 1
-> > > > > > > > e) VDUSE CVQ sends ok to the virtio-net driver
-> > > > > > > >
-> > > > > > > > The device didn't process the MQ_VQ_PAIRS_SET 1 command at this point,
-> > > > > > > > so it potentially uses the second rx queue. But, by the standard:
-> > > > > > > >
-> > > > > > > > The device MUST NOT queue packets on receive queues greater than
-> > > > > > > > virtqueue_pairs once it has placed the VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET
-> > > > > > > > command in a used buffer.
-> > > > > > > >
-> > > > > > > > So the driver does not expect rx buffers on that queue at all. From
-> > > > > > > > the driver's POV, the device is invalid, and it could mark it as
-> > > > > > > > broken.
-> > > > > > >
-> > > > > > > ok intresting. Note that if userspace processes vqs it should process
-> > > > > > > cvq too. I don't know what to do in this case yet, I'm going on
-> > > > > > > vacation, let me ponder this a bit.
-> > > > > > >
-> > > > > >
-> > > > > > Sure.
-> > > > >
-> > > > > So let me ask you this, how are you going to handle device reset?
-> > > > > Same issue, it seems to me.
-> > > > >
-> > > >
-> > > > Well my proposal is to mark it as broken so it needs to be reset
-> > > > manually.
-> > >
-> > >
-> > > Heh but guest assumes after reset device does not poke at guest
-> > > memory, and will free up and reuse that memory.
-> > > If userspace still pokes at it -> plus plus ungood.
-> > >
-> >
-> > I don't get this part. Once the device is reset, the device should not
-> > poke at guest memory (unless it is malicious or similar). Why would it
-> > do it?
-> 
-> Friendly ping.
+> >> Subject: Re: [PATCH v4] drm/virtgpu: Make vblank event dependent on
+> the
+> >> external sync
+> >>
+> >> On 10/29/25 08:47, Kasireddy, Vivek wrote:
+> >>> I applied this patch and tested 3 different scenarios:
+> >>> 1) blob=3Dtrue + imported buffers
+> >>> root@localhost:weston_upstream/weston# ./build/clients/weston-
+> simple-
+> >> egl -o &
+> >>> Using config: r8g8b8a0
+> >>> has EGL_EXT_buffer_age and EGL_EXT_swap_buffers_with_damage
+> >>> has EGL_EXT_surface_compression
+> >>> 245 frames in 5 seconds: 49.000000 fps
+> >>> 236 frames in 5 seconds: 47.200001 fps
+> >>> 279 frames in 5 seconds: 55.799999 fps
+> >>> 240 frames in 5 seconds: 48.000000 fps
+> >>> 244 frames in 5 seconds: 48.799999 fps
+> >>> 283 frames in 5 seconds: 56.599998 fps
+> >>> 274 frames in 5 seconds: 54.799999 fps
+> >>>
+> >>> 2) blob=3Dtrue
+> >>> root@localhost:/weston_upstream/weston# ./build/clients/weston-
+> simple-
+> >> egl -o &
+> >>> Using config: r8g8b8a0
+> >>> has EGL_EXT_buffer_age and EGL_EXT_swap_buffers_with_damage
+> >>> has EGL_EXT_surface_compression
+> >>> 167 frames in 5 seconds: 33.400002 fps
+> >>> 208 frames in 5 seconds: 41.599998 fps
+> >>> 203 frames in 5 seconds: 40.599998 fps
+> >>> 252 frames in 5 seconds: 50.400002 fps
+> >>> 180 frames in 5 seconds: 36.000000 fps
+> >>> 219 frames in 5 seconds: 43.799999 fps
+> >>> 176 frames in 5 seconds: 35.200001 fps
+> >>> 220 frames in 5 seconds: 44.000000 fps
+> >>
+> >> Thanks for the testing.
+> >>
+> >> For the second scenario I'm getting better result, it's 55-60fps for m=
+e.
+> >> Given that this is a SW rendering, curious whether that's because you'=
+re
+> >> testing on a lower end machine(?)
+> > I am testing with a dGPU (B60) on the Host where I am running Gnome
+> Xorg
+> > but I am running Gnome Wayland in the Guest. What compositors are you
+> > running on the Host and Guest? Kwin? Also, could you please share your
+> > Qemu launch parameters as well so that we can try to figure out the
+> reason
+> > for the performance discrepancy?
+>=20
+> Did further testing on older IvyBridge machine and getting comparable
+> result to yours on it.
+Thank you for running these tests.
 
+>=20
+> I'm using exactly same QEMU setup as you do with nothing special in the
+> cmdline. Tested with both KDE and Gnome on host.
+>=20
+> On IvyBridge getting:
+>=20
+> - 46-55fps jittery with GTK display + blob + vblank_timer
+> - 46-55fps jittery with GTK display + blob + vblank_timer +
+> vblank_mode=3D1 to disable vsync on host
+> - constant 60fps with GTK display without blob + vblank_timer
+> - constant 60fps with GTK display + blob without vblank_timer
+> - constant 60fps with SDL display + blob + vblank_timer
+What happens in the case of:
+- SDL display + blob without vblank_timer
+- SDL display + vblank_timer without blob
 
+>=20
+> So, discrepancy of the results is directly tied to CPU performance + GTK
+> oddity when SW+blob rendering is used on guest.
+>=20
+> Why SDL performs much better than GTK I don't know.
+AFAICS, there are some key differences between SDL and GTK UIs that might
+be playing a role:
+- SDL UI does not implement dmabuf ops such as dpy_gl_scanout_dmabuf()
+but it does implement dpy_gl_scanout_texture() which I see is only called
+from virtio-gpu-virgl.c. I am wondering how does the display get updated
+in non-virgl usecases, especially when blob=3Dtrue and given that this opti=
+on
+is specifically meant for UI's dmabuf ops?
 
-OK I thought about it a bunch. A lot of net drivers actually
-just queue ethtool commands and finish them asynchronously.
-Thinkably virtio could expose an API on whether it is safe to
-wait for buffers to be used. virtio-net would then either
-send commands directly or do the asynchronous thing.
-Hmm?
+- GTK asynchronously waits (using an EGL fence) until the GPU Blit is
+completed (before releasing Guest FB) which other UIs do not do when
+blob=3Dtrue. So, this might incur some extra delay which is not the case
+with SDL.
 
+- SDL's display updates (sent to the Host compositor) seem to be UI timer
+driven while GTK's updates are repaint callback driven.
 
--- 
-MST
+Thanks,
+Vivek
 
+>=20
+> --
+> Best regards,
+> Dmitry
