@@ -1,126 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE36C256C8D;
-	Tue, 11 Nov 2025 11:52:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 539542FF673
+	for <virtualization@lists.linux-foundation.org>; Tue, 11 Nov 2025 12:09:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762861949; cv=none; b=Cc5fz/tAupki/ul6QNtsvE+v7hNGyBivtpvPKBDvOM8xnPzIjUP1XlqNpVEQUbZ+2SxTsG7LiiTD8FPe1olv1COcRxhtyRkJyxNoMF8KCKjm4F2slApkgRU8bRcQ8mZfqGbY9i1pGiyhnE12XQzDCB42fFWnVYqi6GlZ/rIy/Fk=
+	t=1762862944; cv=none; b=WkA4mTz2DsbggbDUAX9bwVvhXyPOZ7h+TaA91WTuLdVxz0lg/BBrdTdAyxHYViX3olwMbdSAgAy+owJAopseKZWaMsOa2z0USpR+aKn76wmVyhdn99nM+JUJG5Ub6Rs3Ja0WRF7c3Pvmi+9740svfRVojU0PdKE4bUp/EaLwyNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762861949; c=relaxed/simple;
-	bh=7EWr3lLxkrG+MopAVeZM5w/ywBZTEz3erxdYhaDu5ks=;
+	s=arc-20240116; t=1762862944; c=relaxed/simple;
+	bh=SbqShAIE3SZM5AqKJRVAvqGq43IpxY2ybj2d3tdXMSI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DolU6e2KbRfHzHtwF6CqGqu1c/5624LB3A1W+4Se1e5o2eFzz33vgWGwvdy1zvVjxjoDNWfML+pVr4ye4SOBtck+LPXUSL8OBkpxlM38icBee8TlSmdsmrRkZ+qNImDtcTe61mz61werLTu+rm7/Na8e/y8rsuauLiIviRNFwRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lNMKetIT; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=To173M81ARvpDTzczcxpcAYJIKJg5+KIL/+grENa/VbF1hnnbopYSorWGY+Y2uxUdrzQDfyQdkF12jtOPQ4LvrH/HR2vYqZ1JQ8/E3SegD06O5Av79uMjTxpuNHp+prTAOtI9vlDJuarOsPpRs0SB1ikIKnDmuSqiAl8XW5LuKE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Iw3FQutj; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lNMKetIT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB8AC4CEF5;
-	Tue, 11 Nov 2025 11:52:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762861949;
-	bh=7EWr3lLxkrG+MopAVeZM5w/ywBZTEz3erxdYhaDu5ks=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=lNMKetITnIdI+xxdF/TA70hKOc2puba/EJVkuAHU4KEkcyHmBky9N/+8WHrn7hg7g
-	 EjYI+3A9E38ph29vGpUK0/MQCK6Uy3dNqFUy6DwyTd9YKtG3SuFlBo7bLri0P1DEg+
-	 9YWaZtitwhIXgzAk4MqX73z0jg1QuIVh/zbYIjk0IQaBPcxDcJmzYrWJg4cZdx3iTc
-	 y2ra2Yle9WZyvGkur0WAzYQ3V7U1cZsU23NxLdrqYOIcKQfa9mD+ESswcaHyJ1ZvCt
-	 gHQDvd/nmnKH7jyzdgbYYQuRAEt6APJvt1jcq1cr4Ij98MRKTr95TEg1UtR6ggUlcU
-	 U4QxcPGfnqTXg==
-Date: Tue, 11 Nov 2025 11:52:25 +0000
-From: Simon Horman <horms@kernel.org>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v3 07/11] selftests/vsock: add check_result()
- for pass/fail counting
-Message-ID: <aRMjeZVqsnc1BNr-@horms.kernel.org>
-References: <20251106-vsock-selftests-fixes-and-improvements-v3-0-519372e8a07b@meta.com>
- <20251106-vsock-selftests-fixes-and-improvements-v3-7-519372e8a07b@meta.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Iw3FQutj"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id ED70481B72
+	for <virtualization@lists.linux-foundation.org>; Tue, 11 Nov 2025 12:09:02 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id z_MMNFE2aIEU for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 Nov 2025 12:09:02 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=ming.lei@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org EEEF881839
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EEEF881839
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Iw3FQutj
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id EEEF881839
+	for <virtualization@lists.linux-foundation.org>; Tue, 11 Nov 2025 12:09:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1762862940;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ZRHAUY22f4DMZXjGNy9kKErIJtv/qXFs3nnNzhiEiMY=;
+	b=Iw3FQutjwaJB2SYmYuz6F23YyBOF4niI38cLZJsS1Mbcti1KMKhMP0aQXgGGx43nRwwkr2
+	2ZVtNnh4ha2kyfxIQiky1wBYSF55hICm9a6+qg6b099KZtGa7z8pFis1RCq39JOnWGOybE
+	UIHTgdnRhw6IetZcC5Fxl0VSvu7ku00=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-626-v5kAbdCLOKGzNWrqMNMF5A-1; Tue,
+ 11 Nov 2025 07:08:57 -0500
+X-MC-Unique: v5kAbdCLOKGzNWrqMNMF5A-1
+X-Mimecast-MFC-AGG-ID: v5kAbdCLOKGzNWrqMNMF5A_1762862935
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id EA3371955D48;
+	Tue, 11 Nov 2025 12:08:52 +0000 (UTC)
+Received: from fedora (unknown [10.72.116.74])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9BA411800451;
+	Tue, 11 Nov 2025 12:08:44 +0000 (UTC)
+Date: Tue, 11 Nov 2025 20:08:39 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: "Guo, Wangyang" <wangyang.guo@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@fb.com>,
+	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org,
+	virtualization@lists.linux-foundation.org,
+	linux-block@vger.kernel.org, Tianyou Li <tianyou.li@intel.com>,
+	Tim Chen <tim.c.chen@linux.intel.com>,
+	Dan Liang <dan.liang@intel.com>
+Subject: Re: [PATCH RESEND] lib/group_cpus: make group CPU cluster aware
+Message-ID: <aRMnR5DRdsU8lGtU@fedora>
+References: <20251111020608.1501543-1-wangyang.guo@intel.com>
+ <aRKssW96lHFrT2ZN@fedora>
+ <b94a0d74-0770-4751-9064-2ef077fada14@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20251106-vsock-selftests-fixes-and-improvements-v3-7-519372e8a07b@meta.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <b94a0d74-0770-4751-9064-2ef077fada14@intel.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On Thu, Nov 06, 2025 at 04:49:51PM -0800, Bobby Eshleman wrote:
-> From: Bobby Eshleman <bobbyeshleman@meta.com>
+On Tue, Nov 11, 2025 at 01:31:04PM +0800, Guo, Wangyang wrote:
+> On 11/11/2025 11:25 AM, Ming Lei wrote:
+> > On Tue, Nov 11, 2025 at 10:06:08AM +0800, Wangyang Guo wrote:
+> > > As CPU core counts increase, the number of NVMe IRQs may be smaller than
+> > > the total number of CPUs. This forces multiple CPUs to share the same
+> > > IRQ. If the IRQ affinity and the CPU’s cluster do not align, a
+> > > performance penalty can be observed on some platforms.
+> > 
+> > Can you add details why/how CPU cluster isn't aligned with IRQ
+> > affinity? And how performance penalty is caused?
 > 
-> Add check_result() function to reuse logic for incrementing the
-> pass/fail counters. This function will get used by different callers as
-> we add different types of tests in future patches (namely, namespace and
-> non-namespace tests will be called at different places, and re-use this
-> function).
-> 
-> Reviewed-by: Simon Horman <horms@kernel.org>
-> Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
-> ---
-> Changes in v3:
-> - increment cnt_total directly (no intermediary var) (Stefano)
-> - pass arg to check_result() from caller, dont incidentally rely on
->   global (Stefano)
-> - use new create_pidfile() introduce in v3 of earlier patch
-> - continue with more disciplined variable quoting style
-> ---
->  tools/testing/selftests/vsock/vmtest.sh | 95 +++++++++++++++++++++++++--------
->  1 file changed, 72 insertions(+), 23 deletions(-)
-> 
-> diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-> index 557f9a99a306..05cf370a3db4 100755
-> --- a/tools/testing/selftests/vsock/vmtest.sh
-> +++ b/tools/testing/selftests/vsock/vmtest.sh
-> @@ -46,6 +46,8 @@ readonly TEST_DESCS=(
->  	"Run vsock_test using the loopback transport in the VM."
->  )
->  
-> +readonly USE_SHARED_VM=(vm_server_host_client vm_client_host_server vm_loopback)
-> +
->  VERBOSE=0
->  
->  usage() {
-> @@ -79,6 +81,28 @@ die() {
->  	exit "${KSFT_FAIL}"
->  }
->  
-> +check_result() {
-> +	local rc arg
-> +
-> +	rc=$1
-> +	arg=$2
-> +
-> +	cnt_total=$(( cnt_total + 1 ))
-> +
-> +	if [[ ${rc} -eq $KSFT_PASS ]]; then
-> +		cnt_pass=$(( cnt_pass + 1 ))
-> +		echo "ok ${num} ${arg}"
-> +	elif [[ ${rc} -eq $KSFT_SKIP ]]; then
-> +		cnt_skip=$(( cnt_skip + 1 ))
-> +		echo "ok ${num} ${arg} # SKIP"
-> +	elif [[ ${rc} -eq $KSFT_FAIL ]]; then
-> +		cnt_fail=$(( cnt_fail + 1 ))
-> +		echo "not ok ${num} ${arg} # exit=$rc"
+> Intel Xeon E platform packs 4 CPU cores as 1 module (cluster) and share the
+> L2 cache. Let's say, if there are 40 CPUs in 1 NUMA domain and 11 IRQs to
+> dispatch. The existing algorithm will map first 7 IRQs each with 4 CPUs and
+> remained 4 IRQs each with 3 CPUs each. The last 4 IRQs may have cross
+> cluster issue. For example, the 9th IRQ which pinned to CPU32, then for
+> CPU31, it will have cross L2 memory access.
 
-Hi Bobby,
 
-Should num be cnt_total above?
+CPUs sharing L2 usually have small number, and it is common to see one queue
+mapping includes CPUs from different L2.
 
-> +	fi
-> +
-> +	cnt_total=$(( cnt_total + 1 ))
+So how much does crossing L2 hurt IO perf?
 
-It seems that cnt_total is being incremented twice.
-Once seems like it ought to be enough.
+They still should share same L3 cache, and cpus_share_cache() should be
+true when the IO completes on the CPU which belong to different L2 with the
+submission CPU, and remote completion via IPI won't be triggered.
 
-> +}
-> +
->  vm_ssh() {
->  	ssh -q -o UserKnownHostsFile=/dev/null -p ${SSH_HOST_PORT} localhost "$@"
->  	return $?
+From my observation, remote completion does hurt NVMe IO perf very much,
+for example, AMD's crossing L3 mapping.
 
-I'll confess that I didn't notice these myself, but
-Claude Code with https://github.com/masoncl/review-prompts/ did.
+
+Thanks,
+Ming
+
