@@ -1,136 +1,192 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011012.outbound.protection.outlook.com [52.101.52.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 474293A5E76
-	for <virtualization@lists.linux.dev>; Tue, 11 Nov 2025 12:33:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762864400; cv=none; b=bpFpuGSYAJhrobyCMYvS7q4DOUzYkAwGyMQN16goaIJkL0DDU/7fOSl1R0FKwvuba0ZhJyXAoboZDnKOVAkJpp+pehW2f8O1Z8Dptp6KuzNl4pmyjoy1AT07tiFKeOQ3e3zOqeRb0eZK2SfyfO8pB9Ic59DGq5v1PlPiwC2kJZI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762864400; c=relaxed/simple;
-	bh=iOWBNEkhaYulz60fd9nqYbYaUth2lUkhdRV+MRZ+GSk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QYL7XZ+b7wpeN4smoo5FhY/ET6GsqodWydP1oqh6I21Z9OjbzzRJnfTMBEd0akSNN7VElMRtdd1Xmo9ae1WMogUJGnbB1ZMhWA6m2Ip4XecjYbbKUTg42wrdIj1eI1BJMQt2ioNQQvTeea+xTGx8j9dt4chb8dhkSM04fVQn22M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=U0BAxquF; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32C6232471F
+	for <virtualization@lists.linux.dev>; Tue, 11 Nov 2025 13:41:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.12
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762868471; cv=fail; b=KEj3OhQACme7IS+CuU0Kh+ex2xm4cvffgH/r0bUM1fng8Uo2acE8r/uTIWk4kFxdQZOQik0bUOf0cobo3A9tWs4jem02V1jrlTtGFeuck9kHB/7YnYnb+c4c3po0sl4d135D1N8Lba55iOZ8jl6772p/xkAb8zKNi3HdgdDnPTc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762868471; c=relaxed/simple;
+	bh=TJJumqpFF2rwvTCiXVrHVXL5cHc1f5Xqmv1TPBNu2sw=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=KHJ3As+6W5uFOBeogMMHeXs9nqZ7Z4iWaMMwmhWY+Z0PqqqnOvZ43GN/UaIzP4bQdxQWXeo34AnuCXQjcUnaNvQ9kVMxyNmIXByqL2ZrxSPK96bsC+9enu9RIKapXigYPHoIs5NaxiygOsHZL9GeXQ820UOhe+wqDbjt0cziA5U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=dmSaZr40; arc=fail smtp.client-ip=52.101.52.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U0BAxquF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762864398;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TEMqTiIls3GK+BcBgDdLsrWg6wcMid5JirlC8x4cCJQ=;
-	b=U0BAxquFk6C3O2Us3SGdMkpIj8xisbfq5cShEBO8qiPTsuuUZe360iOL2SBzwHOYdsjyB2
-	Pk90NJ+ZjoLk0abI39ggvQ7VOastHAYrE5o7CZR0jYATBULgCqZonQXf2TWEy6K8MMUaLo
-	AZTyzjPp3W8cHgzYMBEL7vSIS7Iecj0=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-441-f5mzHni4P4GND-E8GYJ8Mw-1; Tue, 11 Nov 2025 07:33:15 -0500
-X-MC-Unique: f5mzHni4P4GND-E8GYJ8Mw-1
-X-Mimecast-MFC-AGG-ID: f5mzHni4P4GND-E8GYJ8Mw_1762864394
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-42b3339cab7so1360610f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 11 Nov 2025 04:33:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762864394; x=1763469194;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=TEMqTiIls3GK+BcBgDdLsrWg6wcMid5JirlC8x4cCJQ=;
-        b=fGUs7AMXQ7vzv9tCPVkqxv+mQCCmjdv0KZF5/auPnN5mqsYDtPTTk7jIfCvlUlUHKb
-         /uGtcK+wTIT31k+OC9dAfQk6vOWIO2+Gqdl1OFy1LW27pQxQzFXbUxk75D+PoJZksOGy
-         Emgr4HGIXhO8Mw+skJniK1nGWInKra8g8SDjVxy05//1QqAGct0g4bqCy1Z6URjxbjEp
-         5Eupv65gEhgAowEzwAczalIY+bAiXEdYzq4sHOgQExGGWTTj9jNAFQ8lyiRZLhXI/Dcu
-         XiUUErd5sbFqrkUca5c+pYBvrtxZUKW6oEVfDtYKai+1hm6lA35va4FTdIm9vBEZP3vv
-         JZ7A==
-X-Gm-Message-State: AOJu0YwIBk5dk6mGhoneU2Z1W3KF1diNOu4DxNu6Q7wzIq/39rXsKmro
-	RCrlrBwU7U2CMmzMJk7prcw05oETux4jjaBNAd1T5VL6UCwJbM04oOmoe5rkCxohpM0ZPTEOPZy
-	WheR/tzbLAB6tJAOE/CjGRkP+uHRszBG1LxI7AKRm6KGrVLAtufDXrthLb/DMTA8p7XzL0WB+ly
-	SE
-X-Gm-Gg: ASbGncswlAPtjucb/qd8nNo52oV6ZOi8ASivyMerfNlD8rRSA2r5zbfk+Kp5DRRBhEN
-	mzaUNGcVmTNIuFLfeggPyEi3KjrC0uzWSlvBiV4W8tP698ZihqOU5eFmwgX747xN4FrtceO4lp+
-	6bMLWTkt3gI6uMsyF2mHfHqt75sH7rtZW0ADRWP93if390nVSHHVeNcFbpmgUWhdUXwCyqYHWeS
-	L2B5P4gbHvfD9TOWWlHSKjv3zQgNIoZ11DnHnavDmYYzeLhCTa+sGolo9jvin2Pa5HNWYSryZI8
-	zqq9uS/C2qbpCFNnx4Aa1hIrIaeDTnRIntvKQG+/4DsgFk7ZqNwYP8WpYBYk+6I0VZi4aFpabE9
-	kvA==
-X-Received: by 2002:a5d:5f53:0:b0:42b:32c3:3949 with SMTP id ffacd0b85a97d-42b32c341e4mr8571483f8f.31.1762864393724;
-        Tue, 11 Nov 2025 04:33:13 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEogtUOY4yTdf1DuIqascBGW9c45+fo19oaNrpbIqMX41Hc32xWFtKascZRxunxinjoalWo2A==
-X-Received: by 2002:a5d:5f53:0:b0:42b:32c3:3949 with SMTP id ffacd0b85a97d-42b32c341e4mr8571452f8f.31.1762864393278;
-        Tue, 11 Nov 2025 04:33:13 -0800 (PST)
-Received: from [192.168.88.32] ([212.105.155.55])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42ac6794f6esm31385653f8f.41.2025.11.11.04.33.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 Nov 2025 04:33:12 -0800 (PST)
-Message-ID: <d19c7bea-9b4d-4f00-a6bc-35247011e788@redhat.com>
-Date: Tue, 11 Nov 2025 13:33:11 +0100
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="dmSaZr40"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=QR7y7lta5u/PqR/xVxHkMJ3QHayDDqj69cl+3scdYOywvtw2mxGbuHxTAfJH3cCM9NF68q9HS+Yg8kdCRvhnf/qogA3qZ/Oc8VeC484+EknGTwxZ4tOD0K63KQ8XUShOLq1FgcpL8Bt9uCogmZGzRU2RYBcqTeUjCXeFhfom7lXF3KYn1EriyuzIGYu4KSVnjZ4lQp/bpWS7ROJyOWXrstnUbpPer1hUgSKfkJLnwe+hRxPv2CrSWm4z3lC0Gyqk9SwYYC23ngw14XplgDss6+OPIDtAFBqRTVELdbUp7hKTwF+IoqE7o2ffclkaY5ywF74NfAsgCx9OFw8JQUDxTg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=r4jZVqp+0LP25Sz81jIE6U6DBkfgLUZ8KzXinMDmwJs=;
+ b=kP/+NGDux0TOkMsPOZc8NaleveBnEvlFQHIlkv9Zbv4bxkeCUyFIdpPYxtZSgI/Znh09sGNP83rXep5RFUZHf6RMmusZtuxcq+BsGXRmvdnMhkQotc4oMPefBMXHjR9+0EvSkEI+YPf1Z54S/nLUC7lcih95vIoEgV1Pu4JfwbUeev88TQIDhmYYywgIzJHR6gJffMEb6pl8liu5bmKL1DZkXeqTEXGGPcgfeOjKuacEGXNCcQqozysnYp7sftASm+SlsuX8Us9PzaNiKnSSMBApiF/C5duRSMbW4ijdV+Px8wg//jEfgedeja74qD2+f0qJoC6IuwW9+GD3yY7ZPg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=r4jZVqp+0LP25Sz81jIE6U6DBkfgLUZ8KzXinMDmwJs=;
+ b=dmSaZr40JXZHhlz6JHKaLp9a5Y338385npI+eN4d96zXGNGl/LtOO2jQFN6dJsMxlhCxJs/2Gmqf9AHOxe+NvHp4lvUxZL2gMPfpGBkb69m0stzG/Za2TZ4mNLWKZik8NyeoNoWKHFMoh4/Bn9VRW/lVteFGhV66+Fp/IJC45HXqFXqT1F8F0UXGryBaC0mDzSzyKxrE84C6bf9QElzBHG6RBpHIHQe6EHcBE9Ele45g+yKEuL7/EZz+7NzRCS6tR3u3V4Vc9wbpv+Qutx3jJlQZY4qekEQFNVkw/SuH26a1eWhoTVvzAc6HkXMcPrGmHNP05nM++YN0jNbI/IpvHg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
+ by MW4PR12MB7382.namprd12.prod.outlook.com (2603:10b6:303:222::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.18; Tue, 11 Nov
+ 2025 13:41:05 +0000
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9298.015; Tue, 11 Nov 2025
+ 13:41:05 +0000
+Message-ID: <c0bdabe1-afeb-434a-83f6-707acc941f5e@nvidia.com>
+Date: Tue, 11 Nov 2025 07:41:02 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v9 05/12] virtio_net: Query and set flow filter
+ caps
+To: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, mst@redhat.com,
+ jasowang@redhat.com
+Cc: virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+ yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ shameerali.kolothum.thodi@huawei.com, jgg@ziepe.ca, kevin.tian@intel.com,
+ kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+References: <20251107041523.1928-1-danielj@nvidia.com>
+ <20251107041523.1928-6-danielj@nvidia.com>
+ <ee527a09-6e6e-4184-8a0c-46aacb11302f@redhat.com>
+ <e1d7d4c1-263f-4f2e-b1c0-6672ce6d7d58@redhat.com>
+Content-Language: en-US
+From: Dan Jurgens <danielj@nvidia.com>
+In-Reply-To: <e1d7d4c1-263f-4f2e-b1c0-6672ce6d7d58@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SN6PR08CA0034.namprd08.prod.outlook.com
+ (2603:10b6:805:66::47) To MW4PR12MB7309.namprd12.prod.outlook.com
+ (2603:10b6:303:22f::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v4 00/12] selftests/vsock: refactor and improve
- vmtest infrastructure
-To: Bobby Eshleman <bobbyeshleman@gmail.com>,
- Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
- Simon Horman <horms@kernel.org>, Bobby Eshleman <bobbyeshleman@meta.com>
-References: <20251108-vsock-selftests-fixes-and-improvements-v4-0-d5e8d6c87289@meta.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20251108-vsock-selftests-fixes-and-improvements-v4-0-d5e8d6c87289@meta.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: UIvkC4RmXSQs7g2m3HtJpdQHxfrA2qJUmrjnUOmhdms_1762864394
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|MW4PR12MB7382:EE_
+X-MS-Office365-Filtering-Correlation-Id: f8ab8dcb-592e-41cc-ce80-08de2127f610
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|7416014|376014|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?bzlTbUFPT1UzekxaVEQzZXlaTTA5UlRqZWlqdmRUNW9hOERZcjdWTEN6QUUv?=
+ =?utf-8?B?Mlg3eUNubFM1MVFFR2I2UHZrZjRNR0FRVmRaa1lmcFZQcVltTHYzT2dHZnJX?=
+ =?utf-8?B?R2R4NUo0UjF2UkRpdm9Ha281VW55ZkRBZGFRc21VNGlydTdCWFNsS3VERzRR?=
+ =?utf-8?B?VFowbEprdE9OZjNYNStIR1pHcGNHSEhDUWdYc2E2UWdRZC9HR0oxSEt2YjhF?=
+ =?utf-8?B?UHRLZUZJaGtDNEsyZGk2UFpkc3ZlQmM2RVVlVFlhSmF5S1dnMWs1aEJwUEMy?=
+ =?utf-8?B?cnFUa2RmeG4zYlYwTVMxcmJES2VxOFVtQnFLNU9pQ0lYSTBTTlFMQWFzSmdU?=
+ =?utf-8?B?RTlvd2g3dEpTZTFiY1U3N1V2eTMxb1Q3RlF5MDhRdnM3VkV0UlcrUzU0VmY0?=
+ =?utf-8?B?WEFMWWdCRCs0NkZnbGJoVXJ1STQ4aGhlSitXYzh3UDJ3cEJRckZLUy82TnBn?=
+ =?utf-8?B?dm85SUlGcFhjSkFkVWo1TFBCMGNobHY0TS9yQU1LV3picUdHWXgrVGJVdk1n?=
+ =?utf-8?B?eVd5blhRUG5nQ0xjdUxJa2ZMSHMvNXQvMjAvUTV1ZW1JYlBRQ3MwSjlhV0ZQ?=
+ =?utf-8?B?clFtVjEweU1jemljUmtrcExnbHNhQmVWazFFcURrSm9JWnVIZ1pkT2hMMXYy?=
+ =?utf-8?B?V2pBWlk2VVZIRWVDRTg3WlBIbkhpZS9CNW5TZ3NaSCtVK2hDV0hpUzNSRi9s?=
+ =?utf-8?B?K1JNVkR2QlRXS3pzT2xOaE1ZWUFKQzRva2FTWGI5SDJGM1pxdE5DNXJzZVUw?=
+ =?utf-8?B?M0IxREhlWmRnMkhETEFzNzBEZXBKWjZPM2xXNFZTSHhBNklPcGVQOVNhMHpW?=
+ =?utf-8?B?KzZ4ZjVnTTB6SlNYb3R5VWRLQmh0Z3JBbGtVaFYzb2x4ZDJJbHRwcGhkTzdT?=
+ =?utf-8?B?Y25adGNqREFReHUrVnpPRjZ2WGkwNThUTWFBTHhNWTJ6S25oWk5KaEFTWGJq?=
+ =?utf-8?B?NUhURENWeHJ3S3Z5d3pIOFpjdlBhM29KTjRoVWhHcVg4a1FrRFlPaThJWTI2?=
+ =?utf-8?B?MDhkcHFBTjU0TXZIcDlyVjNOR2ZXNnJFS1dkZlIyNXU3dFNReFRscVppV1I0?=
+ =?utf-8?B?QjIyVnBDVG8vNUVHeC82RUhSR0lOVEgvMlM4dFQ4YlhPYzJUbkJtcVZJello?=
+ =?utf-8?B?YU1qQ1BsLy81YmU4U2RGNjFXaE0wQmJ4SGtIM1ZQYm1XUHJad3R4bnVVRWtF?=
+ =?utf-8?B?UVA5WnZ1bHFXOW1FTGRSckx5aTJJenBkV0R6cUZWOFJ2cWFHRFJKT2FwckJE?=
+ =?utf-8?B?aUVGSDh2aWVWVWpNejFkWXZNVmlTc0dMekxBc3VHSUdSSWpZT1N1UTFhZlh0?=
+ =?utf-8?B?eG4xRHFpT0llQ2plQ2lqdGtmeWlobVRtNndnNldjc0NEMW9wL3kyTjdUMjNS?=
+ =?utf-8?B?ajVydVhwUjVGdW1ZeGU4TjEvaHhRc1AwSkU4bmJUMzhVWm4wbGozSU1LcW8v?=
+ =?utf-8?B?RWl0VU9qRkZ2d1JSVjBKejNKTU45QjRoaHR0RDMwQWpMWkh5MVV6ajQyYm1y?=
+ =?utf-8?B?MkhRQ04xQys0NUtWNTlWeUxMQlBNS0lRNjJLV1JwTFo5QitneDlGNGo5eWY0?=
+ =?utf-8?B?ZFZ5Mzdjay8vT3BReW9GNDFVekVZY0NHaTFYQm1GNDFxT1VmanYrUDJ1aXZE?=
+ =?utf-8?B?WmRYYTkxVmZDelZVbm1WVHljTWR3NFRxczIzWC9KRE85bDlUNkVHdVZjVVla?=
+ =?utf-8?B?Y005UDlVU3A5bCtHamNBSTd5dkRKZDZtVGhXTEZhNzN1VUgwNGU4ZGxhWDB5?=
+ =?utf-8?B?MVg2ZVd1cjRSSUNiWmxYQWFLcS9RVlkzb2tDK2FDcGtoZ1FabWZNSnY5cWZ2?=
+ =?utf-8?B?bDMxa1pOWmJ3WkpIZ0orVGhYS3pzbGt3a1RoOXVIdk14T0RGSEFoNFE1THdQ?=
+ =?utf-8?B?cGFoOFNNeXFZNVJuK3BPM09jdVVTRUZmRzhHc0NiSEpNVGxtUCtGcm9pM2xz?=
+ =?utf-8?Q?FlddQOu9WJuRmeaVeRA1YokQh/XqqHlj?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?Yi9uaGtyd3NDdG5CTk0razRxNTkvSlhQeTZvV05oOVJmMUFzRmNDRWNabEZK?=
+ =?utf-8?B?WE9ENnllQ29vZWNmMURVWVRYdEhOa3Fkbm5uZkJBbkpMaGF4NCtPeEJNRjRH?=
+ =?utf-8?B?dStySERLZUd0d210cmpRR1ZVWUJVS1gyL2pEUmJyRHVuUTVEUWV4ZGZvemFn?=
+ =?utf-8?B?bGY3dnNBQk96d3IvbFU2K2g5QVlRNEJ6Y3B1UkVVRzB5OWVEOHVmcG40bVh4?=
+ =?utf-8?B?QTU2VGxBK2VlVUJMRTI2Y1ltOTlRWnhWem9sQWY0d20xcVR5RGNzS2pGUXpV?=
+ =?utf-8?B?Q1ZsT293amIydk5DQmtVMVpzcVBKbU13ZWg0NksxUitiekxoT3ZPNHV6L3ZM?=
+ =?utf-8?B?VW5hd3kwUHkrby9XYVFqMzJpcjRFUVJtdTM0NVZvWm42ZXdqMkFiUU9vOTlZ?=
+ =?utf-8?B?SGpweGlyQ0ZyQ25IU0xKUXU1YW1JQVdSOFR1OFlkY0ovYUJIZFlqM09zcU8z?=
+ =?utf-8?B?VU9aalloQTZvVXZEdGU5OTlrR3l2NWlONEV0ZWNjN3JQbHU3YTlWTXg4d0ZR?=
+ =?utf-8?B?YmNnNm1iZ2hDNDd1ekRCZEpFdVR3bzRER1FHL0FyeS90a2FxR2l3SG9xS0dN?=
+ =?utf-8?B?MmEyWVQ4RUpsRWUxWnNCQUt3MDJIQW1QU0RrL3RheHMwaUlHY0JRT3RhczBO?=
+ =?utf-8?B?eW9od3VoUlNlV1VNZjkzYkgzUWprQlNjKytpeXdXc3pDQjdrM28yRTQxMURD?=
+ =?utf-8?B?L2VNbVQ0VVBleXdoMmdKamtCQjQ3ekJPb3NQS1RoYmtQTklTNUxOdHhZTmFH?=
+ =?utf-8?B?WWtQSTdQRS95NmRlMWdJTCtjeXBwbVJjVXZGVFZ1TDhKUzRlYXZhOHRsbHlq?=
+ =?utf-8?B?UlFZakdjMllmNE54Z2M5Nkg3YWt3aXBiTEp3b3NsczRqSVI2Z1lhVnhoQUNy?=
+ =?utf-8?B?ZGs4L0xSSXdXNzIrbWY3VnVua0UzbHlIWTVXNWJ3blRWa3NTWkRaL0ZCY3hL?=
+ =?utf-8?B?TmFRR1NpVFk2QmZ6azJLMzg3RTJqZlFkYUc2Qm9LZ1NsNG90YVl2K3VTaE5U?=
+ =?utf-8?B?VloxNGF0WkgrQXBFUnkySTcrTG9rSitRV1BEL3hHMDRUaG9MSUd5bHpSQTJn?=
+ =?utf-8?B?SkFINU54Nk9tTlhpUlB4TlYwSW9PTVZzN1RZQ3RDblV1RVRQRVNwRjUwSEcv?=
+ =?utf-8?B?ZUk5VnlPSllQMXFDbm5VdFVEcWh3bUJXY05Rdjd4cVRMbHkrV1gwdGd3NmNB?=
+ =?utf-8?B?c2ExNjRtR3htRTRkTWgzbFJFRjFpekQvYTFxa2k3aEFPM1BKcDljZDgwb25i?=
+ =?utf-8?B?d2FOOE1yV3ZEMEJ5Q281T2pqSndmUE5rZ0hORzN5QUNRSmgrQkFiQkpVS05T?=
+ =?utf-8?B?c0ozSEZNZ0NRbGVoVnFZZUNMNzdsQk1UazJzeWUzNUhDZU9yMWtDczR2Tm4w?=
+ =?utf-8?B?L0tJckdleENQUTgzSWJ6ZU9RcS9FZGEwanQ0elp1YkJJWHRNZ3dkUC9CUzVr?=
+ =?utf-8?B?NUV2UEhEcW9zeTRIMUpCV1kxbmcxOGVISU1Kd3diYjNOS1lkNWowUnloOTlK?=
+ =?utf-8?B?d3dDNUwxbTdkVDZjOTljMndHUTNUUURLc0l3YnVnTWhUY1lneXFwVVI4NGNY?=
+ =?utf-8?B?b0FTTDdrSENSRWcyQmFnbm5jYWJQNVUyZTJxMEF0N0FhZGZhRkluOG9KRjJG?=
+ =?utf-8?B?cTRYR0txSzY2K2cwZXJFN1pRb1l6UWFBd2N3d1lQK0JheVArR0NlejNxZ0to?=
+ =?utf-8?B?UWlreVg4YWM5OUpsTVhDTFcrSTFjOGZXaSt1WXdYekUrSjhQR3hJaU5jSEgw?=
+ =?utf-8?B?YmE0eDBnZU5RRDNNSkR0d2FrcVlGbkxhY0xIOW5hS1QwSDFaaGJtTkcyOVZ2?=
+ =?utf-8?B?RFFNSmNEN1prUmlVWGl1aHpjdS9nM2EvcEJyd3ZHQjlRMERwMk5qeHd6cXNT?=
+ =?utf-8?B?cGtnYWU2bnFZQ2R5bTVXWlk2bW1RWjVLYURXcE9JWHBZNjYwYzYyQTBqNlNx?=
+ =?utf-8?B?M0RtQ2ROV0xjSmtaWHlGeklxZnpSS1hBOTFWZ1FnU0lTTThxbWhxd0xUL09v?=
+ =?utf-8?B?SW8xR3hxOVBUdUpXeHNIL3BsNHFvNUNhSlVsZGlpMThncmdhaWF6cE9ITEp6?=
+ =?utf-8?B?TmZqdml5TkdwYzAvMUFheGhOc3JoZWNSSnNFRFpzR2tqdEVMZHJUOUlhYWI2?=
+ =?utf-8?Q?Gz7Kljb4WWXjKrct+NI5FkhWP?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f8ab8dcb-592e-41cc-ce80-08de2127f610
+X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Nov 2025 13:41:05.0698
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: sSzUYNwqEPbIDu4ESRf/3/ywjE94EMdIKs4o5DgPHVU3DnuDhMOo+JUbw7Kp2SIIqteLEcNFS1RrLmw+YDRevA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7382
 
-On 11/8/25 5:00 PM, Bobby Eshleman wrote:
-> This patch series refactors the vsock selftest VM infrastructure to
-> improve test run times, improve logging, and prepare for future tests
-> which make heavy usage of these refactored functions and have new
-> requirements such as simultaneous QEMU processes.
+On 11/11/25 4:48 AM, Paolo Abeni wrote:
+> On 11/11/25 11:42 AM, Paolo Abeni wrote:
+>> On 11/7/25 5:15 AM, Daniel Jurgens wrote:
+>>> @@ -7121,6 +7301,15 @@ static int virtnet_probe(struct virtio_device *vdev)
+>>>  	}
+>>>  	vi->guest_offloads_capable = vi->guest_offloads;
+>>>  
+>>> +	/* Initialize flow filters. Not supported is an acceptable and common
+>>> +	 * return code
+>>> +	 */
+>>> +	err = virtnet_ff_init(&vi->ff, vi->vdev);
+>>> +	if (err && err != -EOPNOTSUPP) {
+>>> +		rtnl_unlock();
+>>> +		goto free_unregister_netdev;
+>>
+>> I'm sorry for not noticing the following earlier, but it looks like that
+>> the code could error out on ENOMEM even if the feature is not really
+>> supported,  when `cap_id_list` allocation fails, which in turn looks a
+>> bit bad, as the allocated chunk is not that small (32K if I read
+>> correctly).
+> What about considering even ENOMEM not fatal here?
 > 
-> These patches were broken off from this prior series:
-> https://lore.kernel.org/all/20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com/
+> /P
 > 
-> To: Stefano Garzarella <sgarzare@redhat.com>
-> To: Shuah Khan <shuah@kernel.org>
-> Cc: virtualization@lists.linux.dev
-> Cc: netdev@vger.kernel.org
-> Cc: linux-kselftest@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: Simon Horman <horms@kernel.org>
-> 
-> Changes in v4:
-> - fix messed up rebase (wrt check_result() and shared_vm_test() patches)
-> - more consistent variable quotes style
-> - use associative array for pidfiles, remove after terminate
-> - Link to v3: https://lore.kernel.org/r/20251106-vsock-selftests-fixes-and-improvements-v3-0-519372e8a07b@meta.com
-> 
-> Changes in v3:
-> - see per-patch changes
-> - Link to v2: https://lore.kernel.org/all/20251104-vsock-selftests-fixes-and-improvements-v2-0-ca2070fd1601@meta.com
-> 
-> Changes in v2:
-> - remove "Fixes" for some patches because they do not fix bugs in
->   kselftest runs (some fix bugs only when using bash args that kselftest
->   does not use or otherwise prepare functions for new usage)
-> - broke out one fixes patch for "net"
-> - per-patch changes
-> - add patch for shellcheck declaration to disable false positives
-> - Link to v1: https://lore.kernel.org/r/20251022-vsock-selftests-fixes-and-improvements-v1-0-edeb179d6463@meta.com
 
-Series LGTM, but let's wait a little bit more for explicit ack from Stefano.
-
-Thanks,
-
-Paolo
-
+If we're just excluding the most likely errors I'd rather switch it back
+to void.
