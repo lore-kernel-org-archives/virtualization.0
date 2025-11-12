@@ -1,137 +1,79 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A684A30DD0C
-	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 11:29:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762946966; cv=none; b=rIMboJoEUpxl4AklPQ5Rdm0JyET+iOmvaO8XE9oyU/7Uarg1R1Blu0f4TiOJkxHe2UCtRjcSvMedXVtqDSylxgdjqb7UQS3YsMokphush38shA8lAGcqLpRpmV7+lIza+3KT2nx/scpQgwIlrQAR8YuJQCEaj/Lie5EUwyoTQVg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762946966; c=relaxed/simple;
-	bh=yRKl92YIodipSDJpj5FM6SuTiPvUzBXwPijlqgd2Fgo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=I1Ea0XDOxvEp1QA2hxXQqjFLCWMPUHXTUHtdoEVMYleLR43lPQkTAdaKsMV4pRLJD5HETL8HSKlk4WeB1/TyXURUSpXGD1MHRz+JkgiwdBhbXGdoUlECPpXN8nNsY7fo8etHDJNDXwKoaNwCn0yJgV5NBaPVxwr0M3hC0qFJqys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E+Shx7zG; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 450FE31B10B
+	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 12:14:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762949676; cv=pass; b=mv0Nd3jd5/rsRSu5ijKReCRA24L+ZYmpzIspcuYTHNCmOhXKbqYxAuFND5BhhTUuFRmxk2ZNDuby4Nx5zc3xTH2/WEDDrnODGgR49sVAZ8sFvg7/No1yTYsrWOcE75XIJHhNIGyy6VX+ezOsdNw4IDyLu1lDEfRA2LLLt64VXvA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762949676; c=relaxed/simple;
+	bh=3ZEPn6uNg0r0DPR0L5r0sNLOzUAIwJp0GJubMAxZRTo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=caIkE15qbIujWsTZwqDjf+uH30xS2vYzHfD0meYVbpqSo5XpSVRDqssu81edYq4ENhG+XJksQyQz+iRRz2YoxFarsZrCnXemXXPw+UtXBRe5G14wwBVj+6uHf32bWR9Jvz6n0IPBROLjEXTE6nCxWxHkxAJOuexWKaEyBggwJQE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=SRs5tryj; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E+Shx7zG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762946963;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=g+0n/gIH659cLeiKRT95CYm5fjgEisAw12N4OwZEDpM=;
-	b=E+Shx7zGAPuYNBp79hZ4/INdDaBul3/kkjaRWFim/zfRJWM9wiH2E8yBFeicVJqsAXbFzH
-	jGG3Rvz9gKMyKxjV6wHx7kDK2510IqT3G7fJIxZOGmIu3Z0mMKboGrKIxqTkleaTnRhRDe
-	U+Rs0H4JDMfw33KHx8RJ9KVztqdAXBs=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-437-yTKpiQmsPZ-dAqfLvefGTg-1; Wed, 12 Nov 2025 06:29:22 -0500
-X-MC-Unique: yTKpiQmsPZ-dAqfLvefGTg-1
-X-Mimecast-MFC-AGG-ID: yTKpiQmsPZ-dAqfLvefGTg_1762946961
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-8b25c61abe2so382213385a.1
-        for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 03:29:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762946961; x=1763551761;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=g+0n/gIH659cLeiKRT95CYm5fjgEisAw12N4OwZEDpM=;
-        b=bqD/KDCRegaVbPdP6HB3CNqX5Dqqr0LVD9j1m3tEHqlcxLv0wS8FWKPoDewdgMcyEw
-         eMpCvC69NVIAJDJ73DR7NIp1qILvjiExTT4vjyqGgEzKqoKh9iZY21zSxyjsbiNhgu5E
-         RD1icDq5tOusT4USM2KjfHIXBdzdVR8pCHuR8KW7zsvM5EzIwv0phK6b+s/LIFBrgEUT
-         oJ78fg+0xlwkt/VBOxBnNLhsWd/ZMormBP5QNLIdOekB/eRHHjyk/c6vPWPChaYAKKmU
-         q0NQSAlmCIqzrsDnupfEG4pmyY7ndPKKVJTm3u8jQv18ra3vcFCx37JfDdkrIWKiXvLy
-         mNog==
-X-Forwarded-Encrypted: i=1; AJvYcCUU0JVF+QfxX1eqQB57JjZee6maws0MmXkl0dR9rLjNH4UXDi7mAnn5eX5VNLi/mUi3xWCPHEvurhtmrwnZTQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzWO/mbszIi8uAP9mHznLKUYKtEdpZMGb+5ryOHCcAK013Cfp6K
-	lT3sWS+rAROGTBWddnfoVAzvf6xX0/hsZTCLc1+JdxyIwomRc2b1MX6DYeWdtnIgmYjX1mYDeUG
-	BgdhRuNypqlVaMJzpjYyYU+CwJOZRwehOAWRGhmN0Ly5AEyzoj+kvnLlxpIQG0FZ0oXGQCBRzJ8
-	Os
-X-Gm-Gg: ASbGncuY5lnDr9VRJgKlU0NSbr5vOlMpjcMHcVN2g7X48M5GJQzaerLTkwjT+xRptQK
-	DHDIyr5QqZ0Yex82HxEeGQYmQmcYJ+sF9Tk32A0IzDQoXn8Y5pGv2uqdtqt18nhj3OiqRsAYOSg
-	eYAuJq7Tes22o1X1fwpaBxmEhxfgMOMJgB0Z3eTQlLmhnwgeNkhynyl0BLa/Fi+Yy4/UBjwkxMZ
-	wpeqKAeTYW6xJA3Z8RVdZZvqnpP/ckcL7gGgtL59VEXJWjZqT6mhWch05S6pRizBnvP0ja+O+67
-	+t2uyDzUEpHhFT6QN70gQe1BkgdJETAvXZt3uo9/eUjplPGeig9EAfj+kAqNk2pg2nFv/jwtYXG
-	3dIK1nKMJpf0u1eHc3no3f5MIbyi4gw452XmpUo8+4yVJxJktC8w=
-X-Received: by 2002:a05:620a:288d:b0:854:b9a1:b478 with SMTP id af79cd13be357-8b29b764a91mr352965885a.18.1762946960688;
-        Wed, 12 Nov 2025 03:29:20 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHUJFxOJbDQYyH5iAisGFENmrwrjD8S/tLmssJoauTGvGRsQ2OlHPKZyUfeC9cCLoY0kaU2QQ==
-X-Received: by 2002:a05:620a:288d:b0:854:b9a1:b478 with SMTP id af79cd13be357-8b29b764a91mr352963785a.18.1762946960297;
-        Wed, 12 Nov 2025 03:29:20 -0800 (PST)
-Received: from sgarzare-redhat (host-79-46-200-153.retail.telecomitalia.it. [79.46.200.153])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8b29a9e7059sm172313385a.38.2025.11.12.03.29.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Nov 2025 03:29:19 -0800 (PST)
-Date: Wed, 12 Nov 2025 12:29:12 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: Bobby Eshleman <bobbyeshleman@gmail.com>, 
-	Shuah Khan <shuah@kernel.org>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Horman <horms@kernel.org>, 
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v4 00/12] selftests/vsock: refactor and improve
- vmtest infrastructure
-Message-ID: <3htkg6jotej6ev35jyc7edo6jtoo6tm7ciivnzvd7rd4my4nsp@47nbily4raoi>
-References: <20251108-vsock-selftests-fixes-and-improvements-v4-0-d5e8d6c87289@meta.com>
- <d19c7bea-9b4d-4f00-a6bc-35247011e788@redhat.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="SRs5tryj"
+ARC-Seal: i=1; a=rsa-sha256; t=1762949666; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=Tq41fjFTE3/OKHQwL7fEBdcp85ytUO1rZb9J9zC19p5oD41+fTOzFcII58A4LjcN1GByptyv58IGJRmAFpk1L6FFz6xe9xJlKp+fLWsL7rStjlwto7FGezaIeSSWaqut8WgdU+dtDQKOxh11+Sb5q2/Q/ugY8UCkRmO+CfVtT1Y=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1762949666; h=Content-Type:Content-Transfer-Encoding:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To:Cc; 
+	bh=nmNu0BqiQLMXek9pjsJjeBE69VJ7PBIoc9imrwDBnVg=; 
+	b=YOpuWJFMlrkISfgVrifEWm+2MnwoMq4GSzBK2a0Whe1nZe4nzAG4E9pLfnH8ETGq71kHTCRaLrXZrAbEnl7ZHE0zliQ0qVP2WL80KEglRHm4WxfAB/6KO11pza12VbnnIntm6vrL0Fd5q55PwWUlEoefPd04Jhc8OTQWdrkeEHg=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1762949666;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To:Cc;
+	bh=nmNu0BqiQLMXek9pjsJjeBE69VJ7PBIoc9imrwDBnVg=;
+	b=SRs5tryjPucGQ9+xDnpxckIRb8Irfyf6zeo6F2nS3USjvphhDEKpJkbh1VuzX0Aq
+	S8kc9BVBIQYUf2nyhYT6gh85Pt/kC8IvzOpngAwdR6pW1e4I0GGWdbbvq1sfK2thICB
+	Kk+6YZSm1S6CAwB6FgY4zyuWu9S2/qpZuEmL2rQE=
+Received: by mx.zohomail.com with SMTPS id 1762949664552644.4534275519923;
+	Wed, 12 Nov 2025 04:14:24 -0800 (PST)
+Message-ID: <855ebbf1-0b02-45b5-8fa9-b50c05793e19@collabora.com>
+Date: Wed, 12 Nov 2025 15:14:16 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <d19c7bea-9b4d-4f00-a6bc-35247011e788@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: HIuOAQo_QaTNCFxF_2xp7ywFq-CYnTGKDw-Ik5kjPhQ_1762946961
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] drm/virtio: support VIRTIO_GPU_F_BLOB_ALIGNMENT
+To: Sergio Lopez <slp@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20251110125213.12633-1-slp@redhat.com>
+ <20251110125213.12633-2-slp@redhat.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20251110125213.12633-2-slp@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On Tue, Nov 11, 2025 at 01:33:11PM +0100, Paolo Abeni wrote:
->On 11/8/25 5:00 PM, Bobby Eshleman wrote:
->> This patch series refactors the vsock selftest VM infrastructure to
->> improve test run times, improve logging, and prepare for future tests
->> which make heavy usage of these refactored functions and have new
->> requirements such as simultaneous QEMU processes.
->>
->> These patches were broken off from this prior series:
->> https://lore.kernel.org/all/20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com/
->>
->> To: Stefano Garzarella <sgarzare@redhat.com>
->> To: Shuah Khan <shuah@kernel.org>
->> Cc: virtualization@lists.linux.dev
->> Cc: netdev@vger.kernel.org
->> Cc: linux-kselftest@vger.kernel.org
->> Cc: linux-kernel@vger.kernel.org
->> Cc: Simon Horman <horms@kernel.org>
->>
->> Changes in v4:
->> - fix messed up rebase (wrt check_result() and shared_vm_test() patches)
->> - more consistent variable quotes style
->> - use associative array for pidfiles, remove after terminate
->> - Link to v3: https://lore.kernel.org/r/20251106-vsock-selftests-fixes-and-improvements-v3-0-519372e8a07b@meta.com
->>
->> Changes in v3:
->> - see per-patch changes
->> - Link to v2: https://lore.kernel.org/all/20251104-vsock-selftests-fixes-and-improvements-v2-0-ca2070fd1601@meta.com
->>
->> Changes in v2:
->> - remove "Fixes" for some patches because they do not fix bugs in
->>   kselftest runs (some fix bugs only when using bash args that kselftest
->>   does not use or otherwise prepare functions for new usage)
->> - broke out one fixes patch for "net"
->> - per-patch changes
->> - add patch for shellcheck declaration to disable false positives
->> - Link to v1: https://lore.kernel.org/r/20251022-vsock-selftests-fixes-and-improvements-v1-0-edeb179d6463@meta.com
->
->Series LGTM, but let's wait a little bit more for explicit ack from Stefano.
+On 11/10/25 15:52, Sergio Lopez wrote:
+> +	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_BLOB_ALIGNMENT)) {
+> +		vgdev->has_blob_alignment = true;
+> +		virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
+> +				blob_alignment, &blob_alignment);
+> +		vgdev->blob_alignment = blob_alignment;
 
-Sorry for the delay, yep it LGTM too and I should replied with my R-b to 
-all patches. In any case, it can go IMO.
+Shouldn't blob_alignment be max(guest_alignment, host_alignment)?
 
-Thanks,
-Stefano
-
+-- 
+Best regards,
+Dmitry
