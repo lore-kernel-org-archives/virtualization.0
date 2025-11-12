@@ -1,170 +1,123 @@
-Received: from mail-yx1-f41.google.com (mail-yx1-f41.google.com [74.125.224.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F757352FA9
-	for <virtualization@lists.linux.dev>; Tue, 11 Nov 2025 21:01:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 874AE14A4F9
+	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 01:00:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762894917; cv=none; b=pF2HKMWzeYtf4zfGbof6ZhmPnQqWX7t0CRiIu1z570U/kENdM818s3bz3jweGlvIRCT4+qmQkynavDCmxFoYS/RxC14G+tCuvS7IV9XItKb7NZwFDA8hZP3E8/bWk2J0OCOuf7FXZnqaFntTLwYpomxIy8ebq1UGu7wxogJer4g=
+	t=1762909240; cv=none; b=HZ+TDX+6+0iDXRmxGo4ywpjdzSVxWMj89uaHN5pMYA/KnSyZQjT4hhbxBkNnf0BxwYjlRxnN+yeuYLxW2ZtSPxtHBsjA/vTg2DEwefqA9OHAF0sHC1a2jqGMjEm4/nR0I81/kaN0ifccJEeVSQDqyr7aTma8OtxEpMMpSVTjgmU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762894917; c=relaxed/simple;
-	bh=m2/ll1uTQe3vdYyhgsBOhN/isiT4ncOezX9iuBFvWf0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NtGLQmwTGy9lcbBtk4lgKhGYjDY5Y8p4ysW+x84nGV0x18o0uoyqob5jWZZb2/wIQv50ouqznwGuJlL0egIbrBMAIRRrl9z1AZL4YhBvQ39qmnJ2L7Dv94qNcPYogWhT69YVN/cl7xHXXCVBR7+v41YSjBdKsYOWaIc5KI63mbo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dymszY/6; arc=none smtp.client-ip=74.125.224.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1762909240; c=relaxed/simple;
+	bh=zzKo2mj/+4vtvIo5VcfAPqVBZTJajVhadduku3w/Us4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=e2CfD30AlvAewZDM5W++uRu76iSAQQIfqmCr6M8uoqV6UX0MyKsw5LdYi8O5XJU/l3KEzO72XYNdEeJVRbsqTZDbNBSXxcM8wSb71vaxZUAeaZn/Rwhi/FzipDxrDIp8OmsfUrErcaYoQwas7ymvyBEZ8BuiRkTKfXxhPpte8z4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hi8RwPRl; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dymszY/6"
-Received: by mail-yx1-f41.google.com with SMTP id 956f58d0204a3-640f88b873bso157791d50.3
-        for <virtualization@lists.linux.dev>; Tue, 11 Nov 2025 13:01:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762894911; x=1763499711; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=bDPq8KvClJvWwDQMfmOhMgSMTNNkWL2W9UB4UAss5Bg=;
-        b=dymszY/6GnYMoZQICc9oUnA6HBBwTrtD1IMSgOVDNWNXtcj6d6HEjXycmWq+zTjYXh
-         vMAIpwGRadlGzuot19J6mGWQk3Qzz3Hx8PRGg2JbeaMuJLVa+R5YrB12eZIwLr4CMVz7
-         x1dssF0gCbhppSyjMmsZJg1IGlCNgPEf/Xrv/e5gA7NPtLk87v3lY4EzJ8AeGYEgDYRs
-         agZ250k1b+F9EXBAWbY61Qa1gjsSlYuHg1WpqGB9CNMQuTJxkQhQwowkCI1I8qC+xZ3t
-         JF+zTXuLZOUKsERlw74CJGr5K4m2hDroWjIJ/kVXnTJRvzXYKyEEqTcQ/uS2g2WqWkJw
-         owIg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hi8RwPRl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1762909237;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=dFVrOXbCFRxnp2issGLmDi5PFJkGnCTM0Na+vvGf2k8=;
+	b=hi8RwPRlPPhMgui1g6pB8rU9ZV74BNh4oK6bl/e+dicZmRlaippmRZEBwQH4yJ64BUGwqg
+	UyMuF83fR6CTW6AsYxXYHws2BpBaOJ50A3dwKDHth+VB4TZnuKFjmeIor/YXy/FHCG3EwY
+	1eGPp6t4a3tq1YBFOA/+fjj5Ts2SoII=
+Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com
+ [209.85.217.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-131-SvJwf-aWO6GtKRmNNVEUgg-1; Tue, 11 Nov 2025 20:00:35 -0500
+X-MC-Unique: SvJwf-aWO6GtKRmNNVEUgg-1
+X-Mimecast-MFC-AGG-ID: SvJwf-aWO6GtKRmNNVEUgg_1762909235
+Received: by mail-vs1-f70.google.com with SMTP id ada2fe7eead31-5dbcb1740daso173162137.2
+        for <virtualization@lists.linux.dev>; Tue, 11 Nov 2025 17:00:35 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762894911; x=1763499711;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bDPq8KvClJvWwDQMfmOhMgSMTNNkWL2W9UB4UAss5Bg=;
-        b=WDhTReehgaOiTT8RPS1xJh8gURwPsTvoGw25BFPOl0anEl5+mE+ofg32XVYUo+7iC4
-         3toXN5h2hlmzVOXD9hXtkFw58+7F/MwUCIhf6lWu3GLxiZh8bTo7/EijbQ9rrLU6/sVm
-         yqcsvwD5crYzFkr3Ktct2iMxYi4S3m4MFIM/0PvUR9DgaDVNNNlexi/loEEwf84K5bYY
-         TJEpbRn08QX7h8u6uOC+ifMDpcyI/N9VDFWzNgPzjTXNYj1kucYgAczgerAaqsOyeexK
-         sDkiGD3csPbeZsc6FvxlrJrCZl7dZGlI6TWCln7sABiG/G1AHPG1qJ8CEfAg7nkeZFPD
-         u7Eg==
-X-Forwarded-Encrypted: i=1; AJvYcCVivjxLnnCNI+e0LkuwyYWTl+xk7D1Rrvrl0cnNpEkPbrhEeAvNRIpvyPqrxnvCefkNDAq4w0srMVBZdin9JQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yylgp2VYZobtuMUmMYOuXQdrWXRbPMcLk9F+xL4ai4kJirbVZjn
-	LAU9yIwxQld//E5FFhdFRM//Fn1RgKooP1z6DwczsTF425ejgQOiswqg
-X-Gm-Gg: ASbGncsjok3jBWT8/xdpDqO/JvtGgmS0TdVt38bDOijDbOcREGODfMA65O0o4STt9Ge
-	8IwOLQ/fGYggD90GpATFl9Co0bQQqky7SEhlbQus7D+4+qPAfabuG8GSMMPuJ1omWjSblX8/XRB
-	NSFhr7fwy1os6/+DHmCMiPwR853F5bqilzG5yWZgiapYYbkOzN1k8PwzluOf14TCMs1Sqsf8dZG
-	RgB7qmIshbsxFB5HtNulUcQGa7liVJuXeYvQ5eRuZT5TAONKcN9jYho1qK+WKuRP3Kdlnqb4PXM
-	i4f95Ef3AZ3xj0gNs1N0BeaMal7IIMAFbINZO6a0TyXIyY+hXZgx76K6j9mKw3jmLJQGWeiSbaW
-	jRwqm3qtw/4n1cwKHtwKyEzgT91y3Pn2gqTflSloj4UTLy3/Q+wQqdzhM5fKE1uG7rL77u3CPuF
-	rgt0bj2PYttV11VmA27C+Fupq0GSybPpTQmrDw0MDJdhP27A==
-X-Google-Smtp-Source: AGHT+IG5pLwkGsZ+eCK296l8q5rg85wfM1wAQ8NbbJwGyjxk6/mldP/Q7Z6BLYOivEyqJVyS1VY/EA==
-X-Received: by 2002:a53:c048:0:20b0:63f:a165:b9ed with SMTP id 956f58d0204a3-64101a0ab45mr674439d50.6.1762894911625;
-        Tue, 11 Nov 2025 13:01:51 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:d::])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-787d684218dsm36167807b3.21.2025.11.11.13.01.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Nov 2025 13:01:49 -0800 (PST)
-Date: Tue, 11 Nov 2025 13:01:48 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Simon Horman <horms@kernel.org>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v3 07/11] selftests/vsock: add check_result()
- for pass/fail counting
-Message-ID: <aROkPIIeGq3Tb0I6@devvm11784.nha0.facebook.com>
-References: <20251106-vsock-selftests-fixes-and-improvements-v3-0-519372e8a07b@meta.com>
- <20251106-vsock-selftests-fixes-and-improvements-v3-7-519372e8a07b@meta.com>
- <aRMjeZVqsnc1BNr-@horms.kernel.org>
+        d=1e100.net; s=20230601; t=1762909235; x=1763514035;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=dFVrOXbCFRxnp2issGLmDi5PFJkGnCTM0Na+vvGf2k8=;
+        b=fG5r3QckIlr3VI1jNfCBt/4HEYB2VLkMmqwPpsEuvMXxgwpc0eCObswHX6qoChpN2F
+         pkJ26cFy2TpBTv2PA+t3jIM28sU8W44qhLZIS/Jnam8U2AXs1mPGagTnUpihR4KZf4oW
+         g2dbKOGsRPBDXvi7YNl6db9d4MfmJlL8uFyUWR11kgL7ni9/gjHjml5cRqw47NG2VIVv
+         D4wZPCo2A+OtoziMKG0Gqmg3+xuo/L+8be9mEmCjq49s2J5CoEO7ReBC4KH6FjOjoEy+
+         IpJn1JZSJJlA/p38SToPn8nMJ1VuN3oS/lYmVSLDK0jWDTkQyCy8tFi7ndDrBuN2Rtsp
+         eRiw==
+X-Forwarded-Encrypted: i=1; AJvYcCWefEhKL2elozqmL8t5aJnkX0GCCRCDyOALWom7Xzn70cgnCFB4/xqukarE2msozM2yglu82IIvIo6FsX930A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxEENVsDmwAayukmDH5Kbf5EzxVnn0zvDY0ttBQaL2KESx49PBD
+	ur9JxjXvMBSb5fhBQc04oCiyUTx/Q0EBMJwPKxIQenD7yw+ufLULbMzQDvpZN9je73dQ5olcPVp
+	HHeUJ8CqgxgoeNMB5tahfs7QEalk+r05ZzwI7pYpse7e/coI7d2CwwahcQ5UxP0hsXt+GwEef9k
+	VW8Z7QWqH3Qdi6uINgrA6yFIJSdRBdLZVFF+e29+SP05g=
+X-Gm-Gg: ASbGnctSkORc6cPyMC4Wrekb5TIlEUA0R5CYqFEp9IITv81mj+i02tVOg+/gs+dv05H
+	rPLsQVzgQvK3lBW+tMCHjOvsToedGfyX1JMAyELdgHcCY//gLpouPEuq85bAayVL3dAJB/lxn3J
+	c5jSJGJPI8jrM8AirCXZ1qreoTJ8R7Ft059pfyFK7rqTgxvtu6pngoVHEE
+X-Received: by 2002:a05:6102:c04:b0:521:b9f2:a5ca with SMTP id ada2fe7eead31-5de07d583b4mr283752137.13.1762909235016;
+        Tue, 11 Nov 2025 17:00:35 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFgpt/cD5eXz8XccmQv5+UwYlAdDSB6UzWuxssggO0EBznFSIg1YG1onbagrA6UIT13LrlniFagHoveoNvzrs4=
+X-Received: by 2002:a05:6102:c04:b0:521:b9f2:a5ca with SMTP id
+ ada2fe7eead31-5de07d583b4mr283733137.13.1762909234629; Tue, 11 Nov 2025
+ 17:00:34 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aRMjeZVqsnc1BNr-@horms.kernel.org>
+References: <20251107041523.1928-1-danielj@nvidia.com> <20251107041523.1928-6-danielj@nvidia.com>
+ <ee527a09-6e6e-4184-8a0c-46aacb11302f@redhat.com>
+In-Reply-To: <ee527a09-6e6e-4184-8a0c-46aacb11302f@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 12 Nov 2025 09:00:22 +0800
+X-Gm-Features: AWmQ_bkX9lyiKTIQGwwCGxeG6NPaCiYy1VfK14nH1UflcpzDspDFS3ytGYyGxbs
+Message-ID: <CACGkMEt2SEWY-hUKv2=PwLZr+NNGSobr4i-XQ_qDtGk+tNw8Gw@mail.gmail.com>
+Subject: Re: [PATCH net-next v9 05/12] virtio_net: Query and set flow filter caps
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org, mst@redhat.com, 
+	virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com, 
+	yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	shameerali.kolothum.thodi@huawei.com, jgg@ziepe.ca, kevin.tian@intel.com, 
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: QjXU-5PnsxDjTfsZaoFbAXUD8ijw1l986VaJr7X_W4I_1762909235
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 11, 2025 at 11:52:25AM +0000, Simon Horman wrote:
-> On Thu, Nov 06, 2025 at 04:49:51PM -0800, Bobby Eshleman wrote:
-> > From: Bobby Eshleman <bobbyeshleman@meta.com>
-> > 
-> > Add check_result() function to reuse logic for incrementing the
-> > pass/fail counters. This function will get used by different callers as
-> > we add different types of tests in future patches (namely, namespace and
-> > non-namespace tests will be called at different places, and re-use this
-> > function).
-> > 
-> > Reviewed-by: Simon Horman <horms@kernel.org>
-> > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
-> > ---
-> > Changes in v3:
-> > - increment cnt_total directly (no intermediary var) (Stefano)
-> > - pass arg to check_result() from caller, dont incidentally rely on
-> >   global (Stefano)
-> > - use new create_pidfile() introduce in v3 of earlier patch
-> > - continue with more disciplined variable quoting style
-> > ---
-> >  tools/testing/selftests/vsock/vmtest.sh | 95 +++++++++++++++++++++++++--------
-> >  1 file changed, 72 insertions(+), 23 deletions(-)
-> > 
-> > diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-> > index 557f9a99a306..05cf370a3db4 100755
-> > --- a/tools/testing/selftests/vsock/vmtest.sh
-> > +++ b/tools/testing/selftests/vsock/vmtest.sh
-> > @@ -46,6 +46,8 @@ readonly TEST_DESCS=(
-> >  	"Run vsock_test using the loopback transport in the VM."
-> >  )
-> >  
-> > +readonly USE_SHARED_VM=(vm_server_host_client vm_client_host_server vm_loopback)
-> > +
-> >  VERBOSE=0
-> >  
-> >  usage() {
-> > @@ -79,6 +81,28 @@ die() {
-> >  	exit "${KSFT_FAIL}"
-> >  }
-> >  
-> > +check_result() {
-> > +	local rc arg
-> > +
-> > +	rc=$1
-> > +	arg=$2
-> > +
-> > +	cnt_total=$(( cnt_total + 1 ))
-> > +
-> > +	if [[ ${rc} -eq $KSFT_PASS ]]; then
-> > +		cnt_pass=$(( cnt_pass + 1 ))
-> > +		echo "ok ${num} ${arg}"
-> > +	elif [[ ${rc} -eq $KSFT_SKIP ]]; then
-> > +		cnt_skip=$(( cnt_skip + 1 ))
-> > +		echo "ok ${num} ${arg} # SKIP"
-> > +	elif [[ ${rc} -eq $KSFT_FAIL ]]; then
-> > +		cnt_fail=$(( cnt_fail + 1 ))
-> > +		echo "not ok ${num} ${arg} # exit=$rc"
-> 
-> Hi Bobby,
-> 
-> Should num be cnt_total above?
-> 
-> > +	fi
-> > +
-> > +	cnt_total=$(( cnt_total + 1 ))
-> 
-> It seems that cnt_total is being incremented twice.
-> Once seems like it ought to be enough.
-> 
+On Tue, Nov 11, 2025 at 6:42=E2=80=AFPM Paolo Abeni <pabeni@redhat.com> wro=
+te:
+>
+> On 11/7/25 5:15 AM, Daniel Jurgens wrote:
+> > @@ -7121,6 +7301,15 @@ static int virtnet_probe(struct virtio_device *v=
+dev)
+> >       }
+> >       vi->guest_offloads_capable =3D vi->guest_offloads;
+> >
+> > +     /* Initialize flow filters. Not supported is an acceptable and co=
+mmon
+> > +      * return code
+> > +      */
+> > +     err =3D virtnet_ff_init(&vi->ff, vi->vdev);
+> > +     if (err && err !=3D -EOPNOTSUPP) {
+> > +             rtnl_unlock();
+> > +             goto free_unregister_netdev;
+>
+> I'm sorry for not noticing the following earlier, but it looks like that
+> the code could error out on ENOMEM even if the feature is not really
+> supported,  when `cap_id_list` allocation fails, which in turn looks a
+> bit bad, as the allocated chunk is not that small (32K if I read
+> correctly).
+>
+> @Jason, @Micheal: WDYT?
 
-Indeed. FWIW, this was fixed in the newest (v4). I messed up a rebase,
-and my eye didn't catch it before sending out.
+I agree. I think virtnet_ff_init() should be only called when the
+feature is negotiated.
 
-> > +}
-> > +
-> >  vm_ssh() {
-> >  	ssh -q -o UserKnownHostsFile=/dev/null -p ${SSH_HOST_PORT} localhost "$@"
-> >  	return $?
-> 
-> I'll confess that I didn't notice these myself, but
-> Claude Code with https://github.com/masoncl/review-prompts/ did.
+Thanks
 
-Thanks for the note, I'll give it a try. I'm trying to build out my
-pre-send workflow atm, and this looks pretty useful.
+>
+> /P
+>
 
-Best,
-Bobby
