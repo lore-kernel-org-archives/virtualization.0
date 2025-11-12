@@ -1,309 +1,296 @@
-Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011052.outbound.protection.outlook.com [40.93.194.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E73BA34CFC7
-	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 18:36:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762972616; cv=none; b=m1zwZ57hH8b9rpnSvyX5I135aYXdxpqKFgYdQBafl8EjO6oLU8p4rAL0cu4HQ/kS7bKPgXO74jB3kzJI9So3t5Os5wn7eMpbRb+JtEjXDSwMT5s+q0D8CtJmRsQ0XFZzbIs2EsjbsNNv2NS4yGmL586G8n11kN00MoPSsi6R7gM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762972616; c=relaxed/simple;
-	bh=anYiTffJ9m/afti4TSeL27H7ZE//GYBvoRxBP0Aj56M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nGp72svQm/XUg3Afk9cO4vGT1YXCCu176Ke/JlczATuWrCp8pRO7m3RqhWD/Qg3bHYX5NZdl/TdClETRyYwWDHxs9nIa+7pTuecS2R1VCSH3+dVyI7SW4yJY74L21pk1+aTrUEcyr8MU+IcOuyD1FsIr1kwut8diW4Ebb1mF4Tc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MfW10PeN; arc=none smtp.client-ip=74.125.224.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D952E1C695
+	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 19:32:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762975929; cv=fail; b=S5oiK2RO4S0ZqISrosWMo/bJkGELEfKGPqMcaH/IZ1NQSKfDZh0KCL3aVo6zaKC9+ZLTL8JcCWiRuJZ2Xi07nDReVkIpDhnlo6isrZ6+5drCaN9qxHz+2B+xfFZU8prhzWQIBQbelzbYNFK3fcw7u+6qhZd2T8a6J+7M+PaMpbM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762975929; c=relaxed/simple;
+	bh=MgVUKTzuso+Brt3Sxva5PLB+MZHms6ATaAhpk7eE900=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gxGqV1E9XyLU1iyO043GdAroq81XiltKsH3+x99nouP8DaKwLJrkyY0fSPRIPZucYp84biMtnP6+bUJxHAm9gAkUdjGzqPlUJUnXrZ3YAfBzKfuxI+AsTIq2VBLkvEKhbYwLtplf6MSR0q3itLuADR+vqBXyIbEs5Ecrs0g3Ziw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=b5Dem9Ze; arc=fail smtp.client-ip=40.93.194.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MfW10PeN"
-Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-63fbed0f71aso1060466d50.0
-        for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 10:36:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762972613; x=1763577413; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZKQWigIGEVi0kLFXu6j/x0JtjaxFQvF5YS6wzVMmD9E=;
-        b=MfW10PeN4Sraxad0ipBDifiLY8jvtWHwkugG7c5UEUflgSE/mB4n+CL4cC/qV7Ggv3
-         p1Aejv1Qm/caElc4++6n+VeF6kgMe9JYhIb74YHcY9Eafs0Y0XA9vHgjtvk7KUADVrcs
-         vQJoPomX5XlX7yn2cBhnjfc7fBDb27TY98quLhIocZicqr8QHTJ05JA+AnRyrY2PS9pK
-         P5X27RsOB+/9XJo87D8e7se3XLfmJrHnOeXMvzB3f8tUJM8bdoQWJLBeA1O9mpjEd40r
-         BGm210UJxsKtJD9yZLatKUMUAtjhZ8/iF2nT0K59Fswus8y24RSeB6clAtxXlwr2xbzY
-         PZ/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762972613; x=1763577413;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZKQWigIGEVi0kLFXu6j/x0JtjaxFQvF5YS6wzVMmD9E=;
-        b=UNPA3XZMuQ2Kkw24FxDaXDbmKH/O5yOwIC31D58k+4kEYIPEj44R093Gtp8osV0wHz
-         qphWzL1VTPd+zXOAt3yYGr41JE3hcY6qSQQiXX2KC90cN8VkjVJrtCa5fDZWedHVoBUd
-         1B6lPDIeorgyC400mb2WIUzhrtyu/Ur+orlFQap4uBQPntgxnV5bPvaYaoYNa1t/zvuI
-         KElJZRvrgJqVfYc2KfvRXfvLamPyPebtsTuGdoAIZpF/ZSCQzNpDqTZOJzVtJhtWQQAt
-         4h+sUby40MTN/dPP5ePjHUTbIDoOu7w9Rxy6+0wCxvyZACaRTeVcGF9f6YJ2dQkSpBib
-         uASw==
-X-Forwarded-Encrypted: i=1; AJvYcCXfJ7VYbLnux+shHgoUSOWwo0/MU67RAiOglh6DLrg7iYUdXx2neofkv0mT4M+gfrYmaOZMT+tzsznkgGI5Lg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwoEIzeYbHxE8cPZboWtZLfIabmxyzMXqaiDfW9efOg81Ai/wNL
-	/u6vnEzKHrMqWhcgdXK30JNHsrfI8RW5JH/Yt7cfq37OX0sLdjMiIhgD
-X-Gm-Gg: ASbGncug2TRNnF83dLPbFvb/80mbyZC0pI02nUFXo5GGg51K6Upbobdj2U21ZwvrQ9F
-	oYl09HJlLTHcwr6AgzNUXU2R4XBkMjHPOBmvsZsSiBTfVbHsws3UFBNNce65/NwOsJwLSueY5lG
-	RCTqBC52T//Uo/L0LtJyrLJ8Yfp1ttJjIhf6OuILmG1mWfYDsWrzl/ScJuCAT7dabCa9vSxZjEz
-	4arxeep1UJy2EE+2POhxO6MzVR+ibAHp1Ukxa3DMkcMu4bkyJ03bkt7X3oleWxVQvazXN1w7Hs3
-	cgqOE9rC5lbAMQ5yyT0y8M/aWkSl/cR60jqdpSOQ/8rWZ3TEAVW7dSjqJksFcBeq+C7acIZ+6OD
-	R0hVOme06X7uEwH4i1B7FmqZ+jMA8UlWXj59NXM/KM0OHoiwyfW2nGo3ccopsPdpFBw8sgNGVJK
-	Y/UZofbhiLIv1uTVcGpWHJxJc6PBlXAtv1QW1PJMSAZISyjpo=
-X-Google-Smtp-Source: AGHT+IEjgyAE0Hs+bT3W8DaSfFbFucKGUg6EhDw/PlXyHWRqH89/fss68vyII/g3bMSTQTHDXA7oUA==
-X-Received: by 2002:a05:690e:c4d:b0:63e:1c4c:302b with SMTP id 956f58d0204a3-64101b89ee2mr3345793d50.47.1762972612652;
-        Wed, 12 Nov 2025 10:36:52 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:53::])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-641015adefasm1191019d50.1.2025.11.12.10.36.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Nov 2025 10:36:51 -0800 (PST)
-Date: Wed, 12 Nov 2025 10:36:50 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	Sargun Dhillon <sargun@sargun.me>, berrange@redhat.com,
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v9 08/14] vsock: reject bad VSOCK_NET_MODE_LOCAL
- configuration for G2H
-Message-ID: <aRTTwuuXSz5CvNjt@devvm11784.nha0.facebook.com>
-References: <20251111-vsock-vmtest-v9-0-852787a37bed@meta.com>
- <20251111-vsock-vmtest-v9-8-852787a37bed@meta.com>
- <ureyl5b2tneivmlce4fdtmuoxgayfxwgewoypb6oyxeh7ozt3i@chygpr2uvtcp>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="b5Dem9Ze"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=wvoYdHFAzKbi9mVUqfx+Irtysijp4gVq9yJuZzMMEJfkRyNulq7Cr8j3Anxj3CBMRRcfjuefZlOD+0PfK0XoGI2J/M6SmFksE+Ct6iv0bDyO4XZbivhZDk7pokJlCdPtoBJke6OBz5NhtgX/pl+9KWa7g+higNw1ZibbJqPQ/WY6aSJZjDBXKc2UZ9faKEW+phH61k/4kw5Smt3bo++9VsrbK8idzmca7B5Fvj4z32z7jFOk+yLPiB3aajFHx8GcRKuwe2ki5bTtVgYgfK7KU3mM+pUzCT4oMDt3wAOwzbPmsSieCEOkhhH2UVlJ3RArkXaIbaGkJVtrSZZoip8qFQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=k0c28jKHkUYo3Mc5ygKXbSlkVOxmegkfjUVCyhtoPug=;
+ b=VuDI8phfXAnP+tmVsVDqnbTywLfDvb/9DSbydfeI0G/UJ8s909OKA2b/dXVBiNEm4AN5aTIpkV0FX6uRFLMrEY9GxUfvPKFBepNdRec8rDdZpnF4LDHng/vVCDZw48COkgLSfob5yZDjVVQ9bkaM3kj02wJYrIDSMVedQnklQVmRXUxlShKykapFESqVq/nyT2+a43rCFIdJVyevYqhmMnskwagX7PAusUXmHXqEClni2Fbe4M+xAW2ZM6R1KxXEKWGyXe+aOpp7hqJP8/42301uK3fmxF0b+mEt48+vjYm4nKoXDHt2TAfroIreFRxZ00H7yz8WcuecB4XRb0dplQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=k0c28jKHkUYo3Mc5ygKXbSlkVOxmegkfjUVCyhtoPug=;
+ b=b5Dem9Ze8YJAaKW3loVBZh6EvbSwvAi/8J85uTkNLexFK4ctaepMRVjyJHTBxFSSpSag3VqGfLfOn1OJe1FzvPX5JQRT0i/L5V91uopY0gISkV3HV1I0zaMOBqOKeYCbG044zGzpxqr9j7FxZjRnpE10GsL8aY1SkHiSCrepSt5a5Z/6zHtvrPqgL9+TlWjmT7wOBfWHHkzyMT5wZ1hQuP2qZWM51Z/TfE8594p4SfsvdslOdcJ5TtNH0NrQQ6vtz6hnIdj08BtVVa0pESyS3U7Y/FcO9AUrd9V8QMfOr10h/MyL89qBaXIaZr92CVJpnqiE+qRkGeynAIIZqHv9iw==
+Received: from BN9PR03CA0486.namprd03.prod.outlook.com (2603:10b6:408:130::11)
+ by IA1PR12MB7568.namprd12.prod.outlook.com (2603:10b6:208:42c::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.16; Wed, 12 Nov
+ 2025 19:31:56 +0000
+Received: from BL02EPF0002992B.namprd02.prod.outlook.com
+ (2603:10b6:408:130:cafe::a5) by BN9PR03CA0486.outlook.office365.com
+ (2603:10b6:408:130::11) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9320.17 via Frontend Transport; Wed,
+ 12 Nov 2025 19:31:56 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ BL02EPF0002992B.mail.protection.outlook.com (10.167.249.56) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9320.13 via Frontend Transport; Wed, 12 Nov 2025 19:31:55 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 12 Nov
+ 2025 11:31:41 -0800
+Received: from drhqmail203.nvidia.com (10.126.190.182) by
+ drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Wed, 12 Nov 2025 11:31:40 -0800
+Received: from vdi.nvidia.com (10.127.8.14) by mail.nvidia.com
+ (10.126.190.182) with Microsoft SMTP Server id 15.2.2562.20 via Frontend
+ Transport; Wed, 12 Nov 2025 11:31:39 -0800
+From: Daniel Jurgens <danielj@nvidia.com>
+To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
+	<pabeni@redhat.com>
+CC: <virtualization@lists.linux.dev>, <parav@nvidia.com>,
+	<shshitrit@nvidia.com>, <yohadt@nvidia.com>, <xuanzhuo@linux.alibaba.com>,
+	<eperezma@redhat.com>, <shameerali.kolothum.thodi@huawei.com>,
+	<jgg@ziepe.ca>, <kevin.tian@intel.com>, <kuba@kernel.org>,
+	<andrew+netdev@lunn.ch>, <edumazet@google.com>, Daniel Jurgens
+	<danielj@nvidia.com>
+Subject: [PATCH net-next v10 00/12] virtio_net: Add ethtool flow rules support
+Date: Wed, 12 Nov 2025 13:31:20 -0600
+Message-ID: <20251112193132.1909-1-danielj@nvidia.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ureyl5b2tneivmlce4fdtmuoxgayfxwgewoypb6oyxeh7ozt3i@chygpr2uvtcp>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL02EPF0002992B:EE_|IA1PR12MB7568:EE_
+X-MS-Office365-Filtering-Correlation-Id: f9f2e8ec-15ec-4e50-d7ca-08de222223fa
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|36860700013|1800799024|82310400026|13003099007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?VMM6nQXNrT5I6ElaZQE78tXU8U/onZM2Ost9tLrr5nBChVQDVvrB7oz6z5MC?=
+ =?us-ascii?Q?n7/1eNZGMxpo/xUn4ZZYni3EWnX789qGNsiJGJ084svQ9pZ2tACY1UTFUlWb?=
+ =?us-ascii?Q?cg0picg4A8euJLwbKgPM58X/dDTHyMltNRKl0BDxnLdL4itndXbkS53ZhH31?=
+ =?us-ascii?Q?OKARF4A7k1MnwlbObnyBoQ8cuCQwZE5a9aShGKICEYzttjg6lfyTKIhAopd3?=
+ =?us-ascii?Q?tDQv9Gs94HEDaZZaWKgI6sh0hwme/vjvEdxxMjNI0UA38S6ovyKsNWoG9E7g?=
+ =?us-ascii?Q?1hrh+dxeba+/87TDl6v7oinnG8HKM2y/qgPEIARcEadz1HC79jbQYQS0ZxUe?=
+ =?us-ascii?Q?5olpad8K8LsEy9kMS+aumLuok5lv/vuX4GMZDsGIFJuZuCEPqg9/9oaJ4EpS?=
+ =?us-ascii?Q?p6Rq3UEXZ2ppubPWVk4uIvnKVziMwXR8+/XJuTzw8XrNXu7xWjK5ZVmMq3z4?=
+ =?us-ascii?Q?gjpWex1xcez6RfwMnc8OYyzk74kOkVE39QTBy4N4Y8DkGQmiuuhlAIt4pIN5?=
+ =?us-ascii?Q?5IsMZSf0j4+SJQCupFCk9GKK0bXv7H5Fu86KQ3z5WoBTj5eOsXBwEhF1ia6E?=
+ =?us-ascii?Q?joDYo5oEr/IE+BGrsosTpZW8Hoh5b6HJC0OHgzm2uvLHz0C/qLh2eRqkfCxb?=
+ =?us-ascii?Q?sJlFEkvXXiC9BmyTPwodIhI/04dNrie/aiB4Q89IT3rtPczIftq7GRig1TC5?=
+ =?us-ascii?Q?0c/QyVKJGTEAtD3CZj8Sizy3g7hBbfXzzOy2zFHDyVqMcedApoXp6QEzCub0?=
+ =?us-ascii?Q?G58PHV0kqGjXchmp1SK54Aj+Lw9w5Re9awjDC7ee63EL9L0kx0VYDCMdWjOu?=
+ =?us-ascii?Q?v/B36HfevmYqlW6YNLwisUTb0rWrAE8M1O42bdI+RCbPLMctiZmjmIkRZD8h?=
+ =?us-ascii?Q?bX7jH3GlnRymAyhwIL/25dtHia+kr7rivxOOF041w+PQrdo3GBGSdw/yVaLt?=
+ =?us-ascii?Q?EbxagLuaOYA7yyfNYVPoVnFXkspEllCEkFoPBxFpTA4cav2/99gdWd24yPPu?=
+ =?us-ascii?Q?ZhfZRzK2KyGrneGALOYDvlmstdf2IqA5Qqavw4biMIjrnaGeUsqpfLXebfJO?=
+ =?us-ascii?Q?v3c3SeFDdYcYE5lyyNvTMiZiEDmFyGEoWxE5P+v14UHgb6Dtgl6ARgW6JV7b?=
+ =?us-ascii?Q?Hg9NWsXD0XEy98HN+NiKZpFQQ4zcncv8+4h0CwkfH5/IWk5MfsgA0EMn9aY3?=
+ =?us-ascii?Q?lKNw8RDbx5+y4lL/F5fFNbmgo2ezoQ2Odw9lfuVMdKIkYrKinuUOVLfC3SJ2?=
+ =?us-ascii?Q?NsHcmQBVLOhbdjhTLbg9X+/YraPzRtLyAxjVP2Z0KR6d9Ar+8v1ebI7Ef7A4?=
+ =?us-ascii?Q?rPk4jm5sm1WNgmE3EP3s5iz7XTy8FprRuxwNrlsAJ/625oVYtHLcVB75r4Xk?=
+ =?us-ascii?Q?2EPSgPUjANS9pfyufH50UlviHt6EkupR6byqZrcYnQw3soQAP76T+jiLKsoZ?=
+ =?us-ascii?Q?whg9Wr6yB/4p36jiSZiGgaRpNC1FjdkHdpLIASYT19FDtvFYf6oNR5JGEQ+g?=
+ =?us-ascii?Q?Z9uWG++u77V8ef8Q6B8cpeqXXIOQk823AaLqXOkQZYW/TgCsXewBYjBmn7tp?=
+ =?us-ascii?Q?HuuPaxk1wfLs1wySi+5RbXxCz+/kiXzV6FLt1AVH?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230040)(7416014)(376014)(36860700013)(1800799024)(82310400026)(13003099007);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Nov 2025 19:31:55.9198
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: f9f2e8ec-15ec-4e50-d7ca-08de222223fa
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BL02EPF0002992B.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB7568
 
-On Wed, Nov 12, 2025 at 03:21:39PM +0100, Stefano Garzarella wrote:
-> On Tue, Nov 11, 2025 at 10:54:50PM -0800, Bobby Eshleman wrote:
-> > From: Bobby Eshleman <bobbyeshleman@meta.com>
-> > 
-> > Reject setting VSOCK_NET_MODE_LOCAL with -EOPNOTSUPP if a G2H transport
-> > is operational. Additionally, reject G2H transport registration if there
-> > already exists a namespace in local mode.
-> > 
-> > G2H sockets break in local mode because the G2H transports don't support
-> > namespacing yet. The current approach is to coerce packets coming out of
-> > G2H transports into VSOCK_NET_MODE_GLOBAL mode, but it is not possible
-> > to coerce sockets in the same way because it cannot be deduced which
-> > transport will be used by the socket. Specifically, when bound to
-> > VMADDR_CID_ANY in a nested VM (both G2H and H2G available), it is not
-> > until a packet is received and matched to the bound socket that we
-> > assign the transport. This presents a chicken-and-egg problem, because
-> > we need the namespace to lookup the socket and resolve the transport,
-> > but we need the transport to know how to use the namespace during
-> > lookup.
-> > 
-> > For that reason, this patch prevents VSOCK_NET_MODE_LOCAL from being
-> > used on systems that support G2H, even nested systems that also have H2G
-> > transports.
-> > 
-> > Local mode is blocked based on detecting the presence of G2H devices
-> > (when possible, as hyperv is special). This means that a host kernel
-> > with G2H support compiled in (or has the module loaded), will still
-> > support local mode because there is no G2H (e.g., virtio-vsock) device
-> > detected. This enables using the same kernel in the host and in the
-> > guest, as we do in kselftest.
-> > 
-> > Systems with only namespace-aware transports (vhost-vsock, loopback) can
-> > still use both VSOCK_NET_MODE_GLOBAL and VSOCK_NET_MODE_LOCAL modes as
-> > intended.
-> > 
-> > The hyperv transport must be treated specially. Other G2H transports can
-> > can report presence of a device using get_local_cid(). When a device is
-> > present it returns a valid CID; otherwise, it returns VMADDR_CID_ANY.
-> > THe hyperv transport's get_local_cid() always returns VMADDR_CID_ANY,
-> > however, even when a device is present.
-> > 
-> > For that reason, this patch adds an always_block_local_mode flag to
-> > struct vsock_transport. When set to true, VSOCK_NET_MODE_LOCAL is
-> > blocked unconditionally whenever the transport is registered, regardless
-> > of device presence. When false, LOCAL mode is only blocked when
-> > get_local_cid() indicates a device is present (!= VMADDR_CID_ANY).
-> > 
-> > The hyperv transport sets this flag to true to unconditionally block
-> > local mode. Other G2H transports (virtio-vsock, vmci-vsock) leave it
-> > false and continue using device detection via get_local_cid() to block
-> > local mode.
-> > 
-> > These restrictions can be lifted in a future patch series when G2H
-> > transports gain namespace support.
-> 
-> IMO this commit should be before supporting namespaces in any device,
-> so we are sure we don't have commits where this can happen.
+This series implements ethtool flow rules support for virtio_net using the
+virtio flow filter (FF) specification. The implementation allows users to
+configure packet filtering rules through ethtool commands, directing
+packets to specific receive queues, or dropping them based on various
+header fields.
 
-sgtm!
+The series starts with infrastructure changes to expose virtio PCI admin
+capabilities and object management APIs. It then creates the virtio_net
+directory structure and implements the flow filter functionality with support
+for:
 
-> > 
-> > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
-> > ---
-> > include/net/af_vsock.h           |  8 +++++++
-> > net/vmw_vsock/af_vsock.c         | 45 +++++++++++++++++++++++++++++++++++++---
-> > net/vmw_vsock/hyperv_transport.c |  1 +
-> > 3 files changed, 51 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> > index cfd121bb5ab7..089c61105dda 100644
-> > --- a/include/net/af_vsock.h
-> > +++ b/include/net/af_vsock.h
-> > @@ -108,6 +108,14 @@ struct vsock_transport_send_notify_data {
-> > 
-> > struct vsock_transport {
-> > 	struct module *module;
-> > +	/* If true, block VSOCK_NET_MODE_LOCAL unconditionally when this G2H
-> > +	 * transport is registered. If false, only block LOCAL mode when
-> > +	 * get_local_cid() indicates a device is present (!= VMADDR_CID_ANY).
-> > +	 * Hyperv sets this true because it doesn't offer a callback that
-> > +	 * detects device presence. This only applies to G2H transports; H2G
-> > +	 * transports are unaffected.
-> > +	 */
-> > +	bool always_block_local_mode;
-> > 
-> > 	/* Initialize/tear-down socket. */
-> > 	int (*init)(struct vsock_sock *, struct vsock_sock *);
-> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> > index c0b5946bdc95..a2da1810b802 100644
-> > --- a/net/vmw_vsock/af_vsock.c
-> > +++ b/net/vmw_vsock/af_vsock.c
-> > @@ -91,6 +91,11 @@
-> >  *   and locked down by a namespace manager. The default is "global". The mode
-> >  *   is set per-namespace.
-> >  *
-> > + *   Note: LOCAL mode is only supported when using namespace-aware transports
-> > + *   (vhost-vsock, loopback). If a guest-to-host transport (virtio-vsock,
-> > + *   hyperv-vsock, vmci-vsock) is loaded, attempts to set LOCAL mode will fail
-> > + *   with EOPNOTSUPP, as these transports do not support per-namespace
-> > isolation.
-> > + *
-> >  *   The modes affect the allocation and accessibility of CIDs as follows:
-> >  *
-> >  *   - global - access and allocation are all system-wide
-> > @@ -2757,12 +2762,30 @@ static int vsock_net_mode_string(const struct ctl_table *table, int write,
-> > 		if (*lenp >= sizeof(data))
-> > 			return -EINVAL;
-> > 
-> > -		if (!strncmp(data, VSOCK_NET_MODE_STR_GLOBAL, sizeof(data)))
-> > +		if (!strncmp(data, VSOCK_NET_MODE_STR_GLOBAL, sizeof(data))) {
-> > 			mode = VSOCK_NET_MODE_GLOBAL;
-> > -		else if (!strncmp(data, VSOCK_NET_MODE_STR_LOCAL, sizeof(data)))
-> > +		} else if (!strncmp(data, VSOCK_NET_MODE_STR_LOCAL, sizeof(data))) {
-> > +			/* LOCAL mode is not supported when G2H transports
-> > +			 * (virtio-vsock, hyperv, vmci) are active, because
-> > +			 * these transports don't support namespaces. We must
-> > +			 * stay in GLOBAL mode to avoid bind/lookup mismatches.
-> > +			 *
-> > +			 * Check if G2H transport is present and either:
-> > +			 * 1. Has always_block_local_mode set (hyperv), OR
-> > +			 * 2. Has an actual device present (get_local_cid() != VMADDR_CID_ANY)
-> > +			 */
-> > +			mutex_lock(&vsock_register_mutex);
-> > +			if (transport_g2h &&
-> > +			    (transport_g2h->always_block_local_mode ||
-> > +			     transport_g2h->get_local_cid() != VMADDR_CID_ANY)) {
-> 
-> This seems almost like a hack. What about adding a new function in the
-> transports that tells us whether a device is present or not and implement it
-> in all of them?
-> 
-> Or a more specific function to check if the transport can work with local
-> mode (e.g.  netns_local_aware() or something like that - I'm not great with
-> nameming xD)
+- Layer 2 (Ethernet) flow rules
+- IPv4 and IPv6 flow rules  
+- TCP and UDP flow rules (both IPv4 and IPv6)
+- Rule querying and management operations
 
-That sounds good to me, I probably prefer option 2 because I think it'll
-be simpler for the hyperv case.
+Setting, deleting and viewing flow filters, -1 action is drop, positive
+integers steer to that RQ:
 
-> 
-> > +				mutex_unlock(&vsock_register_mutex);
-> > +				return -EOPNOTSUPP;
-> > +			}
-> > +			mutex_unlock(&vsock_register_mutex);
-> 
-> What happen if the G2H is loaded here, just after we release the mutex?
-> 
-> I suspect there could be a race that we may fix postponing the unlock after
-> the vsock_net_write_mode() call.
-> 
-> WDYT?
+$ ethtool -u ens9
+4 RX rings available
+Total 0 rules
 
-Oh good eye, yeah I think you are right. Writing the net mode should
-definitely be in the critical section.
+$ ethtool -U ens9 flow-type ether src 1c:34:da:4a:33:dd action 0
+Added rule with ID 0
+$ ethtool -U ens9 flow-type udp4 dst-port 5001 action 3
+Added rule with ID 1
+$ ethtool -U ens9 flow-type tcp6 src-ip fc00::2 dst-port 5001 action 2
+Added rule with ID 2
+$ ethtool -U ens9 flow-type ip4 src-ip 192.168.51.101 action 1
+Added rule with ID 3
+$ ethtool -U ens9 flow-type ip6 dst-ip fc00::1 action -1
+Added rule with ID 4
+$ ethtool -U ens9 flow-type ip6 src-ip fc00::2 action -1
+Added rule with ID 5
+$ ethtool -U ens9 delete 4
+$ ethtool -u ens9
+4 RX rings available
+Total 5 rules
 
-> 
-> > 			mode = VSOCK_NET_MODE_LOCAL;
-> > -		else
-> > +		} else {
-> > 			return -EINVAL;
-> > +		}
-> > 
-> > 		if (!vsock_net_write_mode(net, mode))
-> > 			return -EPERM;
-> > @@ -2909,6 +2932,7 @@ int vsock_core_register(const struct vsock_transport *t, int features)
-> > {
-> > 	const struct vsock_transport *t_h2g, *t_g2h, *t_dgram, *t_local;
-> > 	int err = mutex_lock_interruptible(&vsock_register_mutex);
-> > +	struct net *net;
-> > 
-> > 	if (err)
-> > 		return err;
-> > @@ -2931,6 +2955,21 @@ int vsock_core_register(const struct vsock_transport *t, int features)
-> > 			err = -EBUSY;
-> > 			goto err_busy;
-> > 		}
-> > +
-> > +		/* G2H sockets break in LOCAL mode namespaces because G2H transports
-> > +		 * don't support them yet. Block registering new G2H transports if we
-> > +		 * already have local mode namespaces on the system.
-> > +		 */
-> > +		rcu_read_lock();
-> > +		for_each_net_rcu(net) {
-> > +			if (vsock_net_mode(net) == VSOCK_NET_MODE_LOCAL) {
-> > +				rcu_read_unlock();
-> > +				err = -EOPNOTSUPP;
-> > +				goto err_busy;
-> > +			}
-> > +		}
-> > +		rcu_read_unlock();
-> > +
-> > 		t_g2h = t;
-> > 	}
-> > 
-> > diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-> > index 432fcbbd14d4..ed48dd1ff19b 100644
-> > --- a/net/vmw_vsock/hyperv_transport.c
-> > +++ b/net/vmw_vsock/hyperv_transport.c
-> > @@ -835,6 +835,7 @@ int hvs_notify_set_rcvlowat(struct vsock_sock *vsk, int val)
-> > 
-> > static struct vsock_transport hvs_transport = {
-> > 	.module                   = THIS_MODULE,
-> > +	.always_block_local_mode  = true,
-> > 
-> > 	.get_local_cid            = hvs_get_local_cid,
-> > 
-> > 
-> > -- 
-> > 2.47.3
-> > 
-> 
+Filter: 0
+        Flow Type: Raw Ethernet
+        Src MAC addr: 1C:34:DA:4A:33:DD mask: 00:00:00:00:00:00
+        Dest MAC addr: 00:00:00:00:00:00 mask: FF:FF:FF:FF:FF:FF
+        Ethertype: 0x0 mask: 0xFFFF
+        Action: Direct to queue 0
+
+Filter: 1
+        Rule Type: UDP over IPv4
+        Src IP addr: 0.0.0.0 mask: 255.255.255.255
+        Dest IP addr: 0.0.0.0 mask: 255.255.255.255
+        TOS: 0x0 mask: 0xff
+        Src port: 0 mask: 0xffff
+        Dest port: 5001 mask: 0x0
+        Action: Direct to queue 3
+
+Filter: 2
+        Rule Type: TCP over IPv6
+        Src IP addr: fc00::2 mask: ::
+        Dest IP addr: :: mask: ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+        Traffic Class: 0x0 mask: 0xff
+        Src port: 0 mask: 0xffff
+        Dest port: 5001 mask: 0x0
+        Action: Direct to queue 2
+
+Filter: 3
+        Rule Type: Raw IPv4
+        Src IP addr: 192.168.51.101 mask: 0.0.0.0
+        Dest IP addr: 0.0.0.0 mask: 255.255.255.255
+        TOS: 0x0 mask: 0xff
+        Protocol: 0 mask: 0xff
+        L4 bytes: 0x0 mask: 0xffffffff
+        Action: Direct to queue 1
+
+Filter: 5
+        Rule Type: Raw IPv6
+        Src IP addr: fc00::2 mask: ::
+        Dest IP addr: :: mask: ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+        Traffic Class: 0x0 mask: 0xff
+        Protocol: 0 mask: 0xff
+        L4 bytes: 0x0 mask: 0xffffffff
+        Action: Drop
+
+---
+v2: https://lore.kernel.org/netdev/20250908164046.25051-1-danielj@nvidia.com/
+  - Fix sparse warnings
+  - Fix memory leak on subsequent failure to allocate
+  - Fix some Typos
+
+v3: https://lore.kernel.org/netdev/20250923141920.283862-1-danielj@nvidia.com/
+  - Added admin_ops to virtio_device kdoc.
+
+v4:
+  - Fixed double free bug inserting flows
+  - Fixed incorrect protocol field check parsing ip4 headers.
+  - (u8 *) changed to (void *)
+  - Added kdoc comments to UAPI changes.
+  - No longer split up virtio_net.c
+  - Added config op to execute admin commands.
+      - virtio_pci assigns vp_modern_admin_cmd_exec to this callback.
+  - Moved admin command API to new core file virtio_admin_commands.c
+
+v5: 
+  - Fixed compile error
+  - Fixed static analysis warning on () after macro
+  - Added missing fields to kdoc comments
+  - Aligned parameter name between prototype and kdoc
+
+v6:
+  - Fix sparse warning "array of flexible structures" Jakub K/Simon H
+  - Use new variable and validate ff_mask_size before set_cap. MST
+
+v7:
+  - Change virtnet_ff_init to return a value. Allow -EOPNOTSUPP. Xuan
+  - Set ff->ff_{caps, mask, actions} NULL in error path. Paolo Abini
+  - Move for (int i removal hung back a patch. Paolo Abini
+
+v8
+  - Removed unused num_classifiers. Jason Wang
+  - Use real_ff_mask_size when setting the selector caps. Jason Wang
+
+v9:
+  - Set err to -ENOMEM after alloc failures in virtnet_ff_init. Simon H
+
+v10:
+  - Return -EOPNOTSUPP in virnet_ff_init before allocing any memory.
+    Jason Wang/Paolo Abeni
+
+
+Daniel Jurgens (12):
+  virtio_pci: Remove supported_cap size build assert
+  virtio: Add config_op for admin commands
+  virtio: Expose generic device capability operations
+  virtio: Expose object create and destroy API
+  virtio_net: Query and set flow filter caps
+  virtio_net: Create a FF group for ethtool steering
+  virtio_net: Implement layer 2 ethtool flow rules
+  virtio_net: Use existing classifier if possible
+  virtio_net: Implement IPv4 ethtool flow rules
+  virtio_net: Add support for IPv6 ethtool steering
+  virtio_net: Add support for TCP and UDP ethtool rules
+  virtio_net: Add get ethtool flow rules ops
+
+ drivers/net/virtio_net.c               | 1147 ++++++++++++++++++++++++
+ drivers/virtio/Makefile                |    2 +-
+ drivers/virtio/virtio_admin_commands.c |  165 ++++
+ drivers/virtio/virtio_pci_common.h     |    1 -
+ drivers/virtio/virtio_pci_modern.c     |   10 +-
+ include/linux/virtio_admin.h           |  125 +++
+ include/linux/virtio_config.h          |    6 +
+ include/uapi/linux/virtio_net_ff.h     |  156 ++++
+ include/uapi/linux/virtio_pci.h        |    7 +-
+ 9 files changed, 1608 insertions(+), 11 deletions(-)
+ create mode 100644 drivers/virtio/virtio_admin_commands.c
+ create mode 100644 include/linux/virtio_admin.h
+ create mode 100644 include/uapi/linux/virtio_net_ff.h
+
+-- 
+2.50.1
+
