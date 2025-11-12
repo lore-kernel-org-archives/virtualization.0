@@ -1,46 +1,46 @@
-Received: from CH4PR04CU002.outbound.protection.outlook.com (mail-northcentralusazon11013055.outbound.protection.outlook.com [40.107.201.55])
+Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013068.outbound.protection.outlook.com [40.93.196.68])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF7072EDD76
-	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 07:46:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.201.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B150D2EE5F4
+	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 07:46:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.68
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762933580; cv=fail; b=HRB3+QBW6Lq06rTgPciXLVULuUuLVSeG8sRFbINpDxowsmbuKHEyB3LPNkZv6WtLocSOIdmAyUp9KY8bHLiPLlvQ6QV6FZuhHz+UO+bRpbFXh57qXjswpzPCbKXMbRqkk/gMY2MVTDRHH4BQXb4EzAUzLhX/zfNpdG2wTS9/8jc=
+	t=1762933584; cv=fail; b=blN8DW/KcODCPEEi0ADjSoFNQXSQ9ZhsrvZ6S+sDWTipdj9JwLDM+G79rN59d03IQoogNEJApTqCOs4YdzLPvAKjphaSNdsudXfYWDGaSZT6LKufkNNZZKw7/co2U9HS+TJXfQy7DtCaDY+a57ppiGnCjj/RWkIaADLpL9Z3n+s=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762933580; c=relaxed/simple;
-	bh=DBhfl0uPswn+FOMYCzkwWURgSHPPtX9lLHwCL6LcO4k=;
+	s=arc-20240116; t=1762933584; c=relaxed/simple;
+	bh=sTSSs75upjhdraguBnOMnBWom4tdCSr/IM8YPRvUqEg=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mXGcL8ylJg+/ERj23WHZ2PfMuYSeslB1Vx9He71ro7iGEjP6kM73n/ugdXNylnP8+L3GucJgeTOad+JVXZwWPJ/vrxQFZuB5+viVu7QpoXQFGdQ8l+9jI1VdSoBuI9XmX9lOLEhlc1Gk8zgGS7NAelCzToZ/zSDUplPCnHAQ+LM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=ZyNF6Sey; arc=fail smtp.client-ip=40.107.201.55
+	 MIME-Version:Content-Type; b=KbBpV2RwGSFc8jisBNnSZxwjUer9yRsq+lA+b2lHXM6ImDvjgERqGetPKVEPcR8ddEqL5PGa0hrkWROfBAUB+mUk1fi3fJ9eMYrIr8okT0jQS4k5lo/scgnNcfPh1wsUiydXf3yvWNpUMTds1WYQbuxPZf9TZE6DFo7ZLf1+s3Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=KDNqq6ey; arc=fail smtp.client-ip=40.93.196.68
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="ZyNF6Sey"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="KDNqq6ey"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=u7dvph7hgufFkV1QmMjebqp60oE1xb7IKdXWEOTKYzYnrH3IP4zYXn62Dq2o5FvvloAdVhVEd+RfS1ImyzHZJ+jd1rXWSA+iNZ9L/6hoHExODtcHsi25oMnjbF4xNOjvkOhd4ROy3BJ8AJKrEMQEY4WHWI5eZqkdqc/1GDj6yYmnS/5beSIontC383NMeyHONRwwUa/rIfLLGAGS+XOUQzAcfADAXq9FV4tTD16SYCW03ZvFnmGMgmpKhae8Pc7LGKwyPWPFwuexcHY7xMlY/D3pnFwCMoZpxdDzwR+m2hVTOHRlPg/zZITNjHrnJZp3XzKfZGAv2YchmSSxnRBNcg==
+ b=BCceP5009mkgMJxCcZItIqXdbLX7a/FVrdw2ExQh5BA116fdyWveSFlBjfTRhXWDMRroeNQbE97oXLl8vWe+UfxoH+exAYVSvNTxnzTl28/gwmpfH12ZP6+uc/wiIVIXvfAU7cDcXhFRxNCUBouI1/bEFUWGAozAwyP8gb2pO+lK60BKqTPx5SkmP1ciMcifeqCERZ995wYoz4D1TYrkMZoku9dovme/nhwHPePbF+nUzcz785lYplaoKJy6+Q92aSYItEUXIo9FnuGr06TooXlTfM7rqq3iL7WfiY9qu3s3OnBsLQ/t8/77K5XO9wgyqSPOXxFgsTpfPzAsDx4m0g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=aAB4z7D0Douu6kwMFotEfPhw+YDECGlRnMWK8lH5738=;
- b=O9vMIlrwtiYiOS26CtJ8gLsR3scDHQK7ZkwvzoB0FzE851Mk8Uywo2WYvt2NPOlJ5NOKA0j6djC1Tsx/59qXaWYuV3pNKKozVrm0hJhv9PVKJzryO99gdnWKKH+T1PekW3wrJPhT4r2LSZEiUyj2oS2VPRqlgn1FVjsW+u2yDnPDjVMns5Yeo0If946m/zva1KXkX80CPqAle0u+x80Pqm+OSN00PLn/X9XmlGQlnYiVEXZyMMM4KmuGYP53i7hyasNsoEIowtZZM7XXjbLih1HCPeiFLoUsGPspWaLlGW9+N7EEQqn6QzGO4Go2uQ3cS6afgcBBbnAUjjpnNAI4Xg==
+ bh=zSuyEk/vwDt0hWiUh/efJsZPXqfW9kAZcpGk/fgkGbY=;
+ b=OZZ44w9iRnvH5iIQ1dJbVMjnbzuumjY0JH8hhDY8VngZheMk5fvK5gyhl507Y16L9CBns/gCb/CK8ZkyUlfjSmrSI4iVt4KMNLPDXxczGXdChJmchRli94yDpSX5aU9RsId7wdsMBU8l5lr9Kxv21BM+darLQO0+ksjUwL3o3BqLG37PIUmr/X/1AKUxIeTTxKXh9ZkYo9kPFVoFLs/ys6N81NODC+gz7wNwMYaaEe7tG/3P3qm/gomciZZ9vjlbEVgN48S3TG1dJA2k5/vNtyass3n9eP6SBtysMO+Gn0wy8E9bx91Vmx1RgOFKYXuj40hAs1eEDCFm1iojWX0U2w==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aAB4z7D0Douu6kwMFotEfPhw+YDECGlRnMWK8lH5738=;
- b=ZyNF6Sey+SqUuwgF1dGKzKFCTyEzSitjhV3if15EvgXma7iw6NfS4x0rwJQIlvdXSsHjLj5G/1VOUTdUoX9LmpHfIRSGuC38oBrFb1iFwHexYvnMViDGF7CNeZmvWTJ/iUtnEWFvy2t5e+WvSxr3oUHubSblIg1vUX0BObP6gYg=
-Received: from CY5PR15CA0053.namprd15.prod.outlook.com (2603:10b6:930:1b::30)
- by CH1PPFC596BECF8.namprd12.prod.outlook.com (2603:10b6:61f:fc00::621) with
+ bh=zSuyEk/vwDt0hWiUh/efJsZPXqfW9kAZcpGk/fgkGbY=;
+ b=KDNqq6eyfdaX/FmcBXQaZ3xJekTQK5MSbec4VwvixKxMTkz0C55UebZ9+l0G4e1LmvExuJ0zE25fOfkl1FkaWgt2Kmo6ME++/DMrE3glDO34qohQ/55M06P/zm0pDTwhIHSgp10DJN0MNl4d+0UwHpRwp42cqLkW44fwF58Wyho=
+Received: from CY5PR15CA0058.namprd15.prod.outlook.com (2603:10b6:930:1b::14)
+ by PH7PR12MB8593.namprd12.prod.outlook.com (2603:10b6:510:1b1::7) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9320.15; Wed, 12 Nov
- 2025 07:46:11 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.16; Wed, 12 Nov
+ 2025 07:46:17 +0000
 Received: from CY4PEPF0000E9D0.namprd03.prod.outlook.com
- (2603:10b6:930:1b:cafe::d8) by CY5PR15CA0053.outlook.office365.com
- (2603:10b6:930:1b::30) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9298.16 via Frontend Transport; Wed,
- 12 Nov 2025 07:46:11 +0000
+ (2603:10b6:930:1b:cafe::dd) by CY5PR15CA0058.outlook.office365.com
+ (2603:10b6:930:1b::14) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9320.16 via Frontend Transport; Wed,
+ 12 Nov 2025 07:46:16 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -50,11 +50,11 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from satlexmb07.amd.com (165.204.84.17) by
  CY4PEPF0000E9D0.mail.protection.outlook.com (10.167.241.135) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9320.13 via Frontend Transport; Wed, 12 Nov 2025 07:46:10 +0000
+ 15.20.9320.13 via Frontend Transport; Wed, 12 Nov 2025 07:46:16 +0000
 Received: from honglei-remote.amd.com (10.180.168.240) by satlexmb07.amd.com
  (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Tue, 11 Nov
- 2025 23:46:06 -0800
+ 2025 23:46:13 -0800
 From: Honglei Huang <honglei1.huang@amd.com>
 To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
 	Dmitry Osipenko <dmitry.osipenko@collabora.com>, Maarten Lankhorst
@@ -65,9 +65,9 @@ CC: Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
 	<olvaffe@gmail.com>, <dri-devel@lists.freedesktop.org>,
 	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>, "Honglei
  Huang" <Honglei1.Huang@amd.com>
-Subject: [PATCH 1/6] virtio-gpu api: add HSAKMT context
-Date: Wed, 12 Nov 2025 15:45:43 +0800
-Message-ID: <20251112074548.3718563-2-honglei1.huang@amd.com>
+Subject: [PATCH 3/6] drm/virtgpu api: add blob userptr resource
+Date: Wed, 12 Nov 2025 15:45:45 +0800
+Message-ID: <20251112074548.3718563-4-honglei1.huang@amd.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20251112074548.3718563-1-honglei1.huang@amd.com>
 References: <20251112074548.3718563-1-honglei1.huang@amd.com>
@@ -83,80 +83,113 @@ X-ClientProxiedBy: satlexmb07.amd.com (10.181.42.216) To satlexmb07.amd.com
  (10.181.42.216)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY4PEPF0000E9D0:EE_|CH1PPFC596BECF8:EE_
-X-MS-Office365-Filtering-Correlation-Id: 783fdfa9-be00-4be6-f652-08de21bf8c58
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000E9D0:EE_|PH7PR12MB8593:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2a56a715-90ff-400f-1b77-08de21bf8fe2
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|36860700013|1800799024|82310400026;
+	BCL:0;ARA:13230040|1800799024|82310400026|376014|7416014|36860700013;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?LU3TON7kVlwRHQMSOS/npYMlaTwRCLQGqWxijohMYHKgKkNgfscG+Uxk2nmO?=
- =?us-ascii?Q?ON1qG4daNyuNsf7mNcIpXGM1UO5aYWIZgnJQYXJfdXKVTIm8Lz+JBdSFrOjN?=
- =?us-ascii?Q?qwVbjNRfXMi0iDj8am1g2aupczZ3sKghrlPA0nqkh/sOFM21Pbl9dT+ypGJq?=
- =?us-ascii?Q?oGOEI2X882IApyD4UZ1zkj3VPxAUeBndF2SRO6gdOhJnsqeAb8SyaU1Wc3k0?=
- =?us-ascii?Q?TlgiK5Lv8EArntjbM1ppWzwR5DOyJLkYnk9dPOufWQRZLmVwAgoS2GvDD6OA?=
- =?us-ascii?Q?X/TtqMx56bxWkiVQLGQqFyLk+c+xxwhX5w5lTNwQzn0CA1HLrqAlw65NX3Os?=
- =?us-ascii?Q?9V3P5IUCq0m7pHDzAAZY05cUxV3Q+uLMQSEwRieeM5c66wFnMZEgnNxHF3vx?=
- =?us-ascii?Q?ns0iAxXryqXwNss+8rVyiC2T3V/HONNfiVKBYJoubz23LEZWWaZHSbznmBh7?=
- =?us-ascii?Q?ZGxurzvnrAT1hgVlJnul5UYsyiJ7u+8ReB/1+vGE4u/BsRWV72t5Z6S0VKvF?=
- =?us-ascii?Q?+xIDzFVIP28PBU2iwQ4RftNj/nbh5dDJDHCocUKgyqaLu/nqPX6r92OlKsMx?=
- =?us-ascii?Q?k8byu7qBMmbXBh3d8DGHl6Yb0ov68MD067w/SNzHCgrTC2egyOQinR5xG8mE?=
- =?us-ascii?Q?gNhUL3aiZWSSwvmI1+vBYVxnUHhdmFRTvW4P5zV6U5hwo23WiYtG+m4bYKej?=
- =?us-ascii?Q?ryFSj3UI52e7CVclKXOGue51UTCamBymGyBioZiHSQZS74Uw/pJzEctELa3p?=
- =?us-ascii?Q?E84bs+jUHbdZ303ROSwarrfv31v51MV1deuLnUOMFPrhkVumongmkOrzwK+m?=
- =?us-ascii?Q?B2UwCo8g/xmDioqGrbbSmR/xID8e9zy91lwCFtqT4MZo65vvbQdNqZrF/NGu?=
- =?us-ascii?Q?rO/k9/zBacdYKf44aEoN0LPMpZx388TL8DSFYIwmUBrPXN4kW0s+Yeg97Z+l?=
- =?us-ascii?Q?JFhiG9BuUMQPg5QSRtl5b+qnXkpNrIRousTnvOu72A/iSDpcdB9/D9E13W0e?=
- =?us-ascii?Q?JDH/4qYxwzo+tvNqUwwO/MzhGg4Swxq/jSj0gjpzU8rvHUq/p9RpLGvw7QC4?=
- =?us-ascii?Q?Jw6pgfcTAtFsZCxMDJdT7NQFSttCiXr5/WM/upRBiYVVzM3PniNw3hHzFlIx?=
- =?us-ascii?Q?SHcBEqsbJ9bQMvGEuEp97Af0N1K5qwaZLNf+iLVe2VEsWuRDgQ6QpakJA25n?=
- =?us-ascii?Q?S6lZD9QUX97aLekVH13FHxGE8V7XpL3yZDZ7oF1o+BSvI6o/G3oLp8vIsWmS?=
- =?us-ascii?Q?pAMFuUcvQfNtSLwD4pbH70EVbvKU8wDCjXsprf0KMx38x+ttt6u/GxlB+Uzv?=
- =?us-ascii?Q?3bdy3K62aqxOBAeLdJk8ae7/8YOsOiM3FDo6Ab3C3eYW7gD6PdkizoQX9Urs?=
- =?us-ascii?Q?wprOSGHYuoZuQgDwzMyhHukktzylbETCeqxIjC+E1q/VsXU5Wl9AAlJARivh?=
- =?us-ascii?Q?lM5JsY2w2IFGyJfv9ptbfefKifV3TbvopbZRayJtOtDE1DEGvmij4QmU/fz8?=
- =?us-ascii?Q?i1wKS15B8hNVs092yJaAo6w+tyjUii1ADhks/NsC02unY2+VPyHV++FfOUdk?=
- =?us-ascii?Q?4y4zFMGn6X5tU53dsZM=3D?=
+	=?us-ascii?Q?sz8onFBbjw58Uf7nDvvoo14dPYzYGv+meIxxsUjz2d5wzu9dHWf03kHUpaWh?=
+ =?us-ascii?Q?pgllcVB5FMCUrBITzqAeWbfk8/oNyeD4YGH4YDXcniMb0aj+uJRCcJowAhXj?=
+ =?us-ascii?Q?/EEFVxgzCY+ihm67Wethqqx6J8l9bidA0iiglypeah0G6miHHKLnvhWmUgP6?=
+ =?us-ascii?Q?L0o1BvdBNvyRKRk+wwvmlFyOH6FZN9o7YmAdh0QQ1oPQOkTzaqG8QtelAKyC?=
+ =?us-ascii?Q?u/72xSQ+PnBvfzTeHv8WA8eUYmmU73h4ya2xYnWHLjkxauqBTb2kBE1bl4Do?=
+ =?us-ascii?Q?N8eP5SnLv8gCJNNZDvHU/RM8NQCEkN/e1IGfak1JyExpR1y59sXqbe0Bpna9?=
+ =?us-ascii?Q?fWnmpIRcLXZdFOJwwscN5nUsWeBEhv5+Fb9NsbugriZUMIhZ5bm3gvwoLKCL?=
+ =?us-ascii?Q?kIa7thZcj3KIV490BgCvgB7UdJJ/7PCJcQznSjWzLwqlXc8e6adymo+/wUdi?=
+ =?us-ascii?Q?Bzer5kFD08Xa3LLziy5W5Xs7httgDNszAtdixt6ej9Oe/zK1MhaONYRZQLVl?=
+ =?us-ascii?Q?g9VJPvhPpO0fys1+4PMpkb9ZvulM7ML9UK4i/MVFtER7OJ/xGxKiGFm4h3Fd?=
+ =?us-ascii?Q?/O/RkanIwFLn/Zpen0aPWlWLigR5E5mMuqmdceXOrSkBAUeDZYCqiEY3NPr3?=
+ =?us-ascii?Q?bgp5wIhIpaTAx3uxJu4zjydfr8rAdAuOD2yYpED6usZSAmc+AzBVLRzNb/na?=
+ =?us-ascii?Q?f10MdA5EPwKeuysb88Oaw1CtLf/K3iYte8OPNwk1zQ63IHZ5wRH78H2awrnC?=
+ =?us-ascii?Q?0hu2mJlB2kjdfXK2ncIp248J5hcfZCqXixcq48GMVGXeXBVVAwKiSQ5E//9y?=
+ =?us-ascii?Q?JJEGQJYt1HeT9QE+ioVOU5bN6XF+AYfobf17X9qmoqAlod425kuSnENZpiRV?=
+ =?us-ascii?Q?QO39wYqFNjrkGTpYEyeIgSwk4B6+7xYOXFAoFvqV4HFKWXECLc24Ic88zOuZ?=
+ =?us-ascii?Q?tEXzD5Sq2Djpq4K4NeZ8MwNKeJN1R+9etanjnZX9giZMQM22zcKwAGTILWRC?=
+ =?us-ascii?Q?fPrLf1Y91ah21m7zRSzoejqS1mZGrQRJqiWeOJakAsomBrcYdF4G2Urd0Rq9?=
+ =?us-ascii?Q?/A/DoaOXw56cfea17ZNjzR5BnrgQ81aJrN/DyLTwk/WVefsiXeMiKq6vkZXw?=
+ =?us-ascii?Q?SXMLz9DCX/nPzJ4jrLh5yPilq/ClZyy/NHtJME/uq9m6lO7jHHVX/pK4NIgb?=
+ =?us-ascii?Q?P6gKC/wl6irc0sj5mQD71d+2X16/TVlRpgWVa3+7L9JDFkgKKz4d84a0wFTC?=
+ =?us-ascii?Q?NLxW5o06VaMMG40XAf2LXbJ/3FPXanAeFYwmVRrLNS/YkzX/tQBlleUhpdzI?=
+ =?us-ascii?Q?LyZFXOpcz1q/03WjjFq1MmmKyu60H+/+1sVM6rrDlhnimzWGO1gl+9tnei+t?=
+ =?us-ascii?Q?Hy016a9lPp0SWOJBDu/kSYBCoC1ArLOlZakfquJbZ0MX6VtOKMon+/fHMvWf?=
+ =?us-ascii?Q?YfwWjlFxPQi3nP+Sm4Hn+0Ody/QWXIS8yfmIR2mli3fwc50NkF+FiU7WF+xs?=
+ =?us-ascii?Q?bChr311WDPQ+HHXivW13m8s57+ppm3dn+NcDMgljUKiGPcuzo9APwvqheXvO?=
+ =?us-ascii?Q?5RzofIbK9Ny3LccrJ2k=3D?=
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(7416014)(376014)(36860700013)(1800799024)(82310400026);DIR:OUT;SFP:1101;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(376014)(7416014)(36860700013);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Nov 2025 07:46:10.9420
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Nov 2025 07:46:16.8736
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 783fdfa9-be00-4be6-f652-08de21bf8c58
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2a56a715-90ff-400f-1b77-08de21bf8fe2
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource:
 	CY4PEPF0000E9D0.namprd03.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH1PPFC596BECF8
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB8593
 
 From: Honglei Huang <Honglei1.Huang@amd.com>
 
-Add a new context named HSAKMT for compute use case.
+Extend the virtgpu UAPI to support userptr blob resources, enabling
+the host to directly access guest userspace memory without data
+copying. This is essential for compute workloads where memcpy overhead
+between host and guest is unacceptable.
 
-- The capset VIRTIO_GPU_CAPSET_HSAKMT used for context init,
-in this series patches only HSAKMT context can use the userptr
-feature. HSAKMT is a GPU compute library in HSA stack, like
-the role libdrm in mesa stack.
+UAPI Changes:
+- Add VIRTGPU_BLOB_FLAG_USE_USERPTR flag to enable userptr mode
+- Add VIRTGPU_BLOB_FLAG_USERPTR_RDONLY flag for read-only access
+- Add 'userptr' field to drm_virtgpu_resource_create_blob structure
+  to pass guest userspace virtual address
+- Add VIRTGPU_PARAM_RESOURCE_USERPTR for runtime feature detection
+
+The userptr field contains the guest userspace virtual address that
+will be pinned by the driver during resource creation and unpinned on
+destruction. The driver validates the address, pins the pages, and
+provides the physical addresses to the host via scatter-gather table.
 
 Signed-off-by: Honglei Huang <Honglei1.Huang@amd.com>
 ---
- include/uapi/linux/virtio_gpu.h | 1 +
- 1 file changed, 1 insertion(+)
+ include/uapi/drm/virtgpu_drm.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
-index be109777d10d..30f5e1a9f03d 100644
---- a/include/uapi/linux/virtio_gpu.h
-+++ b/include/uapi/linux/virtio_gpu.h
-@@ -313,6 +313,7 @@ struct virtio_gpu_cmd_submit {
- #define VIRTIO_GPU_CAPSET_VENUS 4
- #define VIRTIO_GPU_CAPSET_CROSS_DOMAIN 5
- #define VIRTIO_GPU_CAPSET_DRM 6
-+#define VIRTIO_GPU_CAPSET_HSAKMT 8
+diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
+index 9debb320c34b..02be53262f05 100644
+--- a/include/uapi/drm/virtgpu_drm.h
++++ b/include/uapi/drm/virtgpu_drm.h
+@@ -98,6 +98,7 @@ struct drm_virtgpu_execbuffer {
+ #define VIRTGPU_PARAM_CONTEXT_INIT 6 /* DRM_VIRTGPU_CONTEXT_INIT */
+ #define VIRTGPU_PARAM_SUPPORTED_CAPSET_IDs 7 /* Bitmask of supported capability set ids */
+ #define VIRTGPU_PARAM_EXPLICIT_DEBUG_NAME 8 /* Ability to set debug name from userspace */
++#define VIRTGPU_PARAM_RESOURCE_USERPTR 9 /* userptr support with blob resources */
  
- /* VIRTIO_GPU_CMD_GET_CAPSET_INFO */
- struct virtio_gpu_get_capset_info {
+ struct drm_virtgpu_getparam {
+ 	__u64 param;
+@@ -185,6 +186,8 @@ struct drm_virtgpu_resource_create_blob {
+ #define VIRTGPU_BLOB_FLAG_USE_MAPPABLE     0x0001
+ #define VIRTGPU_BLOB_FLAG_USE_SHAREABLE    0x0002
+ #define VIRTGPU_BLOB_FLAG_USE_CROSS_DEVICE 0x0004
++#define VIRTGPU_BLOB_FLAG_USE_USERPTR      0x0008
++#define VIRTGPU_BLOB_FLAG_USERPTR_RDONLY   0x0010
+ 	/* zero is invalid blob_mem */
+ 	__u32 blob_mem;
+ 	__u32 blob_flags;
+@@ -200,6 +203,13 @@ struct drm_virtgpu_resource_create_blob {
+ 	__u32 cmd_size;
+ 	__u64 cmd;
+ 	__u64 blob_id;
++
++	/*
++	 * userptr: guest userspace memory address for VIRTGPU_BLOB_FLAG_USE_USERPTR.
++	 * Must be 0 if VIRTGPU_BLOB_FLAG_USE_USERPTR is not set.
++	 * The driver will pin the user pages and allow the host to access them.
++	 */
++	__u64 userptr;
+ };
+ 
+ #define VIRTGPU_CONTEXT_PARAM_CAPSET_ID       0x0001
 -- 
 2.34.1
 
