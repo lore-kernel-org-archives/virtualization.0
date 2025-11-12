@@ -1,267 +1,173 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EB132F531F
-	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 06:55:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 550F929E11B
+	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 07:18:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762930555; cv=none; b=PEamJbZfpP7y2gGqo0p6cY4GObzh9VqSC+y3UMBd90oqdPwSVz1nFZBnHDBNvffqPhZTKp1xEwDk3+DRGw+44axjlr0zyDRFcNJtukxrxmjijj3B8Vl2fGeaIZFNFbhdxz59i5KK5XtASFSUPXkQ71LvBMd/LJ9s1f9T+5xDj4s=
+	t=1762931899; cv=none; b=dbTRtykeVqIJP/q7Hen7C/L1XQJJmeu0ivoOCRHcu8pQK1yffwVDA5SO8ttmhtuWB/wNq9Qtg9DtLVz1FwvXNbjo1+FhDJ9TiMLYs66gLo2rwmkFV3S/4yCR74Lkf4sh/LkVbVnmTyTP0OcdOyZeFsz/wfqlHRR35mV85s4jEAI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762930555; c=relaxed/simple;
-	bh=2x6tXKfLWbVuFVgQa4tz65Vr8N2Tjd8KuOypZPv1PZU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=KBhUf9g7XXlK9z/TXER0CTUP0wKydbsAdaqYgwWRbKFMxHHNGXwbmpfvrHvPWp9oe1aWdr7bNfVjtb82vCTzANoSW3HQY3/h4SAFpukEVuxZJjbR8LUv0h0iRytdTvsf3hvJZNFIkhtLK3YeWi+oH0/v5F+tmYXALsbeQu/CnoY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fMZNLQo6; arc=none smtp.client-ip=209.85.216.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1762931899; c=relaxed/simple;
+	bh=l+NV0k7Bp/+YgOf/+PvP9J8DW53va6OQMtA4SQp1YmQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rN9f61WJNIB7hKP9p8fHXwEUsVp8Slr3qXkBeyFAVqatQs7sBSeufAGZqhXL6s00rHh2HqEzaVTqQ08/3f8ckjEi95nhVmaphQGAqfcH2PaPax/nurcHiKxOodAdPORFTVYo/pJoDYfBb48neqmmFZNphNcgPY16uDV1xKquQzA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GMVuL/zZ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fMZNLQo6"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-3436a328bbbso684876a91.2
-        for <virtualization@lists.linux.dev>; Tue, 11 Nov 2025 22:55:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1762930548; x=1763535348; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=z2Aq5H/xV16rV80h2YAfjR+YfGHuS02VHlhxoZgbHhs=;
-        b=fMZNLQo6Y9ceY/opi0vMZGFK5vsUTIwI9//G5l8nuMWDlVJVWIHXgopXjDjRM11M/J
-         yoeFGJVtpDZgbFL4Y31wwgmOsIghxCMeNpHsuv6BeKY8VITvfYItsj+Ee31m8KcirN6V
-         FHItj2JFTloMWEpQHnsi1cRfpNrAQDl/Pr1iev+vq6cIW2zTu4DenncCjWyp5gF68aLt
-         EeA59sN253JPYxgNgJaHy9YpErGTEpPQ/F8yF0uxykD7Pa0zyw5nhDLD+urjVbrbCH5J
-         lBxul7lwCtX6Cv28EtqsTAm4hWaDUUjGcHQfS3KKSrtW56QDKJHvzkF6sx2wDxbdZXl3
-         FNJg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GMVuL/zZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1762931896;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2OQTWc8k6eLNIl1r2U6IKGTRX88Qf57rZqkALXWLQcE=;
+	b=GMVuL/zZYJhzTG+dMGxiZzpm6+GOSCSuDbFzIwEnOepnihS3g3iIaoJlHtS1W+uTd2f1jK
+	mUt6BDmprt/5hUgNcS30I6z7WI8DNCmu2Bq9GWrAxSDuHPnoGjSYc2lW4LfgqCu9Ji4L4J
+	JRgloz7XdMvcNf1pr8EtE/5K4mBKhGA=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-447-grbNrvl9OV-FKbJ2aWFYBA-1; Wed, 12 Nov 2025 02:18:15 -0500
+X-MC-Unique: grbNrvl9OV-FKbJ2aWFYBA-1
+X-Mimecast-MFC-AGG-ID: grbNrvl9OV-FKbJ2aWFYBA_1762931894
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-341cd35b0f3so581845a91.0
+        for <virtualization@lists.linux.dev>; Tue, 11 Nov 2025 23:18:14 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762930548; x=1763535348;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=z2Aq5H/xV16rV80h2YAfjR+YfGHuS02VHlhxoZgbHhs=;
-        b=Nw29U/PYIdAD8XP/jYg5YRfrHworNMICPHnZrVavIgJeUqZUz6vOk+GxW20avf1Tfp
-         o1zauM6tFKZUs16TyOp8gRHbWhbggNPMCC6oPp9o/pMyBWZiHvz+lx01Nh9Gn3rX7zw2
-         FsbavWs5C0KmUGtnqzuHtQ2o+3Y0lw0Aqk8aeXOKu0eXMVl3zcM1wDiM9UbH9BMkRBQY
-         JNAYZodSszNO5COYtcIbWaooapnzPol7TQ4pFl8At8ZfQrDMPxZCuqk5Rgi+D/lIkJon
-         xtleCdEgQ2qAISp/k0cVlOb/FJrGuqwdxqQmb2QtrB75o30xqiKuqZVIMmNzDZ4Uz1C/
-         auvA==
-X-Gm-Message-State: AOJu0YxKLE2zkgtpB4CmCtaAyLOAG0nO6FkDK5vqh/LgXD9cp8+yrZ3g
-	Uo3LiRYdRQlOH8BRtaDZYz+fioJ1PHwCrZIe3a2reX6cdb00WlDM2dFD
-X-Gm-Gg: ASbGnctX0Nmx5UdPTLKM+LxL5QEnzBAX69J6eplC5dSp+gS4EbBRSfsHoAvMIAU1M0D
-	kg0duSv8ljor0TM8jeGrMo8tjeFH/tatV9h2R6HvzCLeB9DKrQukJJZk/HcxRSV+ehZgSMXZbB8
-	lPSeqS1gYItk8OTawCCX3FYpjLs1Fp3L6A86lqMLCeq1LVOG9llUavWB8Lqao4qSbcyqtAOcAcv
-	JUhmDdr+ZPzzOI0TDPDa30raIol641/UyL7VhplXQ+t2gCChH2FllRIRgB3AAPCmOQL7OPfC4tb
-	wuG4fFC9+6LhrWS4WzzpW1PP85FaDZffoTvxplNzGXBkaada07ql135FnONpFKLiGGE7dfbaKga
-	g8miThNV46KAJTsBbpVXQEnJsNQW/nnSOMzkZYIXPt5vQscIGEQoavgj/EjrJcAdxGhVwkFu4
-X-Google-Smtp-Source: AGHT+IEaZPpXWBU5yvAAeuuj9Tkp7JSk1UFCUgBMoGGBK6v0KgdeYa3c4wyx7v7WbG4uqOJvA0o3rQ==
-X-Received: by 2002:a17:90b:270e:b0:33b:c9b6:1cd with SMTP id 98e67ed59e1d1-343dde8b47fmr2468405a91.19.1762930547964;
-        Tue, 11 Nov 2025 22:55:47 -0800 (PST)
-Received: from localhost ([2a03:2880:2ff:2::])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7b0ccb5a517sm17168405b3a.57.2025.11.11.22.55.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Nov 2025 22:55:47 -0800 (PST)
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Tue, 11 Nov 2025 22:54:56 -0800
-Subject: [PATCH net-next v9 14/14] selftests/vsock: add tests for namespace
- deletion and mode changes
+        d=1e100.net; s=20230601; t=1762931894; x=1763536694;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=2OQTWc8k6eLNIl1r2U6IKGTRX88Qf57rZqkALXWLQcE=;
+        b=J2Dl9VKOzw89BTk4RJ+ejO9cUOkdN4y1Kys2iZyVE9ZR3APCzzutnSQc5mUEegYyd4
+         ZeXHH+eQVCXgdAssbvRQTQnMa6dpCOO5dIYpIvmqUW4F11klEJndAOqWXQWoaVk+J0gT
+         eF01ZXUAjW+yFwZ+70Nd9CPKQ2FehMB46KL++dyiqS9Dq5vopctQ35kNAOIh9dY5wd2Y
+         FOpaiW6YRy+jqlXb0DheLwUhAyMuVyUf6M4B+ojVPF0R+j5IjtHIESYodFwwOYX5NCjy
+         DWLNYbv5UyHghodMwwNreBiG0FGpF5PvCGpR2e0NvVVRXOT5FEclsw5rpUaoafIF9y5q
+         M9lQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUJoVk3wNvLrXzsn3DgyJ1+WlOAumRGfnFEQ2oOo3vYXe5HysDszInQhK6tqdzo7gpLBRTcFXjuCnnA4CujHw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwI1EDkln2UeQ9Xu7NKI44hr8wniNt2LNMF9Tl+Bdt/72nH7KIn
+	KBX+rH7f1vZeRBJp1+FVC5Y1yWHXU2Njf+Qd9n/w2c+JD1viFuixSBfSqdr/3zTXOxzBLZAd+Xz
+	Iu7QMjL3agE0hZ73C14mWlIC22RIrmc0H6z6HXkFqcpg33eNkdohPoaL9yLY+Zu8SDj7CHNP5Rs
+	Cfzpppj1c2i1Z5/tISTQOgFJz3Wi3OBUH4IxQWlHaFGIQ=
+X-Gm-Gg: ASbGncvFtlCAorXS3GK3Y9v5THMDvuE+RQTpNI9aTdA/db+A3o71Ip1BTfeNbU6/IoT
+	7XjAe0qLcDB+wsBcYTmGkg6+di6EXIwL9j+RZYbWTS1OknyLUPjKxkK6cC9bOdvH/jP/urKGa4X
+	ZeagS9i90oZZ2JDvGSpewwroowL0jxJ6zG8w/ruWPpoKBiYQtgybF+iPO7
+X-Received: by 2002:a17:90a:ec8b:b0:340:e103:bfd4 with SMTP id 98e67ed59e1d1-343dddf5290mr2457735a91.2.1762931893996;
+        Tue, 11 Nov 2025 23:18:13 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEiyTtRY6Si4zXAKOZru7EoKpBQTUibKUV8Jrm0qaneiJMYyuUjN+SN/kgXL/nz1Zlqo7mpRrDD+OqPMOc61qU=
+X-Received: by 2002:a17:90a:ec8b:b0:340:e103:bfd4 with SMTP id
+ 98e67ed59e1d1-343dddf5290mr2457700a91.2.1762931893477; Tue, 11 Nov 2025
+ 23:18:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20251111-vsock-vmtest-v9-14-852787a37bed@meta.com>
-References: <20251111-vsock-vmtest-v9-0-852787a37bed@meta.com>
-In-Reply-To: <20251111-vsock-vmtest-v9-0-852787a37bed@meta.com>
-To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
- Vishnu Dasa <vishnu.dasa@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
- kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
- Sargun Dhillon <sargun@sargun.me>, berrange@redhat.com, 
- Bobby Eshleman <bobbyeshleman@meta.com>
-X-Mailer: b4 0.14.3
+References: <20251107041523.1928-1-danielj@nvidia.com> <20251107041523.1928-6-danielj@nvidia.com>
+ <ee527a09-6e6e-4184-8a0c-46aacb11302f@redhat.com> <CACGkMEt2SEWY-hUKv2=PwLZr+NNGSobr4i-XQ_qDtGk+tNw8Gw@mail.gmail.com>
+ <443232ac-2e4f-4893-a956-cf9185bc3ac1@nvidia.com> <CACGkMEtMP2XfXFmuhoAkMrcgJD8JiRTc-tuq1i7xxxzA43A4mg@mail.gmail.com>
+ <ada8b5c4-2a9e-45d9-a9e1-28fa50afce8d@nvidia.com>
+In-Reply-To: <ada8b5c4-2a9e-45d9-a9e1-28fa50afce8d@nvidia.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 12 Nov 2025 15:18:02 +0800
+X-Gm-Features: AWmQ_bnZhIKWSMpkWsQnvAN7AMqno6qxXdnPzDz-AkTZBuWbcERPcd9gvbM-Fys
+Message-ID: <CACGkMEvgPyfOquwxXbugukpxenMt9NDevpJJi3QXD1s=0pgWXw@mail.gmail.com>
+Subject: Re: [PATCH net-next v9 05/12] virtio_net: Query and set flow filter caps
+To: Dan Jurgens <danielj@nvidia.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, mst@redhat.com, 
+	virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com, 
+	yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	shameerali.kolothum.thodi@huawei.com, jgg@ziepe.ca, kevin.tian@intel.com, 
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: TFlFIponY03RztzrA0bhEg_YUNb0OQYQVtLhdAoWX5U_1762931894
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Bobby Eshleman <bobbyeshleman@meta.com>
+On Wed, Nov 12, 2025 at 1:16=E2=80=AFPM Dan Jurgens <danielj@nvidia.com> wr=
+ote:
+>
+> On 11/11/25 10:18 PM, Jason Wang wrote:
+> > On Wed, Nov 12, 2025 at 11:02=E2=80=AFAM Dan Jurgens <danielj@nvidia.co=
+m> wrote:
+> >>
+> >> On 11/11/25 7:00 PM, Jason Wang wrote:
+> >>> On Tue, Nov 11, 2025 at 6:42=E2=80=AFPM Paolo Abeni <pabeni@redhat.co=
+m> wrote:
+> >>>>
+> >>>> On 11/7/25 5:15 AM, Daniel Jurgens wrote:
+> >>>>> @@ -7121,6 +7301,15 @@ static int virtnet_probe(struct virtio_devic=
+e *vdev)
+> >>>>>       }
+> >>>>>       vi->guest_offloads_capable =3D vi->guest_offloads;
+> >>>>>
+> >>>>> +     /* Initialize flow filters. Not supported is an acceptable an=
+d common
+> >>>>> +      * return code
+> >>>>> +      */
+> >>>>> +     err =3D virtnet_ff_init(&vi->ff, vi->vdev);
+> >>>>> +     if (err && err !=3D -EOPNOTSUPP) {
+> >>>>> +             rtnl_unlock();
+> >>>>> +             goto free_unregister_netdev;
+> >>>>
+> >>>> I'm sorry for not noticing the following earlier, but it looks like =
+that
+> >>>> the code could error out on ENOMEM even if the feature is not really
+> >>>> supported,  when `cap_id_list` allocation fails, which in turn looks=
+ a
+> >>>> bit bad, as the allocated chunk is not that small (32K if I read
+> >>>> correctly).
+> >>>>
+> >>>> @Jason, @Micheal: WDYT?
+> >>>
+> >>> I agree. I think virtnet_ff_init() should be only called when the
+> >>> feature is negotiated.
+> >>>
+> >>> Thanks
+> >>>
+> >>
+> >> Are you suggesting we wait to call init until get/set_rxnfc is called?=
+ I
+> >> don't like that idea. Probe is the right time to do feature discovery.
+> >
+> > Nope I meant it might be better:
+> >
+> > 1) embed virtio_admin_cmd_query_cap_id_result in virtnet_info to avoid
+> > dynamic allocation
+> >
+> > Or
+> >
+> > 2) at least check if there's an adminq before trying to call virtnet_ff=
+_init()?
+>
+> I could do a check like this:
+>
+>         if (!vdev->config->admin_cmd_exec)
+>                 return -EOPNOTSUPP;
+>
+> Or would you prefer it added to the virtio_admin_command api?
+>
+> bool virtio_admin_supported(struct virtio_device *vdev);
 
-Add tests that validate vsock sockets are resilient to deleting
-namespaces or changing namespace modes from global to local. The vsock
-sockets should still function normally.
+I prefer 1) but I'm fine for 2) if everyone think it's ok.
 
-The function check_ns_changes_dont_break_connection() is added to re-use
-the step-by-step logic of 1) setup connections, 2) do something that
-would maybe break the connections, 3) check that the connections are
-still ok.
+Thanks
 
-Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
----
-Changes in v9:
-- more consistent shell style
-- clarify -u usage comment for pipefile
----
- tools/testing/selftests/vsock/vmtest.sh | 124 ++++++++++++++++++++++++++++++++
- 1 file changed, 124 insertions(+)
-
-diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index 111059924287..4caa7d47f407 100755
---- a/tools/testing/selftests/vsock/vmtest.sh
-+++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -66,6 +66,12 @@ readonly TEST_NAMES=(
- 	ns_same_local_loopback_ok
- 	ns_same_local_host_connect_to_local_vm_ok
- 	ns_same_local_vm_connect_to_local_host_ok
-+	ns_mode_change_connection_continue_vm_ok
-+	ns_mode_change_connection_continue_host_ok
-+	ns_mode_change_connection_continue_both_ok
-+	ns_delete_vm_ok
-+	ns_delete_host_ok
-+	ns_delete_both_ok
- )
- readonly TEST_DESCS=(
- 	# vm_server_host_client
-@@ -135,6 +141,24 @@ readonly TEST_DESCS=(
- 
- 	# ns_same_local_vm_connect_to_local_host_ok
- 	"Run vsock_test client in VM in a local ns with server in same ns."
-+
-+	# ns_mode_change_connection_continue_vm_ok
-+	"Check that changing NS mode of VM namespace from global to local after a connection is established doesn't break the connection"
-+
-+	# ns_mode_change_connection_continue_host_ok
-+	"Check that changing NS mode of host namespace from global to local after a connection is established doesn't break the connection"
-+
-+	# ns_mode_change_connection_continue_both_ok
-+	"Check that changing NS mode of host and VM namespaces from global to local after a connection is established doesn't break the connection"
-+
-+	# ns_delete_vm_ok
-+	"Check that deleting the VM's namespace does not break the socket connection"
-+
-+	# ns_delete_host_ok
-+	"Check that deleting the host's namespace does not break the socket connection"
-+
-+	# ns_delete_both_ok
-+	"Check that deleting the VM and host's namespaces does not break the socket connection"
- )
- 
- readonly USE_SHARED_VM=(
-@@ -1172,6 +1196,106 @@ test_ns_vm_local_mode_rejected() {
- 	return "${KSFT_PASS}"
- }
- 
-+check_ns_changes_dont_break_connection() {
-+	local ns0="global0"
-+	local ns1="global1"
-+	local port=12345
-+	local pidfile
-+	local outfile
-+	local pids=()
-+	local rc=0
-+
-+	init_namespaces
-+
-+	pidfile="$(create_pidfile)"
-+	if ! vm_start "${pidfile}" "${ns0}"; then
-+		return "${KSFT_FAIL}"
-+	fi
-+	vm_wait_for_ssh "${ns0}"
-+
-+	outfile=$(mktemp)
-+	vm_ssh "${ns0}" -- \
-+		socat VSOCK-LISTEN:"${port}",fork STDOUT > "${outfile}" 2>/dev/null &
-+	pids+=($!)
-+
-+	# wait_for_listener() does not work for vsock because vsock does not
-+	# export socket state to /proc/net/. Instead, we have no choice but to
-+	# sleep for some hardcoded time.
-+	sleep "${WAIT_PERIOD}"
-+
-+	# We use a pipe here so that we can echo into the pipe instead of using
-+	# socat and a unix socket file. We just need a name for the pipe (not a
-+	# regular file) so use -u.
-+	local pipefile=$(mktemp -u /tmp/vmtest_pipe_XXXX)
-+	ip netns exec "${ns1}" \
-+		socat PIPE:"${pipefile}" VSOCK-CONNECT:"${VSOCK_CID}":"${port}" &
-+	pids+=($!)
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -e '"${pipefile}"' ]]; do sleep 1; done; exit 0'
-+
-+	if [[ $2 == "delete" ]]; then
-+		if [[ "$1" == "vm" ]]; then
-+			ip netns del "${ns0}"
-+		elif [[ "$1" == "host" ]]; then
-+			ip netns del "${ns1}"
-+		elif [[ "$1" == "both" ]]; then
-+			ip netns del "${ns0}"
-+			ip netns del "${ns1}"
-+		fi
-+	elif [[ $2 == "change_mode" ]]; then
-+		if [[ "$1" == "vm" ]]; then
-+			ns_set_mode "${ns0}" "local"
-+		elif [[ "$1" == "host" ]]; then
-+			ns_set_mode "${ns1}" "local"
-+		elif [[ "$1" == "both" ]]; then
-+			ns_set_mode "${ns0}" "local"
-+			ns_set_mode "${ns1}" "local"
-+		fi
-+	fi
-+
-+	echo "TEST" > "${pipefile}"
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done; exit 0'
-+
-+	if grep -q "TEST" "${outfile}"; then
-+		rc="${KSFT_PASS}"
-+	else
-+		rc="${KSFT_FAIL}"
-+	fi
-+
-+	terminate_pidfiles "${pidfile}"
-+	terminate_pids "${pids[@]}"
-+	rm -f "${outfile}"
-+
-+	return "${rc}"
-+}
-+
-+test_ns_mode_change_connection_continue_vm_ok() {
-+	check_ns_changes_dont_break_connection "vm" "change_mode"
-+}
-+
-+test_ns_mode_change_connection_continue_host_ok() {
-+	check_ns_changes_dont_break_connection "host" "change_mode"
-+}
-+
-+test_ns_mode_change_connection_continue_both_ok() {
-+	check_ns_changes_dont_break_connection "both" "change_mode"
-+}
-+
-+test_ns_delete_vm_ok() {
-+	check_ns_changes_dont_break_connection "vm" "delete"
-+}
-+
-+test_ns_delete_host_ok() {
-+	check_ns_changes_dont_break_connection "host" "delete"
-+}
-+
-+test_ns_delete_both_ok() {
-+	check_ns_changes_dont_break_connection "both" "delete"
-+}
-+
- shared_vm_test() {
- 	local tname
- 
-
--- 
-2.47.3
+>
+> >
+> > Thanks
+> >
+> >>
+> >>
+> >>>>
+> >>>> /P
+> >>>>
+> >>>
+> >>
+> >
+>
 
