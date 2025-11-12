@@ -1,233 +1,343 @@
-Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012048.outbound.protection.outlook.com [52.101.53.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2432A1F09B3
-	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 05:16:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762924565; cv=fail; b=CSQsKUYljr4jdMjiDtQjRD5ltvu16TsdEYGgovWsW6jFq/eDefInK3QPGiEF2OChF9+H/mua7XQUjMdbQ4SXCSCKfTr30Tyz8J5WCwhfM5Pxjxx7uHF5nvs6Z7RjSEUS+fQHTEaQGbOTOl218lAaG1zBPYVYQpxdAqqIDlv7C7U=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762924565; c=relaxed/simple;
-	bh=G8Ro4aIT7T2Mr9uQSN5ZgdjMeLRHXCOW70Pbn6Q0Z50=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Xfw+VdGqBP+q9EVxN8/HL54Y1jhAcXCdQeh+tdd6cn7F3dawAg+75A8m+cHpeKRXLk7Zd1PV56EvLhbH+uttnyXde10eH6dFBgz1xt6B/08IGhEbgzJWE2mbYCL0W/VCdcEIaMuqcx7r8FMn9OPjYT7IzFXbA/9i1ktJjEQE82M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=sOafgz+5; arc=fail smtp.client-ip=52.101.53.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76FA42DA76A
+	for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 06:55:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762930537; cv=none; b=kwiFkfRa+U17bAtUP3UXoKALsrEdDRqiiUIar7IqzUischBC2MhbhyZtEVaz9Q6dvbfEEJgzU6f/Smml9NNl/MWnGAcg29Z9heSEtcCSGjj1vdPeZgGPI865fKw/a+jtpvlmAZMdXoXvRkoyjDigXbz0hL0/njnl0Q3qDYP3e3E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762930537; c=relaxed/simple;
+	bh=/ZJs6hM4aBlMVwDYCyi6knawEEKBN9+OG6DspGG4uRk=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=rqEGzDxF0zKOm5/Fhe0+395iORKEzZnS4PGzH73sikzCBnpFugq6Nbs42TJZ6Wm4bCuVfL4lsRZii0psmUl1ih48i6FfjqQ1EjPW71AgP44/a1V2/8/4T3ywjRar2c9nvtM8wyeXz4pP43Ne/5/OffA9Hujb3TeXUu6/eOL03UE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gHAUiu7R; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="sOafgz+5"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Y2Wm9nOeJjUwAbezEXn68UBzjaadP7TrVHnUCvBTYb05c9svURRPZNJpo2AS/BgHie7MK0MVq8xrS1JWXHepd/CJSBwS9OZ5S8zXi7Knf/Im9xVb3wqBQBzvLIc+ccs/Qup/q3noJoxwOAgvmbN7NLpxoSa6L4cfXVPcN45ZgDZBqlR0k2CcSHIpbGbcKOry/6oVIaHJaqGsCRLoeYfWrfvh+WpFsn7EDFuI+OSNFi+bKRMy4yQRuUdfeUvHjfoba+wrjWLm/JU0rG+wjXs9ysWeDBh2Ne6KkFNp56XNAutwUWGImOkg/PVpUHqRp9s3LgB6ubGeO+XmkuvsrnEFvw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FCpFv+AH6Ijht+yc2WLDCywxy07bNyn8ah+nVgwdkOA=;
- b=PRNq7GZRqcO2wfhf1xJmfJ/WxgbooX1gnrJR1RxMP1Rru14x18EZD+3SVUaKvqMliwHSGLuxzIaFOH6SqN3t05aGLBCeT5tBassf3U9RBlCrZTaFTIf1s8lRsQXWcI2aw/OqY8BBZ4FKcEn1topjjnlj3syKYbx6+jwzbSPxLqUzjpqynGZfIp/MVRZjeBVkZutFjRy1wU+mh+iJg9xMdI2Eyzr/grfO6wzVOLuLIcLVTiR1EuTGkKJy4N1uxavPrV5UcdCujUOSXhuoRVK2cZi1W0cEPh/8BsX1394gCOQRmzC49ArDcE8XcL6oSlatpC3zHTh4Jo8zejq/yOjSyg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FCpFv+AH6Ijht+yc2WLDCywxy07bNyn8ah+nVgwdkOA=;
- b=sOafgz+5ZUwVhU3QbsZWPdviYWzJy890NNgIXvezFcihUxZfNmsuoSWIUTGxnIJ+kbWA/VezYqsppaJIK2RdI6TJjRsSS7BZcauuoffGtLKG91jZLCfRD/HFPFA9uHlECz8ZEVePgJbBGRRxYbilb8Y4D/F68gP6vCta1yvj545fHgzmUih3aBT/XAD72qZTWSgjhns6SP6u561oktj5dhCj8ed1oW++NUNGe/+yl6k0Q+dY1nqf5RawuDSbsJ4IBeKm0+3AYahZPse4c1z4xL4VWqNst4Y/Ij2mKZG03e0CbkrzZapWF+AIbIgaLuVtaZzIa9L25ChukV+74SXmdg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by CH3PR12MB9028.namprd12.prod.outlook.com (2603:10b6:610:123::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9320.15; Wed, 12 Nov
- 2025 05:15:58 +0000
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9298.015; Wed, 12 Nov 2025
- 05:15:58 +0000
-Message-ID: <ada8b5c4-2a9e-45d9-a9e1-28fa50afce8d@nvidia.com>
-Date: Tue, 11 Nov 2025 23:15:55 -0600
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v9 05/12] virtio_net: Query and set flow filter
- caps
-To: Jason Wang <jasowang@redhat.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, mst@redhat.com,
- virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- shameerali.kolothum.thodi@huawei.com, jgg@ziepe.ca, kevin.tian@intel.com,
- kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
-References: <20251107041523.1928-1-danielj@nvidia.com>
- <20251107041523.1928-6-danielj@nvidia.com>
- <ee527a09-6e6e-4184-8a0c-46aacb11302f@redhat.com>
- <CACGkMEt2SEWY-hUKv2=PwLZr+NNGSobr4i-XQ_qDtGk+tNw8Gw@mail.gmail.com>
- <443232ac-2e4f-4893-a956-cf9185bc3ac1@nvidia.com>
- <CACGkMEtMP2XfXFmuhoAkMrcgJD8JiRTc-tuq1i7xxxzA43A4mg@mail.gmail.com>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <CACGkMEtMP2XfXFmuhoAkMrcgJD8JiRTc-tuq1i7xxxzA43A4mg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SA1P222CA0080.NAMP222.PROD.OUTLOOK.COM
- (2603:10b6:806:35e::17) To MW4PR12MB7309.namprd12.prod.outlook.com
- (2603:10b6:303:22f::17)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gHAUiu7R"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2958db8ae4fso4526115ad.2
+        for <virtualization@lists.linux.dev>; Tue, 11 Nov 2025 22:55:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1762930534; x=1763535334; darn=lists.linux.dev;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ke3NReGgTRFEhQlk1px8T+aLyWDyRxoG6fInQoXP324=;
+        b=gHAUiu7RrdPVu8o1o+d8WJTYXiByjeFKLJHYvNIxVnWF9LVAkhgj3TF8U9M7nwCwJv
+         /c4QP5mb0TvG6cMglOX/QnqlDaYcPXljW2HeLKqxf2D9I0jiu8RzpMB1Zgdg1pEMm0I2
+         8qhc3FxEvU29pB4EjS0lKJXWV+Y8m/NHYstvo9znxp93MRPiTzQEOEvfzuyhrMHxaU4y
+         D1jjd/EkMBdmGD0JZU0nSfqFUsms5pa2puQHN2cJE5gzCyM+H/zdpN0UrMh/zoEvVAY2
+         vwHed5QiO2t3PkTxFCBwWZaYhC4E+5afbGSkMUZyfulEqt3uIqIOaEmwnS12zpbphm0i
+         WzuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1762930535; x=1763535335;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ke3NReGgTRFEhQlk1px8T+aLyWDyRxoG6fInQoXP324=;
+        b=qc+pjtSBk5Z3a345HUEDajiGTKL//OWbWojxt81f1JptLGRT/3Bg7wyuUSbl6PKKRT
+         9OOzOGeKAdNV2a7vlRL+iPLt2b3E78EduMabkklbby4FKlsFA+wYtVGJVm4uEeYZeafA
+         foUphEVFr/UDJVung6L56yogLDRmZ804YxVPqj/+B2/2/s9iRXWgDkEPCctar8ei49xj
+         K/p6fJi43nLzMKojE3e/O35NYqp1Bp14jkdW84fPf+8ohyaPi7WSIDpeJ+UvBUTuIlcT
+         8mZKPtGG197HYRD7NAOx1mhZFWfY9lVLUbT5NF/OHjmUyxfFZns94XWUDGTEQFzcVRlH
+         C6hA==
+X-Gm-Message-State: AOJu0YzrY3uq8LddKn51enJ+BEdmZiukkk1qZ245eA4eI8x22XBccfs/
+	5Sd/zckFR8HRcs+x7JoBPHxH5oVL2RohcIHcRvkFMN/u+XqYcntA6Urf
+X-Gm-Gg: ASbGncuXW3snbC2kK3dTbEqxiGOMZxAnQAMK7AVrJa/ADS7azypRRqyl1wtFxTzYC/r
+	TrOMtdnZCHC1WcZ3QXQr8efU9Q6gYNADe7uOdIShn8lsHBWe+5FKF7HDoD1rMUzTCN6HD2KOeoj
+	HhbnnSrG/6/D1qAa8/jnk/ZnHxSQeoaLKcDELLunBrRpDgjcRSOXyjwbSXe5/oGfIcdiJn539nE
+	ehjsRrDTWX6pGJ1YR91g1f0N0yNaVKqwHO6lauDdpoQw01FsN5DNsUtz3C5zjSuS94LCeLqAVp8
+	HzUspgqJgYqmT6FvbgLDFuw23WrXbcFVvIk7VYY4/7ZVb4d0CVu5rnT7uCYPQIXUbX2w0AqTDIg
+	c1KxZMvW1V0Kche6orK+B7pdtpMuP5Rgv3QoCt4wEP3IkLxB0OrkybVSL3uUCI6KeB7N0IbyE
+X-Google-Smtp-Source: AGHT+IFAYkhKzu/x9HPT+1qAO6YJQ04QKPGbuIxpHa5zaK1fC1l23/beGqYUlgExVd9PMwhrh44BTg==
+X-Received: by 2002:a17:903:41cd:b0:295:8a21:155a with SMTP id d9443c01a7336-2984eda838cmr27544485ad.35.1762930534354;
+        Tue, 11 Nov 2025 22:55:34 -0800 (PST)
+Received: from localhost ([2a03:2880:2ff:2::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2984dbdac10sm19016245ad.22.2025.11.11.22.55.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Nov 2025 22:55:33 -0800 (PST)
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+Subject: [PATCH net-next v9 00/14] vsock: add namespace support to
+ vhost-vsock and loopback
+Date: Tue, 11 Nov 2025 22:54:42 -0800
+Message-Id: <20251111-vsock-vmtest-v9-0-852787a37bed@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|CH3PR12MB9028:EE_
-X-MS-Office365-Filtering-Correlation-Id: 66922202-416d-4779-6315-08de21aa9039
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?UjNSOTFpSlZiRGtXeityTjVWZlF0bGdNLyttZkRyMWRDakhpbFhaMklYQ0RJ?=
- =?utf-8?B?WVVrSG8vVlgwL3M4K2hpeEhZQk1qcFNtbHZDTHBKWEVIcnM2NHVJTHpZNzQy?=
- =?utf-8?B?c01ZRkdaYzVta25sNHhVVDVTVUtSYVUrU3JhVUwvYXRWejZzOXE2Zm52ZU5x?=
- =?utf-8?B?TVkvSHZ3emVWQk55V2h5L0h0ckZQQ0dGMmVad2ZuZXBndnRnWTJQaEVWaDJJ?=
- =?utf-8?B?cmM0WjNzTS9vbHprVDcxYjNWTWxvaVBzL251ZWZtTElZQlY4aDZuaDFTeUhq?=
- =?utf-8?B?SWhOb2NiUkZPVHZMTGllZmtlbGxXM0NaMlZqQXZvMmRCKy9tdUJ2dmd6Q2lY?=
- =?utf-8?B?N2MvS2JQZnBTRTR2VkYxZHZIaHBub3BndW5tWWtGNjM2ZG01UzRXMjIzZ2cw?=
- =?utf-8?B?N3RhUEtKMkgzNmF1QTJidkVLbUg0T2JYSE1YQ2Z6Z0ZFcjFMWGpkMzR3dzEy?=
- =?utf-8?B?YW5NZ0M0TFFXWFRPS0Yrb1BENnJXZkxiSGV6KzY3bkVSWGxFMytRejRIVWF1?=
- =?utf-8?B?U2dMNkdkUFlNM210cGpiNk0rRERvUStXTitEcWV5QkwxZUFsQUV6Z2NPOXg3?=
- =?utf-8?B?Tm5MSUQ3M0FsT1NlVmhrbC9ScWJyR3Bod0lpR2NZWWpyRithVnZ4bGlidFVM?=
- =?utf-8?B?Qmg2dCtrSDFVSWhvbGg1MHpBeXVJU1VyQnkxRGw3RmNtM1A5V2ZTTHVWWjlG?=
- =?utf-8?B?L29ucWVkUExqbFdpMk9KOVFFRjcvaDlhVFdJc3BGa1RxWGs3MkFRSzZqNUhG?=
- =?utf-8?B?OTNiV1pZMGxTVnhrMHBMYkRwVmdLMVArcmVUeUI1ODBRLzkydUM2YVQ5VkJ4?=
- =?utf-8?B?ZEFiZm1LQ0F5WERTOHNGbGpBR3JDMW16VjdUTGx6SjdXaEphTld2YjBCcy9W?=
- =?utf-8?B?T05YSmFIYTI5VlFqa2lIaUtibkg2OTloQWxSNXpwVDNHOGRiY2gwRHM4TnlW?=
- =?utf-8?B?VENOS0JxM1pBb29NbFRtNEdxd1dkUExGam8rSFhMck1CaXZ2Wi9LVU1NRC9W?=
- =?utf-8?B?T1c0UkNGc0ZsTGRuajBrM255UFM5ZHBzQlpKam16MkQwcnllc1pUcGI3YjZS?=
- =?utf-8?B?WlNqeUo1bHUzM01va1l1WVA3Y2xhdjdXMnFYYit0NjkvVWJoOURRMlZyNFc4?=
- =?utf-8?B?Wk45VlFBbHd3aE92QSthOWJpT1Buc0tpeTg3VWFPOGIzZUVLMVpNU3lkaUxo?=
- =?utf-8?B?aXQxUUFRV3hkc2hmTWxtUGt3eE5RcUo0UHNVUjBGaXNRN1pEeThSUG9hSmJN?=
- =?utf-8?B?NjNmRXF2alZWaUpQbHgyOVh0V1l0aEppVllXazZXZ1JScjRxamZFZU5MYm1L?=
- =?utf-8?B?UlJ6VnpuckFjeE1iLzBsejVCMCtqbEMyMjVHTWpVcmptT3BMbktuSmRzZWtj?=
- =?utf-8?B?ME8wQms5a1IyK0I0RmtUblU5LzI1Q2lmMHVyby8rcTNuRFZITEVVZWoxMGVq?=
- =?utf-8?B?MWxzVGhFUHA2SWk5aDlRdUtPazdFcS8yWEtmKzN1NDVQRDYxMFhMT3F4M0xm?=
- =?utf-8?B?aEZ5cTh2akUyMExMa040VDR3SFRleXYvK0NKdW5ZVFRjeS94SXNZUnNxTjBz?=
- =?utf-8?B?M3BUbTBjTEFwUndMV013RXp5blpCaXdaOE8xdmdXMVNNNWZENFprSDlpYmsv?=
- =?utf-8?B?QnJIYnhqUTI1elBPcDlJd1dQOUhJcmJvbk9uaFErRy9FUEYvOTZIS2cxdU4x?=
- =?utf-8?B?ODE1YTI0NFhGd1VrbThKVzdQTXFFVVlKQ25DYnpMakQ0RjFtT1B4K2gzZ0hw?=
- =?utf-8?B?Y25USEZhUjNGOW5VSVdFRzBuVFFXVmRxZnRTWW1QcXBNV284L2gxM2FjUVVy?=
- =?utf-8?B?S0Z2a0NNdDN6NzFDMFlrNXh0T2dzeU9TTzBQa1pBSENSc09ScWN3bmNrdkJQ?=
- =?utf-8?B?QmdlVUkwdktvMk1xY2hDamUxNHNCWVRGanNyVm1rTUJqN01IN1hDQlBZVTBj?=
- =?utf-8?Q?ZTzipk2PjUn09+SFyI+e1CtKXq7Wqze4?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?aWw3cFVxQ1BkRDRuTFFJdkNuM0R5Vk1mZmhMSktpZ0RiWG1tODV1d0FMVlNX?=
- =?utf-8?B?WWlab1RTUVJwdXRiS2JBOTlWVmRGWVNOejFXaWhDYnVjRHZsWnlBc0FIVEEy?=
- =?utf-8?B?endUS0xleUgwOW1seml6MzlpOWQ2TFM0TlNwaGZnK0Z1ZmIxeUNSOEdpancx?=
- =?utf-8?B?eVdIZ1Q3NXNCMGI0bTlNMFhTSjNKZWd4NURFN2NnWncrdlZFYVkveGZ5NGY2?=
- =?utf-8?B?eXAyc1pyWUJHMXpjOUR4YjZnUWFLZHRYUDBpaFBmN3FBTXlIM2QzTXkvdGtG?=
- =?utf-8?B?WWRQR0F6M0NFWUtuaC9Cbk40Mmk2MHhWK2NqSnJiOE5kY2ZvRU9ueWxEcGpu?=
- =?utf-8?B?NGdVQ2Q5VThSRmNHS3Q0V0Z6U1JCK2tJSC9yZ0R2Q293ZFphaXRmM0EvbjBJ?=
- =?utf-8?B?dDZDR0p2ODJUcjU3b21NdFNKd2p0MENGczQ2OERFMkN5bU9wOWowWGlvaytB?=
- =?utf-8?B?aTJRK0JzMzl2MnErbnBocSsxU1ZSMzdMU2IwWVJQNnBKQ0NuVGxaVzU3QWYy?=
- =?utf-8?B?QWpzajFIVkNzU1BKRktZU1NXcjFMTmJkRDZUUi9uTG10VkdFbWRWaFZZSkVm?=
- =?utf-8?B?Y01KUzFSZkc3LzA0ZGRMSDlxRHRnMlBaZlRYRFVjNnVBSTErMUUwNmUyc1Y0?=
- =?utf-8?B?RUxpNDZJOGxmZnEwbEhNMzJ4TmpzM2MxSkR1M1hPU3N5VnlDdUl0Y3lvbzdT?=
- =?utf-8?B?N2NtdHJmS0VUUmVyeTl6SjNMYXB0MC91Zzh5SFNtczFUQjJYS0lTZUZ3Zisv?=
- =?utf-8?B?M3hiZ294SUt2T0NXcHQrOUI4NEZyaGhld2hDeldGT1hGbEdTdUl0Ri9Ydkxt?=
- =?utf-8?B?TTlmMHhTR2t5QUkvMk9TNFFVZkZsdVlnT0UveFdTck5MZ2JZMGJhd2JnM2pB?=
- =?utf-8?B?SkRzODZ2MWFWczc2OWZyUEh0d0pERnlNZmlYSDJ5QXI2YTllSk55alhLWlhM?=
- =?utf-8?B?REp6NU1TeFhLYWpzV0NncndGby9IM2VjWWkwRjBPWGcvVmxPRkl0VUF1cjBN?=
- =?utf-8?B?UlJDRHVaYWtBekVRSnZRb0xMZDRDTTNNelYwdEVXK20wOHZYVVN0WVA4dUNz?=
- =?utf-8?B?a0FTcEt6bmhDanVUd3ZhcG5TcnNFeXExUmFLT1cyMG5ETy90VmJFNUtidmRP?=
- =?utf-8?B?NWN4bW41V3pFMHdRd2ZVUHphb0dzZDNkVzVEanZXUDJxb1p4dGxyMmYwN3pF?=
- =?utf-8?B?am1LWGZHb1BBcFlGRldvR2gxSUhUQ1FVZmcrR1RLZjl3dzRpeEVvcVBKTEFT?=
- =?utf-8?B?d2VWZFpiUmRIOEhyaldsZDRMSzdFNGJUblQ4c3hDSXJadWJqb3dkdDRIcW9N?=
- =?utf-8?B?YzkrcklLY05pTW9NNVlibi9ISEgvVlZ3blg5d2U1N2RRa0ljTFJ6SUlhU01o?=
- =?utf-8?B?TmRqMDh5Tzcwc3pUNUZIZUdXNWtkcUVBQmp5NEZoQkZXSC9XVkJaS0hweXJj?=
- =?utf-8?B?L0FjUVhueDdVbnNRVm1YTDBsTk5PTUlITklTeFA5NDVFbi9TVURsbUtRdFFV?=
- =?utf-8?B?cDJmTGxYSlRvKzhiVFRvNGw1bFBNam81bTNjRjZLUmsvQnphREVVQTZTSUFK?=
- =?utf-8?B?aURhU0g1dU80S0NVN2UxM3dmcURxQkRacUo3OGdTYVJRY3J6VTE4dTFVZVlV?=
- =?utf-8?B?cmgvQ3VJZE5MZVVyV0pMUGlrU1dha3o0V0tJWG04RklMMFVCU3paYURHVW45?=
- =?utf-8?B?R1lKbmMybDBzcmdiN21XVzZPcmVhb0lDdE9pZjgvdDlUZkZia1RmYU9rUGt5?=
- =?utf-8?B?b3RGaXdEUFpLU2dqUzZ5SWFRZmNsQUQ1cnllclVFVFVEaGl3SzhPN3lNUDJa?=
- =?utf-8?B?WkRDRGMzSEZyWFR3cjF3aU1HS0RsRk8vUDYvTS9VK092R0dCcGRmYU8zdTJR?=
- =?utf-8?B?QWxjdFUxenVzQlJxOU92R0svLzhvbEkrZHFhZE5vZDhWMFNUSzJMd2luYjAw?=
- =?utf-8?B?eDNrNE1EVk5hYTc3emg4Uk5tSStzRUhzaFlWTWtoeHpyWjR3U0U0Zzl3NTRB?=
- =?utf-8?B?NmtJb3Z5MFBRZDVtTVlkYWRHQzVhSnJOTEpka0V4UnBGRUVJV1NlcUM3NWZy?=
- =?utf-8?B?R0VWQU04RER6eVZuVDAzR1R6TERqdjhqSDlUNWpSeUkvbFdmMGJNM2VqMkR2?=
- =?utf-8?Q?BqqqVoVJq7U2dScSvlL3ihCPT?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 66922202-416d-4779-6315-08de21aa9039
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Nov 2025 05:15:58.2840
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tY8Tf6LIMTlWju6boG5SpWMmqCFbPvl4ezTBY/Cepxn6c3uVdUBkTFHnJw607CwYJlf9GJ/Qs66kGGvwYMCkqQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB9028
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIADMvFGkC/5WTy27cMAwAf8XQeVmQ1MPSoijyH0UOetCJ0dhOL
+ ddIEey/F+suEtfJpWdhZiSCelVV5l6qOjevapa1r/00qnMTTo3Kj3F8EOiLOjeKkS1qtrDWKf+
+ AdVikLpB0ZCpMyJnVqVHPs3T9y6b7rkZZYJSXRd2fGvXY12Waf2+dlbbzTWkI/1WuBASdttFTi
+ Sn4fPcwxP7pS56GTbTyHm4PMAOBDkiRW61J/BHWO5j9AdZAQJ5i58jpTssRNu+wxWPZAIETjqF
+ lx7m4HXy6jc+j/QAhoA2SLcVERHeDLPE9aHdB0gfWAoGR1mYTjc2SPgty+wFCwBStxyRFbDoE3
+ T54vKwDghA7yhlZB8RPgoHcBwgBnSksCbMP5RBs34KETAe23VhHqU2uQ7+bzq33X8zW8/vecaI
+ eEIrE4E1BTgl37OXvcs/y81df++W24YPUGrcvcm6+3qR8k1Z56q7aCtuPgDgW6IfneVplkHGp1
+ 0VHkCKJ2lCccfot9+36vhSrQJ6GoV/OTXAcs80xhGizlta4wGRTZ1rbsjFokEtXbFD3l8sfmhZ
+ gJdMDAAA=
+X-Change-ID: 20250325-vsock-vmtest-b3a21d2102c2
+To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ "K. Y. Srinivasan" <kys@microsoft.com>, 
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+ Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
+ Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+ Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+ Sargun Dhillon <sargun@sargun.me>, berrange@redhat.com, 
+ Bobby Eshleman <bobbyeshleman@meta.com>
+X-Mailer: b4 0.14.3
 
-On 11/11/25 10:18 PM, Jason Wang wrote:
-> On Wed, Nov 12, 2025 at 11:02 AM Dan Jurgens <danielj@nvidia.com> wrote:
->>
->> On 11/11/25 7:00 PM, Jason Wang wrote:
->>> On Tue, Nov 11, 2025 at 6:42 PM Paolo Abeni <pabeni@redhat.com> wrote:
->>>>
->>>> On 11/7/25 5:15 AM, Daniel Jurgens wrote:
->>>>> @@ -7121,6 +7301,15 @@ static int virtnet_probe(struct virtio_device *vdev)
->>>>>       }
->>>>>       vi->guest_offloads_capable = vi->guest_offloads;
->>>>>
->>>>> +     /* Initialize flow filters. Not supported is an acceptable and common
->>>>> +      * return code
->>>>> +      */
->>>>> +     err = virtnet_ff_init(&vi->ff, vi->vdev);
->>>>> +     if (err && err != -EOPNOTSUPP) {
->>>>> +             rtnl_unlock();
->>>>> +             goto free_unregister_netdev;
->>>>
->>>> I'm sorry for not noticing the following earlier, but it looks like that
->>>> the code could error out on ENOMEM even if the feature is not really
->>>> supported,  when `cap_id_list` allocation fails, which in turn looks a
->>>> bit bad, as the allocated chunk is not that small (32K if I read
->>>> correctly).
->>>>
->>>> @Jason, @Micheal: WDYT?
->>>
->>> I agree. I think virtnet_ff_init() should be only called when the
->>> feature is negotiated.
->>>
->>> Thanks
->>>
->>
->> Are you suggesting we wait to call init until get/set_rxnfc is called? I
->> don't like that idea. Probe is the right time to do feature discovery.
-> 
-> Nope I meant it might be better:
-> 
-> 1) embed virtio_admin_cmd_query_cap_id_result in virtnet_info to avoid
-> dynamic allocation
-> 
-> Or
-> 
-> 2) at least check if there's an adminq before trying to call virtnet_ff_init()?
+This series adds namespace support to vhost-vsock and loopback. It does
+not add namespaces to any of the other guest transports (virtio-vsock,
+hyperv, or vmci).
 
-I could do a check like this:
+The current revision supports two modes: local and global. Local
+mode is complete isolation of namespaces, while global mode is complete
+sharing between namespaces of CIDs (the original behavior).
 
-        if (!vdev->config->admin_cmd_exec)
-                return -EOPNOTSUPP;
+The mode is set using /proc/sys/net/vsock/ns_mode.
 
-Or would you prefer it added to the virtio_admin_command api?
+Modes are per-netns and write-once. This allows a system to configure
+namespaces independently (some may share CIDs, others are completely
+isolated). This also supports future possible mixed use cases, where
+there may be namespaces in global mode spinning up VMs while there are
+mixed mode namespaces that provide services to the VMs, but are not
+allowed to allocate from the global CID pool (this mode is not
+implemented in this series).
 
-bool virtio_admin_supported(struct virtio_device *vdev);
+If a socket or VM is created when a namespace is global but the
+namespace changes to local, the socket or VM will continue working
+normally. That is, the socket or VM assumes the mode behavior of the
+namespace at the time the socket/VM was created. The original mode is
+captured in vsock_create() and so occurs at the time of socket(2) and
+accept(2) for sockets and open(2) on /dev/vhost-vsock for VMs. This
+prevents a socket/VM connection from suddenly breaking due to a
+namespace mode change. Any new sockets/VMs created after the mode change
+will adopt the new mode's behavior.
 
-> 
-> Thanks
-> 
->>
->>
->>>>
->>>> /P
->>>>
->>>
->>
-> 
+Additionally, added tests for the new namespace features:
+
+tools/testing/selftests/vsock/vmtest.sh
+1..29
+ok 1 vm_server_host_client
+ok 2 vm_client_host_server
+ok 3 vm_loopback
+ok 4 ns_guest_local_mode_rejected
+ok 5 ns_host_vsock_ns_mode_ok
+ok 6 ns_host_vsock_ns_mode_write_once_ok
+ok 7 ns_global_same_cid_fails
+ok 8 ns_local_same_cid_ok
+ok 9 ns_global_local_same_cid_ok
+ok 10 ns_local_global_same_cid_ok
+ok 11 ns_diff_global_host_connect_to_global_vm_ok
+ok 12 ns_diff_global_host_connect_to_local_vm_fails
+ok 13 ns_diff_global_vm_connect_to_global_host_ok
+ok 14 ns_diff_global_vm_connect_to_local_host_fails
+ok 15 ns_diff_local_host_connect_to_local_vm_fails
+ok 16 ns_diff_local_vm_connect_to_local_host_fails
+ok 17 ns_diff_global_to_local_loopback_local_fails
+ok 18 ns_diff_local_to_global_loopback_fails
+ok 19 ns_diff_local_to_local_loopback_fails
+ok 20 ns_diff_global_to_global_loopback_ok
+ok 21 ns_same_local_loopback_ok
+ok 22 ns_same_local_host_connect_to_local_vm_ok
+ok 23 ns_same_local_vm_connect_to_local_host_ok
+ok 24 ns_mode_change_connection_continue_vm_ok
+ok 25 ns_mode_change_connection_continue_host_ok
+ok 26 ns_mode_change_connection_continue_both_ok
+ok 27 ns_delete_vm_ok
+ok 28 ns_delete_host_ok
+ok 29 ns_delete_both_ok
+SUMMARY: PASS=29 SKIP=0 FAIL=0
+
+Dependent on series:
+https://lore.kernel.org/all/20251108-vsock-selftests-fixes-and-improvements-v4-0-d5e8d6c87289@meta.com/
+
+Thanks again for everyone's help and reviews!
+
+Suggested-by: Sargun Dhillon <sargun@sargun.me>
+Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
+
+To: Stefano Garzarella <sgarzare@redhat.com>
+To: Shuah Khan <shuah@kernel.org>
+To: David S. Miller <davem@davemloft.net>
+To: Eric Dumazet <edumazet@google.com>
+To: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+To: Simon Horman <horms@kernel.org>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+To: Michael S. Tsirkin <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Eugenio Pérez <eperezma@redhat.com>
+To: K. Y. Srinivasan <kys@microsoft.com>
+To: Haiyang Zhang <haiyangz@microsoft.com>
+To: Wei Liu <wei.liu@kernel.org>
+To: Dexuan Cui <decui@microsoft.com>
+To: Bryan Tan <bryan-bt.tan@broadcom.com>
+To: Vishnu Dasa <vishnu.dasa@broadcom.com>
+To: Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: virtualization@lists.linux.dev
+Cc: netdev@vger.kernel.org
+Cc: linux-kselftest@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org
+Cc: linux-hyperv@vger.kernel.org
+Cc: berrange@redhat.com
+Cc: Sargun Dhillon <sargun@sargun.me>
+
+Changes in v9:
+- reorder loopback patch after patch for virtio transport common code
+- remove module ordering tests patch because loopback no longer depends
+  on pernet ops
+- major simplifications in vsock_loopback
+- added a new patch for blocking local mode for guests, added test case
+  to check
+- add net ref tracking to vsock_loopback patch
+- Link to v8: https://lore.kernel.org/r/20251023-vsock-vmtest-v8-0-dea984d02bb0@meta.com
+
+Changes in v8:
+- Break generic cleanup/refactoring patches into standalone series,
+  remove those from this series
+- Link to dependency: https://lore.kernel.org/all/20251022-vsock-selftests-fixes-and-improvements-v1-0-edeb179d6463@meta.com/
+- Link to v7: https://lore.kernel.org/r/20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com
+
+Changes in v7:
+- fix hv_sock build
+- break out vmtest patches into distinct, more well-scoped patches
+- change `orig_net_mode` to `net_mode`
+- many fixes and style changes in per-patch change sets (see individual
+  patches for specific changes)
+- optimize `virtio_vsock_skb_cb` layout
+- update commit messages with more useful descriptions
+- vsock_loopback: use orig_net_mode instead of current net mode
+- add tests for edge cases (ns deletion, mode changing, loopback module
+  load ordering)
+- Link to v6: https://lore.kernel.org/r/20250916-vsock-vmtest-v6-0-064d2eb0c89d@meta.com
+
+Changes in v6:
+- define behavior when mode changes to local while socket/VM is alive
+- af_vsock: clarify description of CID behavior
+- af_vsock: use stronger langauge around CID rules (dont use "may")
+- af_vsock: improve naming of buf/buffer
+- af_vsock: improve string length checking on proc writes
+- vsock_loopback: add space in struct to clarify lock protection
+- vsock_loopback: do proper cleanup/unregister on vsock_loopback_exit()
+- vsock_loopback: use virtio_vsock_skb_net() instead of sock_net()
+- vsock_loopback: set loopback to NULL after kfree()
+- vsock_loopback: use pernet_operations and remove callback mechanism
+- vsock_loopback: add macros for "global" and "local"
+- vsock_loopback: fix length checking
+- vmtest.sh: check for namespace support in vmtest.sh
+- Link to v5: https://lore.kernel.org/r/20250827-vsock-vmtest-v5-0-0ba580bede5b@meta.com
+
+Changes in v5:
+- /proc/net/vsock_ns_mode -> /proc/sys/net/vsock/ns_mode
+- vsock_global_net -> vsock_global_dummy_net
+- fix netns lookup in vhost_vsock to respect pid namespaces
+- add callbacks for vsock_loopback to avoid circular dependency
+- vmtest.sh loads vsock_loopback module
+- remove vsock_net_mode_can_set()
+- change vsock_net_write_mode() to return true/false based on success
+- make vsock_net_mode enum instead of u8
+- Link to v4: https://lore.kernel.org/r/20250805-vsock-vmtest-v4-0-059ec51ab111@meta.com
+
+Changes in v4:
+- removed RFC tag
+- implemented loopback support
+- renamed new tests to better reflect behavior
+- completed suite of tests with permutations of ns modes and vsock_test
+  as guest/host
+- simplified socat bridging with unix socket instead of tcp + veth
+- only use vsock_test for success case, socat for failure case (context
+  in commit message)
+- lots of cleanup
+
+Changes in v3:
+- add notion of "modes"
+- add procfs /proc/net/vsock_ns_mode
+- local and global modes only
+- no /dev/vhost-vsock-netns
+- vmtest.sh already merged, so new patch just adds new tests for NS
+- Link to v2:
+  https://lore.kernel.org/kvm/20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com
+
+Changes in v2:
+- only support vhost-vsock namespaces
+- all g2h namespaces retain old behavior, only common API changes
+  impacted by vhost-vsock changes
+- add /dev/vhost-vsock-netns for "opt-in"
+- leave /dev/vhost-vsock to old behavior
+- removed netns module param
+- Link to v1:
+  https://lore.kernel.org/r/20200116172428.311437-1-sgarzare@redhat.com
+
+Changes in v1:
+- added 'netns' module param to vsock.ko to enable the
+  network namespace support (disabled by default)
+- added 'vsock_net_eq()' to check the "net" assigned to a socket
+  only when 'netns' support is enabled
+- Link to RFC: https://patchwork.ozlabs.org/cover/1202235/
+
+---
+Bobby Eshleman (14):
+      vsock: a per-net vsock NS mode state
+      vsock: add netns to vsock core
+      vsock/virtio: add netns support to virtio transport and virtio common
+      vsock/virtio: pack struct virtio_vsock_skb_cb
+      vsock: add netns and netns_tracker to vsock skb cb
+      vsock/loopback: add netns support
+      vhost/vsock: add netns support
+      vsock: reject bad VSOCK_NET_MODE_LOCAL configuration for G2H
+      selftests/vsock: add namespace helpers to vmtest.sh
+      selftests/vsock: prepare vm management helpers for namespaces
+      selftests/vsock: add tests for proc sys vsock ns_mode
+      selftests/vsock: add namespace tests for CID collisions
+      selftests/vsock: add tests for host <-> vm connectivity with namespaces
+      selftests/vsock: add tests for namespace deletion and mode changes
+
+ MAINTAINERS                             |   1 +
+ drivers/vhost/vsock.c                   |  48 +-
+ include/linux/virtio_vsock.h            |  43 +-
+ include/net/af_vsock.h                  |  57 +-
+ include/net/net_namespace.h             |   4 +
+ include/net/netns/vsock.h               |  17 +
+ net/vmw_vsock/af_vsock.c                | 290 +++++++++-
+ net/vmw_vsock/hyperv_transport.c        |   1 +
+ net/vmw_vsock/virtio_transport.c        |  14 +-
+ net/vmw_vsock/virtio_transport_common.c |  57 +-
+ net/vmw_vsock/vsock_loopback.c          |  48 +-
+ tools/testing/selftests/vsock/vmtest.sh | 931 ++++++++++++++++++++++++++++++--
+ 12 files changed, 1418 insertions(+), 93 deletions(-)
+---
+base-commit: 962ac5ca99a5c3e7469215bf47572440402dfd59
+change-id: 20250325-vsock-vmtest-b3a21d2102c2
+prerequisite-message-id: <20251022-vsock-selftests-fixes-and-improvements-v1-0-edeb179d6463@meta.com>
+prerequisite-patch-id: a2eecc3851f2509ed40009a7cab6990c6d7cfff5
+prerequisite-patch-id: 501db2100636b9c8fcb3b64b8b1df797ccbede85
+prerequisite-patch-id: ba1a2f07398a035bc48ef72edda41888614be449
+prerequisite-patch-id: fd5cc5445aca9355ce678e6d2bfa89fab8a57e61
+prerequisite-patch-id: 795ab4432ffb0843e22b580374782e7e0d99b909
+prerequisite-patch-id: 1499d263dc933e75366c09e045d2125ca39f7ddd
+prerequisite-patch-id: f92d99bb1d35d99b063f818a19dcda999152d74c
+prerequisite-patch-id: e3296f38cdba6d903e061cff2bbb3e7615e8e671
+prerequisite-patch-id: bc4662b4710d302d4893f58708820fc2a0624325
+prerequisite-patch-id: f8991f2e98c2661a706183fde6b35e2b8d9aedcf
+prerequisite-patch-id: 44bf9ed69353586d284e5ee63d6fffa30439a698
+prerequisite-patch-id: d50621bc630eeaf608bbaf260370c8dabf6326df
+
+Best regards,
+-- 
+Bobby Eshleman <bobbyeshleman@meta.com>
 
