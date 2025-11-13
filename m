@@ -1,109 +1,77 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA31A34DCDF
-	for <virtualization@lists.linux.dev>; Thu, 13 Nov 2025 11:56:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E460C35CBC1;
+	Thu, 13 Nov 2025 12:30:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763035001; cv=none; b=KF9Rg3k0EQMDm4FtQWI7Te2KSt9yZi6VzWD+vutbDtk+TRofS8H2q4X7aB3qIulhpunqz+uJTWjdFYaXSdSxuBNvFY2AUH3MHThxGuFr1JQh9gAZBoZ4Eqkxjy3L30SYwbbtifFYU6g5B8kO7tbLsjO4IPM6Yg5/Rotf/nILtfw=
+	t=1763037038; cv=none; b=JnFOPUaxkuVKz6PBn84rUGYhwPURAr4zAphdBdT4ObVbBdryQVGX+/lv9zcYXYy0nMk7NBfOLoei4CQYPp3OyM37RFQl+DfFivLg/LdaQvr2PnP7MNGx0WCSHwF0+ybxLcIzlBPdzD8qBxYWUILncUE2wM3BmnU+orWUrti+3Ic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763035001; c=relaxed/simple;
-	bh=vDa/ArHDNygxl8ATzaKQtXkkTbj/f2T+x8SQ0I4O8pM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=DFSJaCEUgcl/RDIW909G07SaX2pbBJUk3+8rIa9sdlJ4X5rQ4xzQ/OPASGKcK3gptU8TPY/g/NavM2mFfn3wVKza5x3rcTQqIeWUpoKdrvx15LZh9kH4IWGkOkxCK0lUfxXy5A/65MNxWW/txvuMFfLiuR/UzXhIhQPlqAFxAdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c07aU7E9; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763037038; c=relaxed/simple;
+	bh=Em3tOA+yZ4I5B7ql6OGRl1zGOOyRHnagwTfSnDMCk90=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=lXfGfKX8lxAM+wnCCR+TkGQONdX6L3bGaOAJpsHY6fr+pn1wAM+KbrDvFwnnyZtQnRli/VXcsYGZlVM7IDDZ7r+Rn5egmLYNpxY9VpZODkhLEDLrb0tfZ8Njkgn+IlN77XfzLeEADlpNYtKhayLfEMPbs9FUP6up5TF8/mnzsVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qZBJLbfQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c07aU7E9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763034998;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=97IEgQ7raWJ37uSPdBuA1IEh2oOdlGp2O5eUhoIZhZg=;
-	b=c07aU7E9QWQTAxGaKgbZJIQ/tmCjIpVj+e7SruNlFzpsBBZRhp7xIkqGgrBcyY3T+JLrlZ
-	eOVHS62RojxZIWAbJokBzIHKyogzcOELeTKWw8iYHGZ10BxYT/AH7m0Dc7yLZ02Y5u4lQd
-	BYJAkrKY/kdZDeUkbquBtN1xiWBC1xY=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-203-W2clVaWDNI-HASMAnVhq_w-1; Thu,
- 13 Nov 2025 06:56:35 -0500
-X-MC-Unique: W2clVaWDNI-HASMAnVhq_w-1
-X-Mimecast-MFC-AGG-ID: W2clVaWDNI-HASMAnVhq_w_1763034994
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CBAD718AB40A;
-	Thu, 13 Nov 2025 11:56:34 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.224.122])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D77D119560B9;
-	Thu, 13 Nov 2025 11:56:30 +0000 (UTC)
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-To: "Michael S . Tsirkin " <mst@redhat.com>
-Cc: Laurent Vivier <lvivier@redhat.com>,
-	virtualization@lists.linux.dev,
-	Maxime Coquelin <mcoqueli@redhat.com>,
-	Cindy Lu <lulu@redhat.com>,
-	jasowang@redhat.com,
-	linux-kernel@vger.kernel.org,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Yongji Xie <xieyongji@bytedance.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v9 6/6] vduse: bump version number
-Date: Thu, 13 Nov 2025 12:55:58 +0100
-Message-ID: <20251113115558.1277981-7-eperezma@redhat.com>
-In-Reply-To: <20251113115558.1277981-1-eperezma@redhat.com>
-References: <20251113115558.1277981-1-eperezma@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qZBJLbfQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A65EC4CEF1;
+	Thu, 13 Nov 2025 12:30:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1763037037;
+	bh=Em3tOA+yZ4I5B7ql6OGRl1zGOOyRHnagwTfSnDMCk90=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=qZBJLbfQDtQmyT4HAVrLbT3ZbLqtOiI64+3Yj+VB2yFW3YtiTa6P1rsGgxHARCMzd
+	 gLbgGfBHqhL68L+cGceLHfPdU9rvm2ZHY9dlqvABW1X/KH/vBD7bNEAAPIOkdgBDp/
+	 Jfd+d3isp16SiHSMFf6FcTATRHlanhatIBq0gawRs8Wx5vucfUMuQHUxfJd1qleRtY
+	 V0kRN9wO+Zie77CK8gmso8fTiU4zmoQ9VXknQxrFFNwx8Q6tr+PoloMmdxCsslaO7G
+	 HRhZjZOYt/aLD+5dtgj0W83dv1RJVTwje6/1Zvf59X/r6omZYNkywR/qDFnWnO6Xqe
+	 Q4kQ53SOYKGHA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAE3F3A41033;
+	Thu, 13 Nov 2025 12:30:07 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Subject: Re: [PATCH] virtio-net: fix incorrect flags recording in big mode
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <176303700677.831415.11786935401202249706.git-patchwork-notify@kernel.org>
+Date: Thu, 13 Nov 2025 12:30:06 +0000
+References: <20251111090828.23186-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20251111090828.23186-1-xuanzhuo@linux.alibaba.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
+ eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ hengqi@linux.alibaba.com, virtualization@lists.linux.dev, hi@alyssa.is
 
-Finalize the series by advertising VDUSE API v1 support to userspace.
+Hello:
 
-Now that all required infrastructure for v1 (ASIDs, VQ groups,
-update_iotlb_v2) is in place, VDUSE devices can opt in to the new
-features.
+This patch was applied to netdev/net.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
----
- drivers/vdpa/vdpa_user/vduse_dev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On Tue, 11 Nov 2025 17:08:28 +0800 you wrote:
+> The purpose of commit 703eec1b2422 ("virtio_net: fixing XDP for fully
+> checksummed packets handling") is to record the flags in advance, as
+> their value may be overwritten in the XDP case. However, the flags
+> recorded under big mode are incorrect, because in big mode, the passed
+> buf does not point to the rx buffer, but rather to the page of the
+> submitted buffer. This commit fixes this issue.
+> 
+> [...]
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index ff95ed56f22d..f5a1bc027ecb 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -2188,7 +2188,7 @@ static long vduse_ioctl(struct file *file, unsigned int cmd,
- 			break;
+Here is the summary with links:
+  - virtio-net: fix incorrect flags recording in big mode
+    https://git.kernel.org/netdev/net/c/0eff2eaa5322
 
- 		ret = -EINVAL;
--		if (api_version > VDUSE_API_VERSION)
-+		if (api_version > VDUSE_API_VERSION_1)
- 			break;
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
- 		ret = 0;
-@@ -2255,7 +2255,7 @@ static int vduse_open(struct inode *inode, struct file *file)
- 	if (!control)
- 		return -ENOMEM;
-
--	control->api_version = VDUSE_API_VERSION;
-+	control->api_version = VDUSE_API_VERSION_1;
- 	file->private_data = control;
-
- 	return 0;
---
-2.51.1
 
