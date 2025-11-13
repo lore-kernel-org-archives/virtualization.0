@@ -1,118 +1,140 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A37611A9FAC
-	for <virtualization@lists.linux.dev>; Thu, 13 Nov 2025 01:10:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5918B299AB5
+	for <virtualization@lists.linux-foundation.org>; Thu, 13 Nov 2025 01:39:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762996212; cv=none; b=aKQmtkWkx5HeO/dRvSjZv+17CpBh1upxtTAvhiXGaghHpVRSNNEejL8eI8Pbix6adKLwbwb+QvfcwxMN02GrSZKrCg6nu7L+J6kyOsg7dVkd/4Y3ytRo3zwZoJXfoVekyjAccS/vMeoEvq2UZ4ykRjApeAmy/rS72X4GdwvJ6xc=
+	t=1762997962; cv=none; b=UcE5dhkKeyW/Guw8c21Ed2dACzT6QdmmfO2gtMNyYEZc4lG+EcZc4nHDrife6ChBJACbhhIj1/wOaTn+1LzPRsstbruHn2j71SVbNWBRlSMNgjkpVPMEyShXUBDO3MItQqx1Dn35L7ZvtMjBogX7sCO6xQgQgTa/k6G9TA3OhjE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762996212; c=relaxed/simple;
-	bh=WTHbBFat8WgTLz0VXEBvhYA3zWQoc05BaGIUCPm9GuY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=h0/Ho76QjMDsi48gLqskik5oMY0j1sEk1c57N+AnePD/aCrha3AGQgXPaKEBx/JDZoaWy4T3Y7w4PF4MimEURucXr1ksY77o8RQkjFu2UnnFsyu83YP+RtnUsdUi3XOU0TAOv34EgU0ESNUDxZFf2p3JFj0adSwOiZ/Ff58HN9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HRTvazPw; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1762997962; c=relaxed/simple;
+	bh=nTaC2MXKVwUNrsqMVxHeDZJeAIpAEmr1Yb7c4yWjDC8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ne2hmnfwHTqSeRE2OBJ4QkO631VTLvfSkGsjjOP4Oavt8s2awZkeNAGpAeUCSPVYfZoEY6y70bo84+mFHiUTTD8FDtucIoPyVyThUuGUG6qdtD6c2nBMEAKG09cwnqoDxt0GyoQ9CgRhaj/XfZH3OHw7FNZ4sk3OEWfSHnoQG24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RLgD0EGK; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HRTvazPw"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RLgD0EGK"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id D5D5D60EF9
+	for <virtualization@lists.linux-foundation.org>; Thu, 13 Nov 2025 01:39:20 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id K_q1kbcFbcLV for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Nov 2025 01:39:20 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=ming.lei@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org CAD7F60F27
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CAD7F60F27
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RLgD0EGK
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CAD7F60F27
+	for <virtualization@lists.linux-foundation.org>; Thu, 13 Nov 2025 01:39:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1762996209;
+	s=mimecast20190719; t=1762997957;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YB5iq4phMZJP8WFjyiHhxY03YBLuYzrX0nSkxLfKzHg=;
-	b=HRTvazPwQ+NNh7M+2cKlA/0+odj6BX9/5SV3nXJc1dvH7bRgNAtaRNGmECYos9kUi3xAFd
-	Dv0x3zQBN+sbFDKU0OeYSj2JKkg7PafMigvKoBHQ28yBdYH8AqxNLrRV8WjmSt4Hf9GFH7
-	TGdtYQejucXR3oBIIZoHFcol99fRvwI=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-686-Ce7zj96BOVydFAYkqHK2WA-1; Wed, 12 Nov 2025 20:10:08 -0500
-X-MC-Unique: Ce7zj96BOVydFAYkqHK2WA-1
-X-Mimecast-MFC-AGG-ID: Ce7zj96BOVydFAYkqHK2WA_1762996207
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-341cd35b0f3so1505548a91.0
-        for <virtualization@lists.linux.dev>; Wed, 12 Nov 2025 17:10:07 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762996207; x=1763601007;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=YB5iq4phMZJP8WFjyiHhxY03YBLuYzrX0nSkxLfKzHg=;
-        b=qtKB3cKNDxADxO4XZF8xsd07c+/BteGyV4j1KecTIx0rQC1yjC378Ue3Garnq7hvq1
-         H41NWjm50FIiohLflRpZmHLWkwQGw7jiQiWN51JceS/5fIyti9PJP/wGwlyvA6gFo7rA
-         5jc5a+NZ7WczafZZ92lvGMvLUTSnT/912em537RwKlUb1dd68Vq6mNRoFx0B3Cg6eqBy
-         dTn5JN807VO6dBPvvwoe599zWqu0r8FC79n0Wn8sxcyOytrlCZF/N67B7FbGV5QDdr5h
-         vOpHXY+eYYS3qjR5XuTh+w77n7ktVli9OSHAPYfybMvXyc2kDIQNgvv9CaYyjyCdruBc
-         d8OA==
-X-Forwarded-Encrypted: i=1; AJvYcCUkZH0ca9qiB/ZiUA3P05sp78tSjBi3A4ZG0DJBALxTbI+IzwS+wb6oWdZYbRu5S0GWnBzCS8Wtv8/Q1IiSOg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy54zbuPNHJJuE6opAIzr2dRq4Q8z9ysaXaXKH8zHjp1P8inIxu
-	oysj5Phkn3o5U9QaN7uwhED1CLKrdvQ8zn28j7UMXu3cUisM6J297HffeL+AqaYvwo2cMkN0dbI
-	XjzUfmFxoKv9O7KpWyRj17ZKLPUCi4Klabmz6UVDS4PF/JWMeNrbXK++1Il+17NQ+4jdCQ/fYXj
-	0yyML8HvNJWTFYe8ADucZjmFYFTE2qytMKv0t30C9uTbY=
-X-Gm-Gg: ASbGncuQj9hj3a0sRQNhmRHhbYLazjlikB7VmKtOiprBffo7LFl1GAqzhGpgDLxr7WD
-	Bo+9IE+N23qClLMgmamCN2gpob9zMY+scFlzaiiCHzn0brQ+53fiZ7NpdDL+3YlDwBy9WRWosIE
-	VK3xEm1O8F8fGd2Jy/ka0XF0KGEKFibmdl+WcaY8xzW/vX/Ug9gbKYTQ==
-X-Received: by 2002:a17:90b:5643:b0:340:68ee:ae5e with SMTP id 98e67ed59e1d1-343eab2d6e8mr1479310a91.4.1762996206969;
-        Wed, 12 Nov 2025 17:10:06 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG9ygtEnet5AzKgZkKuFsP7FTx9uhPWvwXy5utv/ipBEByquxKdhaAV2Jg/+1bKSY7kHGa3WYdxox8Xs01KAxg=
-X-Received: by 2002:a17:90b:5643:b0:340:68ee:ae5e with SMTP id
- 98e67ed59e1d1-343eab2d6e8mr1479275a91.4.1762996206546; Wed, 12 Nov 2025
- 17:10:06 -0800 (PST)
+	bh=YE3L5VAgzoQWOHqB3Rk/jnMG/XnJ1XD/9vBp3BPJiDk=;
+	b=RLgD0EGK/mWseEzVG8H+2C9u41Djp0a/8tysp496dKM/M0JoqoK6nr4UvequkHSFBT0Hv+
+	qqwH8mOJ4MvrhaKPPddur82226Z58WCKVCz+/fGesJISZnF6UIYgiSeQ3GcLaR7CiaTxrI
+	ekOy5SvJ77w3kNNlkJo8D/A+eYZuYEs=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-222-fUfLTIZSPE24s4BrvPuQOA-1; Wed,
+ 12 Nov 2025 20:39:14 -0500
+X-MC-Unique: fUfLTIZSPE24s4BrvPuQOA-1
+X-Mimecast-MFC-AGG-ID: fUfLTIZSPE24s4BrvPuQOA_1762997952
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 43DEE18007F2;
+	Thu, 13 Nov 2025 01:39:10 +0000 (UTC)
+Received: from fedora (unknown [10.72.116.134])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 753CF30044E0;
+	Thu, 13 Nov 2025 01:39:01 +0000 (UTC)
+Date: Thu, 13 Nov 2025 09:38:56 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: "Guo, Wangyang" <wangyang.guo@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@fb.com>,
+	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org,
+	virtualization@lists.linux-foundation.org,
+	linux-block@vger.kernel.org, Tianyou Li <tianyou.li@intel.com>,
+	Tim Chen <tim.c.chen@linux.intel.com>,
+	Dan Liang <dan.liang@intel.com>
+Subject: Re: [PATCH RESEND] lib/group_cpus: make group CPU cluster aware
+Message-ID: <aRU2sC5q5hCmS_eM@fedora>
+References: <20251111020608.1501543-1-wangyang.guo@intel.com>
+ <aRKssW96lHFrT2ZN@fedora>
+ <b94a0d74-0770-4751-9064-2ef077fada14@intel.com>
+ <aRMnR5DRdsU8lGtU@fedora>
+ <a101fe80-ca0b-4b4b-94b1-f08db1b164fc@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251113005529.2494066-1-jon@nutanix.com>
-In-Reply-To: <20251113005529.2494066-1-jon@nutanix.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 13 Nov 2025 09:09:55 +0800
-X-Gm-Features: AWmQ_bkNFI0Uak0BVc9mmMYVp98tX8j2dw19j09dCC_kLqXSmWRrmqmpo5b_MMY
-Message-ID: <CACGkMEtQZ3M-sERT2P8WV=82BuXCbBHeJX+zgxx+9X7OUTqi4g@mail.gmail.com>
-Subject: Re: [PATCH net-next] vhost: use "checked" versions of get_user() and put_user()
-To: Jon Kohler <jon@nutanix.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, 
-	Borislav Petkov <bp@alien8.de>, Sean Christopherson <seanjc@google.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: j7V5ODPo2mchtKgmzeejtF5sxkwu-M_Ctk0PI0-JzJ0_1762996207
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <a101fe80-ca0b-4b4b-94b1-f08db1b164fc@intel.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Thu, Nov 13, 2025 at 8:14=E2=80=AFAM Jon Kohler <jon@nutanix.com> wrote:
->
-> vhost_get_user and vhost_put_user leverage __get_user and __put_user,
-> respectively, which were both added in 2016 by commit 6b1e6cc7855b
-> ("vhost: new device IOTLB API").
+On Wed, Nov 12, 2025 at 11:02:47AM +0800, Guo, Wangyang wrote:
+> On 11/11/2025 8:08 PM, Ming Lei wrote:
+> > On Tue, Nov 11, 2025 at 01:31:04PM +0800, Guo, Wangyang wrote:
+> > > On 11/11/2025 11:25 AM, Ming Lei wrote:
+> > > > On Tue, Nov 11, 2025 at 10:06:08AM +0800, Wangyang Guo wrote:
+> > > > > As CPU core counts increase, the number of NVMe IRQs may be smaller than
+> > > > > the total number of CPUs. This forces multiple CPUs to share the same
+> > > > > IRQ. If the IRQ affinity and the CPU’s cluster do not align, a
+> > > > > performance penalty can be observed on some platforms.
+> > > > 
+> > > > Can you add details why/how CPU cluster isn't aligned with IRQ
+> > > > affinity? And how performance penalty is caused?
+> > > 
+> > > Intel Xeon E platform packs 4 CPU cores as 1 module (cluster) and share the
+> > > L2 cache. Let's say, if there are 40 CPUs in 1 NUMA domain and 11 IRQs to
+> > > dispatch. The existing algorithm will map first 7 IRQs each with 4 CPUs and
+> > > remained 4 IRQs each with 3 CPUs each. The last 4 IRQs may have cross
+> > > cluster issue. For example, the 9th IRQ which pinned to CPU32, then for
+> > > CPU31, it will have cross L2 memory access.
+> > 
+> > 
+> > CPUs sharing L2 usually have small number, and it is common to see one queue
+> > mapping includes CPUs from different L2.
+> > 
+> > So how much does crossing L2 hurt IO perf?
+> We see 15%+ performance difference in FIO libaio/randread/bs=8k.
 
-It has been used even before this commit.
+As I mentioned, it is common to see CPUs crossing L2 in same group, but why
+does it make a difference here? You mentioned just some platforms are
+affected.
 
-> In a heavy UDP transmit workload on a
-> vhost-net backed tap device, these functions showed up as ~11.6% of
-> samples in a flamegraph of the underlying vhost worker thread.
->
-> Quoting Linus from [1]:
->     Anyway, every single __get_user() call I looked at looked like
->     historical garbage. [...] End result: I get the feeling that we
->     should just do a global search-and-replace of the __get_user/
->     __put_user users, replace them with plain get_user/put_user instead,
->     and then fix up any fallout (eg the coco code).
->
-> Switch to plain get_user/put_user in vhost, which results in a slight
-> throughput speedup. get_user now about ~8.4% of samples in flamegraph.
->
-> Basic iperf3 test on a Intel 5416S CPU with Ubuntu 25.10 guest:
-> TX: taskset -c 2 iperf3 -c <rx_ip> -t 60 -p 5200 -b 0 -u -i 5
-> RX: taskset -c 2 iperf3 -s -p 5200 -D
-> Before: 6.08 Gbits/sec
-> After:  6.32 Gbits/sec
+> > They still should share same L3 cache, and cpus_share_cache() should be
+> > true when the IO completes on the CPU which belong to different L2 with the
+> > submission CPU, and remote completion via IPI won't be triggered.
+> Yes, remote IPI not triggered.
 
-I wonder if we need to test on archs like ARM.
+OK, in my test on AMD zen4, NVMe performance can be dropped to 1/2 - 1/3 if
+remote IPI is triggered in case of crossing L3, which is understandable.
 
-Thanks
+I will check if topo cluster can cover L3, if yes, the patch still can be
+simplified a lot by introducing sub-node spread by changing build_node_to_cpumask()
+and adding nr_sub_nodes.
+
+
+Thanks,
+Ming
 
