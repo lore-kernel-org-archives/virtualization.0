@@ -1,158 +1,114 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765DC329C57
-	for <virtualization@lists.linux.dev>; Fri, 14 Nov 2025 20:32:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B44F2F0C74
+	for <virtualization@lists.linux.dev>; Fri, 14 Nov 2025 20:49:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763152364; cv=none; b=ZctFAgE1w1ty7Bx2J3hwjsxeb5W5EauvSkqimA72vR1kravR4mvbeZ0xBSmfUTap0WdLMktIjktQ18H1mG+z0vGGZmhDGCk9Gt+YkWK1SjfPQCoL8fNxpFogb0Ra2YD6G2WxRsr1cAJEJt/hPuDQNhjyd7/KcldhNNYI6kcZamE=
+	t=1763153356; cv=none; b=qWigdAMz00mDwCja8DK8s9hwuQSa18yNnknjNcnJ9wwBX6JK7WiuKNAqPLDa5T1msvCcjd+cTQShBsTKUG3D+W7fdMS62cPIBw8gNgbxQL/bjBw9wZybPwwqYip83Gp98Fqg7rrZLp4zCjAyPo3IYLBw6ZgFn2ZfWAMEQD1oyqk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763152364; c=relaxed/simple;
-	bh=qMVXn0/pBxfD94D7ztw7lMcKOUUwJxhPmOMbkqfJm7c=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cW3oFCq7WbT5vX+CwoqsNuPGMloe+fV7UW89qKk3wr6rKVgLK1UH5pHQ/hkaAtM3HtPb00pV15Rv8dJjK6FKj8tip9vH4VFtU0qtXat8i7uTzctcUyOq7iG/9mjmcDQJfzdDuwi1yoDWuzXXKkxQcejfUre3B1cPjxlXnMI77og=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kGPBwcxp; arc=none smtp.client-ip=209.85.128.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1763153356; c=relaxed/simple;
+	bh=tE7fP22dB2vlNTuE6sh0FMu1Pi5aw/zDuijOpLixHCM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=f3S1KZbmh7xzgVAWicpO8gvyBoPWQEhkEaGTRjpL97pQiny25Tcj8ABaxEprByeUwqk+gCFKdw8kJoDMUJY/AjKrJOnLYwZvi0AFxKR9TOuvmcaufQ+itTg7i7zav2qN8Wl3QmC8jnPpNfZwpM1EL+Ib1jmw4eIZskbscV2pX/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=RlNn/fl2; arc=none smtp.client-ip=209.85.208.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kGPBwcxp"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-47117f92e32so20453535e9.1
-        for <virtualization@lists.linux.dev>; Fri, 14 Nov 2025 12:32:42 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="RlNn/fl2"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-640aaa89697so3342344a12.3
+        for <virtualization@lists.linux.dev>; Fri, 14 Nov 2025 12:49:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763152361; x=1763757161; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wB/JsODbft6bUwFY61gbtF9VSesiLo/SIsj+xEcELmM=;
-        b=kGPBwcxpbJepgsbLQwdLii6wu6LhtIfFKdoww2PCxv37XLgoORPnUGaboXsdahU7nS
-         9AnjHJXcIC0t6KiBO7kFKx43WeLVrFxRKbcB2jtZs4n8jlndQD0moBKcw3p9D8u6Mni/
-         UVLxktgZj2LgZOGd3WudbcJ8akf+0YGt0cb+DuIJiIwbLvXoWgfyP1vojXyWQ+AbVCJd
-         1Ohv8xiyLAcybH6z5dmQ4LbJEU99AIAD55QNV+oTLkBiOHxQl/2f1aWv3Oq5Kodwp1Uf
-         DQsgJqM9Y7mMJLRvidGU1cU0qgtR6Scmu+fZ+dxqXFu0p/1dM2ELXtoTgmI419M9YorU
-         fx5Q==
+        d=linux-foundation.org; s=google; t=1763153351; x=1763758151; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=nIotG2TBVJHtLyVkQ1nV/V4Ve4TP77XPvYjhlVaFGps=;
+        b=RlNn/fl2x8d/bKqz2NxmufpSkFO9D5wn/GWw87HuBTp7j7dyONtsf0I1SbRmGg5LPE
+         xuWuO7r6HU4diJGMq3p0/EcI4ZBPq0Qi51zWVWXOfhDzdz7PHOQVK6KY4Wyk0oFlNLyk
+         EYuqWtObAOT8e2l+l/x5HvABnTABpLg7XbrDI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763152361; x=1763757161;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=wB/JsODbft6bUwFY61gbtF9VSesiLo/SIsj+xEcELmM=;
-        b=v+Shrpsw+axKFVY3qK/lVcZlxhd6mBzMhe2ZYiHeR11Z57qob4o23gHowpz8199wn6
-         g+o8t5IWsWQIwkEeQXHH3Je4Ndaw444I3u2OxDbCBxhuyrDDLIcBnD8oQJ5cCi/TzsJB
-         UqMn6vqLifEn59EPUyaCSGk5iSHFO5p6QjjSGZSJIaVx5Eg45J72aaf5VeMXGiIaAzHU
-         CpvYQVlo7NUCcSSd+xDWaFnx6HR7Lj6avAjf1BsFR8eP6jruBy5RY2fqhCIOQCaz4PaA
-         MPk8pLZ1mjv1gnw1QoVfDD9QpbuNLmO8OU+MCRKKVB20Hm/JodAkn2LEmqcHKfGgzi45
-         uTCA==
-X-Forwarded-Encrypted: i=1; AJvYcCVjOViwAYF0Dms2nhEpV/OjOstClc8uxLB6ecSyTYniL77XMFQP6UzgsQrlg+IMd48+GpRpzYUQZRShcZrc3Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwNAha8pdbXz76nuStm7xwXsRlMYACyjbzSd7JJiFk5b9EvewN1
-	DVB7gKH6FFSujhCF+RS4n6IzFgalaIx84APShZBTtxPHsGWQewj8cNLB
-X-Gm-Gg: ASbGncs1rpk06lsj9AP5Mocj6OjiCUbfkR0yBCOurD8GQi0/SUhiLutoT3nYKNc/3CG
-	g79+GElPKIjABVcUgEJRjnYhkYxjbonzRwSFlqxkgS2tOQmb1b5UWAZGDimscPEqT+JOBo+/rEf
-	kmd7vuImU+fOVFJ6Uu+FutV9kh+0ZeupijY/F4ojzFmNprOy4M8o/YS9oXy+1ZrUrRs3gVR2TGU
-	/v7kw5pfL9nlDtY0pj/zZQfkxHSWET9dDYRZRLwEKimIgm6cymOhgRnR5LptLmUotYgzYCdTMpW
-	NewUZ3WmNXHP9qs0fqOi3YbfHL1+kug5aHwzfSy6RnrvdZ0nyYoAwFB3btKPYeX39mK/6JnNh6y
-	INtPmUL65WpUW2YSQ6d74/RlAHcEDbTrGmCVHE6WuYRWorFpPSFAZSbCxN1ywiju35lJR62QnSe
-	bFTP3X/sqHa/Sz87nqWymJAk1xBYYx5SOSsDBsTcV0Q56Q0+ztfvLv
-X-Google-Smtp-Source: AGHT+IGJLwKUUv/e7XeLeB5KiDfpWDJD0SeEvFpkKuz3Fu0ygR96nzPtknGu6NvJHta64Jve5dWi4Q==
-X-Received: by 2002:a05:600c:35c1:b0:477:54f9:6ac2 with SMTP id 5b1f17b1804b1-4778fe1170fmr49088345e9.0.1763152360456;
-        Fri, 14 Nov 2025 12:32:40 -0800 (PST)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4778bb2f9c8sm54699595e9.1.2025.11.14.12.32.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Nov 2025 12:32:40 -0800 (PST)
-Date: Fri, 14 Nov 2025 20:32:38 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: Jon Kohler <jon@nutanix.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Eugenio =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, "kvm@vger.kernel.org"
- <kvm@vger.kernel.org>, "virtualization@lists.linux.dev"
- <virtualization@lists.linux.dev>, "netdev@vger.kernel.org"
- <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
- <linux-kernel@vger.kernel.org>, Linus Torvalds
- <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, Sean
- Christopherson <seanjc@google.com>
-Subject: Re: [PATCH net-next] vhost: use "checked" versions of get_user()
- and put_user()
-Message-ID: <20251114203238.51123933@pumpkin>
-In-Reply-To: <2CD22CA1-FAFA-493A-8F41-A5798C33D103@nutanix.com>
-References: <20251113005529.2494066-1-jon@nutanix.com>
-	<20251114185424.354133ae@pumpkin>
-	<2CD22CA1-FAFA-493A-8F41-A5798C33D103@nutanix.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        d=1e100.net; s=20230601; t=1763153351; x=1763758151;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nIotG2TBVJHtLyVkQ1nV/V4Ve4TP77XPvYjhlVaFGps=;
+        b=VIlgSFXHH5nS6yc5beDhgmpkueFprgLEfrNx05zrgiOnWpj2ZSSb3zTebuQGfJJRcE
+         FqUit1DumCQeGU7MCeZDcRfjzJFv2nuP7QqVVH+ugNyW/7nWbngo65RRkqPNLSdUndfZ
+         5KWdN7aIZZ90ZWIgyn96cLfGB75qh0int3hqKdOcfG9/lsFdRIj23j81WVFLNS+ecHFA
+         UZu1SNElTWRM0MoWjpmYUQIisBEwoVhiPwFRVPXK3rY6GBLn3P3nAP6mWPkRw62Kqiu+
+         pB73d2e8zeuemcnIvq0Mr36Q0JpB0dyTSkCEoZLiiigeCoB8EAXEu40pXjydRamfEnrT
+         y2kQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV8hgFfJAB6x4mzmIHo+K6WVcNLwxKGc2B/fsWgx++Oo7b8znDYly/5f3xgJ1SpIIP2AQg24YiuCaXjZKk12A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw7ykzofkwhqOhgVmnFQNMuzVpH2LDjUmae4PspTT7AMhVkzEQ+
+	PIotmg05IvMnqfuf017CPO7vBz4x19gGkGC7mah025MB9rllgmCBE6+9Mq+Aic0RWn6jZmG+lPb
+	4BwD16X8=
+X-Gm-Gg: ASbGncvH9Yfi8XWa08/elh5QAxrLjmwYjP/7FZE5f6z3EhxHFwb65RltdOY/vUy43jL
+	ByZsy4C7GHjJEanbeo2dpirqyJ0Ou7/EMHNhHrqg+BhChzT9/uX90zd7vVGGHrNtadkc4Jd9SoW
+	pc4LaiiCdTW/y/1ogGWhpd3hcI3HY6uPPdTZ+tzlkrYB1wAJna80eZrWpQFle6TXHHXG8zMC3hm
+	+ciEHN0yOvG9CgyycXdUbhUFFpjuJcF7reAbOvPwx08xWxoFvzzYV3MdfSzgnIn+d8bR6e6Ghu/
+	VnZ2s8kSDsAvL2k1UqEQ7cT23ORrVtBuqjCtabIdpWuBHReYUGjhcW3W7pH1UjQRXGHurZEHzdE
+	2JGrCrFqQxkAkIgRvO0UXXHKKNvBKCSAt6p//IZ8DTpNCVTlYItwnMo9suIb3J9nmmBif2Wyylh
+	bdfK7S+6aCpEUjczWv4c3Y73pCC0zkBT1jlJgeeIniMO7f77YWPg==
+X-Google-Smtp-Source: AGHT+IF7qXHHVzkc/A4LZc3/OOCfd4bntfLgAJ9fmFDfxjZI7wUewK6l62s7wJV2Xne6cYaDwau5ew==
+X-Received: by 2002:a05:6402:270e:b0:640:b978:efdb with SMTP id 4fb4d7f45d1cf-64350eab173mr4093742a12.25.1763153351428;
+        Fri, 14 Nov 2025 12:49:11 -0800 (PST)
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com. [209.85.218.41])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6433a3f8e6dsm4387533a12.10.2025.11.14.12.49.09
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 14 Nov 2025 12:49:11 -0800 (PST)
+Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-b7379641791so50876866b.2
+        for <virtualization@lists.linux.dev>; Fri, 14 Nov 2025 12:49:09 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCV1cS1iCLLMK+M3enoESVeaHfFWdXQ67auYXGDLw00nZ7dSEs9T34qdfbCNfsds/rozzlMtApDesInCoIgCUA==@lists.linux.dev
+X-Received: by 2002:a17:907:1b27:b0:b70:bc2e:a6f0 with SMTP id
+ a640c23a62f3a-b73677edbcemr485389666b.5.1763153349232; Fri, 14 Nov 2025
+ 12:49:09 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+References: <20251113005529.2494066-1-jon@nutanix.com> <CACGkMEtQZ3M-sERT2P8WV=82BuXCbBHeJX+zgxx+9X7OUTqi4g@mail.gmail.com>
+ <E1226897-C6D1-439C-AB3B-012F8C4A72DF@nutanix.com> <CAHk-=whkVPGpfNFLnBv7YG__P4uGYWtG6AXLS5xGpjXGn8=orA@mail.gmail.com>
+ <20251114190856.7e438d9d@pumpkin>
+In-Reply-To: <20251114190856.7e438d9d@pumpkin>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 14 Nov 2025 12:48:52 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whJ0T_0SMegsbssgtWgO85+nJPapn6B893JQkJ7x6K0Kw@mail.gmail.com>
+X-Gm-Features: AWmQ_bkW5f2iQA-30H7SfZ-1SPQdVwpCHIQwF379qtfjWrYcgYHuVtfQQYOnQPg
+Message-ID: <CAHk-=whJ0T_0SMegsbssgtWgO85+nJPapn6B893JQkJ7x6K0Kw@mail.gmail.com>
+Subject: Re: [PATCH net-next] vhost: use "checked" versions of get_user() and put_user()
+To: David Laight <david.laight.linux@gmail.com>
+Cc: Jon Kohler <jon@nutanix.com>, Jason Wang <jasowang@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Borislav Petkov <bp@alien8.de>, 
+	Sean Christopherson <seanjc@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, 14 Nov 2025 19:30:32 +0000
-Jon Kohler <jon@nutanix.com> wrote:
+On Fri, 14 Nov 2025 at 11:09, David Laight <david.laight.linux@gmail.com> wrote:
+>
+> I think that is currently only x86-64?
+> There are patches in the pipeline for ppc.
+> I don't think I've seen anything for arm32 or arm64.
 
-> > On Nov 14, 2025, at 1:54=E2=80=AFPM, David Laight <david.laight.linux@g=
-mail.com> wrote:
-> >=20
-> > !-------------------------------------------------------------------|
-> >  CAUTION: External Email
-> >=20
-> > |-------------------------------------------------------------------!
-> >=20
-> > On Wed, 12 Nov 2025 17:55:28 -0700
-> > Jon Kohler <jon@nutanix.com> wrote:
-> >  =20
-> >> vhost_get_user and vhost_put_user leverage __get_user and __put_user,
-> >> respectively, which were both added in 2016 by commit 6b1e6cc7855b
-> >> ("vhost: new device IOTLB API"). In a heavy UDP transmit workload on a
-> >> vhost-net backed tap device, these functions showed up as ~11.6% of
-> >> samples in a flamegraph of the underlying vhost worker thread.
-> >>=20
-> >> Quoting Linus from [1]:
-> >>    Anyway, every single __get_user() call I looked at looked like
-> >>    historical garbage. [...] End result: I get the feeling that we
-> >>    should just do a global search-and-replace of the __get_user/
-> >>    __put_user users, replace them with plain get_user/put_user instead,
-> >>    and then fix up any fallout (eg the coco code).
-> >>=20
-> >> Switch to plain get_user/put_user in vhost, which results in a slight
-> >> throughput speedup. get_user now about ~8.4% of samples in flamegraph.
-> >>=20
-> >> Basic iperf3 test on a Intel 5416S CPU with Ubuntu 25.10 guest:
-> >> TX: taskset -c 2 iperf3 -c <rx_ip> -t 60 -p 5200 -b 0 -u -i 5
-> >> RX: taskset -c 2 iperf3 -s -p 5200 -D
-> >> Before: 6.08 Gbits/sec
-> >> After:  6.32 Gbits/sec
-> >>=20
-> >> As to what drives the speedup, Sean's patch [2] explains:
-> >> Use the normal, checked versions for get_user() and put_user() instead=
- of
-> >> the double-underscore versions that omit range checks, as the checked
-> >> versions are actually measurably faster on modern CPUs (12%+ on Intel,
-> >> 25%+ on AMD). =20
-> >=20
-> > Is there an associated access_ok() that can also be removed?
-> >=20
-> > David =20
->=20
-> Hey David - IIUC, the access_ok() for non-iotlb setups is done at
-> initial setup time, not per event, see vhost_vring_set_addr and
-> for the vhost net side see vhost_net_set_backend ->=20
-> vhost_vq_access_ok.
+Honestly, the fact that it's mainly true on x86-64 is simply because
+that's the only architecture that has cared enough.
 
-This is a long way away from the actual access....
+Pretty much everybody else is affected by the exact same speculation
+bugs. Sometimes the speculation window might be so small that it
+doesn't matter, but in most cases it's just that the architecture is
+so irrelevant that it doesn't matter.
 
-The early 'sanity check' might be worth keeping, but the code has to
-allow for the user access faulting (the application might unmap it).
-But, in some sense, that early check is optimising for the user passing
-in an invalid buffer - so not actually worth while,
+So no, this is not a "x86 only" issue. It might be a "only a couple of
+architectures have cared enough for it to have any practical impact".
 
-> Will lean on MST/Jason to help sanity check my understanding.
->=20
-> In the iotlb case, that=E2=80=99s handled differently (Jason can speak to
-> that side), but I dont think there is something we=E2=80=99d remove there?
+End result: if some other architecture still has a __get_user() that
+is noticeably faster than get_user(), it's not an argument for keeping
+__get_user() - it's an argument that that architecture likely isn't
+very important.
 
-Isn't the application side much the same?
-(But I don't know what the code is doing...)
-
-	David
-
+           Linus
