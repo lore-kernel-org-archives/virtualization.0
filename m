@@ -1,178 +1,237 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 502F62222AA
-	for <virtualization@lists.linux.dev>; Sat, 15 Nov 2025 03:55:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F173AD515;
+	Sat, 15 Nov 2025 16:00:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763178926; cv=none; b=BtUX9XLakWPA6r/ygCy69diMdkA8IzdrbX7ax9c1qndUy8ERZMqyELPOW2erPLQ2sgXtKXHemTQd0ip3dpfQK6h+BigNc8fwEAGt9RWkVZa8a6+sn99D/57SVtn6TogdUmN3tCChFKlcgx5FCXt3Ur1xlgBiwyphWY7ExNbIN5o=
+	t=1763222458; cv=none; b=bsfrdYBTY3GG+olaRQrkXSd8pjmDlOagiGNur62RG74tnv/ggjYb5PqjMyqewSK9iDYXaCtEwAkyZKwVadRmY0AZpwKl7mM0SbkYV7/IQKPUpHmJgRI7vRulum7yB5DYbT3ZbDGo4/MkrE9OEwXfMdOP9FCrq9ViqucZLW4pVRo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763178926; c=relaxed/simple;
-	bh=bSnaxQSmmizFstlMQXtunx/ahtOr9ZdNBIJJWbzQY+0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=c91aQZ6+xAnQhv9CScaUT+/Qkd5ywzZilTXyyx9NKqWgEnOy/H3UTRp66dQzvjCUizECwYrxd8fgBGqqs8QHmmf1YRxe6S9930BilbIxTPmMFkd/Hndadn4XvpaWpfV9vdOImIGINUSYIH0gceOFGsufCZJAhLNFcWw/MBD3YiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=V9xyueey; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=HL0zuKd/; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1763222458; c=relaxed/simple;
+	bh=cnTdkt+FylY6A9BQ3tCHUmifMXiuKWjX+ttDWqiF3d4=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=IpQaix8jHeTKsBXZh5h13MIAXQ0m8NGfSmP+ALHakVzXpVb7dNmkYY38Ogl5NycvbOKYaHg582CiQBaGQvesh7R+lddZ5Qg2aXSH+0XnukDDlLdBkOC1GmlMSi8YSdvTnyXcWFoaCY/Tgy7/43rLHWoPDnS8fHJdeXOfrimOQl8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=CoBMien1; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="V9xyueey";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="HL0zuKd/"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5AEIQ54X043087
-	for <virtualization@lists.linux.dev>; Sat, 15 Nov 2025 03:55:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=kpUJE4SYKU9ynxkJ/T5JJhpa
-	CqT/i8ZykNmysQrjF+s=; b=V9xyueey6blpzm/jfavsSbhlfoxZqh6ziY9GLiVo
-	pRLERZ2MEX31+yuGsAhlfVnpx49LUnkivh7VOeVkX+iEZCpUszfAr6RWAvx/GoxG
-	ZijhYK8E3mzyIqhG1hK2L5/w9DdedzrozrD9Lv3PvXEGCefrjA2nK2F6EPnJkN5Q
-	59YLYTARTJ+Imk6JfdjaS45qa6wSMYck595UYohLzKOGwUnrjp4w0vmLrwRUpeB6
-	SYq4g3sGHee1nq0e3QSLce0NkDu8LM1+cCMEAkTcfdWp6FkDpecyTGsY74vra0rZ
-	jqFpR49ENgMSjHk8p1Xtfaa+aw5Hd9R3LM0WfZoyiVfmLQ==
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com [209.85.219.72])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ae3t9tajh-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Sat, 15 Nov 2025 03:55:24 +0000 (GMT)
-Received: by mail-qv1-f72.google.com with SMTP id 6a1803df08f44-880444afa2cso39186336d6.1
-        for <virtualization@lists.linux.dev>; Fri, 14 Nov 2025 19:55:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1763178923; x=1763783723; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=kpUJE4SYKU9ynxkJ/T5JJhpaCqT/i8ZykNmysQrjF+s=;
-        b=HL0zuKd/Pv5SAdzCFejFE5bi2kiWb5bRHogy+O1grCGqeKREdmbJ6UG92WrKnxkEFZ
-         t9xhBG9iovSOWRhT6/wTSuslaK9Rqhk4KXpfaH622aSG8qo5ab3uFzrYYbBIJmI+M6OC
-         JAAK1zfjo2chrPnnn8hpJ9JqVgHpjiNEyDJjYb+jvVZXXyJVgRpQI2d0EPjAEnBke9oZ
-         HbYttUYAeGMhMDM4in66CaNfsrNwcg45KvCkJMuFYzU4Ygu7GilHgtXC0EwNGWt4Psox
-         qw/5xLu0dDMY86irn/bqfo+NCyNWHNx3QJutqZ5FsXZ/LKXQrl18ahqCSmiIa3NoDxei
-         qaUA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763178923; x=1763783723;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kpUJE4SYKU9ynxkJ/T5JJhpaCqT/i8ZykNmysQrjF+s=;
-        b=WEdqfT8eJR2N/6F1lD/BaY7nJDSlpobuuKztJDy3mC74pxMfhzzVeAl/vKx3vM8cmA
-         vPff1Pxa94RqrzsaV89FJ8c1eeAa8ZRJjq6ASdLcyTLbxipBoIIdjSUIjbF3GDIN8BbU
-         TShP102nWMewNnekpjuEEpgolnQddQOOMaXLcBW1YF9/SQD72OfBWroxRCC5qsXls0jq
-         7n0sR+hRiam1YFS8C24JO6RrI9Q/0ts/D1TnzznvPN2rMk2y6MPDQ1TNgT433LYAyEQB
-         ejswUDsOOMiD6FGPd+bGExUFhVZAH6oqcn1CitoHXda/EQxpO2JdiYZ9bLZJP+CpKcC3
-         BGOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWwT00WV+kCU7avNIEu/PtxvWMxn24lwY3xxo2jeBqjIIXkUvbP62IUtLOJblZ36TmVGOUeeMX3SDlyEOR9lQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxUgfBtblJvthfSN5WJUEHFU09WOwzCEKWlqQxzWsBzX4+o+iuZ
-	2DHQgxPmqfX5V+rat/REbHrkkbLNE+2fhHO19s/Wokbvee22Vdth7OiU7n11HLEiwz6IbD9uxKD
-	UYVAlKzVnZic8AKgKHyiUKbhnwOD34LbgYnE+URadN1d+YJHpkaF97rfUJ+K6aj+1Yrkkww==
-X-Gm-Gg: ASbGncu7V9WPJLIFT8cmTRebKTVKaJrjuk4M0er5awJotZeRTQT+nhbGyCcqQL9p5r6
-	jBgX9GkwF2W9wBN/JRJC5McTgUY41g2ZFK6TozmIhuOqWTX4EpfHv6e1EA7kRaAqVGgFk0L+3Ov
-	iX+ghvBsLJrY1nKo7/2/vN43F2FiutbjsyK3ikGZqM4gB02afACSZmEW7yVhKNZ2z1fTIVvURa9
-	BvGDv8qCcdI+1AoxuOum1CJeaXoMwFuMvRt1OXzKKvE07zMLnTGDPkHMCeA/lvHvH5RP7Pvallq
-	XaLUbWE4qM/NATjxeC/PUOu4cltoJWM0GOVgEkQofk5p3UjfNEDjIPx+NgVK5n7HGf2TkkQ9C4w
-	OEDcgBKsIQntB+ITzwyMdYoMw7wXUQuxIAJGNJ6bDNZSQcvDsCix5UWAkpXKPRtgYuQ+wIk7ujN
-	g/TvOGY0U89ZJX
-X-Received: by 2002:a05:6214:c65:b0:882:4dec:42b9 with SMTP id 6a1803df08f44-882925f280amr79893416d6.26.1763178923095;
-        Fri, 14 Nov 2025 19:55:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH21xNZD/1SaQbAJXQ9lzSs2ET/wK99qDySnRnPvmoMPz0h942r+lDos6cmgLn70aSgdH9ifQ==
-X-Received: by 2002:a05:6214:c65:b0:882:4dec:42b9 with SMTP id 6a1803df08f44-882925f280amr79893116d6.26.1763178922595;
-        Fri, 14 Nov 2025 19:55:22 -0800 (PST)
-Received: from umbar.lan (2001-14ba-a0c3-3a00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a0c3:3a00:264b:feff:fe8b:be8a])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5958040c7ccsm1449901e87.100.2025.11.14.19.55.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Nov 2025 19:55:20 -0800 (PST)
-Date: Sat, 15 Nov 2025 05:55:17 +0200
-From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-To: Vignesh Raman <vignesh.raman@collabora.com>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
-        helen.fornazier@gmail.com, airlied@gmail.com, simona.vetter@ffwll.ch,
-        lumag@kernel.org, robdclark@gmail.com, robin.clark@oss.qualcomm.com,
-        guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
-        valentine.burley@collabora.com, linux-mediatek@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
-        amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 1/2] drm/ci: uprev mesa
-Message-ID: <42v64xdsaqug5yy76yel4tukh6wkt2tp237vlnpteabyl5qjo5@iigtgujvecwc>
-References: <20251114030056.1139570-1-vignesh.raman@collabora.com>
- <20251114030056.1139570-2-vignesh.raman@collabora.com>
- <prjwrsepfc3b6ozhue5cp66khlcvdrpvpy6jkk23edncmi4l3y@oiddmamgg3mx>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="CoBMien1"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1vKIhb-00BbZ6-Ur; Sat, 15 Nov 2025 17:00:39 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
+	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
+	bh=Y1+0I5DNaklRmiPaKQneT6QdBuDFdaUb1T3q9FwoyRw=; b=CoBMien1HX4yz7iKV4ijFHz83k
+	blUPV1FGv52Yw8IT8efrKyipnSopg85cSe/tTTkAZeS5uZQEbBdIqhktE5GaD9tl5AxEpqdJf+RF4
+	FbULrpCJSzbZjuL+oaZ/DvBCzvB/G9pdQmGoQ2rcqKCxdczs2UMv8fGs1O1l4dkfyZViuRX//WL5k
+	gkJK+kRMLkzOJ6JAmcLsxbpz3CoKWdG/S/iv3MA33i9yN9EFzBEX6iUnVLYRFm2RUQmq1nL9mFfuY
+	3s/DcoTyPkjAxTzszyXEMfpW3jA9hds7LAFCZEUOp3ObE71kAoTPvHwo99ksV39rae5BObqI/L+I0
+	qUqGAPrA==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1vKIhb-0002Zy-0f; Sat, 15 Nov 2025 17:00:39 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1vKIhS-005hIo-7j; Sat, 15 Nov 2025 17:00:30 +0100
+Message-ID: <60f1b7db-3099-4f6a-875e-af9f6ef194f6@rbox.co>
+Date: Sat, 15 Nov 2025 17:00:28 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <prjwrsepfc3b6ozhue5cp66khlcvdrpvpy6jkk23edncmi4l3y@oiddmamgg3mx>
-X-Authority-Analysis: v=2.4 cv=IOAPywvG c=1 sm=1 tr=0 ts=6917f9ac cx=c_pps
- a=7E5Bxpl4vBhpaufnMqZlrw==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=6UeiqGixMTsA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=e5mUnYsNAAAA:8 a=EUspDBNiAAAA:8 a=QX4gbG5DAAAA:8 a=E-Vn-V3zxCEcjh91BPMA:9
- a=CjuIK1q_8ugA:10 a=pJ04lnu7RYOZP9TFuWaZ:22 a=Vxmtnl_E_bksehYqCbjh:22
- a=AbAUZ8qAyYyZVLSsDulk:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAyOCBTYWx0ZWRfX2QCY8BNdsaos
- WpltrEDT6tVzNAnawSGIstanM71U2CO0MpE0pGq0McpBPruurou35fgZ5rRuqSe/snfGMdLQqur
- ipdyC4uKUq/E1TcH6/Hcfqkgj4z303OX8YAinOD1YSmD3kwyQOjxZwdmGUy79MvXZS3MNJgSBPL
- Ct2sdxvYz/L+0dq5wc3pESVrwpiu/eFnEkaBJOfk9y9gekBXhd7mIsIz8cV5XqDuhkAjjOw1DMG
- Ma9IlXokCdt6IWfm1WJas8+YVob0v26uWtpME7kA844sycq9qEYOMfqA6rVrtDI5yN+vdxNLlBX
- D3GaTrXiJctVuuFRRWAnE7Ndsg9eYuY3uUS4bQdXsFGmX8ZtdFm8gjclzGpHRuMXyD/skERy6k6
- bA1JbTtaUbiS9UV0Hh726w7j5dROhA==
-X-Proofpoint-GUID: RS4UoljLVs_TRtn7XXMF9LOeNZZ5yihX
-X-Proofpoint-ORIG-GUID: RS4UoljLVs_TRtn7XXMF9LOeNZZ5yihX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-11-15_01,2025-11-13_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 clxscore=1015 spamscore=0 adultscore=0 impostorscore=0
- bulkscore=0 malwarescore=0 suspectscore=0 priorityscore=1501
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2510240001
- definitions=main-2511150028
+User-Agent: Mozilla Thunderbird
+From: Michal Luczaj <mhal@rbox.co>
+Subject: Re: [syzbot] [virt?] [net?] possible deadlock in vsock_linger
+To: Stefano Garzarella <sgarzare@redhat.com>,
+ syzbot <syzbot+10e35716f8e4929681fa@syzkaller.appspotmail.com>
+Cc: davem@davemloft.net, edumazet@google.com, horms@kernel.org,
+ kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+ pabeni@redhat.com, syzkaller-bugs@googlegroups.com,
+ virtualization@lists.linux.dev
+References: <68f6cdb0.a70a0220.205af.0039.GAE@google.com>
+ <pehr4umqwjv3a7p4uudrz3uuqacu3ut66kmazw2ovm73gimyry@oevxmd4o664k>
+ <CAGxU2F5y+kdByEwAq-t15fyrfrgQGpmapmLgkmDmY4xH4TJSDw@mail.gmail.com>
+ <CAGxU2F6KaqmmK7qP55Rs8YHLOX62HyT77wY-RU1qPFpjhgV4jg@mail.gmail.com>
+Content-Language: pl-PL, en-GB
+In-Reply-To: <CAGxU2F6KaqmmK7qP55Rs8YHLOX62HyT77wY-RU1qPFpjhgV4jg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sat, Nov 15, 2025 at 02:44:56AM +0200, Dmitry Baryshkov wrote:
-> On Fri, Nov 14, 2025 at 08:30:50AM +0530, Vignesh Raman wrote:
-> > Uprev mesa to adapt to the latest changes in Mesa CI, including support
-> > for firmware via LAVA overlays, removal of the python-artifacts job,
-> > split container and build rules, use lava-job-submitter container,
-> > and various misc fixes.
-> > 
-> > Co-developed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-> > Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-> > Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
-> > ---
-> >  drivers/gpu/drm/ci/build.yml         |  22 +++---
-> >  drivers/gpu/drm/ci/container.yml     |  28 ++++++--
-> >  drivers/gpu/drm/ci/gitlab-ci.yml     |  95 ++++++++++++++++++++-----
-> >  drivers/gpu/drm/ci/igt_runner.sh     |   4 +-
-> >  drivers/gpu/drm/ci/image-tags.yml    |  22 +++---
-> >  drivers/gpu/drm/ci/lava-submit.sh    | 101 +++++++++++++--------------
-> >  drivers/gpu/drm/ci/static-checks.yml |   1 +
-> >  drivers/gpu/drm/ci/test.yml          |  18 +++--
-> >  8 files changed, 186 insertions(+), 105 deletions(-)
-> > 
+On 10/21/25 14:19, Stefano Garzarella wrote:
+> On Tue, 21 Oct 2025 at 12:48, Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>
+>> On Tue, 21 Oct 2025 at 10:27, Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>>
+>>> Hi Michal,
+>>>
+>>> On Mon, Oct 20, 2025 at 05:02:56PM -0700, syzbot wrote:
+>>>> Hello,
+>>>>
+>>>> syzbot found the following issue on:
+>>>>
+>>>> HEAD commit:    d9043c79ba68 Merge tag 'sched_urgent_for_v6.18_rc2' of git..
+>>>> git tree:       upstream
+>>>> console output: https://syzkaller.appspot.com/x/log.txt?x=130983cd980000
+>>>> kernel config:  https://syzkaller.appspot.com/x/.config?x=f3e7b5a3627a90dd
+>>>> dashboard link: https://syzkaller.appspot.com/bug?extid=10e35716f8e4929681fa
+>>>> compiler:       gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+>>>> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17f0f52f980000
+>>>> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=11ea9734580000
+>>>>
+>>>> Downloadable assets:
+>>>> disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-d9043c79.raw.xz
+>>>> vmlinux: https://storage.googleapis.com/syzbot-assets/0546b6eaf1aa/vmlinux-d9043c79.xz
+>>>> kernel image: https://storage.googleapis.com/syzbot-assets/81285b4ada51/bzImage-d9043c79.xz
+>>>>
+>>>> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+>>>> Reported-by: syzbot+10e35716f8e4929681fa@syzkaller.appspotmail.com
+>>>>
+>>>> ======================================================
+>>>> WARNING: possible circular locking dependency detected
+>>>> syzkaller #0 Not tainted
+>>>> ------------------------------------------------------
+>>>> syz.0.17/6098 is trying to acquire lock:
+>>>> ffff8880363b8258 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1679 [inline]
+>>>> ffff8880363b8258 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_linger+0x25e/0x4d0 net/vmw_vsock/af_vsock.c:1066
+>>>
+>>> Could this be related to our recent work on linger in vsock?
+>>>
+>>>>
+>>>> but task is already holding lock:
+>>>> ffffffff906260a8 (vsock_register_mutex){+.+.}-{4:4}, at: vsock_assign_transport+0xf2/0x900 net/vmw_vsock/af_vsock.c:469
+>>>>
+>>>> which lock already depends on the new lock.
+>>>>
+>>>>
+>>>> the existing dependency chain (in reverse order) is:
+>>>>
+>>>> -> #1 (vsock_register_mutex){+.+.}-{4:4}:
+>>>>       __mutex_lock_common kernel/locking/mutex.c:598 [inline]
+>>>>       __mutex_lock+0x193/0x1060 kernel/locking/mutex.c:760
+>>>>       vsock_registered_transport_cid net/vmw_vsock/af_vsock.c:560 [inline]
+>>>
+>>> Ah, no maybe this is related to commit 209fd720838a ("vsock:
+>>> Fix transport_{g2h,h2g} TOCTOU") where we added locking in
+>>> vsock_find_cid().
+>>>
+>>> Maybe we can just move the checks on top of __vsock_bind() to the
+>>> caller. I mean:
+>>>
+>>>         /* First ensure this socket isn't already bound. */
+>>>         if (vsock_addr_bound(&vsk->local_addr))
+>>>                 return -EINVAL;
+>>>
+>>>         /* Now bind to the provided address or select appropriate values if
+>>>          * none are provided (VMADDR_CID_ANY and VMADDR_PORT_ANY).  Note that
+>>>          * like AF_INET prevents binding to a non-local IP address (in most
+>>>          * cases), we only allow binding to a local CID.
+>>>          */
+>>>         if (addr->svm_cid != VMADDR_CID_ANY && !vsock_find_cid(addr->svm_cid))
+>>>                 return -EADDRNOTAVAIL;
+>>>
+>>> We have 2 callers: vsock_auto_bind() and vsock_bind().
+>>>
+>>> vsock_auto_bind() is already checking if the socket is already bound,
+>>> if not is setting VMADDR_CID_ANY, so we can skip those checks.
+>>>
+>>> In vsock_bind() we can do the checks before lock_sock(sk), at least the
+>>> checks on vm_addr, calling vsock_find_cid().
+>>>
+>>> I'm preparing a patch to do this.
+>>
+>> mmm, no, this is more related to vsock_linger() where sk_wait_event()
+>> releases and locks again the sk_lock.
+>> So, it should be related to commit 687aa0c5581b ("vsock: Fix
+>> transport_* TOCTOU") where we take vsock_register_mutex in
+>> vsock_assign_transport() while calling vsk->transport->release().
+>>
+>> So, maybe we need to move the release and vsock_deassign_transport()
+>> after unlocking vsock_register_mutex.
 > 
-> Thanks a lot for taking care of it!
+> I implemented this here:
+> https://lore.kernel.org/netdev/20251021121718.137668-1-sgarzare@redhat.com/
 > 
+> sysbot successfully tested it.
 > 
-> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+> Stefano
 
-Hmm, this causes a lot of failures, see [1] (note, the run is not
-finished yet):
-- On some platforms (msm, rk3399, mt8173) the
-  core_setmaster@master-drop-set-root test fails. On other it seems to
-  work correctly
-- sm8350 seems to have some issues with this uprev, it cant' finish the
-  jobs at all
-- mt8173 and rockchip:rk3399 seem to have other test failures too
+Hi Stefano
 
-Could you please update fails / flakes tor all the affected platforms?
-Also I'm really interested in the master-drop-set tests. Why do they
-fail on some of the platforms, but not on all? This seems to be some
-infrastructure-related issue, since exactly the same kernel with the
-same IGT passes those tests (at least on msm hardware).
+Apologies for missing this, I was away for a couple of weeks.
 
-[1] https://gitlab.freedesktop.org/drm/msm/-/pipelines/1547684
+Turns out it's vsock_connect()'s reset-on-signal that strikes again. While
+you've fixed the lock order inversion (thank you), being able to reset an
+established socket, combined with SO_LINGER's lock-release-lock dance,
+still leads to crashes.
 
--- 
-With best wishes
-Dmitry
+I think it goes like this: if user hits connect() with a signal right after
+connection is established (which implies an assigned transport), `sk_state`
+gets set to TCP_CLOSING and `state` to SS_UNCONNECTED. SS_UNCONNECTED means
+connect() can be retried. If re-connect() is for a different CID, transport
+reassignment takes place. That involves transport->release() of the old
+transport. Because `sk_state == TCP_CLOSING`, vsock_linger() is called.
+Lingering temporarily releases socket lock. Which can be raced by another
+thread doing connect(). Basically thread-1 can release resources from under
+thread-0. That breaks the assumptions, e.g. virtio_transport_unsent_bytes()
+does not expect a disappearing transport.
+
+BUG: KASAN: slab-use-after-free in _raw_spin_lock_bh+0x34/0x40
+Read of size 1 at addr ffff888107c99420 by task a.out/1385
+CPU: 6 UID: 1000 PID: 1385 Comm: a.out Tainted: G            E
+6.18.0-rc5+ #241 PREEMPT(voluntary)
+Call Trace:
+ dump_stack_lvl+0x7e/0xc0
+ print_report+0x170/0x4de
+ kasan_report+0xc2/0x180
+ __kasan_check_byte+0x3a/0x50
+ lock_acquire+0xb2/0x300
+ _raw_spin_lock_bh+0x34/0x40
+ virtio_transport_unsent_bytes+0x3b/0x80
+ vsock_linger+0x263/0x370
+ virtio_transport_release+0x3ff/0x510
+ vsock_assign_transport+0x358/0x780
+ vsock_connect+0x5a2/0xc40
+ __sys_connect+0xde/0x110
+ __x64_sys_connect+0x6e/0xc0
+ do_syscall_64+0x94/0xbb0
+ entry_SYSCALL_64_after_hwframe+0x4b/0x53
+
+Allocated by task 1384:
+ kasan_save_stack+0x1c/0x40
+ kasan_save_track+0x10/0x30
+ __kasan_kmalloc+0x92/0xa0
+ virtio_transport_do_socket_init+0x48/0x320
+ vsock_assign_transport+0x4ff/0x780
+ vsock_connect+0x5a2/0xc40
+ __sys_connect+0xde/0x110
+ __x64_sys_connect+0x6e/0xc0
+ do_syscall_64+0x94/0xbb0
+ entry_SYSCALL_64_after_hwframe+0x4b/0x53
+
+Freed by task 1384:
+ kasan_save_stack+0x1c/0x40
+ kasan_save_track+0x10/0x30
+ __kasan_save_free_info+0x37/0x50
+ __kasan_slab_free+0x63/0x80
+ kfree+0x142/0x6a0
+ virtio_transport_destruct+0x86/0x170
+ vsock_assign_transport+0x3a8/0x780
+ vsock_connect+0x5a2/0xc40
+ __sys_connect+0xde/0x110
+ __x64_sys_connect+0x6e/0xc0
+ do_syscall_64+0x94/0xbb0
+ entry_SYSCALL_64_after_hwframe+0x4b/0x53
+
+I suppose there are many ways this chain of events can be stopped, but I
+see it as yet another reason to simplify vsock_connect(): do not let it
+"reset" an already established socket. I guess that would do the trick.
+What do you think?
+
+Thanks,
+Michal
