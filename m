@@ -1,327 +1,198 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA4032868A2
-	for <virtualization@lists.linux.dev>; Sun, 16 Nov 2025 07:45:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3827225A5B
+	for <virtualization@lists.linux.dev>; Sun, 16 Nov 2025 15:32:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763279131; cv=none; b=MSGbaaOJL4UBJ3nlXCQkrkVfALrc+ULKaHFKrn9AVVn4Ad2qqFeLlQ9+nkVSivXbpUAqbY8VPzTEeyUgRFGOy8F/y84Hjc3YQzual9woFgE8g1AcNBtn+Ko1bTXIqpp4Sn1EUtkzos0V9IptbUPS/Hwk1k9B9A38kWvv77y3M5g=
+	t=1763307130; cv=none; b=GU53Wh2K5TOZm6CbynZOBEf9qd6bbb66ooevqGgiRFBfIN/Syn9hSDZINCMVd5/fpeJl3unoREAAl6XQ8EG5BQqX/YohnowCykmGOoE+uDtmnJd/c7M6QyhHJks+GmAUaB4CoZlgKOiLpE92LEwDxqjIpeS8EhNdhBMYZY1sYKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763279131; c=relaxed/simple;
-	bh=y8wCZBoR8voYmXOKUgsqLzpqBH63+zG9KD2XjWV0Mfw=;
+	s=arc-20240116; t=1763307130; c=relaxed/simple;
+	bh=opueA1Tj3onhtKt90wHgpDBqZHyCmOUWHK/OOSI7zNI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=chspt1PFO8XlTRseZaJt9XA516LjnOvehky8FFdKsSMvxBYifbjQEXH+oK1rnm3hXEtuozFapINE/+XGF+QTqf6Z05Jp7xxpE/uvA4ctEFSONg+Uo+Yxp99vXxp8H5Ut83LHcnescp3yqNEXaYw3S+XPTSVR27J7I+iqIpzzzS0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bWCErSfU; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=dnkdiIfmcWtPksuAvnDICVBWj8l6terNSUa1aSCekfKqMv1KIhEcl4MCIHRPG6LBZ0tGLKPR4P/eNbItExlpwFhmca20LdzAUYXabKe7SujDjRr0qxx9vezftWYp8xsDr+ryX5KYpzSG8Ge2Pz1NgKZn41vHWcEyCcdaLkgApIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=STV1aCeq; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Cq2gdSDb; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bWCErSfU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763279129;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=trQJ3e9sH2/7p6hcj43E7jvSF+i5hK8jJlCsMQnk8Kw=;
-	b=bWCErSfU0vtpubxhWwtvIrs6sg1bITNJvVD97hdIcjTGG/FU67KhkjWCNcXlHkEeUVogZq
-	XC0sIYPDyRbhDO8ZDMkOroVgqkG+0blko7RR+UNAAzet4HUGHmk2XT/DvOyCl4qdDh+Ai1
-	LkCOIMSaw87S/mt/RrwFGSyMh+aMxGE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-355-8HJFf-WSPUymeRSxJ7hO-A-1; Sun, 16 Nov 2025 02:45:27 -0500
-X-MC-Unique: 8HJFf-WSPUymeRSxJ7hO-A-1
-X-Mimecast-MFC-AGG-ID: 8HJFf-WSPUymeRSxJ7hO-A_1763279127
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-429c521cf2aso3043251f8f.3
-        for <virtualization@lists.linux.dev>; Sat, 15 Nov 2025 23:45:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="STV1aCeq";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Cq2gdSDb"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5AG1Rcg74115429
+	for <virtualization@lists.linux.dev>; Sun, 16 Nov 2025 15:32:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=brXB1Y/LPVXbRpByEO14Lypc
+	5NwpFVTcCsuQsNLy+W4=; b=STV1aCeqitSSB1V44tB0l1zmgK/7jDhruQaVos81
+	EssOg08VRmId+HKWwnbjmu1A0oxPC5Ot0Oyvyo87OOJHticVG/YB653NVBPtYm9d
+	UMItP9V/wSh+4E91LFlEQhJNuVhFvVTS+/bfsvX8obshzPQA/diigqQyXgEmYa+2
+	zxXYJ2F40o0rqOYznjpqhDid9v6g18id9gJ19enQV+cFgUdkWcy+0mxpFb239eHs
+	p3aVsMkvNCq6kwdAPk3OKLUDSbymiPKKYAioD2H3p7O3WWKAQeMEmM52tSJ1CZTR
+	ylI817cj5MU9L4CVRhwrC+CcUAq4YwWU/UgKqZenuQxUbw==
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com [209.85.222.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4aejkma9u3-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Sun, 16 Nov 2025 15:32:07 +0000 (GMT)
+Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-8b1d8f56e24so981621985a.2
+        for <virtualization@lists.linux.dev>; Sun, 16 Nov 2025 07:32:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1763307127; x=1763911927; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=brXB1Y/LPVXbRpByEO14Lypc5NwpFVTcCsuQsNLy+W4=;
+        b=Cq2gdSDbf5UX9fozbTParWD0NLMy+9xuuFeMPdwrFVMOMboZjyle2N5PaTpFmGu1PV
+         XULRx3ISJmkII8R/M4L04/pMk86td00jyOwIwZc8zu5kF+f0o9sRQGbXUVMlI+vo/qg3
+         +irkX8XXoYhrcaIQIRHNju4rJLvqvau/rAx76DZNkCKnJk3HULqI/9Z9T04P+mcztGiB
+         0LhMbic5TOieupJL46BnD/4DBI+VGUJ1+3pnxIjYBpDbQPRZoz6wlVetqzCCvmnxKY8s
+         wosd+a+MgT153gE2dNC4H9xPr5XClXv0tPMDHcMQGxrvZxjQf2kM/x6rQVIUQaJpy1xR
+         zBgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763279126; x=1763883926;
+        d=1e100.net; s=20230601; t=1763307127; x=1763911927;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=trQJ3e9sH2/7p6hcj43E7jvSF+i5hK8jJlCsMQnk8Kw=;
-        b=NOFRiT36YQV6BB9kVwOL04WOX63eIZBAyvecDLclmBi5EATk3jdltT2FZIigvodj3P
-         FQqUzjOoVNf1nqyn2WEMuydFcEAujfpyvku7yKCeP4s3/EYLwxzwiO0IusjiVHti98l+
-         QRe1pbDfu0sBILZpG8h3oQsOg2eZ7v9WtsUgKZ750YUjkUVM2EHPWgEWupoyoIosLHxw
-         7rg2G3S9ISzFZESVwPp/4H6KWXjmVYASzayaDultngujJFmLmXay7Xr/DJHspZ7ogJ0Y
-         MvuD5+YCD681Ui3USYNnCmI1yPTtPEhNzRMCLlfZt+PxBk9oqIzPtfE+OZ7pJj5ZEcl9
-         YbsQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXQ2Tmsg/aarrab76MbpfzsN+V+GTdJfnoGDaICjDOs+eXmDJ1GqNYRYuAhqaljQiBARvohIMCgI9W19qWL0g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx6oCl3PR9yLOu051xvz/GW+t5UZhmE5AtLcPom0R9uu/GsdbH7
-	wQVK03naXVpXd7B83GXySbPvWmMxuDR+ZWUwN0OaK299zQtiFcETwNjDu7zaNrsMDVMMIASqIfp
-	QUlW8iTK5wvb4AbGWfvNp/5mShq0B8gXrrJqm8XvxamgcOhC+9RaW6uf9lQ6WNrXZdgzEEpUEr8
-	LS
-X-Gm-Gg: ASbGncscc6XEsGN7MGrsqa8x35OjB1qNGyWsWxEYGE0FGi8iJgF0KfbQdCujwIkbIfh
-	7aRF5FL2S3WLx3losPBMwdG7yZMW97pgpJWQf7XeMnoU6Z5db7h9WLUeMiAu1WRjFadOzUAQR3B
-	l18/kePgUf8ncd2BsBAbsn6LxgcRLCTQz6U29azLtm6IfZobJT3J6fpD3FvX4OnhQKLHiUVhRxQ
-	Vga+a7rff1YG9SBavdF3qb5GYSdFDGW/qXP4QWcSqNMpDT8qZ0hbdfzqnRWkxmWn0WC5SLFdvXU
-	cFQPIdBivJ+63IGpjBdQtEd3fQIF+Kn6fqFBzkf0p/2DlWo168bgjvj0uN557UTWyDdk234OfoI
-	RZJ9JzS7JC0yeiHVk+8A=
-X-Received: by 2002:a05:6000:61e:b0:429:d6dc:ae1a with SMTP id ffacd0b85a97d-42b59377f5cmr7143984f8f.30.1763279126233;
-        Sat, 15 Nov 2025 23:45:26 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFavbSLEzC3fzGZlFNcbplKoDaGAFf6xm82Dmpuac8kJ0YL87asozxTpPgyhKXE0Otxlq6lXg==
-X-Received: by 2002:a05:6000:61e:b0:429:d6dc:ae1a with SMTP id ffacd0b85a97d-42b59377f5cmr7143962f8f.30.1763279125674;
-        Sat, 15 Nov 2025 23:45:25 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53f2084dsm20221273f8f.42.2025.11.15.23.45.23
+        bh=brXB1Y/LPVXbRpByEO14Lypc5NwpFVTcCsuQsNLy+W4=;
+        b=UmjQ5oz7CmsbSFFo6m/9PscBf/kxP8e4cxpJ71s7NZiEd/tcxiDn7kzPBqwKy6jPxf
+         wkMkIjqk8Et7eNiH41sRnTNwkZL4WDSpT8h8N3C65GR072GaSIx85V02skkI0IISd4u3
+         CULl9EYL5Rrj76NUBfOodRPy/rBGldg3dlepfWIodmPb27B38kYHwGzn9bZ0yJc9hLQj
+         ywoW9p+bcP+szkc9AlZoXNGM6uwhiZGrkl4SjIIC8d6CGyvm/mL4AvZ4Kg/dwLDj2k47
+         dvWMJcsaWzI6b9Jq56/ihm9b6maefPBMztrM+agQ1LYYAKd6BvbZk/voVCZLl3vifGZz
+         Fb2Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUfqMw4S7q9FhX1ak7sBxexV1KiwHr7W9OF6g2++CuoJkCtHyHw3pHgbgpp+7W5GI0dOeWE5ZJciwABmhpuQA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzE3I2uZ1PGRCoyQ1utO0AYRX5UWuHmUxgC7UXSfeAF5llqbArO
+	H8SVRw5infwbJ7G3v0U+E4XoX7oVrIpxsCOj/H3kvEXxvh71TyuwyOror8Bt1QD7dgg59F4RQbq
+	UguK7fEF7+fyERU5UH9AwxdDoVcG/S8nCs3TwtQWI5OmkFulRItDNiHvQK+nyUfEwTeUClw==
+X-Gm-Gg: ASbGncsHFdmiC6NPXz1bXCKbqPrJYC41kj5GIIw7NE7Bqe51fQksvYME72AMZ2OgtlK
+	rczQ3jdGAcrKi3FZggwUh8drhHIoHGmp7PqLCahenUjeWuZs/X+kiuAmBfWTKL4svw7rZEgCXtv
+	XZZWRrJxRpjQmQxV6Ig6ptrGgHkj1WzN462sdD1ynfCHmkWzIRLXBwJGgH2o87syVkHu4Wy04jp
+	0XHYEDqmI1L58212iAP93+8nJ2MkgM3u5jec2gasm6mCrd229LZZM7GnAfWh7aEy+j8PzdeRiqM
+	oI5n8fqQ7senGMM9Ipbv4YgTIW8g81c4sICgdDPuV2SsVGQMCwHg8bcAc2tzqRj7KiPOwQu3u9T
+	ttML2ML7jySNRKfTatoh9wanvEqxdCqpJ1YzfRhz+hZa7qw+nUcOJIpyIgj7tGgA/f0RRKT+eFu
+	43+pGB9HiZXFpy
+X-Received: by 2002:ac8:7dd6:0:b0:4eb:a3fe:53d with SMTP id d75a77b69052e-4edf2177a96mr137561081cf.79.1763307126916;
+        Sun, 16 Nov 2025 07:32:06 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHLhJkaOMAE2symS5kOW15WypsaRmGyogTqDdNGkh+5TTdpKm+0QEXmKB8gHRw7DCEiCrhb5w==
+X-Received: by 2002:ac8:7dd6:0:b0:4eb:a3fe:53d with SMTP id d75a77b69052e-4edf2177a96mr137560551cf.79.1763307126391;
+        Sun, 16 Nov 2025 07:32:06 -0800 (PST)
+Received: from umbar.lan (2001-14ba-a0c3-3a00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a0c3:3a00:264b:feff:fe8b:be8a])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-595804003a4sm2483875e87.59.2025.11.16.07.32.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Nov 2025 23:45:24 -0800 (PST)
-Date: Sun, 16 Nov 2025 02:45:22 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	Mike Christie <michael.christie@oracle.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v4 2/2] vhost: switch to arrays of feature bits
-Message-ID: <17c98c7304b6d78d2d59893ba7295c2f64ab1224.1763278904.git.mst@redhat.com>
-References: <cover.1763278904.git.mst@redhat.com>
+        Sun, 16 Nov 2025 07:32:05 -0800 (PST)
+Date: Sun, 16 Nov 2025 17:32:03 +0200
+From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+To: Vignesh Raman <vignesh.raman@collabora.com>
+Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
+        helen.fornazier@gmail.com, airlied@gmail.com, simona.vetter@ffwll.ch,
+        lumag@kernel.org, robdclark@gmail.com, robin.clark@oss.qualcomm.com,
+        guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
+        valentine.burley@collabora.com, linux-mediatek@lists.infradead.org,
+        linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
+        amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 1/2] drm/ci: uprev mesa
+Message-ID: <2obhppq6a4ercfnhvm42tbbgh3xut4lz66fc4j7mpev5oxxno7@dydu2wysmgvi>
+References: <20251114030056.1139570-1-vignesh.raman@collabora.com>
+ <20251114030056.1139570-2-vignesh.raman@collabora.com>
+ <prjwrsepfc3b6ozhue5cp66khlcvdrpvpy6jkk23edncmi4l3y@oiddmamgg3mx>
+ <42v64xdsaqug5yy76yel4tukh6wkt2tp237vlnpteabyl5qjo5@iigtgujvecwc>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cover.1763278904.git.mst@redhat.com>
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: MXxm9qS3OnWg7dM19rK5VctbQNX5Km0FLF_iKOejsXI_1763279127
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <42v64xdsaqug5yy76yel4tukh6wkt2tp237vlnpteabyl5qjo5@iigtgujvecwc>
+X-Proofpoint-ORIG-GUID: -7UUVIrJo2MkFJGihq9f19Em_8aReck6
+X-Authority-Analysis: v=2.4 cv=N6ok1m9B c=1 sm=1 tr=0 ts=6919ee77 cx=c_pps
+ a=HLyN3IcIa5EE8TELMZ618Q==:117 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
+ a=6UeiqGixMTsA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=e5mUnYsNAAAA:8 a=EUspDBNiAAAA:8 a=QX4gbG5DAAAA:8 a=zodt2Hv4yxvvtHnNIosA:9
+ a=CjuIK1q_8ugA:10 a=bTQJ7kPSJx9SKPbeHEYW:22 a=Vxmtnl_E_bksehYqCbjh:22
+ a=AbAUZ8qAyYyZVLSsDulk:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE2MDEyOSBTYWx0ZWRfX5uNq+pNU9aXY
+ hsxBGJ5IiBwLjXtm/U3BMxabR6kZZHn+We+fXYKgpj1ZsF4xpyKrnB754vFwRJG2NfA1fP7vp4P
+ hMJaC8RDXVkaI9OnE86Pjncv3fkfXpfsXCQullzZD/pzJR4KsKwpKMhOhnnAxppsuSYoGQ1jGbY
+ BfWeC3Z3QZdoo4ENrU1/ub4YGQWd93TpXGf4S7vz7uxXGtx2lytghJc1K92v1ySQZdezE+TisJo
+ wW+2gj0eqQkynDOV2U6kQ/Ibr+yD+JIP+rSu2AWjH4pDilkls2y5elZjqvjVXfSLfi/6KToylVd
+ 7qZQTiM8CczTAmT5J43TFhKMq0Aed8CeTWY90K/mI0jW1wsJamPZ/p9MDdGKJhn+I/GoDwrK0lD
+ hZHr32m9vqfBtnh/r4EgaS+yrHMXHg==
+X-Proofpoint-GUID: -7UUVIrJo2MkFJGihq9f19Em_8aReck6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-16_06,2025-11-13_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0 clxscore=1015
+ priorityscore=1501 adultscore=0 phishscore=0 spamscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2510240001 definitions=main-2511160129
 
-The current interface where caller has to know in which 64 bit chunk
-each bit is, is inelegant and fragile.
-Let's simply use arrays of bits.
-By using unroll macros text size grows only slightly.
+On Sat, Nov 15, 2025 at 05:55:17AM +0200, Dmitry Baryshkov wrote:
+> On Sat, Nov 15, 2025 at 02:44:56AM +0200, Dmitry Baryshkov wrote:
+> > On Fri, Nov 14, 2025 at 08:30:50AM +0530, Vignesh Raman wrote:
+> > > Uprev mesa to adapt to the latest changes in Mesa CI, including support
+> > > for firmware via LAVA overlays, removal of the python-artifacts job,
+> > > split container and build rules, use lava-job-submitter container,
+> > > and various misc fixes.
+> > > 
+> > > Co-developed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+> > > Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+> > > Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+> > > ---
+> > >  drivers/gpu/drm/ci/build.yml         |  22 +++---
+> > >  drivers/gpu/drm/ci/container.yml     |  28 ++++++--
+> > >  drivers/gpu/drm/ci/gitlab-ci.yml     |  95 ++++++++++++++++++++-----
+> > >  drivers/gpu/drm/ci/igt_runner.sh     |   4 +-
+> > >  drivers/gpu/drm/ci/image-tags.yml    |  22 +++---
+> > >  drivers/gpu/drm/ci/lava-submit.sh    | 101 +++++++++++++--------------
+> > >  drivers/gpu/drm/ci/static-checks.yml |   1 +
+> > >  drivers/gpu/drm/ci/test.yml          |  18 +++--
+> > >  8 files changed, 186 insertions(+), 105 deletions(-)
+> > > 
+> > 
+> > Thanks a lot for taking care of it!
+> > 
+> > 
+> > Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+> 
+> Hmm, this causes a lot of failures, see [1] (note, the run is not
+> finished yet):
+> - On some platforms (msm, rk3399, mt8173) the
+>   core_setmaster@master-drop-set-root test fails. On other it seems to
+>   work correctly
+> - sm8350 seems to have some issues with this uprev, it cant' finish the
+>   jobs at all
+> - mt8173 and rockchip:rk3399 seem to have other test failures too
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/net.c   | 34 +++++++++++++++++++---------------
- drivers/vhost/scsi.c  |  9 ++++++---
- drivers/vhost/test.c  | 10 ++++++++--
- drivers/vhost/vhost.h | 42 ++++++++++++++++++++++++++++++++++--------
- drivers/vhost/vsock.c | 10 ++++++----
- 5 files changed, 73 insertions(+), 32 deletions(-)
+I have fixed most of the fallouts, see [2]. But ideally this should be
+split into two parts: fix before mesa uprev (I think some of them are
+already there), uprev mesa, applying necessary fixes and then enable apq
+jobs.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index d057ea55f5ad..00d00034a97e 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -69,15 +69,15 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
- 
- #define VHOST_DMA_IS_DONE(len) ((__force u32)(len) >= (__force u32)VHOST_DMA_DONE_LEN)
- 
--static const u64 vhost_net_features[VIRTIO_FEATURES_U64S] = {
--	VHOST_FEATURES |
--	(1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
--	(1ULL << VIRTIO_NET_F_MRG_RXBUF) |
--	(1ULL << VIRTIO_F_ACCESS_PLATFORM) |
--	(1ULL << VIRTIO_F_RING_RESET) |
--	(1ULL << VIRTIO_F_IN_ORDER),
--	VIRTIO_BIT(VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) |
--	VIRTIO_BIT(VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO),
-+static const int vhost_net_features[] = {
-+	VHOST_FEATURES,
-+	VHOST_NET_F_VIRTIO_NET_HDR,
-+	VIRTIO_NET_F_MRG_RXBUF,
-+	VIRTIO_F_ACCESS_PLATFORM,
-+	VIRTIO_F_RING_RESET,
-+	VIRTIO_F_IN_ORDER,
-+	VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO,
-+	VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO
- };
- 
- enum {
-@@ -1734,14 +1734,14 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 			return -EFAULT;
- 		return vhost_net_set_backend(n, backend.index, backend.fd);
- 	case VHOST_GET_FEATURES:
--		features = vhost_net_features[0];
-+		features = VHOST_FEATURES_U64(vhost_net_features, 0);
- 		if (copy_to_user(featurep, &features, sizeof features))
- 			return -EFAULT;
- 		return 0;
- 	case VHOST_SET_FEATURES:
- 		if (copy_from_user(&features, featurep, sizeof features))
- 			return -EFAULT;
--		if (features & ~vhost_net_features[0])
-+		if (features & ~VHOST_FEATURES_U64(vhost_net_features, 0))
- 			return -EOPNOTSUPP;
- 
- 		virtio_features_from_u64(all_features, features);
-@@ -1753,9 +1753,13 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 		/* Copy the net features, up to the user-provided buffer size */
- 		argp += sizeof(u64);
- 		copied = min(count, (u64)VIRTIO_FEATURES_U64S);
--		if (copy_to_user(argp, vhost_net_features,
--				 copied * sizeof(u64)))
--			return -EFAULT;
-+
-+		{
-+			const DEFINE_VHOST_FEATURES_ARRAY(features, vhost_net_features);
-+
-+			if (copy_to_user(argp, features, copied * sizeof(u64)))
-+				return -EFAULT;
-+		}
- 
- 		/* Zero the trailing space provided by user-space, if any */
- 		if (clear_user(argp, size_mul(count - copied, sizeof(u64))))
-@@ -1784,7 +1788,7 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 		}
- 
- 		for (i = 0; i < VIRTIO_FEATURES_U64S; i++)
--			if (all_features[i] & ~vhost_net_features[i])
-+			if (all_features[i] & ~VHOST_FEATURES_U64(vhost_net_features, i))
- 				return -EOPNOTSUPP;
- 
- 		return vhost_net_set_features(n, all_features);
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 98e4f68f4e3c..04fcbe7efd77 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -197,11 +197,14 @@ enum {
- };
- 
- /* Note: can't set VIRTIO_F_VERSION_1 yet, since that implies ANY_LAYOUT. */
--enum {
--	VHOST_SCSI_FEATURES = VHOST_FEATURES | (1ULL << VIRTIO_SCSI_F_HOTPLUG) |
--					       (1ULL << VIRTIO_SCSI_F_T10_PI)
-+static const int vhost_scsi_features[] = {
-+	VHOST_FEATURES,
-+	VIRTIO_SCSI_F_HOTPLUG,
-+	VIRTIO_SCSI_F_T10_PI
- };
- 
-+#define VHOST_SCSI_FEATURES VHOST_FEATURES_U64(vhost_scsi_features, 0)
-+
- #define VHOST_SCSI_MAX_TARGET	256
- #define VHOST_SCSI_MAX_IO_VQ	1024
- #define VHOST_SCSI_MAX_EVENT	128
-diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-index 42c955a5b211..af727fccfe40 100644
---- a/drivers/vhost/test.c
-+++ b/drivers/vhost/test.c
-@@ -308,6 +308,12 @@ static long vhost_test_set_backend(struct vhost_test *n, unsigned index, int fd)
- 	return r;
- }
- 
-+static const int vhost_test_features[] = {
-+	VHOST_FEATURES
-+};
-+
-+#define VHOST_TEST_FEATURES VHOST_FEATURES_U64(vhost_test_features, 0)
-+
- static long vhost_test_ioctl(struct file *f, unsigned int ioctl,
- 			     unsigned long arg)
- {
-@@ -328,14 +334,14 @@ static long vhost_test_ioctl(struct file *f, unsigned int ioctl,
- 			return -EFAULT;
- 		return vhost_test_set_backend(n, backend.index, backend.fd);
- 	case VHOST_GET_FEATURES:
--		features = VHOST_FEATURES;
-+		features = VHOST_TEST_FEATURES;
- 		if (copy_to_user(featurep, &features, sizeof features))
- 			return -EFAULT;
- 		return 0;
- 	case VHOST_SET_FEATURES:
- 		if (copy_from_user(&features, featurep, sizeof features))
- 			return -EFAULT;
--		if (features & ~VHOST_FEATURES)
-+		if (features & ~VHOST_TEST_FEATURES)
- 			return -EOPNOTSUPP;
- 		return vhost_test_set_features(n, features);
- 	case VHOST_RESET_OWNER:
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 621a6d9a8791..d8f1af9a0ff1 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -14,6 +14,7 @@
- #include <linux/atomic.h>
- #include <linux/vhost_iotlb.h>
- #include <linux/irqbypass.h>
-+#include <linux/unroll.h>
- 
- struct vhost_work;
- struct vhost_task;
-@@ -279,14 +280,39 @@ void vhost_iotlb_map_free(struct vhost_iotlb *iotlb,
- 				eventfd_signal((vq)->error_ctx);\
- 	} while (0)
- 
--enum {
--	VHOST_FEATURES = (1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
--			 (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
--			 (1ULL << VIRTIO_RING_F_EVENT_IDX) |
--			 (1ULL << VHOST_F_LOG_ALL) |
--			 (1ULL << VIRTIO_F_ANY_LAYOUT) |
--			 (1ULL << VIRTIO_F_VERSION_1)
--};
-+#define VHOST_FEATURES \
-+	VIRTIO_F_NOTIFY_ON_EMPTY, \
-+	VIRTIO_RING_F_INDIRECT_DESC, \
-+	VIRTIO_RING_F_EVENT_IDX, \
-+	VHOST_F_LOG_ALL, \
-+	VIRTIO_F_ANY_LAYOUT, \
-+	VIRTIO_F_VERSION_1
-+
-+static inline u64 vhost_features_u64(const int *features, int size, int idx)
-+{
-+	unsigned long res = 0;
-+
-+	unrolled_count(VIRTIO_FEATURES_BITS)
-+	for (int i = 0; i < size; ++i) {
-+		int bit = features[i];
-+
-+		if (virtio_features_chk_bit(bit) && VIRTIO_U64(bit) == idx)
-+			res |= VIRTIO_BIT(bit);
-+	}
-+	return res;
-+}
-+
-+#define VHOST_FEATURES_U64(features, idx) \
-+	vhost_features_u64(features, ARRAY_SIZE(features), idx)
-+
-+#define DEFINE_VHOST_FEATURES_ARRAY_ENTRY(idx, features) \
-+	[idx] = VHOST_FEATURES_U64(features, idx),
-+
-+#define DEFINE_VHOST_FEATURES_ARRAY(array, features) \
-+	u64 array[VIRTIO_FEATURES_U64S] = { \
-+		UNROLL(VIRTIO_FEATURES_U64S, \
-+		       DEFINE_VHOST_FEATURES_ARRAY_ENTRY, features) \
-+	}
- 
- /**
-  * vhost_vq_set_backend - Set backend.
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index ae01457ea2cd..16662f2b87c1 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -29,12 +29,14 @@
-  */
- #define VHOST_VSOCK_PKT_WEIGHT 256
- 
--enum {
--	VHOST_VSOCK_FEATURES = VHOST_FEATURES |
--			       (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
--			       (1ULL << VIRTIO_VSOCK_F_SEQPACKET)
-+static const int vhost_vsock_features[] = {
-+	VHOST_FEATURES,
-+	VIRTIO_F_ACCESS_PLATFORM,
-+	VIRTIO_VSOCK_F_SEQPACKET
- };
- 
-+#define VHOST_VSOCK_FEATURES VHOST_FEATURES_U64(vhost_vsock_features, 0)
-+
- enum {
- 	VHOST_VSOCK_BACKEND_FEATURES = (1ULL << VHOST_BACKEND_F_IOTLB_MSG_V2)
- };
+At this point I have no idea what's wrong with MT8183. Most likely it
+needs either a DT fix or a driver fix. The driver fails to probe because
+it can't build a sensible component chain.
+
+On i915 several tests kill the hardware, making it timeout all remaining
+tests in a bad way.
+
+BTW: I see that for some of the drivers we skip the absolute majority of
+the tests. What are we actually testing on those?
+
+> 
+> Could you please update fails / flakes tor all the affected platforms?
+> Also I'm really interested in the master-drop-set tests. Why do they
+> fail on some of the platforms, but not on all? This seems to be some
+> infrastructure-related issue, since exactly the same kernel with the
+> same IGT passes those tests (at least on msm hardware).
+> 
+> [1] https://gitlab.freedesktop.org/drm/msm/-/pipelines/1547684
+
+[2] https://gitlab.freedesktop.org/lumag/msm/-/commits/msm-next-lumag-db820c
+
+
 -- 
-MST
-
+With best wishes
+Dmitry
