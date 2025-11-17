@@ -1,503 +1,489 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E44DF30E0C0
-	for <virtualization@lists.linux.dev>; Mon, 17 Nov 2025 04:23:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B2B4314D38
+	for <virtualization@lists.linux-foundation.org>; Mon, 17 Nov 2025 04:27:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763353409; cv=none; b=L2VnxebXO+EK164E0x5DyvAa64uM5g6zwvgwSyg+bLURblwuuueJJmSu46ptJ3L64c5a1h70p8TNUlIq8zuCv0ty4TIaiBAf3ZLmvZ/Mxpi9MzfoCbYQrsdT9GmlvODw6btpag1LYd2hu8HSYQ17/Kre7UATm9ZaCtM8m/jfSD8=
+	t=1763353635; cv=none; b=IumKhlazQneo1MENeaenBhScIXllkDslbnG5fYmhupY9SHGaLyP++htJadV0MQ6LvxPEaeMJhDd33rR4MKvCfK9fawKhJvXBe5ikfg6NNhheP/F8X8UCuF8woFcCFWEowDgLN340z3IlydaazeCpUJPiUtUwQDGuEcigJIvmuoo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763353409; c=relaxed/simple;
-	bh=UuB1ymVl3PCBynv+DejhArVMgAG21Z02b09e7fLmnPI=;
+	s=arc-20240116; t=1763353635; c=relaxed/simple;
+	bh=JB3oes8rU4iWF1V98lypxHDPAnOmrLwFYkQGNNHHUcA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kMcJb2NRLWKqsnm/UxjqoyGs0ReS3ojXYnrUj3wS88IptpuPpvu8QP3ylUMpQPxOyTOwSh0cjpnlEd3Nhr0trKS55uAvANgO4QdNJuEdkAIuR11+yS/N69a1avwtpbxPHRORQpirUxo93z/435yVJ8eqFwXkblrtIn2GZYDqAEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MuB4gOoh; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=rdzANbCrgPt+eNTY8iWwiJ9wmxb7cR7+0U7WqyJXPZw4aVIhhpEmaBgnSafc9LgEr93/PiX/VuM7QbncyrX3s2RP3EG/MJHE48ruKU9N9Zjhf15BmvgNb+/1amuwaPJrRNSpMrrIsID6wsrzdWu96YKK3VCyLziYTcCTubREBto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VM2+9tvy; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MuB4gOoh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VM2+9tvy"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 07916401E7
+	for <virtualization@lists.linux-foundation.org>; Mon, 17 Nov 2025 04:27:13 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id vJa7sCG7hrGx for <virtualization@lists.linux-foundation.org>;
+ Mon, 17 Nov 2025 04:27:12 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 6EFB64007C
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6EFB64007C
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VM2+9tvy
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6EFB64007C
+	for <virtualization@lists.linux-foundation.org>; Mon, 17 Nov 2025 04:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763353405;
+	s=mimecast20190719; t=1763353629;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vabH7L+TSTAmE1zjFjJg+wRf7TU6eNQQ0e+/FIztP2w=;
-	b=MuB4gOohpsppf2EhnxCdw14zVrsWy+/Z+gnbnb07tsSZc4VFxfm7+BeqaQcRWuO7QgBUpe
-	R+QvPBfn1iL3Au/gdhKiCpa3PUrifakSjdZrvJjn2ZchTRUqUwg5CMhru7iWO3fMlX5Vcj
-	1EzCp41YHhKg6t49wCrEfdLgH63nVDc=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=fco7fLuAvrWXDCMzilyr/TSfazpGIOyASl9jp9XrHTM=;
+	b=VM2+9tvyOc+z1fTaD1B9YaCGafplOTqm8FLLcTuiFpM5n+LfksY7JbzqcnALGMgUt9iwnI
+	tO5TZvgkULAP9cQcp+Wf2M7iA7F2YVQPpsjnA+ywj6QVC2SMGi1k/wnhlAMER6ZZLbpVEr
+	LuxdT2vMW8/Lw9Wt1CDgyLkZ561y6zQ=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-479-bjkx65liP-uVh8O3nOJ-TQ-1; Sun, 16 Nov 2025 23:23:24 -0500
-X-MC-Unique: bjkx65liP-uVh8O3nOJ-TQ-1
-X-Mimecast-MFC-AGG-ID: bjkx65liP-uVh8O3nOJ-TQ_1763353403
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3436d81a532so8832777a91.3
-        for <virtualization@lists.linux.dev>; Sun, 16 Nov 2025 20:23:24 -0800 (PST)
+ us-mta-686-8FF8q_CaOtWrrVKwyvmN8Q-1; Sun, 16 Nov 2025 23:27:07 -0500
+X-MC-Unique: 8FF8q_CaOtWrrVKwyvmN8Q-1
+X-Mimecast-MFC-AGG-ID: 8FF8q_CaOtWrrVKwyvmN8Q_1763353627
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-3439fe6229aso5618141a91.1
+        for <virtualization@lists.linux-foundation.org>; Sun, 16 Nov 2025 20:27:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763353403; x=1763958203;
+        d=1e100.net; s=20230601; t=1763353627; x=1763958427;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=vabH7L+TSTAmE1zjFjJg+wRf7TU6eNQQ0e+/FIztP2w=;
-        b=MES+n8GnHU/C9eXBNMeqoOXj8cmmc0lMugTe3x0+TJC8kuA5FSv0U4T+mMoXZUi+nB
-         ZbdSDEiBSKJzIWetVhqvfkvQETGPI3UxTbIKFzy/uYFcNitY8B9WRyyNwq/dwvUjhw5/
-         dhttZYX/fo+vBHzocfeZekD59QM8mxOl3hVa1sFZqVrQsdqQNua3OJqZTCJnUYMWtsTX
-         ToQCn6qwZr1SMsYtF8BxKhhiMk0uWNWSJE+p+//9jhxkOQZjAz9fvwAeilRwDPufEODK
-         sVxAK9V0xZ86GqcZY7D58bzbddEY+xfSfuL2GGAcoo+aZwu4i9LjdzMPsL7bE1ulSutA
-         cisw==
-X-Forwarded-Encrypted: i=1; AJvYcCX4UOIIduLtLizIWjqDpzgUVHEWL3ljeXnGKvhFusVOtE/YpT446SnvlCFrLyh1vlW9z4wl9Eo3Wq5IvRlA6w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyIrVlsgfqcvPxaiGc+RtH37JVUxYxr8SgA2GnoMURZ9EXaM8/K
-	OyzTL4Qk1fYiTi5vKkGYNbF6qyGtQ6ioI8+WHWTfYV8vX0dDJozLiJ9IuxOKmn6w0O/O2J5B8FE
-	pAMOMlwt/1FzET87rKGvLTDo7eAKZTHT1DJMALTTqehcvkroig1mhQ6qnVZXaKJDrowPacuxNoz
-	mqV5e98zG8tHiq9LSa7IKdk+Rzgtc7Hu1/fVzdcr+FeJk=
-X-Gm-Gg: ASbGncu1fPh81tZidNVTmOSYLCgu2aFjHfUw5pskNUDeuug3zKn/J61AMEDkHtOrijn
-	WEmSJwKWZCQ90SIhtOr/tqJBKBCS63IUWBnI6aE/K27z1Wbk/WDuDw+Rh7Oe0AeDHFxkWLMfVGY
-	3VB2LdE90TmCyHYkWB4Of8Ah2eVdSC6J/thGTSUENQoVMKdAuPoyN3OfTOivdq9dQ=
-X-Received: by 2002:a17:90b:17cc:b0:340:cb39:74cd with SMTP id 98e67ed59e1d1-343fa74d17amr12009326a91.32.1763353403026;
-        Sun, 16 Nov 2025 20:23:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFRq+usT1l91eb7BjeYhZr5ZLAdevRrNfZYpOIk31ZpjtN0LtMy/9mFLkGhzMxInk8HRm8TmbME+PEHF194/B8=
-X-Received: by 2002:a17:90b:17cc:b0:340:cb39:74cd with SMTP id
- 98e67ed59e1d1-343fa74d17amr12009300a91.32.1763353402454; Sun, 16 Nov 2025
- 20:23:22 -0800 (PST)
+        bh=fco7fLuAvrWXDCMzilyr/TSfazpGIOyASl9jp9XrHTM=;
+        b=A9hXJA7M7O5f30PzVPalDP5jw2WoYUYh11jHwDazc3W+oLw5jUITPQiR7cZTmis8P6
+         aQfPKTmhgyfdpE0Pz7yNMH7/ALM4SO+ZDykIryqLBMWvTVEB+3G5XjxsR2DE/ER+nJYz
+         poIrjUpSkr1kueTRj7RCt34iEInZlKysNcwQwV7afOW4ysSYocZvjCCJF24FQH/N7bYi
+         MVhnA2UHo/imy8VlX9nfvAiBCBJtDVEv6r8lUaLUddA/91/Y1h09VTz7Oc8B6PgbMS5y
+         8nzN4fKqiAsZt8pS66iKGV4++POaCwYkResqUOYRpAotxXvbo3HW0HijGPUfEH/YM9VI
+         5YOg==
+X-Forwarded-Encrypted: i=1; AJvYcCUy40CL4u4J5JYpgxE0bwo9nrN4+4uOzNQblL5ZuGOr7QMY8XndX1n04HOL0TETxYRDYMmMmtdDt+nwq+PB8w==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxW1fnCjNpakYFCbayrz2IAXRJkO36LrJA9E3ezH2aAO6zLW6v5
+	K2s4wreF9MmSirh9bWetnR7aD14dCDU5yPkij8tIyO6wAiSkk9fyY09cDskBNs5383Pd8jSPo9q
+	0h3R66LQ5JuqoPUdxJwClMkZUZxy+KUChB67xK8XY9GncVxjb2h1ReYhYdUsq/7HcVwY3FtmRVB
+	PKLyVodZjlThdoC0W8tBlrh9Y1MDHgD2qbPKD3PFOYJV5kmrW0pLL2FpHsRw==
+X-Gm-Gg: ASbGncvHK3/wpPW6tW/qt8wmcbp78dzQcI82zD9wJL9UwlUFU0GPmVWgnXpMLfZD6qy
+	EMgSsKZzTzIxPH3Zp5uP8URKijb7EY7/OepYMT48A9bEqSb4E0aXoQZXZXS8VezC1acLCyxP8WX
+	ZoTQAUb2mOSlUIYrNLTSU1CLbTQpaCV+BzexIyJJiLjH8Oam2K88VtqFCTxoSTHySY5D4=
+X-Received: by 2002:a17:90b:518e:b0:340:bfcd:6af9 with SMTP id 98e67ed59e1d1-343f8a2adafmr10896175a91.3.1763353626550;
+        Sun, 16 Nov 2025 20:27:06 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHGY1dscO6Xe9SOSdOqlb2nb/lYLm/7p73G0VelFDzZ+HLc/gqvCEjpOh7wQrp52uKFBlWFxaM0OW24/iq/weQ=
+X-Received: by 2002:a17:90b:518e:b0:340:bfcd:6af9 with SMTP id
+ 98e67ed59e1d1-343f8a2adafmr10896139a91.3.1763353625569; Sun, 16 Nov 2025
+ 20:27:05 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251113115558.1277981-1-eperezma@redhat.com> <20251113115558.1277981-6-eperezma@redhat.com>
- <CACGkMEuwzmSmrh5PBhuokzt6Tf5b4+6JGmAuTAC-y-Sm04FZPA@mail.gmail.com> <CAJaqyWex0rE+KO-UE_qxqkG3RWWP4ntNy+9Nzvb+CZ+auR3mVw@mail.gmail.com>
-In-Reply-To: <CAJaqyWex0rE+KO-UE_qxqkG3RWWP4ntNy+9Nzvb+CZ+auR3mVw@mail.gmail.com>
+References: <20251113015420.3496-1-jasowang@redhat.com> <20251113030230-mutt-send-email-mst@kernel.org>
+ <CACGkMEtnihOt=g+zs0gVQ=wnx8_YF_F=QSuLQ4RGWBVuOeFi7w@mail.gmail.com> <20251114012141-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251114012141-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 17 Nov 2025 12:23:11 +0800
-X-Gm-Features: AWmQ_bkp_0-LMGgjhKKbYp0CmmueqJN4W3zmnktxxGxt-R6ibRWckjowHwKbnPw
-Message-ID: <CACGkMEtavEOcWKaHZGdHD5MH94dvL=f8qe-kUS==bPB66i=-yw@mail.gmail.com>
-Subject: Re: [PATCH v9 5/6] vduse: add vq group asid support
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
-	Maxime Coquelin <mcoqueli@redhat.com>, Cindy Lu <lulu@redhat.com>, linux-kernel@vger.kernel.org, 
-	Yongji Xie <xieyongji@bytedance.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>
+Date: Mon, 17 Nov 2025 12:26:51 +0800
+X-Gm-Features: AWmQ_blg00kmnhxjLNzkJTSIFhRm84dnHz6f92lrWbvQ-ixamzXWt3kVm2vR8QQ
+Message-ID: <CACGkMEuqPtrCotXRcP2kzdaJ50L3oY7U-LVAKNuXOFJP_h1_PQ@mail.gmail.com>
+Subject: Re: [PATCH net] vhost: rewind next_avail_head while discarding descriptors
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 2bVByaPo-0VZisRU9kLB7ABA8DyxSWyL2iDToZDHthc_1763353403
+X-Mimecast-MFC-PROC-ID: LC9mzTsFGIA9Vxbp4NQLI-hBI3dkC23QwOFsVp7JSKg_1763353627
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 14, 2025 at 7:25=E2=80=AFPM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
+On Fri, Nov 14, 2025 at 2:25=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
 >
-> On Fri, Nov 14, 2025 at 1:55=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
-wrote:
-> >
-> > On Thu, Nov 13, 2025 at 7:56=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@re=
-dhat.com> wrote:
+> On Fri, Nov 14, 2025 at 09:53:12AM +0800, Jason Wang wrote:
+> > On Thu, Nov 13, 2025 at 4:13=E2=80=AFPM Michael S. Tsirkin <mst@redhat.=
+com> wrote:
 > > >
-> > > Add support for assigning Address Space Identifiers (ASIDs) to each V=
-Q
-> > > group.  This enables mapping each group into a distinct memory space.
+> > > On Thu, Nov 13, 2025 at 09:54:20AM +0800, Jason Wang wrote:
+> > > > When discarding descriptors with IN_ORDER, we should rewind
+> > > > next_avail_head otherwise it would run out of sync with
+> > > > last_avail_idx. This would cause driver to report
+> > > > "id X is not a head".
+> > > >
+> > > > Fixing this by returning the number of descriptors that is used for
+> > > > each buffer via vhost_get_vq_desc_n() so caller can use the value
+> > > > while discarding descriptors.
+> > > >
+> > > > Fixes: 67a873df0c41 ("vhost: basic in order support")
+> > > > Cc: stable@vger.kernel.org
+> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > > >
-> > > Now that the driver can change ASID in the middle of operation, the
-> > > domain that each vq address point is also protected by domain_lock.
-> >
-> > Maybe it's better to document what is protected by RCU and how.
-> >
->
-> I added the _rcu annotation but I can expand it for sure. I can also
-> modify the commit message.
->
-> > More below.
-> >
+> > > Wow that change really caused a lot of fallout.
 > > >
-> > > Acked-by: Jason Wang <jasowang@redhat.com>
->
-> I forgot to remove this, my bad!
->
-> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > ---
-> > > v9:
-> > > * Replace mutex with RCU, as the vdpa map_ops can run from atomic
-> > >   context.
+> > > Thanks for the patch! Yet something to improve:
 > > >
-> > > v8:
-> > > * Revert the mutex to rwlock change, it needs proper profiling to
-> > >   justify it.
 > > >
-> > > v7:
-> > > * Take write lock in the error path (Jason).
-> > >
-> > > v6:
-> > > * Make vdpa_dev_add use gotos for error handling (MST).
-> > > * s/(dev->api_version < 1) ?/(dev->api_version < VDUSE_API_VERSION_1)=
- ?/
-> > >   (MST).
-> > > * Fix struct name not matching in the doc.
-> > >
-> > > v5:
-> > > * Properly return errno if copy_to_user returns >0 in VDUSE_IOTLB_GET=
-_FD
-> > >   ioctl (Jason).
-> > > * Properly set domain bounce size to divide equally between nas (Jaso=
-n).
-> > > * Exclude "padding" member from the only >V1 members in
-> > >   vduse_dev_request.
-> > >
-> > > v4:
-> > > * Divide each domain bounce size between the device bounce size (Jaso=
-n).
-> > > * revert unneeded addr =3D NULL assignment (Jason)
-> > > * Change if (x && (y || z)) return to if (x) { if (y) return; if (z)
-> > >   return; } (Jason)
-> > > * Change a bad multiline comment, using @ caracter instead of * (Jaso=
-n).
-> > > * Consider config->nas =3D=3D 0 as a fail (Jason).
-> > >
-> > > v3:
-> > > * Get the vduse domain through the vduse_as in the map functions
-> > >   (Jason).
-> > > * Squash with the patch creating the vduse_as struct (Jason).
-> > > * Create VDUSE_DEV_MAX_AS instead of comparing agains a magic number
-> > >   (Jason)
-> > >
-> > > v2:
-> > > * Convert the use of mutex to rwlock.
-> > >
-> > > RFC v3:
-> > > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a low=
-er
-> > >   value to reduce memory consumption, but vqs are already limited to
-> > >   that value and userspace VDUSE is able to allocate that many vqs.
-> > > * Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
-> > >   VDUSE_IOTLB_GET_INFO.
-> > > * Use of array_index_nospec in VDUSE device ioctls.
-> > > * Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
-> > > * Move the umem mutex to asid struct so there is no contention betwee=
-n
-> > >   ASIDs.
-> > >
-> > > RFC v2:
-> > > * Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
-> > >   part of the struct is the same.
-> > > ---
-> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 370 ++++++++++++++++++++-------=
---
-> > >  include/uapi/linux/vduse.h         |  53 ++++-
-> > >  2 files changed, 314 insertions(+), 109 deletions(-)
-> > >
-> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_u=
-ser/vduse_dev.c
-> > > index 97be04f73fbf..ff95ed56f22d 100644
-> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > @@ -11,6 +11,7 @@
-> > >  #include "linux/virtio_net.h"
-> > >  #include <linux/init.h>
-> > >  #include <linux/module.h>
-> > > +#include <linux/rcupdate.h>
-> > >  #include <linux/cdev.h>
-> > >  #include <linux/device.h>
-> > >  #include <linux/eventfd.h>
-> > > @@ -41,6 +42,7 @@
-> > >
-> > >  #define VDUSE_DEV_MAX (1U << MINORBITS)
-> > >  #define VDUSE_DEV_MAX_GROUPS 0xffff
-> > > +#define VDUSE_DEV_MAX_AS 0xffff
-> > >  #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
-> > >  #define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
-> > >  #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
-> > > @@ -86,7 +88,14 @@ struct vduse_umem {
-> > >         struct mm_struct *mm;
-> > >  };
-> > >
-> > > +struct vduse_as {
-> > > +       struct vduse_iova_domain *domain;
-> > > +       struct vduse_umem *umem;
-> > > +       struct mutex mem_lock;
-> > > +};
-> > > +
-> > >  struct vduse_vq_group {
-> > > +       struct vduse_as *as __rcu;
-> > >         struct vduse_dev *dev;
-> > >  };
-> > >
-> > > @@ -94,7 +103,7 @@ struct vduse_dev {
-> > >         struct vduse_vdpa *vdev;
-> > >         struct device *dev;
-> > >         struct vduse_virtqueue **vqs;
-> > > -       struct vduse_iova_domain *domain;
-> > > +       struct vduse_as *as;
-> > >         char *name;
-> > >         struct mutex lock;
-> > >         spinlock_t msg_lock;
-> > > @@ -122,9 +131,8 @@ struct vduse_dev {
-> > >         u32 vq_num;
-> > >         u32 vq_align;
-> > >         u32 ngroups;
-> > > -       struct vduse_umem *umem;
-> > > +       u32 nas;
-> > >         struct vduse_vq_group *groups;
-> > > -       struct mutex mem_lock;
-> > >         unsigned int bounce_size;
-> > >         struct mutex domain_lock;
-> > >  };
-> > > @@ -314,7 +322,7 @@ static int vduse_dev_set_status(struct vduse_dev =
-*dev, u8 status)
-> > >         return vduse_dev_msg_sync(dev, &msg);
-> > >  }
-> > >
-> > > -static int vduse_dev_update_iotlb(struct vduse_dev *dev,
-> > > +static int vduse_dev_update_iotlb(struct vduse_dev *dev, u32 asid,
-> > >                                   u64 start, u64 last)
-> > >  {
-> > >         struct vduse_dev_msg msg =3D { 0 };
-> > > @@ -323,8 +331,14 @@ static int vduse_dev_update_iotlb(struct vduse_d=
-ev *dev,
-> > >                 return -EINVAL;
-> > >
-> > >         msg.req.type =3D VDUSE_UPDATE_IOTLB;
-> > > -       msg.req.iova.start =3D start;
-> > > -       msg.req.iova.last =3D last;
-> > > +       if (dev->api_version < VDUSE_API_VERSION_1) {
-> > > +               msg.req.iova.start =3D start;
-> > > +               msg.req.iova.last =3D last;
-> > > +       } else {
-> > > +               msg.req.iova_v2.start =3D start;
-> > > +               msg.req.iova_v2.last =3D last;
-> > > +               msg.req.iova_v2.asid =3D asid;
-> > > +       }
-> > >
-> > >         return vduse_dev_msg_sync(dev, &msg);
-> > >  }
-> > > @@ -436,14 +450,32 @@ static __poll_t vduse_dev_poll(struct file *fil=
-e, poll_table *wait)
-> > >         return mask;
-> > >  }
-> > >
-> > > +/* Force set the asid to a vq group without a message to the VDUSE d=
-evice */
-> > > +static void vduse_set_group_asid_nomsg(struct vduse_dev *dev,
-> > > +                                      unsigned int group, unsigned i=
-nt asid)
-> > > +{
-> > > +       /*
-> > > +        * Two concurrent updates to this pointer are valid as they c=
-annot
-> > > +        * point to an invalid region.  It is ok for them to race as =
-long as
-> > > +        * the readers see a consistent state through RCU.
-> > > +        */
-> > > +       rcu_assign_pointer(dev->groups[group].as, &dev->as[asid]);
-> >
-> > I'd expect at least a synchronize_rcu() here to wait for the read is do=
-ne?
-> >
->
-> What's the use? The only thing left here is to return from
-> vduse_set_group_asid_nomsg, and we don't need to wait for readers
-> here, do we?
-
-See below.
-
->
-> > > +}
-> > > +
-> > >  static void vduse_dev_reset(struct vduse_dev *dev)
-> > >  {
-> > >         int i;
-> > > -       struct vduse_iova_domain *domain =3D dev->domain;
-> > >
-> > >         /* The coherent mappings are handled in vduse_dev_free_cohere=
-nt() */
-> > > -       if (domain && domain->bounce_map)
-> > > -               vduse_domain_reset_bounce_map(domain);
-> > > +       for (i =3D 0; i < dev->nas; i++) {
-> > > +               struct vduse_iova_domain *domain =3D dev->as[i].domai=
-n;
-> > > +
-> > > +               if (domain && domain->bounce_map)
-> > > +                       vduse_domain_reset_bounce_map(domain);
-> > > +       }
-> > > +
-> > > +       for (i =3D 0; i < dev->ngroups; i++)
-> > > +               vduse_set_group_asid_nomsg(dev, i, 0);
-> > >
-> > >         down_write(&dev->rwsem);
-> > >
-> > > @@ -623,6 +655,29 @@ static union virtio_map vduse_get_vq_map(struct =
-vdpa_device *vdpa, u16 idx)
-> > >         return ret;
-> > >  }
-> > >
-> > > +static int vduse_set_group_asid(struct vdpa_device *vdpa, unsigned i=
-nt group,
-> > > +                               unsigned int asid)
-> > > +{
-> > > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > > +       struct vduse_dev_msg msg =3D { 0 };
-> > > +       int r;
-> > > +
-> > > +       if (dev->api_version < VDUSE_API_VERSION_1 ||
-> > > +           group >=3D dev->ngroups || asid >=3D dev->nas)
-> > > +               return -EINVAL;
-> > > +
-> > > +       msg.req.type =3D VDUSE_SET_VQ_GROUP_ASID;
-> > > +       msg.req.vq_group_asid.group =3D group;
-> > > +       msg.req.vq_group_asid.asid =3D asid;
-> > > +
-> > > +       r =3D vduse_dev_msg_sync(dev, &msg);
-> > > +       if (r < 0)
-> > > +               return r;
-> > > +
-> > > +       vduse_set_group_asid_nomsg(dev, group, asid);
-> > > +       return 0;
-> > > +}
-> > > +
-> > >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx=
+> > > > ---
+> > > >  drivers/vhost/net.c   | 53 ++++++++++++++++++++++++++-------------=
+----
+> > > >  drivers/vhost/vhost.c | 43 ++++++++++++++++++++++++-----------
+> > > >  drivers/vhost/vhost.h |  9 +++++++-
+> > > >  3 files changed, 70 insertions(+), 35 deletions(-)
+> > > >
+> > > > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> > > > index 35ded4330431..8f7f50acb6d6 100644
+> > > > --- a/drivers/vhost/net.c
+> > > > +++ b/drivers/vhost/net.c
+> > > > @@ -592,14 +592,15 @@ static void vhost_net_busy_poll(struct vhost_=
+net *net,
+> > > >  static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
+> > > >                                   struct vhost_net_virtqueue *tnvq,
+> > > >                                   unsigned int *out_num, unsigned i=
+nt *in_num,
+> > > > -                                 struct msghdr *msghdr, bool *busy=
+loop_intr)
+> > > > +                                 struct msghdr *msghdr, bool *busy=
+loop_intr,
+> > > > +                                 unsigned int *ndesc)
+> > > >  {
+> > > >       struct vhost_net_virtqueue *rnvq =3D &net->vqs[VHOST_NET_VQ_R=
+X];
+> > > >       struct vhost_virtqueue *rvq =3D &rnvq->vq;
+> > > >       struct vhost_virtqueue *tvq =3D &tnvq->vq;
+> > > >
+> > > > -     int r =3D vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq->io=
+v),
+> > > > -                               out_num, in_num, NULL, NULL);
+> > > > +     int r =3D vhost_get_vq_desc_n(tvq, tvq->iov, ARRAY_SIZE(tvq->=
+iov),
+> > > > +                                 out_num, in_num, NULL, NULL, ndes=
+c);
+> > > >
+> > > >       if (r =3D=3D tvq->num && tvq->busyloop_timeout) {
+> > > >               /* Flush batched packets first */
+> > > > @@ -610,8 +611,8 @@ static int vhost_net_tx_get_vq_desc(struct vhos=
+t_net *net,
+> > > >
+> > > >               vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, fal=
+se);
+> > > >
+> > > > -             r =3D vhost_get_vq_desc(tvq, tvq->iov, ARRAY_SIZE(tvq=
+->iov),
+> > > > -                                   out_num, in_num, NULL, NULL);
+> > > > +             r =3D vhost_get_vq_desc_n(tvq, tvq->iov, ARRAY_SIZE(t=
+vq->iov),
+> > > > +                                     out_num, in_num, NULL, NULL, =
+ndesc);
+> > > >       }
+> > > >
+> > > >       return r;
+> > > > @@ -642,12 +643,14 @@ static int get_tx_bufs(struct vhost_net *net,
+> > > >                      struct vhost_net_virtqueue *nvq,
+> > > >                      struct msghdr *msg,
+> > > >                      unsigned int *out, unsigned int *in,
+> > > > -                    size_t *len, bool *busyloop_intr)
+> > > > +                    size_t *len, bool *busyloop_intr,
+> > > > +                    unsigned int *ndesc)
+> > > >  {
+> > > >       struct vhost_virtqueue *vq =3D &nvq->vq;
+> > > >       int ret;
+> > > >
+> > > > -     ret =3D vhost_net_tx_get_vq_desc(net, nvq, out, in, msg, busy=
+loop_intr);
+> > > > +     ret =3D vhost_net_tx_get_vq_desc(net, nvq, out, in, msg,
+> > > > +                                    busyloop_intr, ndesc);
+> > > >
+> > > >       if (ret < 0 || ret =3D=3D vq->num)
+> > > >               return ret;
+> > > > @@ -766,6 +769,7 @@ static void handle_tx_copy(struct vhost_net *ne=
+t, struct socket *sock)
+> > > >       int sent_pkts =3D 0;
+> > > >       bool sock_can_batch =3D (sock->sk->sk_sndbuf =3D=3D INT_MAX);
+> > > >       bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
+> > > > +     unsigned int ndesc =3D 0;
+> > > >
+> > > >       do {
+> > > >               bool busyloop_intr =3D false;
+> > > > @@ -774,7 +778,7 @@ static void handle_tx_copy(struct vhost_net *ne=
+t, struct socket *sock)
+> > > >                       vhost_tx_batch(net, nvq, sock, &msg);
+> > > >
+> > > >               head =3D get_tx_bufs(net, nvq, &msg, &out, &in, &len,
+> > > > -                                &busyloop_intr);
+> > > > +                                &busyloop_intr, &ndesc);
+> > > >               /* On error, stop handling until the next kick. */
+> > > >               if (unlikely(head < 0))
+> > > >                       break;
+> > > > @@ -806,7 +810,7 @@ static void handle_tx_copy(struct vhost_net *ne=
+t, struct socket *sock)
+> > > >                               goto done;
+> > > >                       } else if (unlikely(err !=3D -ENOSPC)) {
+> > > >                               vhost_tx_batch(net, nvq, sock, &msg);
+> > > > -                             vhost_discard_vq_desc(vq, 1);
+> > > > +                             vhost_discard_vq_desc(vq, 1, ndesc);
+> > > >                               vhost_net_enable_vq(net, vq);
+> > > >                               break;
+> > > >                       }
+> > > > @@ -829,7 +833,7 @@ static void handle_tx_copy(struct vhost_net *ne=
+t, struct socket *sock)
+> > > >               err =3D sock->ops->sendmsg(sock, &msg, len);
+> > > >               if (unlikely(err < 0)) {
+> > > >                       if (err =3D=3D -EAGAIN || err =3D=3D -ENOMEM =
+|| err =3D=3D -ENOBUFS) {
+> > > > -                             vhost_discard_vq_desc(vq, 1);
+> > > > +                             vhost_discard_vq_desc(vq, 1, ndesc);
+> > > >                               vhost_net_enable_vq(net, vq);
+> > > >                               break;
+> > > >                       }
+> > > > @@ -868,6 +872,7 @@ static void handle_tx_zerocopy(struct vhost_net=
+ *net, struct socket *sock)
+> > > >       int err;
+> > > >       struct vhost_net_ubuf_ref *ubufs;
+> > > >       struct ubuf_info_msgzc *ubuf;
+> > > > +     unsigned int ndesc =3D 0;
+> > > >       bool zcopy_used;
+> > > >       int sent_pkts =3D 0;
+> > > >
+> > > > @@ -879,7 +884,7 @@ static void handle_tx_zerocopy(struct vhost_net=
+ *net, struct socket *sock)
+> > > >
+> > > >               busyloop_intr =3D false;
+> > > >               head =3D get_tx_bufs(net, nvq, &msg, &out, &in, &len,
+> > > > -                                &busyloop_intr);
+> > > > +                                &busyloop_intr, &ndesc);
+> > > >               /* On error, stop handling until the next kick. */
+> > > >               if (unlikely(head < 0))
+> > > >                       break;
+> > > > @@ -941,7 +946,7 @@ static void handle_tx_zerocopy(struct vhost_net=
+ *net, struct socket *sock)
+> > > >                                       vq->heads[ubuf->desc].len =3D=
+ VHOST_DMA_DONE_LEN;
+> > > >                       }
+> > > >                       if (retry) {
+> > > > -                             vhost_discard_vq_desc(vq, 1);
+> > > > +                             vhost_discard_vq_desc(vq, 1, ndesc);
+> > > >                               vhost_net_enable_vq(net, vq);
+> > > >                               break;
+> > > >                       }
+> > > > @@ -1045,11 +1050,12 @@ static int get_rx_bufs(struct vhost_net_vir=
+tqueue *nvq,
+> > > >                      unsigned *iovcount,
+> > > >                      struct vhost_log *log,
+> > > >                      unsigned *log_num,
+> > > > -                    unsigned int quota)
+> > > > +                    unsigned int quota,
+> > > > +                    unsigned int *ndesc)
+> > > >  {
+> > > >       struct vhost_virtqueue *vq =3D &nvq->vq;
+> > > >       bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
+> > > > -     unsigned int out, in;
+> > > > +     unsigned int out, in, desc_num, n =3D 0;
+> > > >       int seg =3D 0;
+> > > >       int headcount =3D 0;
+> > > >       unsigned d;
+> > > > @@ -1064,9 +1070,9 @@ static int get_rx_bufs(struct vhost_net_virtq=
+ueue *nvq,
+> > > >                       r =3D -ENOBUFS;
+> > > >                       goto err;
+> > > >               }
+> > > > -             r =3D vhost_get_vq_desc(vq, vq->iov + seg,
+> > > > -                                   ARRAY_SIZE(vq->iov) - seg, &out=
 ,
-> > >                                 struct vdpa_vq_state *state)
-> > >  {
-> > > @@ -794,13 +849,13 @@ static int vduse_vdpa_set_map(struct vdpa_devic=
-e *vdpa,
-> > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > >         int ret;
+> > > > -                                   &in, log, log_num);
+> > > > +             r =3D vhost_get_vq_desc_n(vq, vq->iov + seg,
+> > > > +                                     ARRAY_SIZE(vq->iov) - seg, &o=
+ut,
+> > > > +                                     &in, log, log_num, &desc_num)=
+;
+> > > >               if (unlikely(r < 0))
+> > > >                       goto err;
+> > > >
+> > > > @@ -1093,6 +1099,7 @@ static int get_rx_bufs(struct vhost_net_virtq=
+ueue *nvq,
+> > > >               ++headcount;
+> > > >               datalen -=3D len;
+> > > >               seg +=3D in;
+> > > > +             n +=3D desc_num;
+> > > >       }
+> > > >
+> > > >       *iovcount =3D seg;
+> > > > @@ -1113,9 +1120,11 @@ static int get_rx_bufs(struct vhost_net_virt=
+queue *nvq,
+> > > >               nheads[0] =3D headcount;
+> > > >       }
+> > > >
+> > > > +     *ndesc =3D n;
+> > > > +
+> > > >       return headcount;
+> > > >  err:
+> > > > -     vhost_discard_vq_desc(vq, headcount);
+> > > > +     vhost_discard_vq_desc(vq, headcount, n);
 > > >
-> > > -       ret =3D vduse_domain_set_map(dev->domain, iotlb);
-> > > +       ret =3D vduse_domain_set_map(dev->as[asid].domain, iotlb);
-> > >         if (ret)
-> > >                 return ret;
-> > >
-> > > -       ret =3D vduse_dev_update_iotlb(dev, 0ULL, ULLONG_MAX);
-> > > +       ret =3D vduse_dev_update_iotlb(dev, asid, 0ULL, ULLONG_MAX);
-> > >         if (ret) {
-> > > -               vduse_domain_clear_map(dev->domain, iotlb);
-> > > +               vduse_domain_clear_map(dev->as[asid].domain, iotlb);
-> > >                 return ret;
-> > >         }
-> > >
-> > > @@ -843,6 +898,7 @@ static const struct vdpa_config_ops vduse_vdpa_co=
-nfig_ops =3D {
-> > >         .get_vq_affinity        =3D vduse_vdpa_get_vq_affinity,
-> > >         .reset                  =3D vduse_vdpa_reset,
-> > >         .set_map                =3D vduse_vdpa_set_map,
-> > > +       .set_group_asid         =3D vduse_set_group_asid,
-> > >         .get_vq_map             =3D vduse_get_vq_map,
-> > >         .free                   =3D vduse_vdpa_free,
-> > >  };
-> > > @@ -852,14 +908,17 @@ static void vduse_dev_sync_single_for_device(un=
-ion virtio_map token,
-> > >                                              enum dma_data_direction =
-dir)
-> > >  {
-> > >         struct vduse_dev *vdev;
-> > > +       struct vduse_as *as;
-> > >         struct vduse_iova_domain *domain;
-> > >
-> > >         if (!token.group)
-> > >                 return;
-> > >
-> > >         vdev =3D token.group->dev;
-> > > -       domain =3D vdev->domain;
-> > > -
-> > > +       rcu_read_lock();
-> > > +       as =3D rcu_dereference(token.group->as);
-> > > +       domain =3D as->domain;
-> > > +       rcu_read_unlock();
-> > >         vduse_domain_sync_single_for_device(domain, dma_addr, size, d=
-ir);
+> > > So here ndesc and n are the same, but below in vhost_discard_vq_desc
+> > > they are different. Fun.
 > >
-> > This is suspicious, at least we should do rcu_read_unlock() after
-> > vduse_domain_sync_single_for_device(), otherwise I don't see how RCU
-> > works.
-> >
+> > Not necessarily the same, a buffer could contain more than 1 descriptor=
+.
 >
-> RCU is protecting that the address space pointer of the vq group is
-> not modified concurrently with the access. Ideally, this should be a
-> full lock, but just making sure that all accesses from the reader are
-> coherent is enough. Userspace should expect nothing if it uses the map
-> and modifies the vq group ASID at the same time anyway, but the kernel
-> needs to be sure that it does not see intermediate states. TBH, we
-> could move to a READ_ONCE / WRITE_ONCE, would that be more clear?
+>
+> *ndesc =3D n kinda guarantees it's the same, no?
 
-Using READ_ONCE/WRITE_ONCE() needs to make sure the ordering is
-handled correctly.
-
-But I meant what happens if
-
-[cpu0]rcu_read_lock()
-[cpu0]as =3D rcu_dereference(token.group->as)
-[cpu0]...
-[cpu0]rcu_read_unlock()
-[cpu1]rcu_assign_pointer(token.group->as)
-[cpu0]vduse_domain_sync_single_for_device()
-
-If this is not an issue, RCU is not a must, but please explain why.
-If this is an issue, we need to fix it.
-
-It's basically a question that
-
-1) should we need to wait for the DMA to be completed before assigning
-to the new as
-2) should we track the set_group_asid() for the group that has pending
-DMA to avoid potential issue
+I misread your comment, in the error path the ndesc is left unused.
+Would this be a problem?
 
 >
-> The function vduse_domain uses its own lock to protect concurrent
-> access to the maps of the ASID itself, as they were needed before
-> implementing ASID already.
+> > >
+> > > >       return r;
+> > > >  }
+> > > >
+> > > > @@ -1151,6 +1160,7 @@ static void handle_rx(struct vhost_net *net)
+> > > >       struct iov_iter fixup;
+> > > >       __virtio16 num_buffers;
+> > > >       int recv_pkts =3D 0;
+> > > > +     unsigned int ndesc;
+> > > >
+> > > >       mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
+> > > >       sock =3D vhost_vq_get_backend(vq);
+> > > > @@ -1182,7 +1192,8 @@ static void handle_rx(struct vhost_net *net)
+> > > >               headcount =3D get_rx_bufs(nvq, vq->heads + count,
+> > > >                                       vq->nheads + count,
+> > > >                                       vhost_len, &in, vq_log, &log,
+> > > > -                                     likely(mergeable) ? UIO_MAXIO=
+V : 1);
+> > > > +                                     likely(mergeable) ? UIO_MAXIO=
+V : 1,
+> > > > +                                     &ndesc);
+> > > >               /* On error, stop handling until the next kick. */
+> > > >               if (unlikely(headcount < 0))
+> > > >                       goto out;
+> > > > @@ -1228,7 +1239,7 @@ static void handle_rx(struct vhost_net *net)
+> > > >               if (unlikely(err !=3D sock_len)) {
+> > > >                       pr_debug("Discarded rx packet: "
+> > > >                                " len %d, expected %zd\n", err, sock=
+_len);
+> > > > -                     vhost_discard_vq_desc(vq, headcount);
+> > > > +                     vhost_discard_vq_desc(vq, headcount, ndesc);
+> > > >                       continue;
+> > > >               }
+> > > >               /* Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HD=
+R */
+> > > > @@ -1252,7 +1263,7 @@ static void handle_rx(struct vhost_net *net)
+> > > >                   copy_to_iter(&num_buffers, sizeof num_buffers,
+> > > >                                &fixup) !=3D sizeof num_buffers) {
+> > > >                       vq_err(vq, "Failed num_buffers write");
+> > > > -                     vhost_discard_vq_desc(vq, headcount);
+> > > > +                     vhost_discard_vq_desc(vq, headcount, ndesc);
+> > > >                       goto out;
+> > > >               }
+> > > >               nvq->done_idx +=3D headcount;
+> > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > > index 8570fdf2e14a..b56568807588 100644
+> > > > --- a/drivers/vhost/vhost.c
+> > > > +++ b/drivers/vhost/vhost.c
+> > > > @@ -2792,18 +2792,11 @@ static int get_indirect(struct vhost_virtqu=
+eue *vq,
+> > > >       return 0;
+> > > >  }
+> > > >
+> > > > -/* This looks in the virtqueue and for the first available buffer,=
+ and converts
+> > > > - * it to an iovec for convenient access.  Since descriptors consis=
+t of some
+> > > > - * number of output then some number of input descriptors, it's ac=
+tually two
+> > > > - * iovecs, but we pack them into one and note how many of each the=
+re were.
+> > > > - *
+> > > > - * This function returns the descriptor number found, or vq->num (=
+which is
+> > > > - * never a valid descriptor number) if none was found.  A negative=
+ code is
+> > > > - * returned on error. */
+> > >
+> > > A new module API with no docs at all is not good.
+> > > Please add documentation to this one. vhost_get_vq_desc
+> > > is a subset and could refer to it.
+> >
+> > Fixed.
+> >
+> > >
+> > > > -int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> > > > -                   struct iovec iov[], unsigned int iov_size,
+> > > > -                   unsigned int *out_num, unsigned int *in_num,
+> > > > -                   struct vhost_log *log, unsigned int *log_num)
+> > > > +int vhost_get_vq_desc_n(struct vhost_virtqueue *vq,
+> > > > +                     struct iovec iov[], unsigned int iov_size,
+> > > > +                     unsigned int *out_num, unsigned int *in_num,
+> > > > +                     struct vhost_log *log, unsigned int *log_num,
+> > > > +                     unsigned int *ndesc)
+> > >
+> > > >  {
+> > > >       bool in_order =3D vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
+> > > >       struct vring_desc desc;
+> > > > @@ -2921,16 +2914,40 @@ int vhost_get_vq_desc(struct vhost_virtqueu=
+e *vq,
+> > > >       vq->last_avail_idx++;
+> > > >       vq->next_avail_head +=3D c;
+> > > >
+> > > > +     if (ndesc)
+> > > > +             *ndesc =3D c;
+> > > > +
+> > > >       /* Assume notifications from guest are disabled at this point=
+,
+> > > >        * if they aren't we would need to update avail_event index. =
+*/
+> > > >       BUG_ON(!(vq->used_flags & VRING_USED_F_NO_NOTIFY));
+> > > >       return head;
+> > > >  }
+> > > > +EXPORT_SYMBOL_GPL(vhost_get_vq_desc_n);
+> > > > +
+> > > > +/* This looks in the virtqueue and for the first available buffer,=
+ and converts
+> > > > + * it to an iovec for convenient access.  Since descriptors consis=
+t of some
+> > > > + * number of output then some number of input descriptors, it's ac=
+tually two
+> > > > + * iovecs, but we pack them into one and note how many of each the=
+re were.
+> > > > + *
+> > > > + * This function returns the descriptor number found, or vq->num (=
+which is
+> > > > + * never a valid descriptor number) if none was found.  A negative=
+ code is
+> > > > + * returned on error.
+> > > > + */
+> > > > +int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> > > > +                   struct iovec iov[], unsigned int iov_size,
+> > > > +                   unsigned int *out_num, unsigned int *in_num,
+> > > > +                   struct vhost_log *log, unsigned int *log_num)
+> > > > +{
+> > > > +     return vhost_get_vq_desc_n(vq, iov, iov_size, out_num, in_num=
+,
+> > > > +                                log, log_num, NULL);
+> > > > +}
+> > > >  EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
+> > > >
+> > > >  /* Reverse the effect of vhost_get_vq_desc. Useful for error handl=
+ing. */
+> > > > -void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
+> > > > +void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n,
+> > > > +                        unsigned int ndesc)
+> > >
+> > > ndesc is number of descriptors? And n is what, in that case?
+> >
+> > The semantic of n is not changed which is the number of buffers, ndesc
+> > is the number of descriptors.
+>
+> History is not that relevant. To make the core readable pls
+> change the names to readable ones.
+>
+> Specifically n is really nbufs, maybe?
+
+Right.
 
 Thanks
-
->
-> > >  }
-> > >
-> > > @@ -868,14 +927,17 @@ static void vduse_dev_sync_single_for_cpu(union=
- virtio_map token,
-> > >                                              enum dma_data_direction =
-dir)
-> > >  {
-> > >         struct vduse_dev *vdev;
-> > > +       struct vduse_as *as;
-> > >         struct vduse_iova_domain *domain;
-> > >
-> > >         if (!token.group)
-> > >                 return;
-> > >
-> > >         vdev =3D token.group->dev;
-> > > -       domain =3D vdev->domain;
-> > > -
-> > > +       rcu_read_lock();
-> > > +       as =3D rcu_dereference(token.group->as);
-> > > +       domain =3D as->domain;
-> > > +       rcu_read_unlock();
-> > >         vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir)=
-;
-> > >  }
-> > >
-> > > @@ -885,15 +947,21 @@ static dma_addr_t vduse_dev_map_page(union virt=
-io_map token, struct page *page,
-> > >                                      unsigned long attrs)
-> > >  {
-> > >         struct vduse_dev *vdev;
-> > > +       struct vduse_as *as;
-> > >         struct vduse_iova_domain *domain;
-> > > +       dma_addr_t r;
-> > >
-> > >         if (!token.group)
-> > >                 return DMA_MAPPING_ERROR;
-> > >
-> > >         vdev =3D token.group->dev;
-> > > -       domain =3D vdev->domain;
-> > > +       rcu_read_lock();
-> > > +       as =3D rcu_dereference(token.group->as);
-> > > +       domain =3D as->domain;
-> > > +       rcu_read_unlock();
-> > > +       r =3D vduse_domain_map_page(domain, page, offset, size, dir, =
-attrs);
-> >
-> > Same here.
-> >
-> > Thanks
-> >
->
 
