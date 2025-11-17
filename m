@@ -1,98 +1,110 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80AEA30E0C2
-	for <virtualization@lists.linux.dev>; Mon, 17 Nov 2025 10:21:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A80CE23185E
+	for <virtualization@lists.linux.dev>; Mon, 17 Nov 2025 10:50:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763374871; cv=none; b=Bkrgtz9LgWBJD4ZbpF3HsFSHU2iIm3nmy/aUgcpj33ivP+OE+mdmM2O94U8u8UHyCGTmos3hr+vbYLNSK4IBeacAz1zBdQDGr/DV2qtHzYs2YokDwrZ0+FZMnFQgO2bZssBhZO1FNhFWpwdaPk5ilWq0VWKYKuHosHVSDdUYGR0=
+	t=1763376628; cv=none; b=h4A4bu4NtVcTpOEqN0FKOKy5H8Ka70OGsv6V8gno+ZOgha8N06mr7V0XAjFv/cMO19WQ/gkFMB727+Z7/otXM6fiK3lLBNlQPSjCO5CSr+MoZWsC2TGveanOWBjeSsQKT/K0feE7OGAkTMiVke7xZaPx5/HmAs4qLqZdq2u51c0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763374871; c=relaxed/simple;
-	bh=f+BaFGtPHeQlsb4c8l2pIyZJN2yb/O0m617A3IlFA/s=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=u5JOgdQS5Q6tf9C+i8219td/kWdUk24h4eeI3ih7Je9yTnKXUczDVLO4l9k5BeA70q+4NeZHZ2vzTWk/TivENM28nbUkpY9NUqL5GOQbNbpX0+tJfjBaVb0hYrOTk3bk01CGuP5J3maARtizVfP8V/L4glr4dK7r3wyRoqDP090=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=I73h9xgq; arc=none smtp.client-ip=209.85.167.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1763376628; c=relaxed/simple;
+	bh=mg5Q+IpRVr3OMWZZo+BKznwgFoJqhrDbBw/ilxIPjF8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=VIZ8qBL+Jm0UPeCowKptLJ2Czsl6+0NgqTFxdl7djwU9P//rC2S3Dg3fv+qhCvyZrWRelwp6gXtEIlN0FtaQQQzR0iXYDngkss1jSjPsyYUv9bk6Z4JuhXB8cE1lPWmuPOAD8JOVSEJ5cqg3NuGEGfNrRUMccq9n8ycxZZzVqic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZvK+LYAz; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="I73h9xgq"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-59428d2d975so4427083e87.3
-        for <virtualization@lists.linux.dev>; Mon, 17 Nov 2025 02:21:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1763374864; x=1763979664; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=f+BaFGtPHeQlsb4c8l2pIyZJN2yb/O0m617A3IlFA/s=;
-        b=I73h9xgqvjR38LLB3KFXdhS3Y5bc8rrjrLLjpwXZeNYwqAm+13xO9m9/XDeFCEoUvs
-         9iWx/7r6gnWKTZji5BkbqfU9vBulyDn74H4Cre1Q1uAaLh02vMDyZCSWxvvSXsvdzIyC
-         d8IJ7B7ilMsWoD7Mfq/pP3WICm3shYfTSMrrbGI0rrWMbtmr9Wz84adVdteEtNcMg8HB
-         eOEOkceODP72pp7ojNBHtsfqizTA17FCmd1SIBiJTlXmJoLGM1xuPH9q81BuL0oBxzUC
-         EEGEJIlq3uH5n3r+hlpHMCrq3eUJ+QCK1EA0/A70ggxWI+jF+QnLDGv69kQUQ5YewfAO
-         /yvQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZvK+LYAz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763376625;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nuX0aPSVd/d7iLB6bbasM0NpI015d3K/jXv3pcQh+us=;
+	b=ZvK+LYAzo1/Jp0udRUHe/pQdrxLrUMIklr9fOR3J+2fSr0hFj9ni7DA3QWpyktHH2QC2fg
+	b9tu9362KLayLE+7mST20pZDGpOdIGpTSN21a4+YA8TOmQlBXzzmWgFqZHc8L9VdWYLq5f
+	FAcbpU15RusH+1qHGnO4Jg3FASa45QE=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-34-Yv1b7DqaNKiZeIxTiP3fpw-1; Mon, 17 Nov 2025 05:50:24 -0500
+X-MC-Unique: Yv1b7DqaNKiZeIxTiP3fpw-1
+X-Mimecast-MFC-AGG-ID: Yv1b7DqaNKiZeIxTiP3fpw_1763376623
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477771366cbso25787635e9.0
+        for <virtualization@lists.linux.dev>; Mon, 17 Nov 2025 02:50:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763374864; x=1763979664;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=f+BaFGtPHeQlsb4c8l2pIyZJN2yb/O0m617A3IlFA/s=;
-        b=rbnUAA2RMtfIh+hw7nVR4kNLLAL3sqHO9NtI5SWACd2Tksfh7a0LkDKm8RGEJbwLtC
-         u6lkn2380NqgpGyS6+pOn85EDg+KIdEMqQ2iewJ3patqoq8SSt/Y0Dj1l1gj1yJ4Mvkl
-         tXzUqo3wVvSrkaPi+TM/NkBp9jjodSp0Q85fUPM8kZz7DYIq3YK83deFOUXfkuuf/ai1
-         4Sss593nOUjAJ7qu0styILWOc5dxk1JUMe41KbUl4Z1cBHBUwpA5dA6nBFypzpCZ++sj
-         9JXiMx2fZcK5qzBEbPz9AhtP7AR7GrRZI/nyQnnCipCmfXDg9wKq6epJh9nxEreM+WAl
-         7eVA==
-X-Forwarded-Encrypted: i=1; AJvYcCWLCrBfKGZDNsBS15bHxAJI+JHYAaRQbj9HPPQytRgx+p380OG+Q+6hd6+6brPceaCAkqDtknVTxfeBg66MyQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxNOaU8dyf5XsoiSdQ731HpnRhlBoRb6ZddjalsOMS1a92Aq7cg
-	KBSn4mDgEPgcW/a3dXEC9oVR1qltmFXhm/dZIvOLbaHYU89wE9UOrVBnX0pun/pevKf+S401iOX
-	hwIOzwUc563TRsiI2jz8oNUWaZQFy1QvrBH53YS3Eqg==
-X-Gm-Gg: ASbGncvjFWzCd/hPVOxTW7zoPqgDP7OSZhy59C2U/zBxFdFE8pPgisJab6cQHH5HHg5
-	GJwFxpAfKnfIlwgu1Vm8bMpR8J4rGyb06/aTlw/LYFjWaTt7kRemV0u9y39yvz9SJJ3rB3TU+Hl
-	ZsE+x07HtBPxpO6OtOxH0A+G8Z7nuvPcyd/nzX63XiK/LwmK9ghYywBNYb/ttWhYW2+sfMIsxcl
-	nPFOB5sncSBv3cppFQan0T5xZ1jtY6mrKSDWF9OSjsGBGbWUwmR82PZjif/9rpcUdbGrG70K3Y/
-	kRv0snaALgdUpRy1ndjf8ZLI3PO1HEb4SqOWLFg=
-X-Google-Smtp-Source: AGHT+IFXIgTe4SJHZ48jLi+uHGZcmCEw/cpMKQEOY0HFOX51oOK/H+EI1O3O2fo/jMV7ldtOs7dFTqPKQ6YIPUwV1kE=
-X-Received: by 2002:a05:6512:ac4:b0:595:7e96:a71b with SMTP id
- 2adb3069b0e04-595841aa9f6mr4025801e87.13.1763374864573; Mon, 17 Nov 2025
- 02:21:04 -0800 (PST)
+        d=1e100.net; s=20230601; t=1763376623; x=1763981423;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nuX0aPSVd/d7iLB6bbasM0NpI015d3K/jXv3pcQh+us=;
+        b=b1zjb1ZrgNxZeXP9M8E5AX4F2EyQviZrbxNOsUCQzCpvY3LVdi5cu40YdRsZnKBa47
+         2bBltHQzO0yRkOGdm50zPMOWwDfoMXnIv+imBlEERbQ71WdExkxSMC6SVM32LrfhK0f3
+         fZur90kw5EN1+06G3vPx/YV/tt9nF7w5iz/7DnwXdA1TRggV3v15KJh+BPYYhHcp3bBC
+         KgqM4LPhbQZ8m8XPG/toKzEywmVM9r/R5Bx5LEUN8w4cQZQBYUONCTk6yunAmuGisjuR
+         hi19uEiSn/MeQle4diG9y6Xo0drBkQ5VNoHzGr0LvlvhmGh8nKyBYEFmJiGsDi3jvLqZ
+         +M8w==
+X-Forwarded-Encrypted: i=1; AJvYcCXTZcIBGD6gYcv8irD3kiun+LF4X6Q79vmi6MGKINnFMyMX955iEaJ3kjqZ37ojHL4m3ZMl1/b5h/x3gizRzg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyjWEJEYlx52sR20kE3X/D9vPmdyNfzJBSyNddrvE2ObhRs95EG
+	TZtTOrsx2uiI6MTPPZFKwg20FTwhbHi+Xm9QxX3IicFLTuRbmvYOjbdrlF0/hFKk3y700ddYmQ8
+	YMBZONrQsGbYMU0VJhtmrp8nyXfovYRJgjJzmnQHPLBfUcjF5ApWvghZYEzlRKKMXMzee
+X-Gm-Gg: ASbGncvdORGrVw9CGt7Mg1jkX0OK8Hs23y4obQ8hMx+YBZFEojVC94SET3D05r4Mups
+	pZ+17Gu7KkaF7q0MLtfkXQUyti/Y9gNzyvda0biiaivOcxBA0GJdOJyOmjq6oYGyBG3mJTFLlne
+	uAZOEh9olhBuPqnQnDkPOnKAof54QF1BoWx3/3z2rCWuIykoQCeHxHJyMWaNqk1y0ndTg07N/8o
+	/pPJfbit/pFYbTVkSQscB0q4cTjmvMyuc0OTQpwLi8S/ew0AveTvJ63yKYwVL3j9bbtoSA+FO2y
+	Q/wb2s0fzfAJ/clB3yxUn+VCSYUIjP45I79VOJXqIgqtkYLP80dhVs8k0/33EY27VFsqPVssVea
+	/KYbxKsQeB1LJKggMhxg=
+X-Received: by 2002:a05:600c:1c0f:b0:477:9cdb:e337 with SMTP id 5b1f17b1804b1-4779cdbe7e1mr63411385e9.7.1763376622788;
+        Mon, 17 Nov 2025 02:50:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFUG/kfaguZEJ7FDbwjxH60OTb7c2HOk6fwWxSJhNyaPv2yIbfRnBhN8Ld7zJ4gfuJClKT3eA==
+X-Received: by 2002:a05:600c:1c0f:b0:477:9cdb:e337 with SMTP id 5b1f17b1804b1-4779cdbe7e1mr63410945e9.7.1763376622277;
+        Mon, 17 Nov 2025 02:50:22 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47795272c53sm162240925e9.9.2025.11.17.02.50.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Nov 2025 02:50:21 -0800 (PST)
+Date: Mon, 17 Nov 2025 05:50:19 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Laurent Vivier <lvivier@redhat.com>,
+	virtualization@lists.linux.dev,
+	Maxime Coquelin <mcoqueli@redhat.com>, Cindy Lu <lulu@redhat.com>,
+	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v9 5/6] vduse: add vq group asid support
+Message-ID: <20251117054850-mutt-send-email-mst@kernel.org>
+References: <20251113115558.1277981-1-eperezma@redhat.com>
+ <20251113115558.1277981-6-eperezma@redhat.com>
+ <CACGkMEuwzmSmrh5PBhuokzt6Tf5b4+6JGmAuTAC-y-Sm04FZPA@mail.gmail.com>
+ <CAJaqyWex0rE+KO-UE_qxqkG3RWWP4ntNy+9Nzvb+CZ+auR3mVw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251107154917.313090-1-marco.crivellari@suse.com> <20251117051617-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20251117051617-mutt-send-email-mst@kernel.org>
-From: Marco Crivellari <marco.crivellari@suse.com>
-Date: Mon, 17 Nov 2025 11:20:52 +0100
-X-Gm-Features: AWmQ_bk9a2LThbleALibqcRpos3B9GYdoXUUJGmfQGS2iLf8rgMaHfarqBDvft4
-Message-ID: <CAAofZF7=qg8N-tCtB50C8oOtqYHNcntrCjGbAxzrLAusW-E07Q@mail.gmail.com>
-Subject: Re: [PATCH 0/2] add WQ_PERCPU to alloc_workqueue() in virtio_balloon
- and vduse
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, 
-	Frederic Weisbecker <frederic@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
-	Michal Hocko <mhocko@suse.com>, David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio Perez <eperezma@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAJaqyWex0rE+KO-UE_qxqkG3RWWP4ntNy+9Nzvb+CZ+auR3mVw@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: scT1HYuuaZGmCG3Qm_ozK69CsOh2i8cvM8F0cz3pZ1o_1763376623
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, Nov 17, 2025 at 11:17=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
-> wrote:
-> [...]
-> To make sure, this does not seem to introduce any
-> functional change - you want me to queue this now?
+On Fri, Nov 14, 2025 at 12:25:03PM +0100, Eugenio Perez Martin wrote:
+> RCU is protecting that the address space pointer of the vq group is
+> not modified concurrently with the access. Ideally, this should be a
+> full lock, but just making sure that all accesses from the reader are
+> coherent is enough. Userspace should expect nothing if it uses the map
+> and modifies the vq group ASID at the same time anyway, but the kernel
+> needs to be sure that it does not see intermediate states. TBH, we
+> could move to a READ_ONCE / WRITE_ONCE, would that be more clear?
 
-Hi,
+generally rcu itself does not need ONCE macros.
+these are for funky lockless things, and rcu can be
+seen as a kind of lock, after all.
 
-Yes please, there are no functional changes as you said.
-We are just marking explicitly this workqueue as per-cpu.
+-- 
+MST
 
-Thanks!
-
---=20
-
-Marco Crivellari
-
-L3 Support Engineer, Technology & Product
