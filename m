@@ -1,177 +1,257 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD89C31E0EB;
-	Mon, 17 Nov 2025 20:57:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A26EC220F37;
+	Mon, 17 Nov 2025 21:00:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763413074; cv=none; b=dtDs9N/rR5ZVHFMIiBq+qdS48sLgayuUZdVNMGl9h/u0ei2mmr5cRp+c4T+KDuER4KAgO274Rsmk8nnHAvrpbRu08/LyV+NeUTVgk+789rhpUXunBJaNJL+olRtw5gDwInZIo57pMndPuvDLwVE34OzPeVEq595RzemSfSzsNFo=
+	t=1763413250; cv=none; b=m3v4kBMATexy/+IwbFEpx4wLKssVlsdzEhQCRrpGORQeq3r2h074Mo5lBzKJ4xHHyNWYaoWDAg2fTMVwz9SIN3uEEYxtcxfZo1WozPcHSGXIWAvqw/jlj3mRaUS0t49b8YCyEGubtpAzIhzzloWdtlONS6MZhSV/nGz9PiSyBrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763413074; c=relaxed/simple;
-	bh=OZQqZqNqbcCpVZmL01SXwcBNOwlCzkksnH3icssSGZM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=uCoeE+AM/lNG/yGKO43at+GGT31OE1SBV0ScwAHMAZbhlJTeAYQjEt7nsKxUtjgQGso7wzO3Tsd0PhbEHi6520DOqIv10mF+U0fc+2siO7EL1kAybOR3M2CqNLAdNGJ64vOM/kda8YHKy6QS+n11ARG8ZE9ANiIE65bz9EF2OBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=jWxuLSHl; arc=none smtp.client-ip=185.226.149.37
+	s=arc-20240116; t=1763413250; c=relaxed/simple;
+	bh=1PUojN2f7AR7h9+eE7KCQXOtrKuqH62g74kcAO7+TLA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LqTKCROJFN4+SEKQ+nGhFuI+yc9C7sJAs4gknaGdcD3FteNOsXFeqyzcbbeYRpM02l5ptEbsf5dkkipTxqj54xjGRD4XCfxesRBZWImy3hspq/93AV5lxXURlaQZ9rjl64VpFYi+X77A6W2WepfkKrGSSwE9ajuY3bStc7VWeMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=QEzTPtGI; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="jWxuLSHl"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="QEzTPtGI"
 Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1vL6I3-000WQk-5C; Mon, 17 Nov 2025 21:57:35 +0100
+	id 1vL6Kx-000RQ3-VA; Mon, 17 Nov 2025 22:00:35 +0100
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
-	MIME-Version:Subject:Date:From;
-	bh=EeTHPwUBuhbkQj8C5B3LXMvFAI4nzk7Ih5zbwg3nNj4=; b=jWxuLSHlmeLe/BwBnWdSAIXAT6
-	gS42/FExRrsuNN3wgxhExsjL9xymlRTP89GLoLjBEq6MnRYzpH8EniGPpHLa2Wzd+F3uEMc87WugU
-	FB3hytfgws2S09bk/tbNoUd5m3n5TeF34RtT4j4yKOR+sPBBrU6eRmeseUtxrwXO5a75MIt4al7uK
-	XYWwK417JnhF1WtOn3bzyyzz0VfzmSh1jiByXzF+mr+dHjL3VSZeiWitPY33/iSmuybHmfJ6ivJvD
-	kgUPR6WedtuOz5Hv9nKHd52c4ABevcUzBIMALMS9TuXkq9TX6syP7HzpkIoWHYujhfjlO3quOmib1
-	jo9I9AwQ==;
-Received: from [10.9.9.73] (helo=submission02.runbox)
+	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=RrSJqj+hLAZcTqrceEpKG/9yU8WQ+bJidKLcFOYJpWg=; b=QEzTPtGIOrfpu0LdVl6PaWsRrZ
+	pzBO30+LvC8WlqRp/Ttnxl9p6PnpmYtosmgtLXxWQ4cEk6vEsx1RdaJZXScaqqBXqwQa5U2AoxTG7
+	P42Uk+cmvpHbBS6GN573maWJgt77lnC+MQrW/yrqrgA9xfLTzhTS0Lpx7sRNw0FlV3iE9Bkzpw7AL
+	jlTk7NS7N0rrurvxXYSvFmokOCWDQjkfnpjCH5KyxpbHc3vgVDJ4wVUWUY/ZZ60d/8ECoYaAaT68F
+	V0g4frcqoNUSTNR3EkiaRApPdZQ1A+RR7Z+bBaH2uRBdTNdHz77UsboVEHbbKTjedk62wpSn/SgdU
+	jKfvdNbQ==;
+Received: from [10.9.9.72] (helo=submission01.runbox)
 	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1vL6I2-0004QI-C5; Mon, 17 Nov 2025 21:57:34 +0100
-Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	id 1vL6Kw-0004XU-SF; Mon, 17 Nov 2025 22:00:35 +0100
+Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1vL6Hz-00Bely-1n; Mon, 17 Nov 2025 21:57:31 +0100
-From: Michal Luczaj <mhal@rbox.co>
-Date: Mon, 17 Nov 2025 21:57:25 +0100
-Subject: [PATCH net] vsock: Ignore signal/timeout on connect() if already
- established
+	id 1vL6Ki-00Atjo-93; Mon, 17 Nov 2025 22:00:20 +0100
+Message-ID: <9a0daed1-fd18-4fef-99e9-4058fd4abe18@rbox.co>
+Date: Mon, 17 Nov 2025 22:00:18 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [syzbot] [virt?] [net?] possible deadlock in vsock_linger
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: syzbot <syzbot+10e35716f8e4929681fa@syzkaller.appspotmail.com>,
+ davem@davemloft.net, edumazet@google.com, horms@kernel.org, kuba@kernel.org,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com,
+ syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
+References: <68f6cdb0.a70a0220.205af.0039.GAE@google.com>
+ <pehr4umqwjv3a7p4uudrz3uuqacu3ut66kmazw2ovm73gimyry@oevxmd4o664k>
+ <CAGxU2F5y+kdByEwAq-t15fyrfrgQGpmapmLgkmDmY4xH4TJSDw@mail.gmail.com>
+ <CAGxU2F6KaqmmK7qP55Rs8YHLOX62HyT77wY-RU1qPFpjhgV4jg@mail.gmail.com>
+ <60f1b7db-3099-4f6a-875e-af9f6ef194f6@rbox.co>
+ <awg7m76nw234dqgbe5e3tzuwpr6aznj6htvypwoulg5sjwax36@z6wqmopayakt>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <awg7m76nw234dqgbe5e3tzuwpr6aznj6htvypwoulg5sjwax36@z6wqmopayakt>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co>
-X-B4-Tracking: v=1; b=H4sIADSMG2kC/x3MQQrCMBBG4auUWTuQBgPqVcRFmfzRQZiUSSxC6
- d0NLr/Fezs1uKLRbdrJsWnTagPzaSJ5LfYEax6mGGIKlznx1qq8Wa3D/bN2ZJZqBulcrjGXJYV
- zlEyjXx1Fv//3nQydHsfxA70Th2ZwAAAA
-X-Change-ID: 20250815-vsock-interrupted-connect-f92dfa5042cd
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, George Zhang <georgezhang@vmware.com>, 
- Andy King <acking@vmware.com>, Dmitry Torokhov <dtor@vmware.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.3
 
-During connect(), acting on a signal/timeout by disconnecting an already
-established socket leads to several issues:
+On 11/17/25 10:57, Stefano Garzarella wrote:
+> On Sat, Nov 15, 2025 at 05:00:28PM +0100, Michal Luczaj wrote:
+>> On 10/21/25 14:19, Stefano Garzarella wrote:
+>>> On Tue, 21 Oct 2025 at 12:48, Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>>>
+>>>> On Tue, 21 Oct 2025 at 10:27, Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>>>>
+>>>>> Hi Michal,
+>>>>>
+>>>>> On Mon, Oct 20, 2025 at 05:02:56PM -0700, syzbot wrote:
+>>>>>> Hello,
+>>>>>>
+>>>>>> syzbot found the following issue on:
+>>>>>>
+>>>>>> HEAD commit:    d9043c79ba68 Merge tag 'sched_urgent_for_v6.18_rc2' of git..
+>>>>>> git tree:       upstream
+>>>>>> console output: https://syzkaller.appspot.com/x/log.txt?x=130983cd980000
+>>>>>> kernel config:  https://syzkaller.appspot.com/x/.config?x=f3e7b5a3627a90dd
+>>>>>> dashboard link: https://syzkaller.appspot.com/bug?extid=10e35716f8e4929681fa
+>>>>>> compiler:       gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+>>>>>> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17f0f52f980000
+>>>>>> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=11ea9734580000
+>>>>>>
+>>>>>> Downloadable assets:
+>>>>>> disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-d9043c79.raw.xz
+>>>>>> vmlinux: https://storage.googleapis.com/syzbot-assets/0546b6eaf1aa/vmlinux-d9043c79.xz
+>>>>>> kernel image: https://storage.googleapis.com/syzbot-assets/81285b4ada51/bzImage-d9043c79.xz
+>>>>>>
+>>>>>> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+>>>>>> Reported-by: syzbot+10e35716f8e4929681fa@syzkaller.appspotmail.com
+>>>>>>
+>>>>>> ======================================================
+>>>>>> WARNING: possible circular locking dependency detected
+>>>>>> syzkaller #0 Not tainted
+>>>>>> ------------------------------------------------------
+>>>>>> syz.0.17/6098 is trying to acquire lock:
+>>>>>> ffff8880363b8258 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1679 [inline]
+>>>>>> ffff8880363b8258 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_linger+0x25e/0x4d0 net/vmw_vsock/af_vsock.c:1066
+>>>>>
+>>>>> Could this be related to our recent work on linger in vsock?
+>>>>>
+>>>>>>
+>>>>>> but task is already holding lock:
+>>>>>> ffffffff906260a8 (vsock_register_mutex){+.+.}-{4:4}, at: vsock_assign_transport+0xf2/0x900 net/vmw_vsock/af_vsock.c:469
+>>>>>>
+>>>>>> which lock already depends on the new lock.
+>>>>>>
+>>>>>>
+>>>>>> the existing dependency chain (in reverse order) is:
+>>>>>>
+>>>>>> -> #1 (vsock_register_mutex){+.+.}-{4:4}:
+>>>>>>       __mutex_lock_common kernel/locking/mutex.c:598 [inline]
+>>>>>>       __mutex_lock+0x193/0x1060 kernel/locking/mutex.c:760
+>>>>>>       vsock_registered_transport_cid net/vmw_vsock/af_vsock.c:560 [inline]
+>>>>>
+>>>>> Ah, no maybe this is related to commit 209fd720838a ("vsock:
+>>>>> Fix transport_{g2h,h2g} TOCTOU") where we added locking in
+>>>>> vsock_find_cid().
+>>>>>
+>>>>> Maybe we can just move the checks on top of __vsock_bind() to the
+>>>>> caller. I mean:
+>>>>>
+>>>>>         /* First ensure this socket isn't already bound. */
+>>>>>         if (vsock_addr_bound(&vsk->local_addr))
+>>>>>                 return -EINVAL;
+>>>>>
+>>>>>         /* Now bind to the provided address or select appropriate values if
+>>>>>          * none are provided (VMADDR_CID_ANY and VMADDR_PORT_ANY).  Note that
+>>>>>          * like AF_INET prevents binding to a non-local IP address (in most
+>>>>>          * cases), we only allow binding to a local CID.
+>>>>>          */
+>>>>>         if (addr->svm_cid != VMADDR_CID_ANY && !vsock_find_cid(addr->svm_cid))
+>>>>>                 return -EADDRNOTAVAIL;
+>>>>>
+>>>>> We have 2 callers: vsock_auto_bind() and vsock_bind().
+>>>>>
+>>>>> vsock_auto_bind() is already checking if the socket is already bound,
+>>>>> if not is setting VMADDR_CID_ANY, so we can skip those checks.
+>>>>>
+>>>>> In vsock_bind() we can do the checks before lock_sock(sk), at least the
+>>>>> checks on vm_addr, calling vsock_find_cid().
+>>>>>
+>>>>> I'm preparing a patch to do this.
+>>>>
+>>>> mmm, no, this is more related to vsock_linger() where sk_wait_event()
+>>>> releases and locks again the sk_lock.
+>>>> So, it should be related to commit 687aa0c5581b ("vsock: Fix
+>>>> transport_* TOCTOU") where we take vsock_register_mutex in
+>>>> vsock_assign_transport() while calling vsk->transport->release().
+>>>>
+>>>> So, maybe we need to move the release and vsock_deassign_transport()
+>>>> after unlocking vsock_register_mutex.
+>>>
+>>> I implemented this here:
+>>> https://lore.kernel.org/netdev/20251021121718.137668-1-sgarzare@redhat.com/
+>>>
+>>> sysbot successfully tested it.
+>>>
+>>> Stefano
+>>
+>> Hi Stefano
+> 
+> Hi Michal!
+> 
+>>
+>> Apologies for missing this, I was away for a couple of weeks.
+> 
+> Don't worry at all!
+> 
+>>
+>> Turns out it's vsock_connect()'s reset-on-signal that strikes again. While
+>> you've fixed the lock order inversion (thank you), being able to reset an
+>> established socket, combined with SO_LINGER's lock-release-lock dance,
+>> still leads to crashes.
+> 
+> Yeah, I see!
+> 
+>>
+>> I think it goes like this: if user hits connect() with a signal right after
+>> connection is established (which implies an assigned transport), `sk_state`
+>> gets set to TCP_CLOSING and `state` to SS_UNCONNECTED. SS_UNCONNECTED means
+>> connect() can be retried. If re-connect() is for a different CID, transport
+>> reassignment takes place. That involves transport->release() of the old
+>> transport. Because `sk_state == TCP_CLOSING`, vsock_linger() is called.
+>> Lingering temporarily releases socket lock. Which can be raced by another
+>> thread doing connect(). Basically thread-1 can release resources from under
+>> thread-0. That breaks the assumptions, e.g. virtio_transport_unsent_bytes()
+>> does not expect a disappearing transport.
+> 
+> Makes sense to me!
+> 
+>>
+>> BUG: KASAN: slab-use-after-free in _raw_spin_lock_bh+0x34/0x40
+>> Read of size 1 at addr ffff888107c99420 by task a.out/1385
+>> CPU: 6 UID: 1000 PID: 1385 Comm: a.out Tainted: G            E
+>> 6.18.0-rc5+ #241 PREEMPT(voluntary)
+>> Call Trace:
+>> dump_stack_lvl+0x7e/0xc0
+>> print_report+0x170/0x4de
+>> kasan_report+0xc2/0x180
+>> __kasan_check_byte+0x3a/0x50
+>> lock_acquire+0xb2/0x300
+>> _raw_spin_lock_bh+0x34/0x40
+>> virtio_transport_unsent_bytes+0x3b/0x80
+>> vsock_linger+0x263/0x370
+>> virtio_transport_release+0x3ff/0x510
+>> vsock_assign_transport+0x358/0x780
+>> vsock_connect+0x5a2/0xc40
+>> __sys_connect+0xde/0x110
+>> __x64_sys_connect+0x6e/0xc0
+>> do_syscall_64+0x94/0xbb0
+>> entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>>
+>> Allocated by task 1384:
+>> kasan_save_stack+0x1c/0x40
+>> kasan_save_track+0x10/0x30
+>> __kasan_kmalloc+0x92/0xa0
+>> virtio_transport_do_socket_init+0x48/0x320
+>> vsock_assign_transport+0x4ff/0x780
+>> vsock_connect+0x5a2/0xc40
+>> __sys_connect+0xde/0x110
+>> __x64_sys_connect+0x6e/0xc0
+>> do_syscall_64+0x94/0xbb0
+>> entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>>
+>> Freed by task 1384:
+>> kasan_save_stack+0x1c/0x40
+>> kasan_save_track+0x10/0x30
+>> __kasan_save_free_info+0x37/0x50
+>> __kasan_slab_free+0x63/0x80
+>> kfree+0x142/0x6a0
+>> virtio_transport_destruct+0x86/0x170
+>> vsock_assign_transport+0x3a8/0x780
+>> vsock_connect+0x5a2/0xc40
+>> __sys_connect+0xde/0x110
+>> __x64_sys_connect+0x6e/0xc0
+>> do_syscall_64+0x94/0xbb0
+>> entry_SYSCALL_64_after_hwframe+0x4b/0x53
+>>
+>> I suppose there are many ways this chain of events can be stopped, but I
+>> see it as yet another reason to simplify vsock_connect(): do not let it
+>> "reset" an already established socket. I guess that would do the trick.
+>> What do you think?
+> 
+> I agree, we should do that. Do you have time to take a look?
 
-1. connect() invoking vsock_transport_cancel_pkt() ->
-   virtio_transport_purge_skbs() may race with sendmsg() invoking
-   virtio_transport_get_credit(). This results in a permanently elevated
-   `vvs->bytes_unsent`. Which, in turn, confuses the SOCK_LINGER handling.
+Sure, here's a patch:
+https://lore.kernel.org/netdev/20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co/
 
-2. connect() resetting a connected socket's state may race with socket
-   being placed in a sockmap. A disconnected socket remaining in a sockmap
-   breaks sockmap's assumptions. And gives rise to WARNs.
-
-3. connect() transitioning SS_CONNECTED -> SS_UNCONNECTED allows for a
-   transport change/drop after TCP_ESTABLISHED. Which poses a problem for
-   any simultaneous sendmsg() or connect() and may result in a
-   use-after-free/null-ptr-deref.
-
-Do not disconnect socket on signal/timeout. Keep the logic for unconnected
-sockets: they don't linger, can't be placed in a sockmap, are rejected by
-sendmsg().
-
-[1]: https://lore.kernel.org/netdev/e07fd95c-9a38-4eea-9638-133e38c2ec9b@rbox.co/
-[2]: https://lore.kernel.org/netdev/20250317-vsock-trans-signal-race-v4-0-fc8837f3f1d4@rbox.co/
-[3]: https://lore.kernel.org/netdev/60f1b7db-3099-4f6a-875e-af9f6ef194f6@rbox.co/
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
----
-Note that this patch does not tackle related problems described in
-https://lore.kernel.org/netdev/70371863-fa71-48e0-a1e5-fee83e7ca37c@rbox.co/
----
- net/vmw_vsock/af_vsock.c | 48 ++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 40 insertions(+), 8 deletions(-)
-
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 76763247a377..a52e7dbe7878 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1528,6 +1528,23 @@ static void vsock_connect_timeout(struct work_struct *work)
- 	sock_put(sk);
- }
- 
-+static void vsock_reset_interrupted(struct sock *sk)
-+{
-+	struct vsock_sock *vsk = vsock_sk(sk);
-+
-+	/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
-+	 * transport->connect().
-+	 */
-+	vsock_transport_cancel_pkt(vsk);
-+
-+	/* Listener might have already responded with VIRTIO_VSOCK_OP_RESPONSE.
-+	 * Its handling expects our sk_state == TCP_SYN_SENT, which hereby we
-+	 * break. In such case VIRTIO_VSOCK_OP_RST will follow.
-+	 */
-+	sk->sk_state = TCP_CLOSE;
-+	sk->sk_socket->state = SS_UNCONNECTED;
-+}
-+
- static int vsock_connect(struct socket *sock, struct sockaddr *addr,
- 			 int addr_len, int flags)
- {
-@@ -1661,18 +1678,33 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
- 		timeout = schedule_timeout(timeout);
- 		lock_sock(sk);
- 
-+		/* Connection established. Whatever happens to socket once we
-+		 * release it, that's not connect()'s concern. No need to go
-+		 * into signal and timeout handling. Call it a day.
-+		 *
-+		 * Note that allowing to "reset" an already established socket
-+		 * here is racy and insecure.
-+		 */
-+		if (sk->sk_state == TCP_ESTABLISHED)
-+			break;
-+
-+		/* If connection was _not_ established and a signal/timeout came
-+		 * to be, we want the socket's state reset. User space may want
-+		 * to retry.
-+		 *
-+		 * sk_state != TCP_ESTABLISHED implies that socket is not on
-+		 * vsock_connected_table. We keep the binding and the transport
-+		 * assigned.
-+		 */
- 		if (signal_pending(current)) {
- 			err = sock_intr_errno(timeout);
--			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
--			sock->state = SS_UNCONNECTED;
--			vsock_transport_cancel_pkt(vsk);
--			vsock_remove_connected(vsk);
-+			vsock_reset_interrupted(sk);
- 			goto out_wait;
--		} else if ((sk->sk_state != TCP_ESTABLISHED) && (timeout == 0)) {
-+		}
-+
-+		if (timeout == 0) {
- 			err = -ETIMEDOUT;
--			sk->sk_state = TCP_CLOSE;
--			sock->state = SS_UNCONNECTED;
--			vsock_transport_cancel_pkt(vsk);
-+			vsock_reset_interrupted(sk);
- 			goto out_wait;
- 		}
- 
-
----
-base-commit: 5442a9da69789741bfda39f34ee7f69552bf0c56
-change-id: 20250815-vsock-interrupted-connect-f92dfa5042cd
-
-Best regards,
--- 
-Michal Luczaj <mhal@rbox.co>
+Michal
 
