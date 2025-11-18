@@ -1,110 +1,159 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A867C2E7166
-	for <virtualization@lists.linux-foundation.org>; Tue, 18 Nov 2025 06:29:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7800C305E2D;
+	Tue, 18 Nov 2025 08:07:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763447377; cv=none; b=rwSKE7n0ML06AyRxV0DWccpMHMcXhRbVUNacdx2HgBtgHdJOuNQt1cIZ5fEqPmfE7Zxn7vneaqwFTNhVmw2+i1xjNbX/1WTdYdPTvUd9uJtWv7t37GvEYmhedKPLspUiygvhHTEV3syRhhX6xuCsQR/1tQJgFnzJHgOfH8pUW4A=
+	t=1763453231; cv=none; b=k90scsxQgFzXt+DBUT7jGy+QIc3Ty9/7TAkVVAyl9l6yy++07IlqxiqIxr2bWPT6/6ETJanimRnc3Lo4sagrjm14q0RkyKbYx4k+6IOKufvB0qWSfkerIPb6JSxOGm4WyOA5M56Fe1dDG7QLfTvi8wwlTVpzNWo/SzRl46fZhMY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763447377; c=relaxed/simple;
-	bh=NMsOTA1DMJ5iERcAl/pml2D6iYbp4MdUF6qfsG/xYvM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=d4741LHdgEHiynHRoH00M31HYb9+MSFSyK7l6elUffHn+/7lm7llfGuzd8uu2iWQ5OvS6OB/AQLHt1yLoVaR1xnv1THFrmvkeb0DWqITlsowsQP4uClr56GgPfh8T2KQFmqYllrw4vw0OMfm3+4vdKqEH0vBD5PcI9jDNWEDlHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=M9jZ+UO9; arc=none smtp.client-ip=140.211.166.136
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="M9jZ+UO9"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 441BC607EB
-	for <virtualization@lists.linux-foundation.org>; Tue, 18 Nov 2025 06:29:36 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -8.092
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id mt4gyTEdXttr for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Nov 2025 06:29:35 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.12; helo=mgamail.intel.com; envelope-from=wangyang.guo@intel.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 80A8F607CB
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 80A8F607CB
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=M9jZ+UO9
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 80A8F607CB
-	for <virtualization@lists.linux-foundation.org>; Tue, 18 Nov 2025 06:29:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1763447375; x=1794983375;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=NMsOTA1DMJ5iERcAl/pml2D6iYbp4MdUF6qfsG/xYvM=;
-  b=M9jZ+UO9mInVTh0Lkq22saZraecZhVAdd9DnkKz8iHonUaMRaludp3UA
-   nc3BRx8RYacXraP2oZFdq+qrjaZA4i0YqQfsWoLNXHWxDwYz1+TyxavSB
-   xAewxb+WTSoHCGD0jw0itv12zKbkwM0QKpwvcov+hzX9rkSE9y4zTUKK5
-   1Cq5ZIbse7hwHBgq6KudV4Ru4dINWZbtPewFcIcgKrVc3SKAVOI2mh1/Q
-   +5M6LfWIZn23uyV5pRuKztL90vzKXgFveVDlRpAQhuAP1Sn3yxLeVi7S/
-   6xXuogoNGladtxQAyyXL4z3+Bmj2uNU8QVGpKsVXZIYkBmstMf60cK/f5
-   Q==;
-X-CSE-ConnectionGUID: 8dRnq3BzSKidGpegMILifw==
-X-CSE-MsgGUID: Sve70m5iQTyjpFJdA6st9g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11616"; a="69329991"
-X-IronPort-AV: E=Sophos;i="6.19,314,1754982000"; 
-   d="scan'208";a="69329991"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Nov 2025 22:29:34 -0800
-X-CSE-ConnectionGUID: IV4Gw64wTteTnz/8Ll8CNg==
-X-CSE-MsgGUID: EbEOfi6kSRy4agmjdcOZcw==
-X-ExtLoop1: 1
-Received: from guowangy-mobl.ccr.corp.intel.com (HELO [10.124.242.244]) ([10.124.242.244])
-  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Nov 2025 22:29:31 -0800
-Message-ID: <da1d6b4e-038c-48dc-830d-5eadb3ac943f@intel.com>
-Date: Tue, 18 Nov 2025 14:29:20 +0800
+	s=arc-20240116; t=1763453231; c=relaxed/simple;
+	bh=NrRX9it4MnWayj4eZuSINZrMRfhV19Whgr9Ms4aUU7I=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=rI+xRgPKGjhlmeO8fkNfUhCd2h8AYCuSPiKghxqfay6ivhKDmmZFhGNknMQbvsLUXiO+aqwhTXjIqQEnLJzTZNwzGRd9fYtT+yiT6w1A2yecPbuqziOk0WY5CfHlj+DSxIuvQHVkvzz2P/yknP57DouMKTiDYynDXWRL9pVEdP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8Cx778pKRxp+NgkAA--.11768S3;
+	Tue, 18 Nov 2025 16:07:05 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by front1 (Coremail) with SMTP id qMiowJBxjcEhKRxpUhc3AQ--.33984S4;
+	Tue, 18 Nov 2025 16:07:04 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Paolo Bonzini <pbonzini@redhat.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Will Deacon <will@kernel.org>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Waiman Long <longman@redhat.com>,
+	Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: kvm@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	x86@kernel.org
+Subject: [PATCH 2/3] LoongArch: Add paravirt support with vcpu_is_preempted()
+Date: Tue, 18 Nov 2025 16:06:55 +0800
+Message-Id: <20251118080656.2012805-3-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20251118080656.2012805-1-maobibo@loongson.cn>
+References: <20251118080656.2012805-1-maobibo@loongson.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND] lib/group_cpus: make group CPU cluster aware
-To: Ming Lei <ming.lei@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Thomas Gleixner <tglx@linutronix.de>, Keith Busch <kbusch@kernel.org>,
- Jens Axboe <axboe@fb.com>, Christoph Hellwig <hch@lst.de>,
- Sagi Grimberg <sagi@grimberg.me>, linux-kernel@vger.kernel.org,
- linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org,
- linux-block@vger.kernel.org, Tianyou Li <tianyou.li@intel.com>,
- Tim Chen <tim.c.chen@linux.intel.com>, Dan Liang <dan.liang@intel.com>
-References: <20251111020608.1501543-1-wangyang.guo@intel.com>
- <aRKssW96lHFrT2ZN@fedora> <b94a0d74-0770-4751-9064-2ef077fada14@intel.com>
- <aRMnR5DRdsU8lGtU@fedora> <a101fe80-ca0b-4b4b-94b1-f08db1b164fc@intel.com>
- <aRU2sC5q5hCmS_eM@fedora>
-Content-Language: en-US
-From: "Guo, Wangyang" <wangyang.guo@intel.com>
-In-Reply-To: <aRU2sC5q5hCmS_eM@fedora>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJBxjcEhKRxpUhc3AQ--.33984S4
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
+	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
+	nUUI43ZEXa7xR_UUUUUUUUU==
 
-On 11/13/2025 9:38 AM, Ming Lei wrote:
-> On Wed, Nov 12, 2025 at 11:02:47AM +0800, Guo, Wangyang wrote:
->> On 11/11/2025 8:08 PM, Ming Lei wrote:
->>> On Tue, Nov 11, 2025 at 01:31:04PM +0800, Guo, Wangyang wrote:
->>> They still should share same L3 cache, and cpus_share_cache() should be
->>> true when the IO completes on the CPU which belong to different L2 with the
->>> submission CPU, and remote completion via IPI won't be triggered.
->> Yes, remote IPI not triggered.
-> 
-> OK, in my test on AMD zen4, NVMe performance can be dropped to 1/2 - 1/3 if
-> remote IPI is triggered in case of crossing L3, which is understandable.
-> 
-> I will check if topo cluster can cover L3, if yes, the patch still can be
-> simplified a lot by introducing sub-node spread by changing build_node_to_cpumask()
-> and adding nr_sub_nodes.
+Function vcpu_is_preempted() is used to check whether vCPU is preempted
+or not. Here add implementation with vcpu_is_preempted() when option
+CONFIG_PARAVIRT is enabled.
 
-Do you mean using cluster as "NUMA" nodes to spread CPU, instead of two 
-level NUMA-cluster spreading?
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+---
+ arch/loongarch/include/asm/smp.h      |  1 +
+ arch/loongarch/include/asm/spinlock.h |  5 +++++
+ arch/loongarch/kernel/paravirt.c      | 16 ++++++++++++++++
+ arch/loongarch/kernel/smp.c           |  6 ++++++
+ 4 files changed, 28 insertions(+)
 
-BR
-Wangyang
+diff --git a/arch/loongarch/include/asm/smp.h b/arch/loongarch/include/asm/smp.h
+index 3a47f52959a8..5b37f7bf2060 100644
+--- a/arch/loongarch/include/asm/smp.h
++++ b/arch/loongarch/include/asm/smp.h
+@@ -18,6 +18,7 @@ struct smp_ops {
+ 	void (*init_ipi)(void);
+ 	void (*send_ipi_single)(int cpu, unsigned int action);
+ 	void (*send_ipi_mask)(const struct cpumask *mask, unsigned int action);
++	bool (*vcpu_is_preempted)(int cpu);
+ };
+ extern struct smp_ops mp_ops;
+ 
+diff --git a/arch/loongarch/include/asm/spinlock.h b/arch/loongarch/include/asm/spinlock.h
+index 7cb3476999be..c001cef893aa 100644
+--- a/arch/loongarch/include/asm/spinlock.h
++++ b/arch/loongarch/include/asm/spinlock.h
+@@ -5,6 +5,11 @@
+ #ifndef _ASM_SPINLOCK_H
+ #define _ASM_SPINLOCK_H
+ 
++#ifdef CONFIG_PARAVIRT
++#define vcpu_is_preempted	vcpu_is_preempted
++bool vcpu_is_preempted(int cpu);
++#endif
++
+ #include <asm/processor.h>
+ #include <asm/qspinlock.h>
+ #include <asm/qrwlock.h>
+diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+index b1b51f920b23..b99404b6b13f 100644
+--- a/arch/loongarch/kernel/paravirt.c
++++ b/arch/loongarch/kernel/paravirt.c
+@@ -52,6 +52,13 @@ static u64 paravt_steal_clock(int cpu)
+ #ifdef CONFIG_SMP
+ static struct smp_ops native_ops;
+ 
++static bool pv_vcpu_is_preempted(int cpu)
++{
++	struct kvm_steal_time *src = &per_cpu(steal_time, cpu);
++
++	return !!(src->preempted & KVM_VCPU_PREEMPTED);
++}
++
+ static void pv_send_ipi_single(int cpu, unsigned int action)
+ {
+ 	int min, old;
+@@ -308,6 +315,9 @@ int __init pv_time_init(void)
+ 		pr_err("Failed to install cpu hotplug callbacks\n");
+ 		return r;
+ 	}
++
++	if (kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
++		mp_ops.vcpu_is_preempted = pv_vcpu_is_preempted;
+ #endif
+ 
+ 	static_call_update(pv_steal_clock, paravt_steal_clock);
+@@ -332,3 +342,9 @@ int __init pv_spinlock_init(void)
+ 
+ 	return 0;
+ }
++
++bool notrace vcpu_is_preempted(int cpu)
++{
++	return mp_ops.vcpu_is_preempted(cpu);
++}
++EXPORT_SYMBOL(vcpu_is_preempted);
+diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
+index 46036d98da75..f04192fedf8d 100644
+--- a/arch/loongarch/kernel/smp.c
++++ b/arch/loongarch/kernel/smp.c
+@@ -307,10 +307,16 @@ static void loongson_init_ipi(void)
+ 		panic("IPI IRQ request failed\n");
+ }
+ 
++static bool loongson_vcpu_is_preempted(int cpu)
++{
++	return false;
++}
++
+ struct smp_ops mp_ops = {
+ 	.init_ipi		= loongson_init_ipi,
+ 	.send_ipi_single	= loongson_send_ipi_single,
+ 	.send_ipi_mask		= loongson_send_ipi_mask,
++	.vcpu_is_preempted	= loongson_vcpu_is_preempted,
+ };
+ 
+ static void __init fdt_smp_setup(void)
+-- 
+2.39.3
+
