@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 079153702E4
-	for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 22:07:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ECAA30DECD
+	for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 22:15:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763503630; cv=none; b=E1XpnoE26WSWpT3WpO+khYU9GfbwD7ipd2xjwxNEzlIq42PQA3LhnxLsT5Uvuimb98YJDV8wQzts4z04rzFqa20UzjvO6lR6v5HAzrcNeoawEJNbufZh6DF1AJVN2u6NHlkph5ORMA+r0YkjFaesxv/PIoCPmx9XIdDwDyWOtZI=
+	t=1763504105; cv=none; b=kkFAIFR9NstzqlD4QXHMQ3jb9yJq14sNsT8t5/FiMDaG2vUfRN6UXzHC5lLSMR01h9kngt+cSMaprrRntNiX4L9etY51SOp9Ys7A20cXE6DDRP60ReO8JOnxpf89LXTWCzHXSHTwYcCJ5VtVY7nEFyc5STwfOB5Ezykn3KW8nWk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763503630; c=relaxed/simple;
-	bh=8D11xP7+4Jk+thTLdB06wOliVbLwybwBo35BGH/zG/U=;
+	s=arc-20240116; t=1763504105; c=relaxed/simple;
+	bh=UebwBc4wvYmdjjBpC5J+/F1JyAju4zl5Jn6Kf5bKNsI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=OMDU++06P9iUWs01LqWg1BJv7qeijF+i36VF+6rAG/BxBx29TezFIozYEi4o7ANYD2hfGmAPy8AO19Wy7Q7jN3oCb2cx3+h4biSeBGAtIsuQv/L8VTqT0o2rvM1oQ/lYbipJkzSEW66MLSLp5LFX9WvcjIDyUQYopDJ+X3Rjx9I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gstQl1vc; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=tMiov5ICyk7y2Ynz1bEST1UyCM6BcdG/1XrmR6jlzrXb5E2WbsmvdRcTzLNjrAxH4bsGD/xF8F3WCTFGhn/FqZFnR2ljmNG6mP1Cls+x9cInhnLYrH2bsAkd53ry4uoWIHPUZHdWTH0KwGDuGXIhEQfZFIa9iPG8ztvpI6VL4x8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EdQ5cohC; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gstQl1vc"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EdQ5cohC"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763503627;
+	s=mimecast20190719; t=1763504102;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=A/QZAmik1+VZ+zpg7kNphq1hJrZOaie5bivquMjmvUE=;
-	b=gstQl1vcyffnN8v03vVJ+aLJkPmBA1gg5QiuviNYeZH3YROpWt3Fyn/SVBNzgdu7hwOGoR
-	mBpaj+uz7V0GSxrgb3GNFUBugytERNYOxTcX+pRDMDgAR1QA1DnzRVOY1Q4S6rcArO5yPn
-	IZj+zewPJJKTAgcXfqI4GMcakrcRH7k=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=RcMergSwauY/1NAWI0QqhSLEWf4nuFMROFc+j9jdmGk=;
+	b=EdQ5cohCsb9dXlWB22B+/1hTfrXXtWo32gA8SqprM7suq6EzslunEdZAoi/KZZ6mJ7z9mG
+	ivnexE2QOWtFmrVpXsY1zilFoQM6gXiY2ALCVn5as3u8belrGlEJRcU0pTNCzNFWiPMQnY
+	M+iGc11LGrKrQxz01S4NB+V6m33GscU=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-65-7GDvAQMfMpixRGmxuZqjdg-1; Tue, 18 Nov 2025 17:07:03 -0500
-X-MC-Unique: 7GDvAQMfMpixRGmxuZqjdg-1
-X-Mimecast-MFC-AGG-ID: 7GDvAQMfMpixRGmxuZqjdg_1763503622
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4775d110fabso46470595e9.1
-        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 14:07:03 -0800 (PST)
+ us-mta-297-NQ9uV7RiMeSlyKv-Q3I0vQ-1; Tue, 18 Nov 2025 17:14:59 -0500
+X-MC-Unique: NQ9uV7RiMeSlyKv-Q3I0vQ-1
+X-Mimecast-MFC-AGG-ID: NQ9uV7RiMeSlyKv-Q3I0vQ_1763504099
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-429cce847c4so2656939f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 14:14:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763503622; x=1764108422;
+        d=1e100.net; s=20230601; t=1763504099; x=1764108899;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=A/QZAmik1+VZ+zpg7kNphq1hJrZOaie5bivquMjmvUE=;
-        b=nMkILvBURMGH+a34rL4z9gqtVIPEjWF5ojGIXv/sPzQxehYCPCf5GsT0JhmB8jx8h2
-         9BTxyRGsVQoPaCMsD6RqIl8xvjsZwABrjwq4Bn0LK0UpwoodOkur2IVNzEPuiHW2Hzgt
-         8knwyAdndc+ScIt93IziIrCWJw/ABpB7uTwmNUXqcDmaj87csrbWQjh9b2I9K2uA93qD
-         iVzeBn8LgfPRhxawNuNItd6yyeL/Le1Iw+olAsQiVSVgVXdZQf2PviD2jThVqLHbqTV+
-         LDGH52XqLUPgprbE5ri0OpDFt8BZFxU1QT5aM8xxM8+faWBliQFR2/gXoc1tBXIlnIo9
-         UZIQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUE90Kn6LuMzPYRLLpuHX6z6wWaq9faolL7AfZxb9V5OxV1irbrgXh8pdodLEa41d++DPVpD5PsrVzpvO8tQA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyskuXPKQpNDzo/NrIJNEEcBRaMGdXd0bffsyoqzvBoBomXhDlo
-	y6SzMkavz3JRE2SmeWJwtYBA60WOpLnbemgCfClvyisTOef+P3wfmqqMhVMCunL8WRGbA2FigQO
-	+gAqKMRBX8p3V3/fnzkorR5F4NGZfLQheYDvuYGnjVQ3n6vB5S785xk40bf6aJw5lsx5A
-X-Gm-Gg: ASbGncuW2G5Lx7+ggZHR/DKIcus63KTpH0oTIafjk3mP4gMV4Txri1NsWjbGpVAm7h+
-	BVJ2nmlK6/LEwgayXo0PMFYXWk1P54VllOq0elYmeFDPbAfoMvd3Ovw06DY2c+NRGfBqD7e5Bvy
-	Sa7mrxazqMCjtbYPVJWsY6l27EZj/YQCt54+wQt2vjvU+cTBI2TTm3KR8uYqUZyXcxdMHbv5JGF
-	YmijTUOFyw9xSxxPRsoK6rS8X1bX1FWrDoraSLTpu47aas7cEEmSiKvkiycD7ifhLgs0tt6lmcS
-	fxZkAeyKKvfJe7JdrwElewu1uQMHwEKLAzQJLNbBdJHjgdab5csdD1XYVEHzU/2LAtUV9tkOT9S
-	p6wHdSigHjtJ11SV5CYWawTUCRtGHjw==
-X-Received: by 2002:a05:600c:450f:b0:477:76bf:e1fb with SMTP id 5b1f17b1804b1-4778fe4a05emr195736265e9.16.1763503621805;
-        Tue, 18 Nov 2025 14:07:01 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEZAiD4+lO1tZ9gw8WuixVtBTsE1tSJHm3Wu3xcLt3kc+rNem5/xNq/JGOoNd6EcCa5e6e23g==
-X-Received: by 2002:a05:600c:450f:b0:477:76bf:e1fb with SMTP id 5b1f17b1804b1-4778fe4a05emr195735885e9.16.1763503621325;
-        Tue, 18 Nov 2025 14:07:01 -0800 (PST)
+        bh=RcMergSwauY/1NAWI0QqhSLEWf4nuFMROFc+j9jdmGk=;
+        b=dugxDpGF9SNSSJ735JDElpt/nL0Seh6Vooya7gte0UXBHCQZ6cbknEMhyVjt5xZL6/
+         +4+B8nbEduxUXwb+SSngaq6sLk55f9EXr7x8gYmLqAoCt0W2eJF6S1JjTj369xpHehFZ
+         k7jgsWpRzm2NG5HxHqH0bej6kwXPDiY4aj01uTjTPhcXDvUbcmnDZR99lpcyqYUlNzRO
+         5DTr2VRVvNn+PNOIrIOzgmINHsw94wqJnYsPxrLpH3n8Pf5FpYmRYer8dU8fxWgM1jpu
+         5YOJgahn8FUH9Im3NEzm5X6D3f0e+RzjF/y6x1oHweFIamLDwilpO7nDDMw3QrAwpiAT
+         2rng==
+X-Forwarded-Encrypted: i=1; AJvYcCXeSHlB6qOj0JlBJxIM1fUMrbufxp4oS8G3OlX1Vc6Z/cu+kdnTNWqOKTQwuwmAdnXpC6fzyNipcF7BgYK5qg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxa1R0No0/R2y9JInD5ILHp4sLXa4IAfBGFp8GwJgytL02G9BzE
+	uRvSJdj9EkHBNkN7CfPRwP+0OdrfjgSyOepwGe4YQjBVvK5AMGsYVULQ9qWZgO45yMDY6O7i4IU
+	PYUVmqyXwd+tdMLxQaJpzMcdX2QF3ljc31UlDfTzgXkFCaI2xD1/AB4itKRfmJqicj/zM
+X-Gm-Gg: ASbGncuoVgsTENVYpY1P14bng4tTWQ1X9TsCsTCvNUU5pNeRYfeDPmF4CySC1B4fQ5V
+	73Av5aacZfxibZu0bR4EszZfL+aPtQe/ezEFjlh7gxkL1K5CsPblc01z/1er083xlpee3ZrC/RW
+	R4P+vkzZPnlGJxkdtyEckRrC5IRX6S2Fuk/xpQI8lDZ6oA6qQPGO57Ue41AYGrmDGjJp2QImlLg
+	DKFa5RFf3MY+IpdkxlZyHDD+w1smhO32vzCN5asLWt1feLmlPIQs6koirIcRZKquOwSXI1h667u
+	Aicg4Cv/4IFXwMuz4GlCPaZCSeufyuC4Yk3UkpwJoMhu+PUX3kib0J168+cz7sD4dzoJ/WnlfEU
+	57z4NbDmkAxFtt1PGuhPfxfcMKasNbg==
+X-Received: by 2002:a05:6000:1786:b0:429:bc93:9d8a with SMTP id ffacd0b85a97d-42b59367879mr15687624f8f.37.1763504098572;
+        Tue, 18 Nov 2025 14:14:58 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFaQTHDLRGB+J4QEWont+WA6Rkw3ObVf6Z/E2y14Jl425BejksKFCL7rq5yLCNgi3wMzN8cog==
+X-Received: by 2002:a05:6000:1786:b0:429:bc93:9d8a with SMTP id ffacd0b85a97d-42b59367879mr15687613f8f.37.1763504098103;
+        Tue, 18 Nov 2025 14:14:58 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53e7ae88sm33592276f8f.6.2025.11.18.14.06.59
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53e7ae98sm33856532f8f.2.2025.11.18.14.14.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Nov 2025 14:07:00 -0800 (PST)
-Date: Tue, 18 Nov 2025 17:06:57 -0500
+        Tue, 18 Nov 2025 14:14:57 -0800 (PST)
+Date: Tue, 18 Nov 2025 17:14:54 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Daniel Jurgens <danielj@nvidia.com>
 Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
@@ -72,463 +72,182 @@ Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
 	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
 	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
 	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
-Subject: Re: [PATCH net-next v11 05/12] virtio_net: Query and set flow filter
- caps
-Message-ID: <20251118165659-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH net-next v11 04/12] virtio: Expose object create and
+ destroy API
+Message-ID: <20251118171338-mutt-send-email-mst@kernel.org>
 References: <20251118143903.958844-1-danielj@nvidia.com>
- <20251118143903.958844-6-danielj@nvidia.com>
+ <20251118143903.958844-5-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251118143903.958844-6-danielj@nvidia.com>
+In-Reply-To: <20251118143903.958844-5-danielj@nvidia.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vW6luoDi4YQdT5qzc5jZgZMzfq8qQb9JOkZxQwQR6kM_1763503622
+X-Mimecast-MFC-PROC-ID: KXJAk994TMO8aBvsjDrrR99rqHpD0LypkxIfMY_5208_1763504099
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Nov 18, 2025 at 08:38:55AM -0600, Daniel Jurgens wrote:
-> When probing a virtnet device, attempt to read the flow filter
-> capabilities. In order to use the feature the caps must also
-> be set. For now setting what was read is sufficient.
+On Tue, Nov 18, 2025 at 08:38:54AM -0600, Daniel Jurgens wrote:
+> Object create and destroy were implemented specifically for dev parts
+> device objects. Create general purpose APIs for use by upper layer
+> drivers.
 > 
 > Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
 > Reviewed-by: Parav Pandit <parav@nvidia.com>
-> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > 
 > ---
-> v4:
->     - Validate the length in the selector caps
->     - Removed __free usage.
->     - Removed for(int.
-> v5:
->     - Remove unneed () after MAX_SEL_LEN macro (test bot)
-> v6:
->     - Fix sparse warning "array of flexible structures" Jakub K/Simon H
->     - Use new variable and validate ff_mask_size before set_cap. MST
-> v7:
->     - Set ff->ff_{caps, mask, actions} NULL in error path. Paolo Abeni
->     - Return errors from virtnet_ff_init, -ENOTSUPP is not fatal. Xuan
-> 
-> v8:
->     - Use real_ff_mask_size when setting the selector caps. Jason Wang
-> 
-> v9:
->     - Set err after failed memory allocations. Simon Horman
-> 
-> v10:
->     - Return -EOPNOTSUPP in virnet_ff_init before allocing any memory.
->       Jason/Paolo.
-> 
-> v11:
->     - Return -EINVAL if any resource limit is 0. Simon Horman
->     - Ensure we don't overrun alloced space of ff->ff_mask by moving the
->       real_ff_mask_size > ff_mask_size check into the loop. Simon Horman
+> v4: Moved this logic from virtio_pci_modern to new file
+>     virtio_admin_commands.
+> v5: Added missing params, and synced names in comments (Alok Tiwari)
 > ---
->  drivers/net/virtio_net.c           | 201 +++++++++++++++++++++++++++++
->  include/linux/virtio_admin.h       |   1 +
->  include/uapi/linux/virtio_net_ff.h |  91 +++++++++++++
->  3 files changed, 293 insertions(+)
->  create mode 100644 include/uapi/linux/virtio_net_ff.h
+>  drivers/virtio/virtio_admin_commands.c | 75 ++++++++++++++++++++++++++
+>  include/linux/virtio_admin.h           | 44 +++++++++++++++
+>  2 files changed, 119 insertions(+)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index cfa006b88688..3615f45ac358 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -26,6 +26,9 @@
->  #include <net/netdev_rx_queue.h>
->  #include <net/netdev_queues.h>
->  #include <net/xdp_sock_drv.h>
-> +#include <linux/virtio_admin.h>
-> +#include <net/ipv6.h>
-> +#include <net/ip.h>
->  
->  static int napi_weight = NAPI_POLL_WEIGHT;
->  module_param(napi_weight, int, 0444);
-> @@ -281,6 +284,14 @@ static const struct virtnet_stat_desc virtnet_stats_tx_speed_desc_qstat[] = {
->  	VIRTNET_STATS_DESC_TX_QSTAT(speed, ratelimit_packets, hw_drop_ratelimits),
->  };
->  
-> +struct virtnet_ff {
-> +	struct virtio_device *vdev;
-> +	bool ff_supported;
-> +	struct virtio_net_ff_cap_data *ff_caps;
-> +	struct virtio_net_ff_cap_mask_data *ff_mask;
-> +	struct virtio_net_ff_actions *ff_actions;
-> +};
+> diff --git a/drivers/virtio/virtio_admin_commands.c b/drivers/virtio/virtio_admin_commands.c
+> index 94751d16b3c4..2b80548ba3bc 100644
+> --- a/drivers/virtio/virtio_admin_commands.c
+> +++ b/drivers/virtio/virtio_admin_commands.c
+> @@ -88,3 +88,78 @@ int virtio_admin_cap_set(struct virtio_device *vdev,
+>  	return err;
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_admin_cap_set);
 > +
->  #define VIRTNET_Q_TYPE_RX 0
->  #define VIRTNET_Q_TYPE_TX 1
->  #define VIRTNET_Q_TYPE_CQ 2
-> @@ -493,6 +504,8 @@ struct virtnet_info {
->  	struct failover *failover;
->  
->  	u64 device_stats_cap;
-> +
-> +	struct virtnet_ff ff;
->  };
->  
->  struct padded_vnet_hdr {
-> @@ -6774,6 +6787,183 @@ static const struct xdp_metadata_ops virtnet_xdp_metadata_ops = {
->  	.xmo_rx_hash			= virtnet_xdp_rx_hash,
->  };
->  
-> +static size_t get_mask_size(u16 type)
+> +int virtio_admin_obj_create(struct virtio_device *vdev,
+> +			    u16 obj_type,
+> +			    u32 obj_id,
+> +			    u16 group_type,
+> +			    u64 group_member_id,
+> +			    const void *obj_specific_data,
+> +			    size_t obj_specific_data_size)
 > +{
-> +	switch (type) {
-> +	case VIRTIO_NET_FF_MASK_TYPE_ETH:
-> +		return sizeof(struct ethhdr);
-> +	case VIRTIO_NET_FF_MASK_TYPE_IPV4:
-> +		return sizeof(struct iphdr);
-> +	case VIRTIO_NET_FF_MASK_TYPE_IPV6:
-> +		return sizeof(struct ipv6hdr);
-> +	case VIRTIO_NET_FF_MASK_TYPE_TCP:
-> +		return sizeof(struct tcphdr);
-> +	case VIRTIO_NET_FF_MASK_TYPE_UDP:
-> +		return sizeof(struct udphdr);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +#define MAX_SEL_LEN (sizeof(struct ipv6hdr))
-> +
-> +static int virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
-> +{
-> +	size_t ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data) +
-> +			      sizeof(struct virtio_net_ff_selector) *
-> +			      VIRTIO_NET_FF_MASK_TYPE_MAX;
-> +	struct virtio_admin_cmd_query_cap_id_result *cap_id_list;
-> +	struct virtio_net_ff_selector *sel;
-> +	size_t real_ff_mask_size;
+> +	size_t data_size = sizeof(struct virtio_admin_cmd_resource_obj_create_data);
+> +	struct virtio_admin_cmd_resource_obj_create_data *obj_create_data;
+> +	struct virtio_admin_cmd cmd = {};
+> +	struct scatterlist data_sg;
+> +	void *data;
 > +	int err;
-> +	int i;
 > +
 > +	if (!vdev->config->admin_cmd_exec)
 > +		return -EOPNOTSUPP;
 > +
-> +	cap_id_list = kzalloc(sizeof(*cap_id_list), GFP_KERNEL);
-> +	if (!cap_id_list)
+> +	data_size += obj_specific_data_size;
+> +	data = kzalloc(data_size, GFP_KERNEL);
+> +	if (!data)
 > +		return -ENOMEM;
 > +
-> +	err = virtio_admin_cap_id_list_query(vdev, cap_id_list);
-> +	if (err)
-> +		goto err_cap_list;
+> +	obj_create_data = data;
+> +	obj_create_data->hdr.type = cpu_to_le16(obj_type);
+> +	obj_create_data->hdr.id = cpu_to_le32(obj_id);
+> +	memcpy(obj_create_data->resource_obj_specific_data, obj_specific_data,
+> +	       obj_specific_data_size);
+> +	sg_init_one(&data_sg, data, data_size);
 > +
-> +	if (!(VIRTIO_CAP_IN_LIST(cap_id_list,
-> +				 VIRTIO_NET_FF_RESOURCE_CAP) &&
-> +	      VIRTIO_CAP_IN_LIST(cap_id_list,
-> +				 VIRTIO_NET_FF_SELECTOR_CAP) &&
-> +	      VIRTIO_CAP_IN_LIST(cap_id_list,
-> +				 VIRTIO_NET_FF_ACTION_CAP))) {
-> +		err = -EOPNOTSUPP;
-> +		goto err_cap_list;
-> +	}
+> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_RESOURCE_OBJ_CREATE);
+> +	cmd.group_type = cpu_to_le16(group_type);
+> +	cmd.group_member_id = cpu_to_le64(group_member_id);
+> +	cmd.data_sg = &data_sg;
 > +
-> +	ff->ff_caps = kzalloc(sizeof(*ff->ff_caps), GFP_KERNEL);
-> +	if (!ff->ff_caps) {
-> +		err = -ENOMEM;
-> +		goto err_cap_list;
-> +	}
-> +
-> +	err = virtio_admin_cap_get(vdev,
-> +				   VIRTIO_NET_FF_RESOURCE_CAP,
-> +				   ff->ff_caps,
-> +				   sizeof(*ff->ff_caps));
-> +
-> +	if (err)
-> +		goto err_ff;
-> +
-> +	if (!ff->ff_caps->groups_limit ||
-> +	    !ff->ff_caps->classifiers_limit ||
-> +	    !ff->ff_caps->rules_limit ||
-> +	    !ff->ff_caps->rules_per_group_limit) {
-> +		err = -EINVAL;
-> +		goto err_ff;
-> +	}
-> +
-> +	/* VIRTIO_NET_FF_MASK_TYPE start at 1 */
-> +	for (i = 1; i <= VIRTIO_NET_FF_MASK_TYPE_MAX; i++)
-> +		ff_mask_size += get_mask_size(i);
-> +
-> +	ff->ff_mask = kzalloc(ff_mask_size, GFP_KERNEL);
-> +	if (!ff->ff_mask) {
-> +		err = -ENOMEM;
-> +		goto err_ff;
-> +	}
-> +
-> +	err = virtio_admin_cap_get(vdev,
-> +				   VIRTIO_NET_FF_SELECTOR_CAP,
-> +				   ff->ff_mask,
-> +				   ff_mask_size);
-> +
-> +	if (err)
-> +		goto err_ff_mask;
-> +
-> +	ff->ff_actions = kzalloc(sizeof(*ff->ff_actions) +
-> +					VIRTIO_NET_FF_ACTION_MAX,
-> +					GFP_KERNEL);
-> +	if (!ff->ff_actions) {
-> +		err = -ENOMEM;
-> +		goto err_ff_mask;
-> +	}
-> +
-> +	err = virtio_admin_cap_get(vdev,
-> +				   VIRTIO_NET_FF_ACTION_CAP,
-> +				   ff->ff_actions,
-> +				   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
-> +
-> +	if (err)
-> +		goto err_ff_action;
-> +
-> +	err = virtio_admin_cap_set(vdev,
-> +				   VIRTIO_NET_FF_RESOURCE_CAP,
-> +				   ff->ff_caps,
-> +				   sizeof(*ff->ff_caps));
-> +	if (err)
-> +		goto err_ff_action;
-> +
-> +	real_ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data);
-> +	sel = (void *)&ff->ff_mask->selectors[0];
-
-why the cast? discards type checks for no good reason I can see.
-
-And &...[0] is unnecessarily funky. Just plain ff->ff_mask->selectors
-will do.
-
-
-> +
-> +	for (i = 0; i < ff->ff_mask->count; i++) {
-> +		if (sel->length > MAX_SEL_LEN) {
-> +			err = -EINVAL;
-> +			goto err_ff_action;
-> +		}
-> +		real_ff_mask_size += sizeof(struct virtio_net_ff_selector) + sel->length;
-> +		if (real_ff_mask_size > ff_mask_size) {
-> +			err = -EINVAL;
-> +			goto err_ff_action;
-> +		}
-> +		sel = (void *)sel + sizeof(*sel) + sel->length;
-
-I guess the MAX_SEL_LEN check guarantees the allocation
-is big enough? Let's add a BUG_ON just in case.
-
-> +	}
-> +
-> +	err = virtio_admin_cap_set(vdev,
-> +				   VIRTIO_NET_FF_SELECTOR_CAP,
-> +				   ff->ff_mask,
-> +				   real_ff_mask_size);
-> +	if (err)
-> +		goto err_ff_action;
-> +
-> +	err = virtio_admin_cap_set(vdev,
-> +				   VIRTIO_NET_FF_ACTION_CAP,
-> +				   ff->ff_actions,
-> +				   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
-> +	if (err)
-> +		goto err_ff_action;
-> +
-> +	ff->vdev = vdev;
-> +	ff->ff_supported = true;
-> +
-> +	kfree(cap_id_list);
-> +
-> +	return 0;
-> +
-> +err_ff_action:
-> +	kfree(ff->ff_actions);
-> +	ff->ff_actions = NULL;
-> +err_ff_mask:
-> +	kfree(ff->ff_mask);
-> +	ff->ff_mask = NULL;
-> +err_ff:
-> +	kfree(ff->ff_caps);
-> +	ff->ff_caps = NULL;
-> +err_cap_list:
-> +	kfree(cap_id_list);
+> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
+> +	kfree(data);
 > +
 > +	return err;
 > +}
+> +EXPORT_SYMBOL_GPL(virtio_admin_obj_create);
 > +
-> +static void virtnet_ff_cleanup(struct virtnet_ff *ff)
+> +int virtio_admin_obj_destroy(struct virtio_device *vdev,
+> +			     u16 obj_type,
+> +			     u32 obj_id,
+> +			     u16 group_type,
+> +			     u64 group_member_id)
+
+what's the point of making it int when none of the callers
+check the return type?
+
 > +{
-> +	if (!ff->ff_supported)
-> +		return;
+> +	struct virtio_admin_cmd_resource_obj_cmd_hdr *data;
+> +	struct virtio_admin_cmd cmd = {};
+> +	struct scatterlist data_sg;
+> +	int err;
 > +
-> +	kfree(ff->ff_actions);
-> +	kfree(ff->ff_mask);
-> +	kfree(ff->ff_caps);
+> +	if (!vdev->config->admin_cmd_exec)
+> +		return -EOPNOTSUPP;
+> +
+> +	data = kzalloc(sizeof(*data), GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	data->type = cpu_to_le16(obj_type);
+> +	data->id = cpu_to_le32(obj_id);
+> +	sg_init_one(&data_sg, data, sizeof(*data));
+> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_RESOURCE_OBJ_DESTROY);
+> +	cmd.group_type = cpu_to_le16(group_type);
+> +	cmd.group_member_id = cpu_to_le64(group_member_id);
+> +	cmd.data_sg = &data_sg;
+> +
+> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
+> +	kfree(data);
+> +
+> +	return err;
 > +}
-> +
->  static int virtnet_probe(struct virtio_device *vdev)
->  {
->  	int i, err = -ENOMEM;
-> @@ -7137,6 +7327,15 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	}
->  	vi->guest_offloads_capable = vi->guest_offloads;
->  
-> +	/* Initialize flow filters. Not supported is an acceptable and common
-> +	 * return code
-> +	 */
-> +	err = virtnet_ff_init(&vi->ff, vi->vdev);
-> +	if (err && err != -EOPNOTSUPP) {
-> +		rtnl_unlock();
-> +		goto free_unregister_netdev;
-> +	}
-> +
->  	rtnl_unlock();
->  
->  	err = virtnet_cpu_notif_add(vi);
-> @@ -7152,6 +7351,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->  
->  free_unregister_netdev:
->  	unregister_netdev(dev);
-> +	virtnet_ff_cleanup(&vi->ff);
->  free_failover:
->  	net_failover_destroy(vi->failover);
->  free_vqs:
-> @@ -7201,6 +7401,7 @@ static void virtnet_remove(struct virtio_device *vdev)
->  	virtnet_free_irq_moder(vi);
->  
->  	unregister_netdev(vi->dev);
-> +	virtnet_ff_cleanup(&vi->ff);
->  
->  	net_failover_destroy(vi->failover);
->  
+> +EXPORT_SYMBOL_GPL(virtio_admin_obj_destroy);
 > diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
-> index 039b996f73ec..db0f42346ca9 100644
+> index 36df97b6487a..039b996f73ec 100644
 > --- a/include/linux/virtio_admin.h
 > +++ b/include/linux/virtio_admin.h
-> @@ -3,6 +3,7 @@
->   * Header file for virtio admin operations
->   */
->  #include <uapi/linux/virtio_pci.h>
-> +#include <uapi/linux/virtio_net_ff.h>
+> @@ -77,4 +77,48 @@ int virtio_admin_cap_set(struct virtio_device *vdev,
+>  			 const void *caps,
+>  			 size_t cap_size);
 >  
->  #ifndef _LINUX_VIRTIO_ADMIN_H
->  #define _LINUX_VIRTIO_ADMIN_H
-
-
-Why do it? Let net pull this header itself.
-
-
-> diff --git a/include/uapi/linux/virtio_net_ff.h b/include/uapi/linux/virtio_net_ff.h
-> new file mode 100644
-> index 000000000000..bd7a194a9959
-> --- /dev/null
-> +++ b/include/uapi/linux/virtio_net_ff.h
-
-
-you should document in commit log that you are adding
-these types to UAPI, and which spec they are from.
-
-> @@ -0,0 +1,91 @@
-> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
+> +/**
+> + * virtio_admin_obj_create - Create an object on a virtio device
+> + * @vdev: the virtio device
+> + * @obj_type: type of object to create
+> + * @obj_id: ID for the new object
+> + * @group_type: administrative group type for the operation
+> + * @group_member_id: member identifier within the administrative group
+> + * @obj_specific_data: object-specific data for creation
+> + * @obj_specific_data_size: size of the object-specific data in bytes
 > + *
-> + * Header file for virtio_net flow filters
-> + */
-> +#ifndef _LINUX_VIRTIO_NET_FF_H
-> +#define _LINUX_VIRTIO_NET_FF_H
-> +
-> +#include <linux/types.h>
-> +#include <linux/kernel.h>
-> +
-> +#define VIRTIO_NET_FF_RESOURCE_CAP 0x800
-> +#define VIRTIO_NET_FF_SELECTOR_CAP 0x801
-> +#define VIRTIO_NET_FF_ACTION_CAP 0x802
-> +
-> +/**
-> + * struct virtio_net_ff_cap_data - Flow filter resource capability limits
-> + * @groups_limit: maximum number of flow filter groups supported by the device
-> + * @classifiers_limit: maximum number of classifiers supported by the device
-> + * @rules_limit: maximum number of rules supported device-wide across all groups
-> + * @rules_per_group_limit: maximum number of rules allowed in a single group
-> + * @last_rule_priority: priority value associated with the lowest-priority rule
-> + * @selectors_per_classifier_limit: maximum selectors allowed in one classifier
+> + * Creates a new object on the virtio device with the specified type and ID.
+> + * The object may require object-specific data for proper initialization.
 > + *
-> + * The limits are reported by the device and describe resource capacities for
-> + * flow filters. Multi-byte fields are little-endian.
+> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
+> + * operations or object creation, or a negative error code on other failures.
 > + */
-> +struct virtio_net_ff_cap_data {
-> +	__le32 groups_limit;
-> +	__le32 classifiers_limit;
-> +	__le32 rules_limit;
-> +	__le32 rules_per_group_limit;
-> +	__u8 last_rule_priority;
-> +	__u8 selectors_per_classifier_limit;
-
-
-Ouch this is a problem. There is a 2 byte padding here.
-
-This is a spec bug but I don't know if it is too late to fix.
-
-Parav what do you think?
-
-
-
-
-> +};
+> +int virtio_admin_obj_create(struct virtio_device *vdev,
+> +			    u16 obj_type,
+> +			    u32 obj_id,
+> +			    u16 group_type,
+> +			    u64 group_member_id,
+> +			    const void *obj_specific_data,
+> +			    size_t obj_specific_data_size);
 > +
 > +/**
-> + * struct virtio_net_ff_selector - Selector mask descriptor
-> + * @type: selector type, one of VIRTIO_NET_FF_MASK_TYPE_* constants
-> + * @flags: selector flags, see VIRTIO_NET_FF_MASK_F_* constants
-> + * @reserved: must be set to 0 by the driver and ignored by the device
-> + * @length: size in bytes of @mask
-> + * @reserved1: must be set to 0 by the driver and ignored by the device
-> + * @mask: variable-length mask payload for @type, length given by @length
+> + * virtio_admin_obj_destroy - Destroy an object on a virtio device
+> + * @vdev: the virtio device
+> + * @obj_type: type of object to destroy
+> + * @obj_id: ID of the object to destroy
+> + * @group_type: administrative group type for the operation
+> + * @group_member_id: member identifier within the administrative group
 > + *
-> + * A selector describes a header mask that a classifier can apply. The format
-> + * of @mask depends on @type.
+> + * Destroys an existing object on the virtio device with the specified type
+> + * and ID.
+> + *
+> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
+> + * operations or object destruction, or a negative error code on other failures.
 > + */
-> +struct virtio_net_ff_selector {
-> +	__u8 type;
-> +	__u8 flags;
-> +	__u8 reserved[2];
-> +	__u8 length;
-> +	__u8 reserved1[3];
-> +	__u8 mask[];
-> +};
+> +int virtio_admin_obj_destroy(struct virtio_device *vdev,
+> +			     u16 obj_type,
+> +			     u32 obj_id,
+> +			     u16 group_type,
+> +			     u64 group_member_id);
 > +
-> +#define VIRTIO_NET_FF_MASK_TYPE_ETH  1
-> +#define VIRTIO_NET_FF_MASK_TYPE_IPV4 2
-> +#define VIRTIO_NET_FF_MASK_TYPE_IPV6 3
-> +#define VIRTIO_NET_FF_MASK_TYPE_TCP  4
-> +#define VIRTIO_NET_FF_MASK_TYPE_UDP  5
-> +#define VIRTIO_NET_FF_MASK_TYPE_MAX  VIRTIO_NET_FF_MASK_TYPE_UDP
-> +
-> +/**
-> + * struct virtio_net_ff_cap_mask_data - Supported selector mask formats
-> + * @count: number of entries in @selectors
-> + * @reserved: must be set to 0 by the driver and ignored by the device
-> + * @selectors: array of supported selector descriptors
-> + */
-> +struct virtio_net_ff_cap_mask_data {
-> +	__u8 count;
-> +	__u8 reserved[7];
-> +	__u8 selectors[];
-> +};
-> +#define VIRTIO_NET_FF_MASK_F_PARTIAL_MASK (1 << 0)
-> +
-> +#define VIRTIO_NET_FF_ACTION_DROP 1
-> +#define VIRTIO_NET_FF_ACTION_RX_VQ 2
-> +#define VIRTIO_NET_FF_ACTION_MAX  VIRTIO_NET_FF_ACTION_RX_VQ
-> +/**
-> + * struct virtio_net_ff_actions - Supported flow actions
-> + * @count: number of supported actions in @actions
-> + * @reserved: must be set to 0 by the driver and ignored by the device
-> + * @actions: array of action identifiers (VIRTIO_NET_FF_ACTION_*)
-> + */
-> +struct virtio_net_ff_actions {
-> +	__u8 count;
-> +	__u8 reserved[7];
-> +	__u8 actions[];
-> +};
-> +#endif
+>  #endif /* _LINUX_VIRTIO_ADMIN_H */
 > -- 
 > 2.50.1
 
