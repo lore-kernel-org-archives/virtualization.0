@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAB0D25C6FF
-	for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 21:31:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BCE72ECE98
+	for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 21:42:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763501486; cv=none; b=UKYKPTxOoWNIvXy9ZgMPicF6BEJmjFjL40IBzeqePgQv4NWKgALEM+ZiKSW/dz9/MSV5cKTR4/r79327BzWOuJaoZaBCrv2Mm6FVcdflc67wchJzeIza2gTrP5YJVsaYJBbj87StvM8jUHjkarotZsz94AXFUp3faPne7rijQWY=
+	t=1763502166; cv=none; b=HAQlxPGbTDcchsuZ4ngwBUGUHqaHYoKQnUahsroOdUqRkmpiaN/B7L2WXQTzDmmL4WqZqcfgQakQtzQ39pHDXd1GG+g1yJE3fY9A8X+v7H0WSEvtI0o4lIscFryI3HszMmw+36UXUUqHk5JSPcO9MSjfxc3RZdI7dLmDYfETkGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763501486; c=relaxed/simple;
-	bh=Rpu6WiuC87Ce+ui/bfvmt+q6RF6yHHIfC9lqi0kEvcY=;
+	s=arc-20240116; t=1763502166; c=relaxed/simple;
+	bh=2QXE63rNeCrDpSnxmMevQOzDxZ2+5tY2szdW/tRIBNM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=pIT/x4DuHIW7jW0fqpcdzKAXY8xHhfes2eMfbiunY17K/o9ruj5Cpik3snB66fqSI6h5oDkDsrSqNVK7IQxVmlXOlJZRK5IxCmaFL8u+pMnI+px9il92U7gQmVYFp85QefxsgDFa0uWK9rCSQdY2M/BXoL6kFkZzVvy3IZvHOL8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JTcYFz1v; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=XqiUEEkK8yIcGOBygZQO2fVmBwYFnwfZ2179aqp3nfAmSdPLs4Ou0U889m8vQpPAKbzGHOZjJsLCfRKZX6ImbhuoOZdovpanEBMH6Umwo6Ayh5cSfLgvP056PYBrsYXOFshuZk9Axye0zBuRvJaBbDDxmZlwS6l6L1o2szjxHKE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SrithYDI; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JTcYFz1v"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SrithYDI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763501483;
+	s=mimecast20190719; t=1763502163;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=oXuVUW9cULZrgMlSP3F/R09NU+THIw38zacHvgl+tdo=;
-	b=JTcYFz1vhEW3RKqRhOZ9tweWpG6D+up1QzjzMhniPwF7XV9wRUW/AGMmaEhJ6fucMA/8xK
-	ecnGYfTqWLjssAwaeBWAEYAAF2+RXUDj1aYbK2HDqcQR7Z6hxBazy+x7NZp6raUg4QRoE6
-	wNx6cdTpMyn4d6K/hwzVB/B3AYcx0Us=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=BYuoFBhBBajrOik2Nx4QIW18pR2RH8vTxWxjT7vI9ZU=;
+	b=SrithYDIJPZrXzOwQvU9Or7qr2mHH8n2aREKDCrNe37XNWhLhiEK0DNUKmqiuELQ+S65cb
+	8mB7cHdM6N8xz80sQp4AqKpVfPYIn7n+8VsqONNOzh99A30MuT+L9WII8BxaIJiLeNAvtp
+	tY7hQcO9YSGgaoTUJrn4qgtOccyYc6o=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-410-y0_-j8kiPvWBDCnV5dlFHg-1; Tue, 18 Nov 2025 16:31:16 -0500
-X-MC-Unique: y0_-j8kiPvWBDCnV5dlFHg-1
-X-Mimecast-MFC-AGG-ID: y0_-j8kiPvWBDCnV5dlFHg_1763501476
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-42b2ffbba05so3347130f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 13:31:16 -0800 (PST)
+ us-mta-530-w9CWgZgbMJ2cBFEaYqQ-wg-1; Tue, 18 Nov 2025 16:42:42 -0500
+X-MC-Unique: w9CWgZgbMJ2cBFEaYqQ-wg-1
+X-Mimecast-MFC-AGG-ID: w9CWgZgbMJ2cBFEaYqQ-wg_1763502161
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-42b2f79759bso4254449f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 13:42:42 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763501475; x=1764106275;
+        d=1e100.net; s=20230601; t=1763502161; x=1764106961;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=oXuVUW9cULZrgMlSP3F/R09NU+THIw38zacHvgl+tdo=;
-        b=YAe76kkLWmroEovzEJa8uy0TEP4IzEhDT/NiCZ06/7rdpF30E0WERBff7cJMgB+Q2A
-         /2AAMqCetNqUKlEkAForvnZ6JprqXhkSEtBM0ns92BD7fXZ6OuHULZZoivtg5KMT6rfO
-         ZOnNGPwENiwDoNDATfh0Kq+wLyO3uiWgjG5OXBuHq33pN1/1nUt0kk5D+XJksegGknKG
-         9BLzf/EXQEZ2jgjbuHyz6g/dVTlKAigPnMxlZh7NGfHv1+jy40xp0wInWDVsgKuc34Kc
-         iAv3c0ZgCXkqC1i+zDMBGQIjoBM0nyMQP679YMly9AtiV1WlkEeCFVH32H13LgmnUwl7
-         IcZA==
-X-Forwarded-Encrypted: i=1; AJvYcCXpSfmlWuMkqPLWOnObp9yUXA7t64FaUeOLVPNmE+n8fooXVPP9sovnOzIa292zTIKfT5Yui6YhCIpPWAKY0g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxpEej46b29GcSiOtysJamOErnK3yOckhgB1DQwJ3mHn8TCMjGW
-	NsPB44YdkReBYcNmdLrikv4HZoa8cnNiKOJ9fB81aW+Etdloy5h5yfUGJjMCXxwD+s1TvzuiY71
-	R7s7RtGWzDYF86r8aJJaC5u7S6H+I0Gf+sDz+rNgN2lVg4Z3KIkAxP8WykPgQkiEnXrSP
-X-Gm-Gg: ASbGncul8OcQ4GQ0rRI9yWtluMhInQMU9z3JcRTjrSf3OUVyDepi+NTO4z4jT3KeSaR
-	b4eJF+JdS16Rtb9bQCigwYjdDGpDADjozQN7JAeeXhhCAqQoUlP+H/KiDsqNXxR3l1fuciwcVKR
-	bYf/rDKgszCwJ0cLvnhhsFAWWbaAeEwKRxIlKQnOFloy2XwHzKfPXWhE4awHuF22zkD6jE63Olz
-	vFxW+OUJruitQ4joIiKEIXnv1VGPa/EIiaBZyYRuvwPDGlYqRp0VTX+Dyt3c8PGdNFmJBRU5cah
-	5qz0vWS9HbZ/Zm6YunuUEiCZaLvvbBprAH622iJOLqnLfKL/nvl1BsoAXxV21Y9chrNnQsZfCS9
-	sxjZGBwAyf5mpCsXZrFmL6mJiMF/wOQ==
-X-Received: by 2002:a05:6000:4202:b0:429:f050:adbb with SMTP id ffacd0b85a97d-42b5935092dmr17736307f8f.26.1763501473475;
-        Tue, 18 Nov 2025 13:31:13 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFu38DvC86w3LRimVQliXUo6EbnnHvWPNcGjX4pRxB9qHJOJk/98ijr3Q/Yz/69RWLRzwM+Mw==
-X-Received: by 2002:a05:6000:4202:b0:429:f050:adbb with SMTP id ffacd0b85a97d-42b5935092dmr17736172f8f.26.1763501469376;
-        Tue, 18 Nov 2025 13:31:09 -0800 (PST)
+        bh=BYuoFBhBBajrOik2Nx4QIW18pR2RH8vTxWxjT7vI9ZU=;
+        b=olNy2oifV7C8ocvY36iAcHU74miXTaQjI6DAcDawkQPezRqg1Y5E/lISt56TA9T8jQ
+         j/hKRwjks4+6jCW6VAjD6eLob4rlx8I/jZ8Tqv4ia77em+E+L9iLOxUFACawtwPb9e0x
+         f0oiPcUrBdeHxCxcWYm2m3LMITgQN3w3LiDumfwIT4kyxo05MF1hKS9Y5RU4yskTn5uf
+         7vffHPxHrhT2WXdBr5i6t9yxd/TFU4tApStajkOSnk/NQdlFWvtXWF46Zs/G7uimkkJd
+         rc0kj+FU6Up6zv+CAd3Y48yIn3l52DxhzJUjm/6kMabP7vJSv2o+HhZmd5mzmZKvVqMD
+         Nh7w==
+X-Forwarded-Encrypted: i=1; AJvYcCXxElXG5ixbMxq8p3GUIGS4Ajp1r8rt3yhA8P21N6qy2Xi/r/5eYSyo9si79OjNsiEjrC0+qrxxZ4l9nHTqQg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzditgHpx2lKKwh/NLgGFCUgWU7QVeIN8ApC7NdTNj9OEr/8lpX
+	qmckfcIskDq1xsETP5PxDs14urE/3ZrpF+TbrZ6M5U7D/Ax4D7KBtlNLhA98veSEqnFbPfJBl/e
+	vvlbhhfzEUAILb3C1qgklEVW9AiBKRbYHqRgLfZUs60ldgZ/zaITpVjrEDoplNUvf46Dh
+X-Gm-Gg: ASbGncs6DHCA5IVqjXGTAcf6T4HMIWyLcrtvnVttK+rtxweR0/kESOmGGQkgFSZfuHB
+	OCIxnLooi9jIbY8y1195vd8NXRhi5MmvU0oGjGZrUSYlxQCUuZDb7BwHNtG3XxEyqyfa6KHoPyx
+	mwzsl4sIrqPNBqpnyRphl7ZkI7iLvH0UGQ8bnd+4lAyXupky4DjedqTTg7ov03CDJxmUlAqne5P
+	8qSeubjy1BVh1sTJlWAUhdvsi0AJG5+NBQrjNklPgpqHzuoind4LxaFhzSh3PPo/LuZw7cvrHVr
+	lZsThQaVjK5wbsiKB2wg2qc2YtZVP0yHcIWwJB+7oUCJ+wg778sjg3BYxfpEXkdq/R4UMcvEL46
+	eXc69tdQ7Mmg3ldC4dnDjjxz1BBPQJw==
+X-Received: by 2002:a5d:64e9:0:b0:42b:4139:579f with SMTP id ffacd0b85a97d-42b593424d1mr19791965f8f.25.1763502160844;
+        Tue, 18 Nov 2025 13:42:40 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGc78UCL3GQDAXcX3EXM99uT858/J78Du/mitghLYnvA3gaHtjjHHR0nCI7HqJbt02/DNfiQQ==
+X-Received: by 2002:a5d:64e9:0:b0:42b:4139:579f with SMTP id ffacd0b85a97d-42b593424d1mr19791936f8f.25.1763502160224;
+        Tue, 18 Nov 2025 13:42:40 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42c97745f79sm20005459f8f.23.2025.11.18.13.31.07
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53f0b894sm35669240f8f.26.2025.11.18.13.42.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Nov 2025 13:31:08 -0800 (PST)
-Date: Tue, 18 Nov 2025 16:31:05 -0500
+        Tue, 18 Nov 2025 13:42:39 -0800 (PST)
+Date: Tue, 18 Nov 2025 16:42:36 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Daniel Jurgens <danielj@nvidia.com>
 Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
@@ -72,294 +72,297 @@ Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
 	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
 	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
 	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
-Subject: Re: [PATCH net-next v11 09/12] virtio_net: Implement IPv4 ethtool
- flow rules
-Message-ID: <20251118161734-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH net-next v11 03/12] virtio: Expose generic device
+ capability operations
+Message-ID: <20251118163249-mutt-send-email-mst@kernel.org>
 References: <20251118143903.958844-1-danielj@nvidia.com>
- <20251118143903.958844-10-danielj@nvidia.com>
+ <20251118143903.958844-4-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251118143903.958844-10-danielj@nvidia.com>
+In-Reply-To: <20251118143903.958844-4-danielj@nvidia.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: pL00O711B7TtNkKkmEeyDXr1RW2Wy06INdiqSPKv8IM_1763501476
+X-Mimecast-MFC-PROC-ID: NlK-hu75kOou3CBQMThB9_uafUyHlJuHRbA_oQqT_oA_1763502161
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Nov 18, 2025 at 08:38:59AM -0600, Daniel Jurgens wrote:
-> Add support for IP_USER type rules from ethtool.
-> 
-> Example:
-> $ ethtool -U ens9 flow-type ip4 src-ip 192.168.51.101 action -1
-> Added rule with ID 1
-> 
-> The example rule will drop packets with the source IP specified.
+On Tue, Nov 18, 2025 at 08:38:53AM -0600, Daniel Jurgens wrote:
+> Currently querying and setting capabilities is restricted to a single
+> capability and contained within the virtio PCI driver. However, each
+> device type has generic and device specific capabilities, that may be
+> queried and set. In subsequent patches virtio_net will query and set
+> flow filter capabilities.
 > 
 > Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
 > Reviewed-by: Parav Pandit <parav@nvidia.com>
-> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
 > Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
-> v4:
->     - Fixed bug in protocol check of parse_ip4
->     - (u8 *) to (void *) casting.
->     - Alignment issues.
-> ---
->  drivers/net/virtio_net.c | 122 ++++++++++++++++++++++++++++++++++++---
->  1 file changed, 115 insertions(+), 7 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index f392ea30f2c7..c1adba60b6a8 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -6904,6 +6904,34 @@ static bool validate_eth_mask(const struct virtnet_ff *ff,
->  	return true;
->  }
->  
-> +static bool validate_ip4_mask(const struct virtnet_ff *ff,
-> +			      const struct virtio_net_ff_selector *sel,
-> +			      const struct virtio_net_ff_selector *sel_cap)
+> ---
+> v4: Moved this logic from virtio_pci_modern to new file
+>     virtio_admin_commands.
+> ---
+>  drivers/virtio/Makefile                |  2 +-
+>  drivers/virtio/virtio_admin_commands.c | 90 ++++++++++++++++++++++++++
+>  include/linux/virtio_admin.h           | 80 +++++++++++++++++++++++
+>  include/uapi/linux/virtio_pci.h        |  7 +-
+>  4 files changed, 176 insertions(+), 3 deletions(-)
+>  create mode 100644 drivers/virtio/virtio_admin_commands.c
+>  create mode 100644 include/linux/virtio_admin.h
+> 
+> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> index eefcfe90d6b8..2b4a204dde33 100644
+> --- a/drivers/virtio/Makefile
+> +++ b/drivers/virtio/Makefile
+> @@ -1,5 +1,5 @@
+>  # SPDX-License-Identifier: GPL-2.0
+> -obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
+> +obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o virtio_admin_commands.o
+>  obj-$(CONFIG_VIRTIO_ANCHOR) += virtio_anchor.o
+>  obj-$(CONFIG_VIRTIO_PCI_LIB) += virtio_pci_modern_dev.o
+>  obj-$(CONFIG_VIRTIO_PCI_LIB_LEGACY) += virtio_pci_legacy_dev.o
+> diff --git a/drivers/virtio/virtio_admin_commands.c b/drivers/virtio/virtio_admin_commands.c
+> new file mode 100644
+> index 000000000000..94751d16b3c4
+> --- /dev/null
+> +++ b/drivers/virtio/virtio_admin_commands.c
+> @@ -0,0 +1,90 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +
+> +#include <linux/virtio.h>
+> +#include <linux/virtio_config.h>
+> +#include <linux/virtio_admin.h>
+> +
+> +int virtio_admin_cap_id_list_query(struct virtio_device *vdev,
+> +				   struct virtio_admin_cmd_query_cap_id_result *data)
 > +{
-> +	bool partial_mask = !!(sel_cap->flags & VIRTIO_NET_FF_MASK_F_PARTIAL_MASK);
-> +	struct iphdr *cap, *mask;
+> +	struct virtio_admin_cmd cmd = {};
+> +	struct scatterlist result_sg;
 > +
-> +	cap = (struct iphdr *)&sel_cap->mask;
-> +	mask = (struct iphdr *)&sel->mask;
-> +
-> +	if (mask->saddr &&
-> +	    !check_mask_vs_cap(&mask->saddr, &cap->saddr,
-> +			       sizeof(__be32), partial_mask))
-> +		return false;
-> +
-> +	if (mask->daddr &&
-> +	    !check_mask_vs_cap(&mask->daddr, &cap->daddr,
-> +			       sizeof(__be32), partial_mask))
-> +		return false;
-> +
-> +	if (mask->protocol &&
-> +	    !check_mask_vs_cap(&mask->protocol, &cap->protocol,
-> +			       sizeof(u8), partial_mask))
-> +		return false;
-> +
-> +	return true;
-> +}
-> +
->  static bool validate_mask(const struct virtnet_ff *ff,
->  			  const struct virtio_net_ff_selector *sel)
->  {
-> @@ -6915,11 +6943,36 @@ static bool validate_mask(const struct virtnet_ff *ff,
->  	switch (sel->type) {
->  	case VIRTIO_NET_FF_MASK_TYPE_ETH:
->  		return validate_eth_mask(ff, sel, sel_cap);
-> +
-> +	case VIRTIO_NET_FF_MASK_TYPE_IPV4:
-> +		return validate_ip4_mask(ff, sel, sel_cap);
->  	}
->  
->  	return false;
->  }
->  
-> +static void parse_ip4(struct iphdr *mask, struct iphdr *key,
-> +		      const struct ethtool_rx_flow_spec *fs)
-> +{
-> +	const struct ethtool_usrip4_spec *l3_mask = &fs->m_u.usr_ip4_spec;
-> +	const struct ethtool_usrip4_spec *l3_val  = &fs->h_u.usr_ip4_spec;
-> +
-> +	mask->saddr = l3_mask->ip4src;
-> +	mask->daddr = l3_mask->ip4dst;
-> +	key->saddr = l3_val->ip4src;
-> +	key->daddr = l3_val->ip4dst;
-> +
-> +	if (l3_mask->proto) {
-
-you seem to check mask for proto here but the ethtool_usrip4_spec doc
-seems to say the mask for proto must be 0. 
-
-
-what gives?
-
-
-> +		mask->protocol = l3_mask->proto;
-> +		key->protocol = l3_val->proto;
-> +	}
-> +}
-> +
-> +static bool has_ipv4(u32 flow_type)
-> +{
-> +	return flow_type == IP_USER_FLOW;
-> +}
-> +
->  static int setup_classifier(struct virtnet_ff *ff,
->  			    struct virtnet_classifier **c)
->  {
-> @@ -7054,6 +7107,7 @@ static bool supported_flow_type(const struct ethtool_rx_flow_spec *fs)
->  {
->  	switch (fs->flow_type) {
->  	case ETHER_FLOW:
-> +	case IP_USER_FLOW:
->  		return true;
->  	}
->  
-> @@ -7082,11 +7136,23 @@ static int validate_flow_input(struct virtnet_ff *ff,
->  }
->  
->  static void calculate_flow_sizes(struct ethtool_rx_flow_spec *fs,
-> -				 size_t *key_size, size_t *classifier_size,
-> -				 int *num_hdrs)
-> +				size_t *key_size, size_t *classifier_size,
-> +				int *num_hdrs)
->  {
-> +	size_t size = sizeof(struct ethhdr);
-> +
->  	*num_hdrs = 1;
->  	*key_size = sizeof(struct ethhdr);
-
-So *key_size  is assigned here ...
-
-> +
-> +	if (fs->flow_type == ETHER_FLOW)
-> +		goto done;
-> +
-> +	++(*num_hdrs);
-> +	if (has_ipv4(fs->flow_type))
-> +		size += sizeof(struct iphdr);
-> +
-
-... never used
-
-> +done:
-> +	*key_size = size;
-
-and over-written here.
-
-
-what is going on here, is that this is spaghetti code
-misusing goto for if instructions which obscures the flow.
-
-It should be if (fs->flow_type != ETHER_FLOW) {
-
-	... rest of code ...
-}
-
-and then it will be clear doing *key_size = size once is enough.
-
-
->  	/*
->  	 * The classifier size is the size of the classifier header, a selector
->  	 * header for each type of header in the match criteria, and each header
-> @@ -7098,8 +7164,9 @@ static void calculate_flow_sizes(struct ethtool_rx_flow_spec *fs,
->  }
->  
->  static void setup_eth_hdr_key_mask(struct virtio_net_ff_selector *selector,
-> -				   u8 *key,
-> -				   const struct ethtool_rx_flow_spec *fs)
-> +				  u8 *key,
-> +				  const struct ethtool_rx_flow_spec *fs,
-> +				  int num_hdrs)
->  {
->  	struct ethhdr *eth_m = (struct ethhdr *)&selector->mask;
->  	struct ethhdr *eth_k = (struct ethhdr *)key;
-> @@ -7107,8 +7174,33 @@ static void setup_eth_hdr_key_mask(struct virtio_net_ff_selector *selector,
->  	selector->type = VIRTIO_NET_FF_MASK_TYPE_ETH;
->  	selector->length = sizeof(struct ethhdr);
->  
-> -	memcpy(eth_m, &fs->m_u.ether_spec, sizeof(*eth_m));
-> -	memcpy(eth_k, &fs->h_u.ether_spec, sizeof(*eth_k));
-> +	if (num_hdrs > 1) {
-> +		eth_m->h_proto = cpu_to_be16(0xffff);
-> +		eth_k->h_proto = cpu_to_be16(ETH_P_IP);
-> +	} else {
-> +		memcpy(eth_m, &fs->m_u.ether_spec, sizeof(*eth_m));
-> +		memcpy(eth_k, &fs->h_u.ether_spec, sizeof(*eth_k));
-> +	}
-> +}
-> +
-> +static int setup_ip_key_mask(struct virtio_net_ff_selector *selector,
-> +			     u8 *key,
-> +			     const struct ethtool_rx_flow_spec *fs)
-> +{
-> +	struct iphdr *v4_m = (struct iphdr *)&selector->mask;
-> +	struct iphdr *v4_k = (struct iphdr *)key;
-> +
-> +	selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV4;
-> +	selector->length = sizeof(struct iphdr);
-> +
-> +	if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
-> +	    fs->h_u.usr_ip4_spec.tos ||
-> +	    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4)
+> +	if (!vdev->config->admin_cmd_exec)
 > +		return -EOPNOTSUPP;
-
-So include/uapi/linux/ethtool.h says:
-
- * struct ethtool_usrip4_spec - general flow specification for IPv4
- * @ip4src: Source host
- * @ip4dst: Destination host
- * @l4_4_bytes: First 4 bytes of transport (layer 4) header
- * @tos: Type-of-service
- * @ip_ver: Value must be %ETH_RX_NFC_IP4; mask must be 0
- * @proto: Transport protocol number; mask must be 0
-
-I guess this ETH_RX_NFC_IP4 check validates that userspace follows this
-documentation? But then shouldn't you check the mask
-as well? and mask for proto?
-
-
-
-
-
 > +
-> +	parse_ip4(v4_m, v4_k, fs);
+> +	sg_init_one(&result_sg, data, sizeof(*data));
+> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_CAP_ID_LIST_QUERY);
+> +	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
+> +	cmd.result_sg = &result_sg;
 > +
-> +	return 0;
->  }
->  
->  static int
-> @@ -7130,6 +7222,13 @@ validate_classifier_selectors(struct virtnet_ff *ff,
->  	return 0;
->  }
->  
-> +static
-> +struct virtio_net_ff_selector *next_selector(struct virtio_net_ff_selector *sel)
-> +{
-> +	return (void *)sel + sizeof(struct virtio_net_ff_selector) +
-> +		sel->length;
+> +	return vdev->config->admin_cmd_exec(vdev, &cmd);
 > +}
+> +EXPORT_SYMBOL_GPL(virtio_admin_cap_id_list_query);
 > +
->  static int build_and_insert(struct virtnet_ff *ff,
->  			    struct virtnet_ethtool_rule *eth_rule)
->  {
-> @@ -7167,8 +7266,17 @@ static int build_and_insert(struct virtnet_ff *ff,
->  	classifier->count = num_hdrs;
->  	selector = (void *)&classifier->selectors[0];
+> +int virtio_admin_cap_get(struct virtio_device *vdev,
+> +			 u16 id,
+> +			 void *caps,
+> +			 size_t cap_size)
+> +{
+> +	struct virtio_admin_cmd_cap_get_data *data;
+> +	struct virtio_admin_cmd cmd = {};
+> +	struct scatterlist result_sg;
+> +	struct scatterlist data_sg;
+> +	int err;
+> +
+> +	if (!vdev->config->admin_cmd_exec)
+> +		return -EOPNOTSUPP;
+> +
+> +	data = kzalloc(sizeof(*data), GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	data->id = cpu_to_le16(id);
+> +	sg_init_one(&data_sg, data, sizeof(*data));
+> +	sg_init_one(&result_sg, caps, cap_size);
+> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_DEVICE_CAP_GET);
+> +	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
+> +	cmd.data_sg = &data_sg;
+> +	cmd.result_sg = &result_sg;
+> +
+> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
+> +	kfree(data);
+> +
+> +	return err;
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_admin_cap_get);
+> +
+> +int virtio_admin_cap_set(struct virtio_device *vdev,
+> +			 u16 id,
+> +			 const void *caps,
+> +			 size_t cap_size)
+> +{
+> +	struct virtio_admin_cmd_cap_set_data *data;
+> +	struct virtio_admin_cmd cmd = {};
+> +	struct scatterlist data_sg;
+> +	size_t data_size;
+> +	int err;
+> +
+> +	if (!vdev->config->admin_cmd_exec)
+> +		return -EOPNOTSUPP;
+> +
+> +	data_size = sizeof(*data) + cap_size;
+> +	data = kzalloc(data_size, GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	data->id = cpu_to_le16(id);
+> +	memcpy(data->cap_specific_data, caps, cap_size);
+> +	sg_init_one(&data_sg, data, data_size);
+> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_DRIVER_CAP_SET);
+> +	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
+> +	cmd.data_sg = &data_sg;
+> +	cmd.result_sg = NULL;
+> +
+> +	err = vdev->config->admin_cmd_exec(vdev, &cmd);
+> +	kfree(data);
+> +
+> +	return err;
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_admin_cap_set);
+> diff --git a/include/linux/virtio_admin.h b/include/linux/virtio_admin.h
+> new file mode 100644
+> index 000000000000..36df97b6487a
+> --- /dev/null
+> +++ b/include/linux/virtio_admin.h
+> @@ -0,0 +1,80 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only
+> + *
+> + * Header file for virtio admin operations
+> + */
+> +#include <uapi/linux/virtio_pci.h>
+> +
+> +#ifndef _LINUX_VIRTIO_ADMIN_H
+> +#define _LINUX_VIRTIO_ADMIN_H
+
+
+Guards normally come before #include - there is no
+point in pulling in uapi/linux/virtio_pci.h - just
+extra work for the compiler.
+
+
+
+> +
+> +struct virtio_device;
+> +
+> +/**
+> + * VIRTIO_CAP_IN_LIST - Check if a capability is supported in the capability list
+> + * @cap_list: Pointer to capability list structure containing supported_caps array
+> + * @cap: Capability ID to check
+> + *
+> + * The cap_list contains a supported_caps array of little-endian 64-bit integers
+> + * where each bit represents a capability. Bit 0 of the first element represents
+> + * capability ID 0, bit 1 represents capability ID 1, and so on.
+> + *
+> + * Return: 1 if capability is supported, 0 otherwise
+> + */
+> +#define VIRTIO_CAP_IN_LIST(cap_list, cap) \
+> +	(!!(1 & (le64_to_cpu(cap_list->supported_caps[cap / 64]) >> cap % 64)))
+
+while this works if cap is a variable, it will behave
+unexpectedly if cap or even cap_list is an expression.
+
+A standard practice is to put all macro arguments in brackets:
+!!(1 & (le64_to_cpu((cap_list)->supported_caps[(cap) / 64]) >> (cap) % 64)))
+
+
+
+
+
+> +
+> +/**
+> + * virtio_admin_cap_id_list_query - Query the list of available capability IDs
+> + * @vdev: The virtio device to query
+> + * @data: Pointer to result structure (must be heap allocated)
+> + *
+> + * This function queries the virtio device for the list of available capability
+> + * IDs that can be used with virtio_admin_cap_get() and virtio_admin_cap_set().
+> + * The result is stored in the provided data structure.
+> + *
+> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
+> + * operations or capability queries, or a negative error code on other failures.
+> + */
+> +int virtio_admin_cap_id_list_query(struct virtio_device *vdev,
+> +				   struct virtio_admin_cmd_query_cap_id_result *data);
+> +
+> +/**
+> + * virtio_admin_cap_get - Get capability data for a specific capability ID
+> + * @vdev: The virtio device
+> + * @id: Capability ID to retrieve
+> + * @caps: Pointer to capability data structure (must be heap allocated)
+> + * @cap_size: Size of the capability data structure
+> + *
+> + * This function retrieves a specific capability from the virtio device.
+> + * The capability data is stored in the provided buffer. The caller must
+> + * ensure the buffer is large enough to hold the capability data.
+> + *
+> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
+> + * operations or capability retrieval, or a negative error code on other failures.
+> + */
+> +int virtio_admin_cap_get(struct virtio_device *vdev,
+> +			 u16 id,
+> +			 void *caps,
+> +			 size_t cap_size);
+> +
+> +/**
+> + * virtio_admin_cap_set - Set capability data for a specific capability ID
+> + * @vdev: The virtio device
+> + * @id: Capability ID to set
+> + * @caps: Pointer to capability data structure (must be heap allocated)
+> + * @cap_size: Size of the capability data structure
+> + *
+> + * This function sets a specific capability on the virtio device.
+> + * The capability data is read from the provided buffer and applied
+> + * to the device. The device may validate the capability data before
+> + * applying it.
+> + *
+> + * Return: 0 on success, -EOPNOTSUPP if the device doesn't support admin
+> + * operations or capability setting, or a negative error code on other failures.
+> + */
+> +int virtio_admin_cap_set(struct virtio_device *vdev,
+> +			 u16 id,
+> +			 const void *caps,
+> +			 size_t cap_size);
+> +
+> +#endif /* _LINUX_VIRTIO_ADMIN_H */
+> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> index c691ac210ce2..0d5ca0cff629 100644
+> --- a/include/uapi/linux/virtio_pci.h
+> +++ b/include/uapi/linux/virtio_pci.h
+> @@ -315,15 +315,18 @@ struct virtio_admin_cmd_notify_info_result {
 >  
-> -	setup_eth_hdr_key_mask(selector, key, fs);
-> +	setup_eth_hdr_key_mask(selector, key, fs, num_hdrs);
-> +	if (num_hdrs == 1)
-> +		goto validate;
-
-
-Please stop abusing goto's for if.
-this is not error handling, not breaking out of loops ...
-
-
-please do not.
-
-
-> +
-> +	selector = next_selector(selector);
-> +
-> +	err = setup_ip_key_mask(selector, key + sizeof(struct ethhdr), fs);
-> +	if (err)
-> +		goto err_classifier;
+>  #define VIRTIO_DEV_PARTS_CAP 0x0000
 >  
-> +validate:
->  	err = validate_classifier_selectors(ff, classifier, num_hdrs);
->  	if (err)
->  		goto err_key;
+> +/* Update this value to largest implemented cap number. */
+
+implemented by what?
+
+> +#define VIRTIO_ADMIN_MAX_CAP 0x0fff
+> +
+>  struct virtio_dev_parts_cap {
+>  	__u8 get_parts_resource_objects_limit;
+>  	__u8 set_parts_resource_objects_limit;
+>  };
+>  
+> -#define MAX_CAP_ID __KERNEL_DIV_ROUND_UP(VIRTIO_DEV_PARTS_CAP + 1, 64)
+> +#define VIRTIO_ADMIN_CAP_ID_ARRAY_SIZE __KERNEL_DIV_ROUND_UP(VIRTIO_ADMIN_MAX_CAP, 64)
+
+Don't you mean VIRTIO_ADMIN_MAX_CAP + 1 here?
+E.g. if VIRTIO_ADMIN_MAX_CAP was 0 we would need space for 1 capability,
+right?
+
+>  
+>  struct virtio_admin_cmd_query_cap_id_result {
+> -	__le64 supported_caps[MAX_CAP_ID];
+> +	__le64 supported_caps[VIRTIO_ADMIN_CAP_ID_ARRAY_SIZE];
+>  };
+>  
+
+I feel it's worth explaining in commit log you are changing a
+uapi structure, and explaining that it is safe.
+
+
+>  struct virtio_admin_cmd_cap_get_data {
 > -- 
 > 2.50.1
 
