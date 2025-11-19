@@ -1,183 +1,236 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazon11012003.outbound.protection.outlook.com [40.93.195.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A2EE28A72B
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 15:35:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763566557; cv=none; b=t5rmJoS7paxn2AZXPbj5Vw+9BPApKD8GScQinb+FirrA0UWhw8pJ0hk2b/GMgaQJ9g3GBOCrUxlvoZI4GolnThp/vT6wA3WYgyuauZqKQG8DPP6cvPNND3Ci3/2pESP5JujEEIKirQbtZQ4/mXm5E/Kdn3+Bq1MpuqyDsCXQazw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763566557; c=relaxed/simple;
-	bh=8xQWC2OGmtfjHYhYxSYa01NZETYq9M+SyMw53U93t6Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TUV+Trc7reH+Gl94p6F1+GeVuZfwIIHrW3RevcZTj16p1Pl42ZwjggsazBye+MKXK9JMain91O0tgRizpxaSFEQEbCAyUGDZpPROXKNwgfLppIL0zWHv0M227dC3uR8yDvrGjFO/uN1PWnFPCl0QTzNdyPf3HyyJh+To5yRNadw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=emjC9/al; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 160732E88B0
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 15:45:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.195.3
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763567127; cv=fail; b=gUVmzQLcHMWPajcX46aC+SEHxCnYKcr8R8FGWn9nfAgPqZaJiwhH1jilzw5RjA4blWstWVaWAJTJtCPXhp8pDiw+trT0ckItS5U3d1xeyt8htYB8X81kpJwWrbBNswU/yX0rNeaExe+alQKBHxe3x5Fahl9Cvjm0TohKJZityEY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763567127; c=relaxed/simple;
+	bh=KKHpBEacNkIuzbjxSWWXsAp6BMXJN4qZHKhQ9+Ha58g=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=kmwIAG9qlvT4/gxNv/oB7s7VMRMZj+2NqbHVZYF04xyHNBsDiPO5YPMcyiZTKhFaktwnMHGJlOgbWepB7PQEjeSvTkmdrP1PFglBfLqRMyZqe9HHb87dfFmLr+pxgNlZu/CSKeaOjFgOt3Z2bqi3llE6Y7ShxVXHXMAjXXcGU90=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Ao597va9; arc=fail smtp.client-ip=40.93.195.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="emjC9/al"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763566554;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=B5rXBayezD4fGmnwc7W8pDkjBIEGyWaeCx/RLJ47OIA=;
-	b=emjC9/alu/wdC4o49rLdIoeVBBPriZRJR2cEMMJPiljjpm9+ip9TdQpiy5286E52b7hrDY
-	8Jq+L+LBdtlyNqz5eC1CQR/LBfd9GB4DHJaqyGkvK2jIZtc7XwjydLADejaxzp6+Vp9ZmZ
-	9HCYrF33DBK7WYjs9Zf7/zHIjJlkFiI=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-389-xi2SW1OLNaqOOkNV-mCBXQ-1; Wed, 19 Nov 2025 10:35:53 -0500
-X-MC-Unique: xi2SW1OLNaqOOkNV-mCBXQ-1
-X-Mimecast-MFC-AGG-ID: xi2SW1OLNaqOOkNV-mCBXQ_1763566552
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-42b56125e77so3504036f8f.3
-        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 07:35:53 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763566551; x=1764171351;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=B5rXBayezD4fGmnwc7W8pDkjBIEGyWaeCx/RLJ47OIA=;
-        b=YsmTCBYbTVvnhGOwbqXnIuEND3xemrJDYx1PzgkcPb6Qr01ydC6I73NBBaPO9ZWAii
-         LyJ3uwLZ7rGB+ZOvwg2cejDOagZaLAiGUzgoAAxUNgn8eqFlP1H+/DEeEijLJpFc+1r2
-         LGcbT/9lnbEl2U2Lorbwiy2kQDYuVx4gITcqiVu1BJpiAfNlU4nRhGtZk0oSne/Rns6y
-         M8VH1Y+fxxEnR+O94/HXv9n9cT0VKuGuLN3JJCR9y8HsGJHxbyFRBjY9V5SSD/c8DQeq
-         YjvZvI+NZdMPJVtVMdabJsbVlc5S+PHB8lP1QhWDX8zYOLBDnGuwOKuc4kfgYAOK/t1d
-         P22Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXnOKp7gmMexCREhr6mhpRfAg5mN2b1bJjGI53CmzzgysJMgEOdEYNt+9aETLSQtKHN38ivK0NP9E42w42yig==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxdd6ACvtVKBYnRnHo0cDhQHyaFuCkTkNusstDuZ61cbjirglWp
-	gWMtojwSU1745pCXO5E7aLGemUEgU2Wk0CaNWGvqMyL9QlW6k/NRj3yBpUru54ESojDESQaGUER
-	107WRqei84r6uodDz4wO5T2M68gr0LJ2PKAHHEEtn47gsKsKafSRxPm0Arb+apSni09bs
-X-Gm-Gg: ASbGnctdL3frdMvEX+HoIzUY9+Tf6deWGIc7ZuMS87xUOnkmiFF3ltulhr8eYI7piBD
-	xKm1EYuLcQMWvLmMfyVa/I04hqYBppep5GjkGl9v8NYU1O2F9UvfJ0VH96YsXR9G1lK35EXA8Jm
-	0DzV+sg8Uc0bj7gA/MIFjb0gjXJNSI8jWyO78b3X4g24HfiQj6lopaEsNjrdkYkyFBAlrFr/jIS
-	pLpmqZykOB3VG7MyEm6RhBuX32SnR7pibwZ5KTTQa5cpXJ+5zxcBzw0kfmF57mhjZ2HZK1IOJSs
-	hvmsce+eRoLIVw7Wos5Kowavo8WazuXeZ0cknkwRc8MaiOikxgG1XG//eH1YNB4Ib1pr/96UWQK
-	LfxoQrO2LkKbbxyLgYj9WVASytZQLqg==
-X-Received: by 2002:a05:6000:1a8e:b0:42b:3e0a:64b8 with SMTP id ffacd0b85a97d-42b593505bamr19333065f8f.24.1763566551401;
-        Wed, 19 Nov 2025 07:35:51 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFsu6XSFNDBciSWl2Js2B1sAVjUG1swL73vKYbAUIAe5E9Q/RDA00H3GxNi9yzFc+Jd1MBR4w==
-X-Received: by 2002:a05:6000:1a8e:b0:42b:3e0a:64b8 with SMTP id ffacd0b85a97d-42b593505bamr19333019f8f.24.1763566550923;
-        Wed, 19 Nov 2025 07:35:50 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53dea1c9sm38718586f8f.0.2025.11.19.07.35.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Nov 2025 07:35:50 -0800 (PST)
-Date: Wed, 19 Nov 2025 10:35:47 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net v6 2/2] virtio-net: correct hdr_len handling for
- tunnel gso
-Message-ID: <20251119102753-mutt-send-email-mst@kernel.org>
-References: <20251119055522.617-1-xuanzhuo@linux.alibaba.com>
- <20251119055522.617-3-xuanzhuo@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Ao597va9"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=I27cWc1rr6xAVACCAV6QdfCnQ6uQN1l2nSfwHLNXFC19EIyt5qTvCIiV8Sm+tcwXqHx1ixs+w4svwqAZ8VcyshFmTKPXxr4H+9JHNTSIpnhkR4INMLFMf6dZOpwRIBdXI6qFc7it2N/EYr5XI8q20MgYimhezG24yUfoAxMgm1a4Wy6pBmLu8H0mDWWAt75vs7OegMB/hn6nywJWRw3Sg1SEWS6PsoAEL8WZA4bUiQ3/WPJvc3vo6fMDr3qIMZkhbMM+4acMsWDSJ7VARqC1M1nfsATBaiHeYnem/JX7bBddg7GKhhW6Avc0cXGiD0Cx2ZnM34ZFwBf6WQen3o3z/w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yIyD34aQbVWUOjgCzeIZlCBI10+dwyQ7gcWuEO59Qno=;
+ b=bu/Z9ROhb9x5LpZ69fqQBB904UIeQSfmOEEezwkeYad/aR/BrS2QwmZTPtEd9oirZCMGdtkI4hsFKEuU/u2ymZPtgb+q7W9ZzlT+mmw1DUM13qlbj2PJFTv92hBhMXtn8uotedeYZX930+VHQoIr3tBgq/E83PBrM0epk8Qwrs7O9rSDZYnCwilOLZImpu4GAbJHROhK2tp0nwHMGnKTSD17SLOnNz3TxAnryIumdbdPXV3JidNelI7WgUF7lMV0Y1kOS3iu1Z54n27xG9Zqi4xKmgpci2J6Eb2fwTHmYyGqv3RGVBO890AbiQMBPF4pDwPujjhSNVrpFY5jb2cyWg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yIyD34aQbVWUOjgCzeIZlCBI10+dwyQ7gcWuEO59Qno=;
+ b=Ao597va9HHz+Bm95sTiirVpVRiMv6wVpRm8BdKWuAcMs6BfjJZVF8MNvqqgsR2NrLuMQjGdQzPXBjdqq75CUPAgxXbhcYqljjLpGxWN05lS5FUzm/NP5k00Jdru3wrPBBsdCTvOirBq3N0dKFwQbRjFf4N5cUim+lm4fABLoi1tlZd98tsnXomqd8GGyxWZJSqyLdHK0vYTtohRx82z8on6qdqwQ+EzbveS9VXluBn923+0y8WnTPxwKbCRmTD523fCDvz91x5QNc/SNIbqx6Yo32ZKDnyZtHe3i6sQPqC65tO0yELggIeJ6dz/PUtkOuCF+PhjQeWDBReqgSkkvng==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
+ by PH7PR12MB6833.namprd12.prod.outlook.com (2603:10b6:510:1af::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.10; Wed, 19 Nov
+ 2025 15:45:18 +0000
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9343.009; Wed, 19 Nov 2025
+ 15:45:18 +0000
+Message-ID: <c88f7798-996e-402c-97fe-1f8cc8ec172c@nvidia.com>
+Date: Wed, 19 Nov 2025 09:45:15 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v11 08/12] virtio_net: Use existing classifier if
+ possible
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+ virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+ yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
+ edumazet@google.com
+References: <20251118143903.958844-1-danielj@nvidia.com>
+ <20251118143903.958844-9-danielj@nvidia.com>
+ <20251118164952-mutt-send-email-mst@kernel.org>
+ <cb64732c-294e-49e7-aeb5-f8f2f082837e@nvidia.com>
+ <20251119013423-mutt-send-email-mst@kernel.org>
+ <e23b94ab-35f6-41fb-91f9-1ba9260fc0ed@nvidia.com>
+ <20251119022119-mutt-send-email-mst@kernel.org>
+ <e80a7828-f42f-4263-89c1-66512b2dde6e@nvidia.com>
+ <20251119023904-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Dan Jurgens <danielj@nvidia.com>
+In-Reply-To: <20251119023904-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SA9PR13CA0123.namprd13.prod.outlook.com
+ (2603:10b6:806:27::8) To MW4PR12MB7309.namprd12.prod.outlook.com
+ (2603:10b6:303:22f::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251119055522.617-3-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 13oct5zElg_oStFLVf_pP8tAgUkOsALPRvod9smbmFw_1763566552
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|PH7PR12MB6833:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1ea3fd0a-78a1-4495-8a69-08de2782a39e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?d1dLWkQ3Um1PelJqOTdYTjQ1V3ZCRWFvcjFZcFFLZGxyQUlndjVLSml1V043?=
+ =?utf-8?B?bHlmY0F4VW9Cb3JtRkU4NU9JU0twdTF4ak9vMUpPL29PSXZSMnViK0xRK2JH?=
+ =?utf-8?B?dW1wQXhWekRNVFFjVnFRMUlWSzVmNTk4WDFjNlNiRkI4bG5tMmtYZGlpSjRj?=
+ =?utf-8?B?dDdhbnRvaEgwSlhLZHBqa2lscnJHQUpQQTcxTng4eTZ3UCtMRm9ibXFSUzFy?=
+ =?utf-8?B?d1gwOE1Rc3FVRUtsWDM2MUlnb1A3RTYwRFhScW9PNkR2NjJRaEZLYU5vMmFk?=
+ =?utf-8?B?akdKUkMvV2xEbG9YQVpFM2FoM3MycWpOVjRvWUNGbEF2Y0Nwby92UVd0YXU5?=
+ =?utf-8?B?aWU5Zzc0enZZVDhKaVptajd4NWxWV3ZicFJEYmRKYkt5eStHSzhTVG1PbXdt?=
+ =?utf-8?B?MlhmT0lJVGFoZjRqcFlKVTJNMTVNSVZmZ1RHa3BtdWZDd3d6Z1RVeU9ncmtW?=
+ =?utf-8?B?ZTJ0RGZqU256T3Y3YlhUTDI3MzE5OE9ZU3g3M01jNUN5Tmd3NUV6UHZYRnRu?=
+ =?utf-8?B?Wmw0dW9Gc2tXbFd2YXNWM0hWbWE3bnE4QkNpTlJ4Q251blgxclhleXUwcDFk?=
+ =?utf-8?B?R1dhZmJUMDhlKzk5eXh6Y1RueXJKUlp2NCtJd0JkN1V6c08zNVE2ejltOFBo?=
+ =?utf-8?B?V2ZhYXBxQ2FpNTZHSnE4QjhhekEyU0RPUGZqTFYyRmJyZFFJV3ZRK2hpUFQ1?=
+ =?utf-8?B?N3VoSWFoQXpoZTd3K1RsQUpnZUtqZUtVa0ZYOUU4LzcwZXh5UEFaSVkrOW5Y?=
+ =?utf-8?B?aGlhenVReTJIZE1WVUJHNWlXSUZDNFhyaEVrelp6bjB6eThHVit3aHZPVUR3?=
+ =?utf-8?B?dGJ6a25OZnhMRytQU1NTT3VKeEpUNC8xQVRxOUcrVXdGUkExcTFlTFZHa0tw?=
+ =?utf-8?B?am9TTnlkK0lFQmJVaWNWTHRCSWdLT2ljZytwN2UwWEcwaWZoays4ZkdzSWFx?=
+ =?utf-8?B?ZHZ3Z3NtUFkvTkwwL3FZNFJlVFdSUlpMQ2ZZRk1vWHk3UnhYT3luZWM1MW5j?=
+ =?utf-8?B?OFNveFc3MENvdzF6TG9UcjM4b04vc2hwaElSN1pqV2JQaXozNXdsMEROejhV?=
+ =?utf-8?B?SlFtMlkxZFI1UXRqczk2RWVmbmFlOVY5c1dBYWJ4cjg2VU15bVhWQjhDbnV5?=
+ =?utf-8?B?bTJ6NDdpVnVZNVYwaTRzazRGMFM4S1BZM3VSdE5HMlpYOWNIc3E0c3BIYVVD?=
+ =?utf-8?B?QW5SWkVscldHL2FWUmFDamR5djFTVi9tWjZUbk53Q3JpSWQxMnNWL0VpM2M0?=
+ =?utf-8?B?MVVVc294cVZVcWkvMGlhdG5peU9RdU5mOTRtRW1OeG51eVVRSW1VdmQwaklK?=
+ =?utf-8?B?WVF2cENia1RyQnc5WUMvUlczVkh4T0FsVTJ5Ui9rQXE3bWpmeFN5K2RMS085?=
+ =?utf-8?B?V2crWURMQ3VyRWR1TVZvK29BSngweHpBa3NpNys3cmNLRXp3NEVnUzRrYXli?=
+ =?utf-8?B?Q2VZeFFMVGhnS0xScitKKysxRjltNCt2aHI0RE4zZnFBaGpGaHpzVkh2N1Yr?=
+ =?utf-8?B?TlZtQWhoTTRVSW9PaGswYXJCelp4M0VtRWw0TlRBY3psWFM5aDFnR0FiblF0?=
+ =?utf-8?B?ZTkzZVNuRVlidVRUTVRoak84WDFNdmExQWw0QmFKT1U4VFNHRGFsUkhqRHI1?=
+ =?utf-8?B?UFZuaWJza1ZndUFoQTBTb3dTclpKeHBqTnliSjZlelliOGV3dDFNUjRNK3pq?=
+ =?utf-8?B?NTNMWVBrM09jSlgrRTNTTTJXRkx6aTJJaHZHa0FOc1RoaitWLyswOGMwNW55?=
+ =?utf-8?B?VldsWkVFdklveTB3eGFnbWNlM01UV1g3N0YzS2YvQ21pNVpxcWVzbGRTYjFQ?=
+ =?utf-8?B?OGl1Qi9YSTgrTmhnblM0RStSdUMxeUN1Mi9IWW1yKzJJVHRKN2N0czlxa0pZ?=
+ =?utf-8?B?aHE0clo1aFV4Y1VxRVNWM1lOMFAzS09wcVJyc3diSWVsN2g3R3c4ZTFwd1E3?=
+ =?utf-8?Q?g5CNB78YwqgtznRrpf/l2hLLLj58hdKI?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?a25xY1dDZWRZZ1QyWnFnajBuMHdsNHpBek5EZzZEQ0dRK1V6ZklkTlhzcGJx?=
+ =?utf-8?B?U2J1ZktxNjJoR05DRElacW16emMvVTlPUk1oSkYvdUZ4REZVb1c0RlQ3MDVt?=
+ =?utf-8?B?SHlRVjRzcktnUm5wTjdNUURuLy9QTU0vUjlCTlpkRTJrMDdlKzRtV2tHaHlY?=
+ =?utf-8?B?TjlQNWNxdFFjd1NGdUF2RmdrTjBqWVdXOXN6aEZiaGNWQkwzVTRiNHdWUXZZ?=
+ =?utf-8?B?ejhTSExISm9HREQ4NVFDdmRLTnFrK1NlTUM3QWRZck4vOVlDOTdMWW9OaTg4?=
+ =?utf-8?B?bHo0Y2IxajV2WVl0dTk4UFpXdS9HT1M1UXZGQlM2VEIvTXlVOVR1QWhyVTRU?=
+ =?utf-8?B?UTh6dGdRR25tR3hoWVljKy8zUTRwRC9yVno5QlZBWGlGZlc3TFhZc1kxMVVE?=
+ =?utf-8?B?UGNOeGgvcU1SRXV5M29iL0J5a1RaQ3FXbHZwQTZwaFFWZzlPT3FqeUE0QWhq?=
+ =?utf-8?B?Q2FWMFZlYU5JNEd3NllGTWN6eEJZc3MyTEgrZTdEazZlVnpNWFlXUU8xTkM0?=
+ =?utf-8?B?Rm1IK0cxSVByOFRQaWdnYkVwQncwQmtkNVJEQ05tOG5FZlE5MGpqNmFZUGhS?=
+ =?utf-8?B?ejNYY3VwQWc0a1lWQjk0UkdnTTQvbWR1dmtOVm9waG1VNHByZmpxd1JLNnZB?=
+ =?utf-8?B?OFpRU0VkL2lFOHNyZmVuY0tQaTAyaUxDbzkyTlA5SWNFc0NMSEQxdTAxR3JC?=
+ =?utf-8?B?WGhZUlhuM01OVm04cGthMDl4SkhnSnpFQnFtdXlNMFBGdHVvWE5MOVR2d20w?=
+ =?utf-8?B?cE1LN0U4OWNuNkd2MFp2OStBTXp6eWlTV2taSlF3NGxXS0NqblBxZFdTeDZr?=
+ =?utf-8?B?UVMwdnE5Qy9rWHUvcGwxbTJDTFlDdlM5YnNHSDQwOHVmQ08wVStQWU4yTVM3?=
+ =?utf-8?B?MnB6TmhKakIrWG9QZFVFYmJjbit5d0VMdWRqeXhWSEx0VlhMZDU1ZzFXNnFj?=
+ =?utf-8?B?U2wvTVdxTmFnMTJUd2psRTJKSzh1MUQ3eW9rdmtKNVhVSVRHWkVQQXJOdGlP?=
+ =?utf-8?B?M2NiZFJDTmhEbm5aZ3lYL2Fab1Vhcms0WVhRRWhqY2FaRTNtZXZoU04zNFNw?=
+ =?utf-8?B?Z2UxQzV2Z3k1MU1lQlcyUzN0cTRmbTZwSy9uc0kzREd2Snd1NTM1MHdpaXNq?=
+ =?utf-8?B?NGRPa1hZZEY5dFJYYk0rK2xDSDJnMHJFNEtNQ0xpaDQrUlM5Z0VMSmhMQTJi?=
+ =?utf-8?B?dXRJdHlDS0EyTGZ5Z25BRC9Va0ZiSzVQTFV4ZkEzdzBOa0lIcnFaTmUySk5i?=
+ =?utf-8?B?T21SSXExVnkvQld6ZG1KbTJzZ2MrMWd5NitUaWdQMWNqVGM5UEdRdytYMkNT?=
+ =?utf-8?B?TVRIUHc0eEFqcWRVMHJpL1lMdTFNN1BodWI0TzhucVcwM01ZdEN0SnVZUmdG?=
+ =?utf-8?B?WFkxUkxFbzhtMkViM3ZmYUxPamxkaVNRQ2k5ZDQvQ0I2dTJmWW9YWG12WUJt?=
+ =?utf-8?B?Vis0dzdUVWU1eTdTV0NYQy8vRHZrR3RlTXFSdHAwYVNhL2R5c2tiaWUxQWhS?=
+ =?utf-8?B?SC9RSkRoUmo3RzhaUzhuNTF5QmRjZ3RvQS8zK2RWbnNlV2pQZXhuOUxzeURE?=
+ =?utf-8?B?MTYrMEhFOGF0SUdJNE9QbmdRTzdBWnZiakFKVGtFSGxFQTh1V29lTUVjSGtE?=
+ =?utf-8?B?M2xOZVA4ekowSndVaW9BMkJubGp4RTJrWFZZbGJHOUF3WFdJT0c2Vzhib0J5?=
+ =?utf-8?B?YnpKckZWTEFRU0dOTU02dmI4VGk4VU1vVFM0b3Nadm9CdDdBRG41UFBRdHcr?=
+ =?utf-8?B?SjdWS1NSaDNUVGpxMWp5cTk0Qm90NWUvOEs4U2REWHg3ZE4ydDRROXcrVHFK?=
+ =?utf-8?B?V2xPM0RyYUVGVmR3bFZ1bmJpNSs5ZEpueU82blNqdFFxdENOSVFyeU9LbWJY?=
+ =?utf-8?B?Z0pTKzlQV3ZpNkNTVlpGTXJSVUZIS3RkYWdnQ3N0eEtaRGo2TUZCZU1IQVp2?=
+ =?utf-8?B?MWdjK2FGNncvVVJkMVVxa204d0ZRNy9pZzdRYVI3YkxIdTBGZVFqdFV2ZWpY?=
+ =?utf-8?B?UnJnZVVHdys0YUoralp4YnpnN2R0R1N6WWt4QVcraWdocjJuWVFBZmpMeHkx?=
+ =?utf-8?B?ejVucmxvd1JWVFZCcVhpQnhzbU51aUNsT1pGb0FxcE5KSXlnUHVsSGhtZ0Jo?=
+ =?utf-8?Q?4/eOVFuf7s3cJxEpvY337sGZy?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1ea3fd0a-78a1-4495-8a69-08de2782a39e
+X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2025 15:45:17.9911
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ImohvustwhJ1wWs9kjQMkR0h3JiM5/jHEh5rmqKRoFU4xi1+tls/cUUtxXf7SPBu1RzawNSpzxf3GZK5gDQkZg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6833
 
-On Wed, Nov 19, 2025 at 01:55:22PM +0800, Xuan Zhuo wrote:
-> The commit a2fb4bc4e2a6a03 ("net: implement virtio helpers to handle UDP
-> GSO tunneling.") introduces support for the UDP GSO tunnel feature in
-> virtio-net.
+On 11/19/25 1:41 AM, Michael S. Tsirkin wrote:
+> On Wed, Nov 19, 2025 at 01:33:31AM -0600, Dan Jurgens wrote:
+>> On 11/19/25 1:23 AM, Michael S. Tsirkin wrote:
+>>> On Wed, Nov 19, 2025 at 01:18:56AM -0600, Dan Jurgens wrote:
+>>>> On 11/19/25 12:35 AM, Michael S. Tsirkin wrote:
+>>>>> On Wed, Nov 19, 2025 at 12:26:23AM -0600, Dan Jurgens wrote:
+>>>>>> On 11/18/25 3:55 PM, Michael S. Tsirkin wrote:
+>>>>>>> On Tue, Nov 18, 2025 at 08:38:58AM -0600, Daniel Jurgens wrote:
+>>>>>>>> Classifiers can be used by more than one rule. If there is an existing
+>>>>>>>> classifier, use it instead of creating a new one.
+>>>>>>
+>>>>>>>> +	struct virtnet_classifier *tmp;
+>>>>>>>> +	unsigned long i;
+>>>>>>>>  	int err;
+>>>>>>>>  
+>>>>>>>> -	err = xa_alloc(&ff->classifiers, &c->id, c,
+>>>>>>>> +	xa_for_each(&ff->classifiers, i, tmp) {
+>>>>>>>> +		if ((*c)->size == tmp->size &&
+>>>>>>>> +		    !memcmp(&tmp->classifier, &(*c)->classifier, tmp->size)) {
+>>>>>>>
+>>>>>>> note that classifier has padding bytes.
+>>>>>>> comparing these with memcmp is not safe, is it?
+>>>>>>
+>>>>>> The reserved bytes are set to 0, this is fine.
+>>>>>
+>>>>> I mean the compiler padding.  set to 0 where?
+>>>>
+>>>> There's no compiler padding in virtio_net_ff_selector. There are
+>>>> reserved fields between the count and selector array.
+>>>
+>>> I might be missing something here, but are not the
+>>> structures this code compares of the type struct virtnet_classifier
+>>> not virtio_net_ff_selector ?
+>>>
+>>> and that one is:
+>>>
+>>>  struct virtnet_classifier {
+>>>         size_t size;
+>>> +       refcount_t refcount;
+>>>         u32 id;
+>>>         struct virtio_net_resource_obj_ff_classifier classifier;
+>>>  };
+>>>
+>>>
+>>> which seems to have some padding depending on the architecture.
+>>
+>> We're only comparing the ->classifier part of that, which is pad free.
 > 
-> The virtio spec says:
+> Oh I see a classifier has a classifer inside :(
 > 
->     If the \field{gso_type} has the VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 bit or
->     VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6 bit set, \field{hdr_len} accounts for
->     all the headers up to and including the inner transport.
+> Should be something else, e.g. ff_classifier to avoid confusion I think.
 > 
-> The commit did not update the hdr_len to include the inner transport.
+> Or resource_obj since it's the resource object. Or even obj.
 > 
-> I observed that the "hdr_len" is 116 for this packet:
->     17:36:18.241105 52:55:00:d1:27:0a > 2e:2c:df:46:a9:e1, ethertype IPv4 (0x0800), length 2912: (tos 0x0, ttl 64, id 45197, offset 0, flags [none], proto UDP (17), length 2898)
->         192.168.122.100.50613 > 192.168.122.1.4789: [bad udp cksum 0x8106 -> 0x26a0!] VXLAN, flags [I] (0x08), vni 1
->     fa:c3:ba:82:05:ee > ce:85:0c:31:77:e5, ethertype IPv4 (0x0800), length 2862: (tos 0x0, ttl 64, id 14678, offset 0, flags [DF], proto TCP (6), length 2848)
->         192.168.3.1.49880 > 192.168.3.2.9898: Flags [P.], cksum 0x9266 (incorrect -> 0xaa20), seq 515667:518463, ack 1, win 64, options [nop,nop,TS val 2990048824 ecr 2798801412], length 2796
+> But
 > 
-> 116 = 14(mac) + 20(ip) + 8(udp) + 8(vxlan) + 14(inner mac) + 20(inner ip) + 32(innner tcp)
-> 
-> Fixes: a2fb4bc4e2a6a03 ("net: implement virtio helpers to handle UDP GSO tunneling.")
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  include/linux/virtio_net.h | 25 ++++++++++++++++---------
->  1 file changed, 16 insertions(+), 9 deletions(-)
-> 
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index ee960ec9a35e..ee8231eb759b 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -215,12 +215,22 @@ static inline void virtio_net_set_hdrlen(const struct sk_buff *skb,
->  	u16 hdr_len;
->  
->  	if (guest_hdrlen) {
-> -		hdr_len = skb_transport_offset(skb);
-> -
-> -		if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
-> -			hdr_len += sizeof(struct udphdr);
-> -		else
-> -			hdr_len += tcp_hdrlen(skb);
-> +		if (sinfo->gso_type & (SKB_GSO_UDP_TUNNEL |
-> +				       SKB_GSO_UDP_TUNNEL_CSUM)) {
-> +			hdr_len = skb_inner_transport_offset(skb);
-> +
-> +			if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
-> +				hdr_len += sizeof(struct udphdr);
-> +			else
-> +				hdr_len += inner_tcp_hdrlen(skb);
-> +		} else {
-> +			hdr_len = skb_transport_offset(skb);
-> +
-> +			if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
-> +				hdr_len += sizeof(struct udphdr);
-> +			else
-> +				hdr_len += tcp_hdrlen(skb);
-> +		}
->  	} else {
->  		/* This is a hint as to how much should be linear. */
->  		hdr_len = skb_headlen(skb);
 
-BTW  I noticed that include/linux/virtio_net.h really should include
-linux/tcp.h for tcp_hdrlen and uapi/linux/udp.h for struct udphdr
+Did you have more to say after that "But"? I did this, also updated the
+commit messages and included refcount.h.
 
-
-Not a new issue so you do not have to resolve it in this patchset,
-though.
-
-
-
-> @@ -441,11 +451,8 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
->          vhdr->hash_hdr.hash_report = 0;
->          vhdr->hash_hdr.padding = 0;
->  
-> -	/* Let the basic parsing deal with plain GSO features. */
-> -	skb_shinfo(skb)->gso_type &= ~tnl_gso_type;
->  	ret = __virtio_net_hdr_from_skb(skb, hdr, true, false,
->  					guest_hdrlen, vlan_hlen);
-> -	skb_shinfo(skb)->gso_type |= tnl_gso_type;
->  	if (ret)
->  		return ret;
->  
-> -- 
-> 2.32.0.3.g01195cf9f
+> 
+>>>
+>>>
+>>>
+> 
 
