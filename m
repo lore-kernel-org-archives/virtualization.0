@@ -1,286 +1,143 @@
-Received: from BYAPR05CU005.outbound.protection.outlook.com (mail-westusazon11010032.outbound.protection.outlook.com [52.101.85.32])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D07C82FFFBF
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 16:51:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.85.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763571083; cv=fail; b=ZwFV9Op05Q4QcMxI/zCquS03KeCD9f6z+ZZLxRbUA0sHqiKYFr+3XkV4UaYx8ipsTIuCIaJOvQG4CGagXPrpIu7yBDn0mRVZOfIE6V5YNy6bzYAOG66bva4deIJMC2gxKz5XtfVazTxLMtaUtehpGadAFOG0narkwdnubUkJpmQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763571083; c=relaxed/simple;
-	bh=OxhOV7IetbfWKj/VDriPwZwPO/i+BkojEuKS+FRWugQ=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=UlHbSP1YOSxtoa6YYKTi6xHl/mXb/WMirxB0hDKeJC5zDfiLZTYAhrY+JawEQzMH8Csjt4Fk6hO4RTl6bPxRMHytVd1TN26nEtLex9mAvbR0ZvAkeWjizFVcYCLUFFAOSfzTSqLV8spIey95N7UXHoh8jHu0ToTfM1TljxI5nGE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Bjv8Z6Xm; arc=fail smtp.client-ip=52.101.85.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DED3436827C
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 16:52:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763571126; cv=none; b=kEgi2zKWINpOiMHoZeKyDCcxOjMOFIIg94g/whamwhABhuaUm+93hiIqYhgOm7/1SVLl8UlV3S04Trc6kkAQ6IT2YoaNvfizRiOVE16cAVGJ61CtKvhTSuokwBb7ZXMGkB1pxSsF8E39KVdYF/4bt3EPNI8RBqgbzXbN5azhR/Y=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763571126; c=relaxed/simple;
+	bh=4ioazr+rErlQAmgFmhcgugwx4ST9WMu2Co1jE6pk2p8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=O45Rjfjjp6hAWhTe7s/tYB3un4qkAqphT3cpUM/oIDNx4zmH7LOYWWvYcNuSSHddVPjz0sPBt/bNOZS4fyiY9i6fxs7NrZz0GdnvJ8L2OnOQJUcja2WbuTea+IU7pkDWlUu5Vm5PBNCxZuAKLTL7yTy48uA+K+nWmT4HGKm9mvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iMMUe6L7; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Bjv8Z6Xm"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Wi6/Oeo9Ea35fMWpKg//iNJ7ksEO+EPSSj3wdSYhMSHJLmukW0R77zf/SwhcLehSmicGHdkaiI30mDjgLAJ3k+7mbOTlMDfXAbdf6zci1yqd0foMETkNXWXhDruCTAIITUFVztiWye2Bt/Ux1Wj0OJsX9yBM6bJUHSU6hi5f73Si7KlHQScv8TD/fj8QqwRkgz28BHjKp2psMh9a5Vij8XRFOjVpLW/Q0aVaanHWZaAxOoE1dwsj+P//jRS+oaa4XeTR9oXx1I8CyysUXFzrJXCkM/q4VuFA7xOqUmqBbvTBY8FVsTIgVB40AlfWQ8AhwLBaXyxI2nxi5fqc543z1A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=mA4Q4xDFQfz9ovBxXfSTHRG8+LTOdtB7BqwgsCWdQTw=;
- b=r0kymNGPcWCXaVs3S/nAckHz8U6qQaJUHBqChaDdT6holMG5uzw36y90dZXKOZkEZKmcMG8N1xS+3KtMSxf5MnN0BxeRBVHArstMEw/aA22L4z6GiQ+EPw/abfPLU22ASH1M8Eur8IpejgLuOXGmMMLYlApRKsaKUfarbd2+fJcuGBaETiN4e+uwcx2Uh2ZSeTmOnKkkVA2HQPKS8R5q4xA1XOr6pCosjkpJO1QLSdaq2XxYuHnMiwECz3CI3HfUgj8QO3Ljzxl/DJKEhPwJ9Yksi6PpGvL4DI5MyOfj1YUYUmZNdtKgC19m7eKuS+je2tDe+o+I/nNJURhulzyc1A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mA4Q4xDFQfz9ovBxXfSTHRG8+LTOdtB7BqwgsCWdQTw=;
- b=Bjv8Z6XmttVkOhQ0W+9ik3ov85kHEjbl4OHzSy9AUNG35cROSlFkh4A7ZghNbCZ7iHd3agEGoSDtE4DQ0/T5eYKz0T6ZBwJno5ck7mJlvIBraI3f1StqwNOSvbi4WWXTrzshW4JJB+5MaFdNfBJRaAlxHOXsdfd5xTZ/GKilfdAIYr8nJpDMa8pvIdivzRqNxrskkwvP72I3q22HT5anVe9LDVYOpb7k9UlVy3LmYlWjk7pe1RFXBXxKkg65MB+Jf+/Kt9rI+AUAThlxktKowkfAtysQIbjwfYcT8feNRiat44MELzsnbB01KZVlY3xrPDQus3LT/8pkmKjhUh8J3w==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by IA1PR12MB6554.namprd12.prod.outlook.com (2603:10b6:208:3a2::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.10; Wed, 19 Nov
- 2025 16:51:17 +0000
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9343.009; Wed, 19 Nov 2025
- 16:51:17 +0000
-Message-ID: <50af344e-9a3b-4e07-966f-d44784ee0752@nvidia.com>
-Date: Wed, 19 Nov 2025 10:51:14 -0600
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v11 07/12] virtio_net: Implement layer 2 ethtool
- flow rules
-To: "Michael S. Tsirkin" <mst@redhat.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iMMUe6L7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763571123;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uGDdV1wZzMygZPXUS+BFjZbrrq0xn6nPN5Vu0ZlXeto=;
+	b=iMMUe6L7Z8Gt9BQpUqlpF01jO/5Ys3vXbcXJUHd8/cW1svteDkyFDOvycbEoVCf6PXQ2yL
+	Aqdg2eYuemOREjUn6HSugHkE/CRMzuLBXiwVhJIMxYif/dAE2TBFiUztOCdqrN4XEdk4RM
+	mzoL5p1+r/3epNgpqvMZXMv0GOgGPS0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-480-AJU8BRZmPQWboJgl8sq05w-1; Wed, 19 Nov 2025 11:52:02 -0500
+X-MC-Unique: AJU8BRZmPQWboJgl8sq05w-1
+X-Mimecast-MFC-AGG-ID: AJU8BRZmPQWboJgl8sq05w_1763571121
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-47797caba11so21855655e9.3
+        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 08:52:01 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763571121; x=1764175921;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=uGDdV1wZzMygZPXUS+BFjZbrrq0xn6nPN5Vu0ZlXeto=;
+        b=JVPbg5lDtcEeFmygLp55Gvs0wpP60j/z1SD2pB2/YiEJHHtqeaBiQk0FK1h2Xwp9VE
+         +ctYGMbwXocp1jInUNFMxbNvKFE8CW5MqDIGF+hIppbrfFCrsi1s9rGkYDdhhljwGkoE
+         mYgcQ9oLNmNr8x4u7iObFgcrrB5bsITYVdqbabNhb6iet84+HjheNK7J/qt0yXJrn0bV
+         NcMYnILBmQpgU8Z4ZmxuZg5AHd3F+9+C2VUKcYGaM+3dKPlNDDhGzRHDxEtDGo31PomI
+         eRRDcGDHW70Wa0RcoLanYezU4V7ODqZbBUJCxLgjnkGCZokXzF4YAO59RLVg7vq+u199
+         Pk7g==
+X-Forwarded-Encrypted: i=1; AJvYcCVZad2kwhsaEKfYS1Z+pyPx7NLVQHPXWwtcvmg+N0ZEEd5+lMwTXKiXHvNhAHNiYkKiuHAIPq4Qfpe5x+Bimw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyjyCHGegJOlq7+v5vxG9w/xricCgD8it4ju+uW94MoUArTxeXY
+	EluIcif3woyj4XWkrS0ivlKJra1nwHyLREq8FD/pSROlSz4GxGWD9kNd9bD3GUWVTsZFArJUaV4
+	ixoUZzMr5r50GQBDrfIwoFYwsp9T1yf4WadGYDHWJ1xQgXJeq0a6jFeit1Kt3liHM+NYB
+X-Gm-Gg: ASbGncvOgVCx11o/5D3SnYi+EoDIKj9Nd/YxB3YfntuuHlQ0ybDCMQzcxZ42LUV9qtJ
+	URG1zG3TRRWKme0VjF/WdCn52D93Frk8yRtkPRprNEMlyQpdAM2axBWtVXnlJ2vnMF0vpT2iQ0D
+	Fmj7yH5l9CRd+0m65KDXeFpyXQysrmBXRV3Ta/ZtWA1XW1t0VDqsCVGtG7xZInZa0iymNGmalEF
+	gNJi19buKDHPIFkysFZ0KtNNar9RZlpT7UjGF6TY2rNN5VWE/52ZQIUS/7pR+DwnH/7GoTlRfdf
+	NyStSh6Aixw6uANWpLyeGxe9jxncOXWTBgH6DUT25/IIIlmNxuhIPGIapYP3PXsZj+0Fyl9YTj6
+	jVA1jNa8IM2zc/nBCt3W2X2PmGTVGhg==
+X-Received: by 2002:a05:600c:1f88:b0:475:dd8d:2f52 with SMTP id 5b1f17b1804b1-4778fea7579mr172318445e9.32.1763571120721;
+        Wed, 19 Nov 2025 08:52:00 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFkCnAWqylPnRvfnAU1+MUgF93xF234J4nNqKzo6llZD/6bIaoJV/mwKhcnyL5kC1Q0Nvad2w==
+X-Received: by 2002:a05:600c:1f88:b0:475:dd8d:2f52 with SMTP id 5b1f17b1804b1-4778fea7579mr172318205e9.32.1763571120251;
+        Wed, 19 Nov 2025 08:52:00 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477b0ffef34sm57829355e9.2.2025.11.19.08.51.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Nov 2025 08:51:59 -0800 (PST)
+Date: Wed, 19 Nov 2025 11:51:56 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Dan Jurgens <danielj@nvidia.com>
 Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
- virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
- edumazet@google.com
+	virtualization@lists.linux.dev, parav@nvidia.com,
+	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+Subject: Re: [PATCH net-next v11 09/12] virtio_net: Implement IPv4 ethtool
+ flow rules
+Message-ID: <20251119115113-mutt-send-email-mst@kernel.org>
 References: <20251118143903.958844-1-danielj@nvidia.com>
- <20251118143903.958844-8-danielj@nvidia.com>
- <20251119042245-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20251119042245-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SN7PR04CA0104.namprd04.prod.outlook.com
- (2603:10b6:806:122::19) To MW4PR12MB7309.namprd12.prod.outlook.com
- (2603:10b6:303:22f::17)
+ <20251118143903.958844-10-danielj@nvidia.com>
+ <20251118161734-mutt-send-email-mst@kernel.org>
+ <20251119041745-mutt-send-email-mst@kernel.org>
+ <103955ba-baa7-4b0b-8b9b-f3824ad54b4d@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|IA1PR12MB6554:EE_
-X-MS-Office365-Filtering-Correlation-Id: fb31f842-5391-4d0c-ad0a-08de278bdb5e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?SHU1ZDI0L05oM3ZTeWk1NHoyWkJzZWZIWEh1SGlwSk0vUHQxb05pS2Jqemp5?=
- =?utf-8?B?TFFrbFlUSUM2R3loQVZ6OUpKa2x6RVNUUVVvcEt3OVM2Nms1YmU3K2JiVlBM?=
- =?utf-8?B?TnBLOVBveUFYVnZkaVQrdS9QV0xOckFuQ3RIMFVPY29TWGluTCt5elcwUlhU?=
- =?utf-8?B?Q3RodDR6WUhjUW5vK1k4SUg0bHZnanp2aWVlUnpOUmcvaUovdnhmZmR5WktC?=
- =?utf-8?B?M1MwdnU1SUpVU0h3dlBmeWlQcG9qemU1WlFSVk0rYURzc0VZaUN6OE5QWG5D?=
- =?utf-8?B?bGZ0Vzl5d0pUYVJqN2VJRkN3K0I1VWEwQnkxK2dmUi9sTTdMcWdSYXU1MkN4?=
- =?utf-8?B?MG9TZWVLUTJuQ0V6bTA3SEl3U0lSak1CblVUYVBqWExEOXh2aHdSbWp4ZWMy?=
- =?utf-8?B?RGNFeEpRRzc3MzZSRWdFMUlGdmhQT3QzK2xNb1o5Wkk4YnU3QTBPUk5tbFFF?=
- =?utf-8?B?SE0zRk00ZmZuMHFVMkVGNWg0UnJsaHdHVTJkc3ZiU3BqeXhmYVpkaC9ONXV0?=
- =?utf-8?B?Tm02emhCZVZuT052S2lVVzJwQ01aOG85S3lobzY5WUFWNTFHMk1hN2NQSTJa?=
- =?utf-8?B?YXpLa0pINTBWc1hOK1RKMC93ZEk0SlVVcHBSNzlHWlRKbTlVeC9OWE9VdDNI?=
- =?utf-8?B?Vy8vSFlaUXNXSEdtdERWbEdxSW5adHJMVVJ2bFlKOG42Y1Fybk56NDQrSm13?=
- =?utf-8?B?ZGJtTjVranlpUTcvWVI0KzJaQm5ad1Roc1FuVy9scVZ3NkN6cXRtYm9EUU1O?=
- =?utf-8?B?MlRtMzFtdTR0Y0pEYzFHVEQ5T1Q4elVONWMvd1dMaEhDWmY5dzEwZTZTUlVw?=
- =?utf-8?B?Z3VmaDVNbm5LdGVUcVBYQ3BCVHV2ZUlkVlYxM1lCemo1YTVDY1ViamJKeDlz?=
- =?utf-8?B?Kzk1ZGFkbGxLNXd3N2tWWUpQcm9pOUJvQnVRYXFrNUVHS1VJNjJ5S3BFNHI2?=
- =?utf-8?B?V3FhTDJ3S2wyL2dlcVQ3Y1pNRHhIcUFTN2dGZ0YvUFBBMmxQVU5nTEpVZktE?=
- =?utf-8?B?bFN2UVE2Y0ZURE96alVjYS8yOS81a3ZSb2JTRWR3VHBLMFRkQlpzR0VPM0gx?=
- =?utf-8?B?RldCUm5BUzZ6NVczbjNOTXRyTnhwSERERmo3ZldCME1OYzJjM2QrNUx6UG1r?=
- =?utf-8?B?MzhXQlBHQldsMks0WXlSejV0NTk1Q2JzeVM3THpqemU5MjA2d2x0ZEd6S0dZ?=
- =?utf-8?B?NWlScjhlSFF4S0dRbVBrSDc3QnFXVGtmeWVrVWc1c2FQK3lXUVlMMVJEVnZD?=
- =?utf-8?B?OVVBdUxYLyszTGQzRE00U1dSdTJBQUhzOU52SlgycFhOWUpvYzFVcjB1dFl3?=
- =?utf-8?B?SDJLSDVTa2JsRnNZV1NQR2s3SXkvVFZYNWE2aCtYcEVIOGFoWDJvRnlQd3dm?=
- =?utf-8?B?MVhKQlU0UzZYUWpudmEyLzdWRGxjWGZUU3N1S2Q2NTdhNjcrNkl1d09Vc0pP?=
- =?utf-8?B?UjlBcTBsNVpQUEwyZ2RSYmMwaTJxRTVzczg1QVpndWh2Y2ZwTGxRdkxlRVVG?=
- =?utf-8?B?UTVMaytNWGRodGQ1dGI1L3RUQzUvT3QxSE4rcTgyZUJRN3dTOWtVUFJHZWVn?=
- =?utf-8?B?NU56RUg1akh6aDErWkYySy91TENQMXNBTlk5bmc3azhoc2JHSHJ1QTVlZ2N5?=
- =?utf-8?B?UGNQelJYV0s4eXg4cDZjYjRpSmZzdk9nOU9MOXM0TjRZRXZrR0Zma3dvb0hR?=
- =?utf-8?B?OG5JUmRPZ0tNSkVmWFBvWTNtcklOYXRlTHlmTEZTZ0c2Sk5MajIrY25NcjR4?=
- =?utf-8?B?eFU5a2tWYTFja0xKVy9XM0lPS2FKb2FHaFpNNE1GMFhrajJHbkFiOE9WTy96?=
- =?utf-8?B?eG9kYXVMWEVZMXZlVjNFM0UyVlVaNmV3dXpKQ3JjOThVY2pVeDFsUzlNcEU5?=
- =?utf-8?B?eGRrUGZpaFlLOWRUREg3VVB6bmRRR2VxcnhheU9kSEcvS1lZYXdlZXB0MGZV?=
- =?utf-8?Q?qp8/Ng3N4EGYoWCyMUBAIklXIr7b6WYD?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?UWdxL1dVRjFYWFVHSnV4RlZQQjQ1dzFsVzlNczhUbFM1NVk2aUtNLzRUdkxG?=
- =?utf-8?B?NmdxNU5ORWpsdHlSSlgyUmJheGRmRmZlUWNCNmlTRjFiV2NzTFdIell2YVRE?=
- =?utf-8?B?LzkwUGxqMmdYendod28wMlZITkYvbFlOSElCZ3Z3TDRVaDlwYWgydnNMeHB5?=
- =?utf-8?B?N2loQXJTMGE2V3ZLR01sL241THQxQk9ocWJOTDNDdUN1TjFoN1lLUmlhejhl?=
- =?utf-8?B?ajErQUx0TFMrUFA3VFZ6bVB3RDIybkxJMUFSa05aYklDNlNUU1g1aWZxbEdk?=
- =?utf-8?B?M0JSYzFPeC9DZFR4cTRBejVUWGVXeVU0RitrOEw1RDJlWlRUZXhQbVJrMnVX?=
- =?utf-8?B?RDBCeTUzZnpUNjFQZTA4QnExRzFabERBMUJnVUthV0ViUzhlOTRaOHFLMTU3?=
- =?utf-8?B?TTdvSEZLSWdURm1EN1l6RFlTNE5kdXdqTHpjL3czQXZ1ei9Dd3pTZGNrVWd3?=
- =?utf-8?B?UVp0dDN5aE4wNGx0WjB2djNWOFoxNlk1OHFIdXNESlY4WXR0Q29qd0ZiejFs?=
- =?utf-8?B?OG8vcHVqMFM5dXdVWDdJMWZDNUF3YnZSR0FQSUFvVXVOU1FZeXlveVQxVXda?=
- =?utf-8?B?UlFiS3FkcS9UMmNPU0dCQVBDZTE1TUxyMFQ4YXpUVGp3NmlnSXRQSy96UmhJ?=
- =?utf-8?B?Mm5GdzVZTjJlbHMzYkZXekFLdHluVDNaV0YwZE1tWGdBWXJ3enpKeHpjRTRk?=
- =?utf-8?B?dVdhNXU2WjhQUDVKc1FFMTNyMWtDRzZScmNkcm1FNHByWVBMYTRjU0ZMWktB?=
- =?utf-8?B?V3daVWh2U2dtMkxVODRLOUwrZHNUandIcHJlN2tYTG90ZnZUbWtzL1J1NzlD?=
- =?utf-8?B?VXlzcG9idWtYRzNtQ2M3Vm5kR01XSG5SOEl1VUpkTk5Yc2VTVWh3WDJYY2h5?=
- =?utf-8?B?WkF2RFk0em5MMGlyck5pK09IcjdVU3c1anQ0YnNNMDVGQ3NKY2QvbWc4dnJk?=
- =?utf-8?B?STJGRU44WTNPZDNxT3NTZmVrYkQ3K3pacDlIdmplWlBqZmkxZHB6S3FFd0cv?=
- =?utf-8?B?VnB3Vyt2YTA0L1UwS3NubVdSWmxEZXJEYlh2d3JKTk1xRkNSdTBYYTQyY0lj?=
- =?utf-8?B?TDNreDZ2cWk4aEZqRktab0tQRFQzeDhXeGV1MFpvUUdyUFN3eVdrUldQUHJ5?=
- =?utf-8?B?a2F6U0JzaEtVcGE4M3ZzR2U5WDZ2M3grT2xKOTgxZ21pK0p2eWwxbnEydmZ3?=
- =?utf-8?B?VUUxdWVXcjQzTUM3Z1hxa2dqaDN2TENaRmUvMlU2YmV3S1FTdmhpZEwzOXBN?=
- =?utf-8?B?WXUxam56RmJZdVJwcmc3YWdudTg1bFUxcnZvRndHZktLN1FzbXZ1SU9QWkxK?=
- =?utf-8?B?aS9rbUVNbnhxd3Vwak9IL21LVmpkenpDVktMVXh6OTVVQWlvQTYwcnhjWlhz?=
- =?utf-8?B?VGJ1VnU2SjMwRVpwSTBjZVlacmlXVUljVmVUbFZ5QnpCOGIvU3pFaEYxMnhC?=
- =?utf-8?B?aE9VaUFzSW94TEcrekNEYnNqS0w4eEZ6Sm9rOWltMS9mNmFqSFZOQ1ZYVFZv?=
- =?utf-8?B?RVpZMHZLelAzZ1FJWFBnYitOLzloZDlMZzMvUmxPQ3JGa09sOExMK2NqQWV3?=
- =?utf-8?B?czlxUGdMUzdXN3JITFhQcWsrMDBJNDVHUDgzU25OSlMyVk9KRXdndmh2aElo?=
- =?utf-8?B?OTBYVFljM2ZxaVU3NFJIWDlGM1djUGkwVUlVM2FQSjhISVQrSGQ2a1pCSi9C?=
- =?utf-8?B?SDl1TVNEc1lPbFhOaUcvZm5GbUh3UkhkUWxzTkNScGVOS1p0NEo0TktTS1hH?=
- =?utf-8?B?bjRRK3QzL2s3UlBTSnlpc2RoM0tSdEI0VmRKMnlrcGVkMGpJYnZTVnR5d2N4?=
- =?utf-8?B?b3lxa2psZ001ZEp6aURhM2tCckdkMHdvdThMV0RFWVVCY1NyclAzTG1UOGtx?=
- =?utf-8?B?eGJxQjZSY0FCN1pZcXNzZHZ0VDJ2VTFTREhQU1lNbkNObnRtck40OUUzRkVz?=
- =?utf-8?B?cUNSakNlcXBGRUVRVUNUejc1YkgxempuazZBL3BtOGJwellyZWZOSC82Y3Fs?=
- =?utf-8?B?elRadEpiK3VEdVFYSHJpTEIxOTJ6QS9Sd2U3RmE2MzVPZHRaaStYcTFKWDdh?=
- =?utf-8?B?MlRwTFBUZnE1L3RJMUhYTkx1S0hFOUx3TlA1dk5UdUhoeGN0a1Foc0x4cHVX?=
- =?utf-8?Q?U2qddOwsiuLLO3hIGYj+joZbC?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fb31f842-5391-4d0c-ad0a-08de278bdb5e
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2025 16:51:16.9059
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: G+7yJGCfFG0+g3NmcbSpwAMM+LQ1YLV8T2NoDqzQJQT+ZD2U75AvK7Qq2otaRQUNlkcUmYpH70TIjMFXv5mOMw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6554
+In-Reply-To: <103955ba-baa7-4b0b-8b9b-f3824ad54b4d@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: pWyGg8LmIYAn1Z5lNogbjgsb7d1XjSlyCIwuAgstdgc_1763571121
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 11/19/25 3:26 AM, Michael S. Tsirkin wrote:
-> On Tue, Nov 18, 2025 at 08:38:57AM -0600, Daniel Jurgens wrote:
+On Wed, Nov 19, 2025 at 10:33:31AM -0600, Dan Jurgens wrote:
+> On 11/19/25 3:18 AM, Michael S. Tsirkin wrote:
+> > On Tue, Nov 18, 2025 at 04:31:09PM -0500, Michael S. Tsirkin wrote:
+> >>> +static int setup_ip_key_mask(struct virtio_net_ff_selector *selector,
+> >>> +			     u8 *key,
+> >>> +			     const struct ethtool_rx_flow_spec *fs)
+> >>> +{
+> >>> +	struct iphdr *v4_m = (struct iphdr *)&selector->mask;
+> >>> +	struct iphdr *v4_k = (struct iphdr *)key;
+> >>> +
+> >>> +	selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV4;
+> >>> +	selector->length = sizeof(struct iphdr);
+> >>> +
+> >>> +	if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
+> >>> +	    fs->h_u.usr_ip4_spec.tos ||
+> >>> +	    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4)
+> >>> +		return -EOPNOTSUPP;
+> >>
+> >> So include/uapi/linux/ethtool.h says:
+> >>
+> >>  * struct ethtool_usrip4_spec - general flow specification for IPv4
+> >>  * @ip4src: Source host
+> >>  * @ip4dst: Destination host
+> >>  * @l4_4_bytes: First 4 bytes of transport (layer 4) header
+> >>  * @tos: Type-of-service
+> >>  * @ip_ver: Value must be %ETH_RX_NFC_IP4; mask must be 0
+> >>  * @proto: Transport protocol number; mask must be 0
+> >>
+> >> I guess this ETH_RX_NFC_IP4 check validates that userspace follows this
+> >> documentation? But then shouldn't you check the mask
+> >> as well? and mask for proto?
+> >>
+> >>
+> >>
+> > 
+> > in fact, what if e.g. tos is 0 but mask is non-zero? should not
+> > this be rejected, too?
+> > 
 > 
-> ...
-> 
->> +static int insert_rule(struct virtnet_ff *ff,
->> +		       struct virtnet_ethtool_rule *eth_rule,
->> +		       u32 classifier_id,
->> +		       const u8 *key,
->> +		       size_t key_size)
->> +{
->> +	struct ethtool_rx_flow_spec *fs = &eth_rule->flow_spec;
->> +	struct virtio_net_resource_obj_ff_rule *ff_rule;
->> +	int err;
->> +
->> +	ff_rule = kzalloc(sizeof(*ff_rule) + key_size, GFP_KERNEL);
->> +	if (!ff_rule)
->> +		return -ENOMEM;
->> +
->> +	/* Intentionally leave the priority as 0. All rules have the same
->> +	 * priority.
->> +	 */
->> +	ff_rule->group_id = cpu_to_le32(VIRTNET_FF_ETHTOOL_GROUP_PRIORITY);
->> +	ff_rule->classifier_id = cpu_to_le32(classifier_id);
->> +	ff_rule->key_length = (u8)key_size;
->> +	ff_rule->action = fs->ring_cookie == RX_CLS_FLOW_DISC ?
->> +					     VIRTIO_NET_FF_ACTION_DROP :
->> +					     VIRTIO_NET_FF_ACTION_RX_VQ;
->> +	ff_rule->vq_index = fs->ring_cookie != RX_CLS_FLOW_DISC ?
->> +					       cpu_to_le16(fs->ring_cookie) : 0;
->> +	memcpy(&ff_rule->keys, key, key_size);
->> +
->> +	err = virtio_admin_obj_create(ff->vdev,
->> +				      VIRTIO_NET_RESOURCE_OBJ_FF_RULE,
->> +				      fs->location,
->> +				      VIRTIO_ADMIN_GROUP_TYPE_SELF,
->> +				      0,
->> +				      ff_rule,
->> +				      sizeof(*ff_rule) + key_size);
->> +	if (err)
->> +		goto err_ff_rule;
->> +
->> +	eth_rule->classifier_id = classifier_id;
->> +	ff->ethtool.num_rules++;
->> +	kfree(ff_rule);
->> +
->> +	return 0;
->> +
->> +err_ff_rule:
->> +	kfree(ff_rule);
->> +
->> +	return err;
->> +}
-> 
-> 
-> ...
-> 
->> +static int build_and_insert(struct virtnet_ff *ff,
->> +			    struct virtnet_ethtool_rule *eth_rule)
->> +{
->> +	struct virtio_net_resource_obj_ff_classifier *classifier;
->> +	struct ethtool_rx_flow_spec *fs = &eth_rule->flow_spec;
->> +	struct virtio_net_ff_selector *selector;
->> +	struct virtnet_classifier *c;
->> +	size_t classifier_size;
->> +	size_t key_size;
->> +	int num_hdrs;
->> +	u8 *key;
->> +	int err;
->> +
->> +	calculate_flow_sizes(fs, &key_size, &classifier_size, &num_hdrs);
->> +
->> +	key = kzalloc(key_size, GFP_KERNEL);
->> +	if (!key)
->> +		return -ENOMEM;
-> 
-> So key is allocated here ...
-> 
-> 
->> +
->> +	/*
->> +	 * virtio_net_ff_obj_ff_classifier is already included in the
->> +	 * classifier_size.
->> +	 */
+> Actually the tos check should be removed, there's no guidance it should
+> be 0, like the other fields. Our hardware doesn't support it, but this
+> will be caught in validate_classifier_selectors.
 
->> +
->> +	err = insert_rule(ff, eth_rule, c->id, key, key_size);
-> 
-> 
-> ... copied by insert_rule
-> 
-> 
->> +	if (err) {
->> +		/* destroy_classifier will free the classifier */
->> +		destroy_classifier(ff, c->id);
->> +		goto err_key;
->> +	}
->> +
-> 
-> 
-> ... and apparently never freed?
-> 
-> 
-> I think it's because the API of insert_rule is confusing...
-> 
+same question for l4_4_bytes then.
 
-Nice catch. I changed insert_rule to free key when it's successful.
-
-build_and_insert will handle freeing it when it fails.
-
->> +	return 0;
->> +
->> +err_classifier:
->> +	kfree(c);
->> +err_key:
->> +	kfree(key);
->> +
->> +	return err;
->> +}
->> +
-> 
+-- 
+MST
 
