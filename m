@@ -1,131 +1,107 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9DEB24A07C
-	for <virtualization@lists.linux-foundation.org>; Wed, 19 Nov 2025 01:52:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE7BB23C4F3
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 01:53:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763517176; cv=none; b=Bl9WPCCzO3SbGcXgrvVXuSVTzxl6ijo1/e8km8/vsZ71hYkzOcgI6rrv5DqSc8jS5Ye+nT2k2V2dNUXVKy8mdPQ+X0oXUde5mOkJclT/rxbZxf2g4vMaAfWrih/AtTai6U3rk8uF+nbrmQurqhiv1qyVuAAdYiUTDabJIV9AhAY=
+	t=1763517211; cv=none; b=l7zHgOLYspnAJYpfsPf5A28MPnGZl1XT5BRQnpgKcELWDB8+hIbhAZkjr02AAx6GxdiWCAoHt4y9HReMBaMeJlObMZeWVJNLE+lDcUp1iRHWW+WQGp744jRrIZdMIff6rAGX7Hkw9YiozFRrVI4r+qsLh9Qswd3GYmF9n/lLnYg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763517176; c=relaxed/simple;
-	bh=LEzpLo1hUxryXT8cMpe80ker7J7M+LCuwGcuDq4/zvM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jOWHx8MKDVoW+pgmUB+S4OT1fcNpBWPaFlwmYd+0OwKFJubgpUftcj0nK5kBMhS12nZrvU5J6KiKMb8VgScBk2fmPbLDTpIzwGjU/EfZRaGJ+uKgwkRSMU+G86Olypt82u9FLvCfJtgp98efx2uqGqDfr3KFE/0VVweHPYcN/Mg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fndKsSeX; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1763517211; c=relaxed/simple;
+	bh=KyrZzK9mqPm9s39/r9lrWoYLT4pjxbJQMQSDqyYyq8Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fLIrB+A40axuD/NGQ3W8IzY8oAHG8skLJEiy1B7tbOkI8cmXax1POX3+R8JOVZ9eF2MYiERfInfqfXpFzx1Kq1OqBqvlNQ7R3ZZJQ4J7YWAgVV8YbjNVomnDI90AFFA3nRB2oVbKstzLV4ovE/98S/hJqPf0nmEg7rbH//0whZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NHfBhFGU; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fndKsSeX"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8A5C6610B5
-	for <virtualization@lists.linux-foundation.org>; Wed, 19 Nov 2025 01:52:54 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id a6Ult4Er5jah for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Nov 2025 01:52:53 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=ming.lei@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 58D9F60FB5
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 58D9F60FB5
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fndKsSeX
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 58D9F60FB5
-	for <virtualization@lists.linux-foundation.org>; Wed, 19 Nov 2025 01:52:51 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NHfBhFGU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763517168;
+	s=mimecast20190719; t=1763517207;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=aj/ywx73k81CNsOcA+I92pYtR8bwljudVgYjAUUAFmg=;
-	b=fndKsSeXSCtyRz6iPvU2W1zfpR682l7SaorvsFCBSb8l23ErFwbgmamXKSAwLHv9WzSauO
-	CGlOJe5ScaSIPOu0plhSPa1b3eqJMI6myeLyv3Aexgw7sgUK5/agdKqtEr/uPUrT5en5qN
-	swsR5PAQo1RI3R3jLtwASFnB16gnHV4=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-101-vRIljo3vNcaB4O5-uj7jAg-1; Tue,
- 18 Nov 2025 20:52:42 -0500
-X-MC-Unique: vRIljo3vNcaB4O5-uj7jAg-1
-X-Mimecast-MFC-AGG-ID: vRIljo3vNcaB4O5-uj7jAg_1763517160
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 38F9718AB400;
-	Wed, 19 Nov 2025 01:52:39 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.74])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BFC67195608E;
-	Wed, 19 Nov 2025 01:52:30 +0000 (UTC)
-Date: Wed, 19 Nov 2025 09:52:25 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: "Guo, Wangyang" <wangyang.guo@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@fb.com>,
-	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org,
-	virtualization@lists.linux-foundation.org,
-	linux-block@vger.kernel.org, Tianyou Li <tianyou.li@intel.com>,
-	Tim Chen <tim.c.chen@linux.intel.com>,
-	Dan Liang <dan.liang@intel.com>
-Subject: Re: [PATCH RESEND] lib/group_cpus: make group CPU cluster aware
-Message-ID: <aR0i2f91VGv47swo@fedora>
-References: <20251111020608.1501543-1-wangyang.guo@intel.com>
- <aRKssW96lHFrT2ZN@fedora>
- <b94a0d74-0770-4751-9064-2ef077fada14@intel.com>
- <aRMnR5DRdsU8lGtU@fedora>
- <a101fe80-ca0b-4b4b-94b1-f08db1b164fc@intel.com>
- <aRU2sC5q5hCmS_eM@fedora>
- <da1d6b4e-038c-48dc-830d-5eadb3ac943f@intel.com>
+	bh=KyrZzK9mqPm9s39/r9lrWoYLT4pjxbJQMQSDqyYyq8Q=;
+	b=NHfBhFGUNvA0R/JeeSMowgOUJvb1NF1iVTcG49Da/cYvayxI3H6lctjfIbFPaQ1dgix2RO
+	jZ6lLmkP1B3pbDzfkCOpUXL0CYEeIOT8UyvlaBbtrcvyVaX1qZ7O0KWCTCcv2rroi0wypx
+	3XLGsKZKnlw2i9FfHSwYxOOyTA7gUmw=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-235-3ESQXUQmO4K_SfDxxVJ_rw-1; Tue, 18 Nov 2025 20:53:25 -0500
+X-MC-Unique: 3ESQXUQmO4K_SfDxxVJ_rw-1
+X-Mimecast-MFC-AGG-ID: 3ESQXUQmO4K_SfDxxVJ_rw_1763517204
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-343bf6ded5cso15359710a91.0
+        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 17:53:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763517204; x=1764122004;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=KyrZzK9mqPm9s39/r9lrWoYLT4pjxbJQMQSDqyYyq8Q=;
+        b=uKte7X+RCCSWo1Vb7k/6kmZUmjjHZLC1F9ifVh8RcRdXfvl0H0pl2awBeYQzpchdD3
+         syS5y8Uo8pIvpmdy4IyM3Vo+pD/0EbE55uK5QqYnv0syRpyO2FFmAkvM9Jn0rmEbjsbI
+         eiUoh9mWlp6tHylNJFtKEX6bmQBhda0+h9WxJme5zq16cz4Aax+DN1/2gBnEd9kp4K7/
+         EfePAhVPGlOnadbMnIRyIHA8SlNKJdxMFC8jiZy6qz2jrLSP8pRJTJoJ66MpGQ++if8a
+         jHbUOe+kAu903nmJeIkEDGKqRgnna+Zde2Et1NACUQsDM2SH8I7+HIdbm5uDWw4P9yeX
+         TxpA==
+X-Forwarded-Encrypted: i=1; AJvYcCX3auaSyWS56UIly3PqH8+hCX//v95fU1Y2NEoN0bdg8gHr2BFExdol8VU4ExyRo9AXyqf+jtrFgB73paNE7g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzA83Awxu4ZAH9GiFoHEb0CQUeskHlCpfCT/KS90742cO50H01+
+	GAp0CppRRkgFCjMBeEAvm6tuNrTdCYPHVSu/0f4fBwdONjhh3JYQdVkQ1ztIKYo/tjTx2po6Hx6
+	b2By90b3p6dbGJbkQV68EcCJ6JiHA5z6Zhytu81kn68PBb6hG9w1hpq3ZtD0AK3lo7ecuE9k4YV
+	0hf6D2NV5u1eDCHn6DL/fEwNgUcHIgmd9GRMF81wpSMxI=
+X-Gm-Gg: ASbGncuqZQb2+68ZV/rjJ1LPPgOYMmQX/CUDWnQA0lsEH+BXDOnhc46wEYh4b3AG0NT
+	GcQqitcU3HWbxN78+S2HVdJxCRdn7RTQZBWOBPWDGheSDdc827DM4ERmxqhJj9qUrU3cFS0NPlX
+	k5USYf3uVFfY12hDOY1YQ5/U9MfQe0UfL5MTgMh5+1Du9hzFvsIaYB7dibWmbImxM=
+X-Received: by 2002:a17:90a:c2c5:b0:32e:a5ae:d00 with SMTP id 98e67ed59e1d1-343f9ed96e7mr18500453a91.13.1763517203958;
+        Tue, 18 Nov 2025 17:53:23 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGK0BojLkbLsinUEMLK9poTO5T3VKUI0LJ7vBrGV4ZQeudjfClMdb+kGPfFRQFUzDtww/LkSD4FupuTf50Ci1E=
+X-Received: by 2002:a17:90a:c2c5:b0:32e:a5ae:d00 with SMTP id
+ 98e67ed59e1d1-343f9ed96e7mr18500412a91.13.1763517203120; Tue, 18 Nov 2025
+ 17:53:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <da1d6b4e-038c-48dc-830d-5eadb3ac943f@intel.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+References: <cover.1763278093.git.mst@redhat.com> <67ae57499e779aef2c5bd7ee354af5d4af39bf60.1763278093.git.mst@redhat.com>
+In-Reply-To: <67ae57499e779aef2c5bd7ee354af5d4af39bf60.1763278093.git.mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 19 Nov 2025 09:53:11 +0800
+X-Gm-Features: AWmQ_blKYAEU3q3XwJg467m-DKxSN_o3KNaIqr46lnM6uOA9mljHAoG_O8bYpVw
+Message-ID: <CACGkMEvgQmUNVOzceNscLJiBxUiJDwJeST4Fe4Up7yBgbpxu4Q@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] virtio: clean up features qword/dword terms
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, 
+	Paolo Abeni <pabeni@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-doc@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: anBuV7XMpZiMAWoZ7p2MpYvYjfdpd0YRI3iByxRWpME_1763517204
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 18, 2025 at 02:29:20PM +0800, Guo, Wangyang wrote:
-> On 11/13/2025 9:38 AM, Ming Lei wrote:
-> > On Wed, Nov 12, 2025 at 11:02:47AM +0800, Guo, Wangyang wrote:
-> > > On 11/11/2025 8:08 PM, Ming Lei wrote:
-> > > > On Tue, Nov 11, 2025 at 01:31:04PM +0800, Guo, Wangyang wrote:
-> > > > They still should share same L3 cache, and cpus_share_cache() should be
-> > > > true when the IO completes on the CPU which belong to different L2 with the
-> > > > submission CPU, and remote completion via IPI won't be triggered.
-> > > Yes, remote IPI not triggered.
-> > 
-> > OK, in my test on AMD zen4, NVMe performance can be dropped to 1/2 - 1/3 if
-> > remote IPI is triggered in case of crossing L3, which is understandable.
-> > 
-> > I will check if topo cluster can cover L3, if yes, the patch still can be
-> > simplified a lot by introducing sub-node spread by changing build_node_to_cpumask()
-> > and adding nr_sub_nodes.
-> 
-> Do you mean using cluster as "NUMA" nodes to spread CPU, instead of two
-> level NUMA-cluster spreading?
+On Sun, Nov 16, 2025 at 3:36=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> virtio pci uses word to mean "16 bits". mmio uses it to mean
+> "32 bits".
+>
+> To avoid confusion, let's avoid the term in core virtio
+> altogether. Just say U64 to mean "64 bit".
+>
+> Fixes: e7d4c1c5a546 ("virtio: introduce extended features")
+> Cc: "Paolo Abeni" <pabeni@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Message-Id: <492ef5aaa196d155d0535b5b6f4ad5b3fba70a1b.1761058528.git.mst@=
+redhat.com>
+> ---
 
-Yes, I think the change may be minimized by introducing sub-numa-node for
-covering it, what do you think of this approach?
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-However, it is bad to use cluster as sub-numa-node at default, because cluster
-is aligned with CPUs sharing L2 cache, so there could be too many clusters
-for many systems in which one cluster just includes two CPUs, then the finally
-calculated mapping crosses clusters inevitably because nr_queues is
-less than nr_clusters.
-
-I'd suggest to map CPUs sharing L3 cache into one sub-numa-node.
-
-For your case, either adding one kernel parameter, or adding group_cpus_cluster()
-API for the unusual case by sharing single code path.
-
-
-Thanks,
-Ming
+Thanks
 
