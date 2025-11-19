@@ -1,173 +1,114 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07CC4329E43
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 15:58:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 546D32EE608
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 16:01:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.177.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763567930; cv=none; b=PrZ1fP4sXLrJ8OrJcXQQoaud8rQgUXeZNSiT9WM40Ry4g1cV5BFs5Ldwy8bToAgvHmzjc04s+5lYg3W3yyzk4Wxc6nqR8q2cWE0402z1R01HahNMdFyeuD9JZExlLXEKRwaTc8VHy3oB47VO54VeclTdWt5edsO1lovWuCEFGwQ=
+	t=1763568102; cv=none; b=njgZ0/zAi5uL9SccYWKMeCc9TK4Lf0oh+Oc2zURZmd2nLxnqt6SoiHP9hEsn4eaDcSqtHSYdcJLv/pLpvVnYhJHDKyrBcdqp/0QCD6iRNd3s8WXAdFlYIlqFFffXsTd8c/Au5a1eNTXofT3MmguXpWkUZyF5VXNTQoshzGi+FK0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763567930; c=relaxed/simple;
-	bh=X4udLAHwgPyvvaRrmhlRMNdE0d5tTRvL7IqLthLvERk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=KfmmDVdle3VmwRlttFM6xdhym8LD2cwrlLfnpv/F8J+yLsk9DwgLL7SBcr82YLiBmjjd0efHlDmDsuOpHQ1cVR6wY4woA2tOoy562JUAAbb88z9Yazi7XfjE11grC6JwsPwDBrUstCTcA66QwZDKRR3QrP/n8gtwT9uJzeI6/g0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=faijzjwT; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763568102; c=relaxed/simple;
+	bh=f+YKeZAIOKpe4IOOCJkOaTbVPzoBz7x86e7aLQ/US/A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MbbQ1v3+K7s1Q5v6yyelbynVXyPSnbIejNY6LP6RnPj7nlr1x/tJ4p68e2uwsU55XSj5P+Z/WcwqcUg9ieVTeZRa6iOniw0kvJCUugtV4ZnqVM4MbgPgz3u8lAJV3c7PvYaA8zwiG1zQ4GulQf8LFTIMPZBQTf4ySHrdjLxk9hc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=lvIAazU5; arc=none smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="faijzjwT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763567926;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=F+84WrDN67gNDUwrYEwopUhwZ+peiqwEB+pp0DqzG0k=;
-	b=faijzjwTLig1erSjXR3rfO9uK2Rjkl5WPNrhI3ckabpGZybQr2krArv2NOCDIqEjYPN5TL
-	/3zuz2Zgk2/X5FTqnRlN0If1jamdsGEj9PWaQA/SCzc6Rh3e7QkxA42V/N5FstmllMLq2Y
-	m6D55uhv3OVVSN4l6fjtYq5aANLE+SA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-674-5pUv799PPj24bEIEQlPsng-1; Wed, 19 Nov 2025 10:58:45 -0500
-X-MC-Unique: 5pUv799PPj24bEIEQlPsng-1
-X-Mimecast-MFC-AGG-ID: 5pUv799PPj24bEIEQlPsng_1763567924
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-477563a0c75so41203645e9.1
-        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 07:58:45 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763567924; x=1764172724;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=F+84WrDN67gNDUwrYEwopUhwZ+peiqwEB+pp0DqzG0k=;
-        b=ndp/GCw8q/cl6RH6Bujl9yQvY3I+9fZkXFTeC+bMohDUMWKHnQX+M/Qiyd3kVIaDcx
-         E+M4KCckJP2hlqlv0deIOE/o2+nrh+u8miHEAiCaHK72lOsHtW+8iRvlG7PT9BEOm2MP
-         BMqqeY+5hcadJ/WlOwN9Ahi0gjt02mjqffnZGsCrNJpNYEIZY423BWBgnxD/l+Yd/yZU
-         907j3t4TYuC39nMm965g/GoXMvnzaCTBg4LoO+LqUaoL9Jih1ODvAoZYe7nMhySom2pb
-         SE6gUSS5kCL5lwAQ90fcgOxawRs6FMP57dLoNG0Vi91ebviK3IOPW4Qv4Lcp0H1oAIb+
-         5WgQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU3vP/A2W2HihUtHdm83naKRCeIcC592LpNccONMGXz6Cl4ULLbswLrCMPYmsttxZOxfm7MCZ8+JaABUQOj2g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyXpFsZiUxDV85wx769zW2LagVT6OalUXjsTGFLXr/Jh0xEJBKf
-	TamAZGb/B9fEovB+lGOUsLnTWqi5NNnvSNj2wIGFVXJ/11/r4ZCkqG8z6ZJSW0oauItiH7mBL04
-	O9GCh2tQvUl0Xc7d7gvDJQhPLdgHeA/NFRtQy6nA4fkKhCvNFDAz0xW4LSoaqFHZfQstF
-X-Gm-Gg: ASbGncudXfhTi0HB1Iowa8s5Fb4x3vNJWGQ7OctCZpcolcXma5oJddpQ/Yby0rOqtNE
-	DuJfG8PZZFOepBKNpRUGLbVvLBNJ98Y6X0GGG6cRDpavk6Y5uAvPNOz6tJFfpgXODXIYoisdyAh
-	NCRgZpOKcxzikCuH2zD9tjBooXNP4XnWPWIPdFwA2FUVuU7Qmg+EI0fr8JJbc6FeKje8cNb232a
-	QnqoJqLtZDNwYuphzxvU2FdhOJnAaayXPYHE4L2yGooKQSeYYJf3IM8MsWwLpamgpbPs+hNAFgw
-	G0GbGmxfWjUN4FNEbCIsAsIGWFt84pQ2O4RLen18J/SQgs6VAFZ0iZGmAM9Z+ei34F+72cFNBF2
-	uIpVd+R+umKB1x7Y0HoP1dS6zhZETJQ==
-X-Received: by 2002:a05:600c:8b21:b0:477:7bca:8b3c with SMTP id 5b1f17b1804b1-4778fea84f0mr197459215e9.19.1763567924218;
-        Wed, 19 Nov 2025 07:58:44 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGMAURnwpj6ZTjgxBRwe6+8Xyy9ZKG8ZdRRqABNi1mzDn3MCPcvLn2k8HQ1gtbcXROoEePaxw==
-X-Received: by 2002:a05:600c:8b21:b0:477:7bca:8b3c with SMTP id 5b1f17b1804b1-4778fea84f0mr197458765e9.19.1763567923712;
-        Wed, 19 Nov 2025 07:58:43 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477b1037d32sm52400545e9.12.2025.11.19.07.58.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Nov 2025 07:58:42 -0800 (PST)
-Date: Wed, 19 Nov 2025 10:58:39 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dan Jurgens <danielj@nvidia.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
-	virtualization@lists.linux.dev, parav@nvidia.com,
-	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
-	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
-Subject: Re: [PATCH net-next v11 08/12] virtio_net: Use existing classifier
- if possible
-Message-ID: <20251119105743-mutt-send-email-mst@kernel.org>
-References: <20251118143903.958844-1-danielj@nvidia.com>
- <20251118143903.958844-9-danielj@nvidia.com>
- <20251118164952-mutt-send-email-mst@kernel.org>
- <cb64732c-294e-49e7-aeb5-f8f2f082837e@nvidia.com>
- <20251119013423-mutt-send-email-mst@kernel.org>
- <e23b94ab-35f6-41fb-91f9-1ba9260fc0ed@nvidia.com>
- <20251119022119-mutt-send-email-mst@kernel.org>
- <e80a7828-f42f-4263-89c1-66512b2dde6e@nvidia.com>
- <20251119023904-mutt-send-email-mst@kernel.org>
- <c88f7798-996e-402c-97fe-1f8cc8ec172c@nvidia.com>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="lvIAazU5"
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5AJEg2NX005162;
+	Wed, 19 Nov 2025 16:01:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=corp-2025-04-25; bh=zJqmgID/UApX5tZzYlIOWoNzGs8F4
+	tmAV7ATY3h1Glk=; b=lvIAazU5uFiZciMf2op2qnzI5xmJfZzXjXMFCnknD9Axs
+	+xhaarplD/8LjVge8BpGPYdloo9S1VlARkXSe1dNy/oHpmbYAOzTX3UwH74Whmo7
+	GcHSE7R+lC3qx2JiNMiH/r30PRGHnFfOo0V1N9jc+1pqYDxIEwo5bivP0cNHSIEN
+	CMLjhLJHJkLIjtRuzuz0tQW7o74h6eKIalnbnpA3iQSTq1uFC5QeBRiA5gKtU7Xf
+	3nW/J7f3Az5pOlcycWHagQZSc/QoXqhJjGNH0UmKNTH1J2GETb95xC1EtqWseTXI
+	qe42SjvozfLMDHxb8HKfQ7n7fvsrnyffjBszMVJaA==
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4aej907dx3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Nov 2025 16:01:30 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 5AJEcfAX037155;
+	Wed, 19 Nov 2025 16:01:29 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 4aefyn20se-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Nov 2025 16:01:29 +0000
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 5AJG1TiT030495;
+	Wed, 19 Nov 2025 16:01:29 GMT
+Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.129.136.47])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 4aefyn20re-1;
+	Wed, 19 Nov 2025 16:01:29 +0000
+From: Alok Tiwari <alok.a.tiwari@oracle.com>
+To: eperezma@redhat.com, mst@redhat.com, jasowang@redhat.com,
+        xuanzhuo@linux.alibaba.com, virtualization@lists.linux.dev,
+        alok.a.tiwari@oracle.com
+Cc: alok.a.tiwarilinux@gmail.com
+Subject: [PATCH v2 next] eni_vdpa: improve IRQ error logging for config vector
+Date: Wed, 19 Nov 2025 08:01:20 -0800
+Message-ID: <20251119160125.299594-1-alok.a.tiwari@oracle.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <c88f7798-996e-402c-97fe-1f8cc8ec172c@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: tbbvrKRThWcMq-pCLuYPsp_cyCqqhORcXYyIyPzoq0k_1763567924
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-19_04,2025-11-18_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 spamscore=0 bulkscore=0
+ mlxlogscore=999 phishscore=0 suspectscore=0 mlxscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2510240000
+ definitions=main-2511190126
+X-Authority-Analysis: v=2.4 cv=OMAqHCaB c=1 sm=1 tr=0 ts=691de9da b=1 cx=c_pps
+ a=zPCbziy225d3KhSqZt3L1A==:117 a=zPCbziy225d3KhSqZt3L1A==:17
+ a=6UeiqGixMTsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=yPCof4ZbAAAA:8
+ a=ZO39oCByR73J6G4eHakA:9 cc=ntf awl=host:12098
+X-Proofpoint-ORIG-GUID: w17j6mUZ5dS5gUXAlWGsZlzSw_k_SnxJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTE1MDAzMSBTYWx0ZWRfXxzEjRp12jImM
+ UcDLVO+7kQNlKD1XmhOcaRYdfFXBqS1mSxqN4qUgn8UJNdavvuqXs8yRa7WRnJzCovhsReiPJSz
+ CepBNJSn0LEQrfNTuY2AhSHVD25QhyX9SZkgAIIafdvu553fPCx/hCXbTT/TTuyl+4izgbDpllp
+ llEhgOJXa/JU5sINDLVQP16SyA4/9t2U9tFv6akIo4mnsp0JuIYNDdxIP9JrrqaQItc2yM/WZkd
+ SQHS18y8ir1+HsU/OzjFXcAZqmarQXrR88MaLUa7jvhue/v6AVoeYWdADG2KTsjpaLwgTKthm3o
+ aYjQdm+lin1OymAdpPBPqmNO1+fGaCpoBrYTgmlypmminINxKHSIR5izc+MrotfKz/nVMNoIvdJ
+ DIrm1xazx5HDF7tqtoSEAE0MTwyQgIul3dMrcdiwT90gHVa13cw=
+X-Proofpoint-GUID: w17j6mUZ5dS5gUXAlWGsZlzSw_k_SnxJ
 
-On Wed, Nov 19, 2025 at 09:45:15AM -0600, Dan Jurgens wrote:
-> On 11/19/25 1:41 AM, Michael S. Tsirkin wrote:
-> > On Wed, Nov 19, 2025 at 01:33:31AM -0600, Dan Jurgens wrote:
-> >> On 11/19/25 1:23 AM, Michael S. Tsirkin wrote:
-> >>> On Wed, Nov 19, 2025 at 01:18:56AM -0600, Dan Jurgens wrote:
-> >>>> On 11/19/25 12:35 AM, Michael S. Tsirkin wrote:
-> >>>>> On Wed, Nov 19, 2025 at 12:26:23AM -0600, Dan Jurgens wrote:
-> >>>>>> On 11/18/25 3:55 PM, Michael S. Tsirkin wrote:
-> >>>>>>> On Tue, Nov 18, 2025 at 08:38:58AM -0600, Daniel Jurgens wrote:
-> >>>>>>>> Classifiers can be used by more than one rule. If there is an existing
-> >>>>>>>> classifier, use it instead of creating a new one.
-> >>>>>>
-> >>>>>>>> +	struct virtnet_classifier *tmp;
-> >>>>>>>> +	unsigned long i;
-> >>>>>>>>  	int err;
-> >>>>>>>>  
-> >>>>>>>> -	err = xa_alloc(&ff->classifiers, &c->id, c,
-> >>>>>>>> +	xa_for_each(&ff->classifiers, i, tmp) {
-> >>>>>>>> +		if ((*c)->size == tmp->size &&
-> >>>>>>>> +		    !memcmp(&tmp->classifier, &(*c)->classifier, tmp->size)) {
-> >>>>>>>
-> >>>>>>> note that classifier has padding bytes.
-> >>>>>>> comparing these with memcmp is not safe, is it?
-> >>>>>>
-> >>>>>> The reserved bytes are set to 0, this is fine.
-> >>>>>
-> >>>>> I mean the compiler padding.  set to 0 where?
-> >>>>
-> >>>> There's no compiler padding in virtio_net_ff_selector. There are
-> >>>> reserved fields between the count and selector array.
-> >>>
-> >>> I might be missing something here, but are not the
-> >>> structures this code compares of the type struct virtnet_classifier
-> >>> not virtio_net_ff_selector ?
-> >>>
-> >>> and that one is:
-> >>>
-> >>>  struct virtnet_classifier {
-> >>>         size_t size;
-> >>> +       refcount_t refcount;
-> >>>         u32 id;
-> >>>         struct virtio_net_resource_obj_ff_classifier classifier;
-> >>>  };
-> >>>
-> >>>
-> >>> which seems to have some padding depending on the architecture.
-> >>
-> >> We're only comparing the ->classifier part of that, which is pad free.
-> > 
-> > Oh I see a classifier has a classifer inside :(
-> > 
-> > Should be something else, e.g. ff_classifier to avoid confusion I think.
-> > 
-> > Or resource_obj since it's the resource object. Or even obj.
-> > 
-> > But
-> > 
-> 
-> Did you have more to say after that "But"?
+The error log used the loop index 'i' outside the loop when reporting a
+config IRQ request failure, which is misleading. Replace it with 'queues'
+which represents the config vector and rephrase the log message.
 
-Ugh ... donnu how this got here.
+This is a non-functional change that improves readability and clarifies
+the code intent.
 
-> I did this, also updated the
-> commit messages and included refcount.h.
+Signed-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>
+---
+v1 -> v2
+target for next and print queues instead of ret
+---
+ drivers/vdpa/alibaba/eni_vdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-thanks.
-
-> > 
-> >>>
-> >>>
-> >>>
-> > 
+diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/alibaba/eni_vdpa.c
+index e476504db0c8..d8f8406ade98 100644
+--- a/drivers/vdpa/alibaba/eni_vdpa.c
++++ b/drivers/vdpa/alibaba/eni_vdpa.c
+@@ -196,7 +196,7 @@ static int eni_vdpa_request_irq(struct eni_vdpa *eni_vdpa)
+ 	ret = devm_request_irq(&pdev->dev, irq, eni_vdpa_config_handler, 0,
+ 			       eni_vdpa->msix_name, eni_vdpa);
+ 	if (ret) {
+-		ENI_ERR(pdev, "failed to request irq for config vq %d\n", i);
++		ENI_ERR(pdev, "failed to request irq %d for config\n", queues);
+ 		goto err;
+ 	}
+ 	vp_legacy_config_vector(ldev, queues);
+-- 
+2.50.1
 
