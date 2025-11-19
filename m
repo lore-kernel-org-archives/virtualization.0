@@ -1,182 +1,349 @@
-Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010029.outbound.protection.outlook.com [52.101.193.29])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF7DB28C2DD
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 06:07:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.29
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763532454; cv=fail; b=Mx1ESnLo6dPB5bJwtBO5z3m97vcSdbKU9agBPFI5TNXqzmeLsEwT/bRRxuYlK0MWXhIK2Lde9l6EPojmOaIDcc0mRB0mzpX3DmpiccU8V1jf6Z5rCSTtdak/+VzKPO8nhgPuO6pQ4VAJGgMo0Kvd4F5YFNiYzF50zkLVy1hCY/I=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763532454; c=relaxed/simple;
-	bh=JjlAWf4Q7j4lf0ePLhlbbPPQYrNEH9fdrtBmcmx6eK8=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ONoUk15w4m7Wr39TvzP3jBMUoS21QXqDufA1+7NKmRNrnecCNO9UnuMcD+/IqE2ehAt5OKvvO6UGLzGRBuo3jWG0C9TA7Sb1U8DwpxOh0/2gO7Et804EaJHVyzGwewikDQ1ZNI3YN/DjlnRdzTcig826C+WF9xVSudpZGrV3uCY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=qNQtTB1r; arc=fail smtp.client-ip=52.101.193.29
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="qNQtTB1r"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=MQcBKOZRzpps3WERQRa3C3cU9ifQPqxcLzA6B9BWtzUFG0n9KLeW+sX1z2TXcZD4CptDe7n/oJJ3tvUyrD8GqCNRa3XU+O4A3yvagy3AgGMttChpRlLmWKtnWH7FIFksGKfbPlECNmYyw3JXqTnxusYJw31SNPaGvor7WTRKTgK/gNfF+0xyqCQkgqT4tk3Gm131daeObo/o4PMZvNfsaBigT2rjk/xCG65z7pz15EOpwwo83haNuvE/BN0yTUvIWdOESFzk7i/dMFOxug7RCJHW2sEKEvNCFJcz10VFqcT71qBKcGB4SV5E5VctpVMtCCDXg3mXI9cs+GjFcVkZ2A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=+QhNUeTBCdc0vv6m/TAqEbE6vsSixswQmkylAj/1fRo=;
- b=EL7g4Qlb8GvoImO+GkUZcuuHd9uJi6zzvKOAsZAtEZRuRRXEH+6/XeC6VcBWbOrk3ghzynIyV5mkTjQqWDLHDCsQYd94dQnIwd3yKb62m0aifq0AVdFzv7eBdzgd47Y6/E+9aefMVCQhfEYqm3W8ya8sgvWgwp6vk8Qo+siL5qSgHqD+2PolCrpdWUiqkBltlW4Ye6u2CVCaWt5hCjn7nwQtf0U7UOkBQdcKr2srX0GIuIjSMN7TIUzYUDXe5pm8WSVBc+cAGCrNkhj8JhGyyq/12uqVteLTRLwGQl9s9P0o37rEPIMiActlsUC2yXfMY2C22Lc2D7bfsqXq4Uq7mQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+QhNUeTBCdc0vv6m/TAqEbE6vsSixswQmkylAj/1fRo=;
- b=qNQtTB1r354h6gEmLZzSaB0WxzWR7f5jV4VkpYkequyE+VcLBcwRGUB+RX2Khouo+9rg6dc1M54rL8+SgdD2ON+t4p85IYVpTjU1Gt3cMVzpWaSlcFktJGuChRR1CtFsplFymO+QbAxgFQyvtRqPAsLkJq6RIYU+0+BACnUPVz4K4065AagtNmCirt7rFQ/7T89XAyEouS8KRfiMqP6ZTa/KkK/ojZRFwkGT7/jjcQ7zc10hHtGvn+Mn8GqCKNv4vuNgZ+dk52wvIFWMiP2MDzpiPCpZx5wVFwYyVhLVL3VEBqjwHiKuAzW6A/AOFdTdTYaNcRUNHAmPb5orI3t/Hw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by IA0PPF6483BC7EA.namprd12.prod.outlook.com (2603:10b6:20f:fc04::bcf) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9320.22; Wed, 19 Nov
- 2025 06:07:28 +0000
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9320.021; Wed, 19 Nov 2025
- 06:07:26 +0000
-Message-ID: <70584793-ff6e-44e9-b1b6-3c7105993fdf@nvidia.com>
-Date: Wed, 19 Nov 2025 00:07:24 -0600
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v11 07/12] virtio_net: Implement layer 2 ethtool
- flow rules
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
- virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
- edumazet@google.com
-References: <20251118143903.958844-1-danielj@nvidia.com>
- <20251118143903.958844-8-danielj@nvidia.com>
- <20251118135634-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20251118135634-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SA0PR11CA0091.namprd11.prod.outlook.com
- (2603:10b6:806:d1::6) To MW4PR12MB7309.namprd12.prod.outlook.com
- (2603:10b6:303:22f::17)
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id F3A18313289;
+	Wed, 19 Nov 2025 06:12:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763532739; cv=none; b=EvfxaN7iY6GTwz8GY/fMzRuFS7Vq+BlxtkMwgZTiopgqs0Ola7NfDmWAuzj8SqThD5NUDv+A/+EdD5SjZODSntmbvZX68qz/UUv/kTwTj4EpePOwStI6xK/vHgadn6cnz4vII8nS80nJRMaoYp0PJGIvoBTZ/oWq9cVIdxWi2vk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763532739; c=relaxed/simple;
+	bh=KxoYgn8R3u7q5pEkNPEUbXw3tyWVn1HAcjT/sw14z1U=;
+	h=Subject:From:To:Cc:References:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=NZyPr9hWhu70UV7k452PZJQykGfx3qYxPh9nI36nE433lrT9ncDV3HvxdTLS44RpDWpLzGWHD0JTMBSHvoBldS+zkdoulkJHFGKIEUQMtGk3QmTDz7Auxmve/IceKHZ4m+Lq6HgseOyHR0vxq952S6xNfKeOsXfhwclnWmye8tk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8CxL9O7Xx1pKmglAA--.13823S3;
+	Wed, 19 Nov 2025 14:12:11 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by front1 (Coremail) with SMTP id qMiowJDxQ+S2Xx1pCio4AQ--.29734S3;
+	Wed, 19 Nov 2025 14:12:09 +0800 (CST)
+Subject: Re: [PATCH 2/3] LoongArch: Add paravirt support with
+ vcpu_is_preempted()
+From: Bibo Mao <maobibo@loongson.cn>
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>,
+ Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+ Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+ Waiman Long <longman@redhat.com>, Juergen Gross <jgross@suse.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, x86@kernel.org
+References: <20251118080656.2012805-1-maobibo@loongson.cn>
+ <20251118080656.2012805-3-maobibo@loongson.cn>
+ <CAAhV-H4hoS0Wo3TS+FdikXMkb7qjWNFSPDoajQr0bzdeROJwGw@mail.gmail.com>
+ <db8a26ca-8430-9e7d-4ad1-9b7743c4cfd1@loongson.cn>
+Message-ID: <147fe837-5f81-4246-7d01-84b75cb94e6f@loongson.cn>
+Date: Wed, 19 Nov 2025 14:09:42 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|IA0PPF6483BC7EA:EE_
-X-MS-Office365-Filtering-Correlation-Id: c9a16ac6-d76e-4f76-c0c8-08de2731e9ff
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?bUI4akhOTGFubnRCWmFaemc4S3RpeTZwZnYvRUJSeUFSZ0xkWlE5MkF0TjFE?=
- =?utf-8?B?RjZOd05kQmo1ZVpZa1hBR2dTNWZJendxK1hRTytheVpwdGJ0dFMrU3ErTjZ1?=
- =?utf-8?B?bTVjQTRiMktORnBPYWRpZVdkMDQrQThVNVdlTSthejdhbUlIbUR6dHVsQ0ty?=
- =?utf-8?B?L24yd2tTUGFiTENvWW12ZkNPU05UWTgwYS82Rnpyam0zei9UbkEybFRTMU9k?=
- =?utf-8?B?Q3o4bmc2ZnRGQ3k0dzNwdnR0NkNrQk92Z0V5b0Y2ZFRiRHpvd2VYejFleUJE?=
- =?utf-8?B?SzJEd1JRdXNHRkdjYzU1UGZFQ2RjWjBBTzVRdVpjNEx5cnYybS9vaEg1NFAw?=
- =?utf-8?B?Sml6Z3RCZWFocEZSSFpGVFRydjJjYUtIQUJ2YmUxQ2MxQ3UzTzhRRkYxYTNo?=
- =?utf-8?B?UHJMSWdqSDVQZ1lFbmhBLzk4NytwV0hIbTd0SjhsYnVaN0dkd0JCOVN5dW9q?=
- =?utf-8?B?Mys4bm5JcUZHU3hsUWlVdy9VUzNCNTdUaDBWU3hncDNTazl3UmtRUVlXSEJk?=
- =?utf-8?B?WW5HdVhkcDBORlJTMHF4LyswcjkzUndFbjlUVFlvRVRaNFlnendrMVk2V1pn?=
- =?utf-8?B?VHRtUWoyaFVSa2NwZEY2S0I1WkZqZWJkZm1XTEsyUzRibU5YN1pkRGNEcHor?=
- =?utf-8?B?UlVGNlpYaUtTa3E1MDgxRWdCOWRZTUFHM0dpY3RpeCtDT0xraGtSbU81ekVS?=
- =?utf-8?B?UG1OMlBZRGtDaWFPSkg4NDQ2REFZOEcyTFhCYVhkbFBBYzFMbXZYRE13TmFS?=
- =?utf-8?B?RUZmbWl1RlFJWVdmVTJ3ejQ5amVCZW0vNGxJZDV5RFZuallqY0t4cFgwR2xB?=
- =?utf-8?B?RFRRcXduWFM3b010VnBMUnRpSTgwR2NsbEFIa2lkT3FuVENFeEVGTmtMVWNp?=
- =?utf-8?B?OUFHV2xCYUdHZXU4WTM1UnBWMUFlYXgzREh2bkg0Q0VjVktTTG1DTkJPaklB?=
- =?utf-8?B?VkpFYjVsL3o0KzZrWjJSUVg4WTJ3cVRUN1Y1djJDWkdTOEI4R3krVXNIWXhz?=
- =?utf-8?B?cDhGVzltUjcvNm1mUkF5VmFvOWpmenF2L094UU9IeVUzbnVaNTlHaGlxUEtu?=
- =?utf-8?B?NllyMm5aU3ZnYUJtLzdsVXl3MEVsZmFSdmZhcTA2N3dXdEdqQTFmUWN3dVpP?=
- =?utf-8?B?cUp1SmR4MDJ5VGxvY2hnb0tpSE96NnBZU0tVVTc3NU44eEpiakJDQmhUa2FR?=
- =?utf-8?B?UkZGbndLcnk3VCtNaXBtSTQrQjhxSDB0d24vak5pSCt2OWJZYjJBU1FpWEwz?=
- =?utf-8?B?Qy9UR0RBSlF1c1lxb1BSaUdoMldKbUtvZkZZMVIxSitKZ2RYRUkwNC9WTmx5?=
- =?utf-8?B?RHhKY01iYTFlaXE3RW9OZjJWRHNMemJzWFZTbEV0MitNWU5JU09lZ1p6Y29r?=
- =?utf-8?B?S21XamZVRkI4eUJYWHYvekFvdGdWelpGNzZlVlhmaHJ5b3NJK3VmRWlFb3Bs?=
- =?utf-8?B?QjdjdUY2eDdrU0F6QmtibVhTMjBTbDF0eFVkbzRndGxXd3hHU1ltMGlnN0hi?=
- =?utf-8?B?d3FsY2J5bHFRN1pxeTBQWGZOOW9RZVQyQy92enN2eTNQNVpBT3d3b0NjdXg0?=
- =?utf-8?B?RWpRdW9UZjVtWUk5NkYwQ2FaT2syRVlSOW1BZ3hGV29zY2hDak0rcUE5ck91?=
- =?utf-8?B?UUpKTVNMY1F4UXFrRE9JeVVJY3lSY1JpbUNRVlkxWkNxTUpBcEtFZ1RQYUJY?=
- =?utf-8?B?SjUxN0hVZ21obGN2MzdWRXFXNEV2RVdvRGl4MU8yQUswOGFVektZczZmcVVr?=
- =?utf-8?B?SWV2SDI0T1U2R01qdTh3RDM1OEpDaHlMVk0zdHB0c0JMY0tOWWJaUmt5bEZy?=
- =?utf-8?B?WnVsbHJpQTNwbFY0RVp6QW1RTHRjd1VWNDVyeTFDRTFEczdxYkQ1b3IxaWlt?=
- =?utf-8?B?RFhkd2FQNTJQL2t1bDk3aDlJYmM5c1NxcWxZWTQ3NEpjc2N5K2JpWDZRTDRj?=
- =?utf-8?Q?VFaoyipD1Ymcg6LKZZuqCnjUiUjYyKGq?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?WlFoMnB6L05BUTV0c3RCSlhxSXpENVF5aHFaR1dpNlp0K0ordXIyazc2VEFR?=
- =?utf-8?B?ajdVRTFraExMNFJjZGdOaUkvcGcxbTRqTkJXYjM1eUpnTkhxWGd5cFZlV2xr?=
- =?utf-8?B?TmpDYWZqZ2p1b1hwUWN5amxNZFlacUFWNEZHcmhsRWZaWUFmcFk3a1laZmt2?=
- =?utf-8?B?R2d3NW1POVE3RnNLYU00R3NDdnZqcFRHRStaV25hdStRajBxendBbXh2aVBB?=
- =?utf-8?B?Nk5pclZTbnRJaUdEV3B0WDhKTTE3R1NrTitlckxsblNjV1FDUUhVN0dGdzhW?=
- =?utf-8?B?YUh1dGFTNnFhVFVHK0k5Q0x2MzJ2dDdYY01KbHF2QVc2cmRzbi9XZnhvQ2c4?=
- =?utf-8?B?MFpPUVhWM1FkZTBlUzRreDc3em5Qc1lPZ2JtclZESzh0d3d2ZW5CWkg0ZVdz?=
- =?utf-8?B?ZXFad0pHMW93Smd0amkxMEcwYUFjemFCVU0rRkx2SDJwZXdjS2JWUnozd0ov?=
- =?utf-8?B?UVlWeXlHSjl5Yy80bDNjOVg3cFB4b2RsUHcxODFZZWd2Z1lmRnZuTWg5aVFh?=
- =?utf-8?B?L0JYcHhxWURxS1cwNkJIVW9JR1NFdW9nMFhZWTNKRlBhMG5KUWt2U3NneHI5?=
- =?utf-8?B?NWdaZXo4VjhraVBMMExFK3lkREtxdFlFdWxOR201QnloOVVQMzB0Ynk0MFFo?=
- =?utf-8?B?aUpCS0MwUTUxT250K2pnMXdUVFVtbHRUdGZ2RFBKTU10ZjNmT0xjS1ZWYTFM?=
- =?utf-8?B?ZFBtbzl1UVJuNWVyRlRSaXlHUHVNR0Q0MEt0bzNHdnJHV0N6SWpObTRTRTZs?=
- =?utf-8?B?K0cwakNLUlphRWpxOElXUU43YW05Yi9ZR1dLTmwyaGtFdjlsMnB0S2dnUVRY?=
- =?utf-8?B?UTZNQlh1RzRzUlAwL1FyZ3ZsRmR1cnZ6UDdCVWRDR3M5MHpiRlAxRlEvZDlx?=
- =?utf-8?B?Z3pYZ0p2OTNqbGJHYUF1L215dEs1Qm96aWJhK1ZXRWRiL3FtQmxrKzlEeUI4?=
- =?utf-8?B?aUxkRFQxVkFzTXhBTU5uV3YvQ3N2YWJ0Rm9keS80K2dWNWQwNmJIZmMwTzF1?=
- =?utf-8?B?elRuOEpvY0pHc2dTTi9tcmJvc0ZvOCtnckJjeE80eXBrNVk3SmZFVFBpWjU5?=
- =?utf-8?B?UEJnTURWaDVQYzdhUk1HNUYrbms5TWN3Vnp1dXVpNW1hVDYrS01ieWErZ2RO?=
- =?utf-8?B?OFN6RU1sOTJEWGl5Yyt3NEw4OXZPS1hkSG5yMnZvdGMwS0ltN2lCeXdHaE9r?=
- =?utf-8?B?TDRreEFtV2Z5NkxRTUlVd21qaVVGckdiNFZkMVdQa0pOMjZVbnkwY2FHdVZn?=
- =?utf-8?B?dWtVcmtRdCtEQThEMVhTUVplcWloMTIwVTNGZnlnQzJxRFhiVWo5YlRLUis2?=
- =?utf-8?B?aWJPMnJSdnRHb1RDRVZQcTA0dE9CRzhQQ3JMbVdCMFdIQ0VEMGF4S3Ribkd4?=
- =?utf-8?B?MlNBVXZhVW5sc2NpWHVxZlF1M3hMVHhLNWhEQUN4VFpQZXd0R3pvVEhxTXVw?=
- =?utf-8?B?bmRzMzdvZmpSdlFoRGNUNTBFQ295NElLKzdUY0FCRGFHcXNEdVpNazBPL29I?=
- =?utf-8?B?cEZXQ1FqMjM5SHczMldkQlRMdmpaeHM0NVBoWHFQRzAwSmd0QTJMOFBaUUVP?=
- =?utf-8?B?dUpqNllFTW45S1J4K2FXdGtvYms2OU1LazZUMFdaaitvWC92Wk1sOTc4T1p0?=
- =?utf-8?B?bXZ4QkZ4K1RubUNYczdPMU15cTRISGQzOTlXUDZjS0xEbGhQeUtIY0pwWTBW?=
- =?utf-8?B?RllQUDJ3MlNraTJkQ1pqUmdFWkhrWXlGUVhEWTVQT0x2U25vR3hSUEhsQ2hF?=
- =?utf-8?B?WTJoajNERXAxMGhuVERjWVBSMVRVK1RJTFBZSS9jcmVtSmE4RUhlbTkyVE5K?=
- =?utf-8?B?dEZXQ2FpZUxYYlg5NytiSS9TQ21lbXc1MENBU1QxSEJxS3kvZ0J4eFZRWHlM?=
- =?utf-8?B?TEhzRm5qbUx2dUt6VFdYMFhzNDNEdVlweFFLLzNOdytkNXJpZWl2ZThMdmhm?=
- =?utf-8?B?WWpiZ2l0cEMwS0phdEU0R21HeHNTbmdwSEdEUUVGblhvbEtKU2tScytTMlh4?=
- =?utf-8?B?U1RoUWZBd25xL0lidXljL2FVYXg5U3I3Zzd5cVlhK0F3bC9GTTBVOVZET2pU?=
- =?utf-8?B?cTRMdUF2L0s0c0p1QWFaNzc2eE9lTnh0YXRUUE4vK3E5Q21PSXpDaG5EYklz?=
- =?utf-8?Q?HPhtwUChg+JICxhC+XJ594jqK?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c9a16ac6-d76e-4f76-c0c8-08de2731e9ff
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2025 06:07:26.7822
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: deUNe19g2yYpEoemRFfAEi8BSkZeo0JPUYOvUAsNd5eZEWP7+ycCnmQl7ReCZiL2jAXkt6DkcuqpIHOIFWrzlQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PPF6483BC7EA
+In-Reply-To: <db8a26ca-8430-9e7d-4ad1-9b7743c4cfd1@loongson.cn>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJDxQ+S2Xx1pCio4AQ--.29734S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoW3uw4fKF45AFWrAFy7JFyxJFc_yoWDur1xpr
+	1kJFykJ3yUWr1kAw4UtF1jvryUJr18Jw1UXFy7XFyUtrsrWr1qqr1UXryjgr1UJr48Jr1j
+	qr1xJrW2vF17JabCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUv2b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
+	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE
+	14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwCYjI0SjxkI62AI1c
+	AE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8C
+	rVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXw
+	CIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x02
+	67AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr
+	0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU8vA
+	pUUUUUU==
 
-On 11/18/25 1:01 PM, Michael S. Tsirkin wrote:
-> On Tue, Nov 18, 2025 at 08:38:57AM -0600, Daniel Jurgens wrote:
->> Filtering a flow requires a classifier to match the packets, and a rule
 
->> +		       size_t key_size)
->> +	ff_rule->group_id = cpu_to_le32(VIRTNET_FF_ETHTOOL_GROUP_PRIORITY);
->> +	ff_rule->classifier_id = cpu_to_le32(classifier_id);
->> +	ff_rule->key_length = (u8)key_size;
+
+On 2025/11/19 上午9:59, Bibo Mao wrote:
 > 
-> I don't think you need this cast. 
 > 
-> BTW why do you insist on making all this math in size_t variables?
+> On 2025/11/18 下午8:48, Huacai Chen wrote:
+>> Hi, Bibo,
+>>
+>> On Tue, Nov 18, 2025 at 4:07 PM Bibo Mao <maobibo@loongson.cn> wrote:
+>>>
+>>> Function vcpu_is_preempted() is used to check whether vCPU is preempted
+>>> or not. Here add implementation with vcpu_is_preempted() when option
+>>> CONFIG_PARAVIRT is enabled.
+>>>
+>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>>> ---
+>>>   arch/loongarch/include/asm/smp.h      |  1 +
+>>>   arch/loongarch/include/asm/spinlock.h |  5 +++++
+>>>   arch/loongarch/kernel/paravirt.c      | 16 ++++++++++++++++
+>>>   arch/loongarch/kernel/smp.c           |  6 ++++++
+>>>   4 files changed, 28 insertions(+)
+>>>
+>>> diff --git a/arch/loongarch/include/asm/smp.h 
+>>> b/arch/loongarch/include/asm/smp.h
+>>> index 3a47f52959a8..5b37f7bf2060 100644
+>>> --- a/arch/loongarch/include/asm/smp.h
+>>> +++ b/arch/loongarch/include/asm/smp.h
+>>> @@ -18,6 +18,7 @@ struct smp_ops {
+>>>          void (*init_ipi)(void);
+>>>          void (*send_ipi_single)(int cpu, unsigned int action);
+>>>          void (*send_ipi_mask)(const struct cpumask *mask, unsigned 
+>>> int action);
+>>> +       bool (*vcpu_is_preempted)(int cpu);
+>>>   };
+>>>   extern struct smp_ops mp_ops;
+>>>
+>>> diff --git a/arch/loongarch/include/asm/spinlock.h 
+>>> b/arch/loongarch/include/asm/spinlock.h
+>>> index 7cb3476999be..c001cef893aa 100644
+>>> --- a/arch/loongarch/include/asm/spinlock.h
+>>> +++ b/arch/loongarch/include/asm/spinlock.h
+>>> @@ -5,6 +5,11 @@
+>>>   #ifndef _ASM_SPINLOCK_H
+>>>   #define _ASM_SPINLOCK_H
+>>>
+>>> +#ifdef CONFIG_PARAVIRT
+>>> +#define vcpu_is_preempted      vcpu_is_preempted
+>>> +bool vcpu_is_preempted(int cpu);
+>>> +#endif
+>> Maybe paravirt.h is a better place?
 > 
-> Just u8 should do, and in calculate_flow_sizes you can do a BUG_ON to check
-> it does not overflow.
+> It is actually a little strange to add macro CONFIG_PARAVIRT in file 
+> asm/spinlock.h
+> 
+> vcpu_is_preempted is originally defined in header file 
+> include/linux/sched.h like this
+> #ifndef vcpu_is_preempted
+> static inline bool vcpu_is_preempted(int cpu)
+> {
+>          return false;
+> }
+> #endif
+> 
+> that requires that header file is included before sched.h, file 
+> asm/spinlock.h can meet this requirement, however header file paravirt.h
+> maybe it is not included before sched.h in generic.
+> 
+> Here vcpu_is_preempted definition is added before the following including.
+>     #include <asm/processor.h>
+>     #include <asm/qspinlock.h>
+>     #include <asm/qrwlock.h>
+> Maybe it is better to be added after the above header files including 
+> sentences, but need further investigation.
+>>
+>>> +
+>>>   #include <asm/processor.h>
+>>>   #include <asm/qspinlock.h>
+>>>   #include <asm/qrwlock.h>
+>>> diff --git a/arch/loongarch/kernel/paravirt.c 
+>>> b/arch/loongarch/kernel/paravirt.c
+>>> index b1b51f920b23..b99404b6b13f 100644
+>>> --- a/arch/loongarch/kernel/paravirt.c
+>>> +++ b/arch/loongarch/kernel/paravirt.c
+>>> @@ -52,6 +52,13 @@ static u64 paravt_steal_clock(int cpu)
+>>>   #ifdef CONFIG_SMP
+>>>   static struct smp_ops native_ops;
+>>>
+>>> +static bool pv_vcpu_is_preempted(int cpu)
+>>> +{
+>>> +       struct kvm_steal_time *src = &per_cpu(steal_time, cpu);
+>>> +
+>>> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
+>>> +}
+>>> +
+>>>   static void pv_send_ipi_single(int cpu, unsigned int action)
+>>>   {
+>>>          int min, old;
+>>> @@ -308,6 +315,9 @@ int __init pv_time_init(void)
+>>>                  pr_err("Failed to install cpu hotplug callbacks\n");
+>>>                  return r;
+>>>          }
+>>> +
+>>> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
+>>> +               mp_ops.vcpu_is_preempted = pv_vcpu_is_preempted;
+>>>   #endif
+>>>
+>>>          static_call_update(pv_steal_clock, paravt_steal_clock);
+>>> @@ -332,3 +342,9 @@ int __init pv_spinlock_init(void)
+>>>
+>>>          return 0;
+>>>   }
+>>> +
+>>> +bool notrace vcpu_is_preempted(int cpu)
+>>> +{
+>>> +       return mp_ops.vcpu_is_preempted(cpu);
+>>> +}
+>>
+>> We can simplify the whole patch like this, then we don't need to touch
+>> smp.c, and we can merge Patch-2/3.
+>>
+>> +bool notrace vcpu_is_preempted(int cpu)
+>> +{
+>> +  if (!kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
+>> +     return false;
+>> + else {
+>> +     struct kvm_steal_time *src = &per_cpu(steal_time, cpu);
+>> +     return !!(src->preempted & KVM_VCPU_PREEMPTED);
+>> + }
+>> +}
+> 1. there is assembly output about relative vcpu_is_preempted
+>   <loongson_vcpu_is_preempted>:
+>                 move    $r4,$r0
+>                 jirl    $r0,$r1,0
+> 
+>   <pv_vcpu_is_preempted>:
+>          pcalau12i       $r13,8759(0x2237)
+>          slli.d  $r4,$r4,0x3
+>          addi.d  $r13,$r13,-1000(0xc18)
+>          ldx.d   $r13,$r13,$r4
+>          pcalau12i       $r12,5462(0x1556)
+>          addi.d  $r12,$r12,384(0x180)
+>          add.d   $r12,$r13,$r12
+>          ld.bu   $r4,$r12,16(0x10)
+>          andi    $r4,$r4,0x1
+>          jirl    $r0,$r1,0
+> 
+>   <vcpu_is_preempted>:
+>          pcalau12i       $r12,8775(0x2247)
+>          ld.d    $r12,$r12,-472(0xe28)
+>          jirl    $r0,$r12,0
+>          andi    $r0,$r0,0x0
+> 
+>   <vcpu_is_preempted_new>:
+>          pcalau12i       $r12,8151(0x1fd7)
+>          ld.d    $r12,$r12,-1008(0xc10)
+>          bstrpick.d      $r12,$r12,0x1a,0x1a
+>          beqz    $r12,188(0xbc) # 900000000024ec60
+>          pcalau12i       $r12,11802(0x2e1a)
+>          addi.d  $r12,$r12,-1400(0xa88)
+>          ldptr.w $r14,$r12,36(0x24)
+>          beqz    $r14,108(0x6c) # 900000000024ec20
+>          addi.w  $r13,$r0,1(0x1)
+>          bne     $r14,$r13,164(0xa4) # 900000000024ec60
+>          ldptr.w $r13,$r12,40(0x28)
+>          bnez    $r13,24(0x18) # 900000000024ebdc
+>          lu12i.w $r14,262144(0x40000)
+>          ori     $r14,$r14,0x4
+>          cpucfg  $r14,$r14
+>          slli.w  $r13,$r14,0x0
+>          st.w    $r14,$r12,40(0x28)
+>          bstrpick.d      $r13,$r13,0x3,0x3
+>          beqz    $r13,128(0x80) # 900000000024ec60
+>          pcalau12i       $r13,8759(0x2237)
+>          slli.d  $r4,$r4,0x3
+>          addi.d  $r13,$r13,-1000(0xc18)
+>          ldx.d   $r13,$r13,$r4
+>          pcalau12i       $r12,5462(0x1556)
+>          addi.d  $r12,$r12,384(0x180)
+>          add.d   $r12,$r13,$r12
+>          ld.bu   $r4,$r12,16(0x10)
+>          andi    $r4,$r4,0x1
+>          jirl    $r0,$r1,0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          lu12i.w $r13,262144(0x40000)
+>          cpucfg  $r13,$r13
+>          lu12i.w $r15,1237(0x4d5)
+>          ori     $r15,$r15,0x64b
+>          slli.w  $r13,$r13,0x0
+>          bne     $r13,$r15,-124(0x3ff84) # 900000000024ebb8
+>          addi.w  $r13,$r0,1(0x1)
+>          st.w    $r13,$r12,36(0x24)
+>          b       -128(0xfffff80) # 900000000024ebc0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          andi    $r0,$r0,0x0
+>          move    $r4,$r0
+>          jirl    $r0,$r1,0
+> 
+> With vcpu_is_preempted(), there is one memory load and one jirl jump, 
+> with vcpu_is_preempted_new(), there is two memory load and two beq 
+> compare instructions.
+> 
+> 2. In some scenery such nr_cpus == 1, loongson_vcpu_is_preempted() is 
+> better than pv_vcpu_is_preempted() even if the preempt feature is enabled.
+how about use static key and keep file smp.c untouched?
+bool notrace vcpu_is_preempted(int cpu)
+{
+         struct kvm_steal_time *src;
+
+         if (!static_branch_unlikely(&virt_preempt_key))
+                 return false;
+
+         src = &per_cpu(steal_time, cpu);
+         return !!(src->preempted & KVM_VCPU_PREEMPTED);
+}
+
+it reduces one memory load, here is assembly output:
+  <vcpu_is_preempted>:
+         andi    $r0,$r0,0x0
+         move    $r4,$r0
+         jirl    $r0,$r1,0
+         andi    $r0,$r0,0x0
+         pcalau12i       $r13,8759(0x2237)
+         slli.d  $r4,$r4,0x3
+         addi.d  $r13,$r13,-1000(0xc18)
+         ldx.d   $r13,$r13,$r4
+         pcalau12i       $r12,5462(0x1556)
+         addi.d  $r12,$r12,384(0x180)
+         add.d   $r12,$r13,$r12
+         ld.bu   $r4,$r12,16(0x10)
+         andi    $r4,$r4,0x1
+         jirl    $r0,$r1,0
+
+Regards
+Bibo Mao
+
+> 
+> Regards
+> Bibo Mao
+>> Huacai
+>>
+>>> +EXPORT_SYMBOL(vcpu_is_preempted);
+>>> diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
+>>> index 46036d98da75..f04192fedf8d 100644
+>>> --- a/arch/loongarch/kernel/smp.c
+>>> +++ b/arch/loongarch/kernel/smp.c
+>>> @@ -307,10 +307,16 @@ static void loongson_init_ipi(void)
+>>>                  panic("IPI IRQ request failed\n");
+>>>   }
+>>>
+>>> +static bool loongson_vcpu_is_preempted(int cpu)
+>>> +{
+>>> +       return false;
+>>> +}
+>>> +
+>>>   struct smp_ops mp_ops = {
+>>>          .init_ipi               = loongson_init_ipi,
+>>>          .send_ipi_single        = loongson_send_ipi_single,
+>>>          .send_ipi_mask          = loongson_send_ipi_mask,
+>>> +       .vcpu_is_preempted      = loongson_vcpu_is_preempted,
+>>>   };
+>>>
+>>>   static void __init fdt_smp_setup(void)
+>>> -- 
+>>> 2.39.3
+>>>
+>>>
 > 
 
-Ok
