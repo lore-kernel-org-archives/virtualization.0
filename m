@@ -1,182 +1,359 @@
-Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010061.outbound.protection.outlook.com [52.101.193.61])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2975B221299
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 00:57:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.61
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763513873; cv=fail; b=gi2iar4HdeyeJJAP1zDdYHtx1mYLOloPXjZ3j/fjTi+1r1/gd3Xf/liK9u7Zm8oiLYu+H2cXMcwa7civ/0/AGbJZm9UYKslicdOuLmGVj988+5tpXJyBq37opiGrVHt+0RPK1Lu7bSv6C0O/zIAJj7UtJq/Eck8sSbgFvPE0CJ4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763513873; c=relaxed/simple;
-	bh=U+KMzw2jHaWUxQY3Mutdrf6UvJpU7L3+GyYUpIjsZb8=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=WpY52pA+BvufCTu09l82rFsoFuXYyR3t5ryMddfMhSCHP+vDEs2zjkPcJ5V76tYi8eOtBOAm/JmDluKtAoGHBZp8DrjCaoWK2nhl2JW+toVpNQZzGT4t7y68EmlijylLI11OpQa9nXDnklRZzNDFvqBcFQyfnRiNnr72tgcI2+4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=cOdstI1Q; arc=fail smtp.client-ip=52.101.193.61
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2621821018A
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 01:17:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763515061; cv=none; b=DOVmw7ZY4tM+ciWvpJ6DHb0pKk6mkkDsXGs+v5JVORiITYEU8Ug+oIXhoDsvjftlbu+BIrmEuwAu8RHulVqyCL3XUl97MkSHe+m7T3jJcn/myMJPK+yiDzn5RtmubuJiteXXmbKxhNaa0W+AlGc9e7YzSG5l8gcdLr5x1G6M+ts=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763515061; c=relaxed/simple;
+	bh=rT7Doq+l7z7hbFLJv3oOESobuNgHarGO6IKGTw8AtDk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sEU3HQJVTIEVV8HGaKFUcSHGpRYuomdCgHcFxJ6bXPh3xxKEBVsMdQdKgGrRocLllAfUpcvKuDOjAPfyVCcqqY489hVrd6dCz/+nwAdaeutDquiMIE9Kd8ObZH8v5/CTnh1zn5ykKss9xW9EPKaut6z49gBYltDlXouHCfEMkT0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L/0C+D23; arc=none smtp.client-ip=209.85.128.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="cOdstI1Q"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=F9YnW6LAc+sQdX6jWZve3Tk0j8OwFRr07BqjzKKVIglEmPTSM1obkFsNXt4eluUOtCL1xXc4orX3kZdJZOOjvcKX7Dgcx6jGNUqooUBjuCxq1snt6FqloDf6kcdcXPMb9yA4/4PTLu33cpg/eHZlkuFl0UHsQlBLnXjKcrcguXh9NJLnmUcBMHfPfoGypKC22DGy+JNw+h6Vve7hx8EOxVsdnPVrtdGhV9/vVuSiUHwVlm/AYh3nVxRPJGFwi0zS6r/jn4bTF08BeRffzH/OgBfR9IsorGiEA1g4XRurv34UxFGKE2VWbZCT1pG2KQ+QuFaBdLdNUpM0SYjsYM7fYw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=U+KMzw2jHaWUxQY3Mutdrf6UvJpU7L3+GyYUpIjsZb8=;
- b=i37BnSzHfWZok+OW0Jb8r/OwRhB628YrQudsx+qOd3vfZpJ1WlN136bE1IhocWLwEpJp3vSckgfMV9KE7cwDOkWhNEtKCvTicilXghfUkot7Ri+i6AqrqGJwI40ec3giwFH9Js1r++KdWeWxNWsISixKjI4IEzL9n/DUwNzVdeuX9ebDdX4d9gm6CuUV/LjULxstYlS70w84g+BtaQd0Pwtr2GOrZrMfnt94Mr1tXI1tXPjk0WFny2T5PWWMJUVwew9bxMjgF6PW9xp32cYaeTlyicbmuQEnKzdCoPRhlJapU2DrfezQHvoXYvOQqXa8ORyNBI+NHwx/fjimT/3gtA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=U+KMzw2jHaWUxQY3Mutdrf6UvJpU7L3+GyYUpIjsZb8=;
- b=cOdstI1QuAqwKTlEPVws5bwQ4BQtkjJtkmyYqdgTtXtcLUwv1521A0RuWAHvBgd2lYHpFVMsP9yEDepgzOYgCcI1FuX7+B1ZnR7FBgaPlORb4nbSYUSAbwERs2VQt0wFkoPCoPwJIr3X81L8EoM4xu5XfFshq8ubehnPmRS6lIntQQwnIU74p+P26klWHX2HvKa2Us63bFhxkXEOMRo1+QylE3mZbvRj1b3chd6lMMrFtS/195rs7Hfg8/RfDoKtRDoBT38yOi3EBqVVSHDShw1s5w28OReQNiLFPfgaJURc+2kVOxeJOYBCi9bQHYpaJW794L8zWBe+Yg+K8HzN5g==
-Received: from LV3PR12MB9404.namprd12.prod.outlook.com (2603:10b6:408:219::9)
- by SN7PR12MB8771.namprd12.prod.outlook.com (2603:10b6:806:32a::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9320.22; Wed, 19 Nov
- 2025 00:57:47 +0000
-Received: from LV3PR12MB9404.namprd12.prod.outlook.com
- ([fe80::57ac:82e6:1ec5:f40b]) by LV3PR12MB9404.namprd12.prod.outlook.com
- ([fe80::57ac:82e6:1ec5:f40b%5]) with mapi id 15.20.9320.021; Wed, 19 Nov 2025
- 00:57:47 +0000
-From: Chaitanya Kulkarni <chaitanyak@nvidia.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>
-CC: Yishai Hadas <yishaih@nvidia.com>, Alex Williamson
-	<alex.williamson@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>, =?utf-8?B?RXVnZW5pbyBQw6lyZXo=?=
-	<eperezma@redhat.com>, Alex Williamson <alex@shazbot.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-Subject: Re: [PATCH] virtio_pci: drop kernel.h
-Thread-Topic: [PATCH] virtio_pci: drop kernel.h
-Thread-Index: AQHcWOBVf8Fs9CCLKEqwN/T3A3OcwLT5LUgA
-Date: Wed, 19 Nov 2025 00:57:47 +0000
-Message-ID: <3d58c482-c171-45a9-ba13-2cc9ff50ad3d@nvidia.com>
-References:
- <a1efb550481fc67973c0a86860e0724c8f5b9957.1763507303.git.mst@redhat.com>
-In-Reply-To:
- <a1efb550481fc67973c0a86860e0724c8f5b9957.1763507303.git.mst@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-user-agent: Mozilla Thunderbird
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: LV3PR12MB9404:EE_|SN7PR12MB8771:EE_
-x-ms-office365-filtering-correlation-id: c96ff252-ec7c-4ddd-654a-08de2706a7d9
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|366016|376014|10070799003|1800799024|38070700021;
-x-microsoft-antispam-message-info:
- =?utf-8?B?R2g3ejk4eUdnQlFMMS9JVlVMMHpZNFRiVXMyL1NVSTNJak9LbG94eVVvVmcz?=
- =?utf-8?B?a1JCa3RNTzdIV2dCQlBGNXJzQjdXWDBrcEQ4ZEpKaTliYTUxL05pVG90NlFR?=
- =?utf-8?B?VnhDZ09KUDBhNElKOTFFYjIxUTVTRmpkWWlCQStqWEQxSEI4WE54bVBRb1BX?=
- =?utf-8?B?WURpZzdPenlzbmkwODQwS0N4ZEhxZDBJQ09RVE9nZGdoYzQ4L3hoVGdNbWh4?=
- =?utf-8?B?elRldTdCWHVUdy9kT09wMVBOQlpvaHhkeko3YTJKTGlyaHBQc3VNY1BQLzFN?=
- =?utf-8?B?N1FOZ0p5QVUzMHl3RW9qYmZITFVvNlZBd3RJUUpyeU5uZDdGeklNOWs3SzlF?=
- =?utf-8?B?Mk91TnRqRTdOYW9Pc21VbUNPc0dNdlhSQXhKb2tPUWVFcVk3OWRiVWo5TW1o?=
- =?utf-8?B?R2k1Uml3eUlBdFlaSzdwTEFFL0VFQkRFK3J0U3lXTFVYalptYWNpOFpjM1kv?=
- =?utf-8?B?bXFaQTdEbVBWd2IyOFVMbnhWUzJtVy9JTjNNQnRPOUZxQTNTZ3pzWHg3a1Nt?=
- =?utf-8?B?Y3JsMHVreGNHRzdFanBRMDlwbGcvNUkza0dDeDBNeHY2R2VrTlo4N0hzWEdK?=
- =?utf-8?B?dFY0SW82a1R5N3p0ZUFuNi9XU2xQb1c0a0VNZTlyRVc1VFh3SnJZSWgrVFJs?=
- =?utf-8?B?SUY4blF5RnlNMkFaYzlEN0RDMTU0d291aXRTbVV3M3JXL1NhQ1h4ZzRra1JE?=
- =?utf-8?B?Y3RKNFYrM3dFTXRnUFBJZVY3b0ZsOTRMOHl3TDNNYVZrcXduLzRPL1c2U0lp?=
- =?utf-8?B?dlZsODJNV2NxdG16SytoNUxLNmRuZHNlbit1Wkl0U2ZaVFQrRDU3TmprU2hk?=
- =?utf-8?B?ZExERFlpUnlQWnJJK2tydXZMbmtmNHMvVnJrL3A0bytubU4wc0FwTEFjMlg2?=
- =?utf-8?B?NWNDU29scTRVRGVLRkxVcnhjaDErUEFYenVsL1dnVi80NTNXVk55b0xuV2VO?=
- =?utf-8?B?R1REd2RqWG9tTDc3U0ZZOU9WNy91eVduU2RkMVpGTWVVVDYycTBPRTR4cnBi?=
- =?utf-8?B?RUhQNk1JTXIyQzV4S3FGWTJuN1ZzK1FVams2enlEQVpGVTZNNnJEQ09TcjIy?=
- =?utf-8?B?RmQvYnZFRk5jSmlUZU1xS2NxbVNwOEVTdHdnRlAvSkt6VzRqVlo5U04vZjNP?=
- =?utf-8?B?ZkczRnViaUoya1YxeUc3cjNJMGRrMjFLOFVrOVR4ZTlFd1YraUdydjIzUS9L?=
- =?utf-8?B?dC9mTlZqZFQ3Y3NMVnpIUGZVRVY4K2lqR3BzMWlTQ05pUnRBSWtTUzRad3Z0?=
- =?utf-8?B?WDJQQjA0aXlFWm00alZVZTNtclhKZisyNXRrNEhZL2JpbCtmWUR3MTRxYzRX?=
- =?utf-8?B?bzl2dnAyeWlXQWYycTR4OG1EZW1XdjVlWHhTSFJJMWxVUzgxWnFBU2o0K2R0?=
- =?utf-8?B?VnArQ084RlovNEwvdy9mRVNFTG15aG0yT3U5SkxTUnVnU3VHNHE5UHlwTHNs?=
- =?utf-8?B?NC9rZVhFZDZYWDFVUVltQzFqNmFNcStPNndHUVZKTGhhNjhNRiswaWV5Si9Z?=
- =?utf-8?B?N01LeVFMUnI5SFVpM3VlUUtUa2RFeEVXYkRyYWRlZHlQa2ZRZnU3YU82dVFT?=
- =?utf-8?B?RTZ4bGFYNEtqeGdPczNrMk9rNkdSdVRia3N4bmRyTUFsNjNSd1lHR000dDA4?=
- =?utf-8?B?dFN4ZGdUZCt6YXV4MjJ0YUoxYkppcUxYS0tDbHR4eFAxSS96MjltMUVuUXlr?=
- =?utf-8?B?clg0Si9pdUhEZEtZeGxBYXdiWFE5b1dsZ0NXWWVReThtdTNqSUlPMk9oTy8r?=
- =?utf-8?B?TlM3YWY2cXFPMmVwZ1F2bXZPbzhOR2oxRjg4TloxWVludEpLOHN4Zi9qNWd5?=
- =?utf-8?B?SldJNldwVFJIYW4vTmM5aHhveGhFYW1wR2JNbzBmL1FXZDloNUxOeStjbnhP?=
- =?utf-8?B?UjhYNHova2c2LzltWXd0ZzBmSE9LUGJNaTI0SU1meCtGdCtPNVNSQmZXcU9E?=
- =?utf-8?B?SVpHN3VxNUlYYWNKb0lXeG96WURDQXV3NFBydlhFdXFWYWNxekRmV1FrMm9q?=
- =?utf-8?B?NE9kaDBJSVU2cm9DNnhHaFBDTVVQU3poVXRJaGJIYmh1L2FWVVlDQzc5WVJr?=
- =?utf-8?Q?suS8bH?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9404.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(10070799003)(1800799024)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?dG9LcFM2OWNYSDVrU0IxNTZ1dXd6MEwrcWF2VmhnL2NvbWZtczZFbFIzeE5o?=
- =?utf-8?B?T1NBa0krem0weW8yQ1NaQ3diVm1QVGFWaElwZndsVUVsVUJoZThwWkZ0ZWpC?=
- =?utf-8?B?eWxKK3ZWc0FMUnhZeXZEVkhBQ2d0MHFHYjZLTy9ib2R0VjVhTDlCSXJLZkhS?=
- =?utf-8?B?bGZtVXFjcURrdTViYXlNVTlYK0FCeTBrRUtEUk5PQlZCTkJIcE5saUV5RFN3?=
- =?utf-8?B?bEVDUGdTOWRnREhoY2dTWk10eHFwZ3dyWnJKMU1DakZha0lQOHF4aGJ0RWVC?=
- =?utf-8?B?ZThoaG90b2UxaTB6RUVrK3dwRjhBc1FMWVVSMHoxY2NPNkliWm9tTXNZTkN0?=
- =?utf-8?B?Y1FjYmlCZWhUc0tySmd4b3RKb3AwRXUvSHMvbUtMdWlGRnF5REJKSCt1a0Ey?=
- =?utf-8?B?c3pjTUhOZkNjZ2dPU081M2ErSlVuZmtvWUp0UTRjMHJlQ2pUK1B3bVd6Nzht?=
- =?utf-8?B?RG1ISFovNTd3UkJjN0drdUR0QlVaT3JGelR5Q3U3VStQa001RFVsQTJWM0tl?=
- =?utf-8?B?TXc5bnVVZnpjc1UzUDlSNGxqeXc5Q0g0OGkvcUNJNEVMR28xQzRITzRHdTI3?=
- =?utf-8?B?SUJSQXJLWFJkTG1ZNFgzRG5vanliYURoYjJXblJ6aEJrWlZQenBjTzJKZDZR?=
- =?utf-8?B?eGVOZitDcERuOW10dWRCM2dpaDU1cjJ2YjZNaEVXcUlJQk9EQXQ0QUFKTVFE?=
- =?utf-8?B?aTE3aEcwV3ZHYmw1NEZLdHp1b1dqdGdJTk5MTHFVZ1NqK2ZObm9MdTEyY1pU?=
- =?utf-8?B?Tm4rVFNCSnBzZkVQSjNNazMrOHhvQVpDUmVza1dhZ1I1VVp1aDBvUlpIWjZT?=
- =?utf-8?B?OHZ5Y2srR0lrNG9qN0VUM0dmTzNWM2hmT1R2bkhveXZoam9OaG5DNktiNkpn?=
- =?utf-8?B?bzJWZ2tKL1l5YXJLSGJnQ0lHRFR3MkVDbzRkcEVmeXRTSEdiU0pqVW1ZMXEr?=
- =?utf-8?B?dGZBRlZNODFqQUxBUnFZQ1QrQ1JMTlZ1VjRtd09BVGVtQ3hLRkJ2ZW8zei9v?=
- =?utf-8?B?MnNqSUh2OWtQTC9xanYxRUY1YU1WYTUzMGF1TmlNaDRwTC9iWUJIRElOSE85?=
- =?utf-8?B?emtOY2tSb2NmMTJldTg1bnB6cEgyd1MwcE5mM2VENklYWnFka3czZUxuYWlv?=
- =?utf-8?B?OWtzTnZvZFRETE92WXBkVlo5QUVKbGUyc0hWTUJ5emNoeUdrcXN4NSt0dzdC?=
- =?utf-8?B?cWk2a0wxU01xM3BEcWNaQ05LSkZBdGVNQ2NrZk1vN1J4SFI2ZE5OeCtrMDR0?=
- =?utf-8?B?dEx1bUNzN3VyWHRlaDdQcnVzeVNoV2pVallWZ2V2YWg2SThCMVlCM0s1a3lj?=
- =?utf-8?B?NTdvb2EveXo1bklSeEtqVWFtUnBQdXNObm1pdU5jNWhvMDV2aU5wckJWN04w?=
- =?utf-8?B?VGk2QjhVQTlWQ0JUUE9FTlRwTldlbFExZFl4WUttN1dEbFRYbVJiaktHQ2NV?=
- =?utf-8?B?TFV6RGdWTW1oVXg5a0tPSzA5cDBvM0hZSnpjRTlkR2dvUDRGVzg5NlB0SFJh?=
- =?utf-8?B?WVZRM2x2NlcvODdvdVRxbkJlTGpXS1dvTlpsdDQ1dnpJMmQ1eWgyeStDdDhY?=
- =?utf-8?B?S2FnMkxSU0g5S01JY3ZRSlQydHVSNXh3T1JWeUxhaWI0TG92emVsVG95L3NE?=
- =?utf-8?B?UjRTaUcwaHcxcVA0eTZCM1dwSGNGVytQSFB3ZW9Mb2wyUmRoMlZrTnloelJW?=
- =?utf-8?B?U1ZBRUd0WlpWb09MRzUrai9ZRmR3ZmNTVVJ0ckxKY3BCOFhDTW5laEtycW1o?=
- =?utf-8?B?YWtYVm02ZDZNNVNkaVlUZHNTU3E4cnh2QmF0WDl2WGZ1eXRDczc3UGFXNUVr?=
- =?utf-8?B?Z1BDNXdGSnl6RjAwVDBleGhjQkRYNVpxLzM5Z3h4M2twcmJ6QjBlYm5hUkkx?=
- =?utf-8?B?ZzlLVmIzZVpNcXVpWGNqbTQxVUVpT0tocG1ubGZ2U1BYRlZqQUY2aUFKY0xn?=
- =?utf-8?B?bFYxMlRKZE1tMCtLcUUvcFFESUFpcEhEanBMMzZSeVdhTi9pYnZ1b1ZjNGkx?=
- =?utf-8?B?SnBxMXV0L3dQYU1wazVncEYxaDBVanVGZGQ1dGZtdGtweUo2SW80WUlJQmhm?=
- =?utf-8?B?OWYzVG1OMElnMWtZNWhaQ3NMYVBqa1lXclJtbEVlNFpseHZORDM2V0syMStB?=
- =?utf-8?B?OUpPUEFHZXRqWnV3akdPUlFla1puNlY3eEVmNWVqVm83NXdWd21qQnNLKytk?=
- =?utf-8?Q?i7QNFzPT190nmDpjanSs8BLNsgKnfcW2X6r8DFSNfYpW?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <46BCB715F1BCC041A7CFF381E43092F3@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L/0C+D23"
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-78a6c7ac38fso4253427b3.0
+        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 17:17:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1763515058; x=1764119858; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2sqe8ncDEknCOi4UhxwOn5EBWZJsrkPpNEM6tqbGLh4=;
+        b=L/0C+D23CK+dTXCwO8GR3EAuJRx0odKwKCFY9isj8o1swxB50JZ9F4IEZ+vyBrvdPv
+         5DJC0nWO6t7bH8Kv3xK5fhFj2jSW38NMVcV7gpAdc4hJOrif5jDXSPf1X8O8oWZe3nvj
+         KK7dYxRzZ7E6kAuRqa8ET0XuUdgxAHImAKSRxsvLBxt5Tclzv5mwMyfcVDsd7vBsKe6W
+         kzQUakQzSOhTXXWIlBcCAWxo5pP6ql+cW7qif28qHJf3E7Z50103WfqdlSwovkIYKiWF
+         50iZbgvR9i5aW2oSYNwvh6S3uHjiyEW8zV/krnvIFSCp6FmMbFC673aqmWFXehtG2uwe
+         CVGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763515058; x=1764119858;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2sqe8ncDEknCOi4UhxwOn5EBWZJsrkPpNEM6tqbGLh4=;
+        b=nyCegAPPWLjg8F59dNj1p8eYb99AzBdTqapdqYn+5/n20kCAcnigKeWKlXRGFAJTSp
+         HkvWyYrWhRj/5P8b9qM9pwSIxFNZlp2S6EkMmPHU+4K4TcNOEIQngT2m1P8Z74WIKrJc
+         pEWc63rdQXxfVQ0wZJdT/FUP7yVj8VfDBiEv924BpVxnrgiVrGXSto4IQYNbZUmAgtY1
+         zPROhxRW+ucTnBpRrZ5XTxCvgl+3pzoi+3pYE89YT4O2dKRjDyG7g40sNocteEhdDB/x
+         koO3B3msXAy3H+qedzeCFwTjNFjyxdzKtYlC2N1f1tqPxGSM+d7q5esqrhIsN9N/ts79
+         4AGQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXJYqahQgL9beMKX1CvRE0PKyebWMmNLIHwPsq/18BEdNvSghPM5720KlxSMjrgrG+woIrd0qjiX3Y3oNCNMQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw+yvuA7wKIBxX9PFWTfTBKR912Cu5a93X2lfKKTPIBZIjO8TSe
+	N2hnEsA5vcVFcRUjWM+SNZdLYfjfg8kxw1dMqrmUF5r8FUCk3xFrVoYz
+X-Gm-Gg: ASbGnctBAXM2RyFXtyXfoO60ZVbM6ItFaBtO8tYggYw0J1EJ11ctFHG/LrPjDlrnBV8
+	zSVd0jzxnRRrPjYD75weOVR9MQS3r6YBczx6CsKLTkCjlOXswVZEWm2IVsvlK7lG4rr0KAmtuoW
+	bXmZ/xuTSaPDCWDWr+PZy3dBb9ZvHKE+H9TLJzLoPpXzPiD09ShaN1lp8nIAUq2gclGfHHrBzgW
+	Ne2671g8uZEICUflpmsBkahP+qUS+KZrgOd7WEZg9Ic+QYOGSJJyig4pI4pMAD2pKgfCvo8fxzB
+	RKe1YAbSR2NKl+S/jZWr4QDJ6qw7ucg/cdfdCu4VrOfmHXt82z1r1qso1S27i23ZF9j+eUo+0Zc
+	U4t3h8rDIeAA2rY7gfOV+LsDP952UZ6Fkvx3shDG0dg/q4lLncyE2uN40HJZgTZ8SlwsXqnTq5T
+	xw9SjdNRCTR3AgGrM77W7tth+kWBN/GH+cJRHFxOY9+G8MTJEMCUNmqw8Ncw==
+X-Google-Smtp-Source: AGHT+IE+l2e227udRixUaMV1OD0fbSyMRTRhSYspYsqsrhrAm7qQBfwUi7+G0snVl8c4IqgyshR/vA==
+X-Received: by 2002:a05:690e:240c:b0:63f:ba88:e8f9 with SMTP id 956f58d0204a3-641e75e62f4mr11153561d50.41.1763515058001;
+        Tue, 18 Nov 2025 17:17:38 -0800 (PST)
+Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:54::])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-6410e9e8f76sm6410956d50.4.2025.11.18.17.17.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Nov 2025 17:17:37 -0800 (PST)
+Date: Tue, 18 Nov 2025 17:17:35 -0800
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Bryan Tan <bryan-bt.tan@broadcom.com>,
+	Vishnu Dasa <vishnu.dasa@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, Sargun Dhillon <sargun@sargun.me>,
+	berrange@redhat.com, Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH net-next v10 03/11] vsock: reject bad
+ VSOCK_NET_MODE_LOCAL configuration for G2H
+Message-ID: <aR0arw2F/DmbIrzY@devvm11784.nha0.facebook.com>
+References: <20251117-vsock-vmtest-v10-0-df08f165bf3e@meta.com>
+ <20251117-vsock-vmtest-v10-3-df08f165bf3e@meta.com>
+ <vsyzveqyufaquwx3xgahsh3stb6i5u3xa4kubpvesfzcuj6dry@sn4kx5ctgpbz>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9404.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c96ff252-ec7c-4ddd-654a-08de2706a7d9
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Nov 2025 00:57:47.2157
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: SQNzaJwdR4UW2MP8435/oFqlzsOoBVm/mFAwCtEYsQH2MOMf2UyU24OXDS2/fVyxoWSqWqS/5NH69EUdFARHFA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB8771
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <vsyzveqyufaquwx3xgahsh3stb6i5u3xa4kubpvesfzcuj6dry@sn4kx5ctgpbz>
 
-T24gMTEvMTgvMjUgMTU6MDgsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToNCj4gVUFQSSBoZWFk
-ZXJzIHJlYWxseSBoYXZlIG5vIGJ1c2luZXNzIHB1bGxpbmcgaW4ga2VybmVsLmgNCj4gRHJvcCBp
-dCAtIGl0IGRvZXMgbm90IHNlZW0gdG8gYmUgbmVlZGVkLCBlaXRoZXIuDQo+DQo+IEZpeGVzOiA3
-YzFhZTE1MWU4MTIgKCJ2aXJ0aW9fcGNpOiBJbnRyb2R1Y2UgZGV2aWNlIHBhcnRzIGFjY2VzcyBj
-b21tYW5kcyIpDQo+IENjOiAiWWlzaGFpIEhhZGFzIjx5aXNoYWloQG52aWRpYS5jb20+DQo+IENj
-OiBBbGV4IFdpbGxpYW1zb248YWxleC53aWxsaWFtc29uQHJlZGhhdC5jb20+DQo+IFNpZ25lZC1v
-ZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbjxtc3RAcmVkaGF0LmNvbT4NCg0KSW5kZWVkOg0KDQps
-aW51eC1ibG9jayAoZGlzY2FyZC1yZXQtdmFsdWUpICMgZ3JlcCAia2VybmVsXC5oIiBpbmNsdWRl
-L3VhcGkvbGludXgvKiAtaXINCmluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcGNpLmg6I2luY2x1
-ZGUgPGxpbnV4L2tlcm5lbC5oPg0KDQpMb29rcyBnb29kLg0KDQpSZXZpZXdlZC1ieTogQ2hhaXRh
-bnlhIEt1bGthcm5pIDxrY2hAbnZpZGlhLmNvbT4NCg0KLWNrDQoNCg0K
+On Tue, Nov 18, 2025 at 07:10:28PM +0100, Stefano Garzarella wrote:
+> On Mon, Nov 17, 2025 at 06:00:26PM -0800, Bobby Eshleman wrote:
+> > From: Bobby Eshleman <bobbyeshleman@meta.com>
+> > 
+> > diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> > index 2c937a2df83b..c8319cd1c232 100644
+> > --- a/drivers/vhost/vsock.c
+> > +++ b/drivers/vhost/vsock.c
+> > @@ -64,6 +64,11 @@ static u32 vhost_transport_get_local_cid(void)
+> > 	return VHOST_VSOCK_DEFAULT_HOST_CID;
+> > }
+> > 
+> > +static bool vhost_transport_supports_local_mode(void)
+> > +{
+> > +	return true;
+> 
+> Should we enable this later, when we really add support, or it doesn't
+> affect anything if vhost-vsock is not really supporting it in this PR
+> (thinking about bisection issues).
+
+sgtm!
+
+> 
+> > +}
+> > +
+> > /* Callers that dereference the return value must hold vhost_vsock_mutex or the
+> >  * RCU read lock.
+> >  */
+> > @@ -412,6 +417,7 @@ static struct virtio_transport vhost_transport = {
+> > 		.module                   = THIS_MODULE,
+> > 
+> > 		.get_local_cid            = vhost_transport_get_local_cid,
+> > +		.supports_local_mode	  = vhost_transport_supports_local_mode,
+> > 
+> > 		.init                     = virtio_transport_do_socket_init,
+> > 		.destruct                 = virtio_transport_destruct,
+> > diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+> > index 59d97a143204..824d89657d41 100644
+> > --- a/include/net/af_vsock.h
+> > +++ b/include/net/af_vsock.h
+> > @@ -180,6 +180,11 @@ struct vsock_transport {
+> > 	/* Addressing. */
+> > 	u32 (*get_local_cid)(void);
+> > 
+> > +	/* Return true if this transport supports VSOCK_NET_MODE_LOCAL.
+> 
+> nit: Here I would make it clearer that rather than supporting MODE_LOCAL,
+> the transport is not compatible with it, etc.
+> A summary of the excellent description we have in the commit.
+> 
+
+sounds good!
+
+> > +	 * Otherwise, return false.
+> > +	 */
+> > +	bool (*supports_local_mode)(void);
+> > +
+> > 	/* Read a single skb */
+> > 	int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
+> > 
+> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> > index 54373ae101c3..7a235bb94437 100644
+> > --- a/net/vmw_vsock/af_vsock.c
+> > +++ b/net/vmw_vsock/af_vsock.c
+> > @@ -91,6 +91,12 @@
+> >  *   and locked down by a namespace manager. The default is "global". The mode
+> >  *   is set per-namespace.
+> >  *
+> > + *   Note: LOCAL mode is only supported when using namespace-aware transports
+> > + *   (vhost-vsock, loopback). If a guest-to-host transport (virtio-vsock,
+> > + *   hyperv-vsock, vmci-vsock) is loaded, attempts to set LOCAL mode will fail
+> > + *   with EOPNOTSUPP, as these transports do not support per-namespace
+> > + *   isolation.
+> 
+> Okay, maybe this is fine, so if you don't need to resend, feel free to
+> ignore the previous comment.
+> 
+> > + *
+> >  *   The modes affect the allocation and accessibility of CIDs as follows:
+> >  *
+> >  *   - global - access and allocation are all system-wide
+> > @@ -2765,17 +2771,30 @@ static int vsock_net_mode_string(const struct ctl_table *table, int write,
+> > 	if (*lenp >= sizeof(data))
+> > 		return -EINVAL;
+> > 
+> > -	if (!strncmp(data, VSOCK_NET_MODE_STR_GLOBAL, sizeof(data)))
+> > +	ret = 0;
+> 
+> IIUC `ret` should already be 0 at this point, no?
+> 
+> > +	mutex_lock(&vsock_register_mutex);
+> 
+> I honestly don't like to mix the parsing, with this new check, so what
+> about leaving the parsing as before this patch (also without the mutex),
+> then just (untested):
+> 
+> 	mutex_lock(&vsock_register_mutex);
+> 	if (mode == VSOCK_NET_MODE_LOCAL && transport_g2h &&
+> 	    transport_g2h->supports_local_mode &&
+> 	    !transport_g2h->supports_local_mode()) {
+> 		ret = -EOPNOTSUPP;
+> 		goto out;
+> 	}
+> 
+> 	if (!vsock_net_write_mode(net, mode)) {
+> 		ret = -EPERM;
+> 	}
+> out:
+> 	mutex_unlock(&vsock_register_mutex);
+> 	return ret;
+> }
+
+Makes sense, I can move that around for next rev.
+
+> 
+> > +	if (!strncmp(data, VSOCK_NET_MODE_STR_GLOBAL, sizeof(data))) {
+> > 		mode = VSOCK_NET_MODE_GLOBAL;
+> > -	else if (!strncmp(data, VSOCK_NET_MODE_STR_LOCAL, sizeof(data)))
+> > +	} else if (!strncmp(data, VSOCK_NET_MODE_STR_LOCAL, sizeof(data))) {
+> > +		if (transport_g2h && transport_g2h->supports_local_mode &&
+> > +		    !transport_g2h->supports_local_mode()) {
+> > +			ret = -EOPNOTSUPP;
+> > +			goto out;
+> > +		}
+> > 		mode = VSOCK_NET_MODE_LOCAL;
+> > -	else
+> > -		return -EINVAL;
+> > +	} else {
+> > +		ret = -EINVAL;
+> > +		goto out;
+> > +	}
+> > 
+> > -	if (!vsock_net_write_mode(net, mode))
+> > -		return -EPERM;
+> > +	if (!vsock_net_write_mode(net, mode)) {
+> > +		ret = -EPERM;
+> > +		goto out;
+> > +	}
+> > 
+> > -	return 0;
+> > +out:
+> > +	mutex_unlock(&vsock_register_mutex);
+> > +	return ret;
+> > }
+> > 
+> > static struct ctl_table vsock_table[] = {
+> > @@ -2916,6 +2935,7 @@ int vsock_core_register(const struct vsock_transport *t, int features)
+> > {
+> > 	const struct vsock_transport *t_h2g, *t_g2h, *t_dgram, *t_local;
+> > 	int err = mutex_lock_interruptible(&vsock_register_mutex);
+> > +	struct net *net;
+> > 
+> > 	if (err)
+> > 		return err;
+> > @@ -2938,6 +2958,22 @@ int vsock_core_register(const struct vsock_transport *t, int features)
+> > 			err = -EBUSY;
+> > 			goto err_busy;
+> > 		}
+> > +
+> > +		/* G2H sockets break in LOCAL mode namespaces because G2H
+> > +		 * transports don't support them yet. Block registering new G2H
+> > +		 * transports if we already have local mode namespaces on the
+> > +		 * system.
+> > +		 */
+> > +		rcu_read_lock();
+> > +		for_each_net_rcu(net) {
+> > +			if (vsock_net_mode(net) == VSOCK_NET_MODE_LOCAL) {
+> > +				rcu_read_unlock();
+> > +				err = -EOPNOTSUPP;
+> > +				goto err_busy;
+> > +			}
+> > +		}
+> > +		rcu_read_unlock();
+> > +
+> > 		t_g2h = t;
+> > 	}
+> > 
+> > diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+> > index 432fcbbd14d4..279f04fcd81a 100644
+> > --- a/net/vmw_vsock/hyperv_transport.c
+> > +++ b/net/vmw_vsock/hyperv_transport.c
+> > @@ -833,10 +833,16 @@ int hvs_notify_set_rcvlowat(struct vsock_sock *vsk, int val)
+> > 	return -EOPNOTSUPP;
+> > }
+> > 
+> > +static bool hvs_supports_local_mode(void)
+> > +{
+> > +	return false;
+> > +}
+> > +
+> > static struct vsock_transport hvs_transport = {
+> > 	.module                   = THIS_MODULE,
+> > 
+> > 	.get_local_cid            = hvs_get_local_cid,
+> > +	.supports_local_mode      = hvs_supports_local_mode,
+> > 
+> > 	.init                     = hvs_sock_init,
+> > 	.destruct                 = hvs_destruct,
+> > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> > index 5d379ccf3770..e585cb66c6f5 100644
+> > --- a/net/vmw_vsock/virtio_transport.c
+> > +++ b/net/vmw_vsock/virtio_transport.c
+> > @@ -94,6 +94,18 @@ static u32 virtio_transport_get_local_cid(void)
+> > 	return ret;
+> > }
+> > 
+> > +static bool virtio_transport_supports_local_mode(void)
+> > +{
+> > +	struct virtio_vsock *vsock;
+> > +
+> > +	rcu_read_lock();
+> > +	vsock = rcu_dereference(the_virtio_vsock);
+> > +	rcu_read_unlock();
+> > +
+> > +	/* Local mode is supported only when no G2H device is present. */
+> > +	return vsock ? false : true;
+> > +}
+> > +
+> > /* Caller need to hold vsock->tx_lock on vq */
+> > static int virtio_transport_send_skb(struct sk_buff *skb, struct virtqueue *vq,
+> > 				     struct virtio_vsock *vsock, gfp_t gfp)
+> > @@ -544,6 +556,7 @@ static struct virtio_transport virtio_transport = {
+> > 		.module                   = THIS_MODULE,
+> > 
+> > 		.get_local_cid            = virtio_transport_get_local_cid,
+> > +		.supports_local_mode      = virtio_transport_supports_local_mode,
+> > 
+> > 		.init                     = virtio_transport_do_socket_init,
+> > 		.destruct                 = virtio_transport_destruct,
+> > diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+> > index 7eccd6708d66..da7c52ad7b2a 100644
+> > --- a/net/vmw_vsock/vmci_transport.c
+> > +++ b/net/vmw_vsock/vmci_transport.c
+> > @@ -2033,6 +2033,12 @@ static u32 vmci_transport_get_local_cid(void)
+> > 	return vmci_get_context_id();
+> > }
+> > 
+> > +static bool vmci_transport_supports_local_mode(void)
+> > +{
+> > +	/* Local mode is supported only when no device is present. */
+> > +	return vmci_transport_get_local_cid() == VMCI_INVALID_ID;
+> 
+> IIRC vmci can be registered both as H2G and G2H, so should we filter out
+> the H2G case?
+
+In fact, I'm realizing now that this should probably just be:
+
+static bool vmci_transport_supports_local_mode(void)
+{
+	return false;
+}
+
+
+... because even for H2G there is no mechanism for attaching a namespace
+to a VM (unlike w/ vhost_vsock device open).
+
+Does that seem right?
+
+Best,
+Bobby
