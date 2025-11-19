@@ -1,210 +1,158 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B03822DC35F
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 07:36:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EB572E3397
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 07:37:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763537800; cv=none; b=ljq/xImeY/J4nowNqm6QqYtzbtWiyUIaVqWvfGqf620CSyT7T1BPONCjORw2WiAlDpzbfhRRJwR3SL8rlBQ3YduL5DEqSjLQOOLJiEaopaDyF6CdTBk2b1bCJKvZq3I1yOv8V6njNQnMsHY+5AFXd3mx9Ro71rQAUxwMP/NY1II=
+	t=1763537826; cv=none; b=EQHoODh2/imOtc0doJDJfy6pQnJkM60HEL8x4fCltrGEt/qgBpL/WXpECkstuTTyL0dmf/ODb3hHHYZ3Q+aHRSZH0OYFnRUCnja2jrqEAAxcdR9Fh+F7ULXCYVWaQjpuuhHcHHzc8hvxiVE7cdarLNFVNuQgZpOn6IY9D5YTxxw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763537800; c=relaxed/simple;
-	bh=0mw9HAO5e/CcMMOTv7byl0dh9fytC5W4l+OFeGAMB2g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tT8U8JPil8QOxALw+HM/WlpameUrvfiGukVASRV3ERCkKAMAjpXZUu8eAkFnHhprCvH9RUKeo6QIrZPiEmPF3tglIyY6MaHlS5783iNNATnyOgz7W4CucjCrsdqWUSgNEv2gRelG8hXAnvAhQ0CqkzpTylAuplHkBwWP7pnDURY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d5Lb3BTw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1763537826; c=relaxed/simple;
+	bh=cmtU4gPsNitt6wi6TsmuAXEhTT++xLKyo8o0jqXT8gI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Gz1m62zL453kuvGuBI5tPCN0BP6DfrlsGww51hFUGyG7aOzw4vgk1TUiQvanizdMjBHoXh8d/v/H4e34Klgf0GRZVlLtBP7halzKF4LQ8sAbjTw8vhuNUc5SsCd5VKbd+VhqobGul0tUjYghEoHy7yU0+drj4oip2g7GNab8tbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LJ2Snrvy; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d5Lb3BTw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFF9C2BCB6
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 07:36:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763537800;
-	bh=0mw9HAO5e/CcMMOTv7byl0dh9fytC5W4l+OFeGAMB2g=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=d5Lb3BTw8ubPy3s52ZbTIkv3HZzLKk5sPDIa1k4H6CB+2gsS2SVhOt75kIMy6OBpS
-	 d02dNyYd2R/dx5DKp5ytEzWyspnod9c1ZVJ2lCKbR5Kfo9bQGJHhz4wQKm0vtztKBm
-	 T2g0Ria/wKTHPHPdBKOP5tAEvzVj2UF0QUpo9KTzSVAkH003IBA6IIUIHKrYjQ8hZw
-	 zRRt+kJEp2mf0NmN7VWB7gho/Licm9Qjv/rBvHS3Ls+VrbkVkUvvCyRSpBSVUbModx
-	 PjA0qfrMp7Rk8DfQRexgi25LcPSC/aFzJ5TrexEQbltFUOezq7Cpdk3AcT1wRwMHAe
-	 +Wy9P65BlwyOQ==
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-b739b3fc2a0so436378666b.3
-        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 23:36:40 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCWjCAibA9cUZZzXAKUouvVwNahPmoykVeU6tvsg3h2vH8WVpA285JQMTrlhGpW57YktQRSzddusxXTh4iBcsg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwmNsAdVYQWc82XGN/lOHZWv9P4ku1dj/1umE7sLSSKiWujUjDh
-	Hfe6zSZ4lTrNxLNj/81kRHj185o0cLB/PWVXWJRveQ/l/hI5aQKm8xBlLLYiDzveKQlHPmTYBYl
-	8wtIu3fUIpVk2STqsmv+573AOHksSbjk=
-X-Google-Smtp-Source: AGHT+IEYFg5ZA8XnpMfOTN7CUf7qX6/Go1Z0jJ+SibsPCNQ3YzH2ZASnZ4vVQmcrzmzM07sEeohXk2w2wI9W5Hs4u7A=
-X-Received: by 2002:a17:907:3cc3:b0:b73:2d99:d8a3 with SMTP id
- a640c23a62f3a-b736782d0a8mr2250337166b.26.1763537797864; Tue, 18 Nov 2025
- 23:36:37 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LJ2Snrvy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763537823;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=f0GO7js7Nzcb9CILh+UVwGdqet9Y6vrdD2ygmkgwObQ=;
+	b=LJ2SnrvyYXQ46YOQQfQsihcWSSyzEFqs2M60Utv4OJOTREv2jbW5E4PfDPtQbpaALM/mQj
+	QnbpMq1q8YGUoZB3oKjBklNr4IldGrkgCBth5a4Np+z6tSqcvlS5nNyYDPoi2ZipSDh9A4
+	Cj5n2wNwU9AH0nt9UrLS32bqCQpcMv4=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-214-vmcLJl6YPUCUgIDXHZ0hCg-1; Wed, 19 Nov 2025 02:37:02 -0500
+X-MC-Unique: vmcLJl6YPUCUgIDXHZ0hCg-1
+X-Mimecast-MFC-AGG-ID: vmcLJl6YPUCUgIDXHZ0hCg_1763537819
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-42b3c965ce5so4285513f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 23:37:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763537818; x=1764142618;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=f0GO7js7Nzcb9CILh+UVwGdqet9Y6vrdD2ygmkgwObQ=;
+        b=oUVQCuKcrif4kVwD0eitp5Oz4wqsWN9PwySQJxlnvWZolaOsjNgXN+kWztD0dDS8nh
+         RSb3VgDCGI+/TiYfzC2XyWrLhJ5QD9K/qPxoiwxXmNp2364hGgLMIOEu3wjD30fM1Zpx
+         jpqZMr5pfW2Zwyz1qRmbFwcV/ky0uxWQXsMYoE7b76lNezpWL4wru06dphlqrXm2MDHd
+         e/QbIFGUyPnykVzS4/07IJvsdzRJWIrnu3cOgirgL1v7+5cWw2bg/cSOYnjOPZHGQlE7
+         YET4yZTu54x7A68I/AFJ5+uEzfR+YJY03d/Dl6tLG6lVsGuMGaukNcuzi/sVdsaIsce7
+         ENmw==
+X-Forwarded-Encrypted: i=1; AJvYcCW/chtWiOreGuV3jFzyu9jhDevMd80vwt+LZS5nVkPYgs03yKliFk/u+8sgGt/thiVcNiPrLee/LOxJFvWbZA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxypybOrJaTPK4eZaHLk0KxElO3o61cJXZNKTcFSAcgY4EdwJ8e
+	GKgs8ngeude2tkLdtO6TwhdYdelbSnsfpZD86VyaYjbLUHHkCQyI0MFehZXsgqdWVKohJWZUDju
+	re6gK9wZ9s/5/gNGKi5fNpd6gQz57qVoFpbh4HdbnVNu16lbU6mf4GFbBuDinrymwkTKn
+X-Gm-Gg: ASbGncvrzAfL91iNz6ym5482Uk++6xKS2kztDYqItLEWGDm/foJ+8whaZBr7JlH5ayL
+	hfRotTakYjGmfQ+8QnIxVgBsolUroTFGsMjpkUEI4qW6FSdZgICZFqDPh/orA9f3NOpb0kKgrom
+	MQyECw3I5uqhhy4LHrveWo0x6jpom9TU+Wl5ZegcufLvYxLu6agpRMoLtAjpmFUTzPD/gXe2oSZ
+	FiU4jQ7ktEL3tQOyaspo9GQYGqYnRjw+OXP5oW5NUXP/a7BKUwDil3E0TUE6lo9YBF4jpgBe2Cm
+	bxv02+kpzaGMS7nRtrt3icKNWkae8QX0OdG65DP1eg3Fr4JySpRfv/xIxP029Qv752sYBa2trYk
+	gdJIHwj1mnoHSY5/AF7+yD3QRftA7cQ==
+X-Received: by 2002:a05:6000:1ace:b0:429:d6dc:ae10 with SMTP id ffacd0b85a97d-42b59385bc3mr19572577f8f.29.1763537818435;
+        Tue, 18 Nov 2025 23:36:58 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE38OxUIXqfpq4weRteGFX8sC7MBmLIWf7WZAfGxmzVD/+o9SG94zeJxoMbsiZGgOokbhQwrQ==
+X-Received: by 2002:a05:6000:1ace:b0:429:d6dc:ae10 with SMTP id ffacd0b85a97d-42b59385bc3mr19572540f8f.29.1763537817915;
+        Tue, 18 Nov 2025 23:36:57 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53e845bdsm35079172f8f.12.2025.11.18.23.36.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Nov 2025 23:36:57 -0800 (PST)
+Date: Wed, 19 Nov 2025 02:36:54 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+	virtualization@lists.linux.dev, parav@nvidia.com,
+	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+Subject: Re: [PATCH net-next v11 02/12] virtio: Add config_op for admin
+ commands
+Message-ID: <20251119023455-mutt-send-email-mst@kernel.org>
+References: <20251118143903.958844-1-danielj@nvidia.com>
+ <20251118143903.958844-3-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251118080656.2012805-1-maobibo@loongson.cn> <20251118080656.2012805-3-maobibo@loongson.cn>
- <CAAhV-H4hoS0Wo3TS+FdikXMkb7qjWNFSPDoajQr0bzdeROJwGw@mail.gmail.com> <77814b6c-7a51-e130-5006-d27a172e69aa@loongson.cn>
-In-Reply-To: <77814b6c-7a51-e130-5006-d27a172e69aa@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Wed, 19 Nov 2025 15:36:39 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H4m0SqQ06eqnJi_LwFxuYSFY4Xi1FSD1dd1w3258NEHew@mail.gmail.com>
-X-Gm-Features: AWmQ_bkiBYHhLhC1TqLDPY4R0uxjwyZ0GlwygRfvid2KBRr4h7RxU8RV64RXIeg
-Message-ID: <CAAhV-H4m0SqQ06eqnJi_LwFxuYSFY4Xi1FSD1dd1w3258NEHew@mail.gmail.com>
-Subject: Re: [PATCH 2/3] LoongArch: Add paravirt support with vcpu_is_preempted()
-To: Bibo Mao <maobibo@loongson.cn>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>, 
-	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, 
-	Boqun Feng <boqun.feng@gmail.com>, Waiman Long <longman@redhat.com>, 
-	Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20251118143903.958844-3-danielj@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: YuWPFVj2_MqKsh-3-OiW14l79ks9F7Qsviv7uTAnQmQ_1763537819
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, Nov 19, 2025 at 10:53=E2=80=AFAM Bibo Mao <maobibo@loongson.cn> wro=
-te:
->
->
->
-> On 2025/11/18 =E4=B8=8B=E5=8D=888:48, Huacai Chen wrote:
-> > Hi, Bibo,
-> >
-> > On Tue, Nov 18, 2025 at 4:07=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> =
-wrote:
-> >>
-> >> Function vcpu_is_preempted() is used to check whether vCPU is preempte=
-d
-> >> or not. Here add implementation with vcpu_is_preempted() when option
-> >> CONFIG_PARAVIRT is enabled.
-> >>
-> >> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-> >> ---
-> >>   arch/loongarch/include/asm/smp.h      |  1 +
-> >>   arch/loongarch/include/asm/spinlock.h |  5 +++++
-> >>   arch/loongarch/kernel/paravirt.c      | 16 ++++++++++++++++
-> >>   arch/loongarch/kernel/smp.c           |  6 ++++++
-> >>   4 files changed, 28 insertions(+)
-> >>
-> >> diff --git a/arch/loongarch/include/asm/smp.h b/arch/loongarch/include=
-/asm/smp.h
-> >> index 3a47f52959a8..5b37f7bf2060 100644
-> >> --- a/arch/loongarch/include/asm/smp.h
-> >> +++ b/arch/loongarch/include/asm/smp.h
-> >> @@ -18,6 +18,7 @@ struct smp_ops {
-> >>          void (*init_ipi)(void);
-> >>          void (*send_ipi_single)(int cpu, unsigned int action);
-> >>          void (*send_ipi_mask)(const struct cpumask *mask, unsigned in=
-t action);
-> >> +       bool (*vcpu_is_preempted)(int cpu);
-> >>   };
-> >>   extern struct smp_ops mp_ops;
-> >>
-> >> diff --git a/arch/loongarch/include/asm/spinlock.h b/arch/loongarch/in=
-clude/asm/spinlock.h
-> >> index 7cb3476999be..c001cef893aa 100644
-> >> --- a/arch/loongarch/include/asm/spinlock.h
-> >> +++ b/arch/loongarch/include/asm/spinlock.h
-> >> @@ -5,6 +5,11 @@
-> >>   #ifndef _ASM_SPINLOCK_H
-> >>   #define _ASM_SPINLOCK_H
-> >>
-> >> +#ifdef CONFIG_PARAVIRT
-> >> +#define vcpu_is_preempted      vcpu_is_preempted
-> >> +bool vcpu_is_preempted(int cpu);
-> >> +#endif
-> > Maybe paravirt.h is a better place?
-> how about put it in asm/qspinlock.h since it is included by header file
-> asm/spinlock.h already?
-qspinlock.h is better than spinlock.h
+On Tue, Nov 18, 2025 at 08:38:52AM -0600, Daniel Jurgens wrote:
+> This will allow device drivers to issue administration commands.
+> 
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> 
+> ---
+> v4: New patch for v4
+> ---
+>  drivers/virtio/virtio_pci_modern.c | 2 ++
+>  include/linux/virtio_config.h      | 6 ++++++
+>  2 files changed, 8 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index ff11de5b3d69..acc3f958f96a 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -1236,6 +1236,7 @@ static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
+>  	.get_shm_region  = vp_get_shm_region,
+>  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
+>  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
+> +	.admin_cmd_exec = vp_modern_admin_cmd_exec,
+>  };
+>  
+>  static const struct virtio_config_ops virtio_pci_config_ops = {
+> @@ -1256,6 +1257,7 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
+>  	.get_shm_region  = vp_get_shm_region,
+>  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
+>  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
+> +	.admin_cmd_exec = vp_modern_admin_cmd_exec,
+>  };
+>  
+>  /* the PCI probing function */
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index 16001e9f9b39..19606609254e 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -108,6 +108,10 @@ struct virtqueue_info {
+>   *	Returns 0 on success or error status
+>   *	If disable_vq_and_reset is set, then enable_vq_after_reset must also be
+>   *	set.
+> + * @admin_cmd_exec: Execute an admin VQ command.
 
-Huacai
+should say (optional) since only pci implements this so far
+and callers check it.
 
->
-> >
-> >> +
-> >>   #include <asm/processor.h>
-> >>   #include <asm/qspinlock.h>
-> >>   #include <asm/qrwlock.h>
-> >> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/=
-paravirt.c
-> >> index b1b51f920b23..b99404b6b13f 100644
-> >> --- a/arch/loongarch/kernel/paravirt.c
-> >> +++ b/arch/loongarch/kernel/paravirt.c
-> >> @@ -52,6 +52,13 @@ static u64 paravt_steal_clock(int cpu)
-> >>   #ifdef CONFIG_SMP
-> >>   static struct smp_ops native_ops;
-> >>
-> >> +static bool pv_vcpu_is_preempted(int cpu)
-> >> +{
-> >> +       struct kvm_steal_time *src =3D &per_cpu(steal_time, cpu);
-> >> +
-> >> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
-> >> +}
-> >> +
-> >>   static void pv_send_ipi_single(int cpu, unsigned int action)
-> >>   {
-> >>          int min, old;
-> >> @@ -308,6 +315,9 @@ int __init pv_time_init(void)
-> >>                  pr_err("Failed to install cpu hotplug callbacks\n");
-> >>                  return r;
-> >>          }
-> >> +
-> >> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
-> >> +               mp_ops.vcpu_is_preempted =3D pv_vcpu_is_preempted;
-> >>   #endif
-> >>
-> >>          static_call_update(pv_steal_clock, paravt_steal_clock);
-> >> @@ -332,3 +342,9 @@ int __init pv_spinlock_init(void)
-> >>
-> >>          return 0;
-> >>   }
-> >> +
-> >> +bool notrace vcpu_is_preempted(int cpu)
-> >> +{
-> >> +       return mp_ops.vcpu_is_preempted(cpu);
-> >> +}
-> >
-> > We can simplify the whole patch like this, then we don't need to touch
-> > smp.c, and we can merge Patch-2/3.
-> >
-> > +bool notrace vcpu_is_preempted(int cpu)
-> > +{
-> > +  if (!kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
-> > +     return false;
-> > + else {
-> > +     struct kvm_steal_time *src =3D &per_cpu(steal_time, cpu);
-> > +     return !!(src->preempted & KVM_VCPU_PREEMPTED);
-> > + }
-> > +}
-> > Huacai
-> >
-> >> +EXPORT_SYMBOL(vcpu_is_preempted);
-> >> diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
-> >> index 46036d98da75..f04192fedf8d 100644
-> >> --- a/arch/loongarch/kernel/smp.c
-> >> +++ b/arch/loongarch/kernel/smp.c
-> >> @@ -307,10 +307,16 @@ static void loongson_init_ipi(void)
-> >>                  panic("IPI IRQ request failed\n");
-> >>   }
-> >>
-> >> +static bool loongson_vcpu_is_preempted(int cpu)
-> >> +{
-> >> +       return false;
-> >> +}
-> >> +
-> >>   struct smp_ops mp_ops =3D {
-> >>          .init_ipi               =3D loongson_init_ipi,
-> >>          .send_ipi_single        =3D loongson_send_ipi_single,
-> >>          .send_ipi_mask          =3D loongson_send_ipi_mask,
-> >> +       .vcpu_is_preempted      =3D loongson_vcpu_is_preempted,
-> >>   };
-> >>
-> >>   static void __init fdt_smp_setup(void)
-> >> --
-> >> 2.39.3
-> >>
-> >>
->
->
+
+> + *	vdev: the virtio_device
+> + *	cmd: the command to execute
+> + *	Returns 0 on success or error status
+>   */
+>  struct virtio_config_ops {
+>  	void (*get)(struct virtio_device *vdev, unsigned offset,
+> @@ -137,6 +141,8 @@ struct virtio_config_ops {
+>  			       struct virtio_shm_region *region, u8 id);
+>  	int (*disable_vq_and_reset)(struct virtqueue *vq);
+>  	int (*enable_vq_after_reset)(struct virtqueue *vq);
+> +	int (*admin_cmd_exec)(struct virtio_device *vdev,
+> +			      struct virtio_admin_cmd *cmd);
+>  };
+>  
+>  /**
+> -- 
+> 2.50.1
+
