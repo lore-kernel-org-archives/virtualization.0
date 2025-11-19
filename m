@@ -1,217 +1,280 @@
-Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010015.outbound.protection.outlook.com [40.93.198.15])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BD7031ED96
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 14:47:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.15
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763563656; cv=fail; b=Mb0rO1ZYjN+z0gxk57UczszEUsIfF5gDLN65hfTWDg8IAYKCSj/PnUrDwl4zHu8gg57XzECA++/E1xtKAJbsUFYeNuLo821XJXfGuObYvVQItuQHFWUtzwwxuJ8+oyEON0ryPrDFiEAL9ij0cb1fM+uZFi/mXbJp6JJKELhFuqs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763563656; c=relaxed/simple;
-	bh=RmkRG18Djacz+3XwpzTNW81IYKi60DUdRgB7hLBkBbE=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=IdVp37vH1KbdqPshADmHxL6VKmK58Gml/vnR7DWoBVQRxYeRg+luYE6gUg6W0YOkYel2rXZjIuPA4PgdPWxj0T5lFSUVp4xycUnefMOlDkg/GRHbDOqpUscrGht0t3zcApdc59q5vqkbqnv/ZYSE6+H/ttgSCfBAsmhweq8GBfQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=i/uiLr+r; arc=fail smtp.client-ip=40.93.198.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9E75366DA0
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 15:27:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763566078; cv=none; b=YO8Nv1uJEiaCRphrafpxokiF7/qwFWvW/7oddQlUPhMkxCfsqty4iL49iQmB66ZGupsX6tdDmUttlYSEtTLaWLN5YV7bFevCeVbk4ngALIaXcG0CudZ7UapoS2GwFOeTq6cZ69jBPGcnzbVHLHbHOTm9iGG1kCjwsvMW64iNajk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763566078; c=relaxed/simple;
+	bh=2AHtk/lQXbNZZpPx6nfAIJ2au2S7m30j106Z1+vqVM4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=obTaSzGm1cs3/pRq/YQHHZro6Ofa6v6NHHDNr5O+GOVxQEoiemmXiJ0qqAYs6gu/mtFLJiy/G7DHk09as/wiwlPnCM6Fj+DcbZupd+krzv+5KAb48FjZX24QYvsYbYemyLbB7pPtfmJ0JQJ7+Y8AXn89764yYDLKfTkBfoNjnlY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O8P9DelU; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="i/uiLr+r"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=YZkJAKcetLV701rdQowiFgWv5Zy9sGpXo1R9CPpqYPw0DGWaK3vvO1gneGdXWvswPxbErDtzNgmxeOES46myNFBNU6nuLzOJJs4o/03LgXAr1Jq3ZoqRElNX0vw/K47H7CBdsfXPJSBv3q49R3B7FdSwXGzie3XqJ7eh0+5UjmWsuDRWx565Lg3fNMU6DuTO68VckiuAK8RiibIki2bGs5e0FUEJvMGcuosWFT3tzXaU57iX7udDP44QxfX9csirUmnmoko1FLB+zAv7WyYOkzvMPpwZckDIAHsW+5vBy69/Z6eSlShwOi26kDWPmcIlEqVOvXNIAKZyqY438fefQg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=B3Ii3HKifi+bOicImgObopznRPVAPUFvynIb5/gjqk8=;
- b=ZwIOK8JyxyuGlmomjE9FYXwbNteG3jIIDevv+pnb3v7pYdKRQ0JG84BnG1iMvuxhL/jICbibWnQc8dek3wnsY+H9XXDNVCP+/9cReiC0aYXlHs6wSqUgh/wzQHOjYrLdVnizIXoD7Uht4qK0s+9tTMFqOnyDobwZiER8zPzrR2S/Lvp4Ei5F5D2CYHKA7X7EpP+wsiGrbpvQ+kdiHH4LmH47c77lbkwBvTlz4rPIHkhKqkgBVImrsKXdd6+V6pAE4RaOlnLJWp17TcS01hPmaPTjjkkvF+DDEuUYLkwmPNQPme1S8hKlK2pYPBg4S5phnbm7BxOLwRfeXCi8m9MUxA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=B3Ii3HKifi+bOicImgObopznRPVAPUFvynIb5/gjqk8=;
- b=i/uiLr+rfqjNM4JNUk6fQqbRrs9xN03Eb+L0M5YTb/NJdU/XHssuUqz+iDe/qlPOdg1134IcmVx4Q4WQN8VY8AqXH/No8X9bxpjYFl+1hFlmVIffTGOH8+/tHTgoKg3JS0tj0vBVlgp0fPQv6nnVLAia4eEEg9DiyNX9zZxptZZluHqNkk3t3kjXLhrkGeIzEiaTUNXWCwFlEI2ZS8mPRnLeaoNOpEy74e7A1dDiXu21jnrDle0xfHjn9RjlPfMH9/YgvbN2McUqG5YBH3yrotdfTi59sW71kkixf7/aaPGq2ePD2c7jzQRJ6qJKLxw8wJ3t0GxjvWiGui/9j678ZQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by SJ0PR12MB6830.namprd12.prod.outlook.com (2603:10b6:a03:47c::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9320.18; Wed, 19 Nov
- 2025 14:47:31 +0000
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9343.009; Wed, 19 Nov 2025
- 14:47:30 +0000
-Message-ID: <b5b414b8-23fb-4e46-9b98-9db2a07940c6@nvidia.com>
-Date: Wed, 19 Nov 2025 08:47:28 -0600
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v11 05/12] virtio_net: Query and set flow filter
- caps
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
- virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
- edumazet@google.com
-References: <20251118143903.958844-1-danielj@nvidia.com>
- <20251118143903.958844-6-danielj@nvidia.com>
- <20251119024647-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20251119024647-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SN7PR04CA0185.namprd04.prod.outlook.com
- (2603:10b6:806:126::10) To MW4PR12MB7309.namprd12.prod.outlook.com
- (2603:10b6:303:22f::17)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O8P9DelU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763566075;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eHlhvFLfyKP0IuFGERbeyuWea/xjnUWPpjGJ0qsZJv4=;
+	b=O8P9DelUEUVe/ZPwFA15GwCudvZFaDp/QdfgXlUnHgdISFx20DRpG4iEyLU5bIeyaosLVT
+	J9hFsMnyGPPV+hrs9n3VXSOD0+aPkHBj/yB5NHUrpKBDAlpgvv3M0pCiPKOtWSrGhaQ0Q5
+	Fyt2imVQpDUTepLYky1I0f8V3UdvYM8=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-663-UEIJCBvLNWuC4fpThhnD7w-1; Wed, 19 Nov 2025 10:27:52 -0500
+X-MC-Unique: UEIJCBvLNWuC4fpThhnD7w-1
+X-Mimecast-MFC-AGG-ID: UEIJCBvLNWuC4fpThhnD7w_1763566071
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-47775585257so52495045e9.1
+        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 07:27:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763566071; x=1764170871;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eHlhvFLfyKP0IuFGERbeyuWea/xjnUWPpjGJ0qsZJv4=;
+        b=jFU2/UUWN9M2wrPQP2NuaivaqOySwEhZDQOWgNzbV1t8QndRMyyvaz071aQ0qiYpJ3
+         m7v0jSE3fg7VXjyOgfGcjukbO1V9poRBlWcefJiGnEDucWnyIIw5CxTkFEpoA/uQJ412
+         44UgCrIvvsdudNpugCDYscXcvYAWx5UThsU24tyAENDh/CJvIom1lPvNHpH7FTZyFHed
+         LHtByp9gtMMC2Ex/9+havbmnDxgUy5PY2ibFiZPWQ6o1NQAC6HWAe14rFKKeypJriPwK
+         j75UW+HgJWlGhLuqb5A/tIfrkKJXWia2sL5aVn/h4XPV0BQzsQMrN4q244B1Kf3l+2Z5
+         fymQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWMIkV346JbhB0OGUxp3X+CA3BvU2jgm/x0871kCAy+oKv6RLrh1F7Q0ubrylQ35XzGcRGa6MElqCNdv2FiHA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxpPszL2hb/k6z0oBIBRXV+HWefdTX+K/aobO2KOmL9D9/qVY3e
+	Xm5BoU5CAouVU+fr55uhpVAYDbnX5YaoY8I93ohHgZIKVuNDvGNXGwunPeTJqp/qePkEFthRMoQ
+	Ioo9x8LAUaiJkiUy9xbT8KvXeVnGHflvRiSPPVBk5CDBiD8fRfpPcDwVKNHfS2RO0PIBa
+X-Gm-Gg: ASbGnctWoYCY14CapN4WQryltkpeyUAnHx07Jn+1fKZ+NfeB5JkZElrooTv8njh6jND
+	hbFobOGC70Tn7+l7msyANHTLhNENY79Oj4kmMAjhHOpg1+k/1TEoS2qXq24/leqSN3gwG4aJmO3
+	oomZn9tMAC7s8FgKF+S0vgyblAWiUdEeHP1ITRk/9f0Y2d/oaOP0/wlwBnSefeUof/qR6JO91cw
+	/6XkaIl5dFu5MriSa2q/ssAHCQlscpahm2SILQhdBJmcjFb9pRzNNn7H8BO4Lo0vNaY49OiBKMG
+	8r7JVTuhK4bb6Rf0oe3MfgNOQkTyA9l3+QSjDR8zJRu7SYXtFFEhRMKApEFliUSPMXowz/Cqkeb
+	bUH/sHwf9FGc99HkXjrcpYzypsbqaUA==
+X-Received: by 2002:a05:600c:4995:b0:477:9671:3a42 with SMTP id 5b1f17b1804b1-47796713b41mr111156685e9.35.1763566070984;
+        Wed, 19 Nov 2025 07:27:50 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGCuJHBRec3mpLMUz50uZ6t1pbpsWtDxU16tpLG7QVSudm09TacV9uCNP3CKm0YHndmXcfHlg==
+X-Received: by 2002:a05:600c:4995:b0:477:9671:3a42 with SMTP id 5b1f17b1804b1-47796713b41mr111156385e9.35.1763566070324;
+        Wed, 19 Nov 2025 07:27:50 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477afb54774sm26915625e9.3.2025.11.19.07.27.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Nov 2025 07:27:49 -0800 (PST)
+Date: Wed, 19 Nov 2025 10:27:46 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org,
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Alvaro Karsz <alvaro.karsz@solid-run.com>,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net v6 1/2] virtio-net: correct hdr_len handling for
+ VIRTIO_NET_F_GUEST_HDRLEN
+Message-ID: <20251119102708-mutt-send-email-mst@kernel.org>
+References: <20251119055522.617-1-xuanzhuo@linux.alibaba.com>
+ <20251119055522.617-2-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|SJ0PR12MB6830:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5526627f-313d-466a-9fdf-08de277a9110
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?SHFCQ20yQzVSQUlJRVhXTTByZXYrTjRIcVplRFJaYTRHSjF1OVl0ZlpFM050?=
- =?utf-8?B?NS92OGFUS01Yd0x5L3RobytDVHA2b2dGSmhJZkRXUGRWVlBuVmoweDJaVzNZ?=
- =?utf-8?B?QmFhdmFpSFpBNFFKMXE0b2VvZVI2K2VISzQ4SUlWdkhmTjN2VDZwV2lNQlNa?=
- =?utf-8?B?VkxLcmVUZzdmRS9zOHJpM29ZMUFyb1U4ZTJWVEJRT01kUUlKSThGQmgvWEc5?=
- =?utf-8?B?MmUycFRER1UydytIcGNFdGxFVTIzVzNCVnBoelM0MDRhTzJtc0F1d1Ziekdm?=
- =?utf-8?B?L2VWY0lSRUllbndBc2pTR2JmRE00V1lFSVhLbTVkK3p6RzI1NDd5VGwrbjNH?=
- =?utf-8?B?QzdxSm1ZT3JDSnhnNUlpK0RnZjhHajI4VHFqcU9kR3hLWTJmRUF3QzhDMU0y?=
- =?utf-8?B?bFlndXNybWRmYjRYKzUwREJYR0s0VHF2aGppTXB5ak1KYjZjck4zSHVTU01w?=
- =?utf-8?B?VW93dkh4a3hEK1BGQ05DZmRJcHlWSWo4ejhmUllWMjl6OWRhN2RUbnR2REJj?=
- =?utf-8?B?TDBRR3BCcTNzeGZ6NGV2b3BYZ253UkY2MkUvb0tja2xCMWpKbVRqZU5zT281?=
- =?utf-8?B?eG5TRlppdlJvTWI1QjhtcE1tdWZBb0p4RjRZd3E3YncybG55dXQ3Zk5JaHRx?=
- =?utf-8?B?TXJkNVMyRHlTYmdHMzQyRFIrTnFXcDVIb3I3ZDdZZ0djSmlWMUZsRElmMzZy?=
- =?utf-8?B?RDBGNmJWN0pKaFpUUVRMUTNJUDBxTnh3NkdIby85MWttRFVGdjY5a0VLYnJI?=
- =?utf-8?B?N2MrdmY4NG5hT0p2SFdIMEZSbEhiMTdEak1lZGtkY0VjU2JrUDRjRzlxTm5Q?=
- =?utf-8?B?Yytjb2xQL3htcmEyNnlVRHpWZUg5RXJBbkQ5Uy93WUxNeFJ4YUNzSjZGRkd0?=
- =?utf-8?B?eHlVS0pGeDQwSThiWHRwZytydGFiTDdoT0RPSlU1b3lrb2p3WCtHazdOL1hL?=
- =?utf-8?B?Z21UQnpVYksxSmYrVUU2STlPSFRZZWtWa05xSnRNL21LbVJJT2lrQ2orbHA3?=
- =?utf-8?B?VVJYTjJBeHc2UnhLemhBVDJLZHR4QnhPVjNpcWFYeEVtQXMrY2RnelJzZzBL?=
- =?utf-8?B?cklEdEI1ZEhUcFhVcG1nRmFUVVFGaU03M3FtcU5UQkRBVjZUMmRGRWxCcHdw?=
- =?utf-8?B?Sjk0VXJNaXlCQldLYXhJOVV1K0RkTmg3N1A1ZWZWUXF3QmpiOFViQlhqK3Iz?=
- =?utf-8?B?aG1tRzlTZGhvNDJwYVlEVDh2WmFsTHVkSXBLNGdqcHhYdlF1VXNFTEJkMzhi?=
- =?utf-8?B?dzl5SDVSOVZKbHJDRFEzSmZoemh0b0VXOVRVOTY1VERnb3Jmc0tjL2RPbWRV?=
- =?utf-8?B?TjVlMWZMMCt4YUp0dUF3UFZPNk1FM1NkQ25qbnVGSHFsaWJZTTB1MFhqRU5E?=
- =?utf-8?B?MDdqSU9DRFl0aTdMK1RNdnplNGhOMmVDdG5kNS9XTWorRzF6MVhBYkNEL29J?=
- =?utf-8?B?cGlUd3ZLYm5KTFRva1lTM28rQnZqSE1zV3pHOTlTZnNGelo3SWdUYzZVTklI?=
- =?utf-8?B?Q0lJUitsb3ErMjBhZXBxWkcxOXozdGcxMlpsbWd4bGtqQTM0dEVOUDFpcEtL?=
- =?utf-8?B?TjYvbndVUzA0WTE5S3JHN0EvTGd6Z0ZraVhpQ1ZwcU5JYjU5ckg2RkFCSGN6?=
- =?utf-8?B?YXBGbGJGRE16R0xCSGM1Rmk5V0JITUVNWjRCeWlaNzZLNkhWL0VCZkJxQXBa?=
- =?utf-8?B?REpwQ0xUQkNVRWlkNjV2THFQUzJONm8zS1JTTklMV2dWdU9JNnZVekg5YlJF?=
- =?utf-8?B?TUJyM1B0VXNUdTV0NUpISjBPcE5LelZnbkdQN3JCRzlpaUZiY0lmaWw1RE5T?=
- =?utf-8?B?WFVnR05xMlpxTlBFU2x0b1Q2QmNpR3VEQy9EQTJXeURjN1hVbUxrU3VDeG5m?=
- =?utf-8?B?amlaQ29XWmdHTU1ockgrYzJoNXZybHdaYjRReWpJUzZoVUtXR1lTSVNMdCtr?=
- =?utf-8?Q?vBAOHqc8cSxRkM/yDBENA6OET2vhRpLb?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?cCthd0ZWLzdEM01GTUFyN0FUOTFsM0wyeUMwdFJkaFkvcndHeCttU3J5eDdW?=
- =?utf-8?B?U3VISnlEZDFiUCt4NWN5QUNNRFRmb1grWk1hdXlPKzFxcTVTaWJxZDRmMmhK?=
- =?utf-8?B?VC9IenR2TGd2SWhmV2JFc0tXTnA3RVp6R1A3Y0FVMnB0eVVURm5TRWp6UzM1?=
- =?utf-8?B?YVhxNkVCUEZoNnhqaW8yVEJtN2VkUHg3bGZkYlUxVEptSzhNUGxvc0ZNbHBr?=
- =?utf-8?B?bG9uSVlab0lRa2N2VkZuNTMvd3Fhdzh4Q3dubWlzK0J3ajNmdENxS3hTK3Jh?=
- =?utf-8?B?UFBmMHlLYml1ekRDZUJMS1JFc2RGa2pHWmZueFpncU5qbnd4cjNaV0I1eVox?=
- =?utf-8?B?YU1CQzVKeElCaC9seVR2SG11UTFBSlV6bFJjZlluRlF2elJJMGY0RXRadWpl?=
- =?utf-8?B?dlpWLzBJdTIyZkpLenhOQkY2b21qN3NZWHJxNkpwYnkzdjAxdnd1WnlUbmRx?=
- =?utf-8?B?TU1iU3phOTI1c2lWSGZSdTNWNGFveXVFMy9hblJLWEJwMHNDUmtCVDNURzYr?=
- =?utf-8?B?dDhCODFIUjhhOFpidDNnUHltRXZMaVQ1MVNYWGVPS09DblgrSXBBdXFEYURn?=
- =?utf-8?B?c3JhZVRCR1ZUeHpZcnFZWmtudko4ZDNBbHFsclVwQnlyVXFYdmJKK1hpM3pn?=
- =?utf-8?B?SUlTR0p1bEtzczdJcWVGZ1FzQjkvWmVDNGRTajZ3NnBPbVlYKzJZbE1Jc0Yr?=
- =?utf-8?B?VG9pSFJvWkVpRjBFT09iZnlBaXcxRnpibWlxT0xZeFhhaUpxZW05S3RKdzZH?=
- =?utf-8?B?K2xXb1FYRnFLVTRtK3h4Q3VzYm40Vm0ydHMrdExzbWxsZFZ5WGg4YkswYUQw?=
- =?utf-8?B?bjV1QjYxd2w4eXlTc0R1S1dBYmFjL05yQUFLbWlhdGJuMjZtUnk0VUFtSGo2?=
- =?utf-8?B?VXU1NFExN2FaVFJvRWhaK0dySmhmT1J1NDRqMWovdmRVL253eUVkL3A5L2F4?=
- =?utf-8?B?MFZ2THFhL1p4UXNMZCtESnhPMHRGSzFaTWVYdUlSVmZCR3BGbnlDSWJxNXBY?=
- =?utf-8?B?NUV0cHFlRlI4Slh3VXd1Q0tyUEIyRlhrZ1NqbFZZbllJWnh0RDgzUWE4MFFG?=
- =?utf-8?B?ZmxXcUNLb0ZFVkRNM3ZpYlRkaVdpbFlzcHpnOFJHdjFlUkNTeG5lSmRHR0lB?=
- =?utf-8?B?SklXMXp3clV3dmRwVEUxK0xyRlVBdlI3Mi9QVHdVMHBXYXRQMjc3bmFLSWxw?=
- =?utf-8?B?MFdlN09lbHBXNGw4Wk45bFJBUUw0V0F5QllDQ2hwZ2F1OHA5dnNwZ3Y4ZU1D?=
- =?utf-8?B?SVQ5VnJOcU5tbXJtMURpZVZvbHNEektlRjVKb3hoREJBZnNyTCtxSm41dWhk?=
- =?utf-8?B?U3J2eEJKb0cxalhzeGROVGNuMmlZYm1Wdnc4cnBNM2wzYXNwa2dmREpRVzU4?=
- =?utf-8?B?ZVZkNnNSRGdyMjc1UVZxQmQySlNyYWFRNUNHRjN6WHMxQzhtTmJicForUmcx?=
- =?utf-8?B?SWhxK3grYzlMTzc2RUxjc3pBUW1DTVZEREdqWE5Td29hOFNxaTNrMW9mU1Vm?=
- =?utf-8?B?NnFvZko0QlB0aC9vNkUxRG03Q3pIUkRSeXI5dFQyb2xDUzhrLytrdkVjcVdw?=
- =?utf-8?B?emIyWVAxV0M2bTg1b3N5VDQzV01DRVVMNHB2RDV4RGpZS0FOZks1Y3lnakhm?=
- =?utf-8?B?czJHMXd4YVpzM1plSFlRYlhZbGFJeEovWWpxMFFXREFucW9xMXJSZlpQT2w0?=
- =?utf-8?B?TTNvTWNRSmhEQXpZQlVQeU5SdEpUcnRsbE1mZk5CNy9TMHZSbVBXS1llbE96?=
- =?utf-8?B?ZWFpcWpPd0E2NzRqeHpRK0VDQlhTWTZoMkdrOVFKalIrSzZ0ai9SRFA3VUVL?=
- =?utf-8?B?ZjEzTUx2czFDaUlPV0Q3VHZwbVNFc1ArMVZYSyttR3U4NVlEMnFscm14N2g1?=
- =?utf-8?B?anVaSWN4bHMxbEEvcXNyckxnbkpudzhtTEFQUnQzUmRtWWI3ajZFbzFVSFRH?=
- =?utf-8?B?YTJHKzVUdjRva3crWDlBcjMxK0tjTDBlWDNKUXh3cVZRbi9wbjhmSUM2Y09E?=
- =?utf-8?B?ang3RjFVU3p1eTQrYjFUK2ZoenFtSU5Xb0pCRmRoVFJ0NGFJWitGRFNrc04y?=
- =?utf-8?B?R2IwWTR2R2t2WnNWMGZ2R095cjAvbFBwS01nZlFNd2NVZERIU0Y5S0hpdWNF?=
- =?utf-8?Q?rFYFujZzqtQ39FWw8APqFQ8Fh?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5526627f-313d-466a-9fdf-08de277a9110
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2025 14:47:30.8529
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: k14JNiyQ6k2LVKcoCn7dWcJcpJMLR9ipU+tpenynbtw/Y3euBUSx81nxi7vl6BA22f96lZ2YIazIPJc6o3cLLQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6830
+In-Reply-To: <20251119055522.617-2-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: y7iz8K-KK0GODR3pjXBMhflLAfM2Lort7sA3IrxDS98_1763566071
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 11/19/25 1:53 AM, Michael S. Tsirkin wrote:
-> On Tue, Nov 18, 2025 at 08:38:55AM -0600, Daniel Jurgens wrote:
->> +/**
->> + * struct virtio_net_ff_cap_data - Flow filter resource capability limits
->> + * @groups_limit: maximum number of flow filter groups supported by the device
->> + * @classifiers_limit: maximum number of classifiers supported by the device
->> + * @rules_limit: maximum number of rules supported device-wide across all groups
->> + * @rules_per_group_limit: maximum number of rules allowed in a single group
->> + * @last_rule_priority: priority value associated with the lowest-priority rule
->> + * @selectors_per_classifier_limit: maximum selectors allowed in one classifier
->> + *
->> + * The limits are reported by the device and describe resource capacities for
->> + * flow filters.
+On Wed, Nov 19, 2025 at 01:55:21PM +0800, Xuan Zhuo wrote:
+> The commit be50da3e9d4a ("net: virtio_net: implement exact header length
+> guest feature") introduces support for the VIRTIO_NET_F_GUEST_HDRLEN
+> feature in virtio-net.
 > 
-> This sentence adds nothing of substance.
-> Pls don't add fluff like this in comments.
+> This feature requires virtio-net to set hdr_len to the actual header
+> length of the packet when transmitting, the number of
+> bytes from the start of the packet to the beginning of the
+> transport-layer payload.
 > 
->> Multi-byte fields are little-endian.
+> However, in practice, hdr_len was being set using skb_headlen(skb),
+> which is clearly incorrect. This commit fixes that issue.
 > 
+> Fixes: be50da3e9d4a ("net: virtio_net: implement exact header length guest feature")
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  drivers/net/tun_vnet.h     |  2 +-
+>  drivers/net/virtio_net.c   |  8 ++++--
+>  include/linux/virtio_net.h | 58 ++++++++++++++++++++++++++++++--------
+>  3 files changed, 54 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/net/tun_vnet.h b/drivers/net/tun_vnet.h
+> index 81662328b2c7..b06aa6f2aade 100644
+> --- a/drivers/net/tun_vnet.h
+> +++ b/drivers/net/tun_vnet.h
+> @@ -244,7 +244,7 @@ tun_vnet_hdr_tnl_from_skb(unsigned int flags,
+>  
+>  	if (virtio_net_hdr_tnl_from_skb(skb, tnl_hdr, has_tnl_offload,
+>  					tun_vnet_is_little_endian(flags),
+> -					vlan_hlen)) {
+> +					false, vlan_hlen)) {
+>  		struct virtio_net_hdr_v1 *hdr = &tnl_hdr->hash_hdr.hdr;
+>  		struct skb_shared_info *sinfo = skb_shinfo(skb);
+>  
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0369dda5ed60..a62acfaf631b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3317,9 +3317,12 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+>  	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
+>  	struct virtnet_info *vi = sq->vq->vdev->priv;
+>  	struct virtio_net_hdr_v1_hash_tunnel *hdr;
+> -	int num_sg;
+>  	unsigned hdr_len = vi->hdr_len;
+> +	bool guest_hdrlen;
+>  	bool can_push;
+> +	int num_sg;
+> +
+> +	guest_hdrlen = virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_HDRLEN);
+>  
+>  	pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
+>  
+> @@ -3339,7 +3342,8 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+>  		hdr = &skb_vnet_common_hdr(skb)->tnl_hdr;
+>  
+>  	if (virtio_net_hdr_tnl_from_skb(skb, hdr, vi->tx_tnl,
+> -					virtio_is_little_endian(vi->vdev), 0))
+> +					virtio_is_little_endian(vi->vdev),
+> +					guest_hdrlen, 0))
+>  		return -EPROTO;
+>  
+>  	if (vi->mergeable_rx_bufs)
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index b673c31569f3..ee960ec9a35e 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -207,20 +207,40 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>  	return __virtio_net_hdr_to_skb(skb, hdr, little_endian, hdr->gso_type);
+>  }
+>  
+> -static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+> -					  struct virtio_net_hdr *hdr,
+> -					  bool little_endian,
+> -					  bool has_data_valid,
+> -					  int vlan_hlen)
+> +static inline void virtio_net_set_hdrlen(const struct sk_buff *skb,
+> +					 struct virtio_net_hdr *hdr,
+> +					 bool little_endian,
+> +					 bool guest_hdrlen)
+> +{
+> +	u16 hdr_len;
+> +
+> +	if (guest_hdrlen) {
+> +		hdr_len = skb_transport_offset(skb);
+> +
+> +		if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
+> +			hdr_len += sizeof(struct udphdr);
+> +		else
+> +			hdr_len += tcp_hdrlen(skb);
+> +	} else {
+> +		/* This is a hint as to how much should be linear. */
+> +		hdr_len = skb_headlen(skb);
+> +	}
+> +
+> +	hdr->hdr_len = __cpu_to_virtio16(little_endian, hdr_len);
+> +}
 
-Done
 
-> 
-> You do not really need to say "Multi-byte fields are little-endian."
-> do you? It says __le explicitly. Same applies to all structures.
-> 
->> + */
->> +struct virtio_net_ff_cap_data {
->> +	__le32 groups_limit;
->> +	__le32 classifiers_limit;
->> +	__le32 rules_limit;
->> +	__le32 rules_per_group_limit;
->> +	__u8 last_rule_priority;
->> +	__u8 selectors_per_classifier_limit;
->> +};
-> 
-> so the compiler adds 2 bytes of padding here. The bug is
-> in the spec.
-> 
-> I think this happens to work for people because controllers
-> either also added 2 bytes of padding here at the end,
-> or they report a shorter structure and
-> the spec says commands can be truncated.
-> So I think we can just add 2 bytes of padding at the end
-> and it will be harmless.
-> 
-> It is a spec extension, but a minor one.
+So this adds code that is broken for tunnels, then the follow up patch
+fixes it up. I don't feel it's worth it, just squash the two patches
+together please.
 
-Done, referenced your spec patch in the change log.
 
-> 
-> 
+> +
+> +static inline int __virtio_net_hdr_from_skb(const struct sk_buff *skb,
+> +					    struct virtio_net_hdr *hdr,
+> +					    bool little_endian,
+> +					    bool has_data_valid,
+> +					    bool guest_hdrlen,
+> +					    int vlan_hlen)
+>  {
+>  	memset(hdr, 0, sizeof(*hdr));   /* no info leak */
+>  
+>  	if (skb_is_gso(skb)) {
+>  		struct skb_shared_info *sinfo = skb_shinfo(skb);
+>  
+> -		/* This is a hint as to how much should be linear. */
+> -		hdr->hdr_len = __cpu_to_virtio16(little_endian,
+> -						 skb_headlen(skb));
+>  		hdr->gso_size = __cpu_to_virtio16(little_endian,
+>  						  sinfo->gso_size);
+>  		if (sinfo->gso_type & SKB_GSO_TCPV4)
+> @@ -231,6 +251,10 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>  			hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP_L4;
+>  		else
+>  			return -EINVAL;
+> +
+> +		virtio_net_set_hdrlen(skb, hdr, little_endian,
+> +				      guest_hdrlen);
+> +
+>  		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+>  			hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+>  	} else
+> @@ -250,6 +274,16 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>  	return 0;
+>  }
+>  
+> +static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+> +					  struct virtio_net_hdr *hdr,
+> +					  bool little_endian,
+> +					  bool has_data_valid,
+> +					  int vlan_hlen)
+> +{
+> +	return __virtio_net_hdr_from_skb(skb, hdr, little_endian,
+> +					 has_data_valid, false, vlan_hlen);
+> +}
+> +
+>  static inline unsigned int virtio_l3min(bool is_ipv6)
+>  {
+>  	return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
+> @@ -384,6 +418,7 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+>  			    struct virtio_net_hdr_v1_hash_tunnel *vhdr,
+>  			    bool tnl_hdr_negotiated,
+>  			    bool little_endian,
+> +			    bool guest_hdrlen,
+>  			    int vlan_hlen)
+>  {
+>  	struct virtio_net_hdr *hdr = (struct virtio_net_hdr *)vhdr;
+> @@ -394,8 +429,8 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+>  	tnl_gso_type = skb_shinfo(skb)->gso_type & (SKB_GSO_UDP_TUNNEL |
+>  						    SKB_GSO_UDP_TUNNEL_CSUM);
+>  	if (!tnl_gso_type)
+> -		return virtio_net_hdr_from_skb(skb, hdr, little_endian, false,
+> -					       vlan_hlen);
+> +		return __virtio_net_hdr_from_skb(skb, hdr, little_endian, false,
+> +						 guest_hdrlen, vlan_hlen);
+>  
+>  	/* Tunnel support not negotiated but skb ask for it. */
+>  	if (!tnl_hdr_negotiated)
+> @@ -408,7 +443,8 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+>  
+>  	/* Let the basic parsing deal with plain GSO features. */
+>  	skb_shinfo(skb)->gso_type &= ~tnl_gso_type;
+> -	ret = virtio_net_hdr_from_skb(skb, hdr, true, false, vlan_hlen);
+> +	ret = __virtio_net_hdr_from_skb(skb, hdr, true, false,
+> +					guest_hdrlen, vlan_hlen);
+>  	skb_shinfo(skb)->gso_type |= tnl_gso_type;
+>  	if (ret)
+>  		return ret;
+> -- 
+> 2.32.0.3.g01195cf9f
 
