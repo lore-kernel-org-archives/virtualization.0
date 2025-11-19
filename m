@@ -1,187 +1,100 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B7D3220698;
-	Wed, 19 Nov 2025 19:52:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FCE53043A1
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 20:22:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763581980; cv=none; b=e/NXEaaoOW33aJA5Os2sXCmBc+CSrpnEAUk65JpPoyVHAZuTjPEiA1QdN8+gD+aoydMXskEx//DcpsYQO6PBKmIAq3nYCH52Y6FTtvrkSspYm6E7TXGx5xrl8PsV0qnlhc3ljJc1NuEnBu+W8XHt3V0qyqSOhq8v3ru38V1XGTs=
+	t=1763583762; cv=none; b=TQOrLFn2DCRKdo2LMz7MgdN4LWHYrve+br86rESTCnrdJ7gJ1AVMikY0a2kSS+b9vFxP4cG2FrVFcaVHlzMwfxZGlLlMxc7TyKXqeze+wEpLfC9AtlMxSzn5ygLmtWDb+eck7SgegnGSSP9UswKP8lALI46/SxsfXdHF2aBsHi8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763581980; c=relaxed/simple;
-	bh=jF6kVo6Hjs7U3p0jUm2wQrED5+i0c1aTSJj3C1XKJPo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H2ZiVNO1zzwUYbIlqEhoJPgb4rNh6qGaAgzZ553pt1lJbtqPlFMtKN9gR6qcUcNQr+xHOEmOKPPWWhzwKzL8i3ZBJ0l2UoZid4PlbLEYBRWDT+QzB8Ea8XwZ61ShSAfGdrwt7PkniFIOF2fSE23YRJRG6AcKrIADVCV29rxQ0BI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=cWj/bIdf; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1763583762; c=relaxed/simple;
+	bh=Qf3h8LQWgZZpMpM3MFbHJdvzLVhTDqmkGNygGmxZVWw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ULBiRPxR32gg/rn/M1ItXQh0u8xJcXXG2Abd039hCR2IUGAPjN4vPv22hbqYNNExGIwwJePkElsn8OVBf9SjpNF1lh5vpXYw2Svy3Vy0BdGd0UlQLZzi8SelBlgaL8vr6n/8okQxB2GeNtZDeoCWzslsH6iU76mMYWJimrME4Uc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a7OpbVpR; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="cWj/bIdf"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1vLoEQ-006OPH-30; Wed, 19 Nov 2025 20:52:46 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=M1tjLezg7BNgs3HfhRtLwjVoRH1sIIdmfgc0Pkts8CE=; b=cWj/bIdfxRAjFQ9tTxzlg1lBeR
-	gEKX3Xhb+7jXiBgjl8JotTnysxyTfr0ZgXTDyqKPHBLOKL8GnfltMbGte4W6hXC2HelDEuSZ67gIO
-	uxdNe+eIyZNwkva/l1r24rzKzkyYijXZq1KgzknjR9+dL9NV63TT3Sie9RxUudNA7CCa044zSm1j7
-	2R82WD8+BcX/M8GY2vCwpam4rHLIZCJSsYkjpklANgR2uWXnNXhTIeaPpT2XYynnh1SMuwdzCo+TQ
-	oOLJdsAn/yGsa4JODlT5O2zqAR+Ln2lJ5o8nr5COfERTjeD18hsxwLgl8h1eIW/VsPi9tFgRI70dx
-	VL7PNjZw==;
-Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1vLoEO-0003y3-Jc; Wed, 19 Nov 2025 20:52:44 +0100
-Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1vLoED-00GIgn-Sk; Wed, 19 Nov 2025 20:52:33 +0100
-Message-ID: <1b2255c7-0e97-4b37-b7ab-e13e90b7b0b9@rbox.co>
-Date: Wed, 19 Nov 2025 20:52:32 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a7OpbVpR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763583759;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Qf3h8LQWgZZpMpM3MFbHJdvzLVhTDqmkGNygGmxZVWw=;
+	b=a7OpbVpR22gPxN8gh9XaMaDITKs19fCWzcHsIXtiQ8Z1NmeDqcE+RUzHXGTUd3GOZbXAU+
+	WSU6SBIO1r3EFUHu6+4gRjOfy83ki72xpu/IcZonT6J39Cw2IwbcPYCuN2lap7sQj4mEjA
+	5Hm6O9tPUcHWEYABVxJ5+AGjc3/SJ/A=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-527-i7JxFMqoPNiWuBF-yAC66A-1; Wed, 19 Nov 2025 15:22:37 -0500
+X-MC-Unique: i7JxFMqoPNiWuBF-yAC66A-1
+X-Mimecast-MFC-AGG-ID: i7JxFMqoPNiWuBF-yAC66A_1763583756
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4779981523fso2232375e9.2
+        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 12:22:37 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763583756; x=1764188556;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Qf3h8LQWgZZpMpM3MFbHJdvzLVhTDqmkGNygGmxZVWw=;
+        b=Ezv+sgoggdlNAE8PNJ/fjZwLHmsr//ZPB+P9mRyUuYs5LTnd7D5fH7Hv7aVQrc4wvr
+         JIH75WOQ/Ikf6PFN6a2x2RIO+f2oxFWvzCZ30xiVibCSbaiY2BVsKx1Q1AljcjBN6FJz
+         YlMZ+c6qCZ2ywqCrRq3ss4N2JZFuoggfBFa0JsiNcSWS03FVlqLUr+kivxxQ6zTp/+lh
+         IXlOTzu1o6hDdt+639xBeCskK4q7+uN2vPzvxyHalF5boQauRqiqcG79vyDsq42uMJhe
+         2MfLhTVqJP7nce/wY5Q1/jlcjYn8THqaZqUfXaLJclvENgE8hjxuioWRUio/otbpDM/p
+         qHxA==
+X-Forwarded-Encrypted: i=1; AJvYcCVKAfe8+XioHt11Ta9VZak0uJuKEDOY6Y3lA9xadSVmuh6va8pXxVhe9/N0YR1jWA/dDLh8luALL9Fg/8WYOQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxRf381YqDG4rmlcGN7r7y1hHuqn230SOy8IkY3fA1LBBA9AB4D
+	QqD8PnUxOIfs9VCFQdt8MSXaQmCgDnvDqUmBGq0XVPeCHfi92bef+389CbPEFXyBJQOY0eQ2g6P
+	GQE7gUe+meobVC0yMInGRFj+/UyL7OYzgOiHurVnbhoY5wvuNTi8Y3HqQ4KCU7SZo4naL
+X-Gm-Gg: ASbGncvyluDZ3VDEwlmSKUX2dicuZ/APFS1u9IGEIrEM+UeApiuICze91A8Sb/gt2XI
+	LhnrLSFcUgJXVa4uJUg1yguEi1pI/5BqGHm/SpSebD4MXw1e+XAGqIQGetfYd7JwOoIUmA7IWVZ
+	H4w4iDOzpe4cLCuneFt+Bf+kVVOoJo5PatWbf8czTgYuVj1Dps+K/Pr4om9r+SBLfa8g6UaCdeJ
+	1wgVrAHxpZb756nlxdUgx4aw2uGuPlLtU4jnt6EHfrLeSg1cbbLv83igwQfAaFZWwKCcCZ+CctN
+	yS0rYoaJL4kpik8auBXOod7Pc1VkQcNunUCZARzLY8zh3RMvU90y8vtJcyUEA+Y0vjvVADS+EBX
+	NhP3y/kMVuJFfwndFyn5v/CPTMfV40g==
+X-Received: by 2002:a05:600c:1c16:b0:477:95a0:fe95 with SMTP id 5b1f17b1804b1-477b8a90b69mr5239615e9.24.1763583756399;
+        Wed, 19 Nov 2025 12:22:36 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGv7OY/eeh/eaCRC0mGOzH9PPH/EZSDaI5JiPGJFpcL+zSbxL7SPGpS4v2uWECCiGLjI0pkxw==
+X-Received: by 2002:a05:600c:1c16:b0:477:95a0:fe95 with SMTP id 5b1f17b1804b1-477b8a90b69mr5239305e9.24.1763583755891;
+        Wed, 19 Nov 2025 12:22:35 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477a96aed1esm50247745e9.0.2025.11.19.12.22.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Nov 2025 12:22:35 -0800 (PST)
+Date: Wed, 19 Nov 2025 15:22:31 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+	virtualization@lists.linux.dev, parav@nvidia.com,
+	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+Subject: Re: [PATCH net-next v12 00/12] virtio_net: Add ethtool flow rules
+ support
+Message-ID: <20251119152206-mutt-send-email-mst@kernel.org>
+References: <20251119191524.4572-1-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] vsock: Ignore signal/timeout on connect() if already
- established
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co>
- <dh6gl6xzufrxk23dwei3dcyljjlspjx3gwdhi6o3umtltpypkw@ef4n6llndg5p>
- <98e2ac89-34e9-42d9-bfcf-e81e7a04504d@rbox.co>
- <rptu2o7jpqw5u5g4xt76ntyupsak3dcs7rzfhzeidn6vcwf6ku@dcd47yt6ebhu>
- <09c6de68-06aa-404d-9753-907eab61b9ab@rbox.co>
- <663yvkk2sh5lesfvdeerlca567xb64qbwih52bxjftob3umsah@eamuykmarrfr>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <663yvkk2sh5lesfvdeerlca567xb64qbwih52bxjftob3umsah@eamuykmarrfr>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20251119191524.4572-1-danielj@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: jOjzA1rCberYyR7GVQ0MEPh8uAkPFJOHAYnCSSarYYo_1763583756
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 11/19/25 17:31, Stefano Garzarella wrote:
-> On Wed, Nov 19, 2025 at 03:09:25PM +0100, Michal Luczaj wrote:
->> On 11/19/25 11:36, Stefano Garzarella wrote:
->>> On Tue, Nov 18, 2025 at 11:02:17PM +0100, Michal Luczaj wrote:
->>>> On 11/18/25 10:51, Stefano Garzarella wrote:
->>>>> On Mon, Nov 17, 2025 at 09:57:25PM +0100, Michal Luczaj wrote:
->>>>>> ...
->>>>>> +static void vsock_reset_interrupted(struct sock *sk)
->>>>>> +{
->>>>>> +	struct vsock_sock *vsk = vsock_sk(sk);
->>>>>> +
->>>>>> +	/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
->>>>>> +	 * transport->connect().
->>>>>> +	 */
->>>>>> +	vsock_transport_cancel_pkt(vsk);
->>>>>> +
->>>>>> +	/* Listener might have already responded with VIRTIO_VSOCK_OP_RESPONSE.
->>>>>> +	 * Its handling expects our sk_state == TCP_SYN_SENT, which hereby we
->>>>>> +	 * break. In such case VIRTIO_VSOCK_OP_RST will follow.
->>>>>> +	 */
->>>>>> +	sk->sk_state = TCP_CLOSE;
->>>>>> +	sk->sk_socket->state = SS_UNCONNECTED;
->>>>>> +}
->>>>>> +
->>>>>> static int vsock_connect(struct socket *sock, struct sockaddr *addr,
->>>>>> 			 int addr_len, int flags)
->>>>>> {
->>>>>> @@ -1661,18 +1678,33 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
->>>>>> 		timeout = schedule_timeout(timeout);
->>>>>> 		lock_sock(sk);
->>>>>>
->>>>>> +		/* Connection established. Whatever happens to socket once we
->>>>>> +		 * release it, that's not connect()'s concern. No need to go
->>>>>> +		 * into signal and timeout handling. Call it a day.
->>>>>> +		 *
->>>>>> +		 * Note that allowing to "reset" an already established socket
->>>>>> +		 * here is racy and insecure.
->>>>>> +		 */
->>>>>> +		if (sk->sk_state == TCP_ESTABLISHED)
->>>>>> +			break;
->>>>>> +
->>>>>> +		/* If connection was _not_ established and a signal/timeout came
->>>>>> +		 * to be, we want the socket's state reset. User space may want
->>>>>> +		 * to retry.
->>>>>> +		 *
->>>>>> +		 * sk_state != TCP_ESTABLISHED implies that socket is not on
->>>>>> +		 * vsock_connected_table. We keep the binding and the transport
->>>>>> +		 * assigned.
->>>>>> +		 */
->>>>>> 		if (signal_pending(current)) {
->>>>>> 			err = sock_intr_errno(timeout);
->>>>>> -			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
->>>>>> -			sock->state = SS_UNCONNECTED;
->>>>>> -			vsock_transport_cancel_pkt(vsk);
->>>>>> -			vsock_remove_connected(vsk);
->>>>>> +			vsock_reset_interrupted(sk);
->>>>>> 			goto out_wait;
->>>>>> -		} else if ((sk->sk_state != TCP_ESTABLISHED) && (timeout == 0)) {
->>>>>> +		}
->>>>>> +
->>>>>> +		if (timeout == 0) {
->>>>>> 			err = -ETIMEDOUT;
->>>>>> -			sk->sk_state = TCP_CLOSE;
->>>>>> -			sock->state = SS_UNCONNECTED;
->>>>>> -			vsock_transport_cancel_pkt(vsk);
->>>>>> +			vsock_reset_interrupted(sk);
->>>>>> 			goto out_wait;
->>>>>
->>>>> I'm fine with the change, but now both code blocks are the same, so
->>>>> can we unify them?
->>>>> I mean something like this:
->>>>> 		if (signal_pending(current) || timeout == 0 {
->>>>> 			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
->>>>> 			...
->>>>> 		}
->>>>>
->>>>> Maybe at that point we can also remove the vsock_reset_interrupted()
->>>>> function and put the code right there.
->>>>>
->>>>> BTW I don't have a strong opinion, what do you prefer?
->>>>
->>>> Sure, no problem.
->>>>
->>>> But I've realized invoking `sock_intr_errno(timeout)` is unnecessary.
->>>> `timeout` can't be MAX_SCHEDULE_TIMEOUT, so the call always evaluates to
->>>> -EINTR, right?
->>>
->>> IIUC currently schedule_timeout() can return MAX_SCHEDULE_TIMEOUT only
->>> if it was called with that parameter, and I think we never call it in
->>> that way, so I'd agree with you.
->>>
->>> My only concern is if it's true for all the stable branches we will
->>> backport this patch.
->>>
->>> I would probably touch it as little as possible and continue using
->>> sock_intr_errno() for now, but if you verify that it has always been
->>> that way, then it's fine to change it.
->>
->> All right then, here's a v2 with minimum changes:
->> https://lore.kernel.org/netdev/20251119-vsock-interrupted-connect-v2-1-70734cf1233f@rbox.co/
->>
-> 
-> Thanks!
-> 
->> Note a detail though: should signal and timeout happen at the same time,
->> now it's the timeout errno returned.
->>
-> 
-> Yeah, I thought about that, but I don't see any problems with that.
-> I mean, it's something that if it happens, it's still not deterministic,
-> so we're not really changing anything.
+On Wed, Nov 19, 2025 at 01:15:11PM -0600, Daniel Jurgens wrote:
+> This series implements ethtool flow rules support for virtio_net using the
+> virtio flow filter (FF) specification. The implementation allows users to
+> configure packet filtering rules through ethtool commands, directing
+> packets to specific receive queues, or dropping them based on various
+> header fields.
 
-Mhm, I suppose.
-
-To follow up, should I add a version of syzkaller's lockdep warning repro
-to vsock test suite? In theory it could test this fix here as well, but in
-practice the race window is small and hitting it (the brute way) takes
-prohibitively long.
+traveling, will review after tuesday. thanks!
 
