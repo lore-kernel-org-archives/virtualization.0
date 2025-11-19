@@ -1,209 +1,207 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011014.outbound.protection.outlook.com [52.101.52.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FA563559EF
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 16:31:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763569883; cv=none; b=Sl5LJ/Njd6su/Dobn6osC66/2Hxbj/TN4XYXA26CXpAVDvPs3XfMP6IG1pf7al/QtLJSIB2BGsrnfk5VdkqRAWEuhriIJHbM3/xcYxYIMXwjRyoeMvy/IXJ5caF9TErPKw6nJ48DnIa6tH7orFNEn+0UTF9u8E3AcCJcD2NDtdo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763569883; c=relaxed/simple;
-	bh=FqqvmkUPgSq7OZp9nrgzHtuk68f2+rkXNRL8blqM5Gw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=tHzPZ6j3c+TThhtbZry9AVOju0ooFYQBkBmKSyY1u1302hjZx0GcIAvtlKubJKGKqwh+z0zCrMApo7qFRuP5vrIll18P5CJR9Q46Ob04tgV9OgL5ApfsCOSHJQ1oI4bMZejh8r+4wKya5ZarRPKwSnBUZnX535EzzYY1zxDMMjs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W+IuFxL1; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 598DA34E75A
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 16:33:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.14
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763570020; cv=fail; b=iI9SqRktqgyYlSogL5JEdZr9p9CNuA4ef/ciDEBGDOU6Nim9PKbeiZOJCqiWZD3boHwlRE0eQRUw877XezVqRz2KyVRMEsM4rZrnSvFjKvX2qwkaZFcn6SRYoMMY5iUi9mW4osKJKsmqijNm2UmsTiDQnKWrBHjLh1xhJ3yOd0k=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763570020; c=relaxed/simple;
+	bh=Pj/yKJABGp85rien6lfTh12GRUcxwpzllVqJ/wG9w7c=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=kSaE0AWozh3eFc+6gEfOY9bxX/GY8oIWlcKZMjEiOAEpRjSVuq27+URcabO6qY8dQCeoe5MSPvdTvLKoJmaVyIa3mIFUf5FRUrYd07jW6jeIc4gE36T3uvGST+dznJ8XMvk4saydQV4A9z4l0ouxqFS7lG1JQGyn5lBBKYDrjDY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=qY9G/hhs; arc=fail smtp.client-ip=52.101.52.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W+IuFxL1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763569880;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=O3kVindzkKJ+KF8jM/3D9z51CP303MCzFh5WHNehWDM=;
-	b=W+IuFxL103b9qfxcYxqiukdb0etq0QGH4+reTZusaRmR5nISnOF41xnwLtghkWq8oSoke3
-	orF6GrC7XdUq37dy7XpOXyjml6TZ08FDe7oMsrtW7fsx7NQy4kZRPTBJp0ZZEUcwVm6xfy
-	SzunlznbkcglgxYwFN1SiKuaAzTj5Rg=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-594-j6-7wVtUMZq3vhgU3cRQDA-1; Wed, 19 Nov 2025 11:31:17 -0500
-X-MC-Unique: j6-7wVtUMZq3vhgU3cRQDA-1
-X-Mimecast-MFC-AGG-ID: j6-7wVtUMZq3vhgU3cRQDA_1763569877
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-8804b991976so194861256d6.2
-        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 08:31:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763569877; x=1764174677;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=O3kVindzkKJ+KF8jM/3D9z51CP303MCzFh5WHNehWDM=;
-        b=h/2q0f0B0dk/uHP88e92r4tuRXzcgpJcwCN8HaOMaz8eDe8SsHXfF6tlnhuV5/05GA
-         bIJ+8XMu8l6Wk93jS4nG4TQ3+FnvWVimnQnIvhLnfnmsir0elNLpKjuCxro6H54kTis/
-         27yEwFQKZyOFuyNwnGsFtMZFbEQ3HAi5JbOwvpxAjozaKWMquoud68brcB+qtzGpbZRf
-         bn4LiX8nIw/hP3jhiH/Skbd5coH04FyyrkqQp8jzfYJ43Lyh4xYzagNwSkl5lqkcenIY
-         TUgSzuO6VIuSA3LyxuMDkg+c3Asgvxg+2eYSAt3xLdIIOYlhpv8QFEO/ZGOumK1IC/il
-         LiKQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWRE0BEOXGrPJFi4HCxAKUiz3Ja51MvBpJGt2jPOuCal92oxCnAo0TyR9BqipwXPfoshGlXOHDdqk3Dh5giDg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzlFZzVu7jjTViYRmvQNUqJKypPkyGI+eSyfKfJ2XhufJoFKUk6
-	0HyJdbRVDqqGaDdFTvw7jLs//MXU8VD73upfOZD0ritIUZWqm+2CgbtNz6DzoRYJ3kpAYNUVEK6
-	SbmspO03LzsNvQpoRXieD2V3hE4HUV8Dya2iWzixDOjSBOInUnZeNE21AIWgG1i3xBHhjPavywK
-	aU
-X-Gm-Gg: ASbGncsLmo4a2bckDtqHLUy4EpqanDQHbkRwqCW6XJpERicPKuKkxevijsQzxUXZ43y
-	osulVzQfCdhk60LSD99qFe7xM9p0oD43ezObY+LXBVAq6mZFa5GCOJuAdonKs6YOQpXLGQYGvNI
-	Klydjq6FQ7nyx6xJEjhF35b/6OgGjsHCSzt2Mr83osq1uaQHoivj32WogZXIWskB1uFzn29xM0W
-	L9kK0hfBTJZMFthq8/INVosXiqv022idOWm60qlqA0+1YtXya93PZArR0G9rKNL95YI92blyo/e
-	4WLv2CdY49kecaXfcPbbLvz8kxqapN5J+kb3MVU/Y9KfB5XI5pkyk2EwAgL/Jsf55XtwawXdM6Q
-	vPvCZHAoWgfw2cdObIxEjQqsYNvbKqKhlDP1bxjeuPlSugm/w7NwAk3u8u6zLNA==
-X-Received: by 2002:a05:6214:2246:b0:882:398d:3cf5 with SMTP id 6a1803df08f44-88292703764mr336989866d6.52.1763569876581;
-        Wed, 19 Nov 2025 08:31:16 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFlMoSDGo8RCC4ukLN3fwxkuNRsD7z+J9Dhyfp0NsIu40eZGeuMWPAwGp70A3xvg/lU9rghuw==
-X-Received: by 2002:a05:6214:2246:b0:882:398d:3cf5 with SMTP id 6a1803df08f44-88292703764mr336988236d6.52.1763569875387;
-        Wed, 19 Nov 2025 08:31:15 -0800 (PST)
-Received: from sgarzare-redhat (host-87-12-139-91.business.telecomitalia.it. [87.12.139.91])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-88286314656sm136478176d6.21.2025.11.19.08.31.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Nov 2025 08:31:14 -0800 (PST)
-Date: Wed, 19 Nov 2025 17:31:01 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] vsock: Ignore signal/timeout on connect() if already
- established
-Message-ID: <663yvkk2sh5lesfvdeerlca567xb64qbwih52bxjftob3umsah@eamuykmarrfr>
-References: <20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co>
- <dh6gl6xzufrxk23dwei3dcyljjlspjx3gwdhi6o3umtltpypkw@ef4n6llndg5p>
- <98e2ac89-34e9-42d9-bfcf-e81e7a04504d@rbox.co>
- <rptu2o7jpqw5u5g4xt76ntyupsak3dcs7rzfhzeidn6vcwf6ku@dcd47yt6ebhu>
- <09c6de68-06aa-404d-9753-907eab61b9ab@rbox.co>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="qY9G/hhs"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=kS9CXW8faq0OPpppqcC+dj/dcwRFpT9ezSuAl4GohpudcTEJwhDLUBKJuFRO+kefd4fcJ9rZ21Nb1CtlchECnWXmNPEvTewULuJSSlw3o40UfrPJ3P57kqgUFVmtCLHLVfZ6jF3Zqce0FWHWlj/UCRGlinQ8tvDeknwx4jIBe+fTyo3TFgrrszUMYOQZGAvmTv+nc5JlJVGQMe+jU3g6dxF3k/DGo8XmNypJypn1j8OY7DJOSS1a0ghwc4NqiGFjAwUebWBRR0BcDP0KDgsY0qRew8vN5Pm6Id/2fAaKlB2rKkaZWeb78XbLifb+E5XJ6KMWSNcJMUZPDoxQSA2fHQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6FVIS1Iw+SVIJ8kBFLEpHZzjwSLAB2XciKwEQW5aVBE=;
+ b=l0dmQ0LcdnaSQLiVi4wveIvwrcqovJyvNS+icFjDl6JLeYyOeJ6hupF5azpj8j++6z0hvTJdmbaTQG902YYsbwPWcLPiwFkTAhStbeVCuIKfYEvA0TJaonsGr3/7fdI1IJIXMDevs5pFi12hWXXjlvMW6kKdaJ3kmRd3MK5eRlCEbhzVb9efHweoeeftl+kaXq/9fiTd64P4kQjOZJOS5mkBPXfZD540iBTWRxizD/xK86zzVTvIuFKSCgIDtp/SvLUfA881cEckYg0lmAcA3FmAjy5FlFrX+8Z8ORae07umtYe6OV/E8RGcgABWTf9UqVlwtxYIjd0Ajj35/igCWg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6FVIS1Iw+SVIJ8kBFLEpHZzjwSLAB2XciKwEQW5aVBE=;
+ b=qY9G/hhsKhox7IkVziW7bue0wwUS130JqtJRYe7YtSqYCquce38dCxffY/m/yPKUrlaWz3+QAVkZsDzGX25oyF1uQm9orvESkRxDX3zMBkL/t/GJ6dvqqibxfzExM7Yg9QFsqcwyU7tFaVdvaGgL88PPNOSw4Po+e4+nVQBlNoi89n5qQKVztVNzE/gbm3VJj2lNSn5eG4LySmtY/IO7yyklF3inZ8+ASkdhkSgPsn5u/YtPdVciqP/l1GpwfJWAVzRxjSdg0JMsyEkoTWiNBCkyzWf/woJhoZL/xthKBob1ytsWyrNTymsUeMkrslW6XmLHhoP2PJa3cgYL6I9NDg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
+ by PH7PR12MB7115.namprd12.prod.outlook.com (2603:10b6:510:1ee::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9228.16; Wed, 19 Nov
+ 2025 16:33:35 +0000
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9343.009; Wed, 19 Nov 2025
+ 16:33:34 +0000
+Message-ID: <103955ba-baa7-4b0b-8b9b-f3824ad54b4d@nvidia.com>
+Date: Wed, 19 Nov 2025 10:33:31 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v11 09/12] virtio_net: Implement IPv4 ethtool
+ flow rules
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+ virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+ yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
+ edumazet@google.com
+References: <20251118143903.958844-1-danielj@nvidia.com>
+ <20251118143903.958844-10-danielj@nvidia.com>
+ <20251118161734-mutt-send-email-mst@kernel.org>
+ <20251119041745-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Dan Jurgens <danielj@nvidia.com>
+In-Reply-To: <20251119041745-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SA1PR05CA0017.namprd05.prod.outlook.com
+ (2603:10b6:806:2d2::20) To MW4PR12MB7309.namprd12.prod.outlook.com
+ (2603:10b6:303:22f::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <09c6de68-06aa-404d-9753-907eab61b9ab@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: sgUgsCIxtmvyBRsQQ25Pbjv-NfdoaEhRLVPAesPlzy8_1763569877
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|PH7PR12MB7115:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2ac61c67-9848-4684-465c-08de27896202
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|7416014|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?NXNvaGd4STRLNmY5anoyZ2x5OVM2VFlRK3cycUx0YmlLR0UzUFcyTFg3ekh1?=
+ =?utf-8?B?VW94TFE3d2xkcGtDanQ3WmlwMU9GREVQWUd4OUVOeUFNREtGT3A2S21qd3lv?=
+ =?utf-8?B?R21YUDBMWVhYL1RvV2pVK3dWWjRtRTRsMVF2YXBLNUlvWXF3aS9Bck9lOWhN?=
+ =?utf-8?B?Qm5Qd1ZTb2FtaW9LbFB3NjFJUHdUQm1UTVk3MXZuQjR2R1pUc3BRYzVwcHNn?=
+ =?utf-8?B?VU5saVgzL3dZL0pNQWxjb0Mwbng2dnFJTVdKeW1oWG9zeEFJTklHNlJ2VXJH?=
+ =?utf-8?B?M1RzRGZscmtNYzRTQXRwTENUZHRhejN5TXluTHdQLzJPdExwNXZnc3FMNnpk?=
+ =?utf-8?B?M0RsYWRBd3dUWGhqRndCY1B3eEdadWVjUDNHWnZ3K2R1eGg4VGJrQnVpcE5w?=
+ =?utf-8?B?R0RJalI3K0VBOEJETWE2WU0vS01OclRTY2pweVREcEFGNnU0SGlhamxndS8r?=
+ =?utf-8?B?M1ZCL1orQUxuYlJlUjVPUDVqZVZ5VFNVUjZ6TmFUOVVVT3lkRzhkbHhWWFFs?=
+ =?utf-8?B?OHY3Q2cwd25xN0F1OTBFRGpPT1dHUzdkeEhJRHpDNExtcGR5Z2lHOEM1UFpw?=
+ =?utf-8?B?dWNLZzJocjJPSkp5anR2eGdXT3FPSUVFMnlBVitZTmROUjhDQUtsQ2dISGRV?=
+ =?utf-8?B?VHlrRThlU2dzMDBad21nemxoVWVvWmRBZ0RxQy9sMFNuZW5sYjdTdWY4aXZE?=
+ =?utf-8?B?RUh4YUV5RGNzOEdSYVE2dEI1K0s3blVqclRtSVhQRDdMZUUxeDg3czFvSE4x?=
+ =?utf-8?B?RlIzVDdIbU4raEptc2FydkxCai9wbkJGTlRiYUxDNGtwU1RDeGVKbzN1OTEx?=
+ =?utf-8?B?KzhCNWVpSzk3eFRRdU9NaGNhTmxudmEvNnpOZjhDckpVcHVYY3BkSW5OTHh3?=
+ =?utf-8?B?dWFXL3I2OFo0aktUK2RmamJRQnlqN1hKNmJXcEVnd1p1aEhFUXVsYmh0M0Qw?=
+ =?utf-8?B?bFArQ2pJTU93dkVJV01xZndwekk3Mko0QmxOQWVGZG9YQnlZMWNRdDNqOEp3?=
+ =?utf-8?B?U2dtOHJkNEU5SW9BSzFnM2QrTUdaeHZJSm5jV1ZiekdpOHZxUXh6Z1VGa0NE?=
+ =?utf-8?B?VDJTMXZPTWdZNGxsTmZ2cHpINjlrY3RUUHc4cHNOdkE1Tnc1QzRaa1djeGQ4?=
+ =?utf-8?B?NXpQSTV6NkRUb2k5VmVCUWZISi85dDV6YUtWTHpJREp3Qk1YWTd6SVBnemlO?=
+ =?utf-8?B?a3RiZnI2ZUllUTFpRktnUzEvNHphQ2lZQkF1WGZuNU1GYitQN2VnYzEwNENx?=
+ =?utf-8?B?cy9rcWFWSnU5bWRlZHVKcCtrK3NDMVN4Z2grNWMwaDFVam5tSzgvMlIzcTc0?=
+ =?utf-8?B?UEF5NzBIL3pja3Bick9Pa0VlVk1TaUVyTG10QWFvRUxSclZwRXJFb1RTVnVR?=
+ =?utf-8?B?RjVRTVBCZ2Q5TnhtaE9ZcUVrZ0drd3o4U3d0V0pYdi9jNWUwdUc5VS9uV3Jj?=
+ =?utf-8?B?YTNNekRYSTBRcWRVMkVMeVJkMThZRmkyL3NqQjZGSS8wZFNlTk1odjVrbThM?=
+ =?utf-8?B?bkRhU3JySS9Tb2tuY0lXem53cVd4cHFneVExeU55eXlaYkljSllWVzM4anFR?=
+ =?utf-8?B?TWtXYXplSlFMMThZMHpDMjlPcWoyQUhRamlaTmRtTUhDMkJWOVJwdy9jNGhZ?=
+ =?utf-8?B?UkhKdEI1eVF3ZDVYVHowNzBOM3FkNUdjckg4RjRkUzRRK3phUFcxOG50c2kv?=
+ =?utf-8?B?aUtVUndoaVBzT1NQL3orSklvVUxVUjlVNlVLa1FwZXdvKzRhbWlUVVR1dTJ5?=
+ =?utf-8?B?VGd3cmsvTk9wZ1VGL2pPdXlXQUZmU1A2Y1NCS0JqU1B1MEdocFZBN09TWG5W?=
+ =?utf-8?B?MlJKUEllTVFSU29NWEdtYmxLcWN1STRsbE9OTFdQeWs1SjVrbzNIcjNXZzRr?=
+ =?utf-8?B?cWlyY1h4QkM2Wm8yd3FuZU9rY1VYMnJnajhZWUIzTzRrOU12VmFEVkRaTks1?=
+ =?utf-8?Q?1X0bRm4rCuZpXuPSchl2VHy0vPGVOWSq?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(7416014)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?cGh5OXJzbDRsbm5EY3lJVG4vUHhjNjRBYzBaampCYmV5cXdKbXJqZ2Q0VTMv?=
+ =?utf-8?B?S1FJQXR5NmpWQ3ZtUkRyWE41UVREQmNFS0tVVEJLMDJoM2dZd1o4NkNmWkpN?=
+ =?utf-8?B?aWxQUGIyRXlFcTRjekp4T1JUemo5SkQxanZmQXMvS2E0U0VOTTF5VHBtTmVi?=
+ =?utf-8?B?cTVISVI2SWZ0WlZMSU1tQ0hodTE2TW5Ia0xnTWNvQURzSHgvN2VhYyswQUFv?=
+ =?utf-8?B?eGpKOXFDSWh6UlFtQk9OTU1ieXRFeUFxR2lWTXNXUDRiSXR3Y1BjcEdJSmJN?=
+ =?utf-8?B?N216TEZLeklJZVBkQ3pkQmpYRFo5dGNyNFR0OVo1SlNXM3h0NjRibGdqOE1w?=
+ =?utf-8?B?M3BLK2dPWDlkTk1wakp0SHozR25lZ2thZHhSM2l3T1VyNGt2SUhQUi8vNjJV?=
+ =?utf-8?B?NENKTzU1SUo4MW9ITUZGTUN1TlAvWUI3R0J1MzMrdDlvVkdaaGgrWFBpcEpu?=
+ =?utf-8?B?djFzN2hZOTY3QnB4UE9KeEhSbkYyQmwxcktiV3NzdW4vTm5DYW5NUEN2b1VF?=
+ =?utf-8?B?eGVRTTc2NGNQcEhxQmMzZU5VSGt2Y1U5VHM1NHRhRVJMUDVrbHJRRTNQbVE3?=
+ =?utf-8?B?SnFwV2x1UE5RcXUzQkx6N0d1V2ZYQzdrYWhFNHJpNTl0RGNncUVHNHQ4OVps?=
+ =?utf-8?B?QUswdWVaREhxcWFoQ1BSUDBiMjRHOFEyVm1DRnNrNEw4djNxMEhtd2VnaXJV?=
+ =?utf-8?B?amJaUEVid2JWd3JPcFhVOFdKY0gzVHlXMFVrMXMwRFUyc0RtaitiWG55WmZs?=
+ =?utf-8?B?VHdEMUZoVlBFcXplR3J3dVVIT2pvL3lBeFpEZ2lLUWJkMlJrZ0xDMC9XZXAy?=
+ =?utf-8?B?UlFlcDRhb2VHRUtNa3ZCOVpnMWlDNnprTXFRR2hJc3VqOUFxRDEwSlZwc0Y3?=
+ =?utf-8?B?a1NsczQ2eVIrdHdTK2ZJdUxuTHkyN3ZIZ0R1N0dBV1J0ODVKdU9HNWdSK2FX?=
+ =?utf-8?B?ZFRUSWNKOW5scWhPdi96YUdKSWhIb0pxT01QbTRJVGhVaGRUSFljb2dtZVA0?=
+ =?utf-8?B?MFROSitHZm9leTU5K0ZUdkZDYmEvSyszQ0ZjRlJYN3M1a1RYb1UrSlN6K2Fo?=
+ =?utf-8?B?c3p2c2VlRWM4MVpGcSswdVpHQWFhMHZOQyt1Ri9FK3RrSzJIaWNQcndxSmpN?=
+ =?utf-8?B?RHJWRU1aTDFnYXd1U0craG9hRnZ4MGFBb2hTaEhYU2VxUmJia1k0M05TcDVl?=
+ =?utf-8?B?MW5mbnVEYzBIVUl5ZTZ1Q3IyWFBnK210dkxMeXlHTzlMa0FyRU1YMHVocjVa?=
+ =?utf-8?B?QUx3MXhEY2tuSFk3RVUvNmdpY1JPL1FuTHA0UDNrTjNhemlWQTFla2x5WG9t?=
+ =?utf-8?B?Q2lSV2NsTTV1QXh3cWd4UFV2d0hhNlptZVk5TXJPVXAvbVk2QU5ZR2tEY3NZ?=
+ =?utf-8?B?dmtFVE05TVF6MmlxQXMyei9qNWFQVkljRXBFdWpqOTVydHRPQWJSZzRoaDgz?=
+ =?utf-8?B?cVE5SkR1SWtHOXBkOWlDMWIxWTVuOWVyaVl5K2diSmhYQTRCOHFUSHhlYzhl?=
+ =?utf-8?B?eGsyZCt3Ym9hcUpnd2hFaDBIR3MxTHlMd1JnK0VqQ0JEaW9GSTJ1NzgyWFhD?=
+ =?utf-8?B?KzdRR01uelJEN1Y3UmM4N3h2ZThYVDhGVjZGNXByQ214MzUvYUYwYS9aKzBH?=
+ =?utf-8?B?OUlnZUNmMTJ0eWdSNUQwaE9Ec3hQbHduQUZqN0hySXBocWtVU3VMZW5YSG9t?=
+ =?utf-8?B?Z2gveXpHT000WGhDdzBMOHhVY1pyMThhVTBidlpJbHQyTERFNFhRZ1VMejJk?=
+ =?utf-8?B?U3kwbE15ZVl5cUVEWmhGZ21DR3RUUXIvR2REMHZOMkNSeS93NGRZTHNzMFRZ?=
+ =?utf-8?B?ZFQ0ZU5KN0IrYXdZa3EwdHU5d0dWY04vN2JIbUU5WFFORElhUys4K0ZQcUh2?=
+ =?utf-8?B?MmlkYXVSVW05UU00aHU5WkIzQzdNblE0aUQ2SjNWRnNTMnphc2Fudncyc2FE?=
+ =?utf-8?B?VEloZHRHWi9qSWpBMGdnT1JzcnVpWVVoSFpzckt6VGxjYjdVQlFFRGpLVjUw?=
+ =?utf-8?B?MDlINzNXTE9tNW9rbmpldi9pVzZhZlVXWnZicjhqRWtSZTEwZTdOVmhCclJ5?=
+ =?utf-8?B?Wmc2Zlhhd0RYb1NtMENTU2NSVkx1d1FnZVdoRUdiTDVJT1hUVWNlN0xrRFdY?=
+ =?utf-8?Q?RjCBtHjMDCm7rPYsLZknID3vU?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2ac61c67-9848-4684-465c-08de27896202
+X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2025 16:33:34.3289
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: nQuLqLPDaTnJxABMUjUimqL8UpGE5w5XUU+jUG/z68SteKJYMbrIOsNXJ3OPiyJav6+ujRuB8BteaCPUiAQREg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB7115
 
-On Wed, Nov 19, 2025 at 03:09:25PM +0100, Michal Luczaj wrote:
->On 11/19/25 11:36, Stefano Garzarella wrote:
->> On Tue, Nov 18, 2025 at 11:02:17PM +0100, Michal Luczaj wrote:
->>> On 11/18/25 10:51, Stefano Garzarella wrote:
->>>> On Mon, Nov 17, 2025 at 09:57:25PM +0100, Michal Luczaj wrote:
->>>>> ...
->>>>> +static void vsock_reset_interrupted(struct sock *sk)
->>>>> +{
->>>>> +	struct vsock_sock *vsk = vsock_sk(sk);
->>>>> +
->>>>> +	/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
->>>>> +	 * transport->connect().
->>>>> +	 */
->>>>> +	vsock_transport_cancel_pkt(vsk);
->>>>> +
->>>>> +	/* Listener might have already responded with VIRTIO_VSOCK_OP_RESPONSE.
->>>>> +	 * Its handling expects our sk_state == TCP_SYN_SENT, which hereby we
->>>>> +	 * break. In such case VIRTIO_VSOCK_OP_RST will follow.
->>>>> +	 */
->>>>> +	sk->sk_state = TCP_CLOSE;
->>>>> +	sk->sk_socket->state = SS_UNCONNECTED;
->>>>> +}
->>>>> +
->>>>> static int vsock_connect(struct socket *sock, struct sockaddr *addr,
->>>>> 			 int addr_len, int flags)
->>>>> {
->>>>> @@ -1661,18 +1678,33 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
->>>>> 		timeout = schedule_timeout(timeout);
->>>>> 		lock_sock(sk);
->>>>>
->>>>> +		/* Connection established. Whatever happens to socket once we
->>>>> +		 * release it, that's not connect()'s concern. No need to go
->>>>> +		 * into signal and timeout handling. Call it a day.
->>>>> +		 *
->>>>> +		 * Note that allowing to "reset" an already established socket
->>>>> +		 * here is racy and insecure.
->>>>> +		 */
->>>>> +		if (sk->sk_state == TCP_ESTABLISHED)
->>>>> +			break;
->>>>> +
->>>>> +		/* If connection was _not_ established and a signal/timeout came
->>>>> +		 * to be, we want the socket's state reset. User space may want
->>>>> +		 * to retry.
->>>>> +		 *
->>>>> +		 * sk_state != TCP_ESTABLISHED implies that socket is not on
->>>>> +		 * vsock_connected_table. We keep the binding and the transport
->>>>> +		 * assigned.
->>>>> +		 */
->>>>> 		if (signal_pending(current)) {
->>>>> 			err = sock_intr_errno(timeout);
->>>>> -			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
->>>>> -			sock->state = SS_UNCONNECTED;
->>>>> -			vsock_transport_cancel_pkt(vsk);
->>>>> -			vsock_remove_connected(vsk);
->>>>> +			vsock_reset_interrupted(sk);
->>>>> 			goto out_wait;
->>>>> -		} else if ((sk->sk_state != TCP_ESTABLISHED) && (timeout == 0)) {
->>>>> +		}
->>>>> +
->>>>> +		if (timeout == 0) {
->>>>> 			err = -ETIMEDOUT;
->>>>> -			sk->sk_state = TCP_CLOSE;
->>>>> -			sock->state = SS_UNCONNECTED;
->>>>> -			vsock_transport_cancel_pkt(vsk);
->>>>> +			vsock_reset_interrupted(sk);
->>>>> 			goto out_wait;
->>>>
->>>> I'm fine with the change, but now both code blocks are the same, so
->>>> can we unify them?
->>>> I mean something like this:
->>>> 		if (signal_pending(current) || timeout == 0 {
->>>> 			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
->>>> 			...
->>>> 		}
->>>>
->>>> Maybe at that point we can also remove the vsock_reset_interrupted()
->>>> function and put the code right there.
->>>>
->>>> BTW I don't have a strong opinion, what do you prefer?
->>>
->>> Sure, no problem.
->>>
->>> But I've realized invoking `sock_intr_errno(timeout)` is unnecessary.
->>> `timeout` can't be MAX_SCHEDULE_TIMEOUT, so the call always evaluates to
->>> -EINTR, right?
+On 11/19/25 3:18 AM, Michael S. Tsirkin wrote:
+> On Tue, Nov 18, 2025 at 04:31:09PM -0500, Michael S. Tsirkin wrote:
+>>> +static int setup_ip_key_mask(struct virtio_net_ff_selector *selector,
+>>> +			     u8 *key,
+>>> +			     const struct ethtool_rx_flow_spec *fs)
+>>> +{
+>>> +	struct iphdr *v4_m = (struct iphdr *)&selector->mask;
+>>> +	struct iphdr *v4_k = (struct iphdr *)key;
+>>> +
+>>> +	selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV4;
+>>> +	selector->length = sizeof(struct iphdr);
+>>> +
+>>> +	if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
+>>> +	    fs->h_u.usr_ip4_spec.tos ||
+>>> +	    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4)
+>>> +		return -EOPNOTSUPP;
 >>
->> IIUC currently schedule_timeout() can return MAX_SCHEDULE_TIMEOUT only
->> if it was called with that parameter, and I think we never call it in
->> that way, so I'd agree with you.
+>> So include/uapi/linux/ethtool.h says:
 >>
->> My only concern is if it's true for all the stable branches we will
->> backport this patch.
+>>  * struct ethtool_usrip4_spec - general flow specification for IPv4
+>>  * @ip4src: Source host
+>>  * @ip4dst: Destination host
+>>  * @l4_4_bytes: First 4 bytes of transport (layer 4) header
+>>  * @tos: Type-of-service
+>>  * @ip_ver: Value must be %ETH_RX_NFC_IP4; mask must be 0
+>>  * @proto: Transport protocol number; mask must be 0
 >>
->> I would probably touch it as little as possible and continue using
->> sock_intr_errno() for now, but if you verify that it has always been
->> that way, then it's fine to change it.
->
->All right then, here's a v2 with minimum changes:
->https://lore.kernel.org/netdev/20251119-vsock-interrupted-connect-v2-1-70734cf1233f@rbox.co/
->
+>> I guess this ETH_RX_NFC_IP4 check validates that userspace follows this
+>> documentation? But then shouldn't you check the mask
+>> as well? and mask for proto?
+>>
+>>
+>>
+> 
+> in fact, what if e.g. tos is 0 but mask is non-zero? should not
+> this be rejected, too?
+> 
 
-Thanks!
-
->Note a detail though: should signal and timeout happen at the same time,
->now it's the timeout errno returned.
->
-
-Yeah, I thought about that, but I don't see any problems with that.
-I mean, it's something that if it happens, it's still not deterministic,
-so we're not really changing anything.
-
-Thanks,
-Stefano
+Actually the tos check should be removed, there's no guidance it should
+be 0, like the other fields. Our hardware doesn't support it, but this
+will be caught in validate_classifier_selectors.
 
