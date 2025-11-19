@@ -1,70 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7043C337B8B
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 09:18:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB23C3126AF
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 09:20:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763543934; cv=none; b=AgJJcIFYqt0lvOXmnVR9mnJl+iP1L689yqFAy0YXDSiboODB49E+cKiJy02sfzgBMcwzcEvrt149j0RW62m1B48RJIGqzW8hhjXgJeLyzOr6G3oB7nDoWtzLgymoxkQUMg+Np/HTjMJOOIZAEIW0SQa3sVsScvYFgTiJWtH94D8=
+	t=1763544022; cv=none; b=Fhivseiv0JtbKDWXHbKuoBGnWTDyyFdcGwFQTE6duWk+c8QqP1xnsCcIqoAkSdpv6ibSjLtM19czkD0VYWW+oVzccfxoHBnGllT4EWwD1F9wFrtNDneHf9dI83MX4liH6qeG/zcb/Z1dUruqh2CGdr+wZVhhG9HdKsiDQPlsTp0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763543934; c=relaxed/simple;
-	bh=eD8SrHrMaadYG50GIhGP1OcsE+eBdPe4buzRGFAm4Zs=;
+	s=arc-20240116; t=1763544022; c=relaxed/simple;
+	bh=efBNnvAjenT3ydeuHvhZ3DPeJKGBTHhPQVyKb3mVB3A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mpO2TV4UyFZi1cPL191aYiUHlVNSYhBc3bWFguvLXITf8aegt55pfqvlPJoutdAD1D5nXFFWtZXYf/acQd762btLAQEZx59XsYWOMSS70idbuZWGaBKew7+QxprK4DwkcKQyLODhnmyl3FHxZiRahqcSs44c3h1rwHwx18Tizzg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aFDnPUNM; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=CCfIyGKYW+nskamx0rnA2+GKX6LP4JW9dfXz6sDVmMHQakAZJazBeNBuWb24nQm9EnvdqFo4+DQm639AkXys+jcw5Uca07FSyt4XgQHKx0Fz3D9N7gzeUgR/6+4ecf9gNCoKXaK4T5m3ulx4VfaT1wE/MhR1MR7pVsMXZZx4ENo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=M/ClbgOi; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aFDnPUNM"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M/ClbgOi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763543931;
+	s=mimecast20190719; t=1763544019;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ykiTizCFtTIndhsPVLB6d9JwBV5HvA0v8sThcwbCDCw=;
-	b=aFDnPUNM2eJGO6WPvM182ypJ0DvGSOs79ItsblV5P7kdzo+wYq0fwqMDO2yr8n0e2GnU88
-	OQkQ9WJ6NnHsLT1ikNEk0NtzWm8L9dEaHbaJVYPbsRsSmXvwlbWisPfP/MkR3f2zMe/EKj
-	8OQ2Gs4zLAkg4ID+GsNkwQCpJ69mbos=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=g4vo3A+zEqT6r4yHEPPmlJtSIbXl0hcYVxsto02QGrA=;
+	b=M/ClbgOiQo43Y9ABGNXXGAdSqubMFMkFqxwNw9QD3uBRs52ivV7P7MlSTIsSpsgrg8dZkU
+	gNt+RsyCQU2fCsQMDD2QL5INl5y8ipEwwStFP9o7/0Imzuy5ytuIzq5w2UgBkAao/tIOEa
+	ncSodRx9hPZ69mYyInB7etY95d37eaI=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-117-Wph04L__NduZmTAcE9Oijg-1; Wed, 19 Nov 2025 04:18:48 -0500
-X-MC-Unique: Wph04L__NduZmTAcE9Oijg-1
-X-Mimecast-MFC-AGG-ID: Wph04L__NduZmTAcE9Oijg_1763543927
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4775fcf67d8so43518145e9.0
-        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 01:18:47 -0800 (PST)
+ us-mta-342-w1uB2mTxME-_0imdCBVrHQ-1; Wed, 19 Nov 2025 04:20:18 -0500
+X-MC-Unique: w1uB2mTxME-_0imdCBVrHQ-1
+X-Mimecast-MFC-AGG-ID: w1uB2mTxME-_0imdCBVrHQ_1763544017
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-477a0ddd1d4so25989555e9.0
+        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 01:20:18 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763543927; x=1764148727;
+        d=1e100.net; s=20230601; t=1763544017; x=1764148817;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ykiTizCFtTIndhsPVLB6d9JwBV5HvA0v8sThcwbCDCw=;
-        b=ideMHdiV7ke1EoDMHn9xmjyoQ58hVPpq4DhY/vkBkkHzYvth0pwVmNncyzEUtvU+yk
-         mrxO8FUS2qBhOYNxxjCAS7LtXT/wfv17Se8yOh/9XvO6MFkDC5D6VtJK4TNKme2Wa1ip
-         ye6J5NaOfEake0cOJbN1rF5y3pkeG6HwbYz+tkjumj+2RdZDonkJdmYQVB4Jks+3G70X
-         yTzAqOv/NzzydGOVADx7new2m+37+dfBsOZm+FEgWlyLQtVrfl9gfOFqbnSNs0BJEamA
-         wLicU8dTb6+xdKiWu99RS6FvWjeObhQ0Tc1peAj9tAOWRc2qpMqEqwA9bGqfAHQ4m+sE
-         uFCg==
-X-Forwarded-Encrypted: i=1; AJvYcCUyOyYN/DWzvrYwo35b3aBgqcHSBrBr81OMgBVHN2gxefFWg6oMYufMCz8B/ebMpVjn1wiXU2EMpbC0tul0sQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxeyrhMHMGUvMg4OioVtYj/1QwuzkzPgGV3K5UTTDidLmDUleOX
-	9NlnJd3Jcv1cFCKO6WxnQHgFP9nGiok+QQZn2cKmmkRLWxAsnwiM9VIK7hE+qt0CBndJwFIRP+G
-	+vY+Mzjp9IdmhjkkO3c5eZ+LaGtXPP9aQiTGqCPEr1UxkmQ4cdghj5NSmU99oWRoyKJHw
-X-Gm-Gg: ASbGncswKYfjuR7HXU7NteDlAQvDn90P2sYL0NL/irsw0hGqS57F5PsIehWBsU5G99U
-	OP/MeBZxPkgXVgKR89m898iNUVqj0mRBOFdlAwQROZGm+zusDj82Jhg2hackHHE4GGAmZnKv9s3
-	amrp+EjGsI6J0b2eChhDoejH8Je9NrvemckDEiOmkfe/vux6wVDlCdq+UuHUwcOTmjjJFrxNQEH
-	FncnAV/VVUTyZrbxhlHyvM6I27SRNsUkyolwIaN7PVf3C7tVyVm7NoHSqk/BbHs+Hun2VVu32TB
-	6Jf67lCX8NjtBKTjNov/2HgQ0zpuGHekfLUd74ZBTGSqiByPZvyZ6tw6Wv6QebAzhQRA9r/iozk
-	cQuh8apMsFLw43jkbrIc/fpexh7DpCw==
-X-Received: by 2002:a05:600c:c48f:b0:477:7b16:5f80 with SMTP id 5b1f17b1804b1-4778fe49c0bmr188982475e9.10.1763543926573;
-        Wed, 19 Nov 2025 01:18:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFJ0kf7jlIDNUdvm7TX8LR8Op1tEhe9CwD+MgXbg7FzSdj44TfR1SeRP2n+wUWlmPpEYHNLLQ==
-X-Received: by 2002:a05:600c:c48f:b0:477:7b16:5f80 with SMTP id 5b1f17b1804b1-4778fe49c0bmr188982255e9.10.1763543926189;
-        Wed, 19 Nov 2025 01:18:46 -0800 (PST)
+        bh=g4vo3A+zEqT6r4yHEPPmlJtSIbXl0hcYVxsto02QGrA=;
+        b=aDfA2dc/fOv5bBlLPi+/AmS+osTdFi2Nqao5isfP5Ol1MNc88CDlDWv7y+xwQAnIKi
+         dp8NV3G0m7CvJn2X1DCFEhl2bYr332U21llE/AOVp/HcZZ04F8g9Q1fPCkQpmc4DSImf
+         Vl01HAwY0ZhNh9kBODPhJvNEpomDz2ZZJk4UbJFCUe+QBChXNp3ZKFow20ZxM5kmORDs
+         RFXwVKczSJQNq/Nl2b+1oAfJNAxJcOvZjteiWtvsGvMEGGvkXwkJptoT0kDR//PLWJhu
+         IMzV5p5J4EBsGqFAFAPqMcdMF9N18I0jEyI5HFGMzjaH5HjlR503pmcj6DtwNQ3gn9Si
+         W8ug==
+X-Forwarded-Encrypted: i=1; AJvYcCWPfInHMOPE6w1eXHkO+q/P1bvhwgrePBHoN7Cn6zBXi9XRlM3shAmJyincAYnEal02pq8fhAUvLYHhEZ41lQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxQ+25uh/JPhETK16BWafVftykVl3J4BFi/ouyWCZe4sdMYu4Wy
+	Pwnm//wznq00XBIBJESpDEWha7+5j6AHu0q/neUD1i1NvxL3yy4/82qmkUd0uyRz1XYmZjdAaXw
+	P/6iPoHgV+46BRsbujgGeZhLhbXcL/5SWnHw5q05ZthZDIxD1AncHkhsgCZj6WNXyIUHg
+X-Gm-Gg: ASbGncs5AlKas6391qb9607A8LEXu0z04DFgCg5rDo8Wh3UfEBRsk8mLVCIWOP534ON
+	KBGCYX71FL7oc2naYnEkemaOlIceRIjVaxJXmE6TDqUUtOb191nYJrnYVDZk6h7NYzhM3l7FsHJ
+	zi66NDMwtC1keyguG+eU4TaDrzOZfzwe0tXRKc5DYEwzLDsmY8XPtgoiuXOFwOhvB5NGd3JHpIC
+	j0nT9nXZTxsHRO0Br1qFj6czx3qBldcNKyQBDiV/2mO9CjFqkVBqNH6sGzHbl83ksd5QtCv8NQ3
+	Fi+wn1UXdUM3pEVoyiob0wefrKRy8xAEUwrTe/yvgbjWIC/ll/rm7o6rHwyyS9tU7OupIOUImi4
+	BeRUhcA88OjPBzilyhxLkSbFt2gEsoA==
+X-Received: by 2002:a05:600c:a05:b0:475:dc5c:3a89 with SMTP id 5b1f17b1804b1-4778fea881fmr187270375e9.34.1763544016810;
+        Wed, 19 Nov 2025 01:20:16 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGYNHoQb9TvPImOLwUq6zgeQEbx+Js8WQF4KWo8jQc7HHGmjv+JhCzbPRI24y5phGaKhkTJ7A==
+X-Received: by 2002:a05:600c:a05:b0:475:dc5c:3a89 with SMTP id 5b1f17b1804b1-4778fea881fmr187269845e9.34.1763544016210;
+        Wed, 19 Nov 2025 01:20:16 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53e91f2dsm37899071f8f.19.2025.11.19.01.18.44
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477a9731a75sm38335635e9.2.2025.11.19.01.20.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Nov 2025 01:18:45 -0800 (PST)
-Date: Wed, 19 Nov 2025 04:18:42 -0500
+        Wed, 19 Nov 2025 01:20:15 -0800 (PST)
+Date: Wed, 19 Nov 2025 04:20:12 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Daniel Jurgens <danielj@nvidia.com>
 Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
@@ -72,58 +72,30 @@ Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
 	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
 	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
 	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
-Subject: Re: [PATCH net-next v11 09/12] virtio_net: Implement IPv4 ethtool
+Subject: Re: [PATCH net-next v11 07/12] virtio_net: Implement layer 2 ethtool
  flow rules
-Message-ID: <20251119041745-mutt-send-email-mst@kernel.org>
+Message-ID: <20251119041932-mutt-send-email-mst@kernel.org>
 References: <20251118143903.958844-1-danielj@nvidia.com>
- <20251118143903.958844-10-danielj@nvidia.com>
- <20251118161734-mutt-send-email-mst@kernel.org>
+ <20251118143903.958844-8-danielj@nvidia.com>
+ <20251118135634-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251118161734-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251118135634-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: KUahiDACfSNNIF8B-YSJFDKGQsJ8PvRFVz79fyVeCQQ_1763543927
+X-Mimecast-MFC-PROC-ID: W68EuBP35trRKgNeMCpw0S0pvasV8UBzKRcLHRY0AFc_1763544017
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Nov 18, 2025 at 04:31:09PM -0500, Michael S. Tsirkin wrote:
-> > +static int setup_ip_key_mask(struct virtio_net_ff_selector *selector,
-> > +			     u8 *key,
-> > +			     const struct ethtool_rx_flow_spec *fs)
-> > +{
-> > +	struct iphdr *v4_m = (struct iphdr *)&selector->mask;
-> > +	struct iphdr *v4_k = (struct iphdr *)key;
-> > +
-> > +	selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV4;
-> > +	selector->length = sizeof(struct iphdr);
-> > +
-> > +	if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
-> > +	    fs->h_u.usr_ip4_spec.tos ||
-> > +	    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4)
-> > +		return -EOPNOTSUPP;
-> 
-> So include/uapi/linux/ethtool.h says:
-> 
->  * struct ethtool_usrip4_spec - general flow specification for IPv4
->  * @ip4src: Source host
->  * @ip4dst: Destination host
->  * @l4_4_bytes: First 4 bytes of transport (layer 4) header
->  * @tos: Type-of-service
->  * @ip_ver: Value must be %ETH_RX_NFC_IP4; mask must be 0
->  * @proto: Transport protocol number; mask must be 0
-> 
-> I guess this ETH_RX_NFC_IP4 check validates that userspace follows this
-> documentation? But then shouldn't you check the mask
-> as well? and mask for proto?
-> 
-> 
-> 
+On Tue, Nov 18, 2025 at 02:01:27PM -0500, Michael S. Tsirkin wrote:
+> > +struct virtnet_ethtool_ff {
+> > +	struct xarray rules;
+> > +	int    num_rules;
+> > +};
 
-in fact, what if e.g. tos is 0 but mask is non-zero? should not
-this be rejected, too?
+btw if you are using xarray you should include linux/xarray.h
 
