@@ -1,190 +1,140 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4229C334C10
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 10:36:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 866142F60A7
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 10:39:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763548591; cv=none; b=qts/xobkVljwoYd5xqzQNdA1dVzyuLQ2hLsg6PooQs1FPn6dBbNwaohTPC89OHGUpgdES8jCnMIXfV12dW7IpzlEXwidRlOFF3RANqmIUeYnwVwKkmWr2mUzjtIC2fdfcj9EKls66GYVJUTTMJVc2Z3hlP2m6m5Ap+/0+xqa+0M=
+	t=1763548759; cv=none; b=csYbhroIWf9ILjQi8n+huB4ALktuNX0WLBxqgalefrbC6opxBZLwvBoFoGuuuylUc/Xoj6B41MtE7kenQzJNfWduf1bQeKTmbE0MzzvPZT4R4LeIqvMofxmlmbUt6xFBP3m/ftBalRa5Z50Kx48plG1sVY82m6g1uZV1LufFCB4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763548591; c=relaxed/simple;
-	bh=kcdSh/PleBZTikfdfxnDkRlvpKVEXW64pLQbMvoyV0A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=tdqmFpcmvflTdVlCtemvPqYR9i2dMvxLb5X9yYf9irt6v2E+y7Y4jmwFsp/BtvKycq6Bj+zvaCtWtpByUmZpfYkUi8dT9Y/gtCfbHRyCO2JrdPSHsL1UfS/vqawj0+xxCnojesyggeACZZ1wCBHkF4betyJq4IHmRnKeWEcx6qA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cfzVWmEp; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1763548759; c=relaxed/simple;
+	bh=stz4Pa+uWK6qjThPUoNvH3MgPUSIwIBtdDJOHpJeICc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bZp4igg3+CWh2i63LWKxZ+oXpoy4JIbJRTk1s3zyy/ST/uCAEF0qxn8DZFn4gwEDTYAnKiU+XlQltXhST6a2eznkx0as82o8gObX8i4k0hEeX23p49ZMBmMe70/9Ixy1EPr2wv8eNQz1DzGgIyrOy09SlCiogYOicDhTDmqbr64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J8YDZy4p; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cfzVWmEp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J8YDZy4p"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763548589;
+	s=mimecast20190719; t=1763548756;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=gf49AAxeoAe3fsAYRgAbyAHDAwCYQHRIMr0VODeYCYE=;
-	b=cfzVWmEpTHRglvvlGvSpz38Y++5VfC/fGAhB9ZvEPwC2PCrSVQlCKylnAex9AsHgg/LOAy
-	w+FrNAHnwN4rhCGDpiy17Z5cdHkho1Je0NDaqSdvLAOyrt9GBBBaqI3kgDaIK6f3XdUaY6
-	xvK88kKTGhkmL2uVrb5D9GRm8vWslko=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=stz4Pa+uWK6qjThPUoNvH3MgPUSIwIBtdDJOHpJeICc=;
+	b=J8YDZy4pasOnG19AK/WaPB+eUCyqEU+eZqUz/X5jBfYErVkVQD0M+ItapqOGjZ6E5RP5PY
+	kZaBgs9UUwIDmxPVqwfxbd7oRjsSlm+Qq0g0oWEl4PRTK+oByCkmKPzXwn6Dzf42dmAlmW
+	hyRy6MvFjSEpFJD5h+Ya1Xc+JGut+M4=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-439-V9Jw4QGSMUSw6MICQCixlA-1; Wed, 19 Nov 2025 05:36:28 -0500
-X-MC-Unique: V9Jw4QGSMUSw6MICQCixlA-1
-X-Mimecast-MFC-AGG-ID: V9Jw4QGSMUSw6MICQCixlA_1763548587
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-8b22d590227so796635185a.1
-        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 02:36:28 -0800 (PST)
+ us-mta-684-p3i-DgIdOJuGI8-kU-VCFw-1; Wed, 19 Nov 2025 05:39:15 -0500
+X-MC-Unique: p3i-DgIdOJuGI8-kU-VCFw-1
+X-Mimecast-MFC-AGG-ID: p3i-DgIdOJuGI8-kU-VCFw_1763548753
+Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-59434b284f8so4929552e87.3
+        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 02:39:14 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763548587; x=1764153387;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gf49AAxeoAe3fsAYRgAbyAHDAwCYQHRIMr0VODeYCYE=;
-        b=pz4bYjippaaosGkJh996Iasj6osn+5vHu0Hb/7BDkz3+AgmRXQjIkVGQ++k2/7rtkR
-         VbBteHBfLaRtA5f+8FbELcpCwTYSxB0GEzgSTCz8sf13j9xMI0wVUUoqgojag5560X5W
-         ZjQkTzBoRBNhZAege8pGT7uHx1FAzozM2kRn/Y7D9Wm6ovdKL22bIRgTIsQlQ0phaMWe
-         L4a72TWhBqVSgpVyxsCqPSbyYazt11jEZHsakxNncz1dQwLzZnnmwqp2OgdrPW4PziUY
-         7FS8X2BvgXw61L8jMV5EBFTBsmKImdp1svTvdcX4yg7uVLOjqw0ETUwO2u9hzE4xL7jZ
-         kfSQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV9obGGyM9hHMVYqatvY5KUFL7Eje0Y9YPTrVmB98GhqWkO2brCUB6kO4Vv+AbKKA/GTuBALZ8Nwo0UeXOxUw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyifCjNaM04C9uT2OAJFOREMjLVXAaUBj8buZi0tKWOcNUwySjz
-	k+sNHgIGggOdr9H4hIE6rV89e0i0S0Nmp/XcRT/BmwmLS3kWsOU088sW7WvWtI2Cb4A0WSm3Q2m
-	3QS6DPQSOBrXy5tMadg/Qfw5EnKWICUcADwon6+959kyYg/HNuU41jiu3yCHlmFeT10Y8
-X-Gm-Gg: ASbGncu/TmvTpAMV9BnLRfjh34GBC6cQQS7YGTCMtBVu4QwCaxa4wxMb81J+pz6XNJc
-	SFForUZRqpC+5haOhVpQzYQXadUwLf5l6D8kFSzdwomOP7xrt8RYB+5gxDTqBsKnFB5RuB34+/A
-	98yDw9YRvHiAoAYyr/H5kQgnDoZQlIdk+ALpIp0YcHqrfRrkd81jvRfonTY+c/27nFmhrBF0z4D
-	XZ9JliIL4QJ6Jij1P4mQitQTbsLqRE3V3PwnBT6bnEpgYtomj+YynKudF6JBRzqoVw3SGkPfMt/
-	mSKVmNEhlbDIcH4A4PK+F6kjNxJeBUwoqqq6nuwiUZWOvkTVP9FXzH6Pl8sxtVytbvsRF3XTLoT
-	Jgu0Ts3CaPZkq0KyocTbaJkXdVNYK06JKRCN6i9WhzOhoQA8NePw0UJuHOG5+kQ==
-X-Received: by 2002:a05:622a:10f:b0:4ed:6a9c:7234 with SMTP id d75a77b69052e-4edf2168c05mr266308361cf.82.1763548587548;
-        Wed, 19 Nov 2025 02:36:27 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHGVGJYPcB6hMM4y6xFLsb0pmmyzT45mb5Y4pZPNRH1v2gTnyuz3m9keijTXuBrk/slwac9+Q==
-X-Received: by 2002:a05:622a:10f:b0:4ed:6a9c:7234 with SMTP id d75a77b69052e-4edf2168c05mr266308091cf.82.1763548587068;
-        Wed, 19 Nov 2025 02:36:27 -0800 (PST)
-Received: from sgarzare-redhat (host-87-12-139-91.business.telecomitalia.it. [87.12.139.91])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4ede86b3adesm124475941cf.1.2025.11.19.02.36.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Nov 2025 02:36:24 -0800 (PST)
-Date: Wed, 19 Nov 2025 11:36:15 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] vsock: Ignore signal/timeout on connect() if already
- established
-Message-ID: <rptu2o7jpqw5u5g4xt76ntyupsak3dcs7rzfhzeidn6vcwf6ku@dcd47yt6ebhu>
-References: <20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co>
- <dh6gl6xzufrxk23dwei3dcyljjlspjx3gwdhi6o3umtltpypkw@ef4n6llndg5p>
- <98e2ac89-34e9-42d9-bfcf-e81e7a04504d@rbox.co>
+        d=1e100.net; s=20230601; t=1763548753; x=1764153553;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=stz4Pa+uWK6qjThPUoNvH3MgPUSIwIBtdDJOHpJeICc=;
+        b=wBmmgR4O7CXFUyNvg/dUSVIh6mePZFGQFoWgHeHqmxgB6pneCMBBFR69UOFkhj/gAM
+         y2fxRcbHGE8JP+fxdbZ8sMaVT90WcLtGLRHL+GZdkIsH8Wgp5NOzMrOSNSQdBAb8yeIy
+         n+Iu3t5g+9X7o8yVPwOKx9aTxyCp0/Gq66vf+pdXKVmCaX2mDG+jMnzsqRAznAwGKuzP
+         PpuptCzkv2UMnX94R3nXlsRvB612JoL9m7b7JjUX+P5ZHIJ1+Uo9p6Aq6z50Q9d8Ju5A
+         RxgqXMb/KhuJYf0DD8dC8UKGX68f3hWgFOJyRpZ+vLivMIAZDu8xI2E+r7BY2bBIHolP
+         Aq8g==
+X-Forwarded-Encrypted: i=1; AJvYcCXu7h6YxtqcvdEdvuWUbz3fYZQ7jx3DIdesSrvgf3wOPgXh3G5rbwTw4SL+yLamjEBsVMj0vwiklC8NW1K/zw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzMU2DHKl5Js7oFa5PgrcOihHuGbtCsaD9PuKvVFNPqzmmpiZlH
+	TXG9/UlF0zeP3IzQ/hVysfvncWEqE3q1NYENJxcqgOD2/IyzbXA/uSpm7TfmXe/C1AW1Z+SC5gP
+	yT16BTiR+BydROKVlXezzSR9/xueVIsOBJbs1pljxHrlPGJ5U3Mdxb8yjayIi7bInSm1HSjxfk+
+	SdDaZd8pLopAwqBNd/+KdUTq6MODqNwl8cZIwIXGaoBkg=
+X-Gm-Gg: ASbGnctfFM2O4EQpkc6aKmTDuQLU3RY9Fk7ztPin8XHSLwZLEvMHCdyeD+5kCdYAxgx
+	p7q3Q4lShvKc13SQ1LaUi/iJmswbtHx69cPFgIBIc9UbRnUGwATj3A/NAKapiyVfGs0gPlCs74g
+	fU+58J+UafbJf/t3+wtXhP7fkIsU8dwjhsZH8jE0KqUi80r8m4GQi267k1Q/l4vr2EndI=
+X-Received: by 2002:a05:6512:6d1:b0:595:8200:9f87 with SMTP id 2adb3069b0e04-59584205a52mr6947759e87.17.1763548753375;
+        Wed, 19 Nov 2025 02:39:13 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHqv0zlShxJxReCDsCJmo7I65uLtxoVyamZSqaLiA1FuvJXc81M5FKfBBp2B3z69/5QPky6nm67AIGMv1bvJOo=
+X-Received: by 2002:a05:6512:6d1:b0:595:8200:9f87 with SMTP id
+ 2adb3069b0e04-59584205a52mr6947745e87.17.1763548752925; Wed, 19 Nov 2025
+ 02:39:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <98e2ac89-34e9-42d9-bfcf-e81e7a04504d@rbox.co>
+References: <20251113115558.1277981-1-eperezma@redhat.com> <20251113115558.1277981-6-eperezma@redhat.com>
+ <CACGkMEuwzmSmrh5PBhuokzt6Tf5b4+6JGmAuTAC-y-Sm04FZPA@mail.gmail.com>
+ <CAJaqyWex0rE+KO-UE_qxqkG3RWWP4ntNy+9Nzvb+CZ+auR3mVw@mail.gmail.com>
+ <CACGkMEtavEOcWKaHZGdHD5MH94dvL=f8qe-kUS==bPB66i=-yw@mail.gmail.com>
+ <CAJaqyWdgGmnaQ3=j-6S9E4mfPSHc872FQZfVna_eX_UnipX2UA@mail.gmail.com>
+ <CACGkMEuzAo2jRgUwkxhM=bgS4a4NvpP6BYZB1zed00C6J8eiyg@mail.gmail.com>
+ <CAJaqyWeVCZOyBu2jPEc3iyP1uP=mzs2z7X=4JfYdBS6fLvPdxA@mail.gmail.com> <20251119042923-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251119042923-mutt-send-email-mst@kernel.org>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 19 Nov 2025 11:38:32 +0100
+X-Gm-Features: AWmQ_blInQ3_Bgii2eOchFG5U2oorcByZEwGTUpd8YrwGVPhdnHNd9JEA89qYrE
+Message-ID: <CAJaqyWeAoVzmWaAwcK9kjj=3VuRmYc1fco7a1ausXB=z-0oK=w@mail.gmail.com>
+Subject: Re: [PATCH v9 5/6] vduse: add vq group asid support
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	virtualization@lists.linux.dev, Maxime Coquelin <mcoqueli@redhat.com>, 
+	Cindy Lu <lulu@redhat.com>, linux-kernel@vger.kernel.org, 
+	Yongji Xie <xieyongji@bytedance.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Va-VxpfuAtssCMvDTanI1lCJz8J-r1P_gH2zAHp_at4_1763548587
+X-Mimecast-MFC-PROC-ID: QkIS7rEWVy0xj7zim5lkmn2lwYCRKSZ02I403-2Lg2g_1763548753
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 18, 2025 at 11:02:17PM +0100, Michal Luczaj wrote:
->On 11/18/25 10:51, Stefano Garzarella wrote:
->> On Mon, Nov 17, 2025 at 09:57:25PM +0100, Michal Luczaj wrote:
->>> ...
->>> +static void vsock_reset_interrupted(struct sock *sk)
->>> +{
->>> +	struct vsock_sock *vsk = vsock_sk(sk);
->>> +
->>> +	/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
->>> +	 * transport->connect().
->>> +	 */
->>> +	vsock_transport_cancel_pkt(vsk);
->>> +
->>> +	/* Listener might have already responded with VIRTIO_VSOCK_OP_RESPONSE.
->>> +	 * Its handling expects our sk_state == TCP_SYN_SENT, which hereby we
->>> +	 * break. In such case VIRTIO_VSOCK_OP_RST will follow.
->>> +	 */
->>> +	sk->sk_state = TCP_CLOSE;
->>> +	sk->sk_socket->state = SS_UNCONNECTED;
->>> +}
->>> +
->>> static int vsock_connect(struct socket *sock, struct sockaddr *addr,
->>> 			 int addr_len, int flags)
->>> {
->>> @@ -1661,18 +1678,33 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
->>> 		timeout = schedule_timeout(timeout);
->>> 		lock_sock(sk);
->>>
->>> +		/* Connection established. Whatever happens to socket once we
->>> +		 * release it, that's not connect()'s concern. No need to go
->>> +		 * into signal and timeout handling. Call it a day.
->>> +		 *
->>> +		 * Note that allowing to "reset" an already established socket
->>> +		 * here is racy and insecure.
->>> +		 */
->>> +		if (sk->sk_state == TCP_ESTABLISHED)
->>> +			break;
->>> +
->>> +		/* If connection was _not_ established and a signal/timeout came
->>> +		 * to be, we want the socket's state reset. User space may want
->>> +		 * to retry.
->>> +		 *
->>> +		 * sk_state != TCP_ESTABLISHED implies that socket is not on
->>> +		 * vsock_connected_table. We keep the binding and the transport
->>> +		 * assigned.
->>> +		 */
->>> 		if (signal_pending(current)) {
->>> 			err = sock_intr_errno(timeout);
->>> -			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
->>> -			sock->state = SS_UNCONNECTED;
->>> -			vsock_transport_cancel_pkt(vsk);
->>> -			vsock_remove_connected(vsk);
->>> +			vsock_reset_interrupted(sk);
->>> 			goto out_wait;
->>> -		} else if ((sk->sk_state != TCP_ESTABLISHED) && (timeout == 0)) {
->>> +		}
->>> +
->>> +		if (timeout == 0) {
->>> 			err = -ETIMEDOUT;
->>> -			sk->sk_state = TCP_CLOSE;
->>> -			sock->state = SS_UNCONNECTED;
->>> -			vsock_transport_cancel_pkt(vsk);
->>> +			vsock_reset_interrupted(sk);
->>> 			goto out_wait;
->>
->> I'm fine with the change, but now both code blocks are the same, so
->> can we unify them?
->> I mean something like this:
->> 		if (signal_pending(current) || timeout == 0 {
->> 			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
->> 			...
->> 		}
->>
->> Maybe at that point we can also remove the vsock_reset_interrupted()
->> function and put the code right there.
->>
->> BTW I don't have a strong opinion, what do you prefer?
+On Wed, Nov 19, 2025 at 10:32=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
+> wrote:
 >
->Sure, no problem.
+> On Wed, Nov 19, 2025 at 10:26:43AM +0100, Eugenio Perez Martin wrote:
+> > > But this is not the logic that is
+> > > implemented in this patch as there's no synchronize_rcu() in the
+> > > vduse_set_group_asid_nomsg().
+> >
+> > We only set the pointer on the writer's side, we do nothing like
+> > freeing resources. Should we set the pointer before or after
+> > syncrhonize_rcu()?
 >
->But I've realized invoking `sock_intr_errno(timeout)` is unnecessary.
->`timeout` can't be MAX_SCHEDULE_TIMEOUT, so the call always evaluates to
->-EINTR, right?
+> synchronize_rcu is called after writer makes it's changes.
+>
+> > What do we need to do on the other side of
+> > syncrhonize_rcu()?
+>
+> Presumably, return so the caller knows the as has been updated.
+>
 
-IIUC currently schedule_timeout() can return MAX_SCHEDULE_TIMEOUT only 
-if it was called with that parameter, and I think we never call it in 
-that way, so I'd agree with you.
+I'm happy to add the syncrhonize_rcu() just in case, but the caller of
+vduse_set_group_asid_nomsg does not need to know that the reader has
+been updated.
 
-My only concern is if it's true for all the stable branches we will 
-backport this patch.
+The first caller is vduse_dev_reset which has its own way to avoid
+being called while vqs are being processed. In particular, it reset
+their addresses which is way more dangerous. I could call it with
+dev->rwsem down though.
 
-I would probably touch it as little as possible and continue using 
-sock_intr_errno() for now, but if you verify that it has always been 
-that way, then it's fine to change it.
+The second one is set_group_asid vdpa callback which is called from
+the ioctl itself.
 
-Thanks,
-Stefano
+Moreover, rcu_assign_pointer is WRITE_ONCE by itself so we know all
+the readers will get the new value after it. So what's the value of
+explicitly waiting for all the readers to finalize their DMA operation?
+
+I'd understand if we need to do modifications or memory management in
+the now unused ASID, but that's not the case here.
+
+> However, user-triggerable synchronize_rcu() is almost always a bug.
+>
+> If that's what is going on, you want srcu.
+>
+
+I did not know about it, thanks! but I think all the code that can
+sleep is out of the RCU critical sections now, isn't it?
 
