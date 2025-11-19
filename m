@@ -1,308 +1,352 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7C8B020FAB2;
-	Wed, 19 Nov 2025 02:01:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDE2625EFAE
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 02:04:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763517717; cv=none; b=u+AbtT5YMyC+De3SpS/YTg9jqYV7tthcYyMApV9eL8mc6eGcFyQZMYIgcyXbpdM9GjHB2FW83rOGkw0XZSaRDN0/k9/LyBkj/Ma+cDJFGEb8il9O2brlGd0IzG0+kEK8gfyqkUD3vZ/UWuEREYiITykDCo6SKLjRzA1mtvrsd3U=
+	t=1763517856; cv=none; b=DJvF9w9/lgw7v11OmFCBNRqlAo4tkbn1cPdnnSf+usQKGy1uuhZQYk0MbVEfMU91T0Oi1W/n/ZfeVajrQqmyXZtopZ994EvMbVtMdBOIplbgriuyitGydrmBaOQNnOZPm1ja994rdw3L+HbeIT0Jw9/ZTdFUq7blN5GO9i27rvU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763517717; c=relaxed/simple;
-	bh=FdGikGianDtQLjnqFOzWXXQXJq+wLAuy62X68HlmHkY=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=ZDP92NpK4Uefwyd46BK/yhOPfgrTjuXLZymE/WaJgo12nhJZk6yEQefeEBWbAOVqt3ntIn0iSRh+g1ZYj8mKFfuqYcRLzliLcvANRWlJ5dc6BoHohDU1riOxHsNWi0TfUlJrniblEhqPomciGzbUHmX/azbMaodq7VppPzB0fzQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.62])
-	by gateway (Coremail) with SMTP id _____8AxytELJR1pFk8lAA--.9920S3;
-	Wed, 19 Nov 2025 10:01:47 +0800 (CST)
-Received: from [10.20.42.62] (unknown [10.20.42.62])
-	by front1 (Coremail) with SMTP id qMiowJCxocIIJR1pbPk3AQ--.21331S3;
-	Wed, 19 Nov 2025 10:01:46 +0800 (CST)
-Subject: Re: [PATCH 2/3] LoongArch: Add paravirt support with
- vcpu_is_preempted()
-To: Huacai Chen <chenhuacai@kernel.org>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
- Waiman Long <longman@redhat.com>, Juergen Gross <jgross@suse.com>,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org,
- loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, x86@kernel.org
-References: <20251118080656.2012805-1-maobibo@loongson.cn>
- <20251118080656.2012805-3-maobibo@loongson.cn>
- <CAAhV-H4hoS0Wo3TS+FdikXMkb7qjWNFSPDoajQr0bzdeROJwGw@mail.gmail.com>
-From: Bibo Mao <maobibo@loongson.cn>
-Message-ID: <db8a26ca-8430-9e7d-4ad1-9b7743c4cfd1@loongson.cn>
-Date: Wed, 19 Nov 2025 09:59:19 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1763517856; c=relaxed/simple;
+	bh=ozObOcqnnKRxfSLIiRoj5WHV66cvy5XDT0cuieq6YJI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=V4pGm+MlP10ZkLOScuSxOdaSCOxRZvEFNEYfgm+pEo0nyRADxThHIeoB/pRYsJpUkrA6n5hqLcnqLNyg+LNK+lSDQroMO0Q47NBJJ4CnnB2hNn8f6WWUJuWN4f6D4u+RTUcqTNoDfc0uWBilIdUV8AHyYs5NVH8mS2SeFW8MkYw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V/tZJGsg; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V/tZJGsg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763517853;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2H22WidGzJlZzyKi0xDeOV98viC9aWgGoX+719A6aDA=;
+	b=V/tZJGsg8sRev0vJYyFHVXWPJ32Rln+NOBfMLulv+HUT+/vhoTQAQ6n1KdWAJT2fIRvQPM
+	ia8wozorYT24aofqbnNWls22ipqYPwmXToW7iFJ7Xf77EGoSHpaqoz7sKqJoJntxXqOtsb
+	HYmhqew/goQFf7fAbxcVhVNxvTeFTf4=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-335-zcuQ9igbOwO_D1a_o_6Gqw-1; Tue, 18 Nov 2025 21:04:12 -0500
+X-MC-Unique: zcuQ9igbOwO_D1a_o_6Gqw-1
+X-Mimecast-MFC-AGG-ID: zcuQ9igbOwO_D1a_o_6Gqw_1763517852
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-345b4f2a8e8so2302529a91.1
+        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 18:04:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763517852; x=1764122652;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=2H22WidGzJlZzyKi0xDeOV98viC9aWgGoX+719A6aDA=;
+        b=B9vduhfHIq1YIuWXh1/Iiom2Wz9Sh0UUXDlnYID2GBq7TfzERXVPFuXo4mDsjvmdCR
+         BEhgPQNUa/asSpuaNyIY9Ny76YfpzWIqX0Bo9cPTpFcRZ4+A3TSufiZyueCvRfbjoDRs
+         R16P5YaPG3Du2QZ8vKnWRIrEbHpLzuOPt41VLWQX0M0xsFhnF6gntHVoQcY9OnRtcFAy
+         v2Da7coqXgKg9/IJya/HwSy+B1rIXxtOyKQq8AMFxhkG236CNbj9YghqkriZRNWdT66L
+         mmRkZrYZmTYlueW4PnjiLEOAQvHISiJC3NzHRyituUyy8neAZ4lpIrJS/Tb5N/OpKBPO
+         NVSw==
+X-Forwarded-Encrypted: i=1; AJvYcCXMgrgeaTbN4++SSJMI61KhxVaNCUzBy4VJTU9YU8/kUo5XzLiJm+d8ZKSNjsaaaWZ1hU1AN2HshewIzPrrRA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzxUpcEFzTMCau9SyPckTSdmeT15grBlmSx2II2B0FdKN8rrV0K
+	EdTjK+5XJOzPGjOJ+dLjGQNQKRAvZb1/wkGtE/oMv3mGhqpLems0hz1a0Qwk0e93Kd+mHSht0FQ
+	s65oxTD1YPe4skZT+6XktuH42zlnC7lLq0C31SBRZOPfsTslXFrkQLA43nRuzw+iNJr9erS4D+v
+	A5ZhtzfAN9rqmIiJxP3QFf4cbFOuye6MdJ8bdYmCXlZCM=
+X-Gm-Gg: ASbGncuxwtTjFkixpIDkocg3awrwGp3EzzoSnpYFbLqQo9w6sqsgGH4Oj01efvxdlEw
+	5qW8g2+4hMRN8zy38Kx7pb8TBVnFkocT2+jcM/A25AEzkV1Hjx4mlwidD3g8RmDUXMhdqzCtQGa
+	zzr3y9KxD6bWvtuqSh0IDLX51TuHw6VcP0Srza5t9X7Yt52bfjQQfX3XgsG7OYpn0=
+X-Received: by 2002:a17:90b:3e4e:b0:340:ad5e:c3 with SMTP id 98e67ed59e1d1-345bd35b962mr700589a91.1.1763517851625;
+        Tue, 18 Nov 2025 18:04:11 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHnJGjwwAIDeF7uPafwMhf59ePT/2noUwTEo8kmPiqp5TcxgFp1WO4IJH0672NvLqOsCimu4D/TRGpPzxyEq3o=
+X-Received: by 2002:a17:90b:3e4e:b0:340:ad5e:c3 with SMTP id
+ 98e67ed59e1d1-345bd35b962mr700512a91.1.1763517850564; Tue, 18 Nov 2025
+ 18:04:10 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAAhV-H4hoS0Wo3TS+FdikXMkb7qjWNFSPDoajQr0bzdeROJwGw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJCxocIIJR1pbPk3AQ--.21331S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxKr4DGr4xCrWDJF1DArW8GrX_yoWxtw15pF
-	ykAFZ5ua1xWwn7Aa9IqFyUCr15Jr95C3WIva4aqFyYyFnrWr1DGr1qvryYgFy8Ww1UWa4I
-	qF93Kan7KF1ay3gCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUvYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
-	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AK
-	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzV
-	AYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
-	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIx
-	kGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAF
-	wI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r
-	4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07j1WlkU
-	UUUU=
+References: <cover.1763278904.git.mst@redhat.com> <17c98c7304b6d78d2d59893ba7295c2f64ab1224.1763278904.git.mst@redhat.com>
+In-Reply-To: <17c98c7304b6d78d2d59893ba7295c2f64ab1224.1763278904.git.mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 19 Nov 2025 10:03:58 +0800
+X-Gm-Features: AWmQ_bmWvw61Pe3AkzIrut_xsDT-CtFJhAnx-sIpiBFLZI86OCTTM2PSpQEM4i4
+Message-ID: <CACGkMEu28fHr7Bo5Zm4chwOj-xBmTYcHM3TfXRx8OZ3OhO8q8Q@mail.gmail.com>
+Subject: Re: [PATCH v4 2/2] vhost: switch to arrays of feature bits
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, 
+	Paolo Abeni <pabeni@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-doc@vger.kernel.org, Mike Christie <michael.christie@oracle.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: M9Ak7FBOwKeUDm0gc1_wJf3PkJREAzDiy04PhyLEwCI_1763517852
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Sun, Nov 16, 2025 at 3:45=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> The current interface where caller has to know in which 64 bit chunk
+> each bit is, is inelegant and fragile.
+> Let's simply use arrays of bits.
+> By using unroll macros text size grows only slightly.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/vhost/net.c   | 34 +++++++++++++++++++---------------
+>  drivers/vhost/scsi.c  |  9 ++++++---
+>  drivers/vhost/test.c  | 10 ++++++++--
+>  drivers/vhost/vhost.h | 42 ++++++++++++++++++++++++++++++++++--------
+>  drivers/vhost/vsock.c | 10 ++++++----
+>  5 files changed, 73 insertions(+), 32 deletions(-)
+>
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index d057ea55f5ad..00d00034a97e 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -69,15 +69,15 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero C=
+opy TX;"
+>
+>  #define VHOST_DMA_IS_DONE(len) ((__force u32)(len) >=3D (__force u32)VHO=
+ST_DMA_DONE_LEN)
+>
+> -static const u64 vhost_net_features[VIRTIO_FEATURES_U64S] =3D {
+> -       VHOST_FEATURES |
+> -       (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
+> -       (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
+> -       (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
+> -       (1ULL << VIRTIO_F_RING_RESET) |
+> -       (1ULL << VIRTIO_F_IN_ORDER),
+> -       VIRTIO_BIT(VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) |
+> -       VIRTIO_BIT(VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO),
+> +static const int vhost_net_features[] =3D {
+> +       VHOST_FEATURES,
+> +       VHOST_NET_F_VIRTIO_NET_HDR,
+> +       VIRTIO_NET_F_MRG_RXBUF,
+> +       VIRTIO_F_ACCESS_PLATFORM,
+> +       VIRTIO_F_RING_RESET,
+> +       VIRTIO_F_IN_ORDER,
+> +       VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO,
+> +       VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO
+>  };
+>
+>  enum {
+> @@ -1734,14 +1734,14 @@ static long vhost_net_ioctl(struct file *f, unsig=
+ned int ioctl,
+>                         return -EFAULT;
+>                 return vhost_net_set_backend(n, backend.index, backend.fd=
+);
+>         case VHOST_GET_FEATURES:
+> -               features =3D vhost_net_features[0];
+> +               features =3D VHOST_FEATURES_U64(vhost_net_features, 0);
+>                 if (copy_to_user(featurep, &features, sizeof features))
+>                         return -EFAULT;
+>                 return 0;
+>         case VHOST_SET_FEATURES:
+>                 if (copy_from_user(&features, featurep, sizeof features))
+>                         return -EFAULT;
+> -               if (features & ~vhost_net_features[0])
+> +               if (features & ~VHOST_FEATURES_U64(vhost_net_features, 0)=
+)
+>                         return -EOPNOTSUPP;
+>
+>                 virtio_features_from_u64(all_features, features);
+> @@ -1753,9 +1753,13 @@ static long vhost_net_ioctl(struct file *f, unsign=
+ed int ioctl,
+>                 /* Copy the net features, up to the user-provided buffer =
+size */
+>                 argp +=3D sizeof(u64);
+>                 copied =3D min(count, (u64)VIRTIO_FEATURES_U64S);
+> -               if (copy_to_user(argp, vhost_net_features,
+> -                                copied * sizeof(u64)))
+> -                       return -EFAULT;
+> +
+> +               {
+> +                       const DEFINE_VHOST_FEATURES_ARRAY(features, vhost=
+_net_features);
+> +
+> +                       if (copy_to_user(argp, features, copied * sizeof(=
+u64)))
+> +                               return -EFAULT;
+> +               }
 
+Any reason to use a standalone block here?
 
-On 2025/11/18 下午8:48, Huacai Chen wrote:
-> Hi, Bibo,
-> 
-> On Tue, Nov 18, 2025 at 4:07 PM Bibo Mao <maobibo@loongson.cn> wrote:
->>
->> Function vcpu_is_preempted() is used to check whether vCPU is preempted
->> or not. Here add implementation with vcpu_is_preempted() when option
->> CONFIG_PARAVIRT is enabled.
->>
->> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
->> ---
->>   arch/loongarch/include/asm/smp.h      |  1 +
->>   arch/loongarch/include/asm/spinlock.h |  5 +++++
->>   arch/loongarch/kernel/paravirt.c      | 16 ++++++++++++++++
->>   arch/loongarch/kernel/smp.c           |  6 ++++++
->>   4 files changed, 28 insertions(+)
->>
->> diff --git a/arch/loongarch/include/asm/smp.h b/arch/loongarch/include/asm/smp.h
->> index 3a47f52959a8..5b37f7bf2060 100644
->> --- a/arch/loongarch/include/asm/smp.h
->> +++ b/arch/loongarch/include/asm/smp.h
->> @@ -18,6 +18,7 @@ struct smp_ops {
->>          void (*init_ipi)(void);
->>          void (*send_ipi_single)(int cpu, unsigned int action);
->>          void (*send_ipi_mask)(const struct cpumask *mask, unsigned int action);
->> +       bool (*vcpu_is_preempted)(int cpu);
->>   };
->>   extern struct smp_ops mp_ops;
->>
->> diff --git a/arch/loongarch/include/asm/spinlock.h b/arch/loongarch/include/asm/spinlock.h
->> index 7cb3476999be..c001cef893aa 100644
->> --- a/arch/loongarch/include/asm/spinlock.h
->> +++ b/arch/loongarch/include/asm/spinlock.h
->> @@ -5,6 +5,11 @@
->>   #ifndef _ASM_SPINLOCK_H
->>   #define _ASM_SPINLOCK_H
->>
->> +#ifdef CONFIG_PARAVIRT
->> +#define vcpu_is_preempted      vcpu_is_preempted
->> +bool vcpu_is_preempted(int cpu);
->> +#endif
-> Maybe paravirt.h is a better place?
-
-It is actually a little strange to add macro CONFIG_PARAVIRT in file 
-asm/spinlock.h
-
-vcpu_is_preempted is originally defined in header file 
-include/linux/sched.h like this
-#ifndef vcpu_is_preempted
-static inline bool vcpu_is_preempted(int cpu)
-{
-         return false;
-}
-#endif
-
-that requires that header file is included before sched.h, file 
-asm/spinlock.h can meet this requirement, however header file paravirt.h
-maybe it is not included before sched.h in generic.
-
-Here vcpu_is_preempted definition is added before the following including.
-    #include <asm/processor.h>
-    #include <asm/qspinlock.h>
-    #include <asm/qrwlock.h>
-Maybe it is better to be added after the above header files including 
-sentences, but need further investigation.
-> 
->> +
->>   #include <asm/processor.h>
->>   #include <asm/qspinlock.h>
->>   #include <asm/qrwlock.h>
->> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
->> index b1b51f920b23..b99404b6b13f 100644
->> --- a/arch/loongarch/kernel/paravirt.c
->> +++ b/arch/loongarch/kernel/paravirt.c
->> @@ -52,6 +52,13 @@ static u64 paravt_steal_clock(int cpu)
->>   #ifdef CONFIG_SMP
->>   static struct smp_ops native_ops;
->>
->> +static bool pv_vcpu_is_preempted(int cpu)
->> +{
->> +       struct kvm_steal_time *src = &per_cpu(steal_time, cpu);
->> +
->> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
->> +}
->> +
->>   static void pv_send_ipi_single(int cpu, unsigned int action)
->>   {
->>          int min, old;
->> @@ -308,6 +315,9 @@ int __init pv_time_init(void)
->>                  pr_err("Failed to install cpu hotplug callbacks\n");
->>                  return r;
->>          }
->> +
->> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
->> +               mp_ops.vcpu_is_preempted = pv_vcpu_is_preempted;
->>   #endif
->>
->>          static_call_update(pv_steal_clock, paravt_steal_clock);
->> @@ -332,3 +342,9 @@ int __init pv_spinlock_init(void)
->>
->>          return 0;
->>   }
->> +
->> +bool notrace vcpu_is_preempted(int cpu)
->> +{
->> +       return mp_ops.vcpu_is_preempted(cpu);
->> +}
-> 
-> We can simplify the whole patch like this, then we don't need to touch
-> smp.c, and we can merge Patch-2/3.
-> 
-> +bool notrace vcpu_is_preempted(int cpu)
+>
+>                 /* Zero the trailing space provided by user-space, if any=
+ */
+>                 if (clear_user(argp, size_mul(count - copied, sizeof(u64)=
+)))
+> @@ -1784,7 +1788,7 @@ static long vhost_net_ioctl(struct file *f, unsigne=
+d int ioctl,
+>                 }
+>
+>                 for (i =3D 0; i < VIRTIO_FEATURES_U64S; i++)
+> -                       if (all_features[i] & ~vhost_net_features[i])
+> +                       if (all_features[i] & ~VHOST_FEATURES_U64(vhost_n=
+et_features, i))
+>                                 return -EOPNOTSUPP;
+>
+>                 return vhost_net_set_features(n, all_features);
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index 98e4f68f4e3c..04fcbe7efd77 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -197,11 +197,14 @@ enum {
+>  };
+>
+>  /* Note: can't set VIRTIO_F_VERSION_1 yet, since that implies ANY_LAYOUT=
+. */
+> -enum {
+> -       VHOST_SCSI_FEATURES =3D VHOST_FEATURES | (1ULL << VIRTIO_SCSI_F_H=
+OTPLUG) |
+> -                                              (1ULL << VIRTIO_SCSI_F_T10=
+_PI)
+> +static const int vhost_scsi_features[] =3D {
+> +       VHOST_FEATURES,
+> +       VIRTIO_SCSI_F_HOTPLUG,
+> +       VIRTIO_SCSI_F_T10_PI
+>  };
+>
+> +#define VHOST_SCSI_FEATURES VHOST_FEATURES_U64(vhost_scsi_features, 0)
+> +
+>  #define VHOST_SCSI_MAX_TARGET  256
+>  #define VHOST_SCSI_MAX_IO_VQ   1024
+>  #define VHOST_SCSI_MAX_EVENT   128
+> diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+> index 42c955a5b211..af727fccfe40 100644
+> --- a/drivers/vhost/test.c
+> +++ b/drivers/vhost/test.c
+> @@ -308,6 +308,12 @@ static long vhost_test_set_backend(struct vhost_test=
+ *n, unsigned index, int fd)
+>         return r;
+>  }
+>
+> +static const int vhost_test_features[] =3D {
+> +       VHOST_FEATURES
+> +};
+> +
+> +#define VHOST_TEST_FEATURES VHOST_FEATURES_U64(vhost_test_features, 0)
+> +
+>  static long vhost_test_ioctl(struct file *f, unsigned int ioctl,
+>                              unsigned long arg)
+>  {
+> @@ -328,14 +334,14 @@ static long vhost_test_ioctl(struct file *f, unsign=
+ed int ioctl,
+>                         return -EFAULT;
+>                 return vhost_test_set_backend(n, backend.index, backend.f=
+d);
+>         case VHOST_GET_FEATURES:
+> -               features =3D VHOST_FEATURES;
+> +               features =3D VHOST_TEST_FEATURES;
+>                 if (copy_to_user(featurep, &features, sizeof features))
+>                         return -EFAULT;
+>                 return 0;
+>         case VHOST_SET_FEATURES:
+>                 if (copy_from_user(&features, featurep, sizeof features))
+>                         return -EFAULT;
+> -               if (features & ~VHOST_FEATURES)
+> +               if (features & ~VHOST_TEST_FEATURES)
+>                         return -EOPNOTSUPP;
+>                 return vhost_test_set_features(n, features);
+>         case VHOST_RESET_OWNER:
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index 621a6d9a8791..d8f1af9a0ff1 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -14,6 +14,7 @@
+>  #include <linux/atomic.h>
+>  #include <linux/vhost_iotlb.h>
+>  #include <linux/irqbypass.h>
+> +#include <linux/unroll.h>
+>
+>  struct vhost_work;
+>  struct vhost_task;
+> @@ -279,14 +280,39 @@ void vhost_iotlb_map_free(struct vhost_iotlb *iotlb=
+,
+>                                 eventfd_signal((vq)->error_ctx);\
+>         } while (0)
+>
+> -enum {
+> -       VHOST_FEATURES =3D (1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
+> -                        (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
+> -                        (1ULL << VIRTIO_RING_F_EVENT_IDX) |
+> -                        (1ULL << VHOST_F_LOG_ALL) |
+> -                        (1ULL << VIRTIO_F_ANY_LAYOUT) |
+> -                        (1ULL << VIRTIO_F_VERSION_1)
+> -};
+> +#define VHOST_FEATURES \
+> +       VIRTIO_F_NOTIFY_ON_EMPTY, \
+> +       VIRTIO_RING_F_INDIRECT_DESC, \
+> +       VIRTIO_RING_F_EVENT_IDX, \
+> +       VHOST_F_LOG_ALL, \
+> +       VIRTIO_F_ANY_LAYOUT, \
+> +       VIRTIO_F_VERSION_1
+> +
+> +static inline u64 vhost_features_u64(const int *features, int size, int =
+idx)
 > +{
-> +  if (!kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
-> +     return false;
-> + else {
-> +     struct kvm_steal_time *src = &per_cpu(steal_time, cpu);
-> +     return !!(src->preempted & KVM_VCPU_PREEMPTED);
-> + }
+> +       unsigned long res =3D 0;
+
+Should this be u64?
+
+> +
+> +       unrolled_count(VIRTIO_FEATURES_BITS)
+> +       for (int i =3D 0; i < size; ++i) {
+> +               int bit =3D features[i];
+> +
+> +               if (virtio_features_chk_bit(bit) && VIRTIO_U64(bit) =3D=
+=3D idx)
+> +                       res |=3D VIRTIO_BIT(bit);
+> +       }
+> +       return res;
 > +}
-1. there is assembly output about relative vcpu_is_preempted
-  <loongson_vcpu_is_preempted>:
-                move    $r4,$r0
-                jirl    $r0,$r1,0
+> +
+> +#define VHOST_FEATURES_U64(features, idx) \
+> +       vhost_features_u64(features, ARRAY_SIZE(features), idx)
+> +
+> +#define DEFINE_VHOST_FEATURES_ARRAY_ENTRY(idx, features) \
+> +       [idx] =3D VHOST_FEATURES_U64(features, idx),
+> +
+> +#define DEFINE_VHOST_FEATURES_ARRAY(array, features) \
+> +       u64 array[VIRTIO_FEATURES_U64S] =3D { \
+> +               UNROLL(VIRTIO_FEATURES_U64S, \
+> +                      DEFINE_VHOST_FEATURES_ARRAY_ENTRY, features) \
+> +       }
+>
+>  /**
+>   * vhost_vq_set_backend - Set backend.
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index ae01457ea2cd..16662f2b87c1 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -29,12 +29,14 @@
+>   */
+>  #define VHOST_VSOCK_PKT_WEIGHT 256
+>
+> -enum {
+> -       VHOST_VSOCK_FEATURES =3D VHOST_FEATURES |
+> -                              (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
+> -                              (1ULL << VIRTIO_VSOCK_F_SEQPACKET)
+> +static const int vhost_vsock_features[] =3D {
+> +       VHOST_FEATURES,
+> +       VIRTIO_F_ACCESS_PLATFORM,
+> +       VIRTIO_VSOCK_F_SEQPACKET
+>  };
+>
+> +#define VHOST_VSOCK_FEATURES VHOST_FEATURES_U64(vhost_vsock_features, 0)
+> +
+>  enum {
+>         VHOST_VSOCK_BACKEND_FEATURES =3D (1ULL << VHOST_BACKEND_F_IOTLB_M=
+SG_V2)
+>  };
+> --
+> MST
+>
 
-  <pv_vcpu_is_preempted>:
-         pcalau12i       $r13,8759(0x2237)
-         slli.d  $r4,$r4,0x3
-         addi.d  $r13,$r13,-1000(0xc18)
-         ldx.d   $r13,$r13,$r4
-         pcalau12i       $r12,5462(0x1556)
-         addi.d  $r12,$r12,384(0x180)
-         add.d   $r12,$r13,$r12
-         ld.bu   $r4,$r12,16(0x10)
-         andi    $r4,$r4,0x1
-         jirl    $r0,$r1,0
-
-  <vcpu_is_preempted>:
-         pcalau12i       $r12,8775(0x2247)
-         ld.d    $r12,$r12,-472(0xe28)
-         jirl    $r0,$r12,0
-         andi    $r0,$r0,0x0
-
-  <vcpu_is_preempted_new>:
-         pcalau12i       $r12,8151(0x1fd7)
-         ld.d    $r12,$r12,-1008(0xc10)
-         bstrpick.d      $r12,$r12,0x1a,0x1a
-         beqz    $r12,188(0xbc) # 900000000024ec60
-         pcalau12i       $r12,11802(0x2e1a)
-         addi.d  $r12,$r12,-1400(0xa88)
-         ldptr.w $r14,$r12,36(0x24)
-         beqz    $r14,108(0x6c) # 900000000024ec20
-         addi.w  $r13,$r0,1(0x1)
-         bne     $r14,$r13,164(0xa4) # 900000000024ec60
-         ldptr.w $r13,$r12,40(0x28)
-         bnez    $r13,24(0x18) # 900000000024ebdc
-         lu12i.w $r14,262144(0x40000)
-         ori     $r14,$r14,0x4
-         cpucfg  $r14,$r14
-         slli.w  $r13,$r14,0x0
-         st.w    $r14,$r12,40(0x28)
-         bstrpick.d      $r13,$r13,0x3,0x3
-         beqz    $r13,128(0x80) # 900000000024ec60
-         pcalau12i       $r13,8759(0x2237)
-         slli.d  $r4,$r4,0x3
-         addi.d  $r13,$r13,-1000(0xc18)
-         ldx.d   $r13,$r13,$r4
-         pcalau12i       $r12,5462(0x1556)
-         addi.d  $r12,$r12,384(0x180)
-         add.d   $r12,$r13,$r12
-         ld.bu   $r4,$r12,16(0x10)
-         andi    $r4,$r4,0x1
-         jirl    $r0,$r1,0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         lu12i.w $r13,262144(0x40000)
-         cpucfg  $r13,$r13
-         lu12i.w $r15,1237(0x4d5)
-         ori     $r15,$r15,0x64b
-         slli.w  $r13,$r13,0x0
-         bne     $r13,$r15,-124(0x3ff84) # 900000000024ebb8
-         addi.w  $r13,$r0,1(0x1)
-         st.w    $r13,$r12,36(0x24)
-         b       -128(0xfffff80) # 900000000024ebc0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         andi    $r0,$r0,0x0
-         move    $r4,$r0
-         jirl    $r0,$r1,0
-
-With vcpu_is_preempted(), there is one memory load and one jirl jump, 
-with vcpu_is_preempted_new(), there is two memory load and two beq 
-compare instructions.
-
-2. In some scenery such nr_cpus == 1, loongson_vcpu_is_preempted() is 
-better than pv_vcpu_is_preempted() even if the preempt feature is enabled.
-
-Regards
-Bibo Mao
-> Huacai
-> 
->> +EXPORT_SYMBOL(vcpu_is_preempted);
->> diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
->> index 46036d98da75..f04192fedf8d 100644
->> --- a/arch/loongarch/kernel/smp.c
->> +++ b/arch/loongarch/kernel/smp.c
->> @@ -307,10 +307,16 @@ static void loongson_init_ipi(void)
->>                  panic("IPI IRQ request failed\n");
->>   }
->>
->> +static bool loongson_vcpu_is_preempted(int cpu)
->> +{
->> +       return false;
->> +}
->> +
->>   struct smp_ops mp_ops = {
->>          .init_ipi               = loongson_init_ipi,
->>          .send_ipi_single        = loongson_send_ipi_single,
->>          .send_ipi_mask          = loongson_send_ipi_mask,
->> +       .vcpu_is_preempted      = loongson_vcpu_is_preempted,
->>   };
->>
->>   static void __init fdt_smp_setup(void)
->> --
->> 2.39.3
->>
->>
+Thanks
 
