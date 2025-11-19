@@ -1,338 +1,243 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 609B438D;
-	Wed, 19 Nov 2025 03:10:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763521854; cv=none; b=JNiV7qY5vavVPPIFUr/S648pv/rxfKq+OMWjzfCTfVmuKBV2D1mznJSkRFi9LIBHPhj0uccPAHiJlWynfBCG5PDePQl3Yc1584qrkXiNG0wFvwLJ3Crv9HKKqfY0cbCHSxWtB6csLZV8PiGLC8TrylVffj4O+VuoBV2gtLZauK0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763521854; c=relaxed/simple;
-	bh=47LJCfN08bkIm00LG9Iy9e+3EfRwh03jcljG5dejSqY=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=kEEO4BPNMysdP2n8yl/B2uPqnu557vCj/j5yd7UTLlqfGZ7llLYOpWtsPgzGKpBGzRxWBzjgFAiOwTeJ0z8W4lyL7tmEg/SETpINRd49bZAtjUfhOwZdoTswJu9utKpE+oMa0ltEaAMUNUu2YOkkkMzUNbGBh1vN8Ljoz+OY25A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.62])
-	by gateway (Coremail) with SMTP id _____8BxG9I3NR1pwVMlAA--.12816S3;
-	Wed, 19 Nov 2025 11:10:47 +0800 (CST)
-Received: from [10.20.42.62] (unknown [10.20.42.62])
-	by front1 (Coremail) with SMTP id qMiowJBxicAzNR1pKgU4AQ--.3066S3;
-	Wed, 19 Nov 2025 11:10:46 +0800 (CST)
-Subject: Re: [PATCH 2/3] LoongArch: Add paravirt support with
- vcpu_is_preempted()
-To: Huacai Chen <chenhuacai@kernel.org>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
- Waiman Long <longman@redhat.com>, Juergen Gross <jgross@suse.com>,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org,
- loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, x86@kernel.org
-References: <20251118080656.2012805-1-maobibo@loongson.cn>
- <20251118080656.2012805-3-maobibo@loongson.cn>
- <CAAhV-H4hoS0Wo3TS+FdikXMkb7qjWNFSPDoajQr0bzdeROJwGw@mail.gmail.com>
- <db8a26ca-8430-9e7d-4ad1-9b7743c4cfd1@loongson.cn>
- <CAAhV-H7uU6U9okJKqkUEXRT9OATpdMRgzZ8a7x0Xr6_bzD-x4A@mail.gmail.com>
-From: Bibo Mao <maobibo@loongson.cn>
-Message-ID: <c14346a5-37ec-0fef-f143-c18227fec635@loongson.cn>
-Date: Wed, 19 Nov 2025 11:08:19 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazon11013023.outbound.protection.outlook.com [40.93.201.23])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2FDC2EA731
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 03:27:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.201.23
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763522849; cv=fail; b=uHfbFlntwYA35vUa5cFzyQ4/cf2/oNmG09/98Kc6guGDsg7aJ0xjjsH2VKwD3o0fY/JHkURJsY0CQIOHfBS0guqNI0zbR8NaxrmJlFKpXGd2nL5/hcymHhlCv3WJqlRRuWE0MYJE5mRQqcgJ8kpS3ou6Y8HDkF0dpb79dbgR7ig=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763522849; c=relaxed/simple;
+	bh=Tg9iInHMEzjg7UTualXeEDU7dD8TymUQBLqh0Nl4PRE=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=iFOUK0sslQGiGr10EEUmF5cs/gWKSZEL2Zh4D2HomLKxxduNAftuthn67DZlWrYu0MIeK1nIWaTv/TJiNNdJMy8mxTI3KEnAvh2erzQoYyc16jjgcKQi+h2BZcvcTAoHFqkZ/WO3tLZh/YegDQNomWJpApIiqKlIpF0E6BnYyw0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=KJrmKzdu; arc=fail smtp.client-ip=40.93.201.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="KJrmKzdu"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=TPfkOPgz51oItEDBAnbTwyG6uMPXAZvVcqR3dO6pWEL/pniAVyTBpcVFqY4WipqQaVoiZm1zzG8e/gSSnCpSMAo0U4BcfU0E6fARkAilAY6F22hdXaKJLQu8/i3gP8wKkYi/o7hgyefyJxmnWhRXq2SQ6pNlGhS6FMm2YMlmzdzcAmng1sY6gVPe1bnpmnkmUTeSQp9aXTuAN5zz3f2y7Cta35enYAza0yg9PTZhXRhLw8I63KwBOZ8aU2wp2I7EYcBZvF5WmEymP1f3jwtJv5VNHVJfGwK7PrjsNGQD6m/cSlvsS2wlCW9sCVfYzY/jIXpCCp9n/N7yDKmS+amT9Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=PklMLtSucO9VmgUqf2c0Z+YnKiRqCl/I+mZbu4P5+Gw=;
+ b=D7hFVWEH3c90/c6fwYOKMS4rwPLSL6il5htw4dE8q/qa2Og+C4uISWGLIPiUdjlx1T+e33fJGangsK9a0I3FYrVH0+SkoLzc38KlYCefs5TlBku9Ln3BADXeR1I90+rRD18HJCM6g9z64hS8wg/vB/IcpjicZ9mRMXwhBO5yaNa1oBQ4BQiJwLPkrCOKxGisbBuZNqbf6s1GijlvFBON0VoWc1Eow1k/7atw8qJoU8t674euFfHueb/8XcWIlGOAn85Ct3q3HtZh41zFTS1phYvC9SMu6ddf8fm002hKA8pcfx0k4kvfzbR+cn/v9W9gaD7rI2F2AsQN6dBk5WllNQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=PklMLtSucO9VmgUqf2c0Z+YnKiRqCl/I+mZbu4P5+Gw=;
+ b=KJrmKzdu8PzYjq1lxxh6whmwLJyyoyVYu3mRw208Rl/ENn4w+cLSRB3pjB4E3LUxTjbiT9dHbYY9ldRMtEF8tRVwgz3Z6IFbeHTC4A+KBNYEXz4RGjd6Z66pXbNY47YZfMGzfaQRjnxrJCj1d54jSMnnMNloCsfiqiQJ3/Ys7tAV2r02IaVq/fHj+TpjphilM/ao7JgkWaCSm+2pSZDkQDEvtD6aCJCd14K/mbpvHz2y4z1S9jUqwpejOx+vmkopEwnHN0PWRyDuvO1huYmY4yjIm3cs2vzQM8n8vQmozvh4imvOSR9C6pR/aYbufGacV8itk+a3wFoZWu9amAIkXA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
+ by DM6PR12MB4329.namprd12.prod.outlook.com (2603:10b6:5:211::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.10; Wed, 19 Nov
+ 2025 03:27:24 +0000
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9320.021; Wed, 19 Nov 2025
+ 03:27:24 +0000
+Message-ID: <b4692b58-3bb3-42fb-8436-84b38c6b04a8@nvidia.com>
+Date: Tue, 18 Nov 2025 21:27:22 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v11 03/12] virtio: Expose generic device
+ capability operations
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+ virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+ yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
+ edumazet@google.com
+References: <20251118143903.958844-1-danielj@nvidia.com>
+ <20251118143903.958844-4-danielj@nvidia.com>
+ <20251118163249-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Dan Jurgens <danielj@nvidia.com>
+In-Reply-To: <20251118163249-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: DM6PR07CA0093.namprd07.prod.outlook.com
+ (2603:10b6:5:337::26) To MW4PR12MB7309.namprd12.prod.outlook.com
+ (2603:10b6:303:22f::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAAhV-H7uU6U9okJKqkUEXRT9OATpdMRgzZ8a7x0Xr6_bzD-x4A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJBxicAzNR1pKgU4AQ--.3066S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoW3JF4UAr1DuFWfGFWxtrWkuFX_yoWfXr18pF
-	ykAFWv9a18Ww1xAw4aqFyj9r98tr95C3WIqa4agFyYyrnFgrnrJr1qyryY9Fy09w4UW3W0
-	qr97Gan3KF1aywcCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUBqb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
-	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JF0_Jw1lYx0Ex4A2jsIE
-	14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvEwIxGrwCYjI0SjxkI62AI1c
-	AE67vIY487MxkF7I0En4kS14v26r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCj
-	c4AY6r1j6r4UMxCIbckI1I0E14v26r4a6rW5MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxV
-	Cjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY
-	6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6x
-	AIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY
-	1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU8XJ55UUUUU==
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|DM6PR12MB4329:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5700a365-0aed-4ef2-cc81-08de271b8ecc
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?UUk0bE10U3hDMVVYU1N2cjVyL2lSWjkwM1BxQ1F0Vkx4WUVRckJscTFzc0ha?=
+ =?utf-8?B?VlNHc2FOV010N3ZnbllDejZ2L09WQ1ptTU1UalNOcHVtMTh2Q29tZzhCeXR4?=
+ =?utf-8?B?SjI5N2VLVGxhMnZEZDArQi9ha1ZRSFFyZ1ZpRVZ5MEhDZHd1aTVCUkFxek84?=
+ =?utf-8?B?dFRpRnJQQnhHMERjWndraFpGQzVmTXVobkRPbmpySWhHbGY3czhsK21JNmRv?=
+ =?utf-8?B?d2k4NVV4WWNiZklId2gxd1ZscjlKZEQ1a3h6aXZ3OFVETXJSZFVnaXFoS0g2?=
+ =?utf-8?B?ZnZiWC8yV3hndzlxZ2NLQ0p5c1RKb0s1V2UvbndVeWJ2b2lISVczV3JSTlk1?=
+ =?utf-8?B?bzc2eEdnbVZsVENvZElOWUJDSVkrcWdSbWN0WDdkRmF2eGpvYWwyZlppVU5y?=
+ =?utf-8?B?bTNwQmMwYWlYNUxOQTBoTjY0V1pkWUtnTEN6ZHl0QlFVcUN2NWtIbDBnd0Fr?=
+ =?utf-8?B?OHV0RUJuTFZ1YktxeXZYbUZzaW5Ba0VwSFV0MjVXZjFQUGlTWmdMTzM5dXZR?=
+ =?utf-8?B?WW5aUkU3TjRLYUwwM21hWkFHS0VXNHpHTjZRMzRGczY5L3dOR0R5TW5Dejl6?=
+ =?utf-8?B?a2FraXBNaG9BaDFiT3FFSGl3L1haK3VQc29PUTJVc0ppT2VNUERmSUZIZ3Rt?=
+ =?utf-8?B?cndtTkJHUDNKWitxVFVseU5YYXdCblg5cVpOQ3dZaU9kdUoyNnlRaDNHWG8z?=
+ =?utf-8?B?Zi9yTzJiQjhDSWhFUjdUSVpvajBaMEVESGtOdmc0cHgvMmd2V3VTSEY4SVk0?=
+ =?utf-8?B?ZmNlenluTmRWaFJuVWxwRHkrZEx6NnFCQ3NuS25maWFWLzdwNXZqT094V3lS?=
+ =?utf-8?B?VUJyekVyZ3Y3YUlBckZYeENyZUQvYWtDSncvYXp3eUFBL0FvUnp0SVNaMm4y?=
+ =?utf-8?B?K3ZQVmwrTlFMSDdHNUhJdUUwZlk0T2NHWi9lNlV3WWFIM0R4V2M0cE5ZR0ha?=
+ =?utf-8?B?OTdDQ1h0bXEyOER3eGVQYkE4TnhBa3pseXkzMlMyaTVuOTZHbDRSTnNhNFpZ?=
+ =?utf-8?B?WmM5MlNJdWlWZDB3bjNPc2NUM2NEYlc2T2N2OHNQaG5UVFRpbVdhQXREVnYx?=
+ =?utf-8?B?MXN5OWRLNlVIZlJueDBGaU90S2I4MEthL0M4V2JIaEhFS3A3YVl0eUJhQ3Mz?=
+ =?utf-8?B?QjZhQ2UzYmFRc3l1ZWJtbVpLdEZheW5NNUtCZlJpZFR1bkNvRWpaVzVCajFu?=
+ =?utf-8?B?VjcyZHJXOUxzbVBZbStqM0IvUk5DOUw5cHpLcnNId0xQc2FTMkllb3JyLzAz?=
+ =?utf-8?B?WmtUdDZxVVdEQnNaY3BGM0tUc25kZGdCY0NXUEtCY3ZtY3NWYmt6eDBYaUlL?=
+ =?utf-8?B?a28wTEJwank4MVFSMWVDZm42ZGM4TENPdmx1UnFkVXFNeDBLVGJsYXZEZk5I?=
+ =?utf-8?B?VVZ0ekY2VDdDUkNucWxmQlB6TERqQmlxbC9mWmlvNGl4dzlieVdTUkdDdkhW?=
+ =?utf-8?B?TWhyMmdqMHNsZWRjNE9vV2RQU3FGMEJMRzhpZkpXZmlXY1M3UEhVYTJZa1ds?=
+ =?utf-8?B?Rk53NjZNZ2hkTXRQM2t0eTZUbURTWTFYUzhhWDcrQjBPd0YrdncrbkRXTU1Y?=
+ =?utf-8?B?Z040cHBqdmh6VU5SdHlHZTdNWkloaWtRblBnTHBiTjZ1dlpwZkhoMzJxVWdn?=
+ =?utf-8?B?SHpJMXI4cXdzTjRUeWxxYlhKSnpyWDBCa1VLL0FibGJadHFuSG5rZC9uZUZs?=
+ =?utf-8?B?MU5SUTFTbG9vdXRyWkpUMXJpbmYyVWpkQVF6Njh3aU53TXBtbDZtc0IrM25W?=
+ =?utf-8?B?Sml2eElzS2s2M2VFcFBTMmlQNE1pOTV5dStWWmRNVENwUEZoQ3pyVnFwVnB5?=
+ =?utf-8?B?KzNZdFN0YkxTa3o0d3oyNGJaSFR5OWY1RWZDNDRoVmJoeFJPQkVEYXdBUU9K?=
+ =?utf-8?B?encwcE5YNEQ2Z2pMbzZJMDVwdCtCemxtVDNrL0ZQZGVlMGJIOUJJN29EZms0?=
+ =?utf-8?Q?Y1sDMy4a2/asCFWPGY5qhedO1ard+NRB?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?aUoyRi92WFA5WERMUUJqU1A4cS8xRTR0ek9GQmlhanJIK3JwbjQray9KTytt?=
+ =?utf-8?B?VmhBSGFyZnNQZG1Ybi9yRDZJVVI5MGs5Uk0vNkRMbUdHSzQvTmRKOFBlZVF5?=
+ =?utf-8?B?R2tmM3A0UXhoczRkSFZpdCtIRVR5bDRLRW5DWGVOeTRqd2NQc2E0NlVLTkd1?=
+ =?utf-8?B?dlJBQjFoRUg1eExaNmh5dWJNcHdvSXMwR0VTV3JOUHBPcFE3OXZJQkM3eFN0?=
+ =?utf-8?B?M2ZGWDZRelllaEVZWnhDTjIyMU10RjQyWmNYalc0NzlVK1kxL1lEb1ZRc2J1?=
+ =?utf-8?B?R3FsZFA1SW9UNjVmR3ExRGsyQjc5SXFSTDR2SGdOazZvdDFiTW9pYytHbU51?=
+ =?utf-8?B?V2JkT3lZNGhBbHZCSHppb0FsaWJhNWZ6TTFpbVZkTjRtVjd6Ym9LdDdhbktx?=
+ =?utf-8?B?d201a2RVLy9HMmtrZXlqVWI1b1ZxU0RzOW9VS0xBK3pUSjJ6TnNjUDUrOU80?=
+ =?utf-8?B?ZVJJSjNjc25xcDhWRmQrNmJIcFNmRDhJVzZJR1dYZWhPeTkxZzRiMU1OZXVx?=
+ =?utf-8?B?aGptVW1TS1BFTUhoOC8xSGc1N3pJWFUvaGhOVU9pT0lmTWVPc1VUVXVXdGl6?=
+ =?utf-8?B?MFMydVhNdEtvQVk2bmV0UC9jRGpJck14OEdYazNPbkJUS3krVmJzeklwQW0z?=
+ =?utf-8?B?c20xZFBLcFZIeGltVU9wZGErNnR1a2pRS3dsMytqVkVCMHJrYlVQUmJmS25Q?=
+ =?utf-8?B?bEVEamVPa2Y0UU1WTDlhaUpHNUxwUTJQS2ZZR1lDbkxPTEg2L3JyaGw5blAv?=
+ =?utf-8?B?enplZjlaZFNEY0grdFY0ZWVnQkVUU0FUNmhsektqMlVBaWl0UE1SZGhnYXFC?=
+ =?utf-8?B?WHpubGVHRXF6d0tlc2xZdFF4UFBNK1BEV3ozVDZtWVBxazkvdzNLRUltVzhS?=
+ =?utf-8?B?bkJ0NERYYUoxUGtsSmNKbHhYa1lBMkdrRnpyTUMzNlVmNFNMTXJBc2hHTGFY?=
+ =?utf-8?B?YkhiKzVBNlBLMlY0Y1dkWi91TFFsWk4xUlRvZXg5UERkY1BpYXpaN2JWQVpi?=
+ =?utf-8?B?Q1h6TXpXVTRhclNqK1VEcjQxd2I3S0lRS3RnZWxQQWZxaGpyQVRHVS9QQXFN?=
+ =?utf-8?B?dG9XVFFkc2s3RUNVbDMycE05bVNMa054cU5KZVZYSWllbCtFUTJ5bVROeXJv?=
+ =?utf-8?B?NmpJZGxQcTViYkkzUGVGMmhiL1FrQXRiMllaWmI5SGdsdHBuSUtCVzFPeTRR?=
+ =?utf-8?B?SnZlWXUzZHJZYUJsNzdMdGRod055SFNMYjVHRzEzaHRxTDV6OWtMd2dZV3Zq?=
+ =?utf-8?B?aHJ1MkovbjJ4RzlCYzBzR2N4VzUvUnAyRVIwVkFYdHFTcFNlVVhvSC9jTUpH?=
+ =?utf-8?B?cUpqc1RaRUlSbWpTR3RyYUI2aWVPTmI1UXJjajVoamdaZm51NjZxMVI1N0sv?=
+ =?utf-8?B?V0ZuZlk3ZDJuYTNnbWpjdmUva0tZZmdqMmpCc2MyK2dqL2tzMzRpckFVUXl5?=
+ =?utf-8?B?MmxYeHdtTXdSK1RCaktlaGZHSWVLYTJ0ZGFlRlJXVlVwSTRSY1dYbFJqSHZh?=
+ =?utf-8?B?UmJNQmxRSkpSVEpEd1pZQnFuNjIxYXZVMlc0OE5qMTV5SnU3Nit5MnV6VE51?=
+ =?utf-8?B?Y2tBWXJzMVQ5Z0pkM2FneHZ1dXRTUHpVTFlMdHhFdnQwbnRyZ2V1TlBHempO?=
+ =?utf-8?B?WUovZTRSQ0tTdHV2RUFLRFBaR3RnbEoyYXVrRWdUR003SVNmd096NGs0eUJr?=
+ =?utf-8?B?WVB4bVRvU2NJcGpkdFplSVlULzcwelZlRHY0V2hadkVWM2Nydk5jRnhtbU1M?=
+ =?utf-8?B?aDhBbXVZUUk5bWpVVnorVGNldEFRcXdPdm5OM3NObzFIVkxrWXp6VFNnWE55?=
+ =?utf-8?B?TGg4VHJDOGhYMGFTamF6RlBIc0hSU1NBcm0vMG1xdDN5S2t3SkxuejZNSUQv?=
+ =?utf-8?B?ek00ZW5YNngweS9BRWxUR1o5MVE0WUZXZUpUdWpRSXJ5UWJVTDdYYkhnWVdX?=
+ =?utf-8?B?TUJ6UmZqb1kwNU5qYkhHbzhjaGk4SElaWXR3bmxYQ0lnZkxkdjNGNHFiM1Jm?=
+ =?utf-8?B?bklHZjA2SitGN1NUZHlKYUdpRytyU1hSV2VrNmFOcWJHS0tIdU4zNGszZE9u?=
+ =?utf-8?B?dUpYa3JPTHFFUlFmQk9JbkZjbU9FUUlOaG5UU0huS3l6Z2JrWGthOEkxaVVZ?=
+ =?utf-8?Q?L/y1Xc+80VSwPrIOt7yDAWuc7?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5700a365-0aed-4ef2-cc81-08de271b8ecc
+X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2025 03:27:24.8271
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2gCh9OUePTTRSNHZGd6T2RQFBqNxGXexXSvLSM4x8p9VW1C15ZvmWfbXgM0LyYIBTgWgN1qXhr4QAiFo3gvVlg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4329
 
+On 11/18/25 3:42 PM, Michael S. Tsirkin wrote:
+> On Tue, Nov 18, 2025 at 08:38:53AM -0600, Daniel Jurgens wrote:
 
-
-On 2025/11/19 上午10:58, Huacai Chen wrote:
-> On Wed, Nov 19, 2025 at 10:01 AM Bibo Mao <maobibo@loongson.cn> wrote:
->>
->>
->>
->> On 2025/11/18 下午8:48, Huacai Chen wrote:
->>> Hi, Bibo,
->>>
->>> On Tue, Nov 18, 2025 at 4:07 PM Bibo Mao <maobibo@loongson.cn> wrote:
->>>>
->>>> Function vcpu_is_preempted() is used to check whether vCPU is preempted
->>>> or not. Here add implementation with vcpu_is_preempted() when option
->>>> CONFIG_PARAVIRT is enabled.
->>>>
->>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
->>>> ---
->>>>    arch/loongarch/include/asm/smp.h      |  1 +
->>>>    arch/loongarch/include/asm/spinlock.h |  5 +++++
->>>>    arch/loongarch/kernel/paravirt.c      | 16 ++++++++++++++++
->>>>    arch/loongarch/kernel/smp.c           |  6 ++++++
->>>>    4 files changed, 28 insertions(+)
->>>>
->>>> diff --git a/arch/loongarch/include/asm/smp.h b/arch/loongarch/include/asm/smp.h
->>>> index 3a47f52959a8..5b37f7bf2060 100644
->>>> --- a/arch/loongarch/include/asm/smp.h
->>>> +++ b/arch/loongarch/include/asm/smp.h
->>>> @@ -18,6 +18,7 @@ struct smp_ops {
->>>>           void (*init_ipi)(void);
->>>>           void (*send_ipi_single)(int cpu, unsigned int action);
->>>>           void (*send_ipi_mask)(const struct cpumask *mask, unsigned int action);
->>>> +       bool (*vcpu_is_preempted)(int cpu);
->>>>    };
->>>>    extern struct smp_ops mp_ops;
->>>>
->>>> diff --git a/arch/loongarch/include/asm/spinlock.h b/arch/loongarch/include/asm/spinlock.h
->>>> index 7cb3476999be..c001cef893aa 100644
->>>> --- a/arch/loongarch/include/asm/spinlock.h
->>>> +++ b/arch/loongarch/include/asm/spinlock.h
->>>> @@ -5,6 +5,11 @@
->>>>    #ifndef _ASM_SPINLOCK_H
->>>>    #define _ASM_SPINLOCK_H
->>>>
->>>> +#ifdef CONFIG_PARAVIRT
->>>> +#define vcpu_is_preempted      vcpu_is_preempted
->>>> +bool vcpu_is_preempted(int cpu);
->>>> +#endif
->>> Maybe paravirt.h is a better place?
->>
->> It is actually a little strange to add macro CONFIG_PARAVIRT in file
->> asm/spinlock.h
->>
->> vcpu_is_preempted is originally defined in header file
->> include/linux/sched.h like this
->> #ifndef vcpu_is_preempted
->> static inline bool vcpu_is_preempted(int cpu)
->> {
->>           return false;
->> }
->> #endif
->>
->> that requires that header file is included before sched.h, file
->> asm/spinlock.h can meet this requirement, however header file paravirt.h
->> maybe it is not included before sched.h in generic.
->>
->> Here vcpu_is_preempted definition is added before the following including.
->>      #include <asm/processor.h>
->>      #include <asm/qspinlock.h>
->>      #include <asm/qrwlock.h>
->> Maybe it is better to be added after the above header files including
->> sentences, but need further investigation.
-> powerpc put it in paravirt.h, so I think it is possible.
-paravirt.h is included by header file asm/qspinlock.h on powerpc, 
-however it is not so on loongarch :)
-
-# grep paravirt.h arch/powerpc/* -r
-arch/powerpc/include/asm/paravirt_api_clock.h:#include <asm/paravirt.h>
-arch/powerpc/include/asm/qspinlock.h:#include <asm/paravirt.h>
-arch/powerpc/include/asm/simple_spinlock.h:#include <asm/paravirt.h>
-
-$ grep paravirt.h arch/loongarch/* -r
-arch/loongarch/include/asm/paravirt_api_clock.h:#include <asm/paravirt.h>
+>> +#ifndef _LINUX_VIRTIO_ADMIN_H
+>> +#define _LINUX_VIRTIO_ADMIN_H
 > 
->>>
->>>> +
->>>>    #include <asm/processor.h>
->>>>    #include <asm/qspinlock.h>
->>>>    #include <asm/qrwlock.h>
->>>> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
->>>> index b1b51f920b23..b99404b6b13f 100644
->>>> --- a/arch/loongarch/kernel/paravirt.c
->>>> +++ b/arch/loongarch/kernel/paravirt.c
->>>> @@ -52,6 +52,13 @@ static u64 paravt_steal_clock(int cpu)
->>>>    #ifdef CONFIG_SMP
->>>>    static struct smp_ops native_ops;
->>>>
->>>> +static bool pv_vcpu_is_preempted(int cpu)
->>>> +{
->>>> +       struct kvm_steal_time *src = &per_cpu(steal_time, cpu);
->>>> +
->>>> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
->>>> +}
->>>> +
->>>>    static void pv_send_ipi_single(int cpu, unsigned int action)
->>>>    {
->>>>           int min, old;
->>>> @@ -308,6 +315,9 @@ int __init pv_time_init(void)
->>>>                   pr_err("Failed to install cpu hotplug callbacks\n");
->>>>                   return r;
->>>>           }
->>>> +
->>>> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
->>>> +               mp_ops.vcpu_is_preempted = pv_vcpu_is_preempted;
->>>>    #endif
->>>>
->>>>           static_call_update(pv_steal_clock, paravt_steal_clock);
->>>> @@ -332,3 +342,9 @@ int __init pv_spinlock_init(void)
->>>>
->>>>           return 0;
->>>>    }
->>>> +
->>>> +bool notrace vcpu_is_preempted(int cpu)
->>>> +{
->>>> +       return mp_ops.vcpu_is_preempted(cpu);
->>>> +}
->>>
->>> We can simplify the whole patch like this, then we don't need to touch
->>> smp.c, and we can merge Patch-2/3.
->>>
->>> +bool notrace vcpu_is_preempted(int cpu)
->>> +{
->>> +  if (!kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
->>> +     return false;
->>> + else {
->>> +     struct kvm_steal_time *src = &per_cpu(steal_time, cpu);
->>> +     return !!(src->preempted & KVM_VCPU_PREEMPTED);
->>> + }
->>> +}
->> 1. there is assembly output about relative vcpu_is_preempted
->>    <loongson_vcpu_is_preempted>:
->>                  move    $r4,$r0
->>                  jirl    $r0,$r1,0
->>
->>    <pv_vcpu_is_preempted>:
->>           pcalau12i       $r13,8759(0x2237)
->>           slli.d  $r4,$r4,0x3
->>           addi.d  $r13,$r13,-1000(0xc18)
->>           ldx.d   $r13,$r13,$r4
->>           pcalau12i       $r12,5462(0x1556)
->>           addi.d  $r12,$r12,384(0x180)
->>           add.d   $r12,$r13,$r12
->>           ld.bu   $r4,$r12,16(0x10)
->>           andi    $r4,$r4,0x1
->>           jirl    $r0,$r1,0
->>
->>    <vcpu_is_preempted>:
->>           pcalau12i       $r12,8775(0x2247)
->>           ld.d    $r12,$r12,-472(0xe28)
->>           jirl    $r0,$r12,0
->>           andi    $r0,$r0,0x0
->>
->>    <vcpu_is_preempted_new>:
->>           pcalau12i       $r12,8151(0x1fd7)
->>           ld.d    $r12,$r12,-1008(0xc10)
->>           bstrpick.d      $r12,$r12,0x1a,0x1a
->>           beqz    $r12,188(0xbc) # 900000000024ec60
->>           pcalau12i       $r12,11802(0x2e1a)
->>           addi.d  $r12,$r12,-1400(0xa88)
->>           ldptr.w $r14,$r12,36(0x24)
->>           beqz    $r14,108(0x6c) # 900000000024ec20
->>           addi.w  $r13,$r0,1(0x1)
->>           bne     $r14,$r13,164(0xa4) # 900000000024ec60
->>           ldptr.w $r13,$r12,40(0x28)
->>           bnez    $r13,24(0x18) # 900000000024ebdc
->>           lu12i.w $r14,262144(0x40000)
->>           ori     $r14,$r14,0x4
->>           cpucfg  $r14,$r14
->>           slli.w  $r13,$r14,0x0
->>           st.w    $r14,$r12,40(0x28)
->>           bstrpick.d      $r13,$r13,0x3,0x3
->>           beqz    $r13,128(0x80) # 900000000024ec60
->>           pcalau12i       $r13,8759(0x2237)
->>           slli.d  $r4,$r4,0x3
->>           addi.d  $r13,$r13,-1000(0xc18)
->>           ldx.d   $r13,$r13,$r4
->>           pcalau12i       $r12,5462(0x1556)
->>           addi.d  $r12,$r12,384(0x180)
->>           add.d   $r12,$r13,$r12
->>           ld.bu   $r4,$r12,16(0x10)
->>           andi    $r4,$r4,0x1
->>           jirl    $r0,$r1,0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           lu12i.w $r13,262144(0x40000)
->>           cpucfg  $r13,$r13
->>           lu12i.w $r15,1237(0x4d5)
->>           ori     $r15,$r15,0x64b
->>           slli.w  $r13,$r13,0x0
->>           bne     $r13,$r15,-124(0x3ff84) # 900000000024ebb8
->>           addi.w  $r13,$r0,1(0x1)
->>           st.w    $r13,$r12,36(0x24)
->>           b       -128(0xfffff80) # 900000000024ebc0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           andi    $r0,$r0,0x0
->>           move    $r4,$r0
->>           jirl    $r0,$r1,0
->>
->> With vcpu_is_preempted(), there is one memory load and one jirl jump,
->> with vcpu_is_preempted_new(), there is two memory load and two beq
->> compare instructions.
-> Is vcpu_is_preempted() performance critical (we need performance data
-> here)? It seems the powerpc version is also complex.
 > 
->>
->> 2. In some scenery such nr_cpus == 1, loongson_vcpu_is_preempted() is
->> better than pv_vcpu_is_preempted() even if the preempt feature is enabled.
-> In your original patch, "mp_ops.vcpu_is_preempted =
-> pv_vcpu_is_preempted" if the preempt feature is enabled. Why is
-> loongson_vcpu_is_preempted() called when nr_cpus=1?
+> Guards normally come before #include - there is no
+> point in pulling in uapi/linux/virtio_pci.h - just
+> extra work for the compiler.
 > 
-> Huacai
 > 
->>
->> Regards
->> Bibo Mao
->>> Huacai
->>>
->>>> +EXPORT_SYMBOL(vcpu_is_preempted);
->>>> diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
->>>> index 46036d98da75..f04192fedf8d 100644
->>>> --- a/arch/loongarch/kernel/smp.c
->>>> +++ b/arch/loongarch/kernel/smp.c
->>>> @@ -307,10 +307,16 @@ static void loongson_init_ipi(void)
->>>>                   panic("IPI IRQ request failed\n");
->>>>    }
->>>>
->>>> +static bool loongson_vcpu_is_preempted(int cpu)
->>>> +{
->>>> +       return false;
->>>> +}
->>>> +
->>>>    struct smp_ops mp_ops = {
->>>>           .init_ipi               = loongson_init_ipi,
->>>>           .send_ipi_single        = loongson_send_ipi_single,
->>>>           .send_ipi_mask          = loongson_send_ipi_mask,
->>>> +       .vcpu_is_preempted      = loongson_vcpu_is_preempted,
->>>>    };
->>>>
->>>>    static void __init fdt_smp_setup(void)
->>>> --
->>>> 2.39.3
->>>>
->>>>
->>
->>
+
+Removed the include.
+
+> 
+>> +
+>> +struct virtio_device;
+
+>> + */
+>> +#define VIRTIO_CAP_IN_LIST(cap_list, cap) \
+>> +	(!!(1 & (le64_to_cpu(cap_list->supported_caps[cap / 64]) >> cap % 64)))
+> 
+> while this works if cap is a variable, it will behave
+> unexpectedly if cap or even cap_list is an expression.
+> 
+> A standard practice is to put all macro arguments in brackets:
+> !!(1 & (le64_to_cpu((cap_list)->supported_caps[(cap) / 64]) >> (cap) % 64)))
+> 
+> 
+
+done
+
+> 
+> 
+> 
+>> +
+
+>>  #define VIRTIO_DEV_PARTS_CAP 0x0000
+>>  
+>> +/* Update this value to largest implemented cap number. */
+> 
+> implemented by what?
+
+Removed the comment.
+
+> 
+>> +#define VIRTIO_ADMIN_MAX_CAP 0x0fff
+>> +
+
+>> -#define MAX_CAP_ID __KERNEL_DIV_ROUND_UP(VIRTIO_DEV_PARTS_CAP + 1, 64)
+>> +#define VIRTIO_ADMIN_CAP_ID_ARRAY_SIZE __KERNEL_DIV_ROUND_UP(VIRTIO_ADMIN_MAX_CAP, 64)
+> 
+> Don't you mean VIRTIO_ADMIN_MAX_CAP + 1 here?
+> E.g. if VIRTIO_ADMIN_MAX_CAP was 0 we would need space for 1 capability,
+> right?
+> 
+
+Added the +1, it's the same result either way here.
+
+>>  
+>>  struct virtio_admin_cmd_query_cap_id_result {
+>> -	__le64 supported_caps[MAX_CAP_ID];
+>> +	__le64 supported_caps[VIRTIO_ADMIN_CAP_ID_ARRAY_SIZE];
+>>  };
+>>  
+> 
+> I feel it's worth explaining in commit log you are changing a
+> uapi structure, and explaining that it is safe.
+> 
+
+Done
+
+> 
+>>  struct virtio_admin_cmd_cap_get_data {
+>> -- 
+>> 2.50.1
+> 
 
