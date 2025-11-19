@@ -1,358 +1,229 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEA752EDD78
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 07:41:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA1D32D73B4
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 07:42:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763538117; cv=none; b=J6rqtMwmQDUWtK8DLS4qIOL9CvLlvR1aO0hhFJTordq/qdOe7ceW0bqbHUTYkPKIdmmNnimn+3CRREdZad7Y9iPsLPdVVN7oGpoyx6VnlQdKzA0GbqmTdA2RLiKSrBarAKxPrvO+szPcx780Paj60O2q1YzUrwvE9JPWHbn9gyA=
+	t=1763538161; cv=none; b=d43TrQtb/LsK77ypAXdYhxG5u7CZR8hDhiQq1xV+4mhjRwMe0jiLUOqc10JOdt2RJk/OVoHM5lNT6HgfAm5hEAHbVyocRzMGy3N7n4GdVzEggP8MWH79m8ZVqC/ZRHJM9D7SillbBqX1q7h5+NbKzqMLzZ1ZBrTMdmcrC1CHVG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763538117; c=relaxed/simple;
-	bh=q+M8pAK93vzhowA2DZlzeNkV6+IdzOKtoY3k4WaVsTE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AZA+vKcEIQfcdvaKea1ZuUG9Cueie7NxqKqmoObtPZUkCNXpYzg1GoXglg1hYeMcRHS+Q+zK2D01OMBZDlpQw06oTW/0e/wwvXRH9ffpTWe/Cb1W+a+nQF/yRbGNc8Akx2RK1JutmKWZi6gGHD23LJlca1Ndq1qVAMwhbw77INk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tGAcY5Zk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1763538161; c=relaxed/simple;
+	bh=OLA8m9TLLbYqvmKHcPxq9ZrLCV5444ywLE3KMmGFc8U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Hj2D2pi3wufIBaA81gb1hdVxWWZQAxrpBBK3K8AwVscYXyeI9EZHDEK35r0W16a3wSjUzpvwcwu8sco6GMBPfTGLDCtDKe74Rap1owYJ9sNQXMNgyfSvIzeZDb+XsUyOEpREdEtlIobyPtIrX9nMZ6kfhW2aM8GqBTwJxnxf3rM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=X5PNP5CD; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tGAcY5Zk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1125C4AF0D
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 07:41:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763538116;
-	bh=q+M8pAK93vzhowA2DZlzeNkV6+IdzOKtoY3k4WaVsTE=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=tGAcY5ZkD7P80LCLiAGZ3nMTl+a0+ixtyHu5qfUStSJI8V3rTkcOur6eZ+TIbvJFf
-	 dpny6W0jfWj86jtOCN5hlcB9aYlwWYaDHGelt5FdsJPoU0mklDK0m6TDHXsiRAH4my
-	 +8iIdSJc0LC/wjOCBV8cHWhLlTJERoZJoApfkTbLQoQoWSjJqhz89uSllOXTdxdnUP
-	 kGK635EQZeaIPNYhdpgGgCqIxWCC0thvAt5AOQx7S+YngHpHFNpRFZaOaxRO08oYZ1
-	 APwmEz3NQOomenFbwwgqOU71GZg76eOoMehJeeDqMdlSWRJNRjXgMBDQhiX16I8f9X
-	 xMOeFrwi3pFZw==
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-64166a57f3bso9885710a12.1
-        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 23:41:56 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUwAagP9YigFes0hKMQz3SHzEd81CAsSsUSGg+X18cExci7WVTUmZyIcwL5isuBjl5IdWHxoA0udON1QnoaAQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx9mzuHNqa+0u0wRt0oVDxyHQQjUe7GibiiBG5ms37nYwduSm0x
-	tZ6FYdHywcJ9oll+QWbXUoQlsniHHvqRr4zXf1R4j5V4Nve7YmFWok8noOrUIJIw05Nus0z6HSF
-	utP/ddr8fi6GF80c5iAhla4lBzIkuBLY=
-X-Google-Smtp-Source: AGHT+IH5PbHFy7SQADclvhkt/p7du3tmh3sfmEcVHooQlHiNoc2hfeXJOWIZLW4v82VRauSavd+AGz3Fr4UFydIhjVQ=
-X-Received: by 2002:a17:907:1c81:b0:b73:42e5:a59e with SMTP id
- a640c23a62f3a-b73677edb7bmr1767735066b.12.1763538113330; Tue, 18 Nov 2025
- 23:41:53 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X5PNP5CD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763538157;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=A4JiHNk8Un1Ag1G9pjG84VBhPIzZqe9VuqqmjTYDWtM=;
+	b=X5PNP5CDjyc6sObCrKDnFBhLQ9jx/JKncYNv96n+GV+PEa8DKvJ34+82INwIwUufko7Evq
+	eOlCbdH8s2Yoj1vtWJihyQv1Yqp+dL6PG+fbnOnKP3Pxx5zhaR+Syscr6ompmevOeqi3vS
+	Y4NpyRtdmpktwnZxIROOBQLz4vqJsOY=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-659-BLdE5suONjKosbjq22NOKA-1; Wed, 19 Nov 2025 02:42:33 -0500
+X-MC-Unique: BLdE5suONjKosbjq22NOKA-1
+X-Mimecast-MFC-AGG-ID: BLdE5suONjKosbjq22NOKA_1763538153
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-42b3ed2c3e3so4412528f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 23:42:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763538152; x=1764142952;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=A4JiHNk8Un1Ag1G9pjG84VBhPIzZqe9VuqqmjTYDWtM=;
+        b=J42zBUWhUwa3KCnEqfT2fNdD79rTwPxneQKfV9nBFc/T6LboMOLNtgXJrpKGGWAL0S
+         qQ/lB8ZRbjm1HNVNRjO7NDFfr8vEtYDPppF1zJr77owWjl/Bjo63s5TBDyWHnwmz9TU/
+         R+hU88WDkKwVihBNHFPgcaLm87eGMlB+3CrUO8K3hDzgTrnmqszioJ0cCQ59cN1mTA+y
+         xE3Jo61M3sMxr01UJ62IWCEngRhHdZykSJnQWGCuLb8K5iyFYiMKe2AQH92cmnYXkT76
+         OQ8LqSbmg1jdEg1a1/7+VXU51l/BsUFW1yu38McEjT2Bx4E6H8EJkPa36BPcaStBF9q0
+         5bmg==
+X-Forwarded-Encrypted: i=1; AJvYcCXeGqp8ouQyugpOGXRkr+bqW5buTmPQP+VsbB/EoDbq1ot4vGd+5xc6gvRa5eyUD3gB52KdBzwtA/M2Bk2FOg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyOp+41iBMgWbgb3OoMsS7rnqmLxoLVJH7sHxYpF8/NsVAHyuKK
+	BI6ZDav3mbHdPgxHsNb0T1cNLPT0XXjqnAuGcH3pfvQXGH44ts6T/Z3Y0BowXN16g/tW9NKeFaM
+	8o8R61EKuHu0F/ym+smljIUnC9FFsB7fJ//0GOWKMGBPEJYZ/l+MqC3tvcTBinxw6vh+pPW07iJ
+	dm
+X-Gm-Gg: ASbGncsNpp4g9eh8XuHsQ/lV1tZtOT/qE1DtnJ75cLV1fH1NTkhnK+cbI1R82SJmLZV
+	zuNvP06nZRgXyXWgbLmw3t0ETa1GKmjVQ69Ty+YG/VX1x8W6zG9ysgLVZNF50xGMiYsgPJll2fi
+	A4ps6VNcRghCi6W6DP6FZ2wPNtN8nGlwv45UTMqB8xYGLz3GBbokGXX9QBY+dCOxbpBismBKvr6
+	sBNQraVLmr2ML/UPbRuwZ9xEtBYEc2l2gmeo5jBcD9/0mU4K70wpWBSEoqAz4pvf/Fs5cRfP/8X
+	FOF2uXq9O03Mr0VW5btn2sG5P8i3H2QQr5xAaYv+0kaYlsjAGuheIMgoRFx5jGwS3QCmSRtISeq
+	+9UjzXcusxQA/k3G8CqhCG2UUzBWBIA==
+X-Received: by 2002:a05:6000:381:b0:429:c617:a32f with SMTP id ffacd0b85a97d-42b5938f44cmr18120191f8f.52.1763538152341;
+        Tue, 18 Nov 2025 23:42:32 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFVoKWTmCKGsdXq2+7eS8LR3Wv5tLzrt1q9s97tPznxCioRa2qIv0BW3ghrZRWPtDnT0sv9yQ==
+X-Received: by 2002:a05:6000:381:b0:429:c617:a32f with SMTP id ffacd0b85a97d-42b5938f44cmr18120167f8f.52.1763538151805;
+        Tue, 18 Nov 2025 23:42:31 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53e846afsm35643837f8f.13.2025.11.18.23.42.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Nov 2025 23:42:31 -0800 (PST)
+Date: Wed, 19 Nov 2025 02:42:28 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+	virtualization@lists.linux.dev, parav@nvidia.com,
+	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+Subject: Re: [PATCH net-next v11 08/12] virtio_net: Use existing classifier
+ if possible
+Message-ID: <20251119024151-mutt-send-email-mst@kernel.org>
+References: <20251118143903.958844-1-danielj@nvidia.com>
+ <20251118143903.958844-9-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251118080656.2012805-1-maobibo@loongson.cn> <20251118080656.2012805-3-maobibo@loongson.cn>
- <CAAhV-H4hoS0Wo3TS+FdikXMkb7qjWNFSPDoajQr0bzdeROJwGw@mail.gmail.com>
- <db8a26ca-8430-9e7d-4ad1-9b7743c4cfd1@loongson.cn> <147fe837-5f81-4246-7d01-84b75cb94e6f@loongson.cn>
-In-Reply-To: <147fe837-5f81-4246-7d01-84b75cb94e6f@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Wed, 19 Nov 2025 15:41:54 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H7ij5pcr6i6q-eh-2nUzs-L2Wq79PaxMnE_t5a4w7=75A@mail.gmail.com>
-X-Gm-Features: AWmQ_blo9K89j3uDki4PYxlv2C24lE5i_gVLytQcrrxj2URj4nf6q2IbqCsxLPc
-Message-ID: <CAAhV-H7ij5pcr6i6q-eh-2nUzs-L2Wq79PaxMnE_t5a4w7=75A@mail.gmail.com>
-Subject: Re: [PATCH 2/3] LoongArch: Add paravirt support with vcpu_is_preempted()
-To: Bibo Mao <maobibo@loongson.cn>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>, 
-	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, 
-	Boqun Feng <boqun.feng@gmail.com>, Waiman Long <longman@redhat.com>, 
-	Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20251118143903.958844-9-danielj@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 4OQZNlzqq1h6xlP7FtveEIURve3r04NtAtTZkH9KJ5w_1763538153
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, Nov 19, 2025 at 2:12=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> wrot=
-e:
->
->
->
-> On 2025/11/19 =E4=B8=8A=E5=8D=889:59, Bibo Mao wrote:
-> >
-> >
-> > On 2025/11/18 =E4=B8=8B=E5=8D=888:48, Huacai Chen wrote:
-> >> Hi, Bibo,
-> >>
-> >> On Tue, Nov 18, 2025 at 4:07=E2=80=AFPM Bibo Mao <maobibo@loongson.cn>=
- wrote:
-> >>>
-> >>> Function vcpu_is_preempted() is used to check whether vCPU is preempt=
-ed
-> >>> or not. Here add implementation with vcpu_is_preempted() when option
-> >>> CONFIG_PARAVIRT is enabled.
-> >>>
-> >>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-> >>> ---
-> >>>   arch/loongarch/include/asm/smp.h      |  1 +
-> >>>   arch/loongarch/include/asm/spinlock.h |  5 +++++
-> >>>   arch/loongarch/kernel/paravirt.c      | 16 ++++++++++++++++
-> >>>   arch/loongarch/kernel/smp.c           |  6 ++++++
-> >>>   4 files changed, 28 insertions(+)
-> >>>
-> >>> diff --git a/arch/loongarch/include/asm/smp.h
-> >>> b/arch/loongarch/include/asm/smp.h
-> >>> index 3a47f52959a8..5b37f7bf2060 100644
-> >>> --- a/arch/loongarch/include/asm/smp.h
-> >>> +++ b/arch/loongarch/include/asm/smp.h
-> >>> @@ -18,6 +18,7 @@ struct smp_ops {
-> >>>          void (*init_ipi)(void);
-> >>>          void (*send_ipi_single)(int cpu, unsigned int action);
-> >>>          void (*send_ipi_mask)(const struct cpumask *mask, unsigned
-> >>> int action);
-> >>> +       bool (*vcpu_is_preempted)(int cpu);
-> >>>   };
-> >>>   extern struct smp_ops mp_ops;
-> >>>
-> >>> diff --git a/arch/loongarch/include/asm/spinlock.h
-> >>> b/arch/loongarch/include/asm/spinlock.h
-> >>> index 7cb3476999be..c001cef893aa 100644
-> >>> --- a/arch/loongarch/include/asm/spinlock.h
-> >>> +++ b/arch/loongarch/include/asm/spinlock.h
-> >>> @@ -5,6 +5,11 @@
-> >>>   #ifndef _ASM_SPINLOCK_H
-> >>>   #define _ASM_SPINLOCK_H
-> >>>
-> >>> +#ifdef CONFIG_PARAVIRT
-> >>> +#define vcpu_is_preempted      vcpu_is_preempted
-> >>> +bool vcpu_is_preempted(int cpu);
-> >>> +#endif
-> >> Maybe paravirt.h is a better place?
-> >
-> > It is actually a little strange to add macro CONFIG_PARAVIRT in file
-> > asm/spinlock.h
-> >
-> > vcpu_is_preempted is originally defined in header file
-> > include/linux/sched.h like this
-> > #ifndef vcpu_is_preempted
-> > static inline bool vcpu_is_preempted(int cpu)
-> > {
-> >          return false;
-> > }
-> > #endif
-> >
-> > that requires that header file is included before sched.h, file
-> > asm/spinlock.h can meet this requirement, however header file paravirt.=
-h
-> > maybe it is not included before sched.h in generic.
-> >
-> > Here vcpu_is_preempted definition is added before the following includi=
-ng.
-> >     #include <asm/processor.h>
-> >     #include <asm/qspinlock.h>
-> >     #include <asm/qrwlock.h>
-> > Maybe it is better to be added after the above header files including
-> > sentences, but need further investigation.
-> >>
-> >>> +
-> >>>   #include <asm/processor.h>
-> >>>   #include <asm/qspinlock.h>
-> >>>   #include <asm/qrwlock.h>
-> >>> diff --git a/arch/loongarch/kernel/paravirt.c
-> >>> b/arch/loongarch/kernel/paravirt.c
-> >>> index b1b51f920b23..b99404b6b13f 100644
-> >>> --- a/arch/loongarch/kernel/paravirt.c
-> >>> +++ b/arch/loongarch/kernel/paravirt.c
-> >>> @@ -52,6 +52,13 @@ static u64 paravt_steal_clock(int cpu)
-> >>>   #ifdef CONFIG_SMP
-> >>>   static struct smp_ops native_ops;
-> >>>
-> >>> +static bool pv_vcpu_is_preempted(int cpu)
-> >>> +{
-> >>> +       struct kvm_steal_time *src =3D &per_cpu(steal_time, cpu);
-> >>> +
-> >>> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
-> >>> +}
-> >>> +
-> >>>   static void pv_send_ipi_single(int cpu, unsigned int action)
-> >>>   {
-> >>>          int min, old;
-> >>> @@ -308,6 +315,9 @@ int __init pv_time_init(void)
-> >>>                  pr_err("Failed to install cpu hotplug callbacks\n");
-> >>>                  return r;
-> >>>          }
-> >>> +
-> >>> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
-> >>> +               mp_ops.vcpu_is_preempted =3D pv_vcpu_is_preempted;
-> >>>   #endif
-> >>>
-> >>>          static_call_update(pv_steal_clock, paravt_steal_clock);
-> >>> @@ -332,3 +342,9 @@ int __init pv_spinlock_init(void)
-> >>>
-> >>>          return 0;
-> >>>   }
-> >>> +
-> >>> +bool notrace vcpu_is_preempted(int cpu)
-> >>> +{
-> >>> +       return mp_ops.vcpu_is_preempted(cpu);
-> >>> +}
-> >>
-> >> We can simplify the whole patch like this, then we don't need to touch
-> >> smp.c, and we can merge Patch-2/3.
-> >>
-> >> +bool notrace vcpu_is_preempted(int cpu)
-> >> +{
-> >> +  if (!kvm_para_has_feature(KVM_FEATURE_PREEMPT_HINT))
-> >> +     return false;
-> >> + else {
-> >> +     struct kvm_steal_time *src =3D &per_cpu(steal_time, cpu);
-> >> +     return !!(src->preempted & KVM_VCPU_PREEMPTED);
-> >> + }
-> >> +}
-> > 1. there is assembly output about relative vcpu_is_preempted
-> >   <loongson_vcpu_is_preempted>:
-> >                 move    $r4,$r0
-> >                 jirl    $r0,$r1,0
-> >
-> >   <pv_vcpu_is_preempted>:
-> >          pcalau12i       $r13,8759(0x2237)
-> >          slli.d  $r4,$r4,0x3
-> >          addi.d  $r13,$r13,-1000(0xc18)
-> >          ldx.d   $r13,$r13,$r4
-> >          pcalau12i       $r12,5462(0x1556)
-> >          addi.d  $r12,$r12,384(0x180)
-> >          add.d   $r12,$r13,$r12
-> >          ld.bu   $r4,$r12,16(0x10)
-> >          andi    $r4,$r4,0x1
-> >          jirl    $r0,$r1,0
-> >
-> >   <vcpu_is_preempted>:
-> >          pcalau12i       $r12,8775(0x2247)
-> >          ld.d    $r12,$r12,-472(0xe28)
-> >          jirl    $r0,$r12,0
-> >          andi    $r0,$r0,0x0
-> >
-> >   <vcpu_is_preempted_new>:
-> >          pcalau12i       $r12,8151(0x1fd7)
-> >          ld.d    $r12,$r12,-1008(0xc10)
-> >          bstrpick.d      $r12,$r12,0x1a,0x1a
-> >          beqz    $r12,188(0xbc) # 900000000024ec60
-> >          pcalau12i       $r12,11802(0x2e1a)
-> >          addi.d  $r12,$r12,-1400(0xa88)
-> >          ldptr.w $r14,$r12,36(0x24)
-> >          beqz    $r14,108(0x6c) # 900000000024ec20
-> >          addi.w  $r13,$r0,1(0x1)
-> >          bne     $r14,$r13,164(0xa4) # 900000000024ec60
-> >          ldptr.w $r13,$r12,40(0x28)
-> >          bnez    $r13,24(0x18) # 900000000024ebdc
-> >          lu12i.w $r14,262144(0x40000)
-> >          ori     $r14,$r14,0x4
-> >          cpucfg  $r14,$r14
-> >          slli.w  $r13,$r14,0x0
-> >          st.w    $r14,$r12,40(0x28)
-> >          bstrpick.d      $r13,$r13,0x3,0x3
-> >          beqz    $r13,128(0x80) # 900000000024ec60
-> >          pcalau12i       $r13,8759(0x2237)
-> >          slli.d  $r4,$r4,0x3
-> >          addi.d  $r13,$r13,-1000(0xc18)
-> >          ldx.d   $r13,$r13,$r4
-> >          pcalau12i       $r12,5462(0x1556)
-> >          addi.d  $r12,$r12,384(0x180)
-> >          add.d   $r12,$r13,$r12
-> >          ld.bu   $r4,$r12,16(0x10)
-> >          andi    $r4,$r4,0x1
-> >          jirl    $r0,$r1,0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          lu12i.w $r13,262144(0x40000)
-> >          cpucfg  $r13,$r13
-> >          lu12i.w $r15,1237(0x4d5)
-> >          ori     $r15,$r15,0x64b
-> >          slli.w  $r13,$r13,0x0
-> >          bne     $r13,$r15,-124(0x3ff84) # 900000000024ebb8
-> >          addi.w  $r13,$r0,1(0x1)
-> >          st.w    $r13,$r12,36(0x24)
-> >          b       -128(0xfffff80) # 900000000024ebc0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          andi    $r0,$r0,0x0
-> >          move    $r4,$r0
-> >          jirl    $r0,$r1,0
-> >
-> > With vcpu_is_preempted(), there is one memory load and one jirl jump,
-> > with vcpu_is_preempted_new(), there is two memory load and two beq
-> > compare instructions.
-> >
-> > 2. In some scenery such nr_cpus =3D=3D 1, loongson_vcpu_is_preempted() =
-is
-> > better than pv_vcpu_is_preempted() even if the preempt feature is enabl=
-ed.
-> how about use static key and keep file smp.c untouched?
-OK, it's better.
+On Tue, Nov 18, 2025 at 08:38:58AM -0600, Daniel Jurgens wrote:
+> Classifiers can be used by more than one rule. If there is an existing
+> classifier, use it instead of creating a new one.
 
-Huacai
+explaining what's the point would be good. to save
+device memory?
 
-> bool notrace vcpu_is_preempted(int cpu)
-> {
->          struct kvm_steal_time *src;
->
->          if (!static_branch_unlikely(&virt_preempt_key))
->                  return false;
->
->          src =3D &per_cpu(steal_time, cpu);
->          return !!(src->preempted & KVM_VCPU_PREEMPTED);
-> }
->
-> it reduces one memory load, here is assembly output:
->   <vcpu_is_preempted>:
->          andi    $r0,$r0,0x0
->          move    $r4,$r0
->          jirl    $r0,$r1,0
->          andi    $r0,$r0,0x0
->          pcalau12i       $r13,8759(0x2237)
->          slli.d  $r4,$r4,0x3
->          addi.d  $r13,$r13,-1000(0xc18)
->          ldx.d   $r13,$r13,$r4
->          pcalau12i       $r12,5462(0x1556)
->          addi.d  $r12,$r12,384(0x180)
->          add.d   $r12,$r13,$r12
->          ld.bu   $r4,$r12,16(0x10)
->          andi    $r4,$r4,0x1
->          jirl    $r0,$r1,0
->
-> Regards
-> Bibo Mao
->
-> >
-> > Regards
-> > Bibo Mao
-> >> Huacai
-> >>
-> >>> +EXPORT_SYMBOL(vcpu_is_preempted);
-> >>> diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.=
-c
-> >>> index 46036d98da75..f04192fedf8d 100644
-> >>> --- a/arch/loongarch/kernel/smp.c
-> >>> +++ b/arch/loongarch/kernel/smp.c
-> >>> @@ -307,10 +307,16 @@ static void loongson_init_ipi(void)
-> >>>                  panic("IPI IRQ request failed\n");
-> >>>   }
-> >>>
-> >>> +static bool loongson_vcpu_is_preempted(int cpu)
-> >>> +{
-> >>> +       return false;
-> >>> +}
-> >>> +
-> >>>   struct smp_ops mp_ops =3D {
-> >>>          .init_ipi               =3D loongson_init_ipi,
-> >>>          .send_ipi_single        =3D loongson_send_ipi_single,
-> >>>          .send_ipi_mask          =3D loongson_send_ipi_mask,
-> >>> +       .vcpu_is_preempted      =3D loongson_vcpu_is_preempted,
-> >>>   };
-> >>>
-> >>>   static void __init fdt_smp_setup(void)
-> >>> --
-> >>> 2.39.3
-> >>>
-> >>>
-> >
->
->
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+> v4:
+>     - Fixed typo in commit message
+>     - for (int -> for (
+> 
+> v8:
+>     - Removed unused num_classifiers. Jason Wang
+> ---
+>  drivers/net/virtio_net.c | 40 +++++++++++++++++++++++++++-------------
+>  1 file changed, 27 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index de1a23c71449..f392ea30f2c7 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -299,7 +299,6 @@ struct virtnet_ff {
+>  	struct virtio_net_ff_cap_mask_data *ff_mask;
+>  	struct virtio_net_ff_actions *ff_actions;
+>  	struct xarray classifiers;
+> -	int num_classifiers;
+>  	struct virtnet_ethtool_ff ethtool;
+>  };
+>  
+> @@ -6827,6 +6826,7 @@ struct virtnet_ethtool_rule {
+>  /* The classifier struct must be the last field in this struct */
+>  struct virtnet_classifier {
+>  	size_t size;
+> +	refcount_t refcount;
+>  	u32 id;
+>  	struct virtio_net_resource_obj_ff_classifier classifier;
+>  };
+> @@ -6920,11 +6920,24 @@ static bool validate_mask(const struct virtnet_ff *ff,
+>  	return false;
+>  }
+>  
+> -static int setup_classifier(struct virtnet_ff *ff, struct virtnet_classifier *c)
+> +static int setup_classifier(struct virtnet_ff *ff,
+> +			    struct virtnet_classifier **c)
+>  {
+> +	struct virtnet_classifier *tmp;
+> +	unsigned long i;
+>  	int err;
+>  
+> -	err = xa_alloc(&ff->classifiers, &c->id, c,
+> +	xa_for_each(&ff->classifiers, i, tmp) {
+> +		if ((*c)->size == tmp->size &&
+> +		    !memcmp(&tmp->classifier, &(*c)->classifier, tmp->size)) {
+> +			refcount_inc(&tmp->refcount);
+> +			kfree(*c);
+> +			*c = tmp;
+> +			goto out;
+> +		}
+> +	}
+> +
+> +	err = xa_alloc(&ff->classifiers, &(*c)->id, *c,
+>  		       XA_LIMIT(0, le32_to_cpu(ff->ff_caps->classifiers_limit) - 1),
+>  		       GFP_KERNEL);
+>  	if (err)
+> @@ -6932,29 +6945,30 @@ static int setup_classifier(struct virtnet_ff *ff, struct virtnet_classifier *c)
+>  
+>  	err = virtio_admin_obj_create(ff->vdev,
+>  				      VIRTIO_NET_RESOURCE_OBJ_FF_CLASSIFIER,
+> -				      c->id,
+> +				      (*c)->id,
+>  				      VIRTIO_ADMIN_GROUP_TYPE_SELF,
+>  				      0,
+> -				      &c->classifier,
+> -				      c->size);
+> +				      &(*c)->classifier,
+> +				      (*c)->size);
+>  	if (err)
+>  		goto err_xarray;
+>  
+> +	refcount_set(&(*c)->refcount, 1);
+> +out:
+>  	return 0;
+>  
+>  err_xarray:
+> -	xa_erase(&ff->classifiers, c->id);
+> +	xa_erase(&ff->classifiers, (*c)->id);
+>  
+>  	return err;
+>  }
+>  
+> -static void destroy_classifier(struct virtnet_ff *ff,
+> -			       u32 classifier_id)
+> +static void try_destroy_classifier(struct virtnet_ff *ff, u32 classifier_id)
+>  {
+>  	struct virtnet_classifier *c;
+>  
+>  	c = xa_load(&ff->classifiers, classifier_id);
+> -	if (c) {
+> +	if (c && refcount_dec_and_test(&c->refcount)) {
+>  		virtio_admin_obj_destroy(ff->vdev,
+>  					 VIRTIO_NET_RESOURCE_OBJ_FF_CLASSIFIER,
+>  					 c->id,
+> @@ -6978,7 +6992,7 @@ static void destroy_ethtool_rule(struct virtnet_ff *ff,
+>  				 0);
+>  
+>  	xa_erase(&ff->ethtool.rules, eth_rule->flow_spec.location);
+> -	destroy_classifier(ff, eth_rule->classifier_id);
+> +	try_destroy_classifier(ff, eth_rule->classifier_id);
+>  	kfree(eth_rule);
+>  }
+>  
+> @@ -7159,14 +7173,14 @@ static int build_and_insert(struct virtnet_ff *ff,
+>  	if (err)
+>  		goto err_key;
+>  
+> -	err = setup_classifier(ff, c);
+> +	err = setup_classifier(ff, &c);
+>  	if (err)
+>  		goto err_classifier;
+>  
+>  	err = insert_rule(ff, eth_rule, c->id, key, key_size);
+>  	if (err) {
+>  		/* destroy_classifier will free the classifier */
+> -		destroy_classifier(ff, c->id);
+> +		try_destroy_classifier(ff, c->id);
+>  		goto err_key;
+>  	}
+>  
+> -- 
+> 2.50.1
+
