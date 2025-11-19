@@ -1,195 +1,122 @@
-Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012035.outbound.protection.outlook.com [52.101.48.35])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D18052F83C4
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 04:27:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.35
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763526460; cv=fail; b=MQNCfKqg4L65BtHkQP4Dy+JF96QLiiuESl1Gte7RWBQWIdIucvtbeS9VB0pPXemDsBDxO2zyccXulhE6lEcqhXNw4lXGWsLGktWRlIo9BUWj+5KSlYcCX/OoCfaPUUdfik+3JFHs1D1DuDNZH95e/79LcxZFS0QqT5UpZORCY58=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763526460; c=relaxed/simple;
-	bh=dN7u1qb94eMo7XUfuStv3s6ILrNyCH8jdk1XfqDkSDI=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ifKRUzJAyr8Z9hAdxWSl/dgqa5ovuAgO/Rj9sp0w2KQICJWja8gSWxEVNrRqreeUCseesxF1InaXJGz8KBmkcV3Efv0JehnxuZzYLgJyxzoBs2YtWNaDLIYifC5fbAvpA1TgG23TriCgABMXzShtVo+eQs0DmUE4PisQQ/2BDkY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IAWbw/ml; arc=fail smtp.client-ip=52.101.48.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64D9D2459F7
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 05:17:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763529452; cv=none; b=tY8yk3Ir515BFj5En89oEx3+5krp4eVQLnvV9QSx1Yt6VNLBRWyhT4eGYx8fcls0QfdAiK2+y4kE9uorTQic07B7Dnax/EcrsqiO83qFIDgxXwL/5N+hIiQJEg3wjJLIJ//iCafAA1/xRwHLINUWIHy9DlOwiBGybLF+m7RaGA0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763529452; c=relaxed/simple;
+	bh=r/xLivIcby+I0JIBqSS5l9qwoUuGekn1n/qipDIzCdI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Rooqb/e17dVrN2wCF/cmOUcKkBEMGrYQCgfVpaESZMo/kP8Ldj8eXbIuHZ5bG16X0ZD+pbkUNiY+thkVSN4+KFGD5rWYPiosJYFAiejRZoHaFDeb80L3YU/smFltbBa9lhsJaVtHvDhJ3+17+IYrrxJ2EQtBTXtFwdJXFdL++iQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eGBZKaSu; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IAWbw/ml"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=AkbLUCzslNcULrZr1wUZXZXQ86GkU1jw+B7CKkDjfrb7tFVsKT9q2CspX6x/YjljUpWBlPdbVajL+4VkB1WL8pqu+7niAnDOH/KQd/VqLqg0Mh+tv/fMm8WepX52LLDloSqeOXrnCck3tEr08oR46G0M9OqQX730j4F33gMayDR6hH1oOlymxhREMrmeJZqgJaGPoe5C5FZ9ddKpOVesn9pBPYi6iyNBFSFXaxSPYjguJuLC/IVqLUi0vB089Z4BnPd8YUtFxhNimeh86B9xQj4+0fN7RaJG8INEe0ptFjpztPob+Kg27+lJXBBTZE/8Z9jlGVAbc5piBZKMPdDJQQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fC1zi1+Xka+aMC8K+SEJa5eLQAq5sdeG4X5Bqv26kJ4=;
- b=rtyUp90yHdFTfR9Pc8yXFdvtJ9V95ITMP81IFVKazK5NMDtbIcJZkus7pCv3jBxOIhASdUHeM5856JSwzjXF6HKqf9jh4rEI5wb2URn0A4ftaNIrDcYGvWE38b9dzGZyrHHZJPPoPsUe/te/0KTSjahDBSKX37k4/wV9TUhw7ohY7rRDOGJqAwhgO2i5mFNGO7OOOP7z6ylsbi4sQwhLHOQNmrTVIWjSYnOHeoczOMONEWE3k/Qc6T6dcYOQNRukCPXMPAYOXyOR4JprHekTiUKHt6hK2eSxCZZBhQepnHbRqm3B6pMXg5hsA497aqf2McxxbUsJdwTq0TTs1IA1Sg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fC1zi1+Xka+aMC8K+SEJa5eLQAq5sdeG4X5Bqv26kJ4=;
- b=IAWbw/mlyNPiUOWATTQ/Gz5tM6HGC94q09dqc5pyvz8b0cOg8RMuIFCXnYRTHXrzYBNJJNkKrBb55QcEMrz5XXP2+KsprUXAmI2Hw2DrxkNF5qsRxN8ScRF9EOkwwyLawVVkJDNclw59wPY+QEBAsSmgxZzXraQKlphK7RZmAeJTQkumeb+UL8CKLpaZ22J6BqeeLoCL+uSP5H7KuJiAzu5PECKZePBD7F9+e/BpmCnFjI5Udqy9l1BMr540P6pLW6FCmIOD0YMJbKd1t8a/4jmLoKPbzhqT8u/7S0qqVx2CzugpHphd2Ky/zn6yJXn8qci+giizjO680Cvnwy0v/g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by IA0PR12MB7750.namprd12.prod.outlook.com (2603:10b6:208:431::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.10; Wed, 19 Nov
- 2025 04:27:34 +0000
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9320.021; Wed, 19 Nov 2025
- 04:27:34 +0000
-Message-ID: <b89b3ab9-596a-4ffe-b6a4-94b3af31496a@nvidia.com>
-Date: Tue, 18 Nov 2025 22:27:31 -0600
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v11 05/12] virtio_net: Query and set flow filter
- caps
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
- virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
- edumazet@google.com
-References: <20251118143903.958844-1-danielj@nvidia.com>
- <20251118143903.958844-6-danielj@nvidia.com>
- <20251118180127-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20251118180127-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SA0PR11CA0174.namprd11.prod.outlook.com
- (2603:10b6:806:1bb::29) To MW4PR12MB7309.namprd12.prod.outlook.com
- (2603:10b6:303:22f::17)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eGBZKaSu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763529449;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kygOZeQZScx/+YWQsjjbid1ISJrkxLoR4hmjl6DONVs=;
+	b=eGBZKaSuM83mTlzFscUZDc+lLmmijqCs95xxmYK9AelXvA5Vil6YcVBDx0yF90dLHISYBh
+	hl8z9uh6BF3aBpFpTVDz1pBN2oe7AGl3d+/dVxhW1KSDE7sk8vEkjSVx3uhDRUTt3snm8R
+	MhD+P4BvFoAns+I2ZkjJ82f9aGiL6CA=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-39-p68_KgHDOAulls4PdVQMNQ-1; Wed, 19 Nov 2025 00:17:27 -0500
+X-MC-Unique: p68_KgHDOAulls4PdVQMNQ-1
+X-Mimecast-MFC-AGG-ID: p68_KgHDOAulls4PdVQMNQ_1763529446
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4775d110fabso48182545e9.1
+        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 21:17:27 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763529446; x=1764134246;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kygOZeQZScx/+YWQsjjbid1ISJrkxLoR4hmjl6DONVs=;
+        b=YD1QSYcD74xlnTG28PqmDYV0vgCKhFQHG3mj3wWUl9Cc+Cal+hFrwxF1Qx8ko3vu55
+         qHWuYQQ53OVMG4f/MTUYjvFHRjH7sjGyP+G5T3RY/1NCbW4SoqYwSjWzN4prakqnysgn
+         9MK9HQjByMaOdH7KjWDEoRE08YjAI9bLsE5CRC3iuckbPd5+09q+qDVDVHKQdQWbZt8b
+         755Jf8+O+M+rErR6Z+nXruyzf1BFhjUiNdkDDRFB+0To7PAExq0mgjZfGcIftifhV9Gd
+         aPDyVxRmm4Qrya2aUjI904f7CSxp0VTUooCUmzAEg+9TuMG8XvO/ozZy01RQsM/H2x4D
+         Y3rA==
+X-Forwarded-Encrypted: i=1; AJvYcCUqVGus4U/QJN5X50yMkHY8Y0MmIMpwhv0Og44RcM1LrbZQcNi0iTJGShuxt5nJo1jMhBMj7h78Rzm4mdo45w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx57SlTkx98KTCLP+EAcIu7IvLvDj+eVn/y+eVOk3evfmEjI7HH
+	C0Z5hkEjgk5WxvC9Fdj8aWJPqu9fU3BwavjkNFDpiFr0dd+6zRIOdPNo/tHj7J16qNY4+qxDi5l
+	udjB3h6aBz/C0H3ktXLuS1TrBQ54OP1Yd8Of4JtGQUeRCkEgGQbwvHXwqecVawL6iQHoE
+X-Gm-Gg: ASbGncvK8UKh9zd+3evvD8DCCc3h1FZ8CLuSmV0+4yPRyY/8v26leH9Q9Y977gWc8lu
+	kc77dVEo0FAUdakDWYGiggYo5YOweJUPe+T8lJo+ERNOFs8n3YQhXOsI82OQNkHSRFf+NwTCUPX
+	M7A76YNUbBmVCIg3A973P4OgH/BAAj8cCMYvXcx+Gm7A7NRS1bT4n5ZA29MNyHPXk+naIXx4zwM
+	TRu3IkC1D+imEZqKla0Ctk+YpiPDz/PFLK1QIhdAtqyEwTHKdbtMDyqSHjailruacDK6BFNfAsM
+	1nYEq50T4HAe7IoJa1WLUknxUldmEutYeu+ze6VSmOd0NZ82Jo27Buc9CsArdf0HKtsQ2R1OShd
+	htcFiCySw4n8styA89fWJzP2Do6+Lig==
+X-Received: by 2002:a05:600c:1f83:b0:477:54cd:2030 with SMTP id 5b1f17b1804b1-4778fe797afmr175911015e9.21.1763529446481;
+        Tue, 18 Nov 2025 21:17:26 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFhusV+p6YGO7+jMEFYDwD3HPY/3RYziImsrCCdOjkuWi+w+04YVq5vQMjbhRgwB2ne3qQ5rg==
+X-Received: by 2002:a05:600c:1f83:b0:477:54cd:2030 with SMTP id 5b1f17b1804b1-4778fe797afmr175910865e9.21.1763529446024;
+        Tue, 18 Nov 2025 21:17:26 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477b0faf295sm27631655e9.0.2025.11.18.21.17.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Nov 2025 21:17:25 -0800 (PST)
+Date: Wed, 19 Nov 2025 00:17:22 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Yishai Hadas <yishaih@nvidia.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Alex Williamson <alex@shazbot.org>, virtualization@lists.linux.dev
+Subject: Re: [PATCH] virtio_pci: drop kernel.h
+Message-ID: <20251119001641-mutt-send-email-mst@kernel.org>
+References: <a1efb550481fc67973c0a86860e0724c8f5b9957.1763507303.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|IA0PR12MB7750:EE_
-X-MS-Office365-Filtering-Correlation-Id: d10e6bcf-1603-4251-75c5-08de2723f5f6
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|7416014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?NFIyYlk5d0c1V3Z1M2NLdXJIZVhOM3BhdmNMWUZSQmRvY0dXS3FDVnRXOW9s?=
- =?utf-8?B?UlFjdFdwTFhTSStJc3FPL1pWOVBTaFpLaUw1elRGODBSY3d6Kzdad0t4akdB?=
- =?utf-8?B?M1orS1QyTHZnNGdzU1VDKzM1L0NYZkxkU1BiL2ZmWjkrcWhGMVBrMVpqYjR3?=
- =?utf-8?B?UGpCODNHRG82dE5sL0YyOUI1WWVGNWU4Z0FJTHlRTjhYOGhHWEpSM3pvNW5o?=
- =?utf-8?B?cTJyY0RHOVIvcHNsUDVpT3dPZFRxUDk0SXByeE0wOHVQcWYxaDd5V2FyTzhV?=
- =?utf-8?B?c2ZLT0JtY3FpbE9RUWpZVFdqSFpxSkI3bHphdkZuL084WHZSamlvdVMyc2Jt?=
- =?utf-8?B?QlhCYUhEM0grbGhuYzlYYy96N2VNa21sZzU3QkdIbU9ZRGRCVEg4eSthQXVa?=
- =?utf-8?B?SEhsMEtRN1FLYWVDcTVqN01KRWdvaVRaWWdzWnFySEQzYlc0UVlwWnpSTjZX?=
- =?utf-8?B?RHJ5bjdZZTR1OTE1SXQ0Q3lqam9qZ0h4N0VpeXg4TjJFYTNZWTQ4cHFZUGlm?=
- =?utf-8?B?eXJRbFJhWU90bjhWZ2oyOG9KT3FGY052b2ptUy96cGtZbXdKRW1qTmd5UjNY?=
- =?utf-8?B?K1pJZEh5S1NIOEZobVR2azEwTFJZRDBrZEpyWk1Dc1lJcTdrS0xaT2ZyT1Nv?=
- =?utf-8?B?bWFOdllCR252cUtrcXRDdENyUWpKdFd1amsrUkdIM1JBSytwenJZWHMydHhM?=
- =?utf-8?B?VWJyaW9ybWw2QUdObnRaM0o0VXM2eWdYU1BFZWc1RzN6bkVBUFpGaHFmTFZZ?=
- =?utf-8?B?dlRlaGFnejNDdlUxVFl4aWMyZzlrVThFb2Y3UEVFR2Y5eEMwcXVZOTA3V0FF?=
- =?utf-8?B?Q3o5NnlvZy80U00xcGdPcGxoblVISmZJblpGUnc1NWtpcVhxT0Rmd0RZYVpP?=
- =?utf-8?B?eElrcVdUT09tSE50NFpTaWJDb3RBNWxUTE5YTS9ydHpsbXpmakJONHFUaFRR?=
- =?utf-8?B?bU83bWFNL1VGaEVXU2JOQThqNEl3b2tpMXZiVFpmb3BNNVhFdGNuR2x1M0Rw?=
- =?utf-8?B?eGpVUlVudExDeE5zRjd4elFYWmlPSUNEelRSNlhac1dNaUZqaWpYbUMzWFRj?=
- =?utf-8?B?U0xvVmRzNHBsRytuSmV6MnhYT3o4eDArWGt4Q3RJRDRGSGlvNjhFejZJS0Zh?=
- =?utf-8?B?K25tNE9VUW50WkhHSGxKSVVzU1NNaTVhUXF4K3paWlZIUCtlRkNBK3hHK2JF?=
- =?utf-8?B?aENJOWNVZXlHcExTU3lvK2dQTHQ1S0RWNnNKeDhOV2g0OE9TazFwMHBxSE1x?=
- =?utf-8?B?Rk15WWNDbWNhZEZzNGFvVmpFemJvWnh6WXRsbzlVdmNYUGIxWGFEL2M5YjNZ?=
- =?utf-8?B?NFRxa3dFQXpTL1FYZkFuYWpjd1pMd09TdjRqMkpGaW1qTmJTUUt3ZGloN3ZF?=
- =?utf-8?B?K2c4Y3pXc25WWTZ0MDUrMkNyRkdZSFJQYWoyVEkwdDNqeWtLZ1hvQ1kxTjgx?=
- =?utf-8?B?bTluWEVkWUJrZmV5THYyeHZQK2lyOW9nbWN4VWhNSVZUYU82ZjdnWTBJczhi?=
- =?utf-8?B?OUhDbVpWMWY2MTJrb2ZsSWxYcjIzbjlxSWhQcXpYMGJRS2pqTVlzTFNnS2wr?=
- =?utf-8?B?QjVVSnhZbzVnWHJhTzhMSVk1cm82TVU4cXVURi9tZk9xUzFwSm85VDlkRlBq?=
- =?utf-8?B?U1AvQ1VvRnV1ZDY4TEkrUlpVUXluTnVpeWJzUEVwc1greTI3S1pVdFNBTHZ2?=
- =?utf-8?B?TlhVNkIyOWRCTzVZVElONHI0Q0FjS2Zqbk00bXJ4bk1mSUptMytJMUtWNGg1?=
- =?utf-8?B?Q1Q1M1o2SWs0eHZLSG5OSm1SVHVkVm5TOVh6ejJYNnZ0cUlmOHdNUWs3UFp4?=
- =?utf-8?B?SmYwL3ptN1Z2c1ovcVVaSWlwOTJjL3N2YWJDN2ZTQ1ZPU1RlODBzLzlKY3RP?=
- =?utf-8?B?cWJJd0RNZ1BGQVd3S0F3VWlRYkdlL3NMZUtTMXFDR05ZMTMzOWxSWnMvZDFJ?=
- =?utf-8?Q?49YNWE+RSQ5rKpPi1KNRTEqHCuQVfY8p?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?b0pwc1NaSnhSdG9TUEpYOG43a2w5MmFVVUNMelIrdUVyQTlBS2RjRU9kQUdi?=
- =?utf-8?B?ekRFRXU4OGJ2VWlYWnYzV0tXWmJERTJLcUoyRE8yVHRLUFN1V0JGRVFoZnJ1?=
- =?utf-8?B?NnlMZFZCb2VNTEZpbzN3bUh1ZzRCZmhVRzdhUU5tc05iWGQyNlpRYTJpSmFJ?=
- =?utf-8?B?RElHVlFqaTZzdGhYVy9CWlNzZ3EvZHQ0MldJTFRyUEFuc3dVL0F0OUJHRGlM?=
- =?utf-8?B?eXcvR1RISm1QcURzOHRPbGJSaHc1NVJqOUdITTdhL1JZeTV0NUw3Y21Dd3pa?=
- =?utf-8?B?MUpyQ2NtUVhCLzR0UFhXbFEwTitueCtpeGpMdHFQRFVmOVhpYlNCaTVONndU?=
- =?utf-8?B?SWpDWEJWK01pOVMvdzhSUHBZallNNHBiVERUNE9YVlFoL2ZaN0w4aExXRGpP?=
- =?utf-8?B?a0J2RnMvNUhMdi91UktYTFRrZ09QMWVxQkw4STNXK0Jjb2h3Z0xaV3FIc09K?=
- =?utf-8?B?aHM5ZUFhR2RMSzg2Tkp2akQrU1UrUUl5Ty8xVHVia21JYll4U2F0RkJsNkZN?=
- =?utf-8?B?YmZobUVCUGU3TXQyanZ5Q0FRRzJNNldFWnJibVZhNys3ZG5RYUoxM1RPdVRD?=
- =?utf-8?B?L0xld2padWJabCtDQVBwMGxZR1BxelFOS2hlZ1d0NE9Nbi9WNktvR0NRNkxa?=
- =?utf-8?B?OVRlZVVJbTBtcDRYajdvbDNsRTJyelZva1J3RGlrVnlTM3BRM1VLdkJGUEtW?=
- =?utf-8?B?NUZIR3Jvb1NVUldqbXdHOEl4aDhYL3k2SzU5Tko2RWtpMlFhK2ZjOU5zSko0?=
- =?utf-8?B?SXF4a0VHdHJSOVJtY1dMM3dYeDRvaTdnVkVVNXFDckxpVUs0ZHcwN2NCekg1?=
- =?utf-8?B?UlRCNW5EUFFKUVQxeGIvUHY5QUJ4MzFJbkRXTDZWbXVWMjVoMmRDV3VWQjE2?=
- =?utf-8?B?MUhtMnc4cWk1T2JjY0RnTGltV1hnS3Zid1F2RGFQUnFJNkV1T2tXTXlic3lw?=
- =?utf-8?B?YjZUTkk0clZjaWpzSi9MS0Q2Q1huRTloVkxrNDVlN29iM2hiOXBtWTJ6eW10?=
- =?utf-8?B?WU4vLzVFbG5RKzhUZi9CN0F3MHZUTy95d1hTbGZZTTBCODN0L0dCdFhWNktV?=
- =?utf-8?B?WkZUaXYxS2VpUld5V0RPRVNrelhuSzJDZkpBdGhZT2VWekF2RnlpTWtGVktt?=
- =?utf-8?B?NzdCdEF1bG5HWVJtUlIwaDFqY1M0QlJtQ1JYcEpPQXdDcFp5d29MTTlZVHpp?=
- =?utf-8?B?M2NHWC9XVjdIWTZKSHc5dy8vdFRQWENscXMxN3Q0SnF4eWREOVloYiswK0dF?=
- =?utf-8?B?QkVQSS9udDRHenRNTTF3TDd0dzk1VGNCak9MNUg3MzhPWGZQaEJhc3lYQUZn?=
- =?utf-8?B?djRkSmZZYkNnVXBRT255M3ZwZFlrVzRTQUpHdVA2ZVljNVpnbEJseE1WU0dq?=
- =?utf-8?B?TzVwa1JFdXo5dytxeHVTdnhHMVZLaVN0cE5FOTFDNnBRZGF5d2hjWnNLeTBF?=
- =?utf-8?B?SWFuVkRFS1c0ZW4vVkZJcmErOWhZOWVlWGFqdkI1aWZMTmk5L2ZUbEtzbXRx?=
- =?utf-8?B?SjNoT1M5WVdJU25pSCtlUEhhL0ZueXVtU0dnR01WTXB3R3kxK0RxMnByVm1k?=
- =?utf-8?B?M24zNTdQTjNBSHhhaVZLVkk0MG9Ua0NFTVhtVmFlemVvUmFNbmhUSDZlcFMr?=
- =?utf-8?B?NCtSQitvM013NHJpQUloeHNLWXZtMkR6Y1BkS1JZWEJLN1Bqek8wckFDOERq?=
- =?utf-8?B?YnVhMzJBaVhIRUl5WXpUTlc0M2JWZDZHcmdhRzh5bkhxRHl2YlBnZWhreE5F?=
- =?utf-8?B?K3FqSEdvZkVmWlVsQmFHYkRSVzlCYkltd01WejBlaDRIUE5kbjdpUkZEaStL?=
- =?utf-8?B?R1FheEJPNFM1UTZXNkZDTXY5bjhaSnlWamNjRzRoMXBRME9zQTNNY3BLdXp1?=
- =?utf-8?B?TllQRjZHSGUvOUpkYlhVbTc1OVgwdENpSjNWYU5Sb2lGZmJHb2g4RnNuUlp1?=
- =?utf-8?B?ZnlGYUhVWWQ0MHhrQUo5aUlOT0dwbVAwRGN5ZjJaSXBsVjZUNklDb2pFU1pW?=
- =?utf-8?B?YkEydG5BZEhqcGlHUWEvNkR0SGRiR1lVL3lORmR2ZlRhR2VlbjA2YVhzbzRv?=
- =?utf-8?B?dmZqZXFmeXgxM3FZVmpIV092b25jNUFMazlCdHNJNlZNYXNqck9SNzIxbHFy?=
- =?utf-8?Q?d1yX7vx+P2yNJgsKJgjWad0ia?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d10e6bcf-1603-4251-75c5-08de2723f5f6
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2025 04:27:33.9183
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: jUCQjfw6WTigYRJPE2qvKn6ScxjpabcesTebHWSBDE3Z+nLCtP0VDov1eqVX3TB50krRi9sKqsO0qKGvvyVNog==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7750
+In-Reply-To: <a1efb550481fc67973c0a86860e0724c8f5b9957.1763507303.git.mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ZklraISZ2YCOUiGwZ0n4Cx4uFA-zBF_nxA2aWIB3HRE_1763529446
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 11/18/25 5:03 PM, Michael S. Tsirkin wrote:
-> On Tue, Nov 18, 2025 at 08:38:55AM -0600, Daniel Jurgens wrote:
->> diff --git a/include/uapi/linux/virtio_net_ff.h b/include/uapi/linux/virtio_net_ff.h
->> new file mode 100644
->> index 000000000000..bd7a194a9959
->> --- /dev/null
->> +++ b/include/uapi/linux/virtio_net_ff.h
->> @@ -0,0 +1,91 @@
->> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
->> + *
->> + * Header file for virtio_net flow filters
->> + */
->> +#ifndef _LINUX_VIRTIO_NET_FF_H
->> +#define _LINUX_VIRTIO_NET_FF_H
->> +
->> +#include <linux/types.h>
->> +#include <linux/kernel.h>
+On Tue, Nov 18, 2025 at 06:08:37PM -0500, Michael S. Tsirkin wrote:
+> UAPI headers really have no business pulling in kernel.h
+> Drop it - it does not seem to be needed, either.
 > 
-> 
-> I do not get why you are pulling linux/kernel.h here.
-> 
-> include/uapi/linux/virtio_pci.h does it too,
-> and I think it's also a bug.
-> 
-> No other uapi header does this, it happens not to break userspace
-> because userspace puts a completely unrelated header at
-> the same path - uapi/linux/kernel.h .
-> 
+> Fixes: 7c1ae151e812 ("virtio_pci: Introduce device parts access commands")
+> Cc: "Yishai Hadas" <yishaih@nvidia.com>
+> Cc: Alex Williamson <alex.williamson@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Removed it. Previously I had added the FF definitions to virtio_pci.h, I
-guess I kept that include when I split this out.
+Oops. Double checked and it's no good - I just had virtio disabled in
+the config by mistake. Pls ignore.
+
+> ---
+>  include/uapi/linux/virtio_pci.h | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> index c691ac210ce2..d1b31efc4d7d 100644
+> --- a/include/uapi/linux/virtio_pci.h
+> +++ b/include/uapi/linux/virtio_pci.h
+> @@ -40,7 +40,6 @@
+>  #define _LINUX_VIRTIO_PCI_H
+>  
+>  #include <linux/types.h>
+> -#include <linux/kernel.h>
+>  
+>  #ifndef VIRTIO_PCI_NO_LEGACY
+>  
+> -- 
+> MST
+
