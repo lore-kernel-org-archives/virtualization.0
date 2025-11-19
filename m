@@ -1,161 +1,163 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1077D357A31
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 12:49:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5959A2FB0BD;
+	Wed, 19 Nov 2025 14:04:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763556544; cv=none; b=g8ah2YwnUmzV9qkZpJfOY8kCck+G65NpEZiuZuGOO9N/AsNi35GVRUorZASI3TfbKw1UWXQZQcz88ZOj+9eyail42aBl6+Fv+MjwuExKg4YL12erBECT9rzNwBwwYCzQXhAKBHrlcDZ1BwGog2AKlGxN3cU7rnOYQGrTUc/1SnY=
+	t=1763561069; cv=none; b=Yt8MBNeqtKmnvyk4PnavGzvB0M7OWnPwnFRgLf7VN6AILY9hF8q4xEFWTMDFOFUwhChwkLKwu8SDOAAdWfW4K/a/It+RPRCYcQjfhNh7sQCZvM1moI5DDvYCTZDPxdeSJOrbqy07mIEz9KTh6494Y57baV3JsMezY8JOY9xRzvQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763556544; c=relaxed/simple;
-	bh=UZNBewuvwkPWj+bu4O3n8vX8SbsHsZYXgD064ZW+wME=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=DjWcKC6UVNPRzyq4E+M79oS30fa5e1032ZwF6pl+f7noU23AOSI2ggEGu/Q3G+/M5LGUYRcsTo/3lQU3eWJA/Htu0NieWNmlBdlJR7Lo1S4h5WNJ5RBf5ZuL5g/bfr2ItRs6hbRQ72FlfGh/99D7Uyu+1L3OsGkFOcqzGS8C9sM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XyBNZwEk; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763561069; c=relaxed/simple;
+	bh=/+BPYtNUG5Xu5+ISDv/HUJHRqC36BinwRESOVXe6Aa4=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=JQTev5lZI/NlOgcS1oHVDgL5/JWPowPVwP9UMJWMp/M0kTBt02yw1sbsFy3M71bjGkfAsJd73WnUVFvITVPalhMSz8wKlNry84E3b2YWb4eDbNrXpNgzi7gVSEsynN5xRP9HZ/qDfbBE1HTZNv/qjBafizDgnZvpuYu1cwgHdM8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=xco3s39q; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XyBNZwEk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763556540;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=efzFAXa6AqvKlr68xmTUgqr7OrHhr6l1HfrVAauk7zk=;
-	b=XyBNZwEk4nm5xu8Yv7jWIJ/bNwmTNI3iLJ5GtfGLmr3CQ1uu36W5hfNm/vUytmf2Rj/3RQ
-	/F8MMMGYrS6Tr4PtgsIqo8fc1QpsNBJSNeEt8Mu+TZ/6nAyxarHPA7tY+KK8e489BYw+by
-	vEvuO8js/hzEO7r8ZtWVWo3kNUEwheU=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-278-L0VO0mV9OziyTECoFYmi-g-1; Wed, 19 Nov 2025 07:48:59 -0500
-X-MC-Unique: L0VO0mV9OziyTECoFYmi-g-1
-X-Mimecast-MFC-AGG-ID: L0VO0mV9OziyTECoFYmi-g_1763556538
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-42b366a76ffso3493610f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 04:48:58 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763556538; x=1764161338;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=efzFAXa6AqvKlr68xmTUgqr7OrHhr6l1HfrVAauk7zk=;
-        b=GTrsmrlFlqnQ09o+fcZMgXeost9+VEIljRb4HerbX1z0AqWaFnvWp1zCkoGCrmC0Zs
-         c+/a9rvK5yCKQAPRLjeRd9nNivY3DaCLvJjwcwx6inp3Z/gbfl2vjIc+itjUJezBdMXZ
-         AxqOIITAmvpUqLDXPgzzYUH/UAylQR7agtQtY6vd25mJD0foaSPVxT6qmcsx3xu3kgAv
-         9zu1dyAR2F+n2hVaJUj3DKd0umfldPfYRSLFTXUfQ26Gh5VTyHvMyQrQrZMbnDX+bwwn
-         BLm4pZ3uJSvfFZhZbAfFq2sa1tpAdoQn6qmHfyUtDwQW3GwNEIOPR9lCcZO396QIVOZh
-         tphg==
-X-Forwarded-Encrypted: i=1; AJvYcCXHFhuMupLYMin+zg8TY6Z5VeYUnVft0MF2849paGSHVQ2Cxh38BfbG+9SbbmOKocm1945E9tY+KpCpFvAVrA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzT0/O/AEmF4X+P46WyiiYmlEiHIJXw24jS345Jti8bKLd9jWW6
-	TgVon8F7ZQZXc1E37nJORSNnGLvVGpiq7JZko+FekOXkf9wIogw6Yln2HJTJKDW3UGkRHDLgHjd
-	eOlNVW7LHi+CyOzt8WdOnVoZwaUN1nUolljpzrfCji8EKj6Gc347xyWnolsQKHx1KThDY
-X-Gm-Gg: ASbGncs3H3CeFg2Nki8+7gtfflyJjOFc0hQQ5BL9dVqCVzMjUM5K9WASc0qAOtTfw8y
-	3B7Rx10BgqClQhLoAw0h7ZqP0OJt7jl5OZSOh53dE3s/FQbVdH9fCFkYmI1ikQ+e5Bkq/hXRgiJ
-	N3+jzcnbyVns9pWucNZMMw/6VfBk8zcfvJAqxqYSVpKdX3Bd8Xoie4f5g5Wwe7TkSa7KnyOtl4d
-	1cYdy8nekmujzPMsmZ4SfNfhH8uUak0mUlSWcbnyqLIf05qXbVt3Dj+83dYrzZUvyQlRd7bIkOE
-	g9dwKHA5EXzNXfs2WIWtpkgK11iBUwQIFdgEY2oCpcxjVw+Vj04Ly1m53h4d2hJO/leSm4q9K3J
-	s75cuz4Ny0U8DNeTpBbE56C3pry87QA==
-X-Received: by 2002:a05:600c:45c4:b0:477:7658:572a with SMTP id 5b1f17b1804b1-4778fea84d9mr173008205e9.20.1763556537874;
-        Wed, 19 Nov 2025 04:48:57 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF3vS0uApFcgFVlL2gt/R9GTQH3kJDQoD3RSC3xgY4lk5mLnK8+RM+7y+ofmIidRok8jpEiHw==
-X-Received: by 2002:a05:600c:45c4:b0:477:7658:572a with SMTP id 5b1f17b1804b1-4778fea84d9mr173007825e9.20.1763556537409;
-        Wed, 19 Nov 2025 04:48:57 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477a9e19875sm38753245e9.16.2025.11.19.04.48.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Nov 2025 04:48:56 -0800 (PST)
-Date: Wed, 19 Nov 2025 07:48:53 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	Mike Christie <michael.christie@oracle.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v5 2/2] vhost: switch to arrays of feature bits
-Message-ID: <20251119074746-mutt-send-email-mst@kernel.org>
-References: <cover.1763535083.git.mst@redhat.com>
- <fbf51913a243558ddfee96d129d37d570fa23946.1763535083.git.mst@redhat.com>
- <4204ed4b-0da1-407f-84e0-e23e2ce65fc7@redhat.com>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="xco3s39q"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1vLinA-005mv9-3g; Wed, 19 Nov 2025 15:04:16 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Subject:Date:From;
+	bh=LL1kx54MTYNXzaYfz6YCwaEQd6cdxw7HMjZNJrr5nf0=; b=xco3s39qM71PqlAo+Xqb/nar0N
+	kToWfsOyzPkN62CvWVnE4HN+owlB8sFFFl/jnYaEXKBpAY380ZU+HzbEOV7QH2lCVjtrRAIWBLOFA
+	smJ2I5h4KFG1gVqHoic+8jnHw0xFQkH90+j65LrGJcY/xmRxECj1utt/T5HFgcDRxdEid8tfjmJzp
+	4KragQmk8IoFCu1Z1IrkZ+KeUBL9h5mf9gU0IFvZ0YFoGS37WGDTdfHN9t9DF6ZjulXRqR17L9CaC
+	10d74XSAxNMvhyvFrzsehI0kyjerH3Q7vXJo9AEQ32COCfT2bncGMs6x49yiiyR2aQqBXv5l/XWF4
+	O7RNb1cg==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1vLin9-0000kv-3C; Wed, 19 Nov 2025 15:04:15 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1vLim2-00FgY3-Qx; Wed, 19 Nov 2025 15:03:06 +0100
+From: Michal Luczaj <mhal@rbox.co>
+Date: Wed, 19 Nov 2025 15:02:59 +0100
+Subject: [PATCH net v2] vsock: Ignore signal/timeout on connect() if
+ already established
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <4204ed4b-0da1-407f-84e0-e23e2ce65fc7@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: c4ag7qiC7Lru_biCocNzaNVIQWVHHfWLJ2Gi0J5OANo_1763556538
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20251119-vsock-interrupted-connect-v2-1-70734cf1233f@rbox.co>
+X-B4-Tracking: v=1; b=H4sIABLOHWkC/32NQQrCMBBFr1Jm7UgmWmpdeQ/pop1MbBASSWKol
+ N7d2AO4fP/z318hSXSS4NqsEKW45IKvoA8N8Dz6h6AzlUEr3aoLtVhS4Cc6nyXG9yuLQQ7eC2e
+ 0vTZ2bNVZs4G6f0Wxbtndd/CSYajh7FIO8bP/Fdqrn5qIuj/qQkg4sdIkver4ZG9xCsuRAwzbt
+ n0BrRB3kMUAAAA=
+X-Change-ID: 20250815-vsock-interrupted-connect-f92dfa5042cd
+To: Stefano Garzarella <sgarzare@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, George Zhang <georgezhang@vmware.com>, 
+ Andy King <acking@vmware.com>, Dmitry Torokhov <dtor@vmware.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
+X-Mailer: b4 0.14.3
 
-On Wed, Nov 19, 2025 at 12:04:12PM +0100, Paolo Abeni wrote:
-> On 11/19/25 7:55 AM, Michael S. Tsirkin wrote:
-> > @@ -1720,6 +1720,7 @@ static long vhost_net_set_owner(struct vhost_net *n)
-> >  static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
-> >  			    unsigned long arg)
-> >  {
-> > +	const DEFINE_VHOST_FEATURES_ARRAY(features_array, vhost_net_features);
-> 
-> I'm sorry for the late feedback, I was drowning in other stuff.
-> 
-> I have just a couple of non blocking suggestions, feel free to ignore.
+During connect(), acting on a signal/timeout by disconnecting an already
+established socket leads to several issues:
 
+1. connect() invoking vsock_transport_cancel_pkt() ->
+   virtio_transport_purge_skbs() may race with sendmsg() invoking
+   virtio_transport_get_credit(). This results in a permanently elevated
+   `vvs->bytes_unsent`. Which, in turn, confuses the SOCK_LINGER handling.
 
-Oh this is really nice.
-I did exactly this and the diff is smaller while the compiler
-was smart enough to figure it out and the generated code is the same.
+2. connect() resetting a connected socket's state may race with socket
+   being placed in a sockmap. A disconnected socket remaining in a sockmap
+   breaks sockmap's assumptions. And gives rise to WARNs.
 
-Thanks!
+3. connect() transitioning SS_CONNECTED -> SS_UNCONNECTED allows for a
+   transport change/drop after TCP_ESTABLISHED. Which poses a problem for
+   any simultaneous sendmsg() or connect() and may result in a
+   use-after-free/null-ptr-deref.
 
+Do not disconnect socket on signal/timeout. Keep the logic for unconnected
+sockets: they don't linger, can't be placed in a sockmap, are rejected by
+sendmsg().
 
-> I think that if you rename `vhost_net_features` as
-> `vhost_net_features_bits` and `features_array` as `vhost_net_features`
-> the diffstat could be smaller and possibly clearer.
-> 
-> >  	u64 all_features[VIRTIO_FEATURES_U64S];
-> >  	struct vhost_net *n = f->private_data;
-> >  	void __user *argp = (void __user *)arg;
-> > @@ -1734,14 +1735,14 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
-> >  			return -EFAULT;
-> >  		return vhost_net_set_backend(n, backend.index, backend.fd);
-> >  	case VHOST_GET_FEATURES:
-> > -		features = vhost_net_features[0];
-> > +		features = VHOST_FEATURES_U64(vhost_net_features, 0);
-> 
-> Here and below you could use directly:
-> 
-> 		features = features_array[0];
-> 
-> if you apply the rename mentioned above, this chunk and the following 3
-> should not be needed.
-> 
-> [...]> diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> > index 42c955a5b211..af727fccfe40 100644
-> > --- a/drivers/vhost/test.c
-> > +++ b/drivers/vhost/test.c
-> > @@ -308,6 +308,12 @@ static long vhost_test_set_backend(struct vhost_test *n, unsigned index, int fd)
-> >  	return r;
-> >  }
-> >  
-> > +static const int vhost_test_features[] = {
-> > +	VHOST_FEATURES
-> > +};
-> > +
-> > +#define VHOST_TEST_FEATURES VHOST_FEATURES_U64(vhost_test_features, 0)
-> 
-> If you rename `VHOST_FEATURES` to `VHOST_FEATURES_BITS` and
-> `VHOST_TEST_FEATURES` to `VHOST_FEATURES`, the following two chunks
-> should not be needed.
-> 
-> Thanks,
-> 
-> Paolo
+[1]: https://lore.kernel.org/netdev/e07fd95c-9a38-4eea-9638-133e38c2ec9b@rbox.co/
+[2]: https://lore.kernel.org/netdev/20250317-vsock-trans-signal-race-v4-0-fc8837f3f1d4@rbox.co/
+[3]: https://lore.kernel.org/netdev/60f1b7db-3099-4f6a-875e-af9f6ef194f6@rbox.co/
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
+---
+Changes in v2:
+- Keep changes to minimum, fold in vsock_reset_interrupted() [Stefano]
+- Link to v1: https://lore.kernel.org/r/20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co
+---
+ net/vmw_vsock/af_vsock.c | 40 +++++++++++++++++++++++++++++++---------
+ 1 file changed, 31 insertions(+), 9 deletions(-)
+
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 76763247a377..a9ca9c3b87b3 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1661,18 +1661,40 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
+ 		timeout = schedule_timeout(timeout);
+ 		lock_sock(sk);
+ 
+-		if (signal_pending(current)) {
+-			err = sock_intr_errno(timeout);
+-			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+-			sock->state = SS_UNCONNECTED;
+-			vsock_transport_cancel_pkt(vsk);
+-			vsock_remove_connected(vsk);
+-			goto out_wait;
+-		} else if ((sk->sk_state != TCP_ESTABLISHED) && (timeout == 0)) {
+-			err = -ETIMEDOUT;
++		/* Connection established. Whatever happens to socket once we
++		 * release it, that's not connect()'s concern. No need to go
++		 * into signal and timeout handling. Call it a day.
++		 *
++		 * Note that allowing to "reset" an already established socket
++		 * here is racy and insecure.
++		 */
++		if (sk->sk_state == TCP_ESTABLISHED)
++			break;
++
++		/* If connection was _not_ established and a signal/timeout came
++		 * to be, we want the socket's state reset. User space may want
++		 * to retry.
++		 *
++		 * sk_state != TCP_ESTABLISHED implies that socket is not on
++		 * vsock_connected_table. We keep the binding and the transport
++		 * assigned.
++		 */
++		if (signal_pending(current) || timeout == 0) {
++			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
++
++			/* Listener might have already responded with
++			 * VIRTIO_VSOCK_OP_RESPONSE. Its handling expects our
++			 * sk_state == TCP_SYN_SENT, which hereby we break.
++			 * In such case VIRTIO_VSOCK_OP_RST will follow.
++			 */
+ 			sk->sk_state = TCP_CLOSE;
+ 			sock->state = SS_UNCONNECTED;
++
++			/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
++			 * transport->connect().
++			 */
+ 			vsock_transport_cancel_pkt(vsk);
++
+ 			goto out_wait;
+ 		}
+ 
+
+---
+base-commit: 106a67494c53c56f55a2bd0757be0edb6eaa5407
+change-id: 20250815-vsock-interrupted-connect-f92dfa5042cd
+
+Best regards,
+-- 
+Michal Luczaj <mhal@rbox.co>
 
