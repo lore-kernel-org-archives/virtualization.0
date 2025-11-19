@@ -1,163 +1,168 @@
 Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5959A2FB0BD;
-	Wed, 19 Nov 2025 14:04:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F47B31ED96;
+	Wed, 19 Nov 2025 14:09:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763561069; cv=none; b=Yt8MBNeqtKmnvyk4PnavGzvB0M7OWnPwnFRgLf7VN6AILY9hF8q4xEFWTMDFOFUwhChwkLKwu8SDOAAdWfW4K/a/It+RPRCYcQjfhNh7sQCZvM1moI5DDvYCTZDPxdeSJOrbqy07mIEz9KTh6494Y57baV3JsMezY8JOY9xRzvQ=
+	t=1763561390; cv=none; b=CyU/qfbv2hMl6dTsrI+JvlEXY3G+WefpkOTNmfmE7F0E2XaTorNJsdAkD27ID5Qum6ZZaEFPssKRjMJSWvvSMhP+rLsE9IM4u24B0rqvifqU2AntWSPSDX5Pqr5XB0BNR6GkY+DynZu+Sc7FMzUtv3nfqvJNm73teHAbVXqNSfk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763561069; c=relaxed/simple;
-	bh=/+BPYtNUG5Xu5+ISDv/HUJHRqC36BinwRESOVXe6Aa4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=JQTev5lZI/NlOgcS1oHVDgL5/JWPowPVwP9UMJWMp/M0kTBt02yw1sbsFy3M71bjGkfAsJd73WnUVFvITVPalhMSz8wKlNry84E3b2YWb4eDbNrXpNgzi7gVSEsynN5xRP9HZ/qDfbBE1HTZNv/qjBafizDgnZvpuYu1cwgHdM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=xco3s39q; arc=none smtp.client-ip=185.226.149.37
+	s=arc-20240116; t=1763561390; c=relaxed/simple;
+	bh=JRZOtH3n73C7KjpFe3uoi9EJEfKK69QvStpnFTVU+Gw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NptXefg10cTHJ8R0GUUqujtKMShQQz3RqqL30Cwm981sflZuPqYaOLtbxTQsZ97Ta5tBE8FklxZuisgcOOVqBfKHpn0wTXbO6JNW0qrrLFDsZM5gkTcPuFE+s66EQqYoh23B8Xkiaprg5wJgw5o86kW5YLtK9di37qi8KQ35WPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=oYA2RMry; arc=none smtp.client-ip=185.226.149.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="xco3s39q"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="oYA2RMry"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
 	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1vLinA-005mv9-3g; Wed, 19 Nov 2025 15:04:16 +0100
+	id 1vLisR-005nht-Ia; Wed, 19 Nov 2025 15:09:43 +0100
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
-	MIME-Version:Subject:Date:From;
-	bh=LL1kx54MTYNXzaYfz6YCwaEQd6cdxw7HMjZNJrr5nf0=; b=xco3s39qM71PqlAo+Xqb/nar0N
-	kToWfsOyzPkN62CvWVnE4HN+owlB8sFFFl/jnYaEXKBpAY380ZU+HzbEOV7QH2lCVjtrRAIWBLOFA
-	smJ2I5h4KFG1gVqHoic+8jnHw0xFQkH90+j65LrGJcY/xmRxECj1utt/T5HFgcDRxdEid8tfjmJzp
-	4KragQmk8IoFCu1Z1IrkZ+KeUBL9h5mf9gU0IFvZ0YFoGS37WGDTdfHN9t9DF6ZjulXRqR17L9CaC
-	10d74XSAxNMvhyvFrzsehI0kyjerH3Q7vXJo9AEQ32COCfT2bncGMs6x49yiiyR2aQqBXv5l/XWF4
-	O7RNb1cg==;
-Received: from [10.9.9.73] (helo=submission02.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=53wAJwNOjqb4ntnBnczBa2f4AuXPtxn18LUg6Hu+6g4=; b=oYA2RMryWQgAB6DV8HS49llBEx
+	4x+Wo1M5zM1u2NNfb14q3uQuTd6//4JzY2aSRyhdvztY16DzzfyUts8RDhrnx+6xahdBHXBo9nJv1
+	KVmFmY82T0RA0VfsB4D0o3R/5S8O3E1ptAsUs8e12FPLQrMltyJXI4vzZPVc6Zpsq6uGRUaUEJiqK
+	28AoY7VVxNIeuhkMx2Cfc4WuaoplQylM/zgXqVTuQu2A7zaKJl5RL8cB5TPFSk1oQik3rWazhqF56
+	WBc2c+p6jZ85KKeBR6BqMr2eeqHbY5AfhXYHD30qV7xNHTUu/4VbJvJmgkMh7sYazSkS+zzpe0Oam
+	2QuI97VA==;
+Received: from [10.9.9.72] (helo=submission01.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1vLin9-0000kv-3C; Wed, 19 Nov 2025 15:04:15 +0100
-Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	id 1vLisQ-00017s-HP; Wed, 19 Nov 2025 15:09:42 +0100
+Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1vLim2-00FgY3-Qx; Wed, 19 Nov 2025 15:03:06 +0100
-From: Michal Luczaj <mhal@rbox.co>
-Date: Wed, 19 Nov 2025 15:02:59 +0100
-Subject: [PATCH net v2] vsock: Ignore signal/timeout on connect() if
- already established
+	id 1vLisA-00Epah-Fr; Wed, 19 Nov 2025 15:09:26 +0100
+Message-ID: <09c6de68-06aa-404d-9753-907eab61b9ab@rbox.co>
+Date: Wed, 19 Nov 2025 15:09:25 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] vsock: Ignore signal/timeout on connect() if already
+ established
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co>
+ <dh6gl6xzufrxk23dwei3dcyljjlspjx3gwdhi6o3umtltpypkw@ef4n6llndg5p>
+ <98e2ac89-34e9-42d9-bfcf-e81e7a04504d@rbox.co>
+ <rptu2o7jpqw5u5g4xt76ntyupsak3dcs7rzfhzeidn6vcwf6ku@dcd47yt6ebhu>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <rptu2o7jpqw5u5g4xt76ntyupsak3dcs7rzfhzeidn6vcwf6ku@dcd47yt6ebhu>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251119-vsock-interrupted-connect-v2-1-70734cf1233f@rbox.co>
-X-B4-Tracking: v=1; b=H4sIABLOHWkC/32NQQrCMBBFr1Jm7UgmWmpdeQ/pop1MbBASSWKol
- N7d2AO4fP/z318hSXSS4NqsEKW45IKvoA8N8Dz6h6AzlUEr3aoLtVhS4Cc6nyXG9yuLQQ7eC2e
- 0vTZ2bNVZs4G6f0Wxbtndd/CSYajh7FIO8bP/Fdqrn5qIuj/qQkg4sdIkver4ZG9xCsuRAwzbt
- n0BrRB3kMUAAAA=
-X-Change-ID: 20250815-vsock-interrupted-connect-f92dfa5042cd
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, George Zhang <georgezhang@vmware.com>, 
- Andy King <acking@vmware.com>, Dmitry Torokhov <dtor@vmware.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.3
 
-During connect(), acting on a signal/timeout by disconnecting an already
-established socket leads to several issues:
+On 11/19/25 11:36, Stefano Garzarella wrote:
+> On Tue, Nov 18, 2025 at 11:02:17PM +0100, Michal Luczaj wrote:
+>> On 11/18/25 10:51, Stefano Garzarella wrote:
+>>> On Mon, Nov 17, 2025 at 09:57:25PM +0100, Michal Luczaj wrote:
+>>>> ...
+>>>> +static void vsock_reset_interrupted(struct sock *sk)
+>>>> +{
+>>>> +	struct vsock_sock *vsk = vsock_sk(sk);
+>>>> +
+>>>> +	/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
+>>>> +	 * transport->connect().
+>>>> +	 */
+>>>> +	vsock_transport_cancel_pkt(vsk);
+>>>> +
+>>>> +	/* Listener might have already responded with VIRTIO_VSOCK_OP_RESPONSE.
+>>>> +	 * Its handling expects our sk_state == TCP_SYN_SENT, which hereby we
+>>>> +	 * break. In such case VIRTIO_VSOCK_OP_RST will follow.
+>>>> +	 */
+>>>> +	sk->sk_state = TCP_CLOSE;
+>>>> +	sk->sk_socket->state = SS_UNCONNECTED;
+>>>> +}
+>>>> +
+>>>> static int vsock_connect(struct socket *sock, struct sockaddr *addr,
+>>>> 			 int addr_len, int flags)
+>>>> {
+>>>> @@ -1661,18 +1678,33 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
+>>>> 		timeout = schedule_timeout(timeout);
+>>>> 		lock_sock(sk);
+>>>>
+>>>> +		/* Connection established. Whatever happens to socket once we
+>>>> +		 * release it, that's not connect()'s concern. No need to go
+>>>> +		 * into signal and timeout handling. Call it a day.
+>>>> +		 *
+>>>> +		 * Note that allowing to "reset" an already established socket
+>>>> +		 * here is racy and insecure.
+>>>> +		 */
+>>>> +		if (sk->sk_state == TCP_ESTABLISHED)
+>>>> +			break;
+>>>> +
+>>>> +		/* If connection was _not_ established and a signal/timeout came
+>>>> +		 * to be, we want the socket's state reset. User space may want
+>>>> +		 * to retry.
+>>>> +		 *
+>>>> +		 * sk_state != TCP_ESTABLISHED implies that socket is not on
+>>>> +		 * vsock_connected_table. We keep the binding and the transport
+>>>> +		 * assigned.
+>>>> +		 */
+>>>> 		if (signal_pending(current)) {
+>>>> 			err = sock_intr_errno(timeout);
+>>>> -			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+>>>> -			sock->state = SS_UNCONNECTED;
+>>>> -			vsock_transport_cancel_pkt(vsk);
+>>>> -			vsock_remove_connected(vsk);
+>>>> +			vsock_reset_interrupted(sk);
+>>>> 			goto out_wait;
+>>>> -		} else if ((sk->sk_state != TCP_ESTABLISHED) && (timeout == 0)) {
+>>>> +		}
+>>>> +
+>>>> +		if (timeout == 0) {
+>>>> 			err = -ETIMEDOUT;
+>>>> -			sk->sk_state = TCP_CLOSE;
+>>>> -			sock->state = SS_UNCONNECTED;
+>>>> -			vsock_transport_cancel_pkt(vsk);
+>>>> +			vsock_reset_interrupted(sk);
+>>>> 			goto out_wait;
+>>>
+>>> I'm fine with the change, but now both code blocks are the same, so
+>>> can we unify them?
+>>> I mean something like this:
+>>> 		if (signal_pending(current) || timeout == 0 {
+>>> 			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
+>>> 			...
+>>> 		}
+>>>
+>>> Maybe at that point we can also remove the vsock_reset_interrupted()
+>>> function and put the code right there.
+>>>
+>>> BTW I don't have a strong opinion, what do you prefer?
+>>
+>> Sure, no problem.
+>>
+>> But I've realized invoking `sock_intr_errno(timeout)` is unnecessary.
+>> `timeout` can't be MAX_SCHEDULE_TIMEOUT, so the call always evaluates to
+>> -EINTR, right?
+> 
+> IIUC currently schedule_timeout() can return MAX_SCHEDULE_TIMEOUT only 
+> if it was called with that parameter, and I think we never call it in 
+> that way, so I'd agree with you.
+> 
+> My only concern is if it's true for all the stable branches we will 
+> backport this patch.
+> 
+> I would probably touch it as little as possible and continue using 
+> sock_intr_errno() for now, but if you verify that it has always been 
+> that way, then it's fine to change it.
 
-1. connect() invoking vsock_transport_cancel_pkt() ->
-   virtio_transport_purge_skbs() may race with sendmsg() invoking
-   virtio_transport_get_credit(). This results in a permanently elevated
-   `vvs->bytes_unsent`. Which, in turn, confuses the SOCK_LINGER handling.
+All right then, here's a v2 with minimum changes:
+https://lore.kernel.org/netdev/20251119-vsock-interrupted-connect-v2-1-70734cf1233f@rbox.co/
 
-2. connect() resetting a connected socket's state may race with socket
-   being placed in a sockmap. A disconnected socket remaining in a sockmap
-   breaks sockmap's assumptions. And gives rise to WARNs.
-
-3. connect() transitioning SS_CONNECTED -> SS_UNCONNECTED allows for a
-   transport change/drop after TCP_ESTABLISHED. Which poses a problem for
-   any simultaneous sendmsg() or connect() and may result in a
-   use-after-free/null-ptr-deref.
-
-Do not disconnect socket on signal/timeout. Keep the logic for unconnected
-sockets: they don't linger, can't be placed in a sockmap, are rejected by
-sendmsg().
-
-[1]: https://lore.kernel.org/netdev/e07fd95c-9a38-4eea-9638-133e38c2ec9b@rbox.co/
-[2]: https://lore.kernel.org/netdev/20250317-vsock-trans-signal-race-v4-0-fc8837f3f1d4@rbox.co/
-[3]: https://lore.kernel.org/netdev/60f1b7db-3099-4f6a-875e-af9f6ef194f6@rbox.co/
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
----
-Changes in v2:
-- Keep changes to minimum, fold in vsock_reset_interrupted() [Stefano]
-- Link to v1: https://lore.kernel.org/r/20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co
----
- net/vmw_vsock/af_vsock.c | 40 +++++++++++++++++++++++++++++++---------
- 1 file changed, 31 insertions(+), 9 deletions(-)
-
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 76763247a377..a9ca9c3b87b3 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1661,18 +1661,40 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
- 		timeout = schedule_timeout(timeout);
- 		lock_sock(sk);
- 
--		if (signal_pending(current)) {
--			err = sock_intr_errno(timeout);
--			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
--			sock->state = SS_UNCONNECTED;
--			vsock_transport_cancel_pkt(vsk);
--			vsock_remove_connected(vsk);
--			goto out_wait;
--		} else if ((sk->sk_state != TCP_ESTABLISHED) && (timeout == 0)) {
--			err = -ETIMEDOUT;
-+		/* Connection established. Whatever happens to socket once we
-+		 * release it, that's not connect()'s concern. No need to go
-+		 * into signal and timeout handling. Call it a day.
-+		 *
-+		 * Note that allowing to "reset" an already established socket
-+		 * here is racy and insecure.
-+		 */
-+		if (sk->sk_state == TCP_ESTABLISHED)
-+			break;
-+
-+		/* If connection was _not_ established and a signal/timeout came
-+		 * to be, we want the socket's state reset. User space may want
-+		 * to retry.
-+		 *
-+		 * sk_state != TCP_ESTABLISHED implies that socket is not on
-+		 * vsock_connected_table. We keep the binding and the transport
-+		 * assigned.
-+		 */
-+		if (signal_pending(current) || timeout == 0) {
-+			err = timeout == 0 ? -ETIMEDOUT : sock_intr_errno(timeout);
-+
-+			/* Listener might have already responded with
-+			 * VIRTIO_VSOCK_OP_RESPONSE. Its handling expects our
-+			 * sk_state == TCP_SYN_SENT, which hereby we break.
-+			 * In such case VIRTIO_VSOCK_OP_RST will follow.
-+			 */
- 			sk->sk_state = TCP_CLOSE;
- 			sock->state = SS_UNCONNECTED;
-+
-+			/* Try to cancel VIRTIO_VSOCK_OP_REQUEST skb sent out by
-+			 * transport->connect().
-+			 */
- 			vsock_transport_cancel_pkt(vsk);
-+
- 			goto out_wait;
- 		}
- 
-
----
-base-commit: 106a67494c53c56f55a2bd0757be0edb6eaa5407
-change-id: 20250815-vsock-interrupted-connect-f92dfa5042cd
-
-Best regards,
--- 
-Michal Luczaj <mhal@rbox.co>
+Note a detail though: should signal and timeout happen at the same time,
+now it's the timeout errno returned.
 
