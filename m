@@ -1,122 +1,131 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64D9D2459F7
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 05:17:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D7DB3126A9
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 05:55:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763529452; cv=none; b=tY8yk3Ir515BFj5En89oEx3+5krp4eVQLnvV9QSx1Yt6VNLBRWyhT4eGYx8fcls0QfdAiK2+y4kE9uorTQic07B7Dnax/EcrsqiO83qFIDgxXwL/5N+hIiQJEg3wjJLIJ//iCafAA1/xRwHLINUWIHy9DlOwiBGybLF+m7RaGA0=
+	t=1763531732; cv=none; b=mzmqxch7UM2dxLgXfIof7+aMa6iFw7Ll50my3d7CsCrJGb+WKDhqC7WrKgw3jtr3+vme/76brwtlIo/yWpd9K+NaNWhW4U7/ZA4ts4LI3B+AtjYc5rztGQyuTHPWJ+Pd6XdXwi14ThSW8VL9/NHnlEfM+0CwL104hLJ5vWYOd+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763529452; c=relaxed/simple;
-	bh=r/xLivIcby+I0JIBqSS5l9qwoUuGekn1n/qipDIzCdI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Rooqb/e17dVrN2wCF/cmOUcKkBEMGrYQCgfVpaESZMo/kP8Ldj8eXbIuHZ5bG16X0ZD+pbkUNiY+thkVSN4+KFGD5rWYPiosJYFAiejRZoHaFDeb80L3YU/smFltbBa9lhsJaVtHvDhJ3+17+IYrrxJ2EQtBTXtFwdJXFdL++iQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eGBZKaSu; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763531732; c=relaxed/simple;
+	bh=WLztPeOLolgIGfDbx84hymuhQEh1OvW5jJ52VwzECnw=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=N+zR/l8YjQkmzy2ibDU617mAREeZoTzYHiSGMgLG4VIsaIIZxZCMt1unxVeBFLpD5dCsMHi4wDINOAeZMzyNSyQHFRiTRPpSqkSJU362AHlBkfF3vkVTylzcUl9JgqrTWEuxizQ58B3C12fV1CGmRwxedCfP7GJsAiboSqRMbd0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=obwC8QdO; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eGBZKaSu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763529449;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kygOZeQZScx/+YWQsjjbid1ISJrkxLoR4hmjl6DONVs=;
-	b=eGBZKaSuM83mTlzFscUZDc+lLmmijqCs95xxmYK9AelXvA5Vil6YcVBDx0yF90dLHISYBh
-	hl8z9uh6BF3aBpFpTVDz1pBN2oe7AGl3d+/dVxhW1KSDE7sk8vEkjSVx3uhDRUTt3snm8R
-	MhD+P4BvFoAns+I2ZkjJ82f9aGiL6CA=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-39-p68_KgHDOAulls4PdVQMNQ-1; Wed, 19 Nov 2025 00:17:27 -0500
-X-MC-Unique: p68_KgHDOAulls4PdVQMNQ-1
-X-Mimecast-MFC-AGG-ID: p68_KgHDOAulls4PdVQMNQ_1763529446
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4775d110fabso48182545e9.1
-        for <virtualization@lists.linux.dev>; Tue, 18 Nov 2025 21:17:27 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763529446; x=1764134246;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kygOZeQZScx/+YWQsjjbid1ISJrkxLoR4hmjl6DONVs=;
-        b=YD1QSYcD74xlnTG28PqmDYV0vgCKhFQHG3mj3wWUl9Cc+Cal+hFrwxF1Qx8ko3vu55
-         qHWuYQQ53OVMG4f/MTUYjvFHRjH7sjGyP+G5T3RY/1NCbW4SoqYwSjWzN4prakqnysgn
-         9MK9HQjByMaOdH7KjWDEoRE08YjAI9bLsE5CRC3iuckbPd5+09q+qDVDVHKQdQWbZt8b
-         755Jf8+O+M+rErR6Z+nXruyzf1BFhjUiNdkDDRFB+0To7PAExq0mgjZfGcIftifhV9Gd
-         aPDyVxRmm4Qrya2aUjI904f7CSxp0VTUooCUmzAEg+9TuMG8XvO/ozZy01RQsM/H2x4D
-         Y3rA==
-X-Forwarded-Encrypted: i=1; AJvYcCUqVGus4U/QJN5X50yMkHY8Y0MmIMpwhv0Og44RcM1LrbZQcNi0iTJGShuxt5nJo1jMhBMj7h78Rzm4mdo45w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx57SlTkx98KTCLP+EAcIu7IvLvDj+eVn/y+eVOk3evfmEjI7HH
-	C0Z5hkEjgk5WxvC9Fdj8aWJPqu9fU3BwavjkNFDpiFr0dd+6zRIOdPNo/tHj7J16qNY4+qxDi5l
-	udjB3h6aBz/C0H3ktXLuS1TrBQ54OP1Yd8Of4JtGQUeRCkEgGQbwvHXwqecVawL6iQHoE
-X-Gm-Gg: ASbGncvK8UKh9zd+3evvD8DCCc3h1FZ8CLuSmV0+4yPRyY/8v26leH9Q9Y977gWc8lu
-	kc77dVEo0FAUdakDWYGiggYo5YOweJUPe+T8lJo+ERNOFs8n3YQhXOsI82OQNkHSRFf+NwTCUPX
-	M7A76YNUbBmVCIg3A973P4OgH/BAAj8cCMYvXcx+Gm7A7NRS1bT4n5ZA29MNyHPXk+naIXx4zwM
-	TRu3IkC1D+imEZqKla0Ctk+YpiPDz/PFLK1QIhdAtqyEwTHKdbtMDyqSHjailruacDK6BFNfAsM
-	1nYEq50T4HAe7IoJa1WLUknxUldmEutYeu+ze6VSmOd0NZ82Jo27Buc9CsArdf0HKtsQ2R1OShd
-	htcFiCySw4n8styA89fWJzP2Do6+Lig==
-X-Received: by 2002:a05:600c:1f83:b0:477:54cd:2030 with SMTP id 5b1f17b1804b1-4778fe797afmr175911015e9.21.1763529446481;
-        Tue, 18 Nov 2025 21:17:26 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFhusV+p6YGO7+jMEFYDwD3HPY/3RYziImsrCCdOjkuWi+w+04YVq5vQMjbhRgwB2ne3qQ5rg==
-X-Received: by 2002:a05:600c:1f83:b0:477:54cd:2030 with SMTP id 5b1f17b1804b1-4778fe797afmr175910865e9.21.1763529446024;
-        Tue, 18 Nov 2025 21:17:26 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477b0faf295sm27631655e9.0.2025.11.18.21.17.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Nov 2025 21:17:25 -0800 (PST)
-Date: Wed, 19 Nov 2025 00:17:22 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Yishai Hadas <yishaih@nvidia.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="obwC8QdO"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1763531725; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=P6v623OsL+lyL92L48k5yauqviCIGVfoOcx6mqhYeaY=;
+	b=obwC8QdOvhy7su+iqCg+J5JKK28Eg+lNZ2hAv/PEvaxn695R17Osy78UH2dQi+0Qr+bD7aQ5kSCmYMa0Eir8PV7eHBR/4UDmmevu+CLIeSrnWnkLPnCs2qQPO897nJ5pM/oZz2akfNBcndoKuTdpgSWxVMUvdSRRMDhKeqU5gSU=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WsnPfhi_1763531724 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 19 Nov 2025 13:55:24 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
 	Jason Wang <jasowang@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Alex Williamson <alex@shazbot.org>, virtualization@lists.linux.dev
-Subject: Re: [PATCH] virtio_pci: drop kernel.h
-Message-ID: <20251119001641-mutt-send-email-mst@kernel.org>
-References: <a1efb550481fc67973c0a86860e0724c8f5b9957.1763507303.git.mst@redhat.com>
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Alvaro Karsz <alvaro.karsz@solid-run.com>,
+	virtualization@lists.linux.dev
+Subject: [PATCH net v6 2/2] virtio-net: correct hdr_len handling for tunnel gso
+Date: Wed, 19 Nov 2025 13:55:22 +0800
+Message-Id: <20251119055522.617-3-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20251119055522.617-1-xuanzhuo@linux.alibaba.com>
+References: <20251119055522.617-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <a1efb550481fc67973c0a86860e0724c8f5b9957.1763507303.git.mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ZklraISZ2YCOUiGwZ0n4Cx4uFA-zBF_nxA2aWIB3HRE_1763529446
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-Git-Hash: 2ab728bd57df
+Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 18, 2025 at 06:08:37PM -0500, Michael S. Tsirkin wrote:
-> UAPI headers really have no business pulling in kernel.h
-> Drop it - it does not seem to be needed, either.
-> 
-> Fixes: 7c1ae151e812 ("virtio_pci: Introduce device parts access commands")
-> Cc: "Yishai Hadas" <yishaih@nvidia.com>
-> Cc: Alex Williamson <alex.williamson@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+The commit a2fb4bc4e2a6a03 ("net: implement virtio helpers to handle UDP
+GSO tunneling.") introduces support for the UDP GSO tunnel feature in
+virtio-net.
 
-Oops. Double checked and it's no good - I just had virtio disabled in
-the config by mistake. Pls ignore.
+The virtio spec says:
 
-> ---
->  include/uapi/linux/virtio_pci.h | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-> index c691ac210ce2..d1b31efc4d7d 100644
-> --- a/include/uapi/linux/virtio_pci.h
-> +++ b/include/uapi/linux/virtio_pci.h
-> @@ -40,7 +40,6 @@
->  #define _LINUX_VIRTIO_PCI_H
->  
->  #include <linux/types.h>
-> -#include <linux/kernel.h>
->  
->  #ifndef VIRTIO_PCI_NO_LEGACY
->  
-> -- 
-> MST
+    If the \field{gso_type} has the VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 bit or
+    VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6 bit set, \field{hdr_len} accounts for
+    all the headers up to and including the inner transport.
+
+The commit did not update the hdr_len to include the inner transport.
+
+I observed that the "hdr_len" is 116 for this packet:
+
+    17:36:18.241105 52:55:00:d1:27:0a > 2e:2c:df:46:a9:e1, ethertype IPv4 (0x0800), length 2912: (tos 0x0, ttl 64, id 45197, offset 0, flags [none], proto UDP (17), length 2898)
+        192.168.122.100.50613 > 192.168.122.1.4789: [bad udp cksum 0x8106 -> 0x26a0!] VXLAN, flags [I] (0x08), vni 1
+    fa:c3:ba:82:05:ee > ce:85:0c:31:77:e5, ethertype IPv4 (0x0800), length 2862: (tos 0x0, ttl 64, id 14678, offset 0, flags [DF], proto TCP (6), length 2848)
+        192.168.3.1.49880 > 192.168.3.2.9898: Flags [P.], cksum 0x9266 (incorrect -> 0xaa20), seq 515667:518463, ack 1, win 64, options [nop,nop,TS val 2990048824 ecr 2798801412], length 2796
+
+116 = 14(mac) + 20(ip) + 8(udp) + 8(vxlan) + 14(inner mac) + 20(inner ip) + 32(innner tcp)
+
+Fixes: a2fb4bc4e2a6a03 ("net: implement virtio helpers to handle UDP GSO tunneling.")
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ include/linux/virtio_net.h | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
+
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index ee960ec9a35e..ee8231eb759b 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -215,12 +215,22 @@ static inline void virtio_net_set_hdrlen(const struct sk_buff *skb,
+ 	u16 hdr_len;
+ 
+ 	if (guest_hdrlen) {
+-		hdr_len = skb_transport_offset(skb);
+-
+-		if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
+-			hdr_len += sizeof(struct udphdr);
+-		else
+-			hdr_len += tcp_hdrlen(skb);
++		if (sinfo->gso_type & (SKB_GSO_UDP_TUNNEL |
++				       SKB_GSO_UDP_TUNNEL_CSUM)) {
++			hdr_len = skb_inner_transport_offset(skb);
++
++			if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
++				hdr_len += sizeof(struct udphdr);
++			else
++				hdr_len += inner_tcp_hdrlen(skb);
++		} else {
++			hdr_len = skb_transport_offset(skb);
++
++			if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
++				hdr_len += sizeof(struct udphdr);
++			else
++				hdr_len += tcp_hdrlen(skb);
++		}
+ 	} else {
+ 		/* This is a hint as to how much should be linear. */
+ 		hdr_len = skb_headlen(skb);
+@@ -441,11 +451,8 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+         vhdr->hash_hdr.hash_report = 0;
+         vhdr->hash_hdr.padding = 0;
+ 
+-	/* Let the basic parsing deal with plain GSO features. */
+-	skb_shinfo(skb)->gso_type &= ~tnl_gso_type;
+ 	ret = __virtio_net_hdr_from_skb(skb, hdr, true, false,
+ 					guest_hdrlen, vlan_hlen);
+-	skb_shinfo(skb)->gso_type |= tnl_gso_type;
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.32.0.3.g01195cf9f
 
