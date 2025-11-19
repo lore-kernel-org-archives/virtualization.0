@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB23C3126AF
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 09:20:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0588633C535
+	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 09:26:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763544022; cv=none; b=Fhivseiv0JtbKDWXHbKuoBGnWTDyyFdcGwFQTE6duWk+c8QqP1xnsCcIqoAkSdpv6ibSjLtM19czkD0VYWW+oVzccfxoHBnGllT4EWwD1F9wFrtNDneHf9dI83MX4liH6qeG/zcb/Z1dUruqh2CGdr+wZVhhG9HdKsiDQPlsTp0=
+	t=1763544376; cv=none; b=uUPPcpn9b1DZdEsB97sJ/gsiJK2YXwaS91Z/7eXJE6I+TMMg+WF+MTjwGNUc1L9Jxq5Cs64m5qTcQuy2JiTl1MTXud8cdhVfSjzQ0pC0Aq/PrVQvNQeKAYingJMxH6H53bzLptBNXqWr7EUcSGBMFqREIAXkNWH/wngSTQjg1tk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763544022; c=relaxed/simple;
-	bh=efBNnvAjenT3ydeuHvhZ3DPeJKGBTHhPQVyKb3mVB3A=;
+	s=arc-20240116; t=1763544376; c=relaxed/simple;
+	bh=JJcwz0bx1oxIm6FGLUg4rtPr6fl26Ggcd1mLYOQFhcs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=CCfIyGKYW+nskamx0rnA2+GKX6LP4JW9dfXz6sDVmMHQakAZJazBeNBuWb24nQm9EnvdqFo4+DQm639AkXys+jcw5Uca07FSyt4XgQHKx0Fz3D9N7gzeUgR/6+4ecf9gNCoKXaK4T5m3ulx4VfaT1wE/MhR1MR7pVsMXZZx4ENo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=M/ClbgOi; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=Ags51U9VLpt2hCQtZRRl0zCp2gM3nYD0ANeTC2V5mW+opOIPlBGX5Z2E6TFuBRxU8kyry/cSMbUZh/bkmgZD7ABDD5j7n4Gbyls6FWT/mfxOX9IwVviSxc4L2296kguDMoq/16gI37y8M0wxtJ4xMvyHeyRHm5RgFcsJM16i3XA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gDYZmjeP; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M/ClbgOi"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gDYZmjeP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763544019;
+	s=mimecast20190719; t=1763544371;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=g4vo3A+zEqT6r4yHEPPmlJtSIbXl0hcYVxsto02QGrA=;
-	b=M/ClbgOiQo43Y9ABGNXXGAdSqubMFMkFqxwNw9QD3uBRs52ivV7P7MlSTIsSpsgrg8dZkU
-	gNt+RsyCQU2fCsQMDD2QL5INl5y8ipEwwStFP9o7/0Imzuy5ytuIzq5w2UgBkAao/tIOEa
-	ncSodRx9hPZ69mYyInB7etY95d37eaI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=kg6w3iuKZwh3LTVuqvZ2tolattLonAtduv2bEj/k2Dk=;
+	b=gDYZmjeP5cxxkkcv6BTKC8IB0yqefAjS3klyPPwxXZhtQ9awQkGMrIdtGIgrOYSgW+p9Ka
+	zKX+eY71heFf0SiUxeeQrgERFdmdmdOrQvFURUaGjUp7rt4zF3DhyRXno97yUjW9dfCdlX
+	XquXgKz8fWQKn48RCt1+2UFCQ3uIbug=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-342-w1uB2mTxME-_0imdCBVrHQ-1; Wed, 19 Nov 2025 04:20:18 -0500
-X-MC-Unique: w1uB2mTxME-_0imdCBVrHQ-1
-X-Mimecast-MFC-AGG-ID: w1uB2mTxME-_0imdCBVrHQ_1763544017
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-477a0ddd1d4so25989555e9.0
-        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 01:20:18 -0800 (PST)
+ us-mta-670-jza-hSl1PcWgJcTEjMphTw-1; Wed, 19 Nov 2025 04:26:09 -0500
+X-MC-Unique: jza-hSl1PcWgJcTEjMphTw-1
+X-Mimecast-MFC-AGG-ID: jza-hSl1PcWgJcTEjMphTw_1763544369
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-42b2b9c7ab6so2967560f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 01:26:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763544017; x=1764148817;
+        d=1e100.net; s=20230601; t=1763544368; x=1764149168;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=g4vo3A+zEqT6r4yHEPPmlJtSIbXl0hcYVxsto02QGrA=;
-        b=aDfA2dc/fOv5bBlLPi+/AmS+osTdFi2Nqao5isfP5Ol1MNc88CDlDWv7y+xwQAnIKi
-         dp8NV3G0m7CvJn2X1DCFEhl2bYr332U21llE/AOVp/HcZZ04F8g9Q1fPCkQpmc4DSImf
-         Vl01HAwY0ZhNh9kBODPhJvNEpomDz2ZZJk4UbJFCUe+QBChXNp3ZKFow20ZxM5kmORDs
-         RFXwVKczSJQNq/Nl2b+1oAfJNAxJcOvZjteiWtvsGvMEGGvkXwkJptoT0kDR//PLWJhu
-         IMzV5p5J4EBsGqFAFAPqMcdMF9N18I0jEyI5HFGMzjaH5HjlR503pmcj6DtwNQ3gn9Si
-         W8ug==
-X-Forwarded-Encrypted: i=1; AJvYcCWPfInHMOPE6w1eXHkO+q/P1bvhwgrePBHoN7Cn6zBXi9XRlM3shAmJyincAYnEal02pq8fhAUvLYHhEZ41lQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxQ+25uh/JPhETK16BWafVftykVl3J4BFi/ouyWCZe4sdMYu4Wy
-	Pwnm//wznq00XBIBJESpDEWha7+5j6AHu0q/neUD1i1NvxL3yy4/82qmkUd0uyRz1XYmZjdAaXw
-	P/6iPoHgV+46BRsbujgGeZhLhbXcL/5SWnHw5q05ZthZDIxD1AncHkhsgCZj6WNXyIUHg
-X-Gm-Gg: ASbGncs5AlKas6391qb9607A8LEXu0z04DFgCg5rDo8Wh3UfEBRsk8mLVCIWOP534ON
-	KBGCYX71FL7oc2naYnEkemaOlIceRIjVaxJXmE6TDqUUtOb191nYJrnYVDZk6h7NYzhM3l7FsHJ
-	zi66NDMwtC1keyguG+eU4TaDrzOZfzwe0tXRKc5DYEwzLDsmY8XPtgoiuXOFwOhvB5NGd3JHpIC
-	j0nT9nXZTxsHRO0Br1qFj6czx3qBldcNKyQBDiV/2mO9CjFqkVBqNH6sGzHbl83ksd5QtCv8NQ3
-	Fi+wn1UXdUM3pEVoyiob0wefrKRy8xAEUwrTe/yvgbjWIC/ll/rm7o6rHwyyS9tU7OupIOUImi4
-	BeRUhcA88OjPBzilyhxLkSbFt2gEsoA==
-X-Received: by 2002:a05:600c:a05:b0:475:dc5c:3a89 with SMTP id 5b1f17b1804b1-4778fea881fmr187270375e9.34.1763544016810;
-        Wed, 19 Nov 2025 01:20:16 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGYNHoQb9TvPImOLwUq6zgeQEbx+Js8WQF4KWo8jQc7HHGmjv+JhCzbPRI24y5phGaKhkTJ7A==
-X-Received: by 2002:a05:600c:a05:b0:475:dc5c:3a89 with SMTP id 5b1f17b1804b1-4778fea881fmr187269845e9.34.1763544016210;
-        Wed, 19 Nov 2025 01:20:16 -0800 (PST)
+        bh=kg6w3iuKZwh3LTVuqvZ2tolattLonAtduv2bEj/k2Dk=;
+        b=ScY0mLI4xEUkL0EO2cTQLDi0MTdHLJr1yDon+lVrPPYQgjwE+Z+QbW1QiFhBkGbzX3
+         z6AhtA/6t15lariuqQ+IhX6UTky8VGvwIQ3rgJnNuEqZ0dVycjzDRPJumvxInZ5CXIk8
+         bY2iE9TApSEZZKJu/AHJMgIpJKTIyLOXMm/1pEicYjLBdPofOQh+ILX4JNlcskAapkYe
+         wVHhGP4ME4gvFV0rOiA9jpdCqzb+akpBvFR0QBwSbmmJSdDcRoct2oY/0R4ryoK7rBp2
+         /e5gkDifL4CJPaKBNO9aAM4G97eGzEPijs9SPKxjRzBTGjmAVaF9FzcE3dDxGz9PNX1d
+         a2Qw==
+X-Forwarded-Encrypted: i=1; AJvYcCUgYT9lChwrE9eqKtnH8l8UAqG4Zc4PuLAvzeLEnmTwkEN72AXuXlgtYHMaVXUGLUiDyPK6b/vbIy9TYEGAtQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzluWMKWy13nwn/OHWcdKV/ZtEBNWXb7en6QqNGu8LFtW7O2Du6
+	YJjzCzCgBdloBgdnneEqwsvGFH0P1hbBKx7po9mzM9+D9kIIUbbEikFSOeRmwuo3G+495eHeuVS
+	+p5IdSsBeR6feBg9oseho2Mm8jnRcQHLMzi/vZc4avt5OHHwqBmd+Vza9KKx/W6BxhdFU
+X-Gm-Gg: ASbGncsxT66YN5xzoxJRg4+yGJheOkS89cYXNHfP/0bpMg6OHwBqYIQWBtwyNk9GhUJ
+	a7x/L+I/C0OyORNnUAYlWPU/vIve/tiVUZpCEFFGRvVtdNOcuQBvFkxVNyqGZOhVP6D9YTnSHyY
+	+goqZbHFJjSiUsTCQ3Zl6vrTu/331Cb3BWpHxlOV2rNE7DK5X+Z4G24WNmLrDL7n1hiiyrE0viB
+	ja0aPpL/3ej0qrf9PMKPWiZ8sgNPN5LntvAYDwCHotkV0MpTkw7sb5tGxliZQkSpMcYO65EBPQP
+	ynXn2IhJ0/0ughSr2AdJvNX+FhYpUDRHtFO8S0fILBQ/kyyhsQACFqQl/d1DMjMYFyYqDxUwZaY
+	tvooBaDIwPWYCACz/f2KsQLWIaXkxrQ==
+X-Received: by 2002:a05:6000:1ace:b0:3eb:d906:e553 with SMTP id ffacd0b85a97d-42b595bb7f6mr19172427f8f.55.1763544368496;
+        Wed, 19 Nov 2025 01:26:08 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEVomqmKlWReLQMuWyS3MbD3ynvl2oZ2FTnd3twDk8bXDcAPeBlrnIcm3c30fp1inxoAhVROQ==
+X-Received: by 2002:a05:6000:1ace:b0:3eb:d906:e553 with SMTP id ffacd0b85a97d-42b595bb7f6mr19172400f8f.55.1763544368034;
+        Wed, 19 Nov 2025 01:26:08 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477a9731a75sm38335635e9.2.2025.11.19.01.20.13
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42b53e7b12asm36639012f8f.10.2025.11.19.01.26.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Nov 2025 01:20:15 -0800 (PST)
-Date: Wed, 19 Nov 2025 04:20:12 -0500
+        Wed, 19 Nov 2025 01:26:07 -0800 (PST)
+Date: Wed, 19 Nov 2025 04:26:04 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Daniel Jurgens <danielj@nvidia.com>
 Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
@@ -74,28 +74,159 @@ Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
 	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
 Subject: Re: [PATCH net-next v11 07/12] virtio_net: Implement layer 2 ethtool
  flow rules
-Message-ID: <20251119041932-mutt-send-email-mst@kernel.org>
+Message-ID: <20251119042245-mutt-send-email-mst@kernel.org>
 References: <20251118143903.958844-1-danielj@nvidia.com>
  <20251118143903.958844-8-danielj@nvidia.com>
- <20251118135634-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251118135634-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251118143903.958844-8-danielj@nvidia.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: W68EuBP35trRKgNeMCpw0S0pvasV8UBzKRcLHRY0AFc_1763544017
+X-Mimecast-MFC-PROC-ID: mZmBxqbq7uAa8yoUTe_HzA9Eg-PntS7yCrkom2VXLhs_1763544369
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Nov 18, 2025 at 02:01:27PM -0500, Michael S. Tsirkin wrote:
-> > +struct virtnet_ethtool_ff {
-> > +	struct xarray rules;
-> > +	int    num_rules;
-> > +};
+On Tue, Nov 18, 2025 at 08:38:57AM -0600, Daniel Jurgens wrote:
 
-btw if you are using xarray you should include linux/xarray.h
+...
+
+> +static int insert_rule(struct virtnet_ff *ff,
+> +		       struct virtnet_ethtool_rule *eth_rule,
+> +		       u32 classifier_id,
+> +		       const u8 *key,
+> +		       size_t key_size)
+> +{
+> +	struct ethtool_rx_flow_spec *fs = &eth_rule->flow_spec;
+> +	struct virtio_net_resource_obj_ff_rule *ff_rule;
+> +	int err;
+> +
+> +	ff_rule = kzalloc(sizeof(*ff_rule) + key_size, GFP_KERNEL);
+> +	if (!ff_rule)
+> +		return -ENOMEM;
+> +
+> +	/* Intentionally leave the priority as 0. All rules have the same
+> +	 * priority.
+> +	 */
+> +	ff_rule->group_id = cpu_to_le32(VIRTNET_FF_ETHTOOL_GROUP_PRIORITY);
+> +	ff_rule->classifier_id = cpu_to_le32(classifier_id);
+> +	ff_rule->key_length = (u8)key_size;
+> +	ff_rule->action = fs->ring_cookie == RX_CLS_FLOW_DISC ?
+> +					     VIRTIO_NET_FF_ACTION_DROP :
+> +					     VIRTIO_NET_FF_ACTION_RX_VQ;
+> +	ff_rule->vq_index = fs->ring_cookie != RX_CLS_FLOW_DISC ?
+> +					       cpu_to_le16(fs->ring_cookie) : 0;
+> +	memcpy(&ff_rule->keys, key, key_size);
+> +
+> +	err = virtio_admin_obj_create(ff->vdev,
+> +				      VIRTIO_NET_RESOURCE_OBJ_FF_RULE,
+> +				      fs->location,
+> +				      VIRTIO_ADMIN_GROUP_TYPE_SELF,
+> +				      0,
+> +				      ff_rule,
+> +				      sizeof(*ff_rule) + key_size);
+> +	if (err)
+> +		goto err_ff_rule;
+> +
+> +	eth_rule->classifier_id = classifier_id;
+> +	ff->ethtool.num_rules++;
+> +	kfree(ff_rule);
+> +
+> +	return 0;
+> +
+> +err_ff_rule:
+> +	kfree(ff_rule);
+> +
+> +	return err;
+> +}
+
+
+...
+
+> +static int build_and_insert(struct virtnet_ff *ff,
+> +			    struct virtnet_ethtool_rule *eth_rule)
+> +{
+> +	struct virtio_net_resource_obj_ff_classifier *classifier;
+> +	struct ethtool_rx_flow_spec *fs = &eth_rule->flow_spec;
+> +	struct virtio_net_ff_selector *selector;
+> +	struct virtnet_classifier *c;
+> +	size_t classifier_size;
+> +	size_t key_size;
+> +	int num_hdrs;
+> +	u8 *key;
+> +	int err;
+> +
+> +	calculate_flow_sizes(fs, &key_size, &classifier_size, &num_hdrs);
+> +
+> +	key = kzalloc(key_size, GFP_KERNEL);
+> +	if (!key)
+> +		return -ENOMEM;
+
+So key is allocated here ...
+
+
+> +
+> +	/*
+> +	 * virtio_net_ff_obj_ff_classifier is already included in the
+> +	 * classifier_size.
+> +	 */
+> +	c = kzalloc(classifier_size +
+> +		    sizeof(struct virtnet_classifier) -
+> +		    sizeof(struct virtio_net_resource_obj_ff_classifier),
+> +		    GFP_KERNEL);
+> +	if (!c) {
+> +		kfree(key);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	c->size = classifier_size;
+> +	classifier = &c->classifier;
+> +	classifier->count = num_hdrs;
+> +	selector = (void *)&classifier->selectors[0];
+> +
+> +	setup_eth_hdr_key_mask(selector, key, fs);
+> +
+> +	err = validate_classifier_selectors(ff, classifier, num_hdrs);
+> +	if (err)
+> +		goto err_key;
+> +
+> +	err = setup_classifier(ff, c);
+> +	if (err)
+> +		goto err_classifier;
+> +
+> +	err = insert_rule(ff, eth_rule, c->id, key, key_size);
+
+
+... copied by insert_rule
+
+
+> +	if (err) {
+> +		/* destroy_classifier will free the classifier */
+> +		destroy_classifier(ff, c->id);
+> +		goto err_key;
+> +	}
+> +
+
+
+... and apparently never freed?
+
+
+I think it's because the API of insert_rule is confusing...
+
+> +	return 0;
+> +
+> +err_classifier:
+> +	kfree(c);
+> +err_key:
+> +	kfree(key);
+> +
+> +	return err;
+> +}
+> +
+
+-- 
+MST
 
