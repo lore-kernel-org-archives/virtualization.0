@@ -1,378 +1,138 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4473EBE5E
-	for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 12:37:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.14
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763642284; cv=fail; b=Juste5bRApzAcfD34doaAJbJZxx1PrIu40DEfkDzsDNA77zxKFSTTwQNaIdNj5ULYI/OR+rE9CtMrTOIhRK3EnKRNUgvMfvFZq7t7FbWhKyFlLIuC9dRfPClskKioBZojdDXo+zi9mkpIWZordJz/wVgSIlM3BVd8kpFGQL9WJw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763642284; c=relaxed/simple;
-	bh=r7P0rec1NhIh79hdr7JNM3Rdut3BsAgZFydLhrk3E6s=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=D6+rGwGr/7sM6OiikWqABmga2IiP5GALYDtjT1Yqb92ibbffSLqT9pfs/2eouFB+Ha7DFgIbdkyfvkDZtAclAxFUdSpFkIR2vIwqhp/dPqyag7x0W188g6SN9CgYDoQiyuBLsdbob7qK6DUkdNqGSgfANcbYmkqlDebNJwxf40Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YOwzoxmt; arc=fail smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E145B343D9D
+	for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 13:47:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763646465; cv=none; b=ZWASoROzccD0ZvM5qqb2dBmB2lnQqipKc+B2pJpulJKePAoK0DUU3NPdtK7pDERvnTpNmF2b2X5J7I9cTFCODQUefdSybP0SRKm/YAyDyUskBOh4RoY6EVsnq+//V6SsevrNkH3GQ7epNdaDnCW8Ndse6MxkPGVxTxB1kI7vSQM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763646465; c=relaxed/simple;
+	bh=FOST2SIH8KNu5sFPdASitTj88z2weYmpfxU0ADa/Ut4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oLf30CWzD7LiQQ/U2jJJV6zT9D6H3/5+LQxrGnLXypZWbBZtdRqe7WGVd7ix4sbbMFZ3nQnj13hB6BK7N9meV0ewlBCi/PRNwYmKRCuZc7Axmu3ZiBeGN7fRWcVbcSHfg7DbuwH2Wn8dtw0KkEca8KKlIfGkVaJES80rFfnbDsc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=YDf1LxIY; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YOwzoxmt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1763642279; x=1795178279;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=r7P0rec1NhIh79hdr7JNM3Rdut3BsAgZFydLhrk3E6s=;
-  b=YOwzoxmt+AxlgaDhT4boHd2GEy+r4TUrg+Swv+gjQeXTU4752I5cxakP
-   2E9nrjtiOxEccepWezgtRR1wdJCdjijpnpdnZTrstlv3EG3SIjla3F7rv
-   KCPidRpiSw+0Et9V3IG9LmJIk7ZWzIHZ2DnVPvFLwDSEmNr49DVBmNdfJ
-   aRHv7XUsjBUeHeIQ8WeAcvEvyH+uVueK84sZbUHTudPn3KKn1xsbdxFqZ
-   uud0hlH74LV5W7j09wHcvBtq3j5zlFLc3Mpnhqu0TjBJ/i+ysnYYqwlgJ
-   jyGVadNaqZ8xsmY4Wd0hNS4Rk7QR85ey895gHMljBPEf1acBU9uSwW3ns
-   Q==;
-X-CSE-ConnectionGUID: A5fZ4hBnR0+N2oLmW2ivyg==
-X-CSE-MsgGUID: j7/HL2IYS7eDJ9oM4mJtYg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11618"; a="69565179"
-X-IronPort-AV: E=Sophos;i="6.20,213,1758610800"; 
-   d="scan'208";a="69565179"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2025 04:37:36 -0800
-X-CSE-ConnectionGUID: B3xwiEVCSc6QYydEjwQBpg==
-X-CSE-MsgGUID: qgtMs9FvTmum+4EW9WBWzg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.20,213,1758610800"; 
-   d="scan'208";a="191034278"
-Received: from fmsmsx903.amr.corp.intel.com ([10.18.126.92])
-  by fmviesa007.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2025 04:37:36 -0800
-Received: from FMSMSX903.amr.corp.intel.com (10.18.126.92) by
- fmsmsx903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27; Thu, 20 Nov 2025 04:37:35 -0800
-Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
- FMSMSX903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27 via Frontend Transport; Thu, 20 Nov 2025 04:37:35 -0800
-Received: from CO1PR03CU002.outbound.protection.outlook.com (52.101.46.22) by
- edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27; Thu, 20 Nov 2025 04:37:35 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=WnYUaLvQinQ2IvoW3JfShUFe4fofysnzb1z+KFDIoKsghliKtmef7Rv08X84OUxdsRb8xIWSaYSQlf6918k0Q7DGqM0RBiVsKOMHDhBU1+6Pec5TLw6Svjt9OconYMCNqyZr1nq9UUgHPsJ1D8lcTAPOFDALf9TVQTEY1iUWzOHdj6clsLn9+OhrGO/7QdsJMc5op6s3q1+VEKnviMbOgTljyWEDo4KHAkai+iAoKLFAvOWhaLSHuxkS/niVXeW23rhMHrzMPKfo7TMMqgtRYyI6REteefXVmsfnfPxsv+lbVVG+L1S6JxmmcLTySFloxa7lvoVG2YZ5ktOuCeIPbw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GtOhmoDknTlRNKh1Tx2SKpxJ8ZqsiWa50UfUeFRcPmc=;
- b=QHSlJF+oF4CB4sPoR3H8HY70XRBgEixmMgOK+3WZigkHFQ2wZ9HWaNqIB4EtisyTTQyh4OifGjGZQW6Tp5zvypkOMLMdpM97qHWc7S2hvBcKDEhu/sP0Fl4DjHDYjJg712lQBbJMzLZWSNBZZcxr000GiKmPQBVNsULBmcfOqbj2uMd973SpMqZM5Klp437AP1P0Rm3QscXggja/NPGkq6XXQDbTamoYAPYtuOuLDvqPCUXvgpSQKXoZQT0Kp2+T4I7sHq+x/G6GZFGuJDmrW9w0e2guD7pG/ctxGo/K4aQMIKrapSpD23yE9qTAKVUc+mTWdvTmy9nXEn4xaQMQ/Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DM4PR11MB5373.namprd11.prod.outlook.com (2603:10b6:5:394::7) by
- PH7PR11MB6031.namprd11.prod.outlook.com (2603:10b6:510:1d2::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.11; Thu, 20 Nov
- 2025 12:37:32 +0000
-Received: from DM4PR11MB5373.namprd11.prod.outlook.com
- ([fe80::927a:9c08:26f7:5b39]) by DM4PR11MB5373.namprd11.prod.outlook.com
- ([fe80::927a:9c08:26f7:5b39%5]) with mapi id 15.20.9343.011; Thu, 20 Nov 2025
- 12:37:31 +0000
-From: =?UTF-8?q?Micha=C5=82=20Winiarski?= <michal.winiarski@intel.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>, Alex Williamson <alex@shazbot.org>, "Kevin
- Tian" <kevin.tian@intel.com>, Yishai Hadas <yishaih@nvidia.com>, Longfang Liu
-	<liulongfang@huawei.com>, Shameer Kolothum <skolothumtho@nvidia.com>, "Brett
- Creeley" <brett.creeley@amd.com>, Giovanni Cabiddu
-	<giovanni.cabiddu@intel.com>, <kvm@vger.kernel.org>, <qat-linux@intel.com>,
-	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>
-CC: =?UTF-8?q?Micha=C5=82=20Winiarski?= <michal.winiarski@intel.com>
-Subject: [PATCH 6/6] vfio/virtio: Use .migration_reset_state() callback
-Date: Thu, 20 Nov 2025 13:36:47 +0100
-Message-ID: <20251120123647.3522082-7-michal.winiarski@intel.com>
-X-Mailer: git-send-email 2.51.2
-In-Reply-To: <20251120123647.3522082-1-michal.winiarski@intel.com>
-References: <20251120123647.3522082-1-michal.winiarski@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BE1P281CA0075.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:b10:26::14) To DM4PR11MB5373.namprd11.prod.outlook.com
- (2603:10b6:5:394::7)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="YDf1LxIY"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-477a219dbcaso8846555e9.3
+        for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 05:47:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1763646458; x=1764251258; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=A948czYa/5mtbIsBZpYcXkd9XJ+jdzzvonGe4csxiCM=;
+        b=YDf1LxIY5vote8/75+nVsj+aVP4HSuPbBdweSE/1nifabdc26UaoAJ2s0EVZi/8b0Y
+         W0l4KVr/6o5F9oDvYtgykyrc99xkfUDKmWpusDFO51olYAC8f/M5juAiaLBHoS1bi9NH
+         vv+0LFUIa/EAaUS0+KW6x6r/z/zKxFlbHNoKsNFgAu8xkSgH2FPyq0kq1BGwHCY47/uE
+         NkrElza9pWx95/+yH8oO1QOh8JkqVjU4mdsWiBVuELJNLixSN2N/L84G8GvxTtn7wO5W
+         Tcuie8jjYqJDKPNTCtsxAIL7saEcH1BoNRSLZxYl/YbXf9iJeiUkG+vl+Xm8Xz0Ug50p
+         K79Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763646458; x=1764251258;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=A948czYa/5mtbIsBZpYcXkd9XJ+jdzzvonGe4csxiCM=;
+        b=BeihFtcXbeqOd4QeyKGvsdM2F6WGCvF9tHbpCBYqYt9ko9QGj5qnF+NFvmqcc/Kptn
+         zBkIIwvYVc4YAPsHTkOlFm9gOeVt1T6YFnMDFcL1gPn5GdEpfuBgd6vVGxDwkchb7fFT
+         eysJJaGjewiMj/vc+0JwXs9fWVRc7Ta+t8JIqqrhhUkbzvMJkicE3FBc3+2aVkZXuGVk
+         OKif1spz+GJhFg6Uqi2k2tiVBEVajMJV/4dOyANY/eXfwxEpaF5V24hWIGaGzpEGA2Mp
+         xmGqf9MIjFujWpAGJoN0tv6Cc9i/wrjULwWLsMMgLp5aDo8+cJCey6hHD1GG7ZFBYiQS
+         JLTw==
+X-Forwarded-Encrypted: i=1; AJvYcCUJ5hvGwKriqH0sOjQ4/hfytU4qDH7CsuQg0pZZ64t0LbI9lXgjHVEHcYWG5PXa+QQoRu4kCh2S+mx41fNeAw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxS8WfiK3QNF7Al6mLFGJvyVN8xHoOYyVKXE70zj0lE+Jpsl0K0
+	5GAOhE/93rCZVk7g5ZKuAXa7FSBguh+PMk8eXTLlB7ZACTWvKLnByr5SthBFemYQ2akUE+sOzTp
+	sNTFC
+X-Gm-Gg: ASbGnct1Uf1ZvSE0/S53XX+rPxROgorUTb4RJrehRXJG5VpbWs0p5AWQ6OKVIWJ7GUI
+	NhPdNrfjDI3tuxPMJACL6qltJN7o/YtDffFzZs/ByO4BYTJhu7oHtmZfiwRXRxNJ5TKqjxsD/xW
+	AS60UbiyhyjHyK7XWRKPAkH53870Wy4UgOCRqHpB9dnxSqrYzec1ynZ/DnJSM8pxH1oUEQ8fqGO
+	pXdb76EiOEH+OICL/PRtz9b7BF1ElOQ6sUcuiY+/jLO9mOGmO2WUY2NFRix3OmiThwBUZ02DttV
+	4Zmf8sQCg3mo2LIR1UliVnjvAaxQvIlkbMIn8l40c74trCiQbUHUXa26+aTSOn3QjZwNICuEp0j
+	t4S94w+4fio8ZVEiB+w722UIYRteXUS6FdEX8Hz8rdMHhC3jR+Kqqek7TSt8Kmpzkooujv/vIDN
+	/kLr/0hk1hr6iwjo2rGXnqCiXivRb7zxGT9pMxBIRAbbp8RCOh+z8=
+X-Google-Smtp-Source: AGHT+IHIFwwhuCDej7n/kiB10UzGUUQ69SdWa1m4LkYqLOz7xqjt7Vge2BzyTTaTh7YeRH8lFH7akg==
+X-Received: by 2002:a05:600c:3b98:b0:477:bb0:7528 with SMTP id 5b1f17b1804b1-477b9e1a4a4mr30099085e9.22.1763646457798;
+        Thu, 20 Nov 2025 05:47:37 -0800 (PST)
+Received: from myrica.home (233.226.6.51.dyn.plus.net. [51.6.226.233])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477a973dbabsm67690775e9.3.2025.11.20.05.47.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Nov 2025 05:47:37 -0800 (PST)
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: joro@8bytes.org,
+	will@kernel.org
+Cc: rafael@kernel.org,
+	iommu@lists.linux.dev,
+	virtualization@lists.linux.dev,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Jean-Philippe Brucker <jpb@kernel.org>
+Subject: [PATCH] MAINTAINERS: Update my email address
+Date: Thu, 20 Nov 2025 13:46:22 +0000
+Message-ID: <20251120134621.277272-2-jean-philippe@linaro.org>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM4PR11MB5373:EE_|PH7PR11MB6031:EE_
-X-MS-Office365-Filtering-Correlation-Id: b59cb772-de5b-4b05-57a2-08de28319274
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|366016|921020;
-X-Microsoft-Antispam-Message-Info: =?utf-8?B?UlQrQVdOd0tnNXhyMHJEcXdsQXp6WFpLeWtnTmNKUWdNc09aeHptc0p5bEdU?=
- =?utf-8?B?dlhHQU5rTEd0eFpxdWd6S3p1RVV2REZGZHRENkxYbzhkdlVwZHdIMm03cnFU?=
- =?utf-8?B?aFdMU3VnTjRrRXdiaEwyOUgybU5lczhvMkZOb1I1d2F4ejNrKzAxRnhPRzB4?=
- =?utf-8?B?SWJIWEM1eEptaU43ZzFZRHcwMTcrV3VackJnMGZUb0h5ZG5jS1VTYmhKSUdX?=
- =?utf-8?B?U2ljby9sWDdiT0tFcGI5cFlSQiszUnREcDRib2JFN0gzWUhjSkI3UThVTUdk?=
- =?utf-8?B?UlJUb05sbUpMc3dvakN0ZDhUd0trSDBEVW5LT2VUSTJ2b3llbkpOTTcveGFK?=
- =?utf-8?B?TmV0Vm5id01CK21IUFZwZ3pVR0lwZHN2Wndha0hzUnVaL2ZnUWVMR09wY3ll?=
- =?utf-8?B?REllUjJKai9kc2lHRkVMT1NBZnYydFdpM0E5TitIN3lHbVlaQWdycjhJTFhE?=
- =?utf-8?B?ZnJPUFE0T3FnK3pyY2VJNE9KOGlJbGh6bGJ2cjBlTEw2YTM0SUMxVWFVRU9U?=
- =?utf-8?B?RFFXUGVudGNDOFZRSlNaN2w0a05TcG1sV25PY3lXUCtzMHk3QjQ1RmsrVkMx?=
- =?utf-8?B?cXRsT0dzSzVqck54RWJZaXMrbGY5SVdsa2ZMOUF0cnlkb1NCdEZtRlVvaXhK?=
- =?utf-8?B?YWE5Njg2dTVCQjRSSUY3UzJoQkE1MENjZXk3M1VHc1RHRHAyeWFYSFlsUzdz?=
- =?utf-8?B?dEpaU2l3K3J6Q1hCZDVjRDFaWG51V1prM0hqYTN5TVFZS0FTbXNjZTRwdEFo?=
- =?utf-8?B?YXhTRm02NnFxcEgwOEpMOENST0NKT0VOQ1hHc3RtYXdrbVBMSkNQMXdxb2N0?=
- =?utf-8?B?QllrYjZnRnV1amlpa1pxdnl2RUdVZnhONERNK08wV0lMZ0RHRUs5QkJmVGpR?=
- =?utf-8?B?YUpuNTc2Mmc4S1pXUGdPZ1FydEdJWmxsZkg1T3BPdFdvTGROcVkwaG9nUEtp?=
- =?utf-8?B?a09tWTZFQTVITEswdHBBb2Z2enFaTFFKcjlNOVlZcGNhcEgrdnZBdTZFVE5K?=
- =?utf-8?B?ODM0dCs5azNzcE5NTXhtbEJWOXJrdGhGZnIwU3crUmpaZ2dreW5lZ0toeTNH?=
- =?utf-8?B?NGc5Z1Z4SUlralBFU0hKSVZ6SGhicmpncnVoQU5pUERieTk4Z2krYjJKai85?=
- =?utf-8?B?VWJEdGp1djMvQlBGNUIySkRrb1ExK1lESG40a3FPTmRBSSs2cEd6bVBQRFFo?=
- =?utf-8?B?elRkcWdCSDRHSDRNdnlwZEthblpOUll4WkJDSjV4T1dUdld4S0pCTm9iRFVL?=
- =?utf-8?B?QXFRUDQ0QUY3ajRhbGJRa3FaUVVyNWZjdFdxTUZFOFVOd201M0RjeUVTaUxh?=
- =?utf-8?B?VXpsZy9UQktDdnZUR0Qxd0pLakg2aW1mUkU1a1FFOEdKVmFsbnJhazYxaXpi?=
- =?utf-8?B?ODFuamdkWFhRUWg1WTU2MWl3QzNYYW9JK0c0aVBXQ3U2OXBRNCtEeXJadkRt?=
- =?utf-8?B?MngxWHp0bmRYd1Q4S0xWWldSekNTTHh0Z0pkTTFtT2tTbkZOOHF2dkt1ekdH?=
- =?utf-8?B?SG5HZmZpRDNrbks4cFB6eHJ4MEg2d0M0ZXJkQ0xYa1BxUWhJeTVQUCtTUm9k?=
- =?utf-8?B?OS9VeUFIaTk3OWhLYjdPQlhPU21GMlhUTFd2QS81NWhDSUl5alBYaVc1QnBj?=
- =?utf-8?B?K0VrVXVxY1pMN3ArRkZES25ySURCbkF4L0VSR3oxcHhWd0xNWVRWNDlSZDdh?=
- =?utf-8?B?dkRBNktQSHVPZHJ4bFJ2MGNIeDJEbDBEQm5qdHpkek1DeEpveGdnQ3pjWGwx?=
- =?utf-8?B?eWtraTQ3ZFkzSG1CdGljUlIvMUpPUGp2TCtSaGdFeGpLSU5zUy9jcjNTRkVQ?=
- =?utf-8?B?UnlyaWhaM2h5S0MwVW5GV0RKcGtMeU10Y25SMW5WUWZsdWhtQmVmeTBibFBV?=
- =?utf-8?B?ckxGVTRnUS9RaGQrWkJKNTYrOFVsa1RBbEJxNzV5anV4RVZxL040RThwNDkv?=
- =?utf-8?B?bDNkLzY5MHJ4MVZsN1FkZU9NZTJoUWxwWWJIWEF6T3ViTWNJNktBaTdpQjJ5?=
- =?utf-8?B?bC9kQmFzejVuZ2xQZ2JUREJoM2p3aks4WDVLc3FvNHNTSFdySUVIV2FCclgv?=
- =?utf-8?Q?o5A46K?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5373.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ZW1aOVlTRFl2cFdDRG1qdnNwOUFTQVRBTmVMZTVQaTZsZ0l1a01JMmZlT1VH?=
- =?utf-8?B?cmtpM3FBd3pyVlNvQ1dXM3JaWXZjWTlUMVI4NzNwalRtK2w5WlJSVS9jZ2Zs?=
- =?utf-8?B?dVZUZVZoUmNHOGUrYldBWjVSV3NMU2p5UzBJcXUyTXVscnFtRXNXeHovS0d3?=
- =?utf-8?B?NTlJRUV6dmNFZXRTdWE5Sm51cHFqZUpUQ0d3QkxhUk80UUFTd2U2enpIaFdz?=
- =?utf-8?B?NUQzSXgrUmpjbmNINHJ1NHNSMWhxd1hMRE41Y1VyUENiWXdDakdwM2Q2VWgx?=
- =?utf-8?B?TTM1VmRCRzIwY0NuakdwMjh6U2dOZXZIZFRjaDUyME42QWlQRGJsK1hlZWEr?=
- =?utf-8?B?dTh3QlBpT2kyT3JHc3VFWmlRQ0tMNThKMncySE1yYlRzZnhNTmllWHV4MEJr?=
- =?utf-8?B?ZmdXTFlNQ1g5aDA5U01ZNDhCdmJZK1NTVGRZQUQ5dnRvaE0xc1FXVTk0UUVj?=
- =?utf-8?B?Z1NiYnRFbmNQL2hHUWc2QVFPWUpSbEJGeDJoNWpOK3RCT2xBR3FCRGJPV1dN?=
- =?utf-8?B?K3ZsTXFEMGFWOXMzckluOEMrV3V0WFEvUVNDNktOK09CSnhPMjlFZmhFWG95?=
- =?utf-8?B?Q2l6cXo0UGFqdFpqOFB4MDgzZzlna1FheDVJb2ZMR1RyQXAwRVZqYmRma2J6?=
- =?utf-8?B?WG51L1BIMXByakJZZDJvd3lMQVgvVGRhTXN4UGpXd25PTEpEaUlHUUZWTEI1?=
- =?utf-8?B?dWM4Wm5EZ3ZBdE45ekZPbXVBWmgyKzkwRGpIcGRqNFVEbjVPTS90djVIQ3ZO?=
- =?utf-8?B?V0pFc2xvSWxsaFJyMWdBdHl6QlR4TzBqN2dGSE85cVZZb1lPUmswa2lUWjl5?=
- =?utf-8?B?aWFIdjRVbVI4c200Mmp1cE9iNys1ZDRLL01iQjc1WlMrUWZwR1ZOcGRjczhi?=
- =?utf-8?B?cjdXK1NhUzhLN3JtV1hVaUVVU3NrSE1qd1JSampVdFVCMWVnenh4ZVRxZERG?=
- =?utf-8?B?dm8vbmdZOCtMUldtS21EbzZKM3R3ZTJnTUtSZ2RtNkw4TEtscWVJNEZxK2J0?=
- =?utf-8?B?aHNMVzh0a1h2R0hOR2F6TkxuRWFkZW44U2p0NFVjMlgxdlUrbzl3UHNtQjlO?=
- =?utf-8?B?TkdaeUhXQjgzNnFwS0Q2Mkg2VDc3ZXhSQ09HdXJUbzNOZ1MzUGxRNC82ZGFa?=
- =?utf-8?B?YTU0V2N2S2xHcktKdkhGYk9OUkpLMm94dTh0a05yZDNCNXNWbHZwdkxEOVhy?=
- =?utf-8?B?T0Q2a1Q1ZEd3MTdlSkd5cWZjZVBDcVJNQXlobGZ0UnRST055dEM0RytWaWJE?=
- =?utf-8?B?LzV3VmlJUlhLZGtlSGNrNDljekYxNGlkRDdQUzFDUnVwNkdJaVZiejNLSkJJ?=
- =?utf-8?B?YjRBMmlFYTNaNnFvL1pwWUR3dEtuUk9kT01oRURTRFFUckp0ckZmcXgxVVBF?=
- =?utf-8?B?Qjk2OWp3TUd0SUV6NzVSVVVVODl6N0ZqZ2t3UUdUOGk4QVhZa3FoMjNjTnkx?=
- =?utf-8?B?THN5YmRFUlJ6SXFvRFhqUUpiRDlieGpuSlRMSXYxVXV1SjBBWlU4bnk1ZDVw?=
- =?utf-8?B?eWQzN2FOTnNLTWNnNzVlSkpQeVR6MjRtUWs4ODdtTitKOVgva0tva1FXcUxG?=
- =?utf-8?B?TG5paTNFcjNMY2ZDNW9JR3hmaHNITnNodkRBbnczc0dNYThJUlZZaFlSeGNr?=
- =?utf-8?B?b0RSam9YdzNQZjc4ZVVYR3RVbHpFZnNLMG54aTdMaXJwSXI5cXBJcTFwdTJO?=
- =?utf-8?B?SUdBMTQ4dHlZcllwODIyMGZiaHNqOWpqOEwyblVXS3JFejBDL05sZlcyam5o?=
- =?utf-8?B?UGpjcGlFNktUQlp3cmI0eEVLVkpBT3hRZitFZFhRVngxK3VmYzZrZW9rRStY?=
- =?utf-8?B?NFNiU1NpL2lXRWdPbzFUbXVKZ1JuaWp1TkpNRzNobzhvSWJHYStSSUNSM0xR?=
- =?utf-8?B?ZmRJRU5wUnpMeHhNVFcvR0JqMGpxL1JYckk2NkNqY2wwcUFUOHI5OHd2U3I2?=
- =?utf-8?B?WUtmcjRLclNRVGFsVG5tKzNUeGhoTStzcWlzdVRQZkFQczkzaHVhRGxrcU9E?=
- =?utf-8?B?TFNWdUpzcGtQc05BNDY3MEZGWnExcnNvVEk4dWovYjNVVG5CbzlPbjNMYXE1?=
- =?utf-8?B?Wm1BQ0hqVXBzNk1lWlcvY1JUbDYvWFZpNFFsbmNxVzJJOTluRDhiZGNEbUhC?=
- =?utf-8?B?UlVvNEtibkRuS0hTc0RyUFhMZWFCenBZQ0FxN05maEZweEJUS2xOd2N5L0d1?=
- =?utf-8?B?NFE9PQ==?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: b59cb772-de5b-4b05-57a2-08de28319274
-X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5373.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2025 12:37:31.0075
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xTc2wzHZYvPsOVujQTbQFX0BzgBrCE/mEStKHCqAV9EOv2Di3KW+bBf/toO11JYYVbDNMuKayFEB1a6dJ0lvatbwEHr9RynLWOSUjs8d2E4=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR11MB6031
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
 
-Move the migration device state reset code from .reset_done() to
-dedicated callback.
-Remove the deferred reset mechanism, as it's no longer needed.
+Use jpb@kernel.org as my main address.
 
-Signed-off-by: Michał Winiarski <michal.winiarski@intel.com>
+Signed-off-by: Jean-Philippe Brucker <jpb@kernel.org>
 ---
- drivers/vfio/pci/virtio/common.h  |  3 --
- drivers/vfio/pci/virtio/main.c    |  1 -
- drivers/vfio/pci/virtio/migrate.c | 71 +++++++++----------------------
- 3 files changed, 21 insertions(+), 54 deletions(-)
+ .mailmap    | 3 ++-
+ MAINTAINERS | 6 +++---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vfio/pci/virtio/common.h b/drivers/vfio/pci/virtio/common.h
-index c7d7e27af386e..cb27d3d2d3bb9 100644
---- a/drivers/vfio/pci/virtio/common.h
-+++ b/drivers/vfio/pci/virtio/common.h
-@@ -92,12 +92,9 @@ struct virtiovf_pci_core_device {
+diff --git a/.mailmap b/.mailmap
+index b5e240f78b8c2..71df089720b38 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -344,7 +344,8 @@ Jayachandran C <c.jayachandran@gmail.com> <jayachandranc@netlogicmicro.com>
+ Jayachandran C <c.jayachandran@gmail.com> <jchandra@broadcom.com>
+ Jayachandran C <c.jayachandran@gmail.com> <jchandra@digeo.com>
+ Jayachandran C <c.jayachandran@gmail.com> <jnair@caviumnetworks.com>
+-<jean-philippe@linaro.org> <jean-philippe.brucker@arm.com>
++Jean-Philippe Brucker <jpb@kernel.org> <jean-philippe.brucker@arm.com>
++Jean-Philippe Brucker <jpb@kernel.org> <jean-philippe@linaro.org>
+ Jean-Michel Hautbois <jeanmichel.hautbois@yoseli.org> <jeanmichel.hautbois@ideasonboard.com>
+ Jean Tourrilhes <jt@hpl.hp.com>
+ Jeevan Shriram <quic_jshriram@quicinc.com> <jshriram@codeaurora.org>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ea8194ac8970d..4c398e6cfd24a 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -388,7 +388,7 @@ B:	https://bugzilla.kernel.org
+ F:	drivers/acpi/*thermal*
  
- 	/* LM related */
- 	u8 migrate_cap:1;
--	u8 deferred_reset:1;
- 	/* protect migration state */
- 	struct mutex state_mutex;
- 	enum vfio_device_mig_state mig_state;
--	/* protect the reset_done flow */
--	spinlock_t reset_lock;
- 	struct virtiovf_migration_file *resuming_migf;
- 	struct virtiovf_migration_file *saving_migf;
- };
-diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
-index 8084f3e36a9f7..b80cb740f9a5d 100644
---- a/drivers/vfio/pci/virtio/main.c
-+++ b/drivers/vfio/pci/virtio/main.c
-@@ -203,7 +203,6 @@ static void virtiovf_pci_aer_reset_done(struct pci_dev *pdev)
- #ifdef CONFIG_VIRTIO_VFIO_PCI_ADMIN_LEGACY
- 	virtiovf_legacy_io_reset_done(pdev);
- #endif
--	virtiovf_migration_reset_done(pdev);
- }
+ ACPI VIOT DRIVER
+-M:	Jean-Philippe Brucker <jean-philippe@linaro.org>
++M:	Jean-Philippe Brucker <jpb@kernel.org>
+ L:	linux-acpi@vger.kernel.org
+ L:	iommu@lists.linux.dev
+ S:	Maintained
+@@ -2244,7 +2244,7 @@ F:	drivers/iommu/arm/
+ F:	drivers/iommu/io-pgtable-arm*
  
- static const struct pci_error_handlers virtiovf_err_handlers = {
-diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
-index 7dd0ac866461d..5c7f9091d84e8 100644
---- a/drivers/vfio/pci/virtio/migrate.c
-+++ b/drivers/vfio/pci/virtio/migrate.c
-@@ -247,49 +247,6 @@ static void virtiovf_disable_fds(struct virtiovf_pci_core_device *virtvdev)
- 	}
- }
+ ARM SMMU SVA SUPPORT
+-R:	Jean-Philippe Brucker <jean-philippe@linaro.org>
++R:	Jean-Philippe Brucker <jpb@kernel.org>
+ F:	drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
  
--/*
-- * This function is called in all state_mutex unlock cases to
-- * handle a 'deferred_reset' if exists.
-- */
--static void virtiovf_state_mutex_unlock(struct virtiovf_pci_core_device *virtvdev)
--{
--again:
--	spin_lock(&virtvdev->reset_lock);
--	if (virtvdev->deferred_reset) {
--		virtvdev->deferred_reset = false;
--		spin_unlock(&virtvdev->reset_lock);
--		virtvdev->mig_state = VFIO_DEVICE_STATE_RUNNING;
--		virtiovf_disable_fds(virtvdev);
--		goto again;
--	}
--	mutex_unlock(&virtvdev->state_mutex);
--	spin_unlock(&virtvdev->reset_lock);
--}
--
--void virtiovf_migration_reset_done(struct pci_dev *pdev)
--{
--	struct virtiovf_pci_core_device *virtvdev = dev_get_drvdata(&pdev->dev);
--
--	if (!virtvdev->migrate_cap)
--		return;
--
--	/*
--	 * As the higher VFIO layers are holding locks across reset and using
--	 * those same locks with the mm_lock we need to prevent ABBA deadlock
--	 * with the state_mutex and mm_lock.
--	 * In case the state_mutex was taken already we defer the cleanup work
--	 * to the unlock flow of the other running context.
--	 */
--	spin_lock(&virtvdev->reset_lock);
--	virtvdev->deferred_reset = true;
--	if (!mutex_trylock(&virtvdev->state_mutex)) {
--		spin_unlock(&virtvdev->reset_lock);
--		return;
--	}
--	spin_unlock(&virtvdev->reset_lock);
--	virtiovf_state_mutex_unlock(virtvdev);
--}
--
- static int virtiovf_release_file(struct inode *inode, struct file *filp)
- {
- 	struct virtiovf_migration_file *migf = filp->private_data;
-@@ -513,7 +470,7 @@ static long virtiovf_precopy_ioctl(struct file *filp, unsigned int cmd,
- 		goto err_state_unlock;
+ ARM SUB-ARCHITECTURES
+@@ -27242,7 +27242,7 @@ F:	drivers/virtio/virtio_input.c
+ F:	include/uapi/linux/virtio_input.h
  
- done:
--	virtiovf_state_mutex_unlock(virtvdev);
-+	mutex_unlock(&virtvdev->state_mutex);
- 	if (copy_to_user((void __user *)arg, &info, minsz))
- 		return -EFAULT;
- 	return 0;
-@@ -521,7 +478,7 @@ static long virtiovf_precopy_ioctl(struct file *filp, unsigned int cmd,
- err_migf_unlock:
- 	mutex_unlock(&migf->lock);
- err_state_unlock:
--	virtiovf_state_mutex_unlock(virtvdev);
-+	mutex_unlock(&virtvdev->state_mutex);
- 	return ret;
- }
- 
-@@ -1048,7 +1005,7 @@ static ssize_t virtiovf_resume_write(struct file *filp, const char __user *buf,
- 	if (ret)
- 		migf->state = VIRTIOVF_MIGF_STATE_ERROR;
- 	mutex_unlock(&migf->lock);
--	virtiovf_state_mutex_unlock(migf->virtvdev);
-+	mutex_unlock(&migf->virtvdev->state_mutex);
- 	return ret ? ret : done;
- }
- 
-@@ -1245,7 +1202,7 @@ virtiovf_pci_set_device_state(struct vfio_device *vdev,
- 			break;
- 		}
- 	}
--	virtiovf_state_mutex_unlock(virtvdev);
-+	mutex_unlock(&virtvdev->state_mutex);
- 	return res;
- }
- 
-@@ -1257,10 +1214,24 @@ static int virtiovf_pci_get_device_state(struct vfio_device *vdev,
- 
- 	mutex_lock(&virtvdev->state_mutex);
- 	*curr_state = virtvdev->mig_state;
--	virtiovf_state_mutex_unlock(virtvdev);
-+	mutex_unlock(&virtvdev->state_mutex);
- 	return 0;
- }
- 
-+static void virtiovf_pci_reset_device_state(struct vfio_device *vdev)
-+{
-+	struct virtiovf_pci_core_device *virtvdev = container_of(
-+		vdev, struct virtiovf_pci_core_device, core_device.vdev);
-+
-+	if (!virtvdev->migrate_cap)
-+		return;
-+
-+	mutex_lock(&virtvdev->state_mutex);
-+	virtvdev->mig_state = VFIO_DEVICE_STATE_RUNNING;
-+	virtiovf_disable_fds(virtvdev);
-+	mutex_unlock(&virtvdev->state_mutex);
-+}
-+
- static int virtiovf_pci_get_data_size(struct vfio_device *vdev,
- 				      unsigned long *stop_copy_length)
- {
-@@ -1297,13 +1268,14 @@ static int virtiovf_pci_get_data_size(struct vfio_device *vdev,
- 	if (!obj_id_exists)
- 		virtiovf_pci_free_obj_id(virtvdev, obj_id);
- end:
--	virtiovf_state_mutex_unlock(virtvdev);
-+	mutex_unlock(&virtvdev->state_mutex);
- 	return ret;
- }
- 
- static const struct vfio_migration_ops virtvdev_pci_mig_ops = {
- 	.migration_set_state = virtiovf_pci_set_device_state,
- 	.migration_get_state = virtiovf_pci_get_device_state,
-+	.migration_reset_state = virtiovf_pci_reset_device_state,
- 	.migration_get_data_size = virtiovf_pci_get_data_size,
- };
- 
-@@ -1311,7 +1283,6 @@ void virtiovf_set_migratable(struct virtiovf_pci_core_device *virtvdev)
- {
- 	virtvdev->migrate_cap = 1;
- 	mutex_init(&virtvdev->state_mutex);
--	spin_lock_init(&virtvdev->reset_lock);
- 	virtvdev->core_device.vdev.migration_flags =
- 		VFIO_MIGRATION_STOP_COPY |
- 		VFIO_MIGRATION_P2P |
+ VIRTIO IOMMU DRIVER
+-M:	Jean-Philippe Brucker <jean-philippe@linaro.org>
++M:	Jean-Philippe Brucker <jpb@kernel.org>
+ L:	virtualization@lists.linux.dev
+ S:	Maintained
+ F:	drivers/iommu/virtio-iommu.c
+
+base-commit: 23cb64fb76257309e396ea4cec8396d4a1dbae68
 -- 
-2.51.2
+2.51.0
 
