@@ -1,87 +1,43 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C6E434A794
-	for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 14:16:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6929C3612ED;
+	Thu, 20 Nov 2025 15:17:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763648181; cv=none; b=OJb8/yd5AihKB5bslOJSI580KultnrlLZdYwQGVIFSqlruQ3Wp0Da9pkjJYBws69jTyUL+I3cX6ptfg4dspScDdRAiDfLxqJOIFBhX4J7MNO2zSmD7JhpYEzsF+2ajiIhMkdLRxT9Qr54XqFwiVLoOQM8M/TliWqFu/nw3VlPCs=
+	t=1763651837; cv=none; b=hbrWk91Puxj59laMcwAW5GEaRaE8u1tO/CBIr4gfPZqZPolT3Y61J2KBEJAHRHXihf2vHaLW+gQURJzULUyT3wxYTutntAEVIHQl47QTXgTgM2R3g0cY5/1F9hz9/5geFsQpiNaIktWXx27qkqiztAPIluWoVIufhwkRzA5+PYU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763648181; c=relaxed/simple;
-	bh=4lUxBl35hiX+aOQNkVxqqufLHrFNbtmDbn1ycs8l5GQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=UaUAtrG9Lg5akw3B8y4TcabGoO0XWu97rThiQHMS/v2nLORV7RcB1U+TM/0VyQMbq5OpU4DrJzbP3wIrwGB2Pl+1CXPQ9WMHSaDBDeYkIlXKGMMznC4xnTI7l5UedabzcJ1ETk3zBS0MG/hrnU2dJgZebdbJID1zYUYr/96q9sM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=amlf6fcB; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1763651837; c=relaxed/simple;
+	bh=0XkeEI6EtugL+gxBeZZYjRHFjTbVod/dVJdkyoFZesQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=juMMuDdAJ6ryrDQl3782Lb8yav8YGTxVnqpJfeCmR2exvWpj+Ij5naiG0NhFJeVMipiohtOwUx06+AhsElwmjQ2r6a9vM/17pAnVNp1Aro+GO+grpRDePii/p2inBUxnqnffrIeCnj789ZDjKubmyisC5a3b8ZckNxTaC8+Wlcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mlJcpGKB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="amlf6fcB"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2956d816c10so11228335ad.1
-        for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 06:16:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763648179; x=1764252979; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OAGq5XcXm/Y4JxXSxKOtW3K0P9eaNPEoSVdhsih2P6s=;
-        b=amlf6fcBmwnz24eegMlxQgofqiUjOznKWCxTGI8srBWK3h7fXgVGhXOszhpOy95hix
-         bNl9hw0l1EV7gYFXcuCn9oDGiMmPpS5pzrJ5wSBQrbfKhX20PYWGLbEeawm25J101bJX
-         fYpCXl261nSWlpZk85FZyNEPkw2tiGfVtdQID+NKnTN4TWX1KmZu3wu/vXKSzbgr1/gE
-         m/zUZ7JnIIchIi+2QZrgSi+c+Ut+l9c38fYvtohbOHtCEr7rVCxBAPFJFP8IxsHEInA3
-         uybzvYgRlcQ187QYPnFwSpVnFyhN/s+AhJIeXq5mVDce58wAVj9eU54/gkusKORE0xTn
-         Kn7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763648179; x=1764252979;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=OAGq5XcXm/Y4JxXSxKOtW3K0P9eaNPEoSVdhsih2P6s=;
-        b=xUUGfDqGjPbjxqovbg/LEM5fSIDp2KHhAY4Y1jOD5oUwCMBrlmaRNRC9d4p/lkgy+e
-         xd1/cjOQIefo5BHfAcVQ2SmNoyFxqNl6VJISbgwEG8qNJ6QX1+utMc70KkyQTOpHXJkh
-         wPjxqUo0k/wA3iaTLeIu3RbiZxw1tD5DgVWlC9vV8th26gQ+67Zxzwdh3WsbCM05ZBFk
-         WxWUXQrKLvuwh07EBRuyKrUX2um8BD6rVzuqqMYhF9QG4YHYAonhYEmp1s6bfxx6CEop
-         Wzl4VCmAqUFP/VF5Va/dx10QrYMZCXJOvCTmlzRl7a7SPpsak4XOzUcPuk5wbg7bIAdE
-         n/OQ==
-X-Gm-Message-State: AOJu0YySjywIZRTkzHk2u96Q2sCo7o9FInENkuCvgSc5UvK6CyHKxU/Q
-	y6zkKmMevhSqZh1gsy6IAHAek2jnSYJtLVEGcNQVGmlu9SRPQuOFblaFW9vqT7qVsLM=
-X-Gm-Gg: ASbGncsXXXZ+RfrkCASII5TJJ/+yPy7sne0wiGxpZjA1TFRm70m3of14FrtEPZvg32r
-	X5RvkQPs1R+oHglEL+rQ3MhFgd91P/p8uF4cuTNpI+ag/ZkmfgSnqurVVUQSYki9uaWRY10Ihsx
-	YZEjIv81rQN82+X3o+i1fxLw/Cld22YtA7NIJtXfuQzsyhTsB8eJ56F6IsO3mb2ZSy6If6mVUhe
-	y9lGXKrnxJ1aQ4OK/o50Ek0Cdj4Tz6m4hfConUI4DaLAvWQzGEstxFykYDEBWaBJdFWpVyNf1GJ
-	pSyJ2RxUCKi4MnhNgMpcquCw7FH4eIfUx8vWEeNJGvX2HURu0atPxH/K+AQ8JJgPRdDCWSqhaZd
-	7V9YgbY+Iq6syursJocuLeA0i3S9EEgW2zG7oB908ETNlCZW5EplejU91li9RfC/JYvI51z28A9
-	NwRKx7YyeEQQcLL5g/R4LBZADY4XoJ8MI=
-X-Google-Smtp-Source: AGHT+IFSkh83U/i2V3nJDK19i9ZiBFZsM67zxW6fP6ALH6yW1nwB7efOT9W49MC+dLNf/XtfEJOJTQ==
-X-Received: by 2002:a17:902:e787:b0:298:6a79:397b with SMTP id d9443c01a7336-29b5cdcf0a5mr36923155ad.56.1763648178714;
-        Thu, 20 Nov 2025 06:16:18 -0800 (PST)
-Received: from COB-LTR7HP24-497.. ([223.185.131.209])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29b5b138bcbsm28442915ad.29.2025.11.20.06.16.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Nov 2025 06:16:18 -0800 (PST)
-From: I Viswanath <viswanathiyyappan@gmail.com>
-To: andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	sdf@fomichev.me,
-	kuniyu@google.com,
-	skhawaja@google.com,
-	aleksander.lobakin@intel.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com
-Cc: virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-kernel-mentees@lists.linux.dev,
-	I Viswanath <viswanathiyyappan@gmail.com>
-Subject: [PATCH net-next v5 2/2] virtio-net: Implement ndo_write_rx_mode callback
-Date: Thu, 20 Nov 2025 19:43:54 +0530
-Message-Id: <20251120141354.355059-3-viswanathiyyappan@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mlJcpGKB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C63BC4CEF1;
+	Thu, 20 Nov 2025 15:17:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1763651836;
+	bh=0XkeEI6EtugL+gxBeZZYjRHFjTbVod/dVJdkyoFZesQ=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=mlJcpGKBUdMDhbcuoqlJJC6B5wxHmWnnowVJH2Rv+4L5WnJfAJiX7cui/1Ntah8Ce
+	 0Rbg5Zt6fz1w3nlvF6y19tBFIRmMhgiJzfAgm76baqoG3itGImarKzpT8S8Zqt6+7o
+	 M0tVvLEhCkK8QxuL1ny4BJu1a1t80y0YMMR4CueBZc4T6i2PiRkN+ElEutfkqVw2QE
+	 NZhgeEGPvkvGvI3DlEuK1MeqfLUNktCxCTsq0y1Kvxbcw4NIBv4FYFiuwWrChHHYfs
+	 LigZ0A1MDqMUwzBSc6VoTCw3PnqZqQMeSrpLhl5Ohxc4f++LltQS9r2EBd7K9JpWmn
+	 OBJ1UDnkU4fMQ==
+Date: Thu, 20 Nov 2025 07:17:15 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: I Viswanath <viswanathiyyappan@gmail.com>
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+ pabeni@redhat.com, horms@kernel.org, sdf@fomichev.me, kuniyu@google.com,
+ skhawaja@google.com, aleksander.lobakin@intel.com, mst@redhat.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-kernel-mentees@lists.linux.dev
+Subject: Re: [PATCH net-next v5 0/2] net: Split ndo_set_rx_mode into
+ snapshot
+Message-ID: <20251120071715.28a47b21@kernel.org>
 In-Reply-To: <20251120141354.355059-1-viswanathiyyappan@gmail.com>
 References: <20251120141354.355059-1-viswanathiyyappan@gmail.com>
 Precedence: bulk
@@ -90,184 +46,82 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Implement ndo_write_rx_mode callback for virtio-net
+On Thu, 20 Nov 2025 19:43:52 +0530 I Viswanath wrote:
+> Teardown path:
+> 
+> Relevant as they flush the work item. ens4 is the virtio-net interface.
+> 
+> virtnet_remove:
+> ip maddr add 01:00:5e:00:03:02 dev ens4; echo 1 > /sys/bus/pci/devices/0000:00:04.0/remove
+> 
+> virtnet_freeze_down:
+> ip maddr add 01:00:5e:00:03:02 dev ens4; echo mem > /sys/power/state
 
-Signed-off-by: I Viswanath <viswanathiyyappan@gmail.com>
----
- drivers/net/virtio_net.c | 58 +++++++++++++++++-----------------------
- 1 file changed, 25 insertions(+), 33 deletions(-)
+Running 
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index cfa006b88688..02bf9bc970a0 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -460,9 +460,6 @@ struct virtnet_info {
- 	/* Work struct for config space updates */
- 	struct work_struct config_work;
- 
--	/* Work struct for setting rx mode */
--	struct work_struct rx_mode_work;
--
- 	/* OK to queue work setting RX mode? */
- 	bool rx_mode_work_enabled;
- 
-@@ -3857,33 +3854,31 @@ static int virtnet_close(struct net_device *dev)
- 	return 0;
- }
- 
--static void virtnet_rx_mode_work(struct work_struct *work)
-+static void virtnet_write_rx_mode(struct net_device *dev)
- {
--	struct virtnet_info *vi =
--		container_of(work, struct virtnet_info, rx_mode_work);
-+	struct virtnet_info *vi = netif_rx_mode_get_priv_ptr(dev);
- 	u8 *promisc_allmulti  __free(kfree) = NULL;
--	struct net_device *dev = vi->dev;
- 	struct scatterlist sg[2];
- 	struct virtio_net_ctrl_mac *mac_data;
--	struct netdev_hw_addr *ha;
-+	char *ha_addr;
- 	int uc_count;
- 	int mc_count;
- 	void *buf;
-+	int idx;
- 	int i;
- 
- 	/* We can't dynamically set ndo_set_rx_mode, so return gracefully */
- 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
- 		return;
- 
--	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_KERNEL);
-+	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_ATOMIC);
- 	if (!promisc_allmulti) {
- 		dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n");
- 		return;
- 	}
- 
--	rtnl_lock();
--
--	*promisc_allmulti = !!(dev->flags & IFF_PROMISC);
-+	*promisc_allmulti = netif_rx_mode_get_bit(dev,
-+						  NETIF_RX_MODE_PROM_EN);
- 	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
- 
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
-@@ -3891,7 +3886,8 @@ static void virtnet_rx_mode_work(struct work_struct *work)
- 		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
- 			 *promisc_allmulti ? "en" : "dis");
- 
--	*promisc_allmulti = !!(dev->flags & IFF_ALLMULTI);
-+	*promisc_allmulti = netif_rx_mode_get_bit(dev,
-+						  NETIF_RX_MODE_ALLMULTI_EN);
- 	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
- 
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
-@@ -3899,27 +3895,24 @@ static void virtnet_rx_mode_work(struct work_struct *work)
- 		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
- 			 *promisc_allmulti ? "en" : "dis");
- 
--	netif_addr_lock_bh(dev);
-+	uc_count = netif_rx_mode_get_uc_count(dev);
-+	mc_count = netif_rx_mode_get_mc_count(dev);
- 
--	uc_count = netdev_uc_count(dev);
--	mc_count = netdev_mc_count(dev);
- 	/* MAC filter - use one buffer for both lists */
- 	buf = kzalloc(((uc_count + mc_count) * ETH_ALEN) +
- 		      (2 * sizeof(mac_data->entries)), GFP_ATOMIC);
- 	mac_data = buf;
--	if (!buf) {
--		netif_addr_unlock_bh(dev);
--		rtnl_unlock();
-+	if (!buf)
- 		return;
--	}
- 
- 	sg_init_table(sg, 2);
- 
- 	/* Store the unicast list and count in the front of the buffer */
- 	mac_data->entries = cpu_to_virtio32(vi->vdev, uc_count);
- 	i = 0;
--	netdev_for_each_uc_addr(ha, dev)
--		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
-+
-+	netif_rx_mode_for_each_uc_addr(dev, ha_addr, idx)
-+		memcpy(&mac_data->macs[i++][0], ha_addr, ETH_ALEN);
- 
- 	sg_set_buf(&sg[0], mac_data,
- 		   sizeof(mac_data->entries) + (uc_count * ETH_ALEN));
-@@ -3929,10 +3922,8 @@ static void virtnet_rx_mode_work(struct work_struct *work)
- 
- 	mac_data->entries = cpu_to_virtio32(vi->vdev, mc_count);
- 	i = 0;
--	netdev_for_each_mc_addr(ha, dev)
--		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
--
--	netif_addr_unlock_bh(dev);
-+	netif_rx_mode_for_each_mc_addr(dev, ha_addr, idx)
-+		memcpy(&mac_data->macs[i++][0], ha_addr, ETH_ALEN);
- 
- 	sg_set_buf(&sg[1], mac_data,
- 		   sizeof(mac_data->entries) + (mc_count * ETH_ALEN));
-@@ -3941,17 +3932,18 @@ static void virtnet_rx_mode_work(struct work_struct *work)
- 				  VIRTIO_NET_CTRL_MAC_TABLE_SET, sg))
- 		dev_warn(&dev->dev, "Failed to set MAC filter table.\n");
- 
--	rtnl_unlock();
--
- 	kfree(buf);
- }
- 
- static void virtnet_set_rx_mode(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-+	char cfg_disabled;
-+
-+	cfg_disabled = !vi->rx_mode_work_enabled;
-+	netif_rx_mode_set_bit(dev, NETIF_RX_MODE_SET_DIS, cfg_disabled);
- 
--	if (vi->rx_mode_work_enabled)
--		schedule_work(&vi->rx_mode_work);
-+	netif_rx_mode_set_priv_ptr(dev, vi);
- }
- 
- static int virtnet_vlan_rx_add_vid(struct net_device *dev,
-@@ -5767,7 +5759,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
- 	/* Make sure no work handler is accessing the device */
- 	flush_work(&vi->config_work);
- 	disable_rx_mode_work(vi);
--	flush_work(&vi->rx_mode_work);
-+	netif_rx_mode_flush_work(vi->dev);
- 
- 	if (netif_running(vi->dev)) {
- 		rtnl_lock();
-@@ -6270,6 +6262,7 @@ static const struct net_device_ops virtnet_netdev = {
- 	.ndo_validate_addr   = eth_validate_addr,
- 	.ndo_set_mac_address = virtnet_set_mac_address,
- 	.ndo_set_rx_mode     = virtnet_set_rx_mode,
-+	.ndo_write_rx_mode   = virtnet_write_rx_mode,
- 	.ndo_get_stats64     = virtnet_stats,
- 	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
- 	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
-@@ -6891,7 +6884,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	vdev->priv = vi;
- 
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
--	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
- 	spin_lock_init(&vi->refill_lock);
- 
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
-@@ -7196,7 +7188,7 @@ static void virtnet_remove(struct virtio_device *vdev)
- 	/* Make sure no work handler is accessing the device. */
- 	flush_work(&vi->config_work);
- 	disable_rx_mode_work(vi);
--	flush_work(&vi->rx_mode_work);
-+	netif_rx_mode_flush_work(vi->dev);
- 
- 	virtnet_free_irq_moder(vi);
- 
+make -C tools/testing/selftests TARGETS="drivers/net/virtio_net" run_tests
+
+[    1.967073] BUG: kernel NULL pointer dereference, address: 0000000000000018
+[    1.967179] #PF: supervisor read access in kernel mode
+[    1.967237] #PF: error_code(0x0000) - not-present page
+[    1.967296] PGD 0 P4D 0 
+[    1.967327] Oops: Oops: 0000 [#1] SMP
+[    1.967372] CPU: 2 UID: 0 PID: 220 Comm: basic_features. Not tainted 6.18.0-rc5-virtme #1 PREEMPT(voluntary) 
+[    1.967500] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+[    1.967576] RIP: 0010:__flush_work+0x33/0x3a0
+[    1.967651] Code: 41 55 41 54 55 53 48 83 ec 60 44 0f b6 25 0d ab 91 01 65 48 8b 05 2d ff 8d 01 48 89 44 24 58 31 c0 45 84 e4 0f 84 35 03 00 00 <48> 83 7f 18 00 48 89 fd 0f 84 30 03 00 00 41 89 f5 e8 07 24 07 00
+[    1.967861] RSP: 0018:ffffab9bc0597cf0 EFLAGS: 00010202
+[    1.967920] RAX: 0000000000000000 RBX: ffff9d08c2c549c0 RCX: ffffab9bc0597d28
+[    1.968010] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+[    1.968100] RBP: ffff9d08c1cd5000 R08: ffff9d08c1db7b70 R09: 0000000000000000
+[    1.968189] R10: ffff9d08c1db7f80 R11: ffff9d08c152e480 R12: 0000000000000001
+[    1.968281] R13: ffffffffbd9ffe00 R14: ffff9d08c193e140 R15: 0000000000000008
+[    1.968371] FS:  00007fb66173b000(0000) GS:ffff9d0940ce9000(0000) knlGS:0000000000000000
+[    1.968472] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.968546] CR2: 0000000000000018 CR3: 00000000045e5006 CR4: 0000000000772ef0
+[    1.968640] PKRU: 55555554
+[    1.968669] Call Trace:
+[    1.968700]  <TASK>
+[    1.968729]  ? kernfs_should_drain_open_files+0x2e/0x40
+[    1.968796]  ? __rtnl_unlock+0x37/0x60
+[    1.968849]  ? netdev_run_todo+0x63/0x550
+[    1.968894]  ? kernfs_name_hash+0x12/0x80
+[    1.968938]  virtnet_remove+0x65/0xb0
+[    1.968984]  virtio_dev_remove+0x3c/0x80
+[    1.969029]  device_release_driver_internal+0x193/0x200
+[    1.969090]  unbind_store+0x9d/0xb0
+[    1.969136]  kernfs_fop_write_iter+0x12b/0x1c0
+[    1.969197]  vfs_write+0x33a/0x470
+[    1.969242]  ksys_write+0x65/0xe0
+[    1.969287]  do_syscall_64+0xa4/0xfd0
+[    1.969333]  entry_SYSCALL_64_after_hwframe+0x4b/0x53
+[    1.969393] RIP: 0033:0x7fb66183b257
+[    1.969434] Code: 0f 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
+[    1.969640] RSP: 002b:00007fffca552fe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+[    1.969729] RAX: ffffffffffffffda RBX: 00007fb661937780 RCX: 00007fb66183b257
+[    1.969820] RDX: 0000000000000008 RSI: 0000558903e5a280 RDI: 0000000000000001
+[    1.969911] RBP: 0000000000000008 R08: 0000000000000003 R09: 0000000000000077
+[    1.970004] R10: 0000000000000063 R11: 0000000000000246 R12: 0000000000000008
+[    1.970096] R13: 0000558903e5a280 R14: 0000000000000008 R15: 00007fb6619329c0
+[    1.970189]  </TASK>
+[    1.970218] Modules linked in:
+[    1.970266] CR2: 0000000000000018
+[    1.970311] ---[ end trace 0000000000000000 ]---
+[    1.970372] RIP: 0010:__flush_work+0x33/0x3a0
+[    1.970441] Code: 41 55 41 54 55 53 48 83 ec 60 44 0f b6 25 0d ab 91 01 65 48 8b 05 2d ff 8d 01 48 89 44 24 58 31 c0 45 84 e4 0f 84 35 03 00 00 <48> 83 7f 18 00 48 89 fd 0f 84 30 03 00 00 41 89 f5 e8 07 24 07 00
+[    1.970656] RSP: 0018:ffffab9bc0597cf0 EFLAGS: 00010202
+[    1.970717] RAX: 0000000000000000 RBX: ffff9d08c2c549c0 RCX: ffffab9bc0597d28
+[    1.970806] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+[    1.970897] RBP: ffff9d08c1cd5000 R08: ffff9d08c1db7b70 R09: 0000000000000000
+[    1.970988] R10: ffff9d08c1db7f80 R11: ffff9d08c152e480 R12: 0000000000000001
+[    1.971081] R13: ffffffffbd9ffe00 R14: ffff9d08c193e140 R15: 0000000000000008
+[    1.971174] FS:  00007fb66173b000(0000) GS:ffff9d0940ce9000(0000) knlGS:0000000000000000
+[    1.971264] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.971337] CR2: 0000000000000018 CR3: 00000000045e5006 CR4: 0000000000772ef0
+[    1.971431] PKRU: 55555554
+[    1.971460] note: basic_features.[220] exited with irqs disabled
 -- 
-2.34.1
-
+pw-bot: cr
