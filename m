@@ -1,67 +1,67 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6880F3396F8
-	for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 12:37:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33AF43358CF
+	for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 12:37:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.14
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763642251; cv=fail; b=jOFT802Ksb7W9PZfFfd8mA3emBeAT2N/OxO55o8RdgNlpOobc2Xlr00LvqGpD9s6QqpROPyZDHYVP6PpNwMyAnJWPMlqpld3coYiTeDqruO7IW4SBsDMmJReV+ztTIYRFubqX/vMZzHI5THnrmMrmZg1wEQaqhw0TjHvQwWHtCQ=
+	t=1763642262; cv=fail; b=XJpsGjKwWMu9hZvIJd17NfzZxjLSiLoA/PGPNGRtrrP1dDkXhlXfwykv+mfltZ08bFiwZEkmISNwT1RRMXJVrNUvV12Pdz2shkzub2POrYQbsx8yM7r/h31mA/tKKay+pwJRlV6WfPArExG9GWjg7+jnJDubXFpG1fn/zHK8Apc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763642251; c=relaxed/simple;
-	bh=K/EkXuscocY0qgPuuCGp142l8bLU3QQHdE9PaBYRDJI=;
+	s=arc-20240116; t=1763642262; c=relaxed/simple;
+	bh=21Ju+TexsfQrxsrlM0wLtrmPYfbgGpC5pYIz8RM4SGo=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=E8vdS6VctZQqeexbOtvfAnNnLTvjIHdTxFMsOyBsuVBPqQA+KQROQViIaOcdnNAiV9BDpOh7N4F3uwr4nclfNvIUvi6gevVb2x9Sm25Ma4VyiAAYgQRccQt4bJBefc82pqzYNRE1SpugVlwXNZUFcjWoW91vrb/vbd6W7GZcQeY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iR7rKf5V; arc=fail smtp.client-ip=198.175.65.11
+	 Content-Type:MIME-Version; b=GHbI7oItMBR9yj6qflGdca7g5rA1xUVZHsGShMDl+GbR/sCpML9Tc5qxLEb4TZ97Y7B4tvquGSsGAKZ/xGYNhOAbHCGUDeTcI0ckuELWBil0k+0C05i7MZyeM6+7fWJpwe+w63X0OyKxdJVTdk04nKq69os3sKxIKbZUODzkr2U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Opv0DTia; arc=fail smtp.client-ip=198.175.65.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iR7rKf5V"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Opv0DTia"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1763642250; x=1795178250;
+  t=1763642259; x=1795178259;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:content-transfer-encoding:mime-version;
-  bh=K/EkXuscocY0qgPuuCGp142l8bLU3QQHdE9PaBYRDJI=;
-  b=iR7rKf5VIsyB/dXDhJhpGkUDVf35x2LCDXa+WE+2Vwu2Xb2IHRvb8v7X
-   VQHkC7+0WktfJCQelotBgCVMQy/JubrpLZlcDxJnIkSbRzJcFEfpWbp8F
-   Z+Mxynj6xLdkzKKMMDL2613YE4Tjnx+IblhN3p/h794cpP53TubB/x1m3
-   4NDi9fguj+7p/I6Tcn1E4CyJClk1JFYmDbaXHDG4Vu41SzSEey/RbG5F/
-   8jkFuXIlQpsffMUprvWBXCQltmx7wo4+Msq5Bow9TCZFwd6L4VUkSzcyT
-   sxalveF2FC2HZaVY7yLt4Jp2objL1M32oU+cGwn9SMY1zO6p/WvwiCvC6
+  bh=21Ju+TexsfQrxsrlM0wLtrmPYfbgGpC5pYIz8RM4SGo=;
+  b=Opv0DTialo5d2cKrtYIULBOgaubEFKXx+0I3I736dC8o6sqBfCQ4NjEI
+   aesywV8g1EjuJ797sXb8qt3qiDslZ3hqfn+FxXZrStUug1wTggG+yJwby
+   RTu+S5/nFnEq5qjTJJ0XHHxaoY3wTnY8F7gZ3lRZkqLo7/76RJiwPE4LD
+   c4BX7GYdJUNxUBRal2vYGrZUwWkgSvQI+h9L5WHNmmoR3D0CiFBasy0gx
+   4TvK5E4kz9Z/o1gvQY3j1/bQ/mQNoq+06TVcmqiEhYvUy4auuejjJL0On
+   Hkla+38DfjC3VCtl1j6n8lFilRherlwMogP4unh9HK/PeaipOvOsPaynX
    w==;
-X-CSE-ConnectionGUID: v/m+mU5mRj6M+Zm9pnkiOA==
-X-CSE-MsgGUID: 2WgP754KSGyvwUBOsMqCLA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11618"; a="76037915"
+X-CSE-ConnectionGUID: BWDySwLVQ7u2WA25o/JCXw==
+X-CSE-MsgGUID: 6uiNORIDRUy3MNrllka4pQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11618"; a="69565087"
 X-IronPort-AV: E=Sophos;i="6.20,213,1758610800"; 
-   d="scan'208";a="76037915"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2025 04:37:29 -0800
-X-CSE-ConnectionGUID: acRXMfIPRJ6h0v+nE9o6pQ==
-X-CSE-MsgGUID: TrmbzVilS0K1Zo4HOtaoaw==
+   d="scan'208";a="69565087"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2025 04:37:14 -0800
+X-CSE-ConnectionGUID: 4bBmformQ6CaB4HIErZ1Tg==
+X-CSE-MsgGUID: 66U0RZRyTt6X3cJPiSWPCg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.20,213,1758610800"; 
-   d="scan'208";a="190633977"
-Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
-  by orviesa010.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2025 04:37:29 -0800
+   d="scan'208";a="196324976"
+Received: from orsmsx903.amr.corp.intel.com ([10.22.229.25])
+  by fmviesa004.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2025 04:37:13 -0800
 Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27; Thu, 20 Nov 2025 04:37:12 -0800
+Received: from ORSEDG903.ED.cps.intel.com (10.7.248.13) by
  ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27; Thu, 20 Nov 2025 04:37:28 -0800
-Received: from ORSEDG902.ED.cps.intel.com (10.7.248.12) by
- ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ 15.2.2562.27 via Frontend Transport; Thu, 20 Nov 2025 04:37:12 -0800
+Received: from BN1PR04CU002.outbound.protection.outlook.com (52.101.56.36) by
+ edgegateway.intel.com (134.134.137.113) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27 via Frontend Transport; Thu, 20 Nov 2025 04:37:28 -0800
-Received: from CY3PR05CU001.outbound.protection.outlook.com (40.93.201.23) by
- edgegateway.intel.com (134.134.137.112) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.27; Thu, 20 Nov 2025 04:37:28 -0800
+ 15.2.2562.27; Thu, 20 Nov 2025 04:37:12 -0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=g+0lrLP7bVlNfPMYJQh/GT58hEEgZwjbTJ+aZnm7UZcm+fapy26S8Vj9AjrqMNP+Ycbg4Pk5qE6RLSmBOCG2R8qQnFaX0fi5AVV3Jt2In0ckaiMYMCcy8d6EC94ZPEnx+edpXB/uoVaE5EEvNwruQk64yImCB3e4PAYm5Ft4jHXAQIwip1IlJ+IHVm9JW8wIppnQVJPjpzn2lFLcKG0EfDECaTgY9hQYws71pYAZ2yegvl2JkiyvmK5IN5wI5fw+xr/hMx7+eNHU8TWx0oabvsTXphoS43vFcy+IY7QrEmurcX5C6wW5MaO14YvWkyJjeRjT+Zax+AGvUzqSCBn3RQ==
+ b=E8mQ4d2f4VE0lBpIek03N7oMkDLUiLn6xVLPTY4uaIAMXgqlqhtke6hOAy6l19o1XpecUTI2e54q4TMOVVr+3SGXNYvLWIseC8URwThPNRKNzmWWf7ooBwjm+pp0dObCdKaG3WBK7004EIXtZSzq9gs0jFN+QhkYkg+uBubrbsSUByRXEpI7PedSKAO/dciaLcNIV2cDwwj44YMLsW1MjeLYxQqQC7R4dP5TiXu+ufUWBwJyHD7W3uqeree0KbP+gpGyDF2XZaleDVsxHCv3QAv+kYUVlhJlqjCaoBUn177+tvE3PiW7rG9o+kguG0c0oWq8LFAC8MqhRb4idx1tHw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HVWrO7eAv8uA8ZmIB3RTXasCD9+WcBvhwiRp9i7B6w0=;
- b=RBQFUH/bwQOFZxFCvJjfqI2QzqS9UcyloLLm8euScMz71V9c0aOvejL7F/7oJ2R4zQbsqPxMb/bxI9bmkhZsBwo9jhIprJYARH5WxcbayH/XaCu+WMeNDW/yd5mVmDwX1lEuk59oZ3k1qyg1KntJN4K6qqcYK4bWGh/RFAc9ie5+0itgxxOf3+zb0X/xP9kYdo3pt+XMg0s4xOqZiNOndXEDz9KP5x5Dk52dAY1FFz5sXLadnHooi3cJleGPr/jE2SfsogXGPoaFdndCXA7VHrAk3CoJKz4IrKLbBBbgh0zpMxZBYcSS7k/cVaFHkFnf+dDv6NhkjOkAW+FrktveBA==
+ bh=1kPmxeChkpGEMRNBkPCHYFx4TArChILyvcG1VU0j3Js=;
+ b=OWjuwR+Pg1rME1xQrLjfbp3iEjyrKtBidy4UUsrOdcw2qZD2CZEuH7r/RXZ/EHETBM+DtMDo13v3UfW/TyVeeZmgdhMtMy/NWyJI02xf0pN6dUqYXoKiZ3OBbwKAjUkVjNAgNlx9K6AZSpADTVeJfi1GDqVrjHg4tdgFBhrz45eoZbdOk3i1hIOTamxRaKGFJvYjpnCgRCA6x45Udg0BXwIMLMbpIkfMs22Rc6SSde8GOghbSCTP3N4HoBuQmKC/VtcCdKV777+5LB+NGYUL65QTClqkDz11K/VWcQ5pV3knhbuE5/k0XGDcH5CHtP+pQOrMvDOTuFPms+pU/ApOPA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
  dkim=pass header.d=intel.com; arc=none
@@ -71,11 +71,11 @@ Received: from DM4PR11MB5373.namprd11.prod.outlook.com (2603:10b6:5:394::7) by
  DM3PPFC3B7BD011.namprd11.prod.outlook.com (2603:10b6:f:fc00::f49) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.11; Thu, 20 Nov
- 2025 12:37:26 +0000
+ 2025 12:37:09 +0000
 Received: from DM4PR11MB5373.namprd11.prod.outlook.com
  ([fe80::927a:9c08:26f7:5b39]) by DM4PR11MB5373.namprd11.prod.outlook.com
  ([fe80::927a:9c08:26f7:5b39%5]) with mapi id 15.20.9343.011; Thu, 20 Nov 2025
- 12:37:26 +0000
+ 12:37:09 +0000
 From: =?UTF-8?q?Micha=C5=82=20Winiarski?= <michal.winiarski@intel.com>
 To: Jason Gunthorpe <jgg@ziepe.ca>, Alex Williamson <alex@shazbot.org>, "Kevin
  Tian" <kevin.tian@intel.com>, Yishai Hadas <yishaih@nvidia.com>, Longfang Liu
@@ -84,16 +84,16 @@ To: Jason Gunthorpe <jgg@ziepe.ca>, Alex Williamson <alex@shazbot.org>, "Kevin
 	<giovanni.cabiddu@intel.com>, <kvm@vger.kernel.org>, <qat-linux@intel.com>,
 	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>
 CC: =?UTF-8?q?Micha=C5=82=20Winiarski?= <michal.winiarski@intel.com>
-Subject: [PATCH 5/6] vfio/mlx5: Use .migration_reset_state() callback
-Date: Thu, 20 Nov 2025 13:36:46 +0100
-Message-ID: <20251120123647.3522082-6-michal.winiarski@intel.com>
+Subject: [PATCH 1/6] vfio: Introduce .migration_reset_state() callback
+Date: Thu, 20 Nov 2025 13:36:42 +0100
+Message-ID: <20251120123647.3522082-2-michal.winiarski@intel.com>
 X-Mailer: git-send-email 2.51.2
 In-Reply-To: <20251120123647.3522082-1-michal.winiarski@intel.com>
 References: <20251120123647.3522082-1-michal.winiarski@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BE1P281CA0283.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:b10:84::9) To DM4PR11MB5373.namprd11.prod.outlook.com
+X-ClientProxiedBy: VI1PR04CA0104.eurprd04.prod.outlook.com
+ (2603:10a6:803:64::39) To DM4PR11MB5373.namprd11.prod.outlook.com
  (2603:10b6:5:394::7)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -103,341 +103,215 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: DM4PR11MB5373:EE_|DM3PPFC3B7BD011:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1e2cb308-f2e9-4022-05d5-08de28318fe4
+X-MS-Office365-Filtering-Correlation-Id: 94d74692-ae19-44a8-0333-08de2831859c
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024|921020;
-X-Microsoft-Antispam-Message-Info: =?utf-8?B?YUkwZWM2NUJQY2IrdkJGLzA5TkNzeHlIeVp6c2hobTBMTmwwcHUwWTRkbkhi?=
- =?utf-8?B?QXM4L2Y3dGFySlJwK3pMNGJIaFNvdlR3dkpZSGZEYWRtbzhDMjZyRVlFVmpC?=
- =?utf-8?B?NDh3dmZaajZwTE1tSlJNZVpaTmdKbS9tTUhyOGRNOEk5QXJGT3k1dFVuMXlj?=
- =?utf-8?B?dVZ5YWpZeVRvRkpWT2J2M0dZY2ZXZkIxMGl6UXpHQnV4VTNxODRhNkRITFNt?=
- =?utf-8?B?TGcwWEU2NDhPYW12UTRyLzFOcDl2NXJvb3N2VGdoemNGaktoNTUvZUhFNnF4?=
- =?utf-8?B?N0Ztc2xBRnJ6bUFkWStlWjNWUjNUSWR4TkRSaC9ZRTNXNmJ0aDdZZHpEcGJD?=
- =?utf-8?B?RnBpWStqQnhxSW5QbTBmWDg4Q2dUNkd1Wko1VmFLUDRpUmpWQllRU3g2dG5u?=
- =?utf-8?B?Tkdsc3VzQ3RUcmgyaG0vMU00TVZrRitVMjhqdUFkc3B1Vkg3QkFwOUlpc0Fl?=
- =?utf-8?B?K2pyRWdLbGpaNXRHbmsrVmlnVzRjZFFrcnRMZDhzV2xaUmcvZ1VzKzVlWW1W?=
- =?utf-8?B?YXZjbFI2ZUw1VWYvVGJXK21rSWNoQzhzSTEwcjhDemNyMDZxa1JVZEdsQTFu?=
- =?utf-8?B?Wk1DR1RIdGpFTDZ6SzVHd0JEaFhmM0JGOUpaOW9GRFNDSkI2aGdPZmZHVDBY?=
- =?utf-8?B?bFZlVUk3Ynd4anFrUmMreDViL0tHcmdvTGhOY2w0RGlEd2N5K3lpVEE2Snlp?=
- =?utf-8?B?MWpLYWt2b25iMUxZYm4xMXdydC9sUjZvdHY1Z0srWDQyYjZJL0RoRld3eTk3?=
- =?utf-8?B?T21WNHhyclJ5WGhQTWplalIwczdMdTlLSWg2UFhKVlhDMHR0OUtuUEF3UTdK?=
- =?utf-8?B?a21ZWjZCNS9qb1ZnbWFnR29UN1FkZWdPc2FiWVdWQmFWckRNWDh0S0ZuM3hK?=
- =?utf-8?B?N1BmUUZNVmNBdml1Tjhvb09FUUhYV0I2K2pHQ2FnK1o1eU5hem1XYXE2WjAr?=
- =?utf-8?B?TGk3VmNHY2MrczJacW9mTjVhcWNoOWtBYW1wbG0yMGVNS2JmZUpvRHlFZG5l?=
- =?utf-8?B?akwxY2Z0bTFqSEV5bVF1RG83d2NQRHJ3U2hmYzVabDZEcG1CdlhBMEhuaGdS?=
- =?utf-8?B?YmJLNjkydHgzZVB2UzQ0SExqc2h0SVgrTWdrUUhicXlkNVAxeUNmL3gvbTNF?=
- =?utf-8?B?NlRYNi9ISkZONGJhOHVicnh2ZzBzNXA5Z3N5UGV6ZVdXaXZhN1lQb2pxaVdw?=
- =?utf-8?B?S3BIbC9VSlZhMDFKZ2s3dUhTc09aQTZ3SDdsbkp5aW5aVitEQjBtdlV0N1lV?=
- =?utf-8?B?S0FWSGQ0UVRGdWptY0NCVk9iRUY0eWNyc05Qcm5TLzFFem5mU21pa0U2VTlC?=
- =?utf-8?B?K3ppRmtoNUd0Y2xWMWJhc1RIdVJ6YnJnb00vOGJFcWlzSnpCUk1pMzNwRXg3?=
- =?utf-8?B?UU5ES0tmR2tuTEh0ekdPS1ZOWDNVTkVVUW40WWFqaHVRQ05zS1IxM21sdzdQ?=
- =?utf-8?B?T1FmckJJWktZYXR1NnVCdlk5dHVPRSswbmVPSWxnd2tIV1o4eXBCNUZJNDhm?=
- =?utf-8?B?eWFhRk1FbUgyZ096LzMrakNNblk5RVRqUEVrdFdmc3BQNmJRQXhhTEFtbnIy?=
- =?utf-8?B?Y1MxYU1YMmpOY0NUTnNva1dWTlNMQk12TVpFUzRycVVWZ0plYlBQYnJNdkNr?=
- =?utf-8?B?OTJDSU4vcHE2NDFqVGZWN05hb3pwSGJYaGVwMjJpTmtnUDh0amhhRVRHNlpr?=
- =?utf-8?B?T3I0SXZ2ODk3VnRQcWU0RWxGQmJBZ2IydlN6bWNGZkJNQWpQaEdGc1hsNi9y?=
- =?utf-8?B?aVBKRVNicVhyOEgzOWEwOTNJSGNTdEV4cnUvbUdRREVtcE1LM3p4Z0xXZmp5?=
- =?utf-8?B?eFpOcE9kVWt1YnYyYzlhTVlKbDhyVTl4V2xabEdhblR3ek1sUkkrWWV3KzFR?=
- =?utf-8?B?enZtd0Z4b2JqMStGT0xSYTk4YzBOdVl0L2NocDdmajJoU3UxRThzc29VcWt4?=
- =?utf-8?B?SDNZQzBGVUpKRGlpb1hGTmdHL09vMGJkUEdGTjFGNXZ1a3pncnVQU2ZkSFBN?=
- =?utf-8?B?VHZ3WnIwQlBzMmhRZGo2KzBJa3J2cWFyZzNxK0h5NWRGTUR0Qll0U29FWU1C?=
- =?utf-8?Q?Yhr0nf?=
+X-Microsoft-Antispam-Message-Info: =?utf-8?B?NFFNc2w3ZEZLaHhFN2wxaUdGQU5xOHZoKzFlMnpBeHZBbkpQZlBqeWVXSnBy?=
+ =?utf-8?B?QlVSWnhqRFNMa3dZQTVobnN6MkZOLytNSjNueXJvZG9ER2RtUG9adU9Wd0Js?=
+ =?utf-8?B?WTF1MmhYbTN5RzlzTXZYQlN5VWgxU1RrTytHYm9nbVd0QWtXSEdaejdhVjdr?=
+ =?utf-8?B?MkhWTmhOOUF5YXFNNzFsYXJVUkZqUldYcmtpWlZXQ1dndXM2VHp0NWhWeEZY?=
+ =?utf-8?B?aklNZDM2SnlXT28rWUJkTGNhd0ROb1NvZ00vL3VLanlWb2pVenJLcXpGM1ov?=
+ =?utf-8?B?WEx0czlranEzSHBkMHBHaHdYbEVTQVNEWWVpc3hvcncvMVpMeStHV3FRUWxJ?=
+ =?utf-8?B?d2ZlQjBrWWdOOUhGdnBPdGpGWmZpenZKMjg0RlFZRG45T2lzT0l5K0pJSDFj?=
+ =?utf-8?B?OXA5NmNseVZqcHMvZUJkbzYzbkdkNUJlS3VYb2UxQzRHczNCancySk95NHRN?=
+ =?utf-8?B?eVZoeE5rN1NnMTczdUI0b01ZUnFkT3djbE5hcHdPRXcwV0k0SGZHRjNMVmpB?=
+ =?utf-8?B?MzZYTHhOZENPRXBoMWsvOWhISXExL0RvSnlEV2VDZjMrU0FlbWgxMU5Sb0h4?=
+ =?utf-8?B?Smt3MEQxYnd6UmJkbGU0N3NtK2o3dG5Nays4U0tiRFEvUFdkQ3NIYlBRbFF4?=
+ =?utf-8?B?dy9jSlFhOXY5aU1ZakdYdVZuS2w3OVYxRk1EZDRLdE9yK1RpS0E0QkQ5STdj?=
+ =?utf-8?B?OWI4VjNYdEdKSFAyZWptc1hNZVcxZXVkMkh5Y2NlNnNrSFZGZFFjb3dlaGx6?=
+ =?utf-8?B?STVBYTJEWUkrZHBrcjBvWXBoL1FRSk9qd2c1bUpINnl6S3VGSnF4U0NsblF0?=
+ =?utf-8?B?VmczT1oyeVNsUGlaODByN2NEMjgxZnd3VjliZ3VYdHVKcHJGVUxzV29jZWpG?=
+ =?utf-8?B?Z2lUeGdRUzZjdEVKa2N4QnlySDVBdnFYT0N6aW9oelNUSU1uNlZFeVJMVjlZ?=
+ =?utf-8?B?am5nN2NLUjZTQ2lGNGFhSlRZWHJhUmFLSVROU3g4eFQ0ek5lWDl6aVgyb0pm?=
+ =?utf-8?B?WXlJY0VTOG53MjhiL0lML3RuY28zUGVvbGFFV3NQRXFWUk5EcDJnQU0xVXp5?=
+ =?utf-8?B?VTZnU3dVZFkrTEZqZjFaWlJHdTFTdko4ZFpPOEhackNSbmFVYXpzemJBU2Fk?=
+ =?utf-8?B?ekszRXdXZm4yZW5kWWIvMlNxZDNhbWF5R3BJZmZOMVBPOGJCMFcrN1Uza0hi?=
+ =?utf-8?B?WTg2UW1FMzROL1dYOFUvNU5mWFF0TkJjS2JlSlp6VE9jTTFBTUJzMzh6VVFy?=
+ =?utf-8?B?UGJ6dytWUkJVWkRIQXZzNlJTdDJJRFRDM09UVUlCNFoyNFAvdFBHWm4yZXJQ?=
+ =?utf-8?B?V2JwK0xobVpDUDFMYkkyazM5aWg3akFEZkdqK09ldlpYSVhXQ1BzRTdZRS9k?=
+ =?utf-8?B?eDhYbXJaNzdjVnFkQ2tjNnRDSEhlNllDWldVd0VwOUxhMlFFcDlDdDV2aGxz?=
+ =?utf-8?B?cE1iQjdJbVN4TU54OVZTcmxXUHhjbG5NT3lZRVZXRmUrVU5MQzBCajU1VU15?=
+ =?utf-8?B?TFJJYlFtSEFXV0tWdE1OWDdUcnhlRUZsQVBsUmc0cVF1cnRhQkp4RWl2RW9K?=
+ =?utf-8?B?aHRDWk1KS1lCKy9iczBNdUxjSWY4RXBMQkZTYlZTbUg4ZTBoVnYxVG82MTZJ?=
+ =?utf-8?B?aG1ib0NOUWRzZ2lTWGE1UzZPdXVuRllkR0hvVnZVTVdraVpOWUxKenNYRjZk?=
+ =?utf-8?B?RW14OERsdWhYZmhDSm1HMVM1QnpBNkZwbWlEdUFjenJyY0FRK29zbWNPd2hO?=
+ =?utf-8?B?WE9LY3krbXcyclRjQkRHR0tqY1hQWnZ0dUwrV2wzYUVWcndVWjlIblNvZHMz?=
+ =?utf-8?B?cWx0Y01maDJ2WmRCSjd4cHM5ZUZxajBobzJ6dTYrQlp0NS9FSitSaDNycG5x?=
+ =?utf-8?B?N3JqY0pDRExXR1JEU0hFc3Jkb2daTVN5b1FSVW4zdFc3eW4rK1FVQXhIWGVl?=
+ =?utf-8?B?ckR1anFOcnR6dFVBVlZ0WnRnL2V3VVlremRaT2RCdnUxNDVtNldZRFF6czlj?=
+ =?utf-8?B?UEYza1pHVC9jTU9jYlJ5S0F3SDc0b3BqLzRSNC9QZkhYUHRmTlhmbVdvZThp?=
+ =?utf-8?Q?t++k3L?=
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5373.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(921020);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Y1F2VERTNm9jbnczY2M1enh6N0tUekNxdGllR3lLZGtnTXg0T1pneVNBSkp4?=
- =?utf-8?B?aVUrLzJuR21PWEVTQnFBRXlLemdJcllmb2Q1U29TMk02TW9jTVJ6K2o4TVg4?=
- =?utf-8?B?YWxtNWtRelBWY25YYWVGUzVRVHJlNVlSaitrbVZMKzBsUzFZSjM0RHZ2S1BM?=
- =?utf-8?B?YVo0UFBKcE5LbFE4anAyYWZlMmJWb2lXMXN2aUVUY3lmQ1ZBd2FHYk9kZWRw?=
- =?utf-8?B?V3A1Q3NNMEhuUGxaU2x1alVCcXFPYVpjeWpya01CREJ5Z2VsZTRmWmI2TXVp?=
- =?utf-8?B?OGMyaVR5MTBLMU1zQ0VvMGNwVXFTY2hpY2FMcmNLNUFxbUNxOWZnL3l6bVYx?=
- =?utf-8?B?OThNZ1BLTzJxOFp0MDdWRmxvR3J3MWRxNnpBSWlOU055ZlFwaC9PZjhnMHpH?=
- =?utf-8?B?R2J5RExBQ3V6ZXhFUVlqUmtlMlZwR1Nrc2FHR2czUnZHMGt0ek5nVXNORGZ4?=
- =?utf-8?B?TEc3VDg5a2RyQnFvVWZVbUZqdGl5L0djYzJUVjRXbXIvK0dnUlp1VjR0TDI0?=
- =?utf-8?B?T0c2c04vTUEvTUlHYkNHUHhFUGl0QmNmdFRHUERFNUVFWWZua0JRQ0lZSldG?=
- =?utf-8?B?WFZBOGNveThNWnNqZ1JDbmFGbFMybExkZm1tWGtGZCtXNnlYMDh1MTk2WFZx?=
- =?utf-8?B?clVPOFZxOGdaaTMzQzRqbDJ6SHZXZUtKaldQL00rRmxaWmd0UWQzZnVHTG5T?=
- =?utf-8?B?UjlUdzRoOE0rSnZud0RQK3JlZWt6SFdxQitKWUtUWUFZMVVNcERVOWFjZjNw?=
- =?utf-8?B?Z0lrYm01OGZyMWpGNW5HaFg5VDkzdW9Ham5xQklVZk4wVTlLZkFPWENKQm9i?=
- =?utf-8?B?ZFdIbFhtSkRFVXppSG4weW01Y3o5QXlWcGgrREtKQXBQTnU3SUxVUlpmUmFu?=
- =?utf-8?B?SlBUSVNNSisrY21vc05lUUFNaXRCTERJVGs2UjllaVlqeWJrSVEwQUtvbC9X?=
- =?utf-8?B?MUhpZHVNTnhoSm0wMm9LVXRPUFdoSXMzSWNEQWR4U1YyK0tveTRRMTJYZUpK?=
- =?utf-8?B?SldjWU1iSUVzckxkNWhreWZYdHJMZ3N3QmVTcFJOV0UvbmwranphVmU4Qmhk?=
- =?utf-8?B?OWpLYi9JTFNSNHhpY0s1RnBKdHdYOUNPUHJrTE5mRnI3RUVNL1FTRlVYakhS?=
- =?utf-8?B?emd5b0ZtRFltdlNtOThwUnd6RnkxaFArVmlHMzJsSXdqQ0lGMlF1b250ZzN2?=
- =?utf-8?B?VmgwVGxyZW5mRVhLQTM1Q2M1QTdHR3dNd0V4Q1JpQjlTK1Q5NzBZbXphM1hN?=
- =?utf-8?B?b1o4NHZhODA3bDZibTZCZ29DNGRaU1c5NVkzWEpTNkhlNEgyZTladEpFOVpH?=
- =?utf-8?B?OTEreUZyVGdnK0lsNTlmRTBiNVBQTUs4ZzI1ckdIR0NsMHJOakRZYVJ3MjAv?=
- =?utf-8?B?UnMvWUdTSDZJc3JrZ2ZHd2RydnhNa2xhQ2syUEgrazI2czhlWVlyRXVQWkZH?=
- =?utf-8?B?N0hrNGNtN3Qwb09DQzhGaGdoek9RaUFUM2dSa3IxaUVDVy8zKy9mZjRnNUpv?=
- =?utf-8?B?bVFZOTNrUXY2V0Y4MG5WQ3lvUENsVndGOUN4M0ZlMUtOMEZyYldhUVpDd09j?=
- =?utf-8?B?MUlBcTAyMTE5VGJjS1drckVqYUM1cmkxYkhMZmdqZ0g4RE9TNFpvTCtiMmVI?=
- =?utf-8?B?NU4yTWw3NHVaek9aM3VxZmVOTFR2dGtxQlJ1TUxGUWRVS1JqRjkySHEzTlJI?=
- =?utf-8?B?dlNUVXRvNHpZQ21MNkR5WFdBNTBIUnZMcjdsWUk4YkNyVWdEcnppTGhubXNs?=
- =?utf-8?B?MmRtakp3aGpVSkZPeStoMldBeThVRWRZN2ZFWTRGNEwyNFFEQzEwNytNdEpM?=
- =?utf-8?B?RStXN25pc29iaUxxbmd2RnJHNU9QeHVicVdXU3NxZUV2Z01TUU0wR1JNQVBV?=
- =?utf-8?B?dktpVmZ0RHpqSGdRYmRRV01JcC9sV0hvODVWSEVQUmdyUlA4NWpjRXB2dVZ1?=
- =?utf-8?B?MzZMWkNrTHBOdVFNRk9HdXVYT2phOWVMZFgzVmUzaG5QR05XcUw0U2p6VlB3?=
- =?utf-8?B?MHpGYzVmUkRFY1UwaGNLT0VROUg2c09neGhVTlUyN1EzRDZlNWZqNUR4L2R1?=
- =?utf-8?B?dkd0Y3N0a1kxY2taa25hcDVGTytPWmJtVTFvbTlPbUVGc0FEQzQ0SWV5MmEy?=
- =?utf-8?B?UjhkditMeGtTNlBnRmJzSlNodlBzWmJYdUxBdmhYL1RkdDNycEpEdnZrSjNJ?=
- =?utf-8?B?b2c9PQ==?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1e2cb308-f2e9-4022-05d5-08de28318fe4
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?TlE0dk1vbXZveE5SUVlpY3owWEJONGNYUGkrd3hOMEFQcVQxRHlLWEtiRXlY?=
+ =?utf-8?B?QTVXZXByT0p2c2FFRStpMWNnVm50cC83N2dUZjQ5R29hdElFL09qYWVWUHlY?=
+ =?utf-8?B?NnVIUndjODlyZ2wzSmpJc3ZHYk9VSWNZeWJoT2QzMWZxajd1VHF3WWk2VU5s?=
+ =?utf-8?B?S1FUSG1YYkgrWGdkVWZybVBjMFA3VDdTeHE1bVBKUkhlRFpiVU9BMitNQ0gx?=
+ =?utf-8?B?R1B1MUJkejE0ZURhYTVTakVWMFUydjZwOHY4RkczdSs4VnlPbVNhUXcya216?=
+ =?utf-8?B?RFd5MTFieGF1OFJSa21tRDRGa2s2R3M5OFFTOXFBSU5xZ0RTUW1xNjd5aWpz?=
+ =?utf-8?B?ZXQ4R1ozZUZ4c3JxcnU3bnJSd2ltM0s4WkowcnEyeEZUc2xDcWpmYzRRMFJH?=
+ =?utf-8?B?MlRndDcrdEcvNVpqdGpPd2Q4STZUZHBhNnpVajFJTUZmTFV6cS9EaGtLV0xa?=
+ =?utf-8?B?SG1JZnlYN25ZUDROQTBoaEZDdkJ2QmtwNCsyeDUwZ2pPN1N1MS9zeTdYMWVM?=
+ =?utf-8?B?dE04TFJTeGhNNGR2RzFNb3k5dU1lVGIvS0N1bHl6RkcrSXllbkpYbVpYbjVj?=
+ =?utf-8?B?Q3R0bEFyT1BMMUdpMTMxY3pVMzJiemMvK1RPZTdkT1FqVm1uK1N4NFYzT0hk?=
+ =?utf-8?B?aVM2bFJIdUVKYmphWnhRdUpUdnNIZmdLb0diQ09zN2F3RERPSDZvRUdVWXla?=
+ =?utf-8?B?NEovU2t6WUhjNlN5RzQ4RTI5QWVCUGxkY2JJTHE0QjJvVDFCMEJEOGk2ek1t?=
+ =?utf-8?B?S2VmbHlPMFFkMTNabFZTMmhIUlNsTU1yUC80dU9iT3Q0ZURwMjZGSjd2Z09i?=
+ =?utf-8?B?K250WGdTQTYvekxhZmRsdTBBTjVUclRJMHQwK3JsTGpubFBXcXZYM1dIU1ZU?=
+ =?utf-8?B?U0hnTktsdmZjQmFmZndSQTBmOG9uZzJYakNFTk0xeVlPQnFnU0ZueXBaeGM5?=
+ =?utf-8?B?L2VRakFwRjJGVkdjQWJ3Z2cvb0w0dy9oaWIzZDJ3NGR2b3NaRk9INlhBNStz?=
+ =?utf-8?B?SGowSEN3c3pJc01kWmRNK1FOS3BjbVFETmpPQU5jaEtsdVladGp2K1RCS2k0?=
+ =?utf-8?B?K2NwRStpTHVLMGw1bHQyYW5ObXpra0syQyswT2s2cHJWSFdoMkhPZ0VubmNj?=
+ =?utf-8?B?VE1RN2VDbkZLbVkxaXBkTHVCcWxqZ3BHTDdtK1lpS1VudWRnNnhmSEtiQ0FW?=
+ =?utf-8?B?MFJ3Rjc1Umw0Z2ZYaTlnU0ZjZWphVEdoSzV4UktrdStDaVp5MmtGdXM3SU94?=
+ =?utf-8?B?dFFRRU9LSllCL3NIYzBVUk1QWUpFeUlIRkFHYUE4NGdHSS8zUVkxVVBRWEpk?=
+ =?utf-8?B?blc1S2NLTUgwd0I1T0g5d2NtODN1M081QzJoV1V0bWJ4QzJydklOUXJ1cHVG?=
+ =?utf-8?B?b0lkdWVzY0JPSndsbXVzcllxK2NTZ2FBM1RHRzg1d2crb2tqZmVrZlRqZkdl?=
+ =?utf-8?B?UXRaOU9zUWsrQUVwenF2c1ZMZEVFcTJIMXUzY3laVVYrQnZWM0hiZXpNUXQ3?=
+ =?utf-8?B?MjFlMXRNYTllNVVHOVlJalh5ODRWVXZma0Zoa2NueHRsaGwwUDJzNncxWWJv?=
+ =?utf-8?B?M3NjNHgrdzlMSW1mQTc4czRrMUtPWVBNNEp2d2Y3OVlwQ0ZoYlBnYUtHWmh4?=
+ =?utf-8?B?amFVa09XTVl4dFlxd1hBazMwaDBISlF1dERidWtNM0VRVVhTby80N3VRaHB2?=
+ =?utf-8?B?WGMrcmJUbWdWUEIzdVFManViSE84eVVBUXVQZnRzL2x1S09QRjRvTmlmZ3hC?=
+ =?utf-8?B?NkhNM1JIM09ISDJMblZRTllRTEpFaGNoOUZpbFRQcmVNYzBWdU1DbjFtRlY1?=
+ =?utf-8?B?MllYUDZGRDJ4U3RRMHZNd3phaWtodmFrcDF3Q2pTV0YxNEJlcXA1RFo5U1Rw?=
+ =?utf-8?B?UTdlVUhKbGUwa1UxYUhNbTNmdFlYVkJ6aTJEY3l1N3ZqU1AvTktwZW9McDBM?=
+ =?utf-8?B?VHpuc1hSeUJrSDNwMWdlR3h5WkdWTkV5S1dYSXViWTNPQTVzdDZCaE9wMVl0?=
+ =?utf-8?B?c1AxKzZmVFFJWUV4UHM1T1lGaGNqWGN1bXJMdGVOenJpVEFzUUNpdi9WbUFo?=
+ =?utf-8?B?amZKNG00SlRDbnZ2NzNWTWtJdFlNUmRFQjZtNzJYdy9WQlA0RkF2NE5sQUdl?=
+ =?utf-8?B?cXJNR1ZrL01lZGlrUmxSRDVyY2N4TmxJUjEyWnBVeFZUQzZnVkdubm4wb09u?=
+ =?utf-8?B?clE9PQ==?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 94d74692-ae19-44a8-0333-08de2831859c
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5373.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2025 12:37:26.7354
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2025 12:37:09.6005
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Xy/cGXs/Tpi3g0l8tBX203q+1hr4xGcG4qBrMSi948dLU0pL2N6V+OgihcgkBpYPP2NaF5eXPnt3XuL50ebKSJsFTHcQZKoCe5TIaQTR7PA=
+X-MS-Exchange-CrossTenant-UserPrincipalName: sSdTgKt7wX2qKUubCSesnE/xmkt7ThzG7dPqVRG+uvOuQEAk4syC/i7UHnWCXdYCE9sTzwoCybL25p75fT0jssW/qMk7LsVOHUomfHkM3zA=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM3PPFC3B7BD011
 X-OriginatorOrg: intel.com
 
-Move the migration device state reset code from .reset_done() to
-dedicated callback.
-Remove the deferred reset mechanism, as it's no longer needed.
+Resetting the migration device state is typically delegated to PCI
+.reset_done() callback.
+With VFIO, reset is usually called under vdev->memory_lock, which causes
+lockdep to report a following circular locking dependency scenario:
+
+0: set_device_state
+driver->state_mutex -> migf->lock
+1: data_read
+migf->lock -> mm->mmap_lock
+2: vfio_pin_dma
+mm->mmap_lock -> vdev->memory_lock
+3: vfio_pci_ioctl_reset
+vdev->memory_lock -> driver->state_mutex
+
+Introduce a .migration_reset_state() callback called outside of
+vdev->memory_lock to break the dependency chain.
 
 Signed-off-by: Michał Winiarski <michal.winiarski@intel.com>
 ---
- drivers/vfio/pci/mlx5/cmd.c  | 15 +++++----
- drivers/vfio/pci/mlx5/cmd.h  |  3 --
- drivers/vfio/pci/mlx5/main.c | 59 +++++++++---------------------------
- 3 files changed, 22 insertions(+), 55 deletions(-)
+ drivers/vfio/pci/vfio_pci_core.c | 25 ++++++++++++++++++++++---
+ include/linux/vfio.h             |  4 ++++
+ 2 files changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vfio/pci/mlx5/cmd.c b/drivers/vfio/pci/mlx5/cmd.c
-index a92b095b90f6a..de6d786ce7ed1 100644
---- a/drivers/vfio/pci/mlx5/cmd.c
-+++ b/drivers/vfio/pci/mlx5/cmd.c
-@@ -178,13 +178,13 @@ static int mlx5fv_vf_event(struct notifier_block *nb,
- 	case MLX5_PF_NOTIFY_ENABLE_VF:
- 		mutex_lock(&mvdev->state_mutex);
- 		mvdev->mdev_detach = false;
--		mlx5vf_state_mutex_unlock(mvdev);
-+		mutex_unlock(&mvdev->state_mutex);
- 		break;
- 	case MLX5_PF_NOTIFY_DISABLE_VF:
- 		mlx5vf_cmd_close_migratable(mvdev);
- 		mutex_lock(&mvdev->state_mutex);
- 		mvdev->mdev_detach = true;
--		mlx5vf_state_mutex_unlock(mvdev);
-+		mutex_unlock(&mvdev->state_mutex);
- 		break;
- 	default:
- 		break;
-@@ -203,7 +203,7 @@ void mlx5vf_cmd_close_migratable(struct mlx5vf_pci_core_device *mvdev)
- 	mutex_lock(&mvdev->state_mutex);
- 	mlx5vf_disable_fds(mvdev, NULL);
- 	_mlx5vf_free_page_tracker_resources(mvdev);
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
+diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+index 7dcf5439dedc9..d919636558ec8 100644
+--- a/drivers/vfio/pci/vfio_pci_core.c
++++ b/drivers/vfio/pci/vfio_pci_core.c
+@@ -553,6 +553,16 @@ int vfio_pci_core_enable(struct vfio_pci_core_device *vdev)
  }
+ EXPORT_SYMBOL_GPL(vfio_pci_core_enable);
  
- void mlx5vf_cmd_remove_migratable(struct mlx5vf_pci_core_device *mvdev)
-@@ -254,7 +254,6 @@ void mlx5vf_cmd_set_migratable(struct mlx5vf_pci_core_device *mvdev,
- 		goto end;
- 
- 	mutex_init(&mvdev->state_mutex);
--	spin_lock_init(&mvdev->reset_lock);
- 	mvdev->nb.notifier_call = mlx5fv_vf_event;
- 	ret = mlx5_sriov_blocking_notifier_register(mvdev->mdev, mvdev->vf_id,
- 						    &mvdev->nb);
-@@ -1487,7 +1486,7 @@ int mlx5vf_stop_page_tracker(struct vfio_device *vdev)
- 	_mlx5vf_free_page_tracker_resources(mvdev);
- 	mvdev->log_active = false;
- end:
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	return 0;
- }
- 
-@@ -1589,7 +1588,7 @@ int mlx5vf_start_page_tracker(struct vfio_device *vdev,
- 	mlx5_eq_notifier_register(mdev, &tracker->nb);
- 	*page_size = host_qp->tracked_page_size;
- 	mvdev->log_active = true;
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	return 0;
- 
- err_activate:
-@@ -1605,7 +1604,7 @@ int mlx5vf_start_page_tracker(struct vfio_device *vdev,
- err_uar:
- 	mlx5_put_uars_page(mdev, tracker->uar);
- end:
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	return err;
- }
- 
-@@ -1787,6 +1786,6 @@ int mlx5vf_tracker_read_and_clear(struct vfio_device *vdev, unsigned long iova,
- 	if (tracker->is_err)
- 		err = -EIO;
- end:
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	return err;
- }
-diff --git a/drivers/vfio/pci/mlx5/cmd.h b/drivers/vfio/pci/mlx5/cmd.h
-index d7821b5ca7729..e36df1052cf5e 100644
---- a/drivers/vfio/pci/mlx5/cmd.h
-+++ b/drivers/vfio/pci/mlx5/cmd.h
-@@ -170,7 +170,6 @@ struct mlx5vf_pci_core_device {
- 	int vf_id;
- 	u16 vhca_id;
- 	u8 migrate_cap:1;
--	u8 deferred_reset:1;
- 	u8 mdev_detach:1;
- 	u8 log_active:1;
- 	u8 chunk_mode:1;
-@@ -178,8 +177,6 @@ struct mlx5vf_pci_core_device {
- 	/* protect migration state */
- 	struct mutex state_mutex;
- 	enum vfio_device_mig_state mig_state;
--	/* protect the reset_done flow */
--	spinlock_t reset_lock;
- 	struct mlx5_vf_migration_file *resuming_migf;
- 	struct mlx5_vf_migration_file *saving_migf;
- 	struct mlx5_vhca_page_tracker tracker;
-diff --git a/drivers/vfio/pci/mlx5/main.c b/drivers/vfio/pci/mlx5/main.c
-index 7ec47e736a8e5..ddc6fa346f37c 100644
---- a/drivers/vfio/pci/mlx5/main.c
-+++ b/drivers/vfio/pci/mlx5/main.c
-@@ -325,7 +325,7 @@ static void mlx5vf_mig_file_save_work(struct work_struct *_work)
- err:
- 	mlx5vf_mark_err(migf);
- end:
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	fput(migf->filp);
- }
- 
-@@ -544,7 +544,7 @@ static long mlx5vf_precopy_ioctl(struct file *filp, unsigned int cmd,
- 	}
- 
- done:
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	if (copy_to_user((void __user *)arg, &info, minsz))
- 		return -EFAULT;
- 	return 0;
-@@ -552,7 +552,7 @@ static long mlx5vf_precopy_ioctl(struct file *filp, unsigned int cmd,
- err_migf_unlock:
- 	mutex_unlock(&migf->lock);
- err_state_unlock:
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	return ret;
- }
- 
-@@ -972,7 +972,7 @@ static ssize_t mlx5vf_resume_write(struct file *filp, const char __user *buf,
- 	if (ret)
- 		migf->state = MLX5_MIGF_STATE_ERROR;
- 	mutex_unlock(&migf->lock);
--	mlx5vf_state_mutex_unlock(migf->mvdev);
-+	mutex_unlock(&migf->mvdev->state_mutex);
- 	return ret ? ret : done;
- }
- 
-@@ -1191,25 +1191,6 @@ mlx5vf_pci_step_device_state_locked(struct mlx5vf_pci_core_device *mvdev,
- 	return ERR_PTR(-EINVAL);
- }
- 
--/*
-- * This function is called in all state_mutex unlock cases to
-- * handle a 'deferred_reset' if exists.
-- */
--void mlx5vf_state_mutex_unlock(struct mlx5vf_pci_core_device *mvdev)
--{
--again:
--	spin_lock(&mvdev->reset_lock);
--	if (mvdev->deferred_reset) {
--		mvdev->deferred_reset = false;
--		spin_unlock(&mvdev->reset_lock);
--		mvdev->mig_state = VFIO_DEVICE_STATE_RUNNING;
--		mlx5vf_disable_fds(mvdev, NULL);
--		goto again;
--	}
--	mutex_unlock(&mvdev->state_mutex);
--	spin_unlock(&mvdev->reset_lock);
--}
--
- static struct file *
- mlx5vf_pci_set_device_state(struct vfio_device *vdev,
- 			    enum vfio_device_mig_state new_state)
-@@ -1238,7 +1219,7 @@ mlx5vf_pci_set_device_state(struct vfio_device *vdev,
- 			break;
- 		}
- 	}
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	return res;
- }
- 
-@@ -1256,7 +1237,7 @@ static int mlx5vf_pci_get_data_size(struct vfio_device *vdev,
- 						    &total_size, 0);
- 	if (!ret)
- 		*stop_copy_length = total_size;
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	return ret;
- }
- 
-@@ -1268,32 +1249,22 @@ static int mlx5vf_pci_get_device_state(struct vfio_device *vdev,
- 
- 	mutex_lock(&mvdev->state_mutex);
- 	*curr_state = mvdev->mig_state;
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_unlock(&mvdev->state_mutex);
- 	return 0;
- }
- 
--static void mlx5vf_pci_aer_reset_done(struct pci_dev *pdev)
-+static void mlx5vf_pci_reset_device_state(struct vfio_device *vdev)
++static void vfio_pci_dev_migration_reset_state(struct vfio_pci_core_device *vdev)
++{
++	lockdep_assert_not_held(&vdev->memory_lock);
++
++	if (!vdev->vdev.mig_ops->migration_reset_state)
++		return;
++
++	vdev->vdev.mig_ops->migration_reset_state(&vdev->vdev);
++}
++
+ void vfio_pci_core_disable(struct vfio_pci_core_device *vdev)
  {
--	struct mlx5vf_pci_core_device *mvdev = mlx5vf_drvdata(pdev);
-+	struct mlx5vf_pci_core_device *mvdev = container_of(
-+		vdev, struct mlx5vf_pci_core_device, core_device.vdev);
+ 	struct pci_dev *pdev = vdev->pdev;
+@@ -662,8 +672,10 @@ void vfio_pci_core_disable(struct vfio_pci_core_device *vdev)
+ 	 * overwrite the previously restored configuration information.
+ 	 */
+ 	if (vdev->reset_works && pci_dev_trylock(pdev)) {
+-		if (!__pci_reset_function_locked(pdev))
++		if (!__pci_reset_function_locked(pdev)) {
+ 			vdev->needs_reset = false;
++			vfio_pci_dev_migration_reset_state(vdev);
++		}
+ 		pci_dev_unlock(pdev);
+ 	}
  
- 	if (!mvdev->migrate_cap)
- 		return;
+@@ -1230,6 +1242,8 @@ static int vfio_pci_ioctl_reset(struct vfio_pci_core_device *vdev,
+ 	ret = pci_try_reset_function(vdev->pdev);
+ 	up_write(&vdev->memory_lock);
  
--	/*
--	 * As the higher VFIO layers are holding locks across reset and using
--	 * those same locks with the mm_lock we need to prevent ABBA deadlock
--	 * with the state_mutex and mm_lock.
--	 * In case the state_mutex was taken already we defer the cleanup work
--	 * to the unlock flow of the other running context.
--	 */
--	spin_lock(&mvdev->reset_lock);
--	mvdev->deferred_reset = true;
--	if (!mutex_trylock(&mvdev->state_mutex)) {
--		spin_unlock(&mvdev->reset_lock);
--		return;
--	}
--	spin_unlock(&mvdev->reset_lock);
--	mlx5vf_state_mutex_unlock(mvdev);
-+	mutex_lock(&mvdev->state_mutex);
-+	mvdev->mig_state = VFIO_DEVICE_STATE_RUNNING;
-+	mlx5vf_disable_fds(mvdev, NULL);
-+	mutex_unlock(&mvdev->state_mutex);
++	vfio_pci_dev_migration_reset_state(vdev);
++
+ 	return ret;
  }
  
- static int mlx5vf_pci_open_device(struct vfio_device *core_vdev)
-@@ -1325,6 +1296,7 @@ static void mlx5vf_pci_close_device(struct vfio_device *core_vdev)
- static const struct vfio_migration_ops mlx5vf_pci_mig_ops = {
- 	.migration_set_state = mlx5vf_pci_set_device_state,
- 	.migration_get_state = mlx5vf_pci_get_device_state,
-+	.migration_reset_state = mlx5vf_pci_reset_device_state,
- 	.migration_get_data_size = mlx5vf_pci_get_data_size,
+@@ -2129,6 +2143,7 @@ int vfio_pci_core_register_device(struct vfio_pci_core_device *vdev)
+ 	if (vdev->vdev.mig_ops) {
+ 		if (!(vdev->vdev.mig_ops->migration_get_state &&
+ 		      vdev->vdev.mig_ops->migration_set_state &&
++		      vdev->vdev.mig_ops->migration_reset_state &&
+ 		      vdev->vdev.mig_ops->migration_get_data_size) ||
+ 		    !(vdev->vdev.migration_flags & VFIO_MIGRATION_STOP_COPY))
+ 			return -EINVAL;
+@@ -2486,8 +2501,10 @@ static int vfio_pci_dev_set_hot_reset(struct vfio_device_set *dev_set,
+ 
+ err_undo:
+ 	list_for_each_entry_from_reverse(vdev, &dev_set->device_list,
+-					 vdev.dev_set_list)
++					 vdev.dev_set_list) {
+ 		up_write(&vdev->memory_lock);
++		vfio_pci_dev_migration_reset_state(vdev);
++	}
+ 
+ 	list_for_each_entry(vdev, &dev_set->device_list, vdev.dev_set_list)
+ 		pm_runtime_put(&vdev->pdev->dev);
+@@ -2543,8 +2560,10 @@ static void vfio_pci_dev_set_try_reset(struct vfio_device_set *dev_set)
+ 		reset_done = true;
+ 
+ 	list_for_each_entry(cur, &dev_set->device_list, vdev.dev_set_list) {
+-		if (reset_done)
++		if (reset_done) {
+ 			cur->needs_reset = false;
++			vfio_pci_dev_migration_reset_state(cur);
++		}
+ 
+ 		if (!disable_idle_d3)
+ 			pm_runtime_put(&cur->pdev->dev);
+diff --git a/include/linux/vfio.h b/include/linux/vfio.h
+index eb563f538dee5..36aab2df40700 100644
+--- a/include/linux/vfio.h
++++ b/include/linux/vfio.h
+@@ -213,6 +213,9 @@ static inline bool vfio_device_cdev_opened(struct vfio_device *device)
+  * @migration_get_state: Optional callback to get the migration state for
+  *         devices that support migration. It's mandatory for
+  *         VFIO_DEVICE_FEATURE_MIGRATION migration support.
++ * @migration_reset_state: Optional callback to reset the migration state for
++ *         devices that support migration. It's mandatory for
++ *         VFIO_DEVICE_FEATURE_MIGRATION migration support.
+  * @migration_get_data_size: Optional callback to get the estimated data
+  *          length that will be required to complete stop copy. It's mandatory for
+  *          VFIO_DEVICE_FEATURE_MIGRATION migration support.
+@@ -223,6 +226,7 @@ struct vfio_migration_ops {
+ 		enum vfio_device_mig_state new_state);
+ 	int (*migration_get_state)(struct vfio_device *device,
+ 				   enum vfio_device_mig_state *curr_state);
++	void (*migration_reset_state)(struct vfio_device *device);
+ 	int (*migration_get_data_size)(struct vfio_device *device,
+ 				       unsigned long *stop_copy_length);
  };
- 
-@@ -1417,7 +1389,6 @@ static const struct pci_device_id mlx5vf_pci_table[] = {
- MODULE_DEVICE_TABLE(pci, mlx5vf_pci_table);
- 
- static const struct pci_error_handlers mlx5vf_err_handlers = {
--	.reset_done = mlx5vf_pci_aer_reset_done,
- 	.error_detected = vfio_pci_core_aer_err_detected,
- };
- 
 -- 
 2.51.2
 
