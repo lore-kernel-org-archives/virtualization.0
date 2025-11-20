@@ -1,275 +1,180 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7591212560
-	for <virtualization@lists.linux-foundation.org>; Thu, 20 Nov 2025 01:54:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763603671; cv=fail; b=RtyIAdxw904OkCMWwspRTeCPkk9mBku5rWeioS7baDRr2azoFkjs8RObWSFWXK2UUCdtZmGUZZurFVMZ1kxQGuiIPkmheIURFKZSs8FKfbuOBuoWGxn11caTIKf0i7Holrcw3x75xoY1KUKPYMIgoY4gtArcbbbbogSK6HfcPIE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763603671; c=relaxed/simple;
-	bh=U5FhyJU4N0YHKfkKNLFW119hHFkzS89w48hGp56Zvcc=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=O3aB3k/nKXZsYyv/U73A4AgPZ5tz380gKW7mSWSvL8XggK6QJ2nOSKxxch74Bd/gGb99qaCzVh+TdJ4yU7fMJYr/iPSvGOeUY4P7M/mIiYaXHcc6opzhNuM1CY71JatVYVrx7Xjf3zUgxzcy59cmlhQuYm9h8ajzloDUM+Wohuk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=qwJbjdav; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D05E20F067
+	for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 01:57:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763603847; cv=none; b=W2NjebWSCwwoOjdDkJsyz44fww91fU45/rg3APuLPpK3yZuXmQbhZSsccd7OLT7/QHPJNOX7XzBrr6UB/IImlLYfjR73CnuNNmlbr9/5CpF4qW5mt6Xop2JdaavBpIJMpcY9ugumNkmf1vLnaiQAz/CqimsN6wHDfV/vxosqhLg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763603847; c=relaxed/simple;
+	bh=2WNbzwLyVV6yh0b9rLN6fCx7T6MdWJyCfYho6Zl5BSI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OUgWX2vid1qY3TG/MKWnT+AX2bnYIM1GJxvGGGu9dZ0o5/wW926bPgktV4XSg4FrOBxZzsgnGsBCX3tXuRPsbZ1y5vs2LMtBLZu8PjK4+KY32dlNypON8Ei6cuWt3dE7cu/BKtNoYznfk9+gKigb2KUtISfO5qFzclEX+52XW38=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QuMGKfBH; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="qwJbjdav"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 83DA68107F
-	for <virtualization@lists.linux-foundation.org>; Thu, 20 Nov 2025 01:54:28 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.102
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id c801UFFS1PUD for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Nov 2025 01:54:27 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c405::5; helo=typpr03cu001.outbound.protection.outlook.com; envelope-from=liming.wu@jaguarmicro.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org E598780F79
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E598780F79
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.a=rsa-sha256 header.s=selector2 header.b=qwJbjdav
-Received: from TYPPR03CU001.outbound.protection.outlook.com (mail-japaneastazlp170120005.outbound.protection.outlook.com [IPv6:2a01:111:f403:c405::5])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E598780F79
-	for <virtualization@lists.linux-foundation.org>; Thu, 20 Nov 2025 01:54:26 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=RWvxdwWNsWI4veT9f6/9l7hmXJ2AiVJHvHWUipapCpkU8senJWF2MI9HDaIzFfBjWNel84jttrSpVcE2cMjFbmgRzw7JPcJCNlwW7NAeIWx0LRMbyPMPMnGspGNaEtuqz6OiLOZTnIItIgqUSs+zFf8CMZESpHRiOGa18mmueLZ1hDWMIyPsWI0wBjAh8sYAGh8UOucb87soxZvnq453f7HPcZtWVQbolXOFF+G9bVUb44kctyiXR+ec8SXvth/2/A4rzF88vlmop8+cn+AeHfh8u+Nb6ycsqRjqtA73LGy/a6sb+N9DKL1jpxhIMRq3oiDwhz5P88V2/FGI76JLuw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iDVvC4v5wLvP65UynYCWkQsr1yvWZkjwbm7DHTQigVo=;
- b=e1qlx3tE7SbX2+PTZF74XlqvLRXUd4ar2dlLrMMKNdU2alsj+evuk+bW3JzBg3bAaYQ4YNGQ8w6aVenmEADMko0T8qZfcSGuJnOuEGq1Y6xgvwVkKYvt68+fvn3FUHBvDW+h54+7jwa36ucigC/NVDhyjHuVMg1FkpmmhHa9N0dQenpH399ZYMSYgimhf56XOQuXpysWXt5zvZVyWFIIyixYCHsW6bdSqo32iw3s0qJoDLJHhFyueSwqRiDKN58KS88opn1NY5vEIe6O4bWlrSGxTnkIH7dG/kSAWrNIo5kZ7NwywMZ2ZuO71IaOCdNKIygReMqDfNzfOe+8wZvL2w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
- header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iDVvC4v5wLvP65UynYCWkQsr1yvWZkjwbm7DHTQigVo=;
- b=qwJbjdavHDvQdWgV2xsV462sTDYy/B0nXPP3owBg5EzMiMUAsqkXyZXV6/em+H6EY708++QUuDxpVSkt6OFOQ/UR9lLO1xmFVef3pfc2xq6YRGAVuQbJ/GNm7jzAaaPYj0VsuS3wpth7Xwurzxo+pJ5kZAvP1W8NVVx/rVkq8lVqM96nR8805VOjRqPYpE43hxTmO5g85DbAt3kFyrKx/FyWiZ9M0Wewvau4W87dvIhXPTrzHkZdHJLaciEDMiVIGo+BRJvqdi7fJGu0Q5wWhOGUlWietOWZtx2z/YH1o8Uk5/G+YCoRT1pGuq7sTuhhXRwUUSttfJvSHHr59dhgdg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
-Received: from PSAPR06MB3942.apcprd06.prod.outlook.com (2603:1096:301:2b::5)
- by JH0PR06MB7233.apcprd06.prod.outlook.com (2603:1096:990:94::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.10; Thu, 20 Nov
- 2025 01:54:18 +0000
-Received: from PSAPR06MB3942.apcprd06.prod.outlook.com
- ([fe80::9b95:32e5:8e63:7881]) by PSAPR06MB3942.apcprd06.prod.outlook.com
- ([fe80::9b95:32e5:8e63:7881%5]) with mapi id 15.20.9343.009; Thu, 20 Nov 2025
- 01:54:18 +0000
-From: liming.wu@jaguarmicro.com
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Cc: kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org,
-	angus.chen@jaguarmicro.com,
-	Liming Wu <liming.wu@jaguarmicro.com>
-Subject: [PATCH v2] virtio_net: enhance wake/stop tx queue statistics accounting
-Date: Thu, 20 Nov 2025 09:53:20 +0800
-Message-ID: <20251120015320.1418-1-liming.wu@jaguarmicro.com>
-X-Mailer: git-send-email 2.49.0.windows.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SG2PR06CA0209.apcprd06.prod.outlook.com
- (2603:1096:4:68::17) To PSAPR06MB3942.apcprd06.prod.outlook.com
- (2603:1096:301:2b::5)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QuMGKfBH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763603845;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TgC+wxOBycuCmMOntc5tfhr1/4wD43qqUekchTy+Stc=;
+	b=QuMGKfBHD1CRx3z9XGdyMSHkwmVP6IKnX5saUGhhfOKSeZ3qn6Qna4YOGnEOhySys7HkiE
+	9hDGN9EU6E58Motqiq6GGVCTzAgpLrU6ImVSVzLUfVorvxtTMrg5pP/90PnGyJ+h66KtC6
+	+O/vnu3iuHeSbiZlnT4kUuk96xAcUXk=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-411-uCrHU1g2MWCMJEGa98QIDw-1; Wed, 19 Nov 2025 20:57:23 -0500
+X-MC-Unique: uCrHU1g2MWCMJEGa98QIDw-1
+X-Mimecast-MFC-AGG-ID: uCrHU1g2MWCMJEGa98QIDw_1763603843
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-343fb64cea6so910784a91.3
+        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 17:57:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763603842; x=1764208642;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=TgC+wxOBycuCmMOntc5tfhr1/4wD43qqUekchTy+Stc=;
+        b=WxHKqQht0v1TDJ788fAs8RQgnv9Uaetq6gc6OM05Xvl87/ntSwKBiraY23FULvyYlm
+         1YIQ+zW0Zvu2mPL9ac/nIyBPCru65/9yOrnkIwxhyxGomzqtHyciexzx3Wln4PeVRHtg
+         GqRTifMvP/8+QgsLvU1ivKcVs80QMqvEEldLCjetEPhwGq3A0d4G7FpRlzvl0h/aJW+w
+         wUm4ntbexAUp0joJkFGTZ8DbuFfr2KQwKZ19htVCc15YgKNhl3LdaArX6rTBaNdzZiTg
+         Fu0XUKwOOmlFdqhcszxffzYzl9ZXa+XCt93WPMJb+GHzwPywI2sDkNODwtVpFbeqIKak
+         ZjzQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV+x9fqdohoiWepphg15XUKWzfvvg0xQd+gm4HP4cOo3BBLoP+NF/MoQ9KVWGEW/T1Auzy+3tAE9gizsC3qMg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy1+pgrfRlOaN2LmLhjBz2v7DIdl/VEZtlOdERmMqAFjpFXQArT
+	BedBqCQASntnZ3ytjHHioqIFH8/jV+0xFnmxnyrQ2fSM+dZy55LOnUL7RgrhjKdP/dLfqfoHuq3
+	Mx+5K7jOpn8CXb/OYr8X97OjYLmR5i7gnmZpnMHziuW/xuww7K72Ci/gIznXAn+DnMavk95lCik
+	U1Wb8l+wJglF1cTa0O38PQaqnsjXhqcnifJmS9HnOaCWgpjY6rlYo=
+X-Gm-Gg: ASbGncvfwA6Ur0h3jE4gPeeQIbccdfMCq35W72O81RiQ7Rg+L0TyV6aoZ8jzf1TLz2m
+	2rmt1qCPRo3Ypb0hBm+dsd9waDJ/QGyvyIjD2YN5PnD5Cz2uuOf/BEyDyxkld9INQbz+wXJMWHh
+	oAQfVhF2NmwnheB0qDENdGYk+LOgz8Rn4BoQrhdbJhtTC/gwSBnZge9s7TenbCp9U=
+X-Received: by 2002:a17:90a:c110:b0:340:f05a:3ebd with SMTP id 98e67ed59e1d1-34727c5a321mr1248026a91.28.1763603842262;
+        Wed, 19 Nov 2025 17:57:22 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFiOBx5TtGT/ofIvTzG4rvjAW5DLBaw7wYScD05ecl8tqaojALyu5Wx2zCrUNx+TEAVc448NdvTDVTmBdWDDT0=
+X-Received: by 2002:a17:90a:c110:b0:340:f05a:3ebd with SMTP id
+ 98e67ed59e1d1-34727c5a321mr1248009a91.28.1763603841887; Wed, 19 Nov 2025
+ 17:57:21 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PSAPR06MB3942:EE_|JH0PR06MB7233:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8a8d6b10-29f9-4900-0231-08de27d7b747
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|52116014|376014|366016|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?X7OOxFn2NngjijCvs9YWc9iIELEyPoFKYy7Y+8En/ZD2nN+qh/YKqXWxKTGZ?=
- =?us-ascii?Q?a+GC0NyuTSJU2ILI2pyRRr/dPY4SiovEaqX+aFeJi6jh63u7SkiAdOJQ1cDP?=
- =?us-ascii?Q?ijvZW5UXfs3mPOkx/5/eHed4G0lc19p9srC8rq0hCjyoSi1lKSuEBRS3T8SJ?=
- =?us-ascii?Q?zonRXnzqjhVhsmK0n/K9UPgyQvZp3ZmHbvA2RFxDvboXDZwD9y3og/Ax5G1a?=
- =?us-ascii?Q?yEOsMYBJM9qEd7f2L0MmAUAvCVr7HiiTNAbIY2zjS88Lf2Txf6PJz0urdaS9?=
- =?us-ascii?Q?IEfscET2TjpqNSWLq+F6xJ+JzuwbcCEGZ6JJS7TndPCIhR6UxPRY20F/RUMq?=
- =?us-ascii?Q?YNMV+VkDxmannvgpGIf6GBXfyb2hRGPXQSVBAtyfA4Dr6pACmnShNxpyok6p?=
- =?us-ascii?Q?NDMihnaCvEGvzUOt29WfPeX7OZyUabKyGRu6vSATNvErUvIs+qvjQeIr4sCS?=
- =?us-ascii?Q?GpgyZU3x5azz35wucLOVSFOW3KxGDDxfHf6+tMFey2yyDwQJEgdi7YyCx/bm?=
- =?us-ascii?Q?phjE1VnFIxW9hYdrI/ma0MgE1ygXgJPX0yjaBh+NEP3pp+EsNJESMrZSPAfa?=
- =?us-ascii?Q?3vie7/vfvBfKJtHfIuC93GbrNx7wK2l838tS1QqWSGsQauQyu6adXUyivDon?=
- =?us-ascii?Q?LuM23udmixuOCakTA/tef4/1ksHnNT14dwhNcKRuC4y9otAciZWMKHvB4dFr?=
- =?us-ascii?Q?xRg568SUxGEo2K2IEum0tjpE9bDHHusC62lTE1wO+LVysgoSTNnIWQNOCc/i?=
- =?us-ascii?Q?rEaKdVygd3WBCnHT6h8KW27u0pXqJYowIMjQVZhhJkHXcZxMqRSAs5Qio0HC?=
- =?us-ascii?Q?z82LoXpWdStkux0xylijWTJLUFjlHgqbtls2VwCkLCFZzYhDy0DsgD8qNDfN?=
- =?us-ascii?Q?8PuPuL93etUxBR8t7gjk8mgQ0VuEr5JZhVwNoHB/QLjPeZvRfpSivpwRsKA2?=
- =?us-ascii?Q?5DDQIDvTlvoMRFuhrgWuixl0j/HbRFrU59ttldoX3firf0mkxzDiXBc2gy60?=
- =?us-ascii?Q?2gZtPz0exKz+dKhykQ6UwHH5Ys3kNw5DsJ8oTLFG3G1351sAp+0kp9fwQtYp?=
- =?us-ascii?Q?8H2FWrzzzS2m97vNLq4+s/Ix5+hs8vQzeDyfVSkKZuet1hMniXm0A5nT//2Q?=
- =?us-ascii?Q?mHOh01snVS+qlZRMwkxiHnf9hri5QzurgUdoWwBsoeF9bMBGpa9ZNAVB+zGS?=
- =?us-ascii?Q?PDmGxRspJCxDjq2rr3TT3YK5cNWZ3VZeAnj8hl/2IyPRRvZD5bls9UVyEf4m?=
- =?us-ascii?Q?muF0CQcbJkwmYr5b4NykFTGKzegXAOswri1zwMRlBOn4pUa8eGK+ez47jsuV?=
- =?us-ascii?Q?lyIj6YG5yhDgwwhG9X4+REiPti09P7JzK31TK0PgSxRkD/n9ENM7LjqjVBa7?=
- =?us-ascii?Q?h0hF9MFVfNlvO34lR8Z1KibAgmcbROmbqf3vIawmzhTBmUSKPfIKN5oLsY3O?=
- =?us-ascii?Q?UJBS3TphIHQuthmBGm4YbUT46UiGRGlukLo4dZyNnovweTahONZUxgbpQAlV?=
- =?us-ascii?Q?vQC3IdnWsNlsRU5BiYDkhkg+JlZtBEtE6S6c?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PSAPR06MB3942.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(52116014)(376014)(366016)(38350700014);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?Mb8lnjzPnWt2dk5v2sdnj1HhzR/VYCNW68MQD5PyYNAj8VVR7V2wiEtVc3ub?=
- =?us-ascii?Q?Q3d6D/QW9h/FM71H6wzorOX1itQghF4phvTtaKQbl18+oU6GMRJupf5JjpM1?=
- =?us-ascii?Q?wd9RMAYs40gt3t0azkB61w3PuamttpYTiYfe1VdNlME4o601c25crMjmymBy?=
- =?us-ascii?Q?7M5HsZZ0I9WTLDYWLQPOZXKrsfjx4QIzIUlE6uMzn/VWWRUgKv/rvb4LzdxN?=
- =?us-ascii?Q?wtfPDEMj0fUauYEy+XUQziKBTGgGm7BIUWaHv9sXLIlq9G/KRPvgFI2ruhVG?=
- =?us-ascii?Q?dQq4QpzeKZeHAPdr9XK78i/IJX+MZFj/5Sp/YS1HcWwn9kqQbj2iL0eBPeo8?=
- =?us-ascii?Q?4LU2077I1SVdlnYpeiD2jyd8hhfLGh9chC2VQ/sCFfmcIPwGiPzHKJYkUdo+?=
- =?us-ascii?Q?J+EmtpU2YhlxKAwWJX3oKHJYWzOHF6R9WgxiVGer82fpEnFqurSTZ77j3kv5?=
- =?us-ascii?Q?bKrHH5ai5zWnIPCPCB5THwmmsG1VE/BKnQqlKlYg9+FjSNCyYfLHIq3eOIiQ?=
- =?us-ascii?Q?tvzIgCHywFGyP0jbKSWck1TfxaxhR342Q22LLhJBIgJjXKeBSBGE2bwJbBUG?=
- =?us-ascii?Q?i2vNCAxP2cI9jqO9l2a9K9xvvfD3T+E12vP1qcZL3NeDUvQJHuc6tOQTbaW8?=
- =?us-ascii?Q?E9sTLiOYWRo8NPhPIQyY1IoRbinWEGQWFy5QdlQnlU9DtuBNN0BTzlLG1GuO?=
- =?us-ascii?Q?DdMBwXrVc2blPhwMrx2aox6aY0xgLuF6sWgJq4eqkob4I6A8QkyNNmqYvOCv?=
- =?us-ascii?Q?BKg+LGte5zFRROam0PQAJdtSh2LjaPYWmVCPxnR+wG7KMaG+HGvj46sXlnZ8?=
- =?us-ascii?Q?Zpsic0TLLpHW1XtdSYvfQn5GdEN+jxG1iIcg0MhDRYJl5RX1lWyd+aCRMwM8?=
- =?us-ascii?Q?zfNBt+SIUcSrBRh2lR7APP5rgt36I2LlB42zEZcC1lso9RP0J0S11y06ZY0T?=
- =?us-ascii?Q?18iwq3rSJYSn0YEvj9LXinK7VH4ZF102DVajn4egyuu0ieC17uc2KCYj0TXC?=
- =?us-ascii?Q?sNiOh1qDUwHtn4ci3y0vx0KWUxHQMClZmuerw0a+3J7buVNGw0gny0iQav5B?=
- =?us-ascii?Q?aOPmPebi25uYVYfgUrjwuVUp8u6L5J4ntisEr5ashABu+/TL7G6amXs7/zgL?=
- =?us-ascii?Q?8C0i5DNYhWGJOc4JcN5Bgz9NREpXxaFiVDu/6OgX6iWxMfMrFRo8hNNtF7sq?=
- =?us-ascii?Q?H8PVEhvxWQyln9lfLM7ECf+Jnm+z5hMcgAeXjxVXtm0KtM1aSdkBIarCiRt3?=
- =?us-ascii?Q?OeztEMhp9xTvMRWFhMyoDU2l8d9bZaPbpxekNj0NMNV3MZ7xcgZSd4+IgdEv?=
- =?us-ascii?Q?MvmtKPosOBIgmuCnMjB8bo0U39FRuS3U9um4XQQpqXan0Hvc7z/xXnze8FYD?=
- =?us-ascii?Q?8VXELAl4v7i3U/VOxgcUJfADAY6jDErPfdX5ls6IKNsTbqOhvo+tccdZj0d4?=
- =?us-ascii?Q?CycyY76RShYFwjwUJkXAtb6Az/l5OuJ1gqlz5RbSncJD95zgiYuUESPyfmh0?=
- =?us-ascii?Q?VmLa7KYtRfT2dtuTMtA+NhIL7x4quEZlKM+m7C0Y3Sn8zExNaclDYbMAkaDm?=
- =?us-ascii?Q?BFuUF/3YlSGYVyMMhcNO4K43A9dgI0Hdc0XZtggjPgvRtxtvsVMBC9xjLymR?=
- =?us-ascii?Q?fA=3D=3D?=
-X-OriginatorOrg: jaguarmicro.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8a8d6b10-29f9-4900-0231-08de27d7b747
-X-MS-Exchange-CrossTenant-AuthSource: PSAPR06MB3942.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2025 01:54:18.2231
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bIIiFkZeM09mUPmNQJH62bJWUje+/9yCxgwyhbwx+Nn6TwyysxaHewF20Ox4KJNu+eOzVOfd4NmbU1Qn6NkZSc2lc0q+ZUa556nU2L7mxlU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: JH0PR06MB7233
+References: <20251113005529.2494066-1-jon@nutanix.com> <CACGkMEtQZ3M-sERT2P8WV=82BuXCbBHeJX+zgxx+9X7OUTqi4g@mail.gmail.com>
+ <E1226897-C6D1-439C-AB3B-012F8C4A72DF@nutanix.com> <CACGkMEuPK4=Tf3x-k0ZHY1rqL=2rg60-qdON8UJmQZTqpUryTQ@mail.gmail.com>
+ <A0AFD371-1FA3-48F7-A259-6503A6F052E5@nutanix.com>
+In-Reply-To: <A0AFD371-1FA3-48F7-A259-6503A6F052E5@nutanix.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 20 Nov 2025 09:57:10 +0800
+X-Gm-Features: AWmQ_bkp3-p1ykT07gW2-3QafOCuEJ3dN95qJ-5YwVEPAGAlLFk5vJNIKwB0qOY
+Message-ID: <CACGkMEvD16y2rt+cXupZ-aEcPZ=nvU7+xYSYBkUj7tH=ER3f-A@mail.gmail.com>
+Subject: Re: [PATCH net-next] vhost: use "checked" versions of get_user() and put_user()
+To: Jon Kohler <jon@nutanix.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	Linus Torvalds <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, 
+	Sean Christopherson <seanjc@google.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: qc91tT58MXuiebve64bNh6ML7Gbli6vPFSTFyOJGPc8_1763603843
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Liming Wu <liming.wu@jaguarmicro.com>
+On Tue, Nov 18, 2025 at 1:35=E2=80=AFAM Jon Kohler <jon@nutanix.com> wrote:
+>
+>
+>
+> > On Nov 16, 2025, at 11:32=E2=80=AFPM, Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Fri, Nov 14, 2025 at 10:53=E2=80=AFPM Jon Kohler <jon@nutanix.com> w=
+rote:
+> >>
+> >>
+> >>
+> >>> On Nov 12, 2025, at 8:09=E2=80=AFPM, Jason Wang <jasowang@redhat.com>=
+ wrote:
+> >>>
+> >>> !-------------------------------------------------------------------|
+> >>> CAUTION: External Email
+> >>>
+> >>> |-------------------------------------------------------------------!
+> >>>
+> >>> On Thu, Nov 13, 2025 at 8:14=E2=80=AFAM Jon Kohler <jon@nutanix.com> =
+wrote:
+> >>>>
+> >>>> vhost_get_user and vhost_put_user leverage __get_user and __put_user=
+,
+> >>>> respectively, which were both added in 2016 by commit 6b1e6cc7855b
+> >>>> ("vhost: new device IOTLB API").
+> >>>
+> >>> It has been used even before this commit.
+> >>
+> >> Ah, thanks for the pointer. I=E2=80=99d have to go dig to find its gen=
+esis, but
+> >> its more to say, this existed prior to the LFENCE commit.
+> >>
+> >>>
+> >>>> In a heavy UDP transmit workload on a
+> >>>> vhost-net backed tap device, these functions showed up as ~11.6% of
+> >>>> samples in a flamegraph of the underlying vhost worker thread.
+> >>>>
+> >>>> Quoting Linus from [1]:
+> >>>>   Anyway, every single __get_user() call I looked at looked like
+> >>>>   historical garbage. [...] End result: I get the feeling that we
+> >>>>   should just do a global search-and-replace of the __get_user/
+> >>>>   __put_user users, replace them with plain get_user/put_user instea=
+d,
+> >>>>   and then fix up any fallout (eg the coco code).
+> >>>>
+> >>>> Switch to plain get_user/put_user in vhost, which results in a sligh=
+t
+> >>>> throughput speedup. get_user now about ~8.4% of samples in flamegrap=
+h.
+> >>>>
+> >>>> Basic iperf3 test on a Intel 5416S CPU with Ubuntu 25.10 guest:
+> >>>> TX: taskset -c 2 iperf3 -c <rx_ip> -t 60 -p 5200 -b 0 -u -i 5
+> >>>> RX: taskset -c 2 iperf3 -s -p 5200 -D
+> >>>> Before: 6.08 Gbits/sec
+> >>>> After:  6.32 Gbits/sec
+> >>>
+> >>> I wonder if we need to test on archs like ARM.
+> >>
+> >> Are you thinking from a performance perspective? Or a correctness one?
+> >
+> > Performance, I think the patch is correct.
+> >
+> > Thanks
+> >
+>
+> Ok gotcha. If anyone has an ARM system stuffed in their
+> front pocket and can give this a poke, I=E2=80=99d appreciate it, as
+> I don=E2=80=99t have ready access to one personally.
+>
+> That said, I think this might end up in =E2=80=9Cwell, it is what it is=
+=E2=80=9D
+> territory as Linus was alluding to, i.e. if performance dips on
+> ARM for vhost, then thats a compelling point to optimize whatever
+> ends up being the culprit for get/put user?
+>
+> Said another way, would ARM perf testing (or any other arch) be a
+> blocker to taking this change?
 
-This patch refines and strengthens the statistics collection of TX queue
-wake/stop events introduced by commit c39add9b2423 ("virtio_net: Add TX
-stopped and wake counters").
+Not a must but at least we need to explain the implication for other
+archs as the discussion you quoted are all for x86.
 
-Previously, the driver only recorded partial wake/stop statistics
-for TX queues. Some wake events triggered by 'skb_xmit_done()' or resume
-operations were not counted, which made the per-queue metrics incomplete.
+Thanks
 
-Signed-off-by: Liming Wu <liming.wu@jaguarmicro.com>
----
- drivers/net/virtio_net.c | 44 ++++++++++++++++++++++++----------------
- 1 file changed, 26 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 8e8a179aaa49..b714b190db2a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -775,10 +775,26 @@ static bool virtqueue_napi_complete(struct napi_struct *napi,
- 	return false;
- }
- 
-+static void virtnet_tx_wake_queue(struct virtnet_info *vi,
-+				struct send_queue *sq)
-+{
-+	unsigned int index = vq2txq(sq->vq);
-+	struct netdev_queue *txq = netdev_get_tx_queue(vi->dev, index);
-+
-+	if (netif_tx_queue_stopped(txq)) {
-+		u64_stats_update_begin(&sq->stats.syncp);
-+		u64_stats_inc(&sq->stats.wake);
-+		u64_stats_update_end(&sq->stats.syncp);
-+		netif_tx_wake_queue(txq);
-+	}
-+}
-+
- static void skb_xmit_done(struct virtqueue *vq)
- {
- 	struct virtnet_info *vi = vq->vdev->priv;
--	struct napi_struct *napi = &vi->sq[vq2txq(vq)].napi;
-+	unsigned int index = vq2txq(vq);
-+	struct send_queue *sq = &vi->sq[index];
-+	struct napi_struct *napi = &sq->napi;
- 
- 	/* Suppress further interrupts. */
- 	virtqueue_disable_cb(vq);
-@@ -786,8 +802,7 @@ static void skb_xmit_done(struct virtqueue *vq)
- 	if (napi->weight)
- 		virtqueue_napi_schedule(napi, vq);
- 	else
--		/* We were probably waiting for more output buffers. */
--		netif_wake_subqueue(vi->dev, vq2txq(vq));
-+		virtnet_tx_wake_queue(vi, sq);
- }
- 
- #define MRG_CTX_HEADER_SHIFT 22
-@@ -3068,13 +3083,8 @@ static void virtnet_poll_cleantx(struct receive_queue *rq, int budget)
- 			free_old_xmit(sq, txq, !!budget);
- 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
- 
--		if (sq->vq->num_free >= MAX_SKB_FRAGS + 2 &&
--		    netif_tx_queue_stopped(txq)) {
--			u64_stats_update_begin(&sq->stats.syncp);
--			u64_stats_inc(&sq->stats.wake);
--			u64_stats_update_end(&sq->stats.syncp);
--			netif_tx_wake_queue(txq);
--		}
-+		if (sq->vq->num_free >= MAX_SKB_FRAGS + 2)
-+			virtnet_tx_wake_queue(vi, sq);
- 
- 		__netif_tx_unlock(txq);
- 	}
-@@ -3264,13 +3274,8 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	else
- 		free_old_xmit(sq, txq, !!budget);
- 
--	if (sq->vq->num_free >= MAX_SKB_FRAGS + 2 &&
--	    netif_tx_queue_stopped(txq)) {
--		u64_stats_update_begin(&sq->stats.syncp);
--		u64_stats_inc(&sq->stats.wake);
--		u64_stats_update_end(&sq->stats.syncp);
--		netif_tx_wake_queue(txq);
--	}
-+	if (sq->vq->num_free >= MAX_SKB_FRAGS + 2)
-+		virtnet_tx_wake_queue(vi, sq);
- 
- 	if (xsk_done >= budget) {
- 		__netif_tx_unlock(txq);
-@@ -3521,6 +3526,9 @@ static void virtnet_tx_pause(struct virtnet_info *vi, struct send_queue *sq)
- 
- 	/* Prevent the upper layer from trying to send packets. */
- 	netif_stop_subqueue(vi->dev, qindex);
-+	u64_stats_update_begin(&sq->stats.syncp);
-+	u64_stats_inc(&sq->stats.stop);
-+	u64_stats_update_end(&sq->stats.syncp);
- 
- 	__netif_tx_unlock_bh(txq);
- }
-@@ -3537,7 +3545,7 @@ static void virtnet_tx_resume(struct virtnet_info *vi, struct send_queue *sq)
- 
- 	__netif_tx_lock_bh(txq);
- 	sq->reset = false;
--	netif_tx_wake_queue(txq);
-+	virtnet_tx_wake_queue(vi, sq);
- 	__netif_tx_unlock_bh(txq);
- 
- 	if (running)
--- 
-2.34.1
+>
+> Thanks - Jon
+>
 
