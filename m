@@ -1,100 +1,145 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FCE53043A1
-	for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 20:22:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DF94199FB0;
+	Thu, 20 Nov 2025 00:44:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763583762; cv=none; b=TQOrLFn2DCRKdo2LMz7MgdN4LWHYrve+br86rESTCnrdJ7gJ1AVMikY0a2kSS+b9vFxP4cG2FrVFcaVHlzMwfxZGlLlMxc7TyKXqeze+wEpLfC9AtlMxSzn5ygLmtWDb+eck7SgegnGSSP9UswKP8lALI46/SxsfXdHF2aBsHi8=
+	t=1763599446; cv=none; b=OyuRPcpipdnoGW1XVoo9b5rfQyMXdpOq3nKGrLW8ppCzlaAOClKCbXwNsp5a4qiZ18ASGbuvn1zK7n+5HvIr2xyVw6VKPMlEYaqf+fKYfjv9m8z0UUng9Iom16WhimvCWV6HAbbu1fbOkEbZzhIsoKSdyCs6+e8KFCZ+Nxx5P0w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763583762; c=relaxed/simple;
-	bh=Qf3h8LQWgZZpMpM3MFbHJdvzLVhTDqmkGNygGmxZVWw=;
+	s=arc-20240116; t=1763599446; c=relaxed/simple;
+	bh=j9rg6e2eAbuasOML5wHDFy3gDEnDj0LDk6jSRAhyyzk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ULBiRPxR32gg/rn/M1ItXQh0u8xJcXXG2Abd039hCR2IUGAPjN4vPv22hbqYNNExGIwwJePkElsn8OVBf9SjpNF1lh5vpXYw2Svy3Vy0BdGd0UlQLZzi8SelBlgaL8vr6n/8okQxB2GeNtZDeoCWzslsH6iU76mMYWJimrME4Uc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a7OpbVpR; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=ulA0I7VRWV16zd2MRf6g1G8eVi5otviwGr0HQOIqFiq9u1yGGt10Fk81dJ5xzxM6xU+zmMXIW/LbAeQz7SH0WGw+6yNRtG605XZtPOSXDXpTk01wvQa+pEgzlQq7DrWvey8p0LOS35Db9h+zglmlJ8JkLQlFx6o11qY8T01/grA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=aGb6Etb7; arc=none smtp.client-ip=192.198.163.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a7OpbVpR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763583759;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Qf3h8LQWgZZpMpM3MFbHJdvzLVhTDqmkGNygGmxZVWw=;
-	b=a7OpbVpR22gPxN8gh9XaMaDITKs19fCWzcHsIXtiQ8Z1NmeDqcE+RUzHXGTUd3GOZbXAU+
-	WSU6SBIO1r3EFUHu6+4gRjOfy83ki72xpu/IcZonT6J39Cw2IwbcPYCuN2lap7sQj4mEjA
-	5Hm6O9tPUcHWEYABVxJ5+AGjc3/SJ/A=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-527-i7JxFMqoPNiWuBF-yAC66A-1; Wed, 19 Nov 2025 15:22:37 -0500
-X-MC-Unique: i7JxFMqoPNiWuBF-yAC66A-1
-X-Mimecast-MFC-AGG-ID: i7JxFMqoPNiWuBF-yAC66A_1763583756
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4779981523fso2232375e9.2
-        for <virtualization@lists.linux.dev>; Wed, 19 Nov 2025 12:22:37 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763583756; x=1764188556;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Qf3h8LQWgZZpMpM3MFbHJdvzLVhTDqmkGNygGmxZVWw=;
-        b=Ezv+sgoggdlNAE8PNJ/fjZwLHmsr//ZPB+P9mRyUuYs5LTnd7D5fH7Hv7aVQrc4wvr
-         JIH75WOQ/Ikf6PFN6a2x2RIO+f2oxFWvzCZ30xiVibCSbaiY2BVsKx1Q1AljcjBN6FJz
-         YlMZ+c6qCZ2ywqCrRq3ss4N2JZFuoggfBFa0JsiNcSWS03FVlqLUr+kivxxQ6zTp/+lh
-         IXlOTzu1o6hDdt+639xBeCskK4q7+uN2vPzvxyHalF5boQauRqiqcG79vyDsq42uMJhe
-         2MfLhTVqJP7nce/wY5Q1/jlcjYn8THqaZqUfXaLJclvENgE8hjxuioWRUio/otbpDM/p
-         qHxA==
-X-Forwarded-Encrypted: i=1; AJvYcCVKAfe8+XioHt11Ta9VZak0uJuKEDOY6Y3lA9xadSVmuh6va8pXxVhe9/N0YR1jWA/dDLh8luALL9Fg/8WYOQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxRf381YqDG4rmlcGN7r7y1hHuqn230SOy8IkY3fA1LBBA9AB4D
-	QqD8PnUxOIfs9VCFQdt8MSXaQmCgDnvDqUmBGq0XVPeCHfi92bef+389CbPEFXyBJQOY0eQ2g6P
-	GQE7gUe+meobVC0yMInGRFj+/UyL7OYzgOiHurVnbhoY5wvuNTi8Y3HqQ4KCU7SZo4naL
-X-Gm-Gg: ASbGncvyluDZ3VDEwlmSKUX2dicuZ/APFS1u9IGEIrEM+UeApiuICze91A8Sb/gt2XI
-	LhnrLSFcUgJXVa4uJUg1yguEi1pI/5BqGHm/SpSebD4MXw1e+XAGqIQGetfYd7JwOoIUmA7IWVZ
-	H4w4iDOzpe4cLCuneFt+Bf+kVVOoJo5PatWbf8czTgYuVj1Dps+K/Pr4om9r+SBLfa8g6UaCdeJ
-	1wgVrAHxpZb756nlxdUgx4aw2uGuPlLtU4jnt6EHfrLeSg1cbbLv83igwQfAaFZWwKCcCZ+CctN
-	yS0rYoaJL4kpik8auBXOod7Pc1VkQcNunUCZARzLY8zh3RMvU90y8vtJcyUEA+Y0vjvVADS+EBX
-	NhP3y/kMVuJFfwndFyn5v/CPTMfV40g==
-X-Received: by 2002:a05:600c:1c16:b0:477:95a0:fe95 with SMTP id 5b1f17b1804b1-477b8a90b69mr5239615e9.24.1763583756399;
-        Wed, 19 Nov 2025 12:22:36 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGv7OY/eeh/eaCRC0mGOzH9PPH/EZSDaI5JiPGJFpcL+zSbxL7SPGpS4v2uWECCiGLjI0pkxw==
-X-Received: by 2002:a05:600c:1c16:b0:477:95a0:fe95 with SMTP id 5b1f17b1804b1-477b8a90b69mr5239305e9.24.1763583755891;
-        Wed, 19 Nov 2025 12:22:35 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477a96aed1esm50247745e9.0.2025.11.19.12.22.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Nov 2025 12:22:35 -0800 (PST)
-Date: Wed, 19 Nov 2025 15:22:31 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Daniel Jurgens <danielj@nvidia.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
-	virtualization@lists.linux.dev, parav@nvidia.com,
-	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
-	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
-Subject: Re: [PATCH net-next v12 00/12] virtio_net: Add ethtool flow rules
- support
-Message-ID: <20251119152206-mutt-send-email-mst@kernel.org>
-References: <20251119191524.4572-1-danielj@nvidia.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aGb6Etb7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1763599444; x=1795135444;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=j9rg6e2eAbuasOML5wHDFy3gDEnDj0LDk6jSRAhyyzk=;
+  b=aGb6Etb7yIML+/+aZUB/t8G2wueGkq3SzkIFm6vltjazdF6wi0FCvLDw
+   IrH28GbR6a+shDUFbXMRVa91cMQrXyHYOArma55Pf5b9e1+VNppGNIYdK
+   TuU1ZqiNxf+Fv3wceUumZptPCeJUneO4Y75l4RVH5PoDh9KchN4dzDHPn
+   ysUHzkHexvdRjw7b/KxYq+AGfc5PdVSBGIE3M4phgwjD9spoczK+Y2r4I
+   Y/BJnoeurUEIUHYXYMjpxDbmnacInP2NGbBdIQ0Q8/20TuV+PRKELWTVw
+   mdEfqEJJy0biegK1Xdr89bJjoPPkqwY2yIKl6pFkTxWlP4MJZ0Qt13Yiy
+   Q==;
+X-CSE-ConnectionGUID: GicXtDfOQKy91iGGkxYcyw==
+X-CSE-MsgGUID: WNH2i6wNSTGDXc7hntK3Iw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11618"; a="77015631"
+X-IronPort-AV: E=Sophos;i="6.19,316,1754982000"; 
+   d="scan'208";a="77015631"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2025 16:44:03 -0800
+X-CSE-ConnectionGUID: RTxhISTHS62iKj2P88PN0w==
+X-CSE-MsgGUID: ALeGpSJnQvy4irHKfiKXHQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,316,1754982000"; 
+   d="scan'208";a="228527379"
+Received: from lkp-server01.sh.intel.com (HELO adf6d29aa8d9) ([10.239.97.150])
+  by orviesa001.jf.intel.com with ESMTP; 19 Nov 2025 16:43:58 -0800
+Received: from kbuild by adf6d29aa8d9 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1vLsmC-0003SB-0J;
+	Thu, 20 Nov 2025 00:43:56 +0000
+Date: Thu, 20 Nov 2025 08:43:44 +0800
+From: kernel test robot <lkp@intel.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Alvaro Karsz <alvaro.karsz@solid-run.com>,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net v6 2/2] virtio-net: correct hdr_len handling for
+ tunnel gso
+Message-ID: <202511200846.lqEgKwk3-lkp@intel.com>
+References: <20251119055522.617-3-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251119191524.4572-1-danielj@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: jOjzA1rCberYyR7GVQ0MEPh8uAkPFJOHAYnCSSarYYo_1763583756
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20251119055522.617-3-xuanzhuo@linux.alibaba.com>
 
-On Wed, Nov 19, 2025 at 01:15:11PM -0600, Daniel Jurgens wrote:
-> This series implements ethtool flow rules support for virtio_net using the
-> virtio flow filter (FF) specification. The implementation allows users to
-> configure packet filtering rules through ethtool commands, directing
-> packets to specific receive queues, or dropping them based on various
-> header fields.
+Hi Xuan,
 
-traveling, will review after tuesday. thanks!
+kernel test robot noticed the following build errors:
 
+[auto build test ERROR on net/main]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Xuan-Zhuo/virtio-net-correct-hdr_len-handling-for-VIRTIO_NET_F_GUEST_HDRLEN/20251119-135650
+base:   net/main
+patch link:    https://lore.kernel.org/r/20251119055522.617-3-xuanzhuo%40linux.alibaba.com
+patch subject: [PATCH net v6 2/2] virtio-net: correct hdr_len handling for tunnel gso
+config: x86_64-kexec (https://download.01.org/0day-ci/archive/20251120/202511200846.lqEgKwk3-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251120/202511200846.lqEgKwk3-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202511200846.lqEgKwk3-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   In file included from drivers/net/tun.c:59:
+>> include/linux/virtio_net.h:218:7: error: use of undeclared identifier 'sinfo'
+     218 |                 if (sinfo->gso_type & (SKB_GSO_UDP_TUNNEL |
+         |                     ^
+   1 error generated.
+
+
+vim +/sinfo +218 include/linux/virtio_net.h
+
+   209	
+   210	static inline void virtio_net_set_hdrlen(const struct sk_buff *skb,
+   211						 struct virtio_net_hdr *hdr,
+   212						 bool little_endian,
+   213						 bool guest_hdrlen)
+   214	{
+   215		u16 hdr_len;
+   216	
+   217		if (guest_hdrlen) {
+ > 218			if (sinfo->gso_type & (SKB_GSO_UDP_TUNNEL |
+   219					       SKB_GSO_UDP_TUNNEL_CSUM)) {
+   220				hdr_len = skb_inner_transport_offset(skb);
+   221	
+   222				if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
+   223					hdr_len += sizeof(struct udphdr);
+   224				else
+   225					hdr_len += inner_tcp_hdrlen(skb);
+   226			} else {
+   227				hdr_len = skb_transport_offset(skb);
+   228	
+   229				if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
+   230					hdr_len += sizeof(struct udphdr);
+   231				else
+   232					hdr_len += tcp_hdrlen(skb);
+   233			}
+   234		} else {
+   235			/* This is a hint as to how much should be linear. */
+   236			hdr_len = skb_headlen(skb);
+   237		}
+   238	
+   239		hdr->hdr_len = __cpu_to_virtio16(little_endian, hdr_len);
+   240	}
+   241	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
