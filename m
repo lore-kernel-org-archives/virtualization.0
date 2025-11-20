@@ -1,22 +1,22 @@
 Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0550435FF72;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD5B8369977;
 	Thu, 20 Nov 2025 15:30:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763652611; cv=none; b=Mb6KAe66AlknyA0AJdzIYhJZdQhRkPTiUVEJaJQZnxsOTlV1H/00OzaX4HlEwSZVrsUlugKw20GG/kgTQVGkPQiBfw7UBLShZSXuttzlL1fd+fEADhOyQmGuzQtfjR0x2ZTYrmW7C8zisohUrNRKF7hAGcbohP7HaV3QS0NUBVI=
+	t=1763652611; cv=none; b=GSDc1zSFGh55mtymqD3/ygGPFxjlDgukKBF4ZwY4+oH/5OJMJ9aevmDSnJPvYqWz9P7TBQHzrCIQ+Kk64DOIBcYShv7rEdV6O2Wr/XmQNPu1PKfWAMx1+JQK/f/BETxhczf8eaR8f0GSnDVYPL7tot2ye+EuM90bX3aQusqjbiI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1763652611; c=relaxed/simple;
-	bh=M9BqjS78vJlMtvWvaK6+E01V48j5liMIIf/uZ5gvlXQ=;
+	bh=JdRG8nMWKHO3vzTj8WqOLNaAJBRrg6gdl6hHU6etSSQ=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mlzt08wyV26GN8TWSGHd19pbCi7y4zmKqtOxjgkpyVprgt7pNl73Q9Pg8OAsCxvbuhO1fOhML3IChBKvOn8HQ5IZhTX4rsG72lpQhLMrrPrbgOejWSxwK2Kj2fjPkf8DtCyPytyQlXxx0rGXO5XwPj99pp0+E/mGN0JQ4q0vPdU=
+	 MIME-Version; b=k8aSyB1syrTSUCSyaCS3rQou5EOvIKYWltDVBL3921pmPQmXMYySaZOV593VQZxsc20tOnJU9g7VN4UDR5R39Zal495GsJxRCoXXv5hKS7IW4sJ0liTe9DK3CtyU8pzAiLVXJFPtvL4zCrMd/unZB9BFovb5Xco/rXv3AN+hTB0=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; arc=none smtp.client-ip=129.217.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Received: from simon-Latitude-5450.cni.e-technik.tu-dortmund.de ([129.217.186.248])
 	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.1.10/8.18.1.10) with ESMTPSA id 5AKFTu8I005406
+	by unimail.uni-dortmund.de (8.18.1.10/8.18.1.10) with ESMTPSA id 5AKFTu8E005406
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
 	Thu, 20 Nov 2025 16:29:58 +0100 (CET)
 From: Simon Schippers <simon.schippers@tu-dortmund.de>
@@ -27,9 +27,9 @@ To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
         simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         virtualization@lists.linux.dev
-Subject: [PATCH net-next v6 6/8] tun/tap: add helper functions to check file type
-Date: Thu, 20 Nov 2025 16:29:11 +0100
-Message-ID: <20251120152914.1127975-7-simon.schippers@tu-dortmund.de>
+Subject: [PATCH net-next v6 4/8] tun/tap: add batched ring consume function
+Date: Thu, 20 Nov 2025 16:29:09 +0100
+Message-ID: <20251120152914.1127975-5-simon.schippers@tu-dortmund.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
 References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
@@ -41,8 +41,10 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add tun_is_tun_file() and tap_is_tap_file() helper functions to check if
-a file is a TUN or TAP file, which will be utilized by vhost-net.
+Add tun_ring_consume_batched() and tap_ring_consume_batched() to allow
+consuming multiple items from the respective ring buffer in a single lock
+acquisition. Heavily inspired by ptr_ring_consume_batched() and will be
+used for bulk dequeue operations (e.g. vhost-net).
 
 Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
@@ -50,102 +52,120 @@ Co-developed by: Jon Kohler <jon@nutanix.com>
 Signed-off-by: Jon Kohler <jon@nutanix.com>
 Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
 ---
- drivers/net/tap.c      | 13 +++++++++++++
- drivers/net/tun.c      | 13 +++++++++++++
- include/linux/if_tap.h |  5 +++++
- include/linux/if_tun.h |  6 ++++++
- 4 files changed, 37 insertions(+)
+ drivers/net/tap.c      | 21 +++++++++++++++++++++
+ drivers/net/tun.c      | 21 +++++++++++++++++++++
+ include/linux/if_tap.h |  6 ++++++
+ include/linux/if_tun.h |  7 +++++++
+ 4 files changed, 55 insertions(+)
 
 diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index 0069e2f177f4..56b8fe376e4a 100644
+index c370a02789eb..01717c8fd284 100644
 --- a/drivers/net/tap.c
 +++ b/drivers/net/tap.c
-@@ -1283,6 +1283,19 @@ struct ptr_ring *tap_get_ptr_ring(struct file *file)
+@@ -816,6 +816,27 @@ static __always_unused void *tap_ring_consume(struct tap_queue *q)
+ 	return ptr;
  }
- EXPORT_SYMBOL_GPL(tap_get_ptr_ring);
  
-+bool tap_is_tap_file(struct file *file)
++int tap_ring_consume_batched(struct file *file, void **array, int n)
 +{
-+	struct tap_queue *q;
++	struct tap_queue *q = file->private_data;
++	void *ptr;
++	int i;
 +
-+	if (file->f_op != &tap_fops)
-+		return false;
-+	q = file->private_data;
-+	if (!q)
-+		return false;
-+	return true;
++	spin_lock(&q->ring.consumer_lock);
++
++	for (i = 0; i < n; i++) {
++		ptr = __tap_ring_consume(q);
++		if (!ptr)
++			break;
++		array[i] = ptr;
++	}
++
++	spin_unlock(&q->ring.consumer_lock);
++
++	return i;
 +}
-+EXPORT_SYMBOL_GPL(tap_is_tap_file);
++EXPORT_SYMBOL_GPL(tap_ring_consume_batched);
 +
- int tap_queue_resize(struct tap_dev *tap)
- {
- 	struct net_device *dev = tap->dev;
+ static ssize_t tap_do_read(struct tap_queue *q,
+ 			   struct iov_iter *to,
+ 			   int noblock, struct sk_buff *skb)
 diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index bf109440d2c7..dc2d267d30d7 100644
+index 3b9d8d406ff5..42df185341ad 100644
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -3860,6 +3860,19 @@ struct ptr_ring *tun_get_tx_ring(struct file *file)
+@@ -3816,6 +3816,27 @@ struct socket *tun_get_socket(struct file *file)
  }
- EXPORT_SYMBOL_GPL(tun_get_tx_ring);
+ EXPORT_SYMBOL_GPL(tun_get_socket);
  
-+bool tun_is_tun_file(struct file *file)
++int tun_ring_consume_batched(struct file *file, void **array, int n)
 +{
-+	struct tun_file *tfile;
++	struct tun_file *tfile = file->private_data;
++	void *ptr;
++	int i;
 +
-+	if (file->f_op != &tun_fops)
-+		return false;
-+	tfile = file->private_data;
-+	if (!tfile)
-+		return false;
-+	return true;
++	spin_lock(&tfile->tx_ring.consumer_lock);
++
++	for (i = 0; i < n; i++) {
++		ptr = __tun_ring_consume(tfile);
++		if (!ptr)
++			break;
++		array[i] = ptr;
++	}
++
++	spin_unlock(&tfile->tx_ring.consumer_lock);
++
++	return i;
 +}
-+EXPORT_SYMBOL_GPL(tun_is_tun_file);
++EXPORT_SYMBOL_GPL(tun_ring_consume_batched);
 +
- module_init(tun_init);
- module_exit(tun_cleanup);
- MODULE_DESCRIPTION(DRV_DESCRIPTION);
+ struct ptr_ring *tun_get_tx_ring(struct file *file)
+ {
+ 	struct tun_file *tfile;
 diff --git a/include/linux/if_tap.h b/include/linux/if_tap.h
-index 28326a69745a..14194342b784 100644
+index 553552fa635c..cf8b90320b8d 100644
 --- a/include/linux/if_tap.h
 +++ b/include/linux/if_tap.h
-@@ -14,6 +14,7 @@ struct ptr_ring *tap_get_ptr_ring(struct file *file);
- int tap_ring_consume_batched(struct file *file, void **array, int n);
- void tap_ring_unconsume(struct file *file, void **batch, int n,
- 			void (*destroy)(void *));
-+bool tap_is_tap_file(struct file *file);
+@@ -11,6 +11,7 @@ struct socket;
+ #if IS_ENABLED(CONFIG_TAP)
+ struct socket *tap_get_socket(struct file *);
+ struct ptr_ring *tap_get_ptr_ring(struct file *file);
++int tap_ring_consume_batched(struct file *file, void **array, int n);
  #else
  #include <linux/err.h>
  #include <linux/errno.h>
-@@ -32,6 +33,10 @@ static inline int tap_ring_consume_batched(struct file *f,
+@@ -22,6 +23,11 @@ static inline struct ptr_ring *tap_get_ptr_ring(struct file *f)
+ {
+ 	return ERR_PTR(-EINVAL);
  }
- static inline void tap_ring_unconsume(struct file *file, void **batch,
- 				      int n, void (*destroy)(void *)) {}
-+static inline bool tap_is_tap_file(struct file *f)
++static inline int tap_ring_consume_batched(struct file *f,
++					   void **array, int n)
 +{
-+	return false;
++	return 0;
 +}
  #endif /* CONFIG_TAP */
  
  /*
 diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
-index 1274c6b34eb6..0910c6dbac20 100644
+index 80166eb62f41..444dda75a372 100644
 --- a/include/linux/if_tun.h
 +++ b/include/linux/if_tun.h
-@@ -25,6 +25,7 @@ struct ptr_ring *tun_get_tx_ring(struct file *file);
- int tun_ring_consume_batched(struct file *file, void **array, int n);
- void tun_ring_unconsume(struct file *file, void **batch, int n,
- 			void (*destroy)(void *));
-+bool tun_is_tun_file(struct file *file);
+@@ -22,6 +22,7 @@ struct tun_msg_ctl {
+ #if defined(CONFIG_TUN) || defined(CONFIG_TUN_MODULE)
+ struct socket *tun_get_socket(struct file *);
+ struct ptr_ring *tun_get_tx_ring(struct file *file);
++int tun_ring_consume_batched(struct file *file, void **array, int n);
  
  static inline bool tun_is_xdp_frame(void *ptr)
  {
-@@ -67,6 +68,11 @@ static inline int tun_ring_consume_batched(struct file *file,
- static inline void tun_ring_unconsume(struct file *file, void **batch,
- 				      int n, void (*destroy)(void *)) {}
+@@ -55,6 +56,12 @@ static inline struct ptr_ring *tun_get_tx_ring(struct file *f)
+ 	return ERR_PTR(-EINVAL);
+ }
  
-+static inline bool tun_is_tun_file(struct file *f)
++static inline int tun_ring_consume_batched(struct file *file,
++					   void **array, int n)
 +{
-+	return false;
++	return 0;
 +}
 +
  static inline bool tun_is_xdp_frame(void *ptr)
