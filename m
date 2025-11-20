@@ -1,121 +1,236 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D2F62EA485;
-	Thu, 20 Nov 2025 02:52:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763607136; cv=none; b=MUomgYD3DCjFfAxD1nWdsAkRSH/MLt3WSHfqPQzlptGL3tA5oLF78aPL82MGhDSYFjrGOqcqGehqIf4jE0U42CxsOZdTkfXGGrGoKFepCuYIg7xJ8WanRmNPQFowVfgZ9nFHuVx/JSWwm8aYPsiAZWw9vRQ0ytdJTwyKXZ2glyQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763607136; c=relaxed/simple;
-	bh=8LiRFCIrRrKHg+0I0NZU28Hv8xDScXSujB+5bD6/+Xs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fnJcZz0aduyIjddE7bDKumggkmP8rtGgw2TFNwKu/9YAairmOAwl4zy91cQA6SaQ8XkvBR3wfiZsURCysduBc29lO+vNoo5dxeh3gdYbXUgO5jakJSxO3/s/vnWaIj8yALmRuS85dWtXSh60ejCRxfs0MmxidaU779ygxnQkreQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XFRf/D+q; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE378288C13
+	for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 12:37:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763642235; cv=fail; b=XmYWmF4yzswRqvqrIwqjK3Yjep0uB9RXhqJfKF/taOAJBqaJqrpgRhSUXWY8iv3ZoBHBB3y9j0JC9BwaBH70D5noGYb3shDWiuhsre1gom4WVHsnxu9tWGtMNXPbWjRI0rCqnAaqA0iCaEmkBN2haPxVpiy9ATyHTFZJcVG9/MI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763642235; c=relaxed/simple;
+	bh=UoUjCJBxGrc3TJo6UVqD6eegOpPKuj44H1kHYPfI9jU=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=glMHxFXV2XKp29+Lnvjs2yKgDJ138is9hO5nK7jmqlNN2Q4w1VUIWYgFYBCxp7+TUyn0huURFNaVjYCwIKGk5j1uZiI1tXqLvddCZENBAuJnwdjqOSfl2VSg71YmdVPMYbr4N/B2rGfvPPx8XXzVeBWTCwxX787Tnc/OqHyDNhQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jVzXDKC7; arc=fail smtp.client-ip=198.175.65.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XFRf/D+q"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jVzXDKC7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1763607135; x=1795143135;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=8LiRFCIrRrKHg+0I0NZU28Hv8xDScXSujB+5bD6/+Xs=;
-  b=XFRf/D+q7QwOK6NiWQ57NL+PXlmRl2jaLljQ+olHYEiCk813VRt3XBsP
-   fFZpLROC3CPZomab/ThzZ4GfSt9JFgaRyCQ+Cm+Lj6lpLYOVxLl+tbvjc
-   o7YayHM0B1aGB0NeNwFdr3I8KepUvIffni/4yG0tfSgsVUCP8zQyPvRqh
-   pNHdl11RqfPCeanReZ1TCb+Fc6PQI3QLaOxGwfV2oB4dPDBdNgMoVEKF9
-   /MoJquzT8tYJRjJ8i8dhawvm/vieJgi2w6Pp4HB2vo2oK6c6yopIgduhz
-   1BWFI7Fibmuy532lrQttS9IrXTWvZxJCcLuueorQXPboJqnlVzIt4+vCZ
-   A==;
-X-CSE-ConnectionGUID: I+HoliWkRRizTsPVU3uDVQ==
-X-CSE-MsgGUID: KFkquT6CRO6DjCtcqgvM7w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11618"; a="88321347"
-X-IronPort-AV: E=Sophos;i="6.19,317,1754982000"; 
-   d="scan'208";a="88321347"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2025 18:52:14 -0800
-X-CSE-ConnectionGUID: CWBNGojCRMOnXSHF6LW5xg==
-X-CSE-MsgGUID: lcNSHRC5RCSqKCzgJeRr6w==
+  t=1763642233; x=1795178233;
+  h=from:to:cc:subject:date:message-id:
+   content-transfer-encoding:mime-version;
+  bh=UoUjCJBxGrc3TJo6UVqD6eegOpPKuj44H1kHYPfI9jU=;
+  b=jVzXDKC7kD2qjaCTK+c8v+fbvjNXIREqZGXv8/WwuMHUaG5YDkhfexcF
+   X1HwbYRcTYIOzQPQWXPurDy6/sRZ/okBUQHITn0jTALftv8REuw/JqWQ1
+   NsXJUboefC0mZfYuK7H16YsVaEYVdMyMIeVorC2P/RFQr7scezqGNKbi8
+   9OWiYYkHQI/txlLTYCCzF5GNtnHDax1tiG1atz0XYUlLKWB8fBXsL7JnN
+   uSTz2/Fhhabn5omr+31BPiOnM7oqx2vqnfOL0PMJtNua4271Eoq0FKayO
+   elqHoM0qGsZ00bN5HA0D664sNL8XEG0JPgdFR5ZOdLP7FdrXjm6M+Pgl4
+   g==;
+X-CSE-ConnectionGUID: O+LQ3AArQA29ar5XyvCj4w==
+X-CSE-MsgGUID: CdwPUg+BSd60NSq5YpfvIA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11618"; a="76037792"
+X-IronPort-AV: E=Sophos;i="6.20,213,1758610800"; 
+   d="scan'208";a="76037792"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2025 04:37:13 -0800
+X-CSE-ConnectionGUID: uJwg0cIHTuOrFvf+okbuQA==
+X-CSE-MsgGUID: S6rA5885RcqTizHr60+Ozw==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,317,1754982000"; 
-   d="scan'208";a="222164003"
-Received: from lkp-server01.sh.intel.com (HELO adf6d29aa8d9) ([10.239.97.150])
-  by fmviesa001.fm.intel.com with ESMTP; 19 Nov 2025 18:52:09 -0800
-Received: from kbuild by adf6d29aa8d9 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1vLumF-0003Y7-0q;
-	Thu, 20 Nov 2025 02:52:07 +0000
-Date: Thu, 20 Nov 2025 10:51:50 +0800
-From: kernel test robot <lkp@intel.com>
-To: Bibo Mao <maobibo@loongson.cn>, Paolo Bonzini <pbonzini@redhat.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-	Boqun Feng <boqun.feng@gmail.com>, Waiman Long <longman@redhat.com>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Cc: oe-kbuild-all@lists.linux.dev, kvm@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, x86@kernel.org
-Subject: Re: [PATCH 2/3] LoongArch: Add paravirt support with
- vcpu_is_preempted()
-Message-ID: <202511201009.WLpYNMAM-lkp@intel.com>
-References: <20251118080656.2012805-3-maobibo@loongson.cn>
+X-IronPort-AV: E=Sophos;i="6.20,213,1758610800"; 
+   d="scan'208";a="190633800"
+Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
+  by orviesa010.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2025 04:37:13 -0800
+Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27; Thu, 20 Nov 2025 04:37:12 -0800
+Received: from ORSEDG903.ED.cps.intel.com (10.7.248.13) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27 via Frontend Transport; Thu, 20 Nov 2025 04:37:12 -0800
+Received: from BN1PR04CU002.outbound.protection.outlook.com (52.101.56.36) by
+ edgegateway.intel.com (134.134.137.113) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.27; Thu, 20 Nov 2025 04:37:12 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=p10XeDB7kt4AoLMVrS8ogD12oZ+swMvJOAuqeQ0IdiewZhaQtNgtkKAkSaHJ2S7dJxFMHBcTuUI9C7CTzdDaWANIdYcOhJYAH2NcKxMrGxKFmDyvdg7xoPSizHnk4ZS9WXudjH1wkAEKEUtGLEcVRDKRn7qc36DH835mDPtNhiLFKkZkLeufH10LC/Y5fJsaTOapdxUqo+8XeI2J+DFOmLZ57X4B1qjbr9GLHIAHbilOm8BrAMtve1rAwl4rRKdtjgV6X5D9h8cTF8MTTLQ3mC+litHGbMNC0RvigHeDSn95FqxG+Q3/eAcr/CJr7TSxYuyOMXYC4+FQDib3KTPNgw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=pZ8cgaMQBo4Z096FXRmjD1ki/ESCMqvv0+65pBwtQ2M=;
+ b=cVEfKABPLXyAmGMfT5H7sTZp26EZtpdh+lXmiq48GZ6KSQsD3rt4pptZipXxUVydHq/3VI4vWhzf2Zj3sT4YR+YTytXv80gs0e/r0o/2XOtBuF9dZeeN9/PmzSql0QxFCQO82eit/vRVgI2zlmPMQFwD9q0BEJFZMaxmaH6IQz3c+MHIxBMEvOEv4FHn3xwr2y9IvNFWACXFyeKiphlXqztbY1hG1vLcnaRoI+ZU4P+gNzsjp83veaRWLTjjh6u9PEC7rij9ion+c7JiTry82q1nb0tK+999RxzYm+2tAcXdxJrV9SXgOq+Zm6ccFBEKate36BRgDbzhqnGKaFF6xg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from DM4PR11MB5373.namprd11.prod.outlook.com (2603:10b6:5:394::7) by
+ DM3PPFC3B7BD011.namprd11.prod.outlook.com (2603:10b6:f:fc00::f49) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.11; Thu, 20 Nov
+ 2025 12:37:04 +0000
+Received: from DM4PR11MB5373.namprd11.prod.outlook.com
+ ([fe80::927a:9c08:26f7:5b39]) by DM4PR11MB5373.namprd11.prod.outlook.com
+ ([fe80::927a:9c08:26f7:5b39%5]) with mapi id 15.20.9343.011; Thu, 20 Nov 2025
+ 12:37:04 +0000
+From: =?UTF-8?q?Micha=C5=82=20Winiarski?= <michal.winiarski@intel.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>, Alex Williamson <alex@shazbot.org>, "Kevin
+ Tian" <kevin.tian@intel.com>, Yishai Hadas <yishaih@nvidia.com>, Longfang Liu
+	<liulongfang@huawei.com>, Shameer Kolothum <skolothumtho@nvidia.com>, "Brett
+ Creeley" <brett.creeley@amd.com>, Giovanni Cabiddu
+	<giovanni.cabiddu@intel.com>, <kvm@vger.kernel.org>, <qat-linux@intel.com>,
+	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>
+CC: =?UTF-8?q?Micha=C5=82=20Winiarski?= <michal.winiarski@intel.com>
+Subject: [PATCH 0/6] vfio: Reset migration device state using dedicated callback
+Date: Thu, 20 Nov 2025 13:36:41 +0100
+Message-ID: <20251120123647.3522082-1-michal.winiarski@intel.com>
+X-Mailer: git-send-email 2.51.2
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: VI1PR07CA0237.eurprd07.prod.outlook.com
+ (2603:10a6:802:58::40) To DM4PR11MB5373.namprd11.prod.outlook.com
+ (2603:10b6:5:394::7)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251118080656.2012805-3-maobibo@loongson.cn>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR11MB5373:EE_|DM3PPFC3B7BD011:EE_
+X-MS-Office365-Filtering-Correlation-Id: 0e84ce74-782d-4d80-507f-08de283182ba
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024|921020;
+X-Microsoft-Antispam-Message-Info: =?utf-8?B?U1JpL3YyOHBIaUZUQ0xkQVRIWk44S0V1S0NGWmtFc1JBUy9ub3NJYVcza2Z6?=
+ =?utf-8?B?c2ZDVXJ4SXlEUGlNaXhvU0xISG9QeDE4ZGlIVG00ZGtSd3RUZHl2eHhkcTd6?=
+ =?utf-8?B?NEpydzcvTVFpaE1iaFFvcThqRlpzZ2VhNmIxNnVDeFZMQUg3cnp6Yk1XTDRp?=
+ =?utf-8?B?dzh6Nk1IRktjdEpTa0gxZjBabVZkb2hoazFWWDBDWDR1T3dGLy9qNkpENk5L?=
+ =?utf-8?B?bGRvQzNWUFRmaC9qK0VtdXhRTkpWOUZYcy9OeXlNOVMycHBlQ3l6STl4Y1NF?=
+ =?utf-8?B?UXdRNkhYOWRVU1VWamZkcHFrUVEvM2dRMDBpVDR3MlRiQksrUStvTWVkMHNp?=
+ =?utf-8?B?N2J4Rm1SZTh0WmhBZVFsRmVXQVBlVVJUd0l4OHBCYWZUZ2YxZm0rV2hWR1lK?=
+ =?utf-8?B?S2w0SUN1NnRTTks1QTZzRk5kcU8wNTUveW5UMStSWm4xdC8zU29DZmQzTTUy?=
+ =?utf-8?B?bGxlZm9mMUpQQjJJcEJsNjRucTdlcElQZGRkakRPRWs3OHNwWmljSmhiOGJv?=
+ =?utf-8?B?NXNtOTFGNWlVT2RCdGg5YWtNTnovdE1xUmVRcWJiVGlaNWgrSzU2ang0VGJC?=
+ =?utf-8?B?enJTNXBkOVREMzNvMkkvT01SaFBnRkhiM0cyNzBEcDFyVVE2WUNPNmhmcXRq?=
+ =?utf-8?B?TCt4bnlTSnU4aFBqUmZuUFAxbWorVTM5cEsrTlpSdmZOMjhFWmRybEZyTXE1?=
+ =?utf-8?B?cnRBeHN1WkpOUVMyRjBPcDVQNE05U2I4TUVNazBXa0FlTFJuNktJWnR0RHBi?=
+ =?utf-8?B?S1FBOXgwUU4vbm5TWDROb2hVVUdNbi9oZWR3MHRabFV5bmZsUmFVN2tkb1B1?=
+ =?utf-8?B?NXp5dFRLeGJORzYyTXJkblVTaGY3cHcxMmc2VENNbDVqdXBsTGNPVUhtVjRm?=
+ =?utf-8?B?azhybEk0K1c5MExjajNyYk0yOGg5eVA4VWR6SFo4d3NvQS91amRHckVPS285?=
+ =?utf-8?B?ajFDRmdkWklKYTIrejVHTmhxZ3MvaktKR0dKcXA0ZFRXd0tpUktZdmt3alVH?=
+ =?utf-8?B?ZjZXRlNuN09Vc1dmbVFCZUo5RlVMbUF1YWRMUXhhMXJKSTJVTTBTTVdQZUdS?=
+ =?utf-8?B?cGZtcE9XUXF1N2FYUkRiQmMzd2NYZGpvamlaNkZaZWxXZlJuZ0hCZUpDWkFO?=
+ =?utf-8?B?VFRiTWlPaTFVNStGMUlVaHhHRXBEcllEZy9JWVRVRjZBVzl5WTdtdkF1bUov?=
+ =?utf-8?B?VVlsSWowLzFkRWJKckNrd1BkQUROa0ltcThudE9nZUxZWGdrZ20wRGhvNktP?=
+ =?utf-8?B?bXc4SmtKeWxNUktFODlMYmprcm11Tno1N3ZUQnY5TzNGT2xMbHQ4TkdqdHdy?=
+ =?utf-8?B?ZFpSN2doMVBObGI4VTBLeVp2UTgwbnRyb1FReHRtZEF3cDZGVTFkRktBNE1R?=
+ =?utf-8?B?dVErZTN4L3MvNzdhbmFFaUJlZVN2QzV3bmpnc0RXa3luci9YMW81WVpMeEts?=
+ =?utf-8?B?dUtxVWJkRHBIdml5b2psUVFTY1BZWndFdUVQa1EzMHEybzczQUVUZkdtdnRX?=
+ =?utf-8?B?UmUxb3UwdlNVbHpud2tzRUh6V0ZyUDJ2cWI2SHNRdUpyeFlnMmNybi9XUXpJ?=
+ =?utf-8?B?YVRXRW1MZVFTWUoySVlUVzB2aEU4OXlZR3E0RS80MjFzTllCUzdjQUF1aHR2?=
+ =?utf-8?B?SDAwZitGQ0RxVGFlSjZBS0QyeUV5NmdzZjRzMDB4ZkcxaWk1clZyVkJCQlpk?=
+ =?utf-8?B?OXZabHBJTER2SDUzUWJiUVJ1OWw2cUxTaldPbjl0T2RDU2R4anhkcXc5a1Jk?=
+ =?utf-8?B?Rmd5dUs3SkxmQlNOLytjVWtjNG4yTU5vaDlSK1dMMVZWZ1ZvVE02SjBONm9Q?=
+ =?utf-8?B?cm1aK2t2SXBxODl1R2NqVk5ZeS9HcWNMNSsxK1ZhT3daMjFWb1NpRlk1Ky9y?=
+ =?utf-8?B?SmFuSXZJSGNTMURkWE5XbGwwOER0K1pIV1RyejFhYmZjS0RuWmROcFFhbmRa?=
+ =?utf-8?B?VHhZdFBpVTVGTzhrY3NOWENib1ZHckJvOUVVOWZwSGVYWTFUVXdNMUZkR3E3?=
+ =?utf-8?B?eUVUVFZVb1BWU2JYUHVGNGovTi9EbFdXcHlsTlRDbXpMRDNPYzJZeThQZ2pp?=
+ =?utf-8?Q?yCEYrW?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5373.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?T2dJSjNJU1I4NjRIRDg2alNlSDRBN1FRRmJ2UkZCRi9Dc0FucUpNUWVtSVhz?=
+ =?utf-8?B?NkFReE1neTZkR1AxWTZ1ZEIyNWpSSTRNWU1razNIVHp1ME15MEg4Q01ySzRG?=
+ =?utf-8?B?ZEIxbXo1c0dSQ09WTW93My83ZG5sWU1sR1B3eFhsYUdtZ3kweDdIZnFWTXVt?=
+ =?utf-8?B?amIrb1N6Ukw2RUhRVXREcHZXR1hpci9lWjJZUkVDTmh3em95U1MwOUptV3pX?=
+ =?utf-8?B?Unk3NWZBQVdoVjNDTm9RUWU4MjZFOTRXSGxRQXV1Mk5aNzZOKy9aOFordUYx?=
+ =?utf-8?B?UzdMdWlaMWNJdWJWODREMWtrS0xrQ3psZW9yOTBDOXB0WHkvc1VkRkVyVldF?=
+ =?utf-8?B?aGR2ZjE1VkZuKzc2dkxlaitGR1ZFbStIY0Vib20yUlVxK2pRMkNTMjFYZUdh?=
+ =?utf-8?B?Q0FOcGQyYUhsZDBST2dhUVVDcW96c3dpNXlKY3M0Um1yZEdYMW4yaGdoMzFV?=
+ =?utf-8?B?Y2NVVUZOSDZ2SlBwRUlLRkl4YTk3dUlJb3lSbWE1eHl6dTBqaVdOQy81SGoy?=
+ =?utf-8?B?bWdKNWdxT2wvSmhJeHVMWVRIdS9aZ0hRMm1RZ0haWGdGaWxkeVA1MG51WWl0?=
+ =?utf-8?B?Ky9sUXBsSi9CVzNpTlB1Z0VWZWg4NGNGS0twMjQwUE1vdEdmQU1heEFEcUd5?=
+ =?utf-8?B?MS9vSjF6eGJXZVZKRko0VE1QcEIxdXdaandCN2F4bFpsR3VDaDhQVVVtNWdL?=
+ =?utf-8?B?VkY2QnpNWEY2V09ZMkN0K2xUMnJCWGYxVHFEK1BLMmtHa0Fhai9OQ1ZONTNs?=
+ =?utf-8?B?dTJpRXVBRHJrRWNRazhvcUlvUnVzZUFaMjZacWR6ZkZUSENUQjNoTGZwdXox?=
+ =?utf-8?B?ajNaVXFHdEU3Vkp2djlRZWlvYzdxMFFGb01sR3pwM05WK0pTQVdmWUI3YkE5?=
+ =?utf-8?B?bHIrVmhaU1Vja2ZsVVJ5Ym1aanJkR0RDVGtvak1rNnRnV09IM2h5LzJseUdy?=
+ =?utf-8?B?bFZ0L3czMzBzSTc0emZSa2dwUWwvTzZQbDdkM2Q2Q25wNXFuVjg1VnVqWDd4?=
+ =?utf-8?B?RnpZTlJxRDhaVnlIZ3Y2a1d6L2VRSE9PRlVDZWJQaks3TWlnSEphTUcxQW41?=
+ =?utf-8?B?czJiQVhZeW9MRnROeDBHWjU2cFl4Vi9QL2JEelRuSnZHTkNaaHpWTDg2ZkZw?=
+ =?utf-8?B?dmZrMFkxTndza3FZR3pVM1JmTnR4blRYYzlSL2FqQVRHYzlKSTc3Q25CWllx?=
+ =?utf-8?B?bnMrNDJyNk14eTNsWEZwYUpZa3VFM1JIWnRNVGcvTTlscGdFMkY1WGZnZWJ6?=
+ =?utf-8?B?S20zZ3RwRDFueWYySzlzZDBQVm9wcy9jMElHaFZKTTFmZ2VsM0pLVjkwZTdR?=
+ =?utf-8?B?RTg1bVA1TWFyYXg2UzVTWVQwYml1ZjlIZlc1NVpjekI2VU5Bb05pMTNYNE81?=
+ =?utf-8?B?cUVacUVTZnRpYzRRR3hYM1BPWFpZVm5nUC9vdmRBNVhIeldTS09LVEVMT2ZK?=
+ =?utf-8?B?QlUwZ1FUUmZHdWVLbXlHdjgybHM2akRhaHduWkxneEJFVkdvREtiM0txTkE2?=
+ =?utf-8?B?RUhjZUlza1VCVXQxYW5kUDNGc01NdzZqSXROZzhseTdqaUlHUzlWOU9ZQTJu?=
+ =?utf-8?B?Vm4wSjdYTDZmcWIxUEJLeEpqM1VrQmlzOHZPdXZKYkF6TzV1aklmQzhWaTRs?=
+ =?utf-8?B?WXFFMUFTZUtMREFYWGs0VGdWS3NrdHBVL3ZoMGE4a2luTmdTZ1FoUS9JSUIv?=
+ =?utf-8?B?K05EeTcxQzlJTGhEYVd2QnZHWHdXM2FNQ1NDWGRnUFlwVEg3bEt6Q0tvQ1pq?=
+ =?utf-8?B?VXpsaWl4UzFNNk9QaGExRXBBUHFLYnRJZ0EwSCt4L2k4b3ZEdUZ2MVFTRmFB?=
+ =?utf-8?B?MnhPOXBwUUp6TkpCV25aa0dNKzJsbytEVnhiUHVlTVVRYXJwTkRtSGR3VGRz?=
+ =?utf-8?B?bk5jbEZVdXRmdm9WN2lMbkUyYlBBY2pQenBLRTQwWitSNlora01FejFqRGh6?=
+ =?utf-8?B?QW9vZFp6UkxReFVwREhNNUluR1kzMlUxcEJCQ080QVNLZ3N0NVdyYzhvdTB0?=
+ =?utf-8?B?T2JoVk93Z2FDNm0xTzk1SEozRG1RbXZNTE95SzVzdWZsb3ltZlpMRkhTbEFa?=
+ =?utf-8?B?ZjhjbFhnQ2tBSUxxOXBjZU04VGZ0eElBSHljS0JHa2FGcU9qNVJlb2pPRU1u?=
+ =?utf-8?B?TWdqN3ZPWWR3OG4vQTNPK0lDSXhsQUJIV3Q4Umlxam9ia1BWaWlyaUp6dkVw?=
+ =?utf-8?B?aEE9PQ==?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0e84ce74-782d-4d80-507f-08de283182ba
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5373.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2025 12:37:04.7390
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: BJ+IhdlYvz+eCnZSRt2nn+ujuRS1zafT99fJuo6QwmS/JcqTq2N5fQXcOZk+NXxxxlQkyNo4bC2bzU1SlSmiEooEQ/3DA33ZopFuoCQohNs=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM3PPFC3B7BD011
+X-OriginatorOrg: intel.com
 
-Hi Bibo,
+Hi,
 
-kernel test robot noticed the following build errors:
+In a recent discussion [1], an unsafe locking pattern was discovered.
+Initially, it was believed that the locking issue is related to calling
+copy_from_user()/copy_to_user() under state_mutex [2], but it turns out
+that it's a generic issue that has impact on all drivers that are not
+implementing a "deferred reset".
 
-[auto build test ERROR on 6a23ae0a96a600d1d12557add110e0bb6e32730c]
+This is a first attempt to simplify the migration device state locking,
+following a suggestion from Jason to try and solve the issue on core
+side rather than duplicating deferred reset in all of the drivers.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Bibo-Mao/LoongArch-KVM-Add-preempt-hint-feature-in-hypervisor-side/20251118-161212
-base:   6a23ae0a96a600d1d12557add110e0bb6e32730c
-patch link:    https://lore.kernel.org/r/20251118080656.2012805-3-maobibo%40loongson.cn
-patch subject: [PATCH 2/3] LoongArch: Add paravirt support with vcpu_is_preempted()
-config: loongarch-randconfig-r052-20251120 (https://download.01.org/0day-ci/archive/20251120/202511201009.WLpYNMAM-lkp@intel.com/config)
-compiler: clang version 18.1.8 (https://github.com/llvm/llvm-project 3b5b5c1ec4a3095ab096dd780e84d7ab81f3d7ff)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251120/202511201009.WLpYNMAM-lkp@intel.com/reproduce)
+Introduce a dedicated .migration_reset_state() callback called outside
+vdev->memory_lock to break the locking dependency chain and convert all
+of the drivers to use it.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202511201009.WLpYNMAM-lkp@intel.com/
+[1] https://lore.kernel.org/intel-xe/7dtl5qum4mfgjosj2mkfqu5u5tu7p2roi2et3env4lhrccmiqi@asemffaeeflr/
+[2] https://lore.kernel.org/kvm/20240220132459.GM13330@nvidia.com/
 
-All errors (new ones prefixed by >>):
+Michał Winiarski (6):
+  vfio: Introduce .migration_reset_state() callback
+  hisi_acc_vfio_pci: Use .migration_reset_state() callback
+  vfio/pds: Use .migration_reset_state() callback
+  vfio/qat: Use .migration_reset_state() callback
+  vfio/mlx5: Use .migration_reset_state() callback
+  vfio/virtio: Use .migration_reset_state() callback
 
->> arch/loongarch/kernel/paravirt.c:346:14: error: redefinition of 'vcpu_is_preempted'
-     346 | bool notrace vcpu_is_preempted(int cpu)
-         |              ^
-   include/linux/sched.h:2263:20: note: previous definition is here
-    2263 | static inline bool vcpu_is_preempted(int cpu)
-         |                    ^
->> arch/loongarch/kernel/paravirt.c:348:9: error: use of undeclared identifier 'mp_ops'
-     348 |         return mp_ops.vcpu_is_preempted(cpu);
-         |                ^
-   2 errors generated.
-
-
-vim +/vcpu_is_preempted +346 arch/loongarch/kernel/paravirt.c
-
-   345	
- > 346	bool notrace vcpu_is_preempted(int cpu)
-   347	{
- > 348		return mp_ops.vcpu_is_preempted(cpu);
+ .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    |  7 +-
+ drivers/vfio/pci/mlx5/cmd.c                   | 15 ++--
+ drivers/vfio/pci/mlx5/cmd.h                   |  3 -
+ drivers/vfio/pci/mlx5/main.c                  | 59 ++++-----------
+ drivers/vfio/pci/pds/pci_drv.c                | 10 ---
+ drivers/vfio/pci/pds/vfio_dev.c               | 12 ++++
+ drivers/vfio/pci/qat/main.c                   | 36 +++++-----
+ drivers/vfio/pci/vfio_pci_core.c              | 25 ++++++-
+ drivers/vfio/pci/virtio/common.h              |  3 -
+ drivers/vfio/pci/virtio/main.c                |  1 -
+ drivers/vfio/pci/virtio/migrate.c             | 71 ++++++-------------
+ include/linux/vfio.h                          |  4 ++
+ 12 files changed, 101 insertions(+), 145 deletions(-)
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.51.2
+
