@@ -1,127 +1,156 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6929C3612ED;
-	Thu, 20 Nov 2025 15:17:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD34535BDB1;
+	Thu, 20 Nov 2025 15:30:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763651837; cv=none; b=hbrWk91Puxj59laMcwAW5GEaRaE8u1tO/CBIr4gfPZqZPolT3Y61J2KBEJAHRHXihf2vHaLW+gQURJzULUyT3wxYTutntAEVIHQl47QTXgTgM2R3g0cY5/1F9hz9/5geFsQpiNaIktWXx27qkqiztAPIluWoVIufhwkRzA5+PYU=
+	t=1763652610; cv=none; b=AmBAx1xf0mubQREYXsgyCXuYy5iM/SXIG8su2bb40229G1/vIe4CurpuspGZA9U6zbWPhqAKH9yI63S1lsFdeaXCJA6YST1Gt7AseRxaRwqjqH2o1wgtHQoQ+dO1f22idgywxOAsN9LPU3uiNl1VYl+7kj87ri3YouCR7LnH7B4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763651837; c=relaxed/simple;
-	bh=0XkeEI6EtugL+gxBeZZYjRHFjTbVod/dVJdkyoFZesQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=juMMuDdAJ6ryrDQl3782Lb8yav8YGTxVnqpJfeCmR2exvWpj+Ij5naiG0NhFJeVMipiohtOwUx06+AhsElwmjQ2r6a9vM/17pAnVNp1Aro+GO+grpRDePii/p2inBUxnqnffrIeCnj789ZDjKubmyisC5a3b8ZckNxTaC8+Wlcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mlJcpGKB; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mlJcpGKB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C63BC4CEF1;
-	Thu, 20 Nov 2025 15:17:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763651836;
-	bh=0XkeEI6EtugL+gxBeZZYjRHFjTbVod/dVJdkyoFZesQ=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=mlJcpGKBUdMDhbcuoqlJJC6B5wxHmWnnowVJH2Rv+4L5WnJfAJiX7cui/1Ntah8Ce
-	 0Rbg5Zt6fz1w3nlvF6y19tBFIRmMhgiJzfAgm76baqoG3itGImarKzpT8S8Zqt6+7o
-	 M0tVvLEhCkK8QxuL1ny4BJu1a1t80y0YMMR4CueBZc4T6i2PiRkN+ElEutfkqVw2QE
-	 NZhgeEGPvkvGvI3DlEuK1MeqfLUNktCxCTsq0y1Kvxbcw4NIBv4FYFiuwWrChHHYfs
-	 LigZ0A1MDqMUwzBSc6VoTCw3PnqZqQMeSrpLhl5Ohxc4f++LltQS9r2EBd7K9JpWmn
-	 OBJ1UDnkU4fMQ==
-Date: Thu, 20 Nov 2025 07:17:15 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: I Viswanath <viswanathiyyappan@gmail.com>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- pabeni@redhat.com, horms@kernel.org, sdf@fomichev.me, kuniyu@google.com,
- skhawaja@google.com, aleksander.lobakin@intel.com, mst@redhat.com,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-kernel-mentees@lists.linux.dev
-Subject: Re: [PATCH net-next v5 0/2] net: Split ndo_set_rx_mode into
- snapshot
-Message-ID: <20251120071715.28a47b21@kernel.org>
-In-Reply-To: <20251120141354.355059-1-viswanathiyyappan@gmail.com>
-References: <20251120141354.355059-1-viswanathiyyappan@gmail.com>
+	s=arc-20240116; t=1763652610; c=relaxed/simple;
+	bh=WkaXo1wPGJMqku7JwsQP7qM8kSbPqip6CKc1p/DS4WQ=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=IpoT+I1z8u1mlq/Do5YXNsi90T5907KTVN1+ij573roSo7QSaaEoYy1ajWTjq6yG8EaS7OQsgt6oO8G38aYR58QRgoGAuEtURRt7j3t/OWQPCGPkWdY/6rj9ctQgmKlQwlgnegkAirFbAv2osBE/03VTo8nrtOE1UZJODGqXdtI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+Received: from simon-Latitude-5450.cni.e-technik.tu-dortmund.de ([129.217.186.248])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.1.10/8.18.1.10) with ESMTPSA id 5AKFTu8O005406
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 20 Nov 2025 16:29:58 +0100 (CET)
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
+        eperezma@redhat.com, jon@nutanix.com, tim.gebauer@tu-dortmund.de,
+        simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+Subject: [PATCH net-next v6 8/8] tun/tap: drop get ring exports
+Date: Thu, 20 Nov 2025 16:29:14 +0100
+Message-ID: <20251120152914.1127975-10-simon.schippers@tu-dortmund.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
+References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Thu, 20 Nov 2025 19:43:52 +0530 I Viswanath wrote:
-> Teardown path:
-> 
-> Relevant as they flush the work item. ens4 is the virtio-net interface.
-> 
-> virtnet_remove:
-> ip maddr add 01:00:5e:00:03:02 dev ens4; echo 1 > /sys/bus/pci/devices/0000:00:04.0/remove
-> 
-> virtnet_freeze_down:
-> ip maddr add 01:00:5e:00:03:02 dev ens4; echo mem > /sys/power/state
+tun_get_tx_ring and tap_get_ptr_ring no longer have in-tree consumers and
+can be dropped.
 
-Running 
+Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Co-developed by: Jon Kohler <jon@nutanix.com>
+Signed-off-by: Jon Kohler <jon@nutanix.com>
+Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+---
+ drivers/net/tap.c      | 13 -------------
+ drivers/net/tun.c      | 13 -------------
+ include/linux/if_tap.h |  5 -----
+ include/linux/if_tun.h |  6 ------
+ 4 files changed, 37 deletions(-)
 
-make -C tools/testing/selftests TARGETS="drivers/net/virtio_net" run_tests
-
-[    1.967073] BUG: kernel NULL pointer dereference, address: 0000000000000018
-[    1.967179] #PF: supervisor read access in kernel mode
-[    1.967237] #PF: error_code(0x0000) - not-present page
-[    1.967296] PGD 0 P4D 0 
-[    1.967327] Oops: Oops: 0000 [#1] SMP
-[    1.967372] CPU: 2 UID: 0 PID: 220 Comm: basic_features. Not tainted 6.18.0-rc5-virtme #1 PREEMPT(voluntary) 
-[    1.967500] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-[    1.967576] RIP: 0010:__flush_work+0x33/0x3a0
-[    1.967651] Code: 41 55 41 54 55 53 48 83 ec 60 44 0f b6 25 0d ab 91 01 65 48 8b 05 2d ff 8d 01 48 89 44 24 58 31 c0 45 84 e4 0f 84 35 03 00 00 <48> 83 7f 18 00 48 89 fd 0f 84 30 03 00 00 41 89 f5 e8 07 24 07 00
-[    1.967861] RSP: 0018:ffffab9bc0597cf0 EFLAGS: 00010202
-[    1.967920] RAX: 0000000000000000 RBX: ffff9d08c2c549c0 RCX: ffffab9bc0597d28
-[    1.968010] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-[    1.968100] RBP: ffff9d08c1cd5000 R08: ffff9d08c1db7b70 R09: 0000000000000000
-[    1.968189] R10: ffff9d08c1db7f80 R11: ffff9d08c152e480 R12: 0000000000000001
-[    1.968281] R13: ffffffffbd9ffe00 R14: ffff9d08c193e140 R15: 0000000000000008
-[    1.968371] FS:  00007fb66173b000(0000) GS:ffff9d0940ce9000(0000) knlGS:0000000000000000
-[    1.968472] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.968546] CR2: 0000000000000018 CR3: 00000000045e5006 CR4: 0000000000772ef0
-[    1.968640] PKRU: 55555554
-[    1.968669] Call Trace:
-[    1.968700]  <TASK>
-[    1.968729]  ? kernfs_should_drain_open_files+0x2e/0x40
-[    1.968796]  ? __rtnl_unlock+0x37/0x60
-[    1.968849]  ? netdev_run_todo+0x63/0x550
-[    1.968894]  ? kernfs_name_hash+0x12/0x80
-[    1.968938]  virtnet_remove+0x65/0xb0
-[    1.968984]  virtio_dev_remove+0x3c/0x80
-[    1.969029]  device_release_driver_internal+0x193/0x200
-[    1.969090]  unbind_store+0x9d/0xb0
-[    1.969136]  kernfs_fop_write_iter+0x12b/0x1c0
-[    1.969197]  vfs_write+0x33a/0x470
-[    1.969242]  ksys_write+0x65/0xe0
-[    1.969287]  do_syscall_64+0xa4/0xfd0
-[    1.969333]  entry_SYSCALL_64_after_hwframe+0x4b/0x53
-[    1.969393] RIP: 0033:0x7fb66183b257
-[    1.969434] Code: 0f 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
-[    1.969640] RSP: 002b:00007fffca552fe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-[    1.969729] RAX: ffffffffffffffda RBX: 00007fb661937780 RCX: 00007fb66183b257
-[    1.969820] RDX: 0000000000000008 RSI: 0000558903e5a280 RDI: 0000000000000001
-[    1.969911] RBP: 0000000000000008 R08: 0000000000000003 R09: 0000000000000077
-[    1.970004] R10: 0000000000000063 R11: 0000000000000246 R12: 0000000000000008
-[    1.970096] R13: 0000558903e5a280 R14: 0000000000000008 R15: 00007fb6619329c0
-[    1.970189]  </TASK>
-[    1.970218] Modules linked in:
-[    1.970266] CR2: 0000000000000018
-[    1.970311] ---[ end trace 0000000000000000 ]---
-[    1.970372] RIP: 0010:__flush_work+0x33/0x3a0
-[    1.970441] Code: 41 55 41 54 55 53 48 83 ec 60 44 0f b6 25 0d ab 91 01 65 48 8b 05 2d ff 8d 01 48 89 44 24 58 31 c0 45 84 e4 0f 84 35 03 00 00 <48> 83 7f 18 00 48 89 fd 0f 84 30 03 00 00 41 89 f5 e8 07 24 07 00
-[    1.970656] RSP: 0018:ffffab9bc0597cf0 EFLAGS: 00010202
-[    1.970717] RAX: 0000000000000000 RBX: ffff9d08c2c549c0 RCX: ffffab9bc0597d28
-[    1.970806] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-[    1.970897] RBP: ffff9d08c1cd5000 R08: ffff9d08c1db7b70 R09: 0000000000000000
-[    1.970988] R10: ffff9d08c1db7f80 R11: ffff9d08c152e480 R12: 0000000000000001
-[    1.971081] R13: ffffffffbd9ffe00 R14: ffff9d08c193e140 R15: 0000000000000008
-[    1.971174] FS:  00007fb66173b000(0000) GS:ffff9d0940ce9000(0000) knlGS:0000000000000000
-[    1.971264] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.971337] CR2: 0000000000000018 CR3: 00000000045e5006 CR4: 0000000000772ef0
-[    1.971431] PKRU: 55555554
-[    1.971460] note: basic_features.[220] exited with irqs disabled
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index 2847db4e3cc7..fd87db829913 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -1270,19 +1270,6 @@ struct socket *tap_get_socket(struct file *file)
+ }
+ EXPORT_SYMBOL_GPL(tap_get_socket);
+ 
+-struct ptr_ring *tap_get_ptr_ring(struct file *file)
+-{
+-	struct tap_queue *q;
+-
+-	if (file->f_op != &tap_fops)
+-		return ERR_PTR(-EINVAL);
+-	q = file->private_data;
+-	if (!q)
+-		return ERR_PTR(-EBADFD);
+-	return &q->ring;
+-}
+-EXPORT_SYMBOL_GPL(tap_get_ptr_ring);
+-
+ bool tap_is_tap_file(struct file *file)
+ {
+ 	struct tap_queue *q;
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index 9da6e794a80f..32f53e31a5a7 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -3843,19 +3843,6 @@ void tun_ring_unconsume(struct file *file, void **batch, int n,
+ }
+ EXPORT_SYMBOL_GPL(tun_ring_unconsume);
+ 
+-struct ptr_ring *tun_get_tx_ring(struct file *file)
+-{
+-	struct tun_file *tfile;
+-
+-	if (file->f_op != &tun_fops)
+-		return ERR_PTR(-EINVAL);
+-	tfile = file->private_data;
+-	if (!tfile)
+-		return ERR_PTR(-EBADFD);
+-	return &tfile->tx_ring;
+-}
+-EXPORT_SYMBOL_GPL(tun_get_tx_ring);
+-
+ bool tun_is_tun_file(struct file *file)
+ {
+ 	struct tun_file *tfile;
+diff --git a/include/linux/if_tap.h b/include/linux/if_tap.h
+index 14194342b784..0e427b979c11 100644
+--- a/include/linux/if_tap.h
++++ b/include/linux/if_tap.h
+@@ -10,7 +10,6 @@ struct socket;
+ 
+ #if IS_ENABLED(CONFIG_TAP)
+ struct socket *tap_get_socket(struct file *);
+-struct ptr_ring *tap_get_ptr_ring(struct file *file);
+ int tap_ring_consume_batched(struct file *file, void **array, int n);
+ void tap_ring_unconsume(struct file *file, void **batch, int n,
+ 			void (*destroy)(void *));
+@@ -22,10 +21,6 @@ static inline struct socket *tap_get_socket(struct file *f)
+ {
+ 	return ERR_PTR(-EINVAL);
+ }
+-static inline struct ptr_ring *tap_get_ptr_ring(struct file *f)
+-{
+-	return ERR_PTR(-EINVAL);
+-}
+ static inline int tap_ring_consume_batched(struct file *f,
+ 					   void **array, int n)
+ {
+diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
+index 0910c6dbac20..80b734173a80 100644
+--- a/include/linux/if_tun.h
++++ b/include/linux/if_tun.h
+@@ -21,7 +21,6 @@ struct tun_msg_ctl {
+ 
+ #if defined(CONFIG_TUN) || defined(CONFIG_TUN_MODULE)
+ struct socket *tun_get_socket(struct file *);
+-struct ptr_ring *tun_get_tx_ring(struct file *file);
+ int tun_ring_consume_batched(struct file *file, void **array, int n);
+ void tun_ring_unconsume(struct file *file, void **batch, int n,
+ 			void (*destroy)(void *));
+@@ -54,11 +53,6 @@ static inline struct socket *tun_get_socket(struct file *f)
+ 	return ERR_PTR(-EINVAL);
+ }
+ 
+-static inline struct ptr_ring *tun_get_tx_ring(struct file *f)
+-{
+-	return ERR_PTR(-EINVAL);
+-}
+-
+ static inline int tun_ring_consume_batched(struct file *file,
+ 					   void **array, int n)
+ {
 -- 
-pw-bot: cr
+2.43.0
+
