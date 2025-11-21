@@ -1,177 +1,135 @@
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 187EB33C186
-	for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 09:18:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9548D2F5462
+	for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 09:21:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763716684; cv=none; b=MrMFxvzszGyDmG0u2RCPu8k0fb1vqFafIfxO228Rf8dS0LalQBCPeOlhR7Km7OBp/SuAHi9ivDteyQgl1oryncFFixy9RlFB4sG3c+rDLmPmXucTk/AzIsEpDiBHA591ptu2rFJXdNpRMhnjtxy3u8+zViyUPztsBRnKjf9Qjl4=
+	t=1763716879; cv=none; b=AU0ccsRKfVTWmPTadkaPq08euO0V614vfNQyF1/PaghYwzLAnTadotk0XczyR0kAqBEFVM2aAuAkQey5dxsF8nvpXLLv3FQKV+XXpEBcR1hVB5/ZXxC1VMqpIQEyMrq7GRnhQDKfQXQVm9kIfhzn4nWF+ZPI/JTof50WwHb02VQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763716684; c=relaxed/simple;
-	bh=b3KtUUVPebgqJee1Qtg2ssw6lE+/0RA87Le6+Oa6LiI=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=T1iF6csJlgkvdcqG+CRZNm3rdFrjpsjoXn+5X73QKBiai92B4vPOpCyw9sujJlpzZFj36RmME4Csnzf4wsPWENaTH7z+q45W3X86os/Qb/14ylCM76oAMUgts9+Gllky3w4kPg2+cMUVEAyMo4IqHymHVpnEwbW8rR2eBMnxSGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-43373024b5eso17410355ab.1
-        for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 01:18:01 -0800 (PST)
+	s=arc-20240116; t=1763716879; c=relaxed/simple;
+	bh=88bzWzZsrFl3P0XuSIsfcAZAJYQYQd2cXTWkuomn7dc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=UpmUvPHJXFx/EdVuGYTR+Q1xgU+NqoHb9ruG7ZIuYvoMZlzHUhRXcjaAUM315E4KCyXxrQXbHNZO213Rn0LE/At+Jy9CX/dFzxHb6KX/hcGyKQeVS1nCwQJKkPRe+MGy2Jdj78Ua5MXNSWQXYseWqVqrG7L885lJGbNSijDkX0g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cXuioNGD; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cXuioNGD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763716874;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=FTcna51xyD4gkYI2wkOSx2yGaNSja9/HdHczSqaL88Y=;
+	b=cXuioNGDJ6FI/81d4hLZMAV0XRx8iLTE0pMEhFpbMY5ePyPoYp/DYAytDhyBlFia7xtHUB
+	KkXvZSsA/vkUjvO1ri1EDN6kH3UhMTtueH269n3S+Iy4mjJwkBoSymTiAWSFRnuwC4Erb1
+	rKcs0J0PF+++Zf+4NkeyLBLc/Y2hCjQ=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-562-NHrwzuR2P_6Jr2w30vg9nA-1; Fri, 21 Nov 2025 04:21:11 -0500
+X-MC-Unique: NHrwzuR2P_6Jr2w30vg9nA-1
+X-Mimecast-MFC-AGG-ID: NHrwzuR2P_6Jr2w30vg9nA_1763716870
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-b76778e621cso22555866b.1
+        for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 01:21:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763716681; x=1764321481;
-        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SHomLCHpRHHF5xRVeBHmop62BY5QbnheIPvzdItNW+Q=;
-        b=sLN/mC3z24Ur52ULx8+HWOSw9RQhTJLCeoV2L1w9VdMi06S3fBEo68eSWx0soFqCqY
-         ivFia4mkDmB1aFvwl/UjQqweKShPFIPC12EkUlVilRQ/LT7AuNl/1870JB2r04YtXUjy
-         ZNR1DENMpPjJ4ulN0ZRr7jsoS04CEyUHrXz95U/sOnt8vJOgABoiOHAta79FhN6isem0
-         8rWLAt0FgmWObnyHyODXarXftFhH/rKvRRv2zV4BM58xPTp1Tmne2DDwUrHZ2/TXbRHU
-         LAoAHcf6gLi/ZmzJ2hL/aNg7uR+/wApmJUw9P0InVJwoQ+HGdja8HNuhlzRR2x8uxUWX
-         o74A==
-X-Forwarded-Encrypted: i=1; AJvYcCVa5+YIK4ESkumqP/fPj5h9krGnfJUzRKsR/2xiwZPtvkgOIaldQhXigeW48nqUn3xTcUeJoFpXnYuvNR5UvA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwLbFPnYH9Sfgps2x7UGqpSlLmfTiecwgzUU+bnNaflZIlom8AU
-	QkR3S1Z/0cmMaul6kBuanx0nkI4rhkKb/lXjjhBQg0ndJ7m0DJUoXJkXpASAcq7oDDeIx/jALfs
-	M1uWfHabmXDZyhul78l3Gohp+ISLSATiBIIzTypVbDPEFXYzme3Px+gI1qdk=
-X-Google-Smtp-Source: AGHT+IEiRcoM+AULgcl/opdnaxfH3PwAuhb+urHygK1bQazPcXUlnv4+Bdqo/fmLawZIrCEEMLUYmKW+Rfp8AY+DlVhSARBhTOjR
+        d=1e100.net; s=20230601; t=1763716870; x=1764321670;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FTcna51xyD4gkYI2wkOSx2yGaNSja9/HdHczSqaL88Y=;
+        b=dTlR116HVXpHek+QEHwH+L8pAZRAlGKTHlgg5yXdryjrvFtlbxAklg5VuX4Y0L8z3w
+         UQDkyGRhT7CGBPXb5sP6xp6wfoFifwO0vl1Uzxc+1cvXOJS7jN0Du43CCIu2kiBY+fxV
+         95FFjKkmuu7lsUM1gvx7AYcJ7/0EiTlWTuNcIMJqYCvEXHWRpC7iWGa7Rj0kZW5KBfSL
+         C5GWHAauoAyN+iAQ6Q8PCPhrriVPt5vWnN0bKf6mE9f0c/npEMB/hZ9w/d+naChWP+4u
+         gEP07UDD6Ycnt0gupxmJwbOVDg6S4lh2GbThmd6XstRxvz5ewZhTU5eribPJ99zouNCi
+         xZBg==
+X-Forwarded-Encrypted: i=1; AJvYcCVoK7ULEqZCKCYxD3xdrD41iXAZr6NgiFD+PXUisQnVjFLbzgo62J+hPaFZYzEPGfXoQ44VHCyzHgXT+fCdTw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwZNc++LGr121n19sUGF84smV7mfi2Yv0spWzW/CLk79LUG+xc0
+	R9sf/3qYrH+dXbEpJT164ojYEBDJEL843onppk6bi/MonYdypnlMGIgdi11P+9nMpN5+Ws5SZd7
+	Y6d7OIMEkIGiGtLqmOuHdoQx3eh/+RKdvkdyKeveTM1xNr1xdE8KlKI8rvDBxtM7LSA58
+X-Gm-Gg: ASbGncsgkZajljf996T81rbtyEzHz4io8yZFd7mbpwKnbmXQd4PtYU5UNq8d8piE3sS
+	bGxECoaJLeF4/1r4JYq5fP7RDKsStEsx7YDTgSNOjMAP/5+SeHUEXC3yaeLZES8FjEwFX687vOr
+	DnsH9mZa52vddFZghZwNHgUTgZa3/6avr77k2cVZPydesGn4+OQ0CPkVjMTdCTtAkVGHLcyAFkd
+	YmXxQMnHn8+q63SgTaVns13A9BQJqv0qOMTco0w6nGIeLxxcbExpazgeK1W42FAmsOkQ2cir526
+	h/3ojdJezD8Acp/oW3tmbTNHfsOBlHJ9BHizKOGyiMMtQPS0pHIEEjEGThcR9G200SCf/SPVCuz
+	ZgUjRhObm4bhAa99YFNpgxtM7hM6mDlz3HWe8Ab6cIgHRnB11z6ojzAbgSJ+YVA==
+X-Received: by 2002:a17:906:d553:b0:b04:48b5:6ea5 with SMTP id a640c23a62f3a-b766ef1d27emr179098866b.17.1763716869720;
+        Fri, 21 Nov 2025 01:21:09 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGy2fwvK+Qkff9FcCdDI2UgofRL9rFpwVTJ/zBHtBRxPZJ5JeGTjRIY7myDBG6TkqWfVfUsUQ==
+X-Received: by 2002:a17:906:d553:b0:b04:48b5:6ea5 with SMTP id a640c23a62f3a-b766ef1d27emr179095566b.17.1763716869171;
+        Fri, 21 Nov 2025 01:21:09 -0800 (PST)
+Received: from sgarzare-redhat (host-87-12-139-91.business.telecomitalia.it. [87.12.139.91])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b765504828esm406198066b.64.2025.11.21.01.21.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Nov 2025 01:21:08 -0800 (PST)
+Date: Fri, 21 Nov 2025 10:21:02 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Michal Luczaj <mhal@rbox.co>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net] vsock: Ignore signal/timeout on connect() if already
+ established
+Message-ID: <fy3ep725gwaislzz6lyu27ckswp2iyy5gj6afw6jji6c3get3l@lqa6wpptq5ii>
+References: <20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co>
+ <dh6gl6xzufrxk23dwei3dcyljjlspjx3gwdhi6o3umtltpypkw@ef4n6llndg5p>
+ <98e2ac89-34e9-42d9-bfcf-e81e7a04504d@rbox.co>
+ <rptu2o7jpqw5u5g4xt76ntyupsak3dcs7rzfhzeidn6vcwf6ku@dcd47yt6ebhu>
+ <09c6de68-06aa-404d-9753-907eab61b9ab@rbox.co>
+ <663yvkk2sh5lesfvdeerlca567xb64qbwih52bxjftob3umsah@eamuykmarrfr>
+ <1b2255c7-0e97-4b37-b7ab-e13e90b7b0b9@rbox.co>
+ <06936b55-b359-4e3d-bec0-b157ca32d237@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a92:cd8c:0:b0:434:6ef2:a43d with SMTP id
- e9e14a558f8ab-435b8e5cae3mr12835965ab.19.1763716681282; Fri, 21 Nov 2025
- 01:18:01 -0800 (PST)
-Date: Fri, 21 Nov 2025 01:18:01 -0800
-In-Reply-To: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69202e49.a70a0220.2ea503.004b.GAE@google.com>
-Subject: [syzbot ci] Re: tun/tap & vhost-net: netdev queue flow control to
- avoid ptr_ring tail drop
-From: syzbot ci <syzbot+ci5037a828ffe02b14@syzkaller.appspotmail.com>
-To: andrew@lunn.ch, davem@davemloft.net, edumazet@google.com, 
-	eperezma@redhat.com, jasowang@redhat.com, jon@nutanix.com, kuba@kernel.org, 
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, 
-	netdev@vger.kernel.org, pabeni@redhat.com, simon.schippers@tu-dortmund.de, 
-	tim.gebauer@tu-dortmund.de, virtualization@lists.linux.dev, 
-	willemdebruijn.kernel@gmail.com
-Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <06936b55-b359-4e3d-bec0-b157ca32d237@rbox.co>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 9gEd3iCK2F4QJqfiqobMD3u0F6P6CquW0QsxHsbx2kE_1763716870
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-syzbot ci has tested the following series
+On Thu, Nov 20, 2025 at 10:12:20PM +0100, Michal Luczaj wrote:
+>On 11/19/25 20:52, Michal Luczaj wrote:
+>> ...
+>> To follow up, should I add a version of syzkaller's lockdep warning repro
+>> to vsock test suite? In theory it could test this fix here as well, but in
+>> practice the race window is small and hitting it (the brute way) takes
+>> prohibitively long.
+>
+>Replying to self to add more data.
+>
+>After reverting
+>
+>f7c877e75352 ("vsock: fix lock inversion in vsock_assign_transport()")
+>002541ef650b ("vsock: Ignore signal/timeout on connect() if already
+>established")
+>
+>adding
+>
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -2014,6 +2014,7 @@ static void test_stream_transport_change_client(const
+>struct test_opts *opts)
+>                        perror("socket");
+>                        exit(EXIT_FAILURE);
+>                }
+>+               enable_so_linger(s, 1);
+>
+>                ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>                /* The connect can fail due to signals coming from the
+>
+>is enough for vsock_test to trigger the lockdep warning syzkaller found.
+>
 
-[v6] tun/tap & vhost-net: netdev queue flow control to avoid ptr_ring tail drop
-https://lore.kernel.org/all/20251120152914.1127975-1-simon.schippers@tu-dortmund.de
-* [PATCH net-next v6 1/8] ptr_ring: add __ptr_ring_full_next() to predict imminent fullness
-* [PATCH net-next v6 2/8] ptr_ring: add helper to check if consume created space
-* [PATCH net-next v6 3/8] tun/tap: add synchronized ring produce/consume with queue management
-* [PATCH net-next v6 4/8] tun/tap: add batched ring consume function
-* [PATCH net-next v6 5/8] tun/tap: add uncomsume function for returning entries to ring
-* [PATCH net-next v6 6/8] tun/tap: add helper functions to check file type
-* [PATCH net-next v6 7/8] tun/tap/vhost: use {tun|tap}_ring_{consume|produce} to avoid tail drops
-* [PATCH net-next v6 8/8] tun/tap: drop get ring exports
+cool, so if it's only that, maybe is worth adding.
 
-and found the following issue:
-general protection fault in tun_net_xmit
+Thanks,
+Stefano
 
-Full report is available here:
-https://ci.syzbot.org/series/63c35694-3fa6-48b6-ba11-f893f55bcc1a
-
-***
-
-general protection fault in tun_net_xmit
-
-tree:      net-next
-URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net-next.git
-base:      45a1cd8346ca245a1ca475b26eb6ceb9d8b7c6f0
-arch:      amd64
-compiler:  Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-config:    https://ci.syzbot.org/builds/e1084fb4-2e0a-4c87-8e42-bc8fa70e1c77/config
-syz repro: https://ci.syzbot.org/findings/cf1c9121-7e31-4bc8-a254-f9e6c8ee2d26/syz_repro
-
-Oops: general protection fault, probably for non-canonical address 0xdffffc0000000002: 0000 [#1] SMP KASAN NOPTI
-KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
-CPU: 1 UID: 0 PID: 13 Comm: kworker/u8:1 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-Workqueue: ipv6_addrconf addrconf_dad_work
-RIP: 0010:__ptr_ring_full include/linux/ptr_ring.h:51 [inline]
-RIP: 0010:tun_ring_produce drivers/net/tun.c:1023 [inline]
-RIP: 0010:tun_net_xmit+0xdf0/0x1840 drivers/net/tun.c:1164
-Code: 00 00 00 fc ff df 48 89 44 24 50 0f b6 04 18 84 c0 0f 85 1f 07 00 00 4c 89 7c 24 30 4d 63 37 4f 8d 3c f4 4c 89 f8 48 c1 e8 03 <80> 3c 18 00 74 08 4c 89 ff e8 92 ba e3 fb 49 83 3f 00 74 0a e8 17
-RSP: 0018:ffffc90000126f80 EFLAGS: 00010202
-RAX: 0000000000000002 RBX: dffffc0000000000 RCX: dffffc0000000000
-RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffc90000126f00
-RBP: ffffc900001270b0 R08: 0000000000000003 R09: 0000000000000004
-R10: dffffc0000000000 R11: fffff52000024de0 R12: 0000000000000010
-R13: ffff8881730b6a48 R14: 0000000000000000 R15: 0000000000000010
-FS:  0000000000000000(0000) GS:ffff8882a9f38000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000200000002280 CR3: 00000001bb189000 CR4: 0000000000352ef0
-Call Trace:
- <TASK>
- __netdev_start_xmit include/linux/netdevice.h:5259 [inline]
- netdev_start_xmit include/linux/netdevice.h:5268 [inline]
- xmit_one net/core/dev.c:3853 [inline]
- dev_hard_start_xmit+0x2d7/0x830 net/core/dev.c:3869
- __dev_queue_xmit+0x172a/0x3740 net/core/dev.c:4811
- neigh_output include/net/neighbour.h:556 [inline]
- ip6_finish_output2+0xfb3/0x1480 net/ipv6/ip6_output.c:136
- NF_HOOK_COND include/linux/netfilter.h:307 [inline]
- ip6_output+0x340/0x550 net/ipv6/ip6_output.c:247
- NF_HOOK include/linux/netfilter.h:318 [inline]
- ndisc_send_skb+0xbce/0x1510 net/ipv6/ndisc.c:512
- addrconf_dad_completed+0x7ae/0xd60 net/ipv6/addrconf.c:4360
- addrconf_dad_work+0xc36/0x14b0 net/ipv6/addrconf.c:-1
- process_one_work kernel/workqueue.c:3263 [inline]
- process_scheduled_works+0xae1/0x17b0 kernel/workqueue.c:3346
- worker_thread+0x8a0/0xda0 kernel/workqueue.c:3427
- kthread+0x711/0x8a0 kernel/kthread.c:463
- ret_from_fork+0x4bc/0x870 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
-RIP: 0010:__ptr_ring_full include/linux/ptr_ring.h:51 [inline]
-RIP: 0010:tun_ring_produce drivers/net/tun.c:1023 [inline]
-RIP: 0010:tun_net_xmit+0xdf0/0x1840 drivers/net/tun.c:1164
-Code: 00 00 00 fc ff df 48 89 44 24 50 0f b6 04 18 84 c0 0f 85 1f 07 00 00 4c 89 7c 24 30 4d 63 37 4f 8d 3c f4 4c 89 f8 48 c1 e8 03 <80> 3c 18 00 74 08 4c 89 ff e8 92 ba e3 fb 49 83 3f 00 74 0a e8 17
-RSP: 0018:ffffc90000126f80 EFLAGS: 00010202
-RAX: 0000000000000002 RBX: dffffc0000000000 RCX: dffffc0000000000
-RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffc90000126f00
-RBP: ffffc900001270b0 R08: 0000000000000003 R09: 0000000000000004
-R10: dffffc0000000000 R11: fffff52000024de0 R12: 0000000000000010
-R13: ffff8881730b6a48 R14: 0000000000000000 R15: 0000000000000010
-FS:  0000000000000000(0000) GS:ffff8882a9f38000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000200000002280 CR3: 00000001bb189000 CR4: 0000000000352ef0
-----------------
-Code disassembly (best guess), 5 bytes skipped:
-   0:	df 48 89             	fisttps -0x77(%rax)
-   3:	44 24 50             	rex.R and $0x50,%al
-   6:	0f b6 04 18          	movzbl (%rax,%rbx,1),%eax
-   a:	84 c0                	test   %al,%al
-   c:	0f 85 1f 07 00 00    	jne    0x731
-  12:	4c 89 7c 24 30       	mov    %r15,0x30(%rsp)
-  17:	4d 63 37             	movslq (%r15),%r14
-  1a:	4f 8d 3c f4          	lea    (%r12,%r14,8),%r15
-  1e:	4c 89 f8             	mov    %r15,%rax
-  21:	48 c1 e8 03          	shr    $0x3,%rax
-* 25:	80 3c 18 00          	cmpb   $0x0,(%rax,%rbx,1) <-- trapping instruction
-  29:	74 08                	je     0x33
-  2b:	4c 89 ff             	mov    %r15,%rdi
-  2e:	e8 92 ba e3 fb       	call   0xfbe3bac5
-  33:	49 83 3f 00          	cmpq   $0x0,(%r15)
-  37:	74 0a                	je     0x43
-  39:	e8                   	.byte 0xe8
-  3a:	17                   	(bad)
-
-
-***
-
-If these findings have caused you to resend the series or submit a
-separate fix, please add the following tag to your commit message:
-  Tested-by: syzbot@syzkaller.appspotmail.com
-
----
-This report is generated by a bot. It may contain errors.
-syzbot ci engineers can be reached at syzkaller@googlegroups.com.
