@@ -1,70 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C4871E3DCD
-	for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 14:43:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97FC634A3CD
+	for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 14:45:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763736202; cv=none; b=Y0sQeXe8RD6I6y89k0/PhrBrgQNJ4v2esJFgeneKptuWREd8uSjbMLh9MOck6xZA22oyImrrzRXPmWw/5DiRq7lswiVLGM5WGkvTyDJCF5c3csGNaFSyLGtJh0DeQLplUKORxRWd3f4YQSulgFZGsIqdKDcH7aSIV9ZlGS9UA6Q=
+	t=1763736304; cv=none; b=eRMItfGRpXSZCxxTJC25IaqnkZzJ1bX6zTXkfQXOvGMzcoNjojWe23SfYobxIG7LSZLfcxkZ6aHbdRPL1jwXKJg+l1sw1Vxuo/uk3rhx5U5sFmsnC3+1lSYpErHfE31rv2I8jlmf/GgGyQzktGQ9gfBnt+2OvmHVYF9yIrrESIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763736202; c=relaxed/simple;
-	bh=PszHgCmhtccWSqI0eShhC4jyc/2aRHcMziGgYPJttHU=;
+	s=arc-20240116; t=1763736304; c=relaxed/simple;
+	bh=LpHCzjPaaom0joBAVNNBcfd3LcwKpZxbH6ef2oWlCCw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=VUCJ4PhDKKOdWXdcqyQDa//q43qOfctXFu+Ga2I08WcwDNbhV7fAWbx09F/RzU143nGvriUpGFkGKjCHkw/nWjE3yMHAyvsezmj1W60E2E/Ml9Qrm5dtirxqSnrd2S450bMTliML2QRFgbAUmOJBOJ5dksCZdZS2/YDOoPMr2Uc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ia/ofJf8; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=qfDQHS6AcUWYyFhkT0f6pZcFO4u6sdM30aIUKQWPWzy8KxJW4AsDjIU1559j+xxk+191P53t8PEtvVyMwkQ/ohDXTfcExZLFP5ciSKFp7ZcDgpPgGRnT/OWlq4eo9uEp8E67L+YH5cSpxlxCKl2ydcfD0QwN9hQrAAZt+FCZz/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VEs2/1AS; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ia/ofJf8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VEs2/1AS"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763736199;
+	s=mimecast20190719; t=1763736300;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=OBmGxeL2mYyQ8HpRUGAyaocZQhEEGSfR+zrR8FYGGGs=;
-	b=Ia/ofJf8g4yc0r390iO+HrMUpLd+KbVDjEdgkfr+kch2VqZnZE14plJRGzeGKCjQ4GXv50
-	njQo9Jn9TLR9KJfwuFrlBJ1QT/aA8TGv7cgpkKK9RbAhmaqUT8uJqIzZRdM/oAYfwNW06L
-	T/E+QnKFO8qXM9zG1fJtRTozj+GxQkw=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=RgxHT5eune3fdqhzxzVzF3lvCJWC4Oxvps8mZB9DCRE=;
+	b=VEs2/1ASMK0zAvnZTrfO5mVo75iYf0NlzEeCyiNbhs/aAX4abV124HDRjMRYqXih2IA+qH
+	KVtw6Gci84n2WLWS+zpSz7i2d85HfTx2U/EhhzZedesXM3TcPGuP4hA2Bv7vK4uh623bRC
+	uzXs+jhGJjmMRCVJofyCOgFyoWM57KE=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-130-DzzJJ95uPDqW0jTQwick6Q-1; Fri, 21 Nov 2025 09:43:16 -0500
-X-MC-Unique: DzzJJ95uPDqW0jTQwick6Q-1
-X-Mimecast-MFC-AGG-ID: DzzJJ95uPDqW0jTQwick6Q_1763736196
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-42b3086a055so1879934f8f.3
-        for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 06:43:16 -0800 (PST)
+ us-mta-235-U3dqgJj-NteYkUi2j-uRtg-1; Fri, 21 Nov 2025 09:44:57 -0500
+X-MC-Unique: U3dqgJj-NteYkUi2j-uRtg-1
+X-Mimecast-MFC-AGG-ID: U3dqgJj-NteYkUi2j-uRtg_1763736296
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-477a60a23adso14255515e9.2
+        for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 06:44:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763736195; x=1764340995;
+        d=1e100.net; s=20230601; t=1763736296; x=1764341096;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=OBmGxeL2mYyQ8HpRUGAyaocZQhEEGSfR+zrR8FYGGGs=;
-        b=imCXKaWar/cYqqLCgOGhkWBt4yp7VQjgk56Z31VA7bnzwYvcMkaUnUhDVpUDkHytdg
-         n9sl85Jpgl0zEQF3JOJf99oh3bNGEky84ng7g37dgbBnGPgP3vzD4t4jPd4KvbnWY2il
-         D0//4uQTQ/BybObE5fIGCXjhgZMR/mEwc1z0pOMd3WzF4E5RwfwFaeY5UrhHg9xPBI99
-         P64x9uOZfQ6wAR/Z8nfBzUKDE6AokKu8skGJf9zP1SoQRl1tCLURdwuxvmF+1da5GDHX
-         cQAscn/GmS2MAumr98mJnUAfWmFIUrH+TmXxXW3MnZwAeFEYJ/ihw53H5Hk9nbu0iefS
-         tusA==
-X-Forwarded-Encrypted: i=1; AJvYcCXSMFk5WreMjQARe5gPmd61L/s01qRSDhPihYrhHYM5buqLrIU/de9ECrCHKuuuK6g1y84iRGhuOPcgKiNvPw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzAJnoibynh/bTXdL4i+34aZDcCitlUTIOXOylMgVY+uWDJplPm
-	EV2IqM2JA+xn9KuiCjHj49VccqbS/FS9DhH+zRvdp3QmbertdqG3xkezDtpnvI5ssw+AK9ZHo96
-	hUVh0rijeAOLJpBCZrfcikDm0U+VRqAHITsFuHJs14XzbVJqNy/TUnMrc/K2ZAnXip0mW
-X-Gm-Gg: ASbGncuP2KF2YAYsDNUsZhs9XturGFyf0fima7uFtcfCCYHldVRKQPZG/ZrwZghqbvs
-	yShpQlaOyee8Gi77Sas68mH5JcU+d6sC3+z/CCFvyXtodqokCpJ2JdlgwIVQl4XrQtpHgSxiqbL
-	WKDYjfsp0V2F16rReg3i/JPMx+v63Dm0SfGrZrTGNRgdCqt07DtjGLlC+eLiWgn54MA7iyHhclm
-	W5yEhblUu1rMb+wxxEbvAa/ektK9FyfcQyavrPFo35vIUT50xX27cvARplvYEIiItg6LKZ2RNMu
-	fOz8qEjS6oYqXQBDet45K4bhMLAPbx8K+uSxhe+tLVAwlwYgXILaJL0G+8HHmhzxTTr3Q+nc5dE
-	PUNsuaYftQPSFKY9S7S365vHhADscTNC8nNZgTbpSfORFeHLWWEQ4z0baZnSu8g==
-X-Received: by 2002:a05:6000:2309:b0:429:b525:6df5 with SMTP id ffacd0b85a97d-42cc1ac93f4mr2817381f8f.3.1763736195510;
-        Fri, 21 Nov 2025 06:43:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHVXLVg+JpBLsM02kGG0z5u+UchXN/0lwnkDZob5QhAzEG71T30I0VsCqdgircvn6smhqXRBQ==
-X-Received: by 2002:a05:6000:2309:b0:429:b525:6df5 with SMTP id ffacd0b85a97d-42cc1ac93f4mr2817326f8f.3.1763736194935;
-        Fri, 21 Nov 2025 06:43:14 -0800 (PST)
+        bh=RgxHT5eune3fdqhzxzVzF3lvCJWC4Oxvps8mZB9DCRE=;
+        b=EmYGSoR+YhbFwMyHbxVDK1KwMTGo/90TOzDZ+rRffqqG046qPJqwe69dTRSxsAU6Di
+         IGE+lY5y8GyvzUZ+8j3kwaxFhXHPZCRlHwNv/Nrcj83fTZ9ZAOJLQYWKEqetEGAvEYlN
+         3jIjItxc4suAh2MJ1ha/PytfqXB5LF0pOQfW4ot+GaGTOhRoVGDo95w2zPI0T+uO9AIB
+         XGaCeEEEGFrXyHUmj87ID/Kkp8aySxkjWsN7UytAbTQs+9ipoJkxjGGmsMSPSV3CFu++
+         BQrGfQVQmVVR92jjfJOOnFBxpk8PYZmtqYJoBkHiONRkvnVrC0S9jKhbB9BaWgovxv27
+         T+9g==
+X-Forwarded-Encrypted: i=1; AJvYcCVBVKbXS5rQmRIWNGS3KijpijAYwkIfoNsMAkoxeFsmWgglAQZb9gCZcQ3XjKLcB/We0OWFMtGG7+hiZPcTZQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzz8iDhSs6fNaFAEVyT/U87jomCLPwj3bNgrL2Yi7DAZrkYhxgv
+	N/hivCsfoQ0iZWzRkEy5Y4ZZzrkP9klmhItnTuCivEchNqFtOKaLN7XfFdvVtWZMCPvCx5fJGvA
+	Eomwbilth29Kz6CdArcgp7/lAOf9SCk53wGWFyrU4bIhsXBog0I6dTSnFyORJTlGS5lmk
+X-Gm-Gg: ASbGncu1RM2/fHockn2WHbP68tW22oNBBhARfKay8vXFbBkRjLgR8XDAN3ZXHNe8lbS
+	ZPkVkFK2wwlXbBRax2ANSauWwWM7hv8JW477dJGRNxe6+abvQ8z/rCEydwbP9xt7bTpYQtEcR16
+	ezVAaeZnLSvsb7fLvxbr+LBfwjrGfIMopLMuD0qBmp69zYP2zLfPccB0Acgp41mFkmOGtFP6KSI
+	slP0oUiwyg92FoJqzEbgru+XN30OCVkV5sp+d++MeYtL92Cs/rrL27c5N2ZZhSUApqDlz+0Ad/I
+	IGfcKeHlSFT/BN4zhY9pIqsBvfoK0F3IOAFKjoDW+b2xbl+WxVA+jr4rKGhT5oGTzvEmguZGlXh
+	ukduQ2GyEWWxvJsnh/EJMc6QoqaYF1cvZSgySkQOyyE5I+9r1GHUYE9lJ6mBSTw==
+X-Received: by 2002:a05:600c:840f:b0:477:952d:fc00 with SMTP id 5b1f17b1804b1-477c0176752mr30427955e9.12.1763736295853;
+        Fri, 21 Nov 2025 06:44:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFhQjxwhyo5mB3NzlUCXU/sejEOwPO9R/xIuzqaGzg0yODnw+n34JzOmiJ5FkYPMcPfuVw+Aw==
+X-Received: by 2002:a05:600c:840f:b0:477:952d:fc00 with SMTP id 5b1f17b1804b1-477c0176752mr30427475e9.12.1763736295264;
+        Fri, 21 Nov 2025 06:44:55 -0800 (PST)
 Received: from sgarzare-redhat (host-87-12-139-91.business.telecomitalia.it. [87.12.139.91])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7f34fe8sm11445022f8f.15.2025.11.21.06.43.07
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7f2e556sm11270319f8f.5.2025.11.21.06.44.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Nov 2025 06:43:14 -0800 (PST)
-Date: Fri, 21 Nov 2025 15:43:04 +0100
+        Fri, 21 Nov 2025 06:44:54 -0800 (PST)
+Date: Fri, 21 Nov 2025 15:44:40 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Bobby Eshleman <bobbyeshleman@gmail.com>
 Cc: "David S. Miller" <davem@davemloft.net>, 
@@ -79,156 +79,269 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	virtualization@lists.linux.dev, netdev@vger.kernel.org, kvm@vger.kernel.org, 
 	linux-hyperv@vger.kernel.org, linux-kselftest@vger.kernel.org, berrange@redhat.com, 
 	Sargun Dhillon <sargun@sargun.me>, Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v11 09/13] selftests/vsock: use ss to wait for
- listeners instead of /proc/net
-Message-ID: <cmi23sbmgpmphjldjgsrronysce3r7zyptcrsqwqa6j5i26m4u@s5wscydfdgpo>
+Subject: Re: [PATCH net-next v11 10/13] selftests/vsock: add tests for proc
+ sys vsock ns_mode
+Message-ID: <vkbkaqlc2zqltg5h3murtghok4jdlsbcynz5mir3hrky3ancus@3gyjwzplok3z>
 References: <20251120-vsock-vmtest-v11-0-55cbc80249a7@meta.com>
- <20251120-vsock-vmtest-v11-9-55cbc80249a7@meta.com>
+ <20251120-vsock-vmtest-v11-10-55cbc80249a7@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251120-vsock-vmtest-v11-9-55cbc80249a7@meta.com>
+In-Reply-To: <20251120-vsock-vmtest-v11-10-55cbc80249a7@meta.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nf2CxgNL-d8M4mVI5INY1sw3Igb1r_C2eU_wqawmdgk_1763736196
+X-Mimecast-MFC-PROC-ID: xN05yX_arO-K3NMBTfkS1Pdgxlyg0-LJgKKBUfMiFtw_1763736296
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Thu, Nov 20, 2025 at 09:44:41PM -0800, Bobby Eshleman wrote:
+On Thu, Nov 20, 2025 at 09:44:42PM -0800, Bobby Eshleman wrote:
 >From: Bobby Eshleman <bobbyeshleman@meta.com>
 >
->Replace /proc/net parsing with ss(8) for detecting listening sockets in
->wait_for_listener() functions and add support for TCP, VSOCK, and Unix
->socket protocols.
+>Add tests for the /proc/sys/net/vsock/ns_mode interface.  Namely,
+>that it accepts "global" and "local" strings and enforces a write-once
+>policy.
 >
->The previous implementation parsed /proc/net/tcp using awk to detect
->listening sockets, but this approach could not support vsock because
->vsock does not export socket information to /proc/net/.
+>Start a convention of commenting the test name over the test
+>description. Add test name comments over test descriptions that existed
+>before this convention.
 >
->Instead, use ss so that we can detect listeners on tcp, vsock, and unix.
+>Add a check_netns() function that checks if the test requires namespaces
+>and if the current kernel supports namespaces. Skip tests that require
+>namespaces if the system does not have namespace support.
 >
->The protocol parameter is now required for all wait_for_listener family
->functions (wait_for_listener, vm_wait_for_listener,
->host_wait_for_listener) to explicitly specify which socket type to wait
->for.
+>Add a test to verify that guest VMs with an active G2H transport
+>(virtio-vsock) cannot set namespace mode to 'local'. This validates
+>the mutual exclusion between G2H transports and LOCAL mode.
 >
->ss is added to the dependency check in check_deps().
+>This patch is the first to add tests that do *not* re-use the same
+>shared VM. For that reason, it adds a run_tests() function to run these
+>tests and filter out the shared VM tests.
 >
 >Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 >---
-> tools/testing/selftests/vsock/vmtest.sh | 47 +++++++++++++++++++++------------
-> 1 file changed, 30 insertions(+), 17 deletions(-)
+>Changes in v11:
+>- Document ns_ prefix above TEST_NAMES (Stefano)
+>
+>Changes in v10:
+>- Remove extraneous add_namespaces/del_namespaces calls.
+>- Rename run_tests() to run_ns_tests() since it is designed to only
+>  run ns tests.
+>
+>Changes in v9:
+>- add test ns_vm_local_mode_rejected to check that guests cannot use
+>  local mode
+>---
+> tools/testing/selftests/vsock/vmtest.sh | 143 +++++++++++++++++++++++++++++++-
+> 1 file changed, 141 insertions(+), 2 deletions(-)
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 >
 >diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
->index 1623e4da15e2..e32997db322d 100755
+>index e32997db322d..2e077e8a1777 100755
 >--- a/tools/testing/selftests/vsock/vmtest.sh
 >+++ b/tools/testing/selftests/vsock/vmtest.sh
->@@ -191,7 +191,7 @@ check_args() {
+>@@ -41,14 +41,43 @@ readonly KERNEL_CMDLINE="\
+> 	virtme.ssh virtme_ssh_channel=tcp virtme_ssh_user=$USER \
+> "
+> readonly LOG=$(mktemp /tmp/vsock_vmtest_XXXX.log)
+>-readonly TEST_NAMES=(vm_server_host_client vm_client_host_server vm_loopback)
+>+
+>+# Namespace tests must use the ns_ prefix. This is checked in check_netns() and
+>+# is used to determine if a test needs namespace setup before test execution.
+>+readonly TEST_NAMES=(
+>+	vm_server_host_client
+>+	vm_client_host_server
+>+	vm_loopback
+>+	ns_host_vsock_ns_mode_ok
+>+	ns_host_vsock_ns_mode_write_once_ok
+>+	ns_vm_local_mode_rejected
+>+)
+> readonly TEST_DESCS=(
+>+	# vm_server_host_client
+> 	"Run vsock_test in server mode on the VM and in client mode on the host."
+>+
+>+	# vm_client_host_server
+> 	"Run vsock_test in client mode on the VM and in server mode on the host."
+>+
+>+	# vm_loopback
+> 	"Run vsock_test using the loopback transport in the VM."
+>+
+>+	# ns_host_vsock_ns_mode_ok
+>+	"Check /proc/sys/net/vsock/ns_mode strings on the host."
+>+
+>+	# ns_host_vsock_ns_mode_write_once_ok
+>+	"Check /proc/sys/net/vsock/ns_mode is write-once on the host."
+>+
+>+	# ns_vm_local_mode_rejected
+>+	"Test that guest VM with G2H transport cannot set namespace mode to 'local'"
+> )
+>
+>-readonly USE_SHARED_VM=(vm_server_host_client vm_client_host_server vm_loopback)
+>+readonly USE_SHARED_VM=(
+>+	vm_server_host_client
+>+	vm_client_host_server
+>+	vm_loopback
+>+	ns_vm_local_mode_rejected
+>+)
+> readonly NS_MODES=("local" "global")
+>
+> VERBOSE=0
+>@@ -205,6 +234,20 @@ check_deps() {
+> 	fi
 > }
 >
-> check_deps() {
->-	for dep in vng ${QEMU} busybox pkill ssh; do
->+	for dep in vng ${QEMU} busybox pkill ssh ss; do
-> 		if [[ ! -x $(command -v "${dep}") ]]; then
-> 			echo -e "skip:    dependency ${dep} not found!\n"
-> 			exit "${KSFT_SKIP}"
->@@ -346,21 +346,32 @@ wait_for_listener()
-> 	local port=$1
-> 	local interval=$2
-> 	local max_intervals=$3
->-	local protocol=tcp
->-	local pattern
->+	local protocol=$4
-> 	local i
+>+check_netns() {
+>+	local tname=$1
+>+
+>+	# If the test requires NS support, check if NS support exists
+>+	# using /proc/self/ns
+>+	if [[ "${tname}" =~ ^ns_ ]] &&
+>+	   [[ ! -e /proc/self/ns ]]; then
+>+		log_host "No NS support detected for test ${tname}"
+>+		return 1
+>+	fi
+>+
+>+	return 0
+>+}
+>+
+> check_vng() {
+> 	local tested_versions
+> 	local version
+>@@ -528,6 +571,32 @@ log_guest() {
+> 	LOG_PREFIX=guest log "$@"
+> }
 >
->-	pattern=":$(printf "%04X" "${port}") "
->-
->-	# for tcp protocol additionally check the socket state
->-	[ "${protocol}" = "tcp" ] && pattern="${pattern}0A"
->-
-> 	for i in $(seq "${max_intervals}"); do
->-		if awk -v pattern="${pattern}" \
->-			'BEGIN {rc=1} $2" "$4 ~ pattern {rc=0} END {exit rc}' \
->-			/proc/net/"${protocol}"*; then
->+		case "${protocol}" in
->+		tcp)
->+			if ss --listening --tcp --numeric | grep -q ":${port} "; then
->+				break
->+			fi
->+			;;
->+		vsock)
->+			if ss --listening --vsock --numeric | grep -q ":${port} "; then
->+				break
->+			fi
->+			;;
->+		unix)
->+			# For unix sockets, port is actually the socket path
->+			if ss --listening --unix | grep -q "${port}"; then
->+				break
->+			fi
->+			;;
->+		*)
->+			echo "Unknown protocol: ${protocol}" >&2
-> 			break
->-		fi
->+			;;
->+		esac
-> 		sleep "${interval}"
+>+test_ns_host_vsock_ns_mode_ok() {
+>+	for mode in "${NS_MODES[@]}"; do
+>+		if ! ns_set_mode "${mode}0" "${mode}"; then
+>+			return "${KSFT_FAIL}"
+>+		fi
+>+	done
+>+
+>+	return "${KSFT_PASS}"
+>+}
+>+
+>+test_ns_host_vsock_ns_mode_write_once_ok() {
+>+	for mode in "${NS_MODES[@]}"; do
+>+		local ns="${mode}0"
+>+		if ! ns_set_mode "${ns}" "${mode}"; then
+>+			return "${KSFT_FAIL}"
+>+		fi
+>+
+>+		# try writing again and expect failure
+>+		if ns_set_mode "${ns}" "${mode}"; then
+>+			return "${KSFT_FAIL}"
+>+		fi
+>+	done
+>+
+>+	return "${KSFT_PASS}"
+>+}
+>+
+> test_vm_server_host_client() {
+> 	if ! vm_vsock_test "init_ns" "server" 2 "${TEST_GUEST_PORT}"; then
+> 		return "${KSFT_FAIL}"
+>@@ -569,6 +638,26 @@ test_vm_loopback() {
+> 	return "${KSFT_PASS}"
+> }
+>
+>+test_ns_vm_local_mode_rejected() {
+>+	# Guest VMs have a G2H transport (virtio-vsock) active, so they
+>+	# should not be able to set namespace mode to 'local'.
+>+	# This test verifies that the sysctl write fails as expected.
+>+
+>+	# Try to set local mode in the guest's init_ns
+>+	if vm_ssh init_ns "echo local | tee /proc/sys/net/vsock/ns_mode &>/dev/null"; then
+>+		return "${KSFT_FAIL}"
+>+	fi
+>+
+>+	# Verify mode is still 'global'
+>+	local mode
+>+	mode=$(vm_ssh init_ns "cat /proc/sys/net/vsock/ns_mode")
+>+	if [[ "${mode}" != "global" ]]; then
+>+		return "${KSFT_FAIL}"
+>+	fi
+>+
+>+	return "${KSFT_PASS}"
+>+}
+>+
+> shared_vm_test() {
+> 	local tname
+>
+>@@ -601,6 +690,11 @@ run_shared_vm_tests() {
+> 			continue
+> 		fi
+>
+>+		if ! check_netns "${arg}"; then
+>+			check_result "${KSFT_SKIP}" "${arg}"
+>+			continue
+>+		fi
+>+
+> 		run_shared_vm_test "${arg}"
+> 		check_result "$?" "${arg}"
 > 	done
-> }
->@@ -368,23 +379,25 @@ wait_for_listener()
-> vm_wait_for_listener() {
-> 	local ns=$1
-> 	local port=$2
->+	local protocol=$3
->
-> 	vm_ssh "${ns}" <<EOF
-> $(declare -f wait_for_listener)
->-wait_for_listener ${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX}
->+wait_for_listener ${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX} ${protocol}
-> EOF
+>@@ -654,6 +748,49 @@ run_shared_vm_test() {
+> 	return "${rc}"
 > }
 >
-> host_wait_for_listener() {
-> 	local ns=$1
-> 	local port=$2
->+	local protocol=$3
+>+run_ns_tests() {
+>+	for arg in "${ARGS[@]}"; do
+>+		if shared_vm_test "${arg}"; then
+>+			continue
+>+		fi
+>+
+>+		if ! check_netns "${arg}"; then
+>+			check_result "${KSFT_SKIP}" "${arg}"
+>+			continue
+>+		fi
+>+
+>+		add_namespaces
+>+
+>+		name=$(echo "${arg}" | awk '{ print $1 }')
+>+		log_host "Executing test_${name}"
+>+
+>+		host_oops_before=$(dmesg 2>/dev/null | grep -c -i 'Oops')
+>+		host_warn_before=$(dmesg --level=warn 2>/dev/null | grep -c -i 'vsock')
+>+		eval test_"${name}"
+>+		rc=$?
+>+
+>+		host_oops_after=$(dmesg 2>/dev/null | grep -c -i 'Oops')
+>+		if [[ "${host_oops_after}" -gt "${host_oops_before}" ]]; then
+>+			echo "FAIL: kernel oops detected on host" | log_host
+>+			check_result "${KSFT_FAIL}" "${name}"
+>+			del_namespaces
+>+			continue
+>+		fi
+>+
+>+		host_warn_after=$(dmesg --level=warn 2>/dev/null | grep -c -i 'vsock')
+>+		if [[ "${host_warn_after}" -gt "${host_warn_before}" ]]; then
+>+			echo "FAIL: kernel warning detected on host" | log_host
+>+			check_result "${KSFT_FAIL}" "${name}"
+>+			del_namespaces
+>+			continue
+>+		fi
+>+
+>+		check_result "${rc}" "${name}"
+>+
+>+		del_namespaces
+>+	done
+>+}
+>+
+> BUILD=0
+> QEMU="qemu-system-$(uname -m)"
 >
-> 	if [[ "${ns}" == "init_ns" ]]; then
->-		wait_for_listener "${port}" "${WAIT_PERIOD}" "${WAIT_PERIOD_MAX}"
->+		wait_for_listener "${port}" "${WAIT_PERIOD}" "${WAIT_PERIOD_MAX}" "${protocol}"
-> 	else
-> 		ip netns exec "${ns}" bash <<-EOF
-> 			$(declare -f wait_for_listener)
->-			wait_for_listener ${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX}
->+			wait_for_listener ${port} ${WAIT_PERIOD} ${WAIT_PERIOD_MAX} ${protocol}
-> 		EOF
-> 	fi
-> }
->@@ -431,7 +444,7 @@ vm_vsock_test() {
-> 			return $rc
-> 		fi
+>@@ -699,6 +836,8 @@ if shared_vm_tests_requested "${ARGS[@]}"; then
+> 	terminate_pidfiles "${pidfile}"
+> fi
 >
->-		vm_wait_for_listener "${ns}" "${port}"
->+		vm_wait_for_listener "${ns}" "${port}" "tcp"
-> 		rc=$?
-> 	fi
-> 	set +o pipefail
->@@ -472,7 +485,7 @@ host_vsock_test() {
-> 			return $rc
-> 		fi
+>+run_ns_tests "${ARGS[@]}"
+>+
+> echo "SUMMARY: PASS=${cnt_pass} SKIP=${cnt_skip} FAIL=${cnt_fail}"
+> echo "Log: ${LOG}"
 >
->-		host_wait_for_listener "${ns}" "${port}"
->+		host_wait_for_listener "${ns}" "${port}" "tcp"
-> 		rc=$?
-> 	fi
-> 	set +o pipefail
 >
 >-- 
 >2.47.3
