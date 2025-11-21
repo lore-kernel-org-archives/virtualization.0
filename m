@@ -1,267 +1,171 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E5773002A6
-	for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 05:45:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A255D30E0E6
+	for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 06:20:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763703911; cv=none; b=UnDKxGvAM4HcihwlLgaLtgRhG6CH98k2zWfmb73Q19GNWmJ3lfUYXlv33GNCw3k3FopIL0HDADKgggCgcyA1Jc1O8AKPDatNziXKsB3NPZOmTBWqx6+uy3PBuaAN2ZNyif/blG3OgQivdmOvr+SwcqGoA8KxVb54e+XPykj0HVE=
+	t=1763706007; cv=none; b=LH8Rr84RC+lxHyCqHhFz12fXCZEmKBEWf4zU8lJI4LqzUCK7mYOMVFCVybDv4eLY2b/zhdn1Tss3voXnt9ezFDjD0Djpukz/Quo39V/13RptedEPd3ZD9Wi4Xe7rwLx1YH3Dy5xtGoLuGcbrQtw3ZmgRy10X17P8Mze2uyIM1mU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763703911; c=relaxed/simple;
-	bh=HcFpLUc+G6pQCjiDu3dqqPPKH+0uQ8yqBNmFiEzDG9E=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=sp4ypt6rpofLetoHQvoYLJAvat2++3SuwaCAqY7KulqINbXw7vj4cHHcDB5sqiV5CWMzdVRQgR211G/LwLhAWLT4GPeu18XECOqx3zT5Yh86Dm90xadK3uJh0QtRg7gABxYfqMpkC4r8itRXM5kEWWcS4wG3XkJQYPj3mIscyaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G+NbHxJN; arc=none smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1763706007; c=relaxed/simple;
+	bh=+sXfroQ9+Yeauo6qtLKIrEOaBpAUSForDBLtkR69j+Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=asyDCTru9XJSvruIwalfRtKLvZ91MnRJtE2EW2fxvajokABH5P4L1wdcNMgDlZi37li7ozGSbQWmxHvvEqXFXqKw8TMXcAxDcGFlwbwjtTOefOXbWd1QwoY4SHB5gH0D+0z8DRcwhAKDO1K8Pf0sOCVAO6XhAbU9YfjXXEwGlrI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gY8XvawO; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G+NbHxJN"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-297e982506fso22342175ad.2
-        for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 21:45:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763703903; x=1764308703; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=V9sFl9qbvPwYtRInTuWVbglrBqV89lDCjlyhP3JynaY=;
-        b=G+NbHxJNzeLX5TDfeEq91Wf4iBD3XL8bEcxsSegOg8VZbWJ1D3WYKJLdTIkNv886Wj
-         4zU7Oq72rrxGjYuGmA1zs93MvS9Z37cAD6482+UgIEEzjNeMgyMxEkOml7L+xoOZlRg7
-         6s1KsGNNReV+pd0+vhXJxqakS20lqSOfSNyYGDt2vNa7ZSQ8yhz76rXOf/xt1E5/y6rX
-         zGfzIMope4B4/1Rsx6WknE9FPp1IbIATdASLzrhK6eEoWCkvlireD6TI82lg0lSH5yP2
-         REJOI5RBk3m9c1SwS31W3tlH7AvLKmzCIXcKRLVgPAG40sBo2eYilxGHhoGnvYYQ51k5
-         vr4A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gY8XvawO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763706002;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ggRX1ZqBKGYN1jsO4rritRA352gi7SUTeQqpV7JnIS4=;
+	b=gY8XvawOOB+uJOyIJmLSvm1Sn1haPQ59DVgipSEcVRlnriAIxxomcT2/ilZl1WYWnIoSHR
+	BgWG18YwKORtCsLhYR32vOypdEQp0SEjm3oOk+7+24t8xQZu9s80fdixBN5lo6I1mHfIfM
+	uUBowNItmW8UKcpO4ae/1QjRfNTk7j0=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-501-ZJo6knG9PUO24m-5N3k_nQ-1; Fri, 21 Nov 2025 01:20:01 -0500
+X-MC-Unique: ZJo6knG9PUO24m-5N3k_nQ-1
+X-Mimecast-MFC-AGG-ID: ZJo6knG9PUO24m-5N3k_nQ_1763706000
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-29806c42760so73405055ad.2
+        for <virtualization@lists.linux.dev>; Thu, 20 Nov 2025 22:20:01 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763703903; x=1764308703;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=V9sFl9qbvPwYtRInTuWVbglrBqV89lDCjlyhP3JynaY=;
-        b=C2/xk5PvRdEcADJsg7Hu65mme7i1yq6ugLpfPYUIubh6gM5qYU3LCdMOhASehKDNbE
-         7GbAQfyM9y2KLxh+ElfmCzNffUOK10hYpSEUuPvbVEeIKLwNbOWaaqUKcI5A3Eoj9kiT
-         b3R0p6yVxrTODRp+OIEzGWV/VbA/aUwK/sUizs21/4A0MMnoTTOI8mVLb0zD1MWf5mIy
-         VgccwDfzzBLJHw6ks7FYeB8NWQgDb+BL8yn+1izzNUANrSAcpxp34AA/13oLo66nz22P
-         I9IZ/pbg3dXvsjsUBnuIZEE4mGerEeHHPJDVOAj+h6yakhoYBzBga6/bKxnO4hR0F7TI
-         QbXw==
-X-Forwarded-Encrypted: i=1; AJvYcCUOAn6nvz4AOCFlMH+Mrakg1HQREB8zi6hRBuEKhIvgwj+BLCAyFg4AIMaY1lnHGVqYT1L+ZeqTPxpjbtNK7w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx66z3eoGVHdN5d5U95xbl/tKDjOl1Td+pMH3gPtpyI2X3QhGvs
-	BBCZhWURrUG8s9ESEsmHq+k/uzvUrc9bA6UnKWKdAANVSvxzTeRxEElJ
-X-Gm-Gg: ASbGnctiza0mh4q772MqmZ/z+41tAAfvXn8RDTphBG3G70567OtDhWDhDoW5s/Ax5wx
-	xMDnzEkon/ebI54b9B/IvQjWBQ+/4S8RYd0IlyJROnqXwz7YCDAb+tRPHMSMmjj1XufD64Kvpkt
-	qIHsYopJDiPOVlDDM6FPvI3BR9ZZeyWO0cImOZyu/1CwwBZt4ONylo4Wa6TDWWHZAxDEg7u0DYr
-	WMoo9PBVgKq0Oah2qtwCJYvOnMQCRrxx0MF4Y56pI5lnqA7z7I1kKYJLoB46Q4qBnZ6ad+5ZZ1o
-	PwMc7hRNMV+zXjvq5MsVGGR1R5fijUTl8EvP5zSYFOq1gmjBEKvqlBtG6CUvvzLxILu7EC6BSZD
-	SAya4DRwqb5hzHJT8AKnMZCNKLn1fnlyG4lIlxqny7SGi4H6bM9IyWEW4wYO4wfVdP9qGz3w6EW
-	/eAbjLaJ1NFZ/z8/oT/Ug=
-X-Google-Smtp-Source: AGHT+IGNogkw6+aYEKeY1jIA1/MWu6kqW3NQeqBIULV4beIyW6SfaQAClzFvrrHi8XqojUq6urD3Lg==
-X-Received: by 2002:a17:903:19ec:b0:297:f8dd:4d8e with SMTP id d9443c01a7336-29b6bf37d9dmr17593035ad.30.1763703903500;
-        Thu, 20 Nov 2025 21:45:03 -0800 (PST)
-Received: from localhost ([2a03:2880:2ff:6::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29b5b25e0f0sm42902025ad.46.2025.11.20.21.45.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Nov 2025 21:45:03 -0800 (PST)
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Thu, 20 Nov 2025 21:44:45 -0800
-Subject: [PATCH net-next v11 13/13] selftests/vsock: add tests for
- namespace deletion and mode changes
+        d=1e100.net; s=20230601; t=1763706000; x=1764310800;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=ggRX1ZqBKGYN1jsO4rritRA352gi7SUTeQqpV7JnIS4=;
+        b=nFRu4SzypeUJSSIkH+k5b7wuQCADxeg7+BTNY10kPhc5377wzuAHnc+7y05F2TedQ3
+         gamh/zoBfeXPyMykAQmkSl/M5Z0gy9g8Mr5qml7172dzLjFGlm4yh8OV8wXCfp+ikUTZ
+         q/aUtm357pxxNgS4MI+bvPG1diJWhJ9JZWc/Y8uCjs6wiUjkbcUGV6tLWFgX9HpHpTIe
+         Kg51lYXli/eeBYZWOMeF4pM32NUqfUcJrEHuoWHC/ycqZ3eUr5/psij226BmpWzOYvhv
+         4fwZbcSmxW1DjC7NGtubEuEvMZ1n0QLEiqdaJkXJfsRm5Uo6zg4Xi0smajluWEkm6DEZ
+         AduA==
+X-Forwarded-Encrypted: i=1; AJvYcCVIdlUcOcGSQN8UNigxiSBWb4iFvcq/vwXVQv4lAEEHS6Ysnlq8QZntLHgZFUUS+oQ8o1OE0sWzFxkX/75nFg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzt8BGqClGUN0ONHJac21mTAXJ4AM0tzmjgEcEG8OPWU9HjUGz6
+	4/hc6xe9ssrI6GtNqDLNa0BUCwSnbvIdUu0AMEyQcmKbPu7wvmVTEIshBVf4Ci9F7DV0eqikufL
+	4vChQR8dZstb5jLDLa4/C8f4vhyr+qTTFIP1GRS9cO8SiCLAgxK7h6l+TjGGruCdPnhiwsmrmtW
+	WUwrokQONf1pnC+wNoWQmgpwCsJhXH+vbfk0NbVKj/H2Q=
+X-Gm-Gg: ASbGncuJczSIRP37LLqhORHy1ML4mbxTu6F9SfSH72cLb1R4mtQV3lXgEo9UMWccMlN
+	QOvZp8gxtPsdeeOO0x8Dup4ax76V0gymCoTk8BaUKbg6R4O14OLfczbYhRgXPXbexgXT9qOPW1w
+	88c9YOiaAWT+TGP8dh5v0OAZNcaTrWQxYQktKZxXY5iWmUG6EEKNmRE23oHjKcwMIjgA==
+X-Received: by 2002:a17:902:d2c8:b0:295:8da5:c634 with SMTP id d9443c01a7336-29b6be7891fmr14962955ad.9.1763706000109;
+        Thu, 20 Nov 2025 22:20:00 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEUmADglGq6E7uEJIg62yJdZRoNMyJghNrkeN6DUBkf5vF0UyhiAgyRbE/RfDCtL+AZds6YfvoKcPhuQ6RYwco=
+X-Received: by 2002:a17:902:d2c8:b0:295:8da5:c634 with SMTP id
+ d9443c01a7336-29b6be7891fmr14962735ad.9.1763705999682; Thu, 20 Nov 2025
+ 22:19:59 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20251120-vsock-vmtest-v11-13-55cbc80249a7@meta.com>
-References: <20251120-vsock-vmtest-v11-0-55cbc80249a7@meta.com>
-In-Reply-To: <20251120-vsock-vmtest-v11-0-55cbc80249a7@meta.com>
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
- Vishnu Dasa <vishnu.dasa@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- Shuah Khan <shuah@kernel.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, berrange@redhat.com, 
- Sargun Dhillon <sargun@sargun.me>, Bobby Eshleman <bobbyeshleman@gmail.com>, 
- Bobby Eshleman <bobbyeshleman@meta.com>
-X-Mailer: b4 0.14.3
+References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
+In-Reply-To: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 21 Nov 2025 14:19:48 +0800
+X-Gm-Features: AWmQ_blptZAZY5T5Gzybc2BRw6WU6w0JP6uqFpewdXiABFkFXapZqQDd1Zn3LSk
+Message-ID: <CACGkMEuboys8sCJFUTGxHUeouPFnVqVLGQBefvmxYDe4ooLfLg@mail.gmail.com>
+Subject: Re: [PATCH net-next v6 0/8] tun/tap & vhost-net: netdev queue flow
+ control to avoid ptr_ring tail drop
+To: Simon Schippers <simon.schippers@tu-dortmund.de>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	mst@redhat.com, eperezma@redhat.com, jon@nutanix.com, 
+	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: hRSXhcIEFFNyrgY2P_6JyqCBP8sI-f6ixwawgNS6olU_1763706000
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Bobby Eshleman <bobbyeshleman@meta.com>
+On Thu, Nov 20, 2025 at 11:30=E2=80=AFPM Simon Schippers
+<simon.schippers@tu-dortmund.de> wrote:
+>
+> This patch series deals with tun/tap and vhost-net which drop incoming
+> SKBs whenever their internal ptr_ring buffer is full. Instead, with this
+> patch series, the associated netdev queue is stopped before this happens.
+> This allows the connected qdisc to function correctly as reported by [1]
+> and improves application-layer performance, see our paper [2]. Meanwhile
+> the theoretical performance differs only slightly:
+>
+> +--------------------------------+-----------+----------+
+> | pktgen benchmarks to Debian VM | Stock     | Patched  |
+> | i5 6300HQ, 20M packets         |           |          |
+> +-----------------+--------------+-----------+----------+
+> | TAP             | Transmitted  | 195 Kpps  | 183 Kpps |
+> |                 +--------------+-----------+----------+
+> |                 | Lost         | 1615 Kpps | 0 pps    |
+> +-----------------+--------------+-----------+----------+
+> | TAP+vhost_net   | Transmitted  | 589 Kpps  | 588 Kpps |
+> |                 +--------------+-----------+----------+
+> |                 | Lost         | 1164 Kpps | 0 pps    |
+> +-----------------+--------------+-----------+----------+
 
-Add tests that validate vsock sockets are resilient to deleting
-namespaces or changing namespace modes from global to local. The vsock
-sockets should still function normally.
+PPS drops somehow for TAP, any reason for that?
 
-The function check_ns_changes_dont_break_connection() is added to re-use
-the step-by-step logic of 1) setup connections, 2) do something that
-would maybe break the connections, 3) check that the connections are
-still ok.
+Btw, I had some questions:
 
-Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
----
-Changes in v11:
-- remove pipefile (Stefano)
+1) most of the patches in this series would introduce non-trivial
+impact on the performance, we probably need to benchmark each or split
+the series. What's more we need to run TCP benchmark
+(throughput/latency) as well as pktgen see the real impact
 
-Changes in v9:
-- more consistent shell style
-- clarify -u usage comment for pipefile
----
- tools/testing/selftests/vsock/vmtest.sh | 119 ++++++++++++++++++++++++++++++++
- 1 file changed, 119 insertions(+)
+2) I see this:
 
-diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index dfa895abfc7f..5f0b24845fad 100755
---- a/tools/testing/selftests/vsock/vmtest.sh
-+++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -69,6 +69,12 @@ readonly TEST_NAMES=(
- 	ns_same_local_loopback_ok
- 	ns_same_local_host_connect_to_local_vm_ok
- 	ns_same_local_vm_connect_to_local_host_ok
-+	ns_mode_change_connection_continue_vm_ok
-+	ns_mode_change_connection_continue_host_ok
-+	ns_mode_change_connection_continue_both_ok
-+	ns_delete_vm_ok
-+	ns_delete_host_ok
-+	ns_delete_both_ok
- )
- readonly TEST_DESCS=(
- 	# vm_server_host_client
-@@ -139,6 +145,24 @@ readonly TEST_DESCS=(
- 
- 	# ns_same_local_vm_connect_to_local_host_ok
- 	"Run vsock_test client in VM in a local ns with server in same ns."
-+
-+	# ns_mode_change_connection_continue_vm_ok
-+	"Check that changing NS mode of VM namespace from global to local after a connection is established doesn't break the connection"
-+
-+	# ns_mode_change_connection_continue_host_ok
-+	"Check that changing NS mode of host namespace from global to local after a connection is established doesn't break the connection"
-+
-+	# ns_mode_change_connection_continue_both_ok
-+	"Check that changing NS mode of host and VM namespaces from global to local after a connection is established doesn't break the connection"
-+
-+	# ns_delete_vm_ok
-+	"Check that deleting the VM's namespace does not break the socket connection"
-+
-+	# ns_delete_host_ok
-+	"Check that deleting the host's namespace does not break the socket connection"
-+
-+	# ns_delete_both_ok
-+	"Check that deleting the VM and host's namespaces does not break the socket connection"
- )
- 
- readonly USE_SHARED_VM=(
-@@ -1288,6 +1312,101 @@ test_ns_vm_local_mode_rejected() {
- 	return "${KSFT_PASS}"
- }
- 
-+check_ns_changes_dont_break_connection() {
-+	local pipefile pidfile outfile
-+	local ns0="global0"
-+	local ns1="global1"
-+	local port=12345
-+	local pids=()
-+	local rc=0
-+
-+	init_namespaces
-+
-+	pidfile="$(create_pidfile)"
-+	if ! vm_start "${pidfile}" "${ns0}"; then
-+		return "${KSFT_FAIL}"
-+	fi
-+	vm_wait_for_ssh "${ns0}"
-+
-+	outfile=$(mktemp)
-+	vm_ssh "${ns0}" -- \
-+		socat VSOCK-LISTEN:"${port}",fork STDOUT > "${outfile}" 2>/dev/null &
-+	pids+=($!)
-+	vm_wait_for_listener "${ns0}" "${port}" "vsock"
-+
-+	# We use a pipe here so that we can echo into the pipe instead of using
-+	# socat and a unix socket file. We just need a name for the pipe (not a
-+	# regular file) so use -u.
-+	pipefile=$(mktemp -u /tmp/vmtest_pipe_XXXX)
-+	ip netns exec "${ns1}" \
-+		socat PIPE:"${pipefile}" VSOCK-CONNECT:"${VSOCK_CID}":"${port}" &
-+	pids+=($!)
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -e '"${pipefile}"' ]]; do sleep 1; done; exit 0'
-+
-+	if [[ $2 == "delete" ]]; then
-+		if [[ "$1" == "vm" ]]; then
-+			ip netns del "${ns0}"
-+		elif [[ "$1" == "host" ]]; then
-+			ip netns del "${ns1}"
-+		elif [[ "$1" == "both" ]]; then
-+			ip netns del "${ns0}"
-+			ip netns del "${ns1}"
-+		fi
-+	elif [[ $2 == "change_mode" ]]; then
-+		if [[ "$1" == "vm" ]]; then
-+			ns_set_mode "${ns0}" "local"
-+		elif [[ "$1" == "host" ]]; then
-+			ns_set_mode "${ns1}" "local"
-+		elif [[ "$1" == "both" ]]; then
-+			ns_set_mode "${ns0}" "local"
-+			ns_set_mode "${ns1}" "local"
-+		fi
-+	fi
-+
-+	echo "TEST" > "${pipefile}"
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done; exit 0'
-+
-+	if grep -q "TEST" "${outfile}"; then
-+		rc="${KSFT_PASS}"
-+	else
-+		rc="${KSFT_FAIL}"
-+	fi
-+
-+	terminate_pidfiles "${pidfile}"
-+	terminate_pids "${pids[@]}"
-+	rm -f "${outfile}" "${pipefile}"
-+
-+	return "${rc}"
-+}
-+
-+test_ns_mode_change_connection_continue_vm_ok() {
-+	check_ns_changes_dont_break_connection "vm" "change_mode"
-+}
-+
-+test_ns_mode_change_connection_continue_host_ok() {
-+	check_ns_changes_dont_break_connection "host" "change_mode"
-+}
-+
-+test_ns_mode_change_connection_continue_both_ok() {
-+	check_ns_changes_dont_break_connection "both" "change_mode"
-+}
-+
-+test_ns_delete_vm_ok() {
-+	check_ns_changes_dont_break_connection "vm" "delete"
-+}
-+
-+test_ns_delete_host_ok() {
-+	check_ns_changes_dont_break_connection "host" "delete"
-+}
-+
-+test_ns_delete_both_ok() {
-+	check_ns_changes_dont_break_connection "both" "delete"
-+}
-+
- shared_vm_test() {
- 	local tname
- 
+        if (unlikely(tun_ring_produce(&tfile->tx_ring, queue, skb))) {
+                drop_reason =3D SKB_DROP_REASON_FULL_RING;
+                goto drop;
+        }
 
--- 
-2.47.3
+So there could still be packet drop? Or is this related to the XDP path?
+
+3) The LLTX change would have performance implications, but the
+benmark doesn't cover the case where multiple transmission is done in
+parallel
+
+4) After the LLTX change, it seems we've lost the synchronization with
+the XDP_TX and XDP_REDIRECT path?
+
+5) The series introduces various ptr_ring helpers with lots of
+ordering stuff which is complicated, I wonder if we first have a
+simple patch to implement the zero packet loss
+
+>
+> This patch series includes tun/tap, and vhost-net because they share
+> logic. Adjusting only one of them would break the others. Therefore, the
+> patch series is structured as follows:
+> 1+2: new ptr_ring helpers for 3
+> 3: tun/tap: tun/tap: add synchronized ring produce/consume with queue
+> management
+> 4+5+6: tun/tap: ptr_ring wrappers and other helpers to be called by
+> vhost-net
+> 7: tun/tap & vhost-net: only now use the previous implemented functions t=
+o
+> not break git bisect
+> 8: tun/tap: drop get ring exports (not used anymore)
+>
+> Possible future work:
+> - Introduction of Byte Queue Limits as suggested by Stephen Hemminger
+
+This seems to be not easy. The tx completion depends on the userspace behav=
+iour.
+
+> - Adaption of the netdev queue flow control for ipvtap & macvtap
+>
+> [1] Link: https://unix.stackexchange.com/questions/762935/traffic-shaping=
+-ineffective-on-tun-device
+> [2] Link: https://cni.etit.tu-dortmund.de/storages/cni-etit/r/Research/Pu=
+blications/2025/Gebauer_2025_VTCFall/Gebauer_VTCFall2025_AuthorsVersion.pdf
+>
+
+Thanks
 
