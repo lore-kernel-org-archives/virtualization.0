@@ -1,111 +1,177 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEE93340A59
-	for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 08:18:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 187EB33C186
+	for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 09:18:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763713116; cv=none; b=BCo1gIWrK0WOAYYNe75K3vEEalSAP2ca67B/tkPkGpwn6Nr7GDmVnBWeQig2S2aqhsajcwFeKQY/d+0fVUXs3vQYwuj8kL5VIxfKUqXf32bJ1VYGndQ2hboElyusahQcs11fsXqai044awlj3DVBF5dmk9bMdsdZanzmG3k7gTo=
+	t=1763716684; cv=none; b=MrMFxvzszGyDmG0u2RCPu8k0fb1vqFafIfxO228Rf8dS0LalQBCPeOlhR7Km7OBp/SuAHi9ivDteyQgl1oryncFFixy9RlFB4sG3c+rDLmPmXucTk/AzIsEpDiBHA591ptu2rFJXdNpRMhnjtxy3u8+zViyUPztsBRnKjf9Qjl4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763713116; c=relaxed/simple;
-	bh=EqzE5eAUrOzw5wQ1NpDCM3tWSo+9dLaAmuNQNwJKJDw=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=OYP2K94VWZtrnuyacn409sAEe4j7OfgM77PTtrTOpxmH3RYMLP5HVb7zjMea7NPCDhoGEppWOn85L2mNET5O1lOPpx2sW3mJscazVle3Cn33yE+xqGlEcAGYRfQMrESxyPAYg9pRrOT9ETvDM+37gibpvYBE4Tq9sNXAPJOPkaM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G25UJC0/; arc=none smtp.client-ip=209.85.215.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G25UJC0/"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-b4755f37c3eso1138094a12.3
-        for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 00:18:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763713114; x=1764317914; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Yt1oIqGxOTrmRU0wY5Kf2stOafiOCOsnZEA0d2AzsC4=;
-        b=G25UJC0//DH7ctuSypLo6dh4zliaOaRLsJKbJziaiExnxZGaz2DTbSj4+M/sPm5PUd
-         AgeOExl78tR9vvnst6SQiasUWbqpH5eyN8Vqj07kcP4cWNCWL2A+WD8O4SX4ZhwDomOO
-         hPaHyIRVXp9xbhedIS4IQ6JMgDucCD2i73IUBvXxt34qvmqe4FvlFVvzcED5T3wNFZxC
-         4bsdQB/HiiXup7XogK5HNeQ3pRRe8j80tydIVI7CkVCZyKrrZlaB5hhKQD/UTB3Et+fh
-         HwBhXnmPdeE/ftCepDE+E4ork90JoSnA6tkhI0vIcLoxc++AAvNS8Gl0CMyd0yyHW/DF
-         uRxw==
+	s=arc-20240116; t=1763716684; c=relaxed/simple;
+	bh=b3KtUUVPebgqJee1Qtg2ssw6lE+/0RA87Le6+Oa6LiI=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=T1iF6csJlgkvdcqG+CRZNm3rdFrjpsjoXn+5X73QKBiai92B4vPOpCyw9sujJlpzZFj36RmME4Csnzf4wsPWENaTH7z+q45W3X86os/Qb/14ylCM76oAMUgts9+Gllky3w4kPg2+cMUVEAyMo4IqHymHVpnEwbW8rR2eBMnxSGw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-43373024b5eso17410355ab.1
+        for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 01:18:01 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763713114; x=1764317914;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Yt1oIqGxOTrmRU0wY5Kf2stOafiOCOsnZEA0d2AzsC4=;
-        b=Yb2fqYHinrcZoGjz2xH+oOeg//fpDznv2e4g5Wtjd8sdEl7ZZwgJpvVUb9n/DEDyNF
-         J/X6OOyQSUvb2adnrQXhDJVjSrZIwp51Z3zeZQ5iBrXGh/6/QhCN63F8sgh0rolkuZFm
-         A9lgU7TJFNcVHISQUl+pF+djNxZ8sXgEwVWHTdDBk5L6idSz8TuwFmDj7njoxtCeQsYp
-         RsTvBwRLo8DY+i1EFVvQgYXXvrOPQnPS85Eo79qSzUCSeVEhBu3U7ZH1/wDtEqrEkbCM
-         BwHn+6QBl7CkI+msK/noaxovkVeglVw+C8Q9yc7PPG0rmRRMPXBOMhPo69apptI9Ggus
-         EZDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUd5GYQj+HGtfhZf7UOD4aDnO1t1wSTrE3mBIQVo0vnKsGk9t67I4Xs7RIgEkcUWvzwl27fMQIyXHL/qhjFhw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyn58YQ531St8JDa6UydKbiVgCMBhKswbDFaFGahmzaojcMKMGj
-	Fq1bTmzK8aMC62lLlGKGYpbOokloG1+7btS86bx9bejxl5WcQiPLcJ/x
-X-Gm-Gg: ASbGncty/WlshsaK8ty5efEW0U76Y4c0XKQcNebSog+kUSSWgQ9qHVNq/7TN0fnVygD
-	5f6hG8uO00rSyWDU9wI2jyJitChfv1xNGYkppOrdZbFrPaaK68L3Vd9Cr6itgnv0AvFc0rzor1G
-	doHuMYcPSMb47wgOLfNi+ek7xEBD+vV/ZKkiKKYtkEkzVyxjfzMs93QkWTjSKVLsqhQEGl+jGE9
-	dSnn60r9ob18+fG8BxFEjunXWUuxibDzYAC1kWplovJ9y2sWPf4PJO2c6iolRZs4kDV8c71uFT4
-	WSW/rlYoU5BoWv7HRGxT6ExI9UY7bK1Mnvv5dr2VRIo8rvmV3eSm4Nx1mBqiqb1PYgScd9y3YWo
-	SYLMlmJtilOP6/CgDJ4ioMoHq9jW+dIfPl33lcPwFTlt8QS+47iBtmtqbA6TnU0HpXus9KCrdYx
-	LqA0yVIwcf63eEu3nGN5skN1sIs6mqYQPH63s0
-X-Google-Smtp-Source: AGHT+IGjQz6D1HhxF/O38ExwwmQdYex30Wle92q1+zy1HDlDdyzSrgD/kMDXWQtHpmE2DiVpd2L90Q==
-X-Received: by 2002:a05:7300:238e:b0:2a4:3593:c7c9 with SMTP id 5a478bee46e88-2a7194d07b7mr663198eec.9.1763713114130;
-        Fri, 21 Nov 2025 00:18:34 -0800 (PST)
-Received: from localhost.localdomain ([104.128.72.43])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-11c93e55af3sm20997352c88.7.2025.11.21.00.18.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Nov 2025 00:18:33 -0800 (PST)
-From: zhangshida <starzhangzsd@gmail.com>
-X-Google-Original-From: zhangshida <zhangshida@kylinos.cn>
-To: linux-kernel@vger.kernel.org
-Cc: linux-block@vger.kernel.org,
-	nvdimm@lists.linux.dev,
-	virtualization@lists.linux.dev,
-	linux-nvme@lists.infradead.org,
-	gfs2@lists.linux.dev,
-	ntfs3@lists.linux.dev,
-	linux-xfs@vger.kernel.org,
-	zhangshida@kylinos.cn,
-	starzhangzsd@gmail.com
-Subject: [PATCH 9/9] nvdimm: use bio_chain_and_submit for simplification
-Date: Fri, 21 Nov 2025 16:17:48 +0800
-Message-Id: <20251121081748.1443507-10-zhangshida@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20251121081748.1443507-1-zhangshida@kylinos.cn>
-References: <20251121081748.1443507-1-zhangshida@kylinos.cn>
+        d=1e100.net; s=20230601; t=1763716681; x=1764321481;
+        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SHomLCHpRHHF5xRVeBHmop62BY5QbnheIPvzdItNW+Q=;
+        b=sLN/mC3z24Ur52ULx8+HWOSw9RQhTJLCeoV2L1w9VdMi06S3fBEo68eSWx0soFqCqY
+         ivFia4mkDmB1aFvwl/UjQqweKShPFIPC12EkUlVilRQ/LT7AuNl/1870JB2r04YtXUjy
+         ZNR1DENMpPjJ4ulN0ZRr7jsoS04CEyUHrXz95U/sOnt8vJOgABoiOHAta79FhN6isem0
+         8rWLAt0FgmWObnyHyODXarXftFhH/rKvRRv2zV4BM58xPTp1Tmne2DDwUrHZ2/TXbRHU
+         LAoAHcf6gLi/ZmzJ2hL/aNg7uR+/wApmJUw9P0InVJwoQ+HGdja8HNuhlzRR2x8uxUWX
+         o74A==
+X-Forwarded-Encrypted: i=1; AJvYcCVa5+YIK4ESkumqP/fPj5h9krGnfJUzRKsR/2xiwZPtvkgOIaldQhXigeW48nqUn3xTcUeJoFpXnYuvNR5UvA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwLbFPnYH9Sfgps2x7UGqpSlLmfTiecwgzUU+bnNaflZIlom8AU
+	QkR3S1Z/0cmMaul6kBuanx0nkI4rhkKb/lXjjhBQg0ndJ7m0DJUoXJkXpASAcq7oDDeIx/jALfs
+	M1uWfHabmXDZyhul78l3Gohp+ISLSATiBIIzTypVbDPEFXYzme3Px+gI1qdk=
+X-Google-Smtp-Source: AGHT+IEiRcoM+AULgcl/opdnaxfH3PwAuhb+urHygK1bQazPcXUlnv4+Bdqo/fmLawZIrCEEMLUYmKW+Rfp8AY+DlVhSARBhTOjR
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a92:cd8c:0:b0:434:6ef2:a43d with SMTP id
+ e9e14a558f8ab-435b8e5cae3mr12835965ab.19.1763716681282; Fri, 21 Nov 2025
+ 01:18:01 -0800 (PST)
+Date: Fri, 21 Nov 2025 01:18:01 -0800
+In-Reply-To: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <69202e49.a70a0220.2ea503.004b.GAE@google.com>
+Subject: [syzbot ci] Re: tun/tap & vhost-net: netdev queue flow control to
+ avoid ptr_ring tail drop
+From: syzbot ci <syzbot+ci5037a828ffe02b14@syzkaller.appspotmail.com>
+To: andrew@lunn.ch, davem@davemloft.net, edumazet@google.com, 
+	eperezma@redhat.com, jasowang@redhat.com, jon@nutanix.com, kuba@kernel.org, 
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, 
+	netdev@vger.kernel.org, pabeni@redhat.com, simon.schippers@tu-dortmund.de, 
+	tim.gebauer@tu-dortmund.de, virtualization@lists.linux.dev, 
+	willemdebruijn.kernel@gmail.com
+Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-From: Shida Zhang <zhangshida@kylinos.cn>
+syzbot ci has tested the following series
 
-Signed-off-by: Shida Zhang <zhangshida@kylinos.cn>
+[v6] tun/tap & vhost-net: netdev queue flow control to avoid ptr_ring tail drop
+https://lore.kernel.org/all/20251120152914.1127975-1-simon.schippers@tu-dortmund.de
+* [PATCH net-next v6 1/8] ptr_ring: add __ptr_ring_full_next() to predict imminent fullness
+* [PATCH net-next v6 2/8] ptr_ring: add helper to check if consume created space
+* [PATCH net-next v6 3/8] tun/tap: add synchronized ring produce/consume with queue management
+* [PATCH net-next v6 4/8] tun/tap: add batched ring consume function
+* [PATCH net-next v6 5/8] tun/tap: add uncomsume function for returning entries to ring
+* [PATCH net-next v6 6/8] tun/tap: add helper functions to check file type
+* [PATCH net-next v6 7/8] tun/tap/vhost: use {tun|tap}_ring_{consume|produce} to avoid tail drops
+* [PATCH net-next v6 8/8] tun/tap: drop get ring exports
+
+and found the following issue:
+general protection fault in tun_net_xmit
+
+Full report is available here:
+https://ci.syzbot.org/series/63c35694-3fa6-48b6-ba11-f893f55bcc1a
+
+***
+
+general protection fault in tun_net_xmit
+
+tree:      net-next
+URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net-next.git
+base:      45a1cd8346ca245a1ca475b26eb6ceb9d8b7c6f0
+arch:      amd64
+compiler:  Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
+config:    https://ci.syzbot.org/builds/e1084fb4-2e0a-4c87-8e42-bc8fa70e1c77/config
+syz repro: https://ci.syzbot.org/findings/cf1c9121-7e31-4bc8-a254-f9e6c8ee2d26/syz_repro
+
+Oops: general protection fault, probably for non-canonical address 0xdffffc0000000002: 0000 [#1] SMP KASAN NOPTI
+KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
+CPU: 1 UID: 0 PID: 13 Comm: kworker/u8:1 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
+Workqueue: ipv6_addrconf addrconf_dad_work
+RIP: 0010:__ptr_ring_full include/linux/ptr_ring.h:51 [inline]
+RIP: 0010:tun_ring_produce drivers/net/tun.c:1023 [inline]
+RIP: 0010:tun_net_xmit+0xdf0/0x1840 drivers/net/tun.c:1164
+Code: 00 00 00 fc ff df 48 89 44 24 50 0f b6 04 18 84 c0 0f 85 1f 07 00 00 4c 89 7c 24 30 4d 63 37 4f 8d 3c f4 4c 89 f8 48 c1 e8 03 <80> 3c 18 00 74 08 4c 89 ff e8 92 ba e3 fb 49 83 3f 00 74 0a e8 17
+RSP: 0018:ffffc90000126f80 EFLAGS: 00010202
+RAX: 0000000000000002 RBX: dffffc0000000000 RCX: dffffc0000000000
+RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffc90000126f00
+RBP: ffffc900001270b0 R08: 0000000000000003 R09: 0000000000000004
+R10: dffffc0000000000 R11: fffff52000024de0 R12: 0000000000000010
+R13: ffff8881730b6a48 R14: 0000000000000000 R15: 0000000000000010
+FS:  0000000000000000(0000) GS:ffff8882a9f38000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000200000002280 CR3: 00000001bb189000 CR4: 0000000000352ef0
+Call Trace:
+ <TASK>
+ __netdev_start_xmit include/linux/netdevice.h:5259 [inline]
+ netdev_start_xmit include/linux/netdevice.h:5268 [inline]
+ xmit_one net/core/dev.c:3853 [inline]
+ dev_hard_start_xmit+0x2d7/0x830 net/core/dev.c:3869
+ __dev_queue_xmit+0x172a/0x3740 net/core/dev.c:4811
+ neigh_output include/net/neighbour.h:556 [inline]
+ ip6_finish_output2+0xfb3/0x1480 net/ipv6/ip6_output.c:136
+ NF_HOOK_COND include/linux/netfilter.h:307 [inline]
+ ip6_output+0x340/0x550 net/ipv6/ip6_output.c:247
+ NF_HOOK include/linux/netfilter.h:318 [inline]
+ ndisc_send_skb+0xbce/0x1510 net/ipv6/ndisc.c:512
+ addrconf_dad_completed+0x7ae/0xd60 net/ipv6/addrconf.c:4360
+ addrconf_dad_work+0xc36/0x14b0 net/ipv6/addrconf.c:-1
+ process_one_work kernel/workqueue.c:3263 [inline]
+ process_scheduled_works+0xae1/0x17b0 kernel/workqueue.c:3346
+ worker_thread+0x8a0/0xda0 kernel/workqueue.c:3427
+ kthread+0x711/0x8a0 kernel/kthread.c:463
+ ret_from_fork+0x4bc/0x870 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:__ptr_ring_full include/linux/ptr_ring.h:51 [inline]
+RIP: 0010:tun_ring_produce drivers/net/tun.c:1023 [inline]
+RIP: 0010:tun_net_xmit+0xdf0/0x1840 drivers/net/tun.c:1164
+Code: 00 00 00 fc ff df 48 89 44 24 50 0f b6 04 18 84 c0 0f 85 1f 07 00 00 4c 89 7c 24 30 4d 63 37 4f 8d 3c f4 4c 89 f8 48 c1 e8 03 <80> 3c 18 00 74 08 4c 89 ff e8 92 ba e3 fb 49 83 3f 00 74 0a e8 17
+RSP: 0018:ffffc90000126f80 EFLAGS: 00010202
+RAX: 0000000000000002 RBX: dffffc0000000000 RCX: dffffc0000000000
+RDX: 0000000000000001 RSI: 0000000000000004 RDI: ffffc90000126f00
+RBP: ffffc900001270b0 R08: 0000000000000003 R09: 0000000000000004
+R10: dffffc0000000000 R11: fffff52000024de0 R12: 0000000000000010
+R13: ffff8881730b6a48 R14: 0000000000000000 R15: 0000000000000010
+FS:  0000000000000000(0000) GS:ffff8882a9f38000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000200000002280 CR3: 00000001bb189000 CR4: 0000000000352ef0
+----------------
+Code disassembly (best guess), 5 bytes skipped:
+   0:	df 48 89             	fisttps -0x77(%rax)
+   3:	44 24 50             	rex.R and $0x50,%al
+   6:	0f b6 04 18          	movzbl (%rax,%rbx,1),%eax
+   a:	84 c0                	test   %al,%al
+   c:	0f 85 1f 07 00 00    	jne    0x731
+  12:	4c 89 7c 24 30       	mov    %r15,0x30(%rsp)
+  17:	4d 63 37             	movslq (%r15),%r14
+  1a:	4f 8d 3c f4          	lea    (%r12,%r14,8),%r15
+  1e:	4c 89 f8             	mov    %r15,%rax
+  21:	48 c1 e8 03          	shr    $0x3,%rax
+* 25:	80 3c 18 00          	cmpb   $0x0,(%rax,%rbx,1) <-- trapping instruction
+  29:	74 08                	je     0x33
+  2b:	4c 89 ff             	mov    %r15,%rdi
+  2e:	e8 92 ba e3 fb       	call   0xfbe3bac5
+  33:	49 83 3f 00          	cmpq   $0x0,(%r15)
+  37:	74 0a                	je     0x43
+  39:	e8                   	.byte 0xe8
+  3a:	17                   	(bad)
+
+
+***
+
+If these findings have caused you to resend the series or submit a
+separate fix, please add the following tag to your commit message:
+  Tested-by: syzbot@syzkaller.appspotmail.com
+
 ---
- drivers/nvdimm/nd_virtio.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-index c3f07be4aa2..e6ec7ceee9b 100644
---- a/drivers/nvdimm/nd_virtio.c
-+++ b/drivers/nvdimm/nd_virtio.c
-@@ -122,8 +122,7 @@ int async_pmem_flush(struct nd_region *nd_region, struct bio *bio)
- 			return -ENOMEM;
- 		bio_clone_blkg_association(child, bio);
- 		child->bi_iter.bi_sector = -1;
--		bio_chain(child, bio);
--		submit_bio(child);
-+		bio_chain_and_submit(child, bio);
- 		return 0;
- 	}
- 	if (virtio_pmem_flush(nd_region))
--- 
-2.34.1
-
+This report is generated by a bot. It may contain errors.
+syzbot ci engineers can be reached at syzkaller@googlegroups.com.
