@@ -1,158 +1,117 @@
-Received: from flow-b5-smtp.messagingengine.com (flow-b5-smtp.messagingengine.com [202.12.124.140])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECD022472A8;
-	Fri, 21 Nov 2025 16:25:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE85B2853E0
+	for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 17:12:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763742302; cv=none; b=sUe4G6NfXMc+XHW9mkQHroLHCEu1neXUqxX7PjdcNMV5tMyhuiVMrRaQTYSXtOF+L60zxf8LlFHl13VtbFtNTrNRwCA0Nu/GC9usBq40ANY7lYnx2WMYCWKeBtg8a81FijyUlFh2VbZn37QeZm8fyQQKF1lmdAaaVEr5rrjR8ng=
+	t=1763745164; cv=none; b=svyOOr2AArNz/4A/VOfG1DgWqcwIyphCIvdyJbN1PnF+jCWGnH/mhAUDcZAHeGfXPsYyEI135iKcSy2341CBsp1qRRHuJYFNcrLxiiMUD6lKPlMBFKeOPBxyvYbY+L62g+Gahl7nejw7VyOKbfYpazWv6MXYNmidyD6ub7htlrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763742302; c=relaxed/simple;
-	bh=SdYsw9st/+l8JphNLMH1fyQFn6guxm5fwhNzzhf6DQs=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Y/1asWyWpTZ3zJXRjIWaGKSEugjpkZnx86QPXgo0A6kCLjNtbsHgTI6Z0YnEX2QtVMEfLlSuJuefcoL3yqdkYI63bARwSOk0qANMIrSec2QIz+ZbTRtonZAbqLXcq4wmSEQTH0CBRFntiYXPcp0+xrJWbZ5GtjjK7N6B6zzl6Mg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=QfORGo7L; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=T4odQl0b; arc=none smtp.client-ip=202.12.124.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1763745164; c=relaxed/simple;
+	bh=4knX7UdpV5PqcFPGudPF/uxcuJbYSUmyGMDEJIBJ6aQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=M47End10PyHYeZgOgCiScszUXOpe9rbxWnRQ6xNmGPIxa5fYvS5p5sj4PeEU2gE1+qczfFNsNClNf+5f/+FgoYLiX6LgpoNoqLhZbtJsyJTpdkTMkNPhVRpDuU7oBZwvVGHp0RRVKpWrQo4LDNgbc/jUYVStB/LT4jJ4Zow9JPE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KtU+lgK2; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="QfORGo7L";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="T4odQl0b"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailflow.stl.internal (Postfix) with ESMTP id 44EFF13001EC;
-	Fri, 21 Nov 2025 11:24:59 -0500 (EST)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Fri, 21 Nov 2025 11:25:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1763742299;
-	 x=1763749499; bh=R8sbORNrVfeWd8nr6oD3a9uPzFLZbbObLNNt4scEFDk=; b=
-	QfORGo7LJM8uEqBQDQc0oWVqW7+t5I6EY95ZPkE+x9Jo975GuvpOefibl+kBo25c
-	qaUuG8Vut1p0uEtUZkr7lA5AOCAp3PNgjRyUaZHGyhch2l4SDz8WKGkMb/61ZJpu
-	F73XHBoycxqWtaJ6AHkuSAq1jEuS7FoKxW7n+Kf4I+ngjAyqmEYu+OlaE5HWp/c/
-	A+xv6hZj8UFBNBEYChe7piYXdVwgUs2FVc11qOV3830fr0MaXRqQnEaMi/PRHs27
-	tTHzucon304+ApCu5nPwX5mOF3oPWd/6qkU770403D7KaHRZ+QKeLRX2AUVtqDRO
-	xJ3glbfdgIfKkYsFTPjpsA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1763742299; x=
-	1763749499; bh=R8sbORNrVfeWd8nr6oD3a9uPzFLZbbObLNNt4scEFDk=; b=T
-	4odQl0bbYP0fapPyPtcd1y0iotE3USAh1c+743hsO8cgd1nVNiI9hOwuiL2YWO8s
-	dt4WV1/vhace+UXSKbFCojCHTduC6rxMN6r8q9/9MGA4w1fcujSVXxVLSf6iopRq
-	qPZtSHDX8MCUdbh1D26v3tzWcQ59GFK6vysvWURvM7di5s+yAwaBpRmyx1WvQxrO
-	q2Sh5r9qVcvKCYZmzMgBFZ+s52IMtxjsypSXG4zccV8xW+hnyiM8Z2fF5HHrQ4yL
-	cPIJLyVWH78JBDAcAHMuFZRdVBOmmeLp2jKCjOGu/VLdgX7/ndkrnxB8vrz6fSI3
-	ZN4sb60lU2sHD/yRZQvCA==
-X-ME-Sender: <xms:WpIgadyHQYiFK5J1UwmSjK0GJR7opTygUEzQ0jyFX4RcWI_9JhFmNA>
-    <xme:WpIgaWdWgxw7eAZ1AKDk_gmYq6UdqGQY5BUwUJOcNd9vWj5_ir-rnYvgbwncxVTu9
-    E5PHF1lql_eZM7CCyhmXS62aU9yZKXHvuzDIjjQ86utWWhE9xu2>
-X-ME-Received: <xmr:WpIgabmGbbk-eU8MWhQtBvGU_k0QEl4vXMnpFd_XMBnJlpL8jIHdpwOn>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvfedtgeefucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucfrhhhishhhihhnghdqkffkrfgprhhtucdliedtjedmne
-    cujfgurhepfffhvfevuffkjghfgggtgfesthejredttddtvdenucfhrhhomheptehlvgig
-    ucghihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrf
-    grthhtvghrnhepgeevkeeiveeuheegkeetveefgfeggeejjeelvdffueelhffgleevteeg
-    fffgvefgnecuffhomhgrihhnpehgihhthhhusgdrtghomhdpmhhsghhiugdrlhhinhhkne
-    cuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghlvgig
-    sehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopeegtddpmhhouggvpehsmhhtph
-    houhhtpdhrtghpthhtohepjhhgghesnhhvihguihgrrdgtohhmpdhrtghpthhtoheprghg
-    ohhruggvvghvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheprghirhhlihgvug
-    esghhmrghilhdrtghomhdprhgtphhtthhopegrlhgvgidrfihilhhlihgrmhhsohhnsehr
-    vgguhhgrthdrtghomhdprhgtphhtthhopegrnhhkihhtrgesnhhvihguihgrrdgtohhmpd
-    hrtghpthhtohepsghorhhnthhrrggvghgvrheslhhinhhugidrihgsmhdrtghomhdprhgt
-    phhtthhopegsrhgvthhtrdgtrhgvvghlvgihsegrmhgurdgtohhmpdhrtghpthhtohepug
-    hrihdquggvvhgvlheslhhishhtshdrfhhrvggvuggvshhkthhophdrohhrghdprhgtphht
-    thhopegvrhhitgdrrghughgvrhesrhgvughhrghtrdgtohhm
-X-ME-Proxy: <xmx:WpIgaVSVoAoaVhiB9T_6MLhuMBKqbn0hkCI-zBmTpLtMUOP5VxfGGg>
-    <xmx:WpIgaadDKBxoz-K4UcMaIitoiVRYj3Kmw1p7S2niF93gJ_B26Jlbdg>
-    <xmx:WpIgaS3MkMqS7XZkgy6uqV0n9XlkDWGdRVO8bqJ9f5UZzVmE8x3PDw>
-    <xmx:WpIgabLsTdugGzrlPzP9TH7xEs2DCneALzQq3Px0YtbKmdkBLHZeMA>
-    <xmx:W5IgaWKNIJO5tlrjxf8bMjbc8KZW3xpbSFxkSWwtvqPDaZRY8aJbGsLb>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 21 Nov 2025 11:24:54 -0500 (EST)
-Date: Fri, 21 Nov 2025 09:24:53 -0700
-From: Alex Williamson <alex@shazbot.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
- David Airlie <airlied@gmail.com>,
- Alex Williamson <alex.williamson@redhat.com>,
- Ankit Agrawal <ankita@nvidia.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Brett Creeley <brett.creeley@amd.com>, dri-devel@lists.freedesktop.org,
- Eric Auger <eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>,
- Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- intel-gfx@lists.freedesktop.org,
- Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, kvm@vger.kernel.org,
- Kirti Wankhede <kwankhede@nvidia.com>, linux-s390@vger.kernel.org,
- Longfang Liu <liulongfang@huawei.com>,
- Matthew Rosato <mjrosato@linux.ibm.com>,
- Nikhil Agarwal <nikhil.agarwal@amd.com>,
- Nipun Gupta <nipun.gupta@amd.com>,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- Halil Pasic <pasic@linux.ibm.com>, qat-linux@intel.com,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
- Shameer Kolothum <skolothumtho@nvidia.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
- Vineeth Vijayan <vneethv@linux.ibm.com>,
- Yishai Hadas <yishaih@nvidia.com>, Zhenyu Wang <zhenyuw.linux@gmail.com>,
- Zhi Wang <zhi.wang.linux@gmail.com>, Kevin Tian <kevin.tian@intel.com>,
- patches@lists.linux.dev, Pranjal Shrivastava <praan@google.com>,
- Mostafa Saleh <smostafa@google.com>
-Subject: Re: [PATCH v2 00/22] vfio: Give VFIO_DEVICE_GET_REGION_INFO its own
- op
-Message-ID: <20251121092453.6f151e0b.alex@shazbot.org>
-In-Reply-To: <0-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
-References: <0-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KtU+lgK2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763745161;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=FRU2qLfbf/wNhvSHqqWH92nPqYewb6NVEbhZtNPwvUI=;
+	b=KtU+lgK2JIHMhPTnrlcOFEvNZOemC2MZ+MBg6YGZ0FsIITfucxfh+HT6XJrrawsv1znYv8
+	8cCPXHuEoLP3fR1+vNR92maYNl05b8qtORwInLRObCAalvA3ozGOosyIgHbQyPfYy//gIw
+	2d7bJcupW+eFpa+PBI+Pq4nWOoPxKF0=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-665-Yi7RdWf2MEiugxiS8jqLMA-1; Fri, 21 Nov 2025 12:12:40 -0500
+X-MC-Unique: Yi7RdWf2MEiugxiS8jqLMA-1
+X-Mimecast-MFC-AGG-ID: Yi7RdWf2MEiugxiS8jqLMA_1763745160
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-78a82709389so25094767b3.0
+        for <virtualization@lists.linux.dev>; Fri, 21 Nov 2025 09:12:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763745160; x=1764349960;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=FRU2qLfbf/wNhvSHqqWH92nPqYewb6NVEbhZtNPwvUI=;
+        b=CpeN0yjv0rRTXaFwtezwVaTUqt0XAk+Ac8JBDsxBncY3FzG73oSfH+gEUGCL3lWOMg
+         Z39xzrQgfiOcaIQXlhp3cHVmAzlUBjxLETx3r/McerUoUg+zT/D8f84AvB/EPdhbDdpB
+         prNrDvXkesSx43Wk2j9h3olA1n4pzPnMKf0oynHslRLIsnBzeLzDdikt4dzjqQKQF3od
+         hvtl1eSYoGfpb6aK8BAzzhZIMIMEt8EMhHX1nT23QfsKfJAbeACkg/7NVAhRgjiUi7ue
+         //UqbPhD0u90b572ay4bl1jZsOWveer2vD1/xszC4elkuDc3RNBdp8pLLNPXedpY9kvW
+         djMA==
+X-Forwarded-Encrypted: i=1; AJvYcCWfOOXuDU9pi1BCd5fdcz/Xhx3wObWgur84LZCDcxjxl0eZgtq6WfheCld2gcSGM4vC95DnSbagd6aBp8P85Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzTm57dhMu/jkCp9X5tma+3izmT2Ijuaf3xBsXO3UleG/yBLdu3
+	tb86xDol9FsPl/bff4jJrtIwb9bWbeL/uNcMX1bTkEPXSLxbU+JhBVsOGL4YFp2CwFsMdYoWEDn
+	mL9J9tZ7R+0reyhnKb9YTIABfyVTEN0Op5lfRGqTWG+lNKmANXp8Aw9UiNvDss6Npt14XGSQcQj
+	uhJ9mLhac1e5IkGnWyWGkiCT3Ajvy43orjWn6wH5wOlpI=
+X-Gm-Gg: ASbGncu38EfGor7uHtXNkzRPQElv2UT+rIi0vFR4tQcKrYUqUB0OoTWoTynUvpawQgK
+	wkv4TzD5EbhxAjZo+uxYu9OwR0YoZCQpGM7Ee3CourdPtx6RI0FNHWm3XKPDZiXAWDikf+vWqb5
+	gc1nvuXz6MhngU96K4MZN2L3PRlCPoL96C0LUP70cnZjPeFDOH2wNa1uy64zcJpTi/
+X-Received: by 2002:a05:690c:4c09:b0:787:bf16:d489 with SMTP id 00721157ae682-78a8b5681a0mr24167057b3.62.1763745160077;
+        Fri, 21 Nov 2025 09:12:40 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFJMtLvkeHiv5tBcVk8Zunn6fcLBfbMFj2OlEQ7sDWssH1e01yWoO2IMY4KicgI4AI0qMGjQLfshccde2mHq/o=
+X-Received: by 2002:a05:690c:4c09:b0:787:bf16:d489 with SMTP id
+ 00721157ae682-78a8b5681a0mr24166847b3.62.1763745159764; Fri, 21 Nov 2025
+ 09:12:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20251121081748.1443507-1-zhangshida@kylinos.cn> <20251121081748.1443507-3-zhangshida@kylinos.cn>
+In-Reply-To: <20251121081748.1443507-3-zhangshida@kylinos.cn>
+From: Andreas Gruenbacher <agruenba@redhat.com>
+Date: Fri, 21 Nov 2025 18:12:28 +0100
+X-Gm-Features: AWmQ_bnhlFe4bz2evbPrSI0Jb0EHnrWDpAVAemzJqi8jgCPnPPGI5CuseKDcbLY
+Message-ID: <CAHc6FU7eL6Xuoc5dYjm9pYLr=akDH6ETow_yNPR0JpLGcz8QWw@mail.gmail.com>
+Subject: Re: [PATCH 2/9] block: export bio_chain_and_submit
+To: zhangshida <starzhangzsd@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, 
+	nvdimm@lists.linux.dev, virtualization@lists.linux.dev, 
+	linux-nvme@lists.infradead.org, gfs2@lists.linux.dev, ntfs3@lists.linux.dev, 
+	linux-xfs@vger.kernel.org, zhangshida@kylinos.cn
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 2aA0c9GkyjNnT8hozrlcJ11iVgKYIGzMtXUTMGSdMjo_1763745160
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri,  7 Nov 2025 13:41:16 -0400
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+On Fri, Nov 21, 2025 at 9:27=E2=80=AFAM zhangshida <starzhangzsd@gmail.com>=
+ wrote:
+> From: Shida Zhang <zhangshida@kylinos.cn>
+>
+> Signed-off-by: Shida Zhang <zhangshida@kylinos.cn>
+> ---
+>  block/bio.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/block/bio.c b/block/bio.c
+> index 55c2c1a0020..a6912aa8d69 100644
+> --- a/block/bio.c
+> +++ b/block/bio.c
+> @@ -363,6 +363,7 @@ struct bio *bio_chain_and_submit(struct bio *prev, st=
+ruct bio *new)
+>         }
+>         return new;
+>  }
+> +EXPORT_SYMBOL_GPL(bio_chain_and_submit);
+>
+>  struct bio *blk_next_bio(struct bio *bio, struct block_device *bdev,
+>                 unsigned int nr_pages, blk_opf_t opf, gfp_t gfp)
+> --
+> 2.34.1
 
-> There is alot of duplicated code in the drivers for processing
-> VFIO_DEVICE_GET_REGION_INFO. Introduce a new op get_region_info_caps()
-> which provides a struct vfio_info_cap and handles the cap chain logic
-> to write the caps back to userspace and remove all of this duplication
-> from drivers.
-> 
-> This is done in two steps, the first is a largely mechanical introduction
-> of the get_region_info(). These patches are best viewed with the diff
-> option to ignore whitespace (-b) as most of the lines are re-indending
-> things.
-> 
-> Then drivers are updated to remove the duplicate cap related code. Some
-> drivers are converted to use vfio_info_add_capability() instead of open
-> coding a version of it.
-> 
-> This is on github: https://github.com/jgunthorpe/linux/commits/vfio_get_region_info_op
-> 
-> v2:
->  - Rename
->     hisi_acc_vfio_get_region -> hisi_acc_vfio_ioctl_get_region
->     vfio_fsl_mc_get_region_info -> vfio_fsl_mc_ioctl_get_region_info
->     intel_vgpu_get_region_info -> intel_vgpu_ioctl_get_region_info
->     mbochs_get_region_info -> mbochs_ioctl_get_region_info
->     intel_vgpu_get_region_info -> intel_vgpu_ioctl_get_region_info
->     vfio_ccw_mdev_get_region_info -> vfio_ccw_mdev_ioctl_get_region_info
->     hisi_acc_vfio_get_region -> hisi_acc_vfio_ioctl_get_region
->     vfio_fsl_mc_get_region_info -> vfio_fsl_mc_ioctl_get_region_info
->  - Consistently free caps.buf in vfio_get_region_info()
-> v1: https://patch.msgid.link/r/0-v1-679a6fa27d31+209-vfio_get_region_info_op_jgg@nvidia.com
+Can this and the following patches please go in a separate patch
+queue? It's got nothing to do with the bug.
 
-Applied to vfio next branch for v6.19.  Thanks,
+Thanks,
+Andreas
 
-Alex
