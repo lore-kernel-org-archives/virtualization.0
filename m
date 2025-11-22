@@ -1,177 +1,387 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD7DC279DC3
-	for <virtualization@lists.linux.dev>; Sat, 22 Nov 2025 12:01:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 690A62F1FDB
+	for <virtualization@lists.linux.dev>; Sat, 22 Nov 2025 12:05:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763812892; cv=none; b=kJ2HO6516l0LE0ii6H0Xq1XenENM0gXZOleWy0nOsB5mqGtH0tWcctEk8BaHO7kbs697RVF8epdbeY3xA7YvD5vohB+lk5o1bbp6IddWLUuQth7oXlg4ciJ/wxaUZmZAVk6ReJPRaFifghM3pQ4ogJF337Fdbwemi0q4N6t3fOM=
+	t=1763813123; cv=none; b=haB4ZXde/2XBnRgOjLb5vSvaFMtrHkMr774vu1TmE4P+M892xVNGkagiaCm81ToYinz5H4Qz0TuOTden/8xeOpnJHTE5RuBG2g1/ZVLCjAugUKkoW3J7wK4AgC4pBaGj2U5RVHKTGE6xVlKf2EigNLCx5a2bRcNjj2KnogkspzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763812892; c=relaxed/simple;
-	bh=4nWgX9ww33bsVkN80fxqeJv7BBG+H91O9D+0SVq5PiQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q39oTxJV3tIblGgKhEWm1gLGtDAHyewsmdMgMZkWp7zDqKxc3q2TiEmCcLa5myfRZWM7cBXqbiqcyFx0tiyoTcWMVVxU1si0pqn2BaYbscZkxLuRkVebkT3lt7uQb5Kjr1lU9zgUZ84fErNrWPdd80czEEG0VarVdnifaA9BEMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Kd4dLs2t; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763813123; c=relaxed/simple;
+	bh=uXGvMROAHpshYmghRoQmWEyc2actGmT3hsXg3x67nQk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LQsBviqwN79ZIcfbEUb0RcZ0ngQA2Zi5NPPxMJGENplqEvRxe4sfdusNQ0hTDShmW/dbgMRKeCq7oyl6MH98Ve0urJfI4yfFJ7314pCTAfCKItfgQI1jlwFcV3IG991z/6dnKEmToY33QTOUlIgznE9dnpL76eIveP8jck1KAIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=QRMmlt5X; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=b/+589X4; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Kd4dLs2t"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763812889;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JuZK2beRgEq+MC2I+vh3JTOKDyroWbZXDvE+0QrmUyk=;
-	b=Kd4dLs2tgmiYO8Y+Z48xHQ43qIz9qULKW57xbA5m2Wj2plwk+nyEf1j4RkOWXahL56KU2b
-	94eT5JjxUGOMlMa81brHxzXWkzVK4oHH4uT+dVgZybKnAQG7wMiPBrSu6GrsmrkF8O/PIo
-	v6yXLC+0kuJYVSQMGKq4a502TJQ20uo=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-653-VC8oek4GOGiDUqoXurM1bg-1; Sat,
- 22 Nov 2025 07:01:26 -0500
-X-MC-Unique: VC8oek4GOGiDUqoXurM1bg-1
-X-Mimecast-MFC-AGG-ID: VC8oek4GOGiDUqoXurM1bg_1763812885
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 28B171956080;
-	Sat, 22 Nov 2025 12:01:24 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.33])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 873C01940E82;
-	Sat, 22 Nov 2025 12:01:14 +0000 (UTC)
-Date: Sat, 22 Nov 2025 20:01:08 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Stephen Zhang <starzhangzsd@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-	nvdimm@lists.linux.dev, virtualization@lists.linux.dev,
-	linux-nvme@lists.infradead.org, gfs2@lists.linux.dev,
-	ntfs3@lists.linux.dev, linux-xfs@vger.kernel.org,
-	zhangshida@kylinos.cn
-Subject: Re: Fix potential data loss and corruption due to Incorrect BIO
- Chain Handling
-Message-ID: <aSGmBAP0BA_2D3Po@fedora>
-References: <20251121081748.1443507-1-zhangshida@kylinos.cn>
- <aSEvg8z9qxSwJmZn@fedora>
- <CANubcdULTQo5jF7hGSWFqXw6v5DhEg=316iFNipMbsyz64aneg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="QRMmlt5X";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="b/+589X4"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5AM5IB0d1883044
+	for <virtualization@lists.linux.dev>; Sat, 22 Nov 2025 12:05:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	IMWEgHg+/7nPckwM6kiC7O9uDBWsoXKWRxhmJGNuWpI=; b=QRMmlt5XghFkwSc2
+	0Tibg8ewJujZRoG9+z9cygSPVAIK9qf6JWgJ2HDYA1f5n8diMxpz2zk1RL4nojIq
+	K5T/VkWgCo8aH/16Zc/6NjDc+vZtLamvPJ9toN4+0AtUrHDh7h2ZV4JBRecfiZPJ
+	AvhqOixDAqY2PompXPiy5vEiyEg8Bdhwc07GLFRf31XNNDSt83K9VdwDKcmOHumi
+	8R6WNZNKXjCfY874Rr0iy1ipuRjfOe8/hAl2ZQSGSZ4C2PHBcXHDNCoNaCZMhcHQ
+	rxB2PbOwziyiooww3wtPF4OeePG+QJnk9S+qsMPAPrHKDZbccqbXpCYrZfZxH98S
+	pDcv7w==
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com [209.85.214.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ak6a50mgf-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Sat, 22 Nov 2025 12:05:19 +0000 (GMT)
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-297d50cd8c4so95864415ad.0
+        for <virtualization@lists.linux.dev>; Sat, 22 Nov 2025 04:05:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1763813119; x=1764417919; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=IMWEgHg+/7nPckwM6kiC7O9uDBWsoXKWRxhmJGNuWpI=;
+        b=b/+589X4IjqjrKTHO2GVVuuZFAeMAKvYZW0YievUVCwAuRpfuS27qZ5Si8+QNUAZQ8
+         5GGzBeNfKqGFtQ3Kd6q0K2hV5hk6iVgTrrXjadyMh7g9dWvnyWhh79aE6wfBRJM98ZeD
+         nU1T3ZKwT4JE5cVU42/G0DLsB/uRvclGx/TsM7srlcAAmiU6wevSxzoi4EQXDA/x4K7d
+         2euhIMU58HEtOZkzXsMZCGXjgj/S4U8slRDGk5butr0hYfPVM5ajAzvnTEVLHkCVMyTf
+         xLO6vkwQckQ2SyhQySbgycCCRzj+pkeIyIUp0CbH/cwEW7YbNDxjdBPSEzWIiXJdT6HV
+         ihug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763813119; x=1764417919;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=IMWEgHg+/7nPckwM6kiC7O9uDBWsoXKWRxhmJGNuWpI=;
+        b=sJ7eHt+4vQi49wg7UYCyjudaqMiARMPhM4CJqi1xlX5bGM9ytGM6y8DNBhhDO1Qj6y
+         78Qrls+dmoG8Hv95pTZ7s2UcfjUONeLPMya/eA4K2psfI/fWilh7lLehAob2RATSJymW
+         ES9LINUjD2AZONUo2rJLNLhPxokJntEkFNDe/4pdmXh8HhbOf1G4RUaY8LJi/sEkV8q5
+         MoOOSH+7sG0EF+0b5aU1t8hOe3c6uWTofDkvnEzgrvLziqcscGWPChFG4T4OhwpwcO+/
+         axJ5acM9CPs74qOsDqLF1oMxXKlPeD8xV685bcLBzKaVcM10P6drL+zVb7OkAODhSrjm
+         /EIQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWnMiS+GecQOhybxmNALawipf4276BKb7m/y4hXquGTJARuiqGz+TGXg+9fuEKnwPFPVJZmG3t1Ua/d7NZ+aA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzIKUVOK9/7i4ZbU7C8FN0krtYdn0ruY2AZstCVRGtAId7WOSa/
+	tDnvKSMtEwsXtMOz4thDUOJeGkA/ql3WMFi+sIlx3UEfBw/DsH6srR2S78xK75J7ZJWMyVDIqRb
+	3htoCLDUzkhnPoAcM0+PejPwlqBwL+J+A/cY77njVwQleFlejivyrkzlTMfUo87i9TxnRcA==
+X-Gm-Gg: ASbGnctXwqBHxNQlZTiSdHmxtvpOXdJkW7i4Hvdi8BWQlhbJywBh37SzXRyqPIouVMj
+	ZvENSbANT2DWJG8JYxsnsmrxiKMc0ls9zs3lNCGdZ7o2+d8Dd3vHoicsf1NXhWQ6Xa0xwr6HUpF
+	ca8gEqFIF06w52NIldYW2pp1PPBx+bz9K7C11WnUyR43m72ySuADCPBp/P5Lx4kdMxaLka1sIBz
+	WbqkZlysEhO17lT+aqX80zuQCp4F69YNjEQJl5pNVqjrdmoC5Gfdj5ApTx9EFie90odrR22lSyI
+	U3vU7vpKJUc7zbQjQyZ/mYhhF5J8zdXyMAa+NaP2p0Ybwn6aG+OUR6CYiCYBR6BqgKbrMBXPWA1
+	7Ak2z4ttRde/ZdfDHjZC2jythaKbr01Jud7Th8DNRIhydGXZZqcidhJAYxnvJUPnX9asCphU18H
+	uvHfsMDQ==
+X-Received: by 2002:a17:902:ce05:b0:298:6a9b:238b with SMTP id d9443c01a7336-29b6bf5d1f9mr53407055ad.51.1763813118586;
+        Sat, 22 Nov 2025 04:05:18 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEh7a4t8X5LiwBFrOGGuWCgNkjbWSu6rXohSgNewzmCoDcX1pSM4YDCYw1lbt4dDWSyc/4t0A==
+X-Received: by 2002:a17:902:ce05:b0:298:6a9b:238b with SMTP id d9443c01a7336-29b6bf5d1f9mr53406925ad.51.1763813118076;
+        Sat, 22 Nov 2025 04:05:18 -0800 (PST)
+Received: from [10.133.33.231] (tpe-colo-wan-fw-bordernet.qualcomm.com. [103.229.16.4])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29b5b26fff4sm84712425ad.68.2025.11.22.04.05.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 22 Nov 2025 04:05:17 -0800 (PST)
+Message-ID: <11280877-95f0-4361-9112-23bb17372e91@oss.qualcomm.com>
+Date: Sat, 22 Nov 2025 20:05:12 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANubcdULTQo5jF7hGSWFqXw6v5DhEg=316iFNipMbsyz64aneg@mail.gmail.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 2/2] rpmsg: virtio_rpmsg_bus: get buffer size from
+ config space
+To: Tanmay Shah <tanmay.shah@amd.com>, andersson@kernel.org,
+        mathieu.poirier@linaro.org, mst@redhat.com, jasowang@redhat.com,
+        xuanzhuo@linux.alibaba.com, eperezma@redhat.com
+Cc: linux-kernel@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        virtualization@lists.linux.dev, xiaoxiang@xiaomi.com,
+        Xiang Xiao <xiaoxiang781216@gmail.com>, zhongqiu.han@oss.qualcomm.com,
+        arnaud.pouliquen@foss.st.com
+References: <20251114184640.3020427-1-tanmay.shah@amd.com>
+ <20251114184640.3020427-3-tanmay.shah@amd.com>
+Content-Language: en-US
+From: Zhongqiu Han <zhongqiu.han@oss.qualcomm.com>
+In-Reply-To: <20251114184640.3020427-3-tanmay.shah@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authority-Analysis: v=2.4 cv=Hup72kTS c=1 sm=1 tr=0 ts=6921a700 cx=c_pps
+ a=cmESyDAEBpBGqyK7t0alAg==:117 a=nuhDOHQX5FNHPW3J6Bj6AA==:17
+ a=IkcTkHD0fZMA:10 a=6UeiqGixMTsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=pGLkceISAAAA:8 a=IeNN-m2dAAAA:8 a=zd2uoN0lAAAA:8
+ a=j2MSVUfDAAAA:8 a=85zCUTaWTTiqXNVO5SsA:9 a=QEXdDO2ut3YA:10
+ a=1OuFwYUASf3TG4hYMiVC:22 a=9a3gGlFUS2ax-cngMeOV:22
+X-Proofpoint-GUID: E8iRpN_CNyniZXT6pvLuL-rKc-ulgJD4
+X-Proofpoint-ORIG-GUID: E8iRpN_CNyniZXT6pvLuL-rKc-ulgJD4
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTIyMDA5OCBTYWx0ZWRfX2p/8ftHgwDAx
+ Fbxgcmt+gqsOh/uqM/VTxIL9C/ZOVZr8PJF0fnfpnlizxZ4h5nQCn+uJt7DUOoJGzuG7vJO5Avd
+ p5Xn0RpVZDWk5+FCBqgd5BEs0ng3AUqwznWS6hqcBHYL/VHAwphYmKaPx7bYHHdSmcg7PD+wHvH
+ 62XyTdaYBxBNr0hB5VRW+VXqsS+VbqD/47UWxBFOhnzTKf8fFEtaAB2wA2DAn0ymdQ/UcGUz4ns
+ 2qj6BX9gr3nDSUdcIq+Vt7PMiVI39leSdpz9eCqUTUGkVySnJLchksyzQnuEWwStdYYvyjSjfo8
+ soPKC3UTH9jygUVkGpXq+a27pqdYGLOJ2e8RUnmtuohMEeiF3ahGFJcEENtCI7qW/YHDfZkwLK7
+ p1v1XTiKf+FLGL3dq/q6hs8Y02fBYw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-11-22_04,2025-11-21_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 suspectscore=0 bulkscore=0 adultscore=0 priorityscore=1501
+ impostorscore=0 phishscore=0 spamscore=0 clxscore=1011 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2510240001 definitions=main-2511220098
 
-On Sat, Nov 22, 2025 at 02:42:43PM +0800, Stephen Zhang wrote:
-> Ming Lei <ming.lei@redhat.com> 于2025年11月22日周六 11:35写道：
-> >
-> > On Fri, Nov 21, 2025 at 04:17:39PM +0800, zhangshida wrote:
-> > > From: Shida Zhang <zhangshida@kylinos.cn>
-> > >
-> > > Hello everyone,
-> > >
-> > > We have recently encountered a severe data loss issue on kernel version 4.19,
-> > > and we suspect the same underlying problem may exist in the latest kernel versions.
-> > >
-> > > Environment:
-> > > *   **Architecture:** arm64
-> > > *   **Page Size:** 64KB
-> > > *   **Filesystem:** XFS with a 4KB block size
-> > >
-> > > Scenario:
-> > > The issue occurs while running a MySQL instance where one thread appends data
-> > > to a log file, and a separate thread concurrently reads that file to perform
-> > > CRC checks on its contents.
-> > >
-> > > Problem Description:
-> > > Occasionally, the reading thread detects data corruption. Specifically, it finds
-> > > that stale data has been exposed in the middle of the file.
-> > >
-> > > We have captured four instances of this corruption in our production environment.
-> > > In each case, we observed a distinct pattern:
-> > >     The corruption starts at an offset that aligns with the beginning of an XFS extent.
-> > >     The corruption ends at an offset that is aligned to the system's `PAGE_SIZE` (64KB in our case).
-> > >
-> > > Corruption Instances:
-> > > 1.  Start:`0x73be000`, **End:** `0x73c0000` (Length: 8KB)
-> > > 2.  Start:`0x10791a000`, **End:** `0x107920000` (Length: 24KB)
-> > > 3.  Start:`0x14535a000`, **End:** `0x145b70000` (Length: 8280KB)
-> > > 4.  Start:`0x370d000`, **End:** `0x3710000` (Length: 12KB)
-> > >
-> > > After analysis, we believe the root cause is in the handling of chained bios, specifically
-> > > related to out-of-order io completion.
-> > >
-> > > Consider a bio chain where `bi_remaining` is decremented as each bio in the chain completes.
-> > > For example,
-> > > if a chain consists of three bios (bio1 -> bio2 -> bio3) with
-> > > bi_remaining count:
-> > > 1->2->2
-> >
-> > Right.
-> >
-> > > if the bio completes in the reverse order, there will be a problem.
-> > > if bio 3 completes first, it will become:
-> > > 1->2->1
-> >
-> > Yes.
-> >
-> > > then bio 2 completes:
-> > > 1->1->0
-> >
-> > No, it is supposed to be 1->1->1.
-> >
-> > When bio 1 completes, it will become 0->0->0
-> >
-> > bio3's `__bi_remaining` won't drop to zero until bio2's reaches
-> > zero, and bio2 won't be done until bio1 is ended.
-> >
-> > Please look at bio_endio():
-> >
-> > void bio_endio(struct bio *bio)
-> > {
-> > again:
-> >         if (!bio_remaining_done(bio))
-> >                 return;
-> >         ...
-> >         if (bio->bi_end_io == bio_chain_endio) {
-> >                 bio = __bio_chain_endio(bio);
-> >         goto again;
-> >         }
-> >         ...
-> > }
-> >
+On 11/15/2025 2:46 AM, Tanmay Shah wrote:
+> From: Xiang Xiao <xiaoxiang781216@gmail.com>
 > 
-> Exactly, bio_endio handle the process perfectly, but it seems to forget
-> to check if the very first  `__bi_remaining` drops to zero and proceeds to
-> the next bio:
-> -----
-> static struct bio *__bio_chain_endio(struct bio *bio)
-> {
->         struct bio *parent = bio->bi_private;
+> 512 bytes isn't always suitable for all case, let firmware
+> maker decide the best value from resource table.
+> enable by VIRTIO_RPMSG_F_BUFSZ feature bit.
 > 
->         if (bio->bi_status && !parent->bi_status)
->                 parent->bi_status = bio->bi_status;
->         bio_put(bio);
->         return parent;
-> }
+> Signed-off-by: Xiang Xiao <xiaoxiang@xiaomi.com>
+> Signed-off-by: Tanmay Shah <tanmay.shah@amd.com>
+> ---
+>   drivers/rpmsg/virtio_rpmsg_bus.c | 68 +++++++++++++++++++++++---------
+>   include/linux/virtio_rpmsg.h     | 24 +++++++++++
+>   2 files changed, 74 insertions(+), 18 deletions(-)
+>   create mode 100644 include/linux/virtio_rpmsg.h
 > 
-> static void bio_chain_endio(struct bio *bio)
-> {
->         bio_endio(__bio_chain_endio(bio));
-> }
+> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+> index cc26dfcc3e29..03dd5535880a 100644
+> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
+> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+> @@ -25,6 +25,7 @@
+>   #include <linux/sched.h>
+>   #include <linux/virtio.h>
+>   #include <linux/virtio_ids.h>
+> +#include <linux/virtio_rpmsg.h>
+>   #include <linux/virtio_config.h>
+>   #include <linux/wait.h>
+>   
+> @@ -39,7 +40,8 @@
+>    * @sbufs:	kernel address of tx buffers
+>    * @num_rbufs:	total number of buffers for rx
+>    * @num_sbufs:	total number of buffers for tx
+> - * @buf_size:	size of one rx or tx buffer
+> + * @rbuf_size:	size of one rx buffer
+> + * @sbuf_size:	size of one tx buffer
+>    * @last_sbuf:	index of last tx buffer used
+>    * @bufs_dma:	dma base addr of the buffers
+>    * @tx_lock:	protects svq, sbufs and sleepers, to allow concurrent senders.
+> @@ -60,7 +62,8 @@ struct virtproc_info {
+>   	void *rbufs, *sbufs;
+>   	unsigned int num_rbufs;
+>   	unsigned int num_sbufs;
+> -	unsigned int buf_size;
+> +	unsigned int rbuf_size;
+> +	unsigned int sbuf_size;
+>   	int last_sbuf;
+>   	dma_addr_t bufs_dma;
+>   	struct mutex tx_lock;
+> @@ -70,9 +73,6 @@ struct virtproc_info {
+>   	atomic_t sleepers;
+>   };
+>   
+> -/* The feature bitmap for virtio rpmsg */
+> -#define VIRTIO_RPMSG_F_NS	0 /* RP supports name service notifications */
+> -
+>   /**
+>    * struct rpmsg_hdr - common header for all rpmsg messages
+>    * @src: source address
+> @@ -130,7 +130,7 @@ struct virtio_rpmsg_channel {
+>    * processor.
+>    */
+>   #define MAX_RPMSG_NUM_BUFS	(256)
+> -#define MAX_RPMSG_BUF_SIZE	(512)
+> +#define DEFAULT_RPMSG_BUF_SIZE	(512)
+>   
+>   /*
+>    * Local addresses are dynamically allocated on-demand.
+> @@ -443,7 +443,7 @@ static void *get_a_tx_buf(struct virtproc_info *vrp)
+>   
+>   	/* either pick the next unused tx buffer */
+>   	if (vrp->last_sbuf < vrp->num_sbufs)
+> -		ret = vrp->sbufs + vrp->buf_size * vrp->last_sbuf++;
+> +		ret = vrp->sbufs + vrp->sbuf_size * vrp->last_sbuf++;
+>   	/* or recycle a used one */
+>   	else
+>   		ret = virtqueue_get_buf(vrp->svq, &len);
+> @@ -569,7 +569,7 @@ static int rpmsg_send_offchannel_raw(struct rpmsg_device *rpdev,
+>   	 * messaging), or to improve the buffer allocator, to support
+>   	 * variable-length buffer sizes.
+>   	 */
+> -	if (len > vrp->buf_size - sizeof(struct rpmsg_hdr)) {
+> +	if (len > vrp->sbuf_size - sizeof(struct rpmsg_hdr)) {
+>   		dev_err(dev, "message is too big (%d)\n", len);
+>   		return -EMSGSIZE;
+>   	}
+> @@ -680,7 +680,7 @@ static ssize_t virtio_rpmsg_get_mtu(struct rpmsg_endpoint *ept)
+>   	struct rpmsg_device *rpdev = ept->rpdev;
+>   	struct virtio_rpmsg_channel *vch = to_virtio_rpmsg_channel(rpdev);
+>   
+> -	return vch->vrp->buf_size - sizeof(struct rpmsg_hdr);
+> +	return vch->vrp->sbuf_size - sizeof(struct rpmsg_hdr);
+>   }
+>   
+>   static int rpmsg_recv_single(struct virtproc_info *vrp, struct device *dev,
+> @@ -706,7 +706,7 @@ static int rpmsg_recv_single(struct virtproc_info *vrp, struct device *dev,
+>   	 * We currently use fixed-sized buffers, so trivially sanitize
+>   	 * the reported payload length.
+>   	 */
+> -	if (len > vrp->buf_size ||
+> +	if (len > vrp->rbuf_size ||
+>   	    msg_len > (len - sizeof(struct rpmsg_hdr))) {
+>   		dev_warn(dev, "inbound msg too big: (%d, %d)\n", len, msg_len);
+>   		return -EINVAL;
+> @@ -739,7 +739,7 @@ static int rpmsg_recv_single(struct virtproc_info *vrp, struct device *dev,
+>   		dev_warn_ratelimited(dev, "msg received with no recipient\n");
+>   
+>   	/* publish the real size of the buffer */
+> -	rpmsg_sg_init(&sg, msg, vrp->buf_size);
+> +	rpmsg_sg_init(&sg, msg, vrp->rbuf_size);
+>   
+>   	/* add the buffer back to the remote processor's virtqueue */
+>   	err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, msg, GFP_KERNEL);
+> @@ -888,9 +888,39 @@ static int rpmsg_probe(struct virtio_device *vdev)
+>   	else
+>   		vrp->num_sbufs = MAX_RPMSG_NUM_BUFS;
+>   
+> -	vrp->buf_size = MAX_RPMSG_BUF_SIZE;
+> +	/*
+> +	 * If VIRTIO_RPMSG_F_BUFSZ feature is supported, then configure buf
+> +	 * size from virtio device config space from the resource table.
+> +	 * If the feature is not supported, then assign default buf size.
+> +	 */
+> +	if (virtio_has_feature(vdev, VIRTIO_RPMSG_F_BUFSZ)) {
+> +		/* note: virtio_rpmsg_config is defined from remote view */
+> +		virtio_cread(vdev, struct virtio_rpmsg_config,
+> +			     txbuf_size, &vrp->rbuf_size);
+> +		virtio_cread(vdev, struct virtio_rpmsg_config,
+> +			     rxbuf_size, &vrp->sbuf_size);
+> +
+> +		/* The buffers must hold rpmsg header atleast */
+> +		if (vrp->rbuf_size < sizeof(struct rpmsg_hdr) ||
+> +		    vrp->sbuf_size < sizeof(struct rpmsg_hdr)) {
 
-bio_chain_endio() never gets called really, which can be thought as `flag`,
-and it should have been defined as `WARN_ON_ONCE(1);` for not confusing people.
 
-So I don't think upstream kernel has the issue you described.
+Hello Tanmay,
+
+May I know if the omission of = here is to accommodate the ping/pong/ack
+scenarios? mtu will 0
 
 
-Thanks,
-Ming
+> +			dev_err(&vdev->dev,
+> +				"vdev config: rx buf sz = %d, tx buf sz = %d\n",
+> +				vrp->rbuf_size, vrp->sbuf_size);
+> +			err = -EINVAL;
+> +			goto vqs_del;
+> +		}
+> +
+> +		dev_dbg(&vdev->dev,
+> +			"vdev config: rx buf sz = 0x%x, tx buf sz = 0x%x\n",
+> +			vrp->rbuf_size, vrp->sbuf_size);
+> +	} else {
+> +		vrp->rbuf_size = DEFAULT_RPMSG_BUF_SIZE;
+> +		vrp->sbuf_size = DEFAULT_RPMSG_BUF_SIZE;
+> +	}
+>   
+> -	total_buf_space = (vrp->num_rbufs + vrp->num_sbufs) * vrp->buf_size;
+> +	total_buf_space = (vrp->num_rbufs * vrp->rbuf_size) +
+> +			  (vrp->num_sbufs * vrp->sbuf_size);
+> +	total_buf_space = ALIGN(total_buf_space, PAGE_SIZE);
+>   
+>   	/* allocate coherent memory for the buffers */
+>   	bufs_va = dma_alloc_coherent(vdev->dev.parent,
+> @@ -908,14 +938,14 @@ static int rpmsg_probe(struct virtio_device *vdev)
+>   	vrp->rbufs = bufs_va;
+>   
+>   	/* and second part is dedicated for TX */
+> -	vrp->sbufs = bufs_va + vrp->num_rbufs * vrp->buf_size;
+> +	vrp->sbufs = bufs_va + (vrp->num_rbufs * vrp->rbuf_size);
+>   
+>   	/* set up the receive buffers */
+>   	for (i = 0; i < vrp->num_rbufs; i++) {
+>   		struct scatterlist sg;
+> -		void *cpu_addr = vrp->rbufs + i * vrp->buf_size;
+> +		void *cpu_addr = vrp->rbufs + i * vrp->rbuf_size;
+>   
+> -		rpmsg_sg_init(&sg, cpu_addr, vrp->buf_size);
+> +		rpmsg_sg_init(&sg, cpu_addr, vrp->rbuf_size);
+>   
+>   		err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, cpu_addr,
+>   					  GFP_KERNEL);
+> @@ -1001,8 +1031,8 @@ static int rpmsg_remove_device(struct device *dev, void *data)
+>   static void rpmsg_remove(struct virtio_device *vdev)
+>   {
+>   	struct virtproc_info *vrp = vdev->priv;
+> -	unsigned int num_bufs = vrp->num_rbufs + vrp->num_sbufs;
+> -	size_t total_buf_space = num_bufs * vrp->buf_size;
+> +	size_t total_buf_space = (vrp->num_rbufs * vrp->rbuf_size) +
+> +				 (vrp->num_sbufs * vrp->sbuf_size);
+>   	int ret;
+>   
+>   	virtio_reset_device(vdev);
+> @@ -1015,6 +1045,7 @@ static void rpmsg_remove(struct virtio_device *vdev)
+>   
+>   	vdev->config->del_vqs(vrp->vdev);
+>   
+> +	total_buf_space = ALIGN(total_buf_space, PAGE_SIZE);
+>   	dma_free_coherent(vdev->dev.parent, total_buf_space,
+>   			  vrp->rbufs, vrp->bufs_dma);
+>   
+> @@ -1028,6 +1059,7 @@ static struct virtio_device_id id_table[] = {
+>   
+>   static unsigned int features[] = {
+>   	VIRTIO_RPMSG_F_NS,
+> +	VIRTIO_RPMSG_F_BUFSZ,
+>   };
+>   
+>   static struct virtio_driver virtio_ipc_driver = {
+> diff --git a/include/linux/virtio_rpmsg.h b/include/linux/virtio_rpmsg.h
+> new file mode 100644
+> index 000000000000..6406bc505383
+> --- /dev/null
+> +++ b/include/linux/virtio_rpmsg.h
+> @@ -0,0 +1,24 @@
+> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
 
+
+Echo Arnaud's comments. If it is intended for UAPI, please keep it in
+include/uapi/linux
+
+
+> +/*
+> + * Copyright (C) Pinecone Inc. 2019
+> + * Copyright (C) Xiang Xiao <xiaoxiang@pinecone.net>
+> + */
+> +
+> +#ifndef _LINUX_VIRTIO_RPMSG_H
+> +#define _LINUX_VIRTIO_RPMSG_H
+> +
+> +#include <linux/types.h>
+> +
+> +/* The feature bitmap for virtio rpmsg */
+> +#define VIRTIO_RPMSG_F_NS	0 /* RP supports name service notifications */
+> +#define VIRTIO_RPMSG_F_BUFSZ	2 /* RP get buffer size from config space */
+
+May I know why skip bit 1?
+
+
+> +
+> +struct virtio_rpmsg_config {
+> +	/* The tx/rx individual buffer size(if VIRTIO_RPMSG_F_BUFSZ) */
+> +	__u32 txbuf_size;
+> +	__u32 rxbuf_size;
+> +	__u32 reserved[14]; /* Reserve for the future use */
+
+Should we use __virtio32 instead of __u32 to avoid endianness issues?
+
+
+> +	/* Put the customize config here */
+> +} __attribute__((packed));
+> +
+> +#endif /* _LINUX_VIRTIO_RPMSG_H */
+
+
+-- 
+Thx and BRs,
+Zhongqiu Han
