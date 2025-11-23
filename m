@@ -1,102 +1,110 @@
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD87B280332
-	for <virtualization@lists.linux.dev>; Sun, 23 Nov 2025 17:58:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F093B1A8F97;
+	Sun, 23 Nov 2025 21:44:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763920692; cv=none; b=LNrOqD6Eh/mVRIvLRzNFqQIOYVWJTL+LWn4EtDNJWfIANu1u8+STm7weKXpT8Q7F4oFjclrf1Pt02KVSAkam14Fet9T5aqeIAnXtASx9RN5g407ciXvtwQ+riQVF6X9PpZYpYArf+ObxxgdFh7NU6eDyvrBWxWkIvpUrvpQ+DhA=
+	t=1763934273; cv=none; b=V/6JlUhnAq6NSe66YjrrChhkSuOZqmxxUCUJrO7yhbRkzHglRBLPOZkmW9JUC/wtp4kO7FShiJhywIhWHplb4AYDdnSqcDgbA/r8O1fB/wNBzo0uf8mrDNu2x8LmIo4sj6khLd3DyByevV/m9VsU2vpwNak7e5jm1r+U5RTFlDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763920692; c=relaxed/simple;
-	bh=IdrcSvJ1MGOPznQILO3f3sgw+rqgjbAlbWwbtIfCVl8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=slNmTSmDKNrehB7DzBESkk4trIsm9NjbDy0C3tygTnPXX0f+KjvSdzJWhSL03WoxpXTdPoB0pr7DClXUnuaYUzh71tJCQ/cG8uJs+cNrwrNvoYgjeXgrdwY+9DIdhk9buI8TCKDO3oXqOI39sRwJKXU4pMolFxDdSoY8DM7qOwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=MPam6zo7; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=c4+aEApF; arc=none smtp.client-ip=80.241.56.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1763934273; c=relaxed/simple;
+	bh=YnAqnVhefJQhHWyg4GDsHFfAzb/FVEajMMONO1WyS7g=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=PEItizjdGNKeZAAp/kzGf4U6uqb/aoJD4YxK6LtmZQbvL4Y+ibOKWfkZK605JVhldy5D6mMuednnMq8e9tu4a2XSIAcOiMcboEeeaFjsgjQiMjCcmX534fOKLB+4mOF0IPBjkM8SzzX2CoDqWFLsvYkoczT5VINoky7G/qKieck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=VWDrtqYF; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="MPam6zo7";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="c4+aEApF"
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [10.196.197.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4dDxWZ0LS2z9tsR;
-	Sun, 23 Nov 2025 18:58:02 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1763920682;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gseAWsYENWws/CLKiwf2oXz16cFfq2UYnVYd9WRaur8=;
-	b=MPam6zo7/qr6BMxc9OMQjL5Cglv8IqrzeYNjs45Yqj5WXXVHmpknUNiRLXVLbNURGoaHgt
-	jESGnxjPWnQv5Y84NzMgLEQM9w/n5/bQTJHz5+NWc2j4Wk3k7RyLbkgMxFmH+JbVgp7FJR
-	SZxyn6U0MUeeooHoqCEmjdpXXDn3mAHumdfDyUcXTASnr/tG8h6guBaSpw0mgKRxTIUYHf
-	7utC/NL+Y/iRNC0tFW9IrFKoAzuUgm1f8+dPqwyiZmgJYJZzWdobU2Yfl/t237FvUn2aZZ
-	Rhs8FMGf01pXsCqQTAEOzLr5SQ3KPzwzwi/jVLhNRDbfA0WtVH1aiLTmoqciag==
-From: Maurice Hieronymus <mhi@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1763920680;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gseAWsYENWws/CLKiwf2oXz16cFfq2UYnVYd9WRaur8=;
-	b=c4+aEApFS21CMWJ+YmxxXOkeNsWUeuetGiDarLoD3PKsIjMY1yOZQ2Hx16vkBVxQaGsP/Q
-	qFAdhDCZIi2wRODSiK+CptoO1d9cVwlCYIIjPAGeMW0/qxGZ67R+K2s9SEd/FBjgwrdzfU
-	NI/YSxoyBhqowiLtMe1Bmegt05bR3d1UtQ8PK6+/IdSduvcDWjQTkK1j+veQoXbD5hPXVI
-	ZjCgz975aMtPsSVY4/oZYSc8REpuH/jslgr3dQ5/YbnL3AJwZeB4noSsRCt+T+OJ6/3m4v
-	FKDvBmkn3BD+OftqIJfUO5iBHzOqH17lGdqVV13TtkvE2ZRpNr/RWEqwgwDpGQ==
-To: david@kernel.org,
-	mst@redhat.com,
-	jasowang@redhat.com
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Maurice Hieronymus <mhi@mailbox.org>
-Subject: [PATCH 1/2] virtio-balloon: Destroy mutex before freeing virtio_balloon
-Date: Sun, 23 Nov 2025 18:57:48 +0100
-Message-ID: <20251123175750.445461-2-mhi@mailbox.org>
-In-Reply-To: <20251123175750.445461-1-mhi@mailbox.org>
-References: <20251123175750.445461-1-mhi@mailbox.org>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="VWDrtqYF"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1vNHsf-001NcD-LY; Sun, 23 Nov 2025 22:44:25 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector1; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Subject:Date:From;
+	bh=V9XciyjlPqOIODNDKT7LjWupfpjUN2cRjyKec+JBlfM=; b=VWDrtqYFUqaINJQB8CERFZ+0oQ
+	z/z/3QgZKEvH4nvQDP+0znA97SeCwshuFbgbxWouvEGXjFseVqH8BmcghuONbD8lf6MnO0sug34ka
+	J/O7FBmrKXaJmFSglZW9rw4hT/uH9Jtm68h3s8uSzpIX+IICxSViEkwUjvZ7Ke2/fcuk6ZU5a6RVg
+	pq/Lmk30HVlfnvcvQt1Y3SUJ7sOj8eeGZ7zUui2vbh8uLQqxjHTCjVZLKXrX3xHqq2yu8tw+GU2aA
+	0C6KFlcLZ+ELxTrI2bk2YXwc6StRf94xgkpefDvyNzXH8Q0eDszHzN1f/xVaTc/mAsN0S7x6IWVmP
+	VpZ1Fl4A==;
+Received: from [10.9.9.72] (helo=submission01.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1vNHsf-0005lR-6m; Sun, 23 Nov 2025 22:44:25 +0100
+Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1vNHsX-006w0W-Ew; Sun, 23 Nov 2025 22:44:17 +0100
+From: Michal Luczaj <mhal@rbox.co>
+Date: Sun, 23 Nov 2025 22:43:59 +0100
+Subject: [PATCH net-next] vsock/test: Extend transport change
+ null-ptr-deref test
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MBO-RS-ID: e4f5e7ae7d1d6563d64
-X-MBO-RS-META: rgghs7g74sp4h8wsoc98g7gej4kz7i97
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20251123-vsock_test-linger-lockdep-warn-v1-1-4b1edf9d8cdc@rbox.co>
+X-B4-Tracking: v=1; b=H4sIAB6AI2kC/x2NUQqDMBAFryL73QUTGii9SiklTV7bpbLKJqgg3
+ t3g57yBNxsVmKDQvdvIMEuRURu4S0fpF/ULltyYfO+Dc97xXMb0f1WUyoM0bzy0IWPiJZoyrim
+ 8bxkxoKd2Mhk+sp6BBykqK9ZKz30/AGGMtwt6AAAA
+X-Change-ID: 20251121-vsock_test-linger-lockdep-warn-e4c5b8dea5e0
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
+X-Mailer: b4 0.14.3
 
-Add a call to mutex_destroy in the error code path as well as in the
-virtballoon_remove code path.
+syzkaller reported a lockdep lock order inversion warning[1] due to
+commit 687aa0c5581b ("vsock: Fix transport_* TOCTOU"). This was fixed in
+commit f7c877e75352 ("vsock: fix lock inversion in
+vsock_assign_transport()").
 
-Signed-off-by: Maurice Hieronymus <mhi@mailbox.org>
+Redo syzkaller's repro by piggybacking on a somewhat related test
+implemented in commit 3a764d93385c ("vsock/test: Add test for null ptr
+deref when transport changes").
+
+[1]: https://lore.kernel.org/netdev/68f6cdb0.a70a0220.205af.0039.GAE@google.com/
+
+Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
- drivers/virtio/virtio_balloon.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/vsock/vsock_test.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 1b93d8c64361..078b87720a0d 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -1094,6 +1094,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
- out_del_vqs:
- 	vdev->config->del_vqs(vdev);
- out_free_vb:
-+	mutex_destroy(&vb->balloon_lock);
- 	kfree(vb);
- out:
- 	return err;
-@@ -1138,6 +1139,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
- 	}
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index d4517386e551..9e1250790f33 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -2015,6 +2015,11 @@ static void test_stream_transport_change_client(const struct test_opts *opts)
+ 			exit(EXIT_FAILURE);
+ 		}
  
- 	remove_common(vb);
-+	mutex_destroy(&vb->balloon_lock);
- 	kfree(vb);
- }
- 
++		/* Although setting SO_LINGER does not affect the original test
++		 * for null-ptr-deref, it may trigger a lockdep warning.
++		 */
++		enable_so_linger(s, 1);
++
+ 		ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
+ 		/* The connect can fail due to signals coming from the thread,
+ 		 * or because the receiver connection queue is full.
+@@ -2352,7 +2357,7 @@ static struct test_case test_cases[] = {
+ 		.run_server = test_stream_nolinger_server,
+ 	},
+ 	{
+-		.name = "SOCK_STREAM transport change null-ptr-deref",
++		.name = "SOCK_STREAM transport change null-ptr-deref, lockdep warn",
+ 		.run_client = test_stream_transport_change_client,
+ 		.run_server = test_stream_transport_change_server,
+ 	},
+
+---
+base-commit: 73138ebe792b9af2954292cc5cfa780a5e796d97
+change-id: 20251121-vsock_test-linger-lockdep-warn-e4c5b8dea5e0
+
+Best regards,
 -- 
-2.50.1
+Michal Luczaj <mhal@rbox.co>
 
