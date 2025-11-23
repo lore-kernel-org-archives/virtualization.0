@@ -1,111 +1,87 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1736D213E9C
-	for <virtualization@lists.linux.dev>; Sun, 23 Nov 2025 13:49:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A0F023D7EB
+	for <virtualization@lists.linux.dev>; Sun, 23 Nov 2025 17:58:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763905776; cv=none; b=bVv/yGCA9SFd3qbqr/c07i0NEv2mlStSC+xtykKEyvYVk7EmO+Mf2a1btM1sVl1izdwKM2wLWsgjaN7MKW/EoS0uFKaoDI+U0dFHc9jg4Bo70g+ptvVhvPq1+kX9SsyyCb++AkVl4s50z7N46liub3SGELIsMexo4NrA5zvKF4o=
+	t=1763920691; cv=none; b=iSzQHtFhAqJqHSPc4MRUQb3EKa9uqcI6qzwyr5AYsuKRcPO7BeYc5Ml8563QBr/XHM6EdbIMmXG8ayGjYMDQPNUAETTEpA1RHaZR+mhkhyNgqceKC//mihG3xlLbhcvbH5jhzx9MlWrsMmNOifTCpOweNa/2HIl/b4E0My1eFJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763905776; c=relaxed/simple;
-	bh=lWbENcEh389vbMCqSvNUZZKi4TBeYFD6rNt9N2yVjFA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mQFCad8iKaIjCYuZxYepe9sCO4EKEoNfDkmM8xBguWpMEDXUlUUjZirP8Njxmy0HRbHHeZF8wxHxSNxpMgNMozJpOyI7hKV+xZN32rOIGu5kQWy4Ya8qTUed3jtaU4eyvk5WwEMy0a69vLcBvsjRR3VN56cQIiPU5mlpV09FhuM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g+o+63Ca; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1763920691; c=relaxed/simple;
+	bh=eI7EERSkZZBvtpNA8f4QoqbAqdrg9FbUXEE0q5Bxxzw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=N/2y96q/Ear7NUyl56eWJ4p8tVRO2TV0xMNIni1nxTUfHQ8vemvLtK7LrSjM/stVHMFylz7gYpkWbVAzyMadmuyowPMz0qtsSZboUCfneslR7WSUjbAdUa8f6WUU5sEOFp4ohOvXbfcNiaZqOIwUMOpI82MsKJR2hDmZXm0RFeA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=PM6dliTC; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=JKPBd2I/; arc=none smtp.client-ip=80.241.56.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g+o+63Ca"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1763905771;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4hRt8RZtumHYeZ62c0KfBKB9aID9kM568jUutNHXhRA=;
-	b=g+o+63CanVDf2aBYD890+iC73OffoWngMg8CL8jIad1YaJJF9tpqbxpAj7+CKbh1yASRx9
-	d/rpd13Y0GHnfqSJuVvq9TOz7YvTuHXeC6NSt7jBpobaiTrIb3F+OOieuU9139Usf+JJJh
-	JtLDMkDex9dXgmm0vFKa9mrn1JpaZ7E=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-96-JoNijKGXNZWpb1v6IBGpVw-1; Sun,
- 23 Nov 2025 08:49:18 -0500
-X-MC-Unique: JoNijKGXNZWpb1v6IBGpVw-1
-X-Mimecast-MFC-AGG-ID: JoNijKGXNZWpb1v6IBGpVw_1763905754
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="PM6dliTC";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="JKPBd2I/"
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [10.196.197.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9C2AF180045C;
-	Sun, 23 Nov 2025 13:49:13 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.5])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E12D91800451;
-	Sun, 23 Nov 2025 13:49:02 +0000 (UTC)
-Date: Sun, 23 Nov 2025 21:48:56 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Andreas Gruenbacher <agruenba@redhat.com>
-Cc: Stephen Zhang <starzhangzsd@gmail.com>, linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org, nvdimm@lists.linux.dev,
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-	gfs2@lists.linux.dev, ntfs3@lists.linux.dev,
-	linux-xfs@vger.kernel.org, zhangshida@kylinos.cn,
-	Coly Li <colyli@fnnas.com>, linux-bcache@vger.kernel.org
-Subject: Re: Fix potential data loss and corruption due to Incorrect BIO
- Chain Handling
-Message-ID: <aSMQyCJrqbIromUd@fedora>
-References: <20251121081748.1443507-1-zhangshida@kylinos.cn>
- <aSEvg8z9qxSwJmZn@fedora>
- <CANubcdULTQo5jF7hGSWFqXw6v5DhEg=316iFNipMbsyz64aneg@mail.gmail.com>
- <aSGmBAP0BA_2D3Po@fedora>
- <CAHc6FU7+riVQBX7L2uk64A355rF+DfQ6xhP425ruQ76d_SDPGA@mail.gmail.com>
+	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4dDxWY16TXz9v1T;
+	Sun, 23 Nov 2025 18:58:01 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1763920681;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=w/etu9HEZ9sckvJVV7CeKdXhkoUUPPs7IeaPsdq9eMQ=;
+	b=PM6dliTCOU4EyV24CvLkc3bNa6VZ3eFqQPRRgBKoe8qII5qLRVqPdGQHUbaC+BAGiuOMJS
+	y97qoZ8Ff+MYMXk139uAnClZ4K9EUXgakWr+t8073E+Ptw50APW9M8JL5d6cRfoDX5wIOG
+	Y/pJbX9kWplbaRY6tCHFbBzkPm7cXk5/taeErdf7yeYrgNuR+P5n+c1plrDo3Zhwc+y1YZ
+	nK1VXLED7UfaROKDHon9WNWS9Ay8dyz02Hjf1lK3hYBQgayYVsIMjfelOd1pFH97Ynx0VE
+	B1L2oQfLA0Gqi3cgVrtW8zqLBCqQ0r/3Kbuz5vHJnwoiRjxjgEBUu3ziBbCw+A==
+From: Maurice Hieronymus <mhi@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1763920679;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=w/etu9HEZ9sckvJVV7CeKdXhkoUUPPs7IeaPsdq9eMQ=;
+	b=JKPBd2I/oIHOVVVVDWeDDWyLNcQoOK0f+xwEMd7kZsVS8qOCjkpGK+bhod3wJNHdM/4nIV
+	N+aqum8se64hfGCipPPTXDyJXb/98hwWG6DuCeuDABzDJZ55v6AqqaMrDLFZvhFqDOIEv7
+	Gx/97GW/y8Qip97SJxUwdgwwEfG5/+vVetfk0Ywce32TAyxOEhD7vYc4LIWzRzHY1XyRZW
+	Ut5eHGVtg/FKtL3XFd8KzvqAnlBinfnQBYnJ0ATEaKYEfO1amJy1qAZCkZ2ZqdgrqUTFVq
+	hYa7bC6aT2in0g7C4zH+h8sTaQHZ+n6oGOPzzebEYoMm4B5U/g69RBT4ZiMQwg==
+To: david@kernel.org,
+	mst@redhat.com,
+	jasowang@redhat.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Maurice Hieronymus <mhi@mailbox.org>
+Subject: [PATCH 0/2] Add calls to mutex_destroy in virtio_balloon and virtio_mem
+Date: Sun, 23 Nov 2025 18:57:47 +0100
+Message-ID: <20251123175750.445461-1-mhi@mailbox.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHc6FU7+riVQBX7L2uk64A355rF+DfQ6xhP425ruQ76d_SDPGA@mail.gmail.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+X-MBO-RS-ID: dfbccc51d08e74e11b9
+X-MBO-RS-META: pgm9wixqjuj7fszfmrbkiyq56muqb3sg
 
-On Sat, Nov 22, 2025 at 03:56:58PM +0100, Andreas Gruenbacher wrote:
-> On Sat, Nov 22, 2025 at 1:07 PM Ming Lei <ming.lei@redhat.com> wrote:
-> > > static void bio_chain_endio(struct bio *bio)
-> > > {
-> > >         bio_endio(__bio_chain_endio(bio));
-> > > }
-> >
-> > bio_chain_endio() never gets called really, which can be thought as `flag`,
-> 
-> That's probably where this stops being relevant for the problem
-> reported by Stephen Zhang.
-> 
-> > and it should have been defined as `WARN_ON_ONCE(1);` for not confusing people.
-> 
-> But shouldn't bio_chain_endio() still be fixed to do the right thing
-> if called directly, or alternatively, just BUG()? Warning and still
-> doing the wrong thing seems a bit bizarre.
+In [1] it is pointed out that each mutex_init call should have a
+corresponding call to mutex_destroy; otherwise, it is considered a bug.
 
-IMO calling ->bi_end_io() directly shouldn't be encouraged.
+This patch adds the calls to mutex_destroy in virtio_balloon as well
+as virtio_mem.
 
-The only in-tree direct call user could be bcache, so is this reported
-issue triggered on bcache?
+Link: https://lists.kernelnewbies.org/pipermail/kernelnewbies/2025-November/023493.html [1]
 
-If bcache can't call bio_endio(), I think it is fine to fix
-bio_chain_endio().
+Maurice Hieronymus (2):
+  virtio-balloon: Destroy mutex before freeing virtio_balloon
+  virtio-mem: Destroy mutex before freeing virtio_mem
 
-> 
-> I also see direct bi_end_io calls in erofs_fileio_ki_complete(),
-> erofs_fscache_bio_endio(), and erofs_fscache_submit_bio(), so those
-> are at least confusing.
-
-All looks FS bio(non-chained), so bio_chain_endio() shouldn't be involved
-in erofs code base.
+ drivers/virtio/virtio_balloon.c | 2 ++
+ drivers/virtio/virtio_mem.c     | 2 ++
+ 2 files changed, 4 insertions(+)
 
 
-Thanks,
-Ming
+base-commit: d13f3ac64efb868d09cb2726b1e84929afe90235
+-- 
+2.50.1
 
