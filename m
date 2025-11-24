@@ -1,186 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f208.google.com (mail-il1-f208.google.com [209.85.166.208])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ED7F2E22BA
-	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 07:13:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69BAC8634F
+	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 07:46:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.208
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763968388; cv=none; b=lYclQ915D/hhdk90wBJrPOSaLakTwLu9O/weV1Gkja8UuDtTDcSKiiNuUY10Eqfdz66AJjUkPp68JV9RuumPeMGyFBRZ6W/BNtK8i4aLMs1Nlr0TprVyO//bMfkcV3haYBJS/HtZMT4avaLL8x0lSd5zE0VcsJNmplN7X5tsgqo=
+	t=1763970387; cv=none; b=AHiOgowh3LwleCwNoP0rYZcvANQpk04nawUV2Un2ub6ctgiaBOu93CLSpakwW/cPcJlwpGey65pUZ7DAD71AchCXsl8w4H52QhinPLnw/ee+RkDXVD11rkVLX6m42M266J/IO3xqSw3RoWA2nPUufEMlZlaJnGSEcjQBHi+9QvE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763968388; c=relaxed/simple;
-	bh=alTm+/MjeRFfigP2b88uD23nCxku/Hj3FD3MHMj6/Wk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Sdp0QSYN1hT/BX18owlB2fkF3LoLOR1P+txr7qkmhWlp6AkuGHU49nAKyMO4c/7wTHNMfzb/jDn6uTdzELWPKNjJHwxNU6QJa2NW+Xu0x9qsXUOmjA+Iff/4E3kU8a9Y8XiI/0lw2La67MubvgRS4KnQGZYpBYOJMdceqExdj/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XksjX72N; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XksjX72N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B3E4C19425
-	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 07:13:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763968386;
-	bh=alTm+/MjeRFfigP2b88uD23nCxku/Hj3FD3MHMj6/Wk=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=XksjX72NTXKUxjiIjGf59tleufLgvbgldsOxc2M+CKCTZ3mGPdKiLYdIBXUklZtES
-	 3rDmk0QtPMrta01Y6ky/L4P+QGudHi8Ae2pgrlpIRhh7nbpZ7Y6KYjv5L0RamiOmE4
-	 v0rm5FtMV2/xmq4/JJmB095sfQhpGStStW+DYS3GgrEl68gSNoejfkesaJWx6JpObD
-	 dQo2OMxBFekK7PximRHQM5/mAVOOjPhbvWcV/ryBPEDINR4BPQFi2jFyzEXDrk7Pov
-	 eFOOFOOMk5MXmrMZiHSQ+d72LHYVJKPrCn+TExEMDUuzICAWS6g5H67/G5zWtCfARu
-	 kAaiXzFhDtx/Q==
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-b73875aa527so615146766b.3
-        for <virtualization@lists.linux.dev>; Sun, 23 Nov 2025 23:13:06 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCU8urKa2uIKK5RJWrCIJcgVgJYhnHhxw720WgYppKR6kDvvkuiYDt8L4zi3g51A4j/tuDhIY5DIPybzn0ggpw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx84Q7Gx5aP2jUOpACKLs1ZZ3Lbvyk1uzoQTnDetd+zVIu9JJrY
-	ulHdGzKafC8V5s4YvV4xSZZrM/LACBMgLL46jtdmkk4PTAAAoHU39+lfIbjR31B0m9FdoYHlz6h
-	8Y+CNtkBLXANQ4Kb2S5yLyVkCWVals98=
-X-Google-Smtp-Source: AGHT+IEKpkOcfVGAxrwa4zROcIi0idPHgYqvHTbqe2+lLzxfRE2A7n4QJHfUd6jEG4011JPxtiVDoYolMBnpOyLChpw=
-X-Received: by 2002:a17:907:3e23:b0:b70:fd2f:6a46 with SMTP id
- a640c23a62f3a-b76715aba5dmr1131570166b.20.1763968385035; Sun, 23 Nov 2025
- 23:13:05 -0800 (PST)
+	s=arc-20240116; t=1763970387; c=relaxed/simple;
+	bh=aI0efZ98/dHpLAfgdgRaca5judbHaOifB5yQ80Cwb3I=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=ANExnSjQLbsNXNrYauDYso98SKTmDixTYsIEQsCfTdYHOGmSEfsre+jGDnzkeqMrU64UeRDYp65X1ziXXXsfplXSN3fEijChSFgpsx9drkVsV8dXVwL19ID/oK+3S5x3tj33xTQcsZD16ShKje3IohXbzIRDs3O6oqymawU8hQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.208
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f208.google.com with SMTP id e9e14a558f8ab-4348db9e727so34304495ab.2
+        for <virtualization@lists.linux.dev>; Sun, 23 Nov 2025 23:46:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763970384; x=1764575184;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=MUF0FuYeplt8OAmp7Jv18Hg0BCHJKahXy427+kdtEYQ=;
+        b=Uqo+UkEcbsXHITq0s0Rk05rWdabrwp49chLWSNXtxdiAKUOh9ZzmhsOXTRqhov2qFi
+         LjIAiAHPCDh6ASQXXkn3upmtQ382ri2szcFqXoFIT4Xh+DUObBcrN9wMV6WP3LXo58DC
+         q+ycRNBuP0UxrCy5P3pRnBLSxQ0hJsj+obXXpPmNgS1WvsKtj+vMiiA1cj4a8Gq+Hi9h
+         vWzyD2GcBXpm3g9fRO/DmUIHKuoz444kEuXBvxCt6yiouS1yYCJpsEC3LudR/IGTK9ut
+         j0QKJy08P8lpA8dmBk77bEoMOvZJNxvkQkK+y5MZeGCYJ75y6zwC09GDzSqCfhX3zJDB
+         1BdQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVWMJybG3Ybnmh8Pi0XXL8SJYn8hMpzEmGguGGmSBsunMPEmHcRrL1oQv8VP/DOCi68uMH7mFPQvBHDHyMejw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyPfpjh118fyOnCTsWvD5lO8Ow3eh+CAnnqjRyAsScfl818k7jN
+	54KGTrmxTI6XPlDKUQl/TwMsgJdriBZ1CL9w8EKBJtdqZ10E4t6x+loNahlvWVFxomZBwYF0DM3
+	fetYTiopFlF796aG3l4Mt0E4OCvlDIPXuQ+IdcDjdL2prrPuPXKD9K7d4X4Q=
+X-Google-Smtp-Source: AGHT+IGDo5fPpPrWJ+/TGggB6tbpgjyH8VsN7o2hzR04EgAhSMgRmLaDKBsH5HBnrh854neqrOEhXTYOcOAKs4KOtbfGYrPGVs2V
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251124035402.3817179-1-maobibo@loongson.cn> <20251124035402.3817179-3-maobibo@loongson.cn>
- <CAAhV-H5Oag+mDp0CfZ1VDeapeKas354j68JZN9bN42=D4huowA@mail.gmail.com> <5d80c452-bbc3-539a-fb8d-14dbe353f8cb@loongson.cn>
-In-Reply-To: <5d80c452-bbc3-539a-fb8d-14dbe353f8cb@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Mon, 24 Nov 2025 15:13:07 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H66M+GZ2kB8BKR82BUeQcNZ8ACeXLxwjh-bsVZcca1cqQ@mail.gmail.com>
-X-Gm-Features: AWmQ_bkxpuNpVf0LfbSPwRTLRS2IJjwDzYu71D5XkXGBYMCnvHHCvsWSvV_WOz4
-Message-ID: <CAAhV-H66M+GZ2kB8BKR82BUeQcNZ8ACeXLxwjh-bsVZcca1cqQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] LoongArch: Add paravirt support with
- vcpu_is_preempted() in guest side
-To: Bibo Mao <maobibo@loongson.cn>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>, 
-	Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, x86@kernel.org
+X-Received: by 2002:a05:6e02:1fc6:b0:433:2091:8a86 with SMTP id
+ e9e14a558f8ab-435b8c25befmr90993185ab.6.1763970384660; Sun, 23 Nov 2025
+ 23:46:24 -0800 (PST)
+Date: Sun, 23 Nov 2025 23:46:24 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <69240d50.a70a0220.d98e3.007d.GAE@google.com>
+Subject: [syzbot] [net?] [virt?] [kvm?] BUG: soft lockup in vsock_loopback_work
+From: syzbot <syzbot+c3a176bfafbec366d774@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
+	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 24, 2025 at 3:03=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> wrot=
-e:
->
->
->
-> On 2025/11/24 =E4=B8=8B=E5=8D=882:33, Huacai Chen wrote:
-> > Hi, Bibo,
-> >
-> > On Mon, Nov 24, 2025 at 11:54=E2=80=AFAM Bibo Mao <maobibo@loongson.cn>=
- wrote:
-> >>
-> >> Function vcpu_is_preempted() is used to check whether vCPU is preempte=
-d
-> >> or not. Here add implementation with vcpu_is_preempted() when option
-> >> CONFIG_PARAVIRT is enabled.
-> >>
-> >> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-> >> ---
-> >>   arch/loongarch/include/asm/qspinlock.h |  5 +++++
-> >>   arch/loongarch/kernel/paravirt.c       | 16 ++++++++++++++++
-> >>   2 files changed, 21 insertions(+)
-> >>
-> >> diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/i=
-nclude/asm/qspinlock.h
-> >> index e76d3aa1e1eb..9a5b7ba1f4cb 100644
-> >> --- a/arch/loongarch/include/asm/qspinlock.h
-> >> +++ b/arch/loongarch/include/asm/qspinlock.h
-> >> @@ -34,6 +34,11 @@ static inline bool virt_spin_lock(struct qspinlock =
-*lock)
-> >>          return true;
-> >>   }
-> >>
-> >> +#ifdef CONFIG_SMP
-> >> +#define vcpu_is_preempted      vcpu_is_preempted
-> >> +bool vcpu_is_preempted(int cpu);
-> > In V1 there is a build error because you reference mp_ops, so in V2
-> > you needn't put it in CONFIG_SMP.
-> The compile failure problem is that vcpu_is_preempted() is redefined in
-> both arch/loongarch/kernel/paravirt.c and include/linux/sched.h
-But other archs don't define vcpu_is_preempted() under CONFIG_SMP, and
-you can consider to inline the whole vcpu_is_preempted() here.
+Hello,
 
->
-> The problem is that <asm/spinlock.h> is not included by sched.h, if
-> CONFIG_SMP is disabled. Here is part of file include/linux/spinlock.h
-> #ifdef CONFIG_SMP
-> # include <asm/spinlock.h>
-> #else
-> # include <linux/spinlock_up.h>
-> #endif
->
-> > On the other hand, even if you really build a UP guest kernel, when
-> > multiple guests run together, you probably need vcpu_is_preemtped.
-> It is not relative with multiple VMs. When vcpu_is_preempted() is
-> called, it is to detect whether dest CPU is preempted or not, the cpu
-> from smp_processor_id() should not be preempted. So in generic
-> vcpu_is_preempted() works on multiple vCPUs.
-OK, I'm wrong here.
+syzbot found the following issue on:
+
+HEAD commit:    e7c375b18160 Merge tag 'vfs-6.18-rc7.fixes' of gitolite.ke..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=121cfb42580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=c473789166ef75a5
+dashboard link: https://syzkaller.appspot.com/bug?extid=c3a176bfafbec366d774
+compiler:       arm-linux-gnueabi-gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+userspace arch: arm
+
+Unfortunately, I don't have any reproducer for this issue yet.
+
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/98a89b9f34e4/non_bootable_disk-e7c375b1.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/474d6d613c09/vmlinux-e7c375b1.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/9cfbda18d15c/zImage-e7c375b1.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+c3a176bfafbec366d774@syzkaller.appspotmail.com
+
+watchdog: BUG: soft lockup - CPU#1 stuck for 460s! [kworker/1:6:18885]
+Modules linked in:
+CPU: 1 UID: 0 PID: 18885 Comm: kworker/1:6 Not tainted syzkaller #0 PREEMPT 
+Hardware name: ARM-Versatile Express
+Workqueue: vsock-loopback vsock_loopback_work
+PC is at arch_spin_lock arch/arm/include/asm/spinlock.h:74 [inline]
+PC is at do_raw_spin_lock include/linux/spinlock.h:187 [inline]
+PC is at __raw_spin_lock_bh include/linux/spinlock_api_smp.h:127 [inline]
+PC is at _raw_spin_lock_bh+0x40/0x58 kernel/locking/spinlock.c:178
+LR is at get_lock_parent_ip include/linux/ftrace.h:1102 [inline]
+LR is at preempt_latency_start kernel/sched/core.c:5775 [inline]
+LR is at preempt_count_add+0x12c/0x150 kernel/sched/core.c:5800
+pc : [<81a6de50>]    lr : [<8028fe9c>]    psr: 80000013
+sp : df9cdda8  ip : df9cdd80  fp : df9cddbc
+r10: 846a8b70  r9 : 83c92c05  r8 : 838f5400
+r7 : 829faaf0  r6 : 85b91880  r5 : 85b91970  r4 : 85b91970
+r3 : 00000008  r2 : 00000009  r1 : 00000000  r0 : 00000000
+Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+Control: 30c5387d  Table: 848af1c0  DAC: 00000000
+Call trace: 
+[<81a6de10>] (_raw_spin_lock_bh) from [<8155efe8>] (spin_lock_bh include/linux/spinlock.h:356 [inline])
+[<81a6de10>] (_raw_spin_lock_bh) from [<8155efe8>] (lock_sock_nested+0x1c/0x48 net/core/sock.c:3723)
+ r5:85b91970 r4:85b91880
+[<8155efcc>] (lock_sock_nested) from [<819eaefc>] (lock_sock include/net/sock.h:1679 [inline])
+[<8155efcc>] (lock_sock_nested) from [<819eaefc>] (virtio_transport_recv_pkt+0x350/0xa4c net/vmw_vsock/virtio_transport_common.c:1631)
+ r5:8ddf7780 r4:85b918e4
+[<819eabac>] (virtio_transport_recv_pkt) from [<819eb7b4>] (vsock_loopback_work+0xf4/0x128 net/vmw_vsock/vsock_loopback.c:133)
+ r10:846a8b70 r9:83c92c05 r8:829faaf0 r7:00000000 r6:00000000 r5:df9cde98
+ r4:8ddf7780
+[<819eb6c0>] (vsock_loopback_work) from [<802785a0>] (process_one_work+0x1b4/0x4f4 kernel/workqueue.c:3263)
+ r8:838f5400 r7:ddde3d80 r6:83c92c00 r5:82c3de40 r4:830cf000
+[<802783ec>] (process_one_work) from [<802791e8>] (process_scheduled_works kernel/workqueue.c:3346 [inline])
+[<802783ec>] (process_one_work) from [<802791e8>] (worker_thread+0x1fc/0x3d8 kernel/workqueue.c:3427)
+ r10:61c88647 r9:838f5400 r8:830cf02c r7:82804d40 r6:ddde3d80 r5:ddde3da0
+ r4:830cf000
+[<80278fec>] (worker_thread) from [<8028020c>] (kthread+0x12c/0x280 kernel/kthread.c:463)
+ r10:00000000 r9:830cf000 r8:80278fec r7:dfb79e60 r6:8db08900 r5:838f5400
+ r4:00000001
+[<802800e0>] (kthread) from [<80200114>] (ret_from_fork+0x14/0x20 arch/arm/kernel/entry-common.S:137)
+Exception stack(0xdf9cdfb0 to 0xdf9cdff8)
+dfa0:                                     00000000 00000000 00000000 00000000
+dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+dfe0: 00000000 00000000 00000000 00000000 00000013 00000000
+ r10:00000000 r9:00000000 r8:00000000 r7:00000000 r6:00000000 r5:802800e0
+ r4:849cc940
+Sending NMI from CPU 1 to CPUs 0:
 
 
-Huacai
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
->
-> Regards
-> Bibo Mao
-> >
-> >
-> > Huacai
-> >
-> >> +#endif
-> >> +
-> >>   #endif /* CONFIG_PARAVIRT */
-> >>
-> >>   #include <asm-generic/qspinlock.h>
-> >> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/=
-paravirt.c
-> >> index b1b51f920b23..d4163679adc4 100644
-> >> --- a/arch/loongarch/kernel/paravirt.c
-> >> +++ b/arch/loongarch/kernel/paravirt.c
-> >> @@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
-> >>   }
-> >>
-> >>   #ifdef CONFIG_SMP
-> >> +DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
-> >>   static int pv_time_cpu_online(unsigned int cpu)
-> >>   {
-> >>          unsigned long flags;
-> >> @@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigned int =
-cpu)
-> >>
-> >>          return 0;
-> >>   }
-> >> +
-> >> +bool notrace vcpu_is_preempted(int cpu)
-> >> +{
-> >> +       struct kvm_steal_time *src;
-> >> +
-> >> +       if (!static_branch_unlikely(&virt_preempt_key))
-> >> +               return false;
-> >> +
-> >> +       src =3D &per_cpu(steal_time, cpu);
-> >> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
-> >> +}
-> >> +EXPORT_SYMBOL(vcpu_is_preempted);
-> >>   #endif
-> >>
-> >>   static void pv_cpu_reboot(void *unused)
-> >> @@ -308,6 +321,9 @@ int __init pv_time_init(void)
-> >>                  pr_err("Failed to install cpu hotplug callbacks\n");
-> >>                  return r;
-> >>          }
-> >> +
-> >> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
-> >> +               static_branch_enable(&virt_preempt_key);
-> >>   #endif
-> >>
-> >>          static_call_update(pv_steal_clock, paravt_steal_clock);
-> >> --
-> >> 2.39.3
-> >>
->
->
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
