@@ -1,276 +1,215 @@
-Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012033.outbound.protection.outlook.com [52.101.53.33])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BA9A223DD6
-	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 22:24:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.33
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764023090; cv=fail; b=d3jCcTdSv+aEWuyeTu8vhaJIyVPZrUflQmTdRhsuJNZ7RAysaloNdeBBfadGC2FJ201Vfo0iU/UfsQG1ZjxktG7mMoQOmSeeUW5SyhGc+yoFCmVxV46CcV+L6yNdq7TJytrDn5eUgYgHIJsvJ2LylFwPc4OQhWkXBCf97Y7K4BM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764023090; c=relaxed/simple;
-	bh=SeJJBCxeykossz/UlykD+7ER8TUTspKBM6HlIo8CvjM=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=DGHEDu2d079xwHAoEu4u6mI7yQ3BkwHnF/ePQQghYGzRwhftcnSkkfGjnyTwR4YZqjRQvHZprB/6l8b+gp8GIdZSxswJiE64XsCPfqe7LFObt8XJyID1Z0hl7UGh8YALsB9IK2DwDYYgbl2w0zhvYQkOl0mO2yMgfgN6X9v1YLE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=OoLCSfYT; arc=fail smtp.client-ip=52.101.53.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98621231836
+	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 22:28:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1764023284; cv=none; b=QmBTnT0vq4WB2f1AEvMmcVlmzm0e8ocbjmeVSg4KZ5RWlJ7ryr4HDjbLjIgfqYs4xad9H1iQnNShQqM7DLwU5DryRC51sZeOXkS80YF9RyXqsOL9LzT1r9yBhCrgEY6biVSJQP2btDb3xH36ZQXXljWqt9xE/byKYjl/wVCN+L0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1764023284; c=relaxed/simple;
+	bh=O9s1c+Soea+oLRUDpv8yyvhGXWT6wRd+L4jrFY5ezLc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=iGd9eFVSPykEhn5bf/LN/8pHsc0K/oO5dotyhi00pfinkYOQtmiMeErIvkeng6ZtKcDl2yptkfp3s/W50ihBD5PUOCvZSzvB0bag1nUp3E88KEsUZvS4m4Tvd0asC6b4DJqS8LNCAwl7GSujCElq2v70igQ7K3qPTd79iB/6qT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Jh7rApwF; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="OoLCSfYT"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=eXxpAb3LVlROiB1BQPrliwHoVZfZLAbRs7lOyal9208Dkq3DcPSkt0hbnlinMQogWXs9OBeH8DqO4aE8whAi9hbvB0Kyvddq2d/Rsl2nHz7T2UC99GMexyPDAC39NNOHEsk7Q1eod70TwZEwcDv1QzOPrSayuEaCCuzo7tZMY4lT/5K/hZlX95kgUcLKQnXdbsyk7+RH5S2+saOSz6OhbCvhIbkQbIzt6jGqM+hS7uM4zLxSQvCncz/Mm45mhiPtLaQYDSFMM0O0KisgTRxegA/N9VSEX1topahtcFY2QAGCGgsSq5qTXFUg89JfJJZ8pomq5WBgIMibU9l96/4FfA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=73JPi5l5s93Tq1RysteCxMcFcr+DW9vLDWyhP66bhms=;
- b=RRu2HZbCfLBur7irRNHWxgE+momX72rcq14Z2269dscvfWKtPrY4Pw1SdfepFbCGsuusxI8cdhMKMAfsY7K2/S15ukb02tt0/hpFAj78mEG4KliW9osdG8qDnOqLHxugk1Bi4mefyF4L1FZC3M8A7R8XgB7vzxaAV8ohr36WMdlpUR/2bVhz7TXzLvx7HsAhfjmaDzSC73icUpo9uaX3h+bCUAYU3EXAjFd+s17PjjUEdftwFzOapYCKoF/q0Aevvz6n5EqeAmOvRli9B/MVkbczPKbQOsFIcgsG43LLLm2+9ywGdbiO4DXlEqkyVUBuXABy6ryq00Emhcaz7tpIKQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=73JPi5l5s93Tq1RysteCxMcFcr+DW9vLDWyhP66bhms=;
- b=OoLCSfYTeqD2t166CvJ8YUbfhNciDcLbNee+34JxouG6QrTMY1LUha3xBpwLp/pd8FibbCwTZD5o9TdQ/uFCVevT8MVE86gV5GYROOBh4YGRL3W+XmzidyePzkLOPIOsCTsGXXalW9eeNt5TfbR3Ahnb+PXCb8nwmB/2NScgdBKRxmOdeAsyzTSTDMbicsfOqE28xkQNrtJUCjsP1MoKpGC0DKA7JdZf0Iqy5LH2+Krnvi3tgQyfFcdVBdw9RZGzGfAmGV4pvjiVmy+OKS5ycWCbyFZNRIacqRSOOwOzV9dvIeamr67qBZF1j8znAbTT/PuvAbI/NHYJz/VgIhazUg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by DS4PR12MB9681.namprd12.prod.outlook.com (2603:10b6:8:281::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.10; Mon, 24 Nov
- 2025 22:24:40 +0000
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9343.016; Mon, 24 Nov 2025
- 22:24:40 +0000
-Message-ID: <29fa4996-38e3-4146-81d3-f8b188e047e9@nvidia.com>
-Date: Mon, 24 Nov 2025 16:24:37 -0600
-User-Agent: Mozilla Thunderbird
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Jh7rApwF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764023281;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HXYvmDv4kppfCO9Fqm1r8b7arvwMaa5NeNnEMmc451k=;
+	b=Jh7rApwFCX/R/TF2MxnNLbGuuAV0OdH1KN1JGVT/6Si2+Tt4Lvmg74M0skYgHA6/FCh5zg
+	rLb6w0XBAQJVXr5cj0suzRMowJPA6FEgBOQiL3fUMGGN91hsrLAqB5O+yMRCpd2Vt8/e4b
+	P11m/huhW/Lxxs4cl6OgCzXoxMLML44=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-281-3Z0Ra3Y-MT2gqChob9CiUQ-1; Mon, 24 Nov 2025 17:27:59 -0500
+X-MC-Unique: 3Z0Ra3Y-MT2gqChob9CiUQ-1
+X-Mimecast-MFC-AGG-ID: 3Z0Ra3Y-MT2gqChob9CiUQ_1764023278
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4779b3749a8so41675175e9.1
+        for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 14:27:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764023278; x=1764628078;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HXYvmDv4kppfCO9Fqm1r8b7arvwMaa5NeNnEMmc451k=;
+        b=KpchNhEI6Fp+X3vATXB82tbYBwWCypaI+gLUBIwdSctqHx1uPZ5ALJVl2cXPM0t11D
+         1MstN5qrAG/zF3KFRB3wgLUSIqeefKEYnFJk1ccAsW5yuG3sK+3PzIrbTssD6tmNlqsq
+         ajotppAd4rHqUgdTDGafTgq1rUit/OkY6okeUppvpS84fj+UQSooI0Pm04i7zZZPOhxK
+         t0QzsHtBSocIzwHNDRt+c+3vTSPC1k5eGzCSAzSLkIjEUWjzsoeckkPVraXAjlW4+rGH
+         LbufNy4hwdWty1fPJy8jvrUgQZiCAHaPOgNBdJWz8wP55Dq15RUS+NsN6ZHPIBpKBiVl
+         UsSQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXlvK+F2/uFQi5oouw9/NsnWOOiZWsAIWPgA/Tw6WttmXPazaWnZ4Qaddihv03F0crM/gQkTsPkIwzNoSHJPA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzdV0xxWYWjMNQqR0rDRifIZ4GQXMmptlqHm4YL1eyARoM9wl4f
+	fgqWXG1Cxu+tGjArFI7RJX7qulYz+WlsjSLVdrU3syFFqj0r89jLr1CCKBbXPKwhyw4tnjfyemF
+	Eql9bhImWhLeSQtQZi7lrVirfNXYA0v5p5XxXTiIyUwf6ppFicV/UyCGwA7xU/teg0Xnecpyxb3
+	nf
+X-Gm-Gg: ASbGncsCACfRrgjMy0hJ5Ca5MOFe5dcZbVdB1AqvYqT6dl10d+29cOj6kpcBBmw3KIg
+	oH39rXHRHkNdFSemLQ79G1wd4kBXTpDDApe48Vm2wmEmF+BSRWgt+SYidCsHUsWS7hfdj3fAR5V
+	a6ILGDECAaQiPOm8TlHsU0lKHnYuCoKcsvMVH60HP92kV9W9sJGNG8Xr9Fl8tM6wynLMlhj5lAs
+	m7Hjqpr63PFJiik/YL/BH5vmLk6qTlHkp3agE98wWW3g6t+r20WBSGuGaqXn7rBb101NV5DssB+
+	r3H7ravob3BshvW+m/rcmj0pC2IymWvEwQeXKwuhASK/JXJwOrObsvRGnaCGNBSydNEUiTTXsPS
+	z42M1crwHue2RKioI/aOVUCGVng/5SQ==
+X-Received: by 2002:a05:600c:4ed2:b0:477:55ce:f3c3 with SMTP id 5b1f17b1804b1-477c0162dd6mr120031885e9.5.1764023277678;
+        Mon, 24 Nov 2025 14:27:57 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHpTgqYDwaYD+BIeuP2f0AMJc9Y14bFXs/8liPK6xpoY32LV1hSFbbSC8y4H3DaRF62vzWtrw==
+X-Received: by 2002:a05:600c:4ed2:b0:477:55ce:f3c3 with SMTP id 5b1f17b1804b1-477c0162dd6mr120031735e9.5.1764023277302;
+        Mon, 24 Nov 2025 14:27:57 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477bf3558d5sm217203125e9.1.2025.11.24.14.27.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Nov 2025 14:27:56 -0800 (PST)
+Date: Mon, 24 Nov 2025 17:27:53 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Dan Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+	virtualization@lists.linux.dev, parav@nvidia.com,
+	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
 Subject: Re: [PATCH net-next v12 03/12] virtio: Expose generic device
  capability operations
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
- virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
- edumazet@google.com
+Message-ID: <20251124172646-mutt-send-email-mst@kernel.org>
 References: <20251119191524.4572-1-danielj@nvidia.com>
  <20251119191524.4572-4-danielj@nvidia.com>
  <20251124152548-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20251124152548-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SJ0PR03CA0195.namprd03.prod.outlook.com
- (2603:10b6:a03:2ef::20) To MW4PR12MB7309.namprd12.prod.outlook.com
- (2603:10b6:303:22f::17)
+ <29fa4996-38e3-4146-81d3-f8b188e047e9@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|DS4PR12MB9681:EE_
-X-MS-Office365-Filtering-Correlation-Id: 21ac0794-d540-494e-6740-08de2ba84248
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?a3hCMS9JVHlXRUpvK2JienlHV2ZGSW5jWWRUY3VLMlR6dGp4MllRRHc3ZGRC?=
- =?utf-8?B?UVpGK3psUE1vUDZSMzRTKzhOR0JFUEJVS2FDb3NKWnlaUFVncHZXYk4zbGNS?=
- =?utf-8?B?WTE1Sk1lN0dpOWhuV1BUR05ORE5sZjZLWk5wVFl4a2dUd1RMWTQvTFl0dVBW?=
- =?utf-8?B?ZEE5WlJMc1JmL2RaZlFKWXRpMndiOUlaSU5qa0Rac1c2VW9LTFBNZmRvaG8w?=
- =?utf-8?B?QndwbXZDYzdGdHI5MlEweVhYb0R6TEJXY1lrUktwc3BTSW1rODFLNUxNODEz?=
- =?utf-8?B?MHB6NEdUTmFqckd4MnQrRUswOEFxNk1GK040ME14WW9iQjVKaWt0RmNaZFln?=
- =?utf-8?B?WXlmL21ZUmZsdXBWR3l1cGtNRHZiMGFJY3RucHB0OXcwR0tQVDVRMDVjclBF?=
- =?utf-8?B?aFJvZ0xRMjRleUZPQVB2S1FhYStMV1dYNUE3THhwUFRiRVp3ME5SUi9tbGtk?=
- =?utf-8?B?Z1p6YmdYWHQ2WUVsNVlPUVFISjV0RTZiVjZVcFRDMWZQQzRqNFYzRkVuRGlU?=
- =?utf-8?B?MXA0RmJQNHVPMVVJVnN5ajNkRlFzc0JMTjlJdHhIcE9DZUVTRTRYdldhMldz?=
- =?utf-8?B?Z3YyM2trRTZlTTU1cUdOamMyeWdibmFwMytuUTl0NHkvK1o4eVRoZ1pYOUxM?=
- =?utf-8?B?aTA4bGlBdnpTZjB3WTYwNU45NG1zc2YwZnBGQ3lDMFJQeklXaGh4WkFlWHBq?=
- =?utf-8?B?OHBGdWxvMkE5RGloY0VvVVVDOWkwOW04cHRaYkM3R1VzeXJ0SGRabjB6b2JF?=
- =?utf-8?B?ZTJiMWM3Q0Z1UXAweW1BZnhUeEhKMnNzR2F6RVZnQlNveVp6QWhQTjZJUXJo?=
- =?utf-8?B?V2JiRExZSkFML09XNHQ5VHd5Smpkc1I4TzQvdngyRGwyQTlWaHQyQlJ0bTJY?=
- =?utf-8?B?dlV5SGcrRW9qWDlMVS9XL1pNK0hlUUJiUDJsWHJhR0xWRXNNOGVtY3puMm0z?=
- =?utf-8?B?by9rS1dIU0R3Z1RFZnpYTU9sa0ptSm5DeVZjRGIvYm1kK0dYQnQ0c1BXUEVs?=
- =?utf-8?B?YW9OOVVZRk5GaGp4aEVHZWxEeVJhSGdDcUpEaWlDNmNOdWM2Um1IY1BFT2Jz?=
- =?utf-8?B?QTBSY0FaOGFhQXpzME9ydXVNV2FmQ0RERkxPeG1QTDROWkh1WVhuTE42UFRH?=
- =?utf-8?B?K2lGZVMxSFdDektiZ3FjckE3dGs5N2U2QkNmSzhLTmVGUFlJTGRaNXNmSXYz?=
- =?utf-8?B?V1JzM3lIYzk4QlBqaHpHUVZRY3p2WTVJWXhMVk1DMEp5RjRQMzNVVEFpakEr?=
- =?utf-8?B?emx1Y0doTzBRNVVKR3FQQWVZM05OQm04MU85OG80aDNRL1g2cVNXUEMzd2xS?=
- =?utf-8?B?R3dsWWFTV25jQ3RKcjJrbzVTVkU5VnNVTytuY0s3MzN1cS9WdllVTGVLSW92?=
- =?utf-8?B?TVBqSGtnVzdteG1ZY1laRWgzRHVoNGdkT0dtWk51Uy90RjBEcjFmZndZY2dr?=
- =?utf-8?B?Qjlscy9SZGlZNGNvcmRFRko0dExlU1RkUVRJSkNQeE00TVRBaDhsYjZjNXRj?=
- =?utf-8?B?TlplQS9WMzVVZi92UW5CMHNnSzNwanp2alBHNDlKYWZmZkRNY3czU2RMTVF0?=
- =?utf-8?B?UnlMVkhTU2VjcVNxMWJqa2RmeFpieDlOTlIrMWQ3QVcrWjFITDNJeWJCenZZ?=
- =?utf-8?B?NERkQjNpR25kK0NXd2JtUDFsMW5NWjUyV3ZoNHdvLzdxZWtyQjg0cnNjSzFk?=
- =?utf-8?B?UktUNFRqTjdBYitUanI3MlBQc2F0bVE0L0Fjd0l0Z2hUQ09JSnpDenc4cGpy?=
- =?utf-8?B?UkZ3UU5jb0xMb3BpOHFvRzFEWFczY1FoMWdlYStackI5RFJ2RUdpbEd5OCtw?=
- =?utf-8?B?MDV6QWM0bVFBemhDNWpwb2taUk5hRmt1NlZFY2k1d3kyeFFyUHlWaTRwaVhr?=
- =?utf-8?B?SGNYRTdHbWh2SWU0UUliWm5QWDEvbjdjU004ajFKMHZSSGNpWklUVHhaRGhp?=
- =?utf-8?Q?YGOAZbrHux9TlerlVpwmipHnhwNPEcdU?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Y3lQZWFXWEpsWjFqcWM1cytUdjVSOGh2VmJiRjgzTDdlQWZnTnNJTVNQL0Jh?=
- =?utf-8?B?cHhjRjZHOUtBUENpRW9KbTVxM3YxYUxsS1R6dUpZK0UyRk5maVhjcGNobjRU?=
- =?utf-8?B?YUVVUUxkY1AvTjNiZzlkWW96OFpvbFI5eGxFbmRMUXAzeGRndk5wcFJuOTRV?=
- =?utf-8?B?RGNham1oaldGclY0UWVZZjdEb0dGVWxwUGVHV2pTc1lJZDlSa0hLUjZ4WHdp?=
- =?utf-8?B?eGdsS3VwMnBNVEJFaGU5TmoydDFIcTZ6ekpMWlRWbzBxQklkaVp4WmZXdWU3?=
- =?utf-8?B?Y1lzVVQyYWZLd2JSSlpqZXdTVkt3eXlnaUVOTmlxVWtpVDR2MEFMblIvQTdn?=
- =?utf-8?B?emhaa0ZjcFRtMVFubVc0Qzd3MEU4QjU5bWZvcWplekJEd1doK3J5SWFRbjlY?=
- =?utf-8?B?eno0ZFNTOFB2aTZJcFlrNkxhdUEwMFJIbXdTVkRFVWdIV3k3cVNQdnVBWHlY?=
- =?utf-8?B?SW0vTElVbG5qdDZobHp1Y3hJamltZ1pGZE9DWFg5bjRvaThUTUVSY1BLenRE?=
- =?utf-8?B?cEZpb0JVV0hrbktweUxnQzJLVG1ZTDlDSU1Ob2NNOUxsTko5YmQxc1JGa29y?=
- =?utf-8?B?VER3eHpxaEpZVDFLZDhOTTRHMnpCMXpCaDJoSFdBeTlhSGFROE1lRGs2Q0RL?=
- =?utf-8?B?NWpZYlJHOXdlK1d0UTg1YTB3QlJrbkJtQkRUTWhtV2R4Z1VWVmtWc09lc085?=
- =?utf-8?B?RmZQOWdCUVhKUm9Qd3o0QVc1T2tPbVBUZ2dWMlZMTFlQVTdhaXNoNHM4WEM2?=
- =?utf-8?B?TVJUZVpON2FyWDRqc1JIUUFiRTRHK05SVG9GUXluSitvbDhJeGdxUmFBS2px?=
- =?utf-8?B?NE9uU3BLL0NVZUFHSGg0NHhOV2ZCL1RDNUMzV2hUZ0tEZVJTQWtoeUFTb3lV?=
- =?utf-8?B?azUyY1BhTE1PVXFobUFPRm11YWRDd1NkSDJBak9RdE42Umk0cmt4ZnlvRFhn?=
- =?utf-8?B?bEFGU3IrUCtHZC9PY3pVcFhVdzRKd3A1UGJ1bE5WbWI3Q05yNXZBRmZxSWtF?=
- =?utf-8?B?Smh1V3NCQVdIU2d5MDRmczF2MlM0bHd5cVZINDU5NmhxNTVQa3FDM0c0RWRh?=
- =?utf-8?B?TzdJZ2xFbE5Ub2FPMlZNUFJneGlPNHBQaGd0b3M4dkIvUWU1OFpESHV6cFN1?=
- =?utf-8?B?aS9KVC9BZlBRMzY1SjhmZFRTdnQvNFNKUUlZSVd1RGU3R3BvVWZaclhaVVlH?=
- =?utf-8?B?RlRGQjdxZmhIY2dDVDBuY0tURXNMM0U0NlBINlJNY0pOUitmSVlhdTRhMzgr?=
- =?utf-8?B?WDEvZjFyVkg3empqUG9ldmhISVBVQlZQL1RZbTJyNnpWTFk0cEZ4NU1XOTd1?=
- =?utf-8?B?V1cxcThKaTVEMzNQdGVvMCtZa2tjUXpmU2FKL3pHNnliNWFDM3kyUERtaXJC?=
- =?utf-8?B?QXZhUExCa291T1NCdG1JWnVCWHdvTWR0R1ErNThXUml3ajYrenlLcTNGMmpt?=
- =?utf-8?B?dU1OYXpTN0xPMkREczlBK3ZvRE9hYnQ1WmYxb1Y5NDdQOHFob1laWXFob3VN?=
- =?utf-8?B?NGkwZEJPVjh5cFl4ZnoyZVh5WTBVK3o4KzdPOXRPOVAvTFk0M1gzaHBIVUp4?=
- =?utf-8?B?QlNpbEVoY0grNXUwT3lzQnRXM1RxSEw4SGFXZEF2M242ZUszT0xUc1FJcGJG?=
- =?utf-8?B?UGZmOXd0SUpHeXMra3BjWWNoeUxqUDhkS05hWTV1RGdFdEhlaURFYU1xS1hW?=
- =?utf-8?B?SGY3RnVuZUNxSnppcmo5SjI2eXpxczRKYVJSYVVSMERNVDdjdmtuQ2ljbjY3?=
- =?utf-8?B?QjIxeXhub21Gemlnbk5DT3JKMXdiSVR2UjhQdUtTeHdsaGJDK04wN0diN0xR?=
- =?utf-8?B?RXlJUVFTNFlZbXBWcWs1OGFGSmx1VXNqNmlXcW9IcnYvaVVlQ2dzUUcxckhY?=
- =?utf-8?B?bk83VFFnVU43L2V2OTlsaVdwc3dlM0NQbjNoU0s3TFpJYU9jZjRsa1NEWEhK?=
- =?utf-8?B?VTB5L3JmOGNmRlpnMHlwbWJEWjVuUjBmSzZCNEJueGdUS0VaVmhqTUoyUUtC?=
- =?utf-8?B?a0VVVWtnUURJVEZNZFM5VGNObE4xYzZWQ2JHUXB6bWFrd2ZvMnYxVnNPS3Jh?=
- =?utf-8?B?NzFTVTY3TkV4eEpPY0dFMVUzbCthbVdRbVErd0dYSk5aNlAreDRIT3FZZk03?=
- =?utf-8?Q?CvZDpD2FsdLh2T5K0VZT07p45?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 21ac0794-d540-494e-6740-08de2ba84248
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Nov 2025 22:24:40.1543
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5Bv39sJjouv3aSSDAPkqT7wOOHySkhIA5u269SJNSMprbAkTCpRp997t07vQbvIw3Hx7cSSPQZFIZU0hKTRJqw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS4PR12MB9681
+In-Reply-To: <29fa4996-38e3-4146-81d3-f8b188e047e9@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: hUBp15OzT6iGhDgjSoHXG0k4lUzKMG3e4fIUc3qe0I0_1764023278
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 11/24/25 2:30 PM, Michael S. Tsirkin wrote:
-> On Wed, Nov 19, 2025 at 01:15:14PM -0600, Daniel Jurgens wrote:
->> Currently querying and setting capabilities is restricted to a single
->> capability and contained within the virtio PCI driver. However, each
->> device type has generic and device specific capabilities, that may be
->> queried and set. In subsequent patches virtio_net will query and set
->> flow filter capabilities.
->>
->> This changes the size of virtio_admin_cmd_query_cap_id_result. It's safe
->> to do because this data is written by DMA, so a newer controller can't
->> overrun the size on an older kernel.
->>
->> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
->> Reviewed-by: Parav Pandit <parav@nvidia.com>
->> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->>
->> ---
->> v4: Moved this logic from virtio_pci_modern to new file
->>     virtio_admin_commands.
->>
->> v12:
->>   - Removed uapi virtio_pci include in virtio_admin.h. MST
->>   - Added virtio_pci uapi include to virtio_admin_commands.c
->>   - Put () around cap in macro. MST
->>   - Removed nonsense comment above VIRTIO_ADMIN_MAX_CAP. MST
->>   - +1 VIRTIO_ADMIN_MAX_CAP when calculating array size. MST
->>   - Updated commit message
->> ---
->>  drivers/virtio/Makefile                |  2 +-
->>  drivers/virtio/virtio_admin_commands.c | 91 ++++++++++++++++++++++++++
->>  include/linux/virtio_admin.h           | 80 ++++++++++++++++++++++
->>  include/uapi/linux/virtio_pci.h        |  6 +-
->>  4 files changed, 176 insertions(+), 3 deletions(-)
->>  create mode 100644 drivers/virtio/virtio_admin_commands.c
->>  create mode 100644 include/linux/virtio_admin.h
->>
->> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
->> index eefcfe90d6b8..2b4a204dde33 100644
->> --- a/drivers/virtio/Makefile
->> +++ b/drivers/virtio/Makefile
->> @@ -1,5 +1,5 @@
->>  # SPDX-License-Identifier: GPL-2.0
->> -obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
->> +obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o virtio_admin_commands.o
->>  obj-$(CONFIG_VIRTIO_ANCHOR) += virtio_anchor.o
->>  obj-$(CONFIG_VIRTIO_PCI_LIB) += virtio_pci_modern_dev.o
->>  obj-$(CONFIG_VIRTIO_PCI_LIB_LEGACY) += virtio_pci_legacy_dev.o
->> diff --git a/drivers/virtio/virtio_admin_commands.c b/drivers/virtio/virtio_admin_commands.c
->> new file mode 100644
->> index 000000000000..a2254e71e8dc
->> --- /dev/null
->> +++ b/drivers/virtio/virtio_admin_commands.c
->> @@ -0,0 +1,91 @@
->> +// SPDX-License-Identifier: GPL-2.0-only
->> +
->> +#include <linux/virtio.h>
->> +#include <linux/virtio_config.h>
->> +#include <linux/virtio_admin.h>
->> +#include <uapi/linux/virtio_pci.h>
->> +
->> +int virtio_admin_cap_id_list_query(struct virtio_device *vdev,
->> +				   struct virtio_admin_cmd_query_cap_id_result *data)
->> +{
->> +	struct virtio_admin_cmd cmd = {};
->> +	struct scatterlist result_sg;
->> +
->> +	if (!vdev->config->admin_cmd_exec)
->> +		return -EOPNOTSUPP;
->> +
->> +	sg_init_one(&result_sg, data, sizeof(*data));
->> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_CAP_ID_LIST_QUERY);
->> +	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
->> +	cmd.result_sg = &result_sg;
->> +
->> +	return vdev->config->admin_cmd_exec(vdev, &cmd);
->> +}
->> +EXPORT_SYMBOL_GPL(virtio_admin_cap_id_list_query);
->> +
->> +int virtio_admin_cap_get(struct virtio_device *vdev,
->> +			 u16 id,
->> +			 void *caps,
->> +			 size_t cap_size)
+On Mon, Nov 24, 2025 at 04:24:37PM -0600, Dan Jurgens wrote:
+> On 11/24/25 2:30 PM, Michael S. Tsirkin wrote:
+> > On Wed, Nov 19, 2025 at 01:15:14PM -0600, Daniel Jurgens wrote:
+> >> Currently querying and setting capabilities is restricted to a single
+> >> capability and contained within the virtio PCI driver. However, each
+> >> device type has generic and device specific capabilities, that may be
+> >> queried and set. In subsequent patches virtio_net will query and set
+> >> flow filter capabilities.
+> >>
+> >> This changes the size of virtio_admin_cmd_query_cap_id_result. It's safe
+> >> to do because this data is written by DMA, so a newer controller can't
+> >> overrun the size on an older kernel.
+> >>
+> >> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> >> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> >> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> >>
+> >> ---
+> >> v4: Moved this logic from virtio_pci_modern to new file
+> >>     virtio_admin_commands.
+> >>
+> >> v12:
+> >>   - Removed uapi virtio_pci include in virtio_admin.h. MST
+> >>   - Added virtio_pci uapi include to virtio_admin_commands.c
+> >>   - Put () around cap in macro. MST
+> >>   - Removed nonsense comment above VIRTIO_ADMIN_MAX_CAP. MST
+> >>   - +1 VIRTIO_ADMIN_MAX_CAP when calculating array size. MST
+> >>   - Updated commit message
+> >> ---
+> >>  drivers/virtio/Makefile                |  2 +-
+> >>  drivers/virtio/virtio_admin_commands.c | 91 ++++++++++++++++++++++++++
+> >>  include/linux/virtio_admin.h           | 80 ++++++++++++++++++++++
+> >>  include/uapi/linux/virtio_pci.h        |  6 +-
+> >>  4 files changed, 176 insertions(+), 3 deletions(-)
+> >>  create mode 100644 drivers/virtio/virtio_admin_commands.c
+> >>  create mode 100644 include/linux/virtio_admin.h
+> >>
+> >> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> >> index eefcfe90d6b8..2b4a204dde33 100644
+> >> --- a/drivers/virtio/Makefile
+> >> +++ b/drivers/virtio/Makefile
+> >> @@ -1,5 +1,5 @@
+> >>  # SPDX-License-Identifier: GPL-2.0
+> >> -obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
+> >> +obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o virtio_admin_commands.o
+> >>  obj-$(CONFIG_VIRTIO_ANCHOR) += virtio_anchor.o
+> >>  obj-$(CONFIG_VIRTIO_PCI_LIB) += virtio_pci_modern_dev.o
+> >>  obj-$(CONFIG_VIRTIO_PCI_LIB_LEGACY) += virtio_pci_legacy_dev.o
+> >> diff --git a/drivers/virtio/virtio_admin_commands.c b/drivers/virtio/virtio_admin_commands.c
+> >> new file mode 100644
+> >> index 000000000000..a2254e71e8dc
+> >> --- /dev/null
+> >> +++ b/drivers/virtio/virtio_admin_commands.c
+> >> @@ -0,0 +1,91 @@
+> >> +// SPDX-License-Identifier: GPL-2.0-only
+> >> +
+> >> +#include <linux/virtio.h>
+> >> +#include <linux/virtio_config.h>
+> >> +#include <linux/virtio_admin.h>
+> >> +#include <uapi/linux/virtio_pci.h>
+> >> +
+> >> +int virtio_admin_cap_id_list_query(struct virtio_device *vdev,
+> >> +				   struct virtio_admin_cmd_query_cap_id_result *data)
+> >> +{
+> >> +	struct virtio_admin_cmd cmd = {};
+> >> +	struct scatterlist result_sg;
+> >> +
+> >> +	if (!vdev->config->admin_cmd_exec)
+> >> +		return -EOPNOTSUPP;
+> >> +
+> >> +	sg_init_one(&result_sg, data, sizeof(*data));
+> >> +	cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_CAP_ID_LIST_QUERY);
+> >> +	cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SELF);
+> >> +	cmd.result_sg = &result_sg;
+> >> +
+> >> +	return vdev->config->admin_cmd_exec(vdev, &cmd);
+> >> +}
+> >> +EXPORT_SYMBOL_GPL(virtio_admin_cap_id_list_query);
+> >> +
+> >> +int virtio_admin_cap_get(struct virtio_device *vdev,
+> >> +			 u16 id,
+> >> +			 void *caps,
+> >> +			 size_t cap_size)
+> > 
+> > 
+> > I still don't get why cap_size needs to be as large as size_t.
+> > 
+> > if you don't care what's it size is, just say "unsigned".
+> > or u8 as a hint to users it's a small value.
 > 
-> 
-> I still don't get why cap_size needs to be as large as size_t.
-> 
-> if you don't care what's it size is, just say "unsigned".
-> or u8 as a hint to users it's a small value.
+> The size is small for net flow filters, but this is supposed to be a
+> generic interface for future uses as well. Why limit it?
 
-The size is small for net flow filters, but this is supposed to be a
-generic interface for future uses as well. Why limit it?
+because your implementation
+makes assumptions - if you want it to be truly generic then you need to handle
+weird corner cases such as integer overflow when you add these things.
+
 
 > 
->> +{
->> +	struct virtio_admin_cmd_cap_get_data *data;
->> +	struct virtio_admin_cmd cmd = {};
->> +	struct scatterlist result_sg;
->> +	struct scatterlist data_sg;
->> +	int err;
->> +
->> +	if (!vdev->config->admin_cmd_exec)
->> +		return -EOPNOTSUPP;
->> +
->> +	data = kzalloc(sizeof(*data), GFP_KERNEL);
-> 
-> uses kzalloc without including linux/slab.h
-> 
-> 
-> 
->> +	if (!data)
->> +		return -ENOMEM;
->> +
+> > 
+> >> +{
+> >> +	struct virtio_admin_cmd_cap_get_data *data;
+> >> +	struct virtio_admin_cmd cmd = {};
+> >> +	struct scatterlist result_sg;
+> >> +	struct scatterlist data_sg;
+> >> +	int err;
+> >> +
+> >> +	if (!vdev->config->admin_cmd_exec)
+> >> +		return -EOPNOTSUPP;
+> >> +
+> >> +	data = kzalloc(sizeof(*data), GFP_KERNEL);
+> > 
+> > uses kzalloc without including linux/slab.h
+> > 
+> > 
+> > 
+> >> +	if (!data)
+> >> +		return -ENOMEM;
+> >> +
+
