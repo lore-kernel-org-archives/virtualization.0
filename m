@@ -1,119 +1,262 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D49326CE11;
-	Sun, 23 Nov 2025 21:46:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8DBA1CEADB
+	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 01:05:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763934408; cv=none; b=FRXGKt6BtJ4PqiSVQOhx4Ylh3P3hoCE1gUaEJkN+sFAZKopn0SO+pO8oWUw4YYxL2O+4q2Ofcey9g3Jjoj6QPqz36ZizckC6miK10fsnBkJejz8/5fKYDhxKkQVmvTzV+pRAZLBz7BxR8Ree5CRa6agc+8ACo20I20IE1aFqndc=
+	t=1763946309; cv=none; b=AUeksy4ZdLjrbDbaEpEcjK0TYTFf453MXvf4rS/WK4GohBxgDAGCLGusRll1FDxpa1vSFjF2w01+wviUowMml5dGVBg90kCdsAOVyNP4fJIOjYot36TgR9te0ojybWwhvjs9YnWV0AY1LymUF5PfSr1Xog19/QoVjaxO4cYr+Iw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763934408; c=relaxed/simple;
-	bh=SXzlEMIfuqof9XPqr1BY5IV2ECcOmlshnjU0P8djnL0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cgSdKipjD8IeodVlGSjWswXat7HO0cFapCcvKSTMZQMcY32mxewtXg51ykJAZrrI+Ou983AkRcFWFrD51rr3OTarG9+8QqcPdXtEsncefOGLACdWDK/75jmH4kSUTEXbQqeLRmLkk8zEksSIONZPJ4/Tma3WeCRzYCDjjzcpbUU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=r8w2Xhgq; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1763946309; c=relaxed/simple;
+	bh=hFaBYbE3y68xOE+XV9Dtx+Qgi0+F14Zb9cUvi3w2ZxA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ivC0txERSUpX9XXlix6UOg4NtwsVzmnz8eCZnkmTxYdrmkAbkakaMvHVZAuOKH4ghunoRzYx4t1bTCplhXI/khxGfSZ8PThQF/9NnBxykuDCYaisNv2PR1wEngNGA9On/gouwOzonfPIfO6gHMVTmIvMN1BgVYRdYDORBljCl9E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HzNU6Yc4; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="r8w2Xhgq"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1vNHut-001CsT-HW; Sun, 23 Nov 2025 22:46:43 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=DRnvCSjVzgrSnN4EAonU/KtH7SXFjNQ93qQMIgdXMSY=; b=r8w2XhgqagmrvZiya5HF38/5zZ
-	S1Pi4U9pbJ7fFqlbZqvSPWBXlaQMOFt0vioD9IwGX4Yv9pJ6lv1O7eHCLwB7Oae5x+cbLTLTzmGUz
-	1S7tmnX6uyDc023ikOz7d/pEm7vi+L9LYAIUYPWmSAqQiGdXpeGwkURbRFToykOAXopShrVz1EFYR
-	r1QxyACqjS9E2wftQsexM+IdqveBVZvO3GWy42M/4MOM6qEO2//dNrFazUP55gGIsuGcNNvtAV924
-	i9w0pVMpjPTbPMcoeFCfUptJBWRj+MS2U1FmaOpBOfH46IgqsCpnlYV4kvgnIZxS/1nAM6MKiNmrr
-	N9PtnrgA==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1vNHus-0005vZ-Nt; Sun, 23 Nov 2025 22:46:42 +0100
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1vNHuZ-006wBS-R6; Sun, 23 Nov 2025 22:46:23 +0100
-Message-ID: <69a3d223-dd95-43df-af3a-522968d6b850@rbox.co>
-Date: Sun, 23 Nov 2025 22:46:22 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HzNU6Yc4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1763946306;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=VV+5zSicwL/Rb0C8YO32PyihotdED3oqIKG17hTVQOg=;
+	b=HzNU6Yc4b1zXewYBNTBNnNGD7MyDDa6Ey93h2jNvKDGkfz+cJtgWf6Ofcaduj0e99P7tgm
+	0JrpXtGb7CdrhTexSurAaPSE3drJrn4DwKNZLJEOb9rx3Juql94yq66K0ZoH4wT4MY/hJ2
+	s/njjjPJyaSBuYkTdCyJfhB8pSvmqF4=
+Received: from mail-ua1-f71.google.com (mail-ua1-f71.google.com
+ [209.85.222.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-584-KjcslECTN_u06_jAmtVYRQ-1; Sun, 23 Nov 2025 20:05:05 -0500
+X-MC-Unique: KjcslECTN_u06_jAmtVYRQ-1
+X-Mimecast-MFC-AGG-ID: KjcslECTN_u06_jAmtVYRQ_1763946305
+Received: by mail-ua1-f71.google.com with SMTP id a1e0cc1a2514c-9372b0ea541so8480609241.3
+        for <virtualization@lists.linux.dev>; Sun, 23 Nov 2025 17:05:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763946305; x=1764551105;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=VV+5zSicwL/Rb0C8YO32PyihotdED3oqIKG17hTVQOg=;
+        b=poFMd/Prks3ycGjamksTQ1wOEuOhWWAprK3ocXrK3B6cAs2UF9G0nQmbbWX1xOZR3A
+         JcKue2HwQHXPyHFw2Jp3qL5pmI7iCEayEnS4cMmRfXlyaPcLo2YFhi3Mqd2IDbIrGA2n
+         HnVwa2HRbY7VWr2Tkh/MVRFRqAeQ/EUqTJoN0KNHa3TW9IuxZfcV49bOtrCEMVQ+NyHK
+         lELXOLARrcB0q2a/ifgdT58kNV2t0/HN+lQRQ/+QsZsXoL5hHUWK9hjug2Z6BCuI616C
+         byhTiAp0H7XvUxY5RFPwsXOMBrK8GhKyIf1WInCqbOwMqCvJ5klwsGMLpQOtC1wEKU7b
+         NsBA==
+X-Forwarded-Encrypted: i=1; AJvYcCVK17Wl/jEx7JgN9UI7FMH4dAQ527yljIUXotnqmsR69W/Tg/8wiaRTAL1TpZrekrmJY7xvgwU14mBNdJ7vmQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxJjwlUwgzqPHoMgXGonHJfhB/cFtQ1i2aE6eXf4RYnW+E1Cdbl
+	rA7FJ5buVoh3jl5Y2z0TrhzNrWfY7J31VUeaqYqX2Dag5JMnbbpV6duj9vuB9mZxxoz6OhBrSG0
+	RDsmhcT23EKRMP9wSIYGQlCENedcQd0NkEQ3Yzy7IEKdjMTBn1HVul3eMGGO8iPWsmGDWEUpMT+
+	XSlhPXYTWiF6x+XF9mOz8gbWQFaz2ZFBs174D2Bv63hkk=
+X-Gm-Gg: ASbGnctauyRfG7QIFMukTD+ZQw1GNE760ou/6e1ugLsFT4FshYcVPDR+mEz9AraYriI
+	XMM99XqHdIyKn345pajV+7TK8b1/SXoh/ZtSxdzjzKwV7VYyofiRrxNsyMaokoQ3YFqGLANy7ph
+	DOb7qhqR6GOCHCLPykSbW4ynYMNBl0JGlv75f7sz4GMh0R9skvFlHHLam9wCoZGsous9w=
+X-Received: by 2002:a05:6102:5113:b0:5dd:8992:e38d with SMTP id ada2fe7eead31-5e1de009870mr3053977137.7.1763946304770;
+        Sun, 23 Nov 2025 17:05:04 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH7OacEM+zDYjOfkUsz4G/sINm5QjFmTYWbl6BoR4HzQZ3LpfFnpvnnMjxdSI0aO50p576SwyBLD1Of6y3UlXU=
+X-Received: by 2002:a05:6102:5113:b0:5dd:8992:e38d with SMTP id
+ ada2fe7eead31-5e1de009870mr3053959137.7.1763946304249; Sun, 23 Nov 2025
+ 17:05:04 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] vsock: Ignore signal/timeout on connect() if already
- established
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co>
- <dh6gl6xzufrxk23dwei3dcyljjlspjx3gwdhi6o3umtltpypkw@ef4n6llndg5p>
- <98e2ac89-34e9-42d9-bfcf-e81e7a04504d@rbox.co>
- <rptu2o7jpqw5u5g4xt76ntyupsak3dcs7rzfhzeidn6vcwf6ku@dcd47yt6ebhu>
- <09c6de68-06aa-404d-9753-907eab61b9ab@rbox.co>
- <663yvkk2sh5lesfvdeerlca567xb64qbwih52bxjftob3umsah@eamuykmarrfr>
- <1b2255c7-0e97-4b37-b7ab-e13e90b7b0b9@rbox.co>
- <06936b55-b359-4e3d-bec0-b157ca32d237@rbox.co>
- <fy3ep725gwaislzz6lyu27ckswp2iyy5gj6afw6jji6c3get3l@lqa6wpptq5ii>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <fy3ep725gwaislzz6lyu27ckswp2iyy5gj6afw6jji6c3get3l@lqa6wpptq5ii>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
+ <CACGkMEuboys8sCJFUTGxHUeouPFnVqVLGQBefvmxYDe4ooLfLg@mail.gmail.com> <b9fff8e1-fb96-4b1f-9767-9d89adf31060@tu-dortmund.de>
+In-Reply-To: <b9fff8e1-fb96-4b1f-9767-9d89adf31060@tu-dortmund.de>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 24 Nov 2025 09:04:51 +0800
+X-Gm-Features: AWmQ_blAfagP4JVcqb3I5pd2yopIE-ehV7wJYeGsn_1Vv8cVt5NT9Qo4mtXzUkM
+Message-ID: <CACGkMEufNLjXj37NBVCW4xdSuVLLV4ZS4WTuRzdaBV-nYgKs8w@mail.gmail.com>
+Subject: Re: [PATCH net-next v6 0/8] tun/tap & vhost-net: netdev queue flow
+ control to avoid ptr_ring tail drop
+To: Simon Schippers <simon.schippers@tu-dortmund.de>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	mst@redhat.com, eperezma@redhat.com, jon@nutanix.com, 
+	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: AgmmreifuOHchl8gyFRnrivQmvAXBlZDQPfQG3kDIm8_1763946305
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 11/21/25 10:21, Stefano Garzarella wrote:
-> On Thu, Nov 20, 2025 at 10:12:20PM +0100, Michal Luczaj wrote:
->> On 11/19/25 20:52, Michal Luczaj wrote:
->>> ...
->>> To follow up, should I add a version of syzkaller's lockdep warning repro
->>> to vsock test suite? In theory it could test this fix here as well, but in
->>> practice the race window is small and hitting it (the brute way) takes
->>> prohibitively long.
->>
->> Replying to self to add more data.
->>
->> After reverting
->>
->> f7c877e75352 ("vsock: fix lock inversion in vsock_assign_transport()")
->> 002541ef650b ("vsock: Ignore signal/timeout on connect() if already
->> established")
->>
->> adding
->>
->> --- a/tools/testing/vsock/vsock_test.c
->> +++ b/tools/testing/vsock/vsock_test.c
->> @@ -2014,6 +2014,7 @@ static void test_stream_transport_change_client(const
->> struct test_opts *opts)
->>                        perror("socket");
->>                        exit(EXIT_FAILURE);
->>                }
->> +               enable_so_linger(s, 1);
->>
->>                ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
->>                /* The connect can fail due to signals coming from the
->>
->> is enough for vsock_test to trigger the lockdep warning syzkaller found.
->>
-> 
-> cool, so if it's only that, maybe is worth adding.
+On Fri, Nov 21, 2025 at 5:23=E2=80=AFPM Simon Schippers
+<simon.schippers@tu-dortmund.de> wrote:
+>
+> On 11/21/25 07:19, Jason Wang wrote:
+> > On Thu, Nov 20, 2025 at 11:30=E2=80=AFPM Simon Schippers
+> > <simon.schippers@tu-dortmund.de> wrote:
+> >>
+> >> This patch series deals with tun/tap and vhost-net which drop incoming
+> >> SKBs whenever their internal ptr_ring buffer is full. Instead, with th=
+is
+> >> patch series, the associated netdev queue is stopped before this happe=
+ns.
+> >> This allows the connected qdisc to function correctly as reported by [=
+1]
+> >> and improves application-layer performance, see our paper [2]. Meanwhi=
+le
+> >> the theoretical performance differs only slightly:
+> >>
+> >> +--------------------------------+-----------+----------+
+> >> | pktgen benchmarks to Debian VM | Stock     | Patched  |
+> >> | i5 6300HQ, 20M packets         |           |          |
+> >> +-----------------+--------------+-----------+----------+
+> >> | TAP             | Transmitted  | 195 Kpps  | 183 Kpps |
+> >> |                 +--------------+-----------+----------+
+> >> |                 | Lost         | 1615 Kpps | 0 pps    |
+> >> +-----------------+--------------+-----------+----------+
+> >> | TAP+vhost_net   | Transmitted  | 589 Kpps  | 588 Kpps |
+> >> |                 +--------------+-----------+----------+
+> >> |                 | Lost         | 1164 Kpps | 0 pps    |
+> >> +-----------------+--------------+-----------+----------+
+> >
+>
+> Hi Jason,
+>
+> thank you for your reply!
+>
+> > PPS drops somehow for TAP, any reason for that?
+>
+> I have no explicit explanation for that except general overheads coming
+> with this implementation.
 
-Ok, there it is:
-https://lore.kernel.org/netdev/20251123-vsock_test-linger-lockdep-warn-v1-1-4b1edf9d8cdc@rbox.co/
+It would be better to fix that.
 
-And circling back to [1], let me know if you think it's worth adding to the
-suit. I guess it would test the case #2 from [2], but it'd take another 2s
-and would require both h2g and non-h2g transports enabled.
+>
+> >
+> > Btw, I had some questions:
+> >
+> > 1) most of the patches in this series would introduce non-trivial
+> > impact on the performance, we probably need to benchmark each or split
+> > the series. What's more we need to run TCP benchmark
+> > (throughput/latency) as well as pktgen see the real impact
+>
+> What could be done, IMO, is to activate tun_ring_consume() /
+> tap_ring_consume() before enabling tun_ring_produce(). Then we could see
+> if this alone drops performance.
+>
+> For TCP benchmarks, you mean userspace performance like iperf3 between a
+> host and a guest system?
 
-[1]:
-https://lore.kernel.org/netdev/fjy4jaww6xualdudevfuyoavnrbu45cg4d7erv4rttde363xfc@nahglijbl2eg/
-[2]:
-https://lore.kernel.org/netdev/20251119-vsock-interrupted-connect-v2-1-70734cf1233f@rbox.co/
+Yes,
+
+>
+> >
+> > 2) I see this:
+> >
+> >         if (unlikely(tun_ring_produce(&tfile->tx_ring, queue, skb))) {
+> >                 drop_reason =3D SKB_DROP_REASON_FULL_RING;
+> >                 goto drop;
+> >         }
+> >
+> > So there could still be packet drop? Or is this related to the XDP path=
+?
+>
+> Yes, there can be packet drops after a ptr_ring resize or a ptr_ring
+> unconsume. Since those two happen so rarely, I figured we should just
+> drop in this case.
+>
+> >
+> > 3) The LLTX change would have performance implications, but the
+> > benmark doesn't cover the case where multiple transmission is done in
+> > parallel
+>
+> Do you mean multiple applications that produce traffic and potentially
+> run on different CPUs?
+
+Yes.
+
+>
+> >
+> > 4) After the LLTX change, it seems we've lost the synchronization with
+> > the XDP_TX and XDP_REDIRECT path?
+>
+> I must admit I did not take a look at XDP and cannot really judge if/how
+> lltx has an impact on XDP. But from my point of view, __netif_tx_lock()
+> instead of __netif_tx_acquire(), is executed before the tun_net_xmit()
+> call and I do not see the impact for XDP, which calls its own methods.
+
+Without LLTX tun_net_xmit is protected by tx lock but it is not the
+case of tun_xdp_xmit. This is because, unlike other devices, tun
+doesn't have a dedicated TX queue for XDP, so the queue is shared by
+both XDP and skb. So XDP xmit path needs to be protected with tx lock
+as well, and since we don't have queue discipline for XDP, it means we
+could still drop packets when XDP is enabled. I'm not sure this would
+defeat the whole idea or not.
+
+> >
+> > 5) The series introduces various ptr_ring helpers with lots of
+> > ordering stuff which is complicated, I wonder if we first have a
+> > simple patch to implement the zero packet loss
+>
+> I personally don't see how a simpler patch is possible without using
+> discouraged practices like returning NETDEV_TX_BUSY in tun_net_xmit or
+> spin locking between producer and consumer. But I am open for
+> suggestions :)
+
+I see NETDEV_TX_BUSY is used by veth:
+
+static int veth_xdp_rx(struct veth_rq *rq, struct sk_buff *skb)
+{
+        if (unlikely(ptr_ring_produce(&rq->xdp_ring, skb)))
+                return NETDEV_TX_BUSY; /* signal qdisc layer */
+
+        return NET_RX_SUCCESS; /* same as NETDEV_TX_OK */
+}
+
+Maybe it would be simpler to start from that (probably with a new tun->flag=
+s?).
+
+Thanks
+
+>
+> >
+> >>
+> >> This patch series includes tun/tap, and vhost-net because they share
+> >> logic. Adjusting only one of them would break the others. Therefore, t=
+he
+> >> patch series is structured as follows:
+> >> 1+2: new ptr_ring helpers for 3
+> >> 3: tun/tap: tun/tap: add synchronized ring produce/consume with queue
+> >> management
+> >> 4+5+6: tun/tap: ptr_ring wrappers and other helpers to be called by
+> >> vhost-net
+> >> 7: tun/tap & vhost-net: only now use the previous implemented function=
+s to
+> >> not break git bisect
+> >> 8: tun/tap: drop get ring exports (not used anymore)
+> >>
+> >> Possible future work:
+> >> - Introduction of Byte Queue Limits as suggested by Stephen Hemminger
+> >
+> > This seems to be not easy. The tx completion depends on the userspace b=
+ehaviour.
+>
+> I agree, but I really would like to reduce the buffer bloat caused by the
+> default 500 TUN / 1000 TAP packet queue without losing performance.
+>
+> >
+> >> - Adaption of the netdev queue flow control for ipvtap & macvtap
+> >>
+> >> [1] Link: https://unix.stackexchange.com/questions/762935/traffic-shap=
+ing-ineffective-on-tun-device
+> >> [2] Link: https://cni.etit.tu-dortmund.de/storages/cni-etit/r/Research=
+/Publications/2025/Gebauer_2025_VTCFall/Gebauer_VTCFall2025_AuthorsVersion.=
+pdf
+> >>
+> >
+> > Thanks
+> >
+>
+> Thanks! :)
+>
 
