@@ -1,251 +1,248 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 393C22F3C07
-	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 09:03:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C8A442EAB8D;
+	Mon, 24 Nov 2025 09:08:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763975029; cv=none; b=G8vvvPGg+zKl2p060DajpITwp9OgWUwCBWPoRD+qb2Hvf5gU7C/Z+i5i+t1JhlUvpRFFiH7S3nA+YhxWEwgNerfMtxHi9spLAdFnUaO0ZttBDURwZp+eTkAB1fF1CL65GIlK5qwDBFvb3HWbEeC3N2aNIYp2QUuPYUsSd77gHVQ=
+	t=1763975312; cv=none; b=EntuoHiB1RGWVGUAxjnYjzYxDOswQwpBEUhwFshtEAdke/VaLlwnM1rOSUuUswQAHlHE6/uRXzLk5vsbkRhy2oSudSIUr3j4E3EzX89/Zt6PEfaXK6NQBUIH2bylrmsaYqDo0moUgm0hVhhowOqvx5UdL6brMcCyZXh7Fn1KPfQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763975029; c=relaxed/simple;
-	bh=W/Xk2R/t2ZoaXb6JKxqxjSvL304pXRIfylaFB3JpVbY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dehq7s+ubaIrPKkNxAZIuV1Z1+Mu81GtYqd1wK4Gz1eND+nrqLOUydQCCgi5PN6ZiUi+PDnaPEb/mQGtENuJhW41ACXXyt4FkwPCB8iLgRVQCJuzb3IOUphaZEvRDDQGkrGJPlxnIha0aWzbDXUKWf62o9Fy9lozaQAL0Yrd50k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KkyhnKnw; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KkyhnKnw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF07EC19422
-	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 09:03:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763975028;
-	bh=W/Xk2R/t2ZoaXb6JKxqxjSvL304pXRIfylaFB3JpVbY=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=KkyhnKnwi1Fp+C2U8U1Xu9zriTUeV/jKHYZvPq+MCa5ctcbm6gW6ZfLNjpG9X0oQH
-	 18ArLHkzUrkIIwG+32N+ZOliO5fSjKEt7FIQBYAThkrYLr1+NwKZxe3JsF6kJMhrMb
-	 ZF4LMCwnrfK4Ex+Ib5kx3tYdTOxRhV+T4RT+akXMQv7mCxf3pyr7QdDvS4dTuI7hFp
-	 KGajSdq7H9e5dPvF9YnW5Q6SqW2H4Tfyw5IV8zfXEvI3KJvMjz6gT1WVJpqm7MDGP+
-	 JcbeQcaxl1Xf2pC1WZ3CnmsZoxWcTsydnKZyD6a8dL2meJtHzLfnEOnAPupQZowzZf
-	 ALWaQmtBJHuSQ==
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-b737cd03d46so553263866b.0
-        for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 01:03:48 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCW1nlBwVMBkAwDKzl6/iH43BiLPtOsm7O7T7gtiVmv7Z4+0djXEoNGo85cOoq6ORL93DdK+CRH108VTKB9A9A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxGlODjlwJoEytCJULMu11OB31KoIpH1Q51oIDiPQMECb7wVw8t
-	aH4FYoRsjI82WSXefRwxXDErjLpk+bMvmDAxr2F1geUpw6KvNtOhJ/yUtNZmLpC9JEyKFvpxWFB
-	t3cNHo69DzgoYovPjk9yVNtWPbSmhdQ0=
-X-Google-Smtp-Source: AGHT+IGAOVH5IrByY9iy7QsmuJJSSkQzPZCk9aFnD1OugVDq9Q5D3ZHJ61TKf4j/XKBUS7hAUGPKoBGKc7IvbpdOYeU=
-X-Received: by 2002:a17:907:a0d:b0:b70:be0b:6ba8 with SMTP id
- a640c23a62f3a-b76719d9598mr1115915766b.61.1763975027342; Mon, 24 Nov 2025
- 01:03:47 -0800 (PST)
+	s=arc-20240116; t=1763975312; c=relaxed/simple;
+	bh=kVLTErxN4THTWzbx/ZV5SLay0pE11z7SHZJm/LLeI8g=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=RP4xF9VgIOilgHwQ6yBNciLslbyn4fjdagxkgy0xP/oQtG3pkLARO07WN3QFrcdAFcJ/AAmYZ18zUAlVA75QRPGwnrNJoGPZmUyFF1U/urJDY/9KIotHWoY9gWwgozWaKx67Pz4Oar4x46FnLVjEiMAfsYHlfSPsog0m0z0lF2c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8DxLvCJICRpb3EnAA--.19388S3;
+	Mon, 24 Nov 2025 17:08:25 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by front1 (Coremail) with SMTP id qMiowJAxVOSFICRpcYY9AQ--.43766S3;
+	Mon, 24 Nov 2025 17:08:23 +0800 (CST)
+Subject: Re: [PATCH v2 2/3] LoongArch: Add paravirt support with
+ vcpu_is_preempted() in guest side
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>,
+ Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, x86@kernel.org
+References: <20251124035402.3817179-1-maobibo@loongson.cn>
+ <20251124035402.3817179-3-maobibo@loongson.cn>
+ <CAAhV-H5Oag+mDp0CfZ1VDeapeKas354j68JZN9bN42=D4huowA@mail.gmail.com>
+ <5d80c452-bbc3-539a-fb8d-14dbe353f8cb@loongson.cn>
+ <CAAhV-H66M+GZ2kB8BKR82BUeQcNZ8ACeXLxwjh-bsVZcca1cqQ@mail.gmail.com>
+ <718b5b5d-2bb1-5d59-409e-54f54516a6b7@loongson.cn>
+ <CAAhV-H4X5EAgDTnSGG+1pMWywoLAis5TH_jEWkvaY8p1m8hQMg@mail.gmail.com>
+ <611840bb-7f7d-3b13-dc89-b760d8eeda79@loongson.cn>
+ <CAAhV-H6TWCs-tFf5HCOt9cAY01J-nirzVmu1GEAYpP=1LWznPA@mail.gmail.com>
+From: Bibo Mao <maobibo@loongson.cn>
+Message-ID: <393b2f18-c860-9d71-6d86-5a496983c3fd@loongson.cn>
+Date: Mon, 24 Nov 2025 17:05:55 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251124035402.3817179-1-maobibo@loongson.cn> <20251124035402.3817179-3-maobibo@loongson.cn>
- <CAAhV-H5Oag+mDp0CfZ1VDeapeKas354j68JZN9bN42=D4huowA@mail.gmail.com>
- <5d80c452-bbc3-539a-fb8d-14dbe353f8cb@loongson.cn> <CAAhV-H66M+GZ2kB8BKR82BUeQcNZ8ACeXLxwjh-bsVZcca1cqQ@mail.gmail.com>
- <718b5b5d-2bb1-5d59-409e-54f54516a6b7@loongson.cn> <CAAhV-H4X5EAgDTnSGG+1pMWywoLAis5TH_jEWkvaY8p1m8hQMg@mail.gmail.com>
- <611840bb-7f7d-3b13-dc89-b760d8eeda79@loongson.cn>
-In-Reply-To: <611840bb-7f7d-3b13-dc89-b760d8eeda79@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Mon, 24 Nov 2025 17:03:51 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H6TWCs-tFf5HCOt9cAY01J-nirzVmu1GEAYpP=1LWznPA@mail.gmail.com>
-X-Gm-Features: AWmQ_bl5WHttwyif8buPYIlczD8Qs375scySMM_FOAg_9ZNtDvE7TU_oeK5A_lo
-Message-ID: <CAAhV-H6TWCs-tFf5HCOt9cAY01J-nirzVmu1GEAYpP=1LWznPA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] LoongArch: Add paravirt support with
- vcpu_is_preempted() in guest side
-To: Bibo Mao <maobibo@loongson.cn>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>, 
-	Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAAhV-H6TWCs-tFf5HCOt9cAY01J-nirzVmu1GEAYpP=1LWznPA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJAxVOSFICRpcYY9AQ--.43766S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxtFWDAFW7trW3tw48Jw4DZFc_yoWxXr15pr
+	yUJF1kta1UGr18Aw42qr1q9r15tr1kGr1xXry7Gry5Ar1qvr17Jr1UtryjkFyUtwnrGF10
+	qr1kGr4agFyUJwcCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUU9Sb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv
+	67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07
+	AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km07C2
+	67AKxVWrXVW3AwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI
+	8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWU
+	CwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r
+	1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBI
+	daVFxhVjvjDU0xZFpf9x07j8sqAUUUUU=
 
-On Mon, Nov 24, 2025 at 4:35=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> wrot=
-e:
->
->
->
-> On 2025/11/24 =E4=B8=8B=E5=8D=884:03, Huacai Chen wrote:
-> > On Mon, Nov 24, 2025 at 3:50=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> =
-wrote:
-> >>
-> >>
-> >>
-> >> On 2025/11/24 =E4=B8=8B=E5=8D=883:13, Huacai Chen wrote:
-> >>> On Mon, Nov 24, 2025 at 3:03=E2=80=AFPM Bibo Mao <maobibo@loongson.cn=
-> wrote:
-> >>>>
-> >>>>
-> >>>>
-> >>>> On 2025/11/24 =E4=B8=8B=E5=8D=882:33, Huacai Chen wrote:
-> >>>>> Hi, Bibo,
-> >>>>>
-> >>>>> On Mon, Nov 24, 2025 at 11:54=E2=80=AFAM Bibo Mao <maobibo@loongson=
-.cn> wrote:
-> >>>>>>
-> >>>>>> Function vcpu_is_preempted() is used to check whether vCPU is pree=
-mpted
-> >>>>>> or not. Here add implementation with vcpu_is_preempted() when opti=
-on
-> >>>>>> CONFIG_PARAVIRT is enabled.
-> >>>>>>
-> >>>>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-> >>>>>> ---
-> >>>>>>     arch/loongarch/include/asm/qspinlock.h |  5 +++++
-> >>>>>>     arch/loongarch/kernel/paravirt.c       | 16 ++++++++++++++++
-> >>>>>>     2 files changed, 21 insertions(+)
-> >>>>>>
-> >>>>>> diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongar=
-ch/include/asm/qspinlock.h
-> >>>>>> index e76d3aa1e1eb..9a5b7ba1f4cb 100644
-> >>>>>> --- a/arch/loongarch/include/asm/qspinlock.h
-> >>>>>> +++ b/arch/loongarch/include/asm/qspinlock.h
-> >>>>>> @@ -34,6 +34,11 @@ static inline bool virt_spin_lock(struct qspinl=
-ock *lock)
-> >>>>>>            return true;
-> >>>>>>     }
-> >>>>>>
-> >>>>>> +#ifdef CONFIG_SMP
-> >>>>>> +#define vcpu_is_preempted      vcpu_is_preempted
-> >>>>>> +bool vcpu_is_preempted(int cpu);
-> >>>>> In V1 there is a build error because you reference mp_ops, so in V2
-> >>>>> you needn't put it in CONFIG_SMP.
-> >>>> The compile failure problem is that vcpu_is_preempted() is redefined=
- in
-> >>>> both arch/loongarch/kernel/paravirt.c and include/linux/sched.h
-> >>> But other archs don't define vcpu_is_preempted() under CONFIG_SMP, an=
-d
-> >> so what is advantage to implement this function if CONFIG_SMP is disab=
-led?
-> > 1. Keep consistency with other architectures.
-> > 2. Keep it simple to reduce #ifdefs (and !SMP is just for build, not
-> > very useful in practice).
-> It seems that CONFIG_SMP can be removed in header file
-> include/asm/qspinlock.h, since asm/spinlock.h and asm/qspinlock.h is
-> only included when CONFIG_SMP is set, otherwise only linux/spinlock_up.h
-> is included.
->
-> >
-> >>
-> >>> you can consider to inline the whole vcpu_is_preempted() here.
-> >> Defining the function vcpu_is_preempted() as inlined is not so easy fo=
-r
-> >> me, it beyond my ability now :(
-> >>
-> >> With static key method, the static key need be exported, all modules
-> >> need apply the jump label, that is dangerous and I doubt whether it is
-> >> deserved.
-> > No, you have already done similar things in virt_spin_lock(), it is an
-> > inline function and uses virt_spin_lock_key.
-> virt_spin_lock is only called qspinlock in function
-> queued_spin_lock_slowpath(). Function vcpu_is_preempted() is defined
-> header file linux/sched.h, kernel module may use it.
-Yes, if modules want to use it we need to EXPORT_SYMBOL. But don't
-worry, static key infrastructure can handle this. Please see
-cpu_feature_keys defined and used in
-arch/powerpc/include/asm/cpu_has_feature.h, which is exported in
-arch/powerpc/kernel/cputable.c.
 
-Huacai
 
->
->
-> >
-> > Huacai
-> >
-> >>
-> >> Regards
-> >> Bibo Mao
-> >>>
-> >>>>
-> >>>> The problem is that <asm/spinlock.h> is not included by sched.h, if
-> >>>> CONFIG_SMP is disabled. Here is part of file include/linux/spinlock.=
-h
-> >>>> #ifdef CONFIG_SMP
-> >>>> # include <asm/spinlock.h>
-> >>>> #else
-> >>>> # include <linux/spinlock_up.h>
-> >>>> #endif
-> >>>>
-> >>>>> On the other hand, even if you really build a UP guest kernel, when
-> >>>>> multiple guests run together, you probably need vcpu_is_preemtped.
-> >>>> It is not relative with multiple VMs. When vcpu_is_preempted() is
-> >>>> called, it is to detect whether dest CPU is preempted or not, the cp=
-u
-> >>>> from smp_processor_id() should not be preempted. So in generic
-> >>>> vcpu_is_preempted() works on multiple vCPUs.
-> >>> OK, I'm wrong here.
-> >>>
-> >>>
-> >>> Huacai
-> >>>
-> >>>>
-> >>>> Regards
-> >>>> Bibo Mao
-> >>>>>
-> >>>>>
-> >>>>> Huacai
-> >>>>>
-> >>>>>> +#endif
-> >>>>>> +
-> >>>>>>     #endif /* CONFIG_PARAVIRT */
-> >>>>>>
-> >>>>>>     #include <asm-generic/qspinlock.h>
-> >>>>>> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/ker=
-nel/paravirt.c
-> >>>>>> index b1b51f920b23..d4163679adc4 100644
-> >>>>>> --- a/arch/loongarch/kernel/paravirt.c
-> >>>>>> +++ b/arch/loongarch/kernel/paravirt.c
-> >>>>>> @@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
-> >>>>>>     }
-> >>>>>>
-> >>>>>>     #ifdef CONFIG_SMP
-> >>>>>> +DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
-> >>>>>>     static int pv_time_cpu_online(unsigned int cpu)
-> >>>>>>     {
-> >>>>>>            unsigned long flags;
-> >>>>>> @@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigned =
-int cpu)
-> >>>>>>
-> >>>>>>            return 0;
-> >>>>>>     }
-> >>>>>> +
-> >>>>>> +bool notrace vcpu_is_preempted(int cpu)
-> >>>>>> +{
-> >>>>>> +       struct kvm_steal_time *src;
-> >>>>>> +
-> >>>>>> +       if (!static_branch_unlikely(&virt_preempt_key))
-> >>>>>> +               return false;
-> >>>>>> +
-> >>>>>> +       src =3D &per_cpu(steal_time, cpu);
-> >>>>>> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
-> >>>>>> +}
-> >>>>>> +EXPORT_SYMBOL(vcpu_is_preempted);
-> >>>>>>     #endif
-> >>>>>>
-> >>>>>>     static void pv_cpu_reboot(void *unused)
-> >>>>>> @@ -308,6 +321,9 @@ int __init pv_time_init(void)
-> >>>>>>                    pr_err("Failed to install cpu hotplug callbacks=
-\n");
-> >>>>>>                    return r;
-> >>>>>>            }
-> >>>>>> +
-> >>>>>> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
-> >>>>>> +               static_branch_enable(&virt_preempt_key);
-> >>>>>>     #endif
-> >>>>>>
-> >>>>>>            static_call_update(pv_steal_clock, paravt_steal_clock);
-> >>>>>> --
-> >>>>>> 2.39.3
-> >>>>>>
-> >>>>
-> >>>>
-> >>
-> >>
->
->
+On 2025/11/24 下午5:03, Huacai Chen wrote:
+> On Mon, Nov 24, 2025 at 4:35 PM Bibo Mao <maobibo@loongson.cn> wrote:
+>>
+>>
+>>
+>> On 2025/11/24 下午4:03, Huacai Chen wrote:
+>>> On Mon, Nov 24, 2025 at 3:50 PM Bibo Mao <maobibo@loongson.cn> wrote:
+>>>>
+>>>>
+>>>>
+>>>> On 2025/11/24 下午3:13, Huacai Chen wrote:
+>>>>> On Mon, Nov 24, 2025 at 3:03 PM Bibo Mao <maobibo@loongson.cn> wrote:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> On 2025/11/24 下午2:33, Huacai Chen wrote:
+>>>>>>> Hi, Bibo,
+>>>>>>>
+>>>>>>> On Mon, Nov 24, 2025 at 11:54 AM Bibo Mao <maobibo@loongson.cn> wrote:
+>>>>>>>>
+>>>>>>>> Function vcpu_is_preempted() is used to check whether vCPU is preempted
+>>>>>>>> or not. Here add implementation with vcpu_is_preempted() when option
+>>>>>>>> CONFIG_PARAVIRT is enabled.
+>>>>>>>>
+>>>>>>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>steal_time
+>>>>>>>> ---
+>>>>>>>>      arch/loongarch/include/asm/qspinlock.h |  5 +++++
+>>>>>>>>      arch/loongarch/kernel/paravirt.c       | 16 ++++++++++++++++
+>>>>>>>>      2 files changed, 21 insertions(+)
+>>>>>>>>
+>>>>>>>> diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/include/asm/qspinlock.h
+>>>>>>>> index e76d3aa1e1eb..9a5b7ba1f4cb 100644
+>>>>>>>> --- a/arch/loongarch/include/asm/qspinlock.h
+>>>>>>>> +++ b/arch/loongarch/include/asm/qspinlock.h
+>>>>>>>> @@ -34,6 +34,11 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
+>>>>>>>>             return true;
+>>>>>>>>      }
+>>>>>>>>
+>>>>>>>> +#ifdef CONFIG_SMP
+>>>>>>>> +#define vcpu_is_preempted      vcpu_is_preempted
+>>>>>>>> +bool vcpu_is_preempted(int cpu);
+>>>>>>> In V1 there is a build error because you reference mp_ops, so in V2
+>>>>>>> you needn't put it in CONFIG_SMP.
+>>>>>> The compile failure problem is that vcpu_is_preempted() is redefined in
+>>>>>> both arch/loongarch/kernel/paravirt.c and include/linux/sched.h
+>>>>> But other archs don't define vcpu_is_preempted() under CONFIG_SMP, and
+>>>> so what is advantage to implement this function if CONFIG_SMP is disabled?
+>>> 1. Keep consistency with other architectures.
+>>> 2. Keep it simple to reduce #ifdefs (and !SMP is just for build, not
+>>> very useful in practice).
+>> It seems that CONFIG_SMP can be removed in header file
+>> include/asm/qspinlock.h, since asm/spinlock.h and asm/qspinlock.h is
+>> only included when CONFIG_SMP is set, otherwise only linux/spinlock_up.h
+>> is included.
+>>
+>>>
+>>>>
+>>>>> you can consider to inline the whole vcpu_is_preempted() here.
+>>>> Defining the function vcpu_is_preempted() as inlined is not so easy for
+>>>> me, it beyond my ability now :(
+>>>>
+>>>> With static key method, the static key need be exported, all modules
+>>>> need apply the jump label, that is dangerous and I doubt whether it is
+>>>> deserved.
+>>> No, you have already done similar things in virt_spin_lock(), it is an
+>>> inline function and uses virt_spin_lock_key.
+>> virt_spin_lock is only called qspinlock in function
+>> queued_spin_lock_slowpath(). Function vcpu_is_preempted() is defined
+>> header file linux/sched.h, kernel module may use it.
+> Yes, if modules want to use it we need to EXPORT_SYMBOL. But don't
+> worry, static key infrastructure can handle this. Please see
+> cpu_feature_keys defined and used in
+> arch/powerpc/include/asm/cpu_has_feature.h, which is exported in
+> arch/powerpc/kernel/cputable.c.
+No, I do not want to do so. export static key and percpu steal_time 
+structure, just in order to implement one inline function.
+
+> 
+> Huacai
+> 
+>>
+>>
+>>>
+>>> Huacai
+>>>
+>>>>
+>>>> Regards
+>>>> Bibo Mao
+>>>>>
+>>>>>>
+>>>>>> The problem is that <asm/spinlock.h> is not included by sched.h, if
+>>>>>> CONFIG_SMP is disabled. Here is part of file include/linux/spinlock.h
+>>>>>> #ifdef CONFIG_SMP
+>>>>>> # include <asm/spinlock.h>
+>>>>>> #else
+>>>>>> # include <linux/spinlock_up.h>
+>>>>>> #endif
+>>>>>>
+>>>>>>> On the other hand, even if you really build a UP guest kernel, when
+>>>>>>> multiple guests run together, you probably need vcpu_is_preemtped.
+>>>>>> It is not relative with multiple VMs. When vcpu_is_preempted() is
+>>>>>> called, it is to detect whether dest CPU is preempted or not, the cpu
+>>>>>> from smp_processor_id() should not be preempted. So in generic
+>>>>>> vcpu_is_preempted() works on multiple vCPUs.
+>>>>> OK, I'm wrong here.
+>>>>>
+>>>>>
+>>>>> Huacai
+>>>>>
+>>>>>>
+>>>>>> Regards
+>>>>>> Bibo Mao
+>>>>>>>
+>>>>>>>
+>>>>>>> Huacai
+>>>>>>>
+>>>>>>>> +#endif
+>>>>>>>> +
+>>>>>>>>      #endif /* CONFIG_PARAVIRT */
+>>>>>>>>
+>>>>>>>>      #include <asm-generic/qspinlock.h>
+>>>>>>>> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+>>>>>>>> index b1b51f920b23..d4163679adc4 100644
+>>>>>>>> --- a/arch/loongarch/kernel/paravirt.c
+>>>>>>>> +++ b/arch/loongarch/kernel/paravirt.c
+>>>>>>>> @@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
+>>>>>>>>      }
+>>>>>>>>
+>>>>>>>>      #ifdef CONFIG_SMP
+>>>>>>>> +DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
+>>>>>>>>      static int pv_time_cpu_online(unsigned int cpu)
+>>>>>>>>      {
+>>>>>>>>             unsigned long flags;
+>>>>>>>> @@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigned int cpu)
+>>>>>>>>
+>>>>>>>>             return 0;
+>>>>>>>>      }
+>>>>>>>> +
+>>>>>>>> +bool notrace vcpu_is_preempted(int cpu)
+>>>>>>>> +{
+>>>>>>>> +       struct kvm_steal_time *src;
+>>>>>>>> +
+>>>>>>>> +       if (!static_branch_unlikely(&virt_preempt_key))
+>>>>>>>> +               return false;
+>>>>>>>> +
+>>>>>>>> +       src = &per_cpu(steal_time, cpu);
+>>>>>>>> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
+>>>>>>>> +}
+>>>>>>>> +EXPORT_SYMBOL(vcpu_is_preempted);
+>>>>>>>>      #endif
+>>>>>>>>
+>>>>>>>>      static void pv_cpu_reboot(void *unused)
+>>>>>>>> @@ -308,6 +321,9 @@ int __init pv_time_init(void)
+>>>>>>>>                     pr_err("Failed to install cpu hotplug callbacks\n");
+>>>>>>>>                     return r;
+>>>>>>>>             }
+>>>>>>>> +
+>>>>>>>> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
+>>>>>>>> +               static_branch_enable(&virt_preempt_key);
+>>>>>>>>      #endif
+>>>>>>>>
+>>>>>>>>             static_call_update(pv_steal_clock, paravt_steal_clock);
+>>>>>>>> --
+>>>>>>>> 2.39.3
+>>>>>>>>
+>>>>>>
+>>>>>>
+>>>>
+>>>>
+>>
+>>
+
