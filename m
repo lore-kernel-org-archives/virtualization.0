@@ -1,235 +1,280 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E11792F6164;
-	Mon, 24 Nov 2025 09:20:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3061A2F5A12
+	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 09:33:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763976005; cv=none; b=aXpY4IIb7+cmlIKUqf6+qPMOkK4l8HirNYaKCoTq1d0mVltTQ+0RVRGy1wHQV2F0thP4e3lUMM4jmCoDT+dg1XBXON73KLbblyOPWJSD5rKfpE7VbdlWQbyRZsTWNCuLAP+eahiVLMpGDbvnYQNNVMPZ2FNPV8MOq01SM2Iw4x0=
+	t=1763976818; cv=none; b=c2sI8cuwZZ/mOaj988XPiuvtXdiWXq2yJWTkXdECiljoOjvThF+UcyhZQMv6IrhiD+lf2GnpXpmVYGmbyCwh6IMMmlWmIpnP0106rlyY84z7+fQNs3S1EH8cAxzTKZ8mjo0+Qv6rdJ5vZq/4IPQaVj/zIImP450doh9yr4Ea3FU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763976005; c=relaxed/simple;
-	bh=as0qPCSeuDey2UvPQNoA9nLR+sOxMbVOLPPIjyVNB8I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lrrX6BvIMahdcTpojzpx9Y1iSj44NeMKCmiBPLiXv12JUPFjQBTm9i5TkrE/bBMdDPGNDgbS4QFb49w7npksLyz6Qi8/6W1/1R6kwOZYgQZWhhQAjXBOVIgWkw+IXkivYWJH/U2qbrpT2jUCmY10YTCxXZ2EbAti9CHZUZgusgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=W1phIZYm; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	s=arc-20240116; t=1763976818; c=relaxed/simple;
+	bh=l/aFKl/vq8XFeE3Ve8NjX3lmAHR9nkzPqCFhW8Ub5tw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EjEQCyboZUIX1e+FoB0XVGeCeG40oBRxlxk4qzwjgOFkjuYMCtgypd0hJiVMcnTYrzOVwp17KrLk78IZ13IFkr3Mzy1PEciVRSKKMvrjeQ3YpTR1fLZsrNzRrnr1SnjUHGc+kzhaJUHbWKbKEx38NYqGit9niy7gQNeyrMinYEg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B7Ibu4ZG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="W1phIZYm"
-Received: from [172.31.100.153] ([172.31.100.153])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.1.10/8.18.1.10) with ESMTPSA id 5AO9Jgah024669
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 24 Nov 2025 10:19:43 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1763975983;
-	bh=as0qPCSeuDey2UvPQNoA9nLR+sOxMbVOLPPIjyVNB8I=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=W1phIZYmJpZ9so4FdeXZH7HrbyWdXUAcCWBSyenpYO87+ZxAWy8d2SK/FcQc4rYeQ
-	 m9Ehk6rvyCkip1BUGmpzw7On9HMBe7gHEUucQ1/sBi6eZaY8YWvylodRdwmmQzNQH+
-	 ZM0AuOMp2QlUp893dmm1DNXufipApdZX57xE+P60=
-Message-ID: <ebb431f9-fdd3-4db3-bfd5-70af703ef9b5@tu-dortmund.de>
-Date: Mon, 24 Nov 2025 10:19:42 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B7Ibu4ZG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA6ABC19425
+	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 09:33:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1763976817;
+	bh=l/aFKl/vq8XFeE3Ve8NjX3lmAHR9nkzPqCFhW8Ub5tw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=B7Ibu4ZGkDHw+50xVBX1YZUri/g82O2+V5QmQJ9tlVT8abCxGBbkyTyZOaqJ7kEGd
+	 V6/iC4Q4JRauNVwMEkJKtUxRHTQ4HfOfvT468+d0ZvoxF1b/UD4vXKpW5dZ8kCaqdL
+	 TqJrpyCUR+fd3YJtjnXlZaGiaz8GuybC/86dFn6C/n1fJu/vUl/aci73F1ku7rFUrS
+	 r47huOOyUxbR08wA379TWu7gZQxFaNIYhH+RE3TzOdlX1hxPLpuDN0J87KPuh6lppB
+	 XLSDnEF/PO+yi5cF/dpxm6yenHLQkm12dqBBO8EmVfUL5y94yMXTb8VDgaK5Mpm7Ob
+	 jAhMCuW9oFDBQ==
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b7277324054so597864666b.0
+        for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 01:33:37 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCU+0hcLNGZqggBDDu+q7d9sSIJQecrdRpQeJBVpt6VQGZqh6bRAPT6bPBou6AlZIQwwyYimtRRe1dq+t7575w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwSNQ1ADQH5qO90Fj2lqNfeyPXmQyVxcitGBp0cYEgx5gEjWG85
+	trcNJj1kBmCb9b2BnTpvqS0+1z2bmZA4EXTJfLQcbRcqMmEJmM8Dib/zEvqMJEsHfUZ2HRq3omM
+	fpnFewI6BeYWt4x50aEtBYQICemB8gPU=
+X-Google-Smtp-Source: AGHT+IGhq7B3+q6MUxZOfB4I/Jc80kE/87H06uje+HhN+0UrWoZ5nZJIaCFJWY/XIx6S5+6bMxo754j3sOmC6jjnYPM=
+X-Received: by 2002:a17:907:c1a:b0:b73:544d:ba2e with SMTP id
+ a640c23a62f3a-b76715e604bmr1229957166b.25.1763976816331; Mon, 24 Nov 2025
+ 01:33:36 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v6 0/8] tun/tap & vhost-net: netdev queue flow
- control to avoid ptr_ring tail drop
-To: Jason Wang <jasowang@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
-        jon@nutanix.com, tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
- <CACGkMEuboys8sCJFUTGxHUeouPFnVqVLGQBefvmxYDe4ooLfLg@mail.gmail.com>
- <b9fff8e1-fb96-4b1f-9767-9d89adf31060@tu-dortmund.de>
- <CACGkMEufNLjXj37NBVCW4xdSuVLLV4ZS4WTuRzdaBV-nYgKs8w@mail.gmail.com>
-Content-Language: en-US
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-In-Reply-To: <CACGkMEufNLjXj37NBVCW4xdSuVLLV4ZS4WTuRzdaBV-nYgKs8w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20251124035402.3817179-1-maobibo@loongson.cn> <20251124035402.3817179-3-maobibo@loongson.cn>
+ <CAAhV-H5Oag+mDp0CfZ1VDeapeKas354j68JZN9bN42=D4huowA@mail.gmail.com>
+ <5d80c452-bbc3-539a-fb8d-14dbe353f8cb@loongson.cn> <CAAhV-H66M+GZ2kB8BKR82BUeQcNZ8ACeXLxwjh-bsVZcca1cqQ@mail.gmail.com>
+ <718b5b5d-2bb1-5d59-409e-54f54516a6b7@loongson.cn> <CAAhV-H4X5EAgDTnSGG+1pMWywoLAis5TH_jEWkvaY8p1m8hQMg@mail.gmail.com>
+ <611840bb-7f7d-3b13-dc89-b760d8eeda79@loongson.cn> <CAAhV-H6TWCs-tFf5HCOt9cAY01J-nirzVmu1GEAYpP=1LWznPA@mail.gmail.com>
+ <393b2f18-c860-9d71-6d86-5a496983c3fd@loongson.cn>
+In-Reply-To: <393b2f18-c860-9d71-6d86-5a496983c3fd@loongson.cn>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Mon, 24 Nov 2025 17:33:38 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H5iUqfBKS2ONv1VN8FrUUMwPc_ZNP6Ms5ufGKW2gD0twA@mail.gmail.com>
+X-Gm-Features: AWmQ_bk98W3NAi7B5ifunuyoc9CyIGj0PzDrFTosb-RIOcwJkWbtGIrHXEgG6zE
+Message-ID: <CAAhV-H5iUqfBKS2ONv1VN8FrUUMwPc_ZNP6Ms5ufGKW2gD0twA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] LoongArch: Add paravirt support with
+ vcpu_is_preempted() in guest side
+To: Bibo Mao <maobibo@loongson.cn>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>, 
+	Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org, 
+	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 11/24/25 02:04, Jason Wang wrote:
-> On Fri, Nov 21, 2025 at 5:23 PM Simon Schippers
-> <simon.schippers@tu-dortmund.de> wrote:
->>
->> On 11/21/25 07:19, Jason Wang wrote:
->>> On Thu, Nov 20, 2025 at 11:30 PM Simon Schippers
->>> <simon.schippers@tu-dortmund.de> wrote:
->>>>
->>>> This patch series deals with tun/tap and vhost-net which drop incoming
->>>> SKBs whenever their internal ptr_ring buffer is full. Instead, with this
->>>> patch series, the associated netdev queue is stopped before this happens.
->>>> This allows the connected qdisc to function correctly as reported by [1]
->>>> and improves application-layer performance, see our paper [2]. Meanwhile
->>>> the theoretical performance differs only slightly:
->>>>
->>>> +--------------------------------+-----------+----------+
->>>> | pktgen benchmarks to Debian VM | Stock     | Patched  |
->>>> | i5 6300HQ, 20M packets         |           |          |
->>>> +-----------------+--------------+-----------+----------+
->>>> | TAP             | Transmitted  | 195 Kpps  | 183 Kpps |
->>>> |                 +--------------+-----------+----------+
->>>> |                 | Lost         | 1615 Kpps | 0 pps    |
->>>> +-----------------+--------------+-----------+----------+
->>>> | TAP+vhost_net   | Transmitted  | 589 Kpps  | 588 Kpps |
->>>> |                 +--------------+-----------+----------+
->>>> |                 | Lost         | 1164 Kpps | 0 pps    |
->>>> +-----------------+--------------+-----------+----------+
->>>
->>
->> Hi Jason,
->>
->> thank you for your reply!
->>
->>> PPS drops somehow for TAP, any reason for that?
->>
->> I have no explicit explanation for that except general overheads coming
->> with this implementation.
-> 
-> It would be better to fix that.
-> 
->>
->>>
->>> Btw, I had some questions:
->>>
->>> 1) most of the patches in this series would introduce non-trivial
->>> impact on the performance, we probably need to benchmark each or split
->>> the series. What's more we need to run TCP benchmark
->>> (throughput/latency) as well as pktgen see the real impact
->>
->> What could be done, IMO, is to activate tun_ring_consume() /
->> tap_ring_consume() before enabling tun_ring_produce(). Then we could see
->> if this alone drops performance.
->>
->> For TCP benchmarks, you mean userspace performance like iperf3 between a
->> host and a guest system?
-> 
-> Yes,
-> 
->>
->>>
->>> 2) I see this:
->>>
->>>         if (unlikely(tun_ring_produce(&tfile->tx_ring, queue, skb))) {
->>>                 drop_reason = SKB_DROP_REASON_FULL_RING;
->>>                 goto drop;
->>>         }
->>>
->>> So there could still be packet drop? Or is this related to the XDP path?
->>
->> Yes, there can be packet drops after a ptr_ring resize or a ptr_ring
->> unconsume. Since those two happen so rarely, I figured we should just
->> drop in this case.
->>
->>>
->>> 3) The LLTX change would have performance implications, but the
->>> benmark doesn't cover the case where multiple transmission is done in
->>> parallel
->>
->> Do you mean multiple applications that produce traffic and potentially
->> run on different CPUs?
-> 
-> Yes.
-> 
->>
->>>
->>> 4) After the LLTX change, it seems we've lost the synchronization with
->>> the XDP_TX and XDP_REDIRECT path?
->>
->> I must admit I did not take a look at XDP and cannot really judge if/how
->> lltx has an impact on XDP. But from my point of view, __netif_tx_lock()
->> instead of __netif_tx_acquire(), is executed before the tun_net_xmit()
->> call and I do not see the impact for XDP, which calls its own methods.
-> 
-> Without LLTX tun_net_xmit is protected by tx lock but it is not the
-> case of tun_xdp_xmit. This is because, unlike other devices, tun
-> doesn't have a dedicated TX queue for XDP, so the queue is shared by
-> both XDP and skb. So XDP xmit path needs to be protected with tx lock
-> as well, and since we don't have queue discipline for XDP, it means we
-> could still drop packets when XDP is enabled. I'm not sure this would
-> defeat the whole idea or not.
+On Mon, Nov 24, 2025 at 5:08=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> wrot=
+e:
+>
+>
+>
+> On 2025/11/24 =E4=B8=8B=E5=8D=885:03, Huacai Chen wrote:
+> > On Mon, Nov 24, 2025 at 4:35=E2=80=AFPM Bibo Mao <maobibo@loongson.cn> =
+wrote:
+> >>
+> >>
+> >>
+> >> On 2025/11/24 =E4=B8=8B=E5=8D=884:03, Huacai Chen wrote:
+> >>> On Mon, Nov 24, 2025 at 3:50=E2=80=AFPM Bibo Mao <maobibo@loongson.cn=
+> wrote:
+> >>>>
+> >>>>
+> >>>>
+> >>>> On 2025/11/24 =E4=B8=8B=E5=8D=883:13, Huacai Chen wrote:
+> >>>>> On Mon, Nov 24, 2025 at 3:03=E2=80=AFPM Bibo Mao <maobibo@loongson.=
+cn> wrote:
+> >>>>>>
+> >>>>>>
+> >>>>>>
+> >>>>>> On 2025/11/24 =E4=B8=8B=E5=8D=882:33, Huacai Chen wrote:
+> >>>>>>> Hi, Bibo,
+> >>>>>>>
+> >>>>>>> On Mon, Nov 24, 2025 at 11:54=E2=80=AFAM Bibo Mao <maobibo@loongs=
+on.cn> wrote:
+> >>>>>>>>
+> >>>>>>>> Function vcpu_is_preempted() is used to check whether vCPU is pr=
+eempted
+> >>>>>>>> or not. Here add implementation with vcpu_is_preempted() when op=
+tion
+> >>>>>>>> CONFIG_PARAVIRT is enabled.
+> >>>>>>>>
+> >>>>>>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>steal_time
+> >>>>>>>> ---
+> >>>>>>>>      arch/loongarch/include/asm/qspinlock.h |  5 +++++
+> >>>>>>>>      arch/loongarch/kernel/paravirt.c       | 16 +++++++++++++++=
++
+> >>>>>>>>      2 files changed, 21 insertions(+)
+> >>>>>>>>
+> >>>>>>>> diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loong=
+arch/include/asm/qspinlock.h
+> >>>>>>>> index e76d3aa1e1eb..9a5b7ba1f4cb 100644
+> >>>>>>>> --- a/arch/loongarch/include/asm/qspinlock.h
+> >>>>>>>> +++ b/arch/loongarch/include/asm/qspinlock.h
+> >>>>>>>> @@ -34,6 +34,11 @@ static inline bool virt_spin_lock(struct qspi=
+nlock *lock)
+> >>>>>>>>             return true;
+> >>>>>>>>      }
+> >>>>>>>>
+> >>>>>>>> +#ifdef CONFIG_SMP
+> >>>>>>>> +#define vcpu_is_preempted      vcpu_is_preempted
+> >>>>>>>> +bool vcpu_is_preempted(int cpu);
+> >>>>>>> In V1 there is a build error because you reference mp_ops, so in =
+V2
+> >>>>>>> you needn't put it in CONFIG_SMP.
+> >>>>>> The compile failure problem is that vcpu_is_preempted() is redefin=
+ed in
+> >>>>>> both arch/loongarch/kernel/paravirt.c and include/linux/sched.h
+> >>>>> But other archs don't define vcpu_is_preempted() under CONFIG_SMP, =
+and
+> >>>> so what is advantage to implement this function if CONFIG_SMP is dis=
+abled?
+> >>> 1. Keep consistency with other architectures.
+> >>> 2. Keep it simple to reduce #ifdefs (and !SMP is just for build, not
+> >>> very useful in practice).
+> >> It seems that CONFIG_SMP can be removed in header file
+> >> include/asm/qspinlock.h, since asm/spinlock.h and asm/qspinlock.h is
+> >> only included when CONFIG_SMP is set, otherwise only linux/spinlock_up=
+.h
+> >> is included.
+> >>
+> >>>
+> >>>>
+> >>>>> you can consider to inline the whole vcpu_is_preempted() here.
+> >>>> Defining the function vcpu_is_preempted() as inlined is not so easy =
+for
+> >>>> me, it beyond my ability now :(
+> >>>>
+> >>>> With static key method, the static key need be exported, all modules
+> >>>> need apply the jump label, that is dangerous and I doubt whether it =
+is
+> >>>> deserved.
+> >>> No, you have already done similar things in virt_spin_lock(), it is a=
+n
+> >>> inline function and uses virt_spin_lock_key.
+> >> virt_spin_lock is only called qspinlock in function
+> >> queued_spin_lock_slowpath(). Function vcpu_is_preempted() is defined
+> >> header file linux/sched.h, kernel module may use it.
+> > Yes, if modules want to use it we need to EXPORT_SYMBOL. But don't
+> > worry, static key infrastructure can handle this. Please see
+> > cpu_feature_keys defined and used in
+> > arch/powerpc/include/asm/cpu_has_feature.h, which is exported in
+> > arch/powerpc/kernel/cputable.c.
+> No, I do not want to do so. export static key and percpu steal_time> stru=
+cture, just in order to implement one inline function.
+In V1 you care about the performance of vcpu_is_preempted(), so inline
+can satisfy your own requirement.
 
-Good point.
+But this is your own choice, I don't insist on that. I only want to
+remove CONFIG_SMP for vcpu_is_preempted().
 
-> 
->>>
->>> 5) The series introduces various ptr_ring helpers with lots of
->>> ordering stuff which is complicated, I wonder if we first have a
->>> simple patch to implement the zero packet loss
->>
->> I personally don't see how a simpler patch is possible without using
->> discouraged practices like returning NETDEV_TX_BUSY in tun_net_xmit or
->> spin locking between producer and consumer. But I am open for
->> suggestions :)
-> 
-> I see NETDEV_TX_BUSY is used by veth:
-> 
-> static int veth_xdp_rx(struct veth_rq *rq, struct sk_buff *skb)
-> {
->         if (unlikely(ptr_ring_produce(&rq->xdp_ring, skb)))
->                 return NETDEV_TX_BUSY; /* signal qdisc layer */
-> 
->         return NET_RX_SUCCESS; /* same as NETDEV_TX_OK */
-> }
-> 
-> Maybe it would be simpler to start from that (probably with a new tun->flags?).
-> 
-> Thanks
 
-Do you mean that this patchset could be implemented using the same
-approach that was used for veth in [1]?
-This could then also fix the XDP path.
-
-But is returning NETDEV_TX_BUSY fine in our case?
-
-Do you mean a flag that enables or disables the no-drop behavior?
-
-Thanks!
-
-[1] Link: https://lore.kernel.org/netdev/174559288731.827981.8748257839971869213.stgit@firesoul/T/#u
-
-> 
->>
->>>
->>>>
->>>> This patch series includes tun/tap, and vhost-net because they share
->>>> logic. Adjusting only one of them would break the others. Therefore, the
->>>> patch series is structured as follows:
->>>> 1+2: new ptr_ring helpers for 3
->>>> 3: tun/tap: tun/tap: add synchronized ring produce/consume with queue
->>>> management
->>>> 4+5+6: tun/tap: ptr_ring wrappers and other helpers to be called by
->>>> vhost-net
->>>> 7: tun/tap & vhost-net: only now use the previous implemented functions to
->>>> not break git bisect
->>>> 8: tun/tap: drop get ring exports (not used anymore)
->>>>
->>>> Possible future work:
->>>> - Introduction of Byte Queue Limits as suggested by Stephen Hemminger
->>>
->>> This seems to be not easy. The tx completion depends on the userspace behaviour.
->>
->> I agree, but I really would like to reduce the buffer bloat caused by the
->> default 500 TUN / 1000 TAP packet queue without losing performance.
->>
->>>
->>>> - Adaption of the netdev queue flow control for ipvtap & macvtap
->>>>
->>>> [1] Link: https://unix.stackexchange.com/questions/762935/traffic-shaping-ineffective-on-tun-device
->>>> [2] Link: https://cni.etit.tu-dortmund.de/storages/cni-etit/r/Research/Publications/2025/Gebauer_2025_VTCFall/Gebauer_VTCFall2025_AuthorsVersion.pdf
->>>>
->>>
->>> Thanks
->>>
->>
->> Thanks! :)
->>
-> 
+Huacai
+>
+> >
+> > Huacai
+> >
+> >>
+> >>
+> >>>
+> >>> Huacai
+> >>>
+> >>>>
+> >>>> Regards
+> >>>> Bibo Mao
+> >>>>>
+> >>>>>>
+> >>>>>> The problem is that <asm/spinlock.h> is not included by sched.h, i=
+f
+> >>>>>> CONFIG_SMP is disabled. Here is part of file include/linux/spinloc=
+k.h
+> >>>>>> #ifdef CONFIG_SMP
+> >>>>>> # include <asm/spinlock.h>
+> >>>>>> #else
+> >>>>>> # include <linux/spinlock_up.h>
+> >>>>>> #endif
+> >>>>>>
+> >>>>>>> On the other hand, even if you really build a UP guest kernel, wh=
+en
+> >>>>>>> multiple guests run together, you probably need vcpu_is_preemtped=
+.
+> >>>>>> It is not relative with multiple VMs. When vcpu_is_preempted() is
+> >>>>>> called, it is to detect whether dest CPU is preempted or not, the =
+cpu
+> >>>>>> from smp_processor_id() should not be preempted. So in generic
+> >>>>>> vcpu_is_preempted() works on multiple vCPUs.
+> >>>>> OK, I'm wrong here.
+> >>>>>
+> >>>>>
+> >>>>> Huacai
+> >>>>>
+> >>>>>>
+> >>>>>> Regards
+> >>>>>> Bibo Mao
+> >>>>>>>
+> >>>>>>>
+> >>>>>>> Huacai
+> >>>>>>>
+> >>>>>>>> +#endif
+> >>>>>>>> +
+> >>>>>>>>      #endif /* CONFIG_PARAVIRT */
+> >>>>>>>>
+> >>>>>>>>      #include <asm-generic/qspinlock.h>
+> >>>>>>>> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/k=
+ernel/paravirt.c
+> >>>>>>>> index b1b51f920b23..d4163679adc4 100644
+> >>>>>>>> --- a/arch/loongarch/kernel/paravirt.c
+> >>>>>>>> +++ b/arch/loongarch/kernel/paravirt.c
+> >>>>>>>> @@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
+> >>>>>>>>      }
+> >>>>>>>>
+> >>>>>>>>      #ifdef CONFIG_SMP
+> >>>>>>>> +DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
+> >>>>>>>>      static int pv_time_cpu_online(unsigned int cpu)
+> >>>>>>>>      {
+> >>>>>>>>             unsigned long flags;
+> >>>>>>>> @@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigne=
+d int cpu)
+> >>>>>>>>
+> >>>>>>>>             return 0;
+> >>>>>>>>      }
+> >>>>>>>> +
+> >>>>>>>> +bool notrace vcpu_is_preempted(int cpu)
+> >>>>>>>> +{
+> >>>>>>>> +       struct kvm_steal_time *src;
+> >>>>>>>> +
+> >>>>>>>> +       if (!static_branch_unlikely(&virt_preempt_key))
+> >>>>>>>> +               return false;
+> >>>>>>>> +
+> >>>>>>>> +       src =3D &per_cpu(steal_time, cpu);
+> >>>>>>>> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
+> >>>>>>>> +}
+> >>>>>>>> +EXPORT_SYMBOL(vcpu_is_preempted);
+> >>>>>>>>      #endif
+> >>>>>>>>
+> >>>>>>>>      static void pv_cpu_reboot(void *unused)
+> >>>>>>>> @@ -308,6 +321,9 @@ int __init pv_time_init(void)
+> >>>>>>>>                     pr_err("Failed to install cpu hotplug callba=
+cks\n");
+> >>>>>>>>                     return r;
+> >>>>>>>>             }
+> >>>>>>>> +
+> >>>>>>>> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
+> >>>>>>>> +               static_branch_enable(&virt_preempt_key);
+> >>>>>>>>      #endif
+> >>>>>>>>
+> >>>>>>>>             static_call_update(pv_steal_clock, paravt_steal_cloc=
+k);
+> >>>>>>>> --
+> >>>>>>>> 2.39.3
+> >>>>>>>>
+> >>>>>>
+> >>>>>>
+> >>>>
+> >>>>
+> >>
+> >>
+>
+>
