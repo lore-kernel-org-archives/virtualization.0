@@ -1,75 +1,150 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 523C9256D;
-	Mon, 24 Nov 2025 06:22:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E71F12DBF47
+	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 06:33:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763965366; cv=none; b=JghcO8rNclcvUWRionGltQSG3HtdABmfQWC33zwZr4RXKzwUH7oI5YjeZvNAFaKU3jyrE6bJWg2u4sPBb+8lSgNTYuKfn1OIyzFq+XzHiXvDdrZ3mRmP3HQlAvXMXEeHDiFd0gN9XoDq130SHqYN0yHNxPvjIzgdYBqLo2OPh4c=
+	t=1763965990; cv=none; b=fxVdRODXtzt9phocAMN7s+SfL2OEiD92zSdr0bNiq17VgfzCkPce1ebuswZSUQrqEelg/WXv8APy/i5+wP/xuF7q0iDDjBw6nLxTvKpPTV8FeH6+m6PC7wGcz1fc7MhLYiZxOU7bv0N4JJ76JVwxXnLxDtJfT+vYinA3+fse6Sc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763965366; c=relaxed/simple;
-	bh=nx3VukjuuMOBSyaDA6zUnfhDxdBh573OnuZhnglTync=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PJiX7bPuFhNENBY7+czpzWSp46MMmaOpMJP/pqBLeaMv5vcOq0Nk2moo/xJR+lAA1Oc6G96efujyUZ1qIP4jYCSu98fT4rT6ELKn5mkOmfF+Osu2ZF03biQ10SzjEUGw2MKZKsvrk0d7F6t3XAWFllWOSw+D0unkt1oP+127VZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=qH8qp2/x; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+	s=arc-20240116; t=1763965990; c=relaxed/simple;
+	bh=e2xvuF6Ny+umQar6+Cs9HNZRMtEfj1pW0zsB5mc2W04=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OtQJOWe3gEkjsqcrgrbjLvxPe7DqCX1xFsFsh/Qp6aB/xHaHAB7bpC1bfka5fFmcH9PPhrvkBFhnBv02EyEoDSfnMn88ObxaJsTrPAbM90k+gBVHtN5dCjOeMv/+ZZ845Ub4P3Da3zWsKb32utthtHV7A3OPYjW0wgTyQ4e8pEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rwT91n4k; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="qH8qp2/x"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
-	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=dp3mlPd1tGPSHjwalGRl3+OXBzlUltt5c2g4rrDWar4=; b=qH8qp2/x9cZUMrdILRqeU862Zl
-	rY+YcfF4XPEPXN/zjHR+j1pwqvCwhGipGukmvP7MEANpCrlePLgfvo+05kOyRgrrA3iEWaXcdkfwy
-	n5MFvlXTOYs8cCMXaPqm2NJrQn6ejYfHPXF6Fk+6S1lNaAbGp001jBuqd3Yx8ixJeykV21c62OgO9
-	IxdMSY6IQXNeDIUGXAoKu3y67wRgr7iijuqp1G/8PN73v/lq0LzcuS/sL2NNnuTiZz+ePoC33OgqI
-	5JyrqgQXsohfKx04w9wzb+dCx2vOLMZs814+VxsjteBNXfNEM5E8FFaII+89JtbsMIzbCxoUqIaPn
-	6AjZf4SA==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vNPyE-0000000B90n-31B1;
-	Mon, 24 Nov 2025 06:22:42 +0000
-Date: Sun, 23 Nov 2025 22:22:42 -0800
-From: Christoph Hellwig <hch@infradead.org>
-To: Stephen Zhang <starzhangzsd@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org, nvdimm@lists.linux.dev,
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-	gfs2@lists.linux.dev, ntfs3@lists.linux.dev,
-	linux-xfs@vger.kernel.org, zhangshida@kylinos.cn
-Subject: Re: Fix potential data loss and corruption due to Incorrect BIO
- Chain Handling
-Message-ID: <aSP5svsQfFe8x8Fb@infradead.org>
-References: <20251121081748.1443507-1-zhangshida@kylinos.cn>
- <aSBA4xc9WgxkVIUh@infradead.org>
- <CANubcdVjXbKc88G6gzHAoJCwwxxHUYTzexqH+GaWAhEVrwr6Dg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rwT91n4k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85DC0C19422
+	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 06:33:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1763965989;
+	bh=e2xvuF6Ny+umQar6+Cs9HNZRMtEfj1pW0zsB5mc2W04=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=rwT91n4kQq/apBfBz+CQSQeOYQtG7sehntbFmw+AeihCzV/5I/4R8qFXMUF8XF0z1
+	 x945qlg0yHb4BZq2OMCZYCu9XBoOuoS4P+I0RAdZ2pZm1MXdns5wCtYgE+RmdSoB5f
+	 tySiJNbh6Eqn47mXtDFVmgWBE2a9sLLtiKE3wg6elJSQs8GAIvWhcRvBh3CbulEgWo
+	 AmoDEfEutNqMtEiffLfmFShTMr03dMEWbNS/I436uFLxBZKwfNaeCTwtpFtVswO8YS
+	 lPPo/AiflRjrH93TbfDOngMhFylN57AtbiAeOsVyrRgKJjch7Ib+UdyuZM45oGqaK6
+	 LSHC7J2sNb8pQ==
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-640bd9039fbso6461850a12.2
+        for <virtualization@lists.linux.dev>; Sun, 23 Nov 2025 22:33:09 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUCfSPt8faKTNRdOedNVchlQSf3Ob820YHVnTwB9DQ7QfsaBL9RdqPmieVUkQdAUQwY8xe7Tm/W6t4dPwLSWQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyfkq/D7wq4So/CLBraw3lhYxo4OzBBDqJDvX0FFcKedr/zo2yd
+	IFMtuyVnJglupFF0sCQs79+KaqMNPUpX1phQINW8FZwT6MROnR40uKDC5LXOtknQQXENkWPxiPg
+	m5FZIL3XwbFVpdYPDvGn7k7mQiDDlgEc=
+X-Google-Smtp-Source: AGHT+IHeWhCh/2VbXQ9ILylWVVP2Ewf9rploSsqYj8iWGqLLxyXQK4O0jZg1WkatozAflwVlZpvkJPQdPrab7pyl/dg=
+X-Received: by 2002:a17:907:3e0b:b0:b76:60ad:77f8 with SMTP id
+ a640c23a62f3a-b767170aea1mr1147425766b.48.1763965988064; Sun, 23 Nov 2025
+ 22:33:08 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CANubcdVjXbKc88G6gzHAoJCwwxxHUYTzexqH+GaWAhEVrwr6Dg@mail.gmail.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+References: <20251124035402.3817179-1-maobibo@loongson.cn> <20251124035402.3817179-3-maobibo@loongson.cn>
+In-Reply-To: <20251124035402.3817179-3-maobibo@loongson.cn>
+From: Huacai Chen <chenhuacai@kernel.org>
+Date: Mon, 24 Nov 2025 14:33:10 +0800
+X-Gmail-Original-Message-ID: <CAAhV-H5Oag+mDp0CfZ1VDeapeKas354j68JZN9bN42=D4huowA@mail.gmail.com>
+X-Gm-Features: AWmQ_bnoFTnvDn1nrFrR_qppyCUACqFqJLqcscmXokW28okKe2T7YA8nUQaA0LM
+Message-ID: <CAAhV-H5Oag+mDp0CfZ1VDeapeKas354j68JZN9bN42=D4huowA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] LoongArch: Add paravirt support with
+ vcpu_is_preempted() in guest side
+To: Bibo Mao <maobibo@loongson.cn>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>, 
+	Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
+	Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org, 
+	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Nov 22, 2025 at 02:38:59PM +0800, Stephen Zhang wrote:
-> ======code analysis======
-> In kernel version 4.19, XFS handles extent I/O using the ioend structure,
+Hi, Bibo,
 
-Linux 4.19 is more than four years old, and both the block I/O code
-and the XFS/iomap code changed a lot since then.
+On Mon, Nov 24, 2025 at 11:54=E2=80=AFAM Bibo Mao <maobibo@loongson.cn> wro=
+te:
+>
+> Function vcpu_is_preempted() is used to check whether vCPU is preempted
+> or not. Here add implementation with vcpu_is_preempted() when option
+> CONFIG_PARAVIRT is enabled.
+>
+> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+> ---
+>  arch/loongarch/include/asm/qspinlock.h |  5 +++++
+>  arch/loongarch/kernel/paravirt.c       | 16 ++++++++++++++++
+>  2 files changed, 21 insertions(+)
+>
+> diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/incl=
+ude/asm/qspinlock.h
+> index e76d3aa1e1eb..9a5b7ba1f4cb 100644
+> --- a/arch/loongarch/include/asm/qspinlock.h
+> +++ b/arch/loongarch/include/asm/qspinlock.h
+> @@ -34,6 +34,11 @@ static inline bool virt_spin_lock(struct qspinlock *lo=
+ck)
+>         return true;
+>  }
+>
+> +#ifdef CONFIG_SMP
+> +#define vcpu_is_preempted      vcpu_is_preempted
+> +bool vcpu_is_preempted(int cpu);
+In V1 there is a build error because you reference mp_ops, so in V2
+you needn't put it in CONFIG_SMP.
+On the other hand, even if you really build a UP guest kernel, when
+multiple guests run together, you probably need vcpu_is_preemtped.
 
-> changes the logic. Since there are still many code paths that use
-> bio_chain, I am including these cleanups with the fix. This provides a reason
-> to CC all related communities. That way, developers who are monitoring
-> this can help identify similar problems if someone asks for help in the future,
-> if that is the right analysis and fix.
 
-As many pointed out something in the analysis doesn't end up.  How do
-you even managed to call bio_chain_endio as almost no one should be
-calling it.  Are you using bcache?  Are the others callers in the
-obsolete kernel you are using?  Are they calling it without calling
-bio_endio first (which the bcache case does, and which is buggy).
+Huacai
 
+> +#endif
+> +
+>  #endif /* CONFIG_PARAVIRT */
+>
+>  #include <asm-generic/qspinlock.h>
+> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/par=
+avirt.c
+> index b1b51f920b23..d4163679adc4 100644
+> --- a/arch/loongarch/kernel/paravirt.c
+> +++ b/arch/loongarch/kernel/paravirt.c
+> @@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
+>  }
+>
+>  #ifdef CONFIG_SMP
+> +DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
+>  static int pv_time_cpu_online(unsigned int cpu)
+>  {
+>         unsigned long flags;
+> @@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigned int cpu=
+)
+>
+>         return 0;
+>  }
+> +
+> +bool notrace vcpu_is_preempted(int cpu)
+> +{
+> +       struct kvm_steal_time *src;
+> +
+> +       if (!static_branch_unlikely(&virt_preempt_key))
+> +               return false;
+> +
+> +       src =3D &per_cpu(steal_time, cpu);
+> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
+> +}
+> +EXPORT_SYMBOL(vcpu_is_preempted);
+>  #endif
+>
+>  static void pv_cpu_reboot(void *unused)
+> @@ -308,6 +321,9 @@ int __init pv_time_init(void)
+>                 pr_err("Failed to install cpu hotplug callbacks\n");
+>                 return r;
+>         }
+> +
+> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
+> +               static_branch_enable(&virt_preempt_key);
+>  #endif
+>
+>         static_call_update(pv_steal_clock, paravt_steal_clock);
+> --
+> 2.39.3
+>
