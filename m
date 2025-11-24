@@ -1,122 +1,75 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id C485129B778;
-	Mon, 24 Nov 2025 03:54:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 523C9256D;
+	Mon, 24 Nov 2025 06:22:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763956459; cv=none; b=HTb1F4qyg4bQK8uIY7IT/4re8q9GJRy7Nk8Uxgk1Mml9QuO61CTkm9zP6d1/7c+FxgqphotbWVwAeX1exdEe/60Aa2f/Y6RjpQZETR9ZkbGWVEHHUDlLMOWCZ+DBQ6OxiWAXSDVJxrm9nP3JPIfGAspAHQv4lkpeCJnvcQWQXWA=
+	t=1763965366; cv=none; b=JghcO8rNclcvUWRionGltQSG3HtdABmfQWC33zwZr4RXKzwUH7oI5YjeZvNAFaKU3jyrE6bJWg2u4sPBb+8lSgNTYuKfn1OIyzFq+XzHiXvDdrZ3mRmP3HQlAvXMXEeHDiFd0gN9XoDq130SHqYN0yHNxPvjIzgdYBqLo2OPh4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763956459; c=relaxed/simple;
-	bh=ozldes7sXHK5/MYLDu0oEhNYtVTl8elUPIrO8YO8r0k=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=j2cwsHbYVN1kd3wQcv3+HtRlLSsl++PdmDdllj1JcOSTgrc21Vgh6PUEAMxwBU2w4PGMerYWdENHPb0G7gT9cU5RGLgQWCNrE6jGhqGpdAKtapdQKvFU1GW6L7tJ76WPUgqZJxY9rEqi9HzDEjOxS9rVrq/JgIPD5s08+8UBa+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8BxWNHh1iNpx1onAA--.19365S3;
-	Mon, 24 Nov 2025 11:54:09 +0800 (CST)
-Received: from localhost.localdomain (unknown [10.2.5.213])
-	by front1 (Coremail) with SMTP id qMiowJAxusDa1iNp4WE9AQ--.13468S4;
-	Mon, 24 Nov 2025 11:54:09 +0800 (CST)
-From: Bibo Mao <maobibo@loongson.cn>
-To: Paolo Bonzini <pbonzini@redhat.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Cc: kvm@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	x86@kernel.org
-Subject: [PATCH v2 2/3] LoongArch: Add paravirt support with vcpu_is_preempted() in guest side
-Date: Mon, 24 Nov 2025 11:54:00 +0800
-Message-Id: <20251124035402.3817179-3-maobibo@loongson.cn>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20251124035402.3817179-1-maobibo@loongson.cn>
-References: <20251124035402.3817179-1-maobibo@loongson.cn>
+	s=arc-20240116; t=1763965366; c=relaxed/simple;
+	bh=nx3VukjuuMOBSyaDA6zUnfhDxdBh573OnuZhnglTync=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PJiX7bPuFhNENBY7+czpzWSp46MMmaOpMJP/pqBLeaMv5vcOq0Nk2moo/xJR+lAA1Oc6G96efujyUZ1qIP4jYCSu98fT4rT6ELKn5mkOmfF+Osu2ZF03biQ10SzjEUGw2MKZKsvrk0d7F6t3XAWFllWOSw+D0unkt1oP+127VZU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=qH8qp2/x; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="qH8qp2/x"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=dp3mlPd1tGPSHjwalGRl3+OXBzlUltt5c2g4rrDWar4=; b=qH8qp2/x9cZUMrdILRqeU862Zl
+	rY+YcfF4XPEPXN/zjHR+j1pwqvCwhGipGukmvP7MEANpCrlePLgfvo+05kOyRgrrA3iEWaXcdkfwy
+	n5MFvlXTOYs8cCMXaPqm2NJrQn6ejYfHPXF6Fk+6S1lNaAbGp001jBuqd3Yx8ixJeykV21c62OgO9
+	IxdMSY6IQXNeDIUGXAoKu3y67wRgr7iijuqp1G/8PN73v/lq0LzcuS/sL2NNnuTiZz+ePoC33OgqI
+	5JyrqgQXsohfKx04w9wzb+dCx2vOLMZs814+VxsjteBNXfNEM5E8FFaII+89JtbsMIzbCxoUqIaPn
+	6AjZf4SA==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vNPyE-0000000B90n-31B1;
+	Mon, 24 Nov 2025 06:22:42 +0000
+Date: Sun, 23 Nov 2025 22:22:42 -0800
+From: Christoph Hellwig <hch@infradead.org>
+To: Stephen Zhang <starzhangzsd@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+	linux-block@vger.kernel.org, nvdimm@lists.linux.dev,
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
+	gfs2@lists.linux.dev, ntfs3@lists.linux.dev,
+	linux-xfs@vger.kernel.org, zhangshida@kylinos.cn
+Subject: Re: Fix potential data loss and corruption due to Incorrect BIO
+ Chain Handling
+Message-ID: <aSP5svsQfFe8x8Fb@infradead.org>
+References: <20251121081748.1443507-1-zhangshida@kylinos.cn>
+ <aSBA4xc9WgxkVIUh@infradead.org>
+ <CANubcdVjXbKc88G6gzHAoJCwwxxHUYTzexqH+GaWAhEVrwr6Dg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJAxusDa1iNp4WE9AQ--.13468S4
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
-	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
-	nUUI43ZEXa7xR_UUUUUUUUU==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANubcdVjXbKc88G6gzHAoJCwwxxHUYTzexqH+GaWAhEVrwr6Dg@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-Function vcpu_is_preempted() is used to check whether vCPU is preempted
-or not. Here add implementation with vcpu_is_preempted() when option
-CONFIG_PARAVIRT is enabled.
+On Sat, Nov 22, 2025 at 02:38:59PM +0800, Stephen Zhang wrote:
+> ======code analysis======
+> In kernel version 4.19, XFS handles extent I/O using the ioend structure,
 
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
----
- arch/loongarch/include/asm/qspinlock.h |  5 +++++
- arch/loongarch/kernel/paravirt.c       | 16 ++++++++++++++++
- 2 files changed, 21 insertions(+)
+Linux 4.19 is more than four years old, and both the block I/O code
+and the XFS/iomap code changed a lot since then.
 
-diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/include/asm/qspinlock.h
-index e76d3aa1e1eb..9a5b7ba1f4cb 100644
---- a/arch/loongarch/include/asm/qspinlock.h
-+++ b/arch/loongarch/include/asm/qspinlock.h
-@@ -34,6 +34,11 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
- 	return true;
- }
- 
-+#ifdef CONFIG_SMP
-+#define vcpu_is_preempted	vcpu_is_preempted
-+bool vcpu_is_preempted(int cpu);
-+#endif
-+
- #endif /* CONFIG_PARAVIRT */
- 
- #include <asm-generic/qspinlock.h>
-diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
-index b1b51f920b23..d4163679adc4 100644
---- a/arch/loongarch/kernel/paravirt.c
-+++ b/arch/loongarch/kernel/paravirt.c
-@@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
- }
- 
- #ifdef CONFIG_SMP
-+DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
- static int pv_time_cpu_online(unsigned int cpu)
- {
- 	unsigned long flags;
-@@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigned int cpu)
- 
- 	return 0;
- }
-+
-+bool notrace vcpu_is_preempted(int cpu)
-+{
-+	struct kvm_steal_time *src;
-+
-+	if (!static_branch_unlikely(&virt_preempt_key))
-+		return false;
-+
-+	src = &per_cpu(steal_time, cpu);
-+	return !!(src->preempted & KVM_VCPU_PREEMPTED);
-+}
-+EXPORT_SYMBOL(vcpu_is_preempted);
- #endif
- 
- static void pv_cpu_reboot(void *unused)
-@@ -308,6 +321,9 @@ int __init pv_time_init(void)
- 		pr_err("Failed to install cpu hotplug callbacks\n");
- 		return r;
- 	}
-+
-+	if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
-+		static_branch_enable(&virt_preempt_key);
- #endif
- 
- 	static_call_update(pv_steal_clock, paravt_steal_clock);
--- 
-2.39.3
+> changes the logic. Since there are still many code paths that use
+> bio_chain, I am including these cleanups with the fix. This provides a reason
+> to CC all related communities. That way, developers who are monitoring
+> this can help identify similar problems if someone asks for help in the future,
+> if that is the right analysis and fix.
+
+As many pointed out something in the analysis doesn't end up.  How do
+you even managed to call bio_chain_endio as almost no one should be
+calling it.  Are you using bcache?  Are the others callers in the
+obsolete kernel you are using?  Are they calling it without calling
+bio_endio first (which the bcache case does, and which is buggy).
 
