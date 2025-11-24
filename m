@@ -1,132 +1,177 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from canpmsgout01.his.huawei.com (canpmsgout01.his.huawei.com [113.46.200.216])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57A9642AB7
-	for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 01:28:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B327526ED5D;
+	Mon, 24 Nov 2025 01:40:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.216
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763947728; cv=none; b=WTEncC25ZN2p4XP3e/DrSbkz2CHq3z6GynMZRIDOBaXctT8Z3zE9BL4zK8Xd9JqIRf2NakAv7qP/mfzV1O6O5hDqNug8CpaPL8D2V/amOJQ6sphAGN7vzLQuLXPCHQeiscJIaAp44HflBsQlcI6clFuTxPL19pw78bi5TFg9kbg=
+	t=1763948413; cv=none; b=ZDk5hvaKpCqfWnd8+iIOTWJzOGu2qDrnF2YoMuQD/UF8FniAOqBpyJwW+zas1sO/VnL/Qj5rPOWyFeDOGTEr/esKkTGBAWX1k7DCCsZueAYHKcv21s5fJQyJfGS1HV864sIYmwKtxz881+HYipoMowk0UbpJLmXCGQ7Fni/mA48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763947728; c=relaxed/simple;
-	bh=Tdtix09h6RcCKm+k90F10JITFmAMc7QjiDjFYuJxxsM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TPaDQFERlmp897e3g5QWquiBiQqyTKJ7jMdVYUtfFn3sUa6UMrlWie8nXWHBowu6+X8r6As8SJVkP95xpAJr3sAnFhWYY59M1311GTQQ4hmSeQrW1YBoXK1SIiSqQrHDb/YPzsxxcJz44xQolQbqLiDosjDfPjqxaiWesI9ys4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X12erFp4; arc=none smtp.client-ip=209.85.222.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1763948413; c=relaxed/simple;
+	bh=OHInSRyjOL40BhPyMvbRdyruhQ6pHDtbODKfKnzsKV8=;
+	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=QKU/GfRZAolAnpnkpzjw9myHbY4MgY7pbcFexZ4il60Izs9igHQhf89mh1Vgl0tAKAQxIgpkbYMFTMB8MNgfZnjDJQtkyuunagTC+iUaI0ATG0paiHd4tSLCWFt0o+HfNGvVZr9K7JFiZTaEaSwqLhBHZNB6BTSck/eH8mzycJI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=bbDJ6jpD; arc=none smtp.client-ip=113.46.200.216
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X12erFp4"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-8b28f983333so383304585a.3
-        for <virtualization@lists.linux.dev>; Sun, 23 Nov 2025 17:28:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1763947725; x=1764552525; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Y/rWYDjm0xShtpWJ/wMbqIqCozvhm5iHYOzGvjLTIVQ=;
-        b=X12erFp4huV92f5OSxMo9GAWcUTYRMdr+QxMHYP88oq+BYfKDLErxOznnUnso+E5Ab
-         oz7lnZ3unQj3yuASvRWMd2tuvhwqQn6saUPa9fa9kOenuQLvVKH09cbMnezTgCeTi1BV
-         7IByyDrIEdHiCQ3Rz6hG4i5jWAVR7vhEAa7bssi8Z2mmEoN5kO5hW0zLp43oFuYO2MKm
-         BhaEos5b42jUxSUh9WbqVANb9rhzzw43P1ssSn/1CswP/tSQUOVn/N1lArxsMDcrbaEr
-         ay4q1caX3WPi5EToCaMFM7Utx4z4HsBAjeZ08N9Lf8N1o0CiaisDJlkWhJP106UkoODD
-         R8rA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763947725; x=1764552525;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Y/rWYDjm0xShtpWJ/wMbqIqCozvhm5iHYOzGvjLTIVQ=;
-        b=wjq/Tlj/7xkWTiSka6azqojq/kWzf9XEUdB816G3ewvSDoiVUKd+KGkLfH+J7HhdI8
-         e5HgrWYUq2Ln8FSLFFFQjbnzsM4QQ6c86cglThwRYpfftbCBakbxu9dAegXeaDQQe8NT
-         Do+krONsLnd/0WMdAtu6eAAAvnaIH4qicB7KxgpVumj6t8mYQru0FuxkIkwt4x8kDDSA
-         D/jqT/c+PxQbrNkCOPpE12+vPpM2E2H51rqseKCOrfe5qV6xm3rXARklWrjyRyRfazMP
-         82eFFlW3ErZz8X3yN8JteZZ1EUKLo76rqUcs1L38KPI2Ow1wE4TuarH1hutUMsXSH2g6
-         ZcYA==
-X-Forwarded-Encrypted: i=1; AJvYcCVWSUA1twYpvsdI8xiywc8x6Yi9A4wyH8pWEEv+bNKU+0vxTsBJAKD7LVzZRd/nbT/+hEPbBm9Uoj5vOL5LOg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyHFdrODz5G5MbIScXS2Reumm/NXYvYh3cNS6CsDgP9SR/vR94l
-	uaIHuZ/xdqDVbgeCzENtRF2m1wQtzLfKaPNGW4KDtWtARcVl0jqNg6pnPGj08Wx0uS0NcUyxfsR
-	atEad1XO9yt/Ec9Y9X78bA82pmkAZdpA=
-X-Gm-Gg: ASbGnctQ4PsTcBqfK6VOuDdbJazfm9NkEkSDQB5lb1mQ4OY3v/Ti+67zzSTtRaLz0v0
-	K1coOmjt0XLLY/k0rQoyWCi8Cd9z5DwoAUQ4E4p7nN3lFRC8pKPy1AL2cQxt27oSJ4J5LJ2kVyw
-	uxVrFs22ZAeNH6CnfebfFJtpPp0r29eQBi/+rplcv2mdmQa8VBCg3gFbt8AVdsTC8j1yXj2F97G
-	VC0VpOrM/W09fc2TuuJ4jjWN0ZTniB2NbuxQzkFZeYSFjaPGrj7+ATzT3jBOSw14GHVJ+59ZJJy
-	/PLntg==
-X-Google-Smtp-Source: AGHT+IFHZruP2YBfL7pdTjTDvePbwJad50RtaobjpQ37TLxnePvW54pVHPb5rvzSUyg3BEeJesXp2k7UVUVu8L9oRt8=
-X-Received: by 2002:ac8:5d0f:0:b0:4ee:2080:2597 with SMTP id
- d75a77b69052e-4ee589103cfmr127248731cf.38.1763947725292; Sun, 23 Nov 2025
- 17:28:45 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="bbDJ6jpD"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=hnm9pRQxiCRqBNWTAp9RAPNEqoXGWQJUekQPmyavL7I=;
+	b=bbDJ6jpDeUZG5QVe2227oxIrO4p439oDPRvMaLZT4N5q03GC+mFYiMAhvwUWD0cFuCTT2SV0c
+	m7qrS3Z7zX5DNSRPTVPU4TjSrlwpm0IN2iW07NY6FohM7elXzd//8s8R72w5i047LFe8VkNfLso
+	jQ3ypNi5F3foMB29Y4R/asM=
+Received: from mail.maildlp.com (unknown [172.19.163.48])
+	by canpmsgout01.his.huawei.com (SkyGuard) with ESMTPS id 4dF7kj6kgpz1T4Jf;
+	Mon, 24 Nov 2025 09:38:21 +0800 (CST)
+Received: from dggpemf500015.china.huawei.com (unknown [7.185.36.143])
+	by mail.maildlp.com (Postfix) with ESMTPS id 73F7F18047D;
+	Mon, 24 Nov 2025 09:40:01 +0800 (CST)
+Received: from [10.67.121.110] (10.67.121.110) by
+ dggpemf500015.china.huawei.com (7.185.36.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 24 Nov 2025 09:39:59 +0800
+Subject: Re: [PATCH v2 02/22] vfio/hisi: Convert to the get_region_info op
+To: Jason Gunthorpe <jgg@nvidia.com>, Alexander Gordeev
+	<agordeev@linux.ibm.com>, David Airlie <airlied@gmail.com>, Alex Williamson
+	<alex.williamson@redhat.com>, Ankit Agrawal <ankita@nvidia.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Brett Creeley
+	<brett.creeley@amd.com>, <dri-devel@lists.freedesktop.org>, Eric Auger
+	<eric.auger@redhat.com>, Eric Farman <farman@linux.ibm.com>, Giovanni Cabiddu
+	<giovanni.cabiddu@intel.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko
+ Carstens <hca@linux.ibm.com>, <intel-gfx@lists.freedesktop.org>, Jani Nikula
+	<jani.nikula@linux.intel.com>, Joonas Lahtinen
+	<joonas.lahtinen@linux.intel.com>, <kvm@vger.kernel.org>, Kirti Wankhede
+	<kwankhede@nvidia.com>, <linux-s390@vger.kernel.org>, Matthew Rosato
+	<mjrosato@linux.ibm.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>, Nipun
+ Gupta <nipun.gupta@amd.com>, Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>, <qat-linux@intel.com>, Rodrigo Vivi
+	<rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>, Shameer Kolothum
+	<skolothumtho@nvidia.com>, Sven Schnelle <svens@linux.ibm.com>, Tvrtko
+ Ursulin <tursulin@ursulin.net>, <virtualization@lists.linux.dev>, Vineeth
+ Vijayan <vneethv@linux.ibm.com>, Yishai Hadas <yishaih@nvidia.com>, Zhenyu
+ Wang <zhenyuw.linux@gmail.com>, Zhi Wang <zhi.wang.linux@gmail.com>
+CC: Kevin Tian <kevin.tian@intel.com>, <patches@lists.linux.dev>, Pranjal
+ Shrivastava <praan@google.com>, Mostafa Saleh <smostafa@google.com>
+References: <2-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+From: liulongfang <liulongfang@huawei.com>
+Message-ID: <b5ffda6e-d8e9-5f02-69b3-e9f1a0901f90@huawei.com>
+Date: Mon, 24 Nov 2025 09:39:58 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251121081748.1443507-1-zhangshida@kylinos.cn>
- <aSEvg8z9qxSwJmZn@fedora> <CANubcdULTQo5jF7hGSWFqXw6v5DhEg=316iFNipMbsyz64aneg@mail.gmail.com>
- <aSGmBAP0BA_2D3Po@fedora> <CAHc6FU7+riVQBX7L2uk64A355rF+DfQ6xhP425ruQ76d_SDPGA@mail.gmail.com>
- <aSMQyCJrqbIromUd@fedora>
-In-Reply-To: <aSMQyCJrqbIromUd@fedora>
-From: Stephen Zhang <starzhangzsd@gmail.com>
-Date: Mon, 24 Nov 2025 09:28:09 +0800
-X-Gm-Features: AWmQ_blFIl-YjYfjpEue9I17YWgGWhW3tKNMKvxlJbU5ZD_pYkwFt7d133xm8_0
-Message-ID: <CANubcdX4oOFkwt8Z5OEJMm7L5pusVZW0OaRiN8JyYoPN_F0DpA@mail.gmail.com>
-Subject: Re: Fix potential data loss and corruption due to Incorrect BIO Chain Handling
-To: Ming Lei <ming.lei@redhat.com>
-Cc: Andreas Gruenbacher <agruenba@redhat.com>, linux-kernel@vger.kernel.org, 
-	linux-block@vger.kernel.org, nvdimm@lists.linux.dev, 
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org, 
-	gfs2@lists.linux.dev, ntfs3@lists.linux.dev, linux-xfs@vger.kernel.org, 
-	zhangshida@kylinos.cn, Coly Li <colyli@fnnas.com>, linux-bcache@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <2-v2-2a9e24d62f1b+e10a-vfio_get_region_info_op_jgg@nvidia.com>
+Content-Type: text/plain; charset="gbk"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
+ dggpemf500015.china.huawei.com (7.185.36.143)
 
-Ming Lei <ming.lei@redhat.com> =E4=BA=8E2025=E5=B9=B411=E6=9C=8823=E6=97=A5=
-=E5=91=A8=E6=97=A5 21:49=E5=86=99=E9=81=93=EF=BC=9A
->
-> On Sat, Nov 22, 2025 at 03:56:58PM +0100, Andreas Gruenbacher wrote:
-> > On Sat, Nov 22, 2025 at 1:07=E2=80=AFPM Ming Lei <ming.lei@redhat.com> =
-wrote:
-> > > > static void bio_chain_endio(struct bio *bio)
-> > > > {
-> > > >         bio_endio(__bio_chain_endio(bio));
-> > > > }
-> > >
-> > > bio_chain_endio() never gets called really, which can be thought as `=
-flag`,
-> >
-> > That's probably where this stops being relevant for the problem
-> > reported by Stephen Zhang.
-> >
-> > > and it should have been defined as `WARN_ON_ONCE(1);` for not confusi=
-ng people.
-> >
-> > But shouldn't bio_chain_endio() still be fixed to do the right thing
-> > if called directly, or alternatively, just BUG()? Warning and still
-> > doing the wrong thing seems a bit bizarre.
->
-> IMO calling ->bi_end_io() directly shouldn't be encouraged.
->
-> The only in-tree direct call user could be bcache, so is this reported
-> issue triggered on bcache?
->
-> If bcache can't call bio_endio(), I think it is fine to fix
-> bio_chain_endio().
->
-> >
-> > I also see direct bi_end_io calls in erofs_fileio_ki_complete(),
-> > erofs_fscache_bio_endio(), and erofs_fscache_submit_bio(), so those
-> > are at least confusing.
->
-> All looks FS bio(non-chained), so bio_chain_endio() shouldn't be involved
-> in erofs code base.
+On 2025/11/8 1:41, Jason Gunthorpe wrote:
+> Change the function signature of hisi_acc_vfio_pci_ioctl()
+> and re-indent it.
+> 
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Acked-by: Pranjal Shrivastava <praan@google.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  .../vfio/pci/hisilicon/hisi_acc_vfio_pci.c    | 57 +++++++++----------
+>  1 file changed, 27 insertions(+), 30 deletions(-)
+> 
+> diff --git a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+> index fde33f54e99ec5..899db4d742a010 100644
+> --- a/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+> +++ b/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c
+> @@ -1324,43 +1324,39 @@ static ssize_t hisi_acc_vfio_pci_read(struct vfio_device *core_vdev,
+>  	return vfio_pci_core_read(core_vdev, buf, new_count, ppos);
+>  }
+>  
+> -static long hisi_acc_vfio_pci_ioctl(struct vfio_device *core_vdev, unsigned int cmd,
+> -				    unsigned long arg)
+> +static int hisi_acc_vfio_ioctl_get_region(struct vfio_device *core_vdev,
+> +					  struct vfio_region_info __user *arg)
+>  {
+> -	if (cmd == VFIO_DEVICE_GET_REGION_INFO) {
+> -		struct vfio_pci_core_device *vdev =
+> -			container_of(core_vdev, struct vfio_pci_core_device, vdev);
+> -		struct pci_dev *pdev = vdev->pdev;
+> -		struct vfio_region_info info;
+> -		unsigned long minsz;
+> +	struct vfio_pci_core_device *vdev =
+> +		container_of(core_vdev, struct vfio_pci_core_device, vdev);
+> +	struct pci_dev *pdev = vdev->pdev;
+> +	struct vfio_region_info info;
+> +	unsigned long minsz;
+>  
+> -		minsz = offsetofend(struct vfio_region_info, offset);
+> +	minsz = offsetofend(struct vfio_region_info, offset);
+>  
+> -		if (copy_from_user(&info, (void __user *)arg, minsz))
+> -			return -EFAULT;
+> +	if (copy_from_user(&info, arg, minsz))
+> +		return -EFAULT;
+>  
+> -		if (info.argsz < minsz)
+> -			return -EINVAL;
+> +	if (info.argsz < minsz)
+> +		return -EINVAL;
+>  
+> -		if (info.index == VFIO_PCI_BAR2_REGION_INDEX) {
+> -			info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
+> +	if (info.index != VFIO_PCI_BAR2_REGION_INDEX)
+> +		return vfio_pci_ioctl_get_region_info(core_vdev, arg);
+>  
+> -			/*
+> -			 * ACC VF dev BAR2 region consists of both functional
+> -			 * register space and migration control register space.
+> -			 * Report only the functional region to Guest.
+> -			 */
+> -			info.size = pci_resource_len(pdev, info.index) / 2;
+> +	info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
 >
 
-Okay, will add that.
+Please adapt based on the latest code in the Next branch.
+Code updates have already been made here.
 
-Thanks,
-Shida
+Thanks
+Longfang.
 
->
-> Thanks,
-> Ming
->
+> -			info.flags = VFIO_REGION_INFO_FLAG_READ |
+> -					VFIO_REGION_INFO_FLAG_WRITE |
+> -					VFIO_REGION_INFO_FLAG_MMAP;
+> +	/*
+> +	 * ACC VF dev BAR2 region consists of both functional
+> +	 * register space and migration control register space.
+> +	 * Report only the functional region to Guest.
+> +	 */
+> +	info.size = pci_resource_len(pdev, info.index) / 2;
+>  
+> -			return copy_to_user((void __user *)arg, &info, minsz) ?
+> -					    -EFAULT : 0;
+> -		}
+> -	}
+> -	return vfio_pci_core_ioctl(core_vdev, cmd, arg);
+> +	info.flags = VFIO_REGION_INFO_FLAG_READ | VFIO_REGION_INFO_FLAG_WRITE |
+> +		     VFIO_REGION_INFO_FLAG_MMAP;
+> +
+> +	return copy_to_user(arg, &info, minsz) ? -EFAULT : 0;
+>  }
+>  
+>  static int hisi_acc_vf_debug_check(struct seq_file *seq, struct vfio_device *vdev)
+> @@ -1557,7 +1553,8 @@ static const struct vfio_device_ops hisi_acc_vfio_pci_migrn_ops = {
+>  	.release = vfio_pci_core_release_dev,
+>  	.open_device = hisi_acc_vfio_pci_open_device,
+>  	.close_device = hisi_acc_vfio_pci_close_device,
+> -	.ioctl = hisi_acc_vfio_pci_ioctl,
+> +	.ioctl = vfio_pci_core_ioctl,
+> +	.get_region_info = hisi_acc_vfio_ioctl_get_region,
+>  	.device_feature = vfio_pci_core_ioctl_feature,
+>  	.read = hisi_acc_vfio_pci_read,
+>  	.write = hisi_acc_vfio_pci_write,
+> 
