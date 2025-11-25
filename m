@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 723902FD1D9
-	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 07:09:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8599F2FE050
+	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 07:10:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764054598; cv=none; b=MP9hN0awdTToqTfkD1hmQBGwYSLPc6PwcBrBxbg0oN60i2YGsuvaIOrbH2oB7+lCaqHOAvXuojhdqCvkRCQHyosMnQWyWLBpTAKzOMwYtGTcO535RIodftWkjXVkJPMngOGl2eCYf6JCU2d0xL5E2KApHSEJhQ7XMwlUu/9L7Xw=
+	t=1764054602; cv=none; b=ul02TgsDf6Y0hx7wZO9OejzNqdAOZgqms1bablAVMQuw1l1sXKiTYLsZIlIJLF6GjqHmDQJO2ALvQNgFmYl0ubnGq5UnmtCafqNvHwOZkNaktlVNDeKve2dFMWcThxmERvOJMEseY8bzeYKi7nlvDpkTnMHaQf7VgyinjT50XaE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764054598; c=relaxed/simple;
-	bh=Wx+2qzNeKc343CzDtkTZzpaBFSZw3rZNk6WKEivnL3Q=;
+	s=arc-20240116; t=1764054602; c=relaxed/simple;
+	bh=jT45+gYAZb3lmVZ0lmRdq+HBXPY+MsirmR4IBchEZEU=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mcVRagg3i/cHpdSqNhOxhYXs3v06Xnmg62D3Owx7XAr9nLyukqOUxuxrLTzOTSVnaeR7ohkqswN4Chzb13rK1UhodveO3/mzIOES9pxQ6agorktbwpqXpKiM+qU/PwRIvx/QL9s28n2Lqe83Zuna0N/JWO2nXk6bHAuBehw7VS4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MIlbo0Xr; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:Content-Type; b=pKJiEYtAa/RbbhVM81hNmfRDAYIRCZsl4EWFkoiB8E5J0gr0PzsnU2n6dV17L3j8yN9jZObgfzI7BYw8q7/IGGchEhUFqZJbUZ4o2U9iXvDztKhvBWlrCw/rUC9CDUf076xurruajSj52whTUVzaVpLunvDZytPKoz+eqTed4tc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GypmpqY+; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MIlbo0Xr"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GypmpqY+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764054595;
+	s=mimecast20190719; t=1764054599;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=K3VKBAegh1DAGoGVZ8mSzYBi+zKWMLuUYc+aq7Y2Vn4=;
-	b=MIlbo0XrLrE22T7xjA6QUVabO2bvFTt4rqu5sNZSM1q+9oTApNc0/Zt625ytyA6/6cSzVz
-	pLmEnVsC9/PxxwsZTksd19Hrk5CAdsAqUYARHwO+x0T5j/itRur9ieFpZiXi/SDqeNqqC6
-	qVo/MtrmZqNmfkrNItm5vt9NE2nT6OU=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=LgjMqSGgSOscOTaLT7lOFtNx5D/azBRAkOh8QKI/gKQ=;
+	b=GypmpqY+uIj6hJPiDyHribkh+ENRInKdRPfbjgYuGdl+o4X9olrrTgUxv74rrfLTVeu2Na
+	HfW5fZsEUabw3PxV3bbnXx4oYnBISESMXRkYI0V8YPx0AlxtUd0j3eV27vmX6O9WfdJcDM
+	DwMsQzU/if5P5KN+Zar16SKVUd6sI5E=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-617-7kQv1jI9PXeBSVcgIV4jdw-1; Tue,
- 25 Nov 2025 02:09:51 -0500
-X-MC-Unique: 7kQv1jI9PXeBSVcgIV4jdw-1
-X-Mimecast-MFC-AGG-ID: 7kQv1jI9PXeBSVcgIV4jdw_1764054590
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-320-fUt4C1byOWWm55Ipi88xjw-1; Tue,
+ 25 Nov 2025 02:09:56 -0500
+X-MC-Unique: fUt4C1byOWWm55Ipi88xjw-1
+X-Mimecast-MFC-AGG-ID: fUt4C1byOWWm55Ipi88xjw_1764054595
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7B822180035F;
-	Tue, 25 Nov 2025 07:09:50 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E229F19560A7;
+	Tue, 25 Nov 2025 07:09:54 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.120.4])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8A02C195608E;
-	Tue, 25 Nov 2025 07:09:46 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 44BC21956056;
+	Tue, 25 Nov 2025 07:09:50 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com,
@@ -49,9 +49,9 @@ To: mst@redhat.com,
 	eperezma@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH V9 14/19] virtio_ring: determine descriptor flags at one time
-Date: Tue, 25 Nov 2025 15:08:33 +0800
-Message-ID: <20251125070838.70736-15-jasowang@redhat.com>
+Subject: [PATCH V9 15/19] virtio_ring: factor out core logic of buffer detaching
+Date: Tue, 25 Nov 2025 15:08:34 +0800
+Message-ID: <20251125070838.70736-16-jasowang@redhat.com>
 In-Reply-To: <20251125070838.70736-1-jasowang@redhat.com>
 References: <20251125070838.70736-1-jasowang@redhat.com>
 Precedence: bulk
@@ -64,85 +64,58 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Let's determine the last descriptor by counting the number of sg. This
-would be consistent with packed virtqueue implementation and ease the
-future in-order implementation.
+Factor out core logic of buffer detaching and leave the free list
+management to the caller so in_order can just call the core logic.
 
 Acked-by: Eugenio Pérez <eperezma@redhat.com>
 Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ drivers/virtio/virtio_ring.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 4e905dc7b6cb..dbcd6f26df7d 100644
+index dbcd6f26df7d..ca33af830f65 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -575,7 +575,7 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 	struct vring_desc_extra *extra;
- 	struct scatterlist *sg;
- 	struct vring_desc *desc;
--	unsigned int i, n, avail, descs_used, prev, err_idx;
-+	unsigned int i, n, avail, descs_used, err_idx, sg_count = 0;
- 	int head;
- 	bool indirect;
+@@ -1667,8 +1667,8 @@ static bool virtqueue_kick_prepare_packed(struct vring_virtqueue *vq)
+ 	return needs_kick;
+ }
  
-@@ -635,42 +635,40 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
- 			dma_addr_t addr;
- 			u32 len;
-+			u16 flags = 0;
-+
-+			if (++sg_count != total_sg)
-+				flags |= VRING_DESC_F_NEXT;
+-static void detach_buf_packed(struct vring_virtqueue *vq,
+-			      unsigned int id, void **ctx)
++static void detach_buf_packed_in_order(struct vring_virtqueue *vq,
++				       unsigned int id, void **ctx)
+ {
+ 	struct vring_desc_state_packed *state = NULL;
+ 	struct vring_packed_desc *desc;
+@@ -1679,8 +1679,6 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 	/* Clear data ptr. */
+ 	state->data = NULL;
  
- 			if (vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr, &len, premapped))
- 				goto unmap_release;
+-	vq->packed.desc_extra[state->last].next = vq->free_head;
+-	vq->free_head = id;
+ 	vq->vq.num_free += state->num;
  
--			prev = i;
- 			/* Note that we trust indirect descriptor
- 			 * table since it use stream DMA mapping.
- 			 */
--			i = virtqueue_add_desc_split(vq, desc, extra, i, addr, len,
--						     VRING_DESC_F_NEXT,
--						     premapped);
-+			i = virtqueue_add_desc_split(vq, desc, extra, i, addr,
-+						     len, flags ,premapped);
- 		}
+ 	if (unlikely(vq->use_map_api)) {
+@@ -1717,6 +1715,17 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
  	}
- 	for (; n < (out_sgs + in_sgs); n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
- 			dma_addr_t addr;
- 			u32 len;
-+			u16 flags = VRING_DESC_F_WRITE;
+ }
+ 
++static void detach_buf_packed(struct vring_virtqueue *vq,
++			      unsigned int id, void **ctx)
++{
++	struct vring_desc_state_packed *state = &vq->packed.desc_state[id];
 +
-+			if (++sg_count != total_sg)
-+				flags |= VRING_DESC_F_NEXT;
- 
- 			if (vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &addr, &len, premapped))
- 				goto unmap_release;
- 
--			prev = i;
- 			/* Note that we trust indirect descriptor
- 			 * table since it use stream DMA mapping.
- 			 */
--			i = virtqueue_add_desc_split(vq, desc, extra, i, addr, len,
--						     VRING_DESC_F_NEXT |
--						     VRING_DESC_F_WRITE,
--						     premapped);
-+			i = virtqueue_add_desc_split(vq, desc, extra, i, addr,
-+						     len, flags, premapped);
- 		}
- 	}
--	/* Last one doesn't continue. */
--	desc[prev].flags &= cpu_to_virtio16(vq->vq.vdev, ~VRING_DESC_F_NEXT);
--	if (!indirect && vring_need_unmap_buffer(vq, &extra[prev]))
--		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags &=
--			~VRING_DESC_F_NEXT;
- 
- 	if (indirect) {
- 		/* Now that the indirect table is filled in, map it. */
++	vq->packed.desc_extra[state->last].next = vq->free_head;
++	vq->free_head = id;
++
++	detach_buf_packed_in_order(vq, id, ctx);
++}
++
+ static inline bool is_used_desc_packed(const struct vring_virtqueue *vq,
+ 				       u16 idx, bool used_wrap_counter)
+ {
 -- 
 2.31.1
 
