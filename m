@@ -1,166 +1,281 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F2D22DF99
-	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 15:02:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 138E6326D4A
+	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 15:03:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764082931; cv=none; b=XfptRfAs4wWOTbLMCFuCXW1jlP4jyk1cHLgESvJFX1xnwrzS1PKclsKayf4Ivp/D+edp4404KSUb6ED/9I55prrtY2+OiwxIzTPumYN8KksyGyQHierAefGFuQAOomu1pKoz9SkhRhisniEPGIIPFpE6krS6EcZpFA5lgPir6E4=
+	t=1764083035; cv=none; b=stxDmd/Rodt8DW7DElGU+kUBK05eefgCOTCWRO+CWwruzmEN2wdb66bWx4tBm9byWoOawzOZquMuWNV02kvHSSBb/fCMTjcJ7aU4nmchdMFFCuVxEU+HYHbtj64ofG0K7WpPCF/1OUASzHGxZyajlK94rr6PJB2s8r/GNU/WUbs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764082931; c=relaxed/simple;
-	bh=MA9QsTVtWgsvfIublM08n8V07qfNyZI6ksmu7VUM+Z4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=IKiYrG8yuFcTQp0lQHqJgedBJYQVExinms/1CCtWBJc/UzZXHpel+VBBwkbyTUkutB+5rqWoaq19bgOyQZ/DBYbOp8AehOQdw/FKvmegECYVunZG78vdgsuDaBLrDE4Avs3ap2Lzj4WXnJx/HpRFs6wFhAXKOHOwkx/PXCOKK0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EqIroag1; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1764083035; c=relaxed/simple;
+	bh=h5akuidgfM9qPjxJO3udnpNv8m/FhELfREqKk6yRF8Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BAPEPe9AVqHqtszt8hvHzXFrRPulrukom1m/Lyy7MwbV1/FT94TrfX0wQ/Xz5lZvgTe8t0Rn/CgkRKxzp3y8Hsn+UvnCzznRuTl2NjWxbp1aT0dkI6afPS3peFU0o2Qnd8IwJz9TgEATYfYszU68XHcMcZ66S4qNWIzrd+CQIeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=MeMLYvOI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=HZ9HoaGr; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=CZCopwUT; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=cJtVhDSR; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EqIroag1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764082929;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=09KqEaOP5fl8HujAjQhdvyXU7ffK0wmWeHz1wD48GE4=;
-	b=EqIroag19rralZILbIkUISF84q4xBnzJVdAbjiSRNV6g0JY3eNKSe44cCokVZD62gsmckW
-	JqhJ0gqXclSzr2pkdOg1msmFmhAGuRxJF/+/1w6UCP7DSxhyetruwE7DeNKJpQFG942t/X
-	/VZPqux2wVPhz714iXYg/WFha3xwvoY=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-584-6NzNf8QAPDaCUTVSbFbaEw-1; Tue, 25 Nov 2025 10:02:07 -0500
-X-MC-Unique: 6NzNf8QAPDaCUTVSbFbaEw-1
-X-Mimecast-MFC-AGG-ID: 6NzNf8QAPDaCUTVSbFbaEw_1764082926
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-477b8a667bcso58018915e9.2
-        for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 07:02:07 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764082926; x=1764687726;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=09KqEaOP5fl8HujAjQhdvyXU7ffK0wmWeHz1wD48GE4=;
-        b=SYnzgxaJnUZguFBsPSEi13iheFtaFL0ka1DhTdADFSXRgDZET3+KGSx9v4+CSFUJVd
-         KKe1VHfE1M5gou4CIoG6NS7VpfZsDCYr/W9+Ls+Ynz6Fwq3/sYIbWZ6xMc7C2As0cyCu
-         lY76p6hngGdU3Wb+CTb4afQAORZ+RgGshWDfhgB79Caln5ihIj2OnrDJtcIwY+v+JnDi
-         tNy3PlUlmJQp7ySlBRPqykw8tSB3R6diyP8rwp+2XcEMoBpDxskvXTUhu407ayBPSWh1
-         qhsSVhTL7TlD4bGnViDmbEG9u+Hpa9L14pxw9d5YmAWyez+0SFvwcOzlAixSFZN5eqAD
-         s7Qw==
-X-Forwarded-Encrypted: i=1; AJvYcCVjyFtr7MYBeqcPJ3HX8Am3RY8eMwuKRSOadbWmYM15xUOAgeAV+/qn8cq/pVRbR+D7/od/1W4v5LECgGgEgQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyoHUnA/X8tYxI4oqOiYuneXkPYh/yuWAZ618WrK3/aVAfuqkPC
-	emXqgEJ7XhTu25clPGyWHtEeFnQodLDYYStG9gbYQiF7w919a+92EvSC5xiryXNHtcoVz333549
-	/+R7KEfEPoYE8oRZiy1fBYuwl8N4debDD16TV4BoscFlnoTUaDwkDhWeYY//1z0OevW9D
-X-Gm-Gg: ASbGncvAMi9pLphIRGFNYbBA9zv1bF7lcP+YrePG0eLav+LAYwtkzeT+5aTgzdwRIdo
-	HOs0jhvRF7WRMGwrKuVeGjj5KTxEM+SOe5aoAUXGuXqhOvleuoPltti+IUoqMV0q1A8Sa0LRnou
-	1HyVdsrP5Mcq8HNJZ9wPDHZgwtMr6xKdR7OTnLn3w+F4NX8eFB2MQMaLBMHA56wgYADZhm8yfs7
-	kUWJm1IxrOTqfXN+YW1QNA+YrK2vddS+++zE+swURrHtpgSYlfUTMg/3uQVIBu02x1tcFPQcASw
-	e2+Ft76VVhJ38hDMbVhLrDHwZlziCRci1+wLhG4cEeUx9szeu9fsBvY8UtnxpG/au2QZjHGa6/X
-	lCo09gwe8xJfECg3vCoYFW91dsyrsbg==
-X-Received: by 2002:a05:600c:4fce:b0:477:9aeb:6a8f with SMTP id 5b1f17b1804b1-47904ad9438mr24886175e9.9.1764082926352;
-        Tue, 25 Nov 2025 07:02:06 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGnxhF4yC89mPigrHkbVw1gVjo8TuRM3hL5MAajbA1OA7AnNYZFSuV4PRGzcMPXZxxaMN4l+A==
-X-Received: by 2002:a05:600c:4fce:b0:477:9aeb:6a8f with SMTP id 5b1f17b1804b1-47904ad9438mr24884925e9.9.1764082924414;
-        Tue, 25 Nov 2025 07:02:04 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-477bf226bf7sm273353425e9.11.2025.11.25.07.02.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Nov 2025 07:02:03 -0800 (PST)
-Date: Tue, 25 Nov 2025 10:01:58 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Simon Schippers <simon.schippers@tu-dortmund.de>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
-	jon@nutanix.com, tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v6 2/8] ptr_ring: add helper to check if consume
- created space
-Message-ID: <20251125095650-mutt-send-email-mst@kernel.org>
-References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
- <20251120152914.1127975-3-simon.schippers@tu-dortmund.de>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="MeMLYvOI";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="HZ9HoaGr";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="CZCopwUT";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="cJtVhDSR"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id CB6CC5BD95;
+	Tue, 25 Nov 2025 15:03:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1764083030; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=t6c0JIr3JV24agNEYsU6GeNEwCMn9HHhKrcfhB/PVC4=;
+	b=MeMLYvOIQm0PQWfD3UBO9QnmQNH6vWaQ7hqx/Wt7eIge3bCkBq3fyTNKB1FMEYmW5/G9/J
+	UU730ytQ756s0UWVHqMa3vCOYcvtp5B2dhbquMtNcnpLg80cNx5E91Pf9TqjCgsr0epa2G
+	+BOGQnMJ8Q4g59SQ+WmHgzml1L6p5Nw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1764083030;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=t6c0JIr3JV24agNEYsU6GeNEwCMn9HHhKrcfhB/PVC4=;
+	b=HZ9HoaGrQMuKtj6drZ7EoukRoNuUO4l2erKX3BLnChSz0rBzze1RXd5Yuom8T0bdDCieMn
+	cqhpDfNxHL/8CaAg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=CZCopwUT;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=cJtVhDSR
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1764083027; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=t6c0JIr3JV24agNEYsU6GeNEwCMn9HHhKrcfhB/PVC4=;
+	b=CZCopwUTcY+A/L7rZ7hx6PUAoVzxsQaz6VKywNSdqiIVG+9Hmen0N5mgb+Xpt16ZWJLBwL
+	d6sRWjuJdHj5/RJkAarOMFPW7/CsqlWHeJEZvX1zk6W/2dOrRRvrgj2EqC1Vq08eBWPtdh
+	kuimNUmnISiMDhyrmmTZWp1VsUu/ONE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1764083027;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=t6c0JIr3JV24agNEYsU6GeNEwCMn9HHhKrcfhB/PVC4=;
+	b=cJtVhDSRR+o9VWz6Yazw2qpbBdRDJ0H8iUig4wpW+NdNmNvUjP02PtwdGzrWA6t7d419+a
+	uJb59PIuV23OjwAQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2E19F3EA63;
+	Tue, 25 Nov 2025 15:03:47 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id STfTCVPFJWmMCQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 25 Nov 2025 15:03:47 +0000
+Message-ID: <a11c195d-197c-45a4-962a-e2336c7360c2@suse.de>
+Date: Tue, 25 Nov 2025 16:03:46 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251120152914.1127975-3-simon.schippers@tu-dortmund.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: QN5MNaiNfS0NOuNcKaxbkT6Ov5B1hfFl0lsFuTn8SwM_1764082926
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 03/25] drm/gem-dma: Compute dumb-buffer sizes with
+ drm_mode_size_dumb()
+To: Ludovic.Desroches@microchip.com, simona@ffwll.ch, airlied@gmail.com,
+ mripard@kernel.org, maarten.lankhorst@linux.intel.com, geert@linux-m68k.org,
+ tomi.valkeinen@ideasonboard.com
+Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
+ freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+ imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
+ nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+ intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org
+References: <20250821081918.79786-1-tzimmermann@suse.de>
+ <20250821081918.79786-4-tzimmermann@suse.de>
+ <52600bf4-2c1c-49a6-82c5-b31818141a43@microchip.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <52600bf4-2c1c-49a6-82c5-b31818141a43@microchip.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: CB6CC5BD95
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[microchip.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com,linux-m68k.org,ideasonboard.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[21];
+	TO_DN_NONE(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.com:url,suse.de:email,suse.de:mid,suse.de:dkim]
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
 
-On Thu, Nov 20, 2025 at 04:29:07PM +0100, Simon Schippers wrote:
-> Add __ptr_ring_consume_created_space() to check whether the previous
-> __ptr_ring_consume() call successfully consumed an element and created
-> space in the ring buffer. This enables callers to conditionally notify
-> producers when space becomes available.
-> 
-> The function is only valid immediately after a single consume operation
-> and should not be used after calling __ptr_ring_consume_batched().
-> 
-> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> Co-developed by: Jon Kohler <jon@nutanix.com>
-> Signed-off-by: Jon Kohler <jon@nutanix.com>
-> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-> ---
->  include/linux/ptr_ring.h | 17 +++++++++++++++++
->  1 file changed, 17 insertions(+)
-> 
-> diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-> index da141cc8b075..76d6840b45a3 100644
-> --- a/include/linux/ptr_ring.h
-> +++ b/include/linux/ptr_ring.h
-> @@ -453,6 +453,23 @@ static inline int ptr_ring_consume_batched_bh(struct ptr_ring *r,
->  	return ret;
->  }
->  
-> +/*
-> + * Check if the previous consume operation created space
+Hi
 
-space?
+Am 25.11.25 um 15:39 schrieb Ludovic.Desroches@microchip.com:
+> On 8/21/25 10:17, Thomas Zimmermann wrote:
+>> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and
+>> buffer size. Align the pitch to a multiple of 8.
 
-what does this mean?
+I missed a chance to explain it here. :/
 
-> + *
-> + * Returns true if the last call to __ptr_ring_consume() has created
-> + * space in the ring buffer (i.e., an element was consumed).
-> + *
-> + * Note: This function is only valid immediately after a single call to
-> + * __ptr_ring_consume(). If multiple calls to ptr_ring_consume*() have
-> + * been made, this check must be performed after each call individually.
-> + * Likewise, do not use this function after calling
-> + * __ptr_ring_consume_batched().
+>>
+>> Push the current calculation into the only direct caller imx. Imx's
+>> hardware requires the framebuffer width to be aligned to 8. The
+>> driver's current approach is actually incorrect, as it only guarantees
+>> this implicitly and requires bpp to be a multiple of 8 already. A
+>> later commit will fix this problem by aligning the scanline pitch
+>> such that an aligned width still fits into each scanline's memory.
+>>
+>> A number of other drivers are build on top of gem-dma helpers and
+>> implement their own dumb-buffer allocation. These drivers invoke
+>> drm_gem_dma_dumb_create_internal(), which is not affected by this
+>> commit.
+>>
+>> v5:
+>> - avoid reset of arguments (Tomi)
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+>> ---
+>>    drivers/gpu/drm/drm_gem_dma_helper.c     | 7 +++++--
+>>    drivers/gpu/drm/imx/ipuv3/imx-drm-core.c | 4 +++-
+>>    2 files changed, 8 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/drm_gem_dma_helper.c b/drivers/gpu/drm/drm_gem_dma_helper.c
+>> index 4f0320df858f..ab1a70b1d6f1 100644
+>> --- a/drivers/gpu/drm/drm_gem_dma_helper.c
+>> +++ b/drivers/gpu/drm/drm_gem_dma_helper.c
+>> @@ -20,6 +20,7 @@
+>>    #include <drm/drm.h>
+>>    #include <drm/drm_device.h>
+>>    #include <drm/drm_drv.h>
+>> +#include <drm/drm_dumb_buffers.h>
+>>    #include <drm/drm_gem_dma_helper.h>
+>>    #include <drm/drm_vma_manager.h>
+>>    
+>> @@ -304,9 +305,11 @@ int drm_gem_dma_dumb_create(struct drm_file *file_priv,
+>>    			    struct drm_mode_create_dumb *args)
+>>    {
+>>    	struct drm_gem_dma_object *dma_obj;
+>> +	int ret;
+>>    
+>> -	args->pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
+>> -	args->size = args->pitch * args->height;
+>> +	ret = drm_mode_size_dumb(drm, args, SZ_8, 0);
+>> +	if (ret)
+>> +		return ret;
+> Hi,
+>
+> Was it intentional for this change to alter the pitch?
 
-API-wise, it is a really weird function.  So is 
+Most hardware does not need the pitch to be of a certain alignment. But 
+these buffers are possibly shared with other hardware, which sometimes 
+needs alignment to certain values. Using SZ_8 improves compatible with 
+that hardware.
 
-{
-	p = __ptr_ring_consume
+>
+> The alignment requirement has been updated—from 8-bit alignment to
+> 64-bit alignment. Since the pitch is expressed in bytes, we should pass
+> SZ_1 instead of SZ_8 for hw_patch_align.
+>
+> For example, for an 850×480 framebuffer at 16 bpp, the pitch should be
+> 1700 bytes. With the new alignment, the pitch becomes 1704 bytes.
 
-	return !!p
-}
+Many display modes have an 8-byte alignment in their width. 850 pixels 
+is somewhat of an exception.
 
-guaranteed to be equivalent to 
+>
+> Please let me know if you’d like me to submit a fix.
 
-{
-	p = __ptr_ring_consume
+Do you see a bug with your hardware? Unless this creates a real problem, 
+I'd like to keep it as it is now.
 
-	return !!__ptr_ring_consume_created_space
-}
+Best regards
+Thomas
 
+>
+> Regards,
+> Ludovic
+>
+>
+>>    
+>>    	dma_obj = drm_gem_dma_create_with_handle(file_priv, drm, args->size,
+>>    						 &args->handle);
+>> diff --git a/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c b/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c
+>> index ec5fd9a01f1e..af4a30311e18 100644
+>> --- a/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c
+>> +++ b/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c
+>> @@ -145,8 +145,10 @@ static int imx_drm_dumb_create(struct drm_file *file_priv,
+>>    	int ret;
+>>    
+>>    	args->width = ALIGN(width, 8);
+>> +	args->pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
+>> +	args->size = args->pitch * args->height;
+>>    
+>> -	ret = drm_gem_dma_dumb_create(file_priv, drm, args);
+>> +	ret = drm_gem_dma_dumb_create_internal(file_priv, drm, args);
+>>    	if (ret)
+>>    		return ret;
+>>    
 
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
 
-> + */
-> +static inline bool __ptr_ring_consume_created_space(struct ptr_ring *r)
-> +{
-> +	return r->consumer_tail >= r->consumer_head;
-> +}
-> +
->  /* Cast to structure type and call a function without discarding from FIFO.
->   * Function must return a value.
->   * Callers must take consumer_lock.
-> -- 
-> 2.43.0
 
