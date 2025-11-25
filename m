@@ -1,67 +1,35 @@
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AE5B221DB6
-	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 13:44:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28A33322C99;
+	Tue, 25 Nov 2025 14:05:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764078248; cv=none; b=h2l7QJuZtzkPwhEVC1KDB17E8dnUBfBw7bE0zXBKoOiV0Xt682t8jt3/fZMfTh1US19GvXIg9Ln6wJ+flDqj/J/NH/mGTRjIcwglGaekq9ccrqKhy2VVGIb8Y4sL0GqiBp46Micxd5z5qRj1T5Of04msNAeuC1hTJTtgFoXktes=
+	t=1764079507; cv=none; b=UoQwF4W4TGNlQaqXg2SGWXosSy93gEatg4xh2wLHsa3jSrrnv5ig2Pm+Okx4JBrFZh7yHomz736zCq3km0KBta2iaymgrHTmA3un5turl1+yKJOz9tuvJjpCqUhqalg4JdZf4DIp69JVock5pK+QnAc+lIdvEFiJbdycwZT2Gck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764078248; c=relaxed/simple;
-	bh=+dWttCU3XKRwnEXf00rDPiDKLdfNac3+y3ajrXT0p/g=;
+	s=arc-20240116; t=1764079507; c=relaxed/simple;
+	bh=3dV4P1rod3HWCV2qsj7M+/1jXpEH4ENT9lMlEQN7fCg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WB29zlXamiEL6/YD+S4EvPqBAGCw7PFc9xnsDe/bIcPx6XeksppBPHCrabN31uiuyAjNU57UZCUhrxEXaG3q26IZAXd8sx6Z+7v04OJJXmaOPxu1L1Zn83DyCVxDGn7MsoKuWUFSor/YIsb9t/oz/MxKCF5gzfemDqYdZBNnioQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=OTY88bCv; arc=none smtp.client-ip=209.85.208.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	 In-Reply-To:Content-Type; b=YsrV4R+yBgILmPcFF1Gsf6S6ZK8MzkFpiY9mVP3OlXauBb/nCxPOgds9Fi1sya7WqSQ9u/OEbkb0+4s68DVCoarynPWFGDa6n0JJ1TjCeqnmofe2voMJlTzQEPX6JFUe6zjeMbZh+dbMxTu3btbo9Yy/V/Cegv6yib5MqD0Pmtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=VKT4ImuO; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="OTY88bCv"
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-640c1fda178so9167896a12.1
-        for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 05:44:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1764078245; x=1764683045; darn=lists.linux.dev;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=+dWttCU3XKRwnEXf00rDPiDKLdfNac3+y3ajrXT0p/g=;
-        b=OTY88bCvE1xN+l8pl4T4C4nIYJZpX8RPtMXCghgyAjpz/Ebf391E783iL//bmIIuZ0
-         azGp3NKr6Q+86m+NsoWd/1qP3+RObhb9JKfO3ELOrjgF1Mz+wt+ywmsQKXd7FTuRS3Sw
-         g6A74jrbxRuCv1ALl8g1wzRni5xEYsg2VeBbX4EeE0YH9AcZaD90Bd3INVfE18xKf2ih
-         3cgiIMESin8Pk4FmeXpwLCb2Ls+Z9zPMXphZ8rz+TjNvXEGOwdINPecKZQt2HS1AhDvX
-         d8PtkfsB43DgNRJKkICERPKk8oE8EO4PL62vGHZ24mzrzmVSAZcG2Fn584IkXJIHjjqA
-         Y5LA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764078245; x=1764683045;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+dWttCU3XKRwnEXf00rDPiDKLdfNac3+y3ajrXT0p/g=;
-        b=GKTNhU284XilajlchO3CgbJCdNxjGCfV2GytVEik5LtmaIxBO2dugjGH47PR7KkmRh
-         G0GsIuLBNFPmPmTxvZfVV0mnaaNA8S+BrEYBJB6MlD4+q51hkxatyqL4SYyNgY/0eZXo
-         RSUTcBijPfSayNpBRXKW3SY15QXDEZ2ImSDezDdY2ix47CnOfAAZR9ofbA6R4/b02UkL
-         aq2itd39AC/sVeBLi/wrtrVcmnoVpYeHECsfoEEP5eWi3HfmMSigF48h6U04uqwJm9iB
-         hJ8vlAMd9d0x71lu7UH8c0Ul6RyIjX0ULV6tNpM2pUDf91Q99NXL09lwTT/XB0J+W7dk
-         64fQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUzmoUT04Sbr0bSSmRz3D/equEiSvG0M+XCTw6XntJti6+ddLBRxg+HNIBH7r0neFmBx93CULPAq88cKtoN0A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyDqcc4l3JCY/UZbmZYIXOW7vYFVJavC0ibmr3nLo4EoGuASWX0
-	Ad+pWTJPBOWplzCtHEIpkFEfRIKiz7/UxzTPmonw8ykdCtuCITFfyMKVMh0G+fkfG0E=
-X-Gm-Gg: ASbGncuidy1ah9sSvZvotwc0KmBv2o+yRYP6O8lziykIP2wOCNp6IXfSQLjWbyzpbps
-	OCidB2NT2xxe6CUCwE4GSh1wlK143z6FL5X4fCdxt/PE21w4z2tPOYNXFK+4Hah4B5C3h/BdcDC
-	5xdzJfFQltOKW6Oq/Xc4u2b8Szpng0Q6gjZVhGsj04YIA0VxYDGuBph8yMLEtn/xSHMb8QnhcpF
-	oB7gqrMm+aRgTHiHaEQASYa8L110EEnYLaVAU6/3Bgc+5yMmc1IQRJtqdbFbjfiR7cWXDHRgqCW
-	bx+Zgl4KhfTSjVg0ABompB3GA4BDbYacAE1fagWDxDimPaq9cxt7AJ46SFiY7LBSUniORbQXUKh
-	wVd8z2faQ2TDs6tQfPwi9ASYpj/onx6BodQfLBm4LKVtgeAry747jUrmEDLwgR7vAxco9oix38g
-	iyBlK8WO8MkffhtnpXNzvuLirf7dftt2YLSD33/ZK6gFixp/s+0WLAwM33ggg3aVHVpcQUqKK5j
-	hF40OW7kgB6NHuTPLRVJXIEx9+aLto0PYtcslo+XMf2iMt8+g==
-X-Google-Smtp-Source: AGHT+IE8GDsFTtC20Twr514R8S4vbcbwB2dTNWe9tHUlWIkkd4IgRNOjOKyqck+lalp6EnIyxEn3JA==
-X-Received: by 2002:a05:6402:274e:b0:641:8644:f87f with SMTP id 4fb4d7f45d1cf-64555cd9bd8mr14739148a12.17.1764078244714;
-        Tue, 25 Nov 2025 05:44:04 -0800 (PST)
-Received: from ?IPV6:2003:e5:871a:de00:dd24:7204:f00a:bf44? (p200300e5871ade00dd247204f00abf44.dip0.t-ipconnect.de. [2003:e5:871a:de00:dd24:7204:f00a:bf44])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-645363b5a46sm15177885a12.8.2025.11.25.05.44.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Nov 2025 05:44:04 -0800 (PST)
-Message-ID: <c9228c34-287e-43be-8d7b-6299b165dd6a@suse.com>
-Date: Tue, 25 Nov 2025 14:44:03 +0100
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="VKT4ImuO"
+Received: from [129.217.186.248] ([129.217.186.248])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.1.10/8.18.1.10) with ESMTPSA id 5APE4i1p027790
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 25 Nov 2025 15:04:44 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1764079485;
+	bh=3dV4P1rod3HWCV2qsj7M+/1jXpEH4ENT9lMlEQN7fCg=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=VKT4ImuOfpAJCMfaVzOAF/Xjj7yTnj5zOdJQ4TPLhwKEfHPIzpzwo1zOk39oBya18
+	 hg+pyMKmcvEX+NO1Ehds2HpmyfwH8pS0y1JgwJ7CBTIcy2swua/Nwm4EXrmhuI233t
+	 LJALx6BJBNIoeJLpe2XmOCbAnVzsdPpbFqaf/KPg=
+Message-ID: <9e586a3b-d7fa-4bba-b8d1-39f002e20913@tu-dortmund.de>
+Date: Tue, 25 Nov 2025 15:04:44 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -69,165 +37,236 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] x86/paravirt: Use XOR r32,r32 to clear register in
- pv_vcpu_is_preempted()
-To: Uros Bizjak <ubizjak@gmail.com>, bcm-kernel-feedback-list@broadcom.com,
- virtualization@lists.linux.dev, x86@kernel.org, linux-kernel@vger.kernel.org
-Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>
-References: <20251120191716.124642-1-ubizjak@gmail.com>
- <20251120191716.124642-2-ubizjak@gmail.com>
+Subject: [PATCH net-next v6 0/8] tun/tap & vhost-net: netdev queue flow
+ control to avoid ptr_ring tail drop
+To: Jason Wang <jasowang@redhat.com>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
+        jon@nutanix.com, tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
+ <CACGkMEuboys8sCJFUTGxHUeouPFnVqVLGQBefvmxYDe4ooLfLg@mail.gmail.com>
+ <b9fff8e1-fb96-4b1f-9767-9d89adf31060@tu-dortmund.de>
+ <CACGkMEufNLjXj37NBVCW4xdSuVLLV4ZS4WTuRzdaBV-nYgKs8w@mail.gmail.com>
+ <ebb431f9-fdd3-4db3-bfd5-70af703ef9b5@tu-dortmund.de>
+ <CACGkMEt_Z0a3kidmmjXcajU2EVi-B6mi832weeumPfZzmLoEPA@mail.gmail.com>
 Content-Language: en-US
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <20251120191716.124642-2-ubizjak@gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------nL0AI1WWneTpPyY0N6T000j2"
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <CACGkMEt_Z0a3kidmmjXcajU2EVi-B6mi832weeumPfZzmLoEPA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------nL0AI1WWneTpPyY0N6T000j2
-Content-Type: multipart/mixed; boundary="------------K220xXVrm3xu9smLqluISTWT";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Uros Bizjak <ubizjak@gmail.com>, bcm-kernel-feedback-list@broadcom.com,
- virtualization@lists.linux.dev, x86@kernel.org, linux-kernel@vger.kernel.org
-Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>
-Message-ID: <c9228c34-287e-43be-8d7b-6299b165dd6a@suse.com>
-Subject: Re: [PATCH 2/2] x86/paravirt: Use XOR r32,r32 to clear register in
- pv_vcpu_is_preempted()
-References: <20251120191716.124642-1-ubizjak@gmail.com>
- <20251120191716.124642-2-ubizjak@gmail.com>
-In-Reply-To: <20251120191716.124642-2-ubizjak@gmail.com>
+On 11/25/25 02:34, Jason Wang wrote:
+> On Mon, Nov 24, 2025 at 5:20 PM Simon Schippers
+> <simon.schippers@tu-dortmund.de> wrote:
+>>
+>> On 11/24/25 02:04, Jason Wang wrote:
+>>> On Fri, Nov 21, 2025 at 5:23 PM Simon Schippers
+>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>
+>>>> On 11/21/25 07:19, Jason Wang wrote:
+>>>>> On Thu, Nov 20, 2025 at 11:30 PM Simon Schippers
+>>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>>
+>>>>>> This patch series deals with tun/tap and vhost-net which drop incoming
+>>>>>> SKBs whenever their internal ptr_ring buffer is full. Instead, with this
+>>>>>> patch series, the associated netdev queue is stopped before this happens.
+>>>>>> This allows the connected qdisc to function correctly as reported by [1]
+>>>>>> and improves application-layer performance, see our paper [2]. Meanwhile
+>>>>>> the theoretical performance differs only slightly:
+>>>>>>
+>>>>>> +--------------------------------+-----------+----------+
+>>>>>> | pktgen benchmarks to Debian VM | Stock     | Patched  |
+>>>>>> | i5 6300HQ, 20M packets         |           |          |
+>>>>>> +-----------------+--------------+-----------+----------+
+>>>>>> | TAP             | Transmitted  | 195 Kpps  | 183 Kpps |
+>>>>>> |                 +--------------+-----------+----------+
+>>>>>> |                 | Lost         | 1615 Kpps | 0 pps    |
+>>>>>> +-----------------+--------------+-----------+----------+
+>>>>>> | TAP+vhost_net   | Transmitted  | 589 Kpps  | 588 Kpps |
+>>>>>> |                 +--------------+-----------+----------+
+>>>>>> |                 | Lost         | 1164 Kpps | 0 pps    |
+>>>>>> +-----------------+--------------+-----------+----------+
+>>>>>
+>>>>
+>>>> Hi Jason,
+>>>>
+>>>> thank you for your reply!
+>>>>
+>>>>> PPS drops somehow for TAP, any reason for that?
+>>>>
+>>>> I have no explicit explanation for that except general overheads coming
+>>>> with this implementation.
+>>>
+>>> It would be better to fix that.
+>>>
+>>>>
+>>>>>
+>>>>> Btw, I had some questions:
+>>>>>
+>>>>> 1) most of the patches in this series would introduce non-trivial
+>>>>> impact on the performance, we probably need to benchmark each or split
+>>>>> the series. What's more we need to run TCP benchmark
+>>>>> (throughput/latency) as well as pktgen see the real impact
+>>>>
+>>>> What could be done, IMO, is to activate tun_ring_consume() /
+>>>> tap_ring_consume() before enabling tun_ring_produce(). Then we could see
+>>>> if this alone drops performance.
+>>>>
+>>>> For TCP benchmarks, you mean userspace performance like iperf3 between a
+>>>> host and a guest system?
+>>>
+>>> Yes,
+>>>
+>>>>
+>>>>>
+>>>>> 2) I see this:
+>>>>>
+>>>>>         if (unlikely(tun_ring_produce(&tfile->tx_ring, queue, skb))) {
+>>>>>                 drop_reason = SKB_DROP_REASON_FULL_RING;
+>>>>>                 goto drop;
+>>>>>         }
+>>>>>
+>>>>> So there could still be packet drop? Or is this related to the XDP path?
+>>>>
+>>>> Yes, there can be packet drops after a ptr_ring resize or a ptr_ring
+>>>> unconsume. Since those two happen so rarely, I figured we should just
+>>>> drop in this case.
+>>>>
+>>>>>
+>>>>> 3) The LLTX change would have performance implications, but the
+>>>>> benmark doesn't cover the case where multiple transmission is done in
+>>>>> parallel
+>>>>
+>>>> Do you mean multiple applications that produce traffic and potentially
+>>>> run on different CPUs?
+>>>
+>>> Yes.
+>>>
+>>>>
+>>>>>
+>>>>> 4) After the LLTX change, it seems we've lost the synchronization with
+>>>>> the XDP_TX and XDP_REDIRECT path?
+>>>>
+>>>> I must admit I did not take a look at XDP and cannot really judge if/how
+>>>> lltx has an impact on XDP. But from my point of view, __netif_tx_lock()
+>>>> instead of __netif_tx_acquire(), is executed before the tun_net_xmit()
+>>>> call and I do not see the impact for XDP, which calls its own methods.
+>>>
+>>> Without LLTX tun_net_xmit is protected by tx lock but it is not the
+>>> case of tun_xdp_xmit. This is because, unlike other devices, tun
+>>> doesn't have a dedicated TX queue for XDP, so the queue is shared by
+>>> both XDP and skb. So XDP xmit path needs to be protected with tx lock
+>>> as well, and since we don't have queue discipline for XDP, it means we
+>>> could still drop packets when XDP is enabled. I'm not sure this would
+>>> defeat the whole idea or not.
+>>
+>> Good point.
+>>
+>>>
+>>>>>
+>>>>> 5) The series introduces various ptr_ring helpers with lots of
+>>>>> ordering stuff which is complicated, I wonder if we first have a
+>>>>> simple patch to implement the zero packet loss
+>>>>
+>>>> I personally don't see how a simpler patch is possible without using
+>>>> discouraged practices like returning NETDEV_TX_BUSY in tun_net_xmit or
+>>>> spin locking between producer and consumer. But I am open for
+>>>> suggestions :)
+>>>
+>>> I see NETDEV_TX_BUSY is used by veth:
+>>>
+>>> static int veth_xdp_rx(struct veth_rq *rq, struct sk_buff *skb)
+>>> {
+>>>         if (unlikely(ptr_ring_produce(&rq->xdp_ring, skb)))
+>>>                 return NETDEV_TX_BUSY; /* signal qdisc layer */
+>>>
+>>>         return NET_RX_SUCCESS; /* same as NETDEV_TX_OK */
+>>> }
+>>>
+>>> Maybe it would be simpler to start from that (probably with a new tun->flags?).
+>>>
+>>> Thanks
+>>
+>> Do you mean that this patchset could be implemented using the same
+>> approach that was used for veth in [1]?
+>> This could then also fix the XDP path.
+> 
+> I think so.
 
---------------K220xXVrm3xu9smLqluISTWT
-Content-Type: multipart/mixed; boundary="------------BGXsZCFCqTrTYhAI8yoNeF3l"
+Okay, I will do so and submit a v7 when net-next opens again for 6.19.
 
---------------BGXsZCFCqTrTYhAI8yoNeF3l
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+> 
+>>
+>> But is returning NETDEV_TX_BUSY fine in our case?
+> 
+> If it helps to avoid packet drop. But I'm not sure if qdisc is a must
+> in your case.
 
-T24gMjAuMTEuMjUgMjA6MTUsIFVyb3MgQml6amFrIHdyb3RlOg0KPiB4ODZfNjQgemVybyBl
-eHRlbmRzIDMyYml0IG9wZXJhdGlvbnMsIHNvIGZvciA2NGJpdCBvcGVyYW5kcywNCj4gWE9S
-IHIzMixyMzIgaXMgZnVuY3Rpb25hbGx5IGVxdWFsIHRvIFhPUiByNjQscjY0LCBidXQgYXZv
-aWRzDQo+IGEgUkVYIHByZWZpeCBieXRlIHdoZW4gbGVnYWN5IHJlZ2lzdGVycyBhcmUgdXNl
-ZC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IFVyb3MgQml6amFrIDx1Yml6amFrQGdtYWlsLmNv
-bT4NCg0KUmV2aWV3ZWQtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4NCg0K
-DQpKdWVyZ2VuDQo=
---------------BGXsZCFCqTrTYhAI8yoNeF3l
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+I will try to avoid returning it.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+When no qdisc is connected, I will just drop like veth does.
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+> 
+>>
+>> Do you mean a flag that enables or disables the no-drop behavior?
+> 
+> Yes, via a new flags that could be set via TUNSETIFF.
+> 
+> Thanks
 
---------------BGXsZCFCqTrTYhAI8yoNeF3l--
+I am not a fan of that, since I can not imagine a use case where
+dropping packets is desired. veth does not introduce a flag either.
 
---------------K220xXVrm3xu9smLqluISTWT--
+Of course, if there is a major performance degradation, it makes sense.
+But I will benchmark it, and we will see.
 
---------------nL0AI1WWneTpPyY0N6T000j2
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+Thank you!
 
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmklsqMFAwAAAAAACgkQsN6d1ii/Ey+g
-/wf8DVlgX06UO6Qd1FnvAr3Mo6gswbfOGfKEmTSJb6+R/mg2zKAUsaaAemAVIzGBFQzmRzjB37mC
-ANt17y/BFyftTG9uRl7O+jNVV6oa1/q4oariR+xBTcMYL05xv/2ltorIB6IkSx1qXyIV7JUIVf1V
-q7nJzoPzLUMo43GieUPUEKeyhqEn1E63Fcsi5zFroyngSHyaF2JLdJTTmq3u+35j0VQFi72s/Bfa
-s+kZ25yjJ/fkSISjIl+Slas9SBb9hhLbBTcIhM/nKUJXod1V/Wi08pO2bOcl8nxCptG60HXC2buC
-FapKxQNCqnrZbHXX/r9t3ccu+xQRmVPwjZdJymbL9g==
-=7ZPT
------END PGP SIGNATURE-----
-
---------------nL0AI1WWneTpPyY0N6T000j2--
+> 
+>>
+>> Thanks!
+>>
+>> [1] Link: https://lore.kernel.org/netdev/174559288731.827981.8748257839971869213.stgit@firesoul/T/#u
+>>
+>>>
+>>>>
+>>>>>
+>>>>>>
+>>>>>> This patch series includes tun/tap, and vhost-net because they share
+>>>>>> logic. Adjusting only one of them would break the others. Therefore, the
+>>>>>> patch series is structured as follows:
+>>>>>> 1+2: new ptr_ring helpers for 3
+>>>>>> 3: tun/tap: tun/tap: add synchronized ring produce/consume with queue
+>>>>>> management
+>>>>>> 4+5+6: tun/tap: ptr_ring wrappers and other helpers to be called by
+>>>>>> vhost-net
+>>>>>> 7: tun/tap & vhost-net: only now use the previous implemented functions to
+>>>>>> not break git bisect
+>>>>>> 8: tun/tap: drop get ring exports (not used anymore)
+>>>>>>
+>>>>>> Possible future work:
+>>>>>> - Introduction of Byte Queue Limits as suggested by Stephen Hemminger
+>>>>>
+>>>>> This seems to be not easy. The tx completion depends on the userspace behaviour.
+>>>>
+>>>> I agree, but I really would like to reduce the buffer bloat caused by the
+>>>> default 500 TUN / 1000 TAP packet queue without losing performance.
+>>>>
+>>>>>
+>>>>>> - Adaption of the netdev queue flow control for ipvtap & macvtap
+>>>>>>
+>>>>>> [1] Link: https://unix.stackexchange.com/questions/762935/traffic-shaping-ineffective-on-tun-device
+>>>>>> [2] Link: https://cni.etit.tu-dortmund.de/storages/cni-etit/r/Research/Publications/2025/Gebauer_2025_VTCFall/Gebauer_VTCFall2025_AuthorsVersion.pdf
+>>>>>>
+>>>>>
+>>>>> Thanks
+>>>>>
+>>>>
+>>>> Thanks! :)
+>>>>
+>>>
+>>
+> 
