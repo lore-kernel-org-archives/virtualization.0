@@ -1,67 +1,67 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9FAC221DB6
-	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 13:43:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AE5B221DB6
+	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 13:44:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764078207; cv=none; b=SIRLIz45EiPExPx7lolw0bThERg5Wz+y5Lu0Gb8+zuj2idLdpR9obl/5rJ+wso6+zfDDlUlhL8BEJSzZKtJBEsu4KcUb1oKNtpF9QrFiAjtn9r200E2RJkzqAbD7He1FvQZNpAd0NflBJJq2uUZrxvJPyeZ5xhCXlTMFevlo3fA=
+	t=1764078248; cv=none; b=h2l7QJuZtzkPwhEVC1KDB17E8dnUBfBw7bE0zXBKoOiV0Xt682t8jt3/fZMfTh1US19GvXIg9Ln6wJ+flDqj/J/NH/mGTRjIcwglGaekq9ccrqKhy2VVGIb8Y4sL0GqiBp46Micxd5z5qRj1T5Of04msNAeuC1hTJTtgFoXktes=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764078207; c=relaxed/simple;
-	bh=+Y1v7sCggB8kCzsqN2mZDt51Jg55DMtOvzPXpKu+JKY=;
+	s=arc-20240116; t=1764078248; c=relaxed/simple;
+	bh=+dWttCU3XKRwnEXf00rDPiDKLdfNac3+y3ajrXT0p/g=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=o/9Q1Ap5F8H24d6vFaiwITSoVjYibWABa7fu3nWLPKfLwpflY9s6V5atR7Cbe2x6bG4ATMT72kg2Ugy23LVT3Pw32Sa+L8PSYZjd9bAB0yzbA1ip9Jhxd/rI5oLmt0tJLamF9vUDEcCQb5U9AbZSUGKDegQLM+bsS4OE51ulAN0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=UQNwOxih; arc=none smtp.client-ip=209.85.218.49
+	 In-Reply-To:Content-Type; b=WB29zlXamiEL6/YD+S4EvPqBAGCw7PFc9xnsDe/bIcPx6XeksppBPHCrabN31uiuyAjNU57UZCUhrxEXaG3q26IZAXd8sx6Z+7v04OJJXmaOPxu1L1Zn83DyCVxDGn7MsoKuWUFSor/YIsb9t/oz/MxKCF5gzfemDqYdZBNnioQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=OTY88bCv; arc=none smtp.client-ip=209.85.208.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="UQNwOxih"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b737502f77bso791864966b.2
-        for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 05:43:25 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="OTY88bCv"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-640c1fda178so9167896a12.1
+        for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 05:44:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1764078204; x=1764683004; darn=lists.linux.dev;
+        d=suse.com; s=google; t=1764078245; x=1764683045; darn=lists.linux.dev;
         h=in-reply-to:autocrypt:from:content-language:references:cc:to
          :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=+Y1v7sCggB8kCzsqN2mZDt51Jg55DMtOvzPXpKu+JKY=;
-        b=UQNwOxihbBZcsKcmupmEGVZlc30cNJynp/rM018a1OOmpblld8jj+HcwyH8EuJMwaN
-         Wk8qC98JrUb8poSE5Gzly1iLmVD//dyEfGiv5j0rW3NWAlFakUi7SWq6l3SjHLsDIKwZ
-         5KJFz1qbc/1BVQA0YHHVFchMuYLasct5H9sHr2ACbKdof8ijme0Lm96xa/LCZhkCQjCw
-         spfZfVAQVuPAtEYHp4k+Y0Ev4M90ERyFi8TM4g5ifUkPeJJox8seBoyh4RvPYQzv/jRw
-         STQyqueG9cTEuuxB06mN1wFFdmjMY4lKA4QXhsx9VU56kF27HmsB/mCrmg6wk7zOlc6S
-         GUkQ==
+        bh=+dWttCU3XKRwnEXf00rDPiDKLdfNac3+y3ajrXT0p/g=;
+        b=OTY88bCvE1xN+l8pl4T4C4nIYJZpX8RPtMXCghgyAjpz/Ebf391E783iL//bmIIuZ0
+         azGp3NKr6Q+86m+NsoWd/1qP3+RObhb9JKfO3ELOrjgF1Mz+wt+ywmsQKXd7FTuRS3Sw
+         g6A74jrbxRuCv1ALl8g1wzRni5xEYsg2VeBbX4EeE0YH9AcZaD90Bd3INVfE18xKf2ih
+         3cgiIMESin8Pk4FmeXpwLCb2Ls+Z9zPMXphZ8rz+TjNvXEGOwdINPecKZQt2HS1AhDvX
+         d8PtkfsB43DgNRJKkICERPKk8oE8EO4PL62vGHZ24mzrzmVSAZcG2Fn584IkXJIHjjqA
+         Y5LA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764078204; x=1764683004;
+        d=1e100.net; s=20230601; t=1764078245; x=1764683045;
         h=in-reply-to:autocrypt:from:content-language:references:cc:to
          :subject:user-agent:mime-version:date:message-id:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+Y1v7sCggB8kCzsqN2mZDt51Jg55DMtOvzPXpKu+JKY=;
-        b=QvSwMG1DeFf6Um3zrh1IzmHyAzbasCE+9Swi9kJCsmE/tpJGjWf5C09yg8ukxRwGoe
-         TjMyeQENdeIO+95l8LcZhrbgLXgmHEDd6fvaT4SE4uFDGbABzxS4/X2zCJzzBIGWNaOs
-         TLHwguYCCyOR6I0rU73snPhDbpUWhYPg6Mj/QXf3oV3agXZ69c686l3oRMhRMLKldNJC
-         eJrSjbLZHMx5oet7ftaxtqJy+WUiCMTDsUh+1bn4lS2q2wxBdHd+jJykehH1zEklh054
-         2F+G0h5+msKmL4Q1KfNFex3yk063INiahMzEdzZlJ86y0XcCVGS2A6GMhTY/J7Gk9ijl
-         jnng==
-X-Forwarded-Encrypted: i=1; AJvYcCW2o2uX19ZGlWIK1HY4CsVMAaBpSsioszd75PkFhlRZ8+IoZ7JAVZgBHH34Pi7cRi0sEXSiZempc4QMfFrmeA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzWbGPzk7J76/L7kvBqVBAyjgQ98fQo/ayWJ7UKb56P5jsApndT
-	VpPyZvqnJ9zqT5M8Zk8qCpjuVnH2cDjpUucmbB+2esQMwWdWSIJzB8YA1I2iaE/Ae+c=
-X-Gm-Gg: ASbGncukLO+mtKbmgSiABYH05K74yxc2xONL8G2FzdC6p7JRacAA8G5S2zG9aEsajoj
-	pVBb2IB9eL0oDt6JgFcQFfffcu9Hr6m+rVWNKi24IZQJ8tlx5anoQQtkXSGaDqxKSZf7aSBdn9F
-	7SqQz408ojz/O8tW8kS6hfGB+jwb16G99NkCYkv/PYhR2haUlZH7AzM7kGAZzW2V1INVER3n8GY
-	MH4+A69kEQpVBfPvVUfXlgWnphKbstPvc3pHvQNRnlgYtNBpglgag65XvdySyJUOy+EU2BUIN4t
-	OnSoJ82E3CJp9IwTqo9jKWgyTCkndONcP5G7cBPFZY3vE4yUA3CymAUPQ7Ts8Tz6yV7D2JVaxfy
-	MsM5D2Tyi32iNt24PpMhuhod+R55kW74XNd0HIK4C7Cu1vL7yTSziVnzdj0qq2PaIGLGK51J1Mw
-	Vh+P1cCB4Bnr4yrkjI8yruNIWzSK6+zf15pDBkCA+P4L6tQ6tGEX/AVdrnFOtfP718Ar3CYpNm4
-	UMNcZlqOlHWn5vmK1+UnyawfYYIcVeMXzqsfM8=
-X-Google-Smtp-Source: AGHT+IFvnJTZzpY+oPO0dpqEF5XBkCpe6TdYm0tZj5OI0PaktJVwIJMYDwEJFQ9dKG5pfNivM6WlVA==
-X-Received: by 2002:a17:907:3e14:b0:b76:6c85:9b60 with SMTP id a640c23a62f3a-b76c50c2412mr248883566b.0.1764078203982;
-        Tue, 25 Nov 2025 05:43:23 -0800 (PST)
+        bh=+dWttCU3XKRwnEXf00rDPiDKLdfNac3+y3ajrXT0p/g=;
+        b=GKTNhU284XilajlchO3CgbJCdNxjGCfV2GytVEik5LtmaIxBO2dugjGH47PR7KkmRh
+         G0GsIuLBNFPmPmTxvZfVV0mnaaNA8S+BrEYBJB6MlD4+q51hkxatyqL4SYyNgY/0eZXo
+         RSUTcBijPfSayNpBRXKW3SY15QXDEZ2ImSDezDdY2ix47CnOfAAZR9ofbA6R4/b02UkL
+         aq2itd39AC/sVeBLi/wrtrVcmnoVpYeHECsfoEEP5eWi3HfmMSigF48h6U04uqwJm9iB
+         hJ8vlAMd9d0x71lu7UH8c0Ul6RyIjX0ULV6tNpM2pUDf91Q99NXL09lwTT/XB0J+W7dk
+         64fQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUzmoUT04Sbr0bSSmRz3D/equEiSvG0M+XCTw6XntJti6+ddLBRxg+HNIBH7r0neFmBx93CULPAq88cKtoN0A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyDqcc4l3JCY/UZbmZYIXOW7vYFVJavC0ibmr3nLo4EoGuASWX0
+	Ad+pWTJPBOWplzCtHEIpkFEfRIKiz7/UxzTPmonw8ykdCtuCITFfyMKVMh0G+fkfG0E=
+X-Gm-Gg: ASbGncuidy1ah9sSvZvotwc0KmBv2o+yRYP6O8lziykIP2wOCNp6IXfSQLjWbyzpbps
+	OCidB2NT2xxe6CUCwE4GSh1wlK143z6FL5X4fCdxt/PE21w4z2tPOYNXFK+4Hah4B5C3h/BdcDC
+	5xdzJfFQltOKW6Oq/Xc4u2b8Szpng0Q6gjZVhGsj04YIA0VxYDGuBph8yMLEtn/xSHMb8QnhcpF
+	oB7gqrMm+aRgTHiHaEQASYa8L110EEnYLaVAU6/3Bgc+5yMmc1IQRJtqdbFbjfiR7cWXDHRgqCW
+	bx+Zgl4KhfTSjVg0ABompB3GA4BDbYacAE1fagWDxDimPaq9cxt7AJ46SFiY7LBSUniORbQXUKh
+	wVd8z2faQ2TDs6tQfPwi9ASYpj/onx6BodQfLBm4LKVtgeAry747jUrmEDLwgR7vAxco9oix38g
+	iyBlK8WO8MkffhtnpXNzvuLirf7dftt2YLSD33/ZK6gFixp/s+0WLAwM33ggg3aVHVpcQUqKK5j
+	hF40OW7kgB6NHuTPLRVJXIEx9+aLto0PYtcslo+XMf2iMt8+g==
+X-Google-Smtp-Source: AGHT+IE8GDsFTtC20Twr514R8S4vbcbwB2dTNWe9tHUlWIkkd4IgRNOjOKyqck+lalp6EnIyxEn3JA==
+X-Received: by 2002:a05:6402:274e:b0:641:8644:f87f with SMTP id 4fb4d7f45d1cf-64555cd9bd8mr14739148a12.17.1764078244714;
+        Tue, 25 Nov 2025 05:44:04 -0800 (PST)
 Received: from ?IPV6:2003:e5:871a:de00:dd24:7204:f00a:bf44? (p200300e5871ade00dd247204f00abf44.dip0.t-ipconnect.de. [2003:e5:871a:de00:dd24:7204:f00a:bf44])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b7654d50328sm1618009466b.20.2025.11.25.05.43.23
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-645363b5a46sm15177885a12.8.2025.11.25.05.44.04
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Nov 2025 05:43:23 -0800 (PST)
-Message-ID: <d129cb1e-38b8-4e44-b6a4-f408cfa3427a@suse.com>
-Date: Tue, 25 Nov 2025 14:43:22 +0100
+        Tue, 25 Nov 2025 05:44:04 -0800 (PST)
+Message-ID: <c9228c34-287e-43be-8d7b-6299b165dd6a@suse.com>
+Date: Tue, 25 Nov 2025 14:44:03 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -69,8 +69,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] x86/paravirt: Remove trailing semicolons from
- alternative asm templates
+Subject: Re: [PATCH 2/2] x86/paravirt: Use XOR r32,r32 to clear register in
+ pv_vcpu_is_preempted()
 To: Uros Bizjak <ubizjak@gmail.com>, bcm-kernel-feedback-list@broadcom.com,
  virtualization@lists.linux.dev, x86@kernel.org, linux-kernel@vger.kernel.org
 Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
@@ -79,6 +79,7 @@ Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
  Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
  "H. Peter Anvin" <hpa@zytor.com>
 References: <20251120191716.124642-1-ubizjak@gmail.com>
+ <20251120191716.124642-2-ubizjak@gmail.com>
 Content-Language: en-US
 From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
 Autocrypt: addr=jgross@suse.com; keydata=
@@ -104,14 +105,14 @@ Autocrypt: addr=jgross@suse.com; keydata=
  HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
  QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
  ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <20251120191716.124642-1-ubizjak@gmail.com>
+In-Reply-To: <20251120191716.124642-2-ubizjak@gmail.com>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="------------0GJuKqzROFSz9dQqhlq0fYOU"
+ boundary="------------nL0AI1WWneTpPyY0N6T000j2"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------0GJuKqzROFSz9dQqhlq0fYOU
-Content-Type: multipart/mixed; boundary="------------F6nMHD0hL40I8I13uu8iviJW";
+--------------nL0AI1WWneTpPyY0N6T000j2
+Content-Type: multipart/mixed; boundary="------------K220xXVrm3xu9smLqluISTWT";
  protected-headers="v1"
 From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
 To: Uros Bizjak <ubizjak@gmail.com>, bcm-kernel-feedback-list@broadcom.com,
@@ -121,26 +122,28 @@ Cc: Ajay Kaher <ajay.kaher@broadcom.com>,
  Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>,
  Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
  "H. Peter Anvin" <hpa@zytor.com>
-Message-ID: <d129cb1e-38b8-4e44-b6a4-f408cfa3427a@suse.com>
-Subject: Re: [PATCH 1/2] x86/paravirt: Remove trailing semicolons from
- alternative asm templates
+Message-ID: <c9228c34-287e-43be-8d7b-6299b165dd6a@suse.com>
+Subject: Re: [PATCH 2/2] x86/paravirt: Use XOR r32,r32 to clear register in
+ pv_vcpu_is_preempted()
 References: <20251120191716.124642-1-ubizjak@gmail.com>
-In-Reply-To: <20251120191716.124642-1-ubizjak@gmail.com>
+ <20251120191716.124642-2-ubizjak@gmail.com>
+In-Reply-To: <20251120191716.124642-2-ubizjak@gmail.com>
 
---------------F6nMHD0hL40I8I13uu8iviJW
-Content-Type: multipart/mixed; boundary="------------yPtyD0wUt3hOBE1K5s1d0BWw"
+--------------K220xXVrm3xu9smLqluISTWT
+Content-Type: multipart/mixed; boundary="------------BGXsZCFCqTrTYhAI8yoNeF3l"
 
---------------yPtyD0wUt3hOBE1K5s1d0BWw
+--------------BGXsZCFCqTrTYhAI8yoNeF3l
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: base64
 
-T24gMjAuMTEuMjUgMjA6MTUsIFVyb3MgQml6amFrIHdyb3RlOg0KPiBHQ0MgaW5saW5lIGFz
-bSB0cmVhdHMgc2VtaWNvbG9ucyBhcyBpbnN0cnVjdGlvbiBzZXBhcmF0b3JzLCBzbyBhDQo+
-IHNlbWljb2xvbiBhZnRlciB0aGUgbGFzdCBpbnN0cnVjdGlvbiBpcyBub3QgcmVxdWlyZWQu
-DQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBVcm9zIEJpemphayA8dWJpempha0BnbWFpbC5jb20+
-DQoNClJldmlld2VkLWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+DQoNCg0K
-SnVlcmdlbg0K
---------------yPtyD0wUt3hOBE1K5s1d0BWw
+T24gMjAuMTEuMjUgMjA6MTUsIFVyb3MgQml6amFrIHdyb3RlOg0KPiB4ODZfNjQgemVybyBl
+eHRlbmRzIDMyYml0IG9wZXJhdGlvbnMsIHNvIGZvciA2NGJpdCBvcGVyYW5kcywNCj4gWE9S
+IHIzMixyMzIgaXMgZnVuY3Rpb25hbGx5IGVxdWFsIHRvIFhPUiByNjQscjY0LCBidXQgYXZv
+aWRzDQo+IGEgUkVYIHByZWZpeCBieXRlIHdoZW4gbGVnYWN5IHJlZ2lzdGVycyBhcmUgdXNl
+ZC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IFVyb3MgQml6amFrIDx1Yml6amFrQGdtYWlsLmNv
+bT4NCg0KUmV2aWV3ZWQtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4NCg0K
+DQpKdWVyZ2VuDQo=
+--------------BGXsZCFCqTrTYhAI8yoNeF3l
 Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
 Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
 Content-Description: OpenPGP public key
@@ -207,24 +210,24 @@ kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
 =3DeeAB
 -----END PGP PUBLIC KEY BLOCK-----
 
---------------yPtyD0wUt3hOBE1K5s1d0BWw--
+--------------BGXsZCFCqTrTYhAI8yoNeF3l--
 
---------------F6nMHD0hL40I8I13uu8iviJW--
+--------------K220xXVrm3xu9smLqluISTWT--
 
---------------0GJuKqzROFSz9dQqhlq0fYOU
+--------------nL0AI1WWneTpPyY0N6T000j2
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmklsnsFAwAAAAAACgkQsN6d1ii/Ey80
-NQf9H5v9a9Y8yBSWoKDCD/f1zCaqiY2db393LEhbcqifrvbJYOlDkykj63kfNS520muCi84X5Luc
-UvEQp+B47FYFCsy4UDG75fhppJljsdzW8MeHXvrRO7i/egrrrcBbpUwhK03CHU4G8cPhRysH3LMA
-DRA+gFAQjiweRbYzkBKT15prH/CwARs0LS3jo9sG9mdZg0DLdmypMfiZ80UzS2jPqhMPneL3qr7T
-SOSkqUkukagQU3jL0ka0ntcdcWq80hrDGlGVfC69ack+4U4y87BMHgXJUD8KpiJkW0ie4e1Bj0MB
-Iudd2tTyOPwETS4xvLk4Ye4nnal4yhPDlalCVFP8qQ==
-=FkD8
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmklsqMFAwAAAAAACgkQsN6d1ii/Ey+g
+/wf8DVlgX06UO6Qd1FnvAr3Mo6gswbfOGfKEmTSJb6+R/mg2zKAUsaaAemAVIzGBFQzmRzjB37mC
+ANt17y/BFyftTG9uRl7O+jNVV6oa1/q4oariR+xBTcMYL05xv/2ltorIB6IkSx1qXyIV7JUIVf1V
+q7nJzoPzLUMo43GieUPUEKeyhqEn1E63Fcsi5zFroyngSHyaF2JLdJTTmq3u+35j0VQFi72s/Bfa
+s+kZ25yjJ/fkSISjIl+Slas9SBb9hhLbBTcIhM/nKUJXod1V/Wi08pO2bOcl8nxCptG60HXC2buC
+FapKxQNCqnrZbHXX/r9t3ccu+xQRmVPwjZdJymbL9g==
+=7ZPT
 -----END PGP SIGNATURE-----
 
---------------0GJuKqzROFSz9dQqhlq0fYOU--
+--------------nL0AI1WWneTpPyY0N6T000j2--
