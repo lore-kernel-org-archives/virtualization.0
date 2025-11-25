@@ -1,311 +1,311 @@
-Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012026.outbound.protection.outlook.com [40.107.200.26])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AE8B18AFD
-	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 00:10:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.26
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764029420; cv=fail; b=MfKnLoAcY8hPs9hGLX3f9jvwcZbKenHSUoFQTrXjtB+bCuSYbsWnjQjBC5Mws6M9bX6lxmHZkD5vxmnsTAvkcafacAZetve3DQUaSW09HbZ/9ZyiIwJzbEQ6mQMbtuWVMFO2EOhZpxXYFAIs9qKSMUhcS5Mj6ddAOPgrxHrppkE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764029420; c=relaxed/simple;
-	bh=ODvJ6Lm/amueHUgiPDs1AA+mkxiQviMxuiQovFzw6H0=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=qwpfl9XK6seoGCfS40Cy2wkS9uy36qVlaovG+xQt9XjRj4aIr/hScIUKi3wYamMm0i0/z/t0ubkeazarSPRhbm0MsqL2HDKUjMwRLzKtH/9TUbzYoL9rJ2rouOhlXB9RZXHcDZKPZ6pckoCAHV35+NsLkQHrdhmkqzskgaOFI/w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=hf7b+Q8e; arc=fail smtp.client-ip=40.107.200.26
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 664C01F1302
+	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 01:35:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1764034507; cv=none; b=o1aZdgGkq3/0ivyoWZnt86xQdeMF9046MBTKJLBQa7WkfEIgO4ppa/aSLuP6AG2KxGcHioXU2wooxfwuY3tJLp41JJNSawFHH8vGaW6EE/QrK/sCQ+OWwKeb8UzWazzFY6nFAXDgJDbm+vHVHQdV7HDy8S5uCHn3yYVg9ne61EI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1764034507; c=relaxed/simple;
+	bh=ckot/qGzEsr3y/bUI/Jn66JGbROGHjRMWN0c36mSTIs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Cn/oRCi8zIdrW5RN4qAwtoGGlDB+kjOzpvM/ndQDUyBEZil1Dg0uL+ddv7p+3fAeWaOQVA0aAUqIfNysUxDu4ZKff4Ou3wyDYmQspmSd7DQahmVWwDQfIvCd6p/wlNU7O5+dAXPjjM1wfaef2dlQC6MTidgDkE95PV5TmkJoHIg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZN3FzWFu; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="hf7b+Q8e"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=demkIDHiPT7fjjThZR2Ngnu9hN1Mok0q0gC7GyXQgDXk4MGWuJcWFA7nbpgDu0fPuVKC6kFF841IjmXsirUx8CiCxw3jmGJq1nUwNZ6ld1p2WlwOZsdTA+Ntss9B0oKEiCr/DL9o53lCYZRZ61El0rZz88Z28z1IceixA6NN55rtH0HdD8fLd3H+kjiQ4m73NHsPbNZvFzHtv1DHlI9VziPa2pSM2cGHZaVIfEgasjGErYHlHiTodqj2F8eRf/Kf/UktWRaSMBl44mYWfZ6bRMVCvy//BSQ3Pz8r7ggQ2yv8T+ZvvepCm5HMMAIHgnZ+Sk/QXbwNvR2/ARCmCLTKzA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iB6X/sy47/BpXDoTvT78DxBzKgbedxfWdsGuY5Huy4w=;
- b=bwOEQ9xZOw7uJj1Ua01L6mhlvqwye9UE62k79r4FBrmARhKXoEC7jYzYXbuxLezvZ0hnXJw2zkEQZB136Qae6B/pqSoiGNLt9H5JAT1+oUabPeUgYfqE2uf9C/8bzmYYjUAHAcM7AxlzlnGZhfG9qJX44dIwdJv/s/Igzm69Hm+BKe602R1Q37bHqbNWnHy7Clt2KISshOO4ZGO0qGnRqHr3ftWSP4HUg9TOCMKf2yqoujSkKH6UNEOvH0sgkxNlq+smix89/F1Slsy2IBCK8+b7DUvjjv8sXIYduNK7qUPIBZFbyYvtBRGt5j/5zMiwe/7qox8IpiLVhAuh4iQbbQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iB6X/sy47/BpXDoTvT78DxBzKgbedxfWdsGuY5Huy4w=;
- b=hf7b+Q8eip8X/10xbEhoLk6ndT6Cnat68sPHQOY+73d42RkrOk7F1TWLYqUO9woEWFwVCeBnk/fPKp0WRa1hvAt/uKyYU+/JgYIrXkMhzFk4UxzcRKoJDhoVYwmIaFqo5aYpUioP42JX3mkulltFe9+OxM94RrY4H9I1rMf/A7cUR7AeA9x2nYuec6mJXzO8aujueSR9C/kset+Q2JrQ8dmfgN06QqhwK0Ms12QL7RS4bOk1RDHLNKEjv2FZ/Zh9jex+PtkZU97f275OtRg3EkfEYD2IbFlstmyTZcI5lpJxIVJJOWd0ei4D3WWYJnc2/vaijS4rJ6C4VMZn0RCNVA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by SJ0PR12MB7458.namprd12.prod.outlook.com (2603:10b6:a03:48d::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.17; Tue, 25 Nov
- 2025 00:10:14 +0000
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9343.016; Tue, 25 Nov 2025
- 00:10:13 +0000
-Message-ID: <94a3e428-dfea-4910-998d-eb2e26824014@nvidia.com>
-Date: Mon, 24 Nov 2025 18:10:10 -0600
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v12 10/12] virtio_net: Add support for IPv6
- ethtool steering
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
- virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
- edumazet@google.com
-References: <20251119191524.4572-1-danielj@nvidia.com>
- <20251119191524.4572-11-danielj@nvidia.com>
- <20251124165246-mutt-send-email-mst@kernel.org>
- <16f665a8-6b4b-4722-93d7-69f792798be4@nvidia.com>
- <20251124180941-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20251124180941-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SJ0PR03CA0275.namprd03.prod.outlook.com
- (2603:10b6:a03:39e::10) To MW4PR12MB7309.namprd12.prod.outlook.com
- (2603:10b6:303:22f::17)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZN3FzWFu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764034504;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9kEJDvqjrIdXsU1IPiVaYED9aR2EYcU0zBZ2650wkuI=;
+	b=ZN3FzWFuuss4upTwa7EOWZa2xzhFIBGMCe+y8uzghxCRk+UNSP9NTmpdtB1BWFotIMANmQ
+	GL+hmAkfQLmKIZe6YUkwqK+3x9UfGV2WGLzmDeGW5d0d6Q/jRT085yfqSoV7QWo9NdPYSX
+	VxLUgjOGeUx6gcAotZR2MT8KcmHb44o=
+Received: from mail-vs1-f69.google.com (mail-vs1-f69.google.com
+ [209.85.217.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-204-raQHlS4-PkSULdPdj0uSYg-1; Mon, 24 Nov 2025 20:35:02 -0500
+X-MC-Unique: raQHlS4-PkSULdPdj0uSYg-1
+X-Mimecast-MFC-AGG-ID: raQHlS4-PkSULdPdj0uSYg_1764034502
+Received: by mail-vs1-f69.google.com with SMTP id ada2fe7eead31-5ddf0b3e393so2285589137.0
+        for <virtualization@lists.linux.dev>; Mon, 24 Nov 2025 17:35:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764034502; x=1764639302;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=9kEJDvqjrIdXsU1IPiVaYED9aR2EYcU0zBZ2650wkuI=;
+        b=wESIRKNxCGbSmTl6sIyaPuhKI+r3/Kmvt3jwYHhuOG6sjI8na3UGiS9r0a/VdWPm9d
+         75mNE12VeCKK9ksr40++SG/owX56Z3X13Ucldb1Ll+yXyHjjrGDi0V0SsjxMT8TYfzMN
+         6gGWYQAOweS+M8UVTtnSmHNF6KN4RZpYQDffMr93Xb2yKfdoANKsvIb6kbo7Pe7EpNWj
+         x4Z3wStnQpyoKaOx6ULccAqgAtwYirKU/synla8S9cfcMPNFT0kJWm+xG6TlAEP8WwUF
+         le16bVTEz1A4hkoeLj5YgV0WswS/CQ91Cz5lKautGG70zfFOH63jcYy/GfwvAFakvy2u
+         4CLg==
+X-Forwarded-Encrypted: i=1; AJvYcCWBnRWEuZMwtX6SrBvoNSz9AGWzDrtzHORGQHjJNeL0/PrYCIdLU7djaRx2fbLnDHaHwJxbaQF5BM1QkQ+3/Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwfMxO4si0RcQqmDStHHFWCPuU3SUH/PmPakUTBCApdoj4BzP3s
+	X8MMjwRZvuaaRxWsnjflqidzFcQEnZ3UnjU1LCJuO2JjG09kxz03oPZ9G1vWIFCrImrtn0QnZHb
+	R/VWSjqykI6CPIpnI6rBXeh4m4YxUuqsev4VvHFDgtKCm6jtRzOnR/zVuyT6JoC5pdy7aHNUJsX
+	A1ayvYPY0hda9HUycxUBnLl6xCi7pfOaoCpvJ1g4lebos=
+X-Gm-Gg: ASbGncuefWA57F/MxKw1sT7R3mu1oeV7CtX0gps2sRMW6OJ/X9ghq9fw8gm5QqyxLUP
+	WWhCQDiLRTDi2IYNH7WqJ6YZ5GoEOT8bxhJQVmlGHbtcdrHtBSrdB3mzguEDbUttrSMPGGlunmq
+	+3RUen3/ozQwyBxthjsFs4UWxSXjS5DKKQze82Mu+Hd3TR6fpN/tUWC/dWppgsC71gteI=
+X-Received: by 2002:a05:6102:2906:b0:5df:c15b:4feb with SMTP id ada2fe7eead31-5e1de3443camr4044483137.26.1764034502069;
+        Mon, 24 Nov 2025 17:35:02 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG9YM4D6RF10K5EcFy4iLXgvqD+APcqwC0xD89qRbqzgoKauqLYJ6rVCEmpB17XvI/3ApsYGDHQiC298XyfAew=
+X-Received: by 2002:a05:6102:2906:b0:5df:c15b:4feb with SMTP id
+ ada2fe7eead31-5e1de3443camr4044480137.26.1764034501590; Mon, 24 Nov 2025
+ 17:35:01 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|SJ0PR12MB7458:EE_
-X-MS-Office365-Filtering-Correlation-Id: ce9fe9d4-a23c-4265-825a-08de2bb700fb
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?dkxWUmpENUVaeGJUZlc4eXJXb3ZDMWNjRFZ1azRsTlZIUkZDZjBxQnpCdUxq?=
- =?utf-8?B?eWZGR3V5bW85NHVlcm5qd2JZb2U5eEoyaGtNSyt4MkFId2FhbzZOb0NzQWZR?=
- =?utf-8?B?TE16MXhoN05wdW1tRkZ2VU02eURySnJPUnRjMGM0cDk4WWltUzVZK1VsL2Yz?=
- =?utf-8?B?VTVsM3FQVzdwWWhYYjRITkE5SHpCRjBLVXBJVVBRQVJhM0QwYXpPYkpqWmta?=
- =?utf-8?B?cDMzNGtjMU5XRE15SFFsV2dYVmw5NWF0TC9RWkhTWmV3RG5qWUpWNXlVSXll?=
- =?utf-8?B?TzBjWHNxNEVheEhIY3dKdm9mMzI1TEdlUnRSUFRZTkZuOTF4YzA2T3dJNU01?=
- =?utf-8?B?MkQzNXdHdUZZczkrN3RpNXdwQVpVMXRlc1YwRHRYcTJ2ZThyQmlGTUYrSzUx?=
- =?utf-8?B?WFdIWFVIRm9BRzdmdStqRy9zdjN0V3UxWklWbVpYOGpCNlphaW1tR05IV3RB?=
- =?utf-8?B?WjZ2ZkVvOHV5ZTl5RzJNTWZCczB3RThsQkFxdEZzcU9vb2xrWHV1OXI2NFUy?=
- =?utf-8?B?bnl4QWc5VG1UTFpYU1ZlYU9XRTBaVHRQaGpKMWxUNXFyU0ZVdlczOEZZWlEr?=
- =?utf-8?B?UXhJcWpuTzl4SU9IdGc3d2t3dzV1aXoybHdScWw5SHlHc3B5WTVua1FWMnMx?=
- =?utf-8?B?Z0srU2lLbm91amFaeHhGam5MN3dzVXF3dFE5MWc1aUtVNlhETkdFS2ZrUS9o?=
- =?utf-8?B?c0wxSTRhRmxxRzN0akZ1UTNxZlZVeUJKRkRjcEV6L3dOU0gvOHE1L3ZQc2ZJ?=
- =?utf-8?B?eW9qeWx0RXlvZk1TWXJQRlpiNHhNWEo0L1Eya0t2YkFWQ0hQYjhGS2IzR0d6?=
- =?utf-8?B?VTVyZm9XTlRCOE9Ib2c3NHRoRk1qM0w4UlVRTFVNeGVEVjllRWQ1cDdNcE5l?=
- =?utf-8?B?bm83Q0lMSDBMSUc0MGJhUklFclpZWDg1V2JzTTZyeU1xbnpmSzd2bk1rNjhN?=
- =?utf-8?B?ZFJlenZwaElHdEpSWHhPSm1vRzQ2QjdWZXdtTzV3NThKY1lvUm1zbWpFYVBH?=
- =?utf-8?B?K0ZlUC9nR1k3U2J6OUhkcFlpZUlhR085S0dKWFdXTFdlMC9xejBocVhkTm0y?=
- =?utf-8?B?L1RRNXJYTS8wTk01Q3I3VHozRERUR2xzN1dnOGJxZWdUS0hpYzJ2M0JXMlRu?=
- =?utf-8?B?elRlbVcyaXd2eUJGeTB5YXdtcXFOZUZESkVBV2RuUzZtMGdyMUw4dmlkZHNG?=
- =?utf-8?B?NENBVFdSbUNFVkhiT1lpK3JyekFDOEhBMjVlSmZwd2RWQ1JhckY4WmRxbVVJ?=
- =?utf-8?B?OWRacmxWcFYzYzY2N0NFSzdhL3NTZFArYXpXRlpKbGxTY0laSzd2ZkJIMGpZ?=
- =?utf-8?B?d2l3cCtKUW5SV2ppcXJyZjBlRUk0V3NLVDN1RWtkdHpwV29Wbk93TWQyZEZz?=
- =?utf-8?B?WHhvaTRNS0h5NzFCQUlMVUQvV3gwb0tXaDJyb25TaTRzeHhxL0dILzdGMEJV?=
- =?utf-8?B?R0pxdW1DSUJCL1dXQmFEeWkwYlV0WGJiaGhhbjdSUUdJYm8xMDRhUUZVckZ5?=
- =?utf-8?B?MmdtMXExM3F6Mi8rTGdSWkZ1aWcxanNKbFFyenJvMzQ2ZHgyd24yUkFUUXVy?=
- =?utf-8?B?bFdMelNWaWpFR1VZZUo3bFdhY0MvelBFTEtiUEJ4dG5GQ1dkTnJXc0ZkMWhu?=
- =?utf-8?B?K1NUZkRUeDhGYjAzbG8yem5ueUxBRVpiaWpDdDVzRm5DU3dsWGIwdDFNblV3?=
- =?utf-8?B?MC95eGViZlpERVprMXIwM2QyZU9NRGtVR3NXMFVzQ29DeitLWkVzZzIvZHBw?=
- =?utf-8?B?UWw0QjRPc0p2V05UTU9HTnZmUk9RNGQ0L3p5YytPS3lWSVF0ZldaUEdXcnpT?=
- =?utf-8?B?U29paUJmTlhBak5PQ3ZkSGxweTVvV1IrSU5VSHdMYXJmRkVOczVlZk5zV2ov?=
- =?utf-8?B?WDN4UXNISG1UV3JVTEo1ZWs3TVZiR1R4bnZkV0FQUklyWjhremx3KzBYYzky?=
- =?utf-8?Q?QQGjSbw38i4BKpF8zHKMyr9aGCAfOqUw?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?b2lBUWVkbzNISVg1RE5VTGNXb1dZVFdRU2lncDIycStMN2tZTlJQUkxyWmRt?=
- =?utf-8?B?cEZTcnBWNDhaa096R0hwVVNMd2tIWm03TGg2VktIRHdka3lvL01CbG5sakxG?=
- =?utf-8?B?WXVkT1RScEpPWlQrV3FFNlFuV2RUbXMyMVNBcm5ITVltbSs0K05ueVJnUWxQ?=
- =?utf-8?B?T0Fzc2o4RlowRlNITklVTDZDNWp6bGNhM2xhLzFUWUdadmhpamRtMEVHVS9N?=
- =?utf-8?B?QVpic2k5TlI3bzNFOUFibFFBNno3aXgzODVsMHEyOFZlaEl2Yy9Ta1duMWlH?=
- =?utf-8?B?RHJvTEVKLy9JNXpvSnROQU9wSDJZTHpSSmVJWDFSQVJuc3R0TWVlcU5YR2VP?=
- =?utf-8?B?VVpzdzFlSFFkTEFHbEx2TWptQXhySWpyUXJESm03OFBDb0wrcE1nZGxxZi96?=
- =?utf-8?B?VndKZE1odVpWcEVkeTBXRk1jaG54MDVJNE1jRFkrTDN5OVFmMEZQSHhqbkov?=
- =?utf-8?B?Qm43dFZtbHYwY2ZoM2JGcGdibXBXZTdzTnBRZm92TStjalNYTFRMK1BkaGll?=
- =?utf-8?B?SEhxN3pGbGthLzNjaDIySmE3VXpsV0VRVUg3MTgrelNRcmtzdmxjVFU4a2xo?=
- =?utf-8?B?bUhMbmU0aWNBU01aOEIvS0orUUlod0FSR0xBMGhQMVBNdkVvd29EQlVzNFdZ?=
- =?utf-8?B?TGptNEJjRFgxY2JEaVNLQ29Cc25YeFdqeTM2OW9FeEVHd0lpb2JWSEl3Mk9w?=
- =?utf-8?B?QzRwNHFxRGxVaE1SZ2tQTERFV1RGNHFqSjVIYkhaZFAvTnZjNXNXMEptdnBw?=
- =?utf-8?B?cDNkRjMzSmswNXZXWTgveXFidHl5bGUzcUlpOEdvLy9ReVFoekgvcjdFa3RH?=
- =?utf-8?B?YU5EWjFyMmdlSDRhUzFtd2E0STRybzIzUmxrQ1pRU1NRV1pFcGVyNXJCSkpl?=
- =?utf-8?B?VnFzV1JSTldCTURMaGg3K2JRZjdRWGlkV3RTR21aeVc4SDA1dVI4aCtjdXNl?=
- =?utf-8?B?aEd1aEd1bG4zRTFJSmFsdW9RK0JMYUxKc1dzYy9xSFd3T3lMWFQ3RVlrQ2dP?=
- =?utf-8?B?cEMzcnJIbHozSVZ6OHFLbU9aZXM2c3F2dnFJTXlmd2NKUWlPRmIvU1EyOGlp?=
- =?utf-8?B?eWQ5WVNjSnZSdE1TWS93NDZ1c1Z4a1ZJakN4alErNmNYQnRrV1kvK3ZkblFr?=
- =?utf-8?B?Rk1oYjB4RStZL2Y5T0dTWTlsV3hqMTNlSXNKWnA3NGF0K3hoR3FBUXdUT2Qw?=
- =?utf-8?B?VXJUd0xNVUpQcWIzclhZOThhOXhkODE3bHdEUzcvUGRCUDFtYTVaSm1KUGhk?=
- =?utf-8?B?cE1aRG85YXoycG00U0tFSi9ab29va05TbEUybDM3eWl4TW5XYURod2x1NEFw?=
- =?utf-8?B?WHB6YlpVSFoyV29GUE1STVpxcGlJclY5ZUV0dVk0ZytUQUlydnM5TUNwNU9Y?=
- =?utf-8?B?QkIrWmZyMFBrdDFkcmU3Z25DeHpNelYza2plb2ZIemVyWTJXazZsbjlYczJ6?=
- =?utf-8?B?bStjd0FDY3YyMy9BVnducTk3ZXZKRlk1UHB1MW5rc01kRFVRaFNJb2NIVVdY?=
- =?utf-8?B?ZVJKOWorNUYzSEdhYjNlU1RuVDF4S3hBMEVlV1pDUHV0Ynh2YW9lM2ZBNGRv?=
- =?utf-8?B?bThQYjFqbUJyQUlaQVlRbmMxK1E3NUNnMG1ZeXAwZ3RyZGhNMGFwRzRZeGRi?=
- =?utf-8?B?cDVSOTVWdmxWSlIwQkV1MjNxbjk2ejFubWlGTXpNTkpLb25sMXJ1SkFNemxX?=
- =?utf-8?B?UXpQQ1lGMG5pYm5VM2ViVHNsNU0wMm0rY3Zpa2haT2NSdWcxYkR0WkhnamV0?=
- =?utf-8?B?WWVnUXpnVHcxd1c5VWJmVFMxYkFGWGZ0aGkyREtZZml6Ukx1S2F2ckNwdUZp?=
- =?utf-8?B?ME5HR3F3U2xCN3JaR0tOdVYxMWJhUDBsazdyeXQ3empsK0xGb0xIdTA2cEtC?=
- =?utf-8?B?NDh2R1FneTlxWkV6TlZwdjRRY0pFbmJQd3FLUU5td0JHQlpxbTNrNGp6cGhW?=
- =?utf-8?B?dmVhNnlQcDNoZGRTTC9ZQmhENXJKZjl2cSs4dmlSU2Zib0cwZkY1TkdXcUtW?=
- =?utf-8?B?YWRUNDlxV3dwU0hZUVIwU09HNCsrRnpJNkkraXpxTFBtQ0RpclFkR3hDN0NH?=
- =?utf-8?B?T2NCa2JVTmNmYU9LSjUxOUsyVFNta0J1MTZ1MzhjQk5JZmxpcSttTmo3U2k3?=
- =?utf-8?Q?CDni8hkVfpCXvQKLGUI4XtR/k?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ce9fe9d4-a23c-4265-825a-08de2bb700fb
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Nov 2025 00:10:13.2299
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xwNwQnX3vXUPci3Wy1CH+jA1ITKweLBTPCOUZsIogJsbo/5dCotAGAWv/OWex/eW8O19vJFtUibjXmP2y2AQ5A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB7458
+References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
+ <CACGkMEuboys8sCJFUTGxHUeouPFnVqVLGQBefvmxYDe4ooLfLg@mail.gmail.com>
+ <b9fff8e1-fb96-4b1f-9767-9d89adf31060@tu-dortmund.de> <CACGkMEufNLjXj37NBVCW4xdSuVLLV4ZS4WTuRzdaBV-nYgKs8w@mail.gmail.com>
+ <ebb431f9-fdd3-4db3-bfd5-70af703ef9b5@tu-dortmund.de>
+In-Reply-To: <ebb431f9-fdd3-4db3-bfd5-70af703ef9b5@tu-dortmund.de>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 25 Nov 2025 09:34:48 +0800
+X-Gm-Features: AWmQ_bkk0DtFTGOvKavrVP7oP-GeqBsUpf0HhfMPTzbDQm7y-NWEOZmLDbWnymM
+Message-ID: <CACGkMEt_Z0a3kidmmjXcajU2EVi-B6mi832weeumPfZzmLoEPA@mail.gmail.com>
+Subject: Re: [PATCH net-next v6 0/8] tun/tap & vhost-net: netdev queue flow
+ control to avoid ptr_ring tail drop
+To: Simon Schippers <simon.schippers@tu-dortmund.de>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	mst@redhat.com, eperezma@redhat.com, jon@nutanix.com, 
+	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: vMevo358Ajt__V5VFhqY0mvCah2IPdH4iX6Xibwdqb8_1764034502
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 11/24/25 5:12 PM, Michael S. Tsirkin wrote:
-> On Mon, Nov 24, 2025 at 05:04:30PM -0600, Dan Jurgens wrote:
->> On 11/24/25 3:59 PM, Michael S. Tsirkin wrote:
->>> On Wed, Nov 19, 2025 at 01:15:21PM -0600, Daniel Jurgens wrote:
->>>> Implement support for IPV6_USER_FLOW type rules.
->>>>
->>
->>>>  	return false;
->>>> @@ -5958,11 +5989,33 @@ static void parse_ip4(struct iphdr *mask, struct iphdr *key,
->>>>  	}
->>>>  }
->>>>  
->>>> +static void parse_ip6(struct ipv6hdr *mask, struct ipv6hdr *key,
->>>> +		      const struct ethtool_rx_flow_spec *fs)
->>>> +{
->>>
->>> I note logic wise it is different from ipv4, it is looking at the fs.
->>
->> I'm not following you here. They both get the l3_mask and l3_val from
->> the flow spec.
-> 
-> yes but ipv4 is buggy in your patch.
-> 
+On Mon, Nov 24, 2025 at 5:20=E2=80=AFPM Simon Schippers
+<simon.schippers@tu-dortmund.de> wrote:
+>
+> On 11/24/25 02:04, Jason Wang wrote:
+> > On Fri, Nov 21, 2025 at 5:23=E2=80=AFPM Simon Schippers
+> > <simon.schippers@tu-dortmund.de> wrote:
+> >>
+> >> On 11/21/25 07:19, Jason Wang wrote:
+> >>> On Thu, Nov 20, 2025 at 11:30=E2=80=AFPM Simon Schippers
+> >>> <simon.schippers@tu-dortmund.de> wrote:
+> >>>>
+> >>>> This patch series deals with tun/tap and vhost-net which drop incomi=
+ng
+> >>>> SKBs whenever their internal ptr_ring buffer is full. Instead, with =
+this
+> >>>> patch series, the associated netdev queue is stopped before this hap=
+pens.
+> >>>> This allows the connected qdisc to function correctly as reported by=
+ [1]
+> >>>> and improves application-layer performance, see our paper [2]. Meanw=
+hile
+> >>>> the theoretical performance differs only slightly:
+> >>>>
+> >>>> +--------------------------------+-----------+----------+
+> >>>> | pktgen benchmarks to Debian VM | Stock     | Patched  |
+> >>>> | i5 6300HQ, 20M packets         |           |          |
+> >>>> +-----------------+--------------+-----------+----------+
+> >>>> | TAP             | Transmitted  | 195 Kpps  | 183 Kpps |
+> >>>> |                 +--------------+-----------+----------+
+> >>>> |                 | Lost         | 1615 Kpps | 0 pps    |
+> >>>> +-----------------+--------------+-----------+----------+
+> >>>> | TAP+vhost_net   | Transmitted  | 589 Kpps  | 588 Kpps |
+> >>>> |                 +--------------+-----------+----------+
+> >>>> |                 | Lost         | 1164 Kpps | 0 pps    |
+> >>>> +-----------------+--------------+-----------+----------+
+> >>>
+> >>
+> >> Hi Jason,
+> >>
+> >> thank you for your reply!
+> >>
+> >>> PPS drops somehow for TAP, any reason for that?
+> >>
+> >> I have no explicit explanation for that except general overheads comin=
+g
+> >> with this implementation.
+> >
+> > It would be better to fix that.
+> >
+> >>
+> >>>
+> >>> Btw, I had some questions:
+> >>>
+> >>> 1) most of the patches in this series would introduce non-trivial
+> >>> impact on the performance, we probably need to benchmark each or spli=
+t
+> >>> the series. What's more we need to run TCP benchmark
+> >>> (throughput/latency) as well as pktgen see the real impact
+> >>
+> >> What could be done, IMO, is to activate tun_ring_consume() /
+> >> tap_ring_consume() before enabling tun_ring_produce(). Then we could s=
+ee
+> >> if this alone drops performance.
+> >>
+> >> For TCP benchmarks, you mean userspace performance like iperf3 between=
+ a
+> >> host and a guest system?
+> >
+> > Yes,
+> >
+> >>
+> >>>
+> >>> 2) I see this:
+> >>>
+> >>>         if (unlikely(tun_ring_produce(&tfile->tx_ring, queue, skb))) =
+{
+> >>>                 drop_reason =3D SKB_DROP_REASON_FULL_RING;
+> >>>                 goto drop;
+> >>>         }
+> >>>
+> >>> So there could still be packet drop? Or is this related to the XDP pa=
+th?
+> >>
+> >> Yes, there can be packet drops after a ptr_ring resize or a ptr_ring
+> >> unconsume. Since those two happen so rarely, I figured we should just
+> >> drop in this case.
+> >>
+> >>>
+> >>> 3) The LLTX change would have performance implications, but the
+> >>> benmark doesn't cover the case where multiple transmission is done in
+> >>> parallel
+> >>
+> >> Do you mean multiple applications that produce traffic and potentially
+> >> run on different CPUs?
+> >
+> > Yes.
+> >
+> >>
+> >>>
+> >>> 4) After the LLTX change, it seems we've lost the synchronization wit=
+h
+> >>> the XDP_TX and XDP_REDIRECT path?
+> >>
+> >> I must admit I did not take a look at XDP and cannot really judge if/h=
+ow
+> >> lltx has an impact on XDP. But from my point of view, __netif_tx_lock(=
+)
+> >> instead of __netif_tx_acquire(), is executed before the tun_net_xmit()
+> >> call and I do not see the impact for XDP, which calls its own methods.
+> >
+> > Without LLTX tun_net_xmit is protected by tx lock but it is not the
+> > case of tun_xdp_xmit. This is because, unlike other devices, tun
+> > doesn't have a dedicated TX queue for XDP, so the queue is shared by
+> > both XDP and skb. So XDP xmit path needs to be protected with tx lock
+> > as well, and since we don't have queue discipline for XDP, it means we
+> > could still drop packets when XDP is enabled. I'm not sure this would
+> > defeat the whole idea or not.
+>
+> Good point.
+>
+> >
+> >>>
+> >>> 5) The series introduces various ptr_ring helpers with lots of
+> >>> ordering stuff which is complicated, I wonder if we first have a
+> >>> simple patch to implement the zero packet loss
+> >>
+> >> I personally don't see how a simpler patch is possible without using
+> >> discouraged practices like returning NETDEV_TX_BUSY in tun_net_xmit or
+> >> spin locking between producer and consumer. But I am open for
+> >> suggestions :)
+> >
+> > I see NETDEV_TX_BUSY is used by veth:
+> >
+> > static int veth_xdp_rx(struct veth_rq *rq, struct sk_buff *skb)
+> > {
+> >         if (unlikely(ptr_ring_produce(&rq->xdp_ring, skb)))
+> >                 return NETDEV_TX_BUSY; /* signal qdisc layer */
+> >
+> >         return NET_RX_SUCCESS; /* same as NETDEV_TX_OK */
+> > }
+> >
+> > Maybe it would be simpler to start from that (probably with a new tun->=
+flags?).
+> >
+> > Thanks
+>
+> Do you mean that this patchset could be implemented using the same
+> approach that was used for veth in [1]?
+> This could then also fix the XDP path.
 
-Agreed, will fix that.
+I think so.
 
->>>
->>>> +	const struct ethtool_usrip6_spec *l3_mask = &fs->m_u.usr_ip6_spec;
->>>> +	const struct ethtool_usrip6_spec *l3_val  = &fs->h_u.usr_ip6_spec;
->>>> +
->>>> +	if (!ipv6_addr_any((struct in6_addr *)l3_mask->ip6src)) {
->>>> +		memcpy(&mask->saddr, l3_mask->ip6src, sizeof(mask->saddr));
->>>> +		memcpy(&key->saddr, l3_val->ip6src, sizeof(key->saddr));
->>>> +	}
->>>> +
->>>> +	if (!ipv6_addr_any((struct in6_addr *)l3_mask->ip6dst)) {
->>>> +		memcpy(&mask->daddr, l3_mask->ip6dst, sizeof(mask->daddr));
->>>> +		memcpy(&key->daddr, l3_val->ip6dst, sizeof(key->daddr));
->>>> +	}
->>>
->>> Is this enough?
->>> For example, what if user tries to set up a filter by l4_proto ?
->>>
->>
->> That's in the next patch.
-> 
-> yes but if just this one is applied (e.g. by bisect)?
-> 
+>
+> But is returning NETDEV_TX_BUSY fine in our case?
 
-1. You told me to move it to the TCP patch last review.
+If it helps to avoid packet drop. But I'm not sure if qdisc is a must
+in your case.
 
-2. None of this code is really reachable until the get ops are added in
-the last patch. ethtool needs to do gets to know if/how it can set.
+>
+> Do you mean a flag that enables or disables the no-drop behavior?
 
-Bisecting would be a strange way to try to debug this series, since
-functionality is added by flow type.
+Yes, via a new flags that could be set via TUNSETIFF.
 
-> 
->>>
->>>> +}
->>>> +
->>>>  static bool has_ipv4(u32 flow_type)
->>>>  {
->>>>  	return flow_type == IP_USER_FLOW;
->>>>  }
->>>>  
->>>> +static bool has_ipv6(u32 flow_type)
->>>> +{
->>>> +	return flow_type == IPV6_USER_FLOW;
->>>> +}
->>>> +
->> dr);
->>>>  
->>>> -	if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
->>>> -	    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4 ||
->>>> -	    fs->m_u.usr_ip4_spec.l4_4_bytes ||
->>>> -	    fs->m_u.usr_ip4_spec.ip_ver ||
->>>> -	    fs->m_u.usr_ip4_spec.proto)
->>>> -		return -EINVAL;
->>>> +		if (fs->h_u.usr_ip6_spec.l4_4_bytes ||
->>>> +		    fs->m_u.usr_ip6_spec.l4_4_bytes)
->>>> +			return -EINVAL;
->>>>  
->>>> -	parse_ip4(v4_m, v4_k, fs);
->>>> +		parse_ip6(v6_m, v6_k, fs);
->>>
->>>
->>> why does ipv6 not check unsupported fields unlike ipv4?
->>
->> The UAPI for user_ip6 doesn't make the same assertions:
->>
->> /**
->>
->>  * struct ethtool_usrip6_spec - general flow specification for IPv6
->>
->>  * @ip6src: Source host
->>
->>  * @ip6dst: Destination host
->>
->>  * @l4_4_bytes: First 4 bytes of transport (layer 4) header
->>
->>  * @tclass: Traffic Class
->>
->>  * @l4_proto: Transport protocol number (nexthdr after any Extension
->> Headers)                                          ]
->>  */
->>
->> /**
->>  * struct ethtool_usrip4_spec - general flow specification for IPv4
->>  * @ip4src: Source host
->>  * @ip4dst: Destination host
->>  * @l4_4_bytes: First 4 bytes of transport (layer 4) header
->>  * @tos: Type-of-service
->>  * @ip_ver: Value must be %ETH_RX_NFC_IP4; mask must be 0
->>  * @proto: Transport protocol number; mask must be 0
->>  */
->>
->> A check of l4_proto is probably reasonable though, since this is adding
->> filter by IP only, so l4_proto should be unset.
-> 
-> 
-> maybe run this by relevant maintainers.
->>
->>>
->>>> +	} else {
->>>> +		selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV4;
->>>> +		selector->length = sizeof(struct iphdr);
->>>> +
->>>> +		if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
->>>> +		    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4 ||
->>>> +		    fs->m_u.usr_ip4_spec.l4_4_bytes ||
->>>> +		    fs->m_u.usr_ip4_spec.ip_ver ||
->>>> +		    fs->m_u.usr_ip4_spec.proto)
->>>> +			return -EINVAL;
->>>> +
->>>> +		parse_ip4(v4_m, v4_k, fs);
->>>> +	}
->>>>  
->>>>  	return 0;
->>>>  }
->>>> -- 
->>>> 2.50.1
->>>
-> 
+Thanks
+
+>
+> Thanks!
+>
+> [1] Link: https://lore.kernel.org/netdev/174559288731.827981.874825783997=
+1869213.stgit@firesoul/T/#u
+>
+> >
+> >>
+> >>>
+> >>>>
+> >>>> This patch series includes tun/tap, and vhost-net because they share
+> >>>> logic. Adjusting only one of them would break the others. Therefore,=
+ the
+> >>>> patch series is structured as follows:
+> >>>> 1+2: new ptr_ring helpers for 3
+> >>>> 3: tun/tap: tun/tap: add synchronized ring produce/consume with queu=
+e
+> >>>> management
+> >>>> 4+5+6: tun/tap: ptr_ring wrappers and other helpers to be called by
+> >>>> vhost-net
+> >>>> 7: tun/tap & vhost-net: only now use the previous implemented functi=
+ons to
+> >>>> not break git bisect
+> >>>> 8: tun/tap: drop get ring exports (not used anymore)
+> >>>>
+> >>>> Possible future work:
+> >>>> - Introduction of Byte Queue Limits as suggested by Stephen Hemminge=
+r
+> >>>
+> >>> This seems to be not easy. The tx completion depends on the userspace=
+ behaviour.
+> >>
+> >> I agree, but I really would like to reduce the buffer bloat caused by =
+the
+> >> default 500 TUN / 1000 TAP packet queue without losing performance.
+> >>
+> >>>
+> >>>> - Adaption of the netdev queue flow control for ipvtap & macvtap
+> >>>>
+> >>>> [1] Link: https://unix.stackexchange.com/questions/762935/traffic-sh=
+aping-ineffective-on-tun-device
+> >>>> [2] Link: https://cni.etit.tu-dortmund.de/storages/cni-etit/r/Resear=
+ch/Publications/2025/Gebauer_2025_VTCFall/Gebauer_VTCFall2025_AuthorsVersio=
+n.pdf
+> >>>>
+> >>>
+> >>> Thanks
+> >>>
+> >>
+> >> Thanks! :)
+> >>
+> >
+>
 
