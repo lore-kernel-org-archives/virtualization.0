@@ -1,208 +1,148 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB41C21FF5F
-	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 17:19:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B240D32A3CC
+	for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 17:57:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764091143; cv=none; b=QzIWMhmRsa0bsqYjW+qAQvfWKIk5/AvEMWjTrP0jCpykcUI3FYmvpmnoevPKMjCz/1BTF+8TWw/4EnYuXA5RmPkC4jyFPh+LZFSMMa6ahBdJ6z1CVnd3VTYROeWo81joYyebCXbbtFYCh4UK2HPKKqacHYWsPjEuzvuc/BPEHj0=
+	t=1764093476; cv=none; b=IFeGfOjqZ/7U9DrNRhx2ifDyOiqF9KcY3Nz8nE2DSvPgLy0j/TkVHBNoNw15ZyviT0/22l+7/E/idzIi7+Fvmq3MpNYkviNpxirJh2BWbF9tt6W11NC64lSQqiKFv9cArk5LsGDq/KPRKxI4Lp8qlttFztVNdZY08JE2b26urPE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764091143; c=relaxed/simple;
-	bh=ZPhuaik0VAApbpX38pTQnqYDsCZCeVuWDwCiA5Naac0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=J+gvubToVM11yxhazEU9nc0/qWPQIeqiJaZsiJsQT02oXOSuKVJMluZqy8nqxbvQXrfjRFY/895MoMtdQyKbR27xxLcBH7jbt7/EZu/ywHx/P/Z9STFjfjNpFIBxVYg4m6fehkXyJ7FycdS4km04MxFFKV6iqZyG/dTgaOP2xg0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BhLHZvb7; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1764093476; c=relaxed/simple;
+	bh=Fs83rTTPnZoefNeB88lzRj2Zrxjcng2SgqTDnxbSr4E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
+	 In-Reply-To:Content-Type; b=T1gtI4OXt/7Q4SOcSQrtba5dxYelXkbIllo7HObVWTcaARG3HfAJDENby+Yo/kJRR0kvk39Jv1lcjONBqvExL2OSmS94sP18m7Ip0kGTnDhLpr5in6rfMjpVQUJ7qn8vE7QAIJNUsxfgeY7NBg1/9wxQ4k4NDsIqijt1WeBW3rw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G7Caciyi; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BhLHZvb7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G7Caciyi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764091139;
+	s=mimecast20190719; t=1764093473;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=QTDXgrG1WH/0PGWngFbUewy7r2hDyrl7ob2LIaTylyw=;
-	b=BhLHZvb7jOeixfrtVhmtDrcjLP9ebr2NrniJVF0R3Co9O+A/ERgZHCt3WKqbrxjB4ObXA3
-	3hgV+Z9B+nm4BdUe7cjsYe2CiRr/MUgw2n+1gWMzn2VFjReb7qo3JtR7FpO4IXTr/Q/CbB
-	buU+kJlhvO0mdGqHZTlZ6FExeoCqg/s=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=LBBNljc5iFCuzwl9ZqmN5RW/+AydF/L+sgiYuUnYeUI=;
+	b=G7Caciyi2ZOJPOC7DRfy/R232fVrQRoRssk9MfPqVjeWyumgb3rRDmCltpNmLtSEbHuB7s
+	lqjlWHIXnItJUfC8kYlkCIe0x5wbW2LMBwFGUkq8Md9NAF2OtTbpBa6CAN3quBYnx7JSe0
+	lj7dLkrP5yICZ0l/R49izRdboTmvtkk=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-588-6bnwG-DXN4CmN-LWPhHljQ-1; Tue, 25 Nov 2025 12:18:58 -0500
-X-MC-Unique: 6bnwG-DXN4CmN-LWPhHljQ-1
-X-Mimecast-MFC-AGG-ID: 6bnwG-DXN4CmN-LWPhHljQ_1764091136
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-42b3155274eso2603898f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 09:18:56 -0800 (PST)
+ us-mta-452-3rzwInOZMyWWLRQjguGJ4w-1; Tue, 25 Nov 2025 12:57:52 -0500
+X-MC-Unique: 3rzwInOZMyWWLRQjguGJ4w-1
+X-Mimecast-MFC-AGG-ID: 3rzwInOZMyWWLRQjguGJ4w_1764093471
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-429cceeeb96so3549607f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 09:57:52 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764091135; x=1764695935;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=QTDXgrG1WH/0PGWngFbUewy7r2hDyrl7ob2LIaTylyw=;
-        b=c7HoAcfF7DW1nDusS15ylroxcXGdU2YIPko2sS8Q4fKcmsrbqhNP6sVB6KSl6rObSh
-         7e2CkWYjjRsy4lfDjCn2SqDPrONxmvuYOmwTbKY/rfft4MXBrVkPi78BcRKBKbjuELhn
-         +TLhPahdB+95zNR2+xGUExfAA+dTlT2mmZ2sOdYbDMr75zaCixwvOFbGhd9NY91JV7qO
-         1Pi1l/5VQGD70XaO612e+jr0puLPj+u5ZmB3gTHjXddm4cdAdBh+qUVxEaswdANh7NVS
-         m006u7xmD4+1Xg9EqVcso8ingBEVNFkKv2yU5ujbnTG4WiBz9L/rCGR49LpQDhcgHd0V
-         nU0w==
-X-Forwarded-Encrypted: i=1; AJvYcCXdyowg3NXJFwUaCb7jmbUFVm0GSE90C2wdbxHf0O3VyecjikNfb9PBfVDeGCyIy1or6tjgS59pJDI+I8ajkA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxE1Vhz9ltcmM74RUuccySLip2npvslQb6Jk4cwo7I5tD05ZQQD
-	pUsKO4KWv/j0uB5CpXq6RxnFTjlRhZfGVtsOC6LfLu0UdYy3HV29JXTxkIXVJQzyot9c0370oKq
-	4YI0A0btw3LrYSC7lOL+Pv3SRNF+3StqG9x3yt5CuyB0ngsMtz38+sPnrm3lsmrT+WHQW
-X-Gm-Gg: ASbGncvOV5QjXArSI41SRmPx83Kn6Coc8+JbyV2W7o5k5ttOBhXE7nj6PI5HeXf6nuf
-	LeiFsiiURWDSMGvWjpCP80N3IRHOKHuZgS/x9FblmYZ1Tazw3yy0OlvTgmKDaOXIjGboK1yHW1H
-	o69Exk870p1mbxNecxYWUOWjndaQmJgZlOWp590EKiZRDht7XlDxxJjyKSTzwjgyXODnWySY/7x
-	c6RQrT3o+eYbJwnb7xucBWbJ2ZGsbOPu2V0TxmUXXL6oFVzShttBbCp3HzzAKmecJSZPQLe162d
-	ORiheOG4BY11CpAD7AWfxcD0wIwDl3GPS93Ia8M20V0R6MM5T3HilLkhc27f2DU414ZDBy+xvbv
-	/7/4suBAV553XNI4=
-X-Received: by 2002:a05:6000:1863:b0:42b:4267:83c2 with SMTP id ffacd0b85a97d-42cc1cbd18dmr16972093f8f.16.1764091135222;
-        Tue, 25 Nov 2025 09:18:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGDwBcpmQPbHfHTQwxxY5Q+qsOpgYiD3CvZ3WNNO7Ii75RTIrUMAIH9/jzA1J2eiQuQn7dHrw==
-X-Received: by 2002:a05:6000:1863:b0:42b:4267:83c2 with SMTP id ffacd0b85a97d-42cc1cbd18dmr16972058f8f.16.1764091134693;
-        Tue, 25 Nov 2025 09:18:54 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7fa3592sm34039004f8f.21.2025.11.25.09.18.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Nov 2025 09:18:54 -0800 (PST)
-Date: Tue, 25 Nov 2025 12:18:51 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Simon Schippers <simon.schippers@tu-dortmund.de>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
-	jon@nutanix.com, tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v6 2/8] ptr_ring: add helper to check if consume
- created space
-Message-ID: <20251125120122-mutt-send-email-mst@kernel.org>
-References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
- <20251120152914.1127975-3-simon.schippers@tu-dortmund.de>
- <20251125095650-mutt-send-email-mst@kernel.org>
- <ce371d19-e69a-4d8e-a9a0-f3e20439a094@tu-dortmund.de>
+        d=1e100.net; s=20230601; t=1764093471; x=1764698271;
+        h=content-transfer-encoding:in-reply-to:from:cc:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=LBBNljc5iFCuzwl9ZqmN5RW/+AydF/L+sgiYuUnYeUI=;
+        b=q8M4eiq7sC+f4cl5gX2RMitwUhVP18VC91R5eWtQP1HKj9WHT9UvMG9JXDICLidXBp
+         wScLsqcIVkkRzrIz3E1ZilDmMdFItwQRGPlG0vzOj7yqpLhIvisMIKODAb3CqIxKsHWl
+         6tIszaZ8hr5Wc+7tVTgW1wp2raJch/jDn1gdbbbT7Ypb5Bi/ELjXV2ERlj161f4M08aR
+         58S+RkN+yuDZdD2f4UM/BUrjFlg+KXuAAkGokXG8uo8XXfwchrZPTK7t6cDEB/FGUleG
+         heIrf9hO+c+tW6wCVfDC8uxvflF2zyDdHzh+bX7Gn5rS8ugXo15tDkaNXr5qGF7xhYnn
+         bh2Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWUYYrpCtrFyPO1a1MOeTJBP/ik91EmaIemNvlXqv4uv0O8GuEck6tw9Gl3ax4IfpcYouucy/Kag8gYjav4dw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxPJg0VFvau9xGAyv+tbmukz9s/bYr9ZvAYD95sVMLGPx3UvYBh
+	RquCzLxTQ7bvPdGI7eM4hEzxD1k6HlANutQMW6rIzGht1ApjrFRL+x4YRJlH3G9ZqgiATTQjGOx
+	ZtyiheKHXRHTHsUGF+TOcHpfeCV/7BiDI6wH1es2ihVdr243lqjnRB5/nFCUfG8QzMfb6
+X-Gm-Gg: ASbGncuU7r+IG0P/wdrMzZKeF8qENFzIH/MUEIkSnPjGCigaeCYxUcO+xNhrqFZGSWG
+	/QgIaFoYEaAnzSOWHOuxjFyYzZnj92MirEnoY5ps+Bf3HoCMS7xOloaozjX7o1Efm1kpXHJ2hlv
+	XtVkOCsWqToUVMgVVGfgUDmF/cHWCxvMzSYUvXQXqwKonOEbiXh5Vg4KrMioSil2YSKSPw0UHsu
+	q2rl/ELlMbc/aOm2OQj/4W3fIgIdy8ienKDlnAI/W7CvOKKLf2co5O0Scqr9LFCdZgQ5JvPeLhI
+	mlmKsCnieWWyLV4f9LRKnQnX3cBTzVpXvQy8nwEohQuM+UAyfnHN7FiBDAh+gTv7QVyhmsIc5gg
+	=
+X-Received: by 2002:a05:6000:430a:b0:42b:3246:1681 with SMTP id ffacd0b85a97d-42cc1accdd6mr17107052f8f.18.1764093470975;
+        Tue, 25 Nov 2025 09:57:50 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHo3snX1o9Z22+ePohjUgGpFTEU10kI9WW/GDIDglDYteMzSXiD2riD2Rl+m2cCB65iYkPtyg==
+X-Received: by 2002:a05:6000:430a:b0:42b:3246:1681 with SMTP id ffacd0b85a97d-42cc1accdd6mr17107029f8f.18.1764093470584;
+        Tue, 25 Nov 2025 09:57:50 -0800 (PST)
+Received: from [192.168.88.32] ([212.105.153.231])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7fa3a76sm35703266f8f.24.2025.11.25.09.57.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Nov 2025 09:57:50 -0800 (PST)
+Message-ID: <276828c5-72cb-4f5c-bc6f-7937aa6b6303@redhat.com>
+Date: Tue, 25 Nov 2025 18:57:49 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <ce371d19-e69a-4d8e-a9a0-f3e20439a094@tu-dortmund.de>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] virtio-net: avoid unnecessary checksum
+ calculation on guest RX
+To: Jon Kohler <jon@nutanix.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20251125175117.995179-1-jon@nutanix.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20251125175117.995179-1-jon@nutanix.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 0dc00zN7Va_YHM2uCwFl4A7IA1mht9KEP76h3iskenA_1764091136
+X-Mimecast-MFC-PROC-ID: nPWC_6DiinBPgQE_9CDpeo3APiXkdRLE-MVMoZk3rAs_1764093471
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Nov 25, 2025 at 05:12:35PM +0100, Simon Schippers wrote:
-> On 11/25/25 16:01, Michael S. Tsirkin wrote:
-> > On Thu, Nov 20, 2025 at 04:29:07PM +0100, Simon Schippers wrote:
-> >> Add __ptr_ring_consume_created_space() to check whether the previous
-> >> __ptr_ring_consume() call successfully consumed an element and created
-> >> space in the ring buffer. This enables callers to conditionally notify
-> >> producers when space becomes available.
-> >>
-> >> The function is only valid immediately after a single consume operation
-> >> and should not be used after calling __ptr_ring_consume_batched().
-> >>
-> >> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> >> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> >> Co-developed by: Jon Kohler <jon@nutanix.com>
-> >> Signed-off-by: Jon Kohler <jon@nutanix.com>
-> >> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-> >> ---
-> >>  include/linux/ptr_ring.h | 17 +++++++++++++++++
-> >>  1 file changed, 17 insertions(+)
-> >>
-> >> diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-> >> index da141cc8b075..76d6840b45a3 100644
-> >> --- a/include/linux/ptr_ring.h
-> >> +++ b/include/linux/ptr_ring.h
-> >> @@ -453,6 +453,23 @@ static inline int ptr_ring_consume_batched_bh(struct ptr_ring *r,
-> >>  	return ret;
-> >>  }
-> >>  
-> >> +/*
-> >> + * Check if the previous consume operation created space
-> > 
-> > space?
-> > 
-> > what does this mean?
-> > 
-> >> + *
-> >> + * Returns true if the last call to __ptr_ring_consume() has created
-> >> + * space in the ring buffer (i.e., an element was consumed).
-> >> + *
-> >> + * Note: This function is only valid immediately after a single call to
-> >> + * __ptr_ring_consume(). If multiple calls to ptr_ring_consume*() have
-> >> + * been made, this check must be performed after each call individually.
-> >> + * Likewise, do not use this function after calling
-> >> + * __ptr_ring_consume_batched().
-> > 
-> > API-wise, it is a really weird function.  So is 
-> > 
-> > {
-> > 	p = __ptr_ring_consume
-> > 
-> > 	return !!p
-> > }
-> > 
-> > guaranteed to be equivalent to 
-> > 
-> > {
-> > 	p = __ptr_ring_consume
-> > 
-> > 	return !!__ptr_ring_consume_created_space
-> > }
+CC netdev
+
+On 11/25/25 6:51 PM, Jon Kohler wrote:
+> Commit a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP
+> GSO tunneling.") inadvertently altered checksum offload behavior
+> for guests not using UDP GSO tunneling.
 > 
-> I am a bit confused. You were the one recommending this function to me,
-> see [1].
+> Before, tun_put_user called tun_vnet_hdr_from_skb, which passed
+> has_data_valid = true to virtio_net_hdr_from_skb.
 > 
-> Maybe the comments need rework here, but the function should be fine.
+> After, tun_put_user began calling tun_vnet_hdr_tnl_from_skb instead,
+> which passes has_data_valid = false into both call sites.
 > 
-> Thanks
+> This caused virtio hdr flags to not include VIRTIO_NET_HDR_F_DATA_VALID
+> for SKBs where skb->ip_summed == CHECKSUM_UNNECESSARY. As a result,
+> guests are forced to recalculate checksums unnecessarily.
 > 
-> [1] Link: https://lore.kernel.org/netdev/20250922221553.47802-1-simon.schippers@tu-dortmund.de/T/#mb722e8ae4ceb5df24f74305c6145561883d4e987
+> Restore the previous behavior by ensuring has_data_valid = true is
+> passed in the !tnl_gso_type case.
+> 
+> Cc: Paolo Abeni <pabeni@redhat.com>
+> Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tunneling.")
+> Signed-off-by: Jon Kohler <jon@nutanix.com>
+> ---
+>  include/linux/virtio_net.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index b673c31569f3..570c6dd1666d 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -394,7 +394,7 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
+>  	tnl_gso_type = skb_shinfo(skb)->gso_type & (SKB_GSO_UDP_TUNNEL |
+>  						    SKB_GSO_UDP_TUNNEL_CSUM);
+>  	if (!tnl_gso_type)
+> -		return virtio_net_hdr_from_skb(skb, hdr, little_endian, false,
+> +		return virtio_net_hdr_from_skb(skb, hdr, little_endian, true,
+>  					       vlan_hlen);
+>  
+>  	/* Tunnel support not negotiated but skb ask for it. */
 
+virtio_net_hdr_tnl_from_skb() is used also by the virtio_net driver,
+which in turn must not use VIRTIO_NET_HDR_F_DATA_VALID on tx.
 
-I see, (an element was consumed) part confused, instead of clarifying.
-That is not the question - it was consumed.
+I think you need to add another argument to
+virtio_net_hdr_tnl_from_skb(), or possibly implement a separate helper
+to take care of csum offload - the symmetric of
+virtio_net_handle_csum_offload().
 
+Also you need to CC netdev, otherwise the patch will not be processed by
+patchwork.
 
-
-Let me try:
-
-Returns true if the last call to __ptr_ring_consume() has created
-space in the ring buffer (i.e., a new element can be produced).
-
-
-Note: Because of batching, a successful call to __ptr_ring_consume
-does not guarantee that the next call to __ptr_ring_produce
-will succeed.
-
-Note2: This function is only valid immediately after a single call to
-__ptr_ring_consume(). If multiple calls to ptr_ring_consume*() have
-been made, and you want to know whether any of them created space,
-it is not enough to call this after the last __ptr_ring_consume -
-instead, this check must be performed after each call individually.
-Likewise, do not use this function after calling
-__ptr_ring_consume_batched().
-
-
-
-
-> > 
-> > 
-> > 
-> >> + */
-> >> +static inline bool __ptr_ring_consume_created_space(struct ptr_ring *r)
-> >> +{
-> >> +	return r->consumer_tail >= r->consumer_head;
-> >> +}
-> >> +
-> >>  /* Cast to structure type and call a function without discarding from FIFO.
-> >>   * Function must return a value.
-> >>   * Callers must take consumer_lock.
-> >> -- 
-> >> 2.43.0
-> > 
+/P
 
