@@ -1,178 +1,169 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DAEAB672
-	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 00:03:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75F9B4A0C
+	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 00:04:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764115425; cv=none; b=Sz1E1PAjKrpokxlFztDps+DAYSsKuMEXPxYBDwhGgwqiV3WyXe052mJ+ccsC7BaLNN1r+7EOLZLEgrPg+0xN/gOen6/MvQ9pNgQLmJRL2b9wL8qIp+WfhgumS+TzNxjC9tbeZEoJdAHyLxLZoNWL8Axq5ycxvqw8zmxH9gUip2k=
+	t=1764115485; cv=none; b=pWR1q1BYBwYtfJe9QkgpganDPWaS0ApgkfvXAI5NtiTEY/QTspx3px3xS92ZMszEIGgh4MR3iQTo/uNPsH3n8giM8oMggrHAVbmVnsD6cG4M65WQ8f8kh79XXVgLUSfVdxfEvk9EJ7qvBFYEPTMGat3NhMuWpJr3DmLqV4fmzFo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764115425; c=relaxed/simple;
-	bh=Zm86rbf4ViZ/eAdZ8KwSBeinjex6AZ0RQ+kgPGLr94c=;
+	s=arc-20240116; t=1764115485; c=relaxed/simple;
+	bh=ike1WMWzvLmPlx5h/tCRlbzBaVx7z8muD6TccEz+uaY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=peMiLOCTgJcA3+gySERZpLZC4NtDI0VKYFXRxdtuiFmIUV29oMscgP27oNnJLmrvHvf7QCw76WZSmNa3AZC+1+LIBeFyxspsgC3L31i+xiDkjYewIuNaxhAxHHgp//GFrB9R7+SNNOERFuIhM/2r4/eNY0HEBxtUw0+Xq7D8jfc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MnafOhVk; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=krGWTeSGs9D8wkJZEl52ycH6ceSevHXGzRvMNC1I84ga8KQn3ocFKWDcynsuTgzrpiSs0NH4rQtNzUuy6hRcW5hjuI2Cn2defQXKt/4ZjSE1/djxhVxG2RoRzJSxDD5hF2wtcXQsb/2RNMP1yXLyFvrE4ZVey6Y15cJhCQFm7xw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I33+ruBy; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MnafOhVk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I33+ruBy"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764115422;
+	s=mimecast20190719; t=1764115482;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vKRmZiEMk1to2WJzzrJwnxFSNJVHABWSWDpvrtN4fR4=;
-	b=MnafOhVkjS3D+WodypZ4R1xInY95tf7OWGD3kcDhOMfoVjthyYrPb6CXSYI/vcW4PnnCYt
-	yDAwcJjqDzJk9ifgy/EKImDGCbiK6Abi2tPRlbHEHYqnrWPVEA0ASv6qV7AWmkkoJxsEir
-	C++e4dzNPUzrf30J2COC1iXVA16eCKc=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=xTUyf4j0JVB1nQkzDa0c2Yn3+M9B9/NTb0nOVSMXyI4=;
+	b=I33+ruByaslKP3z+4a7AQTMOPYY+pU1TT000lmvJJwvmmmXsg2uVNu78eH1+w4sZ8k+7yq
+	AmdEF2yHTpWP39HGf07jrFkqI6i8XQDI488xhjeUF1I8ySPfkibXi0+qEsH+6XrHsWZ/Ie
+	xb9bEIoIFI57UUAMlu2oyvu706G8uVU=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-327-Wgynr0goOuWOsX1k3HBY3A-1; Tue, 25 Nov 2025 19:03:40 -0500
-X-MC-Unique: Wgynr0goOuWOsX1k3HBY3A-1
-X-Mimecast-MFC-AGG-ID: Wgynr0goOuWOsX1k3HBY3A_1764115419
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-429cceeeb96so3679491f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 16:03:40 -0800 (PST)
+ us-mta-660-tmfnVYmfOQC8kP4iXknGSw-1; Tue, 25 Nov 2025 19:04:40 -0500
+X-MC-Unique: tmfnVYmfOQC8kP4iXknGSw-1
+X-Mimecast-MFC-AGG-ID: tmfnVYmfOQC8kP4iXknGSw_1764115479
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477563a0c75so32415865e9.1
+        for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 16:04:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764115419; x=1764720219;
+        d=1e100.net; s=20230601; t=1764115478; x=1764720278;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vKRmZiEMk1to2WJzzrJwnxFSNJVHABWSWDpvrtN4fR4=;
-        b=wjEggQzVM0vj3Gpb60DD4CWMC8loK9pRswqVyZl2n8fERmzJcXei5xXXjSkni373mJ
-         CbppmLzaeAOCZHlpMYLEk5Se2RuVT59dM73aS5Pgj9SDNVklfhCq+5v3bFK7YDbnQFYs
-         TTTxLGA7a1TFH8fCeTS5FmZf6SdgSEwd7aisgd9zStPa8C5QMQIPMiya5BPZgtQck++o
-         lQq+kstP9QoQm4fB5UQdjF5/gI0A1t1swKNjN73GvmIsei2feWdJXU8Fh/uFJwmLW+cf
-         fwvqEIe9P6//TjyzAhDzluuGRUU4HdccIKK4AMkr3ewyWtuKhdmC82LxVD2fA/MFUl4l
-         RZSQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWV9zGLfdf6/0iaPyoo4S2CMFDsXgbaeczCAyy2s9DEmD0rT4ctT2VzKoE+sTbqDqg/zSFklJ587/NcxkbjQQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywcr5hofNh/ZM1Xb3I+9bttJq8kJcTS+0klcH+qesxkR/ooa0+l
-	tqCSLgL3o6Xssr9IzSjWwwbwPz2Y39tZ9DEXTwEV+6AQcvePeRNIBDm01g/vX15cCTENavFydeF
-	HPIDPHb6hRNkdMt7cdHODJ/ZW4rMCFyKyujpBdLq0SnVMQ5P1P8PQnv966g7fHoadds7I
-X-Gm-Gg: ASbGncvYurxJ70l5dfIrBFHW1cOWmm1kLJv7u13cONLQH7YpYxQYLpQebjOmpJn87w8
-	+7AnuqzekfoTA4mc7qAWD50AZfuoS3v24qlvM3X/FcV71M7M7iNKu4ylZQhHPVkY+AHwSI0KpTS
-	b+QZ/C+TbkECH21y894V60G4XFEXqCT0bAn63fXKE6j+Nxs8kaDDDBYSnH/cxIjujYG5iyLIIon
-	eaRbWCUZEMWi/D87cAgSHO1njgszLNFeTm8tpS4HrPw+tICawFyqYp4aIW4SfXdPjVbTkCpEm3K
-	TZsG7b1MgI6gVXGb1vragrIsRpWyk1U6zhBWgTG4qSbZXYxzMgYCFpJqS+H5vHpd+s30ILcw940
-	WG8c/pMbaYkFGaAQcpG7UNI5ZaYGxbg==
-X-Received: by 2002:a05:6000:24c3:b0:429:c450:8fad with SMTP id ffacd0b85a97d-42cc1d196a9mr18800457f8f.53.1764115419528;
-        Tue, 25 Nov 2025 16:03:39 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGBR55J7x3MTf+kofKm9ivnzfPRH5t94S9N5E/qvOiFWaJNtYDvbjL54tC9IkLOFKqnZLIwfA==
-X-Received: by 2002:a05:6000:24c3:b0:429:c450:8fad with SMTP id ffacd0b85a97d-42cc1d196a9mr18800423f8f.53.1764115418994;
-        Tue, 25 Nov 2025 16:03:38 -0800 (PST)
+        bh=xTUyf4j0JVB1nQkzDa0c2Yn3+M9B9/NTb0nOVSMXyI4=;
+        b=gaVmaBNT29sckYIWR5rwPPwA8qdT4BvqflaIufoF9Bx2lwaIvzQfVn3eCrqq9dgsMV
+         /+od5CN32DzdEqqceagPsjZOCY2PNN0SNBpXvq+l+8hMAOrM1TcsLJrK6v1fsXxNd6tm
+         SBrO452L7yncBXec1jfV0Fx4+rTb3XRDMFU2NX6DLQ8UTqxjT7N7XTtHS85sv2Inv+4R
+         r+1nNcNPQhT4d0Fu4liYbhIZHOSBb+lryTZtay7N5dYRLU0jzqdPQzQuaGPLVYZGfJ47
+         IOVpf2MJ3i14itwSVYrwkZK0LVrPwvpdGpx3bqXhey6Dve4tFiwtO2fcwPpmC1h83FLt
+         mjLA==
+X-Forwarded-Encrypted: i=1; AJvYcCVgy2nU8KUYQKb93fRoGQrrgqJwWzI/MO1buSaQi1MB7vGN9IkJDgwyGWj9G0tQv3LOLKtnEwaJmhPnBhHuug==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyUEoR0DAxD/d27YX/vDi6CYuWKQZ3CG3f960yGY4snVy5xu8cE
+	sY3m2421KoANgYXKEHyc8aj8JzQ6oF3myhVJ5eqT/4CxCPCnAaInpixEjboUS2emK+dackGFwfN
+	KX5DygCw/R0WjMoxIl5q6emz0Yd1h7LtHiEypT7XGk08JcQ7naJC5DDacGDLYahb0S1+QpeAheu
+	Ie
+X-Gm-Gg: ASbGncserQrli9BObkRjTq+M44nSAd6Ros9R7n28MfIdbrUfbu6wHiOQ62KayArTjmL
+	XfRTCJOPP5gIcpIlO8v8lFUlfc5vewBSkB8+GZyPWaKEbwEe8r4tXlTTIDwNd3RtzbgcRVMiPbq
+	/J4ckzhb5u1FKRTv4Em4FghTxUbXZZOek1FFhq7+nL8Eh2eMyzhdwN5qEwnjh+UKwi6v8PPXv6k
+	9HbrnFeLVUZh7HVoxKQpnp2p1A12kOJhQAGTgiVsOFYvOgG/VQnb0tqbogaV18n5UTiL0Gytekv
+	XpvsacLdL++Po7bgXBaAjnNgFhxg3LLKytKu3RcQZvmLkn2OuhrKxZhegjA7+9DV9jAEHr+cf47
+	xxZGE8Yhl7U8hc6WDJAEodplVNcicsg==
+X-Received: by 2002:a05:600c:6287:b0:477:7925:f7fb with SMTP id 5b1f17b1804b1-47904ad0724mr39869615e9.10.1764115478501;
+        Tue, 25 Nov 2025 16:04:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFGO6qZviFo/lEHybIQNV9gudmrKamo/T+9zD29CwkXnIFBmXmbvXnDigufHOe+9lYLZ7wSlA==
+X-Received: by 2002:a05:600c:6287:b0:477:7925:f7fb with SMTP id 5b1f17b1804b1-47904ad0724mr39869425e9.10.1764115478064;
+        Tue, 25 Nov 2025 16:04:38 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7fa35c2sm36014357f8f.25.2025.11.25.16.03.36
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7f49a7bsm36851184f8f.19.2025.11.25.16.04.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Nov 2025 16:03:38 -0800 (PST)
-Date: Tue, 25 Nov 2025 19:03:34 -0500
+        Tue, 25 Nov 2025 16:04:36 -0800 (PST)
+Date: Tue, 25 Nov 2025 19:04:34 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jon Kohler <jon@nutanix.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Subject: Re: [PATCH net-next] virtio-net: avoid unnecessary checksum
- calculation on guest RX
-Message-ID: <20251125190207-mutt-send-email-mst@kernel.org>
-References: <20251125175117.995179-1-jon@nutanix.com>
- <276828c5-72cb-4f5c-bc6f-7937aa6b6303@redhat.com>
- <3ED1B031-7C20-45F9-AB47-8FCDB68B448E@nutanix.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next] MAINTAINERS: separate VIRTIO NET DRIVERS and
+ add netdev
+Message-ID: <20251125190356-mutt-send-email-mst@kernel.org>
+References: <20251125210333.1594700-1-jon@nutanix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <3ED1B031-7C20-45F9-AB47-8FCDB68B448E@nutanix.com>
+In-Reply-To: <20251125210333.1594700-1-jon@nutanix.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nBP39NAmu-YTaCoIpeJP-4-f-YgBUQnJS3iwTtipyjQ_1764115419
+X-Mimecast-MFC-PROC-ID: y4drE_LyvgdenBRGwtMJ-v_VkVZeJ9jYftWLYShdq1c_1764115479
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Tue, Nov 25, 2025 at 08:00:55PM +0000, Jon Kohler wrote:
+On Tue, Nov 25, 2025 at 02:03:31PM -0700, Jon Kohler wrote:
+> Changes to virtio network stack should be cc'd to netdev DL, separate
+> it into its own group to add netdev in addition to virtualization DL.
 > 
+> Signed-off-by: Jon Kohler <jon@nutanix.com>
+> ---
+>  MAINTAINERS | 27 ++++++++++++++++++++-------
+>  1 file changed, 20 insertions(+), 7 deletions(-)
 > 
-> > On Nov 25, 2025, at 12:57 PM, Paolo Abeni <pabeni@redhat.com> wrote:
-> > 
-> > CC netdev
-> 
-> Thats odd, I used git send-email --to-cmd='./scripts/get_maintainer.pl,
-> but it looks like in MAINTAINERS, that only would have hit
-> VIRTIO CORE AND NET DRIVERS, which does not include netdev@
-> 
-> Should that have ?
-> L: netdev@vger.kernel.org <mailto:netdev@vger.kernel.org>
-> 
-> Said another way, should all changes to include/linux/virtio_net.h
-> be cc’d to netdev DL?
-> 
-> I suspect the answer is yes, I’ll send a patch for that in the
-> interest of not having this issue again :)
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index e9a8d945632b..50cef0e5c7c8 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -27139,29 +27139,23 @@ S:	Maintained
+>  F:	drivers/char/virtio_console.c
+>  F:	include/uapi/linux/virtio_console.h
+>  
+> -VIRTIO CORE AND NET DRIVERS
+> +VIRTIO CORE
+>  M:	"Michael S. Tsirkin" <mst@redhat.com>
+>  M:	Jason Wang <jasowang@redhat.com>
+>  R:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>  R:	Eugenio P�rez <eperezma@redhat.com>
+>  L:	virtualization@lists.linux.dev
+>  S:	Maintained
+> -F:	Documentation/ABI/testing/sysfs-bus-vdpa
+> -F:	Documentation/ABI/testing/sysfs-class-vduse
+>  F:	Documentation/devicetree/bindings/virtio/
+>  F:	Documentation/driver-api/virtio/
+>  F:	drivers/block/virtio_blk.c
+>  F:	drivers/crypto/virtio/
+> -F:	drivers/net/virtio_net.c
+> -F:	drivers/vdpa/
+>  F:	drivers/virtio/
+> -F:	include/linux/vdpa.h
+>  F:	include/linux/virtio*.h
+>  F:	include/linux/vringh.h
+>  F:	include/uapi/linux/virtio_*.h
+>  F:	net/vmw_vsock/virtio*
+>  F:	tools/virtio/
+> -F:	tools/testing/selftests/drivers/net/virtio_net/
+>  
+>  VIRTIO CRYPTO DRIVER
+>  M:	Gonglei <arei.gonglei@huawei.com>
+> @@ -27273,6 +27267,25 @@ W:	https://virtio-mem.gitlab.io/
+>  F:	drivers/virtio/virtio_mem.c
+>  F:	include/uapi/linux/virtio_mem.h
+>  
+> +VIRTIO NET DRIVERS
+> +M:	"Michael S. Tsirkin" <mst@redhat.com>
+> +M:	Jason Wang <jasowang@redhat.com>
+> +R:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> +R:	Eugenio P�rez <eperezma@redhat.com>
+> +L:	netdev@vger.kernel.org
+> +L:	virtualization@lists.linux.dev
+> +S:	Maintained
+> +F:	Documentation/ABI/testing/sysfs-bus-vdpa
+> +F:	Documentation/ABI/testing/sysfs-class-vduse
+> +F:	drivers/net/virtio_net.c
+> +F:	drivers/vdpa/
+> +F:	include/linux/vdpa.h
+> +F:	include/linux/virtio_net.h
+> +F:	include/uapi/linux/vdpa.h
+> +F:	include/uapi/linux/vduse.h
+> +F:	include/uapi/linux/virtio_net.h
+> +F:	tools/testing/selftests/drivers/net/virtio_net/
+> +
 
-I think yes. But only virtio net not core. I guess we should
-split net from core then.
+vdpa/vduse is more or a core thing.
+Just split include/linux/virtio_net.h things away.
 
-> > 
-> > On 11/25/25 6:51 PM, Jon Kohler wrote:
-> >> Commit a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP
-> >> GSO tunneling.") inadvertently altered checksum offload behavior
-> >> for guests not using UDP GSO tunneling.
-> >> 
-> >> Before, tun_put_user called tun_vnet_hdr_from_skb, which passed
-> >> has_data_valid = true to virtio_net_hdr_from_skb.
-> >> 
-> >> After, tun_put_user began calling tun_vnet_hdr_tnl_from_skb instead,
-> >> which passes has_data_valid = false into both call sites.
-> >> 
-> >> This caused virtio hdr flags to not include VIRTIO_NET_HDR_F_DATA_VALID
-> >> for SKBs where skb->ip_summed == CHECKSUM_UNNECESSARY. As a result,
-> >> guests are forced to recalculate checksums unnecessarily.
-> >> 
-> >> Restore the previous behavior by ensuring has_data_valid = true is
-> >> passed in the !tnl_gso_type case.
-> >> 
-> >> Cc: Paolo Abeni <pabeni@redhat.com>
-> >> Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO tunneling.")
-> >> Signed-off-by: Jon Kohler <jon@nutanix.com>
-> >> ---
-> >> include/linux/virtio_net.h | 2 +-
-> >> 1 file changed, 1 insertion(+), 1 deletion(-)
-> >> 
-> >> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> >> index b673c31569f3..570c6dd1666d 100644
-> >> --- a/include/linux/virtio_net.h
-> >> +++ b/include/linux/virtio_net.h
-> >> @@ -394,7 +394,7 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *skb,
-> >> tnl_gso_type = skb_shinfo(skb)->gso_type & (SKB_GSO_UDP_TUNNEL |
-> >>     SKB_GSO_UDP_TUNNEL_CSUM);
-> >> if (!tnl_gso_type)
-> >> - return virtio_net_hdr_from_skb(skb, hdr, little_endian, false,
-> >> + return virtio_net_hdr_from_skb(skb, hdr, little_endian, true,
-> >>        vlan_hlen);
-> >> 
-> >> /* Tunnel support not negotiated but skb ask for it. */
-> > 
-> > virtio_net_hdr_tnl_from_skb() is used also by the virtio_net driver,
-> > which in turn must not use VIRTIO_NET_HDR_F_DATA_VALID on tx.
-> 
-> Ah! Good eye, I’ll see what trouble I can get into and send a v2
-> > 
-> > I think you need to add another argument to
-> > virtio_net_hdr_tnl_from_skb(), or possibly implement a separate helper
-> > to take care of csum offload - the symmetric of
-> > virtio_net_handle_csum_offload().
-> > 
-> > Also you need to CC netdev, otherwise the patch will not be processed by
-> > patchwork.
-> > 
-> > /P
-> 
-> No problems on cc’ing netdev, just didn’t realize this one header didn’t
-> auto cc the list. Will keep an eye on that, and happy to send a patch to
-> MAINTAINERS file for discussion.
+>  VIRTIO PMEM DRIVER
+>  M:	Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+>  L:	virtualization@lists.linux.dev
+> -- 
+> 2.43.0
 
