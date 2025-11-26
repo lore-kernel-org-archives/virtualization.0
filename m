@@ -1,104 +1,320 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFD862BE043
-	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 07:15:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83C8129BDA0
+	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 07:40:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764141328; cv=none; b=ZkjwRU0GigKJIfImf9cm5Ci2SEWwDvM1t6cVofERp2EKu6TonThk9GbTp8UCpqaOjIumuhmOVIUf/xQWEM+ffcTTVxAhUxUKg50jJy4WsYcyTcm/PS8gKRU4n6+SDBG7iJ65I4YNfjpHsyTTLQPRDjorFnEfUohX109cSJ7Hn0g=
+	t=1764142820; cv=none; b=WqTFJmcKkVFllCFZtUZ8MgxPHH3+q7Kp8EPHAX8FlMcrfBBROG9RrdWJ6rVsYUvRJgPSYli7k3njU6KDR8umeRh8c0VM8olcuFTq97Sw2YFM0Pjukv2pPRRlDW6EtSOBxwmkR8yZwAnufvaFAVlM+XnikCrdkgXzGmGkA5ghY7Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764141328; c=relaxed/simple;
-	bh=mkf/uHCKMjQSjVKT+d3VdATYkS+teAGvnv+BKYIEsOI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=HY1PCidzM6o27smdG8pnDKbrPS38TOglyj+RpGORVHiVU2CDPdcXAB/0naemzLKkUOkeaLmau7VziDUpevyK/hHx4kbINtjvZVC6bauOMbEi5T+B2AkQI9uHKL6w+MvOp6plnVpftNI9HDvw2A/LtE8D8rZa9/Z5Sm6ZB9gjHiw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eXs6BaHT; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1764142820; c=relaxed/simple;
+	bh=wQ/9/DY5ZYccAaDZksK7IFxZDLe0yw3KxcFfeF+Rn3E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ncxCFDj8LI40ICyz4GhblJgeRzzsjIIezzjyxAY3y0p1+2TV5NxUGICDY2sAgPyabsg8eGrSiNldUytit0qgDr00zFaR0eQxoV0ZFFTgVqRXg/MGTtTrEHeX4QhgQJ2brs498V9AqnyefCJ/AlK6+hJjbh124nEhagegmkSZx9c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nxsdbyPw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=+VLEA8R0; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nxsdbyPw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=+VLEA8R0; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eXs6BaHT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764141325;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TCcjoQrJmDMV6tt4i7nrzjlVcToLbxZK4bwTpqKMBw4=;
-	b=eXs6BaHTEiWku2++Q7B7jIpni5gNVAFRUZyH6ZEa+j51D1BYGh/q36J/CSuj+3s2Lbb34b
-	mov1ysT7avIzzwhgDp1NZPWCxf/kT8WsccTWm93Ql7lusE09OlqfaZIKUGWRlkTaIFvH2C
-	ACJu4xBkTT1Eg6KLuXJ3kthMJRwzd7I=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-447-fBbxJJX4OSu2MMXcliK-Mg-1; Wed, 26 Nov 2025 02:15:22 -0500
-X-MC-Unique: fBbxJJX4OSu2MMXcliK-Mg-1
-X-Mimecast-MFC-AGG-ID: fBbxJJX4OSu2MMXcliK-Mg_1764141321
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-42b2b9c7ab6so3200593f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 25 Nov 2025 23:15:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764141321; x=1764746121;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TCcjoQrJmDMV6tt4i7nrzjlVcToLbxZK4bwTpqKMBw4=;
-        b=g60/s1/7KABZEbtpSWr7Emn6vEfowP609w4MgDV3uAYoasPB8q2B1AGyCwxOVPS5Wr
-         iwir1wQVx/u+jUQ73ULWi9UGzPabgPTaZT4KEj+9NTqFyX1VElUKw5nY6CdDoyJ2enmV
-         QDAwr+M3fPzLSYOzxLfV/+k0PwUtbn24VwjALddo45jAD7f5uebHeI82Vpz3iBbMfm53
-         prc2+DLO1dKusD99cpSgPNLSP7NslOIsEh85KfljsxFUlx3rjovtB9mcyVqSLFNUJFpi
-         pzHCpdFiNgXLajgq0lohw+EPp1tZbmFMa4I+yRP06b6kociB9Ue8RVjxOcGtdcR8P6jt
-         jLRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXz7wVtbsOKQUDufU8fr2CFaJmmRQ3FETlJFN6ciAdAtWlgp7K2ghDw1jC7t0Dc/klRffm3b158+3O8A6jFgQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzi58CEOym5sRnTOFjfsDBGlqS5RC3vSydsGgjtN2D545/L9Y2e
-	SZA7pRwyJZUs9kHdmTJ846OikwwoUjhkF8o5x0OLv5RQlNEYy8RHCuI4983DiKtpcTqdlI6K3TX
-	31WgPTx5aXuMiRLMMBFC0ArN6TZegeZ36gkilXlYMPKbrF3C/Nbz3BgbYaHY31m4jiZ1y
-X-Gm-Gg: ASbGncuQK3IuDt6z4N4R52yFaifkIzfYg3vMh/yFpAsngo01oYZ7OhDykYvITedjuco
-	nYvw5eNYyBmvb4ho07aPmRPvVSsKHJ+mx4I9q5Bh8JHnIgxJqYc43JlIxkG1jFLAeVhSS16tPns
-	eaH+OVJ7c0hWBS2zAKgiY1dxedblj+aNtamnFvIqM7eAIuqh3yl/T5OULLdQxZ3V3XIRh/DSHs4
-	asXCcvtHR5oht4T4LYOtEPgtVqBzLB2S3F2qmDZjnpRJsPpzf0D4uNDxIgZPqoWTIvm6RsodKvP
-	jjBtJZzNd5QMUyI/rhnYeoSlDYNW9CxmHXwMo/0I/UcLo/4nmXg9C0pHLTZmV3im05H+JyFT8Py
-	qtsHssTVIOE1tM3EkI4SxyPrAqhgv3g==
-X-Received: by 2002:a05:6000:40e0:b0:42b:4081:ccec with SMTP id ffacd0b85a97d-42cc1cbd1b9mr17399182f8f.18.1764141320697;
-        Tue, 25 Nov 2025 23:15:20 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFxNo/Afpg3Lg6XEk3Ct+TLvZVCI8wWmYfzMD7t72pHQNYX6jVKGgWygBu70JI/2p3ZTBPPRg==
-X-Received: by 2002:a05:6000:40e0:b0:42b:4081:ccec with SMTP id ffacd0b85a97d-42cc1cbd1b9mr17399153f8f.18.1764141320200;
-        Tue, 25 Nov 2025 23:15:20 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7f363c0sm39412154f8f.18.2025.11.25.23.15.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Nov 2025 23:15:19 -0800 (PST)
-Date: Wed, 26 Nov 2025 02:15:16 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Simon Schippers <simon.schippers@tu-dortmund.de>
-Cc: Jason Wang <jasowang@redhat.com>, willemdebruijn.kernel@gmail.com,
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
-	jon@nutanix.com, tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v6 0/8] tun/tap & vhost-net: netdev queue flow
- control to avoid ptr_ring tail drop
-Message-ID: <20251126021327-mutt-send-email-mst@kernel.org>
-References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
- <CACGkMEuboys8sCJFUTGxHUeouPFnVqVLGQBefvmxYDe4ooLfLg@mail.gmail.com>
- <b9fff8e1-fb96-4b1f-9767-9d89adf31060@tu-dortmund.de>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nxsdbyPw";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="+VLEA8R0";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nxsdbyPw";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="+VLEA8R0"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 5C6CA22C7B;
+	Wed, 26 Nov 2025 07:40:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1764142810; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=N/IKV4NTtJDFriBCvdPujoI7Ss0dmnp2XYDv3sBK7Do=;
+	b=nxsdbyPwMPWjnG5L8rQDkkJKR+yuEw2QDk1AxcRidFERWys4o+v8VAgfQvHrM26PCj9Wyv
+	Wnt1aYIPzuKMZ0jTkgOT4WQxIQkuGEz/laT1YlcwTWqRpIvuMC8IFT/HOkyuE2Fw4hheDM
+	J2zRAnG9B9cfHlTTelwwpCOfrUZQQW0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1764142810;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=N/IKV4NTtJDFriBCvdPujoI7Ss0dmnp2XYDv3sBK7Do=;
+	b=+VLEA8R0mOGMJCFmnuWFparRdoUKNmXgpZ7YnSUkRUbCju5PQ8EpYFuuIW0TdhGD0Ajpz1
+	EExCAwui7CyMDZCg==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=nxsdbyPw;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=+VLEA8R0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1764142810; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=N/IKV4NTtJDFriBCvdPujoI7Ss0dmnp2XYDv3sBK7Do=;
+	b=nxsdbyPwMPWjnG5L8rQDkkJKR+yuEw2QDk1AxcRidFERWys4o+v8VAgfQvHrM26PCj9Wyv
+	Wnt1aYIPzuKMZ0jTkgOT4WQxIQkuGEz/laT1YlcwTWqRpIvuMC8IFT/HOkyuE2Fw4hheDM
+	J2zRAnG9B9cfHlTTelwwpCOfrUZQQW0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1764142810;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=N/IKV4NTtJDFriBCvdPujoI7Ss0dmnp2XYDv3sBK7Do=;
+	b=+VLEA8R0mOGMJCFmnuWFparRdoUKNmXgpZ7YnSUkRUbCju5PQ8EpYFuuIW0TdhGD0Ajpz1
+	EExCAwui7CyMDZCg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C9E573EA63;
+	Wed, 26 Nov 2025 07:40:09 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id pmTZL9muJmmfKgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 26 Nov 2025 07:40:09 +0000
+Message-ID: <58b768ad-00fb-4fe5-924c-9cf6ec12f75c@suse.de>
+Date: Wed, 26 Nov 2025 08:40:09 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <b9fff8e1-fb96-4b1f-9767-9d89adf31060@tu-dortmund.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: DarohXlw0G8_n0L2BWL_Rwqx3Ki_53KXTJoXpIpgWdY_1764141321
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 03/25] drm/gem-dma: Compute dumb-buffer sizes with
+ drm_mode_size_dumb()
+To: Ludovic.Desroches@microchip.com, simona@ffwll.ch, airlied@gmail.com,
+ mripard@kernel.org, maarten.lankhorst@linux.intel.com, geert@linux-m68k.org,
+ tomi.valkeinen@ideasonboard.com
+Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
+ freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+ imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
+ nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+ intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org
+References: <20250821081918.79786-1-tzimmermann@suse.de>
+ <20250821081918.79786-4-tzimmermann@suse.de>
+ <52600bf4-2c1c-49a6-82c5-b31818141a43@microchip.com>
+ <a11c195d-197c-45a4-962a-e2336c7360c2@suse.de>
+ <2fbe0d43-67c5-4816-aff0-c23ac1507ec5@microchip.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <2fbe0d43-67c5-4816-aff0-c23ac1507ec5@microchip.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: 5C6CA22C7B
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FREEMAIL_TO(0.00)[microchip.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com,linux-m68k.org,ideasonboard.com];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[microchip.com:email,suse.com:url];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCPT_COUNT_TWELVE(0.00)[21];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	TO_DN_NONE(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
 
-On Fri, Nov 21, 2025 at 10:22:54AM +0100, Simon Schippers wrote:
-> I agree, but I really would like to reduce the buffer bloat caused by the
-> default 500 TUN / 1000 TAP packet queue without losing performance.
+Hi
 
-that default is part of the userspace API and can't be changed.
-just change whatever userspace is creating your device.
+Am 26.11.25 um 07:24 schrieb Ludovic.Desroches@microchip.com:
+> On 11/25/25 16:03, Thomas Zimmermann wrote:
+>> EXTERNAL EMAIL: Do not click links or open attachments unless you know
+>> the content is safe
+>>
+>> Hi
+>>
+>> Am 25.11.25 um 15:39 schrieb Ludovic.Desroches@microchip.com:
+>>> On 8/21/25 10:17, Thomas Zimmermann wrote:
+>>>> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and
+>>>> buffer size. Align the pitch to a multiple of 8.
+>> I missed a chance to explain it here. :/
+> I was wondering if it was 8-bits or 8-bytes.
+>
+>>>> Push the current calculation into the only direct caller imx. Imx's
+>>>> hardware requires the framebuffer width to be aligned to 8. The
+>>>> driver's current approach is actually incorrect, as it only guarantees
+>>>> this implicitly and requires bpp to be a multiple of 8 already. A
+>>>> later commit will fix this problem by aligning the scanline pitch
+>>>> such that an aligned width still fits into each scanline's memory.
+>>>>
+>>>> A number of other drivers are build on top of gem-dma helpers and
+>>>> implement their own dumb-buffer allocation. These drivers invoke
+>>>> drm_gem_dma_dumb_create_internal(), which is not affected by this
+>>>> commit.
+>>>>
+>>>> v5:
+>>>> - avoid reset of arguments (Tomi)
+>>>>
+>>>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>>>> Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+>>>> ---
+>>>>     drivers/gpu/drm/drm_gem_dma_helper.c     | 7 +++++--
+>>>>     drivers/gpu/drm/imx/ipuv3/imx-drm-core.c | 4 +++-
+>>>>     2 files changed, 8 insertions(+), 3 deletions(-)
+>>>>
+>>>> diff --git a/drivers/gpu/drm/drm_gem_dma_helper.c b/drivers/gpu/drm/
+>>>> drm_gem_dma_helper.c
+>>>> index 4f0320df858f..ab1a70b1d6f1 100644
+>>>> --- a/drivers/gpu/drm/drm_gem_dma_helper.c
+>>>> +++ b/drivers/gpu/drm/drm_gem_dma_helper.c
+>>>> @@ -20,6 +20,7 @@
+>>>>     #include <drm/drm.h>
+>>>>     #include <drm/drm_device.h>
+>>>>     #include <drm/drm_drv.h>
+>>>> +#include <drm/drm_dumb_buffers.h>
+>>>>     #include <drm/drm_gem_dma_helper.h>
+>>>>     #include <drm/drm_vma_manager.h>
+>>>>
+>>>> @@ -304,9 +305,11 @@ int drm_gem_dma_dumb_create(struct drm_file
+>>>> *file_priv,
+>>>>                           struct drm_mode_create_dumb *args)
+>>>>     {
+>>>>       struct drm_gem_dma_object *dma_obj;
+>>>> +    int ret;
+>>>>
+>>>> -    args->pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
+>>>> -    args->size = args->pitch * args->height;
+>>>> +    ret = drm_mode_size_dumb(drm, args, SZ_8, 0);
+>>>> +    if (ret)
+>>>> +            return ret;
+>>> Hi,
+>>>
+>>> Was it intentional for this change to alter the pitch?
+>> Most hardware does not need the pitch to be of a certain alignment. But
+>> these buffers are possibly shared with other hardware, which sometimes
+>> needs alignment to certain values. Using SZ_8 improves compatible with
+>> that hardware.
+>>
+>>> The alignment requirement has been updated—from 8-bit alignment to
+>>> 64-bit alignment. Since the pitch is expressed in bytes, we should pass
+>>> SZ_1 instead of SZ_8 for hw_patch_align.
+>>>
+>>> For example, for an 850×480 framebuffer at 16 bpp, the pitch should be
+>>> 1700 bytes. With the new alignment, the pitch becomes 1704 bytes.
+>> Many display modes have an 8-byte alignment in their width. 850 pixels
+>> is somewhat of an exception.
+> Indeed, but overlay-type planes are often used to display windows that
+> are not the same size as the screen, and therefore potentially not on
+> 8-bytes aligned.
+>
+>>> Please let me know if you’d like me to submit a fix.
+>> Do you see a bug with your hardware? Unless this creates a real problem,
+>> I'd like to keep it as it is now.
+> Yes, that’s how I noticed this change. I have an application that
+> requests a framebuffer larger than my screen, in this case 850x480 in
+> RGB565 for an 800x480 display. So I have a pitch of 1700 bytes. Now it’s
+> using a pitch of 1704, which shifts my lines.
+
+Honestly, your application is broken. The ioctl returns the pitch value 
+to user space and that's what the program should use. Some hardware has 
+hard constraints on the pitch, so you will sooner or later run into the 
+same problem again.
+
+Anyway, feel free to submit a patch to call drm_mode_size_dumb() without 
+SZ_8. The best value would be 0, so that the function picks a default by 
+itself. Since you're at it, maybe also look at patches 4 and 5 of this 
+series. They have similar code for other memory managers.
+
+Best regards
+Thomas
+
+>
+> Regards,
+> Ludovic
+>
+>> Best regards
+>> Thomas
+>>
+>>> Regards,
+>>> Ludovic
+>>>
+>>>
+>>>>       dma_obj = drm_gem_dma_create_with_handle(file_priv, drm, args-
+>>>>> size,
+>>>>                                                &args->handle);
+>>>> diff --git a/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c b/drivers/gpu/
+>>>> drm/imx/ipuv3/imx-drm-core.c
+>>>> index ec5fd9a01f1e..af4a30311e18 100644
+>>>> --- a/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c
+>>>> +++ b/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c
+>>>> @@ -145,8 +145,10 @@ static int imx_drm_dumb_create(struct drm_file
+>>>> *file_priv,
+>>>>       int ret;
+>>>>
+>>>>       args->width = ALIGN(width, 8);
+>>>> +    args->pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
+>>>> +    args->size = args->pitch * args->height;
+>>>>
+>>>> -    ret = drm_gem_dma_dumb_create(file_priv, drm, args);
+>>>> +    ret = drm_gem_dma_dumb_create_internal(file_priv, drm, args);
+>>>>       if (ret)
+>>>>               return ret;
+>>>>
+>> -- 
+>> -- 
+>> Thomas Zimmermann
+>> Graphics Driver Developer
+>> SUSE Software Solutions Germany GmbH
+>> Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+>> GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG
+>> Nürnberg)
+>>
+>>
+>
 
 -- 
-MST
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+
 
