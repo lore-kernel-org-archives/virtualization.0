@@ -1,80 +1,81 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C0DC30DD1B;
-	Wed, 26 Nov 2025 03:21:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from azure-sdnproxy.icoremail.net (l-sdnproxy.icoremail.net [20.188.111.126])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8ED9830E834
+	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 03:40:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=20.188.111.126
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764127267; cv=none; b=rKQMsOWasK+5qbeQgbWIyhlIaDh0nWTWyzpekX+i1NP4qad8Buygh42Kfsi8PMZydMH2b2oGEIDvRX5YnVdBkNdExKO7525eCSLM/nYdFwLQtPMi9rAG3nkGCqsz+JZzbpdkzLhMUg0ZGKxIrrVXdhKCiAIE1QVzi/mBEft6G4g=
+	t=1764128424; cv=none; b=Piq7N8oLwX3eNogcbW3UCC0KFKOHNovi9/sIwEvuY+Im/dfjO2nnr/vEicNBEXXFbySxxjyoYmsA1kVaXWGSm3o37mOWYuMYNDn/n31op6QknmQ66h7Bau+/up9ZTNy8aVBO2UmdzBI7h05Z7mBXpj7L6er8/xUAtuvas+jS+pA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764127267; c=relaxed/simple;
-	bh=NUm/3mkkmk23EkVmqhUGOtMMlCXJBJdmv15M4dDY32k=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=cbNN0MxqJorgu+f9xASHAGVyjm8rvyruLdtiYwvX3DkHwJPCYCV+8QEIl4W8n7Re8Un12X2SC72LOdpUKoV4Z81hknx5XcF3l3I12Ik31/70C+BkxxZLWFNdQlJOhnUag2sl3JAm+KFrqMj67WVgHKHBCahB4NyQWvRMTjA0v94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b8GqSsEy; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b8GqSsEy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03A14C113D0;
-	Wed, 26 Nov 2025 03:21:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1764127267;
-	bh=NUm/3mkkmk23EkVmqhUGOtMMlCXJBJdmv15M4dDY32k=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=b8GqSsEy+DQdGkNVp5IyyxHspwoMuJVmZICuojYSxDp/qza6Fg07wMNP452v9zt3j
-	 hwJTXnaWnhdrI757RfynyFwXzV5g6a9K5JBzEeFIuYxmZypooDcbD6MkC+QVxIzAPN
-	 cmSOet/zSCsjM55/8+/9aOO9A/EzOjzgNsLb+yp2Y4oP0b6AV6mbl7JW6I8gLqrXQQ
-	 SGs0eV9GsQ30sR0+UvggVUNOl70P3slvpVkSAuAfEHFguJ3itm4hTm+OBFnR+9W8ou
-	 Afq7liq3zJ4kiS5Fx2f/SyDxoVd4Y5zDbCC+ImY2sUN18mFks8Habizo5PSn7kX5hb
-	 TSRBnX67cQEmA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70BDE380AAE9;
-	Wed, 26 Nov 2025 03:20:30 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1764128424; c=relaxed/simple;
+	bh=eO+/pRsiIyMggKULQ3OLvRr6dXc2hBN8SftnMWhJLtY=;
+	h=Date:From:To:Cc:Subject:Mime-Version:Message-ID:Content-Type; b=NafxoTbXW40asHu/xrbVzBVjrRourSyjE86LqL5fQofEW/AHavrDlTsSZg9gisZq/Jp9co2JgbOJ9cbFUx8owojF8ovVY22nptEeE0fckgo6EcRCXLp0iVfZZB+gqAJM30x092WxDBDoRSKlneuq3catfRqEM9bMJBtHq5S0BH8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com; spf=pass smtp.mailfrom=eswincomputing.com; arc=none smtp.client-ip=20.188.111.126
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=eswincomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=eswincomputing.com
+Received: from E0001865LT (unknown [10.64.96.87])
+	by app2 (Coremail) with SMTP id TQJkCgB3u66gdiZpj3Z+AA--.7816S2;
+	Wed, 26 Nov 2025 11:40:16 +0800 (CST)
+Date: Wed, 26 Nov 2025 11:40:16 +0800
+From: "zhangdongchuan@eswincomputing.com" <zhangdongchuan@eswincomputing.com>
+To: mst <mst@redhat.com>, 
+	jasowang <jasowang@redhat.com>, 
+	xuanzhuo <xuanzhuo@linux.alibaba.com>, 
+	eperezma <eperezma@redhat.com>
+Cc: virtualization <virtualization@lists.linux.dev>, 
+	linux-kernel <linux-kernel@vger.kernel.org>, 
+	zhangdongchuan <zhangdongchuan@eswincomputing.com>
+Subject: [PATCH] virtio_ring: code cleanup in detach_buf_split
+X-Priority: 3
+X-GUID: DEF252B6-7D74-46CB-8B1F-A9A1F987F6AA
+X-Has-Attach: no
+X-Mailer: Foxmail 7.2.25.306[cn]
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] vsock/test: Extend transport change
- null-ptr-deref test
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <176412722900.1502845.12794410692488163252.git-patchwork-notify@kernel.org>
-Date: Wed, 26 Nov 2025 03:20:29 +0000
-References: 
- <20251123-vsock_test-linger-lockdep-warn-v1-1-4b1edf9d8cdc@rbox.co>
-In-Reply-To: 
- <20251123-vsock_test-linger-lockdep-warn-v1-1-4b1edf9d8cdc@rbox.co>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: sgarzare@redhat.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Message-ID: <202511261140162936986@eswincomputing.com>
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+X-CM-TRANSID:TQJkCgB3u66gdiZpj3Z+AA--.7816S2
+X-Coremail-Antispam: 1UD129KBjvJXoWrKFWDGr4fAF4kKry5CFWUXFb_yoW8JF13pr
+	4jkry5Kw15C3srKa98CF4jqr1Y9a93K34I9Fy7W347Krn8ZF1UtFy8Cay8KF1UCry7Zr10
+	yF4Fqa43G34qvFJanT9S1TB71UUUUUDqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBv14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4U
+	JVWxJr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gc
+	CE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
+	2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
+	W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFcxC0VAYjxAxZF0E
+	w4CEw7xC0wCY1x0262kKe7AKxVWUtVW8ZwCY02Avz4vE-syl42xK82IYc2Ij64vIr41l4I
+	8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AK
+	xVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcV
+	AFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8I
+	cIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r
+	4j6r4UJwCE64xvF2IEb7IF0Fy7YxBIdaVFxhVjvjDU0xZFpf9x0JUAGYJUUUUU=
+X-CM-SenderInfo: x2kd0w5grqwuhkxd0qphvzx0xfrp13pwlqwhhfrp/
 
-Hello:
-
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Sun, 23 Nov 2025 22:43:59 +0100 you wrote:
-> syzkaller reported a lockdep lock order inversion warning[1] due to
-> commit 687aa0c5581b ("vsock: Fix transport_* TOCTOU"). This was fixed in
-> commit f7c877e75352 ("vsock: fix lock inversion in
-> vsock_assign_transport()").
-> 
-> Redo syzkaller's repro by piggybacking on a somewhat related test
-> implemented in commit 3a764d93385c ("vsock/test: Add test for null ptr
-> deref when transport changes").
-> 
-> [...]
-
-Here is the summary with links:
-  - [net-next] vsock/test: Extend transport change null-ptr-deref test
-    https://git.kernel.org/netdev/net-next/c/b796632fc83c
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+U2luY2UgdGhlIHJldHVybiB2YWx1ZSBvZiB2cmluZ191bm1hcF9vbmVfc3BsaXQoKSBpcyBleGFj
+dGx5CnZxLT5zcGxpdC5kZXNjX2V4dHJhW2ldLm5leHQsICdpID0gdnEtPnNwbGl0LmRlc2NfZXh0
+cmFbaV0ubmV4dCcgaXMKcmVkdW5kYW50LiBBc3NpZ24gdnJpbmdfdW5tYXBfb25lX3NwbGl0KCkg
+dG8gaSBpbnN0ZWFkLgoKU2luY2UgdnEtPnNwbGl0LmRlc2NfZXh0cmEgaXMgYXNzaWduZWQgdG8g
+ZXh0cmEsIHVzZSBleHRyYVtpXS5uZXh0Cmluc3RlYWQgb2YgdnEtPnNwbGl0LmRlc2NfZXh0cmFb
+aV0ubmV4dCB0byBpbXByb3ZlIHJlYWRhYmlsaXR5LgoKTm8gY2hhbmdlIGluIGZ1bmN0aW9uYWxp
+dHkuCgpTaWduZWQtb2ZmLWJ5OiB6aGFuZ2RvbmdjaHVhbiA8emhhbmdkb25nY2h1YW5AZXN3aW5j
+b21wdXRpbmcuY29tPgotLS0KIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCA1ICsrLS0t
+CiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0
+aW9fcmluZy5jCmluZGV4IDdiNjIwNTI1M2I0Ni4uMGNiZjM0MTlhNjQ1IDEwMDY0NAotLS0gYS9k
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCisrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19y
+aW5nLmMKQEAgLTc2NCwxMyArNzY0LDEyIEBAIHN0YXRpYyB2b2lkIGRldGFjaF9idWZfc3BsaXQo
+c3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEsIHVuc2lnbmVkIGludCBoZWFkLAogCWkgPSBoZWFk
+OwogCiAJd2hpbGUgKHZxLT5zcGxpdC52cmluZy5kZXNjW2ldLmZsYWdzICYgbmV4dGZsYWcpIHsK
+LQkJdnJpbmdfdW5tYXBfb25lX3NwbGl0KHZxLCAmZXh0cmFbaV0pOwotCQlpID0gdnEtPnNwbGl0
+LmRlc2NfZXh0cmFbaV0ubmV4dDsKKwkJaSA9IHZyaW5nX3VubWFwX29uZV9zcGxpdCh2cSwgJmV4
+dHJhW2ldKTsKIAkJdnEtPnZxLm51bV9mcmVlKys7CiAJfQogCiAJdnJpbmdfdW5tYXBfb25lX3Nw
+bGl0KHZxLCAmZXh0cmFbaV0pOwotCXZxLT5zcGxpdC5kZXNjX2V4dHJhW2ldLm5leHQgPSB2cS0+
+ZnJlZV9oZWFkOworCWV4dHJhW2ldLm5leHQgPSB2cS0+ZnJlZV9oZWFkOwogCXZxLT5mcmVlX2hl
+YWQgPSBoZWFkOwogCiAJLyogUGx1cyBmaW5hbCBkZXNjcmlwdG9yICovCi0tIAoyLjM0LjEKCgo=
 
