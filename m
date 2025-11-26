@@ -1,320 +1,153 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83C8129BDA0
-	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 07:40:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44CAC2DCC03
+	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 08:56:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764142820; cv=none; b=WqTFJmcKkVFllCFZtUZ8MgxPHH3+q7Kp8EPHAX8FlMcrfBBROG9RrdWJ6rVsYUvRJgPSYli7k3njU6KDR8umeRh8c0VM8olcuFTq97Sw2YFM0Pjukv2pPRRlDW6EtSOBxwmkR8yZwAnufvaFAVlM+XnikCrdkgXzGmGkA5ghY7Q=
+	t=1764147419; cv=none; b=MqQEsDcw2zcu1VKzF9+bTdxAJCE8EOt1H2p4hKwRoMITdlzMoJuHE1/zIxzm1/BUZDrkw7vmbkrZajaYuMVGNsyiERqEHNQEIYyzwZWCF2t8AkhZtOattTQnUC55RFKEu2fkJIgrhhQA8coaIm9IcDBDWnf9x5MYHEEUd+XWz24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764142820; c=relaxed/simple;
-	bh=wQ/9/DY5ZYccAaDZksK7IFxZDLe0yw3KxcFfeF+Rn3E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ncxCFDj8LI40ICyz4GhblJgeRzzsjIIezzjyxAY3y0p1+2TV5NxUGICDY2sAgPyabsg8eGrSiNldUytit0qgDr00zFaR0eQxoV0ZFFTgVqRXg/MGTtTrEHeX4QhgQJ2brs498V9AqnyefCJ/AlK6+hJjbh124nEhagegmkSZx9c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nxsdbyPw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=+VLEA8R0; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nxsdbyPw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=+VLEA8R0; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1764147419; c=relaxed/simple;
+	bh=6t9MHJvf6sqh5JX+QcZaEOpVyD9pO0GspMuqeY837mk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=fUZKejoxfL5Uo+ktOBhMckzUp8pPZ/j/ipqkHf8JfHeThpKzsjM6ln+UFfvbtnm+gKmNNOp0SPYEq4KWsrYRCTt+ggptbZLeXGLp3FN71UcWwn9wu+m09vQMnIunbEBG90EFNp7r9lEz/e99FTHfqN6dtpmcAIfMapdKhR5yx8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bcZdu+6j; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nxsdbyPw";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="+VLEA8R0";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nxsdbyPw";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="+VLEA8R0"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 5C6CA22C7B;
-	Wed, 26 Nov 2025 07:40:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1764142810; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=N/IKV4NTtJDFriBCvdPujoI7Ss0dmnp2XYDv3sBK7Do=;
-	b=nxsdbyPwMPWjnG5L8rQDkkJKR+yuEw2QDk1AxcRidFERWys4o+v8VAgfQvHrM26PCj9Wyv
-	Wnt1aYIPzuKMZ0jTkgOT4WQxIQkuGEz/laT1YlcwTWqRpIvuMC8IFT/HOkyuE2Fw4hheDM
-	J2zRAnG9B9cfHlTTelwwpCOfrUZQQW0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1764142810;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=N/IKV4NTtJDFriBCvdPujoI7Ss0dmnp2XYDv3sBK7Do=;
-	b=+VLEA8R0mOGMJCFmnuWFparRdoUKNmXgpZ7YnSUkRUbCju5PQ8EpYFuuIW0TdhGD0Ajpz1
-	EExCAwui7CyMDZCg==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=nxsdbyPw;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=+VLEA8R0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1764142810; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=N/IKV4NTtJDFriBCvdPujoI7Ss0dmnp2XYDv3sBK7Do=;
-	b=nxsdbyPwMPWjnG5L8rQDkkJKR+yuEw2QDk1AxcRidFERWys4o+v8VAgfQvHrM26PCj9Wyv
-	Wnt1aYIPzuKMZ0jTkgOT4WQxIQkuGEz/laT1YlcwTWqRpIvuMC8IFT/HOkyuE2Fw4hheDM
-	J2zRAnG9B9cfHlTTelwwpCOfrUZQQW0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1764142810;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=N/IKV4NTtJDFriBCvdPujoI7Ss0dmnp2XYDv3sBK7Do=;
-	b=+VLEA8R0mOGMJCFmnuWFparRdoUKNmXgpZ7YnSUkRUbCju5PQ8EpYFuuIW0TdhGD0Ajpz1
-	EExCAwui7CyMDZCg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C9E573EA63;
-	Wed, 26 Nov 2025 07:40:09 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id pmTZL9muJmmfKgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 26 Nov 2025 07:40:09 +0000
-Message-ID: <58b768ad-00fb-4fe5-924c-9cf6ec12f75c@suse.de>
-Date: Wed, 26 Nov 2025 08:40:09 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bcZdu+6j"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764147416;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kip/JEcZ74T1Ftt4LkCGX9wwyy/CfbbaxlGjsxIU+gQ=;
+	b=bcZdu+6jDkGblo3ux+/ZnH17VCKYFdVEmKH4baCKMVn9orSUKIQx34Zgmq5uhHsjebXN9u
+	kRL1QZ4vJ71nnfVxl5bzJa2pnWsynBOPjN20vpiP6ynm50UiVl3tZVTFv8vryyDJgr7OdX
+	hjGV6ur+wwUkjIGC7Z6/mtMZnIzrzr0=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-479-6FiL_U1bPhGtywj3GGlzwQ-1; Wed, 26 Nov 2025 03:56:54 -0500
+X-MC-Unique: 6FiL_U1bPhGtywj3GGlzwQ-1
+X-Mimecast-MFC-AGG-ID: 6FiL_U1bPhGtywj3GGlzwQ_1764147413
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-429cd1d0d98so5316475f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 00:56:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764147413; x=1764752213;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kip/JEcZ74T1Ftt4LkCGX9wwyy/CfbbaxlGjsxIU+gQ=;
+        b=pb76KQjaJVvVE5HAg9/wb7nR62K1KTaFA7PrIqz+7nOBDnn9tYykwqGOFIn/4a8WKf
+         EQYMcwphoqShEQifsLY8i44PLUUHocr5FESJBVsU2EYfGsyB+J6RhwNz6aeDLhz8me0a
+         VF3y8zuKsp+H1XtKFZlt+uxbeE0EZVJqNDnSk5knh0RMEnfE7MO5jYcoeEwsjhDX0dXa
+         KhNxnOXrfmGLOOIAqCS7VALWZCOftZwp1PEi9Dw3tE4C6hXzomjUxo1Yx5P3pbJalHJ+
+         dCFtTXRJiZ4squJeVyUHRu30HCklEWBbwGe7l9u6S8jCzDtNZl9DY3PyqEmi73rMCnxz
+         c31w==
+X-Forwarded-Encrypted: i=1; AJvYcCULOW/Kgo6msMN+JnyfcrV/oHTTtwc72bpy4vCMXj4/cCcEmK6n7i7yxM9JKWP+5Dq8hNIEox/j6IlFFaSDtg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwfZgvJut8S7B+STjTgVgLAd2gOU6rlWtgPUlxYAfBlsyP0ZE/v
+	JS556hrgAvpd8rECB6KjQZQZDLOFqp3EHtS6Apqovbpf/9yZUiTF35MBQF5L+F+1BmjiiEQ8M4x
+	hq1vhPM6eeRdBSMb9iwcWmPLt8+8mEHtY8sKGVb6g/6lnHGwwbkhiUtDIWJncgXAPOt7K
+X-Gm-Gg: ASbGncux4ihZMIi4kaUOXl7mG25/wrxgZNK6N+bh1B4C1Hh+ivix4uZeVS8arXPk4pQ
+	5PpjiLkXhrWkWk5ytwOOZYilNrBYrRlw9rlCqTWNqpJVP+c5Zt874vC6L369sDPAEK26y+qddcL
+	BNbvWDAdvN+9UZLUsBWiRYaEkF+pRIRnHcFCl3Y/aiPxXhRfY8yzIGxUVNd2sEZVjyCO9P31emr
+	uyMWP60N8BbAS+SUTFeC2sSZK5/ElWgIfnmsPRw7I00iieyI9ptKfhlCWwQ+t/oJ1u9d7u9Pfng
+	P5+zgirbMOZmfkCBXYzFOyGE6T8Mt490E2n07nC7KDncBtplsSgt5DY11m7QUOsv45AT0oTjsqd
+	h5R/TlLag8bfuVpqm3oUqLoaEWPp5XA==
+X-Received: by 2002:a05:6000:26cf:b0:429:d66b:507f with SMTP id ffacd0b85a97d-42e0f34f9a3mr6307243f8f.48.1764147413175;
+        Wed, 26 Nov 2025 00:56:53 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGHNNJ+IsPSYIWyu2oPIp2uYsK6e3LWHa7plQXIOftsh9/qPOW1IRQVxpm4kwwQqwDr9WWQeQ==
+X-Received: by 2002:a05:6000:26cf:b0:429:d66b:507f with SMTP id ffacd0b85a97d-42e0f34f9a3mr6307216f8f.48.1764147412671;
+        Wed, 26 Nov 2025 00:56:52 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7fa3592sm37810702f8f.21.2025.11.26.00.56.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Nov 2025 00:56:52 -0800 (PST)
+Date: Wed, 26 Nov 2025 03:56:49 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jon Kohler <jon@nutanix.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next] vhost/net: check peek_head_len after signal to
+ guest to avoid delays
+Message-ID: <20251126035449-mutt-send-email-mst@kernel.org>
+References: <20251125180034.1167847-1-jon@nutanix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 03/25] drm/gem-dma: Compute dumb-buffer sizes with
- drm_mode_size_dumb()
-To: Ludovic.Desroches@microchip.com, simona@ffwll.ch, airlied@gmail.com,
- mripard@kernel.org, maarten.lankhorst@linux.intel.com, geert@linux-m68k.org,
- tomi.valkeinen@ideasonboard.com
-Cc: dri-devel@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
- freedreno@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- imx@lists.linux.dev, linux-samsung-soc@vger.kernel.org,
- nouveau@lists.freedesktop.org, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org
-References: <20250821081918.79786-1-tzimmermann@suse.de>
- <20250821081918.79786-4-tzimmermann@suse.de>
- <52600bf4-2c1c-49a6-82c5-b31818141a43@microchip.com>
- <a11c195d-197c-45a4-962a-e2336c7360c2@suse.de>
- <2fbe0d43-67c5-4816-aff0-c23ac1507ec5@microchip.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <2fbe0d43-67c5-4816-aff0-c23ac1507ec5@microchip.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 5C6CA22C7B
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FREEMAIL_TO(0.00)[microchip.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com,linux-m68k.org,ideasonboard.com];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[microchip.com:email,suse.com:url];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCPT_COUNT_TWELVE(0.00)[21];
-	RCVD_TLS_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	TO_DN_NONE(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Rspamd-Action: no action
-X-Spam-Flag: NO
-X-Spam-Score: -3.01
-X-Spam-Level: 
+In-Reply-To: <20251125180034.1167847-1-jon@nutanix.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Ha1C-JQBTU-sYPPGSBgXEOuzZ_wqSywY2yXih73tFGM_1764147413
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi
+On Tue, Nov 25, 2025 at 11:00:33AM -0700, Jon Kohler wrote:
+> In non-busypoll handle_rx paths, if peek_head_len returns 0, the RX
+> loop breaks, the RX wait queue is re-enabled, and vhost_net_signal_used
+> is called to flush done_idx and notify the guest if needed.
+> 
+> However, signaling the guest can take non-trivial time. During this
+> window, additional RX payloads may arrive on rx_ring without further
+> kicks. These new payloads will sit unprocessed until another kick
+> arrives, increasing latency. In high-rate UDP RX workloads, this was
+> observed to occur over 20k times per second.
+> 
+> To minimize this window and improve opportunities to process packets
+> promptly, immediately call peek_head_len after signaling. If new packets
+> are found, treat it as a busy poll interrupt and requeue handle_rx,
+> improving fairness to TX handlers and other pending CPU work. This also
+> helps suppress unnecessary thread wakeups, reducing waker CPU demand.
+> 
+> Signed-off-by: Jon Kohler <jon@nutanix.com>
+> ---
+>  drivers/vhost/net.c | 21 +++++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 35ded4330431..04cb5f1dc6e4 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -1015,6 +1015,27 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
+>  	struct vhost_virtqueue *tvq = &tnvq->vq;
+>  	int len = peek_head_len(rnvq, sk);
+>  
+> +	if (!len && rnvq->done_idx) {
+> +		/* When idle, flush signal first, which can take some
+> +		 * time for ring management and guest notification.
+> +		 * Afterwards, check one last time for work, as the ring
+> +		 * may have received new work during the notification
+> +		 * window.
+> +		 */
+> +		vhost_net_signal_used(rnvq, *count);
+> +		*count = 0;
+> +		if (peek_head_len(rnvq, sk)) {
 
-Am 26.11.25 um 07:24 schrieb Ludovic.Desroches@microchip.com:
-> On 11/25/25 16:03, Thomas Zimmermann wrote:
->> EXTERNAL EMAIL: Do not click links or open attachments unless you know
->> the content is safe
->>
->> Hi
->>
->> Am 25.11.25 um 15:39 schrieb Ludovic.Desroches@microchip.com:
->>> On 8/21/25 10:17, Thomas Zimmermann wrote:
->>>> Call drm_mode_size_dumb() to compute dumb-buffer scanline pitch and
->>>> buffer size. Align the pitch to a multiple of 8.
->> I missed a chance to explain it here. :/
-> I was wondering if it was 8-bits or 8-bytes.
->
->>>> Push the current calculation into the only direct caller imx. Imx's
->>>> hardware requires the framebuffer width to be aligned to 8. The
->>>> driver's current approach is actually incorrect, as it only guarantees
->>>> this implicitly and requires bpp to be a multiple of 8 already. A
->>>> later commit will fix this problem by aligning the scanline pitch
->>>> such that an aligned width still fits into each scanline's memory.
->>>>
->>>> A number of other drivers are build on top of gem-dma helpers and
->>>> implement their own dumb-buffer allocation. These drivers invoke
->>>> drm_gem_dma_dumb_create_internal(), which is not affected by this
->>>> commit.
->>>>
->>>> v5:
->>>> - avoid reset of arguments (Tomi)
->>>>
->>>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->>>> Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
->>>> ---
->>>>     drivers/gpu/drm/drm_gem_dma_helper.c     | 7 +++++--
->>>>     drivers/gpu/drm/imx/ipuv3/imx-drm-core.c | 4 +++-
->>>>     2 files changed, 8 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/drivers/gpu/drm/drm_gem_dma_helper.c b/drivers/gpu/drm/
->>>> drm_gem_dma_helper.c
->>>> index 4f0320df858f..ab1a70b1d6f1 100644
->>>> --- a/drivers/gpu/drm/drm_gem_dma_helper.c
->>>> +++ b/drivers/gpu/drm/drm_gem_dma_helper.c
->>>> @@ -20,6 +20,7 @@
->>>>     #include <drm/drm.h>
->>>>     #include <drm/drm_device.h>
->>>>     #include <drm/drm_drv.h>
->>>> +#include <drm/drm_dumb_buffers.h>
->>>>     #include <drm/drm_gem_dma_helper.h>
->>>>     #include <drm/drm_vma_manager.h>
->>>>
->>>> @@ -304,9 +305,11 @@ int drm_gem_dma_dumb_create(struct drm_file
->>>> *file_priv,
->>>>                           struct drm_mode_create_dumb *args)
->>>>     {
->>>>       struct drm_gem_dma_object *dma_obj;
->>>> +    int ret;
->>>>
->>>> -    args->pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
->>>> -    args->size = args->pitch * args->height;
->>>> +    ret = drm_mode_size_dumb(drm, args, SZ_8, 0);
->>>> +    if (ret)
->>>> +            return ret;
->>> Hi,
->>>
->>> Was it intentional for this change to alter the pitch?
->> Most hardware does not need the pitch to be of a certain alignment. But
->> these buffers are possibly shared with other hardware, which sometimes
->> needs alignment to certain values. Using SZ_8 improves compatible with
->> that hardware.
->>
->>> The alignment requirement has been updated—from 8-bit alignment to
->>> 64-bit alignment. Since the pitch is expressed in bytes, we should pass
->>> SZ_1 instead of SZ_8 for hw_patch_align.
->>>
->>> For example, for an 850×480 framebuffer at 16 bpp, the pitch should be
->>> 1700 bytes. With the new alignment, the pitch becomes 1704 bytes.
->> Many display modes have an 8-byte alignment in their width. 850 pixels
->> is somewhat of an exception.
-> Indeed, but overlay-type planes are often used to display windows that
-> are not the same size as the screen, and therefore potentially not on
-> 8-bytes aligned.
->
->>> Please let me know if you’d like me to submit a fix.
->> Do you see a bug with your hardware? Unless this creates a real problem,
->> I'd like to keep it as it is now.
-> Yes, that’s how I noticed this change. I have an application that
-> requests a framebuffer larger than my screen, in this case 850x480 in
-> RGB565 for an 800x480 display. So I have a pitch of 1700 bytes. Now it’s
-> using a pitch of 1704, which shifts my lines.
 
-Honestly, your application is broken. The ioctl returns the pitch value 
-to user space and that's what the program should use. Some hardware has 
-hard constraints on the pitch, so you will sooner or later run into the 
-same problem again.
+I also wonder why don't we assign len here.
+I get the point about being fair to TX but it's not
+indefinite poll, just a single peek ...
 
-Anyway, feel free to submit a patch to call drm_mode_size_dumb() without 
-SZ_8. The best value would be 0, so that the function picks a default by 
-itself. Since you're at it, maybe also look at patches 4 and 5 of this 
-series. They have similar code for other memory managers.
-
-Best regards
-Thomas
-
->
-> Regards,
-> Ludovic
->
->> Best regards
->> Thomas
->>
->>> Regards,
->>> Ludovic
->>>
->>>
->>>>       dma_obj = drm_gem_dma_create_with_handle(file_priv, drm, args-
->>>>> size,
->>>>                                                &args->handle);
->>>> diff --git a/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c b/drivers/gpu/
->>>> drm/imx/ipuv3/imx-drm-core.c
->>>> index ec5fd9a01f1e..af4a30311e18 100644
->>>> --- a/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c
->>>> +++ b/drivers/gpu/drm/imx/ipuv3/imx-drm-core.c
->>>> @@ -145,8 +145,10 @@ static int imx_drm_dumb_create(struct drm_file
->>>> *file_priv,
->>>>       int ret;
->>>>
->>>>       args->width = ALIGN(width, 8);
->>>> +    args->pitch = DIV_ROUND_UP(args->width * args->bpp, 8);
->>>> +    args->size = args->pitch * args->height;
->>>>
->>>> -    ret = drm_gem_dma_dumb_create(file_priv, drm, args);
->>>> +    ret = drm_gem_dma_dumb_create_internal(file_priv, drm, args);
->>>>       if (ret)
->>>>               return ret;
->>>>
->> -- 
->> -- 
->> Thomas Zimmermann
->> Graphics Driver Developer
->> SUSE Software Solutions Germany GmbH
->> Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
->> GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG
->> Nürnberg)
->>
->>
->
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
-
+> +			/* More work came in during the notification
+> +			 * window. To be fair to the TX handler and other
+> +			 * potentially pending work items, pretend like
+> +			 * this was a busy poll interruption so that
+> +			 * the RX handler will be rescheduled and try
+> +			 * again.
+> +			 */
+> +			*busyloop_intr = true;
+> +		}
+> +	}
+> +
+>  	if (!len && rvq->busyloop_timeout) {
+>  		/* Flush batched heads first */
+>  		vhost_net_signal_used(rnvq, *count);
+> -- 
+> 2.43.0
 
