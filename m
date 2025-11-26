@@ -1,159 +1,117 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB82F3314BC
-	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 17:08:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3927D201278
+	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 18:00:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764176900; cv=none; b=hpV4eHhpbbBmL7mkYNWTbx1uJvLmppL2guBIbXFym6Vq+iQ25R5aYStDReSvd9cxydSCIdEnzZy2YoS5Ap2sgdzOGcFlCOOWg2JTx9ClLZeE8IW6aFa+AmSe27JCWvxSqsxEjowuwn2ZuSmbNGbhAZP5fWyJUfFt/9uOnp2t7+Y=
+	t=1764180035; cv=none; b=jyj4Cwi9nrJ7vXXHBY4ECEBzzuJfBUY4bSHy2QqNZ7ytX76zNDLpKHhDU006FpMrhqn+xw7KwrdILlh1eWhV/fNXoLapfzgRg4jwzAAw38lq+Aoo8kAO7b5iUKWNvSG5xs6ZVoxZ+kjfhPwHvYQEJVZsrmch7QBuYHU9K9mIbz0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764176900; c=relaxed/simple;
-	bh=xY4XXik+VDjoNTiOxaY4mWM/8wJ3WHfmwRW/bl81YcU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XyYs0WGTbK18Av2dbMlSLB2qU235LTp9cnq3Cu4nefnsgeav1T+OMPXM6pT3C/m8T6Ip+9roPPAmK5GdXwXDM1jD9V/gaKAbRM2z39XJkOFoKQ4OraEiCp8XtyBHvwENUiwM/cshoxIgjyBntpWbDpZ3OsipW+7CS9MpWVBBPFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Olji7qIM; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1764180035; c=relaxed/simple;
+	bh=IYZdkZZKGPGx9sx2990egUZQsDNd44OswOXxoE5ncJ4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=bneYzadBbcCuFllIn6cqclME566OLYgpXyUuj/WnxVA7/6TygbT4qbOo3cw3ePVds/vYTGz2b/aaVKrRawQr5pExjNN6w1waD5jjeWItyN3dnOuJ3+SRGSOObiPVLI4MkbRmLQC+dZGzOjmfhp1flD7ewTXcjshOhn/bBdKz/wo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DhNV0prD; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Olji7qIM"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-29845b06dd2so86453235ad.2
-        for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 09:08:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764176898; x=1764781698; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=H70tQVp0jdRu6yLi1ZHSywEXJI9fMFla6cCqq4jxfcs=;
-        b=Olji7qIM4CnnDJYoRTeCRpHNicStGv6w5XXJRNvlbKSBbb25q9/dYe2Q9teQJ+TPE0
-         26g3FNB9/rzoT7sMrW05gL7kHMIYJDcYOBRahmAT2niKBKP19IkrVpD8ICzrMhZ8CmoZ
-         fZpHGbhqvYKnBJZzT4TROVMdZ8p03NEfok0bIQd6nmhRA7S+o823iEurWpiVXCM9FW/Y
-         ni4kWYDGcE7BD3rPdQxSai0MylnZ2YhlYNMjxGFTHhmF2b0ysM3Aq3Po0SxS8SuAJ0Id
-         2JRLQ8SFTjLBtCSprR082MMTlGredxmizSeJ8ADXFHioU8PZn9IDkFnoTM6pOcQaoBO5
-         bQqg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DhNV0prD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764180032;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9YgBhXcGSddKFMYnZCe5lp8J3od8fCjODxmcHFceGH4=;
+	b=DhNV0prDJPmpierS5UDhBPmdcpKvGklWhOFotPrHQgRyAANUkF8i4aPJTc/TsGq77sAtoQ
+	xHRzxTxS15X77ohwefzElA7sWYi9UEo49MzJyefW41yGqvW+secrxw8t2t1okYEtQP/0Be
+	g/fM1HgsUbzaWZ+vuHNqASY0EU31PaM=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-447-xAbnf7bmMpyFJIwbt3-X6Q-1; Wed, 26 Nov 2025 13:00:30 -0500
+X-MC-Unique: xAbnf7bmMpyFJIwbt3-X6Q-1
+X-Mimecast-MFC-AGG-ID: xAbnf7bmMpyFJIwbt3-X6Q_1764180029
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-42b2f79759bso61237f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 10:00:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764176898; x=1764781698;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1764180029; x=1764784829;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=H70tQVp0jdRu6yLi1ZHSywEXJI9fMFla6cCqq4jxfcs=;
-        b=YV3I15o0p7K2ilocPGMCPeb7CvAUe5E+8ujZNQeYLjLcvxFo7jr2uaaxQECgkr57pe
-         64NYSVIPvF9nPnK0nu4p8oyLVGjaxy6nxY21hPJxikT7pMot9LHsv+poUD9yfXhJbUnd
-         NwawiyKLWAzr6lgJ1y+f0W9aBSr+qwNz6gjICAe7ewqByvDHq9DKU2400Twg02b76Wio
-         hEOf+MMBbd3nxRfVuuW5GFTPP+KTtTHDDP/RzacnzBTBgXsseq0JkWru+ccTGM8d183L
-         58RPODZXkghgUWOCbxj1Pc67WnheWKKzBDiNaNoNF+OPbotWa5DCirU4qp0BBDeHmNB2
-         gu4w==
-X-Forwarded-Encrypted: i=1; AJvYcCXLS3b7tM0c0p8yjlf94nIVmZ31biBhdbazn6l0ruSph6m68AjIRgLe1LNw+/2pO7tCBNdMbXTivA1sieahUw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyVIvBHi4QKkHOvWeK09i3gLdqU3S6lwGTwy6bvathxJ65T8shK
-	8qTnM592vz1aieT3m0qgn1keVF3UwDARyBoABWVVw3l+T12pbJegO90r
-X-Gm-Gg: ASbGncuD0ze5t6J/yPZIbqebVFEXU69hmFgZqBFXZ+RQJJLylluKG2W13Pp5nLsdqvz
-	cmj2lMAxf7GfjLu3puFV5I/q+3X/BtZ/RMfTPATzzocMX15owGZ0xVNdYGyzNMBCFu2K86P7sad
-	livAZSEAUJVfUcTsAhl42jmwBUSNn55sVGaKz8mWfSNs/05/5cD5uTlXTX1yjFa7Ar6O3DYsqoa
-	rvacgTxnelPH5Jc7uCjOHN27cCd92VIvaJsK+G3vwcyhPId9+51ScQ9gPEUzZu5SfAyNmKq9Dqb
-	9obo2xFG9pBdPPZe4zbh4RliW4vhxzRVYOtjZotllvVs7T6dpv0wFcKt3rr2MF5PENk3JS9Omxe
-	xBw65GzIQ3TqOKu9h2ovH1O54RkYVhkPTNauuWdVsRRI+j5HB4rk5X10qw/WWY2uGgoxv5XjW+F
-	QHrp2fcMTum4zzPhEhVpM1XzAvjRPA6KloGmYjM47k02d7FLyuTOd4TUyPbp8=
-X-Google-Smtp-Source: AGHT+IEm/eX5yuwpOzoClbM8zcPawe2/xqTQQviecb25Bk40JcOnKIa/X4pWfDT/0x83wWLQHNhjCg==
-X-Received: by 2002:a17:903:234a:b0:298:55c8:eb8d with SMTP id d9443c01a7336-29b6c575114mr249233285ad.35.1764176897825;
-        Wed, 26 Nov 2025 09:08:17 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29b5b2a155fsm201208015ad.88.2025.11.26.09.08.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 26 Nov 2025 09:08:17 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <55bedecf-a4ab-445d-b6b2-c6dcbcd5bd95@roeck-us.net>
-Date: Wed, 26 Nov 2025 09:08:15 -0800
+        bh=9YgBhXcGSddKFMYnZCe5lp8J3od8fCjODxmcHFceGH4=;
+        b=BeRHSyDph33YIIrOtPkUqn0Ee+YB2+bheZnOmV35LB31gSDWCy8TT4Drfv9EfQXDq5
+         /JWmtW9Xaoe2KEf6Ca/N8anWj/8MzGJa0zXpEuL8D6B8d+lSDzSeI+C6gDTFGL/dB4w9
+         kfQv7cIleEkK7JPep4T/6JId3e5vm0xLqip8SV3b766D+2z+LFONVoNCNcbaloVl5n8p
+         PyJOuEFRS+BSk3ho32hEpdj3SJV9QsQJJa62mEc7G/DZOC3oWxy10sDngGfdTDt6ZkHS
+         6zsGoLaY8hZISoXJO41lHhAovluvDhG2MgWrQ3uqSpw7yApIa61H+o9TADlDkZhKeSk4
+         uGSQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUPZg8gakY1IYzw5GcmVW9U7duIQy5pyaNB+vPIqyq08YViE6MUOSgBsPWfHvNIlThOUV287sCEKuPxJQkamg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyOXJ31v4bpxw9XaDYfNOjHySE9/k/8fZETOzoa+9MKgl87SrB2
+	EDN7FhSczAarEASSX6EELoC5+IBgO7+3zeAn+x8Ak7hyHDQBpCuQR9OgIHgVyMS/RPKaJhxiJRg
+	fOL0pR1hC1OYllHn5TC9lUfr7TUjnyw4eW9azQ704EcX/pZcf2E/yZs3+B5qpDtUTbHoo
+X-Gm-Gg: ASbGnct/ghifxvFxjFDXJQY73Qf3E9m+mVZZ8BOrU5Pqv1kGTq+yMR9pfU/ko1Q27zX
+	pJ8MyeO+0Xt6RWeivT4JV250h3xPZODy8Wdelzr1GUHSD3EzrEnqXOqOiddGYAtm33ha9Lr5MHW
+	Pom0XCHkCWO6y1jQwVoTnwj3SvO4h4ZUKRjPMrXsLC2oJKaupI6DSKWvdncQbbr+UwH2Fv8Xahe
+	9Lmz7jzF2MW2GT00N3qftVbalzDmceVHu0Tmt49UUtobFYDmi6XfzIoJT4VYPE5x652lMCIqL/2
+	DewaUqwffC+nUumTD+N5PR1bgY+KJu5Nskjev7LejuYuVVw+UuzZVjVox5sgE0GTrCMVj4rDnJL
+	tKU8zuNTJ/Zho+RWRplka5zE5zoNt7w==
+X-Received: by 2002:a05:6000:290f:b0:429:8bfe:d842 with SMTP id ffacd0b85a97d-42cc1cd8f9fmr23640972f8f.4.1764180029295;
+        Wed, 26 Nov 2025 10:00:29 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE0n3yZ2xVz1rTRRSLX3s4tZ7PRJCUewur62JS2UwJ6l+0kyCvE19owlYWk1fAt9tOk3rS6ZQ==
+X-Received: by 2002:a05:6000:290f:b0:429:8bfe:d842 with SMTP id ffacd0b85a97d-42cc1cd8f9fmr23640923f8f.4.1764180028743;
+        Wed, 26 Nov 2025 10:00:28 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-39-63.inter.net.il. [80.230.39.63])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7fb9190sm42148196f8f.33.2025.11.26.10.00.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Nov 2025 10:00:28 -0800 (PST)
+Date: Wed, 26 Nov 2025 13:00:25 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Dan Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+	virtualization@lists.linux.dev, parav@nvidia.com,
+	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+Subject: Re: [PATCH net-next v12 07/12] virtio_net: Implement layer 2 ethtool
+ flow rules
+Message-ID: <20251126125951-mutt-send-email-mst@kernel.org>
+References: <20251119191524.4572-1-danielj@nvidia.com>
+ <20251119191524.4572-8-danielj@nvidia.com>
+ <20251124160517-mutt-send-email-mst@kernel.org>
+ <1a770ddf-af27-4a44-95e0-b7971deac819@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/5] x86: Cleanups around slow_down_io()
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-hwmon@vger.kernel.org, linux-block@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, Jean Delvare <jdelvare@suse.com>,
- Denis Efremov <efremov@linux.com>, Jens Axboe <axboe@kernel.dk>
-References: <20251126162018.5676-1-jgross@suse.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20251126162018.5676-1-jgross@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1a770ddf-af27-4a44-95e0-b7971deac819@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: XaWRc6eWj6WUydqNUOGSbvmC79kxPHoJWWaOmD2tFJw_1764180029
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 11/26/25 08:20, Juergen Gross wrote:
-> While looking at paravirt cleanups I stumbled over slow_down_io() and
-> the related REALLY_SLOW_IO define.
+On Wed, Nov 26, 2025 at 10:25:44AM -0600, Dan Jurgens wrote:
+> On 11/24/25 3:05 PM, Michael S. Tsirkin wrote:
+> > On Wed, Nov 19, 2025 at 01:15:18PM -0600, Daniel Jurgens wrote:
+> >> @@ -5681,6 +5710,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+> >>  	.get_rxfh_fields = virtnet_get_hashflow,
+> >>  	.set_rxfh_fields = virtnet_set_hashflow,
+> >>  	.get_rx_ring_count = virtnet_get_rx_ring_count,
+> >> +	.set_rxnfc = virtnet_set_rxnfc,
+> >>  };
+> >>  
+> >>  static void virtnet_get_queue_stats_rx(struct net_device *dev, int i,
+> > 
+> > should we not wire up get_rxnfc too? weird to be able to set but
+> > not get.
+> > 
 > 
-> Especially REALLY_SLOW_IO is a mess, which is proven by 2 completely
-> wrong use cases.
-> 
-> Do several cleanups, resulting in a deletion of REALLY_SLOW_IO and the
-> io_delay() paravirt function hook.
-> 
-> Patches 2 and 3 are not changing any functionality, but maybe they
-> should? As the potential bug has been present for more than a decade
-> now, I went with just deleting the useless "#define REALLY_SLOW_IO".
-> The alternative would be to do something similar as in patch 5.
+> I prefer to do that as the last patch. That's what really turn the
+> feature on. ethtool need to do gets before it can set. Also, this patch
+> is already quite large.
 
-Maybe, but as you point out there has not been a report of a problem
-for a long time (who knows if any of the affected systems still exist).
-We can apply always apply a fix if it turns out that someone does run
-into a problem.
 
-Thanks,
-Guenter
+ok
 
