@@ -1,178 +1,178 @@
-Received: from fhigh-a6-smtp.messagingengine.com (fhigh-a6-smtp.messagingengine.com [103.168.172.157])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F68733E368
-	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 19:59:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A12662737F2
+	for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 21:17:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764187152; cv=none; b=sLtoaScgBTz0gWsy3e+w8GwZ1QqsgyAOv/EHvaf5N7CKlpX38v0duofMFeRSJeUx72Tnywn/yJ1RxUyOiyN7wSEqag94NbQe4wS9JO9p5o54qVHaIdPP6Vp3rZ9wAaP1cgGhTsy4m9fARqUiuKJonfRJpydWY4MKWKiyUTG378Y=
+	t=1764191831; cv=none; b=QE66TbX9OIG+/XHZB7cgU7xFxkGh1ILfsYRTZQjiua7zM0oEQ+z6GETXRylIYgBrs2ZQC1XJz8X/iPp6/42CA0ecs5UmoAHOg31IcPQusOZVuIpswNJRKSdFQubA2abl3e+ehsewOcMIRrmaorUOti2RkaSHIOL+7mQ7kCaE5+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764187152; c=relaxed/simple;
-	bh=V6lnM32uR4+9C7saSDNGx1iZfcvQRwTcDI4uJP+3XTk=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=UdtP6YwVgG/bbaGEKU/adNBYTN8iJ6R8o9WZb9W/h3B6xFwclgmVyp5yfRCVwc32NQrH9I9hTZDd26+T/TbHf1zZVXVC3xL+LaIUZC2MYAgc6o+aByCtEizBklGmtC3mAGlh/la0cT9eybczyxuA6XwgKbKOb48PTG/r3711Wtc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=aXj9lRQC; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YSDcHdp8; arc=none smtp.client-ip=103.168.172.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1764191831; c=relaxed/simple;
+	bh=Tu9UoJab2N9aOFK02uU2NH64dAR7qMBaHBTPor6ABm8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MP1TQASm6r4t+y3cidS3cQGAdSifc8caSX5IDtATV3acVMeNnXnfdJ3Jb4ourGe2PByfL6na8K64v8UIqWH+ZjFNWINlk4JXAFLCTgiRI5j7ecmFXMo1luREv2pp8+vWgIb5ZS55NjnCSzLOUec/niU6c1pESnLoCm5T+ZyjMeE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SR7pbFaP; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="aXj9lRQC";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YSDcHdp8"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 9C1DB1400218;
-	Wed, 26 Nov 2025 14:59:09 -0500 (EST)
-Received: from phl-imap-17 ([10.202.2.105])
-  by phl-compute-04.internal (MEProxy); Wed, 26 Nov 2025 14:59:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1764187149;
-	 x=1764273549; bh=jmMZwZ3T/H2UJyGQvvWkg6V9yZfwMQ6Q8YhFI2Lxf0o=; b=
-	aXj9lRQCNWAg9nsQ3DHf3eJO56Ou7rmq/jMqfUdkcvEl3Igc2cwgVR63q0j6sLKB
-	LLI6BQ4kAh7qcrep92D8t8ghU8ingP8rHM50p6XkpIVhDJR9imjdHX9dgEhNwKgR
-	Ioq0wnS+dgmqPluOodIkQ851x028SfGd7rZL/G1h7IfovUjhV28TOFmK6+/a0ypX
-	iFrFnMBe/wHY/ElBvYN1PnMkah3XfKA5xPT+Fo0mKU9cJNaF+aIBuyAaWEnU7jTG
-	d0kQl90ND8Ij5whgfSh79gEYZtl3BSLbAokAEmzpP/Y6uj9SOEcXdIWPyoduDj43
-	UQ6364S9k1z254Jrae7j9A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1764187149; x=
-	1764273549; bh=jmMZwZ3T/H2UJyGQvvWkg6V9yZfwMQ6Q8YhFI2Lxf0o=; b=Y
-	SDcHdp8GQ7IzQIVS83yReQWGCFr+ftfC3+5X1e/72e0s+N+IXnKV7dm335FR6uJ3
-	bZCmcpLGXmxMZjOUZ9+EYBJ2ih3+JJab7J8s1kRJAbmzOj90vTQ2ymdT9alPz9uJ
-	FpID1ozUKzuP1LS+4szGBYkZHD2lVHY4Cws+pvqhFPRDV1TSNJRN5WKqjQ62Shys
-	vnGgg3ypLBgZHywYZwmKw6es6bhKtvLqrUwhlDt7IlxhgXSCW1bZc65k3VMp1rqK
-	/9D51S5ThKzdftuLacypWLUQjgaPb6Lauv7I0skdfgf9kVDnFLRtZ/W9//Q6CC12
-	gC28Tr/zl4GgGkwgMf/9A==
-X-ME-Sender: <xms:DFwnaZnXEDX8hixgp4KZxtf1qli86L99SPR_wC_aBNdFxNDNOQXS1g>
-    <xme:DFwnafoVegS1uccN98WmrhAHQkc3jI0Mun_VBsaeYVCokUg21OmzDC20AxQVbDenU
-    _PnxZRJl8yKMoaxlbvj79gHuEv1VW6wU_9dYqZrI-HmeVYDmdIYkAg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvgeehvdegucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedftehrnhgu
-    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
-    hrnhepvdfhvdekueduveffffetgfdvveefvdelhedvvdegjedvfeehtdeggeevheefleej
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
-    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepudelpdhmohguvgepshhmthhpohhu
-    thdprhgtphhtthhopegsphesrghlihgvnhekrdguvgdprhgtphhtthhopegtrghtrghlih
-    hnrdhmrghrihhnrghssegrrhhmrdgtohhmpdhrtghpthhtoheplhhinhhugiesrghrmhhl
-    ihhnuhigrdhorhhgrdhukhdprhgtphhtthhopegrlhgvgigrnhgurhgvrdgsvghllhhonh
-    hisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepshgvrghnjhgtsehgohhoghhlvgdr
-    tghomhdprhgtphhtthhopehfuhhsthhinhhisehkvghrnhgvlhdrohhrghdprhgtphhtth
-    hopehkrhiikheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepfihilhhlsehkvghrnhgv
-    lhdrohhrghdprhgtphhtthhopehlihhnuhhsrdifrghllhgvihhjsehlihhnrghrohdroh
-    hrgh
-X-ME-Proxy: <xmx:DFwnabEsRwyQZAaT5vShCyjURj3S120JsvuLYehrvOnQYv7EzMhwvQ>
-    <xmx:DFwnaUNcpLntQ5v6e89jBepgrtjQYQaQY2k1qKZaHxemlycXAxQ8TA>
-    <xmx:DFwnaYpht-bc3cmc7a2nkvlr2wt5xEbcnlpU-vq8v79qG5pajXukgA>
-    <xmx:DFwnadBtYehufbSh_R8RiQF57DlNd5NYmyStkx96fELHzRzDOOmkKA>
-    <xmx:DVwnaXyJiCsUCvOA8Yv7sI0ij7ZOnBYDabjmrvbUqWOwf5tpq2wIrJVK>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 89CC5C4006B; Wed, 26 Nov 2025 14:59:08 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SR7pbFaP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764191827;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=5bX/0i7tj4y+cgcP++a7Y4BBxU58ei/TXceewZURiUM=;
+	b=SR7pbFaPvIfK2Bijh/n8lGJJsDyD/qPPgrH5fUpXueCcQxb3qpRBP2W/vdpGA5aRDMQANp
+	D4FaXGlSE2XbLV0xTBnHyVzyuRBfYWifLJjtAUA7PBvHp3yjQl7D4aN1AEXsdMtsTGqWje
+	TE66xA2+h318sBG2QB9hvaNJXVkxe6w=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-673-OSoQCYNGNvK3Jpe5w-JuHA-1; Wed,
+ 26 Nov 2025 16:17:03 -0500
+X-MC-Unique: OSoQCYNGNvK3Jpe5w-JuHA-1
+X-Mimecast-MFC-AGG-ID: OSoQCYNGNvK3Jpe5w-JuHA_1764191822
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C749419560B0;
+	Wed, 26 Nov 2025 21:17:01 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.34])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id AF10F1800451;
+	Wed, 26 Nov 2025 21:17:00 +0000 (UTC)
+Date: Wed, 26 Nov 2025 16:03:13 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	netdev@vger.kernel.org, kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vhost/vsock: improve RCU read sections around
+ vhost_vsock_get()
+Message-ID: <20251126210313.GA499503@fedora>
+References: <20251126133826.142496-1-sgarzare@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-ThreadId: AnJT6xfv7F9s
-Date: Wed, 26 Nov 2025 20:58:48 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Jon Kohler" <jon@nutanix.com>
-Cc: "Jason Wang" <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- Netdev <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "Linus Torvalds" <torvalds@linux-foundation.org>,
- "Borislav Petkov" <bp@alien8.de>, "Sean Christopherson" <seanjc@google.com>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- "Russell King" <linux@armlinux.org.uk>,
- "Catalin Marinas" <catalin.marinas@arm.com>, "Will Deacon" <will@kernel.org>,
- "Krzysztof Kozlowski" <krzk@kernel.org>,
- "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- "Linus Walleij" <linus.walleij@linaro.org>,
- "Drew Fustini" <fustini@kernel.org>
-Message-Id: <32530984-cbaa-49e8-9c1e-34f04271538d@app.fastmail.com>
-In-Reply-To: <02B0FDF1-41D4-4A7D-A57E-089D2B69CEF2@nutanix.com>
-References: <20251113005529.2494066-1-jon@nutanix.com>
- <CACGkMEtQZ3M-sERT2P8WV=82BuXCbBHeJX+zgxx+9X7OUTqi4g@mail.gmail.com>
- <E1226897-C6D1-439C-AB3B-012F8C4A72DF@nutanix.com>
- <CACGkMEuPK4=Tf3x-k0ZHY1rqL=2rg60-qdON8UJmQZTqpUryTQ@mail.gmail.com>
- <A0AFD371-1FA3-48F7-A259-6503A6F052E5@nutanix.com>
- <CACGkMEvD16y2rt+cXupZ-aEcPZ=nvU7+xYSYBkUj7tH=ER3f-A@mail.gmail.com>
- <121ABD73-9400-4657-997C-6AEA578864C5@nutanix.com>
- <CACGkMEtk7veKToaJO9rwo7UeJkN+reaoG9_XcPG-dKAho1dV+A@mail.gmail.com>
- <61102cff-bb35-4fe4-af61-9fc31e3c65e0@app.fastmail.com>
- <02B0FDF1-41D4-4A7D-A57E-089D2B69CEF2@nutanix.com>
-Subject: Re: [PATCH net-next] vhost: use "checked" versions of get_user() and
- put_user()
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="g1JPwMl4XCtaMV09"
+Content-Disposition: inline
+In-Reply-To: <20251126133826.142496-1-sgarzare@redhat.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+
+
+--g1JPwMl4XCtaMV09
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 26, 2025, at 20:47, Jon Kohler wrote:
->> On Nov 26, 2025, at 5:25=E2=80=AFAM, Arnd Bergmann <arnd@arndb.de> wr=
-ote:
->> On Wed, Nov 26, 2025, at 07:04, Jason Wang wrote:
->>> On Wed, Nov 26, 2025 at 3:45=E2=80=AFAM Jon Kohler <jon@nutanix.com>=
- wrote:
->> I think the more relevant commit is for 64-bit Arm here, but this does
->> the same thing, see 84624087dd7e ("arm64: uaccess: Don't bother
->> eliding access_ok checks in __{get, put}_user").
->
-> Ah! Right, this is definitely the important bit, as it makes it
-> crystal clear that these are exactly the same thing. The current
-> code is:
-> #define get_user	__get_user
-> #define put_user	__put_user
->
-> So, this patch changing from __* to regular versions is a no-op
-> on arm side of the house, yea?
+On Wed, Nov 26, 2025 at 02:38:26PM +0100, Stefano Garzarella wrote:
+> From: Stefano Garzarella <sgarzare@redhat.com>
+>=20
+> vhost_vsock_get() uses hash_for_each_possible_rcu() to find the
+> `vhost_vsock` associated with the `guest_cid`. hash_for_each_possible_rcu=
+()
+> should only be called within an RCU read section, as mentioned in the
+> following comment in include/linux/rculist.h:
+>=20
+> /**
+>  * hlist_for_each_entry_rcu - iterate over rcu list of given type
+>  * @pos:	the type * to use as a loop cursor.
+>  * @head:	the head for your list.
+>  * @member:	the name of the hlist_node within the struct.
+>  * @cond:	optional lockdep expression if called from non-RCU protection.
+>  *
+>  * This list-traversal primitive may safely run concurrently with
+>  * the _rcu list-mutation primitives such as hlist_add_head_rcu()
+>  * as long as the traversal is guarded by rcu_read_lock().
+>  */
+>=20
+> Currently, all calls to vhost_vsock_get() are between rcu_read_lock()
+> and rcu_read_unlock() except for calls in vhost_vsock_set_cid() and
+> vhost_vsock_reset_orphans(). In both cases, the current code is safe,
+> but we can make improvements to make it more robust.
+>=20
+> About vhost_vsock_set_cid(), when building the kernel with
+> CONFIG_PROVE_RCU_LIST enabled, we get the following RCU warning when the
+> user space issues `ioctl(dev, VHOST_VSOCK_SET_GUEST_CID, ...)` :
+>=20
+>   WARNING: suspicious RCU usage
+>   6.18.0-rc7 #62 Not tainted
+>   -----------------------------
+>   drivers/vhost/vsock.c:74 RCU-list traversed in non-reader section!!
+>=20
+>   other info that might help us debug this:
+>=20
+>   rcu_scheduler_active =3D 2, debug_locks =3D 1
+>   1 lock held by rpc-libvirtd/3443:
+>    #0: ffffffffc05032a8 (vhost_vsock_mutex){+.+.}-{4:4}, at: vhost_vsock_=
+dev_ioctl+0x2ff/0x530 [vhost_vsock]
+>=20
+>   stack backtrace:
+>   CPU: 2 UID: 0 PID: 3443 Comm: rpc-libvirtd Not tainted 6.18.0-rc7 #62 P=
+REEMPT(none)
+>   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.17.0-7.fc=
+42 06/10/2025
+>   Call Trace:
+>    <TASK>
+>    dump_stack_lvl+0x75/0xb0
+>    dump_stack+0x14/0x1a
+>    lockdep_rcu_suspicious.cold+0x4e/0x97
+>    vhost_vsock_get+0x8f/0xa0 [vhost_vsock]
+>    vhost_vsock_dev_ioctl+0x307/0x530 [vhost_vsock]
+>    __x64_sys_ioctl+0x4f2/0xa00
+>    x64_sys_call+0xed0/0x1da0
+>    do_syscall_64+0x73/0xfa0
+>    entry_SYSCALL_64_after_hwframe+0x76/0x7e
+>    ...
+>    </TASK>
+>=20
+> This is not a real problem, because the vhost_vsock_get() caller, i.e.
+> vhost_vsock_set_cid(), holds the `vhost_vsock_mutex` used by the hash
+> table writers. Anyway, to prevent that warning, add lockdep_is_held()
+> condition to hash_for_each_possible_rcu() to verify that either the
+> caller is in an RCU read section or `vhost_vsock_mutex` is held when
+> CONFIG_PROVE_RCU_LIST is enabled; and also clarify the comment for
+> vhost_vsock_get() to better describe the locking requirements and the
+> scope of the returned pointer validity.
+>=20
+> About vhost_vsock_reset_orphans(), currently this function is only
+> called via vsock_for_each_connected_socket(), which holds the
+> `vsock_table_lock` spinlock (which is also an RCU read-side critical
+> section). However, add an explicit RCU read lock there to make the code
+> more robust and explicit about the RCU requirements, and to prevent
+> issues if the calling context changes in the future or if
+> vhost_vsock_reset_orphans() is called from other contexts.
+>=20
+> Fixes: 834e772c8db0 ("vhost/vsock: fix use-after-free in network stack ca=
+llers")
+> Cc: stefanha@redhat.com
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  drivers/vhost/vsock.c | 15 +++++++++++----
+>  1 file changed, 11 insertions(+), 4 deletions(-)
 
-Certainly on 64-bit, and almost always on 32-bit, yes.
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
->> I would think that if we change the __get_user() to get_user()
->> in this driver, the same should be done for the
->> __copy_{from,to}_user(), which similarly skips the access_ok()
->> check but not the PAN/SMAP handling.
->
-> Perhaps, thats a good call out. I=E2=80=99d file that under one battle
-> at a time. Let=E2=80=99s get get/put user dusted first, then go down
-> that road?
+--g1JPwMl4XCtaMV09
+Content-Type: application/pgp-signature; name=signature.asc
 
-It depends on what your bigger plan is. Are you working on
-improving the vhost driver specifically, or are you trying
-to kill off the __get_user/__put_user calls across the
-entire kernel?
+-----BEGIN PGP SIGNATURE-----
 
-In the latter case, I would suggest you do one driver
-at a time but address access_ok(), __{get,put}_user and
-__copy_{from,to}_user() with a single patch per driver
-as long as this is simple enough. For vhost specifically,
-doing it piecemeal is probably fine since the interaction
-is more complicated than most others.
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmknaxEACgkQnKSrs4Gr
+c8gttwf/ZJ0Ara63zkxpEWCtgFN92fZknjdxSfwNZ2z6NsKZDwPYCnI5BYYU+7aN
+RYICx39augMRLy430bN6PQJjaMJsGeAWuXegBNEKPe7U4lCjCKiNoU3sgpMbr/Rj
+iyFJLkTK4umOp04jeODZBVDjd5vRp9dUvu1/zkuDriRn7HWry51Rbk/Ib1F3h9IP
+qK5iVrjTRXliuSAtnokc0Kk1Ff41kyZnb6bLK1obA5h93W2RZIppBj2jLcrX8PLF
+I0z2g79tY2zw03KhtvE29Faf5K6FD92KTkdZEa5K2oQkosI4b+56MmoQMyhxRkgp
+M839LQbIdZnpzGHw6Liu9a3FC9i9HA==
+=vy3f
+-----END PGP SIGNATURE-----
 
->> In general, the access_ok()/__get_user()/__copy_from_user()
->> pattern isn't really helpful any more, as Linus already
->> explained. I can't tell from the vhost driver code whether
->> we can just drop the access_ok() here and use the plain
->> get_user()/copy_from_user(), or if it makes sense to move
->> to the newer user_access_begin()/unsafe_get_user()/
->> unsafe_copy_from_user()/user_access_end() and try optimize
->> out a few PAN/SMAP flips in the process.
->
-> In general, I think there are a few spots where we might be
-> able to optimize (vhost_get_vq_desc perhaps?) as that gets
-> called quite a bit and IIRC there are at least two flips
-> in there that perhaps we could elide to one? An investigation
-> for another day I think.
+--g1JPwMl4XCtaMV09--
 
-Yes, sounds good.
-
-      Arnd
