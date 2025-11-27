@@ -1,186 +1,118 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ABE7329365;
-	Thu, 27 Nov 2025 09:25:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 54DB42356A4
+	for <virtualization@lists.linux.dev>; Thu, 27 Nov 2025 09:41:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764235518; cv=none; b=HwPq6Mjp4DwFKuxoDGAVRvR3VSWCsEliJyEnKh/JFczxjpmYnLQ2u2HmL3bkVqErii+F5AmMzZ3ZdXlb5aKx/T5ZKPyEUg1Y8Lo6siR9vMObJhJn46WmQY+EjE6ZYQKx3FYDZ61acZlReLozJsdiOCeUnhg9zVQdZyEf3YdPq8U=
+	t=1764236484; cv=none; b=IpUPO7IdWS91MU3+d2sDF9Rkr7P8AmYavwtJ74wHhaDxvRKDtvM6DrFuOzAQ4ByY3xHufhhpPlMSvuUo13NIclvV1QIfcR66f4GtEGI0KP9yatKhcKCd5b0IjYplfA3huxh1c6KNT0nmdmYSV8s2XmYhADItxsxIjtwX4FUFwhQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764235518; c=relaxed/simple;
-	bh=dKVw7WCI669xYparOitpzs+aXbeQn7xNAtOzxdtNdjc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=m+9ISvQN4XKF9b9uJ/k4dLFcgPUQfnjVay5uccTuLRbvsoQNLc6DLvhXYv+7PcBCw0X6X3MUISC0+9pcVsq3WuK9oGbSxVok52PgLuBmpIMauOsvhXIAiQ1ZxosOndd9xpwml1gNTQESc68PpmLnVbaZ/Hp8ub7zZCepz//3yE4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fXKn5kNb; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fXKn5kNb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1764235517; x=1795771517;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=dKVw7WCI669xYparOitpzs+aXbeQn7xNAtOzxdtNdjc=;
-  b=fXKn5kNb66rpdy2QGxPQeBEidro4nmC0DqIyBl+TeNTJn/wsvND9fwWZ
-   E9k/IqyHcdhRiKie7UtRFzPOF5JzTSP2C6GAXD67dI61vNZIYoJDfztqE
-   VciTDg24eULxtGYItNIwFYpGcVCiCB62smso+6V98ofG3F6+bvOhOQd8X
-   AC0pvWIyJPwkv2z5A2h3Y/y8vUeCee6Z3yM7sX4PBZUaThwZQMr3FhPOG
-   oAXdYGKZsleeBqR/S8drlz3AdpsGNqM4hP3dQw6VOc5VUfTSGVy057SB5
-   SiZ/XS1WXhGMt8nGvHkY45e0stWOOgo0UfUQR+X3X6+AxvGaJflueUGMa
-   w==;
-X-CSE-ConnectionGUID: /2wbn06nQsCWB1a12Vcs3Q==
-X-CSE-MsgGUID: THDeDzXBQ6KTDyq5wrcZzg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11625"; a="66226424"
-X-IronPort-AV: E=Sophos;i="6.20,230,1758610800"; 
-   d="scan'208";a="66226424"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Nov 2025 01:25:17 -0800
-X-CSE-ConnectionGUID: qnUhwLQBRx2i3D9EMh7ltA==
-X-CSE-MsgGUID: wTQgJDKGRmC9eSaGlBaXGQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.20,230,1758610800"; 
-   d="scan'208";a="193000719"
-Received: from lkp-server01.sh.intel.com (HELO 4664bbef4914) ([10.239.97.150])
-  by orviesa009.jf.intel.com with ESMTP; 27 Nov 2025 01:25:10 -0800
-Received: from kbuild by 4664bbef4914 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vOYFP-000000004CQ-2yB2;
-	Thu, 27 Nov 2025 09:25:07 +0000
-Date: Thu, 27 Nov 2025 17:24:20 +0800
-From: kernel test robot <lkp@intel.com>
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
-	x86@kernel.org, linux-hyperv@vger.kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v4 21/21] x86/pvlocks: Move paravirt spinlock functions
- into own header
-Message-ID: <202511271704.MdDOB4pB-lkp@intel.com>
-References: <20251127070844.21919-22-jgross@suse.com>
+	s=arc-20240116; t=1764236484; c=relaxed/simple;
+	bh=x31Xr9++Jq6DWL01JKwF+pXdVIA4O5YCgTFhor8E9Pc=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=DMrqweBO8At9+ufqtQNdHhMh9C9B1LQi/1xoTsBonTpvPivwC/0b6h6k7OBI6KF2FKYbJoXqNRnG+Nmk7bbr2iwRzIeY006adp1m5KeLM+s4RLMHfgPGURM2pI4tAKu8KYFmuPdrEXZq5JQcS+N+PTu5QcmAXwqEL/D1K3A7MLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8Dxb_C3HChpp7AoAA--.23041S3;
+	Thu, 27 Nov 2025 17:41:11 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by front1 (Coremail) with SMTP id qMiowJAxQMKxHChpBORAAQ--.36258S3;
+	Thu, 27 Nov 2025 17:41:07 +0800 (CST)
+Subject: Re: virtio-crypto: Inquiry about virtio crypto
+To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Cc: "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ QEMU devel <qemu-devel@nongnu.org>
+References: <d4258604-e678-f975-0733-71190cf4067d@loongson.cn>
+ <027ff08db97d414da0ccc24a439e75d0@huawei.com>
+From: Bibo Mao <maobibo@loongson.cn>
+Message-ID: <8b902563-4cb6-5409-4339-1afecc26803a@loongson.cn>
+Date: Thu, 27 Nov 2025 17:38:39 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251127070844.21919-22-jgross@suse.com>
-
-Hi Juergen,
-
-kernel test robot noticed the following build errors:
-
-[auto build test ERROR on tip/x86/core]
-[also build test ERROR on tip/sched/core kvm/queue kvm/next linus/master v6.18-rc7]
-[cannot apply to kvm/linux-next next-20251127]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Juergen-Gross/x86-paravirt-Remove-not-needed-includes-of-paravirt-h/20251127-152054
-base:   tip/x86/core
-patch link:    https://lore.kernel.org/r/20251127070844.21919-22-jgross%40suse.com
-patch subject: [PATCH v4 21/21] x86/pvlocks: Move paravirt spinlock functions into own header
-config: i386-allnoconfig (https://download.01.org/0day-ci/archive/20251127/202511271704.MdDOB4pB-lkp@intel.com/config)
-compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251127/202511271704.MdDOB4pB-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202511271704.MdDOB4pB-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   arch/x86/kernel/alternative.c: In function 'alternative_instructions':
->> arch/x86/kernel/alternative.c:2373:9: error: implicit declaration of function 'paravirt_set_cap'; did you mean 'paravirt_ret0'? [-Wimplicit-function-declaration]
-    2373 |         paravirt_set_cap();
-         |         ^~~~~~~~~~~~~~~~
-         |         paravirt_ret0
+In-Reply-To: <027ff08db97d414da0ccc24a439e75d0@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJAxQMKxHChpBORAAQ--.36258S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoW7uw4fXFWfZrW3ZFW5KrWUWrX_yoW8WFWfpa
+	y3KFWFkrZ8Jr1xCa4vqFy5CFW5ZFZ8Cr13WrZrWry3CrZ8AF92vr1avr1vq3srAF1rCF1D
+	Xw40qFy0kr98ZagCm3ZEXasCq-sJn29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUvSb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv
+	67AKxVWxJVW8Jr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2
+	xFo4CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAq
+	x4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r
+	1DMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF
+	7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxV
+	WxJVW8Jr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7I
+	U13EfUUUUUU==
 
 
-vim +2373 arch/x86/kernel/alternative.c
+Hi gonglei,
 
-270a69c4485d7d0 arch/x86/kernel/alternative.c  Peter Zijlstra            2023-02-08  2344  
-9a0b5817ad97bb7 arch/i386/kernel/alternative.c Gerd Hoffmann             2006-03-23  2345  void __init alternative_instructions(void)
-9a0b5817ad97bb7 arch/i386/kernel/alternative.c Gerd Hoffmann             2006-03-23  2346  {
-ebebe30794d38c5 arch/x86/kernel/alternative.c  Pawan Gupta               2025-05-03  2347  	u64 ibt;
-ebebe30794d38c5 arch/x86/kernel/alternative.c  Pawan Gupta               2025-05-03  2348  
-7457c0da024b181 arch/x86/kernel/alternative.c  Peter Zijlstra            2019-05-03  2349  	int3_selftest();
-7457c0da024b181 arch/x86/kernel/alternative.c  Peter Zijlstra            2019-05-03  2350  
-7457c0da024b181 arch/x86/kernel/alternative.c  Peter Zijlstra            2019-05-03  2351  	/*
-7457c0da024b181 arch/x86/kernel/alternative.c  Peter Zijlstra            2019-05-03  2352  	 * The patching is not fully atomic, so try to avoid local
-7457c0da024b181 arch/x86/kernel/alternative.c  Peter Zijlstra            2019-05-03  2353  	 * interruptions that might execute the to be patched code.
-7457c0da024b181 arch/x86/kernel/alternative.c  Peter Zijlstra            2019-05-03  2354  	 * Other CPUs are not running.
-7457c0da024b181 arch/x86/kernel/alternative.c  Peter Zijlstra            2019-05-03  2355  	 */
-8f4e956b313dccc arch/i386/kernel/alternative.c Andi Kleen                2007-07-22  2356  	stop_nmi();
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2357  
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2358  	/*
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2359  	 * Don't stop machine check exceptions while patching.
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2360  	 * MCEs only happen when something got corrupted and in this
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2361  	 * case we must do something about the corruption.
-32b1cbe380417f2 arch/x86/kernel/alternative.c  Marco Ammon               2019-09-02  2362  	 * Ignoring it is worse than an unlikely patching race.
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2363  	 * Also machine checks tend to be broadcast and if one CPU
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2364  	 * goes into machine check the others follow quickly, so we don't
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2365  	 * expect a machine check to cause undue problems during to code
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2366  	 * patching.
-123aa76ec0cab5d arch/x86/kernel/alternative.c  Andi Kleen                2009-02-12  2367  	 */
-8f4e956b313dccc arch/i386/kernel/alternative.c Andi Kleen                2007-07-22  2368  
-4e6292114c74122 arch/x86/kernel/alternative.c  Juergen Gross             2021-03-11  2369  	/*
-f7af6977621a416 arch/x86/kernel/alternative.c  Juergen Gross             2023-12-10  2370  	 * Make sure to set (artificial) features depending on used paravirt
-f7af6977621a416 arch/x86/kernel/alternative.c  Juergen Gross             2023-12-10  2371  	 * functions which can later influence alternative patching.
-4e6292114c74122 arch/x86/kernel/alternative.c  Juergen Gross             2021-03-11  2372  	 */
-4e6292114c74122 arch/x86/kernel/alternative.c  Juergen Gross             2021-03-11 @2373  	paravirt_set_cap();
-4e6292114c74122 arch/x86/kernel/alternative.c  Juergen Gross             2021-03-11  2374  
-ebebe30794d38c5 arch/x86/kernel/alternative.c  Pawan Gupta               2025-05-03  2375  	/* Keep CET-IBT disabled until caller/callee are patched */
-ebebe30794d38c5 arch/x86/kernel/alternative.c  Pawan Gupta               2025-05-03  2376  	ibt = ibt_save(/*disable*/ true);
-ebebe30794d38c5 arch/x86/kernel/alternative.c  Pawan Gupta               2025-05-03  2377  
-931ab63664f02b1 arch/x86/kernel/alternative.c  Peter Zijlstra            2022-10-27  2378  	__apply_fineibt(__retpoline_sites, __retpoline_sites_end,
-1d7e707af446134 arch/x86/kernel/alternative.c  Mike Rapoport (Microsoft  2025-01-26  2379) 			__cfi_sites, __cfi_sites_end, true);
-026211c40b05548 arch/x86/kernel/alternative.c  Kees Cook                 2025-09-03  2380  	cfi_debug = false;
-931ab63664f02b1 arch/x86/kernel/alternative.c  Peter Zijlstra            2022-10-27  2381  
-7508500900814d1 arch/x86/kernel/alternative.c  Peter Zijlstra            2021-10-26  2382  	/*
-7508500900814d1 arch/x86/kernel/alternative.c  Peter Zijlstra            2021-10-26  2383  	 * Rewrite the retpolines, must be done before alternatives since
-7508500900814d1 arch/x86/kernel/alternative.c  Peter Zijlstra            2021-10-26  2384  	 * those can rewrite the retpoline thunks.
-7508500900814d1 arch/x86/kernel/alternative.c  Peter Zijlstra            2021-10-26  2385  	 */
-1d7e707af446134 arch/x86/kernel/alternative.c  Mike Rapoport (Microsoft  2025-01-26  2386) 	apply_retpolines(__retpoline_sites, __retpoline_sites_end);
-1d7e707af446134 arch/x86/kernel/alternative.c  Mike Rapoport (Microsoft  2025-01-26  2387) 	apply_returns(__return_sites, __return_sites_end);
-7508500900814d1 arch/x86/kernel/alternative.c  Peter Zijlstra            2021-10-26  2388  
-a82b26451de126a arch/x86/kernel/alternative.c  Peter Zijlstra (Intel     2025-06-03  2389) 	its_fini_core();
-a82b26451de126a arch/x86/kernel/alternative.c  Peter Zijlstra (Intel     2025-06-03  2390) 
-e81dc127ef69887 arch/x86/kernel/alternative.c  Thomas Gleixner           2022-09-15  2391  	/*
-ab9fea59487d8b5 arch/x86/kernel/alternative.c  Peter Zijlstra            2025-02-07  2392  	 * Adjust all CALL instructions to point to func()-10, including
-ab9fea59487d8b5 arch/x86/kernel/alternative.c  Peter Zijlstra            2025-02-07  2393  	 * those in .altinstr_replacement.
-e81dc127ef69887 arch/x86/kernel/alternative.c  Thomas Gleixner           2022-09-15  2394  	 */
-e81dc127ef69887 arch/x86/kernel/alternative.c  Thomas Gleixner           2022-09-15  2395  	callthunks_patch_builtin_calls();
-e81dc127ef69887 arch/x86/kernel/alternative.c  Thomas Gleixner           2022-09-15  2396  
-ab9fea59487d8b5 arch/x86/kernel/alternative.c  Peter Zijlstra            2025-02-07  2397  	apply_alternatives(__alt_instructions, __alt_instructions_end);
-ab9fea59487d8b5 arch/x86/kernel/alternative.c  Peter Zijlstra            2025-02-07  2398  
-be0fffa5ca894a9 arch/x86/kernel/alternative.c  Peter Zijlstra            2023-06-22  2399  	/*
-be0fffa5ca894a9 arch/x86/kernel/alternative.c  Peter Zijlstra            2023-06-22  2400  	 * Seal all functions that do not have their address taken.
-be0fffa5ca894a9 arch/x86/kernel/alternative.c  Peter Zijlstra            2023-06-22  2401  	 */
-1d7e707af446134 arch/x86/kernel/alternative.c  Mike Rapoport (Microsoft  2025-01-26  2402) 	apply_seal_endbr(__ibt_endbr_seal, __ibt_endbr_seal_end);
-ed53a0d971926e4 arch/x86/kernel/alternative.c  Peter Zijlstra            2022-03-08  2403  
-ebebe30794d38c5 arch/x86/kernel/alternative.c  Pawan Gupta               2025-05-03  2404  	ibt_restore(ibt);
-ebebe30794d38c5 arch/x86/kernel/alternative.c  Pawan Gupta               2025-05-03  2405  
+Sorry to bother you again.
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+I notice that numa node is supported with virtio-crypto device. Is there 
+multiple PCIE root bridges with different numa nodes supported on some 
+VM models?
+
+I ask this question because I do not know whether it is possible to 
+preallocate virtio_crypto_op_data_req buffer and IV buffer within 
+structure virtio_crypto_sym_request. Only that there is no node 
+information when virtio_crypto_sym_request is allocated.
+
+Regards
+Bibo Mao
+
+
+On 2025/11/27 上午10:56, Gonglei (Arei) wrote:
+> Hi,
+> 
+>> -----Original Message-----
+>> From: Bibo Mao <maobibo@loongson.cn>
+>> Sent: Thursday, November 27, 2025 9:43 AM
+>> To: Gonglei (Arei) <arei.gonglei@huawei.com>
+>> Cc: linux-crypto@vger.kernel.org; virtualization@lists.linux.dev; linux-kernel
+>> <linux-kernel@vger.kernel.org>; QEMU devel <qemu-devel@nongnu.org>
+>> Subject: virtio-crypto: Inquiry about virtio crypto
+>>
+>> Hi gonglei,
+>>
+>>      I am investigating how to use HW crypto accelerator in VM. It seems that
+>> virtio-crypto is one option, however only aes skcipher algo is supported and
+> 
+> Actually akcipher service had been supported by virtio-crypto in 2022.
+> 
+>> virtio-crypto device is not suggested by RHEL 10.
+>>
+>> https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html
+>> /configuring_and_managing_linux_virtual_machines/feature-support-and-limit
+>> ations-in-rhel-10-virtualization
+>>
+>>     I want to know what is the potential issued with virtio-crypto.
+>>
+> 
+> This question is too big, maybe you'd better ask RHEL guys. :(
+> 
+> Regards,
+> -Gonglei
+> 
+>> Regards
+>> Bibo Mao
+> 
+> 
+
