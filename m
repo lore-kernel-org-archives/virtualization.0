@@ -1,180 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C059328C014
-	for <virtualization@lists.linux.dev>; Thu, 27 Nov 2025 01:09:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D21BE26F289
+	for <virtualization@lists.linux.dev>; Thu, 27 Nov 2025 01:27:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764205754; cv=none; b=t0wz7DETNuENiLsDUWn94Dvne02hhMryjgyc4wLK+ySPy/FSbwaXHjuoZxi2vaRhLKXVK4Ydls2RDVmBIU0v9oQlynypHYcWTq/MNydcRcS6+p4cVgXpwMtCdGBxBiAi0O438U/uYdVWowvaNDND8ekKZHSUVDNS4H4VV5QqEGI=
+	t=1764206855; cv=none; b=Bwdg8fBrD1ann2pEyh6WjrcAezmrLq4Vow8B01DTWJ5Rph07jC7ZVd/pjwgKwgb1M621eRW7M8N+wgtZCRO8/0ixNcRTDxRMWfFiQDx6Nof3q4BoMPeiEy+JhvZ31MPshZ16+CsMlHFMPJEumOsNQf7hOBGPRD6vpgXAdmhprnM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764205754; c=relaxed/simple;
-	bh=Ctofiznd8z5aUzVJ+ihEmSEYUQiQu3/ESxLKKSwVAT8=;
+	s=arc-20240116; t=1764206855; c=relaxed/simple;
+	bh=r7KEz8iqgaXG1/tonNQbAHreoU8BpvA4RzO7XTtNj+M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mYSq7voCSxV1MpJj/UglpfJhqooEf0kS3ay5OYuIS77bjeYtivBMq7da7WHj5OLVM5S18SxkJ3j78p8T6noIhKmtDIksReIH052zwpln3KBySEs1Gka5enIRV9xOrNyKnmiaXSLO/WoIAF2e7pU2Fv981k73xclYItNgCnnFEvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h17dFGOC; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=f6hd9HCHS38plsfTR92sP328Z/bYdBbTGMFbxywx4Uf1SVzSFW7LJdGsKSqK/E+i58JMftvR4hqHTW/mT3gukLvgnPt5UD5OjlYnTqKYVhB7JHOplyi2S7rr3EpckZdNur3c5NVoCN+fhs+kbqj6ffXsxWmdZJMh6t+Ve90G2TU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ywlpl2xU; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h17dFGOC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ywlpl2xU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764205751;
+	s=mimecast20190719; t=1764206852;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=+fIuq3Wp4BeebjpNpG0wUv9Qzy/8IqNgZEzWKyUeiT4=;
-	b=h17dFGOCfRzVjLOAFIxwqneJL8FKO7yxRQwkFFshJp8ft6bvydwIXiTRWoPO4Uc/dzfAXM
-	aFFK36xVzYTcUAhKSeC/qKRaA4Sd0skslI3SECGoDMRTlrjyepiK4Ic1QpfE9L2HncdEnO
-	ubRvjkJJq2QtS/JGEhQm6rPbHt/sWTA=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=r7KEz8iqgaXG1/tonNQbAHreoU8BpvA4RzO7XTtNj+M=;
+	b=Ywlpl2xU8oeyjqTDzDY8S5xTLk8LH3E7pilbCiKa8fWBjpQ2YPfM0YsR51x6pHr69LWWOT
+	5K/yRt/Xk1xslaW8sLdC0aoRBZyVuuLq8ldMdd00Rfj/l/LWMq2YFsZAU0wbmtoXSD2WM4
+	Hb8h87TSEevGYJeOjvirzAiYmWyYve4=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-556-72Pgu9mvPFipTWf14dLKUQ-1; Wed, 26 Nov 2025 20:09:08 -0500
-X-MC-Unique: 72Pgu9mvPFipTWf14dLKUQ-1
-X-Mimecast-MFC-AGG-ID: 72Pgu9mvPFipTWf14dLKUQ_1764205747
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-bd74e95f05aso860988a12.1
-        for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 17:09:08 -0800 (PST)
+ us-mta-67-JmOJYrNDNxyHDai578EDPw-1; Wed, 26 Nov 2025 20:27:29 -0500
+X-MC-Unique: JmOJYrNDNxyHDai578EDPw-1
+X-Mimecast-MFC-AGG-ID: JmOJYrNDNxyHDai578EDPw_1764206848
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-297f587dc2eso6296435ad.2
+        for <virtualization@lists.linux.dev>; Wed, 26 Nov 2025 17:27:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764205747; x=1764810547;
+        d=1e100.net; s=20230601; t=1764206848; x=1764811648;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=+fIuq3Wp4BeebjpNpG0wUv9Qzy/8IqNgZEzWKyUeiT4=;
-        b=Luyl3fqsfgU/72lr0oHF/20uDrtv53YSxCElQlyjXMKlrUK16BhNxHAv+40NsVd1mr
-         gS8Hx3E29jwR6Pf96noMhPiVUXXKdndGj33UVI/lJ8qoT3+LtIU4O7kewA6aKmvPOa4r
-         E3QNjfAntfv02e3FJNcggHKgeAZ/slUSYina6XYteqdBSEafn0b416jEcSzX+F/vo5h2
-         Kx8SGnZL7A8ENPYU+h9nrgfi0M2nV+X5XSgz+FEnXm9C395ULx8iEeD7QhRY6maE2KLw
-         LQ+74B2/rXAtCgy7DI/Em+RaHXR7lFzGQxOOLpuN8HRnK8bM7Uajks08DAFGGNb4n5nF
-         Hpuw==
-X-Forwarded-Encrypted: i=1; AJvYcCVYWihN7Y/mIfsDOiA3FGq6VtSNDIW/jtcMeyJmco8b1t0nejySh6tMn2ke9W1GKJ990dcTltWrBMi2dLuKHg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzx0S4fB5bmCxKFelNkdKdNrvRTZRWkCuPHxin8KNsh/qKb2AUa
-	N2bghMY6/N330BFOu4Sf+DLeTCZTkP+QDQYkd/kif6gJWLJfVK6SElUmgiJ5yC8i2iv0RksmID/
-	lutiFEKtYw1ceOKWIIYvedcIZSrNsaHPvx7zRyk+qVGL8B0xAUPzvtWLMVdVbGFDL8mOSYOJXbp
-	Xd/AnCwSYC44rffxYwIxR+EtMScmF4s+uS4l5BikS6I0I=
-X-Gm-Gg: ASbGncsbW3xjyt1wBbIeqzlGi9/iseyNdbSRlMdLS8VV76DVHrjmD3vFUPO3mlOxItD
-	Oi5e0LoOanO/ZBodOV8p2GsowVTe/6jeTMq5BYkojNNP5ili8KaI7G/+/krIS1fK15xs3/KSH8r
-	zZoza06vqqzJphlGgPSJi2i9nCaOd8phYd58IV3clzi/uUxWX6V5yw2b9+UNBrwoCD
-X-Received: by 2002:a17:902:dacb:b0:269:b2e5:900d with SMTP id d9443c01a7336-29b6beebec7mr257541885ad.5.1764205747417;
-        Wed, 26 Nov 2025 17:09:07 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFPDNamYNduzNpXyT/xW1ZQEyOB0Lis20nwGLU/hQvR/oP+MQrKzzm7g4m+9/51XsOAa525fC5RiOVpei7R5uk=
-X-Received: by 2002:a17:902:dacb:b0:269:b2e5:900d with SMTP id
- d9443c01a7336-29b6beebec7mr257541495ad.5.1764205746933; Wed, 26 Nov 2025
- 17:09:06 -0800 (PST)
+        bh=r7KEz8iqgaXG1/tonNQbAHreoU8BpvA4RzO7XTtNj+M=;
+        b=QdO+X6K7ydc8q5rlXiFZ2a3eJ3PMEQa6Cm/Vg5X/XIzkOfePoVXjk53dGUC8ih/d1j
+         TkkTKtV6jc7HivjMga4zBpvaZXU82j5nlrysTY/PgRwdAfhjHdBl0ndk0DdnW/bVIl63
+         yVacGfR/tb+OgcYVcJBosXjIt7HXvE465yP6OQzgvPuud5xSRFt/QsTQ+ap/wINV1E5S
+         rL2FYK3zid7hp2Zh908IblKruKZcKNvwnubJJTdYM/Uxq3sU/d/DyjNKW5IiflOdd4Dz
+         MHH8Zs+GDd+UW6MglJ5I18qHBqVDIE1sGzc0RDn5kHMJtsJEJGA/2eC6ic/cEwxU0jph
+         CMNA==
+X-Forwarded-Encrypted: i=1; AJvYcCUJpMplm1n7VLb83IGCv99gPPu0ZdX5/fCJrnBlLB3DVKP+3xM4JVR/AOqT/wmhuAoaXSx/FlafAH+/MYnMug==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxuYh0DShjtMsPZl2FUayxmWEgzbpwJ3tjF09DAt4PQ5bYpYcDp
+	1fXS7KZAzuE4/sGcwx71Z3FKFPBS1sJ8EVuvoN9NgGbQs8bYKxZfiaeTk+AesaEJ1yeWP9Gfj9V
+	0abm6J+YafoaiW/DimLnE8O80flqi+2avd2ohMkN4cOjL7jfSJiQyBYF6Kdis+L/pQsl9GIgP6a
+	Sq8uwqQB6F982l8kheR26vFsDetimVh/r4RTDpk1uTX6c=
+X-Gm-Gg: ASbGncsHwRYDvUquGTGvKu1jVwJ5T9bzLSi3jDWbrnDd/alfWdjGzUizOFTbfvGu65e
+	YvzqdfUkAFynqkGMOziA5waWe8OT4tT1qGZ37rSBXTaSuLArRczxK90iTtKtPT/RQ6+1voKAN4M
+	S84HAwOuK1GWxPmmJ9I35mQrxuMqYUr0dJYML0KLlYoYgmPwzBsCF/6yceiDYUVNa4
+X-Received: by 2002:a17:903:1ae5:b0:295:3a79:e7e5 with SMTP id d9443c01a7336-29b6bf3bd68mr239483465ad.34.1764206848300;
+        Wed, 26 Nov 2025 17:27:28 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGkO8PdlOXSckshzA60VPUWOZAaeSJuC4qSXUdbHgCezX+9REgWbWrPJr0c4cJsSiRA2TS68/Axo338N+hgPfY=
+X-Received: by 2002:a17:903:1ae5:b0:295:3a79:e7e5 with SMTP id
+ d9443c01a7336-29b6bf3bd68mr239483305ad.34.1764206847831; Wed, 26 Nov 2025
+ 17:27:27 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251113005529.2494066-1-jon@nutanix.com> <CACGkMEtQZ3M-sERT2P8WV=82BuXCbBHeJX+zgxx+9X7OUTqi4g@mail.gmail.com>
- <E1226897-C6D1-439C-AB3B-012F8C4A72DF@nutanix.com> <CACGkMEuPK4=Tf3x-k0ZHY1rqL=2rg60-qdON8UJmQZTqpUryTQ@mail.gmail.com>
- <A0AFD371-1FA3-48F7-A259-6503A6F052E5@nutanix.com> <CACGkMEvD16y2rt+cXupZ-aEcPZ=nvU7+xYSYBkUj7tH=ER3f-A@mail.gmail.com>
- <121ABD73-9400-4657-997C-6AEA578864C5@nutanix.com> <CACGkMEtk7veKToaJO9rwo7UeJkN+reaoG9_XcPG-dKAho1dV+A@mail.gmail.com>
- <61102cff-bb35-4fe4-af61-9fc31e3c65e0@app.fastmail.com> <02B0FDF1-41D4-4A7D-A57E-089D2B69CEF2@nutanix.com>
-In-Reply-To: <02B0FDF1-41D4-4A7D-A57E-089D2B69CEF2@nutanix.com>
+References: <20251125222754.1737443-1-jon@nutanix.com> <CACGkMEvK1M_h783QyEXJ5jz25T-Vtkj4=-_dPLzYGwPg8NSU5Q@mail.gmail.com>
+ <8FC82034-6D22-4CDC-B444-60F67A25514C@nutanix.com>
+In-Reply-To: <8FC82034-6D22-4CDC-B444-60F67A25514C@nutanix.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 27 Nov 2025 09:08:55 +0800
-X-Gm-Features: AWmQ_bnsXM38rarXUDstecHvEAw99LfY0bJMCpF_57ywtegttUxJS9KRjDg4vNQ
-Message-ID: <CACGkMEshKS84YBuqyEzYuuWJqUwGML4N+5Ev6owbiPHvogO=3Q@mail.gmail.com>
-Subject: Re: [PATCH net-next] vhost: use "checked" versions of get_user() and put_user()
+Date: Thu, 27 Nov 2025 09:27:16 +0800
+X-Gm-Features: AWmQ_bmCfWxgTJtsgAzMnemOZLmAhjUF-FCkJ83NqHraHOHyDs9XYJ5GbyTvy2Q
+Message-ID: <CACGkMEt2FFSiodAN=FFT7JnV78pmVRN4VTr_XDm05J0xpSfmHA@mail.gmail.com>
+Subject: Re: [PATCH net v3] virtio-net: avoid unnecessary checksum calculation
+ on guest RX
 To: Jon Kohler <jon@nutanix.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, 
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
 	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, Netdev <netdev@vger.kernel.org>, 
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	Linus Torvalds <torvalds@linux-foundation.org>, Borislav Petkov <bp@alien8.de>, 
-	Sean Christopherson <seanjc@google.com>, 
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Krzysztof Kozlowski <krzk@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
-	Linus Walleij <linus.walleij@linaro.org>, Drew Fustini <fustini@kernel.org>
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nyBx7_rZJf-VbcZoDcglqe6zkyMRrmPU0RidrcgD7yY_1764205747
+X-Mimecast-MFC-PROC-ID: TILW5nMKviIDCQNWD_Qnig_lLEwk2DkvWB_4Gi0e9Ac_1764206848
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 27, 2025 at 3:48=E2=80=AFAM Jon Kohler <jon@nutanix.com> wrote:
+On Thu, Nov 27, 2025 at 12:12=E2=80=AFAM Jon Kohler <jon@nutanix.com> wrote=
+:
 >
 >
 >
-> > On Nov 26, 2025, at 5:25=E2=80=AFAM, Arnd Bergmann <arnd@arndb.de> wrot=
-e:
-> >
-> > On Wed, Nov 26, 2025, at 07:04, Jason Wang wrote:
-> >> On Wed, Nov 26, 2025 at 3:45=E2=80=AFAM Jon Kohler <jon@nutanix.com> w=
+> > On Nov 26, 2025, at 1:29=E2=80=AFAM, Jason Wang <jasowang@redhat.com> w=
 rote:
-> >>>> On Nov 19, 2025, at 8:57=E2=80=AFPM, Jason Wang <jasowang@redhat.com=
-> wrote:
-> >>>> On Tue, Nov 18, 2025 at 1:35=E2=80=AFAM Jon Kohler <jon@nutanix.com>=
- wrote:
-> >>> Same deal goes for __put_user() vs put_user by way of commit
-> >>> e3aa6243434f ("ARM: 8795/1: spectre-v1.1: use put_user() for __put_us=
-er()=E2=80=9D)
-> >>>
-> >>> Looking at arch/arm/mm/Kconfig, there are a variety of scenarios
-> >>> where CONFIG_CPU_SPECTRE will be enabled automagically. Looking at
-> >>> commit 252309adc81f ("ARM: Make CONFIG_CPU_V7 valid for 32bit ARMv8 i=
-mplementations")
-> >>> it says that "ARMv8 is a superset of ARMv7", so I=E2=80=99d guess tha=
-t just
-> >>> about everything ARM would include this by default?
 > >
-> > I think the more relevant commit is for 64-bit Arm here, but this does
-> > the same thing, see 84624087dd7e ("arm64: uaccess: Don't bother
-> > eliding access_ok checks in __{get, put}_user").
+> > On Wed, Nov 26, 2025 at 5:46=E2=80=AFAM Jon Kohler <jon@nutanix.com> wr=
+ote:
+> >>
+> >> Commit a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP
+> >> GSO tunneling.") inadvertently altered checksum offload behavior
+> >> for guests not using UDP GSO tunneling.
+> >>
+> >> Before, tun_put_user called tun_vnet_hdr_from_skb, which passed
+> >> has_data_valid =3D true to virtio_net_hdr_from_skb.
+> >>
+> >> After, tun_put_user began calling tun_vnet_hdr_tnl_from_skb instead,
+> >> which passes has_data_valid =3D false into both call sites.
+> >>
+> >> This caused virtio hdr flags to not include VIRTIO_NET_HDR_F_DATA_VALI=
+D
+> >> for SKBs where skb->ip_summed =3D=3D CHECKSUM_UNNECESSARY. As a result=
+,
+> >> guests are forced to recalculate checksums unnecessarily.
+> >>
+> >> Restore the previous behavior by ensuring has_data_valid =3D true is
+> >> passed in the !tnl_gso_type case, but only from tun side, as
+> >> virtio_net_hdr_tnl_from_skb() is used also by the virtio_net driver,
+> >> which in turn must not use VIRTIO_NET_HDR_F_DATA_VALID on tx.
+> >>
+> >> Cc: Paolo Abeni <pabeni@redhat.com>
+> >> Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO =
+tunneling.")
+> >> Signed-off-by: Jon Kohler <jon@nutanix.com>
+> >> ---
+> >
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> >
+> > (Should this go -stable?)
+> >
+> > Thanks
 >
-> Ah! Right, this is definitely the important bit, as it makes it
-> crystal clear that these are exactly the same thing. The current
-> code is:
-> #define get_user        __get_user
-> #define put_user        __put_user
+> It could, sure. This made it into 6.17 branch.
 >
-> So, this patch changing from __* to regular versions is a no-op
-> on arm side of the house, yea?
->
-> > I would think that if we change the __get_user() to get_user()
-> > in this driver, the same should be done for the
-> > __copy_{from,to}_user(), which similarly skips the access_ok()
-> > check but not the PAN/SMAP handling.
->
-> Perhaps, thats a good call out. I=E2=80=99d file that under one battle
-> at a time. Let=E2=80=99s get get/put user dusted first, then go down
-> that road?
->
-> > In general, the access_ok()/__get_user()/__copy_from_user()
-> > pattern isn't really helpful any more, as Linus already
-> > explained. I can't tell from the vhost driver code whether
-> > we can just drop the access_ok() here and use the plain
-> > get_user()/copy_from_user(), or if it makes sense to move
-> > to the newer user_access_begin()/unsafe_get_user()/
-> > unsafe_copy_from_user()/user_access_end() and try optimize
-> > out a few PAN/SMAP flips in the process.
+> Would you like me to send a separate patch with a Cc: stable
+> or could someone just edit the commit msg when they queue
+> this?
 
-Right, according to my testing in the past, PAN/SMAP is a killer for
-small packet performance (PPS).
-
->
-> In general, I think there are a few spots where we might be
-> able to optimize (vhost_get_vq_desc perhaps?) as that gets
-> called quite a bit and IIRC there are at least two flips
-> in there that perhaps we could elide to one? An investigation
-> for another day I think.
-
-Did you mean trying to read descriptors in a batch, that would be
-better and with IN_ORDER it would be even faster as a single (at most
-two) copy_from_user() might work (without the need to use
-user_access_begin()/user_access_end().
-
->
-> Anyhow, with this info - Jason - is there anything else you
-> can think of that we want to double click on?
-
-Nope.
+I think a new version might be better.
 
 Thanks
-
->
-> Jon
 
