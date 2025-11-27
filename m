@@ -1,75 +1,75 @@
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DF5F314D3E
-	for <virtualization@lists.linux.dev>; Thu, 27 Nov 2025 07:09:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EF81315D52
+	for <virtualization@lists.linux.dev>; Thu, 27 Nov 2025 07:09:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764227344; cv=none; b=VZLg5bsCV2kfZZmyQg3iXzRGGhmaGrnR/qqtRTmehNdgjAQZ/w+YtgnaEhKGRR1PbivkpNDe55V6yuKSO7VCAgcfMNLTPrqcOEYjh+x4Ad3HzraPWQlMuQ1epxkiM56oeb6UJZ7d3DarIc/urA/NP8hAUrZccI5J6Mys3phYQNM=
+	t=1764227350; cv=none; b=HeP1Raty/aBruasrcvvr6qe81Wj13UMOavn9xqtCSb7EzuYn3PAWU4dOyQuXaUH/lLK0GWdVABOIEPwGMK21nRpmvHBMzTwCIE0fnB7vOCMrXalsONZ3ZosjL9CGbiAMp7LSuFfUFV2QTVzGTE+YnhZEAm7dcAM3nFpH+2T+1aE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764227344; c=relaxed/simple;
-	bh=EVwK7cgAD4yftsEUskdIzczzyyVKRWdVhyNe6sXF1GI=;
+	s=arc-20240116; t=1764227350; c=relaxed/simple;
+	bh=8D6pTZak3Z1jQBaBhx/kipigOtq0lcnvk0bu38nLNMs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ibycR7oCqA7veaWbL9lhCzVT+x3n+VFDRQ/l6I3zCTDRICxHYo8RV1uyQSYIxyBO1MKlxaRTXf/6BQ2Cg1AUkw+K/O0Ep3sRHD1gO4pR0rjgOUv9+2AWAect/HGttlWz0bDOeQQTV8sY40UdN4TNosN/wYJTrGTND02BGCjqvv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=a6r1gaGo; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=a6r1gaGo; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=tulSzhLczq7pEmm+NcZzeHgd0OCokYBeMiOpNJISd7GJ0uwzZpTlc53RFvSY+hYo+tnSv8P9fvcRAcGcRUZX5kLgKz/y21DNynG1rFWqOT5gILXeGohGizrZTgzx4gVsfv88E0RFwh8Pr1dj5Ppr5onZnV1+lZMRclpWFWd6V1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=p6/YXdV/; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=p6/YXdV/; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="a6r1gaGo";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="a6r1gaGo"
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="p6/YXdV/";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="p6/YXdV/"
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 2C99C5BCC5;
-	Thu, 27 Nov 2025 07:09:00 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 0494D5BCC4;
+	Thu, 27 Nov 2025 07:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1764227340; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1764227346; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8dx21/munhBkELx4QNunXJtxOzoBnIa9bJW/+9o2Lqk=;
-	b=a6r1gaGoI8U9F7UmVD5N5CLcTH9h4oRKPl7HR67hCGhDrTxVkKh4JubwNNfvXCrAMcAV8v
-	PHKnsvhWz1DjM06wU6ZY/0zi3S4F5bRjDFg+ACEiJZ7lkI9ZlyMHETxiPHjBvgNU8/o9Nn
-	0OF0CUCLX1VO5wDQceSMYzJvuPQbIEs=
+	bh=Ef39VT4vtYrVtOwdPEy2lPrhqcRxm7VrmKcn0eP7rDM=;
+	b=p6/YXdV/+M5/DF/s8Swn6sl0fvoKVD5pbdXGTkU8zzU/94+Fne3UnC4ycxuHcv4cXT57Ml
+	0MLzVovfK4+4elI9AdbqCUhL1FOrY1wVq70F7mWWC3re0PAE5s8VNnKm2WkF8AtG44r4QN
+	cpZIW1C/IeTM1hl2DewCDWEPslJ9g14=
 Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.com header.s=susede1 header.b=a6r1gaGo
+	dkim=pass header.d=suse.com header.s=susede1 header.b="p6/YXdV/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1764227340; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1764227346; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8dx21/munhBkELx4QNunXJtxOzoBnIa9bJW/+9o2Lqk=;
-	b=a6r1gaGoI8U9F7UmVD5N5CLcTH9h4oRKPl7HR67hCGhDrTxVkKh4JubwNNfvXCrAMcAV8v
-	PHKnsvhWz1DjM06wU6ZY/0zi3S4F5bRjDFg+ACEiJZ7lkI9ZlyMHETxiPHjBvgNU8/o9Nn
-	0OF0CUCLX1VO5wDQceSMYzJvuPQbIEs=
+	bh=Ef39VT4vtYrVtOwdPEy2lPrhqcRxm7VrmKcn0eP7rDM=;
+	b=p6/YXdV/+M5/DF/s8Swn6sl0fvoKVD5pbdXGTkU8zzU/94+Fne3UnC4ycxuHcv4cXT57Ml
+	0MLzVovfK4+4elI9AdbqCUhL1FOrY1wVq70F7mWWC3re0PAE5s8VNnKm2WkF8AtG44r4QN
+	cpZIW1C/IeTM1hl2DewCDWEPslJ9g14=
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id BAF413EA63;
-	Thu, 27 Nov 2025 07:08:59 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 954463EA63;
+	Thu, 27 Nov 2025 07:09:05 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id mKAHLAv5J2lnXAAAD6G6ig
-	(envelope-from <jgross@suse.com>); Thu, 27 Nov 2025 07:08:59 +0000
+	id 1IEAIxH5J2lrXAAAD6G6ig
+	(envelope-from <jgross@suse.com>); Thu, 27 Nov 2025 07:09:05 +0000
 From: Juergen Gross <jgross@suse.com>
 To: linux-kernel@vger.kernel.org,
 	x86@kernel.org,
 	virtualization@lists.linux.dev
 Cc: Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Ingo Molnar <mingo@redhat.com>,
 	Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
 	"H. Peter Anvin" <hpa@zytor.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
 	"Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH v4 02/21] x86/paravirt: Remove some unneeded struct declarations
-Date: Thu, 27 Nov 2025 08:08:25 +0100
-Message-ID: <20251127070844.21919-3-jgross@suse.com>
+Subject: [PATCH v4 03/21] x86/paravirt: Remove PARAVIRT_DEBUG config option
+Date: Thu, 27 Nov 2025 08:08:26 +0100
+Message-ID: <20251127070844.21919-4-jgross@suse.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251127070844.21919-1-jgross@suse.com>
 References: <20251127070844.21919-1-jgross@suse.com>
@@ -108,65 +108,88 @@ X-Spam-Flag: NO
 X-Spam-Score: -3.01
 X-Spam-Level: 
 X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 2C99C5BCC5
+X-Rspamd-Queue-Id: 0494D5BCC4
 
-In paravirt_types.h and paravirt.h there are some struct declarations
-which are not needed. Remove them.
+The only effect of CONFIG_PARAVIRT_DEBUG set is that instead of doing
+a call using a NULL pointer a BUG() is being raised.
+
+While the BUG() will be a little bit easier to analyse, the call of
+NULL isn't really that difficult to find the reason for.
+
+Remove the config option to make paravirt coding a little bit less
+annoying.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
-V2:
-- remove mm_struct from paravirt.h, too
----
- arch/x86/include/asm/paravirt.h       | 4 ----
- arch/x86/include/asm/paravirt_types.h | 6 ------
- 2 files changed, 10 deletions(-)
+ arch/x86/Kconfig                      | 7 -------
+ arch/x86/include/asm/paravirt.h       | 1 -
+ arch/x86/include/asm/paravirt_types.h | 8 --------
+ 3 files changed, 16 deletions(-)
 
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index fa3b616af03a..aa279fec5c1f 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -805,13 +805,6 @@ config PARAVIRT_XXL
+ 	bool
+ 	depends on X86_64
+ 
+-config PARAVIRT_DEBUG
+-	bool "paravirt-ops debugging"
+-	depends on PARAVIRT && DEBUG_KERNEL
+-	help
+-	  Enable to debug paravirt_ops internals.  Specifically, BUG if
+-	  a paravirt_op is missing when it is called.
+-
+ config PARAVIRT_SPINLOCKS
+ 	bool "Paravirtualization layer for spinlocks"
+ 	depends on PARAVIRT && SMP
 diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index b5e59a7ba0d0..612b3df65b1b 100644
+index 612b3df65b1b..fd9826397419 100644
 --- a/arch/x86/include/asm/paravirt.h
 +++ b/arch/x86/include/asm/paravirt.h
-@@ -6,10 +6,6 @@
- 
- #include <asm/paravirt_types.h>
- 
--#ifndef __ASSEMBLER__
--struct mm_struct;
--#endif
--
- #ifdef CONFIG_PARAVIRT
- #include <asm/pgtable_types.h>
- #include <asm/asm.h>
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 37a8627d8277..84cc8c95713b 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -11,16 +11,11 @@
- #include <asm/pgtable_types.h>
+@@ -12,7 +12,6 @@
  #include <asm/nospec-branch.h>
  
--struct page;
- struct thread_struct;
--struct desc_ptr;
--struct tss_struct;
- struct mm_struct;
--struct desc_struct;
- struct task_struct;
- struct cpumask;
- struct flush_tlb_info;
--struct mmu_gather;
- struct vm_area_struct;
+ #ifndef __ASSEMBLER__
+-#include <linux/bug.h>
+ #include <linux/types.h>
+ #include <linux/cpumask.h>
+ #include <linux/static_call_types.h>
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 84cc8c95713b..085095f94f97 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -354,12 +354,6 @@ extern struct paravirt_patch_template pv_ops;
+ #define VEXTRA_CLOBBERS	 , "rax", "r8", "r9", "r10", "r11"
+ #endif	/* CONFIG_X86_32 */
  
- /*
-@@ -205,7 +200,6 @@ struct pv_mmu_ops {
- #endif
- } __no_randomize_layout;
- 
--struct arch_spinlock;
- #ifdef CONFIG_SMP
- #include <asm/spinlock_types.h>
- #endif
+-#ifdef CONFIG_PARAVIRT_DEBUG
+-#define PVOP_TEST_NULL(op)	BUG_ON(pv_ops.op == NULL)
+-#else
+-#define PVOP_TEST_NULL(op)	((void)pv_ops.op)
+-#endif
+-
+ #define PVOP_RETVAL(rettype)						\
+ 	({	unsigned long __mask = ~0UL;				\
+ 		BUILD_BUG_ON(sizeof(rettype) > sizeof(unsigned long));	\
+@@ -388,7 +382,6 @@ extern struct paravirt_patch_template pv_ops;
+ #define ____PVOP_CALL(ret, op, call_clbr, extra_clbr, ...)	\
+ 	({								\
+ 		PVOP_CALL_ARGS;						\
+-		PVOP_TEST_NULL(op);					\
+ 		asm volatile(ALTERNATIVE(PARAVIRT_CALL, ALT_CALL_INSTR,	\
+ 				ALT_CALL_ALWAYS)			\
+ 			     : call_clbr, ASM_CALL_CONSTRAINT		\
+@@ -402,7 +395,6 @@ extern struct paravirt_patch_template pv_ops;
+ 			  extra_clbr, ...)				\
+ 	({								\
+ 		PVOP_CALL_ARGS;						\
+-		PVOP_TEST_NULL(op);					\
+ 		asm volatile(ALTERNATIVE_2(PARAVIRT_CALL,		\
+ 				 ALT_CALL_INSTR, ALT_CALL_ALWAYS,	\
+ 				 alt, cond)				\
 -- 
 2.51.0
 
