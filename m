@@ -1,146 +1,192 @@
-Received: from mail-il1-f206.google.com (mail-il1-f206.google.com [209.85.166.206])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32D4F24887E
-	for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 01:44:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.206
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AB17221F12
+	for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 02:20:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764294266; cv=none; b=npsSy+aLLif0OY22nlwN2aSzzaz2NTOhn+wtuVMcijq+3i60JxjX644IkclcRyUGc9QTOc6W/YHGCEsv9a5lmp5+WpP2j1jwr3DkPxgbijurBdJOFQ20CpPLW/wLc4BAYwn/dalAPwke651Xf3UMxvLgc/0PTlhMJODVum2pXU0=
+	t=1764296438; cv=none; b=hyPyvrawqxP+se6h/C7IcE98sDgGu1YiTJet520Gu8ewNmoX+EpNXJ4smZ9HC9twLJvZWm1RZvDJR8BpPSIAiaY7b5Hc8KG2uVY9nv4fX7K2gTIv1/U7I6qD5W9mMPkjX6/CgsmgydwhS0sKKS2Vjsnhrq0nb6bRbUlZBz4G+Rc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764294266; c=relaxed/simple;
-	bh=m56HVa8izRgipZSOdJjvIpy7h81Ckb2Ri5FLV/zI8TY=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=al3IMYG3dqr57EQ5055HuPi7qysrXVF2HnON57b+v3mwc2Wq0Ssvj9enRW0cQnC5lRxEbKCKbI6bSrdVQPNtp+xt+563YzBc65l81kVIwRDPGFg4TI9QzY6XYWdNPjWJj7iwxsFxw506+WcRVamk9Sip3hFck7a4OdjuskWBdtE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.206
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f206.google.com with SMTP id e9e14a558f8ab-4330ead8432so8763345ab.0
-        for <virtualization@lists.linux.dev>; Thu, 27 Nov 2025 17:44:25 -0800 (PST)
+	s=arc-20240116; t=1764296438; c=relaxed/simple;
+	bh=juuT2szlDhnZah03azTXrfo8JNzsr8IYomevmrOodCw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mE16ENRFayLnL3BvaiJ0Fr/T/WC0s1GFGHOuW76zZdCI0jwLOQlV/+kWVxw5iEovsuBhiAbdtldDoAn52XJEXw+rd80BYpibqgec3QTyyIQFwgFP0PYCr1b1FJmmQRjtYjMeKypKLoQsfjTQuf+DS+fX8p1LJbhBVWJKWi85Jj4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FuPEg6pr; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FuPEg6pr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764296435;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gYccDo2j+1D3EXgLNM4B1dXCh8l3NXcIw8nBRY7Khlg=;
+	b=FuPEg6prKofXB3JC7TtVrIYMN21a95NZkMktrokAmpUhRHqYnzExZ+P+uP3G5ibH6d1dLQ
+	NdgletxFWZzEcX+7D92pm8UXTc9u6tlftK2RDaLS8yDQJrZWD0964/M2zYkqilTB1znqbN
+	fWcFM8f8sH/zaWrJF8Kt94D6tgOXpTY=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-362-XvR3YwxsMUGCb-zrec8sUw-1; Thu, 27 Nov 2025 21:20:34 -0500
+X-MC-Unique: XvR3YwxsMUGCb-zrec8sUw-1
+X-Mimecast-MFC-AGG-ID: XvR3YwxsMUGCb-zrec8sUw_1764296433
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-343bf6ded5cso2011020a91.0
+        for <virtualization@lists.linux.dev>; Thu, 27 Nov 2025 18:20:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764294264; x=1764899064;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=YGtxlxaVlJyvlWAEowoHTPy95LmRppeiT0GNgF9JGiA=;
-        b=mo+SH0nAhnRSN4GX6YDx/IyQHzH/h0URQr2gLScm0Rr9KLMAC8IVNxObfkcyM/CU96
-         HriDUZf9X5s+F97h8/v6BZ2PRTutdSNonGYF7ytx9njv4WoT3/kf/dU38y2WOPqwNqqO
-         k9E7LPXURVN3Fg7zC9x8iOnm8NteaPtqGi0d9zWVzzPJ6wuOSmxCqgbBeJOUdj4q/8Pw
-         lPBvYtUB9v10AwEnbq+52eQZSqlBTElFkjx/Rdz0woYaNZcp5WxTYvvLWCcUv9Gn5C0x
-         WbUACiQLiBMKenFvoAecxAk1uXd4GJCjo4ai+ofkvfUIJPXPird2V8/3hL+pcUxt+fE0
-         SS5Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUKe+SFyqPJLr3qznyrJsYuv+w4IwzsR42+bE1mhhCTDBaq/tu9jSORgchf1Y+6eyoOdfsZvCjExpeHrjlkyQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzYiGzYemfA533dk9FppJLkfv85TttpgBwxvEvyzwjvzEnzO3tH
-	Il6iCHlNxsXQTXoYSSHwaoas0E1HKPAKLDdSjq8GKUFmbHXtAMqyKGsq49S3MP23R2doJ1azSrX
-	/FN4nLsCnQZS4wfTg2IsZ9zBGO4josCYCz+t46y64HR71Jx5VTN7qBLfSlLs=
-X-Google-Smtp-Source: AGHT+IFjliyc7o+9/9M8gBBNjRAqkbDhsdQ2w51FRpWCBUOel6GKu5SST4tshzg1ihuSxS3U9kT4JaJcoXhNT+jaj9+AOPhO03fX
+        d=1e100.net; s=20230601; t=1764296433; x=1764901233;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=gYccDo2j+1D3EXgLNM4B1dXCh8l3NXcIw8nBRY7Khlg=;
+        b=aLZFowlweY2pXTliM43bdTCRDeamnbiBklVMMyDmkmyEislfKEMi7nM8eCs3htJQIX
+         G4erfUyOd/fuaIGpt/mm3Z6BTl3A6tBiHlPItSWYkABu4kyELNt6hQu7XgmWM74NiJKY
+         o4upIO3KaRzXnrs+JbNY2J70gadd889YPB9gqhShcv/1SzQmra2hdo2pcrTeX4dvk56f
+         PV1IgOLRIvHER9wfADbb41idloaJOuUzigQvkJgWG7J1HArJPPzJbyUIftHZPlkYr3Ew
+         enmaymkZ/h4dTOhqddGGn+aOO+TcxBIgqDYsX97m3kPMtxmYQlDu9+i0femh5th8UbAB
+         IICw==
+X-Forwarded-Encrypted: i=1; AJvYcCWXBh5qA9jrdehkkZatTpOfuweGMNA2b8mER5g96ASbWEhwMdqb1c0N1aRuRmMHCOm1C5ecBkjIlfaErxeUQg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzFe8DSm6RajmSSL/RfAYZfGoxuRMBEyPQipqdMaiHE/vDFeoTG
+	4volY3iGBOsWePGRO2vwJh/OnoPGf3XTT57+J3bZFWrXdMhXLbEvaGUoayvUH8xDXw9Lc2OcpD7
+	ZuQfWZdMbzRlEE40+X7Z4K/oELSVOgj6o3Hv+pR657hKhRDEPRQJS7bkUBlIkU3GrhQJcwDS0Dn
+	45WXaT9DoSkq4XXISXGsoFH6wVoxivIv6sfDz+o7w4+Gs=
+X-Gm-Gg: ASbGncvrsczOjPT3hsmwXjgL5HJuY91IW0q2CEnR6RoAlO5uDDoEMaWwuwyWaPd4gAd
+	Z0xHKLQQieDhWynq0hZKbI19C5i7oVDOuj6j/IkRwcUIzZPQfCUKWqKaKFiVAYMlMBs1pDVr3RJ
+	wfjf5UePtTp85aLJb8qgPBnTwiacLrrbJBGtqIATWvVysPDLcKpcosdwXYHF+Dvenk
+X-Received: by 2002:a17:90b:544b:b0:338:3d07:5174 with SMTP id 98e67ed59e1d1-34733e4cd33mr24799058a91.5.1764296433350;
+        Thu, 27 Nov 2025 18:20:33 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHv94V6EgbFiEIs81QepFX0mRMFn3g2NyGux1CLfN5JgtlXv14IqI7OOH8tWGprrDA/aklgfN72ym5w+o80QPw=
+X-Received: by 2002:a17:90b:544b:b0:338:3d07:5174 with SMTP id
+ 98e67ed59e1d1-34733e4cd33mr24799030a91.5.1764296432936; Thu, 27 Nov 2025
+ 18:20:32 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:7:b0:434:96ea:ff5f with SMTP id
- e9e14a558f8ab-435dd13e462mr107916675ab.40.1764294264424; Thu, 27 Nov 2025
- 17:44:24 -0800 (PST)
-Date: Thu, 27 Nov 2025 17:44:24 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6928fe78.a70a0220.d98e3.012a.GAE@google.com>
-Subject: [syzbot] [kvm?] [net?] [virt?] WARNING in virtio_transport_send_pkt_info
- (2)
-From: syzbot <syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com>
-To: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
-	horms@kernel.org, jasowang@redhat.com, kuba@kernel.org, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
-	pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
+References: <40af2b73239850e7bf1a81abb71ee99f1b563b9c.1764226734.git.mst@redhat.com>
+ <a61dc7ee-d00b-41b4-b6fd-8a5152c3eae3@gmail.com>
+In-Reply-To: <a61dc7ee-d00b-41b4-b6fd-8a5152c3eae3@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 28 Nov 2025 10:20:21 +0800
+X-Gm-Features: AWmQ_bkpiNIqEJYMSebVvAaf2aLCflDbTnLMVmn819Q7sJ2u-A2teXvBbKmJ7ag
+Message-ID: <CACGkMEuJFVUDQ7SKt93mCVkbDHxK+A74Bs9URpdGR+0mtjxmAg@mail.gmail.com>
+Subject: Re: [PATCH RFC] virtio_net: gate delayed refill scheduling
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, 
+	Paolo Abeni <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	bpf@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: xr8i0KBzwf_2E6zyKgyiFCSAYd8seXXj0mEfdbujuVs_1764296433
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Fri, Nov 28, 2025 at 1:47=E2=80=AFAM Bui Quang Minh <minhquangbui99@gmai=
+l.com> wrote:
+>
+> I think the the requeue in refill_work is not the problem here. In
+> virtnet_rx_pause[_all](), we use cancel_work_sync() which is safe to
+> use "even if the work re-queues itself". AFAICS, cancel_work_sync()
+> will disable work -> flush work -> enable again. So if the work requeue
+> itself in flush work, the requeue will fail because the work is already
+> disabled.
 
-syzbot found the following issue on:
+Right.
 
-HEAD commit:    d724c6f85e80 Add linux-next specific files for 20251121
-git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=12920f42580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=763fb984aa266726
-dashboard link: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
-compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1458797c580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=15afd612580000
+>
+> I think what triggers the deadlock here is a bug in
+> virtnet_rx_resume_all(). virtnet_rx_resume_all() calls to
+> __virtnet_rx_resume() which calls napi_enable() and may schedule
+> refill. It schedules the refill work right after napi_enable the first
+> receive queue. The correct way must be napi_enable all receive queues
+> before scheduling refill work.
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/b2f349c65e3c/disk-d724c6f8.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/aba40ae987ce/vmlinux-d724c6f8.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/0b98fbfe576f/bzImage-d724c6f8.xz
+So what you meant is that the napi_disable() is called for a queue
+whose NAPI has been disabled?
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
+cpu0] enable_delayed_refill()
+cpu0] napi_enable(queue0)
+cpu0] schedule_delayed_work(&vi->refill)
+cpu1] napi_disable(queue0)
+cpu1] napi_enable(queue0)
+cpu1] napi_disable(queue1)
 
-------------[ cut here ]------------
-'send_pkt()' returns 0, but 4096 expected
-WARNING: net/vmw_vsock/virtio_transport_common.c:430 at virtio_transport_send_pkt_info+0xd1e/0xef0 net/vmw_vsock/virtio_transport_common.c:428, CPU#1: syz.0.17/5986
-Modules linked in:
-CPU: 1 UID: 0 PID: 5986 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/25/2025
-RIP: 0010:virtio_transport_send_pkt_info+0xd1e/0xef0 net/vmw_vsock/virtio_transport_common.c:428
-Code: f6 90 0f 0b 90 e9 d7 f7 ff ff e8 5d cc 7c f6 c6 05 c6 5f 64 04 01 90 48 c7 c7 60 da b4 8c 44 89 f6 48 89 ea e8 13 eb 3e f6 90 <0f> 0b 90 90 eb 9e 89 d9 80 e1 07 80 c1 03 38 c1 0f 8c 0a f3 ff ff
-RSP: 0018:ffffc900033a7508 EFLAGS: 00010246
-RAX: 2383e4149a9d5400 RBX: 0000000000001000 RCX: ffff88807b361e80
-RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000002
-RBP: 0000000000001000 R08: 0000000000000003 R09: 0000000000000004
-R10: dffffc0000000000 R11: fffffbfff1c3a720 R12: 0000000000040000
-R13: dffffc0000000000 R14: 0000000000000000 R15: ffffc900033a7640
-FS:  00005555677a5500(0000) GS:ffff888125b6f000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000200000030000 CR3: 0000000075f06000 CR4: 00000000003526f0
-Call Trace:
- <TASK>
- virtio_transport_stream_enqueue net/vmw_vsock/virtio_transport_common.c:1113 [inline]
- virtio_transport_seqpacket_enqueue+0x143/0x1c0 net/vmw_vsock/virtio_transport_common.c:841
- vsock_connectible_sendmsg+0xabf/0x1040 net/vmw_vsock/af_vsock.c:2158
- sock_sendmsg_nosec net/socket.c:727 [inline]
- __sock_sendmsg+0x21c/0x270 net/socket.c:746
- ____sys_sendmsg+0x52d/0x870 net/socket.c:2634
- ___sys_sendmsg+0x21f/0x2a0 net/socket.c:2688
- __sys_sendmmsg+0x227/0x430 net/socket.c:2777
- __do_sys_sendmmsg net/socket.c:2804 [inline]
- __se_sys_sendmmsg net/socket.c:2801 [inline]
- __x64_sys_sendmmsg+0xa0/0xc0 net/socket.c:2801
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f1e5218f749
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fffbe398ef8 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
-RAX: ffffffffffffffda RBX: 00007f1e523e5fa0 RCX: 00007f1e5218f749
-RDX: 0000000000000001 RSI: 0000200000000100 RDI: 0000000000000004
-RBP: 00007f1e52213f91 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000024008094 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007f1e523e5fa0 R14: 00007f1e523e5fa0 R15: 0000000000000004
- </TASK>
+In this case cpu1 waits forever while holding the netdev lock. This
+looks like a bug since the netdev_lock 413f0271f3966 ("net: protect
+NAPI enablement with netdev_lock()")?
 
+>
+> The fix is like this (there are quite duplicated code, I will clean up
+> and send patches later if it is correct)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 8e04adb57f52..892aa0805d1b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3482,20 +3482,25 @@ static void __virtnet_rx_resume(struct virtnet_in=
+fo *vi,
+>   static void virtnet_rx_resume_all(struct virtnet_info *vi)
+>   {
+>       int i;
+> +    bool schedule_refill =3D false;
+> +
+> +    for (i =3D 0; i < vi->max_queue_pairs; i++)
+> +        __virtnet_rx_resume(vi, &vi->rq[i], false);
+>
+>       enable_delayed_refill(vi);
+> -    for (i =3D 0; i < vi->max_queue_pairs; i++) {
+> -        if (i < vi->curr_queue_pairs)
+> -            __virtnet_rx_resume(vi, &vi->rq[i], true);
+> -        else
+> -            __virtnet_rx_resume(vi, &vi->rq[i], false);
+> -    }
+> +
+> +    for (i =3D 0; i < vi->curr_queue_pairs; i++)
+> +        if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+> +            schedule_refill =3D true;
+> +
+> +    if (schedule_refill)
+> +        schedule_delayed_work(&vi->refill, 0);
+>   }
+>
+>   static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_q=
+ueue *rq)
+>   {
+> -    enable_delayed_refill(vi);
+>       __virtnet_rx_resume(vi, rq, true);
+> +    enable_delayed_refill(vi);
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+This seems to be odd. I think at least we need to move this before:
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> +    if (schedule_refill)
+> +        schedule_delayed_work(&vi->refill, 0);
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+?
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+>   }
+>
+>   static int virtnet_rx_resize(struct virtnet_info *vi,
+>
+> I also move the enable_delayed_refill() after we __virtnet_rx_resume()
+> to ensure no refill is scheduled before napi_enable().
+>
+> What do you think?
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+This has been implemented in your patch or I may miss something.
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+Thanks
 
-If you want to undo deduplication, reply with:
-#syz undup
+>
+> Thanks,
+> Quang Minh
+>
+
