@@ -1,72 +1,74 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D17622AEE4
-	for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 03:25:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 797C61FC8;
+	Fri, 28 Nov 2025 05:55:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764300327; cv=none; b=d/E/VFclFqsx1p68Ycq1y3xrxg+PpQlNv+0hnE8QV1rxaWw26JuNeEHTYWDsv0LE5IboDQh6+iGWDqjJDEJ8MsAc1smBpJk0SVarVz9nPeAmDWwy+0hglByawLp0oTzaAqI61mRL98wVWH6CYv+72a2ba2EXfQO+efrHVU0xmns=
+	t=1764309316; cv=none; b=ZbM8yHFvWid1MS9BNYiC+r1mJe9q6QWsyoKFoaRtVNECynmNy61u7JqT8XR+KalDLzTMhPkkidQ4+c3+ya+542PAYDf4vMDGUO4oSmnDMbjFBHDGsa9p9MZztGrQjvgrLtmKJKANMlUeUKaeiTh255e7GFsYw5WW8JayJ1lbD68=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764300327; c=relaxed/simple;
-	bh=3Rr754dw5Ec63TZdWk1aPwAPgkPpi/Cm5uiYDYT2SP8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=pddSXvYdYk4gSvU3vAbO4iZETipG12vOXXTrFMi/+MM/WTRkDzZel5JA0Jn/iujRplfFCN+mbObGTui6uODBjrgJsEA4Qf0Redo5REDUqLQ570mhsA6geO+xGh2JFDVgTRmW6wL9A6HKYjiB+f4Ar7KCvBiExDcv30wSrU66gAE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=LW9IIfLb; arc=none smtp.client-ip=117.135.210.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1764309316; c=relaxed/simple;
+	bh=G47L7g/eGhulVRV0NVuVwtTeuuCmMSVBJ3unKsEtbkU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XzYpLor1ynuMZSB97bLjFK7r4nPCTC8Ywu2BLCOrmf4Vc/JaStOb4GBmytR9LE5ijSC90043eopTzSN/OHfk/uGH/rWapYvD5+4fJ4MPH7q10t0Tjaa2tKR2y3hwQlnoQ3M0EcvHnriRY4ucEBSqjF1pT82qAMZOTcWlyGxmBHQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=rhvckYgC; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bombadil.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="LW9IIfLb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=3Rr754dw5Ec63TZdWk1aPwAPgkPpi/Cm5uiYDYT2SP8=; b=L
-	W9IIfLbDh4R36FQY2XI63F4nhuwEmV7ADP1kuGIiJpCoRMZ64Zyx0K+O7Il0J9rO
-	ucdkj/Xq92DCg4o1ycEdIyJN6WBe2B4Lni4tM6ZhmR5htMxXnb7qy1XVTfvcnymu
-	HIwnx/xxEuOp9U/8QCbj53NiCu3hKl1SiLMD+KGtr4=
-Received: from lange_tang$163.com ( [116.128.244.169] ) by
- ajax-webmail-wmsvr-40-140 (Coremail) ; Fri, 28 Nov 2025 11:25:09 +0800
- (CST)
-Date: Fri, 28 Nov 2025 11:25:09 +0800 (CST)
-From: "Lange Tang" <lange_tang@163.com>
-To: "jasowang@redhat.com" <jasowang@redhat.com>
-Cc: "mst@redhat.com" <mst@redhat.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"Tang Longjun" <tanglongjun@kylinos.cn>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-Subject: Re:Re: [PATCH v1 3/7] tools/virtio/virtnet_mon: add kprobe
- start_xmit
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20250723(a044bf12) Copyright (c) 2002-2025 www.mailtech.cn 163com
-In-Reply-To: <CACGkMEv7szm0oYXZGPcRjdV8jOCzm9JYWttCeeCtA7pea5vA7w@mail.gmail.com>
-References: <20251127032407.33475-1-lange_tang@163.com>
- <20251127032407.33475-4-lange_tang@163.com>
- <CACGkMEv7szm0oYXZGPcRjdV8jOCzm9JYWttCeeCtA7pea5vA7w@mail.gmail.com>
-X-NTES-SC: AL_Qu2dBv+bv0sr7yiYZukfmUgRg+c/XsK4svUj24VVOJF8jB/o2QsAW0V5E2LqwOmRBxCgtzKMcT5r9815doN7ULAVzlEExCVTtO7zQrajd7KWlQ==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="rhvckYgC"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=l1eIbKtcI47ARmgDaF6pAjkz2qY2W5DPgqZvQZUd/7A=; b=rhvckYgCiFKGMUmwtmCukKxDOH
+	jI8+XR956nf/YgmEDN+xVrz9PskmyOoZTMcDsIqUOJKoW4YEcEM5ZelLDIbpqXMUW90mu8VLPMKwV
+	pmBOzbwaqJra+4hBW4OVzsQiM7bdZMeN1bA+zReFvyTvnoE04fNi8JCDjn9N9kRz7Uqke54t4eeyC
+	Pf93KNS0R/JcDGTLIudbQq6ybOuzdP7/MLgiE+V+kcXN3WAhLaWwRh1AOCDMn3MK9mwAXx5Gpscy9
+	wLGxTP/zAe4HzEZLHNokFZEveJkzdKZtXdcs83ehnlE49xWf0ihv0xVok5r8oHHe7ricKT/Q+vm9O
+	5TH4KorQ==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vOrRo-0000000015K-0I0V;
+	Fri, 28 Nov 2025 05:55:12 +0000
+Date: Thu, 27 Nov 2025 21:55:12 -0800
+From: Christoph Hellwig <hch@infradead.org>
+To: Stephen Zhang <starzhangzsd@gmail.com>
+Cc: Andreas Gruenbacher <agruenba@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+	linux-block@vger.kernel.org, nvdimm@lists.linux.dev,
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
+	gfs2@lists.linux.dev, ntfs3@lists.linux.dev,
+	linux-xfs@vger.kernel.org, zhangshida@kylinos.cn
+Subject: Re: [PATCH 1/9] block: fix data loss and stale date exposure
+ problems during append write
+Message-ID: <aSk5QFHzCwz97Xqw@infradead.org>
+References: <20251121081748.1443507-1-zhangshida@kylinos.cn>
+ <20251121081748.1443507-2-zhangshida@kylinos.cn>
+ <aSA_dTktkC85K39o@infradead.org>
+ <CAHc6FU7NpnmbOGZB8Z7VwOBoZLm8jZkcAk_2yPANy9=DYS67-A@mail.gmail.com>
+ <CANubcdXzxPuh9wweeW0yjprsQRZuBWmJwnEBcihqtvk6n7b=bQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <93c506b.34df.19ac87e4538.Coremail.lange_tang@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:jCgvCgD3X4YWFilpE6MsAA--.3977W
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbBdhIULmkpAYCcqgACsr
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANubcdXzxPuh9wweeW0yjprsQRZuBWmJwnEBcihqtvk6n7b=bQ@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-VGhhbmsgeW91IGZvciB5b3VyIHJlcGx5LiAKCkluZGVlZCwgdGhlcmUgYXJlIHJlcGVhdGVkIHJl
-ZmVyZW5jZXMgdG8gc29tZSBzdHJ1Y3R1cmVzIGRlZmluZWQgCmluIHZpcnRpb19uZXQgdGhhdCBh
-cmUgbm90IHByZXNlbnQgaW4gYW55IGhlYWRlciBmaWxlcywgc3VjaCBhcyB2aXJ0bmV0X2luZm8s
-IHZyaW5nX3ZpcnRxdWV1ZSwgZXRjLiAKSG93ZXZlciwgdGhlIHZpcnRuZXRfbW9uIG1vZHVsZSBy
-ZXF1aXJlcyB0aGUgbGF5b3V0cyBvZiB0aGVzZSBzdHJ1Y3R1cmVzIHRvIGJlIGFibGUgdG8gdHJh
-Y2sgdGhlaXIgbWVtYmVycy4KCgrlnKggMjAyNS0xMS0yOCAxMDoyMToyOe+8jCJKYXNvbiBXYW5n
-IiA8amFzb3dhbmdAcmVkaGF0LmNvbT4g5YaZ6YGT77yaCj5PbiBUaHUsIE5vdiAyNywgMjAyNSBh
-dCAxMTozM+KAr0FNIExvbmdqdW4gVGFuZyA8bGFuZ2VfdGFuZ0AxNjMuY29tPiB3cm90ZToKPj4K
-Pj4gRnJvbTogVGFuZyBMb25nanVuIDx0YW5nbG9uZ2p1bkBreWxpbm9zLmNuPgo+Pgo+PiB0cmFj
-ayBza2IgYW5kIHZpcnRxdWV1ZSB0aHJvdWdoIHRoZSBrcHJvYmUgc3RhcnRfeG1pdCBmdW5jdGlv
-bgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBUYW5nIExvbmdqdW4gPHRhbmdsb25nanVuQGt5bGlub3Mu
-Y24+Cj4+IC0tCj4KPkNhbiB5b3UgZXhwbGFpbiB3aGF0J3MgdGhlIHVzZSBjYXNlIGZvciB0aGlz
-IG9yIHdoeSB3ZSBuZWVkIHRvCj5kdXBsaWNhdGUgdmlydGlvLW5ldCBkcml2ZXIgY29kZXMgaGVy
-ZT8KPgo+VGhhbmtzCg==
+On Fri, Nov 28, 2025 at 11:22:49AM +0800, Stephen Zhang wrote:
+> Therefore, we could potentially change it to::
+> 
+>         if (bio->bi_status && !READ_ONCE(parent->bi_status))
+>                 parent->bi_status = bio->bi_status;
+> 
+> But as you mentioned, the check might not be critical here. So ultimately,
+> we can simplify it to:
+> 
+>         if (bio->bi_status)
+>                 parent->bi_status = bio->bi_status;
+
+It might make sense to just use cmpxchg.  See btrfs_bio_end_io as an
+example (although it is operating on the btrfs_bio structure)
+
