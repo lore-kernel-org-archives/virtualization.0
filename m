@@ -1,160 +1,72 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35299299A82
-	for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 03:23:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D17622AEE4
+	for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 03:25:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764300210; cv=none; b=Qc1edJVhhDABCpncqhbyZNWEGEN9rUPmrhXEU+ClGjTCGPNuu6rlk5ll0C3psVGk+vfRztMhKZEv0tR4qkppUopZr15bTOB32tn0c12WdzN1fyzPd2yZ/5wrPm4+/c3kWvuunUEmpTNPmvkcFZ5hZdtIji90QBiR6fYSwTEfKak=
+	t=1764300327; cv=none; b=d/E/VFclFqsx1p68Ycq1y3xrxg+PpQlNv+0hnE8QV1rxaWw26JuNeEHTYWDsv0LE5IboDQh6+iGWDqjJDEJ8MsAc1smBpJk0SVarVz9nPeAmDWwy+0hglByawLp0oTzaAqI61mRL98wVWH6CYv+72a2ba2EXfQO+efrHVU0xmns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764300210; c=relaxed/simple;
-	bh=PNeIkz45DuQRho1DwPL9oWfBnWeiTTntIhb6ZT/FME0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AHVBOwIGpk41MeO/SCsllx0IfPCG5PrWRgfgdQSDeIQPyPnpOXI9na16iWDwzAsYHDCYXCZ70bP9Tep01fhiqSzbnAYDmNQrLcJbDIqCIRdHaArkT89v2cn2djEBFZ1O6jKKtJKJjUTZ/LKG+xCts53BSuZy+cCw0U2OyI5dslM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NflQiqkD; arc=none smtp.client-ip=209.85.160.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1764300327; c=relaxed/simple;
+	bh=3Rr754dw5Ec63TZdWk1aPwAPgkPpi/Cm5uiYDYT2SP8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
+	 MIME-Version:Message-ID; b=pddSXvYdYk4gSvU3vAbO4iZETipG12vOXXTrFMi/+MM/WTRkDzZel5JA0Jn/iujRplfFCN+mbObGTui6uODBjrgJsEA4Qf0Redo5REDUqLQ570mhsA6geO+xGh2JFDVgTRmW6wL9A6HKYjiB+f4Ar7KCvBiExDcv30wSrU66gAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=LW9IIfLb; arc=none smtp.client-ip=117.135.210.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NflQiqkD"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4ee0ce50b95so21436741cf.0
-        for <virtualization@lists.linux.dev>; Thu, 27 Nov 2025 19:23:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764300206; x=1764905006; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QO8NwmkkI9mg0Fvr/iDdQ4VLLlyo+WunqlauIGsbobw=;
-        b=NflQiqkDHqL20Q6cjCb3Nqs79yPoiPfuwAPj+Fu8Kv8wLWTs57dO5u3VQhg4YU9x18
-         uVBqz6E/XZOwXvgVnNOpzEB2juehJ7Np/s7uHhIKcQf2UfW2aNWEZmzASt5AeF2/DH5Q
-         kgFUbUkNfHGXf1e2kXnO6X2L47XNWYiGmtuys9eh1OxrDVFbeye/R2AFB5jXit1oHFiX
-         luGpvstv1b9orCcH6GjE9cif6jzwhWYUCTyhqyMfdF0PeIFS9zSjHfN5tzhjoKz94tPI
-         NOrzHScgg5uNimbGuH2xuypf3o6Bz2+yFy8jc+PRFXfI85ZG/TFZIypX9/VGXexakXIR
-         pDIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764300206; x=1764905006;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=QO8NwmkkI9mg0Fvr/iDdQ4VLLlyo+WunqlauIGsbobw=;
-        b=wmWNFSD15zXwfWPX5MjjdOkOd6VlF3DAeL81ogww/LTdSYFqIFvXEJ5M6wXpwdO//Y
-         PfPpZ88j4krEAvzq5wvPC65cEPzYYdmc6NpdTehZg4/ZTAZ4CIeWkpoZXRL+TUBdfuNw
-         +t4BCMqqEn6oC49faNR6KnZ0SnDaCpHoXPeqicEc+SNSw/zcxw2wYPnfbZC3nR55LmIL
-         fm46Yb4bz2NuuuiKRBd+ih5+xpFwhDFG57Si8xQRbC3LHvdxS+w9bshgqAlqjVA/FGdY
-         u17okYOMdBWA6RtkX8YCd+uLDuR3TbRpsldMkng1+qKNVThzcPirjo7DzstEpOE1Wk4I
-         Kc8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCV9euiiES/arlP/mtqucKnGhSv3rekE4dsd/cvXhwKX7kJRmx1V7+124AFJ2ZBfyP40AyHKIDthn5yexxfoWg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyInjHXbXhiuqFlBoAXF4vir6ZwqG0Kssex3CquMbV9UOqy8lKV
-	XlCGGd9I7VdtP3mY7MzxZUwYrgsxLMU9Qczcz3GHXG1nqLBxtfxyoMJhOqIGQFZ9uo2/r7llT+n
-	tdtklzg5OZt/VbPbecxBZue3cveHeOXE=
-X-Gm-Gg: ASbGncsjm/SnjMpdUZFNXncLK/etIPSHDYk2NtX0D0zkiGfkgAySvbeoEF7b3ZPWLsP
-	G94LB2jIpqFLtP3NoOikiqHzqPvq3/bW6gRspKdOWfAaRiueHRp35FFNZ0ONSJLHgkAyUVwLaG6
-	Kahp1tnatu9SD2nMSpqBuaK1XjuRvjBfBY/kXKXusoQFEsavFHfHydXcYJOEKOj2Nb1oxLPsxs/
-	UM9JDOhvhfT0xitnnnV7YjWUa13F2EL/PXf3pQPDSgXqBHU5L9mmnaQ9urzq271rQ2A8ZA=
-X-Google-Smtp-Source: AGHT+IG9mqJdVZgQj3BVyXnihjqxo6smpev5tsviBeKxWgS8ADskcY34A+TMMILps/HKlL0xyNYCt0kJ8fD8XQas0U8=
-X-Received: by 2002:ac8:5e4c:0:b0:4ed:a6b0:5c14 with SMTP id
- d75a77b69052e-4ee4b54fd07mr426909921cf.23.1764300205954; Thu, 27 Nov 2025
- 19:23:25 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="LW9IIfLb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
+	Message-ID; bh=3Rr754dw5Ec63TZdWk1aPwAPgkPpi/Cm5uiYDYT2SP8=; b=L
+	W9IIfLbDh4R36FQY2XI63F4nhuwEmV7ADP1kuGIiJpCoRMZ64Zyx0K+O7Il0J9rO
+	ucdkj/Xq92DCg4o1ycEdIyJN6WBe2B4Lni4tM6ZhmR5htMxXnb7qy1XVTfvcnymu
+	HIwnx/xxEuOp9U/8QCbj53NiCu3hKl1SiLMD+KGtr4=
+Received: from lange_tang$163.com ( [116.128.244.169] ) by
+ ajax-webmail-wmsvr-40-140 (Coremail) ; Fri, 28 Nov 2025 11:25:09 +0800
+ (CST)
+Date: Fri, 28 Nov 2025 11:25:09 +0800 (CST)
+From: "Lange Tang" <lange_tang@163.com>
+To: "jasowang@redhat.com" <jasowang@redhat.com>
+Cc: "mst@redhat.com" <mst@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"Tang Longjun" <tanglongjun@kylinos.cn>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Subject: Re:Re: [PATCH v1 3/7] tools/virtio/virtnet_mon: add kprobe
+ start_xmit
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
+ 20250723(a044bf12) Copyright (c) 2002-2025 www.mailtech.cn 163com
+In-Reply-To: <CACGkMEv7szm0oYXZGPcRjdV8jOCzm9JYWttCeeCtA7pea5vA7w@mail.gmail.com>
+References: <20251127032407.33475-1-lange_tang@163.com>
+ <20251127032407.33475-4-lange_tang@163.com>
+ <CACGkMEv7szm0oYXZGPcRjdV8jOCzm9JYWttCeeCtA7pea5vA7w@mail.gmail.com>
+X-NTES-SC: AL_Qu2dBv+bv0sr7yiYZukfmUgRg+c/XsK4svUj24VVOJF8jB/o2QsAW0V5E2LqwOmRBxCgtzKMcT5r9815doN7ULAVzlEExCVTtO7zQrajd7KWlQ==
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251121081748.1443507-1-zhangshida@kylinos.cn>
- <20251121081748.1443507-2-zhangshida@kylinos.cn> <aSA_dTktkC85K39o@infradead.org>
- <CAHc6FU7NpnmbOGZB8Z7VwOBoZLm8jZkcAk_2yPANy9=DYS67-A@mail.gmail.com>
-In-Reply-To: <CAHc6FU7NpnmbOGZB8Z7VwOBoZLm8jZkcAk_2yPANy9=DYS67-A@mail.gmail.com>
-From: Stephen Zhang <starzhangzsd@gmail.com>
-Date: Fri, 28 Nov 2025 11:22:49 +0800
-X-Gm-Features: AWmQ_blj83ISfyC32dpt8HHM0xujFYlidvaYOqxvcTwKucopW11tVoED-TPviuI
-Message-ID: <CANubcdXzxPuh9wweeW0yjprsQRZuBWmJwnEBcihqtvk6n7b=bQ@mail.gmail.com>
-Subject: Re: [PATCH 1/9] block: fix data loss and stale date exposure problems
- during append write
-To: Andreas Gruenbacher <agruenba@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, 
-	linux-block@vger.kernel.org, nvdimm@lists.linux.dev, 
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org, 
-	gfs2@lists.linux.dev, ntfs3@lists.linux.dev, linux-xfs@vger.kernel.org, 
-	zhangshida@kylinos.cn
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <93c506b.34df.19ac87e4538.Coremail.lange_tang@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:jCgvCgD3X4YWFilpE6MsAA--.3977W
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbBdhIULmkpAYCcqgACsr
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-Andreas Gruenbacher <agruenba@redhat.com> =E4=BA=8E2025=E5=B9=B411=E6=9C=88=
-22=E6=97=A5=E5=91=A8=E5=85=AD 00:13=E5=86=99=E9=81=93=EF=BC=9A
->
-> On Fri, Nov 21, 2025 at 11:38=E2=80=AFAM Christoph Hellwig <hch@infradead=
-.org> wrote:
-> > On Fri, Nov 21, 2025 at 04:17:40PM +0800, zhangshida wrote:
-> > > From: Shida Zhang <zhangshida@kylinos.cn>
-> > >
-> > > Signed-off-by: Shida Zhang <zhangshida@kylinos.cn>
-> > > ---
-> > >  block/bio.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/block/bio.c b/block/bio.c
-> > > index b3a79285c27..55c2c1a0020 100644
-> > > --- a/block/bio.c
-> > > +++ b/block/bio.c
-> > > @@ -322,7 +322,7 @@ static struct bio *__bio_chain_endio(struct bio *=
-bio)
-> > >
-> > >  static void bio_chain_endio(struct bio *bio)
-> > >  {
-> > > -     bio_endio(__bio_chain_endio(bio));
-> > > +     bio_endio(bio);
-> >
-> > I don't see how this can work.  bio_chain_endio is called literally
-> > as the result of calling bio_endio, so you recurse into that.
->
-> Hmm, I don't actually see where: bio_endio() only calls
-> __bio_chain_endio(), which is fine.
->
-> Once bio_chain_endio() only calls bio_endio(), it can probably be
-> removed in a follow-up patch.
->
-> Also, loosely related, what I find slightly odd is this code in
-> __bio_chain_endio():
->
->         if (bio->bi_status && !parent->bi_status)
->                 parent->bi_status =3D bio->bi_status;
->
-> I don't think it really matters whether or not parent->bi_status is
-> already set here?
->
-> Also, multiple completions can race setting bi_status, so shouldn't we
-> at least have a WRITE_ONCE() here and in the other places that set
-> bi_status?
->
-
-I'm considering whether we need to add a WRITE_ONCE() in version 2
- of this series.
-
-From my understanding, WRITE_ONCE() prevents write merging and
-tearing by ensuring the write operation is performed as a single, atomic
-access. For instance, it stops the compiler from splitting a 32-bit write
-into multiple 8-bit writes that could be interleaved with reads from other
-CPUs.
-
-However, since we're dealing with a single-byte (u8/blk_status_t) write,
-it's naturally atomic at the hardware level. The CPU won't tear a byte-size=
-d
-write into separate bit-level operations.
-
-Therefore, we could potentially change it to::
-
-        if (bio->bi_status && !READ_ONCE(parent->bi_status))
-                parent->bi_status =3D bio->bi_status;
-
-But as you mentioned, the check might not be critical here. So ultimately,
-we can simplify it to:
-
-        if (bio->bi_status)
-                parent->bi_status =3D bio->bi_status;
-
-Thanks,
-shida
-
-> Thanks,
-> Andreas
->
+VGhhbmsgeW91IGZvciB5b3VyIHJlcGx5LiAKCkluZGVlZCwgdGhlcmUgYXJlIHJlcGVhdGVkIHJl
+ZmVyZW5jZXMgdG8gc29tZSBzdHJ1Y3R1cmVzIGRlZmluZWQgCmluIHZpcnRpb19uZXQgdGhhdCBh
+cmUgbm90IHByZXNlbnQgaW4gYW55IGhlYWRlciBmaWxlcywgc3VjaCBhcyB2aXJ0bmV0X2luZm8s
+IHZyaW5nX3ZpcnRxdWV1ZSwgZXRjLiAKSG93ZXZlciwgdGhlIHZpcnRuZXRfbW9uIG1vZHVsZSBy
+ZXF1aXJlcyB0aGUgbGF5b3V0cyBvZiB0aGVzZSBzdHJ1Y3R1cmVzIHRvIGJlIGFibGUgdG8gdHJh
+Y2sgdGhlaXIgbWVtYmVycy4KCgrlnKggMjAyNS0xMS0yOCAxMDoyMToyOe+8jCJKYXNvbiBXYW5n
+IiA8amFzb3dhbmdAcmVkaGF0LmNvbT4g5YaZ6YGT77yaCj5PbiBUaHUsIE5vdiAyNywgMjAyNSBh
+dCAxMTozM+KAr0FNIExvbmdqdW4gVGFuZyA8bGFuZ2VfdGFuZ0AxNjMuY29tPiB3cm90ZToKPj4K
+Pj4gRnJvbTogVGFuZyBMb25nanVuIDx0YW5nbG9uZ2p1bkBreWxpbm9zLmNuPgo+Pgo+PiB0cmFj
+ayBza2IgYW5kIHZpcnRxdWV1ZSB0aHJvdWdoIHRoZSBrcHJvYmUgc3RhcnRfeG1pdCBmdW5jdGlv
+bgo+Pgo+PiBTaWduZWQtb2ZmLWJ5OiBUYW5nIExvbmdqdW4gPHRhbmdsb25nanVuQGt5bGlub3Mu
+Y24+Cj4+IC0tCj4KPkNhbiB5b3UgZXhwbGFpbiB3aGF0J3MgdGhlIHVzZSBjYXNlIGZvciB0aGlz
+IG9yIHdoeSB3ZSBuZWVkIHRvCj5kdXBsaWNhdGUgdmlydGlvLW5ldCBkcml2ZXIgY29kZXMgaGVy
+ZT8KPgo+VGhhbmtzCg==
