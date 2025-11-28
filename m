@@ -1,106 +1,92 @@
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63ED52D0C82
-	for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 06:27:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 763052DAFB4
+	for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 07:40:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764311243; cv=none; b=RXayozmfNDcgYJMT6QrJaooCeGDhDWLQLIAWmnuzLTEYNuF0tRmBGOXKD2V6mFQk3+P3nuqL35zwRE4+N1MsodIONC0/OTdPL3ZnNE7dVykhG53gACGcVzJmtPQAJTGIdaNmsRcW2Sn7zy4sVJmxEiIXROVUuLFUJicNQphiP7o=
+	t=1764315620; cv=none; b=tB7A/mtwzCSJYQptEJ1++N6YbM7LdY6WpVaw/7OV7qTArM1uHQJxH9dNoegS63dp/eUD5BwLzMtfk2lSepnTqFXQtJeG3GXz3My79GziA4aYcyaiDsIwDZXGLqiyhwZE5nvcNthG2k+MX+02ZJjIbuU4h8eU6MrEviY1xV6RUVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764311243; c=relaxed/simple;
-	bh=uxXx2Dt9ovr7xEDXTx3MLSG145z2GZi2DJ1y87yMKcg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=E4pscwVoe6gtsGl5C98lN3nwrzdXBcaa9F5+dhdinppwcnJBgmcRKHykE0pQUviIjsBYQLVmASe8UlqkyJJK1N5wnI8igy4AkvLnycwctrcusC9neaxDBEFHkJfIauSd47/dD6arpVTcwbI/0Dy6RTR5yd9BbeFImH2J9l0LglY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J+Mdo120; arc=none smtp.client-ip=209.85.160.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J+Mdo120"
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-4eda26a04bfso17255731cf.2
-        for <virtualization@lists.linux.dev>; Thu, 27 Nov 2025 22:27:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764311240; x=1764916040; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rNBX+tdFCi976CT3NTPOtFudKzRzrB7upXknWDTBPfs=;
-        b=J+Mdo1204QiOaVSk7IR5i+v8RAeaScbetMzkahl3pZ0//PJJYuz+PTc2RM8m9keMdM
-         1Nd1qCDvodQ4I7TfmAjqirgjOw9JClLpqGJzdsc3F9hXBr9f6FfmpirdUabESMuNXI5I
-         9soRbOwuc2mowLRmYf6Ur3LO+qBdbhUxJjEVDo39/WfT46qSQ8mY/d37e/HKl/rA2ln0
-         xcarpaIIkwJp36DkbTkpeLX3KU8sDoygArQyURsmwlrh+ge8CgE1qe8huE9ljk6tIu/t
-         fykc/9JWATqjV0dPirlQPljb254r/Eli0jsxaTjyUMFsAhLH7FN5ZZque7sUzBNkJf6N
-         Pgbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764311240; x=1764916040;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=rNBX+tdFCi976CT3NTPOtFudKzRzrB7upXknWDTBPfs=;
-        b=Sye88OMkV/ss5i08M+VSssHrXluYBFp253DCdViGhX9eT9eJRH/eftrHBcWVNdBvMM
-         pVSblM62drfOzWU90PtYHk+/v0XPWK4KaD8sH7U3ZJlloeBUL9/QmBs0NQJmFUdOR83U
-         bGT65ZJcGQNp7XOwaaetAV7Uu0g4jOo4tOvw7A9qvJleW3nPkI6EAD/o3UWVt6U8cV7G
-         uAzV00uSJklcEM5l+tg63/Cg37VvR9UL5e6Fv8eqAV2x5+q5OetWKjUix1HEt/gITrPz
-         KewQVBrCerIQeVQcYTaq4l39roUF5Nzhe6TZKTrdFNjHvijf0R96sre652k8SHSrWHC/
-         z0DA==
-X-Forwarded-Encrypted: i=1; AJvYcCWj5qh/HdeE8r/D14TLJNSPymurw/sHmL+wgmvRasF/KPixtmqgODwq5FmHHrNX+K3j3p7RTjwhkJRpwn8nrg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwbpD9zinFWs7xx1024lOxcqugm28o4uydR4d6DQeQoU5iIVdVk
-	qsvz9W8ma3p0ZQqvrmXWqXyra0JLb68hAhaoRnjoaqU7QRt27NFkTXb88viRzt8dnznBn1Eb6s+
-	02J811IuLXIb0LhxZEBpI1hhMrRsrZGc=
-X-Gm-Gg: ASbGncvsddbXysp9ISWl609gVr7XCmNeCFIxqmky5UAN0iGEpIxllZua144LnsPEIhW
-	dHDQNguiLkW4VZ2b0FAmcn3TYwN6ncQ9Cx1x/q/SurxSC2kKdRLSCKzN06W0Q0ha2nbNABBjx0R
-	1uYYUu094MGPjisL7dHjAX+t7U7VbNDr9gbw0hRpDlaf9qWn3crAxZqOWXjx0MX8Bi8PP4PEc3v
-	0MjA0thr0oqwAdx9LYoD1JpuRXG+xyhxbRY7bL6VKwL2aaJWnK8ljCzjOWQx2VXCCMus8E=
-X-Google-Smtp-Source: AGHT+IHqoxxME/wZYacFTCZmpyvjYqen8b7+sN/d+VbUoZE5rC4JPn9P+8N4Y6c+biawDbsHSmqE9yp/CsWDMeNGoss=
-X-Received: by 2002:a05:622a:3d4:b0:4ed:43ae:85f6 with SMTP id
- d75a77b69052e-4ee58911262mr343758661cf.47.1764311240290; Thu, 27 Nov 2025
- 22:27:20 -0800 (PST)
+	s=arc-20240116; t=1764315620; c=relaxed/simple;
+	bh=9POnfd8KCgzKOXOKHiFhGQ3sA/OUBNdoOYdyxmsf4rk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=NgFA9FCqunIcplOhmvdXkgu3rPyr2r3te2WzMmY0iH9wXxeGvjDu0INXXISUUoovA9CV9NwlJHbWrguh7SexM0lThmxi9Mvtzfqx5dRO7PvCo40TEE0TlmnPZYviiupyT/IWS+tdwyb/TkGEXEKOg79R6qDStyR77ONlM1SL/Pc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8AxidHVUSlpwAUpAA--.23007S3;
+	Fri, 28 Nov 2025 15:40:05 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by front1 (Coremail) with SMTP id qMiowJDxrcHUUSlpw9hBAQ--.18805S2;
+	Fri, 28 Nov 2025 15:40:04 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Gonglei <arei.gonglei@huawei.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	"David S. Miller" <davem@davemloft.net>
+Cc: virtualization@lists.linux.dev,
+	linux-crypto@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] crypto: virtio: Add spinlock protection with virtqueue notification
+Date: Fri, 28 Nov 2025 15:40:01 +0800
+Message-Id: <20251128074002.1149034-1-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251121081748.1443507-1-zhangshida@kylinos.cn>
- <20251121081748.1443507-2-zhangshida@kylinos.cn> <aSA_dTktkC85K39o@infradead.org>
- <CAHc6FU7NpnmbOGZB8Z7VwOBoZLm8jZkcAk_2yPANy9=DYS67-A@mail.gmail.com>
- <CANubcdXzxPuh9wweeW0yjprsQRZuBWmJwnEBcihqtvk6n7b=bQ@mail.gmail.com> <aSk5QFHzCwz97Xqw@infradead.org>
-In-Reply-To: <aSk5QFHzCwz97Xqw@infradead.org>
-From: Stephen Zhang <starzhangzsd@gmail.com>
-Date: Fri, 28 Nov 2025 14:26:44 +0800
-X-Gm-Features: AWmQ_blfmVuM70WOWxBT6SLO-nBFz1VQq0RiOHlp-O6KawgJbGDwoH1nduOeubA
-Message-ID: <CANubcdVTwitvE8ZP2BRtW28u8ZYBvdobxxXQgDSRWP_FbS1Wmg@mail.gmail.com>
-Subject: Re: [PATCH 1/9] block: fix data loss and stale date exposure problems
- during append write
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andreas Gruenbacher <agruenba@redhat.com>, linux-kernel@vger.kernel.org, 
-	linux-block@vger.kernel.org, nvdimm@lists.linux.dev, 
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org, 
-	gfs2@lists.linux.dev, ntfs3@lists.linux.dev, linux-xfs@vger.kernel.org, 
-	zhangshida@kylinos.cn
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJDxrcHUUSlpw9hBAQ--.18805S2
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
+	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
+	nUUI43ZEXa7xR_UUUUUUUUU==
 
-Christoph Hellwig <hch@infradead.org> =E4=BA=8E2025=E5=B9=B411=E6=9C=8828=
-=E6=97=A5=E5=91=A8=E4=BA=94 13:55=E5=86=99=E9=81=93=EF=BC=9A
->
-> On Fri, Nov 28, 2025 at 11:22:49AM +0800, Stephen Zhang wrote:
-> > Therefore, we could potentially change it to::
-> >
-> >         if (bio->bi_status && !READ_ONCE(parent->bi_status))
-> >                 parent->bi_status =3D bio->bi_status;
-> >
-> > But as you mentioned, the check might not be critical here. So ultimate=
-ly,
-> > we can simplify it to:
-> >
-> >         if (bio->bi_status)
-> >                 parent->bi_status =3D bio->bi_status;
->
-> It might make sense to just use cmpxchg.  See btrfs_bio_end_io as an
-> example (although it is operating on the btrfs_bio structure)
->
+When VM boots with one virtio-crypto PCI device and builtin backend,
+execute openssl benchmark command with multiple processes, such as
+  openssl speed -evp aes-128-cbc -engine afalg  -seconds 10 -multi 32
 
-Thanks for the suggestion! I learned something new today.
+openssl processes will hangup and there is error reported like this:
+  virtio_crypto virtio0: dataq.0:id 3 is not a head!
 
-Thanks,
-Shida
+It seems that the data virtqueue need protection when it is handled
+for virtio done notification. If the spinlock protection is added
+in virtcrypto_done_task(), openssl benchmark with multiple processes
+works well.
+
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+---
+ drivers/crypto/virtio/virtio_crypto_core.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
+index 3d241446099c..ccc6b5c1b24b 100644
+--- a/drivers/crypto/virtio/virtio_crypto_core.c
++++ b/drivers/crypto/virtio/virtio_crypto_core.c
+@@ -75,15 +75,20 @@ static void virtcrypto_done_task(unsigned long data)
+ 	struct data_queue *data_vq = (struct data_queue *)data;
+ 	struct virtqueue *vq = data_vq->vq;
+ 	struct virtio_crypto_request *vc_req;
++	unsigned long flags;
+ 	unsigned int len;
+ 
++	spin_lock_irqsave(&data_vq->lock, flags);
+ 	do {
+ 		virtqueue_disable_cb(vq);
+ 		while ((vc_req = virtqueue_get_buf(vq, &len)) != NULL) {
++			spin_unlock_irqrestore(&data_vq->lock, flags);
+ 			if (vc_req->alg_cb)
+ 				vc_req->alg_cb(vc_req, len);
++			spin_lock_irqsave(&data_vq->lock, flags);
+ 		}
+ 	} while (!virtqueue_enable_cb(vq));
++	spin_unlock_irqrestore(&data_vq->lock, flags);
+ }
+ 
+ static void virtcrypto_dataq_callback(struct virtqueue *vq)
+-- 
+2.39.3
+
