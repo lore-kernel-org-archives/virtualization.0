@@ -1,139 +1,138 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from xmbghk7.mail.qq.com (xmbghk7.mail.qq.com [43.163.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D37A2E717B
-	for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 08:38:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8846E2C2376
+	for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 08:41:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=43.163.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764319113; cv=none; b=ZpMRAB5z4fYKeMiIhXZu25ie2VeAr3w+Ddqoo5kZnHtkH9NYm+wKFztb2z6hCwjrFtPMeI0Vak6mcOr/+W03g+iTrnmHgoZL8Gv8zH/yD9lWMvuHyCt3+3CrI4NWTO8AZwDy5xzaqDP+8kz/+iEAUfCod13SnTy7A74ZrUmEDTA=
+	t=1764319312; cv=none; b=gGoUtSIs9rxTEVLprvWd4nGBGGZSnltBulQfI7lMwU2n026GUsvl3NUlpWwh/yiCDkjm9bdi1zUdq5+6eqB0o6t5v34/2KpAhUh5dZ1b3CCalZfRI87OTnlr1uI+Ewk2rke5eOECnnMJAekYH9w+bNacF7w+t2Dk+baX5NY/RJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764319113; c=relaxed/simple;
-	bh=mG04EOy5shg0G6MHF6boM7DuHGiLByU6HW/XuA5FyN4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jLR+qxRQ0ksNth/Vr4vbLJRGTiDhTdIrgp27RqyKXn+xHWEeFep5YyPt+JkcafwLZOB5eQdKE9mwim0yEnMHNz/suU0uFsA+mdvE6zGMZzsAW+qLkZ+59twcRIAeljQ+T5LtFWYLo8qJ45XyumsIDF9F3ndgywVPJB1Ef4612FI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FDah3nTU; arc=none smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1764319312; c=relaxed/simple;
+	bh=ObBQE2s6w9HpNtJAwbYSXSwHgGEn8nc872DiGO97wuw=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version; b=dqvJoU8bv0IF1RACGdE1L3KLwC6h4BwdyBcd07LZQ1DhFDnuef+Mi3nVj6ehDhOirIYvcJXbntZ/ltrVcle7/BkUeHNEWWTgk8VvqT2HLitXQ5mHwTFACUYMQUzXqUbM+hx26Bhe+JVhyjJq8iFxvt0vvCXddjPEymwPYr1xo74=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=tFQsu/ZA; arc=none smtp.client-ip=43.163.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FDah3nTU"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-4ee158187aaso17505121cf.0
-        for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 00:38:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764319110; x=1764923910; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=++QMIe2Gzi7z7FeXSAmSiuqg8P1uQ1lVTlMI6i3m06g=;
-        b=FDah3nTUaudXCsXdq2+lppZtuGiQxbXnt7zX5vbbHSWCw5YD9MMMjC2EvH15CpsL3u
-         HIX509u6wcpH86rIO2sGZ3n4XIQ6JqRJi4XMZII79+c0TxEIcGMeZc9LBy7/WAkn9b74
-         B5GlKb7P6v3ITddyjUjQsiIxHBt+V2mJr4xxIa6wrkaNEULj7+fkJpKA7lNlBBdXEX+O
-         a4laU9RjvQPfMbPlQx7P/con3zScwdP/aqUAVsuKZMpwIM8QWXcjxWt0643j//Ux3Qyi
-         gNv5vrD0aH47XWp+M/EcKoUp84MM2XdtrGNUgqKL9PxM63T8dtvtL7xRtLbwYoAxU39T
-         HkTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764319110; x=1764923910;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=++QMIe2Gzi7z7FeXSAmSiuqg8P1uQ1lVTlMI6i3m06g=;
-        b=u+4gSY8UclOfYbMtRcuY+pdAIPfKZntMsrevvu7LH6VV19Iq/WKCv/LsiVPUd6muoW
-         zZh+Il2FPgxKznvf42yIZ+iMbn3fZCV0qV3+lxf4LYtTzaMuHiGTZIVboAH5E0ccS/8X
-         TZhr4Hu3XsdzORSZd5br3Mms06+Xx/CtgvIAo+WxA90vn95k1kSF3UuDqqROzyybw49W
-         6VuFDK3rnDC7a4O+7tFR9D153YIA1UwTIJDzlWmCmVsTwnZ44/ktfju9x9lDA1ivbTPS
-         7q3lAvgQz8c1OsESibYoDmQg6U896YJP8JmUgNQmwWORIsJCxFfTC6IFAfbTDqqqBMU+
-         rhvg==
-X-Forwarded-Encrypted: i=1; AJvYcCW+m8LbUWpxJDqXvV0KUPD3BhgxMfAs4WkHwJk/abRVPgO3mLWI5jO33V4ve1l9zb2flxB7dqZ+b6uGV02XAg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzID7bLzvuPu/cAN521aAhefo4s8bC9W9m8TnafbRq/D65gPH96
-	X7VXUwQoIZ7ggJWr2p9sh0iYHCMCGBBjx3o4ILl8vzVEo0o7ioFjy+ahiE4Q2xnG0OeWgCoZZEb
-	cqKMhoc7ZRCJFjlnrUZEiSltValbjQHI=
-X-Gm-Gg: ASbGncuyct2eZJpbfM2zfXJhCGscIAflDhNbkTjEnVYJNOvYi75Rwlb2CTPDr0IbXqZ
-	qPUKpIZvohLRydCeN69Ex1XQmmmS4Y3t7JXTjvhPZF+y+aZ1SMCbGzNSFtlxwva+4pkYTJARp8k
-	ztCOa6ZYI59J3w9KPfOYDRDPICc8ZQOOjLfn2bHHJpRKMGTQTs9yzm42xeP5/hP/kxTeL3sehMX
-	Pw2WpcY4P0mSl6itXRIpspKntuTADc25IXiy1zVrzmAmWxOd2EZeD7i+3ey4xSjYudSBHg=
-X-Google-Smtp-Source: AGHT+IEfh/pR5dVEp+MyGlS6Z0E5USpuJd+WqXIzQcqzstZI05ioUW/B3ey2i9/MpvyCwVsDk2BTTIWfhdBYNOpApmc=
-X-Received: by 2002:ac8:5a4d:0:b0:4e7:1eb9:605d with SMTP id
- d75a77b69052e-4ee5883f99cmr321417371cf.11.1764319110284; Fri, 28 Nov 2025
- 00:38:30 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="tFQsu/ZA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1764319301; bh=A8mGR1d0H3r4bTkQhku0Qmh1ZtU7rdJN6hfaTO0TCCM=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=tFQsu/ZARHr/IuMfdIIEHFK/rTVNGAGMiKOGGz3rA8PosZRwEpOeC9X6y6m4eAtqE
+	 AJBsXfKWQGa/HLHuZ4GEITXk/o0n/zD4gwOAQ5KxnB3PbTbk+s10BhPGNrtWIJrYuT
+	 rnosBWufLAopFhJavViqU7NUh9uShCgZ29mjARDY=
+Received: from lxu-ped-host.. ([111.201.7.117])
+	by newxmesmtplogicsvrsza53-0.qq.com (NewEsmtp) with SMTP
+	id A660CEAC; Fri, 28 Nov 2025 16:41:38 +0800
+X-QQ-mid: xmsmtpt1764319298t8lg5qfwq
+Message-ID: <tencent_387517772566B03DBD365896C036264AA809@qq.com>
+X-QQ-XMAILINFO: OATpkVjS499uRkp6Iutn8gH3U/2cUmQ2vbZNRc0DRSeKbGa5dtJo5Ioh9IVQjx
+	 t64wGLlZUkU+vMD8fMxdF0pACrDiveMTe3zsI10UdlU6h+6OljpXgZzKuWbXuB6EyTn+YkWJiJ4a
+	 nezFiCWi2eVIJfWiRh1OYxMgtYC4FU7ql0FoA48AE+pjTMczj7A1BL/U4/BImO7ppUM5wKom+WtX
+	 C7TXUtJgDOZ3+Q5lbBwh65Ey8ggUt/WlwCnm3O+q5bJE4EC20SRSIxR3Y2uGh3WBdEFmXb+HIZHL
+	 Bvq3dQOHCnLAR6sRB51wx+V2H3Dac6V/ZDkvl/JChQU9Tj4f7JrF/JeZLWyMAd7ytFY/fQ9k6lVM
+	 wOTZ5iQKqB8zpBgXpUs7nQ82QPkuqvoWB6gsoCdJKAuKsNg/lwA6t6pmp7oErpgT2YNyRlPZigbj
+	 sOMv7LEmhw/YqMKdBfRK3EGDPDqmnBPTxwk0Yueq4d7aCBTQSGU46139JdcD/J3cf+Ogf+KKaylP
+	 3oIEXNyIYvwyvZu71sCDRM9Wuv5KyKF5zC5WVO2a5Eav36HBdpw4a/KCmDlNwvGrHfK9FMJoiFid
+	 jpOC/KMHbSHistD3Ikz7/B9TV1oYFJJoE20Rs8IvdHX/XMPe5ph5TkvkQQ2/Z6qclGZ+amo5/okW
+	 fdfaxtyIK6TsMur2uA0SLTzoJSAzh4QdvVibQ8p9Ql7ul3jT1wi6MvBaFOlh08vooIEZsgQxH+JZ
+	 0KazWIga4LwbR71i2j2onIqAT2tEyqCxt3u0KKe/CRE6zyAwLWuDAhUk+FiFYdLeqP0lCFOUG51x
+	 LHoC39ULfKvsqd27ESsaTYMeElVXf0ttE/LJZx4xW4jhMavBBiZMb+Y/yAP0Fh2yTtDetsRKx2X6
+	 uxXXCK7cmdS9ArHz8h7hEiKeWz0szd9WcAHGBoA4e2LQiojE9S+PYTLsER86q2xKT8Ku3VCJ1pu3
+	 MXH7gbOGuhDYENSVJy5Jd8O+tQnHiBY8fB93ZKBH1GxjAsVGpRe3vlDzHKUY3yIGJRwd2+QQY=
+X-QQ-XMRINFO: OD9hHCdaPRBwq3WW+NvGbIU=
+From: Edward Adam Davis <eadavis@qq.com>
+To: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
+Cc: davem@davemloft.net,
+	edumazet@google.com,
+	eperezma@redhat.com,
+	horms@kernel.org,
+	jasowang@redhat.com,
+	kuba@kernel.org,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	netdev@vger.kernel.org,
+	pabeni@redhat.com,
+	sgarzare@redhat.com,
+	stefanha@redhat.com,
+	syzkaller-bugs@googlegroups.com,
+	virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: [PATCH Next] net: restore the iterator to its original state when an error occurs
+Date: Fri, 28 Nov 2025 16:41:38 +0800
+X-OQ-MSGID: <20251128084137.112073-2-eadavis@qq.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <6928fe78.a70a0220.d98e3.012a.GAE@google.com>
+References: <6928fe78.a70a0220.d98e3.012a.GAE@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251128083219.2332407-1-zhangshida@kylinos.cn>
-In-Reply-To: <20251128083219.2332407-1-zhangshida@kylinos.cn>
-From: Stephen Zhang <starzhangzsd@gmail.com>
-Date: Fri, 28 Nov 2025 16:37:54 +0800
-X-Gm-Features: AWmQ_bkmQmYK3DJQjInSuzOGjciJ8sGZNWSCY3EbybUAu4bZJ47LIxlxmcK_q9w
-Message-ID: <CANubcdUgYpxBqPrsOnFpGJK8S9DM46DT6hriu4kDckPMVzc-Fw@mail.gmail.com>
-Subject: Re: [PATCH v2 00/12] Fix bio chain related issues
-To: Johannes.Thumshirn@wdc.com, hch@infradead.org, gruenba@redhat.com, 
-	ming.lei@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, 
-	nvdimm@lists.linux.dev, virtualization@lists.linux.dev, 
-	linux-nvme@lists.infradead.org, gfs2@lists.linux.dev, ntfs3@lists.linux.dev, 
-	linux-xfs@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	zhangshida@kylinos.cn
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-zhangshida <starzhangzsd@gmail.com> =E4=BA=8E2025=E5=B9=B411=E6=9C=8828=E6=
-=97=A5=E5=91=A8=E4=BA=94 16:32=E5=86=99=E9=81=93=EF=BC=9A
->
-> From: Shida Zhang <zhangshida@kylinos.cn>
->
-> Hi all,
->
-> While investigating another problem [mentioned in v1], we identified
-> some buggy code in the bio chain handling logic. This series addresses
-> those issues and performs related code cleanup.
->
-> Patches 1-4 fix incorrect usage of bio_chain_endio().
-> Patches 5-12 clean up repetitive code patterns in bio chain handling.
->
-> v2:
-> - Added fix for bcache.
-> - Added BUG_ON() in bio_chain_endio().
-> - Enhanced commit messages for each patch
->
-> v1:
-> https://lore.kernel.org/all/20251121081748.1443507-1-zhangshida@kylinos.c=
-n/
->
->
-> Shida Zhang (12):
->   block: fix incorrect logic in bio_chain_endio
->   block: prevent race condition on bi_status in __bio_chain_endio
->   md: bcache: fix improper use of bi_end_io
->   block: prohibit calls to bio_chain_endio
->   block: export bio_chain_and_submit
->   gfs2: Replace the repetitive bio chaining code patterns
->   xfs: Replace the repetitive bio chaining code patterns
->   block: Replace the repetitive bio chaining code patterns
->   fs/ntfs3: Replace the repetitive bio chaining code patterns
->   zram: Replace the repetitive bio chaining code patterns
->   nvdimm: Replace the repetitive bio chaining code patterns
->   nvmet: use bio_chain_and_submit to simplify bio chaining
->
->  block/bio.c                       | 15 ++++++++++++---
->  drivers/block/zram/zram_drv.c     |  3 +--
->  drivers/md/bcache/request.c       |  6 +++---
->  drivers/nvdimm/nd_virtio.c        |  3 +--
->  drivers/nvme/target/io-cmd-bdev.c |  3 +--
->  fs/gfs2/lops.c                    |  3 +--
->  fs/ntfs3/fsntfs.c                 | 12 ++----------
->  fs/squashfs/block.c               |  3 +--
->  fs/xfs/xfs_bio_io.c               |  3 +--
->  fs/xfs/xfs_buf.c                  |  3 +--
->  fs/xfs/xfs_log.c                  |  3 +--
->  11 files changed, 25 insertions(+), 32 deletions(-)
->
-> --
-> 2.34.1
->
+In zerocopy_fill_skb_from_iter(), if two copy operations are performed
+and the first one succeeds while the second one fails, it returns a
+failure but the count in iterator has already been decremented due to
+the first successful copy. This ultimately affects the local variable
+rest_len in virtio_transport_send_pkt_info(), causing the remaining
+count in rest_len to be greater than the actual iterator count. As a
+result, packet sending operations continue even when the iterator count
+is zero, which further leads to skb->len being 0 and triggers the warning
+reported by syzbot [1].
 
-Apologies, I missed the 'h' in the email address when CC'ing
-hsiangkao@linux.alibaba.com.
+Therefore, if the zerocopy operation fails, we should revert the iterator
+to its original state.
 
-Thanks,
-Shida
+[1]
+'send_pkt()' returns 0, but 4096 expected
+WARNING: net/vmw_vsock/virtio_transport_common.c:430 at virtio_transport_send_pkt_info+0xd1e/0xef0 net/vmw_vsock/virtio_transport_common.c:428, CPU#1: syz.0.17/5986
+Call Trace:
+ virtio_transport_stream_enqueue net/vmw_vsock/virtio_transport_common.c:1113 [inline]
+ virtio_transport_seqpacket_enqueue+0x143/0x1c0 net/vmw_vsock/virtio_transport_common.c:841
+ vsock_connectible_sendmsg+0xabf/0x1040 net/vmw_vsock/af_vsock.c:2158
+ sock_sendmsg_nosec net/socket.c:727 [inline]
+ __sock_sendmsg+0x21c/0x270 net/socket.c:746
+
+Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
+Tested-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
+Signed-off-by: Edward Adam Davis <eadavis@qq.com>
+---
+ net/core/datagram.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/net/core/datagram.c b/net/core/datagram.c
+index c285c6465923..da10465cd8a4 100644
+--- a/net/core/datagram.c
++++ b/net/core/datagram.c
+@@ -748,10 +748,13 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
+ 			    size_t length,
+ 			    struct net_devmem_dmabuf_binding *binding)
+ {
++	struct iov_iter_state state;
+ 	unsigned long orig_size = skb->truesize;
+ 	unsigned long truesize;
+ 	int ret;
+ 
++	iov_iter_save_state(from, &state);
++
+ 	if (msg && msg->msg_ubuf && msg->sg_from_iter)
+ 		ret = msg->sg_from_iter(skb, from, length);
+ 	else if (binding)
+@@ -759,6 +762,9 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
+ 	else
+ 		ret = zerocopy_fill_skb_from_iter(skb, from, length);
+ 
++	if (ret)
++		iov_iter_restore(from, &state);
++
+ 	truesize = skb->truesize - orig_size;
+ 	if (sk && sk->sk_type == SOCK_STREAM) {
+ 		sk_wmem_queued_add(sk, truesize);
+-- 
+2.43.0
+
