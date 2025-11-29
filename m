@@ -1,60 +1,59 @@
 Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 698A63D994
-	for <virtualization@lists.linux.dev>; Sat, 29 Nov 2025 01:50:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 634521D5141
+	for <virtualization@lists.linux.dev>; Sat, 29 Nov 2025 02:33:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764381050; cv=none; b=CA45Ti2MKTXVXnpR3sJPp+CJF414FxritO3zyL5y6uDNwXzruY9osnihyO0A3z9rdTRtp/b3tEvw6iRm0k7NdJGrGDGIHU+EVUbgSTe/tf5z0lUw0Ca8jTKTyEVdnrBYslgOqihjguAnmhBNJTcydKFe0lYjA422WC6L1RHHAHk=
+	t=1764383598; cv=none; b=ZXTYbDf/CuM4et14YL5eW1/cO7lZk13DEYXvAyGgcHtimcLnV/oPc6DhVZFa2RqzZ9t66tf5fVZvQ9P1795J1Mjf2ir6/EA6200uBFzLYswTJlcKsSXnUusQXLf2h8pI53vkL+ePHbN5yifiyJ1AEUFdt8qsdEZFKxZPLNCQGcM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764381050; c=relaxed/simple;
-	bh=NaSVgYTQZj//T0kXBeK5L/YqRjV2JfM4MD+L1BQ61uA=;
+	s=arc-20240116; t=1764383598; c=relaxed/simple;
+	bh=gNmObkaIZK3VlWDhqKE4t58k5wTLOfMWXzJHLja63YI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YCRgZ2xJGIbbJrXucF6cOWQKZ//kAkKB0b7TdRDDhWOcYI8dwhHiPu+O23LD4/b7jFPVJx84wF4seefeL8UBhomV9VbObmepxEkAqt6GHOHFYdxsgRz2BBdBZ0108Fvo2GY8EOyI2G4TZwAczVfwnnYI4KkBX7EtoRzW9IcUzjk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bMJjDDjJ; arc=none smtp.client-ip=209.85.160.171
+	 To:Cc:Content-Type; b=oQtq0CA9sKA7ykT3euB3WUTLe94Pn3jJ7Jlxhs+9qEvKLoBCYdaCJf041fuKiyc7NQk5QTI869VuXJw2yOpUD9cf764lBbY2IP7/yoR1dMjdWWEnMlF/k0ztA8sbNJDO8VEKjJc4pKRnH+SAMapYTrjr2RDSWzu7L/wIaRU1NAw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QSdNYi41; arc=none smtp.client-ip=209.85.160.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bMJjDDjJ"
-Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-4eda057f3c0so16854561cf.2
-        for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 17:50:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QSdNYi41"
+Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-4ed861eb98cso26117131cf.3
+        for <virtualization@lists.linux.dev>; Fri, 28 Nov 2025 18:33:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764381046; x=1764985846; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1764383594; x=1764988394; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xXq5BoozcLEtMZPipx/4wTBGFkZq8n4VHxCYYlUf+vY=;
-        b=bMJjDDjJ5rnwUmxelqZQIsONtcAwIKG6APHeeO61XbtDsG6TlKBNvwaHuBvhz7/EqS
-         B3Q8qr9FSt+OU44Sl7oZmtxEjAvXhA4KkPvlOFmLYu0O8eRxeCZHLwFvTEsHXEnK2UQu
-         PLSwoF3RDnlLNrP2J8z09ogBbL+ol9rvfGhCXgTynX9T3PTpejT4LAuOKVnh4XWDkGLg
-         Srt88epe3I7kaf+o/pKTLpKmqZDEssMKGSGiWM+75OJXRxGKDjyeWAYD06TIkNOIKSLQ
-         nC1F1uDxClmM2Q0srn2dyDH57a8MdBOtgpJYZzhyW/AmPkmoaJxOZnxuIIkeiBPIWbQ2
-         Q+oA==
+        bh=4Salk+Bq7Bto6CaKtKUn0rvQi1HOfk6akFnXhArcYZw=;
+        b=QSdNYi41aZdzF3EONDdmk+K4PENuej3fUFLGFgW0SdI3pMEJYlM4nUB4KvPOUH4X9A
+         rgzo2sNBnoOH2gRrrqGpxAPE+94J0aj3S7ZmenfYTD4RTcJFsP2JmH9lp6DfOXNrKXTy
+         zg/sQuv2B3a5nO+KxTI+zvljC2jU8YIXB4rL/sft8vGN6u7wqT0wJXuEQ2gmVZPIOMaj
+         iArZsc6gzMSUb36xgXCleQso+MBecXRSdiZsC73fEH8ssblv39yTQdYYbqeLCtbxxcZV
+         w3FRcvBvfEk8X/vxwQ+unfOSJ0N5HnagTjvzgI25ixmHI3Pt24ApNp9yYVf2kChvlVuN
+         WVCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764381046; x=1764985846;
+        d=1e100.net; s=20230601; t=1764383594; x=1764988394;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=xXq5BoozcLEtMZPipx/4wTBGFkZq8n4VHxCYYlUf+vY=;
-        b=cBx67Jr6L88JcizXiPMABFgzX3bTpryhju59Dxm6+oNFe0H/GaZKgTgqlBaq6bIwFV
-         IaD5OafExcq10mCqUwYnTY2yFhSQ/TXcf3rKYnowiGG9wjVSL4cZbNph2AKmNR0gXV1I
-         1WmNdsmc8nGh9OzOQ0OvpWjP0LRUtkhl/4klVwe52rC0QgLSAF2Axg65jptyoPQQ7vzK
-         LMAT9f+8p2mCxzVABfHRiwXwvQqspLojbYOYwIAARURmJPRmFw9jW1KizzIN81nCDFXv
-         Re9ik4yaZKhS5q6EyZ/rJkk1NUMJEJ7JPZnVe5ktZPf3eeHEz0KfpOBG9bHFJq6lSQno
-         tLmA==
-X-Forwarded-Encrypted: i=1; AJvYcCW1Li2o0Mmmq8yChdoPGpmCaV7Gw1NsJ7XH4AboVae83/jcB/1vK768LUpAyPk1clBxRHeIezb+6XiNXbtZTg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywx8yLWmNjpvKl34Z9ZQWYUsPX5h2+AaznciINSyZDLVKlG8Q8/
-	dHS1M6+EeTNnnfv7EDWuEh6QTiOkH0s+0GUUp7skadtp8kevZIuqRCPp9lPGvLNbToa5cr4M8aR
-	vxMkmSwHUTtW8I2LDpqv8Rvbo4cc+2ImfosyGmCs1Iw==
-X-Gm-Gg: ASbGncu5zdQ5TP/5fPfsYbraJ3Gtj7XBOvziYrsKK4nxggbFtc3dQLZSQKJDF0c7zjE
-	TVWEBG+R8iGIrWATuKcM4Z3DHC14a9VIGEcJdOUN0vVAB8S6GEEswVAx1LeMDKj/wQaekgMr8Wb
-	rhVRh0U/H0xQ0baJzjFOEVmzFTpsnzmLEaI2tZAsahbu48oR2hys71IDL7aDpuXBr514pZ+BZxA
-	c6FsjMI8ZgS7m5xaZ9iNodDc9VBupH3wGM6xbzL4Jz9FpjoitefjjgZLlbOgK/LJcqXB22Q4XKf
-	D4aP
-X-Google-Smtp-Source: AGHT+IE+Tw+9Y5Bub3lN6sC4Pj0OtdTK9knmaYL6GikYTYtgwTjW4uUHcZO2kGFVdLFpIVKdsMHQoOJ3Bk1wdK27dic=
-X-Received: by 2002:a05:622a:1909:b0:4ee:2942:c4fb with SMTP id
- d75a77b69052e-4ee5882d9d4mr417978631cf.31.1764381046350; Fri, 28 Nov 2025
- 17:50:46 -0800 (PST)
+        bh=4Salk+Bq7Bto6CaKtKUn0rvQi1HOfk6akFnXhArcYZw=;
+        b=nxt0Ji9psawG87artBjew3/PMToavuGydA/iXldyHAftLCS+KYY27/VPnU5NwzD9eB
+         SLQqyDoO+zObkhuv0mScZ+GBsebqj3TJl2XI6GRK5LCrbJXoc4GW6zRm6hTYS6UvHf+u
+         OpIZBMOGXqK8bFpSJ6YZm85GxGJHdU3RyLVt94ZWktGNKz8kE4tpPoMYEjv0VunlGx8f
+         RlY2jqdmMglXPGL6a57UD6A9AbXLgO93nZUaItQ1wTsSTv0tDEwTnJhkDohVvaxSjse9
+         p3fspzABSZKDSmbkkLRxf1at6lnVk2/XOnmgQ4NR/avm/dHRvuQ7OyfoPuSnfvgE5UOY
+         CLvg==
+X-Forwarded-Encrypted: i=1; AJvYcCU4iOyRlJi/jp+BW2lcKDVFPp8UKYRPpC2c2CrAygX0dXBam/ewZJ4VKGBWrTj8r7PMtj0rhdxx7VsV7mMSrg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwCA0qaRmn43ay1EZfSwC8CaGhL1p8vy/sxIkbOJ+jT1+2t3Ays
+	KIuwqqnvxEvaJlR34eZE5LVYVvItYmDeRns+mr9FTUy0uOXkYMcd3FkFkRKgpowM19hT/Yim9BP
+	adHffSwgl9QeJAzMPDhMANYG/P34so1c=
+X-Gm-Gg: ASbGncv38Rq2wgt+Llv4xzXUWYiECo7LG1NuLu3uS0+61Ju4eFPARfZqWlR7/NeORJV
+	7m/2XgdRwRSCpi1RkFJf0rQdW2d1QeUvRIiywe7CXcbAT2E/TdgbmRBE2bspJlnpMdc7XrkhAM1
+	jKwwz+htnp/GSOuB/Qlr5pwD3V+oJJIqGKA+7H8AXlGVkGsJ5wv7ubAENLxuY0Ti2rx7AOCnDTR
+	jEIDRkWHGJhdqQqbXa65PvOVyuXrFoTU4kLJPk993i+Qb2/Nsaq0sMvlpWyVtSAAVMJjw==
+X-Google-Smtp-Source: AGHT+IFPyQ3Ox8QMkCC+AFAT7oHRFHqyjDP2jn77IYnsfuFY8QOZCQOTUo4k7dkGxBUwkR6gi0usD4185jOYTHNWGHI=
+X-Received: by 2002:ac8:7f47:0:b0:4ee:14c3:4e6e with SMTP id
+ d75a77b69052e-4ee58a44b9cmr406211541cf.2.1764383594116; Fri, 28 Nov 2025
+ 18:33:14 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -62,78 +61,95 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20251128083219.2332407-1-zhangshida@kylinos.cn>
- <20251128083219.2332407-5-zhangshida@kylinos.cn> <CAHc6FU6dmK1udCgj9vMj1ew-4+bZOK7BA47kyEgONEwGg42veg@mail.gmail.com>
-In-Reply-To: <CAHc6FU6dmK1udCgj9vMj1ew-4+bZOK7BA47kyEgONEwGg42veg@mail.gmail.com>
+ <20251128083219.2332407-3-zhangshida@kylinos.cn> <CADUfDZqBYdygou9BSgpC+Mg+6+vaE2q-K=i1WJB1+KAeBkS1dg@mail.gmail.com>
+ <CANubcdUmUJKeabgagPTWhBd42vzOqx9oxG23FefFJVCcVa_t5A@mail.gmail.com>
+In-Reply-To: <CANubcdUmUJKeabgagPTWhBd42vzOqx9oxG23FefFJVCcVa_t5A@mail.gmail.com>
 From: Stephen Zhang <starzhangzsd@gmail.com>
-Date: Sat, 29 Nov 2025 09:50:10 +0800
-X-Gm-Features: AWmQ_bmFiM-2nj0DOVO633rnw-D1LMnVAvls5FZ2mk8-RJDyk4i3to2si2g7WjI
-Message-ID: <CANubcdW7FxbtSRzePgO4wQwUFBpgbSYdL-GR87vUXKq7tAPsJg@mail.gmail.com>
-Subject: Re: [PATCH v2 04/12] block: prohibit calls to bio_chain_endio
-To: Andreas Gruenbacher <agruenba@redhat.com>
+Date: Sat, 29 Nov 2025 10:32:38 +0800
+X-Gm-Features: AWmQ_bkv6yGPO014px4Ar0BXIBRCkLv-alSslcloxzSsXTYX1dEXbtGPSH-grNc
+Message-ID: <CANubcdU2f1+fCL9sYsrwXz-W0dzEsm_+Bds1m3W8=o_sQX30Hw@mail.gmail.com>
+Subject: Re: [PATCH v2 02/12] block: prevent race condition on bi_status in __bio_chain_endio
+To: Caleb Sander Mateos <csander@purestorage.com>
 Cc: Johannes.Thumshirn@wdc.com, hch@infradead.org, gruenba@redhat.com, 
 	ming.lei@redhat.com, linux-block@vger.kernel.org, 
 	linux-bcache@vger.kernel.org, nvdimm@lists.linux.dev, 
 	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org, 
 	gfs2@lists.linux.dev, ntfs3@lists.linux.dev, linux-xfs@vger.kernel.org, 
 	linux-kernel@vger.kernel.org, zhangshida@kylinos.cn, 
-	Gao Xiang <hsiangkao@linux.alibaba.com>
+	Andreas Gruenbacher <agruenba@redhat.com>, Gao Xiang <hsiangkao@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Andreas Gruenbacher <agruenba@redhat.com> =E4=BA=8E2025=E5=B9=B411=E6=9C=88=
-28=E6=97=A5=E5=91=A8=E4=BA=94 20:58=E5=86=99=E9=81=93=EF=BC=9A
+Stephen Zhang <starzhangzsd@gmail.com> =E4=BA=8E2025=E5=B9=B411=E6=9C=8829=
+=E6=97=A5=E5=91=A8=E5=85=AD 09:47=E5=86=99=E9=81=93=EF=BC=9A
 >
-> On Fri, Nov 28, 2025 at 9:33=E2=80=AFAM zhangshida <starzhangzsd@gmail.co=
-m> wrote:
-> > From: Shida Zhang <zhangshida@kylinos.cn>
+> Caleb Sander Mateos <csander@purestorage.com> =E4=BA=8E2025=E5=B9=B411=E6=
+=9C=8829=E6=97=A5=E5=91=A8=E5=85=AD 03:44=E5=86=99=E9=81=93=EF=BC=9A
 > >
-> > Now that all potential callers of bio_chain_endio have been
-> > eliminated, completely prohibit any future calls to this function.
+> > On Fri, Nov 28, 2025 at 12:34=E2=80=AFAM zhangshida <starzhangzsd@gmail=
+.com> wrote:
+> > >
+> > > From: Shida Zhang <zhangshida@kylinos.cn>
+> > >
+> > > Andreas point out that multiple completions can race setting
+> > > bi_status.
+> > >
+> > > The check (parent->bi_status) and the subsequent write are not an
+> > > atomic operation. The value of parent->bi_status could have changed
+> > > between the time you read it for the if check and the time you write
+> > > to it. So we use cmpxchg to fix the race, as suggested by Christoph.
+> > >
+> > > Suggested-by: Andreas Gruenbacher <agruenba@redhat.com>
+> > > Suggested-by: Christoph Hellwig <hch@infradead.org>
+> > > Signed-off-by: Shida Zhang <zhangshida@kylinos.cn>
+> > > ---
+> > >  block/bio.c | 7 +++++--
+> > >  1 file changed, 5 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/block/bio.c b/block/bio.c
+> > > index 55c2c1a0020..aa43435c15f 100644
+> > > --- a/block/bio.c
+> > > +++ b/block/bio.c
+> > > @@ -313,9 +313,12 @@ EXPORT_SYMBOL(bio_reset);
+> > >  static struct bio *__bio_chain_endio(struct bio *bio)
+> > >  {
+> > >         struct bio *parent =3D bio->bi_private;
+> > > +       blk_status_t *status =3D &parent->bi_status;
 > >
-> > Suggested-by: Ming Lei <ming.lei@redhat.com>
-> > Suggested-by: Andreas Gruenbacher <agruenba@redhat.com>
-> > Suggested-by: Christoph Hellwig <hch@infradead.org>
-> > Signed-off-by: Shida Zhang <zhangshida@kylinos.cn>
-> > ---
-> >  block/bio.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
+> > nit: this variable seems unnecessary, just use &parent->bi_status
+> > directly in the one place it's needed?
 > >
-> > diff --git a/block/bio.c b/block/bio.c
-> > index aa43435c15f..2473a2c0d2f 100644
-> > --- a/block/bio.c
-> > +++ b/block/bio.c
-> > @@ -323,8 +323,13 @@ static struct bio *__bio_chain_endio(struct bio *b=
-io)
-> >         return parent;
-> >  }
-> >
-> > +/**
-> > + * This function should only be used as a flag and must never be calle=
-d.
-> > + * If execution reaches here, it indicates a serious programming error=
-.
-> > + */
-> >  static void bio_chain_endio(struct bio *bio)
-> >  {
-> > +       BUG_ON(1);
 >
-> The below call is dead code and should be removed. With that, nothing
-> remains of the first patch in this queue ("block: fix incorrect logic
-> in bio_chain_endio") and that patch can be dropped.
+> Thanks, Caleb and Andreas. I will integrate your suggestions to:
+>
+>       if (!bio->bi_status)
+>                cmpxchg(&parent->bi_status, 0, bio->bi_status);
+>
 
-Yeah, that makes it much clearer. I will do that.
+Sorry, it should be:
+      if (bio->bi_status)
+              cmpxchg(&parent->bi_status, 0, bio->bi_status);
 
 Thanks,
 Shida
 
->
-> >         bio_endio(bio);
-> >  }
-> >
-> > --
-> > 2.34.1
-> >
->
 > Thanks,
-> Andreas
+> Shida
 >
+> > Best,
+> > Caleb
+> >
+> > > +       blk_status_t new_status =3D bio->bi_status;
+> > > +
+> > > +       if (new_status !=3D BLK_STS_OK)
+> > > +               cmpxchg(status, BLK_STS_OK, new_status);
+> > >
+> > > -       if (bio->bi_status && !parent->bi_status)
+> > > -               parent->bi_status =3D bio->bi_status;
+> > >         bio_put(bio);
+> > >         return parent;
+> > >  }
+> > > --
+> > > 2.34.1
+> > >
+> > >
