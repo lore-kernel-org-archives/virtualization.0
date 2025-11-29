@@ -1,64 +1,64 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F17512737F9
-	for <virtualization@lists.linux.dev>; Sat, 29 Nov 2025 09:01:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0D4927B348
+	for <virtualization@lists.linux.dev>; Sat, 29 Nov 2025 09:01:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764406907; cv=none; b=Y28siFWNSn6jJuUJ1uq3/0KQ+ODFksOdMtWAOYdwo7Wh9wpm4VWDWXuMcoDhE6Vm/pZ3UvClc8aSpf4DpjvMwVvz3yH9gMZWoZVT8VdfxywkuYNL5+eIJMBmULMDkE5cNtdv12YsYkwAi9W7byB9TFyiJxNdXLmM9fp5F4IHUPw=
+	t=1764406911; cv=none; b=Uf0EynDQURRjFgt6FsfsLjg4J8rjIzr6nQXcQMyOFT/6vZn/y9FeZwHHkDpYkte7Ts6/NbyaKrRM9oACy6QkX0TTTSblDTcnzqr8nvDrlLgsb5QYEM/b/aGfiQRHVrFu2bCjuGPmi5s5aniO4aceXaH43OTWOYm2+Q/1S+lmN4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764406907; c=relaxed/simple;
-	bh=jExYI2jaoXiycbQo0Q43ubPRMYOXkZVZRm5nOe4POx4=;
+	s=arc-20240116; t=1764406911; c=relaxed/simple;
+	bh=b80xEn7EdjxWTN/ci1ysQxp/kAR6AhTP55Nuwyj6diA=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=fOhfgU8rKMSNITWGp7ETCvyF/pT4pYDWX1iqkU16LmIkrhIrdVUj2VbL+HFx+uX70r4ogWH//S2eTNyJWU1fIo3fEi2FCa3j+vaPXUj/yyMyVe2/ZF9fISyr7TJCe57N+GdeYNlBiFmrEGQm5SCKj9YRTxzcllrqzVM+z8lQVvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=in2La/Yg; arc=none smtp.client-ip=209.85.216.43
+	 MIME-Version; b=l8e9ZtKzBKj7hqZugGy3PtWNACa6Rh4h1tnHZuEv5cL+I5obH9yeacHQFh4NPxh6ws9aPttF1W0N77cBToaFtQOirvSGVUuh8Qv0o509FcrKDCQCnlOZDCTH4E62JsOHzXpIaIf0avA7o/p+iUXrswz8UzhW1HDCwc80VPay7Wo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MLyrqbuk; arc=none smtp.client-ip=209.85.210.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="in2La/Yg"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3436a97f092so3171655a91.3
-        for <virtualization@lists.linux.dev>; Sat, 29 Nov 2025 01:01:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MLyrqbuk"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-7aa9be9f03aso2248170b3a.2
+        for <virtualization@lists.linux.dev>; Sat, 29 Nov 2025 01:01:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764406905; x=1765011705; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1764406909; x=1765011709; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=06c4CDfEOBNFQOCEh49v+FDqCuxNhXoe5zY9J+9QjgY=;
-        b=in2La/YgG5cokcEGw9rEvn9aOJceRQPBAwry2vn+vlKpRsswVXek4p3DyF1GCEgYrc
-         rg3KSRCdwxBuTeWHq6XAy+9B9iB9xKRPNqm4dsI+5AdEycq3pQMcLLEIF2b+LMpJg7zc
-         TW6epimDM4E/0wLFfZdDF64VK9zhVvR5EMo1HYZ9h5QZp39VQLB6kj/k50kBL2GJVYOc
-         iI61wJ2yj4ZbCWv6C0zYDY5RoMdvB6iiVvPxj9qddUw/EdCeYVRwIBWbrc1L2dXNbTlu
-         5sZyLrYj3fy9H3DNsQYxUi/SH80CLUe9oT7W+8+0FoIJDjjSrhyo/HTcTMJzwYnnceza
-         8U6w==
+        bh=1fxHcLru6xJPrGlRM61sm3BLmSBVukho7BhSnyNPRbc=;
+        b=MLyrqbukzkn8SamVb8Thn3xnr2bbO0XnWS/6TQQTg4yTWquuGrj3yH7GRCrMAyJBAt
+         +2cZoQC4jtbPTuWQF4P4shPfcgMjEqf7Ooy2qYcVXYAHYk+fmQxubZzNFe0kbjZZmeeO
+         VgSWOyLZkf5MPNW2wIoNNGrmz/dbr2R/1ZFMmaiQwmwfbhyh/zxEZNPp//0tmynEp91Y
+         xFLBxLth+B8ycpWR7xKBgdR94fiZ2eI//5GSObNILUw3LxkVRJrFn+P79fX5Nv7FFtnK
+         i2kRKZ7ZV+IBNDDaAVToknx1N2e9nv5PC8flTzNrUBzHoqE/biJPWPg37+Q4WU0uhAuN
+         Ggdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764406905; x=1765011705;
+        d=1e100.net; s=20230601; t=1764406909; x=1765011709;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=06c4CDfEOBNFQOCEh49v+FDqCuxNhXoe5zY9J+9QjgY=;
-        b=CcsZd2Qrz64vii/geK/J1EpXyfOXA0XBEXNmGGS/qim0//lLJHEiNkiW2dbWsZo0mn
-         Qef3OE5VhcdyUq9s4bEb8LVLgQThxcxXbWsQM+ZQHYLeCvWzmeNjRQclnExt2GuNnur0
-         7yXD9FATmSl/aOFuEUnEouoqMTD1aVWlsE72kKO/5SdBievTRt93L5YOnbYKG7AZyvvq
-         qiFr2ggNBeL0cc0+R31/a8OKC0HcJHemgnhjEQOa8p5YvBOtegE5yzvL/39VyA0hXvA9
-         BhY6M1NoOHarrm8uQLPy/7d4ChigkHRia9yVbKzmv58UOBuQ3J+Hsk7UcIMxE3FnXoZd
-         ojlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUhjW84o3TBL+QDAFmYZCZbq9ni9+uEnGvANn9Q9hoVtwRLerqX2yommNm4Z/WKr2G7EGti2nOnSXxawmLeFg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzOhE8asVkxq5au5bhuFk9FDZ2zBraV7VSRIj/+uE52plQVy4nK
-	aBlpfVqYb/qYQgqzJu7DCuifO8gqxypg1FAr2VWR7JhSA4EsSNal0Odt
-X-Gm-Gg: ASbGnct9LsPfJP2641HbEK3HRJokNs9DYhHbJ6M+BFY1c7B2i5bWIFWLtvi5q22FBky
-	uiR9QWNkvJ5lrCZYgksmEyXGD3QnUYfkQ/kvYsfW6VBvVqvnbtmbaj5BWcoO30U+DmQbXGtQCMm
-	4pFzHVHBtP8qW01e2LzvP1uxBKaXt2vaVr3CLgi8IGgdCLhjThmm27DImdmrq/lxfxa7cTWe59/
-	0ryzr/q+5hIbDk3MlBcv4ujA5ppv3hFplNseXKcACVUYNlygZycSj1+PpZQ/XNaHPAKXVMBBhc9
-	qtED8GSpsfYmUy6GlZsesmg21Hb+3W9CwgpuuHQA0duV2+OYVdKlIfLIU01LdMAv9TTIriq6oiq
-	x9H+aq02VAECs7y5APwhi4Lok05GZG7SHXwSxNG+3W5HCJ1idgHt13T4T7bi7p7+QhdOBR813Qo
-	BpM03CXOvkS8WOS4CxDiZhswUH7Q==
-X-Google-Smtp-Source: AGHT+IEFFhMF6u7tNXXwfE6dPq1pkaM+HsOKRV95Dom9e3MOSpru2Keq8NWtpHMva0MzTN1ZATf4vQ==
-X-Received: by 2002:a05:7022:62aa:b0:11b:c1ab:bdd4 with SMTP id a92af1059eb24-11cbba4ab67mr12173129c88.38.1764406904816;
-        Sat, 29 Nov 2025 01:01:44 -0800 (PST)
+        bh=1fxHcLru6xJPrGlRM61sm3BLmSBVukho7BhSnyNPRbc=;
+        b=WHdj3IfNcyJsZDne3f0XTpWFRRI907mpKoI74fzMURPQdkfimAktsh8TrLW1kgb/7S
+         rDF4pH+7W2S6c+cMhN8ipqYSTK14xfXPwF8eb9QY33PMtEnV6AUhNtjylaV0f+5tPWkP
+         m614/zJkZ80+XPl6HxPRZLcT4yhFUXLVW8XjpDCU2SjcZf0VUcMRxIR7AFFu9kdVlVLu
+         jRLoBEUehZNjHzeZanQbs4mOG47eRjouf1PrLo/klIE80GrETrXnz1id2zQqFCo4vdOd
+         mmEZp7iIehz5LvNJFjkxfHlLzZ2fweSPqJlzyIk/Z/gv1sfXGLamaskRu7oiuw7Mv9fY
+         d5eA==
+X-Forwarded-Encrypted: i=1; AJvYcCVD/F9rmX3WcKRsuKiTd6gzuEVILh3KNq9h9iSGoEl/xSD97LQN5OutW+3t2FSf5JQgaoWAPq9mHMiFaBd5Bw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwyTY/OQ17KeUadCvmc8p+0Dae9fe5jGTL9TK9I2pbEQAz/9yrB
+	OebHI+wd37x/7TfBn7YhSlDk+W4vV2hWnZwxjvD/F1Pqi938UoyQ+99cGD0GMpHyW20=
+X-Gm-Gg: ASbGncupzXgaGqa8cQlaO1197hpg8BXbqlIP62qLsbJ5lsOPUsDPiPJQqIBdzNew/4X
+	1olBamWR11C+IkSAO3JBmSML5YTuz6lyqW6zjcYOxoo+p1cn5Q1Geyu33YzZkJNvV3w2Im2d1ZG
+	kHec5lxMzDYSOnXscp3sJf39Bj1EJ3WWw5V835gedkJW7L16unwowO2gaQ4x4xgdYQDS2uSS/4F
+	zersstsW5VMy6AW6Krici7HCZfIfhEaFj+01Q/iKTNIwGQPSLghl21pSwSud6unCPNpihGsYrm/
+	AJIvlh+cHMf0NwlSETC2DB+dH/3z7L5tTCQdJCbCHt2fb3/K2vjPAuXc0hpfzUcuafYvZvBxFmE
+	ejQwCmm7N1pQIwG8qUUhs5Is0iyyCKGpGe7Yy1Aws94el8pi1p2Q3OsfK19df6Nvftw9ILKgaYT
+	o+IHdfsS20KlAb+geYM6SHL0/+Pg==
+X-Google-Smtp-Source: AGHT+IFEuvilLkDJGqcsWwCIedr283xueadWd1RQPKrotWNJSiN6yvq7rXU8DgdpE+SxH743dNudrQ==
+X-Received: by 2002:a05:7022:221a:b0:11a:2698:87c8 with SMTP id a92af1059eb24-11c9d710498mr16125897c88.1.1764406909336;
+        Sat, 29 Nov 2025 01:01:49 -0800 (PST)
 Received: from localhost.localdomain ([104.128.72.44])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-11dcae73bedsm28114394c88.0.2025.11.29.01.01.40
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-11dcae73bedsm28114394c88.0.2025.11.29.01.01.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Nov 2025 01:01:44 -0800 (PST)
+        Sat, 29 Nov 2025 01:01:48 -0800 (PST)
 From: zhangshida <starzhangzsd@gmail.com>
 X-Google-Original-From: zhangshida <zhangshida@kylinos.cn>
 To: Johannes.Thumshirn@wdc.com,
@@ -76,9 +76,9 @@ Cc: linux-block@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	zhangshida@kylinos.cn,
 	starzhangzsd@gmail.com
-Subject: [PATCH v3 2/9] block: prohibit calls to bio_chain_endio
-Date: Sat, 29 Nov 2025 17:01:15 +0800
-Message-Id: <20251129090122.2457896-3-zhangshida@kylinos.cn>
+Subject: [PATCH v3 3/9] block: prevent race condition on bi_status in __bio_chain_endio
+Date: Sat, 29 Nov 2025 17:01:16 +0800
+Message-Id: <20251129090122.2457896-4-zhangshida@kylinos.cn>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20251129090122.2457896-1-zhangshida@kylinos.cn>
 References: <20251129090122.2457896-1-zhangshida@kylinos.cn>
@@ -92,36 +92,38 @@ Content-Transfer-Encoding: 8bit
 
 From: Shida Zhang <zhangshida@kylinos.cn>
 
-Now that all potential callers of bio_chain_endio have been
-eliminated, completely prohibit any future calls to this function.
+Andreas point out that multiple completions can race setting
+bi_status.
 
-Suggested-by: Ming Lei <ming.lei@redhat.com>
+The check (parent->bi_status) and the subsequent write are not an
+atomic operation. The value of parent->bi_status could have changed
+between the time you read it for the if check and the time you write
+to it. So we use cmpxchg to fix the race, as suggested by Christoph.
+
 Suggested-by: Andreas Gruenbacher <agruenba@redhat.com>
 Suggested-by: Christoph Hellwig <hch@infradead.org>
+Suggested-by: Caleb Sander Mateos <csander@purestorage.com>
 Signed-off-by: Shida Zhang <zhangshida@kylinos.cn>
 ---
- block/bio.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ block/bio.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/block/bio.c b/block/bio.c
-index b3a79285c27..1b5e4577f4c 100644
+index 1b5e4577f4c..097c1cd2054 100644
 --- a/block/bio.c
 +++ b/block/bio.c
-@@ -320,9 +320,13 @@ static struct bio *__bio_chain_endio(struct bio *bio)
+@@ -314,8 +314,9 @@ static struct bio *__bio_chain_endio(struct bio *bio)
+ {
+ 	struct bio *parent = bio->bi_private;
+ 
+-	if (bio->bi_status && !parent->bi_status)
+-		parent->bi_status = bio->bi_status;
++	if (bio->bi_status)
++		cmpxchg(&parent->bi_status, 0, bio->bi_status);
++
+ 	bio_put(bio);
  	return parent;
  }
- 
-+/**
-+ * This function should only be used as a flag and must never be called.
-+ * If execution reaches here, it indicates a serious programming error.
-+ */
- static void bio_chain_endio(struct bio *bio)
- {
--	bio_endio(__bio_chain_endio(bio));
-+	BUG_ON(1);
- }
- 
- /**
 -- 
 2.34.1
 
