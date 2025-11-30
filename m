@@ -1,158 +1,149 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f52.google.com (mail-yx1-f52.google.com [74.125.224.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82247D27E
-	for <virtualization@lists.linux.dev>; Sun, 30 Nov 2025 03:49:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6F2927FB1C
+	for <virtualization@lists.linux.dev>; Sun, 30 Nov 2025 18:16:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764474576; cv=none; b=EMr20Tt109LEg5ezFm7DO6WGqPQ/Ws9KO7WIIRB8sQtuk1f/X3IMzTiExZ86nArdHnXm4oPbtZ82QNlS9d/uWvQLipHiayJcz+bDlsJA+uUL9EIZ06lQ9v/iN+7wgrFO0obI7HmGexFskpFOTN/gJOrsaN00143y62yhSnon1R0=
+	t=1764526610; cv=none; b=VJM9kmnbqtm9b/9RGsoFVKQkxyrvHkw4tG3NJPMJlyHNR1O3m0c0IVJ4XniENHjf8en9fSDmpE/B8dD130JxPbMSenZITyXrUfcNHWtLgy5jCaEW/wJOjvILfCApackdCO/EyMZ6O+l4PqEd0FjWWOOcOAZ5F6ThFwZe66zgnus=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764474576; c=relaxed/simple;
-	bh=1RgXUY4fEcrVTvfcLMOUM6UHNzw/N9ERFIJsUR/OXpk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LdhgoZneaXDTCpKMMk4yK1Yw6pxJYCNYNLdgv3hEhZ2QRg+XT2kwHWvp+y9UQ7t1TqDTPxU6WUo2qnRPChWN4a7TMK8LNvq0rAJqJ4FeJkBcUXsmUonHik9Y4sNK3v1qTl5Rf8Xdxh3zxmURVG/w1Yup3IDvnafUsNN+wX3b/zc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=Wkst+kWa; arc=none smtp.client-ip=117.135.210.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1764526610; c=relaxed/simple;
+	bh=KvguCsz4pFutF0DfQ4yn73w4b9PB3j46YC5jFCOIPbI=;
+	h=Date:From:To:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=ZV5FTjSma1GFFllob/9p9sLUm10wPXFsBzaH5JLL3/iYFet8TOeOiOzxIgZBhH6jNFLt4VfrOW04fuWxk8p0bSmHKBzHdg3+ebZEPSzAdsS4kCzK/+kggmEJbJPXhrt6bML8J/JRWhFxP0OBWtQIw67vCoMEjWjdOmXJUaT8OEY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FJa3TFfF; arc=none smtp.client-ip=74.125.224.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="Wkst+kWa"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=2h
-	1LwzTVcI55M1ofR/V3jw4zIILxhUZQgjvlO98Tj9c=; b=Wkst+kWaoNdnEPw2lm
-	60JdXs93LYbtspHJ3XCtp4GP2XI9QZxNvAgfCjf6GsfZPjgBsQ5+1dcOE4Z8aVGL
-	Nhb0VY8Yjg59y+xZwWLsUR01gQ6c97OP2sHc1K3SPNa9vyZsLfXPL8uU1BaBOuBj
-	KvATmK4W3HkOhbFsJYfxhS3oc=
-Received: from rom-ubuntu.. (unknown [])
-	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wBnd31RvCtpeoIkDA--.13754S2;
-	Sun, 30 Nov 2025 11:38:58 +0800 (CST)
-From: Yufeng Wang <r4o5m6e8o@163.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Yufeng Wang <r4o5m6e8o@163.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Cc: Yuedong Wang <wyd20130109@163.com>,
-	Yuexuan Wang <wangyx20170302@163.com>,
-	Haimei Qu <545714393@qq.com>
-Subject: [PATCH] tools: add map and vmap to virtio_device
-Date: Sun, 30 Nov 2025 11:38:55 +0800
-Message-ID: <20251130033855.28823-1-r4o5m6e8o@163.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FJa3TFfF"
+Received: by mail-yx1-f52.google.com with SMTP id 956f58d0204a3-640d0895d7cso4299470d50.1
+        for <virtualization@lists.linux.dev>; Sun, 30 Nov 2025 10:16:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1764526608; x=1765131408; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JyAdI2hiDQd5HiIOsukC026FiEA0dW/JcjYmFaMww+Q=;
+        b=FJa3TFfFCRnoEVOhsDDaWqm9Ai1KJnLPl34SDSIckQw5lEuWNxj/6ZCWvD4G2+YT3Y
+         M9ovY+qARbPo846rpi3dFQhFcHeXxDH/Dcq+omkYSLNgdcaxxmXNexwDQjkSaN2UO29u
+         2PJdep0zhWCg//VkgRbRLXruFDG5BsK1/p/pjk/dEec4XCxaX2nZ+9wdo7qljy17UjiW
+         2jWNLyq+RnqmrqwdXHkTb39yQUAnn7uV8mUv+CS6dGK9cKbu/86XyRB4OGysBxk7MFqX
+         cdfVL+QRbhCUl06yHgT1O4bFXFj9pXgxE5TimkPjRyDElx8Q+i/hdJpwaV6ntWrYSL8E
+         7GQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764526608; x=1765131408;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=JyAdI2hiDQd5HiIOsukC026FiEA0dW/JcjYmFaMww+Q=;
+        b=khiablo5VxwFZXah554umMaA6QbjZ9FZa6j9TUJBQR6iy116D9ZUtWexTdQaPx4Dal
+         ZkW7OC2XPCFp9YxNXirNRYMEziFEsf4tKaeW/JsmcfCGnl6muDyew1Ge1qsKB+SRN/Kz
+         E3uOJ4ZYr7bIcKPHcp/637iMWW2L9170aZlG+boZBYIZYuBr+g4oJZMLJtTjZQzRXgDI
+         34FXyyNXvq8E8xChmYQlZI1HbZwWqy75WxLcaFb0TQwC9maye71zbCGNfhdXnhzXDwkg
+         F/eAY0LJaMrtOJysp9E/JopWq48LdtfTiSXjLSNKfudJJ7C+2h85qdyKi1DekXMIeXX/
+         svKw==
+X-Forwarded-Encrypted: i=1; AJvYcCXMtSBZ3a34NRQebgP1TxvNnvspMLZrPcnd03zp9l0R/WZ4lItmEnWk7y2lps5MOUdBM/93aF1i7iLzGFyeEg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyoSpN21h87NLUitaqsUxsXlZnt5hCAG6877Ojgz0PRFz41MSOX
+	vOfxvfn72Y4g+1NtlqsGIQJXg1I51kZ/7SN2AOJKogtusn/WkV39XO+9
+X-Gm-Gg: ASbGncuUpLTN6I19MFfxg75fv6SBtIbpY9nK/cFbYZkq0/PIKetWbX3jNr+/vqbQx4B
+	ZFc+5wt+AFml4OcbtyZ7pkXWmjRCbvrJ+x4YKdS6yGKOBxPoJm/SP2lQHe+qavaKIWo0fJx/3WA
+	7jKNpFuzfX+wEX4ZB8d9Nr5Qx81toVUZCvhEJO1ehG3UCZAwC0OBwjzoPTrtLQxxAypRwg6K7cW
+	R7j1JjQOm/Itb74X9y2ZatbIZp8CAwzOLiV+r05JslSd4JGK2KVFi9fGlMK9NIP69P/18Pp7gnV
+	Ai3EKQncWDV4AVrcZ/kL+Erh335lWeKbyvo9eOdR1qAOHoc7RNm+rkN5PX2cRBoYotDp2mLirtO
+	as7cHpoagVyBQGfIgQCsk3ulqC9Th7rSGlvKZElJ599XScxJ0aqefvPC2jK5APRHWMWFLOkbGYJ
+	e/YMkPJ2ImqQedBqCBEpGEqlZu8LfWVJsPuaSzSROs6Ocos+cZLxpEFvX+pBFJblItvoo=
+X-Google-Smtp-Source: AGHT+IGjUNSaNMlSY1qlNbQudRZSgfRbmbbf/B0rphetUkGqwnK/CkPwKVh/ASYpHjSaXoMyaE9Zng==
+X-Received: by 2002:a05:690e:1489:b0:63f:b1fd:3850 with SMTP id 956f58d0204a3-64302631797mr26472073d50.33.1764526607842;
+        Sun, 30 Nov 2025 10:16:47 -0800 (PST)
+Received: from gmail.com (116.235.236.35.bc.googleusercontent.com. [35.236.235.116])
+        by smtp.gmail.com with UTF8SMTPSA id 00721157ae682-78ad1045723sm39215937b3.55.2025.11.30.10.16.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 30 Nov 2025 10:16:47 -0800 (PST)
+Date: Sun, 30 Nov 2025 13:16:46 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Simon Schippers <simon.schippers@tu-dortmund.de>, 
+ willemdebruijn.kernel@gmail.com, 
+ jasowang@redhat.com, 
+ andrew+netdev@lunn.ch, 
+ davem@davemloft.net, 
+ edumazet@google.com, 
+ kuba@kernel.org, 
+ pabeni@redhat.com, 
+ mst@redhat.com, 
+ eperezma@redhat.com, 
+ jon@nutanix.com, 
+ tim.gebauer@tu-dortmund.de, 
+ simon.schippers@tu-dortmund.de, 
+ netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ kvm@vger.kernel.org, 
+ virtualization@lists.linux.dev
+Message-ID: <willemdebruijn.kernel.2ef79a77ca3ec@gmail.com>
+In-Reply-To: <20251120152914.1127975-3-simon.schippers@tu-dortmund.de>
+References: <20251120152914.1127975-1-simon.schippers@tu-dortmund.de>
+ <20251120152914.1127975-3-simon.schippers@tu-dortmund.de>
+Subject: Re: [PATCH net-next v6 2/8] ptr_ring: add helper to check if consume
+ created space
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wBnd31RvCtpeoIkDA--.13754S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxCF18Ww4DCFW3XF45WF47CFg_yoW5KF4UpF
-	yUAr13GrWUKF4fZFyfA3WUCw4a9rn7Cryxta47W34jgF13XrnFvF1qka4rtr43AryDCFW8
-	ArnYqr4FkryDuFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pKXHRiUUUUU=
-X-CM-SenderInfo: 3uurkzkwhy0qqrwthudrp/1tbiRRIWdWkrtUy2NAAAsN
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-Fix compile error when make tools/virtio,
-port over the virtio_device member map and vmap to tools.
+Simon Schippers wrote:
+> Add __ptr_ring_consume_created_space() to check whether the previous
+> __ptr_ring_consume() call successfully consumed an element and created
+> space in the ring buffer. This enables callers to conditionally notify
+> producers when space becomes available.
+> 
+> The function is only valid immediately after a single consume operation
+> and should not be used after calling __ptr_ring_consume_batched().
 
-Fixes: bee8c7c24b73 ("virtio: introduce map ops in virtio core")
-Signed-off-by: Yufeng Wang <r4o5m6e8o@163.com>
-Tested-by: Yuedong Wang <wyd20130109@163.com>
-Tested-by: Yuexuan Wang <wangyx20170302@163.com>
-Tested-by: Haimei Qu <545714393@qq.com>
----
- tools/virtio/linux/virtio.h        | 28 ++++++++++++++++++++++++++++
- tools/virtio/linux/virtio_config.h | 21 +++++++++++++++++++++
- 2 files changed, 49 insertions(+)
+Please explain why it is only valid in that case.
+ 
+> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> Co-developed by: Jon Kohler <jon@nutanix.com>
+> Signed-off-by: Jon Kohler <jon@nutanix.com>
+> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+> ---
+>  include/linux/ptr_ring.h | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
+> 
+> diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
+> index da141cc8b075..76d6840b45a3 100644
+> --- a/include/linux/ptr_ring.h
+> +++ b/include/linux/ptr_ring.h
+> @@ -453,6 +453,23 @@ static inline int ptr_ring_consume_batched_bh(struct ptr_ring *r,
+>  	return ret;
+>  }
+>  
+> +/*
+> + * Check if the previous consume operation created space
+> + *
+> + * Returns true if the last call to __ptr_ring_consume() has created
+> + * space in the ring buffer (i.e., an element was consumed).
+> + *
+> + * Note: This function is only valid immediately after a single call to
+> + * __ptr_ring_consume(). If multiple calls to ptr_ring_consume*() have
+> + * been made, this check must be performed after each call individually.
+> + * Likewise, do not use this function after calling
+> + * __ptr_ring_consume_batched().
+> + */
+> +static inline bool __ptr_ring_consume_created_space(struct ptr_ring *r)
+> +{
+> +	return r->consumer_tail >= r->consumer_head;
+> +}
+> +
+>  /* Cast to structure type and call a function without discarding from FIFO.
+>   * Function must return a value.
+>   * Callers must take consumer_lock.
+> -- 
+> 2.43.0
+> 
 
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index 5d3440f474dd..4c2c87336d29 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -4,17 +4,24 @@
- #include <linux/scatterlist.h>
- #include <linux/kernel.h>
- #include <linux/spinlock.h>
-+#include <linux/dma-mapping.h>
- 
- struct device {
- 	void *parent;
- };
- 
-+union virtio_map {
-+	struct device *dma_dev;
-+};
-+
- struct virtio_device {
- 	struct device dev;
- 	u64 features;
- 	struct list_head vqs;
- 	spinlock_t vqs_list_lock;
- 	const struct virtio_config_ops *config;
-+	const struct virtio_map_ops *map;
-+	union virtio_map vmap;
- };
- 
- struct virtqueue {
-@@ -69,4 +76,25 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      const char *name);
- void vring_del_virtqueue(struct virtqueue *vq);
- 
-+void *virtqueue_map_alloc_coherent(struct virtio_device *vdev,
-+				   union virtio_map mapping_token,
-+				   size_t size, dma_addr_t *dma_handle,
-+				   gfp_t gfp);
-+
-+void virtqueue_map_free_coherent(struct virtio_device *vdev,
-+				 union virtio_map mapping_token,
-+				 size_t size, void *vaddr,
-+				 dma_addr_t dma_handle);
-+
-+dma_addr_t virtqueue_map_page_attrs(const struct virtqueue *_vq,
-+				    struct page *page,
-+				    unsigned long offset,
-+				    size_t size,
-+				    enum dma_data_direction dir,
-+				    unsigned long attrs);
-+
-+void virtqueue_unmap_page_attrs(const struct virtqueue *_vq,
-+				dma_addr_t dma_handle,
-+				size_t size, enum dma_data_direction dir,
-+				unsigned long attrs);
- #endif
-diff --git a/tools/virtio/linux/virtio_config.h b/tools/virtio/linux/virtio_config.h
-index 42a564f22f2d..ee696dad294a 100644
---- a/tools/virtio/linux/virtio_config.h
-+++ b/tools/virtio/linux/virtio_config.h
-@@ -10,6 +10,27 @@ struct virtio_config_ops {
- 	int (*enable_vq_after_reset)(struct virtqueue *vq);
- };
- 
-+struct virtio_map_ops {
-+	dma_addr_t (*map_page)(union virtio_map map, struct page *page,
-+			       unsigned long offset, size_t size,
-+			       enum dma_data_direction dir, unsigned long attrs);
-+	void (*unmap_page)(union virtio_map map, dma_addr_t map_handle,
-+			   size_t size, enum dma_data_direction dir,
-+			   unsigned long attrs);
-+	void (*sync_single_for_cpu)(union virtio_map map, dma_addr_t map_handle,
-+				    size_t size, enum dma_data_direction dir);
-+	void (*sync_single_for_device)(union virtio_map map,
-+				       dma_addr_t map_handle, size_t size,
-+				       enum dma_data_direction dir);
-+	void *(*alloc)(union virtio_map map, size_t size,
-+		       dma_addr_t *map_handle, gfp_t gfp);
-+	void (*free)(union virtio_map map, size_t size, void *vaddr,
-+		     dma_addr_t map_handle, unsigned long attrs);
-+	bool (*need_sync)(union virtio_map map, dma_addr_t map_handle);
-+	int (*mapping_error)(union virtio_map map, dma_addr_t map_handle);
-+	size_t (*max_mapping_size)(union virtio_map map);
-+};
-+
- /*
-  * __virtio_test_bit - helper to test feature bits. For use by transports.
-  *                     Devices should normally use virtio_has_feature,
--- 
-2.43.0
 
