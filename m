@@ -1,119 +1,98 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0019B28B7D7
-	for <virtualization@lists.linux.dev>; Sat, 29 Nov 2025 09:02:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D86BA55
+	for <virtualization@lists.linux.dev>; Sun, 30 Nov 2025 00:03:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764406940; cv=none; b=WbfNqvZv+KSwACfVFYODmLA3JVvPPeTTvNxy1q0ld1I6kJsAgXh5kca7cv3cslGKaCuAqZ4f7NFSzDay+DGnJyoHLHMt1iAL+OG6DFA1ZrON+zQoMo5tO9lAJ0SSN7f0CCI7ysHsEAXy2k8xJoTeysY9+e4K2L8+0bdMKstITsY=
+	t=1764461035; cv=none; b=T5AzAVSDHE70SBjIcd3sjxwEu2NmpFUGG9fgCBlGVxqQzKtmBMOFfAMUnw+yoxvFM/Cb2ea361FtqxKq/TlPQPXGRmXaa7EfGJUh1KiVD+zAPMvaFLUHQlbQgH4784dauMqhqiBpHSYmkbtpxIO3qeqfD0rGq2dG9nAPHSjrwC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764406940; c=relaxed/simple;
-	bh=MIUxfeIlXsLJb7D1x07khmxiQaV6FMQZLzsNI6cDMOY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=EIX7S9zsVhKzizBpEptHkyyZM45oL9XHk0W4GvFY0nXthJyt92DuFU18iWKcriZckMvIbdnsuJ3yHZERSjw3eIuWO4Ex0dwrXlWsFZzN1gSyxqCojZ88BQop1TkH8UNafdLfneoCnWBjAFS3+RUNQGh55FJXOwKzLrLvyVASSSM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=edi+kDxG; arc=none smtp.client-ip=209.85.210.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1764461035; c=relaxed/simple;
+	bh=2CZ0G7Lx9UBPrpSGEoDj6hdA+oKbgrHY9570I3L5PnY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=e2BRR6EVa7Qh4TEkqbRxWxdKc3XV9a56yrZZbPHtlMGWRs0QvWC0yXrl7s6NDDDkHG0QZxy1X+gW5cbG3kak8RAVEvMMRO/EfikUfMOfm6KEuZPRyAa6iJNYDdnisYraHxqw4MmB+ckop8UMUfacpjXZpFMAjEh7CI9X1gkOBfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=b6JLmv28; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="edi+kDxG"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-7aab061e7cbso3025917b3a.1
-        for <virtualization@lists.linux.dev>; Sat, 29 Nov 2025 01:02:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764406937; x=1765011737; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rZsPDOjyUTRUehf6LhbOb026Dy93eapwVzPzgOc2prg=;
-        b=edi+kDxGL0EMaI7WEOHwrRf20vjVBAODQbesfTsti9d6+1PnbxAjuFVoQlfsDaUA7v
-         8vQC5/gP0i/p/g54odY8ktSzYcTWbyQ4ufIH2/ufRm4cJtLjObAiDV9NYbgnx2EbTI4D
-         I5B2amzXsL07OPTtxp893JNBq2fvQYAhKYi4XXEuca3FBQ2sQqBk4q8JHVwAttDELUSz
-         818gwvr92RigWMRoI+iJr0PRxSzXTLWBJojHFGencsjjwVgGzf4sf2roAKwzq3zb6Lzj
-         RoTy35wLP2pes7bHvZAfz/j2097jGvuVYMTeN3Kxn06BzH6zt5ZUweqlQfVoqAfwm0cK
-         tkHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764406937; x=1765011737;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=rZsPDOjyUTRUehf6LhbOb026Dy93eapwVzPzgOc2prg=;
-        b=I7XYN/MSql/0aS6dY+S/psBnxXvsRBNC27CjLbEs/ionqd7R+idMPlLj2wziifaPyz
-         KizghbMuGH2+SPlawSGY3SnFoolpXyQ0MtGBqFu+dXO/nLAirCCB+8f+uR9CfbnVA507
-         edu9SSbAz1mGnUdpPt56DpjCNGAvTvr/srSNMIid2CwG/yp9j00W3ZwMJFlHSD4fzv1a
-         Ul5pmhtLW7hVPJd5ArIwOAcpqNerMJAvQoAGxWpd8Jw9u86+rVKpgZhMDWbswxGNVLfW
-         +o0anT/iI1BYNCatqwZGwidb2ZdCgOnXiKParE3fDUP2fXfFvUMi2bhohFRI+bLI+hZG
-         coxQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVtbuOmQvxiGCh7zN8oZmYCDUqKlMPYmkFl/yLXX19FqzBULe0/3GiiNzwNTp4t7dHbi5gSfqMvuLQ/gLUigg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzuTyOTNflcUtU2SufJOYALwyp1P/1ZnclT+2vk7pxzzEZ95Dms
-	fRwqqTbD1oAHNz8Yynlb9fqgNbMbVXrkucyNuyNiNurX4HnhkwE9EfB/
-X-Gm-Gg: ASbGncvx93XhSasAdisIZnjQY3uFN/kEasfsmx/0a2Df4RFxWzpWTjpY8z0f2Gh3J85
-	McOKiR49nGq8+L2+ZkYmqedWwXAM0d/+YDsZ0G9n3EFKD9+iZXFkUtextK2qljbyNtgfmH3aBpt
-	4Sw9OBjrRywNQ1ZVn+GEgZnlwP6J0C8LXC/lmIMdWS+M4/QZlOWJrG/gD7EH7gIO9KqrhC5C2vR
-	vMsduPuRUVZWCjdqmeeRIhRMV2WgXDik8RY4pgxP0+WPab20pPcYXPUS5HeMzQgWdEDHC6xjo/B
-	jV4twfylY+oBrARdC6gKk6DYxkYWIZ174bOuXgO9YC+4jn73aWCG/FGxrqb+u+21F3iR0TPblTZ
-	V6i8qwUAqkkrfsxK4Unws2QJOvVxiMJe9wroF78dU2x+77sQEPa/a3mv6oL7cEPwyTjUHQM3fNA
-	Gk8pUKu8Qbftrs7qIG5xuk+W7kEQ35w6+epyhm
-X-Google-Smtp-Source: AGHT+IHpE1uuYkahAmmHKZA5JS6JfSHwBl8orO/VCsXf8iMEXJ8J7PutjW87+hKd6ib1GUoYGhEBPQ==
-X-Received: by 2002:a05:7022:41:b0:11b:b1ce:277a with SMTP id a92af1059eb24-11c9d8482b1mr17984181c88.28.1764406937164;
-        Sat, 29 Nov 2025 01:02:17 -0800 (PST)
-Received: from localhost.localdomain ([104.128.72.44])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-11dcae73bedsm28114394c88.0.2025.11.29.01.02.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Nov 2025 01:02:16 -0800 (PST)
-From: zhangshida <starzhangzsd@gmail.com>
-X-Google-Original-From: zhangshida <zhangshida@kylinos.cn>
-To: Johannes.Thumshirn@wdc.com,
-	hch@infradead.org,
-	agruenba@redhat.com,
-	ming.lei@redhat.com,
-	hsiangkao@linux.alibaba.com,
-	csander@purestorage.com
-Cc: linux-block@vger.kernel.org,
-	linux-bcache@vger.kernel.org,
-	nvdimm@lists.linux.dev,
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="b6JLmv28"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version:
+	Content-Type; bh=yUYs23Uqf5ZNeoGn6Xlqs5/UveVEhVywpcqF8TR87p0=;
+	b=b6JLmv28iRLB3Jet+vxmGb92/ymL3vn7ECMmj2Uky2APWKcG4qGd/VVVtPWyqr
+	Zj21/lPD05HF0E3uJiqyBfV8xzUTbTW39hq2Lq2bQ15m/KUca34ohbi1RRkUiSem
+	4yv7wCtmbB3mTvWLXDy+h4EOFOVR7QPTEFqEwHMEzVldo=
+Received: from rom-ubuntu.. (unknown [])
+	by gzga-smtp-mtada-g0-4 (Coremail) with SMTP id _____wCXCDHUiStprISjDA--.32665S2;
+	Sun, 30 Nov 2025 08:03:33 +0800 (CST)
+From: Yufeng Wang <r4o5m6e8o@163.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Yufeng Wang <r4o5m6e8o@163.com>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Arnaldo Carvalho de Melo <acme@redhat.com>,
 	virtualization@lists.linux.dev,
-	ntfs3@lists.linux.dev,
-	linux-xfs@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	zhangshida@kylinos.cn,
-	starzhangzsd@gmail.com
-Subject: [PATCH v3 9/9] nvdimm: Replace the repetitive bio chaining code patterns
-Date: Sat, 29 Nov 2025 17:01:22 +0800
-Message-Id: <20251129090122.2457896-10-zhangshida@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20251129090122.2457896-1-zhangshida@kylinos.cn>
-References: <20251129090122.2457896-1-zhangshida@kylinos.cn>
+	linux-kernel@vger.kernel.org
+Cc: Yuedong Wang <wyd20130109@163.com>,
+	Yuexuan Wang <wangyx20170302@163.com>,
+	Haimei Qu <545714393@qq.com>
+Subject: [PATCH] tools: virtio/linux/compiler.h add __must_check define.
+Date: Sun, 30 Nov 2025 08:03:30 +0800
+Message-ID: <20251130000330.13139-1-r4o5m6e8o@163.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wCXCDHUiStprISjDA--.32665S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7uw4DWr48Kw48Cry3Xw45Awb_yoW8ArWrp3
+	WDury5Ga18uryxC3WfK3Wa9ry7uws3CryxtFy7uw1UCFyaqF1Iq3ZIkF1ayrZFv3yvka10
+	kr13XryDKa9rZaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pROzstUUUUU=
+X-CM-SenderInfo: 3uurkzkwhy0qqrwthudrp/xtbCzhW8MmkridXmywAA3m
 
-From: Shida Zhang <zhangshida@kylinos.cn>
+Port over the definition of __must_check, make us can build tools/virtio.
 
-Replace duplicate bio chaining logic with the common
-bio_chain_and_submit helper function.
+cc -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h -mfunction-return=thunk -fcf-protection=none -mindirect-branch-register -pthread   -c -o virtio_ring.o ../../drivers/virtio/virtio_ring.c
+In file included from ../include/linux/bits.h:32,
+                 from ../include/linux/bitops.h:14,
+                 from ../include/linux/log2.h:11,
+                 from ./linux/kernel.h:14,
+                 from ./linux/scatterlist.h:4,
+                 from ./linux/virtio.h:4,
+                 from ../../drivers/virtio/virtio_ring.c:6:
+../include/linux/overflow.h:82:15: error: unknown type name ‘__must_check’
+   82 | static inline __must_check size_t array_size(size_t a, size_t b)
 
-Signed-off-by: Shida Zhang <zhangshida@kylinos.cn>
+Fixes: fc92099902fb ("tools headers: Synchronize linux/bits.h with the kernel sources")
+Signed-off-by: Yufeng Wang <r4o5m6e8o@163.com>
+Tested-by: Yuedong Wang <wyd20130109@163.com>
+Tested-by: Yuexuan Wang <wangyx20170302@163.com>
+Tested-by: Haimei Qu <545714393@qq.com>
 ---
- drivers/nvdimm/nd_virtio.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ tools/virtio/linux/compiler.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-index c3f07be4aa2..e6ec7ceee9b 100644
---- a/drivers/nvdimm/nd_virtio.c
-+++ b/drivers/nvdimm/nd_virtio.c
-@@ -122,8 +122,7 @@ int async_pmem_flush(struct nd_region *nd_region, struct bio *bio)
- 			return -ENOMEM;
- 		bio_clone_blkg_association(child, bio);
- 		child->bi_iter.bi_sector = -1;
--		bio_chain(child, bio);
--		submit_bio(child);
-+		bio_chain_and_submit(child, bio);
- 		return 0;
- 	}
- 	if (virtio_pmem_flush(nd_region))
+diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
+index 204ef0e9f542..38c2b47b5f73 100644
+--- a/tools/virtio/linux/compiler.h
++++ b/tools/virtio/linux/compiler.h
+@@ -11,6 +11,10 @@
+ 
+ #define __aligned(x) __attribute((__aligned__(x)))
+ 
++#ifndef __must_check
++# define __must_check
++#endif //__must_check
++
+ /**
+  * data_race - mark an expression as containing intentional data races
+  *
 -- 
-2.34.1
+2.43.0
 
