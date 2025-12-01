@@ -1,192 +1,188 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012033.outbound.protection.outlook.com [52.101.53.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7145E24111D
-	for <virtualization@lists.linux.dev>; Mon,  1 Dec 2025 15:03:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764601435; cv=none; b=Fd+h5UhepGSnhAY+22BwfRb5lWRzEn9hrefejypwpUiLmJVTjVisHYweFpdbtFbGRZXt4tS6gBWYl0MRY7r1sI5DJrCz3lSWSJJYgji8hYXvk96ZXgkRb8yHNLpbuiQ4IjcNTdZ91s9kzHMlDvYy+Y43Q/RD57D/QJuSsPNx1Uo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764601435; c=relaxed/simple;
-	bh=EXzDcH+w5Jl6eGdL/1XTbFsMDWschXz87blxBSftkBo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=c/Y7673RWu31HrUgnG2/Kb+jU3fQAkU+q8qkoo8ClFeTscIKCFxl46Lh3Z5qsNrn65Y1rMPc4M4UOTSsxGK74B1gaBvQ5jJS5m7SEef7r0GweIjonMQIW/UrcXyDXACkacop4sMKAFx97rELbG1uFlusx/srGsdz5pVjA8wT9lk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LdomnaES; arc=none smtp.client-ip=209.85.210.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6838B199939
+	for <virtualization@lists.linux.dev>; Mon,  1 Dec 2025 15:15:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.33
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1764602114; cv=fail; b=pK4pLbM6OlHs5LeYqk/AgQSmgT4y+vVXGd12E17XGO4qLZXV1adn9fSsJp+9FtPUGwwdYm0i5BVRPZQpUFhSZFHY+gby7nyPos988HmvkTZXm937mOkONCPsG0RKVOFdm0p1idBrEkrCKejy1wQngG02cJqqRoqUwBDoVc+pc+A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1764602114; c=relaxed/simple;
+	bh=mobL0J8dXOCTgdsVCZ+/WXJE3y8pORALaQX7n0FGyZ8=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=lFmzId8mnEjUYMIOw/rCgbMktBeDYf5kP2+ja4PrbPVuJXmo7niq/HzTdzUn2a0FU59flwQ+ztU2QJ8xKSvPQq7OzDaXAjHuCyhCXKKo3EMmpPTzJLUcGbewzUQ4sG0yPwGgCTKcAwCVZ4qwmarBtkC0yf4D24C09QrWJn9tHqs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=WJBD9w5e; arc=fail smtp.client-ip=52.101.53.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LdomnaES"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-7b9c17dd591so3786999b3a.3
-        for <virtualization@lists.linux.dev>; Mon, 01 Dec 2025 07:03:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764601433; x=1765206233; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=tpw8LHvPdU6zlHMAMXTfZPDQrMbxfwldCPC5wqMja1s=;
-        b=LdomnaESsvOC5lXWX2n9IE31vcVOigkun29xhBYdW3Il/KG/z2Wr4me2oKFw/Lo6Oe
-         SvAM+MIWWjCmx3BnU6QP7rNRgkQnGDLBWSkZ2Jqo7hFXnHcfWJngeqZ8KF919m8Kb5Dw
-         D9606ySw7xN8Gc1E1AR7Jb/LM0+hsF1YnS4pnRcqFq+L9QQrleO1WC5C6PC7gURf89bE
-         SAMy4FLc+R42fiIj/2nupbfWiNh+e/vYarjQLZzHu/PUGuHmbkQdsRvWlgFtprNVY+ZS
-         Byyka+io05IvMsAkd/J33cCzgjklaCepBUsBDdIw1qF0R6sMNlZxqDfDYrdHhzoAeBvB
-         dAlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764601433; x=1765206233;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=tpw8LHvPdU6zlHMAMXTfZPDQrMbxfwldCPC5wqMja1s=;
-        b=lO6Qt5dHnZ8FvHzoGm9YjFI8HtUeN2P8PFoPMki0DdnS9AHHy0evaHiuIw52bsJ2hU
-         M4wIvMmK4U51egjczI5IQedJDI1Xz2EGO5cAliOzikD859kx07DiwStai2IpSf/tlZYW
-         5xVi3pS4eWGF2gbgRI/Q0dTryvciLijUHKOqoD/isi47czh8Y0D/b3Y0ez0Rpq9wDTaz
-         HzLTtXACpcvuofZnwDAGTqyRlB9cwz/J8FiMmhyRJF+YiPlyheBoQt/sbiDedyQIXp05
-         0jvtKFNNsfZE86uqtMJ8GKeq2CFssLAYMJnHWQG69iPADZ6g/cn80a2fvY6fSjxTDSGB
-         rHJA==
-X-Forwarded-Encrypted: i=1; AJvYcCWyZQXSCd8/8+GjrmVzmJVY9Qrp7SFkuLsXQAQXvyJcomIXF4m7rXocC8P8n8OSimNJtCFybrOJptJnvT4Vzg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzVxWeFf9ZfDF+wuBNu3bw0xGl/W3yTZLd8JTvfNUEIq4R1WnIA
-	KR54rkQr5Xn+OpgC7Ez4Ie3H0eprY7HlDxeRG3v15iYy84oUb9Gny7K6
-X-Gm-Gg: ASbGnctHrE7J5LWJ1iAu37IAZvbou0Pq/lp7v3Zalu9K5ihkEuH3H7RGRYgnWEoMGvE
-	H+iWCqQ9BQxDHVM4sfFAoIaYKZQbe2EhCq3157vZcYIeDUTFPwkS+jEqQDRSlAz3RJYf8c+dOZG
-	7CcJIjEuZMDUXF/4/7ZPvLlmHHnpkXvPlOHidUzn9J4sWBoOxew65c1ZKylVh98cFszD6WA0Ojz
-	4X/I62kaII9q7tqbubLn0gQ0iq7lwkZm8s+HU3ygtFP+3DT0uuEc2pl0Uwwdt9qhzVkW9x/8MtF
-	Ah9SDR3K4GZd0O2AjGWzax00As13shC+kRHkuXTC26HiEq6mxVgsGWBQOHHF09dxOSg0yyy4mWZ
-	f+aeFOEgZEf0WUy//yOQ+5cxGm29ucUz5Z1EqBfP4UsYrjadjxo5fST3DxlALRKXoe+Cgml9wqf
-	IUSc1wU51Oveue5KflTPqGFLbiDr3a2igHdhLpfB8dKi19AHJmLDN/3tq9I02Xwg==
-X-Google-Smtp-Source: AGHT+IHmv0QxInfFB/jZapSApAINRmF451TKrxhW5iPzZqBDqwn6NRIZ2O7dcTdimLEG9yOOxzaRZQ==
-X-Received: by 2002:a05:6a20:548d:b0:2d5:264c:e4a1 with SMTP id adf61e73a8af0-3637daaa237mr27333954637.8.1764601430946;
-        Mon, 01 Dec 2025 07:03:50 -0800 (PST)
-Received: from ?IPV6:2001:ee0:4f4c:210:adfb:c7fd:bfdc:f0bb? ([2001:ee0:4f4c:210:adfb:c7fd:bfdc:f0bb])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7d1516f6621sm13760828b3a.16.2025.12.01.07.03.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 01 Dec 2025 07:03:50 -0800 (PST)
-Message-ID: <a9718b11-76d5-4228-9256-6a4dee90c302@gmail.com>
-Date: Mon, 1 Dec 2025 22:03:42 +0700
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="WJBD9w5e"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=s+WsGEhJF2dgknEOfTkNe4rBHgr4P3RQ4tZHhRvFl+ZJiSg/egrktZr0Ql0DkK4zOb39VJRe+eySm4CWp9/zs+WVftynZcUKs7MyMvoTwnLSlhRGUlagXNNWeUmJdFMleSEGIOQDMw337325SBHCdaN7NDkuPAgSRYjelr8LfxLmrYNQeInW+7JJr/Hd1jWZDHDZJSySvE5IJ7zaTSK687kwIet0TXb2v6xjLEgBra6uKsUU+FXJ58Rwr+QErG0vSvOwHJYHTA3NKMg+fyZ5az97UYgaSdn7l/q6bUOvbO0zC/or+stlPd4HHYahTr6NPr1ig3UVmdAPfrqHpNGO4w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=rf15zEV566IiEHOUpnHqCLspYJV2CfSNkkwpqmO+3yo=;
+ b=i6Vfoe15DPUdp8d/FTlnrJxlpeaGCjcfoN62B9APcjcSalq90sSpmliI6A7tGJqtW/6oFK3EcMOQeeUfJeMUv4o7mwMuKkU24VpvmAh2oCSsJvQQkJGSLZezFztu6p4F2dQWUb+vOtcfKm81UIxRpcUzuf6bGvJS368NKuPFxRlO0MBwxpRQU+HCIWrRM+abqr9lZpA8sgsz6RWmSOJr5p5IraH5FdnxH6wATVoRV4qhKNvcsJQzkQZhI0h+9I30fqIh/RXgRGBvcz0edcU60JzsREY1wXEI8Fbu1E9c+lkq+nTQLiLAFuFBexfvybj7WG3YQY/jKLc+Eto1xsQXeQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rf15zEV566IiEHOUpnHqCLspYJV2CfSNkkwpqmO+3yo=;
+ b=WJBD9w5esQy27RccF4dzsH8KbPB4ZntrNjZi6zHvvj5N3mzgky4Mxxjbth9JH4u5jtSE2z3LfXxEd40MxRrMJGHcjbOLDX3GggIzts9cQFVakHUL1PB5WuY+krbV//3T7lJNJ3RUDNlDDm2yzZ4F/ACSPkh/BZsrqE95NfZbVE7q27KMSNcoMeLDQJl1dlddJIr0CmQcV3EKvU/I6LqlMTV5xAXHHm8Xf8HEWpa6GZ2S02qfIAJa6ugxHKpd0yMR1Di3P0IY89H1PzVTn6TkC2MhZ0TgQ4mrco7DBTNU8GPiZGjlrnx0y0qunrHnxqn4Z8Qkg2QCGEHVHIQuH2GJDg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
+ by PH8PR12MB6890.namprd12.prod.outlook.com (2603:10b6:510:1ca::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9366.17; Mon, 1 Dec
+ 2025 15:15:05 +0000
+Received: from MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
+ ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9366.012; Mon, 1 Dec 2025
+ 15:15:05 +0000
+Message-ID: <23558074-ee4c-49ec-80fb-4be7f4adf825@nvidia.com>
+Date: Mon, 1 Dec 2025 09:15:02 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v13 05/12] virtio_net: Query and set flow filter
+ caps
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+ virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+ yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
+ edumazet@google.com
+References: <20251126193539.7791-1-danielj@nvidia.com>
+ <20251126193539.7791-6-danielj@nvidia.com>
+ <20251126182919-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Dan Jurgens <danielj@nvidia.com>
+In-Reply-To: <20251126182919-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SN7PR04CA0193.namprd04.prod.outlook.com
+ (2603:10b6:806:126::18) To MW4PR12MB7309.namprd12.prod.outlook.com
+ (2603:10b6:303:22f::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC] virtio_net: gate delayed refill scheduling
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, bpf@vger.kernel.org
-References: <40af2b73239850e7bf1a81abb71ee99f1b563b9c.1764226734.git.mst@redhat.com>
- <a61dc7ee-d00b-41b4-b6fd-8a5152c3eae3@gmail.com>
- <CACGkMEuJFVUDQ7SKt93mCVkbDHxK+A74Bs9URpdGR+0mtjxmAg@mail.gmail.com>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <CACGkMEuJFVUDQ7SKt93mCVkbDHxK+A74Bs9URpdGR+0mtjxmAg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|PH8PR12MB6890:EE_
+X-MS-Office365-Filtering-Correlation-Id: ce2716b5-e72d-42fa-d02e-08de30ec6814
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|7416014|376014|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?QkR6OUFhQjQ3MmVySkRqcHI1QzNaNnlVUW81eTIyQnNhTGExeWVQKzhtWFVR?=
+ =?utf-8?B?cmh5OE11cHdWQVNBM2t6SllDbmVBd0RMcGFsT2ZTZGhBVFdQekN5Snl2dkhQ?=
+ =?utf-8?B?dzAwdEs2N3pWK3hmMWhFS0JIRFcxWGszdUZzNWw3T1pBb0lSR2UwWE9WaEV4?=
+ =?utf-8?B?Y2pUYXFQM1VqR1F1aTBhaEV1d0lUN2VVMmUycSthSS9MSElhdzIzR082d3A4?=
+ =?utf-8?B?M0dlUFZFWWRDK1hUYUQ3Z3l3MTJXb3pFZEFhWkx0QTRyY2p4cDJWN1JXb0Z2?=
+ =?utf-8?B?bHEyaDhnMmlCVnU4ZnlCSHRrdzJGeitBYWJ0b2pFUjlFMTYvNmU5d1VjV2cz?=
+ =?utf-8?B?RFU3MUdDL0RvOWRyRVpZa2NZMWlmNXVwZ2grMDBBUm5aU29laVFlUjEzMGJv?=
+ =?utf-8?B?QVBKbW55cXcrdEtjdDJXa2Y2K0o1c00zMFRFdVE5cjJCL01JWVBkaVdqM3Fn?=
+ =?utf-8?B?REJoYlZha29tOFVmNno4RW1CRk4wR1VyTUdQeUtUZjgzeVJRNkVZMHBmK1Q4?=
+ =?utf-8?B?c1E3WGg1eVlINXpybGdkTUpDeGZPRjNOdnZwVjkwaHpmc0R2Umo4UC9ONHlF?=
+ =?utf-8?B?Q3lySXlicStDSnN4MTdMMnZKK3B4M0FxZ2VMU1lhSkhieDVhNUhHZTZDK2kv?=
+ =?utf-8?B?UGwwZWdqbkNTYW5KR01TeWdZVXV6enY0RktRS0FWUkFzTGhTNmxQcHk2dmsr?=
+ =?utf-8?B?b1Z2OGVOUUllVUh0R3J2N0E1a2prNXFGV1pVc2VRM0ZxRVNsQi9VdFYyM21I?=
+ =?utf-8?B?Z21SU0M0ZnE3NUFUcXN2VDJyam1DcGpKcFJhaUZ3S0hYU2FDb2hiSDBxeEoy?=
+ =?utf-8?B?dE9XTXNmQWNFeEFsRW93QnVCZ0xGQmJhQU5GVEUza3RzYTkweXdEM0lyNEkw?=
+ =?utf-8?B?cndZN2hxN3hiaEIxV3RPQkV2VlVTVFpQbUZnQjQ2bWw3VDJuM3FnT0NzaFls?=
+ =?utf-8?B?QUIzdUxOM2o0cU8xT1hBVE5kbEpPUGQ2UXBlOE5xRFNRZFBlZmU1aTdPc21s?=
+ =?utf-8?B?c25TQkoyWGpnM0c2eS8wRFczVVdPVnZBajZCYUxxYktjWUdiamNtWFp5NW1I?=
+ =?utf-8?B?VGlEdXdXQXBMaVZxOVl3QzgwaUtlNlVkRGt5TnhDUEdoeXFFd2p6ZWxRVDI5?=
+ =?utf-8?B?WTJlZUJLYWZUQ0tLNlladmU4NWlQVFVUR05mUjJMWWdmOXRoTytYbFR0YXIz?=
+ =?utf-8?B?VlVaUk9Fb3NtTFRhWEIyY285Q1cxVThsY2FUNnExS3JUVFVldysvYjJ4MC9k?=
+ =?utf-8?B?dVl3OWpLVGNOcnRva0wrakkvdC9mMXlLVERoTnlhcEhaQ3NJSFpYQjBnYTJZ?=
+ =?utf-8?B?Y3BRdm9STnozdHc3NURVcVVXczZsdDB3T0xzejA5ZTgxNzhGVExSN0Z6RnFU?=
+ =?utf-8?B?QzhkR0lQZDZyK2o0a1VLKzNTeUsrMmQwV28xdGFoRldYeWdlVEkyUXQvQ0hx?=
+ =?utf-8?B?NUN0TWdTUGw4ZXlSMGtBZys2ZzlaNXEySE52ZjdvSGJMNEJNUkNEQmJ2RStM?=
+ =?utf-8?B?dFgwSDBKVG1EWmRlTmZ1Mk91UnZ6Q3NDcHBmY0ZHNFNtNWVoazVpZXZSSmNO?=
+ =?utf-8?B?UVdkRzgvQjBUWUl1eC82RUdDalpNQWtld21mKy9INmUrVDMvNHhlblVFL3VS?=
+ =?utf-8?B?LzFSL3NDM2tYNDl1Vko1SmVQMkErUnBwQnRnQTBsWUJpU3VPL0NUWEdkbWFT?=
+ =?utf-8?B?U0ZNS0o1NjZ0TWdSenFOaW1Ma0dsUzcwSzZaN04xSklYNkg1MkdheXBWQ0d4?=
+ =?utf-8?B?OXNTTWJhTHpOS0VMSE1oKzBCZnl6ZHZYdGZmNmNhV1diRVNMY2w4cURUOUt5?=
+ =?utf-8?B?dlgzK2pYYysrMWZnU1Q1czI1ZFNJL1JhWkl3MUE5WUFGakNxVkJQUjdDd2xi?=
+ =?utf-8?B?eTlrZXhZRnNMS290czgzZy9mdlNPeUNsMTdXd3phV0JQNHpDaDdyYlJYUGcv?=
+ =?utf-8?Q?7djEysmO8S7NxRazWMFM3tk7rGiNAzSj?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?M1VGYjMrNU5qSjUrTGtEbm4rRTJYYzJVRVA0Tm1PMEpLSWdRa0lWMFZrbjJx?=
+ =?utf-8?B?NWpMUU8xL3pqdlNybzlsZXNlR2RmRzIyd2trMnpTd3VHUm9WMXhpUkFJVGdB?=
+ =?utf-8?B?TkNTUVRpbWRpbEl6anJPSTNBY0R5M1pnNldmcXMwRDZzRzV0WVFHcVd5Yzlv?=
+ =?utf-8?B?d2lFeXUxWjR5QUwzdjF5eTkwNzl5RU9TMWd3RHlnQXczT1pMODVCME01dmFx?=
+ =?utf-8?B?THJUSHY0RHNOam01UFFmNHdnSm1zVm0wdWpKejd3ZmtJQ0xtcFkzekcraHhI?=
+ =?utf-8?B?MExQeTF4MHJxQnU0RFpKT0Ftc3dyQkd3dlZldXZ4aStRbENhcDZVTXV5UVY4?=
+ =?utf-8?B?d29QUmlYSXM2VWJvRUljWlpjQnRKQkpQejhNU2FJam9lelhBQWIrZGp3K09Z?=
+ =?utf-8?B?TnBITURxWDBIUzZ5TEZrWXdXbkMwbkZzeTFYdTh2eE1iUFNhaXVnamhEdjBQ?=
+ =?utf-8?B?UWV4WHV5NkNqOWllcmpnOTFwb1RicjVhZHBNS1dFQmUwdFdNVnFnQkV6dWg3?=
+ =?utf-8?B?N1ZuODlEajlsMGdRYm1TNVZRWVBrbyt6dUNoTFpvaXBuaHcybHR0MHpYSHBO?=
+ =?utf-8?B?OTFZbWJaTUNuWkFvVnNqa0JjM2xhbENXUFRnUmFRT0ZHdG1heXBOMHBSMlRI?=
+ =?utf-8?B?TFRUR0hNNzEvTGREcG5qMkxWQnRtKzJraXRGVnRZSHEyczhoeENPY1ptY1Bo?=
+ =?utf-8?B?eW12VW4yb1VhOWxJUmlUeU5EZ2NBNk5rWkM0eEFEM3JWSWVUU0ZyZ25BRUdN?=
+ =?utf-8?B?RzFWVDM1WU9ZVEZ4ZCsyL0VUTjZHL3ZFNi9BTFJZbVRucFFiOWsxWTVPYmEw?=
+ =?utf-8?B?Y2FydWVSckVkSmRDdXZxQVhDdkhlN09tZmRvOUo3U0tqd040RjdSQkhrUHo2?=
+ =?utf-8?B?Y24vdDdtREljRTA1NUF4bDM3ejlFazM1Vkp1L2ZYOFA4eStjaUtJVjlhcHRW?=
+ =?utf-8?B?VE9zUXZtZXVQY2RRYkhmRVA2WDdLWkliMDlFTll2V05QbUNFN2tVeDE3Ry9C?=
+ =?utf-8?B?Uy9GOUpFSkFhV3lRWDhkNUJiV1JjQWNZUUM2K1FTYkcyeGpiZnpoYU40R3hB?=
+ =?utf-8?B?eS84enlyMUo1Q2gvSVFydHluWXVmMGhCTEdhckM4TkJQL1dWeWRkUGppTTZG?=
+ =?utf-8?B?SUZLU1hySWtBdFNURXUzaDFoTnZua3lSeHYzMHpWNnhwL2w4Z01XTjFodXBz?=
+ =?utf-8?B?dlJSOEpOUEI1SkNGNjFmK3RyUjlENGZXSTArOHBDVlM2R041bjRYcEVqZlQv?=
+ =?utf-8?B?a1o0eVlSa2FZckl5UEl1TTBGVWk0eGlBck91Zmo4bFY3MGZITUozcFZSNW9T?=
+ =?utf-8?B?SERKajFZamR1TjF0MTlQOWQxTVlzcVBLdUt0NXB0OEkxaDdBOWZHUHBxeGFH?=
+ =?utf-8?B?Tm1SLzF2dnZMd0Q0T0ZMWWtzWVlVcEt4c1kybHpsVUhBQ2ZQT1IySXJFaFhq?=
+ =?utf-8?B?OFA3U2Qwb0lwTDdSM1AzS081YS9sdlN5V0hQN21GQkt6WHdLVVduSCtReWUv?=
+ =?utf-8?B?NUVnaHRkbTRFQ2N6a2p2ZDNVZ3JDYXJtS2ZhQXpMT0NsN09ubmxUMDFGL1J3?=
+ =?utf-8?B?SGdrT2tDTHl2ZVZnQ3lhQ0IvWmI2eE1nMnRZejBnbkZtVjVjNFQ4NVBpWmxw?=
+ =?utf-8?B?T0NZNE5iWEZDcURXakR6VGtEdXZ1aVE4SE1lS29JdEdnRVhIajI1RmtNZ2Iz?=
+ =?utf-8?B?dXB2VkdHeVdhb3BDbVY0MmxtRUM2TnkxMXIxbHVzcENoQ1VEVXRleENxWWpV?=
+ =?utf-8?B?TndxYTJoQVNZbzZOeHhmb2xyc1dFYjNlZkhORUhzT09aSWxHekpXZE14MHAx?=
+ =?utf-8?B?ZVFlZTQ3K1lXNmVBRUsyZGZPV0NRRDNlWTFXRWtNcmI5bUZGL3NHYkhOZk9W?=
+ =?utf-8?B?RWtib3hiTmhPUUJpbXN4a0p3VkozbUpRMkdKMk02cVFnT05RdkZlMHJPUXRz?=
+ =?utf-8?B?MHg3L0djb1o3NEZ2aDNtNkJES2RLQjdrRkROd1UwUTF1Q3VPSTBaM2tBNEJQ?=
+ =?utf-8?B?a3VGVXcvcElBMkpRMm1hRVNwdU05elg5cFRNM3d6T0hjTVBSdDVlZmdQYjlj?=
+ =?utf-8?B?WU9hdFVSblNSZ1BxQVhhMkRQQXplRmEzbXFOaG91QWNnMlZmK2hQVXlobm5S?=
+ =?utf-8?Q?ty5sfCeUSB/3Hu2xvWNdE/o3N?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ce2716b5-e72d-42fa-d02e-08de30ec6814
+X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Dec 2025 15:15:05.2035
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2pzZJc1dfoeIPtox6eyMQIChytdFt2K1iFgN5BrFw+yPkC4I6j6zQPdznDUKVgZRYC8hwannwz70mBZ+7IvpGA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB6890
 
-On 11/28/25 09:20, Jason Wang wrote:
-> On Fri, Nov 28, 2025 at 1:47 AM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
->> I think the the requeue in refill_work is not the problem here. In
->> virtnet_rx_pause[_all](), we use cancel_work_sync() which is safe to
->> use "even if the work re-queues itself". AFAICS, cancel_work_sync()
->> will disable work -> flush work -> enable again. So if the work requeue
->> itself in flush work, the requeue will fail because the work is already
->> disabled.
-> Right.
->
->> I think what triggers the deadlock here is a bug in
->> virtnet_rx_resume_all(). virtnet_rx_resume_all() calls to
->> __virtnet_rx_resume() which calls napi_enable() and may schedule
->> refill. It schedules the refill work right after napi_enable the first
->> receive queue. The correct way must be napi_enable all receive queues
->> before scheduling refill work.
-> So what you meant is that the napi_disable() is called for a queue
-> whose NAPI has been disabled?
->
-> cpu0] enable_delayed_refill()
-> cpu0] napi_enable(queue0)
-> cpu0] schedule_delayed_work(&vi->refill)
-> cpu1] napi_disable(queue0)
-> cpu1] napi_enable(queue0)
-> cpu1] napi_disable(queue1)
->
-> In this case cpu1 waits forever while holding the netdev lock. This
-> looks like a bug since the netdev_lock 413f0271f3966 ("net: protect
-> NAPI enablement with netdev_lock()")?
+On 11/26/25 5:31 PM, Michael S. Tsirkin wrote:
+> On Wed, Nov 26, 2025 at 01:35:32PM -0600, Daniel Jurgens wrote:
+>> @@ -5812,6 +6019,17 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+>>  			return err;
+>>  	}
+>>  
+>> +	/* Initialize flow filters. Not supported is an acceptable and common
+>> +	 * return code
+>> +	 */
+>> +	rtnl_lock();
+>> +	err = virtnet_ff_init(&vi->ff, vi->vdev);
+>> +	if (err && err != -EOPNOTSUPP) {
+>> +		rtnl_unlock();
+>> +		return err;
+> 
+> does not look like this rolls back previous
+> initialization on error (probe does).
+> 
 
-Yes, I've tried to fix it in 4bc12818b363 ("virtio-net: disable delayed 
-refill when pausing rx"), but it has flaws.
+Thanks, I'll address it.
 
->> The fix is like this (there are quite duplicated code, I will clean up
->> and send patches later if it is correct)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 8e04adb57f52..892aa0805d1b 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -3482,20 +3482,25 @@ static void __virtnet_rx_resume(struct virtnet_info *vi,
->>    static void virtnet_rx_resume_all(struct virtnet_info *vi)
->>    {
->>        int i;
->> +    bool schedule_refill = false;
->> +
->> +    for (i = 0; i < vi->max_queue_pairs; i++)
->> +        __virtnet_rx_resume(vi, &vi->rq[i], false);
->>
->>        enable_delayed_refill(vi);
->> -    for (i = 0; i < vi->max_queue_pairs; i++) {
->> -        if (i < vi->curr_queue_pairs)
->> -            __virtnet_rx_resume(vi, &vi->rq[i], true);
->> -        else
->> -            __virtnet_rx_resume(vi, &vi->rq[i], false);
->> -    }
->> +
->> +    for (i = 0; i < vi->curr_queue_pairs; i++)
->> +        if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
->> +            schedule_refill = true;
->> +
->> +    if (schedule_refill)
->> +        schedule_delayed_work(&vi->refill, 0);
->>    }
->>
->>    static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
->>    {
->> -    enable_delayed_refill(vi);
->>        __virtnet_rx_resume(vi, rq, true);
->> +    enable_delayed_refill(vi);
-> This seems to be odd. I think at least we need to move this before:
->
->> +    if (schedule_refill)
->> +        schedule_delayed_work(&vi->refill, 0);
-> ?
+Have you reviewed the others? I'll wait until Wednesday morning to
+resend, unless you confirm that's the only comment.
 
-Yes, I think helper __virtnet_rx_resume does not work well, because 
-virtnet_rx_resume_all and virtnet_rx_resume have slightly different 
-logic. So I think it's better to open-code the helper and do the logic 
-directly in virtnet_rx_resume_all and virtnet_rx_resume.
-
->>    }
->>
->>    static int virtnet_rx_resize(struct virtnet_info *vi,
->>
->> I also move the enable_delayed_refill() after we __virtnet_rx_resume()
->> to ensure no refill is scheduled before napi_enable().
->>
->> What do you think?
-> This has been implemented in your patch or I may miss something.
-
-Yes, I move the enable_delayed_refill after the call __virtnet_rx_resume 
-in the above diff because I see it creates a window where delayed refill 
-is enabled before napi is enabled. However, AFAICS, other places that 
-schedule the delayed refill work must acquire the rtnl_lock and/or 
-netdev_lock, so it cannot happen while we are in virtnet_rx_resume[_all].
-
-Thanks,
-Quang Minh.
