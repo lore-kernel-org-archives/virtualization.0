@@ -1,97 +1,85 @@
-Received: from out162-62-57-252.mail.qq.com (out162-62-57-252.mail.qq.com [162.62.57.252])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from sg-1-18.ptr.blmpb.com (sg-1-18.ptr.blmpb.com [118.26.132.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA3B81F09B3;
-	Mon,  1 Dec 2025 03:41:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.252
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EA681D5160
+	for <virtualization@lists.linux.dev>; Mon,  1 Dec 2025 05:45:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=118.26.132.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764560485; cv=none; b=V1hiZPtJT4BOGAd72jnGHs1lAsoI2Q8VImUv86v/QPBiFPaHs64KrdhF8vnrTDMnj0PAsk3mpfjg75idktYkqI0TgaFwjpDpYP8qdcv3AD73J7mPrZwCinfu7B7qBBecGzLyJ3jAgxi28MSzj8LS1296RXvKCM7MQdTn5goMBdk=
+	t=1764567947; cv=none; b=Qypvww+2hgtrPXktKa123c1me5dO1VXa3R4jRGG4vSQggmZOp8X2pik7mRk3fjpDcTsw0rAujredKFGva28mOAuwPO1d4g2ZyeZUaPZjVumLkFZaUNuKOvu5m1lIZEXrY0goqgTavLOhiMsiaXXDFa1RfpqdM1WOXhR0i9z49KU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764560485; c=relaxed/simple;
-	bh=leCy//KoczHnqhz2R2YoPDhsJC6dgrFmCg+gWRwh7T4=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=NBej2KJHNXqUQqVWpQOKMvTFDUuRVqqVnoLbGAvk2S9vSKZhETtVdkkHqHCyQd5V0XYxhxGY7uVQltLzgIK8Ii+Lh1yAc20YcCRoac7LJz4bBdchCdqsd8z7i51WwWcdacU8VdcpBJcceT777fXwXzGPgUtuLNT1GbhCM/oB4ao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=zrNYlckH; arc=none smtp.client-ip=162.62.57.252
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1764567947; c=relaxed/simple;
+	bh=FrLZeS9iVrmZMi5DRhrhFzf5CcnM5AZI3fO/L2TjI1E=;
+	h=Message-Id:References:In-Reply-To:Date:Mime-Version:Content-Type:
+	 From:Cc:Subject:To; b=S4mwkksGlt3BlTy+WM9h6Wk/Qfi+PXCTRxw2NFtmv/7vhKv64igJ2Xu+j4oZU8jAqFPdS4qhzFL63+R7p6rYnIj008YivMkDlh3uruwA1xOGsasZ6QOU/KCqrNcIyUF0S1HA7UsxDa5ELPD+kT3vfMsIi9eOoUHtscGN7sz0oWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fnnas.com; spf=pass smtp.mailfrom=fnnas.com; dkim=pass (2048-bit key) header.d=fnnas-com.20200927.dkim.feishu.cn header.i=@fnnas-com.20200927.dkim.feishu.cn header.b=mlVsioHM; arc=none smtp.client-ip=118.26.132.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fnnas.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fnnas.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="zrNYlckH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1764560470; bh=h1ElSL1Dua1skk8vctxiE38fat4PN7OeW8/o828lFH0=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=zrNYlckHZ29+sbZuH9lr99zbht65ADgBrT3M3JyfW06Iquh2IdciCnWyq/Ix8aD82
-	 SHPaKYnVuDacKN3rjr9u3cqBDd2eJ7z382WT9r9zyiyYZDwNtxafQ+qny0K0TYZcQD
-	 gS4e16spgpBMXAnTTldE0UqeHF/Warl9LwDPonJ4=
-Received: from lxu-ped-host.. ([111.201.7.117])
-	by newxmesmtplogicsvrszb51-0.qq.com (NewEsmtp) with SMTP
-	id A4628C90; Mon, 01 Dec 2025 11:41:06 +0800
-X-QQ-mid: xmsmtpt1764560466tv4m7kq4c
-Message-ID: <tencent_7B73E6D013636363696CC3A34444F77AF705@qq.com>
-X-QQ-XMAILINFO: M1rD3f8svNznlXm1wtdwYLpaX6NI7m7ByGt+tAfGDFF8BgBVgBU80YYV6OZs9/
-	 gcY/Piad/qhewzLPwuV6BMcBWBTLZEie7bvFNEg+wIq735cke7o6NP/VBDpAgH+9Mmntxou+p/RT
-	 +zJDJFLXvnHWK8vUtE4d4NsFNZ2tvH3hmF1MkivD2geXIoKsHb0e14GN9RWpzneXjpyjyhvnWdEm
-	 0b3lORU9WItCgu9bLGMJL4jDlXptvmZj+jI6zCZoxmhtZ+Q0UFxApFfYuvYkuVGyTTPg1tVJkGqW
-	 pJusXEdL25gPBK4NehgzrgZyRItZsVGx0n8q/fm3O3QAfLAoJtQ0C3X2kLeukTqMWbe15e5QSXBe
-	 wTOedVbVCRUTKWpTalubRdI9OAWaFAdHlLKGaM1WKa+b+ujrwnAdD7CCgJXUvmv3NZvI0klw1Qxc
-	 tTBehPxv+fbFYoCuZVMwfv0i8PojyO7e+66rq70IzngkdhfY86uDa3tuaIMDVIRehKmP5ivabJ0T
-	 og0pEEf3c931ms1HrqP8wTv7wVG1D54uORehCKxrwIaug/fbMk3VWvp2XKgceVXQD7Z+t/pqRw0W
-	 o4/eOurfxJE7S15h6D6xafRauGnXXlagotaLgzJL+8VbRf2crCNxeVY1ZUv5PJblr3AO8LGJM5SM
-	 vGb43NI4lrKyljLEuQDLibHsGH6Tzco4xtX5UWi1Bcpc0JCY7LVMMGSmnyHT2CxxQXa/HsH9WNEC
-	 DutOMuFdQMy95sL0dlPw0eJPlWmEbHSrHdB4jGxId0VjVOu+sAhJv/zlHeyvFFNv9FjDQgPMSgzX
-	 5uGwcui810S5yNIhX/7RUhM/rHNeLecqJvkNzHOGGRWsiv7TAmbWfw+o0sYQ/WkoMdQIag625WfU
-	 IwHP6EeNFUsLUYh9zsE4uR7thsUeqImvfqGlTYMVvmGFlyVdWwxWwp+LPhgDLhsju16TMoUFIgIV
-	 E+eTCVAqg2vBezwVz96fexbPF/TPGTgcdfrhQfQ7AiZPFJMAXu/Lx27IHx2CEOa4aV5Wo0yHEbXn
-	 ixccxcLUM2rv0fxa6Xp4Bf6uHze3w=
-X-QQ-XMRINFO: OD9hHCdaPRBwq3WW+NvGbIU=
-From: Edward Adam Davis <eadavis@qq.com>
-To: kuba@kernel.org
-Cc: davem@davemloft.net,
-	eadavis@qq.com,
-	edumazet@google.com,
-	eperezma@redhat.com,
-	horms@kernel.org,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	pabeni@redhat.com,
-	sgarzare@redhat.com,
-	stefanha@redhat.com,
-	syzbot+ci3edb9412aeb2e703@syzkaller.appspotmail.com,
-	syzbot@lists.linux.dev,
-	syzbot@syzkaller.appspotmail.com,
-	syzkaller-bugs@googlegroups.com,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH Next V2] net: restore the iterator to its original state when an error occurs
-Date: Mon,  1 Dec 2025 11:41:07 +0800
-X-OQ-MSGID: <20251201034106.206190-2-eadavis@qq.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20251128093946.18c645c6@kernel.org>
-References: <20251128093946.18c645c6@kernel.org>
+	dkim=pass (2048-bit key) header.d=fnnas-com.20200927.dkim.feishu.cn header.i=@fnnas-com.20200927.dkim.feishu.cn header.b="mlVsioHM"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=s1; d=fnnas-com.20200927.dkim.feishu.cn; t=1764567939;
+  h=from:subject:mime-version:from:date:message-id:subject:to:cc:
+ reply-to:content-type:mime-version:in-reply-to:message-id;
+ bh=sCJL8NM5LN4ox9qDlAfQe91dK8F8fKCk/Hgg80m0H8Q=;
+ b=mlVsioHMKYge9CWuleC4jliVQ3Weuv5CzkJGzTH4vCKC9ax/M+RcxXilpXCcI9Li7jFLI8
+ 6g6MaYOl7pBPRzOZaX5ES9+GjkqLm19EQDx4+VJLCQDJSBmAuRSZrQ/t3dS6dwYyHhDhmo
+ J+CartXY1deG2DRV5hNzfveNCu0BwpW6NyNM6nbomfE7HaBeptBfLG/SNEAv6I9PWMInax
+ 9g3cOQBpt4AOcmz8zGyqty+FEXZ9MM/6e3kp4zjt15kQjIobhFnV3nPmstIjwVLQKQeyvY
+ E99pLMpvh4HJ35t0TwbduzeYR/8fEX2pNPmUCbWLsLZCZbOzhjH0marQlOgVvQ==
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <DFAC6F10-B224-4524-9D8F-506B5312A2E8@coly.li>
+X-Original-From: Coly Li <i@coly.li>
+References: <20251129090122.2457896-1-zhangshida@kylinos.cn> <20251129090122.2457896-2-zhangshida@kylinos.cn>
+In-Reply-To: <20251129090122.2457896-2-zhangshida@kylinos.cn>
+X-Mailer: Apple Mail (2.3864.200.81.1.6)
+Date: Mon, 1 Dec 2025 13:45:24 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Lms-Return-Path: <lba+2692d2b81+df44ac+lists.linux.dev+colyli@fnnas.com>
+From: "Coly Li" <colyli@fnnas.com>
+Cc: <Johannes.Thumshirn@wdc.com>, <hch@infradead.org>, <agruenba@redhat.com>, 
+	<ming.lei@redhat.com>, <hsiangkao@linux.alibaba.com>, 
+	<csander@purestorage.com>, <linux-block@vger.kernel.org>, 
+	<linux-bcache@vger.kernel.org>, <nvdimm@lists.linux.dev>, 
+	<virtualization@lists.linux.dev>, <ntfs3@lists.linux.dev>, 
+	<linux-xfs@vger.kernel.org>, <linux-kernel@vger.kernel.org>, 
+	<zhangshida@kylinos.cn>
+Subject: Re: [PATCH v3 1/9] md: bcache: fix improper use of bi_end_io
+Received: from smtpclient.apple ([120.245.66.121]) by smtp.feishu.cn with ESMTPS; Mon, 01 Dec 2025 13:45:36 +0800
+To: "zhangshida" <starzhangzsd@gmail.com>
 
-On Fri, 28 Nov 2025 09:39:46 -0800, Jakub Kicinski wrote:
-> > In zerocopy_fill_skb_from_iter(), if two copy operations are performed
-> > and the first one succeeds while the second one fails, it returns a
-> > failure but the count in iterator has already been decremented due to
-> > the first successful copy. This ultimately affects the local variable
-> > rest_len in virtio_transport_send_pkt_info(), causing the remaining
-> > count in rest_len to be greater than the actual iterator count. As a
-> > result, packet sending operations continue even when the iterator count
-> > is zero, which further leads to skb->len being 0 and triggers the warning
-> > reported by syzbot [1].
-> 
-> Please follow the subsystem guidelines for posting patches:
-> https://www.kernel.org/doc/html/next/process/maintainer-netdev.html
-> Your patch breaks zerocopy tests.
-I see that they all timed out. I'm not familiar with this test, how can
-I get more details about it?
+> 2025=E5=B9=B411=E6=9C=8829=E6=97=A5 17:01=EF=BC=8Czhangshida <starzhangzs=
+d@gmail.com> =E5=86=99=E9=81=93=EF=BC=9A
+>=20
+> From: Shida Zhang <zhangshida@kylinos.cn>
+>=20
+> Don't call bio->bi_end_io() directly. Use the bio_endio() helper
+> function instead, which handles completion more safely and uniformly.
+>=20
+> Suggested-by: Christoph Hellwig <hch@infradead.org>
+> Signed-off-by: Shida Zhang <zhangshida@kylinos.cn>
+> ---
+> drivers/md/bcache/request.c | 6 +++---
+> 1 file changed, 3 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
+> index af345dc6fde..82fdea7dea7 100644
+> --- a/drivers/md/bcache/request.c
+> +++ b/drivers/md/bcache/request.c
 
+[snipped]
+
+The patch is good. Please modify the patch subject to:  bcache: fix imprope=
+r use of bi_end_io
+
+You may directly send the refined version to linux-bcache mailing list, I w=
+ill take it.
+
+Thanks.
+
+Coly Li
