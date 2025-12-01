@@ -1,137 +1,192 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22373303A2D
-	for <virtualization@lists.linux.dev>; Mon,  1 Dec 2025 10:31:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7145E24111D
+	for <virtualization@lists.linux.dev>; Mon,  1 Dec 2025 15:03:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764585094; cv=none; b=MP2OCbF0Y7H9fBoprsUmDITtweOIZ1ihagh+aZIz7IgwEWgPv+jGSO3nti/r8y/KskfLA+xCUZyfeakmnHPD23Sv7Fh4W47BoouK3cOxQFUo61lGpAtcFNgUcfAyTir55jWcXmC2ti2w/QiAd0749XVy/GbxdBbROOMFxdCQ6hw=
+	t=1764601435; cv=none; b=Fd+h5UhepGSnhAY+22BwfRb5lWRzEn9hrefejypwpUiLmJVTjVisHYweFpdbtFbGRZXt4tS6gBWYl0MRY7r1sI5DJrCz3lSWSJJYgji8hYXvk96ZXgkRb8yHNLpbuiQ4IjcNTdZ91s9kzHMlDvYy+Y43Q/RD57D/QJuSsPNx1Uo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764585094; c=relaxed/simple;
-	bh=oAKELPmBA2BqrK0o9QFtBWPRSKg+tCcCo1sXueOdRDE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eooNaMUb2A3/zP/JToKAEHi+VVjyZEFeEY/alHeqmGO+yGI2u53xSnTwdShaMOYAw3jJOTv78WL/olrhuH1VRTfGnsdYUQiP1DPLN5YmtDsCDMrYkadG+sq4+uNIStkbHkFO6GHG/Rus3UqYipq7KyjkH3CnwyTzsbqiIM1aObo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SvYBMu0b; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1764601435; c=relaxed/simple;
+	bh=EXzDcH+w5Jl6eGdL/1XTbFsMDWschXz87blxBSftkBo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=c/Y7673RWu31HrUgnG2/Kb+jU3fQAkU+q8qkoo8ClFeTscIKCFxl46Lh3Z5qsNrn65Y1rMPc4M4UOTSsxGK74B1gaBvQ5jJS5m7SEef7r0GweIjonMQIW/UrcXyDXACkacop4sMKAFx97rELbG1uFlusx/srGsdz5pVjA8wT9lk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LdomnaES; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SvYBMu0b"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764585092;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XepCzKXSZv6JjslqxB2za4xngOadSy78tcQeBtMRexk=;
-	b=SvYBMu0b3KPBFUduPqezPPqs0AOZeQgiXYbYf+YdIFzIUhhENHcLx1EiJCCAlLmIUrxjTp
-	7j+c15HkVVNHGWLQg2mrNNbcBQ5h4JcnCIuk58U/rnZU25C5vD+ZBsXz58DsVeXA8b8aws
-	C9zO5OY2tV9S2XQqAHejI/kQBCEialY=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-29-BCnQSCGdNfGVeBYYozrthA-1; Mon, 01 Dec 2025 05:31:28 -0500
-X-MC-Unique: BCnQSCGdNfGVeBYYozrthA-1
-X-Mimecast-MFC-AGG-ID: BCnQSCGdNfGVeBYYozrthA_1764585088
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-787e84cec10so49461317b3.3
-        for <virtualization@lists.linux.dev>; Mon, 01 Dec 2025 02:31:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LdomnaES"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-7b9c17dd591so3786999b3a.3
+        for <virtualization@lists.linux.dev>; Mon, 01 Dec 2025 07:03:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1764601433; x=1765206233; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=tpw8LHvPdU6zlHMAMXTfZPDQrMbxfwldCPC5wqMja1s=;
+        b=LdomnaESsvOC5lXWX2n9IE31vcVOigkun29xhBYdW3Il/KG/z2Wr4me2oKFw/Lo6Oe
+         SvAM+MIWWjCmx3BnU6QP7rNRgkQnGDLBWSkZ2Jqo7hFXnHcfWJngeqZ8KF919m8Kb5Dw
+         D9606ySw7xN8Gc1E1AR7Jb/LM0+hsF1YnS4pnRcqFq+L9QQrleO1WC5C6PC7gURf89bE
+         SAMy4FLc+R42fiIj/2nupbfWiNh+e/vYarjQLZzHu/PUGuHmbkQdsRvWlgFtprNVY+ZS
+         Byyka+io05IvMsAkd/J33cCzgjklaCepBUsBDdIw1qF0R6sMNlZxqDfDYrdHhzoAeBvB
+         dAlA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764585088; x=1765189888;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=XepCzKXSZv6JjslqxB2za4xngOadSy78tcQeBtMRexk=;
-        b=hA695kGuKPRONyVmk80C7/3CGXbYjWCXkcAYTfKxXFJNsrML1btp1uNgBpT59DnQOI
-         YewnKng6Pr8tR+YbJLdh3Ke9dxheh8WCwx2m5NvY6oSyq9lPuRmlp9Q3iymDPQqCiRUG
-         MFeONbpgYcKwoNSEscmAT5oGErAfuIftYZwCgUeiYfZER8sm2SeIT9BYvuIDS1KMhCQV
-         TqdR00RHWwSgeCXjWDLQUsrlIvgwrgYG4uDUyhijnkRLH6UDOIFGwn+wUfwdh1pYDbL0
-         TK54i+Lqq8gKJQGyWSj6w23MZlyxWvwQoc1zw9rntPRdCX+fR1ZGQdwq037YCeA2iC5s
-         amZQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV7Lt99ssAPE1P5o7p9viaF0bWQgDw/1AmuKFNiQm2fPg6j4vqZtKgjNPLBpF1BH52AqqYIf6CGNngGXOirhQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yypij/7ZxxJfBOkat3/6cM03D7jT7DE29ot7Ecgmwce5auvDUlJ
-	CSpgwnOvsWXL4jdf3fd5O7yMBXVHY2u86cL5bkwo4fWbHr4aEXffA+SkyM/mmGu5g7J5Af0E0a/
-	8PBK99TrOtw27AaQg7OJJHGAtIzNk85Y0KgJIlTrT610r64JRHMFLIWsgzUNmL4Ga1rHz2FrHk3
-	VxSOGug8330ZutMt5tzf6hIdPYIAZZhWScsrTIszAFaUs=
-X-Gm-Gg: ASbGncsrzbVxhoEj6sNKbqacbAfJYDPAwggREtAebyy0V7cQB8ouMa8M0YmYZhU0L20
-	QZLGF1Zf1LXLjbb8yGOlU1i/QW2CmnXL6wMcjwmSQXnXq5o3JxQbNmAXSlmVEdYJ+dH2Axc9qmt
-	CDlqW+vJk1i916ueIdpPvw2HRUN+5NHfxdBFljUIT1PTGMSnFC6nS6J5v2JrM1Y0m4
-X-Received: by 2002:a05:690c:6f8e:b0:77f:a301:4634 with SMTP id 00721157ae682-78ab6f19dbemr204012277b3.45.1764585088406;
-        Mon, 01 Dec 2025 02:31:28 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHv5zzmMokroNvK6hxRqePUK2sUy1kyOakdwZXoQ77gSpCZtxQfALMHCo45aGmJsVIK/6txSFE4cjS1pCWEh08=
-X-Received: by 2002:a05:690c:6f8e:b0:77f:a301:4634 with SMTP id
- 00721157ae682-78ab6f19dbemr204012007b3.45.1764585088053; Mon, 01 Dec 2025
- 02:31:28 -0800 (PST)
+        d=1e100.net; s=20230601; t=1764601433; x=1765206233;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=tpw8LHvPdU6zlHMAMXTfZPDQrMbxfwldCPC5wqMja1s=;
+        b=lO6Qt5dHnZ8FvHzoGm9YjFI8HtUeN2P8PFoPMki0DdnS9AHHy0evaHiuIw52bsJ2hU
+         M4wIvMmK4U51egjczI5IQedJDI1Xz2EGO5cAliOzikD859kx07DiwStai2IpSf/tlZYW
+         5xVi3pS4eWGF2gbgRI/Q0dTryvciLijUHKOqoD/isi47czh8Y0D/b3Y0ez0Rpq9wDTaz
+         HzLTtXACpcvuofZnwDAGTqyRlB9cwz/J8FiMmhyRJF+YiPlyheBoQt/sbiDedyQIXp05
+         0jvtKFNNsfZE86uqtMJ8GKeq2CFssLAYMJnHWQG69iPADZ6g/cn80a2fvY6fSjxTDSGB
+         rHJA==
+X-Forwarded-Encrypted: i=1; AJvYcCWyZQXSCd8/8+GjrmVzmJVY9Qrp7SFkuLsXQAQXvyJcomIXF4m7rXocC8P8n8OSimNJtCFybrOJptJnvT4Vzg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzVxWeFf9ZfDF+wuBNu3bw0xGl/W3yTZLd8JTvfNUEIq4R1WnIA
+	KR54rkQr5Xn+OpgC7Ez4Ie3H0eprY7HlDxeRG3v15iYy84oUb9Gny7K6
+X-Gm-Gg: ASbGnctHrE7J5LWJ1iAu37IAZvbou0Pq/lp7v3Zalu9K5ihkEuH3H7RGRYgnWEoMGvE
+	H+iWCqQ9BQxDHVM4sfFAoIaYKZQbe2EhCq3157vZcYIeDUTFPwkS+jEqQDRSlAz3RJYf8c+dOZG
+	7CcJIjEuZMDUXF/4/7ZPvLlmHHnpkXvPlOHidUzn9J4sWBoOxew65c1ZKylVh98cFszD6WA0Ojz
+	4X/I62kaII9q7tqbubLn0gQ0iq7lwkZm8s+HU3ygtFP+3DT0uuEc2pl0Uwwdt9qhzVkW9x/8MtF
+	Ah9SDR3K4GZd0O2AjGWzax00As13shC+kRHkuXTC26HiEq6mxVgsGWBQOHHF09dxOSg0yyy4mWZ
+	f+aeFOEgZEf0WUy//yOQ+5cxGm29ucUz5Z1EqBfP4UsYrjadjxo5fST3DxlALRKXoe+Cgml9wqf
+	IUSc1wU51Oveue5KflTPqGFLbiDr3a2igHdhLpfB8dKi19AHJmLDN/3tq9I02Xwg==
+X-Google-Smtp-Source: AGHT+IHmv0QxInfFB/jZapSApAINRmF451TKrxhW5iPzZqBDqwn6NRIZ2O7dcTdimLEG9yOOxzaRZQ==
+X-Received: by 2002:a05:6a20:548d:b0:2d5:264c:e4a1 with SMTP id adf61e73a8af0-3637daaa237mr27333954637.8.1764601430946;
+        Mon, 01 Dec 2025 07:03:50 -0800 (PST)
+Received: from ?IPV6:2001:ee0:4f4c:210:adfb:c7fd:bfdc:f0bb? ([2001:ee0:4f4c:210:adfb:c7fd:bfdc:f0bb])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7d1516f6621sm13760828b3a.16.2025.12.01.07.03.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 01 Dec 2025 07:03:50 -0800 (PST)
+Message-ID: <a9718b11-76d5-4228-9256-6a4dee90c302@gmail.com>
+Date: Mon, 1 Dec 2025 22:03:42 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251128083219.2332407-1-zhangshida@kylinos.cn>
- <20251128083219.2332407-7-zhangshida@kylinos.cn> <CANubcdUtncH7OxYg0+4ax0v9OmbuV337AM5DQHOpsBVa-A1cbA@mail.gmail.com>
-In-Reply-To: <CANubcdUtncH7OxYg0+4ax0v9OmbuV337AM5DQHOpsBVa-A1cbA@mail.gmail.com>
-From: Andreas Gruenbacher <agruenba@redhat.com>
-Date: Mon, 1 Dec 2025 11:31:17 +0100
-X-Gm-Features: AWmQ_bnf2BodBLtXxgPiuMZc2dFAC9eikQedB20yLRtD3dfyefefH-ZDvfFzYn8
-Message-ID: <CAHc6FU5DAhrRKyYjuZ+qF84rCsUDiPo3iPoZ67NvN-pbunJH4A@mail.gmail.com>
-Subject: Re: [PATCH v2 06/12] gfs2: Replace the repetitive bio chaining code patterns
-To: Stephen Zhang <starzhangzsd@gmail.com>
-Cc: Johannes.Thumshirn@wdc.com, hch@infradead.org, gruenba@redhat.com, 
-	ming.lei@redhat.com, Gao Xiang <hsiangkao@linux.alibaba.com>, 
-	linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, 
-	nvdimm@lists.linux.dev, virtualization@lists.linux.dev, 
-	linux-nvme@lists.infradead.org, gfs2@lists.linux.dev, ntfs3@lists.linux.dev, 
-	linux-xfs@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	zhangshida@kylinos.cn
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5eHV-IrxP9GRJdzersQ-Dmo3TjMJsPOierBAazeKkHo_1764585088
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC] virtio_net: gate delayed refill scheduling
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ Paolo Abeni <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, bpf@vger.kernel.org
+References: <40af2b73239850e7bf1a81abb71ee99f1b563b9c.1764226734.git.mst@redhat.com>
+ <a61dc7ee-d00b-41b4-b6fd-8a5152c3eae3@gmail.com>
+ <CACGkMEuJFVUDQ7SKt93mCVkbDHxK+A74Bs9URpdGR+0mtjxmAg@mail.gmail.com>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <CACGkMEuJFVUDQ7SKt93mCVkbDHxK+A74Bs9URpdGR+0mtjxmAg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Sat, Nov 29, 2025 at 3:48=E2=80=AFAM Stephen Zhang <starzhangzsd@gmail.c=
-om> wrote:
-> zhangshida <starzhangzsd@gmail.com> =E4=BA=8E2025=E5=B9=B411=E6=9C=8828=
-=E6=97=A5=E5=91=A8=E4=BA=94 16:33=E5=86=99=E9=81=93=EF=BC=9A
-> >
-> > From: Shida Zhang <zhangshida@kylinos.cn>
-> >
-> > Replace duplicate bio chaining logic with the common
-> > bio_chain_and_submit helper function.
-> >
-> > Signed-off-by: Shida Zhang <zhangshida@kylinos.cn>
-> > ---
-> >  fs/gfs2/lops.c | 3 +--
-> >  1 file changed, 1 insertion(+), 2 deletions(-)
-> >
-> > diff --git a/fs/gfs2/lops.c b/fs/gfs2/lops.c
-> > index 9c8c305a75c..0073fd7c454 100644
-> > --- a/fs/gfs2/lops.c
-> > +++ b/fs/gfs2/lops.c
-> > @@ -487,8 +487,7 @@ static struct bio *gfs2_chain_bio(struct bio *prev,=
- unsigned int nr_iovecs)
-> >         new =3D bio_alloc(prev->bi_bdev, nr_iovecs, prev->bi_opf, GFP_N=
-OIO);
-> >         bio_clone_blkg_association(new, prev);
-> >         new->bi_iter.bi_sector =3D bio_end_sector(prev);
-> > -       bio_chain(new, prev);
-> > -       submit_bio(prev);
-> > +       bio_chain_and_submit(prev, new);
+On 11/28/25 09:20, Jason Wang wrote:
+> On Fri, Nov 28, 2025 at 1:47 AM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>> I think the the requeue in refill_work is not the problem here. In
+>> virtnet_rx_pause[_all](), we use cancel_work_sync() which is safe to
+>> use "even if the work re-queues itself". AFAICS, cancel_work_sync()
+>> will disable work -> flush work -> enable again. So if the work requeue
+>> itself in flush work, the requeue will fail because the work is already
+>> disabled.
+> Right.
 >
-> This one should also be dropped because the 'prev' and 'new' are in
-> the wrong order.
-
-Ouch. Thanks for pointing this out.
-
-> Thanks,
-> Shida
+>> I think what triggers the deadlock here is a bug in
+>> virtnet_rx_resume_all(). virtnet_rx_resume_all() calls to
+>> __virtnet_rx_resume() which calls napi_enable() and may schedule
+>> refill. It schedules the refill work right after napi_enable the first
+>> receive queue. The correct way must be napi_enable all receive queues
+>> before scheduling refill work.
+> So what you meant is that the napi_disable() is called for a queue
+> whose NAPI has been disabled?
 >
-> >         return new;
-> >  }
-> >
-> > --
-> > 2.34.1
-> >
+> cpu0] enable_delayed_refill()
+> cpu0] napi_enable(queue0)
+> cpu0] schedule_delayed_work(&vi->refill)
+> cpu1] napi_disable(queue0)
+> cpu1] napi_enable(queue0)
+> cpu1] napi_disable(queue1)
 >
+> In this case cpu1 waits forever while holding the netdev lock. This
+> looks like a bug since the netdev_lock 413f0271f3966 ("net: protect
+> NAPI enablement with netdev_lock()")?
 
-Andreas
+Yes, I've tried to fix it in 4bc12818b363 ("virtio-net: disable delayed 
+refill when pausing rx"), but it has flaws.
 
+>> The fix is like this (there are quite duplicated code, I will clean up
+>> and send patches later if it is correct)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 8e04adb57f52..892aa0805d1b 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -3482,20 +3482,25 @@ static void __virtnet_rx_resume(struct virtnet_info *vi,
+>>    static void virtnet_rx_resume_all(struct virtnet_info *vi)
+>>    {
+>>        int i;
+>> +    bool schedule_refill = false;
+>> +
+>> +    for (i = 0; i < vi->max_queue_pairs; i++)
+>> +        __virtnet_rx_resume(vi, &vi->rq[i], false);
+>>
+>>        enable_delayed_refill(vi);
+>> -    for (i = 0; i < vi->max_queue_pairs; i++) {
+>> -        if (i < vi->curr_queue_pairs)
+>> -            __virtnet_rx_resume(vi, &vi->rq[i], true);
+>> -        else
+>> -            __virtnet_rx_resume(vi, &vi->rq[i], false);
+>> -    }
+>> +
+>> +    for (i = 0; i < vi->curr_queue_pairs; i++)
+>> +        if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+>> +            schedule_refill = true;
+>> +
+>> +    if (schedule_refill)
+>> +        schedule_delayed_work(&vi->refill, 0);
+>>    }
+>>
+>>    static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
+>>    {
+>> -    enable_delayed_refill(vi);
+>>        __virtnet_rx_resume(vi, rq, true);
+>> +    enable_delayed_refill(vi);
+> This seems to be odd. I think at least we need to move this before:
+>
+>> +    if (schedule_refill)
+>> +        schedule_delayed_work(&vi->refill, 0);
+> ?
+
+Yes, I think helper __virtnet_rx_resume does not work well, because 
+virtnet_rx_resume_all and virtnet_rx_resume have slightly different 
+logic. So I think it's better to open-code the helper and do the logic 
+directly in virtnet_rx_resume_all and virtnet_rx_resume.
+
+>>    }
+>>
+>>    static int virtnet_rx_resize(struct virtnet_info *vi,
+>>
+>> I also move the enable_delayed_refill() after we __virtnet_rx_resume()
+>> to ensure no refill is scheduled before napi_enable().
+>>
+>> What do you think?
+> This has been implemented in your patch or I may miss something.
+
+Yes, I move the enable_delayed_refill after the call __virtnet_rx_resume 
+in the above diff because I see it creates a window where delayed refill 
+is enabled before napi is enabled. However, AFAICS, other places that 
+schedule the delayed refill work must acquire the rtnl_lock and/or 
+netdev_lock, so it cannot happen while we are in virtnet_rx_resume[_all].
+
+Thanks,
+Quang Minh.
