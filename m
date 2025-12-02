@@ -1,89 +1,134 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C78BA10F1;
-	Mon,  1 Dec 2025 19:15:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 98B6344C63;
+	Tue,  2 Dec 2025 02:48:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764616559; cv=none; b=jWEQTdkhwNlMazxnf1TtpGTHsOLipymqBKFCnZnLG05Tc16fiin3zzNqt6ihKoW1rIH2rU6yQcvMs4Hr4Y7sl9EpJ2TbNdkbuswsoPz7QaWNbh0lI8U5JmGMb8qKoREuoWep3Iu8xC1iDxTf64jXTYcZo30rZBE760JUkRtcKKE=
+	t=1764643727; cv=none; b=KzMyB9QyDd4SyAmzedOou+H0T0m1opd4P+t8+UV7+/OzBYb5ochCNjIMKmSfmCBjMhI1+6umzMLZNakDO3cJx8BxWxE20wqIZAuZzKn8N/uatEBcwTbhdwO1SRNobP4MyrDq4XZbvCU3m3W/93qdB1mxX6hBRjCWyIA5oxA1lj8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764616559; c=relaxed/simple;
-	bh=4XgmDLSCEg6VsFoBcwzl521M4IJOdgdZ7BMmz88L2/M=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jidf7kkmulpSrfhbT6zLqFmXgfHJagYGJg34YvG2MUQEA5Fdgw68yCn+hlvbatALSZgr2x5lb+gBpabT2CtTFungxTawB+NIZ9wucYdNkfjlGJ8UsCufGADFhp+p99feHtLssJI83InaSd36ojlY5uNOqZAH8Yd+PBpilgthsXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HlJ3KRjP; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HlJ3KRjP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CD9BC4CEF1;
-	Mon,  1 Dec 2025 19:15:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1764616559;
-	bh=4XgmDLSCEg6VsFoBcwzl521M4IJOdgdZ7BMmz88L2/M=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=HlJ3KRjP7xZ4T9ko7eFxV7P6PoXSWyCu3HrexUTNs8fV3q+nABoR50xZLZKAzpGNa
-	 ADyv8W1zgjFaujFUmt88AkFSgo2NDY7bT1mmvqKppbdXFiBm7yNvoVFcbZoOhHFKXj
-	 ZZlSoYYVw+0jbvdRNqzJLmN1JxyjhH/KsEKWI2z27KIarFfW9BcXFPoPejMDxnUuyt
-	 WHT4zqZu1fr3xCQNnE8UkS9fWmat3w/7+wlNQuRe1MAEFQW7SUwSZWx2kYcTzahhz7
-	 fk3vdyF7i7BFoNI67EtyLp2penSN5GgpwofhL5VPA1TiZcHr6gLcyXvEtyz6Rtcaww
-	 b7z6WXVZjzQkg==
-Date: Mon, 1 Dec 2025 11:15:57 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Edward Adam Davis <eadavis@qq.com>
-Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
- horms@kernel.org, jasowang@redhat.com, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com,
- syzbot+ci3edb9412aeb2e703@syzkaller.appspotmail.com,
- syzbot@lists.linux.dev, syzbot@syzkaller.appspotmail.com,
- syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
- xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH Next V2] net: restore the iterator to its original state
- when an error occurs
-Message-ID: <20251201111557.15cb9415@kernel.org>
-In-Reply-To: <tencent_7B73E6D013636363696CC3A34444F77AF705@qq.com>
-References: <20251128093946.18c645c6@kernel.org>
-	<tencent_7B73E6D013636363696CC3A34444F77AF705@qq.com>
+	s=arc-20240116; t=1764643727; c=relaxed/simple;
+	bh=AMM3iQesbOT8MbdyNXnOl8moc4a9QY9eF4Acmh0befI=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=iEO40GDsa4UdiXr9weqsoKYawg6lqbAxpfYrSfk/Sc/bB8kp1OjlhdO45DMxk/D54GQk9Tw8Hy8o5ebdF7w+P5jNYvre0hNCodkmXQqyFs2ddjF2z0bLz7MdXawIKgFzNRS+OkQjpTmR15RtTc6yjT5NhCDDSmJ1phh9AcEu8a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.2.5.213])
+	by gateway (Coremail) with SMTP id _____8CxL9OIUy5plSgqAA--.23800S3;
+	Tue, 02 Dec 2025 10:48:40 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by front1 (Coremail) with SMTP id qMiowJCxmcCCUy5p1ExEAQ--.28502S4;
+	Tue, 02 Dec 2025 10:48:40 +0800 (CST)
+From: Bibo Mao <maobibo@loongson.cn>
+To: Paolo Bonzini <pbonzini@redhat.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: kvm@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	x86@kernel.org
+Subject: [PATCH v3 2/2] LoongArch: Add paravirt support with vcpu_is_preempted() in guest side
+Date: Tue,  2 Dec 2025 10:48:32 +0800
+Message-Id: <20251202024833.1714363-3-maobibo@loongson.cn>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20251202024833.1714363-1-maobibo@loongson.cn>
+References: <20251202024833.1714363-1-maobibo@loongson.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJCxmcCCUy5p1ExEAQ--.28502S4
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
+	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
+	nUUI43ZEXa7xR_UUUUUUUUU==
 
-On Mon,  1 Dec 2025 11:41:07 +0800 Edward Adam Davis wrote:
-> On Fri, 28 Nov 2025 09:39:46 -0800, Jakub Kicinski wrote:
-> > > In zerocopy_fill_skb_from_iter(), if two copy operations are performed
-> > > and the first one succeeds while the second one fails, it returns a
-> > > failure but the count in iterator has already been decremented due to
-> > > the first successful copy. This ultimately affects the local variable
-> > > rest_len in virtio_transport_send_pkt_info(), causing the remaining
-> > > count in rest_len to be greater than the actual iterator count. As a
-> > > result, packet sending operations continue even when the iterator count
-> > > is zero, which further leads to skb->len being 0 and triggers the warning
-> > > reported by syzbot [1].  
-> > 
-> > Please follow the subsystem guidelines for posting patches:
-> > https://www.kernel.org/doc/html/next/process/maintainer-netdev.html
-> > Your patch breaks zerocopy tests.  
-> I see that they all timed out. I'm not familiar with this test, how can
-> I get more details about it?
+Function vcpu_is_preempted() is used to check whether vCPU is preempted
+or not. Here add implementation with vcpu_is_preempted() when option
+CONFIG_PARAVIRT is enabled.
 
-IIRC its was the packetdrill tests:
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+---
+ arch/loongarch/include/asm/qspinlock.h |  3 +++
+ arch/loongarch/kernel/paravirt.c       | 23 ++++++++++++++++++++++-
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
-tools/testing/selftests/net/packetdrill/tcp_fastopen_server_basic-zero-payload.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_basic.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_batch.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_client.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_closed.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_epoll_edge.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_epoll_exclusive.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_epoll_oneshot.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_fastopen-client.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_fastopen-server.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_maxfrags.pkt
-tools/testing/selftests/net/packetdrill/tcp_zerocopy_small.pkt
+diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/include/asm/qspinlock.h
+index e76d3aa1e1eb..fa3eaf7e48f2 100644
+--- a/arch/loongarch/include/asm/qspinlock.h
++++ b/arch/loongarch/include/asm/qspinlock.h
+@@ -34,6 +34,9 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
+ 	return true;
+ }
+ 
++#define vcpu_is_preempted	vcpu_is_preempted
++bool vcpu_is_preempted(int cpu);
++
+ #endif /* CONFIG_PARAVIRT */
+ 
+ #include <asm-generic/qspinlock.h>
+diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+index b1b51f920b23..b61a93c6aec8 100644
+--- a/arch/loongarch/kernel/paravirt.c
++++ b/arch/loongarch/kernel/paravirt.c
+@@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
+ }
+ 
+ #ifdef CONFIG_SMP
++static DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
+ static int pv_time_cpu_online(unsigned int cpu)
+ {
+ 	unsigned long flags;
+@@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigned int cpu)
+ 
+ 	return 0;
+ }
++
++bool notrace vcpu_is_preempted(int cpu)
++{
++	struct kvm_steal_time *src;
++
++	if (!static_branch_unlikely(&virt_preempt_key))
++		return false;
++
++	src = &per_cpu(steal_time, cpu);
++	return !!(src->preempted & KVM_VCPU_PREEMPTED);
++}
++EXPORT_SYMBOL(vcpu_is_preempted);
+ #endif
+ 
+ static void pv_cpu_reboot(void *unused)
+@@ -308,6 +321,9 @@ int __init pv_time_init(void)
+ 		pr_err("Failed to install cpu hotplug callbacks\n");
+ 		return r;
+ 	}
++
++	if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
++		static_branch_enable(&virt_preempt_key);
+ #endif
+ 
+ 	static_call_update(pv_steal_clock, paravt_steal_clock);
+@@ -318,7 +334,12 @@ int __init pv_time_init(void)
+ 		static_key_slow_inc(&paravirt_steal_rq_enabled);
+ #endif
+ 
+-	pr_info("Using paravirt steal-time\n");
++#ifdef CONFIG_SMP
++	if (static_key_enabled(&virt_preempt_key))
++		pr_info("Using paravirt steal-time with preempt enabled\n");
++	else
++#endif
++		pr_info("Using paravirt steal-time with preempt disabled\n");
+ 
+ 	return 0;
+ }
+-- 
+2.39.3
 
-If you have the packetdrill command installed those _should_ be
-relatively easy to run via standard kselftest commands
