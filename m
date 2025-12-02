@@ -1,134 +1,138 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 98B6344C63;
-	Tue,  2 Dec 2025 02:48:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B949D2FF177
+	for <virtualization@lists.linux.dev>; Tue,  2 Dec 2025 06:03:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764643727; cv=none; b=KzMyB9QyDd4SyAmzedOou+H0T0m1opd4P+t8+UV7+/OzBYb5ochCNjIMKmSfmCBjMhI1+6umzMLZNakDO3cJx8BxWxE20wqIZAuZzKn8N/uatEBcwTbhdwO1SRNobP4MyrDq4XZbvCU3m3W/93qdB1mxX6hBRjCWyIA5oxA1lj8=
+	t=1764655440; cv=none; b=drSTf7ziY1kCuOkMf2VKbTehw7zw+jkMQ/3YsxyzvX9+6UUgnhLUHMv3BpF/UfAdRdvrhwqSy45qhfVKIrHMmtg3jCmvT+efGcx83ygNA91Nqy4ZI1dB4UWcCrAUmMjL1uXxkTzzESQ+YeGmDlsB+ZfoAH3yPc8++EMZJr+qz9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764643727; c=relaxed/simple;
-	bh=AMM3iQesbOT8MbdyNXnOl8moc4a9QY9eF4Acmh0befI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=iEO40GDsa4UdiXr9weqsoKYawg6lqbAxpfYrSfk/Sc/bB8kp1OjlhdO45DMxk/D54GQk9Tw8Hy8o5ebdF7w+P5jNYvre0hNCodkmXQqyFs2ddjF2z0bLz7MdXawIKgFzNRS+OkQjpTmR15RtTc6yjT5NhCDDSmJ1phh9AcEu8a4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8CxL9OIUy5plSgqAA--.23800S3;
-	Tue, 02 Dec 2025 10:48:40 +0800 (CST)
-Received: from localhost.localdomain (unknown [10.2.5.213])
-	by front1 (Coremail) with SMTP id qMiowJCxmcCCUy5p1ExEAQ--.28502S4;
-	Tue, 02 Dec 2025 10:48:40 +0800 (CST)
-From: Bibo Mao <maobibo@loongson.cn>
-To: Paolo Bonzini <pbonzini@redhat.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Cc: kvm@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	x86@kernel.org
-Subject: [PATCH v3 2/2] LoongArch: Add paravirt support with vcpu_is_preempted() in guest side
-Date: Tue,  2 Dec 2025 10:48:32 +0800
-Message-Id: <20251202024833.1714363-3-maobibo@loongson.cn>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20251202024833.1714363-1-maobibo@loongson.cn>
-References: <20251202024833.1714363-1-maobibo@loongson.cn>
+	s=arc-20240116; t=1764655440; c=relaxed/simple;
+	bh=9yZtKrMIr+oRDcDzNymlk5LC69nAsOOxWz1MSteFcvk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pNzTnYZpthbShtyiSt20PajJ6p5p2nQkTQfa/wyNV6WQzpucFmNEZ+TDcTGw9gPONZRnmiKh9Guz0HKS6/itnoeViaighw/POcqGHEyEB7/fNq0NCGt5P4+AWtryzdSoQJtWAFQ8QdOhGiY1nQAdCKcPmq0Vty1PviRopSRhUag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IsF8+MBR; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IsF8+MBR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764655435;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9yZtKrMIr+oRDcDzNymlk5LC69nAsOOxWz1MSteFcvk=;
+	b=IsF8+MBRu6EcOt7q+OVy/lq6KhBVbbkFhGHDnWH77voz0aIvxCkJXHKYqgoV2CEXiT9J/q
+	7VnMhWo9vovWWnYtYmJx3JZb6Tyo4IPQyxCB4SN9CIeUWbcrefvC6gBSUslDETGxMVbtVB
+	jp0JH1crv796JuO1G3beepVyCHoyjmo=
+Received: from mail-vs1-f71.google.com (mail-vs1-f71.google.com
+ [209.85.217.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-441-soNkB28rMFCW5d9ltQ5yaA-1; Tue, 02 Dec 2025 01:03:51 -0500
+X-MC-Unique: soNkB28rMFCW5d9ltQ5yaA-1
+X-Mimecast-MFC-AGG-ID: soNkB28rMFCW5d9ltQ5yaA_1764655431
+Received: by mail-vs1-f71.google.com with SMTP id ada2fe7eead31-5dbcb1740ccso1514901137.1
+        for <virtualization@lists.linux.dev>; Mon, 01 Dec 2025 22:03:51 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764655431; x=1765260231;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=9yZtKrMIr+oRDcDzNymlk5LC69nAsOOxWz1MSteFcvk=;
+        b=nUqS3+Ai8iJFyboLKIn3/YaE9NFAHKHNrLiXJU3WATSGUiXUp2TP1W5ethpP1RQU+1
+         xikdj3Rjti82bCET8k//xKA4iQQqFLzjcMxtMwlq6B9Vcix3g6MJtM2Gf3kpDrBXERvT
+         Mt2xmy29WwcEH9Lt+WhSuFduosdtXfwqg87KeOaEmh6xlR87K/PwOKd2CaNFZShatE41
+         KwAADX/M5f7+Kg6wweiq1SR3rbPvPsmC7YBMnv0M4a39s4H1/LSJsLlVphMKIxcAVbSm
+         Xn42UAQYoyZJpWMwXm7fp8YVuc54MJheKScwDBVDvycYT+H53szGvXqnyYMG6+QQ+Mqx
+         RFOg==
+X-Forwarded-Encrypted: i=1; AJvYcCVTPIjqeSTjjR6W7Jti/G9CNyP0e3KfxcZo9bvYaWa0/nwrD5Fkz/nB7WqtzkFHNiCYU4vnINeSa0xi9MLR/A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzKfPyWP2Buwj4B6Hv3LTzHjeEZsPsvKrmUrmSdMiuNH6CVCMEH
+	/Xgpy5CRkZMFzlb1TZbfvdADnyFXNzxyvxWMwr0nrD61m2nrHg2SRw8URzcs02dyKvg2qviUk0J
+	RFhvV4p3g9JUZA38dRk2aL4m7XcpWZrPOIWsunS8in4iKEXLNdStJcKGp2I8ZDHLfNTFqp2mnoN
+	rhPGwRoBf4wOzg49oUTTw4QHctnhUBEGRvhqx8ej1CeEA=
+X-Gm-Gg: ASbGncu9g55mF5lPT08/JC+L4AiYVKWRiT4fMrK0ilZyrrMkbqM2DAp4/nPD0VSIrTF
+	S7ycQurKpAnN8owsKJJ+Gp/5gFmOxpAaqIgV0RRFQqlXAlknX/zi1t9doPZejBDoLhAO6rvo6SW
+	d0BKcPJzS43sR/C9kmA2XA0eTgoiaiP5zb9FBtqq6Q29NbcAMe1h8LCQMXR0QDA3DfaNk=
+X-Received: by 2002:a05:6102:943:b0:5e1:ef48:271f with SMTP id ada2fe7eead31-5e2243b0ae6mr10533774137.24.1764655431110;
+        Mon, 01 Dec 2025 22:03:51 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHwP5aHgNd3I5TiBLGyqEh9KU4ibLdE1nzCHwWBtB5W9yqrcXhSdXjvk1r3jTbN6h8btYD3Zn35q6xLUh9X/dc=
+X-Received: by 2002:a05:6102:943:b0:5e1:ef48:271f with SMTP id
+ ada2fe7eead31-5e2243b0ae6mr10533766137.24.1764655430705; Mon, 01 Dec 2025
+ 22:03:50 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJCxmcCCUy5p1ExEAQ--.28502S4
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
-	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
-	nUUI43ZEXa7xR_UUUUUUUUU==
+References: <40af2b73239850e7bf1a81abb71ee99f1b563b9c.1764226734.git.mst@redhat.com>
+ <a61dc7ee-d00b-41b4-b6fd-8a5152c3eae3@gmail.com> <CACGkMEuJFVUDQ7SKt93mCVkbDHxK+A74Bs9URpdGR+0mtjxmAg@mail.gmail.com>
+ <a9718b11-76d5-4228-9256-6a4dee90c302@gmail.com>
+In-Reply-To: <a9718b11-76d5-4228-9256-6a4dee90c302@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 2 Dec 2025 14:03:32 +0800
+X-Gm-Features: AWmQ_blpD6OfG3aBJ7E21a-JAzhs-ua7-f4l8pJe0A5pP3XukKz4YUOSlliVbTY
+Message-ID: <CACGkMEvFzYiRNxMdJ9xNPcZmotY-9pD+bfF4BD5z+HnaAt1zug@mail.gmail.com>
+Subject: Re: [PATCH RFC] virtio_net: gate delayed refill scheduling
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, 
+	Paolo Abeni <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	bpf@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: EDzGOQ4V4VHgGjsCPBF0uSurRkl4zUlnT98piCOmjzg_1764655431
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Function vcpu_is_preempted() is used to check whether vCPU is preempted
-or not. Here add implementation with vcpu_is_preempted() when option
-CONFIG_PARAVIRT is enabled.
+On Mon, Dec 1, 2025 at 11:04=E2=80=AFPM Bui Quang Minh <minhquangbui99@gmai=
+l.com> wrote:
+>
+> On 11/28/25 09:20, Jason Wang wrote:
+> > On Fri, Nov 28, 2025 at 1:47=E2=80=AFAM Bui Quang Minh <minhquangbui99@=
+gmail.com> wrote:
+> >> I think the the requeue in refill_work is not the problem here. In
+> >> virtnet_rx_pause[_all](), we use cancel_work_sync() which is safe to
+> >> use "even if the work re-queues itself". AFAICS, cancel_work_sync()
+> >> will disable work -> flush work -> enable again. So if the work requeu=
+e
+> >> itself in flush work, the requeue will fail because the work is alread=
+y
+> >> disabled.
+> > Right.
+> >
+> >> I think what triggers the deadlock here is a bug in
+> >> virtnet_rx_resume_all(). virtnet_rx_resume_all() calls to
+> >> __virtnet_rx_resume() which calls napi_enable() and may schedule
+> >> refill. It schedules the refill work right after napi_enable the first
+> >> receive queue. The correct way must be napi_enable all receive queues
+> >> before scheduling refill work.
+> > So what you meant is that the napi_disable() is called for a queue
+> > whose NAPI has been disabled?
+> >
+> > cpu0] enable_delayed_refill()
+> > cpu0] napi_enable(queue0)
+> > cpu0] schedule_delayed_work(&vi->refill)
+> > cpu1] napi_disable(queue0)
+> > cpu1] napi_enable(queue0)
+> > cpu1] napi_disable(queue1)
+> >
+> > In this case cpu1 waits forever while holding the netdev lock. This
+> > looks like a bug since the netdev_lock 413f0271f3966 ("net: protect
+> > NAPI enablement with netdev_lock()")?
+>
+> Yes, I've tried to fix it in 4bc12818b363 ("virtio-net: disable delayed
+> refill when pausing rx"), but it has flaws.
 
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
----
- arch/loongarch/include/asm/qspinlock.h |  3 +++
- arch/loongarch/kernel/paravirt.c       | 23 ++++++++++++++++++++++-
- 2 files changed, 25 insertions(+), 1 deletion(-)
+I wonder if a simplified version is just restoring the behaviour
+before 413f0271f3966 by using napi_enable_locked() but maybe I miss
+something.
 
-diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/include/asm/qspinlock.h
-index e76d3aa1e1eb..fa3eaf7e48f2 100644
---- a/arch/loongarch/include/asm/qspinlock.h
-+++ b/arch/loongarch/include/asm/qspinlock.h
-@@ -34,6 +34,9 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
- 	return true;
- }
- 
-+#define vcpu_is_preempted	vcpu_is_preempted
-+bool vcpu_is_preempted(int cpu);
-+
- #endif /* CONFIG_PARAVIRT */
- 
- #include <asm-generic/qspinlock.h>
-diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
-index b1b51f920b23..b61a93c6aec8 100644
---- a/arch/loongarch/kernel/paravirt.c
-+++ b/arch/loongarch/kernel/paravirt.c
-@@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
- }
- 
- #ifdef CONFIG_SMP
-+static DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
- static int pv_time_cpu_online(unsigned int cpu)
- {
- 	unsigned long flags;
-@@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigned int cpu)
- 
- 	return 0;
- }
-+
-+bool notrace vcpu_is_preempted(int cpu)
-+{
-+	struct kvm_steal_time *src;
-+
-+	if (!static_branch_unlikely(&virt_preempt_key))
-+		return false;
-+
-+	src = &per_cpu(steal_time, cpu);
-+	return !!(src->preempted & KVM_VCPU_PREEMPTED);
-+}
-+EXPORT_SYMBOL(vcpu_is_preempted);
- #endif
- 
- static void pv_cpu_reboot(void *unused)
-@@ -308,6 +321,9 @@ int __init pv_time_init(void)
- 		pr_err("Failed to install cpu hotplug callbacks\n");
- 		return r;
- 	}
-+
-+	if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
-+		static_branch_enable(&virt_preempt_key);
- #endif
- 
- 	static_call_update(pv_steal_clock, paravt_steal_clock);
-@@ -318,7 +334,12 @@ int __init pv_time_init(void)
- 		static_key_slow_inc(&paravirt_steal_rq_enabled);
- #endif
- 
--	pr_info("Using paravirt steal-time\n");
-+#ifdef CONFIG_SMP
-+	if (static_key_enabled(&virt_preempt_key))
-+		pr_info("Using paravirt steal-time with preempt enabled\n");
-+	else
-+#endif
-+		pr_info("Using paravirt steal-time with preempt disabled\n");
- 
- 	return 0;
- }
--- 
-2.39.3
+Thanks
 
