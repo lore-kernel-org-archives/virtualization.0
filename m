@@ -1,73 +1,67 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E89230FF39
-	for <virtualization@lists.linux.dev>; Tue,  2 Dec 2025 10:18:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CB01262FF6
+	for <virtualization@lists.linux.dev>; Tue,  2 Dec 2025 15:29:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764670707; cv=none; b=LeRDNH2yofLBgSAepeHS3j/vGrGcCRfyEHUn2aHdTplygO4cnQGpotZ5+6EDcuKqaHy5Ik1xqd2+O5ynrAZL3zIykccWdACQonbmgZvMzuP8bie12O8h3nUfSZyTnhp2LgwvlMqqQj98ltqgCEaG2Eh9asXxLVvBk0xCREN/XEg=
+	t=1764689382; cv=none; b=o95KpBJi6+kyPhZC2nwPmJoKc4chXTCkRUV1YRkr00ok7MPpTzppqQ2048ecrQdPu39cjpnTxQP0xng9lMsBG9VemqzO+5NqaasGi7RYeTyJTSYpP5iQ2W6UGE3nnCPrV0YM9k2hcbFRODgg/l0s0SahGDGvZpmOTWDAwBmct9o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764670707; c=relaxed/simple;
-	bh=C4AsMPURAFZJ6fstRBG4Qg4vpP3aNkGXJBTFj94MTzk=;
+	s=arc-20240116; t=1764689382; c=relaxed/simple;
+	bh=BZtIuSYzo4X0vi8zHGDRh1sL+AQ42TCB+JFZn40EQnk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DkZiC9oc0yzw8GNYG57nFFEoyTc8AW6vBYbDaP06w7fvw9Y2XH9bFEgg9GQl8qAL0ohphwS/zQB6DapqIrmu0MeyMAvFeSxTvwxoJv5WO8zs1qi03O/u/zakjkO2yjK33+4WFySd4/vMitKuMCajCctaG61dudal1wlXih0yzn0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G/OoOUWb; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=qxON3fBchJ2XhYDTPWAefBAFtoCXJTirDYOGMMHnf6Zz01QQFUWDxAAIHD38wr1JPny0djS1uJHWIXlUAK3lFGgT2IHpBEoM7ojquGW7Ls4bPkS0s2ZKZLF48M3sVx0QriqofiAsnJVUwcnh+VpAqrTWEVzrT5fuprR+QsF4Ies=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HgduA6PS; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G/OoOUWb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764670704;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=CTt4I/sl26XWVMJJrirBgM5lGXHO7o89v/gepGPRQ/c=;
-	b=G/OoOUWbj+ejZWqrBX965hNEIRb5yt9Q5NPurcLyaCmM7lRbtiEQAWsu/bm5rqwm7REpEf
-	yPVbBhXPbVQnxVK9uXny7GBbMiL9nsNjAdZxKKofH0DgQ1o/b3AFbDPPN7NK8oMrKA2J+5
-	fDfjwoXItoT7hTxpMQOUBOrH0zXdK4A=
-Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
- [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-513-sWVG9rYAPGC1CtE1gaDTJw-1; Tue, 02 Dec 2025 05:18:21 -0500
-X-MC-Unique: sWVG9rYAPGC1CtE1gaDTJw-1
-X-Mimecast-MFC-AGG-ID: sWVG9rYAPGC1CtE1gaDTJw_1764670701
-Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-64203afd866so10120291d50.0
-        for <virtualization@lists.linux.dev>; Tue, 02 Dec 2025 02:18:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HgduA6PS"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-29558061c68so68275435ad.0
+        for <virtualization@lists.linux.dev>; Tue, 02 Dec 2025 07:29:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1764689381; x=1765294181; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Pm04M8J4HumgMBH0ZuXZAiRY8Gdv9LOi293f7C71dv8=;
+        b=HgduA6PS+EGetypVX1eSbOtX3XvK+I0RZJBdUc2azvwYesqIzAXJGub1Cllin+bWEG
+         8URYNnA+w8NUfdTzVEVSg3n7sbzbDvg7u14y6s4hn/h+TKDPzGlsvDOrFNSchNrwQzbK
+         tZkQXotSUGUCJYLWghN9pFmk4rUNq00N+e9KyCdXeOxo0Z4q75/MCWGonlWCn0TiO9mC
+         bhFPPVN5juY+FsOa99AaEG596P5So+U6BD9NN+/F/mPkypqiPPpJpqWxiz+9oyio/1V/
+         m1nG6nTubc5sKU9bAOBDnpHPagVzrSF8SivKGGIJzp0hdcfS4Hln10d0ECGctA0AfSKL
+         Xwzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764670701; x=1765275501;
+        d=1e100.net; s=20230601; t=1764689381; x=1765294181;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=CTt4I/sl26XWVMJJrirBgM5lGXHO7o89v/gepGPRQ/c=;
-        b=NMzAPeTCC/LctrP1LA3N2wL6ylhwEJZPNBuLux1W6rYuXx3+cbFxAP1lFhUYHw1/vj
-         V1isap+2hW6Q2i29P9s7L3EhOnaSBwXnIub+sVfK7yDj5PlNlyT0+ci9OOI51tIet1Ns
-         GfnDKuTv6uLlLZbsCjDJgtXGYDcpnD7b7cAhWItAIhGls5Y1AoPDnaNbNddYv0VHbXOg
-         WZUZp8YkT4xXLEsoxEL6CtiQGsQvPSnlqVLUFD1f6wrBCszO+7V2gGxsHnsyX+Y2cse8
-         PaHNWeYqrPd0Oef7luggupAbz7PO7+uG39CsF0f82V2Im5+wZEqG9RnOvcVOnGWz7eEY
-         zhZw==
-X-Forwarded-Encrypted: i=1; AJvYcCXpRFTXLEN7f2tbh4I2nMK/G9ZIt4pOedHR3yUp2MUzUbgQXOhyCbEkYp3rAaufDpoTngHIXIAThJ9yV4Tdqg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwxCHgkLkyV3aVHp+h1Uko8Dj/Rffn916Ts6BdEFQOX3MMxebRl
-	LVh9mbaxRY8uU5dp8LPI3W2uGNsiC5OM5yI3JGphu7qx42Isnk/pXmWpwUDAL8Qz+PhYr4t2mmj
-	hv5ZsCbYZVPjCF9tu+JKILrNjbwCz/UHala3q6AwyIHYrlH1sHbpC4vdsF03yhdyAUmT+
-X-Gm-Gg: ASbGncukDYVapCufjTICz+jHbLrN35b6KKTIBzolmp78OQRKZ2stCZG7cVJa/P84L/0
-	JwXzfob2fe3K6ZXg4IvZijwNoGzKNdPuOggEdKceHC+TkpaTBhAjSis+IUJZjppOpplHoM7iUzD
-	/P65cr0LVuzE5HA1/Hm29JO76c+/PuYuSZ1FO6hROkd1H5bK58Zh5//dtd8hRlwaxHRX8pF1uNw
-	MhCRoxfXYR5MPvUDX34kdjwNCAw+3F/uH29Mu0g7KQrfHjldSP3+0GhIg52eIeHGZe3CfnzceFd
-	LJ0yomymH3tRK8+ZrHI/zFY8tKZ/dQhcdYvh5B5b6uPVxK9Vknf4zeXLolnO3ap1GA2kf+PurnX
-	qy9ji2OtBdyTlwQ==
-X-Received: by 2002:a05:690e:d03:b0:641:f5bc:6959 with SMTP id 956f58d0204a3-6442f18c515mr1347966d50.42.1764670701057;
-        Tue, 02 Dec 2025 02:18:21 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH9Y2QIm+VTnIL7mAD4ACmwgT3wSBe6KSOZFrHyLZqmktUrNUAn/hV1QCPy5jYE4S4xdld0TA==
-X-Received: by 2002:a05:690e:d03:b0:641:f5bc:6959 with SMTP id 956f58d0204a3-6442f18c515mr1347929d50.42.1764670700596;
-        Tue, 02 Dec 2025 02:18:20 -0800 (PST)
-Received: from [192.168.88.32] ([212.105.155.136])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-6433c089431sm6041059d50.10.2025.12.02.02.18.15
+        bh=Pm04M8J4HumgMBH0ZuXZAiRY8Gdv9LOi293f7C71dv8=;
+        b=WkW/NrN5/CcjCCANV5/KeBtnBmHj/XitjPS1WFPlBff0DSYCU5rqghcAfaiY5TerES
+         OhN/gTS7HEHCNBxSWp1lt9iGgL8PnIEzZjFouNAINlYk6eg3IHli6ZoRkStLrDB+b3vF
+         v8PmFzABRo8nq4xzj5I17JX2zBj9f3XK4UoUnz+wTvCXLpse1twaChkLsq63Y/n7kdlP
+         UPDPqvKWewHcnHZAenRhFDWN0g8Ym11DVVUtya51vL85KCoejLdxLPsr95fLxxSg9pkK
+         OUG379Chkf/0UkJtcHWeKIS0kD+cHAOou8V2tmgE29fw6BySGk1nBFQuwvA+o6S6ij0J
+         wreg==
+X-Forwarded-Encrypted: i=1; AJvYcCXpGqe1oPg1oqh09FnRIP82gRY7mP3nUHGtsar6T/sIb1z0YC2E5PygHWrjy9oaDLaQSdLFacZK6lUDF7W5cw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwlqdPGFMiB5B4fASH+K1qYtZqm19jG5x7TbMCfhdolxKOs/We8
+	/9rSGqu42smuhitqbkni1RzZfDhBNc5cXRYTi02/awyH5/n6XaxPL4cK
+X-Gm-Gg: ASbGnctOqrJGbUe6MdTbkXXpsQ9JeWDprApgP5xtr1I+vYAIFyW+CETeokgL0ZkI9i5
+	9NsmzSGpo0Nq3MXiwY8hQuByE0/Ck+g7a7tZiDU+gy91sTd3aPQIC+fGHcbPagVjZMRISqEnpgc
+	w6zIfZsQAaJ4r4cDC+gDoN3Jh/C8xsO1GNF3YkU//uadsvUXuRvlWXB8GwIOgXqAItpEcbHE8so
+	9U6B+6uYCqvPGi+unTJWBjH+LRzAFTfqUDJd3EyVkftXERtPBd+b4tJLLFycuvWJERFBZkZ3f7X
+	LF/N/rWvsh/fPBMAV32qhYF3PNnum0dNPD9v+QvwFCvzTkCx+l51LE6cmr8gP8O1ju68N1E6Ec4
+	ionMQn0iGcIrDfgVKQvU7LKFb7Xh8ayDWEvz+yTTfh0m4Z5jfZpQvbljKDBp5JNr53MjatfycmF
+	mUM67tr4W/0Vcy7Itbx8i9u5fWZ8uSJFInmyO/VJnp7ciuKeXYcecoZ25k78o=
+X-Google-Smtp-Source: AGHT+IFXvcfWnNHx250mT23ggaMtDNXUs/Vb5yUhRUZMPaS6sYLlPPubZ17O0Xp1IrUFreHe7V613g==
+X-Received: by 2002:a17:903:320a:b0:29a:5ce:b467 with SMTP id d9443c01a7336-29b6bf9e98amr470449935ad.54.1764689380670;
+        Tue, 02 Dec 2025 07:29:40 -0800 (PST)
+Received: from ?IPV6:2001:ee0:4f4c:210:48c5:4372:8d4:ac0b? ([2001:ee0:4f4c:210:48c5:4372:8d4:ac0b])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29bce40ab6bsm157212555ad.21.2025.12.02.07.29.34
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Dec 2025 02:18:20 -0800 (PST)
-Message-ID: <6cef5a68-375a-4bb6-84f8-fccc00cf7162@redhat.com>
-Date: Tue, 2 Dec 2025 11:18:14 +0100
+        Tue, 02 Dec 2025 07:29:40 -0800 (PST)
+Message-ID: <faad67c7-8b25-4516-ab37-3b154ee4d0cf@gmail.com>
+Date: Tue, 2 Dec 2025 22:29:32 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,73 +69,72 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v12 04/12] vsock: add netns support to virtio
- transports
-To: Bobby Eshleman <bobbyeshleman@gmail.com>,
- Stefano Garzarella <sgarzare@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>,
- Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+Subject: Re: [PATCH RFC] virtio_net: gate delayed refill scheduling
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ Paolo Abeni <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
  =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "K. Y. Srinivasan"
- <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
- Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
- Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa
- <vishnu.dasa@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Shuah Khan <shuah@kernel.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
- linux-kselftest@vger.kernel.org, berrange@redhat.com,
- Sargun Dhillon <sargun@sargun.me>, Bobby Eshleman <bobbyeshleman@meta.com>
-References: <20251126-vsock-vmtest-v12-0-257ee21cd5de@meta.com>
- <20251126-vsock-vmtest-v12-4-257ee21cd5de@meta.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20251126-vsock-vmtest-v12-4-257ee21cd5de@meta.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6Yi3O99XYz4VzQyF9Aav6MRWfspvMBkSia2b-o2V9Hk_1764670701
-X-Mimecast-Originator: redhat.com
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, bpf@vger.kernel.org
+References: <40af2b73239850e7bf1a81abb71ee99f1b563b9c.1764226734.git.mst@redhat.com>
+ <a61dc7ee-d00b-41b4-b6fd-8a5152c3eae3@gmail.com>
+ <CACGkMEuJFVUDQ7SKt93mCVkbDHxK+A74Bs9URpdGR+0mtjxmAg@mail.gmail.com>
+ <a9718b11-76d5-4228-9256-6a4dee90c302@gmail.com>
+ <CACGkMEvFzYiRNxMdJ9xNPcZmotY-9pD+bfF4BD5z+HnaAt1zug@mail.gmail.com>
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <CACGkMEvFzYiRNxMdJ9xNPcZmotY-9pD+bfF4BD5z+HnaAt1zug@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On 11/27/25 8:47 AM, Bobby Eshleman wrote:
-> @@ -674,6 +689,17 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
->  		goto out;
->  	}
->  
-> +	net = current->nsproxy->net_ns;
-> +	vsock->net = get_net_track(net, &vsock->ns_tracker, GFP_KERNEL);
-> +
-> +	/* Store the mode of the namespace at the time of creation. If this
-> +	 * namespace later changes from "global" to "local", we want this vsock
-> +	 * to continue operating normally and not suddenly break. For that
-> +	 * reason, we save the mode here and later use it when performing
-> +	 * socket lookups with vsock_net_check_mode() (see vhost_vsock_get()).
-> +	 */
-> +	vsock->net_mode = vsock_net_mode(net);
+On 12/2/25 13:03, Jason Wang wrote:
+> On Mon, Dec 1, 2025 at 11:04 PM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>> On 11/28/25 09:20, Jason Wang wrote:
+>>> On Fri, Nov 28, 2025 at 1:47 AM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>>>> I think the the requeue in refill_work is not the problem here. In
+>>>> virtnet_rx_pause[_all](), we use cancel_work_sync() which is safe to
+>>>> use "even if the work re-queues itself". AFAICS, cancel_work_sync()
+>>>> will disable work -> flush work -> enable again. So if the work requeue
+>>>> itself in flush work, the requeue will fail because the work is already
+>>>> disabled.
+>>> Right.
+>>>
+>>>> I think what triggers the deadlock here is a bug in
+>>>> virtnet_rx_resume_all(). virtnet_rx_resume_all() calls to
+>>>> __virtnet_rx_resume() which calls napi_enable() and may schedule
+>>>> refill. It schedules the refill work right after napi_enable the first
+>>>> receive queue. The correct way must be napi_enable all receive queues
+>>>> before scheduling refill work.
+>>> So what you meant is that the napi_disable() is called for a queue
+>>> whose NAPI has been disabled?
+>>>
+>>> cpu0] enable_delayed_refill()
+>>> cpu0] napi_enable(queue0)
+>>> cpu0] schedule_delayed_work(&vi->refill)
+>>> cpu1] napi_disable(queue0)
+>>> cpu1] napi_enable(queue0)
+>>> cpu1] napi_disable(queue1)
+>>>
+>>> In this case cpu1 waits forever while holding the netdev lock. This
+>>> looks like a bug since the netdev_lock 413f0271f3966 ("net: protect
+>>> NAPI enablement with netdev_lock()")?
+>> Yes, I've tried to fix it in 4bc12818b363 ("virtio-net: disable delayed
+>> refill when pausing rx"), but it has flaws.
+> I wonder if a simplified version is just restoring the behaviour
+> before 413f0271f3966 by using napi_enable_locked() but maybe I miss
+> something.
 
-I'm sorry for the very late feedback. I think that at very least the
-user-space needs a way to query if the given transport is in local or
-global mode, as AFAICS there is no way to tell that when socket creation
-races with mode change.
+As far as I understand, before 413f0271f3966 ("net: protect NAPI 
+enablement with netdev_lock()"), the napi is protected by the 
+rtnl_lock(). But in the refill_work, we don't acquire the rtnl_lock(), 
+so it seems like we will have race condition before 413f0271f3966 ("net: 
+protect NAPI enablement with netdev_lock()").
 
-Also I'm a bit uneasy with the model implemented here, as 'local' socket
-may cross netns boundaris and connect to 'local' socket in other netns
-(if I read correctly patch 2/12). That in turns AFAICS break the netns
-isolation.
-
-Have you considered instead a slightly different model, where the
-local/global model is set in stone at netns creation time - alike what
-/proc/sys/net/ipv4/tcp_child_ehash_entries is doing[1] - and inter-netns
-connectivity is explicitly granted by the admin (I guess you will need
-new transport operations for that)?
-
-/P
-
-[1] tcp allows using per-netns established socket lookup tables - as
-opposed to the default global lookup table (even if match always takes
-in account the netns obviously). The mentioned sysctl specify such
-configuration for the children namespaces, if any.
-
+Thanks,
+Quang Minh.
