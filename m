@@ -1,168 +1,189 @@
-Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 707A22F0C7B
-	for <virtualization@lists.linux.dev>; Tue,  2 Dec 2025 20:00:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C0E42F2606
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Dec 2025 20:07:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764705639; cv=none; b=esAvOu1y2LWoqWUPu+C3lULSfp8KvUtwnX2ERJGQaQ4yDy00WMYhOtdGc7eDitHeGzB/+BO+296mTTern5XROBKH3AZIMmcfErYNkRv3UCmNE7kIEZcwLUDC6RaGI2bwJfDHr8AhOrMv29ZVbX5DbbnhnTm+ID2XDLugb6EkQvI=
+	t=1764706054; cv=none; b=FqTAnnMiCDF6re1DS3Nz0EgXDMA7DmMg/KfgjtS4XJq/JbjA4WoAa/hwQ64XBBbIAu8SRNf8QUjjGsOqA3UNbU4aWccQpr8uj7d0RfzXpQ1Gdi9EyM3HvOFhJp7IHlyAsNB3F9nwQZT1dI1O76mM1nq21v3jaoXI1OIEpoUy17g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764705639; c=relaxed/simple;
-	bh=te4N56NzYz6/dMTrZam+d7syXgjYPyZteJDV4l74esI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HnojgBCFF/XgW1IyZgXzehhhZJXBUx9lNvziUVlUL00/WZq7sRB+c6ZoEWdoudfmsrEUuDiRaRSzfQ7yDdIFX6E33aIzeicWaoPej25tFIUu8QxSs3mdw7gTZ+LZfEJVTBu36wBDqVcfIJSoTvmnGSqwEPNdlWQ9jj75wHVChgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZCfxpk2s; arc=none smtp.client-ip=209.85.128.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1764706054; c=relaxed/simple;
+	bh=oPYqW5SQfExXpPRUP0ZxO9mJN6N4rIx6CnioC/GrhKE=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=tz2PIj0UCzJH0oHQk4FrDeghHpvyj9rs8A5Sere+72CKMg0kP9x+RNeiqvDdhpfL9OtP0C0xUA95SOqSHqiZNeP9u5wrgEx5RNuFb28375NTiv+fRE6qjDWLpXBlGlgdMkwpywt3fxuS/nPzMbymvoQ2spc+JjjTkswkbCmEM3I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KOINmmaR; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZCfxpk2s"
-Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-789524e6719so3570137b3.1
-        for <virtualization@lists.linux.dev>; Tue, 02 Dec 2025 12:00:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1764705635; x=1765310435; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=XOvq7zGQWlXv7Qg5p/lBCK450NxRsWzSuFDUvE6KnLY=;
-        b=ZCfxpk2sDiMdlI/9nLPx74W05dtA1ZRlfJeCg/h2CWAyMu3Pp8cSXnkfwhiLN9tKEx
-         g6YY5iItlhvbvGIKsriDmyrDq70gbC0ZXZkOIG1XFo3CzRmgExNirEIad6s2wOiUplM4
-         nEsBuAtRJRIgq2sGWIPS7+smLlhtnG0Eor4IxSBQdtDFKzIYS9V2jyEXEC/XaEUoIRUB
-         UDKuZFr+jhhqkXgEPmOLQepxk6fPdf4lyUEMHWm5BheylApJ0P9MehoqZ0LisQEVff4b
-         iD3CcO8r2jQQZmGGJexARb56YVAyJbQVLhwX2XJXCCpsNenftav/hnkxx0Jhrx08ao2n
-         FgIQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KOINmmaR"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1441183F8A
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Dec 2025 20:07:33 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id yVJVxb_Kvl8k for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Dec 2025 20:07:32 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org F0BD883E77
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F0BD883E77
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KOINmmaR
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id F0BD883E77
+	for <virtualization@lists.linux-foundation.org>; Tue,  2 Dec 2025 20:07:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764706050;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=4LOaJkYRfgWql4tAMEDx+EG8hV3Vr+6Q+ye5vso+PWc=;
+	b=KOINmmaR4b/maDXPwuMm5yMJbVhH5MOv/I+uZ9piEODPkx1HfG7cErme5Az8CPjBryznMa
+	Pv9oZlSJhRDEbPCprTJ6fpgqzRaTf55b9c9ld5nVnfYcN8pR13KN09hE0L8bl4XnNWDP8l
+	ZAGw2kbhsvgwtE+kqK+bVyc47Br/JYw=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-74-iFJlBmmvMb6IWY4SSBnOnQ-1; Tue, 02 Dec 2025 15:07:26 -0500
+X-MC-Unique: iFJlBmmvMb6IWY4SSBnOnQ-1
+X-Mimecast-MFC-AGG-ID: iFJlBmmvMb6IWY4SSBnOnQ_1764706045
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-477a0ddd1d4so33854575e9.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 02 Dec 2025 12:07:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764705635; x=1765310435;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XOvq7zGQWlXv7Qg5p/lBCK450NxRsWzSuFDUvE6KnLY=;
-        b=xG5w09NMgd5+N73b5QWwJsdsCofGgXuwZz8qFpOKYvfhxibZYtefiKFLYqs2NxKf6d
-         XDowN/SeqKwj8Z7LT6tsjoH7hj5MLKgrkkZEP4n3m92y1pPiBVTD0cSDf1u1xWz3OS0W
-         c7a+TuF5+owCN8PoQsAOFeTMacngxqrtDTj4rLzZwyZkK2qlvAlmZSn7kdgjsDXOQsdA
-         RotJ3YMaNdWnshbyEuWTgBBYxcf7p4a21bGt8PXgoD/FJbXIbx2dwtXdV7DE5bzixZ4h
-         G+rjDrlB4bh6MvMHwqQk40KL318qt0FZOo8w7uRZw56eOpyEGvk07U8waGGVd0jF72d0
-         jZ7Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXE7Lpo2GOs+1AzMWTWg1FPscV+Ij5/vvrvkwq1iQSITLQ9H9MBBamFwzo6z06PnPuKJjDficJM1BDH/jhXEg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzyiqk1446I6Wrax3dGoK3w1u7klaBVtDKSUtJSDoMTmzAvPN0F
-	kbvuuVtEufvzoeFPnB9ClwOEjLHeXF3JxZray+YJRv/2SrOoNLUmaRin
-X-Gm-Gg: ASbGncuGHzN+Z/Hoiqf1BCB/B6zyvme/r/k30/J7xhlpdvu7V0vrfLpIy0dxiFrnU1G
-	GA3c6DmNSXxNhg+fAmfu6OHojaZRr/CqSEh13CQL2MNqsg7LS24VmGIS3e/fEawaafknuN6yX1u
-	2HEHQAiSWfdFNNEDmjHReNmZ1YCH7ddHR1PA7vy8pjiWo7vZoP1sOQdTOD/H8yxJaVRtrnWLJLd
-	Q7i3dz/N4HpEDaz3XAlontSrql+ff3TXBcel+QGO0YXwiw2aVSflYNoNlu3hj+VsOGheqV7CKm/
-	EdtN5NUDXQIQwUwmCWkhxoUOQHiBgxuqe5M0nBGA5vHf2Oi8HUXUUM9k3ZMZttCakBY32Oxhmjr
-	ewGOQW6CrRk7VYzTK2aFuIChVlfRbhgDpWifc1EyTps+KMVSVDp23G7AaDxj3NSlfmvtdE4q+XP
-	OrsXi6K9fJ/B0DMpyUcZxzeRFHhKF7qnSGGWmQuP++h3bjmw==
-X-Google-Smtp-Source: AGHT+IE4Lw0nvXL8yqBtDuOK7QrlnTetNDoVmfVcyfoTP8VgYdTEu+GudPd/2RaoWo8nWv4q3HA7Cw==
-X-Received: by 2002:a53:b10b:0:b0:63f:a6e9:4048 with SMTP id 956f58d0204a3-6442f16a1a9mr2475593d50.26.1764705635271;
-        Tue, 02 Dec 2025 12:00:35 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:a::])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-78ad0d5f4c5sm65824697b3.13.2025.12.02.12.00.34
+        d=1e100.net; s=20230601; t=1764706045; x=1765310845;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4LOaJkYRfgWql4tAMEDx+EG8hV3Vr+6Q+ye5vso+PWc=;
+        b=DzNBrsFdaqwHKqTjaqBK0DzUv/8sci+x2cP1eieJwivaRtaOMYnR44LGZjIyjvk8S/
+         OTGJgzevmSHR0w7c+65rgXQHQce8OZ3q/RR8ugyzQOMM0smvBhzw4joF32iZx7BZy1rA
+         T0xlIGgr/Gh8uoTx/A9PPmV2arh0Ne0FgcksnIbHmJd86dVMRSqsjy2uodLpRirn/KJA
+         I1lwsOGmriJ9deSEPtQNC2Pq8lcsKjSLMJQZOnMuT7bMhZqVijBCJVAesKuy/23pBt2y
+         qiql2YkUxlZ4QclBnGOwCOTBkuX1kcyP+BDqmkXmCQ3q++LCh3hUToCO49nJqgeIqT44
+         RorQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXfNIHwKb63Wh5bo301pxGcYx9L6wteXAJ8lgS8hkqbvP/5ezi+thbjM8YHi5aM0eu62TmxhBKlTITaEnffBw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YztLqeD315JXcbh8ZSEjJOCJIOhGtLdnhpom+Puxl/Vb8qfylLN
+	TKT26EMKpkSJzwMJIAabE2oMYjxD4ZlC1WkyZ+Hafw5WsbCCvNgSlloTm8GweDX4y9yFjNlrtcs
+	9mMiH5D/mi7sDnlDNrJcMGCKgqCojZkPsADAjgXLCmEk5VGtTujkeECiVgXU8NQ9Y59/duWdL8I
+	ei29v/u0g=
+X-Gm-Gg: ASbGncsQ4h0deOGjF121A9+jGkBQtLbKw/FsJRaFLbdD7YWWOGjMiEQg6aTOpVVYkFo
+	BYOM3YQ09KYF7BhSpbfgL02KpGz3YVuLSBVpn0gMKFDvxEPsrq7ISABH7l4hCzSSDU3F/Eu2PhW
+	Jl65pKaymSHfmJNsdulV2QaPIHAx1TbQ/UZzCVHJ8gUV33Qv+2zrAqPKXAsYGMrqBrxF87smekK
+	EoDBraOUBOZlbMNZV62j8LzWi4Hxx6lBPLrtada/y/K43CwRezLsQS87T0V7UNKMYU63trs7uvs
+	veEYJsizl1f6TRpn3atrmgMIBm+5/YGhmU/b1KmkWE5PhC4Fo738BiHqgpvK12kH1No+fy+8ng7
+	PaL5wZh5U8O5Ht2bbgiOfGTKXWc3rfNGM
+X-Received: by 2002:a05:600c:5249:b0:477:9d54:58d7 with SMTP id 5b1f17b1804b1-4792a4aac08mr9281235e9.29.1764706045302;
+        Tue, 02 Dec 2025 12:07:25 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE/agkXQ9hhx2CuGFlZ3EgTBLncuqp3bFvjDrGsXOBisReyUeJGrkEIqlYMZDfX1+cLbK1Uhw==
+X-Received: by 2002:a05:600c:5249:b0:477:9d54:58d7 with SMTP id 5b1f17b1804b1-4792a4aac08mr9280895e9.29.1764706044801;
+        Tue, 02 Dec 2025 12:07:24 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-38-228.inter.net.il. [80.230.38.228])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4792a8c5fdesm5614095e9.10.2025.12.02.12.07.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Dec 2025 12:00:34 -0800 (PST)
-Date: Tue, 2 Dec 2025 12:00:33 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Paolo Abeni <pabeni@redhat.com>, g@nha0.facebook.com
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, berrange@redhat.com,
-	Sargun Dhillon <sargun@sargun.me>,
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v12 04/12] vsock: add netns support to virtio
- transports
-Message-ID: <aS9FYWd3SDYu6U1v@devvm11784.nha0.facebook.com>
-References: <20251126-vsock-vmtest-v12-0-257ee21cd5de@meta.com>
- <20251126-vsock-vmtest-v12-4-257ee21cd5de@meta.com>
- <6cef5a68-375a-4bb6-84f8-fccc00cf7162@redhat.com>
- <aS8oMqafpJxkRKW5@devvm11784.nha0.facebook.com>
+        Tue, 02 Dec 2025 12:07:24 -0800 (PST)
+Date: Tue, 2 Dec 2025 15:07:21 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	alex.williamson@redhat.com, alok.a.tiwari@oracle.com,
+	jasowang@redhat.com, kriish.sharma2006@gmail.com,
+	linmq006@gmail.com, marco.crivellari@suse.com,
+	michael.christie@oracle.com, mst@redhat.com, pabeni@redhat.com,
+	stable@vger.kernel.org, yishaih@nvidia.com
+Subject: [GIT PULL] virtio,vhost: fixes, cleanups
+Message-ID: <20251202150721-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: xOSMng_06RfODvjCFiaD8PFAbnq2ESkbOypnMBPjxrI_1764706045
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aS8oMqafpJxkRKW5@devvm11784.nha0.facebook.com>
 
-On Tue, Dec 02, 2025 at 09:56:02AM -0800, Bobby Eshleman wrote:
-> On Tue, Dec 02, 2025 at 11:18:14AM +0100, Paolo Abeni wrote:
-> > On 11/27/25 8:47 AM, Bobby Eshleman wrote:
-> > > @@ -674,6 +689,17 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
-> > >  		goto out;
-> > >  	}
-> > >  
-> > > +	net = current->nsproxy->net_ns;
-> > > +	vsock->net = get_net_track(net, &vsock->ns_tracker, GFP_KERNEL);
-> > > +
-> > > +	/* Store the mode of the namespace at the time of creation. If this
-> > > +	 * namespace later changes from "global" to "local", we want this vsock
-> > > +	 * to continue operating normally and not suddenly break. For that
-> > > +	 * reason, we save the mode here and later use it when performing
-> > > +	 * socket lookups with vsock_net_check_mode() (see vhost_vsock_get()).
-> > > +	 */
-> > > +	vsock->net_mode = vsock_net_mode(net);
-> > 
-> > I'm sorry for the very late feedback. I think that at very least the
-> > user-space needs a way to query if the given transport is in local or
-> > global mode, as AFAICS there is no way to tell that when socket creation
-> > races with mode change.
-> 
-> Are you thinking something along the lines of sockopt?
-> 
+get_user/put_user change didn't spend time in next and
+seems a bit too risky to rush. I'm keeping it in my tree
+and we'll get it in the next cycle.
 
-To clarify... do we want the user to be able to query the socket for
-which namespace mode it is in (so the results of the race can be
-queried), or are you looking for a way for the user to query if the
-transport supports local mode (maybe via /dev/vsock ioctl).
 
-I'm not sure we can attach a namespace to a transport per-se, as
-different namespaces in different modes can use the same transport.
+The following changes since commit ac3fd01e4c1efce8f2c054cdeb2ddd2fc0fb150d:
 
-Best,
-Bobby
+  Linux 6.18-rc7 (2025-11-23 14:53:16 -0800)
 
-> > 
-> > Also I'm a bit uneasy with the model implemented here, as 'local' socket
-> > may cross netns boundaris and connect to 'local' socket in other netns
-> > (if I read correctly patch 2/12). That in turns AFAICS break the netns
-> > isolation.
-> 
-> Local mode sockets are unable to communicate with local mode (and global
-> mode too) sockets that are in other namespaces. The key piece of code
-> for that is vsock_net_check_mode(), where if either modes is local the
-> namespaces must be the same.
-> 
-> > 
-> > Have you considered instead a slightly different model, where the
-> > local/global model is set in stone at netns creation time - alike what
-> > /proc/sys/net/ipv4/tcp_child_ehash_entries is doing[1] - and
-> > inter-netns connectivity is explicitly granted by the admin (I guess
-> > you will need new transport operations for that)?
-> > 
-> > /P
-> > 
-> > [1] tcp allows using per-netns established socket lookup tables - as
-> > opposed to the default global lookup table (even if match always takes
-> > in account the netns obviously). The mentioned sysctl specify such
-> > configuration for the children namespaces, if any.
-> > 
-> 
-> I'll save this discussion if the above doesn't resolve your concerns.
-> 
-> Best,
-> Bobby
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 205dd7a5d6ad6f4c8e8fcd3c3b95a7c0e7067fee:
+
+  virtio_pci: drop kernel.h (2025-11-30 18:02:43 -0500)
+
+----------------------------------------------------------------
+virtio,vhost: fixes, cleanups
+
+Just a bunch of fixes and cleanups, mostly very simple. Several
+features are merged through net-next this time around.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Alok Tiwari (3):
+      virtio_vdpa: fix misleading return in void function
+      vdpa/mlx5: Fix incorrect error code reporting in query_virtqueues
+      vdpa/pds: use %pe for ERR_PTR() in event handler registration
+
+Kriish Sharma (1):
+      virtio: fix kernel-doc for mapping/free_coherent functions
+
+Marco Crivellari (2):
+      virtio_balloon: add WQ_PERCPU to alloc_workqueue users
+      vduse: add WQ_PERCPU to alloc_workqueue users
+
+Miaoqian Lin (1):
+      virtio: vdpa: Fix reference count leak in octep_sriov_enable()
+
+Michael S. Tsirkin (11):
+      virtio: fix typo in virtio_device_ready() comment
+      virtio: fix whitespace in virtio_config_ops
+      virtio: fix grammar in virtio_queue_info docs
+      virtio: fix grammar in virtio_map_ops docs
+      virtio: standardize Returns documentation style
+      virtio: fix virtqueue_set_affinity() docs
+      virtio: fix map ops comment
+      virtio: clean up features qword/dword terms
+      vhost/test: add test specific macro for features
+      vhost: switch to arrays of feature bits
+      virtio_pci: drop kernel.h
+
+Mike Christie (1):
+      vhost: Fix kthread worker cgroup failure handling
+
+ drivers/vdpa/mlx5/net/mlx5_vnet.c        |  2 +-
+ drivers/vdpa/octeon_ep/octep_vdpa_main.c |  1 +
+ drivers/vdpa/pds/vdpa_dev.c              |  2 +-
+ drivers/vdpa/vdpa_user/vduse_dev.c       |  3 ++-
+ drivers/vhost/net.c                      | 29 +++++++++++-----------
+ drivers/vhost/scsi.c                     |  9 ++++---
+ drivers/vhost/test.c                     | 10 ++++++--
+ drivers/vhost/vhost.c                    |  4 ++-
+ drivers/vhost/vhost.h                    | 42 ++++++++++++++++++++++++++------
+ drivers/vhost/vsock.c                    | 10 +++++---
+ drivers/virtio/virtio.c                  | 12 ++++-----
+ drivers/virtio/virtio_balloon.c          |  3 ++-
+ drivers/virtio/virtio_debug.c            | 10 ++++----
+ drivers/virtio/virtio_pci_modern_dev.c   |  6 ++---
+ drivers/virtio/virtio_ring.c             |  7 +++---
+ drivers/virtio/virtio_vdpa.c             |  2 +-
+ include/linux/virtio.h                   |  2 +-
+ include/linux/virtio_config.h            | 24 +++++++++---------
+ include/linux/virtio_features.h          | 29 +++++++++++-----------
+ include/linux/virtio_pci_modern.h        |  8 +++---
+ include/uapi/linux/virtio_pci.h          |  2 +-
+ 21 files changed, 131 insertions(+), 86 deletions(-)
+
