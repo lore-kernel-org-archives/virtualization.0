@@ -1,147 +1,212 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC5AA2F6561
-	for <virtualization@lists.linux.dev>; Wed,  3 Dec 2025 13:34:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEA351EDA2B
+	for <virtualization@lists.linux.dev>; Wed,  3 Dec 2025 14:16:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764768843; cv=none; b=VFjiCbCMl673KTpn+ccbkwFFvK4W5nglOrbKrAexMF7ZwaZd94Y+hpSHNHDlc1SQeMfp/G4qZLpJPR7IYjKob7v2e9c56iNKk3MUGdSwOi0fglmf+FOHslbNDC9m6bOycYmPFEBm1ILiXjgnWF5vkjwIDp1aM0fwZVHYNSge5A8=
+	t=1764771383; cv=none; b=pXxZRCIQ3tv5H8CRMObvl5TENw56SEAt8YRC5s5hSCPVoK72xfH/orsp0CxomjPAqFak17Ew8HJbpwjrbsX1rLvZNgSup4/iSy9Z7aNtVHeg1uGGVoE64PP4ejXcCldt8XWP+wEtMls47SaAP7mmCGz7EGqQ/ME/R4vLe/PQTPo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764768843; c=relaxed/simple;
-	bh=Dne/Ve4P+xeZREEkkpT7miAIMUs8CpeyyxsD+TSDMB4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rJdR7tC/tUQgLwmjYaGCx1mNSqQ3kdjAqrsKTZIxaMzIVXieUTCLAuwqY+wl7BCIzkRb+pn7a5via1Au/+M49R82+6XovMChcBox2mlP3fbWf50Vhnz9V8GGS5bavxR3Uu9jqzkaHsJzmVa7iecqEPZ2tozqhqH3svCkwf6yt5s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i0Zqoqk1; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1764771383; c=relaxed/simple;
+	bh=S/P/cNG8N0lBHrNlEfCWLS5Dg2sft4fFl6BKjXwHzq0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nl1T4jfsIzBsS3aKT0ylXUpOb0SIgdw6aiOPOrFVSPswOucaygmw7s2sAoXq5l2Uy/xmsEzKZf57dM3S6pHCIXGWISQD8eBg3dQoKNJK9DMMt0oTH5IX39PiwXTqcUqCE4SeO0sBqrIJxZ3q/4DaRK4pCc2vvwHWNDd6dzsXdMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eAGWakgM; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i0Zqoqk1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eAGWakgM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764768840;
+	s=mimecast20190719; t=1764771380;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=v5HapGAETBejFtPtETjP5Yr93HQBxIGVef1x+VaGO9I=;
-	b=i0Zqoqk1Lj9E6ngpDrUelEeUpXCT00NHpqO6+v0qweiTRBkBFNsC+Q5u/iJkypK+cnB/gV
-	y2dzFFulWkBuGvEGsipZxVRsEuC1dD6a75ytVEhSGIDbJXReVrniOeBX5qMYogrLQVETtc
-	mpEA/h7ImW4hGLP1G6XpIsGBvdPspy4=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=m6MmnBAj0sXBLiUH9SOIpXTvoEYpfaN7w1YH+RlAfVY=;
+	b=eAGWakgMNw1UYQUJ/IR9uU36OMik/qMbP1wH3ZYuNa33yb7E18i1QD0U/UgG7vRnIwgxx6
+	FQyxUzLvic9pmEaHr3ZOKqEFbPAies6tkVtsjquzj+4xgyGrL4LBv+Y1EBlC6yvUrlxfKN
+	K/ITtm+rQUXXexxOTL3M+aOOX54hBEs=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-186-iasbHpLAOAea1FW3tBUPqw-1; Wed, 03 Dec 2025 08:33:59 -0500
-X-MC-Unique: iasbHpLAOAea1FW3tBUPqw-1
-X-Mimecast-MFC-AGG-ID: iasbHpLAOAea1FW3tBUPqw_1764768838
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-b72a95dc6d9so326308766b.0
-        for <virtualization@lists.linux.dev>; Wed, 03 Dec 2025 05:33:59 -0800 (PST)
+ us-mta-324-hwDRAolKN_2X5b0_mutarw-1; Wed, 03 Dec 2025 09:16:19 -0500
+X-MC-Unique: hwDRAolKN_2X5b0_mutarw-1
+X-Mimecast-MFC-AGG-ID: hwDRAolKN_2X5b0_mutarw_1764771379
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-29557f43d56so75330355ad.3
+        for <virtualization@lists.linux.dev>; Wed, 03 Dec 2025 06:16:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764768838; x=1765373638;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=v5HapGAETBejFtPtETjP5Yr93HQBxIGVef1x+VaGO9I=;
-        b=cxwr52RvQKzCvlxDwFCAE6eyh7IYbjROBflrxbzPZRBEDcShmBwHsvmi5pxct8UBPL
-         LKEs9U11faGvl7LzXj5j9xT2WybExbLGtMXJET+BFyDI6NrtMVNm+xt1eRcuTG6kMkDN
-         qJG3vf8gyCpgplWKY6l3NgHmxcmA5Akqoufs4UJbjaZjQpIUC04JXfF8QqP0wPHK6VfO
-         EcNmFBZY/vcYyV4uUyg44Wf4jeEiKu28NQBk6aRtK3qc6MpUiLKvW8OIYe13RMbb+v8Z
-         ha9SR2XrLgtu401EAG69jahTZA8blc25bVTZguIBXUupB/YVc+WDIoywCjekm387xcxk
-         hYUw==
-X-Forwarded-Encrypted: i=1; AJvYcCXEkW7TUWVe+JryIDqHdRsIAYxHDnmE3R1UG1aq6bE6NkcS2lpwal0t27tQxiXQhnogrNZtKtaqU/Y98cYg5w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw15sqL4tcDw/mgbbegMqfaiiE50EDN64VjybTxZ7apeUDmMKSu
-	qaFdn1tm7MV9wYBDHbe5gtD9dzXpAx85qCfHkPZbDGlWXgWyogcRTgatgWcnlfc+Vk/Ob9KUOJ0
-	XV4/DqlUWwH77e4apWoeo8oDn7e2CRH9qPUgwB1zhsF3W6thmcnnztzH1tKz/8yMTn+7F
-X-Gm-Gg: ASbGncu7D9FCaQ0zXNDC63/mUxtgXaNwy2ASFIynQUPCuHtc2y+wDf+kCvqti48Swvv
-	Nn0rYS56Tm/tePiGzc2NMOYpNYVuF/L1PJdQeLGcYrmCCFSUkYcvuVNZ7kRaTAZ52tPFtwNtaHv
-	7+wOye8RvPUZu6g90adxRcUag/oh9jpLJT73cNDXMK+dJTtp+sbzMoz5tC8Llijl09wXCqejRmS
-	OCFQDNU4l4Bfkh9m//oIlm9ukZgEnZXvgNVC6RK4B/DmlHK7HKAvkdFGtjrxoyvs++fQDkPP5bR
-	dk1MjsU/DWiXbDxbX9jWnUh4hbgIQFfe9L+BoE830kL+at+K8b3/KV6RWuOw4ZKWZjmaPMONgug
-	=
-X-Received: by 2002:a17:907:3f9b:b0:b72:a899:169f with SMTP id a640c23a62f3a-b79dbe487cfmr252935866b.4.1764768838223;
-        Wed, 03 Dec 2025 05:33:58 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHRkbakFynEx+xbWrRzIqBtwAstWd7O3+OSlCU8/PG1Zhj8xJARmcIDiai4geXLID71H0TAfQ==
-X-Received: by 2002:a17:907:3f9b:b0:b72:a899:169f with SMTP id a640c23a62f3a-b79dbe487cfmr252931666b.4.1764768837661;
-        Wed, 03 Dec 2025 05:33:57 -0800 (PST)
-Received: from redhat.com ([31.187.78.30])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b76f4d533f2sm1797209166b.0.2025.12.03.05.33.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Dec 2025 05:33:57 -0800 (PST)
-Date: Wed, 3 Dec 2025 08:33:53 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Simon Horman <horms@kernel.org>
-Cc: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org,
-	jasowang@redhat.com, pabeni@redhat.com,
-	virtualization@lists.linux.dev, parav@nvidia.com,
-	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
-	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
-Subject: Re: [PATCH net-next v13 11/12] virtio_net: Add support for TCP and
- UDP ethtool rules
-Message-ID: <20251203083305-mutt-send-email-mst@kernel.org>
-References: <20251126193539.7791-1-danielj@nvidia.com>
- <20251126193539.7791-12-danielj@nvidia.com>
- <aS8L--z0ezhkywT_@horms.kernel.org>
+        d=1e100.net; s=20230601; t=1764771379; x=1765376179;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=m6MmnBAj0sXBLiUH9SOIpXTvoEYpfaN7w1YH+RlAfVY=;
+        b=sfwbWnU02Gf9kpz2CJTh39AmDfGumEH3wEjfXd1n3O9OA1drHfgnlIw4PtSCPw1CO3
+         vOcSz/Qkj/G0Y0z3/89ju1utRuabWXInB7MRIlCx3jaeYVPyA2W2miPxcQ5O48R63D6w
+         R+UjgJ2+jl5YcRrdAiBmLuLVr3ewdnPHL0xhJuTZZkSsIvCfVHdQtgYU3pBeNW2ojIQj
+         xgS4cR71uAkWm8i+hPwdLKQ3cHWRiG/H3CDjBBNFaU+Bsc8gPTvGXMyq2hf5cXBWgaM+
+         Wyk2JKQIJDOjhNn+PpRKdRNSpO2inZ+o4LWHRWX1ruSCEQBkDDmWLfL6s7raR5vHQDel
+         sxpQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUxK4M1hOu4O1a419jrG86dE6YJLmcM4pEnridmBZV12aYN80v/lGa0s5rhWd7PYaylxEpry2JIa0GjvMp8aQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxrkrD70/ky6FWgIEfyjCQ3YQ2eXyrLtBFOZPoipphRTAOzZc+U
+	qm5hwKoRWOD3Oe0qgVlMnqV/4NJBhHmyVPXszY01zunr4RI3fNAbr/Q7XCot4yCzTB/d68n/w+k
+	AV21Xhk2hRTkeJ0nBi7YHkq9SGYd0qT+JTRsKoZCTdS/w2twSCdRfcXDqDWsfD81VcIkexy7Pyi
+	AGmsb7VPVicOTBTsghnZnm9gsFYSchSF5GEvydOxBNhPA=
+X-Gm-Gg: ASbGncv5I04+ESMAJmZbQGeEuwxmM1g4MNiMxXNG8hTZOiBOSdRS6ToCoXXiK9xqOPx
+	+Qd5QEnVT/njCR0FByP/QTzbxWZG+SH2cW/r6BeTo06B8DeXP4BQ/3yQ7FY0RnTy1+BpBi156gu
+	E1toP0SxruC1BawKoJPnmdhSVd6boL/trxzF1b8WlBdsOL2Mtt44qjfw3xyFi8f7MO
+X-Received: by 2002:a17:902:c94f:b0:297:f0a8:e84c with SMTP id d9443c01a7336-29d684115bdmr32640035ad.52.1764771378487;
+        Wed, 03 Dec 2025 06:16:18 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFrf4N37GhQAQz44/2vwe63Ab5H+6VDgov2x0HTUYas2MPFLA+zHDJSMoG1KnWS0PCZs11D1TbOfUh6IETwAs4=
+X-Received: by 2002:a17:902:c94f:b0:297:f0a8:e84c with SMTP id
+ d9443c01a7336-29d684115bdmr32639565ad.52.1764771377945; Wed, 03 Dec 2025
+ 06:16:17 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aS8L--z0ezhkywT_@horms.kernel.org>
+References: <20251126-vsock-vmtest-v12-0-257ee21cd5de@meta.com>
+ <20251126-vsock-vmtest-v12-4-257ee21cd5de@meta.com> <6cef5a68-375a-4bb6-84f8-fccc00cf7162@redhat.com>
+ <aS8oMqafpJxkRKW5@devvm11784.nha0.facebook.com> <06b7cfea-d366-44f7-943e-087ead2f25c2@redhat.com>
+ <aS9hoOKb7yA5Qgod@devvm11784.nha0.facebook.com>
+In-Reply-To: <aS9hoOKb7yA5Qgod@devvm11784.nha0.facebook.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Wed, 3 Dec 2025 15:16:06 +0100
+X-Gm-Features: AWmQ_bmkUIFoQHWLakcGQ6CqBOgVjHz_GT5mK5TsKMjW9_hXYBmzRcS2k1f0tSo
+Message-ID: <CAGxU2F55uUPb7s9NwxRgU62Kxp8CS7YFkr_wXDHsE1Qd0-OJKw@mail.gmail.com>
+Subject: Re: [PATCH net-next v12 04/12] vsock: add netns support to virtio transports
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
+	Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Shuah Khan <shuah@kernel.org>, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, berrange@redhat.com, 
+	Sargun Dhillon <sargun@sargun.me>, Bobby Eshleman <bobbyeshleman@meta.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OWl5tgsFmJw-cSPqWmjOq-MAeol6MrcnPg7lhwHj0jo_1764768838
+X-Mimecast-MFC-PROC-ID: WQQU0jGsg9_FQK4iNQTYNaj9S3JxDbWyKGMLB1V9sT0_1764771379
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Dec 02, 2025 at 03:55:39PM +0000, Simon Horman wrote:
-> On Wed, Nov 26, 2025 at 01:35:38PM -0600, Daniel Jurgens wrote:
-> 
-> ...
-> 
-> > @@ -6005,6 +6085,11 @@ static void parse_ip4(struct iphdr *mask, struct iphdr *key,
-> >  		mask->tos = l3_mask->tos;
-> >  		key->tos = l3_val->tos;
-> >  	}
-> > +
-> > +	if (l3_mask->proto) {
-> > +		mask->protocol = l3_mask->proto;
-> > +		key->protocol = l3_val->proto;
-> > +	}
-> >  }
-> 
-> Hi Daniel,
-> 
-> Claude Code with review-prompts flags an issue here,
-> which I can't convince myself is not the case.
-> 
-> If parse_ip4() is called for a IP_USER_FLOW, which use ethtool_usrip4_spec,
-> as does this function, then all is well.
-> 
-> However, it seems that it may also be called for TCP_V4_FLOW and UDP_V4_FLOW
-> flows, in which case accessing .proto will overrun the mask and key which
-> are actually struct ethtool_tcpip4_spec.
-> 
-> https://netdev-ai.bots.linux.dev/ai-review.html?id=51d97b85-5ca3-4cb8-a96a-0d6eab5e7196#patch-10
+On Tue, 2 Dec 2025 at 23:01, Bobby Eshleman <bobbyeshleman@gmail.com> wrote:
+>
+> On Tue, Dec 02, 2025 at 09:47:19PM +0100, Paolo Abeni wrote:
+> > On 12/2/25 6:56 PM, Bobby Eshleman wrote:
+> > > On Tue, Dec 02, 2025 at 11:18:14AM +0100, Paolo Abeni wrote:
+> > >> On 11/27/25 8:47 AM, Bobby Eshleman wrote:
+> > >>> @@ -674,6 +689,17 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+> > >>>           goto out;
+> > >>>   }
+> > >>>
+> > >>> + net = current->nsproxy->net_ns;
+> > >>> + vsock->net = get_net_track(net, &vsock->ns_tracker, GFP_KERNEL);
+> > >>> +
+> > >>> + /* Store the mode of the namespace at the time of creation. If this
+> > >>> +  * namespace later changes from "global" to "local", we want this vsock
+> > >>> +  * to continue operating normally and not suddenly break. For that
+> > >>> +  * reason, we save the mode here and later use it when performing
+> > >>> +  * socket lookups with vsock_net_check_mode() (see vhost_vsock_get()).
+> > >>> +  */
+> > >>> + vsock->net_mode = vsock_net_mode(net);
+> > >>
+> > >> I'm sorry for the very late feedback. I think that at very least the
+> > >> user-space needs a way to query if the given transport is in local or
+> > >> global mode, as AFAICS there is no way to tell that when socket creation
+> > >> races with mode change.
+> > >
+> > > Are you thinking something along the lines of sockopt?
+> >
+> > I'd like to see a way for the user-space to query the socket 'namespace
+> > mode'.
+> >
+> > sockopt could be an option; a possibly better one could be sock_diag. Or
+> > you could do both using dumping the info with a shared helper invoked by
+> > both code paths, alike what TCP is doing.
+> > >> Also I'm a bit uneasy with the model implemented here, as 'local' socket
+> > >> may cross netns boundaris and connect to 'local' socket in other netns
+> > >> (if I read correctly patch 2/12). That in turns AFAICS break the netns
+> > >> isolation.
+> > >
+> > > Local mode sockets are unable to communicate with local mode (and global
+> > > mode too) sockets that are in other namespaces. The key piece of code
+> > > for that is vsock_net_check_mode(), where if either modes is local the
+> > > namespaces must be the same.
+> >
+> > Sorry, I likely misread the large comment in patch 2:
+> >
+> > https://lore.kernel.org/netdev/20251126-vsock-vmtest-v12-2-257ee21cd5de@meta.com/
+> >
+> > >> Have you considered instead a slightly different model, where the
+> > >> local/global model is set in stone at netns creation time - alike what
+> > >> /proc/sys/net/ipv4/tcp_child_ehash_entries is doing[1] - and
+> > >> inter-netns connectivity is explicitly granted by the admin (I guess
+> > >> you will need new transport operations for that)?
+> > >>
+> > >> /P
+> > >>
+> > >> [1] tcp allows using per-netns established socket lookup tables - as
+> > >> opposed to the default global lookup table (even if match always takes
+> > >> in account the netns obviously). The mentioned sysctl specify such
+> > >> configuration for the children namespaces, if any.
+> > >
+> > > I'll save this discussion if the above doesn't resolve your concerns.
+> > I still have some concern WRT the dynamic mode change after netns
+> > creation. I fear some 'unsolvable' (or very hard to solve) race I can't
+> > see now. A tcp_child_ehash_entries-like model will avoid completely the
+> > issue, but I understand it would be a significant change over the
+> > current status.
+> >
+> > "Luckily" the merge window is on us and we have some time to discuss. Do
+> > you have a specific use-case for the ability to change the netns mode
+> > after creation?
+> >
+> > /P
+>
+> I don't think there is a hard requirement that the mode be change-able
+> after creation. Though I'd love to avoid such a big change... or at
+> least leave unchanged as much of what we've already reviewed as
+> possible.
 
+I think the big part is done, IIUC this should just be a change to the
+uAPI and maybe simplify what we have a little (e.g., avoid saving the
+mode each socket had when it was created).
 
-Oh I didn't know about this one. Is there any data on how does it work?
-Which model/prompt/etc?
+>
+> In the scheme of defining the mode at creation and following the
+> tcp_child_ehash_entries-ish model, what I'm imagining is:
+> - /proc/sys/net/vsock/child_ns_mode can be set to "local" or "global"
+> - /proc/sys/net/vsock/child_ns_mode is not immutable, can change any
+>   number of times
+>
+> - when a netns is created, the new netns mode is inherited from
+>   child_ns_mode, being assigned using something like:
+>
+>           net->vsock.ns_mode =
+>                 get_net_ns_by_pid(current->pid)->child_ns_mode
+>
+> - /proc/sys/net/vsock/ns_mode queries the current mode, returning
+>   "local" or "global", returning value of net->vsock.ns_mode
+> - /proc/sys/net/vsock/ns_mode and net->vsock.ns_mode are immutable and
+>   reject writes
+>
+> Does that align with what you have in mind?
+>
+> Stefano, what are your thoughts?
 
+If we can avoid having sockets in a namespace that can be both global
+and local, perhaps it makes a lot of sense to make this change.
 
-> >  
-> >  static void parse_ip6(struct ipv6hdr *mask, struct ipv6hdr *key,
-> > @@ -6022,16 +6107,35 @@ static void parse_ip6(struct ipv6hdr *mask, struct ipv6hdr *key,
-> >  		memcpy(&mask->daddr, l3_mask->ip6dst, sizeof(mask->daddr));
-> >  		memcpy(&key->daddr, l3_val->ip6dst, sizeof(key->daddr));
-> >  	}
-> > +
-> > +	if (l3_mask->l4_proto) {
-> > +		mask->nexthdr = l3_mask->l4_proto;
-> > +		key->nexthdr = l3_val->l4_proto;
-> > +	}
-> 
-> Likewise here.
-> 
-> >  }
-> 
-> ...
+My only concern is that there is still a small window where the mode
+can change, but we are sure that only one is picked during creation
+and then within the namespace this can be easily checked and give us
+the assurance that all sockets comply with it, right?
+
+Thanks,
+Stefano
 
