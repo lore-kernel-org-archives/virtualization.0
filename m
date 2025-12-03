@@ -1,212 +1,234 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEA351EDA2B
-	for <virtualization@lists.linux.dev>; Wed,  3 Dec 2025 14:16:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 146ED305053
+	for <virtualization@lists.linux.dev>; Wed,  3 Dec 2025 15:56:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764771383; cv=none; b=pXxZRCIQ3tv5H8CRMObvl5TENw56SEAt8YRC5s5hSCPVoK72xfH/orsp0CxomjPAqFak17Ew8HJbpwjrbsX1rLvZNgSup4/iSy9Z7aNtVHeg1uGGVoE64PP4ejXcCldt8XWP+wEtMls47SaAP7mmCGz7EGqQ/ME/R4vLe/PQTPo=
+	t=1764777370; cv=none; b=l6Fl3uH6bYqIYEBX5Z826lyhBvL0lqT/ISIhI2Sw0tTu/ei6y8Y8RLkITy2nC+BxqsG03m/PeDqwBtxZST+PpP8NlqgrqMRih/RZrg3nLcFhma4MW6taeF+SlWsNfO16WZ9441pazXQH7ONRfVgWrxA5fY5ba7RgXARUwvvH4bQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764771383; c=relaxed/simple;
-	bh=S/P/cNG8N0lBHrNlEfCWLS5Dg2sft4fFl6BKjXwHzq0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nl1T4jfsIzBsS3aKT0ylXUpOb0SIgdw6aiOPOrFVSPswOucaygmw7s2sAoXq5l2Uy/xmsEzKZf57dM3S6pHCIXGWISQD8eBg3dQoKNJK9DMMt0oTH5IX39PiwXTqcUqCE4SeO0sBqrIJxZ3q/4DaRK4pCc2vvwHWNDd6dzsXdMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eAGWakgM; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1764777370; c=relaxed/simple;
+	bh=rGwUVR+Yo8u1COwzMDod6hKjMoB7taY0GEiWuVQTc1o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hitVCEdfZnw0jzliSEo6Q0Fg/84YR/+CvFT4kQbZf9aWGpJner8Nu8+fZEsuSjeHCjGHdLAONFaTxHjNbyKY3PVVg2s1EjACzIu66mO0YYiZ7C5SItL6IvF4ExJQ8sgy5pQ6as5ugSPlf9HJUyZ6uhqwAB1V6Op9XvmBtnbwOT4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=fYUGSnVG; arc=none smtp.client-ip=209.85.208.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eAGWakgM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764771380;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=m6MmnBAj0sXBLiUH9SOIpXTvoEYpfaN7w1YH+RlAfVY=;
-	b=eAGWakgMNw1UYQUJ/IR9uU36OMik/qMbP1wH3ZYuNa33yb7E18i1QD0U/UgG7vRnIwgxx6
-	FQyxUzLvic9pmEaHr3ZOKqEFbPAies6tkVtsjquzj+4xgyGrL4LBv+Y1EBlC6yvUrlxfKN
-	K/ITtm+rQUXXexxOTL3M+aOOX54hBEs=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-324-hwDRAolKN_2X5b0_mutarw-1; Wed, 03 Dec 2025 09:16:19 -0500
-X-MC-Unique: hwDRAolKN_2X5b0_mutarw-1
-X-Mimecast-MFC-AGG-ID: hwDRAolKN_2X5b0_mutarw_1764771379
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-29557f43d56so75330355ad.3
-        for <virtualization@lists.linux.dev>; Wed, 03 Dec 2025 06:16:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="fYUGSnVG"
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-645a13e2b17so4375936a12.2
+        for <virtualization@lists.linux.dev>; Wed, 03 Dec 2025 07:56:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1764777363; x=1765382163; darn=lists.linux.dev;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=rGwUVR+Yo8u1COwzMDod6hKjMoB7taY0GEiWuVQTc1o=;
+        b=fYUGSnVG/ZO1uFxLDtmcFkJNoU07RhEQPD1uxmeAU1M6KhK0XmV4Q27MVEw6d4IolH
+         1DBGQMEfaMdwfXFqIfg/QSdfxTlAKf2nFsE+rQQWVDv8IxE5EYM4jOGj1AFZzO2KDiGB
+         HbAkc9n4Rv5DBfYoazaS67r0rT7kvreuz4aiIcwO0YxOGw0lluEm7Oyvp4sN9wvOdKR9
+         IyPvXOuT0qKaz44M2zUaX0mOqvOlx858QXO9E9aBe3Dm5zqmZ3C3y4tGpn2fGyzyO6P9
+         /3s4vt8Sxvjhjn6G6rRpNiU01SvxcL/Wv9mgrMO5uVNoK/hLET2Z/owcCzmSbQhU/xhg
+         Wbww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764771379; x=1765376179;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=m6MmnBAj0sXBLiUH9SOIpXTvoEYpfaN7w1YH+RlAfVY=;
-        b=sfwbWnU02Gf9kpz2CJTh39AmDfGumEH3wEjfXd1n3O9OA1drHfgnlIw4PtSCPw1CO3
-         vOcSz/Qkj/G0Y0z3/89ju1utRuabWXInB7MRIlCx3jaeYVPyA2W2miPxcQ5O48R63D6w
-         R+UjgJ2+jl5YcRrdAiBmLuLVr3ewdnPHL0xhJuTZZkSsIvCfVHdQtgYU3pBeNW2ojIQj
-         xgS4cR71uAkWm8i+hPwdLKQ3cHWRiG/H3CDjBBNFaU+Bsc8gPTvGXMyq2hf5cXBWgaM+
-         Wyk2JKQIJDOjhNn+PpRKdRNSpO2inZ+o4LWHRWX1ruSCEQBkDDmWLfL6s7raR5vHQDel
-         sxpQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUxK4M1hOu4O1a419jrG86dE6YJLmcM4pEnridmBZV12aYN80v/lGa0s5rhWd7PYaylxEpry2JIa0GjvMp8aQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxrkrD70/ky6FWgIEfyjCQ3YQ2eXyrLtBFOZPoipphRTAOzZc+U
-	qm5hwKoRWOD3Oe0qgVlMnqV/4NJBhHmyVPXszY01zunr4RI3fNAbr/Q7XCot4yCzTB/d68n/w+k
-	AV21Xhk2hRTkeJ0nBi7YHkq9SGYd0qT+JTRsKoZCTdS/w2twSCdRfcXDqDWsfD81VcIkexy7Pyi
-	AGmsb7VPVicOTBTsghnZnm9gsFYSchSF5GEvydOxBNhPA=
-X-Gm-Gg: ASbGncv5I04+ESMAJmZbQGeEuwxmM1g4MNiMxXNG8hTZOiBOSdRS6ToCoXXiK9xqOPx
-	+Qd5QEnVT/njCR0FByP/QTzbxWZG+SH2cW/r6BeTo06B8DeXP4BQ/3yQ7FY0RnTy1+BpBi156gu
-	E1toP0SxruC1BawKoJPnmdhSVd6boL/trxzF1b8WlBdsOL2Mtt44qjfw3xyFi8f7MO
-X-Received: by 2002:a17:902:c94f:b0:297:f0a8:e84c with SMTP id d9443c01a7336-29d684115bdmr32640035ad.52.1764771378487;
-        Wed, 03 Dec 2025 06:16:18 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFrf4N37GhQAQz44/2vwe63Ab5H+6VDgov2x0HTUYas2MPFLA+zHDJSMoG1KnWS0PCZs11D1TbOfUh6IETwAs4=
-X-Received: by 2002:a17:902:c94f:b0:297:f0a8:e84c with SMTP id
- d9443c01a7336-29d684115bdmr32639565ad.52.1764771377945; Wed, 03 Dec 2025
- 06:16:17 -0800 (PST)
+        d=1e100.net; s=20230601; t=1764777363; x=1765382163;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rGwUVR+Yo8u1COwzMDod6hKjMoB7taY0GEiWuVQTc1o=;
+        b=fqKzEUofuSMJElADC2gQJ07BkC0RH4OMZh7412vbUZkr0RBdbMeW1VZ30ZbXW7vYJr
+         G4ktfsBONv7s9EH95YqTnja2Agr8+n68Pb5XyJXvFEuui7gOoPnwzDm420qRf9yUtC7y
+         43+STWpI72A+dODIzL8g0cUmQvGNWKACSj9VTp8pjBedoQnPw3pMru7PAOHBg8TYtUFv
+         wUz7cOMQvo9GcLLQH8z8OeEyvdFdS8nNXwEne69eoVOK50WsXCLin8aZF+t1b4n5R4NB
+         c3bCyJAokr60wWiZW442IrkhW9zi9n7Bgc1XtUnC9tTtd04BMZlpSc94uf/MKEj3uBCe
+         tDlA==
+X-Forwarded-Encrypted: i=1; AJvYcCXadqwPTwRq9lQf1Kb21LizHWX0oiDtO7GgDrfmNsO4aEN+yfj6DWmXAAPAydQDU/LRBWyG+ELKRjopMqHDfQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyNfBjiDWMc7HxqYrgYfCbyevz819uVu/XusI5FvjpUw4BbGijZ
+	BxKuy/uuAwfhyVz+Wb1h/e5BuYQb7rrxIrA8teUQ/1Y7m2a6OGs0Bu8251G7v1A9qm5Ko+IByM4
+	h2nPvGzs=
+X-Gm-Gg: ASbGncu+elIMlwt16TQPFY8noYPFLZewrtA3aDgSaoWtzCrOTMchnB7qnVx1SwYxVnV
+	57TlPtV3IcGEA6SbAnXSebYoa1Tny2IPniXNCdovk1uwDWPFZXIHS1o/k0H8LOMeUHYW9llk4Dr
+	Yy+3IjzWPBxQNDemNuXMNGwlRCNerd6/2moKZXP2txB0psgKxeKF+Z8uOrsJX8Se5Pzt0J51Olz
+	7T1/hgXBhL5tML0xa0y84JI0qe6oUzLJKD9LpC8yuaLaTaeeEIanLr9VyX6ERjaAcCGzblWV29p
+	wuRjXJ0XeremTBPDlqGUfPuE73Aqx13JbViz6xU8dnADEEbqEhnfLkrx/zxd0HxZlUx+PG/UywI
+	tuCImFXj+iW5rPRS6NYczNiUoXTtIH1W9CEDleX8W1h6e/QqK6ARkM4L/7G2SGYzru9MbKPMYnb
+	urlne8XzVrD2F1wJXN7EcQAiCDnMgz9Hv+ELJWLQf4Zm9RTL2C9wIKiaL9RACyK9ADUCeOyQeBu
+	miQNmxSdt5SrqpvxZGcP1kC1mxIDUEjW4/Ng5VJL1UtCNg=
+X-Google-Smtp-Source: AGHT+IFzMoHXMvPnvPGUzvn/vx6+nfEiLoC9s5Ug4YFQdJmhDa4LIG8rBroQF9b6s48OOMZFczAzww==
+X-Received: by 2002:a05:6402:3490:b0:645:dc63:d467 with SMTP id 4fb4d7f45d1cf-6479c4d07f2mr2302837a12.31.1764777363026;
+        Wed, 03 Dec 2025 07:56:03 -0800 (PST)
+Received: from ?IPV6:2003:e5:8721:bb00:9139:4e25:a543:997? (p200300e58721bb0091394e25a5430997.dip0.t-ipconnect.de. [2003:e5:8721:bb00:9139:4e25:a543:997])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-647510615c0sm18955089a12.30.2025.12.03.07.56.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 03 Dec 2025 07:56:02 -0800 (PST)
+Message-ID: <032a028f-9fe5-4839-a596-f4e6317d7946@suse.com>
+Date: Wed, 3 Dec 2025 16:56:01 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251126-vsock-vmtest-v12-0-257ee21cd5de@meta.com>
- <20251126-vsock-vmtest-v12-4-257ee21cd5de@meta.com> <6cef5a68-375a-4bb6-84f8-fccc00cf7162@redhat.com>
- <aS8oMqafpJxkRKW5@devvm11784.nha0.facebook.com> <06b7cfea-d366-44f7-943e-087ead2f25c2@redhat.com>
- <aS9hoOKb7yA5Qgod@devvm11784.nha0.facebook.com>
-In-Reply-To: <aS9hoOKb7yA5Qgod@devvm11784.nha0.facebook.com>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Wed, 3 Dec 2025 15:16:06 +0100
-X-Gm-Features: AWmQ_bmkUIFoQHWLakcGQ6CqBOgVjHz_GT5mK5TsKMjW9_hXYBmzRcS2k1f0tSo
-Message-ID: <CAGxU2F55uUPb7s9NwxRgU62Kxp8CS7YFkr_wXDHsE1Qd0-OJKw@mail.gmail.com>
-Subject: Re: [PATCH net-next v12 04/12] vsock: add netns support to virtio transports
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
-	Vishnu Dasa <vishnu.dasa@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Shuah Khan <shuah@kernel.org>, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, berrange@redhat.com, 
-	Sargun Dhillon <sargun@sargun.me>, Bobby Eshleman <bobbyeshleman@meta.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: WQQU0jGsg9_FQK4iNQTYNaj9S3JxDbWyKGMLB1V9sT0_1764771379
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/2] LoongArch: Add paravirt support with
+ vcpu_is_preempted() in guest side
+To: Bibo Mao <maobibo@loongson.cn>, Paolo Bonzini <pbonzini@redhat.com>,
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+ Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: kvm@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
+References: <20251202024833.1714363-1-maobibo@loongson.cn>
+ <20251202024833.1714363-3-maobibo@loongson.cn>
+Content-Language: en-US
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <20251202024833.1714363-3-maobibo@loongson.cn>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------EZw1MvBXaSvkPDo4EOD01VVW"
 
-On Tue, 2 Dec 2025 at 23:01, Bobby Eshleman <bobbyeshleman@gmail.com> wrote:
->
-> On Tue, Dec 02, 2025 at 09:47:19PM +0100, Paolo Abeni wrote:
-> > On 12/2/25 6:56 PM, Bobby Eshleman wrote:
-> > > On Tue, Dec 02, 2025 at 11:18:14AM +0100, Paolo Abeni wrote:
-> > >> On 11/27/25 8:47 AM, Bobby Eshleman wrote:
-> > >>> @@ -674,6 +689,17 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
-> > >>>           goto out;
-> > >>>   }
-> > >>>
-> > >>> + net = current->nsproxy->net_ns;
-> > >>> + vsock->net = get_net_track(net, &vsock->ns_tracker, GFP_KERNEL);
-> > >>> +
-> > >>> + /* Store the mode of the namespace at the time of creation. If this
-> > >>> +  * namespace later changes from "global" to "local", we want this vsock
-> > >>> +  * to continue operating normally and not suddenly break. For that
-> > >>> +  * reason, we save the mode here and later use it when performing
-> > >>> +  * socket lookups with vsock_net_check_mode() (see vhost_vsock_get()).
-> > >>> +  */
-> > >>> + vsock->net_mode = vsock_net_mode(net);
-> > >>
-> > >> I'm sorry for the very late feedback. I think that at very least the
-> > >> user-space needs a way to query if the given transport is in local or
-> > >> global mode, as AFAICS there is no way to tell that when socket creation
-> > >> races with mode change.
-> > >
-> > > Are you thinking something along the lines of sockopt?
-> >
-> > I'd like to see a way for the user-space to query the socket 'namespace
-> > mode'.
-> >
-> > sockopt could be an option; a possibly better one could be sock_diag. Or
-> > you could do both using dumping the info with a shared helper invoked by
-> > both code paths, alike what TCP is doing.
-> > >> Also I'm a bit uneasy with the model implemented here, as 'local' socket
-> > >> may cross netns boundaris and connect to 'local' socket in other netns
-> > >> (if I read correctly patch 2/12). That in turns AFAICS break the netns
-> > >> isolation.
-> > >
-> > > Local mode sockets are unable to communicate with local mode (and global
-> > > mode too) sockets that are in other namespaces. The key piece of code
-> > > for that is vsock_net_check_mode(), where if either modes is local the
-> > > namespaces must be the same.
-> >
-> > Sorry, I likely misread the large comment in patch 2:
-> >
-> > https://lore.kernel.org/netdev/20251126-vsock-vmtest-v12-2-257ee21cd5de@meta.com/
-> >
-> > >> Have you considered instead a slightly different model, where the
-> > >> local/global model is set in stone at netns creation time - alike what
-> > >> /proc/sys/net/ipv4/tcp_child_ehash_entries is doing[1] - and
-> > >> inter-netns connectivity is explicitly granted by the admin (I guess
-> > >> you will need new transport operations for that)?
-> > >>
-> > >> /P
-> > >>
-> > >> [1] tcp allows using per-netns established socket lookup tables - as
-> > >> opposed to the default global lookup table (even if match always takes
-> > >> in account the netns obviously). The mentioned sysctl specify such
-> > >> configuration for the children namespaces, if any.
-> > >
-> > > I'll save this discussion if the above doesn't resolve your concerns.
-> > I still have some concern WRT the dynamic mode change after netns
-> > creation. I fear some 'unsolvable' (or very hard to solve) race I can't
-> > see now. A tcp_child_ehash_entries-like model will avoid completely the
-> > issue, but I understand it would be a significant change over the
-> > current status.
-> >
-> > "Luckily" the merge window is on us and we have some time to discuss. Do
-> > you have a specific use-case for the ability to change the netns mode
-> > after creation?
-> >
-> > /P
->
-> I don't think there is a hard requirement that the mode be change-able
-> after creation. Though I'd love to avoid such a big change... or at
-> least leave unchanged as much of what we've already reviewed as
-> possible.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------EZw1MvBXaSvkPDo4EOD01VVW
+Content-Type: multipart/mixed; boundary="------------a5fJUwHmYWdNLGNpd1wdClpm";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Bibo Mao <maobibo@loongson.cn>, Paolo Bonzini <pbonzini@redhat.com>,
+ Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+ Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Cc: kvm@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
+Message-ID: <032a028f-9fe5-4839-a596-f4e6317d7946@suse.com>
+Subject: Re: [PATCH v3 2/2] LoongArch: Add paravirt support with
+ vcpu_is_preempted() in guest side
+References: <20251202024833.1714363-1-maobibo@loongson.cn>
+ <20251202024833.1714363-3-maobibo@loongson.cn>
+In-Reply-To: <20251202024833.1714363-3-maobibo@loongson.cn>
 
-I think the big part is done, IIUC this should just be a change to the
-uAPI and maybe simplify what we have a little (e.g., avoid saving the
-mode each socket had when it was created).
+--------------a5fJUwHmYWdNLGNpd1wdClpm
+Content-Type: multipart/mixed; boundary="------------K000PKIClv4O3gxWiudeC0FG"
 
->
-> In the scheme of defining the mode at creation and following the
-> tcp_child_ehash_entries-ish model, what I'm imagining is:
-> - /proc/sys/net/vsock/child_ns_mode can be set to "local" or "global"
-> - /proc/sys/net/vsock/child_ns_mode is not immutable, can change any
->   number of times
->
-> - when a netns is created, the new netns mode is inherited from
->   child_ns_mode, being assigned using something like:
->
->           net->vsock.ns_mode =
->                 get_net_ns_by_pid(current->pid)->child_ns_mode
->
-> - /proc/sys/net/vsock/ns_mode queries the current mode, returning
->   "local" or "global", returning value of net->vsock.ns_mode
-> - /proc/sys/net/vsock/ns_mode and net->vsock.ns_mode are immutable and
->   reject writes
->
-> Does that align with what you have in mind?
->
-> Stefano, what are your thoughts?
+--------------K000PKIClv4O3gxWiudeC0FG
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-If we can avoid having sockets in a namespace that can be both global
-and local, perhaps it makes a lot of sense to make this change.
+T24gMDIuMTIuMjUgMDM6NDgsIEJpYm8gTWFvIHdyb3RlOg0KPiBGdW5jdGlvbiB2Y3B1X2lz
+X3ByZWVtcHRlZCgpIGlzIHVzZWQgdG8gY2hlY2sgd2hldGhlciB2Q1BVIGlzIHByZWVtcHRl
+ZA0KPiBvciBub3QuIEhlcmUgYWRkIGltcGxlbWVudGF0aW9uIHdpdGggdmNwdV9pc19wcmVl
+bXB0ZWQoKSB3aGVuIG9wdGlvbg0KPiBDT05GSUdfUEFSQVZJUlQgaXMgZW5hYmxlZC4NCj4g
+DQo+IFNpZ25lZC1vZmYtYnk6IEJpYm8gTWFvIDxtYW9iaWJvQGxvb25nc29uLmNuPg0KDQpB
+Y2tlZC1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPg0KDQoNCkp1ZXJnZW4N
+Cg==
+--------------K000PKIClv4O3gxWiudeC0FG
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-My only concern is that there is still a small window where the mode
-can change, but we are sure that only one is picked during creation
-and then within the namespace this can be easily checked and give us
-the assurance that all sockets comply with it, right?
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-Thanks,
-Stefano
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
+--------------K000PKIClv4O3gxWiudeC0FG--
+
+--------------a5fJUwHmYWdNLGNpd1wdClpm--
+
+--------------EZw1MvBXaSvkPDo4EOD01VVW
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmkwXZEFAwAAAAAACgkQsN6d1ii/Ey/A
+6gf+OzJ1GuN+i4gYgw0rrRsFkDE/iIZ8rlg42muTU7O5Tzj6EbOcKdgP3hhuMhwAUvSdnaGzSJfL
+K5hTIUpAfhOzdDwf4e3Rn8vzQ8v1iWjDHn4K9bcwWLtNBCho22cW/7tJNvD6f+JFHzinFQKXcb0W
+9z2VLGlEqA+4DaMysNBzgBM7h8gIqnOUgUv2v7AyuPRtNj5aytgVzcqkmBOQRN0VRlHtZbtV43Bn
+5CnrZzSkIsNC1cd6C9t/7GIyjNGR6O/3eCx0oWVFhDJ4N9ljeB6N8dYl1d12s6Pv8qI9YTfUkdA7
+Q//lMusSKlMF2p8IjOK1oMgATLlqclqubyE/llgPaQ==
+=n+FE
+-----END PGP SIGNATURE-----
+
+--------------EZw1MvBXaSvkPDo4EOD01VVW--
