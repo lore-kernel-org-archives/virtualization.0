@@ -1,23 +1,23 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B1B7733F360
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 11:25:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id A973433DEDB
+	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 11:25:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764847513; cv=none; b=BpnPeDrpCQah43ITUT/5U+jpUn+gnkPRbgUZoIIugJ4ZasyPUXp+0aqRZWWwxBfYhENMMBWNyLo2+LYMpdY1w/7mYlmjRRhfA6mW6/e9NC2duWQxixv5ibGrMNeh2ivsRgS7OxaH/QsDzyp10cb8+4V3rqftiQecjlgXW3qftd4=
+	t=1764847548; cv=none; b=iJW+0RPOk1nnhbP/rSQI1X4TeUj9yYT4+7a/UZD4SkZxBSa5uJNH4yUJO0vleosfGLjMWJdrSOzl60wFycriPttk1tg8cxb8Ntpa1J9YKncj92Z9UQoFZARggIVSB7Pj3zbCMnlhNPFULgIzc7i5bxWouTv+DFyuq6L06irixr8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764847513; c=relaxed/simple;
-	bh=c6vffhy8MBz5cu89zWYYCvk/YU3SFbpOvEAv38tUfrU=;
+	s=arc-20240116; t=1764847548; c=relaxed/simple;
+	bh=1Wg9Gngx3yec8fG4euvLrWZ7vNnJpHijt0KPLPRj1tw=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Yfrmk4taqKbh6QBRWKrE6TBazv9gg+M6AuoHcIIYjruv3dRrQi9F7ZvmI0EExSPsoVfbvbv4JeujJGOMiDuTCFY/M9bz+uV6Hda5qBbGLFbn3LYOx5rd5PYRgix27KkhQ15AEktRW1YjsxQMoSWGH2McmalNQcGrG7sTHd822SY=
+	 MIME-Version; b=uMxL6y07ipUq+dweG/LpMUB7grrefkma/lkc+I5tYFH8XmuKvxAx60Top2UdRLFrr1YR4XUIW/YZHaJFZs945ko4WprVPm4QffdvU/iSAxNVeMpvs/bEd09B9oiQaERoA0cD9xqZtmkauDu5zrWm9yhplrBuBi2URtL3+km6nAk=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8Cx5tCRbzFpLAorAA--.27389S3;
-	Thu, 04 Dec 2025 19:25:05 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8Bx39O0bzFpPAorAA--.22021S3;
+	Thu, 04 Dec 2025 19:25:40 +0800 (CST)
 Received: from localhost.localdomain (unknown [10.2.5.213])
-	by front1 (Coremail) with SMTP id qMiowJBxC8GQbzFpLGtFAQ--.14573S2;
-	Thu, 04 Dec 2025 19:25:05 +0800 (CST)
+	by front1 (Coremail) with SMTP id qMiowJDxaMCzbzFpO2tFAQ--.29989S2;
+	Thu, 04 Dec 2025 19:25:39 +0800 (CST)
 From: Bibo Mao <maobibo@loongson.cn>
 To: Gonglei <arei.gonglei@huawei.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
@@ -29,9 +29,9 @@ To: Gonglei <arei.gonglei@huawei.com>,
 Cc: virtualization@lists.linux.dev,
 	linux-crypto@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 7/9] crypto: virtio: Add IV buffer in structure virtio_crypto_sym_request
-Date: Thu,  4 Dec 2025 19:25:02 +0800
-Message-Id: <20251204112502.2659544-1-maobibo@loongson.cn>
+Subject: [PATCH v2 8/9] crypto: virtio: Add skcipher support without IV
+Date: Thu,  4 Dec 2025 19:25:36 +0800
+Message-Id: <20251204112537.2659601-1-maobibo@loongson.cn>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20250701030842.1136519-1-maobibo@loongson.cn=20251204112227.2659404-1-maobibo@loongson.cn>
 References: <20250701030842.1136519-1-maobibo@loongson.cn=20251204112227.2659404-1-maobibo@loongson.cn>
@@ -42,90 +42,78 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJBxC8GQbzFpLGtFAQ--.14573S2
+X-CM-TRANSID:qMiowJDxaMCzbzFpO2tFAQ--.29989S2
 X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
 X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
 	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
 	nUUI43ZEXa7xR_UUUUUUUUU==
 
-Add IV buffer in structure virtio_crypto_sym_request to avoid unnecessary
-IV buffer allocation in encrypt/decrypt process. And IV buffer is cleared
-when encrypt/decrypt is finished.
+Some skcipher algo has no IV buffer such as ecb(aes) also, here add
+checking with ivsize.
 
 Signed-off-by: Bibo Mao <maobibo@loongson.cn>
 ---
- .../virtio/virtio_crypto_skcipher_algs.c      | 20 +++++++------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+ .../virtio/virtio_crypto_skcipher_algs.c      | 36 +++++++++++--------
+ 1 file changed, 21 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-index a7c7c726e6d9..c911b7ba8f13 100644
+index c911b7ba8f13..b4b79121c37c 100644
 --- a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
 +++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-@@ -30,9 +30,9 @@ struct virtio_crypto_sym_request {
+@@ -345,7 +345,9 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
+ 			src_nents, dst_nents);
  
- 	/* Cipher or aead */
- 	uint32_t type;
--	uint8_t *iv;
- 	/* Encryption? */
- 	bool encrypt;
-+	uint8_t iv[0];
- };
- 
- struct virtio_crypto_algo {
-@@ -402,12 +402,7 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
+ 	/* Why 3?  outhdr + iv + inhdr */
+-	sg_total = src_nents + dst_nents + 3;
++	sg_total = src_nents + dst_nents + 2;
++	if (ivsize)
++		sg_total += 1;
+ 	sgs = kcalloc_node(sg_total, sizeof(*sgs), GFP_KERNEL,
+ 				dev_to_node(&vcrypto->vdev->dev));
+ 	if (!sgs)
+@@ -402,15 +404,17 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
  	 * Avoid to do DMA from the stack, switch to using
  	 * dynamically-allocated for the IV
  	 */
--	iv = kzalloc_node(ivsize, GFP_ATOMIC,
--				dev_to_node(&vcrypto->vdev->dev));
--	if (!iv) {
--		err = -ENOMEM;
--		goto free;
--	}
-+	iv = vc_sym_req->iv;
- 	memcpy(iv, req->iv, ivsize);
- 	if (!vc_sym_req->encrypt)
- 		scatterwalk_map_and_copy(req->iv, req->src,
-@@ -416,7 +411,6 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
- 
- 	sg_init_one(&iv_sg, iv, ivsize);
- 	sgs[num_out++] = &iv_sg;
--	vc_sym_req->iv = iv;
+-	iv = vc_sym_req->iv;
+-	memcpy(iv, req->iv, ivsize);
+-	if (!vc_sym_req->encrypt)
+-		scatterwalk_map_and_copy(req->iv, req->src,
+-					 req->cryptlen - ivsize,
+-					 ivsize, 0);
+-
+-	sg_init_one(&iv_sg, iv, ivsize);
+-	sgs[num_out++] = &iv_sg;
++	if (ivsize) {
++		iv = vc_sym_req->iv;
++		memcpy(iv, req->iv, ivsize);
++		if (!vc_sym_req->encrypt)
++			scatterwalk_map_and_copy(req->iv, req->src,
++					req->cryptlen - ivsize,
++					ivsize, 0);
++
++		sg_init_one(&iv_sg, iv, ivsize);
++		sgs[num_out++] = &iv_sg;
++	}
  
  	/* Source data */
  	for (sg = req->src; src_nents; sg = sg_next(sg), src_nents--)
-@@ -438,12 +432,10 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
- 	virtqueue_kick(data_vq->vq);
- 	spin_unlock_irqrestore(&data_vq->lock, flags);
- 	if (unlikely(err < 0))
--		goto free_iv;
-+		goto free;
+@@ -542,11 +546,13 @@ static void virtio_crypto_skcipher_finalize_req(
+ 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
+ 	unsigned int ivsize = crypto_skcipher_ivsize(tfm);
  
- 	return 0;
- 
--free_iv:
--	kfree_sensitive(iv);
- free:
- 	kfree(sgs);
- 	return err;
-@@ -501,8 +493,10 @@ static int virtio_crypto_skcipher_init(struct crypto_skcipher *tfm)
- {
- 	struct virtio_crypto_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
- 	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
-+	int size;
- 
--	crypto_skcipher_set_reqsize(tfm, sizeof(struct virtio_crypto_sym_request));
-+	size = sizeof(struct virtio_crypto_sym_request) + crypto_skcipher_ivsize(tfm);
-+	crypto_skcipher_set_reqsize(tfm, size);
- 	ctx->alg = container_of(alg, struct virtio_crypto_algo, algo.base);
- 
- 	return 0;
-@@ -552,7 +546,7 @@ static void virtio_crypto_skcipher_finalize_req(
- 		scatterwalk_map_and_copy(req->iv, req->dst,
- 					 req->cryptlen - ivsize,
- 					 ivsize, 0);
--	kfree_sensitive(vc_sym_req->iv);
-+	memzero_explicit(vc_sym_req->iv, ivsize);
+-	if (vc_sym_req->encrypt)
+-		scatterwalk_map_and_copy(req->iv, req->dst,
+-					 req->cryptlen - ivsize,
+-					 ivsize, 0);
+-	memzero_explicit(vc_sym_req->iv, ivsize);
++	if (ivsize) {
++		if (vc_sym_req->encrypt)
++			scatterwalk_map_and_copy(req->iv, req->dst,
++					req->cryptlen - ivsize,
++					ivsize, 0);
++		memzero_explicit(vc_sym_req->iv, ivsize);
++	}
  	virtcrypto_clear_request(&vc_sym_req->base);
  
  	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
