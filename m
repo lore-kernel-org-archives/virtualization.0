@@ -1,23 +1,23 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A973433DEDB
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 11:25:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 83BBE33F36C
+	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 11:26:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764847548; cv=none; b=iJW+0RPOk1nnhbP/rSQI1X4TeUj9yYT4+7a/UZD4SkZxBSa5uJNH4yUJO0vleosfGLjMWJdrSOzl60wFycriPttk1tg8cxb8Ntpa1J9YKncj92Z9UQoFZARggIVSB7Pj3zbCMnlhNPFULgIzc7i5bxWouTv+DFyuq6L06irixr8=
+	t=1764847587; cv=none; b=C0lq6TldxKSImKmf3j1YI0NsN6khrHj3OIYOXE21vscVQ5/v+GAIPH0bKwlbjFsDawyI1ZuqVcYdakKzFL9uZocaTqZiVPtGZ+kw2eTx4OmEDXVhUHAGGqmLDTzwsfWvz2b0QpsYfll3ZeWfu1ZbdcMle8fm7VegvebPimBKEu4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764847548; c=relaxed/simple;
-	bh=1Wg9Gngx3yec8fG4euvLrWZ7vNnJpHijt0KPLPRj1tw=;
+	s=arc-20240116; t=1764847587; c=relaxed/simple;
+	bh=zpagOuIe519ImsJGw9bDFzmlT1F6HRmFmnUjr8PNBh8=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=uMxL6y07ipUq+dweG/LpMUB7grrefkma/lkc+I5tYFH8XmuKvxAx60Top2UdRLFrr1YR4XUIW/YZHaJFZs945ko4WprVPm4QffdvU/iSAxNVeMpvs/bEd09B9oiQaERoA0cD9xqZtmkauDu5zrWm9yhplrBuBi2URtL3+km6nAk=
+	 MIME-Version; b=C1lUbkX6trNcMEqtDiSIKaA9Vac7KVH31fzHy1xgywzGNf5NOqs7tfRX119+fxY0lKcZ1xT+TM0WJj9XDAwggLxsPNOtQD15mcg2GMMo9BOENEZKtrWsgaDlAYimAbW7Nh3W8V2bplzJ6wMmJJR+ovlgv0vcIYhn2WpcffBUVpI=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8Bx39O0bzFpPAorAA--.22021S3;
-	Thu, 04 Dec 2025 19:25:40 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8BxWNHXbzFpTQorAA--.27443S3;
+	Thu, 04 Dec 2025 19:26:15 +0800 (CST)
 Received: from localhost.localdomain (unknown [10.2.5.213])
-	by front1 (Coremail) with SMTP id qMiowJDxaMCzbzFpO2tFAQ--.29989S2;
-	Thu, 04 Dec 2025 19:25:39 +0800 (CST)
+	by front1 (Coremail) with SMTP id qMiowJAxVOTWbzFpR2tFAQ--.61421S2;
+	Thu, 04 Dec 2025 19:26:14 +0800 (CST)
 From: Bibo Mao <maobibo@loongson.cn>
 To: Gonglei <arei.gonglei@huawei.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
@@ -29,9 +29,9 @@ To: Gonglei <arei.gonglei@huawei.com>,
 Cc: virtualization@lists.linux.dev,
 	linux-crypto@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 8/9] crypto: virtio: Add skcipher support without IV
-Date: Thu,  4 Dec 2025 19:25:36 +0800
-Message-Id: <20251204112537.2659601-1-maobibo@loongson.cn>
+Subject: [PATCH v2 9/9] crypto: virtio: Add ecb aes algo support
+Date: Thu,  4 Dec 2025 19:26:11 +0800
+Message-Id: <20251204112612.2659650-1-maobibo@loongson.cn>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20250701030842.1136519-1-maobibo@loongson.cn=20251204112227.2659404-1-maobibo@loongson.cn>
 References: <20250701030842.1136519-1-maobibo@loongson.cn=20251204112227.2659404-1-maobibo@loongson.cn>
@@ -42,81 +42,106 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJDxaMCzbzFpO2tFAQ--.29989S2
+X-CM-TRANSID:qMiowJAxVOTWbzFpR2tFAQ--.61421S2
 X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
 X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
 	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
 	nUUI43ZEXa7xR_UUUUUUUUU==
 
-Some skcipher algo has no IV buffer such as ecb(aes) also, here add
-checking with ivsize.
+ECB AES also is added here, its ivsize is zero and name is different
+compared with CBC AES algo.
 
 Signed-off-by: Bibo Mao <maobibo@loongson.cn>
 ---
- .../virtio/virtio_crypto_skcipher_algs.c      | 36 +++++++++++--------
- 1 file changed, 21 insertions(+), 15 deletions(-)
+ .../virtio/virtio_crypto_skcipher_algs.c      | 74 +++++++++++++------
+ 1 file changed, 50 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-index c911b7ba8f13..b4b79121c37c 100644
+index b4b79121c37c..9b4ba6a6b9cf 100644
 --- a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
 +++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-@@ -345,7 +345,9 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
- 			src_nents, dst_nents);
+@@ -559,31 +559,57 @@ static void virtio_crypto_skcipher_finalize_req(
+ 					   req, err);
+ }
  
- 	/* Why 3?  outhdr + iv + inhdr */
--	sg_total = src_nents + dst_nents + 3;
-+	sg_total = src_nents + dst_nents + 2;
-+	if (ivsize)
-+		sg_total += 1;
- 	sgs = kcalloc_node(sg_total, sizeof(*sgs), GFP_KERNEL,
- 				dev_to_node(&vcrypto->vdev->dev));
- 	if (!sgs)
-@@ -402,15 +404,17 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
- 	 * Avoid to do DMA from the stack, switch to using
- 	 * dynamically-allocated for the IV
- 	 */
--	iv = vc_sym_req->iv;
--	memcpy(iv, req->iv, ivsize);
--	if (!vc_sym_req->encrypt)
--		scatterwalk_map_and_copy(req->iv, req->src,
--					 req->cryptlen - ivsize,
--					 ivsize, 0);
--
--	sg_init_one(&iv_sg, iv, ivsize);
--	sgs[num_out++] = &iv_sg;
-+	if (ivsize) {
-+		iv = vc_sym_req->iv;
-+		memcpy(iv, req->iv, ivsize);
-+		if (!vc_sym_req->encrypt)
-+			scatterwalk_map_and_copy(req->iv, req->src,
-+					req->cryptlen - ivsize,
-+					ivsize, 0);
-+
-+		sg_init_one(&iv_sg, iv, ivsize);
-+		sgs[num_out++] = &iv_sg;
+-static struct virtio_crypto_algo virtio_crypto_algs[] = { {
+-	.algonum = VIRTIO_CRYPTO_CIPHER_AES_CBC,
+-	.service = VIRTIO_CRYPTO_SERVICE_CIPHER,
+-	.algo.base = {
+-		.base.cra_name		= "cbc(aes)",
+-		.base.cra_driver_name	= "virtio_crypto_aes_cbc",
+-		.base.cra_priority	= 150,
+-		.base.cra_flags		= CRYPTO_ALG_ASYNC |
+-					  CRYPTO_ALG_ALLOCATES_MEMORY,
+-		.base.cra_blocksize	= AES_BLOCK_SIZE,
+-		.base.cra_ctxsize	= sizeof(struct virtio_crypto_skcipher_ctx),
+-		.base.cra_module	= THIS_MODULE,
+-		.init			= virtio_crypto_skcipher_init,
+-		.exit			= virtio_crypto_skcipher_exit,
+-		.setkey			= virtio_crypto_skcipher_setkey,
+-		.decrypt		= virtio_crypto_skcipher_decrypt,
+-		.encrypt		= virtio_crypto_skcipher_encrypt,
+-		.min_keysize		= AES_MIN_KEY_SIZE,
+-		.max_keysize		= AES_MAX_KEY_SIZE,
+-		.ivsize			= AES_BLOCK_SIZE,
++static struct virtio_crypto_algo virtio_crypto_algs[] = {
++	{
++		.algonum = VIRTIO_CRYPTO_CIPHER_AES_CBC,
++		.service = VIRTIO_CRYPTO_SERVICE_CIPHER,
++		.algo.base = {
++			.base.cra_name		= "cbc(aes)",
++			.base.cra_driver_name	= "virtio_crypto_aes_cbc",
++			.base.cra_priority	= 150,
++			.base.cra_flags		= CRYPTO_ALG_ASYNC |
++				CRYPTO_ALG_ALLOCATES_MEMORY,
++			.base.cra_blocksize	= AES_BLOCK_SIZE,
++			.base.cra_ctxsize	= sizeof(struct virtio_crypto_skcipher_ctx),
++			.base.cra_module	= THIS_MODULE,
++			.init			= virtio_crypto_skcipher_init,
++			.exit			= virtio_crypto_skcipher_exit,
++			.setkey			= virtio_crypto_skcipher_setkey,
++			.decrypt		= virtio_crypto_skcipher_decrypt,
++			.encrypt		= virtio_crypto_skcipher_encrypt,
++			.min_keysize		= AES_MIN_KEY_SIZE,
++			.max_keysize		= AES_MAX_KEY_SIZE,
++			.ivsize			= AES_BLOCK_SIZE,
++		},
++		.algo.op = {
++			.do_one_request = virtio_crypto_skcipher_crypt_req,
++		},
+ 	},
+-	.algo.op = {
+-		.do_one_request = virtio_crypto_skcipher_crypt_req,
+-	},
+-} };
++	{
++		.algonum = VIRTIO_CRYPTO_CIPHER_AES_ECB,
++		.service = VIRTIO_CRYPTO_SERVICE_CIPHER,
++		.algo.base = {
++			.base.cra_name		= "ecb(aes)",
++			.base.cra_driver_name	= "virtio_crypto_aes_ecb",
++			.base.cra_priority	= 150,
++			.base.cra_flags		= CRYPTO_ALG_ASYNC |
++				CRYPTO_ALG_ALLOCATES_MEMORY,
++			.base.cra_blocksize	= AES_BLOCK_SIZE,
++			.base.cra_ctxsize	= sizeof(struct virtio_crypto_skcipher_ctx),
++			.base.cra_module	= THIS_MODULE,
++			.init			= virtio_crypto_skcipher_init,
++			.exit			= virtio_crypto_skcipher_exit,
++			.setkey			= virtio_crypto_skcipher_setkey,
++			.decrypt		= virtio_crypto_skcipher_decrypt,
++			.encrypt		= virtio_crypto_skcipher_encrypt,
++			.min_keysize		= AES_MIN_KEY_SIZE,
++			.max_keysize		= AES_MAX_KEY_SIZE,
++		},
++		.algo.op = {
++			.do_one_request = virtio_crypto_skcipher_crypt_req,
++		},
 +	}
++};
  
- 	/* Source data */
- 	for (sg = req->src; src_nents; sg = sg_next(sg), src_nents--)
-@@ -542,11 +546,13 @@ static void virtio_crypto_skcipher_finalize_req(
- 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
- 	unsigned int ivsize = crypto_skcipher_ivsize(tfm);
- 
--	if (vc_sym_req->encrypt)
--		scatterwalk_map_and_copy(req->iv, req->dst,
--					 req->cryptlen - ivsize,
--					 ivsize, 0);
--	memzero_explicit(vc_sym_req->iv, ivsize);
-+	if (ivsize) {
-+		if (vc_sym_req->encrypt)
-+			scatterwalk_map_and_copy(req->iv, req->dst,
-+					req->cryptlen - ivsize,
-+					ivsize, 0);
-+		memzero_explicit(vc_sym_req->iv, ivsize);
-+	}
- 	virtcrypto_clear_request(&vc_sym_req->base);
- 
- 	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
+ int virtio_crypto_skcipher_algs_register(struct virtio_crypto *vcrypto)
+ {
 -- 
 2.39.3
 
