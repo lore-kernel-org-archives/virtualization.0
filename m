@@ -1,79 +1,79 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07DC52AD32
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 18:46:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A964D2FF669
+	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 18:46:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764873969; cv=none; b=fIkXS8GSJBHCANlC7pgJ9A2VMjn/l0zeTsU2+OEh8kxJkre9h4BeyFFUciE/XMA2tlEKMznfI/b2lRbKmfiSwDCPKPwUVYYeFxiLOb8r8b9/2qKs+uZYUgfdj7F2J8gRE0JZ7B1zWgTpRmY/cqngeijzSxr4M0/MHawwdpx5sf8=
+	t=1764873972; cv=none; b=ZgGQDURbHgALmkkuXUynCm+/7H3l2rDgoPYxQbdaqRsbcZhKX40j6mhDTPo2OCe2qyAlUf3+sVQrM2sNDtiqtnlxuZ6aVfqeGrvFDp+RkWGqUsldamZYNGSpxUaIXOG27q9s2hJZ1b/heDckEM5ZZDA4bhB5qDdwtGXhZnsD2CM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764873969; c=relaxed/simple;
-	bh=f58nHIQz47Oh0Kg4MipJLTpJrd0xjXkMdlIJGHq1QKc=;
+	s=arc-20240116; t=1764873972; c=relaxed/simple;
+	bh=XOvFcvXWHbbIZiYga991Ws6FE79FAxnpaQqR3UetRiw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rZ65xDbFFdts+z1uqcY/7ZVA0vljs8vZ8eDJ5MQg+5x97B2ji1/ZDewyF2b9hGZSQUEFPxhGIIBNX5sRSSa7lrmwz1rcfYvQ7W2Icz0AskqoqXO3FyM4FxWyJtRWvIhbO/985uQFIpyaE9skVDE97ZLBX5/IZmi/QT9lQb8nGZg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HF52X0ZY; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZLh+1kr9Fr+syJ7BK9jrboOLiMUoLvjrlCc/i7M5MYBV6a0i142o2NgcpKmA7TyVGhG2KkFhAEyF1IbUUgZFQgOPBie4Zi6sH66kLLTMWqsEte5izt4Y7ZKS3dkBj0ElUMetIDTwCrkSFZRilsXfNUPqrwL6h3EhhtrxpJqLk+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a3MubnOo; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HF52X0ZY"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a3MubnOo"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764873966;
+	s=mimecast20190719; t=1764873969;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=J7W2y9TMzxCLKH6ePY7VFs+mUMTbmxE19/CG932s30M=;
-	b=HF52X0ZYt0VvKkF96gG9om7R6ancNL1UWCDYtmGDIEGXiOD54Olom0iDWkBg/IewzuRISd
-	/i6Pk906a5f3y3Xzw6wBIoMcBJ/g4pmb9Ei3vAvRN/CzmBjIf8XXVD9cFTu3CoHICJaPPW
-	sLJHXUZxuhy+x+QeEq3H/6y44HNNKtI=
+	bh=2bO62dhGLwejL+h82rjog5nZZiQ4P34iBuwcHHX4kxQ=;
+	b=a3MubnOowFL9BD8UDXn7Tmg12uoKAmHdke13dXWByr5dgzHF2hi07stOSmarRpqz8zyS8g
+	6XnmQMC7Aod2OhgahpjKbPwKZq7hhW6XhimywE5ft2yRZAslMZ0EzD7CiPuvI6LoOSjOz4
+	II8nt+ZeVcwiBdJRBfumJqctVjUwCRw=
 Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
  [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-317-qV8nWtCUM0K7x49RS7aeuw-1; Thu, 04 Dec 2025 13:46:05 -0500
-X-MC-Unique: qV8nWtCUM0K7x49RS7aeuw-1
-X-Mimecast-MFC-AGG-ID: qV8nWtCUM0K7x49RS7aeuw_1764873964
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4779b432aecso7791265e9.0
-        for <virtualization@lists.linux.dev>; Thu, 04 Dec 2025 10:46:05 -0800 (PST)
+ us-mta-68-F_pVLRqAMRewsDQgNWBsjg-1; Thu, 04 Dec 2025 13:46:08 -0500
+X-MC-Unique: F_pVLRqAMRewsDQgNWBsjg-1
+X-Mimecast-MFC-AGG-ID: F_pVLRqAMRewsDQgNWBsjg_1764873967
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477bf8c1413so7894855e9.1
+        for <virtualization@lists.linux.dev>; Thu, 04 Dec 2025 10:46:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764873964; x=1765478764;
+        d=1e100.net; s=20230601; t=1764873967; x=1765478767;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=J7W2y9TMzxCLKH6ePY7VFs+mUMTbmxE19/CG932s30M=;
-        b=iKl+BAZAWBqRZ70mrJbehxoZC72UUS5qIjqeXLvJAkA/SJYc11lyOADY2fx6V8kfEN
-         zapgJ3vSzbyS+ZUwTn4Jvy6eFAosgWoMXb5VhTRnm0B+QeEXtNKuQiuNZgPTbjoOtZRq
-         jmERtBeZ2kcWWhq7guDfwvSsWUxGhF8EewP3n5vJn4caNaa9C1zbziwUu5FVMPnxYv3H
-         3gPcDY7azSMzzyprChd4LsITmCWP8Qh4I8o4B3GIR0ErnKzpxBbl84bpGlark8slr+6K
-         D96ao7a/Wt+nMIE4Zj414tuof9XXnOSFC/Ggx2kHko7iSO4jkSnPVe24odL595ozVuJa
-         JyKA==
-X-Forwarded-Encrypted: i=1; AJvYcCUCAxho722KgBHxRVPJovVsYK/zyc0TY9K+ZcUju+ItuVsQErLRK3a8+4qzjj6EUD5rIlqqPnma8hKUf7HEwQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzpvSqIVlQDAXJUcApxajlQ5TJRCEnv8OHaOuBqyRPC52nX1nro
-	4T/TCUZgk/4wYJwvHpavaGOrSISUECyPVDuFIBI6uQieoOVALZCUkEMdDrJa32wj9aB4gAN9s0n
-	+ohDhWmA0nCydQLIBIVNNHsjcyEwfn0WEtUGkG9kX8P721e05AnmcsKMGqD2rvaqMZ+/RCfWz+a
-	Qr
-X-Gm-Gg: ASbGncuBab0Cw9zSwxc2OeV5gkQIE2zI7crbJC2gL2TfTZ4V3LikvPAv8cqm/JhZwxs
-	XIsPUcFyck1sVrRrYva81HBj7+H36YPjZHmTWETCVf5gVLqlSuVbyBj88I1qCaKlS+bq0DK/OL1
-	6I1lcFSxrWi3VrmqDmspR7T1Z1KL3uiEhDYEVPSnNy4+SVt1P2uh2EXIoxY68wckpi9/D2gGWeZ
-	wbPrm0SryRrc9ZJAfToiyKkejkvHQn3NzNmb5ViddlmuR9yJTOXvK6XPSPmQsTYwLZqT//DHB+r
-	K9muVcQQOqb0NbKdgACHYfQkMGAutR/7o2bz9vfVoXHU1vmg8d47VIWlEfpUYTnra8KfcBh/cvY
+        bh=2bO62dhGLwejL+h82rjog5nZZiQ4P34iBuwcHHX4kxQ=;
+        b=dqFWHn+Wta51F9Z0P0P25FBhc+K4r7Ee2VeKHJIM1VDTRpLWNP2v1BGjwb4W3jqwZU
+         CmDRneHn8SoFB42zVaClaR+8tZljum0SBSO5+8vsRI9c0viAzjHSUq3yx849tF1/69dK
+         Z+sF05lUx9Q4btvVzbxQslSt/giE7TE0HfoAtnoS3DCiItDwHfweYR87BnImyhxCtnXh
+         QKgS+HDeAiaDpzD0OE5LKAQvxJWhrO49CVGkU48x5m8m4xe5F7un0brOTDCWv0zfisPZ
+         W8hkfpaKDtmsf0xQi+u1qBbSGIN+VoYiSDI4Mlb6rkC4MLlfJUvNwKBQEi5Wm7mC6Vw3
+         2pUw==
+X-Forwarded-Encrypted: i=1; AJvYcCVdce8YNt5IuAOo9nJb7A9MISf08KkQ6uT6yvG2MAHoCYbDx/RWUUCB2pej2C1/VfsOspQ4T6dfL4+E2MWxKg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyLY2g2Gfif5IfboMx3fCNQeFrmADEjvVla/p02fU08ARmnpSvy
+	+z5mvmzdkvVvCTMh5r8BUTUVhWF6frSTP2QEj7sUpoWR2W7rF7QpYzf2rg35L+kZdS8kWk3tG9S
+	h3Pfrk4qUqEART//r/NXPGILT7a6ojwtH0FljAU2AfqXFCn41s/j1X/iD30Nxg5NRSBW1/DN17l
+	eI
+X-Gm-Gg: ASbGnctdqEmNyLLH9AsREgUqXw8B3qKvvcLKbCWzvgxLkCWfIhOG24I0uLSzHDhfPlJ
+	QrKabvfAcDTef2KzTaJ9J9dD1NjIKjcxH5CEoiGzpmBxTVH5m1AdPllH882rG4K/w8Do27k9rdA
+	MeY8tDKbW86CMeDOG+grmSNlHEFDSTr14HQXWtd4CL+PkOm1V9icV0OzWI0oIZE6F2I2yTuxtNi
+	MG6zKmYvvZ8hm1NGQdkwVvtPGfVC4YpBEmkIKJss9rGXO7aIuOuurCPUqRwck4G7ykYX9Ni4GcU
+	Bync7yKTIKFe2r7g6WYYgavnBnJiv2RoAQCqCqLj9XTZCxbpy3fh+WdzAK2Gwy0pBlFs99d5vss
 	=
-X-Received: by 2002:a7b:cb4d:0:b0:477:9cdb:e336 with SMTP id 5b1f17b1804b1-4792af1b1a8mr52068375e9.21.1764873964201;
-        Thu, 04 Dec 2025 10:46:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGpdXRCAWJBoqSiLYVx9eCCXM/FwDscTSunOdpVga7Xltz6hoQw8oOR/1MYJQE350t8nz70LA==
-X-Received: by 2002:a7b:cb4d:0:b0:477:9cdb:e336 with SMTP id 5b1f17b1804b1-4792af1b1a8mr52068205e9.21.1764873963740;
-        Thu, 04 Dec 2025 10:46:03 -0800 (PST)
+X-Received: by 2002:a05:600c:1c0d:b0:477:75eb:a643 with SMTP id 5b1f17b1804b1-4792aedecf6mr82009555e9.4.1764873966666;
+        Thu, 04 Dec 2025 10:46:06 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGP0gDv4wVR+hz/ewsHvf5Y0f/iEBUayPg9Yadkr1yyJv/LA/EfgN5XPvfNHZhBNUXCLl+L5Q==
+X-Received: by 2002:a05:600c:1c0d:b0:477:75eb:a643 with SMTP id 5b1f17b1804b1-4792aedecf6mr82009265e9.4.1764873966171;
+        Thu, 04 Dec 2025 10:46:06 -0800 (PST)
 Received: from redhat.com ([31.187.78.57])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-479308cd87csm46533335e9.0.2025.12.04.10.46.02
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47930c90e67sm44952945e9.12.2025.12.04.10.46.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Dec 2025 10:46:03 -0800 (PST)
-Date: Thu, 4 Dec 2025 13:46:01 -0500
+        Thu, 04 Dec 2025 10:46:05 -0800 (PST)
+Date: Thu, 4 Dec 2025 13:46:03 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
 	virtualization@lists.linux.dev
-Subject: [PATCH 01/14] tools/virtio: fix up compiler.h stub
-Message-ID: <56424ce95c72cb4957070a7cd3c3c40ad5addaee.1764873799.git.mst@redhat.com>
+Subject: [PATCH 02/14] virtio: make it self-contained
+Message-ID: <9171b5cac60793eb59ab044c96ee038bf1363bee.1764873799.git.mst@redhat.com>
 References: <cover.1764873799.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -85,47 +85,32 @@ In-Reply-To: <cover.1764873799.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xxxnEcPhNkQioZwV6X2DJ_R3pCDlotbhGbr9SagaczM_1764873964
+X-Mimecast-MFC-PROC-ID: 4uJWfEb9URwkLuHHgVZSuxtRzY3bI3mCBljAH64ubEA_1764873967
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Add #undef __user before and after including compiler_types.h to avoid
-redefinition warnings when compiling with system headers that also
-define __user. This allows tools/virtio to build without warnings.
-
-Additionally, stub out __must_check
-
-Created using Cursor CLI.
+virtio.h uses struct module, add a forward declaration to
+make the header self-contained.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- tools/virtio/linux/compiler.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/linux/virtio.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
-index 204ef0e9f542..7f9e308f3880 100644
---- a/tools/virtio/linux/compiler.h
-+++ b/tools/virtio/linux/compiler.h
-@@ -2,7 +2,11 @@
- #ifndef LINUX_COMPILER_H
- #define LINUX_COMPILER_H
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 132a474e5914..3626eb694728 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -13,6 +13,8 @@
+ #include <linux/completion.h>
+ #include <linux/virtio_features.h>
  
-+/* Avoid redefinition warnings */
-+#undef __user
- #include "../../../include/linux/compiler_types.h"
-+#undef __user
-+#define __user
- 
- #define WRITE_ONCE(var, val) \
- 	(*((volatile typeof(val) *)(&(var))) = (val))
-@@ -35,4 +39,6 @@
- 	__v;								\
- })
- 
-+#define __must_check
++struct module;
 +
- #endif
+ /**
+  * struct virtqueue - a queue to register buffers for sending or receiving.
+  * @list: the chain of virtqueues for this device
 -- 
 MST
 
