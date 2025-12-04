@@ -1,239 +1,233 @@
-Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010040.outbound.protection.outlook.com [52.101.193.40])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3B9C28726D
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 16:55:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.40
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764867323; cv=fail; b=dCBQNSoEawSHyOqY/mpQtM1a78JPIldF8jM+a4tkEAwo5U+hgE1Dj7C84fjztps/mLsD28bSqMwJtR8qV95fqCqNX3Yg0woUwYtlWGNMkTYZJBusumrVlPYZ47ETmGj8YK6h8aHTM8hawo1aHU0QHHPLnefQq8UGt8J3/XwO6e8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764867323; c=relaxed/simple;
-	bh=MpF3lgjFpiTNx5xqDzP8BK2XK15X582dfkev7xF1lDY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=XJFZ6YYHjz0sYLtQ+dSo0dFxYpRh14p6w+ChuudtlZjNDuQV0iCJKhZHOf1aYwc2C5PBSxvPl68WvZbfggMXKkZU7THf7Lx45+es1jYD93qBYxwbTRF84QPM1cyqpP5jljidCgpfuFQlttFl6B2iFtGVkGfp8sTVInNJhgsLiOE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Ov6fH1rW; arc=fail smtp.client-ip=52.101.193.40
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A7C6352F8A
+	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 17:55:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1764870951; cv=none; b=djJHZJ1GUOCpYkAk5c1sXo2AAzFuKCkdedt1/pj5D0agqgAQyyj3vJh+ZaEUv2jnuPsV7bX60AiHIdH24lf4m31R5r15MR+Dg2oocCfQAObVIsQ4w2hcTysbCapW3CB3JEOPUerD+RYcuwFcrRqeLATxmcEa4PLwUlR/PpWZ7kw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1764870951; c=relaxed/simple;
+	bh=UsJjbkrA1yFknceQNtrGoMEFEsPTGlFYNCNU21QGB2I=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=k5zSLnHj3VBVuVxraf1ex8Pv6oLmNdZMFwJM6Oh+JrfNogvMd1hcP88+0pAyydxIxvVqqC9ysH3zAwfXL0zGHIFxbad6LI8ViNr3BBVIxzZlmwvTgRoa9gnJfhaZc/YuYIJXZ+mMBlkT50f4RCoR5JuOClEmw+alXA55K+Bqg14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dSz3Qteo; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Ov6fH1rW"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Ef0rzk2QAysAvu2bc8Y2revKIVAvp+v1p6v6t5aV17IR9OK8xFyaxCy4D/bbqhxVIEL2ieIffLDCU5TOPYtXi9Ut+k7tAr5xrPBuoNCigmxoUtzZhbMM9lxou4yUOFJc+OPoory5lxYRxLGvKvW8F9iu6/otSsPYhB9KTmcFcdnRGXqtNnrtbkKXu157ln1+n+84IgExPBOlpuBId3LabEtsj0+pFKdKHy0XVuJ0Irf6Ufiq3W0UxZs+7t2DVbk/o2MHN0mbvPR2l4fUxVlqCkeEBJwTZTW9qNKPTxI0rumqA0ddUucXN/d6h/MoUtylSn/LDQ35T0rq31P6VICyvQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0tervvq4T+1ubi4aOnS0pYKWS5Je8F7WLziImbSZTk4=;
- b=u4RNFCPuQeZGHsOfnf7Rf95LGiZDkR6NxZyO2A8eIZ5wYwXG/8/oQq1whzy83Hp0iuAOOOULgsbuAJQIu8UJyU4a9VsvvPlNfCI3D23tUAog4Whsi027QxwnBiwSb7odPbGKB6UjWuuiXquhMmC/LwF7hq1xeQDtByDkVgn264MvveaYs+2ZbA1nBs/2HmVlpGeXwi01BnpJHhjwtcPlK0AVaEnsSToCtzTInGydy6aIxbzlNweL1WNnMFH7kMAsrw1IYQOoxIPFZZ7DdkQ6GyJaHstq6NRp38jVRcB897grM/rWCf2PK46YOlMpX7rHigRDeT3RuK7FNsCL69gzMQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0tervvq4T+1ubi4aOnS0pYKWS5Je8F7WLziImbSZTk4=;
- b=Ov6fH1rWuOg/+zLNlbIllAsW0N7Byo3rlNNDOQevWianMB3X0S8zQlQiAvhgZ0/St82vndIM0gbeHa/E0O2hN1ODrhEtbEFGGKunNuf27pEmXLVkLPNv5acHZqtYBT1Qltl+cZsIknbRkKzn/sFRpkaRJUGzMFNEZEoP8r4WLX4=
-Received: from MN0PR05CA0024.namprd05.prod.outlook.com (2603:10b6:208:52c::32)
- by CY3PR12MB9578.namprd12.prod.outlook.com (2603:10b6:930:109::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9366.17; Thu, 4 Dec
- 2025 16:55:17 +0000
-Received: from BL6PEPF00022570.namprd02.prod.outlook.com
- (2603:10b6:208:52c::4) by MN0PR05CA0024.outlook.office365.com
- (2603:10b6:208:52c::32) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9388.9 via Frontend Transport; Thu, 4
- Dec 2025 16:55:17 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- BL6PEPF00022570.mail.protection.outlook.com (10.167.249.38) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9388.8 via Frontend Transport; Thu, 4 Dec 2025 16:55:17 +0000
-Received: from satlexmb10.amd.com (10.181.42.219) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Thu, 4 Dec
- 2025 10:55:12 -0600
-Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb10.amd.com
- (10.181.42.219) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Thu, 4 Dec
- 2025 10:55:12 -0600
-Received: from [172.31.132.204] (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
- Transport; Thu, 4 Dec 2025 08:55:11 -0800
-Message-ID: <d858a46d-e5cc-4d87-b5b5-8130dfd42145@amd.com>
-Date: Thu, 4 Dec 2025 10:55:10 -0600
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dSz3Qteo"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4EhQnB026734;
+	Thu, 4 Dec 2025 17:55:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=C6cLDbx1EBc/TgbiE
+	7lRqMqL23tRUH4UTqj083YxY7I=; b=dSz3QteoZihaY3G63NlGo3QkcuW2nD2wm
+	JsgDWdWJbOrEw0GjWOtKVfz2vobB5UCWaKVuLYBIHAEkYXp9rKZ6mNXrexb2k+fl
+	rD6ffuU4Q57Y7FZGd6A7YMK0QV34jf0Io+RpI9M+TKtQT42YhNP/nNcmpDBvJAmu
+	mS3YcMeUJ/s5+yURNVoQRt4sbxHz35giM/XoSsUE9OAASjUJN3kkQNPVk+rLw7Ou
+	71ws1NM1/8LwI3/Ge8+SNVJ+bkqaeDhotK4d2rW6cMqviSPO9JTu4+a1/1FIdFBT
+	RAUnY9XjZhklNhQMCP4ndbRYSbh6w0ZYP0dnfTh08tg9nMNyUIn+Q==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrh79vs1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Dec 2025 17:55:23 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4Hg50o026211;
+	Thu, 4 Dec 2025 17:55:22 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrh79vrw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Dec 2025 17:55:22 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4GHegC021731;
+	Thu, 4 Dec 2025 17:55:21 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4at8c6jb88-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Dec 2025 17:55:21 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4HtHg536176220
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 4 Dec 2025 17:55:17 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 501FF20043;
+	Thu,  4 Dec 2025 17:55:17 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BD5CF20040;
+	Thu,  4 Dec 2025 17:55:13 +0000 (GMT)
+Received: from sapthagiri.in.ibm.com (unknown [9.39.29.188])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  4 Dec 2025 17:55:13 +0000 (GMT)
+From: Srikar Dronamraju <srikar@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Peter Zijlstra <peterz@infradead.org>
+Cc: Ben Segall <bsegall@google.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Ingo Molnar <mingo@kernel.org>, Juri Lelli <juri.lelli@redhat.com>,
+        K Prateek Nayak <kprateek.nayak@amd.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Shrikanth Hegde <sshegde@linux.ibm.com>,
+        Srikar Dronamraju <srikar@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Swapnil Sapkal <swapnil.sapkal@amd.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        virtualization@lists.linux.dev, Yicong Yang <yangyicong@hisilicon.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Subject: [PATCH 01/17] sched/fair: Enable group_asym_packing in find_idlest_group
+Date: Thu,  4 Dec 2025 23:23:49 +0530
+Message-ID: <20251204175405.1511340-2-srikar@linux.ibm.com>
+X-Mailer: git-send-email 2.51.1
+In-Reply-To: <20251204175405.1511340-1-srikar@linux.ibm.com>
+References: <20251204175405.1511340-1-srikar@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: <tanmay.shah@amd.com>
-Subject: Re: [RFC PATCH 2/2] rpmsg: virtio_rpmsg_bus: get buffer size from
- config space
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Zhongqiu Han <zhongqiu.han@oss.qualcomm.com>, <andersson@kernel.org>,
-	<mathieu.poirier@linaro.org>, <jasowang@redhat.com>,
-	<xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
-	<linux-kernel@vger.kernel.org>, <linux-remoteproc@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <xiaoxiang@xiaomi.com>, Xiang Xiao
-	<xiaoxiang781216@gmail.com>, <arnaud.pouliquen@foss.st.com>
-References: <20251114184640.3020427-1-tanmay.shah@amd.com>
- <20251114184640.3020427-3-tanmay.shah@amd.com>
- <11280877-95f0-4361-9112-23bb17372e91@oss.qualcomm.com>
- <c5395ebf-b0ea-4be8-b0c0-6a51d4c98e09@amd.com>
- <20251203142540-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Tanmay Shah <tanmay.shah@amd.com>
-In-Reply-To: <20251203142540-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL6PEPF00022570:EE_|CY3PR12MB9578:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3cdd4354-df18-404f-9f7f-08de3355e71d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|1800799024|36860700013|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?N3g3bThXOC9mTE5xd21hMXZ1QW9xejFJemQ5ZS9zNlE3MFp0Qjk1djROZlZk?=
- =?utf-8?B?WFhadmpUSXpPZVJKZk4rSWRiYVlUVU5nY0RucnExMi9YeDJLMmo4eWpQR2ZB?=
- =?utf-8?B?YTFZK1RhZ3h3VWpVRUdXYjVuaHdnWUxyNkdKNHhmcDBRZ3JoYm85UE4yczFa?=
- =?utf-8?B?SWRhZWduS1JIZm52REd4SkVLSi9ESnFHY01SeGFkV2Z2TUJMd29FZW4zZ05N?=
- =?utf-8?B?b0JrTGFFMnVtWVVRc2p4dG1HUlRCb2tuZmQ1ckNlZitHcmIzMUNlY2htNjNR?=
- =?utf-8?B?RXFxbS9wN25EU1hNbjVIbGNuS0NHdjE1UlJoVjh6N2QzWGp1YTVMUjE3V0hU?=
- =?utf-8?B?bEtuaE5xTytaZk90ME8vSStuWGl3dXVwN3V6NlZNbmpBWHlqMHVlUHZQV204?=
- =?utf-8?B?YzBsbkpvanZXbUVPQlhyM2RsZHE1TkhlQk9YbzdZbGtGc1MwalA4VUpLMS9T?=
- =?utf-8?B?M3BWYWJOTVR6U0JTcEdSNVl1ZCtTa25Wci9YbWNBR3dyb2JhZWdNQTY1dkJX?=
- =?utf-8?B?LzNzVi9RZVFoelowSVBaY0V2L0ZCWGpLZ3Y0Y0R2di9oZTJOVDRNQmpQVzMv?=
- =?utf-8?B?S1J3RVZDLzgvNVNXNGduSHRZWVJ4cVBnVEZYU1VYcmpVUVowU1RncG01SFhF?=
- =?utf-8?B?TVd5eXlVc1FHRWxTWUdJcEpmUWFrWTFjMmxTWlNYenlxZllkdGwxcEZMajVP?=
- =?utf-8?B?eVMrQUxtVXNPcjVKL0NXU1lCTENOUmRLTXVmVXJ5aXY1TTQxMERkbmFjTENP?=
- =?utf-8?B?eEFvc0R6ZmtZalp3TFBFUDJ3YjdOcnlyYkNaTjJjYWE2K0taazBCQnpGNjRv?=
- =?utf-8?B?SFdqZzVHWUhBOVhpV2R4N21oYVM5clpQSWlocFJmWTNiSU83eWFpT3pQaUg3?=
- =?utf-8?B?Ykc4WmFMcXoybUgvbnJZS3NZNEtPd3NHNTk3ajlBb1RCVjdrZC9TMkRXWXYw?=
- =?utf-8?B?U0FNT001RTZjcnlhMzEzYTN0c0p1WG9MdzI5bnFwU1JzSGF5Vml3WDlzeXR2?=
- =?utf-8?B?cFhaSE0xOVVMQW1sL2VhL1o2RW9DcTlyS25jS3UyRkE3Si93dUEvdnNjTmRU?=
- =?utf-8?B?V1ZpTTJXa3VaOEpSQlMxcWJSVy94SVltZWRHSm5Vbm9HQmxQSi8zMFNFcURx?=
- =?utf-8?B?WjJ6OTR1SENKbmtLLzAwQUQ5RVhGZmZvc1oxUm9SRFlGMzNQdnlPcGR0V2pZ?=
- =?utf-8?B?VGlycFhNYzcxTWw1M3kzdm96ZkhVa3FVY1JPdXhFUTRPbnBNeHJac1pnVG43?=
- =?utf-8?B?dlZ3SVh1d3VRa084d0VXNlpQUGZsbkVaV1gySVlnVGRRaUV0VTJGTklOdnJW?=
- =?utf-8?B?aGN0Mm9US0wrS2c0ZWdDdHQyU2F5cWVFVmo2aE1aMjBWSW5HNEo0dEhKZEJH?=
- =?utf-8?B?diszMXNqeWpuRHZmR3VieC94NEpmbjlhQlRYYm5Qc0JlQlJZdTRZNGVBRnV6?=
- =?utf-8?B?RVUyTytJcmJVNmNtRWhhb2dRdTBWTDN5YnNwU1dRMnFnRjFUNjhwV3VySmkz?=
- =?utf-8?B?U1pQRld4M2pmTWExT29FWi93RGgva0svMW5kblQ2VGtQazZjeUtpUHR3ZHhq?=
- =?utf-8?B?bGcvQ3RSR3YwbWJUOGdTN2pDYjQ2Y0lyRVRobm0zZ3NUS2VlTktlQjhQUHhh?=
- =?utf-8?B?NFUra1VxbWFmL0dGWTBsMmVXaThYRWtNcytnZTVINFozUlk2eVFLQkpvUEFD?=
- =?utf-8?B?TGVpbVJNdnlsSmtZQ2x0UFkvWVFPTHlOREVob25LbTljVUg5bmIrWHYvbG5z?=
- =?utf-8?B?N3BMcGdhV0tmUGxWYXJwR0o0ZEMrUlFTRlAyM0U5bjY3Y1hNeGo5d2pkZkcz?=
- =?utf-8?B?WHdCUlh4T3F2TU8ydFk2TWxxRGRaWlZFTHZsczZ6WVhkeDJuSzExeW1LbnVl?=
- =?utf-8?B?ZVVLVnFyWHMyckhQT2JrVmYrMUt6bll4bVN0RVBEZ1ZIS0tlVmlXdTRibnY4?=
- =?utf-8?B?TTcxaFFqalMzZnN3a1hXd2NaY1lsT1I2UjNuanRrTC9zVW5DYUxFcnJvaDVU?=
- =?utf-8?B?VThYZldjSlNzbVZPNldoT1lmKy83S0Q0dTVsQzA3b1UzdmdxTWRwOG1YcnBy?=
- =?utf-8?B?ZUhXVGpUQW9kVlUxVCttVEtUQ0dIVFdWSm9VbWF1aUY5WjRVeTUwZERReHRJ?=
- =?utf-8?Q?1xY4=3D?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(36860700013)(7416014)(376014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Dec 2025 16:55:17.5465
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3cdd4354-df18-404f-9f7f-08de3355e71d
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL6PEPF00022570.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY3PR12MB9578
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=dK+rWeZb c=1 sm=1 tr=0 ts=6931cb0b cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=ckJkcgXifS0MwuEMmiIA:9
+X-Proofpoint-GUID: p4N8cC9Ej_pjMTdg3tr_-fwWHO81rS5E
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAyMCBTYWx0ZWRfX0K8Nzru4dAWO
+ R21IXfvwbKS6T23j3HTsfBhZDUgKtDtSPvyQwaLvwmvQoWurdWjAK1orhWzXRb6zLZkMkqtagbh
+ cwQQSnroNmxxRlKg5UpvOyEFMz71lfnTcFvu+LsFfltRoXaEBU6S4ogQySOieivCEEaswIQkoyr
+ 6N1yeWfz8uPTXAD2Z0/bzmRK7eqh96GJYdOrhiIgGZwHSeDQhoa/YUQBNsz4w0i8L91ha7qCUCU
+ J1A7miRZn29e9BCBXq11G1DzPLzNJKPoN8KO3NPfL75CFcykn1lNsswjHJC0lLz1tsmsOtjFFzY
+ Pgh2RdtQUmwSSC2lum0ojc2AloRjrQt1SEGN191igbdM3zJq5+kQa+fxBZAFlJWaiIwf6vYaWgK
+ xPCRX7MjiFjLn/yXO3dMMSVh3KfXow==
+X-Proofpoint-ORIG-GUID: 343_fIdgCxRbnqSTtODuZ3sGy1Qu_OmJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-12-04_04,2025-12-04_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 lowpriorityscore=0 clxscore=1011 priorityscore=1501
+ bulkscore=0 adultscore=0 phishscore=0 impostorscore=0 spamscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511290020
 
+Current scheduler code doesn't handle SD_ASYM_PACKING in the
+find_idlest_cpu path. On few architectures, like Powerpc, cache is at a
+core. Moving threads across cores may end up in cache misses.
 
+While asym_packing can be enabled above SMT level, enabling Asym packing
+across cores could result in poorer performance due to cache misses.
+However if the initial task placement via find_idlest_cpu does take
+asym_packing into consideration, then scheduler can avoid asym_packing
+migrations. This will result in lesser migrations and better packing and
+better overall performance.
 
-On 12/3/25 1:35 PM, Michael S. Tsirkin wrote:
-> On Wed, Dec 03, 2025 at 12:12:46PM -0600, Tanmay Shah wrote:
->> Hello,
->>
->> Thanks for your reviews. Please find the response below.
->>
->> On 11/22/25 6:05 AM, Zhongqiu Han wrote:
->>> On 11/15/2025 2:46 AM, Tanmay Shah wrote:
->>>> From: Xiang Xiao <xiaoxiang781216@gmail.com>
->>>>
+Previous version was posted at
+https://lore.kernel.org/all/20231018155036.2314342-1-srikar@linux.vnet.ibm.com/t
 
-[...]
+Signed-off-by: Srikar Dronamraju <srikar@linux.ibm.com>
+---
+ kernel/sched/fair.c | 33 ++++++++++++++++++++++++++++-----
+ 1 file changed, 28 insertions(+), 5 deletions(-)
 
->>
->> Thanks, that's a good question. I keept id 2 unmodified from the original
->> series. I don't know why ID 2 was chosen in the original series. I will have
->> to discuss this with the linux remoteproc/rpmsg maintainers and choose the
->> correct ID.
->>
->> I don't see any problem choosing ID 1, but for some reason if ID 1 was
->> assigned and deprecated (I don't think that is the case) then only we should
->> use ID 2.
->>
->>
->> Arnaud, Mathieu, Bjorn any input here?
->>
->>>> +
->>>> +struct virtio_rpmsg_config {
->>>> +    /* The tx/rx individual buffer size(if VIRTIO_RPMSG_F_BUFSZ) */
->>>> +    __u32 txbuf_size;
->>>> +    __u32 rxbuf_size;
->>>> +    __u32 reserved[14]; /* Reserve for the future use */
->>>
->>> Should we use __virtio32 instead of __u32 to avoid endianness issues?
->>>
->>>
->>
->> Sure, if that is the standard in other virtio headers I will modify it.
->>
->> Thanks,
->> Tanmay
-> 
-> rpmsg is still not standardized, sadly. It's really time it was.
-> 
-> 
-> 
-> Modern virtio devices use __le32.
-> Accordingly, accessed with virtio_cread_le
-> 
-> 
-> __virtioXX and virtio_cread are for legacy compatible parts of config space.
-> 
-
-As of now, I am using virtio_cread so I think it is legacy compatible.
-
-> 
-> Does rpmsg want to be modern or keep using legacy? I donnu.
->
-
-I don't know either. This we have to discuss with the maintainers and 
-other vendors.
-
-
-> Ideally it should finally be documented and at that point we
-> definitely will want to switch to __le32.
-> 
-> 
-> For now, run sparse to make sure you don't introduce new endian-ness
-> issues.
-
-Ack.
-
-> 
-> 
-
-
-
->>>> +    /* Put the customize config here */
->>>> +} __attribute__((packed));
->>>> +
->>>> +#endif /* _LINUX_VIRTIO_RPMSG_H */
->>>
->>>
-> 
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 5b752324270b..979c3e333fba 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -10664,11 +10664,13 @@ static int idle_cpu_without(int cpu, struct task_struct *p)
+  * @group: sched_group whose statistics are to be updated.
+  * @sgs: variable to hold the statistics for this group.
+  * @p: The task for which we look for the idlest group/CPU.
++ * @this_cpu: current cpu
+  */
+ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 					  struct sched_group *group,
+ 					  struct sg_lb_stats *sgs,
+-					  struct task_struct *p)
++					  struct task_struct *p,
++					  int asym_prefer_cpu)
+ {
+ 	int i, nr_running;
+ 
+@@ -10705,6 +10707,12 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 
+ 	}
+ 
++	if (asym_prefer_cpu != READ_ONCE(group->asym_prefer_cpu) &&
++			sched_asym(sd, READ_ONCE(group->asym_prefer_cpu),
++			READ_ONCE(asym_prefer_cpu))) {
++		sgs->group_asym_packing = 1;
++	}
++
+ 	sgs->group_capacity = group->sgc->capacity;
+ 
+ 	sgs->group_weight = group->group_weight;
+@@ -10721,7 +10729,8 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 				sgs->group_capacity;
+ }
+ 
+-static bool update_pick_idlest(struct sched_group *idlest,
++static bool update_pick_idlest(struct sched_domain *sd,
++			       struct sched_group *idlest,
+ 			       struct sg_lb_stats *idlest_sgs,
+ 			       struct sched_group *group,
+ 			       struct sg_lb_stats *sgs)
+@@ -10745,8 +10754,11 @@ static bool update_pick_idlest(struct sched_group *idlest,
+ 			return false;
+ 		break;
+ 
+-	case group_imbalanced:
+ 	case group_asym_packing:
++		return sched_asym(sd, READ_ONCE(group->asym_prefer_cpu),
++				READ_ONCE(idlest->asym_prefer_cpu));
++
++	case group_imbalanced:
+ 	case group_smt_balance:
+ 		/* Those types are not used in the slow wakeup path */
+ 		return false;
+@@ -10790,6 +10802,7 @@ sched_balance_find_dst_group(struct sched_domain *sd, struct task_struct *p, int
+ 			.avg_load = UINT_MAX,
+ 			.group_type = group_overloaded,
+ 	};
++	int asym_prefer_cpu;
+ 
+ 	do {
+ 		int local_group;
+@@ -10812,10 +10825,12 @@ sched_balance_find_dst_group(struct sched_domain *sd, struct task_struct *p, int
+ 		} else {
+ 			sgs = &tmp_sgs;
+ 		}
++		if (!local || local_group)
++			asym_prefer_cpu = READ_ONCE(group->asym_prefer_cpu);
+ 
+-		update_sg_wakeup_stats(sd, group, sgs, p);
++		update_sg_wakeup_stats(sd, group, sgs, p, asym_prefer_cpu);
+ 
+-		if (!local_group && update_pick_idlest(idlest, &idlest_sgs, group, sgs)) {
++		if (!local_group && update_pick_idlest(sd, idlest, &idlest_sgs, group, sgs)) {
+ 			idlest = group;
+ 			idlest_sgs = *sgs;
+ 		}
+@@ -10845,6 +10860,14 @@ sched_balance_find_dst_group(struct sched_domain *sd, struct task_struct *p, int
+ 	if (local_sgs.group_type > idlest_sgs.group_type)
+ 		return idlest;
+ 
++	if (idlest_sgs.group_type == group_asym_packing) {
++		if (sched_asym(sd, READ_ONCE(idlest->asym_prefer_cpu),
++				READ_ONCE(local->asym_prefer_cpu))) {
++			return idlest;
++		}
++		return NULL;
++	}
++
+ 	switch (local_sgs.group_type) {
+ 	case group_overloaded:
+ 	case group_fully_busy:
+-- 
+2.43.7
 
