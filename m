@@ -1,214 +1,131 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2C3134DB64
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 17:56:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07DC52AD32
+	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 18:46:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764871012; cv=none; b=KIeycqtbjjLKiEmG0u2msUYzcnllzaSYENGhbAMUo/50auuOmvYI1DTUo2Jc7n0VVHf5J4Q+AWcifNfEtWZ7FtZ0UZZGCwMRVhFlZfxnSld8JIpjPVihCAucXQXMD+2SaR24BHazvW9tMmDVhhNV3osE3kcpRKAvsn25ggU1i9s=
+	t=1764873969; cv=none; b=fIkXS8GSJBHCANlC7pgJ9A2VMjn/l0zeTsU2+OEh8kxJkre9h4BeyFFUciE/XMA2tlEKMznfI/b2lRbKmfiSwDCPKPwUVYYeFxiLOb8r8b9/2qKs+uZYUgfdj7F2J8gRE0JZ7B1zWgTpRmY/cqngeijzSxr4M0/MHawwdpx5sf8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764871012; c=relaxed/simple;
-	bh=xW7vrIolOiTgfh5naSngmIAre+JZIa6csPbN+wjdI0s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MWcj0zGlB6218zcObmRhcv9c2UahyezkbRr6J4Es2g8/fRUeuZ+EQHRDR6TGaXWq35ggK+oTB4/ede0hb35s5yrjfeCrGucE2EuS8+2Kz9NxYNVh08lNzjnYGix3kC5AOyjTbaewU/7UxCiJo8zU9ZY8Owd3rWIgxL7IgHJiO88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ad0TnzAn; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1764873969; c=relaxed/simple;
+	bh=f58nHIQz47Oh0Kg4MipJLTpJrd0xjXkMdlIJGHq1QKc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=rZ65xDbFFdts+z1uqcY/7ZVA0vljs8vZ8eDJ5MQg+5x97B2ji1/ZDewyF2b9hGZSQUEFPxhGIIBNX5sRSSa7lrmwz1rcfYvQ7W2Icz0AskqoqXO3FyM4FxWyJtRWvIhbO/985uQFIpyaE9skVDE97ZLBX5/IZmi/QT9lQb8nGZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HF52X0ZY; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ad0TnzAn"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4D0P6o007009;
-	Thu, 4 Dec 2025 17:56:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=mlpFgm7ForCx1wVbr
-	ClPH+oaDY6Ooxw2Cvy2EE53C0k=; b=Ad0TnzAn4WMhluNwES1hPnnE4b+7HPKyP
-	vr+lKHZEFntXLeJiU8kMX7ObNTESAEjHgtZyWsWSvbXz/x2ajHNezeuN/URrxCqY
-	T137OmZVyBkpLB5unBkp/0r0D4JsyxfPG5dp2efZ6dgzYDtHCyydxIreSl+pm5vj
-	8YnYVQ7Rb4e7sB5lcaZjFb+hJA2vmNUTG4TVmyG2EH/guq0eozmCcoay5Anny1qA
-	xpW4QAhxoYZXs8zqRktVL3OErZRpU0+Nmx7T4NNX1hEiOYdF9Cgt94Rg5W20SlF4
-	0Q7pBdKWbe2mEfE1LXnL9yUOeiDJJJiDDkLPXfmhORya3cLJHN09g==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrja1tbr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:56:20 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4HuJSJ010965;
-	Thu, 4 Dec 2025 17:56:19 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrja1tbm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:56:19 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4GHegV021731;
-	Thu, 4 Dec 2025 17:56:18 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4at8c6jbcg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:56:18 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4HuE1K47579394
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Dec 2025 17:56:14 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 41F5920043;
-	Thu,  4 Dec 2025 17:56:14 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C008320040;
-	Thu,  4 Dec 2025 17:56:10 +0000 (GMT)
-Received: from sapthagiri.in.ibm.com (unknown [9.39.29.188])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  4 Dec 2025 17:56:10 +0000 (GMT)
-From: Srikar Dronamraju <srikar@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Peter Zijlstra <peterz@infradead.org>
-Cc: Ben Segall <bsegall@google.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Ingo Molnar <mingo@kernel.org>, Juri Lelli <juri.lelli@redhat.com>,
-        K Prateek Nayak <kprateek.nayak@amd.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Shrikanth Hegde <sshegde@linux.ibm.com>,
-        Srikar Dronamraju <srikar@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Swapnil Sapkal <swapnil.sapkal@amd.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        virtualization@lists.linux.dev, Yicong Yang <yangyicong@hisilicon.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 16/17] pseries/smp: Allow users to override steal thresholds
-Date: Thu,  4 Dec 2025 23:24:04 +0530
-Message-ID: <20251204175405.1511340-17-srikar@linux.ibm.com>
-X-Mailer: git-send-email 2.51.1
-In-Reply-To: <20251204175405.1511340-1-srikar@linux.ibm.com>
-References: <20251204175405.1511340-1-srikar@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HF52X0ZY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1764873966;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=J7W2y9TMzxCLKH6ePY7VFs+mUMTbmxE19/CG932s30M=;
+	b=HF52X0ZYt0VvKkF96gG9om7R6ancNL1UWCDYtmGDIEGXiOD54Olom0iDWkBg/IewzuRISd
+	/i6Pk906a5f3y3Xzw6wBIoMcBJ/g4pmb9Ei3vAvRN/CzmBjIf8XXVD9cFTu3CoHICJaPPW
+	sLJHXUZxuhy+x+QeEq3H/6y44HNNKtI=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-317-qV8nWtCUM0K7x49RS7aeuw-1; Thu, 04 Dec 2025 13:46:05 -0500
+X-MC-Unique: qV8nWtCUM0K7x49RS7aeuw-1
+X-Mimecast-MFC-AGG-ID: qV8nWtCUM0K7x49RS7aeuw_1764873964
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4779b432aecso7791265e9.0
+        for <virtualization@lists.linux.dev>; Thu, 04 Dec 2025 10:46:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764873964; x=1765478764;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=J7W2y9TMzxCLKH6ePY7VFs+mUMTbmxE19/CG932s30M=;
+        b=iKl+BAZAWBqRZ70mrJbehxoZC72UUS5qIjqeXLvJAkA/SJYc11lyOADY2fx6V8kfEN
+         zapgJ3vSzbyS+ZUwTn4Jvy6eFAosgWoMXb5VhTRnm0B+QeEXtNKuQiuNZgPTbjoOtZRq
+         jmERtBeZ2kcWWhq7guDfwvSsWUxGhF8EewP3n5vJn4caNaa9C1zbziwUu5FVMPnxYv3H
+         3gPcDY7azSMzzyprChd4LsITmCWP8Qh4I8o4B3GIR0ErnKzpxBbl84bpGlark8slr+6K
+         D96ao7a/Wt+nMIE4Zj414tuof9XXnOSFC/Ggx2kHko7iSO4jkSnPVe24odL595ozVuJa
+         JyKA==
+X-Forwarded-Encrypted: i=1; AJvYcCUCAxho722KgBHxRVPJovVsYK/zyc0TY9K+ZcUju+ItuVsQErLRK3a8+4qzjj6EUD5rIlqqPnma8hKUf7HEwQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzpvSqIVlQDAXJUcApxajlQ5TJRCEnv8OHaOuBqyRPC52nX1nro
+	4T/TCUZgk/4wYJwvHpavaGOrSISUECyPVDuFIBI6uQieoOVALZCUkEMdDrJa32wj9aB4gAN9s0n
+	+ohDhWmA0nCydQLIBIVNNHsjcyEwfn0WEtUGkG9kX8P721e05AnmcsKMGqD2rvaqMZ+/RCfWz+a
+	Qr
+X-Gm-Gg: ASbGncuBab0Cw9zSwxc2OeV5gkQIE2zI7crbJC2gL2TfTZ4V3LikvPAv8cqm/JhZwxs
+	XIsPUcFyck1sVrRrYva81HBj7+H36YPjZHmTWETCVf5gVLqlSuVbyBj88I1qCaKlS+bq0DK/OL1
+	6I1lcFSxrWi3VrmqDmspR7T1Z1KL3uiEhDYEVPSnNy4+SVt1P2uh2EXIoxY68wckpi9/D2gGWeZ
+	wbPrm0SryRrc9ZJAfToiyKkejkvHQn3NzNmb5ViddlmuR9yJTOXvK6XPSPmQsTYwLZqT//DHB+r
+	K9muVcQQOqb0NbKdgACHYfQkMGAutR/7o2bz9vfVoXHU1vmg8d47VIWlEfpUYTnra8KfcBh/cvY
+	=
+X-Received: by 2002:a7b:cb4d:0:b0:477:9cdb:e336 with SMTP id 5b1f17b1804b1-4792af1b1a8mr52068375e9.21.1764873964201;
+        Thu, 04 Dec 2025 10:46:04 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGpdXRCAWJBoqSiLYVx9eCCXM/FwDscTSunOdpVga7Xltz6hoQw8oOR/1MYJQE350t8nz70LA==
+X-Received: by 2002:a7b:cb4d:0:b0:477:9cdb:e336 with SMTP id 5b1f17b1804b1-4792af1b1a8mr52068205e9.21.1764873963740;
+        Thu, 04 Dec 2025 10:46:03 -0800 (PST)
+Received: from redhat.com ([31.187.78.57])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-479308cd87csm46533335e9.0.2025.12.04.10.46.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Dec 2025 10:46:03 -0800 (PST)
+Date: Thu, 4 Dec 2025 13:46:01 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: [PATCH 01/14] tools/virtio: fix up compiler.h stub
+Message-ID: <56424ce95c72cb4957070a7cd3c3c40ad5addaee.1764873799.git.mst@redhat.com>
+References: <cover.1764873799.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: grM7ksqg05fc0zyk6Jf5luq4L1sLl7QD
-X-Proofpoint-ORIG-GUID: lIT3fTsKSgeSOSZOVu_7aTC0h3wmOs2R
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAyMCBTYWx0ZWRfXx2Wd0mAODIb1
- 2SIn1PAlKT/M3dItrJU/K7MSZGxABGvpR+OJg+vop7J8b1zWuXXEP1nVfXGMc8pKVZcnDzr6jkr
- hZorn7QH8NsvxK71BHfEy2Ps3zf95xJjrdjsVKHIAUz7US1xWhroVURiB/ymHLpvvY0/RWdMKpr
- v/EF/19jBY74yFZ5c2W555nyN3HBzQM0uimZPDnSDb+x4QUJl62nONfzOIEOloH1AL0ozME7G28
- JAinplCabXKbxJ/VoCUeYr782H9GPQ/tNy3SxQOrGbdDBxAjA51LXpMItbih7XG4cz6wwaDWJFG
- EO0gvLe/yemllrNV5D+uUoWSCgyJhidUyTGqdu46i9DkZtmS1U6EUi9AgEZkHfZyysW5V6qLXXC
- 0dfBEMoWBWOhTwaA4DROIJVu7fzXmg==
-X-Authority-Analysis: v=2.4 cv=dYGNHHXe c=1 sm=1 tr=0 ts=6931cb44 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=D5CivmakTvuzdLjxN4gA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-04_04,2025-12-04_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 suspectscore=0 clxscore=1015 adultscore=0
- lowpriorityscore=0 bulkscore=0 phishscore=0 priorityscore=1501
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2511290020
+In-Reply-To: <cover.1764873799.git.mst@redhat.com>
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: xxxnEcPhNkQioZwV6X2DJ_R3pCDlotbhGbr9SagaczM_1764873964
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Different shared LPARs will have different entitled cores, different
-number of cores in shared pools and different virtual processors. Also
-the number and configuration of other shared LPARs sharing the same pool
-will differ in each case. Hence a single set of threshold values may not
-work. Hence provide a debugfs interface by which a privileged user can set
-the high and low threshold values.
+Add #undef __user before and after including compiler_types.h to avoid
+redefinition warnings when compiling with system headers that also
+define __user. This allows tools/virtio to build without warnings.
 
-Signed-off-by: Srikar Dronamraju <srikar@linux.ibm.com>
+Additionally, stub out __must_check
+
+Created using Cursor CLI.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- arch/powerpc/platforms/pseries/smp.c | 30 +++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
+ tools/virtio/linux/compiler.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/powerpc/platforms/pseries/smp.c b/arch/powerpc/platforms/pseries/smp.c
-index a3daac4c3e1e..909f2d58384a 100644
---- a/arch/powerpc/platforms/pseries/smp.c
-+++ b/arch/powerpc/platforms/pseries/smp.c
-@@ -21,6 +21,9 @@
- #include <linux/device.h>
- #include <linux/cpu.h>
- #include <linux/pgtable.h>
-+#if defined(CONFIG_DEBUG_FS) && defined(CONFIG_PPC_SPLPAR)
-+#include <linux/debugfs.h>
-+#endif
+diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
+index 204ef0e9f542..7f9e308f3880 100644
+--- a/tools/virtio/linux/compiler.h
++++ b/tools/virtio/linux/compiler.h
+@@ -2,7 +2,11 @@
+ #ifndef LINUX_COMPILER_H
+ #define LINUX_COMPILER_H
  
- #include <asm/ptrace.h>
- #include <linux/atomic.h>
-@@ -285,9 +288,6 @@ static __init void pSeries_smp_probe(void)
-  * lower threshold values below which allow work to spread out to more
-  * cores.
-  */
--#define STEAL_RATIO_HIGH (10 * STEAL_RATIO)
--#define STEAL_RATIO_LOW (5 * STEAL_RATIO)
--
- static unsigned int max_virtual_cores __read_mostly;
- static unsigned int entitled_cores __read_mostly;
- static unsigned int available_cores;
-@@ -323,6 +323,9 @@ unsigned int pseries_num_available_cores(void)
- 	return available_cores;
- }
++/* Avoid redefinition warnings */
++#undef __user
+ #include "../../../include/linux/compiler_types.h"
++#undef __user
++#define __user
  
-+static u8 steal_ratio_high = 10;
-+static u8 steal_ratio_low = 5;
-+
- void trigger_softoffline(unsigned long steal_ratio)
- {
- 	int currcpu = smp_processor_id();
-@@ -340,7 +343,7 @@ void trigger_softoffline(unsigned long steal_ratio)
- 	 * If Steal time is high, then reduce Available Cores.
- 	 * If steal time is low, increase Available Cores
- 	 */
--	if (steal_ratio >= STEAL_RATIO_HIGH && prev_direction > 0) {
-+	if (steal_ratio >= STEAL_RATIO * steal_ratio_high && prev_direction > 0) {
- 		/*
- 		 * System entitlement was reduced earlier but we continue to
- 		 * see steal time. Reduce entitlement further if possible.
-@@ -358,7 +361,7 @@ void trigger_softoffline(unsigned long steal_ratio)
- 		}
- 		if (success)
- 			available_cores--;
--	} else if (steal_ratio <= STEAL_RATIO_LOW && prev_direction < 0) {
-+	} else if (steal_ratio <= STEAL_RATIO * steal_ratio_low && prev_direction < 0) {
- 		/*
- 		 * System entitlement was increased but we continue to see
- 		 * less steal time. Increase entitlement further if possible.
-@@ -381,9 +384,9 @@ void trigger_softoffline(unsigned long steal_ratio)
- 		if (success)
- 			available_cores++;
- 	}
--	if (steal_ratio >= STEAL_RATIO_HIGH)
-+	if (steal_ratio >= STEAL_RATIO * steal_ratio_high)
- 		prev_direction = 1;
--	else if (steal_ratio <= STEAL_RATIO_LOW)
-+	else if (steal_ratio <= STEAL_RATIO * steal_ratio_low)
- 		prev_direction = -1;
- 	else
- 		prev_direction = 0;
-@@ -437,3 +440,16 @@ void __init smp_init_pseries(void)
+ #define WRITE_ONCE(var, val) \
+ 	(*((volatile typeof(val) *)(&(var))) = (val))
+@@ -35,4 +39,6 @@
+ 	__v;								\
+ })
  
- 	pr_debug(" <- smp_init_pSeries()\n");
- }
++#define __must_check
 +
-+#if defined(CONFIG_DEBUG_FS) && defined(CONFIG_PPC_SPLPAR)
-+static int __init steal_ratio_debugfs_init(void)
-+{
-+	if (!firmware_has_feature(FW_FEATURE_SPLPAR))
-+		return 0;
-+
-+	debugfs_create_u8("steal_high", 0600, arch_debugfs_dir, &steal_ratio_high);
-+	debugfs_create_u8("steal_low", 0600, arch_debugfs_dir, &steal_ratio_low);
-+	return 0;
-+}
-+machine_arch_initcall(pseries, steal_ratio_debugfs_init);
-+#endif /* CONFIG_DEBUG_FS && CONFIG_PPC_SPLPAR*/
+ #endif
 -- 
-2.43.7
+MST
 
