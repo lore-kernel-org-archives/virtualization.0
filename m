@@ -1,64 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E4F8358D3E
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 17:56:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C49ED34DB44
+	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 17:56:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764871000; cv=none; b=Z/mdqKJguv1dVBEgsBJ7oT9H53dCa81Fp432fd6pd7ZuUgnf88ITOMS1HRn2g65nm37dH+xbLI0a+8t5LFJK6SVoJfZICcAxdBXfJqwac+B4lDc0UYjQ+rMA5uovM36nuLePmFiq9Cx7bfjfNaL8SAVovvqKk9msy85LUp6x2GE=
+	t=1764871011; cv=none; b=pAa0ZX6OTY6jQsOLJJgn5DKGpR2haJX9GJSfdGzAg/OL2rhZVowMKy/Geay0qZL9XNuh6EytaQucisDyemVUaU0DPjkFpqpBCnkIyP1Vrx6YHrDIxF7w5ujg7Ygs/vuZ4BNCYnngquYiUagJgSaJtZrnkbIqxpR3VfYnPGTsJ+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764871000; c=relaxed/simple;
-	bh=3xDEU7a+dcpyT6p4unhp6zUGCQzFd3HMR7zWIje2I00=;
+	s=arc-20240116; t=1764871011; c=relaxed/simple;
+	bh=n0FnMbPU6Awhr5dco7+1fEZQHcMmZvvfEWLy33vxCcU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kKZESUx9G7BiHLbSIJ6m6OvilnWCJhpDba5eYnOaqibaMJ6Q2emTyna9vOeM6Kc2kCvWdDgS9J/0H3svXVj0hnSV7ZWlg4EJRPUQFImYzuaKHb7QFaj24guWqY5s+hQVdNQZjytCjV95dTUt29rN3vgDUNXac1j9WvvDGDjadYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bZOOj5+3; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=JlXCK6b+9zoB7JTgMolg4Ji9vEXTyYM64v878JgACEf82XuIDhuLhaeQ1gVlEDzjNhEcp4ALyETiDyIBN6vlj+NAbZkA5UMTaWPuCtQpABdVp6+iaeFWby/qWHbceBsyfAB+uEUadIagtE/47TfpXohq9WSb+JG+Dty2HWNa9t8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=j5S4S+1V; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bZOOj5+3"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4ARExC025115;
-	Thu, 4 Dec 2025 17:56:16 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="j5S4S+1V"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4B2KH1014613;
+	Thu, 4 Dec 2025 17:56:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ux0EhBWJUf5wZJAGz
-	UVeEs+JHElwVRFtaD5oNwlf0HM=; b=bZOOj5+3RxGyH+FGQ4N1WrNWrKk3kX8fS
-	T3TPCtRTErvoKxbodAEn9RhzwCAc79cGfloAou4BBXZCPvlE4chzLasYEOFd0s4M
-	M3s5o4VJwBJrhrK/Mj8kA+Sljnz/GAtIkr2ICrVeOb+3ireC8TvtrEc91sMysmFv
-	ymuKQ9hQ8Ttw4RrQ1X/Yp7QMDelu05iKJJeeR+HUV3oGKeOmsXEhYlaFBv/jquK1
-	NbHFTSp7uzFvGGNOFnHfyALqMuVjnM10BYOh5Havs4e01qpTjLlGQkhMELYeres6
-	I17zzbiZXRsILW2y9Sg8NX25QJ4SIqHNc+ldoK+G18Klcl/qWKg5A==
+	:mime-version:references:subject:to; s=pp1; bh=UikS5TkXcNc8h8b6t
+	Ypk0p5GLnY/uUu63XCX0ekANJg=; b=j5S4S+1Vesxx/U6OLSeAMzAqXhWOOKxyc
+	Q6J53knusEKWbJ4dfjj847npJHkLSoMT9x0qxDSt10uZD+yMvFakcH8KwkFCBFSa
+	3uP6cKzhsuKtNTthexJWlNX+y0iziW8++2ybKQtW2I91gZAigvDGjvo77yzn4eXO
+	3kZKZAgOEK/5chR+Ncg+NLrdF0Axki4sdW2tnQWHgnTujooeBUYlhnmv9VvUukDv
+	rgQzO/3uWb4MQHWG8YXxhB/grkEQc9IKMkj7MsQu/QRHFXP8GaX2v3FrI6cTq/G8
+	CGyL0EiIlK5yXQ8PpqsKSvW9wO5wQSERzl7Q61MnjMnUnLCYe5gvA==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrg5s6f1-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrja1tc0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:56:15 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4HgGoB024742;
-	Thu, 4 Dec 2025 17:56:15 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrg5s6ew-1
+	Thu, 04 Dec 2025 17:56:24 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4HuNYp011085;
+	Thu, 4 Dec 2025 17:56:23 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrja1tbu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:56:15 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4FAKAP019051;
-	Thu, 4 Dec 2025 17:56:14 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4arbhy96v8-1
+	Thu, 04 Dec 2025 17:56:23 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4FXrQs010240;
+	Thu, 4 Dec 2025 17:56:22 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4arcnkh2v3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:56:14 +0000
+	Thu, 04 Dec 2025 17:56:21 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4HuAMA27853372
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4HuI8u45744424
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Dec 2025 17:56:10 GMT
+	Thu, 4 Dec 2025 17:56:18 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7A9A120043;
-	Thu,  4 Dec 2025 17:56:10 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0822E2004B;
+	Thu,  4 Dec 2025 17:56:18 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 04C7B20040;
-	Thu,  4 Dec 2025 17:56:07 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 87CC220040;
+	Thu,  4 Dec 2025 17:56:14 +0000 (GMT)
 Received: from sapthagiri.in.ibm.com (unknown [9.39.29.188])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  4 Dec 2025 17:56:06 +0000 (GMT)
+	Thu,  4 Dec 2025 17:56:14 +0000 (GMT)
 From: Srikar Dronamraju <srikar@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         Peter Zijlstra <peterz@infradead.org>
@@ -79,9 +79,9 @@ Cc: Ben Segall <bsegall@google.com>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         virtualization@lists.linux.dev, Yicong Yang <yangyicong@hisilicon.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 15/17] pseries/hotplug: Update available_cores on a dlpar event
-Date: Thu,  4 Dec 2025 23:24:03 +0530
-Message-ID: <20251204175405.1511340-16-srikar@linux.ibm.com>
+Subject: [PATCH 17/17] pseries/lpar: Add debug interface to set steal interval
+Date: Thu,  4 Dec 2025 23:24:05 +0530
+Message-ID: <20251204175405.1511340-18-srikar@linux.ibm.com>
 X-Mailer: git-send-email 2.51.1
 In-Reply-To: <20251204175405.1511340-1-srikar@linux.ibm.com>
 References: <20251204175405.1511340-1-srikar@linux.ibm.com>
@@ -93,88 +93,97 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: wOfvkC0uOapX7Jh4z6xnd_FzMcZQjtFY
-X-Authority-Analysis: v=2.4 cv=Ir0Tsb/g c=1 sm=1 tr=0 ts=6931cb40 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-GUID: ni3vhbmp42pzMrrHuc6bnF_Kzql4ImFA
+X-Proofpoint-ORIG-GUID: DAgezDF_G1mL2zRPjpvzMWkMiCPNhsPZ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAyMCBTYWx0ZWRfX2HJrKpeW8ZP3
+ S8JNVf73b2KIBPAzcIfTRQ7qp4G/iE/NRxRbPMSG2YsgmfNB+jOt4JIto+3k1M2wDJhyWqQQdN0
+ uGSW2ZGq8Glj3wRmBTiIbXFDbDK9OtA0B7E1iTEED4HWXsXr8xL0a4h75Cjp+rxn+C8GoWLNQY/
+ aq417TvC/ewmG6jNeYZoxT0/MyrFFDNiezE114VFNKRABSVvsWaeLhuSYHQmsoipOVpwSTVdIwr
+ TXOqkjnrFlzz0mk6xtH9LcgyevRUfI+WHt8CYSMLBFxzXdyiJe+lIUtniFVd5eQocIIK/3rQ2j+
+ Hg8BYcTrxFE4H6pLE58lrIkg5LZpWA6R6IG84e40Z+DTiB3wz8wZPNyL/MF7dS+itIUmjctCPfd
+ Z3HEccxcu089gz02Ao4YIYbV4uM7tw==
+X-Authority-Analysis: v=2.4 cv=dYGNHHXe c=1 sm=1 tr=0 ts=6931cb48 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=WWXCdL_Rce5lBg350DQA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAyMCBTYWx0ZWRfXyDHhUZlL/rbr
- muAdVF4jCCrEnyxd0+8tqrFy8tA5zov3Ron2eG7LTLJTot7YzcYv2Wu1uxyE6Nd6N1Ye60mKfH2
- 8EU7466aialjO8EsG/boJ9RTRFri6yUQG/nVDx27MBmp25FD+N4zHuk/d+wMT0GKGv5qU5cXGSe
- XiMgwvsb/THc1LP4yPkRUhDxukBbvCtYkU4xa9ICuTBfXZYdaZxx8SvmJgTqIZnwWoXILsbiUri
- vdgaXSEhG4f4lJaw5xTOLoxFMRzzTlS3ThFnjWfShV00ItGPacua0x/POdnl/gHkOZRYo4VTeXd
- fKlQZA4O3ymSgtJfem5oEl4ASJnWJ3yGbBY3A7JbkyF1xMJls4jc8xxbJBm8JeWAwwVr8JiHbPj
- xneJR98hvjWaHsuGk9yFcpU4W4dXGA==
-X-Proofpoint-GUID: rS9Up9g0pBVUYbf6f-AaloNfu_F1ttWL
+ a=WutiPhbOZldT-Hsz3twA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-04_04,2025-12-04_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 adultscore=0 impostorscore=0 clxscore=1015 priorityscore=1501
- bulkscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290020
+ malwarescore=0 spamscore=0 suspectscore=0 clxscore=1015 adultscore=0
+ lowpriorityscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511290020
 
-Everytime, a DLPAR CPU event happens on a shared LPAR, the number of
-entitled_cores, and virtual processors allotted to the LPAR can change.
-Hence available_cores has to be updated to be in sync.
+Currently steal metrics are processed on CPU 0 at a 2 second interval.
+However the right value for processing the steal interval has yet to be
+discovered. If a too small value is provided, LPAR may end up adjusting
+too frequently and also the steal metrics may also be unreliable. If
+too large value is provided, LPAR may lose the opportunity for soft
+online and offline. Hence enable a debug interface for privileged users to
+specify steal interval.
 
 Signed-off-by: Srikar Dronamraju <srikar@linux.ibm.com>
 ---
- arch/powerpc/platforms/pseries/hotplug-cpu.c | 6 ++++++
- arch/powerpc/platforms/pseries/pseries.h     | 1 +
- arch/powerpc/platforms/pseries/smp.c         | 2 +-
- 3 files changed, 8 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/lpar.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/hotplug-cpu.c b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-index bc6926dbf148..4ba8cc049b5b 100644
---- a/arch/powerpc/platforms/pseries/hotplug-cpu.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-@@ -284,6 +284,9 @@ static int pseries_add_processor(struct device_node *np)
+diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
+index f5caf1137707..4f7b217a4eb3 100644
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -660,8 +660,8 @@ machine_device_initcall(pseries, vcpudispatch_stats_procfs_init);
  
- out:
- 	cpu_maps_update_done();
-+#ifdef CONFIG_PPC_SPLPAR
-+	pseries_num_available_cores();
-+#endif
- 	free_cpumask_var(cpu_mask);
- 	return rc;
- }
-@@ -323,6 +326,9 @@ static void pseries_remove_processor(struct device_node *np)
- 			       "with physical id 0x%x\n", thread);
- 	}
- 	cpu_maps_update_done();
-+#ifdef CONFIG_PPC_SPLPAR
-+	pseries_num_available_cores();
-+#endif
- }
+ #ifdef CONFIG_PARAVIRT_TIME_ACCOUNTING
+ #define STEAL_MULTIPLE (STEAL_RATIO * STEAL_RATIO)
+-#define PURR_UPDATE_TB tb_ticks_per_sec
  
- static int dlpar_offline_cpu(struct device_node *dn)
-diff --git a/arch/powerpc/platforms/pseries/pseries.h b/arch/powerpc/platforms/pseries/pseries.h
-index 2527c2049e74..1eed08752a03 100644
---- a/arch/powerpc/platforms/pseries/pseries.h
-+++ b/arch/powerpc/platforms/pseries/pseries.h
-@@ -121,6 +121,7 @@ extern u32 pseries_security_flavor;
- void pseries_setup_security_mitigations(void);
- #ifdef CONFIG_PPC_SPLPAR
- void trigger_softoffline(unsigned long steal_ratio);
-+unsigned int pseries_num_available_cores(void);
- #endif
++static u8 steal_interval = 1;
  
- #ifdef CONFIG_PPC_64S_HASH_MMU
-diff --git a/arch/powerpc/platforms/pseries/smp.c b/arch/powerpc/platforms/pseries/smp.c
-index 69e209880b6f..a3daac4c3e1e 100644
---- a/arch/powerpc/platforms/pseries/smp.c
-+++ b/arch/powerpc/platforms/pseries/smp.c
-@@ -293,7 +293,7 @@ static unsigned int entitled_cores __read_mostly;
- static unsigned int available_cores;
- 
- /* Get pseries soft entitlement limit */
--static unsigned int pseries_num_available_cores(void)
-+unsigned int pseries_num_available_cores(void)
+ static bool should_cpu_process_steal(int cpu)
  {
- 	unsigned int present_cores = num_present_cpus() / threads_per_core;
- 	unsigned long retbuf[PLPAR_HCALL9_BUFSIZE];
+@@ -674,8 +674,8 @@ static bool should_cpu_process_steal(int cpu)
+ extern bool process_steal_enable;
+ static void process_steal(int cpu)
+ {
++	unsigned long steal_ratio, delta_tb, interval_tb;
+ 	static unsigned long next_tb, prev_steal;
+-	unsigned long steal_ratio, delta_tb;
+ 	unsigned long tb = mftb();
+ 	unsigned long steal = 0;
+ 	unsigned int i;
+@@ -696,14 +696,18 @@ static void process_steal(int cpu)
+ 		steal += be64_to_cpu(READ_ONCE(lppaca->enqueue_dispatch_tb));
+ 	}
+ 
++	if (!steal_interval)
++		steal_interval = 1;
++
++	interval_tb = steal_interval * tb_ticks_per_sec;
+ 	if (next_tb && prev_steal) {
+-		delta_tb = max(tb - (next_tb - PURR_UPDATE_TB), 1);
++		delta_tb = max(tb - (next_tb - interval_tb), 1);
+ 		steal_ratio = (steal - prev_steal) * STEAL_MULTIPLE;
+ 		steal_ratio /= (delta_tb * num_online_cpus());
+ 		trigger_softoffline(steal_ratio);
+ 	}
+ 
+-	next_tb = tb + PURR_UPDATE_TB;
++	next_tb = tb + interval_tb;
+ 	prev_steal = steal;
+ }
+ 
+@@ -2081,6 +2085,9 @@ static int __init vpa_debugfs_init(void)
+ 		debugfs_create_file(name, 0400, vpa_dir, (void *)i, &vpa_fops);
+ 	}
+ 
++#ifdef CONFIG_PARAVIRT_TIME_ACCOUNTING
++	debugfs_create_u8("steal_interval_secs", 0600, arch_debugfs_dir, &steal_interval);
++#endif
+ 	return 0;
+ }
+ machine_arch_initcall(pseries, vpa_debugfs_init);
 -- 
 2.43.7
 
