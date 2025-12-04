@@ -1,78 +1,78 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E27F33891A
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 18:46:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F8B033B6E7
+	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 18:46:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764873989; cv=none; b=aptgoQb7wLYhHbZCw8b7vfArM7Ym75L1EWWO5UmCwYH1foTb8CkccDeI1UjY9cDw/HIlYj28x+765baKS+XgZQnX1AIE8+fS+QLVMV6qvCwwaM8Gfr555TTPGtg0wAdCMFtX7pOzgmyNaNyUWc1OHAsL4Yp3aJslzCFr6mt6YxA=
+	t=1764873990; cv=none; b=I9Xoo0g5kxLijkhTvBMT84XlLLS+SNTUphoof09iMCyHrHAs9Qzg5X9yldZZniblXGWlgT5jatX3AlMoueTkGqqnCiRpzaeIx04sD3233CbkUpdDPJyVAeARjk8fv1+fAPNjtpcz6axCdqWuZwcnOQL3KFvn1fI/haOeE5q5X+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764873989; c=relaxed/simple;
-	bh=4PQmS7qRWp1h3UPVEOCRFeLUvojLJYMmr2QJemAoMnM=;
+	s=arc-20240116; t=1764873990; c=relaxed/simple;
+	bh=ll/sxvvzc3XW4CmLB3HwF992o1GxD6WUnDKMX3Bix90=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=EyyYMxB/fNVTVH96Kv9VCOZUZfpuReDkwlKEZ8vcsQWFL6nXBgU6IhmMyaaLa746j7XDCROtVnca/CO027COZorZullf39IsnbJKwn9rv+tnlnVFC+6TqL17oAIYBZKLwGfBMT3FIj0XP6JS+kbv53y0x5hPFca06N+UQyyINFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=POv7a7Xh; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=JHcnxp4ebKpzeWdIp1UR8SQEe6wP+m+PX3wVGusDggbSnwuvLNqIBvF5AsRkbrEzBBQlbhecd+22TDxAJMtHht5egRjrmlQySWBS33+0zainT1B30GYfNNzLrFAKsY/3NKHf4AkAwM5iwi/1NVHKeadTG+4FZhYXm784AYs7okg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WFz1RQqr; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="POv7a7Xh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WFz1RQqr"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764873986;
+	s=mimecast20190719; t=1764873988;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rKrCPUkMMlo/4uwAwXRYCqStNcHG8q/7bmW8IdphYAg=;
-	b=POv7a7Xh14Y+sGbuPXBPnMVhs9+6xNGEQ6IPRB1VJi2PRnUnOXLGyQllZ9MGMQnQvRaTCA
-	P9ATahgeXcyZPHLz5GJkQWhddcVSPyfOnvIQau0vNZvifGIlAhYeMv83/oBTUULtCoaFSv
-	IiNp9zIt6DSkSptzA3opAXc5BBlsm2c=
+	bh=lVw5dYteZUWTT3AJ1ycDooI045XqhugmJ7sLNTXFrBU=;
+	b=WFz1RQqriELGd5lueYgE8j8i/fv0owv66qSOAuVe3sJdOZTV/uDj/OS1qU3LzqITayFeEh
+	6V08wnzq6Uy3iSsfChrL+GD08whsfiYgviMqsw1hQwP6+HHrC0xVjvAyDVqvj2M9aLYASN
+	8+eFbjVdO34Us1TKQT/7PTB0Hjql17c=
 Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
  [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-479-42_TytMuPGafsjQq_oCPGQ-1; Thu, 04 Dec 2025 13:46:25 -0500
-X-MC-Unique: 42_TytMuPGafsjQq_oCPGQ-1
-X-Mimecast-MFC-AGG-ID: 42_TytMuPGafsjQq_oCPGQ_1764873984
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-42b478551a6so713040f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 04 Dec 2025 10:46:24 -0800 (PST)
+ us-mta-446-HvalmPo0PiKXxeyWLqxPAg-1; Thu, 04 Dec 2025 13:46:27 -0500
+X-MC-Unique: HvalmPo0PiKXxeyWLqxPAg-1
+X-Mimecast-MFC-AGG-ID: HvalmPo0PiKXxeyWLqxPAg_1764873986
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-42b3ed2c3e3so919943f8f.1
+        for <virtualization@lists.linux.dev>; Thu, 04 Dec 2025 10:46:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764873984; x=1765478784;
+        d=1e100.net; s=20230601; t=1764873986; x=1765478786;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rKrCPUkMMlo/4uwAwXRYCqStNcHG8q/7bmW8IdphYAg=;
-        b=Lm3fNqsRRAVCv7sCjbVkJBjZpzlnvDxjhsji6Iq0IXHBi+98ChtPx7TywZfZ5t0X2Q
-         rRclpO/E48dCjN48F1OTv8amtQ4A0ILwhKxPa5umiqo7EvXX60oJ9YpyMKp92YZIlCo7
-         j6fA64//vxqRd/yILfV5lRmPufF+/ZLy0pxFhUhp4QgfNkpNn7Uel40/fkMtlyPpa+hJ
-         iKoALt6/TYPq9AV+/beKn0nDlzXj1CwjJDdy+dtE7+5Qkaf6yHOmDVQrLFJwCfgJkOQN
-         bDVXHJolQv0Mu36BUz5WQzUCm/1+Snb0waa/0Q9NP6iYVZDW7y5s3VJHmM53ojeJji7h
-         xvTg==
-X-Forwarded-Encrypted: i=1; AJvYcCVz7UGYYMggroqlXfCFlSSAXnP5Oa3ChEEp1wwGTVN4WucntmvzB7EaToK6mJO8LKpI1aH68BqG7O4BL3O1Zg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzkrEVg5LsKZxy/E6BBhua7c6STbX1PR8RthWG+TbUqLzuhUFiL
-	+13DLJO6n5unmLXxa3JH5yunhscUv+2tDUucwAiwESR8zSU4MRdobNis1HjOzOcTqj4nXn/DCAM
-	bzG0rxNxOY+Pjp9Jzl7RRZbkyBbxpIzsZhb4qKsM7Jkoan5o6DYLi4HjL8w2HL4mQpa2d
-X-Gm-Gg: ASbGnctOXHq7cMmg1zhrw0pQlcu73cSXFbhUfEgQNo5b10TU/GDhFp/ND8+Tah8EbAz
-	VocCOlpx2idFQjte/5bMcBk5LU1cZQRm+ZkOmFZFpcAwJucpfaHmkguJHS9cNxn3EfDZVMIrOoD
-	jVp5Se1zyqmzR04m2Wb2Gn2P8q+PixDnhujW9l/1/dDs1+fckvQntooXF0xXvjgS74r7jHBcExs
-	qNtKxMofuu4OJWoYjezK3QXDulD61nvkbOF+gr/Fd8t2uXl5u6NeTKGCHW+5JdCjjTyCQJtPchf
-	tIosMtuYC02UR7Rb6pWzAa9MkOVhdUP2Z88yyatHA3tyzwxBpNMCGKEQ9RLn535prNsmXBaaUhM
+        bh=lVw5dYteZUWTT3AJ1ycDooI045XqhugmJ7sLNTXFrBU=;
+        b=CPSi1oOdGNwJhWl0uO/IXNkUsNTRtFhQhE2iZEnQflza2oSwovO1fnLkqRHNVHOCT8
+         ExkVARiLC6a44H6OsMEQ5e/hEgN0/1Ix0POMVYN+jH4tNPErqaAMyE4effkXCZy5T7ol
+         kkhgajVbcmcxcyrsEttGDbA506dL4dIfsLxZm3wbqJ/bh6i7rJkhAFORIq9ACb0QsRLl
+         b71qDmoVM/OBVyN7YafgyhNyU8wBGgsnuygcfOyLRpwXCnDf0aePuQliFIh1l/oNZvGu
+         y2FbsT7oNWtrWl2L8sXD0PtdqzRbPUAmFFaya+y58hiDDrA8YqvWHaLEvHC8FPnnpPSt
+         NhDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWuYZncT6+Vk3sDNyvBLIuc/bTa/CJiCvamWW95wkHdWgKksGgQgAQ7/cZJgpJYvaR4bZ+wAU3clvounaOynQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzRh9EPag2ACYQyqTIrsvgE0p7mHLPWnfOWcaSTXJKihV2X8gQV
+	o8BZd314NP2Kaq9cEPkOyoJLcDfOt/pbVKrncMyFCr8vgeaikf/DCMhijLqH5xcf/IUeiJlYqPD
+	QOqo/UzFLg4pBY3/lCl7DappaVd/vSVhPZ5J8a7RZ1J9hDjNn5ynZHQD9a9X3JzIZUlE+
+X-Gm-Gg: ASbGncsXxgu62uVzWJ9hj/sgy/P1yOQ3Tm9h3dAAxOYjrKIzY8q5K9CZrlSrwilwVRH
+	5ZqgcTmKnPSVZt89c6JVNUj900QGXJgJEU8jxX1OWwxm3m0Ge1rSq5mH0rqk8a5f5r4PqZ/qOEy
+	aW817UbjfUKnqJYA/aA6j1GilzAAbA6P5mM0fkNxyUoklcBwGs6peWYj+BwgHmWwkyYWVsXZZ7O
+	dr1ISBA8c6oQbEi2uSNb+ZhTtXmuvl9vYuZG/Iyxc7de1QhjhzuAmP0SM/9peNlrAfD+XAWm5XP
+	0Q0AZ/SUvAv+UviGQKllACgAo50g6HNrl/vAblJWzB6xUukQBiRR1F7/r2aKv6Y/lBxg22rtA78
 	=
-X-Received: by 2002:a05:6000:1868:b0:42b:5567:857f with SMTP id ffacd0b85a97d-42f731ced45mr6365667f8f.50.1764873983860;
-        Thu, 04 Dec 2025 10:46:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFT0F5YASTgrJ5jzbcHsClIc20gGHll85h84q5sP7qxcTxPkXajPfZS7+MrV3Z6gSpS/bfuDA==
-X-Received: by 2002:a05:6000:1868:b0:42b:5567:857f with SMTP id ffacd0b85a97d-42f731ced45mr6365640f8f.50.1764873983262;
-        Thu, 04 Dec 2025 10:46:23 -0800 (PST)
+X-Received: by 2002:a05:600c:4f4a:b0:477:ae31:1311 with SMTP id 5b1f17b1804b1-4792aeebb79mr85646045e9.13.1764873985903;
+        Thu, 04 Dec 2025 10:46:25 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFVnZlUPVGwR42uNZ5MF++ugxWcelqzFWsr6Ll20O4Muqn6ej9BfWBGGv8F1+o4jnnv7STrOQ==
+X-Received: by 2002:a05:600c:4f4a:b0:477:ae31:1311 with SMTP id 5b1f17b1804b1-4792aeebb79mr85645785e9.13.1764873985505;
+        Thu, 04 Dec 2025 10:46:25 -0800 (PST)
 Received: from redhat.com ([31.187.78.57])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42f7cbfee5bsm4561043f8f.16.2025.12.04.10.46.21
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-479310ca502sm45084615e9.7.2025.12.04.10.46.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Dec 2025 10:46:22 -0800 (PST)
-Date: Thu, 4 Dec 2025 13:46:21 -0500
+        Thu, 04 Dec 2025 10:46:24 -0800 (PST)
+Date: Thu, 4 Dec 2025 13:46:23 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
 	virtualization@lists.linux.dev
-Subject: [PATCH 09/14] tools/virtio: add struct cpumask to cpumask.h
-Message-ID: <eacf56399ba220513ebcd610f4a5115dc768db80.1764873799.git.mst@redhat.com>
+Subject: [PATCH 10/14] tools/virtio: stub might_sleep and synchronize_rcu
+Message-ID: <5557e026335d808acd7b890693ee1382e73dd33a.1764873799.git.mst@redhat.com>
 References: <cover.1764873799.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -84,33 +84,41 @@ In-Reply-To: <cover.1764873799.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: UPtZ9S3kRS4JpI2KzQwuCiursYi-CS7pQt2tR652ZLs_1764873984
+X-Mimecast-MFC-PROC-ID: vW_9L7ZwmNRXGrcaeIdq4m5bKWtU3rlDx3TJkwnp7H0_1764873986
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Add struct cpumask stub used by virtio_config.h.
+Add might_sleep() and synchronize_rcu() stubs needed by virtio_config.h.
+
+might_sleep() is a no-op, synchronize_rcu doesn't work but we don't
+need it to.
 
 Created using Cursor CLI.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- tools/virtio/linux/cpumask.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/virtio/linux/kernel.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/tools/virtio/linux/cpumask.h b/tools/virtio/linux/cpumask.h
-index 307da69d6b26..38ffc00e149d 100644
---- a/tools/virtio/linux/cpumask.h
-+++ b/tools/virtio/linux/cpumask.h
-@@ -4,4 +4,8 @@
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index d7fc70b68a2b..416d02703f61 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -144,6 +144,13 @@ static inline bool is_vmalloc_addr(const void *x)
+ 	return false;
+ }
  
- #include <linux/kernel.h>
- 
-+struct cpumask {
-+	unsigned long bits[1];
-+};
++#define might_sleep() do { } while (0)
 +
- #endif /* _LINUX_CPUMASK_H */
++static inline void synchronize_rcu(void)
++{
++	assert(0);
++}
++
+ #define min(x, y) ({				\
+ 	typeof(x) _min1 = (x);			\
+ 	typeof(y) _min2 = (y);			\
 -- 
 MST
 
