@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D2FE355037
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 17:56:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F03D355045
+	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 17:56:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764870967; cv=none; b=VczDDqy95Mv+G4hpVysmWkzmqqMQzqE5GWShAM+NySEEb2jpjINEpN8omSWdBbEH/G83b4Zbxb5kZfxcYg0mKU8pW4qSiBHQNfflikbFqBSX6awKQ2IlHL3SuCAOaeHJH8hEExT1oV9vlH+SrqX5f2U9b677wLWqLh073fqo8Sc=
+	t=1764870971; cv=none; b=o3/9pQyKD+H7xgQFyEzOuJiShp5rc7mj77KEJBLZRWe9Dhjb9ravsHWlEy7AU/iOXvf5bMdA53Lc0livIY/JYaX2tcUh9rofE4dWRgS2pWGRUxCdEWhL44HB5E9nWfUf50Q5Nhl905cZRnemwhPKn8U8R3U/X7/djkKTkwadHLA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764870967; c=relaxed/simple;
-	bh=fpQuz42FXLiLj3S24TdUu/Hzwn1N1etjqJjZZuplWRQ=;
+	s=arc-20240116; t=1764870971; c=relaxed/simple;
+	bh=oHO6PTcw3aXh685KOllB4RZtoSmWA3wpKHrLifYr+TE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=vEe8qaZXMTPqkeRFBsYvO7yDfi18cnHTQOGx+X0ILIrSTMe0izMEMmXErs2iKOnTBVOhkDCP9ayERwfAl2nYkpRmkpCYJ5G91XByj2JqEFoiC7ZXe41ViFo+la2z0ZDtKfa6B7+e3BS86TXs7W6YuuljjAyg8rBV/06g9vhzOS4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tJdEv8iK; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=RH0r0g5lmb+LXE1nsesdiDPG1sSoQMb5duuXxaZDqHTDrgQogxFddM+mOb/d21EeUn0EMcFHGpaIgX1gOh6GvJ3NwzJsgukQvGaLbzQab/Snn7NEDoFLJ3ic39PQkUjelBvfpfcCWJnpCuLKKc5op+aPIIy2chu+iYf3/1W28sk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=k7Rup/Oc; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tJdEv8iK"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4E3eQ3022200;
-	Thu, 4 Dec 2025 17:55:42 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="k7Rup/Oc"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4FbwZK018535;
+	Thu, 4 Dec 2025 17:55:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=kMTJ/GDQee/iBpeJE
-	RuosO4o6/1bcvJe+OVqpZx+BcE=; b=tJdEv8iKDMtHlahfsPwncQkbQyMQr1olp
-	JdUikeCRF6LKXsnlOURYwnzaXFd1djG8o0xmQrgkIIHSQgYKVd2xo7COOJnL2hQz
-	TTy/Jv6NRfrs5SBLt1ElJz82loAiqnlypnm9sbCCM4rzhZRYL7K5cYZ7uyU6wMno
-	lZ8oJhmgBfBT/pkEkvcHpmy3b8hwZpdcq1OXW09v8INv8nwWc0Vc6oS/zFMF8mLq
-	+wFDuL4/rcXjGQX15m7tr1pNgE6/nd6oG2ZBatjDFvXYQiGFndiVfpciT7RUuyiD
-	SAKnDMW73yjUwHhWbA3HLmVvSwtCrYkFOPFmscXpYNgTi0cxbjahw==
+	:mime-version:references:subject:to; s=pp1; bh=zfrg1rG5jDOEik4rU
+	JgJKPizaKP9IuPevyT0ezbS4NA=; b=k7Rup/Oc37X8e4ZDBHMl3e6oAvsJDDPop
+	C6Yl8IGPHsCaytOEEPvMpOw1OpgtWVeuGd/RuUNhaXT5H9LL3vqJlntlSVN4CwNs
+	w+PAVotty/fa+wgBCc7TM4g022bbNsVk/UWAfaC7QdBLMRIxyNXJe6hdAIGNj1rk
+	uiWkvF29y5CBip1nPAZevgd4Gno0yOerJxDY5BTrpbRR9ZLlE+0gs7Tv0uHCsWX7
+	y9HSlkg30kmmbDwAp5AeDHTwd0Qb/dBkgKPvKvH+Jzun4rQbQN74QfjWc0xxgOgq
+	qLM8A4KGx/b3j7lDdmOb/i41rRJykOPIObhvyulqNVDDPqQXK5Vxw==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrbgj16v-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqp8q9e4k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:55:41 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4HrSU7020699;
-	Thu, 4 Dec 2025 17:55:41 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrbgj16s-1
+	Thu, 04 Dec 2025 17:55:45 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4Hk24A031925;
+	Thu, 4 Dec 2025 17:55:44 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqp8q9e4g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:55:41 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4FhhkX029343;
-	Thu, 4 Dec 2025 17:55:40 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ardv1rvad-1
+	Thu, 04 Dec 2025 17:55:44 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4GDWRn003891;
+	Thu, 4 Dec 2025 17:55:43 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ardck0x4x-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:55:40 +0000
+	Thu, 04 Dec 2025 17:55:43 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4Htanf41812374
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4Htemk48890148
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Dec 2025 17:55:36 GMT
+	Thu, 4 Dec 2025 17:55:40 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 47D0820043;
+	by IMSVA (Postfix) with ESMTP id 1068120043;
+	Thu,  4 Dec 2025 17:55:40 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8F80B20040;
 	Thu,  4 Dec 2025 17:55:36 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C8CB420040;
-	Thu,  4 Dec 2025 17:55:32 +0000 (GMT)
 Received: from sapthagiri.in.ibm.com (unknown [9.39.29.188])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  4 Dec 2025 17:55:32 +0000 (GMT)
+	Thu,  4 Dec 2025 17:55:36 +0000 (GMT)
 From: Srikar Dronamraju <srikar@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         Peter Zijlstra <peterz@infradead.org>
@@ -79,9 +79,9 @@ Cc: Ben Segall <bsegall@google.com>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         virtualization@lists.linux.dev, Yicong Yang <yangyicong@hisilicon.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 06/17] powerpc/smp: Delay processing steal time at boot
-Date: Thu,  4 Dec 2025 23:23:54 +0530
-Message-ID: <20251204175405.1511340-7-srikar@linux.ibm.com>
+Subject: [PATCH 07/17] sched/core: Set balance_callback only if CPU is dying
+Date: Thu,  4 Dec 2025 23:23:55 +0530
+Message-ID: <20251204175405.1511340-8-srikar@linux.ibm.com>
 X-Mailer: git-send-email 2.51.1
 In-Reply-To: <20251204175405.1511340-1-srikar@linux.ibm.com>
 References: <20251204175405.1511340-1-srikar@linux.ibm.com>
@@ -93,86 +93,69 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MyEZB6I1h3psUYLHXo3Fj1mnYlU4LXID
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAxNiBTYWx0ZWRfX9mAN1DMg/KdM
- bjfa5FCzbcEXEJnh/L9rdqDmE5hN00qLm0grGS+L6/qxDG48sNRL9TElmkbyEV3hcvmF7TVWO1r
- rPPs2Ic/1K39u449+WtxUwH112eqs7aMDBoePynpyj55o8hJUcIgAWtfkpgekAO/lS9Cot+f2Qj
- wj+x1hgu+rj1HXigjFFMaikL/H30J/Bn1YumnB9QoekwrcTSPaqELjzUBRwdMIw8YL75UCZ4vr9
- gsfNl+BL2OlVSHzMb6AKpe37yLUpVl1PsmU/e3kB4dan6/ZTXScMMzNTaGNk23nIocjMd+Lz7qU
- pPHZitg09Yr0Im+EOS5hDkbg06myvg/k9q9EVXHbWykI+QqAxslvpCF9bIotHyh9pI7POyh89F8
- jwpNp8k1oeJ+X3tHV46DzX7vNF0HWw==
-X-Authority-Analysis: v=2.4 cv=UO7Q3Sfy c=1 sm=1 tr=0 ts=6931cb1d cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAwMCBTYWx0ZWRfX7hJNWLOXP0fe
+ fK/CL+ZvpnG8hHCZ5yh4SryhATLuFhfljDRhCO96hf7tJFtpoH7Xn070n/Hzi6aRMU5V4QJJFwr
+ vuo86ULF+n4OOQXC1lqSr56/fIfrE24iAEbYTjpyd/Q1vRmgwRC3GniYXgkCyAq9nl+0Ozxg7il
+ MJuZZI9KqeFXCLCenD/f7C+ryC0hbAgFX4+2lLBiiTKwOdY2ZSxVR32JrC1MpvsJ1AGJKx4UkEN
+ q0zwIMtNsHGnR984jlLGPp8iTz7l13wxfalvKeEzAxwrOowsVuEnk24LK3uc08lOA9DMTxzU+jx
+ T9hTgZmpZgicw1BYCTKycaoPGxirHPAlhvAYEceDpW2Sf7AoUcc/jVv2miv1iUcbh4dhz7ei0r/
+ ZzLdiELEhuJRR+lbYqmvnjLj0DLT3g==
+X-Authority-Analysis: v=2.4 cv=dIerWeZb c=1 sm=1 tr=0 ts=6931cb21 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
- a=1EFQ6eh71MqxaOUTsigA:9
-X-Proofpoint-GUID: P-pgooUrMI7eb-N5SDgr-iSEfULqXNy9
+ a=JESwPpsbOM5vm_rGWyIA:9
+X-Proofpoint-ORIG-GUID: 8uU_t1RZRCpbzH0RSd3zI_3XEKNDkQ3R
+X-Proofpoint-GUID: g6N-ECgPD2VXnbLJPqWWFyz2k-qRoxJ7
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-04_04,2025-12-04_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 malwarescore=0 bulkscore=0 adultscore=0 priorityscore=1501
- impostorscore=0 spamscore=0 phishscore=0 clxscore=1015 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290016
+ priorityscore=1501 lowpriorityscore=0 clxscore=1015 spamscore=0
+ malwarescore=0 suspectscore=0 adultscore=0 bulkscore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511290000
 
-Before processing steal metrics, system also needs to know the number of
-entitled CPUs. Till that time, delay the steal processing till the time
-entitlement information is available.
+Scheduler is suppose to set balance_callback to push tasks out of a
+dying CPU. However the current code, unilaterally sets the balance_cpu
+and then checks if the CPU is indeed dying.
+
+Remove this anomaly by setting balance_callback only after checking if
+the CPU is about to die.
 
 Signed-off-by: Srikar Dronamraju <srikar@linux.ibm.com>
 ---
- arch/powerpc/kernel/smp.c             | 8 ++++++++
- arch/powerpc/platforms/pseries/lpar.c | 4 ++++
- 2 files changed, 12 insertions(+)
+ kernel/sched/core.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index c33e9928a2b0..016dc7dc5bbc 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -82,6 +82,9 @@ bool has_big_cores __ro_after_init;
- bool coregroup_enabled __ro_after_init;
- bool thread_group_shares_l2 __ro_after_init;
- bool thread_group_shares_l3 __ro_after_init;
-+#ifdef CONFIG_PPC_SPLPAR
-+bool process_steal_enable __ro_after_init;
-+#endif
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index f754a60de848..89efff1e1ead 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8173,11 +8173,6 @@ static void balance_push(struct rq *rq)
  
- DEFINE_PER_CPU(cpumask_var_t, cpu_sibling_map);
- DEFINE_PER_CPU(cpumask_var_t, cpu_smallcore_map);
-@@ -1736,6 +1739,11 @@ void __init smp_cpus_done(unsigned int max_cpus)
- #ifdef CONFIG_PPC_SPLPAR
- 	if (smp_ops->num_available_cores)
- 		smp_ops->num_available_cores();
-+
-+	if (is_shared_processor() && !is_kvm_guest())
-+		process_steal_enable = true;
-+	else
-+		process_steal_enable = false;
- #endif
- }
+ 	lockdep_assert_rq_held(rq);
  
-diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
-index 3431730a10ea..f8e049ac9364 100644
---- a/arch/powerpc/platforms/pseries/lpar.c
-+++ b/arch/powerpc/platforms/pseries/lpar.c
-@@ -674,6 +674,7 @@ static bool should_cpu_process_steal(int cpu)
- 	return false;
- }
- 
-+extern bool process_steal_enable;
- static void process_steal(int cpu)
- {
- 	static unsigned long next_tb, prev_steal;
-@@ -682,6 +683,9 @@ static void process_steal(int cpu)
- 	unsigned long steal = 0;
- 	unsigned int i;
- 
-+	if (!process_steal_enable)
-+		return;
-+
- 	if (!should_cpu_process_steal(cpu))
+-	/*
+-	 * Ensure the thing is persistent until balance_push_set(.on = false);
+-	 */
+-	rq->balance_callback = &balance_push_callback;
+-
+ 	/*
+ 	 * Only active while going offline and when invoked on the outgoing
+ 	 * CPU.
+@@ -8185,6 +8180,11 @@ static void balance_push(struct rq *rq)
+ 	if (!cpu_dying(rq->cpu) || rq != this_rq())
  		return;
  
++	/*
++	 * Ensure the thing is persistent until balance_push_set(.on = false);
++	 */
++	rq->balance_callback = &balance_push_callback;
++
+ 	/*
+ 	 * Both the cpu-hotplug and stop task are in this case and are
+ 	 * required to complete the hotplug process.
 -- 
 2.43.7
 
