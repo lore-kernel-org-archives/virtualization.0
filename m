@@ -1,63 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F369352958
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 17:55:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86279352FB2
+	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 17:55:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764870951; cv=none; b=mlEnuZ5x+OlJQYKv+VpkJYVzeoUCCiayIQoJtx/NQhu7IlIyMFZvVRQWZWEoHrWDPngH6fOyQmm1za4DMkG54ogqyz+y+SKkM404Z0kgemuYSOSvN2WlO9v6fwM7bFocxdsK7sdnRhD9K09ffz9ysdG6MV4hV7Ztwr1y5YXwUMg=
+	t=1764870956; cv=none; b=jg9077wnKJvvKyTuQj+oL5l0zHtLpn7Pqljerp9OxlNeN7YO0ZeaHlyNfh0aYACfu4q1QVoqlu0FoyyyD/HQUOWTdB8BHs/FRYjmBfryGQjXiYDnS7ieSAtXJ8ZtEtY5s9GxWHilNNtiyEJpCzEw26PkMNF5gBLNJPR6BpOqAbM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764870951; c=relaxed/simple;
-	bh=0yH6gkNBVxQUEGOXgRJgaffjgJzzBaHkuID6vgT8ZGU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mKBK2Rw2wb9/S81RQGxWYsJOF7UbPUBoxQpZtLqfIwk7ybHJFHUfhgoo+TYyB/COpySh0YUm/zpu13qyF67MEMnEHT+Spq9Y5ypZdTdKDksQlSTXI/ui3MCvp3K0IQ/LBaEil7SJyi97UB7bBtyQI0PYNx5difARGCZGrt8o54I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=b/r3XH+m; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1764870956; c=relaxed/simple;
+	bh=pOfRnL8M589Hvunwaq/C5RBx/uts33gTbrAoqF30fp0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=J3BakVc2DclxgRU2MspaR6fSiW5CY3OGUqYqHpoa4xw5OicTMwt4CNb6Wg27SAON97jIGhIa4epi8UePyAXhaWiEhilNUh763KQh+kxtdn6FqvpmNW6cUnIY5GEQeJn6m7AoXZsWnUvt8w8+TKHOEzUl7KOPljQJ5OqBjt4VK+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=na0PXfMC; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="b/r3XH+m"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4AL8a1021659;
-	Thu, 4 Dec 2025 17:55:19 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="na0PXfMC"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4E8tkP001931;
+	Thu, 4 Dec 2025 17:55:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=U7f/YCqWT04jR/f3G4IobDlsrX5/s4BgmasGDa57j
-	hk=; b=b/r3XH+mkLqgsSIF81e+xeqA/rf/FHBmMVskCrEyNHzQNwJRuOHYuLbM1
-	Wk92qpWpxP8XMUttrfQcjL4v0/tNBfPVKxnqciiQW0PNlrAnZrTdzC/pjay5ZG8p
-	YOjLnIzEvF88D/CBlEEwwcRrLKGZJRC8derrKAcQDyBRiq/dMOlwD85qP63W59Mj
-	sQutuq0HTG28g25yhV+WWs1ritWYggQ4yIgl06Va4pjZGm+UsiiEn2VeyDmaaRot
-	AKCU7dNTh9axdnlY+Ss5yWxrUrarISbTFrc/f2/pYvBE6VEUmLdU7ngqAw3p1xna
-	v6VnZlpvBW2nEasUf1uiYzQhjTR4Q==
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=cGvV2EyuoGRv/Qbas
+	Iead7YLzTxiH5r0RDBU1Y5c1ew=; b=na0PXfMCOj4egkHS1AnM7MZa/zFKanMzf
+	OTOOSSeoxyEENcBNpcH3g4m8dpLW5Y07z1BhlJLaQi79U7B4aMcXRvGUjc476nvM
+	Ygh+0Vyv8cb0/J1p0Aq4c6vhwY8RV9xclDpwGZ5BbeCkmmxeDzeNTd8i7sdwcdav
+	QdLOU00hqeOXb76ghAO1uqZcrf67tHt82jC7HJiSqNXgE+npZiRC4icEUcWeUL2S
+	YEt9jMaO1t5tOLyGyi7Vcsp25z+LMoOJkOCKFTiy+5dC+h4ssXQx+Hn26JRaffoU
+	cqDJ7rRZ7qKjWqexrXk3Z1zVLOBnbij3grnkSqQzqv7leZl16tGCg==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrbgj15j-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqp8q9e38-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:55:19 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4Hi1Db001151;
-	Thu, 4 Dec 2025 17:55:18 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrbgj15f-1
+	Thu, 04 Dec 2025 17:55:26 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B4HfL8g021218;
+	Thu, 4 Dec 2025 17:55:26 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqp8q9e35-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:55:18 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4G1MLW029338;
-	Thu, 4 Dec 2025 17:55:17 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ardv1rv8s-1
+	Thu, 04 Dec 2025 17:55:26 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B4FGjN4010284;
+	Thu, 4 Dec 2025 17:55:25 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4arcnkh2r6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Dec 2025 17:55:17 +0000
+	Thu, 04 Dec 2025 17:55:25 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4HtDGe57016690
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B4HtL5S22479462
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Dec 2025 17:55:13 GMT
+	Thu, 4 Dec 2025 17:55:21 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7700E2004B;
-	Thu,  4 Dec 2025 17:55:13 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 27E9720043;
+	Thu,  4 Dec 2025 17:55:21 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F0E1420040;
-	Thu,  4 Dec 2025 17:55:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 950C720040;
+	Thu,  4 Dec 2025 17:55:17 +0000 (GMT)
 Received: from sapthagiri.in.ibm.com (unknown [9.39.29.188])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  4 Dec 2025 17:55:09 +0000 (GMT)
+	Thu,  4 Dec 2025 17:55:17 +0000 (GMT)
 From: Srikar Dronamraju <srikar@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
         Peter Zijlstra <peterz@infradead.org>
@@ -78,10 +79,12 @@ Cc: Ben Segall <bsegall@google.com>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         virtualization@lists.linux.dev, Yicong Yang <yangyicong@hisilicon.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH 00/17] Steal time based dynamic CPU resource management
-Date: Thu,  4 Dec 2025 23:23:48 +0530
-Message-ID: <20251204175405.1511340-1-srikar@linux.ibm.com>
+Subject: [PATCH 02/17] powerpc/lpar: Reorder steal accounting calculation
+Date: Thu,  4 Dec 2025 23:23:50 +0530
+Message-ID: <20251204175405.1511340-3-srikar@linux.ibm.com>
 X-Mailer: git-send-email 2.51.1
+In-Reply-To: <20251204175405.1511340-1-srikar@linux.ibm.com>
+References: <20251204175405.1511340-1-srikar@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -90,202 +93,66 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: z_rFhuVfEnQlAP65rsFoVUiER5JhvOnz
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAxNiBTYWx0ZWRfXyZ0n+ge/PZ5T
- 6dYkwNVDk/0aXKBdsi9RoRZpZ2MUmBKtiaAcpiXr0YGcq2rAM4Er98I/oE1MxnD38V4IaxV7aeO
- VLP0wEFgcKNYCql2tRr+Z6MjdnRyTMGrXiDjvEj/OHjiE841znpdwdAOfmEtqvuoOe/h2iU8YbN
- B2mq+mjy0bfD0hcayf7YZXbYm4sgPKCl/KY2SsmY9uTKr4lpB71w7vNl3JcZ69G7Aa1P3fU4QDT
- tHYRp4U79anY/ah6wyq7cuF3juTPGg+Qu3bWwOYVgMYVOArkkXy47xTmPb6rGrcFh2yn+Uv0ygQ
- KxGaD7tvRDVS2Wfg1Z7NbqN7khU2DgQg82jjVtZdJkb0FceYf9IxYKtd+NA07zAv9c+n0/VugGu
- bNvsefWJ8vZBRouaAdpAHRL+3R77xQ==
-X-Authority-Analysis: v=2.4 cv=UO7Q3Sfy c=1 sm=1 tr=0 ts=6931cb07 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=1XWaLZrsAAAA:8 a=1UX6Do5GAAAA:8 a=7CQSdrXTAAAA:8 a=20KFwNOVAAAA:8
- a=zd2uoN0lAAAA:8 a=voM4FWlXAAAA:8 a=pGLkceISAAAA:8 a=JfrnYn6hAAAA:8
- a=meVymXHHAAAA:8 a=KKAkSRfTAAAA:8 a=BTeA3XvPAAAA:8 a=Ask-qF1ygu9u4zORMZcA:9
- a=Et2XPkok5AAZYJIKzHr1:22 a=a-qgeE7W1pNrGK8U0ZQC:22 a=IC2XNlieTeVoXbcui8wp:22
- a=1CNFftbPRP8L7MoqJWF3:22 a=2JgSa4NbpEOStq-L5dxp:22 a=cvBusfyB2V15izCimMoJ:22
- a=tafbbOV3vt1XuEhzTjGK:22
-X-Proofpoint-GUID: a79xKekDvJs2Dt-Tj-asSkjXEux92I_R
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAwMCBTYWx0ZWRfX9sEvZAI+B/Jc
+ nMnAj/OgAv6Xv/l0nKq5wp+q+tELpkIfT7Hat1oHlo6S3/jfWq2SGjbcr1eV1/z2htIk/Om44DG
+ bXN9MTsSTcCDxh7DTy5TS0bt+yl4k9OlXGfV0iD3YJStOigQref0ykS1peL4aVal4OsW8eGQ1o+
+ LmOwmkXIKz03eUauY/I3Kq0o8a4CpYKTDkJBgksA/GpR6svaxbn1ArPqhNmZWFLi6fOWHY6gb4T
+ PcvL3jkgj9lx2AiD/MvMzaG+BDpLZ/AjGbZbCZ1wg86aefrkC68ob9fzp6/nqPpOyeIgyKoE1Rt
+ KHrKaD+h17D0eT62iuVt8HkzSJme1YHgviRrGX4mmaFltB34j84HBUlr3WK0m3TJ5t7AxybETnK
+ tatfJNRNH+oLgQOFZ3MQVjCesECOUw==
+X-Authority-Analysis: v=2.4 cv=dIerWeZb c=1 sm=1 tr=0 ts=6931cb0e cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VnNF1IyMAAAA:8
+ a=e-Ya-t4VmWCOyrdcCoEA:9
+X-Proofpoint-ORIG-GUID: YlIRh_9WmKkJVYFswaUNP2EkDVsRXSDq
+X-Proofpoint-GUID: kVUXudLvu6logZnZqfTueeVQHP8bpJho
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-04_04,2025-12-04_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 malwarescore=0 bulkscore=0 adultscore=0 priorityscore=1501
- impostorscore=0 spamscore=0 phishscore=0 clxscore=1011 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290016
+ priorityscore=1501 lowpriorityscore=0 clxscore=1011 spamscore=0
+ malwarescore=0 suspectscore=0 adultscore=0 bulkscore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
+ definitions=main-2511290000
 
-VMs or Shared LPARs provide flexibility, better and efficient use of system
-resources. To achieve this most of these setups (VMs or LPARs) will have
-guaranteed or entitled share of resources. However they will be allotted
-more resources so that a VM can get to use unused share of free/unused VMs
-Hence most of these VMs are configured to be overcommitted i.e each VM can
-exceed its guaranteed share of resources. Here we are mostly looking at
-CPU/cores as a resource. The other option is pinning, which does provide
-flexibility but not better use of system resources.
+There is no functional change. Calculated steal could be used in the
+subsequent changes. Hence reordering the function.
 
-However each VM thinks that it has access to all the allotted resources.
-Hence each VM will spread the workload to as many CPUs/cores as possible.
-This leads to resource contention causing performance impact. Hence the
-clear goal of better system utilization is actually not met.
+Signed-off-by: Srikar Dronamraju <srikar@linux.ibm.com>
+---
+ arch/powerpc/platforms/pseries/lpar.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-To overcome this problem, a hint could be provided to the VMs so that Linux
-scheduler knows how many CPUs/cores have to be used. In this series, steal
-time is used as a hint so that Linux scheduler uses to know how and which
-CPUs/cores are to be used. Typically if the resources are over-utilized by
-one or more of the VMs, the steal time will spike. If the resources are
-underutilized, the steal time will be low. Currently this series implements
-this steal based dynamic CPU resource management on PowerVM Shared LPARs.
-However since steal is a pretty generic VM attribute, this can be extended
-to any architecture that has some form of steal accounting.
-
-If in the future, there is a better hinting mechanism/strategy, the
-infrastructure could be modified to work with it.
-
-There have been similar work on these lines. The most recent reference being
-https://lore.kernel.org/all/20251119062100.1112520-1-sshegde@linux.ibm.com/
-
-Here is the broad outline of this patch series.
-- If the steal time is high identify CPUs that not be should be used, reduce
-  their CPU capacity and mark them as inactive. This will make unpinned
-  tasks to be migrated out. Pinned tasks that cant be migrated out will still
-  continue to run over there.
-- If the steal time is low identify CPUs that were marked as inactive, reset
-  their CPU capacity, mark them as active and available for the scheduler to
-  use.
-
-For our experiment we have 2 shared LPARs both having 72 cores/576 CPUs
-each entitled to 24 cores/192 CPUs and both sharing 64 cores/512 CPUs
-running 10 iterations of ebizzy. (Higher is better)
-
-nonoise case, i.e only ebizzy is running on 1 LPAR and the other LPAR is free
-threads  base  cores-used  +patchset  cores-used
-8        1     4.82        1.01958    5.025
-12       1     6.855       1.01761    7.09
-16       1     8.86        0.977243   8.475
-24       1     13.47       0.996121   13.085
-36       1     20.1        1.01447    19.79
-64       1     33.2        0.976135   29.105
-72       1     36.05       1.01956    35.775
-144      1     55.14       1.01805    54.74
-288      1     56.005      1.06081    56.575
-576      1     54.945      1.07684    42.42
-1152     1     54.65       1.06421    41.625
-
-noise case, i.e both LPARS running similar ebizzy workload.
-In the noise case, if one LPAR runs x threads, ebizzy, noise/other lpar also
-runs x threads where x is 8,12,16,24..
-
-threads  base  cores-used  +patchset  cores-used
-8        1     4.805       0.982148   5.32
-12       1     6.865       1.00572    7.405
-16       1     8.975       0.972395   9.33
-24       1     13.44       0.999339   13.525
-36       1     19.95       1.00277    19.24
-64       1     26.615      1.05265    26.73
-72       1     27.055      0.968465   26.05
-144      1     32.84       0.917759   33.23
-288      1     30.365      0.957132   29.18
-576      1     29.14       0.870245   23.325
-1152     1     29.135      0.897712   24.36
-
-While there are some regressions, its certainly using less number of cores.
-Also on an average cache-misses, cycles, instructions, context-switches
-reduced by 3x with the patchset both in the noise and nonoise case.
-(Lower is better)
-
-nonoise
-         cache-misses    cs              cycles          instructions
-threads  base  +patched  base  +patched  base  +patched  base  +patched
-8        1     0.26      1     0.34      1     0.28      1     0.32
-12       1     0.42      1     0.50      1     0.41      1     0.51
-16       1     0.27      1     0.33      1     0.29      1     0.31
-24       1     0.43      1     0.51      1     0.44      1     0.49
-36       1     0.29      1     0.33      1     0.31      1     0.32
-64       1     0.43      1     0.50      1     0.46      1     0.47
-72       1     0.19      1     0.20      1     0.19      1     0.19
-144      1     0.48      1     0.50      1     0.47      1     0.48
-288      1     0.24      1     0.25      1     0.24      1     0.25
-576      1     0.13      1     0.25      1     0.22      1     0.25
-1152     1     0.35      1     0.34      1     0.37      1     0.33
-
-noise
-         cache-misses    cs              cycles          instructions
-threads  base  +patched  base  +patched  base  +patched  base  +patched
-8        1     0.26      1     0.33      1     0.28      1     0.33
-12       1     0.39      1     0.52      1     0.41      1     0.48
-16       1     0.27      1     0.33      1     0.29      1     0.32
-24       1     0.42      1     0.51      1     0.44      1     0.48
-36       1     0.35      1     0.34      1     0.32      1     0.32
-64       1     0.43      1     0.50      1     0.46      1     0.48
-72       1     0.20      1     0.19      1     0.19      1     0.19
-144      1     0.49      1     0.51      1     0.46      1     0.45
-288      1     0.23      1     0.25      1     0.21      1     0.21
-576      1     0.26      1     0.25      1     0.21      1     0.20
-1152     1     0.29      1     0.34      1     0.35      1     0.26
-
-However there is still more work to be done.
-Please let me know your valuable inputs/feedback about these changes.
-Should apply cleanly on v6.18
-
-Cc: "Ben Segall <bsegall@google.com>"
-Cc: "Christophe Leroy <christophe.leroy@csgroup.eu>"
-Cc: "Dietmar Eggemann <dietmar.eggemann@arm.com>"
-Cc: "Ingo Molnar <mingo@kernel.org>"
-Cc: "Juri Lelli <juri.lelli@redhat.com>"
-Cc: "K Prateek Nayak <kprateek.nayak@amd.com>"
-Cc: "linux-kernel@vger.kernel.org"
-Cc: "linuxppc-dev@lists.ozlabs.org"
-Cc: "Madhavan Srinivasan <maddy@linux.ibm.com>"
-Cc: "Mel Gorman <mgorman@suse.de>"
-Cc: "Michael Ellerman <mpe@ellerman.id.au>"
-Cc: "Nicholas Piggin <npiggin@gmail.com>"
-Cc: "Peter Zijlstra <peterz@infradead.org>"
-Cc: "Shrikanth Hegde <sshegde@linux.ibm.com>"
-Cc: "Steven Rostedt <rostedt@goodmis.org>"
-Cc: "Swapnil Sapkal <swapnil.sapkal@amd.com>"
-Cc: "Thomas Huth <thuth@redhat.com>"
-Cc: "Valentin Schneider <vschneid@redhat.com>"
-Cc: "Vincent Guittot <vincent.guittot@linaro.org>"
-Cc: "virtualization@lists.linux.dev"
-Cc: "Yicong Yang <yangyicong@hisilicon.com>"
-Cc: "Ilya Leoshkevich <iii@linux.ibm.com>"
-
-Srikar Dronamraju (17):
-  sched/fair: Enable group_asym_packing in find_idlest_group
-  powerpc/lpar: Reorder steal accounting calculation
-  pseries/lpar: Process steal metrics
-  powerpc/smp: Add num_available_cores callback for smp_ops
-  pseries/smp: Query and set entitlements
-  powerpc/smp: Delay processing steal time at boot
-  sched/core: Set balance_callback only if CPU is dying
-  sched/core: Implement CPU soft offline/online
-  powerpc/smp: Implement arch_scale_cpu_capacity for shared LPARs
-  powerpc/smp: Define arch_update_cpu_topology for shared LPARs
-  pseries/smp: Create soft offline infrastructure for Powerpc shared
-    LPARs.
-  pseries/smp: Trigger softoffline based on steal metrics
-  pseries/smp: Account cores when triggering softoffline
-  powerpc/smp: Assume preempt if CPU is inactive.
-  pseries/hotplug: Update available_cores on a dlpar event
-  pseries/smp: Allow users to override steal thresholds
-  pseries/lpar: Add debug interface to set steal interval
-
- arch/powerpc/include/asm/paravirt.h          |  62 +------
- arch/powerpc/include/asm/smp.h               |   6 +
- arch/powerpc/include/asm/topology.h          |   5 +
- arch/powerpc/kernel/smp.c                    |  38 ++++
- arch/powerpc/platforms/pseries/hotplug-cpu.c |   6 +
- arch/powerpc/platforms/pseries/lpar.c        |  71 +++++++-
- arch/powerpc/platforms/pseries/pseries.h     |   8 +
- arch/powerpc/platforms/pseries/smp.c         | 173 +++++++++++++++++++
- include/linux/sched/topology.h               |   1 +
- kernel/sched/core.c                          |  50 +++++-
- kernel/sched/fair.c                          |  33 +++-
- 11 files changed, 383 insertions(+), 70 deletions(-)
-
+diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
+index 6a415febc53b..dde12b27ba60 100644
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -662,15 +662,20 @@ machine_device_initcall(pseries, vcpudispatch_stats_procfs_init);
+ u64 pseries_paravirt_steal_clock(int cpu)
+ {
+ 	struct lppaca *lppaca = &lppaca_of(cpu);
++	unsigned long steal;
++
++	steal = be64_to_cpu(READ_ONCE(lppaca->ready_enqueue_tb));
++	steal += be64_to_cpu(READ_ONCE(lppaca->enqueue_dispatch_tb));
+ 
+ 	/*
+ 	 * VPA steal time counters are reported at TB frequency. Hence do a
+-	 * conversion to ns before returning
++	 * conversion to ns before using.
+ 	 */
+-	return tb_to_ns(be64_to_cpu(READ_ONCE(lppaca->enqueue_dispatch_tb)) +
+-			be64_to_cpu(READ_ONCE(lppaca->ready_enqueue_tb)));
++	steal = tb_to_ns(steal);
++
++	return steal;
+ }
+-#endif
++#endif /* CONFIG_PARAVIRT_TIME_ACCOUNTING */
+ 
+ #endif /* CONFIG_PPC_SPLPAR */
+ 
 -- 
 2.43.7
 
