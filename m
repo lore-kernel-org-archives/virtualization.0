@@ -1,98 +1,115 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52ECA33BBAD;
-	Fri,  5 Dec 2025 16:07:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4BAD2BEC2E
+	for <virtualization@lists.linux.dev>; Fri,  5 Dec 2025 18:06:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764950864; cv=none; b=VMG6uqmWpQV0Qeno5tCKgIbvttRnV60tOMaJcjSZRdJopTQNgYjVOcE5KSCb8Oy5OufSAXxa4UO1IFs2DKk9x6nBE1z3IJULukHGac8RyWvU8X2+whYj674xZt/UGL/w3Xk5YXlKafs7Arvk/AJPbQwkeNGtxUePiEe/ASHbt6Q=
+	t=1764958017; cv=none; b=DpciQ7/ZvOOevH7voDNdjXIguUQbSVCW6q7TB5u/S5hIiV6wCHEgjiI2NIKQXckxqKa9UZy+IIt/2V0tb5VBSD+WkTF6bh10VdmquAePPcm62k9X5whIlLQ7KDFiOmv/5fpOzF/s28VdQVkeOGyH1oGslNcwJAISpeDym4RxyTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764950864; c=relaxed/simple;
-	bh=CVvVAP2jPQJ2Sjhir5sem0PfbWUQVuVhRTCLoxwRt5w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fWhadaoyzPrYHjXAHgFXD4E8GgMCFfIj7wjx6P1EFnMvkKHHmlOFUCBAQ9Ck8C9hS1LwJx+DFypsDvYCQlKIxDiGOp/FI98i5AnJjT8WxQRxqf7taGQD0/IPey8cuGjX8gJZlZ2HqnbEH8+x74DW0kEyAOKZvrZcvYG7vEHHBJY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=oZ/A7dKF; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1764958017; c=relaxed/simple;
+	bh=0PQxiO8yXBkRzyEEQcMge/R0bQ+15Du7eQVaAWbnzu0=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=LtsQLUg3JB7ETBIM+JD+qDuVidq3NRmkqdg3mhCV5sKZj4x31Pax3QAnTtsfKL1pL/QTqUVTDmYPShxy+WkM1vTNBWsrMuPH62P+cFWan+uqfE9yoLSLKnJMQsaJHb/Km1CLV1CcxsuWfDEmGn4TZ6xEoeKbe2EsG2qetrYi1K0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com; spf=pass smtp.mailfrom=isovalent.com; dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b=fcEwnNcc; arc=none smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isovalent.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="oZ/A7dKF"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=ckQBtq+4Y7vdp+TM9yy2DQcYJ6E6z7FHH/8z11ZMWKE=; b=oZ/A7dKFntf+0XHPiw4bQOKQCp
-	ukDRjqI9iCRiV6BIFrOBiIXibk1yOtCfzEfsKxmKLRz0/aBv7RNJnbvASUF+JyeAzqAgp+60VwHAk
-	9+qJWxLNsJCl9jaL+Ti25jPwQvnr5biHgTAb9mDJvjLBNW/3KcDaIM1VV5RrZr7znV1++/3M2jr0s
-	j/+hhvWToyVNloYubOQbb46IckrqusIVVQPfZj2UUMUGJ1xZftHstw+op5W25ZpSLPh8HNVKsM/fm
-	pR9nHEVh2+MtOJV9bJlaQ5ihkJCOxGyNPco7U7Vj3OWFruBfr748iYyveLdzyg5e4dhJ7wXqVtI4F
-	eOkQ3HEQ==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vRYL5-00000005v8L-3UD5;
-	Fri, 05 Dec 2025 16:07:23 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 626F4300499; Fri, 05 Dec 2025 17:07:23 +0100 (CET)
-Date: Fri, 5 Dec 2025 17:07:23 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Srikar Dronamraju <srikar@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	Ben Segall <bsegall@google.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Ingo Molnar <mingo@kernel.org>, Juri Lelli <juri.lelli@redhat.com>,
-	K Prateek Nayak <kprateek.nayak@amd.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Swapnil Sapkal <swapnil.sapkal@amd.com>,
-	Thomas Huth <thuth@redhat.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	virtualization@lists.linux.dev,
-	Yicong Yang <yangyicong@hisilicon.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: Re: [PATCH 08/17] sched/core: Implement CPU soft offline/online
-Message-ID: <20251205160723.GG2528459@noisy.programming.kicks-ass.net>
-References: <20251204175405.1511340-1-srikar@linux.ibm.com>
- <20251204175405.1511340-9-srikar@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b="fcEwnNcc"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-42b32ff5d10so2275650f8f.1
+        for <virtualization@lists.linux.dev>; Fri, 05 Dec 2025 10:06:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=isovalent.com; s=google; t=1764958013; x=1765562813; darn=lists.linux.dev;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=8W81HKYgtnxSK/jeCC9tCd/4H+x35ZH/rbQQcXkQvBE=;
+        b=fcEwnNccKtOWt0iMtMs6mZ8T7xirJqcHi2QTTK/q4A3e2hitx7FXV2vPtOSQXMjVzH
+         p2ye6qp7sr6omvVglfc2VKASc5D5fJK48tiONcqLY5pV+h+dqkyv6/mjmxzfe9HahpNf
+         IPjeW4EwTqaR9tu7KibOM0hvzJJPbAn+6Ans/kGuy+SFGeq4e+xgvNv70vmpATf1zDML
+         80RZQT1gssYP77CMK2p2QfM2oJIhu7Wgm18d8l7q5cSl4jN9bUx1+IJRpUPkkOpeGM0q
+         p6lm37jm1QoaZRJO0gXWCb11ID3jEaHNuR+92FUzPpY9n32WqRZEmby4nUjfiXGKiJ4v
+         lwfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764958013; x=1765562813;
+        h=to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=8W81HKYgtnxSK/jeCC9tCd/4H+x35ZH/rbQQcXkQvBE=;
+        b=XpJNNDUeOu7CI2Awqo2uhetHG3NCF6JeVd4DGUeHWAbXBrPqnlJW8ZIoXZGG7waYf4
+         Qv5TeI7AyjKqfdiz0umnqXleUuMLczIWPk6fGV/lQR4aQyeYyPgPx2CSpykp5aufHkRL
+         ipn0UW508Hm7L+Z3J2HSj22vM3NBbiUQMB7QHZII95Q5EpEyJf+9r4EqzUI5iODtjg+V
+         dBBURjvjqY0YasekJPDbM4NfCYRDHGUUre/hjuzQAAXN58+jftNHHj1ry5lBxfq6YB4d
+         e1NAyBx0QgT37ylxkzpfgXj6yxqcE5q1Q9m53fKXfPssJTkIHqYyP57nrdtreunurhqm
+         earw==
+X-Forwarded-Encrypted: i=1; AJvYcCWTC3bL4Wao6/lQZR5HIcxdRym3eDbKpD0zX4pkITr70V4IMTR0FIKlf/fsKQbV3iSqjSYWPM5NxS0ek2i+QQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx970v4kfmri8z0om8R4roUmdeUD431PUFNNbzdtoFLzR5lwScW
+	bLWylHGRCKwl3oZ1jHPmfdx19eD8kPHXL3AuFJJ5hcymtzhNKUr7TAaG8zP7egXtiiJuoN6Ex8j
+	a4vrvmoouDIB90OJDhnvGkcxxbMhUYM4QKf9dLVxBOZmTzwQwCKXhwes=
+X-Gm-Gg: ASbGncsi5hqq5jn9javnF8vHWQ5Q9mr5ZtsrBuWBb3orchw7PbbAaJ8+vd9q1jJeLTA
+	itK+fKuqBPWgrmDgJrVQKp8jrkx9g0mZ/nq8qw036Azs7ZZvkI5Tn0W1n3bj24cbWneYV8zTaUM
+	Lu2IP/q6RyYcEG0xcs2wA7uf5xleegDTSvCHy4OR4gYjJHRV2bviR0cAhansgmxB1cyM57baSaI
+	EpEtZrAOyatySpeXld7/LktKjZnvLyPPCopKIrCMYeUDcZ1XAOMZkr1mxGwvnw66KeDZRWmhdPW
+	0ZQlyZyH
+X-Google-Smtp-Source: AGHT+IFa9ljvRR5WUvUCaZfTLm7hMbr0s0gXY4Z8xyd4G3hJOoM33q/AgBVXBpVrjXnBNwqp4SvDMzk2kj+5SzisC3w=
+X-Received: by 2002:a5d:5849:0:b0:42b:3108:5671 with SMTP id
+ ffacd0b85a97d-42f78896c0bmr9257554f8f.29.1764958012763; Fri, 05 Dec 2025
+ 10:06:52 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251204175405.1511340-9-srikar@linux.ibm.com>
+From: Lorenz Bauer <lmb@isovalent.com>
+Date: Fri, 5 Dec 2025 18:06:41 +0000
+X-Gm-Features: AQt7F2olyW0xN9Ns7uKzoZ8dEB8-EAV_B4TM-wor1XALAnT9pr9H9_dIptj-utQ
+Message-ID: <CAN+4W8hLrR1B1pNdDXiVuzoJ1q8Ta1kjV0v8vKVEZeHdRFKGcg@mail.gmail.com>
+Subject: virtio_console: lost wakeup due to race between port_fops_poll() and vring_interrupt()
+To: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux.dev, 
+	LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Dec 04, 2025 at 11:23:56PM +0530, Srikar Dronamraju wrote:
-> Scheduler already supports CPU online/offline. However for cases where
-> scheduler has to offline a CPU temporarily, the online/offline cost is
-> too high. Hence here is an attempt to come-up with soft-offline that
-> almost looks similar to offline without actually having to do the
-> full-offline. Since CPUs are not to be used temporarily for a short
-> duration, they will continue to be part of the CPU topology.
-> 
-> In the soft-offline, CPU will be marked as inactive, i.e removed from
-> the cpu_active_mask, CPUs capacity would be reduced and non-pinned tasks
-> would be migrated out of the CPU's runqueue.
-> 
-> Similarly when onlined, CPU will be remarked as active, i.e. added to
-> cpu_active_mask, CPUs capacity would be restored.
-> 
-> Soft-offline is almost similar as 1st step of offline except rebuilding
-> the sched-domains. Since the other steps are not done including
-> rebuilding the sched-domain, the overhead of soft-offline would be less
-> compared to regular offline. A new cpumask is used to indicate
-> soft-offline is in progress and hence skips rebuilding the
-> sched-domains.
+Hi,
 
-Note that your thing still very much includes the synchronize_rcu() that
-a lot of the previous 'hotplug is too slow' crowd have complained about.
+I've been chasing a bug when using virtio console to exchange data
+between guest and host. It manifests in a process inside the guest
+getting stuck while writing to the serial port:
 
-So I'm taking it that your steal time thing really isn't that 'fast'.
+    [<0>] wait_port_writable+0x139/0x2d0
+    [<0>] port_fops_write+0x88/0x130
+    [<0>] vfs_write+0xf3/0x450
+    [<0>] ksys_write+0x6d/0xe0
+    [<0>] do_syscall_64+0x9e/0x1a0
+    [<0>] entry_SYSCALL_64_after_hwframe+0x77/0x7
 
-It might be good to mention the frequency at which you expect cores to
-come and go with your setup.
+I managed to track this down to a race in virtio_console.c. The driver
+doesn't properly account for a port that receives blocking writes and
+is polled at the same time. I suspect that a similar problem exists in
+port_fops_read().
+
+Here is how it goes. We need two threads inside the guest, A and B.
+
+- Thread A writes to the serial port until the virtqueue fills up.
+- Thread A invokes port_fops_write() which calls wait_port_writable().
+There are no used buffers to reclaim and the thread is suspended,
+waiting on port->waitqueue.
+- The host side of the device makes some progress, marks some buffers
+as consumed / used and  sends an interrupt to the guest.
+- Before the guest can service the interrupt, thread B executes
+port_fops_poll(). This calls into
+  reclaim_consumed_buffers() via will_write_block(), which removes all
+used buffers.
+- The interrupt gets serviced, calling into vring_interrupt(). Here
+the check for more_used() returns false because the poll just went
+through all the work. The handler returns without waking
+port->waitqueue.
+- port_fops_write() never returns.
+
+I'm not exactly sure how to best fix this. Maybe it's enough to only
+check outvq_full in poll? It'd also be nice to fix this on the read
+side as well.
+
+I only have a reproducer which requires a Go toolchain unfortunately:
+https://github.com/lmb/vimto/issues/29
+
+Best
+Lorenz
