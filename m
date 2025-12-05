@@ -1,115 +1,198 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4BAD2BEC2E
-	for <virtualization@lists.linux.dev>; Fri,  5 Dec 2025 18:06:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA5F638A889
+	for <virtualization@lists.linux.dev>; Fri,  5 Dec 2025 18:55:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764958017; cv=none; b=DpciQ7/ZvOOevH7voDNdjXIguUQbSVCW6q7TB5u/S5hIiV6wCHEgjiI2NIKQXckxqKa9UZy+IIt/2V0tb5VBSD+WkTF6bh10VdmquAePPcm62k9X5whIlLQ7KDFiOmv/5fpOzF/s28VdQVkeOGyH1oGslNcwJAISpeDym4RxyTs=
+	t=1764960927; cv=none; b=QapBIeTgBoPiTlFJrMy7NykCrIFlGuh6ztl39ljklHCl2tsr6XnjbXrUpN2P6jtLU9nskv0FVdG1WWX1dYP3D/BQGcrYsXNe9NnCfaKIoHHDzYrE+swOm+vN55Emkbz/jv0zIlxMMmy78WFUzVjXNKQ+YIv5Y862NPxcLDCYa8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764958017; c=relaxed/simple;
-	bh=0PQxiO8yXBkRzyEEQcMge/R0bQ+15Du7eQVaAWbnzu0=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=LtsQLUg3JB7ETBIM+JD+qDuVidq3NRmkqdg3mhCV5sKZj4x31Pax3QAnTtsfKL1pL/QTqUVTDmYPShxy+WkM1vTNBWsrMuPH62P+cFWan+uqfE9yoLSLKnJMQsaJHb/Km1CLV1CcxsuWfDEmGn4TZ6xEoeKbe2EsG2qetrYi1K0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com; spf=pass smtp.mailfrom=isovalent.com; dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b=fcEwnNcc; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isovalent.com
+	s=arc-20240116; t=1764960927; c=relaxed/simple;
+	bh=20082T42GY9j7H4Icnr/9s9qBgNAtUj6QV5FN1nxuL0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=a1RcrSkbBjW8mf02ZveiKdWpybbWRde/KfSJfaoXLPSOQYdeMRos1DdLpoLYHWuo30k3W+TRMDaX3QKWrq7a5QtzAg/f728XM2UIpv1rumF2/90VYpB3Js/EazRNlxbMdTRQXOBA08mU+l7KHMOkda6upZH1AsR76nkN5xkxJ9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=swoNLai6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b="fcEwnNcc"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-42b32ff5d10so2275650f8f.1
-        for <virtualization@lists.linux.dev>; Fri, 05 Dec 2025 10:06:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=isovalent.com; s=google; t=1764958013; x=1765562813; darn=lists.linux.dev;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=8W81HKYgtnxSK/jeCC9tCd/4H+x35ZH/rbQQcXkQvBE=;
-        b=fcEwnNccKtOWt0iMtMs6mZ8T7xirJqcHi2QTTK/q4A3e2hitx7FXV2vPtOSQXMjVzH
-         p2ye6qp7sr6omvVglfc2VKASc5D5fJK48tiONcqLY5pV+h+dqkyv6/mjmxzfe9HahpNf
-         IPjeW4EwTqaR9tu7KibOM0hvzJJPbAn+6Ans/kGuy+SFGeq4e+xgvNv70vmpATf1zDML
-         80RZQT1gssYP77CMK2p2QfM2oJIhu7Wgm18d8l7q5cSl4jN9bUx1+IJRpUPkkOpeGM0q
-         p6lm37jm1QoaZRJO0gXWCb11ID3jEaHNuR+92FUzPpY9n32WqRZEmby4nUjfiXGKiJ4v
-         lwfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764958013; x=1765562813;
-        h=to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8W81HKYgtnxSK/jeCC9tCd/4H+x35ZH/rbQQcXkQvBE=;
-        b=XpJNNDUeOu7CI2Awqo2uhetHG3NCF6JeVd4DGUeHWAbXBrPqnlJW8ZIoXZGG7waYf4
-         Qv5TeI7AyjKqfdiz0umnqXleUuMLczIWPk6fGV/lQR4aQyeYyPgPx2CSpykp5aufHkRL
-         ipn0UW508Hm7L+Z3J2HSj22vM3NBbiUQMB7QHZII95Q5EpEyJf+9r4EqzUI5iODtjg+V
-         dBBURjvjqY0YasekJPDbM4NfCYRDHGUUre/hjuzQAAXN58+jftNHHj1ry5lBxfq6YB4d
-         e1NAyBx0QgT37ylxkzpfgXj6yxqcE5q1Q9m53fKXfPssJTkIHqYyP57nrdtreunurhqm
-         earw==
-X-Forwarded-Encrypted: i=1; AJvYcCWTC3bL4Wao6/lQZR5HIcxdRym3eDbKpD0zX4pkITr70V4IMTR0FIKlf/fsKQbV3iSqjSYWPM5NxS0ek2i+QQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx970v4kfmri8z0om8R4roUmdeUD431PUFNNbzdtoFLzR5lwScW
-	bLWylHGRCKwl3oZ1jHPmfdx19eD8kPHXL3AuFJJ5hcymtzhNKUr7TAaG8zP7egXtiiJuoN6Ex8j
-	a4vrvmoouDIB90OJDhnvGkcxxbMhUYM4QKf9dLVxBOZmTzwQwCKXhwes=
-X-Gm-Gg: ASbGncsi5hqq5jn9javnF8vHWQ5Q9mr5ZtsrBuWBb3orchw7PbbAaJ8+vd9q1jJeLTA
-	itK+fKuqBPWgrmDgJrVQKp8jrkx9g0mZ/nq8qw036Azs7ZZvkI5Tn0W1n3bj24cbWneYV8zTaUM
-	Lu2IP/q6RyYcEG0xcs2wA7uf5xleegDTSvCHy4OR4gYjJHRV2bviR0cAhansgmxB1cyM57baSaI
-	EpEtZrAOyatySpeXld7/LktKjZnvLyPPCopKIrCMYeUDcZ1XAOMZkr1mxGwvnw66KeDZRWmhdPW
-	0ZQlyZyH
-X-Google-Smtp-Source: AGHT+IFa9ljvRR5WUvUCaZfTLm7hMbr0s0gXY4Z8xyd4G3hJOoM33q/AgBVXBpVrjXnBNwqp4SvDMzk2kj+5SzisC3w=
-X-Received: by 2002:a5d:5849:0:b0:42b:3108:5671 with SMTP id
- ffacd0b85a97d-42f78896c0bmr9257554f8f.29.1764958012763; Fri, 05 Dec 2025
- 10:06:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="swoNLai6"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B5AQmK7025146;
+	Fri, 5 Dec 2025 18:55:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:to; s=pp1; bh=hkY55I0wH1o0bPSyujPgK
+	QtyxxItb6wLc0jdMgtBuEI=; b=swoNLai65TpksOxN0tpsFZrgBU5UPVMv0l2xv
+	bGmonYSTu6SjL6zxWtUP+DZ8CP4eiSvWnGoE3fAtJ07HfQhDn8mIdI1FYJqqYcmF
+	n3CC225psnCWFSnM5xQYt1MtXyrDCtorhkuT0QJPSZ7MivKN/d2BvB0JVXcAvzdR
+	FKgVBt2x0I6qQSVdjroYeXR1oEV2rSlHLZ0KyKP0vIFcQLDXrOYYsD96RsHNtsFh
+	D9dVsvFnwxpy6ZVxjEGkIQcanxlVMhTeqSRZpaCHplcxpfOjkb1qeTQlOOQvTKhs
+	gwL/E1sRQ3GFLkU6ftxroERXTjr8YBKqumJJ9sJBMPfzuNAcw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrbgqmb8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Dec 2025 18:55:01 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B5IpM61031245;
+	Fri, 5 Dec 2025 18:55:00 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrbgqmb4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Dec 2025 18:55:00 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B5I0Gqu024059;
+	Fri, 5 Dec 2025 18:54:59 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4arb5sy1c5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Dec 2025 18:54:59 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B5Istjd27853440
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 5 Dec 2025 18:54:55 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CA3A620043;
+	Fri,  5 Dec 2025 18:54:55 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EB7ED20040;
+	Fri,  5 Dec 2025 18:54:51 +0000 (GMT)
+Received: from linux.ibm.com (unknown [9.126.150.29])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri,  5 Dec 2025 18:54:51 +0000 (GMT)
+Date: Sat, 6 Dec 2025 00:24:51 +0530
+From: Srikar Dronamraju <srikar@linux.ibm.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        Ben Segall <bsegall@google.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Ingo Molnar <mingo@kernel.org>, Juri Lelli <juri.lelli@redhat.com>,
+        K Prateek Nayak <kprateek.nayak@amd.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Shrikanth Hegde <sshegde@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Swapnil Sapkal <swapnil.sapkal@amd.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        virtualization@lists.linux.dev, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Beata Michalska <beata.michalska@arm.com>
+Subject: Re: [PATCH 08/17] sched/core: Implement CPU soft offline/online
+Message-ID: <aTMqeylKyRwS7mn_@linux.ibm.com>
+Reply-To: Srikar Dronamraju <srikar@linux.ibm.com>
+References: <20251204175405.1511340-1-srikar@linux.ibm.com>
+ <20251204175405.1511340-9-srikar@linux.ibm.com>
+ <20251205160326.GF2528459@noisy.programming.kicks-ass.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: Lorenz Bauer <lmb@isovalent.com>
-Date: Fri, 5 Dec 2025 18:06:41 +0000
-X-Gm-Features: AQt7F2olyW0xN9Ns7uKzoZ8dEB8-EAV_B4TM-wor1XALAnT9pr9H9_dIptj-utQ
-Message-ID: <CAN+4W8hLrR1B1pNdDXiVuzoJ1q8Ta1kjV0v8vKVEZeHdRFKGcg@mail.gmail.com>
-Subject: virtio_console: lost wakeup due to race between port_fops_poll() and vring_interrupt()
-To: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux.dev, 
-	LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20251205160326.GF2528459@noisy.programming.kicks-ass.net>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 0JnT39zW7MDc1HnCm8VvGNiKv5pKaO-Q
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAxNiBTYWx0ZWRfXzY1ln51zytSW
+ HcLlG3QEIeFXdF1ip8twPdjAIIuk3qiNQWvpv9zqyeVj4o0cDtSRhH+j9z89inZ/leairwpdOIn
+ ABCMErGxp8L4UjmuiQjtsdQCS0o/8UupvF473eE0/jw+uqUFbDQfZ+PP/ojn01JvJcrAyM9TdMq
+ emIWiWK5OWQwru37R85JZKTXuRKtScpPDa5pFaVlUYsbUhvSa5YYgu+w6w5LBjj657Te0xISZOT
+ WvC7UoN4aAB5r3lp4tnLxa0XP431Cnb8czhKhXxiZtXv7YN1O0V5ar8cF/0AXTXuBZSfv7mOs8H
+ 7+HJQ889tZw6KVMxwNmNlRyKs17e0QAlhakY2pVaB2in9V64vYB1uWbKTvNWYKhe3JrIefYI1N1
+ 3IUyk0Vwl8AnBuHVVqokTnTWdPE2sw==
+X-Authority-Analysis: v=2.4 cv=UO7Q3Sfy c=1 sm=1 tr=0 ts=69332a85 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=8nJEP1OIZ-IA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=JfrnYn6hAAAA:8 a=aRRHB1lr27hSuLPYZcEA:9 a=wPNLvfGTeEIA:10
+ a=1CNFftbPRP8L7MoqJWF3:22
+X-Proofpoint-GUID: Idlp8Q6kZtfYsd_VtKLHTRVxwOIGAnR-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2025-12-05_06,2025-12-04_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 malwarescore=0 bulkscore=0 adultscore=0 priorityscore=1501
+ impostorscore=0 spamscore=0 phishscore=0 clxscore=1011 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510240000 definitions=main-2511290016
 
-Hi,
+* Peter Zijlstra <peterz@infradead.org> [2025-12-05 17:03:26]:
 
-I've been chasing a bug when using virtio console to exchange data
-between guest and host. It manifests in a process inside the guest
-getting stuck while writing to the serial port:
+Hi Peter, 
 
-    [<0>] wait_port_writable+0x139/0x2d0
-    [<0>] port_fops_write+0x88/0x130
-    [<0>] vfs_write+0xf3/0x450
-    [<0>] ksys_write+0x6d/0xe0
-    [<0>] do_syscall_64+0x9e/0x1a0
-    [<0>] entry_SYSCALL_64_after_hwframe+0x77/0x7
 
-I managed to track this down to a race in virtio_console.c. The driver
-doesn't properly account for a port that receives blocking writes and
-is polled at the same time. I suspect that a similar problem exists in
-port_fops_read().
+> 
+> What happens if you then offline one of these softoffline CPUs? Doesn't
+> that do sched_cpu_deactivate() again?
+> 
+> Also, the way this seems to use softoffline_mask is as a hidden argument
+> to sched_cpu_{de,}activate() instead of as an actual mask.
+> 
+> Moreover, there does not seem to be any sort of serialization vs
+> concurrent set_cpu_softoffline() callers. At the very least
+> update_group_capacity() would end up with indeterminate results.
+> 
 
-Here is how it goes. We need two threads inside the guest, A and B.
+To serialize soft_offline with actual offline, can we take cpu_maps_update_begin() / cpu_maps_update_done
 
-- Thread A writes to the serial port until the virtqueue fills up.
-- Thread A invokes port_fops_write() which calls wait_port_writable().
-There are no used buffers to reclaim and the thread is suspended,
-waiting on port->waitqueue.
-- The host side of the device makes some progress, marks some buffers
-as consumed / used and  sends an interrupt to the guest.
-- Before the guest can service the interrupt, thread B executes
-port_fops_poll(). This calls into
-  reclaim_consumed_buffers() via will_write_block(), which removes all
-used buffers.
-- The interrupt gets serviced, calling into vring_interrupt(). Here
-the check for more_used() returns false because the poll just went
-through all the work. The handler returns without waking
-port->waitqueue.
-- port_fops_write() never returns.
 
-I'm not exactly sure how to best fix this. Maybe it's enough to only
-check outvq_full in poll? It'd also be nice to fix this on the read
-side as well.
+> This all doesn't look 'robust'.
 
-I only have a reproducer which requires a Go toolchain unfortunately:
-https://github.com/lmb/vimto/issues/29
+I figured out when Shrikanth Hegde reported a warning to me today evening.
 
-Best
-Lorenz
+Basically pin a task to CPU, and then run workload so that the load causes steal and then do a cpu offline 
+Pinning just causes the window to be sure enough to hit the case easily.
+
+[  804.464298] ------------[ cut here ]------------
+[  804.464325] CPU capacity asymmetry not supported on SMT
+[  804.464341] WARNING: CPU: 575 PID: 2926 at kernel/sched/topology.c:1677 sd_init+0x428/0x494
+[  804.464355] Modules linked in: nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 bonding tls rfkill ip_set nf_tables nfnetlink sunrpc pseries_rng vmx_crypto drm drm_panel_orientation_quirks xfs sd_mod sg ibmvscsi scsi_transport_srp ibmveth pseries_wdt dm_mirror dm_region_hash dm_log dm_mod fuse
+[  804.464409] CPU: 575 UID: 0 PID: 2926 Comm: cpuhp/575 Kdump: loaded Not tainted 6.18.0-master+ #15 VOLUNTARY
+[  804.464415] Hardware name: IBM,9080-HEU Power11 (architected) 0x820200 0xf000007 of:IBM,FW1110.00 (OK1110_066) hv:phyp pSeries
+[  804.464420] NIP:  c000000000215c4c LR: c000000000215c48 CTR: 00000000005d54a0
+[  804.464425] REGS: c00001801cfff3c0 TRAP: 0700   Not tainted  (6.18.0-master+)
+[  804.464429] MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28828228  XER: 0000000c
+[  804.464441] CFAR: c000000000171988 IRQMASK: 0
+               GPR00: c000000000215c48 c00001801cfff660 c000000001c28100 000000000000002b
+               GPR04: 0000000000000000 c00001801cfff470 c00001801cfff468 000001fff1280000
+               GPR08: 0000000000000027 0000000000000000 0000000000000000 0000000000000001
+               GPR12: c00001ffe182ffa8 c00001fff5d43b00 c00001804e999548 0000000000000000
+               GPR16: 0000000000000000 c0000000015732e8 c00000000153f380 c00000012b337c18
+               GPR20: c000000002edb660 0000000000000239 0000000000000004 c000018029a26200
+               GPR24: 0000000000000000 c0000000029787c8 0000000000000002 c00000012b337c00
+               GPR28: c00001804e7cb948 c000000002ee06d0 c00001804e7cb800 c0000000029787c8
+[  804.464491] NIP [c000000000215c4c] sd_init+0x428/0x494
+[  804.464496] LR [c000000000215c48] sd_init+0x424/0x494
+[  804.464501] Call Trace:
+[  804.464504] [c00001801cfff660] [c000000000215c48] sd_init+0x424/0x494 (unreliable)
+[  804.464511] [c00001801cfff740] [c000000000226fd8] build_sched_domains+0x1c0/0x938
+[  804.464517] [c00001801cfff850] [c000000000228f98] partition_sched_domains_locked+0x4a8/0x688
+[  804.464523] [c00001801cfff940] [c000000000229244] partition_sched_domains+0x5c/0x84
+[  804.464528] [c00001801cfff990] [c00000000031a020] rebuild_sched_domains_locked+0x1d8/0x260
+[  804.464536] [c00001801cfff9f0] [c00000000031dde4] cpuset_handle_hotplug+0x564/0x728
+[  804.464542] [c00001801cfffd80] [c0000000001d9fa8] sched_cpu_activate+0x2d4/0x2dc
+[  804.464549] [c00001801cfffde0] [c00000000017567c] cpuhp_invoke_callback+0x26c/0xb20
+[  804.464556] [c00001801cfffec0] [c000000000177554] cpuhp_thread_fun+0x210/0x2e8
+[  804.464561] [c00001801cffff40] [c0000000001c1640] smpboot_thread_fn+0x200/0x2c0
+[  804.464568] [c00001801cffff90] [c0000000001b5758] kthread+0x134/0x164
+[  804.464575] [c00001801cffffe0] [c00000000000ded8] start_kernel_thread+0x14/0x18
+[  804.464581] Code: 4082fe5c 3d420120 894a2525 2c0a0000 4082fe4c 3c62ff95 39200001 3d420120 38639830 992a2525 4bf5bcbd 60000000 <0fe00000> 813e003c 4bfffe24 60000000
+[  804.464598] ---[ end trace 0000000000000000 ]---
+
+
+But this warning will still remain even if we take the cpu_maps_update_begin.
+
+This comes due to
+	WARN_ONCE((sd->flags & (SD_SHARE_CPUCAPACITY | SD_ASYM_CPUCAPACITY)) ==
+		  (SD_SHARE_CPUCAPACITY | SD_ASYM_CPUCAPACITY),
+		  "CPU capacity asymmetry not supported on SMT\n");
+
+which was recently added by 
+Commit c744dc4ab58d ("sched/topology: Rework CPU capacity asymmetry detection")
+Is there a way to tweak this WARN_ONCE?
+
+-- 
+Thanks and Regards
+Srikar Dronamraju
