@@ -1,116 +1,163 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65636340A70
-	for <virtualization@lists.linux.dev>; Thu,  4 Dec 2025 18:46:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4FB73126C02
+	for <virtualization@lists.linux.dev>; Fri,  5 Dec 2025 01:21:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764874000; cv=none; b=EHkD/J/jRfeThA1ARB0UTxHUXCs3at06uKkj3mA/c5yHTSYjON6KPIKmj2m0HAAiVc7r8Ecylt94EFXS8ztE/jFKdCkryp+EJt2eACqpOkoQtbu9o41Wy5FUaj+olawlmaV9/Eza6QgcN769W6OpSQk1PzvbUbQ8safgwIss/0g=
+	t=1764897711; cv=none; b=s47Pdd26nOH8umNiM7hZ9q7CY234ju55PXx0iAeF/68sBUIqAJIKNvIexm/TJzdWavG6cv/y7SfZlZdqGn2jrQV2bIInf06Adk17gjgI3Y5rqT4WYFvFcfsiPospMeMJRoUw/VuC/MZlQuZMoqCG5BiD94GmmFj+JkEcQbqeGm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764874000; c=relaxed/simple;
-	bh=kDmx+jqAM07EbGA0yxM6gKmHdbwT1pEl9YhR1+eZC6s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TDWKuzd2+Vj7v6nlMNwo84XzBAj2ASRELU+343DkfM5pBWlhwnvosUh0GjFZGiQmoIDU5mnNLQ8V1pEo4Ka6F9G0PadAkIZ3Q9Up62GMLn2qzadfGX23aFm4FaSIUxQjNH9gXNrMfnHb4CxjWoPBtzaHCppU5YzEaDHJ4yA/3AM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B3OOdyor; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B3OOdyor"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1764873997;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=U8fnsz7UCU3OpevI0Lzd6UBe25AmbBTPRZuBjUvVLRo=;
-	b=B3OOdyorsppUOAeg7ltiiEshkeEMYkA6yuq3zZToRfYgbTdyo5bu6an7LPbY+FWeRG4kY7
-	JiBBbs8VsJn5D0vBm6c6o/51Bk3i2H1mXYZR1vjMMR1d3594vsc1G1PlJbH6/mWZceCavs
-	IzwgdH7hA9E1Xun+baB/T+o5ntkgbGw=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-660-By74sW8_NQmRW3ROnSc9ng-1; Thu, 04 Dec 2025 13:46:35 -0500
-X-MC-Unique: By74sW8_NQmRW3ROnSc9ng-1
-X-Mimecast-MFC-AGG-ID: By74sW8_NQmRW3ROnSc9ng_1764873995
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4779b432aecso7794125e9.0
-        for <virtualization@lists.linux.dev>; Thu, 04 Dec 2025 10:46:35 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764873995; x=1765478795;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=U8fnsz7UCU3OpevI0Lzd6UBe25AmbBTPRZuBjUvVLRo=;
-        b=sM/0YfLp6M+M6kQo/vS0I5N9Nhcrk5Krl+h15zcJordJ49pDe7Wj00GAkwvTsJZnil
-         5nOqw7iKOheBMtc/gThpVrT0QW9i22wReN2DnEHPkTRO/sD+MLA7SpoG4CkX97WPZ+/w
-         5Dg8RlOgjC8ZZjoBPtEV6+fTHSTnf+G3lAHTzvv/8BiUXhbzG1ttJwE4GcE9zYDVzdOO
-         VOImxOdIX1ju5levLbYhiY9A6C8Me2sfksCwXrdeKldK8PkOEhL4jhh1z6+Wx0CJh7RB
-         aHwv44SvOhS5Gf9fdo2x+sHowA3OHvsisSvvUbjDJjQ77d0SktZe3HLF4Lsalv9H7bUK
-         Z2fg==
-X-Forwarded-Encrypted: i=1; AJvYcCXeHCzdCD+MQ12rFqjm6v7RYIDst5smDNRu97TaTl0HiYLs7CYVLtcMFZAoDEVDiCYl59viu9DQYCmhJ/NYwg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyNzbZecZin+NCS9os38QMCrrcRQA5Qdis4mPeLqH9lz/zEOfcp
-	I2FeoV4/Zh66T3ULkn1r5jpMr9x/O/OJmyiku8QgetTENAAyLtvN50ajgSu1hIR4LfNM66y33ah
-	IAfMO9/NZVa7yAfEeAirOjAsbl2QbzjLBWInjFL/v8ykI/3OyYO8QvRCVq+e7FjwjroCd
-X-Gm-Gg: ASbGncuQTJJrCBxAL+PR3H8+7Vx45dX/MOj2E/vHXRt7rMalRIZ4kHEaF2bcAcfZGIH
-	GyAmmEmEzBPe2mBm1xNbME3NkEuBQVAzZITYfJSx5gKtL8P1+WA3W9whebLm26TGxSkScX1PTsx
-	enNLD1rCPH54bj2Jrx3W9tdVnyUAKhwOaX7ph81j6c62Ku9UHHG90RB+3qing7K/jvrPSCMO5Mu
-	08OvjRGXX0ONGQ6nF3h8qHBac52eYgrJ4Y4pE8vBLFPbcQGM6ZHsTN2gbQMjiZElVN2flCYXe4A
-	HRT/WZRdRsqaMWPLSmiTNvRgp9NQoZJNELYV37u/v4E03gxiYoKXyUtCX8JdBYdz5YnPBdOQxa4
-	=
-X-Received: by 2002:a05:600c:4f54:b0:475:de14:db1e with SMTP id 5b1f17b1804b1-4792af34a2emr77374595e9.24.1764873994536;
-        Thu, 04 Dec 2025 10:46:34 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHu0n0WCg/9uJkwkcXw5SseF6XM8H8H31n2B0AiW3bqwpiZL+k/pr7wBSUNNGm0fRxkwJmIcw==
-X-Received: by 2002:a05:600c:4f54:b0:475:de14:db1e with SMTP id 5b1f17b1804b1-4792af34a2emr77374235e9.24.1764873994009;
-        Thu, 04 Dec 2025 10:46:34 -0800 (PST)
-Received: from redhat.com ([31.187.78.57])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47930920e0dsm49628085e9.2.2025.12.04.10.46.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Dec 2025 10:46:33 -0800 (PST)
-Date: Thu, 4 Dec 2025 13:46:32 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH 14/14] tools/virtio: add device, device_driver stubs
-Message-ID: <0fabf13f6ea812ebc73b1c919fb17d4dec1545db.1764873799.git.mst@redhat.com>
-References: <cover.1764873799.git.mst@redhat.com>
+	s=arc-20240116; t=1764897711; c=relaxed/simple;
+	bh=YwsG+rsrE/QM63dSd55mNebPJVlyXb85SzzErly9REY=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=EYzYGcXQEgLzsKWL3xkADSiGZJqJdiqKPnDV/I5kIeCzF0P+6tMEiG1KM5GiW+c1gur7Gf/fY74OSA9DG7SpWUbxcf92chpx/kjXy/xnKQDpg8c8YpVcwrhYTc6JxkBlzz1z/NpGfVHYIW6lKNYN0PxrrI9dH3Ufe6GVuezz1Hk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8Bx37+oMzJp_j4rAA--.25621S3;
+	Fri, 05 Dec 2025 09:21:44 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by front1 (Coremail) with SMTP id qMiowJBxzsGlMzJpwKZFAQ--.25707S3;
+	Fri, 05 Dec 2025 09:21:43 +0800 (CST)
+Subject: Re: [PATCH v2 7/9] crypto: virtio: Add IV buffer in structure
+ virtio_crypto_sym_request
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Gonglei <arei.gonglei@huawei.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=c3=a9rez?=
+ <eperezma@redhat.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+ "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux.dev,
+ linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20250701030842.1136519-1-maobibo@loongson.cn=20251204112227.2659404-1-maobibo@loongson.cn>
+ <20251204112502.2659544-1-maobibo@loongson.cn>
+ <20251204074712-mutt-send-email-mst@kernel.org>
+From: Bibo Mao <maobibo@loongson.cn>
+Message-ID: <4cf8befc-465c-e9de-ab12-9d0d8ca40d1f@loongson.cn>
+Date: Fri, 5 Dec 2025 09:19:12 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cover.1764873799.git.mst@redhat.com>
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: TTpIv7OikTj5_fBmR0JyujBwR4TFGhdrfawftgXyKJQ_1764873995
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <20251204074712-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJBxzsGlMzJpwKZFAQ--.25707S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxZFWrWw13ur45CF4xCr4DAwc_yoW5uFWDpr
+	s0ka93KrW8Jr17Ga4FqF1rXa4fuFZ0v3WxWr4ruFyfGrnIvrn7Wr17CFyjvF4SyF1UGr4U
+	Cr4v93yj9F1DCFXCm3ZEXasCq-sJn29KB7ZKAUJUUUUr529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUBjb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
+	Gr0_Gr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYI
+	kI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUXVWU
+	AwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
+	k0xIA0c2IEe2xFo4CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_
+	Gr1l4IxYO2xFxVAFwI0_Jrv_JF1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67
+	AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8I
+	cVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI
+	8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v2
+	6r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07jepB-UUUUU=
 
-Add stubs needed by virtio.h
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- tools/virtio/linux/device.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
 
-diff --git a/tools/virtio/linux/device.h b/tools/virtio/linux/device.h
-index 4ad7e1df0db5..075c2140d975 100644
---- a/tools/virtio/linux/device.h
-+++ b/tools/virtio/linux/device.h
-@@ -1,2 +1,10 @@
- #ifndef LINUX_DEVICE_H
-+
-+struct device {
-+	void *parent;
-+};
-+
-+struct device_driver {
-+	const char *name;
-+};
- #endif
--- 
-MST
+On 2025/12/4 下午8:48, Michael S. Tsirkin wrote:
+> On Thu, Dec 04, 2025 at 07:25:02PM +0800, Bibo Mao wrote:
+>> Add IV buffer in structure virtio_crypto_sym_request to avoid unnecessary
+>> IV buffer allocation in encrypt/decrypt process. And IV buffer is cleared
+>> when encrypt/decrypt is finished.
+>>
+>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>> ---
+>>   .../virtio/virtio_crypto_skcipher_algs.c      | 20 +++++++------------
+>>   1 file changed, 7 insertions(+), 13 deletions(-)
+>>
+>> diff --git a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
+>> index a7c7c726e6d9..c911b7ba8f13 100644
+>> --- a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
+>> +++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
+>> @@ -30,9 +30,9 @@ struct virtio_crypto_sym_request {
+>>   
+>>   	/* Cipher or aead */
+>>   	uint32_t type;
+>> -	uint8_t *iv;
+>>   	/* Encryption? */
+>>   	bool encrypt;
+>> +	uint8_t iv[0];
+>>   };
+>>   
+>>   struct virtio_crypto_algo {
+>> @@ -402,12 +402,7 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
+>>   	 * Avoid to do DMA from the stack, switch to using
+>>   	 * dynamically-allocated for the IV
+>>   	 */
+>> -	iv = kzalloc_node(ivsize, GFP_ATOMIC,
+>> -				dev_to_node(&vcrypto->vdev->dev));
+>> -	if (!iv) {
+>> -		err = -ENOMEM;
+>> -		goto free;
+>> -	}
+>> +	iv = vc_sym_req->iv;
+>>   	memcpy(iv, req->iv, ivsize);
+>>   	if (!vc_sym_req->encrypt)
+>>   		scatterwalk_map_and_copy(req->iv, req->src,
+>> @@ -416,7 +411,6 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
+>>   
+>>   	sg_init_one(&iv_sg, iv, ivsize);
+>>   	sgs[num_out++] = &iv_sg;
+>> -	vc_sym_req->iv = iv;
+>>   
+>>   	/* Source data */
+>>   	for (sg = req->src; src_nents; sg = sg_next(sg), src_nents--)
+>> @@ -438,12 +432,10 @@ __virtio_crypto_skcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
+>>   	virtqueue_kick(data_vq->vq);
+>>   	spin_unlock_irqrestore(&data_vq->lock, flags);
+>>   	if (unlikely(err < 0))
+>> -		goto free_iv;
+>> +		goto free;
+>>   
+>>   	return 0;
+>>   
+>> -free_iv:
+>> -	kfree_sensitive(iv);
+> 
+> so iv is no longer cleared on error. problem?
+yes, it is a problem, IV buffer should be cleared on error.
+Will fix on next version.
+
+Regards
+Bibo Mao
+> 
+>>   free:
+>>   	kfree(sgs);
+>>   	return err;
+>> @@ -501,8 +493,10 @@ static int virtio_crypto_skcipher_init(struct crypto_skcipher *tfm)
+>>   {
+>>   	struct virtio_crypto_skcipher_ctx *ctx = crypto_skcipher_ctx(tfm);
+>>   	struct skcipher_alg *alg = crypto_skcipher_alg(tfm);
+>> +	int size;
+>>   
+>> -	crypto_skcipher_set_reqsize(tfm, sizeof(struct virtio_crypto_sym_request));
+>> +	size = sizeof(struct virtio_crypto_sym_request) + crypto_skcipher_ivsize(tfm);
+>> +	crypto_skcipher_set_reqsize(tfm, size);
+>>   	ctx->alg = container_of(alg, struct virtio_crypto_algo, algo.base);
+>>   
+>>   	return 0;
+>> @@ -552,7 +546,7 @@ static void virtio_crypto_skcipher_finalize_req(
+>>   		scatterwalk_map_and_copy(req->iv, req->dst,
+>>   					 req->cryptlen - ivsize,
+>>   					 ivsize, 0);
+>> -	kfree_sensitive(vc_sym_req->iv);
+>> +	memzero_explicit(vc_sym_req->iv, ivsize);
+>>   	virtcrypto_clear_request(&vc_sym_req->base);
+>>   
+>>   	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
+>> -- 
+>> 2.39.3
+> 
 
