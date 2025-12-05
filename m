@@ -1,86 +1,109 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22E7015665C
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Dec 2025 03:04:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3825430276D
+	for <virtualization@lists.linux.dev>; Fri,  5 Dec 2025 07:46:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764903858; cv=none; b=er4/1cP3Nv1Jq57ZsC4QFXBztbRFI01hfSvtKyb8Lju0GtBy2VIrpJXA1iLWxGf+H1Eerx2LZZP8POPJSR4eI6LICAdBu8hawrnU86lbXrn0UXj/zQR60/PRCvgZxduqmU5rQLdrcpHdDqW7RqubYwP1C4I54bU16uIa1MhK0To=
+	t=1764920772; cv=none; b=DI8rc+7Fx1zmAcjem6ozOyjh/41f6lYrZ30Hht8VPKfZOjCZDavmMgn6im19HH5mPDL/hLpFu0cW8OlJClsCVmRUiRl3gAoWZEea+zwWT1tLdnA0wqA8ladarVIFPhHJEftz9vTaFmn+06dFjuZPqj34YZ1dh4mGUOcc7Id3nbc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764903858; c=relaxed/simple;
-	bh=/JQhc3V/qRD89UuPy9qhr18vhsDsM0Qv0lDC34gPhfA=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=o5oTErs59RqtWzaeUNEIV0/PIpJDnt4HY2ChewAu9/PfVbYzsqt2oje7WhGN8+pR8WXl9clB7Ytu28516yHt/luV3Bmq3AG7qmaHuhpdp1c+kFgPlTNEb1Kz3tJrpr/flQgAYygwlrl+tWlmQCdNSzghtaQR9yBjmwQs8gIrXpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e2sp4tge; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1764920772; c=relaxed/simple;
+	bh=HXtSwPAI2lC/ImQNYqZw2xOGmU6O3GtB13oXE7vjpQ4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FcbDAxxvhKB7ra9O3jhKGkOJ8LbGH+wjHsxlavanex3/2k47BRBA5VudMKdMHoTh9sGOXYRntTuxbRtIv/C7wRpaAnDzhLBTQLpNUWw75V7Xaknvuc8vI5S2oc1uh4M79ZQh4zHZhoyg4cchRsP2QOvhKw2qSUSx3PPp0e59NWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QCgeGtSh; arc=none smtp.client-ip=209.85.160.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e2sp4tge"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C5A20408D9
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Dec 2025 03:04:16 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 2hHywAVldbsL for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Dec 2025 03:04:16 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 212F74048A
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 212F74048A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=e2sp4tge
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 212F74048A
-	for <virtualization@lists.linux-foundation.org>; Fri,  5 Dec 2025 03:04:15 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id 5DDF343EA2;
-	Fri,  5 Dec 2025 03:04:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C6C6C4CEFB;
-	Fri,  5 Dec 2025 03:04:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1764903855;
-	bh=/JQhc3V/qRD89UuPy9qhr18vhsDsM0Qv0lDC34gPhfA=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=e2sp4tgeeJSkYr5EtF9YWosF6pstypUhquLr0xATJAoeMJypK13d62wtPyE/BuuF2
-	 bZaSzllReiPlqMfZZmouqsVIvKWlVpN1cL4vRQwzLDXi3xmuxYrKGhl8eAIoHvCDcu
-	 zmzzh73fg+2vjcuhHvW/xc3Dt5ikfOOnftACx5gd1w6pSUNtf5TQA6fGXV8ADClTSG
-	 NAW3lqtVtP9ZVI4qsNh5OMz9eGo/AYL2vkEFI0NzbiY2PgylwHiZHugcS6u5oKtYsi
-	 5Exje65zuax5F9jfiUdULVcy6LI15e57oknLU5rpo5aRXyU1E2CMm3JSAeZgnQB/tc
-	 IOkM0rBuyRj3Q==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 78B043AA9A89;
-	Fri,  5 Dec 2025 03:01:14 +0000 (UTC)
-Subject: Re: [GIT PULL] virtio,vhost: fixes, cleanups
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20251202150721-mutt-send-email-mst@kernel.org>
-References: <20251202150721-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <virtualization.lists.linux.dev>
-X-PR-Tracked-Message-Id: <20251202150721-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 205dd7a5d6ad6f4c8e8fcd3c3b95a7c0e7067fee
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: bc69ed975203c3ffe34f873531f3052914d4e497
-Message-Id: <176490367301.1073302.8927903391156784773.pr-tracker-bot@kernel.org>
-Date: Fri, 05 Dec 2025 03:01:13 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alex.williamson@redhat.com, alok.a.tiwari@oracle.com, jasowang@redhat.com, kriish.sharma2006@gmail.com, linmq006@gmail.com, marco.crivellari@suse.com, michael.christie@oracle.com, mst@redhat.com, pabeni@redhat.com, stable@vger.kernel.org, yishaih@nvidia.com
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QCgeGtSh"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-4edb7c8232aso22878831cf.3
+        for <virtualization@lists.linux.dev>; Thu, 04 Dec 2025 23:46:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1764920762; x=1765525562; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HXtSwPAI2lC/ImQNYqZw2xOGmU6O3GtB13oXE7vjpQ4=;
+        b=QCgeGtShn5sQIp+qXD9lLofuqOAz51ym4+jn2ZTqQjC1DsA0OFxxo688aXO2ns0eBc
+         yLyjYx17zfKWJxL6qzT+4ZqfSsAaVz4Fa9h76MDikj7QWXiKyPgT7aFkHKpJMls7/5WM
+         cuh29v3oRNRFXt7A0540rfSjx0xJ8Sd4/jZXf5WmGrFEFnfWO+UNFlqpJz+1dEFLsJlR
+         g+jJL8pdyxyzRghWbcF4CdU/+1Yp4eLSHpVmvjfUwRZmSmXi5BMRYSx75r8wR0SqCs8U
+         Z6LJFHRjzy9UHiWZLuDildxw20AkRRErYkmDjWykIJ9tHBDPnxJHveTW+T3meqNPujAL
+         MG/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764920762; x=1765525562;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=HXtSwPAI2lC/ImQNYqZw2xOGmU6O3GtB13oXE7vjpQ4=;
+        b=nlxS0rJpjEbp+QSUWmeW1LG+mWAo93T+VtLyVD7QbEmcOwS/8/Xyi0KV0llRXJwDtL
+         X+KCAYFG9bZx42O1hFmTw9N3e65PRKldK56YezrajaY11K3wUY6skXi8dnodA4Sv7sFY
+         C23TQ1hi2hREDHdZdulBUXlmFTiocNkYG7yXXHfUFXf+kiMQ5U8ImJCji8ksjzBdU+kZ
+         HoXThJbXGdejfa3XySvOUibrFge+aiu5RCQdT38KAAsf+trM6dLNtrBhygwFXn3O+/vr
+         +4yHmddwcfqaJQkWMkyGDe2x69ioTDX1ropHtjqeGSjUaptJEUlja5x3cKHIq8qBsoUZ
+         zPGQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWRO0/9CxgVcVHiG2ILtxijCjiyMsL54TI3u3CxOXLRygdPLoSFQmw1MEUJGv363S8Ku7HMmF/kD2AOss743A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YypP/Tbolzk+otEgh+vvzOTvg1PqlI+7NztaF/MTmp9OnRfAuzz
+	thfyBTWaDg5Zx29dMrohg3Qc3DrNM4r0ZbirMY2LZ7JpO9xZn+B0xJsXitk0IZKmFF3U4NSvlJl
+	PDmk0iKRzeFtLSmRW8wXlaDS7GA44BPk=
+X-Gm-Gg: ASbGncs50UpZfRGm2RX50dkgdwoMZCf0ZYe6ZM5nVIUaF46XefALf/ddvKtsHAbY2EX
+	Mmvtt3weuJc+ZNvz3RkXJc9kCgBhD3sU7iJ8+9MJoQs/f4GKkuQvZDhJWWtYZnavianFJDzj2Lr
+	jBC6lU14kNgPm5QZ0yMCnxkblNMBrFaCmPdukskkMViyOX+sApMU0xkqIqFF0deVPNYQtNkMmF1
+	R/0dpEW2rnQG0jIdTryTr/aymCexA/oVnY3u+hawKpyXCTAG27O0esEkT3PZ9BeVbbdkhjXSelC
+	S+ligw==
+X-Google-Smtp-Source: AGHT+IGno4YCEk34HtoQAUN6GrFl01k867Kp7tydcNcb8xmuE9aFUTESOSk0G3T3M/y8W6zfCnRmuyMISYmpdGJqEvo=
+X-Received: by 2002:a05:622a:5c6:b0:4ed:2164:5018 with SMTP id
+ d75a77b69052e-4f01770bf40mr116570781cf.80.1764920762038; Thu, 04 Dec 2025
+ 23:46:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20251128083219.2332407-1-zhangshida@kylinos.cn>
+ <20251128083219.2332407-7-zhangshida@kylinos.cn> <CANubcdUtncH7OxYg0+4ax0v9OmbuV337AM5DQHOpsBVa-A1cbA@mail.gmail.com>
+ <CAHc6FU5DAhrRKyYjuZ+qF84rCsUDiPo3iPoZ67NvN-pbunJH4A@mail.gmail.com> <CAHc6FU57xqs1CTSOd-oho_m52aCTorRVJQKKyVAGJ=rbfh5VxQ@mail.gmail.com>
+In-Reply-To: <CAHc6FU57xqs1CTSOd-oho_m52aCTorRVJQKKyVAGJ=rbfh5VxQ@mail.gmail.com>
+From: Stephen Zhang <starzhangzsd@gmail.com>
+Date: Fri, 5 Dec 2025 15:45:25 +0800
+X-Gm-Features: AWmQ_bnqjBxuauDVJJL96EAzZiNCKi7bmfbcq5aA841m6f5U8UUuamAPefRv5L8
+Message-ID: <CANubcdVuRNfygyGwnXQpsb2GsHy4=yrzcLC06paUbAMS60+qyA@mail.gmail.com>
+Subject: Re: [PATCH v2 06/12] gfs2: Replace the repetitive bio chaining code patterns
+To: Andreas Gruenbacher <agruenba@redhat.com>
+Cc: Johannes.Thumshirn@wdc.com, hch@infradead.org, ming.lei@redhat.com, 
+	Gao Xiang <hsiangkao@linux.alibaba.com>, linux-block@vger.kernel.org, 
+	linux-bcache@vger.kernel.org, nvdimm@lists.linux.dev, 
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org, 
+	gfs2@lists.linux.dev, ntfs3@lists.linux.dev, linux-xfs@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, zhangshida@kylinos.cn
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The pull request you sent on Tue, 2 Dec 2025 15:07:21 -0500:
+Andreas Gruenbacher <agruenba@redhat.com> =E4=BA=8E2025=E5=B9=B412=E6=9C=88=
+4=E6=97=A5=E5=91=A8=E5=9B=9B 17:37=E5=86=99=E9=81=93=EF=BC=9A
+>
+> On Mon, Dec 1, 2025 at 11:31=E2=80=AFAM Andreas Gruenbacher <agruenba@red=
+hat.com> wrote:
+> > On Sat, Nov 29, 2025 at 3:48=E2=80=AFAM Stephen Zhang <starzhangzsd@gma=
+il.com> wrote:
+> > > This one should also be dropped because the 'prev' and 'new' are in
+> > > the wrong order.
+> >
+> > Ouch. Thanks for pointing this out.
+>
+> Linus has merged the fix for this bug now, so this patch can be
+> updated / re-added.
+>
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Thank you for the update. I'm not clear on what specifically has been
+merged or how to verify it.
+Could you please clarify which fix was merged, and if I should now
+resubmit the cleanup patches?
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/bc69ed975203c3ffe34f873531f3052914d4e497
+Thanks,
+Shida
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+> Thanks,
+> Andreas
+>
