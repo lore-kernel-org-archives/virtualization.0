@@ -1,161 +1,84 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E6D83B8D50
-	for <virtualization@lists.linux.dev>; Fri,  5 Dec 2025 18:58:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41DFB1AAE28
+	for <virtualization@lists.linux.dev>; Sat,  6 Dec 2025 03:21:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764961114; cv=none; b=ia2aX2StHfllVEhONRvGDbyxxJDxOuikLkR5ZqUcz2BSHR8kzhLHN7IdFFhu6jSfhA3FeP5zxlTaaRSni5usVCbdFLxSXzMWtO2Xjir7M2CSWo0b1FHG+4c/1v9sDUNoqTcA7q5ZwcviwHQRrA/AUCHgWXZbmeVndo3nqf162wU=
+	t=1764991284; cv=none; b=USHs5wPV6CFCyRj97Hgr9Wjnquy6ulLs+9tZ7SvsUSTFyqXt5NWNw11H3Wyj9mY3MiJ+bJ0bxlpFRTUkMu43mKewFoStgy7nb3feRvZujZ9Z2zOP6WfWQZKma2LFys57a/KpJZ/tUj06oho5AWns5RwjiVDRrtxLu1tEmu3EZlg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764961114; c=relaxed/simple;
-	bh=gTHf/UuEt5sQ15ac3XQHwVsvywsvl7Zmegf6qsO6lZI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IdqfUWfVQfITqXm+vUYHD1LfhRfW/NNpEfd0tu7o7Nh/T2QwK+hjz2czMwTfCzCe4qMJq07QXgnLilX3S/SO4PPkEbQrf9sfYv4lLZO4+cWZ0uxm8hUn9re3nFz/Wxg4J6Qfg2SJUDZYG6oWo+/8KAYOGS1WLw6PjSARKRFUbj0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PIjobXfM; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1764991284; c=relaxed/simple;
+	bh=nYjcH9s7xGli7k3QBHsTFWjRc7+OkUyFPyDnQGOu0CQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UeGW1NF8cVX4UyqaPsZE4Fu1ktPb+alQKGODr25WgI2calylcFcnUVtkZY1zKKKx551NA/NvMYTv2Oh/jjOEbVsLfNMEnDA25kDhpy6Mk3EuqPpqpxSNp4qIDWMq2SHPmBkHzYOZKsh+qx6V0TN9YkVCfkNhmt6fjBE5vriFZZE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=kIrtot/h; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PIjobXfM"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5B5D9Xsa017680;
-	Fri, 5 Dec 2025 18:58:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:to; s=pp1; bh=9oUMt31tFn8DjFX4qRKjT
-	FTcsx0BuU9CQIV45NtX3Yg=; b=PIjobXfMexLZlOUAgfUyRgMwC0tFSa0B+nMa9
-	FeQ1WfXGTHH9t1SuPr59j5Yx/lBFCdQv3qhm/uNl0m+C5sf0ju5DoILT/uECmKu/
-	k5Rhr9frGi6QYci57VPLlRtl486z9vNZhhWWGgyH1isMdZ0CsUAPb/YEstJIPfd9
-	BEptC/NFMHOyKulx/CEz8Uvxk8fFCtkuepii+inltYWSYMba/hxexLwr9c/IfXk4
-	r3gYxIdusH/6clSIYa9x4nL6YUk5Z8iUdakF2L8km3eL3eYEtStdZdEzz+TU78Uo
-	HUfBI6Yju+giOY8vi5dSS9xzpm2V+BoiKKyQT75niDYxko+FA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrh7fesb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Dec 2025 18:58:07 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5B5Iu38U002483;
-	Fri, 5 Dec 2025 18:58:07 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4aqrh7fes6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Dec 2025 18:58:07 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5B5H9aoA024071;
-	Fri, 5 Dec 2025 18:58:05 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4arb5sy1t3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 05 Dec 2025 18:58:05 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5B5Iw2vA24511080
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 5 Dec 2025 18:58:02 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 186CC20043;
-	Fri,  5 Dec 2025 18:58:02 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 326EF20040;
-	Fri,  5 Dec 2025 18:57:58 +0000 (GMT)
-Received: from linux.ibm.com (unknown [9.126.150.29])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Fri,  5 Dec 2025 18:57:58 +0000 (GMT)
-Date: Sat, 6 Dec 2025 00:27:57 +0530
-From: Srikar Dronamraju <srikar@linux.ibm.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Ben Segall <bsegall@google.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Ingo Molnar <mingo@kernel.org>, Juri Lelli <juri.lelli@redhat.com>,
-        K Prateek Nayak <kprateek.nayak@amd.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Mel Gorman <mgorman@suse.de>, Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Shrikanth Hegde <sshegde@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Swapnil Sapkal <swapnil.sapkal@amd.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        virtualization@lists.linux.dev, Yicong Yang <yangyicong@hisilicon.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: Re: [PATCH 08/17] sched/core: Implement CPU soft offline/online
-Message-ID: <aTMrNXJmkzdW3CB5@linux.ibm.com>
-Reply-To: Srikar Dronamraju <srikar@linux.ibm.com>
-References: <20251204175405.1511340-1-srikar@linux.ibm.com>
- <20251204175405.1511340-9-srikar@linux.ibm.com>
- <20251205160723.GG2528459@noisy.programming.kicks-ass.net>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="kIrtot/h"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=IN
+	dg9dIg841Q66PNX6lFviRH0M+IGiepOLgShdZd3r8=; b=kIrtot/hU7C3Mjxra/
+	iOwYZgXjzPDSCoNVH95Tu6wlJhHK/ChLhH/Hy0LnJteCs0/lFAKrwHm2fNZ+foUF
+	bWyzG0I5sN/5i0EOxV4JhwG18RSpe0GM+MZIJ/NBMCS8wamew2c9cT+w3lMisHRD
+	Thioj7PhyvTBGWThZDIV1kCqg=
+Received: from rom-ubuntu.. (unknown [])
+	by gzga-smtp-mtada-g1-2 (Coremail) with SMTP id _____wDXzcEooTNpj_ByAA--.3976S2;
+	Sat, 06 Dec 2025 11:21:14 +0800 (CST)
+From: Yufeng Wang <r4o5m6e8o@163.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Yufeng Wang <r4o5m6e8o@163.com>,
+	virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org,
+	Haimei Qu <545714393@qq.com>
+Subject: [PATCH 1/2] tools: virtio: port over virtqueue_map_single_attrs define.
+Date: Sat,  6 Dec 2025 11:21:10 +0800
+Message-ID: <20251206032110.18923-1-r4o5m6e8o@163.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20251205160723.GG2528459@noisy.programming.kicks-ass.net>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=dK+rWeZb c=1 sm=1 tr=0 ts=69332b3f cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=8nJEP1OIZ-IA:10 a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=JfrnYn6hAAAA:8 a=w-QnvMon_CLLnCPMzYQA:9 a=wPNLvfGTeEIA:10
- a=1CNFftbPRP8L7MoqJWF3:22
-X-Proofpoint-GUID: OHs6pqoDEWGUHvMLMBZqBpHEszSpD-HS
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMTI5MDAyMCBTYWx0ZWRfX6AL0wVQkVrx9
- 9eDheMNN0BsckWBCiGrzjgk1H3CPdBlfk6fR91nrVvfRdVGJTT8BH39qQ/MhLiljKbWH3YW9TZ7
- lnkS7496AXkzHHn0Hoy88Gpiv9rzA//Nkxx+s8B+CBMaqAtd4ju/rQHZhRiGLTkdjJv4Kot/tar
- X77FEAPHtOcUster9srcLvDZNqLeXxqH/f3I9kL3wfjItTcuOXYxf4U8NV0j7Lcm/XqBlCD71Iw
- vQ6rxFd3/mLI/v1SW3Xa150bFmGErcHLsD7ScbbNEl9IF2+Rk9RQs04Sgd2b3XzuBxl2KkDVgUh
- zvefHIFKFHqgaqS46xVJkbHwXPCpaaGykdgogC6fY8meQvInsE6lIXvblokU7YAYy1aowt3bRJS
- bv3acAybwnmgKuaOM3XQpG7VUqsFVA==
-X-Proofpoint-ORIG-GUID: zz7UTINgXEyfX4_z4g-uyFwkgmaLD54A
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-05_06,2025-12-04_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
- bulkscore=0 adultscore=0 phishscore=0 impostorscore=0 spamscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510240000
- definitions=main-2511290020
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wDXzcEooTNpj_ByAA--.3976S2
+X-Coremail-Antispam: 1Uf129KBjvdXoW7Xw15Cw1furW5Xw17CrW3Wrg_yoWkJFg_Ar
+	1DXr1vgr4vkFW2vFW2yrySqr1fG3WxGF4DWF1FqFyrAFy5JFs8XFn3AFZ8GFy7Xw4I9F43
+	ZayrWrZ8Xw1agjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRKL0n7UUUUU==
+X-CM-SenderInfo: 3uurkzkwhy0qqrwthudrp/1tbiYAAcdWkzm-uLZwAAsf
 
-* Peter Zijlstra <peterz@infradead.org> [2025-12-05 17:07:23]:
+Fix compile error when make tools/virtio,
+port over the definition of virtqueue_map_single_attrs to tools.
+the issue begin at
+commit 447beec8065b ("virtio_ring: switch to use dma_{map|unmap}_page()")
+then the function name have been changed at
+commit b41cb3bcf67f ("virtio: rename dma helpers")
 
-> On Thu, Dec 04, 2025 at 11:23:56PM +0530, Srikar Dronamraju wrote:
-> > Scheduler already supports CPU online/offline. However for cases where
-> > scheduler has to offline a CPU temporarily, the online/offline cost is
-> > too high. Hence here is an attempt to come-up with soft-offline that
-> > almost looks similar to offline without actually having to do the
-> > full-offline. Since CPUs are not to be used temporarily for a short
-> > duration, they will continue to be part of the CPU topology.
-> > 
-> > In the soft-offline, CPU will be marked as inactive, i.e removed from
-> > the cpu_active_mask, CPUs capacity would be reduced and non-pinned tasks
-> > would be migrated out of the CPU's runqueue.
-> > 
-> > Similarly when onlined, CPU will be remarked as active, i.e. added to
-> > cpu_active_mask, CPUs capacity would be restored.
-> > 
-> > Soft-offline is almost similar as 1st step of offline except rebuilding
-> > the sched-domains. Since the other steps are not done including
-> > rebuilding the sched-domain, the overhead of soft-offline would be less
-> > compared to regular offline. A new cpumask is used to indicate
-> > soft-offline is in progress and hence skips rebuilding the
-> > sched-domains.
-> 
-> Note that your thing still very much includes the synchronize_rcu() that
-> a lot of the previous 'hotplug is too slow' crowd have complained about.
-> 
-> So I'm taking it that your steal time thing really isn't that 'fast'.
+Fixes: b41cb3bcf67fc ("virtio: rename dma helpers")
+Signed-off-by: Yufeng Wang <r4o5m6e8o@163.com>
+Tested-by: Haimei Qu <545714393@qq.com>
+---
+ tools/virtio/linux/virtio.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Yes, it does have synchronize_rcu()
-> 
-> It might be good to mention the frequency at which you expect cores to
-> come and go with your setup.
-
-We are expecting the cores to keep changing at a 1 second to 2second
-frequency.
-
+diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+index 961e326e3c53..b20e4b633859 100644
+--- a/tools/virtio/linux/virtio.h
++++ b/tools/virtio/linux/virtio.h
+@@ -97,4 +97,9 @@ void virtqueue_unmap_page_attrs(const struct virtqueue *_vq,
+ 				dma_addr_t dma_handle,
+ 				size_t size, enum dma_data_direction dir,
+ 				unsigned long attrs);
++
++dma_addr_t virtqueue_map_single_attrs(const struct virtqueue *_vq, void *ptr, size_t size,
++				      enum dma_data_direction dir, unsigned long attrs);
++
++
+ #endif
 -- 
-Thanks and Regards
-Srikar Dronamraju
+2.43.0
+
