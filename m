@@ -1,172 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A90F2F546D
-	for <virtualization@lists.linux.dev>; Sat,  6 Dec 2025 13:04:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 438DE2E645;
+	Sat,  6 Dec 2025 18:01:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765026272; cv=none; b=Ea6aCk6CDWxMtVMj34iSL7Uw7zU9bEgWeLmhb8BeVURdX4ZsC3tjI5nT9jxtrWW6rrYydKbFgIwUQ/66gv2eMBOmRZ1Epd0b+rVkS6czPdjPwc31/Dij5cLRHfhc/11+CuCKxmJjNJ3h4o/+XfnnYyHJaolYgDfhKSNMuUZV/RU=
+	t=1765044121; cv=none; b=FXUh7iOc2wd+/eSSyFMsuwi7MZbsbO0mgnPHfCsCwJftfRR8smk8j00rXb6evsY68PsTB/bVLhHjX1werznskTmXVOuuRz/3bs5tLouT+3BoxUavOMc3i7zIFj2DL18GCkrkdP93kAJtZwiyVD+SY8VhkTqoNJLld2Ud8Y9IrN0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765026272; c=relaxed/simple;
-	bh=f6w8GKLcyTB6JF9QFKvKWcWC3d4Y9g8k1COMmzuxYcc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RrnFvXI+DPM5AytFsrlFENti/DeAxj04YF+WV0UdyNnct4Xh10otkAimpkCeIegQJ0lkws67p5yvgmnUy2TniNJ6ZTR6wxUI3jb3i0yF7PZFtJdXDsZ7Xm7xdga5EVALcKxQaaC8J45ryhHBnAKmPBV+JVYMnlMS+L0NUfm7GzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GkNFAMmA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1765044121; c=relaxed/simple;
+	bh=YoHW8PPiN2rSkIW/NA0mZkSslyiXwDxRxy8s45eKEus=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Dqx1uUVb4TpGc6N+SxOq5PKNO8oHcU1Nw0LTlREpu+KEtA0PzFyZLRWxUJ65hG/H3GrlczCT4FRjli8cF4IkRMYQ97QfjgziQ9cfCQYP2N/ZcGkz4Nrkq515HeDqW3N1yEiv7g8hZX8yTAV3ezDhnvhN2X4W9CaJWildNdFhMso=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fKU+BuyT; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GkNFAMmA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3F5EC19423
-	for <virtualization@lists.linux.dev>; Sat,  6 Dec 2025 13:04:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1765026271;
-	bh=f6w8GKLcyTB6JF9QFKvKWcWC3d4Y9g8k1COMmzuxYcc=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=GkNFAMmAmDFQkYgcmRawvdZhNyjL9DnkCuwADtfZF77i+K7vCmI4lvi5mujvsWZv0
-	 RTTMF5zPeUqNyhPq9WAjkAriUqjlGDXylVhzTqFXENceIMCU+zchUptSKJG/3c3sEA
-	 aCpnx+fjcjpi0eJmjm2Ie9SYUJNrAUuPGcZLsvvMqNzulWGN4/1/CVsj9yt186PZCo
-	 yiuQCD53KqjqYkHtXJagm6uBH2p98NWsDT/VKmrv85c30SLZD/zDZpOGx2FbWOnfkQ
-	 Um2Gu7fNwgAzYPVAGlmurBmv3kU4dlimbjyEz9uuz7/YM1dEdzz9x8cgsRyVtKsr3q
-	 VWvs9nwWRIQCw==
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-63c489f1e6cso4784040a12.1
-        for <virtualization@lists.linux.dev>; Sat, 06 Dec 2025 05:04:31 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXFIMVasT4APXOlIpv/KaxMk42BlDDl8FXCbgXkCZSbonc+XBaTMLNOdxWgZspFGxTZ4iSePXK0YvOMlmx0ig==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxxrGMTqk1ekZUKGFmsgykdhviTdR9HW2X7mYySz3FbmUOmVZtl
-	vQPV8h2sjfX5Ah3WFgfUIKdYQQXEr3um/VHSkhH0u8MWEvJjGBkZouermjpolDv60xfaYWikHQD
-	+T+Zd9sCe4Zu21LztYVf80jlP1kMd5c4=
-X-Google-Smtp-Source: AGHT+IEQmCCsR3G0nnHiXY3DaEBGBB7kS5YwzeI79lE6X/JIXgz+7IpcckU2qmbjqcUkWUBOjlx647jMBDEp5U1XgpI=
-X-Received: by 2002:a05:6402:7c5:b0:643:130b:c615 with SMTP id
- 4fb4d7f45d1cf-647a69f7c28mr6965230a12.6.1765026270188; Sat, 06 Dec 2025
- 05:04:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fKU+BuyT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1765044120; x=1796580120;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=YoHW8PPiN2rSkIW/NA0mZkSslyiXwDxRxy8s45eKEus=;
+  b=fKU+BuyTcRZYfPX1wBgEcT7VV7298DM2/MPx6qzmaRk1Z9hYBONZAL8L
+   ERE+I/pjLVnuR9TlgTf68egGrZE7Bgv/IYA9/3rYb6EJe4E84fjsj8i0d
+   mUXsaD0s/NyWT66WwhE4nMq1xcrFaCovvpbFXsZbeS6zIYYgyU09yNxuL
+   Zjvhdm4rimAJH8bZMf48ih7t+r2nj0jQWvfzLhncc4W8LputEzM9qwK4v
+   6o4joRuZqZHQluQg9OVqrr5cosqXXOwDa+0LgCyPYQq0SnG+8ng45vxJa
+   5f0keV9AQcfpbI69kupQJTOwmeYd3rHJIefdvJcGQ+c6FQEjXZLZx2yhD
+   Q==;
+X-CSE-ConnectionGUID: id+CwKC0QpibuEZVkCzJ8g==
+X-CSE-MsgGUID: lFrfe0xTSJ+S/oVoURK1dQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11634"; a="70896811"
+X-IronPort-AV: E=Sophos;i="6.20,255,1758610800"; 
+   d="scan'208";a="70896811"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Dec 2025 10:01:59 -0800
+X-CSE-ConnectionGUID: mbVIpTMvSQGcpHRVZsdDmg==
+X-CSE-MsgGUID: s4k9r/igRSCDKCoEwdGvBg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.20,255,1758610800"; 
+   d="scan'208";a="195384340"
+Received: from lkp-server01.sh.intel.com (HELO 4664bbef4914) ([10.239.97.150])
+  by orviesa009.jf.intel.com with ESMTP; 06 Dec 2025 10:01:55 -0800
+Received: from kbuild by 4664bbef4914 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vRwbP-00000000IeP-3eOd;
+	Sat, 06 Dec 2025 18:01:51 +0000
+Date: Sun, 7 Dec 2025 02:01:45 +0800
+From: kernel test robot <lkp@intel.com>
+To: zhangshida <starzhangzsd@gmail.com>, Johannes.Thumshirn@wdc.com,
+	hch@infradead.org, agruenba@redhat.com, ming.lei@redhat.com,
+	hsiangkao@linux.alibaba.com, csander@purestorage.com
+Cc: oe-kbuild-all@lists.linux.dev, linux-block@vger.kernel.org,
+	linux-bcache@vger.kernel.org, nvdimm@lists.linux.dev,
+	virtualization@lists.linux.dev, ntfs3@lists.linux.dev,
+	linux-xfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+	zhangshida@kylinos.cn, starzhangzsd@gmail.com
+Subject: Re: [PATCH v3 3/9] block: prevent race condition on bi_status in
+ __bio_chain_endio
+Message-ID: <202512070122.my7vkR7A-lkp@intel.com>
+References: <20251129090122.2457896-4-zhangshida@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251202024833.1714363-1-maobibo@loongson.cn> <20251202024833.1714363-3-maobibo@loongson.cn>
-In-Reply-To: <20251202024833.1714363-3-maobibo@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Sat, 6 Dec 2025 21:04:28 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H6D_XxGTgWjzO26JtBcNeaouqrzH1wTaCn7xK3HGtZ55w@mail.gmail.com>
-X-Gm-Features: AQt7F2p9K_N94AlOPCX3W_nmLtf-HTSyeJvn6fd8y1gDiTD0xesIvfAukaTi9wA
-Message-ID: <CAAhV-H6D_XxGTgWjzO26JtBcNeaouqrzH1wTaCn7xK3HGtZ55w@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] LoongArch: Add paravirt support with
- vcpu_is_preempted() in guest side
-To: Bibo Mao <maobibo@loongson.cn>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>, 
-	Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>, 
-	Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251129090122.2457896-4-zhangshida@kylinos.cn>
 
-Hi, Bibo,
+Hi zhangshida,
 
-On Tue, Dec 2, 2025 at 10:48=E2=80=AFAM Bibo Mao <maobibo@loongson.cn> wrot=
-e:
->
-> Function vcpu_is_preempted() is used to check whether vCPU is preempted
-> or not. Here add implementation with vcpu_is_preempted() when option
-> CONFIG_PARAVIRT is enabled.
->
-> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-> ---
->  arch/loongarch/include/asm/qspinlock.h |  3 +++
->  arch/loongarch/kernel/paravirt.c       | 23 ++++++++++++++++++++++-
->  2 files changed, 25 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/incl=
-ude/asm/qspinlock.h
-> index e76d3aa1e1eb..fa3eaf7e48f2 100644
-> --- a/arch/loongarch/include/asm/qspinlock.h
-> +++ b/arch/loongarch/include/asm/qspinlock.h
-> @@ -34,6 +34,9 @@ static inline bool virt_spin_lock(struct qspinlock *loc=
-k)
->         return true;
->  }
->
-> +#define vcpu_is_preempted      vcpu_is_preempted
-> +bool vcpu_is_preempted(int cpu);
-> +
->  #endif /* CONFIG_PARAVIRT */
->
->  #include <asm-generic/qspinlock.h>
-> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/par=
-avirt.c
-> index b1b51f920b23..b61a93c6aec8 100644
-> --- a/arch/loongarch/kernel/paravirt.c
-> +++ b/arch/loongarch/kernel/paravirt.c
-> @@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
->  }
->
->  #ifdef CONFIG_SMP
-> +static DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
->  static int pv_time_cpu_online(unsigned int cpu)
->  {
->         unsigned long flags;
-> @@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigned int cpu=
-)
->
->         return 0;
->  }
-> +
-> +bool notrace vcpu_is_preempted(int cpu)
-> +{
-> +       struct kvm_steal_time *src;
-> +
-> +       if (!static_branch_unlikely(&virt_preempt_key))
-> +               return false;
-> +
-> +       src =3D &per_cpu(steal_time, cpu);
-> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
-> +}
-> +EXPORT_SYMBOL(vcpu_is_preempted);
->  #endif
->
->  static void pv_cpu_reboot(void *unused)
-> @@ -308,6 +321,9 @@ int __init pv_time_init(void)
->                 pr_err("Failed to install cpu hotplug callbacks\n");
->                 return r;
->         }
-> +
-> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
-> +               static_branch_enable(&virt_preempt_key);
->  #endif
->
->         static_call_update(pv_steal_clock, paravt_steal_clock);
-> @@ -318,7 +334,12 @@ int __init pv_time_init(void)
->                 static_key_slow_inc(&paravirt_steal_rq_enabled);
->  #endif
->
-> -       pr_info("Using paravirt steal-time\n");
-> +#ifdef CONFIG_SMP
+kernel test robot noticed the following build warnings:
 
-Linux kernel is removing non-SMP step by step [1].
-https://kernelnewbies.org/Linux_6.17#Unconditionally_compile_task_scheduler=
-_with_SMP_support
+[auto build test WARNING on axboe/for-next]
+[also build test WARNING on xfs-linux/for-next nvdimm/libnvdimm-for-next linus/master brauner-vfs/vfs.all v6.18 next-20251205]
+[cannot apply to nvdimm/dax-misc]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Though we cannot remove all "#ifdef CONFIG_SMP" at present, we can at
-least stop adding more.
+url:    https://github.com/intel-lab-lkp/linux/commits/zhangshida/md-bcache-fix-improper-use-of-bi_end_io/20251129-170348
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux.git for-next
+patch link:    https://lore.kernel.org/r/20251129090122.2457896-4-zhangshida%40kylinos.cn
+patch subject: [PATCH v3 3/9] block: prevent race condition on bi_status in __bio_chain_endio
+config: loongarch-randconfig-r133-20251130 (https://download.01.org/0day-ci/archive/20251207/202512070122.my7vkR7A-lkp@intel.com/config)
+compiler: loongarch64-linux-gcc (GCC) 14.3.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20251207/202512070122.my7vkR7A-lkp@intel.com/reproduce)
 
-So I prefer to make this whole patch out of CONFIG_SMP. But if you
-don't like this, you can at least move the virt_preempt_key
-declaration out of "#ifdef CONFIG_SMP", then the #ifdefs here can be
-removed.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202512070122.my7vkR7A-lkp@intel.com/
 
-Huacai
+sparse warnings: (new ones prefixed by >>)
+>> block/bio.c:319:17: sparse: sparse: cast from restricted blk_status_t
+>> block/bio.c:319:17: sparse: sparse: cast from restricted blk_status_t
+>> block/bio.c:319:17: sparse: sparse: cast to restricted blk_status_t
 
-> +       if (static_key_enabled(&virt_preempt_key))
-> +               pr_info("Using paravirt steal-time with preempt enabled\n=
-");
-> +       else
-> +#endif
-> +               pr_info("Using paravirt steal-time with preempt disabled\=
-n");
->
->         return 0;
->  }
-> --
-> 2.39.3
->
->
+vim +319 block/bio.c
+
+   313	
+   314	static struct bio *__bio_chain_endio(struct bio *bio)
+   315	{
+   316		struct bio *parent = bio->bi_private;
+   317	
+   318		if (bio->bi_status)
+ > 319			cmpxchg(&parent->bi_status, 0, bio->bi_status);
+   320	
+   321		bio_put(bio);
+   322		return parent;
+   323	}
+   324	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
