@@ -1,226 +1,126 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 494FD770FE
-	for <virtualization@lists.linux.dev>; Mon,  8 Dec 2025 15:48:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E0582DC779
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 15:54:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765208918; cv=none; b=qBdOK2XrRoq3KMyamzb2BU+UOgp1/50Gx18W+xwC4nLVt047dW6KNssdr6hMQ6rHZG5TdzFYFzs5AeAgiSuq1x0U2gwA2wcKmEgCmqxvmaBa3IfG52MYcfjZ4kLS2i4t49s0UpSeRPoqSJ4qwrFc19qQ4nE4fuZNZa67A99a2ec=
+	t=1765209262; cv=none; b=XfAyd5W3ytgw0oxkJ/bT8jCGsPaKwJpvk72kQI/cVLwFBqSsNRkcMZs/68Tu3Ha0yGIuwUUKAKkW5L4gMEBaabrp/SGdamqay4uz5fU8EKUK7ZtC1BhJ+UqWrIgJ3CLodboSPAU2KG4UI0q3/OpYoe/dqULnrsjWEo0FsiTvU5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765208918; c=relaxed/simple;
-	bh=GIe51SBbOV61i2OkQiV+hl9lrmVGOhg2GykPvA68RG4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pFRFjpeJ46QFBkziBQXcDpBc94JmVAEJP9vi6N+EcrsmsUl+787CGG4UBNfXkC4z2w8oSNCbrA/1dgOkHyWK11VVDlCSbNjU4B82EhArA1ufDGzIEKRsMFIRJGmjaQotXcif6iueNYreJ/D2rSe+XYtDXFgsMo4kt9LV/zJ8/ug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P9BxssQo; arc=none smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1765209262; c=relaxed/simple;
+	bh=OVTRU43Y8iq9jUvQUUyZEMdf6yAVz8c+fJZkaLWTRZU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jx+cVXB4IDzIX3xT0nc+vrOaMlHQqnORGg7UgBfaJGdvzKA8xpVtJz2ryhZMnSD1qb+PNFNIxw8nt3bWfpw9GCk2FZgr4JSR1ep99jQMZ2V8sVtGY1rX4VlzUY696LFTFHowwQjsoGxBZL4IPXX4tPMjKT1JHOCTE97gujac+uI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TiGzDiai; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P9BxssQo"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-29555b384acso47163095ad.1
-        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 07:48:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765208915; x=1765813715; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=HGv9aN7BEkdqP9E26uFmq1NkbKlMnXUqNJ54IveYt7c=;
-        b=P9BxssQoA/k25xsf281vx2s6b1yzyjW42jb9n3/+xJP5fhPIew5f2wfBa89s4CyNPJ
-         +v0Okim62eDrv1BdqOJeSAYibTSUF0AsWWlO9jVuI1wlbqTHlzJNSVX1n+vJumR0Z8mn
-         C4vTAjDINDpxPBhduYA8M0vndEzxdXCUwPbOwqIO9v9byQFO20XUB8mUUglusD20l5c4
-         /Kq5Ra8RiigSk65odLqErPr+FUuyjUHIy16Ep6oZUrK940U9ccP4/76bM8z5C1inzLzQ
-         WaUF2c/ZE38sxQkETb3xH8zrVg+OjN7GRuFEt52q5fT+Zz6/L5KDxPEvnCV2lebB/MQn
-         hLng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765208915; x=1765813715;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=HGv9aN7BEkdqP9E26uFmq1NkbKlMnXUqNJ54IveYt7c=;
-        b=XzG30BTYwl3l2klnz0oJm5mgBMcFvWO/X4Ec/FnmUtkq+oox8KtRys0vvewtszs1w3
-         VzhnJDk2deVxnnwJmBn12p8u1nPyqEYmw2wUV8cZbLvuY2i/dAqza0AqNLSWw9oJKxpb
-         Z2CgefQ94qIf1nV1xJngejghrC5swuNuHFpjLVfv6bPy8IxutawzfAX000b8CO3ipXoE
-         c7woJV7POt6N62TbQ23Goqk/5Ex8aQAhuIkgJgGUk0MUZ6kqSYZSOCXHyOPRYzp0inh2
-         xuj42t0cUynQf6pUfRICaMdztUY/xSesfihBUgybiIp1FXkP3SQOgdCXixXLwz4YtNkK
-         WTZw==
-X-Forwarded-Encrypted: i=1; AJvYcCW3GVc5nLiiTkFsDmGxIQt+uPHdR7sek4wWCgaZbio1WEizbgGtdmOgzgzaq3nr1OcoTNquK00f2dxCCU23GA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxbVuUCxLsBNeQCA8ZBjbZ5pVWoLdzAAH/oeiiwBjGwdV+khjOJ
-	DO5RZ1F4O72xXp+Mk2asI0D0P1chUTjSoVa5ytlaxnczDp3SSIAiejkd
-X-Gm-Gg: ASbGncvj2BtuVPPTAOH4jwWRzgJUx6b4AvmnHpBVkZHNtInBnCx8xq6LoK+iKg0VUtG
-	wX3lYftlfEaBCmPRYaj80TJYLLl9yMwmV2iZZ3GeqpcfrMBKNJKnhSPwJAa0Q9h28C4sXZ3JEs4
-	gIeykI+h2+zAOP/bOFqmYy0Z1h9XVZdfcafixbmHKwKTY2huBoPaFRuDak71Y/zkvuy9ylHQgw+
-	ZUlWHzNQAGvUlb1QN+AiueypXQAQ7oeSUQC39vRnBeWzj1xMSE/BQzGrz0yUWcytc1s7ExqNgLU
-	FjLQKzGQhLHHEWoTojk7iGtvZS6M7WU/oyNUnZxI+FnkwV57A4okAvRGkCY8cdm75MMatttZmGN
-	YcaQCrdmHxhSS3IMK7WpxFfKTJx9ko1OC9pcleG+KLBF1mliqt4DUuTkLYiepSS/mrAwSrtsfiX
-	pZKVnGRfGKT5OGJzel9h6vD9mjlR6h/6IcEI3yfxnCkroLVdthslkixSoxca2GYQ==
-X-Google-Smtp-Source: AGHT+IHXpWgQsZZVkYiBPmILc7RuvE2kIhv57m1OcBr+zSddLJY/KSgXIs3QQTHErJ1IF0Y6gXvhwg==
-X-Received: by 2002:a17:902:f64e:b0:297:dde4:8024 with SMTP id d9443c01a7336-29df55763efmr81526195ad.23.1765208914432;
-        Mon, 08 Dec 2025 07:48:34 -0800 (PST)
-Received: from ?IPV6:2001:ee0:4f4c:210:2998:e0cd:90d5:9648? ([2001:ee0:4f4c:210:2998:e0cd:90d5:9648])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29dae49ca50sm128075925ad.20.2025.12.08.07.48.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Dec 2025 07:48:33 -0800 (PST)
-Message-ID: <39958cd6-3ab1-433a-8eed-129304bc059e@gmail.com>
-Date: Mon, 8 Dec 2025 22:48:26 +0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TiGzDiai"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 13458608C5
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 15:54:21 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.46
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 8C9xfVY7feQr for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Dec 2025 15:54:20 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=stefanha@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 08BF060880
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 08BF060880
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TiGzDiai
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 08BF060880
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 15:54:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1765209258;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=L+fzhReh8EtCE8bREBvU+OX1gSfPrhaD/fQ9jUc7a9w=;
+	b=TiGzDiai3QgGWJTRCN4G8UefLkl9NT88I1m+rhqDWx59i+llDpLRnwNePp8XEDzInwvkfb
+	Ksk7I5iTx7O4StGDr7YBmrRgxr1jVrI3pxTPzM0y2Ekf6utySMHjIo/PHe22TpEa2cUj0j
+	08gwI7wtGqmphzpCqTCbi+jyp2Bf7RE=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-81-BKRltJU9MqqLldLTcuwOEQ-1; Mon,
+ 08 Dec 2025 10:54:16 -0500
+X-MC-Unique: BKRltJU9MqqLldLTcuwOEQ-1
+X-Mimecast-MFC-AGG-ID: BKRltJU9MqqLldLTcuwOEQ_1765209255
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 24A4319560A5;
+	Mon,  8 Dec 2025 15:54:15 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.112])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 633491800451;
+	Mon,  8 Dec 2025 15:54:14 +0000 (UTC)
+Date: Mon, 8 Dec 2025 10:54:12 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Cc: mst@redhat.com, sgarzare@redhat.com,
+	virtualization@lists.linux-foundation.org, oren@nvidia.com,
+	aevdaev@nvidia.com, aaptel@nvidia.com
+Subject: Re: [PATCH 1/1] virtio: add driver_override support
+Message-ID: <20251208155412.GB1346548@fedora>
+References: <20251208143925.32246-1-mgurtovoy@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] virtio-net: enable all napis before scheduling refill
- work
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-References: <20251208153419.18196-1-minhquangbui99@gmail.com>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <20251208153419.18196-1-minhquangbui99@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="2IwqIqsCwx9tJmDY"
+Content-Disposition: inline
+In-Reply-To: <20251208143925.32246-1-mgurtovoy@nvidia.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On 12/8/25 22:34, Bui Quang Minh wrote:
-> Calling napi_disable() on an already disabled napi can cause the
-> deadlock. In commit 4bc12818b363 ("virtio-net: disable delayed refill
-> when pausing rx"), to avoid the deadlock, when pausing the RX in
-> virtnet_rx_pause[_all](), we disable and cancel the delayed refill work.
-> However, in the virtnet_rx_resume_all(), we enable the delayed refill
-> work too early before enabling all the receive queue napis.
->
-> The deadlock can be reproduced by running
-> selftests/drivers/net/hw/xsk_reconfig.py with multiqueue virtio-net
-> device and inserting a cond_resched() inside the for loop in
-> virtnet_rx_resume_all() to increase the success rate. Because the worker
-> processing the delayed refilled work runs on the same CPU as
-> virtnet_rx_resume_all(), a reschedule is needed to cause the deadlock.
-> In real scenario, the contention on netdev_lock can cause the
-> reschedule.
->
-> This fixes the deadlock by ensuring all receive queue's napis are
-> enabled before we enable the delayed refill work in
-> virtnet_rx_resume_all() and virtnet_open().
->
-> Fixes: 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
-> Reported-by: Paolo Abeni <pabeni@redhat.com>
-> Closes: https://netdev-ctrl.bots.linux.dev/logs/vmksft/drv-hw-dbg/results/400961/3-xdp-py/stderr
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 
-I forgot to add Cc:stable@vger.kernel.org. I will add in next version.
+--2IwqIqsCwx9tJmDY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Quang Minh.
-
+On Mon, Dec 08, 2025 at 04:39:25PM +0200, Max Gurtovoy wrote:
+> Add support for the 'driver_override' attribute to Virtio devices. This
+> allows users to control which Virtio bus driver binds to a given Virtio
+> device.
+>=20
+> If 'driver_override' is not set, the existing behavior is preserved and
+> devices will continue to auto-bind to the first matching Virtio bus
+> driver.
+>=20
+> Signed-off-by: Avraham Evdaev <aevdaev@nvidia.com>
+> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
 > ---
->   drivers/net/virtio_net.c | 59 +++++++++++++++++++---------------------
->   1 file changed, 28 insertions(+), 31 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 8e04adb57f52..f2b1ea65767d 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2858,6 +2858,20 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
->   	return err != -ENOMEM;
->   }
->   
-> +static void virtnet_rx_refill_all(struct virtnet_info *vi)
-> +{
-> +	bool schedule_refill = false;
-> +	int i;
-> +
-> +	enable_delayed_refill(vi);
-> +	for (i = 0; i < vi->curr_queue_pairs; i++)
-> +		if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> +			schedule_refill = true;
-> +
-> +	if (schedule_refill)
-> +		schedule_delayed_work(&vi->refill, 0);
-> +}
-> +
->   static void skb_recv_done(struct virtqueue *rvq)
->   {
->   	struct virtnet_info *vi = rvq->vdev->priv;
-> @@ -3216,19 +3230,14 @@ static int virtnet_open(struct net_device *dev)
->   	struct virtnet_info *vi = netdev_priv(dev);
->   	int i, err;
->   
-> -	enable_delayed_refill(vi);
-> -
->   	for (i = 0; i < vi->max_queue_pairs; i++) {
-> -		if (i < vi->curr_queue_pairs)
-> -			/* Make sure we have some buffers: if oom use wq. */
-> -			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> -				schedule_delayed_work(&vi->refill, 0);
-> -
->   		err = virtnet_enable_queue_pair(vi, i);
->   		if (err < 0)
->   			goto err_enable_qp;
->   	}
->   
-> +	virtnet_rx_refill_all(vi);
-> +
->   	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
->   		if (vi->status & VIRTIO_NET_S_LINK_UP)
->   			netif_carrier_on(vi->dev);
-> @@ -3463,39 +3472,27 @@ static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
->   	__virtnet_rx_pause(vi, rq);
->   }
->   
-> -static void __virtnet_rx_resume(struct virtnet_info *vi,
-> -				struct receive_queue *rq,
-> -				bool refill)
-> -{
-> -	bool running = netif_running(vi->dev);
-> -	bool schedule_refill = false;
-> -
-> -	if (refill && !try_fill_recv(vi, rq, GFP_KERNEL))
-> -		schedule_refill = true;
-> -	if (running)
-> -		virtnet_napi_enable(rq);
-> -
-> -	if (schedule_refill)
-> -		schedule_delayed_work(&vi->refill, 0);
-> -}
-> -
->   static void virtnet_rx_resume_all(struct virtnet_info *vi)
->   {
->   	int i;
->   
-> -	enable_delayed_refill(vi);
-> -	for (i = 0; i < vi->max_queue_pairs; i++) {
-> -		if (i < vi->curr_queue_pairs)
-> -			__virtnet_rx_resume(vi, &vi->rq[i], true);
-> -		else
-> -			__virtnet_rx_resume(vi, &vi->rq[i], false);
-> +	if (netif_running(vi->dev)) {
-> +		for (i = 0; i < vi->max_queue_pairs; i++)
-> +			virtnet_napi_enable(&vi->rq[i]);
-> +
-> +		virtnet_rx_refill_all(vi);
->   	}
->   }
->   
->   static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
->   {
-> -	enable_delayed_refill(vi);
-> -	__virtnet_rx_resume(vi, rq, true);
-> +	if (netif_running(vi->dev)) {
-> +		virtnet_napi_enable(rq);
-> +
-> +		enable_delayed_refill(vi);
-> +		if (!try_fill_recv(vi, rq, GFP_KERNEL))
-> +			schedule_delayed_work(&vi->refill, 0);
-> +	}
->   }
->   
->   static int virtnet_rx_resize(struct virtnet_info *vi,
+>  drivers/virtio/virtio.c | 34 ++++++++++++++++++++++++++++++++++
+>  include/linux/virtio.h  |  4 ++++
+>  2 files changed, 38 insertions(+)
+
+What is the use case? Is there something missing in existing drivers
+that cannot be added to them by extending the code?
+
+Stefan
+
+--2IwqIqsCwx9tJmDY
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmk29KQACgkQnKSrs4Gr
+c8iDoQf/e9e8heNPGsQkG+yYiVATiQ0QZvNbSoJCcznQe3lCT8x+cXGZf1t8Nj05
+WGWTEwLd3tCe77FaqRBUoj5hSPt1TC3+p29ytDenLV8QU5m9/1jgGo9i80U8o+oV
+dAmo36NB3ZocipjH43bTBDLMiMieBOY6eRdnsj1sVRXvKFC1vXO2z6HTQfwTVcGX
+NO1N/zyEophSqjeYwpwGZAzPm3C6yhbglkdsTTCbZsK/kRtz3DIT+gyIUJrt61n5
+IddCUsNC3QYeuLjCF/6s8fP5C/MvG5KIQRPANARqM3GYSDMCYVpzgDGxZiZIkOj7
+zkv1kmTEuJb1wcnOHbOuBeo9V0XmKw==
+=UrfE
+-----END PGP SIGNATURE-----
+
+--2IwqIqsCwx9tJmDY--
 
