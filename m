@@ -1,122 +1,185 @@
-Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
+Received: from mail-oo1-f80.google.com (mail-oo1-f80.google.com [209.85.161.80])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBE6D30FC26
-	for <virtualization@lists.linux.dev>; Mon,  8 Dec 2025 11:17:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 388BA30FF10
+	for <virtualization@lists.linux.dev>; Mon,  8 Dec 2025 11:21:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.80
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765192673; cv=none; b=K5fgkOdtkvF8PAnaeXT8R2ObYm5GN8yhx2+zbldqaSetiplQslu0ZCEpc4oCbE+txDINVWqLJJ4oCx1weo8D0fFYC60cKoaeLWalHq0u0TFYGZsyYXPsLZzlt+v4AKEmgOF1wwInwszwxN9tt2ZPnzeLcutjBZ9hnvbmBgaS8Q0=
+	t=1765192887; cv=none; b=t7onft6t0pHwA6cNppjF65jwiywsqs/O16ZGKrTF9nXSx5t6zYRr9FRPrVbn2pdlgyryXG/GUjWOjHGPPWbUxABljITIUzbWWnPkd1Vo7SCl6e3cyXFBwBgRp+b9CuhYeoTFotQZKbfkQKIkBpZG6RJCixxaygZJovZ5ibLe7Ww=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765192673; c=relaxed/simple;
-	bh=X2DLDNd1kYdj8vkfX5yl6SioDgHZyj4Tv8fX06kV5zM=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=EDl5jNwU4wKA78Ely0xZSiOp1ZOl7AJl4jbm6O8LMd73W6mDtwvLawIel7zwybff8UVh6YxTq5AhJZVEqhjjyD0I72fefanZOybO6Z5zKU2nTx6iRJIbxIlPs53XGR7LpxTan95yTtk4HOLMxWp+LTsju5Lsc5JBlT5p6qOxOB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JB4Nuyjk; arc=none smtp.client-ip=209.85.208.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JB4Nuyjk"
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-37a5bc6b491so36836181fa.0
-        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 03:17:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765192670; x=1765797470; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=pOCG7eO+IOYvs+xd7ddninCpQb0paex7uyJ3Uh9q6PY=;
-        b=JB4NuyjkGnFakp5KBLxXw1V/lM9WQ3ZiG8PgmKKocLxzBMJYgm+cOTC5wWdTYef7KW
-         s15rzg7TBIjLmODUh4qCu9cET8sLedE9WYoiMTq2LRJnzVduNAb3VloOoUb6PLm9kv4y
-         H99JcGd8PJn//rKP5c36iz8p+EZ9zWeN0ztF4b/cIsF6uj5ITMuyslfNfVRsK9hwSPBI
-         uYbjDowuTuW8G7lO6slcqeYMkMf5F7GRMX9VsXfFwwp+Z5KVLRvrX0GE++VV1OrevKzb
-         ktf/kAYx0WpIWaevuj1KoUo4mCavd06KZdCLyPGWow+6YFQjBBA6lRa5+fUIoUlj07pP
-         iSow==
+	s=arc-20240116; t=1765192887; c=relaxed/simple;
+	bh=/aFtt90Az4pmsZ8iGym0ES0kZyqG19+Un08bBTYx2e0=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=rS+qC5dhM0hHMnpK2dvxbfiHAXE+bm/xx5+ZeUTCjbPZNxtXZkI7OaEZ4oIMtHSrdgKnc/POlQIlu87pLQ6eUnp0fTXPMC8S8TS9X2b1HOzPtLJeRB9QZhSyeU3dzsAnEgax8jt7GjCOZ1vTgyF6+o65cNsgSThObJDNCOGKouo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo1-f80.google.com with SMTP id 006d021491bc7-6573d873f92so3034266eaf.2
+        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 03:21:25 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765192670; x=1765797470;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pOCG7eO+IOYvs+xd7ddninCpQb0paex7uyJ3Uh9q6PY=;
-        b=CY8NMlz0/oPconVBbhYOVtFn/rnHx0p5T0ei6CBtmYl8m6xUpKA9+vP3GJsKZpXqfX
-         USW4dGMBPt7g1zT6KH7Hgl1Vn2i7ViRvTC6E9Z/0SbDUERebU3xWHj+OhiHHqyTjUIRe
-         knDcLIHdFNsPvPduJX8NWnRqkIjfB9j4TwbRbGyMEcL1VrD+KUvxYHODbroB3mtjh+NU
-         PcBgggQO4O7m/Z9KItzxGWfLgajnfLEtP/c9bD59rZyiBJETteLYjn6bsffXEEwpJqhj
-         ZlFmseJj9CxzaSL0cItqHklRUJM5EGnXqhQdanpBt1mBaegVvn2cPOVZ/C67Hz20NWcT
-         CqVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX9OJyMXnd/FMR1RV2rf1ZcH+LBztzk974Uxo+8zMB1oDFbyTB6FGmbPl6MTeHhF/Iy5dCpuwoSekNselsLcA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YykxN+rf+bxB14H8F2/r+hQ4ATMgA7uNyGylqpC3BGLs2zr5mtt
-	tOuyCh6iw41WAxmfpSdzlCE2AKCJiIC87GP3PmVtN5kpWqUWFcQ2pdD+
-X-Gm-Gg: ASbGnctF3nj5oihEdf/4Y7QdWX5E5ZXUDvb94V8Oj8cD99IORuB3TJjmUAawCO5vbZ3
-	1/XWpMOC/sxTN0Ed2i1DakFyzPOu20A3FNwplDady5KtC351CKKjxExnzLITR8PoekPOKfwSycN
-	LnL0ddbnKUmVB7sraDPrAI75jB4QiYNdO/2XA+F8G1C8Uh/2qJG5JQV5rV3Qfe1BbmcG8a/QKQs
-	lIsFIIC6MtRlmB1w6/koWf24v2kkyJPMGjPd1SCKjWkbIv9Vq39UigmnBhUbxmKxrU5zLMFmBU3
-	FDra7CutGK3yZ+tGlrDoBmoDbA9zwz5ZocDxc4s0FGk1eUithytuRh/vAsBfj7bifope77Nv25s
-	0Vox1LOUgzRNn8WA6+DYokUpNtK7YlH24EWosTebnxY8MiYG2tGMIgknqQZUEguKBJam8mckxGx
-	6jFFadTBowx1EXqqnAZ5Rrc3rRYyJD11C62HldNQt34K4+6uBN
-X-Google-Smtp-Source: AGHT+IFWmyERvTDs7Paip7pT+B/ATRQZHULExlPL+PNu3lhsbGI7kGlW5/9g5j/0woCl75JPzc8beA==
-X-Received: by 2002:a2e:a989:0:b0:37b:a395:fd68 with SMTP id 38308e7fff4ca-37ed1fba490mr19694081fa.10.1765192669416;
-        Mon, 08 Dec 2025 03:17:49 -0800 (PST)
-Received: from home-server.lan (89-109-48-215.dynamic.mts-nn.ru. [89.109.48.215])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-37e7065591dsm36754761fa.43.2025.12.08.03.17.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Dec 2025 03:17:49 -0800 (PST)
-From: Alexey Simakov <bigalex934@gmail.com>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Alexey Simakov <bigalex934@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Dave Airlie <airlied@redhat.com>,
-	virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	lvc-project@linuxtesting.org
-Subject: [PATCH] drm/bochs: avoid sign extension in video memory size
-Date: Mon,  8 Dec 2025 14:16:41 +0300
-Message-Id: <20251208111641.4160-1-bigalex934@gmail.com>
-X-Mailer: git-send-email 2.34.1
+        d=1e100.net; s=20230601; t=1765192884; x=1765797684;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=tEYM2xG6zvxNmktooPVFzI3lRUI4aVQvufBVk+XlwKY=;
+        b=DEW5/qTaC9wiZ6a4v92c87LE0bw/e0wyPp2XR9+C6/qwmuCxEUL9AX87EIDXDmssfe
+         tpSac/DELUTOL9GY1x3jHwOCYjjJoubNr4TIz13Ff5IXo18ful/deTql8YHmEGNkhpve
+         iPxZ8tsZ3MK3TMWKc3Yh9lSYVajp4hjXCPaoWjQ/IQ+lxDaPjnTj1TxUK6XdJ6288GO6
+         YM/KSMw5k3UMF6jVRQZt1zoVC4I9YtmdxT+XnRqbe+NGm/ZaF5J9xXMeZuOkw9qrcfps
+         mNKL/xolIJZIb0abD3R8tU52hrS2U/U0JHBZ9ae8SmcldPh1tnSCiDjqhp6AAmHkpF8q
+         kKYw==
+X-Forwarded-Encrypted: i=1; AJvYcCWVZX5IB6uCvOjD2rQIVdIQbtl5uuR0M8iaKToerOV+WH4dF+Vc2NJFQRgL0daRdESRHdjKBziMUOri540lEQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw5c6aKj3ULEzPUxw5TiAqo6+oB5aHNxpS9IrPrLu7MPF4D85Kf
+	iIayFSioMJNUKRL4YYEO/U3QJTKQJHQAEsYYmBzlox193RIiASZmWBo/fiqAXZgGHtjbCgwInZR
+	ikEK9BuuNyKTuTd0LhmfY+IVEpPRSZbKZFpY/mKp0jWeNiQEdqjf4+WwyNmI=
+X-Google-Smtp-Source: AGHT+IHRm3ejNmfcW4LHNiAooQdI9hhnzIDedTnijxOW9l7hRpYkRtK1l5LXbaM2iTGlLgIpVC9FznyzKCfC/E6RHGE87LKdtgil
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6820:823:b0:659:9a49:8ddb with SMTP id
+ 006d021491bc7-6599a8e9e58mr3333218eaf.29.1765192884397; Mon, 08 Dec 2025
+ 03:21:24 -0800 (PST)
+Date: Mon, 08 Dec 2025 03:21:24 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6936b4b4.a70a0220.38f243.00a2.GAE@google.com>
+Subject: [syzbot] [net?] [virt?] BUG: sleeping function called from invalid
+ context in __bpf_stream_push_str
+From: syzbot <syzbot+b1546ad4a95331b2101e@syzkaller.appspotmail.com>
+To: ast@kernel.org, bpf@vger.kernel.org, davem@davemloft.net, 
+	edumazet@google.com, horms@kernel.org, houtao1@huawei.com, jkangas@redhat.com, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, martin.lau@kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, sgarzare@redhat.com, 
+	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
+	wangfushuai@baidu.com
+Content-Type: text/plain; charset="UTF-8"
 
-When bochs_dispi_read() returns a value in the 0x8000–0xFFFF range,
-the expression bochs_dispi_read() * 64 * 1024 is computed in signed
-int and then promoted to unsigned long, which can lead to
-int -> unsigned long sign extension.
+Hello,
 
-Cast the multipliers to unsigned long so that the multiplication is
-done in unsigned long and covers the full range of the DISPI video
-memory register without sign extension.
+syzbot found the following issue on:
 
-The QEMU stdvga device using the bochs dispi interface exposes video
-memory up to 256 MB, so this change is made against malicious or
-out-of-spec return values from the device.
+HEAD commit:    559e608c4655 Merge tag 'ntfs3_for_6.19' of https://github...
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=164fdcc2580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=74c2ec4187efdce
+dashboard link: https://syzkaller.appspot.com/bug?extid=b1546ad4a95331b2101e
+compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1446301a580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=112c3f42580000
 
-Found by Linux Verification Center (linuxtesting.org) with Svace.
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/7d28798cb263/disk-559e608c.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/239e800627b8/vmlinux-559e608c.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/e89da2cc9887/bzImage-559e608c.xz
 
-Fixes: 0a6659bdc5e8 ("drm/bochs: new driver")
-Signed-off-by: Alexey Simakov <bigalex934@gmail.com>
+The issue was bisected to:
+
+commit 0db4941d9dae159d887e7e2eac7e54e60c3aac87
+Author: Fushuai Wang <wangfushuai@baidu.com>
+Date:   Tue Oct 7 07:40:11 2025 +0000
+
+    bpf: Use rcu_read_lock_dont_migrate in bpf_sk_storage.c
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=10cd3c1a580000
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=12cd3c1a580000
+console output: https://syzkaller.appspot.com/x/log.txt?x=14cd3c1a580000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+b1546ad4a95331b2101e@syzkaller.appspotmail.com
+Fixes: 0db4941d9dae ("bpf: Use rcu_read_lock_dont_migrate in bpf_sk_storage.c")
+
+BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:48
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 6128, name: syz.3.73
+preempt_count: 2, expected: 0
+RCU nest depth: 1, expected: 1
+3 locks held by syz.3.73/6128:
+ #0: ffff8880493da398 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1700 [inline]
+ #0: ffff8880493da398 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_connect+0x152/0xd40 net/vmw_vsock/af_vsock.c:1546
+ #1: ffffffff8d5aeba0 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:331 [inline]
+ #1: ffffffff8d5aeba0 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:867 [inline]
+ #1: ffffffff8d5aeba0 (rcu_read_lock){....}-{1:3}, at: __bpf_trace_run kernel/trace/bpf_trace.c:2074 [inline]
+ #1: ffffffff8d5aeba0 (rcu_read_lock){....}-{1:3}, at: bpf_trace_run9+0x1ec/0x510 kernel/trace/bpf_trace.c:2123
+ #2: ffff8880b893fd48 (&s->lock_key#14){+.+.}-{3:3}, at: spin_lock include/linux/spinlock_rt.h:44 [inline]
+ #2: ffff8880b893fd48 (&s->lock_key#14){+.+.}-{3:3}, at: ___slab_alloc+0x12f/0x1400 mm/slub.c:4516
+Preemption disabled at:
+[<ffffffff82179f5a>] class_preempt_constructor include/linux/preempt.h:468 [inline]
+[<ffffffff82179f5a>] __migrate_enable include/linux/sched.h:2378 [inline]
+[<ffffffff82179f5a>] migrate_enable include/linux/sched.h:2429 [inline]
+[<ffffffff82179f5a>] __slab_alloc+0xea/0x1f0 mm/slub.c:4777
+CPU: 1 UID: 0 PID: 6128 Comm: syz.3.73 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/25/2025
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x189/0x250 lib/dump_stack.c:120
+ __might_resched+0x44b/0x5d0 kernel/sched/core.c:8830
+ __rt_spin_lock kernel/locking/spinlock_rt.c:48 [inline]
+ rt_spin_lock+0xc7/0x3e0 kernel/locking/spinlock_rt.c:57
+ spin_lock include/linux/spinlock_rt.h:44 [inline]
+ ___slab_alloc+0x12f/0x1400 mm/slub.c:4516
+ __slab_alloc+0xc6/0x1f0 mm/slub.c:4774
+ __slab_alloc_node mm/slub.c:4850 [inline]
+ kmalloc_nolock_noprof+0x1be/0x440 mm/slub.c:5729
+ bpf_stream_elem_alloc kernel/bpf/stream.c:33 [inline]
+ __bpf_stream_push_str+0xa8/0x2b0 kernel/bpf/stream.c:50
+ bpf_stream_stage_printk+0x14e/0x1c0 kernel/bpf/stream.c:306
+ bpf_prog_report_may_goto_violation+0xc4/0x190 kernel/bpf/core.c:3203
+ bpf_check_timed_may_goto+0xaa/0xb0 kernel/bpf/core.c:3221
+ arch_bpf_timed_may_goto+0x21/0x40 arch/x86/net/bpf_timed_may_goto.S:40
+ bpf_prog_262a74d054ad2993+0x53/0x5f
+ bpf_dispatcher_nop_func include/linux/bpf.h:1376 [inline]
+ __bpf_prog_run include/linux/filter.h:723 [inline]
+ bpf_prog_run include/linux/filter.h:730 [inline]
+ __bpf_trace_run kernel/trace/bpf_trace.c:2075 [inline]
+ bpf_trace_run9+0x2de/0x510 kernel/trace/bpf_trace.c:2123
+ __bpf_trace_virtio_transport_alloc_pkt+0x2d7/0x340 include/trace/events/vsock_virtio_transport_common.h:39
+ __do_trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
+ trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
+ virtio_transport_alloc_skb+0x10af/0x1110 net/vmw_vsock/virtio_transport_common.c:311
+ virtio_transport_send_pkt_info+0x694/0x10b0 net/vmw_vsock/virtio_transport_common.c:390
+ virtio_transport_connect+0xa7/0x100 net/vmw_vsock/virtio_transport_common.c:1072
+ vsock_connect+0xaca/0xd40 net/vmw_vsock/af_vsock.c:1611
+ __sys_connect_file net/socket.c:2080 [inline]
+ __sys_connect+0x323/0x450 net/socket.c:2099
+ __do_sys_connect net/socket.c:2105 [inline]
+ __se_sys_connect net/socket.c:2102 [inline]
+ __x64_sys_connect+0x7a/0x90 net/socket.c:2102
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xfa/0xf80 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f0c4d91f749
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffd8ed26ac8 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007f0c4db75fa0 RCX: 00007f0c4d91f749
+RDX: 0000000000000010 RSI: 0000200000000080 RDI: 0000000000000003
+RBP: 00007f0c4d9a3f91 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f0c4db75fa0 R14: 00007f0c4db75fa0 R15: 0000000000000003
+ </TASK>
+
+
 ---
- drivers/gpu/drm/tiny/bochs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index d2d5e9f1269f..943bceadd2f4 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -258,7 +258,7 @@ static int bochs_hw_init(struct bochs_device *bochs)
- 
- 	id = bochs_dispi_read(bochs, VBE_DISPI_INDEX_ID);
- 	mem = bochs_dispi_read(bochs, VBE_DISPI_INDEX_VIDEO_MEMORY_64K)
--		* 64 * 1024;
-+		* 64UL * 1024UL;
- 	if ((id & 0xfff0) != VBE_DISPI_ID0) {
- 		DRM_ERROR("ID mismatch\n");
- 		return -ENODEV;
--- 
-2.34.1
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
 
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
