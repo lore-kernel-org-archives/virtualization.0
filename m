@@ -1,175 +1,168 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BCD529B8D0
-	for <virtualization@lists.linux.dev>; Mon,  8 Dec 2025 02:08:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87F0A27AC45
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 02:47:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765159722; cv=none; b=bZgo9fWG4yRh3L2zmB3JqZfFa82o6r2qe0FJcM8iK8L+WkrEgBCxkM7kG2WC14E5h6Ijn0pLRA2Na0qh7nlVqVftPASeBhPIWiltZbiMTbggEf6KlQJPwMSJrzFhx5e4fRo21J6Q+G62BTaKyWgMdPOQal2hrEkAXHrYgOlDNO8=
+	t=1765162064; cv=none; b=Ly9Y8r8EJxd4SMNTSfD33RyLmb4IgWbUikZasYN5NzKPhkaFk3oVD61r8Cz7hnK1VlZzRLbfc7q0RXPymSdVNv/+ghP663WhJo85hF+92H418bUASjSAScxb+4roIiPFKYyKVHoLkESEY1MzvoImxMI/KZlPZ0WpDXGXu1zn4l8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765159722; c=relaxed/simple;
-	bh=bYbtRNJ146aC3TMQ8IfFXUbxO5W12g8YSi8uv7SMoh8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RaFZ7eUdAh3qZTXIbp+/Fxl67BO4UpHUu21u5MKbsF3NMxeu52Ej6h4N2KDicZlSJck4Qe+f66MpSAqMUso14knECdvOccfG++3zHsAeGPYY4sRq+xrXwuYlurI8D9mRWsAAuqtLxcX2GJc8b3TJ7q953JRzztzoEs2ixf6YpHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=bFYKzZAI; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=bBnpSTL3; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1765162064; c=relaxed/simple;
+	bh=6TwHcb5iUovQX1XFCXHnFY38ZruK56VM+5PnT7qnu20=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=L5HxhCjsQMLToOdi7I4ExmRRYuZLfTEbJnjrZ24lQ64qcMZ7+1RisRGPYUi3O5M1RgJtNBoNKOwxH9QNynvYTMm+vB0ZdNvAYGl07BLT95cbIaF5/O1tqLpvA+ytwd04Np1Z8zJIH2jQe4I1rbX95jqkokT+0c2AEeujAFnmud0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jlxYSQnw; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="bFYKzZAI";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="bBnpSTL3"
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5B7MGY2S3693658
-	for <virtualization@lists.linux.dev>; Mon, 8 Dec 2025 02:08:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=2CpbeJ+C4anMYVxEHfQh4qSBUe7MaqTj+bc
-	fxqoQ/vY=; b=bFYKzZAII+9IPC9cDmTe3CL+5j1hBTMXnsFTVvvocwHERVZPzzE
-	B7ut+SM49EogVJxmGHt7IJ74HMiWsQc0xCCyBQ9ZE8avP0iILPjCxhXEFWFwIk3K
-	Ezm2RfCA9z0Q5WMZr+nc2i1zO7b58V9M7AErtpQUQ3p9wh9sDSyaKF6Cy8S7e0SB
-	ri9+MxmeZLlwr+tsXLr6RRH/F/vC5welCyZqGMaPZ/yOPOxCBtiAc4ldCcOhcwwW
-	1azyh4aUD6I72/Fo7IIjXtOKEVL9WJ0KCtXQTMHsKjhfAu69xDkKPRVlN/5D/ZOV
-	MhEXDI6RfcMQRbirR9V2bHo8K1dplWQ4dyQ==
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4avbga3cdg-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 02:08:38 +0000 (GMT)
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-340c261fb38so6804584a91.0
-        for <virtualization@lists.linux.dev>; Sun, 07 Dec 2025 18:08:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1765159718; x=1765764518; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=2CpbeJ+C4anMYVxEHfQh4qSBUe7MaqTj+bcfxqoQ/vY=;
-        b=bBnpSTL3XRqyZATwYp4YuwzwN+BL97yQ1cifUzeZulGnk7TkgMz91njg0iCTNQzqPz
-         JudZWexSGSgD76vRPJCWzz7jpeA+PrhaDNbTMlkiRayrIp4Zqjlz6NWbbgfvHuQ8sAc4
-         8D7LDNp9h0PrC7SH7YCoyEAEWUaQuGXE5N1KFJtHwXE88VFlEMp6Vlgfi2UaNdpiHf8u
-         mRQaO+etwbNnRwcnexjzcgw2H9dMJbg17OxwVPHlccQHlQzDxcrg/ArADYb8xCXfdKbA
-         dP8oArrBBipdPT04xeJqhCqFVAERLhZ4HrCb84+bpH8zjMXk7t6JD+FhLrOdl2ThO8yt
-         j5fQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765159718; x=1765764518;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2CpbeJ+C4anMYVxEHfQh4qSBUe7MaqTj+bcfxqoQ/vY=;
-        b=h90Lw1zZVxtcaECeVA0ZzI0u750L8yV5loWsH8bP7K6Bhf1hvBq5il28mI0EKNWxX/
-         U1vB2VhO1b+d5GbdVasyf8D5WqOlXROjBfQEP3BVVg3lQsWX+T5sNZrjjUn/fYNGTKZB
-         pmjEs5eZal9QKJqip9SotFF3qidELr3fZj5EoFvVAQZCD6WCDh5LQ1uAiNvGxrl+seTk
-         CxZBTk6rGHnPZfEDERAGDwhjXfeHrcA/gu9X49XRFtO5j4Uj0mHRyh09jbBvRVvAUFk5
-         Q+g2XGkbfIWOY2nrhBN6YWo6xI/tss1r5HbxSsl7H8oZcTb1c7QqKqS7Tahrn9YdZkDO
-         dL+g==
-X-Forwarded-Encrypted: i=1; AJvYcCWpWe8uXVCBZL00sgAwkAI5qpRdEBqe6cHUnHC9dlPKAQKZsbPqYm4Wfg+sq5t+Wkv2RGjqper9ibDgHEE7OQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxchsGIhQd/wBqtV6LXM3p64j9nm6hsJVJ+dmMQ2NFbdNdlvr2X
-	9ltN2bQXiVDTK64i0y1+NRBPeaCS4vca+JdFWhuKj3C1bQsvujhKPYautNCAxJXU+fdHvm+XTnH
-	jLtpvkFQ5SH1rE73OpO4AP4v8wBcPDw27jI1Hp3y2RncBOWidzSDUdEdyHNWWHMoVmXDtkw==
-X-Gm-Gg: ASbGncsdhfj+qc5K/IYxDjWW+xHekPolosBvvBIaanbXtbRX1MuglD0zUZi8WQEJqMj
-	Q02MZZhsJszLfyuDYgmGA/YFGeL/C1bIUyKUuMzp/JCIfvaPD13HsJ9lSECbP62QvmBgv6ME7iv
-	ovWoafZ/e28bEdiHDnXFmd44CBcIHjqVq4qTLSb+Q8bFsz0WpKz5zjZGOQa+qbduenIGg25GNUD
-	9DhXcYS+3uSgU4suFLxN4LFeH4aH9+jG+tSwmEus7dj3IEKL6b5Sxj1XeGJr7n37cUMoAf+1gRO
-	trdgogS/2o1uQSgrndMGufzkDGbpl1QXTiCjS2/Wj3LMxqot2gxqKxcf9kYnsDxQPfUrMN67HG6
-	F2akMSwU0KZK0cooiQYhxu75JdjM7INJSamAY84EDTgWbEH/xKrcZTrCv
-X-Received: by 2002:a17:90b:224c:b0:341:8c15:959e with SMTP id 98e67ed59e1d1-349a2599aedmr5351028a91.17.1765159718110;
-        Sun, 07 Dec 2025 18:08:38 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFZG8yf/Ns1EegSTFE0Rpw5twCPlKcZgHeZqg7GH4TQfQZXerKNzs/OlugiBcRykEiG2Lkmng==
-X-Received: by 2002:a17:90b:224c:b0:341:8c15:959e with SMTP id 98e67ed59e1d1-349a2599aedmr5350993a91.17.1765159717551;
-        Sun, 07 Dec 2025 18:08:37 -0800 (PST)
-Received: from quoll (fs98a57d9d.tkyc007.ap.nuro.jp. [152.165.125.157])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29dae4cfcfasm104991325ad.41.2025.12.07.18.08.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Dec 2025 18:08:37 -0800 (PST)
-From: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-To: Haixu Cui <quic_haixcui@quicinc.com>, Mark Brown <broonie@kernel.org>,
-        virtualization@lists.linux.dev, linux-spi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: [PATCH] spi: virtio: Fix confusing cleanup.h syntax
-Date: Mon,  8 Dec 2025 03:08:31 +0100
-Message-ID: <20251208020830.5225-2-krzysztof.kozlowski@oss.qualcomm.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jlxYSQnw"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0E69360D98
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 02:47:42 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.092
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id UaxC5FJRHYVw for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Dec 2025 02:47:41 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.14; helo=mgamail.intel.com; envelope-from=wangyang.guo@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 0F87560D80
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0F87560D80
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=jlxYSQnw
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0F87560D80
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 02:47:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1765162061; x=1796698061;
+  h=message-id:date:mime-version:subject:from:to:cc:
+   references:in-reply-to:content-transfer-encoding;
+  bh=6TwHcb5iUovQX1XFCXHnFY38ZruK56VM+5PnT7qnu20=;
+  b=jlxYSQnwk5nAkZxzetA7E9U9SlwhBs1zkIZLkGEfUDJSnJagDeEvmvGr
+   kCuz18Dc8w77ZQmJhhSDHXDkbM8RuFXwv70f3jLm5MvliHyAkRSPP9elr
+   x/ik2oTqQBcC/Ffe+WnoB5rDnV7Oj1T+HxDS7o5xoYHIvu2vh2ipQzker
+   OQsI3dLoHvFgaO+85E/uwLk30nquYB+GYCOxLZFvXUdhlZQTuCvDjNVdt
+   Vb6cNsP7nXDfoIWYPyRiDXBiSOSeCUml+PHtubG/8thItnJSgeV151veY
+   tUz660l01qNOqdQaRpdow42f6iKVaH19OgwWldSrN+GYmykSmEWgqy/Yy
+   Q==;
+X-CSE-ConnectionGUID: Pf/+vhNAQRGab4GyyPWWfA==
+X-CSE-MsgGUID: /4Q9jhgCS4a77Rd9Y2TJQw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11635"; a="70957763"
+X-IronPort-AV: E=Sophos;i="6.20,258,1758610800"; 
+   d="scan'208";a="70957763"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2025 18:47:40 -0800
+X-CSE-ConnectionGUID: uJPi9MaPTbeYe7fO5XbNjw==
+X-CSE-MsgGUID: aPr5tsLvTxWcHxRb5YKL8g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.20,258,1758610800"; 
+   d="scan'208";a="195848648"
+Received: from unknown (HELO [10.238.3.27]) ([10.238.3.27])
+  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2025 18:47:36 -0800
+Message-ID: <585538f9-10b8-4da9-8566-179fa789f4ab@intel.com>
+Date: Mon, 8 Dec 2025 10:47:26 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1720; i=krzysztof.kozlowski@oss.qualcomm.com;
- h=from:subject; bh=bYbtRNJ146aC3TMQ8IfFXUbxO5W12g8YSi8uv7SMoh8=;
- b=owEBbQKS/ZANAwAKAcE3ZuaGi4PXAcsmYgBpNjMe0DvQW5czVU9hlSRb6igUPfFufx99kUMHy
- zulbG8OXYCJAjMEAAEKAB0WIQTd0mIoPREbIztuuKjBN2bmhouD1wUCaTYzHgAKCRDBN2bmhouD
- 15AED/sGzg5QlPKWdXtKqMXjKN8gqP5QezAXVEFPO/7jfwTrbHUhGjN1jV9Q9DZxUCUMFbN604D
- ZWGlEzAzP2zBLLdv3cx4gZZbSZGGr3V12/2cst/Gj/s3WEpRkaQZeRLmeNCaqb5TZtoytwn24Is
- 10hkKayTWO0z4lmmPGutLSess7wBB6iEMs8bnKZKrJPq4DN+LU0SyOHlqdtTXAXTghoyd0YKgiZ
- RtXtTIOGbsaAUDpw8lFA56EaExiEPWxIntBkG14EQISPOApqlArLYTigF6ivD6x8OmaA1N6Zfx9
- YUDr0uH41XMq4GShO9fZ9q+8uAFmBzXjJGdFJjO2Pz0AXZ3BCGwZksHt2vb8pBc8BrBf6KEMSgR
- ujzIORfuXgqOoPAnQVzyz9rvqMo638Q5VNEdv9uzhjRA4vbiHdX05iq4mOjHAeB0pABTDx/Y7i+
- gHkny3X0/Vo6OqwzPNdB4eumQ27dwbcbYhIlUCFO53TMsbOpZUrtb9e7aeEnOB1SjNzvkbqKJnj
- //B7JxcyqaUD91jSmCTDE3Daa54VnH0NRUjEWM6jexeWYHIrQ/jAUlpKUgbZTi10ze4KLZscXE5
- UkmNS0rNAHywTgPm7j3L5L6NJJozACXaalQQw1VqNWRGpyo3IAa5IHYA7hOVm8V2m0+7Vvcubxp gVxAh8a/px1ySxQ==
-X-Developer-Key: i=krzysztof.kozlowski@oss.qualcomm.com; a=openpgp; fpr=9BD07E0E0C51F8D59677B7541B93437D3B41629B
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RESEND] lib/group_cpus: make group CPU cluster aware
+From: "Guo, Wangyang" <wangyang.guo@intel.com>
+To: Ming Lei <ming.lei@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Keith Busch <kbusch@kernel.org>,
+ Jens Axboe <axboe@fb.com>, Christoph Hellwig <hch@lst.de>,
+ Sagi Grimberg <sagi@grimberg.me>, linux-kernel@vger.kernel.org,
+ linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org,
+ linux-block@vger.kernel.org, Tianyou Li <tianyou.li@intel.com>,
+ Tim Chen <tim.c.chen@linux.intel.com>, Dan Liang <dan.liang@intel.com>
+References: <20251111020608.1501543-1-wangyang.guo@intel.com>
+ <aRKssW96lHFrT2ZN@fedora> <b94a0d74-0770-4751-9064-2ef077fada14@intel.com>
+ <aRMnR5DRdsU8lGtU@fedora> <a101fe80-ca0b-4b4b-94b1-f08db1b164fc@intel.com>
+ <aRU2sC5q5hCmS_eM@fedora> <da1d6b4e-038c-48dc-830d-5eadb3ac943f@intel.com>
+ <aR0i2f91VGv47swo@fedora> <7ec85f26-25fa-4c77-9e46-347261723d95@intel.com>
+Content-Language: en-US
+In-Reply-To: <7ec85f26-25fa-4c77-9e46-347261723d95@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Authority-Analysis: v=2.4 cv=d4z4CBjE c=1 sm=1 tr=0 ts=69363327 cx=c_pps
- a=vVfyC5vLCtgYJKYeQD43oA==:117 a=vTE1kzb4AqIx7XBf0Bkr0A==:17
- a=wP3pNCr1ah4A:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=EUspDBNiAAAA:8 a=5GyS9ht9Ox2oK99QZPgA:9 a=rl5im9kqc5Lf4LNbBjHf:22
-X-Proofpoint-GUID: kw-GnC5RRvcKN80-L4xYqA46nikFMZPk
-X-Proofpoint-ORIG-GUID: kw-GnC5RRvcKN80-L4xYqA46nikFMZPk
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjA4MDAxNiBTYWx0ZWRfX41UW8kM8aLhP
- ut35S5c113lIGZlsjTI+NT5SH9U6b8/iYSSnauRZ4RA7E6iGYjkOfD/NJKr4GIOPjCbfiIHXtjM
- euCN/Xlx9cf4cdQHvdf9FgxLyx14FqeGj7+95jExBGRH+k+Ub2B/5Z4usOLUw3vWiccu6ExDEI7
- uhbJK4bg4nCSP75Ddu278oDB7rW5OBgXIFjLz4hd0jThaKG8MBDJMWm8kpnEG+4SfVVD6D4dWDF
- dp5CwowKje7gsFI+VsdbbiZ457ZuDgz8Gdar3GN4I7G1hp8uZ68mhMdlbbYbGx3thDhoI4mN3KJ
- Y2nrsw6E2XDU/dODNw6qICWHgMegUEJ3KqdwFBAvYbXNMcmNPh0ia430pH75P1Ca4lobFalF349
- GoeePt6WCKBF+PUuGr0/dHfmct4LIw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-06_02,2025-12-04_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
- lowpriorityscore=0 clxscore=1011 impostorscore=0 phishscore=0 adultscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2510240001
- definitions=main-2512080016
 
-Initializing automatic __free variables to NULL without need (e.g.
-branches with different allocations), followed by actual allocation is
-in contrary to explicit coding rules guiding cleanup.h:
+On 11/24/2025 3:58 PM, Guo, Wangyang wrote:
+> On 11/19/2025 9:52 AM, Ming Lei wrote:
+>> On Tue, Nov 18, 2025 at 02:29:20PM +0800, Guo, Wangyang wrote:
+>>> On 11/13/2025 9:38 AM, Ming Lei wrote:
+>>>> On Wed, Nov 12, 2025 at 11:02:47AM +0800, Guo, Wangyang wrote:
+>>>>> On 11/11/2025 8:08 PM, Ming Lei wrote:
+>>>>>> On Tue, Nov 11, 2025 at 01:31:04PM +0800, Guo, Wangyang wrote:
+>>>>>> They still should share same L3 cache, and cpus_share_cache() 
+>>>>>> should be
+>>>>>> true when the IO completes on the CPU which belong to different L2 
+>>>>>> with the
+>>>>>> submission CPU, and remote completion via IPI won't be triggered.
+>>>>> Yes, remote IPI not triggered.
+>>>>
+>>>> OK, in my test on AMD zen4, NVMe performance can be dropped to 1/2 - 
+>>>> 1/3 if
+>>>> remote IPI is triggered in case of crossing L3, which is 
+>>>> understandable.
+>>>>
+>>>> I will check if topo cluster can cover L3, if yes, the patch still 
+>>>> can be
+>>>> simplified a lot by introducing sub-node spread by changing 
+>>>> build_node_to_cpumask()
+>>>> and adding nr_sub_nodes.
+>>>
+>>> Do you mean using cluster as "NUMA" nodes to spread CPU, instead of two
+>>> level NUMA-cluster spreading?
+>>
+>> Yes, I think the change may be minimized by introducing sub-numa-node for
+>> covering it, what do you think of this approach?
+>>
+>> However, it is bad to use cluster as sub-numa-node at default, because 
+>> cluster
+>> is aligned with CPUs sharing L2 cache, so there could be too many 
+>> clusters
+>> for many systems in which one cluster just includes two CPUs, then the 
+>> finally
+>> calculated mapping crosses clusters inevitably because nr_queues is
+>> less than nr_clusters.
+>>
+>> I'd suggest to map CPUs sharing L3 cache into one sub-numa-node.
+>>
+>> For your case, either adding one kernel parameter, or adding 
+>> group_cpus_cluster()
+>> API for the unusual case by sharing single code path.
+> 
+> Yes, it will make the change simpler, but no matter using cluster or L3 
+> cache as sub-numa-node, as CPU core count increase, there is potential 
+> risk that nr_queues < nr_sub_numa_node, which will make CPU spreading no 
+> affinity at all.
+> 
+> I think we need to keep two level NUMA/sub-NUMA spreading to avoid such 
+> regression.
+> 
+> For most platforms, there is no need for 2nd level spreading since L2 is 
+> not shared between physical cores and L3 mapping is the same as NUMA. I 
+> think we can add a platform specified configuration: by default, only 
+> NUMA spreading is used; if platform like Intel Xeon E or some AMD 
+> platform need second level spreading, we can config it to use L3 or 
+> cluster as sub-numa-node for 2nd level spreading.
+> 
+> How does that sound to you?
 
-"Given that the "__free(...) = NULL" pattern for variables defined at
-the top of the function poses this potential interdependency problem the
-recommendation is to always define and assign variables in one statement
-and not group variable definitions at the top of the function when
-__free() is used."
+Hi Ming,
 
-Code does not have a bug, but is less readable and uses discouraged
-coding practice, so fix that by moving declaration to the place of
-assignment.
+Hope you're doing well.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
----
- drivers/spi/spi-virtio.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Just wanted to kindly follow up on my previous email. Please let me know 
+if you have any further feedback/guidance on the proposed changes or if 
+there’s anything I can do to help move this forward.
 
-diff --git a/drivers/spi/spi-virtio.c b/drivers/spi/spi-virtio.c
-index 2acb929b2c69..6aad9f1fd016 100644
---- a/drivers/spi/spi-virtio.c
-+++ b/drivers/spi/spi-virtio.c
-@@ -150,7 +150,6 @@ static int virtio_spi_transfer_one(struct spi_controller *ctrl,
- 				   struct spi_transfer *xfer)
- {
- 	struct virtio_spi_priv *priv = spi_controller_get_devdata(ctrl);
--	struct virtio_spi_req *spi_req __free(kfree) = NULL;
- 	struct spi_transfer_head *th;
- 	struct scatterlist sg_out_head, sg_out_payload;
- 	struct scatterlist sg_in_result, sg_in_payload;
-@@ -159,7 +158,8 @@ static int virtio_spi_transfer_one(struct spi_controller *ctrl,
- 	unsigned int incnt = 0;
- 	int ret;
- 
--	spi_req = kzalloc(sizeof(*spi_req), GFP_KERNEL);
-+	struct virtio_spi_req *spi_req __free(kfree) = kzalloc(sizeof(*spi_req),
-+							       GFP_KERNEL);
- 	if (!spi_req)
- 		return -ENOMEM;
- 
--- 
-2.51.0
+Thanks for your time and guidance!
+
+BR
+Wangyang
 
