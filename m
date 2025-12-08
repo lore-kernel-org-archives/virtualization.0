@@ -1,254 +1,221 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B1DA2E7186
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 14:39:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765204794; cv=fail; b=qcQClpX3uTqYsn2/u7Oghx6euZgp6lQOw/2zRkMUBCv9qOJDNfzgNjs7btv1N4mlkSLleozhxYHnsy8Eez4HpFmYl0l/NiNPRMAWJ7x2d8DZrGJpknFehb9y3aF4qA2NzfrmlAdepUgy6ssSdqJuoafWu1GObDjMGItU6ZYkxdQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765204794; c=relaxed/simple;
-	bh=vIRChMwWP/IuvMstyw0ikkA8dH7hD4dheH/oaMfgBGY=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=BhxTVNt8oMp2XQxXu/U+h+jUVSI17rx/XipdnwTqYemjcorfMYHvpCj13cnDLTzLyy7EVOYb8UB/y7820MtmPjtA9buxNwVghS6JsuPw2bMk9oWxeSBV0YbEdtHnyr39xzBOqu4vUlTde4lBYr5VHzBjrqvo3u6t8so/iRWlk3E=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=kb/zRSRY; arc=fail smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29FBC1E832A
+	for <virtualization@lists.linux.dev>; Mon,  8 Dec 2025 15:35:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765208108; cv=none; b=IQ7u8+soJvCnl5BdZyawqTtZQjzIEnj7tVGKbmJfyOrQmCIobSBVDwaRyOzDgVnoEAJyo+KJJUit6MIfBTbgXpgzIONIH5GOOmt5MyPHGDPYZBnpgGBuIwHBwOr1xw4yWv/7SPkq4w0oyjNV4qSKp3OBsHfvNOykFxJD2BnXkBM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765208108; c=relaxed/simple;
+	bh=+dA/FLXdh91Tj4KvXzdrCX9sD7l/ZFnkWVRU35JvuQo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NCpw/2RlXWpp5pQRa3WL9+vFMm96U7PG0/Aq3keRrLHU7IX8lY2+0kLZjwgUaKYhOgEDCnF6LgDXZFS5cdsnQQBzKvy+DcbsZcgGH3IsCg28IADI5ZlTqSzTIn8RIHZRj0TpRAejUwD8sBXFCMAp314EEAF1ytBbStjLMOhVuQ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EsTo7ED4; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="kb/zRSRY"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D5E2840234
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 14:39:52 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 7wGREPTgV7UP for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Dec 2025 14:39:52 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c110::1; helo=bn1pr04cu002.outbound.protection.outlook.com; envelope-from=mgurtovoy@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E3EC940077
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E3EC940077
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=kb/zRSRY
-Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azlp170100001.outbound.protection.outlook.com [IPv6:2a01:111:f403:c110::1])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E3EC940077
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 14:39:51 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=OmqL81/0NaEk1wjMzMRAGRtbVFrKTuV7qWINBBOCnjzApAqvmrcZnbpzLt6PdNkjLtV81/aglHcCcOf7DOe6IvtEUvr0w/DIF8x9PnnmDgyZTTtFizxofa4JVHs6vL6s493YCOEskFPi53rbIuuVuutr9WIzWdtHod8CuS90iIaH0if5NEJ8iY8rI3AXYTl40nBtZTjlEN0ZAHzABeEwiTes5nLUBgRdBd26//ZINfay/RHFk6ci08WTE3uLmq7Ec3PHjFmdTUEORMIxdq/8uJt/uTeIs/IJhL0ZreQ2Zd7VHJqiZCFJq8PEvpeKQtOWF4Iyn/T5OCh4WDhLfCxqgQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CEWkSacPU3oXI1u6ODQIsT4shA8v6ojGc7WqqX10SbA=;
- b=tVjLg4otUTPPm6O+oPOr3Hw8OPgkYDGAHaLCrVwPFmPyiw6iaG32DwEHviQUy4136Z791fCN1/NBTJXRR4K6fNOSPxjOINIXA6ty5UxNXdaRA837gO70DHZFKKOHvd+QTHwYwyvGSJymVOMIdH4J/rSkX6EXUSZzOAsWcKSXuZ/9FsD8Iv4SzYKCkxkDHzQ43fI9yqp8NXxGWqlA8aEezqwmLDyIkApR4sUMSWDlYODJdFsgewNDI96OxkwUU2enDOfKHLatm+UY1OjLaKmKM/rXW+R+Rt4avhtcYBKowrIJOo5FBsFFAmtVrSCrVEL740gYciN5Tpweh2MhoowZsg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CEWkSacPU3oXI1u6ODQIsT4shA8v6ojGc7WqqX10SbA=;
- b=kb/zRSRYnm6iCILSAtIDD9CN6+nVrgnHId04/N23Prkupv5hZoG9cwHtGUR3I1YlS3iIwX4KoT3s5G1Ar7JM9iCPG6ToAbled77YSOZ9w3fVLhQ3XwDcBEW71ROUBOHr8vKW/7nVODIej34aJ9ENvUo3psxKZUphr6umsh9/v0O1LPN5JT60YcCJ9xwgOOVtaBBB41/06Ay1dKqsqcNDXxi9WjVfQY3rfTE5DvwVF6yRrE7YxTCnlMqziUN2a2qWuYu+TDDyY0wmJG9HdDwWfKf4fPLlpalbZv+x0i09QkEl1NtfQsFt8rBUh5aFkvXC/B6OXLSEO3URVWJdjGEPsw==
-Received: from SJ0PR05CA0142.namprd05.prod.outlook.com (2603:10b6:a03:33d::27)
- by CYYPR12MB8989.namprd12.prod.outlook.com (2603:10b6:930:c2::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9388.14; Mon, 8 Dec
- 2025 14:39:45 +0000
-Received: from SJ1PEPF000023D2.namprd02.prod.outlook.com
- (2603:10b6:a03:33d:cafe::c9) by SJ0PR05CA0142.outlook.office365.com
- (2603:10b6:a03:33d::27) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9412.5 via Frontend Transport; Mon, 8
- Dec 2025 14:39:44 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- SJ1PEPF000023D2.mail.protection.outlook.com (10.167.244.9) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9412.4 via Frontend Transport; Mon, 8 Dec 2025 14:39:44 +0000
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 8 Dec
- 2025 06:39:28 -0800
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail205.nvidia.com
- (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 8 Dec
- 2025 06:39:28 -0800
-Received: from r-arch-stor03.mtr.nbulabs.nvidia.com (10.127.8.14) by
- mail.nvidia.com (10.129.68.8) with Microsoft SMTP Server id 15.2.2562.20 via
- Frontend Transport; Mon, 8 Dec 2025 06:39:25 -0800
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
-To: <mst@redhat.com>, <stefanha@redhat.com>, <sgarzare@redhat.com>,
-	<virtualization@lists.linux-foundation.org>
-CC: <oren@nvidia.com>, <aevdaev@nvidia.com>, <aaptel@nvidia.com>, Max Gurtovoy
-	<mgurtovoy@nvidia.com>
-Subject: [PATCH 1/1] virtio: add driver_override support
-Date: Mon, 8 Dec 2025 16:39:25 +0200
-Message-ID: <20251208143925.32246-1-mgurtovoy@nvidia.com>
-X-Mailer: git-send-email 2.18.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EsTo7ED4"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-7aace33b75bso4456307b3a.1
+        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 07:35:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1765208106; x=1765812906; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=YWpFolnAyO+/LNdlTubeymU5rZAhEOvt75iUUlk8FxM=;
+        b=EsTo7ED40x2c8Lm6Qd76n8a/z48zMx/rtPQvTZM36v9s4h3JuabWVLNgi0qSJhCzxa
+         lVNHe57526+OGD1TO4K+B3xsrHs4Ui3NWe8x6JaperARsX8Wn0HYm9+Ps7OfJDEK96an
+         gC5sJg4uXums0axWUzschwryCU/dlNb6antx0x/vpa3/YK3S7GhV089PbghPS0NIgJDl
+         VgI5Ot37Ubf2SRToOV/EU/slAJUAjs0WS0v9OqnOX8CEjJfOA2Lv+V/Sh9SkBVuzcF5P
+         3ljqGZpm/ho0V10dSI7k6N+vVnj4XMxOBwFL4382jLCAyrooHkvR76O4SdRqrdQ60nfs
+         HR+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765208106; x=1765812906;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YWpFolnAyO+/LNdlTubeymU5rZAhEOvt75iUUlk8FxM=;
+        b=snsuznX6cI37Rb+iSlx/YBrkwcazQkGH4Wm3tiR+UlD8BI74TmR/nELyEvG6wJJpUS
+         JW4ZaqtKVf15w3P1nVW0FJrGIn3wpth/ER5p05p5lBjyFC8kdSPglfLbPgBw8v/o6ZmL
+         k/EYVwcU8IvL3qDBiKxP9CZ/dTdBz+bDMflUwLMlzEljtG3Mqum67bkJA3zNFGsiioFQ
+         HU8TYNjIXEBMZvaUzLhlf3PSbCR6f8WAz781jfmtNR5jntUnBIYLgO8/SZvtzGhx5nY/
+         ldevqRNuQM58ZirUbaZ6rHsjzOYyvSi+IEK2Bn4xjy2VRNxLZ2QSKechF0A5Dbo3A0HF
+         zLTQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWQHS04kkbLb79UR6lH6lcZMCOayPMwTGxKI6jADoGZs0AOnF/CEGoK+Yma7ptdqrZ6E8zOLj4SvV3nCylHgQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YygPgJ71xAURd9jDX4HpngWIfreTyIR6su2Etau5nsXXDEfxOGE
+	f326/ezbumHxrZI+muwxi8jU9LGEA5oxhCMF+vlBelR+Uu2nFbvKsr7H
+X-Gm-Gg: ASbGncuui50CL8evkk0nqTPU1gVoLau6Qxdl2t9c5zDC1pMGIsQLjeb2tQ/zcHXQcRw
+	tUYWBP3f3ZX1fDKCZTYnhEwCvnk+/n78mJLXsQcOujLNtICq7WTywTeFqaCr9Lscakk2LNy/gTn
+	YPjj0x3/sPtDiwicZoJT5rkcjURvx1Ic607OZGFORRFEK+h50MnaAAwYS+DanYA7w8ANNvwgVW7
+	gZIr4mbzrIhXJ5W+oMwCwH5NqrGb8V+hvz9rjFVzQ8fim5hRexzJUL01BGMz1oKG9WzXHZ/pgge
+	OJ2yU5l8QH/uK3HOXBCKypI9R5kNJG1Uuay+ynwPaaLVGZk1XLPerE36pJ8DW9noTmwRS2OH2nD
+	8lFLQOxugMYrUfpxylnrQbjvOoBdGVKy0cMXoxwqvz9sA8o66jJ2gcbJ+hbG/kmJPBmkujhU5B5
+	8T5VrnKmj4iooCtwmigpHqK80U
+X-Google-Smtp-Source: AGHT+IHbKnsyQgrUfLKGFjvZ3WkKGG8QW0enhqd/Ng7kJy9ybz2AnhuklB93e/amB8t20kVBAd65NA==
+X-Received: by 2002:a05:6a20:914c:b0:366:14ac:e1e4 with SMTP id adf61e73a8af0-3661814c501mr7552324637.74.1765208106236;
+        Mon, 08 Dec 2025 07:35:06 -0800 (PST)
+Received: from minh.192.168.1.1 ([2001:ee0:4f4c:210:2998:e0cd:90d5:9648])
+        by smtp.googlemail.com with ESMTPSA id 41be03b00d2f7-bf6a14f40f5sm13106127a12.21.2025.12.08.07.34.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Dec 2025 07:35:00 -0800 (PST)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH net] virtio-net: enable all napis before scheduling refill work
+Date: Mon,  8 Dec 2025 22:34:19 +0700
+Message-ID: <20251208153419.18196-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ1PEPF000023D2:EE_|CYYPR12MB8989:EE_
-X-MS-Office365-Filtering-Correlation-Id: 514ef725-8410-4d0e-b28b-08de3667a149
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|82310400026|1800799024|36860700013;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?gfc060MnbZYPhPdAZtzV6sGfm+NYFahNNXIR4QknpjYo93k/9/ZLCMCgmhko?=
- =?us-ascii?Q?D0o2WrleP3zMTEIv5WbSRtAFZ/q4Ms5yK2Cci+hYCdQJ74FXYnVd6aNYi8NA?=
- =?us-ascii?Q?WlaVhtYcu4KCMMuRJiouhJ3TtTpszWZU8dQh/Ne5dgtKpHEcuTBEbWSPA8g6?=
- =?us-ascii?Q?/XgN/FdtKeiYdojw2FPXiXMk2+yX3Mb5ZsxgCQ47+nLJUeLLOhSqVmx8daM7?=
- =?us-ascii?Q?UT36UB2lPXbgvbO+VpyyFT5dop8LnvVKt1wOjxGAJa86V0hZtTdoxD8TnQ4U?=
- =?us-ascii?Q?+/eCwFODwI/7o+7JkpTD/Mkn4Y6D+Q0VQUGOmiY6xiQ1G1P6xECudYfSvtT7?=
- =?us-ascii?Q?Xxo+7V9LtPF86TGIktdAxg7SCTGsa7WxXlt1uITthrnxRDmiA2Lv7wa+Y7/H?=
- =?us-ascii?Q?YhtkqpmQ+V/VL1c2D9fjPCU8lJ+ypminsoOGNEa1UTHay1Wk/v7ypcuJZ5Xg?=
- =?us-ascii?Q?PgPT2CfHpLaFppSAQQ4Y3i5UdL/hAgHD7q6YZL1YtULPouRhLfDZ7NdyrM6f?=
- =?us-ascii?Q?ZCR76QMaeTYlJ+4Fdgqt5pykQOOpmaw4CvzKV/Qt2iXJbxb7OBFkuH7bLJP5?=
- =?us-ascii?Q?7xhag9dwkP5juGGGCpTtoR1KMDDZW52PUiA4q/dRreOjA7Z/Rk8/uIkX9qE7?=
- =?us-ascii?Q?RqYYjvVTCZDSa4W7rEXOL51GXSbwznfVg0Vygxn4486TA8QBPTkDi0zQORDs?=
- =?us-ascii?Q?8mHSxnzFYB+StSnA2WYWeLlA9Gxzv7Zql7HtG9BVj14oIwuKEqOzolcv0jE9?=
- =?us-ascii?Q?K6901ZzklWEtzc9DFVFGhxMQGAMJX+hoF4ipcnKu0ERLoP3ocr8wGWEDkzDp?=
- =?us-ascii?Q?NOojfVPnWzweeC6mf2/kTyVhOk1B2df6IbYvZ3/Qj8htK9YroCc+sOsYiQTJ?=
- =?us-ascii?Q?joEgpJXvFQUUE83zvBR22LN/bxd2H2gJdVY4r5QpjPCQCMoyG5MbNNzYqIsU?=
- =?us-ascii?Q?ozrEWQv3A7gGn42K3faT0iSzUc00Wpp1zJAGoaeAMsvshCwB8UaANK+DgBrX?=
- =?us-ascii?Q?Yu/yeoQo9kGyls/8EoilmRD2egINXChPalU9HS/Dp3GYB1NhcZSpgYWvDRJy?=
- =?us-ascii?Q?sP7YWUL98BTH8I5OE5q/kiwh0MKSvbXP+bhkW8zXiPS7m5uAtdgsUbJxMNcM?=
- =?us-ascii?Q?UatLbmVJT80dgyLTMUGdleyGPItYA89A8fgwGmYY5qi86bpyLeAGR3VYQKyz?=
- =?us-ascii?Q?cdDkCZHjmh96Wn9J1ppszjtGa+VRoPZL7RAW5Kk8x9Vd90binT8CepI8chQg?=
- =?us-ascii?Q?g2Fa2pgRQ8KjjSH8gENt/h2XcoXuRUnIYaiUXm6cyLaGXIJ+mq5nilctGYuo?=
- =?us-ascii?Q?aQMUKqkrR0PPfugzW0CjH9Hcb9fuMcsqyNHUUXsK8HMC7fsC6V//YqErC9tZ?=
- =?us-ascii?Q?zpOw97T9vZ8Tp2m343Ta+cVRnlr8MHeCUG6lmd08gK/LmWS4/nE1B3PS4qq8?=
- =?us-ascii?Q?te45xXb1lA7A8zYprb7Ir9oi+L4oGqudU2yH1CYToCOkDXECTQXnCgJiPJI6?=
- =?us-ascii?Q?MpBWKph/AUCauEushCy30qbibTShGYJjUyzzyVtgA4aX6QFobRz+ftAP3gI9?=
- =?us-ascii?Q?lYeIuYfxg1WiLye2jqo=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(82310400026)(1800799024)(36860700013);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Dec 2025 14:39:44.8091
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 514ef725-8410-4d0e-b28b-08de3667a149
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SJ1PEPF000023D2.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYYPR12MB8989
+Content-Transfer-Encoding: 8bit
 
-Add support for the 'driver_override' attribute to Virtio devices. This
-allows users to control which Virtio bus driver binds to a given Virtio
-device.
+Calling napi_disable() on an already disabled napi can cause the
+deadlock. In commit 4bc12818b363 ("virtio-net: disable delayed refill
+when pausing rx"), to avoid the deadlock, when pausing the RX in
+virtnet_rx_pause[_all](), we disable and cancel the delayed refill work.
+However, in the virtnet_rx_resume_all(), we enable the delayed refill
+work too early before enabling all the receive queue napis.
 
-If 'driver_override' is not set, the existing behavior is preserved and
-devices will continue to auto-bind to the first matching Virtio bus
-driver.
+The deadlock can be reproduced by running
+selftests/drivers/net/hw/xsk_reconfig.py with multiqueue virtio-net
+device and inserting a cond_resched() inside the for loop in
+virtnet_rx_resume_all() to increase the success rate. Because the worker
+processing the delayed refilled work runs on the same CPU as
+virtnet_rx_resume_all(), a reschedule is needed to cause the deadlock.
+In real scenario, the contention on netdev_lock can cause the
+reschedule.
 
-Signed-off-by: Avraham Evdaev <aevdaev@nvidia.com>
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+This fixes the deadlock by ensuring all receive queue's napis are
+enabled before we enable the delayed refill work in
+virtnet_rx_resume_all() and virtnet_open().
+
+Fixes: 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
+Reported-by: Paolo Abeni <pabeni@redhat.com>
+Closes: https://netdev-ctrl.bots.linux.dev/logs/vmksft/drv-hw-dbg/results/400961/3-xdp-py/stderr
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
 ---
- drivers/virtio/virtio.c | 34 ++++++++++++++++++++++++++++++++++
- include/linux/virtio.h  |  4 ++++
- 2 files changed, 38 insertions(+)
+ drivers/net/virtio_net.c | 59 +++++++++++++++++++---------------------
+ 1 file changed, 28 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index a09eb4d62f82..f3ce12ee1fb5 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -61,12 +61,41 @@ static ssize_t features_show(struct device *_d,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 8e04adb57f52..f2b1ea65767d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2858,6 +2858,20 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
+ 	return err != -ENOMEM;
  }
- static DEVICE_ATTR_RO(features);
  
-+static ssize_t driver_override_store(struct device *_d,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
++static void virtnet_rx_refill_all(struct virtnet_info *vi)
 +{
-+	struct virtio_device *dev = dev_to_virtio(_d);
-+	int ret;
++	bool schedule_refill = false;
++	int i;
 +
-+	ret = driver_set_override(_d, &dev->driver_override, buf, count);
-+	if (ret)
-+		return ret;
++	enable_delayed_refill(vi);
++	for (i = 0; i < vi->curr_queue_pairs; i++)
++		if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
++			schedule_refill = true;
 +
-+	return count;
++	if (schedule_refill)
++		schedule_delayed_work(&vi->refill, 0);
 +}
 +
-+static ssize_t driver_override_show(struct device *_d,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	struct virtio_device *dev = dev_to_virtio(_d);
-+	ssize_t len;
-+
-+	device_lock(_d);
-+	len = sysfs_emit(buf, "%s\n", dev->driver_override);
-+	device_unlock(_d);
-+
-+	return len;
-+}
-+static DEVICE_ATTR_RW(driver_override);
-+
- static struct attribute *virtio_dev_attrs[] = {
- 	&dev_attr_device.attr,
- 	&dev_attr_vendor.attr,
- 	&dev_attr_status.attr,
- 	&dev_attr_modalias.attr,
- 	&dev_attr_features.attr,
-+	&dev_attr_driver_override.attr,
- 	NULL,
- };
- ATTRIBUTE_GROUPS(virtio_dev);
-@@ -88,6 +117,10 @@ static int virtio_dev_match(struct device *_dv, const struct device_driver *_dr)
- 	struct virtio_device *dev = dev_to_virtio(_dv);
- 	const struct virtio_device_id *ids;
- 
-+	/* Check override first, and if set, only use the named driver */
-+	if (dev->driver_override)
-+		return strcmp(dev->driver_override, _dr->name) == 0;
-+
- 	ids = drv_to_virtio(_dr)->id_table;
- 	for (i = 0; ids[i].device; i++)
- 		if (virtio_id_match(dev, &ids[i]))
-@@ -582,6 +615,7 @@ void unregister_virtio_device(struct virtio_device *dev)
+ static void skb_recv_done(struct virtqueue *rvq)
  {
- 	int index = dev->index; /* save for after device release */
+ 	struct virtnet_info *vi = rvq->vdev->priv;
+@@ -3216,19 +3230,14 @@ static int virtnet_open(struct net_device *dev)
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	int i, err;
  
-+	kfree(dev->driver_override);
- 	device_unregister(&dev->dev);
- 	virtio_debug_device_exit(dev);
- 	ida_free(&virtio_index_ida, index);
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index db31fc6f4f1f..418bb490bdc6 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -138,6 +138,9 @@ struct virtio_admin_cmd {
-  * @config_lock: protects configuration change reporting
-  * @vqs_list_lock: protects @vqs.
-  * @dev: underlying device.
-+ * @driver_override: driver name to force a match; do not set directly,
-+ *                   because core frees it; use driver_set_override() to
-+ *                   set or clear it.
-  * @id: the device type identification (used to match it with a driver).
-  * @config: the configuration ops for this device.
-  * @vringh_config: configuration ops for host vrings.
-@@ -158,6 +161,7 @@ struct virtio_device {
- 	spinlock_t config_lock;
- 	spinlock_t vqs_list_lock;
- 	struct device dev;
-+	const char *driver_override;
- 	struct virtio_device_id id;
- 	const struct virtio_config_ops *config;
- 	const struct vringh_config_ops *vringh_config;
+-	enable_delayed_refill(vi);
+-
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		if (i < vi->curr_queue_pairs)
+-			/* Make sure we have some buffers: if oom use wq. */
+-			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+-				schedule_delayed_work(&vi->refill, 0);
+-
+ 		err = virtnet_enable_queue_pair(vi, i);
+ 		if (err < 0)
+ 			goto err_enable_qp;
+ 	}
+ 
++	virtnet_rx_refill_all(vi);
++
+ 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+ 		if (vi->status & VIRTIO_NET_S_LINK_UP)
+ 			netif_carrier_on(vi->dev);
+@@ -3463,39 +3472,27 @@ static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
+ 	__virtnet_rx_pause(vi, rq);
+ }
+ 
+-static void __virtnet_rx_resume(struct virtnet_info *vi,
+-				struct receive_queue *rq,
+-				bool refill)
+-{
+-	bool running = netif_running(vi->dev);
+-	bool schedule_refill = false;
+-
+-	if (refill && !try_fill_recv(vi, rq, GFP_KERNEL))
+-		schedule_refill = true;
+-	if (running)
+-		virtnet_napi_enable(rq);
+-
+-	if (schedule_refill)
+-		schedule_delayed_work(&vi->refill, 0);
+-}
+-
+ static void virtnet_rx_resume_all(struct virtnet_info *vi)
+ {
+ 	int i;
+ 
+-	enable_delayed_refill(vi);
+-	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		if (i < vi->curr_queue_pairs)
+-			__virtnet_rx_resume(vi, &vi->rq[i], true);
+-		else
+-			__virtnet_rx_resume(vi, &vi->rq[i], false);
++	if (netif_running(vi->dev)) {
++		for (i = 0; i < vi->max_queue_pairs; i++)
++			virtnet_napi_enable(&vi->rq[i]);
++
++		virtnet_rx_refill_all(vi);
+ 	}
+ }
+ 
+ static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
+ {
+-	enable_delayed_refill(vi);
+-	__virtnet_rx_resume(vi, rq, true);
++	if (netif_running(vi->dev)) {
++		virtnet_napi_enable(rq);
++
++		enable_delayed_refill(vi);
++		if (!try_fill_recv(vi, rq, GFP_KERNEL))
++			schedule_delayed_work(&vi->refill, 0);
++	}
+ }
+ 
+ static int virtnet_rx_resize(struct virtnet_info *vi,
 -- 
-2.18.1
+2.43.0
 
