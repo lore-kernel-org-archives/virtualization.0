@@ -1,271 +1,412 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E35882E4258
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 22:09:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765231782; cv=fail; b=TcJktLpWw4Exp9Zg/++2AMivhqFBpiLX1/jEgeLSx3hrhYzNgk0SVL8leuDBBQVOVp8/clSwq3B7w+2q0sqU58Ffln0LHjuHkrqZnCFsVGpGEqtepTNVrzLPC4Gdj6hUixiB9mCObbrHt2ti5HTa0FCyIk9h8jje2YQNoWOjHZ8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765231782; c=relaxed/simple;
-	bh=MEbBxmUoXNnj8I+fkEsS1E6h5/op8IAm4vue6CGZRc4=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ffGNjaFJ7y/1vzWLUa2evdJMZn6Qv2trD4yArmdSXdn3MDtKSd0GriFfHNTf4eAuk7gsqCK+ADU0UEBeiKN9/BZRV/S3ccJWAN175v+QLHMS7ZSoH1N7mHcRcMEimFAEMqWuH1J9Oii9Uxoa46G78NtJyDk2Jls4i9ybpX1Y1UE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=ZTf5L65X; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8618F2BE630
+	for <virtualization@lists.linux.dev>; Mon,  8 Dec 2025 23:57:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765238251; cv=none; b=rZmt2xPVNtmlweYKo6ukU+J1ETXt0qj7RZFe1tyT0TPlfgGk2P6fyWwiDPKxMdBWPp282NRlFW5z4YjsmCZaNFv2CWbyQD0B5pl2CJRixYjTfn7MVDSLkGzIWddhfzcpgLEXmFpVUy29PnA+uE+/yxLFU3yee5aDdIun8OgMg3A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765238251; c=relaxed/simple;
+	bh=OFQ+9EV2ql4+pkj57eoeYj9wkaqN/DTHclo1t1ZGbnE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jFc+iN+ZGwHStBseYKUdz0pE41e+d6TQLfXiWI9ZMuvLZbaH80ovAHUo+RSwJyXJJ5+6cPsyULwuyEo5EV6ys5513L1jAQ/50xjP0LWIuMlKl0MKbs37vCmEAZumA+9PBA6WNmHNmKMUxyiNiGZ6OEVzELtUleiPvoL2kAzIAZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=eVoFGxxt; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ZTf5L65X"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 606D160DB2
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 22:09:40 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id m9iNYN0zd9Rv for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Dec 2025 22:09:39 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c100::f; helo=bl2pr02cu003.outbound.protection.outlook.com; envelope-from=mgurtovoy@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4C95260D90
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4C95260D90
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=ZTf5L65X
-Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazlp17011000f.outbound.protection.outlook.com [IPv6:2a01:111:f403:c100::f])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4C95260D90
-	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 22:09:39 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=JlWIUdvfH50B5wdHijKV9smkr8Dki005p9OB3peGkPa8BlYg6Zvmev6oTf+t54C0xGXstEyuWMHlFpXEj4+nxCcNTCAN+BtsNM/KBJw95xhVyG89vOAutJmCG04QjJ7sBjtrtVyy9HqZbcUaU9g68JTZy9BqwDOPzx8+lum7ou8KWbBVQIVB3/xWk/MQ9+373iyR8FkEVwnjRoAgrNmAlpquPkCZyW7C4Wn7hQvht1UndgrlT392o2Q440os/8DTGb6UZHzEEFfEpCNuXE0up1jdeMlRhJcum8N/NbB3aZfB+eU9MXtP7TIm99KcDKGpuya1+EiLaTmqEA9EelJ/Eg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=H1Kk+0GWk1XzyEPpxyQZUVTiWRp2++zF0+PW1XUHpRs=;
- b=AIqriOhLTtlu0q7aHhFH+fDIdFyH3BFAopjsIFLg0LMAVhNc6cNI/llmIjNrMnN1Eytp0BU6K7Bj9dYtJrDgjcETAUVr6xUkqpHBvCCvpL7inccfhVz9pI7O2ttwVtGEatA3oopwnktNokoCn0rMcxP5AvlgvilCb7WQPl8tyQt5L40GkvOeQz0hhe0hexLe2CviAz2ZkCtUGYjSwnvpwsD63qHgp7uXJxdT6Y5KcCU/cM7x+700Qb3nQoDdYjtnEbSiTGUOunBY8Sw2M9M0/+xo8UOZCx2hDgEewjMOmm4UKQPS4cxIy4Qlih+u5uqcZZ9drjLcpVVgGPr26G5gpw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=H1Kk+0GWk1XzyEPpxyQZUVTiWRp2++zF0+PW1XUHpRs=;
- b=ZTf5L65X7KaLOooI/hfN81o+h9Hld1kW1o59ugclTrpqvKmuW9VTs8CXdlywGc9p+EYBT1w0gca/Zn7YJqKkIyOzoDWcYuKEZe77Z3Fjj36LDKoP26d/zVzlocPSr5M8Wd0PvAUTBFpLpzJEYTXJEXnDE35JiZm/hBpjSXap5hG1GpvU6LfNsgQL6N7F1kXRlIOA+iHIJXwuAhw38+ZpfkVFgwojS88BFFEoitcvJb23NP7xcTOeUHGaQCX4iq7HRwksZ72Q/M3hVrJS9S15nSKoe7YkXiN4UZ2JT42/vM6/DUiWoDTAYTvyaM8rekzogM9LEpMXcbb13ABbRc2xYg==
-Received: from PH0PR07CA0075.namprd07.prod.outlook.com (2603:10b6:510:f::20)
- by DS7PR12MB8420.namprd12.prod.outlook.com (2603:10b6:8:e9::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9388.14; Mon, 8 Dec
- 2025 22:09:31 +0000
-Received: from CY4PEPF0000EDD6.namprd03.prod.outlook.com
- (2603:10b6:510:f:cafe::63) by PH0PR07CA0075.outlook.office365.com
- (2603:10b6:510:f::20) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9388.14 via Frontend Transport; Mon,
- 8 Dec 2025 22:08:52 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- CY4PEPF0000EDD6.mail.protection.outlook.com (10.167.241.202) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9388.8 via Frontend Transport; Mon, 8 Dec 2025 22:09:30 +0000
-Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 8 Dec
- 2025 14:09:12 -0800
-Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail205.nvidia.com
- (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 8 Dec
- 2025 14:09:12 -0800
-Received: from r-arch-stor03.mtr.nbulabs.nvidia.com (10.127.8.14) by
- mail.nvidia.com (10.129.68.7) with Microsoft SMTP Server id 15.2.2562.20 via
- Frontend Transport; Mon, 8 Dec 2025 14:09:09 -0800
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
-To: <mst@redhat.com>, <stefanha@redhat.com>, <sgarzare@redhat.com>,
-	<virtualization@lists.linux-foundation.org>, <kvm@vger.kernel.org>
-CC: <oren@nvidia.com>, <aevdaev@nvidia.com>, <aaptel@nvidia.com>, Max Gurtovoy
-	<mgurtovoy@nvidia.com>
-Subject: [PATCH v2 1/1] virtio: add driver_override support
-Date: Tue, 9 Dec 2025 00:09:08 +0200
-Message-ID: <20251208220908.9250-1-mgurtovoy@nvidia.com>
-X-Mailer: git-send-email 2.18.1
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="eVoFGxxt"
+Received: from mail.zytor.com ([IPv6:2601:646:8081:9483:a28:93fb:4548:76d8])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 5B8NtZrE2659554
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
+	Mon, 8 Dec 2025 15:55:37 -0800
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 5B8NtZrE2659554
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025112201; t=1765238145;
+	bh=soXAh6Cdh1wIq0+vJmWz4UEmWfkfaPYCK7y4yalc2G8=;
+	h=From:To:Cc:Subject:Date:From;
+	b=eVoFGxxtRvPjz95ahbrb9nKbVpTti/Ji83vr1n9R2TuHzqa3HQgAmkWHQCKLXiNA8
+	 eI+cCokme1uBN+uq06I8lOhx59vvSr1pC2WDL21T2DkuAC4tU+2uasOxEtP9ysD14x
+	 XdtDQdV/UigHxRtOgF0m5MA+4YLmUuN6YGTI5AOvmVPQOuTE8JaR2QzZqrbEP9cpca
+	 TeInFjghMA02bRmiwjqm805q4bpJ5GDJgk/A90IXb9Yg75OwkJ1UbLeh0Bo0JfCS7X
+	 3DTbnfXhQ1d2Fd82ixUNNodBylR+5s4x2aq42ESqzrWbD5IGV5Z3kxhya8PF+Cai41
+	 s51WMfur8upXA==
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "H . Peter Anvin" <hpa@zytor.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, Alexei Starovoitov <ast@kernel.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrii Nakryiko <andrii@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Laight <David.Laight@ACULAB.COM>,
+        David Lechner <dlechner@baylibre.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Eduard Zingerman <eddyz87@gmail.com>,
+        Gatlin Newhouse <gatlin.newhouse@gmail.com>,
+        Hao Luo <haoluo@google.com>, Ingo Molnar <mingo@redhat.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>,
+        Kees Cook <kees@kernel.org>,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Marc Herbert <Marc.Herbert@linux.intel.com>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>,
+        Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>,
+        NeilBrown <neil@brown.name>, Peter Zijlstra <peterz@infradead.org>,
+        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+        Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>,
+        Song Liu <song@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thorsten Blum <thorsten.blum@linux.dev>,
+        Uros Bizjak <ubizjak@gmail.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Yafang Shao <laoar.shao@gmail.com>, Ye Bin <yebin10@huawei.com>,
+        Yonghong Song <yonghong.song@linux.dev>,
+        Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
+        virtualization@lists.linux.dev, x86@kernel.org
+Subject: [GIT PULL] __auto_type conversion for v6.19-rc1
+Date: Mon,  8 Dec 2025 15:55:26 -0800
+Message-ID: <20251208235528.3670800-1-hpa@zytor.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY4PEPF0000EDD6:EE_|DS7PR12MB8420:EE_
-X-MS-Office365-Filtering-Correlation-Id: 22045151-f8c3-4e6f-7d98-08de36a6764e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|82310400026|1800799024|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?jtK2El3EoEL9tw5FhVi5LBOmzA25GgQGy0AUkO5lU8iOjRgbxfWP8WSzHnzU?=
- =?us-ascii?Q?zojySzGn72p0EkSSrGtROpgh0s7waz6voRp2vHewKvqfXi9uwmtYR/cwP4cI?=
- =?us-ascii?Q?5Kw5vxE6eUzbrIjaZs7uv6PibWsMsHCfSizc2CJlALfcB6+faSGWjx3BbaMx?=
- =?us-ascii?Q?r2vn5SFsWvXl6RLhOyWb/PCTYk9b8viLWEYM8vveiD9SYmwPREUMdOMOrawJ?=
- =?us-ascii?Q?s25rYMhoTdw1dsG11AY4efcr8sQzvZN3MTjDohmZKN/3f72k9PmDu52HAx05?=
- =?us-ascii?Q?+uivYgQV4DMB3QVvIGyUE3+RX1+Rzh7A02IqvMc7jfwIRNdSZgX9AxoNGeGH?=
- =?us-ascii?Q?/0m2R/nXz9yvuS+H6uRqWsQc/NlDV1Vavf9ZthUpoirm4OWIoS0MpDURstGK?=
- =?us-ascii?Q?d6wirvZ1EnKQ6vBxEzE3nMlakJ7xDHcfbIeMs99zcBP19H9eBMdNklWgK4K+?=
- =?us-ascii?Q?8Ytf/VrIPVKmsvok5Qo5bmzezTAfRn2QSA6izyYQS/XtJqpheTvV9xqJUl1u?=
- =?us-ascii?Q?fRWlL/aK76Mf1ZuISKjOhVzHYtgU6AFv2tN3tuI33A1BUgl2kf+kneQcB4NU?=
- =?us-ascii?Q?A79G2ld6zsLPqpkPo7ZhkOwnTXCbhhx7ORs4bGBmG2+KVwa5XZTsxo/CGIqb?=
- =?us-ascii?Q?btrv6OnbdMFRlvrWiBAglEolpjGPtbnk7ZHsFM//3GadJ7eWS2bGE1lRnnph?=
- =?us-ascii?Q?49EkldhhJUGhYPFa8peqkASQFUpA8PCodQj4KMQhTWVkNGZHQGfb3P3UtFfq?=
- =?us-ascii?Q?IVQZpc3A0wOinjuZwXgtUGUK17xVaRI3FK4EL0LKB4HkRVrdT+5nnalZXQ/9?=
- =?us-ascii?Q?icVjBZEsYW6re367xRJP1TdUiAAD+DgAGgOE9JejqwSo08BbcNpg82dQ0KrW?=
- =?us-ascii?Q?ijBHNLg2jQTaz98UNCpu4m2jph1s/5nq513qskEo8T9a8Q8zIvsakLoGNWdB?=
- =?us-ascii?Q?HTdYeek7uoqKWiE5A4Yu4KYgHcXhk+2KFsP0275E5gHgzVc1M3QKrE34nUqk?=
- =?us-ascii?Q?EkzuDKQRb2v8EsVuox5tTQ9hkvvlCIyqNYuVQFtJ4ofj9lUMdWTHKR50SIUA?=
- =?us-ascii?Q?2phcJNwN+ikpaQC/c+UgD48FwjLTSShi79QfIJLHXKYX37wigrsIhYF9e72A?=
- =?us-ascii?Q?6Y+/dHHY3jJcL40Zgvewsk+pCCARIkISveTJqC3bJX6C1oUHOs4ozUzcGGWm?=
- =?us-ascii?Q?MVRzXiAMaQgL1wj+VmmxuV6XoGyHV/nWxi8DE9ZXC0RiqHB+sNWJuy2/4u8R?=
- =?us-ascii?Q?3+ICVI3cn6eof7ALwB6zZYmgPFjiWfa69xvkqYhbuBS9murByVs13HjAIWmC?=
- =?us-ascii?Q?gnvFW7G1zq8B9nf9mL/bi4g6vles/m5VAT3T40ncetGMbDPKDMfUX4IwMO8R?=
- =?us-ascii?Q?3vFGvdSFZIkAcxgfPkxOI4M6WlpxAGN4hLrJbVVjpNxd2eye8+wPkBPXm5t3?=
- =?us-ascii?Q?kKqm9j8xNrFx0r69v2qN4H5PL+mox6i1Iex9ltCq1dXisDMazzE0SiDFXzQS?=
- =?us-ascii?Q?yg/J0VlP7/+lBs6PPoh2beK6J8j6PORpDqlmMLh6EzpAtMf2NcSkx3lBvZuh?=
- =?us-ascii?Q?SKkD6ELOoADFQf/odgU=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(1800799024)(376014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Dec 2025 22:09:30.9358
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 22045151-f8c3-4e6f-7d98-08de36a6764e
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CY4PEPF0000EDD6.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB8420
+Content-Transfer-Encoding: 8bit
 
-Add support for the 'driver_override' attribute to Virtio devices. This
-allows users to control which Virtio bus driver binds to a given Virtio
-device.
+Hi Linus,
 
-If 'driver_override' is not set, the existing behavior is preserved and
-devices will continue to auto-bind to the first matching Virtio bus
-driver.
+The following changes since commit c2f2b01b74be8b40a2173372bcd770723f87e7b2:
 
-Tested with virtio blk device (virtio core and pci drivers are loaded):
+  Merge tag 'i3c/for-6.19' of git://git.kernel.org/pub/scm/linux/kernel/git/i3c/linux (2025-12-08 11:25:14 +0900)
 
-  $ modprobe my_virtio_blk
+are available in the Git repository at:
 
-  # automatically unbind from virtio_blk driver and override + bind to
-  # my_virtio_blk driver.
-  $ driverctl -v -b virtio set-override virtio0 my_virtio_blk
+  git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-auto.git
 
-In addition, driverctl saves the configuration persistently under
-/etc/driverctl.d/.
+for you to fetch changes up to branch auto-type-for-6.19
+(4ecc26fa585216f98d71411ce182f9e823d94c8c):
 
-Signed-off-by: Avraham Evdaev <aevdaev@nvidia.com>
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
----
+  tools/virtio: replace "__auto_type" with "auto" (2025-12-08 15:32:15 -0800)
 
-changes from v1:
- - use !strcmp() to compare strings (MST)
- - extend commit msg with example (MST)
+----------------------------------------------------------------
+H. Peter Anvin (7):
+      compiler_types.h: add "auto" as a macro for "__auto_type"
+      include/linux: change "__auto_type" to "auto"
+      fs/proc: replace "__auto_type" with "const auto"
+      arch/nios2: replace "__auto_type" and adjacent equivalent with "auto"
+      arch/x86: replace "__auto_type" with "auto"
+      selftests/bpf: replace "__auto_type" with "auto"
+      tools/virtio: replace "__auto_type" with "auto"
 
----
- drivers/virtio/virtio.c | 34 ++++++++++++++++++++++++++++++++++
- include/linux/virtio.h  |  4 ++++
- 2 files changed, 38 insertions(+)
+ arch/nios2/include/asm/uaccess.h                      |  8 ++++----
+ arch/x86/include/asm/bug.h                            |  2 +-
+ arch/x86/include/asm/string_64.h                      |  6 +++---
+ arch/x86/include/asm/uaccess_64.h                     |  2 +-
+ fs/proc/inode.c                                       | 19 +++++++++----------
+ include/linux/cleanup.h                               |  6 +++---
+ include/linux/compiler.h                              |  2 +-
+ include/linux/compiler_types.h                        | 13 +++++++++++++
+ include/linux/minmax.h                                |  6 +++---
+ .../testing/selftests/bpf/prog_tests/socket_helpers.h |  9 +++++++--
+ tools/virtio/linux/compiler.h                         |  2 +-
+ 11 files changed, 46 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index a09eb4d62f82..993dc928be49 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -61,12 +61,41 @@ static ssize_t features_show(struct device *_d,
- }
- static DEVICE_ATTR_RO(features);
+diff --git a/arch/nios2/include/asm/uaccess.h b/arch/nios2/include/asm/uaccess.h
+index b8299082adbe..6ccc9a232c23 100644
+--- a/arch/nios2/include/asm/uaccess.h
++++ b/arch/nios2/include/asm/uaccess.h
+@@ -172,15 +172,15 @@ do {									\
  
-+static ssize_t driver_override_store(struct device *_d,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
-+{
-+	struct virtio_device *dev = dev_to_virtio(_d);
-+	int ret;
-+
-+	ret = driver_set_override(_d, &dev->driver_override, buf, count);
-+	if (ret)
-+		return ret;
-+
-+	return count;
-+}
-+
-+static ssize_t driver_override_show(struct device *_d,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	struct virtio_device *dev = dev_to_virtio(_d);
-+	ssize_t len;
-+
-+	device_lock(_d);
-+	len = sysfs_emit(buf, "%s\n", dev->driver_override);
-+	device_unlock(_d);
-+
-+	return len;
-+}
-+static DEVICE_ATTR_RW(driver_override);
-+
- static struct attribute *virtio_dev_attrs[] = {
- 	&dev_attr_device.attr,
- 	&dev_attr_vendor.attr,
- 	&dev_attr_status.attr,
- 	&dev_attr_modalias.attr,
- 	&dev_attr_features.attr,
-+	&dev_attr_driver_override.attr,
- 	NULL,
- };
- ATTRIBUTE_GROUPS(virtio_dev);
-@@ -88,6 +117,10 @@ static int virtio_dev_match(struct device *_dv, const struct device_driver *_dr)
- 	struct virtio_device *dev = dev_to_virtio(_dv);
- 	const struct virtio_device_id *ids;
+ #define __put_user(x, ptr)						\
+ ({									\
+-	__auto_type __pu_ptr = (ptr);					\
+-	typeof(*__pu_ptr) __pu_val = (typeof(*__pu_ptr))(x);		\
++	auto __pu_ptr = (ptr);						\
++	auto __pu_val = (typeof(*__pu_ptr))(x);				\
+ 	__put_user_common(__pu_val, __pu_ptr);				\
+ })
  
-+	/* Check override first, and if set, only use the named driver */
-+	if (dev->driver_override)
-+		return !strcmp(dev->driver_override, _dr->name);
-+
- 	ids = drv_to_virtio(_dr)->id_table;
- 	for (i = 0; ids[i].device; i++)
- 		if (virtio_id_match(dev, &ids[i]))
-@@ -582,6 +615,7 @@ void unregister_virtio_device(struct virtio_device *dev)
+ #define put_user(x, ptr)						\
+ ({									\
+-	__auto_type __pu_ptr = (ptr);					\
+-	typeof(*__pu_ptr) __pu_val = (typeof(*__pu_ptr))(x);		\
++	auto __pu_ptr = (ptr);						\
++	auto __pu_val = (typeof(*__pu_ptr))(x);				\
+ 	access_ok(__pu_ptr, sizeof(*__pu_ptr)) ?			\
+ 		__put_user_common(__pu_val, __pu_ptr) :			\
+ 		-EFAULT;						\
+diff --git a/arch/x86/include/asm/bug.h b/arch/x86/include/asm/bug.h
+index ee23b98353d7..d561a8443c13 100644
+--- a/arch/x86/include/asm/bug.h
++++ b/arch/x86/include/asm/bug.h
+@@ -129,7 +129,7 @@ do {								\
+ 
+ #define __WARN_FLAGS(cond_str, flags)					\
+ do {									\
+-	__auto_type __flags = BUGFLAG_WARNING|(flags);			\
++	auto __flags = BUGFLAG_WARNING|(flags);				\
+ 	instrumentation_begin();					\
+ 	_BUG_FLAGS(cond_str, ASM_UD2, __flags, ARCH_WARN_REACHABLE);	\
+ 	instrumentation_end();						\
+diff --git a/arch/x86/include/asm/string_64.h b/arch/x86/include/asm/string_64.h
+index 79e9695dc13e..4635616863f5 100644
+--- a/arch/x86/include/asm/string_64.h
++++ b/arch/x86/include/asm/string_64.h
+@@ -31,7 +31,7 @@ KCFI_REFERENCE(__memset);
+ #define __HAVE_ARCH_MEMSET16
+ static inline void *memset16(uint16_t *s, uint16_t v, size_t n)
  {
- 	int index = dev->index; /* save for after device release */
+-	const __auto_type s0 = s;
++	const auto s0 = s;
+ 	asm volatile (
+ 		"rep stosw"
+ 		: "+D" (s), "+c" (n)
+@@ -44,7 +44,7 @@ static inline void *memset16(uint16_t *s, uint16_t v, size_t n)
+ #define __HAVE_ARCH_MEMSET32
+ static inline void *memset32(uint32_t *s, uint32_t v, size_t n)
+ {
+-	const __auto_type s0 = s;
++	const auto s0 = s;
+ 	asm volatile (
+ 		"rep stosl"
+ 		: "+D" (s), "+c" (n)
+@@ -57,7 +57,7 @@ static inline void *memset32(uint32_t *s, uint32_t v, size_t n)
+ #define __HAVE_ARCH_MEMSET64
+ static inline void *memset64(uint64_t *s, uint64_t v, size_t n)
+ {
+-	const __auto_type s0 = s;
++	const auto s0 = s;
+ 	asm volatile (
+ 		"rep stosq"
+ 		: "+D" (s), "+c" (n)
+diff --git a/arch/x86/include/asm/uaccess_64.h b/arch/x86/include/asm/uaccess_64.h
+index 641f45c22f9d..915124011c27 100644
+--- a/arch/x86/include/asm/uaccess_64.h
++++ b/arch/x86/include/asm/uaccess_64.h
+@@ -72,7 +72,7 @@ static inline void __user *mask_user_address(const void __user *ptr)
+ 	return ret;
+ }
+ #define masked_user_access_begin(x) ({				\
+-	__auto_type __masked_ptr = (x);				\
++	auto __masked_ptr = (x);				\
+ 	__masked_ptr = mask_user_address(__masked_ptr);		\
+ 	__uaccess_begin(); __masked_ptr; })
  
-+	kfree(dev->driver_override);
- 	device_unregister(&dev->dev);
- 	virtio_debug_device_exit(dev);
- 	ida_free(&virtio_index_ida, index);
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index db31fc6f4f1f..418bb490bdc6 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -138,6 +138,9 @@ struct virtio_admin_cmd {
-  * @config_lock: protects configuration change reporting
-  * @vqs_list_lock: protects @vqs.
-  * @dev: underlying device.
-+ * @driver_override: driver name to force a match; do not set directly,
-+ *                   because core frees it; use driver_set_override() to
-+ *                   set or clear it.
-  * @id: the device type identification (used to match it with a driver).
-  * @config: the configuration ops for this device.
-  * @vringh_config: configuration ops for host vrings.
-@@ -158,6 +161,7 @@ struct virtio_device {
- 	spinlock_t config_lock;
- 	spinlock_t vqs_list_lock;
- 	struct device dev;
-+	const char *driver_override;
- 	struct virtio_device_id id;
- 	const struct virtio_config_ops *config;
- 	const struct vringh_config_ops *vringh_config;
--- 
-2.18.1
-
+diff --git a/fs/proc/inode.c b/fs/proc/inode.c
+index 2d3425cfa94b..b7634f975d98 100644
+--- a/fs/proc/inode.c
++++ b/fs/proc/inode.c
+@@ -303,7 +303,7 @@ static ssize_t proc_reg_read_iter(struct kiocb *iocb, struct iov_iter *iter)
+ 
+ static ssize_t pde_read(struct proc_dir_entry *pde, struct file *file, char __user *buf, size_t count, loff_t *ppos)
+ {
+-	__auto_type read = pde->proc_ops->proc_read;
++	const auto read = pde->proc_ops->proc_read;
+ 	if (read)
+ 		return read(file, buf, count, ppos);
+ 	return -EIO;
+@@ -325,7 +325,7 @@ static ssize_t proc_reg_read(struct file *file, char __user *buf, size_t count,
+ 
+ static ssize_t pde_write(struct proc_dir_entry *pde, struct file *file, const char __user *buf, size_t count, loff_t *ppos)
+ {
+-	__auto_type write = pde->proc_ops->proc_write;
++	const auto write = pde->proc_ops->proc_write;
+ 	if (write)
+ 		return write(file, buf, count, ppos);
+ 	return -EIO;
+@@ -347,7 +347,7 @@ static ssize_t proc_reg_write(struct file *file, const char __user *buf, size_t
+ 
+ static __poll_t pde_poll(struct proc_dir_entry *pde, struct file *file, struct poll_table_struct *pts)
+ {
+-	__auto_type poll = pde->proc_ops->proc_poll;
++	const auto poll = pde->proc_ops->proc_poll;
+ 	if (poll)
+ 		return poll(file, pts);
+ 	return DEFAULT_POLLMASK;
+@@ -369,7 +369,7 @@ static __poll_t proc_reg_poll(struct file *file, struct poll_table_struct *pts)
+ 
+ static long pde_ioctl(struct proc_dir_entry *pde, struct file *file, unsigned int cmd, unsigned long arg)
+ {
+-	__auto_type ioctl = pde->proc_ops->proc_ioctl;
++	const auto ioctl = pde->proc_ops->proc_ioctl;
+ 	if (ioctl)
+ 		return ioctl(file, cmd, arg);
+ 	return -ENOTTY;
+@@ -392,7 +392,7 @@ static long proc_reg_unlocked_ioctl(struct file *file, unsigned int cmd, unsigne
+ #ifdef CONFIG_COMPAT
+ static long pde_compat_ioctl(struct proc_dir_entry *pde, struct file *file, unsigned int cmd, unsigned long arg)
+ {
+-	__auto_type compat_ioctl = pde->proc_ops->proc_compat_ioctl;
++	const auto compat_ioctl = pde->proc_ops->proc_compat_ioctl;
+ 	if (compat_ioctl)
+ 		return compat_ioctl(file, cmd, arg);
+ 	return -ENOTTY;
+@@ -414,7 +414,7 @@ static long proc_reg_compat_ioctl(struct file *file, unsigned int cmd, unsigned
+ 
+ static int pde_mmap(struct proc_dir_entry *pde, struct file *file, struct vm_area_struct *vma)
+ {
+-	__auto_type mmap = pde->proc_ops->proc_mmap;
++	const auto mmap = pde->proc_ops->proc_mmap;
+ 	if (mmap)
+ 		return mmap(file, vma);
+ 	return -EIO;
+@@ -497,7 +497,7 @@ static int proc_reg_open(struct inode *inode, struct file *file)
+ 	if (!use_pde(pde))
+ 		return -ENOENT;
+ 
+-	__auto_type release = pde->proc_ops->proc_release;
++	const auto release = pde->proc_ops->proc_release;
+ 	if (release) {
+ 		pdeo = kmem_cache_alloc(pde_opener_cache, GFP_KERNEL);
+ 		if (!pdeo) {
+@@ -534,10 +534,9 @@ static int proc_reg_release(struct inode *inode, struct file *file)
+ 	struct pde_opener *pdeo;
+ 
+ 	if (pde_is_permanent(pde)) {
+-		__auto_type release = pde->proc_ops->proc_release;
+-		if (release) {
++		const auto release = pde->proc_ops->proc_release;
++		if (release)
+ 			return release(inode, file);
+-		}
+ 		return 0;
+ 	}
+ 
+diff --git a/include/linux/cleanup.h b/include/linux/cleanup.h
+index 0b55a8f6c59e..8d41b917c77d 100644
+--- a/include/linux/cleanup.h
++++ b/include/linux/cleanup.h
+@@ -212,10 +212,10 @@
+ 
+ #define __free(_name)	__cleanup(__free_##_name)
+ 
+-#define __get_and_null(p, nullvalue)   \
++#define __get_and_null(p, nullvalue)	    \
+ 	({                                  \
+-		__auto_type __ptr = &(p);   \
+-		__auto_type __val = *__ptr; \
++		auto __ptr = &(p);	    \
++		auto __val = *__ptr;	    \
+ 		*__ptr = nullvalue;         \
+ 		__val;                      \
+ 	})
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index ff71bebe56f5..04487c9bd751 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -190,7 +190,7 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+ #define data_race(expr)							\
+ ({									\
+ 	__kcsan_disable_current();					\
+-	__auto_type __v = (expr);					\
++	auto __v = (expr);						\
+ 	__kcsan_enable_current();					\
+ 	__v;								\
+ })
+diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
+index 3eac51d68426..41172a28ce76 100644
+--- a/include/linux/compiler_types.h
++++ b/include/linux/compiler_types.h
+@@ -13,6 +13,19 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
++/*
++ * C23 introduces "auto" as a standard way to define type-inferred
++ * variables, but "auto" has been a (useless) keyword even since K&R C,
++ * so it has always been "namespace reserved."
++ *
++ * Until at some future time we require C23 support, we need the gcc
++ * extension __auto_type, but there is no reason to put that elsewhere
++ * in the source code.
++ */
++#if __STDC_VERSION__ < 202311L
++# define auto __auto_type
++#endif
++
+ /*
+  * Skipped when running bindgen due to a libclang issue;
+  * see https://github.com/rust-lang/rust-bindgen/issues/2244.
+diff --git a/include/linux/minmax.h b/include/linux/minmax.h
+index eaaf5c008e4d..a0158db54a04 100644
+--- a/include/linux/minmax.h
++++ b/include/linux/minmax.h
+@@ -89,7 +89,7 @@
+ 	__cmp_once_unique(op, type, x, y, __UNIQUE_ID(x_), __UNIQUE_ID(y_))
+ 
+ #define __careful_cmp_once(op, x, y, ux, uy) ({		\
+-	__auto_type ux = (x); __auto_type uy = (y);	\
++	auto ux = (x); auto uy = (y);			\
+ 	BUILD_BUG_ON_MSG(!__types_ok(ux, uy),		\
+ 		#op"("#x", "#y") signedness error");	\
+ 	__cmp(op, ux, uy); })
+@@ -129,7 +129,7 @@
+ 	__careful_cmp(max, (x) + 0u + 0ul + 0ull, (y) + 0u + 0ul + 0ull)
+ 
+ #define __careful_op3(op, x, y, z, ux, uy, uz) ({			\
+-	__auto_type ux = (x); __auto_type uy = (y);__auto_type uz = (z);\
++	auto ux = (x); auto uy = (y); auto uz = (z);			\
+ 	BUILD_BUG_ON_MSG(!__types_ok3(ux, uy, uz),			\
+ 		#op"3("#x", "#y", "#z") signedness error");		\
+ 	__cmp(op, ux, __cmp(op, uy, uz)); })
+@@ -203,7 +203,7 @@
+  * This macro checks @val/@lo/@hi to make sure they have compatible
+  * signedness.
+  */
+-#define clamp(val, lo, hi) __careful_clamp(__auto_type, val, lo, hi)
++#define clamp(val, lo, hi) __careful_clamp(auto, val, lo, hi)
+ 
+ /**
+  * clamp_t - return a value clamped to a given range using a given type
+diff --git a/tools/testing/selftests/bpf/prog_tests/socket_helpers.h b/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
+index e02cabcc814e..0d59503a0c73 100644
+--- a/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
++++ b/tools/testing/selftests/bpf/prog_tests/socket_helpers.h
+@@ -17,11 +17,16 @@
+ #define VMADDR_CID_LOCAL 1
+ #endif
+ 
++/* include/linux/compiler_types.h */
++#if __STDC_VERSION__ < 202311L && !defined(auto)
++# define auto __auto_type
++#endif
++
+ /* include/linux/cleanup.h */
+ #define __get_and_null(p, nullvalue)                                           \
+ 	({                                                                     \
+-		__auto_type __ptr = &(p);                                      \
+-		__auto_type __val = *__ptr;                                    \
++		auto __ptr = &(p);					       \
++		auto __val = *__ptr;                                           \
+ 		*__ptr = nullvalue;                                            \
+ 		__val;                                                         \
+ 	})
+diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
+index 204ef0e9f542..725b93bfeee1 100644
+--- a/tools/virtio/linux/compiler.h
++++ b/tools/virtio/linux/compiler.h
+@@ -31,7 +31,7 @@
+  */
+ #define data_race(expr)							\
+ ({									\
+-	__auto_type __v = (expr);					\
++	auto __v = (expr);						\
+ 	__v;								\
+ })
+ 
