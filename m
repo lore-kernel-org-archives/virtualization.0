@@ -1,165 +1,254 @@
-Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazon11010022.outbound.protection.outlook.com [52.101.84.22])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86B1233136
-	for <virtualization@lists.linux.dev>; Mon,  8 Dec 2025 11:45:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.84.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B1DA2E7186
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 14:39:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765194338; cv=fail; b=BtBw5ws2MCtbp4pTvBvUyS9m8ZjEQ0RJVwY6fGfIQExfHFb3JBr6Uf+Yopca6IajABHks1HqAzRbWlVkoJD1h2TiVORwp9/MVcSbvWtqUxYegjEnfdNoUakA7wNaeniKEj6Wn0wV76bPeUhvowNqYaYIidAniwDf08uhqa73fPI=
+	t=1765204794; cv=fail; b=qcQClpX3uTqYsn2/u7Oghx6euZgp6lQOw/2zRkMUBCv9qOJDNfzgNjs7btv1N4mlkSLleozhxYHnsy8Eez4HpFmYl0l/NiNPRMAWJ7x2d8DZrGJpknFehb9y3aF4qA2NzfrmlAdepUgy6ssSdqJuoafWu1GObDjMGItU6ZYkxdQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765194338; c=relaxed/simple;
-	bh=AvB6YNRM0ty/549Gan+MkkBNR4Llfy73HCosalZQIuw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=Zxset6P0UqQXj6r+ijIkgUV1jIUNcQiYfANitWHg6DRXwuZK4lqq2MyytwXlburIfkdJP1fIgdnE8ua/g7StdzK9AUJYW8y0qJJzkLR4Y2yv/v3UBiBZYpBy6IKK+lqe4JY5FUsTUx8BOZUFQZAPEektwEyajIfyV9q+8cWf7h0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=RdBI//4N; arc=fail smtp.client-ip=52.101.84.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	s=arc-20240116; t=1765204794; c=relaxed/simple;
+	bh=vIRChMwWP/IuvMstyw0ikkA8dH7hD4dheH/oaMfgBGY=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=BhxTVNt8oMp2XQxXu/U+h+jUVSI17rx/XipdnwTqYemjcorfMYHvpCj13cnDLTzLyy7EVOYb8UB/y7820MtmPjtA9buxNwVghS6JsuPw2bMk9oWxeSBV0YbEdtHnyr39xzBOqu4vUlTde4lBYr5VHzBjrqvo3u6t8so/iRWlk3E=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=kb/zRSRY; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="RdBI//4N"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="kb/zRSRY"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id D5E2840234
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 14:39:52 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 7wGREPTgV7UP for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Dec 2025 14:39:52 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c110::1; helo=bn1pr04cu002.outbound.protection.outlook.com; envelope-from=mgurtovoy@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E3EC940077
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E3EC940077
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=kb/zRSRY
+Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azlp170100001.outbound.protection.outlook.com [IPv6:2a01:111:f403:c110::1])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E3EC940077
+	for <virtualization@lists.linux-foundation.org>; Mon,  8 Dec 2025 14:39:51 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=TOElehuS4tyUIXKFKS/QkDuH3JjKcGeC+gahdzpe9UI1Y+bUbxHlTrHLwmLlWFf12+kEhjxRuHm7NPCnfjPqRtFyIjOlFZeXUG8a43UbGuLDGB5xe7QRqZ1O5+TZdDH1CWBIMK/ZpYDR497KCOYve9XgG+RvrgFmw+ahi6u06upOdsnus0Yuq+vEHIMZQqvO3xGksd1r8B/s5eQsvchM3+Zm9S8dP1YsISR2S6EC3mQ39uDE9vf67UIs3cj46Y2sLnDKwEH71LqpB8YXYMQqr8Cakco/ExyJ0DR+S3ThZy48t5nZOWdcwQdU4wo4jcCxeZKguqq90Txzgs45RucTzA==
+ b=OmqL81/0NaEk1wjMzMRAGRtbVFrKTuV7qWINBBOCnjzApAqvmrcZnbpzLt6PdNkjLtV81/aglHcCcOf7DOe6IvtEUvr0w/DIF8x9PnnmDgyZTTtFizxofa4JVHs6vL6s493YCOEskFPi53rbIuuVuutr9WIzWdtHod8CuS90iIaH0if5NEJ8iY8rI3AXYTl40nBtZTjlEN0ZAHzABeEwiTes5nLUBgRdBd26//ZINfay/RHFk6ci08WTE3uLmq7Ec3PHjFmdTUEORMIxdq/8uJt/uTeIs/IJhL0ZreQ2Zd7VHJqiZCFJq8PEvpeKQtOWF4Iyn/T5OCh4WDhLfCxqgQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=AvB6YNRM0ty/549Gan+MkkBNR4Llfy73HCosalZQIuw=;
- b=I6J+wGoJyDV/+WomaJNKWVXmkPUct/NXPMEs1+5q9c9C41mG5CHgwnkYBH3a7M+tTgUYxsNt95Bqp3xuHFU1sVaVvFRtgxIiH4N+OKzYhPbwmW8KIU08TBxr+XW/2Qa6OFcGHWzxuZVIja2KG/ERKHS7IQAX6T5107ll6U95P6OJqGWXQBjTLSqZ6iinfrlgo7bgZfXU6tdPy8WJom3HAXD4l1m6lUWb85RNeXtulRZZyUqqBH4ZfkzuekL8lzsiJth22cp2IlpvgCLdFS/pC/cMCDtwWhGRmFOHw707CWs4UPdaFDy6B5/xBd3wuNUozrVSJ90X3rl3ajCOW9aFzQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
+ bh=CEWkSacPU3oXI1u6ODQIsT4shA8v6ojGc7WqqX10SbA=;
+ b=tVjLg4otUTPPm6O+oPOr3Hw8OPgkYDGAHaLCrVwPFmPyiw6iaG32DwEHviQUy4136Z791fCN1/NBTJXRR4K6fNOSPxjOINIXA6ty5UxNXdaRA837gO70DHZFKKOHvd+QTHwYwyvGSJymVOMIdH4J/rSkX6EXUSZzOAsWcKSXuZ/9FsD8Iv4SzYKCkxkDHzQ43fI9yqp8NXxGWqlA8aEezqwmLDyIkApR4sUMSWDlYODJdFsgewNDI96OxkwUU2enDOfKHLatm+UY1OjLaKmKM/rXW+R+Rt4avhtcYBKowrIJOo5FBsFFAmtVrSCrVEL740gYciN5Tpweh2MhoowZsg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=AvB6YNRM0ty/549Gan+MkkBNR4Llfy73HCosalZQIuw=;
- b=RdBI//4NaLvn+qDTP49B/pIyDzQYRNk5lQnK6RfxYqB1S20VKYTY5hkU8q27CldWXm18iO6ZcILdvx4vB9nddfsCUmEUdge8c4EqLHkSYxRrAYcumm9COquUhpTPGNiosEqv/nF4PH9Cxp2trqjKYopBS6HfjjnCEFSshd17IYi0xbg0eeuvm3G40s+csvtPYIPfeXTVqqblgtWFgfoESM2uCJz2uMYrc8lH/7ZQFw+bAb1KGVe1+l+LE375acPC5ElislgfhOOdntDqUDkbXN2IERZdeP+HvFMU8FfeNC8qofLhFIqgMkxMLcuwKFJ1NOiXAHRjXpuCN0Xd4YN/Kg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from PAXPR04MB8459.eurprd04.prod.outlook.com (2603:10a6:102:1da::15)
- by GV1PR04MB9514.eurprd04.prod.outlook.com (2603:10a6:150:20::17) with
+ bh=CEWkSacPU3oXI1u6ODQIsT4shA8v6ojGc7WqqX10SbA=;
+ b=kb/zRSRYnm6iCILSAtIDD9CN6+nVrgnHId04/N23Prkupv5hZoG9cwHtGUR3I1YlS3iIwX4KoT3s5G1Ar7JM9iCPG6ToAbled77YSOZ9w3fVLhQ3XwDcBEW71ROUBOHr8vKW/7nVODIej34aJ9ENvUo3psxKZUphr6umsh9/v0O1LPN5JT60YcCJ9xwgOOVtaBBB41/06Ay1dKqsqcNDXxi9WjVfQY3rfTE5DvwVF6yRrE7YxTCnlMqziUN2a2qWuYu+TDDyY0wmJG9HdDwWfKf4fPLlpalbZv+x0i09QkEl1NtfQsFt8rBUh5aFkvXC/B6OXLSEO3URVWJdjGEPsw==
+Received: from SJ0PR05CA0142.namprd05.prod.outlook.com (2603:10b6:a03:33d::27)
+ by CYYPR12MB8989.namprd12.prod.outlook.com (2603:10b6:930:c2::9) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9388.14; Mon, 8 Dec
- 2025 11:45:29 +0000
-Received: from PAXPR04MB8459.eurprd04.prod.outlook.com
- ([fe80::165a:30a2:5835:9630]) by PAXPR04MB8459.eurprd04.prod.outlook.com
- ([fe80::165a:30a2:5835:9630%4]) with mapi id 15.20.9388.003; Mon, 8 Dec 2025
- 11:45:29 +0000
-Date: Mon, 8 Dec 2025 19:46:34 +0800
-From: Peng Fan <peng.fan@oss.nxp.com>
-To: Haixu Cui <quic_haixcui@quicinc.com>, Mark Brown <broonie@kernel.org>
-Cc: virtualization@lists.linux.dev, linux-spi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
-Subject: Re: [PATCH RFC] spi: virtio: Add [new,delete]_device sysfs interface
-Message-ID: <aTa6moPSbWk7+S6u@shlinux89>
-References: <20251205-v-spi-v1-1-89713cc6c0b4@nxp.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251205-v-spi-v1-1-89713cc6c0b4@nxp.com>
-X-ClientProxiedBy: SG2PR02CA0061.apcprd02.prod.outlook.com
- (2603:1096:4:54::25) To PAXPR04MB8459.eurprd04.prod.outlook.com
- (2603:10a6:102:1da::15)
+ 2025 14:39:45 +0000
+Received: from SJ1PEPF000023D2.namprd02.prod.outlook.com
+ (2603:10b6:a03:33d:cafe::c9) by SJ0PR05CA0142.outlook.office365.com
+ (2603:10b6:a03:33d::27) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9412.5 via Frontend Transport; Mon, 8
+ Dec 2025 14:39:44 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ SJ1PEPF000023D2.mail.protection.outlook.com (10.167.244.9) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9412.4 via Frontend Transport; Mon, 8 Dec 2025 14:39:44 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 8 Dec
+ 2025 06:39:28 -0800
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 8 Dec
+ 2025 06:39:28 -0800
+Received: from r-arch-stor03.mtr.nbulabs.nvidia.com (10.127.8.14) by
+ mail.nvidia.com (10.129.68.8) with Microsoft SMTP Server id 15.2.2562.20 via
+ Frontend Transport; Mon, 8 Dec 2025 06:39:25 -0800
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
+To: <mst@redhat.com>, <stefanha@redhat.com>, <sgarzare@redhat.com>,
+	<virtualization@lists.linux-foundation.org>
+CC: <oren@nvidia.com>, <aevdaev@nvidia.com>, <aaptel@nvidia.com>, Max Gurtovoy
+	<mgurtovoy@nvidia.com>
+Subject: [PATCH 1/1] virtio: add driver_override support
+Date: Mon, 8 Dec 2025 16:39:25 +0200
+Message-ID: <20251208143925.32246-1-mgurtovoy@nvidia.com>
+X-Mailer: git-send-email 2.18.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PAXPR04MB8459:EE_|GV1PR04MB9514:EE_
-X-MS-Office365-Filtering-Correlation-Id: b9ee7b12-b840-4b4b-9038-08de364f4931
-X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-TrafficTypeDiagnostic: SJ1PEPF000023D2:EE_|CYYPR12MB8989:EE_
+X-MS-Office365-Filtering-Correlation-Id: 514ef725-8410-4d0e-b28b-08de3667a149
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|52116014|376014|19092799006|38350700014;
+	BCL:0;ARA:13230040|376014|82310400026|1800799024|36860700013;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?pn5mkend22ZNKZtJtfWYENRpD0hT0y/F83Mdv9XiOKxMyGtNyayPaRPEK7ne?=
- =?us-ascii?Q?QE4wBUN9eqfwyfX+Lr1h1qgp0nQMzPbH5TsTv6Io5rIF/KrnyqFaZEOjYotp?=
- =?us-ascii?Q?8ZcHRXDOn/5IgkBe63zBgUh2/tcTAveMFLRks43CXNC4U9OhP47QiKZzHrAv?=
- =?us-ascii?Q?2pnU11VQ60bbYM0RMrAWQKC9IzKvfBBPbI86zr39XoS9OwkGVKdeX4jm6+6H?=
- =?us-ascii?Q?crV7spZGPXAtDmQgJpO2rIMxCSCvcvSnrCofxBeDbhiTH9AfyZ7lw/ycGHiR?=
- =?us-ascii?Q?+9coIbreQpX5QAaRJEO5G0WLkarpA3E5ehrsSTP5rtDCF+3RBAl793zNjgXF?=
- =?us-ascii?Q?6KkjQ8S5xHXLhRxPZulsRTKfrPSgWtOJd1VLOxMYOc5L2F2k19ha0M/4i6O7?=
- =?us-ascii?Q?jXkVkkIzMCxMZFGbJdSWRH9Kg5fBYDNUpENqxW/Bf3TOTDqHtDJIq1jPqIwR?=
- =?us-ascii?Q?WXcLcQoSyWj11Iylt1SfC/Cl1jdTl1QtBPhC1aM8kQItkJ+v7fsGacb9hOyq?=
- =?us-ascii?Q?Y3bVv2+n78bCGt7b6l0Eb9prWzJYU83bXXbA8w1ASRohE+Yu1s2fE6ERRHDn?=
- =?us-ascii?Q?ilTrkDyu5BxdnkAklSaHg2QFfib7d6F/6HMaiBvo5WSN4vTnx/a13dkW8xaO?=
- =?us-ascii?Q?x62eA18D3c9u/FMQZA/FeEZLSU5rNykdh/Lx8rD/+uN1KV6Adh+txNO3ZJIJ?=
- =?us-ascii?Q?Ja4w9v0Zot43iFLkwRTyWg6m1HAUWTN/0lj8Nh1NGpyV2B2i84fQeX5bQ6we?=
- =?us-ascii?Q?kOcGsavlC8pFX/r+uY+AFXf/jsOQqt0KK0mefYmSP5pymFYC844czm94cPga?=
- =?us-ascii?Q?cdwU9JdtfP/633BFl7SvustKSxRjuwN+aQ+nMTVhzG7lVSxngIOIAe7IhLPl?=
- =?us-ascii?Q?wbwo/4+NX50EevFcvsEYwa24+fAjNtvQumMFpoYP96RR+ccIbZJY976htKnl?=
- =?us-ascii?Q?AT+r5JdlNA2fzU68B6GNcw5176bcIPAI2qMeZtGhFGh1RbZjZGLytmI5+EiD?=
- =?us-ascii?Q?a9CqtmjNo7H6X4ZFzkbt7UmoZvz6vOp0g411z2IRXvS9EJVZSNcKAFf7IJ+J?=
- =?us-ascii?Q?wFJrzWptuEW1KWm4we7/Pusj6pbgDoNzIz0m/G2YYuSy+dtLDvcVyshFrixi?=
- =?us-ascii?Q?u5BP3qUhXnIWLYXt2WC4behRTxxJGHdlBkehFBzN7OTZ1QZ0exzB2031g1ns?=
- =?us-ascii?Q?h7H0gStsDKTa2eU7+fELZQIOKqOyQgXf4zQAKnmIzPR4/XOEQaelUkYiZ9y4?=
- =?us-ascii?Q?MyGeCRK6gmJacvDxg0E/+7EBw4aSnhGrbAVWD4Zkyt82EiYHMLWm/dIYz9K9?=
- =?us-ascii?Q?nyuSKEG9rPr4RKrZoQFtKGzmbEC2QwMdsoIspujvFyXqJsEtjZiH9y9E8WRp?=
- =?us-ascii?Q?VKpP1gr677m0/eZzn/2+v0sHcZy0t+B8UQgRbq54/ErN1viN1alwuoqQplCP?=
- =?us-ascii?Q?EIP9oh4zQzfI1WfCAv41cpUG4FLUG3JBR6J7XLkgqarpJWGQ0dn0eBySYhfD?=
- =?us-ascii?Q?kR726qZwi53jAPm/3izWHYgvKyVaB5bhyhQN?=
+	=?us-ascii?Q?gfc060MnbZYPhPdAZtzV6sGfm+NYFahNNXIR4QknpjYo93k/9/ZLCMCgmhko?=
+ =?us-ascii?Q?D0o2WrleP3zMTEIv5WbSRtAFZ/q4Ms5yK2Cci+hYCdQJ74FXYnVd6aNYi8NA?=
+ =?us-ascii?Q?WlaVhtYcu4KCMMuRJiouhJ3TtTpszWZU8dQh/Ne5dgtKpHEcuTBEbWSPA8g6?=
+ =?us-ascii?Q?/XgN/FdtKeiYdojw2FPXiXMk2+yX3Mb5ZsxgCQ47+nLJUeLLOhSqVmx8daM7?=
+ =?us-ascii?Q?UT36UB2lPXbgvbO+VpyyFT5dop8LnvVKt1wOjxGAJa86V0hZtTdoxD8TnQ4U?=
+ =?us-ascii?Q?+/eCwFODwI/7o+7JkpTD/Mkn4Y6D+Q0VQUGOmiY6xiQ1G1P6xECudYfSvtT7?=
+ =?us-ascii?Q?Xxo+7V9LtPF86TGIktdAxg7SCTGsa7WxXlt1uITthrnxRDmiA2Lv7wa+Y7/H?=
+ =?us-ascii?Q?YhtkqpmQ+V/VL1c2D9fjPCU8lJ+ypminsoOGNEa1UTHay1Wk/v7ypcuJZ5Xg?=
+ =?us-ascii?Q?PgPT2CfHpLaFppSAQQ4Y3i5UdL/hAgHD7q6YZL1YtULPouRhLfDZ7NdyrM6f?=
+ =?us-ascii?Q?ZCR76QMaeTYlJ+4Fdgqt5pykQOOpmaw4CvzKV/Qt2iXJbxb7OBFkuH7bLJP5?=
+ =?us-ascii?Q?7xhag9dwkP5juGGGCpTtoR1KMDDZW52PUiA4q/dRreOjA7Z/Rk8/uIkX9qE7?=
+ =?us-ascii?Q?RqYYjvVTCZDSa4W7rEXOL51GXSbwznfVg0Vygxn4486TA8QBPTkDi0zQORDs?=
+ =?us-ascii?Q?8mHSxnzFYB+StSnA2WYWeLlA9Gxzv7Zql7HtG9BVj14oIwuKEqOzolcv0jE9?=
+ =?us-ascii?Q?K6901ZzklWEtzc9DFVFGhxMQGAMJX+hoF4ipcnKu0ERLoP3ocr8wGWEDkzDp?=
+ =?us-ascii?Q?NOojfVPnWzweeC6mf2/kTyVhOk1B2df6IbYvZ3/Qj8htK9YroCc+sOsYiQTJ?=
+ =?us-ascii?Q?joEgpJXvFQUUE83zvBR22LN/bxd2H2gJdVY4r5QpjPCQCMoyG5MbNNzYqIsU?=
+ =?us-ascii?Q?ozrEWQv3A7gGn42K3faT0iSzUc00Wpp1zJAGoaeAMsvshCwB8UaANK+DgBrX?=
+ =?us-ascii?Q?Yu/yeoQo9kGyls/8EoilmRD2egINXChPalU9HS/Dp3GYB1NhcZSpgYWvDRJy?=
+ =?us-ascii?Q?sP7YWUL98BTH8I5OE5q/kiwh0MKSvbXP+bhkW8zXiPS7m5uAtdgsUbJxMNcM?=
+ =?us-ascii?Q?UatLbmVJT80dgyLTMUGdleyGPItYA89A8fgwGmYY5qi86bpyLeAGR3VYQKyz?=
+ =?us-ascii?Q?cdDkCZHjmh96Wn9J1ppszjtGa+VRoPZL7RAW5Kk8x9Vd90binT8CepI8chQg?=
+ =?us-ascii?Q?g2Fa2pgRQ8KjjSH8gENt/h2XcoXuRUnIYaiUXm6cyLaGXIJ+mq5nilctGYuo?=
+ =?us-ascii?Q?aQMUKqkrR0PPfugzW0CjH9Hcb9fuMcsqyNHUUXsK8HMC7fsC6V//YqErC9tZ?=
+ =?us-ascii?Q?zpOw97T9vZ8Tp2m343Ta+cVRnlr8MHeCUG6lmd08gK/LmWS4/nE1B3PS4qq8?=
+ =?us-ascii?Q?te45xXb1lA7A8zYprb7Ir9oi+L4oGqudU2yH1CYToCOkDXECTQXnCgJiPJI6?=
+ =?us-ascii?Q?MpBWKph/AUCauEushCy30qbibTShGYJjUyzzyVtgA4aX6QFobRz+ftAP3gI9?=
+ =?us-ascii?Q?lYeIuYfxg1WiLye2jqo=3D?=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR04MB8459.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(52116014)(376014)(19092799006)(38350700014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?Mptk2VdwmlwrrN2nZk0LUJh14w53nWU37O/kAw6PvXnfqRu2sw7s2Z3VO4/G?=
- =?us-ascii?Q?kn2/MCF8brrTy0mnXfgrUUswzlBLcI7dhpVQbixvZRuNM59a8QpeWHZh00tJ?=
- =?us-ascii?Q?1Bz6C1XCj3JxpKbOcfE52eWWOenFluiiu44sz8Ech2bFcxSE+ljbN78Okg1Z?=
- =?us-ascii?Q?oG3qnUnQzdlDby4p9UtDVzNJ5+vZli4yA56aPozjNLXWjJEsW6U4o/DCsXhx?=
- =?us-ascii?Q?OT2jvIEFzt+uvsNyclKZPwkfeX5DFIxACc668EPFgHXWTzY1s+m4piEJRbjL?=
- =?us-ascii?Q?8mbjd38+DPQTBkgLypFH0TBDkUwAJur14xckc1SdCbbzqvgtkCFDihQd6rty?=
- =?us-ascii?Q?w/GDd/PKSI6UyxqV0TzCdD1CVPrKyPhjka5lzi3u+xNYykcFTvO+96hwOIXX?=
- =?us-ascii?Q?N02l1jW06j06CPP+nMGZ27jz4ZuKBkldgenNqwKhOBH4G8kTSuEeTvKsrDsw?=
- =?us-ascii?Q?hCFF9Cfmc/jSXgnwkGkzVLtmMj0dYUWAg6NR48an/XklvWnjv5Vy6vQEqmaj?=
- =?us-ascii?Q?TDrR5MjsUvmXUX1aZJw33FM84GQE2Ka1M4GLssxOmallg18QqhoCAN1wZfEb?=
- =?us-ascii?Q?9P6wbXFbel74Gk4DJdiGLJUn47ASQ2h0kZI5npDi/cGvbRhBi6vZT6XifhPe?=
- =?us-ascii?Q?s8uIaUbvpONsKhm3bFQ/Y8CNAA/imboyeK6LQnSNakHjeQGBsZxaruSxyPnQ?=
- =?us-ascii?Q?puv19uXeyaLwFv12XdDB+FnVAUjz7IoQ6ltIstkHG+cIefyPklFnkRluHRIc?=
- =?us-ascii?Q?S04N+ETTd+OlJVI7emtRlSzMePvZJdvC7OH/bcxDT8Ju+QP7Rv+jT46ekGM0?=
- =?us-ascii?Q?EfRtrhX4xAjiKcS6nBt1uMmZnn1xR7nrBPYR9iFhzXCwm+tRgelmbuRUdRTp?=
- =?us-ascii?Q?p2K03uWktS7dbqYDjOhseA0qHzmdj3jXkaNYvwc3axRImwZlU81dea7ha9Ql?=
- =?us-ascii?Q?D3F+/zBPvPBMbd+wEuNxv//ilOuyct5vHfw1N9Z0s2IyuaRPuKz4MjlrTTu9?=
- =?us-ascii?Q?6YBylklXio6B+FZvoSmknO/7id/fbD31tFHt177JntHoyuJRJdmJ7vCHWKSl?=
- =?us-ascii?Q?79SLKzMV8QZdscuh695x4SqK1S2rCpFfstER4O1AuPXyxLoIcUskj3xX9DTq?=
- =?us-ascii?Q?YXFKiFSlMZsUTBEp/zpAY1EnNE0/VTqos+YXAGwpYfyUdoSORY5KKRz5NbIV?=
- =?us-ascii?Q?FJonY4LM9OnMS8L91fB9GkWWipnRG99KbS9mjqBGixRddYAuRQg440VxyQdH?=
- =?us-ascii?Q?5ixNHtsuCNDbDKyOMlA8RVImQOTou4Y31X6sowU2KsgtMyTK9PgD2emhlYFl?=
- =?us-ascii?Q?FByZ1dJRAK+F9tOT0xuGiBkHa4TFodIQEwUvFnUFGJCtHeKlCZ76YCuL/xhn?=
- =?us-ascii?Q?UYLewisIM+5JWljSvGihBSktAtF27Sxai+faqJSjKtJZPbMt1RAmqZAsZDN0?=
- =?us-ascii?Q?zh4l2F7nSd5RRhHEyNF4pyKGlfMRqKK7mCl8mwaqwqZaq+0eh5V5Rw/DdIjK?=
- =?us-ascii?Q?suPPEwgDTayxW4drwbBrryMiJGlKGVYIZ7GEhWusUukfRfuHw+xLPNID3Qs7?=
- =?us-ascii?Q?sWRlCprOpuTWIjeJBUQVAcCT8AUJIwEBcVYPNAgk?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b9ee7b12-b840-4b4b-9038-08de364f4931
-X-MS-Exchange-CrossTenant-AuthSource: PAXPR04MB8459.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Dec 2025 11:45:29.2625
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(82310400026)(1800799024)(36860700013);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Dec 2025 14:39:44.8091
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 7PTus7zh6YuhAIv77+n7o9XWn6lZ8N1BYqjR//u9rMnG0d5LATck7+F5uLFeclQK4M3OK1WLcsGUKFAplmQQzA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: GV1PR04MB9514
+X-MS-Exchange-CrossTenant-Network-Message-Id: 514ef725-8410-4d0e-b28b-08de3667a149
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SJ1PEPF000023D2.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYYPR12MB8989
 
-On Fri, Dec 05, 2025 at 09:40:26PM +0800, Peng Fan (OSS) wrote:
->From: Peng Fan <peng.fan@nxp.com>
->
->spi-virtio registers a SPI controller, but we still need to register a
->SPI device to initiate the SPI virtio transfer.
->
->To Xen hypervisor, there might be no 'passthrough' node for DomU,
->so add a sysfs interface to allow creating/deleting a SPI device.
->
->Usage:
-> echo "spidev" > /sys/class/spi_master/spi0/new_device
-> echo "spi0.0" > /sys/class/spi_master/spi0/delete_device
->
+Add support for the 'driver_override' attribute to Virtio devices. This
+allows users to control which Virtio bus driver binds to a given Virtio
+device.
 
-After rethinking about this, I think it might be better to add the sysfs
-to all SPI controller just as what i2c core supports:
-drivers/i2c/i2c-core-base.c: 1264
+If 'driver_override' is not set, the existing behavior is preserved and
+devices will continue to auto-bind to the first matching Virtio bus
+driver.
 
-I will post out v2 to move the code to spi_controller_groups if no objections.
+Signed-off-by: Avraham Evdaev <aevdaev@nvidia.com>
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+---
+ drivers/virtio/virtio.c | 34 ++++++++++++++++++++++++++++++++++
+ include/linux/virtio.h  |  4 ++++
+ 2 files changed, 38 insertions(+)
 
-Thanks,
-Peng
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index a09eb4d62f82..f3ce12ee1fb5 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -61,12 +61,41 @@ static ssize_t features_show(struct device *_d,
+ }
+ static DEVICE_ATTR_RO(features);
+ 
++static ssize_t driver_override_store(struct device *_d,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	struct virtio_device *dev = dev_to_virtio(_d);
++	int ret;
++
++	ret = driver_set_override(_d, &dev->driver_override, buf, count);
++	if (ret)
++		return ret;
++
++	return count;
++}
++
++static ssize_t driver_override_show(struct device *_d,
++				    struct device_attribute *attr, char *buf)
++{
++	struct virtio_device *dev = dev_to_virtio(_d);
++	ssize_t len;
++
++	device_lock(_d);
++	len = sysfs_emit(buf, "%s\n", dev->driver_override);
++	device_unlock(_d);
++
++	return len;
++}
++static DEVICE_ATTR_RW(driver_override);
++
+ static struct attribute *virtio_dev_attrs[] = {
+ 	&dev_attr_device.attr,
+ 	&dev_attr_vendor.attr,
+ 	&dev_attr_status.attr,
+ 	&dev_attr_modalias.attr,
+ 	&dev_attr_features.attr,
++	&dev_attr_driver_override.attr,
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(virtio_dev);
+@@ -88,6 +117,10 @@ static int virtio_dev_match(struct device *_dv, const struct device_driver *_dr)
+ 	struct virtio_device *dev = dev_to_virtio(_dv);
+ 	const struct virtio_device_id *ids;
+ 
++	/* Check override first, and if set, only use the named driver */
++	if (dev->driver_override)
++		return strcmp(dev->driver_override, _dr->name) == 0;
++
+ 	ids = drv_to_virtio(_dr)->id_table;
+ 	for (i = 0; ids[i].device; i++)
+ 		if (virtio_id_match(dev, &ids[i]))
+@@ -582,6 +615,7 @@ void unregister_virtio_device(struct virtio_device *dev)
+ {
+ 	int index = dev->index; /* save for after device release */
+ 
++	kfree(dev->driver_override);
+ 	device_unregister(&dev->dev);
+ 	virtio_debug_device_exit(dev);
+ 	ida_free(&virtio_index_ida, index);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index db31fc6f4f1f..418bb490bdc6 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -138,6 +138,9 @@ struct virtio_admin_cmd {
+  * @config_lock: protects configuration change reporting
+  * @vqs_list_lock: protects @vqs.
+  * @dev: underlying device.
++ * @driver_override: driver name to force a match; do not set directly,
++ *                   because core frees it; use driver_set_override() to
++ *                   set or clear it.
+  * @id: the device type identification (used to match it with a driver).
+  * @config: the configuration ops for this device.
+  * @vringh_config: configuration ops for host vrings.
+@@ -158,6 +161,7 @@ struct virtio_device {
+ 	spinlock_t config_lock;
+ 	spinlock_t vqs_list_lock;
+ 	struct device dev;
++	const char *driver_override;
+ 	struct virtio_device_id id;
+ 	const struct virtio_config_ops *config;
+ 	const struct vringh_config_ops *vringh_config;
+-- 
+2.18.1
+
