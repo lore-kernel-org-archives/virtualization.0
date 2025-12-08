@@ -1,185 +1,165 @@
-Received: from mail-oo1-f80.google.com (mail-oo1-f80.google.com [209.85.161.80])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazon11010022.outbound.protection.outlook.com [52.101.84.22])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 388BA30FF10
-	for <virtualization@lists.linux.dev>; Mon,  8 Dec 2025 11:21:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.80
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765192887; cv=none; b=t7onft6t0pHwA6cNppjF65jwiywsqs/O16ZGKrTF9nXSx5t6zYRr9FRPrVbn2pdlgyryXG/GUjWOjHGPPWbUxABljITIUzbWWnPkd1Vo7SCl6e3cyXFBwBgRp+b9CuhYeoTFotQZKbfkQKIkBpZG6RJCixxaygZJovZ5ibLe7Ww=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765192887; c=relaxed/simple;
-	bh=/aFtt90Az4pmsZ8iGym0ES0kZyqG19+Un08bBTYx2e0=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=rS+qC5dhM0hHMnpK2dvxbfiHAXE+bm/xx5+ZeUTCjbPZNxtXZkI7OaEZ4oIMtHSrdgKnc/POlQIlu87pLQ6eUnp0fTXPMC8S8TS9X2b1HOzPtLJeRB9QZhSyeU3dzsAnEgax8jt7GjCOZ1vTgyF6+o65cNsgSThObJDNCOGKouo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f80.google.com with SMTP id 006d021491bc7-6573d873f92so3034266eaf.2
-        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 03:21:25 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765192884; x=1765797684;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=tEYM2xG6zvxNmktooPVFzI3lRUI4aVQvufBVk+XlwKY=;
-        b=DEW5/qTaC9wiZ6a4v92c87LE0bw/e0wyPp2XR9+C6/qwmuCxEUL9AX87EIDXDmssfe
-         tpSac/DELUTOL9GY1x3jHwOCYjjJoubNr4TIz13Ff5IXo18ful/deTql8YHmEGNkhpve
-         iPxZ8tsZ3MK3TMWKc3Yh9lSYVajp4hjXCPaoWjQ/IQ+lxDaPjnTj1TxUK6XdJ6288GO6
-         YM/KSMw5k3UMF6jVRQZt1zoVC4I9YtmdxT+XnRqbe+NGm/ZaF5J9xXMeZuOkw9qrcfps
-         mNKL/xolIJZIb0abD3R8tU52hrS2U/U0JHBZ9ae8SmcldPh1tnSCiDjqhp6AAmHkpF8q
-         kKYw==
-X-Forwarded-Encrypted: i=1; AJvYcCWVZX5IB6uCvOjD2rQIVdIQbtl5uuR0M8iaKToerOV+WH4dF+Vc2NJFQRgL0daRdESRHdjKBziMUOri540lEQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw5c6aKj3ULEzPUxw5TiAqo6+oB5aHNxpS9IrPrLu7MPF4D85Kf
-	iIayFSioMJNUKRL4YYEO/U3QJTKQJHQAEsYYmBzlox193RIiASZmWBo/fiqAXZgGHtjbCgwInZR
-	ikEK9BuuNyKTuTd0LhmfY+IVEpPRSZbKZFpY/mKp0jWeNiQEdqjf4+WwyNmI=
-X-Google-Smtp-Source: AGHT+IHRm3ejNmfcW4LHNiAooQdI9hhnzIDedTnijxOW9l7hRpYkRtK1l5LXbaM2iTGlLgIpVC9FznyzKCfC/E6RHGE87LKdtgil
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86B1233136
+	for <virtualization@lists.linux.dev>; Mon,  8 Dec 2025 11:45:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.84.22
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765194338; cv=fail; b=BtBw5ws2MCtbp4pTvBvUyS9m8ZjEQ0RJVwY6fGfIQExfHFb3JBr6Uf+Yopca6IajABHks1HqAzRbWlVkoJD1h2TiVORwp9/MVcSbvWtqUxYegjEnfdNoUakA7wNaeniKEj6Wn0wV76bPeUhvowNqYaYIidAniwDf08uhqa73fPI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765194338; c=relaxed/simple;
+	bh=AvB6YNRM0ty/549Gan+MkkBNR4Llfy73HCosalZQIuw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=Zxset6P0UqQXj6r+ijIkgUV1jIUNcQiYfANitWHg6DRXwuZK4lqq2MyytwXlburIfkdJP1fIgdnE8ua/g7StdzK9AUJYW8y0qJJzkLR4Y2yv/v3UBiBZYpBy6IKK+lqe4JY5FUsTUx8BOZUFQZAPEektwEyajIfyV9q+8cWf7h0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=RdBI//4N; arc=fail smtp.client-ip=52.101.84.22
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="RdBI//4N"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=TOElehuS4tyUIXKFKS/QkDuH3JjKcGeC+gahdzpe9UI1Y+bUbxHlTrHLwmLlWFf12+kEhjxRuHm7NPCnfjPqRtFyIjOlFZeXUG8a43UbGuLDGB5xe7QRqZ1O5+TZdDH1CWBIMK/ZpYDR497KCOYve9XgG+RvrgFmw+ahi6u06upOdsnus0Yuq+vEHIMZQqvO3xGksd1r8B/s5eQsvchM3+Zm9S8dP1YsISR2S6EC3mQ39uDE9vf67UIs3cj46Y2sLnDKwEH71LqpB8YXYMQqr8Cakco/ExyJ0DR+S3ThZy48t5nZOWdcwQdU4wo4jcCxeZKguqq90Txzgs45RucTzA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=AvB6YNRM0ty/549Gan+MkkBNR4Llfy73HCosalZQIuw=;
+ b=I6J+wGoJyDV/+WomaJNKWVXmkPUct/NXPMEs1+5q9c9C41mG5CHgwnkYBH3a7M+tTgUYxsNt95Bqp3xuHFU1sVaVvFRtgxIiH4N+OKzYhPbwmW8KIU08TBxr+XW/2Qa6OFcGHWzxuZVIja2KG/ERKHS7IQAX6T5107ll6U95P6OJqGWXQBjTLSqZ6iinfrlgo7bgZfXU6tdPy8WJom3HAXD4l1m6lUWb85RNeXtulRZZyUqqBH4ZfkzuekL8lzsiJth22cp2IlpvgCLdFS/pC/cMCDtwWhGRmFOHw707CWs4UPdaFDy6B5/xBd3wuNUozrVSJ90X3rl3ajCOW9aFzQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=AvB6YNRM0ty/549Gan+MkkBNR4Llfy73HCosalZQIuw=;
+ b=RdBI//4NaLvn+qDTP49B/pIyDzQYRNk5lQnK6RfxYqB1S20VKYTY5hkU8q27CldWXm18iO6ZcILdvx4vB9nddfsCUmEUdge8c4EqLHkSYxRrAYcumm9COquUhpTPGNiosEqv/nF4PH9Cxp2trqjKYopBS6HfjjnCEFSshd17IYi0xbg0eeuvm3G40s+csvtPYIPfeXTVqqblgtWFgfoESM2uCJz2uMYrc8lH/7ZQFw+bAb1KGVe1+l+LE375acPC5ElislgfhOOdntDqUDkbXN2IERZdeP+HvFMU8FfeNC8qofLhFIqgMkxMLcuwKFJ1NOiXAHRjXpuCN0Xd4YN/Kg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from PAXPR04MB8459.eurprd04.prod.outlook.com (2603:10a6:102:1da::15)
+ by GV1PR04MB9514.eurprd04.prod.outlook.com (2603:10a6:150:20::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9388.14; Mon, 8 Dec
+ 2025 11:45:29 +0000
+Received: from PAXPR04MB8459.eurprd04.prod.outlook.com
+ ([fe80::165a:30a2:5835:9630]) by PAXPR04MB8459.eurprd04.prod.outlook.com
+ ([fe80::165a:30a2:5835:9630%4]) with mapi id 15.20.9388.003; Mon, 8 Dec 2025
+ 11:45:29 +0000
+Date: Mon, 8 Dec 2025 19:46:34 +0800
+From: Peng Fan <peng.fan@oss.nxp.com>
+To: Haixu Cui <quic_haixcui@quicinc.com>, Mark Brown <broonie@kernel.org>
+Cc: virtualization@lists.linux.dev, linux-spi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Peng Fan <peng.fan@nxp.com>
+Subject: Re: [PATCH RFC] spi: virtio: Add [new,delete]_device sysfs interface
+Message-ID: <aTa6moPSbWk7+S6u@shlinux89>
+References: <20251205-v-spi-v1-1-89713cc6c0b4@nxp.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251205-v-spi-v1-1-89713cc6c0b4@nxp.com>
+X-ClientProxiedBy: SG2PR02CA0061.apcprd02.prod.outlook.com
+ (2603:1096:4:54::25) To PAXPR04MB8459.eurprd04.prod.outlook.com
+ (2603:10a6:102:1da::15)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:823:b0:659:9a49:8ddb with SMTP id
- 006d021491bc7-6599a8e9e58mr3333218eaf.29.1765192884397; Mon, 08 Dec 2025
- 03:21:24 -0800 (PST)
-Date: Mon, 08 Dec 2025 03:21:24 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6936b4b4.a70a0220.38f243.00a2.GAE@google.com>
-Subject: [syzbot] [net?] [virt?] BUG: sleeping function called from invalid
- context in __bpf_stream_push_str
-From: syzbot <syzbot+b1546ad4a95331b2101e@syzkaller.appspotmail.com>
-To: ast@kernel.org, bpf@vger.kernel.org, davem@davemloft.net, 
-	edumazet@google.com, horms@kernel.org, houtao1@huawei.com, jkangas@redhat.com, 
-	kuba@kernel.org, linux-kernel@vger.kernel.org, martin.lau@kernel.org, 
-	netdev@vger.kernel.org, pabeni@redhat.com, sgarzare@redhat.com, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev, 
-	wangfushuai@baidu.com
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PAXPR04MB8459:EE_|GV1PR04MB9514:EE_
+X-MS-Office365-Filtering-Correlation-Id: b9ee7b12-b840-4b4b-9038-08de364f4931
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|52116014|376014|19092799006|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?pn5mkend22ZNKZtJtfWYENRpD0hT0y/F83Mdv9XiOKxMyGtNyayPaRPEK7ne?=
+ =?us-ascii?Q?QE4wBUN9eqfwyfX+Lr1h1qgp0nQMzPbH5TsTv6Io5rIF/KrnyqFaZEOjYotp?=
+ =?us-ascii?Q?8ZcHRXDOn/5IgkBe63zBgUh2/tcTAveMFLRks43CXNC4U9OhP47QiKZzHrAv?=
+ =?us-ascii?Q?2pnU11VQ60bbYM0RMrAWQKC9IzKvfBBPbI86zr39XoS9OwkGVKdeX4jm6+6H?=
+ =?us-ascii?Q?crV7spZGPXAtDmQgJpO2rIMxCSCvcvSnrCofxBeDbhiTH9AfyZ7lw/ycGHiR?=
+ =?us-ascii?Q?+9coIbreQpX5QAaRJEO5G0WLkarpA3E5ehrsSTP5rtDCF+3RBAl793zNjgXF?=
+ =?us-ascii?Q?6KkjQ8S5xHXLhRxPZulsRTKfrPSgWtOJd1VLOxMYOc5L2F2k19ha0M/4i6O7?=
+ =?us-ascii?Q?jXkVkkIzMCxMZFGbJdSWRH9Kg5fBYDNUpENqxW/Bf3TOTDqHtDJIq1jPqIwR?=
+ =?us-ascii?Q?WXcLcQoSyWj11Iylt1SfC/Cl1jdTl1QtBPhC1aM8kQItkJ+v7fsGacb9hOyq?=
+ =?us-ascii?Q?Y3bVv2+n78bCGt7b6l0Eb9prWzJYU83bXXbA8w1ASRohE+Yu1s2fE6ERRHDn?=
+ =?us-ascii?Q?ilTrkDyu5BxdnkAklSaHg2QFfib7d6F/6HMaiBvo5WSN4vTnx/a13dkW8xaO?=
+ =?us-ascii?Q?x62eA18D3c9u/FMQZA/FeEZLSU5rNykdh/Lx8rD/+uN1KV6Adh+txNO3ZJIJ?=
+ =?us-ascii?Q?Ja4w9v0Zot43iFLkwRTyWg6m1HAUWTN/0lj8Nh1NGpyV2B2i84fQeX5bQ6we?=
+ =?us-ascii?Q?kOcGsavlC8pFX/r+uY+AFXf/jsOQqt0KK0mefYmSP5pymFYC844czm94cPga?=
+ =?us-ascii?Q?cdwU9JdtfP/633BFl7SvustKSxRjuwN+aQ+nMTVhzG7lVSxngIOIAe7IhLPl?=
+ =?us-ascii?Q?wbwo/4+NX50EevFcvsEYwa24+fAjNtvQumMFpoYP96RR+ccIbZJY976htKnl?=
+ =?us-ascii?Q?AT+r5JdlNA2fzU68B6GNcw5176bcIPAI2qMeZtGhFGh1RbZjZGLytmI5+EiD?=
+ =?us-ascii?Q?a9CqtmjNo7H6X4ZFzkbt7UmoZvz6vOp0g411z2IRXvS9EJVZSNcKAFf7IJ+J?=
+ =?us-ascii?Q?wFJrzWptuEW1KWm4we7/Pusj6pbgDoNzIz0m/G2YYuSy+dtLDvcVyshFrixi?=
+ =?us-ascii?Q?u5BP3qUhXnIWLYXt2WC4behRTxxJGHdlBkehFBzN7OTZ1QZ0exzB2031g1ns?=
+ =?us-ascii?Q?h7H0gStsDKTa2eU7+fELZQIOKqOyQgXf4zQAKnmIzPR4/XOEQaelUkYiZ9y4?=
+ =?us-ascii?Q?MyGeCRK6gmJacvDxg0E/+7EBw4aSnhGrbAVWD4Zkyt82EiYHMLWm/dIYz9K9?=
+ =?us-ascii?Q?nyuSKEG9rPr4RKrZoQFtKGzmbEC2QwMdsoIspujvFyXqJsEtjZiH9y9E8WRp?=
+ =?us-ascii?Q?VKpP1gr677m0/eZzn/2+v0sHcZy0t+B8UQgRbq54/ErN1viN1alwuoqQplCP?=
+ =?us-ascii?Q?EIP9oh4zQzfI1WfCAv41cpUG4FLUG3JBR6J7XLkgqarpJWGQ0dn0eBySYhfD?=
+ =?us-ascii?Q?kR726qZwi53jAPm/3izWHYgvKyVaB5bhyhQN?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR04MB8459.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(52116014)(376014)(19092799006)(38350700014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?Mptk2VdwmlwrrN2nZk0LUJh14w53nWU37O/kAw6PvXnfqRu2sw7s2Z3VO4/G?=
+ =?us-ascii?Q?kn2/MCF8brrTy0mnXfgrUUswzlBLcI7dhpVQbixvZRuNM59a8QpeWHZh00tJ?=
+ =?us-ascii?Q?1Bz6C1XCj3JxpKbOcfE52eWWOenFluiiu44sz8Ech2bFcxSE+ljbN78Okg1Z?=
+ =?us-ascii?Q?oG3qnUnQzdlDby4p9UtDVzNJ5+vZli4yA56aPozjNLXWjJEsW6U4o/DCsXhx?=
+ =?us-ascii?Q?OT2jvIEFzt+uvsNyclKZPwkfeX5DFIxACc668EPFgHXWTzY1s+m4piEJRbjL?=
+ =?us-ascii?Q?8mbjd38+DPQTBkgLypFH0TBDkUwAJur14xckc1SdCbbzqvgtkCFDihQd6rty?=
+ =?us-ascii?Q?w/GDd/PKSI6UyxqV0TzCdD1CVPrKyPhjka5lzi3u+xNYykcFTvO+96hwOIXX?=
+ =?us-ascii?Q?N02l1jW06j06CPP+nMGZ27jz4ZuKBkldgenNqwKhOBH4G8kTSuEeTvKsrDsw?=
+ =?us-ascii?Q?hCFF9Cfmc/jSXgnwkGkzVLtmMj0dYUWAg6NR48an/XklvWnjv5Vy6vQEqmaj?=
+ =?us-ascii?Q?TDrR5MjsUvmXUX1aZJw33FM84GQE2Ka1M4GLssxOmallg18QqhoCAN1wZfEb?=
+ =?us-ascii?Q?9P6wbXFbel74Gk4DJdiGLJUn47ASQ2h0kZI5npDi/cGvbRhBi6vZT6XifhPe?=
+ =?us-ascii?Q?s8uIaUbvpONsKhm3bFQ/Y8CNAA/imboyeK6LQnSNakHjeQGBsZxaruSxyPnQ?=
+ =?us-ascii?Q?puv19uXeyaLwFv12XdDB+FnVAUjz7IoQ6ltIstkHG+cIefyPklFnkRluHRIc?=
+ =?us-ascii?Q?S04N+ETTd+OlJVI7emtRlSzMePvZJdvC7OH/bcxDT8Ju+QP7Rv+jT46ekGM0?=
+ =?us-ascii?Q?EfRtrhX4xAjiKcS6nBt1uMmZnn1xR7nrBPYR9iFhzXCwm+tRgelmbuRUdRTp?=
+ =?us-ascii?Q?p2K03uWktS7dbqYDjOhseA0qHzmdj3jXkaNYvwc3axRImwZlU81dea7ha9Ql?=
+ =?us-ascii?Q?D3F+/zBPvPBMbd+wEuNxv//ilOuyct5vHfw1N9Z0s2IyuaRPuKz4MjlrTTu9?=
+ =?us-ascii?Q?6YBylklXio6B+FZvoSmknO/7id/fbD31tFHt177JntHoyuJRJdmJ7vCHWKSl?=
+ =?us-ascii?Q?79SLKzMV8QZdscuh695x4SqK1S2rCpFfstER4O1AuPXyxLoIcUskj3xX9DTq?=
+ =?us-ascii?Q?YXFKiFSlMZsUTBEp/zpAY1EnNE0/VTqos+YXAGwpYfyUdoSORY5KKRz5NbIV?=
+ =?us-ascii?Q?FJonY4LM9OnMS8L91fB9GkWWipnRG99KbS9mjqBGixRddYAuRQg440VxyQdH?=
+ =?us-ascii?Q?5ixNHtsuCNDbDKyOMlA8RVImQOTou4Y31X6sowU2KsgtMyTK9PgD2emhlYFl?=
+ =?us-ascii?Q?FByZ1dJRAK+F9tOT0xuGiBkHa4TFodIQEwUvFnUFGJCtHeKlCZ76YCuL/xhn?=
+ =?us-ascii?Q?UYLewisIM+5JWljSvGihBSktAtF27Sxai+faqJSjKtJZPbMt1RAmqZAsZDN0?=
+ =?us-ascii?Q?zh4l2F7nSd5RRhHEyNF4pyKGlfMRqKK7mCl8mwaqwqZaq+0eh5V5Rw/DdIjK?=
+ =?us-ascii?Q?suPPEwgDTayxW4drwbBrryMiJGlKGVYIZ7GEhWusUukfRfuHw+xLPNID3Qs7?=
+ =?us-ascii?Q?sWRlCprOpuTWIjeJBUQVAcCT8AUJIwEBcVYPNAgk?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b9ee7b12-b840-4b4b-9038-08de364f4931
+X-MS-Exchange-CrossTenant-AuthSource: PAXPR04MB8459.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Dec 2025 11:45:29.2625
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7PTus7zh6YuhAIv77+n7o9XWn6lZ8N1BYqjR//u9rMnG0d5LATck7+F5uLFeclQK4M3OK1WLcsGUKFAplmQQzA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GV1PR04MB9514
 
-Hello,
+On Fri, Dec 05, 2025 at 09:40:26PM +0800, Peng Fan (OSS) wrote:
+>From: Peng Fan <peng.fan@nxp.com>
+>
+>spi-virtio registers a SPI controller, but we still need to register a
+>SPI device to initiate the SPI virtio transfer.
+>
+>To Xen hypervisor, there might be no 'passthrough' node for DomU,
+>so add a sysfs interface to allow creating/deleting a SPI device.
+>
+>Usage:
+> echo "spidev" > /sys/class/spi_master/spi0/new_device
+> echo "spi0.0" > /sys/class/spi_master/spi0/delete_device
+>
 
-syzbot found the following issue on:
+After rethinking about this, I think it might be better to add the sysfs
+to all SPI controller just as what i2c core supports:
+drivers/i2c/i2c-core-base.c: 1264
 
-HEAD commit:    559e608c4655 Merge tag 'ntfs3_for_6.19' of https://github...
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=164fdcc2580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=74c2ec4187efdce
-dashboard link: https://syzkaller.appspot.com/bug?extid=b1546ad4a95331b2101e
-compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1446301a580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=112c3f42580000
+I will post out v2 to move the code to spi_controller_groups if no objections.
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/7d28798cb263/disk-559e608c.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/239e800627b8/vmlinux-559e608c.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/e89da2cc9887/bzImage-559e608c.xz
-
-The issue was bisected to:
-
-commit 0db4941d9dae159d887e7e2eac7e54e60c3aac87
-Author: Fushuai Wang <wangfushuai@baidu.com>
-Date:   Tue Oct 7 07:40:11 2025 +0000
-
-    bpf: Use rcu_read_lock_dont_migrate in bpf_sk_storage.c
-
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=10cd3c1a580000
-final oops:     https://syzkaller.appspot.com/x/report.txt?x=12cd3c1a580000
-console output: https://syzkaller.appspot.com/x/log.txt?x=14cd3c1a580000
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+b1546ad4a95331b2101e@syzkaller.appspotmail.com
-Fixes: 0db4941d9dae ("bpf: Use rcu_read_lock_dont_migrate in bpf_sk_storage.c")
-
-BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:48
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 6128, name: syz.3.73
-preempt_count: 2, expected: 0
-RCU nest depth: 1, expected: 1
-3 locks held by syz.3.73/6128:
- #0: ffff8880493da398 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1700 [inline]
- #0: ffff8880493da398 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: vsock_connect+0x152/0xd40 net/vmw_vsock/af_vsock.c:1546
- #1: ffffffff8d5aeba0 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:331 [inline]
- #1: ffffffff8d5aeba0 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:867 [inline]
- #1: ffffffff8d5aeba0 (rcu_read_lock){....}-{1:3}, at: __bpf_trace_run kernel/trace/bpf_trace.c:2074 [inline]
- #1: ffffffff8d5aeba0 (rcu_read_lock){....}-{1:3}, at: bpf_trace_run9+0x1ec/0x510 kernel/trace/bpf_trace.c:2123
- #2: ffff8880b893fd48 (&s->lock_key#14){+.+.}-{3:3}, at: spin_lock include/linux/spinlock_rt.h:44 [inline]
- #2: ffff8880b893fd48 (&s->lock_key#14){+.+.}-{3:3}, at: ___slab_alloc+0x12f/0x1400 mm/slub.c:4516
-Preemption disabled at:
-[<ffffffff82179f5a>] class_preempt_constructor include/linux/preempt.h:468 [inline]
-[<ffffffff82179f5a>] __migrate_enable include/linux/sched.h:2378 [inline]
-[<ffffffff82179f5a>] migrate_enable include/linux/sched.h:2429 [inline]
-[<ffffffff82179f5a>] __slab_alloc+0xea/0x1f0 mm/slub.c:4777
-CPU: 1 UID: 0 PID: 6128 Comm: syz.3.73 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/25/2025
-Call Trace:
- <TASK>
- dump_stack_lvl+0x189/0x250 lib/dump_stack.c:120
- __might_resched+0x44b/0x5d0 kernel/sched/core.c:8830
- __rt_spin_lock kernel/locking/spinlock_rt.c:48 [inline]
- rt_spin_lock+0xc7/0x3e0 kernel/locking/spinlock_rt.c:57
- spin_lock include/linux/spinlock_rt.h:44 [inline]
- ___slab_alloc+0x12f/0x1400 mm/slub.c:4516
- __slab_alloc+0xc6/0x1f0 mm/slub.c:4774
- __slab_alloc_node mm/slub.c:4850 [inline]
- kmalloc_nolock_noprof+0x1be/0x440 mm/slub.c:5729
- bpf_stream_elem_alloc kernel/bpf/stream.c:33 [inline]
- __bpf_stream_push_str+0xa8/0x2b0 kernel/bpf/stream.c:50
- bpf_stream_stage_printk+0x14e/0x1c0 kernel/bpf/stream.c:306
- bpf_prog_report_may_goto_violation+0xc4/0x190 kernel/bpf/core.c:3203
- bpf_check_timed_may_goto+0xaa/0xb0 kernel/bpf/core.c:3221
- arch_bpf_timed_may_goto+0x21/0x40 arch/x86/net/bpf_timed_may_goto.S:40
- bpf_prog_262a74d054ad2993+0x53/0x5f
- bpf_dispatcher_nop_func include/linux/bpf.h:1376 [inline]
- __bpf_prog_run include/linux/filter.h:723 [inline]
- bpf_prog_run include/linux/filter.h:730 [inline]
- __bpf_trace_run kernel/trace/bpf_trace.c:2075 [inline]
- bpf_trace_run9+0x2de/0x510 kernel/trace/bpf_trace.c:2123
- __bpf_trace_virtio_transport_alloc_pkt+0x2d7/0x340 include/trace/events/vsock_virtio_transport_common.h:39
- __do_trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
- trace_virtio_transport_alloc_pkt include/trace/events/vsock_virtio_transport_common.h:39 [inline]
- virtio_transport_alloc_skb+0x10af/0x1110 net/vmw_vsock/virtio_transport_common.c:311
- virtio_transport_send_pkt_info+0x694/0x10b0 net/vmw_vsock/virtio_transport_common.c:390
- virtio_transport_connect+0xa7/0x100 net/vmw_vsock/virtio_transport_common.c:1072
- vsock_connect+0xaca/0xd40 net/vmw_vsock/af_vsock.c:1611
- __sys_connect_file net/socket.c:2080 [inline]
- __sys_connect+0x323/0x450 net/socket.c:2099
- __do_sys_connect net/socket.c:2105 [inline]
- __se_sys_connect net/socket.c:2102 [inline]
- __x64_sys_connect+0x7a/0x90 net/socket.c:2102
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xfa/0xf80 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f0c4d91f749
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffd8ed26ac8 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
-RAX: ffffffffffffffda RBX: 00007f0c4db75fa0 RCX: 00007f0c4d91f749
-RDX: 0000000000000010 RSI: 0000200000000080 RDI: 0000000000000003
-RBP: 00007f0c4d9a3f91 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007f0c4db75fa0 R14: 00007f0c4db75fa0 R15: 0000000000000003
- </TASK>
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+Thanks,
+Peng
