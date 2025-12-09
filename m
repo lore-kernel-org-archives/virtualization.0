@@ -1,124 +1,128 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 44F32212557
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 02:29:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3720621CFE0;
+	Tue,  9 Dec 2025 03:22:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765247350; cv=none; b=N/dqCpbN7LPBRif3VJOcOiOGSGTlHqWbK/cZulkuneXpsI/r/t9Txn81SwcqXmZYw3b8LF3JQLrHGkE77Pi2AXZzL6ZviFJz043NcZbN9SRBuqK8UUAZadEMPPX1AdZknM9ZmXvNrigNI7ttZaKmBVlCgtxQZSovqWR68xVmXDA=
+	t=1765250544; cv=none; b=jUG/nuCG4DS6HlUJbbBorw7FqKHG2EOcHR9D5cdIuwuBM1DpT1z55ovAeY79HwbZHWRZWtjVBzft85k7+Oklo2G8x1VfeyoJKkTwcfa+qULFT0VRSCbSy+KOeiZNqZDk85rZS1+mi2dpjwL60kfccIjttt0zGQ6iuz7auMNIxKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765247350; c=relaxed/simple;
-	bh=+KL9fTpXu7Z2+XIHxUTheNx7elf32qY3ioCOHY97eeA=;
-	h=Subject:From:To:Cc:References:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=dbD26xOkh7K1pOFsuXCmmXt1Cr9CLR5dRcWbR/GrPJT+MoqW3V2aP+DK8c+z9eks7b4hmJwpLV5kNpgw94JwJskOPrLu4E1uZmG+0A1eBP9xw180Gv9OgCeX3f3/4NRNtS5W9cfuq/NvSAei4flq9RQhk1TfS698YgxgTf6AFVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.62])
-	by gateway (Coremail) with SMTP id _____8BxWNFyiTdpW4MsAA--.30658S3;
-	Tue, 09 Dec 2025 10:29:06 +0800 (CST)
-Received: from [10.20.42.62] (unknown [10.20.42.62])
-	by front1 (Coremail) with SMTP id qMiowJCxocJwiTdpIUJHAQ--.54594S3;
-	Tue, 09 Dec 2025 10:29:06 +0800 (CST)
-Subject: Re: [PATCH v3 01/10] crypto: virtio: Add spinlock protection with
- virtqueue notification
-From: Bibo Mao <maobibo@loongson.cn>
-To: Gonglei <arei.gonglei@huawei.com>, "Michael S . Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=c3=a9rez?=
- <eperezma@redhat.com>, Herbert Xu <herbert@gondor.apana.org.au>,
- "David S. Miller" <davem@davemloft.net>,
- wangyangxin <wangyangxin1@huawei.com>
-Cc: virtualization@lists.linux.dev, linux-crypto@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20251209015951.4174743-1-maobibo@loongson.cn>
- <20251209015951.4174743-2-maobibo@loongson.cn>
-Message-ID: <832af71e-c4a1-6745-bae0-ba77f8a66142@loongson.cn>
-Date: Tue, 9 Dec 2025 10:26:34 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1765250544; c=relaxed/simple;
+	bh=tH2g2z9omM4/JHv6mQBchKg1gzjCb+O1ocl6x2ncXo8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UUrPYTXy8h3nxO0Zrfda8FqSQKlcBVMhYG0aY7xlElRhHa4vK0UGCT4lQOCEydVvkGxKqN8QfGPOtxz68bGGkvrMNKVSU7qrnsgWhON/9og/Ji3faktTc3/DsbMp3nTsCItdnEF9tbGlZLbIuVffgTvBcz6az3m39PWVVSl7cg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=gxN6q6F4; arc=none smtp.client-ip=62.89.141.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="gxN6q6F4"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=udLaiaKEVaHYrpv87pXnuw9Ta9sXf4k84Q18s1uDrsk=; b=gxN6q6F4qEjusZhHyUxsAS+Fm5
+	EgzJ4nLzDcguIn7/hY1EgYT7vhUjhRhIVxkM0xTFDu34z+zAhUOHLTsWHim+usEmT7X1rjui915Zu
+	1JPH0Mu3PtDijNrFECDDH38Jnxt6v2l0y95hjO5SJijCeXyXFqiBUOLbrpyjNWq2FD1iud+ooFW8C
+	gwp1IhFmVxyQcO+qd+fJ5l0Ds35aOSrUGjcLJwSuW/6xUnSpmcSGIhPGzHQBsP85eqQGEA/2spibn
+	jWSPxIYPCE5RAwvYOQ825HFBmjVm7TL9TEPKnuIqXzKA3fXtnEWbSh7JN6k3wSxtSiUb2hu2hWSO9
+	twRz13xg==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.99 #2 (Red Hat Linux))
+	id 1vSoIh-00000000si6-04XN;
+	Tue, 09 Dec 2025 03:22:07 +0000
+Date: Tue, 9 Dec 2025 03:22:06 +0000
+From: Al Viro <viro@zeniv.linux.org.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Alexey Dobriyan <adobriyan@gmail.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Arnd Bergmann <arnd@kernel.org>, Borislav Petkov <bp@alien8.de>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Laight <David.Laight@aculab.com>,
+	David Lechner <dlechner@baylibre.com>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Gatlin Newhouse <gatlin.newhouse@gmail.com>,
+	Hao Luo <haoluo@google.com>, Ingo Molnar <mingo@redhat.com>,
+	Jakub Sitnicki <jakub@cloudflare.com>,
+	Jan Hendrik Farr <kernel@jfarr.cc>,
+	Jason Wang <jasowang@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+	Marc Herbert <Marc.Herbert@linux.intel.com>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>,
+	Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>,
+	NeilBrown <neil@brown.name>, Peter Zijlstra <peterz@infradead.org>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Shuah Khan <shuah@kernel.org>, Song Liu <song@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Thorsten Blum <thorsten.blum@linux.dev>,
+	Uros Bizjak <ubizjak@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Yafang Shao <laoar.shao@gmail.com>, Ye Bin <yebin10@huawei.com>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
+	virtualization@lists.linux.dev, x86@kernel.org
+Subject: Re: [GIT PULL] __auto_type conversion for v6.19-rc1
+Message-ID: <20251209032206.GU1712166@ZenIV>
+References: <20251208235528.3670800-1-hpa@zytor.com>
+ <20251209002519.GT1712166@ZenIV>
+ <43CDF85F-800F-449C-8CA6-F35BEC88E18E@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251209015951.4174743-2-maobibo@loongson.cn>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJCxocJwiTdpIUJHAQ--.54594S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoW7ZF1ktw4UKw1UtFW7WFykJFc_yoW8tr47pF
-	WDJFWYyrWUXrW8KayxJF18WFWUu3srury7ZrWxWayDGwn0yF1kWry7Ary09F42yF1rtF47
-	JrZ5A3s0qF9ruagCm3ZEXasCq-sJn29KB7ZKAUJUUUUr529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUBjb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr0_Gr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYI
-	kI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUXVWU
-	AwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
-	k0xIA0c2IEe2xFo4CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_
-	Gr1l4IxYO2xFxVAFwI0_Jrv_JF1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67
-	AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8I
-	cVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI
-	8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v2
-	6r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07jepB-UUUUU=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43CDF85F-800F-449C-8CA6-F35BEC88E18E@zytor.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 
-oops, the cover letter is missing again since I forgot to add 
-linux-kernel@vger.kernel.org in cc list manually and command 
-"scripts/get_maintainer.pl --nogit --nogit-fallback --norolestats" has 
-no any effect on cover letter :(
+On Mon, Dec 08, 2025 at 04:28:11PM -0800, H. Peter Anvin wrote:
+> On December 8, 2025 4:25:19 PM PST, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> >On Mon, Dec 08, 2025 at 03:55:26PM -0800, H. Peter Anvin wrote:
+> >> Hi Linus,
+> >> 
+> >> The following changes since commit c2f2b01b74be8b40a2173372bcd770723f87e7b2:
+> >> 
+> >>   Merge tag 'i3c/for-6.19' of git://git.kernel.org/pub/scm/linux/kernel/git/i3c/linux (2025-12-08 11:25:14 +0900)
+> >> 
+> >> are available in the Git repository at:
+> >> 
+> >>   git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-auto.git
+> >> 
+> >> for you to fetch changes up to branch auto-type-for-6.19
+> >> (4ecc26fa585216f98d71411ce182f9e823d94c8c):
+> >> 
+> >>   tools/virtio: replace "__auto_type" with "auto" (2025-12-08 15:32:15 -0800)
+> >
+> >Argh...  teaching declaration parser in sparse to handle that is
+> >going to be fun, especially since there are corner cases where
+> >gcc and clang do not agree, even with --std=c23 --pedantic...
+> 
+> Well, until sparse actually handles C23, this is just a macro.  __auto_type is already in use.
 
-please ignore this patch set.
+Just anticipating the joy of getting declaration parser to deal with that
+properly - there's bunch of fun corner cases where this macro wouldn't
+cut it.  Sure, the underlying semantics can be mapped onto __auto_type,
+but the actual syntax is bloody awful, especially when you mix the
+typedefs into it.
 
-Regards
-Bibo Mao
-
-On 2025/12/9 上午9:59, Bibo Mao wrote:
-> When VM boots with one virtio-crypto PCI device and builtin backend,
-> run openssl benchmark command with multiple processes, such as
->    openssl speed -evp aes-128-cbc -engine afalg  -seconds 10 -multi 32
-> 
-> openssl processes will hangup and there is error reported like this:
->   virtio_crypto virtio0: dataq.0:id 3 is not a head!
-> 
-> It seems that the data virtqueue need protection when it is handled
-> for virtio done notification. If the spinlock protection is added
-> in virtcrypto_done_task(), openssl benchmark with multiple processes
-> works well.
-> 
-> Fixes: fed93fb62e05 ("crypto: virtio - Handle dataq logic with tasklet")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-> ---
->   drivers/crypto/virtio/virtio_crypto_core.c | 5 +++++
->   1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
-> index 3d241446099c..ccc6b5c1b24b 100644
-> --- a/drivers/crypto/virtio/virtio_crypto_core.c
-> +++ b/drivers/crypto/virtio/virtio_crypto_core.c
-> @@ -75,15 +75,20 @@ static void virtcrypto_done_task(unsigned long data)
->   	struct data_queue *data_vq = (struct data_queue *)data;
->   	struct virtqueue *vq = data_vq->vq;
->   	struct virtio_crypto_request *vc_req;
-> +	unsigned long flags;
->   	unsigned int len;
->   
-> +	spin_lock_irqsave(&data_vq->lock, flags);
->   	do {
->   		virtqueue_disable_cb(vq);
->   		while ((vc_req = virtqueue_get_buf(vq, &len)) != NULL) {
-> +			spin_unlock_irqrestore(&data_vq->lock, flags);
->   			if (vc_req->alg_cb)
->   				vc_req->alg_cb(vc_req, len);
-> +			spin_lock_irqsave(&data_vq->lock, flags);
->   		}
->   	} while (!virtqueue_enable_cb(vq));
-> +	spin_unlock_irqrestore(&data_vq->lock, flags);
->   }
->   
->   static void virtcrypto_dataq_callback(struct virtqueue *vq)
-> 
-
+Speaking of other fun sparse stuff: __VA_OPT__ support needs to be added;
+I think I have it plotted down to reasonable details, will post in a day
+or two...
