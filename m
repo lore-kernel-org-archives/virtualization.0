@@ -1,78 +1,37 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBE232D8DD4
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 899F12868B4
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765288938; cv=none; b=j8wgmH+I2V35alwsXDSQ0fNK+Eh5+Vi9z7V+jVRZQAjoNcve0J6wWb81Bi4rqOZE7Gb5LF7489xRCj5dXFF5D17ezjigTkWN5n4VVn9qnsOf2ao93gKEiQywSlKsY3zLr4BoxIJzTplPFBxAmQQdK9mCQYXx2zQflitZMw8nFuM=
+	t=1765288941; cv=none; b=o3W3Ahj8xouYEjywbMyav5eAvVgdhEs9mWAJhyzRLjhIfjxGA/dv823xHtk5tZQgokxMxsJ2FXDMIG+gdGDCG2ibzp3iPg+o2MXieKwehKLU4QyO0SqjKqAwqVHQ4Kh8XTN21wP52WURPx++vaGxx78RsUOHE3Hz88IPp63tmYU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765288938; c=relaxed/simple;
-	bh=jP2z/c72hadsZQTawmXScR8wyhL75K+byWuWQx6LnLo=;
+	s=arc-20240116; t=1765288941; c=relaxed/simple;
+	bh=DOAhFRuNhaPsyXuKfvFz7HE+3Hk3GgDKtMvKCgr4VeA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ro5WX4WiPOM6Z7SI6UHGmHtRv/H056tcy+jE0A5gCCdE29OaJsZCm+fIaR/zkW1ZCwd+58AlRVG46+SAVGiz5Ks7xWPKEbgq2krH7H1HnOd5T9cV0TmSLaTknX9p3mxaSbiTYXr2PxKyguB/i03SQVZw9KUH2lpgFbMppZWq2nE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cqhBHfT4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=P4xhmoDW; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cqhBHfT4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=P4xhmoDW; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=C67zyZPtB5wcPH84jjV2fP3Xv2Uja1OU0S0olH2Dc1OcA47AfpstZ4mrxcTCgyXriZDbyjXOZtYWJeaYcEkAMO1icaSdn7PuGL+JEi+GOd9teTN8VNS+927DXCjuz5sMsMw7lcVyx6Z8EFwrwRTwj460DPRn12gpM5i8C9bcJPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cqhBHfT4";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="P4xhmoDW";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cqhBHfT4";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="P4xhmoDW"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 7FB913381F;
-	Tue,  9 Dec 2025 14:01:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765288914; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0BPRgbn+VMryxVwhHXcyhnZPXvAx2CN2OA0mb4bhkZY=;
-	b=cqhBHfT4pNTWYDg4G8B4VENEH2pSqX1lXi3JrpgjV5R+7oADbiQWXEnlO/eipjCt+1uEM0
-	BBaJsZY3n33cOYeudFVc08ZLIaZo7xwJovfXKrLpoPVU9X5TvelCW5QO0EAJICtSKcX73K
-	xU8OQW//jAH/WYfNcOFdquKLRzRRwTM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765288914;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0BPRgbn+VMryxVwhHXcyhnZPXvAx2CN2OA0mb4bhkZY=;
-	b=P4xhmoDWethhltskM0M32zeqougROc9GOfJ8loMc54OPLbrWVzlggZSZtenv4eA4vVdiHH
-	3U037udh+jqcrSCw==
-Authentication-Results: smtp-out1.suse.de;
+	by smtp-out2.suse.de (Postfix) with ESMTPS id DB03E5BDAB;
+	Tue,  9 Dec 2025 14:02:04 +0000 (UTC)
+Authentication-Results: smtp-out2.suse.de;
 	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765288914; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0BPRgbn+VMryxVwhHXcyhnZPXvAx2CN2OA0mb4bhkZY=;
-	b=cqhBHfT4pNTWYDg4G8B4VENEH2pSqX1lXi3JrpgjV5R+7oADbiQWXEnlO/eipjCt+1uEM0
-	BBaJsZY3n33cOYeudFVc08ZLIaZo7xwJovfXKrLpoPVU9X5TvelCW5QO0EAJICtSKcX73K
-	xU8OQW//jAH/WYfNcOFdquKLRzRRwTM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765288914;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0BPRgbn+VMryxVwhHXcyhnZPXvAx2CN2OA0mb4bhkZY=;
-	b=P4xhmoDWethhltskM0M32zeqougROc9GOfJ8loMc54OPLbrWVzlggZSZtenv4eA4vVdiHH
-	3U037udh+jqcrSCw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3822B3EA65;
-	Tue,  9 Dec 2025 14:01:53 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8B5973EA65;
+	Tue,  9 Dec 2025 14:02:03 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 8HsLC9ErOGm1OgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:01:53 +0000
+	id mE6QH9srOGm1OgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:02:03 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: boris.brezillon@collabora.com,
 	simona@ffwll.ch,
@@ -103,9 +62,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	linux-doc@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 05/13] drm/imagination: Use GEM-UMA helpers for memory management
-Date: Tue,  9 Dec 2025 14:42:02 +0100
-Message-ID: <20251209140141.94407-6-tzimmermann@suse.de>
+Subject: [PATCH 13/13] accel/rocket: Use GEM-UMA helpers for memory management
+Date: Tue,  9 Dec 2025 14:42:10 +0100
+Message-ID: <20251209140141.94407-14-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251209140141.94407-1-tzimmermann@suse.de>
 References: <20251209140141.94407-1-tzimmermann@suse.de>
@@ -116,316 +75,200 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.998];
-	MIME_GOOD(-0.10)[text/plain];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo];
-	RCPT_COUNT_TWELVE(0.00)[29];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_TO(0.00)[collabora.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com,amd.com,tomeuvizoso.net,imgtec.com,arm.com,igalia.com,redhat.com,chromium.org,lwn.net];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLzxzh56npx61idbi11ft8b9pb)];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
-X-Spam-Level: 
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[]
 X-Spam-Flag: NO
-X-Spam-Score: -6.80
+X-Spam-Score: -4.00
+X-Rspamd-Queue-Id: DB03E5BDAB
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Level: 
 
-Convert imagination from GEM-SHMEM to GEM-UMA. The latter is just a
-copy, so this change it merely renaming symbols. No functional changes.
+Convert rocket from GEM-SHMEM to GEM-UMA. The latter is just a copy,
+so this change it merely renaming symbols. No functional changes.
 
 GEM-SHMEM will become more self-contained for drivers without specific
 memory management. GEM-UMA's interfaces will remain flexible for drivers
-with UMA hardware, such as imagination.
+with UMA hardware, such as rocket.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/imagination/Kconfig         |  4 +-
- drivers/gpu/drm/imagination/pvr_drv.c       |  2 +-
- drivers/gpu/drm/imagination/pvr_free_list.c |  2 +-
- drivers/gpu/drm/imagination/pvr_gem.c       | 74 ++++++++++-----------
- drivers/gpu/drm/imagination/pvr_gem.h       | 12 ++--
- 5 files changed, 47 insertions(+), 47 deletions(-)
+ drivers/accel/rocket/Kconfig      |  2 +-
+ drivers/accel/rocket/rocket_gem.c | 46 +++++++++++++++----------------
+ drivers/accel/rocket/rocket_gem.h |  6 ++--
+ 3 files changed, 27 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/gpu/drm/imagination/Kconfig b/drivers/gpu/drm/imagination/Kconfig
-index 0482bfcefdde..ee796c9cfdf2 100644
---- a/drivers/gpu/drm/imagination/Kconfig
-+++ b/drivers/gpu/drm/imagination/Kconfig
-@@ -9,9 +9,9 @@ config DRM_POWERVR
- 	depends on PM
- 	depends on POWER_SEQUENCING || !POWER_SEQUENCING
- 	select DRM_EXEC
--	select DRM_GEM_SHMEM_HELPER
--	select DRM_SCHED
+diff --git a/drivers/accel/rocket/Kconfig b/drivers/accel/rocket/Kconfig
+index 16465abe0660..26f760afdd7a 100644
+--- a/drivers/accel/rocket/Kconfig
++++ b/drivers/accel/rocket/Kconfig
+@@ -6,8 +6,8 @@ config DRM_ACCEL_ROCKET
+ 	depends on (ARCH_ROCKCHIP && ARM64) || COMPILE_TEST
+ 	depends on ROCKCHIP_IOMMU || COMPILE_TEST
+ 	depends on MMU
 +	select DRM_GEM_UMA_HELPER
- 	select DRM_GPUVM
-+	select DRM_SCHED
- 	select FW_LOADER
+ 	select DRM_SCHED
+-	select DRM_GEM_SHMEM_HELPER
  	help
- 	  Choose this option if you have a system that has an Imagination
-diff --git a/drivers/gpu/drm/imagination/pvr_drv.c b/drivers/gpu/drm/imagination/pvr_drv.c
-index 916b40ced7eb..61bcbbef208c 100644
---- a/drivers/gpu/drm/imagination/pvr_drv.c
-+++ b/drivers/gpu/drm/imagination/pvr_drv.c
-@@ -1392,7 +1392,7 @@ static struct drm_driver pvr_drm_driver = {
- 	.minor = PVR_DRIVER_MINOR,
- 	.patchlevel = PVR_DRIVER_PATCHLEVEL,
+ 	  Choose this option if you have a Rockchip SoC that contains a
+ 	  compatible Neural Processing Unit (NPU), such as the RK3588. Called by
+diff --git a/drivers/accel/rocket/rocket_gem.c b/drivers/accel/rocket/rocket_gem.c
+index 624c4ecf5a34..1c7b75413065 100644
+--- a/drivers/accel/rocket/rocket_gem.c
++++ b/drivers/accel/rocket/rocket_gem.c
+@@ -29,19 +29,19 @@ static void rocket_gem_bo_free(struct drm_gem_object *obj)
+ 	rocket_iommu_domain_put(bo->domain);
+ 	bo->domain = NULL;
  
--	.gem_prime_import_sg_table = drm_gem_shmem_prime_import_sg_table,
-+	.gem_prime_import_sg_table = drm_gem_uma_prime_import_sg_table,
- 	.gem_create_object = pvr_gem_create_object,
- };
- 
-diff --git a/drivers/gpu/drm/imagination/pvr_free_list.c b/drivers/gpu/drm/imagination/pvr_free_list.c
-index 5228e214491c..5b43f7ca2a6c 100644
---- a/drivers/gpu/drm/imagination/pvr_free_list.c
-+++ b/drivers/gpu/drm/imagination/pvr_free_list.c
-@@ -281,7 +281,7 @@ pvr_free_list_insert_node_locked(struct pvr_free_list_node *free_list_node)
- 	offset = (start_page * FREE_LIST_ENTRY_SIZE) &
- 		  ~((u64)ROGUE_BIF_PM_FREELIST_BASE_ADDR_ALIGNSIZE - 1);
- 
--	sgt = drm_gem_shmem_get_pages_sgt(&free_list_node->mem_obj->base);
-+	sgt = drm_gem_uma_get_pages_sgt(&free_list_node->mem_obj->base);
- 	if (WARN_ON(IS_ERR(sgt)))
- 		return PTR_ERR(sgt);
- 
-diff --git a/drivers/gpu/drm/imagination/pvr_gem.c b/drivers/gpu/drm/imagination/pvr_gem.c
-index a66cf082af24..f29c9808f4e2 100644
---- a/drivers/gpu/drm/imagination/pvr_gem.c
-+++ b/drivers/gpu/drm/imagination/pvr_gem.c
-@@ -25,30 +25,30 @@
- 
- static void pvr_gem_object_free(struct drm_gem_object *obj)
- {
--	drm_gem_shmem_object_free(obj);
-+	drm_gem_uma_object_free(obj);
+-	drm_gem_shmem_free(&bo->base);
++	drm_gem_uma_free(&bo->base);
  }
  
- static int pvr_gem_mmap(struct drm_gem_object *gem_obj, struct vm_area_struct *vma)
- {
- 	struct pvr_gem_object *pvr_obj = gem_to_pvr_gem(gem_obj);
--	struct drm_gem_shmem_object *shmem_obj = shmem_gem_from_pvr_gem(pvr_obj);
-+	struct drm_gem_uma_object *uma_obj = uma_gem_from_pvr_gem(pvr_obj);
- 
- 	if (!(pvr_obj->flags & DRM_PVR_BO_ALLOW_CPU_USERSPACE_ACCESS))
- 		return -EINVAL;
- 
--	return drm_gem_shmem_mmap(shmem_obj, vma);
-+	return drm_gem_uma_mmap(uma_obj, vma);
- }
- 
- static const struct drm_gem_object_funcs pvr_gem_object_funcs = {
- 	.free = pvr_gem_object_free,
+ static const struct drm_gem_object_funcs rocket_gem_funcs = {
+ 	.free = rocket_gem_bo_free,
 -	.print_info = drm_gem_shmem_object_print_info,
 -	.pin = drm_gem_shmem_object_pin,
 -	.unpin = drm_gem_shmem_object_unpin,
 -	.get_sg_table = drm_gem_shmem_object_get_sg_table,
 -	.vmap = drm_gem_shmem_object_vmap,
 -	.vunmap = drm_gem_shmem_object_vunmap,
+-	.mmap = drm_gem_shmem_object_mmap,
+-	.vm_ops = &drm_gem_shmem_vm_ops,
 +	.print_info = drm_gem_uma_object_print_info,
 +	.pin = drm_gem_uma_object_pin,
 +	.unpin = drm_gem_uma_object_unpin,
 +	.get_sg_table = drm_gem_uma_object_get_sg_table,
 +	.vmap = drm_gem_uma_object_vmap,
 +	.vunmap = drm_gem_uma_object_vunmap,
- 	.mmap = pvr_gem_mmap,
--	.vm_ops = &drm_gem_shmem_vm_ops,
++	.mmap = drm_gem_uma_object_mmap,
 +	.vm_ops = &drm_gem_uma_vm_ops,
  };
  
- /**
-@@ -195,25 +195,25 @@ pvr_gem_object_from_handle(struct pvr_file *pvr_file, u32 handle)
- void *
- pvr_gem_object_vmap(struct pvr_gem_object *pvr_obj)
+ struct drm_gem_object *rocket_gem_create_object(struct drm_device *dev, size_t size)
+@@ -61,17 +61,17 @@ int rocket_ioctl_create_bo(struct drm_device *dev, void *data, struct drm_file *
  {
--	struct drm_gem_shmem_object *shmem_obj = shmem_gem_from_pvr_gem(pvr_obj);
-+	struct drm_gem_uma_object *uma_obj = uma_gem_from_pvr_gem(pvr_obj);
- 	struct drm_gem_object *obj = gem_from_pvr_gem(pvr_obj);
- 	struct iosys_map map;
- 	int err;
- 
- 	dma_resv_lock(obj->resv, NULL);
- 
--	err = drm_gem_shmem_vmap_locked(shmem_obj, &map);
-+	err = drm_gem_uma_vmap_locked(uma_obj, &map);
- 	if (err)
- 		goto err_unlock;
- 
- 	if (pvr_obj->flags & PVR_BO_CPU_CACHED) {
--		struct device *dev = shmem_obj->base.dev->dev;
-+		struct device *dev = uma_obj->base.dev->dev;
- 
--		/* If shmem_obj->sgt is NULL, that means the buffer hasn't been mapped
-+		/* If uma_obj->sgt is NULL, that means the buffer hasn't been mapped
- 		 * in GPU space yet.
- 		 */
--		if (shmem_obj->sgt)
--			dma_sync_sgtable_for_cpu(dev, shmem_obj->sgt, DMA_BIDIRECTIONAL);
-+		if (uma_obj->sgt)
-+			dma_sync_sgtable_for_cpu(dev, uma_obj->sgt, DMA_BIDIRECTIONAL);
- 	}
- 
- 	dma_resv_unlock(obj->resv);
-@@ -237,8 +237,8 @@ pvr_gem_object_vmap(struct pvr_gem_object *pvr_obj)
- void
- pvr_gem_object_vunmap(struct pvr_gem_object *pvr_obj)
- {
--	struct drm_gem_shmem_object *shmem_obj = shmem_gem_from_pvr_gem(pvr_obj);
--	struct iosys_map map = IOSYS_MAP_INIT_VADDR(shmem_obj->vaddr);
-+	struct drm_gem_uma_object *uma_obj = uma_gem_from_pvr_gem(pvr_obj);
-+	struct iosys_map map = IOSYS_MAP_INIT_VADDR(uma_obj->vaddr);
- 	struct drm_gem_object *obj = gem_from_pvr_gem(pvr_obj);
- 
- 	if (WARN_ON(!map.vaddr))
-@@ -247,16 +247,16 @@ pvr_gem_object_vunmap(struct pvr_gem_object *pvr_obj)
- 	dma_resv_lock(obj->resv, NULL);
- 
- 	if (pvr_obj->flags & PVR_BO_CPU_CACHED) {
--		struct device *dev = shmem_obj->base.dev->dev;
-+		struct device *dev = uma_obj->base.dev->dev;
- 
--		/* If shmem_obj->sgt is NULL, that means the buffer hasn't been mapped
-+		/* If uma_obj->sgt is NULL, that means the buffer hasn't been mapped
- 		 * in GPU space yet.
- 		 */
--		if (shmem_obj->sgt)
--			dma_sync_sgtable_for_device(dev, shmem_obj->sgt, DMA_BIDIRECTIONAL);
-+		if (uma_obj->sgt)
-+			dma_sync_sgtable_for_device(dev, uma_obj->sgt, DMA_BIDIRECTIONAL);
- 	}
- 
--	drm_gem_shmem_vunmap_locked(shmem_obj, &map);
-+	drm_gem_uma_vunmap_locked(uma_obj, &map);
- 
- 	dma_resv_unlock(obj->resv);
- }
-@@ -336,7 +336,7 @@ struct pvr_gem_object *
- pvr_gem_object_create(struct pvr_device *pvr_dev, size_t size, u64 flags)
- {
- 	struct drm_device *drm_dev = from_pvr_device(pvr_dev);
+ 	struct rocket_file_priv *rocket_priv = file->driver_priv;
+ 	struct drm_rocket_create_bo *args = data;
 -	struct drm_gem_shmem_object *shmem_obj;
 +	struct drm_gem_uma_object *uma_obj;
- 	struct pvr_gem_object *pvr_obj;
+ 	struct rocket_gem_object *rkt_obj;
+ 	struct drm_gem_object *gem_obj;
  	struct sg_table *sgt;
- 	int err;
-@@ -348,19 +348,19 @@ pvr_gem_object_create(struct pvr_device *pvr_dev, size_t size, u64 flags)
- 	if (device_get_dma_attr(drm_dev->dev) == DEV_DMA_COHERENT)
- 		flags |= PVR_BO_CPU_CACHED;
+ 	int ret;
  
--	shmem_obj = drm_gem_shmem_create(drm_dev, size);
+-	shmem_obj = drm_gem_shmem_create(dev, args->size);
 -	if (IS_ERR(shmem_obj))
--		return ERR_CAST(shmem_obj);
-+	uma_obj = drm_gem_uma_create(drm_dev, size);
+-		return PTR_ERR(shmem_obj);
++	uma_obj = drm_gem_uma_create(dev, args->size);
 +	if (IS_ERR(uma_obj))
-+		return ERR_CAST(uma_obj);
++		return PTR_ERR(uma_obj);
  
--	shmem_obj->pages_mark_dirty_on_put = true;
--	shmem_obj->map_wc = !(flags & PVR_BO_CPU_CACHED);
--	pvr_obj = shmem_gem_to_pvr_gem(shmem_obj);
-+	uma_obj->pages_mark_dirty_on_put = true;
-+	uma_obj->map_wc = !(flags & PVR_BO_CPU_CACHED);
-+	pvr_obj = uma_gem_to_pvr_gem(uma_obj);
- 	pvr_obj->flags = flags;
+-	gem_obj = &shmem_obj->base;
++	gem_obj = &uma_obj->base;
+ 	rkt_obj = to_rocket_bo(gem_obj);
+ 
+ 	rkt_obj->driver_priv = rocket_priv;
+@@ -84,7 +84,7 @@ int rocket_ioctl_create_bo(struct drm_device *dev, void *data, struct drm_file *
+ 	if (ret)
+ 		goto err;
  
 -	sgt = drm_gem_shmem_get_pages_sgt(shmem_obj);
 +	sgt = drm_gem_uma_get_pages_sgt(uma_obj);
  	if (IS_ERR(sgt)) {
- 		err = PTR_ERR(sgt);
--		goto err_shmem_object_free;
-+		goto err_uma_object_free;
- 	}
+ 		ret = PTR_ERR(sgt);
+ 		goto err;
+@@ -98,7 +98,7 @@ int rocket_ioctl_create_bo(struct drm_device *dev, void *data, struct drm_file *
  
- 	dma_sync_sgtable_for_device(drm_dev->dev, sgt, DMA_BIDIRECTIONAL);
-@@ -373,8 +373,8 @@ pvr_gem_object_create(struct pvr_device *pvr_dev, size_t size, u64 flags)
+ 	ret = iommu_map_sgtable(rocket_priv->domain->domain,
+ 				rkt_obj->mm.start,
+-				shmem_obj->sgt,
++				uma_obj->sgt,
+ 				IOMMU_READ | IOMMU_WRITE);
+ 	if (ret < 0 || ret < args->size) {
+ 		drm_err(dev, "failed to map buffer: size=%d request_size=%u\n",
+@@ -120,7 +120,7 @@ int rocket_ioctl_create_bo(struct drm_device *dev, void *data, struct drm_file *
+ 	mutex_unlock(&rocket_priv->mm_lock);
  
- 	return pvr_obj;
+ err:
+-	drm_gem_shmem_object_free(gem_obj);
++	drm_gem_uma_object_free(gem_obj);
  
--err_shmem_object_free:
--	drm_gem_shmem_free(shmem_obj);
-+err_uma_object_free:
-+	drm_gem_uma_free(uma_obj);
- 
- 	return ERR_PTR(err);
+ 	return ret;
  }
-@@ -394,13 +394,13 @@ int
- pvr_gem_get_dma_addr(struct pvr_gem_object *pvr_obj, u32 offset,
- 		     dma_addr_t *dma_addr_out)
+@@ -130,7 +130,7 @@ int rocket_ioctl_prep_bo(struct drm_device *dev, void *data, struct drm_file *fi
+ 	struct drm_rocket_prep_bo *args = data;
+ 	unsigned long timeout = drm_timeout_abs_to_jiffies(args->timeout_ns);
+ 	struct drm_gem_object *gem_obj;
+-	struct drm_gem_shmem_object *shmem_obj;
++	struct drm_gem_uma_object *uma_obj;
+ 	long ret = 0;
+ 
+ 	if (args->reserved != 0) {
+@@ -146,9 +146,9 @@ int rocket_ioctl_prep_bo(struct drm_device *dev, void *data, struct drm_file *fi
+ 	if (!ret)
+ 		ret = timeout ? -ETIMEDOUT : -EBUSY;
+ 
+-	shmem_obj = &to_rocket_bo(gem_obj)->base;
++	uma_obj = &to_rocket_bo(gem_obj)->base;
+ 
+-	dma_sync_sgtable_for_cpu(dev->dev, shmem_obj->sgt, DMA_BIDIRECTIONAL);
++	dma_sync_sgtable_for_cpu(dev->dev, uma_obj->sgt, DMA_BIDIRECTIONAL);
+ 
+ 	drm_gem_object_put(gem_obj);
+ 
+@@ -158,7 +158,7 @@ int rocket_ioctl_prep_bo(struct drm_device *dev, void *data, struct drm_file *fi
+ int rocket_ioctl_fini_bo(struct drm_device *dev, void *data, struct drm_file *file)
  {
--	struct drm_gem_shmem_object *shmem_obj = shmem_gem_from_pvr_gem(pvr_obj);
-+	struct drm_gem_uma_object *uma_obj = uma_gem_from_pvr_gem(pvr_obj);
- 	u32 accumulated_offset = 0;
- 	struct scatterlist *sgl;
- 	unsigned int sgt_idx;
+ 	struct drm_rocket_fini_bo *args = data;
+-	struct drm_gem_shmem_object *shmem_obj;
++	struct drm_gem_uma_object *uma_obj;
+ 	struct rocket_gem_object *rkt_obj;
+ 	struct drm_gem_object *gem_obj;
  
--	WARN_ON(!shmem_obj->sgt);
--	for_each_sgtable_dma_sg(shmem_obj->sgt, sgl, sgt_idx) {
-+	WARN_ON(!uma_obj->sgt);
-+	for_each_sgtable_dma_sg(uma_obj->sgt, sgl, sgt_idx) {
- 		u32 new_offset = accumulated_offset + sg_dma_len(sgl);
+@@ -172,9 +172,9 @@ int rocket_ioctl_fini_bo(struct drm_device *dev, void *data, struct drm_file *fi
+ 		return -ENOENT;
  
- 		if (offset >= accumulated_offset && offset < new_offset) {
-diff --git a/drivers/gpu/drm/imagination/pvr_gem.h b/drivers/gpu/drm/imagination/pvr_gem.h
-index c99f30cc6208..59223876b3f7 100644
---- a/drivers/gpu/drm/imagination/pvr_gem.h
-+++ b/drivers/gpu/drm/imagination/pvr_gem.h
-@@ -10,7 +10,7 @@
- #include <uapi/drm/pvr_drm.h>
+ 	rkt_obj = to_rocket_bo(gem_obj);
+-	shmem_obj = &rkt_obj->base;
++	uma_obj = &rkt_obj->base;
  
- #include <drm/drm_gem.h>
+-	dma_sync_sgtable_for_device(dev->dev, shmem_obj->sgt, DMA_BIDIRECTIONAL);
++	dma_sync_sgtable_for_device(dev->dev, uma_obj->sgt, DMA_BIDIRECTIONAL);
+ 
+ 	drm_gem_object_put(gem_obj);
+ 
+diff --git a/drivers/accel/rocket/rocket_gem.h b/drivers/accel/rocket/rocket_gem.h
+index 240430334509..d5ea539519e7 100644
+--- a/drivers/accel/rocket/rocket_gem.h
++++ b/drivers/accel/rocket/rocket_gem.h
+@@ -4,10 +4,10 @@
+ #ifndef __ROCKET_GEM_H__
+ #define __ROCKET_GEM_H__
+ 
 -#include <drm/drm_gem_shmem_helper.h>
 +#include <drm/drm_gem_uma_helper.h>
- #include <drm/drm_mm.h>
  
- #include <linux/bitfield.h>
-@@ -82,12 +82,12 @@ struct pvr_file;
-  */
- struct pvr_gem_object {
- 	/**
--	 * @base: The underlying &struct drm_gem_shmem_object.
-+	 * @base: The underlying &struct drm_gem_uma_object.
- 	 *
- 	 * Do not access this member directly, instead call
- 	 * shem_gem_from_pvr_gem().
- 	 */
+ struct rocket_gem_object {
 -	struct drm_gem_shmem_object base;
 +	struct drm_gem_uma_object base;
  
- 	/**
- 	 * @flags: Options set at creation-time. Some of these options apply to
-@@ -111,9 +111,9 @@ struct pvr_gem_object {
- static_assert(offsetof(struct pvr_gem_object, base) == 0,
- 	      "offsetof(struct pvr_gem_object, base) not zero");
+ 	struct rocket_file_priv *driver_priv;
  
--#define shmem_gem_from_pvr_gem(pvr_obj) (&(pvr_obj)->base)
-+#define uma_gem_from_pvr_gem(pvr_obj) (&(pvr_obj)->base)
- 
--#define shmem_gem_to_pvr_gem(shmem_obj) container_of_const(shmem_obj, struct pvr_gem_object, base)
-+#define uma_gem_to_pvr_gem(uma_obj) container_of_const(uma_obj, struct pvr_gem_object, base)
- 
- #define gem_from_pvr_gem(pvr_obj) (&(pvr_obj)->base.base)
- 
-@@ -134,7 +134,7 @@ struct pvr_gem_object *pvr_gem_object_from_handle(struct pvr_file *pvr_file,
- static __always_inline struct sg_table *
- pvr_gem_object_get_pages_sgt(struct pvr_gem_object *pvr_obj)
+@@ -28,7 +28,7 @@ int rocket_ioctl_fini_bo(struct drm_device *dev, void *data, struct drm_file *fi
+ static inline
+ struct  rocket_gem_object *to_rocket_bo(struct drm_gem_object *obj)
  {
--	return drm_gem_shmem_get_pages_sgt(shmem_gem_from_pvr_gem(pvr_obj));
-+	return drm_gem_uma_get_pages_sgt(uma_gem_from_pvr_gem(pvr_obj));
+-	return container_of(to_drm_gem_shmem_obj(obj), struct rocket_gem_object, base);
++	return container_of(to_drm_gem_uma_obj(obj), struct rocket_gem_object, base);
  }
  
- void *pvr_gem_object_vmap(struct pvr_gem_object *pvr_obj);
+ #endif
 -- 
 2.52.0
 
