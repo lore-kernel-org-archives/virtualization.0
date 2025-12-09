@@ -1,37 +1,78 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B77F02C21F7
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBE232D8DD4
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765288935; cv=none; b=UneJ2N/rc6u6TxcDBSkaXVTavRt9aQGQIS6xh0qrQn3zX4qcfkCUxJSheCo4O+tgGKC8+LOz7AkRitrxUWEjzc4YHKZgG6XIGky/yDhN2kWS3bBuANVMSC2ESQxVKMOxl/3HWJznLrB/Rz/6XhqIBbR5rNBUQezjfwG9zWuBtp4=
+	t=1765288938; cv=none; b=j8wgmH+I2V35alwsXDSQ0fNK+Eh5+Vi9z7V+jVRZQAjoNcve0J6wWb81Bi4rqOZE7Gb5LF7489xRCj5dXFF5D17ezjigTkWN5n4VVn9qnsOf2ao93gKEiQywSlKsY3zLr4BoxIJzTplPFBxAmQQdK9mCQYXx2zQflitZMw8nFuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765288935; c=relaxed/simple;
-	bh=S+f30VC8FNESsh11h18KiOvoXDd6hMH7LC8A1OsBwVY=;
+	s=arc-20240116; t=1765288938; c=relaxed/simple;
+	bh=jP2z/c72hadsZQTawmXScR8wyhL75K+byWuWQx6LnLo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OmS+dc/mcuI2LPWpw/yHHZHxtc4WfjbKEiRI0+sLfgTHggtlSykSarKFucLTK2j9iODJCCXgOtFaCeXkt/AmbhTYgqXUcxiuxX2vrkXeFeimjBgp+VXnt7pHTYWbGj/JmEMiTeK84jDYElxC9/llMytjaB6HS3jSQZEX/bRszPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=ro5WX4WiPOM6Z7SI6UHGmHtRv/H056tcy+jE0A5gCCdE29OaJsZCm+fIaR/zkW1ZCwd+58AlRVG46+SAVGiz5Ks7xWPKEbgq2krH7H1HnOd5T9cV0TmSLaTknX9p3mxaSbiTYXr2PxKyguB/i03SQVZw9KUH2lpgFbMppZWq2nE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cqhBHfT4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=P4xhmoDW; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cqhBHfT4; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=P4xhmoDW; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cqhBHfT4";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="P4xhmoDW";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cqhBHfT4";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="P4xhmoDW"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 549565BE39;
-	Tue,  9 Dec 2025 14:02:02 +0000 (UTC)
-Authentication-Results: smtp-out2.suse.de;
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 7FB913381F;
+	Tue,  9 Dec 2025 14:01:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1765288914; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0BPRgbn+VMryxVwhHXcyhnZPXvAx2CN2OA0mb4bhkZY=;
+	b=cqhBHfT4pNTWYDg4G8B4VENEH2pSqX1lXi3JrpgjV5R+7oADbiQWXEnlO/eipjCt+1uEM0
+	BBaJsZY3n33cOYeudFVc08ZLIaZo7xwJovfXKrLpoPVU9X5TvelCW5QO0EAJICtSKcX73K
+	xU8OQW//jAH/WYfNcOFdquKLRzRRwTM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1765288914;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0BPRgbn+VMryxVwhHXcyhnZPXvAx2CN2OA0mb4bhkZY=;
+	b=P4xhmoDWethhltskM0M32zeqougROc9GOfJ8loMc54OPLbrWVzlggZSZtenv4eA4vVdiHH
+	3U037udh+jqcrSCw==
+Authentication-Results: smtp-out1.suse.de;
 	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1765288914; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0BPRgbn+VMryxVwhHXcyhnZPXvAx2CN2OA0mb4bhkZY=;
+	b=cqhBHfT4pNTWYDg4G8B4VENEH2pSqX1lXi3JrpgjV5R+7oADbiQWXEnlO/eipjCt+1uEM0
+	BBaJsZY3n33cOYeudFVc08ZLIaZo7xwJovfXKrLpoPVU9X5TvelCW5QO0EAJICtSKcX73K
+	xU8OQW//jAH/WYfNcOFdquKLRzRRwTM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1765288914;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0BPRgbn+VMryxVwhHXcyhnZPXvAx2CN2OA0mb4bhkZY=;
+	b=P4xhmoDWethhltskM0M32zeqougROc9GOfJ8loMc54OPLbrWVzlggZSZtenv4eA4vVdiHH
+	3U037udh+jqcrSCw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2E3393EA63;
-	Tue,  9 Dec 2025 14:02:01 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3822B3EA65;
+	Tue,  9 Dec 2025 14:01:53 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id EFFACdkrOGm1OgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:02:01 +0000
+	id 8HsLC9ErOGm1OgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:01:53 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: boris.brezillon@collabora.com,
 	simona@ffwll.ch,
@@ -62,9 +103,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	linux-doc@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 11/13] accel/amdxdna: Use GEM-UMA helpers for memory management
-Date: Tue,  9 Dec 2025 14:42:08 +0100
-Message-ID: <20251209140141.94407-12-tzimmermann@suse.de>
+Subject: [PATCH 05/13] drm/imagination: Use GEM-UMA helpers for memory management
+Date: Tue,  9 Dec 2025 14:42:02 +0100
+Message-ID: <20251209140141.94407-6-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251209140141.94407-1-tzimmermann@suse.de>
 References: <20251209140141.94407-1-tzimmermann@suse.de>
@@ -75,210 +116,119 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
-X-Spam-Flag: NO
-X-Spam-Score: -4.00
-X-Rspamd-Queue-Id: 549565BE39
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-6.80 / 50.00];
+	REPLY(-4.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-0.998];
+	MIME_GOOD(-0.10)[text/plain];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo];
+	RCPT_COUNT_TWELVE(0.00)[29];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_TO(0.00)[collabora.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com,amd.com,tomeuvizoso.net,imgtec.com,arm.com,igalia.com,redhat.com,chromium.org,lwn.net];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLzxzh56npx61idbi11ft8b9pb)];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
 X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spam-Score: -6.80
 
-Convert amdxdna from GEM-SHMEM to GEM-UMA. The latter is just a copy,
-so this change it merely renaming symbols. No functional changes.
+Convert imagination from GEM-SHMEM to GEM-UMA. The latter is just a
+copy, so this change it merely renaming symbols. No functional changes.
 
 GEM-SHMEM will become more self-contained for drivers without specific
 memory management. GEM-UMA's interfaces will remain flexible for drivers
-with UMA hardware, such as amdxdna.
+with UMA hardware, such as imagination.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/accel/amdxdna/Kconfig                 |  2 +-
- drivers/accel/amdxdna/aie2_ctx.c              |  1 -
- drivers/accel/amdxdna/aie2_message.c          |  1 -
- drivers/accel/amdxdna/aie2_pci.c              |  1 -
- drivers/accel/amdxdna/aie2_psp.c              |  1 -
- drivers/accel/amdxdna/aie2_smu.c              |  1 -
- drivers/accel/amdxdna/amdxdna_ctx.c           |  7 ++-
- drivers/accel/amdxdna/amdxdna_gem.c           | 49 +++++++++----------
- drivers/accel/amdxdna/amdxdna_gem.h           |  5 +-
- .../accel/amdxdna/amdxdna_mailbox_helper.c    |  1 -
- drivers/accel/amdxdna/amdxdna_pci_drv.c       |  1 -
- drivers/accel/amdxdna/amdxdna_sysfs.c         |  1 -
- 12 files changed, 32 insertions(+), 39 deletions(-)
+ drivers/gpu/drm/imagination/Kconfig         |  4 +-
+ drivers/gpu/drm/imagination/pvr_drv.c       |  2 +-
+ drivers/gpu/drm/imagination/pvr_free_list.c |  2 +-
+ drivers/gpu/drm/imagination/pvr_gem.c       | 74 ++++++++++-----------
+ drivers/gpu/drm/imagination/pvr_gem.h       | 12 ++--
+ 5 files changed, 47 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/accel/amdxdna/Kconfig b/drivers/accel/amdxdna/Kconfig
-index f39d7a87296c..a417b18b401f 100644
---- a/drivers/accel/amdxdna/Kconfig
-+++ b/drivers/accel/amdxdna/Kconfig
-@@ -6,8 +6,8 @@ config DRM_ACCEL_AMDXDNA
- 	depends on DRM_ACCEL
- 	depends on PCI && HAS_IOMEM
- 	depends on X86_64
-+	select DRM_GEM_UMA_HELPER
- 	select DRM_SCHED
+diff --git a/drivers/gpu/drm/imagination/Kconfig b/drivers/gpu/drm/imagination/Kconfig
+index 0482bfcefdde..ee796c9cfdf2 100644
+--- a/drivers/gpu/drm/imagination/Kconfig
++++ b/drivers/gpu/drm/imagination/Kconfig
+@@ -9,9 +9,9 @@ config DRM_POWERVR
+ 	depends on PM
+ 	depends on POWER_SEQUENCING || !POWER_SEQUENCING
+ 	select DRM_EXEC
 -	select DRM_GEM_SHMEM_HELPER
+-	select DRM_SCHED
++	select DRM_GEM_UMA_HELPER
+ 	select DRM_GPUVM
++	select DRM_SCHED
  	select FW_LOADER
- 	select HMM_MIRROR
  	help
-diff --git a/drivers/accel/amdxdna/aie2_ctx.c b/drivers/accel/amdxdna/aie2_ctx.c
-index 42d876a427c5..7e82496495d3 100644
---- a/drivers/accel/amdxdna/aie2_ctx.c
-+++ b/drivers/accel/amdxdna/aie2_ctx.c
-@@ -6,7 +6,6 @@
- #include <drm/amdxdna_accel.h>
- #include <drm/drm_device.h>
- #include <drm/drm_gem.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_print.h>
- #include <drm/drm_syncobj.h>
- #include <linux/hmm.h>
-diff --git a/drivers/accel/amdxdna/aie2_message.c b/drivers/accel/amdxdna/aie2_message.c
-index d493bb1c3360..2f639c22ebf1 100644
---- a/drivers/accel/amdxdna/aie2_message.c
-+++ b/drivers/accel/amdxdna/aie2_message.c
-@@ -7,7 +7,6 @@
- #include <drm/drm_cache.h>
- #include <drm/drm_device.h>
- #include <drm/drm_gem.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_print.h>
- #include <drm/gpu_scheduler.h>
- #include <linux/bitfield.h>
-diff --git a/drivers/accel/amdxdna/aie2_pci.c b/drivers/accel/amdxdna/aie2_pci.c
-index ceef1c502e9e..498a23a070c9 100644
---- a/drivers/accel/amdxdna/aie2_pci.c
-+++ b/drivers/accel/amdxdna/aie2_pci.c
-@@ -6,7 +6,6 @@
- #include <drm/amdxdna_accel.h>
- #include <drm/drm_device.h>
- #include <drm/drm_drv.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_managed.h>
- #include <drm/drm_print.h>
- #include <drm/gpu_scheduler.h>
-diff --git a/drivers/accel/amdxdna/aie2_psp.c b/drivers/accel/amdxdna/aie2_psp.c
-index f28a060a8810..81145210abf3 100644
---- a/drivers/accel/amdxdna/aie2_psp.c
-+++ b/drivers/accel/amdxdna/aie2_psp.c
-@@ -4,7 +4,6 @@
-  */
+ 	  Choose this option if you have a system that has an Imagination
+diff --git a/drivers/gpu/drm/imagination/pvr_drv.c b/drivers/gpu/drm/imagination/pvr_drv.c
+index 916b40ced7eb..61bcbbef208c 100644
+--- a/drivers/gpu/drm/imagination/pvr_drv.c
++++ b/drivers/gpu/drm/imagination/pvr_drv.c
+@@ -1392,7 +1392,7 @@ static struct drm_driver pvr_drm_driver = {
+ 	.minor = PVR_DRIVER_MINOR,
+ 	.patchlevel = PVR_DRIVER_PATCHLEVEL,
  
- #include <drm/drm_device.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_managed.h>
- #include <drm/drm_print.h>
- #include <drm/gpu_scheduler.h>
-diff --git a/drivers/accel/amdxdna/aie2_smu.c b/drivers/accel/amdxdna/aie2_smu.c
-index bd94ee96c2bc..a16942aa10a1 100644
---- a/drivers/accel/amdxdna/aie2_smu.c
-+++ b/drivers/accel/amdxdna/aie2_smu.c
-@@ -4,7 +4,6 @@
-  */
- 
- #include <drm/drm_device.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_print.h>
- #include <drm/gpu_scheduler.h>
- #include <linux/iopoll.h>
-diff --git a/drivers/accel/amdxdna/amdxdna_ctx.c b/drivers/accel/amdxdna/amdxdna_ctx.c
-index d17aef89a0ad..1c02a97b1865 100644
---- a/drivers/accel/amdxdna/amdxdna_ctx.c
-+++ b/drivers/accel/amdxdna/amdxdna_ctx.c
-@@ -8,7 +8,6 @@
- #include <drm/drm_drv.h>
- #include <drm/drm_file.h>
- #include <drm/drm_gem.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_print.h>
- #include <drm/gpu_scheduler.h>
- #include <linux/xarray.h>
-@@ -387,7 +386,7 @@ amdxdna_arg_bos_lookup(struct amdxdna_client *client,
- 		gobj = drm_gem_object_lookup(client->filp, bo_hdls[i]);
- 		if (!gobj) {
- 			ret = -ENOENT;
--			goto put_shmem_bo;
-+			goto put_bos;
- 		}
- 		abo = to_xdna_obj(gobj);
- 
-@@ -402,7 +401,7 @@ amdxdna_arg_bos_lookup(struct amdxdna_client *client,
- 		if (ret) {
- 			mutex_unlock(&abo->lock);
- 			drm_gem_object_put(gobj);
--			goto put_shmem_bo;
-+			goto put_bos;
- 		}
- 		abo->pinned = true;
- 		mutex_unlock(&abo->lock);
-@@ -412,7 +411,7 @@ amdxdna_arg_bos_lookup(struct amdxdna_client *client,
- 
- 	return 0;
- 
--put_shmem_bo:
-+put_bos:
- 	amdxdna_arg_bos_put(job);
- 	return ret;
- }
-diff --git a/drivers/accel/amdxdna/amdxdna_gem.c b/drivers/accel/amdxdna/amdxdna_gem.c
-index dfa916eeb2d9..33c48498d1eb 100644
---- a/drivers/accel/amdxdna/amdxdna_gem.c
-+++ b/drivers/accel/amdxdna/amdxdna_gem.c
-@@ -7,7 +7,6 @@
- #include <drm/drm_cache.h>
- #include <drm/drm_device.h>
- #include <drm/drm_gem.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_print.h>
- #include <drm/gpu_scheduler.h>
- #include <linux/dma-buf.h>
-@@ -277,9 +276,9 @@ static int amdxdna_insert_pages(struct amdxdna_gem_obj *abo,
- 	int ret;
- 
- 	if (!is_import_bo(abo)) {
--		ret = drm_gem_shmem_mmap(&abo->base, vma);
-+		ret = drm_gem_uma_mmap(&abo->base, vma);
- 		if (ret) {
--			XDNA_ERR(xdna, "Failed shmem mmap %d", ret);
-+			XDNA_ERR(xdna, "Failed uma mmap %d", ret);
- 			return ret;
- 		}
- 
-@@ -358,11 +357,11 @@ static int amdxdna_gem_dmabuf_mmap(struct dma_buf *dma_buf, struct vm_area_struc
- 	unsigned long num_pages = vma_pages(vma);
- 	int ret;
- 
--	vma->vm_ops = &drm_gem_shmem_vm_ops;
-+	vma->vm_ops = &drm_gem_uma_vm_ops;
- 	vma->vm_private_data = gobj;
- 
- 	drm_gem_object_get(gobj);
--	ret = drm_gem_shmem_mmap(&abo->base, vma);
-+	ret = drm_gem_uma_mmap(&abo->base, vma);
- 	if (ret)
- 		goto put_obj;
- 
-@@ -474,23 +473,23 @@ static void amdxdna_gem_obj_free(struct drm_gem_object *gobj)
- 		return;
- 	}
- 
--	drm_gem_shmem_free(&abo->base);
-+	drm_gem_uma_free(&abo->base);
- }
- 
- static const struct drm_gem_object_funcs amdxdna_gem_dev_obj_funcs = {
- 	.free = amdxdna_gem_dev_obj_free,
+-	.gem_prime_import_sg_table = drm_gem_shmem_prime_import_sg_table,
++	.gem_prime_import_sg_table = drm_gem_uma_prime_import_sg_table,
+ 	.gem_create_object = pvr_gem_create_object,
  };
  
--static const struct drm_gem_object_funcs amdxdna_gem_shmem_funcs = {
-+static const struct drm_gem_object_funcs amdxdna_gem_uma_funcs = {
- 	.free = amdxdna_gem_obj_free,
+diff --git a/drivers/gpu/drm/imagination/pvr_free_list.c b/drivers/gpu/drm/imagination/pvr_free_list.c
+index 5228e214491c..5b43f7ca2a6c 100644
+--- a/drivers/gpu/drm/imagination/pvr_free_list.c
++++ b/drivers/gpu/drm/imagination/pvr_free_list.c
+@@ -281,7 +281,7 @@ pvr_free_list_insert_node_locked(struct pvr_free_list_node *free_list_node)
+ 	offset = (start_page * FREE_LIST_ENTRY_SIZE) &
+ 		  ~((u64)ROGUE_BIF_PM_FREELIST_BASE_ADDR_ALIGNSIZE - 1);
+ 
+-	sgt = drm_gem_shmem_get_pages_sgt(&free_list_node->mem_obj->base);
++	sgt = drm_gem_uma_get_pages_sgt(&free_list_node->mem_obj->base);
+ 	if (WARN_ON(IS_ERR(sgt)))
+ 		return PTR_ERR(sgt);
+ 
+diff --git a/drivers/gpu/drm/imagination/pvr_gem.c b/drivers/gpu/drm/imagination/pvr_gem.c
+index a66cf082af24..f29c9808f4e2 100644
+--- a/drivers/gpu/drm/imagination/pvr_gem.c
++++ b/drivers/gpu/drm/imagination/pvr_gem.c
+@@ -25,30 +25,30 @@
+ 
+ static void pvr_gem_object_free(struct drm_gem_object *obj)
+ {
+-	drm_gem_shmem_object_free(obj);
++	drm_gem_uma_object_free(obj);
+ }
+ 
+ static int pvr_gem_mmap(struct drm_gem_object *gem_obj, struct vm_area_struct *vma)
+ {
+ 	struct pvr_gem_object *pvr_obj = gem_to_pvr_gem(gem_obj);
+-	struct drm_gem_shmem_object *shmem_obj = shmem_gem_from_pvr_gem(pvr_obj);
++	struct drm_gem_uma_object *uma_obj = uma_gem_from_pvr_gem(pvr_obj);
+ 
+ 	if (!(pvr_obj->flags & DRM_PVR_BO_ALLOW_CPU_USERSPACE_ACCESS))
+ 		return -EINVAL;
+ 
+-	return drm_gem_shmem_mmap(shmem_obj, vma);
++	return drm_gem_uma_mmap(uma_obj, vma);
+ }
+ 
+ static const struct drm_gem_object_funcs pvr_gem_object_funcs = {
+ 	.free = pvr_gem_object_free,
 -	.print_info = drm_gem_shmem_object_print_info,
 -	.pin = drm_gem_shmem_object_pin,
 -	.unpin = drm_gem_shmem_object_unpin,
@@ -291,136 +241,191 @@ index dfa916eeb2d9..33c48498d1eb 100644
 +	.get_sg_table = drm_gem_uma_object_get_sg_table,
 +	.vmap = drm_gem_uma_object_vmap,
 +	.vunmap = drm_gem_uma_object_vunmap,
- 	.mmap = amdxdna_gem_obj_mmap,
+ 	.mmap = pvr_gem_mmap,
 -	.vm_ops = &drm_gem_shmem_vm_ops,
 +	.vm_ops = &drm_gem_uma_vm_ops,
- 	.export = amdxdna_gem_prime_export,
  };
  
-@@ -525,21 +524,21 @@ amdxdna_gem_create_object_cb(struct drm_device *dev, size_t size)
- 	if (IS_ERR(abo))
- 		return ERR_CAST(abo);
- 
--	to_gobj(abo)->funcs = &amdxdna_gem_shmem_funcs;
-+	to_gobj(abo)->funcs = &amdxdna_gem_uma_funcs;
- 
- 	return to_gobj(abo);
- }
- 
- static struct amdxdna_gem_obj *
--amdxdna_gem_create_shmem_object(struct drm_device *dev, size_t size)
-+amdxdna_gem_create_uma_object(struct drm_device *dev, size_t size)
+ /**
+@@ -195,25 +195,25 @@ pvr_gem_object_from_handle(struct pvr_file *pvr_file, u32 handle)
+ void *
+ pvr_gem_object_vmap(struct pvr_gem_object *pvr_obj)
  {
--	struct drm_gem_shmem_object *shmem = drm_gem_shmem_create(dev, size);
-+	struct drm_gem_uma_object *uma = drm_gem_uma_create(dev, size);
+-	struct drm_gem_shmem_object *shmem_obj = shmem_gem_from_pvr_gem(pvr_obj);
++	struct drm_gem_uma_object *uma_obj = uma_gem_from_pvr_gem(pvr_obj);
+ 	struct drm_gem_object *obj = gem_from_pvr_gem(pvr_obj);
+ 	struct iosys_map map;
+ 	int err;
  
--	if (IS_ERR(shmem))
--		return ERR_CAST(shmem);
-+	if (IS_ERR(uma))
-+		return ERR_CAST(uma);
+ 	dma_resv_lock(obj->resv, NULL);
  
--	shmem->map_wc = false;
--	return to_xdna_obj(&shmem->base);
-+	uma->map_wc = false;
-+	return to_xdna_obj(&uma->base);
- }
+-	err = drm_gem_shmem_vmap_locked(shmem_obj, &map);
++	err = drm_gem_uma_vmap_locked(uma_obj, &map);
+ 	if (err)
+ 		goto err_unlock;
  
- static struct amdxdna_gem_obj *
-@@ -589,7 +588,7 @@ amdxdna_gem_create_object(struct drm_device *dev,
- 	if (args->vaddr)
- 		return amdxdna_gem_create_ubuf_object(dev, args);
+ 	if (pvr_obj->flags & PVR_BO_CPU_CACHED) {
+-		struct device *dev = shmem_obj->base.dev->dev;
++		struct device *dev = uma_obj->base.dev->dev;
  
--	return amdxdna_gem_create_shmem_object(dev, aligned_sz);
-+	return amdxdna_gem_create_uma_object(dev, aligned_sz);
- }
- 
- struct drm_gem_object *
-@@ -615,7 +614,7 @@ amdxdna_gem_prime_import(struct drm_device *dev, struct dma_buf *dma_buf)
- 		goto fail_detach;
+-		/* If shmem_obj->sgt is NULL, that means the buffer hasn't been mapped
++		/* If uma_obj->sgt is NULL, that means the buffer hasn't been mapped
+ 		 * in GPU space yet.
+ 		 */
+-		if (shmem_obj->sgt)
+-			dma_sync_sgtable_for_cpu(dev, shmem_obj->sgt, DMA_BIDIRECTIONAL);
++		if (uma_obj->sgt)
++			dma_sync_sgtable_for_cpu(dev, uma_obj->sgt, DMA_BIDIRECTIONAL);
  	}
  
--	gobj = drm_gem_shmem_prime_import_sg_table(dev, attach, sgt);
-+	gobj = drm_gem_uma_prime_import_sg_table(dev, attach, sgt);
- 	if (IS_ERR(gobj)) {
- 		ret = PTR_ERR(gobj);
- 		goto fail_unmap;
-@@ -836,7 +835,7 @@ int amdxdna_gem_pin_nolock(struct amdxdna_gem_obj *abo)
- 	if (is_import_bo(abo))
- 		return 0;
+ 	dma_resv_unlock(obj->resv);
+@@ -237,8 +237,8 @@ pvr_gem_object_vmap(struct pvr_gem_object *pvr_obj)
+ void
+ pvr_gem_object_vunmap(struct pvr_gem_object *pvr_obj)
+ {
+-	struct drm_gem_shmem_object *shmem_obj = shmem_gem_from_pvr_gem(pvr_obj);
+-	struct iosys_map map = IOSYS_MAP_INIT_VADDR(shmem_obj->vaddr);
++	struct drm_gem_uma_object *uma_obj = uma_gem_from_pvr_gem(pvr_obj);
++	struct iosys_map map = IOSYS_MAP_INIT_VADDR(uma_obj->vaddr);
+ 	struct drm_gem_object *obj = gem_from_pvr_gem(pvr_obj);
  
--	ret = drm_gem_shmem_pin(&abo->base);
-+	ret = drm_gem_uma_pin(&abo->base);
+ 	if (WARN_ON(!map.vaddr))
+@@ -247,16 +247,16 @@ pvr_gem_object_vunmap(struct pvr_gem_object *pvr_obj)
+ 	dma_resv_lock(obj->resv, NULL);
  
- 	XDNA_DBG(xdna, "BO type %d ret %d", abo->type, ret);
- 	return ret;
-@@ -862,7 +861,7 @@ void amdxdna_gem_unpin(struct amdxdna_gem_obj *abo)
- 		return;
+ 	if (pvr_obj->flags & PVR_BO_CPU_CACHED) {
+-		struct device *dev = shmem_obj->base.dev->dev;
++		struct device *dev = uma_obj->base.dev->dev;
  
- 	mutex_lock(&abo->lock);
--	drm_gem_shmem_unpin(&abo->base);
-+	drm_gem_uma_unpin(&abo->base);
- 	mutex_unlock(&abo->lock);
+-		/* If shmem_obj->sgt is NULL, that means the buffer hasn't been mapped
++		/* If uma_obj->sgt is NULL, that means the buffer hasn't been mapped
+ 		 * in GPU space yet.
+ 		 */
+-		if (shmem_obj->sgt)
+-			dma_sync_sgtable_for_device(dev, shmem_obj->sgt, DMA_BIDIRECTIONAL);
++		if (uma_obj->sgt)
++			dma_sync_sgtable_for_device(dev, uma_obj->sgt, DMA_BIDIRECTIONAL);
+ 	}
+ 
+-	drm_gem_shmem_vunmap_locked(shmem_obj, &map);
++	drm_gem_uma_vunmap_locked(uma_obj, &map);
+ 
+ 	dma_resv_unlock(obj->resv);
+ }
+@@ -336,7 +336,7 @@ struct pvr_gem_object *
+ pvr_gem_object_create(struct pvr_device *pvr_dev, size_t size, u64 flags)
+ {
+ 	struct drm_device *drm_dev = from_pvr_device(pvr_dev);
+-	struct drm_gem_shmem_object *shmem_obj;
++	struct drm_gem_uma_object *uma_obj;
+ 	struct pvr_gem_object *pvr_obj;
+ 	struct sg_table *sgt;
+ 	int err;
+@@ -348,19 +348,19 @@ pvr_gem_object_create(struct pvr_device *pvr_dev, size_t size, u64 flags)
+ 	if (device_get_dma_attr(drm_dev->dev) == DEV_DMA_COHERENT)
+ 		flags |= PVR_BO_CPU_CACHED;
+ 
+-	shmem_obj = drm_gem_shmem_create(drm_dev, size);
+-	if (IS_ERR(shmem_obj))
+-		return ERR_CAST(shmem_obj);
++	uma_obj = drm_gem_uma_create(drm_dev, size);
++	if (IS_ERR(uma_obj))
++		return ERR_CAST(uma_obj);
+ 
+-	shmem_obj->pages_mark_dirty_on_put = true;
+-	shmem_obj->map_wc = !(flags & PVR_BO_CPU_CACHED);
+-	pvr_obj = shmem_gem_to_pvr_gem(shmem_obj);
++	uma_obj->pages_mark_dirty_on_put = true;
++	uma_obj->map_wc = !(flags & PVR_BO_CPU_CACHED);
++	pvr_obj = uma_gem_to_pvr_gem(uma_obj);
+ 	pvr_obj->flags = flags;
+ 
+-	sgt = drm_gem_shmem_get_pages_sgt(shmem_obj);
++	sgt = drm_gem_uma_get_pages_sgt(uma_obj);
+ 	if (IS_ERR(sgt)) {
+ 		err = PTR_ERR(sgt);
+-		goto err_shmem_object_free;
++		goto err_uma_object_free;
+ 	}
+ 
+ 	dma_sync_sgtable_for_device(drm_dev->dev, sgt, DMA_BIDIRECTIONAL);
+@@ -373,8 +373,8 @@ pvr_gem_object_create(struct pvr_device *pvr_dev, size_t size, u64 flags)
+ 
+ 	return pvr_obj;
+ 
+-err_shmem_object_free:
+-	drm_gem_shmem_free(shmem_obj);
++err_uma_object_free:
++	drm_gem_uma_free(uma_obj);
+ 
+ 	return ERR_PTR(err);
+ }
+@@ -394,13 +394,13 @@ int
+ pvr_gem_get_dma_addr(struct pvr_gem_object *pvr_obj, u32 offset,
+ 		     dma_addr_t *dma_addr_out)
+ {
+-	struct drm_gem_shmem_object *shmem_obj = shmem_gem_from_pvr_gem(pvr_obj);
++	struct drm_gem_uma_object *uma_obj = uma_gem_from_pvr_gem(pvr_obj);
+ 	u32 accumulated_offset = 0;
+ 	struct scatterlist *sgl;
+ 	unsigned int sgt_idx;
+ 
+-	WARN_ON(!shmem_obj->sgt);
+-	for_each_sgtable_dma_sg(shmem_obj->sgt, sgl, sgt_idx) {
++	WARN_ON(!uma_obj->sgt);
++	for_each_sgtable_dma_sg(uma_obj->sgt, sgl, sgt_idx) {
+ 		u32 new_offset = accumulated_offset + sg_dma_len(sgl);
+ 
+ 		if (offset >= accumulated_offset && offset < new_offset) {
+diff --git a/drivers/gpu/drm/imagination/pvr_gem.h b/drivers/gpu/drm/imagination/pvr_gem.h
+index c99f30cc6208..59223876b3f7 100644
+--- a/drivers/gpu/drm/imagination/pvr_gem.h
++++ b/drivers/gpu/drm/imagination/pvr_gem.h
+@@ -10,7 +10,7 @@
+ #include <uapi/drm/pvr_drm.h>
+ 
+ #include <drm/drm_gem.h>
+-#include <drm/drm_gem_shmem_helper.h>
++#include <drm/drm_gem_uma_helper.h>
+ #include <drm/drm_mm.h>
+ 
+ #include <linux/bitfield.h>
+@@ -82,12 +82,12 @@ struct pvr_file;
+  */
+ struct pvr_gem_object {
+ 	/**
+-	 * @base: The underlying &struct drm_gem_shmem_object.
++	 * @base: The underlying &struct drm_gem_uma_object.
+ 	 *
+ 	 * Do not access this member directly, instead call
+ 	 * shem_gem_from_pvr_gem().
+ 	 */
+-	struct drm_gem_shmem_object base;
++	struct drm_gem_uma_object base;
+ 
+ 	/**
+ 	 * @flags: Options set at creation-time. Some of these options apply to
+@@ -111,9 +111,9 @@ struct pvr_gem_object {
+ static_assert(offsetof(struct pvr_gem_object, base) == 0,
+ 	      "offsetof(struct pvr_gem_object, base) not zero");
+ 
+-#define shmem_gem_from_pvr_gem(pvr_obj) (&(pvr_obj)->base)
++#define uma_gem_from_pvr_gem(pvr_obj) (&(pvr_obj)->base)
+ 
+-#define shmem_gem_to_pvr_gem(shmem_obj) container_of_const(shmem_obj, struct pvr_gem_object, base)
++#define uma_gem_to_pvr_gem(uma_obj) container_of_const(uma_obj, struct pvr_gem_object, base)
+ 
+ #define gem_from_pvr_gem(pvr_obj) (&(pvr_obj)->base.base)
+ 
+@@ -134,7 +134,7 @@ struct pvr_gem_object *pvr_gem_object_from_handle(struct pvr_file *pvr_file,
+ static __always_inline struct sg_table *
+ pvr_gem_object_get_pages_sgt(struct pvr_gem_object *pvr_obj)
+ {
+-	return drm_gem_shmem_get_pages_sgt(shmem_gem_from_pvr_gem(pvr_obj));
++	return drm_gem_uma_get_pages_sgt(uma_gem_from_pvr_gem(pvr_obj));
  }
  
-diff --git a/drivers/accel/amdxdna/amdxdna_gem.h b/drivers/accel/amdxdna/amdxdna_gem.h
-index f79fc7f3c93b..74c78c86125e 100644
---- a/drivers/accel/amdxdna/amdxdna_gem.h
-+++ b/drivers/accel/amdxdna/amdxdna_gem.h
-@@ -7,6 +7,9 @@
- #define _AMDXDNA_GEM_H_
- 
- #include <linux/hmm.h>
-+
-+#include <drm/drm_gem_uma_helper.h>
-+
- #include "amdxdna_pci_drv.h"
- 
- struct amdxdna_umap {
-@@ -33,7 +36,7 @@ struct amdxdna_mem {
- };
- 
- struct amdxdna_gem_obj {
--	struct drm_gem_shmem_object	base;
-+	struct drm_gem_uma_object	base;
- 	struct amdxdna_client		*client;
- 	u8				type;
- 	bool				pinned;
-diff --git a/drivers/accel/amdxdna/amdxdna_mailbox_helper.c b/drivers/accel/amdxdna/amdxdna_mailbox_helper.c
-index 6d0c24513476..63c3b82ff1b0 100644
---- a/drivers/accel/amdxdna/amdxdna_mailbox_helper.c
-+++ b/drivers/accel/amdxdna/amdxdna_mailbox_helper.c
-@@ -7,7 +7,6 @@
- #include <drm/drm_device.h>
- #include <drm/drm_print.h>
- #include <drm/drm_gem.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/gpu_scheduler.h>
- #include <linux/completion.h>
- 
-diff --git a/drivers/accel/amdxdna/amdxdna_pci_drv.c b/drivers/accel/amdxdna/amdxdna_pci_drv.c
-index 1973ab67721b..ae069b8805c7 100644
---- a/drivers/accel/amdxdna/amdxdna_pci_drv.c
-+++ b/drivers/accel/amdxdna/amdxdna_pci_drv.c
-@@ -7,7 +7,6 @@
- #include <drm/drm_accel.h>
- #include <drm/drm_drv.h>
- #include <drm/drm_gem.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_ioctl.h>
- #include <drm/drm_managed.h>
- #include <drm/gpu_scheduler.h>
-diff --git a/drivers/accel/amdxdna/amdxdna_sysfs.c b/drivers/accel/amdxdna/amdxdna_sysfs.c
-index f27e4ee960a0..d7fcb9c9b7b5 100644
---- a/drivers/accel/amdxdna/amdxdna_sysfs.c
-+++ b/drivers/accel/amdxdna/amdxdna_sysfs.c
-@@ -5,7 +5,6 @@
- 
- #include <drm/amdxdna_accel.h>
- #include <drm/drm_device.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_print.h>
- #include <drm/gpu_scheduler.h>
- #include <linux/types.h>
+ void *pvr_gem_object_vmap(struct pvr_gem_object *pvr_obj);
 -- 
 2.52.0
 
