@@ -1,112 +1,122 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AE822620E4
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 04:33:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ACA8286415
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 07:26:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765254788; cv=none; b=W0PE5FTCjXJCtwA5by8KIV08ANPrE+9RRHLKi4eyJ2juAEqwubpYZhQG6OWa5sXTy6NloW11i/Hgqd4O64jgN+M1RyvSuRytTkAR7SCagvrq4IuiHvfXWVFzVouYPkQhnPMbnrLGCKyfYo2MwN+MaCfBHJGrjG5O8Fm1t56KMBA=
+	t=1765265184; cv=none; b=PfUhyWDFSq18ntbRVlszakFg33Fn0DzWtVmBH855pXyYnRNFQfsC7MWQgg+u2RAj4qW564bcjVR8H/8ZOlosOHYVfMX3wpsyikYIore5WFgW+G/xN8+1Eq6TcHhgQDf4/fYgGdNH9wVfWj43QOBdKVY0UDqFwTlyVcyTZ14aqg4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765254788; c=relaxed/simple;
-	bh=IR1GJIw1WogTr/OB4lNYncQ1ZxCQwr6Kq+gJH+Iw0t0=;
+	s=arc-20240116; t=1765265184; c=relaxed/simple;
+	bh=8nT8939qWUoJYlT2R7sKtRouAfpezWZVT5T0CEHq2FI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=leCgK80Od/21PQRPUlVbRwdEZxigjuL7emy9qMQO59k7nV3czaztnNXBI30AWyfQDSTPxLnJhpzVyg+DqI4uptZLFoihdZXymj2nAeWUZigYxGrUKsxbknTS264L50L0N112A+TGBSV4T3SZ/WG9Mxrpurbz1CqLBCInCZazQ5Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hdzt+Ip/; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=C8VMuAHSbyuEo0TWu1Q/V98nwIvzDL6803LEX0/JGXpwiuxqaIoHcwKfWQmZHizhxVXmFdZirBcpkrnv4ZwyPkDA82V8NglPb+TqUDZ8USl+8ye6Knb5C0euWmuyIjoa9pvXz2hi46m0JFydQheMeMLtNd2Yjjff/ZwwwQyGvgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=CJkQmflW; arc=none smtp.client-ip=209.85.208.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hdzt+Ip/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765254784;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=D7tlj801JGEwEviglxOLZTOSOnNkUWu4oKsf3XJ8MAU=;
-	b=hdzt+Ip/5KPBlNgVqwVJcUZnnn8YW54v/OTfTPGXMx1YJS09DGzpb7+F2+yhxjDBbaDm+n
-	jHLMOqyEAlbA24+Tex/tcM6I/YbVDy6Kny2X2FIvxLFNCU2dj0gLtW8/EFLMC2mM+2ORkW
-	y4MTJ11emn7EyoWou/qOfVTEU1QtFQ8=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-48-X9Kln-DlN0eJTJVLNBx2EA-1; Mon, 08 Dec 2025 23:32:58 -0500
-X-MC-Unique: X9Kln-DlN0eJTJVLNBx2EA-1
-X-Mimecast-MFC-AGG-ID: X9Kln-DlN0eJTJVLNBx2EA_1765254777
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3438744f11bso10165452a91.2
-        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 20:32:58 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="CJkQmflW"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-6431b0a1948so9020184a12.3
+        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 23:26:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1765265181; x=1765869981; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=7QhMUSo0zLDlINi8GAqDQeQHdxTHsyz1r33NHLku5hM=;
+        b=CJkQmflWDDIvUAiRVLPYmw7TO6oEox3rnVurEWswzf/XZow404Garqfzf65EF421jK
+         0HtPq/vziqEtPr63Io5X5OEtjnrgEVFLKzZtIFMjYwqHAwFURFE3gpFNp2FyiIB+Lm2G
+         stJ8E2wwCa/rf87blrpdBHQZxbqLjUACRMjTY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765254777; x=1765859577;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=D7tlj801JGEwEviglxOLZTOSOnNkUWu4oKsf3XJ8MAU=;
-        b=QQObUX00mWu5zOyqMkxlBAbd59c9ARZskiYKEia/+7EEiThiXqg/pYKSqNSRiwp7Jt
-         juGsEQrto38LNNRglg5SBHhhcW4qKiUNmkWKej4JejXdCMyVEjJko2XWpx0zrKCczdG6
-         6/QuUEkTZWHYERRtHTXV90zRsrw5HCr9/RmnLVQciWHFCSsPJqjcMYcMr8HkeuW7pnCx
-         DILc9Hj4TPshAQ6SDD/d+LZu8jzfgsHpK/wkMZV/seTg5uSHRPIfsXpqZjd9+/TRoANs
-         rFCSUlaA6XY9f6XKI1eVyBR7XMNaiImwzlJLO5jG5yjjfxg4EDCrC+Nw5Czb5rjpCUAg
-         k0EQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWimwtmHNaITpLwuHjr5m+L7lkv+NRzjxZ7mUaMeML9+f6gyyu7ShMHW0lRpyI/eC3QJe1/XqI9Uk9b1SJGfw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw8Sm67QTkj5oUrI5MeTWuZeVFVuhQejfF3i45Kmxc4+rmxiGf1
-	9sY1nzhjVq/+VhtHdfmygQzzUc5CQVE0b8FPiPcfgPJD04yuuaUss51QNVspxoxpzQmXCufMEM+
-	kMCbgg/2D/AeLaAU4GZ+ayidQgxqYvHTZk0+yY4SusgMxJ+Th8w+bVFAA8hR6SrIQzgzXfs9hbh
-	apL8AxQitGvtxWqxUjFjRFyYiT29n3Pe9lzI24NUvZzTE=
-X-Gm-Gg: ASbGncvEQ1aQPvchqqLmJXsTUZ9wfIk99CikU7OYI6OoeYEaIJM9nlseuriYqKVcfvM
-	eyvD1+Bvwy29iORNon5x58VFACgM57UaSPZZR0WpvyG0E2kDlNYFYuAk+NMvnfE0FiLrJR4Lcd/
-	KCxMSvnDx7PD+9sG8kXS35aQFdQsAIsX2S0UfSEotyxNJx9j0hWunhRmzlQFmP564B7Q==
-X-Received: by 2002:a17:90b:4b02:b0:340:e521:bc73 with SMTP id 98e67ed59e1d1-349a24e1417mr6855267a91.5.1765254777264;
-        Mon, 08 Dec 2025 20:32:57 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEdw0M8LAPWgyO/elXlfshz40Rlioju2PuyFc9XLzszeCdo7ctlmBpq76QMP0pwFL39U8NEhUcTgC3HIYBdbo8=
-X-Received: by 2002:a17:90b:4b02:b0:340:e521:bc73 with SMTP id
- 98e67ed59e1d1-349a24e1417mr6855241a91.5.1765254776843; Mon, 08 Dec 2025
- 20:32:56 -0800 (PST)
+        d=1e100.net; s=20230601; t=1765265181; x=1765869981;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7QhMUSo0zLDlINi8GAqDQeQHdxTHsyz1r33NHLku5hM=;
+        b=cmzh9BMytlxf3vE6IECJw6BkGQgTOCjrAOGnFTpxa0uFJkmrvvLXK2XqEZlrEezu1Y
+         blhews5KqnEvS/n8vBgH5e7gmHEof9ierb6I4bhnZ3vyiA662A26SRON4URiR2g9BZm9
+         hlYVJ2ZlxN9lgU+OdJvT++em/EDkz+iSNHN18jr2sbJIDiE3c4SkD0BOjmyANxwB86o3
+         Yk7BgmUHn+8/wIehHjDF9nojGR07cJ2f1cl/WvvhjmpMpYAa21OJpuI6pCvN2ogvojyO
+         4y7eDTb0tLwxekCj0CHPLjFbm5xhVl29zeHrv/vLZlABWYYmkFEqH9Xz2pnSjvnLS30Y
+         aRLA==
+X-Forwarded-Encrypted: i=1; AJvYcCW46+lovYzvZgLhZopwTeQAx1kQSByOaw/MTGIviZEctWhknO3fRGamNzX/Q3fFfyxglJs24nX4QFbl4kOR7Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzlt0LgTXiDz8pUAwx9qRWUR2zMaFsr9NKwkm9H8sAEQ+C9mRdy
+	eIplpc6eaNKGo/Pm0t21pIxxm5B3N8DfB0+PvvSoT8G+5w1bCWDz2w9LmJ9XgmVzKr7xKHNnJfU
+	cOKuI/SEAlw==
+X-Gm-Gg: ASbGncufHpv/YpUXe2e3cAyl4cdfMXUiJHZEbZoSvc4EoseH6jX55JUcAm5R3sDOG7U
+	0KEQF8jKkXwueoULw2+5UmTBZrIwZLNqt9LJ1vanbrh1UaXVDaHqOp/7A9Lai2LZPdeHcjRnUjj
+	NiSd+FFz6vlVRe4gvNgYIde9AwUcDUAtnVmcc2Httbk8AiTEmxaup2KupDW9GdjDw7sKplL1DUb
+	M+eu74GxnO8xB9YplszrXZfGvRCZXdd7YV5jc5q195WuDWwEu/Noq8MUq3+AmyEhnFw95gfIBzB
+	v6VG6uGs5OqhRY4LTUtiUdNaZsGu6N6xBIQqY1Dc9RAFfgxQpGPnHZBI3B/V8oMXnHMHOw0TVN5
+	ad94DLThTTa5VjkK3nUYacDJsg15L2Rr9/7xF+MRRzy/0V/aoIOJzlfE/mAoSbZzUUdtW8g66+V
+	qF1NUqwYltGTn+JeF83MOaTqDbVU7QE29JckIJpRA2zWvHxZ7q5p0uAAt5GMKK
+X-Google-Smtp-Source: AGHT+IE/iiXhMyTS5TdsD8wDHyQUApm1gyQlfv+UhBe9zz7dZtVIWFHP8n1zKJZ9C9M4FSci5mmolg==
+X-Received: by 2002:a05:6402:4315:b0:640:b497:bf71 with SMTP id 4fb4d7f45d1cf-64919c0f673mr8798624a12.8.1765265180375;
+        Mon, 08 Dec 2025 23:26:20 -0800 (PST)
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com. [209.85.208.54])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-647b368de11sm12713129a12.18.2025.12.08.23.26.17
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 08 Dec 2025 23:26:18 -0800 (PST)
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-640a0812658so9046276a12.0
+        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 23:26:17 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXqArqSMSf62jX26ZqLuGZweN+9e+27p01MuvjswaEaIemQPoiesM5yaXxtq9nAIY6JPkFJkk9UrO+EEP0EkA==@lists.linux.dev
+X-Received: by 2002:a05:6402:350b:b0:643:883a:2668 with SMTP id
+ 4fb4d7f45d1cf-6491a430019mr7384754a12.21.1765265177527; Mon, 08 Dec 2025
+ 23:26:17 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251209022258.4183415-1-maobibo@loongson.cn> <20251209022258.4183415-2-maobibo@loongson.cn>
-In-Reply-To: <20251209022258.4183415-2-maobibo@loongson.cn>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 9 Dec 2025 12:32:45 +0800
-X-Gm-Features: AQt7F2oiXNzEXvaoIJ5PYmQS-SgPLwwMhAbf5fZFgBwLJ4Ewmxplg8YGZKVBbKg
-Message-ID: <CACGkMEu3rhZy6hiZ14AvXgXLz2KvwvcU81KNrP_XsM475ZM=Nw@mail.gmail.com>
-Subject: Re: [PATCH v3 01/10] crypto: virtio: Add spinlock protection with
- virtqueue notification
-To: Bibo Mao <maobibo@loongson.cn>
-Cc: Gonglei <arei.gonglei@huawei.com>, "Michael S . Tsirkin" <mst@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, 
-	wangyangxin <wangyangxin1@huawei.com>, kvm@vger.kernel.org, linux-crypto@vger.kernel.org, 
-	stable@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Q-EcKbt3bhEb3yjO2z7By9XtzzYM7UlYSy4dDnvRReA_1765254777
-X-Mimecast-Originator: redhat.com
+References: <20251208235528.3670800-1-hpa@zytor.com>
+In-Reply-To: <20251208235528.3670800-1-hpa@zytor.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Tue, 9 Dec 2025 16:26:00 +0900
+X-Gmail-Original-Message-ID: <CAHk-=wiNMD7tCkYvVQMs1=omU9=J=zw_ryvtZ+A-sNR7MN2iuw@mail.gmail.com>
+X-Gm-Features: AQt7F2pU3mtSVlk8xXoOHi4ywQ2NpA8rkmyzrskk-X7c-Gbp__mUx8NnR72v7NM
+Message-ID: <CAHk-=wiNMD7tCkYvVQMs1=omU9=J=zw_ryvtZ+A-sNR7MN2iuw@mail.gmail.com>
+Subject: Re: [GIT PULL] __auto_type conversion for v6.19-rc1
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Alexei Starovoitov <ast@kernel.org>, Alexey Dobriyan <adobriyan@gmail.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Andrii Nakryiko <andrii@kernel.org>, 
+	Arnd Bergmann <arnd@kernel.org>, Borislav Petkov <bp@alien8.de>, Dan Williams <dan.j.williams@intel.com>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	David Laight <David.Laight@aculab.com>, David Lechner <dlechner@baylibre.com>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Gatlin Newhouse <gatlin.newhouse@gmail.com>, Hao Luo <haoluo@google.com>, 
+	Ingo Molnar <mingo@redhat.com>, Jakub Sitnicki <jakub@cloudflare.com>, 
+	Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>, Jiri Olsa <jolsa@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, 
+	Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>, Kees Cook <kees@kernel.org>, 
+	Luc Van Oostenryck <luc.vanoostenryck@gmail.com>, Marc Herbert <Marc.Herbert@linux.intel.com>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>, 
+	Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>, NeilBrown <neil@brown.name>, 
+	Peter Zijlstra <peterz@infradead.org>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
+	Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>, Song Liu <song@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Thomas Gleixner <tglx@linutronix.de>, 
+	Thorsten Blum <thorsten.blum@linux.dev>, Uros Bizjak <ubizjak@gmail.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Yafang Shao <laoar.shao@gmail.com>, 
+	Ye Bin <yebin10@huawei.com>, Yonghong Song <yonghong.song@linux.dev>, 
+	Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-sparse@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 9, 2025 at 10:23=E2=80=AFAM Bibo Mao <maobibo@loongson.cn> wrot=
-e:
+On Tue, 9 Dec 2025 at 08:57, H. Peter Anvin <hpa@zytor.com> wrote:
 >
-> When VM boots with one virtio-crypto PCI device and builtin backend,
-> run openssl benchmark command with multiple processes, such as
->   openssl speed -evp aes-128-cbc -engine afalg  -seconds 10 -multi 32
+>   git://git.kernel.org/pub/scm/linux/kernel/git/hpa/linux-auto.git
 >
-> openssl processes will hangup and there is error reported like this:
->  virtio_crypto virtio0: dataq.0:id 3 is not a head!
->
-> It seems that the data virtqueue need protection when it is handled
-> for virtio done notification. If the spinlock protection is added
-> in virtcrypto_done_task(), openssl benchmark with multiple processes
-> works well.
->
-> Fixes: fed93fb62e05 ("crypto: virtio - Handle dataq logic with tasklet")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+> for you to fetch changes up to branch auto-type-for-6.19
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Oh, and as I was going to merge this, I noticed it's not signed.
 
-Thanks
+Let's not break our perfect recent record of using proper signed tags.
+when I know you have a pgp key and I even have it on my keyring.
 
+Please?
+
+              Linus
