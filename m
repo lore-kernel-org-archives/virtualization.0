@@ -1,78 +1,78 @@
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E58A92D7D2F
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C8A22D1F44
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765288958; cv=none; b=k2UFAUCvpcoAYGHq7lQ3DErEhSu+O9F9ZJFxneJUihc45u1SuyCXAI29/qFUmV2OhVj6U0sM324HzqI17W+72FTQ+an+p7BCFOSmZkSnfqdUqVyD3qkHZdoymk9ZwK6bFrmm1f3bSvxVqJP4JNqq6/hYHDEhvsxU5EK8QqQQ/7M=
+	t=1765288966; cv=none; b=EtqvEKhqbimHQjBWJiftpkCcsc15jjNfl8is5nrjUAXdQXxgvu1jIE1zXILywFk5LNbrFJtEdgxdMdsxocW7iM1NHZKdtIcygYLuOnYzzWYZDEiL1OFncAInu2kuEof4hniBpPDd71pknoGN7Eo6fGjDCTdzqymkNav47kNrM5w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765288958; c=relaxed/simple;
-	bh=IMlbb1+732Y1zvohoQi90hnmZrfciyIWYWMoGpYcPTo=;
+	s=arc-20240116; t=1765288966; c=relaxed/simple;
+	bh=e8O9LfspLOrJiZ/veTVLtSoTD9m+lz3hy70T74LgXyM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jGAFrLQC9nJuGN9yp7zECwDpWD870J0ZGkGQvkRIkifRwn08b3zDVde3uYAbt0nj1huaWEJioV8nicjWldAZc0MbDSFmsi62Y3Z8Ut4OW2WWnyrry9O9Xx1qOobKKf3DVpqWk4fwOzaSnoJSUypAOyKHG0J8jIcVZWQkFX38Gnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=gKrByR8o; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3ZszYtzY; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=gKrByR8o; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3ZszYtzY; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=Tx7pTQ9HRlCKe3hSFOEOY1RkO//270Yf8Q1w5rRZE06sJK0KFVy8agnzM1pXA9NRx+L0qjoP5Pjex2oOIpFGBIcsPultA2D9ZsymjLyCn+zX1KO2ZJO2sgPSR69KxU6xzrlK0B0x9vbnnC2U3tmRhfn7zvDraXgChO0RpYHupMc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=juz1izym; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1j1ZJNPH; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=juz1izym; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1j1ZJNPH; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="gKrByR8o";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3ZszYtzY";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="gKrByR8o";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3ZszYtzY"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="juz1izym";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1j1ZJNPH";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="juz1izym";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1j1ZJNPH"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 206BC336FA;
-	Tue,  9 Dec 2025 14:02:01 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 7AB4E33818;
+	Tue,  9 Dec 2025 14:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765288921; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1765288923; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=f2ZlLZsteXqs2Fwj3hwtwFsJvwq1OIfup6nGxNoro8w=;
-	b=gKrByR8ojDnkQJ/RXX1oYHvrEIlnUUOmb2he6wqzJB6aeaiqJkGeIUV8hwMI5vGDVJ2EQB
-	eYhL9gnjAT3EWsggpZMVaHt4u369FKuFeDlxPAYdm9bMXP+oJbp7fu/mPK4WXfCqw0vaIq
-	al+k4NI/kNN1iixnDyCpTAeJdUKroZ8=
+	bh=S+roIPoSEFwrhu3eugBn54tWeebYmAzlueWnYzrESdk=;
+	b=juz1izymCd+Bfu7UCxF1ZIqa4nDeyLuZjP4uo1vVe+99mwfsW1LZz4IrGwY1w2z0NP3BRA
+	8WnlVP8osHGqstL5WUFGpFz2FbIt9Kg6RD+/I2zyizcR/fqKLT/pI12EKj2I9wBqtm5Th4
+	U/c0EYWJ6TireqFbCjWwtMEUHmD0FDE=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765288921;
+	s=susede2_ed25519; t=1765288923;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=f2ZlLZsteXqs2Fwj3hwtwFsJvwq1OIfup6nGxNoro8w=;
-	b=3ZszYtzYF46C9R99DpPweNWoeF+cJXU/nhvf8aUugrfURQEs/ZRCpeE857x0ztZhRqFWzH
-	n4A8f5VWZ/4nHrBg==
+	bh=S+roIPoSEFwrhu3eugBn54tWeebYmAzlueWnYzrESdk=;
+	b=1j1ZJNPHi/xvrdh+WpyuChH4WiptOEhvC9w53KEHNdUr84V7OAxj1iWUIVJBZxdKZ5qXMq
+	z0ZvAtHP/NfNOeBQ==
 Authentication-Results: smtp-out1.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765288921; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1765288923; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=f2ZlLZsteXqs2Fwj3hwtwFsJvwq1OIfup6nGxNoro8w=;
-	b=gKrByR8ojDnkQJ/RXX1oYHvrEIlnUUOmb2he6wqzJB6aeaiqJkGeIUV8hwMI5vGDVJ2EQB
-	eYhL9gnjAT3EWsggpZMVaHt4u369FKuFeDlxPAYdm9bMXP+oJbp7fu/mPK4WXfCqw0vaIq
-	al+k4NI/kNN1iixnDyCpTAeJdUKroZ8=
+	bh=S+roIPoSEFwrhu3eugBn54tWeebYmAzlueWnYzrESdk=;
+	b=juz1izymCd+Bfu7UCxF1ZIqa4nDeyLuZjP4uo1vVe+99mwfsW1LZz4IrGwY1w2z0NP3BRA
+	8WnlVP8osHGqstL5WUFGpFz2FbIt9Kg6RD+/I2zyizcR/fqKLT/pI12EKj2I9wBqtm5Th4
+	U/c0EYWJ6TireqFbCjWwtMEUHmD0FDE=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765288921;
+	s=susede2_ed25519; t=1765288923;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=f2ZlLZsteXqs2Fwj3hwtwFsJvwq1OIfup6nGxNoro8w=;
-	b=3ZszYtzYF46C9R99DpPweNWoeF+cJXU/nhvf8aUugrfURQEs/ZRCpeE857x0ztZhRqFWzH
-	n4A8f5VWZ/4nHrBg==
+	bh=S+roIPoSEFwrhu3eugBn54tWeebYmAzlueWnYzrESdk=;
+	b=1j1ZJNPHi/xvrdh+WpyuChH4WiptOEhvC9w53KEHNdUr84V7OAxj1iWUIVJBZxdKZ5qXMq
+	z0ZvAtHP/NfNOeBQ==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C3CA23EA65;
-	Tue,  9 Dec 2025 14:01:59 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 613E73EA63;
+	Tue,  9 Dec 2025 14:02:02 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id eE1ELdcrOGm1OgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:01:59 +0000
+	id OBzXFdorOGm1OgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:02:02 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: boris.brezillon@collabora.com,
 	simona@ffwll.ch,
@@ -103,9 +103,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	linux-doc@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 10/13] drm/virtgpu: Use GEM-UMA helpers for memory management
-Date: Tue,  9 Dec 2025 14:42:07 +0100
-Message-ID: <20251209140141.94407-11-tzimmermann@suse.de>
+Subject: [PATCH 12/13] accel/ivpu: Use GEM-UMA helpers for memory management
+Date: Tue,  9 Dec 2025 14:42:09 +0100
+Message-ID: <20251209140141.94407-13-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251209140141.94407-1-tzimmermann@suse.de>
 References: <20251209140141.94407-1-tzimmermann@suse.de>
@@ -116,20 +116,17 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -6.80
-X-Spam-Level: 
 X-Spamd-Result: default: False [-6.80 / 50.00];
 	REPLY(-4.00)[];
 	BAYES_HAM(-3.00)[100.00%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
 	MID_CONTAINS_FROM(1.00)[];
 	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.998];
 	MIME_GOOD(-0.10)[text/plain];
 	ARC_NA(0.00)[];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:helo];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email];
 	RCPT_COUNT_TWELVE(0.00)[29];
 	MIME_TRACE(0.00)[0:+];
 	TO_DN_SOME(0.00)[];
@@ -143,297 +140,156 @@ X-Spamd-Result: default: False [-6.80 / 50.00];
 	R_RATELIMIT(0.00)[to_ip_from(RLzxzh56npx61idbi11ft8b9pb)];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spam-Score: -6.80
 
-Convert virtgpu from GEM-SHMEM to GEM-UMA. The latter is just a copy,
+Convert ivpu from GEM-SHMEM to GEM-UMA. The latter is just a copy,
 so this change it merely renaming symbols. No functional changes.
 
 GEM-SHMEM will become more self-contained for drivers without specific
 memory management. GEM-UMA's interfaces will remain flexible for drivers
-with UMA hardware, such as virtgpu.
+with UMA hardware, such as ivpu.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/virtio/Kconfig          |  4 +-
- drivers/gpu/drm/virtio/virtgpu_drv.c    |  4 +-
- drivers/gpu/drm/virtio/virtgpu_drv.h    | 12 ++---
- drivers/gpu/drm/virtio/virtgpu_object.c | 64 ++++++++++++-------------
- drivers/gpu/drm/virtio/virtgpu_plane.c  |  6 +--
- drivers/gpu/drm/virtio/virtgpu_vq.c     |  6 +--
- 6 files changed, 48 insertions(+), 48 deletions(-)
+ drivers/accel/ivpu/Kconfig    |  2 +-
+ drivers/accel/ivpu/ivpu_gem.c | 36 +++++++++++++++++------------------
+ drivers/accel/ivpu/ivpu_gem.h |  4 ++--
+ 3 files changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/Kconfig b/drivers/gpu/drm/virtio/Kconfig
-index fc884fb57b7e..eee61fce17fc 100644
---- a/drivers/gpu/drm/virtio/Kconfig
-+++ b/drivers/gpu/drm/virtio/Kconfig
-@@ -2,10 +2,10 @@
- config DRM_VIRTIO_GPU
- 	tristate "Virtio GPU driver"
- 	depends on DRM && VIRTIO_MENU && MMU
--	select VIRTIO
- 	select DRM_CLIENT_SELECTION
+diff --git a/drivers/accel/ivpu/Kconfig b/drivers/accel/ivpu/Kconfig
+index 9e055b5ce03d..49ca139a9d31 100644
+--- a/drivers/accel/ivpu/Kconfig
++++ b/drivers/accel/ivpu/Kconfig
+@@ -5,8 +5,8 @@ config DRM_ACCEL_IVPU
+ 	depends on DRM_ACCEL
+ 	depends on X86_64 && !UML
+ 	depends on PCI && PCI_MSI
 +	select DRM_GEM_UMA_HELPER
- 	select DRM_KMS_HELPER
+ 	select FW_LOADER
 -	select DRM_GEM_SHMEM_HELPER
-+	select VIRTIO
- 	select VIRTIO_DMA_SHARED_BUFFER
+ 	select GENERIC_ALLOCATOR
+ 	select WANT_DEV_COREDUMP
  	help
- 	   This is the virtual GPU driver for virtio.  It can be used with
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index a5ce96fb8a1d..8dbaa021f90f 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -37,7 +37,7 @@
- #include <drm/drm.h>
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_drv.h>
--#include <drm/drm_fbdev_shmem.h>
-+#include <drm/drm_fbdev_uma.h>
- #include <drm/drm_file.h>
- #include <drm/drm_print.h>
+diff --git a/drivers/accel/ivpu/ivpu_gem.c b/drivers/accel/ivpu/ivpu_gem.c
+index ece68f570b7e..7f4aeb482efb 100644
+--- a/drivers/accel/ivpu/ivpu_gem.c
++++ b/drivers/accel/ivpu/ivpu_gem.c
+@@ -84,7 +84,7 @@ int __must_check ivpu_bo_bind(struct ivpu_bo *bo)
+ 	if (bo->base.base.import_attach)
+ 		sgt = ivpu_bo_map_attachment(vdev, bo);
+ 	else
+-		sgt = drm_gem_shmem_get_pages_sgt(&bo->base);
++		sgt = drm_gem_uma_get_pages_sgt(&bo->base);
+ 	if (IS_ERR(sgt)) {
+ 		ret = PTR_ERR(sgt);
+ 		ivpu_err(vdev, "Failed to map BO in IOMMU: %d\n", ret);
+@@ -223,7 +223,7 @@ struct drm_gem_object *ivpu_gem_prime_import(struct drm_device *dev,
  
-@@ -234,7 +234,7 @@ static const struct drm_driver driver = {
+ 	get_dma_buf(dma_buf);
  
- 	.dumb_create = virtio_gpu_mode_dumb_create,
+-	obj = drm_gem_shmem_prime_import_sg_table(dev, attach, NULL);
++	obj = drm_gem_uma_prime_import_sg_table(dev, attach, NULL);
+ 	if (IS_ERR(obj)) {
+ 		ret = PTR_ERR(obj);
+ 		goto fail_detach;
+@@ -251,7 +251,7 @@ struct drm_gem_object *ivpu_gem_prime_import(struct drm_device *dev,
  
--	DRM_FBDEV_SHMEM_DRIVER_OPS,
-+	DRM_FBDEV_UMA_DRIVER_OPS,
+ static struct ivpu_bo *ivpu_bo_alloc(struct ivpu_device *vdev, u64 size, u32 flags)
+ {
+-	struct drm_gem_shmem_object *shmem;
++	struct drm_gem_uma_object *uma;
+ 	struct ivpu_bo *bo;
  
- #if defined(CONFIG_DEBUG_FS)
- 	.debugfs_init = virtio_gpu_debugfs_init,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index f17660a71a3e..d7a2293cc794 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -38,7 +38,7 @@
- #include <drm/drm_fourcc.h>
- #include <drm/drm_framebuffer.h>
- #include <drm/drm_gem.h>
--#include <drm/drm_gem_shmem_helper.h>
-+#include <drm/drm_gem_uma_helper.h>
- #include <drm/drm_ioctl.h>
- #include <drm/drm_probe_helper.h>
- #include <drm/virtgpu_drm.h>
-@@ -87,7 +87,7 @@ struct virtio_gpu_object_params {
- };
+ 	switch (flags & DRM_IVPU_BO_CACHE_MASK) {
+@@ -262,11 +262,11 @@ static struct ivpu_bo *ivpu_bo_alloc(struct ivpu_device *vdev, u64 size, u32 fla
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
- struct virtio_gpu_object {
--	struct drm_gem_shmem_object base;
-+	struct drm_gem_uma_object base;
- 	struct sg_table *sgt;
- 	uint32_t hw_res_handle;
- 	bool dumb;
-@@ -102,7 +102,7 @@ struct virtio_gpu_object {
- #define gem_to_virtio_gpu_obj(gobj) \
- 	container_of((gobj), struct virtio_gpu_object, base.base)
+-	shmem = drm_gem_shmem_create(&vdev->drm, size);
+-	if (IS_ERR(shmem))
+-		return ERR_CAST(shmem);
++	uma = drm_gem_uma_create(&vdev->drm, size);
++	if (IS_ERR(uma))
++		return ERR_CAST(uma);
  
--struct virtio_gpu_object_shmem {
-+struct virtio_gpu_object_uma {
- 	struct virtio_gpu_object base;
- };
+-	bo = to_ivpu_bo(&shmem->base);
++	bo = to_ivpu_bo(&uma->base);
+ 	bo->base.map_wc = flags & DRM_IVPU_BO_WC;
+ 	bo->flags = flags;
  
-@@ -113,8 +113,8 @@ struct virtio_gpu_object_vram {
- 	struct drm_mm_node vram_node;
- };
+@@ -330,7 +330,7 @@ static void ivpu_gem_bo_free(struct drm_gem_object *obj)
  
--#define to_virtio_gpu_shmem(virtio_gpu_object) \
--	container_of((virtio_gpu_object), struct virtio_gpu_object_shmem, base)
-+#define to_virtio_gpu_uma(virtio_gpu_object) \
-+	container_of((virtio_gpu_object), struct virtio_gpu_object_uma, base)
- 
- #define to_virtio_gpu_vram(virtio_gpu_object) \
- 	container_of((virtio_gpu_object), struct virtio_gpu_object_vram, base)
-@@ -474,7 +474,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 			     struct virtio_gpu_object **bo_ptr,
- 			     struct virtio_gpu_fence *fence);
- 
--bool virtio_gpu_is_shmem(struct virtio_gpu_object *bo);
-+bool virtio_gpu_is_uma(struct virtio_gpu_object *bo);
- 
- int virtio_gpu_resource_id_get(struct virtio_gpu_device *vgdev,
- 			       uint32_t *resid);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 4270bfede7b9..31cc96b9b5a0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -68,8 +68,8 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
- 	struct virtio_gpu_device *vgdev = bo->base.base.dev->dev_private;
- 
- 	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
--	if (virtio_gpu_is_shmem(bo)) {
--		drm_gem_shmem_free(&bo->base);
-+	if (virtio_gpu_is_uma(bo)) {
-+		drm_gem_uma_free(&bo->base);
- 	} else if (virtio_gpu_is_vram(bo)) {
- 		struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
- 
-@@ -123,52 +123,52 @@ int virtio_gpu_detach_object_fenced(struct virtio_gpu_object *bo)
- 	return 0;
+ 	drm_WARN_ON(obj->dev, refcount_read(&bo->base.pages_use_count) > 1);
+ 	drm_WARN_ON(obj->dev, bo->base.base.vma_node.vm_files.rb_node);
+-	drm_gem_shmem_free(&bo->base);
++	drm_gem_uma_free(&bo->base);
  }
  
--static const struct drm_gem_object_funcs virtio_gpu_shmem_funcs = {
-+static const struct drm_gem_object_funcs virtio_gpu_uma_funcs = {
- 	.free = virtio_gpu_free_object,
- 	.open = virtio_gpu_gem_object_open,
- 	.close = virtio_gpu_gem_object_close,
+ static enum drm_gem_object_status ivpu_gem_status(struct drm_gem_object *obj)
+@@ -347,15 +347,15 @@ static enum drm_gem_object_status ivpu_gem_status(struct drm_gem_object *obj)
+ static const struct drm_gem_object_funcs ivpu_gem_funcs = {
+ 	.free = ivpu_gem_bo_free,
+ 	.open = ivpu_gem_bo_open,
 -	.print_info = drm_gem_shmem_object_print_info,
-+	.print_info = drm_gem_uma_object_print_info,
- 	.export = virtgpu_gem_prime_export,
 -	.pin = drm_gem_shmem_object_pin,
 -	.unpin = drm_gem_shmem_object_unpin,
 -	.get_sg_table = drm_gem_shmem_object_get_sg_table,
 -	.vmap = drm_gem_shmem_object_vmap,
 -	.vunmap = drm_gem_shmem_object_vunmap,
 -	.mmap = drm_gem_shmem_object_mmap,
--	.vm_ops = &drm_gem_shmem_vm_ops,
++	.print_info = drm_gem_uma_object_print_info,
 +	.pin = drm_gem_uma_object_pin,
 +	.unpin = drm_gem_uma_object_unpin,
 +	.get_sg_table = drm_gem_uma_object_get_sg_table,
 +	.vmap = drm_gem_uma_object_vmap,
 +	.vunmap = drm_gem_uma_object_vunmap,
 +	.mmap = drm_gem_uma_object_mmap,
+ 	.status = ivpu_gem_status,
+-	.vm_ops = &drm_gem_shmem_vm_ops,
 +	.vm_ops = &drm_gem_uma_vm_ops,
  };
  
--bool virtio_gpu_is_shmem(struct virtio_gpu_object *bo)
-+bool virtio_gpu_is_uma(struct virtio_gpu_object *bo)
- {
--	return bo->base.base.funcs == &virtio_gpu_shmem_funcs;
-+	return bo->base.base.funcs == &virtio_gpu_uma_funcs;
- }
+ int ivpu_bo_create_ioctl(struct drm_device *dev, void *data, struct drm_file *file)
+@@ -435,7 +435,7 @@ ivpu_bo_create(struct ivpu_device *vdev, struct ivpu_mmu_context *ctx,
  
- struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
- 						size_t size)
- {
--	struct virtio_gpu_object_shmem *shmem;
--	struct drm_gem_shmem_object *dshmem;
-+	struct virtio_gpu_object_uma *vguma;
-+	struct drm_gem_uma_object *uma;
+ 	if (flags & DRM_IVPU_BO_MAPPABLE) {
+ 		ivpu_bo_lock(bo);
+-		ret = drm_gem_shmem_vmap_locked(&bo->base, &map);
++		ret = drm_gem_uma_vmap_locked(&bo->base, &map);
+ 		ivpu_bo_unlock(bo);
  
--	shmem = kzalloc(sizeof(*shmem), GFP_KERNEL);
--	if (!shmem)
-+	vguma = kzalloc(sizeof(*vguma), GFP_KERNEL);
-+	if (!vguma)
- 		return ERR_PTR(-ENOMEM);
+ 		if (ret)
+@@ -475,7 +475,7 @@ void ivpu_bo_free(struct ivpu_bo *bo)
  
--	dshmem = &shmem->base.base;
--	dshmem->base.funcs = &virtio_gpu_shmem_funcs;
--	return &dshmem->base;
-+	uma = &vguma->base.base;
-+	uma->base.funcs = &virtio_gpu_uma_funcs;
-+	return &uma->base;
- }
- 
--static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
--					struct virtio_gpu_object *bo,
--					struct virtio_gpu_mem_entry **ents,
--					unsigned int *nents)
-+static int virtio_gpu_object_uma_init(struct virtio_gpu_device *vgdev,
-+				      struct virtio_gpu_object *bo,
-+				      struct virtio_gpu_mem_entry **ents,
-+				      unsigned int *nents)
- {
- 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
- 	struct scatterlist *sg;
- 	struct sg_table *pages;
- 	int si;
- 
--	pages = drm_gem_shmem_get_pages_sgt(&bo->base);
-+	pages = drm_gem_uma_get_pages_sgt(&bo->base);
- 	if (IS_ERR(pages))
- 		return PTR_ERR(pages);
- 
-@@ -208,7 +208,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 			     struct virtio_gpu_fence *fence)
- {
- 	struct virtio_gpu_object_array *objs = NULL;
--	struct drm_gem_shmem_object *shmem_obj;
-+	struct drm_gem_uma_object *uma_obj;
- 	struct virtio_gpu_object *bo;
- 	struct virtio_gpu_mem_entry *ents = NULL;
- 	unsigned int nents;
-@@ -217,10 +217,10 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 	*bo_ptr = NULL;
- 
- 	params->size = roundup(params->size, PAGE_SIZE);
--	shmem_obj = drm_gem_shmem_create(vgdev->ddev, params->size);
--	if (IS_ERR(shmem_obj))
--		return PTR_ERR(shmem_obj);
--	bo = gem_to_virtio_gpu_obj(&shmem_obj->base);
-+	uma_obj = drm_gem_uma_create(vgdev->ddev, params->size);
-+	if (IS_ERR(uma_obj))
-+		return PTR_ERR(uma_obj);
-+	bo = gem_to_virtio_gpu_obj(&uma_obj->base);
- 
- 	ret = virtio_gpu_resource_id_get(vgdev, &bo->hw_res_handle);
- 	if (ret < 0)
-@@ -228,7 +228,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 
- 	bo->dumb = params->dumb;
- 
--	ret = virtio_gpu_object_shmem_init(vgdev, bo, &ents, &nents);
-+	ret = virtio_gpu_object_uma_init(vgdev, bo, &ents, &nents);
- 	if (ret != 0)
- 		goto err_put_id;
- 
-@@ -270,6 +270,6 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- err_put_id:
- 	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
- err_free_gem:
--	drm_gem_shmem_free(shmem_obj);
-+	drm_gem_uma_free(uma_obj);
- 	return ret;
- }
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index a7863f8ee4ee..a80027e02612 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -515,12 +515,12 @@ static int virtio_drm_get_scanout_buffer(struct drm_plane *plane,
- 	if (bo->base.vaddr) {
- 		iosys_map_set_vaddr(&sb->map[0], bo->base.vaddr);
- 	} else {
--		struct drm_gem_shmem_object *shmem = &bo->base;
-+		struct drm_gem_uma_object *uma = &bo->base;
- 
--		if (!shmem->pages)
-+		if (!uma->pages)
- 			return -ENODEV;
- 		/* map scanout buffer later */
--		sb->pages = shmem->pages;
-+		sb->pages = uma->pages;
+ 	if (bo->flags & DRM_IVPU_BO_MAPPABLE) {
+ 		ivpu_bo_lock(bo);
+-		drm_gem_shmem_vunmap_locked(&bo->base, &map);
++		drm_gem_uma_vunmap_locked(&bo->base, &map);
+ 		ivpu_bo_unlock(bo);
  	}
  
- 	sb->format = plane->state->fb->format;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 0c194b4e9488..9c6607239629 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -726,7 +726,7 @@ int virtio_gpu_panic_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 	struct virtio_gpu_vbuffer *vbuf;
- 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+diff --git a/drivers/accel/ivpu/ivpu_gem.h b/drivers/accel/ivpu/ivpu_gem.h
+index 0c3350f22b55..3e5d1a64deab 100644
+--- a/drivers/accel/ivpu/ivpu_gem.h
++++ b/drivers/accel/ivpu/ivpu_gem.h
+@@ -6,13 +6,13 @@
+ #define __IVPU_GEM_H__
  
--	if (virtio_gpu_is_shmem(bo) && use_dma_api)
-+	if (virtio_gpu_is_uma(bo) && use_dma_api)
- 		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
- 					    bo->base.sgt, DMA_TO_DEVICE);
+ #include <drm/drm_gem.h>
+-#include <drm/drm_gem_shmem_helper.h>
++#include <drm/drm_gem_uma_helper.h>
+ #include <drm/drm_mm.h>
  
-@@ -757,7 +757,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 	struct virtio_gpu_vbuffer *vbuf;
- 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
+ struct ivpu_file_priv;
  
--	if (virtio_gpu_is_shmem(bo) && use_dma_api)
-+	if (virtio_gpu_is_uma(bo) && use_dma_api)
- 		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
- 					    bo->base.sgt, DMA_TO_DEVICE);
- 
-@@ -1195,7 +1195,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
- 	struct virtio_gpu_vbuffer *vbuf;
- 	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
- 
--	if (virtio_gpu_is_shmem(bo) && use_dma_api)
-+	if (virtio_gpu_is_uma(bo) && use_dma_api)
- 		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
- 					    bo->base.sgt, DMA_TO_DEVICE);
- 
+ struct ivpu_bo {
+-	struct drm_gem_shmem_object base;
++	struct drm_gem_uma_object base;
+ 	struct ivpu_mmu_context *ctx;
+ 	struct list_head bo_list_node;
+ 	struct drm_mm_node mm_node;
 -- 
 2.52.0
 
