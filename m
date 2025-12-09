@@ -1,225 +1,225 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82D4726E6F2
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:25:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF2F72D3A75
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:27:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765290320; cv=none; b=nGlTD3X4CCUTqP2LONviedDZ5A0D85qKM8GargtVxVzZpvwFcBkxaYQ+41LUl+chaA+7tcKdFo5vQ9VMDGkde+Ma6zVNYTixzNjs1G2q67ItiE8EaTvCY7ti1KH4HmyAfYcOTB9hVOUs9GHhlTaf3ByMMnsBUcqkZgK8veoYTrE=
+	t=1765290465; cv=none; b=amEj+jtlzIEpr6eXjexvDwQjP6aWIun/UjOQtuudl0zKvqGXrzXuylZ04PLq6G2fdUt9dclPD0/+m/Znd26VipNyBzJUxfEmO1gonAzt67DnfvQ12RJf/0i79Xp1LAabt6QhVpjkMtLEMFfSlsWUJG49PFYD5PqmyvX9XqgDfD4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765290320; c=relaxed/simple;
-	bh=AfvpogmHZ1KexEmvBPBIMCX4kQEuv9pvdnvyPo8Coj0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kwUEJlATG79WNGg7VlYc2aLlw0yAvz9vLu/sbdBO97tB1zSVk8/hxMTEdzbM5UNv8jGj4olplsguxg4m9BCGsjx4rd0s92p4qqdLeDkQl4BAXUj/uG1DLbXLZSmp1aUCjGpLFFdgf3c3cR+n+A9axsVPVk9pP97tGUAnCliU5gQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PUJWSEi4; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1765290465; c=relaxed/simple;
+	bh=fH/yI37b5CK9f8w3kxUP+w4Moli9Bpyfut5heK/ikhg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Cu0vDV7E/6SfJVorfLOPhgLFs2fIkn0MW14c25AWr561Uki3gB6FPNXC/1xatdGXR74x3GnLobSZLwK2af/7KNRp4/qdDZLOPNBriEJAZ4pbBdjlyVPR27YgqVltDare0k1VcuV/LnJeyX3Hx7CITQhTp4jqO7Fwkg5TY5Q0h4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=FMvR9bZ3; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PUJWSEi4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1765290318; x=1796826318;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=AfvpogmHZ1KexEmvBPBIMCX4kQEuv9pvdnvyPo8Coj0=;
-  b=PUJWSEi40g0mJ9uALlqtUA9vWI4lEZGmCJt4Bwegbdr64J/vOHTqvzLX
-   in7/nlP1Ob9z0yqPyFyj4QipBNdDmwq6oZbyYb+iHrlXFoICU0rjAOH+m
-   2pNUIkumD4gNKq1wbf7G8t88b812MsqPx4rcUlbe6vCUeYsBBxj36jj9y
-   F9ZMlDh+wwvXSLsQPLUJDiShkr2gFW2AYL5k3Alq4faknObt2nwsK6/2L
-   IsQlrFmSkZqRaa7WFcU884BUtuRl18AmYImsCX43iRuej5rlWb5J+1mf9
-   R05ZEwRKiohqb0PDfM38ZBKFmNHl1odveJgj7Eaged764dkE9EmIk+jZh
-   g==;
-X-CSE-ConnectionGUID: iYcoyCq+QFOcI5jEOjQF5Q==
-X-CSE-MsgGUID: AEaAScFCRVy6RrF7khQ/2g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11637"; a="71105747"
-X-IronPort-AV: E=Sophos;i="6.20,261,1758610800"; 
-   d="scan'208";a="71105747"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Dec 2025 06:25:16 -0800
-X-CSE-ConnectionGUID: udr/MNHfTqm/RstjUL4pzw==
-X-CSE-MsgGUID: BKKpg3lVQeqvh8LMSZ11mw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.20,261,1758610800"; 
-   d="scan'208";a="195504324"
-Received: from kwachows-mobl.ger.corp.intel.com (HELO [10.246.16.114]) ([10.246.16.114])
-  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Dec 2025 06:25:08 -0800
-Message-ID: <a8d376f6-bd0f-419a-8709-8f4a0a1a0014@linux.intel.com>
-Date: Tue, 9 Dec 2025 15:25:06 +0100
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="FMvR9bZ3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1765290460;
+	bh=fH/yI37b5CK9f8w3kxUP+w4Moli9Bpyfut5heK/ikhg=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=FMvR9bZ3AcGXFQnqGk1Yx3Uo5+eJPUlqPh7rok1EJ7EvYjEogXTjJab8p3cC+mzHf
+	 CRH4WQXITPwHDxnXSTeTFle5jdQYO7H7qEIs9WdBKIed7QvDx86tYEsg4QphPU/knb
+	 k9W6XNxjOmU8Af/QwZaq9dN0Uja5iSRclQa34AS5dWLpTaNrrJaliM+JFyHjLHd4ae
+	 zP1LT7f5wbzIpJ8X0W6qxxHjFQJTdhxrs104gjyZw7WvVpilOb6FNaHUkmcL55Yxug
+	 4bcNzM9CP0nkzH9fo3rN384vN863GIYJ+OTpsPKVH8fvozUHcifhNGB1Ykqlg7f06I
+	 Bl/L8v41ZgwDQ==
+Received: from fedora (unknown [IPv6:2a01:e0a:2c:6930:d919:a6e:5ea1:8a9f])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: bbrezillon)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id A5A3E17E1216;
+	Tue,  9 Dec 2025 15:27:39 +0100 (CET)
+Date: Tue, 9 Dec 2025 15:27:34 +0100
+From: Boris Brezillon <boris.brezillon@collabora.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
+ maarten.lankhorst@linux.intel.com, ogabbay@kernel.org, mamin506@gmail.com,
+ lizhi.hou@amd.com, maciej.falkowski@linux.intel.com,
+ karol.wachowski@linux.intel.com, tomeu@tomeuvizoso.net,
+ frank.binns@imgtec.com, matt.coster@imgtec.com, yuq825@gmail.com,
+ robh@kernel.org, steven.price@arm.com, adrian.larumbe@collabora.com,
+ liviu.dudau@arm.com, mwen@igalia.com, kraxel@redhat.com,
+ dmitry.osipenko@collabora.com, gurchetansingh@chromium.org,
+ olvaffe@gmail.com, corbet@lwn.net, dri-devel@lists.freedesktop.org,
+ lima@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org
+Subject: Re: [RFC][PATCH 00/13] drm: Introduce GEM-UMA memory management
+Message-ID: <20251209152734.6851f3ac@fedora>
+In-Reply-To: <20251209140141.94407-1-tzimmermann@suse.de>
+References: <20251209140141.94407-1-tzimmermann@suse.de>
+Organization: Collabora
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 12/13] accel/ivpu: Use GEM-UMA helpers for memory
- management
-To: Thomas Zimmermann <tzimmermann@suse.de>, boris.brezillon@collabora.com,
- simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
- maarten.lankhorst@linux.intel.com, ogabbay@kernel.org, mamin506@gmail.com,
- lizhi.hou@amd.com, maciej.falkowski@linux.intel.com, tomeu@tomeuvizoso.net,
- frank.binns@imgtec.com, matt.coster@imgtec.com, yuq825@gmail.com,
- robh@kernel.org, steven.price@arm.com, adrian.larumbe@collabora.com,
- liviu.dudau@arm.com, mwen@igalia.com, kraxel@redhat.com,
- dmitry.osipenko@collabora.com, gurchetansingh@chromium.org,
- olvaffe@gmail.com, corbet@lwn.net
-Cc: dri-devel@lists.freedesktop.org, lima@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-doc@vger.kernel.org
-References: <20251209140141.94407-1-tzimmermann@suse.de>
- <20251209140141.94407-13-tzimmermann@suse.de>
-Content-Language: en-US
-From: Karol Wachowski <karol.wachowski@linux.intel.com>
-Organization: Intel Technology Poland sp. z o.o. - ul. Slowackiego 173, 80-298
- Gdansk - KRS 101882 - NIP 957-07-52-316
-In-Reply-To: <20251209140141.94407-13-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On 12/9/2025 2:42 PM, Thomas Zimmermann wrote:
-> Convert ivpu from GEM-SHMEM to GEM-UMA. The latter is just a copy,
-> so this change it merely renaming symbols. No functional changes.
+On Tue,  9 Dec 2025 14:41:57 +0100
+Thomas Zimmermann <tzimmermann@suse.de> wrote:
+
+> Duplicate GEM-SHMEM to GEM-UMA. Convert all DRM drivers for UMA
+> systems if they currently use GEM-SHMEM.
 > 
-> GEM-SHMEM will become more self-contained for drivers without specific
-> memory management. GEM-UMA's interfaces will remain flexible for drivers
-> with UMA hardware, such as ivpu.
+> Many DRM drivers for hardware with Unified Memory Architecture (UMA)
+> currently builds upon GEM-SHMEM and extends the helpers with features
+> for managing the GPU MMU. This allows the GPU to access the GEM buffer
+> content for its operation.
 > 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> ---
->  drivers/accel/ivpu/Kconfig    |  2 +-
->  drivers/accel/ivpu/ivpu_gem.c | 36 +++++++++++++++++------------------
->  drivers/accel/ivpu/ivpu_gem.h |  4 ++--
->  3 files changed, 21 insertions(+), 21 deletions(-)
+> There is another, larger, set of DRM drivers that use GEM-SHMEM merely
+> as buffer management with no hardware support. These drivers copy the
+> buffer content to the GPU on each page flip. The GPU itself has no direct
+> access. Hardware of this type is usually in servers, behind slow busses
+> (SPI, USB), or provided by firmware (drivers in sysfb/).
 > 
-> diff --git a/drivers/accel/ivpu/Kconfig b/drivers/accel/ivpu/Kconfig
-> index 9e055b5ce03d..49ca139a9d31 100644
-> --- a/drivers/accel/ivpu/Kconfig
-> +++ b/drivers/accel/ivpu/Kconfig
-> @@ -5,8 +5,8 @@ config DRM_ACCEL_IVPU
->  	depends on DRM_ACCEL
->  	depends on X86_64 && !UML
->  	depends on PCI && PCI_MSI
-> +	select DRM_GEM_UMA_HELPER
->  	select FW_LOADER
-> -	select DRM_GEM_SHMEM_HELPER
->  	select GENERIC_ALLOCATOR
->  	select WANT_DEV_COREDUMP
->  	help
-> diff --git a/drivers/accel/ivpu/ivpu_gem.c b/drivers/accel/ivpu/ivpu_gem.c
-> index ece68f570b7e..7f4aeb482efb 100644
-> --- a/drivers/accel/ivpu/ivpu_gem.c
-> +++ b/drivers/accel/ivpu/ivpu_gem.c
-> @@ -84,7 +84,7 @@ int __must_check ivpu_bo_bind(struct ivpu_bo *bo)
->  	if (bo->base.base.import_attach)
->  		sgt = ivpu_bo_map_attachment(vdev, bo);
->  	else
-> -		sgt = drm_gem_shmem_get_pages_sgt(&bo->base);
-> +		sgt = drm_gem_uma_get_pages_sgt(&bo->base);
->  	if (IS_ERR(sgt)) {
->  		ret = PTR_ERR(sgt);
->  		ivpu_err(vdev, "Failed to map BO in IOMMU: %d\n", ret);
-> @@ -223,7 +223,7 @@ struct drm_gem_object *ivpu_gem_prime_import(struct drm_device *dev,
->  
->  	get_dma_buf(dma_buf);
->  
-> -	obj = drm_gem_shmem_prime_import_sg_table(dev, attach, NULL);
-> +	obj = drm_gem_uma_prime_import_sg_table(dev, attach, NULL);
->  	if (IS_ERR(obj)) {
->  		ret = PTR_ERR(obj);
->  		goto fail_detach;
-> @@ -251,7 +251,7 @@ struct drm_gem_object *ivpu_gem_prime_import(struct drm_device *dev,
->  
->  static struct ivpu_bo *ivpu_bo_alloc(struct ivpu_device *vdev, u64 size, u32 flags)
->  {
-> -	struct drm_gem_shmem_object *shmem;
-> +	struct drm_gem_uma_object *uma;
->  	struct ivpu_bo *bo;
->  
->  	switch (flags & DRM_IVPU_BO_CACHE_MASK) {
-> @@ -262,11 +262,11 @@ static struct ivpu_bo *ivpu_bo_alloc(struct ivpu_device *vdev, u64 size, u32 fla
->  		return ERR_PTR(-EINVAL);
->  	}
->  
-> -	shmem = drm_gem_shmem_create(&vdev->drm, size);
-> -	if (IS_ERR(shmem))
-> -		return ERR_CAST(shmem);
-> +	uma = drm_gem_uma_create(&vdev->drm, size);
-> +	if (IS_ERR(uma))
-> +		return ERR_CAST(uma);
->  
-> -	bo = to_ivpu_bo(&shmem->base);
-> +	bo = to_ivpu_bo(&uma->base);
->  	bo->base.map_wc = flags & DRM_IVPU_BO_WC;
->  	bo->flags = flags;
->  
-> @@ -330,7 +330,7 @@ static void ivpu_gem_bo_free(struct drm_gem_object *obj)
->  
->  	drm_WARN_ON(obj->dev, refcount_read(&bo->base.pages_use_count) > 1);
->  	drm_WARN_ON(obj->dev, bo->base.base.vma_node.vm_files.rb_node);
-> -	drm_gem_shmem_free(&bo->base);
-> +	drm_gem_uma_free(&bo->base);
->  }
->  
->  static enum drm_gem_object_status ivpu_gem_status(struct drm_gem_object *obj)
-> @@ -347,15 +347,15 @@ static enum drm_gem_object_status ivpu_gem_status(struct drm_gem_object *obj)
->  static const struct drm_gem_object_funcs ivpu_gem_funcs = {
->  	.free = ivpu_gem_bo_free,
->  	.open = ivpu_gem_bo_open,
-> -	.print_info = drm_gem_shmem_object_print_info,
-> -	.pin = drm_gem_shmem_object_pin,
-> -	.unpin = drm_gem_shmem_object_unpin,
-> -	.get_sg_table = drm_gem_shmem_object_get_sg_table,
-> -	.vmap = drm_gem_shmem_object_vmap,
-> -	.vunmap = drm_gem_shmem_object_vunmap,
-> -	.mmap = drm_gem_shmem_object_mmap,
-> +	.print_info = drm_gem_uma_object_print_info,
-> +	.pin = drm_gem_uma_object_pin,
-> +	.unpin = drm_gem_uma_object_unpin,
-> +	.get_sg_table = drm_gem_uma_object_get_sg_table,
-> +	.vmap = drm_gem_uma_object_vmap,
-> +	.vunmap = drm_gem_uma_object_vunmap,
-> +	.mmap = drm_gem_uma_object_mmap,
->  	.status = ivpu_gem_status,
-> -	.vm_ops = &drm_gem_shmem_vm_ops,
-> +	.vm_ops = &drm_gem_uma_vm_ops,
->  };
->  
->  int ivpu_bo_create_ioctl(struct drm_device *dev, void *data, struct drm_file *file)
-> @@ -435,7 +435,7 @@ ivpu_bo_create(struct ivpu_device *vdev, struct ivpu_mmu_context *ctx,
->  
->  	if (flags & DRM_IVPU_BO_MAPPABLE) {
->  		ivpu_bo_lock(bo);
-> -		ret = drm_gem_shmem_vmap_locked(&bo->base, &map);
-> +		ret = drm_gem_uma_vmap_locked(&bo->base, &map);
->  		ivpu_bo_unlock(bo);
->  
->  		if (ret)
-> @@ -475,7 +475,7 @@ void ivpu_bo_free(struct ivpu_bo *bo)
->  
->  	if (bo->flags & DRM_IVPU_BO_MAPPABLE) {
->  		ivpu_bo_lock(bo);
-> -		drm_gem_shmem_vunmap_locked(&bo->base, &map);
-> +		drm_gem_uma_vunmap_locked(&bo->base, &map);
->  		ivpu_bo_unlock(bo);
->  	}
->  
-> diff --git a/drivers/accel/ivpu/ivpu_gem.h b/drivers/accel/ivpu/ivpu_gem.h
-> index 0c3350f22b55..3e5d1a64deab 100644
-> --- a/drivers/accel/ivpu/ivpu_gem.h
-> +++ b/drivers/accel/ivpu/ivpu_gem.h
-> @@ -6,13 +6,13 @@
->  #define __IVPU_GEM_H__
->  
->  #include <drm/drm_gem.h>
-> -#include <drm/drm_gem_shmem_helper.h>
-> +#include <drm/drm_gem_uma_helper.h>
->  #include <drm/drm_mm.h>
->  
->  struct ivpu_file_priv;
->  
->  struct ivpu_bo {
-> -	struct drm_gem_shmem_object base;
-> +	struct drm_gem_uma_object base;
->  	struct ivpu_mmu_context *ctx;
->  	struct list_head bo_list_node;
->  	struct drm_mm_node mm_node;
-Reviewed-by: Karol Wachowski <karol.wachowski@linux.intel.com>
+> After some discussion with Boris on the future of GEM-SHMEM, it seems
+> to me that both use cases more and more diverge from each other. The
+> most prominent example is the implementation of gem_prime_import,
+> where both use cases use distinct approaches.
+> 
+> So we discussed the introduction of a GEM-UMA helper library for
+> UMA-based hardware. GEM-UMA will remain flexible enough for drivers
+> to extend it for their use case. GEM-SHMEM will become focused on the
+> simple-hardware use case. The benefit for both libraries is that they
+> will be easier to understand and maintain. GEM-SHMEM can be simplified
+> signiifcantly, I think.
+> 
+> This RFC series introduces GEM-UMA and converts the UMA-related drivers.
+> 
+> Patches 1 and 2 fix issues in GEM-SHMEM, so that we don't duplicate
+> errornous code.
+> 
+> Patch 3 copies GEM-SHMEM to GEM-UMA. Patch 4 then does soem obvious
+> cleanups of unnecessary code.
+
+Instead of copying the code as-is, I'd rather take a step back and think
+about what we need and how we want to handle more complex stuff, like
+reclaim. I've started working on a shrinker for panthor [1], and as part
+of this series, I've added a commit implementing just enough to replace
+what gem-shmem currently provides. Feels like the new GEM-UMA thing
+could be designed on a composition rather than inheritance model,
+where we have sub-components (backing, cpu_map, gpu_map) that can be
+pulled in and re-used by the driver implementation. The common helpers
+would take those sub-components instead of a plain GEM object. That
+would leave the drivers free of how their internal gem_object fields are
+laid out and wouldn't require overloading the ->gem_create_object()
+function. It seems to be that it would better match the model you were
+describing the other day.
+
+> 
+> Patches 5 to 13 update the drivers that can be converted to GEM-UMA.
+> These changes are just symbol renaming. There are so far no functional
+> differences between the memory managers.
+> 
+> A gave GEM-UMA some smoke testing by running virtgpu.
+
+[1]https://gitlab.freedesktop.org/bbrezillon/linux/-/commits/panthor-shrinker-revisited/drivers?ref_type=heads
+[2]https://gitlab.freedesktop.org/bbrezillon/linux/-/commit/4e6927fc2c60265b77a5a88013f55377bc4f4ab3
+
+> 
+> Thomas Zimmermann (13):
+>   drm/gem-shmem: Fix typos in documentation
+>   drm/gem-shmem: Fix the MODULE_LICENSE() string
+>   drm: Add GEM-UMA helpers for memory management
+>   drm/gem-uma: Remove unused interfaces
+>   drm/imagination: Use GEM-UMA helpers for memory management
+>   drm/lima: Use GEM-UMA helpers for memory management
+>   drm/panfrost: Use GEM-UMA helpers for memory management
+>   drm/panthor: Use GEM-UMA helpers for memory management
+>   drm/v3d: Use GEM-UMA helpers for memory management
+>   drm/virtgpu: Use GEM-UMA helpers for memory management
+>   accel/amdxdna: Use GEM-UMA helpers for memory management
+>   accel/ivpu: Use GEM-UMA helpers for memory management
+>   accel/rocket: Use GEM-UMA helpers for memory management
+> 
+>  Documentation/gpu/drm-mm.rst                  |  12 +
+>  drivers/accel/amdxdna/Kconfig                 |   2 +-
+>  drivers/accel/amdxdna/aie2_ctx.c              |   1 -
+>  drivers/accel/amdxdna/aie2_message.c          |   1 -
+>  drivers/accel/amdxdna/aie2_pci.c              |   1 -
+>  drivers/accel/amdxdna/aie2_psp.c              |   1 -
+>  drivers/accel/amdxdna/aie2_smu.c              |   1 -
+>  drivers/accel/amdxdna/amdxdna_ctx.c           |   7 +-
+>  drivers/accel/amdxdna/amdxdna_gem.c           |  49 +-
+>  drivers/accel/amdxdna/amdxdna_gem.h           |   5 +-
+>  .../accel/amdxdna/amdxdna_mailbox_helper.c    |   1 -
+>  drivers/accel/amdxdna/amdxdna_pci_drv.c       |   1 -
+>  drivers/accel/amdxdna/amdxdna_sysfs.c         |   1 -
+>  drivers/accel/ivpu/Kconfig                    |   2 +-
+>  drivers/accel/ivpu/ivpu_gem.c                 |  36 +-
+>  drivers/accel/ivpu/ivpu_gem.h                 |   4 +-
+>  drivers/accel/rocket/Kconfig                  |   2 +-
+>  drivers/accel/rocket/rocket_gem.c             |  46 +-
+>  drivers/accel/rocket/rocket_gem.h             |   6 +-
+>  drivers/gpu/drm/Kconfig                       |   9 +
+>  drivers/gpu/drm/Kconfig.debug                 |   1 +
+>  drivers/gpu/drm/Makefile                      |   4 +
+>  drivers/gpu/drm/drm_fbdev_uma.c               | 203 +++++
+>  drivers/gpu/drm/drm_gem_shmem_helper.c        |   5 +-
+>  drivers/gpu/drm/drm_gem_uma_helper.c          | 787 ++++++++++++++++++
+>  drivers/gpu/drm/imagination/Kconfig           |   4 +-
+>  drivers/gpu/drm/imagination/pvr_drv.c         |   2 +-
+>  drivers/gpu/drm/imagination/pvr_free_list.c   |   2 +-
+>  drivers/gpu/drm/imagination/pvr_gem.c         |  74 +-
+>  drivers/gpu/drm/imagination/pvr_gem.h         |  12 +-
+>  drivers/gpu/drm/lima/Kconfig                  |   4 +-
+>  drivers/gpu/drm/lima/lima_drv.c               |   2 +-
+>  drivers/gpu/drm/lima/lima_gem.c               |  30 +-
+>  drivers/gpu/drm/lima/lima_gem.h               |   6 +-
+>  drivers/gpu/drm/panfrost/Kconfig              |   2 +-
+>  drivers/gpu/drm/panfrost/panfrost_drv.c       |   2 +-
+>  drivers/gpu/drm/panfrost/panfrost_gem.c       |  30 +-
+>  drivers/gpu/drm/panfrost/panfrost_gem.h       |   6 +-
+>  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  30 +-
+>  drivers/gpu/drm/panfrost/panfrost_mmu.c       |   8 +-
+>  drivers/gpu/drm/panfrost/panfrost_perfcnt.c   |   6 +-
+>  drivers/gpu/drm/panthor/Kconfig               |   2 +-
+>  drivers/gpu/drm/panthor/panthor_drv.c         |   2 +-
+>  drivers/gpu/drm/panthor/panthor_fw.c          |   4 +-
+>  drivers/gpu/drm/panthor/panthor_gem.c         |  40 +-
+>  drivers/gpu/drm/panthor/panthor_gem.h         |   8 +-
+>  drivers/gpu/drm/panthor/panthor_mmu.c         |  10 +-
+>  drivers/gpu/drm/panthor/panthor_sched.c       |   1 -
+>  drivers/gpu/drm/tests/Makefile                |   1 +
+>  drivers/gpu/drm/tests/drm_gem_uma_test.c      | 385 +++++++++
+>  drivers/gpu/drm/v3d/Kconfig                   |   2 +-
+>  drivers/gpu/drm/v3d/v3d_bo.c                  |  45 +-
+>  drivers/gpu/drm/v3d/v3d_drv.h                 |   4 +-
+>  drivers/gpu/drm/v3d/v3d_mmu.c                 |   9 +-
+>  drivers/gpu/drm/virtio/Kconfig                |   4 +-
+>  drivers/gpu/drm/virtio/virtgpu_drv.c          |   4 +-
+>  drivers/gpu/drm/virtio/virtgpu_drv.h          |  12 +-
+>  drivers/gpu/drm/virtio/virtgpu_object.c       |  64 +-
+>  drivers/gpu/drm/virtio/virtgpu_plane.c        |   6 +-
+>  drivers/gpu/drm/virtio/virtgpu_vq.c           |   6 +-
+>  include/drm/drm_fbdev_uma.h                   |  20 +
+>  include/drm/drm_gem_uma_helper.h              | 293 +++++++
+>  62 files changed, 2018 insertions(+), 312 deletions(-)
+>  create mode 100644 drivers/gpu/drm/drm_fbdev_uma.c
+>  create mode 100644 drivers/gpu/drm/drm_gem_uma_helper.c
+>  create mode 100644 drivers/gpu/drm/tests/drm_gem_uma_test.c
+>  create mode 100644 include/drm/drm_fbdev_uma.h
+>  create mode 100644 include/drm/drm_gem_uma_helper.h
+> 
+> 
+> base-commit: 0a21e96e0b6840d2a4e0b45a957679eeddeb4362
+> prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
+> prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
+> prerequisite-patch-id: 719d09751d38f5da743beed6266585ee063e1e29
+> prerequisite-patch-id: 0bbc85bc6b528c32592e07f4ceafa51795c4cad9
+> prerequisite-patch-id: c856d9c8a026e3244c44ec829e426e0ad4a685ab
+> prerequisite-patch-id: 13441c9ed3062ae1448a53086559dfcbbd578177
+> prerequisite-patch-id: 951c039657c1f58e4b6e36bc01c7a1c69ed59767
+> prerequisite-patch-id: 4370b8b803ca439666fb9d2beb862f6e78347ce3
+> prerequisite-patch-id: ebbaad226ed599f7aad4784fb3f4aaebe34cb110
+> prerequisite-patch-id: cb907c3e3e14de7f4d13b429f3a2a88621a8a9fe
+> prerequisite-patch-id: 0e243b426742122b239af59e36d742da5795a8b1
+> prerequisite-patch-id: 120f97fa1af9891375a0dcf52c51c1907b01fe6a
+
