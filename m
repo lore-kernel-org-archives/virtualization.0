@@ -1,245 +1,315 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C50A2C15B0
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 17:48:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765302528; cv=none; b=KfKDQQL0Uzv1+MUcF120AQcvbzXaXhbC0uLbixSd1ypmUz1aqzxQsDnCjo/mbiYj+KJem/3Ve+oIGD2FSuVv0PD0BY/moelhJKAzh6t1BT1r7YWJSXhZo8TVOJHR7FLm/ZK/Qbhy5d94xg3c8zyz47UZqjNcT3dHQMYhgEtOPEI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765302528; c=relaxed/simple;
-	bh=K0ibrbryHWA8nhR7V2WWbJtZNyh1iYz3h92NfYNz0iw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TXJc7oj3odQa/0XcE58jujrVz2TFBT2mz7jr6CRZ8AUD3eyJdeGYe/q/cpeW5DkDuCWQ1CGDp97kzH4/L7H2L3RCQfsZWVcEF6ZuH7KATu7S7mu1Ubl9hM73SopBrweBMIvJM3hMqPVHNxMwLW6ngowltf+GrISgFvf8xqQf9pU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hw5Z71X+; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 370822EFD81
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 18:20:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765304457; cv=fail; b=dOuqZG5ffMxN6zQGsyzlYc/0Ty6zbvN5LX+ptVOui2HxHg36+0a/Z/Yxd7Ghnf3r3EnS22Tnrs7NEln6Qr8KpROcxHhruY+iQEm5/G0B+NJHTJjxU0TydR+6jLI+9EJtlVXNyViJ8owi7azUQPVWEUINpTHDnMX3NfmupcYeKgA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765304457; c=relaxed/simple;
+	bh=ivOaW5bANX+5MoOcrmtMTPkNyZ9d8EubTrKxvmB7IjE=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=WjKqk5Qy6iYoiHg7268RjFba2r4+sY94fVxz9dKfQmZPabNo9hsKD9CMFOvAvxwVvFBovk/yahay8KbTp4YGFLcGJqqStprKnsjjZqbBFCQjbfG2zUSNo8HgF3kxe97iPT/35hKapwNeOullxfUeuCp50lBS38oVwzvvlZxajDQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=G1x87BW4; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hw5Z71X+"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="G1x87BW4"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2276884418
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 17:48:46 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D12F740672
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 18:20:55 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.792
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id yA5ZOLVYNTsK for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Dec 2025 17:48:45 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org EE907843F0
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EE907843F0
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Hw5Z71X+
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EE907843F0
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 17:48:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765302522;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1Wds+RnykkG8gXthSZ5oxSbSivYlkrug9sYVYpvvQME=;
-	b=Hw5Z71X+u+yyi/BapdCia3xVzM0nJANBV5eOVM0NipwqkgZqHFcwT6LjffhMhyUgFljPVY
-	374/E42JrKdFSXRwSaFduSs5aHk7xYzAg9Z+Wv3UNpYEJ1uI0uFddQgB7TH8zR6BpWueO0
-	nIO8YTMDMJqH5GYx/mirODdT44PQyFA=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-304-Y7g92kRSPeaZ-n-TbJHSLQ-1; Tue, 09 Dec 2025 12:48:40 -0500
-X-MC-Unique: Y7g92kRSPeaZ-n-TbJHSLQ-1
-X-Mimecast-MFC-AGG-ID: Y7g92kRSPeaZ-n-TbJHSLQ_1765302519
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-42b5556d80bso4456952f8f.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 09 Dec 2025 09:48:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765302519; x=1765907319;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1Wds+RnykkG8gXthSZ5oxSbSivYlkrug9sYVYpvvQME=;
-        b=QPCvoqEDgfE22Y3gb4qNq/9lEXAA4OIVEJ9bNuYiaFYI8DaHEicPvm8+UKQb+97rcW
-         Kl7+vP81xF9i7eDskl9keRU/H2g2tR3ik1RO4IJN1aj0kpzmyHUDIYhv1nLCwr84T3lx
-         Hzs8sMcL67BobXQBwjedcd1cF036E9lfC0GQ7PB9PZnUwn9mevs1unMkx9A2a7FjktbC
-         z055SFDuQ+B2zUShP7rIqUive+EUrA8f58EFshytdxwV7gRkRy2t7+vKzi9yVqGSygr7
-         F85mHA0lVL2X2rCqataJXKLvpkt3w+Uhleiok5HdA0AyMZgRgn2bgrBPufJnTnzpeH4E
-         lc3A==
-X-Forwarded-Encrypted: i=1; AJvYcCUY7bFTQ+Jf/zLjIWZotITU/orFsuCjlqL5MVYFvL+JUPfb0shGVv///tfseB8rBVcKHqZfp7ckvqXSV9/tWA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yw7APDdtqrAzURm8VWrD58wl4B/cXJiuVnHjjBfeh9IwvUldc6J
-	URvQgoihW8cWV8HhPYY3iepzfX8AkM594klBG0aXOatsIfbTPLw+aLFGUEGch5fFhd2V+T3Y7xx
-	upZyVtUNFj++1oh0erbCMjjNJ1gb3yIF8ugpJacihCptIioqQdvSHfjlrsBconXDQ55PIMtYnL0
-	M2BTHwoS8=
-X-Gm-Gg: AY/fxX4GD1slJLuvcrGb+I7gjFbM6bybOm026vg138u8Gd/3OiEoqNM7b4A6hfwcLNq
-	pJLxdxr1cM8KnbRGrkTkKDHIq/Tm8h26WFsUyJD54RhxEKomVookO/CNMCyJpXhrLHwqxWR21wi
-	uehhrNeIEpfRvtXuW9oAzF2qcEA5XTPxVk6wD31F4dTPawLTIgtcjowu31c4QpLefPzvez0bXFL
-	wDClac19wynVj1MGvfOCLvLqQQPEGoC4ConWKjD+IJMPRSom5gf60zbyPG8KTZ/56+EIxXgweq3
-	Y5ypkdk3A41wBNhwKqyNS3UICSl8bbhTtYYbHMDEieYkbYeg7dJmOMFZuw+kX88xMDDTe9jTkWZ
-	j
-X-Received: by 2002:a05:6000:402a:b0:42c:a449:d6a5 with SMTP id ffacd0b85a97d-42f89f3d718mr11473080f8f.34.1765302519299;
-        Tue, 09 Dec 2025 09:48:39 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGNodAp4VRw+WDt0ClnkNSIgayKL8Y6tDD9ajoVtZAIm0NOGVQk4fbxwV5uQBvf9Fsn1fd/QA==
-X-Received: by 2002:a05:6000:402a:b0:42c:a449:d6a5 with SMTP id ffacd0b85a97d-42f89f3d718mr11473038f8f.34.1765302518521;
-        Tue, 09 Dec 2025 09:48:38 -0800 (PST)
-Received: from redhat.com ([80.230.34.255])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42f7d331092sm33270787f8f.30.2025.12.09.09.48.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Dec 2025 09:48:37 -0800 (PST)
-Date: Tue, 9 Dec 2025 12:48:35 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Cc: stefanha@redhat.com, sgarzare@redhat.com,
-	virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-	oren@nvidia.com, aevdaev@nvidia.com, aaptel@nvidia.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 9f6Z5l2q3-yQ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Dec 2025 18:20:55 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c112::7; helo=cy3pr05cu001.outbound.protection.outlook.com; envelope-from=mgurtovoy@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org D12394066A
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D12394066A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=G1x87BW4
+Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazlp170130007.outbound.protection.outlook.com [IPv6:2a01:111:f403:c112::7])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D12394066A
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 18:20:54 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=vAzIqx0abCfDv3bbK/aOkaBKviVEeC8EjyXRPKbAT3Vpq7VoGXAJ5KDMhcRMAP1R4pfqXFeHIqIkxURiqcHPEZ3+8ZNu3vyRGa/4AEAjTojO/BOLgpMDPEkkS+j3AyvULLsJ6jem1u4ppiscZCIBVqiSktVg6lE6lAKVbvvNZncAIJMd/UP9hvRYV38ZG1i2R084uybDJwUA6l4vuJJWVPktopjyQTdoLnHCZKORgrh5WwcUyKEj6JnyjUW9YDdmEbzVC4JLyvnAlX5Dwz+AMiu/qyQx1GG7n9G+24dVyozMC4dei0dVs+APXFp9j2iNtQkqd9cjl0AnTKsX6Q5sEQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=WXN0WcQw/BZDaoBIyWvsn0GCEfG++6xsvOIzuZArVNs=;
+ b=YjE+ghPwyNudYRoouVBLzEfavhTY+Fn1GJoDsZU3aJKwQ5JVQnQMJwzZIemKFBpQwJuZoYssVOrehdep9CVoW/yR0Ll86mcC0ntoqQVuipwWdGyCJd1rwnKc19B4opEOkp8D1tinuVt7IumVw9xjumFYLQKBC9aF+6CwLzDtTg+cFF1vmDtZ1NhEhKAhIcrMCisJqvTDdWrGftWn1y6g/wxskIwgUFoc64AzcfHhfsRB4teP9p/up4rjh4WmVr1DtsdCUXshZySlUxZkBC5+5f37f9o6HsJ5DP08Ih5998WU2WrkU1+tFgpgXAb+JJQBcXpAk4AUh1gJ591aZvkq+Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=WXN0WcQw/BZDaoBIyWvsn0GCEfG++6xsvOIzuZArVNs=;
+ b=G1x87BW4Bw4EIgEElffaKEhJGnTc3smzEvxRXw9RwMy7JLLvMHz6T9qnTK7QB+vIJpmx+1rViF8Fb+fJDSOvdV90D+LFGS7XMkBMKTizx2pXHyfKSAcWzWdDA1oPmX9s8PpzztupcAl3Y80BvkRCRXRNeYJhgK3FGgxdB9S8zLW/3d84HAMRE2y8K2zBj0UN3mf4KhGXgUQ6mk72EUnFvBrteT3vbg1zXLqKntsHMn0qDXmjgDAXZ0LFVir6z1xrHik5GTjlP1T7sdO64/pOLD+uexTizGNsuT7HRs3QRigYsHyTvzR9jAeMmH1UjxiAjWjGBTywUdE+4HaUiJ0QtQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY5PR12MB6369.namprd12.prod.outlook.com (2603:10b6:930:21::10)
+ by PH7PR12MB7938.namprd12.prod.outlook.com (2603:10b6:510:276::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9388.9; Tue, 9 Dec
+ 2025 18:20:50 +0000
+Received: from CY5PR12MB6369.namprd12.prod.outlook.com
+ ([fe80::d4c1:1fcc:3bff:eea6]) by CY5PR12MB6369.namprd12.prod.outlook.com
+ ([fe80::d4c1:1fcc:3bff:eea6%4]) with mapi id 15.20.9412.005; Tue, 9 Dec 2025
+ 18:20:50 +0000
+Message-ID: <df0d1e2e-a496-416a-8cfc-22d69ad4c37b@nvidia.com>
+Date: Tue, 9 Dec 2025 20:20:45 +0200
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 1/1] virtio: add driver_override support
-Message-ID: <20251209124819-mutt-send-email-mst@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: stefanha@redhat.com, sgarzare@redhat.com,
+ virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+ oren@nvidia.com, aevdaev@nvidia.com, aaptel@nvidia.com
 References: <20251208220908.9250-1-mgurtovoy@nvidia.com>
  <20251209113306-mutt-send-email-mst@kernel.org>
  <49a3aabb-eb28-4149-b845-1bc5afffb985@nvidia.com>
+ <20251209124819-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
+In-Reply-To: <20251209124819-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: TL2P290CA0002.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:2::12) To CY5PR12MB6369.namprd12.prod.outlook.com
+ (2603:10b6:930:21::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <49a3aabb-eb28-4149-b845-1bc5afffb985@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: mRiMuGddKcr4zXjp3gS-bSjb5x76YZ6LxUs1rYw3pZg_1765302519
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY5PR12MB6369:EE_|PH7PR12MB7938:EE_
+X-MS-Office365-Filtering-Correlation-Id: b9ed4ea9-049b-4ae5-592c-08de374fae8d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?VkpkK1RrQ0ZmU0dwbW5oTTAyMlNsU0puMnd2VUVGR0lvVG1JUm5pQXFRT0ZW?=
+ =?utf-8?B?SEdRREN4bCttZXUzY2NqREV6SWNRVHlKWW9wL2dyM21ZVHRpSEh3Sm45ZVZt?=
+ =?utf-8?B?QmlmV21KZDZIZnVmOS83cHlEc3ZTODlOR3k3dHVIL1dVMEc3Mld1YzFQM1cx?=
+ =?utf-8?B?WXFjdTdKZTBHbFVseVFZeXFoMThxbGVMaXc2OGk5ell0Y3JmWlVta29ERGhH?=
+ =?utf-8?B?NC9FNXhwcUhuSzZaRnYzeDRZT1BzaXdTR2ttdlhhWVRBdEJBOFBGS0k4Nms5?=
+ =?utf-8?B?OVRlUStXLzc4Uk45SEROZ0VUdDdaNVpXb0Q2NlhkV0JaTURNT0dLSXdvaHJJ?=
+ =?utf-8?B?Q3FiVnIvWG10RjVVOFA4Y2ZONE50Q0NzYUVIL0RrRk96MW9sNkRHRTg4SHJL?=
+ =?utf-8?B?QkllbFZ2WFdCK1NaN1djTUtBVVNnc3UxdmJSdlRPK1ZSck9CZEsxeTNpK3Ba?=
+ =?utf-8?B?MHQyS1dla2l3TEdBTERTWFA2UXd5WE03dGxqeWQ0TURRZnQ0bnp0emwvRXBj?=
+ =?utf-8?B?cDBrdk12UllOYjBJSDRqeFRxL0dLM0wzQlV4bGpCMnBWbDFlZXdsTnRYOTRr?=
+ =?utf-8?B?MUVTWmw3R0NVUGU0TUVqc1dXcExJeDZKMlg0SjJ0NmsyUEhMMVJxR2VwbUZG?=
+ =?utf-8?B?V2xJVVFSZzRnMTJvd2pVVzFSSlZRTnVpeldHQU0rN09ZcWpCQ2NXM0hYR1Jq?=
+ =?utf-8?B?eHhiWVM5cUlQWks1eklwVlBjUUcrdDVuZzI4Zzh6U25qVTdoMjk0R241d21n?=
+ =?utf-8?B?M1pEZmNEQWlGejMxVkttaWlzWk95N0tYTjVxYTB6dTJpdE95SmNMSFIzWktw?=
+ =?utf-8?B?Q3psQi9iRUMybysvbUFEQWgrTHVSYk5WQVdIalZEdFBSbklWMHZBMVJ6N05k?=
+ =?utf-8?B?Zk9UTHozMDRacGhXUFFRQ1FnKzNyRTdwcHByVE1UeHdkK0Y2a1Z5SnE5VU1j?=
+ =?utf-8?B?VVl0RjhKb1BZdkhQOGt1akNYZGFOd1M4cGdGNTVhWEcxQlplUUVQc1NqME9K?=
+ =?utf-8?B?d2IxRW51NWJ5U0hINWFYRCtxMTJhM29Fd0lTeEJSTjJ6eVlJMUJEQ0JyNUJB?=
+ =?utf-8?B?eTNBU09QTlZnN1pCaU0ydE5pb2MycDhvUGVMUnM0cjVpNFVqaVFDT0RXMHgz?=
+ =?utf-8?B?L2U2VGdtZGUzaWhBYjlqQzhwOVp3TE53L2tpWllrRG04M2ZSNDMwTFg4VStG?=
+ =?utf-8?B?dWhGd3ljM3VsQTh3RFZDZk45bVhRVTNGSlhCUVg2bmxmdjdzNWRZWEdaMDd2?=
+ =?utf-8?B?RTNyYzVoajFNa25hSmtneUZUZkxhL2x5ZWZRaTBKbTdZcncxTkdYNk1FTm1G?=
+ =?utf-8?B?RDZtaXRCdUJ5MXVSdFRlZm9QbFpGOWx3UXl2ekVqdDJON0FSYlgvTldoYkZt?=
+ =?utf-8?B?NklGQ3JYaXVFd2NNVGFsVzFrcXVnSmZOUmtQYWNpL2N4OFdHcjJBNkMvcnB1?=
+ =?utf-8?B?Q2xMZC95Y25GejBFU3c0c0FzWFpCL1MyYkd3SXlGdmRWbm5nVERrNXVaRTJI?=
+ =?utf-8?B?bjAvMGxkdHQvSkRtR0g4UTFvbVhjZTRvUlNmUnhTanFOZVg3eThMY3ZKU1Bw?=
+ =?utf-8?B?MVA2aStzUjZZcFJ1NEJaQU0xRnovbCtHZGNqeFNrdDlQNmpEbDM2Qy9WNHQx?=
+ =?utf-8?B?YllvY2VEeHc3TjVibEIrOEMwZW1RVVljOVNFRWZrc3dJWEdPQWcvN1lSUCtN?=
+ =?utf-8?B?eDR0S2YzQWpBYitySUppZDh3eVZ0MUlla2ovSHZZNmRGNVJBNjIvT3crN2M2?=
+ =?utf-8?B?RFFuRWVRSml4ZkZSaHJmMmpYSEVaT3dLZzREWGgwTjVqazZ3bkd0Qy95RWdY?=
+ =?utf-8?B?eHdhOHZBY1FMaVdIejQyd0NPOVRKbmgrb0d1N2lEOUhxbEFxZmRiNDhyL08x?=
+ =?utf-8?B?enZiRHM1UFJ0NzNwQm1wZlNUaW1VSTBNaVdUbzYyOU9VNnp1L0NDZnB3VXVM?=
+ =?utf-8?Q?QynzOvI/tzOuueGMzcFAwa40cVfC7aj8?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR12MB6369.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?V2NpeURxbFVLTVBHMlhTQmpvc1R3V1pMWUJCUkZFV2lQc3A4ZXozTjdmSFcy?=
+ =?utf-8?B?eXVZOHB2QldaeFdDVDVlOWNLVG5rQU96Z084Y3hIL1kzMlBnb3lFSkdQU1pT?=
+ =?utf-8?B?ZmZIZVFHTVI5M055STRKQ0o3WVFYenhIUUZwS1lGTW5SSWhUa3NWK0ltYTI2?=
+ =?utf-8?B?ejBTbkNYWk8yc1g2TjduZmZZL1F2cmp3QlUyZ21kYlZFWFZWTVJMZW9qVUVK?=
+ =?utf-8?B?UnlxNmNneENaVEduK2NmSGxhRDIrcTFVcCtJY3hQWlY0VkhZbUVWY3FGUWxZ?=
+ =?utf-8?B?MThGeUVzZm9TdmZMam1YVU5qYnZFRVh5T1Z4Zkp6UmJ0eGZMSjNJa05xQjJF?=
+ =?utf-8?B?eGlqWnpLTGpvenlYOVZNYWdwd0pNWEtmQ3FXK3FvYUxpUzUvblNnZlB6Zmcz?=
+ =?utf-8?B?RVI0Rmtxa0YrendWVW5HMEJEaUZSQVhvQ2dZY2dCUUZBVnc0R3lDVzUvMStJ?=
+ =?utf-8?B?S054eVRYak0vUVR3UHI2OGZBYUF6dG0yeXRQRkQ2SzZVSnpnQWc3M2xXZEJH?=
+ =?utf-8?B?ZGRoUEN0M1BkK1B5U1Q4c1cxdG1TTFZ6S0xqWCtydmY1UHNPeG5GNlk5VDBW?=
+ =?utf-8?B?eHRzQW9EaittMSsxZHh4TUZHT29weERkVElEZmlFNHJRWEpsZHI5QkhjRmx0?=
+ =?utf-8?B?NDVHc1hrL3E2SkR1L2RNM0ZnYTdXdC9TUzhySjhaVjRra2J0b0pvN0FXK20r?=
+ =?utf-8?B?LzBnMzd6TDdZc3REMjN5b2VqQVZvY3hRS1NkamllVnhKWC90Q1ZsWVJic3Zq?=
+ =?utf-8?B?dnhxZjBPVlAzYzVFeE9pK2RtQkFIUjBUNkdaRS9Fb1hEVFVwWE85M2tqc2sv?=
+ =?utf-8?B?U0Fvd3I5dVZtZ1pIcUN5YlpsOVQxUEM1YWNlc3VpTzJ1UWRNYkExSFdua0Fs?=
+ =?utf-8?B?d3J2US9RV0hoN0RQS0IyUS8zZkZkYzl6alQ4REx4Vk9PMDYzQmFpTEIyRytJ?=
+ =?utf-8?B?Yk84bjRDcmkzdExCMlVRTUt0K2h4Zzc3UTVWMzVQNHpEd09Qcnh4L3RJWE9z?=
+ =?utf-8?B?bDNGTXd0aU1lUHA1dytQcDFsMzJvdlZteGtxdkVhRmcyQmE1cEZPU1JmTmtZ?=
+ =?utf-8?B?RGp0RXlpUEZxVDBEb2tNblh0WTRIeXNuOHpPb0llSkdEWEp4cXZEczV5Z0c4?=
+ =?utf-8?B?SXptdlFIbmR6cXlSWWg4cG9BSFl1THBpU3k3Y1RMY0JWZUc5SDNPcnlmK3JO?=
+ =?utf-8?B?enQ1ODc1NHh0MUpTUFh6czZWQ2ZIam1OaXprQng1K3E2Sy9VSXpYUEFya0tp?=
+ =?utf-8?B?cFNiMVVpSmdVNHcyVnJ4a25hak5KT3ladmJENkN1ZEJRSDRhNkZteHhRRlJL?=
+ =?utf-8?B?dXg5dzBDWnJnL00vbncyZVRzeTNXSFpEZE16TGpSSzRPQmZIZndzVlVxV3R4?=
+ =?utf-8?B?UkFoYm5xS1dETmZUVmR3RkJ2TFNtMTd3TmZORG1Mb2Z5TnpxRkkxajFBVExB?=
+ =?utf-8?B?V0J0SEpya0FwOTBlRzVYR0p3VC93bEE4YkxLM2lpK29FaERpZDBwR0xnb2dr?=
+ =?utf-8?B?YjFacTZpa29wMklKc1o0Zk9jcHNQaDFjcW8xVUE5SmtrUkJyTUkyVWpXN0o4?=
+ =?utf-8?B?ZVVTaXVIRFk5WjNZYW81cEFHMmpnb1NKZVRFK0gzQk1hZDd0WHRsd3RzNHlJ?=
+ =?utf-8?B?R05WU3NKSE42M2Y5Z1RjQnMwbXdSWGQ0WVBpY2I4ZmsvU3pLVTR1SXp3VXFs?=
+ =?utf-8?B?Z0JMR2tQNENLeGMxSWQvcHRUbVlnME50UFNGZmdSTkdBbEpDWXFqd1dKaUJx?=
+ =?utf-8?B?ci96cGFiMEZ2OHlEaUNxeDlya0hwVUxkYytuWG5JT0s2QmwzN0c1UjlEK05o?=
+ =?utf-8?B?M01ObjVtOWFoL0JyaUZ2QlpRTUR3enhuRk5WN3VyL0hyd2NlM0NmaktJQnEv?=
+ =?utf-8?B?V1QreDZSd2JBWjVIa3l3YjVycWlWdDg1RlJRMm1nNGdDcXdLYitORzg0N2cx?=
+ =?utf-8?B?enBqUXkweWdOdkdOb0hTcFN4dStjaWt3d3VMOEp5VTErQ05mMkR1U3RRZXhF?=
+ =?utf-8?B?WjMwRHBCdXBESmcwdFhhZ3hCaWlpSjVpWWM5ZTJWaVozUWtCTmFqdjFsWmxV?=
+ =?utf-8?B?Vlllb1lGZkNNMzZNeWpVdis2WUcxUVZaUk9WWTR4WFVZSkRKOEx4L2NIbkFz?=
+ =?utf-8?Q?f9IfotmUKR4HXbjlXKGFu037m?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b9ed4ea9-049b-4ae5-592c-08de374fae8d
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6369.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Dec 2025 18:20:50.6022
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: yBzyJaY3GtpAJ3HnD01zBaGpgLyyRWnaRVrjwqqmCbpFF45F+laIOigEtwPAgTwjXX+04h9pBSNJVDK18Rwq6Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB7938
 
-On Tue, Dec 09, 2025 at 07:45:19PM +0200, Max Gurtovoy wrote:
-> 
-> On 09/12/2025 18:34, Michael S. Tsirkin wrote:
-> > On Tue, Dec 09, 2025 at 12:09:08AM +0200, Max Gurtovoy wrote:
-> > > Add support for the 'driver_override' attribute to Virtio devices. This
-> > > allows users to control which Virtio bus driver binds to a given Virtio
-> > > device.
-> > > 
-> > > If 'driver_override' is not set, the existing behavior is preserved and
-> > > devices will continue to auto-bind to the first matching Virtio bus
-> > > driver.
-> > oh, it's a device driver not the bus driver, actually.
-> 
-> Yes. I'll fix the commit message.
-> 
-> 
-> > 
-> > > Tested with virtio blk device (virtio core and pci drivers are loaded):
-> > > 
-> > >    $ modprobe my_virtio_blk
-> > > 
-> > >    # automatically unbind from virtio_blk driver and override + bind to
-> > >    # my_virtio_blk driver.
-> > >    $ driverctl -v -b virtio set-override virtio0 my_virtio_blk
-> > > 
-> > > In addition, driverctl saves the configuration persistently under
-> > > /etc/driverctl.d/.
-> > what is this "mydriver" though? what are valid examples that
-> > we want to support?
-> 
-> This is an example for a custom virtio block driver.
-> 
-> It can be any custom virtio-XX driver (XX=FS/NET/..).
 
-Is "custom" a way to say "out of tree"?
+On 09/12/2025 19:48, Michael S. Tsirkin wrote:
+> On Tue, Dec 09, 2025 at 07:45:19PM +0200, Max Gurtovoy wrote:
+>> On 09/12/2025 18:34, Michael S. Tsirkin wrote:
+>>> On Tue, Dec 09, 2025 at 12:09:08AM +0200, Max Gurtovoy wrote:
+>>>> Add support for the 'driver_override' attribute to Virtio devices. This
+>>>> allows users to control which Virtio bus driver binds to a given Virtio
+>>>> device.
+>>>>
+>>>> If 'driver_override' is not set, the existing behavior is preserved and
+>>>> devices will continue to auto-bind to the first matching Virtio bus
+>>>> driver.
+>>> oh, it's a device driver not the bus driver, actually.
+>> Yes. I'll fix the commit message.
+>>
+>>
+>>>> Tested with virtio blk device (virtio core and pci drivers are loaded):
+>>>>
+>>>>     $ modprobe my_virtio_blk
+>>>>
+>>>>     # automatically unbind from virtio_blk driver and override + bind to
+>>>>     # my_virtio_blk driver.
+>>>>     $ driverctl -v -b virtio set-override virtio0 my_virtio_blk
+>>>>
+>>>> In addition, driverctl saves the configuration persistently under
+>>>> /etc/driverctl.d/.
+>>> what is this "mydriver" though? what are valid examples that
+>>> we want to support?
+>> This is an example for a custom virtio block driver.
+>>
+>> It can be any custom virtio-XX driver (XX=FS/NET/..).
+> Is "custom" a way to say "out of tree"?
 
-> > > Signed-off-by: Avraham Evdaev <aevdaev@nvidia.com>
-> > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > ---
-> > > 
-> > > changes from v1:
-> > >   - use !strcmp() to compare strings (MST)
-> > >   - extend commit msg with example (MST)
-> > > 
-> > > ---
-> > >   drivers/virtio/virtio.c | 34 ++++++++++++++++++++++++++++++++++
-> > >   include/linux/virtio.h  |  4 ++++
-> > >   2 files changed, 38 insertions(+)
-> > > 
-> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > index a09eb4d62f82..993dc928be49 100644
-> > > --- a/drivers/virtio/virtio.c
-> > > +++ b/drivers/virtio/virtio.c
-> > > @@ -61,12 +61,41 @@ static ssize_t features_show(struct device *_d,
-> > >   }
-> > >   static DEVICE_ATTR_RO(features);
-> > > +static ssize_t driver_override_store(struct device *_d,
-> > > +				     struct device_attribute *attr,
-> > > +				     const char *buf, size_t count)
-> > > +{
-> > > +	struct virtio_device *dev = dev_to_virtio(_d);
-> > > +	int ret;
-> > > +
-> > > +	ret = driver_set_override(_d, &dev->driver_override, buf, count);
-> > > +	if (ret)
-> > > +		return ret;
-> > > +
-> > > +	return count;
-> > > +}
-> > > +
-> > > +static ssize_t driver_override_show(struct device *_d,
-> > > +				    struct device_attribute *attr, char *buf)
-> > > +{
-> > > +	struct virtio_device *dev = dev_to_virtio(_d);
-> > > +	ssize_t len;
-> > > +
-> > > +	device_lock(_d);
-> > > +	len = sysfs_emit(buf, "%s\n", dev->driver_override);
-> > > +	device_unlock(_d);
-> > > +
-> > > +	return len;
-> > > +}
-> > > +static DEVICE_ATTR_RW(driver_override);
-> > > +
-> > >   static struct attribute *virtio_dev_attrs[] = {
-> > >   	&dev_attr_device.attr,
-> > >   	&dev_attr_vendor.attr,
-> > >   	&dev_attr_status.attr,
-> > >   	&dev_attr_modalias.attr,
-> > >   	&dev_attr_features.attr,
-> > > +	&dev_attr_driver_override.attr,
-> > >   	NULL,
-> > >   };
-> > >   ATTRIBUTE_GROUPS(virtio_dev);
-> > > @@ -88,6 +117,10 @@ static int virtio_dev_match(struct device *_dv, const struct device_driver *_dr)
-> > >   	struct virtio_device *dev = dev_to_virtio(_dv);
-> > >   	const struct virtio_device_id *ids;
-> > > +	/* Check override first, and if set, only use the named driver */
-> > > +	if (dev->driver_override)
-> > > +		return !strcmp(dev->driver_override, _dr->name);
-> > > +
-> > >   	ids = drv_to_virtio(_dr)->id_table;
-> > >   	for (i = 0; ids[i].device; i++)
-> > >   		if (virtio_id_match(dev, &ids[i]))
-> > > @@ -582,6 +615,7 @@ void unregister_virtio_device(struct virtio_device *dev)
-> > >   {
-> > >   	int index = dev->index; /* save for after device release */
-> > > +	kfree(dev->driver_override);
-> > >   	device_unregister(&dev->dev);
-> > >   	virtio_debug_device_exit(dev);
-> > >   	ida_free(&virtio_index_ida, index);
-> > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > > index db31fc6f4f1f..418bb490bdc6 100644
-> > > --- a/include/linux/virtio.h
-> > > +++ b/include/linux/virtio.h
-> > > @@ -138,6 +138,9 @@ struct virtio_admin_cmd {
-> > >    * @config_lock: protects configuration change reporting
-> > >    * @vqs_list_lock: protects @vqs.
-> > >    * @dev: underlying device.
-> > > + * @driver_override: driver name to force a match; do not set directly,
-> > > + *                   because core frees it; use driver_set_override() to
-> > > + *                   set or clear it.
-> > >    * @id: the device type identification (used to match it with a driver).
-> > >    * @config: the configuration ops for this device.
-> > >    * @vringh_config: configuration ops for host vrings.
-> > > @@ -158,6 +161,7 @@ struct virtio_device {
-> > >   	spinlock_t config_lock;
-> > >   	spinlock_t vqs_list_lock;
-> > >   	struct device dev;
-> > > +	const char *driver_override;
-> > >   	struct virtio_device_id id;
-> > >   	const struct virtio_config_ops *config;
-> > >   	const struct vringh_config_ops *vringh_config;
-> > > -- 
-> > > 2.18.1
+The driver_override mechanism fits both in-tree/out-of-tree drivers.
 
+>
+>>>> Signed-off-by: Avraham Evdaev <aevdaev@nvidia.com>
+>>>> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+>>>> ---
+>>>>
+>>>> changes from v1:
+>>>>    - use !strcmp() to compare strings (MST)
+>>>>    - extend commit msg with example (MST)
+>>>>
+>>>> ---
+>>>>    drivers/virtio/virtio.c | 34 ++++++++++++++++++++++++++++++++++
+>>>>    include/linux/virtio.h  |  4 ++++
+>>>>    2 files changed, 38 insertions(+)
+>>>>
+>>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+>>>> index a09eb4d62f82..993dc928be49 100644
+>>>> --- a/drivers/virtio/virtio.c
+>>>> +++ b/drivers/virtio/virtio.c
+>>>> @@ -61,12 +61,41 @@ static ssize_t features_show(struct device *_d,
+>>>>    }
+>>>>    static DEVICE_ATTR_RO(features);
+>>>> +static ssize_t driver_override_store(struct device *_d,
+>>>> +				     struct device_attribute *attr,
+>>>> +				     const char *buf, size_t count)
+>>>> +{
+>>>> +	struct virtio_device *dev = dev_to_virtio(_d);
+>>>> +	int ret;
+>>>> +
+>>>> +	ret = driver_set_override(_d, &dev->driver_override, buf, count);
+>>>> +	if (ret)
+>>>> +		return ret;
+>>>> +
+>>>> +	return count;
+>>>> +}
+>>>> +
+>>>> +static ssize_t driver_override_show(struct device *_d,
+>>>> +				    struct device_attribute *attr, char *buf)
+>>>> +{
+>>>> +	struct virtio_device *dev = dev_to_virtio(_d);
+>>>> +	ssize_t len;
+>>>> +
+>>>> +	device_lock(_d);
+>>>> +	len = sysfs_emit(buf, "%s\n", dev->driver_override);
+>>>> +	device_unlock(_d);
+>>>> +
+>>>> +	return len;
+>>>> +}
+>>>> +static DEVICE_ATTR_RW(driver_override);
+>>>> +
+>>>>    static struct attribute *virtio_dev_attrs[] = {
+>>>>    	&dev_attr_device.attr,
+>>>>    	&dev_attr_vendor.attr,
+>>>>    	&dev_attr_status.attr,
+>>>>    	&dev_attr_modalias.attr,
+>>>>    	&dev_attr_features.attr,
+>>>> +	&dev_attr_driver_override.attr,
+>>>>    	NULL,
+>>>>    };
+>>>>    ATTRIBUTE_GROUPS(virtio_dev);
+>>>> @@ -88,6 +117,10 @@ static int virtio_dev_match(struct device *_dv, const struct device_driver *_dr)
+>>>>    	struct virtio_device *dev = dev_to_virtio(_dv);
+>>>>    	const struct virtio_device_id *ids;
+>>>> +	/* Check override first, and if set, only use the named driver */
+>>>> +	if (dev->driver_override)
+>>>> +		return !strcmp(dev->driver_override, _dr->name);
+>>>> +
+>>>>    	ids = drv_to_virtio(_dr)->id_table;
+>>>>    	for (i = 0; ids[i].device; i++)
+>>>>    		if (virtio_id_match(dev, &ids[i]))
+>>>> @@ -582,6 +615,7 @@ void unregister_virtio_device(struct virtio_device *dev)
+>>>>    {
+>>>>    	int index = dev->index; /* save for after device release */
+>>>> +	kfree(dev->driver_override);
+>>>>    	device_unregister(&dev->dev);
+>>>>    	virtio_debug_device_exit(dev);
+>>>>    	ida_free(&virtio_index_ida, index);
+>>>> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+>>>> index db31fc6f4f1f..418bb490bdc6 100644
+>>>> --- a/include/linux/virtio.h
+>>>> +++ b/include/linux/virtio.h
+>>>> @@ -138,6 +138,9 @@ struct virtio_admin_cmd {
+>>>>     * @config_lock: protects configuration change reporting
+>>>>     * @vqs_list_lock: protects @vqs.
+>>>>     * @dev: underlying device.
+>>>> + * @driver_override: driver name to force a match; do not set directly,
+>>>> + *                   because core frees it; use driver_set_override() to
+>>>> + *                   set or clear it.
+>>>>     * @id: the device type identification (used to match it with a driver).
+>>>>     * @config: the configuration ops for this device.
+>>>>     * @vringh_config: configuration ops for host vrings.
+>>>> @@ -158,6 +161,7 @@ struct virtio_device {
+>>>>    	spinlock_t config_lock;
+>>>>    	spinlock_t vqs_list_lock;
+>>>>    	struct device dev;
+>>>> +	const char *driver_override;
+>>>>    	struct virtio_device_id id;
+>>>>    	const struct virtio_config_ops *config;
+>>>>    	const struct vringh_config_ops *vringh_config;
+>>>> -- 
+>>>> 2.18.1
