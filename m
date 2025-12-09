@@ -1,217 +1,158 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05055331A61
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 13:05:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B19AD217704
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 13:09:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765285559; cv=none; b=BERCOG0YFsK6z3mJK9XZ24VC21MZnQPTgTSg2SgiRbq0LVay+w0FhVg7tzfDW5IYfJoT8tJepbLC0UHXzKrv3VaesECoIPQtL8W5tMorNrP4Kw1PLjHSUH390+WOs3eXngoXFAlTXZV87n5TdEjFDsaU9mQUHDlM15fcphUPXcE=
+	t=1765285796; cv=none; b=OdCofkREfmBdimb2RHpBtV2OIVJ26FrvWbsr8n1K/dFost94S9U6BSoN1FxA2pRdwoDEdnzzmEc6Le6IjGYjbCcFIq5w0HnVTE/TAnmiG999GLJ0uDytNmARck+XTSzHvRJdOZwDnQh0z78ppxYmu9P3NoAiZ4aySJkVa2gd/Ko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765285559; c=relaxed/simple;
-	bh=8OpYSPc6f7O8KOMZoMzcw+MLAH+EZekjJDAjQynD8mQ=;
+	s=arc-20240116; t=1765285796; c=relaxed/simple;
+	bh=Touvqf8WHt04tp99eC4EM9XyIpIcTPJtbic0gP2X3FY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=GKU9BGZvA/6nadxAhyuSHDTHnQWKy+s2UjQNluAkbxzVUmh1Rj2oKXf+UmBf3rcgbi9o5kTqv7z9B3wuAaxCbEmv+8T0q3r7qpmGq4SbGYUPdjNGhEoFfujj6KPFP+wUk1mc2NpfkyC/PtcCrv+2PpGWCdnik/dFJvAhlsz/wQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GrPa+tiA; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=iWBj5sVpeXdAFtD6GMhw0pFsPlMqs8RdviGCeZRX1UuzrZ0dTfYH2nfDUTEv0clWLvEa7UxwsjYQCK6WsLALcUiRI+qPzFO5+YzpYhjqbxXeZRlhzAh7KsQrUPr1bu1ccPZBT9Lp0vOCv5DcRff1583w33rP9Pd1LI2rbqutBxo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J1bgiP6L; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GrPa+tiA"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J1bgiP6L"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4860E4007A
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 13:09:54 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.795
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Xyj4oMF7Yk2E for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Dec 2025 13:09:53 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 349A740059
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 349A740059
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J1bgiP6L
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 349A740059
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 13:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765285557;
+	s=mimecast20190719; t=1765285791;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=C7bt9DIhoeZ6jD2VdZvxOLbQYfNsQNZi6wdwI6g+uRA=;
-	b=GrPa+tiABFfGweenwCzwHB9wT+fhg9fYUu+y5CIkch2YmBP+QZrp8OmXiebXDedzIM8l+A
-	57eZ8iOfflaQ8/9TNSwlhyofk7MaRqK46EwR1Nnbtdeo6Gf9hEiKm5n8nP+8AL40fT7dQO
-	BFWZJeEdWteuwduGpiZd+mPcEJR58cA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=o5P38QWOVcSU59TQGZzDoAFjcxq1O9ed/yD/2cqZSQI=;
+	b=J1bgiP6LZJqUE+b70OSMTz0WWJnaBEEh0I3z5bFe0pxYiL2R/TWZ2aKhPHAHvckzXCaIYZ
+	HICBljToRpbzo6WBupudcCM145NsxuxSxoMKnohRy/GtHhN8bg4oKpZhPGIlFh2+UFPwHb
+	IllVewzalkOFM75zerEqsOdC0CNreAQ=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-640-gNKeF0WiOWieapEFhW9MWA-1; Tue, 09 Dec 2025 08:05:55 -0500
-X-MC-Unique: gNKeF0WiOWieapEFhW9MWA-1
-X-Mimecast-MFC-AGG-ID: gNKeF0WiOWieapEFhW9MWA_1765285554
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4779981523fso49104285e9.2
-        for <virtualization@lists.linux.dev>; Tue, 09 Dec 2025 05:05:55 -0800 (PST)
+ us-mta-615-hMaW61K4O8SgZ2n7o3bMsg-1; Tue, 09 Dec 2025 08:09:50 -0500
+X-MC-Unique: hMaW61K4O8SgZ2n7o3bMsg-1
+X-Mimecast-MFC-AGG-ID: hMaW61K4O8SgZ2n7o3bMsg_1765285789
+Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-37cf6af42c6so25473551fa.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 09 Dec 2025 05:09:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765285554; x=1765890354;
+        d=1e100.net; s=20230601; t=1765285789; x=1765890589;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=C7bt9DIhoeZ6jD2VdZvxOLbQYfNsQNZi6wdwI6g+uRA=;
-        b=Io4gzRF0aVSUUjcMLYnALrJsaqjOPoksxljesALRuiZkd4AcsPkZ99qpxSo2sdl+tJ
-         oDOUmg0Zxopwkm3amHb/qQl+xqNzgIgucMmBLuY6m9y8j8mp7uBeGfpi75zA9309JcWc
-         N3gfhfqCZxyomz38IzQSB5MoMULfQVFbNCaMBjcGl6GQWEQaPFk7gI7oU1NAHNBkZpdE
-         Fk7TBxC3SrfJhZaT7aQECvSGuEtIcETaaickjCvouXHVeZhUyiE6AZEm4du6GZXuPvsh
-         e1dcrDFu4R9CikaH3e0695L4jD8I46YSUFuTSClOJ6bwZG5NYuIyxiD+ET058sw0cyhy
-         gQxQ==
-X-Gm-Message-State: AOJu0YwViikBQpGGm80KLe4hWXmUJTP7E5gTdOnrC0VZ+EhM4LAfKSv6
-	o/fF/i+pQ7U3h04DZcxapdqMmxv3Sh/01oSyc14o4+qWbrKyyjTZImmU+SXFBH4TV8d/b0r3AoV
-	y2p7IXW5lPFrR3RIdJO4OsTdAhc7gFkIpkqcAeMSVv9h3RONsinyTpwrh58AGTqYmkOfR
-X-Gm-Gg: ASbGncuhNrFZ7KXHykp61GhMeejyXlG3CQypLRKnrrBICTo1471vMo3nCqXYxMkAN1m
-	JdPAaHatC1gO3rIHpJpRQOhrcaRh2un8pUUTuvK1eZ2zqwFhlLB4T6d0ahdmaB41Es/88mTnZe2
-	fN3A2Hd/fC591SfkMxbb5fomq/4LWpKRatYpsBkWOuZhcwYKK9oqfn4vH0Fp3M0ltBARXkXSMrj
-	BYzWDY9Hlcgt49yLrAEGLDDnnmpNX+lVqkkc44V3jcC7+3SdSc5bT+s0/3Wu3y1YyzgauIdsD9b
-	D8uTP1/6rH9kdQI7RXx112TfJX+qWsRQ62UNZJJsbNo9nI3lE0MUXuUK59qtwA8k5FFgpI+58Rs
-	kHUEYKJEENZMi2P5ZeQmO3dj/STR4Tkuzkg==
-X-Received: by 2002:a05:600c:1c1b:b0:477:b734:8c53 with SMTP id 5b1f17b1804b1-47939dfa09fmr106050945e9.12.1765285554110;
-        Tue, 09 Dec 2025 05:05:54 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHuQABtiUkLD+rMxYkpHCMPJ0jWGiDwWoX4yNSI50FHhHBBQ+qu1qOfQtW9LU1ZqHfufP6qYw==
-X-Received: by 2002:a05:600c:1c1b:b0:477:b734:8c53 with SMTP id 5b1f17b1804b1-47939dfa09fmr106050485e9.12.1765285553476;
-        Tue, 09 Dec 2025 05:05:53 -0800 (PST)
+        bh=o5P38QWOVcSU59TQGZzDoAFjcxq1O9ed/yD/2cqZSQI=;
+        b=ZxPeSk8cetiaG9VCYt2dQiMKU5rf4UIQcOPw5ha1JGhsDNTNb7rW08vdnLc76S9Aiy
+         d35cZvor6pR3erAH9LZTeEEzw9xdZzv6GzqR96Hr1xxnlBy1t+aV5PF34A3bbSrddT1H
+         b3ze4RdTMfb+TSU/3ySAA3uc9KjunCCEVJl2WrqNt6DEgjyW8lrJmH97viNCdvDxABcr
+         +hbmJwT8C7x5Wu/MN6/IXXqc1GgMAc4/0jLBNY7xLuq+1v3dh8GP84Qtq13jDQ+RvbGD
+         LIcJzfT8u+Uhq/dVWNM+P+f+9VmaN1kp9996LE8aKQBfT1G1LtlxlyCYuTsHUhMk0xaG
+         ayxA==
+X-Forwarded-Encrypted: i=1; AJvYcCW/vlM/RNVfYb19+K4qS+pSmOwmUKA6kI8P3QtBm6C0s+NCh/gyzKX5G109LzfPyuih/C17lLqVviZkOnxurQ==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Yzq7PBnEvnxx6hZuRUtDHaq6ixffYjK2chAneqWxXP2ZD4LDx8f
+	IA9sWbsdN9O3XTIGOIN7mvxP/cJnYW8fFtEjbp2N9oL2vrXFgKWX9618eb5bMgzhOvodK4+5P4X
+	paDtoUnMw/qoeTV6GyljtqJbclb80vaKzBQVBtBPP8Mgu7MmnRzcN/wdzHBAiKyTnAPY+d1D/1p
+	GbzPEiGBE=
+X-Gm-Gg: ASbGncs3gU38eeUotqI1cmCFBU0+arFtyqutqGy0a4F0J1ILMYYotfMDsehEfVXldOx
+	Sf9kcNwakiKEure2KeM0v8lvvTeU19v0HiT+L3d1rRdsWbzb8ZTebsUo5jOu0DHy7cOAGQXsXqT
+	FwJIdqEHjsoaF/suKr9NizC7t/eHt9ampw5jcFny2VE0UXyCBf9KIcpNPf74TrcVnBMQXMBF65K
+	yy9CDH/I8iNEOC8DFUHlTr+MeX1dTBi0wQse7UCITBC0oDrat6njaN1pe5fI/uuLAO0FRlDsm0Z
+	8uSH2rlzDO3xeqJppddOmoiAoijHDMAqVf00PHiEBXuNgcZlJ3mqAIbyp8DJlNmbcjI5tXlqv2Y
+	JCayvoMv2ABUk1owtaaV2L1oZpMefUPmk+A==
+X-Received: by 2002:a2e:bc2a:0:b0:37b:9e0b:e0d8 with SMTP id 38308e7fff4ca-37ed1feec4cmr27411671fa.14.1765285788963;
+        Tue, 09 Dec 2025 05:09:48 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG6qF6On+XjEQa7Vpebeq/+5jUjnAJbF/ap+lr+2JnwmaX++R35vbR7XHiCdci98pl68Pm6CQ==
+X-Received: by 2002:a2e:bc2a:0:b0:37b:9e0b:e0d8 with SMTP id 38308e7fff4ca-37ed1feec4cmr27411621fa.14.1765285788446;
+        Tue, 09 Dec 2025 05:09:48 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-38-228.inter.net.il. [80.230.38.228])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47a7d357820sm17802735e9.2.2025.12.09.05.05.51
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-37e705e8292sm49532871fa.37.2025.12.09.05.09.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Dec 2025 05:05:52 -0800 (PST)
-Date: Tue, 9 Dec 2025 08:05:50 -0500
+        Tue, 09 Dec 2025 05:09:47 -0800 (PST)
+Date: Tue, 9 Dec 2025 08:09:45 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vhost/vsock: improve RCU read sections around
- vhost_vsock_get()
-Message-ID: <20251209080528-mutt-send-email-mst@kernel.org>
-References: <20251126133826.142496-1-sgarzare@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>,
+	virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH 00/14] tools/virtio: cleanups, fixes
+Message-ID: <20251209080926-mutt-send-email-mst@kernel.org>
+References: <cover.1764873799.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251126133826.142496-1-sgarzare@redhat.com>
+In-Reply-To: <cover.1764873799.git.mst@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: awTRixMpvZrwdpmmh6Oz62Zr800ed7oXZkUb4DxI4Ko_1765285554
+X-Mimecast-MFC-PROC-ID: GDHo-WqpgChi1QWGf4mVeTFNRD0_MAsX_JYemw3t5ro_1765285789
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Wed, Nov 26, 2025 at 02:38:26PM +0100, Stefano Garzarella wrote:
-> From: Stefano Garzarella <sgarzare@redhat.com>
+On Thu, Dec 04, 2025 at 01:46:01PM -0500, Michael S. Tsirkin wrote:
+> Recent virtio changes brought about build errors for tools/virtio,
+> as usual. I did some refactoring to hopefully reduce maintainance
+> load going forward.
 > 
-> vhost_vsock_get() uses hash_for_each_possible_rcu() to find the
-> `vhost_vsock` associated with the `guest_cid`. hash_for_each_possible_rcu()
-> should only be called within an RCU read section, as mentioned in the
-> following comment in include/linux/rculist.h:
+> Adding stubs is tedious and seemed a perfect fit for cursor -
+> so I used it for that, then rewrote some commits and accepted
+> others.  commit logs I've rewritten.
 > 
-> /**
->  * hlist_for_each_entry_rcu - iterate over rcu list of given type
->  * @pos:	the type * to use as a loop cursor.
->  * @head:	the head for your list.
->  * @member:	the name of the hlist_node within the struct.
->  * @cond:	optional lockdep expression if called from non-RCU protection.
->  *
->  * This list-traversal primitive may safely run concurrently with
->  * the _rcu list-mutation primitives such as hlist_add_head_rcu()
->  * as long as the traversal is guarded by rcu_read_lock().
->  */
-> 
-> Currently, all calls to vhost_vsock_get() are between rcu_read_lock()
-> and rcu_read_unlock() except for calls in vhost_vsock_set_cid() and
-> vhost_vsock_reset_orphans(). In both cases, the current code is safe,
-> but we can make improvements to make it more robust.
-> 
-> About vhost_vsock_set_cid(), when building the kernel with
-> CONFIG_PROVE_RCU_LIST enabled, we get the following RCU warning when the
-> user space issues `ioctl(dev, VHOST_VSOCK_SET_GUEST_CID, ...)` :
-> 
->   WARNING: suspicious RCU usage
->   6.18.0-rc7 #62 Not tainted
->   -----------------------------
->   drivers/vhost/vsock.c:74 RCU-list traversed in non-reader section!!
-> 
->   other info that might help us debug this:
-> 
->   rcu_scheduler_active = 2, debug_locks = 1
->   1 lock held by rpc-libvirtd/3443:
->    #0: ffffffffc05032a8 (vhost_vsock_mutex){+.+.}-{4:4}, at: vhost_vsock_dev_ioctl+0x2ff/0x530 [vhost_vsock]
-> 
->   stack backtrace:
->   CPU: 2 UID: 0 PID: 3443 Comm: rpc-libvirtd Not tainted 6.18.0-rc7 #62 PREEMPT(none)
->   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.17.0-7.fc42 06/10/2025
->   Call Trace:
->    <TASK>
->    dump_stack_lvl+0x75/0xb0
->    dump_stack+0x14/0x1a
->    lockdep_rcu_suspicious.cold+0x4e/0x97
->    vhost_vsock_get+0x8f/0xa0 [vhost_vsock]
->    vhost_vsock_dev_ioctl+0x307/0x530 [vhost_vsock]
->    __x64_sys_ioctl+0x4f2/0xa00
->    x64_sys_call+0xed0/0x1da0
->    do_syscall_64+0x73/0xfa0
->    entry_SYSCALL_64_after_hwframe+0x76/0x7e
->    ...
->    </TASK>
-> 
-> This is not a real problem, because the vhost_vsock_get() caller, i.e.
-> vhost_vsock_set_cid(), holds the `vhost_vsock_mutex` used by the hash
-> table writers. Anyway, to prevent that warning, add lockdep_is_held()
-> condition to hash_for_each_possible_rcu() to verify that either the
-> caller is in an RCU read section or `vhost_vsock_mutex` is held when
-> CONFIG_PROVE_RCU_LIST is enabled; and also clarify the comment for
-> vhost_vsock_get() to better describe the locking requirements and the
-> scope of the returned pointer validity.
-> 
-> About vhost_vsock_reset_orphans(), currently this function is only
-> called via vsock_for_each_connected_socket(), which holds the
-> `vsock_table_lock` spinlock (which is also an RCU read-side critical
-> section). However, add an explicit RCU read lock there to make the code
-> more robust and explicit about the RCU requirements, and to prevent
-> issues if the calling context changes in the future or if
-> vhost_vsock_reset_orphans() is called from other contexts.
-> 
-> Fixes: 834e772c8db0 ("vhost/vsock: fix use-after-free in network stack callers")
-> Cc: stefanha@redhat.com
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> Found and fixed a couple of minor bugs while doing this - that
+> part's all mine.
 
 
-queued, thanks!
+Jason, any feedback?
 
-> ---
->  drivers/vhost/vsock.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
+> Michael S. Tsirkin (14):
+>   tools/virtio: fix up compiler.h stub
+>   virtio: make it self-contained
+>   tools/virtio: use kernel's virtio.h
+>   tools/virtio: add struct module forward declaration
+>   tools/virtio: stub DMA mapping functions
+>   tools/virtio: add dev_WARN_ONCE and is_vmalloc_addr stubs
+>   tools/virtio: add ucopysize.h stub
+>   tools/virtio: pass KCFLAGS to module build
+>   tools/virtio: add struct cpumask to cpumask.h
+>   tools/virtio: stub might_sleep and synchronize_rcu
+>   tools/virtio: switch to kernel's virtio_config.h
+>   virtio_features: make it self-contained
+>   tools/virtio: fix up oot build
+>   tools/virtio: add device, device_driver stubs
 > 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index ae01457ea2cd..78cc66fbb3dd 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -64,14 +64,15 @@ static u32 vhost_transport_get_local_cid(void)
->  	return VHOST_VSOCK_DEFAULT_HOST_CID;
->  }
->  
-> -/* Callers that dereference the return value must hold vhost_vsock_mutex or the
-> - * RCU read lock.
-> +/* Callers must be in an RCU read section or hold the vhost_vsock_mutex.
-> + * The return value can only be dereferenced while within the section.
->   */
->  static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
->  {
->  	struct vhost_vsock *vsock;
->  
-> -	hash_for_each_possible_rcu(vhost_vsock_hash, vsock, hash, guest_cid) {
-> +	hash_for_each_possible_rcu(vhost_vsock_hash, vsock, hash, guest_cid,
-> +				   lockdep_is_held(&vhost_vsock_mutex)) {
->  		u32 other_cid = vsock->guest_cid;
->  
->  		/* Skip instances that have no CID yet */
-> @@ -707,9 +708,15 @@ static void vhost_vsock_reset_orphans(struct sock *sk)
->  	 * executing.
->  	 */
->  
-> +	rcu_read_lock();
-> +
->  	/* If the peer is still valid, no need to reset connection */
-> -	if (vhost_vsock_get(vsk->remote_addr.svm_cid))
-> +	if (vhost_vsock_get(vsk->remote_addr.svm_cid)) {
-> +		rcu_read_unlock();
->  		return;
-> +	}
-> +
-> +	rcu_read_unlock();
->  
->  	/* If the close timeout is pending, let it expire.  This avoids races
->  	 * with the timeout callback.
+>  include/linux/virtio.h             |   2 +
+>  include/linux/virtio_features.h    |   2 +
+>  tools/virtio/Makefile              |   8 ++-
+>  tools/virtio/linux/compiler.h      |   6 ++
+>  tools/virtio/linux/cpumask.h       |   4 ++
+>  tools/virtio/linux/device.h        |   8 +++
+>  tools/virtio/linux/dma-mapping.h   |   4 ++
+>  tools/virtio/linux/kernel.h        |  16 +++++
+>  tools/virtio/linux/module.h        |   2 +
+>  tools/virtio/linux/ucopysize.h     |  21 ++++++
+>  tools/virtio/linux/virtio.h        |  73 +--------------------
+>  tools/virtio/linux/virtio_config.h | 102 +----------------------------
+>  tools/virtio/oot-stubs.h           |  10 +++
+>  13 files changed, 82 insertions(+), 176 deletions(-)
+>  create mode 100644 tools/virtio/linux/ucopysize.h
+>  create mode 100644 tools/virtio/oot-stubs.h
+> 
 > -- 
-> 2.51.1
+> MST
+> 
 
