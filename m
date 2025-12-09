@@ -1,254 +1,132 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DCDD3016F3
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 18:24:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 294412C15A9
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 20:49:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765304672; cv=none; b=AMpHW79s9+96JBGJLnAoNma+1//JjS9Will0rDVbhSBa6/6YqDcdvh88OwfSOzUx6FhYXmIzyXTNHNkt//rKjqEGzoG3h8dk1DYSe0RonXDMAYI9dMSbpgcmRJPRZYDQJIlwhXqRLUFv/9vzkLYqvF9iFV3ai+obUbolPJMNGFY=
+	t=1765313372; cv=none; b=e7pKHnJldDCFPfISlY6Z/bjJOBDwraN7tgEL5MuaC8Y4zoIZALGdOwySndxQT6v4+LdGkMmZibBiLJ7J31G6DJEVXl1sSJEgXKUGV/0uUeMJRw8D9xfoxqoyXlqNO+p214Vniz+ui/RYmkL9s6oIqV4j8C2CaNO5K/GhHDPoCE8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765304672; c=relaxed/simple;
-	bh=1VHf9csxRdUdp3601l4R7AIy9z/7AEjDyrvpyUT3F8Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=nFIoct8bBgXHLVgGKRvkQ0LQBcovDrU6uKKYjHusW6WtqA13i1Mg4Iaz1vwRdWwCM7cIZ08/fR1Smf0A7ZpHuM5BR+wodrIHtzGXHd5618hh/Y9CkduLMliAaiad09GQUu6JYrEE+05HxL7baIFR1QmSSd5qW3xF2w2A+i8dtrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cqOkfMNf; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1765313372; c=relaxed/simple;
+	bh=rd2xZtg1TUqhPE9MjX+asDiZUF22CLDQ+9AXCBYKRVA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VbxtFG1PoaL92K2OxCPwiF6OlPl8U4kqdv7/Lid+NxXieOs4BysyYLaxs8W27XrTpCX2s8lpjh9lbFuWKzdeGWzpVJDFGlphUwVUBGQ5kdjsAf+3eVmchGOtPfFr7S3xtBhSq8+QEfXTIo+Mku+foA6Vg6QwgZhQryGd9X/PjL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=fEkUm2N1; arc=none smtp.client-ip=209.85.208.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cqOkfMNf"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 033FE80CFE
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 18:24:30 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.795
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id qhCcamo5R4jq for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Dec 2025 18:24:29 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org EAC0580CC1
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EAC0580CC1
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cqOkfMNf
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EAC0580CC1
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 18:24:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765304667;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=USk9jSaWQvYUDmDx9daRJ6IHaYeMNOUxJLYi+6sv0Co=;
-	b=cqOkfMNfiRZ3ovlHWb78Cd8CvAmQ+oaJjQRBDiulm+HYsY/Uf+vygFel/8v8zlHUDU6OHY
-	nXOBXpG2oHu9kJkjkOCXbASbKOS0TZun4XIrURbfAwbbNkrcJKNdWHZKjWclxkv+gQlr92
-	AQ+hjl4YubjlhA4lOeeTNF9+FyCBXds=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-581-hEmaoTnRMVO07ePW64YLQQ-1; Tue, 09 Dec 2025 13:24:17 -0500
-X-MC-Unique: hEmaoTnRMVO07ePW64YLQQ-1
-X-Mimecast-MFC-AGG-ID: hEmaoTnRMVO07ePW64YLQQ_1765304656
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-47777158a85so72333145e9.3
-        for <virtualization@lists.linux-foundation.org>; Tue, 09 Dec 2025 10:24:16 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="fEkUm2N1"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6492e7891d2so3619162a12.2
+        for <virtualization@lists.linux.dev>; Tue, 09 Dec 2025 12:49:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1765313368; x=1765918168; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=8qFu6Gyyu/IjR2ufdMGg+lZtY71e20af3aIOCWzwQgQ=;
+        b=fEkUm2N1QrTteUub/PSDsX/CJAC2tl7nTJoi174QdGN98XYqwkpDyT+zVHKRyudZdJ
+         MjGPBxY7EFcTehgW8NEx8aZNEfZ1Q9jDDRvccaI03/3Vf4IdmZ7ajzbFpylpo+qYFPwS
+         ATgczF+xcWzRVvGOrtXR2dwP0hUUub4t5dGeA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765304656; x=1765909456;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=USk9jSaWQvYUDmDx9daRJ6IHaYeMNOUxJLYi+6sv0Co=;
-        b=SOqm/skybzFYe8jvKEBD8NojpM5wqqbxIgGP72Cm+beAlqqqK6pQ3aw7CAblhqmsKv
-         L7IQhxhCuw80d1iCBv1w76smInd6/YWO7dQ+Yp3c4xjWw6JoLs3+7BwSDhrfM5Cz2BEu
-         EhoH8SfIYLhQ1PBJoEJDqNBlafDL3qmAZ2vSR2q23f82iv6biq8I0DWuexvTXABGRV3S
-         p4u6F6hzb2Wd8itCeYCXVunTfzUNtG4ZiZqd8NrC5PdEkRz+7/7E4BvvIHd4NUp/iuwq
-         az6pG8XykUbQVSqyJDtROMZz/u2PIIodScgQYQgF79PJAqJG1XMIzp4YnyjzHwP+RpgV
-         /p2Q==
-X-Forwarded-Encrypted: i=1; AJvYcCU9lSsMEXMrnSbbH/AJ12cE9F8u71pj5ljDQhgCvnh+VLMb6ANGPq/pYI2ab9s2iBlt6EZ9f8kezgwfQbBHsg==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxzTOPM7HkWQlLJjR8zvfhC8lBRuxZg0y4qdUimdUShniAhbCpj
-	qItAp0mnI9GRaI7z/lxo9LVYds8K0X49GO4Dpbb9kFCeEnFM55OOr7k4Kq0XJ/6gjtQ2HZHzvpz
-	bVtlsthxVdm4+Oz0RRTeA7fa2RT38inuU5ggmcCIQ+yJzXMgPzB6QI1FM9ss2oGszxKr0i7S3WE
-	PIfbcKQks=
-X-Gm-Gg: ASbGncslhuXtylwPECXtV73zeLgCl4T8Xmb7eAk9yfMXcXfsn5PpL1pbvY0lMFAhe5i
-	M87NQiJDMgjjsc0PJ2q7nEVcV5nwrLkDgBkPp3FBXVie6A7Z5j+JQH5OZ4FSsMUa1iauowQ+B0x
-	NP7/TLWLJiZixwMexRkGz7nsi5DgXYYz4LPQWHrikvE2jU4NwQAYXeqbJNFqvhw3toZ3Jor7Gxk
-	B7vONZcj36rOCOBhKa9vxO4lbchalB8CMUKmdqvDkVpTo9Q4/rZRKP8PBm+Bg3Zi6/vYUz+NrVy
-	kcaOoFAMNLEqWj0MeUMqGwY4d6VUKgk+cstyApz2kudc/6nM00GRftUguq9Xq0xJ1WSPVvCse3v
-	R
-X-Received: by 2002:a05:600c:4f54:b0:477:b642:9dbf with SMTP id 5b1f17b1804b1-47939e48e88mr105233275e9.32.1765304655663;
-        Tue, 09 Dec 2025 10:24:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG2N1U/qfn+cqUhT/IdKlmaO0Dfp9eCxkzBOQ6EPjCrkLOr7GnqGDK1Xhz5Rxxc3o/HgqTw+Q==
-X-Received: by 2002:a05:600c:4f54:b0:477:b642:9dbf with SMTP id 5b1f17b1804b1-47939e48e88mr105233085e9.32.1765304655197;
-        Tue, 09 Dec 2025 10:24:15 -0800 (PST)
-Received: from redhat.com ([80.230.34.255])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47a82d910b2sm3071355e9.14.2025.12.09.10.24.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Dec 2025 10:24:14 -0800 (PST)
-Date: Tue, 9 Dec 2025 13:24:12 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Cc: stefanha@redhat.com, sgarzare@redhat.com,
-	virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-	oren@nvidia.com, aevdaev@nvidia.com, aaptel@nvidia.com
-Subject: Re: [PATCH v2 1/1] virtio: add driver_override support
-Message-ID: <20251209132326-mutt-send-email-mst@kernel.org>
-References: <20251208220908.9250-1-mgurtovoy@nvidia.com>
- <20251209113306-mutt-send-email-mst@kernel.org>
- <49a3aabb-eb28-4149-b845-1bc5afffb985@nvidia.com>
- <20251209124819-mutt-send-email-mst@kernel.org>
- <df0d1e2e-a496-416a-8cfc-22d69ad4c37b@nvidia.com>
+        d=1e100.net; s=20230601; t=1765313368; x=1765918168;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8qFu6Gyyu/IjR2ufdMGg+lZtY71e20af3aIOCWzwQgQ=;
+        b=Lf/OnnuLFERQnbVeZojaauWcSaKB75vURDRxbrfV8aMDsMD0tcVzY7tWtbXk/mRgLY
+         Eamt+qfnizy57fC8yrhiX49MLIE3s46/Gb64Vdxbbd6VUvZVphb1oaAKQEsumg1AfiyM
+         deakPnUDeGiYvW0b8M9Xv/9Nc4S+O9AfbuymSbpsZ5mMgAxOsfCSKQ0R3Yg4SQu04Do6
+         3nr8Qw+KaTiPDiaTFgJ30RSTK1Eyz2t5qrjIDSWsAUwyL5fhvsnzYqkbwJ+J7jqBJeuI
+         /KTPIXA/GxsCqZIpvRv6nawLOkHWHu5I2YqqzFxVy2sOrJQ3aTv7tpGI/CUDPQinbWKq
+         U3AQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUuDP/UadoTA9D+xMDx2c7f7TvH/zTfsN8hqxqMJsZjYu5aDC+fSn01+zA6j5ZV076DkJw3mM475dBHozhoBA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwVQJ0/Wug2Mgpykqj9L4llbNRtvag2+A+5UjL2kViCpqYkc9Il
+	HAPeb39DoFqJwDLg8ekh5gZPuit/lNWg02KSZboFxxvdYeUEMny6NR5yrV3mn8K8KQIMcsrdNLF
+	c+63wLDUnmg==
+X-Gm-Gg: AY/fxX7Lr4oD+/WZ1Fsi885JEBogqEdhV0bZONGUg77a5Ml6ahyz+ZISRRb9L3QOckO
+	igmaubbz7HnTzDKBiN7SEbP2RCjBA/s9x2rSftmKExR4NDNCxf2Qw9PizcEOlODFTufFQUQO3Dz
+	HaZSWpkknnmcKAw6CEjjfhpuLIHEF92Fvr20EIcmYxQmiFYrOmSGOj8nUO22rXr2CbXn0Z1YY8o
+	eBcl5cIN76BAvr0V+HOeKW2yyfw7D/hFptBDGFuTwhhK08H8nKN/K+iFwYKP/BfSWyMxIlhIp+d
+	2Y5Dhdx1Pu31gOm4qsswCphw2DGCoE+CoT3fgvBgs1CHizco5gOwvLESxHifBLIlDQDk6i+zuXN
+	8ktf0v2Nezu2AreoN4eDlD1+jrQ1uXTZkwiV2yHmOtqkJiwv/dKSg7aafcraoPVDRi836fcxA8D
+	UZQ+XkGvGtz6BaflRFXXCPe6l9E1HpamBsEKwNE3JCICtq2ySIXH39JxlMbd85
+X-Google-Smtp-Source: AGHT+IG/h8OYU8U6n8itFt30f7tblciwwkK3TqXNPhmMgo5waKryYKvurUb/Y3N0inKYAS9F01OHZQ==
+X-Received: by 2002:a05:6402:13c2:b0:649:2666:431e with SMTP id 4fb4d7f45d1cf-6496d5ba6admr194737a12.7.1765313368237;
+        Tue, 09 Dec 2025 12:49:28 -0800 (PST)
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com. [209.85.218.52])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-647b2edf54asm14868164a12.10.2025.12.09.12.49.27
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Dec 2025 12:49:27 -0800 (PST)
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-b735487129fso921627066b.0
+        for <virtualization@lists.linux.dev>; Tue, 09 Dec 2025 12:49:27 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVZWFqYdXOiqjlcSVRG3xc4vDd1/ZpOBGBYYPvG8Iuio53PYmWmf+F+26EXcWfTyOpAUWBTEzNNyG/1mkf2Dw==@lists.linux.dev
+X-Received: by 2002:a05:6402:27d2:b0:640:74f5:d9f6 with SMTP id
+ 4fb4d7f45d1cf-6496db38dccmr139683a12.25.1765312868177; Tue, 09 Dec 2025
+ 12:41:08 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <df0d1e2e-a496-416a-8cfc-22d69ad4c37b@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: E4QCoR3a9PPAaKhgZETYjCyU8wgQ7W8oGND13dCi_C8_1765304656
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20251208235528.3670800-1-hpa@zytor.com> <20251209002519.GT1712166@ZenIV>
+ <43CDF85F-800F-449C-8CA6-F35BEC88E18E@zytor.com> <20251209032206.GU1712166@ZenIV>
+ <87F4003B-5011-49EF-A807-CEA094EA0DAC@zytor.com> <20251209090707.GV1712166@ZenIV>
+In-Reply-To: <20251209090707.GV1712166@ZenIV>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Wed, 10 Dec 2025 05:40:51 +0900
+X-Gmail-Original-Message-ID: <CAHk-=wi=2errb29CgwA4eSaLCEojo2Jq1d3ptDhxANfcKPH9xw@mail.gmail.com>
+X-Gm-Features: AQt7F2qPCXJihSB0EifxcMqIJwZJZTW_3j7hMQ2OwASD92TgZWMxviusY-ovH6E
+Message-ID: <CAHk-=wi=2errb29CgwA4eSaLCEojo2Jq1d3ptDhxANfcKPH9xw@mail.gmail.com>
+Subject: Re: [GIT PULL] __auto_type conversion for v6.19-rc1
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Alexey Dobriyan <adobriyan@gmail.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Andrii Nakryiko <andrii@kernel.org>, 
+	Arnd Bergmann <arnd@kernel.org>, Borislav Petkov <bp@alien8.de>, Dan Williams <dan.j.williams@intel.com>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	David Laight <David.Laight@aculab.com>, David Lechner <dlechner@baylibre.com>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Gatlin Newhouse <gatlin.newhouse@gmail.com>, Hao Luo <haoluo@google.com>, 
+	Ingo Molnar <mingo@redhat.com>, Jakub Sitnicki <jakub@cloudflare.com>, 
+	Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>, Jiri Olsa <jolsa@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, 
+	Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>, Kees Cook <kees@kernel.org>, 
+	Luc Van Oostenryck <luc.vanoostenryck@gmail.com>, Marc Herbert <Marc.Herbert@linux.intel.com>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>, 
+	Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>, NeilBrown <neil@brown.name>, 
+	Peter Zijlstra <peterz@infradead.org>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
+	Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>, Song Liu <song@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Thomas Gleixner <tglx@linutronix.de>, 
+	Thorsten Blum <thorsten.blum@linux.dev>, Uros Bizjak <ubizjak@gmail.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Yafang Shao <laoar.shao@gmail.com>, 
+	Ye Bin <yebin10@huawei.com>, Yonghong Song <yonghong.song@linux.dev>, 
+	Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-sparse@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Dec 09, 2025 at 08:20:45PM +0200, Max Gurtovoy wrote:
-> 
-> On 09/12/2025 19:48, Michael S. Tsirkin wrote:
-> > On Tue, Dec 09, 2025 at 07:45:19PM +0200, Max Gurtovoy wrote:
-> > > On 09/12/2025 18:34, Michael S. Tsirkin wrote:
-> > > > On Tue, Dec 09, 2025 at 12:09:08AM +0200, Max Gurtovoy wrote:
-> > > > > Add support for the 'driver_override' attribute to Virtio devices. This
-> > > > > allows users to control which Virtio bus driver binds to a given Virtio
-> > > > > device.
-> > > > > 
-> > > > > If 'driver_override' is not set, the existing behavior is preserved and
-> > > > > devices will continue to auto-bind to the first matching Virtio bus
-> > > > > driver.
-> > > > oh, it's a device driver not the bus driver, actually.
-> > > Yes. I'll fix the commit message.
-> > > 
-> > > 
-> > > > > Tested with virtio blk device (virtio core and pci drivers are loaded):
-> > > > > 
-> > > > >     $ modprobe my_virtio_blk
-> > > > > 
-> > > > >     # automatically unbind from virtio_blk driver and override + bind to
-> > > > >     # my_virtio_blk driver.
-> > > > >     $ driverctl -v -b virtio set-override virtio0 my_virtio_blk
-> > > > > 
-> > > > > In addition, driverctl saves the configuration persistently under
-> > > > > /etc/driverctl.d/.
-> > > > what is this "mydriver" though? what are valid examples that
-> > > > we want to support?
-> > > This is an example for a custom virtio block driver.
-> > > 
-> > > It can be any custom virtio-XX driver (XX=FS/NET/..).
-> > Is "custom" a way to say "out of tree"?
-> 
-> The driver_override mechanism fits both in-tree/out-of-tree drivers.
+On Tue, 9 Dec 2025 at 18:06, Al Viro <viro@zeniv.linux.org.uk> wrote:
+>
+> BTW, speaking of C23 fun that is supported by gcc 8, but not by sparse:
+> __has_include().
+>
+> Linus?  Seeing that I'm touching pre-process.c anyway for the sake of
+> __VA_OPT__, adding that thing ought to be reasonably easy
 
-good to know.  which in tree drivers can use it?
-this is the part that's missing in the commit log.
+It sounds straightforward, and I'm certainly not going to object. I'm
+not sure how much we'd want to use it in the kernel: it might make it
+slightly easier to deal with various architectures and the "if the
+architecture has this header, use it, otherwise use the generic
+implementation" kinds of issues, but we do have fairly straightforward
+solutions for that already in our build system ('generic-y' and
+friends).
 
-thanks
+So I'm not convinced it really buys us anything - I suspect it's a lot
+more useful in "normal" projects that have to deal with non-standard
+system headers and possible lack of libraries etc etc. Our build
+environment is so self-sufficient that it's not nearly the same issue
+for the kernel.
 
-
-> > 
-> > > > > Signed-off-by: Avraham Evdaev <aevdaev@nvidia.com>
-> > > > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > > > ---
-> > > > > 
-> > > > > changes from v1:
-> > > > >    - use !strcmp() to compare strings (MST)
-> > > > >    - extend commit msg with example (MST)
-> > > > > 
-> > > > > ---
-> > > > >    drivers/virtio/virtio.c | 34 ++++++++++++++++++++++++++++++++++
-> > > > >    include/linux/virtio.h  |  4 ++++
-> > > > >    2 files changed, 38 insertions(+)
-> > > > > 
-> > > > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > > > index a09eb4d62f82..993dc928be49 100644
-> > > > > --- a/drivers/virtio/virtio.c
-> > > > > +++ b/drivers/virtio/virtio.c
-> > > > > @@ -61,12 +61,41 @@ static ssize_t features_show(struct device *_d,
-> > > > >    }
-> > > > >    static DEVICE_ATTR_RO(features);
-> > > > > +static ssize_t driver_override_store(struct device *_d,
-> > > > > +				     struct device_attribute *attr,
-> > > > > +				     const char *buf, size_t count)
-> > > > > +{
-> > > > > +	struct virtio_device *dev = dev_to_virtio(_d);
-> > > > > +	int ret;
-> > > > > +
-> > > > > +	ret = driver_set_override(_d, &dev->driver_override, buf, count);
-> > > > > +	if (ret)
-> > > > > +		return ret;
-> > > > > +
-> > > > > +	return count;
-> > > > > +}
-> > > > > +
-> > > > > +static ssize_t driver_override_show(struct device *_d,
-> > > > > +				    struct device_attribute *attr, char *buf)
-> > > > > +{
-> > > > > +	struct virtio_device *dev = dev_to_virtio(_d);
-> > > > > +	ssize_t len;
-> > > > > +
-> > > > > +	device_lock(_d);
-> > > > > +	len = sysfs_emit(buf, "%s\n", dev->driver_override);
-> > > > > +	device_unlock(_d);
-> > > > > +
-> > > > > +	return len;
-> > > > > +}
-> > > > > +static DEVICE_ATTR_RW(driver_override);
-> > > > > +
-> > > > >    static struct attribute *virtio_dev_attrs[] = {
-> > > > >    	&dev_attr_device.attr,
-> > > > >    	&dev_attr_vendor.attr,
-> > > > >    	&dev_attr_status.attr,
-> > > > >    	&dev_attr_modalias.attr,
-> > > > >    	&dev_attr_features.attr,
-> > > > > +	&dev_attr_driver_override.attr,
-> > > > >    	NULL,
-> > > > >    };
-> > > > >    ATTRIBUTE_GROUPS(virtio_dev);
-> > > > > @@ -88,6 +117,10 @@ static int virtio_dev_match(struct device *_dv, const struct device_driver *_dr)
-> > > > >    	struct virtio_device *dev = dev_to_virtio(_dv);
-> > > > >    	const struct virtio_device_id *ids;
-> > > > > +	/* Check override first, and if set, only use the named driver */
-> > > > > +	if (dev->driver_override)
-> > > > > +		return !strcmp(dev->driver_override, _dr->name);
-> > > > > +
-> > > > >    	ids = drv_to_virtio(_dr)->id_table;
-> > > > >    	for (i = 0; ids[i].device; i++)
-> > > > >    		if (virtio_id_match(dev, &ids[i]))
-> > > > > @@ -582,6 +615,7 @@ void unregister_virtio_device(struct virtio_device *dev)
-> > > > >    {
-> > > > >    	int index = dev->index; /* save for after device release */
-> > > > > +	kfree(dev->driver_override);
-> > > > >    	device_unregister(&dev->dev);
-> > > > >    	virtio_debug_device_exit(dev);
-> > > > >    	ida_free(&virtio_index_ida, index);
-> > > > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > > > > index db31fc6f4f1f..418bb490bdc6 100644
-> > > > > --- a/include/linux/virtio.h
-> > > > > +++ b/include/linux/virtio.h
-> > > > > @@ -138,6 +138,9 @@ struct virtio_admin_cmd {
-> > > > >     * @config_lock: protects configuration change reporting
-> > > > >     * @vqs_list_lock: protects @vqs.
-> > > > >     * @dev: underlying device.
-> > > > > + * @driver_override: driver name to force a match; do not set directly,
-> > > > > + *                   because core frees it; use driver_set_override() to
-> > > > > + *                   set or clear it.
-> > > > >     * @id: the device type identification (used to match it with a driver).
-> > > > >     * @config: the configuration ops for this device.
-> > > > >     * @vringh_config: configuration ops for host vrings.
-> > > > > @@ -158,6 +161,7 @@ struct virtio_device {
-> > > > >    	spinlock_t config_lock;
-> > > > >    	spinlock_t vqs_list_lock;
-> > > > >    	struct device dev;
-> > > > > +	const char *driver_override;
-> > > > >    	struct virtio_device_id id;
-> > > > >    	const struct virtio_config_ops *config;
-> > > > >    	const struct vringh_config_ops *vringh_config;
-> > > > > -- 
-> > > > > 2.18.1
-
+              Linus
