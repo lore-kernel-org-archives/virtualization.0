@@ -1,23 +1,23 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id DD0E2301004
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 02:00:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 26FD830103F
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 02:00:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765245611; cv=none; b=N6OooqhTl9j4BNBcR0OKoABfOVOwwA2bBKoSH55J5h4WscnE4iBnK50vfk0+oBv+oIjRvzftFu5JjTIruLQLZsDqqgQ0niA66K3sk2s5/ALPMCLtcgcOS1o80b+8M5vIBtqgmJk3GjOjV/s4xN3b4Y6/j5XIG9/G2RWJjzW80HA=
+	t=1765245612; cv=none; b=Ua5E5tbuYsovgXqCjJIgFanTJg+ntJ9pKFg+MmCTZcwGR+xSOUaUUWk9s1VmuzZGe1WQdHVYvgo0OWLT8KC0JgqlKPvfyiIpR8ZUyiA25n4TUCLadmCnHF2W0X9uS4hgR8nNc684mCcA757ncZU1z+FI42Nn3gmq2EUAFJJc6PM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765245611; c=relaxed/simple;
-	bh=7uEZlY08pApLqncxFus98l7GN5XvIf15qCw1fmPb8g8=;
+	s=arc-20240116; t=1765245612; c=relaxed/simple;
+	bh=otHlg6VFY9iXNaEv+5xVdFZsWVfFF+xxFJir1438s8U=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Qg3bjFpujf3thyGIvhBp1YeHhVbS1khaWzOX4xPq03BDIkM6ipUQ2NyHG//qRAR9AawyTXukDv4UE8plJyuEp7wahLo3B1nxUOKvyn3weh2hYOm7MvvFYJ4vKKZaFg6WBpQLQ39BqXey+tKuRSrMq0D4GNJHbPDcjSEGGUoaVB4=
+	 MIME-Version; b=rve67cAkyXV6WKL2BVd1zsIndqJ0pK6oJ3x6eG1DM1sROjSu/J3haxtnALrfglwqcYtFQ851rb8Z6cd2azRidYYbtCovCQ2fdMf2Ep8KNqb8eNYnmpPsW2TxRVh16WTwuCOSE+3g84DQ2LapuMeAIGal/35Ye/QSrglRZUiEFtw=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.2.5.213])
-	by gateway (Coremail) with SMTP id _____8AxP_CegjdpQoEsAA--.29895S3;
-	Tue, 09 Dec 2025 09:59:58 +0800 (CST)
-Received: from localhost.localdomain (unknown [10.2.5.213])
-	by front1 (Coremail) with SMTP id qMiowJCxXMGXgjdpI0BHAQ--.4870S5;
+	by gateway (Coremail) with SMTP id _____8AxidGdgjdpOIEsAA--.30789S3;
 	Tue, 09 Dec 2025 09:59:57 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.2.5.213])
+	by front1 (Coremail) with SMTP id qMiowJCxXMGXgjdpI0BHAQ--.4870S4;
+	Tue, 09 Dec 2025 09:59:56 +0800 (CST)
 From: Bibo Mao <maobibo@loongson.cn>
 To: Gonglei <arei.gonglei@huawei.com>,
 	"Michael S . Tsirkin" <mst@redhat.com>,
@@ -29,9 +29,9 @@ To: Gonglei <arei.gonglei@huawei.com>,
 Cc: virtualization@lists.linux.dev,
 	linux-crypto@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 03/10] crypto: virtio: Replace package id with numa node id
-Date: Tue,  9 Dec 2025 09:59:43 +0800
-Message-Id: <20251209015951.4174743-4-maobibo@loongson.cn>
+Subject: [PATCH v3 02/10] crypto: virtio: Remove duplicated virtqueue_kick in virtio_crypto_skcipher_crypt_req
+Date: Tue,  9 Dec 2025 09:59:42 +0800
+Message-Id: <20251209015951.4174743-3-maobibo@loongson.cn>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20251209015951.4174743-1-maobibo@loongson.cn>
 References: <20251209015951.4174743-1-maobibo@loongson.cn>
@@ -42,38 +42,35 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJCxXMGXgjdpI0BHAQ--.4870S5
+X-CM-TRANSID:qMiowJCxXMGXgjdpI0BHAQ--.4870S4
 X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
 X-Coremail-Antispam: 1Uk129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7
 	ZEXasCq-sGcSsGvfJ3UbIjqfuFe4nvWSU5nxnvy29KBjDU0xBIdaVrnUUvcSsGvfC2Kfnx
 	nUUI43ZEXa7xR_UUUUUUUUU==
 
-With multiple virtio crypto devices supported with different NUMA
-nodes, when crypto session is created, it will search virtio crypto
-device with the same numa node of current CPU.
-
-Here API topology_physical_package_id() is replaced with cpu_to_node()
-since package id is physical concept, and one package id have multiple
-memory numa id.
+With function virtio_crypto_skcipher_crypt_req(), there is already
+virtqueue_kick() call with spinlock held in funtion
+__virtio_crypto_skcipher_do_req(). Remove duplicated virtqueue_kick()
+function call here.
 
 Signed-off-by: Bibo Mao <maobibo@loongson.cn>
 ---
- drivers/crypto/virtio/virtio_crypto_common.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/virtio/virtio_crypto_skcipher_algs.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/virtio/virtio_crypto_common.h
-index 19c934af3df6..e559bdadf4f9 100644
---- a/drivers/crypto/virtio/virtio_crypto_common.h
-+++ b/drivers/crypto/virtio/virtio_crypto_common.h
-@@ -135,7 +135,7 @@ static inline int virtio_crypto_get_current_node(void)
- 	int cpu, node;
+diff --git a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
+index 1b3fb21a2a7d..11053d1786d4 100644
+--- a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
+@@ -541,8 +541,6 @@ int virtio_crypto_skcipher_crypt_req(
+ 	if (ret < 0)
+ 		return ret;
  
- 	cpu = get_cpu();
--	node = topology_physical_package_id(cpu);
-+	node = cpu_to_node(cpu);
- 	put_cpu();
+-	virtqueue_kick(data_vq->vq);
+-
+ 	return 0;
+ }
  
- 	return node;
 -- 
 2.39.3
 
