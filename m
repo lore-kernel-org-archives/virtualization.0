@@ -1,344 +1,222 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47C3B22A4E1
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:51:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765291887; cv=none; b=fMaCujDClCieDc4JADtrsu8JZ1EQIxkmD9JE4tYkVS7qxAe4M2bn8IkxtMFlxIIoEMIyMxY38SbX8sxcMLLygZ79/sbEEpK4wCX37mpCMux+Zpb781JPF4VWRpTqXVAp2fHyxK72D4xoXvZZ+bAzUs625Al6adxMzywwBRWrM50=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765291887; c=relaxed/simple;
-	bh=r6PkRDc4vEw5wajSqTV+Xiy+3Q9JAx+EQDPH44rdU7I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ecyk2bI+eON4ZTBP7UU3CKVjBFxLerYpksjBjpTqC2lMt5jwKULGQgEKa0/KDDJn5dRWYYLivAVm/gsov5rm/I7ftRDMisOeJBUA9+407xXs0M5KsH0tmLOSW9NfK8Ixo8B4LdBkO3zVh1KWI1xb2oJTMCw1GpO9o+t0XEgxWNQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nEr9/mgf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qBuR22jO; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nEr9/mgf; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=qBuR22jO; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A56E1E5714
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 15:13:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765293189; cv=fail; b=nut2ns6eYydWPbqBzw64vKHaHmdbxnDLIkLPzTmKQTUAYT/XDecfm3uNYP79669N+8LkgOJ0sGoDDODd179/gesQXtUtexCF92SR1EsxJtyhLpQ+cLlsvbLfx2N2EG7+cgSME7dpiummSmiu6LveVRMjD22oEhQwQ1tNJmcM9gI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765293189; c=relaxed/simple;
+	bh=sLX9JcPzrNkGQBUclmHnlwn5lzn3xf2GmWRxdoA33BY=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=K8vUO6wEYBNS43MQ4l+NfZxz+7orEz56BAh1d5YHNJL9hpXpblAnbCQKAQaQ69qQLEd7HIuca7BSIbP6y0jF6fmbFXUg2Em0QJVjp03sh80RK36JRSWn+76EVWd4uK3w327t3y96CjlMYaPIr+hUREZUEfeqTUIRGmdsMn4Z7Z4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=LGBm2om1; arc=fail smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nEr9/mgf";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qBuR22jO";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nEr9/mgf";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="qBuR22jO"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 624A9337DA;
-	Tue,  9 Dec 2025 14:51:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765291882; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=uEamXISE226F8CKyoiNdbyfo3vNx+AfdWIHPalE0jXQ=;
-	b=nEr9/mgfk1tIOer4Sa70I2RaC8eaCDiS5H1cHlpkcrBWTauczdva1QYgr/xMUfNZdERv5n
-	3O7YnQDL5yP0oMZ8+zORhAYmtLtv7YXegoyLwActY+6iK4x2u6HT4iBFs0Uyw/cx6scFOQ
-	90uriauh+tGmsn3asyXHUdoi02Sin0U=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765291882;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=uEamXISE226F8CKyoiNdbyfo3vNx+AfdWIHPalE0jXQ=;
-	b=qBuR22jOB0dZQAdT/plZi3oWA3eBteFG5gOz2VFBqkasSRxnezDglpdDnXg+1aRojY2nNM
-	Q6PwVBhJ5NoRO9AQ==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765291882; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=uEamXISE226F8CKyoiNdbyfo3vNx+AfdWIHPalE0jXQ=;
-	b=nEr9/mgfk1tIOer4Sa70I2RaC8eaCDiS5H1cHlpkcrBWTauczdva1QYgr/xMUfNZdERv5n
-	3O7YnQDL5yP0oMZ8+zORhAYmtLtv7YXegoyLwActY+6iK4x2u6HT4iBFs0Uyw/cx6scFOQ
-	90uriauh+tGmsn3asyXHUdoi02Sin0U=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765291882;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=uEamXISE226F8CKyoiNdbyfo3vNx+AfdWIHPalE0jXQ=;
-	b=qBuR22jOB0dZQAdT/plZi3oWA3eBteFG5gOz2VFBqkasSRxnezDglpdDnXg+1aRojY2nNM
-	Q6PwVBhJ5NoRO9AQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9568C3EA63;
-	Tue,  9 Dec 2025 14:51:21 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id qOT9Imk3OGlAaAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:51:21 +0000
-Message-ID: <2b95d76e-2672-4cae-a545-73c407f2b20c@suse.de>
-Date: Tue, 9 Dec 2025 15:51:21 +0100
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="LGBm2om1"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 15F3660894
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 15:13:08 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id elv20b67rzoE for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Dec 2025 15:13:07 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c000::1; helo=byapr05cu005.outbound.protection.outlook.com; envelope-from=mgurtovoy@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4DD76606CC
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4DD76606CC
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=LGBm2om1
+Received: from BYAPR05CU005.outbound.protection.outlook.com (mail-westusazlp170100001.outbound.protection.outlook.com [IPv6:2a01:111:f403:c000::1])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4DD76606CC
+	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 15:13:06 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ofR+bXQ7NG20Avv5HgdVpOhPSGCHaD3iMv1jKK3Datyj7e34Zx75OZtYSF1kmeSRdscjf4RNODKauW/igAiEZsnxy6cvyOKVK0LpARPmTLTMv7Kr4jtcn/WxfBS8YaLtmCoyUSBdSeqmiMSOqoig0DZ/rgIKSYD+UJZ6Zrq7XM8Wug6rGRWMpFVbWrDuuaevkYX8iSE1fgp3uJ1coDBMjnBOSPyDsqmkeYbG1p0ll83vvkpE3V1+0aoM/zaKxOjwPT7ITngjOXyOBW3MO01WwbkylbKKyOUzt5NJJ3kPd3uYvCVj0IGfISt5LcKyMcvQNrqyKDbkrJ+liPuueQETBA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ponLiv3/J0kzpyYfnNqqZC1NJw+g299MuI7lfON0d2A=;
+ b=WV4imUaCs7ync0ERhc3H1//ueKrD5k4e1Vg/rYPDF7BexAgKapxC5Nxh5MOqrVgES4AxsVdDtdJtmel4tTjIQ4u9qj9/HMoYKk2U0e2BEvzE1cLP4IsW4K4HDebfG7d3dZMnlROOarSblHufGTOwF/FbmXZ0JIfQvY6nlfgb3d2nRX0Ryyc4+GId2P1ARKm8FEr9JBn28hwvwdNcTXRa0NDJMO6hPugM3SMxN9ArpZlEZswXHxZM6UbXQKgDcRj/iLGr8b6Y936DHOZMNw7XFBOyncSG5yfF4CLO3gZXkG9ySEFaZoXJlJ8lPXNRYQFKXcClqKdBOV/4C5RCLjOAjA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ponLiv3/J0kzpyYfnNqqZC1NJw+g299MuI7lfON0d2A=;
+ b=LGBm2om1pWrr2QCIPcudxh7AxhqH7Uzi/yxyQCXQJF8ohe5PtqMOEhrC38NXJq7vvNtMLswCojhX211oyv2uJYjDYqBPBsH9b6Aalc+PPsbF5teepjVzl/0VsFpZZ85GwZJ1GY9+JpBeCsLeB7JoQJZANNsfz4MRxPoAtenWTV23rhARj/dpj/t9xp1N6jvyOIf8JUHxe1q12E4IAqxrwKeIWwOaZUS2MazVS/eCjzi0Zbbd+Vmfq2K6lKlHW+lv7FLyn6u5nKeKA4O4xJboutQfX85i2SVxuCMy8/NDFbjv4mK6DnRlrUlB9iOvBe8wWzo7oFtObiDjnZ0YQc9g1Q==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY5PR12MB6369.namprd12.prod.outlook.com (2603:10b6:930:21::10)
+ by DM4PR12MB6205.namprd12.prod.outlook.com (2603:10b6:8:a8::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9412.6; Tue, 9 Dec
+ 2025 15:13:02 +0000
+Received: from CY5PR12MB6369.namprd12.prod.outlook.com
+ ([fe80::d4c1:1fcc:3bff:eea6]) by CY5PR12MB6369.namprd12.prod.outlook.com
+ ([fe80::d4c1:1fcc:3bff:eea6%4]) with mapi id 15.20.9412.005; Tue, 9 Dec 2025
+ 15:13:01 +0000
+Message-ID: <59d5c4c0-1679-435b-9c19-7778845331bf@nvidia.com>
+Date: Tue, 9 Dec 2025 17:12:56 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/1] virtio: add driver_override support
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: mst@redhat.com, sgarzare@redhat.com,
+ virtualization@lists.linux-foundation.org, oren@nvidia.com,
+ aevdaev@nvidia.com, aaptel@nvidia.com
+References: <20251208143925.32246-1-mgurtovoy@nvidia.com>
+ <20251208155412.GB1346548@fedora>
+ <7c4f605e-6faf-47e9-a920-3d7f782e9332@nvidia.com>
+ <20251209135902.GA1370792@fedora>
+Content-Language: en-US
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
+In-Reply-To: <20251209135902.GA1370792@fedora>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: TL2P290CA0008.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:2::11) To CY5PR12MB6369.namprd12.prod.outlook.com
+ (2603:10b6:930:21::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC][PATCH 00/13] drm: Introduce GEM-UMA memory management
-To: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
- maarten.lankhorst@linux.intel.com, ogabbay@kernel.org, mamin506@gmail.com,
- lizhi.hou@amd.com, maciej.falkowski@linux.intel.com,
- karol.wachowski@linux.intel.com, tomeu@tomeuvizoso.net,
- frank.binns@imgtec.com, matt.coster@imgtec.com, yuq825@gmail.com,
- robh@kernel.org, steven.price@arm.com, adrian.larumbe@collabora.com,
- liviu.dudau@arm.com, mwen@igalia.com, kraxel@redhat.com,
- dmitry.osipenko@collabora.com, gurchetansingh@chromium.org,
- olvaffe@gmail.com, corbet@lwn.net, dri-devel@lists.freedesktop.org,
- lima@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-doc@vger.kernel.org
-References: <20251209140141.94407-1-tzimmermann@suse.de>
- <20251209152734.6851f3ac@fedora>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20251209152734.6851f3ac@fedora>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -4.30
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.991];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[28];
-	RCVD_TLS_ALL(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,amd.com,tomeuvizoso.net,imgtec.com,arm.com,collabora.com,igalia.com,redhat.com,chromium.org,lwn.net,lists.freedesktop.org,lists.linux.dev,vger.kernel.org];
-	R_RATELIMIT(0.00)[to_ip_from(RLzxzh56npx61idbi11ft8b9pb)];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,imap1.dmz-prg2.suse.org:helo,gitlab.freedesktop.org:url,suse.de:email,suse.de:mid]
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY5PR12MB6369:EE_|DM4PR12MB6205:EE_
+X-MS-Office365-Filtering-Correlation-Id: 03515bb0-87e4-403b-10b6-08de3735719b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?dVNyOGx1TjU5eDlLd25GTGpRa0s1enRvaTFOMXBQYjlSRWRKcUg4a1pkRWoy?=
+ =?utf-8?B?Qmk5aTNRcno5aEdYQXVjVERQc3plY2dxYmMyamsxWlBzbXdJMmVHbWQrZHlx?=
+ =?utf-8?B?eHlUTzNYbWxkMGc3UmFscUJNcDF0Wk9RZ0MwT1FHUjVJQVRGUVhHTDdzZWVr?=
+ =?utf-8?B?bkNSR0YxS3lPQ2w4L0p1Qy8rNjNWQ0NqSFN6TEJjc1JTbVEzODFpakxoalcv?=
+ =?utf-8?B?ZkFkdDFCZHlMQll1c0FKTksxT0VCSXp5OHhtWlVmdzBldHA2Nko4alNVZjkr?=
+ =?utf-8?B?R2pnd3VaVm8yRlc2K0NCekozMHRBbjhDWTVWMFF2dnNvemxSR0dqODl3alNX?=
+ =?utf-8?B?eVJkdm1qOGVWU1RNZHluVlJzNmlXa3FLYklSQ0hlRkxTVTFlK2dsYlg4VlZN?=
+ =?utf-8?B?V0locElHSkNqM2orblYvcTdnTGJUM1N0Uk5raGZxT3k5dWNTeDFZay9UMDFD?=
+ =?utf-8?B?Y2QrYTdjTDhqRTBKTDlJcnRwdmZwaTJFMVBlcmUwb2kyL2FZNkdCcDJ1WFcv?=
+ =?utf-8?B?ck9oNk56Nno0c0d6V3B3cWNuK1pmY2Uxa1ZvQ1NueDdhdkszQXB5UnNSMkp5?=
+ =?utf-8?B?OGV5Vno1ZVk4YkFabDNPZUVKc3VsR05mZzJSUmg2aExlTXVnTDZYVUFiV0RC?=
+ =?utf-8?B?eTM2a29YTzZ2ckFwbFh3SVM0cXF6VENrQWxvamU3UmQ4dDVKOXpkQ1Ava25V?=
+ =?utf-8?B?UEErZitVUjVoTWF4NzladitZMWtwRWxwVnE0cUJwU3NkVWd6UUFEQnZRZEFx?=
+ =?utf-8?B?eEpBcHJpZnR4cFFnYXk2ejhuOVFSZ2xxemdEVGMzQjVkRm1USGpwNjBiUnZO?=
+ =?utf-8?B?UVRIcTZFTGowSEpwZ3MvenZFTUNReVZUNFNYcW1qQVhncklxZjJLcm1UY29u?=
+ =?utf-8?B?RmpobEVEOWJzVkhtN1JSTEZuUFpHaC9heE9yT09tbFhMZHFmK1Z3VGhSRERW?=
+ =?utf-8?B?V0Z4V21GUlQ3QXJtM1NTK3BhVmZ0TVpDb1lLMUlyUFhxNDJKNndKVFhHWTBC?=
+ =?utf-8?B?VkUxN0hVQnZPUlVOVTI5YTBnWTVDaTdESXpNelhvQzN5T0J5YTFzVFFvakJG?=
+ =?utf-8?B?VmtUaEZzRWxibHpqVW9zWVMyd0xjeHUrYjkyNVUxSlB4cFRUU0VNcTVrbkdF?=
+ =?utf-8?B?b0tZVDVjb0g5TGYzWit0WG5EUUN5NExMTHduVFlRb0FYejlWNUt4QWVaNHV4?=
+ =?utf-8?B?aXNMQ0hMcWVwM2hxN0tlb05RNGwxdVl1eG5oV0YxMUgzbW9KU0tZMTVsNGcw?=
+ =?utf-8?B?Q0lZNHc1WDdDQUtxZm9zSjFXclV2b2ZuOXJhdVlmTFFEVlI0VjR4SUNJOUNL?=
+ =?utf-8?B?dW05K05rRFVSdjdFZ0FhRmxmR3NWbDFhQlRJbTBIWUFRYVNDdUxkTnVRMGhh?=
+ =?utf-8?B?OVZIUjBnLzEyT3JKWFNkcDJXdHc1TTdwcVE1N2xtY2Ivb1JUNkdZb0FyOGZB?=
+ =?utf-8?B?MG9IQUNRMHpzUGJjMWYwVzVLL3FTNVFCSkZ5bWNvZFE0U0lxMUhsVGFBRXRv?=
+ =?utf-8?B?SzRGSXdEd3Jxd2dCSXdMNmN5YkJRMERNRCt6YSthdnBTd1IwTnRNZEhNL2xS?=
+ =?utf-8?B?QlF0VE9PQWpvOVkzK3d0ZWhkSzhUSmRJK2NWUkFNRTRSMmJqa1hhcmI4d0xD?=
+ =?utf-8?B?Qng3VWF3NmUxT1BLa2t5M29hSWpnNmVtRTdOUzJoMVYxNEM3andUY3lkZ2Mw?=
+ =?utf-8?B?SjA3ejN5ZTBReDZSeFYzRDhwbVMyd3UxMFNleU1ER2ZVZStYQXlXOHIrYTd4?=
+ =?utf-8?B?eTZnSDdNSWZEOVhpc2ozdmFZVXE3RkxpbkVHM0tqYkJocXg3eXp4OVVxTWQ3?=
+ =?utf-8?B?UDBRNittNTFjK0MxL00xT2R4K1V4WmZsUFVHbllMTUJrTjJtUlJ0U1QvU0pt?=
+ =?utf-8?B?RGJvSDV4VGpkZno1RjIzNFdWQ0p6N0tQM2hpNG0rTFJSYlVqR3k0amRwQnVa?=
+ =?utf-8?Q?h5kqiRugdY1JsFwrEs4mL8ZjNgzVA5QR?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY5PR12MB6369.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?K09raFMzTjVJd0xsWlF2RVB5NEowWEFzRkZMekRzZWozSmt1b3FrNWFsdzlS?=
+ =?utf-8?B?N1NZS1B6VmVoZmx3UnNONVk5d0xGd3RLTW45SVdPMVdPUHZrcURGQVJ3a3RN?=
+ =?utf-8?B?RVFYY01KK3J0WGNZTk9HbmJ2QjNCbmR1RStOVmE1WXZIL1cxWC94VW9DSUJw?=
+ =?utf-8?B?TmRweXc2WVozZzE1RGU5aURwRG8rcndZcmwzcXZ2UHRWa0Ixak9FQ1VWSEhm?=
+ =?utf-8?B?ekcxb2RTbFk5cEl5Vy9RWVlWWlM0aE1xdjFUZW5aVWNtSkR2cHRYVUdVSGor?=
+ =?utf-8?B?ZUxsVGI0b3FYWUN4TjhKQ3ZGdi9laEs2d3JqN3NVeXBMNjRQUEVwMThsRk4z?=
+ =?utf-8?B?WTJiN2pLdkZycFg5QXpiZUMrQks4b2Q5UjNLTDFOVFhpU2VMTmNOZTByd201?=
+ =?utf-8?B?NW8vZ0hJYk85RUxKMDlNMVJ3cXBTMkdyRnlMMTZIaXFxRTNSUEtBdXJpNURO?=
+ =?utf-8?B?MXR0dEdOUXJsbGgrREdoMTBTR092MTJnUjB3VXdvcFFob0hZRmZrK1ZhSFpX?=
+ =?utf-8?B?bkdsUFdsRlB5T3RaSEcvZ3NRZExPOTQzVTZkYUVrK1I3YjZLUWNoUENYN2RN?=
+ =?utf-8?B?TUFyRXVQdG1heGs4WldiWUF4S3lIbm9odEZTMzVKNVo5dUpyNnU4L3JjcGxJ?=
+ =?utf-8?B?Mm5YYzRJd3I2WXRJbGl5STZXdDZCMTMwY1NZQmFQWkJiRG1UU2l4TldCa0J3?=
+ =?utf-8?B?Vk9tMFhHZWExNWdsb21KejJjT3VHTmxkUTIzT0R5Z2ZoOVQ5LzZWTEMwWkEv?=
+ =?utf-8?B?bVNmRmNvUnJlT0lwaDJyRS9nYThZbzhkVi8xbzNlNC82Qmk3SWpTcnBuTFYv?=
+ =?utf-8?B?bWZRMS9HZi9QWkl2bVA5S3IwYlFUK3IwS1VseFJrOCtHU2NlQmdOZ1prMW41?=
+ =?utf-8?B?ckpQdkcyTHNOVXJ1Z1JHUDdxcFIvS3V2UFkwbk1zZ0s4T25PNkY5SFgvMjNC?=
+ =?utf-8?B?OWx6SW1pNEt0YjhoME1DMVZJZ3UvWFRHVlRRdEVFc3RQUVNoMWhQcENpeGNZ?=
+ =?utf-8?B?enRNekRGNjQrbDFlRmFpU1BXbis4UHZtT1BhdHI3MzZUYmtUcDBxb3VBdWp4?=
+ =?utf-8?B?SG5zQlliNUxYUUtvVFpUQWJmV1JmUnlmYTNPWVFRdExwRjlQRi9mZkZCRk50?=
+ =?utf-8?B?bWlBYnRZMVdwRm1jS2VkalpkdFpIMmhlTmlWVWZtM3dVVnpOVmlFQVB5UVRL?=
+ =?utf-8?B?WU1VbFNKdm1COVlXWnZWc3ZobGxBVDg5M2h2M2hVNDJaMzdXNUV1cTJXbWo5?=
+ =?utf-8?B?S1Bub0pkWWQ5aXNmb2p4TmFjYlZEVVJrc3EvK1RBM0ZtenFucWVndGxpVjE5?=
+ =?utf-8?B?RzJrRzg5Mm4zWDl6TDc4TGcyZDlud2pHZmx6TnBuNEFZdDZKTnIzQStaS3J5?=
+ =?utf-8?B?R0xEL0UzdEpOZ0VBQ2RNbTVvSndteE9vbDU3Yy9BYks2a0k0Vk1jOTB3NkxF?=
+ =?utf-8?B?eVJxZXNlNUpBd0NnTit5UjVTL0c5T3hiN203Q2tYM2trSmU2YWhVS0Ribkox?=
+ =?utf-8?B?UitGOHk0cUthdGhWOTZiQ1dWNEx0S3BkQ0o5OTFKY3Vlakx4K1RldVlvV3NM?=
+ =?utf-8?B?cmtBT2xyVytlT01tVUNzV2FBTUpUR2JDdmVUNEhMVC9vQzQ0OEwvWHk5c3pF?=
+ =?utf-8?B?ekJ1VkJNZjZVdXdWcVRhZHR1TWorR0tHdzcrL2VzL0kyMGlSYmYxOHZOVWlG?=
+ =?utf-8?B?OE5vMlRBS25aeTFGNXBCVFMzRzJCOXU4K2hGaUVjM28zT3dheDIvbGYySGds?=
+ =?utf-8?B?ZU45Misycm5iUUpmeTB5L2pzMytKMnZmenJ6YVpTWFNBWlo4MXh3TS9wck16?=
+ =?utf-8?B?M1oyY0Q1bkVKM3RzUksyTHFnOHl3QkNocWl4b296SFVpelVwQnZjNE1HSU5M?=
+ =?utf-8?B?M3dJcXUyT0xLK2FoRWlvWE1vbVBhcnBleGdRUDFCREFoRHQ1WVlYLy9OaXIw?=
+ =?utf-8?B?OHd2UGRSNkJpUUtkS0swTUtRcy9hcnJhV1ViMERQQm9qZExobkxNMTVHQ3E3?=
+ =?utf-8?B?dTZjc1dJZmNRaFBOM2NlOU9PQnhPdVo4VjkwSkhOd2N2SXFCUVB1TlFQSTVZ?=
+ =?utf-8?B?TDBac3VCS1FZTnlyK21NY3Z5K2pQeVc5VS8wUXBSUlJEYVBvdzd3S3VzREVj?=
+ =?utf-8?Q?cWjo1hkU1UaylIBKAVxvSo+4a?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 03515bb0-87e4-403b-10b6-08de3735719b
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6369.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Dec 2025 15:13:01.4115
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: U1+zKu2HPdwssGHQyWaRdOYcCDWW6ZWInbmT0bcs8VHPJl3CBBRezB09VUjAgRADJepY3rjuoaawQ70lcWSabA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6205
 
-Hi
 
-Am 09.12.25 um 15:27 schrieb Boris Brezillon:
-> On Tue,  9 Dec 2025 14:41:57 +0100
-> Thomas Zimmermann <tzimmermann@suse.de> wrote:
+On 09/12/2025 15:59, Stefan Hajnoczi wrote:
+> On Mon, Dec 08, 2025 at 06:18:14PM +0200, Max Gurtovoy wrote:
+>> On 08/12/2025 17:54, Stefan Hajnoczi wrote:
+>>> On Mon, Dec 08, 2025 at 04:39:25PM +0200, Max Gurtovoy wrote:
+>>>> Add support for the 'driver_override' attribute to Virtio devices. This
+>>>> allows users to control which Virtio bus driver binds to a given Virtio
+>>>> device.
+>>>>
+>>>> If 'driver_override' is not set, the existing behavior is preserved and
+>>>> devices will continue to auto-bind to the first matching Virtio bus
+>>>> driver.
+>>>>
+>>>> Signed-off-by: Avraham Evdaev <aevdaev@nvidia.com>
+>>>> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+>>>> ---
+>>>>    drivers/virtio/virtio.c | 34 ++++++++++++++++++++++++++++++++++
+>>>>    include/linux/virtio.h  |  4 ++++
+>>>>    2 files changed, 38 insertions(+)
+>>> What is the use case? Is there something missing in existing drivers
+>>> that cannot be added to them by extending the code?
+>>>
+>>> Stefan
+>> The main goal is to align the virtio bus with the flexibility that already exists for other buses in the Linux device model.
+>> On buses such as PCI and vDPA, it is possible to override or replace the default driver for a given device and bind it to an alternative driver.
+>> Allowing the selection of which driver is bound to a device can be useful in both development and production environments.
+> There are use cases for PCI and vDPA, like binding vfio_pci to a device
+> that would normally use its device-specific driver.
 >
->> Duplicate GEM-SHMEM to GEM-UMA. Convert all DRM drivers for UMA
->> systems if they currently use GEM-SHMEM.
->>
->> Many DRM drivers for hardware with Unified Memory Architecture (UMA)
->> currently builds upon GEM-SHMEM and extends the helpers with features
->> for managing the GPU MMU. This allows the GPU to access the GEM buffer
->> content for its operation.
->>
->> There is another, larger, set of DRM drivers that use GEM-SHMEM merely
->> as buffer management with no hardware support. These drivers copy the
->> buffer content to the GPU on each page flip. The GPU itself has no direct
->> access. Hardware of this type is usually in servers, behind slow busses
->> (SPI, USB), or provided by firmware (drivers in sysfb/).
->>
->> After some discussion with Boris on the future of GEM-SHMEM, it seems
->> to me that both use cases more and more diverge from each other. The
->> most prominent example is the implementation of gem_prime_import,
->> where both use cases use distinct approaches.
->>
->> So we discussed the introduction of a GEM-UMA helper library for
->> UMA-based hardware. GEM-UMA will remain flexible enough for drivers
->> to extend it for their use case. GEM-SHMEM will become focused on the
->> simple-hardware use case. The benefit for both libraries is that they
->> will be easier to understand and maintain. GEM-SHMEM can be simplified
->> signiifcantly, I think.
->>
->> This RFC series introduces GEM-UMA and converts the UMA-related drivers.
->>
->> Patches 1 and 2 fix issues in GEM-SHMEM, so that we don't duplicate
->> errornous code.
->>
->> Patch 3 copies GEM-SHMEM to GEM-UMA. Patch 4 then does soem obvious
->> cleanups of unnecessary code.
-> Instead of copying the code as-is, I'd rather take a step back and think
-> about what we need and how we want to handle more complex stuff, like
-> reclaim. I've started working on a shrinker for panthor [1], and as part
-> of this series, I've added a commit implementing just enough to replace
-> what gem-shmem currently provides. Feels like the new GEM-UMA thing
-> could be designed on a composition rather than inheritance model,
-> where we have sub-components (backing, cpu_map, gpu_map) that can be
-> pulled in and re-used by the driver implementation. The common helpers
-> would take those sub-components instead of a plain GEM object. That
-> would leave the drivers free of how their internal gem_object fields are
-> laid out and wouldn't require overloading the ->gem_create_object()
-> function. It seems to be that it would better match the model you were
-> describing the other day.
+> For VIRTIO, I'm not sure what the use case would be. Is there another
+> driver that could bind to virtio-net devices, for example?
+Yes.
+>
+> Giving a concrete example would be useful to help people understand why
+> this is necessary.
 
-Yeah, I've seen your update to that series. Making individual parts of 
-the memory manager freely composable with each other is a fine idea.
+See example in my v2.
 
-But the flipside is that I also want the simple drivers to move away 
-from the flexible approach that GEM-SHMEM currently takes. There are 
-many drivers that do not need or want that. These drivers benefit from 
-something that is self contained. Many of the drivers are also hardly 
-maintained, so simplifying things will also be helpful.
-
-I could have added a new GEM implementation for these drivers, but there 
-are less UMA drivers to convert and the GEM-UMA naming generally fits 
-better than GEM-SHMEM.
-
-I'd rather have GEM-UMA and evolve it from where it stands now; and also 
-evolve GEM-SHMEM in a different direction. There's a difference in 
-concepts here.
-
-Best regards
-Thomas
+-Max
 
 >
->> Patches 5 to 13 update the drivers that can be converted to GEM-UMA.
->> These changes are just symbol renaming. There are so far no functional
->> differences between the memory managers.
->>
->> A gave GEM-UMA some smoke testing by running virtgpu.
-> [1]https://gitlab.freedesktop.org/bbrezillon/linux/-/commits/panthor-shrinker-revisited/drivers?ref_type=heads
-> [2]https://gitlab.freedesktop.org/bbrezillon/linux/-/commit/4e6927fc2c60265b77a5a88013f55377bc4f4ab3
->
->> Thomas Zimmermann (13):
->>    drm/gem-shmem: Fix typos in documentation
->>    drm/gem-shmem: Fix the MODULE_LICENSE() string
->>    drm: Add GEM-UMA helpers for memory management
->>    drm/gem-uma: Remove unused interfaces
->>    drm/imagination: Use GEM-UMA helpers for memory management
->>    drm/lima: Use GEM-UMA helpers for memory management
->>    drm/panfrost: Use GEM-UMA helpers for memory management
->>    drm/panthor: Use GEM-UMA helpers for memory management
->>    drm/v3d: Use GEM-UMA helpers for memory management
->>    drm/virtgpu: Use GEM-UMA helpers for memory management
->>    accel/amdxdna: Use GEM-UMA helpers for memory management
->>    accel/ivpu: Use GEM-UMA helpers for memory management
->>    accel/rocket: Use GEM-UMA helpers for memory management
->>
->>   Documentation/gpu/drm-mm.rst                  |  12 +
->>   drivers/accel/amdxdna/Kconfig                 |   2 +-
->>   drivers/accel/amdxdna/aie2_ctx.c              |   1 -
->>   drivers/accel/amdxdna/aie2_message.c          |   1 -
->>   drivers/accel/amdxdna/aie2_pci.c              |   1 -
->>   drivers/accel/amdxdna/aie2_psp.c              |   1 -
->>   drivers/accel/amdxdna/aie2_smu.c              |   1 -
->>   drivers/accel/amdxdna/amdxdna_ctx.c           |   7 +-
->>   drivers/accel/amdxdna/amdxdna_gem.c           |  49 +-
->>   drivers/accel/amdxdna/amdxdna_gem.h           |   5 +-
->>   .../accel/amdxdna/amdxdna_mailbox_helper.c    |   1 -
->>   drivers/accel/amdxdna/amdxdna_pci_drv.c       |   1 -
->>   drivers/accel/amdxdna/amdxdna_sysfs.c         |   1 -
->>   drivers/accel/ivpu/Kconfig                    |   2 +-
->>   drivers/accel/ivpu/ivpu_gem.c                 |  36 +-
->>   drivers/accel/ivpu/ivpu_gem.h                 |   4 +-
->>   drivers/accel/rocket/Kconfig                  |   2 +-
->>   drivers/accel/rocket/rocket_gem.c             |  46 +-
->>   drivers/accel/rocket/rocket_gem.h             |   6 +-
->>   drivers/gpu/drm/Kconfig                       |   9 +
->>   drivers/gpu/drm/Kconfig.debug                 |   1 +
->>   drivers/gpu/drm/Makefile                      |   4 +
->>   drivers/gpu/drm/drm_fbdev_uma.c               | 203 +++++
->>   drivers/gpu/drm/drm_gem_shmem_helper.c        |   5 +-
->>   drivers/gpu/drm/drm_gem_uma_helper.c          | 787 ++++++++++++++++++
->>   drivers/gpu/drm/imagination/Kconfig           |   4 +-
->>   drivers/gpu/drm/imagination/pvr_drv.c         |   2 +-
->>   drivers/gpu/drm/imagination/pvr_free_list.c   |   2 +-
->>   drivers/gpu/drm/imagination/pvr_gem.c         |  74 +-
->>   drivers/gpu/drm/imagination/pvr_gem.h         |  12 +-
->>   drivers/gpu/drm/lima/Kconfig                  |   4 +-
->>   drivers/gpu/drm/lima/lima_drv.c               |   2 +-
->>   drivers/gpu/drm/lima/lima_gem.c               |  30 +-
->>   drivers/gpu/drm/lima/lima_gem.h               |   6 +-
->>   drivers/gpu/drm/panfrost/Kconfig              |   2 +-
->>   drivers/gpu/drm/panfrost/panfrost_drv.c       |   2 +-
->>   drivers/gpu/drm/panfrost/panfrost_gem.c       |  30 +-
->>   drivers/gpu/drm/panfrost/panfrost_gem.h       |   6 +-
->>   .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  30 +-
->>   drivers/gpu/drm/panfrost/panfrost_mmu.c       |   8 +-
->>   drivers/gpu/drm/panfrost/panfrost_perfcnt.c   |   6 +-
->>   drivers/gpu/drm/panthor/Kconfig               |   2 +-
->>   drivers/gpu/drm/panthor/panthor_drv.c         |   2 +-
->>   drivers/gpu/drm/panthor/panthor_fw.c          |   4 +-
->>   drivers/gpu/drm/panthor/panthor_gem.c         |  40 +-
->>   drivers/gpu/drm/panthor/panthor_gem.h         |   8 +-
->>   drivers/gpu/drm/panthor/panthor_mmu.c         |  10 +-
->>   drivers/gpu/drm/panthor/panthor_sched.c       |   1 -
->>   drivers/gpu/drm/tests/Makefile                |   1 +
->>   drivers/gpu/drm/tests/drm_gem_uma_test.c      | 385 +++++++++
->>   drivers/gpu/drm/v3d/Kconfig                   |   2 +-
->>   drivers/gpu/drm/v3d/v3d_bo.c                  |  45 +-
->>   drivers/gpu/drm/v3d/v3d_drv.h                 |   4 +-
->>   drivers/gpu/drm/v3d/v3d_mmu.c                 |   9 +-
->>   drivers/gpu/drm/virtio/Kconfig                |   4 +-
->>   drivers/gpu/drm/virtio/virtgpu_drv.c          |   4 +-
->>   drivers/gpu/drm/virtio/virtgpu_drv.h          |  12 +-
->>   drivers/gpu/drm/virtio/virtgpu_object.c       |  64 +-
->>   drivers/gpu/drm/virtio/virtgpu_plane.c        |   6 +-
->>   drivers/gpu/drm/virtio/virtgpu_vq.c           |   6 +-
->>   include/drm/drm_fbdev_uma.h                   |  20 +
->>   include/drm/drm_gem_uma_helper.h              | 293 +++++++
->>   62 files changed, 2018 insertions(+), 312 deletions(-)
->>   create mode 100644 drivers/gpu/drm/drm_fbdev_uma.c
->>   create mode 100644 drivers/gpu/drm/drm_gem_uma_helper.c
->>   create mode 100644 drivers/gpu/drm/tests/drm_gem_uma_test.c
->>   create mode 100644 include/drm/drm_fbdev_uma.h
->>   create mode 100644 include/drm/drm_gem_uma_helper.h
->>
->>
->> base-commit: 0a21e96e0b6840d2a4e0b45a957679eeddeb4362
->> prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
->> prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
->> prerequisite-patch-id: 719d09751d38f5da743beed6266585ee063e1e29
->> prerequisite-patch-id: 0bbc85bc6b528c32592e07f4ceafa51795c4cad9
->> prerequisite-patch-id: c856d9c8a026e3244c44ec829e426e0ad4a685ab
->> prerequisite-patch-id: 13441c9ed3062ae1448a53086559dfcbbd578177
->> prerequisite-patch-id: 951c039657c1f58e4b6e36bc01c7a1c69ed59767
->> prerequisite-patch-id: 4370b8b803ca439666fb9d2beb862f6e78347ce3
->> prerequisite-patch-id: ebbaad226ed599f7aad4784fb3f4aaebe34cb110
->> prerequisite-patch-id: cb907c3e3e14de7f4d13b429f3a2a88621a8a9fe
->> prerequisite-patch-id: 0e243b426742122b239af59e36d742da5795a8b1
->> prerequisite-patch-id: 120f97fa1af9891375a0dcf52c51c1907b01fe6a
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
-
-
+> Stefan
