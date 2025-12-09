@@ -1,151 +1,275 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEE0322A7E4
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 13:59:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07E992D3A86
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:01:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765288766; cv=none; b=dqp5ZKwlwq2n4kNHARm1tkpqXOFGC9uTYcyeot3+Cz8ewCp/oQJObAtuLg58r2gJI9jiJL2hzTtpbcvZdw7WfucnxmUqSoaf6O5JecsYXLPrNsaiLKmbVJrZo9kwEx9u4xdlFDTH7q8fVGRF4dh2du1/rNBYa/8/ojW4qJNLZ54=
+	t=1765288912; cv=none; b=tTQJGCHttZjMKHZa4rUKVh1gPwTUOMQ6b15d4cgmAoVrwwRGMcVlJqMCq9XChzhcEwdS/veqpSczp/dInxF88ldjXhpFT2d4VG/PSN/9dgCG47O0Jz2ikhs1o0ejumFXdurkhmgztAfH5zsaDgfC36ZockOPWqd0vczzwKEdlP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765288766; c=relaxed/simple;
-	bh=5PUzNxuoJacVvHqJcqBhckaZWQBgcHmBET8yvCDYCnA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=i1VYic27DeksenU/0vIvLE8ZILHGOa62yhVFd4/ZdWsknObHQTd7x7ED8WjNnbeNz/qjhK1J3KL8Vef4HGI5zana27eCSdrGsgl/56HbEnxMMuELLea/yc2ibeTOzrRdm/MOb4/R+PJVsJ7EoeNJ3ckwYGxsDlc+umZnmJyR850=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ge7989c1; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1765288912; c=relaxed/simple;
+	bh=gSiukLAdE9x+4dA9+ye3yE5ZDTvWOwpt7mS4UpLr9dA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GHSBpYRdx8obvE7KNUFsQKzBUc5sPP6wnr0Eeuh5BC6qDOBXYb3fjZANYQQpPitQlHZem3lr0J8OMQhXrRmZxsXPB8D40RrdtVIfdopyRFZ33F14e/SVhaSA0OYA0kFF+4xSGR3eIfFgPAn3MKQoeph7kL7ietO11bNFiLxa5WY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=P/JSIdsY; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mXI/0sBU; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=P/JSIdsY; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=mXI/0sBU; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ge7989c1"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DCD8F40AF0
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 13:59:23 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.795
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id XaF_5AaxaJ6U for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Dec 2025 13:59:23 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=stefanha@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org CB5F540141
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CB5F540141
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ge7989c1
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id CB5F540141
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Dec 2025 13:59:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765288761;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=I1TTzI/96jBDU3/QsT/fLw/QvyFDm2HvFzT99h0d+y8=;
-	b=ge7989c1zZ0fjiZmeLv2U0KVYSeDYqFcneqNc1VI66v2aY3SvlNgY5r5veE+XsyPA77/wC
-	8LePMb5rq2kYTJtWj+EeN8jpzLcFeVpsFm9fqU8fmeTV4byWrkcVmrbCelAJc2M0Fj6C9z
-	tq8gkJNKp4693F15KOu4J/vZ9TRCRqw=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-649-PQjRI1tPP_SOasFq9vvTxg-1; Tue,
- 09 Dec 2025 08:59:06 -0500
-X-MC-Unique: PQjRI1tPP_SOasFq9vvTxg-1
-X-Mimecast-MFC-AGG-ID: PQjRI1tPP_SOasFq9vvTxg_1765288744
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="P/JSIdsY";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mXI/0sBU";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="P/JSIdsY";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="mXI/0sBU"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A555A1800675;
-	Tue,  9 Dec 2025 13:59:04 +0000 (UTC)
-Received: from localhost (unknown [10.2.16.91])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D6E0219560AD;
-	Tue,  9 Dec 2025 13:59:03 +0000 (UTC)
-Date: Tue, 9 Dec 2025 08:59:02 -0500
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Cc: mst@redhat.com, sgarzare@redhat.com,
-	virtualization@lists.linux-foundation.org, oren@nvidia.com,
-	aevdaev@nvidia.com, aaptel@nvidia.com
-Subject: Re: [PATCH 1/1] virtio: add driver_override support
-Message-ID: <20251209135902.GA1370792@fedora>
-References: <20251208143925.32246-1-mgurtovoy@nvidia.com>
- <20251208155412.GB1346548@fedora>
- <7c4f605e-6faf-47e9-a920-3d7f782e9332@nvidia.com>
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 324CC33818;
+	Tue,  9 Dec 2025 14:01:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1765288908; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=J36FD1pfwAe4Fxs/reyqMIjLhMl73hbOhupg2nRiSac=;
+	b=P/JSIdsYDrvKSiU3Dl/HmfCDRhm1N7ViNlE2RQeaXnCCarBVR8rmFeT1gd24Tk+i8h6KLG
+	+CyVc7gD9WnQbuc0jcfHx31MY43LOzJvn0fQX7Yi8XL1DzQGJN3mWLJfZFF8So0nFBRdBv
+	3j849aDr9ZQD8aHY+MKunK9hbQR07Bk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1765288908;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=J36FD1pfwAe4Fxs/reyqMIjLhMl73hbOhupg2nRiSac=;
+	b=mXI/0sBUoti1nlsP4I4e+9ReoHvVI5hd6YXqOLaDZCoL82aqEIqmR/FPzjP3y1Q5wG3w4H
+	dmAHAMYxx3CfItBg==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1765288908; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=J36FD1pfwAe4Fxs/reyqMIjLhMl73hbOhupg2nRiSac=;
+	b=P/JSIdsYDrvKSiU3Dl/HmfCDRhm1N7ViNlE2RQeaXnCCarBVR8rmFeT1gd24Tk+i8h6KLG
+	+CyVc7gD9WnQbuc0jcfHx31MY43LOzJvn0fQX7Yi8XL1DzQGJN3mWLJfZFF8So0nFBRdBv
+	3j849aDr9ZQD8aHY+MKunK9hbQR07Bk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1765288908;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=J36FD1pfwAe4Fxs/reyqMIjLhMl73hbOhupg2nRiSac=;
+	b=mXI/0sBUoti1nlsP4I4e+9ReoHvVI5hd6YXqOLaDZCoL82aqEIqmR/FPzjP3y1Q5wG3w4H
+	dmAHAMYxx3CfItBg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 754ED3EA63;
+	Tue,  9 Dec 2025 14:01:47 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id LLIzG8srOGm1OgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:01:47 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: boris.brezillon@collabora.com,
+	simona@ffwll.ch,
+	airlied@gmail.com,
+	mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	ogabbay@kernel.org,
+	mamin506@gmail.com,
+	lizhi.hou@amd.com,
+	maciej.falkowski@linux.intel.com,
+	karol.wachowski@linux.intel.com,
+	tomeu@tomeuvizoso.net,
+	frank.binns@imgtec.com,
+	matt.coster@imgtec.com,
+	yuq825@gmail.com,
+	robh@kernel.org,
+	steven.price@arm.com,
+	adrian.larumbe@collabora.com,
+	liviu.dudau@arm.com,
+	mwen@igalia.com,
+	kraxel@redhat.com,
+	dmitry.osipenko@collabora.com,
+	gurchetansingh@chromium.org,
+	olvaffe@gmail.com,
+	corbet@lwn.net
+Cc: dri-devel@lists.freedesktop.org,
+	lima@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-doc@vger.kernel.org,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [RFC][PATCH 00/13] drm: Introduce GEM-UMA memory management
+Date: Tue,  9 Dec 2025 14:41:57 +0100
+Message-ID: <20251209140141.94407-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="mWO8dPXYpCsW6WCv"
-Content-Disposition: inline
-In-Reply-To: <7c4f605e-6faf-47e9-a920-3d7f782e9332@nvidia.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[29];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FREEMAIL_TO(0.00)[collabora.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com,amd.com,tomeuvizoso.net,imgtec.com,arm.com,igalia.com,redhat.com,chromium.org,lwn.net];
+	RCVD_TLS_ALL(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLzxzh56npx61idbi11ft8b9pb)];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spam-Score: -2.80
+
+Duplicate GEM-SHMEM to GEM-UMA. Convert all DRM drivers for UMA
+systems if they currently use GEM-SHMEM.
+
+Many DRM drivers for hardware with Unified Memory Architecture (UMA)
+currently builds upon GEM-SHMEM and extends the helpers with features
+for managing the GPU MMU. This allows the GPU to access the GEM buffer
+content for its operation.
+
+There is another, larger, set of DRM drivers that use GEM-SHMEM merely
+as buffer management with no hardware support. These drivers copy the
+buffer content to the GPU on each page flip. The GPU itself has no direct
+access. Hardware of this type is usually in servers, behind slow busses
+(SPI, USB), or provided by firmware (drivers in sysfb/).
+
+After some discussion with Boris on the future of GEM-SHMEM, it seems
+to me that both use cases more and more diverge from each other. The
+most prominent example is the implementation of gem_prime_import,
+where both use cases use distinct approaches.
+
+So we discussed the introduction of a GEM-UMA helper library for
+UMA-based hardware. GEM-UMA will remain flexible enough for drivers
+to extend it for their use case. GEM-SHMEM will become focused on the
+simple-hardware use case. The benefit for both libraries is that they
+will be easier to understand and maintain. GEM-SHMEM can be simplified
+signiifcantly, I think.
+
+This RFC series introduces GEM-UMA and converts the UMA-related drivers.
+
+Patches 1 and 2 fix issues in GEM-SHMEM, so that we don't duplicate
+errornous code.
+
+Patch 3 copies GEM-SHMEM to GEM-UMA. Patch 4 then does soem obvious
+cleanups of unnecessary code.
+
+Patches 5 to 13 update the drivers that can be converted to GEM-UMA.
+These changes are just symbol renaming. There are so far no functional
+differences between the memory managers.
+
+A gave GEM-UMA some smoke testing by running virtgpu.
+
+Thomas Zimmermann (13):
+  drm/gem-shmem: Fix typos in documentation
+  drm/gem-shmem: Fix the MODULE_LICENSE() string
+  drm: Add GEM-UMA helpers for memory management
+  drm/gem-uma: Remove unused interfaces
+  drm/imagination: Use GEM-UMA helpers for memory management
+  drm/lima: Use GEM-UMA helpers for memory management
+  drm/panfrost: Use GEM-UMA helpers for memory management
+  drm/panthor: Use GEM-UMA helpers for memory management
+  drm/v3d: Use GEM-UMA helpers for memory management
+  drm/virtgpu: Use GEM-UMA helpers for memory management
+  accel/amdxdna: Use GEM-UMA helpers for memory management
+  accel/ivpu: Use GEM-UMA helpers for memory management
+  accel/rocket: Use GEM-UMA helpers for memory management
+
+ Documentation/gpu/drm-mm.rst                  |  12 +
+ drivers/accel/amdxdna/Kconfig                 |   2 +-
+ drivers/accel/amdxdna/aie2_ctx.c              |   1 -
+ drivers/accel/amdxdna/aie2_message.c          |   1 -
+ drivers/accel/amdxdna/aie2_pci.c              |   1 -
+ drivers/accel/amdxdna/aie2_psp.c              |   1 -
+ drivers/accel/amdxdna/aie2_smu.c              |   1 -
+ drivers/accel/amdxdna/amdxdna_ctx.c           |   7 +-
+ drivers/accel/amdxdna/amdxdna_gem.c           |  49 +-
+ drivers/accel/amdxdna/amdxdna_gem.h           |   5 +-
+ .../accel/amdxdna/amdxdna_mailbox_helper.c    |   1 -
+ drivers/accel/amdxdna/amdxdna_pci_drv.c       |   1 -
+ drivers/accel/amdxdna/amdxdna_sysfs.c         |   1 -
+ drivers/accel/ivpu/Kconfig                    |   2 +-
+ drivers/accel/ivpu/ivpu_gem.c                 |  36 +-
+ drivers/accel/ivpu/ivpu_gem.h                 |   4 +-
+ drivers/accel/rocket/Kconfig                  |   2 +-
+ drivers/accel/rocket/rocket_gem.c             |  46 +-
+ drivers/accel/rocket/rocket_gem.h             |   6 +-
+ drivers/gpu/drm/Kconfig                       |   9 +
+ drivers/gpu/drm/Kconfig.debug                 |   1 +
+ drivers/gpu/drm/Makefile                      |   4 +
+ drivers/gpu/drm/drm_fbdev_uma.c               | 203 +++++
+ drivers/gpu/drm/drm_gem_shmem_helper.c        |   5 +-
+ drivers/gpu/drm/drm_gem_uma_helper.c          | 787 ++++++++++++++++++
+ drivers/gpu/drm/imagination/Kconfig           |   4 +-
+ drivers/gpu/drm/imagination/pvr_drv.c         |   2 +-
+ drivers/gpu/drm/imagination/pvr_free_list.c   |   2 +-
+ drivers/gpu/drm/imagination/pvr_gem.c         |  74 +-
+ drivers/gpu/drm/imagination/pvr_gem.h         |  12 +-
+ drivers/gpu/drm/lima/Kconfig                  |   4 +-
+ drivers/gpu/drm/lima/lima_drv.c               |   2 +-
+ drivers/gpu/drm/lima/lima_gem.c               |  30 +-
+ drivers/gpu/drm/lima/lima_gem.h               |   6 +-
+ drivers/gpu/drm/panfrost/Kconfig              |   2 +-
+ drivers/gpu/drm/panfrost/panfrost_drv.c       |   2 +-
+ drivers/gpu/drm/panfrost/panfrost_gem.c       |  30 +-
+ drivers/gpu/drm/panfrost/panfrost_gem.h       |   6 +-
+ .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  30 +-
+ drivers/gpu/drm/panfrost/panfrost_mmu.c       |   8 +-
+ drivers/gpu/drm/panfrost/panfrost_perfcnt.c   |   6 +-
+ drivers/gpu/drm/panthor/Kconfig               |   2 +-
+ drivers/gpu/drm/panthor/panthor_drv.c         |   2 +-
+ drivers/gpu/drm/panthor/panthor_fw.c          |   4 +-
+ drivers/gpu/drm/panthor/panthor_gem.c         |  40 +-
+ drivers/gpu/drm/panthor/panthor_gem.h         |   8 +-
+ drivers/gpu/drm/panthor/panthor_mmu.c         |  10 +-
+ drivers/gpu/drm/panthor/panthor_sched.c       |   1 -
+ drivers/gpu/drm/tests/Makefile                |   1 +
+ drivers/gpu/drm/tests/drm_gem_uma_test.c      | 385 +++++++++
+ drivers/gpu/drm/v3d/Kconfig                   |   2 +-
+ drivers/gpu/drm/v3d/v3d_bo.c                  |  45 +-
+ drivers/gpu/drm/v3d/v3d_drv.h                 |   4 +-
+ drivers/gpu/drm/v3d/v3d_mmu.c                 |   9 +-
+ drivers/gpu/drm/virtio/Kconfig                |   4 +-
+ drivers/gpu/drm/virtio/virtgpu_drv.c          |   4 +-
+ drivers/gpu/drm/virtio/virtgpu_drv.h          |  12 +-
+ drivers/gpu/drm/virtio/virtgpu_object.c       |  64 +-
+ drivers/gpu/drm/virtio/virtgpu_plane.c        |   6 +-
+ drivers/gpu/drm/virtio/virtgpu_vq.c           |   6 +-
+ include/drm/drm_fbdev_uma.h                   |  20 +
+ include/drm/drm_gem_uma_helper.h              | 293 +++++++
+ 62 files changed, 2018 insertions(+), 312 deletions(-)
+ create mode 100644 drivers/gpu/drm/drm_fbdev_uma.c
+ create mode 100644 drivers/gpu/drm/drm_gem_uma_helper.c
+ create mode 100644 drivers/gpu/drm/tests/drm_gem_uma_test.c
+ create mode 100644 include/drm/drm_fbdev_uma.h
+ create mode 100644 include/drm/drm_gem_uma_helper.h
 
 
---mWO8dPXYpCsW6WCv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Dec 08, 2025 at 06:18:14PM +0200, Max Gurtovoy wrote:
->=20
-> On 08/12/2025 17:54, Stefan Hajnoczi wrote:
-> > On Mon, Dec 08, 2025 at 04:39:25PM +0200, Max Gurtovoy wrote:
-> > > Add support for the 'driver_override' attribute to Virtio devices. Th=
-is
-> > > allows users to control which Virtio bus driver binds to a given Virt=
-io
-> > > device.
-> > >=20
-> > > If 'driver_override' is not set, the existing behavior is preserved a=
-nd
-> > > devices will continue to auto-bind to the first matching Virtio bus
-> > > driver.
-> > >=20
-> > > Signed-off-by: Avraham Evdaev <aevdaev@nvidia.com>
-> > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > ---
-> > >   drivers/virtio/virtio.c | 34 ++++++++++++++++++++++++++++++++++
-> > >   include/linux/virtio.h  |  4 ++++
-> > >   2 files changed, 38 insertions(+)
-> > What is the use case? Is there something missing in existing drivers
-> > that cannot be added to them by extending the code?
-> >=20
-> > Stefan
->=20
-> The main goal is to align the virtio bus with the flexibility that alread=
-y exists for other buses in the Linux device model.
-> On buses such as PCI and vDPA, it is possible to override or replace the =
-default driver for a given device and bind it to an alternative driver.
-> Allowing the selection of which driver is bound to a device can be useful=
- in both development and production environments.
-
-There are use cases for PCI and vDPA, like binding vfio_pci to a device
-that would normally use its device-specific driver.
-
-For VIRTIO, I'm not sure what the use case would be. Is there another
-driver that could bind to virtio-net devices, for example?
-
-Giving a concrete example would be useful to help people understand why
-this is necessary.
-
-Stefan
-
---mWO8dPXYpCsW6WCv
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmk4KyYACgkQnKSrs4Gr
-c8gp5Qf/VYr99wJv/01MAvFoNEr7Vvb82SALLAot1f4VSvG0KzKz5o5pFmcf1Ddv
-1a4/8n2wSYqbspPNkfoXx4fduAZBSK2e2YjdxLsl/6unvzscn3SRcJ4OW8px8MTA
-HFRi02L/M+Favks5xBYx/T2tBEbF1GYZC14HoHBEVkekTBm7qxDMy4VOQMhVnJVj
-JlrJ4Fl8ILs8AFQiOz15Y1Ugvuuzo31xP35v3UGfbRNFfY8IAfc31tLkyGBJCP2y
-fEo5RdHvDFXKRosE9zgjDRdRg2DbR9pMQImpcL29o3aRptAhuUADzPhG37iipJ6Q
-9LPrNL6X9O+83qW8ZQqya5Yirwflng==
-=aEYT
------END PGP SIGNATURE-----
-
---mWO8dPXYpCsW6WCv--
+base-commit: 0a21e96e0b6840d2a4e0b45a957679eeddeb4362
+prerequisite-patch-id: c67e5d886a47b7d0266d81100837557fda34cb24
+prerequisite-patch-id: a5a973e527c88a5b47053d7a72aefe0b550197cb
+prerequisite-patch-id: 719d09751d38f5da743beed6266585ee063e1e29
+prerequisite-patch-id: 0bbc85bc6b528c32592e07f4ceafa51795c4cad9
+prerequisite-patch-id: c856d9c8a026e3244c44ec829e426e0ad4a685ab
+prerequisite-patch-id: 13441c9ed3062ae1448a53086559dfcbbd578177
+prerequisite-patch-id: 951c039657c1f58e4b6e36bc01c7a1c69ed59767
+prerequisite-patch-id: 4370b8b803ca439666fb9d2beb862f6e78347ce3
+prerequisite-patch-id: ebbaad226ed599f7aad4784fb3f4aaebe34cb110
+prerequisite-patch-id: cb907c3e3e14de7f4d13b429f3a2a88621a8a9fe
+prerequisite-patch-id: 0e243b426742122b239af59e36d742da5795a8b1
+prerequisite-patch-id: 120f97fa1af9891375a0dcf52c51c1907b01fe6a
+-- 
+2.52.0
 
