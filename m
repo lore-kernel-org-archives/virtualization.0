@@ -1,37 +1,37 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC2E2C1597
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B77F02C21F7
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765288931; cv=none; b=jgh5VRbMbqy/ULrO5wHa4Lgrek53OLWcgUgmS+Xb/vlTOGxke3KD9ayqEJ+UJQecrJzahfM+d/iyw7VUj8DlWeBAV/kR+tkIB8c2Fa+UPXe18cemCw+qxiHO+Z8kwoTGYd6gY7kDQSDsdujrw7HpUQOauWOgYBmhCKdiZW3IJz0=
+	t=1765288935; cv=none; b=UneJ2N/rc6u6TxcDBSkaXVTavRt9aQGQIS6xh0qrQn3zX4qcfkCUxJSheCo4O+tgGKC8+LOz7AkRitrxUWEjzc4YHKZgG6XIGky/yDhN2kWS3bBuANVMSC2ESQxVKMOxl/3HWJznLrB/Rz/6XhqIBbR5rNBUQezjfwG9zWuBtp4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765288931; c=relaxed/simple;
-	bh=yFO1fu0duw5lsgcpTs541nSINrSSHxFBSM5jrGBsljk=;
+	s=arc-20240116; t=1765288935; c=relaxed/simple;
+	bh=S+f30VC8FNESsh11h18KiOvoXDd6hMH7LC8A1OsBwVY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VsQPII8+qnZ8gqiMlY9JJ5Pvh5eizPwG70kRsrO/GfkZewSFPs5s9LTrH6lZzxZjVJgfX6hS98ee4uq9b/4uCVGTVihSu2C0f2bk6SvyNbtMKeEA6EkuRcB8fDynjcRiCqA2z0awQ1NfJ6owHUsYrdFf0g1R5bu2GdnC2947z6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=OmS+dc/mcuI2LPWpw/yHHZHxtc4WfjbKEiRI0+sLfgTHggtlSykSarKFucLTK2j9iODJCCXgOtFaCeXkt/AmbhTYgqXUcxiuxX2vrkXeFeimjBgp+VXnt7pHTYWbGj/JmEMiTeK84jDYElxC9/llMytjaB6HS3jSQZEX/bRszPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 30FE13381B;
-	Tue,  9 Dec 2025 14:01:53 +0000 (UTC)
-Authentication-Results: smtp-out1.suse.de;
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 549565BE39;
+	Tue,  9 Dec 2025 14:02:02 +0000 (UTC)
+Authentication-Results: smtp-out2.suse.de;
 	none
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 124B43EA63;
-	Tue,  9 Dec 2025 14:01:52 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2E3393EA63;
+	Tue,  9 Dec 2025 14:02:01 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id KIafAtArOGm1OgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:01:52 +0000
+	id EFFACdkrOGm1OgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:02:01 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: boris.brezillon@collabora.com,
 	simona@ffwll.ch,
@@ -62,9 +62,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	linux-doc@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 04/13] drm/gem-uma: Remove unused interfaces
-Date: Tue,  9 Dec 2025 14:42:01 +0100
-Message-ID: <20251209140141.94407-5-tzimmermann@suse.de>
+Subject: [PATCH 11/13] accel/amdxdna: Use GEM-UMA helpers for memory management
+Date: Tue,  9 Dec 2025 14:42:08 +0100
+Message-ID: <20251209140141.94407-12-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251209140141.94407-1-tzimmermann@suse.de>
 References: <20251209140141.94407-1-tzimmermann@suse.de>
@@ -82,7 +82,7 @@ X-Spamd-Result: default: False [-4.00 / 50.00];
 	REPLY(-4.00)[]
 X-Spam-Flag: NO
 X-Spam-Score: -4.00
-X-Rspamd-Queue-Id: 30FE13381B
+X-Rspamd-Queue-Id: 549565BE39
 X-Rspamd-Pre-Result: action=no action;
 	module=replies;
 	Message is reply to one we originated
@@ -90,191 +90,337 @@ X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
 X-Rspamd-Action: no action
 X-Spam-Level: 
 
-Copying from GEM-SHMEM duplicated a number of interfaces that are not
-required. Remove them.
+Convert amdxdna from GEM-SHMEM to GEM-UMA. The latter is just a copy,
+so this change it merely renaming symbols. No functional changes.
+
+GEM-SHMEM will become more self-contained for drivers without specific
+memory management. GEM-UMA's interfaces will remain flexible for drivers
+with UMA hardware, such as amdxdna.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_gem_uma_helper.c | 111 ---------------------------
- include/drm/drm_gem_uma_helper.h     |  16 ----
- 2 files changed, 127 deletions(-)
+ drivers/accel/amdxdna/Kconfig                 |  2 +-
+ drivers/accel/amdxdna/aie2_ctx.c              |  1 -
+ drivers/accel/amdxdna/aie2_message.c          |  1 -
+ drivers/accel/amdxdna/aie2_pci.c              |  1 -
+ drivers/accel/amdxdna/aie2_psp.c              |  1 -
+ drivers/accel/amdxdna/aie2_smu.c              |  1 -
+ drivers/accel/amdxdna/amdxdna_ctx.c           |  7 ++-
+ drivers/accel/amdxdna/amdxdna_gem.c           | 49 +++++++++----------
+ drivers/accel/amdxdna/amdxdna_gem.h           |  5 +-
+ .../accel/amdxdna/amdxdna_mailbox_helper.c    |  1 -
+ drivers/accel/amdxdna/amdxdna_pci_drv.c       |  1 -
+ drivers/accel/amdxdna/amdxdna_sysfs.c         |  1 -
+ 12 files changed, 32 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_gem_uma_helper.c b/drivers/gpu/drm/drm_gem_uma_helper.c
-index d617cfd981e1..2b88e21b1db9 100644
---- a/drivers/gpu/drm/drm_gem_uma_helper.c
-+++ b/drivers/gpu/drm/drm_gem_uma_helper.c
-@@ -18,7 +18,6 @@
- #include <drm/drm.h>
+diff --git a/drivers/accel/amdxdna/Kconfig b/drivers/accel/amdxdna/Kconfig
+index f39d7a87296c..a417b18b401f 100644
+--- a/drivers/accel/amdxdna/Kconfig
++++ b/drivers/accel/amdxdna/Kconfig
+@@ -6,8 +6,8 @@ config DRM_ACCEL_AMDXDNA
+ 	depends on DRM_ACCEL
+ 	depends on PCI && HAS_IOMEM
+ 	depends on X86_64
++	select DRM_GEM_UMA_HELPER
+ 	select DRM_SCHED
+-	select DRM_GEM_SHMEM_HELPER
+ 	select FW_LOADER
+ 	select HMM_MIRROR
+ 	help
+diff --git a/drivers/accel/amdxdna/aie2_ctx.c b/drivers/accel/amdxdna/aie2_ctx.c
+index 42d876a427c5..7e82496495d3 100644
+--- a/drivers/accel/amdxdna/aie2_ctx.c
++++ b/drivers/accel/amdxdna/aie2_ctx.c
+@@ -6,7 +6,6 @@
+ #include <drm/amdxdna_accel.h>
+ #include <drm/drm_device.h>
+ #include <drm/drm_gem.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_print.h>
+ #include <drm/drm_syncobj.h>
+ #include <linux/hmm.h>
+diff --git a/drivers/accel/amdxdna/aie2_message.c b/drivers/accel/amdxdna/aie2_message.c
+index d493bb1c3360..2f639c22ebf1 100644
+--- a/drivers/accel/amdxdna/aie2_message.c
++++ b/drivers/accel/amdxdna/aie2_message.c
+@@ -7,7 +7,6 @@
+ #include <drm/drm_cache.h>
+ #include <drm/drm_device.h>
+ #include <drm/drm_gem.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_print.h>
+ #include <drm/gpu_scheduler.h>
+ #include <linux/bitfield.h>
+diff --git a/drivers/accel/amdxdna/aie2_pci.c b/drivers/accel/amdxdna/aie2_pci.c
+index ceef1c502e9e..498a23a070c9 100644
+--- a/drivers/accel/amdxdna/aie2_pci.c
++++ b/drivers/accel/amdxdna/aie2_pci.c
+@@ -6,7 +6,6 @@
+ #include <drm/amdxdna_accel.h>
  #include <drm/drm_device.h>
  #include <drm/drm_drv.h>
--#include <drm/drm_dumb_buffers.h>
- #include <drm/drm_gem_uma_helper.h>
- #include <drm/drm_prime.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_managed.h>
  #include <drm/drm_print.h>
-@@ -466,29 +465,6 @@ void drm_gem_uma_vunmap_locked(struct drm_gem_uma_object *uma, struct iosys_map
- }
- EXPORT_SYMBOL_GPL(drm_gem_uma_vunmap_locked);
- 
--static int
--drm_gem_uma_create_with_handle(struct drm_file *file_priv,
--			       struct drm_device *dev, size_t size,
--			       uint32_t *handle)
--{
--	struct drm_gem_uma_object *uma;
--	int ret;
--
--	uma = drm_gem_uma_create(dev, size);
--	if (IS_ERR(uma))
--		return PTR_ERR(uma);
--
--	/*
--	 * Allocate an id of idr table where the obj is registered
--	 * and handle has the id what user can see.
--	 */
--	ret = drm_gem_handle_create(file_priv, &uma->base, handle);
--	/* drop reference from allocate - handle holds it now. */
--	drm_gem_object_put(&uma->base);
--
--	return ret;
--}
--
- /* Update madvise status, returns true if not purged, else
-  * false or -errno.
+ #include <drm/gpu_scheduler.h>
+diff --git a/drivers/accel/amdxdna/aie2_psp.c b/drivers/accel/amdxdna/aie2_psp.c
+index f28a060a8810..81145210abf3 100644
+--- a/drivers/accel/amdxdna/aie2_psp.c
++++ b/drivers/accel/amdxdna/aie2_psp.c
+@@ -4,7 +4,6 @@
   */
-@@ -537,36 +513,6 @@ void drm_gem_uma_purge_locked(struct drm_gem_uma_object *uma)
- }
- EXPORT_SYMBOL_GPL(drm_gem_uma_purge_locked);
  
--/**
-- * drm_gem_uma_dumb_create - Create a dumb UMA buffer object
-- * @file: DRM file structure to create the dumb buffer for
-- * @dev: DRM device
-- * @args: IOCTL data
-- *
-- * This function computes the pitch of the dumb buffer and rounds it up to an
-- * integer number of bytes per pixel. Drivers for hardware that doesn't have
-- * any additional restrictions on the pitch can directly use this function as
-- * their &drm_driver.dumb_create callback.
-- *
-- * For hardware with additional restrictions, drivers can adjust the fields
-- * set up by userspace before calling into this function.
-- *
-- * Returns:
-- * 0 on success or a negative error code on failure.
-- */
--int drm_gem_uma_dumb_create(struct drm_file *file, struct drm_device *dev,
--			    struct drm_mode_create_dumb *args)
--{
--	int ret;
--
--	ret = drm_mode_size_dumb(dev, args, SZ_8, 0);
--	if (ret)
--		return ret;
--
--	return drm_gem_uma_create_with_handle(file, dev, args->size, &args->handle);
--}
--EXPORT_SYMBOL_GPL(drm_gem_uma_dumb_create);
--
- static vm_fault_t drm_gem_uma_fault(struct vm_fault *vmf)
+ #include <drm/drm_device.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_managed.h>
+ #include <drm/drm_print.h>
+ #include <drm/gpu_scheduler.h>
+diff --git a/drivers/accel/amdxdna/aie2_smu.c b/drivers/accel/amdxdna/aie2_smu.c
+index bd94ee96c2bc..a16942aa10a1 100644
+--- a/drivers/accel/amdxdna/aie2_smu.c
++++ b/drivers/accel/amdxdna/aie2_smu.c
+@@ -4,7 +4,6 @@
+  */
+ 
+ #include <drm/drm_device.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_print.h>
+ #include <drm/gpu_scheduler.h>
+ #include <linux/iopoll.h>
+diff --git a/drivers/accel/amdxdna/amdxdna_ctx.c b/drivers/accel/amdxdna/amdxdna_ctx.c
+index d17aef89a0ad..1c02a97b1865 100644
+--- a/drivers/accel/amdxdna/amdxdna_ctx.c
++++ b/drivers/accel/amdxdna/amdxdna_ctx.c
+@@ -8,7 +8,6 @@
+ #include <drm/drm_drv.h>
+ #include <drm/drm_file.h>
+ #include <drm/drm_gem.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_print.h>
+ #include <drm/gpu_scheduler.h>
+ #include <linux/xarray.h>
+@@ -387,7 +386,7 @@ amdxdna_arg_bos_lookup(struct amdxdna_client *client,
+ 		gobj = drm_gem_object_lookup(client->filp, bo_hdls[i]);
+ 		if (!gobj) {
+ 			ret = -ENOENT;
+-			goto put_shmem_bo;
++			goto put_bos;
+ 		}
+ 		abo = to_xdna_obj(gobj);
+ 
+@@ -402,7 +401,7 @@ amdxdna_arg_bos_lookup(struct amdxdna_client *client,
+ 		if (ret) {
+ 			mutex_unlock(&abo->lock);
+ 			drm_gem_object_put(gobj);
+-			goto put_shmem_bo;
++			goto put_bos;
+ 		}
+ 		abo->pinned = true;
+ 		mutex_unlock(&abo->lock);
+@@ -412,7 +411,7 @@ amdxdna_arg_bos_lookup(struct amdxdna_client *client,
+ 
+ 	return 0;
+ 
+-put_shmem_bo:
++put_bos:
+ 	amdxdna_arg_bos_put(job);
+ 	return ret;
+ }
+diff --git a/drivers/accel/amdxdna/amdxdna_gem.c b/drivers/accel/amdxdna/amdxdna_gem.c
+index dfa916eeb2d9..33c48498d1eb 100644
+--- a/drivers/accel/amdxdna/amdxdna_gem.c
++++ b/drivers/accel/amdxdna/amdxdna_gem.c
+@@ -7,7 +7,6 @@
+ #include <drm/drm_cache.h>
+ #include <drm/drm_device.h>
+ #include <drm/drm_gem.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_print.h>
+ #include <drm/gpu_scheduler.h>
+ #include <linux/dma-buf.h>
+@@ -277,9 +276,9 @@ static int amdxdna_insert_pages(struct amdxdna_gem_obj *abo,
+ 	int ret;
+ 
+ 	if (!is_import_bo(abo)) {
+-		ret = drm_gem_shmem_mmap(&abo->base, vma);
++		ret = drm_gem_uma_mmap(&abo->base, vma);
+ 		if (ret) {
+-			XDNA_ERR(xdna, "Failed shmem mmap %d", ret);
++			XDNA_ERR(xdna, "Failed uma mmap %d", ret);
+ 			return ret;
+ 		}
+ 
+@@ -358,11 +357,11 @@ static int amdxdna_gem_dmabuf_mmap(struct dma_buf *dma_buf, struct vm_area_struc
+ 	unsigned long num_pages = vma_pages(vma);
+ 	int ret;
+ 
+-	vma->vm_ops = &drm_gem_shmem_vm_ops;
++	vma->vm_ops = &drm_gem_uma_vm_ops;
+ 	vma->vm_private_data = gobj;
+ 
+ 	drm_gem_object_get(gobj);
+-	ret = drm_gem_shmem_mmap(&abo->base, vma);
++	ret = drm_gem_uma_mmap(&abo->base, vma);
+ 	if (ret)
+ 		goto put_obj;
+ 
+@@ -474,23 +473,23 @@ static void amdxdna_gem_obj_free(struct drm_gem_object *gobj)
+ 		return;
+ 	}
+ 
+-	drm_gem_shmem_free(&abo->base);
++	drm_gem_uma_free(&abo->base);
+ }
+ 
+ static const struct drm_gem_object_funcs amdxdna_gem_dev_obj_funcs = {
+ 	.free = amdxdna_gem_dev_obj_free,
+ };
+ 
+-static const struct drm_gem_object_funcs amdxdna_gem_shmem_funcs = {
++static const struct drm_gem_object_funcs amdxdna_gem_uma_funcs = {
+ 	.free = amdxdna_gem_obj_free,
+-	.print_info = drm_gem_shmem_object_print_info,
+-	.pin = drm_gem_shmem_object_pin,
+-	.unpin = drm_gem_shmem_object_unpin,
+-	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+-	.vmap = drm_gem_shmem_object_vmap,
+-	.vunmap = drm_gem_shmem_object_vunmap,
++	.print_info = drm_gem_uma_object_print_info,
++	.pin = drm_gem_uma_object_pin,
++	.unpin = drm_gem_uma_object_unpin,
++	.get_sg_table = drm_gem_uma_object_get_sg_table,
++	.vmap = drm_gem_uma_object_vmap,
++	.vunmap = drm_gem_uma_object_vunmap,
+ 	.mmap = amdxdna_gem_obj_mmap,
+-	.vm_ops = &drm_gem_shmem_vm_ops,
++	.vm_ops = &drm_gem_uma_vm_ops,
+ 	.export = amdxdna_gem_prime_export,
+ };
+ 
+@@ -525,21 +524,21 @@ amdxdna_gem_create_object_cb(struct drm_device *dev, size_t size)
+ 	if (IS_ERR(abo))
+ 		return ERR_CAST(abo);
+ 
+-	to_gobj(abo)->funcs = &amdxdna_gem_shmem_funcs;
++	to_gobj(abo)->funcs = &amdxdna_gem_uma_funcs;
+ 
+ 	return to_gobj(abo);
+ }
+ 
+ static struct amdxdna_gem_obj *
+-amdxdna_gem_create_shmem_object(struct drm_device *dev, size_t size)
++amdxdna_gem_create_uma_object(struct drm_device *dev, size_t size)
  {
- 	struct vm_area_struct *vma = vmf->vma;
-@@ -836,63 +782,6 @@ drm_gem_uma_prime_import_sg_table(struct drm_device *dev,
+-	struct drm_gem_shmem_object *shmem = drm_gem_shmem_create(dev, size);
++	struct drm_gem_uma_object *uma = drm_gem_uma_create(dev, size);
+ 
+-	if (IS_ERR(shmem))
+-		return ERR_CAST(shmem);
++	if (IS_ERR(uma))
++		return ERR_CAST(uma);
+ 
+-	shmem->map_wc = false;
+-	return to_xdna_obj(&shmem->base);
++	uma->map_wc = false;
++	return to_xdna_obj(&uma->base);
  }
- EXPORT_SYMBOL_GPL(drm_gem_uma_prime_import_sg_table);
  
--/**
-- * drm_gem_uma_prime_import_no_map - Import dmabuf without mapping its sg_table
-- * @dev: Device to import into
-- * @dma_buf: dma-buf object to import
-- *
-- * Drivers that use the GEM UMA helpers but also wants to import dmabuf without
-- * mapping its sg_table can use this as their &drm_driver.gem_prime_import
-- * implementation.
-- */
--struct drm_gem_object *drm_gem_uma_prime_import_no_map(struct drm_device *dev,
--						       struct dma_buf *dma_buf)
--{
--	struct dma_buf_attachment *attach;
--	struct drm_gem_uma_object *uma;
--	struct drm_gem_object *obj;
--	size_t size;
--	int ret;
--
--	if (drm_gem_is_prime_exported_dma_buf(dev, dma_buf)) {
--		/*
--		 * Importing dmabuf exported from our own gem increases
--		 * refcount on gem itself instead of f_count of dmabuf.
--		 */
--		obj = dma_buf->priv;
--		drm_gem_object_get(obj);
--		return obj;
--	}
--
--	attach = dma_buf_attach(dma_buf, dev->dev);
--	if (IS_ERR(attach))
--		return ERR_CAST(attach);
--
--	get_dma_buf(dma_buf);
--
--	size = PAGE_ALIGN(attach->dmabuf->size);
--
--	uma = __drm_gem_uma_create(dev, size, true, NULL);
--	if (IS_ERR(uma)) {
--		ret = PTR_ERR(uma);
--		goto fail_detach;
--	}
--
--	drm_dbg_prime(dev, "size = %zu\n", size);
--
--	uma->base.import_attach = attach;
--	uma->base.resv = dma_buf->resv;
--
--	return &uma->base;
--
--fail_detach:
--	dma_buf_detach(dma_buf, attach);
--	dma_buf_put(dma_buf);
--
--	return ERR_PTR(ret);
--}
--EXPORT_SYMBOL_GPL(drm_gem_uma_prime_import_no_map);
--
- MODULE_DESCRIPTION("DRM UMA memory-management helpers");
- MODULE_IMPORT_NS("DMA_BUF");
- MODULE_LICENSE("GPL");
-diff --git a/include/drm/drm_gem_uma_helper.h b/include/drm/drm_gem_uma_helper.h
-index e7722c625fab..3d6de27efe79 100644
---- a/include/drm/drm_gem_uma_helper.h
-+++ b/include/drm/drm_gem_uma_helper.h
-@@ -13,7 +13,6 @@
- #include <drm/drm_prime.h>
+ static struct amdxdna_gem_obj *
+@@ -589,7 +588,7 @@ amdxdna_gem_create_object(struct drm_device *dev,
+ 	if (args->vaddr)
+ 		return amdxdna_gem_create_ubuf_object(dev, args);
  
- struct dma_buf_attachment;
--struct drm_mode_create_dumb;
- struct drm_printer;
- struct sg_table;
+-	return amdxdna_gem_create_shmem_object(dev, aligned_sz);
++	return amdxdna_gem_create_uma_object(dev, aligned_sz);
+ }
  
-@@ -290,20 +289,5 @@ struct drm_gem_object *
- drm_gem_uma_prime_import_sg_table(struct drm_device *dev,
- 				  struct dma_buf_attachment *attach,
- 				  struct sg_table *sgt);
--int drm_gem_uma_dumb_create(struct drm_file *file, struct drm_device *dev,
--			    struct drm_mode_create_dumb *args);
--struct drm_gem_object *drm_gem_uma_prime_import_no_map(struct drm_device *dev,
--						       struct dma_buf *buf);
--
--/**
-- * DRM_GEM_UMA_DRIVER_OPS - Default GEM UMA operations
-- *
-- * This macro provides a shortcut for setting the GEM UMA operations
-- * in the &drm_driver structure. Drivers that do not require an s/g table
-- * for imported buffers should use this.
-- */
--#define DRM_GEM_UMA_DRIVER_OPS \
--	.gem_prime_import       = drm_gem_uma_prime_import_no_map, \
--	.dumb_create            = drm_gem_uma_dumb_create
+ struct drm_gem_object *
+@@ -615,7 +614,7 @@ amdxdna_gem_prime_import(struct drm_device *dev, struct dma_buf *dma_buf)
+ 		goto fail_detach;
+ 	}
  
- #endif /* __DRM_GEM_UMA_HELPER_H__ */
+-	gobj = drm_gem_shmem_prime_import_sg_table(dev, attach, sgt);
++	gobj = drm_gem_uma_prime_import_sg_table(dev, attach, sgt);
+ 	if (IS_ERR(gobj)) {
+ 		ret = PTR_ERR(gobj);
+ 		goto fail_unmap;
+@@ -836,7 +835,7 @@ int amdxdna_gem_pin_nolock(struct amdxdna_gem_obj *abo)
+ 	if (is_import_bo(abo))
+ 		return 0;
+ 
+-	ret = drm_gem_shmem_pin(&abo->base);
++	ret = drm_gem_uma_pin(&abo->base);
+ 
+ 	XDNA_DBG(xdna, "BO type %d ret %d", abo->type, ret);
+ 	return ret;
+@@ -862,7 +861,7 @@ void amdxdna_gem_unpin(struct amdxdna_gem_obj *abo)
+ 		return;
+ 
+ 	mutex_lock(&abo->lock);
+-	drm_gem_shmem_unpin(&abo->base);
++	drm_gem_uma_unpin(&abo->base);
+ 	mutex_unlock(&abo->lock);
+ }
+ 
+diff --git a/drivers/accel/amdxdna/amdxdna_gem.h b/drivers/accel/amdxdna/amdxdna_gem.h
+index f79fc7f3c93b..74c78c86125e 100644
+--- a/drivers/accel/amdxdna/amdxdna_gem.h
++++ b/drivers/accel/amdxdna/amdxdna_gem.h
+@@ -7,6 +7,9 @@
+ #define _AMDXDNA_GEM_H_
+ 
+ #include <linux/hmm.h>
++
++#include <drm/drm_gem_uma_helper.h>
++
+ #include "amdxdna_pci_drv.h"
+ 
+ struct amdxdna_umap {
+@@ -33,7 +36,7 @@ struct amdxdna_mem {
+ };
+ 
+ struct amdxdna_gem_obj {
+-	struct drm_gem_shmem_object	base;
++	struct drm_gem_uma_object	base;
+ 	struct amdxdna_client		*client;
+ 	u8				type;
+ 	bool				pinned;
+diff --git a/drivers/accel/amdxdna/amdxdna_mailbox_helper.c b/drivers/accel/amdxdna/amdxdna_mailbox_helper.c
+index 6d0c24513476..63c3b82ff1b0 100644
+--- a/drivers/accel/amdxdna/amdxdna_mailbox_helper.c
++++ b/drivers/accel/amdxdna/amdxdna_mailbox_helper.c
+@@ -7,7 +7,6 @@
+ #include <drm/drm_device.h>
+ #include <drm/drm_print.h>
+ #include <drm/drm_gem.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/gpu_scheduler.h>
+ #include <linux/completion.h>
+ 
+diff --git a/drivers/accel/amdxdna/amdxdna_pci_drv.c b/drivers/accel/amdxdna/amdxdna_pci_drv.c
+index 1973ab67721b..ae069b8805c7 100644
+--- a/drivers/accel/amdxdna/amdxdna_pci_drv.c
++++ b/drivers/accel/amdxdna/amdxdna_pci_drv.c
+@@ -7,7 +7,6 @@
+ #include <drm/drm_accel.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_gem.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_ioctl.h>
+ #include <drm/drm_managed.h>
+ #include <drm/gpu_scheduler.h>
+diff --git a/drivers/accel/amdxdna/amdxdna_sysfs.c b/drivers/accel/amdxdna/amdxdna_sysfs.c
+index f27e4ee960a0..d7fcb9c9b7b5 100644
+--- a/drivers/accel/amdxdna/amdxdna_sysfs.c
++++ b/drivers/accel/amdxdna/amdxdna_sysfs.c
+@@ -5,7 +5,6 @@
+ 
+ #include <drm/amdxdna_accel.h>
+ #include <drm/drm_device.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_print.h>
+ #include <drm/gpu_scheduler.h>
+ #include <linux/types.h>
 -- 
 2.52.0
 
