@@ -1,140 +1,123 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF2F82E7186
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 03:30:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCA641CEAB2
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 03:41:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765251043; cv=none; b=rmAFeK/PWtJlTxBG2RFmxrXYkoGPX+vcfwwq2bck20nM/vMLWUTTCvAvOX2woK66XZwQ4ER8S5GX0G+1eyUfppzKf2DHJfEGTp87woI5ZKAAwS0kebHnbKNT2SKOiMb7uO//7Edg6okT3+yur7Qiiwsq5HQCgr25CkVc2Z2Ou/I=
+	t=1765251663; cv=none; b=tz8veM2hDx4mUxdRBmujCW3IbNN3eWV77f33dsnL6xQgirB1b/fg9dfjlxCNZAV9Zdsrt+esJI3dsKwK3hfzDkqC1aQZ2pMU7kNaiaUh1UxdhDaBJq7MltPxXD9MNGFC+ywA2jhHAJFVJyNxYgFJWG4Kt2uN/lGHrHXKk9sb7io=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765251043; c=relaxed/simple;
-	bh=HA+t395Jy2lAj97Muzu8p4EQrayoFxG0axYG2SfJ26w=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=SIiTCTv/ILIqPHp/IpLo6a7Web4XEhym7lxFfGxX836iSZYtmTuT8K4HC3JwJy5lzEuDnK44dH6PMsQyAR3+LTDAyBxc2LIDoutqjZJxRX41MX4fa8liqbciBBXZOkdqiPNQXtoFeqnLTlc6AcMnYwHXrMhqqmDKdA3fO4dHB+A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=B4Ha1Y4U; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1765251663; c=relaxed/simple;
+	bh=mArw2vAL0D2NHk8zLQ2Ijxxx1bFuIg9r7rH/hnyrq/A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=j7N/3gghpCcadjXIX2Ik7btUoDRX5qiT1qu1qbnr9lej/uoFZ5HxWkMqCgpUNusd2rkLjKEVGNSZevnjawUwzIw+Ht/5UhezO6Oy8iailq8FMMaMJ1oMfhclnHJKsfbGdgLvQQBRBJrtSJxeIjTuYNeglQrJDB3SlmrNcvMrU2k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=emHNdGjk; arc=none smtp.client-ip=209.85.218.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="B4Ha1Y4U"
-Received: from ehlo.thunderbird.net (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 5B93Srkj2763694
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Mon, 8 Dec 2025 19:28:54 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 5B93Srkj2763694
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025112201; t=1765250937;
-	bh=J9HxWPOMpo5+S2/pf0ntFy5/L60u+ncFK4+hU4+I0vE=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=B4Ha1Y4UjXu4GBLhS76OysnFZKafukh8uysNmSf+JK1e+oknL/huLXiRMJys3lDv2
-	 eU3TZJ/DEwBfMSAkdfEdXOhXPgY3cPjAw5e9KG5/ir2G3bEJpQd4gXXrCcaCwlhkMV
-	 t82vtjWpq5yOfMVnG9H2c1k0hTFq5ZuMwHbBFjdf4ToCsiWnJLFLt4uvLHIy3eFgHa
-	 K+dcbcgNjBtoBlvWL2pdZ1CvazpVMmRyrX3f1NpVDYxUnsEsz7zShRCWnzg3YQcgyT
-	 UFTtF8N2gd/AZqn/XHGMABNkZgyBmDFEUilN4QBw/ue2XJ8nCx1g7Jzgt49AuRlHwj
-	 V4m+ENHXVYlsw==
-Date: Mon, 08 Dec 2025 19:28:53 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: Al Viro <viro@zeniv.linux.org.uk>
-CC: Linus Torvalds <torvalds@linux-foundation.org>,
-        =?ISO-8859-1?Q?Eugenio_P=E9rez?= <eperezma@redhat.com>,
-        =?ISO-8859-1?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrii Nakryiko <andrii@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        David Laight <David.Laight@aculab.com>,
-        David Lechner <dlechner@baylibre.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Eduard Zingerman <eddyz87@gmail.com>,
-        Gatlin Newhouse <gatlin.newhouse@gmail.com>,
-        Hao Luo <haoluo@google.com>, Ingo Molnar <mingo@redhat.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>,
-        Kees Cook <kees@kernel.org>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Marc Herbert <Marc.Herbert@linux.intel.com>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>,
-        Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>,
-        NeilBrown <neil@brown.name>, Peter Zijlstra <peterz@infradead.org>,
-        Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-        Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>,
-        Song Liu <song@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thorsten Blum <thorsten.blum@linux.dev>,
-        Uros Bizjak <ubizjak@gmail.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Yafang Shao <laoar.shao@gmail.com>, Ye Bin <yebin10@huawei.com>,
-        Yonghong Song <yonghong.song@linux.dev>,
-        Yufeng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-sparse@vger.kernel.org,
-        virtualization@lists.linux.dev, x86@kernel.org
-Subject: Re: [GIT PULL] __auto_type conversion for v6.19-rc1
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20251209032206.GU1712166@ZenIV>
-References: <20251208235528.3670800-1-hpa@zytor.com> <20251209002519.GT1712166@ZenIV> <43CDF85F-800F-449C-8CA6-F35BEC88E18E@zytor.com> <20251209032206.GU1712166@ZenIV>
-Message-ID: <87F4003B-5011-49EF-A807-CEA094EA0DAC@zytor.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="emHNdGjk"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-b79d0a0537bso663841866b.2
+        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 19:41:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1765251660; x=1765856460; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=ve41G5hMhFJfqXtFvhXu3GnjjOI5g5mevMdggrYlYVI=;
+        b=emHNdGjkh3OJ+rHPStwYtFzDor0LTStzw2Fjvf04pChXK4uThbS7z5AzVP6Tu6kACY
+         +nc1cS8rSYiJqns19nxolKPyNAHPYeKOsvHtv/m5+bwl9pMwLK8wYVxaKpKIiel6+QR7
+         b1zKY/L8iKXJZcVW1MVSUH4G3xwL3xu7sOr/s=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765251660; x=1765856460;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ve41G5hMhFJfqXtFvhXu3GnjjOI5g5mevMdggrYlYVI=;
+        b=g0/CQpkvwiUmkAJzcdIx9NCWjl/Sp2DsL+wTRVeX9m22MSMmPwTdeG1pkfHdYIR69q
+         OSr5ah18J5WWz7+wYvU7BF0QitZmnOyVni9u8nVy9AdB8lOs3SDgAwEciWK8OUTDGVis
+         mKu9HomdFmVZzb59WhLWj7syzzBjatE/GTNAAo/DEFf2hub/x/F2kHAvmFcVOg4fmsJy
+         tqSC1igAhno1++ltPWFP8UgvUKqNjkjclIQGcvci4+tS2rKDBiXkhR/zoxSZNwKEirAg
+         Xvuu1mPoWRR2oG0uMLydsIf+N0Cf40TpEBXfrkobxhLACqAofERNZgiVshB0hW3dIxXQ
+         Dbzg==
+X-Forwarded-Encrypted: i=1; AJvYcCVoMqTzdl3zABTwVToJEd8EUG63BBNfOqpnEDJchXjr5Ux9IfCc06Cu1wHW3m3SW4lFQfKujaMIKSspwAlo+A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyaY0aOKXuuJk8EZq2vtrHO8RoR2/gbqaDE6snZ6UDjA8NAtWat
+	5PrJcOnH4jaCZQONuDoV04FisSQpBajho0K0gAPjK63L3qVbV67DA3x8EBJ+VDNGieQTXFmL8os
+	EfbMrSrpCJQ==
+X-Gm-Gg: ASbGncuUIs2EpI/9WdZRjdO2rRv3aEhrBZn7/FXqRJwmhvfENqeXZuQNAnnUEmCpdsq
+	lvxemC0gNyg9KJ0QlqmP7k5g/t1dWcNKfF8OrnTCM91L0/QZRgG0kiXg6gxl+oud9Ou4eP5j0y3
+	ydnauJxGDI+EtEhXSfPOcgREYyFCsv+L1oafSe8SUaVIrAQ2Yj9TDKkVQcvNNuo02paYz3yiYtS
+	Ho8ffUC0OEDXySINp4aIgtg1DCflffZUeR1rrzwkCBGLS8t1OkqaUpleO1iCOVxUwjfn0y87116
+	1emx2A0L7jZ6uYLwiCgNSarRw8idwfBdRnGlpJZyRr284flqut+levCCrkIKlc0IemhipVUQJjT
+	uQIiQ/pGVWy99zFfXFwoZ495c96Vaki9z8VZMSi+xpLDct4vTvqPabHqt0spWv2CelLN6yzZ/sp
+	Aj7q7h8RGjIhnHw10xZirot8v+nNrJLf9fWTgSsr3aU76gUr8QeZ/l24X42sbi2I5JewxqM84=
+X-Google-Smtp-Source: AGHT+IFoDdYfleVM9l8z9eRLZlpQT1yxd+rdXvaeFNRgS1lfDplfTde+FeY34Rnne1vRDmZyhXcOWA==
+X-Received: by 2002:a17:907:1c15:b0:b7a:101:f85c with SMTP id a640c23a62f3a-b7a247f4085mr1084422166b.31.1765251659945;
+        Mon, 08 Dec 2025 19:40:59 -0800 (PST)
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com. [209.85.221.44])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b7a01a33379sm1084911566b.62.2025.12.08.19.40.58
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 08 Dec 2025 19:40:58 -0800 (PST)
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-42e2e239ec0so2949718f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 08 Dec 2025 19:40:58 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXZxUfMSL5YMaFSZMpJkyGoPsiSwGMuvthGb34pItB9XOqfmI1c9KGfZxfvlw4D4Gs/NzVF+wFl3/9W3ZgUwg==@lists.linux.dev
+X-Received: by 2002:a05:6402:d0d:b0:647:5e6c:3220 with SMTP id
+ 4fb4d7f45d1cf-6491aded554mr6980906a12.21.1765251222388; Mon, 08 Dec 2025
+ 19:33:42 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+References: <20251208235528.3670800-1-hpa@zytor.com> <176523908321.3343091.17738363732550848005.pr-tracker-bot@kernel.org>
+ <CAHk-=wi0RqQPHME0xgrAZBQijKuos97cQO05N4f176DkH7msbg@mail.gmail.com> <ee693efe-5b7b-4d38-a12c-3cea6681f610@zytor.com>
+In-Reply-To: <ee693efe-5b7b-4d38-a12c-3cea6681f610@zytor.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Tue, 9 Dec 2025 12:33:26 +0900
+X-Gmail-Original-Message-ID: <CAHk-=wghm5NFZQcfObuNQHMMsNQ_Of+H7jpoMTZJDrFscxrSCw@mail.gmail.com>
+X-Gm-Features: AQt7F2ofRIAXVmCzZb3EAMnphwigz_H3r18InwGDDrhalL1GL85PEFWZ4uBTknk
+Message-ID: <CAHk-=wghm5NFZQcfObuNQHMMsNQ_Of+H7jpoMTZJDrFscxrSCw@mail.gmail.com>
+Subject: Re: [GIT PULL] __auto_type conversion for v6.19-rc1
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: pr-tracker-bot@kernel.org, 
+	Konstantin Ryabitsev <konstantin@linuxfoundation.org>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Alexei Starovoitov <ast@kernel.org>, Alexey Dobriyan <adobriyan@gmail.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Andrii Nakryiko <andrii@kernel.org>, 
+	Arnd Bergmann <arnd@kernel.org>, Borislav Petkov <bp@alien8.de>, Dan Williams <dan.j.williams@intel.com>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	David Laight <David.Laight@aculab.com>, David Lechner <dlechner@baylibre.com>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Gatlin Newhouse <gatlin.newhouse@gmail.com>, Hao Luo <haoluo@google.com>, 
+	Ingo Molnar <mingo@redhat.com>, Jakub Sitnicki <jakub@cloudflare.com>, 
+	Jan Hendrik Farr <kernel@jfarr.cc>, Jason Wang <jasowang@redhat.com>, Jir i Olsa <jolsa@kernel.org>, 
+	John Fastabend <john.fastabend@gmail.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, 
+	Josh Poimboeuf <jpoimboe@kernel.org>, KP Singh <kpsingh@kernel.org>, Kees Cook <kees@kernel.org>, 
+	Luc Van Oostenryck <luc.vanoostenryck@gmail.com>, Marc Herbert <Marc.Herbert@linux.intel.com>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Mateusz Guzik <mjguzik@gmail.com>, Michal Luczaj <mhal@rbox.co>, 
+	Miguel Ojeda <ojeda@kernel.org>, Mykola Lysenko <mykolal@fb.com>, NeilBrown <neil@brown.name>, 
+	Peter Zijlstra <peterz@infradead.org>, Przemek Kitszel <przemyslaw.kitszel@intel.com>, 
+	Sami Tolvanen <samitolvanen@google.com>, Shuah Khan <shuah@kernel.org>, Song Liu <song@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Thomas Gleixner <tglx@linutronix.de>, 
+	Thorsten Blum <thorsten.blum@linux.dev>, Uros Bizjak <ubizjak@gmail.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Yafang Shao <laoar.shao@gmail.com>, 
+	Ye Bin <yebin10@huawei.com>, Yonghong Song <yonghong.song@linux.dev>, 
+	Yu feng Wang <wangyufeng@kylinos.cn>, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-sparse@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On December 8, 2025 7:22:06 PM PST, Al Viro <viro@zeniv=2Elinux=2Eorg=2Euk>=
- wrote:
->On Mon, Dec 08, 2025 at 04:28:11PM -0800, H=2E Peter Anvin wrote:
->> On December 8, 2025 4:25:19 PM PST, Al Viro <viro@zeniv=2Elinux=2Eorg=
-=2Euk> wrote:
->> >On Mon, Dec 08, 2025 at 03:55:26PM -0800, H=2E Peter Anvin wrote:
->> >> Hi Linus,
->> >>=20
->> >> The following changes since commit c2f2b01b74be8b40a2173372bcd770723=
-f87e7b2:
->> >>=20
->> >>   Merge tag 'i3c/for-6=2E19' of git://git=2Ekernel=2Eorg/pub/scm/lin=
-ux/kernel/git/i3c/linux (2025-12-08 11:25:14 +0900)
->> >>=20
->> >> are available in the Git repository at:
->> >>=20
->> >>   git://git=2Ekernel=2Eorg/pub/scm/linux/kernel/git/hpa/linux-auto=
-=2Egit
->> >>=20
->> >> for you to fetch changes up to branch auto-type-for-6=2E19
->> >> (4ecc26fa585216f98d71411ce182f9e823d94c8c):
->> >>=20
->> >>   tools/virtio: replace "__auto_type" with "auto" (2025-12-08 15:32:=
-15 -0800)
->> >
->> >Argh=2E=2E=2E  teaching declaration parser in sparse to handle that is
->> >going to be fun, especially since there are corner cases where
->> >gcc and clang do not agree, even with --std=3Dc23 --pedantic=2E=2E=2E
->>=20
->> Well, until sparse actually handles C23, this is just a macro=2E  __aut=
-o_type is already in use=2E
+On Tue, 9 Dec 2025 at 09:24, H. Peter Anvin <hpa@zytor.com> wrote:
 >
->Just anticipating the joy of getting declaration parser to deal with that
->properly - there's bunch of fun corner cases where this macro wouldn't
->cut it=2E  Sure, the underlying semantics can be mapped onto __auto_type,
->but the actual syntax is bloody awful, especially when you mix the
->typedefs into it=2E
->
->Speaking of other fun sparse stuff: __VA_OPT__ support needs to be added;
->I think I have it plotted down to reasonable details, will post in a day
->or two=2E=2E=2E
+> Yeah, it commented on the master branch, which is of course ... yours.
 
-Yeah=2E=2E=2E the C committee even admitted they botched the spec; the int=
-ent was for it to work "exactly like gcc __auto_type"=2E=2E=2E
+Ahh. It's because you didn't use the standard pull request format, and
+instead did the branch name elsewhere.
+
+Which btw also messes with my "just cut and paste the address" thing,
+because now I'll cut-and-paste two different things.
+
+"Poor Linus - all the pain he has to go through".
+
+          Linus "think of all those extra clicks" Torvalds
