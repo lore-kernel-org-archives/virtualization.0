@@ -1,37 +1,37 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 899F12868B4
-	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D58E22E8B6C
+	for <virtualization@lists.linux.dev>; Tue,  9 Dec 2025 14:02:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765288941; cv=none; b=o3W3Ahj8xouYEjywbMyav5eAvVgdhEs9mWAJhyzRLjhIfjxGA/dv823xHtk5tZQgokxMxsJ2FXDMIG+gdGDCG2ibzp3iPg+o2MXieKwehKLU4QyO0SqjKqAwqVHQ4Kh8XTN21wP52WURPx++vaGxx78RsUOHE3Hz88IPp63tmYU=
+	t=1765288944; cv=none; b=ihKm2G5EqZVH6TAR6SakTYggnfk95w5dgbiYiC61cX9UCFOnlDmUSoazreoyJBeCUF9DtO3FDexUae2OPWhu7xQ5cLREe4BReVFYc7YnsAhoFXN7MBOSZwSzDU2NqoPP8LmQO9aZvm2gQvFpuLUr6ZkpVhnwBWWnM9z4czKt2xA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765288941; c=relaxed/simple;
-	bh=DOAhFRuNhaPsyXuKfvFz7HE+3Hk3GgDKtMvKCgr4VeA=;
+	s=arc-20240116; t=1765288944; c=relaxed/simple;
+	bh=Qi5uv/47jLOJvGK/+OR7EQByN5fS5WBi5uud/FhtCFs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=C67zyZPtB5wcPH84jjV2fP3Xv2Uja1OU0S0olH2Dc1OcA47AfpstZ4mrxcTCgyXriZDbyjXOZtYWJeaYcEkAMO1icaSdn7PuGL+JEi+GOd9teTN8VNS+927DXCjuz5sMsMw7lcVyx6Z8EFwrwRTwj460DPRn12gpM5i8C9bcJPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=fyeJfjhkdWYhGONfPQNPmizlTEl50PJA+ZjhaohMAY6mSS2InCDZVzo9TMGigzobbT8AO9ijbpx5mQIpBbLdarFXBFBdsIdiTGPf8Xb47EU8Rhn+ard57iTjaX/Op625iWAu59ukmpT4RREwDpTEYcqIsBguczWR6V5snosdhKM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id DB03E5BDAB;
-	Tue,  9 Dec 2025 14:02:04 +0000 (UTC)
-Authentication-Results: smtp-out2.suse.de;
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 1744D3381D;
+	Tue,  9 Dec 2025 14:01:57 +0000 (UTC)
+Authentication-Results: smtp-out1.suse.de;
 	none
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8B5973EA65;
-	Tue,  9 Dec 2025 14:02:03 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id D33333EA65;
+	Tue,  9 Dec 2025 14:01:55 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id mE6QH9srOGm1OgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:02:03 +0000
+	id EEpgMdMrOGm1OgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Tue, 09 Dec 2025 14:01:55 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: boris.brezillon@collabora.com,
 	simona@ffwll.ch,
@@ -62,9 +62,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	linux-doc@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 13/13] accel/rocket: Use GEM-UMA helpers for memory management
-Date: Tue,  9 Dec 2025 14:42:10 +0100
-Message-ID: <20251209140141.94407-14-tzimmermann@suse.de>
+Subject: [PATCH 07/13] drm/panfrost: Use GEM-UMA helpers for memory management
+Date: Tue,  9 Dec 2025 14:42:04 +0100
+Message-ID: <20251209140141.94407-8-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251209140141.94407-1-tzimmermann@suse.de>
 References: <20251209140141.94407-1-tzimmermann@suse.de>
@@ -80,195 +80,323 @@ X-Rspamd-Pre-Result: action=no action;
 	Message is reply to one we originated
 X-Spamd-Result: default: False [-4.00 / 50.00];
 	REPLY(-4.00)[]
-X-Spam-Flag: NO
-X-Spam-Score: -4.00
-X-Rspamd-Queue-Id: DB03E5BDAB
+X-Rspamd-Queue-Id: 1744D3381D
 X-Rspamd-Pre-Result: action=no action;
 	module=replies;
 	Message is reply to one we originated
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Action: no action
+X-Spam-Score: -4.00
 X-Spam-Level: 
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spam-Flag: NO
+X-Rspamd-Action: no action
 
-Convert rocket from GEM-SHMEM to GEM-UMA. The latter is just a copy,
+Convert panfrost from GEM-SHMEM to GEM-UMA. The latter is just a copy,
 so this change it merely renaming symbols. No functional changes.
 
 GEM-SHMEM will become more self-contained for drivers without specific
 memory management. GEM-UMA's interfaces will remain flexible for drivers
-with UMA hardware, such as rocket.
+with UMA hardware, such as panfrost.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/accel/rocket/Kconfig      |  2 +-
- drivers/accel/rocket/rocket_gem.c | 46 +++++++++++++++----------------
- drivers/accel/rocket/rocket_gem.h |  6 ++--
- 3 files changed, 27 insertions(+), 27 deletions(-)
+ drivers/gpu/drm/panfrost/Kconfig              |  2 +-
+ drivers/gpu/drm/panfrost/panfrost_drv.c       |  2 +-
+ drivers/gpu/drm/panfrost/panfrost_gem.c       | 30 +++++++++----------
+ drivers/gpu/drm/panfrost/panfrost_gem.h       |  6 ++--
+ .../gpu/drm/panfrost/panfrost_gem_shrinker.c  | 30 +++++++++----------
+ drivers/gpu/drm/panfrost/panfrost_mmu.c       |  8 ++---
+ drivers/gpu/drm/panfrost/panfrost_perfcnt.c   |  6 ++--
+ 7 files changed, 42 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/accel/rocket/Kconfig b/drivers/accel/rocket/Kconfig
-index 16465abe0660..26f760afdd7a 100644
---- a/drivers/accel/rocket/Kconfig
-+++ b/drivers/accel/rocket/Kconfig
-@@ -6,8 +6,8 @@ config DRM_ACCEL_ROCKET
- 	depends on (ARCH_ROCKCHIP && ARM64) || COMPILE_TEST
- 	depends on ROCKCHIP_IOMMU || COMPILE_TEST
+diff --git a/drivers/gpu/drm/panfrost/Kconfig b/drivers/gpu/drm/panfrost/Kconfig
+index e6403a9d66ad..3e44858df0f3 100644
+--- a/drivers/gpu/drm/panfrost/Kconfig
++++ b/drivers/gpu/drm/panfrost/Kconfig
+@@ -6,10 +6,10 @@ config DRM_PANFROST
+ 	depends on ARM || ARM64 || COMPILE_TEST
+ 	depends on !GENERIC_ATOMIC64    # for IOMMU_IO_PGTABLE_LPAE
  	depends on MMU
 +	select DRM_GEM_UMA_HELPER
  	select DRM_SCHED
+ 	select IOMMU_SUPPORT
+ 	select IOMMU_IO_PGTABLE_LPAE
 -	select DRM_GEM_SHMEM_HELPER
- 	help
- 	  Choose this option if you have a Rockchip SoC that contains a
- 	  compatible Neural Processing Unit (NPU), such as the RK3588. Called by
-diff --git a/drivers/accel/rocket/rocket_gem.c b/drivers/accel/rocket/rocket_gem.c
-index 624c4ecf5a34..1c7b75413065 100644
---- a/drivers/accel/rocket/rocket_gem.c
-+++ b/drivers/accel/rocket/rocket_gem.c
-@@ -29,19 +29,19 @@ static void rocket_gem_bo_free(struct drm_gem_object *obj)
- 	rocket_iommu_domain_put(bo->domain);
- 	bo->domain = NULL;
+ 	select PM_DEVFREQ
+ 	select DEVFREQ_GOV_SIMPLE_ONDEMAND
+ 	select WANT_DEV_COREDUMP
+diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
+index 7d8c7c337606..fe38aa354bcc 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_drv.c
++++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
+@@ -499,7 +499,7 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
+ 		}
+ 	}
+ 
+-	args->retained = drm_gem_shmem_madvise_locked(&bo->base, args->madv);
++	args->retained = drm_gem_uma_madvise_locked(&bo->base, args->madv);
+ 
+ 	if (args->retained) {
+ 		if (args->madv == PANFROST_MADV_DONTNEED)
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
+index 8041b65c6609..17a5218c9aee 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+@@ -85,7 +85,7 @@ static void panfrost_gem_free_object(struct drm_gem_object *obj)
+ 		kvfree(bo->sgts);
+ 	}
  
 -	drm_gem_shmem_free(&bo->base);
 +	drm_gem_uma_free(&bo->base);
  }
  
- static const struct drm_gem_object_funcs rocket_gem_funcs = {
- 	.free = rocket_gem_bo_free,
+ struct panfrost_gem_mapping *
+@@ -228,7 +228,7 @@ static int panfrost_gem_pin(struct drm_gem_object *obj)
+ 	if (bo->is_heap)
+ 		return -EINVAL;
+ 
+-	return drm_gem_shmem_pin_locked(&bo->base);
++	return drm_gem_uma_pin_locked(&bo->base);
+ }
+ 
+ static enum drm_gem_object_status panfrost_gem_status(struct drm_gem_object *obj)
+@@ -263,16 +263,16 @@ static const struct drm_gem_object_funcs panfrost_gem_funcs = {
+ 	.free = panfrost_gem_free_object,
+ 	.open = panfrost_gem_open,
+ 	.close = panfrost_gem_close,
 -	.print_info = drm_gem_shmem_object_print_info,
--	.pin = drm_gem_shmem_object_pin,
++	.print_info = drm_gem_uma_object_print_info,
+ 	.pin = panfrost_gem_pin,
 -	.unpin = drm_gem_shmem_object_unpin,
 -	.get_sg_table = drm_gem_shmem_object_get_sg_table,
 -	.vmap = drm_gem_shmem_object_vmap,
 -	.vunmap = drm_gem_shmem_object_vunmap,
 -	.mmap = drm_gem_shmem_object_mmap,
--	.vm_ops = &drm_gem_shmem_vm_ops,
-+	.print_info = drm_gem_uma_object_print_info,
-+	.pin = drm_gem_uma_object_pin,
 +	.unpin = drm_gem_uma_object_unpin,
 +	.get_sg_table = drm_gem_uma_object_get_sg_table,
 +	.vmap = drm_gem_uma_object_vmap,
 +	.vunmap = drm_gem_uma_object_vunmap,
 +	.mmap = drm_gem_uma_object_mmap,
+ 	.status = panfrost_gem_status,
+ 	.rss = panfrost_gem_rss,
+-	.vm_ops = &drm_gem_shmem_vm_ops,
 +	.vm_ops = &drm_gem_uma_vm_ops,
  };
  
- struct drm_gem_object *rocket_gem_create_object(struct drm_device *dev, size_t size)
-@@ -61,17 +61,17 @@ int rocket_ioctl_create_bo(struct drm_device *dev, void *data, struct drm_file *
+ /**
+@@ -306,18 +306,18 @@ struct drm_gem_object *panfrost_gem_create_object(struct drm_device *dev, size_t
+ struct panfrost_gem_object *
+ panfrost_gem_create(struct drm_device *dev, size_t size, u32 flags)
  {
- 	struct rocket_file_priv *rocket_priv = file->driver_priv;
- 	struct drm_rocket_create_bo *args = data;
--	struct drm_gem_shmem_object *shmem_obj;
-+	struct drm_gem_uma_object *uma_obj;
- 	struct rocket_gem_object *rkt_obj;
- 	struct drm_gem_object *gem_obj;
- 	struct sg_table *sgt;
- 	int ret;
+-	struct drm_gem_shmem_object *shmem;
++	struct drm_gem_uma_object *uma;
+ 	struct panfrost_gem_object *bo;
  
--	shmem_obj = drm_gem_shmem_create(dev, args->size);
--	if (IS_ERR(shmem_obj))
--		return PTR_ERR(shmem_obj);
-+	uma_obj = drm_gem_uma_create(dev, args->size);
-+	if (IS_ERR(uma_obj))
-+		return PTR_ERR(uma_obj);
+ 	/* Round up heap allocations to 2MB to keep fault handling simple */
+ 	if (flags & PANFROST_BO_HEAP)
+ 		size = roundup(size, SZ_2M);
  
--	gem_obj = &shmem_obj->base;
-+	gem_obj = &uma_obj->base;
- 	rkt_obj = to_rocket_bo(gem_obj);
+-	shmem = drm_gem_shmem_create(dev, size);
+-	if (IS_ERR(shmem))
+-		return ERR_CAST(shmem);
++	uma = drm_gem_uma_create(dev, size);
++	if (IS_ERR(uma))
++		return ERR_CAST(uma);
  
- 	rkt_obj->driver_priv = rocket_priv;
-@@ -84,7 +84,7 @@ int rocket_ioctl_create_bo(struct drm_device *dev, void *data, struct drm_file *
- 	if (ret)
- 		goto err;
+-	bo = to_panfrost_bo(&shmem->base);
++	bo = to_panfrost_bo(&uma->base);
+ 	bo->noexec = !!(flags & PANFROST_BO_NOEXEC);
+ 	bo->is_heap = !!(flags & PANFROST_BO_HEAP);
  
--	sgt = drm_gem_shmem_get_pages_sgt(shmem_obj);
-+	sgt = drm_gem_uma_get_pages_sgt(uma_obj);
- 	if (IS_ERR(sgt)) {
- 		ret = PTR_ERR(sgt);
- 		goto err;
-@@ -98,7 +98,7 @@ int rocket_ioctl_create_bo(struct drm_device *dev, void *data, struct drm_file *
+@@ -332,7 +332,7 @@ panfrost_gem_prime_import_sg_table(struct drm_device *dev,
+ 	struct drm_gem_object *obj;
+ 	struct panfrost_gem_object *bo;
  
- 	ret = iommu_map_sgtable(rocket_priv->domain->domain,
- 				rkt_obj->mm.start,
--				shmem_obj->sgt,
-+				uma_obj->sgt,
- 				IOMMU_READ | IOMMU_WRITE);
- 	if (ret < 0 || ret < args->size) {
- 		drm_err(dev, "failed to map buffer: size=%d request_size=%u\n",
-@@ -120,7 +120,7 @@ int rocket_ioctl_create_bo(struct drm_device *dev, void *data, struct drm_file *
- 	mutex_unlock(&rocket_priv->mm_lock);
+-	obj = drm_gem_shmem_prime_import_sg_table(dev, attach, sgt);
++	obj = drm_gem_uma_prime_import_sg_table(dev, attach, sgt);
+ 	if (IS_ERR(obj))
+ 		return ERR_CAST(obj);
  
- err:
--	drm_gem_shmem_object_free(gem_obj);
-+	drm_gem_uma_object_free(gem_obj);
- 
- 	return ret;
- }
-@@ -130,7 +130,7 @@ int rocket_ioctl_prep_bo(struct drm_device *dev, void *data, struct drm_file *fi
- 	struct drm_rocket_prep_bo *args = data;
- 	unsigned long timeout = drm_timeout_abs_to_jiffies(args->timeout_ns);
- 	struct drm_gem_object *gem_obj;
--	struct drm_gem_shmem_object *shmem_obj;
-+	struct drm_gem_uma_object *uma_obj;
- 	long ret = 0;
- 
- 	if (args->reserved != 0) {
-@@ -146,9 +146,9 @@ int rocket_ioctl_prep_bo(struct drm_device *dev, void *data, struct drm_file *fi
- 	if (!ret)
- 		ret = timeout ? -ETIMEDOUT : -EBUSY;
- 
--	shmem_obj = &to_rocket_bo(gem_obj)->base;
-+	uma_obj = &to_rocket_bo(gem_obj)->base;
- 
--	dma_sync_sgtable_for_cpu(dev->dev, shmem_obj->sgt, DMA_BIDIRECTIONAL);
-+	dma_sync_sgtable_for_cpu(dev->dev, uma_obj->sgt, DMA_BIDIRECTIONAL);
- 
- 	drm_gem_object_put(gem_obj);
- 
-@@ -158,7 +158,7 @@ int rocket_ioctl_prep_bo(struct drm_device *dev, void *data, struct drm_file *fi
- int rocket_ioctl_fini_bo(struct drm_device *dev, void *data, struct drm_file *file)
- {
- 	struct drm_rocket_fini_bo *args = data;
--	struct drm_gem_shmem_object *shmem_obj;
-+	struct drm_gem_uma_object *uma_obj;
- 	struct rocket_gem_object *rkt_obj;
- 	struct drm_gem_object *gem_obj;
- 
-@@ -172,9 +172,9 @@ int rocket_ioctl_fini_bo(struct drm_device *dev, void *data, struct drm_file *fi
- 		return -ENOENT;
- 
- 	rkt_obj = to_rocket_bo(gem_obj);
--	shmem_obj = &rkt_obj->base;
-+	uma_obj = &rkt_obj->base;
- 
--	dma_sync_sgtable_for_device(dev->dev, shmem_obj->sgt, DMA_BIDIRECTIONAL);
-+	dma_sync_sgtable_for_device(dev->dev, uma_obj->sgt, DMA_BIDIRECTIONAL);
- 
- 	drm_gem_object_put(gem_obj);
- 
-diff --git a/drivers/accel/rocket/rocket_gem.h b/drivers/accel/rocket/rocket_gem.h
-index 240430334509..d5ea539519e7 100644
---- a/drivers/accel/rocket/rocket_gem.h
-+++ b/drivers/accel/rocket/rocket_gem.h
-@@ -4,10 +4,10 @@
- #ifndef __ROCKET_GEM_H__
- #define __ROCKET_GEM_H__
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.h b/drivers/gpu/drm/panfrost/panfrost_gem.h
+index 8de3e76f2717..01a796a54340 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gem.h
++++ b/drivers/gpu/drm/panfrost/panfrost_gem.h
+@@ -4,7 +4,7 @@
+ #ifndef __PANFROST_GEM_H__
+ #define __PANFROST_GEM_H__
  
 -#include <drm/drm_gem_shmem_helper.h>
 +#include <drm/drm_gem_uma_helper.h>
+ #include <drm/drm_mm.h>
  
- struct rocket_gem_object {
+ struct panfrost_mmu;
+@@ -50,7 +50,7 @@ struct panfrost_gem_debugfs {
+ };
+ 
+ struct panfrost_gem_object {
 -	struct drm_gem_shmem_object base;
 +	struct drm_gem_uma_object base;
+ 	struct sg_table *sgts;
  
- 	struct rocket_file_priv *driver_priv;
- 
-@@ -28,7 +28,7 @@ int rocket_ioctl_fini_bo(struct drm_device *dev, void *data, struct drm_file *fi
+ 	/*
+@@ -115,7 +115,7 @@ struct panfrost_gem_mapping {
  static inline
- struct  rocket_gem_object *to_rocket_bo(struct drm_gem_object *obj)
+ struct  panfrost_gem_object *to_panfrost_bo(struct drm_gem_object *obj)
  {
--	return container_of(to_drm_gem_shmem_obj(obj), struct rocket_gem_object, base);
-+	return container_of(to_drm_gem_uma_obj(obj), struct rocket_gem_object, base);
+-	return container_of(to_drm_gem_shmem_obj(obj), struct panfrost_gem_object, base);
++	return container_of(to_drm_gem_uma_obj(obj), struct panfrost_gem_object, base);
  }
  
- #endif
+ static inline struct panfrost_gem_mapping *
+diff --git a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
+index 2fe967a90bcb..b55accfcbe0d 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
++++ b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
+@@ -9,7 +9,7 @@
+ #include <linux/list.h>
+ 
+ #include <drm/drm_device.h>
+-#include <drm/drm_gem_shmem_helper.h>
++#include <drm/drm_gem_uma_helper.h>
+ 
+ #include "panfrost_device.h"
+ #include "panfrost_gem.h"
+@@ -19,15 +19,15 @@ static unsigned long
+ panfrost_gem_shrinker_count(struct shrinker *shrinker, struct shrink_control *sc)
+ {
+ 	struct panfrost_device *pfdev = shrinker->private_data;
+-	struct drm_gem_shmem_object *shmem;
++	struct drm_gem_uma_object *uma;
+ 	unsigned long count = 0;
+ 
+ 	if (!mutex_trylock(&pfdev->shrinker_lock))
+ 		return 0;
+ 
+-	list_for_each_entry(shmem, &pfdev->shrinker_list, madv_list) {
+-		if (drm_gem_shmem_is_purgeable(shmem))
+-			count += shmem->base.size >> PAGE_SHIFT;
++	list_for_each_entry(uma, &pfdev->shrinker_list, madv_list) {
++		if (drm_gem_uma_is_purgeable(uma))
++			count += uma->base.size >> PAGE_SHIFT;
+ 	}
+ 
+ 	mutex_unlock(&pfdev->shrinker_lock);
+@@ -37,7 +37,7 @@ panfrost_gem_shrinker_count(struct shrinker *shrinker, struct shrink_control *sc
+ 
+ static bool panfrost_gem_purge(struct drm_gem_object *obj)
+ {
+-	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++	struct drm_gem_uma_object *uma = to_drm_gem_uma_obj(obj);
+ 	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
+ 	bool ret = false;
+ 
+@@ -47,14 +47,14 @@ static bool panfrost_gem_purge(struct drm_gem_object *obj)
+ 	if (!mutex_trylock(&bo->mappings.lock))
+ 		return false;
+ 
+-	if (!dma_resv_trylock(shmem->base.resv))
++	if (!dma_resv_trylock(uma->base.resv))
+ 		goto unlock_mappings;
+ 
+ 	panfrost_gem_teardown_mappings_locked(bo);
+-	drm_gem_shmem_purge_locked(&bo->base);
++	drm_gem_uma_purge_locked(&bo->base);
+ 	ret = true;
+ 
+-	dma_resv_unlock(shmem->base.resv);
++	dma_resv_unlock(uma->base.resv);
+ 
+ unlock_mappings:
+ 	mutex_unlock(&bo->mappings.lock);
+@@ -65,19 +65,19 @@ static unsigned long
+ panfrost_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
+ {
+ 	struct panfrost_device *pfdev = shrinker->private_data;
+-	struct drm_gem_shmem_object *shmem, *tmp;
++	struct drm_gem_uma_object *uma, *tmp;
+ 	unsigned long freed = 0;
+ 
+ 	if (!mutex_trylock(&pfdev->shrinker_lock))
+ 		return SHRINK_STOP;
+ 
+-	list_for_each_entry_safe(shmem, tmp, &pfdev->shrinker_list, madv_list) {
++	list_for_each_entry_safe(uma, tmp, &pfdev->shrinker_list, madv_list) {
+ 		if (freed >= sc->nr_to_scan)
+ 			break;
+-		if (drm_gem_shmem_is_purgeable(shmem) &&
+-		    panfrost_gem_purge(&shmem->base)) {
+-			freed += shmem->base.size >> PAGE_SHIFT;
+-			list_del_init(&shmem->madv_list);
++		if (drm_gem_uma_is_purgeable(uma) &&
++		    panfrost_gem_purge(&uma->base)) {
++			freed += uma->base.size >> PAGE_SHIFT;
++			list_del_init(&uma->madv_list);
+ 		}
+ 	}
+ 
+diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+index 8f3b7a7b6ad0..a19bf238ba21 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+@@ -461,8 +461,8 @@ static int mmu_map_sg(struct panfrost_device *pfdev, struct panfrost_mmu *mmu,
+ int panfrost_mmu_map(struct panfrost_gem_mapping *mapping)
+ {
+ 	struct panfrost_gem_object *bo = mapping->obj;
+-	struct drm_gem_shmem_object *shmem = &bo->base;
+-	struct drm_gem_object *obj = &shmem->base;
++	struct drm_gem_uma_object *uma = &bo->base;
++	struct drm_gem_object *obj = &uma->base;
+ 	struct panfrost_device *pfdev = to_panfrost_device(obj->dev);
+ 	struct sg_table *sgt;
+ 	int prot = IOMMU_READ | IOMMU_WRITE | IOMMU_CACHE;
+@@ -474,7 +474,7 @@ int panfrost_mmu_map(struct panfrost_gem_mapping *mapping)
+ 	if (bo->noexec)
+ 		prot |= IOMMU_NOEXEC;
+ 
+-	sgt = drm_gem_shmem_get_pages_sgt(shmem);
++	sgt = drm_gem_uma_get_pages_sgt(uma);
+ 	if (WARN_ON(IS_ERR(sgt)))
+ 		return PTR_ERR(sgt);
+ 
+@@ -488,7 +488,7 @@ int panfrost_mmu_map(struct panfrost_gem_mapping *mapping)
+ 	return 0;
+ 
+ err_put_pages:
+-	drm_gem_shmem_put_pages_locked(shmem);
++	drm_gem_uma_put_pages_locked(uma);
+ 	return ret;
+ }
+ 
+diff --git a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
+index 7020c0192e18..874c23c7c024 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
++++ b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
+@@ -9,7 +9,7 @@
+ #include <linux/uaccess.h>
+ 
+ #include <drm/drm_file.h>
+-#include <drm/drm_gem_shmem_helper.h>
++#include <drm/drm_gem_uma_helper.h>
+ #include <drm/panfrost_drm.h>
+ 
+ #include "panfrost_device.h"
+@@ -75,7 +75,7 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
+ 	struct panfrost_file_priv *user = file_priv->driver_priv;
+ 	struct panfrost_perfcnt *perfcnt = pfdev->perfcnt;
+ 	struct iosys_map map;
+-	struct drm_gem_shmem_object *bo;
++	struct drm_gem_uma_object *bo;
+ 	u32 cfg, as;
+ 	int ret;
+ 
+@@ -88,7 +88,7 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
+ 	if (ret < 0)
+ 		goto err_put_pm;
+ 
+-	bo = drm_gem_shmem_create(&pfdev->base, perfcnt->bosize);
++	bo = drm_gem_uma_create(&pfdev->base, perfcnt->bosize);
+ 	if (IS_ERR(bo)) {
+ 		ret = PTR_ERR(bo);
+ 		goto err_put_pm;
 -- 
 2.52.0
 
