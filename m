@@ -1,105 +1,142 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00A75242D6C
-	for <virtualization@lists.linux.dev>; Wed, 10 Dec 2025 15:40:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1999527B358
+	for <virtualization@lists.linux.dev>; Wed, 10 Dec 2025 15:54:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765381261; cv=none; b=uEr4sTVlOPP4UDpZJw2A6Rqo5OPo8FxboONqivASaR0YOGadbqm4/aT/+jeXgDZ3Q5xLKyzZEVGF5xyqNUc/Y53v7hYbJEN7Huh63g95NSbEQS5rOqd+WXrPw6Qyfn5ItLkTJFblP9FMWg+1CR+FCefVsOe+CL/pNMq1y0qTPhk=
+	t=1765382071; cv=none; b=G1keNi00wmeZ+S8u9Y+nt+R55pYjrnF+sHdMqXsQ/+Zrf2wfjL8cEDzXmfZRduS3HYFXcLGmCIMboXKdZZ5KmoGzcz0kSrCumG91Sj8rJXQEVgy/HpwY1YPP8GkSpOrpGEuh2mWN10OjQMfoewjj0qb/+w7OsdpAjRYRHXbqJ9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765381261; c=relaxed/simple;
-	bh=ZS5Vuu6O2eR/+hdrKDjFrlsK58ZpNOvlQzNK6UYNyDw=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=TQ0qqy/Rt908UeVkNW3vbqlfCxXUXYcwaZpoRP7ifaizaO1JNMS7FdKOciJGyG8AVdDwgOf+EegaGiboqBLngxoubVXCMJN+7ms3j256vjEGh1h5v9pVST213LYNX88dXGe86BbpHr8hZKUGlE2lZa6SSLK9tN5HK9JBdfN2cLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=lp369/1h; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1765382071; c=relaxed/simple;
+	bh=XM5+ibgCRNx6laH3fHmABA6JPmVTRYJEvOZNcSA90SA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eXWTiFeRIcfBf4mDzwXz73BnYxcrhSCegYqwxAugVQfFmPBvPdenUiKZbppGOMpnsvXsb3uadI+1n6B0b/49Yq4ubv7s4MQa+BU0WLzrAj3FO6dSDJ3obYr9PHS2S+z8rcRMjEoycZ9RN0SyOBjablRp3RuO5slLsuEGX2bdjQg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com; spf=pass smtp.mailfrom=invisiblethingslab.com; dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b=Mns+9tOz; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Lh74OJWa; arc=none smtp.client-ip=103.168.172.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=invisiblethingslab.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="lp369/1h"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=ZS5Vuu6O2eR/+hdrKDjFrlsK58ZpNOvlQzNK6UYNyDw=; b=l
-	p369/1hhMjwjwINEpISHwru3wNpoGhIuvA1P0fr4lJjbrEN1VOi1++hEPxaWB+5W
-	LGQ9f//YsdqclbEl4jvAYKLcbZ34xZRTXtv3hWwtCJfDFeFropvuFn00IrRWEyKf
-	4f5epfTuh2BfPQzZNo4f2ONZBe4G9u6QLnn4Y/GNq0=
-Received: from r4o5m6e8o$163.com ( [36.148.182.111] ) by
- ajax-webmail-wmsvr-40-126 (Coremail) ; Wed, 10 Dec 2025 23:40:52 +0800
- (CST)
-Date: Wed, 10 Dec 2025 23:40:52 +0800 (CST)
-From: r4o5m6e8o  <r4o5m6e8o@163.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Jason Wang" <jasowang@redhat.com>,
-	"Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	"Yuedong Wang" <wyd20130109@163.com>
-Subject: Re:Re: [PATCH v2 2/2] tools: virtio: Fix no definition of
- dma_map_page_attrs
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20250723(a044bf12) Copyright (c) 2002-2025 www.mailtech.cn 163com
-In-Reply-To: <20251210035947-mutt-send-email-mst@kernel.org>
-References: <20251206032318.19084-1-r4o5m6e8o@163.com>
- <20251207142807.10808-1-r4o5m6e8o@163.com>
- <20251210035947-mutt-send-email-mst@kernel.org>
-X-NTES-SC: AL_Qu2dB/+Tvkou5CKYbekfmk0Uh+g8UcG3v/4g3YBXc8wEowLA1w4ueE1TEEr9+sWQLTqHkh2dcB5p1cRWTYl533A/uKUvlsREAknSlrogIg==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+	dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b="Mns+9tOz";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Lh74OJWa"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.phl.internal (Postfix) with ESMTP id 373ECEC071B;
+	Wed, 10 Dec 2025 10:54:28 -0500 (EST)
+Received: from phl-mailfrontend-01 ([10.202.2.162])
+  by phl-compute-04.internal (MEProxy); Wed, 10 Dec 2025 10:54:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	invisiblethingslab.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:from:from:in-reply-to:message-id
+	:mime-version:reply-to:subject:subject:to:to; s=fm1; t=
+	1765382068; x=1765468468; bh=BllEaiPhiGYZgGS2XLNjzeUPP3RSfQtfvXc
+	wa9hVnPk=; b=Mns+9tOzIa+HRFFhUpIqS/fgx4r9fxXxtjAZkKskf/x7hYp6bHj
+	4Edd+3rWq8Cm0hJ+xjOv3/E7fA3qREUYUxCglY4O9eDpxzJRl6//om2Cj1P23EoC
+	J8CdYM3II3Gg9FQ6cP6R0eGFH5FLBfibiUe5fx+/XBeFC7p8+4BStPSzUHTBEXc7
+	ny81nG/mUwwEb865e45X4zCwItwS5lhRMNcYeVzM1Ko5tizzPDh/P5ACteQLp6Q1
+	VMMdFDUFmQy8xYC2063Q2ySvtrBShVY/vLBd9h/w05QUWJiVFbwP4Dv/j4r7sxAO
+	MRUZgGgLqiNzUe6cHJFYbwg3soxU0Rwp63g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+	1765382068; x=1765468468; bh=BllEaiPhiGYZgGS2XLNjzeUPP3RSfQtfvXc
+	wa9hVnPk=; b=Lh74OJWaLQ/D9N/j7SHJz6JXV15Vlh1XodWscwhqTDzq/So2J3n
+	ciaEYJdXEtneogTwjsc2WdyacJmmn0tOYYERg5F7lOucuiiMj9g/E4LtCbna9Soq
+	SAEQQf8Toh+r5izHNJ5/KdjBc7+AB85d5cDOmkoXndIMyD5FncdHdlt85MoIEfgu
+	da1qUY7IRImWAt8VEWeqCqtv3//gA9vcrproq/7WJc/X6UCemHXDFOmEoHhWZU+m
+	2kdH6+LPAVPa7xNHTvA5i/WDqQ0y4I0b4rI50VVcn1asnaFWZTsGJoKhP/AP7zN0
+	7+J1wMLOnX+6upIAmIfNOCUM5HJeiJ5RCSA==
+X-ME-Sender: <xms:s5c5aVKpspnptEjy69VqQvm43xA_stccHAWuUCXogfXlrxyokPwFBw>
+    <xme:s5c5afoBUAi9YENBtM2jG3uqAoAAAg8hBUJI7yObgbAwaUUSeWMIEtLcvucfImYIa
+    FXJbwUhL35vB8XF_Oc5mxGaahvh50dDGcZAWHprvs37ZqlS4-Y>
+X-ME-Received: <xmr:s5c5aUiPS4D6FFKL1VDM3R5rKTuC8jmLpczjrNgNtOETpx_Tzld1gh8MLyu960XLe-ZVk2hgoSE7AvmnZ4RtZWlSSef-Rjg_HwnKdhkfE9ovLDIAijd811ToMgw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvvdekgecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpefhvfevufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeggrghlucfrrggtkhgv
+    thhtuceovhgrlhesihhnvhhishhisghlvghthhhinhhgshhlrggsrdgtohhmqeenucggtf
+    frrghtthgvrhhnpeevudeiiedtjeegfeduveffkedtkeegudelfedvhfdvffdvjedvfeej
+    uedvgeduleenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehvrghlsehinhhvihhsihgslhgvthhhihhnghhslhgrsgdrtghomhdpnhgspghrtghp
+    thhtohepudeipdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegrihhrlhhivgguse
+    hrvgguhhgrthdrtghomhdprhgtphhtthhopehkrhgrgigvlhesrhgvughhrghtrdgtohhm
+    pdhrtghpthhtohepughmihhtrhihrdhoshhiphgvnhhkohestgholhhlrggsohhrrgdrtg
+    homhdprhgtphhtthhopehguhhrtghhvghtrghnshhinhhghhestghhrhhomhhiuhhmrdho
+    rhhgpdhrtghpthhtohepohhlvhgrfhhfvgesghhmrghilhdrtghomhdprhgtphhtthhope
+    hmrggrrhhtvghnrdhlrghnkhhhohhrshhtsehlihhnuhigrdhinhhtvghlrdgtohhmpdhr
+    tghpthhtohepmhhrihhprghrugeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepthiiih
+    hmmhgvrhhmrghnnhesshhushgvrdguvgdprhgtphhtthhopehsihhmohhnrgesfhhffihl
+    lhdrtghh
+X-ME-Proxy: <xmx:s5c5aWb9rNrhVGA5AOpjVHbkhRXPT0AjethTgb9ekF3eHBxuM_30XA>
+    <xmx:s5c5aUnGWGVRvi41NTsJolOCIuF4aF4l9BI5aPA4hDpdnbBUIA-7iw>
+    <xmx:s5c5aUyBdj71vM9_Tfb4Oh6MgaaDtEEi258S2DaAYgaDFBLrIfTMdA>
+    <xmx:s5c5aS9bXAkHEHZ12JHQrBYAXDmL_H1EmeaaT5Hz4BbvIjU0UuuGhQ>
+    <xmx:tJc5afkCWTEWD1IcTk8X12Ddbe3lSYOmB_DfyKzol1DAjiEdTpzLRcw8>
+Feedback-ID: i001e48d0:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 10 Dec 2025 10:54:24 -0500 (EST)
+From: Val Packett <val@invisiblethingslab.com>
+To: David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Simona Vetter <simona@ffwll.ch>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>
+Cc: Val Packett <val@invisiblethingslab.com>,
+	Dongwon Kim <dongwon.kim@intel.com>,
+	Christian Koenig <christian.koenig@amd.com>,
+	dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] drm/virtio: Allow importing prime buffers when 3D is enabled
+Date: Wed, 10 Dec 2025 12:39:23 -0300
+Message-ID: <20251210154755.1119861-2-val@invisiblethingslab.com>
+X-Mailer: git-send-email 2.51.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <3a4a9443.b108.19b08ec247c.Coremail.r4o5m6e8o@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:figvCgC338mElDlpRl02AA--.436W
-X-CM-SenderInfo: 3uurkzkwhy0qqrwthudrp/xtbC7wTuZGk5lIS36wAA39
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+Content-Transfer-Encoding: 8bit
 
-CgoKClllcywgaXQncyBmaXggYWxsIGJ1aWxkIGVycm9ycyBmb3IgdG9vbHMvdmlydGlvLMKgClRo
-YW5rcy4KCgoKCgoKCgoKCgpBdCAyMDI1LTEyLTEwIDE2OjAwOjQwLCAiTWljaGFlbCBTLiBUc2ly
-a2luIiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+T24gU3VuLCBEZWMgMDcsIDIwMjUgYXQgMTA6
-Mjg6MDdQTSArMDgwMCwgWXVmZW5nIFdhbmcgd3JvdGU6Cj4+IEZpeCB0b29scy92aXJ0aW8gY29t
-cGlsZXIgZXJyb3IsIHBvcnQgb3ZlciB0aGUgZGVmaW5pdGlvbgo+PiBvZiBkbWFfbWFwX3BhZ2Vf
-YXR0cnMsIGRtYV91bm1hcF9wYWdlX2F0dHJzLCBkZXZfV0FSTl9PTkNFCj4+IAo+PiB2MjogcmVt
-b3ZlIGRvIHt9IHdoaWxlICgwKS4KPj4gCj4+IEZpeGVzOiA0NDdiZWVjODA2NWIgKCJ2aXJ0aW9f
-cmluZzogc3dpdGNoIHRvIHVzZSBkbWFfe21hcHx1bm1hcH1fcGFnZSgpIikKPj4gU2lnbmVkLW9m
-Zi1ieTogWXVmZW5nIFdhbmcgPHI0bzVtNmU4b0AxNjMuY29tPgo+PiBUZXN0ZWQtYnk6IFl1ZWRv
-bmcgV2FuZyA8d3lkMjAxMzAxMDlAMTYzLmNvbT4KPgo+Q2FuIHlvdSBwbHMgY2hlY2sgd2hldGhl
-cgo+aHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvYWxsL2NvdmVyLjE3NjQ4NzM3OTkuZ2l0Lm1zdEBy
-ZWRoYXQuY29tLwo+YWRkcmVzc2VzIHRoZSBpc3N1ZXMgZm9yIHlvdT8KPgo+VGhhbmtzIQo+Cj4K
-Pj4gLS0tCj4+ICB0b29scy92aXJ0aW8vbGludXgvZG1hLW1hcHBpbmcuaCB8IDMgKysrCj4+ICB0
-b29scy92aXJ0aW8vbGludXgva2VybmVsLmggICAgICB8IDEgKwo+PiAgMiBmaWxlcyBjaGFuZ2Vk
-LCA0IGluc2VydGlvbnMoKykKPj4gCj4+IGRpZmYgLS1naXQgYS90b29scy92aXJ0aW8vbGludXgv
-ZG1hLW1hcHBpbmcuaCBiL3Rvb2xzL3ZpcnRpby9saW51eC9kbWEtbWFwcGluZy5oCj4+IGluZGV4
-IDA5NTk1ODQ2MTc4OC4uZGUyNTFhMWYwYzM3IDEwMDY0NAo+PiAtLS0gYS90b29scy92aXJ0aW8v
-bGludXgvZG1hLW1hcHBpbmcuaAo+PiArKysgYi90b29scy92aXJ0aW8vbGludXgvZG1hLW1hcHBp
-bmcuaAo+PiBAQCAtMjIsNiArMjIsNyBAQCBlbnVtIGRtYV9kYXRhX2RpcmVjdGlvbiB7Cj4+ICAj
-ZGVmaW5lIGRtYV9mcmVlX2NvaGVyZW50KGQsIHMsIHAsIGgpIGtmcmVlKHApCj4+ICAKPj4gICNk
-ZWZpbmUgZG1hX21hcF9wYWdlKGQsIHAsIG8sIHMsIGRpcikgKHBhZ2VfdG9fcGh5cyhwKSArIChv
-KSkKPj4gKyNkZWZpbmUgZG1hX21hcF9wYWdlX2F0dHJzKGQsIHAsIG8sIHMsIGRpciwgYSkgKHBh
-Z2VfdG9fcGh5cyhwKSArIChvKSkKPj4gIAo+PiAgI2RlZmluZSBkbWFfbWFwX3NpbmdsZShkLCBw
-LCBzLCBkaXIpICh2aXJ0X3RvX3BoeXMocCkpCj4+ICAjZGVmaW5lIGRtYV9tYXBfc2luZ2xlX2F0
-dHJzKGQsIHAsIHMsIGRpciwgYSkgKHZpcnRfdG9fcGh5cyhwKSkKPj4gQEAgLTI5LDYgKzMwLDgg
-QEAgZW51bSBkbWFfZGF0YV9kaXJlY3Rpb24gewo+PiAgCj4+ICAjZGVmaW5lIGRtYV91bm1hcF9z
-aW5nbGUoZCwgYSwgcywgcikgZG8geyAodm9pZCkoZCk7ICh2b2lkKShhKTsgKHZvaWQpKHMpOyAo
-dm9pZCkocik7IH0gd2hpbGUgKDApCj4+ICAjZGVmaW5lIGRtYV91bm1hcF9wYWdlKGQsIGEsIHMs
-IHIpIGRvIHsgKHZvaWQpKGQpOyAodm9pZCkoYSk7ICh2b2lkKShzKTsgKHZvaWQpKHIpOyB9IHdo
-aWxlICgwKQo+PiArI2RlZmluZSBkbWFfdW5tYXBfcGFnZV9hdHRycyhkLCBhLCBzLCByLCB0KSBc
-Cj4+ICsJZG8geyAodm9pZCkoZCk7ICh2b2lkKShhKTsgKHZvaWQpKHMpOyAodm9pZCkocik7ICh2
-b2lkKSh0KTsgfSB3aGlsZSAoMCkKPj4gIAo+PiAgI2RlZmluZSBzZ19kbWFfYWRkcmVzcyhzZykg
-KDApCj4+ICAjZGVmaW5lIHNnX2RtYV9sZW4oc2cpICgwKQo+PiBkaWZmIC0tZ2l0IGEvdG9vbHMv
-dmlydGlvL2xpbnV4L2tlcm5lbC5oIGIvdG9vbHMvdmlydGlvL2xpbnV4L2tlcm5lbC5oCj4+IGlu
-ZGV4IDY3MDIwMDhmN2Y1Yy4uNDYwZGY5MzdiYTlkIDEwMDY0NAo+PiAtLS0gYS90b29scy92aXJ0
-aW8vbGludXgva2VybmVsLmgKPj4gKysrIGIvdG9vbHMvdmlydGlvL2xpbnV4L2tlcm5lbC5oCj4+
-IEBAIC0xMzQsNiArMTM0LDcgQEAgc3RhdGljIGlubGluZSB2b2lkICprcmVhbGxvY19hcnJheSh2
-b2lkICpwLCBzaXplX3QgbmV3X24sIHNpemVfdCBuZXdfc2l6ZSwgZ2ZwX3QKPj4gICNkZWZpbmUg
-ZGV2X2VycihkZXYsIGZvcm1hdCwgLi4uKSBmcHJpbnRmIChzdGRlcnIsIGZvcm1hdCwgIyMgX19W
-QV9BUkdTX18pCj4+ICAjZGVmaW5lIGRldl93YXJuKGRldiwgZm9ybWF0LCAuLi4pIGZwcmludGYg
-KHN0ZGVyciwgZm9ybWF0LCAjIyBfX1ZBX0FSR1NfXykKPj4gICNkZWZpbmUgZGV2X3dhcm5fb25j
-ZShkZXYsIGZvcm1hdCwgLi4uKSBmcHJpbnRmIChzdGRlcnIsIGZvcm1hdCwgIyMgX19WQV9BUkdT
-X18pCj4+ICsjZGVmaW5lIGRldl9XQVJOX09OQ0UoZGV2LCBjb25kaXRpb24sIGZvcm1hdCwgLi4u
-KSBmcHJpbnRmKHN0ZGVyciwgZm9ybWF0LCAjIyBfX1ZBX0FSR1NfXykKPj4gIAo+PiAgI2RlZmlu
-ZSBtaW4oeCwgeSkgKHsJCQkJXAo+PiAgCXR5cGVvZih4KSBfbWluMSA9ICh4KTsJCQlcCj4+IC0t
-IAo+PiAyLjQzLjAK
+This functionality was added for using a KMS-only virtgpu with a physical
+(or SR-IOV) headless GPU in passthrough, but it should not be restricted
+to KMS-only mode. It can be used with cross-domain to pass guest memfds
+to the host compositor with zero copies (using udmabuf on both sides).
+
+Drop the check for the absence of virgl_3d to allow for more use cases.
+
+Fixes: ca77f27a2665 ("drm/virtio: Import prime buffers from other devices as guest blobs")
+Signed-off-by: Val Packett <val@invisiblethingslab.com>
+---
+
+Hi. I couldn't find any comments on that line in the reviews (on patchwork), so I assume
+there was never a specific technical reason for that check, just an abundance of caution?
+
+BTW, while here.. The drm_gem_prime_import "fallback" seems pretty much equivalent to
+`return (-ENODEV)`, as drm_gem_prime_import(_dev) just translates the call to
+gem_prime_import_sg_table which we don't use. Should it be replaced with `return (-ENODEV)`?
+
+---
+ drivers/gpu/drm/virtio/virtgpu_prime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+index ce49282198cb..2fedd5d3bd62 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_prime.c
++++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+@@ -312,7 +312,7 @@ struct drm_gem_object *virtgpu_gem_prime_import(struct drm_device *dev,
+ 		}
+ 	}
+ 
+-	if (!vgdev->has_resource_blob || vgdev->has_virgl_3d)
++	if (!vgdev->has_resource_blob)
+ 		return drm_gem_prime_import(dev, buf);
+ 
+ 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
+-- 
+2.51.2
+
