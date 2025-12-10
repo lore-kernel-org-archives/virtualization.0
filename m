@@ -1,241 +1,184 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out162-62-57-137.mail.qq.com (out162-62-57-137.mail.qq.com [162.62.57.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A257302768
-	for <virtualization@lists.linux.dev>; Wed, 10 Dec 2025 09:57:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C541C26E6F2;
+	Wed, 10 Dec 2025 10:03:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765360630; cv=none; b=MHFbDv4QZ2MHvRhcyezIQmgfEJcZt0cBRcrPZJof9sILeQKapewahCA0/E2CXX63CuQvWWXijPwE3emdA6Ch5SVxJyFt+CPFVch2t2KxBdXcj0bAwdhrxFm+t8ksK1ugFAV/adVRHN85fT0Ab31JZtpOuD6X3WYS0/VYRFRy6gg=
+	t=1765361013; cv=none; b=C9M5JzWzZvxRO+tw9KSXD/GZr/shJPW2byOuRX2RVwZrgsuU72sbHezmIHN/TAzKbDip7olI8qOo0N3HYbAjLZhLxjh9jrkXL6SRBXPVn7OtgxwPz/nEy63eFfEXqdpHHIL9P0tIIEWAoG+WGxdmBMvvmYQickunCeFjMS0KiV8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765360630; c=relaxed/simple;
-	bh=TzjJPTIOUaLolrVkfOaake/i1ftJcZN332W/cKYrdr0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CATRkOsHczlW2vl0NbNf7aBhpo3tAfZUmC1cO0x5l30gmiElZUt7QHzclAUcavsH1uqOTktcmibZU+J8sdhQnJ/NtAALOxMKwk+1/VbcFQL0Eu6hP2YPppFc1yMZPhNs6HFwpFIFWgqZQzp4NN0qMhHc9KKSsd6KLYiJ9gQS8fY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AK3PVh+Z; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MYadPk56; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AK3PVh+Z; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MYadPk56; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1765361013; c=relaxed/simple;
+	bh=hHOb0pHbFva4I+x4uijiSBLjhyKbHSkdIbKpygCjPME=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version; b=c1BfRI0NuLDzrgD0toksRoCwvPsdJ3RwxdZITxb3cFK9+02Wl0KPx3SK1oAOfRUnbdGJf0/FYaLANYsAfx06HP2OrreLvlqGcu1ra4wEgcLLh1xhZ9LYSVuiOfzqSnboVeoOgm69lL/GaEqrFPzL/QM0BYJ5F5U5mavh2Co4w/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=w/stcOv+; arc=none smtp.client-ip=162.62.57.137
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AK3PVh+Z";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MYadPk56";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AK3PVh+Z";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MYadPk56"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id C687D5BD21;
-	Wed, 10 Dec 2025 09:57:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765360626; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=SxPTt3XmlnSFZ18urnZ50SEofQyqnAOgbKd3PNWkJWU=;
-	b=AK3PVh+Zwj1d45yK1/GvPYJxAK682XrE9I+zbNCx/L6JobI+840/FSFejJhJ+jLUo9kRGV
-	nFTArGtXNSz63JaAiuDFbP/G1eha4lh4DDDztb9m7kbXoi4vCB/yySwlNoiSaG2TKPGOZY
-	zU3NXPsox1km1MsIXTfB08GGiEccoLE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765360626;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=SxPTt3XmlnSFZ18urnZ50SEofQyqnAOgbKd3PNWkJWU=;
-	b=MYadPk5667M/8uxXnmVc7iryhMbhpcfVCR9ISk5bJ/Px7JwcO3eZFRq5S/ZLxt//a9hrh+
-	AKhamL6md6FgQNAw==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765360626; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=SxPTt3XmlnSFZ18urnZ50SEofQyqnAOgbKd3PNWkJWU=;
-	b=AK3PVh+Zwj1d45yK1/GvPYJxAK682XrE9I+zbNCx/L6JobI+840/FSFejJhJ+jLUo9kRGV
-	nFTArGtXNSz63JaAiuDFbP/G1eha4lh4DDDztb9m7kbXoi4vCB/yySwlNoiSaG2TKPGOZY
-	zU3NXPsox1km1MsIXTfB08GGiEccoLE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765360626;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=SxPTt3XmlnSFZ18urnZ50SEofQyqnAOgbKd3PNWkJWU=;
-	b=MYadPk5667M/8uxXnmVc7iryhMbhpcfVCR9ISk5bJ/Px7JwcO3eZFRq5S/ZLxt//a9hrh+
-	AKhamL6md6FgQNAw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 069683EA63;
-	Wed, 10 Dec 2025 09:57:06 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id WgwzAPJDOWlIagAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 10 Dec 2025 09:57:06 +0000
-Message-ID: <f7ebd77f-8a30-4e65-8871-ad5915c310f5@suse.de>
-Date: Wed, 10 Dec 2025 10:57:05 +0100
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="w/stcOv+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1765360999; bh=LCRtxAYuGByxDxvJWLaU+fHIdMnrtqotoYo1riQtsVw=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=w/stcOv+VCZFf0VoGyvbE4xfFHIbVoSiBb3jpRZvI2Jl1EC4w7/FCDLza/JsW+AGg
+	 cxDG31FOHpf5PgQSYANXo+QJPKMOePnyuwFhQYEdMsd7MGhW33NrPs1l71wweS4r8k
+	 fPUQtExAnIHoqNTb3gjZYWP4Q4NYxfO5PIb4TWzg=
+Received: from lxu-ped-host.. ([111.201.7.117])
+	by newxmesmtplogicsvrszc43-0.qq.com (NewEsmtp) with SMTP
+	id CE284EB; Wed, 10 Dec 2025 18:03:14 +0800
+X-QQ-mid: xmsmtpt1765360994tuh3ingl1
+Message-ID: <tencent_000364896CA3A544481764D76486C0336005@qq.com>
+X-QQ-XMAILINFO: NG7xP+P+sy64CnCglhF8tEcniZRxm7yXDuURLY0ray/GevzC90bYklIf9MmRup
+	 BLdRdJc6yKh36B1G2hH/bHie7vYrQFzuGGknaFfDhvQRah0bsy/13BD7KlTx5vMHUAp+Iav32BLi
+	 xqR1t+q+9SKJwyqhGLxLlccpnG9UrpHF62cskwzppKj2z2iM8GJdvunHg03HD+kIH3Zklw0Gmpre
+	 G9gd0gEdE21bKcpK/UJG6IOtuYUKdxpUPEHgTkYmjWg2aLcrI2uGtwv1M9tqYyjxzyOpdkFrpaPR
+	 CGPHnjbxyW+002Ap9x+j4w5IWrElDTEJSC1OzUv6vLERvzpgUdgniZdRP6OX82ijSBe6UllvAfzs
+	 YbjvCz0cVF6OFP2WiAlFWk9Hbxlokh+wswdG3hHTKvj+qXQUth6Vv6QyhVIAiQ+3DeGdS1UfmLlC
+	 j5M/QO9ixMkMbC0GPNzhnxRn/W0/yEg5gXf/TeywWx13YjQLJNQS3lY3kgdOXd5dE2d/g8KDEK7G
+	 bJ5Bv2MqScnyLPojGcbQ1UAxZR6Rvfb/MmLKkmzJZ3E1Jl+sYf5f9uyZrsTA1JLIjliuxWIzRW6M
+	 DWaRA6tOBaPk+djoW+rwG9R/AHkLKgNFp55psSUb6Ujqijijix6tPaNQ/Se6myuklUvsV9WNYtOj
+	 F59LIDwGqKMNDJxhb5mAIGJhxn+bIpNkE3eC4ifGoKu2xOTnKA6qWhav9Hd2+0qqzZL6XSUkueoN
+	 b6WPpkZ+OCB3Ioez++tiAhgJV6AEaNiWv+YN9miqXFILwBORD99fCTQF9LiOSR+yjSpkvLvVwe7e
+	 MXHF/bDMy50svkjeS1baGbOP893XxmRaqd1qShZBqTMLkhvmhgfC0J8Q3OW3q666xVVu6ji3LfCI
+	 WJJ9yBclTRzfTH4DvrWTssN/E6CH/jFQmiz93PHGRr5glboEbo7G3pG9jg53IBXkSGIlLWJf15d5
+	 ZuG2ALFCmwZxp5E3QvRU72LHPu6pLpHIoQJU2JkOG0aqgyDqYoIVgMiFxJ9lSM7ZY/3X/I/PDyOx
+	 iOXwLmB1oq8Y/gGVsUFe/ggRFAiPfhKFEn4yu1kBUnhQUuNfw7MZ7+h9HGiTOMH33pFBsIz2aQoP
+	 pNWnIc27aLaVm0VWY=
+X-QQ-XMRINFO: OWPUhxQsoeAVDbp3OJHYyFg=
+From: Edward Adam Davis <eadavis@qq.com>
+To: kuba@kernel.org
+Cc: davem@davemloft.net,
+	eadavis@qq.com,
+	edumazet@google.com,
+	eperezma@redhat.com,
+	horms@kernel.org,
+	jasowang@redhat.com,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	netdev@vger.kernel.org,
+	pabeni@redhat.com,
+	sgarzare@redhat.com,
+	stefanha@redhat.com,
+	syzbot+ci3edb9412aeb2e703@syzkaller.appspotmail.com,
+	syzbot@lists.linux.dev,
+	syzbot@syzkaller.appspotmail.com,
+	syzkaller-bugs@googlegroups.com,
+	virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH net-next V3] net: restore the iterator to its original state when an error occurs
+Date: Wed, 10 Dec 2025 18:03:14 +0800
+X-OQ-MSGID: <20251210100313.12457-2-eadavis@qq.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20251210173125.281dc808@kernel.org>
+References: <20251210173125.281dc808@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC][PATCH 00/13] drm: Introduce GEM-UMA memory management
-To: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
- maarten.lankhorst@linux.intel.com, ogabbay@kernel.org, mamin506@gmail.com,
- lizhi.hou@amd.com, maciej.falkowski@linux.intel.com,
- karol.wachowski@linux.intel.com, tomeu@tomeuvizoso.net,
- frank.binns@imgtec.com, matt.coster@imgtec.com, yuq825@gmail.com,
- robh@kernel.org, steven.price@arm.com, adrian.larumbe@collabora.com,
- liviu.dudau@arm.com, mwen@igalia.com, kraxel@redhat.com,
- dmitry.osipenko@collabora.com, gurchetansingh@chromium.org,
- olvaffe@gmail.com, corbet@lwn.net, dri-devel@lists.freedesktop.org,
- lima@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-doc@vger.kernel.org
-References: <20251209140141.94407-1-tzimmermann@suse.de>
- <20251209152734.6851f3ac@fedora>
- <2b95d76e-2672-4cae-a545-73c407f2b20c@suse.de>
- <20251209163011.436e613b@fedora>
- <44d3e6c9-6759-4a76-9016-c9749badab94@suse.de>
- <20251210102157.76f4ec8f@fedora>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20251210102157.76f4ec8f@fedora>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -4.30
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.997];
-	MIME_GOOD(-0.10)[text/plain];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[28];
-	FREEMAIL_CC(0.00)[ffwll.ch,gmail.com,kernel.org,linux.intel.com,amd.com,tomeuvizoso.net,imgtec.com,arm.com,collabora.com,igalia.com,redhat.com,chromium.org,lwn.net,lists.freedesktop.org,lists.linux.dev,vger.kernel.org];
-	RCVD_TLS_ALL(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLzxzh56npx61idbi11ft8b9pb)];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,imap1.dmz-prg2.suse.org:helo,suse.de:mid]
 
-Hi
+On Wed, 10 Dec 2025 17:31:25 +0900, Jakub Kicinski wrote:
+> > In zerocopy_fill_skb_from_iter(), if two copy operations are performed
+> > and the first one succeeds while the second one fails, it returns a
+> > failure but the count in iterator has already been decremented due to
+> > the first successful copy. This ultimately affects the local variable
+> > rest_len in virtio_transport_send_pkt_info(), causing the remaining
+> > count in rest_len to be greater than the actual iterator count. As a
+> > result, packet sending operations continue even when the iterator count
+> > is zero, which further leads to skb->len being 0 and triggers the warning
+> > reported by syzbot [1].
+> >
+> > Therefore, if the zerocopy operation fails, we should revert the iterator
+> > to its original state.
+> >
+> > The iov_iter_revert() in skb_zerocopy_iter_stream() is no longer needed
+> > and has been removed.
+> >
+> > [1]
+> > 'send_pkt()' returns 0, but 4096 expected
+> > WARNING: net/vmw_vsock/virtio_transport_common.c:430 at virtio_transport_send_pkt_info+0xd1e/0xef0 net/vmw_vsock/virtio_transport_common.c:428, CPU#1: syz.0.17/5986
+> > Call Trace:
+> >  virtio_transport_stream_enqueue net/vmw_vsock/virtio_transport_common.c:1113 [inline]
+> >  virtio_transport_seqpacket_enqueue+0x143/0x1c0 net/vmw_vsock/virtio_transport_common.c:841
+> >  vsock_connectible_sendmsg+0xabf/0x1040 net/vmw_vsock/af_vsock.c:2158
+> >  sock_sendmsg_nosec net/socket.c:727 [inline]
+> >  __sock_sendmsg+0x21c/0x270 net/socket.c:746
+> >
+> > Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
+> > Closes: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
+> > Signed-off-by: Edward Adam Davis <eadavis@qq.com>
+> > ---
+> > v3:
+> >   - fix test tcp_zerocopy_maxfrags timeout
+> > v2: https://lore.kernel.org/all/tencent_BA768766163C533724966E36344AAE754709@qq.com/
+> >   - Remove iov_iter_revert() in skb_zerocopy_iter_stream()
+> > v1: https://lore.kernel.org/all/tencent_387517772566B03DBD365896C036264AA809@qq.com/
+> 
+> Have you investigated the other callers? Given problems with previous
+> version of this patch I'm worried you have not. If you did please extend
+> the commit message with the appropriate explanation.
+Are you asking if I investigated other zerocopy tests? NO.
+The test results [T2] for this version of the patch do not show any
+failures related to zerocopy.
 
-Am 10.12.25 um 10:21 schrieb Boris Brezillon:
-[...]
-> n that, I agree.
->
->> Also what stops you from fixing any of this in the context of gem-uma?
-> That's exactly what I want to do, except that, rather than fixing it,
-> I'd like to get it right from the start and progressively move existing
-> GPU/accel drivers using gem-shmem to gem-uma. If you blindly move every
-> GPU/accel drivers currently using gem-shmem to gem-uma (which is just a
-> rebranded gem-shmem), you're just moving the problem, you're not
-> solving it. And all of a sudden, gem-uma, which I wanted to be this
-
-Just to be clear, I'm trying to get the simple drivers out of the way 
-first. Nothing more. Solving problems with the UMA drivers is out of 
-question wrt this series.
-
-> clean slate with well defined rules, on top of which we can more
-> easily add building blocks for advanced stuff (reclaim, sparse
-> allocation, ...), is back to this far west.
-
-I've done something similar with GEM VRAM helpers a few years back. We 
-had drivers running TTM on cinsiderably simple hardware. They all went 
-to VRAM helpers at some point Still that took quite some time. With UMA 
-the problem seems more complex and the drivers are moving targets. I 
-feel like this will take years until you see the fruits of that work. 
-All while you have to maintain GEM's UMA and SHMEM code at the same time.
-
->
->> It should even be easier, as you won't have to keep my use cases in mind.
-> I might be wrong, but KMS use cases are probably not the problematic
-> ones.
->
->> In parallel, gem-shmem could go in its own direction.
-> My understanding is that you're primarily targeting KMS drivers, so why
-> don't you fork gem-shem with something called gem-shmem-for-kms (or
-> gem-shmem-dumb) that does just enough for you, and nothing more?
->
-> I'm saying that with a bit of sarcasm, and I certainly get how painful
-> it is to go and patch all KMS drivers to rename things. But if you think
-> about it for a second, it's just as painful (if not more) to fork
-> gem-uma in all users that might get in the way of a cleaner
-> abstraction. Not only that, but all of a sudden, you need a lot more
-> synchronization to get that approved, and until that happens, you're
-> blocked on the real stuff: designing something that's sounds for
-> more complex use cases GPU/accel drivers care about.
-
-There's nothing sarcastic about that. Forking from GEM SHMEM in the 
-'opposite direction' would be the other alternative. I can try to 
-provide something like GEM sysmem helpers with a simplified 
-implementation of GEM shmem that provides what the simple drivers need.
-
-Best regards
-Thomas
-
->
->> I'd like to do
->> some changes and simplifications there, which conflict with where
->> gem-uma will be heading.
-> Just to be clear, I'm not going to block this if that's the direction
-> people want to take, but I wanted to point out that making it easier for
-> you might mean making others' life harder. When I initially proposed to
-> fork gem-shmem it was not with the goal of pulling all current
-> GPU/accel users in directly, but rather design something that provides
-> the same set of features (with the ability to add more), with better
-> defined rules, so we don't end up in the same situation. What you're
-> doing here is the opposite: gem-uma becomes the gem-shmem's
-> forget-about box, and as a result, it becomes someone else's problem.
->
-> Regards,
->
-> Boris
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
-
+[T2] https://patchwork.kernel.org/project/netdevbpf/patch/tencent_3C86DFD37A0374496263BE24483777D76305@qq.com
+> 
+> Alternative would be to add a _full() flavor of this API, but not sure
+> if other callers actually care.
+> 
+> > diff --git a/net/core/datagram.c b/net/core/datagram.c
+> > index c285c6465923..3a612ebbbe80 100644
+> > --- a/net/core/datagram.c
+> > +++ b/net/core/datagram.c
+> > @@ -748,9 +748,13 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
+> >  			    size_t length,
+> >  			    struct net_devmem_dmabuf_binding *binding)
+> >  {
+> > +	struct iov_iter_state state;
+> 
+> nit: if you respin move this one line down
+OK.
+> 
+> >  	unsigned long orig_size = skb->truesize;
+> >  	unsigned long truesize;
+> > -	int ret;
+> > +	int ret, orig_len;
+> > +
+> > +	iov_iter_save_state(from, &state);
+> > +	orig_len = skb->len;
+> >
+> >  	if (msg && msg->msg_ubuf && msg->sg_from_iter)
+> >  		ret = msg->sg_from_iter(skb, from, length);
+> > @@ -759,6 +763,9 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
+> >  	else
+> >  		ret = zerocopy_fill_skb_from_iter(skb, from, length);
+> >
+> > +	if (ret == -EFAULT || (ret == -EMSGSIZE && skb->len == orig_len))
+> 
+> I'd think that for the purpose of reverting iter the second part of
+> this condition is completely moot. If skb len didn't change there should
+> be nothing to revert?
+Regarding the second judgment condition, I aligned it with the condition
+in skb_zerocopy_iter_stream(). During my testing, I only encountered
+-EFAULT failures, not -EMSGSIZE.
+> 
+> > +		iov_iter_restore(from, &state);
+> > +
+> >  	truesize = skb->truesize - orig_size;
+> >  	if (sk && sk->sk_type == SOCK_STREAM) {
+> >  		sk_wmem_queued_add(sk, truesize);
+> > diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+> > index a00808f7be6a..7b8836f668b7 100644
+> > --- a/net/core/skbuff.c
+> > +++ b/net/core/skbuff.c
+> > @@ -1908,7 +1908,6 @@ int skb_zerocopy_iter_stream(struct sock *sk, struct sk_buff *skb,
+> >  		struct sock *save_sk = skb->sk;
+> >
+> >  		/* Streams do not free skb on error. Reset to prev state. */
+> > -		iov_iter_revert(&msg->msg_iter, skb->len - orig_len);
+> >  		skb->sk = sk;
+> >  		___pskb_trim(skb, orig_len);
+> >  		skb->sk = save_sk;
 
