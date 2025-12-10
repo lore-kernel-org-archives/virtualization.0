@@ -1,142 +1,109 @@
-Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1999527B358
-	for <virtualization@lists.linux.dev>; Wed, 10 Dec 2025 15:54:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F39812882A8;
+	Wed, 10 Dec 2025 15:58:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765382071; cv=none; b=G1keNi00wmeZ+S8u9Y+nt+R55pYjrnF+sHdMqXsQ/+Zrf2wfjL8cEDzXmfZRduS3HYFXcLGmCIMboXKdZZ5KmoGzcz0kSrCumG91Sj8rJXQEVgy/HpwY1YPP8GkSpOrpGEuh2mWN10OjQMfoewjj0qb/+w7OsdpAjRYRHXbqJ9k=
+	t=1765382326; cv=none; b=mSN7VAzL06QIbzAqDsEPX06uRiAfSbtEJ/moYi9xZRajGM5TFabCTA7QoatdrDgpTMRKPctNhYcOQMUWxkGrk3Jm2tX46ArNPe7tUZfA4RIKUGmBNdoH9nIVa9MQoR0Kw+mYYtBOrc0vHAPKzGurWx64rUCwk4NE3XIxLjZ7UpU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765382071; c=relaxed/simple;
-	bh=XM5+ibgCRNx6laH3fHmABA6JPmVTRYJEvOZNcSA90SA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eXWTiFeRIcfBf4mDzwXz73BnYxcrhSCegYqwxAugVQfFmPBvPdenUiKZbppGOMpnsvXsb3uadI+1n6B0b/49Yq4ubv7s4MQa+BU0WLzrAj3FO6dSDJ3obYr9PHS2S+z8rcRMjEoycZ9RN0SyOBjablRp3RuO5slLsuEGX2bdjQg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com; spf=pass smtp.mailfrom=invisiblethingslab.com; dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b=Mns+9tOz; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Lh74OJWa; arc=none smtp.client-ip=103.168.172.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=invisiblethingslab.com
+	s=arc-20240116; t=1765382326; c=relaxed/simple;
+	bh=qvjwYOSej14LmnAXuJAPw6t4oA5ObOE8CaNcBS1erKs=;
+	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Tt0eg/Llzg3X65iXIni+pf8mp+RHAvpF2N/wMLaiq/ZGylTiz7UUS8j/WLoHz2Jl51ALjvMhtcMkLbaV4q885IlK4ev7940tnZ8SYbd1PhSAJtw6Bjzov9eIrPV2oKKEzgz1K93/087b2k6YYZSyVYB1TgutKTEITm0HQXmeeAM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ht/zMm4x; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b="Mns+9tOz";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Lh74OJWa"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.phl.internal (Postfix) with ESMTP id 373ECEC071B;
-	Wed, 10 Dec 2025 10:54:28 -0500 (EST)
-Received: from phl-mailfrontend-01 ([10.202.2.162])
-  by phl-compute-04.internal (MEProxy); Wed, 10 Dec 2025 10:54:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	invisiblethingslab.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:from:from:in-reply-to:message-id
-	:mime-version:reply-to:subject:subject:to:to; s=fm1; t=
-	1765382068; x=1765468468; bh=BllEaiPhiGYZgGS2XLNjzeUPP3RSfQtfvXc
-	wa9hVnPk=; b=Mns+9tOzIa+HRFFhUpIqS/fgx4r9fxXxtjAZkKskf/x7hYp6bHj
-	4Edd+3rWq8Cm0hJ+xjOv3/E7fA3qREUYUxCglY4O9eDpxzJRl6//om2Cj1P23EoC
-	J8CdYM3II3Gg9FQ6cP6R0eGFH5FLBfibiUe5fx+/XBeFC7p8+4BStPSzUHTBEXc7
-	ny81nG/mUwwEb865e45X4zCwItwS5lhRMNcYeVzM1Ko5tizzPDh/P5ACteQLp6Q1
-	VMMdFDUFmQy8xYC2063Q2ySvtrBShVY/vLBd9h/w05QUWJiVFbwP4Dv/j4r7sxAO
-	MRUZgGgLqiNzUe6cHJFYbwg3soxU0Rwp63g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:feedback-id:feedback-id:from:from
-	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1765382068; x=1765468468; bh=BllEaiPhiGYZgGS2XLNjzeUPP3RSfQtfvXc
-	wa9hVnPk=; b=Lh74OJWaLQ/D9N/j7SHJz6JXV15Vlh1XodWscwhqTDzq/So2J3n
-	ciaEYJdXEtneogTwjsc2WdyacJmmn0tOYYERg5F7lOucuiiMj9g/E4LtCbna9Soq
-	SAEQQf8Toh+r5izHNJ5/KdjBc7+AB85d5cDOmkoXndIMyD5FncdHdlt85MoIEfgu
-	da1qUY7IRImWAt8VEWeqCqtv3//gA9vcrproq/7WJc/X6UCemHXDFOmEoHhWZU+m
-	2kdH6+LPAVPa7xNHTvA5i/WDqQ0y4I0b4rI50VVcn1asnaFWZTsGJoKhP/AP7zN0
-	7+J1wMLOnX+6upIAmIfNOCUM5HJeiJ5RCSA==
-X-ME-Sender: <xms:s5c5aVKpspnptEjy69VqQvm43xA_stccHAWuUCXogfXlrxyokPwFBw>
-    <xme:s5c5afoBUAi9YENBtM2jG3uqAoAAAg8hBUJI7yObgbAwaUUSeWMIEtLcvucfImYIa
-    FXJbwUhL35vB8XF_Oc5mxGaahvh50dDGcZAWHprvs37ZqlS4-Y>
-X-ME-Received: <xmr:s5c5aUiPS4D6FFKL1VDM3R5rKTuC8jmLpczjrNgNtOETpx_Tzld1gh8MLyu960XLe-ZVk2hgoSE7AvmnZ4RtZWlSSef-Rjg_HwnKdhkfE9ovLDIAijd811ToMgw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvvdekgecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefhvfevufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeggrghlucfrrggtkhgv
-    thhtuceovhgrlhesihhnvhhishhisghlvghthhhinhhgshhlrggsrdgtohhmqeenucggtf
-    frrghtthgvrhhnpeevudeiiedtjeegfeduveffkedtkeegudelfedvhfdvffdvjedvfeej
-    uedvgeduleenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehvrghlsehinhhvihhsihgslhgvthhhihhnghhslhgrsgdrtghomhdpnhgspghrtghp
-    thhtohepudeipdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegrihhrlhhivgguse
-    hrvgguhhgrthdrtghomhdprhgtphhtthhopehkrhgrgigvlhesrhgvughhrghtrdgtohhm
-    pdhrtghpthhtohepughmihhtrhihrdhoshhiphgvnhhkohestgholhhlrggsohhrrgdrtg
-    homhdprhgtphhtthhopehguhhrtghhvghtrghnshhinhhghhestghhrhhomhhiuhhmrdho
-    rhhgpdhrtghpthhtohepohhlvhgrfhhfvgesghhmrghilhdrtghomhdprhgtphhtthhope
-    hmrggrrhhtvghnrdhlrghnkhhhohhrshhtsehlihhnuhigrdhinhhtvghlrdgtohhmpdhr
-    tghpthhtohepmhhrihhprghrugeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepthiiih
-    hmmhgvrhhmrghnnhesshhushgvrdguvgdprhgtphhtthhopehsihhmohhnrgesfhhffihl
-    lhdrtghh
-X-ME-Proxy: <xmx:s5c5aWb9rNrhVGA5AOpjVHbkhRXPT0AjethTgb9ekF3eHBxuM_30XA>
-    <xmx:s5c5aUnGWGVRvi41NTsJolOCIuF4aF4l9BI5aPA4hDpdnbBUIA-7iw>
-    <xmx:s5c5aUyBdj71vM9_Tfb4Oh6MgaaDtEEi258S2DaAYgaDFBLrIfTMdA>
-    <xmx:s5c5aS9bXAkHEHZ12JHQrBYAXDmL_H1EmeaaT5Hz4BbvIjU0UuuGhQ>
-    <xmx:tJc5afkCWTEWD1IcTk8X12Ddbe3lSYOmB_DfyKzol1DAjiEdTpzLRcw8>
-Feedback-ID: i001e48d0:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 10 Dec 2025 10:54:24 -0500 (EST)
-From: Val Packett <val@invisiblethingslab.com>
-To: David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Simona Vetter <simona@ffwll.ch>,
-	Vivek Kasireddy <vivek.kasireddy@intel.com>
-Cc: Val Packett <val@invisiblethingslab.com>,
-	Dongwon Kim <dongwon.kim@intel.com>,
-	Christian Koenig <christian.koenig@amd.com>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/virtio: Allow importing prime buffers when 3D is enabled
-Date: Wed, 10 Dec 2025 12:39:23 -0300
-Message-ID: <20251210154755.1119861-2-val@invisiblethingslab.com>
-X-Mailer: git-send-email 2.51.2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ht/zMm4x"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C989C4CEF1;
+	Wed, 10 Dec 2025 15:58:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1765382325;
+	bh=qvjwYOSej14LmnAXuJAPw6t4oA5ObOE8CaNcBS1erKs=;
+	h=Subject:From:To:Date:In-Reply-To:References:From;
+	b=Ht/zMm4xWtwcIugK0fz35DG2FNcgIhqpjXK23YKu3nd9wsRb88GBHMZ3+jkBXAhd5
+	 edaE7JRVypbpgTON2IPQaHuEo5OMAwFnAylH1qrTX/17Colr/3aeA29L3iF/BRZAcz
+	 sOonnrSlYzPBd7W9S5hZdw7GOhcGFWDrm2fe+pQbjGOraJWB2AZ1Ak99QyinhaxBH6
+	 nHxKAxTP94b5UjR9Q2c8dk52MzYNSUynJiVhTOo0mZDNzFUCyiuD9xmaNpxm5ju+87
+	 RD//VNhMUGwyDPjQ7ekYHavTczy9JfkvvNnZsbaQA7S7MYZ2T2bvKzo9cCDJIVIGXX
+	 fT+3/7O/nVcuA==
+Message-ID: <564165392dfefdbb6e1739102ed80c3aee92881b.camel@kernel.org>
+Subject: Re: virtio_console: lost wakeup due to race between
+ port_fops_poll() and vring_interrupt()
+From: Amit Shah <amit@kernel.org>
+To: Lorenz Bauer <lmb@isovalent.com>, Arnd Bergmann <arnd@arndb.de>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux.dev,
+ LKML <linux-kernel@vger.kernel.org>
+Date: Wed, 10 Dec 2025 16:58:42 +0100
+In-Reply-To: <CAN+4W8hLrR1B1pNdDXiVuzoJ1q8Ta1kjV0v8vKVEZeHdRFKGcg@mail.gmail.com>
+References: 
+	<CAN+4W8hLrR1B1pNdDXiVuzoJ1q8Ta1kjV0v8vKVEZeHdRFKGcg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-This functionality was added for using a KMS-only virtgpu with a physical
-(or SR-IOV) headless GPU in passthrough, but it should not be restricted
-to KMS-only mode. It can be used with cross-domain to pass guest memfds
-to the host compositor with zero copies (using udmabuf on both sides).
+On Fri, 2025-12-05 at 18:06 +0000, Lorenz Bauer wrote:
+> Hi,
+>=20
+> I've been chasing a bug when using virtio console to exchange data
+> between guest and host. It manifests in a process inside the guest
+> getting stuck while writing to the serial port:
+>=20
+> =C2=A0=C2=A0=C2=A0 [<0>] wait_port_writable+0x139/0x2d0
+> =C2=A0=C2=A0=C2=A0 [<0>] port_fops_write+0x88/0x130
+> =C2=A0=C2=A0=C2=A0 [<0>] vfs_write+0xf3/0x450
+> =C2=A0=C2=A0=C2=A0 [<0>] ksys_write+0x6d/0xe0
+> =C2=A0=C2=A0=C2=A0 [<0>] do_syscall_64+0x9e/0x1a0
+> =C2=A0=C2=A0=C2=A0 [<0>] entry_SYSCALL_64_after_hwframe+0x77/0x7
+>=20
+> I managed to track this down to a race in virtio_console.c. The
+> driver
+> doesn't properly account for a port that receives blocking writes and
+> is polled at the same time. I suspect that a similar problem exists
+> in
+> port_fops_read().
+>=20
+> Here is how it goes. We need two threads inside the guest, A and B.
+>=20
+> - Thread A writes to the serial port until the virtqueue fills up.
+> - Thread A invokes port_fops_write() which calls
+> wait_port_writable().
+> There are no used buffers to reclaim and the thread is suspended,
+> waiting on port->waitqueue.
+> - The host side of the device makes some progress, marks some buffers
+> as consumed / used and=C2=A0 sends an interrupt to the guest.
+> - Before the guest can service the interrupt, thread B executes
+> port_fops_poll(). This calls into
+> =C2=A0 reclaim_consumed_buffers() via will_write_block(), which removes
+> all
+> used buffers.
+> - The interrupt gets serviced, calling into vring_interrupt(). Here
+> the check for more_used() returns false because the poll just went
+> through all the work. The handler returns without waking
+> port->waitqueue.
+> - port_fops_write() never returns.
 
-Drop the check for the absence of virgl_3d to allow for more use cases.
+Both port_fops_write() and port_fops_poll() call will_write_block() for
+checking the block condition -- which is whether port->outvq_full is
+set.  Even if buffers were consumed via poll, outvq_full should just
+return false, right?
 
-Fixes: ca77f27a2665 ("drm/virtio: Import prime buffers from other devices as guest blobs")
-Signed-off-by: Val Packett <val@invisiblethingslab.com>
----
+Hm, does adding wake_up(port->waitqueue) in case 'ret' is false in
+will_write_block() help?
 
-Hi. I couldn't find any comments on that line in the reviews (on patchwork), so I assume
-there was never a specific technical reason for that check, just an abundance of caution?
+> I'm not exactly sure how to best fix this. Maybe it's enough to only
+> check outvq_full in poll? It'd also be nice to fix this on the read
+> side as well.
+>=20
+> I only have a reproducer which requires a Go toolchain unfortunately:
+> https://github.com/lmb/vimto/issues/29
+>=20
+> Best
+> Lorenz
 
-BTW, while here.. The drm_gem_prime_import "fallback" seems pretty much equivalent to
-`return (-ENODEV)`, as drm_gem_prime_import(_dev) just translates the call to
-gem_prime_import_sg_table which we don't use. Should it be replaced with `return (-ENODEV)`?
-
----
- drivers/gpu/drm/virtio/virtgpu_prime.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-index ce49282198cb..2fedd5d3bd62 100644
---- a/drivers/gpu/drm/virtio/virtgpu_prime.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-@@ -312,7 +312,7 @@ struct drm_gem_object *virtgpu_gem_prime_import(struct drm_device *dev,
- 		}
- 	}
- 
--	if (!vgdev->has_resource_blob || vgdev->has_virgl_3d)
-+	if (!vgdev->has_resource_blob)
- 		return drm_gem_prime_import(dev, buf);
- 
- 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
--- 
-2.51.2
-
+		Amit
