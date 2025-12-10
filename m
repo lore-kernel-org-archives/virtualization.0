@@ -1,61 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 431E21A0BD0;
-	Tue,  9 Dec 2025 23:25:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 74440D27E
+	for <virtualization@lists.linux.dev>; Wed, 10 Dec 2025 01:22:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765322727; cv=none; b=CR+D9SNSu6BAs1MabA/Igps3IMJTTAaJfPMIHya4/itWsvUdqUS0H7jjKLQmPKXbTMIjTkeIKRXa61ucn+VsxxkA5D1rhvqCD4YmuFC07DROuRdMu69MczL7UHJqyzWmPCxMJ/UDm5jztZUTWl5Jc6QpfsvEneiv8rqV/YDS7UY=
+	t=1765329781; cv=none; b=OMqtTY03Bl8ijaZppE5wQ1xAFII9fkGsNWZ/9vxS2csb3YUvqUw/x2EW/GG0WemdE25gJNxN/X9HKuBewfuhgYn6AbVxvFo9ESwQzZg6D8N/iK7g8o+tqw7rG3SFjURpdPxcmsQr0ce7cxY9UlmXpIaOjTYGO2J4Bynx5WMJdXA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765322727; c=relaxed/simple;
-	bh=V2NlAIHt1aH1x9kaP7IIJlACfbh8JGVtUJh3h8xflXs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kqwyPH8T5UKhq1iImS9UGb55TzxpeeF0PUEngX0QvnJLH8NRu5nGUWv0xxt1O4mON/ojTGJEHQ6mKAz+/e2bbKtotElgj1eLHsuJN3lpQpA2jlNverPKPumH3C4tQey8vMlZEDABJDoNZRbNSmjxZqwyl8TxolWof4DNZ8PTffM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GU8bdFRh; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GU8bdFRh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46FEAC4CEF5;
-	Tue,  9 Dec 2025 23:25:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1765322726;
-	bh=V2NlAIHt1aH1x9kaP7IIJlACfbh8JGVtUJh3h8xflXs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=GU8bdFRhft4RiHUvkpIhH4qO4/QMVJylzjYuY79iELlDbDV9kjX1KRBQInHhc3Xh9
-	 z8SojFPLFqWjkjbt2vlPoykG8j2zDJWcF0VeUr8ehpJMyUBjgko6xJWlKtlQx9IEyg
-	 8RxCrhimlmWuHofMYLZvV5jwOXe2DGl58ckcS0ZlH1j2Sn0/nOIVIUQQbpLu2WSoNE
-	 9su/f635tDByB3zrVxoWB9YHXVRnqcAbogUNt+om6cASN3WfN0F2tLVOAcJCNevX6K
-	 iJ47I+PzV5w/YgpYCjKT1U58azb9kIQ7ZgzIi/TBAtvdxBXgfMYWdgWdBQ5o1Gi/Yy
-	 ra/lFZ4W7Lvtw==
-Date: Tue, 9 Dec 2025 15:25:24 -0800
-From: Eric Biggers <ebiggers@kernel.org>
-To: Bibo Mao <maobibo@loongson.cn>
-Cc: Gonglei <arei.gonglei@huawei.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
-	linux-crypto@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 10/10] crypto: virtio: Add ecb aes algo support
-Message-ID: <20251209232524.GE54030@quark>
-References: <20251209022258.4183415-1-maobibo@loongson.cn>
- <20251209022258.4183415-11-maobibo@loongson.cn>
+	s=arc-20240116; t=1765329781; c=relaxed/simple;
+	bh=Qv8YDGmmLNOkB0lVK0IzQRVilt9yUNepwbuNtrvlqyY=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=tvhWvE/joFyAGxijPEPMiSqy8B8IZGOzPhNWwL3fC2NPA/kEZ0X+lHMAFVkdcmTZQCs6uET8f2QuntXRJtrVJHYkqzZpH6w9Go1Cs0bawqqkHUd8KJ5w1ZIuWqDsgtlWpW3Hlkt6BFpDuG3j3+E+TSKR56W/EMWLl/UmY0j61U0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8Bx2tFtyzhp6NwsAA--.32267S3;
+	Wed, 10 Dec 2025 09:22:53 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by front1 (Coremail) with SMTP id qMiowJBxicBqyzhppaFHAQ--.37056S3;
+	Wed, 10 Dec 2025 09:22:52 +0800 (CST)
+Subject: Re: [PATCH v3 02/10] crypto: virtio: Remove duplicated virtqueue_kick
+ in virtio_crypto_skcipher_crypt_req
+To: Jason Wang <jasowang@redhat.com>
+Cc: Gonglei <arei.gonglei@huawei.com>, "Michael S . Tsirkin"
+ <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux.dev,
+ linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20251209015951.4174743-1-maobibo@loongson.cn>
+ <20251209015951.4174743-3-maobibo@loongson.cn>
+ <CACGkMEs8E9DYzmZ8k4fH7h=fxC07wMsHizyDAE3wiKmQhkW3Uw@mail.gmail.com>
+ <CACGkMEviPVi+nJvS6rU55vF8xk08kAkr6ja0tYZp3BHJK=LtJQ@mail.gmail.com>
+From: Bibo Mao <maobibo@loongson.cn>
+Message-ID: <f56218d3-b1c2-5ff8-a0c2-33683c3caef8@loongson.cn>
+Date: Wed, 10 Dec 2025 09:20:20 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251209022258.4183415-11-maobibo@loongson.cn>
+In-Reply-To: <CACGkMEviPVi+nJvS6rU55vF8xk08kAkr6ja0tYZp3BHJK=LtJQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJBxicBqyzhppaFHAQ--.37056S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj9xXoW7Xw1rKryrKF13KF45Kr15GFX_yoW3uwbEqr
+	sFkwsY9w1kGrn7AF4qvFZxJrn2g3W8AF98tw4UX3WSqas8GanxWFn2grn7Gr13JFWxCrn0
+	kws3t34rCw129osvyTuYvTs0mTUanT9S1TB71UUUUUJqnTZGkaVYY2UrUUUUj1kv1TuYvT
+	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
+	cSsGvfJTRUUUbf8YFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
+	vaj40_Wr0E3s1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+	w2x7M28EF7xvwVC0I7IYx2IY67AKxVWUCVW8JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267AKxVW8
+	JVW8Jr1ln4kS14v26r1Y6r17M2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2
+	x26I8E6xACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17
+	McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7
+	I2V7IY0VAS07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8
+	JwCFI7km07C267AKxVWUXVWUAwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14
+	v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY
+	67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2
+	IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_
+	Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8hiSPUUUUU==
 
-On Tue, Dec 09, 2025 at 10:22:58AM +0800, Bibo Mao wrote:
-> ECB AES also is added here, its ivsize is zero and name is different
-> compared with CBC AES algo.
 
-What is the use case for this feature?
 
-- Eric
+On 2025/12/9 下午12:32, Jason Wang wrote:
+> On Tue, Dec 9, 2025 at 12:31 PM Jason Wang <jasowang@redhat.com> wrote:
+>>
+>> On Tue, Dec 9, 2025 at 10:00 AM Bibo Mao <maobibo@loongson.cn> wrote:
+>>>
+>>> With function virtio_crypto_skcipher_crypt_req(), there is already
+>>> virtqueue_kick() call with spinlock held in funtion
+>>
+>> A typo should be "function".
+Good catch, will correct this.
+>>
+>>> __virtio_crypto_skcipher_do_req(). Remove duplicated virtqueue_kick()
+>>> function call here.
+>>>
+>>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>>
+>> Acked-by: Jason Wang <jasowang@redhat.com>
+> 
+> Btw.
+> 
+> I think this probably deserved a stable tag as well as the
+> virtqueue_kick is not synchronized here?
+sure, will do in next version.
+
+Regards
+Bibo Mao
+> 
+>>
+>> Thanks
+> 
+> Thanks
+> 
+
