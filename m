@@ -1,150 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A14C31F3FE9;
-	Wed, 10 Dec 2025 08:31:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EE011C860C
+	for <virtualization@lists.linux.dev>; Wed, 10 Dec 2025 09:00:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765355491; cv=none; b=HmMkVrGojpdDrnyHqj5hhcj769m0hPou+0Hxb8hBV2xrG2sF8Jil+P76ftsC00q3h0y3GKQWtOICFF289cEnN94a62F1a9cHP4PkM29j2IKu+KUT5ejnH4xLwHEQXMMTpIK9uiGcWGJwiLgCr4YOfymss260PrRjfh3oXw8geMs=
+	t=1765357251; cv=none; b=M8PtG41RtdfPJBkGnwc2LMIF9DSb5pt30fjISDKYU+AzxQ0FcYDw0tnKhzUO7JTVMs3g/D+tRuMe8lyCzsEIHI5DHS5vEKvRLf4i46E9uevNaCUPzn4ND3XG0J7VS9KZLR7COOAN+f2Cq0gwJoodW0aMUnek0jdoWKKHg6hNvLU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765355491; c=relaxed/simple;
-	bh=n7nCUlTV4fyFUAsZSXKYvC743HHeyUkFmbdCcDsWo+M=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=C+7dfwcDwUy/3V9k2FtU/ucJshDWx8Ltf7NOZiR3GoGj+GSvvkXVXFAxwtD/nPrp0WRst3OIaJ3DKxmUyK4lAW/KEC8+PzdA6q0NhrCbJl0IVofPoN3kIeZK/05aU9z1GhaS4k26GvnuBu5dFDj12tR5kmTFptJW82ZkJhoklbA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ghM+4o8r; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1765357251; c=relaxed/simple;
+	bh=d6Nei3NZn5zSxxP5ybHgwWaCmSFTgXzq/YIC7D8Y0Fc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=oe8d6qrOTqwz8KWjHx2qml5kFwf2b6rNHLqsYUuH7iZM2S2GCss0ttRusuYzeQuG2qUHOCOT2xHsXHaA4UwVunXzjMYx9KB6e4LLABi0meI6BwFTehpPtBLl80H+M2mZN0t1xkwuEbeMvjdYhmgCnJkMkWl0vJAvctvpOLiDDRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SXzQIogI; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ghM+4o8r"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96596C4CEF1;
-	Wed, 10 Dec 2025 08:31:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1765355491;
-	bh=n7nCUlTV4fyFUAsZSXKYvC743HHeyUkFmbdCcDsWo+M=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=ghM+4o8rF/F5mw+FOs2evBq07uS5QT/UaWbrA7+lu1nYQkS5toqOZTcnqNon7wus7
-	 cOZaVW7XoNseG15YkvjZ/xlc0GXNUFMmgGzb7pOAXQ3ll/nqMbPeVkg3jB2/N4SN0K
-	 a3AEA7zme/jWHTUguYbNpeKwQ1oo3Q+RXqJh7R4aoh8LDdiApAA7dUNoIdEmq2ETNj
-	 Ql1U/X/DTdeyAm8HcITheEW0pZaeRnG4u4S8RYGhatSD4Jr30Mu2c8rPD+fgCNaJqS
-	 pH2Ivxkdj4Db9Fn8nYf2I9fBDZytufzrx+nVoaXDRXLi3OwqkejLArsrq7HituzOG3
-	 ndBKO/RRsHI4w==
-Date: Wed, 10 Dec 2025 17:31:25 +0900
-From: Jakub Kicinski <kuba@kernel.org>
-To: Edward Adam Davis <eadavis@qq.com>
-Cc: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com,
- horms@kernel.org, jasowang@redhat.com, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com,
- syzbot+ci3edb9412aeb2e703@syzkaller.appspotmail.com,
- syzbot@lists.linux.dev, syzbot@syzkaller.appspotmail.com,
- syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev,
- xuanzhuo@linux.alibaba.com, will@kernel.org
-Subject: Re: [PATCH net-next V3] net: restore the iterator to its original
- state when an error occurs
-Message-ID: <20251210173125.281dc808@kernel.org>
-In-Reply-To: <tencent_3C86DFD37A0374496263BE24483777D76305@qq.com>
-References: <tencent_3C86DFD37A0374496263BE24483777D76305@qq.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SXzQIogI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1765357247;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=X6+jFRyVm6N+FtnOpG1GeL7ww+mTLR6QrTsDrnCLq0I=;
+	b=SXzQIogIaA4KOZ8mdMjeaS8Q6BdfkXwGoM3DA6EizY97QkiYqjAqeFOyAEv9fbFTuFOJzg
+	X1Y33sTuvI5dmFO/ZbVcDTy+hMUVgxO1KVPxOjapSrbawRbL86D1KnMhmCdvOZy2x4+t+Z
+	lVQbss85w+R5zonooESWKb4HUlxBsP0=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-187-cvkvdlBdPReplumu71Z_Xw-1; Wed, 10 Dec 2025 04:00:46 -0500
+X-MC-Unique: cvkvdlBdPReplumu71Z_Xw-1
+X-Mimecast-MFC-AGG-ID: cvkvdlBdPReplumu71Z_Xw_1765357245
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-47904cdb9bbso5340505e9.1
+        for <virtualization@lists.linux.dev>; Wed, 10 Dec 2025 01:00:45 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765357245; x=1765962045;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=X6+jFRyVm6N+FtnOpG1GeL7ww+mTLR6QrTsDrnCLq0I=;
+        b=V3mUdqPJzmJ2VKw+jXtvzHDyzC0BKy6f3cLr57qUKNYL0nWPf4yWG/Il4Nbnlv3MQ6
+         o7Qfkbi4BDK/J/zb1D4eirtVH/u5MC7DBTHOL2rvZl0deCvzkb1gN+e+9ilhzPYF8mYS
+         pelwAjk/PEyHFlQc6xx3zdo6+cya8zuSXWTvFScuaPpHtNMKqotiSEHg0oFp2y9+OzPL
+         0y9A7b0XPLy++d2h36kWqFNqfqjPSe51uB4IN1eBQknatJbEYKvgIl8Y+b/T4KJ6h42B
+         yUor8YKcJAd0Tn63HPbh/g9sP3X7JLJN39CKwOhByxhIb4fzQK/GDCV+KCoT8y69w2t9
+         QhDg==
+X-Forwarded-Encrypted: i=1; AJvYcCVCO+mmsy0AdzsjiuEkS+F4twOm6svs6j854tvVEa8LuqlVGbaeALpy2bZKFnleYCr0b7oZnuDPE/UMrIHJTw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwwppXbJkYUfPYWm4IZ/9N9MQXpQYVf3+F0X2/MNgXjdBhcF+eX
+	RyyhHxDFFTMv6c+UvgZ+oazXVE8bx+HAkHtG6wmGhb2Fu0RGMqfDJFBSHZBTUmrufjV5EWtxISA
+	0Duk5hJJ1QtEPUuairxkcTRYOa0OR/X3WpY3poDF6ih6hdAbG1bD3odrJCxbjn/BZOZHR
+X-Gm-Gg: ASbGncuNcwg2tMyFhliIzJkhsO2kG/kYK92zz6pXYMD4sI03p/DeD+rF5HfU2fWeiAf
+	PLrWRp2XVyeHPzGq7gk4NukKkQdH+tYANNm2IyI2L0+riJ8rmwgoVW4dA2pSszvLQ4VdChs71DR
+	O/bHZqcwqsGq+hyT68MjO60q+TN9v1Dksvld51lxRGLQ7wL3v2Mzeg4ZdcYAjYz8vWhYZlFx/zv
+	KFcJK2064mKgprnElMa5jpX+kk45P2tnW9Rc8xX7f5W3EkqrRsU0MF7W87bQQTQnDh7XNrVf3bo
+	H2Y/wjhbDfDfMMCfj3EsBoAj8YUyywaL5pLNMaFhTlcSWNxeZr5mOWnb01dClVan4oX0jxQwgFS
+	TWovGgPibBbf4JxhK1ahgUrLScA12IFU=
+X-Received: by 2002:a05:600c:1796:b0:475:dadd:c474 with SMTP id 5b1f17b1804b1-47a7f94e5bdmr29121245e9.10.1765357244832;
+        Wed, 10 Dec 2025 01:00:44 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFPxx0KMRIRX8j3btiZinX+GID5lAN1DYAilF3S0rKhfOYQfGrXLaVuAUQ26OXUpi+8I8i2tw==
+X-Received: by 2002:a05:600c:1796:b0:475:dadd:c474 with SMTP id 5b1f17b1804b1-47a7f94e5bdmr29120815e9.10.1765357244045;
+        Wed, 10 Dec 2025 01:00:44 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-33-27.inter.net.il. [80.230.33.27])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47a7d3e6651sm36858485e9.7.2025.12.10.01.00.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Dec 2025 01:00:43 -0800 (PST)
+Date: Wed, 10 Dec 2025 04:00:40 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Yufeng Wang <r4o5m6e8o@163.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	Yuedong Wang <wyd20130109@163.com>
+Subject: Re: [PATCH v2 2/2] tools: virtio: Fix no definition of
+ dma_map_page_attrs
+Message-ID: <20251210035947-mutt-send-email-mst@kernel.org>
+References: <20251206032318.19084-1-r4o5m6e8o@163.com>
+ <20251207142807.10808-1-r4o5m6e8o@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20251207142807.10808-1-r4o5m6e8o@163.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: IyNc1eOPLCUejYQTqLnMz1rTJ-OIvovC63k0fYG89LQ_1765357245
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-CC: Will, as this looks like ZC side of 7fb1291257ea1e27
+On Sun, Dec 07, 2025 at 10:28:07PM +0800, Yufeng Wang wrote:
+> Fix tools/virtio compiler error, port over the definition
+> of dma_map_page_attrs, dma_unmap_page_attrs, dev_WARN_ONCE
+> 
+> v2: remove do {} while (0).
+> 
+> Fixes: 447beec8065b ("virtio_ring: switch to use dma_{map|unmap}_page()")
+> Signed-off-by: Yufeng Wang <r4o5m6e8o@163.com>
+> Tested-by: Yuedong Wang <wyd20130109@163.com>
 
-On Thu,  4 Dec 2025 00:03:39 +0800 Edward Adam Davis wrote:
-> In zerocopy_fill_skb_from_iter(), if two copy operations are performed
-> and the first one succeeds while the second one fails, it returns a
-> failure but the count in iterator has already been decremented due to
-> the first successful copy. This ultimately affects the local variable
-> rest_len in virtio_transport_send_pkt_info(), causing the remaining
-> count in rest_len to be greater than the actual iterator count. As a
-> result, packet sending operations continue even when the iterator count
-> is zero, which further leads to skb->len being 0 and triggers the warning
-> reported by syzbot [1].
-> 
-> Therefore, if the zerocopy operation fails, we should revert the iterator
-> to its original state.
-> 
-> The iov_iter_revert() in skb_zerocopy_iter_stream() is no longer needed
-> and has been removed.
-> 
-> [1]
-> 'send_pkt()' returns 0, but 4096 expected
-> WARNING: net/vmw_vsock/virtio_transport_common.c:430 at virtio_transport_send_pkt_info+0xd1e/0xef0 net/vmw_vsock/virtio_transport_common.c:428, CPU#1: syz.0.17/5986
-> Call Trace:
->  virtio_transport_stream_enqueue net/vmw_vsock/virtio_transport_common.c:1113 [inline]
->  virtio_transport_seqpacket_enqueue+0x143/0x1c0 net/vmw_vsock/virtio_transport_common.c:841
->  vsock_connectible_sendmsg+0xabf/0x1040 net/vmw_vsock/af_vsock.c:2158
->  sock_sendmsg_nosec net/socket.c:727 [inline]
->  __sock_sendmsg+0x21c/0x270 net/socket.c:746
-> 
-> Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
-> Signed-off-by: Edward Adam Davis <eadavis@qq.com>
+Can you pls check whether
+https://lore.kernel.org/all/cover.1764873799.git.mst@redhat.com/
+addresses the issues for you?
+
+Thanks!
+
+
 > ---
-> v3:
->   - fix test tcp_zerocopy_maxfrags timeout
-> v2: https://lore.kernel.org/all/tencent_BA768766163C533724966E36344AAE754709@qq.com/
->   - Remove iov_iter_revert() in skb_zerocopy_iter_stream()
-> v1: https://lore.kernel.org/all/tencent_387517772566B03DBD365896C036264AA809@qq.com/
-
-Have you investigated the other callers? Given problems with previous
-version of this patch I'm worried you have not. If you did please extend
-the commit message with the appropriate explanation.
-
-Alternative would be to add a _full() flavor of this API, but not sure
-if other callers actually care.
-
-> diff --git a/net/core/datagram.c b/net/core/datagram.c
-> index c285c6465923..3a612ebbbe80 100644
-> --- a/net/core/datagram.c
-> +++ b/net/core/datagram.c
-> @@ -748,9 +748,13 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
->  			    size_t length,
->  			    struct net_devmem_dmabuf_binding *binding)
->  {
-> +	struct iov_iter_state state;
-
-nit: if you respin move this one line down
-
->  	unsigned long orig_size = skb->truesize;
->  	unsigned long truesize;
-> -	int ret;
-> +	int ret, orig_len;
-> +
-> +	iov_iter_save_state(from, &state);
-> +	orig_len = skb->len;
+>  tools/virtio/linux/dma-mapping.h | 3 +++
+>  tools/virtio/linux/kernel.h      | 1 +
+>  2 files changed, 4 insertions(+)
+> 
+> diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-mapping.h
+> index 095958461788..de251a1f0c37 100644
+> --- a/tools/virtio/linux/dma-mapping.h
+> +++ b/tools/virtio/linux/dma-mapping.h
+> @@ -22,6 +22,7 @@ enum dma_data_direction {
+>  #define dma_free_coherent(d, s, p, h) kfree(p)
 >  
->  	if (msg && msg->msg_ubuf && msg->sg_from_iter)
->  		ret = msg->sg_from_iter(skb, from, length);
-> @@ -759,6 +763,9 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
->  	else
->  		ret = zerocopy_fill_skb_from_iter(skb, from, length);
+>  #define dma_map_page(d, p, o, s, dir) (page_to_phys(p) + (o))
+> +#define dma_map_page_attrs(d, p, o, s, dir, a) (page_to_phys(p) + (o))
 >  
-> +	if (ret == -EFAULT || (ret == -EMSGSIZE && skb->len == orig_len))
-
-I'd think that for the purpose of reverting iter the second part of
-this condition is completely moot. If skb len didn't change there should
-be nothing to revert?
-
-> +		iov_iter_restore(from, &state);
-> +
->  	truesize = skb->truesize - orig_size;
->  	if (sk && sk->sk_type == SOCK_STREAM) {
->  		sk_wmem_queued_add(sk, truesize);
-> diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-> index a00808f7be6a..7b8836f668b7 100644
-> --- a/net/core/skbuff.c
-> +++ b/net/core/skbuff.c
-> @@ -1908,7 +1908,6 @@ int skb_zerocopy_iter_stream(struct sock *sk, struct sk_buff *skb,
->  		struct sock *save_sk = skb->sk;
+>  #define dma_map_single(d, p, s, dir) (virt_to_phys(p))
+>  #define dma_map_single_attrs(d, p, s, dir, a) (virt_to_phys(p))
+> @@ -29,6 +30,8 @@ enum dma_data_direction {
 >  
->  		/* Streams do not free skb on error. Reset to prev state. */
-> -		iov_iter_revert(&msg->msg_iter, skb->len - orig_len);
->  		skb->sk = sk;
->  		___pskb_trim(skb, orig_len);
->  		skb->sk = save_sk;
--- 
-pw-bot: cr
+>  #define dma_unmap_single(d, a, s, r) do { (void)(d); (void)(a); (void)(s); (void)(r); } while (0)
+>  #define dma_unmap_page(d, a, s, r) do { (void)(d); (void)(a); (void)(s); (void)(r); } while (0)
+> +#define dma_unmap_page_attrs(d, a, s, r, t) \
+> +	do { (void)(d); (void)(a); (void)(s); (void)(r); (void)(t); } while (0)
+>  
+>  #define sg_dma_address(sg) (0)
+>  #define sg_dma_len(sg) (0)
+> diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+> index 6702008f7f5c..460df937ba9d 100644
+> --- a/tools/virtio/linux/kernel.h
+> +++ b/tools/virtio/linux/kernel.h
+> @@ -134,6 +134,7 @@ static inline void *krealloc_array(void *p, size_t new_n, size_t new_size, gfp_t
+>  #define dev_err(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
+>  #define dev_warn(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
+>  #define dev_warn_once(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
+> +#define dev_WARN_ONCE(dev, condition, format, ...) fprintf(stderr, format, ## __VA_ARGS__)
+>  
+>  #define min(x, y) ({				\
+>  	typeof(x) _min1 = (x);			\
+> -- 
+> 2.43.0
+
