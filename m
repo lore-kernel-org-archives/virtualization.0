@@ -1,184 +1,135 @@
-Received: from out162-62-57-137.mail.qq.com (out162-62-57-137.mail.qq.com [162.62.57.137])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C541C26E6F2;
-	Wed, 10 Dec 2025 10:03:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765361013; cv=none; b=C9M5JzWzZvxRO+tw9KSXD/GZr/shJPW2byOuRX2RVwZrgsuU72sbHezmIHN/TAzKbDip7olI8qOo0N3HYbAjLZhLxjh9jrkXL6SRBXPVn7OtgxwPz/nEy63eFfEXqdpHHIL9P0tIIEWAoG+WGxdmBMvvmYQickunCeFjMS0KiV8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765361013; c=relaxed/simple;
-	bh=hHOb0pHbFva4I+x4uijiSBLjhyKbHSkdIbKpygCjPME=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=c1BfRI0NuLDzrgD0toksRoCwvPsdJ3RwxdZITxb3cFK9+02Wl0KPx3SK1oAOfRUnbdGJf0/FYaLANYsAfx06HP2OrreLvlqGcu1ra4wEgcLLh1xhZ9LYSVuiOfzqSnboVeoOgm69lL/GaEqrFPzL/QM0BYJ5F5U5mavh2Co4w/o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=w/stcOv+; arc=none smtp.client-ip=162.62.57.137
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B8FD273F9
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Dec 2025 12:46:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765370799; cv=pass; b=crNvJQ/2Js0aYTKoYjcAaqzeHONBGeVEHsOtwyO2dI55mVRrSV5qhm0cozfn8D2Napg502YNyxDob8D5a73PzNc+3DdZ4iJzHFiEh7IeD/3qaxh7R5eyFFiLAC8ef0ctWQ98cgqeqmhz9efzK9UoKLFvbY/o1XB/vyBSg7hNecA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765370799; c=relaxed/simple;
+	bh=Fuc2GoHwCJq96l90crplLT80Ent3ZY/qTt10j6NqniM=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=LaOotV3Ymkdw/YZ0gf+lONM//nsToVIUstEFtFzXJS5jnwUuZuvyyy3UOO6lcT3m84KhPVD0Y5DhYDQlX/OJS+MOBSbuIaop1lQIQXDLgSa3jaS6yn3bi0v2iMpv9NgClxhW0WKlWmJVBq6195JWz7qqIEL9eb5o+zHps+XhTYk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=iki.fi header.i=@iki.fi header.b=RK0fRHnM; dkim=pass (1024-bit key) header.d=iki.fi header.i=@iki.fi header.b=DzELVdZc; arc=pass smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="w/stcOv+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1765360999; bh=LCRtxAYuGByxDxvJWLaU+fHIdMnrtqotoYo1riQtsVw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=w/stcOv+VCZFf0VoGyvbE4xfFHIbVoSiBb3jpRZvI2Jl1EC4w7/FCDLza/JsW+AGg
-	 cxDG31FOHpf5PgQSYANXo+QJPKMOePnyuwFhQYEdMsd7MGhW33NrPs1l71wweS4r8k
-	 fPUQtExAnIHoqNTb3gjZYWP4Q4NYxfO5PIb4TWzg=
-Received: from lxu-ped-host.. ([111.201.7.117])
-	by newxmesmtplogicsvrszc43-0.qq.com (NewEsmtp) with SMTP
-	id CE284EB; Wed, 10 Dec 2025 18:03:14 +0800
-X-QQ-mid: xmsmtpt1765360994tuh3ingl1
-Message-ID: <tencent_000364896CA3A544481764D76486C0336005@qq.com>
-X-QQ-XMAILINFO: NG7xP+P+sy64CnCglhF8tEcniZRxm7yXDuURLY0ray/GevzC90bYklIf9MmRup
-	 BLdRdJc6yKh36B1G2hH/bHie7vYrQFzuGGknaFfDhvQRah0bsy/13BD7KlTx5vMHUAp+Iav32BLi
-	 xqR1t+q+9SKJwyqhGLxLlccpnG9UrpHF62cskwzppKj2z2iM8GJdvunHg03HD+kIH3Zklw0Gmpre
-	 G9gd0gEdE21bKcpK/UJG6IOtuYUKdxpUPEHgTkYmjWg2aLcrI2uGtwv1M9tqYyjxzyOpdkFrpaPR
-	 CGPHnjbxyW+002Ap9x+j4w5IWrElDTEJSC1OzUv6vLERvzpgUdgniZdRP6OX82ijSBe6UllvAfzs
-	 YbjvCz0cVF6OFP2WiAlFWk9Hbxlokh+wswdG3hHTKvj+qXQUth6Vv6QyhVIAiQ+3DeGdS1UfmLlC
-	 j5M/QO9ixMkMbC0GPNzhnxRn/W0/yEg5gXf/TeywWx13YjQLJNQS3lY3kgdOXd5dE2d/g8KDEK7G
-	 bJ5Bv2MqScnyLPojGcbQ1UAxZR6Rvfb/MmLKkmzJZ3E1Jl+sYf5f9uyZrsTA1JLIjliuxWIzRW6M
-	 DWaRA6tOBaPk+djoW+rwG9R/AHkLKgNFp55psSUb6Ujqijijix6tPaNQ/Se6myuklUvsV9WNYtOj
-	 F59LIDwGqKMNDJxhb5mAIGJhxn+bIpNkE3eC4ifGoKu2xOTnKA6qWhav9Hd2+0qqzZL6XSUkueoN
-	 b6WPpkZ+OCB3Ioez++tiAhgJV6AEaNiWv+YN9miqXFILwBORD99fCTQF9LiOSR+yjSpkvLvVwe7e
-	 MXHF/bDMy50svkjeS1baGbOP893XxmRaqd1qShZBqTMLkhvmhgfC0J8Q3OW3q666xVVu6ji3LfCI
-	 WJJ9yBclTRzfTH4DvrWTssN/E6CH/jFQmiz93PHGRr5glboEbo7G3pG9jg53IBXkSGIlLWJf15d5
-	 ZuG2ALFCmwZxp5E3QvRU72LHPu6pLpHIoQJU2JkOG0aqgyDqYoIVgMiFxJ9lSM7ZY/3X/I/PDyOx
-	 iOXwLmB1oq8Y/gGVsUFe/ggRFAiPfhKFEn4yu1kBUnhQUuNfw7MZ7+h9HGiTOMH33pFBsIz2aQoP
-	 pNWnIc27aLaVm0VWY=
-X-QQ-XMRINFO: OWPUhxQsoeAVDbp3OJHYyFg=
-From: Edward Adam Davis <eadavis@qq.com>
-To: kuba@kernel.org
-Cc: davem@davemloft.net,
-	eadavis@qq.com,
-	edumazet@google.com,
-	eperezma@redhat.com,
-	horms@kernel.org,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	pabeni@redhat.com,
-	sgarzare@redhat.com,
-	stefanha@redhat.com,
-	syzbot+ci3edb9412aeb2e703@syzkaller.appspotmail.com,
-	syzbot@lists.linux.dev,
-	syzbot@syzkaller.appspotmail.com,
-	syzkaller-bugs@googlegroups.com,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH net-next V3] net: restore the iterator to its original state when an error occurs
-Date: Wed, 10 Dec 2025 18:03:14 +0800
-X-OQ-MSGID: <20251210100313.12457-2-eadavis@qq.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20251210173125.281dc808@kernel.org>
-References: <20251210173125.281dc808@kernel.org>
+	dkim=pass (2048-bit key) header.d=iki.fi header.i=@iki.fi header.b="RK0fRHnM";
+	dkim=pass (1024-bit key) header.d=iki.fi header.i=@iki.fi header.b="DzELVdZc"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2534C40624
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Dec 2025 12:46:37 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.791
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id SPMb16Yf2OFi for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Dec 2025 12:46:36 +0000 (UTC)
+X-Greylist: delayed 591 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 10 Dec 2025 12:46:35 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org EAF8E405C8
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=iki.fi
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EAF8E405C8
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=iki.fi header.i=@iki.fi header.a=rsa-sha256 header.s=lahtoruutu header.b=RK0fRHnM;
+	dkim=pass (1024-bit key, unprotected) header.d=iki.fi header.i=@iki.fi header.a=rsa-sha256 header.s=meesny header.b=DzELVdZc
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=185.185.170.37; helo=lahtoruutu.iki.fi; envelope-from=timo.lindfors@iki.fi; receiver=<UNKNOWN> 
+Received: from lahtoruutu.iki.fi (lahtoruutu.iki.fi [185.185.170.37])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id EAF8E405C8
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Dec 2025 12:46:35 +0000 (UTC)
+Received: from meesny.iki.fi (meesny.iki.fi [195.140.195.201])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519)
+	(No client certificate requested)
+	by lahtoruutu.iki.fi (Postfix) with ESMTPS id 4dRFZq2vkcz49Q3m
+	for <virtualization@lists.linux-foundation.org>; Wed, 10 Dec 2025 14:36:35 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=lahtoruutu;
+	t=1765370195;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SM4/DYpAoX2OHJKWTtMBgck5YzGO83IGE2Ol5R7rY+g=;
+	b=RK0fRHnMJHR98vmturOzeF/ziFhCYN9/YH1/MLeKL+riAJOX3viNOBKidmlXd3Oseqg+uK
+	eLrE0jzFgBe5MTiAtCpLQfeUz28gbZpnha89tWPtD8LqizWMAl8YssoMgoRh41TkS8T67u
+	NDoLKtIb6elLU/OO/fzcIUnzQpo5CmfKmo9qkzyqiXENKVIxiqGlicyIJ8DcFW4vcpjFCW
+	qwmFQBLO3JViLO7y4Px2tIpSWoFAyLMPPtQidYAWD/4itGvlIMYePy7svvA0oTiGmx7JSo
+	ykRmMIPVCJLz/g4zoxrKyt6Tl7mRa84Xb0EBJRzeG4tpZ7H0UewAukxOSOIx1Q==
+Received: from mail.home (212-90-86-103.bb.dnainternet.fi [212.90.86.103])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: timo.lindfors)
+	by meesny.iki.fi (Postfix) with ESMTPSA id 4dRFZb5ybZzyQH;
+	Wed, 10 Dec 2025 14:36:23 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=meesny;
+	t=1765370185;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SM4/DYpAoX2OHJKWTtMBgck5YzGO83IGE2Ol5R7rY+g=;
+	b=DzELVdZcX2l8aUIYnxx+Le/a4bUhw/ZM0PWgIJF/b4/lgYXRgmodJ+Fj2B81UYKoQVUNOe
+	iP5NohO9Wt8euj3W1Gz0bCRQWyy8Ozu2aTLYwumtPE3aX8JZJcJlWS8JX5ls1CFD5q82Un
+	pKa2fSmYsYTCU6Y63dvUBqHZXf45oAU=
+ARC-Seal: i=1; a=rsa-sha256; d=iki.fi; s=meesny; cv=none; t=1765370185;
+	b=JYNpq39zyemGiMb1t7ad5v6kCUrhRJzfMJZkWIMDzFhpK08X080Ea8aZAB+SR/6hdfHsB2
+	K7zx6cXmTNOSxzB7qF2E4UdnRtfhzWyrt6/Lv0xO7sQC8blbUkeJrLZgY68VVQ8KHe2nMr
+	HCGeS9GLpS5u0vL+jte+1saB2KMP5cs=
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=timo.lindfors smtp.mailfrom=timo.lindfors@iki.fi
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
+	s=meesny; t=1765370185;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SM4/DYpAoX2OHJKWTtMBgck5YzGO83IGE2Ol5R7rY+g=;
+	b=CLDOKjX7Cu32PfV0NVCiO1qUclJ1F6tK4v16U3a9oSydenaUzfUUZqTQD+9YPTLprRkVFQ
+	QlCrC6XnFz11Jkq5qqX/Q+Qa0DkK5bNFbspliqLnKTZ0jP1OhVlRlgJtU6YigyUm1cqj3M
+	OgbiywM7mMlrI+xI9lYNmDBRrjHD/eA=
+Received: from localhost ([127.0.0.1])
+	by mail.home with esmtp (Exim 4.89)
+	(envelope-from <timo.lindfors@iki.fi>)
+	id 1vTJQd-0006HY-DS; Wed, 10 Dec 2025 14:36:23 +0200
+Date: Wed, 10 Dec 2025 14:36:23 +0200 (EET)
+From: Timo Lindfors <timo.lindfors@iki.fi>
+To: Salvatore Bonaccorso <carnil@debian.org>
+cc: Matt Marjanovic <maddog@mir.com>, 1054514@bugs.debian.org, 
+    Maxime Ripard <mripard@kernel.org>, 
+    Alex Constantino <dreaming.about.electric.sheep@gmail.com>, 
+    airlied@redhat.com, daniel@ffwll.ch, dri-devel@lists.freedesktop.org, 
+    kraxel@redhat.com, linux-kernel@vger.kernel.org, 
+    maarten.lankhorst@linux.intel.com, regressions@lists.linux.dev, 
+    spice-devel@lists.freedesktop.org, timo.lindfors@iki.fi, 
+    tzimmermann@suse.de, virtualization@lists.linux-foundation.org
+Subject: Re: Bug#1054514: linux-image-6.1.0-13-amd64: Debian VM with qxl
+ graphics freezes frequently
+In-Reply-To: <aTiTnENWsCoTbT3U@eldamar.lan>
+Message-ID: <alpine.DEB.2.20.2512101433240.24105@mail.home>
+References: <alpine.DEB.2.20.2310242308150.28457@mail.home> <b8b1497f-789e-4bb7-be17-9d3ebb30c143@mir.com> <aTiTnENWsCoTbT3U@eldamar.lan>
+User-Agent: Alpine 2.20 (DEB 67 2015-01-07)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-On Wed, 10 Dec 2025 17:31:25 +0900, Jakub Kicinski wrote:
-> > In zerocopy_fill_skb_from_iter(), if two copy operations are performed
-> > and the first one succeeds while the second one fails, it returns a
-> > failure but the count in iterator has already been decremented due to
-> > the first successful copy. This ultimately affects the local variable
-> > rest_len in virtio_transport_send_pkt_info(), causing the remaining
-> > count in rest_len to be greater than the actual iterator count. As a
-> > result, packet sending operations continue even when the iterator count
-> > is zero, which further leads to skb->len being 0 and triggers the warning
-> > reported by syzbot [1].
-> >
-> > Therefore, if the zerocopy operation fails, we should revert the iterator
-> > to its original state.
-> >
-> > The iov_iter_revert() in skb_zerocopy_iter_stream() is no longer needed
-> > and has been removed.
-> >
-> > [1]
-> > 'send_pkt()' returns 0, but 4096 expected
-> > WARNING: net/vmw_vsock/virtio_transport_common.c:430 at virtio_transport_send_pkt_info+0xd1e/0xef0 net/vmw_vsock/virtio_transport_common.c:428, CPU#1: syz.0.17/5986
-> > Call Trace:
-> >  virtio_transport_stream_enqueue net/vmw_vsock/virtio_transport_common.c:1113 [inline]
-> >  virtio_transport_seqpacket_enqueue+0x143/0x1c0 net/vmw_vsock/virtio_transport_common.c:841
-> >  vsock_connectible_sendmsg+0xabf/0x1040 net/vmw_vsock/af_vsock.c:2158
-> >  sock_sendmsg_nosec net/socket.c:727 [inline]
-> >  __sock_sendmsg+0x21c/0x270 net/socket.c:746
-> >
-> > Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
-> > Closes: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
-> > Signed-off-by: Edward Adam Davis <eadavis@qq.com>
-> > ---
-> > v3:
-> >   - fix test tcp_zerocopy_maxfrags timeout
-> > v2: https://lore.kernel.org/all/tencent_BA768766163C533724966E36344AAE754709@qq.com/
-> >   - Remove iov_iter_revert() in skb_zerocopy_iter_stream()
-> > v1: https://lore.kernel.org/all/tencent_387517772566B03DBD365896C036264AA809@qq.com/
-> 
-> Have you investigated the other callers? Given problems with previous
-> version of this patch I'm worried you have not. If you did please extend
-> the commit message with the appropriate explanation.
-Are you asking if I investigated other zerocopy tests? NO.
-The test results [T2] for this version of the patch do not show any
-failures related to zerocopy.
+On Tue, 9 Dec 2025, Salvatore Bonaccorso wrote:
+>> This is back in trixie --- unsurprisingly, because the kernel commit which
 
-[T2] https://patchwork.kernel.org/project/netdevbpf/patch/tencent_3C86DFD37A0374496263BE24483777D76305@qq.com
-> 
-> Alternative would be to add a _full() flavor of this API, but not sure
-> if other callers actually care.
-> 
-> > diff --git a/net/core/datagram.c b/net/core/datagram.c
-> > index c285c6465923..3a612ebbbe80 100644
-> > --- a/net/core/datagram.c
-> > +++ b/net/core/datagram.c
-> > @@ -748,9 +748,13 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
-> >  			    size_t length,
-> >  			    struct net_devmem_dmabuf_binding *binding)
-> >  {
-> > +	struct iov_iter_state state;
-> 
-> nit: if you respin move this one line down
-OK.
-> 
-> >  	unsigned long orig_size = skb->truesize;
-> >  	unsigned long truesize;
-> > -	int ret;
-> > +	int ret, orig_len;
-> > +
-> > +	iov_iter_save_state(from, &state);
-> > +	orig_len = skb->len;
-> >
-> >  	if (msg && msg->msg_ubuf && msg->sg_from_iter)
-> >  		ret = msg->sg_from_iter(skb, from, length);
-> > @@ -759,6 +763,9 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
-> >  	else
-> >  		ret = zerocopy_fill_skb_from_iter(skb, from, length);
-> >
-> > +	if (ret == -EFAULT || (ret == -EMSGSIZE && skb->len == orig_len))
-> 
-> I'd think that for the purpose of reverting iter the second part of
-> this condition is completely moot. If skb len didn't change there should
-> be nothing to revert?
-Regarding the second judgment condition, I aligned it with the condition
-in skb_zerocopy_iter_stream(). During my testing, I only encountered
--EFAULT failures, not -EMSGSIZE.
-> 
-> > +		iov_iter_restore(from, &state);
-> > +
-> >  	truesize = skb->truesize - orig_size;
-> >  	if (sk && sk->sk_type == SOCK_STREAM) {
-> >  		sk_wmem_queued_add(sk, truesize);
-> > diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-> > index a00808f7be6a..7b8836f668b7 100644
-> > --- a/net/core/skbuff.c
-> > +++ b/net/core/skbuff.c
-> > @@ -1908,7 +1908,6 @@ int skb_zerocopy_iter_stream(struct sock *sk, struct sk_buff *skb,
-> >  		struct sock *save_sk = skb->sk;
-> >
-> >  		/* Streams do not free skb on error. Reset to prev state. */
-> > -		iov_iter_revert(&msg->msg_iter, skb->len - orig_len);
-> >  		skb->sk = sk;
-> >  		___pskb_trim(skb, orig_len);
-> >  		skb->sk = save_sk;
+Indeed. The reverst of the problematic commit was reverted in mainline 
+kernel. I have spent several days trying to understand the problem but 
+unfortunately I don't have enough time to troubleshoot this more.
 
+I tried switching to virtio but for my use case of remote Linux desktops 
+it is not usable. If I scroll a fullscreen web page I can see how the 
+whole screen is redrawn every time,
+
+Meanwhile I've switched from SPICE to RDP. GNOME in trixie supports 
+headless RDP sessions that make this very convenient. Client support is 
+also much better for RDP. I solved the authentication problem by isolating 
+each VM from each other on network level and then deployed rdpgw 
+(https://github.com/bolkedebruin/rdpgw) in front of everything with OpenID 
+authentication.
+
+-Timo
