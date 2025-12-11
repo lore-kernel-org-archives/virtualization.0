@@ -1,325 +1,246 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A45028A72F
-	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 14:52:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E47C2D8799
+	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 15:04:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765464724; cv=none; b=ghTcLigu7KYzlbxxgoZfAj35VmNB0WDH8LmTGdmlS3YZrGrQ4y1vDWRiDF5EfGNfTl2pKGEstvrYPF+hyAXDCgqopquyju3GL7pJoZvVqwshtQD5iXlaoWin80IDiQpuAoK8XwldiLMOcUvZw30ASfl9VQ+pkELbHMwVLSvQS88=
+	t=1765465476; cv=none; b=NAD9OProLlzbC8uVkaTlJ3E+/woHiRJRSoNFcwW1Q2KJ/KB9ffvWnQW6XZYIVBmNhCn87Akmhm90jEbZxaVgDOjv8lnUJG4M0b3mQSViIstwvGjYvdRM1fdU4fQpVA9gLqK5jHR8EJYbA64ZDgH8oOm8StcBC7lIlLD0cZEWtTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765464724; c=relaxed/simple;
-	bh=Y83a+pWqa9SCSVS9irqS7Ysh9P+/KOUgBQg17r98qAk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iyLSf2u4Ub0tOBx1S5ARmiWDRCR7SchVmmaV9/LeZmGimsvFbYKroVG/8y1wZyKeWd7OWo/EGoFRwIqRsxPqxoB0igvKKeqRB+K/f+PjoUMV3HDYtU/uoNXNYT3OaecF7HDezMfyqtLN2BJKjDbb7yMgNeNB1i89xWc/Gx6b1Uk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PpLgbBVq; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1765465476; c=relaxed/simple;
+	bh=BHz3xcbiNKi6kN2GjKxGbF0MGFW5yOnSwwfsylgU5cs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HR4KyYiaDVr8TlRuBotYFJytvnoUF50TX+4f3M/03IDXLBWGtiODvKXAmbCvZaYSij74m4jZYZgyfd3rdVk5Rc2vVrddgBe9nYoFXABnmpUR4ev/nWM/p3kF+6u8VkyRgwqEXBJEddC61SC5ZgkEJWzSLjFE/7GYaBofPIPKERM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wa2a/emo; arc=none smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PpLgbBVq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765464721;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=mqQHq8ZjuioMTjqSleVpkDQkArjekNzO2+JyD4evAlo=;
-	b=PpLgbBVqneTW63zxcwI2tBCPQNSrGD6yXiuyjkoPGqremD+g/e++EpU/cRlfxlCJNQcgUP
-	/JWW5tWIckEXcu5bC/7GD8aFo/4YvrrsAQXCjR+s3HtAdWbW9i5ZqCDwrHsRTWih15dSPq
-	Ulo66V/fuUa8h6mGWBU1vyFZ20q1o1Q=
-Received: from mail-yx1-f70.google.com (mail-yx1-f70.google.com
- [74.125.224.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-624-8dzlQO0ENouu6ftn6hiy0Q-1; Thu, 11 Dec 2025 09:51:59 -0500
-X-MC-Unique: 8dzlQO0ENouu6ftn6hiy0Q-1
-X-Mimecast-MFC-AGG-ID: 8dzlQO0ENouu6ftn6hiy0Q_1765464719
-Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-644652a5875so419396d50.1
-        for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 06:51:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wa2a/emo"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-7aa2170adf9so182769b3a.0
+        for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 07:04:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1765465472; x=1766070272; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=QGiOaxxeedYSgO7KsDHaFkoLTRKOhWXoKaus+BgsSis=;
+        b=Wa2a/emoHKxBEjOEWZCCb5orQUavwgaI+IvSSf4rdrMS9iKSLvej+FVlIGf7sLip3F
+         WNaE3SrsREUh+K3A5PRxPI9uWZXCq6PhkwXDtBpW/yNPAqLo2BI1Kr2fZDSXFb7YFbtK
+         +st3I/Zc3qLInWgxRkzgTm6Yg9LreLHvrmCev4JY5i6qTLXB+K8dYjoZ8UzBhFsynbws
+         Qny3jZid+F44aAJv406chX26EiVZgaDVmprBmRdCKEiAR5jcSOnTCB3MdA+ZqH8YW0/v
+         GfPJbuGLm5KN9kB4A5OnAvsynvrXk9ieRC8XySWOQYjgLkgTh1pmJFddNIzRQpphszm/
+         cd+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765464719; x=1766069519;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=mqQHq8ZjuioMTjqSleVpkDQkArjekNzO2+JyD4evAlo=;
-        b=NoGQnbqu2jktatcSfZTEbL+b3qpBUFDpDSgdgyYk0aEWY4XwfrWw4UA1JrKQfSYKrG
-         BrDpCGXbHaEHK7crSi2MZsnQT9ZIdZDRA36Uqeduu7YEHhy+mwUIpV6MY+L2S6/Po7bz
-         PuPwY8NzFn2xfGHm/wILGcrQ1vjWk6Yx8HrB5pEavuemKtJEkrL6hL/mNSE3WsYuA5YI
-         0yzjarKLqNabKoptnDLVAnSBth4MsktCPZuwfrly4KhIt4T97qnHYZZ4LGjfkITKLK2G
-         KZiFMInaA9vQ/blKkIJrJwkFPq6o+c+B+lrZ46WkeHAMZYjPdlS4YobKmw4f/PafTn0R
-         8I4Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUHv0RKAF/oO3Ov/ewYx0jmyWSDLbyF7Ic5L/Rs52+oP0NlDUB0KMkOmV303RhqJtj21o02U4mRwi1ldAt//A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwjVS39JgmXMugOVCt2hMAhrkUqsyvYCx1ugJum6Lpmd56o1fiK
-	qBevFFEWcwR/3RbqTIWsyW50euSmTZNukjaGIbeKLa5ELjP9ulQQwPq2RGNyUCIPBM/xX6IYJyM
-	hYyZrA+QM4yZTzxSWw4AUaxcF174FRICYjs8lv3Vvp6fkTBnhiqkT3iRDBluasarjgDk3Elbk42
-	mjp5ZI+bXWX36xnlj2hL1exDe5LNC4gs9gje1vJTysQuI=
-X-Gm-Gg: AY/fxX4gw5upi8sqCg5d6vs/znqbKgCML0jTcL6FnokoZGQbjcCSQhPjE3DjMucllDp
-	+1bN/lh7nmB0p03NMYBD0VsZ4Q/XgrLtl0hqtQIpJvRQgOkIT/oVKR3ELaOdxKJaSDUvkRKCTPs
-	rz7DjUaFiyYBWmpE2952ASc9R1Nr7tYR9Vc9qxxhIXq5OUY0nJ6PFsQYwvvhQKLy/V
-X-Received: by 2002:a05:690e:1554:10b0:644:60d9:7513 with SMTP id 956f58d0204a3-6446eb45126mr4104574d50.87.1765464719087;
-        Thu, 11 Dec 2025 06:51:59 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEY7OAW7Iub7HfRjaep9Kwv7mbXKF7yavtvtMRDPzW/n4pEQVQlq5rllhznb0aWYw7dtPa2cqUkhRqHR2sVM1o=
-X-Received: by 2002:a05:690e:1554:10b0:644:60d9:7513 with SMTP id
- 956f58d0204a3-6446eb45126mr4104543d50.87.1765464718465; Thu, 11 Dec 2025
- 06:51:58 -0800 (PST)
+        d=1e100.net; s=20230601; t=1765465472; x=1766070272;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QGiOaxxeedYSgO7KsDHaFkoLTRKOhWXoKaus+BgsSis=;
+        b=LejZj/8txo7rDbtLLVwjuGfGpPj7t04eCQcw4C9T56uWUmRrIsXdh5SymTu5YqtPqh
+         Ik/8LwiWgyKruND0Yml2mvwkLz3QfM0eG663XpNykq8xoLp5CuFnVdYCIok75gtfgniL
+         zF9D43eCk++gHIMmueWPdkciW6VqyzJkT+f/0sWBTusppmQd+4e+GOxSc7jOWm11J6wX
+         kZ0N3oLp+jxFvf5EEBJHRQK+o3wULRC5Cl2KUvOiXePxf46rruW6TK2INtj9GqX5TKLy
+         j3a1wlpGgbk5bLKc9mjCd8DJBtN3zBXsR6iyZcFN+kRS715X4IEqvCiqmNWGgSZV0Uih
+         v2Hw==
+X-Forwarded-Encrypted: i=1; AJvYcCXaQFlY7cIDJbaRuKsfdlJugTTVumWF5z0QS079MNUGdHb6o2sJYX8EIF7U09Zy9fpWhEwwLyqTgcseJt5DiA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwFhMAdEyhONluLWqVxx2dGEMuG3ONmLC5kNG/VF9VQJV61i9GY
+	DSiFrUWWsxzIgEaRorp43yIwKYjuLLVgBvbR+vqpZcW+OjA7mJuH1aX1
+X-Gm-Gg: AY/fxX5+/GXL5LK/KBmAm82TVxnlnqXHu1/jEmWrbsBlGOs1uxJ/eAYB/mAwpEP1uGT
+	gQYYz+FhYCSCoaOdKPuJo9po3u4ROstA/5amK9Sz4lOnr7tyzYLlN4bchQPrAbZbgJYrJF8/jl/
+	r2zoybYCN6FG6bGgPY9NpJg24vqZ/7StYpIg3hHoSBalHef+xH1GtPJW5ow7qwUU029mCa5cvzb
+	Sy1gHptStYyU5mx11Yohn9J/jN3ZPBXR+Ozr6J5pK1PYU/g27FHBEtkVyWBwzMGPUvQxzIaxvp+
+	jtVYYVhzzriJ1EctdhzCi9u71rgbYEcQA1cDwSp1qdBw+c/FRI47Eoa7+GI8AQAr7jyY6ikTT/X
+	9uKwj7vmBmJv3IBwAnueyQ6VAI1JINIXJDI58a9ADfs00umweRPKM1gDEv2aG0dbgDFnrTfcbnA
+	B4pzNuSI8OQgTFNeCHppWWud4aq9yewSKn7qOe68e4zVdmpfzNdc+T1buLzWTtgQ==
+X-Google-Smtp-Source: AGHT+IEDIDXduddojC2oF/NtI7nTuLQKy8+7uwAI70KDBtBUQRB3kFaFndB46SIt3slBE1QS+pBD5w==
+X-Received: by 2002:a05:6a20:158b:b0:352:3695:fa64 with SMTP id adf61e73a8af0-366e2450a28mr5947102637.37.1765465471013;
+        Thu, 11 Dec 2025 07:04:31 -0800 (PST)
+Received: from ?IPV6:2001:ee0:4f4c:210:6f73:e1bc:9239:c004? ([2001:ee0:4f4c:210:6f73:e1bc:9239:c004])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c0c2b8e0fb4sm2619107a12.25.2025.12.11.07.04.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Dec 2025 07:04:30 -0800 (PST)
+Message-ID: <6281cd92-10aa-4182-a456-81538cff822a@gmail.com>
+Date: Thu, 11 Dec 2025 22:04:23 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251211125104.375020-1-mlbnkm1@gmail.com> <20251211080251-mutt-send-email-mst@kernel.org>
- <zlhixzduyindq24osaedkt2xnukmatwhugfkqmaugvor6wlcol@56jsodxn4rhi> <CAMKc4jDpMsk1TtSN-GPLM1M_qp_jpoE1XL1g5qXRUiB-M0BPgQ@mail.gmail.com>
-In-Reply-To: <CAMKc4jDpMsk1TtSN-GPLM1M_qp_jpoE1XL1g5qXRUiB-M0BPgQ@mail.gmail.com>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Thu, 11 Dec 2025 15:51:46 +0100
-X-Gm-Features: AQt7F2pDNg-PqY51BpbMRcRuX5BRNC1ZpaReUag8SYMVebNfY7-W-s69lHtB17E
-Message-ID: <CAGxU2F7WOLs7bDJao-7Qd=GOqj_tOmS+EptviMphGqSrgsadqg@mail.gmail.com>
-Subject: Re: [PATCH net v3] vsock/virtio: cap TX credit to local buffer size
-To: Melbin Mathew Antony <mlbnkm1@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, stefanha@redhat.com, kvm@vger.kernel.org, 
-	netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: dn-SLQaZdpUcc9nmf8DaRWuYOykWeQVtNVd1ITjveN0_1765464719
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] virtio-net: enable all napis before scheduling refill
+ work
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+References: <20251208153419.18196-1-minhquangbui99@gmail.com>
+ <CACGkMEvtKVeoTMrGG0gZOrNKY=m-DGChVcM0TYcqx6-Ap+FY8w@mail.gmail.com>
+ <66d9f44c-295e-4b62-86ae-a0aff5f062bb@gmail.com>
+ <CACGkMEuF0rNYcSSUCdAgsW2Xfen9NGZHNxXpkO2Mt0a4zQJDqQ@mail.gmail.com>
+ <c83c386e-96a6-4f9f-8047-23ce866ed320@gmail.com>
+ <CACGkMEv7XpKsfN3soR9GijY-DLqwuOdYp+48ye5jweNpho8vow@mail.gmail.com>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <CACGkMEv7XpKsfN3soR9GijY-DLqwuOdYp+48ye5jweNpho8vow@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu, 11 Dec 2025 at 15:44, Melbin Mathew Antony <mlbnkm1@gmail.com> wrot=
-e:
+On 12/11/25 14:27, Jason Wang wrote:
+> On Wed, Dec 10, 2025 at 11:33 PM Bui Quang Minh
+> <minhquangbui99@gmail.com> wrote:
+>> On 12/10/25 12:45, Jason Wang wrote:
+>>> On Tue, Dec 9, 2025 at 11:23 PM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>>>> On 12/9/25 11:30, Jason Wang wrote:
+>>>>> On Mon, Dec 8, 2025 at 11:35 PM Bui Quang Minh <minhquangbui99@gmail.com> wrote:
+>>>>>> Calling napi_disable() on an already disabled napi can cause the
+>>>>>> deadlock. In commit 4bc12818b363 ("virtio-net: disable delayed refill
+>>>>>> when pausing rx"), to avoid the deadlock, when pausing the RX in
+>>>>>> virtnet_rx_pause[_all](), we disable and cancel the delayed refill work.
+>>>>>> However, in the virtnet_rx_resume_all(), we enable the delayed refill
+>>>>>> work too early before enabling all the receive queue napis.
+>>>>>>
+>>>>>> The deadlock can be reproduced by running
+>>>>>> selftests/drivers/net/hw/xsk_reconfig.py with multiqueue virtio-net
+>>>>>> device and inserting a cond_resched() inside the for loop in
+>>>>>> virtnet_rx_resume_all() to increase the success rate. Because the worker
+>>>>>> processing the delayed refilled work runs on the same CPU as
+>>>>>> virtnet_rx_resume_all(), a reschedule is needed to cause the deadlock.
+>>>>>> In real scenario, the contention on netdev_lock can cause the
+>>>>>> reschedule.
+>>>>>>
+>>>>>> This fixes the deadlock by ensuring all receive queue's napis are
+>>>>>> enabled before we enable the delayed refill work in
+>>>>>> virtnet_rx_resume_all() and virtnet_open().
+>>>>>>
+>>>>>> Fixes: 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
+>>>>>> Reported-by: Paolo Abeni <pabeni@redhat.com>
+>>>>>> Closes: https://netdev-ctrl.bots.linux.dev/logs/vmksft/drv-hw-dbg/results/400961/3-xdp-py/stderr
+>>>>>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+>>>>>> ---
+>>>>>>     drivers/net/virtio_net.c | 59 +++++++++++++++++++---------------------
+>>>>>>     1 file changed, 28 insertions(+), 31 deletions(-)
+>>>>>>
+>>>>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>>>>> index 8e04adb57f52..f2b1ea65767d 100644
+>>>>>> --- a/drivers/net/virtio_net.c
+>>>>>> +++ b/drivers/net/virtio_net.c
+>>>>>> @@ -2858,6 +2858,20 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
+>>>>>>            return err != -ENOMEM;
+>>>>>>     }
+>>>>>>
+>>>>>> +static void virtnet_rx_refill_all(struct virtnet_info *vi)
+>>>>>> +{
+>>>>>> +       bool schedule_refill = false;
+>>>>>> +       int i;
+>>>>>> +
+>>>>>> +       enable_delayed_refill(vi);
+>>>>> This seems to be still racy?
+>>>>>
+>>>>> For example, in virtnet_open() we had:
+>>>>>
+>>>>> static int virtnet_open(struct net_device *dev)
+>>>>> {
+>>>>>            struct virtnet_info *vi = netdev_priv(dev);
+>>>>>            int i, err;
+>>>>>
+>>>>>            for (i = 0; i < vi->max_queue_pairs; i++) {
+>>>>>                    err = virtnet_enable_queue_pair(vi, i);
+>>>>>                    if (err < 0)
+>>>>>                            goto err_enable_qp;
+>>>>>            }
+>>>>>
+>>>>>            virtnet_rx_refill_all(vi);
+>>>>>
+>>>>> So NAPI and refill work is enabled in this case, so the refill work
+>>>>> could be scheduled and run at the same time?
+>>>> Yes, that's what we expect. We must ensure that refill work is scheduled
+>>>> only when all NAPIs are enabled. The deadlock happens when refill work
+>>>> is scheduled but there are still disabled RX NAPIs.
+>>> Just to make sure we are on the same page, I meant, after refill work
+>>> is enabled, rq0 is NAPI is enabled, in this case the refill work could
+>>> be triggered by the rq0's NAPI so we may end up in the refill work
+>>> that it tries to disable rq1's NAPI while holding the netdev lock.
+>> I don't quite get your point. The current deadlock scenario is this
+>>
+>> virtnet_rx_resume_all
+>> napi_enable(rq0) (the rq1 napi is still disabled)
+>> enable_refill_work
+>>
+>> refill_work
+>> napi_disable(rq0) -> still okay
+>> napi_enable(rq0) -> still okay
+>> napi_disable(rq1)
+>> -> hold netdev_lock
+>>       -> stuck inside the while loop in napi_disable_locked
+>>               while (val & (NAPIF_STATE_SCHED | NAPIF_STATE_NPSVC)) {
+>>                   usleep_range(20, 200);
+>>                   val = READ_ONCE(n->state);
+>>               }
+>>
+>>
+>> napi_enable(rq1)
+>> -> stuck while trying to acquire the netdev_lock
+>>
+>> The problem is that we must not call napi_disable() on an already
+>> disabled NAPI (rq1's NAPI in the example).
+>>
+>> In the new virtnet_open
+>>
+>> static int virtnet_open(struct net_device *dev)
+>> {
+>>            struct virtnet_info *vi = netdev_priv(dev);
+>>            int i, err;
+>>
+>>            // Note that at this point, refill work is still disabled, vi->refill_enabled == false,
+>>            // so even if virtnet_receive is called, the refill_work will not be scheduled.
+>>            for (i = 0; i < vi->max_queue_pairs; i++) {
+>>                    err = virtnet_enable_queue_pair(vi, i);
+>>                    if (err < 0)
+>>                            goto err_enable_qp;
+>>            }
+>>
+>>            // Here all RX NAPIs are enabled so it's safe to enable refill work again
+>>            virtnet_rx_refill_all(vi);
+>>
+> I meant this part:
 >
-> Hi Stefano, Michael,
+> +static void virtnet_rx_refill_all(struct virtnet_info *vi)
+> +{
+> +       bool schedule_refill = false;
+> +       int i;
+> +
+> +       enable_delayed_refill(vi);
 >
-> Thanks for the feedback and for pointing out the s64 issue in
-> virtio_transport_get_credit() and the vsock_test regression.
->
-> I can take this up and send a small series:
->
->   1/2 =E2=80=93 vsock/virtio: cap TX credit to local buffer size
->         - use a helper to bound peer_buf_alloc by buf_alloc
->         - compute available credit in s64 like has_space(), and clamp
->           negative values to zero before applying the caller=E2=80=99s cr=
-edit
+> refill_work could run here.
 
-IMO they should be fixed in 2 different patches.
-
-I think we can easily reuse virtio_transport_has_space() in
-virtio_transport_get_credit().
-
->
->   2/2 =E2=80=93 vsock/test: fix seqpacket message bounds test
->         - include your vsock_test.c change so the seqpacket bounds test
->           keeps working with the corrected TX credit handling
->
-> I=E2=80=99ll roll these into a [PATCH net v4 0/2] series and send it out =
-shortly.
-
-Please, wait a bit also for other maintainers comments.
-See https://www.kernel.org/doc/html/latest/process/submitting-patches.html#=
-don-t-get-discouraged-or-impatient
-
-So, to recap I'd do the following:
-Patch 1: fix virtio_transport_get_credit() maybe using
-virtio_transport_has_space() to calculate the space
-Patch 2: (this one) cap TX credit to local buffer size
-Patch 3: vsock/test: fix seqpacket message bounds test
-Patch 4 (if you have time): add a new test for TX credit on stream socket
-
-Stefano
+I don't see how this can trigger the current deadlock race. However, I 
+see that this code is racy, the try_fill_recv function is not safe to 
+concurrently executed on the same receive queue. So there is a 
+requirement that we need to call try_fill_recv before enabling napi. Is 
+it what you mean?
 
 >
-> Thanks again for all the guidance,
-> Melbin
+> +       for (i = 0; i < vi->curr_queue_pairs; i++)
+> +               if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+> +                       schedule_refill = true;
+> +
 >
+> I think it can be fixed by moving enable_delayed_refill() here.
 >
-> On Thu, Dec 11, 2025 at 1:57=E2=80=AFPM Stefano Garzarella <sgarzare@redh=
-at.com> wrote:
-> >
-> > On Thu, Dec 11, 2025 at 08:05:11AM -0500, Michael S. Tsirkin wrote:
-> > >On Thu, Dec 11, 2025 at 01:51:04PM +0100, Melbin K Mathew wrote:
-> > >> The virtio vsock transport currently derives its TX credit directly =
-from
-> > >> peer_buf_alloc, which is populated from the remote endpoint's
-> > >> SO_VM_SOCKETS_BUFFER_SIZE value.
-> > >>
-> > >> On the host side, this means the amount of data we are willing to qu=
-eue
-> > >> for a given connection is scaled purely by a peer-chosen value, rath=
-er
-> > >> than by the host's own vsock buffer configuration. A guest that
-> > >> advertises a very large buffer and reads slowly can cause the host t=
-o
-> > >> allocate a correspondingly large amount of sk_buff memory for that
-> > >> connection.
-> > >>
-> > >> In practice, a malicious guest can:
-> > >>
-> > >>   - set a large AF_VSOCK buffer size (e.g. 2 GiB) with
-> > >>     SO_VM_SOCKETS_BUFFER_MAX_SIZE / SO_VM_SOCKETS_BUFFER_SIZE, and
-> > >>
-> > >>   - open multiple connections to a host vsock service that sends dat=
-a
-> > >>     while the guest drains slowly.
-> > >>
-> > >> On an unconstrained host this can drive Slab/SUnreclaim into the ten=
-s of
-> > >> GiB range, causing allocation failures and OOM kills in unrelated ho=
-st
-> > >> processes while the offending VM remains running.
-> > >>
-> > >> On non-virtio transports and compatibility:
-> > >>
-> > >>   - VMCI uses the AF_VSOCK buffer knobs to size its queue pairs per
-> > >>     socket based on the local vsk->buffer_* values; the remote side
-> > >>     can=E2=80=99t enlarge those queues beyond what the local endpoin=
-t
-> > >>     configured.
-> > >>
-> > >>   - Hyper-V=E2=80=99s vsock transport uses fixed-size VMBus ring buf=
-fers and
-> > >>     an MTU bound; there is no peer-controlled credit field comparabl=
-e
-> > >>     to peer_buf_alloc, and the remote endpoint can=E2=80=99t drive i=
-n-flight
-> > >>     kernel memory above those ring sizes.
-> > >>
-> > >>   - The loopback path reuses virtio_transport_common.c, so it
-> > >>     naturally follows the same semantics as the virtio transport.
-> > >>
-> > >> Make virtio-vsock consistent with that model by intersecting the pee=
-r=E2=80=99s
-> > >> advertised receive window with the local vsock buffer size when
-> > >> computing TX credit. We introduce a small helper and use it in
-> > >> virtio_transport_get_credit(), virtio_transport_has_space() and
-> > >> virtio_transport_seqpacket_enqueue(), so that:
-> > >>
-> > >>     effective_tx_window =3D min(peer_buf_alloc, buf_alloc)
-> > >>
-> > >> This prevents a remote endpoint from forcing us to queue more data t=
-han
-> > >> our own configuration allows, while preserving the existing credit
-> > >> semantics and keeping virtio-vsock compatible with the other transpo=
-rts.
-> > >>
-> > >> On an unpatched Ubuntu 22.04 host (~64 GiB RAM), running a PoC with
-> > >> 32 guest vsock connections advertising 2 GiB each and reading slowly
-> > >> drove Slab/SUnreclaim from ~0.5 GiB to ~57 GiB and the system only
-> > >> recovered after killing the QEMU process.
-> > >>
-> > >> With this patch applied, rerunning the same PoC yields:
-> > >>
-> > >>   Before:
-> > >>     MemFree:        ~61.6 GiB
-> > >>     MemAvailable:   ~62.3 GiB
-> > >>     Slab:           ~142 MiB
-> > >>     SUnreclaim:     ~117 MiB
-> > >>
-> > >>   After 32 high-credit connections:
-> > >>     MemFree:        ~61.5 GiB
-> > >>     MemAvailable:   ~62.3 GiB
-> > >>     Slab:           ~178 MiB
-> > >>     SUnreclaim:     ~152 MiB
-> > >>
-> > >> i.e. only ~35 MiB increase in Slab/SUnreclaim, no host OOM, and the
-> > >> guest remains responsive.
-> > >>
-> > >> Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-> > >> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-> > >> Signed-off-by: Melbin K Mathew <mlbnkm1@gmail.com>
-> > >> ---
-> > >>  net/vmw_vsock/virtio_transport_common.c | 27 ++++++++++++++++++++++=
----
-> > >>  1 file changed, 24 insertions(+), 3 deletions(-)
-> > >>
-> > >> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock=
-/virtio_transport_common.c
-> > >> index dcc8a1d58..02eeb96dd 100644
-> > >> --- a/net/vmw_vsock/virtio_transport_common.c
-> > >> +++ b/net/vmw_vsock/virtio_transport_common.c
-> > >> @@ -491,6 +491,25 @@ void virtio_transport_consume_skb_sent(struct s=
-k_buff *skb, bool consume)
-> > >>  }
-> > >>  EXPORT_SYMBOL_GPL(virtio_transport_consume_skb_sent);
-> > >>
-> > >> +/* Return the effective peer buffer size for TX credit computation.
-> > >> + *
-> > >> + * The peer advertises its receive buffer via peer_buf_alloc, but w=
-e
-> > >> + * cap that to our local buf_alloc (derived from
-> > >> + * SO_VM_SOCKETS_BUFFER_SIZE and already clamped to buffer_max_size=
-)
-> > >> + * so that a remote endpoint cannot force us to queue more data tha=
-n
-> > >> + * our own configuration allows.
-> > >> + */
-> > >> +static u32 virtio_transport_tx_buf_alloc(struct virtio_vsock_sock *=
-vvs)
-> > >> +{
-> > >> +    return min(vvs->peer_buf_alloc, vvs->buf_alloc);
-> > >> +}
-> > >> +
-> > >>  u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 =
-credit)
-> > >>  {
-> > >>      u32 ret;
-> > >> @@ -499,7 +518,8 @@ u32 virtio_transport_get_credit(struct virtio_vs=
-ock_sock *vvs, u32 credit)
-> > >>              return 0;
-> > >>
-> > >>      spin_lock_bh(&vvs->tx_lock);
-> > >> -    ret =3D vvs->peer_buf_alloc - (vvs->tx_cnt - vvs->peer_fwd_cnt)=
-;
-> > >> +    ret =3D virtio_transport_tx_buf_alloc(vvs) -
-> > >> +            (vvs->tx_cnt - vvs->peer_fwd_cnt);
-> > >>      if (ret > credit)
-> > >>              ret =3D credit;
-> > >>      vvs->tx_cnt +=3D ret;
-> > >> @@ -831,7 +851,7 @@ virtio_transport_seqpacket_enqueue(struct vsock_=
-sock *vsk,
-> > >>
-> > >>      spin_lock_bh(&vvs->tx_lock);
-> > >>
-> > >> -    if (len > vvs->peer_buf_alloc) {
-> > >> +    if (len > virtio_transport_tx_buf_alloc(vvs)) {
-> > >>              spin_unlock_bh(&vvs->tx_lock);
-> > >>              return -EMSGSIZE;
-> > >>      }
-> > >> @@ -882,7 +902,8 @@ static s64 virtio_transport_has_space(struct vso=
-ck_sock *vsk)
-> > >>      struct virtio_vsock_sock *vvs =3D vsk->trans;
-> > >>      s64 bytes;
-> > >>
-> > >> -    bytes =3D (s64)vvs->peer_buf_alloc - (vvs->tx_cnt - vvs->peer_f=
-wd_cnt);
-> > >> +    bytes =3D (s64)virtio_transport_tx_buf_alloc(vvs) -
-> > >> +            (vvs->tx_cnt - vvs->peer_fwd_cnt);
-> > >>      if (bytes < 0)
-> > >>              bytes =3D 0;
-> > >>
-> > >
-> > >Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> > >
-> > >
-> > >Looking at this, why is one place casting to s64 the other is not?
-> >
-> > Yeah, I pointed out that too in previous interactions. IMO we should fi=
-x
-> > virtio_transport_get_credit() since the peer can reduce `peer_buf_alloc=
-`
-> > so it will overflow. Fortunately, we are limited by the credit requeste=
-d
-> > by the caller, but we are still sending stuff when we shouldn't be.
-> >
-> > @Melbin let me know if you will fix it, otherwise I can do that, but I'=
-d
-> > like to do in a single series (multiple patches), since they depends on
-> > each other.
-> >
-> > So if you prefer, I can pickup this patch and post a series with this +
-> > the other fix + the fix on the test I posted on the v2.
-> >
-> > Stefano
-> >
->
+> +       if (schedule_refill)
+> +               schedule_delayed_work(&vi->refill, 0);
+> +}
+
+Thanks,
+Quang Minh.
+
 
