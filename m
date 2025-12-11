@@ -1,166 +1,137 @@
-Received: from out203-205-221-192.mail.qq.com (out203-205-221-192.mail.qq.com [203.205.221.192])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 118252BE630;
-	Thu, 11 Dec 2025 06:57:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.192
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E043B8D4B
+	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 07:10:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765436237; cv=none; b=L/Nmuj80ttfkXAESeDmPTB2DOz8Z2/LF6Zx0XqHZXfq1S5d/TetJnu+AwDyNbvI0GTH7pTPphmJqYZE33x1DT5ojJtyPFZvyT5RP4tEhXLwqJ8UJOLk3n6oKGK9YLYvDo3VzWbNUlUZ+0Ie0dj3fScNK+5YVlCln170YphaF048=
+	t=1765437035; cv=none; b=okU5wP6Jxk3g/pepWY2IowDN5Tg9gfb/dKCGcUDqShk623p+MoCjX+46GA4TdkLikTI4AdDBAw5xtM4USXBxLMkG9PslhSE57esLMxmGbNz83oigVTFY4Z/od36o+ZL7K+V6iO1bUWpWTMcmN0QobI6qr/Lc6hwLUnUfAvjf82I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765436237; c=relaxed/simple;
-	bh=0e6USttijmO2horzqXfsOf7139B23IPXLpWfygiqSkY=;
-	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=WWRrW5HH35gdnsT/FL/7KWcIDYwkehZ/IhRDjmxVwu/6/oAhgjsUumktDQxkjMejzf4l/Ah3HyHt5P6x4dv/3Hqn6B9rnLkeqsz7uzy8ZXNdIQAWkkd3EIypcnjwgLudB075zXuvwceVjp5+99CzkP2F9fQNOVsXEv0SiT6xbT4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=j4D4Y3B3; arc=none smtp.client-ip=203.205.221.192
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1765437035; c=relaxed/simple;
+	bh=CiFp2+zFRB9i/4xjpT0D8q8ZwO9oBy0y973OZpeym7c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Wnu/qg2jWozd3HejqZBqzR8dRDHdEymCk5EFiCVB1Y/NVjBB2oyDNpCM+nuekqgSPkBI00Enli9P3Szrv7AN2FIcUany/ztLbqURkL19578m5jkE4NlNWH2SQTqThBdDUQRd3K58OsED/6538IJ4uJ+o/CBKNHnTYW4Kdgbf6T4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e4Oo0wvK; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="j4D4Y3B3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1765436232; bh=qym9jNqiA34VWvBCsaKdelhcoyWyxbkXaH8MkVv3VIc=;
-	h=From:To:Cc:Subject:Date;
-	b=j4D4Y3B3GOKpX++BLFKzmptMUWIALMD5kwkizBTJc6lzaF2+VTb99DAaGTHzGHgOz
-	 vNZdadXksi2Kd6Qte3mbRyfp73+gfGMz+VJLQ1SjZa3TDSbxaDQ9W/pKPYBzzuGrPG
-	 Beupbv4q7t84dmA9AZlS39FA1bU2CqJVpWrRH6po=
-Received: from lxu-ped-host.. ([111.201.7.117])
-	by newxmesmtplogicsvrszb51-1.qq.com (NewEsmtp) with SMTP
-	id E479A21A; Thu, 11 Dec 2025 14:57:07 +0800
-X-QQ-mid: xmsmtpt1765436227tzkqso0y1
-Message-ID: <tencent_D6C4465761B77986C7B36FA368E97E23A805@qq.com>
-X-QQ-XMAILINFO: NEuWzguPBXIKkFBhIjI0JCppC3ptFbk1lS7fUYCDHnLMDVAZiSQNyi1Khk2LWl
-	 CSu8h7sQXRKu5RTicGmT+1fW434/kXK58/SnFBhZNOD5M2ETOHuot9Lw4u4Gi8QTk3eNVGGtHSwu
-	 FakhnYZL0OH+EAGwr1YRMvOk6UY1KNDRDDp01cWJN+8N9o14yNHy1z5HrtgnzO0+SbCK6CZu17vg
-	 mcd1M0KFDQL3MFyZhq+ojo1Hj3IJXiKuPiwKM+IO3KzdknT6CqElbYWIWhb3tTw5jfvZOkk85HmC
-	 a/TMeuhcs44k5eoRXH3guSDd4RIm1SWMihWM0fG1muWvbiBq2oLjEW7UoLXR3affsVry2AKKyktV
-	 yGcNO8rcT7y5dBO9jEfWcH/uAB77On6neRGRK45wnz/AF3LyPKfyCCtwfhf5a59hTCJakPyNi9Ve
-	 60DSNfdVM56HC4aweqZfT9H0WnpyI/iZuB8fecumFudoxSG/D/u0CMr2xEDV92kIc8pPWPlTOL40
-	 HVjoL8V0m766fNvDQFWHjlSEXA7ftbikSsEYHcqHzS/2zGXGbEmQakd5khum5DhhtkmnhRdDBKzR
-	 BGJwPUJdGcX/FdulraopUZO6m3BV9UP33ABDvdJW1raeCJq/Jpn0/FldsSQFhzbTYk6JRHDLeDns
-	 UGTaFlwPll/FZEbj+Zp0ZqRei1JJALNuEApD5dAiE3cNvPI2MzwFK2P83+XbbIt1Nt0KzA7/7HvW
-	 qmpVCfnndYbsZtCvON5zxxYZgiMN3h9VY6nSQUwRZumM4mgl5tW6WnWTEvfD4pKAzIH5VqZqcIlj
-	 ZJRYlVKLDjZ8pUxqt4cYF7J7PMG+Bt+gPeaxgQ7YiYRPe8CrLNj5+kv58ymu+YHQ+ojaYK9e3g9M
-	 w7AEz2GIRRRA/u4+VaZgmeNdzQlxsy8Oc8LkV8r153oiq62svKXo+J817DcT8avAIEQh7+LaUWN6
-	 4iGGKRE4GBwW5oMHwltCH879+YngKVNRKEiZt9543eYdXeO4C3OG4Cr4/NQznqwH6bmXtNkfoJ0/
-	 L3RfYt7DmsNL+7huFmhC9V80Wk8ZWn5D+++grxW80ApCOBsq+MADOaqWLWQkCg9G0ESUKGO6vziE
-	 nzFtDL
-X-QQ-XMRINFO: NS+P29fieYNw95Bth2bWPxk=
-From: Edward Adam Davis <eadavis@qq.com>
-To: kuba@kernel.org
-Cc: davem@davemloft.net,
-	eadavis@qq.com,
-	edumazet@google.com,
-	eperezma@redhat.com,
-	horms@kernel.org,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	netdev@vger.kernel.org,
-	pabeni@redhat.com,
-	sgarzare@redhat.com,
-	stefanha@redhat.com,
-	syzbot+ci3edb9412aeb2e703@syzkaller.appspotmail.com,
-	syzbot@lists.linux.dev,
-	syzbot@syzkaller.appspotmail.com,
-	syzkaller-bugs@googlegroups.com,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com
-Subject: [PATCH net-next v4] net: restore the iterator to its original state when an error occurs
-Date: Thu, 11 Dec 2025 14:57:08 +0800
-X-OQ-MSGID: <20251211065707.41148-2-eadavis@qq.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e4Oo0wvK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1765437031;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7zIAXrb2IdU4JYv9VJI9oSFYqli58AZDxU70CDF1h0U=;
+	b=e4Oo0wvKkbdreA5h2mX6CSGRlm1c+2NUsNC7jmnxYRwv6LfbDV+7ILLe9iga8YP47npKhP
+	M2VcJLm3wxjJ8oTQqdDL9JvdICedUQ51W+ihr4Odj52XLer6vfQB7JqQvj6e0hHqd3Hil2
+	GLpzrNMgKFCwsu5bNx7hQI715NIdZP4=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-554-WnkNAtYLOO-EUa_f3F2U7w-1; Thu, 11 Dec 2025 02:10:30 -0500
+X-MC-Unique: WnkNAtYLOO-EUa_f3F2U7w-1
+X-Mimecast-MFC-AGG-ID: WnkNAtYLOO-EUa_f3F2U7w_1765437029
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-42b352355a1so817848f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 10 Dec 2025 23:10:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765437029; x=1766041829;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7zIAXrb2IdU4JYv9VJI9oSFYqli58AZDxU70CDF1h0U=;
+        b=uHbDBxl9lZRZ1HuvzU3fxNOBWG/joruFlqqMVIfd07G45D2/3oWTkWpAhD8Pt1i3A+
+         RHC7+E33xQ16krcBKkoHOPcLklDRd47vvD0/IRBq0E852Xo63lUwZKpf1du0tsjmBQvf
+         tQZdUlpwDd3Sxh5zn0QgeD4tJdpW/fTs90abJ34VUxld8H/OjIgkbEySkwVAMxDf370I
+         dr7BJAQJhwKJFDD3ETcSqmxK7CTsgaPFhzfYt/lJjRYxbhTcKRux0Pya3Zrww/EpMPLj
+         iElEscsXITjtnQfUFsuNgLIm5/VSF6QyFzzjuzy61o1rELkrwAG/1w8Zd/00W0H60nDj
+         gtgQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXpJDHSDPCSnUO6V49/6FzstFRPm7SMVsDqpLbQqsu24SjSGSjPjWeZdeNE75TFS7VycGcIvzG7rVmH30m8RA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw5K0yyIjA58IIovMj9M02KHpZxYUTQL5al17XLXmAec+F4c07B
+	19lW1HV52aHOgL08rxmIlUiZ+80WZjKdPGaCrueHX4VaWVjA/ySuKbFxyrXXBmljgRlU1rpDRip
+	cL1beGpFQScSQFUeGDQH4cBspL8vAejhULRpKKUtbtzDQC23DTifPaXsbocZa6v76bMlU
+X-Gm-Gg: AY/fxX6hRPnxCw4HNm4XSOvnZ51YtOLD37UabTmY/uqORuFcdn/Qr0Oyyo3hN2H59kI
+	TYhBM6fs50baSXzxlY52/pitSCjv0rDmzYHw/4IngnUecJNpNP1S2qLXuaT+l+bU9KG89bI7jAr
+	bk3kIQ/2L9ZyMfGaQKThPsNNkjXzkeiwAADQJ4gBMor8UMlQEgIniY4FuFD3UzliigdWxcEdoux
+	VessNC+dr5CdjBjLRU1t49FSZwI8sDlZ4+hgEcJd0fYkRTNdppCQDvloVXx5q54fNAmCKH2g5ma
+	GN6/44PpRcxdKO9hSiC9oRXrM59tNoN3jDCpy+rGYQ4rx/8Foe8qFDA7i2snhS/rD7gvW7ubPrX
+	p+9NmMQ+EfhYssJzSHelD3/zOgEPRTwg=
+X-Received: by 2002:a05:6000:4283:b0:429:cfa3:5fde with SMTP id ffacd0b85a97d-42fab2429b7mr1359341f8f.11.1765437029185;
+        Wed, 10 Dec 2025 23:10:29 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE4L1uwJSTXZV+b6GzkW3par9sGsQLwBnfHifQ7AFiF6juLBHiByFqXI4LUIgioFLg/mAG/fw==
+X-Received: by 2002:a05:6000:4283:b0:429:cfa3:5fde with SMTP id ffacd0b85a97d-42fab2429b7mr1359299f8f.11.1765437028718;
+        Wed, 10 Dec 2025 23:10:28 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-32-59.inter.net.il. [80.230.32.59])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42fa8a70379sm3956283f8f.11.2025.12.10.23.10.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Dec 2025 23:10:27 -0800 (PST)
+Date: Thu, 11 Dec 2025 02:10:25 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Lange Tang <lange_tang@163.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	Tang Longjun <tanglongjun@kylinos.cn>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Subject: Re: Re: [PATCH v1 0/7] introduce virtnet_mon for monitor virtio_net
+Message-ID: <20251211021008-mutt-send-email-mst@kernel.org>
+References: <20251127032407.33475-1-lange_tang@163.com>
+ <20251210040328-mutt-send-email-mst@kernel.org>
+ <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: af2bY3hy6b0t9YSL6KlGZcDWA5D2XARAOCE6pH9rtyQ_1765437029
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In zerocopy_fill_skb_from_iter(), if two copy operations are performed
-and the first one succeeds while the second one fails, it returns a
-failure but the count in iterator has already been decremented due to
-the first successful copy. This ultimately affects the local variable
-rest_len in virtio_transport_send_pkt_info(), causing the remaining
-count in rest_len to be greater than the actual iterator count. As a
-result, packet sending operations continue even when the iterator count
-is zero, which further leads to skb->len being 0 and triggers the warning
-reported by syzbot [1].
+On Thu, Dec 11, 2025 at 10:51:37AM +0800, Lange Tang wrote:
+> At 2025-12-10 17:04:04, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >On Thu, Nov 27, 2025 at 11:24:00AM +0800, Longjun Tang wrote:
+> >> From: Tang Longjun <tanglongjun@kylinos.cn>
+> >> 
+> >> hi,
+> >> virtnet_mon is used to monitor the data packets of the virtio_net driver 
+> >> and the related parameters of virtqueue, useful for tracking its status 
+> >> and troubleshooting faults.
+> >> 
+> >> pls review. tks
+> >> 
+> >> Best regard.
+> >
+> >what does this achieve that direct use of tracing would not?
+> 
+> I apologize that my explanation of virtnet_mon was not detailed enough. 
+> virtnet_mon uses kprobe and buffers to monitor virtio_net. 
+> To monitor virtio_net, it is necessary to track the member parameters of the virtqueue corresponding to each data packet and output them. 
+> When PPS very high, other tracing techniques, such as ebpf, may not be able to handle it, resulting in data loss because they do not have sufficiently large buffers to batch export log data.
+> 
+> As for the duplicate code, it is only to obtain the layout of the relevant structure, and I have not yet thought of a way to avoid duplication. I would love to hear your suggestions.
 
-Therefore, if the zerocopy operation fails, we should revert the iterator
-to its original state.
+add traces as necessary in code and avoid this module completely.
 
-The iov_iter_revert() in skb_zerocopy_iter_stream() is no longer needed
-and has been removed.
-
-Regarding the judgment condition, I aligned it with the condition in
-skb_zerocopy_iter_stream().
-
-[1]
-'send_pkt()' returns 0, but 4096 expected
-WARNING: net/vmw_vsock/virtio_transport_common.c:430 at virtio_transport_send_pkt_info+0xd1e/0xef0 net/vmw_vsock/virtio_transport_common.c:428, CPU#1: syz.0.17/5986
-Call Trace:
- virtio_transport_stream_enqueue net/vmw_vsock/virtio_transport_common.c:1113 [inline]
- virtio_transport_seqpacket_enqueue+0x143/0x1c0 net/vmw_vsock/virtio_transport_common.c:841
- vsock_connectible_sendmsg+0xabf/0x1040 net/vmw_vsock/af_vsock.c:2158
- sock_sendmsg_nosec net/socket.c:727 [inline]
- __sock_sendmsg+0x21c/0x270 net/socket.c:746
-
-Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
-Signed-off-by: Edward Adam Davis <eadavis@qq.com>
----
-v4:
-  - add comments for new condition
-v3: https://lore.kernel.org/all/tencent_3C86DFD37A0374496263BE24483777D76305@qq.com/
-  - fix test tcp_zerocopy_maxfrags timeout
-v2: https://lore.kernel.org/all/tencent_BA768766163C533724966E36344AAE754709@qq.com/
-  - Remove iov_iter_revert() in skb_zerocopy_iter_stream()
-v1: https://lore.kernel.org/all/tencent_387517772566B03DBD365896C036264AA809@qq.com/
-
- net/core/datagram.c | 9 ++++++++-
- net/core/skbuff.c   | 1 -
- 2 files changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/net/core/datagram.c b/net/core/datagram.c
-index c285c6465923..c5f2f1b8786b 100644
---- a/net/core/datagram.c
-+++ b/net/core/datagram.c
-@@ -749,8 +749,12 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
- 			    struct net_devmem_dmabuf_binding *binding)
- {
- 	unsigned long orig_size = skb->truesize;
-+	struct iov_iter_state state;
- 	unsigned long truesize;
--	int ret;
-+	int ret, orig_len;
-+
-+	iov_iter_save_state(from, &state);
-+	orig_len = skb->len;
- 
- 	if (msg && msg->msg_ubuf && msg->sg_from_iter)
- 		ret = msg->sg_from_iter(skb, from, length);
-@@ -759,6 +763,9 @@ int __zerocopy_sg_from_iter(struct msghdr *msg, struct sock *sk,
- 	else
- 		ret = zerocopy_fill_skb_from_iter(skb, from, length);
- 
-+	if (ret == -EFAULT || (ret == -EMSGSIZE && skb->len == orig_len))
-+		iov_iter_restore(from, &state);
-+
- 	truesize = skb->truesize - orig_size;
- 	if (sk && sk->sk_type == SOCK_STREAM) {
- 		sk_wmem_queued_add(sk, truesize);
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index a00808f7be6a..7b8836f668b7 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -1908,7 +1908,6 @@ int skb_zerocopy_iter_stream(struct sock *sk, struct sk_buff *skb,
- 		struct sock *save_sk = skb->sk;
- 
- 		/* Streams do not free skb on error. Reset to prev state. */
--		iov_iter_revert(&msg->msg_iter, skb->len - orig_len);
- 		skb->sk = sk;
- 		___pskb_trim(skb, orig_len);
- 		skb->sk = save_sk;
--- 
-2.43.0
+> >
+> >> Tang Longjun (7):
+> >>   tools/virtio/virtnet_mon: create misc driver for virtnet_mon
+> >>   tools/virtio/virtnet_mon: add kfifo to virtnet_mon
+> >>   tools/virtio/virtnet_mon: add kprobe start_xmit
+> >>   tools/virtio/virtnet_mon: add kprobe gro_receive_skb
+> >>   tools/virtio/virtnet_mon: add kprobe ip_local_deliver
+> >>   tools/virtio/virtnet_mon: add kprobe skb_xmit_done and skb_recv_done
+> >>   tools/virtio/virtnet_mon: add README file for virtnet_moin
+> >> 
+> >>  tools/virtio/virtnet_mon/Makefile      |   10 +
+> >>  tools/virtio/virtnet_mon/README        |   35 +
+> >>  tools/virtio/virtnet_mon/virtnet_mon.c | 1048 ++++++++++++++++++++++++
+> >>  3 files changed, 1093 insertions(+)
+> >>  create mode 100644 tools/virtio/virtnet_mon/Makefile
+> >>  create mode 100644 tools/virtio/virtnet_mon/README
+> >>  create mode 100644 tools/virtio/virtnet_mon/virtnet_mon.c
+> >> 
+> >> -- 
+> >> 2.43.0
 
