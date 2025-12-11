@@ -1,80 +1,81 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF9230BBBF
-	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 12:03:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA80030BBB8
+	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 12:04:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765454595; cv=none; b=qej6vrjCvO5EhO5gNZMFjDwnLHflAZRHaSsDhhnmTUyPthpc+KwyTmW4VfgkWexGfQ1j7kDBKg94DZ/EFj0Ar0X9nhR4wPRcexwP2hy9SL48Gy1qvBk0Memk+XHCtPnpivJUwmeaAlLKltiixIein085vF+PPBIy+3Oh5Ai0bGA=
+	t=1765454674; cv=none; b=BUkIcEIw+Mv/bK1qjooS5f/HaW+7ADbIekDamlJLZReGEKoCVu/xLUPltqXc1WABUgmaJXeEYOtYj14+nLVMcHPd78NtbtV393BikiWqD8NVSb19sdZodRvXAEPCi6Bpk2cP1DqImzAgb770KjBv05tgHisTmy7aw2a9Q2Rc2EY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765454595; c=relaxed/simple;
-	bh=t8iStUTaCyoX6HO5Kw6xvm6QJuB8LA8r/y2EmkUlfZQ=;
+	s=arc-20240116; t=1765454674; c=relaxed/simple;
+	bh=FZvbx1cGmlK0sPARd9NYi9ByyRppoApxqiqqlCGqnnM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H2kAiVVUUhnt6EJq0FDRnu0jkYV2UAgtd6GkQGRNhAJm5LR+RxBo+DGfbvWaKc9VUPOzfd4IU3EASs9I/Lpjja6SKCn5vJv40fKMHkM8fz1nSEPz4A1a2AY5qCep09rFz1V8L6Uvu/MIMwrFKWq48WsqyZoteCYHGOVtGZYpbj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=uyzmheg/; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Tk5V2WPd; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=a+GYfB+Y; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=RWfbSGru; arc=none smtp.client-ip=195.135.223.131
+	 In-Reply-To:Content-Type; b=HZQoxxzSb+TNDuRwDKEckkOpEfByiuuAv72WkwR4ZGIbS/smNdo5CfDSAJgeRK8D6NZOl3qNcs56RFOPXynJqR9KbpuqbJjfRg1grAV45CP0qZCm5toxeKGh+99rBNo3e0i8uWB8VI2fRCa4+SV4b6gfU1cuC1eEKvGyY811VaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=QwzPaE4u; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=fvy2bl3K; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=NxgZ7Ikk; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ekFwuqAp; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="uyzmheg/";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Tk5V2WPd";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="a+GYfB+Y";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="RWfbSGru"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="QwzPaE4u";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="fvy2bl3K";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="NxgZ7Ikk";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ekFwuqAp"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 9414A5BE30;
-	Thu, 11 Dec 2025 12:03:10 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id A0D43337DA;
+	Thu, 11 Dec 2025 12:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765454591; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1765454670; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Pzmb3FopzkzcAgu7jdemLc9j6y9JOTi5S9j83KORkU8=;
-	b=uyzmheg/C5t0C+EbqIple04sVSNXDMPBq7EbK2q0gyxNMu9o1Wu+jGTOLAFEaFu2fk5DL8
-	rZcXLp//aT8ewYToEZqIjRTxETyAwKysf9wJ+qRLjS/is3V89SkRSzKAvDeCCz6wkH5Mo0
-	KGZXTrTuxnDEM9kULKztV+cizC4HZSQ=
+	bh=4+mpakUKD5eYS656a7z6LmAlXtZaX+uGoQHu7qbb6/Y=;
+	b=QwzPaE4uep8gw8D3Yyl/0Nf/6A+QCH5CQ9raZQyWD+tSYubdZoWFIFPZRwvHxTD4CrMjyL
+	+E5F8QARUDzCRQ6Fmg4bwiYaQIIUnjKqogFV5r9qxitaU5yhj5Qz3AmD7bq5+IWEK8rBTK
+	vltS1JNY5I2u1BkmYfECohwDuWJezLg=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765454591;
+	s=susede2_ed25519; t=1765454670;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Pzmb3FopzkzcAgu7jdemLc9j6y9JOTi5S9j83KORkU8=;
-	b=Tk5V2WPdHpVXuuDSDrK8pw0s6FEFJrUe7Dh32Hev0RChcD9kLSDrVa8qdC+9XFtCNjIt9/
-	OMWXciyCuXVZi5CQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
+	bh=4+mpakUKD5eYS656a7z6LmAlXtZaX+uGoQHu7qbb6/Y=;
+	b=fvy2bl3K8mh9nWGtA49mBTHX7E+A2obntn5XbukYfJ4BG6DQlHMNFtEcHWAhRQoVTWVfiH
+	VyHyI2Vi4lK2KNBQ==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=NxgZ7Ikk;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=ekFwuqAp
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1765454590; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1765454669; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Pzmb3FopzkzcAgu7jdemLc9j6y9JOTi5S9j83KORkU8=;
-	b=a+GYfB+YxeVcXX/uuiMaPbRef9GUj18m7VnHDMLaF9bG0V7m9nZ0VmBeqYLOcIMYEm3Y0C
-	QeTpYbsY0bdrieTJaLhefEe3ISc7GllydB5JT/Hbu3+OaIz2IqldDIpvDGl1LsbF/nF4lG
-	LBXarVJDatOh5kVXuRuRbbf+iAsU8+4=
+	bh=4+mpakUKD5eYS656a7z6LmAlXtZaX+uGoQHu7qbb6/Y=;
+	b=NxgZ7Ikk4TdPVZLrTDKh6SSCKGLxGF2z6AQZZh/bgiGyb/p3cV+AVQ4d/68ngBOLtXBXCy
+	IwLzFbsabnqKYlF2Wlfk3HC0wVZjCUYzHV+/HQxaeZqWrh937qdR2arSIaUVM5s46xnqpC
+	xmhdXninzSrgCN7eE3cVXaQunYMV9iY=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1765454590;
+	s=susede2_ed25519; t=1765454669;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Pzmb3FopzkzcAgu7jdemLc9j6y9JOTi5S9j83KORkU8=;
-	b=RWfbSGrua2PaUjiJFvBC3uhIfgaAJFF903LiBLhZSSuEnJMdyNOD3EtyiasZ7DxLTBdHTK
-	CQ5IisvSLsaj3HCw==
+	bh=4+mpakUKD5eYS656a7z6LmAlXtZaX+uGoQHu7qbb6/Y=;
+	b=ekFwuqApi2iJ/Uj7PpsLKxvqJrRpKzN227y0ml/019bFiIuUI1QC+R0wm2W4RhT6oAeQoL
+	xymiPF1G0eoyTtCA==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C3BD93EA63;
-	Thu, 11 Dec 2025 12:03:09 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E057C3EA63;
+	Thu, 11 Dec 2025 12:04:28 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id ajPeLf2yOmnXCQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Thu, 11 Dec 2025 12:03:09 +0000
-Message-ID: <c32b582b-2db2-4ef3-8348-0418476d0741@suse.de>
-Date: Thu, 11 Dec 2025 13:03:09 +0100
+	id N7pTNUyzOmkcCwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 11 Dec 2025 12:04:28 +0000
+Message-ID: <808bb393-e5fb-415e-b25d-8cc00c41b382@suse.de>
+Date: Thu, 11 Dec 2025 13:04:28 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,7 +83,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/13] drm/gem-shmem: Fix typos in documentation
+Subject: Re: [PATCH 02/13] drm/gem-shmem: Fix the MODULE_LICENSE() string
 To: boris.brezillon@collabora.com, simona@ffwll.ch, airlied@gmail.com,
  mripard@kernel.org, maarten.lankhorst@linux.intel.com, ogabbay@kernel.org,
  mamin506@gmail.com, lizhi.hou@amd.com, maciej.falkowski@linux.intel.com,
@@ -95,7 +96,7 @@ To: boris.brezillon@collabora.com, simona@ffwll.ch, airlied@gmail.com,
 Cc: dri-devel@lists.freedesktop.org, lima@lists.freedesktop.org,
  virtualization@lists.linux.dev, linux-doc@vger.kernel.org
 References: <20251209140141.94407-1-tzimmermann@suse.de>
- <20251209140141.94407-2-tzimmermann@suse.de>
+ <20251209140141.94407-3-tzimmermann@suse.de>
 Content-Language: en-US
 From: Thomas Zimmermann <tzimmermann@suse.de>
 Autocrypt: addr=tzimmermann@suse.de; keydata=
@@ -122,67 +123,73 @@ Autocrypt: addr=tzimmermann@suse.de; keydata=
  SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
  Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
  4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20251209140141.94407-2-tzimmermann@suse.de>
+In-Reply-To: <20251209140141.94407-3-tzimmermann@suse.de>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-4.30 / 50.00];
+X-Spam-Flag: NO
+X-Spam-Score: -4.51
+X-Rspamd-Queue-Id: A0D43337DA
+X-Spamd-Result: default: False [-4.51 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.992];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	FREEMAIL_TO(0.00)[collabora.com,ffwll.ch,gmail.com,kernel.org,linux.intel.com,amd.com,tomeuvizoso.net,imgtec.com,arm.com,igalia.com,redhat.com,chromium.org,lwn.net];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[28];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
 	MIME_TRACE(0.00)[0:+];
 	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[28];
-	MID_RHS_MATCH_FROM(0.00)[];
 	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.de:+];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
 	FROM_EQ_ENVFROM(0.00)[];
 	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLzxzh56npx61idbi11ft8b9pb)];
 	RCVD_TLS_ALL(0.00)[];
 	TO_DN_NONE(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email,suse.com:url,imap1.dmz-prg2.suse.org:helo]
+	MID_RHS_MATCH_FROM(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	R_RATELIMIT(0.00)[to_ip_from(RLeotmymkgqo3fhapiyq3uwbs4)];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.com:url,suse.de:mid,suse.de:dkim,suse.de:email]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
 X-Spam-Level: 
-X-Spam-Flag: NO
-X-Spam-Score: -4.30
 
 
 
 Am 09.12.25 um 14:41 schrieb Thomas Zimmermann:
-> Fix the compile-time warnings
+> Replace the bogus "GPL v2" with "GPL" as MODULE_LICNSE() string. The
+> value does not declare the module's exact license, but only lets the
+> module loader test whether the module is Free Software or not.
 >
-> Warning: drm_gem_shmem_helper.c:104 function parameter 'shmem' not described in 'drm_gem_shmem_init'
-> Warning: drm_gem_shmem_helper.c:104 function parameter 'size' not described in 'drm_gem_shmem_init'
+> See commit bf7fbeeae6db ("module: Cure the MODULE_LICENSE "GPL" vs.
+> "GPL v2" bogosity") in the details of the issue. The fix is to use
+> "GPL" for all modules under any variant of the GPL.
 >
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-Fixes: e3f4bdaf2c5b ("drm/gem/shmem: Extract drm_gem_shmem_init() from 
-drm_gem_shmem_create()")
+Fixes: 4b2b5e142ff4 ("drm: Move GEM memory managers into modules")
 
 
 > ---
->   drivers/gpu/drm/drm_gem_shmem_helper.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
+>   drivers/gpu/drm/drm_gem_shmem_helper.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 >
 > diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> index dc94a27710e5..f4e77f75ec81 100644
+> index f4e77f75ec81..2a67da98da25 100644
 > --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
 > +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> @@ -96,7 +96,8 @@ static int __drm_gem_shmem_init(struct drm_device *dev, struct drm_gem_shmem_obj
->   /**
->    * drm_gem_shmem_init - Initialize an allocated object.
->    * @dev: DRM device
-> - * @obj: The allocated shmem GEM object.
-> + * @shmem: The allocated shmem GEM object.
-> + * @size: Buffer size in bytes
->    *
->    * Returns:
->    * 0 on success, or a negative error code on failure.
+> @@ -896,4 +896,4 @@ EXPORT_SYMBOL_GPL(drm_gem_shmem_prime_import_no_map);
+>   
+>   MODULE_DESCRIPTION("DRM SHMEM memory-management helpers");
+>   MODULE_IMPORT_NS("DMA_BUF");
+> -MODULE_LICENSE("GPL v2");
+> +MODULE_LICENSE("GPL");
 
 -- 
 --
