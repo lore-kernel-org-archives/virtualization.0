@@ -1,112 +1,92 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3B3E723ABBF
-	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 01:48:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C2B97260F
+	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 02:51:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765417704; cv=none; b=PB/zgn6Dq6D8970EI9dwQZE3mJJtbXJJg2ou0NcJ9zGXrHT0LioBPytngEWo/vvvy3Ccn8I5MqUJ16swquCvhKdMFpmroJnxQvmHW5QetK8/IBwQVXf64ue3r/3h3qFRj2HcnWySUth/ZauoDjpck4cuvfXv5da1igWrI5VA8vM=
+	t=1765421525; cv=none; b=toO7g7qQHI0fLg489VLenLlQ6odle5dJlkZTYrJqKsbiCvFQv28fNEnmBvGPriZB/c2VF6aaCBCJfX1/sI2Z7vhxxPpuMMXLDYwIxtZin49Mdn0R5c+LUnv2FwXE6EmWXllvJAf0E6yyWuwtiVTvELp8FlgPSX1nLbI/U+MmzG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765417704; c=relaxed/simple;
-	bh=sF6INWHFzNkWbCQm2SGVm6yPsqJZqXCI3yusgM+2H4I=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=XIcS8KH7kZSocpSkGfPN2R5ryAnZS7XYfz0Bto3IMWuV9R1gmOO7BogLzrXZ1bPA9JM9teGN+ZfZ79ThUcJittJRuh7Z80aT+v8GiWwOI7goGOegmPZ0Kbxh6OCqM8pUR8SoBSixN9v148Afl5lLADBqbhnsDncKH0hs8XO3NRU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.62])
-	by gateway (Coremail) with SMTP id _____8Axjr_eIjppojQtAA--.29873S3;
-	Thu, 11 Dec 2025 09:48:14 +0800 (CST)
-Received: from [10.20.42.62] (unknown [10.20.42.62])
-	by front1 (Coremail) with SMTP id qMiowJAxT+bXIjpp+QBIAQ--.54846S3;
-	Thu, 11 Dec 2025 09:48:10 +0800 (CST)
-Subject: Re: [PATCH v3 10/10] crypto: virtio: Add ecb aes algo support
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Gonglei <arei.gonglei@huawei.com>, "Michael S . Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=c3=a9rez?=
- <eperezma@redhat.com>, Herbert Xu <herbert@gondor.apana.org.au>,
- "David S. Miller" <davem@davemloft.net>, kvm@vger.kernel.org,
- linux-crypto@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20251209022258.4183415-1-maobibo@loongson.cn>
- <20251209022258.4183415-11-maobibo@loongson.cn>
- <20251209232524.GE54030@quark>
- <4ac7b5b9-d819-62b5-1425-0e0b07762120@loongson.cn>
- <20251210014524.GA4128@sol>
-From: Bibo Mao <maobibo@loongson.cn>
-Message-ID: <bea9f1fe-f99e-b5c2-f69b-823e81adc28f@loongson.cn>
-Date: Thu, 11 Dec 2025 09:45:37 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1765421525; c=relaxed/simple;
+	bh=hnWOGNTKB7vJUjTdz5FKWuEA7PL7GnHWO1BOwxI2y4Q=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
+	 MIME-Version:Message-ID; b=X2jAaqL5P56VRt6R2zJPQChy+UO5fJ/P1t7CSn8HYaWSDrnyv3UHB4gC5GEHxXC4Fon8nD2vUdq/XeTcgNTtZ/u61taZ+eG7GZMXDtMDNNs4O/SZMHJi5RdIMrEy/r3mV5Au7zDL6/kfdAuv94nLdGsYyV1dZbIAn/5kedngyBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=a+o7w9Dy; arc=none smtp.client-ip=220.197.31.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="a+o7w9Dy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
+	Message-ID; bh=hnWOGNTKB7vJUjTdz5FKWuEA7PL7GnHWO1BOwxI2y4Q=; b=a
+	+o7w9DyoxJTU7mz9GcU1YwkhK1N0un8+6ZY6KlOos0SdHMxpSTYsF8wMHEn+DdYu
+	fdl+TpKdVIN6PsHayKc5lzdOsDdrQ+Av1FAn3UdKmr7/mbyfLjJOopacmfFy7ffm
+	tkBBcyjJcCaQnvbPzaV4LFcpvaKRAX10Ao4mhat2Ys=
+Received: from lange_tang$163.com ( [116.128.244.169] ) by
+ ajax-webmail-wmsvr-40-102 (Coremail) ; Thu, 11 Dec 2025 10:51:37 +0800
+ (CST)
+Date: Thu, 11 Dec 2025 10:51:37 +0800 (CST)
+From: "Lange Tang" <lange_tang@163.com>
+To: "mst@redhat.com" <mst@redhat.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"Tang Longjun" <tanglongjun@kylinos.cn>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Subject: Re:Re: [PATCH v1 0/7] introduce virtnet_mon for monitor virtio_net
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
+ 20250723(a044bf12) Copyright (c) 2002-2025 www.mailtech.cn 163com
+In-Reply-To: <20251210040328-mutt-send-email-mst@kernel.org>
+References: <20251127032407.33475-1-lange_tang@163.com>
+ <20251210040328-mutt-send-email-mst@kernel.org>
+X-NTES-SC: AL_Qu2dB/iZvkwi4SeRZ+kfmUgRg+c/XsK4svUj24VVOJF8jCzp8SogZ39yMHHQ08i/OyyMsSa4VxVX89xUWaNxWp45KmllYI98dfC8FD0H1FwDKQ==
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=GBK
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251210014524.GA4128@sol>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJAxT+bXIjpp+QBIAQ--.54846S3
-X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
-X-Coremail-Antispam: 1Uk129KBj93XoW7CF15uFy8KF47KrWDGrW3Jwc_yoW8WF15pF
-	WfC3WruFWDAry3K3saqwn2gF1Y93s7GrWUWwn8J34qy3Z8Xr12vw40vFWrCay7Zwn3AF47
-	ta1jgFW29ayUCagCm3ZEXasCq-sJn29KB7ZKAUJUUUUx529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUPYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr0_Gr1UM2kKe7AKxVWUAVWUtwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYI
-	kI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUAVWU
-	twAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMx
-	k0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l
-	4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67AKxV
-	WUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI
-	7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r
-	1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI
-	42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07j5o7tUUUUU=
+Message-ID: <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:ZigvCgD3X4+6MTpp3FE2AA--.814W
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-hpjkWk6MboIIwAA3l
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-
-
-On 2025/12/10 上午9:45, Eric Biggers wrote:
-> On Wed, Dec 10, 2025 at 09:36:06AM +0800, Bibo Mao wrote:
->>
->>
->> On 2025/12/10 上午7:25, Eric Biggers wrote:
->>> On Tue, Dec 09, 2025 at 10:22:58AM +0800, Bibo Mao wrote:
->>>> ECB AES also is added here, its ivsize is zero and name is different
->>>> compared with CBC AES algo.
->>>
->>> What is the use case for this feature?Currently qemu builtin backend and
->>> openssl afalg only support CBC AES,
->> it depends on modified qemu and openssl to test this.
->>
->> Maybe this patch adding ECB AES algo can be skipped now, it is just an
->> example, the final target is to add SM4 cipher.
-> 
-> There's no need to add useless features.  The title of your patchset is
-> "crypto: virtio: Add ecb aes algo support".  So it sounds like the main
-> point of your patchset is to add a useless feature?  If there are
-> actually unrelated fixes you want, you should send those separately.
-yes, will change title of cover letter and remove this patch in next time.
-> 
-> As for SM4 support (which mode?), if you really want that (you
-> shouldn't), why not use the existing CPU accelerated implementation?
-The hardware supports SM4 ECB/CBC/CTL three modes, it depends on the 
-detail application scenery.
-
-I just notice that openssl removes engines support in recent. The 
-purpose of use HW accel is that it is faster and can save CPU resource.
-
-However it actually brings some troubles with applications on different 
-HW platforms, I think HW crypto accel can be used for kernel and some 
-key user applications, it is not suitable for all general applications 
-for the present.
-
-Regards
-Bibo Mao
-> 
-> - Eric
-> 
-
+QXQgMjAyNS0xMi0xMCAxNzowNDowNCwgIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQu
+Y29tPiB3cm90ZToKPk9uIFRodSwgTm92IDI3LCAyMDI1IGF0IDExOjI0OjAwQU0gKzA4MDAsIExv
+bmdqdW4gVGFuZyB3cm90ZToKPj4gRnJvbTogVGFuZyBMb25nanVuIDx0YW5nbG9uZ2p1bkBreWxp
+bm9zLmNuPgo+PiAKPj4gaGksCj4+IHZpcnRuZXRfbW9uIGlzIHVzZWQgdG8gbW9uaXRvciB0aGUg
+ZGF0YSBwYWNrZXRzIG9mIHRoZSB2aXJ0aW9fbmV0IGRyaXZlciAKPj4gYW5kIHRoZSByZWxhdGVk
+IHBhcmFtZXRlcnMgb2YgdmlydHF1ZXVlLCB1c2VmdWwgZm9yIHRyYWNraW5nIGl0cyBzdGF0dXMg
+Cj4+IGFuZCB0cm91Ymxlc2hvb3RpbmcgZmF1bHRzLgo+PiAKPj4gcGxzIHJldmlldy4gdGtzCj4+
+IAo+PiBCZXN0IHJlZ2FyZC4KPgo+d2hhdCBkb2VzIHRoaXMgYWNoaWV2ZSB0aGF0IGRpcmVjdCB1
+c2Ugb2YgdHJhY2luZyB3b3VsZCBub3Q/CgpJIGFwb2xvZ2l6ZSB0aGF0IG15IGV4cGxhbmF0aW9u
+IG9mIHZpcnRuZXRfbW9uIHdhcyBub3QgZGV0YWlsZWQgZW5vdWdoLiAKdmlydG5ldF9tb24gdXNl
+cyBrcHJvYmUgYW5kIGJ1ZmZlcnMgdG8gbW9uaXRvciB2aXJ0aW9fbmV0LiAKVG8gbW9uaXRvciB2
+aXJ0aW9fbmV0LCBpdCBpcyBuZWNlc3NhcnkgdG8gdHJhY2sgdGhlIG1lbWJlciBwYXJhbWV0ZXJz
+IG9mIHRoZSB2aXJ0cXVldWUgY29ycmVzcG9uZGluZyB0byBlYWNoIGRhdGEgcGFja2V0IGFuZCBv
+dXRwdXQgdGhlbS4gCldoZW4gUFBTIHZlcnkgaGlnaCwgb3RoZXIgdHJhY2luZyB0ZWNobmlxdWVz
+LCBzdWNoIGFzIGVicGYsIG1heSBub3QgYmUgYWJsZSB0byBoYW5kbGUgaXQsIHJlc3VsdGluZyBp
+biBkYXRhIGxvc3MgYmVjYXVzZSB0aGV5IGRvIG5vdCBoYXZlIHN1ZmZpY2llbnRseSBsYXJnZSBi
+dWZmZXJzIHRvIGJhdGNoIGV4cG9ydCBsb2cgZGF0YS4KCkFzIGZvciB0aGUgZHVwbGljYXRlIGNv
+ZGUsIGl0IGlzIG9ubHkgdG8gb2J0YWluIHRoZSBsYXlvdXQgb2YgdGhlIHJlbGV2YW50IHN0cnVj
+dHVyZSwgYW5kIEkgaGF2ZSBub3QgeWV0IHRob3VnaHQgb2YgYSB3YXkgdG8gYXZvaWQgZHVwbGlj
+YXRpb24uIEkgd291bGQgbG92ZSB0byBoZWFyIHlvdXIgc3VnZ2VzdGlvbnMuCgo+Cj4+IFRhbmcg
+TG9uZ2p1biAoNyk6Cj4+ICAgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uOiBjcmVhdGUgbWlzYyBk
+cml2ZXIgZm9yIHZpcnRuZXRfbW9uCj4+ICAgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uOiBhZGQg
+a2ZpZm8gdG8gdmlydG5ldF9tb24KPj4gICB0b29scy92aXJ0aW8vdmlydG5ldF9tb246IGFkZCBr
+cHJvYmUgc3RhcnRfeG1pdAo+PiAgIHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbjogYWRkIGtwcm9i
+ZSBncm9fcmVjZWl2ZV9za2IKPj4gICB0b29scy92aXJ0aW8vdmlydG5ldF9tb246IGFkZCBrcHJv
+YmUgaXBfbG9jYWxfZGVsaXZlcgo+PiAgIHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbjogYWRkIGtw
+cm9iZSBza2JfeG1pdF9kb25lIGFuZCBza2JfcmVjdl9kb25lCj4+ICAgdG9vbHMvdmlydGlvL3Zp
+cnRuZXRfbW9uOiBhZGQgUkVBRE1FIGZpbGUgZm9yIHZpcnRuZXRfbW9pbgo+PiAKPj4gIHRvb2xz
+L3ZpcnRpby92aXJ0bmV0X21vbi9NYWtlZmlsZSAgICAgIHwgICAxMCArCj4+ICB0b29scy92aXJ0
+aW8vdmlydG5ldF9tb24vUkVBRE1FICAgICAgICB8ICAgMzUgKwo+PiAgdG9vbHMvdmlydGlvL3Zp
+cnRuZXRfbW9uL3ZpcnRuZXRfbW9uLmMgfCAxMDQ4ICsrKysrKysrKysrKysrKysrKysrKysrKwo+
+PiAgMyBmaWxlcyBjaGFuZ2VkLCAxMDkzIGluc2VydGlvbnMoKykKPj4gIGNyZWF0ZSBtb2RlIDEw
+MDY0NCB0b29scy92aXJ0aW8vdmlydG5ldF9tb24vTWFrZWZpbGUKPj4gIGNyZWF0ZSBtb2RlIDEw
+MDY0NCB0b29scy92aXJ0aW8vdmlydG5ldF9tb24vUkVBRE1FCj4+ICBjcmVhdGUgbW9kZSAxMDA2
+NDQgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uL3ZpcnRuZXRfbW9uLmMKPj4gCj4+IC0tIAo+PiAy
+LjQzLjAK
