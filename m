@@ -1,270 +1,96 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A25BB2D8799
-	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 09:10:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C29C933E7
+	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 10:01:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765444260; cv=none; b=WKrpOPQXO3GKdxVeMP5tAUtp/xSYrsjKMZcOb1/FOcpEPX2mJL7rQYZQ2EbZ40xysIOKZgfzXpuyBIfx0tNnZUDl0dP1OEHCbkf/FUR4pvpqBBHEoN4Ki6Z7WpHmFWb/xkLXexp43m4n1gtztlbAjidrLUpRNaz0nsn7zenhmRs=
+	t=1765447267; cv=none; b=Bou2E6MYxQEqmpSxoFPoIYnUIMzh1S4YN2c7zMAiesTYZuER9bvOMGzGBhBfBocf/KqSjlQJ4oOyTS0gXU+aptIU/jjp9pRtKWmdrbwywU3ku5MbrsTbCX5rWKh8L7X04H/yRpjFFmKodXD0LgaJxsgIKEt0wveS5WzybW6kcRk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765444260; c=relaxed/simple;
-	bh=2bjsuHgqR2pBqJTjwbviCLdqZiOgEWxTUpAVbpAw2Zg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=PiebLZ9sgT/I1cBFX2NU4DWhmDiWdeALI37qlw3lWojzWe11EAD/rh9NJoGmrC0RZ87VCBcndObADR8A09Aqqna5YZgCus1ylFyHIttru+am7wXi+ApZAMJqnxVez/H1TrlIheQInLiOndtMn6ZNH/RNgaG9m9ql9gSKPG2EvF0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LQYJhjHu; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1765447267; c=relaxed/simple;
+	bh=6zJiNj1L6vIB85ihK7K/8OX+7soTd/RpprQ5f+V4x74=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=vFhuJqrjFbTUqyYNtUN2jtgaI1FHhHS9OgjRpb3FxjKgCVSQCCiB/XyjlPjYq9GViCjcvq5UxWL7EgW13Dah/2nsrt/XmuG+xa2hBqkripT4h08e/NBPik6rak4lltlTMIhBOq6blnkNxv3CzncG48DYVuO7DDG4MzUfQmpE6DA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=mU+VG7hQ; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LQYJhjHu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765444257;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=69iEnCdCnSl1sInX4QnhnjanZznNSbsv0LHo8vEaadA=;
-	b=LQYJhjHuxKIua+Q6QzVHPJMLEjLY0zW1F9c5SuTy3yyBpNZJQhikQ3eYbL32c1ig2WXZDt
-	NE2a5MFWvKxQE4iMGY34lwhsje/+4gzmHgF5ZTZCWSvQBjDuvbodU1ktC46zajw6LeEjhR
-	ox2tBKSM5Rz/9Lmm5ZzXjjoWD1Lzr+8=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-86-WQQlHGNGPlikZYd9JIbU4g-1; Thu, 11 Dec 2025 04:10:55 -0500
-X-MC-Unique: WQQlHGNGPlikZYd9JIbU4g-1
-X-Mimecast-MFC-AGG-ID: WQQlHGNGPlikZYd9JIbU4g_1765444254
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-b70b1778687so48009366b.0
-        for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 01:10:55 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765444254; x=1766049054;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=69iEnCdCnSl1sInX4QnhnjanZznNSbsv0LHo8vEaadA=;
-        b=lepVh9qnPmzbnK+rNfsZmycUYxgvbGDTEK/FmwGyEKu109D7rjqPVOhXDga8iB9V2n
-         0pXqdlIlu/qH8ktzZA4dIvNXZnYrscUbgnxgfj/blaG1oYm4wacKKCXsE8FCf4irnywg
-         l1iVOk+t2a8yTxZ4kntPl741tNEXkD1y0f4YRl2irm6j0qxMqSvOKeVwvAkCG5s99bV/
-         wJcDr3AiOeGWF2hL0+AxQJKJFIyzCiPtKVAxdEwMOnogyRkeawqalarpkiG8t9FHOqdp
-         VIAbug3S+iynRD4X2tVvzztPNnG8Mc1PBMRie38bJYtEs+wnThfOlxQSn9MRJQkFTwYu
-         uF9Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXz5nwmaP7nT2Z/Bd7Trjst2sMzrT5Ylo9xNirudPlPpKHEj+XZg1Eoa4MpQ6ZmcmElVPOlj+qZ3JW8QYnTVg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzhaPZkFaT8dyADdkEp2wdOVkoD1JQeAD+p14UIoUyfKq4tFALi
-	yLO7W0X8PgsVXX01FreJ7BJcC05HKcMRt75ZMPexafNoedQX9ldoq6YYLTmWSCBVPkzILER4Q7o
-	JX3r27H6uje0WqzZO31fh8l1sSub/vumJ/AXUGyuQX5RB091PUK2VD6eul3pAXWof8SeR
-X-Gm-Gg: ASbGnct7BlI0m3EE1yFbdaOF8qpwu8O4v+tMzse49I1KK/rI2svcDdMpx0g7tzXKo8r
-	bZVh5W8hzdMJWz+KCKSWZa1dcqww9/3TdFdJgfE+EkhLvUmL1mdrtmnDavDksGk2vpLBekCfH0d
-	d/3LXUW/uLqV4foIn8yOGWTs01g/zN/npe9ny0yKOXUeSkylym7+CJ0GEumSVWXfkslpFhE3f+I
-	aqRkHSOT2JoYHFryF15l2uedcQosdrQazm7KFCvutE/n7yv9pi0RzyoN53QFgIABnlWKFjsGf4G
-	cmTPWq5JBx0Jzo15tfa30dV4PZ0hDq7zu6u0S1XxbeTm7yITy9PTe/fk7B7lApukx63W6rH0/su
-	GlFb+GVRf/02hmJeAOWQN0lfftHNLLRZxgqqZJkW7LfXGXkqlZlcail6Q/6OYtw==
-X-Received: by 2002:a17:906:d551:b0:b73:301c:b158 with SMTP id a640c23a62f3a-b7ce823a81dmr540585466b.6.1765444253893;
-        Thu, 11 Dec 2025 01:10:53 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEew10O4bon7Xzeax0PYRU5JDJoxS0/dSqVq0TxsHXl0IJlpZHr0G2pLqtxoNtfkJvXUfn7Sg==
-X-Received: by 2002:a17:906:d551:b0:b73:301c:b158 with SMTP id a640c23a62f3a-b7ce823a81dmr540582966b.6.1765444253322;
-        Thu, 11 Dec 2025 01:10:53 -0800 (PST)
-Received: from sgarzare-redhat (host-87-12-139-91.business.telecomitalia.it. [87.12.139.91])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b7cfa56c152sm203140766b.56.2025.12.11.01.10.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Dec 2025 01:10:52 -0800 (PST)
-Date: Thu, 11 Dec 2025 10:10:38 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Melbin K Mathew <mlbnkm1@gmail.com>
-Cc: stefanha@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, mst@redhat.com, 
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	horms@kernel.org
-Subject: Re: [PATCH] vsock/virtio: cap TX credit to local buffer size
-Message-ID: <ctubihgjn65za4hbmanhkzg7psr6kmj3jeqfj5sfxnnxjjvrsy@l6644u74vrn6>
-References: <20251210150019.48458-1-mlbnkm1@gmail.com>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="mU+VG7hQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1765447263;
+	bh=6zJiNj1L6vIB85ihK7K/8OX+7soTd/RpprQ5f+V4x74=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=mU+VG7hQmQxkswGmekpUaQ3s18Lyw37XYE4C60b/4rlkvBHbrAqSg7Uv3x8RJrx4m
+	 UbVhKwZi/Ac5BxVFKMkNsmmO9ynNa6uIGZMqsCikaTIL9fSpdj/fdwEq6cS/cr0PMm
+	 +ODZNAvnIwX4kbTohttJu6zXZGEepf//vYc4FZRVeCLF1v/7PJb6f5K0n736vMNZA3
+	 mSppa60dvaxkhO+3Y63KoI5lXKMqP6Skcez8h3R2W++ZKFkk3qHc3YLqnnT3//K+QX
+	 FO8XGVfcLA+oaYCwzFNa5iel/vLgXDc2tq7ZY6rf1jcpTxAIoiKNUrwl/fhucH07kb
+	 VbObVxP9msb3A==
+Received: from fedora (unknown [IPv6:2a01:e0a:2c:6930:d919:a6e:5ea1:8a9f])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: bbrezillon)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id D2DE717E1544;
+	Thu, 11 Dec 2025 11:01:02 +0100 (CET)
+Date: Thu, 11 Dec 2025 11:00:56 +0100
+From: Boris Brezillon <boris.brezillon@collabora.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: simona@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
+ maarten.lankhorst@linux.intel.com, ogabbay@kernel.org, mamin506@gmail.com,
+ lizhi.hou@amd.com, maciej.falkowski@linux.intel.com,
+ karol.wachowski@linux.intel.com, tomeu@tomeuvizoso.net,
+ frank.binns@imgtec.com, matt.coster@imgtec.com, yuq825@gmail.com,
+ robh@kernel.org, steven.price@arm.com, adrian.larumbe@collabora.com,
+ liviu.dudau@arm.com, mwen@igalia.com, kraxel@redhat.com,
+ dmitry.osipenko@collabora.com, gurchetansingh@chromium.org,
+ olvaffe@gmail.com, corbet@lwn.net, dri-devel@lists.freedesktop.org,
+ lima@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org
+Subject: Re: [PATCH 01/13] drm/gem-shmem: Fix typos in documentation
+Message-ID: <20251211110056.26a53786@fedora>
+In-Reply-To: <20251209140141.94407-2-tzimmermann@suse.de>
+References: <20251209140141.94407-1-tzimmermann@suse.de>
+	<20251209140141.94407-2-tzimmermann@suse.de>
+Organization: Collabora
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251210150019.48458-1-mlbnkm1@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: yL-OED2nAenZLxL2ykH2nNi_xvB2_A9zSGhvqADmnRE_1765444254
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Dec 10, 2025 at 04:00:19PM +0100, Melbin K Mathew wrote:
->The virtio vsock transport currently derives its TX credit directly
->from peer_buf_alloc, which is set from the remote endpoint's
->SO_VM_SOCKETS_BUFFER_SIZE value.
+On Tue,  9 Dec 2025 14:41:58 +0100
+Thomas Zimmermann <tzimmermann@suse.de> wrote:
 
-Why removing the target tree [net] from the tags?
+> Fix the compile-time warnings
+> 
+> Warning: drm_gem_shmem_helper.c:104 function parameter 'shmem' not described in 'drm_gem_shmem_init'
+> Warning: drm_gem_shmem_helper.c:104 function parameter 'size' not described in 'drm_gem_shmem_init'
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-Also this is a v2, so the tags should have been [PATCH net v2], please 
-check it in next versions, more info:
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
 
-https://www.kernel.org/doc/html/latest/process/submitting-patches.html#subject-line
-
->
->On the host side this means that the amount of data we are willing to
->queue for a connection is scaled by a guest-chosen buffer size,
->rather than the host's own vsock configuration. A malicious guest can
->advertise a large buffer and read slowly, causing the host to allocate
->a correspondingly large amount of sk_buff memory.
->
->Introduce a small helper, virtio_transport_peer_buf_alloc(), that
->returns min(peer_buf_alloc, buf_alloc), and use it wherever we consume
->peer_buf_alloc:
->
->  - virtio_transport_get_credit()
->  - virtio_transport_has_space()
->  - virtio_transport_seqpacket_enqueue()
->
->This ensures the effective TX window is bounded by both the peer's
->advertised buffer and our own buf_alloc (already clamped to
->buffer_max_size via SO_VM_SOCKETS_BUFFER_MAX_SIZE), so a remote guest
->cannot force the host to queue more data than allowed by the host's
->own vsock settings.
->
->On an unpatched Ubuntu 22.04 host (~64 GiB RAM), running a PoC with
->32 guest vsock connections advertising 2 GiB each and reading slowly
->drove Slab/SUnreclaim from ~0.5 GiB to ~57 GiB and the system only
->recovered after killing the QEMU process.
->
->With this patch applied, rerunning the same PoC yields:
->
->  Before:
->    MemFree:        ~61.6 GiB
->    MemAvailable:   ~62.3 GiB
->    Slab:           ~142 MiB
->    SUnreclaim:     ~117 MiB
->
->  After 32 high-credit connections:
->    MemFree:        ~61.5 GiB
->    MemAvailable:   ~62.3 GiB
->    Slab:           ~178 MiB
->    SUnreclaim:     ~152 MiB
->
->i.e. only ~35 MiB increase in Slab/SUnreclaim, no host OOM, and the
->guest remains responsive.
-
-I think we should include here a summary of what you replied to Michael 
-about other transports.
-
-I can't find your reply in the archive, but I mean the reply to
-https://lore.kernel.org/netdev/20251210084318-mutt-send-email-mst@kernel.org/
-
->
->Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
->Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->Signed-off-by: Melbin K Mathew <mlbnkm1@gmail.com>
->---
-> net/vmw_vsock/virtio_transport_common.c | 27 ++++++++++++++++++++++---
-> 1 file changed, 24 insertions(+), 3 deletions(-)
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index dcc8a1d58..02eeb96dd 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -491,6 +491,25 @@ void virtio_transport_consume_skb_sent(struct sk_buff *skb, bool consume)
-> }
-> EXPORT_SYMBOL_GPL(virtio_transport_consume_skb_sent);
->
->+/*
->+ * Return the effective peer buffer size for TX credit computation.
-
-nit: block comment in this file doesn't leave empty line, so I'd follow
-it:
-
-@@ -491,8 +491,7 @@ void virtio_transport_consume_skb_sent(struct sk_buff *skb, bool consume)
-  }
-  EXPORT_SYMBOL_GPL(virtio_transport_consume_skb_sent);
-
--/*
-- * Return the effective peer buffer size for TX credit computation.
-+/* Return the effective peer buffer size for TX credit computation.
-   *
-   * The peer advertises its receive buffer via peer_buf_alloc, but we
-   * cap that to our local buf_alloc (derived from
-
->+ *
->+ * The peer advertises its receive buffer via peer_buf_alloc, but we
->+ * cap that to our local buf_alloc (derived from
->+ * SO_VM_SOCKETS_BUFFER_SIZE and already clamped to buffer_max_size)
->+ * so that a remote endpoint cannot force us to queue more data than
->+ * our own configuration allows.
->+ */
->+static u32 virtio_transport_tx_buf_alloc(struct virtio_vsock_sock *vvs)
->+{
->+	u32 peer  = vvs->peer_buf_alloc;
->+	u32 local = vvs->buf_alloc;
->+
->+	if (peer > local)
->+		return local;
->+	return peer;
->+}
->+
-
-I think here Michael was suggesting this:
-
-@@ -502,12 +502,7 @@ EXPORT_SYMBOL_GPL(virtio_transport_consume_skb_sent);
-   */
-  static u32 virtio_transport_tx_buf_alloc(struct virtio_vsock_sock *vvs)
-  {
--       u32 peer  = vvs->peer_buf_alloc;
--       u32 local = vvs->buf_alloc;
--
--       if (peer > local)
--               return local;
--       return peer;
-+       return min(vvs->peer_buf_alloc, vvs->buf_alloc);
-  }
-
-
-> u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 credit)
-> {
-> 	u32 ret;
->@@ -499,7 +518,8 @@ u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 credit)
-> 		return 0;
->
-> 	spin_lock_bh(&vvs->tx_lock);
->-	ret = vvs->peer_buf_alloc - (vvs->tx_cnt - vvs->peer_fwd_cnt);
->+	ret = virtio_transport_tx_buf_alloc(vvs) -
->+	      (vvs->tx_cnt - vvs->peer_fwd_cnt);
-> 	if (ret > credit)
-> 		ret = credit;
-> 	vvs->tx_cnt += ret;
->@@ -831,7 +851,7 @@ virtio_transport_seqpacket_enqueue(struct vsock_sock *vsk,
->
-> 	spin_lock_bh(&vvs->tx_lock);
->
->-	if (len > vvs->peer_buf_alloc) {
->+	if (len > virtio_transport_tx_buf_alloc(vvs)) {
-> 		spin_unlock_bh(&vvs->tx_lock);
-> 		return -EMSGSIZE;
-> 	}
->@@ -882,7 +902,8 @@ static s64 virtio_transport_has_space(struct vsock_sock *vsk)
-> 	struct virtio_vsock_sock *vvs = vsk->trans;
-> 	s64 bytes;
->
->-	bytes = (s64)vvs->peer_buf_alloc - (vvs->tx_cnt - vvs->peer_fwd_cnt);
->+	bytes = (s64)virtio_transport_tx_buf_alloc(vvs) -
->+	      (vvs->tx_cnt - vvs->peer_fwd_cnt);
-
-nit: please align this:
-
-@@ -903,7 +898,7 @@ static s64 virtio_transport_has_space(struct vsock_sock *vsk)
-         s64 bytes;
-
-         bytes = (s64)virtio_transport_tx_buf_alloc(vvs) -
--             (vvs->tx_cnt - vvs->peer_fwd_cnt);
-+               (vvs->tx_cnt - vvs->peer_fwd_cnt);
-         if (bytes < 0)
-                 bytes = 0;
-
-
-Just minor things, but the patch LGTM, thanks!
-Stefano
-
-> 	if (bytes < 0)
-> 		bytes = 0;
->
->-- 
->2.34.1
->
+> ---
+>  drivers/gpu/drm/drm_gem_shmem_helper.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> index dc94a27710e5..f4e77f75ec81 100644
+> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> @@ -96,7 +96,8 @@ static int __drm_gem_shmem_init(struct drm_device *dev, struct drm_gem_shmem_obj
+>  /**
+>   * drm_gem_shmem_init - Initialize an allocated object.
+>   * @dev: DRM device
+> - * @obj: The allocated shmem GEM object.
+> + * @shmem: The allocated shmem GEM object.
+> + * @size: Buffer size in bytes
+>   *
+>   * Returns:
+>   * 0 on success, or a negative error code on failure.
 
