@@ -1,92 +1,117 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C2B97260F
-	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 02:51:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765421525; cv=none; b=toO7g7qQHI0fLg489VLenLlQ6odle5dJlkZTYrJqKsbiCvFQv28fNEnmBvGPriZB/c2VF6aaCBCJfX1/sI2Z7vhxxPpuMMXLDYwIxtZin49Mdn0R5c+LUnv2FwXE6EmWXllvJAf0E6yyWuwtiVTvELp8FlgPSX1nLbI/U+MmzG8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765421525; c=relaxed/simple;
-	bh=hnWOGNTKB7vJUjTdz5FKWuEA7PL7GnHWO1BOwxI2y4Q=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=X2jAaqL5P56VRt6R2zJPQChy+UO5fJ/P1t7CSn8HYaWSDrnyv3UHB4gC5GEHxXC4Fon8nD2vUdq/XeTcgNTtZ/u61taZ+eG7GZMXDtMDNNs4O/SZMHJi5RdIMrEy/r3mV5Au7zDL6/kfdAuv94nLdGsYyV1dZbIAn/5kedngyBc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=a+o7w9Dy; arc=none smtp.client-ip=220.197.31.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81D433B8D75
+	for <virtualization@lists.linux.dev>; Thu, 11 Dec 2025 03:52:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765425130; cv=pass; b=ptDhQ00Di+V2jiX7ch+OPK4FRc4EkCUfyOZCWWUXCxh5llkrLf2lFLsRgduqfJBIkZHgFUqbFX2+9MP8XgcOmsdbzjTVQeQ/qpk6sVU9kJEhvo/4CgfXBpsSnVImZmC1l0MwKpN4TyfP7fSJvXt13sKrMvWAxhtcNq/uZDtsbQY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765425130; c=relaxed/simple;
+	bh=Xv4VU25LdhjDzsAIlBYXJf0xcLBztQHk6wfa2qht3q4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UETp2V/+/TcMAf657ayCDhlP8I4REZ8xp0k/sRAc3+epaUbw+if9vhyV+j2ByTrcnJtoAqAEIRN67UTscQbnL+E1kD0M+C01RPg/kBPDqH+QxHYBqFuElN7g27JgKNcSXiJK8UyajLUcWw3q3kPyWJ0QkqIScFUM+0Kj/VAokes=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=j5KkXEJC; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="a+o7w9Dy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=hnWOGNTKB7vJUjTdz5FKWuEA7PL7GnHWO1BOwxI2y4Q=; b=a
-	+o7w9DyoxJTU7mz9GcU1YwkhK1N0un8+6ZY6KlOos0SdHMxpSTYsF8wMHEn+DdYu
-	fdl+TpKdVIN6PsHayKc5lzdOsDdrQ+Av1FAn3UdKmr7/mbyfLjJOopacmfFy7ffm
-	tkBBcyjJcCaQnvbPzaV4LFcpvaKRAX10Ao4mhat2Ys=
-Received: from lange_tang$163.com ( [116.128.244.169] ) by
- ajax-webmail-wmsvr-40-102 (Coremail) ; Thu, 11 Dec 2025 10:51:37 +0800
- (CST)
-Date: Thu, 11 Dec 2025 10:51:37 +0800 (CST)
-From: "Lange Tang" <lange_tang@163.com>
-To: "mst@redhat.com" <mst@redhat.com>
-Cc: "jasowang@redhat.com" <jasowang@redhat.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"Tang Longjun" <tanglongjun@kylinos.cn>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-Subject: Re:Re: [PATCH v1 0/7] introduce virtnet_mon for monitor virtio_net
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20250723(a044bf12) Copyright (c) 2002-2025 www.mailtech.cn 163com
-In-Reply-To: <20251210040328-mutt-send-email-mst@kernel.org>
-References: <20251127032407.33475-1-lange_tang@163.com>
- <20251210040328-mutt-send-email-mst@kernel.org>
-X-NTES-SC: AL_Qu2dB/iZvkwi4SeRZ+kfmUgRg+c/XsK4svUj24VVOJF8jCzp8SogZ39yMHHQ08i/OyyMsSa4VxVX89xUWaNxWp45KmllYI98dfC8FD0H1FwDKQ==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="j5KkXEJC"
+ARC-Seal: i=1; a=rsa-sha256; t=1765425114; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=UfXNDRKAolbhh/b/DQwWCj/W3uHl+ZofXxO093hhowcWPNDiAZrvIu7SADOxRELABI15fAa+1FjfqpYg+ITWkUwDNuiD0/581LsMLHV5aqMNg+JJA3gze0szerMzJwzzTLhWctu3EoI0xyuUetAs3YoHxia9RQHt891vA6ulMsI=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1765425114; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=bdvg75pe1XqkWjmd/gIJdQ0jjhqK3VCzZaGWpztaYyI=; 
+	b=BEhf/9q0qN9YnoK6m9XgEdD8JboqSYD/YDuoSU7TxH7jmI6BlCwIWJjOI8F2UaKxchkt0xNv2WI9VA8XVrIODbrS1D59WymvU882gcmJwFAMchyEIksAtNdxVVA03NRrx5YISBGABuCww5UIDka9L0G/JjW/+QavOjERaJTjgVs=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1765425114;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=bdvg75pe1XqkWjmd/gIJdQ0jjhqK3VCzZaGWpztaYyI=;
+	b=j5KkXEJCgNqwK7wOt+FdQn5M62gsSfrmL54oaxm43bPmQmei6r9BhTAGjwdUFIJk
+	2ZWwrIn0K+7hCJriOY865k4j0yQmb//PTl+XFxKXs3I11X10RKWabVWRJFL4gl6YU1P
+	EOGQh1xm8kTCebFPws+HiTQt8U+KX3y5rLbPTozU=
+Received: by mx.zohomail.com with SMTPS id 1765425111840134.7944186922607;
+	Wed, 10 Dec 2025 19:51:51 -0800 (PST)
+Message-ID: <5b0a15d1-6912-4a0b-acdc-ace4f7aa33e6@collabora.com>
+Date: Thu, 11 Dec 2025 06:51:46 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:ZigvCgD3X4+6MTpp3FE2AA--.814W
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-hpjkWk6MboIIwAA3l
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: Allow importing prime buffers when 3D is
+ enabled
+To: Val Packett <val@invisiblethingslab.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Vivek Kasireddy <vivek.kasireddy@intel.com>
+Cc: Dongwon Kim <dongwon.kim@intel.com>,
+ Christian Koenig <christian.koenig@amd.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20251210154755.1119861-2-val@invisiblethingslab.com>
+ <a8405071-8489-4965-9a59-fc58f78cb250@collabora.com>
+ <1005ebfc-6f0e-477f-afae-2d42b44a5fa3@invisiblethingslab.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <1005ebfc-6f0e-477f-afae-2d42b44a5fa3@invisiblethingslab.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-QXQgMjAyNS0xMi0xMCAxNzowNDowNCwgIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQu
-Y29tPiB3cm90ZToKPk9uIFRodSwgTm92IDI3LCAyMDI1IGF0IDExOjI0OjAwQU0gKzA4MDAsIExv
-bmdqdW4gVGFuZyB3cm90ZToKPj4gRnJvbTogVGFuZyBMb25nanVuIDx0YW5nbG9uZ2p1bkBreWxp
-bm9zLmNuPgo+PiAKPj4gaGksCj4+IHZpcnRuZXRfbW9uIGlzIHVzZWQgdG8gbW9uaXRvciB0aGUg
-ZGF0YSBwYWNrZXRzIG9mIHRoZSB2aXJ0aW9fbmV0IGRyaXZlciAKPj4gYW5kIHRoZSByZWxhdGVk
-IHBhcmFtZXRlcnMgb2YgdmlydHF1ZXVlLCB1c2VmdWwgZm9yIHRyYWNraW5nIGl0cyBzdGF0dXMg
-Cj4+IGFuZCB0cm91Ymxlc2hvb3RpbmcgZmF1bHRzLgo+PiAKPj4gcGxzIHJldmlldy4gdGtzCj4+
-IAo+PiBCZXN0IHJlZ2FyZC4KPgo+d2hhdCBkb2VzIHRoaXMgYWNoaWV2ZSB0aGF0IGRpcmVjdCB1
-c2Ugb2YgdHJhY2luZyB3b3VsZCBub3Q/CgpJIGFwb2xvZ2l6ZSB0aGF0IG15IGV4cGxhbmF0aW9u
-IG9mIHZpcnRuZXRfbW9uIHdhcyBub3QgZGV0YWlsZWQgZW5vdWdoLiAKdmlydG5ldF9tb24gdXNl
-cyBrcHJvYmUgYW5kIGJ1ZmZlcnMgdG8gbW9uaXRvciB2aXJ0aW9fbmV0LiAKVG8gbW9uaXRvciB2
-aXJ0aW9fbmV0LCBpdCBpcyBuZWNlc3NhcnkgdG8gdHJhY2sgdGhlIG1lbWJlciBwYXJhbWV0ZXJz
-IG9mIHRoZSB2aXJ0cXVldWUgY29ycmVzcG9uZGluZyB0byBlYWNoIGRhdGEgcGFja2V0IGFuZCBv
-dXRwdXQgdGhlbS4gCldoZW4gUFBTIHZlcnkgaGlnaCwgb3RoZXIgdHJhY2luZyB0ZWNobmlxdWVz
-LCBzdWNoIGFzIGVicGYsIG1heSBub3QgYmUgYWJsZSB0byBoYW5kbGUgaXQsIHJlc3VsdGluZyBp
-biBkYXRhIGxvc3MgYmVjYXVzZSB0aGV5IGRvIG5vdCBoYXZlIHN1ZmZpY2llbnRseSBsYXJnZSBi
-dWZmZXJzIHRvIGJhdGNoIGV4cG9ydCBsb2cgZGF0YS4KCkFzIGZvciB0aGUgZHVwbGljYXRlIGNv
-ZGUsIGl0IGlzIG9ubHkgdG8gb2J0YWluIHRoZSBsYXlvdXQgb2YgdGhlIHJlbGV2YW50IHN0cnVj
-dHVyZSwgYW5kIEkgaGF2ZSBub3QgeWV0IHRob3VnaHQgb2YgYSB3YXkgdG8gYXZvaWQgZHVwbGlj
-YXRpb24uIEkgd291bGQgbG92ZSB0byBoZWFyIHlvdXIgc3VnZ2VzdGlvbnMuCgo+Cj4+IFRhbmcg
-TG9uZ2p1biAoNyk6Cj4+ICAgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uOiBjcmVhdGUgbWlzYyBk
-cml2ZXIgZm9yIHZpcnRuZXRfbW9uCj4+ICAgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uOiBhZGQg
-a2ZpZm8gdG8gdmlydG5ldF9tb24KPj4gICB0b29scy92aXJ0aW8vdmlydG5ldF9tb246IGFkZCBr
-cHJvYmUgc3RhcnRfeG1pdAo+PiAgIHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbjogYWRkIGtwcm9i
-ZSBncm9fcmVjZWl2ZV9za2IKPj4gICB0b29scy92aXJ0aW8vdmlydG5ldF9tb246IGFkZCBrcHJv
-YmUgaXBfbG9jYWxfZGVsaXZlcgo+PiAgIHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbjogYWRkIGtw
-cm9iZSBza2JfeG1pdF9kb25lIGFuZCBza2JfcmVjdl9kb25lCj4+ICAgdG9vbHMvdmlydGlvL3Zp
-cnRuZXRfbW9uOiBhZGQgUkVBRE1FIGZpbGUgZm9yIHZpcnRuZXRfbW9pbgo+PiAKPj4gIHRvb2xz
-L3ZpcnRpby92aXJ0bmV0X21vbi9NYWtlZmlsZSAgICAgIHwgICAxMCArCj4+ICB0b29scy92aXJ0
-aW8vdmlydG5ldF9tb24vUkVBRE1FICAgICAgICB8ICAgMzUgKwo+PiAgdG9vbHMvdmlydGlvL3Zp
-cnRuZXRfbW9uL3ZpcnRuZXRfbW9uLmMgfCAxMDQ4ICsrKysrKysrKysrKysrKysrKysrKysrKwo+
-PiAgMyBmaWxlcyBjaGFuZ2VkLCAxMDkzIGluc2VydGlvbnMoKykKPj4gIGNyZWF0ZSBtb2RlIDEw
-MDY0NCB0b29scy92aXJ0aW8vdmlydG5ldF9tb24vTWFrZWZpbGUKPj4gIGNyZWF0ZSBtb2RlIDEw
-MDY0NCB0b29scy92aXJ0aW8vdmlydG5ldF9tb24vUkVBRE1FCj4+ICBjcmVhdGUgbW9kZSAxMDA2
-NDQgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uL3ZpcnRuZXRfbW9uLmMKPj4gCj4+IC0tIAo+PiAy
-LjQzLjAK
+On 12/11/25 01:11, Val Packett wrote:
+> 
+> On 12/10/25 1:51 PM, Dmitry Osipenko wrote:
+>> Hi,
+>>
+>> On 12/10/25 18:39, Val Packett wrote:
+>>> This functionality was added for using a KMS-only virtgpu with a
+>>> physical
+>>> (or SR-IOV) headless GPU in passthrough, but it should not be restricted
+>>> to KMS-only mode. It can be used with cross-domain to pass guest memfds
+>>> to the host compositor with zero copies (using udmabuf on both sides).
+>>>
+>>> Drop the check for the absence of virgl_3d to allow for more use cases.
+>>>
+>>> Fixes: ca77f27a2665 ("drm/virtio: Import prime buffers from other
+>>> devices as guest blobs")
+>>> Signed-off-by: Val Packett <val@invisiblethingslab.com>
+>>> ---
+>>>
+>>> Hi. I couldn't find any comments on that line in the reviews (on
+>>> patchwork), so I assume
+>>> there was never a specific technical reason for that check, just an
+>>> abundance of caution?
+>>>
+>>> BTW, while here.. The drm_gem_prime_import "fallback" seems pretty
+>>> much equivalent to
+>>> `return (-ENODEV)`, as drm_gem_prime_import(_dev) just translates the
+>>> call to
+>>> gem_prime_import_sg_table which we don't use. Should it be replaced
+>>> with `return (-ENODEV)`?
+>> Returning -ENODEV should break dmabuf self-importing where virtio-gpu
+>> driver export dmabuf and then imports to itself.
+> 
+> Hm, I don't think so because the self-import case (for when `buf->ops ==
+> &virtgpu_dmabuf_ops`) is handled right here, right above this check.
+> 
+> drm_gem_prime_import would handle the self-import for `buf->ops ==
+> &drm_gem_prime_dmabuf_ops` which shouldn't be the case since we have
+> `virtgpu_dmabuf_ops`..
+
+Indeed, then it should be redundant. Practically, there should be no
+difference with removal of drm_gem_prime_import() and
+virtgpu_gem_prime_import_sg_table() from the code. Not sure if changing
+it will be worthwhile.
+
+-- 
+Best regards,
+Dmitry
