@@ -1,136 +1,103 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.2])
+Received: from out203-205-221-242.mail.qq.com (out203-205-221-242.mail.qq.com [203.205.221.242])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B5262DEA7A
-	for <virtualization@lists.linux.dev>; Sat, 13 Dec 2025 02:41:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E34D11FF5F9;
+	Sun, 14 Dec 2025 02:49:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.242
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765593709; cv=none; b=tFJV1UPRa4kodI0go58SltXmHYMGmN+m82ebVID5Iegn/w4hTUh3nAm6BF49NRDxYqySfQr8XDa8zxT64epNJ1URVvlgZLq/OqEb39Uqd0/ry1aDkYdh3r5/GZbF/usL7o9uhl+UfKmMqEYHp8OGQBMYzwsVVaQG/XAGyIVrTtM=
+	t=1765680588; cv=none; b=uyS5WXC7euxtnP/7tVWw3cWr6TFol5WWqqutNCM/E9NbZZjDJrEYCFbMxJE93zVWGj9wb+epnIrFEy9/YlA2oSBcGHmUAXAOlL6qJhkS0TqxNtmFwa8+m4H9bQf2AhZBePIt6LRfMlJKUMR0C+LZSCyLbCcxTD95vrPlcqbH1Ow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765593709; c=relaxed/simple;
-	bh=VBbjC8VKW0eO2HhFLcCc0xYzGfqiqm+IPYAYCO1Iyds=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=SR9hOBdggY84Axdne3VSak10t5QMKe4+AWxee7/XalaHtTloXE45ntYQinIgN/QVvJzdgr8ySkx6mHynVgju5XMh8fKaCfxMC0KmABnhiQAiH0SEAV44NWm05YJ0TGXxVOEUA7ShBdEbCoDhiSXJXVFnmmnwWyP09QKGVDNcrTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=X7NW/dDJ; arc=none smtp.client-ip=117.135.210.2
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1765680588; c=relaxed/simple;
+	bh=nN7B3Qdh5Nc5GqxXdyl95sJL9td2JS18OMmoBxYKWTM=;
+	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
+	 MIME-Version; b=SXV0Np1I59Epz786FhdPRWQGUgQ1uWuPxPyvu3ZL5/+ODoKRidBvumjc1iLCJBzpuGsfDbLntpAkoKI0naWw2dTRwkin6xTdBvjYB1yf61NQFlarq07u6w5AxZwm7ZkTHjO/Zfyay6kaFeTTHDa6wjeb3XZjm3wN/brTX62sKPs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=BWLcDRD+; arc=none smtp.client-ip=203.205.221.242
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="X7NW/dDJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=VBbjC8VKW0eO2HhFLcCc0xYzGfqiqm+IPYAYCO1Iyds=; b=X
-	7NW/dDJTJui61U4kLxmPij+fhhmQY+B6IAZdHvO+Es+GJDULi8/PzPw9GcW3x2iT
-	NDHYnDhFwR7SFcKq1jcVaCsigwS/yuhdKBqsdO/nEw2WGtrx2cPz6JOE89yUTN/i
-	k+kiQyDbgA8yEi1L4Wg6szkayrPy0W+Te/Bv1C8rfw=
-Received: from lange_tang$163.com ( [116.128.244.169] ) by
- ajax-webmail-wmsvr-40-118 (Coremail) ; Sat, 13 Dec 2025 10:41:33 +0800
- (CST)
-Date: Sat, 13 Dec 2025 10:41:33 +0800 (CST)
-From: "Lange Tang" <lange_tang@163.com>
-To: "jasowang@redhat.com" <jasowang@redhat.com>
-Cc: "mst@redhat.com" <mst@redhat.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"Tang Longjun" <tanglongjun@kylinos.cn>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-Subject: Re:Re: Re: [PATCH v1 0/7] introduce virtnet_mon for monitor
- virtio_net
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20250723(a044bf12) Copyright (c) 2002-2025 www.mailtech.cn 163com
-In-Reply-To: <CACGkMEt-v2RGTbzEgfocpZvZw1SKB8j4MQ6zoMFvGJQXXFuMtQ@mail.gmail.com>
-References: <20251127032407.33475-1-lange_tang@163.com>
- <20251210040328-mutt-send-email-mst@kernel.org>
- <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com>
- <CACGkMEt-v2RGTbzEgfocpZvZw1SKB8j4MQ6zoMFvGJQXXFuMtQ@mail.gmail.com>
-X-NTES-SC: AL_Qu2dB/mSvE4i5SWYbOkfmUgRg+c/XsK4svUj24VVOJF8jDDpxBs6RlB4NkbazMWgChuMvQKvegpx8Pt4Z4tSZY4EG2Z0C65p7FXadGmu00b+GA==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="BWLcDRD+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1765680580; bh=K2OZpHYHYZfWcCHPoZC/EThAw3ioCUEy54sUZxS6dz8=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=BWLcDRD+7A9911K+fi2EdNHjWakBalYHdcptpok25Gsth4EaXC5WrqSCb5W8vgtjs
+	 aHTCtlpfWkfLy1jeIIFmF2RVI3Pd9061XawYGBRk/78KPVnOEbvfdxGZHJI6bHCbgb
+	 lmoujIUpf0vZkgrwycD7NPwdk3HInnzxtA/MeFfI=
+Received: from lxu-ped-host.. ([111.201.7.117])
+	by newxmesmtplogicsvrsza56-0.qq.com (NewEsmtp) with SMTP
+	id C62A4629; Sun, 14 Dec 2025 10:49:34 +0800
+X-QQ-mid: xmsmtpt1765680574tmqa0m9qx
+Message-ID: <tencent_922CC96DE097F8E8EAECA6CED47BCA6C840A@qq.com>
+X-QQ-XMAILINFO: NQp/UN4soYLTE6XaGnoCUWXJp5y/lq1f7iO2t7sZtSbsh4Qdr/QfObtsCXPKAy
+	 73IUanxQx0OLkY2WTV931kJDMcjliNFTQdvhiKGPrbFC2Bq04eC821g1s9FjwndJd4Cl6dqEnQYG
+	 5u0hoX8lHX1/DHMUguz5i6Q4d+gRyNIhxPrTxFePG2SAWXEY2YWRXhGRuJABh66NbGFQsMniDRrG
+	 U2PRsZhGnH4cL4ojz6o/zsJX5hZWdrwyWlWLUmtqkvdOvCM9hal3v9uLkE3qCeDCJLR8rEorg0tK
+	 e64pG9C5HzgK7UgbIBI7eUWg4uN5nI8kU9XPVHJVG0ksiSZtZ4jHdLbTDzquVtcucHBqJNCphbDD
+	 Xq4UAF5Gn7ky6IJKgJX8n5s/d04MNDG86vj+IrR+NxpLx3Z3/k5SlpnKqiD6ZDpVFRJpspbQboIB
+	 BOYgbO21S0BFaJLH5XeGLEdjWNKTo2dyB1ob4VzLQ7U3v3Q1lf1/DMuRcfZpMQcrWzKm0HdWou4x
+	 +JG8Pr30gnJJKnygzlkt+FVEWdGwxJWyu9Fa2MEwXkoSE2rO0pKa0jXy77wcHLnV8+cr4G83bJGt
+	 Opf+S1B08M5kU4pDLMcfr7b1K+j41B9pmvU/DJJ04KLH9zyRw0YmHdGfdD6sI0riSz0wpLqYu9f6
+	 8wTP4IZiuMBxQYJS7PGFeayPCDAXXn4IZKXZtQFN2RQxDduNnFZ0r71l+30OYMFI/t/xAbDEUTwQ
+	 7bOJCnMOW0GRStWNhvlDcq8zXXhsl1W3cRZapET80HUlFlWrgD2PVUemiwnxrC9LAQ2m/fZqptVv
+	 QVzcEHKyL+PaBiXCAtpeVMVj+YilSISVmXjIzn8t+Qrih2CR/xUw+Lb3hA1uXfjKvSdVxfe14ZVb
+	 Uu4XD0YQkklEE9hVfXJB/YdNh4qc+wY4UvoDFN/aPxnxiXEHdJIPd63V8h8unLVW893FlxXAdVXh
+	 GdR1bt1+b7GnLjU943u4mk0Pvz+kcHMQlkG4zB41Q2u34jE+IRY/fimGF4c+Npm0/7AIkh68momw
+	 +ZyRLvPxf+LB0fjjqcARM/wZE0gze4jpD8spHj3XkFOPoTAzZX
+X-QQ-XMRINFO: MSVp+SPm3vtS1Vd6Y4Mggwc=
+From: Edward Adam Davis <eadavis@qq.com>
+To: kuba@kernel.org
+Cc: davem@davemloft.net,
+	eadavis@qq.com,
+	edumazet@google.com,
+	eperezma@redhat.com,
+	horms@kernel.org,
+	jasowang@redhat.com,
+	kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	netdev@vger.kernel.org,
+	pabeni@redhat.com,
+	sgarzare@redhat.com,
+	stefanha@redhat.com,
+	syzbot+ci3edb9412aeb2e703@syzkaller.appspotmail.com,
+	syzbot@lists.linux.dev,
+	syzbot@syzkaller.appspotmail.com,
+	syzkaller-bugs@googlegroups.com,
+	virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH net-next v4] net: restore the iterator to its original state when an error occurs
+Date: Sun, 14 Dec 2025 10:49:34 +0800
+X-OQ-MSGID: <20251214024933.62895-2-eadavis@qq.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20251213083717.44fb78c4@kernel.org>
+References: <20251213083717.44fb78c4@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <64d63e98.e7f.19b1595bd4e.Coremail.lange_tang@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:digvCgDX7u5e0jxp3284AA--.589W
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC4h41Y2k80l4puAAA3i
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+Content-Transfer-Encoding: 8bit
 
-QXQgMjAyNS0xMi0xMSAxNjozMjoxNSwgIkphc29uIFdhbmciIDxqYXNvd2FuZ0ByZWRoYXQuY29t
-PiB3cm90ZToKPk9uIFRodSwgRGVjIDExLCAyMDI1IGF0IDEwOjUy4oCvQU0gTGFuZ2UgVGFuZyA8
-bGFuZ2VfdGFuZ0AxNjMuY29tPiB3cm90ZToKPj4KPj4gQXQgMjAyNS0xMi0xMCAxNzowNDowNCwg
-Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPj4gPk9uIFRodSwg
-Tm92IDI3LCAyMDI1IGF0IDExOjI0OjAwQU0gKzA4MDAsIExvbmdqdW4gVGFuZyB3cm90ZToKPj4g
-Pj4gRnJvbTogVGFuZyBMb25nanVuIDx0YW5nbG9uZ2p1bkBreWxpbm9zLmNuPgo+PiA+Pgo+PiA+
-PiBoaSwKPj4gPj4gdmlydG5ldF9tb24gaXMgdXNlZCB0byBtb25pdG9yIHRoZSBkYXRhIHBhY2tl
-dHMgb2YgdGhlIHZpcnRpb19uZXQgZHJpdmVyCj4+ID4+IGFuZCB0aGUgcmVsYXRlZCBwYXJhbWV0
-ZXJzIG9mIHZpcnRxdWV1ZSwgdXNlZnVsIGZvciB0cmFja2luZyBpdHMgc3RhdHVzCj4+ID4+IGFu
-ZCB0cm91Ymxlc2hvb3RpbmcgZmF1bHRzLgo+PiA+Pgo+PiA+PiBwbHMgcmV2aWV3LiB0a3MKPj4g
-Pj4KPj4gPj4gQmVzdCByZWdhcmQuCj4+ID4KPj4gPndoYXQgZG9lcyB0aGlzIGFjaGlldmUgdGhh
-dCBkaXJlY3QgdXNlIG9mIHRyYWNpbmcgd291bGQgbm90Pwo+Pgo+PiBJIGFwb2xvZ2l6ZSB0aGF0
-IG15IGV4cGxhbmF0aW9uIG9mIHZpcnRuZXRfbW9uIHdhcyBub3QgZGV0YWlsZWQgZW5vdWdoLgo+
-PiB2aXJ0bmV0X21vbiB1c2VzIGtwcm9iZSBhbmQgYnVmZmVycyB0byBtb25pdG9yIHZpcnRpb19u
-ZXQuCj4+IFRvIG1vbml0b3IgdmlydGlvX25ldCwgaXQgaXMgbmVjZXNzYXJ5IHRvIHRyYWNrIHRo
-ZSBtZW1iZXIgcGFyYW1ldGVycyBvZiB0aGUgdmlydHF1ZXVlIGNvcnJlc3BvbmRpbmcgdG8gZWFj
-aCBkYXRhIHBhY2tldCBhbmQgb3V0cHV0IHRoZW0uCj4+IFdoZW4gUFBTIHZlcnkgaGlnaCwgb3Ro
-ZXIgdHJhY2luZyB0ZWNobmlxdWVzLCBzdWNoIGFzIGVicGYsIG1heSBub3QgYmUgYWJsZSB0byBo
-YW5kbGUgaXQsIHJlc3VsdGluZyBpbiBkYXRhIGxvc3MgYmVjYXVzZSB0aGV5IGRvIG5vdCBoYXZl
-IHN1ZmZpY2llbnRseSBsYXJnZSBidWZmZXJzIHRvIGJhdGNoIGV4cG9ydCBsb2cgZGF0YS4KPgo+
-Q2FuIHlvdSBleHBhbmQgbW9yZSBhYm91dCB0aGlzPyBGb3IgZXhhbXBsZSwgaW4gd2hpY2gga2lu
-ZCBvZiBzZXR1cAo+YW5kIHdoYXQgZG8geW91IHdhbnQgdG8gdHJhY2UgYW5kIHdoeSBlYnBmIGNh
-bid0IGhhbmRsZSB0aGF0LiBOb3RlCj50aGF0IHRoZSBtb3N0IGxpZ2h0d2VpZ2h0IHN0dWZmIGlz
-IHRoZSBjb3VudGVyLCBoYXZlIHlvdSB0cmllZCB0aGF0PwoKRm9yIGV4YW1wbGUsIHdoZW4gdGhl
-cmUgaXMgb2NjYXNpb25hbCBsYXRlbmN5IGluIGRhdGEgdHJhbnNtaXNzaW9uIGJldHdlZW4gdGhl
-IAp2aXJ0dWFsIG5ldHdvcmsgZnJvbnRlbmQgKHZpcnRpb19uZXQpIGFuZCBiYWNrZW5kIChzdWNo
-IGFzIHZob3N0X25ldCksIAp3ZSBtYXkgbmVlZCB0byB0cmFjayB0aGUgdGltZSB0YWtlbiBmb3Ig
-ZWFjaCBwYWNrZXQgcmVjZWl2ZWQgYW5kIHNlbnQgaW4gdGhlIHZpcnRpb19uZXQgZHJpdmVyLiAK
-VHlwaWNhbGx5LCB3ZSBhY2NvbXBsaXNoIHRoaXMgdXNpbmcgZUJQRiwgc3VjaCBhcyBicGZ0cmFj
-ZS4gVGhlIHBzZXVkb2NvZGUgbWlnaHQgaW5jbHVkZSB0aGUgZm9sbG93aW5nOgoiIiIKa3Byb2Jl
-OnNrYl9yZWN2X2RvbmUgewoJcHJpbnRmKCIlbGQgc2tiX3JlY3ZfZG9uZSBDcHU6JWQgLi4uXG4i
-LC4uLik7Cn0Ka3Byb2JlOnNrYl94bWl0X2RvbmUgewoJcHJpbnRmKCIlbGQgc2tiX3htaXRfZG9u
-ZSBDcHU6JWQgLi4uXG4iLC4uLik7Cn0Ka3Byb2JlOnZpcnRuZXRfcG9sbCB7CglwcmludGYoIiVs
-ZCB2aXJ0bmV0X3BvbGwgQ3B1OiVkIGJ1ZGdldDolZCAuLi5cbiIsLi4uKTsKfQprcHJvYmU6c3Rh
-cnRfeG1pdCB7CiAgLi4uCiAgcHJpbnRmKCIlbGQgc3RhcnRfeG1pdCBDcHU6JWQgdHlwZTolcyBz
-ZXE6JWxkIC4uLlxuIiwuLi4pCn0Ka3Byb2JlOmdyb19yZWNlaXZlX3NrYiB7CiAgLi4uCiAgcHJp
-bnRmKCIlbGQgZ3JvX3JlY2VpdmVfc2tiIENwdTolZCB0eXBlOiVzIHNlcTolbGQgLi4uXG4iLC4u
-LikKfQprcHJvYmU6cmVjZWl2ZV9idWYgewogIC4uLgogIHByaW50ZigiJWxkIHJlY2VpdmVfYnVm
-IENwdTolZCBuYW1lOiVzIGF2YWxpX2lkeDolZCB1c2VkX2lkeDolZCAuLi5cbiIsLi4uKTsKfQoi
-IiIKVXNpbmcgdGhlIGFib3ZlIGJwZnRyYWNlIGNvZGUsIHdlIGNhbiB0cmFjayB0aGUgdGltZXN0
-YW1wcyBvZiB0aGUgZGF0YSBhcyBpdCBwYXNzZXMgdGhyb3VnaCB0aGVzZSBmdW5jdGlvbnMsIAph
-bG9uZyB3aXRoIHNrYiBhbmQgdmlydHF1ZXVlIGluZm9ybWF0aW9uLCBhbmQgb3V0cHV0IGxvZ3Mg
-dmlhIHByaW50ZiBmb3IgZnVydGhlciBkaWFnbm9zaXMgb2YgdGhlIGNhdXNlcyBvZiB0aGUgbGF0
-ZW5jeS4KSW50ZXJlc3RpbmdseSwgYSBzaWduaWZpY2FudCBhbW91bnQgb2YgbG9ncyB3ZXJlIGZv
-dW5kIHRvIGJlIG1pc3Npbmcgd2hlbiBleGVjdXRpbmcgdGhlc2UgYnBmdHJhY2UgY29kZXMuIApC
-ZWxvdyBpcyB0aGUgdGVzdGluZyBlbnZpcm9ubWVudDoKVk06IDhHOEPvvIx2aXJ0aW9fbmV0IG1x
-PTQsIGtlcm5lbCA2LjE4LXJjNywgaXBlcmYzIC1zIC1wIDEzMTQKSE9TVDogaXBlcmYzIC1jIDE5
-Mi4xNjguMTIyLjIxOCAtdCAxMDAgLXAgMTMxNCAtUCA0Ckl0IHdhcyBhbHNvIGZvdW5kIHRoYXQg
-d2hlbiB0ZXN0aW5nIHdpdGggbXE9MSwgdGhlcmUgd2FzIG5vIGxvZyBsb3NzLgoKQ29tcGFyZWQg
-dG8gbXE9MSwgdGhlIHJlYXNvbiBmb3IgbG9nIGxvc3MgYXQgbXE9NCBpcyBzdXNwZWN0ZWQgdG8g
-YmUgZHVlIHRvIGRhdGEgYmVpbmcgc2VudCBvciByZWNlaXZlZCAKYnkgZGlmZmVyZW50IENQVXMu
-IEFkZGl0aW9uYWxseSwgdW5kZXIgdGhlIDQtdGhyZWFkIGlwZXJmIHRlc3Rpbmcgc2NlbmFyaW8g
-d2l0aCBQUFMgPiAxNTAsMDAwLCAKdGhlIGxvZyBkYXRhIGlzIGFzeW5jaHJvbm91c2x5IG91dHB1
-dCBmcm9tIGRpZmZlcmVudCBDUFVzLCBsZWFkaW5nIHRvIGV4Y2Vzc2l2ZSBJTyBwcmVzc3VyZSB0
-aGF0IGNhdXNlcyBsb2cgZGF0YSBsb3NzLgoKVGhlIGFib3ZlIGFyZSBzb21lIG9mIG15IHBlcnNv
-bmFsIHRob3VnaHRzLCBhbmQgSSB3b3VsZCBsb3ZlIHRvIGhlYXIgeW91ciBvcGluaW9uLgpCZXN0
-IHJlZ2FyZC4KCj4KPj4KPj4gQXMgZm9yIHRoZSBkdXBsaWNhdGUgY29kZSwgaXQgaXMgb25seSB0
-byBvYnRhaW4gdGhlIGxheW91dCBvZiB0aGUgcmVsZXZhbnQgc3RydWN0dXJlLCBhbmQgSSBoYXZl
-IG5vdCB5ZXQgdGhvdWdodCBvZiBhIHdheSB0byBhdm9pZCBkdXBsaWNhdGlvbi4gSSB3b3VsZCBs
-b3ZlIHRvIGhlYXIgeW91ciBzdWdnZXN0aW9ucy4KPgo+VGhhbmtzCj4KPj4KPj4gPgo+PiA+PiBU
-YW5nIExvbmdqdW4gKDcpOgo+PiA+PiAgIHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbjogY3JlYXRl
-IG1pc2MgZHJpdmVyIGZvciB2aXJ0bmV0X21vbgo+PiA+PiAgIHRvb2xzL3ZpcnRpby92aXJ0bmV0
-X21vbjogYWRkIGtmaWZvIHRvIHZpcnRuZXRfbW9uCj4+ID4+ICAgdG9vbHMvdmlydGlvL3ZpcnRu
-ZXRfbW9uOiBhZGQga3Byb2JlIHN0YXJ0X3htaXQKPj4gPj4gICB0b29scy92aXJ0aW8vdmlydG5l
-dF9tb246IGFkZCBrcHJvYmUgZ3JvX3JlY2VpdmVfc2tiCj4+ID4+ICAgdG9vbHMvdmlydGlvL3Zp
-cnRuZXRfbW9uOiBhZGQga3Byb2JlIGlwX2xvY2FsX2RlbGl2ZXIKPj4gPj4gICB0b29scy92aXJ0
-aW8vdmlydG5ldF9tb246IGFkZCBrcHJvYmUgc2tiX3htaXRfZG9uZSBhbmQgc2tiX3JlY3ZfZG9u
-ZQo+PiA+PiAgIHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbjogYWRkIFJFQURNRSBmaWxlIGZvciB2
-aXJ0bmV0X21vaW4KPj4gPj4KPj4gPj4gIHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbi9NYWtlZmls
-ZSAgICAgIHwgICAxMCArCj4+ID4+ICB0b29scy92aXJ0aW8vdmlydG5ldF9tb24vUkVBRE1FICAg
-ICAgICB8ICAgMzUgKwo+PiA+PiAgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uL3ZpcnRuZXRfbW9u
-LmMgfCAxMDQ4ICsrKysrKysrKysrKysrKysrKysrKysrKwo+PiA+PiAgMyBmaWxlcyBjaGFuZ2Vk
-LCAxMDkzIGluc2VydGlvbnMoKykKPj4gPj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCB0b29scy92aXJ0
-aW8vdmlydG5ldF9tb24vTWFrZWZpbGUKPj4gPj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCB0b29scy92
-aXJ0aW8vdmlydG5ldF9tb24vUkVBRE1FCj4+ID4+ICBjcmVhdGUgbW9kZSAxMDA2NDQgdG9vbHMv
-dmlydGlvL3ZpcnRuZXRfbW9uL3ZpcnRuZXRfbW9uLmMKPj4gPj4KPj4gPj4gLS0KPj4gPj4gMi40
-My4wCg==
+On Sat, 13 Dec 2025 08:37:17 +0900, Jakub Kicinski wrote:
+> > In zerocopy_fill_skb_from_iter(), if two copy operations are performed
+> > and the first one succeeds while the second one fails, it returns a
+> > failure but the count in iterator has already been decremented due to
+> > the first successful copy. This ultimately affects the local variable
+> > rest_len in virtio_transport_send_pkt_info(), causing the remaining
+> > count in rest_len to be greater than the actual iterator count. As a
+> > result, packet sending operations continue even when the iterator count
+> > is zero, which further leads to skb->len being 0 and triggers the warning
+> > reported by syzbot [1].
+> 
+> Please address the feedback from previous revision and when you repost
+> use net as the subject tag.
+I have added the following explanation in the comments:
+Regarding the judgment condition, I aligned it with the condition in
+skb_zerocopy_iter_stream().
+
+syzbot reported the issue in the linux-next repository, and I also
+tested and created the patch using the linux-next source code repository.
+Therefore, I added the subject net-next tag.
+If you think adding the net subject tag directly is acceptable, I will
+adjust it in the next version of the patch.
+
