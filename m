@@ -1,194 +1,88 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1372A273D75
-	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 12:57:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E73F3328F0;
+	Mon, 15 Dec 2025 13:59:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765803483; cv=none; b=NoXZ3CDot4/azswCDhKbUc7pXMtLXyXMzHlZFZD+gNh928cLSIdiSIT3yuuRa04yJjxuWCxQAf+8wDaH90C0C940NANCIUUPczJDG1oaq49CTXS4meSvOISjXDuJurmrH6cfnjQAX77vPGnMEkBwhkL+OWLSqFuPNrV74hRePDQ=
+	t=1765807175; cv=none; b=KLiqmjha3/bDs7OZMEkRbMrJ4gvofHnMUuYaq+obf9dBJ9U3UL+CnU+tFWJca5QglRgKqBogT+ac/JoSDJ9/4HNmCAYwDSvkf+9O6vi+RMYB1Wq3zCDpzWtP1llWXot6/On597ox9dI7ShyX1xs8y5hJQl/x2tyCT/1rw36ctnM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765803483; c=relaxed/simple;
-	bh=OrvUkA/OYEVIy2HAOWaodbUWPIFHAKNggXoBeeKaNVM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QWrbLaITG8rJ7XtRJx3fMyv27jMb5ga7GJjCM6Y8RDU4BY0BTAS+OYraCYeRMG5TOov76+nuWQ6unEcpVF9kuBUFr+wPWZM4oOAe8jq27PnLkrQ693iOGY2ljRRR94tbbgb6G3hcHa2NaZ7UdJb0VxgZcbu49AJdGKWGpXSKDbM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=pwB5aJIj; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=uhL6Wzq1; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=wbudG5tR; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=/lEzb7cY; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1765807175; c=relaxed/simple;
+	bh=F/G/9D/MfKM0tJrztBRflOEn1hJgcQ9gnt2LlbM8maA=;
+	h=From:To:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=iXcmyszp/Uavl39j/aT06jwr7c+0WUelAfz27GU2rgu5FO6gi9tCVc49Pa2dGmXPjJvyLBrdYvAam7WIOWAmUvVZkteStYnrM1ZQa+HiyK+MMb0svVJrVI8OHP2XhrrnWSJY4Qe82S5jvGRJ0atT0wOPJxyeofw0UQvSjZpzyGE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yp/pMdAs; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="pwB5aJIj";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="uhL6Wzq1";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="wbudG5tR";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="/lEzb7cY"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id C790F5BDC1;
-	Mon, 15 Dec 2025 12:57:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765803475; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+MMpU8iu26hMrIy/s70C2uUD4P60923K9CkgBqEJuQM=;
-	b=pwB5aJIjn8phLTPx90dciLVvvsfvcKP4gkJ66yBeotWcB8KfB5XiqvoFO7jy2uTkyC7Yb0
-	JZLMWnyBnFSISomtilFsdBk9B36BOYrswpfuNRST6oxzuo68CfSRARwKaa2cXsYIM2sUeE
-	4lDFqwFwDELbInSqS57Nt+ZBmoPWBs0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765803475;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+MMpU8iu26hMrIy/s70C2uUD4P60923K9CkgBqEJuQM=;
-	b=uhL6Wzq1R+PNBj6rfCcqGNMgxtVxaRnHoZyyToVvx4kGFick0Y9bgj6VQ/quRzQ0+xnmCi
-	0lYA7snQbCFB6cBg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=wbudG5tR;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b="/lEzb7cY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1765803474; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+MMpU8iu26hMrIy/s70C2uUD4P60923K9CkgBqEJuQM=;
-	b=wbudG5tRrT5mSpJlFzatkqSwIBsOCTdfoHnUgi2Sq9omNJkKuKsXswef7UpkpzalsaCUOA
-	Dll6hqGranEacsANrMAceL1D8/syjts30TI7weAKtY3ETHR/fxxKgSWzqbzQyiEzCS6Ldm
-	vwP4EuI/mR5KXUTIq6jvDZNHMvAhH44=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1765803474;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+MMpU8iu26hMrIy/s70C2uUD4P60923K9CkgBqEJuQM=;
-	b=/lEzb7cYQcLGYieeI0FGHc2j6U844YUTFaZ0ICjqymlBjCArBNNka7sLpYwDMBbyBbL1c4
-	SAALQB2mHJPlRmCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B77483EA65;
-	Mon, 15 Dec 2025 12:57:54 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 3lEkLNIFQGkhTQAAD6G6ig
-	(envelope-from <jack@suse.cz>); Mon, 15 Dec 2025 12:57:54 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id 6303FA0951; Mon, 15 Dec 2025 13:57:39 +0100 (CET)
-Date: Mon, 15 Dec 2025 13:57:39 +0100
-From: Jan Kara <jack@suse.cz>
-To: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, 
-	Linux AMDGPU <amd-gfx@lists.freedesktop.org>, Linux DRI Development <dri-devel@lists.freedesktop.org>, 
-	Linux Filesystems Development <linux-fsdevel@vger.kernel.org>, Linux Media <linux-media@vger.kernel.org>, 
-	linaro-mm-sig@lists.linaro.org, kasan-dev@googlegroups.com, 
-	Linux Virtualization <virtualization@lists.linux.dev>, Linux Memory Management List <linux-mm@kvack.org>, 
-	Linux Network Bridge <bridge@lists.linux.dev>, Linux Networking <netdev@vger.kernel.org>, 
-	Harry Wentland <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>, 
-	Rodrigo Siqueira <siqueira@igalia.com>, Alex Deucher <alexander.deucher@amd.com>, 
-	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Matthew Brost <matthew.brost@intel.com>, Danilo Krummrich <dakr@kernel.org>, 
-	Philipp Stanner <phasta@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Sumit Semwal <sumit.semwal@linaro.org>, 
-	Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Uladzislau Rezki <urezki@gmail.com>, Nikolay Aleksandrov <razor@blackwall.org>, 
-	Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Taimur Hassan <Syed.Hassan@amd.com>, Wayne Lin <Wayne.Lin@amd.com>, Alex Hung <alex.hung@amd.com>, 
-	Aurabindo Pillai <aurabindo.pillai@amd.com>, Dillon Varone <Dillon.Varone@amd.com>, 
-	George Shen <george.shen@amd.com>, Aric Cyr <aric.cyr@amd.com>, Cruise Hung <Cruise.Hung@amd.com>, 
-	Mario Limonciello <mario.limonciello@amd.com>, Sunil Khatri <sunil.khatri@amd.com>, 
-	Dominik Kaszewski <dominik.kaszewski@amd.com>, David Hildenbrand <david@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
-	Max Kellermann <max.kellermann@ionos.com>, "Nysal Jan K.A." <nysal@linux.ibm.com>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Alexey Skidanov <alexey.skidanov@intel.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Kent Overstreet <kent.overstreet@linux.dev>, 
-	Vitaly Wool <vitaly.wool@konsulko.se>, Harry Yoo <harry.yoo@oracle.com>, 
-	Mateusz Guzik <mjguzik@gmail.com>, NeilBrown <neil@brown.name>, Amir Goldstein <amir73il@gmail.com>, 
-	Jeff Layton <jlayton@kernel.org>, Ivan Lipski <ivan.lipski@amd.com>, Tao Zhou <tao.zhou1@amd.com>, 
-	YiPeng Chai <YiPeng.Chai@amd.com>, Hawking Zhang <Hawking.Zhang@amd.com>, 
-	Lyude Paul <lyude@redhat.com>, Daniel Almeida <daniel.almeida@collabora.com>, 
-	Luben Tuikov <luben.tuikov@amd.com>, Matthew Auld <matthew.auld@intel.com>, 
-	Roopa Prabhu <roopa@cumulusnetworks.com>, Mao Zhu <zhumao001@208suo.com>, 
-	Shaomin Deng <dengshaomin@cdjrlc.com>, Charles Han <hanchunchao@inspur.com>, 
-	Jilin Yuan <yuanjilin@cdjrlc.com>, Swaraj Gaikwad <swarajgaikwad1925@gmail.com>, 
-	George Anthony Vernon <contact@gvernon.com>
-Subject: Re: [PATCH 07/14] fs: Describe @isnew parameter in ilookup5_nowait()
-Message-ID: <qxbixswc7daxb3y7o7ebmy34dpa3uv6i5vc2fnj2p6f3sckulk@vcbuzldig7al>
-References: <20251215113903.46555-1-bagasdotme@gmail.com>
- <20251215113903.46555-8-bagasdotme@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yp/pMdAs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77C7EC4CEFB;
+	Mon, 15 Dec 2025 13:59:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1765807175;
+	bh=F/G/9D/MfKM0tJrztBRflOEn1hJgcQ9gnt2LlbM8maA=;
+	h=From:To:In-Reply-To:References:Subject:Date:From;
+	b=Yp/pMdAs8qpvfkWrpXzDYmo4xrzmz+SzLR2HCgK05ukKvTVlrpAecmEhbUr0krhPD
+	 Y9+arISqYmJw4nv32BN5dzwtpNjGaE7XVQ6+yWKvA4A+NjqZ2SetCZL2gBCrscz9vh
+	 wDo7ZNi7crnMHJQZkQaidxnI1EhbtcsXTIKOjN+G37QD/tKG4VJMQaKf1mmuxeCDN9
+	 alUv0X19Vat8lf7wJysqHicI4jXwBrX0tqa8ZQjxAYYNi+l0WvEZ7+9E5h6whD5MhG
+	 REjRy7a2lKXT2L06Z5tKtQh963WgaTYXNXDYJf9XCLD5lfh9bMGnqnRCY+UqyWmxdU
+	 wFLhnZL+Fyyfw==
+From: Mark Brown <broonie@kernel.org>
+To: Haixu Cui <quic_haixcui@quicinc.com>, virtualization@lists.linux.dev, 
+ linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+In-Reply-To: <20251208020830.5225-2-krzysztof.kozlowski@oss.qualcomm.com>
+References: <20251208020830.5225-2-krzysztof.kozlowski@oss.qualcomm.com>
+Subject: Re: [PATCH] spi: virtio: Fix confusing cleanup.h syntax
+Message-Id: <176580717392.161463.3784278976785359258.b4-ty@kernel.org>
+Date: Mon, 15 Dec 2025 22:59:33 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251215113903.46555-8-bagasdotme@gmail.com>
-X-Spamd-Result: default: False [-4.01 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RCVD_COUNT_THREE(0.00)[3];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FREEMAIL_TO(0.00)[gmail.com];
-	ARC_NA(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_TLS_LAST(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[vger.kernel.org,lists.freedesktop.org,lists.linaro.org,googlegroups.com,lists.linux.dev,kvack.org,amd.com,igalia.com,gmail.com,ffwll.ch,linux.intel.com,kernel.org,suse.de,intel.com,zeniv.linux.org.uk,suse.cz,linaro.org,google.com,redhat.com,linux.alibaba.com,linux-foundation.org,blackwall.org,nvidia.com,davemloft.net,infradead.org,oracle.com,ionos.com,linux.ibm.com,arm.com,linux.dev,konsulko.se,brown.name,collabora.com,cumulusnetworks.com,208suo.com,cdjrlc.com,inspur.com,gvernon.com];
-	RCPT_COUNT_GT_50(0.00)[86];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLp36nysqjba7qgmtychm5q4em)];
-	MISSING_XM_UA(0.00)[];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.com:email,suse.cz:dkim]
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spam-Level: 
-X-Rspamd-Queue-Id: C790F5BDC1
-X-Spam-Flag: NO
-X-Spam-Score: -4.01
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.15-dev-47773
 
-On Mon 15-12-25 18:38:55, Bagas Sanjaya wrote:
-> Sphinx reports kernel-doc warning:
+On Mon, 08 Dec 2025 03:08:31 +0100, Krzysztof Kozlowski wrote:
+> Initializing automatic __free variables to NULL without need (e.g.
+> branches with different allocations), followed by actual allocation is
+> in contrary to explicit coding rules guiding cleanup.h:
 > 
-> WARNING: ./fs/inode.c:1607 function parameter 'isnew' not described in 'ilookup5_nowait'
+> "Given that the "__free(...) = NULL" pattern for variables defined at
+> the top of the function poses this potential interdependency problem the
+> recommendation is to always define and assign variables in one statement
+> and not group variable definitions at the top of the function when
+> __free() is used."
 > 
-> Describe the parameter.
-> 
-> Fixes: a27628f4363435 ("fs: rework I_NEW handling to operate without fences")
-> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+> [...]
 
-...
+Applied to
 
-> @@ -1593,6 +1593,7 @@ EXPORT_SYMBOL(igrab);
->   * @hashval:	hash value (usually inode number) to search for
->   * @test:	callback used for comparisons between inodes
->   * @data:	opaque data pointer to pass to @test
-> + * @isnew:	whether the inode is new or not
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-next
 
-I'm sorry but this is true but misleading at the same time. I'd write there
-something like:
+Thanks!
 
- * @isnew:    return argument telling whether I_NEW was set when the inode
-              was found in hash (the caller needs to wait for I_NEW to clear).
+[1/1] spi: virtio: Fix confusing cleanup.h syntax
+      commit: e6268db46c173b18e5b2f4fc0c8a5c0aaaee61ea
 
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
