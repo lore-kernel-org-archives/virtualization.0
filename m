@@ -1,290 +1,215 @@
-Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 458562EBDFD
-	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 06:37:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B310C2DA749
+	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 06:42:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765780623; cv=none; b=bVX1GJucexh1puVr2xgw62g9bR2Cq/NQGgXiMIzw38nF+JGL5TLlYTRQNoWiGwyXd6eoyDD9qzrLUJ0+Us43Hmg0scFSvzwiMH/zXiWX9YQGQOd3e7tc5D9hHG42m0ijk+HN/xG6yOYDMUG89XpriPkAWkf80Ly3ME+tExdRCJ0=
+	t=1765780922; cv=none; b=rxcecL6BLv/GDxZ/m42I1X3A0q5oEJynPBBFguQV/MTrghWYkTxCQycDIbYK+cjHDFDXY5XxuoAARgvD5WjYYjF6wGuG767AMmfXoHn26UdRmMg9TLQHQRBTMNBe9v4iRarVh/rpdhvt8yp7Sm7YJUQRPcVIblvHW6A+oOSas84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765780623; c=relaxed/simple;
-	bh=Flsp6Ih3FlMEVzRadHwRQZrT6qbOt0qkn7I0oYf7Qcc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RTeG2wuDyEsn8f2r2kLFLVpjPqf9pIPGy16BvXtuxW0WqoglCJyeRMTZ2gYk5tPeyACSHnPwgqhaFQncsr1fIEttUfPeWAw0GmFzmMYJuNpZjrStF6//itIFuHlPW2pa2yePLPxuCVFowUw3VlF7ws9VIqiyaiSKF7Hb9UjyN4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=eQHxyp1G; arc=none smtp.client-ip=209.85.208.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1765780922; c=relaxed/simple;
+	bh=806QJwueHcRIX9UowK1c2xkOwntC647EqLAJ80g7HYU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kIP0rzYs+CJGb/bANO79VKrGVzHP+/7nnzlAenuUqsFxV3MWSu2ldL2XePruLNA3hPpyifinKjjKQoVjWN8u0cLyx1DGuYxXAO9u3qbq4RboUn9qQAgjDfR1sEXqWkIhfa1obxaJx7axue485RheT8zYWt74n2t/RnQQ8YF0f0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xok3mSsy; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="eQHxyp1G"
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-64162c04f90so5877448a12.0
-        for <virtualization@lists.linux.dev>; Sun, 14 Dec 2025 22:37:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1765780619; x=1766385419; darn=lists.linux.dev;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=Flsp6Ih3FlMEVzRadHwRQZrT6qbOt0qkn7I0oYf7Qcc=;
-        b=eQHxyp1GzG3FtDYhAZECty0S0dTuG6ABXD70UiOhfgORb49ZY2dGdI7pPQPvuzYxha
-         8YIQJgFddUVwP87sS5GQdGmB3RFNzrhtB9pky35eAn93Sgbzla2UAvH1U141sZB4xH6G
-         Hyo4c4+0M4auwrEy+JuBFid08AztumXbu5vaTIZUFc0oIpBzmojvtc0g5p6sqMQ7lZrP
-         TxNWIgn6QKxaxAcOblyNAeb+sTsj1nq/cI70Ztd/6IK1VcbAU0lCmfFYRYAE0O03SXm8
-         e5lOPVJybalM+o4w8WBqG4VYKJxZs0suDeZsmUkm9+46HhfvfxdKQAD71qmA/MeWiY3L
-         YE3w==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xok3mSsy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1765780919;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=b13OnUYDcLnPc+T52EwC1q4bWFFgtcvxl6ViyNRPTbI=;
+	b=Xok3mSsyC6RCPeTMtU8vPFChM6koBCnfeej7QI47kR95gE4Pg11Q/Qb8Nj5MWjxIxltWKx
+	AJrTWEXW8RqP5Rcp9KDnO7htrpZueSdjSVkKBGiSuMKMQ7xUYK3wvLI9czTfHKE5JxWGde
+	YMHrhtexl1gbZJsC3EO2fxyHLSnx9rk=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-295-9QbquKMOOPK_vyNsDKDdBw-1; Mon, 15 Dec 2025 01:41:55 -0500
+X-MC-Unique: 9QbquKMOOPK_vyNsDKDdBw-1
+X-Mimecast-MFC-AGG-ID: 9QbquKMOOPK_vyNsDKDdBw_1765780915
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2a0f4822f77so20371395ad.2
+        for <virtualization@lists.linux.dev>; Sun, 14 Dec 2025 22:41:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765780620; x=1766385420;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Flsp6Ih3FlMEVzRadHwRQZrT6qbOt0qkn7I0oYf7Qcc=;
-        b=CNnnFioTM1bVzv6G/GeZaDOT+uPk8H4So8g9kJWNdjOmsMtEeurL4qQ4h5mBuoqXma
-         PeSWBDxmqP/cldxq9elZN6U8TU0iJGXQ3ulOIF/R9CULSDu0xBBmDu2iU1XbaP+/9n0N
-         xaNiIvE56cmMBDMM0ECWeILTUox4jzib5zlk6yi7g/UDoX4blF19BPyuXrUb1M6eQqr3
-         eaKQZjrJJ72B95wnhPLpYb7x0f1RZthQmDZy2qK6LgPwy5bZ3KVzvPsP5f8wcAgYQbuR
-         R6QkkvccsTuKkagMFzX17ObwP2NKLEu0IcCB0YiF1EjxHOM6qNppXXVU6htwp710AEhE
-         1sXw==
-X-Forwarded-Encrypted: i=1; AJvYcCXD/CI//J5lhsNf0mk8cJcC75ZiIX4Hsq2GyUsASbF+I5bX+lPgTrFkqv+RryA2qRg+SgH7WnXeAtxiwcB3XA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyVpskwrjx04lNRjN7dF6cIyUNdqihAOckCXVWQGCb/eR9IKp9T
-	eMUVl+cQV4LLKIlQ8qMrJrz6kE9YTYRNxovP1ZloVPwUO5lGuHFTJXUwBmhU9Ta/z9U=
-X-Gm-Gg: AY/fxX4+nKIpxv12bf+ve/MWjka4Al4TQBMo/PjUwZScv71CC3XP25j+iuppzUN/tRD
-	xxgP1EDQfaOZb6oAU3JSLmFqbANIPo8k72nNvZyk/Hdc8LhlyvEHMEkMMLWkhTbBipM69+awgJ0
-	9OLXP1mz3/beUyyWLDst/YW+3OnyyqFftRPAor25Sr3aZHWqmitrDsGxMmAe8L1heh3qFpBqtd6
-	JIDaCD8QecCg5mYsofnVROIQOGEXagCKFeoeczoj9GSOTPxxUoF5Pi4ap5SUmTi+HqjTml5IU17
-	mT2ulkGJKPPAjIUHbOS0fAoV8Zrb0g/ucH7VDgm94HGCB7Q9wlIVrhTm4hlsm3Po7jkIcBfdtg8
-	lPTHdVDB0hhFUpD+3rjOgFJ0GFFAdtGxbTvb2Qx9FwmQXCWPRWhQHeS0OUX0EEdYmdqtGbgjEYr
-	+7vZbmqDGbymC9ufIUiJdURc/IFVKePmYWlmnSVUeViCQO7kOkO8WFlf7ZLM6u56EVtKaK+kH3K
-	HraKb1t3i9YbRPNGSf/hIaR3Gpy1rKZxZsS8Vc=
-X-Google-Smtp-Source: AGHT+IGo/GqgVXtCzeCvo1UWjbyI/0K/pid4ihpAfElEjp1P5X9LqCIs4JAGA1cU0Oaa8OlI6Xu5Vg==
-X-Received: by 2002:a17:907:9617:b0:b73:8f33:eed3 with SMTP id a640c23a62f3a-b7d23a9c866mr953872766b.26.1765780619499;
-        Sun, 14 Dec 2025 22:36:59 -0800 (PST)
-Received: from ?IPV6:2003:e5:8704:4800:66fd:131f:60bd:bc29? (p200300e58704480066fd131f60bdbc29.dip0.t-ipconnect.de. [2003:e5:8704:4800:66fd:131f:60bd:bc29])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b7cfa29beabsm1330300666b.4.2025.12.14.22.36.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 14 Dec 2025 22:36:59 -0800 (PST)
-Message-ID: <bff8626d-161e-4470-9cbd-7bbda6852ec3@suse.com>
-Date: Mon, 15 Dec 2025 07:36:57 +0100
+        d=1e100.net; s=20230601; t=1765780915; x=1766385715;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=b13OnUYDcLnPc+T52EwC1q4bWFFgtcvxl6ViyNRPTbI=;
+        b=W8EUTZcxhZg2Sj0oSUXHy2W6Zrxe61IjaDeyYPDuFQERHApx68PLHfzjYAty4bTqZq
+         7m2w0HFeIVlXcsZjfDow9sFAQiNKgTcDh57JtH0wuaNYRjTU2IDKtKuK3WoREWBoMOM8
+         3ZgWCIU4J6kQFn0YpFRRY76S8xoyXh+1TNNTc1rhWAPvxsOg7GiB12rOqjcvXTxiqEha
+         HhKVu50adF8k9D3xfN6yz0W/5kL18dUpzMIZfmQwuy/p8iOYmKUvflWl6RKIvH15qRJq
+         NyK/B5V4a4h8vpQiYW0v2coHI0nZMJusR1EDQZY9PtdU5f8L18X32i+lcAS0nS8bhEtW
+         LWWA==
+X-Forwarded-Encrypted: i=1; AJvYcCVH6D9SUGwgKCFs+JLyJ/qqrcAWPW6QOvitatNRnENCqGdxuW/9k63zCa+y8FXRWSaSVdO5yb58W39D0MIsFg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxKJuw59ejx6n8Pp31IpB0IJhbyaXs8QW2Jt9hQD/r4M4KeWcN+
+	QhUg2Vz053fTyPBurZ+qD578xMe3p90VSYw6GlpP+mVZesPsQ5lEPsyQPhtiV4ls8yP/OEM/gbQ
+	xUfrfyqWQHHh+wnAkybO6GKSLi1pxcXWlS6tnZbkq6SaweAW4xrduJfO+BWXx2ZGtAyVdPAl7dk
+	swxzSnTQXG3CV8Srb0F4CIKylTsi1zqrHPSgBMRAoOCao=
+X-Gm-Gg: AY/fxX40oLIRI/qnH/wua3BN3v5rJrrEf8bRjLeU7cfFgu4ngKytre7Yh4zws2O2Uqj
+	+TlD5rG3r4PdngWNGRZju29Yko9HrrjzIpQnfYEgw6HnXjrs5p3Ym5lCvQ7F/Z5N4bmJeg7KbzU
+	wN9F/6UtdX8il248BW+a5CDipoQqX6quc4RceNCahJgga5OBUgbmZM5KLbCR49pGouDiM=
+X-Received: by 2002:a05:6a20:7350:b0:366:14ac:e1df with SMTP id adf61e73a8af0-369b05bee25mr10718442637.69.1765780914654;
+        Sun, 14 Dec 2025 22:41:54 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEmCVbqM2oRpypIW3Na/iJKSRukQNFptPvN3ajHBw/3EYsohzEaN1b7r+jHyaklUQnS3BFawAPfFocl+ylPrYQ=
+X-Received: by 2002:a05:6a20:7350:b0:366:14ac:e1df with SMTP id
+ adf61e73a8af0-369b05bee25mr10718417637.69.1765780914143; Sun, 14 Dec 2025
+ 22:41:54 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/5] x86: Cleanups around slow_down_io()
-To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-hwmon@vger.kernel.org, linux-block@vger.kernel.org,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, Jean Delvare <jdelvare@suse.com>,
- Guenter Roeck <linux@roeck-us.net>, Denis Efremov <efremov@linux.com>,
- Jens Axboe <axboe@kernel.dk>
-References: <20251126162018.5676-1-jgross@suse.com>
- <aT5vtaefuHwLVsqy@gmail.com>
-Content-Language: en-US
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <aT5vtaefuHwLVsqy@gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------3mgjNgxNLw3aXEpCS8syparo"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------3mgjNgxNLw3aXEpCS8syparo
-Content-Type: multipart/mixed; boundary="------------uocwPUAwg06DHItKBfr8MkI0";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-hwmon@vger.kernel.org, linux-block@vger.kernel.org,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, Jean Delvare <jdelvare@suse.com>,
- Guenter Roeck <linux@roeck-us.net>, Denis Efremov <efremov@linux.com>,
- Jens Axboe <axboe@kernel.dk>
-Message-ID: <bff8626d-161e-4470-9cbd-7bbda6852ec3@suse.com>
-Subject: Re: [PATCH 0/5] x86: Cleanups around slow_down_io()
-References: <20251126162018.5676-1-jgross@suse.com>
- <aT5vtaefuHwLVsqy@gmail.com>
-In-Reply-To: <aT5vtaefuHwLVsqy@gmail.com>
-
---------------uocwPUAwg06DHItKBfr8MkI0
-Content-Type: multipart/mixed; boundary="------------0K40Sw4HjMWfuWdkxRcyXR0R"
-
---------------0K40Sw4HjMWfuWdkxRcyXR0R
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
-
-T24gMTQuMTIuMjUgMDk6MDUsIEluZ28gTW9sbmFyIHdyb3RlOg0KPiANCj4gKiBKdWVyZ2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+IHdyb3RlOg0KPiANCj4+IFdoaWxlIGxvb2tpbmcg
-YXQgcGFyYXZpcnQgY2xlYW51cHMgSSBzdHVtYmxlZCBvdmVyIHNsb3dfZG93bl9pbygpIGFu
-ZA0KPj4gdGhlIHJlbGF0ZWQgUkVBTExZX1NMT1dfSU8gZGVmaW5lLg0KPj4NCj4+IEVzcGVj
-aWFsbHkgUkVBTExZX1NMT1dfSU8gaXMgYSBtZXNzLCB3aGljaCBpcyBwcm92ZW4gYnkgMiBj
-b21wbGV0ZWx5DQo+PiB3cm9uZyB1c2UgY2FzZXMuDQo+Pg0KPj4gRG8gc2V2ZXJhbCBjbGVh
-bnVwcywgcmVzdWx0aW5nIGluIGEgZGVsZXRpb24gb2YgUkVBTExZX1NMT1dfSU8gYW5kIHRo
-ZQ0KPj4gaW9fZGVsYXkoKSBwYXJhdmlydCBmdW5jdGlvbiBob29rLg0KPj4NCj4+IFBhdGNo
-ZXMgMiBhbmQgMyBhcmUgbm90IGNoYW5naW5nIGFueSBmdW5jdGlvbmFsaXR5LCBidXQgbWF5
-YmUgdGhleQ0KPj4gc2hvdWxkPyBBcyB0aGUgcG90ZW50aWFsIGJ1ZyBoYXMgYmVlbiBwcmVz
-ZW50IGZvciBtb3JlIHRoYW4gYSBkZWNhZGUNCj4+IG5vdywgSSB3ZW50IHdpdGgganVzdCBk
-ZWxldGluZyB0aGUgdXNlbGVzcyAiI2RlZmluZSBSRUFMTFlfU0xPV19JTyIuDQo+PiBUaGUg
-YWx0ZXJuYXRpdmUgd291bGQgYmUgdG8gZG8gc29tZXRoaW5nIHNpbWlsYXIgYXMgaW4gcGF0
-Y2ggNS4NCj4+DQo+PiBKdWVyZ2VuIEdyb3NzICg1KToNCj4+ICAgIHg4Ni9wYXJhdmlydDog
-UmVwbGFjZSBpb19kZWxheSgpIGhvb2sgd2l0aCBhIGJvb2wNCj4+ICAgIGh3bW9uL2xtNzg6
-IERyb3AgUkVBTExZX1NMT1dfSU8gc2V0dGluZw0KPj4gICAgaHdtb24vdzgzNzgxZDogRHJv
-cCBSRUFMTFlfU0xPV19JTyBzZXR0aW5nDQo+PiAgICBibG9jay9mbG9wcHk6IERvbid0IHVz
-ZSBSRUFMTFlfU0xPV19JTyBmb3IgZGVsYXlzDQo+PiAgICB4ODYvaW86IFJlbW92ZSBSRUFM
-TFlfU0xPV19JTyBoYW5kbGluZw0KPj4NCj4+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vZmxv
-cHB5LmggICAgICAgICB8IDI3ICsrKysrKysrKysrKysrKysrKysrKystLS0tLQ0KPj4gICBh
-cmNoL3g4Ni9pbmNsdWRlL2FzbS9pby5oICAgICAgICAgICAgIHwgMTIgKysrKystLS0tLS0t
-DQo+PiAgIGFyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmggICAgICAgfCAxMSArLS0t
-LS0tLS0tLQ0KPj4gICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydF90eXBlcy5oIHwg
-IDMgKy0tDQo+PiAgIGFyY2gveDg2L2tlcm5lbC9jcHUvdm13YXJlLmMgICAgICAgICAgfCAg
-MiArLQ0KPj4gICBhcmNoL3g4Ni9rZXJuZWwva3ZtLmMgICAgICAgICAgICAgICAgIHwgIDgg
-Ky0tLS0tLS0NCj4+ICAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgICAgICAgICAgICB8
-ICAzICstLQ0KPj4gICBhcmNoL3g4Ni94ZW4vZW5saWdodGVuX3B2LmMgICAgICAgICAgIHwg
-IDYgKy0tLS0tDQo+PiAgIGRyaXZlcnMvYmxvY2svZmxvcHB5LmMgICAgICAgICAgICAgICAg
-fCAgMiAtLQ0KPj4gICBkcml2ZXJzL2h3bW9uL2xtNzguYyAgICAgICAgICAgICAgICAgIHwg
-IDUgKysrLS0NCj4+ICAgZHJpdmVycy9od21vbi93ODM3ODFkLmMgICAgICAgICAgICAgICB8
-ICA1ICsrKy0tDQo+PiAgIDExIGZpbGVzIGNoYW5nZWQsIDM5IGluc2VydGlvbnMoKyksIDQ1
-IGRlbGV0aW9ucygtKQ0KPiANCj4gSSB0aGluayB3ZSBzaG91bGQgZ2V0IHJpZCBvZiAqYWxs
-KiBpb19kZWxheSBoYWNrcywgdGhleSBtaWdodCBoYXZlIGJlZW4NCj4gcmVsZXZhbnQgaW4g
-dGhlIGRheXMgb2YgaTM4NiBzeXN0ZW1zLCBidXQgd2UgZG9uJ3QgZXZlbiBzdXBwb3J0IGkz
-ODYNCj4gQ1BVcyBhbnltb3JlLiBTaG91bGQgaXQgY2F1c2UgYW55IHJlZ3Jlc3Npb25zLCBp
-dCdzIGVhc3kgdG8gYmlzZWN0IHRvLg0KPiBUaGVyZSdzIGJlZW4gZW5vdWdoIGNoYW5nZXMg
-YXJvdW5kIGFsbCB0aGVzZSBmYWNpbGl0aWVzIHRoYXQgdGhlDQo+IG9yaWdpbmFsIHRpbWlu
-Z3MgYXJlIHByb2JhYmx5IHdheSBvZmYgYWxyZWFkeSwgc28gd2UndmUganVzdCBiZWVuDQo+
-IGNhcmdvLWN1bHQgcG9ydGluZyB0aGVzZSB0byBuZXdlciBrZXJuZWxzIGVzc2VudGlhbGx5
-Lg0KDQpGaW5lIHdpdGggbWUuDQoNCldoaWNoIHBhdGggdG8gcmVtb3ZhbCBvZiBpb19kZWxh
-eSB3b3VsZCB5b3UgKGFuZCBvdGhlcnMpIHByZWZlcj8NCg0KMS4gUmlwcGluZyBpdCBvdXQg
-aW1tZWRpYXRlbHkuDQoNCjIuIEhpZGluZyBpdCBiZWhpbmQgYSBkZWZhdWx0LW9mZiBjb25m
-aWcgb3B0aW9uIGZvciBhIGZldyBrZXJuZWwgdmVyc2lvbnMNCiAgICBiZWZvcmUgcmVtb3Zp
-bmcgaXQuDQoNCjMuIFVzaW5nIENPTkZJR19JT19ERUxBWV9OT05FIGFzIHRoZSBkZWZhdWx0
-IGlvX2RlbGF5X3R5cGUgYmVmb3JlIHJpcHBpbmcgaXQNCiAgICBvdXQuDQoNCjQuIFVzaW5n
-IENPTkZJR19JT19ERUxBWV9OT05FIGFzIHRoZSBkZWZhdWx0IGlvX2RlbGF5X3R5cGUgYmVm
-b3JlIGhpZGluZyBpdA0KICAgIGJlaGluZCBhIGRlZmF1bHQtb2ZmIGNvbmZpZyBvcHRpb24s
-IHRoZW4gcmlwIGl0IG91dCBsYXRlci4NCg0KSW4gY2FzZXMgMi00IEknZCBzdGlsbCBsaWtl
-IHRvIGhhdmUgcGF0Y2ggMSBvZiBteSBzZXJpZXMgYXBwbGllZCwgYXMgaXQgd2lsbA0KbWFr
-ZSBwYXJhdmlydCByZXdvcmsgZWFzaWVyLg0KDQoNCkp1ZXJnZW4NCg==
---------------0K40Sw4HjMWfuWdkxRcyXR0R
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
+References: <20251127032407.33475-1-lange_tang@163.com> <20251210040328-mutt-send-email-mst@kernel.org>
+ <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com> <CACGkMEt-v2RGTbzEgfocpZvZw1SKB8j4MQ6zoMFvGJQXXFuMtQ@mail.gmail.com>
+ <64d63e98.e7f.19b1595bd4e.Coremail.lange_tang@163.com>
+In-Reply-To: <64d63e98.e7f.19b1595bd4e.Coremail.lange_tang@163.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 15 Dec 2025 14:41:42 +0800
+X-Gm-Features: AQt7F2r3wElRUH0jxp_Gu-tRozuUPlsSFkFR9RUKVpEm5QYJvjREgC80zVYl2y0
+Message-ID: <CACGkMEvZQb1ADyEM73jE8_OdeU8YtSbR8YCJ+3anDg8VhkpBLg@mail.gmail.com>
+Subject: Re: Re: Re: [PATCH v1 0/7] introduce virtnet_mon for monitor virtio_net
+To: Lange Tang <lange_tang@163.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Tang Longjun <tanglongjun@kylinos.cn>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: esSLMYhf0B5XfsLQzGy890KimSpIipMLd1HDTJB-0zM_1765780915
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+On Sat, Dec 13, 2025 at 10:41=E2=80=AFAM Lange Tang <lange_tang@163.com> wr=
+ote:
+>
+> At 2025-12-11 16:32:15, "Jason Wang" <jasowang@redhat.com> wrote:
+> >On Thu, Dec 11, 2025 at 10:52=E2=80=AFAM Lange Tang <lange_tang@163.com>=
+ wrote:
+> >>
+> >> At 2025-12-10 17:04:04, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >> >On Thu, Nov 27, 2025 at 11:24:00AM +0800, Longjun Tang wrote:
+> >> >> From: Tang Longjun <tanglongjun@kylinos.cn>
+> >> >>
+> >> >> hi,
+> >> >> virtnet_mon is used to monitor the data packets of the virtio_net d=
+river
+> >> >> and the related parameters of virtqueue, useful for tracking its st=
+atus
+> >> >> and troubleshooting faults.
+> >> >>
+> >> >> pls review. tks
+> >> >>
+> >> >> Best regard.
+> >> >
+> >> >what does this achieve that direct use of tracing would not?
+> >>
+> >> I apologize that my explanation of virtnet_mon was not detailed enough=
+.
+> >> virtnet_mon uses kprobe and buffers to monitor virtio_net.
+> >> To monitor virtio_net, it is necessary to track the member parameters =
+of the virtqueue corresponding to each data packet and output them.
+> >> When PPS very high, other tracing techniques, such as ebpf, may not be=
+ able to handle it, resulting in data loss because they do not have suffici=
+ently large buffers to batch export log data.
+> >
+> >Can you expand more about this? For example, in which kind of setup
+> >and what do you want to trace and why ebpf can't handle that. Note
+> >that the most lightweight stuff is the counter, have you tried that?
+>
+> For example, when there is occasional latency in data transmission betwee=
+n the
+> virtual network frontend (virtio_net) and backend (such as vhost_net),
+> we may need to track the time taken for each packet received and sent in =
+the virtio_net driver.
+> Typically, we accomplish this using eBPF, such as bpftrace. The pseudocod=
+e might include the following:
+> """
+> kprobe:skb_recv_done {
+>         printf("%ld skb_recv_done Cpu:%d ...\n",...);
+> }
+> kprobe:skb_xmit_done {
+>         printf("%ld skb_xmit_done Cpu:%d ...\n",...);
+> }
+> kprobe:virtnet_poll {
+>         printf("%ld virtnet_poll Cpu:%d budget:%d ...\n",...);
+> }
+> kprobe:start_xmit {
+>   ...
+>   printf("%ld start_xmit Cpu:%d type:%s seq:%ld ...\n",...)
+> }
+> kprobe:gro_receive_skb {
+>   ...
+>   printf("%ld gro_receive_skb Cpu:%d type:%s seq:%ld ...\n",...)
+> }
+> kprobe:receive_buf {
+>   ...
+>   printf("%ld receive_buf Cpu:%d name:%s avali_idx:%d used_idx:%d ...\n",=
+...);
+> }
+> """
+> Using the above bpftrace code, we can track the timestamps of the data as=
+ it passes through these functions,
+> along with skb and virtqueue information, and output logs via printf for =
+further diagnosis of the causes of the latency.
+> Interestingly, a significant amount of logs were found to be missing when=
+ executing these bpftrace codes.
+> Below is the testing environment:
+> VM: 8G8C=EF=BC=8Cvirtio_net mq=3D4, kernel 6.18-rc7, iperf3 -s -p 1314
+> HOST: iperf3 -c 192.168.122.218 -t 100 -p 1314 -P 4
+> It was also found that when testing with mq=3D1, there was no log loss.
+>
+> Compared to mq=3D1, the reason for log loss at mq=3D4 is suspected to be =
+due to data being sent or received
+> by different CPUs. Additionally, under the 4-thread iperf testing scenari=
+o with PPS > 150,000,
+> the log data is asynchronously output from different CPUs, leading to exc=
+essive IO pressure that causes log data loss.
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+I think what I don't understand is how the things you introduced here
+may help in this case?
 
---------------0K40Sw4HjMWfuWdkxRcyXR0R--
+Thanks
 
---------------uocwPUAwg06DHItKBfr8MkI0--
+>
+> The above are some of my personal thoughts, and I would love to hear your=
+ opinion.
+> Best regard.
+>
+> >
+> >>
+> >> As for the duplicate code, it is only to obtain the layout of the rele=
+vant structure, and I have not yet thought of a way to avoid duplication. I=
+ would love to hear your suggestions.
+> >
+> >Thanks
+> >
+> >>
+> >> >
+> >> >> Tang Longjun (7):
+> >> >>   tools/virtio/virtnet_mon: create misc driver for virtnet_mon
+> >> >>   tools/virtio/virtnet_mon: add kfifo to virtnet_mon
+> >> >>   tools/virtio/virtnet_mon: add kprobe start_xmit
+> >> >>   tools/virtio/virtnet_mon: add kprobe gro_receive_skb
+> >> >>   tools/virtio/virtnet_mon: add kprobe ip_local_deliver
+> >> >>   tools/virtio/virtnet_mon: add kprobe skb_xmit_done and skb_recv_d=
+one
+> >> >>   tools/virtio/virtnet_mon: add README file for virtnet_moin
+> >> >>
+> >> >>  tools/virtio/virtnet_mon/Makefile      |   10 +
+> >> >>  tools/virtio/virtnet_mon/README        |   35 +
+> >> >>  tools/virtio/virtnet_mon/virtnet_mon.c | 1048 ++++++++++++++++++++=
+++++
+> >> >>  3 files changed, 1093 insertions(+)
+> >> >>  create mode 100644 tools/virtio/virtnet_mon/Makefile
+> >> >>  create mode 100644 tools/virtio/virtnet_mon/README
+> >> >>  create mode 100644 tools/virtio/virtnet_mon/virtnet_mon.c
+> >> >>
+> >> >> --
+> >> >> 2.43.0
 
---------------3mgjNgxNLw3aXEpCS8syparo
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmk/rIkFAwAAAAAACgkQsN6d1ii/Ey+O
-KAf/RhuC6z7N89eI1LFebQgpxz6ipUoaEJLE3iPD9BIa8MC4hAK9upc0Be1ulp8clrSuz3rdpIw7
-3FUaPR9cZlvGMCV4Z+IHHjhwmCaWOcpppBqiVsNGhvT47rDwA2VkaikY3Ehl9quAQpn1CC1hhkJ1
-01WuZBXoh2YzULEZSQtLiB/SNUhY/giSrXVDYqFcRdmTVicw/Obw/Xlvx6pXR3h7j5JxemXi9/Fj
-iKUX4frjdzsmdQotNBCZcdFf37mdeUIi3KWRenk5jma77pmhc8v1kpf/IJcf8U5SvVaz2LnLN+pw
-GgFVUcHrV+iMB8ern+6AKait3RZBMNm2dCjJdLk6bg==
-=WEIE
------END PGP SIGNATURE-----
-
---------------3mgjNgxNLw3aXEpCS8syparo--
