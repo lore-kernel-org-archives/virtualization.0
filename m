@@ -1,64 +1,66 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5DB5330322
-	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:39:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C8A233032F
+	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:39:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798754; cv=none; b=j0t2UDh5R7+V50novM4cwsusTMOA3KLMshTzC+guMn30gT+7Y+iF1CC2DrH3Xxxq+FZ9zikNDIJNBir1M2TWC8Jvtu339LBcbTj2PJsWIEGAbp3frB1BfzllXKYQ1IXVmdAuh49VkzRlMEuu+cMeIbLAB+8YQ7JbS9IEiFPk3xI=
+	t=1765798754; cv=none; b=EMeGHtlnzYFRDTBFkUQg2xPHr/Zl2/lWhPDJFgGaek40O0kV7J8R7LfdTZAQ49izFVlYzLI5Um3t1KGxTOYo4+rLekVAOkt3Dg7NG52hsrzXRtbBnSRtf6yE3YVvwC+ROEvLHRs8UY3PBGTGFGQ0eUXvHUmGKxFNvw0xqJknf+U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1765798754; c=relaxed/simple;
-	bh=zPsruu4atyDYOaQCsKIEqnFkDKfYqb53HHp2txNqt3A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OZgbqTXOTyoyoD1sr1pX6vJhgabnlaO2zC6u7QWcBlYywUiBmcbDrULvttvpBsQc/qhs5TKV8TLivzhYt+fP6RnJZm5Qevs75TSt6APmv4IPROSXMGk3wFFRmDY+vmxD1Mhs/oBOn8pwHprwiLwLpnmGdJVH3+9I0h1z1rGxNx4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZT0MUkqR; arc=none smtp.client-ip=209.85.216.43
+	bh=zaXx2zRxHwtjfsFTgY05kdIMv0UeQBx9b1FFiByYYYk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=aW8WGdES+k3mxSb1ONxIsezb/9UdF61vQQ2eqthVTZVrsS9J1GGuqNk0/Ksx9GqwNEBxxHgrtqMvb7A5qIXAZ990W3wfxwKNCEiDj+Qnggb2JyxIvJSziwofBpgNabBajFz5QkC0e/CrFie1pvBWmZURF+dRnojhNpSWe1NX4ZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=npWEkxi2; arc=none smtp.client-ip=209.85.210.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZT0MUkqR"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-34c213f7690so1777809a91.2
-        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:39:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="npWEkxi2"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-7f216280242so956411b3a.1
+        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:39:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765798750; x=1766403550; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=rTcY4k7PJNNctnILuEp0lcvqj1X2scOTc/Z894ZNYfE=;
-        b=ZT0MUkqRIiA/E6pN1nkR55BWECEckFI4Y5OEHuNzh0eMt0RuQzZV4y/ZsJ0TzNEaK8
-         ETFL6ABeCpYhn9wNSyFhlsdBhqWmPm2zesTzhUwXaBIKAZw7a9ticXBNRlnSmX27l53f
-         70nYUw/1knQ8Gg+U+XKoFLBsZ+pRVh/OPRCvV7RjRtATdCgrbX62DK2ksiP0x1PvGlzS
-         Eetm0jmz6yCBxTMqxp31DkMk9OCS97jwzbc+xczBVTagrkUH3gWbOP6oAvlYs/i+Wr38
-         L8lCXy6QzQMfkRh/Q4GgfaRNk/ENuHps0VCg9zyB02VbyMj0qcjpfqYcqzMVIn2Hubmh
-         oXBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765798750; x=1766403550;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1765798751; x=1766403551; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rTcY4k7PJNNctnILuEp0lcvqj1X2scOTc/Z894ZNYfE=;
-        b=i755pdDTKet3/ASBJUCoHR7BijwJd8LvOGdCP34dxGrMAkkhOttzGPvF75V5Mn6ad7
-         08k06YSWGg3saemPEZMMxXe//TZoKpTsppdoSQ2vi4LAst/7aG/y6SPRtmYcJVhjzYmN
-         CsAqdsV6hwbUNVOl8oqnhzuEKLcI6ZIk0WZQoK9m6zkls50EIVjLOlcu+mMHT8WZe9uP
-         7AKaKoQzw3LrqdK4MpKx/yCjp3PXAG9BCApmeweaJEh0OzqZ00TARlBNmfoxK8Y806Ta
-         9itQk4ev62rGjV8T2gehff+SfdHG9+mStXBbmMRnV+SDvCgp1VssGOUw4FeTE5I5IkpI
-         XBfA==
-X-Forwarded-Encrypted: i=1; AJvYcCUxzclJxio7HerxgbD9cXSp0UO1k1Mtompnr5Zsh6RxcbiuuiIyNC40Gkl8pqXsXrknkDLt1QaOSZSJDHlNhw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz4MmPshjwC5ZRaL/w6Z9qpFOX9CrlmTj7dtLrBKUf4+skLISAE
-	AC3wXKR4+n/NkoXVgh7J3o3I/y/fgsss0s5YaMN5p2+wV/eqgfnFvvQy
-X-Gm-Gg: AY/fxX60Mm2Eihyr6YWher4tM4yaJ1CzSB5XYDpB+dlAhiGg2h1OKuYwwh7w2j5vGZj
-	mXlFDMqCrhI9L+zIZ5buKRajJp7PUdi7KaiYNs54V5YW53Y7i//DOKFUIZWw2tAZlJVCAFUuDvp
-	xCZQXHEdwZ66rfGvF4VyeL4a4R7aYj/6hQUvZDo0ET9MVbnkG9OXLyd1hCUBlfi1dMppz9sExZM
-	7rtBtbZ2fZlvWmCJHpJqZ5q2nJCmq1d+noKXMiiuSd8Pd+RMGm3e0/rBCpXbPjXiLAdt8t1KngZ
-	v1SGDyg4kEhuzYysDzDbESAUhOItMNQDxCs0CbBFaRZKcILvA3fkXRlw2kxwdP3QM+USSigtS9V
-	POT4JDLrdxlzsYRN/3cJgzCQwfun1P3QVPWgDalh6wvN5EafDMynC8Mk9VV9h3lO9gKpyGgMzNz
-	zgHJEr4le4j5Pf5q1mHc9sqg==
-X-Google-Smtp-Source: AGHT+IH7Y0ZP0SVYlRqXrzHx+fOVv/+/V5Bjimjq/e2I+okG90jQDlqbjW8VY0Em0JiciGGZ262G7g==
-X-Received: by 2002:a17:902:c402:b0:295:c2e7:7199 with SMTP id d9443c01a7336-29f23c7b8b9mr114062105ad.29.1765798749863;
-        Mon, 15 Dec 2025 03:39:09 -0800 (PST)
+        bh=H6vVzDCLpyU2LgSSSdcXlxGJ4GVOIz+XeeVoTvfPkdk=;
+        b=npWEkxi2EMj6mVdR6sAb5ygLCUcW7E4tlKfUJ9634pTk8N8CwhV3RzCqJJ+2vnZRaC
+         TVoGwrra9YRUXYRjMmYX41OfxrfhYTQWjTsJZ0APew0gjBuLoF5uDcqZHscHsmIayCNJ
+         +myHaczINc9Cf6ILd1CX1HMQgMwmb9yLu+yEZPRJ0rztWbpaGn2WJSZL7OVurNKvXumD
+         DRqv+j1FzXvudifWql1HV4Qfb89AeoxV7BVTtApG1zgZQbi8sKx9zTe3XJXzbCYJPVRf
+         3vOyyFcvfLlj2V4RqqPXfRCrcZ4xVTpT4u/HxAh+8qM0hkPkMFEF9Dp4un6R8BN8P4HV
+         z4Ew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765798751; x=1766403551;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=H6vVzDCLpyU2LgSSSdcXlxGJ4GVOIz+XeeVoTvfPkdk=;
+        b=Jo/nxxgtGg8nCiEKXRZq0HfNHaGMzXsLjgIiFqyJfPwE2gnjWbiMc6NIV2/sfaSpZ5
+         JzXOmZa9igrPZVbo1BhMO4KMlykMnIVk6OLdDNywCnJrGb/1g0hE7nFeIZiTGWVrno6V
+         /5Z6cQM8L9Fx6yAwfCdDynTxl+A+uw7RDOSccdTyL4KY5GWARiMJwKMmrgwBZj5QMnMI
+         IPzVRTkekPAbdIyilhLtcC+bUHyE30aAunzqS/N1HY+3EgVR7zIE87Ny2ZCYS2Lrfe9X
+         79/tv67aNh57Jg2QehvHX/cbJy4pmpxP4DDIe70NuJz37TdHUn+KZJlv5KpOReJ/0OvF
+         tRqA==
+X-Forwarded-Encrypted: i=1; AJvYcCVVYbXirveIPm5aKj/SNudQDkUS0SOnzE4PUFI7KOo0WqxcLrrQvuC3FUmAxavNNz3CDFuCzjZse798uBQlEQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy3HNQwohUYPPcP7Jc+mJhlWT/HMaZNtlu8J1wl7Y92cluUM2sG
+	rfCkcf/VmX28JPiDme8/CgnUgswq485HV15fQdkDHtbAFSJkBeO1QC2W
+X-Gm-Gg: AY/fxX4kNujEyGnKqG4f3GpBrpnNm/Gs0fWQw/fE4A41JUsXq3y+KH4lfGP+IFo9/mq
+	ZOUEGmZYy4R/O3ZCdWllDhtNiH9k18eYAjcsibr3EFBrZMBbj2ihRVQiLJKjBASXqaaFR01maUq
+	g1AtBy+4PyQ897J/cq0fCXWpvU1HWpG7vmWBOnUms68h5bVPv5qtm4Spu/nJbrnVb0aanG1BUNJ
+	+YfhbFJMDv6WqRHU+GdGIM0iR20a94Rp/ovGjqTFZpZrWkthVPaMTcuuRYjxGfPNbnbL+i5q6Bq
+	tcCLKHMStVfNXnOMEPsnwqS5ZOQc88zlNOHmcgsLKohtGFOWTwXS+4ZcYRScxsxL6nOFIUEcJ+4
+	+TxeJzFGt/kshxEJ9ZIHxcPxgJ2iulhJq175B04T97Hv9oKfHuVoH9xfBfysPF8sotQeDk/dbKv
+	7/Sq41vNKPIms=
+X-Google-Smtp-Source: AGHT+IFlU3I+cKXX8C9kVGFzGiJyAz7/LTk2+tkj0Oiyk+q1A92AqVW93jQniiO/3heM3uCR/CKzzA==
+X-Received: by 2002:a05:6a20:728e:b0:366:14b0:4b16 with SMTP id adf61e73a8af0-369aa740ecamr11005465637.33.1765798751132;
+        Mon, 15 Dec 2025 03:39:11 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29ee9b3850csm133386495ad.17.2025.12.15.03.39.07
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29ee9b3850csm133388085ad.17.2025.12.15.03.39.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Dec 2025 03:39:08 -0800 (PST)
+        Mon, 15 Dec 2025 03:39:10 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id AC75C444B38F; Mon, 15 Dec 2025 18:39:05 +0700 (WIB)
+	id 1D26D444B391; Mon, 15 Dec 2025 18:39:05 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -146,65 +148,46 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 00/14] Assorted kernel-doc fixes
-Date: Mon, 15 Dec 2025 18:38:48 +0700
-Message-ID: <20251215113903.46555-1-bagasdotme@gmail.com>
+Subject: [PATCH 02/14] mm: Describe @flags parameter in memalloc_flags_save()
+Date: Mon, 15 Dec 2025 18:38:50 +0700
+Message-ID: <20251215113903.46555-3-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
+References: <20251215113903.46555-1-bagasdotme@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2064; i=bagasdotme@gmail.com; h=from:subject; bh=zPsruu4atyDYOaQCsKIEqnFkDKfYqb53HHp2txNqt3A=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4MMm/867RRu9s/LeXucS+TRacFsjy3x8goRK//G7 Jyfu8O1o5SFQYyLQVZMkWVSIl/T6V1GIhfa1zrCzGFlAhnCwMUpABOJ+cjwP9rl0j2O1i3mgnEF j0tV/6z5nLTvdKmsJY/NvB286XtLTzEy7D+8+dTHe63Sb6bPXnHWT1NH5vPMzba75Xe45yw3OaR ZzAUA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=950; i=bagasdotme@gmail.com; h=from:subject; bh=zaXx2zRxHwtjfsFTgY05kdIMv0UeQBx9b1FFiByYYYk=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4N0b+unPg8UXJx6+/+iP9I7pV1rdBYrPMm9NqGYl enCm2OnOkpZGMS4GGTFFFkmJfI1nd5lJHKhfa0jzBxWJpAhDFycAjCR246MDN8qzkf5GvF8u6h8 fK78A+u9Z2vjTS5MNJ2mcnT+/S07J0sxMvTNsLugLdEgeebaKl/Lt7ZFnv2pX8UvGPzINA+RNZw /gQsA
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
-Hi,
+Sphinx reports kernel-doc warning:
 
-Here are assorted kernel-doc fixes for 6.19 cycle. As the name
-implies, for the merging strategy, the patches can be taken by
-respective maintainers to appropriate fixes branches (targetting
-6.19 of course) (e.g. for mm it will be mm-hotfixes).
+WARNING: ./include/linux/sched/mm.h:332 function parameter 'flags' not described in 'memalloc_flags_save'
 
-Enjoy!
+Describe @flags to fix it.
 
-Bagas Sanjaya (14):
-  genalloc: Describe @start_addr parameter in genpool_algo_t
-  mm: Describe @flags parameter in memalloc_flags_save()
-  textsearch: Describe @list member in ts_ops search
-  mm: vmalloc: Fix up vrealloc_node_align() kernel-doc macro name
-  mm, kfence: Describe @slab parameter in __kfence_obj_info()
-  virtio: Describe @map and @vmap members in virtio_device struct
-  fs: Describe @isnew parameter in ilookup5_nowait()
-  VFS: fix __start_dirop() kernel-doc warnings
-  drm/amd/display: Don't use kernel-doc comment in
-    dc_register_software_state struct
-  drm/amdgpu: Describe @AMD_IP_BLOCK_TYPE_RAS in amd_ip_block_type enum
-  drm/gem/shmem: Describe @shmem and @size parameters
-  drm/scheduler: Describe @result in drm_sched_job_done()
-  drm/gpusvm: Fix drm_gpusvm_pages_valid_unlocked() kernel-doc comment
-  net: bridge: Describe @tunnel_hash member in net_bridge_vlan_group
-    struct
+Fixes: 3f6d5e6a468d02 ("mm: introduce memalloc_flags_{save,restore}")
+Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+---
+ include/linux/sched/mm.h | 1 +
+ 1 file changed, 1 insertion(+)
 
- drivers/gpu/drm/amd/display/dc/dc.h      | 2 +-
- drivers/gpu/drm/amd/include/amd_shared.h | 1 +
- drivers/gpu/drm/drm_gem_shmem_helper.c   | 3 ++-
- drivers/gpu/drm/drm_gpusvm.c             | 4 ++--
- drivers/gpu/drm/scheduler/sched_main.c   | 1 +
- fs/inode.c                               | 1 +
- fs/namei.c                               | 3 ++-
- include/linux/genalloc.h                 | 1 +
- include/linux/kfence.h                   | 1 +
- include/linux/sched/mm.h                 | 1 +
- include/linux/textsearch.h               | 1 +
- include/linux/virtio.h                   | 2 ++
- mm/vmalloc.c                             | 2 +-
- net/bridge/br_private.h                  | 1 +
- 14 files changed, 18 insertions(+), 6 deletions(-)
-
-
-base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index 0e1d73955fa511..95d0040df58413 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -325,6 +325,7 @@ static inline void might_alloc(gfp_t gfp_mask)
+ 
+ /**
+  * memalloc_flags_save - Add a PF_* flag to current->flags, save old value
++ * @flags: Flags to add.
+  *
+  * This allows PF_* flags to be conveniently added, irrespective of current
+  * value, and then the old version restored with memalloc_flags_restore().
 -- 
 An old man doll... just what I always wanted! - Clara
 
