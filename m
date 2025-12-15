@@ -1,66 +1,66 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8A1533032F
-	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:39:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FD5C330B26
+	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:48:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798768; cv=none; b=nLIOEnsKO42vrnlISufK6J57I0VReZaDVJn/RSaRVNXBXHL3m46fR+jTKSjo4Xs+J8ZtKukC5Nhf6E9FqLS/eYfvGBAg+xG7qylpwhCmI6jCB126zXtgOsjFOR5PMl7ecCB61ROryoivIgNBiKfjfVF4js4ALQu7nM/MdZfrn9A=
+	t=1765799323; cv=none; b=mmXQBRKjpklFc6kboKgrdFtiVcyDuJVX19frqamtkdcM/hxp0P16d9+WTr8EdV9EQFLa+QGsPvY9j7Rvsh+EaMQvv5YMjOP8Ss85DvNjoJCbuApHOQA+oqpNQsJn/GFeCzaumvm+GBkdN8CI5xKNIqDBXhNcHxJEm4B7ft7qpwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765798768; c=relaxed/simple;
-	bh=NBybN5/snlW67CYY0LDf5z9mjlB8/ZE5MQWmfMjzEtk=;
+	s=arc-20240116; t=1765799323; c=relaxed/simple;
+	bh=kdwYayfiPuGdbX+6/rKZkI1jkonQkDY24KG3T7ZKuZA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WlvJo5REnAs1U8hw96bmAw7mGZXHt4Q2Nl1feGu1sLWAvXHd7UniSmiHX9YGtFgEDTNiqwm84UTKk5g48p5KXasXTkX/XQ28wkno9IpEJfhPrZxucGzvItHvpysmzA2DeD1EBncNQqkGFsHj+1ksQx33CD8Zbe3brgiBGr39aVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gZDP/Ca3; arc=none smtp.client-ip=209.85.214.171
+	 MIME-Version; b=F0YG8/XaLonhj+snt4wqZaP2V/7snRi0hOtoeEY4OZoCcmILgoaHHb2xm+R8wyEPUyXCfVluj+dWASVNBBOx3kWGVAJxDhkZTTA1whJCMHS7R+jm7SsqYshIA9RGsLZdKMMlUBYKI80ziRLQs+eFoxwg6JQwnWRp8jmjXoyp3fU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QcsCesm+; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gZDP/Ca3"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2a09d981507so12622625ad.1
-        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:39:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QcsCesm+"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2a081c163b0so20802465ad.0
+        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:48:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765798763; x=1766403563; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1765799320; x=1766404120; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=TrKHAwDmwEWPzZzAT0wzFml+5He+R0bXqVhPFRZE9SA=;
-        b=gZDP/Ca3glUGpsOL88136XjyqTUre9tuSG0IaWiK91X181uTIHAAplu2+drvFk2qpS
-         fFxc9tyusHqACh0eZsDNBLtTSQXf1C6VUSFFd1mqYLXZLBB/NXqHDhgWiId6ILjl3jF3
-         aNiAoXkgP6gLJzr0oPNvlpAuwN0w5DhqrVvur2u0tuHgYO3FkOvn/YqiJFzQnYW9Lo5U
-         5wIDHkTS2oI/xf/XZRw76+GBjSjLauZXS5aW1z63scgRjUqQoXkgFYPOmCtXDx7Whjym
-         lBhI7sj7CFiLV803p134NQzAMk0gxeAHoRQHjJOdcSTevzkk/HK9f9H77IOjgWrxXjnA
-         52Wg==
+        bh=JUAs+7T6aM5YvKJFQXSXqoVkTtSxZtzq470O+YaXF94=;
+        b=QcsCesm+rzVlM0p0NNvahMxi7sJL0lTwLnM5tpyQ9Ob0k6K7/an2mNl0Q89IiDIF9J
+         WxiVqxve609KeXbnO0ZZr7FU0cfR1o298/iv5yQviaEd+akyEAVnrfZaN+hhQeYnj+NI
+         hpz+DAoGr6I259gYnFFajFFhsmijX8nYC/4cbWh6nackVl1STco+9raF+iY8Rcegwp1P
+         IXXGTT9hwIv26B+8+nwrD2T4WPrhmsn2S3Fj2ke5+2x5foNZRHY8dRNm+snlWoICaold
+         Qth4ymoZi1euZRZlz0l1+F3bfu3bIoDrL+m0xeY4o6ideOqbUZU7KRutzDZU4BKYNLie
+         VCpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765798763; x=1766403563;
+        d=1e100.net; s=20230601; t=1765799320; x=1766404120;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=TrKHAwDmwEWPzZzAT0wzFml+5He+R0bXqVhPFRZE9SA=;
-        b=V7ps1yNenklb+IpB7qFBqF16sZNrF4rsVzPzUsiuXjhf9HP2D6OyYBDXf85gu2xi2h
-         lGwuAHygIZhtJX25+5mIhKxQan4naFj3SHijiF7yg+PJFY46l3kIehxAanBdV5+TXVCO
-         b72rMx3WUhs0L6OX1c/FzFnv4231lcmKCkkaMs8ntzyzABNGwvGEWSW8oUSr8QC9jR5s
-         3dFngcwXFxnLzhU3MC+LEFpgp2i1xCYFncKqqha6jhHg+Sc9Gw8Ig0242bduR4fyMcRl
-         IC4NCdEWRTP3l3GFhZeNbjukZ9+rFntnvVe2A2Mow91JyPLZR9SHB/rlEP2TyMjQsNib
-         cIbQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVYmeUw/Z/heCw+mHfpTF4cOpMRwjo9dxVGTULjP93ypEbafXh2CfKZLf/JZwoCDYdqd5+0lVDKisO2wegIqQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw7ywXHOmwgxMY2YLJ/+M9rldZXNosblCGHYc9GiPwrWXoUAU+o
-	nNGydTtqFz3Vno2eOXlsMfulTLr4So6SEsTEHTg+M8QDiLxmioUugX1H
-X-Gm-Gg: AY/fxX4wH7tJQh/t3Rh8ce50SFckPhnTT5laxAVRhhT52eo/Z9EIk0uWs3Ma/l1y8Bu
-	Eh46a2QLSLI2niv1cFOXp2dCV4nWCu/Vrmi7ObqX9u77m33drLHE/WPrBZEHY0v+d6rmF4PHRks
-	mGYkn2j6TSxA4MFf2c+T62I705nedn4DPKhejdNoqT8I3h2NrNV9IpSMA1n16qFt5S5CDgtXBfQ
-	1S2RRZhMr4/Lzv5A6pSf97s7FcTx85Cbx1Wc80b0J386QBuJxylUKFXniFYje1bIjayjEuZNdkx
-	5DD9Z4oy218S/ivL6nBUandJysME956XDGVFiOJYsEHsxKAOo3EPqIEiZVe9OMzX8IbegeWeN/7
-	x1jee85v+SdM+i+/E+ajqkBUnRDhYImhRSRdsy2TeZbOTkwLEmazld5sNxrLSUBxYc9Sgb6glNi
-	3N0QPJHxZB1N8=
-X-Google-Smtp-Source: AGHT+IGEKo7pUOqZ/Msgj5pboeIPXCGG8SyTdVwEqd2zfEZHqjnoFfxwhdJcfbexnC7zJuC88ktUrA==
-X-Received: by 2002:a17:903:1988:b0:2a0:d0ae:454d with SMTP id d9443c01a7336-2a0d0ae4b49mr35282785ad.22.1765798763267;
-        Mon, 15 Dec 2025 03:39:23 -0800 (PST)
+        bh=JUAs+7T6aM5YvKJFQXSXqoVkTtSxZtzq470O+YaXF94=;
+        b=l33hwC4QI7mDJY17OUZc/wskzPSGfzVgXHvY6OcbISpukrKmC96dXwHjZ/6+uXP6PO
+         fdda428XuYTEbYqJ4+0KfmkIcUCfYfekQASflOh7RYhvoqYpLIDD+/T2s25ipY95zNHa
+         cpgyN06PT2BbNLNJ6YhKY76KuUF/CkRfgMKfZTX1vAV1sZeoFcsdBecdtmJm+BnXzhxG
+         oj7n/F7bFFSU/0CrYyqvWc2I/y5JHHGxV3dGsUwEFq3OT+XqIW22WgPfvoX/h2Cc8XO0
+         WwTqSVvFmpLKRqUpifmb1oIxmPCvbrTn+D+SYdqlRlRqLFKnKp3KGpTcJAwft2T4FN2V
+         lwYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUVEOYNdMjv98GpYNwRBFuNLt7ueemQFs146ESVyQf2APOjlXmT32xddDIu9PL0M3eePWjV0mSv55bkZzIy3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyyK5uRBKl+5SRzkiBEoSGoYSFfJs7gBjTnGnAihDa1AscYZ5LS
+	vj4Viv7S8IELrdfdrFz3hmYLuwLIa8ZrsevWjZbhD5I/0hJsbgXWRbpi
+X-Gm-Gg: AY/fxX5qoXU+Ktw3Goi7NBfA8HzRCjVEOUiK3T2vx8MGSLTX7JTbmvti+Ue7iyf29HR
+	bD5oPOBbxXQ5JizHRRHw7uWIT8kGlAAVaaUrSMtov3lOb4xjkoO4BcW9s7RYyQxv1E1q/r0HnKN
+	ARw7wmqfRLz+xLvi+ThAZ2+H1yoxGz/QQGN45krb5g9vOnekVyzSH+9xYqf1rvqXyWcwqi17h/8
+	Tu2eSzVXOU0PqiujNX2pqzSrx/PIP8NKH8dCUiJv3GEPxC+HiqBDwpoyR4CaFg06whPu1E0+J44
+	xGGEKmjrnJX2KNz4/WuJGhD8FUyrBueXMpqbJWMnuYw6icgkFvYecAzKzynuC4iu2Mrfm5fbHlm
+	C+o1+atYieCd/oDK+gVJP827ExLIfh9b1V+Zo6lwPO5PZsbPFrBkSrQi0Fdj1u0ft8h6N9lBVkD
+	0nNA7Yhii3JDc=
+X-Google-Smtp-Source: AGHT+IEA4ldqjntSU1IZe10aX19mQKLjoCVDqCMnCNeqo44SOanRLtLHyqhQX8MxC8RVHbAWKM2xrg==
+X-Received: by 2002:a17:903:1a2e:b0:2a0:b02b:2105 with SMTP id d9443c01a7336-2a0b02b228amr63659225ad.56.1765799319837;
+        Mon, 15 Dec 2025 03:48:39 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a0f58d7c27sm27523715ad.24.2025.12.15.03.39.14
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a0867ebe9dsm77190525ad.40.2025.12.15.03.48.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Dec 2025 03:39:18 -0800 (PST)
+        Mon, 15 Dec 2025 03:48:39 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id 357B044588D8; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
+	id 46E2D447330A; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -148,9 +148,9 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 11/14] drm/gem/shmem: Describe @shmem and @size parameters
-Date: Mon, 15 Dec 2025 18:38:59 +0700
-Message-ID: <20251215113903.46555-12-bagasdotme@gmail.com>
+Subject: [PATCH 12/14] drm/scheduler: Describe @result in drm_sched_job_done()
+Date: Mon, 15 Dec 2025 18:39:00 +0700
+Message-ID: <20251215113903.46555-13-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -160,37 +160,34 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1239; i=bagasdotme@gmail.com; h=from:subject; bh=NBybN5/snlW67CYY0LDf5z9mjlB8/ZE5MQWmfMjzEtk=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4OX/nxidPxCa7t5fuOD8HMfrQSuP1hub/O7ZcKpR 3k2jWdLOkpZGMS4GGTFFFkmJfI1nd5lJHKhfa0jzBxWJpAhDFycAjCRtAcM/yunTjs9ydWYJypu wYcH6cfFNi1X5dYSuyPxxuv3me1JcpKMDBs+vU9uutHzrUbncPwy+73MjZlbOwIfHrr54bGU4uz aOwwA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=982; i=bagasdotme@gmail.com; h=from:subject; bh=kdwYayfiPuGdbX+6/rKZkI1jkonQkDY24KG3T7ZKuZA=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4Pfzvv2aMJ6/2fiW3RmVPTpTFSM/fBW4Nu0ikdP3 J/+EMyq6ShlYRDjYpAVU2SZlMjXdHqXkciF9rWOMHNYmUCGMHBxCsBENP8y/FN2WnBW9dYhDc+y QzUe+4R7v/wRO/L/c0NDkJC4klf71CqG3yyrLnq/ur5px+nadXME75rW9sxVOp7eMOmL58xwZZ6 TlnwA
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
-Sphinx reports kernel-doc warnings:
+Sphinx reports kernel-doc warning:
 
-WARNING: ./drivers/gpu/drm/drm_gem_shmem_helper.c:104 function parameter 'shmem' not described in 'drm_gem_shmem_init'
-WARNING: ./drivers/gpu/drm/drm_gem_shmem_helper.c:104 function parameter 'size' not described in 'drm_gem_shmem_init'
+WARNING: ./drivers/gpu/drm/scheduler/sched_main.c:367 function parameter 'result' not described in 'drm_sched_job_done'
 
-Describe the parameters.
+Describe @result parameter to fix it.
 
-Fixes: e3f4bdaf2c5bfe ("drm/gem/shmem: Extract drm_gem_shmem_init() from drm_gem_shmem_create()")
+Fixes: 539f9ee4b52a8b ("drm/scheduler: properly forward fence errors")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/scheduler/sched_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 93b9cff89080f9..7f73900abcbb9d 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -96,7 +96,8 @@ static int __drm_gem_shmem_init(struct drm_device *dev, struct drm_gem_shmem_obj
+diff --git a/drivers/gpu/drm/scheduler/sched_main.c b/drivers/gpu/drm/scheduler/sched_main.c
+index 1d4f1b822e7b76..4f844087fd48eb 100644
+--- a/drivers/gpu/drm/scheduler/sched_main.c
++++ b/drivers/gpu/drm/scheduler/sched_main.c
+@@ -361,6 +361,7 @@ static void drm_sched_run_free_queue(struct drm_gpu_scheduler *sched)
  /**
-  * drm_gem_shmem_init - Initialize an allocated object.
-  * @dev: DRM device
-- * @obj: The allocated shmem GEM object.
-+ * @shmem: The allocated shmem GEM object.
-+ * @size: shmem GEM object size
+  * drm_sched_job_done - complete a job
+  * @s_job: pointer to the job which is done
++ * @result: job result
   *
-  * Returns:
-  * 0 on success, or a negative error code on failure.
+  * Finish the job's fence and resubmit the work items.
+  */
 -- 
 An old man doll... just what I always wanted! - Clara
 
