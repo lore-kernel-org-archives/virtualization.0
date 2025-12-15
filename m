@@ -1,498 +1,290 @@
-Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9A032BD590
-	for <virtualization@lists.linux.dev>; Sun, 14 Dec 2025 15:26:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.13
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765725986; cv=pass; b=Eyc3c7/PO1fvDMCzeyNGFZZAU/jdCHQQCzNlXjKjB2cPkoW20fNBkI+bXB75EBPVgudDIEEqKy2qQ3cZLsr+FL7OXIFphpPX4bTYcjb+3ON4cdEvKRxQAqCL+O5u5D7URr69PIYTQhyYUtFMcduNze2flEVTJbclU6GE4Az1V2M=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765725986; c=relaxed/simple;
-	bh=YQjlAwSHWcd1kxUSnEm9sEjhrE398KSvKBhd7mzuY/Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GHhIcBJc3HmWjUcbX0jFGehnl2x7+39Jnmj8MAJHA26MFZgQWyfe346TQeGRFdDwma72T8XRdgwh+P2SzAoha/D7ZXBXs0xdNDtdSQVRoZUAJ1Fr90nqXskNp8wz/UoGK1UL58pG1UNhSAvVJXW+zqSAVgZYRdRnGO/uS9snSgw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=JBR2rwyI; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=Mle8mQFF; arc=pass smtp.client-ip=185.56.87.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 458562EBDFD
+	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 06:37:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765780623; cv=none; b=bVX1GJucexh1puVr2xgw62g9bR2Cq/NQGgXiMIzw38nF+JGL5TLlYTRQNoWiGwyXd6eoyDD9qzrLUJ0+Us43Hmg0scFSvzwiMH/zXiWX9YQGQOd3e7tc5D9hHG42m0ijk+HN/xG6yOYDMUG89XpriPkAWkf80Ly3ME+tExdRCJ0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765780623; c=relaxed/simple;
+	bh=Flsp6Ih3FlMEVzRadHwRQZrT6qbOt0qkn7I0oYf7Qcc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RTeG2wuDyEsn8f2r2kLFLVpjPqf9pIPGy16BvXtuxW0WqoglCJyeRMTZ2gYk5tPeyACSHnPwgqhaFQncsr1fIEttUfPeWAw0GmFzmMYJuNpZjrStF6//itIFuHlPW2pa2yePLPxuCVFowUw3VlF7ws9VIqiyaiSKF7Hb9UjyN4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=eQHxyp1G; arc=none smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="JBR2rwyI";
-	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="Mle8mQFF"
-ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-h9hs.prod.antispam.mailspamprotection.com; s=arckey; t=1765725983;
-	 b=LeoA8aE4e6WePl3m679Lj+HFn+zIgFddFRwOXQIgvOT62V0RPVGvXFlnjLEsmB3ZkwNTbyfYOX
-	  Sm4CcsKNbsvjSyHsXwuKu5px7Ezy8y38IlJeg9SVIbumUKEifC8Wgq1qCaEJx/4VU9GOzfbVHx
-	  tc4qyu4siUt5kbu/ca6h/ypCKdndGX/mAfdlBbo5ozJnYZBuHDk58L//EG/QLMzC+ZdO6fBAhH
-	  +ZIfuAklOP/AOGSYGcRvXleVq1WizkX1+qNmdwtyCx2TXzVTJPYurrHUQbzQV/L99txKZuvbTI
-	  yyxzJkTIbXdCzhpje/UeFhB7wJP6u6dXtHZRrWlKehvIZw==;
-ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-h9hs.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-h9hs.prod.antispam.mailspamprotection.com; s=arckey; t=1765725983;
-	bh=YQjlAwSHWcd1kxUSnEm9sEjhrE398KSvKBhd7mzuY/Q=;
-	h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:
-	  From:Date:DKIM-Signature:DKIM-Signature;
-	b=LqxACzzprW1NBNFJxbn4nwVltn7ax912ilxmECqwc32htgKIwuYbIJOJpbcaZZfqlQLN+yZx6g
-	  ShM46hGSFeCx1p8u0ncAUnT0Fy5IOIZuH+bzdskZls0jkvuloXc6eLkdvMezFZ6e62ipbe8sTy
-	  QP+1B46pe1Ped99jg05VnjtVE7pXXL8g6HUxKXZD3vWtEesQFYaq2OXw/k2P6WkoLEd/clAQ3f
-	  0cAneWlMC3q1HJpEcWpuYjP+AKsySLOlx7Tc2s1JvOkfLg9k+Y1POO6ZS8SDzbc5n2cNXe0Qfb
-	  S6JOEg54jIa4jwFXXBi2BP6nzVueZ84BTcr8wy7YcWiCGg==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
-	:Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	List-Unsubscribe:Content-Transfer-Encoding;
-	bh=chDnHXzC7OmgMSvhcFfltAlCclhS52mGTR4eaadE5Jc=; b=JBR2rwyIpYlDf92JWhSyNh/UPk
-	f2+LPQKx9FZLLdXZG70vx9ot2++q59emls6/hyYSKb1e9JhOruvy/BO2YGkm1n992kgKaxlhtu17N
-	XhLtrp3PM3QXpdmZHuPXXAe9+OWrYrxgv1V+v7+prXoGjpJoDt1W8nudSQlTxfwTVszo=;
-Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
-	by instance-europe-west4-h9hs.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1vUnz9-00000002XNW-0c4R
-	for virtualization@lists.linux.dev;
-	Sun, 14 Dec 2025 15:26:14 +0000
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
-	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
-	list-subscribe:list-post:list-owner:list-archive;
-	bh=chDnHXzC7OmgMSvhcFfltAlCclhS52mGTR4eaadE5Jc=; b=Mle8mQFFWFofNTFGoGCzzUniSe
-	pcdySQj2zcOeNOS7vf6fuKkNmIWbaMk8IOj8YrWbZY3sV+s6cJrOrkwBMAssafz67lRWqp9MRrpzM
-	VLf8BNtZBVGHwVcnoXNg2P+QP/sYcfTu1paeXLrvKpxiWd7ZfUcvnnYmajBFBjgiKCGc=;
-Received: from [79.34.194.176] (port=63375 helo=bywater)
-	by esm19.siteground.biz with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1vUnyt-00000000585-3qQ7;
-	Sun, 14 Dec 2025 15:25:55 +0000
-Date: Sun, 14 Dec 2025 16:25:54 +0100
-From: Francesco Valla <francesco@valla.it>
-To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol@kernel.org>,
-	Harald Mommer <harald.mommer@oss.qualcomm.com>,
-	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Wolfgang Grandegger <wg@grandegger.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
-Message-ID: <aT7XAsTWr0_yyfx_@bywater>
-References: <aQJRnX7OpFRY/1+H@fedora>
- <aQkgsuxa2UaL_qdt@bywater>
- <aTsE1VIk4V/A49HE@fedora>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="eQHxyp1G"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-64162c04f90so5877448a12.0
+        for <virtualization@lists.linux.dev>; Sun, 14 Dec 2025 22:37:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1765780619; x=1766385419; darn=lists.linux.dev;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Flsp6Ih3FlMEVzRadHwRQZrT6qbOt0qkn7I0oYf7Qcc=;
+        b=eQHxyp1GzG3FtDYhAZECty0S0dTuG6ABXD70UiOhfgORb49ZY2dGdI7pPQPvuzYxha
+         8YIQJgFddUVwP87sS5GQdGmB3RFNzrhtB9pky35eAn93Sgbzla2UAvH1U141sZB4xH6G
+         Hyo4c4+0M4auwrEy+JuBFid08AztumXbu5vaTIZUFc0oIpBzmojvtc0g5p6sqMQ7lZrP
+         TxNWIgn6QKxaxAcOblyNAeb+sTsj1nq/cI70Ztd/6IK1VcbAU0lCmfFYRYAE0O03SXm8
+         e5lOPVJybalM+o4w8WBqG4VYKJxZs0suDeZsmUkm9+46HhfvfxdKQAD71qmA/MeWiY3L
+         YE3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765780620; x=1766385420;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Flsp6Ih3FlMEVzRadHwRQZrT6qbOt0qkn7I0oYf7Qcc=;
+        b=CNnnFioTM1bVzv6G/GeZaDOT+uPk8H4So8g9kJWNdjOmsMtEeurL4qQ4h5mBuoqXma
+         PeSWBDxmqP/cldxq9elZN6U8TU0iJGXQ3ulOIF/R9CULSDu0xBBmDu2iU1XbaP+/9n0N
+         xaNiIvE56cmMBDMM0ECWeILTUox4jzib5zlk6yi7g/UDoX4blF19BPyuXrUb1M6eQqr3
+         eaKQZjrJJ72B95wnhPLpYb7x0f1RZthQmDZy2qK6LgPwy5bZ3KVzvPsP5f8wcAgYQbuR
+         R6QkkvccsTuKkagMFzX17ObwP2NKLEu0IcCB0YiF1EjxHOM6qNppXXVU6htwp710AEhE
+         1sXw==
+X-Forwarded-Encrypted: i=1; AJvYcCXD/CI//J5lhsNf0mk8cJcC75ZiIX4Hsq2GyUsASbF+I5bX+lPgTrFkqv+RryA2qRg+SgH7WnXeAtxiwcB3XA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyVpskwrjx04lNRjN7dF6cIyUNdqihAOckCXVWQGCb/eR9IKp9T
+	eMUVl+cQV4LLKIlQ8qMrJrz6kE9YTYRNxovP1ZloVPwUO5lGuHFTJXUwBmhU9Ta/z9U=
+X-Gm-Gg: AY/fxX4+nKIpxv12bf+ve/MWjka4Al4TQBMo/PjUwZScv71CC3XP25j+iuppzUN/tRD
+	xxgP1EDQfaOZb6oAU3JSLmFqbANIPo8k72nNvZyk/Hdc8LhlyvEHMEkMMLWkhTbBipM69+awgJ0
+	9OLXP1mz3/beUyyWLDst/YW+3OnyyqFftRPAor25Sr3aZHWqmitrDsGxMmAe8L1heh3qFpBqtd6
+	JIDaCD8QecCg5mYsofnVROIQOGEXagCKFeoeczoj9GSOTPxxUoF5Pi4ap5SUmTi+HqjTml5IU17
+	mT2ulkGJKPPAjIUHbOS0fAoV8Zrb0g/ucH7VDgm94HGCB7Q9wlIVrhTm4hlsm3Po7jkIcBfdtg8
+	lPTHdVDB0hhFUpD+3rjOgFJ0GFFAdtGxbTvb2Qx9FwmQXCWPRWhQHeS0OUX0EEdYmdqtGbgjEYr
+	+7vZbmqDGbymC9ufIUiJdURc/IFVKePmYWlmnSVUeViCQO7kOkO8WFlf7ZLM6u56EVtKaK+kH3K
+	HraKb1t3i9YbRPNGSf/hIaR3Gpy1rKZxZsS8Vc=
+X-Google-Smtp-Source: AGHT+IGo/GqgVXtCzeCvo1UWjbyI/0K/pid4ihpAfElEjp1P5X9LqCIs4JAGA1cU0Oaa8OlI6Xu5Vg==
+X-Received: by 2002:a17:907:9617:b0:b73:8f33:eed3 with SMTP id a640c23a62f3a-b7d23a9c866mr953872766b.26.1765780619499;
+        Sun, 14 Dec 2025 22:36:59 -0800 (PST)
+Received: from ?IPV6:2003:e5:8704:4800:66fd:131f:60bd:bc29? (p200300e58704480066fd131f60bdbc29.dip0.t-ipconnect.de. [2003:e5:8704:4800:66fd:131f:60bd:bc29])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b7cfa29beabsm1330300666b.4.2025.12.14.22.36.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 14 Dec 2025 22:36:59 -0800 (PST)
+Message-ID: <bff8626d-161e-4470-9cbd-7bbda6852ec3@suse.com>
+Date: Mon, 15 Dec 2025 07:36:57 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aTsE1VIk4V/A49HE@fedora>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - esm19.siteground.biz
-X-AntiAbuse: Original Domain - lists.linux.dev
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - valla.it
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-SGantispam-id: 9ef458b63eb142998ba0e567dac1f5b3
-AntiSpam-DLS: false
-AntiSpam-DLSP: 
-AntiSpam-DLSRS: 
-AntiSpam-TS: 1.0
-CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
-CFBL-Feedback-ID: 1vUnz9-00000002XNW-0c4R-feedback@antispam.mailspamprotection.com
-Authentication-Results: outgoing.instance-europe-west4-h9hs.prod.antispam.mailspamprotection.com;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/5] x86: Cleanups around slow_down_io()
+To: Ingo Molnar <mingo@kernel.org>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-hwmon@vger.kernel.org, linux-block@vger.kernel.org,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Jean Delvare <jdelvare@suse.com>,
+ Guenter Roeck <linux@roeck-us.net>, Denis Efremov <efremov@linux.com>,
+ Jens Axboe <axboe@kernel.dk>
+References: <20251126162018.5676-1-jgross@suse.com>
+ <aT5vtaefuHwLVsqy@gmail.com>
+Content-Language: en-US
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <aT5vtaefuHwLVsqy@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------3mgjNgxNLw3aXEpCS8syparo"
 
-Hi Matias,
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------3mgjNgxNLw3aXEpCS8syparo
+Content-Type: multipart/mixed; boundary="------------uocwPUAwg06DHItKBfr8MkI0";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Ingo Molnar <mingo@kernel.org>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-hwmon@vger.kernel.org, linux-block@vger.kernel.org,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Jean Delvare <jdelvare@suse.com>,
+ Guenter Roeck <linux@roeck-us.net>, Denis Efremov <efremov@linux.com>,
+ Jens Axboe <axboe@kernel.dk>
+Message-ID: <bff8626d-161e-4470-9cbd-7bbda6852ec3@suse.com>
+Subject: Re: [PATCH 0/5] x86: Cleanups around slow_down_io()
+References: <20251126162018.5676-1-jgross@suse.com>
+ <aT5vtaefuHwLVsqy@gmail.com>
+In-Reply-To: <aT5vtaefuHwLVsqy@gmail.com>
 
-On Thu, Dec 11, 2025 at 06:52:21PM +0100, Matias Ezequiel Vara Larsen wrote:
-> Thanks for your comments, I took most of them. I have some questions
-> though. 
-> 
+--------------uocwPUAwg06DHItKBfr8MkI0
+Content-Type: multipart/mixed; boundary="------------0K40Sw4HjMWfuWdkxRcyXR0R"
 
-(snip)
+--------------0K40Sw4HjMWfuWdkxRcyXR0R
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-> > > + */
-> > > +static int virtio_can_add_inbuf(struct virtqueue *vq, void *buf,
-> > > +				unsigned int size)
-> > > +{
-> > > +	struct scatterlist sg[1];
-> > > +	int ret;
-> > > +
-> > > +	sg_init_one(sg, buf, size);
-> > > +
-> > > +	ret = virtqueue_add_inbuf(vq, sg, 1, buf, GFP_ATOMIC);
-> > > +	virtqueue_kick(vq);
-> > > +	if (ret == 0)
-> > > +		ret = vq->num_free;
-> > 
-> > The returned value in case of success (i.e.: vq->num_free) is not used.
-> > 
-> 
-> I removed it this but something is not working anymore so I need to
-> investigate.
->
+T24gMTQuMTIuMjUgMDk6MDUsIEluZ28gTW9sbmFyIHdyb3RlOg0KPiANCj4gKiBKdWVyZ2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+IHdyb3RlOg0KPiANCj4+IFdoaWxlIGxvb2tpbmcg
+YXQgcGFyYXZpcnQgY2xlYW51cHMgSSBzdHVtYmxlZCBvdmVyIHNsb3dfZG93bl9pbygpIGFu
+ZA0KPj4gdGhlIHJlbGF0ZWQgUkVBTExZX1NMT1dfSU8gZGVmaW5lLg0KPj4NCj4+IEVzcGVj
+aWFsbHkgUkVBTExZX1NMT1dfSU8gaXMgYSBtZXNzLCB3aGljaCBpcyBwcm92ZW4gYnkgMiBj
+b21wbGV0ZWx5DQo+PiB3cm9uZyB1c2UgY2FzZXMuDQo+Pg0KPj4gRG8gc2V2ZXJhbCBjbGVh
+bnVwcywgcmVzdWx0aW5nIGluIGEgZGVsZXRpb24gb2YgUkVBTExZX1NMT1dfSU8gYW5kIHRo
+ZQ0KPj4gaW9fZGVsYXkoKSBwYXJhdmlydCBmdW5jdGlvbiBob29rLg0KPj4NCj4+IFBhdGNo
+ZXMgMiBhbmQgMyBhcmUgbm90IGNoYW5naW5nIGFueSBmdW5jdGlvbmFsaXR5LCBidXQgbWF5
+YmUgdGhleQ0KPj4gc2hvdWxkPyBBcyB0aGUgcG90ZW50aWFsIGJ1ZyBoYXMgYmVlbiBwcmVz
+ZW50IGZvciBtb3JlIHRoYW4gYSBkZWNhZGUNCj4+IG5vdywgSSB3ZW50IHdpdGgganVzdCBk
+ZWxldGluZyB0aGUgdXNlbGVzcyAiI2RlZmluZSBSRUFMTFlfU0xPV19JTyIuDQo+PiBUaGUg
+YWx0ZXJuYXRpdmUgd291bGQgYmUgdG8gZG8gc29tZXRoaW5nIHNpbWlsYXIgYXMgaW4gcGF0
+Y2ggNS4NCj4+DQo+PiBKdWVyZ2VuIEdyb3NzICg1KToNCj4+ICAgIHg4Ni9wYXJhdmlydDog
+UmVwbGFjZSBpb19kZWxheSgpIGhvb2sgd2l0aCBhIGJvb2wNCj4+ICAgIGh3bW9uL2xtNzg6
+IERyb3AgUkVBTExZX1NMT1dfSU8gc2V0dGluZw0KPj4gICAgaHdtb24vdzgzNzgxZDogRHJv
+cCBSRUFMTFlfU0xPV19JTyBzZXR0aW5nDQo+PiAgICBibG9jay9mbG9wcHk6IERvbid0IHVz
+ZSBSRUFMTFlfU0xPV19JTyBmb3IgZGVsYXlzDQo+PiAgICB4ODYvaW86IFJlbW92ZSBSRUFM
+TFlfU0xPV19JTyBoYW5kbGluZw0KPj4NCj4+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vZmxv
+cHB5LmggICAgICAgICB8IDI3ICsrKysrKysrKysrKysrKysrKysrKystLS0tLQ0KPj4gICBh
+cmNoL3g4Ni9pbmNsdWRlL2FzbS9pby5oICAgICAgICAgICAgIHwgMTIgKysrKystLS0tLS0t
+DQo+PiAgIGFyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmggICAgICAgfCAxMSArLS0t
+LS0tLS0tLQ0KPj4gICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydF90eXBlcy5oIHwg
+IDMgKy0tDQo+PiAgIGFyY2gveDg2L2tlcm5lbC9jcHUvdm13YXJlLmMgICAgICAgICAgfCAg
+MiArLQ0KPj4gICBhcmNoL3g4Ni9rZXJuZWwva3ZtLmMgICAgICAgICAgICAgICAgIHwgIDgg
+Ky0tLS0tLS0NCj4+ICAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgICAgICAgICAgICB8
+ICAzICstLQ0KPj4gICBhcmNoL3g4Ni94ZW4vZW5saWdodGVuX3B2LmMgICAgICAgICAgIHwg
+IDYgKy0tLS0tDQo+PiAgIGRyaXZlcnMvYmxvY2svZmxvcHB5LmMgICAgICAgICAgICAgICAg
+fCAgMiAtLQ0KPj4gICBkcml2ZXJzL2h3bW9uL2xtNzguYyAgICAgICAgICAgICAgICAgIHwg
+IDUgKysrLS0NCj4+ICAgZHJpdmVycy9od21vbi93ODM3ODFkLmMgICAgICAgICAgICAgICB8
+ICA1ICsrKy0tDQo+PiAgIDExIGZpbGVzIGNoYW5nZWQsIDM5IGluc2VydGlvbnMoKyksIDQ1
+IGRlbGV0aW9ucygtKQ0KPiANCj4gSSB0aGluayB3ZSBzaG91bGQgZ2V0IHJpZCBvZiAqYWxs
+KiBpb19kZWxheSBoYWNrcywgdGhleSBtaWdodCBoYXZlIGJlZW4NCj4gcmVsZXZhbnQgaW4g
+dGhlIGRheXMgb2YgaTM4NiBzeXN0ZW1zLCBidXQgd2UgZG9uJ3QgZXZlbiBzdXBwb3J0IGkz
+ODYNCj4gQ1BVcyBhbnltb3JlLiBTaG91bGQgaXQgY2F1c2UgYW55IHJlZ3Jlc3Npb25zLCBp
+dCdzIGVhc3kgdG8gYmlzZWN0IHRvLg0KPiBUaGVyZSdzIGJlZW4gZW5vdWdoIGNoYW5nZXMg
+YXJvdW5kIGFsbCB0aGVzZSBmYWNpbGl0aWVzIHRoYXQgdGhlDQo+IG9yaWdpbmFsIHRpbWlu
+Z3MgYXJlIHByb2JhYmx5IHdheSBvZmYgYWxyZWFkeSwgc28gd2UndmUganVzdCBiZWVuDQo+
+IGNhcmdvLWN1bHQgcG9ydGluZyB0aGVzZSB0byBuZXdlciBrZXJuZWxzIGVzc2VudGlhbGx5
+Lg0KDQpGaW5lIHdpdGggbWUuDQoNCldoaWNoIHBhdGggdG8gcmVtb3ZhbCBvZiBpb19kZWxh
+eSB3b3VsZCB5b3UgKGFuZCBvdGhlcnMpIHByZWZlcj8NCg0KMS4gUmlwcGluZyBpdCBvdXQg
+aW1tZWRpYXRlbHkuDQoNCjIuIEhpZGluZyBpdCBiZWhpbmQgYSBkZWZhdWx0LW9mZiBjb25m
+aWcgb3B0aW9uIGZvciBhIGZldyBrZXJuZWwgdmVyc2lvbnMNCiAgICBiZWZvcmUgcmVtb3Zp
+bmcgaXQuDQoNCjMuIFVzaW5nIENPTkZJR19JT19ERUxBWV9OT05FIGFzIHRoZSBkZWZhdWx0
+IGlvX2RlbGF5X3R5cGUgYmVmb3JlIHJpcHBpbmcgaXQNCiAgICBvdXQuDQoNCjQuIFVzaW5n
+IENPTkZJR19JT19ERUxBWV9OT05FIGFzIHRoZSBkZWZhdWx0IGlvX2RlbGF5X3R5cGUgYmVm
+b3JlIGhpZGluZyBpdA0KICAgIGJlaGluZCBhIGRlZmF1bHQtb2ZmIGNvbmZpZyBvcHRpb24s
+IHRoZW4gcmlwIGl0IG91dCBsYXRlci4NCg0KSW4gY2FzZXMgMi00IEknZCBzdGlsbCBsaWtl
+IHRvIGhhdmUgcGF0Y2ggMSBvZiBteSBzZXJpZXMgYXBwbGllZCwgYXMgaXQgd2lsbA0KbWFr
+ZSBwYXJhdmlydCByZXdvcmsgZWFzaWVyLg0KDQoNCkp1ZXJnZW4NCg==
+--------------0K40Sw4HjMWfuWdkxRcyXR0R
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-That should't happen, since vq->num_free is defined as an unsigned int
-and no caller is reacting on return values >= 0.
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-> > > +	return ret;
-> > > +}
-> > > +
-> > > +/* Send a control message with message type either
-> > > + *
-> > > + * - VIRTIO_CAN_SET_CTRL_MODE_START or
-> > > + * - VIRTIO_CAN_SET_CTRL_MODE_STOP.
-> > > + *
-> > > + * Unlike AUTOSAR CAN Driver Can_SetControllerMode() there is no requirement
-> > > + * for this Linux driver to have an asynchronous implementation of the mode
-> > > + * setting function so in order to keep things simple the function is
-> > > + * implemented as synchronous function. Design pattern is
-> > > + * virtio_console.c/__send_control_msg() & virtio_net.c/virtnet_send_command().
-> > > + */
-> > 
-> > Comment is not really helpful nor informative, at least for me. I'd drop
-> > the AUTOSAR part at least.
-> > 
-> 
-> I removed it.
-> 
-> > > +static u8 virtio_can_send_ctrl_msg(struct net_device *ndev, u16 msg_type)
-> > > +{
-> > > +	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
-> > > +	struct virtio_can_priv *priv = netdev_priv(ndev);
-> > > +	struct device *dev = &priv->vdev->dev;
-> > > +	struct virtqueue *vq;
-> > > +	unsigned int len;
-> > > +	int err;
-> > > +
-> > > +	vq = priv->vqs[VIRTIO_CAN_QUEUE_CONTROL];
-> > > +
-> > > +	/* The function may be serialized by rtnl lock. Not sure.
-> > > +	 * Better safe than sorry.
-> > > +	 */
-> > > +	mutex_lock(&priv->ctrl_lock);
-> > 
-> > Consider the newer guard() syntax:
-> > 
-> >     guard(mutex)(&priv->ctrl_lock)
-> > 
-> 
-> IIUC this adds the unlock automatically, right?
->
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
-Yes, as soon as the function returnsi, and even in case of early
-returns.
+--------------0K40Sw4HjMWfuWdkxRcyXR0R--
 
-> > > +
-> > > +	priv->can_ctr_msg.cpkt_out.msg_type = cpu_to_le16(msg_type);
-> > > +	sg_init_one(&sg_out, &priv->can_ctr_msg.cpkt_out,
-> > > +		    sizeof(priv->can_ctr_msg.cpkt_out));
-> > > +	sg_init_one(&sg_in, &priv->can_ctr_msg.cpkt_in, sizeof(priv->can_ctr_msg.cpkt_in));
-> > > +
-> > > +	err = virtqueue_add_sgs(vq, sgs, 1u, 1u, priv, GFP_ATOMIC);
-> > > +	if (err != 0) {
-> > > +		/* Not expected to happen */
-> > > +		dev_err(dev, "%s(): virtqueue_add_sgs() failed\n", __func__);
-> > > +		mutex_unlock(&priv->ctrl_lock);
-> > > +		return VIRTIO_CAN_RESULT_NOT_OK;
-> > > +	}
-> > > +
-> > > +	if (!virtqueue_kick(vq)) {
-> > > +		/* Not expected to happen */
-> > > +		dev_err(dev, "%s(): Kick failed\n", __func__);
-> > > +		mutex_unlock(&priv->ctrl_lock);
-> > > +		return VIRTIO_CAN_RESULT_NOT_OK;
-> > > +	}
-> > > +
-> > > +	while (!virtqueue_get_buf(vq, &len) && !virtqueue_is_broken(vq))
-> > > +		wait_for_completion(&priv->ctrl_done);
-> > > +
-> > 
-> > Since the call is synchronous, does can_ctr_msg really need to be part
-> > of priv? Cannot be it allocated from the stack?
-> > 
-> 
-> I moved it to the stack.
-> 
+--------------uocwPUAwg06DHItKBfr8MkI0--
 
-This was a bad suggestion, as Michael S. Tsirkin suggested in another
-branch of this thread [0]. Sorry.
+--------------3mgjNgxNLw3aXEpCS8syparo
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
-> > > +	mutex_unlock(&priv->ctrl_lock);
-> > > +
-> > > +	return priv->can_ctr_msg.cpkt_in.result;
-> > > +}
-> > > +
-> > > +static void virtio_can_start(struct net_device *ndev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = netdev_priv(ndev);
-> > > +	u8 result;
-> > > +
-> > > +	result = virtio_can_send_ctrl_msg(ndev, VIRTIO_CAN_SET_CTRL_MODE_START);
-> > > +	if (result != VIRTIO_CAN_RESULT_OK) {
-> > > +		/* Not expected to happen */
-> > > +		netdev_err(ndev, "CAN controller start failed\n");
-> > > +	}
-> > > +
-> > > +	priv->busoff_pending = false;
-> > > +	priv->can.state = CAN_STATE_ERROR_ACTIVE;
-> > > +
-> > > +	/* Switch carrier on if device was not connected to the bus */
-> > > +	if (!netif_carrier_ok(ndev))
-> > > +		netif_carrier_on(ndev);
-> > > +}
-> > > +
-> > > +/* See also m_can.c/m_can_set_mode()
-> > > + *
-> > > + * It is interesting that not only the M-CAN implementation but also all other
-> > > + * implementations I looked into only support CAN_MODE_START.
-> > > + * That CAN_MODE_SLEEP is frequently not found to be supported anywhere did not
-> > > + * come not as surprise but that CAN_MODE_STOP is also never supported was one.
-> > > + * The function is accessible via the method pointer do_set_mode in
-> > > + * struct can_priv. As usual no documentation there.
-> > > + * May not play any role as grepping through the code did not reveal any place
-> > > + * from where the method is actually called.
-> > > + */
-> > 
-> > The do_set_mode method is used e.g. to restart the CAN after a bus-off event.
-> > 
-> 
-> Do you think we need to support CAN_MODE_STOP?
->
+-----BEGIN PGP SIGNATURE-----
 
-No, I don't think so, but the comment is somewhat misleading and feels
-more like some private notes.
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmk/rIkFAwAAAAAACgkQsN6d1ii/Ey+O
+KAf/RhuC6z7N89eI1LFebQgpxz6ipUoaEJLE3iPD9BIa8MC4hAK9upc0Be1ulp8clrSuz3rdpIw7
+3FUaPR9cZlvGMCV4Z+IHHjhwmCaWOcpppBqiVsNGhvT47rDwA2VkaikY3Ehl9quAQpn1CC1hhkJ1
+01WuZBXoh2YzULEZSQtLiB/SNUhY/giSrXVDYqFcRdmTVicw/Obw/Xlvx6pXR3h7j5JxemXi9/Fj
+iKUX4frjdzsmdQotNBCZcdFf37mdeUIi3KWRenk5jma77pmhc8v1kpf/IJcf8U5SvVaz2LnLN+pw
+GgFVUcHrV+iMB8ern+6AKait3RZBMNm2dCjJdLk6bg==
+=WEIE
+-----END PGP SIGNATURE-----
 
-> > > +static int virtio_can_set_mode(struct net_device *dev, enum can_mode mode)
-> > > +{
-> > > +	switch (mode) {
-> > > +	case CAN_MODE_START:
-> > > +		virtio_can_start(dev);
-> > > +		netif_wake_queue(dev);
-> > > +		break;
-> > > +	default:
-> > > +		return -EOPNOTSUPP;
-> > > +	}
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-
-(snip)
-
-> > > +/* Compare with m_can.c/m_can_echo_tx_event() */
-> > > +static int virtio_can_read_tx_queue(struct virtqueue *vq)
-> > > +{
-> > > +	struct virtio_can_priv *can_priv = vq->vdev->priv;
-> > > +	struct net_device *dev = can_priv->dev;
-> > > +	struct virtio_can_tx *can_tx_msg;
-> > > +	struct net_device_stats *stats;
-> > > +	unsigned long flags;
-> > > +	unsigned int len;
-> > > +	u8 result;
-> > > +
-> > > +	stats = &dev->stats;
-> > > +
-> > > +	/* Protect list and virtio queue operations */
-> > > +	spin_lock_irqsave(&can_priv->tx_lock, flags);
-> > 
-> > The section below seems a pretty big one to protect behind a spin lock. 
-> > 
-> 
-> How can I split it? 
-> 
-
-Question here is: what needs to be protected? As far as I can tell, the
-only entity needing some kind of locking here is the queue, while both
-ida_* and tx_inflight operations are already covered (the former by
-design [1], the second because it's implemented using an atomic.
-
-If I'm not wrong (but I might be, so please double check) this can be
-limited to:
-
-	/* Protect queue operations */
-	scoped_guard(spinlock_irqsave, &priv->tx_lock)
-		err = virtqueue_add_sgs(vq, sgs, 1u, 1u, can_tx_msg, GFP_ATOMIC);
-
-
-Maybe the whole locking pattern is a leftover from a previous version, 
-where a list of TX messages was kept?
-
-> > > +
-> > > +	can_tx_msg = virtqueue_get_buf(vq, &len);
-> > > +	if (!can_tx_msg) {
-> > > +		spin_unlock_irqrestore(&can_priv->tx_lock, flags);
-> > > +		return 0; /* No more data */
-> > > +	}
-> > > +
-> > > +	if (unlikely(len < sizeof(struct virtio_can_tx_in))) {
-> > > +		netdev_err(dev, "TX ACK: Device sent no result code\n");
-> > > +		result = VIRTIO_CAN_RESULT_NOT_OK; /* Keep things going */
-> > > +	} else {
-> > > +		result = can_tx_msg->tx_in.result;
-> > > +	}
-> > > +
-
-(snip)
-
-> > > +static int virtio_can_probe(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_can_priv *priv;
-> > > +	struct net_device *dev;
-> > > +	int err;
-> > > +
-> > > +	dev = alloc_candev(sizeof(struct virtio_can_priv),
-> > > +			   VIRTIO_CAN_ECHO_SKB_MAX);
-> > > +	if (!dev)
-> > > +		return -ENOMEM;
-> > > +
-> > > +	priv = netdev_priv(dev);
-> > > +
-> > > +	ida_init(&priv->tx_putidx_ida);
-> > > +
-> > > +	netif_napi_add(dev, &priv->napi, virtio_can_rx_poll);
-> > > +	netif_napi_add(dev, &priv->napi_tx, virtio_can_tx_poll);
-> > > +
-> > > +	SET_NETDEV_DEV(dev, &vdev->dev);
-> > > +
-> > > +	priv->dev = dev;
-> > > +	priv->vdev = vdev;
-> > > +	vdev->priv = priv;
-> > > +
-> > > +	priv->can.do_set_mode = virtio_can_set_mode;
-> > > +	/* Set Virtio CAN supported operations */
-> > > +	priv->can.ctrlmode_supported = CAN_CTRLMODE_BERR_REPORTING;
-> > > +	if (virtio_has_feature(vdev, VIRTIO_CAN_F_CAN_FD)) {
-> > > +		err = can_set_static_ctrlmode(dev, CAN_CTRLMODE_FD);
-> > > +		if (err != 0)
-> > > +			goto on_failure;
-> > > +	}
-> > > +
-> > > +	/* Initialize virtqueues */
-> > > +	err = virtio_can_find_vqs(priv);
-> > > +	if (err != 0)
-> > > +		goto on_failure;
-> > > +
-> > > +	spin_lock_init(&priv->tx_lock);
-> > > +	mutex_init(&priv->ctrl_lock);
-> > > +
-> > > +	init_completion(&priv->ctrl_done);
-> > > +
-> > > +	if (virtio_has_feature(vdev, VIRTIO_CAN_F_CAN_FD))
-> > > +		priv->sdu_len = CANFD_MAX_DLEN;
-> > > +	else
-> > > +		priv->sdu_len = CAN_MAX_DLEN;
-> > 
-> > Consider replacing sdu_len with something like rpkt_len, which is
-> > directly related to priv->rpkt and can make code more readable, here and
-> > in other locations. E.g.:
-> 
-> I replaced it with rpkt_len.
-> 
-> > 
-> > 	priv->rpkt_len = sizeof(struct virtio_can_rx);
-> > 	if (virtio_has_feature(vdev, VIRTIO_CAN_F_CAN_FD))
-> >     		priv->rpkt_len += CANFD_MAX_DLEN;
-> > 	else
-> > 		priv->rpkt_len += CAN_MAX_DLEN;
-> > 
-> > 	priv->rpkt = kzalloc(priv->rpkt_len * ...
-> > 
-> > > +
-> > > +	priv->rpkt = kzalloc((sizeof(struct virtio_can_rx) + priv->sdu_len) *
-> > > +						priv->vqs[VIRTIO_CAN_QUEUE_RX]->num_free,
-> > > +						GFP_KERNEL);
-> > 
-> > If I'm not mistaken, priv->rpkt is never freed. Consider moving to
-> > devm_kzalloc().
-> > 
-> 
-> Done.
-> 
-> > > +	if (!priv->rpkt) {
-> > > +		virtio_can_del_vq(vdev);
-> > > +		goto on_failure;
-> > > +	}
-> > > +	virtio_can_populate_rx_vq(vdev);
-> > > +
-> > > +	err = register_virtio_can_dev(dev);
-> > > +	if (err) {
-> > > +		virtio_can_del_vq(vdev);
-> > > +		goto on_failure;
-> > > +	}
-> > > +
-> > > +	napi_enable(&priv->napi);
-> > > +	napi_enable(&priv->napi_tx);
-> > 
-> > Most of the existing drivers enable the napi(s) during the open() phase,
-> > IIUC to avoid scheduling napi operations for devices that might never
-> > get used. But here maybe there is a specific reason to do it this way?
-> > 
-> 
-> I do not have idea. I moved to open() and something stopped to work. I
-> am investigating it.
->
-
-On a second thought, it may be wiser to have the napis enabled on probe,
-to drop the incoming messages even when the interface is brought down.
-
-(last snip)
-
-
-While stress testing this, I noticed that flooding the virtio-can
-interface with packets leads to an hang of the interface itself.
-I am seeing this issuing, at host side:
-
-	while true; do cansend can0 123#00; done
-
-with:
-
- - QEMU: the tip of the master branch plus [2]
- - vhost-device: the tip of the main branch
-
-and the following QEMU invocation:
-
-qemu-system-x86_64 -serial mon:stdio \
-    -m 2G -smp 2 \
-    -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
-    -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
-    -append "loglevel=7 console=ttyS0" \
-    -machine memory-backend=pc.ram \
-    -object memory-backend-file,id=pc.ram,size=2G,mem-path=/tmp/pc.ram,share=on \
-    -chardev socket,id=can0,path=/tmp/sock-can0 \
-    -device vhost-user-can-pci,chardev=can0
-
-
-Restarting the interface (i.e.: ip link set down and the up) does not
-fix the situation.
-
-I'll try to do some more testing during the next days.
-
-
-> Thanks for reviewing it!
-> 
-> Matias
-> 
->
-
-Regards,
-Francesco
-
-
-[0] https://lore.kernel.org/linux-can/20251214022000-mutt-send-email-mst@kernel.org/
-[1] https://elixir.bootlin.com/linux/v6.18.1/source/lib/idr.c#L323
-[2] https://lore.kernel.org/qemu-devel/20251031155617.1223248-1-mvaralar@redhat.com/
-
-
+--------------3mgjNgxNLw3aXEpCS8syparo--
