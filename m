@@ -1,88 +1,214 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E73F3328F0;
-	Mon, 15 Dec 2025 13:59:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8506030B517
+	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 14:11:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765807175; cv=none; b=KLiqmjha3/bDs7OZMEkRbMrJ4gvofHnMUuYaq+obf9dBJ9U3UL+CnU+tFWJca5QglRgKqBogT+ac/JoSDJ9/4HNmCAYwDSvkf+9O6vi+RMYB1Wq3zCDpzWtP1llWXot6/On597ox9dI7ShyX1xs8y5hJQl/x2tyCT/1rw36ctnM=
+	t=1765807904; cv=none; b=Jz6ka9zwadeQ4qXNvpj3hRZMAivzsARTx9Zk9TV3DnSeEQ7fKP263koXbLJVIOfiIxrExB85dU1jG+QDp0E0+i9GV8QomJV2db1RGVsAywHDhmOnwC9y259HvaJojaSw6c1a/W1eT61iE9bLZ5hsd4DVp3FuyaOKS5TfLKH3i5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765807175; c=relaxed/simple;
-	bh=F/G/9D/MfKM0tJrztBRflOEn1hJgcQ9gnt2LlbM8maA=;
-	h=From:To:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=iXcmyszp/Uavl39j/aT06jwr7c+0WUelAfz27GU2rgu5FO6gi9tCVc49Pa2dGmXPjJvyLBrdYvAam7WIOWAmUvVZkteStYnrM1ZQa+HiyK+MMb0svVJrVI8OHP2XhrrnWSJY4Qe82S5jvGRJ0atT0wOPJxyeofw0UQvSjZpzyGE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yp/pMdAs; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1765807904; c=relaxed/simple;
+	bh=9UhOxOYBAp/VSDR6aFOh9tRFhqEK+BtNWnc9VPwKxA8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=hXMXN9eowVQkBKwJQf1NH+JC2BjjBISWG6NxW4NziXAsBfdfMi/E1dWY48SIHGdK6zTsPHtMLK1FWbqYg9vIgZj26LwdjtRaQcE3YHRE9hcfRpYRwaV0++FXRmf7QdfeFqgogrcB8l/Tyl0meexH4piQ9qk1Dmd2HCYTKfqGiiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EGkK609E; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yp/pMdAs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77C7EC4CEFB;
-	Mon, 15 Dec 2025 13:59:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1765807175;
-	bh=F/G/9D/MfKM0tJrztBRflOEn1hJgcQ9gnt2LlbM8maA=;
-	h=From:To:In-Reply-To:References:Subject:Date:From;
-	b=Yp/pMdAs8qpvfkWrpXzDYmo4xrzmz+SzLR2HCgK05ukKvTVlrpAecmEhbUr0krhPD
-	 Y9+arISqYmJw4nv32BN5dzwtpNjGaE7XVQ6+yWKvA4A+NjqZ2SetCZL2gBCrscz9vh
-	 wDo7ZNi7crnMHJQZkQaidxnI1EhbtcsXTIKOjN+G37QD/tKG4VJMQaKf1mmuxeCDN9
-	 alUv0X19Vat8lf7wJysqHicI4jXwBrX0tqa8ZQjxAYYNi+l0WvEZ7+9E5h6whD5MhG
-	 REjRy7a2lKXT2L06Z5tKtQh963WgaTYXNXDYJf9XCLD5lfh9bMGnqnRCY+UqyWmxdU
-	 wFLhnZL+Fyyfw==
-From: Mark Brown <broonie@kernel.org>
-To: Haixu Cui <quic_haixcui@quicinc.com>, virtualization@lists.linux.dev, 
- linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-In-Reply-To: <20251208020830.5225-2-krzysztof.kozlowski@oss.qualcomm.com>
-References: <20251208020830.5225-2-krzysztof.kozlowski@oss.qualcomm.com>
-Subject: Re: [PATCH] spi: virtio: Fix confusing cleanup.h syntax
-Message-Id: <176580717392.161463.3784278976785359258.b4-ty@kernel.org>
-Date: Mon, 15 Dec 2025 22:59:33 +0900
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EGkK609E"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1765807898;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=J90UfQNlZ0RUz7+pu7rYaBkTu5UsQkqFR03KijVsXMk=;
+	b=EGkK609EQ2DZ7eW+iL23x4x0JGH7YeMHk6HR7g4jGKC06o1BDR2HvtYKqmXwPwYJ5w9pKO
+	IRoYVeAe26ge0kgU3UqQGWkmEQrGNLb+fELkzIwkGZBSmOHdpLPicZqf6oYxFRNpmqeGJc
+	P2fAoCqJCG9/CEIiKesl9afOugnU3Tg=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-669-1a4nOGTCM9OfO0Yo8bQr3A-1; Mon, 15 Dec 2025 09:11:35 -0500
+X-MC-Unique: 1a4nOGTCM9OfO0Yo8bQr3A-1
+X-Mimecast-MFC-AGG-ID: 1a4nOGTCM9OfO0Yo8bQr3A_1765807894
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-430ffa9fd7fso414979f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 06:11:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765807894; x=1766412694;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=J90UfQNlZ0RUz7+pu7rYaBkTu5UsQkqFR03KijVsXMk=;
+        b=EsM45/XmQDFuBGadc4b3YrqMnfc4tBidqthkAG22nxMlBsTZLkyLOUgOaACqxtRZTj
+         pmrzy9f4cjMpxd5KxHuL0Z2lzjKnK84aiu8hzz7VHIUwsMzRBUcClpJ72FxvMP4h0mUa
+         H/Jbnet/z4rwDzdgBTt4c3wKrGOFG+5336Hn6BQJIGFfyd9nDRaET1Otg1tcJbexH2oZ
+         QweXkDLjNPmnILaLV3zNJjUupKKGqLVV68iZr3/oQdSX/2HeMMBCOx3WmztzVDMSAkqY
+         UfNhZKXU5P1eFZ5SIqFgaF0luD0DKVCZDM1tafgzHrhDVQpH3/wLOjgHXYUkPi4Iqqjd
+         5ECA==
+X-Forwarded-Encrypted: i=1; AJvYcCXWaj5REFvNApHXqsWPUN6sym7lx5vdXAO3w2EpO1xCNDzA78pKTS0ExOKyZMyyMvRWm1c/2qufjFrBLdrC7w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwMrCEvx0RTRNCeISGWqCh53WInCU0XH2pw1TecImWBycaMFcxi
+	cW3llx4644T3QjivdC04+swUsvpWTGDN6Be+BgsrATj10bOyKU74yXcBXZGITVvPF7QWKInhxOV
+	4VGwCofHp2fPFbEdvR/+WBimAKNaoLDSXSp39DBhAvxbAlkIMl8xAC34zAWYTPWQ5YPwB
+X-Gm-Gg: AY/fxX4bbAb5QpDNda4Qll+4FgH3k6emPSFYvo9hIcRHYAwTzusBylS5oddlEzdO7Oe
+	eI2OFwbi1CMtsl2+GEoUeUSsV2biE3Z3vwnqkzZkzzNhnKFnGC3cEBw1Jmy0NKgVJC2UlZK6ymG
+	yBSNx9HitGJk9kmKuUOSiIOfB12c7JnEqfzpT73Q2HyGECP2sOWX2c+VEPQUusXnlRx9qoqsu8n
+	PW9kIZN5EBbdDX3oYJnPmmwDzAuLJpOJppfxQ0j+Zl44uAdnf3klNd6jVH73B5XriInOa5u9HWO
+	ZWAtD0u0fQLlGTWMgf3vbp0i0eFVZraKQoEHDWf2HGKDP3n1JSAaaD1YGu54xQF8FxB6jt6opoW
+	BTRChUCBUFHfZLY+l
+X-Received: by 2002:a05:6000:2909:b0:42b:3b55:8929 with SMTP id ffacd0b85a97d-42fb44bb495mr11365689f8f.19.1765807894129;
+        Mon, 15 Dec 2025 06:11:34 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEjJ8SuWUiguDFoeMlrC0RUXN9FuGWx/+8j2dVxYD6YOL63XnaR5zt7GAKfr25wYST/+i8ycQ==
+X-Received: by 2002:a05:6000:2909:b0:42b:3b55:8929 with SMTP id ffacd0b85a97d-42fb44bb495mr11365608f8f.19.1765807893485;
+        Mon, 15 Dec 2025 06:11:33 -0800 (PST)
+Received: from sgarzare-redhat ([193.207.203.161])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-430f984a268sm9673818f8f.1.2025.12.15.06.11.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Dec 2025 06:11:32 -0800 (PST)
+Date: Mon, 15 Dec 2025 15:11:22 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, kvm@vger.kernel.org, 
+	linux-hyperv@vger.kernel.org, linux-kselftest@vger.kernel.org, berrange@redhat.com, 
+	Sargun Dhillon <sargun@sargun.me>, Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH net-next v12 04/12] vsock: add netns support to virtio
+ transports
+Message-ID: <uidarlot7opjsuozylevyrlgdpjd32tsi7mwll2lsvce226v24@75sq4jdo5tgv>
+References: <20251126-vsock-vmtest-v12-0-257ee21cd5de@meta.com>
+ <20251126-vsock-vmtest-v12-4-257ee21cd5de@meta.com>
+ <6cef5a68-375a-4bb6-84f8-fccc00cf7162@redhat.com>
+ <aS8oMqafpJxkRKW5@devvm11784.nha0.facebook.com>
+ <06b7cfea-d366-44f7-943e-087ead2f25c2@redhat.com>
+ <aS9hoOKb7yA5Qgod@devvm11784.nha0.facebook.com>
+ <aTw0F6lufR/nT7OY@devvm11784.nha0.facebook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15-dev-47773
+In-Reply-To: <aTw0F6lufR/nT7OY@devvm11784.nha0.facebook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: hmTSTg7NDAFak9ExbqVp-K7-fuu1nZi4lMzk8fkG8Kg_1765807894
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Mon, 08 Dec 2025 03:08:31 +0100, Krzysztof Kozlowski wrote:
-> Initializing automatic __free variables to NULL without need (e.g.
-> branches with different allocations), followed by actual allocation is
-> in contrary to explicit coding rules guiding cleanup.h:
-> 
-> "Given that the "__free(...) = NULL" pattern for variables defined at
-> the top of the function poses this potential interdependency problem the
-> recommendation is to always define and assign variables in one statement
-> and not group variable definitions at the top of the function when
-> __free() is used."
-> 
-> [...]
+On Fri, Dec 12, 2025 at 07:26:15AM -0800, Bobby Eshleman wrote:
+>On Tue, Dec 02, 2025 at 02:01:04PM -0800, Bobby Eshleman wrote:
+>> On Tue, Dec 02, 2025 at 09:47:19PM +0100, Paolo Abeni wrote:
+>> > On 12/2/25 6:56 PM, Bobby Eshleman wrote:
+>> > > On Tue, Dec 02, 2025 at 11:18:14AM +0100, Paolo Abeni wrote:
+>> > >> On 11/27/25 8:47 AM, Bobby Eshleman wrote:
+>> > >>> @@ -674,6 +689,17 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+>> > >>>  		goto out;
+>> > >>>  	}
+>> > >>>
+>> > >>> +	net = current->nsproxy->net_ns;
+>> > >>> +	vsock->net = get_net_track(net, &vsock->ns_tracker, GFP_KERNEL);
+>> > >>> +
+>> > >>> +	/* Store the mode of the namespace at the time of creation. If this
+>> > >>> +	 * namespace later changes from "global" to "local", we want this vsock
+>> > >>> +	 * to continue operating normally and not suddenly break. For that
+>> > >>> +	 * reason, we save the mode here and later use it when performing
+>> > >>> +	 * socket lookups with vsock_net_check_mode() (see vhost_vsock_get()).
+>> > >>> +	 */
+>> > >>> +	vsock->net_mode = vsock_net_mode(net);
+>> > >>
+>> > >> I'm sorry for the very late feedback. I think that at very least the
+>> > >> user-space needs a way to query if the given transport is in local or
+>> > >> global mode, as AFAICS there is no way to tell that when socket creation
+>> > >> races with mode change.
+>> > >
+>> > > Are you thinking something along the lines of sockopt?
+>> >
+>> > I'd like to see a way for the user-space to query the socket 'namespace
+>> > mode'.
+>> >
+>> > sockopt could be an option; a possibly better one could be sock_diag. Or
+>> > you could do both using dumping the info with a shared helper invoked by
+>> > both code paths, alike what TCP is doing.
+>> > >> Also I'm a bit uneasy with the model implemented here, as 'local' socket
+>> > >> may cross netns boundaris and connect to 'local' socket in other netns
+>> > >> (if I read correctly patch 2/12). That in turns AFAICS break the netns
+>> > >> isolation.
+>> > >
+>> > > Local mode sockets are unable to communicate with local mode (and global
+>> > > mode too) sockets that are in other namespaces. The key piece of code
+>> > > for that is vsock_net_check_mode(), where if either modes is local the
+>> > > namespaces must be the same.
+>> >
+>> > Sorry, I likely misread the large comment in patch 2:
+>> >
+>> > https://lore.kernel.org/netdev/20251126-vsock-vmtest-v12-2-257ee21cd5de@meta.com/
+>> >
+>> > >> Have you considered instead a slightly different model, where the
+>> > >> local/global model is set in stone at netns creation time - alike what
+>> > >> /proc/sys/net/ipv4/tcp_child_ehash_entries is doing[1] - and
+>> > >> inter-netns connectivity is explicitly granted by the admin (I guess
+>> > >> you will need new transport operations for that)?
+>> > >>
+>> > >> /P
+>> > >>
+>> > >> [1] tcp allows using per-netns established socket lookup tables - as
+>> > >> opposed to the default global lookup table (even if match always takes
+>> > >> in account the netns obviously). The mentioned sysctl specify such
+>> > >> configuration for the children namespaces, if any.
+>> > >
+>> > > I'll save this discussion if the above doesn't resolve your concerns.
+>> > I still have some concern WRT the dynamic mode change after netns
+>> > creation. I fear some 'unsolvable' (or very hard to solve) race I can't
+>> > see now. A tcp_child_ehash_entries-like model will avoid completely the
+>> > issue, but I understand it would be a significant change over the
+>> > current status.
+>> >
+>> > "Luckily" the merge window is on us and we have some time to discuss. Do
+>> > you have a specific use-case for the ability to change the netns 
+>> > mode
+>> > after creation?
+>> >
+>> > /P
+>>
+>> I don't think there is a hard requirement that the mode be change-able
+>> after creation. Though I'd love to avoid such a big change... or at
+>> least leave unchanged as much of what we've already reviewed as
+>> possible.
+>>
+>> In the scheme of defining the mode at creation and following the
+>> tcp_child_ehash_entries-ish model, what I'm imagining is:
+>> - /proc/sys/net/vsock/child_ns_mode can be set to "local" or "global"
+>> - /proc/sys/net/vsock/child_ns_mode is not immutable, can change any
+>>   number of times
+>>
+>> - when a netns is created, the new netns mode is inherited from
+>>   child_ns_mode, being assigned using something like:
+>>
+>> 	  net->vsock.ns_mode =
+>> 		get_net_ns_by_pid(current->pid)->child_ns_mode
+>>
+>> - /proc/sys/net/vsock/ns_mode queries the current mode, returning
+>>   "local" or "global", returning value of net->vsock.ns_mode
+>> - /proc/sys/net/vsock/ns_mode and net->vsock.ns_mode are immutable and
+>>   reject writes
+>>
+>> Does that align with what you have in mind?
+>
+>Hey Paolo, I just wanted to sync up on this one. Does the above align
+>with what you envision?
 
-Applied to
+Hi Bobby, AFAIK Paolo was at LPC, so there could be some delay.
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-next
-
-Thanks!
-
-[1/1] spi: virtio: Fix confusing cleanup.h syntax
-      commit: e6268db46c173b18e5b2f4fc0c8a5c0aaaee61ea
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
+FYI I'll be off from Dec 25 to Jan 6, so if we want to do an RFC in the
+middle, I'll do my best to take a look before my time off.
 
 Thanks,
-Mark
+Stefano
 
