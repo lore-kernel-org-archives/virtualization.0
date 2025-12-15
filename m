@@ -1,66 +1,66 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E79CE33033D
-	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:39:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98FAD330336
+	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:39:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798756; cv=none; b=kl3BVT+ZMqO76ly7ivkQO19WryEEpd0MpHmdVoQTUhqtwvFJDNFNsAL8oNz2VQzvG4yGL9r3x1h9vBzMcEn8G//qMr+huYv8DxC+aEf2NltcgaRw/S1Q1rpMGPl9O4HDFXA265NxSSABx1F6O8O70rf8IE4FIjPkyEtkiKbYUbc=
+	t=1765798757; cv=none; b=pY+fMfNgKW9jTGH+/6TCP1hybRuKi5PzLdf3iM7G+Y75yjT1fLjO2k8GifRM0fuO650hakK6TZkd/FVa5vq1uaa+GNXUKbDz+B9OTupx/BG8CNKMzeS1f7Cfl7dFOAabyJKFtn0ikGlE+jJ1VdjKYqsG5XhtAS9h69VHnLVo7SA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765798756; c=relaxed/simple;
-	bh=mcnZ1soLgF/JTT1YuxC/XOQhVy9SZYDoshinxHejwDU=;
+	s=arc-20240116; t=1765798757; c=relaxed/simple;
+	bh=sT1prVB7LRNvf/W4XodTbc9bjm2B3700BxVWkrXUues=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IsxypBZZywD+7+a6DaT7BfNWiAFU/vn2nk//hcF7yES14sHnVvobKIQs25jZlB7kzEW9sqASYY9ikMQ7Jm353mKBGNYAuOKzB+OQ0L1HfHMOBHwWlwT96fTYaKfHJqGbyJwGYLkkmJn6Duijrb+/AOjt6kHlsZ9Z+fMZWxGaZzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FdBftdP3; arc=none smtp.client-ip=209.85.210.169
+	 MIME-Version; b=bAkqymz+uqsS1W70FyuyhSJ8LzmnoHNOEeuehjuvDiziT7LsZanRoPswCyHLYVKrmWCnEx5987mJm/vGOXoi87DVFmr1DZHxO3Ai/oSWD7r+R3Puh++ifpHHnWM02WEoPKOdUip3NwTULtCKZX/X0gvtegZM6nlJBh5OSnAE3ec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mOVr9z+D; arc=none smtp.client-ip=209.85.210.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FdBftdP3"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-7b80fed1505so3224683b3a.3
-        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:39:13 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mOVr9z+D"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-7acd9a03ba9so3571854b3a.1
+        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:39:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765798753; x=1766403553; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1765798754; x=1766403554; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lORwJoeOdmqWvp6Gaq9g1tKkad6KEP5mAC3mejLEu6E=;
-        b=FdBftdP349nLejfls6LKo/rM4kB8Y+a9rr9Spq+3G67gCTYqJHPeThSAxszWUy+4pl
-         pa5ZvhQBmgnLM+nADC6z4h0cj2c/TWh3XaAqwYdRmIYZ64nIXuVoJ/oATI7K+SUnrzFL
-         jyyGLoCIjhWoOAZ94xx/Vr8ajphT9rAQ7v2ntDsXmyvumMbjgOR/CWLehLA1+sE2hxA2
-         k0eDoN7nB76GwxJvj2cTrq9l//fHgNfv0ePLg7XQITKd81MqYd+4jWRIPMg76LzNSIM7
-         qs2eXSUCrkZ6TNaNWPtAsTqvyiCNtF7j8LADVDJbAz2X1OiAoKhmBKXg2bmOnSoEFfeF
-         WQYw==
+        bh=yYIA++CxPIcYPKgHl3oGianXtJJpe/hDcX33067gP64=;
+        b=mOVr9z+D5wWQVWK/7MroT/Zk1316UNy+HkMlvC3xpzyMOH8FjcXMF+BacINLcdZcdS
+         7V3wc685fhMabJIuJ8sEwaNUZRx+uJMAQn7yHQ8WHf+NVbvEBpxSK1TkudsJh+G4G8pj
+         x19DKTE5ypeJ3T+PEGC2kq5X1hfr5Ci2W5kvqNxrev8HYNUghoQFM+Eia0FwI37lk0Q0
+         wjQdNCi/MEe3AWoumq1ReDlg9xCEkVO7cltlJKcVy+09PDCqWgYapimGQp5xDOp+8Ltf
+         6lpxy3YqeaCEY8ID6MX+/XUv6Bc/H4vK5yiuM6nx36j7pcJ8BxCrOIZDkrBl9Zf9JmAY
+         3uYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765798753; x=1766403553;
+        d=1e100.net; s=20230601; t=1765798754; x=1766403554;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=lORwJoeOdmqWvp6Gaq9g1tKkad6KEP5mAC3mejLEu6E=;
-        b=MecXW85pAoijlw5Es91sy9bhLeQVuBVKPbk/+a72qJa4OSjmefzjPQo9Ob2qVnd9iO
-         iSQ5M4YSX/RWA87cfSl1AG1UhwpeYI9o3nXgSjiQ8m55042wmOsw/rg2AGol4pW4rhZi
-         +SqwpdSraYhQN0gJ3OqUnzpq1pN7QGPx6WfsGtjHXNvpHk7KYo7IgAW9BOAkzWkk80YF
-         ujOS0pNeFbWO/+a+LMmXc/hC+tkxV4904zr3ldRFfqAeBuJG583wr4c76hwNZ+3gBoGY
-         JVIWmPVJwE5Hjd0/BBbq9jDKLN7e+z5gCgA6jbqo7uX5XHtlwon212A/pbVJPz+7dvaN
-         miFw==
-X-Forwarded-Encrypted: i=1; AJvYcCUxMgZH+oDt4E6sA4xmLOo6nN6MANRU6U8R+Kka7R9Yv34ozlJvwHl16rslO4DCbJ77zsMEFW1cUCiZJXdd2w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz6+EDFV1LL0fM0vNhNZsJfKHQEUZTB6bVufI7eyqJSmoUzAmr2
-	wgX0QQl9kGTUPrYtAwGvITTricxMQH+zYxa17AXG2Y87g2LGBj3U61L9
-X-Gm-Gg: AY/fxX7gMl97RJ0Dc3i9W8wDgPVgnZySpjhl4iM+cFJml+T1Wfeh8i4NS2uJ5Vi/Fgi
-	sA0qqThN5yOUUsiKhBM41p34GN9Ot2sE6PUXa7+4CnNLyJ0OPS9qYwJC3reFvmdhS5bKpQl+8bQ
-	muqiavb68k1bI/WCvoumZcChurg+YOpCwUTYKfBEWL5ozARwsNsP+3IlfMmaMMyV26A1w1lWrXS
-	3DymNyI8TTyLPdjThVn8gTvvVol4UIUnqqNWpUL8V6ITORdBrBEOaW/+tyJ2wZiIBDiWNfI82ko
-	rHnHLI7V3TCAr7+2+HFF72BFIvut3CrJwtUsYi+B/NtReoWOMWTCseB6++l7JPQzz0+LbJdLtQH
-	zMInjZ86H0NT04di4Ld7skFkT9EmsoxXwkbGg8GLOqtah/PFbmHXmbmdbk8foXybPp4ts47YagO
-	1QEn5m8afyNGE=
-X-Google-Smtp-Source: AGHT+IH43ZxDlO+sXZpKsRY9ws0CLb4ZSMlMGi8iin8W4Uc9EL2/AE6hhR6bEKC++ztievLapVcsEA==
-X-Received: by 2002:a05:6a20:6a28:b0:364:387:8f4e with SMTP id adf61e73a8af0-369ae490337mr10620715637.34.1765798752795;
-        Mon, 15 Dec 2025 03:39:12 -0800 (PST)
+        bh=yYIA++CxPIcYPKgHl3oGianXtJJpe/hDcX33067gP64=;
+        b=H33cKVQPxSosCYFGeCZDGBwgtpvyCqHoQLddwEcY+5kPvL1CQwkCzB+d/11U0gwU4u
+         XuKu5JKQl5TcaGbqPAD0O2xHGMk79wumczrohnktPtCJhuW6kqtaUbMA6FBWrkMWGzZ2
+         qXlAsdArYvb6ouAFegn0NH4MujZfL94qbpqKoJVE7eN0saHAjIUpo0OEmsH48y7BvP5p
+         UEx89o4Z8DasOah/EcmxwQPQ7j/mEF0Pv7bArqcB+YEIxM/bAxtvfkvX7vNycLeRZJUR
+         MCZsmSYV+8+s5lxEPv3SNmTFG5tUhW8vUGg8zJvL4iF/MMBrxRVMy74PynuJINgWOOEg
+         alMQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWK74PTBnFeBf5mEK8ZkmCmY+Usn0eBd0HLGJWDhpg2Cb2Dj3pyhcDjGyCckVVMYd2vRsQx6XSig3EYR389XQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwjAGyp0ncsOiBuuuSOtZwsFqzKaXO6gdB1wOdBTy0JAyRwyzsF
+	6SvGzuElq8I1hDASLdCTxWD5vs3Zju2DSO/MWK1GRVS3KfIkcYG8Fu+z
+X-Gm-Gg: AY/fxX78kThgZAM7fSPkdxNQPfO8IRLdTjRqh2d4IFssOifIhiWdDeEPrwjvP8iB239
+	THnhDTPffWlz0j2T5oScd+P8nsO1+3csqiS3Yfb8UmPjsze279+IHge5pmOOQR/00PPqFUKVLR6
+	aOGUe/gGt6wPKIpPKApepy6j0BL2ED9Mwf0UBsfgm4VYoD85n1XokezKmjnAjxrDMMfKPUdCRKq
+	3TTK2BFtiqmcUb+nxTt/1ybSHjHggkirQf3i8PySX0SS6acmfYHAEdLY9R+S5Qj2+XMgsZCtKrU
+	zEt9xhoB29jCgmjnmp5547cWVYvM8o7wxK+DyQv2ir+Dz0LS4mLsvIU1In7FNQgXYGA+dTHVblk
+	tJXZgx3rT8Pxa7IVsxZ9Jeht97iFPad8c3me/DBLz+7/zt/xzP0vzHVUF4d+BLc1jZSQ8H+nFmO
+	N31EJoG70fs5w=
+X-Google-Smtp-Source: AGHT+IHZqxApH7RH4SvWeJJw7f7kzbBWfG87+pyKENlTOJ0etjJH+97jX9IVf9ZouLQDPcaXmCZT+w==
+X-Received: by 2002:a05:6a20:3d8b:b0:35e:11ff:45b4 with SMTP id adf61e73a8af0-369adfb3407mr9418258637.21.1765798753761;
+        Mon, 15 Dec 2025 03:39:13 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c0c2ae4e3casm12755809a12.21.2025.12.15.03.39.11
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c0c26eb0f6bsm12221315a12.14.2025.12.15.03.39.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 15 Dec 2025 03:39:12 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id 811FA444B394; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
+	id 70D25444B393; Mon, 15 Dec 2025 18:39:05 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -148,9 +148,9 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 05/14] mm, kfence: Describe @slab parameter in __kfence_obj_info()
-Date: Mon, 15 Dec 2025 18:38:53 +0700
-Message-ID: <20251215113903.46555-6-bagasdotme@gmail.com>
+Subject: [PATCH 04/14] mm: vmalloc: Fix up vrealloc_node_align() kernel-doc macro name
+Date: Mon, 15 Dec 2025 18:38:52 +0700
+Message-ID: <20251215113903.46555-5-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -160,34 +160,35 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=849; i=bagasdotme@gmail.com; h=from:subject; bh=mcnZ1soLgF/JTT1YuxC/XOQhVy9SZYDoshinxHejwDU=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4P0Tdf6vI2dt8iwUrrPLU6ToytxCmtRXso3wY/50 fGG9Ws6SlkYxLgYZMUUWSYl8jWd3mUkcqF9rSPMHFYmkCEMXJwCMBHZKwz/nVbIB4ee2zunpOHQ vBz35Ga7xwYL3V6/ES+tt/jmsMTsOCPDXNsiGd24sMjVrB9Z5rD2NZvPm8/+bp/rS8/i2IdH8rc yAgA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1025; i=bagasdotme@gmail.com; h=from:subject; bh=sT1prVB7LRNvf/W4XodTbc9bjm2B3700BxVWkrXUues=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4OyyibMaS/TcJdL00op76xZei7L2Pv7hFORU9uuV vT80n3YUcrCIMbFICumyDIpka/p9C4jkQvtax1h5rAygQxh4OIUgInIP2BkeHzeo3teoLm8pE9N cXOPl0J5QO7s9Yesjvev3nrjTaKBPiND/5K7Lkx+c2t1WS5sWq6V/2tGhSPf8dA5nnLdX2fcuhb OBwA=
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
 Sphinx reports kernel-doc warning:
 
-WARNING: ./include/linux/kfence.h:220 function parameter 'slab' not described in '__kfence_obj_info'
+WARNING: ./mm/vmalloc.c:4284 expecting prototype for vrealloc_node_align_noprof(). Prototype was for vrealloc_node_align() instead
 
-Fix it by describing @slab parameter.
+Fix the macro name in vrealloc_node_align_noprof() kernel-doc comment.
 
-Fixes: 2dfe63e61cc31e ("mm, kfence: support kmem_dump_obj() for KFENCE objects")
+Fixes: 4c5d3365882dbb ("mm/vmalloc: allow to set node and align in vrealloc")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- include/linux/kfence.h | 1 +
- 1 file changed, 1 insertion(+)
+ mm/vmalloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/kfence.h b/include/linux/kfence.h
-index 0ad1ddbb8b996a..e5822f6e7f2794 100644
---- a/include/linux/kfence.h
-+++ b/include/linux/kfence.h
-@@ -211,6 +211,7 @@ struct kmem_obj_info;
-  * __kfence_obj_info() - fill kmem_obj_info struct
-  * @kpp: kmem_obj_info to be filled
-  * @object: the object
-+ * @slab: the slab
-  *
-  * Return:
-  * * false - not a KFENCE object
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index ecbac900c35f9c..2c3db9fefeb7ab 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -4248,7 +4248,7 @@ void *vzalloc_node_noprof(unsigned long size, int node)
+ EXPORT_SYMBOL(vzalloc_node_noprof);
+ 
+ /**
+- * vrealloc_node_align_noprof - reallocate virtually contiguous memory; contents
++ * vrealloc_node_align - reallocate virtually contiguous memory; contents
+  * remain unchanged
+  * @p: object to reallocate memory for
+  * @size: the size to reallocate
 -- 
 An old man doll... just what I always wanted! - Clara
 
