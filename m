@@ -1,107 +1,210 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96ECA312819
-	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:25:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5DB5330322
+	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:39:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765797961; cv=none; b=jhVkNJL3TU54z1Ovlno8hpDApoy99NND57EImrPmtucIsBcnlt35Z9YqAKJRJ0iU259C85LzvpEvoCTSjNZlNRGsmBg3P3w8rQ7rannTkz7GhYPDya4cISvZKxJBG7cvGPxIx8clIK0it8jZBZ8rWDdhxgLGgZO1Bs/+SvT6fAI=
+	t=1765798754; cv=none; b=j0t2UDh5R7+V50novM4cwsusTMOA3KLMshTzC+guMn30gT+7Y+iF1CC2DrH3Xxxq+FZ9zikNDIJNBir1M2TWC8Jvtu339LBcbTj2PJsWIEGAbp3frB1BfzllXKYQ1IXVmdAuh49VkzRlMEuu+cMeIbLAB+8YQ7JbS9IEiFPk3xI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765797961; c=relaxed/simple;
-	bh=eS5Yk3WsjQ01y+LN+SGf9F1HoK/gz/CC55YPeGSjF08=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ny3sQDVIZ3hqbJM5kZZrF4HaRIQsQG5iVU3s3WGiCSQhkgq/chtgFliHwM6mSYGRk0T4kYL8B1UFiMzbGNXccWJwFqzglj+CqjlnNhRCz/0gFAB3yjesFt5136aKqZGimELPHcwC+TQUJm890IXlpbGcScmhgtDQwhT3jG3pWGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com; spf=pass smtp.mailfrom=isovalent.com; dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b=ggUIlXwE; arc=none smtp.client-ip=209.85.221.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isovalent.com
+	s=arc-20240116; t=1765798754; c=relaxed/simple;
+	bh=zPsruu4atyDYOaQCsKIEqnFkDKfYqb53HHp2txNqt3A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OZgbqTXOTyoyoD1sr1pX6vJhgabnlaO2zC6u7QWcBlYywUiBmcbDrULvttvpBsQc/qhs5TKV8TLivzhYt+fP6RnJZm5Qevs75TSt6APmv4IPROSXMGk3wFFRmDY+vmxD1Mhs/oBOn8pwHprwiLwLpnmGdJVH3+9I0h1z1rGxNx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZT0MUkqR; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b="ggUIlXwE"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-430fbb6012bso747815f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:25:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZT0MUkqR"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-34c213f7690so1777809a91.2
+        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:39:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=isovalent.com; s=google; t=1765797958; x=1766402758; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eS5Yk3WsjQ01y+LN+SGf9F1HoK/gz/CC55YPeGSjF08=;
-        b=ggUIlXwEZXSW5KMP9xCdWQXb19nCcbTevsqjoc3ICfCT9Y/KrJCGpYXA7pH0rSNE2Y
-         gcA9uQYPkwGwBB6TEpjgVQGYoM6uEO9vLtEUk3Di6UJ0+xAvGAbjEuxZB9+nForSEwGp
-         yxGGoM6lX6N3403Z2iIPL0VFSx9hX5CVmGir4zBWTe9mGQsa+/2cLZMbvtibxZMP9JeT
-         CqRlshX+vlIjHMzM5Su5X+A7VnsXaB34EWE/UfRUHSHKPbj/aoXa3zt+9opD1LDm3Wan
-         4/ofl7iqN+iMaRxikWXEk0zYIv/fixW6pIgMb8zNIogA493WmZga7bup67SGejzp1LqZ
-         Ob4A==
+        d=gmail.com; s=20230601; t=1765798750; x=1766403550; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rTcY4k7PJNNctnILuEp0lcvqj1X2scOTc/Z894ZNYfE=;
+        b=ZT0MUkqRIiA/E6pN1nkR55BWECEckFI4Y5OEHuNzh0eMt0RuQzZV4y/ZsJ0TzNEaK8
+         ETFL6ABeCpYhn9wNSyFhlsdBhqWmPm2zesTzhUwXaBIKAZw7a9ticXBNRlnSmX27l53f
+         70nYUw/1knQ8Gg+U+XKoFLBsZ+pRVh/OPRCvV7RjRtATdCgrbX62DK2ksiP0x1PvGlzS
+         Eetm0jmz6yCBxTMqxp31DkMk9OCS97jwzbc+xczBVTagrkUH3gWbOP6oAvlYs/i+Wr38
+         L8lCXy6QzQMfkRh/Q4GgfaRNk/ENuHps0VCg9zyB02VbyMj0qcjpfqYcqzMVIn2Hubmh
+         oXBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765797958; x=1766402758;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=eS5Yk3WsjQ01y+LN+SGf9F1HoK/gz/CC55YPeGSjF08=;
-        b=u/QdpDYuPOmNxRkVTnsaW2ziJ1yv4NQDE6iyd7ONSk4Tb3hYedWIz1kzG8nBr1fiFG
-         wVSTWR0otoLrAC52UxjHGtWBgobUXUH3n/lpz5HwYLJ+S9BTbakDFz8XqbUEYlbY/hjY
-         prt6qKhpAul8oYsL+amIxMTfs9bPwTRwfJ04BjQaKcgujJt4qs18P/1ApLycnUACnohW
-         Y7DG9yAEqKp4ZuWuYAQ2nBtFmcFpfDlcryuPQKEmT8KNyEY6qIRPir03OjZe/YZUqz8t
-         f4EPWfU/6Bdw86DQ5bWsctmyO8AWn9orRxGu3wWPdlY83cFxBzSEIdcKhEG45NouqOUb
-         Db0A==
-X-Forwarded-Encrypted: i=1; AJvYcCVeihyiF8iUE3Xxz2fa/YV/llIRsSMQlA8m3VjujFxQIko+L+C/szB/n8wdXpUH16b5VHR3VxEBL7XeyvWqjw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz7jnkSOT10ib/KweOFce2arEHPIIOKMsOjYk1APnmRclxaKoA3
-	RJFLXxrvo2VVfoFrIOUk5v4WuKU1KRBKWFt9FumeEmqwE4ZyhHCenITP+SKLCEkc6B+KaOcJ4PB
-	VooeUNPRIR+KekF17L7TsgZ5O22YqSU1dBPDnqmVuCw==
-X-Gm-Gg: AY/fxX7q1wLKHhCMfMN9m5q7DyZY561LyU1IwdB1q8idzWJrzXwV96Q5y6kyGiG+UQ5
-	Q8Oidj8GIxqW/jiir8AIsHO/xgxkxbuVQ2mKcPLrukEQBGxEUFA2Rv48l3lFBv5bNj9r/xR7h46
-	vYFIFah5NMoOVzms6RxIwg2eULsRMTYBGH5sya5C8KtACHsymeqOBhyzPnnJIZnuSMxm8KFaTw4
-	BvQ5lFunnA3OtlNYXM0j5ifBVLxlS7WWHwaI5BaOEgsImvbShUvZ+CpXIEBu0DW0vgLQ/jY4NVt
-	tQiNyRAF
-X-Google-Smtp-Source: AGHT+IGpTEbxFK2lbEctOBKa+eg6LRSXnvQzjEerfHMFeh7BccrYevClP/yesjW8S2VYrdlQoKulhkn5RWUyk6KLBnI=
-X-Received: by 2002:a05:6000:2881:b0:429:d6dc:ae10 with SMTP id
- ffacd0b85a97d-42fb46e2cf5mr11339129f8f.29.1765797957904; Mon, 15 Dec 2025
- 03:25:57 -0800 (PST)
+        d=1e100.net; s=20230601; t=1765798750; x=1766403550;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rTcY4k7PJNNctnILuEp0lcvqj1X2scOTc/Z894ZNYfE=;
+        b=i755pdDTKet3/ASBJUCoHR7BijwJd8LvOGdCP34dxGrMAkkhOttzGPvF75V5Mn6ad7
+         08k06YSWGg3saemPEZMMxXe//TZoKpTsppdoSQ2vi4LAst/7aG/y6SPRtmYcJVhjzYmN
+         CsAqdsV6hwbUNVOl8oqnhzuEKLcI6ZIk0WZQoK9m6zkls50EIVjLOlcu+mMHT8WZe9uP
+         7AKaKoQzw3LrqdK4MpKx/yCjp3PXAG9BCApmeweaJEh0OzqZ00TARlBNmfoxK8Y806Ta
+         9itQk4ev62rGjV8T2gehff+SfdHG9+mStXBbmMRnV+SDvCgp1VssGOUw4FeTE5I5IkpI
+         XBfA==
+X-Forwarded-Encrypted: i=1; AJvYcCUxzclJxio7HerxgbD9cXSp0UO1k1Mtompnr5Zsh6RxcbiuuiIyNC40Gkl8pqXsXrknkDLt1QaOSZSJDHlNhw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz4MmPshjwC5ZRaL/w6Z9qpFOX9CrlmTj7dtLrBKUf4+skLISAE
+	AC3wXKR4+n/NkoXVgh7J3o3I/y/fgsss0s5YaMN5p2+wV/eqgfnFvvQy
+X-Gm-Gg: AY/fxX60Mm2Eihyr6YWher4tM4yaJ1CzSB5XYDpB+dlAhiGg2h1OKuYwwh7w2j5vGZj
+	mXlFDMqCrhI9L+zIZ5buKRajJp7PUdi7KaiYNs54V5YW53Y7i//DOKFUIZWw2tAZlJVCAFUuDvp
+	xCZQXHEdwZ66rfGvF4VyeL4a4R7aYj/6hQUvZDo0ET9MVbnkG9OXLyd1hCUBlfi1dMppz9sExZM
+	7rtBtbZ2fZlvWmCJHpJqZ5q2nJCmq1d+noKXMiiuSd8Pd+RMGm3e0/rBCpXbPjXiLAdt8t1KngZ
+	v1SGDyg4kEhuzYysDzDbESAUhOItMNQDxCs0CbBFaRZKcILvA3fkXRlw2kxwdP3QM+USSigtS9V
+	POT4JDLrdxlzsYRN/3cJgzCQwfun1P3QVPWgDalh6wvN5EafDMynC8Mk9VV9h3lO9gKpyGgMzNz
+	zgHJEr4le4j5Pf5q1mHc9sqg==
+X-Google-Smtp-Source: AGHT+IH7Y0ZP0SVYlRqXrzHx+fOVv/+/V5Bjimjq/e2I+okG90jQDlqbjW8VY0Em0JiciGGZ262G7g==
+X-Received: by 2002:a17:902:c402:b0:295:c2e7:7199 with SMTP id d9443c01a7336-29f23c7b8b9mr114062105ad.29.1765798749863;
+        Mon, 15 Dec 2025 03:39:09 -0800 (PST)
+Received: from archie.me ([210.87.74.117])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29ee9b3850csm133386495ad.17.2025.12.15.03.39.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Dec 2025 03:39:08 -0800 (PST)
+Received: by archie.me (Postfix, from userid 1000)
+	id AC75C444B38F; Mon, 15 Dec 2025 18:39:05 +0700 (WIB)
+From: Bagas Sanjaya <bagasdotme@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
+	Linux DRI Development <dri-devel@lists.freedesktop.org>,
+	Linux Filesystems Development <linux-fsdevel@vger.kernel.org>,
+	Linux Media <linux-media@vger.kernel.org>,
+	linaro-mm-sig@lists.linaro.org,
+	kasan-dev@googlegroups.com,
+	Linux Virtualization <virtualization@lists.linux.dev>,
+	Linux Memory Management List <linux-mm@kvack.org>,
+	Linux Network Bridge <bridge@lists.linux.dev>,
+	Linux Networking <netdev@vger.kernel.org>
+Cc: Harry Wentland <harry.wentland@amd.com>,
+	Leo Li <sunpeng.li@amd.com>,
+	Rodrigo Siqueira <siqueira@igalia.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Philipp Stanner <phasta@kernel.org>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Alexander Potapenko <glider@google.com>,
+	Marco Elver <elver@google.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Taimur Hassan <Syed.Hassan@amd.com>,
+	Wayne Lin <Wayne.Lin@amd.com>,
+	Alex Hung <alex.hung@amd.com>,
+	Aurabindo Pillai <aurabindo.pillai@amd.com>,
+	Dillon Varone <Dillon.Varone@amd.com>,
+	George Shen <george.shen@amd.com>,
+	Aric Cyr <aric.cyr@amd.com>,
+	Cruise Hung <Cruise.Hung@amd.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Sunil Khatri <sunil.khatri@amd.com>,
+	Dominik Kaszewski <dominik.kaszewski@amd.com>,
+	Bagas Sanjaya <bagasdotme@gmail.com>,
+	David Hildenbrand <david@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Max Kellermann <max.kellermann@ionos.com>,
+	"Nysal Jan K.A." <nysal@linux.ibm.com>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Alexey Skidanov <alexey.skidanov@intel.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Vitaly Wool <vitaly.wool@konsulko.se>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Mateusz Guzik <mjguzik@gmail.com>,
+	NeilBrown <neil@brown.name>,
+	Amir Goldstein <amir73il@gmail.com>,
+	Jeff Layton <jlayton@kernel.org>,
+	Ivan Lipski <ivan.lipski@amd.com>,
+	Tao Zhou <tao.zhou1@amd.com>,
+	YiPeng Chai <YiPeng.Chai@amd.com>,
+	Hawking Zhang <Hawking.Zhang@amd.com>,
+	Lyude Paul <lyude@redhat.com>,
+	Daniel Almeida <daniel.almeida@collabora.com>,
+	Luben Tuikov <luben.tuikov@amd.com>,
+	Matthew Auld <matthew.auld@intel.com>,
+	Roopa Prabhu <roopa@cumulusnetworks.com>,
+	Mao Zhu <zhumao001@208suo.com>,
+	Shaomin Deng <dengshaomin@cdjrlc.com>,
+	Charles Han <hanchunchao@inspur.com>,
+	Jilin Yuan <yuanjilin@cdjrlc.com>,
+	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
+	George Anthony Vernon <contact@gvernon.com>
+Subject: [PATCH 00/14] Assorted kernel-doc fixes
+Date: Mon, 15 Dec 2025 18:38:48 +0700
+Message-ID: <20251215113903.46555-1-bagasdotme@gmail.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251215-virtio-console-lost-wakeup-v1-1-79a5c57815e7@isovalent.com>
- <568c03e9-b30d-4655-8771-f8995f5a4ed4@app.fastmail.com>
-In-Reply-To: <568c03e9-b30d-4655-8771-f8995f5a4ed4@app.fastmail.com>
-From: Lorenz Bauer <lmb@isovalent.com>
-Date: Mon, 15 Dec 2025 11:25:47 +0000
-X-Gm-Features: AQt7F2ppCg1UxUWVFrNxxRZ7iZQ7757p2GrbRAwSqIYOXp8taw_DjKkJQZ4fjHk
-Message-ID: <CAN+4W8hzti6dtuNAEKGqkSXj5NiNhb54w+Kbq0kCHnW3yiXmLw@mail.gmail.com>
-Subject: Re: [PATCH] virtio: console: fix lost wakeup when device is written
- and polled
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2064; i=bagasdotme@gmail.com; h=from:subject; bh=zPsruu4atyDYOaQCsKIEqnFkDKfYqb53HHp2txNqt3A=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4MMm/867RRu9s/LeXucS+TRacFsjy3x8goRK//G7 Jyfu8O1o5SFQYyLQVZMkWVSIl/T6V1GIhfa1zrCzGFlAhnCwMUpABOJ+cjwP9rl0j2O1i3mgnEF j0tV/6z5nLTvdKmsJY/NvB286XtLTzEy7D+8+dTHe63Sb6bPXnHWT1NH5vPMzba75Xe45yw3OaR ZzAUA
+X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
+Content-Transfer-Encoding: 8bit
 
-On Mon, Dec 15, 2025 at 10:49=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrot=
-e:
->
-> Is it always enough to wake up only one waiter? From your
-> description it sounds like it might need wake_up_interruptible_all()
-> instead, but I may be misunderstanding the issue.
+Hi,
 
-Ah, I'm just not familiar with waitqueues, so that is very possible. I
-based it on
-out_intr(), which also only does a wake_up_interruptible(). So either this =
-is
-enough, or we need a wholesale replacement of wake ups? :(
+Here are assorted kernel-doc fixes for 6.19 cycle. As the name
+implies, for the merging strategy, the patches can be taken by
+respective maintainers to appropriate fixes branches (targetting
+6.19 of course) (e.g. for mm it will be mm-hotfixes).
 
-Nothing in the virtio console prevents a third thread from entering the fra=
-y and
-also getting stuck as far as I can tell.
+Enjoy!
 
-- Thread A: write(): fill up vq, enter waitqueue
-- Thread B: write(): vq is full, enter waitqueue
-- Thread C: poll(): consume used buffers
-- vring_interrupt() dropped, both A and B stuck
+Bagas Sanjaya (14):
+  genalloc: Describe @start_addr parameter in genpool_algo_t
+  mm: Describe @flags parameter in memalloc_flags_save()
+  textsearch: Describe @list member in ts_ops search
+  mm: vmalloc: Fix up vrealloc_node_align() kernel-doc macro name
+  mm, kfence: Describe @slab parameter in __kfence_obj_info()
+  virtio: Describe @map and @vmap members in virtio_device struct
+  fs: Describe @isnew parameter in ilookup5_nowait()
+  VFS: fix __start_dirop() kernel-doc warnings
+  drm/amd/display: Don't use kernel-doc comment in
+    dc_register_software_state struct
+  drm/amdgpu: Describe @AMD_IP_BLOCK_TYPE_RAS in amd_ip_block_type enum
+  drm/gem/shmem: Describe @shmem and @size parameters
+  drm/scheduler: Describe @result in drm_sched_job_done()
+  drm/gpusvm: Fix drm_gpusvm_pages_valid_unlocked() kernel-doc comment
+  net: bridge: Describe @tunnel_hash member in net_bridge_vlan_group
+    struct
 
-Is there other locking going on in the virtio layer or somewhere else that =
-would
-prevent concurrent write?
+ drivers/gpu/drm/amd/display/dc/dc.h      | 2 +-
+ drivers/gpu/drm/amd/include/amd_shared.h | 1 +
+ drivers/gpu/drm/drm_gem_shmem_helper.c   | 3 ++-
+ drivers/gpu/drm/drm_gpusvm.c             | 4 ++--
+ drivers/gpu/drm/scheduler/sched_main.c   | 1 +
+ fs/inode.c                               | 1 +
+ fs/namei.c                               | 3 ++-
+ include/linux/genalloc.h                 | 1 +
+ include/linux/kfence.h                   | 1 +
+ include/linux/sched/mm.h                 | 1 +
+ include/linux/textsearch.h               | 1 +
+ include/linux/virtio.h                   | 2 ++
+ mm/vmalloc.c                             | 2 +-
+ net/bridge/br_private.h                  | 1 +
+ 14 files changed, 18 insertions(+), 6 deletions(-)
 
-Best
-Lorenz
+
+base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
+-- 
+An old man doll... just what I always wanted! - Clara
+
