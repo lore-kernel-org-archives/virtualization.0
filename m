@@ -1,66 +1,66 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F221B332EC6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8A1533032F
 	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:39:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798768; cv=none; b=V5D1oaNEdX6JAE3CDuwMNQH7Ay0dj/uxGoCZFSGa0fNEIUBhwaYJHz16myTICwTKRNWUcyHs0TVBcDQQFPfapLNLb57lrfRedId0wbp/lwImivPE6Qto7UeHZM6+Rf16BjRxwyjvXOkvk8+kzSuQI4nZOea4F2oN/zcKkNf+ug8=
+	t=1765798768; cv=none; b=nLIOEnsKO42vrnlISufK6J57I0VReZaDVJn/RSaRVNXBXHL3m46fR+jTKSjo4Xs+J8ZtKukC5Nhf6E9FqLS/eYfvGBAg+xG7qylpwhCmI6jCB126zXtgOsjFOR5PMl7ecCB61ROryoivIgNBiKfjfVF4js4ALQu7nM/MdZfrn9A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1765798768; c=relaxed/simple;
-	bh=XiWwx/yBvL5qhtur1OJ6r0Qtve5kN/UAKMQDFDv8Kk4=;
+	bh=NBybN5/snlW67CYY0LDf5z9mjlB8/ZE5MQWmfMjzEtk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FK0M+3qriAhkY6VXLanNe4kotdsGhz3aza36LF2vXGaMiCDZAMO2NTIv/J6dDf8UUU48HUvw5+573V3FxaEp83stzrqQ6ZI3oYG5pgogSddzRe+WGt7yOca/jdiBgxuVX0TybQwfyDsJxJPh4b9p0e8FfirAKdt6tieNvQooAxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YJNp39p1; arc=none smtp.client-ip=209.85.216.45
+	 MIME-Version; b=WlvJo5REnAs1U8hw96bmAw7mGZXHt4Q2Nl1feGu1sLWAvXHd7UniSmiHX9YGtFgEDTNiqwm84UTKk5g48p5KXasXTkX/XQ28wkno9IpEJfhPrZxucGzvItHvpysmzA2DeD1EBncNQqkGFsHj+1ksQx33CD8Zbe3brgiBGr39aVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gZDP/Ca3; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YJNp39p1"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-34c84dc332cso993282a91.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gZDP/Ca3"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2a09d981507so12622625ad.1
         for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:39:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1765798763; x=1766403563; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KFsNe5Gu995f8GfU2RxaYzwbXM91ZCVhfkD06BV90tM=;
-        b=YJNp39p1Ijwc+c+eAS5dBByADdFq6WT35c+0T8SHROF2CUZHX0Hliz6COMADhVV76m
-         XY6Y48oyoyJAUI9Umrh/q83G0j1L/cg93nGNlVEz0+P/dHYvtHldtQK6gr8rWcB7bZl5
-         MojVXJ22gU9xuIyuVVpjlxOmojHDd9LXi85F2osCr/QYB/pIQcwwUA8xY8Aig5Z7uzDC
-         u3IY0s/34f2nuazO3nx8bezD0CuUFwu3jWY2FfByc4EOzBQSYjn81iAUInp/9tOlTfEh
-         U69RHirAAWDEXBhaUWI7rcpcxaZirC5l0PHgCjgGXc/vg9dRQ/alu4nrKlQ16trVjaCu
-         pldQ==
+        bh=TrKHAwDmwEWPzZzAT0wzFml+5He+R0bXqVhPFRZE9SA=;
+        b=gZDP/Ca3glUGpsOL88136XjyqTUre9tuSG0IaWiK91X181uTIHAAplu2+drvFk2qpS
+         fFxc9tyusHqACh0eZsDNBLtTSQXf1C6VUSFFd1mqYLXZLBB/NXqHDhgWiId6ILjl3jF3
+         aNiAoXkgP6gLJzr0oPNvlpAuwN0w5DhqrVvur2u0tuHgYO3FkOvn/YqiJFzQnYW9Lo5U
+         5wIDHkTS2oI/xf/XZRw76+GBjSjLauZXS5aW1z63scgRjUqQoXkgFYPOmCtXDx7Whjym
+         lBhI7sj7CFiLV803p134NQzAMk0gxeAHoRQHjJOdcSTevzkk/HK9f9H77IOjgWrxXjnA
+         52Wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1765798763; x=1766403563;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=KFsNe5Gu995f8GfU2RxaYzwbXM91ZCVhfkD06BV90tM=;
-        b=Pjdrz8KGLNd2FZbGqYHS9Wn74oVnq0Y0Mq5/I0Lt4Jk1Z/raeTQpTU5/ebvUoVUQ+V
-         hL7LIe08cn/XU9Y7CBPlQkc9+OMO6enHG+jpEnIuBj+FhkrUK5sOymjyi5yKir+nyGFI
-         f0luIVDGVzMstUxqtrbbxPq+smR3gvVay446oJyhnm3MbBiUrr+RRut/y7M5qD9M0hAv
-         pgtEIgerOB2bTkO+ABKhY8yZjFl5MbTgqMWyhyDKFOYU/DJ9QFRWVRzMd/QHeB9QTLO3
-         vHKTkDJe4BHWG/wPVQeQTpRMxPe8etcYMC3G9uIXG6evbjolpNA1k9S6zVUtJk3szE9H
-         4UOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXbDbC5R3fdyleUt42LikNgNEuYEGaUqrKb9KL6dhIutjIIP8YSYX0z6Gs0eEztXx3eGrwObsRfBqvqaXmAog==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw1Tvx6ZV0AUPMYGCxg5AXrfBFJ/hgM7KlDd3gh0rlggbeTDRB1
-	qUa3X099y8A7ydCHH7Ub+ahg6Tb6QB9R3xVpqjwdJSI/xh0vR0noDXRP
-X-Gm-Gg: AY/fxX6P5orf352Z6JZIRbbpYD27xuu3A7j2L1EyfePUnLCNi5mLvXxevWsSB3SQOwO
-	3fHPgx40hIWAkmIeitwe1b9xKC/23GyrFcwp/pfn66Jf7Aee2aF77Y0BtTCQ7gBTbh/k3MZub7Y
-	7Vin5/XEs2fri+wV7hV+XY7/IyAvlZ//2yalaJtQG3rjhOTVA1N/kkUET91z2N/Vdf1YHMpqb8b
-	MvqE8rjlnLNANvQR92q9EXmTyZ7zE4dQX/vxHCI8CHLyuZ/GJXKV2PRZylZI3KGF5Gp0OO0Ozi2
-	kyb2X3vqvWXZSWHi9+4ShdZgWC0UQH/elgiimfOblntpaVnjp+fp1HvPRFdrnnoIZKwrpTv+0Js
-	qzIwZqoKnWMbVA+x9dWRfi1j6pyGf24OzIiLNFIguSHX7KTrubDxlWGr4LriODd3RcVHUJmIE1l
-	IPLUlZqYiaKmE=
-X-Google-Smtp-Source: AGHT+IEy2tcNugFFoZ/L1b/kwWL3FdgAjYD+lvIJBPYKZMY6hs2UzwV9S1AhT0ES6IDo2vtVEhI5ug==
-X-Received: by 2002:a17:90b:2811:b0:340:bb51:17eb with SMTP id 98e67ed59e1d1-34abd6d35c0mr9572904a91.15.1765798763360;
+        bh=TrKHAwDmwEWPzZzAT0wzFml+5He+R0bXqVhPFRZE9SA=;
+        b=V7ps1yNenklb+IpB7qFBqF16sZNrF4rsVzPzUsiuXjhf9HP2D6OyYBDXf85gu2xi2h
+         lGwuAHygIZhtJX25+5mIhKxQan4naFj3SHijiF7yg+PJFY46l3kIehxAanBdV5+TXVCO
+         b72rMx3WUhs0L6OX1c/FzFnv4231lcmKCkkaMs8ntzyzABNGwvGEWSW8oUSr8QC9jR5s
+         3dFngcwXFxnLzhU3MC+LEFpgp2i1xCYFncKqqha6jhHg+Sc9Gw8Ig0242bduR4fyMcRl
+         IC4NCdEWRTP3l3GFhZeNbjukZ9+rFntnvVe2A2Mow91JyPLZR9SHB/rlEP2TyMjQsNib
+         cIbQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVYmeUw/Z/heCw+mHfpTF4cOpMRwjo9dxVGTULjP93ypEbafXh2CfKZLf/JZwoCDYdqd5+0lVDKisO2wegIqQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw7ywXHOmwgxMY2YLJ/+M9rldZXNosblCGHYc9GiPwrWXoUAU+o
+	nNGydTtqFz3Vno2eOXlsMfulTLr4So6SEsTEHTg+M8QDiLxmioUugX1H
+X-Gm-Gg: AY/fxX4wH7tJQh/t3Rh8ce50SFckPhnTT5laxAVRhhT52eo/Z9EIk0uWs3Ma/l1y8Bu
+	Eh46a2QLSLI2niv1cFOXp2dCV4nWCu/Vrmi7ObqX9u77m33drLHE/WPrBZEHY0v+d6rmF4PHRks
+	mGYkn2j6TSxA4MFf2c+T62I705nedn4DPKhejdNoqT8I3h2NrNV9IpSMA1n16qFt5S5CDgtXBfQ
+	1S2RRZhMr4/Lzv5A6pSf97s7FcTx85Cbx1Wc80b0J386QBuJxylUKFXniFYje1bIjayjEuZNdkx
+	5DD9Z4oy218S/ivL6nBUandJysME956XDGVFiOJYsEHsxKAOo3EPqIEiZVe9OMzX8IbegeWeN/7
+	x1jee85v+SdM+i+/E+ajqkBUnRDhYImhRSRdsy2TeZbOTkwLEmazld5sNxrLSUBxYc9Sgb6glNi
+	3N0QPJHxZB1N8=
+X-Google-Smtp-Source: AGHT+IGEKo7pUOqZ/Msgj5pboeIPXCGG8SyTdVwEqd2zfEZHqjnoFfxwhdJcfbexnC7zJuC88ktUrA==
+X-Received: by 2002:a17:903:1988:b0:2a0:d0ae:454d with SMTP id d9443c01a7336-2a0d0ae4b49mr35282785ad.22.1765798763267;
         Mon, 15 Dec 2025 03:39:23 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34abe2f34c7sm2908684a91.9.2025.12.15.03.39.14
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a0f58d7c27sm27523715ad.24.2025.12.15.03.39.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 15 Dec 2025 03:39:18 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id CA7C1444B397; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
+	id 357B044588D8; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -148,9 +148,9 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 08/14] VFS: fix __start_dirop() kernel-doc warnings
-Date: Mon, 15 Dec 2025 18:38:56 +0700
-Message-ID: <20251215113903.46555-9-bagasdotme@gmail.com>
+Subject: [PATCH 11/14] drm/gem/shmem: Describe @shmem and @size parameters
+Date: Mon, 15 Dec 2025 18:38:59 +0700
+Message-ID: <20251215113903.46555-12-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -160,40 +160,37 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1286; i=bagasdotme@gmail.com; h=from:subject; bh=XiWwx/yBvL5qhtur1OJ6r0Qtve5kN/UAKMQDFDv8Kk4=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4O3vI8WDrMwXuvBLq8mNivp3ZeuaVYeu+cJXRZ0u 9ehPPdrRykLgxgXg6yYIsukRL6m07uMRC60r3WEmcPKBDKEgYtTACbSG8vI8EpCRPb0s1m/77E2 hv9V7O9IOeS06tfyqjLP7/lK/+xuKjL8zzy7NtZA+f5K8VWm3d9utqf1737naLT7ZsEzs3nvY45 PYQUA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1239; i=bagasdotme@gmail.com; h=from:subject; bh=NBybN5/snlW67CYY0LDf5z9mjlB8/ZE5MQWmfMjzEtk=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4OX/nxidPxCa7t5fuOD8HMfrQSuP1hub/O7ZcKpR 3k2jWdLOkpZGMS4GGTFFFkmJfI1nd5lJHKhfa0jzBxWJpAhDFycAjCRtAcM/yunTjs9ydWYJypu wYcH6cfFNi1X5dYSuyPxxuv3me1JcpKMDBs+vU9uutHzrUbncPwy+73MjZlbOwIfHrr54bGU4uz aOwwA
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
-Sphinx report kernel-doc warnings:
+Sphinx reports kernel-doc warnings:
 
-WARNING: ./fs/namei.c:2853 function parameter 'state' not described in '__start_dirop'
-WARNING: ./fs/namei.c:2853 expecting prototype for start_dirop(). Prototype was for __start_dirop() instead
+WARNING: ./drivers/gpu/drm/drm_gem_shmem_helper.c:104 function parameter 'shmem' not described in 'drm_gem_shmem_init'
+WARNING: ./drivers/gpu/drm/drm_gem_shmem_helper.c:104 function parameter 'size' not described in 'drm_gem_shmem_init'
 
-Fix them up.
+Describe the parameters.
 
-Fixes: ff7c4ea11a05c8 ("VFS: add start_creating_killable() and start_removing_killable()")
+Fixes: e3f4bdaf2c5bfe ("drm/gem/shmem: Extract drm_gem_shmem_init() from drm_gem_shmem_create()")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- fs/namei.c | 3 ++-
+ drivers/gpu/drm/drm_gem_shmem_helper.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index bf0f66f0e9b92c..91fd3a786704e2 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -2836,10 +2836,11 @@ static int filename_parentat(int dfd, struct filename *name,
- }
- 
+diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+index 93b9cff89080f9..7f73900abcbb9d 100644
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -96,7 +96,8 @@ static int __drm_gem_shmem_init(struct drm_device *dev, struct drm_gem_shmem_obj
  /**
-- * start_dirop - begin a create or remove dirop, performing locking and lookup
-+ * __start_dirop - begin a create or remove dirop, performing locking and lookup
-  * @parent:       the dentry of the parent in which the operation will occur
-  * @name:         a qstr holding the name within that parent
-  * @lookup_flags: intent and other lookup flags.
-+ * @state:        task state bitmask
+  * drm_gem_shmem_init - Initialize an allocated object.
+  * @dev: DRM device
+- * @obj: The allocated shmem GEM object.
++ * @shmem: The allocated shmem GEM object.
++ * @size: shmem GEM object size
   *
-  * The lookup is performed and necessary locks are taken so that, on success,
-  * the returned dentry can be operated on safely.
+  * Returns:
+  * 0 on success, or a negative error code on failure.
 -- 
 An old man doll... just what I always wanted! - Clara
 
