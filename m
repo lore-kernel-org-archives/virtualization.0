@@ -1,215 +1,154 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B310C2DA749
-	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 06:42:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBA621D516C
+	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 08:12:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.2
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765780922; cv=none; b=rxcecL6BLv/GDxZ/m42I1X3A0q5oEJynPBBFguQV/MTrghWYkTxCQycDIbYK+cjHDFDXY5XxuoAARgvD5WjYYjF6wGuG767AMmfXoHn26UdRmMg9TLQHQRBTMNBe9v4iRarVh/rpdhvt8yp7Sm7YJUQRPcVIblvHW6A+oOSas84=
+	t=1765786362; cv=none; b=Hn5nPwlo4gkTBdfVSyKZHgfUdoA4wZMeTo1bmqHzaW0jkqUk4HUGjnQSb1dxqH44+CIbysRKq3AyPko0eLokhPrLzIvaBU5XrE2FPITZv2sVUPbO4Y4b3bW/wsLrXR8o2OIB462FNHwwXwV6BAwGQGRyiK2qyLmKEwejAlsrHHw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765780922; c=relaxed/simple;
-	bh=806QJwueHcRIX9UowK1c2xkOwntC647EqLAJ80g7HYU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kIP0rzYs+CJGb/bANO79VKrGVzHP+/7nnzlAenuUqsFxV3MWSu2ldL2XePruLNA3hPpyifinKjjKQoVjWN8u0cLyx1DGuYxXAO9u3qbq4RboUn9qQAgjDfR1sEXqWkIhfa1obxaJx7axue485RheT8zYWt74n2t/RnQQ8YF0f0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xok3mSsy; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1765786362; c=relaxed/simple;
+	bh=M7BjFTqnUbNwksPAuNzUAcFwAMjy39rD8wTJj23IfLs=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
+	 MIME-Version:Message-ID; b=eoqoZJFfSCJqMpMY7taSvyM8TA8CY2A0Ad6boWaLtC/95FApp2V1P/kTyOUMj0738iA9qs4gx23qXgWMe0pQBk9127fMZOshIkRezPvoaz03kKThMu/gvC4UkK3jdIh+Fq6CJYTm7WhbKo7RcC+9cFwaNP1dc22msPKws6ODDXE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=W90n68TC; arc=none smtp.client-ip=117.135.210.2
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xok3mSsy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765780919;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=b13OnUYDcLnPc+T52EwC1q4bWFFgtcvxl6ViyNRPTbI=;
-	b=Xok3mSsyC6RCPeTMtU8vPFChM6koBCnfeej7QI47kR95gE4Pg11Q/Qb8Nj5MWjxIxltWKx
-	AJrTWEXW8RqP5Rcp9KDnO7htrpZueSdjSVkKBGiSuMKMQ7xUYK3wvLI9czTfHKE5JxWGde
-	YMHrhtexl1gbZJsC3EO2fxyHLSnx9rk=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-295-9QbquKMOOPK_vyNsDKDdBw-1; Mon, 15 Dec 2025 01:41:55 -0500
-X-MC-Unique: 9QbquKMOOPK_vyNsDKDdBw-1
-X-Mimecast-MFC-AGG-ID: 9QbquKMOOPK_vyNsDKDdBw_1765780915
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2a0f4822f77so20371395ad.2
-        for <virtualization@lists.linux.dev>; Sun, 14 Dec 2025 22:41:55 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765780915; x=1766385715;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=b13OnUYDcLnPc+T52EwC1q4bWFFgtcvxl6ViyNRPTbI=;
-        b=W8EUTZcxhZg2Sj0oSUXHy2W6Zrxe61IjaDeyYPDuFQERHApx68PLHfzjYAty4bTqZq
-         7m2w0HFeIVlXcsZjfDow9sFAQiNKgTcDh57JtH0wuaNYRjTU2IDKtKuK3WoREWBoMOM8
-         3ZgWCIU4J6kQFn0YpFRRY76S8xoyXh+1TNNTc1rhWAPvxsOg7GiB12rOqjcvXTxiqEha
-         HhKVu50adF8k9D3xfN6yz0W/5kL18dUpzMIZfmQwuy/p8iOYmKUvflWl6RKIvH15qRJq
-         NyK/B5V4a4h8vpQiYW0v2coHI0nZMJusR1EDQZY9PtdU5f8L18X32i+lcAS0nS8bhEtW
-         LWWA==
-X-Forwarded-Encrypted: i=1; AJvYcCVH6D9SUGwgKCFs+JLyJ/qqrcAWPW6QOvitatNRnENCqGdxuW/9k63zCa+y8FXRWSaSVdO5yb58W39D0MIsFg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxKJuw59ejx6n8Pp31IpB0IJhbyaXs8QW2Jt9hQD/r4M4KeWcN+
-	QhUg2Vz053fTyPBurZ+qD578xMe3p90VSYw6GlpP+mVZesPsQ5lEPsyQPhtiV4ls8yP/OEM/gbQ
-	xUfrfyqWQHHh+wnAkybO6GKSLi1pxcXWlS6tnZbkq6SaweAW4xrduJfO+BWXx2ZGtAyVdPAl7dk
-	swxzSnTQXG3CV8Srb0F4CIKylTsi1zqrHPSgBMRAoOCao=
-X-Gm-Gg: AY/fxX40oLIRI/qnH/wua3BN3v5rJrrEf8bRjLeU7cfFgu4ngKytre7Yh4zws2O2Uqj
-	+TlD5rG3r4PdngWNGRZju29Yko9HrrjzIpQnfYEgw6HnXjrs5p3Ym5lCvQ7F/Z5N4bmJeg7KbzU
-	wN9F/6UtdX8il248BW+a5CDipoQqX6quc4RceNCahJgga5OBUgbmZM5KLbCR49pGouDiM=
-X-Received: by 2002:a05:6a20:7350:b0:366:14ac:e1df with SMTP id adf61e73a8af0-369b05bee25mr10718442637.69.1765780914654;
-        Sun, 14 Dec 2025 22:41:54 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEmCVbqM2oRpypIW3Na/iJKSRukQNFptPvN3ajHBw/3EYsohzEaN1b7r+jHyaklUQnS3BFawAPfFocl+ylPrYQ=
-X-Received: by 2002:a05:6a20:7350:b0:366:14ac:e1df with SMTP id
- adf61e73a8af0-369b05bee25mr10718417637.69.1765780914143; Sun, 14 Dec 2025
- 22:41:54 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="W90n68TC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
+	Message-ID; bh=M7BjFTqnUbNwksPAuNzUAcFwAMjy39rD8wTJj23IfLs=; b=W
+	90n68TCtW1cfvdzsdlcAFIHWaiSHVvXxggNgni3Oe4kUdZ+t91jOHaPUKAm6yOBj
+	WjUiHWdZKyRFnAmnPcRdDV1S+wkZ6tfx48lhDF7TApglDYmQvPBaB3Ial8qSISKW
+	dGw60vRPq0OUK0e+0ztzgdOyYWHqDZGCa8wx4srCpc=
+Received: from lange_tang$163.com ( [116.128.244.169] ) by
+ ajax-webmail-wmsvr-40-133 (Coremail) ; Mon, 15 Dec 2025 16:12:32 +0800
+ (CST)
+Date: Mon, 15 Dec 2025 16:12:32 +0800 (CST)
+From: "Lange Tang" <lange_tang@163.com>
+To: "jasowang@redhat.com" <jasowang@redhat.com>
+Cc: "mst@redhat.com" <mst@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"Tang Longjun" <tanglongjun@kylinos.cn>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Subject: Re:Re: Re: Re: [PATCH v1 0/7] introduce virtnet_mon for monitor
+ virtio_net
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
+ 20250723(a044bf12) Copyright (c) 2002-2025 www.mailtech.cn 163com
+In-Reply-To: <CACGkMEvZQb1ADyEM73jE8_OdeU8YtSbR8YCJ+3anDg8VhkpBLg@mail.gmail.com>
+References: <20251127032407.33475-1-lange_tang@163.com>
+ <20251210040328-mutt-send-email-mst@kernel.org>
+ <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com>
+ <CACGkMEt-v2RGTbzEgfocpZvZw1SKB8j4MQ6zoMFvGJQXXFuMtQ@mail.gmail.com>
+ <64d63e98.e7f.19b1595bd4e.Coremail.lange_tang@163.com>
+ <CACGkMEvZQb1ADyEM73jE8_OdeU8YtSbR8YCJ+3anDg8VhkpBLg@mail.gmail.com>
+X-NTES-SC: AL_Qu2dB/uTuUsu5CacZ+kfmUgRg+c/XsK4svUj24VVOJF8jAHo+Q4CXGVtOF3W+dy1JxKhsiOtXgZ+zMt7bYl5QLkxXGDhTc63ujxDr7py/3MRaA==
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251127032407.33475-1-lange_tang@163.com> <20251210040328-mutt-send-email-mst@kernel.org>
- <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com> <CACGkMEt-v2RGTbzEgfocpZvZw1SKB8j4MQ6zoMFvGJQXXFuMtQ@mail.gmail.com>
- <64d63e98.e7f.19b1595bd4e.Coremail.lange_tang@163.com>
-In-Reply-To: <64d63e98.e7f.19b1595bd4e.Coremail.lange_tang@163.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 15 Dec 2025 14:41:42 +0800
-X-Gm-Features: AQt7F2r3wElRUH0jxp_Gu-tRozuUPlsSFkFR9RUKVpEm5QYJvjREgC80zVYl2y0
-Message-ID: <CACGkMEvZQb1ADyEM73jE8_OdeU8YtSbR8YCJ+3anDg8VhkpBLg@mail.gmail.com>
-Subject: Re: Re: Re: [PATCH v1 0/7] introduce virtnet_mon for monitor virtio_net
-To: Lange Tang <lange_tang@163.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, 
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Tang Longjun <tanglongjun@kylinos.cn>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: esSLMYhf0B5XfsLQzGy890KimSpIipMLd1HDTJB-0zM_1765780915
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <5ecbc090.8006.19b21117c0a.Coremail.lange_tang@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:hSgvCgDnJ93wwj9pDN45AA--.2306W
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC4hAXRWk-wvCfPwAA3k
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-On Sat, Dec 13, 2025 at 10:41=E2=80=AFAM Lange Tang <lange_tang@163.com> wr=
-ote:
->
-> At 2025-12-11 16:32:15, "Jason Wang" <jasowang@redhat.com> wrote:
-> >On Thu, Dec 11, 2025 at 10:52=E2=80=AFAM Lange Tang <lange_tang@163.com>=
- wrote:
-> >>
-> >> At 2025-12-10 17:04:04, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> >On Thu, Nov 27, 2025 at 11:24:00AM +0800, Longjun Tang wrote:
-> >> >> From: Tang Longjun <tanglongjun@kylinos.cn>
-> >> >>
-> >> >> hi,
-> >> >> virtnet_mon is used to monitor the data packets of the virtio_net d=
-river
-> >> >> and the related parameters of virtqueue, useful for tracking its st=
-atus
-> >> >> and troubleshooting faults.
-> >> >>
-> >> >> pls review. tks
-> >> >>
-> >> >> Best regard.
-> >> >
-> >> >what does this achieve that direct use of tracing would not?
-> >>
-> >> I apologize that my explanation of virtnet_mon was not detailed enough=
-.
-> >> virtnet_mon uses kprobe and buffers to monitor virtio_net.
-> >> To monitor virtio_net, it is necessary to track the member parameters =
-of the virtqueue corresponding to each data packet and output them.
-> >> When PPS very high, other tracing techniques, such as ebpf, may not be=
- able to handle it, resulting in data loss because they do not have suffici=
-ently large buffers to batch export log data.
-> >
-> >Can you expand more about this? For example, in which kind of setup
-> >and what do you want to trace and why ebpf can't handle that. Note
-> >that the most lightweight stuff is the counter, have you tried that?
->
-> For example, when there is occasional latency in data transmission betwee=
-n the
-> virtual network frontend (virtio_net) and backend (such as vhost_net),
-> we may need to track the time taken for each packet received and sent in =
-the virtio_net driver.
-> Typically, we accomplish this using eBPF, such as bpftrace. The pseudocod=
-e might include the following:
-> """
-> kprobe:skb_recv_done {
->         printf("%ld skb_recv_done Cpu:%d ...\n",...);
-> }
-> kprobe:skb_xmit_done {
->         printf("%ld skb_xmit_done Cpu:%d ...\n",...);
-> }
-> kprobe:virtnet_poll {
->         printf("%ld virtnet_poll Cpu:%d budget:%d ...\n",...);
-> }
-> kprobe:start_xmit {
->   ...
->   printf("%ld start_xmit Cpu:%d type:%s seq:%ld ...\n",...)
-> }
-> kprobe:gro_receive_skb {
->   ...
->   printf("%ld gro_receive_skb Cpu:%d type:%s seq:%ld ...\n",...)
-> }
-> kprobe:receive_buf {
->   ...
->   printf("%ld receive_buf Cpu:%d name:%s avali_idx:%d used_idx:%d ...\n",=
-...);
-> }
-> """
-> Using the above bpftrace code, we can track the timestamps of the data as=
- it passes through these functions,
-> along with skb and virtqueue information, and output logs via printf for =
-further diagnosis of the causes of the latency.
-> Interestingly, a significant amount of logs were found to be missing when=
- executing these bpftrace codes.
-> Below is the testing environment:
-> VM: 8G8C=EF=BC=8Cvirtio_net mq=3D4, kernel 6.18-rc7, iperf3 -s -p 1314
-> HOST: iperf3 -c 192.168.122.218 -t 100 -p 1314 -P 4
-> It was also found that when testing with mq=3D1, there was no log loss.
->
-> Compared to mq=3D1, the reason for log loss at mq=3D4 is suspected to be =
-due to data being sent or received
-> by different CPUs. Additionally, under the 4-thread iperf testing scenari=
-o with PPS > 150,000,
-> the log data is asynchronously output from different CPUs, leading to exc=
-essive IO pressure that causes log data loss.
-
-I think what I don't understand is how the things you introduced here
-may help in this case?
-
-Thanks
-
->
-> The above are some of my personal thoughts, and I would love to hear your=
- opinion.
-> Best regard.
->
-> >
-> >>
-> >> As for the duplicate code, it is only to obtain the layout of the rele=
-vant structure, and I have not yet thought of a way to avoid duplication. I=
- would love to hear your suggestions.
-> >
-> >Thanks
-> >
-> >>
-> >> >
-> >> >> Tang Longjun (7):
-> >> >>   tools/virtio/virtnet_mon: create misc driver for virtnet_mon
-> >> >>   tools/virtio/virtnet_mon: add kfifo to virtnet_mon
-> >> >>   tools/virtio/virtnet_mon: add kprobe start_xmit
-> >> >>   tools/virtio/virtnet_mon: add kprobe gro_receive_skb
-> >> >>   tools/virtio/virtnet_mon: add kprobe ip_local_deliver
-> >> >>   tools/virtio/virtnet_mon: add kprobe skb_xmit_done and skb_recv_d=
-one
-> >> >>   tools/virtio/virtnet_mon: add README file for virtnet_moin
-> >> >>
-> >> >>  tools/virtio/virtnet_mon/Makefile      |   10 +
-> >> >>  tools/virtio/virtnet_mon/README        |   35 +
-> >> >>  tools/virtio/virtnet_mon/virtnet_mon.c | 1048 ++++++++++++++++++++=
-++++
-> >> >>  3 files changed, 1093 insertions(+)
-> >> >>  create mode 100644 tools/virtio/virtnet_mon/Makefile
-> >> >>  create mode 100644 tools/virtio/virtnet_mon/README
-> >> >>  create mode 100644 tools/virtio/virtnet_mon/virtnet_mon.c
-> >> >>
-> >> >> --
-> >> >> 2.43.0
-
+QXQgMjAyNS0xMi0xNSAxNDo0MTo0MiwgIkphc29uIFdhbmciIDxqYXNvd2FuZ0ByZWRoYXQuY29t
+PiB3cm90ZToKPk9uIFNhdCwgRGVjIDEzLCAyMDI1IGF0IDEwOjQx4oCvQU0gTGFuZ2UgVGFuZyA8
+bGFuZ2VfdGFuZ0AxNjMuY29tPiB3cm90ZToKPj4KPj4gQXQgMjAyNS0xMi0xMSAxNjozMjoxNSwg
+Ikphc29uIFdhbmciIDxqYXNvd2FuZ0ByZWRoYXQuY29tPiB3cm90ZToKPj4gPk9uIFRodSwgRGVj
+IDExLCAyMDI1IGF0IDEwOjUy4oCvQU0gTGFuZ2UgVGFuZyA8bGFuZ2VfdGFuZ0AxNjMuY29tPiB3
+cm90ZToKPj4gPj4KPj4gPj4gQXQgMjAyNS0xMi0xMCAxNzowNDowNCwgIk1pY2hhZWwgUy4gVHNp
+cmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPj4gPj4gPk9uIFRodSwgTm92IDI3LCAyMDI1
+IGF0IDExOjI0OjAwQU0gKzA4MDAsIExvbmdqdW4gVGFuZyB3cm90ZToKPj4gPj4gPj4gRnJvbTog
+VGFuZyBMb25nanVuIDx0YW5nbG9uZ2p1bkBreWxpbm9zLmNuPgo+PiA+PiA+Pgo+PiA+PiA+PiBo
+aSwKPj4gPj4gPj4gdmlydG5ldF9tb24gaXMgdXNlZCB0byBtb25pdG9yIHRoZSBkYXRhIHBhY2tl
+dHMgb2YgdGhlIHZpcnRpb19uZXQgZHJpdmVyCj4+ID4+ID4+IGFuZCB0aGUgcmVsYXRlZCBwYXJh
+bWV0ZXJzIG9mIHZpcnRxdWV1ZSwgdXNlZnVsIGZvciB0cmFja2luZyBpdHMgc3RhdHVzCj4+ID4+
+ID4+IGFuZCB0cm91Ymxlc2hvb3RpbmcgZmF1bHRzLgo+PiA+PiA+Pgo+PiA+PiA+PiBwbHMgcmV2
+aWV3LiB0a3MKPj4gPj4gPj4KPj4gPj4gPj4gQmVzdCByZWdhcmQuCj4+ID4+ID4KPj4gPj4gPndo
+YXQgZG9lcyB0aGlzIGFjaGlldmUgdGhhdCBkaXJlY3QgdXNlIG9mIHRyYWNpbmcgd291bGQgbm90
+Pwo+PiA+Pgo+PiA+PiBJIGFwb2xvZ2l6ZSB0aGF0IG15IGV4cGxhbmF0aW9uIG9mIHZpcnRuZXRf
+bW9uIHdhcyBub3QgZGV0YWlsZWQgZW5vdWdoLgo+PiA+PiB2aXJ0bmV0X21vbiB1c2VzIGtwcm9i
+ZSBhbmQgYnVmZmVycyB0byBtb25pdG9yIHZpcnRpb19uZXQuCj4+ID4+IFRvIG1vbml0b3Igdmly
+dGlvX25ldCwgaXQgaXMgbmVjZXNzYXJ5IHRvIHRyYWNrIHRoZSBtZW1iZXIgcGFyYW1ldGVycyBv
+ZiB0aGUgdmlydHF1ZXVlIGNvcnJlc3BvbmRpbmcgdG8gZWFjaCBkYXRhIHBhY2tldCBhbmQgb3V0
+cHV0IHRoZW0uCj4+ID4+IFdoZW4gUFBTIHZlcnkgaGlnaCwgb3RoZXIgdHJhY2luZyB0ZWNobmlx
+dWVzLCBzdWNoIGFzIGVicGYsIG1heSBub3QgYmUgYWJsZSB0byBoYW5kbGUgaXQsIHJlc3VsdGlu
+ZyBpbiBkYXRhIGxvc3MgYmVjYXVzZSB0aGV5IGRvIG5vdCBoYXZlIHN1ZmZpY2llbnRseSBsYXJn
+ZSBidWZmZXJzIHRvIGJhdGNoIGV4cG9ydCBsb2cgZGF0YS4KPj4gPgo+PiA+Q2FuIHlvdSBleHBh
+bmQgbW9yZSBhYm91dCB0aGlzPyBGb3IgZXhhbXBsZSwgaW4gd2hpY2gga2luZCBvZiBzZXR1cAo+
+PiA+YW5kIHdoYXQgZG8geW91IHdhbnQgdG8gdHJhY2UgYW5kIHdoeSBlYnBmIGNhbid0IGhhbmRs
+ZSB0aGF0LiBOb3RlCj4+ID50aGF0IHRoZSBtb3N0IGxpZ2h0d2VpZ2h0IHN0dWZmIGlzIHRoZSBj
+b3VudGVyLCBoYXZlIHlvdSB0cmllZCB0aGF0Pwo+Pgo+PiBGb3IgZXhhbXBsZSwgd2hlbiB0aGVy
+ZSBpcyBvY2Nhc2lvbmFsIGxhdGVuY3kgaW4gZGF0YSB0cmFuc21pc3Npb24gYmV0d2VlbiB0aGUK
+Pj4gdmlydHVhbCBuZXR3b3JrIGZyb250ZW5kICh2aXJ0aW9fbmV0KSBhbmQgYmFja2VuZCAoc3Vj
+aCBhcyB2aG9zdF9uZXQpLAo+PiB3ZSBtYXkgbmVlZCB0byB0cmFjayB0aGUgdGltZSB0YWtlbiBm
+b3IgZWFjaCBwYWNrZXQgcmVjZWl2ZWQgYW5kIHNlbnQgaW4gdGhlIHZpcnRpb19uZXQgZHJpdmVy
+Lgo+PiBUeXBpY2FsbHksIHdlIGFjY29tcGxpc2ggdGhpcyB1c2luZyBlQlBGLCBzdWNoIGFzIGJw
+ZnRyYWNlLiBUaGUgcHNldWRvY29kZSBtaWdodCBpbmNsdWRlIHRoZSBmb2xsb3dpbmc6Cj4+ICIi
+Igo+PiBrcHJvYmU6c2tiX3JlY3ZfZG9uZSB7Cj4+ICAgICAgICAgcHJpbnRmKCIlbGQgc2tiX3Jl
+Y3ZfZG9uZSBDcHU6JWQgLi4uXG4iLC4uLik7Cj4+IH0KPj4ga3Byb2JlOnNrYl94bWl0X2RvbmUg
+ewo+PiAgICAgICAgIHByaW50ZigiJWxkIHNrYl94bWl0X2RvbmUgQ3B1OiVkIC4uLlxuIiwuLi4p
+Owo+PiB9Cj4+IGtwcm9iZTp2aXJ0bmV0X3BvbGwgewo+PiAgICAgICAgIHByaW50ZigiJWxkIHZp
+cnRuZXRfcG9sbCBDcHU6JWQgYnVkZ2V0OiVkIC4uLlxuIiwuLi4pOwo+PiB9Cj4+IGtwcm9iZTpz
+dGFydF94bWl0IHsKPj4gICAuLi4KPj4gICBwcmludGYoIiVsZCBzdGFydF94bWl0IENwdTolZCB0
+eXBlOiVzIHNlcTolbGQgLi4uXG4iLC4uLikKPj4gfQo+PiBrcHJvYmU6Z3JvX3JlY2VpdmVfc2ti
+IHsKPj4gICAuLi4KPj4gICBwcmludGYoIiVsZCBncm9fcmVjZWl2ZV9za2IgQ3B1OiVkIHR5cGU6
+JXMgc2VxOiVsZCAuLi5cbiIsLi4uKQo+PiB9Cj4+IGtwcm9iZTpyZWNlaXZlX2J1ZiB7Cj4+ICAg
+Li4uCj4+ICAgcHJpbnRmKCIlbGQgcmVjZWl2ZV9idWYgQ3B1OiVkIG5hbWU6JXMgYXZhbGlfaWR4
+OiVkIHVzZWRfaWR4OiVkIC4uLlxuIiwuLi4pOwo+PiB9Cj4+ICIiIgo+PiBVc2luZyB0aGUgYWJv
+dmUgYnBmdHJhY2UgY29kZSwgd2UgY2FuIHRyYWNrIHRoZSB0aW1lc3RhbXBzIG9mIHRoZSBkYXRh
+IGFzIGl0IHBhc3NlcyB0aHJvdWdoIHRoZXNlIGZ1bmN0aW9ucywKPj4gYWxvbmcgd2l0aCBza2Ig
+YW5kIHZpcnRxdWV1ZSBpbmZvcm1hdGlvbiwgYW5kIG91dHB1dCBsb2dzIHZpYSBwcmludGYgZm9y
+IGZ1cnRoZXIgZGlhZ25vc2lzIG9mIHRoZSBjYXVzZXMgb2YgdGhlIGxhdGVuY3kuCj4+IEludGVy
+ZXN0aW5nbHksIGEgc2lnbmlmaWNhbnQgYW1vdW50IG9mIGxvZ3Mgd2VyZSBmb3VuZCB0byBiZSBt
+aXNzaW5nIHdoZW4gZXhlY3V0aW5nIHRoZXNlIGJwZnRyYWNlIGNvZGVzLgo+PiBCZWxvdyBpcyB0
+aGUgdGVzdGluZyBlbnZpcm9ubWVudDoKPj4gVk06IDhHOEPvvIx2aXJ0aW9fbmV0IG1xPTQsIGtl
+cm5lbCA2LjE4LXJjNywgaXBlcmYzIC1zIC1wIDEzMTQKPj4gSE9TVDogaXBlcmYzIC1jIDE5Mi4x
+NjguMTIyLjIxOCAtdCAxMDAgLXAgMTMxNCAtUCA0Cj4+IEl0IHdhcyBhbHNvIGZvdW5kIHRoYXQg
+d2hlbiB0ZXN0aW5nIHdpdGggbXE9MSwgdGhlcmUgd2FzIG5vIGxvZyBsb3NzLgo+Pgo+PiBDb21w
+YXJlZCB0byBtcT0xLCB0aGUgcmVhc29uIGZvciBsb2cgbG9zcyBhdCBtcT00IGlzIHN1c3BlY3Rl
+ZCB0byBiZSBkdWUgdG8gZGF0YSBiZWluZyBzZW50IG9yIHJlY2VpdmVkCj4+IGJ5IGRpZmZlcmVu
+dCBDUFVzLiBBZGRpdGlvbmFsbHksIHVuZGVyIHRoZSA0LXRocmVhZCBpcGVyZiB0ZXN0aW5nIHNj
+ZW5hcmlvIHdpdGggUFBTID4gMTUwLDAwMCwKPj4gdGhlIGxvZyBkYXRhIGlzIGFzeW5jaHJvbm91
+c2x5IG91dHB1dCBmcm9tIGRpZmZlcmVudCBDUFVzLCBsZWFkaW5nIHRvIGV4Y2Vzc2l2ZSBJTyBw
+cmVzc3VyZSB0aGF0IGNhdXNlcyBsb2cgZGF0YSBsb3NzLgo+Cj5JIHRoaW5rIHdoYXQgSSBkb24n
+dCB1bmRlcnN0YW5kIGlzIGhvdyB0aGUgdGhpbmdzIHlvdSBpbnRyb2R1Y2VkIGhlcmUKPm1heSBo
+ZWxwIGluIHRoaXMgY2FzZT8KClRoZSB2aXJ0bmV0X21vbiBtb2R1bGUgaW50cm9kdWNlZCBoZXJl
+IGFiYW5kb25zIGVCUEYgYW5kIHVzZXMga3Byb2JlICsga2ZpZm8uIApJbiB0aGUgYWZvcmVtZW50
+aW9uZWQgY2FzZXMsIGFsbCB0aGUgaW5mb3JtYXRpb24gdGhhdCBuZWVkcyB0byBiZSB0cmFja2Vk
+IGZpcnN0IGVudGVycyBrZmlmbywgCnRoZW4gaXMgZm9ybWF0dGVkIGludG8gbG9ncyBhbmQgY2Fj
+aGVkIGluIGEgbGFyZ2UgYnVmZmVyLiAKRmluYWxseSwgaXQgaXMgZXhwb3J0ZWQgdG8gdXNlciBz
+cGFjZSBpbiBiYXRjaGVzIHRocm91Z2ggdGhlIHZpcnRuZXRfbW9uX3JlYWQgZnVuY3Rpb24sIAp0
+aGVyZWJ5IHJlZHVjaW5nIElPIHByZXNzdXJlIGFuZCBwcmV2ZW50aW5nIGxvZyBsb3NzLgoKVGhh
+bmtzCj4KPlRoYW5rcwo+Cj4+Cj4+IFRoZSBhYm92ZSBhcmUgc29tZSBvZiBteSBwZXJzb25hbCB0
+aG91Z2h0cywgYW5kIEkgd291bGQgbG92ZSB0byBoZWFyIHlvdXIgb3Bpbmlvbi4KPj4gQmVzdCBy
+ZWdhcmQuCj4+Cj4+ID4KPj4gPj4KPj4gPj4gQXMgZm9yIHRoZSBkdXBsaWNhdGUgY29kZSwgaXQg
+aXMgb25seSB0byBvYnRhaW4gdGhlIGxheW91dCBvZiB0aGUgcmVsZXZhbnQgc3RydWN0dXJlLCBh
+bmQgSSBoYXZlIG5vdCB5ZXQgdGhvdWdodCBvZiBhIHdheSB0byBhdm9pZCBkdXBsaWNhdGlvbi4g
+SSB3b3VsZCBsb3ZlIHRvIGhlYXIgeW91ciBzdWdnZXN0aW9ucy4KPj4gPgo+PiA+VGhhbmtzCj4+
+ID4KPj4gPj4KPj4gPj4gPgo+PiA+PiA+PiBUYW5nIExvbmdqdW4gKDcpOgo+PiA+PiA+PiAgIHRv
+b2xzL3ZpcnRpby92aXJ0bmV0X21vbjogY3JlYXRlIG1pc2MgZHJpdmVyIGZvciB2aXJ0bmV0X21v
+bgo+PiA+PiA+PiAgIHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbjogYWRkIGtmaWZvIHRvIHZpcnRu
+ZXRfbW9uCj4+ID4+ID4+ICAgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uOiBhZGQga3Byb2JlIHN0
+YXJ0X3htaXQKPj4gPj4gPj4gICB0b29scy92aXJ0aW8vdmlydG5ldF9tb246IGFkZCBrcHJvYmUg
+Z3JvX3JlY2VpdmVfc2tiCj4+ID4+ID4+ICAgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uOiBhZGQg
+a3Byb2JlIGlwX2xvY2FsX2RlbGl2ZXIKPj4gPj4gPj4gICB0b29scy92aXJ0aW8vdmlydG5ldF9t
+b246IGFkZCBrcHJvYmUgc2tiX3htaXRfZG9uZSBhbmQgc2tiX3JlY3ZfZG9uZQo+PiA+PiA+PiAg
+IHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbjogYWRkIFJFQURNRSBmaWxlIGZvciB2aXJ0bmV0X21v
+aW4KPj4gPj4gPj4KPj4gPj4gPj4gIHRvb2xzL3ZpcnRpby92aXJ0bmV0X21vbi9NYWtlZmlsZSAg
+ICAgIHwgICAxMCArCj4+ID4+ID4+ICB0b29scy92aXJ0aW8vdmlydG5ldF9tb24vUkVBRE1FICAg
+ICAgICB8ICAgMzUgKwo+PiA+PiA+PiAgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uL3ZpcnRuZXRf
+bW9uLmMgfCAxMDQ4ICsrKysrKysrKysrKysrKysrKysrKysrKwo+PiA+PiA+PiAgMyBmaWxlcyBj
+aGFuZ2VkLCAxMDkzIGluc2VydGlvbnMoKykKPj4gPj4gPj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCB0
+b29scy92aXJ0aW8vdmlydG5ldF9tb24vTWFrZWZpbGUKPj4gPj4gPj4gIGNyZWF0ZSBtb2RlIDEw
+MDY0NCB0b29scy92aXJ0aW8vdmlydG5ldF9tb24vUkVBRE1FCj4+ID4+ID4+ICBjcmVhdGUgbW9k
+ZSAxMDA2NDQgdG9vbHMvdmlydGlvL3ZpcnRuZXRfbW9uL3ZpcnRuZXRfbW9uLmMKPj4gPj4gPj4K
+Pj4gPj4gPj4gLS0KPj4gPj4gPj4gMi40My4wCg==
