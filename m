@@ -1,66 +1,66 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1949D330B07
-	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:39:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E79CE33033D
+	for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 11:39:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798755; cv=none; b=qQpQkqcCzzl1JZU5FTr0+FXNvjEkr2xZqg+XN7DQUcKC7ZKcNPpic9rN+co1bPqpyxMqxw1BNHG0jdkbU9g0TmrEc0vet1anxoE+tLfv+07uvOlH3lXczbdiKhtPl3o3n7ILasl6JBBn+3Xms+wlhb9YfuBVoEXaw8AavNS1e1U=
+	t=1765798756; cv=none; b=kl3BVT+ZMqO76ly7ivkQO19WryEEpd0MpHmdVoQTUhqtwvFJDNFNsAL8oNz2VQzvG4yGL9r3x1h9vBzMcEn8G//qMr+huYv8DxC+aEf2NltcgaRw/S1Q1rpMGPl9O4HDFXA265NxSSABx1F6O8O70rf8IE4FIjPkyEtkiKbYUbc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765798755; c=relaxed/simple;
-	bh=1tOY86lhWOCbSHsqmK/tuDEilXGPwKXl/15tM3wSixs=;
+	s=arc-20240116; t=1765798756; c=relaxed/simple;
+	bh=mcnZ1soLgF/JTT1YuxC/XOQhVy9SZYDoshinxHejwDU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hMvWu8vFsYIRar9VnJoxurFnTDlH7shEQjvZszmT23pkbPIkyEAax+hTY6vHnnEwyGJcG8eyYNqEHKf7GUaHsJtv5uQLN5QUAAVRepdPLREp8WhNhMM1goqjv7C1rTzLA7UL2gLCtQb+tUA/0V8KFnPxXwxD3i4ptFLy5CJ0gJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D8a1ZrUa; arc=none smtp.client-ip=209.85.216.46
+	 MIME-Version; b=IsxypBZZywD+7+a6DaT7BfNWiAFU/vn2nk//hcF7yES14sHnVvobKIQs25jZlB7kzEW9sqASYY9ikMQ7Jm353mKBGNYAuOKzB+OQ0L1HfHMOBHwWlwT96fTYaKfHJqGbyJwGYLkkmJn6Duijrb+/AOjt6kHlsZ9Z+fMZWxGaZzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FdBftdP3; arc=none smtp.client-ip=209.85.210.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D8a1ZrUa"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-34abc7da414so2225294a91.0
-        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:39:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FdBftdP3"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-7b80fed1505so3224683b3a.3
+        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 03:39:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765798752; x=1766403552; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1765798753; x=1766403553; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=TWXueLrhDneeDmCGizpSHzMSgAg8yMgxTmeT/qXEn+I=;
-        b=D8a1ZrUa+nrcapP4dQnsSwp/9oYjNhxR2FB9IyeKX/1DBMvsHYx4teYLO1l3cU7zcJ
-         IgpcU+NCYF5paCmPS6gZMeCwEQe2+97Z8rCYuxRTDQmOWcz15qoXqykv94ICbEVIlXUB
-         lmj0k7zs2aQIKgnI1SiqjX58SrDxrc5cC2xhgIxQMLVjLm9Lx2t549o4eKbVhsBok7UY
-         +Iuw0wB+G1hJFE3ro1s57IbZQMzru4FqJmPfidb+8090g4plmoYEicH1iU1Q+yE+T5YI
-         oxnkNib3wNi2AGhwQ2pl0zeuiFL4IVGjTD7HPYeEs1CxAQMnsxX4cGEBUZeOk1AKioU3
-         6n7Q==
+        bh=lORwJoeOdmqWvp6Gaq9g1tKkad6KEP5mAC3mejLEu6E=;
+        b=FdBftdP349nLejfls6LKo/rM4kB8Y+a9rr9Spq+3G67gCTYqJHPeThSAxszWUy+4pl
+         pa5ZvhQBmgnLM+nADC6z4h0cj2c/TWh3XaAqwYdRmIYZ64nIXuVoJ/oATI7K+SUnrzFL
+         jyyGLoCIjhWoOAZ94xx/Vr8ajphT9rAQ7v2ntDsXmyvumMbjgOR/CWLehLA1+sE2hxA2
+         k0eDoN7nB76GwxJvj2cTrq9l//fHgNfv0ePLg7XQITKd81MqYd+4jWRIPMg76LzNSIM7
+         qs2eXSUCrkZ6TNaNWPtAsTqvyiCNtF7j8LADVDJbAz2X1OiAoKhmBKXg2bmOnSoEFfeF
+         WQYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765798752; x=1766403552;
+        d=1e100.net; s=20230601; t=1765798753; x=1766403553;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=TWXueLrhDneeDmCGizpSHzMSgAg8yMgxTmeT/qXEn+I=;
-        b=o9Zi+U9vVRBmd01p4K9lGxtaxBGCr8IRi7zdBOdxM7GqKB/KZgn8A1cYa1FLTNv7qd
-         yB4e+AillkvjLZxquurtOb8ze7h/gIQgXDDt2IUvk0bxpCrppV9owTHhfVkoMKZWiYXE
-         jxMgemh+XUVH1Ty9noC5bEZDApddBKeabhgdK4fuU7E+LCwdd9v6bfzqMuehqTz4TGnA
-         1YJkkMIYIg7zX3EUgs38MPiL0xybt3NCfnC5hVz7fJWr8eKZp3HqN3OgCd3gzkLE586x
-         xph0ING0aBNBqDnHh+0hZa5CjhzKxzc0hcT/Wc7W1C8dtYjCCsADX7VzLxcIJIj7JcVQ
-         MQbA==
-X-Forwarded-Encrypted: i=1; AJvYcCVGGlNs5eYGsaoav2jiRPGCDmWeEsf5DUWKTfd20RmiLaO5pYRyTL6Ig9ms46qbzqbufmsmWWdANo9mVwNrog==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxunSDKSr6NB4I4GNJo2nphLSrPFgrNbhyO3BYQ++6s0IFaUDjk
-	aBN4WEIYTBL9nX8F5lfY/2G/Ohi5056Ksw2X6vsWaC782poiVXx1YLxB
-X-Gm-Gg: AY/fxX7t2PSfPsG34Ew2Vzq68wh5mSZScPeXIyJophYtZmSID5638BepzDXegvmzgli
-	xSLMYkfbB517J/jaqkzj/XJgfECUeOzuIw0p27kHPGayCTCFWUowuHYxZcuY40ylikjL1/fqRov
-	10ft/UKQrlDFJTDkmvUb9FUjT7z3c40mrudsO7oBhd4HrG7Bo5dklTsrqOVkmWCNpjNUf+2Z6Ph
-	lrd0BcKwWXvQpOOf2zCi9idHYxDEcyMyT94XCBBEQo7J5rx+VpBAzB7zg6Ur8wwhhlHV6bmRw9L
-	+y9MewxKiMlyNl2cfSz5wjDFV6uhQqGKw+YmTRvyl/bkjy85WW0XvnkVxONuuo+suI/X3EvmROc
-	wVCdPRA3cMznzhfSG/9CGsaElBUty8oghmKJY6ymHBa6s4vsmP2Y6cOJsfN7VYnvglz6gaGC3ZP
-	ADkgoYquN4v9I=
-X-Google-Smtp-Source: AGHT+IHBwyvn37cMWft6XaLu78i521F3TitB1ZgZCjrLkgz/dWJXwkRq1mT1+qz6m/LgaTgF4rxTDQ==
-X-Received: by 2002:a17:903:3d10:b0:2a0:a4b7:44af with SMTP id d9443c01a7336-2a0a4b74893mr49683665ad.26.1765798752075;
+        bh=lORwJoeOdmqWvp6Gaq9g1tKkad6KEP5mAC3mejLEu6E=;
+        b=MecXW85pAoijlw5Es91sy9bhLeQVuBVKPbk/+a72qJa4OSjmefzjPQo9Ob2qVnd9iO
+         iSQ5M4YSX/RWA87cfSl1AG1UhwpeYI9o3nXgSjiQ8m55042wmOsw/rg2AGol4pW4rhZi
+         +SqwpdSraYhQN0gJ3OqUnzpq1pN7QGPx6WfsGtjHXNvpHk7KYo7IgAW9BOAkzWkk80YF
+         ujOS0pNeFbWO/+a+LMmXc/hC+tkxV4904zr3ldRFfqAeBuJG583wr4c76hwNZ+3gBoGY
+         JVIWmPVJwE5Hjd0/BBbq9jDKLN7e+z5gCgA6jbqo7uX5XHtlwon212A/pbVJPz+7dvaN
+         miFw==
+X-Forwarded-Encrypted: i=1; AJvYcCUxMgZH+oDt4E6sA4xmLOo6nN6MANRU6U8R+Kka7R9Yv34ozlJvwHl16rslO4DCbJ77zsMEFW1cUCiZJXdd2w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz6+EDFV1LL0fM0vNhNZsJfKHQEUZTB6bVufI7eyqJSmoUzAmr2
+	wgX0QQl9kGTUPrYtAwGvITTricxMQH+zYxa17AXG2Y87g2LGBj3U61L9
+X-Gm-Gg: AY/fxX7gMl97RJ0Dc3i9W8wDgPVgnZySpjhl4iM+cFJml+T1Wfeh8i4NS2uJ5Vi/Fgi
+	sA0qqThN5yOUUsiKhBM41p34GN9Ot2sE6PUXa7+4CnNLyJ0OPS9qYwJC3reFvmdhS5bKpQl+8bQ
+	muqiavb68k1bI/WCvoumZcChurg+YOpCwUTYKfBEWL5ozARwsNsP+3IlfMmaMMyV26A1w1lWrXS
+	3DymNyI8TTyLPdjThVn8gTvvVol4UIUnqqNWpUL8V6ITORdBrBEOaW/+tyJ2wZiIBDiWNfI82ko
+	rHnHLI7V3TCAr7+2+HFF72BFIvut3CrJwtUsYi+B/NtReoWOMWTCseB6++l7JPQzz0+LbJdLtQH
+	zMInjZ86H0NT04di4Ld7skFkT9EmsoxXwkbGg8GLOqtah/PFbmHXmbmdbk8foXybPp4ts47YagO
+	1QEn5m8afyNGE=
+X-Google-Smtp-Source: AGHT+IH43ZxDlO+sXZpKsRY9ws0CLb4ZSMlMGi8iin8W4Uc9EL2/AE6hhR6bEKC++ztievLapVcsEA==
+X-Received: by 2002:a05:6a20:6a28:b0:364:387:8f4e with SMTP id adf61e73a8af0-369ae490337mr10620715637.34.1765798752795;
         Mon, 15 Dec 2025 03:39:12 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29ee9d36ddcsm132733715ad.32.2025.12.15.03.39.10
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c0c2ae4e3casm12755809a12.21.2025.12.15.03.39.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Dec 2025 03:39:11 -0800 (PST)
+        Mon, 15 Dec 2025 03:39:12 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id 504F3444B392; Mon, 15 Dec 2025 18:39:05 +0700 (WIB)
+	id 811FA444B394; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -147,11 +147,10 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Charles Han <hanchunchao@inspur.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
-	George Anthony Vernon <contact@gvernon.com>,
-	Thomas Graf <tgraf@suug.ch>
-Subject: [PATCH 03/14] textsearch: Describe @list member in ts_ops search
-Date: Mon, 15 Dec 2025 18:38:51 +0700
-Message-ID: <20251215113903.46555-4-bagasdotme@gmail.com>
+	George Anthony Vernon <contact@gvernon.com>
+Subject: [PATCH 05/14] mm, kfence: Describe @slab parameter in __kfence_obj_info()
+Date: Mon, 15 Dec 2025 18:38:53 +0700
+Message-ID: <20251215113903.46555-6-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -161,36 +160,34 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=896; i=bagasdotme@gmail.com; h=from:subject; bh=1tOY86lhWOCbSHsqmK/tuDEilXGPwKXl/15tM3wSixs=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4Mqzx7cbGl2s1Xb5iYDm7bLkws+2881173X3pa/f UbeT2+PjlIWBjEuBlkxRZZJiXxNp3cZiVxoX+sIM4eVCWQIAxenAEzk0hqGfzoRZw50iXbWS+pV RRyxzVGfNT/eQV3w9+MclUw9PumMlYwMO5cdc7i131P/rrG85octa1tun66WP3rW6W/Ropnr7E6 G8AIA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=849; i=bagasdotme@gmail.com; h=from:subject; bh=mcnZ1soLgF/JTT1YuxC/XOQhVy9SZYDoshinxHejwDU=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4P0Tdf6vI2dt8iwUrrPLU6ToytxCmtRXso3wY/50 fGG9Ws6SlkYxLgYZMUUWSYl8jWd3mUkcqF9rSPMHFYmkCEMXJwCMBHZKwz/nVbIB4ee2zunpOHQ vBz35Ga7xwYL3V6/ES+tt/jmsMTsOCPDXNsiGd24sMjVrB9Z5rD2NZvPm8/+bp/rS8/i2IdH8rc yAgA=
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
 Sphinx reports kernel-doc warning:
 
-WARNING: ./include/linux/textsearch.h:49 struct member 'list' not described in 'ts_ops'
+WARNING: ./include/linux/kfence.h:220 function parameter 'slab' not described in '__kfence_obj_info'
 
-Describe @list member to fix it.
+Fix it by describing @slab parameter.
 
-Cc: Thomas Graf <tgraf@suug.ch>
-Cc: "David S. Miller" <davem@davemloft.net>
-Fixes: 2de4ff7bd658c9 ("[LIB]: Textsearch infrastructure.")
+Fixes: 2dfe63e61cc31e ("mm, kfence: support kmem_dump_obj() for KFENCE objects")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- include/linux/textsearch.h | 1 +
+ include/linux/kfence.h | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/textsearch.h b/include/linux/textsearch.h
-index 6673e4d4ac2e1b..4933777404d618 100644
---- a/include/linux/textsearch.h
-+++ b/include/linux/textsearch.h
-@@ -35,6 +35,7 @@ struct ts_state
-  * @get_pattern: return head of pattern
-  * @get_pattern_len: return length of pattern
-  * @owner: module reference to algorithm
-+ * @list: list to search
-  */
- struct ts_ops
- {
+diff --git a/include/linux/kfence.h b/include/linux/kfence.h
+index 0ad1ddbb8b996a..e5822f6e7f2794 100644
+--- a/include/linux/kfence.h
++++ b/include/linux/kfence.h
+@@ -211,6 +211,7 @@ struct kmem_obj_info;
+  * __kfence_obj_info() - fill kmem_obj_info struct
+  * @kpp: kmem_obj_info to be filled
+  * @object: the object
++ * @slab: the slab
+  *
+  * Return:
+  * * false - not a KFENCE object
 -- 
 An old man doll... just what I always wanted! - Clara
 
