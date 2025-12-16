@@ -1,246 +1,275 @@
-Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012014.outbound.protection.outlook.com [52.101.48.14])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3718F346E61;
-	Tue, 16 Dec 2025 08:10:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.14
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765872655; cv=fail; b=PTl5VEh6EImsfMuH45IP3Gnr7LEFabirpxfskMU9nD9wP2tXLES/9tXehjSPSGlZi2R+zYZxYlWgMWeVOik8McFJvVhqIuTlWMOR8l+bXsecI6GqKRIx+5Io3LKOafglhhfUzjGUWZ8dgs7/eXX6axbvCrZDulOG9NmdRhr7YY8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765872655; c=relaxed/simple;
-	bh=nhRYD9VfjlXJy+x6cutxBzwtvLRNiJ72t758U5n4sAA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=omccAS2sYMC+VrqoJMH3fWvBffGfCecBqp89AYRElrkgubK/db1NM9zljrm7LJbctabelxehSyqGPKXqksKJIOOXhqPjMYQLNEvhcoZqIIixbENPPB+TdhB4M1NKEboSs6ogzEaevpFs8pXuj6jNxJNYiSol0/5MZyR4GmMuYwM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=TnDfFdfS; arc=fail smtp.client-ip=52.101.48.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A365A3431EC
+	for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 08:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765873683; cv=none; b=fUnbInq8jXzFVzxBJglIUuw6zCgvTX939sFbTdns3eZP44Sj7TUHkP0C+51YtE5JC6qHBDWuXGA+HNsuiFgzvLxJfyx0pPx9AuF0K0sP7hnRL/MHz+MnRDsHJfpTPtj6McL6ZH3Q5zM2FaRh3cx4WAibL+hgL40I+AvwLGjma2o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765873683; c=relaxed/simple;
+	bh=LmPG2KteSIEFTbXCbT/y2wT7jJ3MdnOc6ox925ucXKE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aCxUDN/92SFHA0C5KjzxyqDchNCOZ/AlParloHuJc2kmUg1PWT2iBtiJFKZDDkei8mjyrE270OtdBgRX3hQe8k+6HMJl5P+KtBoB/aUj+U54Tphh/rx9eDDwR5/a62LzYrL8uVxg98j1U+K7ILS2pOnOdie37CxC//20y2HHS6s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q6Tcp21e; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="TnDfFdfS"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=mXve7OSXvtv/5gSaMxTLRaj+HGlQauenyDMEKfLQQbCJhvpnPU5Mnk7HWYTejn3+LjIFconj42qi6wP47GjFomeaAXYDouKq1dQixVwwwqGTl+yKXVaSDhovK5dinP6l+ilsz+umnCJcZSoSPROb0wvbOub7KRet+EtzcUVmdABTHV67MAjM2l2ZVUy8qVBbU/qbEESEOliVuKsly/zUSgKdNmCtsiP770L1vc6aT8FcxAMUErz2rAlXKs/zvlG07WHGFusrEEpsk8xjroTyhVwco7pyUS0jqW01u8rO/ECk7KVim5avmXZ8USA2eqGHV01HLcmdxFH6/Ys8E5NUyw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Ml4hLnysdu+pRUQKE1SCNbox8jlqtOFBVtq8LGX5IgM=;
- b=uXTkU9JNrhAdWziNwi92hy34E4hmxblQSZJf8IoopqE/gpGd3whtIfdLuMeQvBujC0Wu/FQgw7kOeuZXkNBoliyuemsSvmq88iHgHH7NkR3C1j29V3j4/wjUZ7mJwkpRZBUpI18Ehjdc0710javw/4SdZ9CtHMGzxhEoH3MPoYqcWL0Mkum7rNDyaRdsOl3oIEcfmdLRQWJWxKd4+egjc5A/CBZ9X6PdS/9pH6KKKXcwMNhwZOKKpy11beCniaaK6v7FTO5cNa47lpVX7Z62WObesn4EQaIGL/TmyBgJr6j8thQ+5vPNTI/y5dM//FyF5eXlpqOB84x1/FdmrFdbGw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ml4hLnysdu+pRUQKE1SCNbox8jlqtOFBVtq8LGX5IgM=;
- b=TnDfFdfSSTqxrPj/D0FBqPGEFLwd6kBkIS4QYR/XN1MUiZZCJMvmdVHjQZu20iUhBLYc538+q0mIIAn+pzKACEs/O4C21Ig41g2R3pRf5fyPMww6ndA8TDL8sBpPOj/U3kbFxl5iztxvaEXJYgDwZqENTmCWk5zqshocAsQmIJj8h6kAKTZv2I2a3bofr3uOq4JSIeVk2BtpI5Vu8qsb2fYjEwl0xY4Uq8sA1H/Ag5XvyQvdLihuHOaJR5+dGnk9kK50VkyIldBFKp6CSBB0kd6Q3A7YreCvZbAy53spmcHk/9lFHycAzoKMdi3NCbkZO+iZNSrhFoD2iuAswGl//Q==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by DS7PR12MB9476.namprd12.prod.outlook.com (2603:10b6:8:250::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9412.13; Tue, 16 Dec
- 2025 08:10:50 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2%2]) with mapi id 15.20.9412.011; Tue, 16 Dec 2025
- 08:10:50 +0000
-Date: Tue, 16 Dec 2025 10:10:37 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
-	Linux DRI Development <dri-devel@lists.freedesktop.org>,
-	Linux Filesystems Development <linux-fsdevel@vger.kernel.org>,
-	Linux Media <linux-media@vger.kernel.org>,
-	linaro-mm-sig@lists.linaro.org, kasan-dev@googlegroups.com,
-	Linux Virtualization <virtualization@lists.linux.dev>,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	Linux Network Bridge <bridge@lists.linux.dev>,
-	Linux Networking <netdev@vger.kernel.org>,
-	Harry Wentland <harry.wentland@amd.com>,
-	Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <siqueira@igalia.com>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Philipp Stanner <phasta@kernel.org>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Alexander Potapenko <glider@google.com>,
-	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Taimur Hassan <Syed.Hassan@amd.com>, Wayne Lin <Wayne.Lin@amd.com>,
-	Alex Hung <alex.hung@amd.com>,
-	Aurabindo Pillai <aurabindo.pillai@amd.com>,
-	Dillon Varone <Dillon.Varone@amd.com>,
-	George Shen <george.shen@amd.com>, Aric Cyr <aric.cyr@amd.com>,
-	Cruise Hung <Cruise.Hung@amd.com>,
-	Mario Limonciello <mario.limonciello@amd.com>,
-	Sunil Khatri <sunil.khatri@amd.com>,
-	Dominik Kaszewski <dominik.kaszewski@amd.com>,
-	David Hildenbrand <david@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Max Kellermann <max.kellermann@ionos.com>,
-	"Nysal Jan K.A." <nysal@linux.ibm.com>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Alexey Skidanov <alexey.skidanov@intel.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Vitaly Wool <vitaly.wool@konsulko.se>,
-	Harry Yoo <harry.yoo@oracle.com>, Mateusz Guzik <mjguzik@gmail.com>,
-	NeilBrown <neil@brown.name>, Amir Goldstein <amir73il@gmail.com>,
-	Jeff Layton <jlayton@kernel.org>, Ivan Lipski <ivan.lipski@amd.com>,
-	Tao Zhou <tao.zhou1@amd.com>, YiPeng Chai <YiPeng.Chai@amd.com>,
-	Hawking Zhang <Hawking.Zhang@amd.com>,
-	Lyude Paul <lyude@redhat.com>,
-	Daniel Almeida <daniel.almeida@collabora.com>,
-	Luben Tuikov <luben.tuikov@amd.com>,
-	Matthew Auld <matthew.auld@intel.com>,
-	Roopa Prabhu <roopa@cumulusnetworks.com>,
-	Mao Zhu <zhumao001@208suo.com>,
-	Shaomin Deng <dengshaomin@cdjrlc.com>,
-	Charles Han <hanchunchao@inspur.com>,
-	Jilin Yuan <yuanjilin@cdjrlc.com>,
-	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
-	George Anthony Vernon <contact@gvernon.com>
-Subject: Re: [PATCH 14/14] net: bridge: Describe @tunnel_hash member in
- net_bridge_vlan_group struct
-Message-ID: <aUET_bbW6KyxtQKB@shredder>
-References: <20251215113903.46555-1-bagasdotme@gmail.com>
- <20251215113903.46555-15-bagasdotme@gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251215113903.46555-15-bagasdotme@gmail.com>
-X-ClientProxiedBy: TL2P290CA0009.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:2::10) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q6Tcp21e"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1765873677;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=yWXAAe8snWDxAKX8LnlLjaifu4lIot6VPW5PMWrH97U=;
+	b=Q6Tcp21eDyUyL0wawWEDh7vEL6WllVfta3U8eUqtVG2A0wlAQPkQ4FKb/Xexy2RreDqAcs
+	KtPvknn6/Zgc509HifBXwKWYEB+kVnK3mzFdw7ax4akHe+QgX/4bTgg9Fc45QVFpG4HQcC
+	TOwlNiYJX2nXak0ix6xezMY4BQb0LuI=
+Received: from mail-ua1-f72.google.com (mail-ua1-f72.google.com
+ [209.85.222.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-288-6PiYjtR6OD67NT3p4PSWJQ-1; Tue, 16 Dec 2025 03:27:56 -0500
+X-MC-Unique: 6PiYjtR6OD67NT3p4PSWJQ-1
+X-Mimecast-MFC-AGG-ID: 6PiYjtR6OD67NT3p4PSWJQ_1765873676
+Received: by mail-ua1-f72.google.com with SMTP id a1e0cc1a2514c-9411b2335f4so6775589241.3
+        for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 00:27:56 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765873674; x=1766478474;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=yWXAAe8snWDxAKX8LnlLjaifu4lIot6VPW5PMWrH97U=;
+        b=emm48+yF0ZzYsp8JDps5eySn9ubeh6+JcCX3dj/J/nX4AAlg3KNm0uMA322moYdv6y
+         R8IBpv7oByOSussrhHI6cUkg8XX4q29FEWBPIlAOsOf/Puf2tYPE8xEVMCs599PmVD84
+         Dm3s7TcgIOobVYu8hke39PAlQVrJ3yB8h/fTKyeEcrRu9VrQYus7xheZKWiL2irpBCIV
+         sS9y8tc7v088fTDu4My2TGa5flQE2fakslVGjylfr/yYg/4znLdSXztP6vtWHfYOgvSZ
+         g4cdup804Xu6xqsQHeOkvu6O+UiGPvUzX8FNCeA9EF+kxximXhqq0XuE0JsRFhX0mAzB
+         34uQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW5SpKji8n6eJijoeN75W6rdrcfF864trQBT6v2uVCWoe9JE+Hcf+/RRoO0pGhhTzLr9+Bb8yandcVL1JI4JQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwjFn3334vf7nJp1McaXq4drJ2GO4XvaPSD+uPqDyykrE+uXR9f
+	UIra4935CoZwtwtWvfbSASCHD0A7Hw3bpAPm0zYXqujAwr9gbgWMkBUBXTh3GjgYFqF9/rlkAF5
+	yfwBN+t2GkdSr+rwcSWus/SfY/XJesOT70lJf7NfnWcnXtZwKWaZ9H5AbNP1PvScjcZvZSNS9JO
+	CTk8BVpVPbQFHc+NSV5+ABP1Kxbrj2Xxho0vNcM4cCpaCjWZGessRb8GE2
+X-Gm-Gg: AY/fxX7u0WrJaeI236HCoVzdHX4b4yFQm+Hff3Lx3VuKgcDa3L5mnPLnuAHtks83HQf
+	kjlMK6kFJUru2EMCbFOuuaK5x9K2eJtCMiAwJh4w6CeVezWibBGW169ha7uZQKppn6gTlA02/bf
+	cjGfmrRLJi19/Exqg1h1T/IRZ8IsmVXOakXZ0AD1MpI136Le3brtAgSh0pzrfOC4YbFqDA
+X-Received: by 2002:a05:6102:951:b0:5de:78e6:494d with SMTP id ada2fe7eead31-5e827835a90mr4444405137.45.1765873674419;
+        Tue, 16 Dec 2025 00:27:54 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHzmMGDnaMl2jajyZBepJfDirHkpZH/nxfIfMgPUfin+/ZCf2X8oey6qtvVUORPaLDeHoBmBjdnRGvoglfblqE=
+X-Received: by 2002:a05:6102:951:b0:5de:78e6:494d with SMTP id
+ ada2fe7eead31-5e827835a90mr4444399137.45.1765873673989; Tue, 16 Dec 2025
+ 00:27:53 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DS7PR12MB9476:EE_
-X-MS-Office365-Filtering-Correlation-Id: c99754f8-7600-423a-a605-08de3c7aa003
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|7416014|1800799024|376014|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?qkXm0BjdGAi9VT55N2GLH1J6bsnNuBFCBwMBR2yCqs75pzLJpg/epURp95hP?=
- =?us-ascii?Q?YmOlmW/O/zn+f0hpeky9N9he5zJlc4nxJzHKgvEG7Q0KGzO/dzirkGSHjAuE?=
- =?us-ascii?Q?WMnZo4xaKWnFaxo7D1OBZKZfIRZenW9US7H025qI8cEZ/3DQzldcIhOELmKA?=
- =?us-ascii?Q?osoQ/4YEy4G8pZDXdBy2/947Ej7xXUB3oS68VfUgnhBpx4W3cS9YaVufWGQc?=
- =?us-ascii?Q?b6Nmmp9E8u+P0JhgUtT/6mmOZdWVOF+k4Wi4djLL6lNsNHcS9vhiYet5UU++?=
- =?us-ascii?Q?/DCBYdih5WGqI6s91PMWPrnaadkiGBcCIkX4n6bh+cWYrYOf74UV4knx4NK5?=
- =?us-ascii?Q?hW9I07m5vtwHwKuHYC6GnuEOO9nqMDYuzpALPDEHvaKLJwqYRcqL+Td576Js?=
- =?us-ascii?Q?aKlFrwfFQbH6jqbUcEslnKy46ovXktUB02A25U0RZpUl2Fl3KfeLaMxyjS2W?=
- =?us-ascii?Q?PJ5n2gviNK+d5kTifykm808oKiID98CN8rrtTUltiiAt8Z91Y4L4Yy39n1/d?=
- =?us-ascii?Q?hoLPqGSDWm5teJWwRF0wo2pgUQU4z8bQMzZHkiECN3ZlyM0sIMEY9m3QPHhc?=
- =?us-ascii?Q?3MNp364/b2wsPSlSc4Rww2WmfovQF52rmo4HcX27GNlZ+AvAQJCIpp363TSe?=
- =?us-ascii?Q?+9R1nAlW8pTVanabC5+dgQAdGg4kkcKgnzunxPhvmnQ+9mozeuuByC9Z6lr9?=
- =?us-ascii?Q?SjwZIht8+h6IFmp1+6SyQ8GT4M/PHTkFIRbo8sDScjFCBWkP+MxMQVRFJwNy?=
- =?us-ascii?Q?FjQHtXP44rlUxgcfyZPWZ1lzt7hIzZT4jVxLA5inmyd9ystdsbTCIs68lcLX?=
- =?us-ascii?Q?PMDLBZp4p2NdasmZ5NggNeurU78GWsTPQqp5EivXk1RH3t/at6lFpEP8arET?=
- =?us-ascii?Q?Zi+tOSpetzmFuZrxqc0nOmVq0bq1sdtTnfphk41AbDPhe7m1TSwrCV2OsxLr?=
- =?us-ascii?Q?GZDJjYYCY0BJ6CoqrpXfdzPGc13IPTT1G0AEt/YTJ0GVQ536S59VzBf5AHHq?=
- =?us-ascii?Q?SBX83ugiI1nTcRwd2qC4ncQr6p84RhyAqTTUG7l85anUfcvghLHUStY94ugs?=
- =?us-ascii?Q?l7yyJOxMalgJw43lmrO/LfxcCeN+KNnFOTWRUTM7pyNsPUR7R8Y4BZi6QK4R?=
- =?us-ascii?Q?s3hSFS4R2EO2hHb1Qo6D6Cbe9ICeKDpvW74fdGODR0dljLXduMdRfQ6snUep?=
- =?us-ascii?Q?C4iiLxdLxdDPske0KRKRRQbBHX3ljrWJkcvfZIE+gpaEdYAXfgcNm7jdh0e3?=
- =?us-ascii?Q?iG30ianLApDBUb87dMvNdYDeWDl8N3sAFM3vuxY2bNXbkNn49nJo8HDsRpIP?=
- =?us-ascii?Q?dyng77uq/GtwqnaAuLpwkpype42rXNVv5ZwKgIlRqN44gIjFHXk7X7CvveH2?=
- =?us-ascii?Q?teXf81LuKCRipSXtHR1P0Q2F+w7DF2GZoM8XBA0a87r929nl3qRfj6JPpOzP?=
- =?us-ascii?Q?/vqI651aAm0PksX5cYuSQNeeqsqhFtRW?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(1800799024)(376014)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?GMR1rsjwA+mZmoSMlv2Zqg5PhqQvwG8PoT76TB/A7KZed62KBuWIauK+iQUD?=
- =?us-ascii?Q?uqpmWREc30w6mRNi5ZM+SjzSTCLZkPr7JV+KMTFQe6swH7d5vHQ+zf0dpYEt?=
- =?us-ascii?Q?GIu2nHe0s1+O5gi3kbCSy4YVOPvlhsWt7HpXf05B24SpVoI+noihEmsQWPnJ?=
- =?us-ascii?Q?ILZaQm7+mm3b7LyanIN1PbEQTmA3+P92L90GLscWYjn7YmX2SfAEZabSuwST?=
- =?us-ascii?Q?EjzvPmwUggnpTDt1TC2ihx+at7BwZdyEs0eUyFNvKGwjXTz7/hC62JXuJQg8?=
- =?us-ascii?Q?XoUrra5DhVrRL3aw+Hddml8cPqNRCa5l9abdCYsXe0uQo1F2O9/1v5+zNlNW?=
- =?us-ascii?Q?4DU6Q9xKfxVXNzYRGLxrdf85/q7erU9E21eZeE7pGRzOEY/mhnaCk/75vEkt?=
- =?us-ascii?Q?QH1OpHfZit7YlGftmEmS7aEiqIjnFUPlqF98rweJ3l/V9DIfjuXuqAJ5PBj7?=
- =?us-ascii?Q?UnsqzCJQp60swuQ+qy2Ba14FIGUlM9BSBOiyUNormsAzpmmzzoaJDu8DQxAu?=
- =?us-ascii?Q?L+16lHUrWCg+mkcf+8lciTm7bpaWrqbBsmlpYBILrgRtdngKMchSkQO0CPZi?=
- =?us-ascii?Q?F/oYlyxHw4x+R90OERWWufHHpvkwH0A3mL3LllKG39XTJMaoFNWxT8w4mB0z?=
- =?us-ascii?Q?i2B5+voSnM6kCEymaC867AKfDsXAG5sK9R/9+kV8HabwMYND7BSw8/38zRqF?=
- =?us-ascii?Q?DNSAdyi82jDhA48jTTCObFQLoLfQVODKyD1VAzp1sCn6CT6nONj/DTK/H0uN?=
- =?us-ascii?Q?Vx1sQS8aiEG6QII16LPjMdpXowgqN77vM11t+g0ixxdpZRTBWBXOaGDdW7Fd?=
- =?us-ascii?Q?dx2gNtLpzxqMWhz7Y43E6QHY5HzYiiSgThF8JzGT6YeuKjNvQRAp4SWC3CUr?=
- =?us-ascii?Q?tnfcoFBpmqJZDOps2W/r6TJ6PWJw337aiqNbSXw2b3eg7F2K0DS/2IS4kRXv?=
- =?us-ascii?Q?YQV6Yc3vwaT9z6yvPk4kGqcZsou6p1sHC47KJm3mLwVaJscJAk1ciDNvRNU4?=
- =?us-ascii?Q?vmiHRt4ek71JrydTLI8KdF07jnu36Sr0WPFWVjCcdGBLQtbsQ31Wdezm0ecI?=
- =?us-ascii?Q?JhYsNwavM2eC6zIceUUh6fzAx463Pt6R1+pO4Y8FIPVTvnBRry/btE0aTsB7?=
- =?us-ascii?Q?82aUOmogWVosQj0I10Z+Pmh/pS1bd5H+IBBhirjKJJYFmmXvqquDHgdx4KJ+?=
- =?us-ascii?Q?hiFN+omF4jz/iGrIrIrbOJpICy35rsfB5zJy25Kh5B/niJnHDoJFc9LHwBnh?=
- =?us-ascii?Q?U2PFkdA1AfchKfHeOL4THF2tbpnjA6eLSlpBovdzTLvMRm9yQTpXhycJJOPV?=
- =?us-ascii?Q?D2uTb0krBVKe6qgTZ50sCTfhoI3YmXH4JfAhXVsknrQbZyygV6sab6SoBwCS?=
- =?us-ascii?Q?/5FDPaa7Q3yttccbpijFvir4egNbEwBU9KOM5w5KWM+V5JIEVz5ZKf5pU99s?=
- =?us-ascii?Q?Ud465tArDFqI/avl1KA009dDNBLcOjYElirDsKEl6Ye3S1O1texnMUWKO11d?=
- =?us-ascii?Q?frEIMFMUdr6tjl00pNuvfiyGoJ5yWrAlXM3Sddfs6wLYPs7T0SV/2dhN1HKF?=
- =?us-ascii?Q?ny1xJLWxk2w+I+uF3fEkAqZW+bWWRVolqxRSdDKC?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c99754f8-7600-423a-a605-08de3c7aa003
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Dec 2025 08:10:50.4122
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 9Jn1GRAVl7fWR6i2nOitnqAdyxeLG+agMppQMoqRYGdALbOZFDDkQLF4Y8PSVW8MdLCtX3o9nK8w98LWXl102A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB9476
+References: <20251127032407.33475-1-lange_tang@163.com> <20251210040328-mutt-send-email-mst@kernel.org>
+ <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com> <CACGkMEt-v2RGTbzEgfocpZvZw1SKB8j4MQ6zoMFvGJQXXFuMtQ@mail.gmail.com>
+ <64d63e98.e7f.19b1595bd4e.Coremail.lange_tang@163.com> <CACGkMEvZQb1ADyEM73jE8_OdeU8YtSbR8YCJ+3anDg8VhkpBLg@mail.gmail.com>
+ <5ecbc090.8006.19b21117c0a.Coremail.lange_tang@163.com> <CACGkMEvjr_iVBzHa8GxKCsn=h1EbWzmVrCkpTy+Rc51gWaxH3w@mail.gmail.com>
+ <20d26393.751f.19b26214d83.Coremail.lange_tang@163.com>
+In-Reply-To: <20d26393.751f.19b26214d83.Coremail.lange_tang@163.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 16 Dec 2025 16:27:38 +0800
+X-Gm-Features: AQt7F2rMQm6vDU2W1mxX3_5G9M5Cwao_r4m-ysfRSlQhwDgiWrX1hHqjxrCHDxM
+Message-ID: <CACGkMEvPEXBzPSUcVcGfMY2yKCPz4GqDFuXYmZmVsKfQMtACVA@mail.gmail.com>
+Subject: Re: Re: Re: Re: Re: [PATCH v1 0/7] introduce virtnet_mon for monitor virtio_net
+To: Lange Tang <lange_tang@163.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, 
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>, Tang Longjun <tanglongjun@kylinos.cn>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: bRV5ShsELbQ9iOaqu4DQRAOBhY6dW3_QKgkb96hQRSo_1765873676
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 15, 2025 at 06:39:02PM +0700, Bagas Sanjaya wrote:
-> Sphinx reports kernel-doc warning:
-> 
-> WARNING: ./net/bridge/br_private.h:267 struct member 'tunnel_hash' not described in 'net_bridge_vlan_group'
-> 
-> Fix it by describing @tunnel_hash member.
-> 
-> Fixes: efa5356b0d9753 ("bridge: per vlan dst_metadata netlink support")
-> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
-> ---
->  net/bridge/br_private.h | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 7280c4e9305f36..bf441ac1c4d38a 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -247,6 +247,7 @@ struct net_bridge_vlan {
->   * struct net_bridge_vlan_group
->   *
->   * @vlan_hash: VLAN entry rhashtable
-> + * @tunnel_hash: tunnel rhashtable
+On Tue, Dec 16, 2025 at 3:48=E2=80=AFPM Lange Tang <lange_tang@163.com> wro=
+te:
+>
+> At 2025-12-16 11:59:14, "Jason Wang" <jasowang@redhat.com> wrote:
+> >On Mon, Dec 15, 2025 at 4:12=E2=80=AFPM Lange Tang <lange_tang@163.com> =
+wrote:
+> >>
+> >> At 2025-12-15 14:41:42, "Jason Wang" <jasowang@redhat.com> wrote:
+> >> >On Sat, Dec 13, 2025 at 10:41=E2=80=AFAM Lange Tang <lange_tang@163.c=
+om> wrote:
+> >> >>
+> >> >> At 2025-12-11 16:32:15, "Jason Wang" <jasowang@redhat.com> wrote:
+> >> >> >On Thu, Dec 11, 2025 at 10:52=E2=80=AFAM Lange Tang <lange_tang@16=
+3.com> wrote:
+> >> >> >>
+> >> >> >> At 2025-12-10 17:04:04, "Michael S. Tsirkin" <mst@redhat.com> wr=
+ote:
+> >> >> >> >On Thu, Nov 27, 2025 at 11:24:00AM +0800, Longjun Tang wrote:
+> >> >> >> >> From: Tang Longjun <tanglongjun@kylinos.cn>
+> >> >> >> >>
+> >> >> >> >> hi,
+> >> >> >> >> virtnet_mon is used to monitor the data packets of the virtio=
+_net driver
+> >> >> >> >> and the related parameters of virtqueue, useful for tracking =
+its status
+> >> >> >> >> and troubleshooting faults.
+> >> >> >> >>
+> >> >> >> >> pls review. tks
+> >> >> >> >>
+> >> >> >> >> Best regard.
+> >> >> >> >
+> >> >> >> >what does this achieve that direct use of tracing would not?
+> >> >> >>
+> >> >> >> I apologize that my explanation of virtnet_mon was not detailed =
+enough.
+> >> >> >> virtnet_mon uses kprobe and buffers to monitor virtio_net.
+> >> >> >> To monitor virtio_net, it is necessary to track the member param=
+eters of the virtqueue corresponding to each data packet and output them.
+> >> >> >> When PPS very high, other tracing techniques, such as ebpf, may =
+not be able to handle it, resulting in data loss because they do not have s=
+ufficiently large buffers to batch export log data.
+> >> >> >
+> >> >> >Can you expand more about this? For example, in which kind of setu=
+p
+> >> >> >and what do you want to trace and why ebpf can't handle that. Note
+> >> >> >that the most lightweight stuff is the counter, have you tried tha=
+t?
+> >> >>
+> >> >> For example, when there is occasional latency in data transmission =
+between the
+> >> >> virtual network frontend (virtio_net) and backend (such as vhost_ne=
+t),
+> >> >> we may need to track the time taken for each packet received and se=
+nt in the virtio_net driver.
+> >> >> Typically, we accomplish this using eBPF, such as bpftrace. The pse=
+udocode might include the following:
+> >> >> """
+> >> >> kprobe:skb_recv_done {
+> >> >>         printf("%ld skb_recv_done Cpu:%d ...\n",...);
+> >> >> }
+> >> >> kprobe:skb_xmit_done {
+> >> >>         printf("%ld skb_xmit_done Cpu:%d ...\n",...);
+> >> >> }
+> >> >> kprobe:virtnet_poll {
+> >> >>         printf("%ld virtnet_poll Cpu:%d budget:%d ...\n",...);
+> >> >> }
+> >> >> kprobe:start_xmit {
+> >> >>   ...
+> >> >>   printf("%ld start_xmit Cpu:%d type:%s seq:%ld ...\n",...)
+> >> >> }
+> >> >> kprobe:gro_receive_skb {
+> >> >>   ...
+> >> >>   printf("%ld gro_receive_skb Cpu:%d type:%s seq:%ld ...\n",...)
+> >> >> }
+> >> >> kprobe:receive_buf {
+> >> >>   ...
+> >> >>   printf("%ld receive_buf Cpu:%d name:%s avali_idx:%d used_idx:%d .=
+..\n",...);
+> >> >> }
+> >> >> """
+> >> >> Using the above bpftrace code, we can track the timestamps of the d=
+ata as it passes through these functions,
+> >> >> along with skb and virtqueue information, and output logs via print=
+f for further diagnosis of the causes of the latency.
+> >> >> Interestingly, a significant amount of logs were found to be missin=
+g when executing these bpftrace codes.
+> >> >> Below is the testing environment:
+> >> >> VM: 8G8C=EF=BC=8Cvirtio_net mq=3D4, kernel 6.18-rc7, iperf3 -s -p 1=
+314
+> >> >> HOST: iperf3 -c 192.168.122.218 -t 100 -p 1314 -P 4
+> >> >> It was also found that when testing with mq=3D1, there was no log l=
+oss.
+> >> >>
+> >> >> Compared to mq=3D1, the reason for log loss at mq=3D4 is suspected =
+to be due to data being sent or received
+> >> >> by different CPUs. Additionally, under the 4-thread iperf testing s=
+cenario with PPS > 150,000,
+> >> >> the log data is asynchronously output from different CPUs, leading =
+to excessive IO pressure that causes log data loss.
+> >> >
+> >> >I think what I don't understand is how the things you introduced here
+> >> >may help in this case?
+> >>
+> >> The virtnet_mon module introduced here abandons eBPF and uses kprobe +=
+ kfifo.
+> >> In the aforementioned cases, all the information that needs to be trac=
+ked first enters kfifo,
+> >> then is formatted into logs and cached in a large buffer.
+> >> Finally, it is exported to user space in batches through the virtnet_m=
+on_read function,
+> >> thereby reducing IO pressure and preventing log loss.
+> >
+> >Well, this "problem" seems not virtio-net specific. Have you tried
+> >with BPF ringbuf or perfbuf?
+>
+> Concerning the ringbuf and perfbuf in bpf, I may need some time to verify=
+ whether this can resolve this "problem".
+>  I will get back to you with the results.
+>
+> On the other hand, I did not find any tracepoints in virtio_net that trac=
+k the virtqueue,
+> such as name, num_free, avail.idx, used.idx, last_used_idx, etc.
+> Could you consider inserting these tracepoints in some key functions? Thi=
+s would facilitate direct tracking by perf.
+> For example:
+> start_xmit
+> receive_buf
+> skb_xmit_done
+> skb_recv_done
 
-While you are at it, I suggest making the comment a bit more useful.
-Something like:
+I think it can have.
 
-@tunnel_hash: Hash table to map from tunnel key ID (e.g., VXLAN VNI) to VLAN
+I posted a tracepoint support for vhost about 10 years ago (-ENOTIME
+for a new version though), so perf can track.
 
->   * @vlan_list: sorted VLAN entry list
->   * @num_vlans: number of total VLAN entries
->   * @pvid: PVID VLAN id
-> -- 
-> An old man doll... just what I always wanted! - Clara
-> 
+https://lists.openwall.net/netdev/2012/05/07/59
+
+Thanks
+
+>
+> >
+> >Thanks
+> >
+> >>
+> >> Thanks
+> >> >
+> >> >Thanks
+> >> >
+> >> >>
+> >> >> The above are some of my personal thoughts, and I would love to hea=
+r your opinion.
+> >> >> Best regard.
+> >> >>
+> >> >> >
+> >> >> >>
+> >> >> >> As for the duplicate code, it is only to obtain the layout of th=
+e relevant structure, and I have not yet thought of a way to avoid duplicat=
+ion. I would love to hear your suggestions.
+> >> >> >
+> >> >> >Thanks
+> >> >> >
+> >> >> >>
+> >> >> >> >
+> >> >> >> >> Tang Longjun (7):
+> >> >> >> >>   tools/virtio/virtnet_mon: create misc driver for virtnet_mo=
+n
+> >> >> >> >>   tools/virtio/virtnet_mon: add kfifo to virtnet_mon
+> >> >> >> >>   tools/virtio/virtnet_mon: add kprobe start_xmit
+> >> >> >> >>   tools/virtio/virtnet_mon: add kprobe gro_receive_skb
+> >> >> >> >>   tools/virtio/virtnet_mon: add kprobe ip_local_deliver
+> >> >> >> >>   tools/virtio/virtnet_mon: add kprobe skb_xmit_done and skb_=
+recv_done
+> >> >> >> >>   tools/virtio/virtnet_mon: add README file for virtnet_moin
+> >> >> >> >>
+> >> >> >> >>  tools/virtio/virtnet_mon/Makefile      |   10 +
+> >> >> >> >>  tools/virtio/virtnet_mon/README        |   35 +
+> >> >> >> >>  tools/virtio/virtnet_mon/virtnet_mon.c | 1048 ++++++++++++++=
+++++++++++
+> >> >> >> >>  3 files changed, 1093 insertions(+)
+> >> >> >> >>  create mode 100644 tools/virtio/virtnet_mon/Makefile
+> >> >> >> >>  create mode 100644 tools/virtio/virtnet_mon/README
+> >> >> >> >>  create mode 100644 tools/virtio/virtnet_mon/virtnet_mon.c
+> >> >> >> >>
+> >> >> >> >> --
+> >> >> >> >> 2.43.0
+
