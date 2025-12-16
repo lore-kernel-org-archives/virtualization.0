@@ -1,74 +1,73 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E2FD34403C
-	for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 15:20:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF66235CBB8
+	for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 15:21:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765898423; cv=none; b=A1z7zC1LB4nivO0IIQCeP/e/xXq1se016STBnOmhJs2+o0TBurI7l7CWsarqQU4VlPSodnDL77/lKXVqdOKH6b+7zSuePdFm1DupnzrxPEH412G8GbUFP8enTeXcnRCdSfSfJKvU1TzfWIGAVI0VHp2+s4sFP3mLYHIf+yhHgkU=
+	t=1765898497; cv=none; b=n5DO/VLbJcFqUvX2AMwr314WYlnZSd4hNck2axWuRIYQ+Nr/5bkN2XJwrPanMqwrodMmoMZ+BPJ36inhAxeRX5pMPL9M13ebxWm8/fAXtcPYtI46Cnvblyustcxd6rX7C3VEO0Xe20PpvWn36sgoP32RalmjJ4oRRoAGgLm0KZE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765898423; c=relaxed/simple;
-	bh=2h3WBnEQJKctPY2asYyEGA7td2QJtLLqP+/9R300ga8=;
+	s=arc-20240116; t=1765898497; c=relaxed/simple;
+	bh=kUqJrtaM24NDu8J1LFBz422ot+phR2OLYLy5w6GVNNA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qBSYbAjqDMDFymdRnv7ISC1xeVNgTCGNYTnSNPl7bIXqBe0qpE4UNU5tU+YM3qQAYx+lPBNeejxZweLDWXJnskjEmFyMM7TWcRZbqwtD1/YF/Ar0WY71qMa3jwojx2+tgmb+fFJkbKyBEugIDCT8mIFfYbwoPXmtNipv+xS7E9w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KwR11kC8; arc=none smtp.client-ip=209.85.214.171
+	 To:Cc:Content-Type; b=IXyvn04/CycLTwoCrKDSSRGHoLHG6ZAr1Zaj0VIVVu+2X63KgfLNE2WE3zhC/HWHFfDjS0300iW6qG0KE7nhNSrgBD6qG5np0hNEOrU44fN1f80GWcHmIU0QmdWUUe3aP7tMXTqp4xJGr/HNajXxuW40pC7IcqiymmdJ/D68jRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rc9y1yTx; arc=none smtp.client-ip=209.85.210.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KwR11kC8"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2a110548f10so4216365ad.1
-        for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 07:20:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rc9y1yTx"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-7ba92341f07so335923b3a.1
+        for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 07:21:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765898421; x=1766503221; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1765898490; x=1766503290; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Um9j1NvhAvuOmXHqodLfor6UadH2pWBjGMeLJlrrYrA=;
-        b=KwR11kC8X86+aZM9Kd0ubv0E+0bxoaFWDH+kOXnkjUGGDBtCKnLMhUGt3MAHCgl+Y5
-         fVRhizMo5g5I2NREbLJIRpaFE/6rTz9M68hUM/K5AxRMMh2dPd3gRB1s29bEjOMwX0TN
-         cSOfcYiLVkW5wUXk2GZKqvLdSsPWLwg1AyIcfBp75rj74gPfjY0p4JPDZjsgiNydBoRF
-         pRa/8Egx+H4998fYhFvfuNjmAuyuwvBGQAe+ECDqA97zf5PD80333p+yiPyYY457K49T
-         TDC3r2veoC8UdeKIh7liW4C3gPTI/Lie74eMgml2lC79J/4H0CV/HcMdesEI+7UVpkz+
-         PCwQ==
+        bh=G6A3FJy1wSkXfE42mqpxDchsxNCyuEhZg+omH3hGmm4=;
+        b=Rc9y1yTxJMZKy1jKvYd6jTBlUIx2a8rRkGHRBznnCdfM5+NM/aZ6p6w1g2U8eTegE+
+         CIUhNb2/pdKD196/n5U5bieFxSKy3+hU/txKD4W45FAbVrqbXSTZxYTkcT6kkQ5xojeB
+         yTDWQ0cjboGguArwwjwAwyx4P/8Xe3J70nMpH11XuYymRmj/w9wlLdboA7oIAxi5AYVI
+         jiNN+EUQXoW9HzLzYFllw2zAx6bTKjmrpFoXUz5GzDggfVVBfl1x59p5GdgRimhnleUW
+         4yuuJyhevVNz5AvQR0JLnUW7k1guH1nTYoyyVunRHOsk3jIixN34lBGP74NVKPsme8aB
+         d3XQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765898421; x=1766503221;
+        d=1e100.net; s=20230601; t=1765898490; x=1766503290;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=Um9j1NvhAvuOmXHqodLfor6UadH2pWBjGMeLJlrrYrA=;
-        b=f5XLjTsuyDqlxgHWkKwvYhbsdv1qEM/5HHEpeSIQrbA7du/IeRTCpTnxvbxl6y5BnT
-         xjiF8GCrveaJajzEG7bXsAf364aM6iEDV49ii0Ij655IDLCfzjTqRHJ99uH7ENgb+v+a
-         IeHtSMrZwC0+yCGLECEkl0ci/btesKrRMNkjc6GBkBJaEcp8cQP+f2mdi0ckRedPVP9V
-         qqLKt/hU8U3AB0iWbRDTghS2dzD28Z0aLJCifFN4JO4dFVQ4YffFHgQcSkKSIa4+jKSw
-         636xHyyobwtqV0iXxw8t+HVoCLpuMkORihM/9kkzUoIAVwFWrmb007mFW7h2UaOeQq2I
-         43IQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXdbvK8Nt4fhanxK+FpXyaz30MYjfCOVqE4fBdhhumR2lnjmNl5Yu8OCvNBQufhOHrQP8e7YHd2pcggHWxg+w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz0dKNPa2t6dvcaEZhQ/0J8ytezptuVnFq9UEeI4NCD6inULr+E
-	ALWshby+JdjIN3Mtn9rOyTtWEMaafAwDb1EeiaRdylp2Plyfzm7ttvI/P3qSUh1RHu96glnRpPj
-	yuYvgNZZg+e4Lz0IoM1z7p8Pt5TTpWZA=
-X-Gm-Gg: AY/fxX5eA0/WYVXlgJ9gx5k8xZhLS3HscrMjLI5lJsxYxMwBYzM6JNDQ24aTCj1rS94
-	18wlmxEvm/ztcG9byoiuaNJ/tmurdvt0TB6jWyDlyGLjBsYrtqvHgxiprT7GQHjBf51cNJnoe4O
-	NN3sl4tVmtCqsL/AjhMuty6Ld9FjuLxV9Q0Y9S1+h0dJXxQTqQj1UPHlwcNw4epX+XMTB6naiQ/
-	2MEcb0yej/NOl3uv5qRoTijomJhi1BFxpQ8pmPM/D57p9lUyBnLnNCZaWzg88eNLrAqSbwLne4b
-	mAQVMQg=
-X-Google-Smtp-Source: AGHT+IGYJpLwVd3WmfTCVN6vD/x/9T3gUFCIaNjQX2AnDfzywCiHaDROcEgCyN90fYOeDZvtNwbDXrs4JcvDTNG1WwM=
-X-Received: by 2002:a05:7022:3a0d:b0:11e:3e9:3ea4 with SMTP id
- a92af1059eb24-11f34c52cc5mr5906109c88.6.1765898419103; Tue, 16 Dec 2025
- 07:20:19 -0800 (PST)
+        bh=G6A3FJy1wSkXfE42mqpxDchsxNCyuEhZg+omH3hGmm4=;
+        b=Fv/1/6AhdJtbuuklNULYjYcxOJPaWzMSM/dYpGqeq4idGgSw6RJql0tAI8FUUgloP9
+         frIJ5oOOqto7RtRcD5uITsbxj+NznIJ3q3mxMnvXsO6OP3zO+TVspqHtGYuhMUoaKUMw
+         NcOhgdsPnjHSmcL4ZhXFxZNHeEc0oNXUq9zcL7NgLkCPcgG/6KK+DGFYcte7HWHEkQag
+         GOZUjU2z0tn/EQ6KPrSn/+Lz3DHFQmFdwI4R+0f/q2CtDZnrrAsFNIUsTOzu6jnDRdfd
+         8F7jOZyuf0VeOF+/A2Qzf1xLOSycRWTRvmVLcja8pP8OXDuB65g7ph/BD6b0bwW5+4/R
+         vKtQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWaCdrXqvGk8LqZkZeRYEa0O5tE3HbeAr/xtuiYlQn5rY04za6Z2epRWcNWDZmIsN2tOVrtobtIkjFqFd/vPQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxsKBHoA7Di/BqzJu1qY/rYDXjoxJRnsN2IWcnAnooziR7K07Ga
+	dUL9HV7ULQk1e1yrSXRvchkwwnb4YKdH/GbAC4o2Rer2wVhbfGV0Yg2g4+nc9mcV//+CsgqBXa5
+	l2hEKj3CoIPPHn0sTxNXcQSggSPRhaKo=
+X-Gm-Gg: AY/fxX6OArT1r+o930upNKJFB+w95gxl5lbElsI98C4J5MK1m2ujHOBXbZKWN3g27RN
+	UF8qgPl+T5w1YAlK7ovZ8wow32tTPhw0gkg8qybDguST2TuyVTZqx/ifobEf82ktj2NnWCXOYeK
+	bEMsh2jpuNlhTa1+MBFoIRXcsb8fW88e8jvjk32gd6ZhoIpl3U9f1EBKn5M0RmQY+eekkyqimgv
+	1OGrDYxQi7d1wkVWYh/U5b4dvVVOaQTlJAOok4D/l86BrE5pwodlx1rg5+jZnzGlLOzou5O
+X-Google-Smtp-Source: AGHT+IFq0qaYbGK7y/3ERMab5mfBMJZm2RVpJeQ2PDWWvVrS9uWYHKl8nJo9NGLv/zMgaMY45LKm9slZF+vnfJuCU/o=
+X-Received: by 2002:a05:7022:b98:b0:11e:3e9:3e89 with SMTP id
+ a92af1059eb24-11f34c5d690mr6648024c88.7.1765898489968; Tue, 16 Dec 2025
+ 07:21:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251215113903.46555-1-bagasdotme@gmail.com> <20251215113903.46555-11-bagasdotme@gmail.com>
-In-Reply-To: <20251215113903.46555-11-bagasdotme@gmail.com>
+References: <20251215113903.46555-1-bagasdotme@gmail.com> <20251215113903.46555-10-bagasdotme@gmail.com>
+In-Reply-To: <20251215113903.46555-10-bagasdotme@gmail.com>
 From: Alex Deucher <alexdeucher@gmail.com>
-Date: Tue, 16 Dec 2025 10:20:06 -0500
-X-Gm-Features: AQt7F2ra4W4DJMCA0k4t80_q2saRqZRxc2HY97wTRTVoyOkAEkAv1EtqbtLiuMo
-Message-ID: <CADnq5_P04522xETHty9hn5JO=mNbKSg3Pa68=u8cZ+JgNLt1Jg@mail.gmail.com>
-Subject: Re: [PATCH 10/14] drm/amdgpu: Describe @AMD_IP_BLOCK_TYPE_RAS in
- amd_ip_block_type enum
+Date: Tue, 16 Dec 2025 10:21:18 -0500
+X-Gm-Features: AQt7F2rE8ID9d6NCh1LRY2rQdA6w_Kl1ZhHVictIiyXPuu3Pg_xadHkkj9RiiLU
+Message-ID: <CADnq5_NsELxchDeka2CX1283p9mn4+P9_V9Mi+SNiWwM_sQepw@mail.gmail.com>
+Subject: Re: [Linaro-mm-sig] [PATCH 09/14] drm/amd/display: Don't use
+ kernel-doc comment in dc_register_software_state struct
 To: Bagas Sanjaya <bagasdotme@gmail.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, 
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>, 
@@ -80,11 +79,11 @@ Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux Networking <netdev@vger.kernel.org>, Harry Wentland <harry.wentland@amd.com>, 
 	Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <siqueira@igalia.com>, 
 	Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Matthew Brost <matthew.brost@intel.com>, 
-	Danilo Krummrich <dakr@kernel.org>, Philipp Stanner <phasta@kernel.org>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Matthew Brost <matthew.brost@intel.com>, Danilo Krummrich <dakr@kernel.org>, 
+	Philipp Stanner <phasta@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
 	Sumit Semwal <sumit.semwal@linaro.org>, Alexander Potapenko <glider@google.com>, 
 	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>, 
 	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
@@ -116,44 +115,48 @@ Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 15, 2025 at 6:48=E2=80=AFAM Bagas Sanjaya <bagasdotme@gmail.com=
+Applied.  Thanks!
+
+On Mon, Dec 15, 2025 at 6:41=E2=80=AFAM Bagas Sanjaya <bagasdotme@gmail.com=
 > wrote:
 >
 > Sphinx reports kernel-doc warning:
 >
-> WARNING: ./drivers/gpu/drm/amd/include/amd_shared.h:113 Enum value 'AMD_I=
-P_BLOCK_TYPE_RAS' not described in enum 'amd_ip_block_type'
+> WARNING: ./drivers/gpu/drm/amd/display/dc/dc.h:2796 This comment starts w=
+ith '/**', but isn't a kernel-doc comment. Refer to Documentation/doc-guide=
+/kernel-doc.rst
+>  * Software state variables used to program register fields across the di=
+splay pipeline
 >
-> Describe the value to fix it.
+> Don't use kernel-doc comment syntax to fix it.
 >
-> Fixes: 7169e706c82d7b ("drm/amdgpu: Add ras module ip block to amdgpu dis=
-covery")
+> Fixes: b0ff344fe70cd2 ("drm/amd/display: Add interface to capture expecte=
+d HW state from SW state")
 > Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 > ---
->  drivers/gpu/drm/amd/include/amd_shared.h | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/gpu/drm/amd/display/dc/dc.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/gpu/drm/amd/include/amd_shared.h b/drivers/gpu/drm/a=
-md/include/amd_shared.h
-> index 17945094a13834..d8ed3799649172 100644
-> --- a/drivers/gpu/drm/amd/include/amd_shared.h
-> +++ b/drivers/gpu/drm/amd/include/amd_shared.h
-> @@ -89,6 +89,7 @@ enum amd_apu_flags {
->  * @AMD_IP_BLOCK_TYPE_VPE: Video Processing Engine
->  * @AMD_IP_BLOCK_TYPE_UMSCH_MM: User Mode Scheduler for Multimedia
->  * @AMD_IP_BLOCK_TYPE_ISP: Image Signal Processor
-> +* @AMD_IP_BLOCK_TYPE_RAS: RAS
-
-Reliability, Availability, Serviceability.  I've fixed this up locally
-and applied the patch.
-
-Thanks,
-
-Alex
-
->  * @AMD_IP_BLOCK_TYPE_NUM: Total number of IP block types
->  */
->  enum amd_ip_block_type {
+> diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/di=
+splay/dc/dc.h
+> index 29edfa51ea2cc0..0a9758a042586f 100644
+> --- a/drivers/gpu/drm/amd/display/dc/dc.h
+> +++ b/drivers/gpu/drm/amd/display/dc/dc.h
+> @@ -2793,7 +2793,7 @@ void dc_get_underflow_debug_data_for_otg(struct dc =
+*dc, int primary_otg_inst, st
+>
+>  void dc_get_power_feature_status(struct dc *dc, int primary_otg_inst, st=
+ruct power_features *out_data);
+>
+> -/**
+> +/*
+>   * Software state variables used to program register fields across the d=
+isplay pipeline
+>   */
+>  struct dc_register_software_state {
 > --
 > An old man doll... just what I always wanted! - Clara
 >
+> _______________________________________________
+> Linaro-mm-sig mailing list -- linaro-mm-sig@lists.linaro.org
+> To unsubscribe send an email to linaro-mm-sig-leave@lists.linaro.org
