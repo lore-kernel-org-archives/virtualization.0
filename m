@@ -1,146 +1,119 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 422093328FA
-	for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 04:18:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BABB34250B;
+	Tue, 16 Dec 2025 06:28:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765858714; cv=none; b=ejzrIxf1dH1XgZ0SEqCmkD1uGuD+TiKnTtasm+PZwZnVXArWeC+6DPYbt36oVvhRVpiGFMYWPsqjm+VqAbuLidfwKUWtU88UKc0R+XqFjd9tpK+0+dKn7by/zhamrqsaA0UpXnHxHmMcoLCu9SfWUeYBMQvv7AGBxpN4p1C7vdA=
+	t=1765866529; cv=none; b=uzIegAIVt8cMshXZxjANErxD0m9DTqq3YGLY9Ko/JZK5HHfHx0m4oSGEHVhzawgOBQ/ajWnlT7JVypibcaK0+VBGSMG9EsrIaQtg27CE1cvMaKSMfdLJ1k2rBu+2Fm8D3lccylzdV114WjJqVxhTQg1Jn97M/tHAnlWuFSDSiOQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765858714; c=relaxed/simple;
-	bh=8DUjCNr/nxXg5R3wmw4ZM/MLoFfePhldzOpxojnv4JY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qB5VMnARb1gKfSL9TKibFIX6kxm8/hW2fnnjY6Mp2LZGwuTNY5ngAG27+eZqqnpPkXLnpf+VakG0vcW4pycC/nC84nA/ObxjpAY1Nu+3b+o47PEC35asvwLOTnKfBn/rbkoVSKRAdVNlO+udr38xDuBIpRBzcekk4eXY1jtS1VM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A5NjXvGD; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1765866529; c=relaxed/simple;
+	bh=hl72qZuidi/fLgdA/aZejsYqHxbC0jiouCeZm+C2tmY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TSeAeZLAFJECqlrYNKouOyZ/EdSNkQ0sqkuUH5i0rQuEP2O/lVqAX+XDXJtMU2/hxTxUs2LkhrhqJg5e1eJjLMEPZy2gUxDy1lSMPjvgvtt7DthmiId13G2cKZaT0rLasciBTlelhOdA8QSGyFNvO3UyKuEltdfMpiSi4wLsreU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=XKCGse6H; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A5NjXvGD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765858695;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8DUjCNr/nxXg5R3wmw4ZM/MLoFfePhldzOpxojnv4JY=;
-	b=A5NjXvGDLxOTN7i8uepsASxQWSK+oQpP3F8+IpOowT8SlHQppyg8ggIXB/AXVsF6wvN9Zc
-	e4n+5xZo2YaMJ9Jc5jT9MTjoQYNQLN37nWLpWB/8Lxdf3qMrrFknQ+bDByT9jRse1kPp7l
-	hfLB5XcwzeaHGrLpxhvy11YrzrW+NsQ=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-650-svHowBLaMKmI9h_njyKrcg-1; Mon, 15 Dec 2025 23:18:14 -0500
-X-MC-Unique: svHowBLaMKmI9h_njyKrcg-1
-X-Mimecast-MFC-AGG-ID: svHowBLaMKmI9h_njyKrcg_1765858693
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-341616a6fb7so4616715a91.0
-        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 20:18:13 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765858693; x=1766463493;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=8DUjCNr/nxXg5R3wmw4ZM/MLoFfePhldzOpxojnv4JY=;
-        b=VMSD4uAjcmR+kvqGD3dT6buU4e54GlFiDdEQbrjRaFDuZLqR55wIrP7VYtI+vYmWqi
-         39xKJ3oN2rhfSJLCRQSd/X4K5aBhuFJazAjiunhpHQtZG2cnDZJQ8oRjW8N3Fqhco7Pd
-         eKZft7dFLWVL19aSjqx6V3YfUcYtcQuTOJjiSi+fjBDzzGBdjXTNxCkWtgVZH/hkGd1X
-         8Iz6gde/x5qe9DjQJJxNyQKQFifgDReojwlqmX2QHEtv10lzv0UCBqls8RxVlUMnAIGR
-         wL8hitYfUnvmsKwW7htjRH//vOKBnxTfcyPdA8mbfCGFUvI3BovXn1I1p80/8WTR5mtK
-         1Feg==
-X-Forwarded-Encrypted: i=1; AJvYcCW94CWFiessKCXs0hvhdrJaE2OxH6TTicBKJzEbSXbFCJfBKLdLRdVL/8pC8oG+YJDcqjl99ihZWLKRojQ2KA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yww9koBxJDzr6GWkumwmjxnq7TyMocx5KJn9GQqcSFnWak0XW3k
-	x58UofuBrdyU+1NVAeaJaumdLSKA1zSD//PLRJ9qy4KYkghsKiMFODylSXkG9PcX7vC3TbrybdG
-	U8d6SNXmOtJP081Oyiu9JdzSb8RnCjxmKM58dqqrttAlOjhelm9tBq/uOWshm6zsULOi3dG4pCr
-	HYVlZ9oan9MZUeKhBXyHYczY3xcrpGNF+qvaPto/aZGso=
-X-Gm-Gg: AY/fxX4Yse2vTgoujhSsyOTtKpvLPjP4jQXfbQw04QhNGDFkd9qAw1wXyNZJHITE4sV
-	8Rc9Jm+Xbj9+jKEZScELsQQPCnwi6BSf1XkRQJxOQ3+G8nMb2rpQxAZJ7EYyN5zTEKlTLF6/1J1
-	CiKAfTogeghMFt+FDWT+sj2yfLZ0ZP/zMqqz/osLZetv4B4/5DneiH7kXJM+grpb17EA==
-X-Received: by 2002:a17:90b:2ccf:b0:340:f05a:3ec2 with SMTP id 98e67ed59e1d1-34abd81733amr14699556a91.17.1765858692963;
-        Mon, 15 Dec 2025 20:18:12 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHD77DQk18dayngXtbIw3fsOCk15EBfDyLwaFsEN4158FtjFJzrWxy8+rjy6tA50q0hvVxRQAeZswAuqcmTXkc=
-X-Received: by 2002:a17:90b:2ccf:b0:340:f05a:3ec2 with SMTP id
- 98e67ed59e1d1-34abd81733amr14699535a91.17.1765858692536; Mon, 15 Dec 2025
- 20:18:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="XKCGse6H"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=smT/G1a4XecMcL84CdWCKffzAtjOi+pTXpLkQzVzlqg=; b=XKCGse6HX6ygPEKIC4nnxVc0w/
+	ouqT7bgGYHzBIljt18QKaG8+f2Qgi8XEdZE70cbbq7ex1S13MwYG71H6WAjYPtEvROhq9PsQ6hXtJ
+	UD/m91O3zYdDb/WWvTcQM02diehZ+F6kzYqwWp/GE88kt0htOmGfJCNrsxmUaolMB5MITTzMCynbm
+	uayHye2qDA6HgJ/LtIU5GbNi0Iq0YZ8jsY5gfWXTNO/phmWc+bmEp0uDOJVIVG7FsTM3H1tftVOBd
+	QnXXlniND2SUrbv11u/PlNzlTv2bJShenznMBPw6owlCsLoVoCd16oT18MnuTtbRi5xSJoKZOqCy0
+	hqxuoN1Q==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vVOY1-00000004mqx-2Hc8;
+	Tue, 16 Dec 2025 06:28:37 +0000
+Message-ID: <f4ec1d06-0579-4484-adbe-5247374c4a57@infradead.org>
+Date: Mon, 15 Dec 2025 22:28:35 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251215113903.46555-1-bagasdotme@gmail.com> <20251215113903.46555-7-bagasdotme@gmail.com>
-In-Reply-To: <20251215113903.46555-7-bagasdotme@gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 16 Dec 2025 12:17:59 +0800
-X-Gm-Features: AQt7F2q1idGMqOnPlq5afbA61NEyezJumJNhfdWiFdPMuPeC3DZ1U_cOOaqg6iI
-Message-ID: <CACGkMEtJt7Df5kXWex8EoKdakdB8_xLjgCXQt5pUvk0dkGzVMA@mail.gmail.com>
-Subject: Re: [PATCH 06/14] virtio: Describe @map and @vmap members in
- virtio_device struct
-To: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, 
-	Linux AMDGPU <amd-gfx@lists.freedesktop.org>, 
-	Linux DRI Development <dri-devel@lists.freedesktop.org>, 
-	Linux Filesystems Development <linux-fsdevel@vger.kernel.org>, Linux Media <linux-media@vger.kernel.org>, 
-	linaro-mm-sig@lists.linaro.org, kasan-dev@googlegroups.com, 
-	Linux Virtualization <virtualization@lists.linux.dev>, 
-	Linux Memory Management List <linux-mm@kvack.org>, Linux Network Bridge <bridge@lists.linux.dev>, 
-	Linux Networking <netdev@vger.kernel.org>, Harry Wentland <harry.wentland@amd.com>, 
-	Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <siqueira@igalia.com>, 
-	Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Matthew Brost <matthew.brost@intel.com>, 
-	Danilo Krummrich <dakr@kernel.org>, Philipp Stanner <phasta@kernel.org>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, Alexander Potapenko <glider@google.com>, 
-	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Uladzislau Rezki <urezki@gmail.com>, 
-	Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Taimur Hassan <Syed.Hassan@amd.com>, Wayne Lin <Wayne.Lin@amd.com>, Alex Hung <alex.hung@amd.com>, 
-	Aurabindo Pillai <aurabindo.pillai@amd.com>, Dillon Varone <Dillon.Varone@amd.com>, 
-	George Shen <george.shen@amd.com>, Aric Cyr <aric.cyr@amd.com>, 
-	Cruise Hung <Cruise.Hung@amd.com>, Mario Limonciello <mario.limonciello@amd.com>, 
-	Sunil Khatri <sunil.khatri@amd.com>, Dominik Kaszewski <dominik.kaszewski@amd.com>, 
-	David Hildenbrand <david@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Max Kellermann <max.kellermann@ionos.com>, 
-	"Nysal Jan K.A." <nysal@linux.ibm.com>, Ryan Roberts <ryan.roberts@arm.com>, 
-	Alexey Skidanov <alexey.skidanov@intel.com>, Vlastimil Babka <vbabka@suse.cz>, 
-	Kent Overstreet <kent.overstreet@linux.dev>, Vitaly Wool <vitaly.wool@konsulko.se>, 
-	Harry Yoo <harry.yoo@oracle.com>, Mateusz Guzik <mjguzik@gmail.com>, NeilBrown <neil@brown.name>, 
-	Amir Goldstein <amir73il@gmail.com>, Jeff Layton <jlayton@kernel.org>, 
-	Ivan Lipski <ivan.lipski@amd.com>, Tao Zhou <tao.zhou1@amd.com>, 
-	YiPeng Chai <YiPeng.Chai@amd.com>, Hawking Zhang <Hawking.Zhang@amd.com>, 
-	Lyude Paul <lyude@redhat.com>, Daniel Almeida <daniel.almeida@collabora.com>, 
-	Luben Tuikov <luben.tuikov@amd.com>, Matthew Auld <matthew.auld@intel.com>, 
-	Roopa Prabhu <roopa@cumulusnetworks.com>, Mao Zhu <zhumao001@208suo.com>, 
-	Shaomin Deng <dengshaomin@cdjrlc.com>, Charles Han <hanchunchao@inspur.com>, 
-	Jilin Yuan <yuanjilin@cdjrlc.com>, Swaraj Gaikwad <swarajgaikwad1925@gmail.com>, 
-	George Anthony Vernon <contact@gvernon.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 3WdW3pQLW_D7v8sSg_C0Xi7A7bv2q4BNQaIstjwMleM_1765858693
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: kernel-doc comment with anonymous macro?
+To: Bagas Sanjaya <bagasdotme@gmail.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux.dev>,
+ Linux Documentation <linux-doc@vger.kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Paolo Abeni <pabeni@redhat.com>,
+ Jonathan Corbet <corbet@lwn.net>
+References: <aUCkM-lRUmIMAh6N@archie.me>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <aUCkM-lRUmIMAh6N@archie.me>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Dec 15, 2025 at 7:39=E2=80=AFPM Bagas Sanjaya <bagasdotme@gmail.com=
-> wrote:
->
-> Sphinx reports kernel-doc warnings:
->
-> WARNING: ./include/linux/virtio.h:181 struct member 'map' not described i=
-n 'virtio_device'
-> WARNING: ./include/linux/virtio.h:181 struct member 'vmap' not described =
-in 'virtio_device'
->
-> Describe these members.
->
-> Fixes: bee8c7c24b7373 ("virtio: introduce map ops in virtio core")
-> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
-> ---
+Hi Bagas--
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+On 12/15/25 4:13 PM, Bagas Sanjaya wrote:
+> Hi,
+> 
+> ./scripts/kernel-doc reports warning on include/linux/virtio.h:
+> 
+> Info: include/linux/virtio.h:16 Scanning doc for struct virtqueue
+> Info: include/linux/virtio.h:139 Scanning doc for struct virtio_device
+> Warning: include/linux/virtio.h:183 struct member 'VIRTIO_DECLARE_FEATURES(features' not described in 'virtio_device'
+> Info: include/linux/virtio.h:217 Scanning doc for struct virtio_driver
+> Warning: include/linux/virtio.h:183 struct member 'VIRTIO_DECLARE_FEATURES(features' not described in 'virtio_device'
+> 1 errors
+> 
+> struct virtio_device is defined as:
+> 
+> struct virtio_device {
+> 	int index;
+> 	bool failed;
+> 	bool config_core_enabled;
+> 	bool config_driver_disabled;
+> 	bool config_change_pending;
+> 	spinlock_t config_lock;
+> 	spinlock_t vqs_list_lock;
+> 	struct device dev;
+> 	struct virtio_device_id id;
+> 	const struct virtio_config_ops *config;
+> 	const struct vringh_config_ops *vringh_config;
+> 	const struct virtio_map_ops *map;
+> 	struct list_head vqs;
+> 	VIRTIO_DECLARE_FEATURES(features);
+> 	void *priv;
+> 	union virtio_map vmap;
+> #ifdef CONFIG_VIRTIO_DEBUG
+> 	struct dentry *debugfs_dir;
+> 	u64 debugfs_filter_features[VIRTIO_FEATURES_U64S];
+> #endif
+> };
+> 
+> where VIRTIO_DECLARE_FEATURES() is an anonymous macro.
+> 
+> What can I do to fix the warning?
 
-Thanks
+Yeah, I had seen this one also. My only though is to special-case it and then
+declare
+    union {
+	u64 features;
+	u64 features_array[];
+    };
+in kdoc_parser.py. Something similar to what syscall_munge() does there.
+I hope that would work but I don't know for sure.
+
+At least one downside to that is that we might end up needing to add special case
+after special case ....
+
+
+I guess we are waiting for the summit/LPC group to read and find time to
+respond.
+
+-- 
+~Randy
 
