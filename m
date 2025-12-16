@@ -1,104 +1,147 @@
-Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3A74329E7A
-	for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 17:59:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2165933556A
+	for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 19:59:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765907972; cv=none; b=PhlO8Xy99oAhMbTqHSxip8o7l6DcwmgIp8/EpqlCn3vhdQ5kMOYmTIgdb4dOeJ11p0Yi2/kEMcOUq7aI5v5QsIJ0KP8Nkmu0fjhNLHZlWqcNpcfI8g9LGpZQmPAIViNQJNjn7PVD86rAhvpIxAaNKGetRayzphOX7D+EI1fCfts=
+	t=1765915158; cv=none; b=PbfzjdGWmx+8fRMxsiiL+Oa0Z+DGAqMXbCe60sHJ+Cpc4OKvsfG6yPaM5IssxYprqTpBEIVaCqFluBQCc2NmxFQnHwQDSiKJXlDDuHwtz8jE5DRZqQFGNy+UeiN+wnYwo5X7TaJoq8l7+imh/MhovZ6DM+oW02FGAtWds0v+hT8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765907972; c=relaxed/simple;
-	bh=NpX2cYgamudQZSSttYEcw79K6PPsUN0dvIDSwahU1PU=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=JT+ObCbB4LpC0kmO9tkHSqC3OmZjPsbAT57LOdjNgxHKKnZ5Z4am3QWFPAHZqXL/IJkQGj2EWVGtEMQbm6W6vOj1omgvKk8yo7oYBa2EoUA+8UE3X2UusRhA2oeDEMJM4c+0NaKdGJZHVbVRXBV7oX4LBvLMWgs0hZ8MktiWQlo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=hdTZSRCq; arc=none smtp.client-ip=67.231.148.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1765915158; c=relaxed/simple;
+	bh=vz6zEIxg/+wl/MDvP+RvMv0qeimFFpWWQmNPdyV4ahQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=oVajPJ09Lk+4aEqHlzV5YVWhzxrYBdi/XGhnHn4PQX4yBXhtnYogV/WT5rFwAd5z4l2Vh/fh+dY2BxrbXrqvKQb4O01/gnOf2ViAxxYcrUcd/sRkBqNFl+IbCSLzpPpOqOuKX0jhdn4Sblz5OTs9TrpFbo+Lt6QcMd/qu2ZMuOY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jeapqzk4; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="hdTZSRCq"
-Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
-	by mx0a-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5BGBNYeu2375057;
-	Tue, 16 Dec 2025 09:59:24 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pfpt0220; bh=uKA8UNZEdRzgO8gcqOTTkDa
-	DxtJPZsAsk0uuI7FmGKg=; b=hdTZSRCq0OKxvdt4E8Z7YOLcsNgZA33dX4Joah1
-	YdS2kSp/j19VbiXt79rzUl9dgBSwlcIEwxnxfGNtXGFrflTJNTQpbhKZGzIwrrGY
-	cfvf/NZQT13OLUn9WG07IaZta+kJHmf7w0JO0hnUUUxnTJkWFo6wce0vLNldIfB5
-	yL6X0dZXzslsLdeKG5YeqLoRdUgl0C9I4OHKnEOYWonl3oqlIKjjyeGbX7TC83wb
-	sBSrwjLRIgdZA77GXfB09ze7x3ETZ7O6ArwpcjPGZCb7ZR+99gQ9mR70Ttd4SEIH
-	mbU6qNZAiqzncWeQkUHRjtxvD5wnLNXYB/gW9p6bqK4KpqA==
-Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
-	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 4b36gjruta-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Dec 2025 09:59:24 -0800 (PST)
-Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
- DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Tue, 16 Dec 2025 09:59:36 -0800
-Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
- (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
- Transport; Tue, 16 Dec 2025 09:59:36 -0800
-Received: from 5810.marvell.com (unknown [10.29.45.105])
-	by maili.marvell.com (Postfix) with ESMTP id 836F55B692E;
-	Tue, 16 Dec 2025 09:59:19 -0800 (PST)
-From: Kommula Shiva Shankar <kshankar@marvell.com>
-To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>
-CC: <virtualization@lists.linux.dev>, <eperezma@redhat.com>,
-        <kvm@vger.kernel.org>, <jerinj@marvell.com>, <ndabilpuram@marvell.com>,
-        <schalla@marvell.com>
-Subject: [PATCH net-next ] vdpa: fix caching attributes of MMIO regions by setting them explicitly
-Date: Tue, 16 Dec 2025 23:29:18 +0530
-Message-ID: <20251216175918.544641-1-kshankar@marvell.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jeapqzk4"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4779aa4f928so61206435e9.1
+        for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 11:59:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1765915155; x=1766519955; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GjniS35+gFl94KgDPsESP+GSizMKZS5/qxbShY9gflU=;
+        b=Jeapqzk4pcd92sOyTVcX8ViLsbZx4LESUm0Vmoygx2OMounTjCtrVre0rpARGIRq1N
+         aJnh+LemQecMXsy4llc22+YGFoLfJGb5tbsCPDqcVHGCw0zWjsHOEytnJiGiHrtzUj2n
+         QS/11gh3g4POMFpQCxo1cVKx5fwXQu1iMVTQ2PauFNcgmPSoIgPGwrqNzFI9xxVsvAvv
+         K4O238nf/wz3Nnsxu69ro3YZOEof+SWWjGQ8L0jn4fCELQexfWOEwHHiqnPlvvrAtz+q
+         yIDvZ/LwTygyT+pTzSI5E7yvTXhrVeHo+/DZ2M4gHPTpIG9UkJ1Ugx/S/Lb1gK/GXP6k
+         9pEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765915155; x=1766519955;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=GjniS35+gFl94KgDPsESP+GSizMKZS5/qxbShY9gflU=;
+        b=LOqBrBDrHO5klft9QUjt2+PdH+Zyky02bgMSo3kKHRVzCXQ/SRHIZP3e2xNYxV3jdu
+         Z/RFM+kM6yc3wx6BU6BSXOwOjrqd6WJGmTXuj3wDg3QTSSYNDJEvgXH/X9yQoS1EIWAa
+         Aa5kws0xFv4+TdAF70AKadnTTvVf3NTGkZXfHlr/UkGF3HciqTR5NuNCqCf8jmxrvJYU
+         bnIJA/Soh+l9xS4zte0KQfIKSiB6Iu8xElPSXIHiAj3O5fABTT+TfvVa7fvFqwcejoQm
+         0sS0BYOZfnB1YycSm0B3KRg4d1IFG3RDqT63LNbDDVwB6ddLFxWrnF96accQqrlc0PGR
+         9QHg==
+X-Forwarded-Encrypted: i=1; AJvYcCXdzwWUPRh3AqyyWlPV2Wxvbgn04MqORf/MyGNatdwWv4GVHSZsvvD/4FlhZsYLAKsFhGrKf1N7tTo2UJ4Rgg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzzcUunBPnzVm+r4+uRa9kDX97PIMhRm2zkrzwBZSGbdWPyJ1PF
+	gj00VzTw0bI2jUTajw8VBrWywpNqWDu5LxcBf/VfjrprOxmzdWw/r81r
+X-Gm-Gg: AY/fxX4gXpjlhNSlqkncaj4OPPwvSew/B/RQddzXLINPPmsA0G9Wn814He2eusQgWui
+	2HuodKG3gpPNZKZv8S163+sAXjV2EL/9ILxCfhyd9i06nMp7c29QjjrvaaUU0I7iuPad/O95QXK
+	Hrz6rD1Dct3A6PlTypZ3pZYch8brDrqg4RC1skEKwTsV14qeJHocoH3ZEggJkPIBlAhyBSl69Jv
+	6IBOE4AGsayfewTUkTLoysh9X2DN9e9P20GwttrjU8SgOoaHJHOGbRxhWPXCMhWF6xwzKca5ZoR
+	pov7ELnDCtxhxF1wLD4iAwy6DNRGV+pz5SlE77G9tqXgZqpZvqtFaxYsKctKZmmUd4L/g6yxkvu
+	+9E8G8295TAn3HDf0+uBXjlTz/axho5nwxCYRvpzKceraZ/5TObf1y3WHAETJ/icwgKKojkzyY2
+	oRbtMweP2Yl3gOA9DL2MknWHCJzuCPcPIgm4y7K5isE15jMkjDQ4IgHUT1ZA8uH30=
+X-Google-Smtp-Source: AGHT+IGkMCP0kONGgG89SYNUeIIN6orwCVUUHEl6uObTm3wydLwUSISgvgOvaVGUZQxtmSBHQ8CSsQ==
+X-Received: by 2002:a05:600c:4595:b0:479:3a87:2092 with SMTP id 5b1f17b1804b1-47a8f9145edmr152180075e9.36.1765915154784;
+        Tue, 16 Dec 2025 11:59:14 -0800 (PST)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4310ade7c3fsm779077f8f.26.2025.12.16.11.59.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Dec 2025 11:59:14 -0800 (PST)
+Date: Tue, 16 Dec 2025 19:59:12 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>, Ingo Molnar
+ <mingo@kernel.org>, linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-hwmon@vger.kernel.org, linux-block@vger.kernel.org, Thomas Gleixner
+ <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+ <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ajay Kaher
+ <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Boris
+ Ostrovsky <boris.ostrovsky@oracle.com>, xen-devel@lists.xenproject.org,
+ Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Denis
+ Efremov <efremov@linux.com>, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 0/5] x86: Cleanups around slow_down_io()
+Message-ID: <20251216195912.0727cc0d@pumpkin>
+In-Reply-To: <14EF14B1-8889-4037-8E7B-C8446299B1E9@zytor.com>
+References: <20251126162018.5676-1-jgross@suse.com>
+	<aT5vtaefuHwLVsqy@gmail.com>
+	<bff8626d-161e-4470-9cbd-7bbda6852ec3@suse.com>
+	<aUFjRDqbfWMsXvvS@gmail.com>
+	<b969cff5-be11-4fd3-8356-95185ea5de4c@suse.com>
+	<14EF14B1-8889-4037-8E7B-C8446299B1E9@zytor.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Authority-Analysis: v=2.4 cv=eckwvrEH c=1 sm=1 tr=0 ts=69419dfc cx=c_pps
- a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
- a=wP3pNCr1ah4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=M5GUcnROAAAA:8
- a=crWdm8P_I_FkJ7v9e20A:9 a=OBjm3rFKGHvpk9ecZwUJ:22
-X-Proofpoint-GUID: ko9HbogPsc2fxcEwByVLM5SUTp5F3Y3c
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjE2MDE1NCBTYWx0ZWRfXxmI7g2Jx9lEX
- cvLZWtuvEuIcCw17/TpStlaGwGYxHKXP/yW+LPt4kCO+m7EQL4KfGmleWYs3gCsdY6H7piAJARG
- r795ztlOS9YBs6SRjjKup+lxaEZnfCHYjlRH5pYNNPCXcLzzdaH1dVlZyv4fFx1D1wW6/tG9qzP
- meHoF0T9cEuXYk8f56YVxmAz2wagpw99NaArDAnkjlXy1z5AVP7Sf3p44GXteoXVpu1PiKy3AD2
- IoDfwe5BT3/EnSQHirQa9AwniTs6QgdymcEBA2LIcedw3e5AAOrScg1OKCgmlkI3MbpGuxUHzis
- iE+NWRB6OdhStLKi/2cQBKZtxLr2jzTZvU8SInhHfa3t4OC9T83KnUXnuvGZTLwrwzkeblqsf61
- +IHi9KoY2Zek3K16rMIxUZY1ztnTVg==
-X-Proofpoint-ORIG-GUID: ko9HbogPsc2fxcEwByVLM5SUTp5F3Y3c
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2025-12-16_02,2025-12-16_02,2025-10-01_01
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Explicitly set non-cached caching attributes for MMIO regions.
-Default write-back mode can cause CPU to cache device memory,
-causing invalid reads and unpredictable behavior.
+On Tue, 16 Dec 2025 07:32:09 -0800
+"H. Peter Anvin" <hpa@zytor.com> wrote:
 
-Invalid read and write issues were observed on ARM64 when mapping the
-notification area to userspace via mmap.
+> On December 16, 2025 5:55:54 AM PST, "J=C3=BCrgen Gro=C3=9F" <jgross@suse=
+.com> wrote:
+> >On 16.12.25 14:48, Ingo Molnar wrote: =20
+> >>=20
+> >> * J=C3=BCrgen Gro=C3=9F <jgross@suse.com> wrote:
+> >>  =20
+> >>>> CPUs anymore. Should it cause any regressions, it's easy to bisect t=
+o.
+> >>>> There's been enough changes around all these facilities that the
+> >>>> original timings are probably way off already, so we've just been
+> >>>> cargo-cult porting these to newer kernels essentially. =20
+> >>>=20
+> >>> Fine with me.
+> >>>=20
+> >>> Which path to removal of io_delay would you (and others) prefer?
+> >>>=20
+> >>> 1. Ripping it out immediately. =20
+> >>=20
+> >> I'd just rip it out immediately, and see who complains. :-) =20
+> >
+> >I figured this might be a little bit too evil. :-)
+> >
+> >I've just sent V2 defaulting to have no delay, so anyone hit by that
+> >can still fix it by applying the "io_delay" boot parameter.
+> >
+> >I'll do the ripping out for kernel 6.21 (or whatever it will be called).
+> >
+> >
+> >Juergen =20
+>=20
+> Ok, I'm going to veto ripping it out from the real-mode init code,
+> because I actually know why it is there :) ...
 
-Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
----
- drivers/vhost/vdpa.c | 1 +
- 1 file changed, 1 insertion(+)
+Pray tell.
+One thing I can think of is the delay allows time for a level-sensitive
+IRQ line to de-assert before an ISR exits.
+Or, maybe more obscure, to avoid back to back accesses to some register
+breaking the 'inter-cycle recovery time' for the device.
+That was a good way to 'break' the Zilog SCC and the 8259 interrupt
+controller (eg on any reference board with a '286 cpu).
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 05a481e4c385..b0179e8567ab 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -1527,6 +1527,7 @@ static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
- 	if (vma->vm_end - vma->vm_start != notify.size)
- 		return -ENOTSUPP;
- 
-+	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
- 	vm_flags_set(vma, VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP);
- 	vma->vm_ops = &vhost_vdpa_vm_ops;
- 	return 0;
--- 
-2.48.1
+	David
+
+> and that code is pre-UEFI legacy these days anyway.
+>=20
+> Other places... I don't care :)
+>=20
 
