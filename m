@@ -1,125 +1,102 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C94893358C7
-	for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 21:51:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C41B11FECAB;
+	Tue, 16 Dec 2025 22:09:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765921875; cv=none; b=UOZSRrF8TGvKufz1WFdfRCJbiCN2Fypj2DlBfX9w3xz1UpHqL4A3SzaZeyZV2l3sNN89RAroTG6vJ70iCse3POgnm7Am+sEXPstBtMR6PD3JL613Mp648WywRGMdSSzN5L6xEhM8vtKlnl8fVN+ZZYpO7dCtC44ghOSjNbAx6iE=
+	t=1765922941; cv=none; b=D/537MyGFczoiCLEHThnBPCzIgIvMdFBS/wxsXZmgIAUIXzBgz7GeL6B96zuhUcFemmKIxoLFoBEiFKTxV2ZiAwQ/8sBC1XsAjVfdeASBqwYWQLVKiHeGRluG1V3BTaBc8n2ODNOUpV4fKDmq59qplQ3jttJYTouS0/ivRqTYI4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765921875; c=relaxed/simple;
-	bh=98ggaTZvCYQrJE7EKpjojwh2LUANapTP62HYxPrNHsw=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=Z171/kORHziat7OZx9PdRhE5YzZrqBfyyQRcuSS6IYpd5Gzd9/9r7LitSYc5pZp/1uR43RjZS3PQEJMgvyByZf5PBC2OISArMt4/CwZa8ca9jaq+i6IqdST90Om8S62ZZgyvp6c9DWDLPWK+STECNcotd183ldSG+xqbFRfdIBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=TaSruyIL; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	s=arc-20240116; t=1765922941; c=relaxed/simple;
+	bh=B0kVLZK7YMAGW4+NymplABFlILpQoztpjaegZ/yGPWg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=RMpaE23jSgq9qlupeS2miimFmK2DMp1iENCB9OVblDXwaT2G1mK0a4443Ux3mriqk0VQtUypCYZLrjbMpQQMumbp33NyWkib/BgpLpFFZUCj6bOm1Rq+x/kMmJ7pI7kxteA8kCmy6I0YN5D++DRF5izOml5CbROoYUqsGYJjHE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oqiadpWD; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="TaSruyIL"
-Received: from ehlo.thunderbird.net (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 5BGLohdD2591914
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Tue, 16 Dec 2025 13:50:43 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 5BGLohdD2591914
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2025112201; t=1765921845;
-	bh=IUFjXMGEioy90PCRU6K4eEZsewA4J72rUYR0KWqV+PM=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=TaSruyIL5BsuQXNl77ikEHcqTR1fDc/rJVG9GGilNzbXMjAWLMi5zLkeAnIAug1+r
-	 Su/ah9a3Wgx0pu3LR0we0eDApaY8L/uZC28BGqjRZAvTkiWEJ87pqbp53NDubEKBmc
-	 G2Nlb4Bu15QyNTu7ZtHdHCV5hKeXr86jkQ674prA51A6dCUfANhW1Hsg5QmpearEVm
-	 kSTg37FHH2iRaLQ9ZpJ76YZa69FMDMyr7gujzLXDUstSm7PXe85dAgbUVevIepDrwN
-	 VkvaQfn0WxKIabhsLzFt4y2wKfCXTwj33MPECOh1RPxcmhVPcWl0HrC+VxhS+9q4G0
-	 a/7lubgc33EpQ==
-Date: Tue, 16 Dec 2025 13:50:42 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: David Laight <david.laight.linux@gmail.com>
-CC: =?ISO-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>,
-        Ingo Molnar <mingo@kernel.org>, linux-kernel@vger.kernel.org,
-        x86@kernel.org, virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-block@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ajay Kaher <ajay.kaher@broadcom.com>,
-        Alexey Makhalov <alexey.makhalov@broadcom.com>,
-        Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        xen-devel@lists.xenproject.org, Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>, Denis Efremov <efremov@linux.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 0/5] x86: Cleanups around slow_down_io()
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20251216195912.0727cc0d@pumpkin>
-References: <20251126162018.5676-1-jgross@suse.com> <aT5vtaefuHwLVsqy@gmail.com> <bff8626d-161e-4470-9cbd-7bbda6852ec3@suse.com> <aUFjRDqbfWMsXvvS@gmail.com> <b969cff5-be11-4fd3-8356-95185ea5de4c@suse.com> <14EF14B1-8889-4037-8E7B-C8446299B1E9@zytor.com> <20251216195912.0727cc0d@pumpkin>
-Message-ID: <69AE77E6-4256-4B0B-970E-194B4C70B7AF@zytor.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oqiadpWD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4509EC4CEF1;
+	Tue, 16 Dec 2025 22:08:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1765922941;
+	bh=B0kVLZK7YMAGW4+NymplABFlILpQoztpjaegZ/yGPWg=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=oqiadpWDrn1VtQBdfyFy7VbAAFT/N+0QKxoy/la9xGx5fG3NMm5680qrqPz22qZtD
+	 730Nc00631mF5M860GXrud+DirVS8MK0VRJURSahC1gOVM6BuWECPyT/JBCL+vTTHR
+	 ANySaFterNV+lUXLbgI+r8YXLCTsj+4BuyJNK3LGYSvphQs/L5oShSzo5DruIKbDsw
+	 M2Ec01YwtnmYPJ7y2JWbxiXJ1J5ndwfCfLR9yd6hMhGqoKzsqZ/GRP5mtCOsLCzOlN
+	 J4KQTLdsHQL34okSpaVlrE+jMhJ41hJeBTw53maElT/xvlUJlwMFrwPOAejsH/MToP
+	 PLc1BPivYW6UA==
+Date: Tue, 16 Dec 2025 14:08:57 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Bagas Sanjaya <bagasdotme@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux AMDGPU
+ <amd-gfx@lists.freedesktop.org>, Linux DRI Development
+ <dri-devel@lists.freedesktop.org>, Linux Filesystems Development
+ <linux-fsdevel@vger.kernel.org>, Linux Media <linux-media@vger.kernel.org>,
+ linaro-mm-sig@lists.linaro.org, kasan-dev@googlegroups.com, Linux
+ Virtualization <virtualization@lists.linux.dev>, Linux Memory Management
+ List <linux-mm@kvack.org>, Linux Network Bridge <bridge@lists.linux.dev>,
+ Linux Networking <netdev@vger.kernel.org>, Harry Wentland
+ <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira
+ <siqueira@igalia.com>, Alex Deucher <alexander.deucher@amd.com>, Christian
+ =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>, David Airlie
+ <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst
+ <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Matthew Brost
+ <matthew.brost@intel.com>, Danilo Krummrich <dakr@kernel.org>, Philipp
+ Stanner <phasta@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Sumit
+ Semwal <sumit.semwal@linaro.org>, Alexander Potapenko <glider@google.com>,
+ Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Uladzislau Rezki <urezki@gmail.com>, Nikolay Aleksandrov
+ <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo Abeni
+ <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Taimur Hassan
+ <Syed.Hassan@amd.com>, Wayne Lin <Wayne.Lin@amd.com>, Alex Hung
+ <alex.hung@amd.com>, Aurabindo Pillai <aurabindo.pillai@amd.com>, Dillon
+ Varone <Dillon.Varone@amd.com>, George Shen <george.shen@amd.com>, Aric Cyr
+ <aric.cyr@amd.com>, Cruise Hung <Cruise.Hung@amd.com>, Mario Limonciello
+ <mario.limonciello@amd.com>, Sunil Khatri <sunil.khatri@amd.com>, Dominik
+ Kaszewski <dominik.kaszewski@amd.com>, David Hildenbrand
+ <david@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Lorenzo Stoakes
+ <lorenzo.stoakes@oracle.com>, Max Kellermann <max.kellermann@ionos.com>,
+ "Nysal Jan K.A." <nysal@linux.ibm.com>, Ryan Roberts
+ <ryan.roberts@arm.com>, Alexey Skidanov <alexey.skidanov@intel.com>,
+ Vlastimil Babka <vbabka@suse.cz>, Kent Overstreet
+ <kent.overstreet@linux.dev>, Vitaly Wool <vitaly.wool@konsulko.se>, Harry
+ Yoo <harry.yoo@oracle.com>, Mateusz Guzik <mjguzik@gmail.com>, NeilBrown
+ <neil@brown.name>, Amir Goldstein <amir73il@gmail.com>, Jeff Layton
+ <jlayton@kernel.org>, Ivan Lipski <ivan.lipski@amd.com>, Tao Zhou
+ <tao.zhou1@amd.com>, YiPeng Chai <YiPeng.Chai@amd.com>, Hawking Zhang
+ <Hawking.Zhang@amd.com>, Lyude Paul <lyude@redhat.com>, Daniel Almeida
+ <daniel.almeida@collabora.com>, Luben Tuikov <luben.tuikov@amd.com>,
+ Matthew Auld <matthew.auld@intel.com>, Roopa Prabhu
+ <roopa@cumulusnetworks.com>, Mao Zhu <zhumao001@208suo.com>, Shaomin Deng
+ <dengshaomin@cdjrlc.com>, Charles Han <hanchunchao@inspur.com>, Jilin Yuan
+ <yuanjilin@cdjrlc.com>, Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
+ George Anthony Vernon <contact@gvernon.com>
+Subject: Re: [PATCH 00/14] Assorted kernel-doc fixes
+Message-ID: <20251216140857.77cf0fb3@kernel.org>
+In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
+References: <20251215113903.46555-1-bagasdotme@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On December 16, 2025 11:59:12 AM PST, David Laight <david=2Elaight=2Elinux@=
-gmail=2Ecom> wrote:
->On Tue, 16 Dec 2025 07:32:09 -0800
->"H=2E Peter Anvin" <hpa@zytor=2Ecom> wrote:
->
->> On December 16, 2025 5:55:54 AM PST, "J=C3=BCrgen Gro=C3=9F" <jgross@su=
-se=2Ecom> wrote:
->> >On 16=2E12=2E25 14:48, Ingo Molnar wrote: =20
->> >>=20
->> >> * J=C3=BCrgen Gro=C3=9F <jgross@suse=2Ecom> wrote:
->> >>  =20
->> >>>> CPUs anymore=2E Should it cause any regressions, it's easy to bise=
-ct to=2E
->> >>>> There's been enough changes around all these facilities that the
->> >>>> original timings are probably way off already, so we've just been
->> >>>> cargo-cult porting these to newer kernels essentially=2E =20
->> >>>=20
->> >>> Fine with me=2E
->> >>>=20
->> >>> Which path to removal of io_delay would you (and others) prefer?
->> >>>=20
->> >>> 1=2E Ripping it out immediately=2E =20
->> >>=20
->> >> I'd just rip it out immediately, and see who complains=2E :-) =20
->> >
->> >I figured this might be a little bit too evil=2E :-)
->> >
->> >I've just sent V2 defaulting to have no delay, so anyone hit by that
->> >can still fix it by applying the "io_delay" boot parameter=2E
->> >
->> >I'll do the ripping out for kernel 6=2E21 (or whatever it will be call=
-ed)=2E
->> >
->> >
->> >Juergen =20
->>=20
->> Ok, I'm going to veto ripping it out from the real-mode init code,
->> because I actually know why it is there :) =2E=2E=2E
->
->Pray tell=2E
->One thing I can think of is the delay allows time for a level-sensitive
->IRQ line to de-assert before an ISR exits=2E
->Or, maybe more obscure, to avoid back to back accesses to some register
->breaking the 'inter-cycle recovery time' for the device=2E
->That was a good way to 'break' the Zilog SCC and the 8259 interrupt
->controller (eg on any reference board with a '286 cpu)=2E
->
->	David
->
->> and that code is pre-UEFI legacy these days anyway=2E
->>=20
->> Other places=2E=2E=2E I don't care :)
->>=20
->
->
+On Mon, 15 Dec 2025 18:38:48 +0700 Bagas Sanjaya wrote:
+> Here are assorted kernel-doc fixes for 6.19 cycle. As the name
+> implies, for the merging strategy, the patches can be taken by
+> respective maintainers to appropriate fixes branches (targetting
+> 6.19 of course) (e.g. for mm it will be mm-hotfixes).
 
-A20 gate logic on some motherboards, especially=2E
+Please submit just the relevant changes directly to respective
+subsystems. Maintainers don't have time to sort patches for you.
+You should know better.
