@@ -1,144 +1,98 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76E3D21D3E8
-	for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 00:19:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED42221FF21
+	for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 01:22:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765844365; cv=none; b=u8fzwiczoNVmkb9XeOst2bVTKtB7or4M+SSVYE5TxBHiLnbyHSsDj5UFH4Rjf8q67EN75vbu//EJ3pnQrelPu1Ve/uIgELqxdD5LFI9793qgrbo4GsXNKMHRuOId4t03Y6bivbCEJXR9UdKtquxB0p2qV/36FbqikIL1JnXRvec=
+	t=1765848130; cv=none; b=epFPuL/KgFLcUUZA74QyM45wiycvm3v5DKRj23yjH9PymQRVAj2Cep1DsO9aDLE9QmDA0JqxU7YVYpGFicvv1nnsCf8rV20wAQwFTw3Tokgh39UMJTPHFM8O7fo2fgrB8xbyOX2q602+v5lk9oN4cvFfIxBrU1FaM2qSi0tVK4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765844365; c=relaxed/simple;
-	bh=2xBU63nTJiakTL8J+GV+JbrGyJ0kmCpFFyI7LldHPv8=;
+	s=arc-20240116; t=1765848130; c=relaxed/simple;
+	bh=KhTpBrq3o1OcDzqZyQ5v6akeq46HasfcRLGJ5YYrEKI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BBhmaGKw9Jomk/i2Wfksz6jKmdjFnAqvZ56Wi2tlMpEK78owojjDWmxJQOp5BKJQOoi6QNL0FOMyfxIecGlQjPOdSjrhXSitimWBpUpCQwQ4k0SR2OCyX37Hb6B/YJUS/LEFzFE745NP9dHklRucokk+dUgcgNI9TouGesu+f7s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kl/tt3ip; arc=none smtp.client-ip=209.85.215.170
+	 Content-Type:Content-Disposition:In-Reply-To; b=fgohb1LTFnrGciUm/GSsAylewnmzv5sRVPvnUkZduGbuTYlyV4k66pT2cJHodw7/SYCoj5pSsDy6i7MmhmULVJf0NRsHDVe33l4ayt5EbZQTc0XXOUsrbwCtA9ABmo/nxNc0CN1vwOWXKTHXuJMoG6TJjM/mhftE0L+SJZGPn2E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JblLeiXz; arc=none smtp.client-ip=74.125.224.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kl/tt3ip"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-b553412a19bso3719694a12.1
-        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 16:19:23 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JblLeiXz"
+Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-64472ea7d18so3418301d50.2
+        for <virtualization@lists.linux.dev>; Mon, 15 Dec 2025 17:22:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765844363; x=1766449163; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1765848127; x=1766452927; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Sk1yhdZDsbmHyAUXRbfG+BCb5AaoOf6d28kSsthudBo=;
-        b=Kl/tt3ipJKJmUwNLQN3dmAFaXBoNFjs6UmJNXeCDA7od6GHXSGASPfTMjZ2KWGnTFD
-         t70nUuZGF7QNiXBvjTXC4QuR5YIkZWv6bFPd6/oG+Gn9n7Zfe0muk/Axbe6apZXCG8wH
-         jy8UBlKueNLm3/HQfacx+ZPJD02hBHJ4HM42X2FzZ2sxSc8Yqz8Bs5IHcR2XPC4zJtum
-         /TjBKIFocF3RDSq3rrGd/bzuuwBoMeVD8w0tHuqCuEqPTZmBOGAWQ0DOHPpvxHoKn+5R
-         Q6KAKtKXFyaiQ6AW9QB7ff5gmOYhk/48J7t9/6Tp4eWiFzauELuY2dV8SutTsD4VhX4F
-         XHoA==
+        bh=lI4+C9X3I7yvyc2773MJlpz/r2L4renU7eOoChO1rz0=;
+        b=JblLeiXzlssux2dKgN9qlu2P3/9ekXxq1vg5j07X5Im/Z6Bf+B44zilG2v2m5T7IEE
+         fZ6NO8Ift6ieSdsUQOw+8qbViBc9hdlHgZKa3Y/CS2/JmfFTqe5CwL+YoWvYB7XIl9am
+         e1SUO40g8mHZJdK8IzYw0s5xtzWqTxYBuVOsJ4C6GPl/yXaBYMp0R71/povgyQhHwo6X
+         z6+4EnkNp0FbZXjj0X7yn+dKDKzMQt3rNUWwzN0a2FBoxbkwNFo25lm9k3SFQPzl8hzE
+         oaYzNp+AT4SpgiIXQwhq3YtJPD4kli1nJdwKQaNBLuxesVshPQCRXWnLYFAD0KzLoLjj
+         D8fA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765844363; x=1766449163;
+        d=1e100.net; s=20230601; t=1765848127; x=1766452927;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Sk1yhdZDsbmHyAUXRbfG+BCb5AaoOf6d28kSsthudBo=;
-        b=JZIdU42fbDoOo0/jMXoRI+S5nUcserJpzxmrESoyYRYmA5IrEZSZMhG/AO4zvebg6Q
-         maocBzr86RaVNSQonkndCK6ZZheGvhExntijlPX6MkaQBLbe+kYjFqbVgZ9/0hwK/Ixb
-         934pAoL5rclUv4qH2iUC9V/S2oXWQYLaVPj+e09V3Iu1flNHckxLI9l3F8uaN+a7mAcL
-         NrSZPIePDHwqzTdocb0qPcFJt6z+X5Lwd395O0PVf8MBH+N9acmDh7nkzI1PugKLSK7A
-         CY0m0CCUDMBy/lJ1m465bGfO9rVMFw4k20+IYOH4a0UrBdD2aPfhrnJmdbBkAQUXXbKw
-         AXOA==
-X-Forwarded-Encrypted: i=1; AJvYcCU199vLjxxB6HuDNL97eBSb+pyxP3gwf/KYaKSETYnliSUMwob0XlJKwUoRZ7bNh4ddHfGQomyGBIgbhx5Gvw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxATdqN5gBGCUScL4c7YQryqI1Nzxb11m1nSs9/+TPPy+qAJw5t
-	IwsLtG8erWb2/2sHVIpYtfQggqQ+HQdJ7D9iZWaqxp8ypr3YO2YlV0jq
-X-Gm-Gg: AY/fxX6KY7ooB2QEDVULCuwe0mt6i4DagHbcSj4qG+3h+Qs5Jtd54Xo4F1jrEeBwSjh
-	jgXL92wJJY0JQeHRvsdPtWlejablDntu12W4FMVyI+RNXZ6pMlqEQQMdFxc4rgX37IOjRBcNx1Y
-	rBZ7l2cizfjz9bcMn8JDtialWeDU3fds8m8eSx3o53BPCq8YmvCYmlGmDQL2VnthQWgdG6PcWPP
-	VZDlGlcFOJucXpV8G8bZPXiwuQzBNHFxSWld4N1z9SnWye04s1jBFWkF5R0gp4ooQoZ55qyaE6w
-	mPpJmWjvQcDRvBLD1y4m61CN9nKvvTYaUOUWzA2rQ/SDSfE+z9zJna+uyyRLjqwnHcPR1ikd2S5
-	/snpiyMHxFcNaIcXVQW7+xn1lJFMn7cfJe8UtM0+gpxplBJ5JJ3kPVJhczyMs8DKebUWw1pOxBz
-	TFZKgH5q6P29emeNGpl7GPrJE3x0pZhVIP3Ja3Bi3ruRg=
-X-Google-Smtp-Source: AGHT+IHmrytMydYNAgs0qRZg7qEjrXkSVHGK3fUWY6ADeu6KzKqLiLcf4Z3v4UGHQ57LoQ8XnYjK1w==
-X-Received: by 2002:a05:7301:f84:b0:2a4:3593:6466 with SMTP id 5a478bee46e88-2ac300f729dmr7381219eec.22.1765844362545;
-        Mon, 15 Dec 2025 16:19:22 -0800 (PST)
-Received: from fedora (c-67-164-59-41.hsd1.ca.comcast.net. [67.164.59.41])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-11f2e30491dsm51066947c88.16.2025.12.15.16.19.18
+        bh=lI4+C9X3I7yvyc2773MJlpz/r2L4renU7eOoChO1rz0=;
+        b=CrvdqD3bh7HRJTmLlVAh9eZvUoizpmC3sOeWYqBtxh4oHGZl1ZCTuLTu5Mh8SICg+1
+         hNAqBBPKv5cXpdObwTSlqQ+4gYbbKADAVuA52hYWj7KHypfKWwAYO/ORsUzLgE2zttqw
+         L4lV5VZqhmQlf7UYl25D5zWWfSRr5vi0ixzFH3N3MI4icFSk3HAQsxeQXOtUytSv0fRf
+         BLugIk66YAhJ6XGiQmX6nzA134UONAjq++o8WkGDWqTPvqlb6XLGch80y/XaIhCvA0++
+         XSbaN1mZvUoR7OD77R9qYJzEpn7cnbSRGnFZGyCHtHDLBoXgYbpNAaUs6cUXsdYdoT0A
+         FFUw==
+X-Forwarded-Encrypted: i=1; AJvYcCV7KW8wYuQbHiZaWcu/+Y/IRh416FYVzkm+Nog+0CffqWGgtuY1QEOnEJMur8WJdgBWzHuLvwXdwTpvERR4hQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwoppYQHmm1RIAQbyA6BfbhRkqTPRVc6lx8MtG/CMp3GjChazX0
+	8ai9WaaSl5bYqK3noJqhYBlkPY/STRXWzgyFXk3B/5R1q4GFidljxpQz
+X-Gm-Gg: AY/fxX6ka9EO+KzFrM0YqY0OzuT1RUN+rEWIZAzVEquK8t9f5h4BCJjM9VQ4ptxkbn0
+	P6DB1hfFQy/0KFIzIcVVnmYUXzm7IqAl7pozWIx4d1fWt0p5mvpQM8HvGw2lqd92F7tXm6/WqaW
+	FImHWxowamv/Q8N9rhphdFcbovFzXxlwMHA/zdZ1HXPsjgfTxbjSb+J5x2YjU0uRonnl2GfLzMX
+	d1xDPGq/03kiLE7f5YOZnESNNSNZ3kTZ/AOn4isy2q9PpDbbz6EpelIxzMCyLCr98pyV7N46T0r
+	nS78DdAKdj1alAPkXdTybAkeGbUU9FQiar3R4/Dlj8HdItRmwU0QT3+S9/oP6IkR/L1EpeNlKq3
+	n8oj6xQ+hvVku7cUCMoX/T3AUArowwmVNR15PBCDC8DezMx9jMp3rpqSJ1DCHkh5EIQ76EvxwiK
+	/GirDa1D6gUwFltBch7X53ptgaaVKu7KVosmnt9Z0m/waW+x0=
+X-Google-Smtp-Source: AGHT+IHFuEiGcW0GH4lABrKUUSbE6qv7huuMOYC9DtT8UyxlS9XUtUukZA6W5M9Qt9zONS5q8T2xVg==
+X-Received: by 2002:a05:690e:128c:b0:63f:ab00:1a07 with SMTP id 956f58d0204a3-64555643a56mr9274950d50.49.1765848124847;
+        Mon, 15 Dec 2025 17:22:04 -0800 (PST)
+Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:58::])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-78e748cecd9sm34175187b3.9.2025.12.15.17.22.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Dec 2025 16:19:21 -0800 (PST)
-Date: Mon, 15 Dec 2025 16:19:16 -0800
-From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
-To: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
-	Linux DRI Development <dri-devel@lists.freedesktop.org>,
-	Linux Filesystems Development <linux-fsdevel@vger.kernel.org>,
-	Linux Media <linux-media@vger.kernel.org>,
-	linaro-mm-sig@lists.linaro.org, kasan-dev@googlegroups.com,
-	Linux Virtualization <virtualization@lists.linux.dev>,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	Linux Network Bridge <bridge@lists.linux.dev>,
-	Linux Networking <netdev@vger.kernel.org>,
-	Harry Wentland <harry.wentland@amd.com>,
-	Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <siqueira@igalia.com>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Philipp Stanner <phasta@kernel.org>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Alexander Potapenko <glider@google.com>,
-	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
+        Mon, 15 Dec 2025 17:22:04 -0800 (PST)
+Date: Mon, 15 Dec 2025 17:22:02 -0800
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Paolo Abeni <pabeni@redhat.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Taimur Hassan <Syed.Hassan@amd.com>, Wayne Lin <Wayne.Lin@amd.com>,
-	Alex Hung <alex.hung@amd.com>,
-	Aurabindo Pillai <aurabindo.pillai@amd.com>,
-	Dillon Varone <Dillon.Varone@amd.com>,
-	George Shen <george.shen@amd.com>, Aric Cyr <aric.cyr@amd.com>,
-	Cruise Hung <Cruise.Hung@amd.com>,
-	Mario Limonciello <mario.limonciello@amd.com>,
-	Sunil Khatri <sunil.khatri@amd.com>,
-	Dominik Kaszewski <dominik.kaszewski@amd.com>,
-	David Hildenbrand <david@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Max Kellermann <max.kellermann@ionos.com>,
-	"Nysal Jan K.A." <nysal@linux.ibm.com>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Alexey Skidanov <alexey.skidanov@intel.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Kent Overstreet <kent.overstreet@linux.dev>,
-	Vitaly Wool <vitaly.wool@konsulko.se>,
-	Harry Yoo <harry.yoo@oracle.com>, Mateusz Guzik <mjguzik@gmail.com>,
-	NeilBrown <neil@brown.name>, Amir Goldstein <amir73il@gmail.com>,
-	Jeff Layton <jlayton@kernel.org>, Ivan Lipski <ivan.lipski@amd.com>,
-	Tao Zhou <tao.zhou1@amd.com>, YiPeng Chai <YiPeng.Chai@amd.com>,
-	Hawking Zhang <Hawking.Zhang@amd.com>,
-	Lyude Paul <lyude@redhat.com>,
-	Daniel Almeida <daniel.almeida@collabora.com>,
-	Luben Tuikov <luben.tuikov@amd.com>,
-	Matthew Auld <matthew.auld@intel.com>,
-	Roopa Prabhu <roopa@cumulusnetworks.com>,
-	Mao Zhu <zhumao001@208suo.com>,
-	Shaomin Deng <dengshaomin@cdjrlc.com>,
-	Charles Han <hanchunchao@inspur.com>,
-	Jilin Yuan <yuanjilin@cdjrlc.com>,
-	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
-	George Anthony Vernon <contact@gvernon.com>
-Subject: Re: [PATCH 04/14] mm: vmalloc: Fix up vrealloc_node_align()
- kernel-doc macro name
-Message-ID: <aUClhBdwQb83vN0o@fedora>
-References: <20251215113903.46555-1-bagasdotme@gmail.com>
- <20251215113903.46555-5-bagasdotme@gmail.com>
+	Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Bryan Tan <bryan-bt.tan@broadcom.com>,
+	Vishnu Dasa <vishnu.dasa@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, berrange@redhat.com,
+	Sargun Dhillon <sargun@sargun.me>,
+	Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH net-next v12 04/12] vsock: add netns support to virtio
+ transports
+Message-ID: <aUC0Op2trtt3z405@devvm11784.nha0.facebook.com>
+References: <20251126-vsock-vmtest-v12-0-257ee21cd5de@meta.com>
+ <20251126-vsock-vmtest-v12-4-257ee21cd5de@meta.com>
+ <6cef5a68-375a-4bb6-84f8-fccc00cf7162@redhat.com>
+ <aS8oMqafpJxkRKW5@devvm11784.nha0.facebook.com>
+ <06b7cfea-d366-44f7-943e-087ead2f25c2@redhat.com>
+ <aS9hoOKb7yA5Qgod@devvm11784.nha0.facebook.com>
+ <aTw0F6lufR/nT7OY@devvm11784.nha0.facebook.com>
+ <uidarlot7opjsuozylevyrlgdpjd32tsi7mwll2lsvce226v24@75sq4jdo5tgv>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -147,18 +101,121 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20251215113903.46555-5-bagasdotme@gmail.com>
+In-Reply-To: <uidarlot7opjsuozylevyrlgdpjd32tsi7mwll2lsvce226v24@75sq4jdo5tgv>
 
-On Mon, Dec 15, 2025 at 06:38:52PM +0700, Bagas Sanjaya wrote:
-> Sphinx reports kernel-doc warning:
+On Mon, Dec 15, 2025 at 03:11:22PM +0100, Stefano Garzarella wrote:
+> On Fri, Dec 12, 2025 at 07:26:15AM -0800, Bobby Eshleman wrote:
+> > On Tue, Dec 02, 2025 at 02:01:04PM -0800, Bobby Eshleman wrote:
+> > > On Tue, Dec 02, 2025 at 09:47:19PM +0100, Paolo Abeni wrote:
+> > > > On 12/2/25 6:56 PM, Bobby Eshleman wrote:
+> > > > > On Tue, Dec 02, 2025 at 11:18:14AM +0100, Paolo Abeni wrote:
+> > > > >> On 11/27/25 8:47 AM, Bobby Eshleman wrote:
+> > > > >>> @@ -674,6 +689,17 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+> > > > >>>  		goto out;
+> > > > >>>  	}
+> > > > >>>
+> > > > >>> +	net = current->nsproxy->net_ns;
+> > > > >>> +	vsock->net = get_net_track(net, &vsock->ns_tracker, GFP_KERNEL);
+> > > > >>> +
+> > > > >>> +	/* Store the mode of the namespace at the time of creation. If this
+> > > > >>> +	 * namespace later changes from "global" to "local", we want this vsock
+> > > > >>> +	 * to continue operating normally and not suddenly break. For that
+> > > > >>> +	 * reason, we save the mode here and later use it when performing
+> > > > >>> +	 * socket lookups with vsock_net_check_mode() (see vhost_vsock_get()).
+> > > > >>> +	 */
+> > > > >>> +	vsock->net_mode = vsock_net_mode(net);
+> > > > >>
+> > > > >> I'm sorry for the very late feedback. I think that at very least the
+> > > > >> user-space needs a way to query if the given transport is in local or
+> > > > >> global mode, as AFAICS there is no way to tell that when socket creation
+> > > > >> races with mode change.
+> > > > >
+> > > > > Are you thinking something along the lines of sockopt?
+> > > >
+> > > > I'd like to see a way for the user-space to query the socket 'namespace
+> > > > mode'.
+> > > >
+> > > > sockopt could be an option; a possibly better one could be sock_diag. Or
+> > > > you could do both using dumping the info with a shared helper invoked by
+> > > > both code paths, alike what TCP is doing.
+> > > > >> Also I'm a bit uneasy with the model implemented here, as 'local' socket
+> > > > >> may cross netns boundaris and connect to 'local' socket in other netns
+> > > > >> (if I read correctly patch 2/12). That in turns AFAICS break the netns
+> > > > >> isolation.
+> > > > >
+> > > > > Local mode sockets are unable to communicate with local mode (and global
+> > > > > mode too) sockets that are in other namespaces. The key piece of code
+> > > > > for that is vsock_net_check_mode(), where if either modes is local the
+> > > > > namespaces must be the same.
+> > > >
+> > > > Sorry, I likely misread the large comment in patch 2:
+> > > >
+> > > > https://lore.kernel.org/netdev/20251126-vsock-vmtest-v12-2-257ee21cd5de@meta.com/
+> > > >
+> > > > >> Have you considered instead a slightly different model, where the
+> > > > >> local/global model is set in stone at netns creation time - alike what
+> > > > >> /proc/sys/net/ipv4/tcp_child_ehash_entries is doing[1] - and
+> > > > >> inter-netns connectivity is explicitly granted by the admin (I guess
+> > > > >> you will need new transport operations for that)?
+> > > > >>
+> > > > >> /P
+> > > > >>
+> > > > >> [1] tcp allows using per-netns established socket lookup tables - as
+> > > > >> opposed to the default global lookup table (even if match always takes
+> > > > >> in account the netns obviously). The mentioned sysctl specify such
+> > > > >> configuration for the children namespaces, if any.
+> > > > >
+> > > > > I'll save this discussion if the above doesn't resolve your concerns.
+> > > > I still have some concern WRT the dynamic mode change after netns
+> > > > creation. I fear some 'unsolvable' (or very hard to solve) race I can't
+> > > > see now. A tcp_child_ehash_entries-like model will avoid completely the
+> > > > issue, but I understand it would be a significant change over the
+> > > > current status.
+> > > >
+> > > > "Luckily" the merge window is on us and we have some time to discuss. Do
+> > > > you have a specific use-case for the ability to change the netns >
+> > > mode
+> > > > after creation?
+> > > >
+> > > > /P
+> > > 
+> > > I don't think there is a hard requirement that the mode be change-able
+> > > after creation. Though I'd love to avoid such a big change... or at
+> > > least leave unchanged as much of what we've already reviewed as
+> > > possible.
+> > > 
+> > > In the scheme of defining the mode at creation and following the
+> > > tcp_child_ehash_entries-ish model, what I'm imagining is:
+> > > - /proc/sys/net/vsock/child_ns_mode can be set to "local" or "global"
+> > > - /proc/sys/net/vsock/child_ns_mode is not immutable, can change any
+> > >   number of times
+> > > 
+> > > - when a netns is created, the new netns mode is inherited from
+> > >   child_ns_mode, being assigned using something like:
+> > > 
+> > > 	  net->vsock.ns_mode =
+> > > 		get_net_ns_by_pid(current->pid)->child_ns_mode
+> > > 
+> > > - /proc/sys/net/vsock/ns_mode queries the current mode, returning
+> > >   "local" or "global", returning value of net->vsock.ns_mode
+> > > - /proc/sys/net/vsock/ns_mode and net->vsock.ns_mode are immutable and
+> > >   reject writes
+> > > 
+> > > Does that align with what you have in mind?
+> > 
+> > Hey Paolo, I just wanted to sync up on this one. Does the above align
+> > with what you envision?
 > 
-> WARNING: ./mm/vmalloc.c:4284 expecting prototype for vrealloc_node_align_noprof(). Prototype was for vrealloc_node_align() instead
+> Hi Bobby, AFAIK Paolo was at LPC, so there could be some delay.
 > 
-> Fix the macro name in vrealloc_node_align_noprof() kernel-doc comment.
+> FYI I'll be off from Dec 25 to Jan 6, so if we want to do an RFC in the
+> middle, I'll do my best to take a look before my time off.
 > 
-> Fixes: 4c5d3365882dbb ("mm/vmalloc: allow to set node and align in vrealloc")
-> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
-> ---
+> Thanks,
+> Stefano
+> 
 
-LGTM.
-Reviewed-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+Sounds like a plan, thanks!
+
+Best,
+Bobby
