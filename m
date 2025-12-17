@@ -1,137 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46552EADC;
-	Wed, 17 Dec 2025 00:10:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5E661CAB3
+	for <virtualization@lists.linux.dev>; Wed, 17 Dec 2025 01:22:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765930216; cv=none; b=AkmTSqygOPa4fmiJIFtuCTuGYqdyzH1nuOHlfYUh2sBvgQ5T95sH4AudmN6nlu18IiYV9mCrDy60ifnLQvjdRp6gdRR1huycAndrAPb1WsJvP5Vsh6WSSzHlWt9FeSsj/tRttNJmwSGix4erUXDeKbOq+pxA+dTLeMs2SOmQpog=
+	t=1765934538; cv=none; b=Mog2kS8DEk0WqjzDu64ahOHlzi9pFumdoXCqX5is4GO4PjnI5c9WKdD2Xcv+vTjnE2moB6NNtjTK2gWq6qIK21dWuMU7i8VDiRkVGzTX1xQRMhRoQlW1B1pY3qOYo07r17rFUdpE/2iKiaMye0UKcqSJu1eQ047wysozPJtYTMA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765930216; c=relaxed/simple;
-	bh=IYStEoceGdUEi75BLoyEocdK6CZd2MmP8jcIyjKww1A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=K2PgPVfVdwDCd3kUf/KG669hUmeADT+YOlmpMoDa5crUW9I7ZVa850Uo0qGJpPiO3LGCYqAEdCNI74o8TckAnAKuSlfSjK/CYdNItDh1mmhWUrWhDBwm6W5QerzakJXZVAup21qlqA6sjDOQqTTgxrB/Ejt2zxpJWt6sDDRHCY8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZirnAmXZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1765934538; c=relaxed/simple;
+	bh=9boVk68kYNusC+MXtLi8MSVwKnke4dYwoVkCzCoc7c0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=PPs4ioSbjZs2I+Zh4WtQ6NtaORtuEBSaVMAKXcJuQD0shxV4QSRjZPlrAXXHuTOVlmdifVEUoUpr3PsQ235nPQUXACiZpRQ/Rm7x8/LrHapJb58fHzuBrFJWO8IYgn9sklGva/f0w3sdGbNBSCBljDwbV6WGlnYYjQZp8TkzVLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AoxgmLa1; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZirnAmXZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E25A3C4CEF1;
-	Wed, 17 Dec 2025 00:09:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1765930213;
-	bh=IYStEoceGdUEi75BLoyEocdK6CZd2MmP8jcIyjKww1A=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ZirnAmXZntKqQ0k4HUVwGi1YqYVeSoRhusTvAg73iV3t9VVhPLhTsXP1tLDbaSb3X
-	 apvbKAHL3nFZTB2DUvWUBOX+UygqSJYs36Bd1f/rfWT+X9JMBmkS+Z4Wsm60tfypPv
-	 GS7Tpivbn3/VRYA1dgSeETWVHA1rgJBpOT1XBDXFvwhAlgRHtrUpCfUpnd2vhbxQ9J
-	 GuBCrHKguP92bD8aEvceF0rTOXp/QF/r7HHua7AwcZZXwfttaEectmb6IpwvlGO7ty
-	 at+2FhZS6ng5dxpbwMuR7D3MansmP2/DRx7Hi/COKlO2DR5FQE+MxflxWjz660r+Gi
-	 JlpZXjBBbQaqw==
-Message-ID: <56acbfc1-51d7-4245-91ea-45bd9e4b2e29@kernel.org>
-Date: Wed, 17 Dec 2025 01:09:53 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AoxgmLa1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1765934534;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9boVk68kYNusC+MXtLi8MSVwKnke4dYwoVkCzCoc7c0=;
+	b=AoxgmLa17vi6xK8SLuVOCiqDhiBK5KzDR+WLkqri3PFf9u1YgK7q18iOe7EpvL9gwuBxP4
+	QVWNPJkP4HcPtTkV7vwar2A41CpZeQngica4jk9fTjv+LirdysxmysvN1hmM5kAgDqgoP4
+	bBjoJliNCNNMJiTzUDJBGfoWJuRaNX4=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-467--jFzoRiSNzOZ568DiwL8Zw-1; Tue, 16 Dec 2025 20:22:13 -0500
+X-MC-Unique: -jFzoRiSNzOZ568DiwL8Zw-1
+X-Mimecast-MFC-AGG-ID: -jFzoRiSNzOZ568DiwL8Zw_1765934532
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-34c904a1168so5531279a91.1
+        for <virtualization@lists.linux.dev>; Tue, 16 Dec 2025 17:22:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765934532; x=1766539332;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=9boVk68kYNusC+MXtLi8MSVwKnke4dYwoVkCzCoc7c0=;
+        b=gY/0a3MJrzZcF2aC9G04/TZkysMCsODLFiT9pMh++wsGUM/NZ1UXBAK1MaYyxmPBRv
+         QVATWttG34ZyF7ziV8HX9xZfiMEb2ud1ITYt6TxnABNVNBRsgSZCMM+QPd8Zb8DOmjnh
+         CVusQMQPydliNo6LKrlacpN4SVCqwa9fHXdfRoU3Jq0eAzcgL60tSm6a4tBJ2TToLUCP
+         rsmdlnCSurK7yQHINP0xpe/ZsPScAPVFOfB9gbrex8eFJLTayKQ1cMn004ArrJBnWfdf
+         kQZIHK/ZgBDRB8ks3kJdgEpYNfRCW2Gx2jDuXUS8RCMghY8+XUKJ4SyuyVwQY39rEvV9
+         qPUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXi8+8zsW2PYwIt7N2GYTIvp/sIMtTusPhsAhC/yaXAk+G+VG30yIwqGFHu4CPfhSwfk+yO3vkP3+9DeL9B/A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwDzwK8u97Qp2Qz31Cx3gCnGwQdEf81PuvIb16yiVx0tJW08mM6
+	FAGFJCOTZos/sL9FEVoVS2xhKPdhrOlGDjMJjG0gQxHQXbk9j5z6p2/+dFRO+x48k5Rh/y/K3hV
+	1q2V1mwnolXiqCSTwaWji/rgcCip/CcQzTQsICgk2LGW3djScG81YTp9XdpxEcHqL+cWJ8tbTcz
+	eqDHxnVe5/wu3nZHRWlJM+6z6THge9DPUR5tYDY6yWa44=
+X-Gm-Gg: AY/fxX4lo65NvSuAyZrqqmAFClhdYNbIVomGZLviUIjmk/Dg6UWx5TIzVsWLvUsCGET
+	tGgE/u730XnhREbwfNCETiRyUuLyMqjUxAfvZlZopqdtHFnar9oNk3mq+YhU3e3vWPI9OowqG2i
+	I4OEz9/IRk9RN7B1qwToykQk1Giap6UYdMk1rweUiA3w6oLh9JtzOQyhp6WoNSekZPNg==
+X-Received: by 2002:a17:90b:1345:b0:34c:fe57:278c with SMTP id 98e67ed59e1d1-34cfe5731d8mr891201a91.34.1765934532502;
+        Tue, 16 Dec 2025 17:22:12 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH2Qj1MjAZsaJatY38cVNtUzo65vJvXXqfgYjDc1M1txBuTCxEU1f06oaF/Mba6iW1H5lOe2BX+sqswTaGgyuE=
+X-Received: by 2002:a17:90b:1345:b0:34c:fe57:278c with SMTP id
+ 98e67ed59e1d1-34cfe5731d8mr891185a91.34.1765934532113; Tue, 16 Dec 2025
+ 17:22:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 05/14] mm, kfence: Describe @slab parameter in
- __kfence_obj_info()
-To: Bagas Sanjaya <bagasdotme@gmail.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
- Linux DRI Development <dri-devel@lists.freedesktop.org>,
- Linux Filesystems Development <linux-fsdevel@vger.kernel.org>,
- Linux Media <linux-media@vger.kernel.org>, linaro-mm-sig@lists.linaro.org,
- kasan-dev@googlegroups.com,
- Linux Virtualization <virtualization@lists.linux.dev>,
- Linux Memory Management List <linux-mm@kvack.org>,
- Linux Network Bridge <bridge@lists.linux.dev>,
- Linux Networking <netdev@vger.kernel.org>
-Cc: Harry Wentland <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>,
- Rodrigo Siqueira <siqueira@igalia.com>,
- Alex Deucher <alexander.deucher@amd.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Matthew Brost <matthew.brost@intel.com>, Danilo Krummrich <dakr@kernel.org>,
- Philipp Stanner <phasta@kernel.org>, Alexander Viro
- <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>,
- Jan Kara <jack@suse.cz>, Sumit Semwal <sumit.semwal@linaro.org>,
- Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>,
- Dmitry Vyukov <dvyukov@google.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Uladzislau Rezki <urezki@gmail.com>,
- Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, Taimur Hassan <Syed.Hassan@amd.com>,
- Wayne Lin <Wayne.Lin@amd.com>, Alex Hung <alex.hung@amd.com>,
- Aurabindo Pillai <aurabindo.pillai@amd.com>,
- Dillon Varone <Dillon.Varone@amd.com>, George Shen <george.shen@amd.com>,
- Aric Cyr <aric.cyr@amd.com>, Cruise Hung <Cruise.Hung@amd.com>,
- Mario Limonciello <mario.limonciello@amd.com>,
- Sunil Khatri <sunil.khatri@amd.com>,
- Dominik Kaszewski <dominik.kaszewski@amd.com>,
- Peter Zijlstra <peterz@infradead.org>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Max Kellermann <max.kellermann@ionos.com>,
- "Nysal Jan K.A." <nysal@linux.ibm.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Alexey Skidanov <alexey.skidanov@intel.com>, Vlastimil Babka
- <vbabka@suse.cz>, Kent Overstreet <kent.overstreet@linux.dev>,
- Vitaly Wool <vitaly.wool@konsulko.se>, Harry Yoo <harry.yoo@oracle.com>,
- Mateusz Guzik <mjguzik@gmail.com>, NeilBrown <neil@brown.name>,
- Amir Goldstein <amir73il@gmail.com>, Jeff Layton <jlayton@kernel.org>,
- Ivan Lipski <ivan.lipski@amd.com>, Tao Zhou <tao.zhou1@amd.com>,
- YiPeng Chai <YiPeng.Chai@amd.com>, Hawking Zhang <Hawking.Zhang@amd.com>,
- Lyude Paul <lyude@redhat.com>, Daniel Almeida
- <daniel.almeida@collabora.com>, Luben Tuikov <luben.tuikov@amd.com>,
- Matthew Auld <matthew.auld@intel.com>,
- Roopa Prabhu <roopa@cumulusnetworks.com>, Mao Zhu <zhumao001@208suo.com>,
- Shaomin Deng <dengshaomin@cdjrlc.com>, Charles Han <hanchunchao@inspur.com>,
- Jilin Yuan <yuanjilin@cdjrlc.com>,
- Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
- George Anthony Vernon <contact@gvernon.com>
-References: <20251215113903.46555-1-bagasdotme@gmail.com>
- <20251215113903.46555-6-bagasdotme@gmail.com>
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Content-Language: en-US
-In-Reply-To: <20251215113903.46555-6-bagasdotme@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20251216175918.544641-1-kshankar@marvell.com>
+In-Reply-To: <20251216175918.544641-1-kshankar@marvell.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 17 Dec 2025 09:22:00 +0800
+X-Gm-Features: AQt7F2p59SvA8jqbLDZpsRBclL2mVEfHsYjkaUO7M68_TRk-7vqIcAO9BWf3AVs
+Message-ID: <CACGkMEvgA-A=aZc06kc1o68Em8AeXmWPeRa-S=ziqWencpSk3Q@mail.gmail.com>
+Subject: Re: [PATCH net-next ] vdpa: fix caching attributes of MMIO regions by
+ setting them explicitly
+To: Kommula Shiva Shankar <kshankar@marvell.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, virtualization@lists.linux.dev, 
+	eperezma@redhat.com, kvm@vger.kernel.org, jerinj@marvell.com, 
+	ndabilpuram@marvell.com, schalla@marvell.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 1q1ZjAJkLXQxldGPQUzwLE9BL0udtzfWHQcVPEdlvQI_1765934532
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 12/15/25 12:38, Bagas Sanjaya wrote:
-> Sphinx reports kernel-doc warning:
-> 
-> WARNING: ./include/linux/kfence.h:220 function parameter 'slab' not described in '__kfence_obj_info'
-> 
-> Fix it by describing @slab parameter.
-> 
-> Fixes: 2dfe63e61cc31e ("mm, kfence: support kmem_dump_obj() for KFENCE objects")
-> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+On Wed, Dec 17, 2025 at 1:59=E2=80=AFAM Kommula Shiva Shankar
+<kshankar@marvell.com> wrote:
+>
+> Explicitly set non-cached caching attributes for MMIO regions.
+> Default write-back mode can cause CPU to cache device memory,
+> causing invalid reads and unpredictable behavior.
+>
+> Invalid read and write issues were observed on ARM64 when mapping the
+> notification area to userspace via mmap.
+>
+> Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
 > ---
->   include/linux/kfence.h | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/include/linux/kfence.h b/include/linux/kfence.h
-> index 0ad1ddbb8b996a..e5822f6e7f2794 100644
-> --- a/include/linux/kfence.h
-> +++ b/include/linux/kfence.h
-> @@ -211,6 +211,7 @@ struct kmem_obj_info;
->    * __kfence_obj_info() - fill kmem_obj_info struct
->    * @kpp: kmem_obj_info to be filled
->    * @object: the object
-> + * @slab: the slab
->    *
->    * Return:
->    * * false - not a KFENCE object
 
-Acked-by: David Hildenbrand (Red Hat) <david@kernel.org>
+Acked-by: Jason Wang <jasowang@redhat.com>
 
--- 
-Cheers
+Btw, I think this should go with Michael's vhost tree.
 
-David
+Thanks
+
