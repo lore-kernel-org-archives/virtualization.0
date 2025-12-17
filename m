@@ -1,243 +1,221 @@
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C51CC2D6E71
-	for <virtualization@lists.linux.dev>; Wed, 17 Dec 2025 18:12:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4975730CDAF
+	for <virtualization@lists.linux.dev>; Wed, 17 Dec 2025 20:58:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765995164; cv=none; b=TyY9yqOqt/vkAkRIaQOuhhnHhxetXfBSllBDbb+yoYMF0DKJ+ABNtNCe9gikqpjDwLrH4x7ARjTL94NoF6iEcZR0vx++/nUEG3Sbnr6AXWZhrVXWu3kVy9cziNICUHZw1lh2knRu27FBJCuYe57H5VojF3zi3xYRl+d91mtvRJQ=
+	t=1766005107; cv=none; b=KKB5fVjaZA5tfw6jWqxCe2Zati1daAP25VfEpEvFtf9I5WusplyI/KmwbtjbCQ8nmuSzpN0h21YHjv1sUx7g8eXSINg+4snAxO0Yi6OJL/u76DDhAOMx9GwURV4h7npMTAb6Op9wQND3Csq0qTzfsNkFF9e43NJveYFMJVVF4/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765995164; c=relaxed/simple;
-	bh=Btn/e79eN7ovQAPmHnhb0d8yhq10fIOSyLkws8LR2uE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=gifw/DZp2tVEdqc/Da4RbT1nauRF8V2oke3Mp+hNk7+FG3FcqNJ+nr3OheNoskmCLPv8Scps8pzZpoxV3ZfE1nA/MuYinnJDOqHb9LAkNBAN3oDHSuHgg10UQPfSgVyNSQf3950kG43Du8WxiV96uEPMYSMVvyuBTfVLbueLuiw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U2nvHK9X; arc=none smtp.client-ip=209.85.167.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1766005107; c=relaxed/simple;
+	bh=hZNjoNQVlYTqUf2JurJDMNVvZvU8KiFitH8a3f2oqF0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=K67dggcSwd5fxcUVVM7m53yds7MmP3ifT4r0jxYsR8306AEramZ/VwlGGqOuCJEfLjkrUPrmSmWalG5pB4khVCS3MIBkjjvEtnVqCQlvlr6hUxLiQHHP9UwWOW+ZOCjI83lUsylIuvsyscHDTzkIVvn8LhzZ41nEDhqOEpkH2U8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=l1yE7Pie; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U2nvHK9X"
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5942b58ac81so4749783e87.2
-        for <virtualization@lists.linux.dev>; Wed, 17 Dec 2025 10:12:38 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="l1yE7Pie"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-34be2be4b7cso4088396a91.3
+        for <virtualization@lists.linux.dev>; Wed, 17 Dec 2025 12:58:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765995155; x=1766599955; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YWDVTcbeN5bBA7b/fB7A8gJyMmAFiIZBGr/pLyGnvWw=;
-        b=U2nvHK9Xh8Flrczkv4151SPXAUG/V4Yc4O80R3nYMXjrV2/mdyQhbWuYY1wjF0FRp2
-         TuetsToi0Y0z949DdgHmXkBBbMd0vLJaxUIllzUKWiRaTjnT+DW5bs5p0r3nZuQL3N1i
-         4OGwAN4MJ5YjG2LMwj8IqAAycbTxrbp4PmuQI68WiNAdsoIYtSZkz3ZJDgA+SeZPHUxK
-         8XuXbPLxrm3mvaqTnjYHu6bd0TES8LNWP61vVczgPKVTO/zujQ5VvPO+0kQC/gbaD8lY
-         5wIWminOieK3YCzGsSyHuEfA+fY49CFBb6acjwUnQMUgWuxgbuEeq4+ZXyGAzRk91Cvg
-         0l+g==
+        d=linaro.org; s=google; t=1766005103; x=1766609903; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Y8l6Ur6Yr4Kr5eraloIZXw+ktF7rID9FaI2hPFW+l6Y=;
+        b=l1yE7PieCCTt1nQmG0XqBKpVcAjUA83qTBYDWVAaAR+4aJZ8ONad+8rbkYSQullLI1
+         CtRdrVZdLFx6mkZa96+3QGZW5vasO03ATqTG2fnCxXN2QUYu9zud/x3/AdDrkpP0WjP5
+         04HnJiT5WrCHVaUtS7l5lHV/bH50N8qpohKQL7wvMoL0fqVmfDRiu+Xy0CyRsLRepbjH
+         TOiASQX/RFpKw4oUpUwQ7h7NXEOqTryAIAkeLCRIJXHS1s8/ImT9jlnsH/NlOT7ErWlN
+         MStgqSrMCPDJaVOaNZAX20naqX2ADHJLTVTo9wrfoPEOojYrjuTi3EIe4HPRZT1Pj3/M
+         4xbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765995155; x=1766599955;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=YWDVTcbeN5bBA7b/fB7A8gJyMmAFiIZBGr/pLyGnvWw=;
-        b=j5Yu7gPBDukqO/2d07p0In2csfGWSQAgimfSkM0s1i0Ylf2Lk4OthgfyQ6rcKpEbuO
-         ghRw3XGKfWlgTWuZoUix2sx72iU7ygZ3AktpW4xiPihzIxwGcKYAHoAUKmI5nyDYbohU
-         kY/9AGZLKHE3eRarztFJxxdTlwixJ5Pk+WylyvGrksw4XeVpERTP2e63qL41YeHhnwMT
-         EOQtgTnf25eM6PZWyLFxxVX5ALC+RBI5FRyFt7s1GpWUdhJzLtyr7tUVWVbdF4LExEb7
-         FHBxTunpjisJbpXH/oUGmvhtU74TZjxoTbWXwvuaMkkuSV6pdzscFEaSmYy7mvZ+ifGE
-         wg8w==
-X-Forwarded-Encrypted: i=1; AJvYcCWptZNSn958iGVm005FFNqIwXWyGDCZtq2vqehALTG/z4QXDyezJTPQCe6jqRi9w6P6dYSgsxzEnJKJ5n/XVw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YylLHEdIZN/gP8b1wU1D+n/ln80xkXjxgFXBgBE/GY8hXvI3GJb
-	jq1g5l0I2dE9XjRF4BoyAO4X6OjiyKSstzkM+fXYLuQmvnNuQCWI+p9y
-X-Gm-Gg: AY/fxX6jAClKbRAAHxp48w/ZhZciGBWtgtKr16jN0QW8/tJKtTkHptYfgtkohsKU8he
-	R0y/ry+tqVmbeSKWWLrztpDzL/2b98zVq/hYPMoynhYyqh0rvr4U6/ihyworWxCRPyEHM8tnKvk
-	NWq9doBdpxSaBynpMOj6kJiIXAwzybtl1bnhVgnhoWZ8dL2lcMd9UJtMnZ4tOl7sJCb2tlxtl3o
-	MAStBPWeR6Vgr7lYs367YBsfbSWULIsA9aw18zEd2o8pEH1Lj8meBXSzc0GSHMIDoxxajdP5YwQ
-	V8RmmUHbZzNubnLt8y9cqVu3DwHqIo8JFwTi3F0GPT5pi2HpIuOtrJjy08+tGnJumYAJvfBGSnX
-	OIH75fOp/j37Swdam8RhJa8J2j6aDSlonYzpJt1uh6MKd3GaehK6dHdml7PG2Y5U5Kjumg8DIqF
-	n5Xq2B9nyN02I=
-X-Google-Smtp-Source: AGHT+IGKE6+oXrVS7pwbxHPAdksD1QodGnRBGOe+h7uD8J+gXsamVw7BpLRSwSnFwpf8bb0Jng+hIA==
-X-Received: by 2002:a05:6512:3d07:b0:59a:107a:45a5 with SMTP id 2adb3069b0e04-59a107a46cdmr754855e87.23.1765995154644;
-        Wed, 17 Dec 2025 10:12:34 -0800 (PST)
-Received: from Ubuntu-2204-jammy-amd64-base.. ([2a01:4f9:6a:4e9f::2])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5990da790efsm2591419e87.102.2025.12.17.10.12.33
+        d=1e100.net; s=20230601; t=1766005103; x=1766609903;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Y8l6Ur6Yr4Kr5eraloIZXw+ktF7rID9FaI2hPFW+l6Y=;
+        b=i4qff3oFPf0uR2VUIAkYiJ3PBKnJ7EHu0q6FPv5NnVJ2UwEPQogSyADBmyxkx+s5sD
+         NPZCacqAFaoMJ9CzBTv+yIAxU+r89hprfiLpQEpzuiGb39+KwV4Rnb5EF10I3Bc+0Ki6
+         tnLtF6IMlyuB6Dm5SexPhrhvQjzdLadZW7JMoK+4IDaIwDjnb6iC2E1fgo0bBKQvqUSi
+         m4Usht3eFewBWbwno0lZ7ZE5GdLDx7ZBSVq8Uw/voY0iVRwn6iYs113W5MMJY2cR+aOG
+         +LdPJ0GpEYNxrhclOhd//T7YM5caTYWcLHMOTZoqAynBEHV2e/gXyvE8EE1JPy/Z6Vp4
+         22uQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWEF9loffvNHafOHNwLNpL4fxWQz0LkC12WFivCiCtv8Jq07w6suIgVkY1OGIh3Q1hAPPe5SOqrR4TQd07gYw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxx6vQdCeXrT3Arir3mF+NY0S1VMwYOIhqO67Z8odtiLY8HSws8
+	ezfPN/uCVvSsclGpLYbl+o/V0HQ/xRWLQRc2OCN4ny2ojdC2Y3T2QuPjiyRs/xEIWqk=
+X-Gm-Gg: AY/fxX4xtwlTXy0rlfLcCi4/oXyYrJTNIeeLIHahu0mH3Z46hDrHGngRE+8g5YfKE/N
+	79i67YxjxMJipVTuGBGNqltGr6IiMZmoj9ZyWKMZ9y9zJRQC5GHb9bKw8ZB9ZUR5n8zQ/nALMsz
+	Y2XSf7Asmgs6YyEhJ5AGcXvqZwYpD0kqIAKxp7ZTWOA9jFZ3wnV912OBmDsCnXXIMU5qXvC5PUm
+	3QvGkAejNjrefi4Puk8u4am8QbrfmTktlsySGR1q0/+WRf7PA+pwSNQ3wfkHz+VyEfsq16/57vp
+	hKIUcm6+dGdL2sQq4UF+wGO5r93nXt4/pQSSIH0eNxIDxWFoeUyS1M/PNi6KfBEapgHLVnW86Y6
+	215ybyc5ALM5CFcfOyL0QgkP1h3w/i4ExOCDVTfP0wIAbM887Jq2+wSRdsKc0BR7p7Yz/yDXowu
+	G7cUeLmBq93IcrL4Tp6FMOgXM=
+X-Google-Smtp-Source: AGHT+IEv6aRfuWteg9CkMupYi3aESqJksIkIawgSnCLh8bd8HFbrpV909yajnxOdzZbpUhAy/NMThA==
+X-Received: by 2002:a17:90b:5348:b0:32e:3829:a71c with SMTP id 98e67ed59e1d1-34abd809190mr17284905a91.16.1766005103068;
+        Wed, 17 Dec 2025 12:58:23 -0800 (PST)
+Received: from p14s ([2604:3d09:148c:c800:cfb9:c35:9f28:8222])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34e7710a5f8sm11766a91.6.2025.12.17.12.58.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Dec 2025 10:12:34 -0800 (PST)
-From: Melbin K Mathew <mlbnkm1@gmail.com>
-To: stefanha@redhat.com,
-	sgarzare@redhat.com
-Cc: kvm@vger.kernel.org,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	Melbin K Mathew <mlbnkm1@gmail.com>
-Subject: [PATCH net v4 4/4] vsock/test: add stream TX credit bounds test
-Date: Wed, 17 Dec 2025 19:12:06 +0100
-Message-Id: <20251217181206.3681159-5-mlbnkm1@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20251217181206.3681159-1-mlbnkm1@gmail.com>
-References: <20251217181206.3681159-1-mlbnkm1@gmail.com>
+        Wed, 17 Dec 2025 12:58:22 -0800 (PST)
+Date: Wed, 17 Dec 2025 13:58:19 -0700
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+To: Tanmay Shah <tanmay.shah@amd.com>
+Cc: andersson@kernel.org, mst@redhat.com, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	linux-kernel@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+	virtualization@lists.linux.dev, xiaoxiang@xiaomi.com,
+	Xiang Xiao <xiaoxiang781216@gmail.com>
+Subject: Re: [RFC PATCH 1/2] rpmsg: virtio_rpmsg_bus: allow the different
+ vring size for send/recv
+Message-ID: <aUMZayrdEIB6P90p@p14s>
+References: <20251114184640.3020427-1-tanmay.shah@amd.com>
+ <20251114184640.3020427-2-tanmay.shah@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251114184640.3020427-2-tanmay.shah@amd.com>
 
-Add a regression test for the TX credit bounds fix. The test verifies
-that a sender with a small local buffer size cannot queue excessive
-data even when the peer advertises a large receive buffer.
+Hi Tanmay,
 
-The client:
-  - Sets a small buffer size (64 KiB)
-  - Connects to server (which advertises 2 MiB buffer)
-  - Sends in non-blocking mode until EAGAIN
-  - Verifies total queued data is bounded
+On Fri, Nov 14, 2025 at 10:46:39AM -0800, Tanmay Shah wrote:
+> From: Xiang Xiao <xiaoxiang781216@gmail.com>
+>
 
-This guards against the original vulnerability where a remote peer
-could cause unbounded kernel memory allocation by advertising a large
-buffer and reading slowly.
-
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Melbin K Mathew <mlbnkm1@gmail.com>
----
- tools/testing/vsock/vsock_test.c | 103 +++++++++++++++++++++++++++++++
- 1 file changed, 103 insertions(+)
-
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index 0e8e173dfbdc..9f4598ee45f9 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -347,6 +347,7 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
- }
+This feature has been abandoned a long time ago - you own it now.
  
- #define SOCK_BUF_SIZE (2 * 1024 * 1024)
-+#define SMALL_SOCK_BUF_SIZE (64 * 1024ULL)
- #define MAX_MSG_PAGES 4
- 
- static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
-@@ -2203,6 +2204,103 @@ static void test_stream_nolinger_server(const struct test_opts *opts)
- 	close(fd);
- }
- 
-+static void test_stream_tx_credit_bounds_client(const struct test_opts *opts)
-+{
-+	unsigned long long sock_buf_size;
-+	char buf[4096];
-+	size_t total = 0;
-+	ssize_t sent;
-+	int fd;
-+	int flags;
-+
-+	memset(buf, 'A', sizeof(buf));
-+
-+	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	sock_buf_size = SMALL_SOCK_BUF_SIZE;
-+
-+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
-+			     sock_buf_size,
-+			     "setsockopt(SO_VM_SOCKETS_BUFFER_MAX_SIZE)");
-+
-+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
-+			     sock_buf_size,
-+			     "setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
-+
-+	flags = fcntl(fd, F_GETFL);
-+	if (flags < 0) {
-+		perror("fcntl(F_GETFL)");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) {
-+		perror("fcntl(F_SETFL)");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_expectln("SRVREADY");
-+
-+	for (;;) {
-+		sent = send(fd, buf, sizeof(buf), 0);
-+		if (sent > 0) {
-+			total += sent;
-+			continue;
-+		}
-+		if (sent < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
-+			break;
-+
-+		perror("send");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	/*
-+	 * With TX credit bounded by local buffer size, sending should
-+	 * stall quickly. Allow some overhead but fail if we queued an
-+	 * unreasonable amount.
-+	 */
-+	if (total > (size_t)(SMALL_SOCK_BUF_SIZE * 4)) {
-+		fprintf(stderr,
-+			"TX credit too large: queued %zu bytes (expected <= %llu)\n",
-+			total, (unsigned long long)(SMALL_SOCK_BUF_SIZE * 4));
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_writeln("CLIDONE");
-+	close(fd);
-+}
-+
-+static void test_stream_tx_credit_bounds_server(const struct test_opts *opts)
-+{
-+	unsigned long long sock_buf_size;
-+	int fd;
-+
-+	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-+	if (fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	/* Server advertises large buffer; client should still be bounded */
-+	sock_buf_size = SOCK_BUF_SIZE;
-+
-+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
-+			     sock_buf_size,
-+			     "setsockopt(SO_VM_SOCKETS_BUFFER_MAX_SIZE)");
-+
-+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
-+			     sock_buf_size,
-+			     "setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
-+
-+	control_writeln("SRVREADY");
-+	control_expectln("CLIDONE");
-+
-+	close(fd);
-+}
-+
- static struct test_case test_cases[] = {
- 	{
- 		.name = "SOCK_STREAM connection reset",
-@@ -2382,6 +2480,11 @@ static struct test_case test_cases[] = {
- 		.run_client = test_seqpacket_unread_bytes_client,
- 		.run_server = test_seqpacket_unread_bytes_server,
- 	},
-+	{
-+		.name = "SOCK_STREAM TX credit bounds",
-+		.run_client = test_stream_tx_credit_bounds_client,
-+		.run_server = test_stream_tx_credit_bounds_server,
-+	},
- 	{},
- };
- 
--- 
-2.34.1
+> it's useful if the communication throughput is different from each side
+> 
 
+Please provide a better changelog.
+
+> Signed-off-by: Xiang Xiao <xiaoxiang@xiaomi.com>
+> Signed-off-by: Tanmay Shah <tanmay.shah@amd.com>
+> ---
+>  drivers/rpmsg/virtio_rpmsg_bus.c | 47 ++++++++++++++++----------------
+>  1 file changed, 24 insertions(+), 23 deletions(-)
+> 
+> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+> index 484890b4a6a7..cc26dfcc3e29 100644
+> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
+> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+> @@ -37,8 +37,9 @@
+>   * @svq:	tx virtqueue
+>   * @rbufs:	kernel address of rx buffers
+>   * @sbufs:	kernel address of tx buffers
+> - * @num_bufs:	total number of buffers for rx and tx
+> - * @buf_size:   size of one rx or tx buffer
+> + * @num_rbufs:	total number of buffers for rx
+> + * @num_sbufs:	total number of buffers for tx
+> + * @buf_size:	size of one rx or tx buffer
+>   * @last_sbuf:	index of last tx buffer used
+>   * @bufs_dma:	dma base addr of the buffers
+>   * @tx_lock:	protects svq, sbufs and sleepers, to allow concurrent senders.
+> @@ -57,7 +58,8 @@ struct virtproc_info {
+>  	struct virtio_device *vdev;
+>  	struct virtqueue *rvq, *svq;
+>  	void *rbufs, *sbufs;
+> -	unsigned int num_bufs;
+> +	unsigned int num_rbufs;
+> +	unsigned int num_sbufs;
+>  	unsigned int buf_size;
+>  	int last_sbuf;
+>  	dma_addr_t bufs_dma;
+> @@ -112,7 +114,7 @@ struct virtio_rpmsg_channel {
+>  /*
+>   * We're allocating buffers of 512 bytes each for communications. The
+>   * number of buffers will be computed from the number of buffers supported
+> - * by the vring, upto a maximum of 512 buffers (256 in each direction).
+> + * by the vring, up to a maximum of 256 in each direction.
+>   *
+>   * Each buffer will have 16 bytes for the msg header and 496 bytes for
+>   * the payload.
+> @@ -127,7 +129,7 @@ struct virtio_rpmsg_channel {
+>   * can change this without changing anything in the firmware of the remote
+>   * processor.
+>   */
+> -#define MAX_RPMSG_NUM_BUFS	(512)
+> +#define MAX_RPMSG_NUM_BUFS	(256)
+>  #define MAX_RPMSG_BUF_SIZE	(512)
+>  
+>  /*
+> @@ -439,11 +441,8 @@ static void *get_a_tx_buf(struct virtproc_info *vrp)
+>  	/* support multiple concurrent senders */
+>  	mutex_lock(&vrp->tx_lock);
+>  
+> -	/*
+> -	 * either pick the next unused tx buffer
+> -	 * (half of our buffers are used for sending messages)
+> -	 */
+> -	if (vrp->last_sbuf < vrp->num_bufs / 2)
+> +	/* either pick the next unused tx buffer */
+> +	if (vrp->last_sbuf < vrp->num_sbufs)
+>  		ret = vrp->sbufs + vrp->buf_size * vrp->last_sbuf++;
+>  	/* or recycle a used one */
+>  	else
+> @@ -878,19 +877,20 @@ static int rpmsg_probe(struct virtio_device *vdev)
+>  	vrp->rvq = vqs[0];
+>  	vrp->svq = vqs[1];
+>  
+> -	/* we expect symmetric tx/rx vrings */
+> -	WARN_ON(virtqueue_get_vring_size(vrp->rvq) !=
+> -		virtqueue_get_vring_size(vrp->svq));
+> -
+>  	/* we need less buffers if vrings are small */
+> -	if (virtqueue_get_vring_size(vrp->rvq) < MAX_RPMSG_NUM_BUFS / 2)
+> -		vrp->num_bufs = virtqueue_get_vring_size(vrp->rvq) * 2;
+> +	if (virtqueue_get_vring_size(vrp->rvq) < MAX_RPMSG_NUM_BUFS)
+> +		vrp->num_rbufs = virtqueue_get_vring_size(vrp->rvq);
+> +	else
+> +		vrp->num_rbufs = MAX_RPMSG_NUM_BUFS;
+> +
+> +	if (virtqueue_get_vring_size(vrp->svq) < MAX_RPMSG_NUM_BUFS)
+> +		vrp->num_sbufs = virtqueue_get_vring_size(vrp->svq);
+>  	else
+> -		vrp->num_bufs = MAX_RPMSG_NUM_BUFS;
+> +		vrp->num_sbufs = MAX_RPMSG_NUM_BUFS;
+>  
+>  	vrp->buf_size = MAX_RPMSG_BUF_SIZE;
+>  
+> -	total_buf_space = vrp->num_bufs * vrp->buf_size;
+> +	total_buf_space = (vrp->num_rbufs + vrp->num_sbufs) * vrp->buf_size;
+>  
+>  	/* allocate coherent memory for the buffers */
+>  	bufs_va = dma_alloc_coherent(vdev->dev.parent,
+> @@ -904,14 +904,14 @@ static int rpmsg_probe(struct virtio_device *vdev)
+>  	dev_dbg(&vdev->dev, "buffers: va %p, dma %pad\n",
+>  		bufs_va, &vrp->bufs_dma);
+>  
+> -	/* half of the buffers is dedicated for RX */
+> +	/* first part of the buffers is dedicated for RX */
+>  	vrp->rbufs = bufs_va;
+>  
+> -	/* and half is dedicated for TX */
+> -	vrp->sbufs = bufs_va + total_buf_space / 2;
+> +	/* and second part is dedicated for TX */
+> +	vrp->sbufs = bufs_va + vrp->num_rbufs * vrp->buf_size;
+>  
+>  	/* set up the receive buffers */
+> -	for (i = 0; i < vrp->num_bufs / 2; i++) {
+> +	for (i = 0; i < vrp->num_rbufs; i++) {
+>  		struct scatterlist sg;
+>  		void *cpu_addr = vrp->rbufs + i * vrp->buf_size;
+>  
+> @@ -1001,7 +1001,8 @@ static int rpmsg_remove_device(struct device *dev, void *data)
+>  static void rpmsg_remove(struct virtio_device *vdev)
+>  {
+>  	struct virtproc_info *vrp = vdev->priv;
+> -	size_t total_buf_space = vrp->num_bufs * vrp->buf_size;
+> +	unsigned int num_bufs = vrp->num_rbufs + vrp->num_sbufs;
+> +	size_t total_buf_space = num_bufs * vrp->buf_size;
+>  	int ret;
+>  
+>  	virtio_reset_device(vdev);
+> -- 
+> 2.34.1
+> 
