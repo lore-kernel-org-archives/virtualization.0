@@ -1,241 +1,200 @@
-Received: from TYDPR03CU002.outbound.protection.outlook.com (mail-japaneastazon11023072.outbound.protection.outlook.com [52.101.127.72])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD60532D7F0
-	for <virtualization@lists.linux.dev>; Wed, 17 Dec 2025 10:50:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.127.72
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765968625; cv=fail; b=jEvgkCB0FjVN9FJXIUkBsXyGG12/pMRou5lNgS5qn2IkENctHU2sAnAwConzszPSUH9hb4u2IydPOM+79c/YLRsWFiXegWw7J7fRso5FuXsqGx2dgOfRp6RLVfozNNB08v+CDrHT2HQfLbL7N2y3bGAU7s3pAKrutY+Js46vFT0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765968625; c=relaxed/simple;
-	bh=t98e9AJdVdEtm8zQ5uO63LtSpcGGmgxTeNvIWJzOqQs=;
-	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=H5bACeOlLSPED5HjUde498NuUQ/2QllZcrxCIv3AF5vDfHrtiejlyMUqhmPuiM1+hOx616gxVXdf5lsncGHMQszKLSIQs0rX7hsJUaKyMp1tTUaZ+5bbW/Qlg94axzvmMRxJnpfKjVeqeVQafC5vFRWb9AAuHNvaVDSlMil9iRA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com; spf=pass smtp.mailfrom=jaguarmicro.com; dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b=hI2r3tQx; arc=fail smtp.client-ip=52.101.127.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=jaguarmicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jaguarmicro.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B4742BE7AD
+	for <virtualization@lists.linux.dev>; Wed, 17 Dec 2025 11:24:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765970668; cv=none; b=oudgqwL5nbQUR0La0ktFIliQPaK6Hx6rFqXbdc6BowGt9L1b0Jx/+Mrg2ESImRlHrFEr4ziYKg6lPdcTejcM6vK+5w+FU1OwrM8AFekeRa6xNHDDcTmCCmzxyo8qpraybxwoYwmCc9k4BLbybDoNohBtJBXCMmpzJH0YWAa0wxE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765970668; c=relaxed/simple;
+	bh=Qs8c8ilzX2dcMXBlmKy/kP8U6lCP99iEgt8Iv90U9qs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=HohNG/fUOJUWXqv/IOjDbRD0KxYiX1eFMaQqO0mDW9pBk07TBVS9se+8enq0+iAC7VeeApBrZosuE3uHVqWGLw7LFVPo857gDxI5lNHpBPTyDAG3eUfIDoRTl0AloarFv04sL5Ux26OHSmO1GH7cjNdOQ4Dq5uEYd7yNPOVN+GE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c3ffa7/y; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jaguarmicro.com header.i=@jaguarmicro.com header.b="hI2r3tQx"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=GrMbS6YomoCrFtrtg+ly8W80yA4fMk2EioF0CEAOIZl2IS9keW8buR46G8lyIld4mAZkce2KfMHKpDKbmMlEKXJXrd065Lsu2GO6cwCtrR9XUatsKFsM3xzEwSlqEFNeWjVUQO4zlpoFZgAgU/9/JBWiRaRMu9zIHpG2ANX28FlF0iSR8rRAjnVj3lSsCzvIlY/o8Vbbk+7IKhDmyt8QXyc55ABNhK9qoAr37eq9rC7v5l+P4PupgINkmQvVzm/1iyoVcX5wmKKYbm8KfyNVLI+wxreUanNRFuQsGadx6y6p+HUDRjeq4TOYLvJyDPMdfOKMtq4AzShNQ2MhtcvHEg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=koLWXWVOviiiMA7W1Gmja6T2X5nxoFRBjZEkSlPup4Y=;
- b=JvUo3no0wJFQ9q/6R+3N9ymJyvJbux2toQLwaTpz9dpA90NRycyyO1eTGdpP5+jmsnwImJ0XhgmpnFzrvadblJBIA7xj7CqU3200rYXKdAUzqZ/LdG2iwpblWrZcXfuziAf9N6APFdElWncqRfrAzDix06x4WDVDyjbMV0mGuZ4nFscq3lOpW9AvelrU+8r66Q7GbpgQaToBLk+BGjkoTJy2ZE0Xa/zCqu+UIENoM9vA/BWZu2WPPiDY5Rc3iK3xlkWBGTTa71ftIGm0Z11R8ogLxMNexcz61WKwx9vphPn3CW1au6uW29Sjl7GtQwkOVri4wIpmoxXP3z/4OzfzXw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=jaguarmicro.com; dmarc=pass action=none
- header.from=jaguarmicro.com; dkim=pass header.d=jaguarmicro.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jaguarmicro.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=koLWXWVOviiiMA7W1Gmja6T2X5nxoFRBjZEkSlPup4Y=;
- b=hI2r3tQxJc6tpnrauXBD6au1W8yQBgyJ6rODXa/PG/0vCixbPHVUFzXsztFSqvImMGIF5g20n+5iaxyAapqEN49Q9diejtaOMLcBEJmnoXFH25sQXefQmDVwYD1iI76Y/0PTwedR1z6iIrElJERVwaLbxzk3OMjebME0r0dO/7pI/iREvEKi6f89ODsl/DkqF2xz5w8lvdG5040ZEd1ptsS6bKsob6USjc+aI8pSvERV3epFN7FOVmS9+cQG5V13RpvPT5J3azp33zjxn4W7Z8Vu6CohU3yoio7HrAuaZAl1h2A0k2AlnRpg7LW+Tn9kPOWwZzo/8/wzxjByWPctQA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=jaguarmicro.com;
-Received: from SEZPR06MB4998.apcprd06.prod.outlook.com (2603:1096:101:4b::13)
- by TY1PPF19F8E0514.apcprd06.prod.outlook.com (2603:1096:408::908) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9412.12; Wed, 17 Dec
- 2025 09:17:43 +0000
-Received: from SEZPR06MB4998.apcprd06.prod.outlook.com
- ([fe80::43bd:6cbb:28ae:c259]) by SEZPR06MB4998.apcprd06.prod.outlook.com
- ([fe80::43bd:6cbb:28ae:c259%5]) with mapi id 15.20.9434.001; Wed, 17 Dec 2025
- 09:17:43 +0000
-From: Angus Chen <angus.chen@jaguarmicro.com>
-To: jasowang@redhat.com,
-	mst@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com
-Cc: linux-kernel@vger.kernel.org,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c3ffa7/y"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1765970663;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=FfXrhi7LMI5Q8TgyUnh0Rt45NV2TPYOSEzkzQHfRyY8=;
+	b=c3ffa7/yFDfy/8RBNDWBlIQmOzMHU/W4k7AhKGS5WljFDcG6ftw6IeJDUT3DrYoJV7vJms
+	AQ6fqNADPcD/4aoGpfSY88M0Mf4GMEU4YMecRcB7RZjO7Qv/Csr+8RYTwXlgIk6l7WX1O4
+	VEMs+/0MJ5/AXyQyngp3/cl/P4rlEy8=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-639-WESbVY3iOLiI5KtqVbmo0g-1; Wed,
+ 17 Dec 2025 06:24:22 -0500
+X-MC-Unique: WESbVY3iOLiI5KtqVbmo0g-1
+X-Mimecast-MFC-AGG-ID: WESbVY3iOLiI5KtqVbmo0g_1765970661
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id EF02C1800358;
+	Wed, 17 Dec 2025 11:24:20 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.224.69])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 82A3E180049F;
+	Wed, 17 Dec 2025 11:24:16 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: "Michael S . Tsirkin " <mst@redhat.com>
+Cc: Maxime Coquelin <mcoqueli@redhat.com>,
+	Laurent Vivier <lvivier@redhat.com>,
 	virtualization@lists.linux.dev,
-	Angus Chen <angus.chen@jaguarmicro.com>
-Subject: [PATCH v2] vdpa_sim_net: Fix the error handling logic
-Date: Wed, 17 Dec 2025 17:16:43 +0800
-Message-Id: <20251217091643.307-1-angus.chen@jaguarmicro.com>
-X-Mailer: git-send-email 2.33.0.windows.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: TY4P301CA0007.JPNP301.PROD.OUTLOOK.COM
- (2603:1096:405:26f::6) To SEZPR06MB4998.apcprd06.prod.outlook.com
- (2603:1096:101:4b::13)
+	linux-kernel@vger.kernel.org,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Yongji Xie <xieyongji@bytedance.com>,
+	jasowang@redhat.com,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Cindy Lu <lulu@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Subject: [PATCH v10 0/8] Add multiple address spaces support to VDUSE
+Date: Wed, 17 Dec 2025 12:24:06 +0100
+Message-ID: <20251217112414.2374672-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SEZPR06MB4998:EE_|TY1PPF19F8E0514:EE_
-X-MS-Office365-Filtering-Correlation-Id: d2fd84fb-2755-42c4-11a4-08de3d4d2267
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
- BCL:0;ARA:13230040|366016|376014|52116014|1800799024|7053199007|38350700014;
-X-Microsoft-Antispam-Message-Info:
- =?us-ascii?Q?RBraxRquiQrP14OUx6LVbm88G1fwqaS+vW9gduowlQZsgcBE3hlllFujRZbx?=
- =?us-ascii?Q?r1uKgSMp4/hrFmJxxMkSPNu34SdZHUCZpZ/qn10lWSrWx7kwQ/ajyb5TOi/L?=
- =?us-ascii?Q?6qZStWOg7EqR2+F/XiG/KNzeBqt8XE0M4KtulPoa7gDrKmU0jjrEIDPUgVKH?=
- =?us-ascii?Q?/TCg/d4GWRv8PgWlj+Fq0nPCGjTeheuPS8+6r04ZEP/78zJNBSJZZxnJ+suR?=
- =?us-ascii?Q?MlJ1ZJUHddY43JflnPLtX3o2fSEY/dlD8GRob9y8weGK5wHTSQ8/vot1+s8h?=
- =?us-ascii?Q?3Dn0IWn2aL0OkofDeWHrIi8Q0ezmrcNywHIKQE44d/R3Yaio5aYQD1BGsQu6?=
- =?us-ascii?Q?hn9AtMs4oqagtB2Ds3lSfwYShdr+MopvSQPC6+OKlNYgib3KHiF3aMKacanh?=
- =?us-ascii?Q?oUzgZigNk4bmCs27HmoIweoZ/9fe3Inu7cxFCTj5K5Zw9eu1EdWpzEsZjKIn?=
- =?us-ascii?Q?ntzzH1nh/CwERDsVTfyQAHRwHEkPd7Sqvvc9gn7Wg09KZWA4AyRKjN7zy3Wk?=
- =?us-ascii?Q?b/ASofwbdU0hW0htIN+Q3RaHzAsk0CC/ltJLCPfNPOASVPRz6zctHghr8HgH?=
- =?us-ascii?Q?6oE92cLHbr5KrVhMps0TfNfvQ+r1ZP4BB5i4FwYbrY0vzhUIrk5wTUd8F5WP?=
- =?us-ascii?Q?btw+QTbSbHKqHs3fPOJXbaimTEl3+AtTuwjfSvXWD71Bq8DyydzYFxlUgYfu?=
- =?us-ascii?Q?WyQwe0JcvXG/PZeZNTJzRNwWYvb8J/mzbUhmOFEyO5D5+s/7dJf18jNOLh1l?=
- =?us-ascii?Q?Y0Dt5XkBjVyyCExJoFHwrgmNXV3QZCkmLTd8cjoJ7u9E6w2qkwjfCMu3EoKS?=
- =?us-ascii?Q?egVNlzvSveDtSKWty8IqZY1H8jQYTiFcf3FQvwbzAxKjFH/rgKvlbo/bNXI0?=
- =?us-ascii?Q?oWpEqtO74EHIR/+ZzCxN6V2S9UhvnagftznBY+RfSlPUzQQPe5Ndlzia98wS?=
- =?us-ascii?Q?x37IqeU5EyOLYG+VOA8AClm5XT2uvHjzUq8dpW43FRCrG+XBq6muGrcFl1Aa?=
- =?us-ascii?Q?Pvw3ePMTPzQ1otITkTEf5c737xf9eUrK4VyAG7mkQUDNxwdL9FvS4/9eg6B0?=
- =?us-ascii?Q?zP2PwuJ9mMIfCNgue0IQGPea7wOTa4qo7afEi+c020H0WeGggSVZtfEMXtiN?=
- =?us-ascii?Q?lAnocfPDJ0bPDEpnOcDtWDL4O8dH5VkKYQ6+1xnzeaYh1w7mM1EEOtq3g8Iu?=
- =?us-ascii?Q?fQQhvggo/Lg1w5XxvLqRyovBMiEYW4lZxBlySq+u07CM7/AvlgI9x/BULboX?=
- =?us-ascii?Q?jGdnHzbW0fzfD/+xETPEImDjE2eaTFRKpR+LyXcZHGjC7fDYVuZa+XLFThiM?=
- =?us-ascii?Q?ns6dQM3+SAvJt2lqWHpfyUMwCejbxnp4oN+9eq5bYd8v2E8MTsFZcROLh+vh?=
- =?us-ascii?Q?ZA1QIY3E9WFeCFwmVUxXpwsANTtQ/EX8iTo/w5fYM7mS7tRvMMLjkr73hMcU?=
- =?us-ascii?Q?LgB44nYTSwPb8p9Kkfvf4anad7zAnch0F9ot546AZuMAMCCQqeR0bnDJKUIf?=
- =?us-ascii?Q?gyKMCIRVB2mCvgxdc3dZZqKbT5vYehPTV1tU?=
-X-Forefront-Antispam-Report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEZPR06MB4998.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(52116014)(1800799024)(7053199007)(38350700014);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
- =?us-ascii?Q?0vruysWBw8hkcQ3kDBcxGwsujouFkvjmzxlvinF17rujjYx9y73ib3TikFBO?=
- =?us-ascii?Q?KkKL1GBUuomNYa31M+l0Ql/5COixj2kXcjBXOu+zaQhwoKmRxRRdGnOZZDha?=
- =?us-ascii?Q?57mSYrWRqVeLISXCkBmZRTdxJD4xajnZrw/1+z5eaI68zyCzIP4lPNn0xMbz?=
- =?us-ascii?Q?PnM919MUR7DPbxhSiGSycxNAw0nq+qC5kWZc/gXeVoyljEn6ScF1xGmrktRP?=
- =?us-ascii?Q?xgQJgTkec+1Y1OBdwrc/VmRIVKjGRHS0WoFH5NJmqgwLzNHZ1TejffQx0j4d?=
- =?us-ascii?Q?leYb8YY25kD0eHWDnk490PDlOJeJkg1RbiAor6JquVOtycRKViXO3sWBmxBP?=
- =?us-ascii?Q?it7PhVT7YUFSJzg8s7sVkBoxIAWlNAdCpdGZYzFSl7eeSeU5m62nMQKTB2DD?=
- =?us-ascii?Q?KXblDuqlUTW5lCP8+6qI5o0VCCs4hdDfDWZVk4eU2l5bFlRmFEZ4h1ozFyNA?=
- =?us-ascii?Q?wmsS+c2PE4Uce5WakUoJ06zMRzFtksRZimbjhF8M1sSzFAATxiD0Y8KF6IFF?=
- =?us-ascii?Q?Q3NKydrxvfz+8mGwa0CR6ZFkV3TioN3tZ0kKKA3QtDWdjedRRT6Ch1uk1rSK?=
- =?us-ascii?Q?2Sk4hGllYvYtLOfJZ5Eh97nnpAG0LgLVjwGOFInVOilRCE2+9EZqlqceJJTJ?=
- =?us-ascii?Q?AGkWI9oKdreR4iBShi9IoyrvBXvUnxno+vyQpZ1RwQdtOvCGJLMiZJYLN06B?=
- =?us-ascii?Q?I93nylBAW2XWM20v33lHUBUj7/9jAyTuqLef8apieeYv1ooG7lnfrMEq+A+M?=
- =?us-ascii?Q?QXkQO54LlxDKfJNAAz7FIwNjphQ5JxWTraoJuaQJW/tB1/fUE+R2BhRw6lUk?=
- =?us-ascii?Q?Ob6bqvh7RnLgCQAP27ccfHlxZDiIQvqx7HR41Sf3NVJ2e8MridFdWGxJnaXz?=
- =?us-ascii?Q?qzrsfxfGwwNFng6E5cDLPbddy2IBPQDwvAdI8vVKQtqtg+5puVPBvIMENtD7?=
- =?us-ascii?Q?8qn044jWpPefddOrjtfJjv8CiXNEl//mTD2+4j7ULecfTgXFWGnNDpCsWmH9?=
- =?us-ascii?Q?Oz42rESDFE2nNdepq8kj4sCcx2i3oaD5hWalxn1MXN0t/aIi5hcIsGMVLX20?=
- =?us-ascii?Q?97s2BfWoBiuIMAgKPHUPrPSYb/rXPvgLEuiM3lA4EkX3Klq6uUlZ/IARfpK+?=
- =?us-ascii?Q?w+sylAdb5cGT8/8eQmPC09OxYM5m3VqpQe/vUxgcdjj3jHb3rcwpxrfxd31m?=
- =?us-ascii?Q?U5H5vwDSX6It8L5tNdbcffKgMbjEIFRudq8aVTn3NTulGy37B8NIyBUFMBsA?=
- =?us-ascii?Q?iYQJY8JskHAAw87yl4YedLSqpW+nkBeJVR0uEDHYs5/eFkO7Ap33d/OLV6Sf?=
- =?us-ascii?Q?ls+9OplqQ3vJoZSHpKfWqM1H2Dn9x5bgD8V0VHV4D73ELjtKZ/cPZjDmXZBv?=
- =?us-ascii?Q?Llsl3KRRu1bOpF/lsjSEZ3BAZ1k9WTkezi9+q54ACXtz5WEjNAdJhSMTOOrH?=
- =?us-ascii?Q?SSRq14C8QiQNrTcxBBWWPylQruXPaaQxdH6Hl0nVSDO86ud+Xlm4oAHjv3Rn?=
- =?us-ascii?Q?MydVZwXbn5DAoun2VQzIxwXZgfZNyaAfBpfg954tDLCuYOHzQxpyW+cCG1FV?=
- =?us-ascii?Q?QQfsLMLJJ1zB5HnUtUFiHgkoMTUJ6CP+ub/wrdnp5UJrP9wDEWe2pSmorAnM?=
- =?us-ascii?Q?Wg=3D=3D?=
-X-OriginatorOrg: jaguarmicro.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d2fd84fb-2755-42c4-11a4-08de3d4d2267
-X-MS-Exchange-CrossTenant-AuthSource: SEZPR06MB4998.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Dec 2025 09:17:43.6223
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 1e45a5c2-d3e1-46b3-a0e6-c5ebf6d8ba7b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: EMlY8sa+ahSbjg8EWWdHvWfW6JlhQBn4QybiyY9NyGsmXMHmTp8M73XlZxI9cT3rYNMxpOQR1dyDKymyfUTdPnBfQPpz9j+dIcVcHekjvxk=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY1PPF19F8E0514
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-The vdpasim_net_work function handles both transmit TX completion and
-RX processing. A descriptor is taken from the TX VQ at the start
-of the loop, representing a buffer previously used for the TX path's
-initial read from the virtual network device. This TX descriptor should
-be completed back to the Rx queue at the end of the work loop.
+When used by vhost-vDPA bus driver for VM, the control virtqueue
+should be shadowed via userspace VMM (QEMU) instead of being assigned
+directly to Guest. This is because QEMU needs to know the device state
+in order to start and stop device correctly (e.g for Live Migration).
 
-However, the error handling logic was flawed:
+This requies to isolate the memory mapping for control virtqueue
+presented by vhost-vDPA to prevent guest from accessing it directly.
 
-1. Read Failure (err <= 0): The TX VQ completion
-   (vdpasim_net_complete(txq, 0)) was performed, but the unconditional
-   break that followed prevented the processing of subsequent pending work
-   items (other descriptors) in the queue in the same work function call.
+This series add support to multiple address spaces in VDUSE device
+allowing selective virtqueue isolation through address space IDs (ASID).
 
-2. Write Failure (write <= 0): If data could not be written to the RX VQ
-   descriptor (e.g., vringh_iov_push_iotlb failed), the flow would 'break'
-   before the TX VQ descriptor was completed. This led to a leak of TX VQ
-   descriptors, as the work was never notified that the TX buffer was
-   free to use again.
+The VDUSE device needs to report:
+* Number of virtqueue groups
+* Association of each vq group with each virtqueue
+* Number of address spaces supported.
 
-This commit refactors the control flow to ensure:
-a) The TX VQ descriptor is completed back to the rx in all error and
-   success paths related to the current descriptor processing.
-b) The unconditional break on read failure is removed, allowing the
-   function to continue processing remaining work items
-   until the loop naturally exits.
-c) It updated some statistic logic also.
+Then, the vDPA driver can modify the ASID assigned to each VQ group to
+isolate the memory AS.  This aligns VDUSE with vdpa_sim and nvidia mlx5
+devices which already support ASID.
 
-Fixes: 0899774cb360 ("vdpa_sim_net: vendor satistics")
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
----
-v2:
-  - Add Suggested-by tag.
-  - Shorten the subject line.
-  - Consolidate vdpasim_net_complete calls.
+This helps to isolate the environments for the virtqueues that will not
+be assigned directly. E.g in the case of virtio-net, the control
+virtqueue will not be assigned directly to guest.
 
----
- drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 31 ++++++++++++++--------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+Also, to be able to test this patch, the user needs to manually revert
+56e71885b034 ("vduse: Temporarily fail if control queue feature requested").
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-index 6caf09a1907b..8c7b943f148d 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-@@ -231,33 +231,34 @@ static void vdpasim_net_work(struct vdpasim *vdpasim)
- 
- 		tx_bytes += read;
- 
-+		vdpasim_net_complete(txq, 0);
- 		if (!receive_filter(vdpasim, read)) {
- 			++rx_drops;
--			vdpasim_net_complete(txq, 0);
- 			continue;
- 		}
- 
- 		err = vringh_getdesc_iotlb(&rxq->vring, NULL, &rxq->in_iov,
- 					   &rxq->head, GFP_ATOMIC);
--		if (err <= 0) {
-+		if (err == 0) {
-+			/* rx has no available ring, no need to break */
- 			++rx_overruns;
--			vdpasim_net_complete(txq, 0);
--			break;
--		}
--
--		write = vringh_iov_push_iotlb(&rxq->vring, &rxq->in_iov,
--					      net->buffer, read);
--		if (write <= 0) {
-+		} else if (err < 0) {
- 			++rx_errors;
- 			break;
-+		} else {
-+
-+			write = vringh_iov_push_iotlb(&rxq->vring, &rxq->in_iov,
-+						      net->buffer, read);
-+			if (write <= 0) {
-+				++rx_errors;
-+				break;
-+			}
-+
-+			++rx_pkts;
-+			rx_bytes += write;
-+			vdpasim_net_complete(rxq, write);
- 		}
- 
--		++rx_pkts;
--		rx_bytes += write;
--
--		vdpasim_net_complete(txq, 0);
--		vdpasim_net_complete(rxq, write);
--
- 		if (tx_pkts > 4) {
- 			vdpasim_schedule_work(vdpasim);
- 			goto out;
+Tested by creating a VDUSE device OVS with and without MQ, and live migrating
+between two hosts back and forth while maintaining ping alive in all the
+stages.  All tested with and without lockdep.
+
+PATCH v9:
+* Change to RCU.
+
+PATCH v8:
+* Revert the change from mutex to rwlock (MST).
+
+PATCH v7:
+* Fix not taking the write lock in the registering vdpa device error path
+  (Jason).
+
+PATCH v6:
+* Make vdpa_dev_add use gotos for error handling (MST).
+* s/(dev->api_version < 1) ?/(dev->api_version < VDUSE_API_VERSION_1) ?/
+  in group and nas handling at device creation (MST).
+* Fix struct name not matching in the doc.
+* s/sepparate/separate (MST).
+
+PATCH v5:
+* Properly return errno if copy_to_user returns >0 in VDUSE_IOTLB_GET_FD
+  ioctl (Jason).
+* Properly set domain bounce size to divide equally between nas (Jason).
+* Revert core vdpa changes (Jason).
+* Fix group == ngroup case in checking VQ_SETUP argument (Jason).
+* Exclude "padding" member from the only >V1 members in
+  vduse_dev_request.
+
+PATCH v4:
+* Consider config->nas == 0 and config->ngroups == 0 as a fail (Jason).
+* Revert the "invalid vq group" concept and assume 0 if not set.
+* Divide each domain bounce size between the device bounce size (Jason).
+* Revert unneeded addr = NULL assignment (Jason)
+* Change if (x && (y || z)) return to if (x) { if (y) return; if (z)
+  return; } (Jason)
+* Change a bad multiline comment, using @ caracter instead of * (Jason).
+
+PATCH v3:
+* Make the default group an invalid group as long as VDUSE device does
+  not set it to some valid u32 value.  Modify the vdpa core to take that
+  into account (Jason).  Adapt all the virtio_map_ops callbacks to it.
+* Make setting status DRIVER_OK fail if vq group is not valid.
+* Create the VDUSE_DEV_MAX_GROUPS and VDUSE_DEV_MAX_AS instead of using a magic
+  number
+* Remove the _int name suffix from struct vduse_vq_group.
+* Get the vduse domain through the vduse_as in the map functions (Jason).
+* Squash the patch implementing the AS logic with the patch creating the
+  vduse_as struct (Jason).
+
+PATCH v2:
+* Now the vq group is in vduse_vq_config struct instead of issuing one
+  VDUSE message per vq.
+* Convert the use of mutex to rwlock (Xie Yongji).
+
+PATCH v1:
+* Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+* Using vduse_vq_group_int directly instead of an empty struct in union
+  virtio_map.
+
+RFC v3:
+* Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
+  value to reduce memory consumption, but vqs are already limited to
+  that value and userspace VDUSE is able to allocate that many vqs.  Also, it's
+  a dynamic array now.  Same with ASID.
+* Move the valid vq groups range check to vduse_validate_config.
+* Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
+* Use of array_index_nospec in VDUSE device ioctls.
+* Move the umem mutex to asid struct so there is no contention between
+  ASIDs.
+* Remove the descs vq group capability as it will not be used and we can
+  add it on top.
+* Do not ask for vq groups in number of vq groups < 2.
+* Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
+  VDUSE_IOTLB_GET_INFO.
+
+RFC v2:
+* Cache group information in kernel, as we need to provide the vq map
+  tokens properly.
+* Add descs vq group to optimize SVQ forwarding and support indirect
+  descriptors out of the box.
+* Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
+  part of the struct is the same.
+* Fixes detected testing with OVS+VDUSE.
+
+Eugenio Pérez (8):
+  vduse: add v1 API definition
+  vduse: add vq group support
+  vduse: return internal vq group struct as map token
+  vduse: refactor vdpa_dev_add for goto err handling
+  vduse: remove unused vaddr parameter of vduse_domain_free_coherent
+  vduse: take out allocations from vduse_dev_alloc_coherent
+  vduse: add vq group asid support
+  vduse: bump version number
+
+ drivers/vdpa/vdpa_user/iova_domain.c |  10 +-
+ drivers/vdpa/vdpa_user/iova_domain.h |   5 +-
+ drivers/vdpa/vdpa_user/vduse_dev.c   | 469 +++++++++++++++++++++------
+ include/linux/virtio.h               |   6 +-
+ include/uapi/linux/vduse.h           |  67 +++-
+ 5 files changed, 434 insertions(+), 123 deletions(-)
+
 -- 
-2.34.1
+2.52.0
 
