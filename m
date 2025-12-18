@@ -1,194 +1,186 @@
-Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010018.outbound.protection.outlook.com [40.93.198.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f65.google.com (mail-pj1-f65.google.com [209.85.216.65])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7D2730FC17
-	for <virtualization@lists.linux.dev>; Wed, 17 Dec 2025 22:20:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.18
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766010043; cv=fail; b=igRi4QUwgDMEsVAdwJ5sle4ZozQJRv0EetFsJNnltheidjMxirClP67TK2ogFAvzFSR+PJcOSVxZw5dJ3Ue44cwGgL+hMi7ndWuJSGIcxBsIRtKbmECCLkViNtUZDTA5pAjKFT9uZH0G/HFFLW8zT6QVX6DRMVfHD+Emrid/G00=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766010043; c=relaxed/simple;
-	bh=LUcvX8JhWyGNwCuOXlUr2PcbSjALNK2Yhb2dDFu4tzQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=X1nmPR+ew5ELZXvHz03DXP6oem6OquYTDGNut/I08xdegOw9CLoD4cKLE/aOkTwnv6AbJZLunP8614030HRh+8X9wvfZKRi2nKWX63CB2GxCTkd3io5RWt/CvkpxCAQsVUayoqaX0l6t5NQ9sVk6dcXktXqRZfZP9A6NKVyosUE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=YI7hxhei; arc=fail smtp.client-ip=40.93.198.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6DF9257423
+	for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 03:14:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.65
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1766027698; cv=none; b=sfGv/6gXOE17ZMECHD8Lt2iqLdMvbEIURFvPEpHZT2gYFJHdWF29wVS3UD6Uo4vQpGOK4ok1CXCM8GTvI/x3J0k4IBsmspgtmU3uMYvmDwLM4LkCRuTyGemwUZ3GcIullE6cJ242HBz8IB8lJKZiBmWA71RGLR1Lk4qWDV71UEg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1766027698; c=relaxed/simple;
+	bh=aMmDsg6PeqY3yDJKla0eomYe6OESw8tJFHAPUF0WDJQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SyZ1VWDlkMIX/M7IInd/7BaqFzB4Dii1qUhQGOetYRFXN7/5r1MXa8rg0cqbKvnoU8vMZlAf9Ly1dIy/l46G0L1PYS2npvWQB9qHAQ53ULZgUJqCnxV8dE4pnAV24GhV5ZRllNrJ+MI8prR9gkrQuZoHUfr0GWDHO/wH+bXhHsE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dhGvh/xR; arc=none smtp.client-ip=209.85.216.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="YI7hxhei"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=diCN67lvHqtbFfuuxZDDeR6IusHkhMGm3m2s6YNvKBvKE5sflXcImFtfOp2c27+5I2zjhPBhaWLF+P9bIk8dIGh9d6nqKoB2L1gEKYWe2dpBrCmBFdCIrDkq0zl5UbmkYbJDErjT7JEmWUE1HS+N3lMLjera4KR9aojUX47utDz13DXsgojVk0+q7hnGk0kEo4qiW5U1oolpSfBM2g3SiBtJGWQqkkzcyfmawsNtQlXjnU2NmRRVqq0+ePr9qqeFbd3m7Lc9Rqzt3SX8EemmWtfNN2Z81tQw8APkn+hyYbCLAzKCAmxi6jKyUUF7cOK+U5LH7UGlZp5vC96azjB6IQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cP/69Y5FQUIB3dg+4OA0DDl+X4oBvJ8NmtR1M1kZq4k=;
- b=FNVHjbhV013Lc2etkpTJd0aPaMMYDQT4wvAz1eUljYmdkUSXMstTpDbj6djLc2vVnZAlJo4o698LLJpvUra9nF5mkGUjuiDrbphhCnyBrU3XDB54NQsL/GLbwqCR2ZYS2HC0djkYU4woaHquoRpOqxh6iz8i8rXtjtle5MUviWMJH4Hz64rXUVULGfqUwMyVWuavtpQZeRV+XoD96r16gKf15GVyKM9/VlfFuiqwa10f2b/187xAjgxXk2S7xavWFwIzHeO2hO++25gSYcSPSQNFp5DPceGB4g+zgSgBG4WEyyFMmyz1xgZokA85ncwU4yzdVPIuW6wIHHVa4voi+g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=linaro.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cP/69Y5FQUIB3dg+4OA0DDl+X4oBvJ8NmtR1M1kZq4k=;
- b=YI7hxheisK2dYomBqzlLFb2xHSQviOscDIvl59u4I0Q9EZFbDobJGJGSjzsKnvM5J4WlNU7wt4KwNZoMyZoTmp3m3Rx1658NvchHCA/ur6l+vBC/CNCfN2KXF+9PSW75aHozKAhBj/Cq9wV5mcA2Xs40dDGk1l3b+0Y0KPR1ivE=
-Received: from BL1PR13CA0223.namprd13.prod.outlook.com (2603:10b6:208:2bf::18)
- by LV8PR12MB9641.namprd12.prod.outlook.com (2603:10b6:408:295::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9434.6; Wed, 17 Dec
- 2025 22:20:36 +0000
-Received: from BN2PEPF00004FBA.namprd04.prod.outlook.com
- (2603:10b6:208:2bf:cafe::b6) by BL1PR13CA0223.outlook.office365.com
- (2603:10b6:208:2bf::18) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9456.4 via Frontend Transport; Wed,
- 17 Dec 2025 22:20:33 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- BN2PEPF00004FBA.mail.protection.outlook.com (10.167.243.180) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9434.6 via Frontend Transport; Wed, 17 Dec 2025 22:20:34 +0000
-Received: from satlexmb08.amd.com (10.181.42.217) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Wed, 17 Dec
- 2025 16:20:34 -0600
-Received: from [172.31.132.204] (10.180.168.240) by satlexmb08.amd.com
- (10.181.42.217) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
- Transport; Wed, 17 Dec 2025 16:20:33 -0600
-Message-ID: <d4733fde-b1de-4852-9c75-c1c7e1896a9e@amd.com>
-Date: Wed, 17 Dec 2025 16:20:33 -0600
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dhGvh/xR"
+Received: by mail-pj1-f65.google.com with SMTP id 98e67ed59e1d1-34aa62f9e74so242012a91.1
+        for <virtualization@lists.linux.dev>; Wed, 17 Dec 2025 19:14:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1766027696; x=1766632496; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=aMmDsg6PeqY3yDJKla0eomYe6OESw8tJFHAPUF0WDJQ=;
+        b=dhGvh/xRvLg9b/KpiFr4QTyIv4LPjcWrCJYMRIUaxKexIlkhbHYHnlfmfhmavbp4LI
+         dJ/lzX7vlmM28Y54p3zZlU1l8iM68IfKCAE3lm0UbeTc8yOOmLdfah5nAlhhMdhlDj2K
+         RTXAKQEoELafrm6hwd5J/R6YgJVLIAb3/X5sn9dirfUrdFY9XBZOTp0MkecsFSV5g6Yu
+         pbNxJj2HrPQlMn3DPEW+VEh5sYjTkAROGUVJO9PoHqqlF4dZTe4rvjDnyuG9RnUYAQox
+         4YUOmiFhOFB8ZQXsGLfzphYJFRhxLWZ/Y8kT2dS7PxlI3Ivlo+kz3chaQa99xZQkJKXT
+         N/jA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1766027696; x=1766632496;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aMmDsg6PeqY3yDJKla0eomYe6OESw8tJFHAPUF0WDJQ=;
+        b=EDZtZMjLLP+Pt5z3fd53x1hhbrkvIylqrp80qACDy+kmQNDk+RmmCwRDc9q+xoNToi
+         jruMfQouq8Gj4DFWXvKPp8EFj4b4uzme6vcNvQE7A7A23LtXqoOLejWE3sObiDWvqWRw
+         zWd5/r6PUmHLEjYbH/LFzTg/jpQ/1HHkwqwqzvc+TCBQVB0UHpRkgPtIeqOdFZcE6EHp
+         jjoE/yp/z5q9tUDrTB2DBTooEB3uHFHQc85opA82/aiXV+IwmelKfOZXIw6zAbo+qzAL
+         aI1thfheCymQl8On4O/Y5SIgMw9hfFwxGhV+C/0XhMLHhCYsF9iTVZsAwgb3b7RYwJ+m
+         LhYw==
+X-Forwarded-Encrypted: i=1; AJvYcCUm9VnB55pwES3sL+vWBoG7PWMTkQ/RXKUymzVGEUTeX8K/wF5bOq3xVncQpi3utKSP35/u8ykHE5wqp2aLSQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwR0GGDqcG1sz52p33GASTh73AeZKjJpLnDnzZIi8klbChgLDks
+	6B+Y2pBupBgfOAhdoX5cvmGrC14NCkYDc3x0tr0f/TMque5BZ8kmRtFi
+X-Gm-Gg: AY/fxX524Q1Ep/rvslqnubhQahNQDdkn9eG6Gg++FqsXNhTDKPUfWy9eUcOBKV5yl6G
+	U+G43PvvLjm4pzHIzPtX3usNd9RT1SrkmZFroPfGelHbBr/wc62XqBCD8borZrKvtxkPGMGVWTe
+	If9M9b6RQgECwkN/Jrs8HBa6OplNeVjeMi+SF7aI6QHA9JrE6bDoBtzNMVVWhfWVLF5f4y326dO
+	ANmSPv3/iAsMD/CHuTNQ92Gr/0cM7rP2WELzDXjPrDxthApWlXnE9x2Fb+KAxCMy5VZmuqADL9h
+	KHwUVrvAZMmYP7jZsgOU1QlHfyAAhJVrqDoe0E4OJO8qWVob36UUOvwwND7jrFjlER/W01qUA8L
+	l7Uo8j2cB3pp27R6oYuobtzhc8fhar9Un9yVbLpyRlCm0cm9s2fAukWc3NdUwAWPxg/SSYnxxg/
+	tFzG9u0Dfc8kEtf3wPmyH1Gw==
+X-Google-Smtp-Source: AGHT+IHSjhEce/oXMOW5vM6ZF5lLLUz2/oBcTOMxDFFo21mOBhpjs2cfzbOckN+Zo7VcHVKH3Yx+8g==
+X-Received: by 2002:a17:90b:2ccf:b0:340:cb18:922 with SMTP id 98e67ed59e1d1-34abd71f7e6mr19045388a91.14.1766027695922;
+        Wed, 17 Dec 2025 19:14:55 -0800 (PST)
+Received: from archie.me ([210.87.74.117])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c1d2d9ae134sm730773a12.1.2025.12.17.19.14.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Dec 2025 19:14:55 -0800 (PST)
+Received: by archie.me (Postfix, from userid 1000)
+	id 75FB1420A930; Thu, 18 Dec 2025 10:14:51 +0700 (WIB)
+Date: Thu, 18 Dec 2025 10:14:51 +0700
+From: Bagas Sanjaya <bagasdotme@gmail.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
+	Linux DRI Development <dri-devel@lists.freedesktop.org>,
+	Linux Filesystems Development <linux-fsdevel@vger.kernel.org>,
+	Linux Media <linux-media@vger.kernel.org>,
+	linaro-mm-sig@lists.linaro.org, kasan-dev@googlegroups.com,
+	Linux Virtualization <virtualization@lists.linux.dev>,
+	Linux Memory Management List <linux-mm@kvack.org>,
+	Linux Network Bridge <bridge@lists.linux.dev>,
+	Linux Networking <netdev@vger.kernel.org>,
+	Harry Wentland <harry.wentland@amd.com>,
+	Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <siqueira@igalia.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Philipp Stanner <phasta@kernel.org>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Alexander Potapenko <glider@google.com>,
+	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Taimur Hassan <Syed.Hassan@amd.com>, Wayne Lin <Wayne.Lin@amd.com>,
+	Alex Hung <alex.hung@amd.com>,
+	Aurabindo Pillai <aurabindo.pillai@amd.com>,
+	Dillon Varone <Dillon.Varone@amd.com>,
+	George Shen <george.shen@amd.com>, Aric Cyr <aric.cyr@amd.com>,
+	Cruise Hung <Cruise.Hung@amd.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Sunil Khatri <sunil.khatri@amd.com>,
+	Dominik Kaszewski <dominik.kaszewski@amd.com>,
+	David Hildenbrand <david@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Max Kellermann <max.kellermann@ionos.com>,
+	"Nysal Jan K.A." <nysal@linux.ibm.com>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Alexey Skidanov <alexey.skidanov@intel.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Vitaly Wool <vitaly.wool@konsulko.se>,
+	Harry Yoo <harry.yoo@oracle.com>, Mateusz Guzik <mjguzik@gmail.com>,
+	NeilBrown <neil@brown.name>, Amir Goldstein <amir73il@gmail.com>,
+	Jeff Layton <jlayton@kernel.org>, Ivan Lipski <ivan.lipski@amd.com>,
+	Tao Zhou <tao.zhou1@amd.com>, YiPeng Chai <YiPeng.Chai@amd.com>,
+	Hawking Zhang <Hawking.Zhang@amd.com>,
+	Lyude Paul <lyude@redhat.com>,
+	Daniel Almeida <daniel.almeida@collabora.com>,
+	Luben Tuikov <luben.tuikov@amd.com>,
+	Matthew Auld <matthew.auld@intel.com>,
+	Roopa Prabhu <roopa@cumulusnetworks.com>,
+	Mao Zhu <zhumao001@208suo.com>,
+	Shaomin Deng <dengshaomin@cdjrlc.com>,
+	Charles Han <hanchunchao@inspur.com>,
+	Jilin Yuan <yuanjilin@cdjrlc.com>,
+	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
+	George Anthony Vernon <contact@gvernon.com>
+Subject: Re: [PATCH 00/14] Assorted kernel-doc fixes
+Message-ID: <aUNxq6Xk2bGzeBVO@archie.me>
+References: <20251215113903.46555-1-bagasdotme@gmail.com>
+ <20251216140857.77cf0fb3@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: <tanmay.shah@amd.com>
-Subject: Re: [RFC PATCH 0/2] Enhance RPMsg buffer management
-To: Mathieu Poirier <mathieu.poirier@linaro.org>
-CC: <andersson@kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
-	<xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
-	<linux-kernel@vger.kernel.org>, <linux-remoteproc@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <xiaoxiang@xiaomi.com>
-References: <20251114184640.3020427-1-tanmay.shah@amd.com>
- <aUMhLc9fe5inQN7X@p14s>
-Content-Language: en-US
-From: Tanmay Shah <tanmay.shah@amd.com>
-In-Reply-To: <aUMhLc9fe5inQN7X@p14s>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN2PEPF00004FBA:EE_|LV8PR12MB9641:EE_
-X-MS-Office365-Filtering-Correlation-Id: 14ec91ce-f1fe-4e63-2128-08de3dba7fc4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|1800799024|82310400026|36860700013|13003099007;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?azJldjFQTWJPMStlVE1QZ21jMzAxbUxXbkVYNGgwN05mSzdIVDU2dXJQcFI4?=
- =?utf-8?B?U0hNVDB5dXVHVFBCN29tbHczOTFleW1GMjZBZmk3THpNeGtCdUR6dldFbU1D?=
- =?utf-8?B?UTcvWmVhYnIrSkZRRHpVSEgzTi9TVEVYL05mYTZ4UVUyMHhHQ1dqYkdxUm9l?=
- =?utf-8?B?Z2x6RzhtZzQ5eDJMWXFSSFpnT2NYMnVQc0FkYURESnBlUmxBUlBxR1V0ZGpj?=
- =?utf-8?B?eVN0LytIb3ovN051U1VTR1RYckFIT1dBbmVRRVJPeUcxMnJyRWRLOHgzaGV6?=
- =?utf-8?B?Z1F3amk2RHF2ZjZoM1VaaE9hbC9BdGdDejhoNlUwUDloc2F1cWw2bGdPV3RN?=
- =?utf-8?B?amJEUU5nV2t2WFQvOElKOTl5WGlxenk2amYxeEFnREtWS0dVNE5Ba1R2YTlv?=
- =?utf-8?B?UjF6NDdROEJVbDJVWWczbGp1bmlUSnBHRENrSTBHK2hJN2twYk5zTUduUkYx?=
- =?utf-8?B?ZHozRVRrZXFhQTJqckYwVU9rN29pdCtudExoNFJKNWVMQTRlWXhLTEJScnhQ?=
- =?utf-8?B?TEU0bXZ6cmVxb0RWTi9mVWx3YWxzeDFLcGhyUENwQWZyaXY5c0R4a0tNcGtk?=
- =?utf-8?B?LzJzaENrYnBWbEtmR1NZelNqcVZUemJad1dtTlB0Y05zZVpZZFBzZFRacVVq?=
- =?utf-8?B?QjRZUUQvdld3MWtqUzBZQmljZjRYeHUxL3pSY2hzSWtrVElpYUY2eTFPSXh4?=
- =?utf-8?B?Qjljb09aVXVPL3V0YlJIZDZQTTlNdWNLWlV5SHFMbURzaXc4ZWExenByNWpS?=
- =?utf-8?B?dEUxM3lmSDlNck8xWllVQk5NNHRuV29YdHFVUTVXWmxkb3pITkljU01yUDZW?=
- =?utf-8?B?MXhTTHBGUnk3RGFtM2FVVjN6cVhySVNTTlVaRkw4aHhPS3ZiUzZNODl3NU1k?=
- =?utf-8?B?L0J0dHFTdVRkMFA0dzZVVDFSdVg4TVluRUhOa0NpTmxpR3UxNEg5RlAvRkVm?=
- =?utf-8?B?OFhybDI2b3B6QTRFRWVWYkZCbXBSbkhOUjN6cHZhK2huclVsR1dKQmVKVlky?=
- =?utf-8?B?WlhzQjIxRWNmK1F1RkxUcVlzeVZEYVBiUTI0MVRiazJPNzBWeDUwKzFqMmU3?=
- =?utf-8?B?STVXMU1weUlINUFaM011WDFhejk0Y0dlWlBRU2VyWHRqSkVQUUNGaTBjaDhL?=
- =?utf-8?B?L1FINFZGbzI1U0xGa1d0bUN6RlIrbW9ZYWcxNmxhM2lqVkJ0NjdhODZDS0Q0?=
- =?utf-8?B?aVZLMHAwR3dNN2ZMbUI1eVFpb0FNSEplWU5VSS9DajkydThCSlhTNmJWbDk2?=
- =?utf-8?B?UXNqL1R3TEVUajlXVEFmSFdHaTB0MmRoQnEyQTcxcXd1QytTb0J2dXVOeDhF?=
- =?utf-8?B?S3B5aldJWUVaUWgxV3U1QWlzdjAzR1Y5RWVBeVRwNU1zWjFkZWwwUDR6V1RZ?=
- =?utf-8?B?cEhtL0JWcUVmZ1lsT3dsWnRZNGp0NnFGL1UvN3B3YnVuUUxacGp3djF1NzVm?=
- =?utf-8?B?UVpSb0lKNVFiK3RidkVqS0dkQXN0Wlg4OEQySVlDUU1pdjVieEl6bDJkNjh0?=
- =?utf-8?B?cUcrVjdNSkVjd1NYT296NnZHVlUzeFJ5eHdzelBSc3ZDTnIwaTJZSkh1aUdQ?=
- =?utf-8?B?ZjVoYno4VGN1bWpUNVFESjR2akhndUswMGRBWWhQOElhZTVwS0dCWXQ4Qmls?=
- =?utf-8?B?dTlNMXdiSWR5K0hKYld0MkowN3hGSTNxcEZwYTM1a2FqcTFzZld2M213cjlC?=
- =?utf-8?B?T3VJbVFsZWJRQ3E1dFVYZHdqR0tBTUhqMlZCZnNOMXF2eERjc1ZhdmdnbC9q?=
- =?utf-8?B?bmtkWGZSdGlQeWlZK2VhMC8weU44SzJGMGdxR1Z2aHhnTXFUczBxbEdZTFFV?=
- =?utf-8?B?bWpRbWNZUUxMKzBsL0hyWS9vd2UxS2oxQW9vdHlra0d1S3FnVVR1N1hic1Qw?=
- =?utf-8?B?ZDU5cmtZS1FDaXlKemtBNWs0NGNKbXFmRS9TTlA3bW5qQStMLzNTSFhpNGVl?=
- =?utf-8?B?UUkyN2I0aHViMkhYejJGbWRVMWpsNkgrQ1d4QUlwRzNQbitZOC82aGkwNzll?=
- =?utf-8?B?TmJLdHZYcXZOeEdoOC9NYXdGQjM5MTZkK09hYXFyOStEUnNCbXNGRkhqT1dF?=
- =?utf-8?B?R21lWktFcnk4V0FzcUpBUmp1bGwwY1BPOGZzMVhXeXR1UE9qUTNIMUsvV29w?=
- =?utf-8?Q?2QEM=3D?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(82310400026)(36860700013)(13003099007);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Dec 2025 22:20:34.9544
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 14ec91ce-f1fe-4e63-2128-08de3dba7fc4
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BN2PEPF00004FBA.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR12MB9641
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="V23DYTy9ofvlaB8B"
+Content-Disposition: inline
+In-Reply-To: <20251216140857.77cf0fb3@kernel.org>
 
 
+--V23DYTy9ofvlaB8B
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 12/17/25 3:31 PM, Mathieu Poirier wrote:
-> On Fri, Nov 14, 2025 at 10:46:38AM -0800, Tanmay Shah wrote:
->> Take rx and tx buffer size from virtio device config space in the
->> resource table. This allows each firmware to configure RPMsg buffer size
->> as needed in each direction.
->>
->> Original seris:
->> https://lore.kernel.org/all/1548949280-31794-1-git-send-email-xiaoxiang@xiaomi.com/
->>
->> Following modificaitons are done to the original series:
->>   - Separate dma allocation is not done for tx and rx buffers. Instead
->>     allocated chunk of memory is split between tx and rx buffers.
->>   - If vdev doesn't support VIRTIO_RPMSG_F_BUFSZ feature then use the 
->>     default size of 512 bytes for buffers
->>   - Change MAX_RPMSG_BUF_SIZE to DEFAULT_RPMSG_BUF_SIZE
->>   - move virtio_rpmsg.h from uapi to linux dir
->>   - RPMsg buffer size must be set to hold rpmsg header at minimum in the
->>     vdev config space of the firmware.
->>   - align total buf size to page size when allocating and deallocating
->>     memory
->>
->> Xiang Xiao (2):
->>   rpmsg: virtio_rpmsg_bus: allow the different vring size for send/recv
->>   rpmsg: virtio_rpmsg_bus: get buffer size from config space
->>
->>  drivers/rpmsg/virtio_rpmsg_bus.c | 105 ++++++++++++++++++++-----------
->>  include/linux/virtio_rpmsg.h     |  24 +++++++
->>  2 files changed, 93 insertions(+), 36 deletions(-)
->>  create mode 100644 include/linux/virtio_rpmsg.h
->>
-> 
-> This set is going somewhere.  Please address the comments that were received and
-> send a new revision.
-> 
-> Apologies for the long review delay.
-> Mathieu
->  
+On Tue, Dec 16, 2025 at 02:08:57PM -0800, Jakub Kicinski wrote:
+> On Mon, 15 Dec 2025 18:38:48 +0700 Bagas Sanjaya wrote:
+> > Here are assorted kernel-doc fixes for 6.19 cycle. As the name
+> > implies, for the merging strategy, the patches can be taken by
+> > respective maintainers to appropriate fixes branches (targetting
+> > 6.19 of course) (e.g. for mm it will be mm-hotfixes).
+>=20
+> Please submit just the relevant changes directly to respective
+> subsystems. Maintainers don't have time to sort patches for you.
+> You should know better.
 
-Sure Mathieu, no problem. I will be on leave in the January, and will start
-working on this patch series once I come back.
+OK, thanks!
 
-Thanks,
-Tanmay
+--=20
+An old man doll... just what I always wanted! - Clara
 
->>
->> base-commit: f982fbb1a6ca3553c15763ad9eb2beeae78d3684
->> -- 
->> 2.34.1
->>
+--V23DYTy9ofvlaB8B
+Content-Type: application/pgp-signature; name=signature.asc
 
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCaUNxpwAKCRD2uYlJVVFO
+o1nDAP9D8xQeBKhU5vgUY1uZdEmdnOr8lzFR748Q3fszwHYA2AD+Lmk5pycZlTp2
+pDdOJDlTqJohju9NNAPmvm1zT37zzwE=
+=Ar/g
+-----END PGP SIGNATURE-----
+
+--V23DYTy9ofvlaB8B--
