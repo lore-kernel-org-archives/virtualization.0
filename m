@@ -1,270 +1,183 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E63230B51A
-	for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 09:47:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF886332EA8
+	for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 10:07:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766051270; cv=none; b=FYOCi5mQTzdXHSPyTA8d9DKyQ+cyeFg0Vli46v1W4TepIHAKGInjSR2hdIjCsTID2Tbqxd+j1Bx2nJDHq7GcqmKYpxiur7HHWXGIxvx9YZZw+Pt8aA3q8pjB1oLNINn6YDD/5uNDA7nM2ncXknno9+TlDjT56A4Ith89dv47N6o=
+	t=1766052445; cv=none; b=SlIAN6ez5fPklYj435WWcp4A2NEfMrx5+wKMLCbajk5qDtoouUHkspem+BRyzA0YQaFjPsg7qpujUm67uFyeDLGCfZyCnB3gERa/MDN24sAeDPVStfYWNayC5aRrdrYOwu7HZT8FbnQhppWD5s4QqaeOEh5LfvVyCViavD9M1Xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766051270; c=relaxed/simple;
-	bh=to2eeWM8ngJq0ie1W1Pn6uqxr8LR35+DjQk3tPBicMs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=AQGtbdErznrBMICFM5BMS5kfmvMpM67fmCTLd/h2w7tj0m4o48WSez4J5OnwX23GLUOLajiPhUmW1/GICv5tUW8cbnAx4b8uv4pOZlmskpgeZT7bBDkOeQQACuTyX8NY+gd3viL3xW1ACJ3vPs5kP49YNZ/7ty23XseV/FAfc+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GRtXRlt1; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1766052445; c=relaxed/simple;
+	bh=gk9r8jXXbqDGUWl1nRBPvbhY5yM7AF+Nu9FIeoX9miM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=snnnrUYO5yC/5c+XjRRRzCSUfPesEvo8OWA+swf0Grxohoir/4H86gZ0lFEhigAzFIs41yIYwQ0+CIIsO+cu+83+w3AIl/O1/Nj1qTltotV7IC36WJ/GeDALLxENnw7Eac5YasL2VVwYHuBKW/rEIkLDIM06gR0iM/QlFU67nOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ezefOuKO; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GRtXRlt1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ezefOuKO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766051267;
+	s=mimecast20190719; t=1766052442;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8ha5qM5XeJSqkOafL9yYIppX28PYIQ3jEighrNXdvbo=;
-	b=GRtXRlt1DxCfo6XQxqsSKXWPdOtAOhjS4Ex2UPSEC63Pu7ah+v+6FWyFJOB0UivqOkfNHy
-	qcq7MlnMe6SE23XhdxBxgQV84ijsMNAjAQkOJlnrupwFrWr2tg29xE0YJNE7NMb+oVIW5e
-	jyJ7w+S+TQDMzwSOfE3Of815/Cm4Wts=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=iLBVsO05sU5sMeF6AgvnJgNMEahme0MICJ+mMFM/gug=;
+	b=ezefOuKOHl1Ac/hgm9czdM0oVucE/5h/4JyH0K9qv0dHf2NoAYn9e85gYUyNGVQzcu62cR
+	07Kdv3GLnFxH6qoleb0T7LoUpFunSdgo+FhpMTsVVoZkQ7rBthJuUePLeN7u2uZhu4cstS
+	sFXN7xC80ZEEjFeevr/HPPUOZzrJmNM=
+Received: from mail-yx1-f71.google.com (mail-yx1-f71.google.com
+ [74.125.224.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-625-oqlKi5U1NZCwAf_wlWmr0Q-1; Thu, 18 Dec 2025 04:47:45 -0500
-X-MC-Unique: oqlKi5U1NZCwAf_wlWmr0Q-1
-X-Mimecast-MFC-AGG-ID: oqlKi5U1NZCwAf_wlWmr0Q_1766051265
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-b7a7049e202so50186566b.1
-        for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 01:47:45 -0800 (PST)
+ us-mta-673-DwkQ7VvzMnejQVaGYBPZKg-1; Thu, 18 Dec 2025 05:07:19 -0500
+X-MC-Unique: DwkQ7VvzMnejQVaGYBPZKg-1
+X-Mimecast-MFC-AGG-ID: DwkQ7VvzMnejQVaGYBPZKg_1766052438
+Received: by mail-yx1-f71.google.com with SMTP id 956f58d0204a3-63e2d3351abso591073d50.3
+        for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 02:07:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766051264; x=1766656064;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8ha5qM5XeJSqkOafL9yYIppX28PYIQ3jEighrNXdvbo=;
-        b=xOryvLl8Eks+Ay+5PiUwiCRraynOp/xIN/pwLlEHNGykkGMhYjGFp8+OfBaZUgCxnm
-         OSY4NeQn4q9yecIz8Mkc32LBKISePzKWTOYgT5I8eFp4DQ8O3REsNKQ5shLpZwLDMwn5
-         ICBlJaMyvyunT5pFM63NJRHq8wzGjCkBPzghaHt3wSPrJ2XTaiosgED8ZVV0/5ihP5Se
-         eQH5BNNdYHr69fbuvg/Gs/PVCjsRXV0QoGgOGg0ElUvYWPVviPn9cSp8JhgkojC4qFc2
-         EcArvBcpk8RMLz4aaEoEYGTRaTbiEzZFuV/RtndB+Swyh2Wubvwz5fVkeS+0N0wCKgIb
-         lNiA==
-X-Forwarded-Encrypted: i=1; AJvYcCUrPzCBB/GCRJNDIu/3Mllah8dekzbxtuMUBq0St7l8/RWG2S9emhKbjOeH14F9HBNPwuwRemw35OP+dG8AkQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YztO6/dV8SYrnCCx/+aSQTtaR6PUobm+oyBZiOiXCzLlMnAqpIM
-	VYjIRu9Y+7ITY3p8uDNYBh2yyK1YgnhphzGUlnGc8pvVmQlgmNFaSSme36THyA+vt3aE2i7NzIG
-	CTHwaTJKTLV6wtQDvg8q7wrxrJoEAE5HjxZX42YrEOhSpvUr+XFtugufPnheo7/MKGOsl
-X-Gm-Gg: AY/fxX5ppF1WOciuoxTwO9Ls+4URnzgwNY5+at6HiU6UMsGQsebXA5ZJY6YcllhSU9T
-	CUrPin/FsqfKADMp7UrKl6xZNUQv/VfJ6O3zUdHYBmR2gqU2TS3EHEf6qcanJ4//PEBSzIvf1j3
-	bmV9vbUSb+068ImuVb6QdzQIAAPhkVIHbXz8y9jhanAyFF57JIhr5OfWVrlMxnfIhyb6f6dJzeU
-	JqQ8ga/LUrPIOZFMtKU+U3yGpkWC3jQykRPYcKWxWx/vsjX75mEArUzLPS3NEv0ypn7pQvMINR2
-	P7S6I55AedoCiq3A7JZBGrTFeLa2Q3FyljExYshJAKSaVX/fksxDszG+90cHbm6iPzrb26f/TG9
-	UBLICserkxRcdX/Q=
-X-Received: by 2002:a17:907:7213:b0:b73:7c3e:e17c with SMTP id a640c23a62f3a-b7d23a1c75dmr2253184166b.44.1766051264497;
-        Thu, 18 Dec 2025 01:47:44 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHeRtf141WERtGc9q8wsZHSiDYrGGvPHvPunOfHx7fqtpGGAw2i6oJ8jd6f+UF+jIGp/dMRcw==
-X-Received: by 2002:a17:907:7213:b0:b73:7c3e:e17c with SMTP id a640c23a62f3a-b7d23a1c75dmr2253181266b.44.1766051263854;
-        Thu, 18 Dec 2025 01:47:43 -0800 (PST)
-Received: from sgarzare-redhat ([193.207.200.42])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b80234a2fa2sm173611566b.55.2025.12.18.01.47.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Dec 2025 01:47:43 -0800 (PST)
-Date: Thu, 18 Dec 2025 10:45:23 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Melbin K Mathew <mlbnkm1@gmail.com>
-Cc: stefanha@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, mst@redhat.com, 
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	horms@kernel.org
-Subject: Re: [PATCH net v4 4/4] vsock/test: add stream TX credit bounds test
-Message-ID: <fyuxxdc4rgop73kkevef5gfujgac3f3we5mii4bpoznonlr3nn@6mjpi5df3dlg>
-References: <20251217181206.3681159-1-mlbnkm1@gmail.com>
- <20251217181206.3681159-5-mlbnkm1@gmail.com>
+        d=1e100.net; s=20230601; t=1766052438; x=1766657238;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=iLBVsO05sU5sMeF6AgvnJgNMEahme0MICJ+mMFM/gug=;
+        b=QEdTHLlCVuMGXNQSQEFlSHtUeFy5FDEalgnlEFL3QtVDPYY5xmlsl3bDhVmZUysBmA
+         HqDlcqA+rnFRzkOggWIDwWb0Xydp3BjG2OVCIZ+XKYrFlYaERYUNBwG8RjUV8Jxte3E+
+         mDXibwoyHnq/a55LSHoiER49pEIgFmsFo7wCXd3gvQNPMZ2RyhDhjlSqrRvE0I4+qiVa
+         QXGs0WznP+5N5ACgVWiqrNa+R5OuCh8fB2QZWc/1pDCgn2TJF7NCrvZhc0kpikx9XE5f
+         gD/5MEiRn2WwPEWI8NJTcj8Y0JoPbFdAoGN6sbnd1rZOVXgxzHSz2z1yt4mrIFzVVnaZ
+         CeGw==
+X-Forwarded-Encrypted: i=1; AJvYcCWfRMUUwlscKGj9afsx9S/i6cUaZrHmKOmFdBBUEmsDCDPrn7sDQ6r3lkftJf40DTJBiCT5V2Kx1489SNWsvg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy5Pvo8YgoTNmIK4uWqzGU2uhoa7WDvn3nT39zzKQcYvZyNT2b1
+	Q1PsnZNxmyNnmLl1dpFwAt+KgfVk/3ku7sklDmD4Bs2cjy78XdMmllaLbxmDPq/cJr6Q/OAEiWF
+	yaCUlxtOcPTAIskKw/nLU3V86H2TxpcwSWBXmb3LMMOPax78nA7ya1fkKr6kIVDUxVr+19D1p3i
+	aN54/XzoVAkHlrFARWftBe4LjfUnpFy91s+XIDhKo8sGg=
+X-Gm-Gg: AY/fxX7RDmPEVJ8Fih85n4muUUnppmLaC+u2Q/0hyMBHJllZGkw4yva7XGphGYV0U7O
+	3+Wik7KgjbXR9tDOZzVwXTByd1yyxU+rPy6O4aLtppo5ZoMBbpNpsCOUsPrS+IHGlKg0hL+mAlS
+	atHNZGbogBbqU42X8CNxZ8WdQYYukeHyDgatzg4r5VuWukDL7MgIgTZM36SVOddAWAKXI=
+X-Received: by 2002:a05:690c:25c8:b0:787:badd:4c with SMTP id 00721157ae682-78e66d0a00cmr343795577b3.27.1766052438463;
+        Thu, 18 Dec 2025 02:07:18 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE4FdM9wPRHh3bJMfsZOO4K7fw6LMkWPPuQ5HwarXv8WuEnK7aju0rAr6nrJfGF/mndIfeF0UpPuYU5bL6yGA0=
+X-Received: by 2002:a05:690c:25c8:b0:787:badd:4c with SMTP id
+ 00721157ae682-78e66d0a00cmr343795097b3.27.1766052438082; Thu, 18 Dec 2025
+ 02:07:18 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251217181206.3681159-5-mlbnkm1@gmail.com>
+References: <20251217112414.2374672-1-eperezma@redhat.com> <20251217112414.2374672-3-eperezma@redhat.com>
+ <CACGkMEuCgvKEfFCGLp1XSaa+tKM0KYvzYmpC+57ZnUuomNwV5g@mail.gmail.com>
+In-Reply-To: <CACGkMEuCgvKEfFCGLp1XSaa+tKM0KYvzYmpC+57ZnUuomNwV5g@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 18 Dec 2025 11:06:41 +0100
+X-Gm-Features: AQt7F2r5VVpGjTBicpXfKSfapf-MwZOQtGcGIvtaxrRE4xYGf0vBVyXB3ZrZ7ws
+Message-ID: <CAJaqyWepbQBJZmDv8QuaE309EHW_GEzFUHTTKtbLM29JUXmKpw@mail.gmail.com>
+Subject: Re: [PATCH v10 2/8] vduse: add vq group support
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
+	Yongji Xie <xieyongji@bytedance.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Cindy Lu <lulu@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Y4Yyls0QJQQqIsBOajSVxOEOyPm5jVhrCk5SWDa1oE4_1766051265
+X-Mimecast-MFC-PROC-ID: 1dBSki_x0-1YVna2Na5YFGytWQPMCj18yGXxrCih_nA_1766052438
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 17, 2025 at 07:12:06PM +0100, Melbin K Mathew wrote:
->Add a regression test for the TX credit bounds fix. The test verifies
->that a sender with a small local buffer size cannot queue excessive
->data even when the peer advertises a large receive buffer.
+On Thu, Dec 18, 2025 at 7:47=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
 >
->The client:
->  - Sets a small buffer size (64 KiB)
->  - Connects to server (which advertises 2 MiB buffer)
->  - Sends in non-blocking mode until EAGAIN
->  - Verifies total queued data is bounded
+> On Wed, Dec 17, 2025 at 7:24=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redh=
+at.com> wrote:
+> >
+> > This allows separate the different virtqueues in groups that shares the
+> > same address space.  Asking the VDUSE device for the groups of the vq a=
+t
+> > the beginning as they're needed for the DMA API.
+> >
+> > Allocating 3 vq groups as net is the device that need the most groups:
+> > * Dataplane (guest passthrough)
+> > * CVQ
+> > * Shadowed vrings.
+> >
+> > Future versions of the series can include dynamic allocation of the
+> > groups array so VDUSE can declare more groups.
+> >
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> > Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > ---
+> > v6:
+> > * s/sepparate/separate (MST).
+> > * s/dev->api_version < 1/dev->api_version < VDUSE_API_VERSION_1
+> >
+> > v5:
+> > * Revert core vdpa changes (Jason).
+> > * Fix group =3D=3D ngroup case in checking VQ_SETUP argument (Jason).
+> >
+> > v4:
+> > * Revert the "invalid vq group" concept and assume 0 if not set (Jason)=
+.
+> > * Make config->ngroups =3D=3D 0 invalid (Jason).
+> >
+> > v3:
+> > * Make the default group an invalid group as long as VDUSE device does
+> >   not set it to some valid u32 value.  Modify the vdpa core to take tha=
+t
+> >   into account (Jason).
+> > * Create the VDUSE_DEV_MAX_GROUPS instead of using a magic number
+> >
+> > v2:
+> > * Now the vq group is in vduse_vq_config struct instead of issuing one
+> >   VDUSE message per vq.
+> >
+> > v1:
+> > * Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+> >
+> > RFC v3:
+> > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason).  It was set to a lowe=
+r
+> >   value to reduce memory consumption, but vqs are already limited to
+> >   that value and userspace VDUSE is able to allocate that many vqs.
+> > * Remove the descs vq group capability as it will not be used and we ca=
+n
+> >   add it on top.
+> > * Do not ask for vq groups in number of vq groups < 2.
+> > * Move the valid vq groups range check to vduse_validate_config.
+> >
+> > RFC v2:
+> > * Cache group information in kernel, as we need to provide the vq map
+> >   tokens properly.
+> > * Add descs vq group to optimize SVQ forwarding and support indirect
+> >   descriptors out of the box.
+> > ---
+> >  drivers/vdpa/vdpa_user/vduse_dev.c | 48 ++++++++++++++++++++++++++----
+> >  include/uapi/linux/vduse.h         | 12 ++++++--
+> >  2 files changed, 52 insertions(+), 8 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
+r/vduse_dev.c
+> > index ae357d014564..b012dc3557b9 100644
+> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > @@ -39,6 +39,7 @@
+> >  #define DRV_LICENSE  "GPL v2"
+> >
+> >  #define VDUSE_DEV_MAX (1U << MINORBITS)
+> > +#define VDUSE_DEV_MAX_GROUPS 0xffff
+> >  #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
+> >  #define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
+> >  #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
+> > @@ -58,6 +59,7 @@ struct vduse_virtqueue {
+> >         struct vdpa_vq_state state;
+> >         bool ready;
+> >         bool kicked;
+> > +       u32 vq_group;
 >
->This guards against the original vulnerability where a remote peer
->could cause unbounded kernel memory allocation by advertising a large
->buffer and reading slowly.
->
->Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->Signed-off-by: Melbin K Mathew <mlbnkm1@gmail.com>
->---
-> tools/testing/vsock/vsock_test.c | 103 +++++++++++++++++++++++++++++++
-> 1 file changed, 103 insertions(+)
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index 0e8e173dfbdc..9f4598ee45f9 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -347,6 +347,7 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
-> }
->
-> #define SOCK_BUF_SIZE (2 * 1024 * 1024)
->+#define SMALL_SOCK_BUF_SIZE (64 * 1024ULL)
-> #define MAX_MSG_PAGES 4
->
-> static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
->@@ -2203,6 +2204,103 @@ static void test_stream_nolinger_server(const struct test_opts *opts)
-> 	close(fd);
-> }
->
->+static void test_stream_tx_credit_bounds_client(const struct test_opts *opts)
->+{
->+	unsigned long long sock_buf_size;
->+	char buf[4096];
->+	size_t total = 0;
->+	ssize_t sent;
->+	int fd;
->+	int flags;
->+
->+	memset(buf, 'A', sizeof(buf));
->+
->+	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
->+	if (fd < 0) {
->+		perror("connect");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	sock_buf_size = SMALL_SOCK_BUF_SIZE;
->+
->+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
->+			     sock_buf_size,
->+			     "setsockopt(SO_VM_SOCKETS_BUFFER_MAX_SIZE)");
->+
->+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
->+			     sock_buf_size,
->+			     "setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
->+
->+	flags = fcntl(fd, F_GETFL);
->+	if (flags < 0) {
->+		perror("fcntl(F_GETFL)");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) {
->+		perror("fcntl(F_SETFL)");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	control_expectln("SRVREADY");
->+
->+	for (;;) {
->+		sent = send(fd, buf, sizeof(buf), 0);
->+		if (sent > 0) {
->+			total += sent;
->+			continue;
->+		}
+> Nit, since we are under the context of virtqueue, I'd rename this as a
+> simple "group".
 
-This is confusing IMO, also perror() when `sent == 0` is not right.
-What about this:
-
-		sent = send(fd, buf, sizeof(buf), 0);
-		if (sent == 0) {
-			fprintf(stderr, "unexpected EOF while sending bytes\n");
-			exit(EXIT_FAILURE);
-		}
-
-		if (sent < 0) {
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				break
-
-			perror("send");
-			exit(EXIT_FAILURE);
-		}
-
-		total += sent;
-
->+		if (sent < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
->+			break;
->+
->+		perror("send");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	/*
->+	 * With TX credit bounded by local buffer size, sending should
->+	 * stall quickly. Allow some overhead but fail if we queued an
->+	 * unreasonable amount.
->+	 */
->+	if (total > (size_t)(SMALL_SOCK_BUF_SIZE * 4)) {
-
-Why "* 4" ?
-
->+		fprintf(stderr,
->+			"TX credit too large: queued %zu bytes (expected <= %llu)\n",
->+			total, (unsigned long long)(SMALL_SOCK_BUF_SIZE * 4));
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	control_writeln("CLIDONE");
-
-This can be moved after the for loop.
-
->+	close(fd);
->+}
->+
->+static void test_stream_tx_credit_bounds_server(const struct test_opts *opts)
->+{
->+	unsigned long long sock_buf_size;
->+	int fd;
->+
->+	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
->+	if (fd < 0) {
->+		perror("accept");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	/* Server advertises large buffer; client should still be bounded */
->+	sock_buf_size = SOCK_BUF_SIZE;
->+
->+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
->+			     sock_buf_size,
->+			     "setsockopt(SO_VM_SOCKETS_BUFFER_MAX_SIZE)");
->+
->+	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
->+			     sock_buf_size,
->+			     "setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
->+
->+	control_writeln("SRVREADY");
->+	control_expectln("CLIDONE");
->+
->+	close(fd);
->+}
->+
-> static struct test_case test_cases[] = {
-> 	{
-> 		.name = "SOCK_STREAM connection reset",
->@@ -2382,6 +2480,11 @@ static struct test_case test_cases[] = {
-> 		.run_client = test_seqpacket_unread_bytes_client,
-> 		.run_server = test_seqpacket_unread_bytes_server,
-> 	},
->+	{
->+		.name = "SOCK_STREAM TX credit bounds",
->+		.run_client = test_stream_tx_credit_bounds_client,
->+		.run_server = test_stream_tx_credit_bounds_server,
->+	},
-> 	{},
-> };
->
->-- 
->2.34.1
->
+Sure, I'll change it in the next version.
 
