@@ -1,203 +1,125 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C163332E136
-	for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 08:40:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE8FC2F49F6
+	for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 09:11:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766047252; cv=none; b=mS5V0wgiD0Mjnt36dsT8bkvywqO1aUB31/hs6pIKwxor6MRJPsVr84LFgbYzmIdNa7eyoEZ7zoQiroe9cBq1NmSDHgTUPLwtKiDsSdA+EeDZosC3MlbUZRIHOeVIYxK2Q9qc4oAVeuyar1FhKt6VoPEkPkkvi2UWpeIhj2WzKsU=
+	t=1766049077; cv=none; b=hIsfwrMpHLs0b9SxdC7d4QIFfi5894KRgwd4c4eE5NWTWhW2SasJ3CAui1EysdDuMIH6dzc6zVdNnbNyMWOtvKB6BVuIYz/t2IcpNaXyjLU5RsPxa/cAq4pQh6NQz4GNcocWE1M+3CuVDAFrMiYPd8CJVsPHZ7loj1hezfpKXj8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766047252; c=relaxed/simple;
-	bh=T8b8+tAkMooLTVNWwG4+7A9LR5808xj9NzrrZZ/STR0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SriP1KXSIL6Lro//d2uf8xcTfrtHDtUVAJGSisGrZZiJcUNNMQ25nS2DE29iW/7LgpA9u1AaqT5zhSOajJoFJrpjgccxEJ3Kq0BosvNeFoJLtnIdNs8XpIE/DwGCDFMtlv3yYaqo6CxWiN3qfWhNPr27xg4lodnTrca7dFThXXU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TODX5743; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1766049077; c=relaxed/simple;
+	bh=el3QTMQee7J/evcQ1hBQ4BAcF05giAOqBxx4nVqlsGM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=EiM3CI8NhEqzKZT2w8GFlmB9fxoXqPFvpkwyhZUOR63EE7DeEySemwQBWIby2c6AzSMkGgb5WJcFquTs5D+y2BSB4MdNWcyYh4hmWa5gFHz13rv+ocRpzZ7zylc+UjUKfzSNrXVHKBQdqaw5wqfcpgyX+tfL1ktnbJ2jXpMGsac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=SeLcTrk6; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TODX5743"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766047249;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=PGOj/+aXk/dXqz69CdtL1Yy4PX1T3JzRGhVinsH7XCc=;
-	b=TODX5743gc4IryXSvO3CR5Zmb9S531WUPFAHio437nzOXb88V4KYg5Uezb8lQixPeG6feI
-	R4mhq7L3Ei04tXZFc0TJFdrmHkz/kuL7MSu76hCjkwXeVLBbLgTVXhcO+PEOdW0MkAqsBr
-	nsaQ51e9275gxyjklzoNF0wErnOb2xs=
-Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
- [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-248-pQ_JuS2sN8-Fo8URwdy1nA-1; Thu, 18 Dec 2025 03:40:48 -0500
-X-MC-Unique: pQ_JuS2sN8-Fo8URwdy1nA-1
-X-Mimecast-MFC-AGG-ID: pQ_JuS2sN8-Fo8URwdy1nA_1766047248
-Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-645535ac027so586273d50.0
-        for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 00:40:48 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766047248; x=1766652048;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=PGOj/+aXk/dXqz69CdtL1Yy4PX1T3JzRGhVinsH7XCc=;
-        b=QAeGqNKU7yiAAJ6YgFttUrOThdhWUmH0/XPzYXMRC3HmxMNDmnABGwLcdiC4lcFqHM
-         q3IsRelY/4XyokU0ydv/TnW6W9A1KXPT3siiMdZ2dSk1RKzfhseuAswVlMcMI5A+lWqf
-         YDaB/2fqZL2O1YCX46Cx6iTTgzJx2o1nlZk2QV0l1wC9YC+WwUD4CKEjEsvvfCsrUpOR
-         ffKDCg5S4E5kndtJMNi8DeJATUYvf0hQxbxlBEA7ASBppHql52xt9KONwQa51jZ8lQ/m
-         Flue4cFoPXOuZ8szHCHh05bSIe+nsIlO9TBLqP7mOJYCnD1X7hpaZOpZJJ9SaXX0lckY
-         wzGw==
-X-Forwarded-Encrypted: i=1; AJvYcCVCN5IFERbwxG7kgo2kl64VpnHloMT2+IF/Hbfl3T87zrve37dxEtxHUd+qFAlIPQlC5n/Xj7wceRcztSkScw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyhFZvYgJMFM/wgNjAlqVsq1q1YT/wS3vI9tsouZJfUmRzWESo3
-	amV8RJog/y0GBp881WwNu8zYqqmvrhWAaHfZeIdTPxrEf0Q5VFrR86ilzXPmAxnOCQolYIOz3vB
-	Abr/lsJDDFKpiOJehTBTJ9Ob7fMp3jO+jXPXUU8RG76ohosIzBL9ZF++a6Q4l9JuY29Gxhff1PZ
-	T4f0aA4HbhMPQhhjCYrAkWJJt4Q9pEhtxlmFlG+6YHpCE=
-X-Gm-Gg: AY/fxX6TUDCghKQDatwroy1mONCD74tnkjNWetCyiAljqA218yPkzjbbrNcu95EcLf/
-	IKjq1YQK709diPP04zAojXdfcpaa4UzOs1bER4b5uuFQAxI4g5NVujmJwR5JQzMKOPQwzaRVQ05
-	JgyHw1hjowB7N/Y+QHPO6/EJTF8fIG0NfZieYLaWi9gfMAZeKsbOdv6CBZGXO8nHhD3Xs=
-X-Received: by 2002:a05:690e:11c6:b0:645:5bda:5c45 with SMTP id 956f58d0204a3-6455bda5dd0mr12924900d50.36.1766047247708;
-        Thu, 18 Dec 2025 00:40:47 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHfKu1fU4sXtfcGQWPnXpVH7acGZX+fWHBY8C3NiA2Hs07pwyv0BE/pml8tUzZ3mNywpK5hvo/KzV8ktKzTc14=
-X-Received: by 2002:a05:690e:11c6:b0:645:5bda:5c45 with SMTP id
- 956f58d0204a3-6455bda5dd0mr12924892d50.36.1766047247374; Thu, 18 Dec 2025
- 00:40:47 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="SeLcTrk6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version:
+	Content-Type; bh=el3QTMQee7J/evcQ1hBQ4BAcF05giAOqBxx4nVqlsGM=;
+	b=SeLcTrk6J3U3Xr8aU/+XpS8BAPa7EPbxdjTwuuUKZJpBnzl7VAG4UYOAKnXohH
+	jx5DvSivd7JaSejejLFLgAB8vRFuxm4C6678sWINe16wu+wN6MZZb9VcPJNXnk4N
+	t+T/0Utkcqui7HZmhU244dK8BZAEL7Hql2EpjRyXlXKrY=
+Received: from xwm-TianYi510Pro-14IMB.. (unknown [])
+	by gzga-smtp-mtada-g0-4 (Coremail) with SMTP id _____wC3U84cxUNpI7dcBA--.210S2;
+	Thu, 18 Dec 2025 17:10:55 +0800 (CST)
+From: Xiong Weimin <15927021679@163.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	David Hildenbrand <david@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Thomas Monjalon <thomas@monjalon.net>,
+	David Marchand <david.marchand@redhat.com>,
+	Luca Boccassi <bluca@debian.org>,
+	Kevin Traynor <ktraynor@redhat.com>,
+	Christian Ehrhardt <christian.ehrhardt@canonical.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Xueming Li <xuemingl@nvidia.com>,
+	Maxime Coquelin <maxime.coquelin@redhat.com>,
+	Chenbo Xia <chenbox@nvidia.com>,
+	Bruce Richardson <bruce.richardson@intel.com>
+Cc: kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: Implement initial driver for virtio-RDMA device(kernel)
+Date: Thu, 18 Dec 2025 17:09:40 +0800
+Message-ID: <20251218091050.55047-1-15927021679@163.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251217112414.2374672-1-eperezma@redhat.com> <20251217112414.2374672-7-eperezma@redhat.com>
- <CACGkMEsD9h34yAQxZnOnAGZpnxV2Up7ghxdrsfiWE0VY-OCM6w@mail.gmail.com>
-In-Reply-To: <CACGkMEsD9h34yAQxZnOnAGZpnxV2Up7ghxdrsfiWE0VY-OCM6w@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 18 Dec 2025 09:40:10 +0100
-X-Gm-Features: AQt7F2q6VasrMNR03DupnWpZbDBLEbr7O6zp8Xut0-EVBCcVK5tXxXkG5O5FKYo
-Message-ID: <CAJaqyWcCU5vabDVrFTKpyfz3=FQV9hmUpZzH5PuiSPHOjgvWGQ@mail.gmail.com>
-Subject: Re: [PATCH v10 6/8] vduse: take out allocations from vduse_dev_alloc_coherent
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
-	Yongji Xie <xieyongji@bytedance.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Cindy Lu <lulu@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5Y7FrGJEygm2XQtrX9e_m2lPPUy6UG_qgoz255HOqSY_1766047248
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-CM-TRANSID:_____wC3U84cxUNpI7dcBA--.210S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxXr4rKrWDGF1DAF4UGw4rKrg_yoW5tFy8pr
+	W2gF9rCrZ8Gr43G3yUW345uF42gFZ3A3y3Crn8G348K3Z5Xr9YvF1q9F15Way7GrZxAF18
+	XFy8Jr92ka4UAaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07js_-9UUUUU=
+X-CM-SenderInfo: jprvmjixqsilmxzbiqqrwthudrp/xtbC9B+jLGlDxR+pCwAA32
 
-On Thu, Dec 18, 2025 at 6:45=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Wed, Dec 17, 2025 at 7:24=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redh=
-at.com> wrote:
-> >
-> > The function vduse_dev_alloc_coherent will be called under rwlock in
-> > next patches.  Make it out of the lock to avoid increasing its fail
-> > rate.
-> >
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > ---
-> >  drivers/vdpa/vdpa_user/iova_domain.c |  7 ++-----
-> >  drivers/vdpa/vdpa_user/iova_domain.h |  2 +-
-> >  drivers/vdpa/vdpa_user/vduse_dev.c   | 13 +++++++++++--
-> >  3 files changed, 14 insertions(+), 8 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_u=
-ser/iova_domain.c
-> > index 309cd5a039d1..0ae52890518c 100644
-> > --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> > @@ -495,14 +495,13 @@ void vduse_domain_unmap_page(struct vduse_iova_do=
-main *domain,
-> >
-> >  void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
-> >                                   size_t size, dma_addr_t *dma_addr,
-> > -                                 gfp_t flag)
-> > +                                 void *orig)
-> >  {
-> >         struct iova_domain *iovad =3D &domain->consistent_iovad;
-> >         unsigned long limit =3D domain->iova_limit;
-> >         dma_addr_t iova =3D vduse_domain_alloc_iova(iovad, size, limit)=
-;
-> > -       void *orig =3D alloc_pages_exact(size, flag);
-> >
-> > -       if (!iova || !orig)
-> > +       if (!iova)
-> >                 goto err;
-> >
-> >         spin_lock(&domain->iotlb_lock);
-> > @@ -519,8 +518,6 @@ void *vduse_domain_alloc_coherent(struct vduse_iova=
-_domain *domain,
-> >         return orig;
-> >  err:
-> >         *dma_addr =3D DMA_MAPPING_ERROR;
-> > -       if (orig)
-> > -               free_pages_exact(orig, size);
-> >         if (iova)
-> >                 vduse_domain_free_iova(iovad, iova, size);
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_u=
-ser/iova_domain.h
-> > index 42090cd1a622..86b7c7eadfd0 100644
-> > --- a/drivers/vdpa/vdpa_user/iova_domain.h
-> > +++ b/drivers/vdpa/vdpa_user/iova_domain.h
-> > @@ -69,7 +69,7 @@ void vduse_domain_unmap_page(struct vduse_iova_domain=
- *domain,
-> >
-> >  void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
-> >                                   size_t size, dma_addr_t *dma_addr,
-> > -                                 gfp_t flag);
-> > +                                 void *orig);
-> >
-> >  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size=
-_t size,
-> >                                 dma_addr_t dma_addr, unsigned long attr=
-s);
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
-r/vduse_dev.c
-> > index a278cff7a4fa..767abcb7e375 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -924,16 +924,24 @@ static void *vduse_dev_alloc_coherent(union virti=
-o_map token, size_t size,
-> >         if (!token.group)
-> >                 return NULL;
-> >
-> > +       addr =3D alloc_pages_exact(size, flag);
-> > +       if (!addr)
-> > +               return NULL;
-> > +
-> >         vdev =3D token.group->dev;
-> >         domain =3D vdev->domain;
-> >         addr =3D vduse_domain_alloc_coherent(domain, size,
-> > -                                          (dma_addr_t *)&iova, flag);
-> > +                                          (dma_addr_t *)&iova, addr);
-> >         if (!addr)
-> > -               return NULL;
-> > +               goto err;
-> >
-> >         *dma_addr =3D (dma_addr_t)iova;
-> >
-> >         return addr;
-> > +
-> > +err:
-> > +       free_pages_exact(addr, size);
-> > +       return NULL;
-> >  }
-> >
-> >  static void vduse_dev_free_coherent(union virtio_map token, size_t siz=
-e,
-> > @@ -950,6 +958,7 @@ static void vduse_dev_free_coherent(union virtio_ma=
-p token, size_t size,
-> >         domain =3D vdev->domain;
-> >
-> >         vduse_domain_free_coherent(domain, size, dma_addr, attrs);
-> > +       free_pages_exact(vaddr, size);
->
-> There looks like a double-free as there's another free_page_exact() in
-> vduse_domain_free_coherent.
->
-
-You're right, removing the duplicated one. Thanks!
+SGkgYWxsLAoKVGhpcyB0ZXN0aW5nIGluc3RydWN0aW9ucyBhaW1zIHRvIGludHJvZHVjZSBhbiBl
+bXVsYXRpbmcgYSBzb2Z0IFJPQ0UgCmRldmljZSB3aXRoIG5vcm1hbCBOSUMobm8gUkRNQSksIHdl
+IGhhdmUgZmluaXNoZWQgYSB2aG9zdC11c2VyIFJETUEKZGV2aWNlIGRlbW8sIHdoaWNoIGNhbiB3
+b3JrIHdpdGggUkRNQSBmZWF0dXJlcyBzdWNoIGFzIENNLCBRUCB0eXBlIG9mIApVQy9VRCBhbmQg
+c28gb24uCgpUaGVyZSBhcmUgdGVzdGluZyBpbnN0cnVjdGlvbnMgb2YgdGhlIGRlbW86CgoxLlRl
+c3QgRW52aXJvbm1lbnQgQ29uZmlndXJhdGlvbgpIYXJkd2FyZSBFbnZpcm9ubWVudApTZXJ2ZXJz
+OiAxIGlkZW50aWNhbGx5IGNvbmZpZ3VyZWQgc2VydmVycwoKQ1BVOiBIVUFXRUkgS3VucGVuZyA5
+MjAgKDk2IGNvcmVzKQoKTWVtb3J5OiAzVCBERFI0CgpOSUM6IFRBUCAocGFpcmVkIHZpcnRpby1u
+ZXQgZGV2aWNlIGZvciBSRE1BKQoKU29mdHdhcmUgRW52aXJvbm1lbnQKU2VydmVyIEhvc3QgT1M6
+IDYuNC4wLTEwLjEuMC4yMC5vZTIzMDkuYWFyY2g2NAoKS2VybmVsOiBsaW51eC02LjE2LjggKHdp
+dGgga2VybmVsLXZyZG1hIG1vZHVsZSkKClFFTVU6IDkuMC4yIChjb21waWxlZCB3aXRoIHZob3N0
+LXVzZXItcmRtYSB2aXJ0dWFsIGRldmljZSBzdXBwb3J0KQoKRFBESzogMjQuMDcuMC1yYzIKCkRl
+cGVuZGVuY2llczoKCglyZG1hLWNvcmUKCQoJcmRtYV9yeGUKCglsaWJpYnZlcmJzLWRldgoJCjIu
+IFRlc3QgUHJvY2VkdXJlcwphLiBTdGFydGluZyBEUERLIHdpdGggdmhvc3QtdXNlci1yZG1hIGZp
+cnN0OiAKMSkuIENvbmZpZ3VyZSBIdWdlcGFnZXMKICAgZWNobyAyMDQ4IHwgc3VkbyB0ZWUgL3N5
+cy9rZXJuZWwvbW0vaHVnZXBhZ2VzL2h1Z2VwYWdlcy0yMDQ4a0IvbnJfaHVnZXBhZ2VzCjIpLiBh
+cHAgc3RhcnQgIAogIC9EUERLRElSL2J1aWxkL2V4YW1wbGVzL2RwZGstdmhvc3RfdXNlcl9yZG1h
+IC1sIDEtNCAtbiA0IC0tdmRldiAibmV0X3RhcDAiIC0tIC0tc29ja2V0LWZpbGUgL3RtcC92aG9z
+dC1yZG1hMAoKYi4gQm9vdGluZyBndWVzdCBrZXJuZWwgd2l0aCBxZW11LCBjb21tYW5kIGxpbmU6
+IAouLi4KLW5ldGRldiB0YXAsaWQ9aG9zdG5ldDEsaWZuYW1lPXRhcDEsc2NyaXB0PW5vLGRvd25z
+Y3JpcHQ9bm8gCi1kZXZpY2UgdmlydGlvLW5ldC1wY2ksbmV0ZGV2PWhvc3RuZXQxLGlkPW5ldDEs
+bWFjPTUyOjU0OjAwOjE0OjcyOjMwLGJ1cz1wY2kuMyxhZGRyPTB4MC4wLG11bHRpZnVuY3Rpb249
+b24gCi1jaGFyZGV2IHNvY2tldCxwYXRoPS90bXAvdmhvc3QtcmRtYTAsaWQ9dnVyZG1hIAotZGV2
+aWNlIHZob3N0LXVzZXItcmRtYS1wY2ksYnVzPXBjaS4zLGFkZHI9MHgwLjEscGFnZS1wZXItdnE9
+b24sZGlzYWJsZS1sZWdhY3k9b24sY2hhcmRldj12dXJkbWEKLi4uCgpjLiBHdWVzdCBLZXJuZWwg
+TW9kdWxlIExvYWRpbmcgYW5kIFZhbGlkYXRpb24KIyBMb2FkIHZob3N0X3JkbWEga2VybmVsIG1v
+ZHVsZQpzdWRvIG1vZHByb2JlIHZyZG1hCgojIFZlcmlmeSBtb2R1bGUgbG9hZGluZwpsc21vZCB8
+IGdyZXAgdnJkbWEKCiMgQ2hlY2sga2VybmVsIGxvZ3MKZG1lc2cgfCBncmVwIHZob3N0X3JkbWEK
+CiMgRXhwZWN0ZWQgb3V0cHV0OgpbICAgIDQuOTM1NDczXSB2cmRtYV9pbml0X2RldmljZTogSW5p
+dGlhbGl6aW5nIHZSRE1BIGRldmljZSB3aXRoIG1heF9jcT02NCwgbWF4X3FwPTY0ClsgICAgNC45
+NDk4ODhdIFt2cmRtYV9pbml0X2RldmljZV06IFN1Y2Nlc3NmdWxseSBpbml0aWFsaXplZCwgbGFz
+dCBxcF92cSBpbmRleD0xOTIKWyAgICA0Ljk0OTkwN10gW3ZyZG1hX2luaXRfbmV0ZGV2XTogRm91
+bmQgcGFpcmVkIG5ldF9kZXZpY2UgJ2VucDNzMGYwJyAob24gMDAwMDowMzowMC4wKQpbICAgIDQu
+OTQ5OTI0XSBCb3VuZCB2UkRNQSBkZXZpY2UgdG8gbmV0X2RldmljZSAnZW5wM3MwZjAnClsgICAg
+NS4wMjYwMzJdIHZyZG1hIHZpcnRpbzI6IHZyZG1hX2FsbG9jX3BkOiBhbGxvY2F0ZWQgUEQgMQpb
+ICAgIDUuMDI4MDA2XSBTdWNjZXNzZnVsbHkgcmVnaXN0ZXJlZCB2UkRNQSBkZXZpY2UgYXMgJ3Zy
+ZG1hMCcKWyAgICA1LjAyODAyMF0gW3ZyZG1hX3Byb2JlXTogU3VjY2Vzc2Z1bGx5IHByb2JlZCBW
+aXJ0SU8gUkRNQSBkZXZpY2UgKGluZGV4PTIpClsgICAgNS4wMjgxMDRdIFZpcnRJTyBSRE1BIGRy
+aXZlciBpbml0aWFsaXplZCBzdWNjZXNzZnVsbHkKCmQuIEluc2lkZSBWTSwgb25lIHJkbWEgZGV2
+aWNlIGZzIG5vZGUgd2lsbCBiZSBnZW5lcmF0ZWQgaW4gL2Rldi9pbmZpbmliYW5kOiAKW3Jvb3RA
+bG9jYWxob3N0IH5dIyBsbCAtaCAvZGV2L2luZmluaWJhbmQvCnRvdGFsIDAKZHJ3eHIteHIteC4g
+MiByb290IHJvb3QgICAgICAgNjAgRGVjIDE3IDExOjI0IGJ5LWliZGV2CmRyd3hyLXhyLXguIDIg
+cm9vdCByb290ICAgICAgIDYwIERlYyAxNyAxMToyNCBieS1wYXRoCmNydy1ydy1ydy0uIDEgcm9v
+dCByb290ICAxMCwgMjU5IERlYyAxNyAxMToyNCByZG1hX2NtCmNydy1ydy1ydy0uIDEgcm9vdCBy
+b290IDIzMSwgMTkyIERlYyAxNyAxMToyNCB1dmVyYnMwCgplLiBUaGUgZm9sbG93aW5nIGFyZSB0
+byBiZSBkb25lIGluIHRoZSBmdXR1cmUgdmVyc2lvbjogCjEpLiBTUlEgc3VwcG9ydAoyKS4gRFBE
+SyBzdXBwb3J0IGZvciBwaHlzaWNhbCBSRE1BIE5JQyBmb3IgaGFuZGxpbmcgdGhlIGRhdGFwYXRo
+IGJldHdlZW4gZnJvbnQgYW5kIGJhY2tlbmQKMykuIFJlc2V0IG9mIFZpcnRRdWV1ZQo0KS4gSW5j
+cmVhc2Ugc2l6ZSBvZiBWaXJ0UXVldWUgZm9yIFBDSSB0cmFuc3BvcnQKNSkuIFBlcmZvcm1hbmNl
+IFRlc3RpbmcKCmYuIFRlc3QgUmVzdWx0cwoxKS4gRnVuY3Rpb25hbCBUZXN0IFJlc3VsdHM6Cktl
+cm5lbCBtb2R1bGUgbG9hZGluZwlQQVNTCU1vZHVsZSBsb2FkZWQgd2l0aG91dCBlcnJvcnMKRFBE
+SyBzdGFydHVwCSAgICAgICAgUEFTUwl2aG9zdC11c2VyLXJkbWEgYmFja2VuZCBpbml0aWFsaXpl
+ZApRRU1VIFZNIGxhdW5jaAkgICAgICAgIFBBU1MJVk0gYm9vdGVkIHVzaW5nIFJETUEgZGV2aWNl
+Ck5ldHdvcmsgY29ubmVjdGl2aXR5CVBBU1MJSG9zdC1WTSBjb21tdW5pY2F0aW9uIGVzdGFibGlz
+aGVkClJETUEgZGV2aWNlIGRldGVjdGlvbglQQVNTCVZpcnR1YWwgUkRNQSBkZXZpY2UgcmVjb2du
+aXplZAoKZi5UZXN0IENvbmNsdXNpb24KMSkuIEZ1bGwgZnVuY3Rpb25hbCBjb21wbGlhbmNlIHdp
+dGggc3BlY2lmaWNhdGlvbnMKMikuIFN0YWJsZSBvcGVyYXRpb24gdW5kZXIgZXh0ZW5kZWQgc3Ry
+ZXNzIGNvbmRpdGlvbnMKClJlY29tbWVuZGF0aW9uczoKMSkuIE9wdGltaXplIG1lbW9yeSBjb3B5
+IHBhdGhzIGZvciBoaWdoZXIgdGhyb3VnaHB1dAoyKS4gRW5oYW5jZSBlcnJvciBoYW5kbGluZyBh
+bmQgcmVjb3ZlcnkgbWVjaGFuaXNtcyAKCg==
 
