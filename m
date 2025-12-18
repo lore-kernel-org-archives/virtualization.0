@@ -1,183 +1,178 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF886332EA8
-	for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 10:07:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B805532E13B;
+	Thu, 18 Dec 2025 12:12:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766052445; cv=none; b=SlIAN6ez5fPklYj435WWcp4A2NEfMrx5+wKMLCbajk5qDtoouUHkspem+BRyzA0YQaFjPsg7qpujUm67uFyeDLGCfZyCnB3gERa/MDN24sAeDPVStfYWNayC5aRrdrYOwu7HZT8FbnQhppWD5s4QqaeOEh5LfvVyCViavD9M1Xg=
+	t=1766059975; cv=none; b=ktGy0b7ymd9jqIPkT40tmm3m10DIDm8h4ElhTQ9RVdbyUa9+fMksbek/nM+ghXyuXPUW8szSPb69FnwiFMrq+oflqrDKgVIk+mCMeaxSAt7OhiCphpmOAQ6BvE6lNrJJgOvEbmXl4APEORFH+B9GGhFldtjUhIMZ08J0ayIR3ok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766052445; c=relaxed/simple;
-	bh=gk9r8jXXbqDGUWl1nRBPvbhY5yM7AF+Nu9FIeoX9miM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=snnnrUYO5yC/5c+XjRRRzCSUfPesEvo8OWA+swf0Grxohoir/4H86gZ0lFEhigAzFIs41yIYwQ0+CIIsO+cu+83+w3AIl/O1/Nj1qTltotV7IC36WJ/GeDALLxENnw7Eac5YasL2VVwYHuBKW/rEIkLDIM06gR0iM/QlFU67nOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ezefOuKO; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ezefOuKO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766052442;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=iLBVsO05sU5sMeF6AgvnJgNMEahme0MICJ+mMFM/gug=;
-	b=ezefOuKOHl1Ac/hgm9czdM0oVucE/5h/4JyH0K9qv0dHf2NoAYn9e85gYUyNGVQzcu62cR
-	07Kdv3GLnFxH6qoleb0T7LoUpFunSdgo+FhpMTsVVoZkQ7rBthJuUePLeN7u2uZhu4cstS
-	sFXN7xC80ZEEjFeevr/HPPUOZzrJmNM=
-Received: from mail-yx1-f71.google.com (mail-yx1-f71.google.com
- [74.125.224.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-673-DwkQ7VvzMnejQVaGYBPZKg-1; Thu, 18 Dec 2025 05:07:19 -0500
-X-MC-Unique: DwkQ7VvzMnejQVaGYBPZKg-1
-X-Mimecast-MFC-AGG-ID: DwkQ7VvzMnejQVaGYBPZKg_1766052438
-Received: by mail-yx1-f71.google.com with SMTP id 956f58d0204a3-63e2d3351abso591073d50.3
-        for <virtualization@lists.linux.dev>; Thu, 18 Dec 2025 02:07:19 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766052438; x=1766657238;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=iLBVsO05sU5sMeF6AgvnJgNMEahme0MICJ+mMFM/gug=;
-        b=QEdTHLlCVuMGXNQSQEFlSHtUeFy5FDEalgnlEFL3QtVDPYY5xmlsl3bDhVmZUysBmA
-         HqDlcqA+rnFRzkOggWIDwWb0Xydp3BjG2OVCIZ+XKYrFlYaERYUNBwG8RjUV8Jxte3E+
-         mDXibwoyHnq/a55LSHoiER49pEIgFmsFo7wCXd3gvQNPMZ2RyhDhjlSqrRvE0I4+qiVa
-         QXGs0WznP+5N5ACgVWiqrNa+R5OuCh8fB2QZWc/1pDCgn2TJF7NCrvZhc0kpikx9XE5f
-         gD/5MEiRn2WwPEWI8NJTcj8Y0JoPbFdAoGN6sbnd1rZOVXgxzHSz2z1yt4mrIFzVVnaZ
-         CeGw==
-X-Forwarded-Encrypted: i=1; AJvYcCWfRMUUwlscKGj9afsx9S/i6cUaZrHmKOmFdBBUEmsDCDPrn7sDQ6r3lkftJf40DTJBiCT5V2Kx1489SNWsvg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy5Pvo8YgoTNmIK4uWqzGU2uhoa7WDvn3nT39zzKQcYvZyNT2b1
-	Q1PsnZNxmyNnmLl1dpFwAt+KgfVk/3ku7sklDmD4Bs2cjy78XdMmllaLbxmDPq/cJr6Q/OAEiWF
-	yaCUlxtOcPTAIskKw/nLU3V86H2TxpcwSWBXmb3LMMOPax78nA7ya1fkKr6kIVDUxVr+19D1p3i
-	aN54/XzoVAkHlrFARWftBe4LjfUnpFy91s+XIDhKo8sGg=
-X-Gm-Gg: AY/fxX7RDmPEVJ8Fih85n4muUUnppmLaC+u2Q/0hyMBHJllZGkw4yva7XGphGYV0U7O
-	3+Wik7KgjbXR9tDOZzVwXTByd1yyxU+rPy6O4aLtppo5ZoMBbpNpsCOUsPrS+IHGlKg0hL+mAlS
-	atHNZGbogBbqU42X8CNxZ8WdQYYukeHyDgatzg4r5VuWukDL7MgIgTZM36SVOddAWAKXI=
-X-Received: by 2002:a05:690c:25c8:b0:787:badd:4c with SMTP id 00721157ae682-78e66d0a00cmr343795577b3.27.1766052438463;
-        Thu, 18 Dec 2025 02:07:18 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE4FdM9wPRHh3bJMfsZOO4K7fw6LMkWPPuQ5HwarXv8WuEnK7aju0rAr6nrJfGF/mndIfeF0UpPuYU5bL6yGA0=
-X-Received: by 2002:a05:690c:25c8:b0:787:badd:4c with SMTP id
- 00721157ae682-78e66d0a00cmr343795097b3.27.1766052438082; Thu, 18 Dec 2025
- 02:07:18 -0800 (PST)
+	s=arc-20240116; t=1766059975; c=relaxed/simple;
+	bh=/Lag984MhuskRtOVAooSzdmrvbrlYsL+tVPR06diles=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=N7D3Yk+wTT9ejimtLSgouvgtMr3yBWhGWPhHjdz44xTo3ZUObBaxrz0rgI2ouHeag+utDJ4xGfQw1jcF39/4oSjop369M0Yp85m363qZNhjIl7GD/u1DwY6oOW/yrngh3P4rt89e5a+CkLdTIbvFhAjbrRDv/oG2JwJN+chxgms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.62])
+	by gateway (Coremail) with SMTP id _____8DxecK670Np3HUAAA--.1449S3;
+	Thu, 18 Dec 2025 20:12:42 +0800 (CST)
+Received: from [10.20.42.62] (unknown [10.20.42.62])
+	by front1 (Coremail) with SMTP id qMiowJBxLMK370NpSFIBAA--.2641S3;
+	Thu, 18 Dec 2025 20:12:41 +0800 (CST)
+Subject: Re: [PATCH v3 2/2] LoongArch: Add paravirt support with
+ vcpu_is_preempted() in guest side
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, WANG Xuerui <kernel@xen0n.name>,
+ Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, kvm@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, x86@kernel.org
+References: <20251202024833.1714363-1-maobibo@loongson.cn>
+ <20251202024833.1714363-3-maobibo@loongson.cn>
+ <CAAhV-H6D_XxGTgWjzO26JtBcNeaouqrzH1wTaCn7xK3HGtZ55w@mail.gmail.com>
+From: Bibo Mao <maobibo@loongson.cn>
+Message-ID: <c9e3cd01-0c88-adc2-fdd1-ed85414c7550@loongson.cn>
+Date: Thu, 18 Dec 2025 20:10:07 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251217112414.2374672-1-eperezma@redhat.com> <20251217112414.2374672-3-eperezma@redhat.com>
- <CACGkMEuCgvKEfFCGLp1XSaa+tKM0KYvzYmpC+57ZnUuomNwV5g@mail.gmail.com>
-In-Reply-To: <CACGkMEuCgvKEfFCGLp1XSaa+tKM0KYvzYmpC+57ZnUuomNwV5g@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 18 Dec 2025 11:06:41 +0100
-X-Gm-Features: AQt7F2r5VVpGjTBicpXfKSfapf-MwZOQtGcGIvtaxrRE4xYGf0vBVyXB3ZrZ7ws
-Message-ID: <CAJaqyWepbQBJZmDv8QuaE309EHW_GEzFUHTTKtbLM29JUXmKpw@mail.gmail.com>
-Subject: Re: [PATCH v10 2/8] vduse: add vq group support
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, 
-	Yongji Xie <xieyongji@bytedance.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Cindy Lu <lulu@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1dBSki_x0-1YVna2Na5YFGytWQPMCj18yGXxrCih_nA_1766052438
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAAhV-H6D_XxGTgWjzO26JtBcNeaouqrzH1wTaCn7xK3HGtZ55w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJBxLMK370NpSFIBAA--.2641S3
+X-CM-SenderInfo: xpdruxter6z05rqj20fqof0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxJw4xGryfCFy5ury7Ar1kWFX_yoW5tF1fpa
+	4DAFs5Ka1xG34xC39xtr4Durn8tryvg3WIva47ua45A34DZwnrJr10gryY9FykXwn7WF4I
+	qFn3WFsI9F42yagCm3ZEXasCq-sJn29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUv2b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv
+	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07
+	AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02
+	F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GF
+	ylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7Cj
+	xVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r
+	1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8j-
+	e5UUUUU==
 
-On Thu, Dec 18, 2025 at 7:47=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Wed, Dec 17, 2025 at 7:24=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redh=
-at.com> wrote:
-> >
-> > This allows separate the different virtqueues in groups that shares the
-> > same address space.  Asking the VDUSE device for the groups of the vq a=
-t
-> > the beginning as they're needed for the DMA API.
-> >
-> > Allocating 3 vq groups as net is the device that need the most groups:
-> > * Dataplane (guest passthrough)
-> > * CVQ
-> > * Shadowed vrings.
-> >
-> > Future versions of the series can include dynamic allocation of the
-> > groups array so VDUSE can declare more groups.
-> >
-> > Acked-by: Jason Wang <jasowang@redhat.com>
-> > Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > ---
-> > v6:
-> > * s/sepparate/separate (MST).
-> > * s/dev->api_version < 1/dev->api_version < VDUSE_API_VERSION_1
-> >
-> > v5:
-> > * Revert core vdpa changes (Jason).
-> > * Fix group =3D=3D ngroup case in checking VQ_SETUP argument (Jason).
-> >
-> > v4:
-> > * Revert the "invalid vq group" concept and assume 0 if not set (Jason)=
-.
-> > * Make config->ngroups =3D=3D 0 invalid (Jason).
-> >
-> > v3:
-> > * Make the default group an invalid group as long as VDUSE device does
-> >   not set it to some valid u32 value.  Modify the vdpa core to take tha=
-t
-> >   into account (Jason).
-> > * Create the VDUSE_DEV_MAX_GROUPS instead of using a magic number
-> >
-> > v2:
-> > * Now the vq group is in vduse_vq_config struct instead of issuing one
-> >   VDUSE message per vq.
-> >
-> > v1:
-> > * Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
-> >
-> > RFC v3:
-> > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason).  It was set to a lowe=
-r
-> >   value to reduce memory consumption, but vqs are already limited to
-> >   that value and userspace VDUSE is able to allocate that many vqs.
-> > * Remove the descs vq group capability as it will not be used and we ca=
-n
-> >   add it on top.
-> > * Do not ask for vq groups in number of vq groups < 2.
-> > * Move the valid vq groups range check to vduse_validate_config.
-> >
-> > RFC v2:
-> > * Cache group information in kernel, as we need to provide the vq map
-> >   tokens properly.
-> > * Add descs vq group to optimize SVQ forwarding and support indirect
-> >   descriptors out of the box.
-> > ---
-> >  drivers/vdpa/vdpa_user/vduse_dev.c | 48 ++++++++++++++++++++++++++----
-> >  include/uapi/linux/vduse.h         | 12 ++++++--
-> >  2 files changed, 52 insertions(+), 8 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
-r/vduse_dev.c
-> > index ae357d014564..b012dc3557b9 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -39,6 +39,7 @@
-> >  #define DRV_LICENSE  "GPL v2"
-> >
-> >  #define VDUSE_DEV_MAX (1U << MINORBITS)
-> > +#define VDUSE_DEV_MAX_GROUPS 0xffff
-> >  #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
-> >  #define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
-> >  #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
-> > @@ -58,6 +59,7 @@ struct vduse_virtqueue {
-> >         struct vdpa_vq_state state;
-> >         bool ready;
-> >         bool kicked;
-> > +       u32 vq_group;
->
-> Nit, since we are under the context of virtqueue, I'd rename this as a
-> simple "group".
 
-Sure, I'll change it in the next version.
+
+On 2025/12/6 下午9:04, Huacai Chen wrote:
+> Hi, Bibo,
+> 
+> On Tue, Dec 2, 2025 at 10:48 AM Bibo Mao <maobibo@loongson.cn> wrote:
+>>
+>> Function vcpu_is_preempted() is used to check whether vCPU is preempted
+>> or not. Here add implementation with vcpu_is_preempted() when option
+>> CONFIG_PARAVIRT is enabled.
+>>
+>> Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+>> ---
+>>   arch/loongarch/include/asm/qspinlock.h |  3 +++
+>>   arch/loongarch/kernel/paravirt.c       | 23 ++++++++++++++++++++++-
+>>   2 files changed, 25 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/loongarch/include/asm/qspinlock.h b/arch/loongarch/include/asm/qspinlock.h
+>> index e76d3aa1e1eb..fa3eaf7e48f2 100644
+>> --- a/arch/loongarch/include/asm/qspinlock.h
+>> +++ b/arch/loongarch/include/asm/qspinlock.h
+>> @@ -34,6 +34,9 @@ static inline bool virt_spin_lock(struct qspinlock *lock)
+>>          return true;
+>>   }
+>>
+>> +#define vcpu_is_preempted      vcpu_is_preempted
+>> +bool vcpu_is_preempted(int cpu);
+>> +
+>>   #endif /* CONFIG_PARAVIRT */
+>>
+>>   #include <asm-generic/qspinlock.h>
+>> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+>> index b1b51f920b23..b61a93c6aec8 100644
+>> --- a/arch/loongarch/kernel/paravirt.c
+>> +++ b/arch/loongarch/kernel/paravirt.c
+>> @@ -246,6 +246,7 @@ static void pv_disable_steal_time(void)
+>>   }
+>>
+>>   #ifdef CONFIG_SMP
+>> +static DEFINE_STATIC_KEY_FALSE(virt_preempt_key);
+>>   static int pv_time_cpu_online(unsigned int cpu)
+>>   {
+>>          unsigned long flags;
+>> @@ -267,6 +268,18 @@ static int pv_time_cpu_down_prepare(unsigned int cpu)
+>>
+>>          return 0;
+>>   }
+>> +
+>> +bool notrace vcpu_is_preempted(int cpu)
+>> +{
+>> +       struct kvm_steal_time *src;
+>> +
+>> +       if (!static_branch_unlikely(&virt_preempt_key))
+>> +               return false;
+>> +
+>> +       src = &per_cpu(steal_time, cpu);
+>> +       return !!(src->preempted & KVM_VCPU_PREEMPTED);
+>> +}
+>> +EXPORT_SYMBOL(vcpu_is_preempted);
+>>   #endif
+>>
+>>   static void pv_cpu_reboot(void *unused)
+>> @@ -308,6 +321,9 @@ int __init pv_time_init(void)
+>>                  pr_err("Failed to install cpu hotplug callbacks\n");
+>>                  return r;
+>>          }
+>> +
+>> +       if (kvm_para_has_feature(KVM_FEATURE_PREEMPT))
+>> +               static_branch_enable(&virt_preempt_key);
+>>   #endif
+>>
+>>          static_call_update(pv_steal_clock, paravt_steal_clock);
+>> @@ -318,7 +334,12 @@ int __init pv_time_init(void)
+>>                  static_key_slow_inc(&paravirt_steal_rq_enabled);
+>>   #endif
+>>
+>> -       pr_info("Using paravirt steal-time\n");
+>> +#ifdef CONFIG_SMP
+> 
+> Linux kernel is removing non-SMP step by step [1].
+> https://kernelnewbies.org/Linux_6.17#Unconditionally_compile_task_scheduler_with_SMP_support
+> 
+> Though we cannot remove all "#ifdef CONFIG_SMP" at present, we can at
+> least stop adding more.
+> 
+> So I prefer to make this whole patch out of CONFIG_SMP. But if you
+> don't like this, you can at least move the virt_preempt_key
+> declaration out of "#ifdef CONFIG_SMP", then the #ifdefs here can be
+> removed.
+Sorry, I just notice this mail.
+Will move virt_preempt_key out of CONFIG_SMP in next version.
+
+Regards
+Bibo Mao
+> 
+> Huacai
+> 
+>> +       if (static_key_enabled(&virt_preempt_key))
+>> +               pr_info("Using paravirt steal-time with preempt enabled\n");
+>> +       else
+>> +#endif
+>> +               pr_info("Using paravirt steal-time with preempt disabled\n");
+>>
+>>          return 0;
+>>   }
+>> --
+>> 2.39.3
+>>
+>>
 
