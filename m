@@ -1,102 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 103F32C08D4;
-	Fri, 19 Dec 2025 08:13:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FC932D6621
+	for <virtualization@lists.linux.dev>; Fri, 19 Dec 2025 09:06:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766132002; cv=none; b=MLTq1Q0gx7CLXd0fHbzMVFm3+Up8hZwX/uUaKuiuEt4H3FsNGpq6caWuZu6T7pXVEGHnOH2k7yxGbbV+BVmO5PrsUgu2vzYW8329kUGeUBwKc3/7saG6gTKBcHjuWSrhAlXtsXDZoolwKtXv26IaZSadWmzd7OHikOQU39WBzT8=
+	t=1766135184; cv=none; b=D/xLd+VTtRBhNcfH8LbYgeAYk8jl4rXE3MIRrqQLqM213NKh35e3exPoc/WPK2w1acQJZAaUA6JtTtKRA5XK+1pjwRkcRLqg7JP6ojJyGDsbAZbKcwOEILTncqau/9tn8FxGTuGnGVfHKxSBnD1xNKu2ugjvKp9ucl5Udg3sBeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766132002; c=relaxed/simple;
-	bh=lvn+iw5IxWpNsx5ppx7UaT4z6tDEmv9IRQkqRmBQGQc=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=X6Zj7BN4qkU4LGHLkiciIf5Aww90aWgl36vXBF8tdQEn6jb/ORtZaKhGqSMs3592U+Ax1ESsAkIc+K4IODERKZSoNQlL2KrfJlQikM20zMAbUqTyMfSuIQohuFjIXyk5B/hhGgSlH3xtF6sOwbWhQpzrfoznKTd7JXe70UsCm/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M/IUrif+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1766135184; c=relaxed/simple;
+	bh=Ya983u4axH6kjlKeYBWtPpboTZW33y5xeVr4MOP0TRA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mPGwDplzzdRV+QKF6tm/16KvCHA49xHxPntlDD5gVzcpS3vSeOAxDBSB9TeO5+Kp20sE7QkHq+t2/7Epf2j/BR2jFAJXLELaSIV25p/arW1CPOLEfKpG45yAJhQGSQ3sOX8CzRwBgwotuIkt/Nv5d0Xk++6Nke5dyPSyk4MV+MU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DvoYspIx; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M/IUrif+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12A1FC4CEF1;
-	Fri, 19 Dec 2025 08:13:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1766132001;
-	bh=lvn+iw5IxWpNsx5ppx7UaT4z6tDEmv9IRQkqRmBQGQc=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=M/IUrif+d4VKn/MpBzO8oXg7fyF4udbLWjFGC+kaeTKXVdK9pnVZSk9qfn61Oncpi
-	 GhR5l8VAZ4IA86aoju4qY4COjaufMk77R9+qzFfwAZOU9Mv14DiZsPZrAzz0fP8C8O
-	 RVHu5dAXut9fzq8uA8rHcl2hgk3qtCR3o7FIhbbxw1etaHqlACnKIZpUTGy4fOBicw
-	 mUDSllG1LCmoO9eVDdYT7nQEkxN8ixdDPeXlwtWDpLBykJTtiH2K8RTzj7p3zgR18A
-	 EftOxjTcUmtQ5u7Eo9SivKx97gnYTIzCDyvlh8FtZdCb56p0NX1TrxQ6CjwLInTtmr
-	 ati6fNfjsc4FQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3BBE4380AA50;
-	Fri, 19 Dec 2025 08:10:11 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DvoYspIx"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1766135181;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uEJJ3ZBJInAIh15iKCZRVqfAs4YnUHwyNO2S/KWdSaM=;
+	b=DvoYspIxx7whvLsOvRUlWLraKaTJf74XQZvts/1Q6/Z1gg8Lc470FRlHXPUJWNauZgPoUE
+	v7M0xigBeW0muY5A7Fnzdy7m530lsjJdhSlQSuAy/wXf4hh3nbR3IYTyBOn9u/E3aqpOUz
+	FFVz/gpjQjXknU3QBY28MAQt4uS729U=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-408-SrI2VAdHMhmeAk2ucECHew-1; Fri, 19 Dec 2025 04:06:20 -0500
+X-MC-Unique: SrI2VAdHMhmeAk2ucECHew-1
+X-Mimecast-MFC-AGG-ID: SrI2VAdHMhmeAk2ucECHew_1766135179
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4779d8fd4ecso8736445e9.1
+        for <virtualization@lists.linux.dev>; Fri, 19 Dec 2025 01:06:19 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1766135179; x=1766739979;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uEJJ3ZBJInAIh15iKCZRVqfAs4YnUHwyNO2S/KWdSaM=;
+        b=jS6gS/PZtnZeLPPC8NvYROZ/roRNzpjJZtvcSP3rLcR8jdP0IiT7uFlzuYzBPv0/KL
+         HUvHca0dEjKNfh9fpbLx64dVv1p7lO/vISHw0KSpbTjejhm9feUKtis9N401Ulgi7roR
+         gosoIumm1sMqVR9hbA2joPmkwfEF7y+icKa0Sog1yG96FlmkqQO5hGMF3LwxVpDzoh3B
+         ZuYIztBdN6nCLOx1KjWu9elGpwQolHXYIwesBSvy4l/JohFfsIbrztIPuZmhVlTB1cA5
+         4BpaudFrL1RjKf6iSXLeBctXZ99niJ3y9+OyFPGkpT3mJUtAREJlPw6dVHTQIqzM+Q+e
+         8TIg==
+X-Gm-Message-State: AOJu0YyjYuon1IEXt3q+AeHqkZeRHjvyyByDpnLgPtG1rpfNk1VDBJiF
+	QaQCMdAABN/XXU/s9KZg+C7aC7Ewr6FdBWuiyRNZGQsBwlj5U2bWlnsZ0MT8G5YRzRu+j+2lmJ1
+	v5zgB8ksoxRyUnjAGYdiup+8LYg1jtg1Cf1+6a6vEDGsb4Ye9WWMGae6ODx6eyMJ4O4nd
+X-Gm-Gg: AY/fxX7N7hBwFe8t3HCCXdw0Wq8Ryw5mQd7hqUX9W/A+T8R7kr31l7GfIj0Ac6IFZjq
+	3yRWpIIRfydx9LV5XEKlWuS5EF+acUz5tFRzIkkIthpC75qthIuzOEyuaUEzx9/sYaIWSdWlzhT
+	fpdb4cyjDVDE8kaA5nC0wAk0GL30+FImYd2nnP9lnVZGcbl9iKjpjDiMZGN96VxMgXwWLrsT944
+	beXApS4+1o0yihPfcGjLfQNS6YZsfjMrAb03n9s18yurLUd0VpBz0q6YsjVVpYvo+VsxF+7tGJ5
+	74wTTRcavp28rGXofWAZgpyIFdsu2m0Y+VWmEgdElKkZKC8j+UDf4f2E33e7aSPizBHgzEzVKc4
+	8ejioNDd7+gBb
+X-Received: by 2002:a05:600c:c493:b0:45d:5c71:769d with SMTP id 5b1f17b1804b1-47d18ba7befmr19461115e9.8.1766135178935;
+        Fri, 19 Dec 2025 01:06:18 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE7eioW6Xn+tnoEhKXG2yusHQOhJIOjn1R2GKM3dKlAw2syLOpgGZtPDJfLlzWKSUJFj636Ug==
+X-Received: by 2002:a05:600c:c493:b0:45d:5c71:769d with SMTP id 5b1f17b1804b1-47d18ba7befmr19460835e9.8.1766135178533;
+        Fri, 19 Dec 2025 01:06:18 -0800 (PST)
+Received: from [192.168.88.32] ([216.128.11.227])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47be3963fc3sm32985095e9.0.2025.12.19.01.06.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 19 Dec 2025 01:06:17 -0800 (PST)
+Message-ID: <63de3a12-36bc-45bf-a3e5-89246f4ec73f@redhat.com>
+Date: Fri, 19 Dec 2025 10:06:16 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 0/6] iommu: Pass in old_domain pointer to attach_dev
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <176613180983.3684357.11179224135837486617.git-patchwork-notify@kernel.org>
-Date: Fri, 19 Dec 2025 08:10:09 +0000
-References: <cover.1761017765.git.nicolinc@nvidia.com>
-In-Reply-To: <cover.1761017765.git.nicolinc@nvidia.com>
-To: Nicolin Chen <nicolinc@nvidia.com>
-Cc: linux-riscv@lists.infradead.org, joro@8bytes.org, jgg@nvidia.com,
- kevin.tian@intel.com, suravee.suthikulpanit@amd.com, will@kernel.org,
- robin.murphy@arm.com, sven@kernel.org, j@jannau.net,
- robin.clark@oss.qualcomm.com, m.szyprowski@samsung.com, krzk@kernel.org,
- dwmw2@infradead.org, baolu.lu@linux.intel.com, yong.wu@mediatek.com,
- matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com,
- tjeznach@rivosinc.com, pjw@kernel.org, palmer@dabbelt.com,
- aou@eecs.berkeley.edu, heiko@sntech.de, schnelle@linux.ibm.com,
- mjrosato@linux.ibm.com, orsonzhai@gmail.com, baolin.wang@linux.alibaba.com,
- wens@csie.org, jernej.skrabec@gmail.com, samuel@sholland.org,
- thierry.reding@gmail.com, jonathanh@nvidia.com, jean-philippe@linaro.org,
- iommu@lists.linux.dev, linux-kernel@vger.kernel.org, asahi@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
- virtualization@lists.linux.dev, patches@lists.linux.dev
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next ] vdpa: fix caching attributes of MMIO regions by
+ setting them explicitly
+To: mst@redhat.com
+Cc: virtualization@lists.linux.dev, eperezma@redhat.com, kvm@vger.kernel.org,
+ jerinj@marvell.com, ndabilpuram@marvell.com, schalla@marvell.com,
+ Kommula Shiva Shankar <kshankar@marvell.com>, netdev@vger.kernel.org,
+ jasowang@redhat.com
+References: <20251216175918.544641-1-kshankar@marvell.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20251216175918.544641-1-kshankar@marvell.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: oX7wcn2Q_yVCRAokUo195fSvewUoRQQoCAp-_bPdVL8_1766135179
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hello:
-
-This series was applied to riscv/linux.git (fixes)
-by Joerg Roedel <joerg.roedel@amd.com>:
-
-On Wed, 22 Oct 2025 19:21:03 -0700 you wrote:
-> Tidy the release_device callbacks in the drivers and switch to the core
-> managed release_domain.
+On 12/16/25 6:59 PM, Kommula Shiva Shankar wrote:
+> Explicitly set non-cached caching attributes for MMIO regions.
+> Default write-back mode can cause CPU to cache device memory,
+> causing invalid reads and unpredictable behavior.
 > 
-> This allows the core further to pass in the old domain pointer into the
-> attach_dev callbacks to reduce the use of iommu_get_domain_for_dev().
+> Invalid read and write issues were observed on ARM64 when mapping the
+> notification area to userspace via mmap.
 > 
-> This is a preparatory series for new iommu_dev_reset APIs:
-> https://lore.kernel.org/all/cover.1756682135.git.nicolinc@nvidia.com/
-> 
-> [...]
+> Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
 
-Here is the summary with links:
-  - [v2,1/6] iommu: Generic support for RMRs during device release
-    https://git.kernel.org/riscv/c/e94160488e65
-  - [v2,2/6] iommu/arm-smmu-v3: Set release_domain to arm_smmu_blocked_domain
-    https://git.kernel.org/riscv/c/52f77fb176ec
-  - [v2,3/6] iommu/exynos-iommu: Set release_domain to exynos_identity_domain
-    https://git.kernel.org/riscv/c/680a6a60fc08
-  - [v2,4/6] iommu/amd: Set release_domain to blocked_domain
-    https://git.kernel.org/riscv/c/c21b34762e2f
-  - [v2,5/6] iommu: Do not revert set_domain for the last gdev
-    https://git.kernel.org/riscv/c/2b33598e666d
-  - [v2,6/6] iommu: Pass in old domain to attach_dev callback functions
-    (no matching commit)
+@Micheal: despite the net-next prefix, I assume this patch will go via
+your tree, as it looks unrelated from networking.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Cheers,
 
+Paolo
 
