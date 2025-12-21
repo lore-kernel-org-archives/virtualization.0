@@ -1,225 +1,239 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E312868B4
-	for <virtualization@lists.linux.dev>; Sun, 21 Dec 2025 13:43:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7277C1E86E
+	for <virtualization@lists.linux.dev>; Sun, 21 Dec 2025 13:46:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766324584; cv=none; b=aRHp5ICk/nsy3TAZkKOxzqg3GiOzlfY9AvepmW99QqpSMNn024zZJ9K5Ud6DPHGioHvU+Xy7yXzfzzSStQjvpNY/C5t71GPHDa+8rZzUAJUpoGgn0FlyZPPcxWX4zk+tCnK28zCDTMnexuRtDsT/3I+UsZzavkzyVUMtG4cJhX0=
+	t=1766324816; cv=none; b=GXmPlM7yeQmuP0pbn35TDEduM+0DpOoJ6sfluO6eDvvu9RjoTYaNGxdsIFAywW5o/VljOPqnucsjRpEcur6UKSMgG1MUZdPE6Qp4crqPAtYFo6yx23z92WdQdtc2/6wQRjYYYW4NQuVWT7lbSaBkhfuPX4axqFsaE+olV06tPTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766324584; c=relaxed/simple;
-	bh=g1OpVRc/favQfUiIRE8TO5sJVwwB3PHfeg+/jvw5UK4=;
+	s=arc-20240116; t=1766324816; c=relaxed/simple;
+	bh=9xYl1VpPyJGY+P/31o4U1JCkKm7c9uAW2DxHgwgFs74=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=bs+LJ9k48ms7v/FIEYpcFpx7nSiCw1oiL/pxGrOI/5Of1Z0/ki6H+tre2F3WgaLYCqamN3SHDD1nXsrVSX5uiiJG6Eh9fjtT2ckef1z9w1RSbTn8JAcZuBT+RhGrnatVQw6gZthFh+Jj1JEgCQSA65Ib2YmpOyzpi3A6C5QyLlM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LMEwYFpD; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=fK86Oko0tS8ZXhfpGaWj+UdXu8R6NxtqGTKL8OhLzvIjhdB/kAdpYTrGcaTi0e5EEmMJ2mgmX/m7BPd5b4BZKL2m7x6ksqbZbrvhwuCFKT1KpDgEsU50AV4DRzlerYhPYibAsoYontnX4YplCD19Uv571r1q0kqaE4jAZ4/RhQI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YoNeEeXi; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LMEwYFpD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YoNeEeXi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766324581;
+	s=mimecast20190719; t=1766324813;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=LL1YiW+qcmDAfO6Y9bCrMUIb9gMq0TIVlGP94jNrCWo=;
-	b=LMEwYFpDEgczKs2h4v4VhjFPOLrfI7459lbdlOepINMuBqs7l9bTkCaA6Tvv1M0D/oOVfr
-	s3KJWsAryWde07/Z0TPbjtMZ4OEH1jpAmj3r2zpQvcCJDDq5lO5D+drbZgFt042ujYFHon
-	A6tgE02odaYPKVD7igvWJzT6FjsFsck=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=qH/Hk/c+g6HO0+WmP7cqogfgGgDVjbL6kvaPvTk31Vs=;
+	b=YoNeEeXi/xrIkAqIRMZvbn33xB8tXSTWWQu/dELfpbW6SPZgfJtTo9KH7wlS+pXG6LPPRn
+	Yz4+3HdlcMPU1YO8805+W/ZEqpsoPfgflQGi6oZ7Ej5KBhYGWnCs/96m6qUBmv/Oyz/K9m
+	40dCmGuq44/GDWp+ZJ4Z+AHCxvpRpIs=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-619-eEf-PaB3M0Scl0hKtBeFSg-1; Sun, 21 Dec 2025 08:42:57 -0500
-X-MC-Unique: eEf-PaB3M0Scl0hKtBeFSg-1
-X-Mimecast-MFC-AGG-ID: eEf-PaB3M0Scl0hKtBeFSg_1766324576
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477c49f273fso42108735e9.3
-        for <virtualization@lists.linux.dev>; Sun, 21 Dec 2025 05:42:56 -0800 (PST)
+ us-mta-694-_Go3pKRGO3K3D03GJnYv6A-1; Sun, 21 Dec 2025 08:46:51 -0500
+X-MC-Unique: _Go3pKRGO3K3D03GJnYv6A-1
+X-Mimecast-MFC-AGG-ID: _Go3pKRGO3K3D03GJnYv6A_1766324811
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-431026b6252so3043163f8f.1
+        for <virtualization@lists.linux.dev>; Sun, 21 Dec 2025 05:46:51 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766324576; x=1766929376;
+        d=1e100.net; s=20230601; t=1766324811; x=1766929611;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LL1YiW+qcmDAfO6Y9bCrMUIb9gMq0TIVlGP94jNrCWo=;
-        b=U/lE+XeRA6XHoOVi+9tEoJcPZsyqRaujdFq4iSzE6ShXavkOOLJ2GjdirLlk6OI728
-         JWEzLASCANQfo1qc/HlpWG19X2SDGfP8qnbQjgObu3m47Xo8DfiTnH6eaHksICdk9RYL
-         oMGGPdniRW49uuh4ecPopVWFkgMC12obsSYuuUsMrqR4tZQv/eumnpO/G9frRGWR/cUM
-         xPwxSdyW9FmbhExm5g9CxKmouAhxnntrsQGfyWCcVO2rVlF7Q8JHXcp15EKXxfjAsjH5
-         OoIjhvbbBTcMlINg5cwKQX8qb4Kk2t8dTUJ1pZzWHr6BMqkw/k7Cx11tqhOwsIWUD5qY
-         Kflw==
-X-Forwarded-Encrypted: i=1; AJvYcCWW9frzkd74KvwpBm81tyCP73V5p1Y8SRv1CWFz33vT+gt6cIhPZAFYyel3RwYSLUej1yFc+zeittg+ZGmoZg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyM2LAVd4sbixOaZL8CMiKJex4mysHuUqeecCmHOZqL/nltVOnc
-	TuSMUFAVqQAym/8xSDmN73ByrlbMLDSRIyHfOKHdSj8MKBNVRKaDxzqq5nSqALZIYM+NGbNd7js
-	I56tIxF3J5OvLg1iHN5AuZyYDS7orF2qyZjPyb4L/tlihQdEDhN3eGH3pw7oSStTrW0kD
-X-Gm-Gg: AY/fxX7Rn4rDRwIStSRjC2/xfGGawOV9byPbcGOqVNQPUMtgMF/3QwXppejx1R4h3tE
-	61RKYA6Ke9871ewbfJTDro3WkGqiDWIzqSzU16wC3jHgW0MGSOp5ocywC0b3smlQQFSBTKL9fvm
-	b1DrT+4CNNuXtYxCgSfsh/YZ7uFm+UoXmOIUeT23Dkm3146WMNgQC6ZKOVvwRqqeCAJ8dlWMfUL
-	DFziXzW/bcab6lvdVnFE7Hl6YDev7qN1pblsDaggNaHiNZDqinFE9dYyfKUeyhpeapi1bZL0H3s
-	4ZS8OQVotlk+7GhH1VnkMD8fDAM5th1ZR8P/ml5PjEwF7UylsHDengs6AAan5fd4jxvW76gcKSA
-	IajtFf29yK6eHIoRQbT0f3tlPrObGMVS1uw==
-X-Received: by 2002:a05:600c:198d:b0:46e:35a0:3587 with SMTP id 5b1f17b1804b1-47d195a06a0mr78888855e9.27.1766324575726;
-        Sun, 21 Dec 2025 05:42:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGndUGZlLP7dF9QsIdTkQlYcFSwsza8K4tRMm6Y1+UEUb2YQun2bVAVDpswkOGEHQO9izRXxw==
-X-Received: by 2002:a05:600c:198d:b0:46e:35a0:3587 with SMTP id 5b1f17b1804b1-47d195a06a0mr78888685e9.27.1766324575102;
-        Sun, 21 Dec 2025 05:42:55 -0800 (PST)
+        bh=qH/Hk/c+g6HO0+WmP7cqogfgGgDVjbL6kvaPvTk31Vs=;
+        b=q4/9R4390XKbLoNPYH63nCNodv1YxYFLKCZMtWlSOTbU5UaqUjvehJNdHE7PcQpUbF
+         C2SN8HWt7AGIyW+Hyrgp2xvmh0DsH7If1a6clDG+PRbjcOjNRkzlLuSrtb6Spnn6S9yN
+         IOr3GXsrO1YbPRwwWf6bbaQYJTg/EFqtTNrsGFNvwC0xC0EtobXqTRYUvUOiAqKDZ+Qs
+         nIElSa3o49SzTd8ZloON8dD4XFFkON0uzPUoOynKI2qc5x3DrK2kp8mZz98vFBWUUp9j
+         BlXx62p0LekKxfFKzbM/6wl9vPw/BTWMpV0oby4tjcvA9tLz9GszUjYp8Iv4dYa1WEnY
+         FrgA==
+X-Forwarded-Encrypted: i=1; AJvYcCUQdgRlUWR9CUi9rpyCsOYYspr09ClJXFr+LMfkXjmEdT8xSPZeacWV7m7cb+M8U5n0fJ17u0apVKaDaiDOHg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzQBPRdwT8nKpc2e8n0mqNlMWw1rlLYuL0h6A97YTLGSaI9/Knd
+	kMa2siyBebKwyWHlIuqkh0BzTUYgPU0pyGrt+MjRfCGHxLUbZpYgog9NvA8mV9zKCsbOgCQCoXg
+	K5UYIKg8kmtRC0qzY3BIkfUQAiNw9J2amTZQ9JZoMi8vH/qGGAFJ5Uu1dyFMVLkbDa6Dc
+X-Gm-Gg: AY/fxX47uufHG/CE11ekObSBReQcfzalhVzBko24Xk6JDDfsj0bLmKdHSkF6oAZJZiR
+	MomiXnlfnZQzTiBjS5Vhd4PWdgKwUbQyj2egEipuSV9JwmjxMG7I5p+lALUQh0IBAyEsWh97gWo
+	mzuUAHADCU7vvzSuNhk4VPdq3254dDCqMKG+RBeKQpRTIonwXGkhEpSx78UmR62/+asiB9dpGeS
+	V5Ky23QwDIHejFS4Ys5NJAUuwmQ87vCZ4zW0KSRDalN+tAASekVpIqjW/IUUy+aL0jPkcTVAglI
+	dQbXJQ3grfgsVywlSiFplGQQ0JHBRZ2659aJL3enuP95BCgapK4dw7QAFoCyf9yMBq56ObpZVYe
+	Ucd0UVo/xXP/jlZ+cOWV7FhnD7HMcLazvuQ==
+X-Received: by 2002:a05:6000:1861:b0:42b:4081:ccb8 with SMTP id ffacd0b85a97d-4324e4cd796mr10763783f8f.23.1766324810586;
+        Sun, 21 Dec 2025 05:46:50 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHlqXiItQ9OzU+oVmIJ5BphjeDkvrJIIgkdhBoM/Dj4AawBQvvynmgns4wZn+2oTnSwXIc3mA==
+X-Received: by 2002:a05:6000:1861:b0:42b:4081:ccb8 with SMTP id ffacd0b85a97d-4324e4cd796mr10763769f8f.23.1766324810150;
+        Sun, 21 Dec 2025 05:46:50 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d193621c8sm139563755e9.7.2025.12.21.05.42.52
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324ea2278dsm16434929f8f.18.2025.12.21.05.46.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Dec 2025 05:42:54 -0800 (PST)
-Date: Sun, 21 Dec 2025 08:42:51 -0500
+        Sun, 21 Dec 2025 05:46:48 -0800 (PST)
+Date: Sun, 21 Dec 2025 08:46:46 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH net v2] virtio-net: enable all napis before scheduling
- refill work
-Message-ID: <20251221084218-mutt-send-email-mst@kernel.org>
-References: <20251212152741.11656-1-minhquangbui99@gmail.com>
- <CACGkMEtzXmfDhiQiq=5qPGXG+rJcxGkWk0CZ4X_2cnr2UVH+eQ@mail.gmail.com>
- <3f5613e9-ccd0-4096-afc3-67ee94f6f660@gmail.com>
- <CACGkMEs+Mse7nhPPiqbd2doeGtPD2QD3BM_cztr6e=VfuiobHQ@mail.gmail.com>
- <5434a67e-dd6e-4cd1-870b-fdd32ad34a28@gmail.com>
+To: Lange Tang <lange_tang@163.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	Tang Longjun <tanglongjun@kylinos.cn>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Subject: Re: Re: Re: Re: Re: [PATCH v1 0/7] introduce virtnet_mon for monitor
+ virtio_net
+Message-ID: <20251221084629-mutt-send-email-mst@kernel.org>
+References: <20251127032407.33475-1-lange_tang@163.com>
+ <20251210040328-mutt-send-email-mst@kernel.org>
+ <4820b08f.2d13.19b0b523dcb.Coremail.lange_tang@163.com>
+ <CACGkMEt-v2RGTbzEgfocpZvZw1SKB8j4MQ6zoMFvGJQXXFuMtQ@mail.gmail.com>
+ <64d63e98.e7f.19b1595bd4e.Coremail.lange_tang@163.com>
+ <CACGkMEvZQb1ADyEM73jE8_OdeU8YtSbR8YCJ+3anDg8VhkpBLg@mail.gmail.com>
+ <5ecbc090.8006.19b21117c0a.Coremail.lange_tang@163.com>
+ <CACGkMEvjr_iVBzHa8GxKCsn=h1EbWzmVrCkpTy+Rc51gWaxH3w@mail.gmail.com>
+ <20d26393.751f.19b26214d83.Coremail.lange_tang@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <5434a67e-dd6e-4cd1-870b-fdd32ad34a28@gmail.com>
+In-Reply-To: <20d26393.751f.19b26214d83.Coremail.lange_tang@163.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: pKuN-SagtncPEwxubv7ABfHA0cHcPPROSxDqHOPOo9Y_1766324576
+X-Mimecast-MFC-PROC-ID: rfT7GQu_Ldb3U071XyOjGXLh9ViVt8mmRnJtk4NpeWg_1766324811
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Fri, Dec 19, 2025 at 12:03:29PM +0700, Bui Quang Minh wrote:
-> On 12/17/25 09:58, Jason Wang wrote:
-> > On Wed, Dec 17, 2025 at 12:23 AM Bui Quang Minh
-> > <minhquangbui99@gmail.com> wrote:
-> > > On 12/16/25 11:16, Jason Wang wrote:
-> > > > On Fri, Dec 12, 2025 at 11:28 PM Bui Quang Minh
-> > > > <minhquangbui99@gmail.com> wrote:
-> > > > > Calling napi_disable() on an already disabled napi can cause the
-> > > > > deadlock. In commit 4bc12818b363 ("virtio-net: disable delayed refill
-> > > > > when pausing rx"), to avoid the deadlock, when pausing the RX in
-> > > > > virtnet_rx_pause[_all](), we disable and cancel the delayed refill work.
-> > > > > However, in the virtnet_rx_resume_all(), we enable the delayed refill
-> > > > > work too early before enabling all the receive queue napis.
-> > > > > 
-> > > > > The deadlock can be reproduced by running
-> > > > > selftests/drivers/net/hw/xsk_reconfig.py with multiqueue virtio-net
-> > > > > device and inserting a cond_resched() inside the for loop in
-> > > > > virtnet_rx_resume_all() to increase the success rate. Because the worker
-> > > > > processing the delayed refilled work runs on the same CPU as
-> > > > > virtnet_rx_resume_all(), a reschedule is needed to cause the deadlock.
-> > > > > In real scenario, the contention on netdev_lock can cause the
-> > > > > reschedule.
-> > > > > 
-> > > > > This fixes the deadlock by ensuring all receive queue's napis are
-> > > > > enabled before we enable the delayed refill work in
-> > > > > virtnet_rx_resume_all() and virtnet_open().
-> > > > > 
-> > > > > Fixes: 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
-> > > > > Reported-by: Paolo Abeni <pabeni@redhat.com>
-> > > > > Closes: https://netdev-ctrl.bots.linux.dev/logs/vmksft/drv-hw-dbg/results/400961/3-xdp-py/stderr
-> > > > > Cc: stable@vger.kernel.org
-> > > > > Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> > > > > ---
-> > > > > Changes in v2:
-> > > > > - Move try_fill_recv() before rx napi_enable()
-> > > > > - Link to v1: https://lore.kernel.org/netdev/20251208153419.18196-1-minhquangbui99@gmail.com/
-> > > > > ---
-> > > > >    drivers/net/virtio_net.c | 71 +++++++++++++++++++++++++---------------
-> > > > >    1 file changed, 45 insertions(+), 26 deletions(-)
-> > > > > 
-> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > > index 8e04adb57f52..4e08880a9467 100644
-> > > > > --- a/drivers/net/virtio_net.c
-> > > > > +++ b/drivers/net/virtio_net.c
-> > > > > @@ -3214,21 +3214,31 @@ static void virtnet_update_settings(struct virtnet_info *vi)
-> > > > >    static int virtnet_open(struct net_device *dev)
-> > > > >    {
-> > > > >           struct virtnet_info *vi = netdev_priv(dev);
-> > > > > +       bool schedule_refill = false;
-> > > > >           int i, err;
-> > > > > 
-> > > > > -       enable_delayed_refill(vi);
-> > > > > -
-> > > > > +       /* - We must call try_fill_recv before enabling napi of the same receive
-> > > > > +        * queue so that it doesn't race with the call in virtnet_receive.
-> > > > > +        * - We must enable and schedule delayed refill work only when we have
-> > > > > +        * enabled all the receive queue's napi. Otherwise, in refill_work, we
-> > > > > +        * have a deadlock when calling napi_disable on an already disabled
-> > > > > +        * napi.
-> > > > > +        */
-> > > > >           for (i = 0; i < vi->max_queue_pairs; i++) {
-> > > > >                   if (i < vi->curr_queue_pairs)
-> > > > >                           /* Make sure we have some buffers: if oom use wq. */
-> > > > >                           if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> > > > > -                               schedule_delayed_work(&vi->refill, 0);
-> > > > > +                               schedule_refill = true;
-> > > > > 
-> > > > >                   err = virtnet_enable_queue_pair(vi, i);
-> > > > >                   if (err < 0)
-> > > > >                           goto err_enable_qp;
-> > > > >           }
-> > > > So NAPI could be scheduled and it may want to refill but since refill
-> > > > is not enabled, there would be no refill work.
-> > > > 
-> > > > Is this a problem?
-> > > You are right. It is indeed a problem.
-> > > 
-> > > I think we can unconditionally schedule the delayed refill after
-> > > enabling all the RX NAPIs (don't check the boolean schedule_refill
-> > > anymore) to ensure that we will have refill work. We can still keep the
-> > > try_fill_recv here to fill the receive buffer earlier in normal case.
-> > > What do you think?
-> > Or we can have a reill_pending
+On Tue, Dec 16, 2025 at 03:47:55PM +0800, Lange Tang wrote:
+> At 2025-12-16 11:59:14, "Jason Wang" <jasowang@redhat.com> wrote:
+> >On Mon, Dec 15, 2025 at 4:12 PM Lange Tang <lange_tang@163.com> wrote:
+> >>
+> >> At 2025-12-15 14:41:42, "Jason Wang" <jasowang@redhat.com> wrote:
+> >> >On Sat, Dec 13, 2025 at 10:41 AM Lange Tang <lange_tang@163.com> wrote:
+> >> >>
+> >> >> At 2025-12-11 16:32:15, "Jason Wang" <jasowang@redhat.com> wrote:
+> >> >> >On Thu, Dec 11, 2025 at 10:52 AM Lange Tang <lange_tang@163.com> wrote:
+> >> >> >>
+> >> >> >> At 2025-12-10 17:04:04, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> >> >> >> >On Thu, Nov 27, 2025 at 11:24:00AM +0800, Longjun Tang wrote:
+> >> >> >> >> From: Tang Longjun <tanglongjun@kylinos.cn>
+> >> >> >> >>
+> >> >> >> >> hi,
+> >> >> >> >> virtnet_mon is used to monitor the data packets of the virtio_net driver
+> >> >> >> >> and the related parameters of virtqueue, useful for tracking its status
+> >> >> >> >> and troubleshooting faults.
+> >> >> >> >>
+> >> >> >> >> pls review. tks
+> >> >> >> >>
+> >> >> >> >> Best regard.
+> >> >> >> >
+> >> >> >> >what does this achieve that direct use of tracing would not?
+> >> >> >>
+> >> >> >> I apologize that my explanation of virtnet_mon was not detailed enough.
+> >> >> >> virtnet_mon uses kprobe and buffers to monitor virtio_net.
+> >> >> >> To monitor virtio_net, it is necessary to track the member parameters of the virtqueue corresponding to each data packet and output them.
+> >> >> >> When PPS very high, other tracing techniques, such as ebpf, may not be able to handle it, resulting in data loss because they do not have sufficiently large buffers to batch export log data.
+> >> >> >
+> >> >> >Can you expand more about this? For example, in which kind of setup
+> >> >> >and what do you want to trace and why ebpf can't handle that. Note
+> >> >> >that the most lightweight stuff is the counter, have you tried that?
+> >> >>
+> >> >> For example, when there is occasional latency in data transmission between the
+> >> >> virtual network frontend (virtio_net) and backend (such as vhost_net),
+> >> >> we may need to track the time taken for each packet received and sent in the virtio_net driver.
+> >> >> Typically, we accomplish this using eBPF, such as bpftrace. The pseudocode might include the following:
+> >> >> """
+> >> >> kprobe:skb_recv_done {
+> >> >>         printf("%ld skb_recv_done Cpu:%d ...\n",...);
+> >> >> }
+> >> >> kprobe:skb_xmit_done {
+> >> >>         printf("%ld skb_xmit_done Cpu:%d ...\n",...);
+> >> >> }
+> >> >> kprobe:virtnet_poll {
+> >> >>         printf("%ld virtnet_poll Cpu:%d budget:%d ...\n",...);
+> >> >> }
+> >> >> kprobe:start_xmit {
+> >> >>   ...
+> >> >>   printf("%ld start_xmit Cpu:%d type:%s seq:%ld ...\n",...)
+> >> >> }
+> >> >> kprobe:gro_receive_skb {
+> >> >>   ...
+> >> >>   printf("%ld gro_receive_skb Cpu:%d type:%s seq:%ld ...\n",...)
+> >> >> }
+> >> >> kprobe:receive_buf {
+> >> >>   ...
+> >> >>   printf("%ld receive_buf Cpu:%d name:%s avali_idx:%d used_idx:%d ...\n",...);
+> >> >> }
+> >> >> """
+> >> >> Using the above bpftrace code, we can track the timestamps of the data as it passes through these functions,
+> >> >> along with skb and virtqueue information, and output logs via printf for further diagnosis of the causes of the latency.
+> >> >> Interestingly, a significant amount of logs were found to be missing when executing these bpftrace codes.
+> >> >> Below is the testing environment:
+> >> >> VM: 8G8C，virtio_net mq=4, kernel 6.18-rc7, iperf3 -s -p 1314
+> >> >> HOST: iperf3 -c 192.168.122.218 -t 100 -p 1314 -P 4
+> >> >> It was also found that when testing with mq=1, there was no log loss.
+> >> >>
+> >> >> Compared to mq=1, the reason for log loss at mq=4 is suspected to be due to data being sent or received
+> >> >> by different CPUs. Additionally, under the 4-thread iperf testing scenario with PPS > 150,000,
+> >> >> the log data is asynchronously output from different CPUs, leading to excessive IO pressure that causes log data loss.
+> >> >
+> >> >I think what I don't understand is how the things you introduced here
+> >> >may help in this case?
+> >>
+> >> The virtnet_mon module introduced here abandons eBPF and uses kprobe + kfifo.
+> >> In the aforementioned cases, all the information that needs to be tracked first enters kfifo,
+> >> then is formatted into logs and cached in a large buffer.
+> >> Finally, it is exported to user space in batches through the virtnet_mon_read function,
+> >> thereby reducing IO pressure and preventing log loss.
+> >
+> >Well, this "problem" seems not virtio-net specific. Have you tried
+> >with BPF ringbuf or perfbuf?
 > 
-> Okay, let me implement this in the next version.
+> Concerning the ringbuf and perfbuf in bpf, I may need some time to verify whether this can resolve this "problem".
+>  I will get back to you with the results. 
 > 
-> > but basically I think we need something
-> > that is much more simple. That is, using a per rq work instead of a
-> > global one?
-> 
-> I think we can leave this in a net-next patch later.
-> 
-> Thanks,
-> Quang Minh
+> On the other hand, I did not find any tracepoints in virtio_net that track the virtqueue, 
+> such as name, num_free, avail.idx, used.idx, last_used_idx, etc. 
+> Could you consider inserting these tracepoints in some key functions? This would facilitate direct tracking by perf. 
+> For example:
+> start_xmit
+> receive_buf
+> skb_xmit_done
+> skb_recv_done
 
-i am not sure per rq is not simpler than this pile of tricks.
+sure, that's a reasonable thing to add.
 
-
-> > 
-> > Thanks
-> > 
-> > > > 
-> > > > > +       enable_delayed_refill(vi);
-> > > > > +       if (schedule_refill)
-> > > > > +               schedule_delayed_work(&vi->refill, 0);
-> > > > > +
-> > > > >           if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-> > > > >                   if (vi->status & VIRTIO_NET_S_LINK_UP)
-> > > > >                           netif_carrier_on(vi->dev);
-> > > > > @@ -3463,39 +3473,48 @@ static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
-> > > > >           __virtnet_rx_pause(vi, rq);
-> > > > >    }
-> > > > > 
-> > > > Thanks
-> > > > 
-> > > Thanks,
-> > > Quang Minh.
-> > > 
+> >
+> >Thanks
+> >
+> >>
+> >> Thanks
+> >> >
+> >> >Thanks
+> >> >
+> >> >>
+> >> >> The above are some of my personal thoughts, and I would love to hear your opinion.
+> >> >> Best regard.
+> >> >>
+> >> >> >
+> >> >> >>
+> >> >> >> As for the duplicate code, it is only to obtain the layout of the relevant structure, and I have not yet thought of a way to avoid duplication. I would love to hear your suggestions.
+> >> >> >
+> >> >> >Thanks
+> >> >> >
+> >> >> >>
+> >> >> >> >
+> >> >> >> >> Tang Longjun (7):
+> >> >> >> >>   tools/virtio/virtnet_mon: create misc driver for virtnet_mon
+> >> >> >> >>   tools/virtio/virtnet_mon: add kfifo to virtnet_mon
+> >> >> >> >>   tools/virtio/virtnet_mon: add kprobe start_xmit
+> >> >> >> >>   tools/virtio/virtnet_mon: add kprobe gro_receive_skb
+> >> >> >> >>   tools/virtio/virtnet_mon: add kprobe ip_local_deliver
+> >> >> >> >>   tools/virtio/virtnet_mon: add kprobe skb_xmit_done and skb_recv_done
+> >> >> >> >>   tools/virtio/virtnet_mon: add README file for virtnet_moin
+> >> >> >> >>
+> >> >> >> >>  tools/virtio/virtnet_mon/Makefile      |   10 +
+> >> >> >> >>  tools/virtio/virtnet_mon/README        |   35 +
+> >> >> >> >>  tools/virtio/virtnet_mon/virtnet_mon.c | 1048 ++++++++++++++++++++++++
+> >> >> >> >>  3 files changed, 1093 insertions(+)
+> >> >> >> >>  create mode 100644 tools/virtio/virtnet_mon/Makefile
+> >> >> >> >>  create mode 100644 tools/virtio/virtnet_mon/README
+> >> >> >> >>  create mode 100644 tools/virtio/virtnet_mon/virtnet_mon.c
+> >> >> >> >>
+> >> >> >> >> --
+> >> >> >> >> 2.43.0
 
