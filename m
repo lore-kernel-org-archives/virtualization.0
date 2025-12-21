@@ -1,258 +1,225 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CD06286D4E
-	for <virtualization@lists.linux.dev>; Sun, 21 Dec 2025 13:01:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E312868B4
+	for <virtualization@lists.linux.dev>; Sun, 21 Dec 2025 13:43:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766322104; cv=none; b=tul+j997ZZw8Pippc2Q9ix9dfW43+Lqv7f6QddgF+com6jO/QMZkKOYmjGsKsRo1uyPITgxVKw7j0Qat8OkzmdeOeb2ERGFd66pW1lqF1MbvSprHNpCBOKKZVPEokNGpN9YLXO0gmQBi3MEY99eXPsopvZ0Ft2OqoPr4OhtLaQs=
+	t=1766324584; cv=none; b=aRHp5ICk/nsy3TAZkKOxzqg3GiOzlfY9AvepmW99QqpSMNn024zZJ9K5Ud6DPHGioHvU+Xy7yXzfzzSStQjvpNY/C5t71GPHDa+8rZzUAJUpoGgn0FlyZPPcxWX4zk+tCnK28zCDTMnexuRtDsT/3I+UsZzavkzyVUMtG4cJhX0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766322104; c=relaxed/simple;
-	bh=r/l++9P9ZQFYezT7EWoWTYZqwqRX752Us4hOn2z8DIs=;
+	s=arc-20240116; t=1766324584; c=relaxed/simple;
+	bh=g1OpVRc/favQfUiIRE8TO5sJVwwB3PHfeg+/jvw5UK4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=uEZYRwxgnyINBhmfmWPbuRIyTTKU/0ZOVK88HEmsFDh6UVf1n4+74bLDrKFgJlM44GM9cF1Vw0WKeamBZOPhnoCdt7wzDx7ra0uPiMjg2dbb/TvCq+lJ1WtEawU8caiJ3k/JX3Yg+F63Z/ciR1GDwbs6xo6+da3u21IVC1yezmo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FO/Xvx70; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=bs+LJ9k48ms7v/FIEYpcFpx7nSiCw1oiL/pxGrOI/5Of1Z0/ki6H+tre2F3WgaLYCqamN3SHDD1nXsrVSX5uiiJG6Eh9fjtT2ckef1z9w1RSbTn8JAcZuBT+RhGrnatVQw6gZthFh+Jj1JEgCQSA65Ib2YmpOyzpi3A6C5QyLlM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LMEwYFpD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FO/Xvx70"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LMEwYFpD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766322099;
+	s=mimecast20190719; t=1766324581;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=lGR8PtvLZUdl7Zy3cTdgViEKvGtjsOxM0M1Ktn+qFkc=;
-	b=FO/Xvx70faX48yTseGCgY/alPWVHLBW68HhTp0SfKrsOQ8YdaVcrhmfFVXnsewcXVOtGWA
-	fTax2MGeRu5rmsEVGWfq/+pdleNdC7/5097FL61P5eFnXBob3r5uRK5MEbeDuhZWJI0dss
-	rUmHFR+rQsfVRafAOhDjOyx+POhno6g=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=LL1YiW+qcmDAfO6Y9bCrMUIb9gMq0TIVlGP94jNrCWo=;
+	b=LMEwYFpDEgczKs2h4v4VhjFPOLrfI7459lbdlOepINMuBqs7l9bTkCaA6Tvv1M0D/oOVfr
+	s3KJWsAryWde07/Z0TPbjtMZ4OEH1jpAmj3r2zpQvcCJDDq5lO5D+drbZgFt042ujYFHon
+	A6tgE02odaYPKVD7igvWJzT6FjsFsck=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-402-azFx9UFQPyG9ezJx0pn2CA-1; Sun, 21 Dec 2025 08:01:38 -0500
-X-MC-Unique: azFx9UFQPyG9ezJx0pn2CA-1
-X-Mimecast-MFC-AGG-ID: azFx9UFQPyG9ezJx0pn2CA_1766322097
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-42fd46385c0so1576958f8f.0
-        for <virtualization@lists.linux.dev>; Sun, 21 Dec 2025 05:01:38 -0800 (PST)
+ us-mta-619-eEf-PaB3M0Scl0hKtBeFSg-1; Sun, 21 Dec 2025 08:42:57 -0500
+X-MC-Unique: eEf-PaB3M0Scl0hKtBeFSg-1
+X-Mimecast-MFC-AGG-ID: eEf-PaB3M0Scl0hKtBeFSg_1766324576
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477c49f273fso42108735e9.3
+        for <virtualization@lists.linux.dev>; Sun, 21 Dec 2025 05:42:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766322097; x=1766926897;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lGR8PtvLZUdl7Zy3cTdgViEKvGtjsOxM0M1Ktn+qFkc=;
-        b=UWaRROcHbuKvlWLIRbER4uWvjFfDhcdl1gTSPS/8wffnyoahvdTyvkdQ2tr8+uOrIQ
-         lkKARHvedCcJMEsckrLO+AbTxC54WShjdo/AtRfuEVer3LvqTym5v+o91W9gPe63UWqY
-         zJ7gD44UFs0WVifhfi1srxuKoPGTqxJ36b+Ew1PQyHSbnasPtEDKOLj+A+czXsqiqcvl
-         KUYsM54l6x3/GA2ELs0nYR9T+qYCLk+j/CCNuJOyN9gQHtNHONGYcKEgDIm93xD46s7K
-         qww8YDbHFWhid9j/9zq6LUzvsIPhG2iowwHP7BNhKCZrRrdeooKHpUt56VDL9ivwe+gv
-         sX6Q==
-X-Forwarded-Encrypted: i=1; AJvYcCW0+qIGiErMdHySBQvCheQzfQY5B+Qku+bCGelz5D6hdXYcHNmRxUkrDy29c0rk6Ovd9hz40kcaYFR4o2VIxQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw3alGw2/Pf+vmc3LqeEIUzgvP7DB42GtnHWZ0pHMuM3OM6mwOc
-	uVap929A6sh3CBGQ9bIenUJVaUNadKaGYLChm3rcwMDs4dLT4w0pR10ZvOY2pXzd2rDwjms3nTs
-	lr7Cvk7MqE4gG5IVGiiDs9A/yzK+wQSjGoJ0q6Cklk861OefSNVFv7KbsXV5nKaW7J0F5
-X-Gm-Gg: AY/fxX4s+x+iZPZh6pD4EjkvJuNLN3qE2jjcOVRbSGNgrbclHuNXbo8vUOOium5AR/5
-	weHkzSWPnOw5h+X2hawHME3OAyDq046Ahm3BTauZLFd7ln3zntUUXxvurUsb8AAeYrt7Y+G4zID
-	IX6KakBLROujcg2NYwq9paAB+qSa545MBVNrOKTrnh1pptaLdYpMzP4cuscnW+JNtbiRYwokOgN
-	QqdR363HhGWIeEk0G0N1pU6Bl6nFhmBdOoShuMCH3pyhM3iDtFN7rtboAccQ/xOhQwb10uUb405
-	tcfhaU30np4uqvhVCHVzz4H9323S4g4mabzKYBdRiZqHJOnvkMosB/sbepseLk67ea/5WiKnwuB
-	ZAjS9mipSZyYC28pn+xVvtQ4HONJ1/gEeGw==
-X-Received: by 2002:a5d:5d09:0:b0:431:316:9212 with SMTP id ffacd0b85a97d-4324e4c0d41mr7897939f8f.6.1766322097148;
-        Sun, 21 Dec 2025 05:01:37 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHoP4c9iCRyFH6aDijVCnBbm8uxQua9fnzcLA7uhunToEhizPkn3OIbaZUr+g2smxgN0Xl4UA==
-X-Received: by 2002:a5d:5d09:0:b0:431:316:9212 with SMTP id ffacd0b85a97d-4324e4c0d41mr7897894f8f.6.1766322096492;
-        Sun, 21 Dec 2025 05:01:36 -0800 (PST)
+        d=1e100.net; s=20230601; t=1766324576; x=1766929376;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=LL1YiW+qcmDAfO6Y9bCrMUIb9gMq0TIVlGP94jNrCWo=;
+        b=U/lE+XeRA6XHoOVi+9tEoJcPZsyqRaujdFq4iSzE6ShXavkOOLJ2GjdirLlk6OI728
+         JWEzLASCANQfo1qc/HlpWG19X2SDGfP8qnbQjgObu3m47Xo8DfiTnH6eaHksICdk9RYL
+         oMGGPdniRW49uuh4ecPopVWFkgMC12obsSYuuUsMrqR4tZQv/eumnpO/G9frRGWR/cUM
+         xPwxSdyW9FmbhExm5g9CxKmouAhxnntrsQGfyWCcVO2rVlF7Q8JHXcp15EKXxfjAsjH5
+         OoIjhvbbBTcMlINg5cwKQX8qb4Kk2t8dTUJ1pZzWHr6BMqkw/k7Cx11tqhOwsIWUD5qY
+         Kflw==
+X-Forwarded-Encrypted: i=1; AJvYcCWW9frzkd74KvwpBm81tyCP73V5p1Y8SRv1CWFz33vT+gt6cIhPZAFYyel3RwYSLUej1yFc+zeittg+ZGmoZg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyM2LAVd4sbixOaZL8CMiKJex4mysHuUqeecCmHOZqL/nltVOnc
+	TuSMUFAVqQAym/8xSDmN73ByrlbMLDSRIyHfOKHdSj8MKBNVRKaDxzqq5nSqALZIYM+NGbNd7js
+	I56tIxF3J5OvLg1iHN5AuZyYDS7orF2qyZjPyb4L/tlihQdEDhN3eGH3pw7oSStTrW0kD
+X-Gm-Gg: AY/fxX7Rn4rDRwIStSRjC2/xfGGawOV9byPbcGOqVNQPUMtgMF/3QwXppejx1R4h3tE
+	61RKYA6Ke9871ewbfJTDro3WkGqiDWIzqSzU16wC3jHgW0MGSOp5ocywC0b3smlQQFSBTKL9fvm
+	b1DrT+4CNNuXtYxCgSfsh/YZ7uFm+UoXmOIUeT23Dkm3146WMNgQC6ZKOVvwRqqeCAJ8dlWMfUL
+	DFziXzW/bcab6lvdVnFE7Hl6YDev7qN1pblsDaggNaHiNZDqinFE9dYyfKUeyhpeapi1bZL0H3s
+	4ZS8OQVotlk+7GhH1VnkMD8fDAM5th1ZR8P/ml5PjEwF7UylsHDengs6AAan5fd4jxvW76gcKSA
+	IajtFf29yK6eHIoRQbT0f3tlPrObGMVS1uw==
+X-Received: by 2002:a05:600c:198d:b0:46e:35a0:3587 with SMTP id 5b1f17b1804b1-47d195a06a0mr78888855e9.27.1766324575726;
+        Sun, 21 Dec 2025 05:42:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGndUGZlLP7dF9QsIdTkQlYcFSwsza8K4tRMm6Y1+UEUb2YQun2bVAVDpswkOGEHQO9izRXxw==
+X-Received: by 2002:a05:600c:198d:b0:46e:35a0:3587 with SMTP id 5b1f17b1804b1-47d195a06a0mr78888685e9.27.1766324575102;
+        Sun, 21 Dec 2025 05:42:55 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324ea2253csm16586880f8f.14.2025.12.21.05.01.34
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d193621c8sm139563755e9.7.2025.12.21.05.42.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Dec 2025 05:01:35 -0800 (PST)
-Date: Sun, 21 Dec 2025 08:01:32 -0500
+        Sun, 21 Dec 2025 05:42:54 -0800 (PST)
+Date: Sun, 21 Dec 2025 08:42:51 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Harald Mommer <harald.mommer@oss.qualcomm.com>
-Cc: Francesco Valla <francesco@valla.it>,
-	Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
-	Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol@kernel.org>,
-	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Wolfgang Grandegger <wg@grandegger.com>,
+To: Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
-Message-ID: <20251221075954-mutt-send-email-mst@kernel.org>
-References: <aQJRnX7OpFRY/1+H@fedora>
- <aQkgsuxa2UaL_qdt@bywater>
- <aTsE1VIk4V/A49HE@fedora>
- <aT7XAsTWr0_yyfx_@bywater>
- <23c5df0c-48d1-4d3a-8f25-8249b93c9b60@oss.qualcomm.com>
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH net v2] virtio-net: enable all napis before scheduling
+ refill work
+Message-ID: <20251221084218-mutt-send-email-mst@kernel.org>
+References: <20251212152741.11656-1-minhquangbui99@gmail.com>
+ <CACGkMEtzXmfDhiQiq=5qPGXG+rJcxGkWk0CZ4X_2cnr2UVH+eQ@mail.gmail.com>
+ <3f5613e9-ccd0-4096-afc3-67ee94f6f660@gmail.com>
+ <CACGkMEs+Mse7nhPPiqbd2doeGtPD2QD3BM_cztr6e=VfuiobHQ@mail.gmail.com>
+ <5434a67e-dd6e-4cd1-870b-fdd32ad34a28@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <23c5df0c-48d1-4d3a-8f25-8249b93c9b60@oss.qualcomm.com>
+In-Reply-To: <5434a67e-dd6e-4cd1-870b-fdd32ad34a28@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: RQeo9GakU8zjAPaoIBnrQgB099Vdh5FfVRgTa627Ax4_1766322097
+X-Mimecast-MFC-PROC-ID: pKuN-SagtncPEwxubv7ABfHA0cHcPPROSxDqHOPOo9Y_1766324576
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, Dec 18, 2025 at 08:51:41PM +0100, Harald Mommer wrote:
-> Hello,
+On Fri, Dec 19, 2025 at 12:03:29PM +0700, Bui Quang Minh wrote:
+> On 12/17/25 09:58, Jason Wang wrote:
+> > On Wed, Dec 17, 2025 at 12:23 AM Bui Quang Minh
+> > <minhquangbui99@gmail.com> wrote:
+> > > On 12/16/25 11:16, Jason Wang wrote:
+> > > > On Fri, Dec 12, 2025 at 11:28 PM Bui Quang Minh
+> > > > <minhquangbui99@gmail.com> wrote:
+> > > > > Calling napi_disable() on an already disabled napi can cause the
+> > > > > deadlock. In commit 4bc12818b363 ("virtio-net: disable delayed refill
+> > > > > when pausing rx"), to avoid the deadlock, when pausing the RX in
+> > > > > virtnet_rx_pause[_all](), we disable and cancel the delayed refill work.
+> > > > > However, in the virtnet_rx_resume_all(), we enable the delayed refill
+> > > > > work too early before enabling all the receive queue napis.
+> > > > > 
+> > > > > The deadlock can be reproduced by running
+> > > > > selftests/drivers/net/hw/xsk_reconfig.py with multiqueue virtio-net
+> > > > > device and inserting a cond_resched() inside the for loop in
+> > > > > virtnet_rx_resume_all() to increase the success rate. Because the worker
+> > > > > processing the delayed refilled work runs on the same CPU as
+> > > > > virtnet_rx_resume_all(), a reschedule is needed to cause the deadlock.
+> > > > > In real scenario, the contention on netdev_lock can cause the
+> > > > > reschedule.
+> > > > > 
+> > > > > This fixes the deadlock by ensuring all receive queue's napis are
+> > > > > enabled before we enable the delayed refill work in
+> > > > > virtnet_rx_resume_all() and virtnet_open().
+> > > > > 
+> > > > > Fixes: 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
+> > > > > Reported-by: Paolo Abeni <pabeni@redhat.com>
+> > > > > Closes: https://netdev-ctrl.bots.linux.dev/logs/vmksft/drv-hw-dbg/results/400961/3-xdp-py/stderr
+> > > > > Cc: stable@vger.kernel.org
+> > > > > Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> > > > > ---
+> > > > > Changes in v2:
+> > > > > - Move try_fill_recv() before rx napi_enable()
+> > > > > - Link to v1: https://lore.kernel.org/netdev/20251208153419.18196-1-minhquangbui99@gmail.com/
+> > > > > ---
+> > > > >    drivers/net/virtio_net.c | 71 +++++++++++++++++++++++++---------------
+> > > > >    1 file changed, 45 insertions(+), 26 deletions(-)
+> > > > > 
+> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > > index 8e04adb57f52..4e08880a9467 100644
+> > > > > --- a/drivers/net/virtio_net.c
+> > > > > +++ b/drivers/net/virtio_net.c
+> > > > > @@ -3214,21 +3214,31 @@ static void virtnet_update_settings(struct virtnet_info *vi)
+> > > > >    static int virtnet_open(struct net_device *dev)
+> > > > >    {
+> > > > >           struct virtnet_info *vi = netdev_priv(dev);
+> > > > > +       bool schedule_refill = false;
+> > > > >           int i, err;
+> > > > > 
+> > > > > -       enable_delayed_refill(vi);
+> > > > > -
+> > > > > +       /* - We must call try_fill_recv before enabling napi of the same receive
+> > > > > +        * queue so that it doesn't race with the call in virtnet_receive.
+> > > > > +        * - We must enable and schedule delayed refill work only when we have
+> > > > > +        * enabled all the receive queue's napi. Otherwise, in refill_work, we
+> > > > > +        * have a deadlock when calling napi_disable on an already disabled
+> > > > > +        * napi.
+> > > > > +        */
+> > > > >           for (i = 0; i < vi->max_queue_pairs; i++) {
+> > > > >                   if (i < vi->curr_queue_pairs)
+> > > > >                           /* Make sure we have some buffers: if oom use wq. */
+> > > > >                           if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+> > > > > -                               schedule_delayed_work(&vi->refill, 0);
+> > > > > +                               schedule_refill = true;
+> > > > > 
+> > > > >                   err = virtnet_enable_queue_pair(vi, i);
+> > > > >                   if (err < 0)
+> > > > >                           goto err_enable_qp;
+> > > > >           }
+> > > > So NAPI could be scheduled and it may want to refill but since refill
+> > > > is not enabled, there would be no refill work.
+> > > > 
+> > > > Is this a problem?
+> > > You are right. It is indeed a problem.
+> > > 
+> > > I think we can unconditionally schedule the delayed refill after
+> > > enabling all the RX NAPIs (don't check the boolean schedule_refill
+> > > anymore) to ensure that we will have refill work. We can still keep the
+> > > try_fill_recv here to fill the receive buffer earlier in normal case.
+> > > What do you think?
+> > Or we can have a reill_pending
 > 
-> On 12/14/25 16:25, Francesco Valla wrote:
+> Okay, let me implement this in the next version.
 > 
-> >>>> +/* Compare with m_can.c/m_can_echo_tx_event() */
+> > but basically I think we need something
+> > that is much more simple. That is, using a per rq work instead of a
+> > global one?
 > 
-> For the question whether some comments were originally more personal notes: Yes!
+> I think we can leave this in a net-next patch later.
 > 
-> This applies especially for the ones which state in which already accepted driver(s) was looked to get an idea how things may be expected to be done. Most of those comments should have served their purpose now.
-> 
-> >>>> +static int virtio_can_read_tx_queue(struct virtqueue *vq)
-> >>>> +{
-> >>>> +	struct virtio_can_priv *can_priv = vq->vdev->priv;
-> >>>> +	struct net_device *dev = can_priv->dev;
-> >>>> +	struct virtio_can_tx *can_tx_msg;
-> >>>> +	struct net_device_stats *stats;
-> >>>> +	unsigned long flags;
-> >>>> +	unsigned int len;
-> >>>> +	u8 result;
-> >>>> +
-> >>>> +	stats = &dev->stats;
-> >>>> +
-> >>>> +	/* Protect list and virtio queue operations */
-> >>>> +	spin_lock_irqsave(&can_priv->tx_lock, flags);
-> >>>
-> >>> The section below seems a pretty big one to protect behind a spin lock. 
-> >>>
-> >>
-> >> How can I split it? 
-> >>
-> > 
-> > Question here is: what needs to be protected? As far as I can tell, the
-> > only entity needing some kind of locking here is the queue, while both
-> > ida_* and tx_inflight operations are already covered (the former by
-> > design [1], the second because it's implemented using an atomic.
-> > 
-> > If I'm not wrong (but I might be, so please double check) this can be
-> > limited to:
-> > 
-> > 	/* Protect queue operations */
-> > 	scoped_guard(spinlock_irqsave, &priv->tx_lock)
-> > 		err = virtqueue_add_sgs(vq, sgs, 1u, 1u, can_tx_msg, GFP_ATOMIC);
-> > 
-> > 
-> > Maybe the whole locking pattern is a leftover from a previous version, 
-> > where a list of TX messages was kept?
-> 
-> 1.) There is virtqueue_get_buf() => virtqueue_get_buf_ctx() and there is a comment 
-> " * Caller must ensure we don't call this with other virtqueue
->   * operations at the same time (except where noted)."
-> 
-> Are we safe when at the same time in virtio_can_start_xmit() a queue operation is done in parallel?
-> Locking may or may not be necessary here. I cannot tell in this moment.
+> Thanks,
+> Quang Minh
 
-you need a way to make sure add buf and get buf do not run
-in parallel. virtio does not provide this protection itself.
-up to the caller.
+i am not sure per rq is not simpler than this pile of tricks.
 
-> 
-> 2.) There was once a "list_del(&can_tx_msg->list);" in the code here. 
-> 
-> When in virtio_can_start_xmit() at the same time a list_add_tail() or a list_del() would have been executed we had a garbled linked list.
-> 
-> The linked list now does not exist any more in the newer code base.
-> 
-> => could be that the lock is not needed any more at all
-> => could be that we have to protect only the queue operations now and this would shorten the locking time and simplify the code
-> 
-> >>>> +
-> >>>> +	can_tx_msg = virtqueue_get_buf(vq, &len);
-> >>>> +	if (!can_tx_msg) {
-> >>>> +		spin_unlock_irqrestore(&can_priv->tx_lock, flags);
-> >>>> +		return 0; /* No more data */
-> >>>> +	}
-> >>>> +
-> >>>> +	if (unlikely(len < sizeof(struct virtio_can_tx_in))) {
-> >>>> +		netdev_err(dev, "TX ACK: Device sent no result code\n");
-> >>>> +		result = VIRTIO_CAN_RESULT_NOT_OK; /* Keep things going */
-> >>>> +	} else {
-> >>>> +		result = can_tx_msg->tx_in.result;
-> >>>> +	}
-> >>>> +
+
 > > 
-> > (snip)
+> > Thanks
 > > 
-> 
-> >>>> +	if (!priv->rpkt) {
-> >>>> +		virtio_can_del_vq(vdev);
-> >>>> +		goto on_failure;
-> >>>> +	}
-> >>>> +	virtio_can_populate_rx_vq(vdev);
-> >>>> +
-> >>>> +	err = register_virtio_can_dev(dev);
-> >>>> +	if (err) {
-> >>>> +		virtio_can_del_vq(vdev);
-> >>>> +		goto on_failure;
-> >>>> +	}
-> >>>> +
-> >>>> +	napi_enable(&priv->napi);
-> >>>> +	napi_enable(&priv->napi_tx);
-> >>>
-> >>> Most of the existing drivers enable the napi(s) during the open() phase,
-> >>> IIUC to avoid scheduling napi operations for devices that might never
-> >>> get used. But here maybe there is a specific reason to do it this way?
-> >>>
-> >>
-> >> I do not have idea. I moved to open() and something stopped to work. I
-> >> am investigating it.
-> >>
-> > 
-> > On a second thought, it may be wiser to have the napis enabled on probe,
-> > to drop the incoming messages even when the interface is brought down.
-> 
-> It's a while since then but I wanted to drop messages not having lurking a 3 hours old cooling water temperature in some virtio message buffer being misinterpreted as an actual value. May have the disadvantage to cause load when the driver is not open-ed. But I see you also thought about 3 hours old outdated values now which may cause trouble.
-> 
-> > 
-> > (last snip)
-> > 
-> > 
-> > While stress testing this, I noticed that flooding the virtio-can
-> > interface with packets leads to an hang of the interface itself.
-> > I am seeing this issuing, at host side:
-> > 
-> > 	while true; do cansend can0 123#00; done
-> > 
-> > with:
-> > 
-> >  - QEMU: the tip of the master branch plus [2]
-> >  - vhost-device: the tip of the main branch
-> > 
-> > and the following QEMU invocation:
-> > 
-> > qemu-system-x86_64 -serial mon:stdio \
-> >     -m 2G -smp 2 \
-> >     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
-> >     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
-> >     -append "loglevel=7 console=ttyS0" \
-> >     -machine memory-backend=pc.ram \
-> >     -object memory-backend-file,id=pc.ram,size=2G,mem-path=/tmp/pc.ram,share=on \
-> >     -chardev socket,id=can0,path=/tmp/sock-can0 \
-> >     -device vhost-user-can-pci,chardev=can0
-> 
-> I had this problem when I enabled the experimental feature late TX ACK on the device side instead of immediately sending the TX ack early even when the CAN message had not yet been transmitted on the (physical) bus. In this case I relied that no ACK message (own sent message received) was lost otherwise I ran out of messages in the transmit queue everything waiting until doomsday for ACKs which would never come.
-> 
-> The problem was that somewhere in the Linux stack those acknowledgements got lost under heavy load on the device side. Workaround was to ack the TX message early (means putting the message immediately back into the used queue when received) in the virtio device. But this is a device thing, the device MUST put back ALL messages back into the used queue not forgetting about some under whatever circumstances otherwise the avail queue will get empty forever.
-> 
-> Besides that I could do what I want stressing the code and it did not stop. But this code was different from what I see now, and the testing environment was also a different one. 
-> 
-> > Restarting the interface (i.e.: ip link set down and the up) does not
-> > fix the situation.
-> > 
-> > I'll try to do some more testing during the next days.
-> Other than fixing the swapped feature flag values for the next release internally I've had not yet the chance to look deeply into all those changes and really to think about them in depth.
-> 
+> > > > 
+> > > > > +       enable_delayed_refill(vi);
+> > > > > +       if (schedule_refill)
+> > > > > +               schedule_delayed_work(&vi->refill, 0);
+> > > > > +
+> > > > >           if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+> > > > >                   if (vi->status & VIRTIO_NET_S_LINK_UP)
+> > > > >                           netif_carrier_on(vi->dev);
+> > > > > @@ -3463,39 +3473,48 @@ static void virtnet_rx_pause(struct virtnet_info *vi, struct receive_queue *rq)
+> > > > >           __virtnet_rx_pause(vi, rq);
+> > > > >    }
+> > > > > 
+> > > > Thanks
+> > > > 
+> > > Thanks,
+> > > Quang Minh.
+> > > 
 
