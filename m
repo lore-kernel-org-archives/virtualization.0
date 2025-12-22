@@ -1,96 +1,130 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-a1-smtp.messagingengine.com (fhigh-a1-smtp.messagingengine.com [103.168.172.152])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34A122FD69E
-	for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 16:06:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA8D233065E
+	for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 16:13:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766419563; cv=none; b=NtPzd63CGTAFoN0hpg/7MjQhiwma1yRW76ISBC23mcVdOBcp6wIDnsx0XaHmTUU5z7ZNZQWQFrXZBDMlzxs8z1TSoVF2F+rA/tn5l++4mo4vKqo3XXp8lTo7reUJTGgl3xIzuvItDQGPZBYd36/8AqrQ1ldgbPdUgtOXjPscWUQ=
+	t=1766419999; cv=none; b=mC+6hzcs4pzM6M5s0OyuGbrHnMVg86EqVIdCPhkqP1k13zbEjuGeKJ1BCiTTEtPNvAQHz/ifNxpomPYeD4LB02H0hHpIKGEs+u7AeoygLfcLzy4gE6tGan1juGXWJhWERsMGnCm7Di4q46lBWa+X1VaiofpXvo1gAur1xIEbJU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766419563; c=relaxed/simple;
-	bh=9GSybY9zlgbwOL3N6pn11FM5FIhBxpAoCP7ajx3LDk8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=f8tGDeZDwWnPEtAO41StjkH2ZDza0KO3vtsah3WjjN7KooiOHoRlgY5C7oxZWBNAz518drNNbGuX7A5IrPWhizkloCOI+VP3fN6bDg+eUU3QBI0zAtuiKCGEc4unHwZperwDS3ZOYLj3P5ZUFdjl/jfHON3AXupm4Fk5UYsAboc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com; spf=pass smtp.mailfrom=isovalent.com; dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b=cTyUmnAR; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isovalent.com
+	s=arc-20240116; t=1766419999; c=relaxed/simple;
+	bh=XVYNXdfTSlv3B1+X3osl8zOBQWgFt1T2EeiVSdDxiFE=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=RSwfjxhOthouAWbzTOi5okJfwIxtgHIPVchVlJ7CJ7P80nPFDnbuVLjeqYfL50deaR561/8o+3/lCs0lSu3cwIKm0Ymd5p3kWNq8opqGYzFLqnPHPFbVshS8GPpjD7NXsCyo6eCEq8qI2mniGlQB3XmbgRolCaxOEQW1jj4cZlE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=xJZoY7l3; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=BlYrnsNq; arc=none smtp.client-ip=103.168.172.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b="cTyUmnAR"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-477b5e0323bso26405525e9.0
-        for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 08:06:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=isovalent.com; s=google; t=1766419559; x=1767024359; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9GSybY9zlgbwOL3N6pn11FM5FIhBxpAoCP7ajx3LDk8=;
-        b=cTyUmnARIRCTwD4LfDUT6SE2n4d+2EnHAGVExQanQ0L6q3l8OkGfnTKG+eAw0EK9R3
-         V7meZY05xJdX7JaGUncCifGC4E2mqyI4XDvjH2R3VP28re4lgDFaWc5+0DSPcpFBX35p
-         SSEYdnHBnh92Cmh82PVnhh1wPNxCmOFXmexJysqGHpRfX8GNTmtmkVuPkH3OzWWiIdfw
-         wlPwcxV5VDnNywXpZXh/VOdIuFMHEfDzPNoGLZ+RCASULsBNMIO3WHh8fpQRcYt4/c0a
-         vI/aDg1K0FmshLelmgStz4if6MrCb3FNIiuHCSlW4n22v/rQAEkxc9K1+YkOdybozqyd
-         WaVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766419559; x=1767024359;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=9GSybY9zlgbwOL3N6pn11FM5FIhBxpAoCP7ajx3LDk8=;
-        b=VwMT6/hlyQAcHYj1uT1vLkZ79RVSlfDD4Fpv7Nf/ZAwPt1JXYk0LjiUCur9os8PISP
-         P56f0HI7HEM0cFQ5eznQo4BdoNpATbyjIqpd7CouYjo7ohHPgeyekLMjmSGPl/ywy8Mf
-         XTAKfu3aaIe8XrQsfUhiVLBRF4ciEhrPqGUqcwYm4NQ5iKdrkczY0+a7KJJNKMoprOdE
-         TWBfCK3dxzdoI7w1hYo2p9AxSXz6wr/kKWlP7XFPgAHJKvvChEjQIH4Ju9d6eVEXYjF7
-         77nU4tTj4+oz/m+74pl6vjQSz9PGXs4jP/trOXxXobd5Ux+bglY2xVWRiiPdAkggOG3H
-         9a/g==
-X-Forwarded-Encrypted: i=1; AJvYcCUInkcP3C1eWyIrv5Vl9mIvrX8SRLChYOCNEQajP66XcvrfB3T06vXccyzj0gjNLeZWEJKTpaTX/8Tr+dTvRw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxi7jXAfcBMe3O9lkynTAjg+kG3YVxY4FRnuxidvMSNPNA/hqDr
-	VrNOnX7TbyWIsQqcAsJGYQhSt5in2YPPC9BYt0+JaGfgsHMZXKJoCq1MTmkAx3BCfk3LGbAXRxS
-	8QJF/OuH+uhsd21TqftA4EhDCl99gSEsi76x4lTMwCg==
-X-Gm-Gg: AY/fxX67JX+zFD4c4l7ya84mEVMV6o/yUJEARTj96gjMpyJJR3kYbdyNDJnK+d2sNE5
-	yNOwxxYf3lS9bxbRX0+UQ8Uv+LWXmAmOOdgkX1d/d3NvdUBHdP2Zowp51ZSn14eNCHpSgT8TZsY
-	axwXkn6Sc3wI8dsDeytfzaKGR85ZJ1PYljcq7ntF5mkkYdT6H4HLcWT0bGNr7ymrDSFJNDiPqHm
-	OJ1vO/TJg7Zsd/QP61xTNe+Ablt9SfAsZisplJlp7BEomgdLOvw3Cn65wPpquBqsR5f8N+gS3NM
-	df3EoSPWvb49vcKadZQwvFvigTxdQnLVU/kO
-X-Google-Smtp-Source: AGHT+IF85Jpy061efGYrFXdwEVD75nuvaquwiFbOkB8x+e/DL8d0oZJ8a+QFPrbIG+XdyRl1LA1C2FguSGaSOO7bUyA=
-X-Received: by 2002:a05:6000:2385:b0:430:fae3:c833 with SMTP id
- ffacd0b85a97d-432447a27femr16821050f8f.7.1766419559533; Mon, 22 Dec 2025
- 08:05:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="xJZoY7l3";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="BlYrnsNq"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id DBE79140007C;
+	Mon, 22 Dec 2025 11:13:15 -0500 (EST)
+Received: from phl-imap-17 ([10.202.2.105])
+  by phl-compute-04.internal (MEProxy); Mon, 22 Dec 2025 11:13:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1766419995;
+	 x=1766506395; bh=yexxgvfeOqlU4iFlVrzT6HWMfGk+5xWNhXAHteFFPuw=; b=
+	xJZoY7l3FIynRUCZOfwW6/jyl+44DnO+tY1vQ/UMFNIVx+ukVxRS3q1ekn1V0CEP
+	3y8n7gOeJFLnAydv03Nq+obzAow5hAEMrXJuwc6/hmFlmtOOTLxjGsqsOjkPnWty
+	HODgPMvqrP/vY78Wzui+PHEqEMMCNqJH3QPIFvYR99t0g3OIj3t6ec5K4LJw/WWo
+	8pluee+p2yRiEztVqgGlLvIuu28YsnYY8pesAL3ZzaYBFHAg+Lcpf5mCOqeHZc/m
+	EcGxDKmkwKZiHRQtAVcyAitsfz5O6PNQd+Q3veQ724gnryuCN5vnhnTNKL03q5wQ
+	AQGDlZF3A9zzAPPFxwohbQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1766419995; x=
+	1766506395; bh=yexxgvfeOqlU4iFlVrzT6HWMfGk+5xWNhXAHteFFPuw=; b=B
+	lYrnsNq1uoH7TN3MoX53hVwJgA+4PjMiTJRX4h97f9c1fgzWLzFhkqhiWybvrJTR
+	ocUxd0kCKALBo/zlp+IVyBbUlI0X6fdCQS2c71CMmEx2wiLrnoUWbCr2FacgZkKs
+	o4JA6STGxkZuqUzo5ckAeJf4pKPgcCx/1VCQicW76FPmO/SMMUQnJ9AohqcYNeUo
+	V8IehVRRCB3RLGx8RR6kq/u2I1n1MpMYZb4AaeWIyyM5NzuZA7bD3wU3t2JL0rdu
+	mpo4dPuzRGc0TYD1hTrJZavqeraQj9m8uYsFNp8Ve9U3Gl5ivnlJu5f3X+YW5VQv
+	8RAB1PFyu6MJvzytr+MYw==
+X-ME-Sender: <xms:G25JaX1NgeWtzD6HFUVL-l8aSTR-EL7Db6BP9sutr7Z3YfcGw0LJfg>
+    <xme:G25JaQ4gd5SBUbFLzer7hQ2njbwBRj9Qako16qm2XOge_UH7e5c7c0Ptw7BfNzpsc
+    hDbWrRSukUrEzlz2fAe4Gs_FBh3WrhMSDCLqZ32eNJ_7Qq4XYVOrw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdehjeeflecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpefoggffhffvvefkjghfufgtgfesthejredtredttdenucfhrhhomhepfdetrhhnugcu
+    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
+    hnpefhtdfhvddtfeehudekteeggffghfejgeegteefgffgvedugeduveelvdekhfdvieen
+    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnug
+    esrghrnhgusgdruggvpdhnsggprhgtphhtthhopeeipdhmohguvgepshhmthhpohhuthdp
+    rhgtphhtthhopehlmhgssehishhovhgrlhgvnhhtrdgtohhmpdhrtghpthhtoheprghmih
+    htsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehgrhgvghhkhheslhhinhhugihfohhu
+    nhgurghtihhonhdrohhrghdprhgtphhtthhopehvihhrthhurghlihiirghtihhonheslh
+    hishhtshdrlhhinhhugidruggvvhdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhes
+    vhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrd
+    hkvghrnhgvlhdrohhrgh
+X-ME-Proxy: <xmx:G25JafYvTlm6QSTpsfRekjA4TpZFd-JfXKeRNj893C52-qqo6RU-cA>
+    <xmx:G25JaQp0986_9p_yqdW34ozm5LiQNaRCRgd3vxhbGXgGbtbi3-N_AA>
+    <xmx:G25JaUNAGQLZhlsknJ2YuambLnTkGpY1qfPLwTC2y6KJ4JEs1zhSMg>
+    <xmx:G25Jabr873qQ4RBB8NbmPuBOZ7m3Z6aYJKJG8-sSvhoslQDnmHHg5Q>
+    <xmx:G25JaYgaSXOyxKhlRqXPASuF63RyBj67poIPB5tHgFp2ijgEcmkHF-20>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 9178FC40054; Mon, 22 Dec 2025 11:13:15 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251215-virtio-console-lost-wakeup-v1-1-79a5c57815e7@isovalent.com>
- <568c03e9-b30d-4655-8771-f8995f5a4ed4@app.fastmail.com>
-In-Reply-To: <568c03e9-b30d-4655-8771-f8995f5a4ed4@app.fastmail.com>
-From: Lorenz Bauer <lmb@isovalent.com>
-Date: Mon, 22 Dec 2025 17:05:47 +0100
-X-Gm-Features: AQt7F2ouiK0yA5JohVYm-_FB_NaUn3PWwZidZ-lhlah2f1JA58OcO1oLH7qLzw8
-Message-ID: <CAN+4W8hrm8k9Jo9MDPRd_4-Ak80s3Avnjw5MNNkwPVai=iCP0A@mail.gmail.com>
-Subject: Re: [PATCH] virtio: console: fix lost wakeup when device is written
- and polled
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-ThreadId: Ag3Cik6rCkEF
+Date: Mon, 22 Dec 2025 17:12:55 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Lorenz Bauer" <lmb@isovalent.com>, "Amit Shah" <amit@kernel.org>,
+ "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+Message-Id: <abdeaef1-e6d4-43c3-b8c4-d5f0c645a169@app.fastmail.com>
+In-Reply-To: 
+ <20251222-virtio-console-lost-wakeup-v2-1-5de93cb3f1c1@isovalent.com>
+References: 
+ <20251222-virtio-console-lost-wakeup-v2-1-5de93cb3f1c1@isovalent.com>
+Subject: Re: [PATCH v2] virtio: console: fix lost wakeup when device is written and
+ polled
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Mon, Dec 15, 2025 at 11:49=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrot=
-e:
->
-> Is it always enough to wake up only one waiter? From your
-> description it sounds like it might need wake_up_interruptible_all()
-> instead, but I may be misunderstanding the issue.
+On Mon, Dec 22, 2025, at 17:04, Lorenz Bauer wrote:
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -971,10 +971,17 @@ static __poll_t port_fops_poll(struct file *filp, 
+> poll_table *wait)
+>  		return EPOLLHUP;
+>  	}
+>  	ret = 0;
+> -	if (!will_read_block(port))
+> +
+> +	spin_lock(&port->inbuf_lock);
+> +	if (port->inbuf)
 
-I did some digging into waitqueue semantics. AFAICT
-wake_up_interruptible() will wake all non-exclusive waiters, and up to
-one exclusive waiter. In our case all waiters are non-exclusive
-(ignoring epoll with EPOLLEXCLUSIVE).
+As far as I can tell, you got the interrupt flag handling wrong
+in both places: port_fops_poll() is called with interrupts
+enabled, so you have to use spin_lock_irq() to block the
+interrupt from hanging.
 
-I do believe there is a different way to fix this, which is a bit more
-elegant. I've sent a v2.
+> @@ -1705,6 +1713,10 @@ static void out_intr(struct virtqueue *vq)
+>  		return;
+>  	}
+> 
+> +	spin_lock_irqsave(&port->outvq_lock, flags);
+> +	reclaim_consumed_buffers(port);
+> +	spin_unlock_irqrestore(&port->outvq_lock, flags);
+> +
+>  	wake_up_interruptible(&port->waitqueue);
 
-Best
-Lorenz
+The callback seems to always be called with interrupts
+disabled(), so here it's safe to use spin_lock() instead
+of spin_lock_irqsave().
+
+     Arnd
