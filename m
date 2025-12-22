@@ -1,130 +1,119 @@
-Received: from fhigh-a1-smtp.messagingengine.com (fhigh-a1-smtp.messagingengine.com [103.168.172.152])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA8D233065E
-	for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 16:13:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5025E32E698
+	for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 16:24:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766419999; cv=none; b=mC+6hzcs4pzM6M5s0OyuGbrHnMVg86EqVIdCPhkqP1k13zbEjuGeKJ1BCiTTEtPNvAQHz/ifNxpomPYeD4LB02H0hHpIKGEs+u7AeoygLfcLzy4gE6tGan1juGXWJhWERsMGnCm7Di4q46lBWa+X1VaiofpXvo1gAur1xIEbJU4=
+	t=1766420655; cv=none; b=ryuUTiB1ZM8BHKQSshnoFqRur0zghFScI786jNnajN98eW1mVrCMvkEWJusmZJGPW6DHtbsmkvWVkzJwM3haZbmh2XM0VzkATMRDX3EUQEUeNsW0MaKiE8/NDM0qSlF/K4MykHVdH4scFR7zpDomo7lT4UpDzF3KCG19s+6aa50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766419999; c=relaxed/simple;
-	bh=XVYNXdfTSlv3B1+X3osl8zOBQWgFt1T2EeiVSdDxiFE=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=RSwfjxhOthouAWbzTOi5okJfwIxtgHIPVchVlJ7CJ7P80nPFDnbuVLjeqYfL50deaR561/8o+3/lCs0lSu3cwIKm0Ymd5p3kWNq8opqGYzFLqnPHPFbVshS8GPpjD7NXsCyo6eCEq8qI2mniGlQB3XmbgRolCaxOEQW1jj4cZlE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=xJZoY7l3; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=BlYrnsNq; arc=none smtp.client-ip=103.168.172.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1766420655; c=relaxed/simple;
+	bh=XVItW6gSKcVHQwKm0pZtptoh0/iOSe212L7bTsXr/iE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aHsI6PIDg2gpZbZH60irLBWhoiYvYxXoSddxNeGddwEHcyi85dHEKh9cHuVg/YzX57xjbRoJZv9FkZ50EKM7+r7COVihoczTATzgPdPTB7jfiWF0Xa9cVO36R/X3qT3iJfH1q5+1aNoStoUz7Vi5W36aViCcEq/s/hx54jNsbrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com; spf=pass smtp.mailfrom=isovalent.com; dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b=TxqT7jlu; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isovalent.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="xJZoY7l3";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="BlYrnsNq"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id DBE79140007C;
-	Mon, 22 Dec 2025 11:13:15 -0500 (EST)
-Received: from phl-imap-17 ([10.202.2.105])
-  by phl-compute-04.internal (MEProxy); Mon, 22 Dec 2025 11:13:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1766419995;
-	 x=1766506395; bh=yexxgvfeOqlU4iFlVrzT6HWMfGk+5xWNhXAHteFFPuw=; b=
-	xJZoY7l3FIynRUCZOfwW6/jyl+44DnO+tY1vQ/UMFNIVx+ukVxRS3q1ekn1V0CEP
-	3y8n7gOeJFLnAydv03Nq+obzAow5hAEMrXJuwc6/hmFlmtOOTLxjGsqsOjkPnWty
-	HODgPMvqrP/vY78Wzui+PHEqEMMCNqJH3QPIFvYR99t0g3OIj3t6ec5K4LJw/WWo
-	8pluee+p2yRiEztVqgGlLvIuu28YsnYY8pesAL3ZzaYBFHAg+Lcpf5mCOqeHZc/m
-	EcGxDKmkwKZiHRQtAVcyAitsfz5O6PNQd+Q3veQ724gnryuCN5vnhnTNKL03q5wQ
-	AQGDlZF3A9zzAPPFxwohbQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1766419995; x=
-	1766506395; bh=yexxgvfeOqlU4iFlVrzT6HWMfGk+5xWNhXAHteFFPuw=; b=B
-	lYrnsNq1uoH7TN3MoX53hVwJgA+4PjMiTJRX4h97f9c1fgzWLzFhkqhiWybvrJTR
-	ocUxd0kCKALBo/zlp+IVyBbUlI0X6fdCQS2c71CMmEx2wiLrnoUWbCr2FacgZkKs
-	o4JA6STGxkZuqUzo5ckAeJf4pKPgcCx/1VCQicW76FPmO/SMMUQnJ9AohqcYNeUo
-	V8IehVRRCB3RLGx8RR6kq/u2I1n1MpMYZb4AaeWIyyM5NzuZA7bD3wU3t2JL0rdu
-	mpo4dPuzRGc0TYD1hTrJZavqeraQj9m8uYsFNp8Ve9U3Gl5ivnlJu5f3X+YW5VQv
-	8RAB1PFyu6MJvzytr+MYw==
-X-ME-Sender: <xms:G25JaX1NgeWtzD6HFUVL-l8aSTR-EL7Db6BP9sutr7Z3YfcGw0LJfg>
-    <xme:G25JaQ4gd5SBUbFLzer7hQ2njbwBRj9Qako16qm2XOge_UH7e5c7c0Ptw7BfNzpsc
-    hDbWrRSukUrEzlz2fAe4Gs_FBh3WrhMSDCLqZ32eNJ_7Qq4XYVOrw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdehjeeflecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefoggffhffvvefkjghfufgtgfesthejredtredttdenucfhrhhomhepfdetrhhnugcu
-    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
-    hnpefhtdfhvddtfeehudekteeggffghfejgeegteefgffgvedugeduveelvdekhfdvieen
-    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnug
-    esrghrnhgusgdruggvpdhnsggprhgtphhtthhopeeipdhmohguvgepshhmthhpohhuthdp
-    rhgtphhtthhopehlmhgssehishhovhgrlhgvnhhtrdgtohhmpdhrtghpthhtoheprghmih
-    htsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehgrhgvghhkhheslhhinhhugihfohhu
-    nhgurghtihhonhdrohhrghdprhgtphhtthhopehvihhrthhurghlihiirghtihhonheslh
-    hishhtshdrlhhinhhugidruggvvhdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhes
-    vhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrd
-    hkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:G25JafYvTlm6QSTpsfRekjA4TpZFd-JfXKeRNj893C52-qqo6RU-cA>
-    <xmx:G25JaQp0986_9p_yqdW34ozm5LiQNaRCRgd3vxhbGXgGbtbi3-N_AA>
-    <xmx:G25JaUNAGQLZhlsknJ2YuambLnTkGpY1qfPLwTC2y6KJ4JEs1zhSMg>
-    <xmx:G25Jabr873qQ4RBB8NbmPuBOZ7m3Z6aYJKJG8-sSvhoslQDnmHHg5Q>
-    <xmx:G25JaYgaSXOyxKhlRqXPASuF63RyBj67poIPB5tHgFp2ijgEcmkHF-20>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 9178FC40054; Mon, 22 Dec 2025 11:13:15 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b="TxqT7jlu"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4779aa4f928so40039015e9.1
+        for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 08:24:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=isovalent.com; s=google; t=1766420652; x=1767025452; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DLjJfObP/K+oUunUOwA+6cGq02GgqBNfpHQK+UmjiP0=;
+        b=TxqT7jlu+Y1s4dNGQIWZ7/q++1sDj739NFL6Hzqoe5WUpH0h1Ip11W6JqHKD6XeZqj
+         VJTRDTsd7Py2wasMIx5/pnPwEGahp6sA1N1ECd1TgglytjpzMr8CrlqOre7YfcrgrQqL
+         bSkfxVp5DDahh689BjlCBDD1a/VDqrIe1Ui544tynOmVBeWcxZxwnoyFycuBIUnFAY99
+         snZbNmZQ0pj+Vbi8BNwCG8tqxz2erX8qWgRRpZ8W2elzbwgi/I5RpD+HZbgElE7c8mUI
+         mvfqeR2+lAL42u5IPdfr/Q34z/RqarMMS7cfvEzsua1y7R86B0UGZGFmz2NIjO/TNHtG
+         +qKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1766420652; x=1767025452;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=DLjJfObP/K+oUunUOwA+6cGq02GgqBNfpHQK+UmjiP0=;
+        b=GNzW9UWdWhkPnaHkmdkLf73QRaIiARRrYjsaCZexBaNNlc9uuuZPZjdxWRvK9fr/Xr
+         pMo7Hn8BfkDpDU5SCvS2CBjybWBi8W5Yp0Ep5PcE89kFCSNYiUucCsO6RYVCKYWJt5yo
+         XTTLOLNKVMbn5ZwKkrpfooaE3lFjctpxK7YbVBWZw91A5rUVWESfsAmWtVMH1ZuM4Qb4
+         f5hlCo1Po89ZKli8HU6o8ChHNVhlTP3mXkBfeXU9VNrfdBOj5Ltb53o/S8xqenKCvM2B
+         zU8DfefpbeGYKz52+dkDTuNj/1WtseEUjFSoGQYsaNIN6UOzrw6VqMmsRqJ1EnhJlSsC
+         gJMA==
+X-Forwarded-Encrypted: i=1; AJvYcCUTCv0P2dEYCakfWoRqnsFAIoPvqyS2oTJP002CLrn0mBxTsH9cfVeZWCZDbID0yakMuPj5NZQSAVcomVemOw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzg2rXlhv0x9G+Yphe7oCT1V1RMb4VX4s/XnhVI+pWB/5VbnDRH
+	frBgTDqqY3znn6Wtv0L1OgmmJbunCaQybmkeq7A/Yjce4L6DH0J6jDqmT2nWoxUfYp2VY6EQ/w5
+	wOHKH1dIfPpKIQfXW36WcpNZjc+kU1ypQhaELSDZbkA==
+X-Gm-Gg: AY/fxX7ZyeD7oNyvS/b/2IBVv7sJY/i0r3sWK9OnEe4ACuZovBxGrskFr4WDCtPWwkx
+	L8CwErZHr727XpfLrZ3rJHS1gw8IsOeguiLu+KmsxqluW9I57AK8bbRsUhYWUtj4tIxuJnWvlGT
+	EjkGzSfd8QWRV9xt1L0pqEXPO2EVyyOGUPpUaybxhut+Trm5xZE1GESN6UMIvbwG1Sp3WaShfRS
+	dzC+MXyQMWQgqKo4kZ8SWvpnyg6ncNpK/AqyH0eVGich30saIgyUJ8YT5Lql8NRbf3iY1gPzTHR
+	4vHVqAtIjgsDp5XusP/artN/usKwutscknZC
+X-Google-Smtp-Source: AGHT+IFW/UBY1GDGZy7+JOBpHniCxqKE76N35WUggR4qMT49RPhicXeZeNC8NVwnBV+j+R6YmNXQD2WuLXhh6A7dquM=
+X-Received: by 2002:a05:600c:620d:b0:479:1b0f:dfff with SMTP id
+ 5b1f17b1804b1-47d19549f5dmr114996105e9.10.1766420651686; Mon, 22 Dec 2025
+ 08:24:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-ThreadId: Ag3Cik6rCkEF
-Date: Mon, 22 Dec 2025 17:12:55 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Lorenz Bauer" <lmb@isovalent.com>, "Amit Shah" <amit@kernel.org>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-Message-Id: <abdeaef1-e6d4-43c3-b8c4-d5f0c645a169@app.fastmail.com>
-In-Reply-To: 
- <20251222-virtio-console-lost-wakeup-v2-1-5de93cb3f1c1@isovalent.com>
-References: 
- <20251222-virtio-console-lost-wakeup-v2-1-5de93cb3f1c1@isovalent.com>
-Subject: Re: [PATCH v2] virtio: console: fix lost wakeup when device is written and
- polled
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+References: <20251222-virtio-console-lost-wakeup-v2-1-5de93cb3f1c1@isovalent.com>
+ <abdeaef1-e6d4-43c3-b8c4-d5f0c645a169@app.fastmail.com>
+In-Reply-To: <abdeaef1-e6d4-43c3-b8c4-d5f0c645a169@app.fastmail.com>
+From: Lorenz Bauer <lmb@isovalent.com>
+Date: Mon, 22 Dec 2025 17:23:59 +0100
+X-Gm-Features: AQt7F2ru5QJkYpqy-M7Zh310tyr-FS5keGw6oQRiOhDRRgbfqq5wSsUhJLfU_As
+Message-ID: <CAN+4W8hAqVxbr040b_+Q-zF0Dv0utoj_UfwH+4LVk=Vx2TTFZA@mail.gmail.com>
+Subject: Re: [PATCH v2] virtio: console: fix lost wakeup when device is
+ written and polled
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 22, 2025, at 17:04, Lorenz Bauer wrote:
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -971,10 +971,17 @@ static __poll_t port_fops_poll(struct file *filp, 
-> poll_table *wait)
->  		return EPOLLHUP;
->  	}
->  	ret = 0;
-> -	if (!will_read_block(port))
-> +
-> +	spin_lock(&port->inbuf_lock);
-> +	if (port->inbuf)
+On Mon, Dec 22, 2025 at 5:13=E2=80=AFPM Arnd Bergmann <arnd@arndb.de> wrote=
+:
+>
+> On Mon, Dec 22, 2025, at 17:04, Lorenz Bauer wrote:
+> > --- a/drivers/char/virtio_console.c
+> > +++ b/drivers/char/virtio_console.c
+> > @@ -971,10 +971,17 @@ static __poll_t port_fops_poll(struct file *filp,
+> > poll_table *wait)
+> >               return EPOLLHUP;
+> >       }
+> >       ret =3D 0;
+> > -     if (!will_read_block(port))
+> > +
+> > +     spin_lock(&port->inbuf_lock);
+> > +     if (port->inbuf)
+>
+> As far as I can tell, you got the interrupt flag handling wrong
+> in both places: port_fops_poll() is called with interrupts
+> enabled, so you have to use spin_lock_irq() to block the
+> interrupt from hanging.
 
-As far as I can tell, you got the interrupt flag handling wrong
-in both places: port_fops_poll() is called with interrupts
-enabled, so you have to use spin_lock_irq() to block the
-interrupt from hanging.
+Ack.
 
-> @@ -1705,6 +1713,10 @@ static void out_intr(struct virtqueue *vq)
->  		return;
->  	}
-> 
-> +	spin_lock_irqsave(&port->outvq_lock, flags);
-> +	reclaim_consumed_buffers(port);
-> +	spin_unlock_irqrestore(&port->outvq_lock, flags);
-> +
->  	wake_up_interruptible(&port->waitqueue);
+> > @@ -1705,6 +1713,10 @@ static void out_intr(struct virtqueue *vq)
+> >               return;
+> >       }
+> >
+> > +     spin_lock_irqsave(&port->outvq_lock, flags);
+> > +     reclaim_consumed_buffers(port);
+> > +     spin_unlock_irqrestore(&port->outvq_lock, flags);
+> > +
+> >       wake_up_interruptible(&port->waitqueue);
+>
+> The callback seems to always be called with interrupts
+> disabled(), so here it's safe to use spin_lock() instead
+> of spin_lock_irqsave().
 
-The callback seems to always be called with interrupts
-disabled(), so here it's safe to use spin_lock() instead
-of spin_lock_irqsave().
-
-     Arnd
+This is pretty much just copied from in_intr which also uses _irqsave.
+I think it makes sense to stick to that for consistency's sake. What
+do you think?
