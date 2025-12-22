@@ -1,140 +1,107 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from fhigh-b2-smtp.messagingengine.com (fhigh-b2-smtp.messagingengine.com [202.12.124.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DE9C3161A1
-	for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 08:39:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A6181E9B37
+	for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 08:46:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766392762; cv=none; b=CQNgay1i2FZNKDkEhmg5U4PVcoZeK8SGUnnS7f/VH76ijU2PGGAag2cvIGoI4HEojSkLo6dtIlrUup9B3QCIalNY3N/GBikqXIZKSB2e3ie/Rps54VVOPMVL6n/nbkdfQtEfTAgCYZsHb6wf9RaJWxCQmXIsSeySXtdMtqg2AgE=
+	t=1766393209; cv=none; b=h+6Ekq0nMoWExJ1LFBXa9rVo7Fe+UothayN8iwaqyuGdm8swi3VGsralLIQRPvjBiWcQaspCPVgbQQ01q/5KNHclu/QMxh9mcjtm9DgBCrl4GKmcsAsWzQ+K2+zEIVmHuL9mZ83IkAzgETyeCnCH8fCMy9BapJxxvYvU1OnFapw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766392762; c=relaxed/simple;
-	bh=auSg26CfZlSSNZjKfr7BRpVNy+ZYjFMpxMGU641YRCw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=cKSBLFA13uPfiZkQLfYZXHYkctt/cdDjomVzGO6wIsCs/2DmUCA6fTmRbyf3KwpcFvgV3JdQhvX2a7eYfNVjzUDkNQKBcXVj8bKkQ6W/u10i1velR2iIbdwwzqkjL8CtrOf7UQLh0SLcJy8dY1zeMpV9WaZk+wkwuEQ/RtwCf34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Se2KeJ0K; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1766393209; c=relaxed/simple;
+	bh=Io8tBEpGdKSz6svy7jm/kVI4KXjLhnL84ZEb9zsaAa0=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=Vhl+JEjP4wLdVlqmBcsLBf+7f3ek9sScLXCZcS05Dw0d/393kAuYt5E/4xic+j+fj4oebf0QcZFZPT8ZXDf0nRR6bdj2awaskfVl+nd34KxYx4SHT4UYqdViilcY/Uoo3/xHUCBaFNxXDTxa0RVn2w9JFuofdc68Hi4nV6pyFf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=LzkqZZzj; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=tHPAD+Ez; arc=none smtp.client-ip=202.12.124.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Se2KeJ0K"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766392759;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=w8RM3/o6FB83AIG5gcDlEP7+b/8hOvjggWFz+DBBFz0=;
-	b=Se2KeJ0KlEOMYkVHEcgNzY4ctmMDAkq5NQFnR6xxzIxlckdkfAczt1NaZRSUqEQwWg5lPh
-	Y3Zhl5hIhuoVcxltbl5T9FCbIJMIhVxRFVX8Mbv7L8mrsfl6Pq0VtTjWz9m7c0++9VCaV+
-	gWaugJxcdd8csCflEBh1yijcsS0p9fU=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-562-ofZN9poAOaSZH8f-zugfKw-1; Mon, 22 Dec 2025 03:39:17 -0500
-X-MC-Unique: ofZN9poAOaSZH8f-zugfKw-1
-X-Mimecast-MFC-AGG-ID: ofZN9poAOaSZH8f-zugfKw_1766392756
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-430f5dcd4cdso2029472f8f.2
-        for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 00:39:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766392756; x=1766997556;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=w8RM3/o6FB83AIG5gcDlEP7+b/8hOvjggWFz+DBBFz0=;
-        b=XBAHAV8LtrP0jNKyN0j+u71a6/0yFcIfHpfDaTUxP8pntGRG6WPGt+iCWmY05pvw/b
-         OM9m1tLJHxiRpAkVuooojgzVsWhXo3U5HTExzQZ9ndF+hypVZvVYUix4j9HtDhN/rTVw
-         cXXOVcdT2ZVNQ80sG4w9jJCdtI23HPQeCJm2+tqYAta8dVpDRZNjEkLE0aE65Tdtsnlz
-         wRPvfeXdVx0CxvvP/6waIeSUpPdpxtHL1hqD6g+8HlyTSh0VoWLMJmIlCCEDBnJoPhg/
-         d1rA9w3Q8bOPYSPC2EiVuc8Aund+/PNHx+eMhOtsSaZ+oyMxKX98LBOJ2n0f9wlp+Hlb
-         1YJw==
-X-Forwarded-Encrypted: i=1; AJvYcCUHQc93XncHIHY0HYuqoqtHSwR+i5YljiEI0fRlNsJH49lfqUOHAeKBaT3y855mTco0XgeK+/OdeBeozMVa/w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwJr60ywINCURSf8pP6QY4GktEfb/PSsGcZ8m9Lj/rN3iLlI47h
-	R/rhM8dYF9ldp/t6yRnCIpzlyA++L2pKj2fx2a5YmE2SI4TD38RcjnKUyUck9pU2jyjPBnjw7tB
-	IAl6UeWQMUwPkDlJCQyzEvc2m5K9cTFusKQP44mHWf16bG2uMhnRu/q/Z8ZXPpjds+kv/
-X-Gm-Gg: AY/fxX5uC98XMH5JD1/MApGmFRpta5YRoaPVyMnmAd3iMSvTMzLYtobLaZHmmgliGta
-	ei39SKzR+B2PcTeagwgTEJJxt/E14eHPfpp1fdfuaSJYTMW4juQA7f1juuUQCkJV1vaSqHLo2+w
-	wFiAiICefuR6A1iJY4MUd9eQdPuPzRh00AWgB6200vnx6gOPoXWJg0inWq0T7C/os8dJZ/2dSH9
-	PMMx0kKqXhNWM1jAoiuQdwLU00ehKjKM3NYmYhpfP8ShuMJ1UVTPW0ClMZfykUhkWcYleW1FZ58
-	LFwhYk3b5HG3q2HgGpnWefUQ1c8EAt2F3ikkpONQMQ4WpNyUY1WFzuDMwZnN1wZaN9Enl7+GxpP
-	NSTiFcdrr5IWV4lj/4a0PUlKHovMfcPdUkA==
-X-Received: by 2002:a05:6000:2890:b0:431:808:2d60 with SMTP id ffacd0b85a97d-4324e4c23a1mr13773027f8f.12.1766392756247;
-        Mon, 22 Dec 2025 00:39:16 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH6FHBNL3fzb6KVVsr/bjJemsrbUHJXfzvwJ73EdVuGDT3KdKweVrjghaZ5OFlDaxm+wufJqg==
-X-Received: by 2002:a05:6000:2890:b0:431:808:2d60 with SMTP id ffacd0b85a97d-4324e4c23a1mr13772986f8f.12.1766392755718;
-        Mon, 22 Dec 2025 00:39:15 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324ea1af20sm19528873f8f.2.2025.12.22.00.39.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Dec 2025 00:39:15 -0800 (PST)
-Date: Mon, 22 Dec 2025 03:39:12 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] virtio: uapi: avoid usage of libc types
-Message-ID: <20251222033807-mutt-send-email-mst@kernel.org>
-References: <20251222-uapi-virtio-v1-1-29390f87bcad@linutronix.de>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="LzkqZZzj";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="tHPAD+Ez"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 4013A7A009F;
+	Mon, 22 Dec 2025 03:46:46 -0500 (EST)
+Received: from phl-imap-17 ([10.202.2.105])
+  by phl-compute-04.internal (MEProxy); Mon, 22 Dec 2025 03:46:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1766393206;
+	 x=1766479606; bh=Io8tBEpGdKSz6svy7jm/kVI4KXjLhnL84ZEb9zsaAa0=; b=
+	LzkqZZzjjTkns+PNoxtxe1nRdBV1aplZEpbTua6x1GbFwzAIdCm8yRm3j7kGJxyt
+	ZSr4cYXz3u0cK4D5Ur2hArMVvJFywNn/iHSftVjZOsGSCG7Uyak29ekIl4ZwEwH3
+	BTVPSNc4ZZyGLlo/CUG9UkgnBEZqrDxMqqvL42JjSUQT3ae7GHhx5UEGSCjcaxrc
+	8nlIxcCnUP7L3j6AANd0KxSPpKNXLauCdkAQCbDjppbwUNtV/JxJnBUENfsoI7zv
+	dS/sDekSn/rOXDAlJvm3+rkvQXzelqGPCfisxRysld/X4nSMC+2fBEhR9n6zrOVg
+	cdr+wepUsAsY1dDoqcW9Pw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1766393206; x=
+	1766479606; bh=Io8tBEpGdKSz6svy7jm/kVI4KXjLhnL84ZEb9zsaAa0=; b=t
+	HPAD+EzRt0X0JWRLhNqgI8onRyvUQnj5QEUuZJpIrfEPmYEeeHkbUh5/+m0zxw1c
+	iVviDrq3RQHXJoGOry07Q26mbOw+8EDm8wIubt8/i9/h4xS5/b0dmFdRgXMIaDSK
+	U6c421ebNsPFI2p/sDkIphIZ+uwiCezgwEplZc3VnJ8syMvHKzmKCyPRzms8A7uJ
+	ycRp8CwhGP8vWQOUKV+gVPOv7Pm6/VkpE/mDd/ClJq5RZ9GMIq8qQlgmmfSqrh20
+	1gfSbIId5V5uBIPJHkAERLIOA2WQkeq/neXi/gfulucgr7szpL9APkiGjdn1Xeqc
+	hPWr8tLeiuwW2HTH7EIUQ==
+X-ME-Sender: <xms:dQVJaepdwbxuHgVUfVjPVk7RMVgPiiS9w1sZ6dPvv24N6C11icF1ow>
+    <xme:dQVJaXcM_HPN11vZx9Hu9j6mmiQ6EkXEB7UXpqT_YOHaGHk3MuIKnGivd0DWYDaEa
+    330_r2Q6uTHjFv4XQ9v8RxaiE3yF1hx2AFoFYdxHAcLJNKgbnkTCQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdehieehtdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpefoggffhffvvefkjghfufgtgfesthhqredtredtjeenucfhrhhomhepfdetrhhnugcu
+    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
+    hnpedvhfdvkeeuudevfffftefgvdevfedvleehvddvgeejvdefhedtgeegveehfeeljeen
+    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnug
+    esrghrnhgusgdruggvpdhnsggprhgtphhtthhopeejpdhmohguvgepshhmthhpohhuthdp
+    rhgtphhtthhopehthhhomhgrshdrfigvihhsshhstghhuhhhsehlihhnuhhtrhhonhhigi
+    druggvpdhrtghpthhtohepgihurghniihhuhhosehlihhnuhigrdgrlhhisggrsggrrdgt
+    ohhmpdhrtghpthhtohepvhhirhhtuhgrlhhiiigrthhiohhnsehlihhsthhsrdhlihhnuh
+    igrdguvghvpdhrtghpthhtohepvghpvghrvgiimhgrsehrvgguhhgrthdrtghomhdprhgt
+    phhtthhopehjrghsohifrghnghesrhgvughhrghtrdgtohhmpdhrtghpthhtohepmhhsth
+    esrhgvughhrghtrdgtohhmpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgv
+    rhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:dQVJaZsVDSP9IBBx1Icj_3IZyQeG59ICxwPEkITlUJT4ExaKkaEpFw>
+    <xmx:dQVJaRhwSJG4LIEQJ8bJgn4Jup6xOSC_cnRF1DWljpXwQbuWaGJFFg>
+    <xmx:dQVJaS8IOqpVeEQca2GMKkORP4kZii9zlqRaUeJagHDrx84kZhQ6kA>
+    <xmx:dQVJacvTTGCatFEKwyiX_M1j-lHL_z9NizIFqnTYgvr9pGLuoGvKBQ>
+    <xmx:dgVJaZtmM1OK1SZBvuXtvUL4-AkIE4gxRl78qDz8zgqrp7zxMOVLvznW>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 3C53EC40054; Mon, 22 Dec 2025 03:46:45 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-ThreadId: A5qS1Z43B0Sg
+Date: Mon, 22 Dec 2025 09:46:14 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+ "Michael S. Tsirkin" <mst@redhat.com>, "Jason Wang" <jasowang@redhat.com>,
+ "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Message-Id: <24d6eb84-acce-4316-a650-52e30cb3f5f1@app.fastmail.com>
 In-Reply-To: <20251222-uapi-virtio-v1-1-29390f87bcad@linutronix.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 7_GBK8hplO1qN2e2ynCfL2qaF_l1GLYrUCDojUY_FRo_1766392756
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+References: <20251222-uapi-virtio-v1-1-29390f87bcad@linutronix.de>
+Subject: Re: [PATCH] virtio: uapi: avoid usage of libc types
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 22, 2025 at 09:00:33AM +0100, Thomas Weiﬂschuh wrote:
+On Mon, Dec 22, 2025, at 09:00, Thomas Wei=C3=9Fschuh wrote:
 > Using libc types and headers from the UAPI headers is problematic as it
 > introduces a dependency on a full C toolchain.
-> 
-> On Linux 'unsigned long' works as a replacement for 'uintptr_t' and does
+>
+> On Linux 'unsigned long' works as a replacement for 'uintptr_t' and do=
+es
 > not depend on libc.
-> 
-> Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
+>
+> Signed-off-by: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
 
-
-are you fixing other uses of uintptr_t ?
-
-> ---
->  include/uapi/linux/virtio_ring.h | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
-> 
-> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-> index f8c20d3de8da..3c478582a3c2 100644
-> --- a/include/uapi/linux/virtio_ring.h
-> +++ b/include/uapi/linux/virtio_ring.h
-> @@ -31,9 +31,6 @@
->   * SUCH DAMAGE.
->   *
->   * Copyright Rusty Russell IBM Corporation 2007. */
-> -#ifndef __KERNEL__
-> -#include <stdint.h>
-> -#endif
->  #include <linux/types.h>
->  #include <linux/virtio_types.h>
->  
-> @@ -202,7 +199,7 @@ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
->  	vr->num = num;
->  	vr->desc = p;
->  	vr->avail = (struct vring_avail *)((char *)p + num * sizeof(struct vring_desc));
-> -	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
-> +	vr->used = (void *)(((unsigned long)&vr->avail->ring[num] + sizeof(__virtio16)
->  		+ align-1) & ~(align - 1));
->  }
->  
-> 
-> ---
-> base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
-> change-id: 20251222-uapi-virtio-d208b915ca1d
-> 
-> Best regards,
-> -- 
-> Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
-
+Acked-by: Arnd Bergmann <arnd@arndb.de>
