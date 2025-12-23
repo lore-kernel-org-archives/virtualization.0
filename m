@@ -1,44 +1,44 @@
 Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB807311589
-	for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 11:10:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F7FAF507;
+	Tue, 23 Dec 2025 11:10:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766488204; cv=none; b=koDNEjrucTLbBA+0gwbuRblV3cIed0/OvXKYqqCeeUbhnpiDT6PwAlbHCxL79GbuhcPrF3FYztHzcLs3AnSZBXTUQtwmjmJy5oLbT6HGLYLj+EawIFxJvaX+1dlYEszwVBcbOP/zL/aipRsdYGGT4sNUK0itRLKkwHvNYzgvY2g=
+	t=1766488244; cv=none; b=rUwMW1P8iRhIio9Ue2lo0vrIXMP4wJNaJ35Z5J2+kx1RrjhzSpteh7o1XBm4x9EQrzl+YC6gEukCVaiPeB6gJLUptFYkY0UsaK0xWDBr2H2ixKhVHnp7ruak1ibp3hR7FioR5h+5mxkDVAEs9jXnTOjFq9p3OCnZBRREJi23Y6c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766488204; c=relaxed/simple;
-	bh=DCzJrlCFPHbdhH4pbfSMyoU+QTjhhTiWeIA0RAA5y+I=;
+	s=arc-20240116; t=1766488244; c=relaxed/simple;
+	bh=MwsYCq8gI2x45h7pTkseyQYetUXI/gUgO+tAkc3GMNw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=t4ueQiqbG1NKmgg9TgdPhFp/FJtiClj8Teb/fIAUQAyBSGeU3+1Oo6qC5FW0TlO0kN9LnJ6dMsAjjJaapxY4PI5FkoS4cUBrJmRnL8Ii8oKIGOR+ujY9kI9DxSdgUz+2FFC8pMfuDr85Oz4qu4UKMC4iESlIjzMOM7+q7ZC8Ia0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=EzID2cVS; arc=none smtp.client-ip=185.226.149.37
+	 In-Reply-To:Content-Type; b=sWstxKUyN+07xTT68SHqmrhnD2KLZv373W6uQDVLFQCB+Xrg7ZSt9wK2d2/xZv9BJQQlUs0z0X8SmWcbe5isUcxM3WbqlCRQ/9e0xTZYfvJ8Dx9LIyAwaJphx5tl/cG21fP3ekoLb74ciSAqqYNRTu5f05ZtCEw9QUfU99pZPJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=jBdoBIF9; arc=none smtp.client-ip=185.226.149.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="EzID2cVS"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="jBdoBIF9"
 Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
 	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1vY0H5-00BJnP-DH; Tue, 23 Dec 2025 12:09:55 +0100
+	id 1vY0Hk-00BJxz-R9; Tue, 23 Dec 2025 12:10:36 +0100
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
 	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
 	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=1+u1IBrky6sWhAl4AMkGYqMEEOxNVXZ8krlwQcI38ww=; b=EzID2cVSOXnDT4F1sBDPCMd/z8
-	OtqjC5JeuyMVmpkC7R5RSc+QzB4I12FZWJs5jcZmxfCwdLTIl+Im6RxZjTiqUEVlQvqTPrW/ZPuS0
-	3vt/Ypyum3r+QnuirYmBxPreInRPgIIcQxVfJuTyhfdeQeQi+ogt3ZXoMEh9ErJ8GzhoDl7rQQ9bs
-	5NfMonlaD5Cxo8fqcSGWw/Ve4gcHUEXQ81RM79l0uqKG04TW6MeQoLGaP8lksgw8/ZcXawTzoaD9Y
-	lyzKlTF61XkGNl3KGJZ7wUhCR4YH4dlQLXsVXt4WDQy5bHCSNeVWuS5TcvDOIX0ISNzPTJS2GdN2X
-	2gkgMG4Q==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
+	bh=PvpW4Y9MPZzO9brgOX314thROw7oVkzCt7oS9+spQp0=; b=jBdoBIF9khjVJk/GR3T5dRC2/H
+	j6KF0bqDY2HjacP6lN3FIIhCHXDi/1RaCIjeXGiSspIYvMwunlbtYYJRErhaUR9JSu+cMBwlu3iyJ
+	XFbfI8cFtDp2F/wbbb1vkiEe9M2cqDdsVHJlNYUwdKLuu2tSPAOMUUQDvyiOdQm0UzpKU8t6Eioem
+	7OHS36yk6UyIXj6KOGlOjvYZAgfQH2TH7NlI+97/lK6k2RAIT0I/Nu4zZsceeR4uTqN4+tScLTzZf
+	nAECvMGxOtde45n9veKuVMLrmHrQx0zy+mW/FMuqo3X/zAGjRa5VZiI7ppCNPLidvpHAAA3RRgqZg
+	HYsovoug==;
+Received: from [10.9.9.72] (helo=submission01.runbox)
 	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1vY0H4-0005Gl-Kj; Tue, 23 Dec 2025 12:09:54 +0100
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	id 1vY0Hk-0005J9-H3; Tue, 23 Dec 2025 12:10:36 +0100
+Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1vY0H2-009YYH-NW; Tue, 23 Dec 2025 12:09:52 +0100
-Message-ID: <ff469a0f-091b-4260-8a54-e620024e0ec9@rbox.co>
-Date: Tue, 23 Dec 2025 12:09:51 +0100
+	id 1vY0Ha-009fxZ-Vo; Tue, 23 Dec 2025 12:10:27 +0100
+Message-ID: <1c877a67-778e-424c-8c23-9e4d799fac2f@rbox.co>
+Date: Tue, 23 Dec 2025 12:10:25 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,8 +46,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/2] vsock: Make accept()ed sockets use custom
- setsockopt()
+Subject: Re: [PATCH net 2/2] vsock/test: Test setting SO_ZEROCOPY on
+ accept()ed socket
 To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: "David S. Miller" <davem@davemloft.net>,
  Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
@@ -56,47 +56,67 @@ Cc: "David S. Miller" <davem@davemloft.net>,
  virtualization@lists.linux.dev, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org
 References: <20251223-vsock-child-sock-custom-sockopt-v1-0-4654a75d0f58@rbox.co>
- <20251223-vsock-child-sock-custom-sockopt-v1-1-4654a75d0f58@rbox.co>
- <aUptJ2ECAPbLEZNp@sgarzare-redhat>
+ <20251223-vsock-child-sock-custom-sockopt-v1-2-4654a75d0f58@rbox.co>
+ <aUpualKwJbT9W1ia@sgarzare-redhat>
 Content-Language: pl-PL, en-GB
 From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <aUptJ2ECAPbLEZNp@sgarzare-redhat>
+In-Reply-To: <aUpualKwJbT9W1ia@sgarzare-redhat>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 12/23/25 11:26, Stefano Garzarella wrote:
-> On Tue, Dec 23, 2025 at 10:15:28AM +0100, Michal Luczaj wrote:
-...
->> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->> index adcba1b7bf74..c093db8fec2d 100644
->> --- a/net/vmw_vsock/af_vsock.c
->> +++ b/net/vmw_vsock/af_vsock.c
->> @@ -1787,6 +1787,7 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
->> 		} else {
->> 			newsock->state = SS_CONNECTED;
->> 			sock_graft(connected, newsock);
->> +			set_bit(SOCK_CUSTOM_SOCKOPT, &newsock->flags);
+On 12/23/25 11:27, Stefano Garzarella wrote:
+> On Tue, Dec 23, 2025 at 10:15:29AM +0100, Michal Luczaj wrote:
+>> Make sure setsockopt(SOL_SOCKET, SO_ZEROCOPY) on an accept()ed socket is
+>> handled by vsock's implementation.
+>>
+>> Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>> ---
+>> tools/testing/vsock/vsock_test.c | 33 +++++++++++++++++++++++++++++++++
+>> 1 file changed, 33 insertions(+)
+>>
+>> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>> index 9e1250790f33..8ec8f0844e22 100644
+>> --- a/tools/testing/vsock/vsock_test.c
+>> +++ b/tools/testing/vsock/vsock_test.c
+>> @@ -2192,6 +2192,34 @@ static void test_stream_nolinger_server(const struct test_opts *opts)
+>> 	close(fd);
+>> }
+>>
+>> +static void test_stream_accepted_setsockopt_client(const struct test_opts *opts)
+>> +{
+>> +	int fd;
+>> +
+>> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
+>> +	if (fd < 0) {
+>> +		perror("connect");
+>> +		exit(EXIT_FAILURE);
+>> +	}
+>> +
+>> +	vsock_wait_remote_close(fd);
+>> +	close(fd);
+>> +}
+>> +
+>> +static void test_stream_accepted_setsockopt_server(const struct test_opts *opts)
+>> +{
+>> +	int fd;
+>> +
+>> +	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+>> +	if (fd < 0) {
+>> +		perror("accept");
+>> +		exit(EXIT_FAILURE);
+>> +	}
+>> +
+>> +	enable_so_zerocopy_check(fd);
 > 
-> I was a bit confused about next lines calling set_bit on 
-> `connected->sk_socket->flags`, but after `sock_graft(connected, 
-> newsock)` they are equivalent.
+> This test is passing on my env also without the patch applied.
 > 
-> So, maybe I would move the new line before the sock_graft() call or use 
-> `connected->sk_socket->flags` if you want to keep it after it.
-...
->> 			if (vsock_msgzerocopy_allow(vconnected->transport))
->> 				set_bit(SOCK_SUPPORT_ZC,
->> 					&connected->sk_socket->flags);
+> Is that expected?
 
-Hmm, isn't using both `connected->sk_socket->flags` and `newsock->flags` a
-bit confusing? `connected->sk_socket->flags` feels unnecessary long to me.
-So how about a not-so-minimal-patch to have
+Oh, no, definitely not. It fails for me:
+36 - SOCK_STREAM accept()ed socket custom setsockopt()...36 - SOCK_STREAM
+accept()ed socket custom setsockopt()...setsockopt err: Operation not
+supported (95)
+setsockopt SO_ZEROCOPY val 1
 
-	newsock->state = SS_CONNECTED;
-	set_bit(SOCK_CUSTOM_SOCKOPT, &newsock->flags);
-	if (vsock_msgzerocopy_allow(vconnected->transport))
-		set_bit(SOCK_SUPPORT_ZC, &newsock->flags);
-	sock_graft(connected, newsock);
-
-?
+I have no idea what's going on :)
 
