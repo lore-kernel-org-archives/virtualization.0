@@ -1,158 +1,121 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F266C352927;
-	Tue, 23 Dec 2025 20:38:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44A3B2C11CE
+	for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 21:36:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766522312; cv=none; b=h+5AAMESoXCZZCOGr3feAum0Nn+YOFYGcKFtga2ndJW27hT4XjPb0bh9G+hEXqQmbfW94hLDdHRKTxu4NXN0HGK2uRGlM/paLNCX7w1ptHDZfubkD+VTM3qXPDHFoxvfCmfHJhMR0pH2ZTWORuDiMDouO2cpeClHWfk8ysVwmdw=
+	t=1766525813; cv=none; b=KmBF7aYk8M6p4cFuo/2R/N/Ir5jmPeJrbvUnE/1jpKg9Hcfg2hT3EKi1Z0NWfxcWYvQ5MERpYQqLs8f99DauULcMVjH+C9os70+rO8gPZQ+zXejlFKICmxzS5gUbpKpX4l3N8PES7rf8zxHla1WGY8qRUh/kNZ62mYwUpCPtE1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766522312; c=relaxed/simple;
-	bh=6/ZdjSfm9//uCTtcZ2W0JPyeUA3JviyrCDI2XvddMm8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nNXjoRlxIhcpVInqHZrlpiLLBBM8CL7AxTE2sctzhlSr5MrFoUowTijvkAeSWrvpzmb9/sdva1D0HpV6woH73iQ8nbuZ4yYNdkWOpuRTF7euO/ZdGwVgAoySH7YPgB3G3pUmZ45+e7LbRCQGUEuBFBrqh2Ni+y1hvphBgTm53NY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=MLtCXIHs; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1766525813; c=relaxed/simple;
+	bh=gUdUk2X7+RSxU+5LaToWss7k5SP9k1Z4vEiO6zzXczE=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=dKPK5CrB4AUMTA8+k8mvL3J3dt2wvrDngDsv5oxdSzQXcOPOAqDiizdSgMgt5NEhSVYH9SiQWlcDDjy9VPoM9tOdxFi2/mLuCtyXLIJgbuS2fiqG4yMs16trv01v3fiUqMezUg32+OTZieI43j2GuY6HkehSd3aWRtfgywrV5/A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RBYq7b8S; arc=none smtp.client-ip=209.85.218.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="MLtCXIHs"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1vY99A-00ChTx-Sk; Tue, 23 Dec 2025 21:38:20 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=G04fOss7s2uzqt5OHkNCXpKNb5yp/lgsXByLaYfHCj0=; b=MLtCXIHsjhWM8CZGEHIFOg1r2e
-	u2fOXvjs2rVptwJy+3tcAnrIJZMA5aB31UFjMws55kTp0bgTyCNXh0dwbINKoQiX0bi/pXLoOR5wn
-	Zr61OilSOCcsjrKb8cHg+UKIQbdigqGxwca1VQ7iZUteQEAAmDtfXVumz1w4ZZC/LWFLcDhAM5Hds
-	NudBMNKO9oO7Ug7HldbnJd/aeGW9s9E6EWR160HWsqoKVnsnPcYoxOtIcXiRFohIP9wGVfUtk+uGO
-	RbURThITunCabFSPLXcq2HImtvGul5otlYjbVAaZiVGNkqrwyOHOhokXgeRr5Q2zCdytD5QonkIxH
-	0Mf6IK9Q==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1vY99A-0008GB-78; Tue, 23 Dec 2025 21:38:20 +0100
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1vY98z-00AWJD-3F; Tue, 23 Dec 2025 21:38:09 +0100
-Message-ID: <8b76f6f8-3f5c-4bea-8084-577712ec028b@rbox.co>
-Date: Tue, 23 Dec 2025 21:38:07 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RBYq7b8S"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b73161849e1so1112149766b.2
+        for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 13:36:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1766525810; x=1767130610; darn=lists.linux.dev;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=gUdUk2X7+RSxU+5LaToWss7k5SP9k1Z4vEiO6zzXczE=;
+        b=RBYq7b8SvMGVQQvWc7oMTmoi2f3G3OZKe6eeDkjtO16CRjlwfqSdKej9lass75O8QX
+         43aSjUR5s1JYVwn3hlAwQ2/0oI/9wT/bz+8S2YJbEsdMK2/1KNjI9HzJPuvMiPQZgJ3e
+         +hptAGa40G/TsDAybGP3PZPRvtZF6e+eKeXRSNmFW+nOjtJlIajD1CNEd/NtBBuahDuK
+         igQfjf5Zqo37A/PyQc0O2j0qOZQu1TnUnjNbxtR7fUbghBZC4dWosK6rt2lJHLfy0zQg
+         aTZNPhi4IGVbZVs/8zhFYU7cVhv+DR5ItHMzWzQwINyH8yk3xz68pgVOp0YpZyoGVnjw
+         FPbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1766525811; x=1767130611;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=gUdUk2X7+RSxU+5LaToWss7k5SP9k1Z4vEiO6zzXczE=;
+        b=KZBFQIN2bG3atGjNi6Sy7HtT5yvwFl6kEPB024ols072TazLzrJgf22vzaCtEGwTqk
+         /NYWeXVEKIFLsv0vkBKua3B/+V8pF6vTakBpo+4tyn6aX1wXvG2PPNkI7A7p6v9oHwzK
+         vk36KGCMnuUAnAntbCOyCZpETeWpsH153QAruv1UTk+UGjH5C2/w7gmXVZ4TAfgXSpqn
+         f8evziUavoMYdnHtUi4twgD6CQ81hyqta4jgnar+MBUqqozPshNBLg9Y/YLFRjgroaQc
+         TddMxj3R1nHy0p9iIJJEihUvkjVCL7+g57ieBnHbVVL+nivRLNNjuDgtBR2szSCDdKFz
+         raaA==
+X-Forwarded-Encrypted: i=1; AJvYcCVnOiFW05reV9eMwoTe7+vdsUBrJzk8oGm4xLQ1L4u6snHUtpfRtmbGq4xUuZckg6QnwkCQMZiCcyu4ElJc6w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YywaVO8JRC0qdsQRoK12qOKD0Df5C2pPijo5mQNEi8Np/oigmoS
+	uZDL1F2P2qWvfNGAQK62Rt3hhf5Op1flMa/m1bGBbQD7se5b96JO5FzC
+X-Gm-Gg: AY/fxX70IWq/OViYT3mnYzzCeSsBSI95JcVzKBh0flGvMJ5/bAngjAYw/IHVMiu3pap
+	UQCeR68Gl9Ej4pQ9YVdELatBFz48dPE09OmbjV/VqaGe3Dgqvo1oly3+YTQPCAltDRHn1nznjvm
+	taV7YzRktuw8cyjPDPhxu7lKe6uQN+oOeyyDX1MboLOm0RfTlKT/yLhXRwBXfeB8+oEo/Q0Y4KT
+	zK5nfhU7MPZXGTAmRtYIfqN+kWLlgJxX8OFLIKu1FDaClsZkoJR52wnNFtALYkl3qyOuigoakL/
+	ZZFhXcsAlKkQe+PJIQ+Xgm+tkzteuQ7xjSwrKoK5UQPahbDDqmj2DJWuMr7J7jaZcLsyEy4KWKf
+	uJD1+k6x39Rhamy5Y8pRoiX1/6lS7GH/1D+QuOBx1D1iMCML83HN/mTNHYykMU6ZxDGc76jhbgF
+	WOvs3GSNIu1pjGohgTeesOLSHaFWNBsvng/jlHIs2mFxKEWQ==
+X-Google-Smtp-Source: AGHT+IEOKCU+ecErprVHNUinzwMQMU/A+Vj2HrOU9NUH54HaNAaJTE17Fm5T0tT6yY58oECtSAB36A==
+X-Received: by 2002:a17:907:3f20:b0:b71:cec2:d54 with SMTP id a640c23a62f3a-b80371f6e11mr1575022866b.57.1766525810413;
+        Tue, 23 Dec 2025 13:36:50 -0800 (PST)
+Received: from [10.33.80.40] (mem-185.47.220.165.jmnet.cz. [185.47.220.165])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8037de004fsm1551254666b.45.2025.12.23.13.36.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Dec 2025 13:36:49 -0800 (PST)
+Message-ID: <b905018d5ac8a852759e8483ccf8d396eac4380b.camel@gmail.com>
+Subject: Re: Backport request for commit 5326ab737a47 ("virtio_console: fix
+ order of fields cols and rows")
+From: Filip Hejsek <filip.hejsek@gmail.com>
+To: stable@vger.kernel.org
+Cc: Maximilian Immanuel Brandtner <maxbr@linux.ibm.com>, "Michael S.
+ Tsirkin"	 <mst@redhat.com>, Daniel Verkamp <dverkamp@chromium.org>, Amit
+ Shah	 <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	virtualization@lists.linux.dev
+Date: Tue, 23 Dec 2025 22:36:48 +0100
+In-Reply-To: <f839e710b4ede119aa9ad1f2a8e8bcc7fcc00233.camel@gmail.com>
+References: <f839e710b4ede119aa9ad1f2a8e8bcc7fcc00233.camel@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.2 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 2/2] vsock/test: Test setting SO_ZEROCOPY on
- accept()ed socket
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Arseniy Krasnov <avkrasnov@salutedevices.com>,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20251223-vsock-child-sock-custom-sockopt-v1-0-4654a75d0f58@rbox.co>
- <20251223-vsock-child-sock-custom-sockopt-v1-2-4654a75d0f58@rbox.co>
- <aUpualKwJbT9W1ia@sgarzare-redhat>
- <1c877a67-778e-424c-8c23-9e4d799fac2f@rbox.co>
- <aUqWtwr0n2RO7IB-@sgarzare-redhat> <aUrIDT-Tg5SpXhlO@sgarzare-redhat>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <aUrIDT-Tg5SpXhlO@sgarzare-redhat>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-On 12/23/25 17:50, Stefano Garzarella wrote:
-> On Tue, Dec 23, 2025 at 02:20:33PM +0100, Stefano Garzarella wrote:
->> On Tue, Dec 23, 2025 at 12:10:25PM +0100, Michal Luczaj wrote:
->>> On 12/23/25 11:27, Stefano Garzarella wrote:
->>>> On Tue, Dec 23, 2025 at 10:15:29AM +0100, Michal Luczaj wrote:
->>>>> Make sure setsockopt(SOL_SOCKET, SO_ZEROCOPY) on an accept()ed socket is
->>>>> handled by vsock's implementation.
->>>>>
->>>>> Signed-off-by: Michal Luczaj <mhal@rbox.co>
->>>>> ---
->>>>> tools/testing/vsock/vsock_test.c | 33 +++++++++++++++++++++++++++++++++
->>>>> 1 file changed, 33 insertions(+)
->>>>>
->>>>> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->>>>> index 9e1250790f33..8ec8f0844e22 100644
->>>>> --- a/tools/testing/vsock/vsock_test.c
->>>>> +++ b/tools/testing/vsock/vsock_test.c
->>>>> @@ -2192,6 +2192,34 @@ static void test_stream_nolinger_server(const struct test_opts *opts)
->>>>> 	close(fd);
->>>>> }
->>>>>
->>>>> +static void test_stream_accepted_setsockopt_client(const struct test_opts *opts)
->>>>> +{
->>>>> +	int fd;
->>>>> +
->>>>> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
->>>>> +	if (fd < 0) {
->>>>> +		perror("connect");
->>>>> +		exit(EXIT_FAILURE);
->>>>> +	}
->>>>> +
->>>>> +	vsock_wait_remote_close(fd);
-> 
-> On a second look, why we need to wait the remote close?
-> can we just have a control message?
+Hi,
 
-I think we can. I've used vsock_wait_remote_close() simply as a sync
-primitive. It's one line of code less.
+I would like to once again request backporting 5326ab737a47
+("virtio_console: fix order of fields cols and rows") to LTS kernels
+(6.12.x, 6.6.x, 6.1.x, 5.15.x and 5.10.x). The patch fixes a
+discrepancy between the Virtio spec and the Linux implementation.
 
-> I'm not sure even on that, I mean why this peer can't close the
-> connection while the other is checking if it's able to set zerocopy?
+Previously, we were considering changing the spec instead, however, a
+decision has been made [1] to keep the spec and backport the kernel
+fix.
 
-I was worried that without any sync, client-side close() may race
-server-side accept(), but I've just checked and it doesn't seem to cause
-any issues, at least for the virtio transports.
+[1]: https://lore.kernel.org/virtio-comment/20251013035826-mutt-send-email-=
+mst@kernel.org/
 
->>>>> +	close(fd);
->>>>> +}
->>>>> +
->>>>> +static void test_stream_accepted_setsockopt_server(const struct test_opts *opts)
->>>>> +{
->>>>> +	int fd;
->>>>> +
->>>>> +	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
->>>>> +	if (fd < 0) {
->>>>> +		perror("accept");
->>>>> +		exit(EXIT_FAILURE);
->>>>> +	}
->>>>> +
->>>>> +	enable_so_zerocopy_check(fd);
->>>>
->>>> This test is passing on my env also without the patch applied.
->>>>
->>>> Is that expected?
->>>
->>> Oh, no, definitely not. It fails for me:
->>> 36 - SOCK_STREAM accept()ed socket custom setsockopt()...36 - SOCK_STREAM
->>> accept()ed socket custom setsockopt()...setsockopt err: Operation not
->>> supported (95)
->>> setsockopt SO_ZEROCOPY val 1
->>
->> aaa, right, the server is failing, sorry ;-)
->>
->> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
->>>
->>> I have no idea what's going on :)
->>>
->>
->> In my suite, I'm checking the client, and if the last test fails only 
->> on the server, I'm missing it. I'd fix my suite, and maybe also 
->> vsock_test adding another sync point.
-> 
-> Added a full barrier here: 
-> https://lore.kernel.org/netdev/20251223162210.43976-1-sgarzare@redhat.com
+Thanks,
+Filip Hejsek
 
-Which reminds me of discussion in
-https://lore.kernel.org/netdev/151bf5fe-c9ca-4244-aa21-8d7b8ff2470f@rbox.co/
-. Sorry for postponing, I've put it on my vsock-cleanups branch and kept
-adding more little fixes, and it was never the right time to post the series.
-
+On Thu, 2025-09-18 at 01:13 +0200, Filip Hejsek wrote:
+> Hi,
+>=20
+> I would like to request backporting 5326ab737a47 ("virtio_console: fix
+> order of fields cols and rows") to all LTS kernels.
+>=20
+> I'm working on QEMU patches that add virtio console size support.
+> Without the fix, rows and columns will be swapped.
+>=20
+> As far as I know, there are no device implementations that use the
+> wrong order and would by broken by the fix.
+>=20
+> Note: A previous version [1] of the patch contained "Cc: stable" and
+> "Fixes:" tags, but they seem to have been accidentally left out from
+> the final version.
+>=20
+> [1]: https://lore.kernel.org/all/20250320172654.624657-1-maxbr@linux.ibm.=
+com/
+>=20
+> Thanks,
+> Filip Hejsek
