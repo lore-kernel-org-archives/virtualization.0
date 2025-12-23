@@ -1,163 +1,147 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1DB52F616A
-	for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 13:20:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E089D32FA1B
+	for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 15:27:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766496051; cv=none; b=iO6ns+oRrog3g7qAX9EzRGpq4zoVug8euexVRPK78nAR7kSMTuO98Ba4hEm18LHWyNRS2T3AgDLuef6+LkxxMnfBKplSTq8wG8Y1mNHB4hQxHUw1wFBZInKPgR+VSIzdAwW1M3pUlhTp36z0Swt6+1qGgY7+0rJQPyIniZuE6g4=
+	t=1766503624; cv=none; b=pVRBB0faB0fmf6iCSbwJezrWn9HW8kOMV9BQzhqfq79n87Gs2p/ktoup+15rReurobCJYfLgqJGaRzatpYTGw2Ha63qpUrBUcqVPzKOOGoJhxeSfmmclzyGot4kqb57ydt97E5Szjbh1igFpwh6Z413CNPb5XwdUk959vP4Y3Iw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766496051; c=relaxed/simple;
-	bh=6FEDJWDEXPwDHq5FjNeQDR7NvGRqzZXVeWMPQBaC+T4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=qJCjNMG68w3gCliHNylb3hPhTCP4BYUXk71t8+A8QFSmbO71CQBE0aQovX6FRpcrFAzhkBiYcUYOKOK/mFN1sUFLoKDZiOJj1S2Udgqxe/qd+wx6rBb4JjSmt2OxFyaXFkZHx2hQrcSHFHPgJZJ2aiHegAM3lUxU/kCu2XOHARA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DUpOlarj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1766503624; c=relaxed/simple;
+	bh=FNjOWXAmMiSFDurxbAY5FmfDgB2timg7UJONSCEV91w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dt1tH6n+d6s3xVXA28MtCVtqmZ3Fd7Rd7eIjciz77yIesRl0wnW+GEr2E9opCaR3b5+SJ4OKQBj57ooBxvTNqx5hmBf4XcuT3S9RUvujV1bzNTXvvYk8AQOMdbXNqTcNW1O6GmJ289DIYT2xZ0hjctxj8Ola/3ugDUO7zsLFIL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VbrlPr/N; arc=none smtp.client-ip=209.85.216.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DUpOlarj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766496049;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BRe1EnOv1GyxckqNmcBvauEG3PWqIpBb6cBk/IR9fzc=;
-	b=DUpOlarjvKtxYSG4oGZKGuvQtTt5TKl+J8tKd5/Vjf8ENAiMExODEUAJP+jVewEC5YIMDb
-	0/9GavbE8/lrToj6My2rE+HHu9mLmV3ZXRw2IXjhgV5RZ2wmT46TyK9R/a1cE4mQCfLQJs
-	aIVYYHMyFOKGzAhsLf61x9rlsJg0u5A=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-189-lnwlheIFN0aDxpICsD73Ug-1; Tue, 23 Dec 2025 08:20:47 -0500
-X-MC-Unique: lnwlheIFN0aDxpICsD73Ug-1
-X-Mimecast-MFC-AGG-ID: lnwlheIFN0aDxpICsD73Ug_1766496046
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-64d3c4deb88so2285820a12.1
-        for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 05:20:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VbrlPr/N"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-34c3259da34so5056769a91.2
+        for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 07:27:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1766503622; x=1767108422; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=/Te/v2waHQmamwOq0sULQpKzWYSQXa6/bK0ITErWJeQ=;
+        b=VbrlPr/NNwEvBdWrmYjYuylqKJNrMvdafXcKi8gk5QEQV5VXEWewa3ro5pzcDOybbY
+         VrLanHKJ2DJJUndvpgSvNO6jAf1Us2FfcQelZY0ey7peTSIKTZQh2AbT8uiwPu+MZQTe
+         NjKrDjgH15+TYu5ZGT7RSIg2bWydh9pKxabhvHqhg+7Dvzce3Y16o0HS2VPSg8Qegc86
+         MomYpuq66dawCbGQieQOORjupQSY7KfGPKbEY8yauDVQ1MfLg2fI2CKf//QDF4gdRNLg
+         O9WXrSY07N+uIDo63fhHdieqRcTxVV0nn/a6hl+V+9bLOKXU1pFwRk3OaTFlnUdUgf6H
+         M3zQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766496046; x=1767100846;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BRe1EnOv1GyxckqNmcBvauEG3PWqIpBb6cBk/IR9fzc=;
-        b=sZrALkJGr2Ho4Rw/uVwFnR70DtUYMuLLoZInnVuN/FBq5kw9WhWgt1LZ1PCe2kDCR4
-         uXqwAlGgqNgjSh25RRUG9Z4mQNaBsF1Jpfdw/38gseJZEgU24nXehj8UrPI0YOpHM39w
-         USd6xfykiXRL1siz5WgR5x8zsGlxtDz4AlXTLyRX+ckcea3CvXJffr+elfWwYVJIpL0E
-         IvRXAdmBizRBCV4GsKaGjFHmA4+ApqHBXV0QITrxi0fq2nAx4o7evd+w5jXlbVXrvGoG
-         CKX0znxh+K4UH0DRb7UCkc0oMv+v4IQNgneWeZrbu6C7DFUJORl4+K988utfxya/xAd5
-         Astw==
-X-Forwarded-Encrypted: i=1; AJvYcCWj5iKdvEJNPLiZQAfegeFX1nBXjpII8GKfPpWHxJFrvCiHiVv3ALob1KdYpFsi8kSCOKnYP9Ss1rSJduvvjA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yza6ELaXQWXd1UCO5fjo006WmyposFfIstyJKnl+G8C1wUFCuH7
-	689LyGPCcGzsH03R2pGkzKPRJh1bVTIo5tGjIbli9pe/Kh8ENTQmEkaiRRJ+x8VbzV45sYIUBb8
-	4hMAOxu86Es5p2flIudQ8k0tIbh3hZAvxR3ngvN2qVr5OFSGH7uaLwy97VcpXi5J8xCem
-X-Gm-Gg: AY/fxX55o1G+ElkwXFDbRrJTProN+oOPwmByRKEYgvAVIaoow4v3qx4KcaDV5EOWDW4
-	zoLkp9AsG9Ek++0oK6YqZI+QdZ8GLgw0Xec9woyFU95DItXMFotpzJSTt2ldp92TCzl+nr1q8/R
-	ir5OUI+bBKtAGRQeRjO3y8A1xs5p0CiG5TBM7Ra3zkSdv1n9eiGlcXLFdn/A2UcOgsF93/+akI2
-	qtYUNuHJ/ngq+qhS8n/VN/sN54xFhVZfMKQmgLKejLw1ft+kH7z9xW9LlGXeIXTNiNSwHxmBPs+
-	7sjP2gnbmqPjavALxpqTeVMxXWx+UnQe8Ai9W+cfS6F7TvdVjOUWCL8RdQugZ66p+lGqizewkgH
-	JaeBhipPo/tuluQ==
-X-Received: by 2002:a05:6402:1ed5:b0:64b:7885:c985 with SMTP id 4fb4d7f45d1cf-64b8e93c197mr14856999a12.3.1766496046300;
-        Tue, 23 Dec 2025 05:20:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEIaPvpBqA5VZRBxV0Qq8GuLUjF3OOea4Sszi0hglkQxPEQuXCT2471wtxRSPlrlUlo7MvZvQ==
-X-Received: by 2002:a05:6402:1ed5:b0:64b:7885:c985 with SMTP id 4fb4d7f45d1cf-64b8e93c197mr14856958a12.3.1766496045806;
-        Tue, 23 Dec 2025 05:20:45 -0800 (PST)
-Received: from sgarzare-redhat ([193.207.125.9])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-64b9105a9d8sm13549743a12.11.2025.12.23.05.20.41
+        d=1e100.net; s=20230601; t=1766503622; x=1767108422;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/Te/v2waHQmamwOq0sULQpKzWYSQXa6/bK0ITErWJeQ=;
+        b=adTw+0qDQtRIYbZdvTBctG2r1+3NgQBnlihtaPZWYD7+vhoG5Dc06aYI8hpmmo5qKZ
+         rOPcamsHvotKou4sPnlKwf6Q/9d9lLCyzgfMc/UoGniItzi0xZtATKiVvWHjX7zpGQkI
+         3L9+M29Hir9DhzQ+Lc+sFoDhMmefd8TELmwnY5GbCvDC7xn3UPiMNZRdaIf0ie7Op4Vs
+         cAYSzTbOczRc93AeJMHfzYfBmSpmfBsLL6A12E/9rwzqxoUkUkoWJlYZ60zc5doi5/+v
+         78ikwucbRaWPkk55pPXEBKA7IcqvMJsfyl/+d9O7ecyVrGIQHSiCFA2f14Ilfq1VkAfk
+         2EbA==
+X-Forwarded-Encrypted: i=1; AJvYcCUUy9CdNziYafyNaZYjHZl96p9VapzoQDxK9m9S2sKu02NaqwURhPmFZN60VS40l5jRyd60uZWNh18meSDhzQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyJ2epi3u36o76WmykFHZPZfuOJwfiqxzWBjvRZzfRDUbjB1wDH
+	nA/5OMpH3SLGyh+Dq/vyi79pLp/78aaJ4DArXRuJTlDNAyMKmkdaHovW
+X-Gm-Gg: AY/fxX7CO351ZYn1VB2b3W1E55zz0Gkxs/Hu2AcXJEYribEENgklQMW0bJvIwEt8+5W
+	jGwlAeC3figqWSQjxLjSBbBEghdZrp9ErTecJziK8VS5V8L0VTByAejR+z0xqzRMLqaYz/MCKol
+	CLfl78sA7T4U5XsGD6W7mdky0GkIxM+HGc18BxCOrqQ4tLCmDOsSzmrGqiu1ZGkLCOX0VEMDLt3
+	hC+/vCkKVPljx5rNzEmjSMiRHQjB3c508LIdnNQ/wk4UhSUpBkRREogKluUvaITugrgB5TvxHmq
+	Xe2LRqwvavzgUjr7nmb33aV5DUjyEz2ooBG2e7RpP6FabIYJenunARAqR/hSmoo7yaRYGo7PAFF
+	XshcFE7BnCNv3I0hGajneJSXIxmiumh+fhSjCqQKfu7aP0CGSbfAHKYwKHNly/kyaEe7gkClk/P
+	sxFebtH808VW0xKJLtGxL16Sg+kowJaDgRQpk=
+X-Google-Smtp-Source: AGHT+IHs+VCzqx2tYFavwNoq09qWoQGNowOUFffowxOLdmg82RfmPo0+b2W9UfBUYK3AtZWwo3w3Lg==
+X-Received: by 2002:a17:90b:5608:b0:34a:9d9a:3f67 with SMTP id 98e67ed59e1d1-34e921f010bmr11520195a91.33.1766503622215;
+        Tue, 23 Dec 2025 07:27:02 -0800 (PST)
+Received: from minh.192.168.1.1 ([2001:ee0:4f4c:210:3523:f373:4d1d:e7f0])
+        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-34e76ae7618sm8006138a91.1.2025.12.23.07.26.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Dec 2025 05:20:44 -0800 (PST)
-Date: Tue, 23 Dec 2025 14:20:33 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net 2/2] vsock/test: Test setting SO_ZEROCOPY on
- accept()ed socket
-Message-ID: <aUqWtwr0n2RO7IB-@sgarzare-redhat>
-References: <20251223-vsock-child-sock-custom-sockopt-v1-0-4654a75d0f58@rbox.co>
- <20251223-vsock-child-sock-custom-sockopt-v1-2-4654a75d0f58@rbox.co>
- <aUpualKwJbT9W1ia@sgarzare-redhat>
- <1c877a67-778e-424c-8c23-9e4d799fac2f@rbox.co>
+        Tue, 23 Dec 2025 07:27:01 -0800 (PST)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH net 0/3] virtio-net: fix the deadlock when disabling rx NAPI
+Date: Tue, 23 Dec 2025 22:25:30 +0700
+Message-ID: <20251223152533.24364-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1c877a67-778e-424c-8c23-9e4d799fac2f@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: uKmI_KB6N13Rwu7LTMsam6kt7iZdS-r0Cl5eWXPkkWg_1766496046
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Tue, Dec 23, 2025 at 12:10:25PM +0100, Michal Luczaj wrote:
->On 12/23/25 11:27, Stefano Garzarella wrote:
->> On Tue, Dec 23, 2025 at 10:15:29AM +0100, Michal Luczaj wrote:
->>> Make sure setsockopt(SOL_SOCKET, SO_ZEROCOPY) on an accept()ed socket is
->>> handled by vsock's implementation.
->>>
->>> Signed-off-by: Michal Luczaj <mhal@rbox.co>
->>> ---
->>> tools/testing/vsock/vsock_test.c | 33 +++++++++++++++++++++++++++++++++
->>> 1 file changed, 33 insertions(+)
->>>
->>> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->>> index 9e1250790f33..8ec8f0844e22 100644
->>> --- a/tools/testing/vsock/vsock_test.c
->>> +++ b/tools/testing/vsock/vsock_test.c
->>> @@ -2192,6 +2192,34 @@ static void test_stream_nolinger_server(const struct test_opts *opts)
->>> 	close(fd);
->>> }
->>>
->>> +static void test_stream_accepted_setsockopt_client(const struct test_opts *opts)
->>> +{
->>> +	int fd;
->>> +
->>> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
->>> +	if (fd < 0) {
->>> +		perror("connect");
->>> +		exit(EXIT_FAILURE);
->>> +	}
->>> +
->>> +	vsock_wait_remote_close(fd);
->>> +	close(fd);
->>> +}
->>> +
->>> +static void test_stream_accepted_setsockopt_server(const struct test_opts *opts)
->>> +{
->>> +	int fd;
->>> +
->>> +	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
->>> +	if (fd < 0) {
->>> +		perror("accept");
->>> +		exit(EXIT_FAILURE);
->>> +	}
->>> +
->>> +	enable_so_zerocopy_check(fd);
->>
->> This test is passing on my env also without the patch applied.
->>
->> Is that expected?
->
->Oh, no, definitely not. It fails for me:
->36 - SOCK_STREAM accept()ed socket custom setsockopt()...36 - SOCK_STREAM
->accept()ed socket custom setsockopt()...setsockopt err: Operation not
->supported (95)
->setsockopt SO_ZEROCOPY val 1
+Calling napi_disable() on an already disabled napi can cause the
+deadlock. In commit 4bc12818b363 ("virtio-net: disable delayed refill
+when pausing rx"), to avoid the deadlock, when pausing the RX in
+virtnet_rx_pause[_all](), we disable and cancel the delayed refill work.
+However, in the virtnet_rx_resume_all(), we enable the delayed refill
+work too early before enabling all the receive queue napis.
 
-aaa, right, the server is failing, sorry ;-)
+The deadlock can be reproduced by running
+selftests/drivers/net/hw/xsk_reconfig.py with multiqueue virtio-net
+device and inserting a cond_resched() inside the for loop in
+virtnet_rx_resume_all() to increase the success rate. Because the worker
+processing the delayed refilled work runs on the same CPU as
+virtnet_rx_resume_all(), a reschedule is needed to cause the deadlock.
+In real scenario, the contention on netdev_lock can cause the
+reschedule.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
->
->I have no idea what's going on :)
->
+In this series, we make the refill work a per receive queue work instead
+so that we can manage them separately and avoid further mistakes.
 
-In my suite, I'm checking the client, and if the last test fails only on 
-the server, I'm missing it. I'd fix my suite, and maybe also vsock_test 
-adding another sync point.
+- Patch 1 makes the refill work a per receive queue work. It fixes the
+deadlock in reproducer because now we only need to ensure refill work is
+scheduled after NAPI of its receive queue is enabled not all NAPIs of all
+queues. After this patch, enable_delayed_refill is stilled called before
+napi_enable in virtnet_rx_resume[_all] but I don't how the work can be
+scheduled in that window.
+- Patch 2 moves the enable_delayed_refill after napi_enable and fixes the
+deadlock variant in virtnet_open.
+- Patch 3 fixes the issue arises when enable_delayed_refill is moved after
+napi_enable. The issue is that a refill work might need to be scheduled in
+virtnet_receive but cannot because refill work is disabled. This can lead
+to receive side stuck.So we need to set a pending bit, later when refill
+work is enabled, the work is scheduled.
+
+All 3 patches need to be applied to fix the issue so does it mean I need
+to add Fixes and Cc stable for all 3?
+
+Link to the previous approach and discussion:
+https://lore.kernel.org/netdev/20251212152741.11656-1-minhquangbui99@gmail.com/
+
+Reported-by: Paolo Abeni <pabeni@redhat.com>
+Closes: https://netdev-ctrl.bots.linux.dev/logs/vmksft/drv-hw-dbg/results/400961/3-xdp-py/stderr
 
 Thanks,
-Stefano
+Quang Minh.
+
+Bui Quang Minh (3):
+  virtio-net: make refill work a per receive queue work
+  virtio-net: ensure rx NAPI is enabled before enabling refill work
+  virtio-net: schedule the pending refill work after being enabled
+
+ drivers/net/virtio_net.c | 173 ++++++++++++++++++++-------------------
+ 1 file changed, 91 insertions(+), 82 deletions(-)
+
+-- 
+2.43.0
 
