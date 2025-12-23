@@ -1,119 +1,114 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A3AB354ADC
-	for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 01:29:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FD3023C8C7
+	for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 07:10:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766453356; cv=none; b=ZdliwGvOLOQGIett3xrd3KY6k1oOr4az+WYmy/+WrecEiaT5byqv6cXnUaVaHZ52Q4UwwxOBr2/AD6J/WDGOtY/ue56UbuV8Gt8uWGBW1QWZJR36tCFgTsInQ7EFwDeg0L5CaPN4NmSoHU+CzFix2ZEvVxA3VHUyk2ByrL8FqqU=
+	t=1766473853; cv=none; b=k/3B8l3ji3FbWVXXmC8FZokDRyuRjurOQnTnWOPqAP94Ocr5Y4Qyml2ZXl8LJL/N5NlRl7ufKt1g1xsFmYCsg6Oj+DvQ6zUgU2guUfCokI/b5OzMrfG0VpSwsS5oLiShtdFveHcZ5QuoJpe4B6AI/S143km/roc/05WVX4PP004=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766453356; c=relaxed/simple;
-	bh=HxZBIQrNPUtqILX+MUs7BAnpHkmCv3JHX/T4T16NDGU=;
+	s=arc-20240116; t=1766473853; c=relaxed/simple;
+	bh=j2BBu4rp0WMOehT2QgF7gqoozKUWTpmfjIVBWhzDhJk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jTZFIyEqWRLZMHY2sQD7fgWATZKUTbUs5LyEFmJ6Fy4Y4V25c+L7vfHWSecEmTU0BJ4Tb0OBnExSgh+LOKGRux7+R8Y92c+6TcbZVOJuSnGwpbSmbdo0biO2xdhmz4u3qm3Rkjuh8EvgDbwuqpuX4gjvVbSunMtrQYMlU+Bn7Ag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BJ3iEN+D; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=uk3tnMb8AlY+3/rzg4D9c3gtGh3gTWPJHJOqdnMXLfB4AlfIIsy0p7UTGESiLuUbd5sUSNpZ8oUP1VMP+BErLTsUkIA1e0NoIPaqjm4CJLkM9gfer4WJH7fVFNXFP+2/qMbdIkcUmgOtHc/xInxIGJzZtSeo7cqHZ9sz4EFqVb0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=wt7+sqxp; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=fWAOOS0j; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BJ3iEN+D"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766453354;
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="wt7+sqxp";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="fWAOOS0j"
+Date: Tue, 23 Dec 2025 08:10:49 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1766473850;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=BD3GjIyrDKH9xeBbUL4g7HcZl7Q4z8Vu90OXxS4FE5E=;
-	b=BJ3iEN+DmtvIsDSnfdWX02G/97xR2ZlHx1FjPheZ4uEeCq9ZYar9rZILwvLbdgXPu5Ondm
-	6k8kZmP91AK0XtZ/wgV7w+iZx3KoopPjoalrplKvPkBo+xj6NRmQq4kMTg1/y2TyQoSSW/
-	c5kSbJx5U36DYa7k3ZzKBdhUaPemuPQ=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-244-Xm87yVRcNW-O0aLhxeeX1Q-1; Mon, 22 Dec 2025 20:29:12 -0500
-X-MC-Unique: Xm87yVRcNW-O0aLhxeeX1Q-1
-X-Mimecast-MFC-AGG-ID: Xm87yVRcNW-O0aLhxeeX1Q_1766453352
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-47799717212so47479655e9.3
-        for <virtualization@lists.linux.dev>; Mon, 22 Dec 2025 17:29:12 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766453351; x=1767058151;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BD3GjIyrDKH9xeBbUL4g7HcZl7Q4z8Vu90OXxS4FE5E=;
-        b=lxm5On2jyxhxBnw8tgKprATOsO9RIkZHUdmAaC6NygdtetiMJikgoRftR1e+rwtehz
-         zf+fv3eGlYsTemky7u70guyOfbSi2KzOwt4Bcy21Hq+xQG2wdoHWgmROR49Lz1Jsv8nt
-         j4OiHi4RFEInm1b1XdEDJh+FYAcuG7X2Xs3gsWv8S9MfUyvrvgXKALxhSGXskX+34LbE
-         NDHxiKVsgX3ZK92c97x7uqV5XndsWoaahtStxI41jXtitbQTTAsOoy6ke6lJFaSX0y/6
-         /Sqimqc2P2WSsInntJbgHxEa1PR1iWPClbrkRB5v4Gk7vDd+lvazTgVurF98qiaQyGTV
-         aMhg==
-X-Forwarded-Encrypted: i=1; AJvYcCWxKfXRj8fbMiApVx+bmVGidpa2qDay8SQRrVxuUYoLbhlB2SjyaCpbejLwZizXeM2vthSSGqdo9nZBW4EdFg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy8CXL4f3U2+jaBQjjqLXRWHvQ5lINezwcEUBi368K4eUihs/7r
-	242TUPMln0KqETfhWiPFbsfDpG86cvQa5CmzavugcgjeU8EAT/Mewp3SVfFAikVZLrX4PzrjmV6
-	IYFHCpmghTPFEk78Cdeh8ZeyG55EqRd6PHzo0NaFYaerDrf9VqrDhOKyWHZeueicsHa6F0argD8
-	yl
-X-Gm-Gg: AY/fxX5VRj4s8MV0/Kj3CXGMq0DBwV3oMAdZHLulp8A/LIevYwz+d99afftE4JPF1Q1
-	/gmUfIGyxizp5eKdVG87PtiJQm3pov1GieqVl/r6k5fE1w6hK9zT08qvQZgsF5CnUyk0Fl9fbif
-	zojEnbffD8D3NO1YokeRHD+C9VVaY0aWRQW7AcmbemFIa1evFvoSJ9Sm8H6oNMKkiNBVS6bC9os
-	iPDSUdH8g4mWI7rGloK3+jW1TVijMsMDCbUMDfwJeDLkltyKRAxunmXmKBgWwkiMbk0neWbwsHC
-	EHlZjDgrwy1GZYsZpsDYfzJTVYN7R14dhdQLGofdTQAx0eXcNtFn+jtdFB66Fafh0FBI47nmzbW
-	iajtI4QfyhvTyjHw9pVL0WK6wwQmSTHBWAw==
-X-Received: by 2002:a05:600c:8208:b0:46e:33b2:c8da with SMTP id 5b1f17b1804b1-47d1958d960mr119134315e9.32.1766453351310;
-        Mon, 22 Dec 2025 17:29:11 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGO+LG2FI8JPMK8jgG+/xJo3+UBYSR7dVKlIQUEA+U3e7FL+sIKeyZHuU+YrwGcYBw8xYWP6Q==
-X-Received: by 2002:a05:600c:8208:b0:46e:33b2:c8da with SMTP id 5b1f17b1804b1-47d1958d960mr119134165e9.32.1766453350851;
-        Mon, 22 Dec 2025 17:29:10 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eaa2bdfsm25512101f8f.32.2025.12.22.17.29.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Dec 2025 17:29:09 -0800 (PST)
-Date: Mon, 22 Dec 2025 20:29:07 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH V9 00/19] virtio_ring in order support
-Message-ID: <20251222202855-mutt-send-email-mst@kernel.org>
-References: <20251125070838.70736-1-jasowang@redhat.com>
- <CACGkMEtjvycsK0JJ0G89SRr3FTHgaMTU9nRZNqqv7=yxiTqgAw@mail.gmail.com>
+	bh=aN6Dmr2BT40puAGgGu0V134KWOgx+SWB/YgD2oDPSOE=;
+	b=wt7+sqxpDD6KGVAqOzUUZnA8rZSHBaLE1X0bwGhdT9b7/+RE24p5UMDxtcW+RXSmyln0T0
+	oAp/JRceHCFPDlwSoFmw/qvr/jQBd0nXDc6+x01bGpchZGgCZuvj4J+eeOZ+iyH5AOeyVd
+	6gd6qAG/g4bGp4MgXwyxuEtbo8NHQIB1+HSy7Hae/U6QtyXkuR0V5BDaVPkVcZKiLR3A+O
+	A5kpBKCuiFnJLZ23c88iRSDzwoeYD99yRkmfr9c3i1WbmMkcNNNs4K3RhMD4U5acoAvvrd
+	ZMPJ5LGts4vUHEx99hrwhpp3lO2A9KYED3Bd+fG0EjYAoasWAnPVsTa6akyvYA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1766473850;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=aN6Dmr2BT40puAGgGu0V134KWOgx+SWB/YgD2oDPSOE=;
+	b=fWAOOS0jbX/9cJpkjLI+jF+QSbEY5yUoXGUuMfJqUYFeVHTIwG9l12KM+yX4D/SQQItMJP
+	cqzOIHqQqeM2qRDA==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] virtio: uapi: avoid usage of libc types
+Message-ID: <20251223080426-583c4599-264c-4d94-9af0-f67c043c559e@linutronix.de>
+References: <20251222-uapi-virtio-v1-1-29390f87bcad@linutronix.de>
+ <20251222033807-mutt-send-email-mst@kernel.org>
+ <20251222111044-611cdccb-327c-4ed8-a75b-1a65aa353802@linutronix.de>
+ <20251222052818-mutt-send-email-mst@kernel.org>
+ <20251222114303-6d63eff5-792c-4727-8bb1-61a024884616@linutronix.de>
+ <20251222171742-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtjvycsK0JJ0G89SRr3FTHgaMTU9nRZNqqv7=yxiTqgAw@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: HQfPogPAFqg-8SbsvLc45q-5RUOjFpaHI4T2IpPhkt0_1766453352
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20251222171742-mutt-send-email-mst@kernel.org>
 
-On Tue, Dec 23, 2025 at 09:18:47AM +0800, Jason Wang wrote:
-> On Tue, Nov 25, 2025 at 3:08â€¯PM Jason Wang <jasowang@redhat.com> wrote:
-> >
-> > Hello all:
-> >
-> > This sereis tries to implement the VIRTIO_F_IN_ORDER to
-> > virtio_ring. This is done by introducing virtqueue ops so we can
-> > implement separate helpers for different virtqueue layout/features
-> > then the in-order were implemented on top.
-> >
-> > Tests shows 2%-19% imporvment with packed virtqueue PPS with KVM guest
-> > vhost-net/testpmd on the host.
-> >
-> > Changes since V8:
-> >
-> > - Rebase to vhost.git linux-next branch
-> > - Fix issue when indirect descriptor is disabled
-> > - use UINT_MAX instead of vq->num to indicate no batching is pending
-> > - Tweak the comments for used_entry
-> > - Various coding style tweaks and typo fixes
-> > - Try to use in_order varianet in in_order ops
+On Mon, Dec 22, 2025 at 05:18:26PM -0500, Michael S. Tsirkin wrote:
+> On Mon, Dec 22, 2025 at 11:43:52AM +0100, Thomas Weißschuh wrote:
+> > On Mon, Dec 22, 2025 at 05:28:30AM -0500, Michael S. Tsirkin wrote:
+> > > On Mon, Dec 22, 2025 at 11:22:16AM +0100, Thomas Weißschuh wrote:
+> > > > On Mon, Dec 22, 2025 at 03:39:12AM -0500, Michael S. Tsirkin wrote:
+> > > > > On Mon, Dec 22, 2025 at 09:00:33AM +0100, Thomas Weißschuh wrote:
+> > > > > > Using libc types and headers from the UAPI headers is problematic as it
+> > > > > > introduces a dependency on a full C toolchain.
+> > > > > > 
+> > > > > > On Linux 'unsigned long' works as a replacement for 'uintptr_t' and does
+> > > > > > not depend on libc.
+> > > > > > 
+> > > > > > Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+> > > > > 
+> > > > > 
+> > > > > are you fixing other uses of uintptr_t ?
+> > > > 
+> > > > I am focussing on UAPI headers which include libc headers.
+> > > > virtio_ring.h seems to be the only such header which uses uintptr_t.
+> > > > There are a few other UAPI headers which reference uintptr_t, but only
+> > > > in comments or macros.
+> > > > 
+> > > > uintptr_t in regular kernel code is out of scope for me.
+> > > > While it is iffy, it doesn't actually hurt.
+> > > > 
+> > > > 
+> > > > Thomas
+> > > 
+> > > And other uses of stdint.h?
+> > 
+> > If they are in UAPI headers I will look at them.
+> > I also have a series prepared to prevent new users from creeping in.
 > 
-> Michael, any chance to make this for this merge window?
-> 
-> Thanks
+> I don't mind picking this but I'm just curious what's driving all this
+> effort.
 
-want to fix last minor comments?
+It started with a recent change to an UAPI header which introduced a dependency
+on libc that broke some things I was doing. See the fix and background in [0].
+So I looked into catching such issues earlier, which resulted in [1].
+Fortunately there are not many problematic headers [2] in general, so I am now
+also fixing those, so the new check can validate more headers and prevent more
+regressions.
 
+[0] https://lore.kernel.org/lkml/20251203-uapi-fcntl-v1-1-490c67bf3425@linutronix.de/
+[1] https://lore.kernel.org/lkml/20251223-uapi-nostdinc-v1-0-d91545d794f7@linutronix.de/
+[2] https://lore.kernel.org/lkml/20251223-uapi-nostdinc-v1-1-d91545d794f7@linutronix.de/
+
+
+Thomas
