@@ -1,199 +1,173 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7634C2E7F0A
-	for <virtualization@lists.linux.dev>; Wed, 24 Dec 2025 10:20:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6663E3148D0
+	for <virtualization@lists.linux.dev>; Wed, 24 Dec 2025 10:55:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766571619; cv=none; b=lS3QqJPSsFLcp1PN3BaV2ni3e60FnOGIItOXOMsIXtqzyG4TEuUXUoaTznYh0QFvE9qj7qAh14x2cxIi5FrCbkM3SRyLJUNvDmjc7KNOlaAdPkiBKc4Y16xo77hMo97Rpi5qAjbDEfMFk5rKt8vmLL7uIvU36NJlMJKYp3sKjCM=
+	t=1766573707; cv=none; b=ewXiJS6wlDu2s9L0LbU/q59n42/JBZclCRM/2YjPfQGYapKm2B2oBMfudYq5iNZfRvEELD8r3IUpfuSygDcakHdeT/DoDplqzeuuZb5z5U1ghNZw29lLPFJ2PAedXJCC08lxEMQjXqsGsZpLWvHvYjFWs9sl2CkepehWDk/6qUc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766571619; c=relaxed/simple;
-	bh=oYrwPO86ZCxudCbsRZuqfzHLWeJAOAoyrphKxk8LHjc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Es1Bv24j1gwOUkZkrEtDh2GSALmzPXWNlM2gM+yHc4WkKZj/B/6az3sCMaybe4qxQcCj6vlL3AftpaVx3yN1tU+N7D0WpIDP/PoABE43YhId9dCVbocFhl8tnyWsh+kBYNqfGOOotqJHYxBZvt/gmo7j7QB0MOrI+et5n6+DyDw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=X3kpaFEQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1766573707; c=relaxed/simple;
+	bh=YJxxyVUIH0LKd1472HrqzJ1zqvb7vGfc8Y7LGrUbm8I=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=eNgGAoYD8SIPi7szITPARDOaDJuJrXF0TN8Wp+bgOKXIrJ/cGnBIIbZx3Rc/Y4IT8hU9zIuzldCZI1QHdqGVqXKaBjJ/+KzkrdJ3szuPv2yIDG6B7RPdSpWR5SoSXtNMY07h+1uhu6M6dW/JFDZhfRnimmV6VZ+Mq9dRA+v+yxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com; spf=pass smtp.mailfrom=isovalent.com; dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b=IG5KpWDc; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=isovalent.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=isovalent.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X3kpaFEQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766571616;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6O2EtwV8zLDpt91a2UuKYvEZqcHN8Sgzg6sMdCfF3b8=;
-	b=X3kpaFEQ9r8/LPJItKyaU7unz+v6wFYxphUFVvDn8u9ZdJZPQd/86Bz9g1D4hCD7Uo/81K
-	EXBrwU79+/8FUSy/USanI8+g2OZeLE4AIj2S97pL5UjkVGyCz/3zK9ROVrNFIU3JUi5gWi
-	NTRW9Lpju4IFIva00GXgp9lTJx5ANYs=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-63-ReRCGX14OZeq9iZ3DBOK8g-1; Wed, 24 Dec 2025 05:20:14 -0500
-X-MC-Unique: ReRCGX14OZeq9iZ3DBOK8g-1
-X-Mimecast-MFC-AGG-ID: ReRCGX14OZeq9iZ3DBOK8g_1766571613
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-47d40e8a588so448775e9.3
-        for <virtualization@lists.linux.dev>; Wed, 24 Dec 2025 02:20:14 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=isovalent.com header.i=@isovalent.com header.b="IG5KpWDc"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-47798ded6fcso31784555e9.1
+        for <virtualization@lists.linux.dev>; Wed, 24 Dec 2025 02:55:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=isovalent.com; s=google; t=1766573702; x=1767178502; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=6YVPObAxph0NNzQqXtKmHrXXfkoVXAgC9K27LINgZDk=;
+        b=IG5KpWDc+b42bQrXlurCSo5ZiH2dKK6PbJ5RL1+iagGZd/1/jn9Te1MJVkA9xT0ICr
+         HUFr310jq3Knk1E2OySC/1wvmDdwZR076RdCHMzWnIc7vDqJncUsr/1XSBSY9IzkXPmU
+         Fue72XU2sSVLg1spAp6juofdm1Tfzewz+mS3qzMzx9DEcBEg941vrsJVzuai/D7k2xf/
+         I9VAfBpGfcct775lDdlIi4KERUsMAITWoaTvjYrl2CzS+BBWqneyv1JOz5NzdahJlnry
+         h6h6MOHJD3mTd4jcj336x5l366whJczB35kXKoaetQYsYOq/XqB/TJAefyixzyJqbar/
+         w5og==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766571613; x=1767176413;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6O2EtwV8zLDpt91a2UuKYvEZqcHN8Sgzg6sMdCfF3b8=;
-        b=L4ku52M/bV1or3lFiopttcrfypIf4qvHO+fVU1Q48vDmzpGOBhagDfzEfg3R7MPCPl
-         Wr/NLVbHkWzAs6Kdh0GVQAq3y8TVZ01Zijolb1TsYN1y2pCq/NSOCDBs41mXRZpzEB4J
-         p7HbU2D9G/OaLHJdzxKKnbMgKM1YlUYMFdFXgmqNHkqoMbpdKiy+PzHykjM6n3U4ids0
-         JFWsvoROUa4RM2CXINX/Pum6nKX0kXEkG9YIBs1TxkWBfmKBkHrgj2B6xQwdAo90XUvv
-         jYYAaFJUq5Ax7IH3a6CuReOuD6UPiZacSwir83ZSPhnW6e9fAmhz7gPRx1RmT1tn9YhI
-         Zg9Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVqHh6wOuaVP6WeLHC30WfoMYfHd0GRMvnol4UO763hPwV1YZSSfyYz/oPBNub1yh7MOAvQJDGf1RJTXBrnIg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyDMny0FNs5Z8nrkgxaLKr9VSQW/1GGDN3M1t9dNFcmKn2quLTI
-	rDqfXWJi9Gdd03adB066kKonShm1bnbXz0BxnjGOc8MWDTwEGX8gRgabfAB5Io1QLfcvadIL1dn
-	4qrgYk7gqrxv8b2eaa/1ofgGQKhWbVIgPpf7igC8lwHWfwEy2TSYYrQLoG6KEpHwDham6
-X-Gm-Gg: AY/fxX6xyL2i83bsV48XPiF0AEZ5noGrbfpyeXuHj4D11/cImVcUyNny2/cDPJNcYvq
-	NdpY3KrY51AQfLUwNdoOukwftPY/Mwv3wDhUbLG9rMTGM71P2PUOQnUWucMxNhET0SOU3IOq46y
-	WXxg0BGPaCYk7LYoxRIr0jSNrK4asZv78xjy+GOOkUPpU2Yu1i3bAk+OOkaK5vyYnAK7qdgEnAM
-	tT7XfiHs28vAh5D3HGDvep/Id9EXqL95ZxOG754AKsUXMsfrJVAZ3MpiHTRgD2bRD3S3mW4VenL
-	m4aZrhuF5VYQrsUr1u8njEJaZZZ72urknGYDL7SiA32VizKjNhDKCb44rT4ANr7ZQIUHbzf7zl+
-	G
-X-Received: by 2002:a05:600c:350c:b0:477:7658:572a with SMTP id 5b1f17b1804b1-47d19584900mr150239485e9.20.1766571613426;
-        Wed, 24 Dec 2025 02:20:13 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGmKYK5ou+1W1Pze+hjbzHTs9SfZ3rn+HzocgNknKunmQm1zT8c7gWFoIrC37NzpjjUkVO+xA==
-X-Received: by 2002:a05:600c:350c:b0:477:7658:572a with SMTP id 5b1f17b1804b1-47d19584900mr150239105e9.20.1766571612873;
-        Wed, 24 Dec 2025 02:20:12 -0800 (PST)
-Received: from redhat.com ([31.187.78.137])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47be3a40a14sm146641555e9.2.2025.12.24.02.20.10
+        d=1e100.net; s=20230601; t=1766573702; x=1767178502;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6YVPObAxph0NNzQqXtKmHrXXfkoVXAgC9K27LINgZDk=;
+        b=uU24dvhF6Eqtcft7n4jUf7gSY6/fQ2cv+BjLx0y1+1AhLpitQzRYFLgl0q32R70Rq+
+         Hk2cTFMh5pppBfnXpfzX5DQMNDPe6KP5Tbi01w+QWawKsXP2gLyw/e3Lipjx/CfKS8QL
+         PS0gUviUdRAzPZw/R60s7fz0btY4A3EuCSSqT70ngv3gR68f/AD4xyznmOOrUQUx0+LT
+         xXODconJLorG0OZlkb8MG296LxzMmvLBacyAcPWA1JS8uWGibFdO8jxR4kxqwjpOwbAE
+         R86EDLwoAj/sU8zZAZIsPaX6PoSXS+oUlDkcQYC2bOJh/l3Ox5S9Z4JJyi9Q+VIMv7Qx
+         DBzw==
+X-Gm-Message-State: AOJu0YxL0wkZtLP03vmFRa847ALfr0RklLtzoVUjy1xA5BSktHc5MVY1
+	NeWomMloEz8ALlLhrbwmf5o9CP2I1TyZGrKyzv2jByeIWaDcSTGCihsAepUtG+DM1FU=
+X-Gm-Gg: AY/fxX56c7kEeBEtKi8oRWUhtuNqyZxH0Zq+xBWtrJWbAxHif/eEh5qizUaCLVXBQhK
+	Vb7DYSA4pbr1iOvo50bIj2A4rsFm3GH5x7BZB6atSpAzU5lxfc5uT1wbdwbndOrd8dL6p2o6W5v
+	vJ0natE1VUGZwzILpBMMRFFcNUTLKtSrSkNIo+2j8WHnNJQNO/AeNGgpCDN9w8urCA9AnnY9/6O
+	GPzVe0umbPTv+Yz31Uy0K7+6y5PA7j4hTUL54uO7EXEttEbGB0uMc9yVQ2Vahk96y0cdK89vNi+
+	x6aZaOC3V5FAuBMwvcFTJnLPiNXYHL7RvA1PHsvGI/WC+G2nI88AUObH/tfMJA46A2g41SE5o5O
+	ys9q7Rlyad62ZoQS449b96hnuYgX9e/WYzrldDpNidDEIOJHH5JUyAAVLUtL+1NXLn/KhFgzRJH
+	ZEVtjKEk0DIs0ADa/c
+X-Google-Smtp-Source: AGHT+IG2oGo0/KRl8OLMUZV/2O7F94LGNUSLFxYl9Aa7ZK9BDlk3PbNHbqqE6+JW5GXsU4J5C4/cfQ==
+X-Received: by 2002:a05:600c:35c4:b0:475:dd9a:f791 with SMTP id 5b1f17b1804b1-47d195869e7mr203405325e9.28.1766573701534;
+        Wed, 24 Dec 2025 02:55:01 -0800 (PST)
+Received: from fedora.fritz.box ([2001:a61:11d9:dc01:f21:4d89:1b7a:e08d])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47be27c2260sm331937075e9.15.2025.12.24.02.55.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Dec 2025 02:20:12 -0800 (PST)
-Date: Wed, 24 Dec 2025 05:20:09 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: Re: [PATCH net 2/3] virtio-net: ensure rx NAPI is enabled before
- enabling refill work
-Message-ID: <20251224051936-mutt-send-email-mst@kernel.org>
-References: <20251223152533.24364-1-minhquangbui99@gmail.com>
- <20251223152533.24364-3-minhquangbui99@gmail.com>
+        Wed, 24 Dec 2025 02:55:01 -0800 (PST)
+From: Lorenz Bauer <lmb@isovalent.com>
+Date: Wed, 24 Dec 2025 11:54:46 +0100
+Subject: [PATCH v3] virtio: console: fix lost wakeup when device is written
+ and polled
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251223152533.24364-3-minhquangbui99@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: PVe4MsPOA8kUpW3EIDeLspMh0Q2tMqlQ-6MRuJInptE_1766571613
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20251224-virtio-console-lost-wakeup-v3-1-b8ee6812fa68@isovalent.com>
+X-B4-Tracking: v=1; b=H4sIAHXGS2kC/43NsQ6CMBSF4Vchna2hbS6Ik+9hHGq5lRuRkrZWD
+ eHdLUzGwTj+Z/jOxAJ6wsD2xcQ8JgrkhhxqUzDT6eGCnNrcTJYShBTAE/lIjhs3BNcj712I/KG
+ veB95aaGqDJhWgWUZGD1aeq748ZS7oxCdf61fSSzrX2wSXPC60WCg3gnA+kDBJd3jELfG3dhCJ
+ /nBSfmTk5mDFhtlzsoKI765eZ7fsY5KyBcBAAA=
+X-Change-ID: 20251215-virtio-console-lost-wakeup-0f566c5cd35f
+To: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ stable@vger.kernel.org, Lorenz Bauer <lmb@isovalent.com>
+X-Mailer: b4 0.14.2
 
-On Tue, Dec 23, 2025 at 10:25:32PM +0700, Bui Quang Minh wrote:
-> Calling napi_disable() on an already disabled napi can cause the
-> deadlock.
+A process issuing blocking writes to a virtio console may get stuck
+indefinitely if another thread polls the device. Here is how to trigger
+the bug:
 
-a deadlock?
+- Thread A writes to the port until the virtqueue is full.
+- Thread A calls wait_port_writable() and goes to sleep, waiting on
+  port->waitqueue.
+- The host processes some of the write, marks buffers as used and raises
+  an interrupt.
+- Before the interrupt is serviced, thread B executes port_fops_poll().
+  This calls reclaim_consumed_buffers() via will_write_block() and
+  consumes all used buffers.
+- The interrupt is serviced. vring_interrupt() finds no used buffers
+  via more_used() and returns without waking port->waitqueue.
+- Thread A is still in wait_event(port->waitqueue), waiting for a
+  wakeup that never arrives.
 
-> Because the delayed refill work will call napi_disable(), we
-> must ensure that refill work is only enabled and scheduled after we have
-> enabled the rx queue's NAPI.
+The crux is that invoking reclaim_consumed_buffers() may cause
+vring_interrupt() to omit wakeups.
 
+Fix this by calling reclaim_consumed_buffers() in out_int() before
+waking. This is similar to the call to discard_port_data() in
+in_intr() which also frees buffer from a non-sleepable context.
+This in turn guarantees that port->outvq_full is up to date when
+handling polling. Since in_intr() already populates port->inbuf we
+use that to avoid changing reader state.
 
-a bugfix so needs a Fixes tag.
+Cc: stable@vger.kernel.org
+Signed-off-by: Lorenz Bauer <lmb@isovalent.com>
+---
+As far as I can tell all currently maintained stable series kernels need
+this commit. Applies and builds cleanly on 5.10.247, verified to fix
+the issue.
+---
+Changes in v3:
+- Use spin_lock_irq in port_fops_poll (Arnd)
+- Use spin_lock in out_intr (Arnd)
+- Link to v2: https://lore.kernel.org/r/20251222-virtio-console-lost-wakeup-v2-1-5de93cb3f1c1@isovalent.com
 
-> 
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
->  drivers/net/virtio_net.c | 31 ++++++++++++++++++++++++-------
->  1 file changed, 24 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 63126e490bda..8016d2b378cf 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3208,16 +3208,31 @@ static int virtnet_open(struct net_device *dev)
->  	int i, err;
->  
->  	for (i = 0; i < vi->max_queue_pairs; i++) {
-> +		bool schedule_refill = false;
-> +
-> +		/* - We must call try_fill_recv before enabling napi of the same
-> +		 * receive queue so that it doesn't race with the call in
-> +		 * virtnet_receive.
-> +		 * - We must enable and schedule delayed refill work only when
-> +		 * we have enabled all the receive queue's napi. Otherwise, in
-> +		 * refill_work, we have a deadlock when calling napi_disable on
-> +		 * an already disabled napi.
-> +		 */
->  		if (i < vi->curr_queue_pairs) {
-> -			enable_delayed_refill(&vi->rq[i]);
->  			/* Make sure we have some buffers: if oom use wq. */
->  			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
-> -				schedule_delayed_work(&vi->rq[i].refill, 0);
-> +				schedule_refill = true;
->  		}
->  
->  		err = virtnet_enable_queue_pair(vi, i);
->  		if (err < 0)
->  			goto err_enable_qp;
-> +
-> +		if (i < vi->curr_queue_pairs) {
-> +			enable_delayed_refill(&vi->rq[i]);
-> +			if (schedule_refill)
-> +				schedule_delayed_work(&vi->rq[i].refill, 0);
-> +		}
->  	}
->  
->  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-> @@ -3456,11 +3471,16 @@ static void __virtnet_rx_resume(struct virtnet_info *vi,
->  	bool running = netif_running(vi->dev);
->  	bool schedule_refill = false;
->  
-> +	/* See the comment in virtnet_open for the ordering rule
-> +	 * of try_fill_recv, receive queue napi_enable and delayed
-> +	 * refill enable/schedule.
-> +	 */
->  	if (refill && !try_fill_recv(vi, rq, GFP_KERNEL))
->  		schedule_refill = true;
->  	if (running)
->  		virtnet_napi_enable(rq);
->  
-> +	enable_delayed_refill(rq);
->  	if (schedule_refill)
->  		schedule_delayed_work(&rq->refill, 0);
->  }
-> @@ -3470,18 +3490,15 @@ static void virtnet_rx_resume_all(struct virtnet_info *vi)
->  	int i;
->  
->  	for (i = 0; i < vi->max_queue_pairs; i++) {
-> -		if (i < vi->curr_queue_pairs) {
-> -			enable_delayed_refill(&vi->rq[i]);
-> +		if (i < vi->curr_queue_pairs)
->  			__virtnet_rx_resume(vi, &vi->rq[i], true);
-> -		} else {
-> +		else
->  			__virtnet_rx_resume(vi, &vi->rq[i], false);
-> -		}
->  	}
->  }
->  
->  static void virtnet_rx_resume(struct virtnet_info *vi, struct receive_queue *rq)
->  {
-> -	enable_delayed_refill(rq);
->  	__virtnet_rx_resume(vi, rq, true);
->  }
->  
-> -- 
-> 2.43.0
+Changes in v2:
+- Call reclaim_consumed_buffers() in out_intr instead of
+  issuing another wake.
+- Link to v1: https://lore.kernel.org/r/20251215-virtio-console-lost-wakeup-v1-1-79a5c57815e7@isovalent.com
+---
+ drivers/char/virtio_console.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 088182e54debd6029ea2c2a5542d7a28500e67b8..e6048e04c3b23d008caa2a1d31d4ac6b2841045f 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -971,10 +971,17 @@ static __poll_t port_fops_poll(struct file *filp, poll_table *wait)
+ 		return EPOLLHUP;
+ 	}
+ 	ret = 0;
+-	if (!will_read_block(port))
++
++	spin_lock_irq(&port->inbuf_lock);
++	if (port->inbuf)
+ 		ret |= EPOLLIN | EPOLLRDNORM;
+-	if (!will_write_block(port))
++	spin_unlock_irq(&port->inbuf_lock);
++
++	spin_lock_irq(&port->outvq_lock);
++	if (!port->outvq_full)
+ 		ret |= EPOLLOUT;
++	spin_unlock_irq(&port->outvq_lock);
++
+ 	if (!port->host_connected)
+ 		ret |= EPOLLHUP;
+ 
+@@ -1705,6 +1712,10 @@ static void out_intr(struct virtqueue *vq)
+ 		return;
+ 	}
+ 
++	spin_lock(&port->outvq_lock);
++	reclaim_consumed_buffers(port);
++	spin_unlock(&port->outvq_lock);
++
+ 	wake_up_interruptible(&port->waitqueue);
+ }
+ 
+
+---
+base-commit: d358e5254674b70f34c847715ca509e46eb81e6f
+change-id: 20251215-virtio-console-lost-wakeup-0f566c5cd35f
+
+Best regards,
+-- 
+Lorenz Bauer <lmb@isovalent.com>
 
