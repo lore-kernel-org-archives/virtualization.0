@@ -1,67 +1,65 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A981E1E98E6
-	for <virtualization@lists.linux.dev>; Wed, 24 Dec 2025 02:19:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B2F6248F5C
+	for <virtualization@lists.linux.dev>; Wed, 24 Dec 2025 03:44:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766542749; cv=none; b=Y0rRYdQrQSdiS0ytUnvmRKQxnaff63ft8sCS9ahTofuAZknpyRE55sF/u5VU8YfVaTzBX0I7P/NpRVvxDgbp80p+e3Akh0sUKEZ2pnf8C/auIHqSnPPXoCiKGFIabZNMvrmPbsVWT1JyAChkrRjbbFiJZ1wX6J6LOoRrq7KVXBY=
+	t=1766547884; cv=none; b=OwRu1mY6W0r7Um+diaHkPVuIKTA0apm1coK7KhotiqzWlxIudbR6tmzvdYU4/dUY/LJHDiSC6sdzyescKKwIE9Abh+HOl9RMKP3SAcAe8/U3cP01o31SgaRaYskXeA3cWk+e66og0CKxjWOFQjV6WWDWozqjUfrvA8MCNObg7Fg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766542749; c=relaxed/simple;
-	bh=4D1ql5NGQCt0c3ZbFdk1vgbuuqPn91ZETB157vg93SM=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=sAmFQnqJ7BI1osN+SQlPdwy4qbNRUeKV9owMTEmxy+BjV8+Cx8HbDKfnLB98W6dIUXK6apfV5Eld9KjI9/irCYvt99UK3P00T9eraZmajDRz4rljtGICt+JXYg+Et6bVguZUzOnnAtM88QJG7CmHCr1e+gjxfFaeqoKeF6/H1PU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JcB+Xn7M; arc=none smtp.client-ip=209.85.214.179
+	s=arc-20240116; t=1766547884; c=relaxed/simple;
+	bh=fTWxo+poNduOUg0IjnFiktP33OycMuTZ5yCyD17HpXc=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=SUwxFEd33EQ42EArgE2nTzSHLhQ7A+cSzlxp7OjeDMeY24+CneJSb3Sp55IBgKgj/IHKFwoL9B4XQgfOwK6iM8nJ7uLlzxtt09re9W1dOVNmv+4fTZwkCkQ4W+YG+XOLVZ5wsiE9qYI+CEYSbpgZU3tqXVDqaVaoJJrnZq+wSSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z7Igd2iz; arc=none smtp.client-ip=209.85.218.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JcB+Xn7M"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2a0d6f647e2so88972505ad.1
-        for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 18:19:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z7Igd2iz"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b7355f6ef12so1043367266b.3
+        for <virtualization@lists.linux.dev>; Tue, 23 Dec 2025 19:44:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1766542747; x=1767147547; darn=lists.linux.dev;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ErnBMeWj6PhyaT5jVXiuqdZficH0P4n6mk5CWzq0oeI=;
-        b=JcB+Xn7MnbSqzwCfFl+HUNSfYqeRTFT4vvOQRudy4KplULHQRaoZkhzyc4w1AyVhy/
-         LT1YSGlxgdaVgOVowiBWVzF34njrfb9+nCKLbNHASZNS2+YWASDA+E23a0CGSrpfWusN
-         y0Sp3S8M0oWggo/sU/z4bwm+g9AvJq/YE+ShMfbNwakUY4kPfFxVfGbBid8HNR7hP3M+
-         wCkwmPxtVBCZB5bYSKKU4+hiej5gj+l/O2PWTvHEO8AAjyjZlMOr7eDXrFUDiSMkCEZE
-         oCGzE9Umm8GvMxO73yqVl+mt7H2LOvvkk+8uF0PIdjcZze0uIm2sdj0ElzK2aziTWwRK
-         9G+Q==
+        d=gmail.com; s=20230601; t=1766547881; x=1767152681; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=iqClP1J3Blj4kNw4f75McA5KSMvq9OaxJjrHWGLacHo=;
+        b=Z7Igd2izniqN4PydQAGxkhcwA4xZhquBsx6E7PMlcIjbaitG0i644zLCYP1pVi0VkR
+         H5KciUDCge3QFrRoY7rtPNetStf1M1tyDiYumnAdWemcvIo5HZJICUbW+rj921xoNKMV
+         X3lbYNH8yhgkMZCJ0kK7ZqqKNzTfBrZZMtX+6pteTmvE/tbXv8RAiAplArIpwKCPggyI
+         9u9o8mIgQxebvltVxRAEy9xu4nYSGszCzVUnjw1N4HFRd1NTYq4vzvvdGmRC00q4rH/c
+         QUct0EJZkCEubkm8k1REyXxUgbQKSGAMakhdG8rR1x5Ztze1gKW5IHHfJPhNl91pFy4c
+         Sf2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766542747; x=1767147547;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1766547881; x=1767152681;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ErnBMeWj6PhyaT5jVXiuqdZficH0P4n6mk5CWzq0oeI=;
-        b=lG0Zl3GOZLCTlRIExMc7I/J1ZtGG8E0PsBQ5SnbCfCfqG3REz0yHLvA3gABfeCK3T8
-         SaeJRug4YWxNy8URwS9Dk4tSj3zLRKqjkZbdXrzvis/8JfF/Mk2hMJMSRJnJoP3V8n9P
-         aYldrHDwYVCKDYsUMA23ZgpqrRfb9qvFSOP294cX5P4io6wSVZfTcRDkEVEFwz+hZy1o
-         qEDDNjw/vLQNfs97rs4GMU3+9P3jpMJBxwhwEic0Ig0QKCvq5EqsyobpKPCoEpCS9E0s
-         nbJXHSW5QQoV6c38B89E1iPPlBe5GqSjRbSr36hGmYtfJFcr+5vFCaZeBxR2bNcRQeAt
-         4loQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVqtW0dmFOYYlFU+YlzV1BlnfiicOdiCYiqBrzAn29gcMxjah+vHr96/LNLa96cYEAfYkdXgoqjhptLPmiHag==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzYjlP615mqdkCWR54Eih01RMPgSMLxOlt3wYdVnOjO34z6QF4U
-	5S2Y4BZ7zZNIucEfwrY1S+bSnntWY5fwzmgtC7dbo/o2aO1pWMAuu6+w
-X-Gm-Gg: AY/fxX54czSBqdQwUErGaGRqk6zr+WzhWGHjWLmFLcPlCNZqsHIRbu4L6ij869XxUGx
-	PwbC5vXMxsrp7wM+xF8Y9IE/uFPfHx++NKIIalpi7bl12DS0tGupZl6UiJPmaAlcb+j55wO4p2k
-	lyjmX++kNkew9n/EXWtnYem64KKvKDHuv+86mMdSSHWa+Ce91fBisyBX5UP2Ts2+qjtUj/BNaPa
-	twv2oLXXp8l+4+F6ZwaHpauj8ozCsF4lgC1lhqLVSNL4+rqCF4Su2+JAalUI0Iag1CLU9M1e6aA
-	XGi01s4hoEqa0q04v3mXqji5hDhe3gpmm14YeyvO+vDNruOVlB9JcxhP7R1xL5UItdUhIEFvKQW
-	xCwWPka4H+yFcOTD1DVB1kVKva16TL2mm0vbMoeZlESrnDwqG4rUcaTcDdBd7t1WN4wL881wiPF
-	iPnvmWdu9UJO1odhRZwqg=
-X-Google-Smtp-Source: AGHT+IEzm/ibZMvW0WDYod06cdGDdF17eottIlsNSCoG3mOTQ5rlmwiFEkCEyiy9R06vh/9NSDfGJg==
-X-Received: by 2002:a17:902:f542:b0:2a0:c20e:e4d6 with SMTP id d9443c01a7336-2a2f283de1amr147271975ad.39.1766536134920;
-        Tue, 23 Dec 2025 16:28:54 -0800 (PST)
-Received: from localhost ([2a03:2880:2ff:7::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a2f3c9b51esm135955525ad.43.2025.12.23.16.28.54
+        bh=iqClP1J3Blj4kNw4f75McA5KSMvq9OaxJjrHWGLacHo=;
+        b=nczj3uFcOI/KPJGsnrYsBk/Gm7VFlhmsarIPzARKI+NjG9NvDp2R5+7breIPoEGOkX
+         sxyLxTxzpMW660JCv+YvI4cRSbMuhQxZg3jLu9lwb6q8UL3hec6t8E9Wfa7NQ6ren4fC
+         tMEAVoKCDGANKhlvRH7IvC4G1GzU34bghqkxr+FbXdaQXzO8CWF90m94Q0SEDzAlXq6K
+         klXfWMrX5Ii5nxeGWZY7sEtHQIkLMLhAtOtXTcxzIfw6Il2Cz/eyhEigZMcB3/G/Ys6A
+         UfVn1p8NaALOHIhZaPepAr3CrqYWmmMzN7bcNkFxcxHgawMtEYandyEByv+vrDq3w5B9
+         NTkg==
+X-Gm-Message-State: AOJu0Yy56WaQBgZTv3pgzVbcU2vpr0CLn9WSkgAY+jg5jjRUCv8YMfMG
+	CIMDDsDL31nDIbGGer1UC0vizStYWPPso1BU1nml8bQW2lJIUAVvu40C
+X-Gm-Gg: AY/fxX7esNu/OQbGkMC5bwbgQuOM7Wz3N9boKfvyFcBkSMP52lRshJiHnIwtbeKcaN0
+	1/Itqv72DVNPbiJeYyay5ZwWDc3w0nTE+EkkXqvLZ4kDWEJR3L7K8/FQnextKn42EsA+naLwvip
+	e4xdxarhqjembk3fVx6vL8/EFXt5gQq8ATlvuCjZCRarYiTCmzaTgkxGw9vq8nplgpb/RpL62zL
+	YX/mDPrg+zgMhg6F4vt8tVx1y4V8CKhCsPcembcjTUMVXwj049hlTTLgqU016Hf1oqLXQ3eJvVO
+	5JXtnXvEYa53f0izbelBjfVAlbuzk0re3RDE/mN82kwTJG6TlEyPUC9C0axE1W7z3gkKOW/VU33
+	ZMWr4RRBip7HnMYmZhhmcyIxjcrihkt/ZItmM5d6Pz3adZIHamLZ5YzkAd0IsWSwn83gmcAI1ww
+	+Q6UFRQnppO63AwIiOeHehbRWaVK/QdrlRmXsc4zHi
+X-Google-Smtp-Source: AGHT+IFtFPTf8Y7FfhjP3jw+d9+0TUQIjezaoa1JRTlwOhq0qKOO5sF3sFUhRJYY5TqEtoAzV4yXYw==
+X-Received: by 2002:a17:907:3e8c:b0:b72:5d08:486c with SMTP id a640c23a62f3a-b8036f5a0cdmr1911426666b.27.1766547881122;
+        Tue, 23 Dec 2025 19:44:41 -0800 (PST)
+Received: from localhost (mem-185.47.220.165.jmnet.cz. [185.47.220.165])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8037f0b12dsm1621963966b.48.2025.12.23.19.44.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Dec 2025 16:28:54 -0800 (PST)
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Subject: [PATCH RFC net-next v13 00/13] vsock: add namespace support to
- vhost-vsock and loopback
-Date: Tue, 23 Dec 2025 16:28:34 -0800
-Message-Id: <20251223-vsock-vmtest-v13-0-9d6db8e7c80b@meta.com>
+        Tue, 23 Dec 2025 19:44:40 -0800 (PST)
+From: Filip Hejsek <filip.hejsek@gmail.com>
+Date: Wed, 24 Dec 2025 04:44:06 +0100
+Subject: [PATCH] virtio_console: read size from config space during device
+ init
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,276 +68,133 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIALUzS2kC/5WTy2rcQBBFf0VoPRWqqt9DCIZAPiDb4EU/SrawN
- eNMK8LB+N/DKIOt9HiTrdC5R1zVfemrnEap/b576U+yjHU8Hvp9R2rX9fk+Hu4ExtLvu56RDSo
- 2sNRjfoBlmqXOkFRkKkzImftd1z+dZBif17wf/fdvX8/PDjLDQZ7n/nbX9fdjnY+n36tvofW1N
- VkT/pu8EBAMykRPJabg883dFMfHT/k4rUELb2HXwAwEKiBFdkqR+BZWG5h9AysgIE9xsGTVoKS
- F9TtssDVrILDCMTi2nIvdwLtLix7NFYSAJkg2FBMR3Uwyx3eh2QhJNawBAi3OZB21yZI+ErK7g
- hAwReMxSRGTGqHdCtuPtUAQ4kA5I6uA+IEwkL2CENDqwpIw+1AaoXsTEjI1rFtZS8klO6DftHP
- x/Rez+vzW1zbqAaFIDF4X5JSwYQnfYbq6PMIzPaAfyJp0vp6Gpg3NV0dPgGBMTtkj6xBdS/OWb
- ksmBgQ2ToQpF1O27te/6zzJz19jHefLRCepNa4b33efL3XwJbXK43DOrbBOGuKhwDg9nY6LTHK
- Y63miCFIkkQvFaqvedF/OfybFKpCP0zTO+y5YjtnkGEI0WYnTNjCZNGhnHGuNGrkMxYT+9vX1D
- 4bMxe2VBAAA
-X-Change-ID: 20250325-vsock-vmtest-b3a21d2102c2
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
- Vishnu Dasa <vishnu.dasa@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- Shuah Khan <shuah@kernel.org>, Long Li <longli@microsoft.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, berrange@redhat.com, 
- Sargun Dhillon <sargun@sargun.me>, Bobby Eshleman <bobbyeshleman@gmail.com>, 
- Bobby Eshleman <bobbyeshleman@meta.com>
+Message-Id: <20251224-virtio-console-fix-v1-1-69d0349692dc@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAIVhS2kC/x2MQQqAMAzAviI9W9C5ifoV8SCz04Js0ooI4t8dH
+ hNIHlASJoWheEDoYuUUM9RlAX6b40rIS2YwlXG1MRYvlpMT+hQ17YSBb2wW2/ZdRcG1PeTwEMr
+ 6n47T+35/fsk1ZAAAAA==
+X-Change-ID: 20251224-virtio-console-fix-3d46980ef569
+To: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1766547879; l=3793;
+ i=filip.hejsek@gmail.com; s=20250912; h=from:subject:message-id;
+ bh=fTWxo+poNduOUg0IjnFiktP33OycMuTZ5yCyD17HpXc=;
+ b=Gy38c1nLgv7mAfyfZdz7Ho1GUKBy/xnez7CbXH71d8vtKp9i0ikf6l6rYkWkosA4HQ6eHK3AJ
+ 4/B/ys2DkRSBrWObSAUnFUHXqGpEHYymLPlilbJdIpCqbEDE6jYnddr
+X-Developer-Key: i=filip.hejsek@gmail.com; a=ed25519;
+ pk=nakB8gEK3oi+Q/5dBTMCy/LgZL47NP60z1jeDR6O/WU=
 
-This series adds namespace support to vhost-vsock and loopback. It does
-not add namespaces to any of the other guest transports (virtio-vsock,
-hyperv, or vmci).
+Previously, the size was only read upon receiving the config interrupt.
+This interrupt is sent when the size changes. However, we also need to
+read the initial size.
 
-The current revision supports two modes: local and global. Local
-mode is complete isolation of namespaces, while global mode is complete
-sharing between namespaces of CIDs (the original behavior).
+Also make sure to only read the size from config if F_SIZE is enabled.
 
-The mode is set using the parent namespace's
-/proc/sys/net/vsock/child_ns_mode and inherited when a new namespace is
-created. The mode of the current namespace can be queried by reading
-/proc/sys/net/vsock/ns_mode. The mode can not change after the namespace
-has been created.
+Fixes: 9778829cffd4 ("virtio: console: Store each console's size in the console structure")
+Signed-off-by: Filip Hejsek <filip.hejsek@gmail.com>
+---
+I found this bug while developing patches for QEMU that add virtio
+console resize support. If you want to test this, you can get my QEMU
+patches from [1]. You will need to disable multiport
+using `-device virtio-serial,max_ports=1`.
 
-Modes are per-netns. This allows a system to configure namespaces
-independently (some may share CIDs, others are completely isolated).
-This also supports future possible mixed use cases, where there may be
-namespaces in global mode spinning up VMs while there are mixed mode
-namespaces that provide services to the VMs, but are not allowed to
-allocate from the global CID pool (this mode is not implemented in this
-series).
+[1]: https://lore.kernel.org/all/20250921-console-resize-v5-0-89e3c6727060@gmail.com/
 
-Additionally, added tests for the new namespace features:
+As an aside, when I was trying to understand the kernel resizing code,
+I noticed two things which didn't make sense to me:
 
-tools/testing/selftests/vsock/vmtest.sh
-1..25
-ok 1 vm_server_host_client
-ok 2 vm_client_host_server
-ok 3 vm_loopback
-ok 4 ns_host_vsock_ns_mode_ok
-ok 5 ns_host_vsock_child_ns_mode_ok
-ok 6 ns_global_same_cid_fails
-ok 7 ns_local_same_cid_ok
-ok 8 ns_global_local_same_cid_ok
-ok 9 ns_local_global_same_cid_ok
-ok 10 ns_diff_global_host_connect_to_global_vm_ok
-ok 11 ns_diff_global_host_connect_to_local_vm_fails
-ok 12 ns_diff_global_vm_connect_to_global_host_ok
-ok 13 ns_diff_global_vm_connect_to_local_host_fails
-ok 14 ns_diff_local_host_connect_to_local_vm_fails
-ok 15 ns_diff_local_vm_connect_to_local_host_fails
-ok 16 ns_diff_global_to_local_loopback_local_fails
-ok 17 ns_diff_local_to_global_loopback_fails
-ok 18 ns_diff_local_to_local_loopback_fails
-ok 19 ns_diff_global_to_global_loopback_ok
-ok 20 ns_same_local_loopback_ok
-ok 21 ns_same_local_host_connect_to_local_vm_ok
-ok 22 ns_same_local_vm_connect_to_local_host_ok
-ok 23 ns_delete_vm_ok
-ok 24 ns_delete_host_ok
-ok 25 ns_delete_both_ok
-SUMMARY: PASS=25 SKIP=0 FAIL=0
+  - Why does use_multiport use __virtio_test_bit instead of
+    virtio_has_feature?
 
-Thanks again for everyone's help and reviews!
+  - The VIRTIO_CONSOLE_RESIZE handler sets irq_requested to 1, which I
+    think makes no sense?
+---
+ drivers/char/virtio_console.c | 52 ++++++++++++++++++++++++++-----------------
+ 1 file changed, 31 insertions(+), 21 deletions(-)
 
-Suggested-by: Sargun Dhillon <sargun@sargun.me>
-Signed-off-by: Bobby Eshleman <bobbyeshleman@gmail.com>
-
-Changes in v13:
-- add support for immutable sysfs ns_mode and inheritance from sysfs child_ns_mode
-- remove passing around of net_mode, can be accessed now via
-  vsock_net_mode(net) since it is immutable
-- update tests for new uAPI
-- add one patch to extend the kselftest timeout (it was starting to
-  fail with the new tests added)
-- Link to v12: https://lore.kernel.org/r/20251126-vsock-vmtest-v12-0-257ee21cd5de@meta.com
-
-Changes in v12:
-- add ns mode checking to _allow() callbacks to reject local mode for
-  incompatible transports (Stefano)
-- flip vhost/loopback to return true for stream_allow() and
-  seqpacket_allow() in "vsock: add netns support to virtio transports"
-  (Stefano)
-- add VMADDR_CID_ANY + local mode documentation in af_vsock.c (Stefano)
-- change "selftests/vsock: add tests for host <-> vm connectivity with
-  namespaces" to skip test 29 in vsock_test for namespace local
-  vsock_test calls in a host local-mode namespace. There is a
-  false-positive edge case for that test encountered with the
-  ->stream_allow() approach. More details in that patch.
-- updated cover letter with new test output
-- Link to v11: https://lore.kernel.org/r/20251120-vsock-vmtest-v11-0-55cbc80249a7@meta.com
-
-Changes in v11:
-- vmtest: add a patch to use ss in wait_for_listener functions and
-  support vsock, tcp, and unix. Change all patches to use the new
-  functions.
-- vmtest: add a patch to re-use vm dmesg / warn counting functions
-- Link to v10: https://lore.kernel.org/r/20251117-vsock-vmtest-v10-0-df08f165bf3e@meta.com
-
-Changes in v10:
-- Combine virtio common patches into one (Stefano)
-- Resolve vsock_loopback virtio_transport_reset_no_sock() issue
-  with info->vsk setting. This eliminates the need for skb->cb,
-  so remove skb->cb patches.
-- many line width 80 fixes
-- Link to v9: https://lore.kernel.org/all/20251111-vsock-vmtest-v9-0-852787a37bed@meta.com
-
-Changes in v9:
-- reorder loopback patch after patch for virtio transport common code
-- remove module ordering tests patch because loopback no longer depends
-  on pernet ops
-- major simplifications in vsock_loopback
-- added a new patch for blocking local mode for guests, added test case
-  to check
-- add net ref tracking to vsock_loopback patch
-- Link to v8: https://lore.kernel.org/r/20251023-vsock-vmtest-v8-0-dea984d02bb0@meta.com
-
-Changes in v8:
-- Break generic cleanup/refactoring patches into standalone series,
-  remove those from this series
-- Link to dependency: https://lore.kernel.org/all/20251022-vsock-selftests-fixes-and-improvements-v1-0-edeb179d6463@meta.com/
-- Link to v7: https://lore.kernel.org/r/20251021-vsock-vmtest-v7-0-0661b7b6f081@meta.com
-
-Changes in v7:
-- fix hv_sock build
-- break out vmtest patches into distinct, more well-scoped patches
-- change `orig_net_mode` to `net_mode`
-- many fixes and style changes in per-patch change sets (see individual
-  patches for specific changes)
-- optimize `virtio_vsock_skb_cb` layout
-- update commit messages with more useful descriptions
-- vsock_loopback: use orig_net_mode instead of current net mode
-- add tests for edge cases (ns deletion, mode changing, loopback module
-  load ordering)
-- Link to v6: https://lore.kernel.org/r/20250916-vsock-vmtest-v6-0-064d2eb0c89d@meta.com
-
-Changes in v6:
-- define behavior when mode changes to local while socket/VM is alive
-- af_vsock: clarify description of CID behavior
-- af_vsock: use stronger langauge around CID rules (dont use "may")
-- af_vsock: improve naming of buf/buffer
-- af_vsock: improve string length checking on proc writes
-- vsock_loopback: add space in struct to clarify lock protection
-- vsock_loopback: do proper cleanup/unregister on vsock_loopback_exit()
-- vsock_loopback: use virtio_vsock_skb_net() instead of sock_net()
-- vsock_loopback: set loopback to NULL after kfree()
-- vsock_loopback: use pernet_operations and remove callback mechanism
-- vsock_loopback: add macros for "global" and "local"
-- vsock_loopback: fix length checking
-- vmtest.sh: check for namespace support in vmtest.sh
-- Link to v5: https://lore.kernel.org/r/20250827-vsock-vmtest-v5-0-0ba580bede5b@meta.com
-
-Changes in v5:
-- /proc/net/vsock_ns_mode -> /proc/sys/net/vsock/ns_mode
-- vsock_global_net -> vsock_global_dummy_net
-- fix netns lookup in vhost_vsock to respect pid namespaces
-- add callbacks for vsock_loopback to avoid circular dependency
-- vmtest.sh loads vsock_loopback module
-- remove vsock_net_mode_can_set()
-- change vsock_net_write_mode() to return true/false based on success
-- make vsock_net_mode enum instead of u8
-- Link to v4: https://lore.kernel.org/r/20250805-vsock-vmtest-v4-0-059ec51ab111@meta.com
-
-Changes in v4:
-- removed RFC tag
-- implemented loopback support
-- renamed new tests to better reflect behavior
-- completed suite of tests with permutations of ns modes and vsock_test
-  as guest/host
-- simplified socat bridging with unix socket instead of tcp + veth
-- only use vsock_test for success case, socat for failure case (context
-  in commit message)
-- lots of cleanup
-
-Changes in v3:
-- add notion of "modes"
-- add procfs /proc/net/vsock_ns_mode
-- local and global modes only
-- no /dev/vhost-vsock-netns
-- vmtest.sh already merged, so new patch just adds new tests for NS
-- Link to v2:
-  https://lore.kernel.org/kvm/20250312-vsock-netns-v2-0-84bffa1aa97a@gmail.com
-
-Changes in v2:
-- only support vhost-vsock namespaces
-- all g2h namespaces retain old behavior, only common API changes
-  impacted by vhost-vsock changes
-- add /dev/vhost-vsock-netns for "opt-in"
-- leave /dev/vhost-vsock to old behavior
-- removed netns module param
-- Link to v1:
-  https://lore.kernel.org/r/20200116172428.311437-1-sgarzare@redhat.com
-
-Changes in v1:
-- added 'netns' module param to vsock.ko to enable the
-  network namespace support (disabled by default)
-- added 'vsock_net_eq()' to check the "net" assigned to a socket
-  only when 'netns' support is enabled
-- Link to RFC: https://patchwork.ozlabs.org/cover/1202235/
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 088182e54deb..c355f6d39274 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1771,32 +1771,40 @@ static void config_intr(struct virtio_device *vdev)
+ 		schedule_work(&portdev->config_work);
+ }
+ 
+-static void config_work_handler(struct work_struct *work)
++static void update_size_from_config(struct ports_device *portdev)
+ {
+-	struct ports_device *portdev;
++	struct virtio_device *vdev;
++	struct port *port;
++	u16 rows, cols;
+ 
+-	portdev = container_of(work, struct ports_device, config_work);
+-	if (!use_multiport(portdev)) {
+-		struct virtio_device *vdev;
+-		struct port *port;
+-		u16 rows, cols;
++	vdev = portdev->vdev;
+ 
+-		vdev = portdev->vdev;
+-		virtio_cread(vdev, struct virtio_console_config, cols, &cols);
+-		virtio_cread(vdev, struct virtio_console_config, rows, &rows);
++	/*
++	 * We'll use this way of resizing only for legacy support.
++	 * For multiport devices, use control messages to indicate
++	 * console size changes so that it can be done per-port.
++	 *
++	 * Don't test F_SIZE at all if we're rproc: not a valid feature.
++	 */
++	if (is_rproc_serial(vdev) ||
++	    use_multiport(portdev) ||
++	    !virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE))
++		return;
+ 
+-		port = find_port_by_id(portdev, 0);
+-		set_console_size(port, rows, cols);
++	virtio_cread(vdev, struct virtio_console_config, cols, &cols);
++	virtio_cread(vdev, struct virtio_console_config, rows, &rows);
+ 
+-		/*
+-		 * We'll use this way of resizing only for legacy
+-		 * support.  For newer userspace
+-		 * (VIRTIO_CONSOLE_F_MULTPORT+), use control messages
+-		 * to indicate console size changes so that it can be
+-		 * done per-port.
+-		 */
+-		resize_console(port);
+-	}
++	port = find_port_by_id(portdev, 0);
++	set_console_size(port, rows, cols);
++	resize_console(port);
++}
++
++static void config_work_handler(struct work_struct *work)
++{
++	struct ports_device *portdev;
++
++	portdev = container_of(work, struct ports_device, config_work);
++	update_size_from_config(portdev);
+ }
+ 
+ static int init_vqs(struct ports_device *portdev)
+@@ -2054,6 +2062,8 @@ static int virtcons_probe(struct virtio_device *vdev)
+ 	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
+ 			   VIRTIO_CONSOLE_DEVICE_READY, 1);
+ 
++	update_size_from_config(portdev);
++
+ 	return 0;
+ 
+ free_chrdev:
 
 ---
-Bobby Eshleman (13):
-      vsock: add per-net vsock NS mode state
-      vsock: add netns to vsock core
-      virtio: set skb owner of virtio_transport_reset_no_sock() reply
-      vsock: add netns support to virtio transports
-      selftests/vsock: increase timeout to 1200
-      selftests/vsock: add namespace helpers to vmtest.sh
-      selftests/vsock: prepare vm management helpers for namespaces
-      selftests/vsock: add vm_dmesg_{warn,oops}_count() helpers
-      selftests/vsock: use ss to wait for listeners instead of /proc/net
-      selftests/vsock: add tests for proc sys vsock ns_mode
-      selftests/vsock: add namespace tests for CID collisions
-      selftests/vsock: add tests for host <-> vm connectivity with namespaces
-      selftests/vsock: add tests for namespace deletion
-
- MAINTAINERS                             |    1 +
- drivers/vhost/vsock.c                   |   44 +-
- include/linux/virtio_vsock.h            |    9 +-
- include/net/af_vsock.h                  |   53 +-
- include/net/net_namespace.h             |    4 +
- include/net/netns/vsock.h               |   17 +
- net/vmw_vsock/af_vsock.c                |  296 ++++++++-
- net/vmw_vsock/hyperv_transport.c        |    7 +-
- net/vmw_vsock/virtio_transport.c        |   22 +-
- net/vmw_vsock/virtio_transport_common.c |   62 +-
- net/vmw_vsock/vmci_transport.c          |   26 +-
- net/vmw_vsock/vsock_loopback.c          |   22 +-
- tools/testing/selftests/vsock/settings  |    2 +-
- tools/testing/selftests/vsock/vmtest.sh | 1055 +++++++++++++++++++++++++++++--
- 14 files changed, 1487 insertions(+), 133 deletions(-)
----
-base-commit: 962ac5ca99a5c3e7469215bf47572440402dfd59
-change-id: 20250325-vsock-vmtest-b3a21d2102c2
-prerequisite-message-id: <20251022-vsock-selftests-fixes-and-improvements-v1-0-edeb179d6463@meta.com>
-prerequisite-patch-id: a2eecc3851f2509ed40009a7cab6990c6d7cfff5
-prerequisite-patch-id: 501db2100636b9c8fcb3b64b8b1df797ccbede85
-prerequisite-patch-id: ba1a2f07398a035bc48ef72edda41888614be449
-prerequisite-patch-id: fd5cc5445aca9355ce678e6d2bfa89fab8a57e61
-prerequisite-patch-id: 795ab4432ffb0843e22b580374782e7e0d99b909
-prerequisite-patch-id: 1499d263dc933e75366c09e045d2125ca39f7ddd
-prerequisite-patch-id: f92d99bb1d35d99b063f818a19dcda999152d74c
-prerequisite-patch-id: e3296f38cdba6d903e061cff2bbb3e7615e8e671
-prerequisite-patch-id: bc4662b4710d302d4893f58708820fc2a0624325
-prerequisite-patch-id: f8991f2e98c2661a706183fde6b35e2b8d9aedcf
-prerequisite-patch-id: 44bf9ed69353586d284e5ee63d6fffa30439a698
-prerequisite-patch-id: d50621bc630eeaf608bbaf260370c8dabf6326df
+base-commit: b927546677c876e26eba308550207c2ddf812a43
+change-id: 20251224-virtio-console-fix-3d46980ef569
 
 Best regards,
 -- 
-Bobby Eshleman <bobbyeshleman@meta.com>
+Filip Hejsek <filip.hejsek@gmail.com>
 
