@@ -1,173 +1,157 @@
-Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 186B253E0B
-	for <virtualization@lists.linux.dev>; Fri, 26 Dec 2025 15:20:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766762439; cv=pass; b=nOUjrWiZtKLcSa8lEyjaXb0BtNwJIW31B4He8PBfJPmcvFkfVfIuYp9y1b1UnxoWQfCqZNih5sWBMACH5VEZvoQPJr1TJEMwrb8bwsovh7VuyCzpWeYHoVIEXITa3X7ufcUDPp5y/3XaLChj/kSjpOZrfProse4i1cGooeD3Jyg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766762439; c=relaxed/simple;
-	bh=PLfOrXsKuXPJbF/ozmzSAqxXmkRHY1fuhDYqZjyePGk=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2823F277CA5
+	for <virtualization@lists.linux.dev>; Fri, 26 Dec 2025 19:13:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1766776390; cv=none; b=Onxj3+cpkKlbOcjpJhPznzb9h1PWJA19d2JoJ0fJ35CMStpHMzruCO75E/0W6uHoooiTe6EumF//D8LFZposE57nTmCrH5pDl6bjkU4FShuDIbsMfEIwpfh/jQLxCgnV0x3KOTcP1YO1zrtcwBFYR9Q8TguebO4kbSsrCDgh6nw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1766776390; c=relaxed/simple;
+	bh=lUMCmuczKMUXW6eGw5YTX4sf8AJhio3FKYtAAVRjSoQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IXB1YkMV20PifY5erBTTuGt7YQygrtKujpXK5HtzvxXJmxCv5EGIqn8x6+gfmakXUgZLBkdeOJ+rXnE+D7CC6yaSUzJzwMbvIXqDZRlvp57rgBx4oMpiZ578fN9EtYhxt7utqOV6K4gIbQMjQw/TkfUMzn3KgG3cElJz4HoN51g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=o/PGRTUd; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=FAt1PuPp; arc=pass smtp.client-ip=185.56.87.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
+	 In-Reply-To:Content-Type:Content-Disposition; b=BAXKnBm8RtRc1OlTpc8Y9edoCrqFvPQPNPXIXcORyET2v2Fd7xYMPb0tQuhiSdvZYLq3kJRnqSV98jeLFV2b+n3mswy7upPTROzYIigdkyFXro0u1V6VkaBDgp3p21v75JmefP0mHV4Vun1unTG9Q/tQ6T/uPF6YLK2PisY4nTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c1ICGmy7; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="o/PGRTUd";
-	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="FAt1PuPp"
-ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com; s=arckey; t=1766762437;
-	 b=CrKARbR6W+epRGAZujLn6K5eHTMe6RULIFQOdtLrNUU85SYagU8i1qlhdEjyhma6YrJtNpeNtj
-	  GbegvhATwBM9aa3ZqHYKJoXfRjMgEW/6IDI8i5tLyEe7CJDnCzstOnlRGnwTQm34GzsXyG/oYu
-	  MFHJjQv0DuQ/FGGi3ykwpE9lxz3OVY4IPGHnDMZjp0iWEZNT1PV54kGt2ZHMAwb3whAPbgDOXg
-	  6KGptevhZxpMSD/coqZS+dsraU68u+7y6MFiGZmbwW5iPJ+S0iKW+41reNaA+S220uisWEMpUa
-	  A7RoFh94tHF2FhcvNZhLASathcbrOG1qS0rYsCzpK1ZkBQ==;
-ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com; s=arckey; t=1766762437;
-	bh=PLfOrXsKuXPJbF/ozmzSAqxXmkRHY1fuhDYqZjyePGk=;
-	h=In-Reply-To:Content-Description:Content-Type:MIME-Version:References:
-	  Message-ID:Subject:Cc:To:From:Date:DKIM-Signature:DKIM-Signature;
-	b=TL+KzK6FNzkdOnGykB53BWZWZDC1VEezjcefhI7M7YlZtesXfstKrMbmLzrb9q7G81DycTuwkb
-	  lIdsm/6FL28mEMgcT28KzRxu1tyyNfikeikatSdN/NiR5P6OEKXQAg9wl0ldPGAOqwzZoi1D8G
-	  8nVRIJ1G6nMGeHliZz8BgrJ1ujWp5IyvaK0aMWkc/IJkqdQGfBEHeICYm95KR4X9VRLwIgCMfc
-	  iouZAD1Tn+BBV6rhebYFOKceDDNXoNwyazEzkUk2oRsXLmwARIO8bBXbDK7zf76fIO4q9G7l/5
-	  vOlv6or1P5Q/x2gKb1+/lmRWw+NkvNIqAjKT8us1JHD7Dg==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
-	:Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	List-Unsubscribe:Content-Transfer-Encoding;
-	bh=GmElzA9wpYCBzsDOe8cwU9sQH0JD1wOish4AaZbWI0I=; b=o/PGRTUdZ3V5CDu1OglkYZK54C
-	JNYxuNzt+7Qk5lGmo0CJbgkABd17XlsBxnmFZrb98BqK9nZ5n7KI53o1/J0xnSH5UQf5tNNjjtenv
-	f734RqDA7zT2HY3NJOrp+D6GVSv+pvBBpEYsjZqbG83AyF6i1ZvdN3+b3W+2DLqtBYFw=;
-Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
-	by instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1vZ9RI-0000000CcNX-25SD
-	for virtualization@lists.linux.dev;
-	Fri, 26 Dec 2025 15:09:15 +0000
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
-	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
-	list-subscribe:list-post:list-owner:list-archive;
-	bh=GmElzA9wpYCBzsDOe8cwU9sQH0JD1wOish4AaZbWI0I=; b=FAt1PuPpIBFcXVZiYVaPhRtkJP
-	5G+1JTMZ8vrbWxxA1KFItn+Inf5DBoLQ9lrbYGCgOpPAwQEn0dBMz8cS6DsKxm7M2+3D01ZZzYl4Z
-	QKOUPlpEta6BMePXTMB0XmVRptmDOFlcemWVqVuvB4JlTFgzs23RW/UGWu3m7yunpgVk=;
-Received: from [95.248.141.113] (port=62022 helo=bywater)
-	by esm19.siteground.biz with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1vZ9R3-00000000Mx9-3X9B;
-	Fri, 26 Dec 2025 15:08:57 +0000
-Date: Fri, 26 Dec 2025 16:08:56 +0100
-From: Francesco Valla <francesco@valla.it>
-To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol@kernel.org>,
-	Harald Mommer <harald.mommer@oss.qualcomm.com>,
-	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c1ICGmy7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1766776387;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jCJExQzqs637ugyXIzruHJz549Yv0YnLyqIpS8e/QQE=;
+	b=c1ICGmy7CE5mZdJ06TLsyU2tn5MoeOLKtEJsrVwWzPih2uosmUjo2oydKNb8J5vLkTuH7X
+	128YOPA/chfS39rFTRHbU4jBb1oEJeqQLrhJNGlwMFKIYwsUFT3FhTodeiDSZ+psM+DKeS
+	usUAn5rFSgONrsS1sJaGqwGNfuUR3ko=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-571-m_fc302wOV-Gvtw58Gwvlw-1; Fri, 26 Dec 2025 14:13:05 -0500
+X-MC-Unique: m_fc302wOV-Gvtw58Gwvlw-1
+X-Mimecast-MFC-AGG-ID: m_fc302wOV-Gvtw58Gwvlw_1766776384
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-47d28e7960fso18048785e9.0
+        for <virtualization@lists.linux.dev>; Fri, 26 Dec 2025 11:13:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1766776384; x=1767381184;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jCJExQzqs637ugyXIzruHJz549Yv0YnLyqIpS8e/QQE=;
+        b=WfcUNZXeH0bmLZz9EILE8dXqOniFtZjiT7aHg+FPzj6xAck0WHbx7TOr4aMHbe4WYS
+         eI3rNIIyKsbxrHAVYTjhC242NBQyuOYyuKX7Nkv1hADQ7iR++SgqY7ZPctxcPgF7BGHc
+         9qOwWe3bJJGNiQq1QNE7dTOqRhl4v9up+jCnYLLVp5dMaWEoUP2k67p5XUrgFKHHjORU
+         UdFGhPZH/rNRCy7xcZ+20rcJQgLKJ9kDQsOq5L+5FsGdGO3dUgWVVD6ZhE93DWkwGNXX
+         eejJwmyC9+c286kEk/0ysN2t1a/loIrITuleGQ4GjOE/5LpmOjefGHqMW1GU4WZsJGnr
+         x/IA==
+X-Forwarded-Encrypted: i=1; AJvYcCUhFRf7TzgmmzgOQcVAi1a3P23LM6b/1rX1NDgJmqr1MCuuDPVx7lK1nfP2SzXbCuhJBhKY4hs6bBPecJJRXA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzebnOF4ZpE9HjMttW4WKuSBunhnHway49ZilugZw0iCYqYbcFh
+	DzuebmbNjuzQfNHlOZPB34jksj+ej/GZZ+b4TBiHTwy56nm+EOiyGKmUMhDqqZGqOlrgnSLrYW/
+	fDQguTcbuMkSu0H76hP5E6BIORdGJqdNWWyUILbwIrL5vfqLILM6eeM5cNRGTCpag13Dj
+X-Gm-Gg: AY/fxX6pB+lCmL9quRDXL2gFs6I0YfJJGDgaIYKI5OLzpvDBAZ+u06AcBylUGy7T/q7
+	1YE5F3mZ798e5BxjzWsSp/2L0JsBPzC2Wln5XygUV9qiYarnel5Z3d2A3E9cu9AaLN3EDBY1dwB
+	9V2Q9iQFlV1Wwh9iMmLrHOHsXCM9t5Tj0wIm9XkEil3WTQN1reiqol0Ow95vFHoY9fkyc61Fin5
+	xWVfOHevoSzXCIrgXoRsOTijrm8H8ek/hNpYD160BZUyYQo/XELo1a/at51HdbJxlCxEdzNPuoC
+	ZEHJxpM3tSAsL9BswYIaaS55lQrf8Hq5VP3RLIW3O5wYC4s+t9HhjSONk+wX8beijESL3goDu+2
+	6N2ZDnWrgGDR//9j7OnwWOTlPkfpO6oTx3g==
+X-Received: by 2002:a05:600c:4746:b0:479:33be:b23e with SMTP id 5b1f17b1804b1-47d34de4cacmr152042935e9.17.1766776384254;
+        Fri, 26 Dec 2025 11:13:04 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGaJOGoIgep+VQjNLBDcLc9sEzjktuiVWY5kDlSwfdV30VOKaMZG2W2eFwHzlOC0f0TIvKVjQ==
+X-Received: by 2002:a05:600c:4746:b0:479:33be:b23e with SMTP id 5b1f17b1804b1-47d34de4cacmr152042655e9.17.1766776383751;
+        Fri, 26 Dec 2025 11:13:03 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d19346d33sm413964195e9.3.2025.12.26.11.13.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Dec 2025 11:13:03 -0800 (PST)
+Date: Fri, 26 Dec 2025 14:13:00 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bagas Sanjaya <bagasdotme@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Virtualization <virtualization@lists.linux.dev>,
 	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Wolfgang Grandegger <wg@grandegger.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
-Message-ID: <aU6lCL_vrF93lpYa@bywater>
-References: <aQJRnX7OpFRY/1+H@fedora>
- <aQkgsuxa2UaL_qdt@bywater>
- <aTsE1VIk4V/A49HE@fedora>
- <aT7XAsTWr0_yyfx_@bywater>
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Subject: Re: [PATCH v2] virtio: Describe @map and @vmap members in
+ virtio_device struct
+Message-ID: <20251226140725-mutt-send-email-mst@kernel.org>
+References: <20251219031647.25264-1-bagasdotme@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20251219031647.25264-1-bagasdotme@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 3Mvd4tJsmOjtMFhWybh3uFMWfPWOoUcQXQ1uEntX8Wk_1766776384
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
-Content-Description: 
 Content-Disposition: inline
-In-Reply-To: <aT7XAsTWr0_yyfx_@bywater>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - esm19.siteground.biz
-X-AntiAbuse: Original Domain - lists.linux.dev
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - valla.it
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-SGantispam-id: 6fc56d8cb4eb9f5d796ae3035ac3e414
-AntiSpam-DLS: false
-AntiSpam-DLSP: 
-AntiSpam-DLSRS: 
-AntiSpam-TS: 1.0
-CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
-CFBL-Feedback-ID: 1vZ9RI-0000000CcNX-25SD-feedback@antispam.mailspamprotection.com
-Authentication-Results: outgoing.instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
 
-Hi,
+On Fri, Dec 19, 2025 at 10:16:47AM +0700, Bagas Sanjaya wrote:
+> Sphinx reports kernel-doc warnings:
+> 
+> WARNING: ./include/linux/virtio.h:181 struct member 'map' not described in 'virtio_device'
+> WARNING: ./include/linux/virtio.h:181 struct member 'vmap' not described in 'virtio_device'
+> 
+> Describe these members.
+> 
+> Fixes: bee8c7c24b7373 ("virtio: introduce map ops in virtio core")
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-On Sun, Dec 14, 2025 at 04:25:54PM +0100, Francesco Valla wrote:
-> While stress testing this, I noticed that flooding the virtio-can
-> interface with packets leads to an hang of the interface itself.
-> I am seeing this issuing, at host side:
-> 
-> 	while true; do cansend can0 123#00; done
-> 
-> with:
-> 
->  - QEMU: the tip of the master branch plus [2]
->  - vhost-device: the tip of the main branch
-> 
-> and the following QEMU invocation:
-> 
-> qemu-system-x86_64 -serial mon:stdio \
->     -m 2G -smp 2 \
->     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
->     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
->     -append "loglevel=7 console=ttyS0" \
->     -machine memory-backend=pc.ram \
->     -object memory-backend-file,id=pc.ram,size=2G,mem-path=/tmp/pc.ram,share=on \
->     -chardev socket,id=can0,path=/tmp/sock-can0 \
->     -device vhost-user-can-pci,chardev=can0
-> 
-> 
-> Restarting the interface (i.e.: ip link set down and the up) does not
-> fix the situation.
-> 
-> I'll try to do some more testing during the next days.
 
-After a deep dive, I _think_ the problem actually lies in vhost-device,
-since it is not there (or al least, it seems so) using an alternative
-implementation that uses the qemu socketcan support [0] (implementation
-which builds on top of the work done by Harald and Mikhail):
+Well I was going to apply and now I have second thoughts.
+The patch does describe the members, it just does not
+describe them well.
+for example,
 
-qemu-system-x86_64 -serial mon:stdio \
-    -m 2G -smp 2 -enable-kvm \
-    -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
-    -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
-    -append "loglevel=7 console=ttyS0" \
-    -object can-bus,id=canbus0 -object can-host-socketcan,id=canhost0,if=vcan0,canbus=canbus0 \
-    -device virtio-can-pci,canbus=canbus0
 
-Unfortunately, my Rust knoweledge is not sufficient to understand the
-vhost-device implementation [1]; the issue seems to be related to the
-host->guest vring becoming empty and not refilling anymore.
+> ---
+> This patch is split from kernel-doc fixup series [1].
+> 
+> Changes since v1 [2]:
+> 
+>   - Apply review trailers (Michael, Jason)
+> 
+> [1]: https://lore.kernel.org/lkml/20251215113903.46555-1-bagasdotme@gmail.com/
+> [2]: https://lore.kernel.org/lkml/20251215113903.46555-7-bagasdotme@gmail.com/
+> 
+>  include/linux/virtio.h | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 132a474e59140a..68ead8fda9c921 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -150,11 +150,13 @@ struct virtio_admin_cmd {
+>   * @id: the device type identification (used to match it with a driver).
+>   * @config: the configuration ops for this device.
+>   * @vringh_config: configuration ops for host vrings.
+> + * @map: configuration ops for device's mapping buffer
 
-Regards,
-Francesco
+there's no "mapping buffer" that needs configuration.
+the type tells it all:
+ * struct virtio_map_ops - operations for mapping buffer for a virtio device
 
-[0] https://github.com/WallaceIT/qemu/tree/virtio-can
-[1] https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-can
+
+>   * @vqs: the list of virtqueues for this device.
+>   * @features: the 64 lower features supported by both driver and device.
+>   * @features_array: the full features space supported by both driver and
+>   *		    device.
+>   * @priv: private pointer for the driver's use.
+> + * @vmap: device virtual map
+
+this one is not a "virtual map" either.
+more a "device or domain used for mapping memory"
+
+>   * @debugfs_dir: debugfs directory entry.
+>   * @debugfs_filter_features: features to be filtered set by debugfs.
+>   */
+> 
+> base-commit: ea1013c1539270e372fc99854bc6e4d94eaeff66
+> -- 
+> An old man doll... just what I always wanted! - Clara
 
