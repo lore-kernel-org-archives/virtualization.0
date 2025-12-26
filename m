@@ -1,182 +1,173 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A56B5194A76
-	for <virtualization@lists.linux.dev>; Fri, 26 Dec 2025 14:50:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766760649; cv=none; b=dQr8BKT+6A8tD78INWsf0sTcEF5ZoMdblO3TkEvD7tGMRX5sj51yUlubkKGq5bFfb9dwumrOR+bc/VMEpsvZoiPYgQZfWqz8nmicKkTuFpEmLGvRCkswvS1PfQu2r0TmUNQPqvOXbhA9PZrCVvm68+EO0J1orI/m2rDwSC5YKjs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766760649; c=relaxed/simple;
-	bh=PKXRGzbxh1OlfF0T9/TV4KDNz94u0vtq7bXgSU6XVJs=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 186B253E0B
+	for <virtualization@lists.linux.dev>; Fri, 26 Dec 2025 15:20:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1766762439; cv=pass; b=nOUjrWiZtKLcSa8lEyjaXb0BtNwJIW31B4He8PBfJPmcvFkfVfIuYp9y1b1UnxoWQfCqZNih5sWBMACH5VEZvoQPJr1TJEMwrb8bwsovh7VuyCzpWeYHoVIEXITa3X7ufcUDPp5y/3XaLChj/kSjpOZrfProse4i1cGooeD3Jyg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1766762439; c=relaxed/simple;
+	bh=PLfOrXsKuXPJbF/ozmzSAqxXmkRHY1fuhDYqZjyePGk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=F4WHJSexQtaoTevgQt4hteUVL3+rzcKuYeB2KdUlPBM/nCjo9y8w/LqIpU4noYufVg8rK3SiqgKsBUiKj6sbpeTsiMSc+zpk6JytzRqbNmHGINthOUzLm4uIIZCntzsNkP4WWax/GIl1n2UhX7FYaVOf3wwJDGiuEAWdK5jt6Ak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WTAFdQBN; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=IXB1YkMV20PifY5erBTTuGt7YQygrtKujpXK5HtzvxXJmxCv5EGIqn8x6+gfmakXUgZLBkdeOJ+rXnE+D7CC6yaSUzJzwMbvIXqDZRlvp57rgBx4oMpiZ578fN9EtYhxt7utqOV6K4gIbQMjQw/TkfUMzn3KgG3cElJz4HoN51g=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=o/PGRTUd; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=FAt1PuPp; arc=pass smtp.client-ip=185.56.87.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WTAFdQBN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766760646;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7KQs8vvsCuYX4f4WNDWRFaCkEzOPPZG4H4J2HYQGAcg=;
-	b=WTAFdQBN3oCJlv/bsrTK5NZb1/c/0bstaYlGeCFAjwNQ/FEPJ6+clqRtnkTYJUUV7PLk7J
-	HTclUQWLRaVfnRPGY4G6bhSWrkZMYwg21QWrA7wAlB/mThpRN1g3S+YCf3VXiOVvfkbiI2
-	u5FJGgOtWMaURp0UJ0LfyVVf72VwJ18=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-378-F_s8R6FUNE6NDGUF6RSHKw-1; Fri, 26 Dec 2025 09:50:44 -0500
-X-MC-Unique: F_s8R6FUNE6NDGUF6RSHKw-1
-X-Mimecast-MFC-AGG-ID: F_s8R6FUNE6NDGUF6RSHKw_1766760644
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-42fb1c2c403so4674952f8f.3
-        for <virtualization@lists.linux.dev>; Fri, 26 Dec 2025 06:50:44 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766760643; x=1767365443;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7KQs8vvsCuYX4f4WNDWRFaCkEzOPPZG4H4J2HYQGAcg=;
-        b=BuQRlTnlkdoH7deEH2PtNec+DFT7ZKlkX+tVkLa8WFnEhNnKpSmzhhoQRBq6obKKN/
-         zzzDaAefKU0duADP5ZSjBZm0HeEIau1gDozl+lgDdsxsxfaPHDDnhXyz/9E5irDjGMgk
-         16AXUCBNe+ojvJBnP/5zTgsJpabdSE8k50SjhkPaG9AcgujOiFnMLO+zK23AizwcQfO0
-         U8zt5qXDKHrycIqyR8W7sGYs/vOSSqxMsUezGzeAnG6PFJjmAUl+tX4Zxaz3O9tQrPig
-         P6SuiwXXTPCY8L4mX93cdN2DVfWEnEwEgSaRBo/cwvCMZJqFmkk22DbsA2p2+lvrsM6B
-         PBzQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU02SDXNdc9WL8D/PsHY8BMzNEXkvRkE3/c3Cv1kiF99xHcBvNVpjdhxs6GTNOu7aBMatEhUyuGtqLQBFUNhw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx7gy4DfGO/T/jt9xglIxJLgYE/Bbsry8WvB0kmoWZk608bxrQi
-	bOrWGyKyp2gPW7U+5F7iYnRaA4btEjlgwrLrLpcDhJTYTMjnqKtwo+fSBla81jlNEm25RY3w3vu
-	B8v8d5kPJagnZDTg8UOac6w27GnkGEcaBQG/kWkwLArUAS1cGzIGK24Tbf0wwH3+5T+ak
-X-Gm-Gg: AY/fxX5AlMwu1zkojwLK7qs8g9PdYvnb1ZNUUxX0Az00GnM4PtJDThgKzFFZYcsz0gb
-	kHRlGBStGtr1mt+/MKjn53sUt5eI2KO+NhqZyrbzyTWEgXErfzL46DIkCK/yfrRYosW5RiChx77
-	jTbi22ev4khP9b6lDYuM4gKmPZsvtQiGBDUGgJV6X0jV3VoWaIHNWwUrirhYjj67OsN+N6aGM0e
-	JP/sayB2yWDWUC6NMVw9N/JLsrusogw1v7cy5fi6Je2SZJV8N7zjK3TPTyTp6cCquOdo6nyjg7H
-	aumQsqcjv8y+z24WzbnnwC5yorOGokgV5xwYSsjefOvYu8N2FvqFBYBMNzBYRlPC8vXq5DDhlBU
-	Ze+/YRXmFcR+4rhZCNz0fg86oRmUPw0pEEA==
-X-Received: by 2002:a5d:4e46:0:b0:430:fe22:5f1c with SMTP id ffacd0b85a97d-4324e703af5mr20129793f8f.59.1766760643535;
-        Fri, 26 Dec 2025 06:50:43 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGMQ5W8XwHXEz0VCwLYh7DYgtWB1N+w4NhUInEUeh59gqlc2IFDP3VMltMmESqxQ1YzyY8Evg==
-X-Received: by 2002:a5d:4e46:0:b0:430:fe22:5f1c with SMTP id ffacd0b85a97d-4324e703af5mr20129768f8f.59.1766760643060;
-        Fri, 26 Dec 2025 06:50:43 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eaa46c0sm46411703f8f.34.2025.12.26.06.50.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Dec 2025 06:50:42 -0800 (PST)
-Date: Fri, 26 Dec 2025 09:50:39 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jon Kohler <jon@nutanix.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH net-next] vhost/net: check peek_head_len after signal to
- guest to avoid delays
-Message-ID: <20251226094933-mutt-send-email-mst@kernel.org>
-References: <20251125180034.1167847-1-jon@nutanix.com>
- <20251125184936-mutt-send-email-mst@kernel.org>
- <4F24DF4D-7F5F-4BFC-B535-57C1AD66762D@nutanix.com>
+	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="o/PGRTUd";
+	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="FAt1PuPp"
+ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com; s=arckey; t=1766762437;
+	 b=CrKARbR6W+epRGAZujLn6K5eHTMe6RULIFQOdtLrNUU85SYagU8i1qlhdEjyhma6YrJtNpeNtj
+	  GbegvhATwBM9aa3ZqHYKJoXfRjMgEW/6IDI8i5tLyEe7CJDnCzstOnlRGnwTQm34GzsXyG/oYu
+	  MFHJjQv0DuQ/FGGi3ykwpE9lxz3OVY4IPGHnDMZjp0iWEZNT1PV54kGt2ZHMAwb3whAPbgDOXg
+	  6KGptevhZxpMSD/coqZS+dsraU68u+7y6MFiGZmbwW5iPJ+S0iKW+41reNaA+S220uisWEMpUa
+	  A7RoFh94tHF2FhcvNZhLASathcbrOG1qS0rYsCzpK1ZkBQ==;
+ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com; s=arckey; t=1766762437;
+	bh=PLfOrXsKuXPJbF/ozmzSAqxXmkRHY1fuhDYqZjyePGk=;
+	h=In-Reply-To:Content-Description:Content-Type:MIME-Version:References:
+	  Message-ID:Subject:Cc:To:From:Date:DKIM-Signature:DKIM-Signature;
+	b=TL+KzK6FNzkdOnGykB53BWZWZDC1VEezjcefhI7M7YlZtesXfstKrMbmLzrb9q7G81DycTuwkb
+	  lIdsm/6FL28mEMgcT28KzRxu1tyyNfikeikatSdN/NiR5P6OEKXQAg9wl0ldPGAOqwzZoi1D8G
+	  8nVRIJ1G6nMGeHliZz8BgrJ1ujWp5IyvaK0aMWkc/IJkqdQGfBEHeICYm95KR4X9VRLwIgCMfc
+	  iouZAD1Tn+BBV6rhebYFOKceDDNXoNwyazEzkUk2oRsXLmwARIO8bBXbDK7zf76fIO4q9G7l/5
+	  vOlv6or1P5Q/x2gKb1+/lmRWw+NkvNIqAjKT8us1JHD7Dg==;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
+	:Content-Type:MIME-Version:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	List-Unsubscribe:Content-Transfer-Encoding;
+	bh=GmElzA9wpYCBzsDOe8cwU9sQH0JD1wOish4AaZbWI0I=; b=o/PGRTUdZ3V5CDu1OglkYZK54C
+	JNYxuNzt+7Qk5lGmo0CJbgkABd17XlsBxnmFZrb98BqK9nZ5n7KI53o1/J0xnSH5UQf5tNNjjtenv
+	f734RqDA7zT2HY3NJOrp+D6GVSv+pvBBpEYsjZqbG83AyF6i1ZvdN3+b3W+2DLqtBYFw=;
+Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
+	by instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <francesco@valla.it>)
+	id 1vZ9RI-0000000CcNX-25SD
+	for virtualization@lists.linux.dev;
+	Fri, 26 Dec 2025 15:09:15 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
+	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
+	list-subscribe:list-post:list-owner:list-archive;
+	bh=GmElzA9wpYCBzsDOe8cwU9sQH0JD1wOish4AaZbWI0I=; b=FAt1PuPpIBFcXVZiYVaPhRtkJP
+	5G+1JTMZ8vrbWxxA1KFItn+Inf5DBoLQ9lrbYGCgOpPAwQEn0dBMz8cS6DsKxm7M2+3D01ZZzYl4Z
+	QKOUPlpEta6BMePXTMB0XmVRptmDOFlcemWVqVuvB4JlTFgzs23RW/UGWu3m7yunpgVk=;
+Received: from [95.248.141.113] (port=62022 helo=bywater)
+	by esm19.siteground.biz with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <francesco@valla.it>)
+	id 1vZ9R3-00000000Mx9-3X9B;
+	Fri, 26 Dec 2025 15:08:57 +0000
+Date: Fri, 26 Dec 2025 16:08:56 +0100
+From: Francesco Valla <francesco@valla.it>
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Harald Mommer <harald.mommer@oss.qualcomm.com>,
+	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	Wolfgang Grandegger <wg@grandegger.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
+Message-ID: <aU6lCL_vrF93lpYa@bywater>
+References: <aQJRnX7OpFRY/1+H@fedora>
+ <aQkgsuxa2UaL_qdt@bywater>
+ <aTsE1VIk4V/A49HE@fedora>
+ <aT7XAsTWr0_yyfx_@bywater>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <4F24DF4D-7F5F-4BFC-B535-57C1AD66762D@nutanix.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 755NIAl0g72fhCpRG-1PrtyBaejtXn8ulKWiH8jzx5Y_1766760644
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+Content-Description: 
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <aT7XAsTWr0_yyfx_@bywater>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - esm19.siteground.biz
+X-AntiAbuse: Original Domain - lists.linux.dev
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - valla.it
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-SGantispam-id: 6fc56d8cb4eb9f5d796ae3035ac3e414
+AntiSpam-DLS: false
+AntiSpam-DLSP: 
+AntiSpam-DLSRS: 
+AntiSpam-TS: 1.0
+CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
+CFBL-Feedback-ID: 1vZ9RI-0000000CcNX-25SD-feedback@antispam.mailspamprotection.com
+Authentication-Results: outgoing.instance-europe-west4-mxlq.prod.antispam.mailspamprotection.com;
+	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
+	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
+	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
+	arc=none
 
-On Wed, Nov 26, 2025 at 04:49:11PM +0000, Jon Kohler wrote:
+Hi,
+
+On Sun, Dec 14, 2025 at 04:25:54PM +0100, Francesco Valla wrote:
+> While stress testing this, I noticed that flooding the virtio-can
+> interface with packets leads to an hang of the interface itself.
+> I am seeing this issuing, at host side:
+> 
+> 	while true; do cansend can0 123#00; done
+> 
+> with:
+> 
+>  - QEMU: the tip of the master branch plus [2]
+>  - vhost-device: the tip of the main branch
+> 
+> and the following QEMU invocation:
+> 
+> qemu-system-x86_64 -serial mon:stdio \
+>     -m 2G -smp 2 \
+>     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
+>     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
+>     -append "loglevel=7 console=ttyS0" \
+>     -machine memory-backend=pc.ram \
+>     -object memory-backend-file,id=pc.ram,size=2G,mem-path=/tmp/pc.ram,share=on \
+>     -chardev socket,id=can0,path=/tmp/sock-can0 \
+>     -device vhost-user-can-pci,chardev=can0
 > 
 > 
-> > On Nov 25, 2025, at 6:50 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > 
-> > !-------------------------------------------------------------------|
-> >  CAUTION: External Email
-> > 
-> > |-------------------------------------------------------------------!
-> > 
-> > On Tue, Nov 25, 2025 at 11:00:33AM -0700, Jon Kohler wrote:
-> >> In non-busypoll handle_rx paths, if peek_head_len returns 0, the RX
-> >> loop breaks, the RX wait queue is re-enabled, and vhost_net_signal_used
-> >> is called to flush done_idx and notify the guest if needed.
-> >> 
-> >> However, signaling the guest can take non-trivial time. During this
-> >> window, additional RX payloads may arrive on rx_ring without further
-> >> kicks. These new payloads will sit unprocessed until another kick
-> >> arrives, increasing latency. In high-rate UDP RX workloads, this was
-> >> observed to occur over 20k times per second.
-> >> 
-> >> To minimize this window and improve opportunities to process packets
-> >> promptly, immediately call peek_head_len after signaling. If new packets
-> >> are found, treat it as a busy poll interrupt and requeue handle_rx,
-> >> improving fairness to TX handlers and other pending CPU work. This also
-> >> helps suppress unnecessary thread wakeups, reducing waker CPU demand.
-> >> 
-> >> Signed-off-by: Jon Kohler <jon@nutanix.com>
-> > 
-> > Given this is supposed to be a performance improvement,
-> > pls include info on the effect this has on performance. Thanks!
+> Restarting the interface (i.e.: ip link set down and the up) does not
+> fix the situation.
 > 
-> I had already mentioned we’re avoiding ~20k schedulers/IPIs in that
-> example, but I can add more detail. Let’s resolve the other parts of
-> the thread first and go from there?
+> I'll try to do some more testing during the next days.
 
+After a deep dive, I _think_ the problem actually lies in vhost-device,
+since it is not there (or al least, it seems so) using an alternative
+implementation that uses the qemu socketcan support [0] (implementation
+which builds on top of the work done by Harald and Mikhail):
 
-the discussion seems to have died down.
-I suggest reposting with perf data you have
-(which test, how much improvement, what cpu usage)
-collected in the commit log.
+qemu-system-x86_64 -serial mon:stdio \
+    -m 2G -smp 2 -enable-kvm \
+    -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
+    -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
+    -append "loglevel=7 console=ttyS0" \
+    -object can-bus,id=canbus0 -object can-host-socketcan,id=canhost0,if=vcan0,canbus=canbus0 \
+    -device virtio-can-pci,canbus=canbus0
 
-thanks!
+Unfortunately, my Rust knoweledge is not sufficient to understand the
+vhost-device implementation [1]; the issue seems to be related to the
+host->guest vring becoming empty and not refilling anymore.
 
-> > 
-> >> ---
-> >> drivers/vhost/net.c | 21 +++++++++++++++++++++
-> >> 1 file changed, 21 insertions(+)
-> >> 
-> >> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> >> index 35ded4330431..04cb5f1dc6e4 100644
-> >> --- a/drivers/vhost/net.c
-> >> +++ b/drivers/vhost/net.c
-> >> @@ -1015,6 +1015,27 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
-> >> struct vhost_virtqueue *tvq = &tnvq->vq;
-> >> int len = peek_head_len(rnvq, sk);
-> >> 
-> >> + if (!len && rnvq->done_idx) {
-> >> + /* When idle, flush signal first, which can take some
-> >> + * time for ring management and guest notification.
-> >> + * Afterwards, check one last time for work, as the ring
-> >> + * may have received new work during the notification
-> >> + * window.
-> >> + */
-> >> + vhost_net_signal_used(rnvq, *count);
-> >> + *count = 0;
-> >> + if (peek_head_len(rnvq, sk)) {
-> >> + /* More work came in during the notification
-> >> + * window. To be fair to the TX handler and other
-> >> + * potentially pending work items, pretend like
-> >> + * this was a busy poll interruption so that
-> >> + * the RX handler will be rescheduled and try
-> >> + * again.
-> >> + */
-> >> + *busyloop_intr = true;
-> >> + }
-> >> + }
-> >> +
-> >> if (!len && rvq->busyloop_timeout) {
-> >> /* Flush batched heads first */
-> >> vhost_net_signal_used(rnvq, *count);
-> >> -- 
-> >> 2.43.0
-> > 
-> 
+Regards,
+Francesco
+
+[0] https://github.com/WallaceIT/qemu/tree/virtio-can
+[1] https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-can
 
