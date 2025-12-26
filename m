@@ -1,150 +1,154 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3502D31B126
-	for <virtualization@lists.linux.dev>; Thu, 25 Dec 2025 16:27:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65F932AD2C
+	for <virtualization@lists.linux.dev>; Fri, 26 Dec 2025 01:31:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766680074; cv=none; b=oRNZvr8Xe3ruxIrFjXo2cHMa+URVGG8H3Wgb+r2gbUomfqYtHde4buPB0QtjKqYSbQMb2dJ0OzC+l6VTzvvH4HlEswXK4OrdbTSJoE+54flRrtta2LOfDFninVzLhq5CeWtlJfcl/C3vpnlL2ITKatGKORfCIpX3Qhoy1LTF2ZQ=
+	t=1766712705; cv=none; b=NO23fFb6yJyiBcjAFe4tArl9Iq+uL+rqT7nvA12Xx/RXkWksfPZN0r8ctTS/nSb9wuJwbrn/DhYiaKKVtCC2fDv/pKuJSi/yeNpfnwWgL8RWh/AADsCs88lQLCZvf2/1DeVNrTBO5F1wBofIYZj2/q/CNQYd6pdsmZK8PXXqMEU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766680074; c=relaxed/simple;
-	bh=pktztNj0673p74dCRRu3x40mLqPXkmk8e3Tl7TzacCs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=KrurIJmkt76ZERWr+qK94eU60QPis5I+U4AnoyUrJCBHlpo4RZ8b9XqVIdQN+S5fPQmJi2A+hYGVLmtRcYO9c8yKvQpytzOVqgeXNxUbrtvuxultWKSofZ04pMZcJfpS1cng66PhSFFWgyBHcuCygKqpK4J/f+IX/4VjR+VjBYE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IjhbVFoN; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1766712705; c=relaxed/simple;
+	bh=EEJ0crxTC9rZ7Z/JWyJ1blAZ+MavApQb1iFxiRM/QeI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lkfSbHSmktX93WUemqgx+55UMHRBbHpvUz++gpQUrOp0dtFKd/NpPH8G3BVj6AGf2XdEpHQU+GtPVBiTo/6hPTWvVtIDGwgkVjg+N/Z0kBZScb/qyYFMFBC1Mpj7820o5l1Wd6Xu1YLgcj4O8dFl2Oa+fjmfTXpjQyq3pN2RWsU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yni7qfB7; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IjhbVFoN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yni7qfB7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766680072;
+	s=mimecast20190719; t=1766712701;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5UMUN0jgR/zHl85fjFgxzwAhKsJq+HRQG2BMMWbhG4I=;
-	b=IjhbVFoNVigr3EXVQMJQ+KN7HdcVU1N87pGi4Fkf+t9iT8ihpLVQBzOQuLzQqgSEFGwQDg
-	XzODrD1synArRW/sdOMnBsbXeCj8aAVs18NzFae5qmX8zPgQvq4ePjuCEolIpPgFGfstAE
-	ete/BAnrtOl4y0S6s0dDAwC51/h+Ti8=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=F6vEHwSPLbMYTon6GIevS+ZEJhvcN0whZXuCpRgpcdQ=;
+	b=Yni7qfB7m9OA3MXAhQYUDHf1O0/ax45Bd0cmOZpqoqrFYQbUIoV6l89HcPjwldAjU2qO4u
+	Rf4qIiCb/nBa7QxEqBdz07AVdfyLBMtjKKK/Fi2jbBom5HqmvvZR40i1ndsb7vJS3QGdSq
+	v2uE11ZBH3vyQ7mathg9Z86ZiNvdMWg=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-465-cVWM6a5FNWCXtAHoCvfw5A-1; Thu, 25 Dec 2025 11:27:49 -0500
-X-MC-Unique: cVWM6a5FNWCXtAHoCvfw5A-1
-X-Mimecast-MFC-AGG-ID: cVWM6a5FNWCXtAHoCvfw5A_1766680068
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-430fdc1fff8so3308084f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 25 Dec 2025 08:27:49 -0800 (PST)
+ us-mta-633-3M957bbSMBy1m6IXuqDOgg-1; Thu, 25 Dec 2025 20:31:39 -0500
+X-MC-Unique: 3M957bbSMBy1m6IXuqDOgg-1
+X-Mimecast-MFC-AGG-ID: 3M957bbSMBy1m6IXuqDOgg_1766712698
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-34c5d203988so14647668a91.3
+        for <virtualization@lists.linux.dev>; Thu, 25 Dec 2025 17:31:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766680068; x=1767284868;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5UMUN0jgR/zHl85fjFgxzwAhKsJq+HRQG2BMMWbhG4I=;
-        b=ECQKjmv5IPvh1sQX0QlgT8n6MaN0iTi/lMiYFV8wzqlH8+kZFQJW+68b2htNoUf3fn
-         bRDe4Yko1d8fA9EArkbHE+mOVEbHb6lCn7fiFdRqQCN1k8htvHFNqNISYLsxj6HXzdmq
-         k19/XjQa8DOlsXcgdrgIptzke/YLyTVAVeqLFWSXFLGIYjdg8NTWFrb/e/9a8I9s7DAN
-         UHBQZTJZEvNmuYCsI+1KxZv+W5LH5a01xcyHjem7e5z7dGw2DCzYmZCBQWwLGiE54xQK
-         Hm5gDLfewzNB6IyxnDKgB36VdhzuYlqnpmJ01mf+vz042ytusLmdhr8lY88xZfmQcP2S
-         wiJw==
-X-Forwarded-Encrypted: i=1; AJvYcCUmYGMv4bifAqfUS9bJgvpAtBcH59EYKJbLqk9hYrV91uZl7WUwWtJ2jBrTxsQGLrMmzO3RM613PDaCy/ajdw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzbZQy6JRf4tiNZisYCBW7vK8yTaJkZAoJlc9qH3Jh1uKzRUYZg
-	z+lYs2bvXtdvFrAQM3ccj9KcOquzUFmHD9UaoO7y0Us1t9hKZSOjS0Hh9XHexbb0/oCMMbduDUi
-	kZYwA7Xc+XhTnup/O3qJS35/HjFXKJ68oXiIl6hpb7LsQCk5Tisj6yS9zxayC1B6zp2Rx
-X-Gm-Gg: AY/fxX7Mgc1Jul2tEgTdOIls3hVYge763ERJzKMonmm2Hy4OjRdFyHKCHAPVFCJeO2r
-	MN7ciQ9RVmn6WnllSh+emJUKSYp9zftuYmjPWQ8ZMFLGYYDIk6sBQwo592Q9YN/SPftqonlWCCJ
-	nkH+dwtKtsRKUeX5t6TFgQ+EfNUtltEeb6C9EybDH7g7x006cQ4iLgKkaVYIbCnlXkfBuq48Jvs
-	CSXqqx8/Qi+9c+dV2dg8Jl9eCphPXlO108/swbS++5h3Hk9JiCaeyThdQlxdQXX4Xs6cT4vrcA2
-	RjynBI2VRJc4XW/yD6GIdxiMlAz/jZTlyg4Uyy1vhzIjx8ilnlOD8yhl7rr3b0KX98BdcPjbGW3
-	Q2SU1T6xtWqKZDLfBd4gPKjaXbt+P5Fqg3Q==
-X-Received: by 2002:a05:6000:2504:b0:431:5ca:c1b7 with SMTP id ffacd0b85a97d-4324e4cbcc1mr25713000f8f.23.1766680068273;
-        Thu, 25 Dec 2025 08:27:48 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE0R7k5H0uEZzPtgL/lcx5+ScBj7pHtcQ6qqyBP2A8tSvsgvH85v5c3f94zJFXpkNhGRCz/xw==
-X-Received: by 2002:a05:6000:2504:b0:431:5ca:c1b7 with SMTP id ffacd0b85a97d-4324e4cbcc1mr25712964f8f.23.1766680067805;
-        Thu, 25 Dec 2025 08:27:47 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324ea82f6asm42036674f8f.27.2025.12.25.08.27.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Dec 2025 08:27:46 -0800 (PST)
-Date: Thu, 25 Dec 2025 11:27:43 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org, Bui Quang Minh <minhquangbui99@gmail.com>
-Subject: Re: [PATCH net 1/3] virtio-net: make refill work a per receive queue
- work
-Message-ID: <20251225112729-mutt-send-email-mst@kernel.org>
-References: <20251223152533.24364-1-minhquangbui99@gmail.com>
- <20251223152533.24364-2-minhquangbui99@gmail.com>
- <CACGkMEvXkPiTGxZ6nuC72-VGdLHVXzrGa9bAF=TcP8nqPjeZ_w@mail.gmail.com>
- <1766540234.3618076-1-xuanzhuo@linux.alibaba.com>
- <20251223204555-mutt-send-email-mst@kernel.org>
- <CACGkMEs7_-=-8w=7gW8R_EhzfWOwuDoj4p-iCPQ7areOa9uaUw@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1766712698; x=1767317498;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=F6vEHwSPLbMYTon6GIevS+ZEJhvcN0whZXuCpRgpcdQ=;
+        b=n4YjxdPl6/WKNSvSMnAh+0/ND+RJipZ7gsyToRAzIqQqOLyUg5m0ovxBViBNzROt5y
+         afrXdWKlJn++yFr+qOCbBNaGiF8Q44ZVAc2x+tFF7ChA/TRXpO4rcIgslTvxw7yig5NG
+         w5uFPqW8HSAqImlM7ZtUMnXBOcJLosuqZC6GQR8eI6+Ph5cHVhXuIfeTwvP1/dsyS0XE
+         ff4SMvbHNN8xRCX0ZAHUfWBiU/E1i+CNf7PdHrZUMW744lgDlR6dK93cNdMUeN/biZ9S
+         NWPeMmzkPOae49gqxrkR5fwRrrKwiKCtAW7Hhy9i1yqUIXufKsWM200UGLnYYt+pjUQ/
+         VjUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVwHrfjlRT+Qg8fmIlQ9NJQ4moN6ApuStGJMZQTeAFbPUO1RrPlsOU8XhU54Knj+Nzfjqo10RcB0DRS/aI0iw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzaYiRYkVp3rqeazzRdQoutDcQBtm3fM4DvZ8d4IQ8Ms+fmHF2J
+	aTx0CfC4fQLhOS4vTTCpYlONrkzIlihHGP0o+EBrExyhv6nwsBmvNKjmwy7ooOp6z3bOn5tovQ/
+	RW3K3dJL0z/Z94s/qrcDUpvYtkH93bTNj9oB62V4cXhY/ei3iDPaI06xHCy8l54gH3OL//tautI
+	t0iGzf6eNrJceg+z6LeqZORRmb0dHOgd2eRyBNq7BChQw=
+X-Gm-Gg: AY/fxX5UXBppZFHcLWEZv+1o5sDToyUjbHrRxo+h1b3zVzmW/M7iO4olCRL649VIUcI
+	neLkzXRxrMG4JlV4agxkLngYhHPZOQRFWTLvU9nYcus+zy1R3ZPlRBd13izEMGaBhg+UCZImZ/l
+	bnLSKgR/hHVf4BJN5wSLrjkfxDgECDnCQKbt1k8kQ4LkgSfScOnz7YlQsOQMcdZeEnX5Ss
+X-Received: by 2002:a17:90b:28ce:b0:340:c64d:38d3 with SMTP id 98e67ed59e1d1-34e921448b2mr19061585a91.12.1766712698336;
+        Thu, 25 Dec 2025 17:31:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGfDLUNXaA4vnS159ahikBffjf95vdU5q9+k7UAJ9SZruAaAPrDNmu7aJdwlO54UokDbplRgWPYJOEMbtGxl40=
+X-Received: by 2002:a17:90b:28ce:b0:340:c64d:38d3 with SMTP id
+ 98e67ed59e1d1-34e921448b2mr19061568a91.12.1766712697950; Thu, 25 Dec 2025
+ 17:31:37 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEs7_-=-8w=7gW8R_EhzfWOwuDoj4p-iCPQ7areOa9uaUw@mail.gmail.com>
+References: <20251223152533.24364-1-minhquangbui99@gmail.com>
+ <20251223152533.24364-2-minhquangbui99@gmail.com> <CACGkMEvXkPiTGxZ6nuC72-VGdLHVXzrGa9bAF=TcP8nqPjeZ_w@mail.gmail.com>
+ <1766540234.3618076-1-xuanzhuo@linux.alibaba.com> <20251223204555-mutt-send-email-mst@kernel.org>
+ <CACGkMEs7_-=-8w=7gW8R_EhzfWOwuDoj4p-iCPQ7areOa9uaUw@mail.gmail.com> <20251225112729-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20251225112729-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 26 Dec 2025 09:31:26 +0800
+X-Gm-Features: AQt7F2qcDC83KcLofPp3_PLoz1EWH_p2ikDpQkczGnwan7bSlzvlAkicGkB6Jgs
+Message-ID: <CACGkMEt33BAWGmeFfHWYrjQLOT4+JB7HsWWVMKUn6yFxQ9y2gg@mail.gmail.com>
+Subject: Re: [PATCH net 1/3] virtio-net: make refill work a per receive queue work
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, 
+	Bui Quang Minh <minhquangbui99@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vxLm-mqDCoggJUk58WNF2V8qyYPDlcoP8RpgpywPHcE_1766680068
+X-Mimecast-MFC-PROC-ID: Cs4SN5d8taPm8ElRURkImMHkoHToiQEAYALAM3s-g6M_1766712698
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 25, 2025 at 03:33:29PM +0800, Jason Wang wrote:
-> On Wed, Dec 24, 2025 at 9:48 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Dec 24, 2025 at 09:37:14AM +0800, Xuan Zhuo wrote:
+On Fri, Dec 26, 2025 at 12:27=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
+> wrote:
+>
+> On Thu, Dec 25, 2025 at 03:33:29PM +0800, Jason Wang wrote:
+> > On Wed, Dec 24, 2025 at 9:48=E2=80=AFAM Michael S. Tsirkin <mst@redhat.=
+com> wrote:
 > > >
-> > > Hi Jason,
+> > > On Wed, Dec 24, 2025 at 09:37:14AM +0800, Xuan Zhuo wrote:
+> > > >
+> > > > Hi Jason,
+> > > >
+> > > > I'm wondering why we even need this refill work. Why not simply let=
+ NAPI retry
+> > > > the refill on its next run if the refill fails? That would seem muc=
+h simpler.
+> > > > This refill work complicates maintenance and often introduces a lot=
+ of
+> > > > concurrency issues and races.
+> > > >
+> > > > Thanks.
 > > >
-> > > I'm wondering why we even need this refill work. Why not simply let NAPI retry
-> > > the refill on its next run if the refill fails? That would seem much simpler.
-> > > This refill work complicates maintenance and often introduces a lot of
-> > > concurrency issues and races.
+> > > refill work can refill from GFP_KERNEL, napi only from ATOMIC.
 > > >
-> > > Thanks.
+> > > And if GFP_ATOMIC failed, aggressively retrying might not be a great =
+idea.
 > >
-> > refill work can refill from GFP_KERNEL, napi only from ATOMIC.
+> > Btw, I see some drivers are doing things as Xuan said. E.g
+> > mlx5e_napi_poll() did:
 > >
-> > And if GFP_ATOMIC failed, aggressively retrying might not be a great idea.
-> 
-> Btw, I see some drivers are doing things as Xuan said. E.g
-> mlx5e_napi_poll() did:
-> 
-> busy |= INDIRECT_CALL_2(rq->post_wqes,
->                                 mlx5e_post_rx_mpwqes,
->                                 mlx5e_post_rx_wqes,
-> 
-> ...
-> 
-> if (busy) {
->          if (likely(mlx5e_channel_no_affinity_change(c))) {
->                 work_done = budget;
->                 goto out;
-> ...
+> > busy |=3D INDIRECT_CALL_2(rq->post_wqes,
+> >                                 mlx5e_post_rx_mpwqes,
+> >                                 mlx5e_post_rx_wqes,
+> >
+> > ...
+> >
+> > if (busy) {
+> >          if (likely(mlx5e_channel_no_affinity_change(c))) {
+> >                 work_done =3D budget;
+> >                 goto out;
+> > ...
+>
+>
+> is busy a GFP_ATOMIC allocation failure?
 
+Yes, and I think the logic here is to fallback to ksoftirqd if the
+allocation fails too much.
 
-is busy a GFP_ATOMIC allocation failure?
+Thanks
 
+>
+> > >
+> > > Not saying refill work is a great hack, but that is the reason for it=
+.
+> > > --
+> > > MST
+> > >
 > >
-> > Not saying refill work is a great hack, but that is the reason for it.
-> > --
-> > MST
-> >
-> 
-> Thanks
+> > Thanks
+>
 
