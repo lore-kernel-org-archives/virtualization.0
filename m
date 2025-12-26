@@ -1,163 +1,182 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 486B320E03F
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Dec 2025 14:36:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A56B5194A76
+	for <virtualization@lists.linux.dev>; Fri, 26 Dec 2025 14:50:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766759777; cv=none; b=M+M+p0PMi3liwRxB/NaLACVaWS4Dk8B1CbEABaS2+IgZPos8nJQew8QNLji8e91MMOKMD6mjvJx3cbNSPOCintZiyQLOwDP6hKYXOVIbB98TnRfY8uwqISGH8G1nZl1MSy6osoch7+eVrdbtJwSuBNEVm8Qzt/AOlUKPpiSBpbc=
+	t=1766760649; cv=none; b=dQr8BKT+6A8tD78INWsf0sTcEF5ZoMdblO3TkEvD7tGMRX5sj51yUlubkKGq5bFfb9dwumrOR+bc/VMEpsvZoiPYgQZfWqz8nmicKkTuFpEmLGvRCkswvS1PfQu2r0TmUNQPqvOXbhA9PZrCVvm68+EO0J1orI/m2rDwSC5YKjs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766759777; c=relaxed/simple;
-	bh=d9E0S3a7Rqh638zbPGkOJvQRUJi3fvoEyv3EnW3OnN4=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=jl7xso4LKLb9odwLkgidQo33ZsIes9PpZIGxqZkkXf/zKiFBvBwwyGggz16lbl1h4wmKVubvS5xfkDk6lFFGmcGwfoG1tmB/f+qXfKDxP0iyuc2R6tfjR0EsSJqVrxyYD3yoVLwwMWRnjXIotdHMj0odbwjalA9EXewrCbjgCgE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KowFihcT; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1766760649; c=relaxed/simple;
+	bh=PKXRGzbxh1OlfF0T9/TV4KDNz94u0vtq7bXgSU6XVJs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=F4WHJSexQtaoTevgQt4hteUVL3+rzcKuYeB2KdUlPBM/nCjo9y8w/LqIpU4noYufVg8rK3SiqgKsBUiKj6sbpeTsiMSc+zpk6JytzRqbNmHGINthOUzLm4uIIZCntzsNkP4WWax/GIl1n2UhX7FYaVOf3wwJDGiuEAWdK5jt6Ak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WTAFdQBN; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KowFihcT"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C0F6C40950
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Dec 2025 14:36:15 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id reavXXXy6apj for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Dec 2025 14:36:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org C5EA94094D
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C5EA94094D
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KowFihcT
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C5EA94094D
-	for <virtualization@lists.linux-foundation.org>; Fri, 26 Dec 2025 14:36:13 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WTAFdQBN"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766759772;
+	s=mimecast20190719; t=1766760646;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=aM7UCYg0YYsybtoWO8yD5ljh1de1V9SkAU1INn7RR+w=;
-	b=KowFihcTxz2A36nAnd4z3Tv9ZZ4JIb5BuC6eP/7oLy5x9ne8XMHrLVnb5o+fcVaj+ihQfo
-	kVqFMMulFV9pqdI8RwnCBuDP77/LIj/S1xBp/fqUlABSEnbICjM1PlKUKKMR264/V9cy18
-	mWFIh3h4IuLsyPkecLPMIS4NIZ/2OPA=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7KQs8vvsCuYX4f4WNDWRFaCkEzOPPZG4H4J2HYQGAcg=;
+	b=WTAFdQBN3oCJlv/bsrTK5NZb1/c/0bstaYlGeCFAjwNQ/FEPJ6+clqRtnkTYJUUV7PLk7J
+	HTclUQWLRaVfnRPGY4G6bhSWrkZMYwg21QWrA7wAlB/mThpRN1g3S+YCf3VXiOVvfkbiI2
+	u5FJGgOtWMaURp0UJ0LfyVVf72VwJ18=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-102-SBappwqbMFu5S8wPQ31DFw-1; Fri, 26 Dec 2025 09:36:10 -0500
-X-MC-Unique: SBappwqbMFu5S8wPQ31DFw-1
-X-Mimecast-MFC-AGG-ID: SBappwqbMFu5S8wPQ31DFw_1766759769
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-43284edbbc8so213932f8f.0
-        for <virtualization@lists.linux-foundation.org>; Fri, 26 Dec 2025 06:36:10 -0800 (PST)
+ us-mta-378-F_s8R6FUNE6NDGUF6RSHKw-1; Fri, 26 Dec 2025 09:50:44 -0500
+X-MC-Unique: F_s8R6FUNE6NDGUF6RSHKw-1
+X-Mimecast-MFC-AGG-ID: F_s8R6FUNE6NDGUF6RSHKw_1766760644
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-42fb1c2c403so4674952f8f.3
+        for <virtualization@lists.linux.dev>; Fri, 26 Dec 2025 06:50:44 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766759769; x=1767364569;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=aM7UCYg0YYsybtoWO8yD5ljh1de1V9SkAU1INn7RR+w=;
-        b=IEYbSodDMzXtNVANLJYjQmyNsfQmNLMo5axufs43QfIeV5qYYwXwohehKRc1+suLQc
-         dsbZsK7h9IiXNDFl1mqNS5W6Y4khw7euOU8d56Cj4mbyJKEaOc2RZovlSll5/unIBGH3
-         ZcrfYpijGKfHZTn8xzEqc/1LKCJs2OR6UE/oSyALNwKP79dz0yuT+fv3LvYIaPcgFkGE
-         VXxxZKwlIaPoKsLkCzmM6MqWwnm4AvYWUXxZfHbFjc7byaOqgFCoZt1FFHdWo+yPc9xc
-         WcyEygsYUo0bS9pF5aqxUiv8cEig2sBznH1TL4mxCDLl5nD6CUhoF6Zvzgn/2TvhVLYg
-         fF5A==
-X-Forwarded-Encrypted: i=1; AJvYcCXfDVvP2dytJBSA+AGxZpi0UyAOyg2gGclg1UUVm3knTjoqAJFuB0kUKAeG2pqUWr5RUARkuKvgW0Tv2YWXFw==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxZCAWN2hIkfmW6pWKvnLO78CinurrGR8Y1pZC40OhWt6lk8nM7
-	q6dpD3sLTli0xyzWxPGhcndAhM8TM2sA3u3HIocKI+c7imdiZUQetlrIcP3b0tJW9GGuu2yTCCC
-	4mrgNPLK4rG8WpfP4P/urXIGhFyULFOYZu+J2UfnNltG8Cg7z+CBzT6M/oZbY8n3DJmdt4RqMpg
-	yLBmqNBQ0=
-X-Gm-Gg: AY/fxX5iB048g4v7ZXzydRy50W5b/jpvdAEi9onM/dYo1hFcdn8NfjPJb5TcmCOyO9/
-	CYyMVy1oYhnZc2eAE88k4sR1wty9GsYP+z9utsSFfLQeX0rReMz4EpGrG+Rc6tkukBWq7IOOi/l
-	7yefQo1l6ZT4+FzvoGYeUJh0qo+1/Qh5/fQQnTbijnj6rJTENEY3jXyAMFAIVeFnmo1fq8/76sj
-	w10v5SzKBe2wMIGy/2T1q2aAT5BeshefZXQtsk6h/agG55s5L2BSDICRKHmX4e4wZ+DBwKpoRcq
-	gBe/VHax7b27B7A9rUiYwa6wkTUZ8V2CXnSJ+oUEMtR29/ysBpTCGO7aqNqrB008X9ziWb1fyfF
-	FDof8bum4mQ58IjPzjkrKCTPGcqwlHkhtvg==
-X-Received: by 2002:a05:6000:2403:b0:431:35a:4a7d with SMTP id ffacd0b85a97d-4324e708fe3mr25656350f8f.58.1766759769349;
-        Fri, 26 Dec 2025 06:36:09 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF8Ues0XID2D7Q3Cetsq2JyqnGEmS98rxaQOa4ee9lE0/h9FUcNthZgz/uYJCKJdZKFGsTz4A==
-X-Received: by 2002:a05:6000:2403:b0:431:35a:4a7d with SMTP id ffacd0b85a97d-4324e708fe3mr25656311f8f.58.1766759768817;
-        Fri, 26 Dec 2025 06:36:08 -0800 (PST)
+        d=1e100.net; s=20230601; t=1766760643; x=1767365443;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=7KQs8vvsCuYX4f4WNDWRFaCkEzOPPZG4H4J2HYQGAcg=;
+        b=BuQRlTnlkdoH7deEH2PtNec+DFT7ZKlkX+tVkLa8WFnEhNnKpSmzhhoQRBq6obKKN/
+         zzzDaAefKU0duADP5ZSjBZm0HeEIau1gDozl+lgDdsxsxfaPHDDnhXyz/9E5irDjGMgk
+         16AXUCBNe+ojvJBnP/5zTgsJpabdSE8k50SjhkPaG9AcgujOiFnMLO+zK23AizwcQfO0
+         U8zt5qXDKHrycIqyR8W7sGYs/vOSSqxMsUezGzeAnG6PFJjmAUl+tX4Zxaz3O9tQrPig
+         P6SuiwXXTPCY8L4mX93cdN2DVfWEnEwEgSaRBo/cwvCMZJqFmkk22DbsA2p2+lvrsM6B
+         PBzQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU02SDXNdc9WL8D/PsHY8BMzNEXkvRkE3/c3Cv1kiF99xHcBvNVpjdhxs6GTNOu7aBMatEhUyuGtqLQBFUNhw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx7gy4DfGO/T/jt9xglIxJLgYE/Bbsry8WvB0kmoWZk608bxrQi
+	bOrWGyKyp2gPW7U+5F7iYnRaA4btEjlgwrLrLpcDhJTYTMjnqKtwo+fSBla81jlNEm25RY3w3vu
+	B8v8d5kPJagnZDTg8UOac6w27GnkGEcaBQG/kWkwLArUAS1cGzIGK24Tbf0wwH3+5T+ak
+X-Gm-Gg: AY/fxX5AlMwu1zkojwLK7qs8g9PdYvnb1ZNUUxX0Az00GnM4PtJDThgKzFFZYcsz0gb
+	kHRlGBStGtr1mt+/MKjn53sUt5eI2KO+NhqZyrbzyTWEgXErfzL46DIkCK/yfrRYosW5RiChx77
+	jTbi22ev4khP9b6lDYuM4gKmPZsvtQiGBDUGgJV6X0jV3VoWaIHNWwUrirhYjj67OsN+N6aGM0e
+	JP/sayB2yWDWUC6NMVw9N/JLsrusogw1v7cy5fi6Je2SZJV8N7zjK3TPTyTp6cCquOdo6nyjg7H
+	aumQsqcjv8y+z24WzbnnwC5yorOGokgV5xwYSsjefOvYu8N2FvqFBYBMNzBYRlPC8vXq5DDhlBU
+	Ze+/YRXmFcR+4rhZCNz0fg86oRmUPw0pEEA==
+X-Received: by 2002:a5d:4e46:0:b0:430:fe22:5f1c with SMTP id ffacd0b85a97d-4324e703af5mr20129793f8f.59.1766760643535;
+        Fri, 26 Dec 2025 06:50:43 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGMQ5W8XwHXEz0VCwLYh7DYgtWB1N+w4NhUInEUeh59gqlc2IFDP3VMltMmESqxQ1YzyY8Evg==
+X-Received: by 2002:a5d:4e46:0:b0:430:fe22:5f1c with SMTP id ffacd0b85a97d-4324e703af5mr20129768f8f.59.1766760643060;
+        Fri, 26 Dec 2025 06:50:43 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eaa08efsm46051829f8f.29.2025.12.26.06.36.07
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eaa46c0sm46411703f8f.34.2025.12.26.06.50.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Dec 2025 06:36:08 -0800 (PST)
-Date: Fri, 26 Dec 2025 09:36:06 -0500
+        Fri, 26 Dec 2025 06:50:42 -0800 (PST)
+Date: Fri, 26 Dec 2025 09:50:39 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	jasowang@redhat.com, mst@redhat.com, sgarzare@redhat.com,
-	stefanha@redhat.com
-Subject: [GIT PULL] virtio,vhost: fixes
-Message-ID: <20251226093606-mutt-send-email-mst@kernel.org>
+To: Jon Kohler <jon@nutanix.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH net-next] vhost/net: check peek_head_len after signal to
+ guest to avoid delays
+Message-ID: <20251226094933-mutt-send-email-mst@kernel.org>
+References: <20251125180034.1167847-1-jon@nutanix.com>
+ <20251125184936-mutt-send-email-mst@kernel.org>
+ <4F24DF4D-7F5F-4BFC-B535-57C1AD66762D@nutanix.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
+In-Reply-To: <4F24DF4D-7F5F-4BFC-B535-57C1AD66762D@nutanix.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: owot-YgatMEoNIPJt7eCs-jfrD_cRsxi-BB3AyGwccE_1766759769
+X-Mimecast-MFC-PROC-ID: 755NIAl0g72fhCpRG-1PrtyBaejtXn8ulKWiH8jzx5Y_1766760644
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-The following changes since commit 9448598b22c50c8a5bb77a9103e2d49f134c9578:
+On Wed, Nov 26, 2025 at 04:49:11PM +0000, Jon Kohler wrote:
+> 
+> 
+> > On Nov 25, 2025, at 6:50 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > 
+> > !-------------------------------------------------------------------|
+> >  CAUTION: External Email
+> > 
+> > |-------------------------------------------------------------------!
+> > 
+> > On Tue, Nov 25, 2025 at 11:00:33AM -0700, Jon Kohler wrote:
+> >> In non-busypoll handle_rx paths, if peek_head_len returns 0, the RX
+> >> loop breaks, the RX wait queue is re-enabled, and vhost_net_signal_used
+> >> is called to flush done_idx and notify the guest if needed.
+> >> 
+> >> However, signaling the guest can take non-trivial time. During this
+> >> window, additional RX payloads may arrive on rx_ring without further
+> >> kicks. These new payloads will sit unprocessed until another kick
+> >> arrives, increasing latency. In high-rate UDP RX workloads, this was
+> >> observed to occur over 20k times per second.
+> >> 
+> >> To minimize this window and improve opportunities to process packets
+> >> promptly, immediately call peek_head_len after signaling. If new packets
+> >> are found, treat it as a busy poll interrupt and requeue handle_rx,
+> >> improving fairness to TX handlers and other pending CPU work. This also
+> >> helps suppress unnecessary thread wakeups, reducing waker CPU demand.
+> >> 
+> >> Signed-off-by: Jon Kohler <jon@nutanix.com>
+> > 
+> > Given this is supposed to be a performance improvement,
+> > pls include info on the effect this has on performance. Thanks!
+> 
+> I had already mentioned we’re avoiding ~20k schedulers/IPIs in that
+> example, but I can add more detail. Let’s resolve the other parts of
+> the thread first and go from there?
 
-  Linux 6.19-rc2 (2025-12-21 15:52:04 -0800)
 
-are available in the Git repository at:
+the discussion seems to have died down.
+I suggest reposting with perf data you have
+(which test, how much improvement, what cpu usage)
+collected in the commit log.
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+thanks!
 
-for you to fetch changes up to d8ee3cfdc89b75dc059dc21c27bef2c1440f67eb:
-
-  vhost/vsock: improve RCU read sections around vhost_vsock_get() (2025-12-24 08:02:57 -0500)
-
-----------------------------------------------------------------
-virtio,vhost: fixes
-
-Just a bunch of fixes, mostly trivial ones in tools/virtio
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Michael S. Tsirkin (14):
-      tools/virtio: fix up compiler.h stub
-      virtio: make it self-contained
-      tools/virtio: use kernel's virtio.h
-      tools/virtio: add struct module forward declaration
-      tools/virtio: stub DMA mapping functions
-      tools/virtio: add dev_WARN_ONCE and is_vmalloc_addr stubs
-      tools/virtio: add ucopysize.h stub
-      tools/virtio: pass KCFLAGS to module build
-      tools/virtio: add struct cpumask to cpumask.h
-      tools/virtio: stub might_sleep and synchronize_rcu
-      tools/virtio: switch to kernel's virtio_config.h
-      virtio_features: make it self-contained
-      tools/virtio: fix up oot build
-      tools/virtio: add device, device_driver stubs
-
-Stefano Garzarella (1):
-      vhost/vsock: improve RCU read sections around vhost_vsock_get()
-
- drivers/vhost/vsock.c              |  15 ++++--
- include/linux/virtio.h             |   2 +
- include/linux/virtio_features.h    |   2 +
- tools/virtio/Makefile              |   8 +--
- tools/virtio/linux/compiler.h      |   6 +++
- tools/virtio/linux/cpumask.h       |   4 ++
- tools/virtio/linux/device.h        |   8 +++
- tools/virtio/linux/dma-mapping.h   |   4 ++
- tools/virtio/linux/kernel.h        |  16 ++++++
- tools/virtio/linux/module.h        |   2 +
- tools/virtio/linux/ucopysize.h     |  21 ++++++++
- tools/virtio/linux/virtio.h        |  73 +-------------------------
- tools/virtio/linux/virtio_config.h | 102 +------------------------------------
- tools/virtio/oot-stubs.h           |  10 ++++
- 14 files changed, 93 insertions(+), 180 deletions(-)
- create mode 100644 tools/virtio/linux/ucopysize.h
- create mode 100644 tools/virtio/oot-stubs.h
+> > 
+> >> ---
+> >> drivers/vhost/net.c | 21 +++++++++++++++++++++
+> >> 1 file changed, 21 insertions(+)
+> >> 
+> >> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> >> index 35ded4330431..04cb5f1dc6e4 100644
+> >> --- a/drivers/vhost/net.c
+> >> +++ b/drivers/vhost/net.c
+> >> @@ -1015,6 +1015,27 @@ static int vhost_net_rx_peek_head_len(struct vhost_net *net, struct sock *sk,
+> >> struct vhost_virtqueue *tvq = &tnvq->vq;
+> >> int len = peek_head_len(rnvq, sk);
+> >> 
+> >> + if (!len && rnvq->done_idx) {
+> >> + /* When idle, flush signal first, which can take some
+> >> + * time for ring management and guest notification.
+> >> + * Afterwards, check one last time for work, as the ring
+> >> + * may have received new work during the notification
+> >> + * window.
+> >> + */
+> >> + vhost_net_signal_used(rnvq, *count);
+> >> + *count = 0;
+> >> + if (peek_head_len(rnvq, sk)) {
+> >> + /* More work came in during the notification
+> >> + * window. To be fair to the TX handler and other
+> >> + * potentially pending work items, pretend like
+> >> + * this was a busy poll interruption so that
+> >> + * the RX handler will be rescheduled and try
+> >> + * again.
+> >> + */
+> >> + *busyloop_intr = true;
+> >> + }
+> >> + }
+> >> +
+> >> if (!len && rvq->busyloop_timeout) {
+> >> /* Flush batched heads first */
+> >> vhost_net_signal_used(rnvq, *count);
+> >> -- 
+> >> 2.43.0
+> > 
+> 
 
