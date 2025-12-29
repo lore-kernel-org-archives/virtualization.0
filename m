@@ -1,604 +1,242 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D73A02F39BE
-	for <virtualization@lists.linux.dev>; Mon, 29 Dec 2025 07:16:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49B0B2F3C3F
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Dec 2025 07:16:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766992597; cv=none; b=ernl/8joaVxuA3PYFUovE9lUuqEnPeutasKNYYdbLLL5Q9e7RglMFXaV763iEr/0xCwJQEngUj40UXAYCEEOdK+P9GONXeFqcMf2DNlcSUM08WGrY867td1aD/dEMrdB1cYiw8sX/Ce0KmttGA1dpsPSWMXjjYA8Jd1CO0O6KRU=
+	t=1766992601; cv=none; b=DhYiUGEc+ejs561oh5+cdjcvplZ36dkcQa7zARI+O5HvRX7s+U4hDuhl/a4V02tfHZelf8LTrYhZ+6DdUsSy9lMzODiG3AIrBGar85kzOJE6dmgKcueeA78FedcMYbv+Tg1jlcYzzV23nXoHNlO5jqJokpE8NvmYV+fnyGlYUD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766992597; c=relaxed/simple;
-	bh=l2JJDyKmqbJssPNNt9rbDgBITe6FiLQJdRKiJYbxPdo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HxjIcfGsn7PXGPjLV/IfeBzKQa1c9yKbH+/o6a0vdG3+bP0JOAu5WGTlAvpcSWJU4HWKDemYt9U061mdHK3DkKjjwSHoFCl0gQ3u27mi6OZyUK0VMg00e8XY9v0TJ2i7dGwK/aMVLxdu/voop0h01k9kOYssozn+pu94HvreAZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=X1a5fOsc; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1766992601; c=relaxed/simple;
+	bh=fovCxHKinPlYQmGBoBFLS2Lg1H3LC5svMw7wJgQNg1I=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=f+HwmWovoezJR3LKNZEx0ms3zLoChwfdAiVE2jbIyG3pthE/jLMyFiIpLq59+2xJ3bI8dGoucRVhPmzHk2k/+Kqo50akuMZkxVmJ8TD430NLu7guB/Np5VES4IkUvXqEzKPa3B23W/kaxtE9CqhscIP2iMkKOpcqH6RHPzo1K4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V74zXdug; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X1a5fOsc"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V74zXdug"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 42A1B4074B
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Dec 2025 07:16:34 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ke1PlArSPM-K for <virtualization@lists.linux-foundation.org>;
+ Mon, 29 Dec 2025 07:16:33 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 3A10040746
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3A10040746
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V74zXdug
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3A10040746
+	for <virtualization@lists.linux-foundation.org>; Mon, 29 Dec 2025 07:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1766992590;
+	s=mimecast20190719; t=1766992592;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 to:to:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Fv6wJ/r3HPUVzFLNnebqogbbz4gKadlOChU0TdM9SSU=;
-	b=X1a5fOscrJGNhd6knY1Rn3hfk6ztsjUlGBWRha72JTBspWau8ZoXz5ZlFNpSoSxu+0tV1n
-	AQMAWE8aMaxrryyVv+oTnRZXSJpXRfSef4GLNzJyPFAieiZhuRXjPH3Es14/6LA4gDlPvD
-	auQIQizkHfNvsWjt4AEnw9QODkXg5K8=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-15-ZannV-FJNWmcpZ_r-0oz_w-1; Mon, 29 Dec 2025 02:16:29 -0500
-X-MC-Unique: ZannV-FJNWmcpZ_r-0oz_w-1
-X-Mimecast-MFC-AGG-ID: ZannV-FJNWmcpZ_r-0oz_w_1766992588
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-34ac814f308so20561793a91.3
-        for <virtualization@lists.linux.dev>; Sun, 28 Dec 2025 23:16:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766992588; x=1767597388;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Fv6wJ/r3HPUVzFLNnebqogbbz4gKadlOChU0TdM9SSU=;
-        b=PjjIRNmM1J3BTaXWusf5hTiJUG0jb+/baWB9ZOPEx/pM9nCyl2cbmKcNGH+cB19TOC
-         zfJmBBwEgY2rRrmKm7gkrf3VYU4lzJHQeieH+fG/+NWuBNwimr3BCKDaY/JhdHAqM0c3
-         vpfV8AUcMgQp+xf1i1AdTaiCYaUd2vBjzdPIUKWOYEhh2LpmgJJH7bIui+2MQVdcMx6i
-         Esbxk5wVey5n6ns46FdFBkFkK8fHnopRjxApvQaIf2b/ICZRZ1+VS3OrMgODzwfqLJI2
-         LhAq8FXH2Sqc0owZli5/pHEfIrJ/zNE9bqb+dMTZhANqU6LkgbTCLarKxM+eXdgBdXhm
-         Qb0Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXmCsoqe8xKJ9hsPLEsIAYSu5GH8CKHD66XMH8Mhkih9ZL7TJfUzja+tqDeZP51YuZi1f6elu1+INIPpfo6Ig==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzQlw6eqwIdndcHUIg+1+SYJUk6hcOoqgc+iAj4YGlkPYM1vX4j
-	mCT4W7C784DEFAHRDU8+EfmTLN/maM+06Hu5vEIUJU6Ir8N1RPIwheEtEanpF0TQg9XcCBYUskb
-	OwXK/1O3u63hBKb5zB5s6yFVsgfwhMm7vZxmOl0FJfTJE6P7nszy3eN+Z7UtibNSpMzPgabLWAa
-	LN/XeBZGfE674OS6Eus0UsaSHHS+OQXD5rDTRwz1i+Hjw=
-X-Gm-Gg: AY/fxX6pzZNwdYpBH4BDT/zDpFOUKwJiT9T6EY94U1dK+Ora9jS564+uzcc8FKoeqfo
-	/tOM0V/87N/fVKUolhCcgywHHP8yRG4fngqatFtAAAjvVRy5S6jsYOed96nflmmBO9143pxI/6Q
-	Cyy6NeXdzJNIFJNjYudQNd2G8fz99tsboLfbg9hbWBVlVapI77N750a5cQQvPZhYz69pU=
-X-Received: by 2002:a17:90b:2e08:b0:34a:b1ea:664e with SMTP id 98e67ed59e1d1-34e9213ae30mr25811030a91.15.1766992587903;
-        Sun, 28 Dec 2025 23:16:27 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFWZ+hCi5HpcsCVvvF5CZxB0yLkHZjnlhLPzVcgC/o5CH9rrGBEgLOdeQVlZI4Bexe+Z4i81qEsTuKxtWPAOiY=
-X-Received: by 2002:a17:90b:2e08:b0:34a:b1ea:664e with SMTP id
- 98e67ed59e1d1-34e9213ae30mr25811010a91.15.1766992587330; Sun, 28 Dec 2025
- 23:16:27 -0800 (PST)
+	bh=oBkCZ73/jRMKywd1XjShm9N+vlFYblQSCQfCRzxfrnI=;
+	b=V74zXdughrxrS9LGIqfUT61uIGgqaWD8jZ3JGJkLoag1lxzlRwm3JVnPmSlE2Tv68k2YGm
+	WlKXolmpBNx04TkCPs8slLItVPeCaNsWIZBe4TPxgczom1ROkgl5f2aZvyFkXXEvJHJb7G
+	i7uZ5FT1g8jXXqa7alNdkLszxk+cdoo=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-580-a6vJ3YSeMRq8qtXUZ3Sdzg-1; Mon,
+ 29 Dec 2025 02:16:27 -0500
+X-MC-Unique: a6vJ3YSeMRq8qtXUZ3Sdzg-1
+X-Mimecast-MFC-AGG-ID: a6vJ3YSeMRq8qtXUZ3Sdzg_1766992586
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 51ADA1956058;
+	Mon, 29 Dec 2025 07:16:26 +0000 (UTC)
+Received: from server.redhat.com (unknown [10.72.112.14])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A9AB819560A7;
+	Mon, 29 Dec 2025 07:16:22 +0000 (UTC)
+From: Cindy Lu <lulu@redhat.com>
+To: lulu@redhat.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	dtatulea@nvidia.com,
+	virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: [PATCH v2 2/3] vdpa/mlx5: reuse common function for MAC address updates
+Date: Mon, 29 Dec 2025 15:16:13 +0800
+Message-ID: <20251229071614.779621-2-lulu@redhat.com>
+In-Reply-To: <20251229071614.779621-1-lulu@redhat.com>
+References: <20251229071614.779621-1-lulu@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251225042608.32350-1-jasowang@redhat.com> <20251225042608.32350-14-jasowang@redhat.com>
- <20251226143816-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20251226143816-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 29 Dec 2025 15:16:16 +0800
-X-Gm-Features: AQt7F2rnXwNVuyaGPk4AM4FveMmCHrhJmt6cCSazqLS1IB4_7k6eoKL4H0MiEjw
-Message-ID: <CACGkMEumFkT=Cu3dY1Vv1-1O5tyGa7uh+_nS=icA0uUx-MCx_w@mail.gmail.com>
-Subject: Re: [PATCH V11 13/19] virtio_ring: introduce virtqueue ops
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: cUfmD3sFfjWmHQey_xZ1UmWVlQ3uXCWrw1rgJADk7fk_1766992588
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Sat, Dec 27, 2025 at 3:45=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Thu, Dec 25, 2025 at 12:26:02PM +0800, Jason Wang wrote:
-> > This patch introduces virtqueue ops which is a set of callbacks
-> > that will be called for different queue layout or features. This would
-> > help to avoid branches for split/packed and will ease the future
-> > implementation like in order.
-> >
-> > Note that in order to eliminate the indirect calls this patch uses
-> > global array of const ops to allow compiler to avoid indirect
-> > branches.
-> >
-> > Tested with CONFIG_MITIGATION_RETPOLINE, no performance differences
-> > were noticed.
-> >
-> > Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c | 173 ++++++++++++++++++++++++++---------
-> >  1 file changed, 130 insertions(+), 43 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.=
-c
-> > index f804c5c6975a..4e905dc7b6cb 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -67,6 +67,12 @@
-> >  #define LAST_ADD_TIME_INVALID(vq)
-> >  #endif
-> >
-> > +enum vq_layout {
-> > +     SPLIT =3D 0,
-> > +     PACKED,
-> > +     VQ_TYPE_MAX,
-> > +};
-> > +
-> >  struct vring_desc_state_split {
-> >       void *data;                     /* Data for callback. */
-> >
-> > @@ -159,12 +165,29 @@ struct vring_virtqueue_packed {
-> >       size_t event_size_in_bytes;
-> >  };
-> >
-> > +struct vring_virtqueue;
-> > +
-> > +struct virtqueue_ops {
-> > +     int (*add)(struct vring_virtqueue *vq, struct scatterlist *sgs[],
-> > +                unsigned int total_sg, unsigned int out_sgs,
-> > +                unsigned int in_sgs, void *data,
-> > +                void *ctx, bool premapped, gfp_t gfp);
-> > +     void *(*get)(struct vring_virtqueue *vq, unsigned int *len, void =
-**ctx);
-> > +     bool (*kick_prepare)(struct vring_virtqueue *vq);
-> > +     void (*disable_cb)(struct vring_virtqueue *vq);
-> > +     bool (*enable_cb_delayed)(struct vring_virtqueue *vq);
-> > +     unsigned int (*enable_cb_prepare)(struct vring_virtqueue *vq);
-> > +     bool (*poll)(const struct vring_virtqueue *vq,
-> > +                  unsigned int last_used_idx);
-> > +     void *(*detach_unused_buf)(struct vring_virtqueue *vq);
-> > +     bool (*more_used)(const struct vring_virtqueue *vq);
-> > +     int (*resize)(struct vring_virtqueue *vq, u32 num);
-> > +     void (*reset)(struct vring_virtqueue *vq);
-> > +};
-> > +
-> >  struct vring_virtqueue {
-> >       struct virtqueue vq;
-> >
-> > -     /* Is this a packed ring? */
-> > -     bool packed_ring;
-> > -
-> >       /* Is DMA API used? */
-> >       bool use_map_api;
-> >
-> > @@ -180,6 +203,8 @@ struct vring_virtqueue {
-> >       /* Host publishes avail event idx */
-> >       bool event;
-> >
-> > +     enum vq_layout layout;
-> > +
-> >       /* Head of free buffer list. */
-> >       unsigned int free_head;
-> >       /* Number we've added since last sync. */
-> > @@ -231,6 +256,12 @@ static void vring_free(struct virtqueue *_vq);
-> >
-> >  #define to_vvq(_vq) container_of_const(_vq, struct vring_virtqueue, vq=
-)
-> >
-> > +
-> > +static inline bool virtqueue_is_packed(const struct vring_virtqueue *v=
-q)
-> > +{
-> > +     return vq->layout =3D=3D PACKED;
-> > +}
-> > +
-> >  static bool virtqueue_use_indirect(const struct vring_virtqueue *vq,
-> >                                  unsigned int total_sg)
-> >  {
-> > @@ -433,7 +464,7 @@ static void virtqueue_init(struct vring_virtqueue *=
-vq, u32 num)
-> >  {
-> >       vq->vq.num_free =3D num;
-> >
-> > -     if (vq->packed_ring)
-> > +     if (virtqueue_is_packed(vq))
-> >               vq->last_used_idx =3D 0 | (1 << VRING_PACKED_EVENT_F_WRAP=
-_CTR);
-> >       else
-> >               vq->last_used_idx =3D 0;
-> > @@ -1122,6 +1153,8 @@ static int vring_alloc_queue_split(struct vring_v=
-irtqueue_split *vring_split,
-> >       return 0;
-> >  }
-> >
-> > +static const struct virtqueue_ops split_ops;
-> > +
-> >  static struct virtqueue *__vring_new_virtqueue_split(unsigned int inde=
-x,
-> >                                              struct vring_virtqueue_spl=
-it *vring_split,
-> >                                              struct virtio_device *vdev=
-,
-> > @@ -1139,7 +1172,7 @@ static struct virtqueue *__vring_new_virtqueue_sp=
-lit(unsigned int index,
-> >       if (!vq)
-> >               return NULL;
-> >
-> > -     vq->packed_ring =3D false;
-> > +     vq->layout =3D SPLIT;
-> >       vq->vq.callback =3D callback;
-> >       vq->vq.vdev =3D vdev;
-> >       vq->vq.name =3D name;
-> > @@ -2077,6 +2110,8 @@ static void virtqueue_reset_packed(struct vring_v=
-irtqueue *vq)
-> >       virtqueue_vring_init_packed(&vq->packed, !!vq->vq.callback);
-> >  }
-> >
-> > +static const struct virtqueue_ops packed_ops;
-> > +
-> >  static struct virtqueue *__vring_new_virtqueue_packed(unsigned int ind=
-ex,
-> >                                              struct vring_virtqueue_pac=
-ked *vring_packed,
-> >                                              struct virtio_device *vdev=
-,
-> > @@ -2107,7 +2142,7 @@ static struct virtqueue *__vring_new_virtqueue_pa=
-cked(unsigned int index,
-> >  #else
-> >       vq->broken =3D false;
-> >  #endif
-> > -     vq->packed_ring =3D true;
-> > +     vq->layout =3D PACKED;
-> >       vq->map =3D map;
-> >       vq->use_map_api =3D vring_use_map_api(vdev);
-> >
-> > @@ -2195,6 +2230,39 @@ static int virtqueue_resize_packed(struct vring_=
-virtqueue *vq, u32 num)
-> >       return -ENOMEM;
-> >  }
-> >
-> > +static const struct virtqueue_ops split_ops =3D {
-> > +     .add =3D virtqueue_add_split,
-> > +     .get =3D virtqueue_get_buf_ctx_split,
-> > +     .kick_prepare =3D virtqueue_kick_prepare_split,
-> > +     .disable_cb =3D virtqueue_disable_cb_split,
-> > +     .enable_cb_delayed =3D virtqueue_enable_cb_delayed_split,
-> > +     .enable_cb_prepare =3D virtqueue_enable_cb_prepare_split,
-> > +     .poll =3D virtqueue_poll_split,
-> > +     .detach_unused_buf =3D virtqueue_detach_unused_buf_split,
-> > +     .more_used =3D more_used_split,
-> > +     .resize =3D virtqueue_resize_split,
-> > +     .reset =3D virtqueue_reset_split,
-> > +};
-> > +
-> > +static const struct virtqueue_ops packed_ops =3D {
-> > +     .add =3D virtqueue_add_packed,
-> > +     .get =3D virtqueue_get_buf_ctx_packed,
-> > +     .kick_prepare =3D virtqueue_kick_prepare_packed,
-> > +     .disable_cb =3D virtqueue_disable_cb_packed,
-> > +     .enable_cb_delayed =3D virtqueue_enable_cb_delayed_packed,
-> > +     .enable_cb_prepare =3D virtqueue_enable_cb_prepare_packed,
-> > +     .poll =3D virtqueue_poll_packed,
-> > +     .detach_unused_buf =3D virtqueue_detach_unused_buf_packed,
-> > +     .more_used =3D more_used_packed,
-> > +     .resize =3D virtqueue_resize_packed,
-> > +     .reset =3D virtqueue_reset_packed,
-> > +};
-> > +
-> > +static const struct virtqueue_ops *const all_ops[VQ_TYPE_MAX] =3D {
-> > +     [SPLIT] =3D &split_ops,
-> > +     [PACKED] =3D &packed_ops
-> > +};
-> > +
-> >  static int virtqueue_disable_and_recycle(struct virtqueue *_vq,
-> >                                        void (*recycle)(struct virtqueue=
- *vq, void *buf))
-> >  {
->
-> Actually:
->
-> > @@ -2237,6 +2305,39 @@ static int virtqueue_enable_after_reset(struct v=
-irtqueue *_vq)
-> >   * Generic functions and exported symbols.
-> >   */
-> >
-> > +#define VIRTQUEUE_CALL(vq, op, ...)                                  \
-> > +     ({                                                              \
->
-> this macro evaluates vq many times.
-> You can use a temporary
->
-> struct vring_virtqueue *__VIRTQUEUE_CALL_vq =3D (vq);
->
-> to avoid the issue.
->
->
-> > +     typeof(all_ops[SPLIT]->op(vq, ##__VA_ARGS__)) ret;              \
-> > +                                                                     \
-> > +     switch (vq->layout) {                                           \
->
-> Should probably be (vq)->layout like in VOID_VIRTQUEUE_CALL,
-> unless you use a temporary.
->
->
->
->
-> > +     case SPLIT:                                                     \
-> > +             ret =3D all_ops[SPLIT]->op(vq, ##__VA_ARGS__);           =
- \
->
-> and (vq) here, too.
-> unless you use a temporary.
->
->
->
-> > +             break;                                                  \
-> > +     case PACKED:                                                    \
-> > +             ret =3D all_ops[PACKED]->op(vq, ##__VA_ARGS__);          =
- \
-> > +             break;                                                  \
-> > +     default:                                                        \
-> > +             BUG();                                                  \
-> > +             break;                                                  \
-> > +     }                                                               \
-> > +     ret;                                                            \
-> > +})
-> > +
-> > +#define VOID_VIRTQUEUE_CALL(vq, op, ...)             \
-> > +     ({                                              \
-> > +     switch ((vq)->layout) {                 \
-> > +     case SPLIT:                                     \
-> > +             all_ops[SPLIT]->op(vq, ##__VA_ARGS__);  \
-> > +             break;                                  \
-> > +     case PACKED:                                    \
-> > +             all_ops[PACKED]->op(vq, ##__VA_ARGS__); \
-> > +             break;                                  \
-> > +     default:                                        \
-> > +             BUG();                                  \
-> > +             break;                                  \
-> > +     }                                               \
-> > +})
-> > +
->
->
-> we can just open-code here and drop all_ops completely?
->
-> #define VOID_VIRTQUEUE_CALL(vq, op, ...)                \
->         ({                                              \
->         switch ((vq)->layout) {                 \
->         case SPLIT:                                     \
->                 split_ops->op(vq, ##__VA_ARGS__);       \
->                 break;                                  \
->         case PACKED:                                    \
->                 packed_ops->op(vq, ##__VA_ARGS__);      \
->                 break;                                  \
->         default:                                        \
->                 BUG();                                  \
->                 break;                                  \
->         }                                               \
-> })
->
->
->
-> then we do not need VQ_LAYOUT_MAX either.
+Factor out MAC address update logic and reuse it from handle_ctrl_mac().
 
-Exactly=EF=BC=8CI've modiefed the code this way in the new version.
+This ensures that old MAC entries are removed from the MPFS table
+before adding a new one and that the forwarding rules are updated
+accordingly. If updating the flow table fails, the original MAC and
+rules are restored as much as possible to keep the software and
+hardware state consistent.
 
->
-> I did not check this generates same code, pls do.
+Signed-off-by: Cindy Lu <lulu@redhat.com>
+---
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 95 +++++++++++++++++--------------
+ 1 file changed, 53 insertions(+), 42 deletions(-)
 
-Will do.
-
-Thanks
-
->
->
->
-> >  static inline int virtqueue_add(struct virtqueue *_vq,
-> >                               struct scatterlist *sgs[],
-> >                               unsigned int total_sg,
-> > @@ -2249,10 +2350,9 @@ static inline int virtqueue_add(struct virtqueue=
- *_vq,
-> >  {
-> >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> >
-> > -     return vq->packed_ring ? virtqueue_add_packed(vq, sgs, total_sg,
-> > -                                     out_sgs, in_sgs, data, ctx, prema=
-pped, gfp) :
-> > -                              virtqueue_add_split(vq, sgs, total_sg,
-> > -                                     out_sgs, in_sgs, data, ctx, prema=
-pped, gfp);
-> > +     return VIRTQUEUE_CALL(vq, add, sgs, total_sg,
-> > +                           out_sgs, in_sgs, data,
-> > +                           ctx, premapped, gfp);
-> >  }
-> >
-> >  /**
-> > @@ -2442,8 +2542,7 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq=
-)
-> >  {
-> >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> >
-> > -     return vq->packed_ring ? virtqueue_kick_prepare_packed(vq) :
-> > -                              virtqueue_kick_prepare_split(vq);
-> > +     return VIRTQUEUE_CALL(vq, kick_prepare);
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_kick_prepare);
-> >
-> > @@ -2513,8 +2612,7 @@ void *virtqueue_get_buf_ctx(struct virtqueue *_vq=
-, unsigned int *len,
-> >  {
-> >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> >
-> > -     return vq->packed_ring ? virtqueue_get_buf_ctx_packed(vq, len, ct=
-x) :
-> > -                              virtqueue_get_buf_ctx_split(vq, len, ctx=
-);
-> > +     return VIRTQUEUE_CALL(vq, get, len, ctx);
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_get_buf_ctx);
-> >
-> > @@ -2536,10 +2634,7 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
-> >  {
-> >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> >
-> > -     if (vq->packed_ring)
-> > -             virtqueue_disable_cb_packed(vq);
-> > -     else
-> > -             virtqueue_disable_cb_split(vq);
-> > +     VOID_VIRTQUEUE_CALL(vq, disable_cb);
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
-> >
-> > @@ -2562,8 +2657,7 @@ unsigned int virtqueue_enable_cb_prepare(struct v=
-irtqueue *_vq)
-> >       if (vq->event_triggered)
-> >               vq->event_triggered =3D false;
-> >
-> > -     return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(vq) :
-> > -                              virtqueue_enable_cb_prepare_split(vq);
-> > +     return VIRTQUEUE_CALL(vq, enable_cb_prepare);
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
-> >
-> > @@ -2584,8 +2678,8 @@ bool virtqueue_poll(struct virtqueue *_vq, unsign=
-ed int last_used_idx)
-> >               return false;
-> >
-> >       virtio_mb(vq->weak_barriers);
-> > -     return vq->packed_ring ? virtqueue_poll_packed(vq, last_used_idx)=
- :
-> > -                              virtqueue_poll_split(vq, last_used_idx);
-> > +
-> > +     return VIRTQUEUE_CALL(vq, poll, last_used_idx);
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_poll);
-> >
-> > @@ -2628,8 +2722,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue=
- *_vq)
-> >       if (vq->event_triggered)
-> >               data_race(vq->event_triggered =3D false);
-> >
-> > -     return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(vq) :
-> > -                              virtqueue_enable_cb_delayed_split(vq);
-> > +     return VIRTQUEUE_CALL(vq, enable_cb_delayed);
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
-> >
-> > @@ -2645,14 +2738,13 @@ void *virtqueue_detach_unused_buf(struct virtqu=
-eue *_vq)
-> >  {
-> >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> >
-> > -     return vq->packed_ring ? virtqueue_detach_unused_buf_packed(vq) :
-> > -                              virtqueue_detach_unused_buf_split(vq);
-> > +     return VIRTQUEUE_CALL(vq, detach_unused_buf);
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
-> >
-> >  static inline bool more_used(const struct vring_virtqueue *vq)
-> >  {
-> > -     return vq->packed_ring ? more_used_packed(vq) : more_used_split(v=
-q);
-> > +     return VIRTQUEUE_CALL(vq, more_used);
-> >  }
-> >
-> >  /**
-> > @@ -2782,7 +2874,7 @@ int virtqueue_resize(struct virtqueue *_vq, u32 n=
-um,
-> >       if (!num)
-> >               return -EINVAL;
-> >
-> > -     if ((vq->packed_ring ? vq->packed.vring.num : vq->split.vring.num=
-) =3D=3D num)
-> > +     if (virtqueue_get_vring_size(_vq) =3D=3D num)
-> >               return 0;
-> >
-> >       err =3D virtqueue_disable_and_recycle(_vq, recycle);
-> > @@ -2791,10 +2883,7 @@ int virtqueue_resize(struct virtqueue *_vq, u32 =
-num,
-> >       if (recycle_done)
-> >               recycle_done(_vq);
-> >
-> > -     if (vq->packed_ring)
-> > -             err =3D virtqueue_resize_packed(vq, num);
-> > -     else
-> > -             err =3D virtqueue_resize_split(vq, num);
-> > +     err =3D VIRTQUEUE_CALL(vq, resize, num);
-> >
-> >       err_reset =3D virtqueue_enable_after_reset(_vq);
-> >       if (err_reset)
-> > @@ -2832,10 +2921,7 @@ int virtqueue_reset(struct virtqueue *_vq,
-> >       if (recycle_done)
-> >               recycle_done(_vq);
-> >
-> > -     if (vq->packed_ring)
-> > -             virtqueue_reset_packed(vq);
-> > -     else
-> > -             virtqueue_reset_split(vq);
-> > +     VOID_VIRTQUEUE_CALL(vq, reset);
-> >
-> >       return virtqueue_enable_after_reset(_vq);
-> >  }
-> > @@ -2878,7 +2964,7 @@ static void vring_free(struct virtqueue *_vq)
-> >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> >
-> >       if (vq->we_own_ring) {
-> > -             if (vq->packed_ring) {
-> > +             if (virtqueue_is_packed(vq)) {
-> >                       vring_free_queue(vq->vq.vdev,
-> >                                        vq->packed.ring_size_in_bytes,
-> >                                        vq->packed.vring.desc,
-> > @@ -2907,7 +2993,7 @@ static void vring_free(struct virtqueue *_vq)
-> >                                        vq->map);
-> >               }
-> >       }
-> > -     if (!vq->packed_ring) {
-> > +     if (!virtqueue_is_packed(vq)) {
-> >               kfree(vq->split.desc_state);
-> >               kfree(vq->split.desc_extra);
-> >       }
-> > @@ -2932,7 +3018,7 @@ u32 vring_notification_data(struct virtqueue *_vq=
-)
-> >       struct vring_virtqueue *vq =3D to_vvq(_vq);
-> >       u16 next;
-> >
-> > -     if (vq->packed_ring)
-> > +     if (virtqueue_is_packed(vq))
-> >               next =3D (vq->packed.next_avail_idx &
-> >                               ~(-(1 << VRING_PACKED_EVENT_F_WRAP_CTR)))=
- |
-> >                       vq->packed.avail_wrap_counter <<
-> > @@ -2985,7 +3071,8 @@ unsigned int virtqueue_get_vring_size(const struc=
-t virtqueue *_vq)
-> >
-> >       const struct vring_virtqueue *vq =3D to_vvq(_vq);
-> >
-> > -     return vq->packed_ring ? vq->packed.vring.num : vq->split.vring.n=
-um;
-> > +     return virtqueue_is_packed(vq) ? vq->packed.vring.num :
-> > +                                   vq->split.vring.num;
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
-> >
-> > @@ -3068,7 +3155,7 @@ dma_addr_t virtqueue_get_desc_addr(const struct v=
-irtqueue *_vq)
-> >
-> >       BUG_ON(!vq->we_own_ring);
-> >
-> > -     if (vq->packed_ring)
-> > +     if (virtqueue_is_packed(vq))
-> >               return vq->packed.ring_dma_addr;
-> >
-> >       return vq->split.queue_dma_addr;
-> > @@ -3081,7 +3168,7 @@ dma_addr_t virtqueue_get_avail_addr(const struct =
-virtqueue *_vq)
-> >
-> >       BUG_ON(!vq->we_own_ring);
-> >
-> > -     if (vq->packed_ring)
-> > +     if (virtqueue_is_packed(vq))
-> >               return vq->packed.driver_event_dma_addr;
-> >
-> >       return vq->split.queue_dma_addr +
-> > @@ -3095,7 +3182,7 @@ dma_addr_t virtqueue_get_used_addr(const struct v=
-irtqueue *_vq)
-> >
-> >       BUG_ON(!vq->we_own_ring);
-> >
-> > -     if (vq->packed_ring)
-> > +     if (virtqueue_is_packed(vq))
-> >               return vq->packed.device_event_dma_addr;
-> >
-> >       return vq->split.queue_dma_addr +
-> > --
-> > 2.31.1
->
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 6e42bae7c9a1..c87e6395b060 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -2125,62 +2125,48 @@ static void teardown_steering(struct mlx5_vdpa_net *ndev)
+ 	mlx5_destroy_flow_table(ndev->rxft);
+ }
+ 
+-static virtio_net_ctrl_ack handle_ctrl_mac(struct mlx5_vdpa_dev *mvdev, u8 cmd)
++static int mlx5_vdpa_change_new_mac(struct mlx5_vdpa_net *ndev,
++				    struct mlx5_core_dev *pfmdev,
++				    const u8 *new_mac)
+ {
+-	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+-	struct mlx5_control_vq *cvq = &mvdev->cvq;
+-	virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
+-	struct mlx5_core_dev *pfmdev;
+-	size_t read;
+-	u8 mac[ETH_ALEN], mac_back[ETH_ALEN];
+-
+-	pfmdev = pci_get_drvdata(pci_physfn(mvdev->mdev->pdev));
+-	switch (cmd) {
+-	case VIRTIO_NET_CTRL_MAC_ADDR_SET:
+-		read = vringh_iov_pull_iotlb(&cvq->vring, &cvq->riov, (void *)mac, ETH_ALEN);
+-		if (read != ETH_ALEN)
+-			break;
+-
+-		if (!memcmp(ndev->config.mac, mac, 6)) {
+-			status = VIRTIO_NET_OK;
+-			break;
+-		}
++	struct mlx5_vdpa_dev *mvdev = &ndev->mvdev;
++	u8 old_mac[ETH_ALEN];
+ 
+-		if (is_zero_ether_addr(mac))
+-			break;
++	if (is_zero_ether_addr(new_mac))
++		return -EINVAL;
+ 
+-		if (!is_zero_ether_addr(ndev->config.mac)) {
+-			if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
+-				mlx5_vdpa_warn(mvdev, "failed to delete old MAC %pM from MPFS table\n",
+-					       ndev->config.mac);
+-				break;
+-			}
++	if (!is_zero_ether_addr(ndev->config.mac)) {
++		if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
++			mlx5_vdpa_warn(mvdev, "failed to delete old MAC %pM from MPFS table\n",
++				       ndev->config.mac);
++			return -EIO;
+ 		}
++	}
+ 
+-		if (mlx5_mpfs_add_mac(pfmdev, mac)) {
+-			mlx5_vdpa_warn(mvdev, "failed to insert new MAC %pM into MPFS table\n",
+-				       mac);
+-			break;
+-		}
++	if (mlx5_mpfs_add_mac(pfmdev, (u8 *)new_mac)) {
++		mlx5_vdpa_warn(mvdev, "failed to insert new MAC %pM into MPFS table\n",
++			       new_mac);
++		return -EIO;
++	}
+ 
+ 		/* backup the original mac address so that if failed to add the forward rules
+ 		 * we could restore it
+ 		 */
+-		memcpy(mac_back, ndev->config.mac, ETH_ALEN);
++		memcpy(old_mac, ndev->config.mac, ETH_ALEN);
+ 
+-		memcpy(ndev->config.mac, mac, ETH_ALEN);
++		memcpy(ndev->config.mac, new_mac, ETH_ALEN);
+ 
+ 		/* Need recreate the flow table entry, so that the packet could forward back
+ 		 */
+-		mac_vlan_del(ndev, mac_back, 0, false);
++		mac_vlan_del(ndev, old_mac, 0, false);
+ 
+ 		if (mac_vlan_add(ndev, ndev->config.mac, 0, false)) {
+ 			mlx5_vdpa_warn(mvdev, "failed to insert forward rules, try to restore\n");
+ 
+ 			/* Although it hardly run here, we still need double check */
+-			if (is_zero_ether_addr(mac_back)) {
++			if (is_zero_ether_addr(old_mac)) {
+ 				mlx5_vdpa_warn(mvdev, "restore mac failed: Original MAC is zero\n");
+-				break;
++				return -EIO;
+ 			}
+ 
+ 			/* Try to restore original mac address to MFPS table, and try to restore
+@@ -2191,20 +2177,45 @@ static virtio_net_ctrl_ack handle_ctrl_mac(struct mlx5_vdpa_dev *mvdev, u8 cmd)
+ 					       ndev->config.mac);
+ 			}
+ 
+-			if (mlx5_mpfs_add_mac(pfmdev, mac_back)) {
++			if (mlx5_mpfs_add_mac(pfmdev, old_mac)) {
+ 				mlx5_vdpa_warn(mvdev, "restore mac failed: insert old MAC %pM into MPFS table failed\n",
+-					       mac_back);
++					       old_mac);
+ 			}
+ 
+-			memcpy(ndev->config.mac, mac_back, ETH_ALEN);
++			memcpy(ndev->config.mac, old_mac, ETH_ALEN);
+ 
+ 			if (mac_vlan_add(ndev, ndev->config.mac, 0, false))
+ 				mlx5_vdpa_warn(mvdev, "restore forward rules failed: insert forward rules failed\n");
+ 
+-			break;
++			return -EIO;
+ 		}
+ 
+-		status = VIRTIO_NET_OK;
++		return 0;
++}
++
++static virtio_net_ctrl_ack handle_ctrl_mac(struct mlx5_vdpa_dev *mvdev, u8 cmd)
++{
++	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
++	struct mlx5_control_vq *cvq = &mvdev->cvq;
++	virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
++	struct mlx5_core_dev *pfmdev;
++	size_t read;
++	u8 mac[ETH_ALEN];
++
++	pfmdev = pci_get_drvdata(pci_physfn(mvdev->mdev->pdev));
++	switch (cmd) {
++	case VIRTIO_NET_CTRL_MAC_ADDR_SET:
++		read = vringh_iov_pull_iotlb(&cvq->vring, &cvq->riov,
++					     (void *)mac, ETH_ALEN);
++		if (read != ETH_ALEN)
++			break;
++
++		if (!memcmp(ndev->config.mac, mac, 6)) {
++			status = VIRTIO_NET_OK;
++			break;
++		}
++		status = mlx5_vdpa_change_new_mac(ndev, pfmdev, mac) ? VIRTIO_NET_ERR :
++								       VIRTIO_NET_OK;
+ 		break;
+ 
+ 	default:
+-- 
+2.45.0
 
