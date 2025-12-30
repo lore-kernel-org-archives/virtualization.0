@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2162E4315F
-	for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 10:15:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61B822E175F
+	for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 10:16:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767089761; cv=none; b=A+z8HFS44TbDsih3uD5HGOnHQaHkTFuLR20R/y144OZl4H5UVsosepah3PUpX4Wviwi6UdOyXdGohP8JIZKLc/km4GePY9pBk/oCWIpDGvhDI+quwwYKIRPPGSrU1D90MXS1jTegQFkjWfMVY/tJ1PMdF8/15wqBkrVz7YYA/P0=
+	t=1767089762; cv=none; b=W4TTEKqMLpw9U0KBI0dgTAf1NfSpEhTtkIdQ16DgVnppoGzadLVruG8S1mVezFACEAcoS7d9QINBD2jMtm8ip+fcbB/JJ1BgiqI02VTdn/0/3h6kUreUGq0HhDu4IKYGmAeFCWn82zE/Mlyni42siAzPF4ozw1Ex7+G1qYChpDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767089761; c=relaxed/simple;
-	bh=1JUA4c0efATkxneQm73kN9tTpnR2rWTicL6pMgMgIPw=;
+	s=arc-20240116; t=1767089762; c=relaxed/simple;
+	bh=PKPLA1kpbL7fJYEUVDcqch/rjberNxsCb/G2InoSmIU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=PlqTEm5vonXRAv/zUJIIwMMUWNK0vSFOi/jDIGyFITHXEUtNI01t1Ngwd1vz2a3BNy3KhT7JB+AGACoRVQ1iLG4HYQsyb2YFkTwEak1uJOb2VaTwYFjvypoVE7dbKuzwDUmyNfsxXqo6r00PrbMpf+HlfyiTDY6PUx4cmCkc+Wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UWMgGlED; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=QCsd8+yp0pby4stg9P9B23zg7cNRRcLDJRDStqRXfLgKQ9PGAkMCGKJxhDGUKI+G+DbrCdh+wdIltMMZ80SrepBW9BJi/pKyUIC2Tr5gpTA05y3j+YpF9qzB+Bx4x+Wg7Fc9olwj/6e4aG8Oe92dR3kja2+JI1sNKxI8V7vZg30=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hzo/ukVG; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UWMgGlED"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hzo/ukVG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767089758;
+	s=mimecast20190719; t=1767089759;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=lIFloJTLYi5ioijSED2t687CZ+kUT7GxSlzISMtKW5A=;
-	b=UWMgGlEDMuAcicNDwwEMsN8ND6K+yGn6+thx2DjkYgyTxUx9YHMzwRjfVARuxYNOau7tPh
-	yqtApNi4DDHkHRuWQLOv9m77fmVEsQ9NP+M8RLoW1OOF85CTQWauERjz9KJFEk+fSP/7JX
-	ynnANhDh4bwlMlqliO0cJh2U8I0ST+E=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=vlUDEgWO93Cmk0Xa8O4C3C5KUT8jOBeRcuReRJ9yK0k=;
+	b=Hzo/ukVGpCpZFTerO6TPVTUe75x9pQ1BR1LptdEzWoyEQ/osq2e8qbvA7igncJP60Lnn8M
+	cAmlIoq9purJRZszQ7iImNMTkvCoPlaZd4humItpsA8OY7yk+kDS7DCURt5KOhFT3wU3pq
+	/MrPGTP9IJ8w/QKJNIwqFSmI5wmFvcc=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-610-Na8AWAP7On28pyJFOxGYJg-1; Tue, 30 Dec 2025 05:15:54 -0500
-X-MC-Unique: Na8AWAP7On28pyJFOxGYJg-1
-X-Mimecast-MFC-AGG-ID: Na8AWAP7On28pyJFOxGYJg_1767089754
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-42fdbba545fso5949628f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 02:15:54 -0800 (PST)
+ us-mta-684-XjJXmsfLNSKOlFK_LWY1EA-1; Tue, 30 Dec 2025 05:15:58 -0500
+X-MC-Unique: XjJXmsfLNSKOlFK_LWY1EA-1
+X-Mimecast-MFC-AGG-ID: XjJXmsfLNSKOlFK_LWY1EA_1767089757
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-477c49f273fso125578545e9.3
+        for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 02:15:58 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767089753; x=1767694553;
+        d=1e100.net; s=20230601; t=1767089757; x=1767694557;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lIFloJTLYi5ioijSED2t687CZ+kUT7GxSlzISMtKW5A=;
-        b=fltLbF8QWazahSXPQ9Eb7qX5mCiaDI6NTXIIbJnwtZDfTB9pa5QbjWueuUgqSuCEo6
-         f+sqoLhuGK9t9pHyFfcFm/kNiM4K3wBDYgkXa1cqSi8N7wFwCv6svYcVLwW7huq+KUgu
-         lFmZqxYNB47nLrh9mGrK2sp9BIDnJSgDwVS3m9Z5/WVioxWAa9BWpUgpHgKQS+UvU9D3
-         ydH9PQN7XUmkwaWbtQJ/Anp4SeWsZ/Gt9isH3+Qu2s+jSYxXFIsZwC1hJmh2j3PW/ad3
-         nWn/P2Ts5D7odjbwIBZsOX+p0ZTD/gFsq4fRMOIWQ+OO/7utmcnYsswrs0kZv16sbzxV
-         ZjNg==
-X-Forwarded-Encrypted: i=1; AJvYcCWCl20lLVT9yCtD4fPlRrvhOrwz/gVtEb+xdn1es/hwSjgmT9AfDwm3cnlDMj0x1Kf79ApwohmWLTWIavDjPg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxNFuq3dVxVg9u4eK7m4gBcHyVAPNjZAX/Prg9OMAPLGOR5zlP+
-	pBs1f5tmhJ/wI/GW3+5ik94QMKLigTItPb5alWpFum1PkDDM/qa/LXVc4ohh/5tEmUZNxwmZxnt
-	g1CL6Ju5IbiagiVhJoufYR2RWMx2kcI/OxNfrhC4Z529sahpcpvr3lQsktz3uvX/jTxK5
-X-Gm-Gg: AY/fxX7t/5yCPYMS7Q48Rq4Hf4t2WSMq18Eau61hXzd40LSYjUKAYhFkBSbNJqZ9x3A
-	Z8aOVA42XuwgeXcj9L3wCTafm7KYQoDCdyJknZByLOPFmVa1+OU4WfIiqPToMlSCEGjRTRPc1dj
-	lnkqyPaGSA9w4Eu8GM4Bb3A8c/zPMANQKDtru++lrkdX4CQHLEBv899I+ba1OWsiGvG1uN40yKW
-	aAVxUQ68uchyITP+FiO3G/neEpZF0R8mxvUaOujBrI9/HJMaDid30qLTwJJXmnZY+O24+xtKAsK
-	y5bc/z632kuy8YgHIgurDBmY0mUbW3v/OUbUGTLeWy/gcSO+icTRCbkhfKAnDHvI8Iw8yrqQyYI
-	BESkF1y2lBDxESiymXb7Dv9LIxGYaVsvFXg==
-X-Received: by 2002:a05:600c:46cf:b0:477:9e0c:f59 with SMTP id 5b1f17b1804b1-47d18b833a6mr393752885e9.2.1767089753548;
-        Tue, 30 Dec 2025 02:15:53 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF0nrcJnS7RjupXcIyxgJ/7OwvI0dkgJ3plFmvdD3JvcGLBLhWJUwOhq1auRl2SqH+pkIX7dw==
-X-Received: by 2002:a05:600c:46cf:b0:477:9e0c:f59 with SMTP id 5b1f17b1804b1-47d18b833a6mr393752425e9.2.1767089752979;
-        Tue, 30 Dec 2025 02:15:52 -0800 (PST)
+        bh=vlUDEgWO93Cmk0Xa8O4C3C5KUT8jOBeRcuReRJ9yK0k=;
+        b=j9l8G5qaX3P4qzW/wtmFNYiqsIWLPMWSlqYZAjYWRp4ySvsKXzPwcYKGNojLaTvrkp
+         JtFriEKBFEChH8L17zfEh7Q3V4sdrUVJVWa2X31CcwOV4Dnz/2ue5g3osnvpHbYmkvEb
+         N+gFTkXTOaqtD8dfOeQ4wWlTIerh44j+pStDw14Q8cwUmHSVsLJgQ49j6KIj4DDdc+YS
+         K8VxsSZ2qURroJf/aWzNAx/ffFkv5cRht/YwyxrvhwOdR5739/6wpd1+SK/r/q8ovWxZ
+         lFnMIO4JXzKZkV5w9FVjd2EM0dLTjl3hea2eJgAqmUeAESEE6HIEA/Q8Q1Ro7wlcQx0H
+         V6xg==
+X-Forwarded-Encrypted: i=1; AJvYcCVFDste1vdU86m6ySHSeq6dOKl2a9E2Z56QHWcfYnl2JRpXacTQ63JPsF8sj9I/4KT09lxVDNUJ8NjXR26kpA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwIeje3ZBUM9xrn4oMolQ+u/6nGnIoEUq98kAYw0iryejS1RBqY
+	OEUNZuh9QJHU5bWWmN8XDouprYPN3xh1OqLUaCy1uzEUT2mpR5zzSRMBI8Jdi29crS0+Udf/G5k
+	58l5A4gV6mYUce8mAUxY9cYrAcRw6Mpbx9rI/pEk2WF+4JANeKCQs1bz11egiUBAQKl8k
+X-Gm-Gg: AY/fxX7XSH5Zi1tydFQ+03079jcBc6X8a0MHweodHDlJqWGyByaqKpqk8+UEwhJFLW+
+	ziybGbeuhPfnRq9GpyePjb0qmiitYTXndMU+rFf6mzvO2Pl54BPgyb1Bsz8xcdXEPEak4NuX/zA
+	irb/Qhf+CfpjaGI9jniWxXOZgPbB4SEzq96ZZFnK+xytuxZXWStWdJ5HsKaTvwRb6CABPaXAYss
+	9Y7xZ8ohu3p0jn3AN+E9Z8vd/NSKn7wA8P59ONFcNtiGjzfU39/A4fEwqhnp3JIASDniJTrUUCD
+	O8kDofXym/BrB79DKghthqAM8ph2r8aZ8vnm0t6an+ITv+DrJN1eKcfwv3sg7ziO0KajqEiFZx5
+	L7XJ/1MLsFZQtFN2fCVMkfJSlpnYUkf6Rrg==
+X-Received: by 2002:a05:600c:3b0e:b0:477:b0b9:3129 with SMTP id 5b1f17b1804b1-47d1955b7d1mr374948275e9.3.1767089757035;
+        Tue, 30 Dec 2025 02:15:57 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFcsewURuffZ55cO3Q+sj2TN55Hu1ppUSdeqHbu2iFeBFoCSmT0tG7gytPk3ITCZSUZTYC9tQ==
+X-Received: by 2002:a05:600c:3b0e:b0:477:b0b9:3129 with SMTP id 5b1f17b1804b1-47d1955b7d1mr374947795e9.3.1767089756491;
+        Tue, 30 Dec 2025 02:15:56 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47be272eaf8sm630001695e9.5.2025.12.30.02.15.50
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47be3a6c6ebsm263705445e9.4.2025.12.30.02.15.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Dec 2025 02:15:52 -0800 (PST)
-Date: Tue, 30 Dec 2025 05:15:49 -0500
+        Tue, 30 Dec 2025 02:15:56 -0800 (PST)
+Date: Tue, 30 Dec 2025 05:15:53 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: Cong Wang <xiyou.wangcong@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
@@ -89,8 +89,8 @@ Cc: Cong Wang <xiyou.wangcong@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
 	linux-doc@vger.kernel.org, linux-crypto@vger.kernel.org,
 	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
 	iommu@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH RFC 02/13] docs: dma-api: document __dma_align_begin/end
-Message-ID: <192a335d783a2e54f539dc5ff81bf3207dafa88f.1767089672.git.mst@redhat.com>
+Subject: [PATCH RFC 03/13] dma-mapping: add DMA_ATTR_CPU_CACHE_CLEAN
+Message-ID: <1f271a22a3aae6afb97c5f9ae35b1802eaa036a7.1767089672.git.mst@redhat.com>
 References: <cover.1767089672.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -102,72 +102,60 @@ In-Reply-To: <cover.1767089672.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: DAV5zyaKMblUM-FE0AMbhkfpdMR0AI2j4B3sYN103zA_1767089754
+X-Mimecast-MFC-PROC-ID: VRdPONQ6T_93vsUjfW1xyWKb5h7zqkYnvS_IZ0uJju4_1767089757
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Document the __dma_align_begin/__dma_align_end annotations
-introduced by the previous patch.
+When multiple small DMA_FROM_DEVICE or DMA_BIDIRECTIONAL buffers share a
+cacheline, and DMA_API_DEBUG is enabled, we get this warning:
+	cacheline tracking EEXIST, overlapping mappings aren't
+supported.
+
+This is because when one of the mappings is removed, while another
+one is active, CPU might write into the buffer.
+
+Add an attribute for the driver to promise not to do this,
+making the overlapping safe, and suppressing the warning.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- Documentation/core-api/dma-api-howto.rst | 42 ++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ include/linux/dma-mapping.h | 7 +++++++
+ kernel/dma/debug.c          | 3 ++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/core-api/dma-api-howto.rst b/Documentation/core-api/dma-api-howto.rst
-index 96fce2a9aa90..99eda4c5c8e7 100644
---- a/Documentation/core-api/dma-api-howto.rst
-+++ b/Documentation/core-api/dma-api-howto.rst
-@@ -146,6 +146,48 @@ What about block I/O and networking buffers?  The block I/O and
- networking subsystems make sure that the buffers they use are valid
- for you to DMA from/to.
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index 47b7de3786a1..8216a86cd0c2 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -78,6 +78,13 @@
+  */
+ #define DMA_ATTR_MMIO		(1UL << 10)
  
-+__dma_from_device_aligned_begin/end annotations
-+===============================================
++/*
++ * DMA_ATTR_CPU_CACHE_CLEAN: Indicates the CPU will not dirty any cacheline
++ * overlapping this buffer while it is mapped for DMA. All mappings sharing
++ * a cacheline must have this attribute for this to be considered safe.
++ */
++#define DMA_ATTR_CPU_CACHE_CLEAN	(1UL << 11)
 +
-+As explained previously, when a structure contains a DMA_FROM_DEVICE buffer
-+(device writes to memory) alongside fields that the CPU writes to, cache line
-+sharing between the DMA buffer and CPU-written fields can cause data corruption
-+on CPUs with DMA-incoherent caches.
-+
-+The ``__dma_from_device_aligned_begin/__dma_from_device_aligned_end``
-+annotations ensure proper alignment to prevent this::
-+
-+	struct my_device {
-+		spinlock_t lock1;
-+		__dma_from_device_aligned_begin char dma_buffer1[16];
-+		char dma_buffer2[16];
-+		__dma_from_device_aligned_end spinlock_t lock2;
-+	};
-+
-+On cache-coherent platforms these macros expand to nothing. On non-coherent
-+platforms, they ensure the minimal DMA alignment, which can be as large as 128
-+bytes.
-+
-+.. note::
-+
-+	To isolate a DMA buffer from adjacent fields, you must apply
-+	``__dma_from_device_aligned_begin`` to the first DMA buffer field
-+	**and additionally** apply ``__dma_from_device_aligned_end`` to the
-+	**next** field in the structure, **beyond** the DMA buffer (as opposed
-+	to the last field of the DMA buffer!).  This protects both the head and
-+	tail of the buffer from cache line sharing.
-+
-+	When the DMA buffer is the **last field** in the structure, just
-+	``__dma_from_device_aligned_begin`` is enough - the compiler's struct
-+	padding protects the tail::
-+
-+		struct my_device {
-+			spinlock_t lock;
-+			struct mutex mlock;
-+			__dma_from_device_aligned_begin char dma_buffer1[16];
-+			char dma_buffer2[16];
-+		};
-+
- DMA addressing capabilities
- ===========================
- 
+ /*
+  * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
+  * be given to a device to use as a DMA source or target.  It is specific to a
+diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
+index 138ede653de4..7e66d863d573 100644
+--- a/kernel/dma/debug.c
++++ b/kernel/dma/debug.c
+@@ -595,7 +595,8 @@ static void add_dma_entry(struct dma_debug_entry *entry, unsigned long attrs)
+ 	if (rc == -ENOMEM) {
+ 		pr_err_once("cacheline tracking ENOMEM, dma-debug disabled\n");
+ 		global_disable = true;
+-	} else if (rc == -EEXIST && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
++	} else if (rc == -EEXIST &&
++		   !(attrs & (DMA_ATTR_SKIP_CPU_SYNC | DMA_ATTR_CPU_CACHE_CLEAN)) &&
+ 		   !(IS_ENABLED(CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC) &&
+ 		     is_swiotlb_active(entry->dev))) {
+ 		err_printk(entry->dev, entry,
 -- 
 MST
 
