@@ -1,70 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACE0A2D7DE7
-	for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 10:16:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA0083A1E98
+	for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 10:16:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767089769; cv=none; b=rzkeRNAlAXcQPJ+ME/YOWsOgzyg4XoQh3bdJAJZm0BYmGuFMIKaIsaE11RVIWwbb5Dq4noofmTHkKjbg9+trerMy/v1nINIVh0TFJXWIPoCy++78JyLicjOa4d3F8y4dlPqhnie7M5agD4ofznaqeVkc5a8Pb/T6WvnvWp+zuuU=
+	t=1767089774; cv=none; b=CpNHJdiekx4L6PZrN2dalggttyJWbkHa/ULDdHTwPT5qCD57wLnjzSpzeoRaz8mcTs9jVNW5aqCqJ3qYG9LAxIxnH4L6jX+CfRduwa2Mr4biRCVJ3VuF/1ubjgDj2+2jaxKbO2TlPsAdyu2jLsUAJGevJ+tO98vydpSRfWodmnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767089769; c=relaxed/simple;
-	bh=LXvIBwQKlwN2aW+nel9nihwfIG/BNCGtqaNljMXS3c4=;
+	s=arc-20240116; t=1767089774; c=relaxed/simple;
+	bh=N4HR0a5dn05GuDoktJG7BnG9Lq/5EUgyVWUyfL7k7BY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mAfJFl4zbXcZOtI5E3ElkxDYNln0Q6X52hqO4IVbjRLjqbEsS/1MIPXcNMcFj5rd0gxC3YjBQ4uOc3LHWxuQnU258Evt4jE3PY+/RSC9JB5ZsDtTYKWRVB+2FZLus/efcuo3u+RWG/5VUhJb+RiISdmMADhQCKe/aFnd/r87Gao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=b5mWhlFM; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=Nf1FJ5AxQsobt4TdTpZozItgvfLWeds8zR8+ioB3d9kncU7cqN7Hbr9aNTl0Mker/LbEYTccHL+P6OKx17xBGfshufowrKZUjaCfd3UJqshJ8E7uOrRDG0/q1tQc3rHr+u5xp80TCCW4z+tLmAs5qF/x3EvsoGC45nCaAxyi9Hw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gsyT/re7; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b5mWhlFM"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gsyT/re7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767089766;
+	s=mimecast20190719; t=1767089770;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=CbbLRn5SB4hmqpKO67RyzNkOjJr20Ge6MiEXlRieQIA=;
-	b=b5mWhlFMcAhJf5HHdiDR2c+GwG4NDncHv3QaphrnnAmHJ2W0f8uaXjGq84AqZaug3wk0Kw
-	+McRoAikSlwp2cbFKxwPy8UVkWluP6Td3pu3JOuGxnd0zf9qfMYGbY4n4P+6ID1Ycf9BDo
-	VF2YjugYxCwMlyrmE/gx6RMdieuiTG8=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=5P8nBFllNyVQLFQFLwvEGLPOI82khKcPXA1snN92gfM=;
+	b=gsyT/re7zBghS/yQntGAGJu/ISHw3WlYNSYuOoI3O5bVjjfEChnWJYC8bfiysfM7cdsytI
+	mC1VU/x0p9sSZcPopYpSC8DxVm38YZ7jhJABhGAUEAI/psZFsU4ReqN0GjJ5mGfM899Qof
+	2dYKGMpN2Pc62ofKcAndOkY+dEAyPcI=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-155-H_X11_ECOWqxGaXVfDXpsg-1; Tue, 30 Dec 2025 05:16:05 -0500
-X-MC-Unique: H_X11_ECOWqxGaXVfDXpsg-1
-X-Mimecast-MFC-AGG-ID: H_X11_ECOWqxGaXVfDXpsg_1767089764
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-430fd96b2f5so8253101f8f.3
-        for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 02:16:05 -0800 (PST)
+ us-mta-110-7uIfXjBlPye3Lrww863mfQ-1; Tue, 30 Dec 2025 05:16:09 -0500
+X-MC-Unique: 7uIfXjBlPye3Lrww863mfQ-1
+X-Mimecast-MFC-AGG-ID: 7uIfXjBlPye3Lrww863mfQ_1767089768
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-430fcb6b2ebso5739130f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 02:16:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767089764; x=1767694564;
+        d=1e100.net; s=20230601; t=1767089768; x=1767694568;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CbbLRn5SB4hmqpKO67RyzNkOjJr20Ge6MiEXlRieQIA=;
-        b=MFb6ALU7cTO1kaeGFDN9EeqFvNHiEWPRaxNqKDuGwObAU4fdHb5onZ/EXCxRA3WaL+
-         KWqGF/cLuhdUMt7QOUBosSebrv5pLQ0T/CHQo6jRH3PasNZe8DQmifAY7TpWf+qTlm1K
-         sKgYXGYLF6EvwiGYB9AMCXNAjJP1haJk0EJ+VWeoIJD/UQMgjOrtLlzvK2r0zT+hsCdk
-         379JSlxTenguvMHdp061wa4j74IeJnzZq/82X6YQq7ylTw1Q6lX/wdHbFT3byrSUrSiA
-         bzcnXD496f3+3QacQDguhJp+/NQxTZ0l7Yw0cKWpf0bSHFmhSNyZ27Iqfn0umv8jBvQL
-         E9vA==
-X-Forwarded-Encrypted: i=1; AJvYcCXLHN5oYZLd0AcgzPdLHxazsKxvuLx8dqm+B+5M/9HU2fmDWHz8fsrtaSGrJq4n7ypBZZcmqEyr47nqShJYAw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy6IriHAE/KEesqyHHB8Tk0sxo8QJxLv0CPQ2AixM/l/in84iTe
-	6NgVdSttgTKunWwHa/v/QFJ2cGf5/uQVnQpN5cc+brK8XwrMK1007am8ZVAgUhKvnBuE4Sp3U5H
-	ZLQ6KXWKw6cELZ/tmhLM7G6QbCzioMHistub4KvpG/ofl1FHQ9KlDm37+ntlpDsgVW+Qu
-X-Gm-Gg: AY/fxX7cNLoKFoHONzj4Y+i13mDFu08Ha8zs5AZBuNiHH4yNifZfBcCaGkk8IZ1mGuR
-	WBLQizEXzOtTMz9HJ9cm7xwsBWxB/sNO1LP8vK81ak101PQ0+6R0f6lQbJDscP8OC4FN/O6OP4N
-	ALDHtm/dIp0NJa3KT6EyNUUvvPFnnIYT60iYmUEtK9724rW0ZkTwuDyUlI4wiziI3X6g7zWSCiN
-	OzzrP83fDGHzJwYs8150TiJAMARhHwGn+UtoSa/dBXcTAeQ1glaVpSrN38b0K0ZIDofEbJVU7Tz
-	2MUIZDBDGpfsEIr+nyOb4WLycpR1wpmc913BnaLgcVs1YmWo8X3KAj2EKQgblJPnCQL+IWVMPoy
-	BzT+40y1w52iUTfpDP2YyzOMUgPGhFOMYFg==
-X-Received: by 2002:a05:6000:200e:b0:430:fcf5:4937 with SMTP id ffacd0b85a97d-4324e4c3e1emr38658328f8f.7.1767089764003;
-        Tue, 30 Dec 2025 02:16:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHK1atjAKrkdoWQy4jxFj2rw+qTn5U0Lh0sTEHql45jv1yC6jgv8gOxch8xQ2S/3gi1ay54uA==
-X-Received: by 2002:a05:6000:200e:b0:430:fcf5:4937 with SMTP id ffacd0b85a97d-4324e4c3e1emr38658276f8f.7.1767089763428;
-        Tue, 30 Dec 2025 02:16:03 -0800 (PST)
+        bh=5P8nBFllNyVQLFQFLwvEGLPOI82khKcPXA1snN92gfM=;
+        b=XZZQR19tYsLZvI+FFQafUl9crkw17HcnJ6i+19RMSLyG4cqjEZE+zx0ZsSBhgyydNJ
+         FdCC1bpvpZKP1zqu4CUsAeEipIa64hf4SxI/nG24HaB+zwagRUS3DdIp1vWBeZQdQD7e
+         HeJERVmtqtDTSmCnTLqBVZJkWUn+NJhf3Xs70WnnLrRUlsufhVL3rwbFvkkx+eVd3sWw
+         j80QXSTSzUEbb11Lg1Sckw3Bt2CzZf5I9PMqt+t1ZjFQGqyzPr/VdT/LWKBvU95sfZcu
+         7YVBCMVCCOPWcIfZ3HMciWFPqUrOuCZeNbuplJm6jcPCsTKazekVxg68587ZapCG+d28
+         pkBg==
+X-Forwarded-Encrypted: i=1; AJvYcCX0khJ9l4yz402ynEJ5zVCHWNt50bneIV2R7AjsYLx3ow8AuvmbRCb5obJkYDu0aGTZoM8r0mcoAQKTfsPRyA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyKF5c9hbjXkjQqBnjz5LSV2miQd490FEJherzeybIrW/iUkBeh
+	oDwlFJQyLKUu4QPXzJ5JFMCLxl+kpV5uO+vN+zBAFJNrI4As1d4zyjFHJWhz/oJ9FdA47XiRpWw
+	ggYFHTnsp66gp3xRHaOp5b6hb09zKitHcSwSdF63FJF/RHO/TEomoOQAR90/EGK/V9MYq
+X-Gm-Gg: AY/fxX6OzARqxEiqeR1p6+XLKUSllO8mleInVInGjkjHdz0F/cSiO6zQyC8NnODZHPM
+	wC9isEfppJHBh2LkVChNF2fXER25eqjKnL2YFt7TzB9AD3vnDSrUvBbnqnznnqreqj+K6ZC1qBg
+	RKE/EYwuo+bF0YaC5YalDTxSwjHrsbpVCp62z+qut0NDx1zBDsmIuPwZYzLk9fYYtLyq+QKs4P6
+	pmrAi1nkRehsCHQOCR6xIM5GUh56tcoRoWoOrQqd5LUeWo4XTtS+4IAZlfmihV+OcbL4pqyZ/r0
+	2nYhz8PC/pYBQktc4U1UHdAmOUxhHFxBNqLjf7m407+iToOxz0ozSq2sKGsS+vkROxuNPEGliOS
+	Zizch8xeX80K1r9HDTbj0rmYKWTr8e37ynA==
+X-Received: by 2002:a5d:5f54:0:b0:431:2b2:9628 with SMTP id ffacd0b85a97d-4324e506ba3mr39259958f8f.52.1767089767431;
+        Tue, 30 Dec 2025 02:16:07 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGtsdMUlb1wS6GR5OayFkymlWIYaYAnUxOGKY8jeZK45Dwg0ymMw4lZ1+63FGBt0jVsyojNrA==
+X-Received: by 2002:a5d:5f54:0:b0:431:2b2:9628 with SMTP id ffacd0b85a97d-4324e506ba3mr39259899f8f.52.1767089766895;
+        Tue, 30 Dec 2025 02:16:06 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324ea1b1bdsm66936468f8f.8.2025.12.30.02.16.00
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eaa477bsm67834948f8f.36.2025.12.30.02.16.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Dec 2025 02:16:03 -0800 (PST)
-Date: Tue, 30 Dec 2025 05:16:00 -0500
+        Tue, 30 Dec 2025 02:16:06 -0800 (PST)
+Date: Tue, 30 Dec 2025 05:16:03 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: Cong Wang <xiyou.wangcong@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
@@ -89,8 +89,8 @@ Cc: Cong Wang <xiyou.wangcong@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
 	linux-doc@vger.kernel.org, linux-crypto@vger.kernel.org,
 	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
 	iommu@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH RFC 05/13] dma-debug: track cache clean flag in entries
-Message-ID: <c0df5d43759202733ccff045f834bd214977945f.1767089672.git.mst@redhat.com>
+Subject: [PATCH RFC 06/13] virtio: add virtqueue_add_inbuf_cache_clean API
+Message-ID: <e5a7240e7c8e590c4745a76c4ab4d76f7f8bd88c.1767089672.git.mst@redhat.com>
 References: <cover.1767089672.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -102,105 +102,241 @@ In-Reply-To: <cover.1767089672.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: roAR8HW49dcsnmykClq91oKJsvig-u14_WvwtnG_lDY_1767089764
+X-Mimecast-MFC-PROC-ID: Cgw8QzmWS_poaTcXrPH1DkrYO8Bg6HwE5DulHvAA5hI_1767089768
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-If a driver is bugy and has 2 overlapping mappings but only
-sets cache clean flag on the 1st one of them, we warn.
-But if it only does it for the 2nd one, we don't.
-
-Fix by tracking cache clean flag in the entry.
-Shrink map_err_type to u8 to avoid bloating up the struct.
+Add virtqueue_add_inbuf_cache_clean() for passing DMA_ATTR_CPU_CACHE_CLEAN
+to virtqueue operations. This suppresses DMA debug cacheline overlap
+warnings for buffers where proper cache management is ensured by the
+caller.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- kernel/dma/debug.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/virtio/virtio_ring.c | 72 ++++++++++++++++++++++++++----------
+ include/linux/virtio.h       |  5 +++
+ 2 files changed, 58 insertions(+), 19 deletions(-)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index 7e66d863d573..9bd14fd4c51b 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -63,6 +63,7 @@ enum map_err_types {
-  * @sg_mapped_ents: 'mapped_ents' from dma_map_sg
-  * @paddr: physical start address of the mapping
-  * @map_err_type: track whether dma_mapping_error() was checked
-+ * @is_cache_clean: driver promises not to write to buffer while mapped
-  * @stack_len: number of backtrace entries in @stack_entries
-  * @stack_entries: stack of backtrace history
-  */
-@@ -76,7 +77,8 @@ struct dma_debug_entry {
- 	int		 sg_call_ents;
- 	int		 sg_mapped_ents;
- 	phys_addr_t	 paddr;
--	enum map_err_types  map_err_type;
-+	u8		 map_err_type;
-+	bool		 is_cache_clean;
- #ifdef CONFIG_STACKTRACE
- 	unsigned int	stack_len;
- 	unsigned long	stack_entries[DMA_DEBUG_STACKTRACE_ENTRIES];
-@@ -472,12 +474,15 @@ static int active_cacheline_dec_overlap(phys_addr_t cln)
- 	return active_cacheline_set_overlap(cln, --overlap);
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 1832ea7982a6..19a4a8cd22f9 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -382,7 +382,7 @@ static int vring_mapping_error(const struct vring_virtqueue *vq,
+ /* Map one sg entry. */
+ static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist *sg,
+ 			    enum dma_data_direction direction, dma_addr_t *addr,
+-			    u32 *len, bool premapped)
++			    u32 *len, bool premapped, unsigned long attr)
+ {
+ 	if (premapped) {
+ 		*addr = sg_dma_address(sg);
+@@ -410,7 +410,7 @@ static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist
+ 	 */
+ 	*addr = virtqueue_map_page_attrs(&vq->vq, sg_page(sg),
+ 					 sg->offset, sg->length,
+-					 direction, 0);
++					 direction, attr);
+ 
+ 	if (vring_mapping_error(vq, *addr))
+ 		return -ENOMEM;
+@@ -539,7 +539,8 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
+ 				      void *data,
+ 				      void *ctx,
+ 				      bool premapped,
+-				      gfp_t gfp)
++				      gfp_t gfp,
++				      unsigned long attr)
+ {
+ 	struct vring_desc_extra *extra;
+ 	struct scatterlist *sg;
+@@ -605,7 +606,8 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
+ 			dma_addr_t addr;
+ 			u32 len;
+ 
+-			if (vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr, &len, premapped))
++			if (vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr, &len,
++					     premapped, attr))
+ 				goto unmap_release;
+ 
+ 			prev = i;
+@@ -622,7 +624,8 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
+ 			dma_addr_t addr;
+ 			u32 len;
+ 
+-			if (vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &addr, &len, premapped))
++			if (vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &addr, &len,
++					     premapped, attr))
+ 				goto unmap_release;
+ 
+ 			prev = i;
+@@ -1315,7 +1318,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 					 unsigned int in_sgs,
+ 					 void *data,
+ 					 bool premapped,
+-					 gfp_t gfp)
++					 gfp_t gfp,
++					 unsigned long attr)
+ {
+ 	struct vring_desc_extra *extra;
+ 	struct vring_packed_desc *desc;
+@@ -1346,7 +1350,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
+ 			if (vring_map_one_sg(vq, sg, n < out_sgs ?
+ 					     DMA_TO_DEVICE : DMA_FROM_DEVICE,
+-					     &addr, &len, premapped))
++					     &addr, &len, premapped, attr))
+ 				goto unmap_release;
+ 
+ 			desc[i].flags = cpu_to_le16(n < out_sgs ?
+@@ -1441,7 +1445,8 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
+ 				       void *data,
+ 				       void *ctx,
+ 				       bool premapped,
+-				       gfp_t gfp)
++				       gfp_t gfp,
++				       unsigned long attr)
+ {
+ 	struct vring_packed_desc *desc;
+ 	struct scatterlist *sg;
+@@ -1466,7 +1471,7 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
+ 
+ 	if (virtqueue_use_indirect(vq, total_sg)) {
+ 		err = virtqueue_add_indirect_packed(vq, sgs, total_sg, out_sgs,
+-						    in_sgs, data, premapped, gfp);
++						    in_sgs, data, premapped, gfp, attr);
+ 		if (err != -ENOMEM) {
+ 			END_USE(vq);
+ 			return err;
+@@ -1502,7 +1507,7 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
+ 
+ 			if (vring_map_one_sg(vq, sg, n < out_sgs ?
+ 					     DMA_TO_DEVICE : DMA_FROM_DEVICE,
+-					     &addr, &len, premapped))
++					     &addr, &len, premapped, attr))
+ 				goto unmap_release;
+ 
+ 			flags = cpu_to_le16(vq->packed.avail_used_flags |
+@@ -2244,14 +2249,17 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 				void *data,
+ 				void *ctx,
+ 				bool premapped,
+-				gfp_t gfp)
++				gfp_t gfp,
++				unsigned long attr)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+ 	return vq->packed_ring ? virtqueue_add_packed(vq, sgs, total_sg,
+-					out_sgs, in_sgs, data, ctx, premapped, gfp) :
++					out_sgs, in_sgs, data, ctx, premapped, gfp,
++					attr) :
+ 				 virtqueue_add_split(vq, sgs, total_sg,
+-					out_sgs, in_sgs, data, ctx, premapped, gfp);
++					out_sgs, in_sgs, data, ctx, premapped, gfp,
++					attr);
  }
  
--static int active_cacheline_insert(struct dma_debug_entry *entry)
-+static int active_cacheline_insert(struct dma_debug_entry *entry,
-+				   bool *overlap_cache_clean)
+ /**
+@@ -2289,7 +2297,7 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
+ 			total_sg++;
+ 	}
+ 	return virtqueue_add(_vq, sgs, total_sg, out_sgs, in_sgs,
+-			     data, NULL, false, gfp);
++			     data, NULL, false, gfp, 0);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
+ 
+@@ -2311,7 +2319,7 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+ 			 void *data,
+ 			 gfp_t gfp)
  {
- 	phys_addr_t cln = to_cacheline_number(entry);
- 	unsigned long flags;
- 	int rc;
+-	return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, false, gfp);
++	return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, false, gfp, 0);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
  
-+	*overlap_cache_clean = false;
-+
- 	/* If the device is not writing memory then we don't have any
- 	 * concerns about the cpu consuming stale data.  This mitigates
- 	 * legitimate usages of overlapping mappings.
-@@ -487,8 +492,14 @@ static int active_cacheline_insert(struct dma_debug_entry *entry)
- 
- 	spin_lock_irqsave(&radix_lock, flags);
- 	rc = radix_tree_insert(&dma_active_cacheline, cln, entry);
--	if (rc == -EEXIST)
-+	if (rc == -EEXIST) {
-+		struct dma_debug_entry *existing;
-+
- 		active_cacheline_inc_overlap(cln);
-+		existing = radix_tree_lookup(&dma_active_cacheline, cln);
-+		if (existing)
-+			*overlap_cache_clean = existing->is_cache_clean;
-+	}
- 	spin_unlock_irqrestore(&radix_lock, flags);
- 
- 	return rc;
-@@ -583,20 +594,24 @@ DEFINE_SHOW_ATTRIBUTE(dump);
-  */
- static void add_dma_entry(struct dma_debug_entry *entry, unsigned long attrs)
+@@ -2334,7 +2342,7 @@ int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
+ 				   void *data,
+ 				   gfp_t gfp)
  {
-+	bool overlap_cache_clean;
- 	struct hash_bucket *bucket;
- 	unsigned long flags;
- 	int rc;
+-	return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, true, gfp);
++	return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, true, gfp, 0);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_outbuf_premapped);
  
-+	entry->is_cache_clean = !!(attrs & DMA_ATTR_CPU_CACHE_CLEAN);
+@@ -2356,10 +2364,36 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
+ 			void *data,
+ 			gfp_t gfp)
+ {
+-	return virtqueue_add(vq, &sg, num, 0, 1, data, NULL, false, gfp);
++	return virtqueue_add(vq, &sg, num, 0, 1, data, NULL, false, gfp, 0);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
+ 
++/**
++ * virtqueue_add_inbuf_cache_clean - expose input buffers with cache clean hint
++ * @vq: the struct virtqueue we're talking about.
++ * @sg: scatterlist (must be well-formed and terminated!)
++ * @num: the number of entries in @sg writable by other side
++ * @data: the token identifying the buffer.
++ * @gfp: how to do memory allocations (if necessary).
++ *
++ * Adds DMA_ATTR_CPU_CACHE_CLEAN attribute to suppress overlapping cacheline
++ * warnings in DMA debug builds. Has no effect in production builds.
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).
++ *
++ * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
++ */
++int virtqueue_add_inbuf_cache_clean(struct virtqueue *vq,
++				    struct scatterlist *sg, unsigned int num,
++				    void *data,
++				    gfp_t gfp)
++{
++	return virtqueue_add(vq, &sg, num, 0, 1, data, NULL, false, gfp,
++			     DMA_ATTR_CPU_CACHE_CLEAN);
++}
++EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_cache_clean);
 +
- 	bucket = get_hash_bucket(entry, &flags);
- 	hash_bucket_add(bucket, entry);
- 	put_hash_bucket(bucket, flags);
+ /**
+  * virtqueue_add_inbuf_ctx - expose input buffers to other end
+  * @vq: the struct virtqueue we're talking about.
+@@ -2380,7 +2414,7 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
+ 			void *ctx,
+ 			gfp_t gfp)
+ {
+-	return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, false, gfp);
++	return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, false, gfp, 0);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
  
--	rc = active_cacheline_insert(entry);
-+	rc = active_cacheline_insert(entry, &overlap_cache_clean);
- 	if (rc == -ENOMEM) {
- 		pr_err_once("cacheline tracking ENOMEM, dma-debug disabled\n");
- 		global_disable = true;
- 	} else if (rc == -EEXIST &&
--		   !(attrs & (DMA_ATTR_SKIP_CPU_SYNC | DMA_ATTR_CPU_CACHE_CLEAN)) &&
-+		   !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
-+		   !(entry->is_cache_clean && overlap_cache_clean) &&
- 		   !(IS_ENABLED(CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC) &&
- 		     is_swiotlb_active(entry->dev))) {
- 		err_printk(entry->dev, entry,
+@@ -2405,7 +2439,7 @@ int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
+ 				  void *ctx,
+ 				  gfp_t gfp)
+ {
+-	return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, true, gfp);
++	return virtqueue_add(vq, &sg, num, 0, 1, data, ctx, true, gfp, 0);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_premapped);
+ 
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 3626eb694728..63bb05ece8c5 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -62,6 +62,11 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
+ 			void *data,
+ 			gfp_t gfp);
+ 
++int virtqueue_add_inbuf_cache_clean(struct virtqueue *vq,
++				    struct scatterlist sg[], unsigned int num,
++				    void *data,
++				    gfp_t gfp);
++
+ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
+ 			    struct scatterlist sg[], unsigned int num,
+ 			    void *data,
 -- 
 MST
 
