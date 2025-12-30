@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B58ED2F7AB0
-	for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 06:47:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E09B2BB17
+	for <virtualization@lists.linux.dev>; Tue, 30 Dec 2025 06:47:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767077237; cv=none; b=be8nb4E0D+DbuBLRMzPE158VQTLSDZbfzK+mkhPgnCKFmlCq1Lw6kndoN75jLJ2Z0FmJ0uGn0T2iHTnosxSHHbA2YVO22+Xn0/8VBVnUpUGsq5UALLN44b4SCBFrR0wZPCgj05+w086fqDkMmS1UJT+RJ958n867Tzpisy8aIkc=
+	t=1767077239; cv=none; b=tifJizGozHa9BiZyDNLQKYb1VJZijIVyZNKVnuhH1WGc8rA5b9dA9AIx9NYC3KTb4bLiJiSCOHNsHXVRIK+ZFGTcSjkICwxCd1J0kVMHi90VvdwFUF9w1q/H4boOAUbY+bpKj90tMx4529krD9RdXdThBBrefvC44/VkI+/rbvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767077237; c=relaxed/simple;
-	bh=LcAuwsOaaoYHSmtPJAb0/uB+j4lR+Aeogik9qRsHP24=;
+	s=arc-20240116; t=1767077239; c=relaxed/simple;
+	bh=aQYA6vyQ9HWcS/gGRHGCU43TQQaCLHZPZJmr5ol0iIc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mtH6HakKG/qzjcZEssPq3R4eOu/8Nls6nelS4+ObIUy1zwHfWKSkTSlOSr5KWhKvNhlI0h8bptIKgHYSf5hPoOcRffZDoJWKQe/7mOs9d5Vi2sSX8GLVIWwCvwtxW3wksBUSZiizvSQDtfBvQVaHQI4Iq+pSZQyeQXvydmxvmzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W4qEhEcb; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:Content-Type; b=n2wrQo4OSruFFCzKHVnSnGD7abENt3goK7wHhJcibF6JKC9Ta41ZLhx6fOaBJ5IRHS94cBFJW3EspB1HghoKE04XHpP1M6JXD/jDM6AhHoK9sRwJ7ZFwC0dCJMWru88zlq+DRG2RfL8UK0W9vqd3j6Rn/rp2RjI3t6Zmj5veXo4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Citn+8Q0; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W4qEhEcb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Citn+8Q0"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767077233;
+	s=mimecast20190719; t=1767077235;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ko4ymhJxp0fSqryS5Xes+pZE6cR17YhQMvZ5bfkoLCE=;
-	b=W4qEhEcb1myWTETc30ykPVkwjJkXJ755cCjQl1WrTKIdk7BFnYRb935aOGDchSdrosoGm5
-	AQuhJ7K/0XLM1lrBz7wnM9Gt3i73HvZjw3B0O76GqiSrwwBsVGLUbaSefdgjnzwoY5vejx
-	kde9K4V8/SrCiRZGHKwLqugE7gUs6Zg=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=OGYNGtV0a+1q20vKU+i0OW5XBJofD4LOIx8feJsdmD8=;
+	b=Citn+8Q0ojVyBaxIwLauwD0jnzKITRrtMsdW4GOWlfBK3fqFCnc45Dnh/nhri5RPIk+K3o
+	KNj3HQ8hXgsSfBiLJNisazTNPdLcWNUix9vz/+ok2o/MO4A65l/KcMqeSowvbWw8YHthFc
+	1tgE+cWYenRbu/QJe+hiAZa9sZecJ/4=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-629-WQ7ydnPoOhaKJG14YFeASg-1; Tue,
- 30 Dec 2025 01:47:08 -0500
-X-MC-Unique: WQ7ydnPoOhaKJG14YFeASg-1
-X-Mimecast-MFC-AGG-ID: WQ7ydnPoOhaKJG14YFeASg_1767077227
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-570-i-BAEVugOxqWJUo3rIPLkg-1; Tue,
+ 30 Dec 2025 01:47:12 -0500
+X-MC-Unique: i-BAEVugOxqWJUo3rIPLkg-1
+X-Mimecast-MFC-AGG-ID: i-BAEVugOxqWJUo3rIPLkg_1767077231
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C470D1800654;
-	Tue, 30 Dec 2025 06:47:07 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BC0C419560B2;
+	Tue, 30 Dec 2025 06:47:11 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.72.112.134])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 884941956053;
-	Tue, 30 Dec 2025 06:47:04 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 9C98119560AB;
+	Tue, 30 Dec 2025 06:47:08 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com,
 	jasowang@redhat.com
@@ -49,9 +49,9 @@ Cc: xuanzhuo@linux.alibaba.com,
 	eperezma@redhat.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH V11 03/19] virtio_ring: unify logic of virtqueue_poll() and more_used()
-Date: Tue, 30 Dec 2025 14:46:33 +0800
-Message-ID: <20251230064649.55597-4-jasowang@redhat.com>
+Subject: [PATCH V11 04/19] virtio_ring: switch to use vring_virtqueue for virtqueue resize variants
+Date: Tue, 30 Dec 2025 14:46:34 +0800
+Message-ID: <20251230064649.55597-5-jasowang@redhat.com>
 In-Reply-To: <20251230064649.55597-1-jasowang@redhat.com>
 References: <20251230064649.55597-1-jasowang@redhat.com>
 Precedence: bulk
@@ -64,102 +64,61 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-This patch unifies the logic of virtqueue_poll() and more_used() for
-better code reusing and ease the future in order implementation.
+Those variants are used internally so let's switch to use
+vring_virtqueue as parameter to be consistent with other internal
+virtqueue helpers.
 
 Acked-by: Eugenio Pérez <eperezma@redhat.com>
 Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 48 +++++++++++++++---------------------
- 1 file changed, 20 insertions(+), 28 deletions(-)
+ drivers/virtio/virtio_ring.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index d5a317cb885f..a32050e1aa47 100644
+index a32050e1aa47..3fe4c2f63dfa 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -806,12 +806,18 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
- 	}
+@@ -1221,11 +1221,10 @@ static struct virtqueue *vring_create_virtqueue_split(
+ 	return vq;
  }
  
--static bool more_used_split(const struct vring_virtqueue *vq)
-+static bool virtqueue_poll_split(const struct vring_virtqueue *vq,
-+				 unsigned int last_used_idx)
+-static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
++static int virtqueue_resize_split(struct vring_virtqueue *vq, u32 num)
  {
--	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev,
-+	return (u16)last_used_idx != virtio16_to_cpu(vq->vq.vdev,
- 			vq->split.vring.used->idx);
+ 	struct vring_virtqueue_split vring_split = {};
+-	struct vring_virtqueue *vq = to_vvq(_vq);
+-	struct virtio_device *vdev = _vq->vdev;
++	struct virtio_device *vdev = vq->vq.vdev;
+ 	int err;
+ 
+ 	err = vring_alloc_queue_split(&vring_split, vdev, num,
+@@ -2182,11 +2181,10 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 	return vq;
  }
  
-+static bool more_used_split(const struct vring_virtqueue *vq)
-+{
-+	return virtqueue_poll_split(vq, vq->last_used_idx);
-+}
-+
- static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
- 					 unsigned int *len,
- 					 void **ctx)
-@@ -919,13 +925,6 @@ static unsigned int virtqueue_enable_cb_prepare_split(struct virtqueue *_vq)
- 	return last_used_idx;
- }
- 
--static bool virtqueue_poll_split(struct vring_virtqueue *vq,
--				 unsigned int last_used_idx)
--{
--	return (u16)last_used_idx != virtio16_to_cpu(vq->vq.vdev,
--			vq->split.vring.used->idx);
--}
--
- static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+-static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
++static int virtqueue_resize_packed(struct vring_virtqueue *vq, u32 num)
  {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
-@@ -1710,16 +1709,20 @@ static inline bool is_used_desc_packed(const struct vring_virtqueue *vq,
- 	return avail == used && used == used_wrap_counter;
- }
+ 	struct vring_virtqueue_packed vring_packed = {};
+-	struct vring_virtqueue *vq = to_vvq(_vq);
+-	struct virtio_device *vdev = _vq->vdev;
++	struct virtio_device *vdev = vq->vq.vdev;
+ 	int err;
  
--static bool more_used_packed(const struct vring_virtqueue *vq)
-+static bool virtqueue_poll_packed(const struct vring_virtqueue *vq, u16 off_wrap)
- {
--	u16 last_used;
--	u16 last_used_idx;
--	bool used_wrap_counter;
-+	bool wrap_counter;
-+	u16 used_idx;
+ 	if (vring_alloc_queue_packed(&vring_packed, vdev, num, vq->map))
+@@ -2809,9 +2807,9 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
+ 		recycle_done(_vq);
  
--	last_used_idx = READ_ONCE(vq->last_used_idx);
--	last_used = packed_last_used(last_used_idx);
--	used_wrap_counter = packed_used_wrap_counter(last_used_idx);
--	return is_used_desc_packed(vq, last_used, used_wrap_counter);
-+	wrap_counter = off_wrap >> VRING_PACKED_EVENT_F_WRAP_CTR;
-+	used_idx = off_wrap & ~(1 << VRING_PACKED_EVENT_F_WRAP_CTR);
-+
-+	return is_used_desc_packed(vq, used_idx, wrap_counter);
-+}
-+
-+static bool more_used_packed(const struct vring_virtqueue *vq)
-+{
-+	return virtqueue_poll_packed(vq, READ_ONCE(vq->last_used_idx));
- }
+ 	if (vq->packed_ring)
+-		err = virtqueue_resize_packed(_vq, num);
++		err = virtqueue_resize_packed(vq, num);
+ 	else
+-		err = virtqueue_resize_split(_vq, num);
++		err = virtqueue_resize_split(vq, num);
  
- static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
-@@ -1843,17 +1846,6 @@ static unsigned int virtqueue_enable_cb_prepare_packed(struct virtqueue *_vq)
- 	return vq->last_used_idx;
- }
- 
--static bool virtqueue_poll_packed(struct vring_virtqueue *vq, u16 off_wrap)
--{
--	bool wrap_counter;
--	u16 used_idx;
--
--	wrap_counter = off_wrap >> VRING_PACKED_EVENT_F_WRAP_CTR;
--	used_idx = off_wrap & ~(1 << VRING_PACKED_EVENT_F_WRAP_CTR);
--
--	return is_used_desc_packed(vq, used_idx, wrap_counter);
--}
--
- static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 	err_reset = virtqueue_enable_after_reset(_vq);
+ 	if (err_reset)
 -- 
 2.31.1
 
