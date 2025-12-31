@@ -1,314 +1,200 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA76225F78F
-	for <virtualization@lists.linux.dev>; Wed, 31 Dec 2025 15:25:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56CCE30E842
+	for <virtualization@lists.linux.dev>; Wed, 31 Dec 2025 20:48:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767194745; cv=none; b=hVL8wc4JZNjG6esQj16gKSwMhBLLLBsj/wLgOwQMOzbggc6FmB3B/VC390rgkAMbfW0L1j2b9J1QscO/yTR2OxHT5aaoyi9t/wBsE5wpZPv0OCLVtFKBotW7BpSS55sbUXB2gnRfC9d3Sa3RaWcUqlLMHGRlHyko/NksYgmrAB8=
+	t=1767214118; cv=none; b=Re7wTWld0bAVRWSjoPAwXPgPYvoQTo3jOhh13RQhZ1Tw/stV4vrWX0xVmkziCPBBXQkhktCkEXDCbdo5v8tKozUJU8O2zSC7jKMQPv8s3O9atpV6j5QgtaznPDWwEd3mM7w+0upepuaPD8F9MKNBoqHNVeEnMEI3vpKnt5qprB0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767194745; c=relaxed/simple;
-	bh=979UspiXNW4eGHFMpGtmLPEpArKB8uG9aRPcJ46m//Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cJsIBuAtTkQ34Y9TaS4/ecrWmLEpp73PfwoPOVldTTv1rBL9SYECdyZb3SteWYlvBuPM+Ry5xDUHcUepsAkWOTb0E3vImQle7XD2YePhx5oRzB2Rts10FMPF7EsmKNTHWqmaNJt5erHNqhwIPXFdqm45WDH5C0z4RDoluWKNl1Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MVw0Dz5k; arc=none smtp.client-ip=209.85.210.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1767214118; c=relaxed/simple;
+	bh=BpH6W25VRu697Yn7DFwf7krulZ0ceVuuDV1JpnQSClg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Q/w/NaqR8/weQEO0rSJRG99bqH+Bf+nhsNPd/z5ycmwt5njhWQVaSmgj9/4bZrqlLdMATnxr4c9/+WWKJQrShzEUTWzDx5ok6ELOx7PQQf4BKAQyvf7V8YSZ91IefOdTgG0DVz1R7xHs0PrsPurX9OvpwkVEc0k7YN28EBTlnGk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RhdCmos3; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MVw0Dz5k"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-7fbbb84f034so7330880b3a.0
-        for <virtualization@lists.linux.dev>; Wed, 31 Dec 2025 07:25:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767194743; x=1767799543; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=lODuypmLoWbnrtex5xb240RMLf3LliH4cjDbDAmHrvU=;
-        b=MVw0Dz5kVx9LS1VQX82k2LXsZzUZotR91yUSJgjqubnJO3Xnh8A5XwQAK1LrYK9yWK
-         kYtg/9KF4pBKu6ofBCJcTMd4eKVtj9uUIg0J2bvIgwpijAcK6QufH0laRYD2rnRlm+Kc
-         bj6n3sK4oXPW7JDRXvv22KTSR8G3mm52CgaiF4CWBug8CSRiE63tg9MeYECT8ZEyL5tR
-         Y7DFOL7Ndro0vP7K0lMkg7ohT22OuiZOIu5gZPXe6NaoFA9q8sgXIrHYoOWmEXGgqVJv
-         pGYHWcNdagmbKh5FwwlVy97RcWdTCNVsIvEuK9YQa92+L0Q6x1jqhv4bjLIRdcWgjunF
-         xbTg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RhdCmos3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1767214115;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=t2sN+P6W4rMfz5k+VlkZX24a7rMpvbJroFZ4fnRS1gs=;
+	b=RhdCmos3H+0DCCh5q5Xk4htwtWcJvQKikAfN0wIKQxxo1lqWjpOM0jG5UajfGJKLPt6opS
+	knRspuTgiRQKzjg9vhNo/thcZ6JbVds6dlAwsZ4HyrnJZX695UPd0/XPb3KvraX/WKU2jI
+	DaDq9x4czs3y0ANHQOeivAF1CpVlIXY=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-606-rGd-L_JwOnKvsGqcg3eu1A-1; Wed, 31 Dec 2025 15:48:33 -0500
+X-MC-Unique: rGd-L_JwOnKvsGqcg3eu1A-1
+X-Mimecast-MFC-AGG-ID: rGd-L_JwOnKvsGqcg3eu1A_1767214112
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4775d110fabso94908725e9.1
+        for <virtualization@lists.linux.dev>; Wed, 31 Dec 2025 12:48:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767194743; x=1767799543;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lODuypmLoWbnrtex5xb240RMLf3LliH4cjDbDAmHrvU=;
-        b=FmVvnyUS3N3Z5HqWAIqYTWq/5kdZkHx3VvEnZBL/ifw3hC2Lt2xVdfRU9GOWuBbGZv
-         omG/gfJ0l21cHEuz+IRay8GUK5WgHdbWq3Xld6jZZ59X0BX7VXoqsuVG/VcySwj2RlSa
-         7KOxwSZROBeQM+9lw6z9BbVt6WMfK6AkRnXzGEbi3AN35fG/zWk1LpCv4Axvsc5huzIP
-         sTu9T850ZyiombrdaLM+Vpk7f3Ay5P7XbLd5heMKWthcAHcVB0Us0YUOO5Uyhjvwtn2e
-         lty4zzz4guNA++a8N/W4SikYStWwYGFy4KZP3Sl+UTXQ30W90ELJK0sKql3Te0/a/8KW
-         kA7A==
-X-Forwarded-Encrypted: i=1; AJvYcCUtyWhwve770XbZzbOYW5yNWIquX3jrj4sq7SdoaYvH2LNUSaeEimS4VseZfq+VR0c4yeuccdMa3O6uOBuAfg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy2yZYEmN7Z0NtuJmBUvXBIUtIFAaOrV50Q0FsV+ZRler3LSaf3
-	AlE9zMKeglNbIKIQdtnvrUgEWYcL0ZDI/lJS8XnE49xLgi7ArKxVSZ98
-X-Gm-Gg: AY/fxX698IlU8AyIvuXDElHUYNXWQ5zNwhrU7XUN8CeHtoDoTSv46fHKYTzqRRuTIHf
-	WZmJQD3m4ALdDAIh+G/Fx5bFYmhYXi1BWt0PbOn+3/OZMw1XHc08cnOfq3NH65vmRyNjelnmiUn
-	oIvaZanRZbAGsWj/LH8EamQ4XErcVBhPUVz4TmeLLoGcKSHD8wzMgnk8ZgwbJnC6tRMPZIm0Ni+
-	KZiaJW4RsQXv4Ci3uqBHvoYVUYhKUl3vR7VBwP+0zCJRXKtPclQ+j+BGKNKmdIsC7/GNzLHKO8n
-	+oQ2mv4fHaU6lvGJIA9DCalnRZE9g2CSC6CPVfIb6kJzZ0V03lqkJ9MFLqjYE6cX6DUWMrkG+CB
-	2YMtY/gxA3gCWlBvEfA/w+YKXBWAB+J3IPqB41UwGa5Jj17c8ozZoHEvWPaWfINIE/+lbrIOIjD
-	ohJCRSYzTmkJNq4mBz9mV2MX25KhYW9zOjZUglkOER0JjBHOUYSpnLfgCb68jlxhckfelLApCF
-X-Google-Smtp-Source: AGHT+IFlAvoj9OX5Jfdu6AtFcYb3Ny0uLLf0Tj74ADp6OdyjPjL2eECj+48RLjIcfjlXxc49Lq2Ssw==
-X-Received: by 2002:a05:6a00:a882:b0:7f7:26fe:c92f with SMTP id d2e1a72fcca58-7ff64cd5fcbmr30658077b3a.29.1767194742942;
-        Wed, 31 Dec 2025 07:25:42 -0800 (PST)
-Received: from ?IPV6:2001:ee0:4f4c:210:331d:4167:c690:ec93? ([2001:ee0:4f4c:210:331d:4167:c690:ec93])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7ff7a843ee4sm36172944b3a.10.2025.12.31.07.25.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 31 Dec 2025 07:25:41 -0800 (PST)
-Message-ID: <750b2296-9009-45d8-9e18-a47ebcfb912d@gmail.com>
-Date: Wed, 31 Dec 2025 22:25:34 +0700
+        d=1e100.net; s=20230601; t=1767214112; x=1767818912;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=t2sN+P6W4rMfz5k+VlkZX24a7rMpvbJroFZ4fnRS1gs=;
+        b=hJeXuah10j/aHKCBE9bAmOC5JurSeEQimMczEv3+diIRKJlBxWcyJs/f/T37iNhhnW
+         f+fBmm1cBrjv894Ibj9OhnNtccQp1yuhEnR6N4ZH4cmy+nY0nm8Flwagui/v5qX2LS4R
+         frYo5EhlQGEKhHdw7kc9Hxkz9vpxhwfRtPPmwdUIOEfGxpV6dToeNLjKXe51m8Th0AiM
+         QPWB/qcdVCekVM9O4usZnddl/hs8kXoDNLsE/ZUnwgV57LHOQmS8IbbGDsKC/nfHjh+t
+         7B3EymvjGj46f+gUCmzpjJylZEDw/qs8nD/ObMaeG3kW/OaE5gLjQvgakjzPxtTfd2yR
+         sT6A==
+X-Forwarded-Encrypted: i=1; AJvYcCWwmyrRquu+pNmQrxpmdo95YKQvaojZxHl24/9lDIOWqSfNvwgehTaOusEf2OFr60AHVK3eIjuWdN/rdfOh3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxS9MlD8Em6kqEUmgb96ESbKGQfixiaQ6YnbqPdu8zUu2sjGyL4
+	5Ti0cCw9fwYSQ62v1hv4wIS1MktrsbjWAiM2VFIenKsOn/zRBUx6a8PkJJtIaKj9wFzGrr3gwVM
+	E9291mCFHj4RpVr8CRHHookz15gVEUoaOgDf6vUrG2lOJbA0weSX9cPwA8aFGbsDNbP9P
+X-Gm-Gg: AY/fxX4CCprLn06Jwc9eY54Ax9MCB5hWlgpA6+CRFyC5Tzvyl7CtwH22Ij+Eq97c/Bi
+	u64je/GLIOf+5kFnNVUPsVp4uhLF9vnchuhSq6xvNWPd8eEvx7wLACngPb13V+RUoaNOM+PIHFX
+	8upraMljUXybxamzreL+BlD3oMmiJZOevb9TyenMnqm6H7ktxJ9Fi3MiPM2fe8FmU4o+Z5CgoGx
+	kHc6VcObqbcMBt3dMbTMLjuxpdZ4O/iMtcIeYLILmygHldwpsS/NbBPQHVMVTpqHQdS/EDR938w
+	OaOdLT5NiCUhjUjVvu1u80Fx3eajZU9max8+NpLDkaFg0GMDw6iqhnfH4RSU3bkX+ZGzqHvzawk
+	dvoNyiWebgRHy2JFo00FjAFq4F9bhJHxjMQ==
+X-Received: by 2002:a05:600c:444b:b0:477:9814:6882 with SMTP id 5b1f17b1804b1-47d1953b77fmr390890865e9.5.1767214111817;
+        Wed, 31 Dec 2025 12:48:31 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGUX2S3Ts6MrXbJAEZ1+1hODDbGMnh81w30kfQclg714E6BWRq3zDXGinSJodthec3i9GHMDw==
+X-Received: by 2002:a05:600c:444b:b0:477:9814:6882 with SMTP id 5b1f17b1804b1-47d1953b77fmr390890515e9.5.1767214111286;
+        Wed, 31 Dec 2025 12:48:31 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d19362345sm662070775e9.6.2025.12.31.12.48.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 31 Dec 2025 12:48:30 -0800 (PST)
+Date: Wed, 31 Dec 2025 15:48:26 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Petr Tesarik <ptesarik@suse.com>
+Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Olivia Mackall <olivia@selenic.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, Leon Romanovsky <leon@kernel.org>,
+	Jason Gunthorpe <jgg@ziepe.ca>, linux-doc@vger.kernel.org,
+	linux-crypto@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-scsi@vger.kernel.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH RFC 01/13] dma-mapping: add
+ __dma_from_device_align_begin/end
+Message-ID: <20251231154722-mutt-send-email-mst@kernel.org>
+References: <cover.1767089672.git.mst@redhat.com>
+ <ca12c790f6dee2ca0e24f16c0ebf3591867ddc4a.1767089672.git.mst@redhat.com>
+ <20251231150159.1779b585@mordecai>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/3] virtio-net: make refill work a per receive queue
- work
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Stanislav Fomichev <sdf@fomichev.me>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-References: <20251223152533.24364-1-minhquangbui99@gmail.com>
- <20251223152533.24364-2-minhquangbui99@gmail.com>
- <CACGkMEvXkPiTGxZ6nuC72-VGdLHVXzrGa9bAF=TcP8nqPjeZ_w@mail.gmail.com>
- <1766540234.3618076-1-xuanzhuo@linux.alibaba.com>
- <20251223204555-mutt-send-email-mst@kernel.org>
- <CACGkMEs7_-=-8w=7gW8R_EhzfWOwuDoj4p-iCPQ7areOa9uaUw@mail.gmail.com>
- <20251225112729-mutt-send-email-mst@kernel.org>
- <CACGkMEt33BAWGmeFfHWYrjQLOT4+JB7HsWWVMKUn6yFxQ9y2gg@mail.gmail.com>
- <20251226022727-mutt-send-email-mst@kernel.org>
- <7143657a-a52f-4cff-acbc-e89f4c713cc4@gmail.com>
- <CACGkMEuasGDh=wT0n5b5QFDSNNBK7muipBKHb2v5eoKCU0NWDw@mail.gmail.com>
-Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <CACGkMEuasGDh=wT0n5b5QFDSNNBK7muipBKHb2v5eoKCU0NWDw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20251231150159.1779b585@mordecai>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: HBfngjdvUl86znmcCTneH67wNHeHAeEER-7S2IOZsxs_1767214112
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 12/31/25 14:30, Jason Wang wrote:
-> On Wed, Dec 31, 2025 at 12:29 AM Bui Quang Minh
-> <minhquangbui99@gmail.com> wrote:
->> On 12/26/25 14:37, Michael S. Tsirkin wrote:
->>> On Fri, Dec 26, 2025 at 09:31:26AM +0800, Jason Wang wrote:
->>>> On Fri, Dec 26, 2025 at 12:27 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->>>>> On Thu, Dec 25, 2025 at 03:33:29PM +0800, Jason Wang wrote:
->>>>>> On Wed, Dec 24, 2025 at 9:48 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->>>>>>> On Wed, Dec 24, 2025 at 09:37:14AM +0800, Xuan Zhuo wrote:
->>>>>>>> Hi Jason,
->>>>>>>>
->>>>>>>> I'm wondering why we even need this refill work. Why not simply let NAPI retry
->>>>>>>> the refill on its next run if the refill fails? That would seem much simpler.
->>>>>>>> This refill work complicates maintenance and often introduces a lot of
->>>>>>>> concurrency issues and races.
->>>>>>>>
->>>>>>>> Thanks.
->>>>>>> refill work can refill from GFP_KERNEL, napi only from ATOMIC.
->>>>>>>
->>>>>>> And if GFP_ATOMIC failed, aggressively retrying might not be a great idea.
->>>>>> Btw, I see some drivers are doing things as Xuan said. E.g
->>>>>> mlx5e_napi_poll() did:
->>>>>>
->>>>>> busy |= INDIRECT_CALL_2(rq->post_wqes,
->>>>>>                                   mlx5e_post_rx_mpwqes,
->>>>>>                                   mlx5e_post_rx_wqes,
->>>>>>
->>>>>> ...
->>>>>>
->>>>>> if (busy) {
->>>>>>            if (likely(mlx5e_channel_no_affinity_change(c))) {
->>>>>>                   work_done = budget;
->>>>>>                   goto out;
->>>>>> ...
->>>>> is busy a GFP_ATOMIC allocation failure?
->>>> Yes, and I think the logic here is to fallback to ksoftirqd if the
->>>> allocation fails too much.
->>>>
->>>> Thanks
->>> True. I just don't know if this works better or worse than the
->>> current design, but it is certainly simpler and we never actually
->>> worried about the performance of the current one.
->>>
->>>
->>> So you know, let's roll with this approach.
->>>
->>> I do however ask that some testing is done on the patch forcing these OOM
->>> situations just to see if we are missing something obvious.
->>>
->>>
->>> the beauty is the patch can be very small:
->>> 1. patch 1 do not schedule refill ever, just retrigger napi
->>> 2. remove all the now dead code
->>>
->>> this way patch 1 will be small and backportable to stable.
->> I've tried 1. with this patch
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 1bb3aeca66c6..9e890aff2d95 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -3035,7 +3035,7 @@ static int virtnet_receive_packets(struct virtnet_info *vi,
->>    }
->>
->>    static int virtnet_receive(struct receive_queue *rq, int budget,
->> -               unsigned int *xdp_xmit)
->> +               unsigned int *xdp_xmit, bool *retry_refill)
->>    {
->>        struct virtnet_info *vi = rq->vq->vdev->priv;
->>        struct virtnet_rq_stats stats = {};
->> @@ -3047,12 +3047,8 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
->>            packets = virtnet_receive_packets(vi, rq, budget, xdp_xmit, &stats);
->>
->>        if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
->> -        if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
->> -            spin_lock(&vi->refill_lock);
->> -            if (vi->refill_enabled)
->> -                schedule_delayed_work(&vi->refill, 0);
->> -            spin_unlock(&vi->refill_lock);
->> -        }
->> +        if (!try_fill_recv(vi, rq, GFP_ATOMIC))
->> +            *retry_refill = true;
->>        }
->>
->>        u64_stats_set(&stats.packets, packets);
->> @@ -3129,18 +3125,18 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
->>        struct send_queue *sq;
->>        unsigned int received;
->>        unsigned int xdp_xmit = 0;
->> -    bool napi_complete;
->> +    bool napi_complete, retry_refill = false;
->>
->>        virtnet_poll_cleantx(rq, budget);
->>
->> -    received = virtnet_receive(rq, budget, &xdp_xmit);
->> +    received = virtnet_receive(rq, budget, &xdp_xmit, &retry_refill);
->>        rq->packets_in_napi += received;
->>
->>        if (xdp_xmit & VIRTIO_XDP_REDIR)
->>            xdp_do_flush();
->>
->>        /* Out of packets? */
->> -    if (received < budget) {
->> +    if (received < budget && !retry_refill) {
-> But you didn't return the budget when we need to retry here?
+On Wed, Dec 31, 2025 at 03:01:59PM +0100, Petr Tesarik wrote:
+> On Tue, 30 Dec 2025 05:15:46 -0500
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > When a structure contains a buffer that DMA writes to alongside fields
+> > that the CPU writes to, cache line sharing between the DMA buffer and
+> > CPU-written fields can cause data corruption on non-cache-coherent
+> > platforms.
+> > 
+> > Add __dma_from_device_aligned_begin/__dma_from_device_aligned_end
+> > annotations to ensure proper alignment to prevent this:
+> > 
+> > struct my_device {
+> > 	spinlock_t lock1;
+> > 	__dma_from_device_aligned_begin char dma_buffer1[16];
+> > 	char dma_buffer2[16];
+> > 	__dma_from_device_aligned_end spinlock_t lock2;
+> > };
+> > 
+> > When the DMA buffer is the last field in the structure, just
+> > __dma_from_device_aligned_begin is enough - the compiler's struct
+> > padding protects the tail:
+> > 
+> > struct my_device {
+> > 	spinlock_t lock;
+> > 	struct mutex mlock;
+> > 	__dma_from_device_aligned_begin char dma_buffer1[16];
+> > 	char dma_buffer2[16];
+> > };
+> 
+> This works, but it's a bit hard to read. Can we reuse the
+> __cacheline_group_{begin, end}() macros from <linux/cache.h>?
+> Something like this:
+> 
+> #define __dma_from_device_group_begin(GROUP)			\
+> 	__cacheline_group_begin(GROUP)				\
+> 	____dma_from_device_aligned
+> #define __dma_from_device_group_end(GROUP)			\
+> 	__cacheline_group_end(GROUP)				\
+> 	____dma_from_device_aligned
+> 
+> And used like this (the "rxbuf" group id was chosen arbitrarily):
+> 
+> struct my_device {
+> 	spinlock_t lock1;
+> 	__dma_from_device_group_begin(rxbuf);
+> 	char dma_buffer1[16];
+> 	char dma_buffer2[16];
+> 	__dma_from_device_group_end(rxbuf);
+> 	spinlock_t lock2;
+> };
+> 
+> Petr T
 
-You are right. Returning budget when we need to retry solves the issue. In __napi_poll, if we return budget, it will check whether we have pending disable by calling napi_disable_pending. If so, the NAPI is descheduled and we can napi_disable it.
+Made this change, and pushed out to my tree.
 
-Thanks,
-Quang Minh.
+I'll post the new version in a couple of days, if no other issues
+surface.
 
->
->>            napi_complete = virtqueue_napi_complete(napi, rq->vq, received);
->>            /* Intentionally not taking dim_lock here. This may result in a
->>             * spurious net_dim call. But if that happens virtnet_rx_dim_work
->> @@ -3230,9 +3226,11 @@ static int virtnet_open(struct net_device *dev)
->>
->>        for (i = 0; i < vi->max_queue_pairs; i++) {
->>            if (i < vi->curr_queue_pairs)
->> -            /* Make sure we have some buffers: if oom use wq. */
->> -            if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
->> -                schedule_delayed_work(&vi->refill, 0);
->> +            /* If this fails, we will retry later in
->> +             * NAPI poll, which is scheduled in the below
->> +             * virtnet_enable_queue_pair
->> +             */
->> +            try_fill_recv(vi, &vi->rq[i], GFP_KERNEL);
->>
->>            err = virtnet_enable_queue_pair(vi, i);
->>            if (err < 0)
->> @@ -3473,15 +3471,15 @@ static void __virtnet_rx_resume(struct virtnet_info *vi,
->>                    bool refill)
->>    {
->>        bool running = netif_running(vi->dev);
->> -    bool schedule_refill = false;
->>
->> -    if (refill && !try_fill_recv(vi, rq, GFP_KERNEL))
->> -        schedule_refill = true;
->> +    if (refill)
->> +        /* If this fails, we will retry later in NAPI poll, which is
->> +         * scheduled in the below virtnet_napi_enable
->> +         */
->> +        try_fill_recv(vi, rq, GFP_KERNEL);
->> +
->>        if (running)
->>            virtnet_napi_enable(rq);
->> -
->> -    if (schedule_refill)
->> -        schedule_delayed_work(&vi->refill, 0);
->>    }
->>
->>    static void virtnet_rx_resume_all(struct virtnet_info *vi)
->> @@ -3777,6 +3775,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
->>        struct virtio_net_rss_config_trailer old_rss_trailer;
->>        struct net_device *dev = vi->dev;
->>        struct scatterlist sg;
->> +    int i;
->>
->>        if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ))
->>            return 0;
->> @@ -3829,11 +3828,8 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
->>        }
->>    succ:
->>        vi->curr_queue_pairs = queue_pairs;
->> -    /* virtnet_open() will refill when device is going to up. */
->> -    spin_lock_bh(&vi->refill_lock);
->> -    if (dev->flags & IFF_UP && vi->refill_enabled)
->> -        schedule_delayed_work(&vi->refill, 0);
->> -    spin_unlock_bh(&vi->refill_lock);
->> +    for (i = 0; i < vi->curr_queue_pairs; i++)
->> +        try_fill_recv(vi, &vi->rq[i], GFP_KERNEL);
->>
->>        return 0;
->>    }
->>
->>
->> But I got an issue with selftests/drivers/net/hw/xsk_reconfig.py. This
->> test sets up XDP zerocopy (Xsk) but does not provide any descriptors to
->> the fill ring. So xsk_pool does not have any descriptors and
->> try_fill_recv will always fail. The RX NAPI keeps polling. Later, when
->> we want to disable the xsk_pool, in virtnet_xsk_pool_disable path,
->>
->> virtnet_xsk_pool_disable
->> -> virtnet_rq_bind_xsk_pool
->>     -> virtnet_rx_pause
->>       -> __virtnet_rx_pause
->>         -> virtnet_napi_disable
->>           -> napi_disable
->>
->> We get stuck in napi_disable because the RX NAPI is still polling.
-> napi_disable will set NAPI_DISABLE bit, no?
->
->> In drivers/net/ethernet/mellanox/mlx5, AFAICS, it uses state bit for
->> synchronization between xsk setup (mlx5e_xsk_setup_pool) with RX NAPI
->> (mlx5e_napi_poll) without using napi_disable/enable. However, in
->> drivers/net/ethernet/intel/ice,
->>
->> ice_xsk_pool_setup
->> -> ice_qp_dis
->>     -> ice_qvec_toggle_napi
->>       -> napi_disable
->>
->> it still uses napi_disable. Did I miss something in the above patch?
->> I'll try to look into using another synchronization instead of
->> napi_disable/enable in xsk_pool setup path too.
->>
->> Thanks,
->> Quang Minh.
->>
-> Thanks
->
+
+
+
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  include/linux/dma-mapping.h | 10 ++++++++++
+> >  1 file changed, 10 insertions(+)
+> > 
+> > diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+> > index aa36a0d1d9df..47b7de3786a1 100644
+> > --- a/include/linux/dma-mapping.h
+> > +++ b/include/linux/dma-mapping.h
+> > @@ -703,6 +703,16 @@ static inline int dma_get_cache_alignment(void)
+> >  }
+> >  #endif
+> >  
+> > +#ifdef ARCH_HAS_DMA_MINALIGN
+> > +#define ____dma_from_device_aligned __aligned(ARCH_DMA_MINALIGN)
+> > +#else
+> > +#define ____dma_from_device_aligned
+> > +#endif
+> > +/* Apply to the 1st field of the DMA buffer */
+> > +#define __dma_from_device_aligned_begin ____dma_from_device_aligned
+> > +/* Apply to the 1st field beyond the DMA buffer */
+> > +#define __dma_from_device_aligned_end ____dma_from_device_aligned
+> > +
+> >  static inline void *dmam_alloc_coherent(struct device *dev, size_t size,
+> >  		dma_addr_t *dma_handle, gfp_t gfp)
+> >  {
 
