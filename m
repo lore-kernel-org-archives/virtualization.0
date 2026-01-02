@@ -1,191 +1,253 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E43E621D59B
-	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 10:23:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 263D02E1C6B
+	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 11:17:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767349415; cv=none; b=cluRvFAvJ6e9tnq6WrTGWfWAJ8MeOGWUMj/6u+fAqetH9muYk/NFS+Hoh5cYMr0Zoz54Yju/3zkfc5SzGAVpkSZEyWuHs09qmM53H9aYbhBB1XOnZnrnvNcKVFDOoJTHwKISvTj1MhwC2e/EENU3vDSPPNOsbhGWSXp+Nf9unsE=
+	t=1767352658; cv=none; b=aj04fx25667gpwqv2y/MXiTlHRXTCFM/33Y9A97Cjb3GT9jC+ecrrRuDGalGjy103yXZx1TYhv9DHyLdE7sYwqB0wzGjhXUENXyDxx5DssxxhaWcB/+ZQZOmgYYDi4XScX/tpNdeJ+4lT23Hsj2FloH0yMs2w6N9RMhuF6NV2MQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767349415; c=relaxed/simple;
-	bh=ajTWQQ+q5aAsOe+jXvHdnyff4T9nCaiiQ2anKx0DmFs=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=a0Vu3vCwgLMb1hMhokvb4Zyk/QgZPQLrgIp//K/WdES5UmuefJ7gWeznQmJcsOy+J9W2a5e6uCmO+eQyGUFKn4fLsgMI2qLBr1be8aNg2+cl2PmjiPKWUV6YE0R4cQvhBdU2pqnePlqJfjQtVx3/tCXfB0AXgG2O+ZFKjgteZOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=Gn52lJeU; arc=none smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1767352658; c=relaxed/simple;
+	bh=j+gjzPCCCvl+UXjwVGUBYvSZkC6L6hIK3UJ/XrmwLcc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=kVxrO6WzJ8jOrv/cUMdnSizR1UKl53JSe+JUqoVf+9nvDXBhTusQ2sKooYoSRiD5R8Vb4nKs3/uiDbKIJzceTN1QGM0Dv27h+Gka+q1eYFD/41K0Q7Bwvy1mND0ZbQxR5vI6CdtlfSVLs8WT27YcBm10lbmOMGrXhFpt6LZ0rJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bxLa9th3; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="Gn52lJeU"
-Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6025sCeK4036863;
-	Fri, 2 Jan 2026 02:19:06 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pfpt0220; bh=5B3HZ7MSyvayqUbr22rW0pc
-	9f+R2/53Dpzl0nElB6T4=; b=Gn52lJeU1wpQwZBWz2mlI6UShLjNwet1MvA/lb6
-	yrOyKYKetAMGmGyHvq5/QfOAZkgIaHRRyzFDH8LiRTdgElgclVgCW1mIqoIoNoBm
-	lJPyzieDN06Af6G1QS2uwfbqpH3DfgFtxNBDx7s3/zv78ibvJJEy80znP5+ZM7i2
-	Hye+9Tv616bEalFqM23YwOmmenhROgxNos5YMBh9OLhtISTLfXSCxy97//pZThd9
-	zPM4kiWqkif3Dhm0TT4SNL5HbJXlSVBg/yJv6hdP54ddXQ26LFxReLAmviw4WSMh
-	RlkIUpD0zaTc2zO5yZip0r7TZNz9MSw15HOO3lYyYKA/tTA==
-Received: from dc5-exch05.marvell.com ([199.233.59.128])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4be89ag9hm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 02 Jan 2026 02:19:06 -0800 (PST)
-Received: from DC5-EXCH05.marvell.com (10.69.176.209) by
- DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Fri, 2 Jan 2026 02:19:19 -0800
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH05.marvell.com
- (10.69.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
- Transport; Fri, 2 Jan 2026 02:19:19 -0800
-Received: from 5810.marvell.com (unknown [10.29.45.105])
-	by maili.marvell.com (Postfix) with ESMTP id 6A62B3F7059;
-	Fri,  2 Jan 2026 02:19:01 -0800 (PST)
-From: Kommula Shiva Shankar <kshankar@marvell.com>
-To: <netdev@vger.kernel.org>
-CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
-        <eperezma@redhat.com>, <andrew+netdev@lunn.ch>, <davem@davemloft.net>,
-        <edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-        <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
-        <jerinj@marvell.com>, <ndabilpuram@marvell.com>, <schalla@marvell.com>
-Subject: [PATCH net] virtio_net: fix device mismatch in devm_kzalloc/devm_kfree
-Date: Fri, 2 Jan 2026 15:49:00 +0530
-Message-ID: <20260102101900.692770-1-kshankar@marvell.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bxLa9th3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1767352655;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=GCWlh8uBOmDSQEd79VDuimcUgjfVQxRp6qQ9KdZZbfc=;
+	b=bxLa9th3CB1FYl0CJxgRcGw6+NaErVsT/OyzhoNg6EMnOyAt80kd65c5K0xH6OCvhqG0R3
+	Xe0TfMMy7+V2ICp237oPH0eRTtP/TmGDUUp1ud08+PzDLHBco7bGiiFb0waRzPqG+Dro8v
+	g0kyyAhs2hD0eFXkc2yd8Qj56nfi52M=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-99-IUmZgI9zMfWp1ubhMrGobg-1; Fri, 02 Jan 2026 06:17:34 -0500
+X-MC-Unique: IUmZgI9zMfWp1ubhMrGobg-1
+X-Mimecast-MFC-AGG-ID: IUmZgI9zMfWp1ubhMrGobg_1767352653
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-477c49f273fso149803275e9.3
+        for <virtualization@lists.linux.dev>; Fri, 02 Jan 2026 03:17:34 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767352653; x=1767957453;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GCWlh8uBOmDSQEd79VDuimcUgjfVQxRp6qQ9KdZZbfc=;
+        b=GnBJ/7V1zJhyVIESAMaFKtD24SBPm0Nl9ywl09I6rndGyY1S2nskfkiS/rAucm6l8Z
+         nBkQdLFJnd4KQurnAO5Na1/lEDlcyXm3sno3yEfVN167DfRfSmNcZO+EmVm1o8kqqJOG
+         4kwutDMxNCKnY785oMvXBY47acDAzKwhIraIbIjPmEbpvsdTGOyBv4HM5G48+nb4NSI1
+         mvF516VydXONAedSvbO8dcv1zClW5+AI6X11MxmKhPRnI0dt2KIC+RxkAlXuUXGJtb8w
+         h7Tifzlc8l+Y6TRNyleHYTwy/5k6qhJTxrCGEZdZmP8I6rsjDJAZNJOPqrLf392TZIIu
+         Q4ZA==
+X-Forwarded-Encrypted: i=1; AJvYcCU9H+TlBNmQsjPBTmmO/4GavbsCwetO8BS8HOnRK6EsJgLWFGFYteQyCaWjuJECbunUN/8YCuRFPDFX3FV4ZA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxY8RmYdfDi+nMB+dVw5ZY6POfMECm6nWLVHYvWA0JJgIa7v+6z
+	Wq6LsiOEBIMZIOg/GVpAgxCduA7E7z9LoU7nE/zx3CwTlWwHCSg1vGK05qRWgPk5dMn/TnzgeaU
+	07ojCKcnDbLZk2UagXU74viwItChzkQXxiMYL6gjhgZbLaa9gEqMDgfNd6HtnNAsxxBKA
+X-Gm-Gg: AY/fxX45HoQj2xoy5ZGywbSP4D9oX1dqbjUCnjVAPA41cvxsqcyHn9ITKxb8k8pdgxz
+	XLNxdEAWmos7bIKO9z2dTp/pjtHTn/R1OrlhgUG2C8ceBNDtGK2AD7RS5y3FC9qLjsbY1WEd0gw
+	Lc8ckB3lQbaRuqUdcxuV7rj4CXPOieWC4JIneZjcxpqp1BqStPWuJxOgYdbt6yBP0EpqfjryYhU
+	z7Z00FE1SHdfP5YNcH680TDD41uHLvlXUm2uu9XF+vbDRw9yVVXvnsj8e3c9t6i+R+cQeCAXOCP
+	YOPLxFe9Z+v+j0dNxaLnrBSUwp15PR1k5mTp6k5nBtOyFS4m4vec+Pexp/zRwQIlCLxnhAT/8Xi
+	MAbcM+Debde/f4SZt7erKO5TNpTgfaJDuGg==
+X-Received: by 2002:a05:600c:8107:b0:477:c478:46d7 with SMTP id 5b1f17b1804b1-47d19595f00mr527615095e9.22.1767352653104;
+        Fri, 02 Jan 2026 03:17:33 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGwa61BzDAQlV9N6kMzOmYy7Hkb8vOAXLv3Qn/Wfyxm7iktYYakDvEJC0kSxdzWUaE/ZHihdA==
+X-Received: by 2002:a05:600c:8107:b0:477:c478:46d7 with SMTP id 5b1f17b1804b1-47d19595f00mr527614555e9.22.1767352652542;
+        Fri, 02 Jan 2026 03:17:32 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eab257asm84882883f8f.38.2026.01.02.03.17.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Jan 2026 03:17:31 -0800 (PST)
+Date: Fri, 2 Jan 2026 06:17:28 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Petr Tesarik <ptesarik@suse.com>
+Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Olivia Mackall <olivia@selenic.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, Leon Romanovsky <leon@kernel.org>,
+	Jason Gunthorpe <jgg@ziepe.ca>, linux-doc@vger.kernel.org,
+	linux-crypto@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-scsi@vger.kernel.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH RFC 05/13] dma-debug: track cache clean flag in entries
+Message-ID: <20260102060336-mutt-send-email-mst@kernel.org>
+References: <cover.1767089672.git.mst@redhat.com>
+ <c0df5d43759202733ccff045f834bd214977945f.1767089672.git.mst@redhat.com>
+ <20260102085933.2f78123b@mordecai>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-GUID: LHT1r8lqNWcei800b7K696E1KRi8T7Hp
-X-Proofpoint-ORIG-GUID: LHT1r8lqNWcei800b7K696E1KRi8T7Hp
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTAyMDA4OSBTYWx0ZWRfX11k+mHdgBJl6
- v/lOWsVBmSDI0y74vNuCCaloBCVQFsIHWAYBh7gn3pIlSydNYuyBri+Mc3HxzbSCUKD4RXHE4bB
- aZDl8Uq+q6CbDn+P+gzyHVg9s/mFzyh+5eILthsXgSjkt5sWEdwufyQ0+mrQYj8aGtV0m5XO7QV
- Wp4YLcQET6OrOknC1hOuV5IRafBJteaIFT+ogW1dP1meRcUyUqUmuvpQYVOvY8BwMOnQZGYvqZt
- QQcoe6JIxyKYnwvn1YHajL9ONYHyYDTl/BnCAaoihB1tTqihOg+SbZB9yn3HsiZnpvRVzFjR2x7
- iO017tvhMTYctmnBP6tp9Cl7d/r8pXYqoFbbIckso+2rp5ygflGEC+2OgBiNhouZ18rjdlA5jAn
- /MPzP96PQvcEr5OLxw+B6AxBl0j4L7cF2fEPRDkRy5K0AfLipHaMKsH27inQCPV75IF2sjCpPRh
- wWPrMQYT1HQY2sfuDcw==
-X-Authority-Analysis: v=2.4 cv=ZbcQ98VA c=1 sm=1 tr=0 ts=69579b9a cx=c_pps
- a=rEv8fa4AjpPjGxpoe8rlIQ==:117 a=rEv8fa4AjpPjGxpoe8rlIQ==:17
- a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=M5GUcnROAAAA:8
- a=AcOwvBPJr7tEbDvczk0A:9 a=OBjm3rFKGHvpk9ecZwUJ:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-01_07,2025-12-31_01,2025-10-01_01
+In-Reply-To: <20260102085933.2f78123b@mordecai>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: XFBQARzjQGJaVd1d3okcDUSl5mKerR-O-8ZekgAFjlY_1767352653
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Initial rss_hdr allocation uses virtio_device->device,
-but virtnet_set_queues() frees using net_device->device.
-This device mismatch causing below devres warning
+On Fri, Jan 02, 2026 at 08:59:33AM +0100, Petr Tesarik wrote:
+> On Tue, 30 Dec 2025 05:16:00 -0500
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > If a driver is bugy and has 2 overlapping mappings but only
+> > sets cache clean flag on the 1st one of them, we warn.
+> > But if it only does it for the 2nd one, we don't.
+> > 
+> > Fix by tracking cache clean flag in the entry.
+> > Shrink map_err_type to u8 to avoid bloating up the struct.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  kernel/dma/debug.c | 25 ++++++++++++++++++++-----
+> >  1 file changed, 20 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
+> > index 7e66d863d573..9bd14fd4c51b 100644
+> > --- a/kernel/dma/debug.c
+> > +++ b/kernel/dma/debug.c
+> > @@ -63,6 +63,7 @@ enum map_err_types {
+> >   * @sg_mapped_ents: 'mapped_ents' from dma_map_sg
+> >   * @paddr: physical start address of the mapping
+> >   * @map_err_type: track whether dma_mapping_error() was checked
+> > + * @is_cache_clean: driver promises not to write to buffer while mapped
+> >   * @stack_len: number of backtrace entries in @stack_entries
+> >   * @stack_entries: stack of backtrace history
+> >   */
+> > @@ -76,7 +77,8 @@ struct dma_debug_entry {
+> >  	int		 sg_call_ents;
+> >  	int		 sg_mapped_ents;
+> >  	phys_addr_t	 paddr;
+> > -	enum map_err_types  map_err_type;
+> > +	u8		 map_err_type;
+> 
+> Where exactly is the bloat? With my configuration, the size of struct
+> dma_debug_entry is 128 bytes, with enough padding bytes at the end to
+> keep it at 128 even if I keep this member an enum...
 
-[ 3788.514041] ------------[ cut here ]------------
-[ 3788.514044] WARNING: drivers/base/devres.c:1095 at devm_kfree+0x84/0x98, CPU#16: vdpa/1463
-[ 3788.514054] Modules linked in: octep_vdpa virtio_net virtio_vdpa [last unloaded: virtio_vdpa]
-[ 3788.514064] CPU: 16 UID: 0 PID: 1463 Comm: vdpa Tainted: G        W           6.18.0 #10 PREEMPT
-[ 3788.514067] Tainted: [W]=WARN
-[ 3788.514069] Hardware name: Marvell CN106XX board (DT)
-[ 3788.514071] pstate: 63400009 (nZCv daif +PAN -UAO +TCO +DIT -SSBS BTYPE=--)
-[ 3788.514074] pc : devm_kfree+0x84/0x98
-[ 3788.514076] lr : devm_kfree+0x54/0x98
-[ 3788.514079] sp : ffff800084e2f220
-[ 3788.514080] x29: ffff800084e2f220 x28: ffff0003b2366000 x27: 000000000000003f
-[ 3788.514085] x26: 000000000000003f x25: ffff000106f17c10 x24: 0000000000000080
-[ 3788.514089] x23: ffff00045bb8ab08 x22: ffff00045bb8a000 x21: 0000000000000018
-[ 3788.514093] x20: ffff0004355c3080 x19: ffff00045bb8aa00 x18: 0000000000080000
-[ 3788.514098] x17: 0000000000000040 x16: 000000000000001f x15: 000000000007ffff
-[ 3788.514102] x14: 0000000000000488 x13: 0000000000000005 x12: 00000000000fffff
-[ 3788.514106] x11: ffffffffffffffff x10: 0000000000000005 x9 : ffff800080c8c05c
-[ 3788.514110] x8 : ffff800084e2eeb8 x7 : 0000000000000000 x6 : 000000000000003f
-[ 3788.514115] x5 : ffff8000831bafe0 x4 : ffff800080c8b010 x3 : ffff0004355c3080
-[ 3788.514119] x2 : ffff0004355c3080 x1 : 0000000000000000 x0 : 0000000000000000
-[ 3788.514123] Call trace:
-[ 3788.514125]  devm_kfree+0x84/0x98 (P)
-[ 3788.514129]  virtnet_set_queues+0x134/0x2e8 [virtio_net]
-[ 3788.514135]  virtnet_probe+0x9c0/0xe00 [virtio_net]
-[ 3788.514139]  virtio_dev_probe+0x1e0/0x338
-[ 3788.514144]  really_probe+0xc8/0x3a0
-[ 3788.514149]  __driver_probe_device+0x84/0x170
-[ 3788.514152]  driver_probe_device+0x44/0x120
-[ 3788.514155]  __device_attach_driver+0xc4/0x168
-[ 3788.514158]  bus_for_each_drv+0x8c/0xf0
-[ 3788.514161]  __device_attach+0xa4/0x1c0
-[ 3788.514164]  device_initial_probe+0x1c/0x30
-[ 3788.514168]  bus_probe_device+0xb4/0xc0
-[ 3788.514170]  device_add+0x614/0x828
-[ 3788.514173]  register_virtio_device+0x214/0x258
-[ 3788.514175]  virtio_vdpa_probe+0xa0/0x110 [virtio_vdpa]
-[ 3788.514179]  vdpa_dev_probe+0xa8/0xd8
-[ 3788.514183]  really_probe+0xc8/0x3a0
-[ 3788.514186]  __driver_probe_device+0x84/0x170
-[ 3788.514189]  driver_probe_device+0x44/0x120
-[ 3788.514192]  __device_attach_driver+0xc4/0x168
-[ 3788.514195]  bus_for_each_drv+0x8c/0xf0
-[ 3788.514197]  __device_attach+0xa4/0x1c0
-[ 3788.514200]  device_initial_probe+0x1c/0x30
-[ 3788.514203]  bus_probe_device+0xb4/0xc0
-[ 3788.514206]  device_add+0x614/0x828
-[ 3788.514209]  _vdpa_register_device+0x58/0x88
-[ 3788.514211]  octep_vdpa_dev_add+0x104/0x228 [octep_vdpa]
-[ 3788.514215]  vdpa_nl_cmd_dev_add_set_doit+0x2d0/0x3c0
-[ 3788.514218]  genl_family_rcv_msg_doit+0xe4/0x158
-[ 3788.514222]  genl_rcv_msg+0x218/0x298
-[ 3788.514225]  netlink_rcv_skb+0x64/0x138
-[ 3788.514229]  genl_rcv+0x40/0x60
-[ 3788.514233]  netlink_unicast+0x32c/0x3b0
-[ 3788.514237]  netlink_sendmsg+0x170/0x3b8
-[ 3788.514241]  __sys_sendto+0x12c/0x1c0
-[ 3788.514246]  __arm64_sys_sendto+0x30/0x48
-[ 3788.514249]  invoke_syscall.constprop.0+0x58/0xf8
-[ 3788.514255]  do_el0_svc+0x48/0xd0
-[ 3788.514259]  el0_svc+0x48/0x210
-[ 3788.514264]  el0t_64_sync_handler+0xa0/0xe8
-[ 3788.514268]  el0t_64_sync+0x198/0x1a0
-[ 3788.514271] ---[ end trace 0000000000000000 ]---
+Ah, I missed ____cacheline_aligned_in_smp.  Fixed.
 
-Fix by using virtio_device->device consistently for
-allocation and deallocation
+> 
+> Anyway, if there is a reason to keep this member small, I prefer to
+> pack enum map_err_types instead:
+> 
+> @@ -46,9 +46,9 @@ enum {
+>  enum map_err_types {
+>  	MAP_ERR_CHECK_NOT_APPLICABLE,
+>  	MAP_ERR_NOT_CHECKED,
+>  	MAP_ERR_CHECKED,
+> -};
+> +} __packed;
 
-Fixes: 4944be2f5ad8c ("virtio_net: Allocate rss_hdr with devres")
-Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
----
- drivers/net/virtio_net.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Wow I didn't realize __packed can apply to enums.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 1bb3aeca66c6..22d894101c01 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3791,7 +3791,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
- 		old_rss_hdr = vi->rss_hdr;
- 		old_rss_trailer = vi->rss_trailer;
--		vi->rss_hdr = devm_kzalloc(&dev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
-+		vi->rss_hdr = devm_kzalloc(&vi->vdev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
- 		if (!vi->rss_hdr) {
- 			vi->rss_hdr = old_rss_hdr;
- 			return -ENOMEM;
-@@ -3802,7 +3802,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 
- 		if (!virtnet_commit_rss_command(vi)) {
- 			/* restore ctrl_rss if commit_rss_command failed */
--			devm_kfree(&dev->dev, vi->rss_hdr);
-+			devm_kfree(&vi->vdev->dev, vi->rss_hdr);
- 			vi->rss_hdr = old_rss_hdr;
- 			vi->rss_trailer = old_rss_trailer;
- 
-@@ -3810,7 +3810,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 				 queue_pairs);
- 			return -EINVAL;
- 		}
--		devm_kfree(&dev->dev, old_rss_hdr);
-+		devm_kfree(&vi->vdev->dev, old_rss_hdr);
- 		goto succ;
- 	}
- 
--- 
-2.48.1
+>  #define DMA_DEBUG_STACKTRACE_ENTRIES 5
+>  
+>  /**
+> 
+> This will shrink it to a single byte but it will also keep the type
+> information.
+> 
+> > +	bool		 is_cache_clean;
+> >  #ifdef CONFIG_STACKTRACE
+> >  	unsigned int	stack_len;
+> >  	unsigned long	stack_entries[DMA_DEBUG_STACKTRACE_ENTRIES];
+> > @@ -472,12 +474,15 @@ static int active_cacheline_dec_overlap(phys_addr_t cln)
+> >  	return active_cacheline_set_overlap(cln, --overlap);
+> >  }
+> >  
+> > -static int active_cacheline_insert(struct dma_debug_entry *entry)
+> > +static int active_cacheline_insert(struct dma_debug_entry *entry,
+> > +				   bool *overlap_cache_clean)
+> >  {
+> >  	phys_addr_t cln = to_cacheline_number(entry);
+> >  	unsigned long flags;
+> >  	int rc;
+> >  
+> > +	*overlap_cache_clean = false;
+> > +
+> >  	/* If the device is not writing memory then we don't have any
+> >  	 * concerns about the cpu consuming stale data.  This mitigates
+> >  	 * legitimate usages of overlapping mappings.
+> > @@ -487,8 +492,14 @@ static int active_cacheline_insert(struct dma_debug_entry *entry)
+> >  
+> >  	spin_lock_irqsave(&radix_lock, flags);
+> >  	rc = radix_tree_insert(&dma_active_cacheline, cln, entry);
+> > -	if (rc == -EEXIST)
+> > +	if (rc == -EEXIST) {
+> > +		struct dma_debug_entry *existing;
+> > +
+> >  		active_cacheline_inc_overlap(cln);
+> > +		existing = radix_tree_lookup(&dma_active_cacheline, cln);
+> > +		if (existing)
+> > +			*overlap_cache_clean = existing->is_cache_clean;
+> 
+> *nitpick*
+> 
+> IIUC radix_tree_insert() returns -EEXIST only if the key is already
+> present in the tree. Since radix_lock is not released between the
+> insert attempt and this lookup, I don't see how this lookup could
+> possibly fail. If it's not expected to fail, I would add a WARN_ON().
+> 
+> Please, do correct me if I'm missing something.
+> 
+> Other than that, LGTM.
+> 
+> Petr T
+
+Sure, thanks!
+
+> > +	}
+> >  	spin_unlock_irqrestore(&radix_lock, flags);
+> >  
+> >  	return rc;
+> > @@ -583,20 +594,24 @@ DEFINE_SHOW_ATTRIBUTE(dump);
+> >   */
+> >  static void add_dma_entry(struct dma_debug_entry *entry, unsigned long attrs)
+> >  {
+> > +	bool overlap_cache_clean;
+> >  	struct hash_bucket *bucket;
+> >  	unsigned long flags;
+> >  	int rc;
+> >  
+> > +	entry->is_cache_clean = !!(attrs & DMA_ATTR_CPU_CACHE_CLEAN);
+> > +
+> >  	bucket = get_hash_bucket(entry, &flags);
+> >  	hash_bucket_add(bucket, entry);
+> >  	put_hash_bucket(bucket, flags);
+> >  
+> > -	rc = active_cacheline_insert(entry);
+> > +	rc = active_cacheline_insert(entry, &overlap_cache_clean);
+> >  	if (rc == -ENOMEM) {
+> >  		pr_err_once("cacheline tracking ENOMEM, dma-debug disabled\n");
+> >  		global_disable = true;
+> >  	} else if (rc == -EEXIST &&
+> > -		   !(attrs & (DMA_ATTR_SKIP_CPU_SYNC | DMA_ATTR_CPU_CACHE_CLEAN)) &&
+> > +		   !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+> > +		   !(entry->is_cache_clean && overlap_cache_clean) &&
+> >  		   !(IS_ENABLED(CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC) &&
+> >  		     is_swiotlb_active(entry->dev))) {
+> >  		err_printk(entry->dev, entry,
 
