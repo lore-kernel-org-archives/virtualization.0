@@ -1,64 +1,64 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FC91314B6B
-	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 18:05:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70DC6313E2F
+	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 18:06:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767377164; cv=none; b=WiEeiu4XKtF0k7RgXEyf1nUSKsTlR5343bC8hOugQgDLu9Yh/ToPdFN9bH+PjdbGrOZcwd8MlnrO7H+SEKFHpQcc0XRvNkxFh/mEFznkLqCSn8kyKF4EjxrCsQ8rO250XdKD3AehwvQX9sqNin4bUefrvh+/+9mVRxDwqGzTiPI=
+	t=1767377171; cv=none; b=p0UyKGu9bkIQjOGeHLWsaOL+uTjxkU6lgbRyHFbGIMgk1gkstkZ+WF4T/izaY+XaaqP5HGWgg2ZWF50ZlzZEwbKkVTEsLmfUmUofNl8mmceikGcaqX4r9XG9DZaRcEuXtp0m0nh6xkdO3dK7rsuGcqWWB90EFsKM9sWHiG9kjKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767377164; c=relaxed/simple;
-	bh=QL6iWH/ffOsWWkSiflvPSq6EGb10KY9jnnnWVhluE6A=;
+	s=arc-20240116; t=1767377171; c=relaxed/simple;
+	bh=oetQtpSM3DjCX3/aeFuWgTQCahQBkDyO/iqkcjjmuuw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KYWRfI4g1Df0R+XNj0/qHqIg7C9VQkOeEEVuxnwO4C+/y1HIChOi0mHdjgXlbbcAsHD6gDF5ERunYVqgAsLOT2Wd3rJhU6VV2pcKqfe1efE/HiazD7N05QbY4U0tjMuo9V+3L8n/gBCUvjNQlJ4sBBNjDQ0+TMXaIOOjbZJtFqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=arsESHfk; arc=none smtp.client-ip=209.85.214.177
+	 MIME-Version; b=K5iaJKPAz6ZCrDFgUoce7X+XZp/ZFdGz70kwkGqoh/MeuB7MHlLfkHAcBn7e4xvaYKkYc6Egy5gWxPOJATIziN7WlCefF7mjhGD2QtwRLGb02UedQsdt7eQ+C6uam4TGdQ3mzPSrJ/Ulsx9Pw94LPTUbiKL7X+id8SeupE+UmY4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H3MYMK+3; arc=none smtp.client-ip=209.85.214.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="arsESHfk"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-29f1bc40b35so217696565ad.2
-        for <virtualization@lists.linux.dev>; Fri, 02 Jan 2026 10:05:57 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H3MYMK+3"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2a0b4320665so190087635ad.1
+        for <virtualization@lists.linux.dev>; Fri, 02 Jan 2026 10:06:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767377154; x=1767981954; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1767377160; x=1767981960; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rDg1l5xXQWfPdXgWqgA3SiOxZopZjh7i4jGImOR73AU=;
-        b=arsESHfkJ7mT8Cwz70RsRtXD5hMY4ucm2jbX5DrHPZVKACziWGaC7oq8ZnxEp9ipQg
-         1k2q1tswkBXdDV39MJS5iF7RcESMrsfY7RRmGbuTcAkn//F+n8V/VmUYoBL3Sp4+gB9l
-         qFnahhD1LA2OWZqeraWJr/QagZJOl5BZRy0tRVS11ljqjxvEDTgy59Ec81c7lmAtztc2
-         q88O8ybdjHn2jJ1u7CvstWRLCuFKNatz2K5SN890of7szgNskBunuZojI+qF1DAZvYsH
-         1yw0WoBxJ0qSdCq6U3bLHyHkFPx2hbGcvVuMawTHHXD/DArKi++HPrqqWZ8Ablpg6i6Y
-         EvGQ==
+        bh=dfcgCbP6RhhVMiMr9Azv6F2aQ7T6/MJccCOzX/54vEE=;
+        b=H3MYMK+3+qj7R3mR0sTsneu8rSSWRrsKYY0jpLycTEWfVGnr8aoL+k5GknL0XqMMLS
+         XeEeYyvb7FW47L+67jI7Yq5mcO4hJOp/+P5Ctyz86j5ca053C+d55WhPpigmH0FV6w+W
+         hd28BuUrQvzU0WqbsRZbxxUbO4zMXA23JuwkiOhkPovHjveGMd+WoAizUDuFDKe33/3x
+         PLBKLh69G6VBh9BQichng4/lItbqc0swB/PuXy2XF0KJSKS+op+MIgbPV6BNQnsD6juU
+         OvxEXZKrF3ubC5a3SUPc/NtJ5CNF1AsuI8QwgJjWw0F2lc2PhhJ3ojSQC8Y7lt56efmx
+         xaaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767377154; x=1767981954;
+        d=1e100.net; s=20230601; t=1767377160; x=1767981960;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=rDg1l5xXQWfPdXgWqgA3SiOxZopZjh7i4jGImOR73AU=;
-        b=dkfgycbkohHU1NwIDysM8N2oro0qAvzJDNtOX5S93oSfuWfeUwQXic5MUN5wwDkEp0
-         GAvZKjD2oe6oBft2i1RTk33591iMEjY49Mf7FPm21xdvII+0pEGL6OYnTwWnSVfiCQZU
-         k+E5biRCyM86w7P2ffy5omR0Zr5WF7n4z3FnMh690eorsxjE3fN1JiLnEuFQynzP1qAn
-         gkI1ZxVoIfZGbkZwFOCy2Bb0OD4XAJ+A3ZuS481adNjV3jMg+x7Ee9GgyvXX45CIUf4z
-         O3rBqsMuUL89+ymaIaPEOFZPlIAv26jQeWCCJzB+hpGD2LoFixA1hi23qB6W/LxNpAfh
-         AIIQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUg2tfW58si+DAo0F/NlFhP7V5LIDofhzoTscZ5ARYgp9jTRZHg/KemnAaRWVhuCsjT5SByciuV73B1Mkxqfw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx6/0184KFSVoo74AKo0RdmAAE7bwIyrLAcy7h8SPzGLkTKbcBU
-	sez4jXr64iidyEpu50VoVxF+WhAJCA7NBKbpVQmJEOxVj/ET2okycWeS
-X-Gm-Gg: AY/fxX4NNrFmBbL8kfFmWfDugTh+dWYCVxyXB9RUVegOg6yxxFzMKz4M7i9F515ibnm
-	fIhKQY221FBQufusMdBJJpz9x8scCqoc3XIkkBzPuCfC4BXtHo7hb4/rlU1LjEHvVhw89d7ejYK
-	EEeZ1HLV00CDtEwzPOEUR7fLI1XpT5i/ApRbiurztA18Kelh+WUd+GuWJA169LJOf4IV2NHehj4
-	QUojdOm+e/0c9XBUMr1XCImLUIyd+7t/y43H5fUYxIToIeRhweeTqdsfgkYqRm/B1HNVTaqKzwm
-	3cSa6d1xWam3CyGRoqcheRpc5C6asJcx9fsBVODLsUBVdVfyNtibaerTriGuMHw/m7s/XAcJaDE
-	ZDwSVgEhG7cDHyAXLy3ZxmXImjMwllgqjnEcfymn4jcQkgweIOMSsnTVhfzraxhmzKUDIsf23Xj
-	8gm378PddvvJApYHnKkOBwPfcxQHD9CqDrcM8g9HBE5YZMJm7xIPZ5Q0F5MdQvsTGZ6Ls=
-X-Google-Smtp-Source: AGHT+IEuuXrn9NaOqlNxXjs2ojC/SR61NEtcz1zOTJnY/wbx1biNgLIT0Xg5mI+ZNFeJfAokXBWluQ==
-X-Received: by 2002:a17:903:290:b0:2a1:e19:ff5 with SMTP id d9443c01a7336-2a2f273818fmr464251945ad.38.1767377154228;
-        Fri, 02 Jan 2026 10:05:54 -0800 (PST)
+        bh=dfcgCbP6RhhVMiMr9Azv6F2aQ7T6/MJccCOzX/54vEE=;
+        b=iAFbe5z1VNYwARYl6X5FLdXmI8vUTvU9QnZLlOqHSVaiVyiFcBFbiJw5+fWSL8Vdw8
+         rZCY7Cy4tp7wMYv+z/4xhe8WOhjEjhO0hUptzFcOfyWfjxyzf+Ini7XYWSa8T3fsJkYX
+         khB8yhNGP3ySIkYZJw3h8T8KlNC5XwJL2mCxKGSFkaa4IhfN+g5vYXDf8pg+F25rajWn
+         T1WaoHswPK6nwoYhpI+MSwtzo43n9jUB6/EqDsUWV+92I3+84kr83H4RBAryMOsV4TdF
+         0IHbcf5xLb7u+Q86Zq9Xi1cAPw9onQ9bYwiwHMZ7nmkInN+UDpvV9KATlIKsef1aqIGy
+         TLUA==
+X-Forwarded-Encrypted: i=1; AJvYcCWdmbeLTNdbIJtYC2LcAIEOJCaoLkX0AJrqBneNrjupXHsrBr2z8zHAk33h88ZfLu1riukUdoETNN7D+bT/yg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzL5XG54ZzjDVY5+B21p7mUF7DAJZ9rtmv/C9KEU0ijoUAFdpJk
+	ZmI8so04WTIY1IIefcrBsxKwo9RxauBPjnBoHnwXAQNkrl4PUIUVekLK
+X-Gm-Gg: AY/fxX43EQuVo2pMy7aIT5EeKZGdFlGkaF16kChF7M/jy9gezapjAK1vouH/51bZhJH
+	g8xMbuNLoVpaHb3wBtRRX+jBAmXos2TPVTY2oLFkTX9hv99pMm08QIZFPXu67rjmWb20ex7TRcz
+	6uM2jRLafMpQLPGXqqF3e9G3ZHQURrSbm0+uY0ea2Zm8dAiXPH0WRCuEztbPmR+9bMR3/8rDDcJ
+	CyNC5vso2FOkbVAKMgzK70SUkQwtvnRDqaVvHZeN+E1ynNDBZ4hrVL5PR0gdWn9cS8CwGehLO8N
+	pgVp+79wteEQK2N+e5eqDtfJJvAG+eijC5F3xT10wrKjFqiDNn3Q5TGLKi6UAYkAh0X/s7bnItS
+	BRb4FyVLKq4ihBxnnGh/wQ8JaS7qRJPF1K221G/C2jr7P3q9x2anW5/p76x8H/OrHd5TbC2v/2z
+	QgM0ySz2enniv6wthelRovDVrxr6kDGS1VpsbOm2zNymFQ0w58oAVTy1DwQvB8xRVuUck=
+X-Google-Smtp-Source: AGHT+IGlPf0sJytEVblRsx7DE7M/l8a4Fbt7aqtuWECHLRxylpFO/PMXbrQ9354tq/9aQ/e2ZEXM+g==
+X-Received: by 2002:a17:902:e74b:b0:299:e215:f61e with SMTP id d9443c01a7336-2a2f2a34fadmr407610955ad.36.1767377159960;
+        Fri, 02 Jan 2026 10:05:59 -0800 (PST)
 Received: from localhost.localdomain ([223.181.108.198])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a2f3d77566sm386297585ad.97.2026.01.02.10.05.48
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a2f3d77566sm386297585ad.97.2026.01.02.10.05.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Jan 2026 10:05:53 -0800 (PST)
+        Fri, 02 Jan 2026 10:05:59 -0800 (PST)
 From: I Viswanath <viswanathiyyappan@gmail.com>
 To: edumazet@google.com,
 	andrew+netdev@lunn.ch,
@@ -73,9 +73,9 @@ Cc: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	I Viswanath <viswanathiyyappan@gmail.com>
-Subject: [PATCH net-next v7 1/2] net: refactor set_rx_mode into snapshot and deferred I/O
-Date: Fri,  2 Jan 2026 23:35:29 +0530
-Message-ID: <20260102180530.1559514-2-viswanathiyyappan@gmail.com>
+Subject: [PATCH net-next v7 2/2] virtio-net: Implement ndo_write_rx_mode callback
+Date: Fri,  2 Jan 2026 23:35:30 +0530
+Message-ID: <20260102180530.1559514-3-viswanathiyyappan@gmail.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260102180530.1559514-1-viswanathiyyappan@gmail.com>
 References: <20260102180530.1559514-1-viswanathiyyappan@gmail.com>
@@ -87,531 +87,177 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-ndo_set_rx_mode is problematic as it cannot sleep.
+Implement ndo_write_rx_mode callback for virtio-net
 
-There are drivers that circumvent this by doing the rx_mode work
-in a work item. This requires extra work that can be avoided if
-core provided a mechanism to do that. This patch proposes such a
-mechanism.
-
-Refactor set_rx_mode into 2 stages: A snapshot stage and the
-actual I/O. In this new model, when _dev_set_rx_mode is called,
-we take a snapshot of the current rx_config and then commit it
-to the hardware later via a work item
-
-To accomplish this, reinterpret set_rx_mode as the ndo for
-customizing the snapshot and enabling/disabling rx_mode set
-and add a new ndo write_rx_mode for the deferred I/O
-
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: I Viswanath <viswanathiyyappan@gmail.com>
 ---
- include/linux/netdevice.h | 111 +++++++++++++++-
- net/core/dev.c            | 264 +++++++++++++++++++++++++++++++++++++-
- 2 files changed, 368 insertions(+), 7 deletions(-)
+ drivers/net/virtio_net.c | 55 +++++++++++++++-------------------------
+ 1 file changed, 21 insertions(+), 34 deletions(-)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 5870a9e514a5..210f320d404d 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1062,6 +1062,44 @@ struct netdev_net_notifier {
- 	struct notifier_block *nb;
- };
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 1bb3aeca66c6..83d543bf6ae2 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -460,9 +460,6 @@ struct virtnet_info {
+ 	/* Work struct for config space updates */
+ 	struct work_struct config_work;
  
-+struct netif_cleanup_work {
-+	struct work_struct work;
-+	struct net_device *dev;
-+};
-+
-+enum netif_rx_mode_cfg {
-+	NETIF_RX_MODE_CFG_ALLMULTI,
-+	NETIF_RX_MODE_CFG_PROMISC,
-+	NETIF_RX_MODE_CFG_VLAN
-+};
-+
-+enum netif_rx_mode_flags {
-+	NETIF_RX_MODE_READY,
-+
-+	/* if set, rx_mode set work will be skipped */
-+	NETIF_RX_MODE_SET_SKIP,
-+
-+	/* if set, uc/mc lists will not be part of rx_mode config */
-+	NETIF_RX_MODE_UC_SKIP,
-+	NETIF_RX_MODE_MC_SKIP
-+};
-+
-+struct netif_rx_mode_config {
-+	char	*uc_addrs;
-+	char	*mc_addrs;
-+	int	uc_count;
-+	int	mc_count;
-+	int	cfg;
-+};
-+
-+struct netif_rx_mode_ctx {
-+	struct netif_rx_mode_config *pending;
-+	struct netif_rx_mode_config *ready;
-+	struct work_struct work;
-+	struct net_device *dev;
-+	int flags;
-+};
-+
- /*
-  * This structure defines the management hooks for network devices.
-  * The following hooks can be defined; unless noted otherwise, they are
-@@ -1114,9 +1152,14 @@ struct netdev_net_notifier {
-  *	changes to configuration when multicast or promiscuous is enabled.
-  *
-  * void (*ndo_set_rx_mode)(struct net_device *dev);
-- *	This function is called device changes address list filtering.
-+ *	This function is called when device changes address list filtering.
-  *	If driver handles unicast address filtering, it should set
-- *	IFF_UNICAST_FLT in its priv_flags.
-+ *	IFF_UNICAST_FLT in its priv_flags. This is used to configure
-+ *	the rx_mode snapshot that will be written to the hardware.
-+ *
-+ * void (*ndo_write_rx_mode)(struct net_device *dev);
-+ *	This function is scheduled after set_rx_mode and is responsible for
-+ *	writing the rx_mode snapshot to the hardware.
-  *
-  * int (*ndo_set_mac_address)(struct net_device *dev, void *addr);
-  *	This function  is called when the Media Access Control address
-@@ -1437,6 +1480,7 @@ struct net_device_ops {
- 	void			(*ndo_change_rx_flags)(struct net_device *dev,
- 						       int flags);
- 	void			(*ndo_set_rx_mode)(struct net_device *dev);
-+	void			(*ndo_write_rx_mode)(struct net_device *dev);
- 	int			(*ndo_set_mac_address)(struct net_device *dev,
- 						       void *addr);
- 	int			(*ndo_validate_addr)(struct net_device *dev);
-@@ -1939,7 +1983,7 @@ enum netdev_reg_state {
-  *	@ingress_queue:		XXX: need comments on this one
-  *	@nf_hooks_ingress:	netfilter hooks executed for ingress packets
-  *	@broadcast:		hw bcast address
-- *
-+ *	@rx_mode_ctx:		rx_mode work context
-  *	@rx_cpu_rmap:	CPU reverse-mapping for RX completion interrupts,
-  *			indexed by RX queue number. Assigned by driver.
-  *			This must only be set if the ndo_rx_flow_steer
-@@ -1971,6 +2015,8 @@ enum netdev_reg_state {
-  *	@link_watch_list:	XXX: need comments on this one
-  *
-  *	@reg_state:		Register/unregister state machine
-+ *	@needs_cleanup_work:	Should dev_close schedule the cleanup work?
-+ *	@cleanup_work:		Cleanup work context
-  *	@dismantle:		Device is going to be freed
-  *	@needs_free_netdev:	Should unregister perform free_netdev?
-  *	@priv_destructor:	Called from unregister
-@@ -2350,6 +2396,7 @@ struct net_device {
- #endif
+-	/* Work struct for setting rx mode */
+-	struct work_struct rx_mode_work;
+-
+ 	/* OK to queue work setting RX mode? */
+ 	bool rx_mode_work_enabled;
  
- 	unsigned char		broadcast[MAX_ADDR_LEN];
-+	struct netif_rx_mode_ctx *rx_mode_ctx;
- #ifdef CONFIG_RFS_ACCEL
- 	struct cpu_rmap		*rx_cpu_rmap;
- #endif
-@@ -2387,6 +2434,10 @@ struct net_device {
- 
- 	u8 reg_state;
- 
-+	bool needs_cleanup_work;
-+
-+	struct netif_cleanup_work *cleanup_work;
-+
- 	bool dismantle;
- 
- 	/** @moving_ns: device is changing netns, protected by @lock */
-@@ -3373,6 +3424,60 @@ int dev_loopback_xmit(struct net *net, struct sock *sk, struct sk_buff *newskb);
- u16 dev_pick_tx_zero(struct net_device *dev, struct sk_buff *skb,
- 		     struct net_device *sb_dev);
- 
-+/* Helpers to be used in the set_rx_mode implementation */
-+static inline void netif_rx_mode_set_cfg(struct net_device *dev, int b,
-+					 bool val)
-+{
-+	if (val)
-+		dev->rx_mode_ctx->pending->cfg |= BIT(b);
-+	else
-+		dev->rx_mode_ctx->pending->cfg &= ~BIT(b);
-+}
-+
-+static inline void netif_rx_mode_set_flag(struct net_device *dev, int b,
-+					  bool val)
-+{
-+	if (val)
-+		dev->rx_mode_ctx->flags |= BIT(b);
-+	else
-+		dev->rx_mode_ctx->flags &= ~BIT(b);
-+}
-+
-+/* Helpers to be used in the write_rx_mode implementation */
-+static inline int netif_rx_mode_get_cfg(struct net_device *dev, int b)
-+{
-+	return !!(dev->rx_mode_ctx->ready->cfg & BIT(b));
-+}
-+
-+static inline int netif_rx_mode_get_flag(struct net_device *dev, int b)
-+{
-+	return !!(dev->rx_mode_ctx->flags & BIT(b));
-+}
-+
-+static inline int netif_rx_mode_get_mc_count(struct net_device *dev)
-+{
-+	return dev->rx_mode_ctx->ready->mc_count;
-+}
-+
-+static inline int netif_rx_mode_get_uc_count(struct net_device *dev)
-+{
-+	return dev->rx_mode_ctx->ready->uc_count;
-+}
-+
-+void netif_schedule_rx_mode_work(struct net_device *dev);
-+
-+void netif_flush_rx_mode_work(struct net_device *dev);
-+
-+#define netif_rx_mode_for_each_uc_addr(dev, ha_addr, idx) \
-+	for (ha_addr = (dev)->rx_mode_ctx->ready->uc_addrs, idx = 0; \
-+	     idx < netif_rx_mode_get_uc_count((dev)); \
-+	     ha_addr += (dev)->addr_len, idx++)
-+
-+#define netif_rx_mode_for_each_mc_addr(dev, ha_addr, idx) \
-+	for (ha_addr = (dev)->rx_mode_ctx->ready->mc_addrs, idx = 0; \
-+	     idx < netif_rx_mode_get_mc_count((dev)); \
-+	     ha_addr += (dev)->addr_len, idx++)
-+
- int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev);
- int __dev_direct_xmit(struct sk_buff *skb, u16 queue_id);
- 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 36dc5199037e..ffa0615b688e 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -1587,6 +1587,206 @@ void netif_state_change(struct net_device *dev)
- 	}
- }
- 
-+/* This function attempts to copy the current state of the
-+ * net device into pending (reallocating if necessary). If it fails,
-+ * pending is guaranteed to be unmodified.
-+ */
-+static int __netif_prepare_rx_mode(struct net_device *dev)
-+{
-+	struct netif_rx_mode_config *pending = dev->rx_mode_ctx->pending;
-+	bool skip_uc = false, skip_mc = false;
-+	int uc_count = 0, mc_count = 0;
-+	struct netdev_hw_addr *ha;
-+	char *tmp;
-+	int i;
-+
-+	skip_uc = netif_rx_mode_get_flag(dev, NETIF_RX_MODE_UC_SKIP);
-+	skip_mc = netif_rx_mode_get_flag(dev, NETIF_RX_MODE_MC_SKIP);
-+
-+	/* The allocations need to be atomic since this will be called under
-+	 * netif_addr_lock_bh()
-+	 */
-+	if (!skip_uc) {
-+		uc_count = netdev_uc_count(dev);
-+		tmp = krealloc(pending->uc_addrs, uc_count * dev->addr_len,
-+			       GFP_ATOMIC);
-+		if (!tmp)
-+			return -ENOMEM;
-+		pending->uc_addrs = tmp;
-+	}
-+
-+	if (!skip_mc) {
-+		mc_count = netdev_mc_count(dev);
-+		tmp = krealloc(pending->mc_addrs, mc_count * dev->addr_len,
-+			       GFP_ATOMIC);
-+		if (!tmp)
-+			return -ENOMEM;
-+		pending->mc_addrs = tmp;
-+	}
-+
-+	/* This function cannot fail after this point */
-+
-+	/* This is going to be the same for every single driver. Better to
-+	 * do it here than in the set_rx_mode impl
-+	 */
-+	netif_rx_mode_set_cfg(dev, NETIF_RX_MODE_CFG_ALLMULTI,
-+			      !!(dev->flags & IFF_ALLMULTI));
-+
-+	netif_rx_mode_set_cfg(dev, NETIF_RX_MODE_CFG_PROMISC,
-+			      !!(dev->flags & IFF_PROMISC));
-+
-+	i = 0;
-+	if (!skip_uc) {
-+		pending->uc_count = uc_count;
-+		netdev_for_each_uc_addr(ha, dev)
-+			memcpy(pending->uc_addrs + (i++) * dev->addr_len,
-+			       ha->addr, dev->addr_len);
-+	}
-+
-+	i = 0;
-+	if (!skip_mc) {
-+		pending->mc_count = mc_count;
-+		netdev_for_each_mc_addr(ha, dev)
-+			memcpy(pending->mc_addrs + (i++) * dev->addr_len,
-+			       ha->addr, dev->addr_len);
-+	}
-+	return 0;
-+}
-+
-+static void netif_prepare_rx_mode(struct net_device *dev)
-+{
-+	lockdep_assert_held(&dev->addr_list_lock);
-+	int rc;
-+
-+	rc = __netif_prepare_rx_mode(dev);
-+	if (rc)
-+		return;
-+
-+	netif_rx_mode_set_flag(dev, NETIF_RX_MODE_READY, true);
-+}
-+
-+static void netif_write_rx_mode(struct work_struct *param)
-+{
-+	struct netif_rx_mode_ctx *ctx;
-+	struct net_device *dev;
-+
-+	rtnl_lock();
-+	ctx = container_of(param, struct netif_rx_mode_ctx, work);
-+	dev = ctx->dev;
-+
-+	if (!netif_running(dev)) {
-+		rtnl_unlock();
-+		return;
-+	}
-+
-+	/* Paranoia. */
-+	if (WARN_ON(!dev->netdev_ops->ndo_write_rx_mode)) {
-+		rtnl_unlock();
-+		return;
-+	}
-+
-+	/* We could introduce a new lock for this but reusing the addr
-+	 * lock works well enough
-+	 */
-+	netif_addr_lock_bh(dev);
-+
-+	/* There's no point continuing if the pending config is not ready */
-+	if (!netif_rx_mode_get_flag(dev, NETIF_RX_MODE_READY)) {
-+		netif_addr_unlock_bh(dev);
-+		rtnl_unlock();
-+		return;
-+	}
-+
-+	swap(ctx->ready, ctx->pending);
-+	netif_rx_mode_set_flag(dev, NETIF_RX_MODE_READY, false);
-+	netif_addr_unlock_bh(dev);
-+
-+	dev->netdev_ops->ndo_write_rx_mode(dev);
-+	rtnl_unlock();
-+}
-+
-+static int netif_alloc_rx_mode_ctx(struct net_device *dev)
-+{
-+	dev->rx_mode_ctx = kzalloc(sizeof(*dev->rx_mode_ctx), GFP_KERNEL);
-+	if (!dev->rx_mode_ctx)
-+		goto fail_all;
-+
-+	dev->rx_mode_ctx->ready = kzalloc(sizeof(*dev->rx_mode_ctx->ready),
-+					  GFP_KERNEL);
-+	if (!dev->rx_mode_ctx->ready)
-+		goto fail_ready;
-+
-+	dev->rx_mode_ctx->pending = kzalloc(sizeof(*dev->rx_mode_ctx->pending),
-+					    GFP_KERNEL);
-+	if (!dev->rx_mode_ctx->pending)
-+		goto fail_pending;
-+
-+	dev->rx_mode_ctx->dev = dev;
-+	INIT_WORK(&dev->rx_mode_ctx->work, netif_write_rx_mode);
-+	return 0;
-+
-+fail_pending:
-+	kfree(dev->rx_mode_ctx->ready);
-+
-+fail_ready:
-+	kfree(dev->rx_mode_ctx);
-+
-+fail_all:
-+	return -ENOMEM;
-+}
-+
-+static void netif_free_rx_mode_ctx(struct net_device *dev)
-+{
-+	if (!dev->rx_mode_ctx)
-+		return;
-+
-+	cancel_work_sync(&dev->rx_mode_ctx->work);
-+
-+	kfree(dev->rx_mode_ctx->ready->uc_addrs);
-+	kfree(dev->rx_mode_ctx->ready->mc_addrs);
-+	kfree(dev->rx_mode_ctx->ready);
-+
-+	kfree(dev->rx_mode_ctx->pending->uc_addrs);
-+	kfree(dev->rx_mode_ctx->pending->mc_addrs);
-+	kfree(dev->rx_mode_ctx->pending);
-+
-+	kfree(dev->rx_mode_ctx);
-+	dev->rx_mode_ctx = NULL;
-+}
-+
-+static void netif_cleanup_work_fn(struct work_struct *param)
-+{
-+	struct netif_cleanup_work *ctx;
-+	struct net_device *dev;
-+
-+	ctx = container_of(param, struct netif_cleanup_work, work);
-+	dev = ctx->dev;
-+
-+	if (dev->netdev_ops->ndo_write_rx_mode)
-+		netif_free_rx_mode_ctx(dev);
-+}
-+
-+static int netif_alloc_cleanup_work(struct net_device *dev)
-+{
-+	dev->cleanup_work = kzalloc(sizeof(*dev->cleanup_work), GFP_KERNEL);
-+	if (!dev->cleanup_work)
-+		return -ENOMEM;
-+
-+	dev->cleanup_work->dev = dev;
-+	INIT_WORK(&dev->cleanup_work->work, netif_cleanup_work_fn);
-+	return 0;
-+}
-+
-+static void netif_free_cleanup_work(struct net_device *dev)
-+{
-+	if (!dev->cleanup_work)
-+		return;
-+
-+	cancel_work_sync(&dev->cleanup_work->work);
-+	kfree(dev->cleanup_work);
-+	dev->cleanup_work = NULL;
-+}
-+
- /**
-  * __netdev_notify_peers - notify network peers about existence of @dev,
-  * to be called when rtnl lock is already held.
-@@ -1682,6 +1882,16 @@ static int __dev_open(struct net_device *dev, struct netlink_ext_ack *extack)
- 	if (!ret && ops->ndo_open)
- 		ret = ops->ndo_open(dev);
- 
-+	if (!ret && dev->needs_cleanup_work) {
-+		if (!dev->cleanup_work)
-+			ret = netif_alloc_cleanup_work(dev);
-+		else
-+			cancel_work_sync(&dev->cleanup_work->work);
-+	}
-+
-+	if (!ret && ops->ndo_write_rx_mode)
-+		ret = netif_alloc_rx_mode_ctx(dev);
-+
- 	netpoll_poll_enable(dev);
- 
- 	if (ret)
-@@ -1755,6 +1965,9 @@ static void __dev_close_many(struct list_head *head)
- 		if (ops->ndo_stop)
- 			ops->ndo_stop(dev);
- 
-+		if (dev->needs_cleanup_work)
-+			schedule_work(&dev->cleanup_work->work);
-+
- 		netif_set_up(dev, false);
- 		netpoll_poll_enable(dev);
- 	}
-@@ -9623,6 +9836,47 @@ int netif_set_allmulti(struct net_device *dev, int inc, bool notify)
+@@ -3866,33 +3863,31 @@ static int virtnet_close(struct net_device *dev)
  	return 0;
  }
  
-+/* netif_schedule_rx_mode_work - Sets up the rx_config snapshot and
-+ * schedules the deferred I/O.
-+ */
-+void netif_schedule_rx_mode_work(struct net_device *dev)
-+{
-+	const struct net_device_ops *ops = dev->netdev_ops;
-+
-+	if (ops->ndo_set_rx_mode)
-+		ops->ndo_set_rx_mode(dev);
-+
-+	if (!ops->ndo_write_rx_mode)
-+		return;
-+
-+	/* This part is only for drivers that implement ndo_write_rx_mode */
-+
-+	/* If rx_mode set is to be skipped, we don't schedule the work */
-+	if (netif_rx_mode_get_flag(dev, NETIF_RX_MODE_SET_SKIP))
-+		return;
-+
-+	netif_prepare_rx_mode(dev);
-+	schedule_work(&dev->rx_mode_ctx->work);
-+}
-+EXPORT_SYMBOL(netif_schedule_rx_mode_work);
-+
-+/* Drivers that implement rx mode as work flush the work item when closing
-+ * or suspending. This is the substitute for those calls.
-+ */
-+void netif_flush_rx_mode_work(struct net_device *dev)
-+{
-+	/* Calling this function with RTNL held will result in a deadlock. */
-+	if (WARN_ON(rtnl_is_locked()))
-+		return;
-+
-+	/* Doing nothing is enough to "flush" work on a closed interface */
-+	if (!netif_running(dev))
-+		return;
-+
-+	flush_work(&dev->rx_mode_ctx->work);
-+}
-+EXPORT_SYMBOL(netif_flush_rx_mode_work);
-+
- /*
-  *	Upload unicast and multicast address lists to device and
-  *	configure RX filtering. When the device doesn't support unicast
-@@ -9631,8 +9885,6 @@ int netif_set_allmulti(struct net_device *dev, int inc, bool notify)
-  */
- void __dev_set_rx_mode(struct net_device *dev)
+-static void virtnet_rx_mode_work(struct work_struct *work)
++static void virtnet_write_rx_mode(struct net_device *dev)
  {
--	const struct net_device_ops *ops = dev->netdev_ops;
--
- 	/* dev_open will call this function so the list will stay sane. */
- 	if (!(dev->flags&IFF_UP))
+-	struct virtnet_info *vi =
+-		container_of(work, struct virtnet_info, rx_mode_work);
++	struct virtnet_info *vi = netdev_priv(dev);
+ 	u8 *promisc_allmulti  __free(kfree) = NULL;
+-	struct net_device *dev = vi->dev;
+ 	struct scatterlist sg[2];
+ 	struct virtio_net_ctrl_mac *mac_data;
+-	struct netdev_hw_addr *ha;
++	char *ha_addr;
+ 	int uc_count;
+ 	int mc_count;
+ 	void *buf;
++	int idx;
+ 	int i;
+ 
+ 	/* We can't dynamically set ndo_set_rx_mode, so return gracefully */
+ 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
  		return;
-@@ -9653,8 +9905,7 @@ void __dev_set_rx_mode(struct net_device *dev)
- 		}
+ 
+-	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_KERNEL);
++	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_ATOMIC);
+ 	if (!promisc_allmulti) {
+ 		dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n");
+ 		return;
  	}
  
--	if (ops->ndo_set_rx_mode)
--		ops->ndo_set_rx_mode(dev);
-+	netif_schedule_rx_mode_work(dev);
+-	rtnl_lock();
+-
+-	*promisc_allmulti = !!(dev->flags & IFF_PROMISC);
++	*promisc_allmulti = netif_rx_mode_get_cfg(dev,
++						  NETIF_RX_MODE_CFG_PROMISC);
+ 	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+@@ -3900,7 +3895,8 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+ 		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
+ 			 *promisc_allmulti ? "en" : "dis");
+ 
+-	*promisc_allmulti = !!(dev->flags & IFF_ALLMULTI);
++	*promisc_allmulti = netif_rx_mode_get_cfg(dev,
++						  NETIF_RX_MODE_CFG_ALLMULTI);
+ 	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+@@ -3908,27 +3904,22 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+ 		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
+ 			 *promisc_allmulti ? "en" : "dis");
+ 
+-	netif_addr_lock_bh(dev);
+-
+-	uc_count = netdev_uc_count(dev);
+-	mc_count = netdev_mc_count(dev);
++	uc_count = netif_rx_mode_get_uc_count(dev);
++	mc_count = netif_rx_mode_get_mc_count(dev);
+ 	/* MAC filter - use one buffer for both lists */
+ 	buf = kzalloc(((uc_count + mc_count) * ETH_ALEN) +
+ 		      (2 * sizeof(mac_data->entries)), GFP_ATOMIC);
+ 	mac_data = buf;
+-	if (!buf) {
+-		netif_addr_unlock_bh(dev);
+-		rtnl_unlock();
++	if (!buf)
+ 		return;
+-	}
+ 
+ 	sg_init_table(sg, 2);
+ 
+ 	/* Store the unicast list and count in the front of the buffer */
+ 	mac_data->entries = cpu_to_virtio32(vi->vdev, uc_count);
+ 	i = 0;
+-	netdev_for_each_uc_addr(ha, dev)
+-		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
++	netif_rx_mode_for_each_uc_addr(dev, ha_addr, idx)
++		memcpy(&mac_data->macs[i++][0], ha_addr, ETH_ALEN);
+ 
+ 	sg_set_buf(&sg[0], mac_data,
+ 		   sizeof(mac_data->entries) + (uc_count * ETH_ALEN));
+@@ -3938,10 +3929,8 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+ 
+ 	mac_data->entries = cpu_to_virtio32(vi->vdev, mc_count);
+ 	i = 0;
+-	netdev_for_each_mc_addr(ha, dev)
+-		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
+-
+-	netif_addr_unlock_bh(dev);
++	netif_rx_mode_for_each_mc_addr(dev, ha_addr, idx)
++		memcpy(&mac_data->macs[i++][0], ha_addr, ETH_ALEN);
+ 
+ 	sg_set_buf(&sg[1], mac_data,
+ 		   sizeof(mac_data->entries) + (mc_count * ETH_ALEN));
+@@ -3950,17 +3939,15 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+ 				  VIRTIO_NET_CTRL_MAC_TABLE_SET, sg))
+ 		dev_warn(&dev->dev, "Failed to set MAC filter table.\n");
+ 
+-	rtnl_unlock();
+-
+ 	kfree(buf);
  }
  
- void dev_set_rx_mode(struct net_device *dev)
-@@ -11325,6 +11576,9 @@ int register_netdevice(struct net_device *dev)
- 		}
- 	}
+ static void virtnet_set_rx_mode(struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
++	char cfg_disabled = !vi->rx_mode_work_enabled;
  
-+	if (dev->netdev_ops->ndo_write_rx_mode)
-+		dev->needs_cleanup_work = true;
-+
- 	if (((dev->hw_features | dev->features) &
- 	     NETIF_F_HW_VLAN_CTAG_FILTER) &&
- 	    (!dev->netdev_ops->ndo_vlan_rx_add_vid ||
-@@ -12068,6 +12322,7 @@ struct net_device *alloc_netdev_mqs(int sizeof_priv, const char *name,
- 	dev->real_num_rx_queues = rxqs;
- 	if (netif_alloc_rx_queues(dev))
- 		goto free_all;
-+
- 	dev->ethtool = kzalloc(sizeof(*dev->ethtool), GFP_KERNEL_ACCOUNT);
- 	if (!dev->ethtool)
- 		goto free_all;
-@@ -12151,6 +12406,7 @@ void free_netdev(struct net_device *dev)
- 	kfree(dev->ethtool);
- 	netif_free_tx_queues(dev);
- 	netif_free_rx_queues(dev);
-+	netif_free_cleanup_work(dev);
+-	if (vi->rx_mode_work_enabled)
+-		schedule_work(&vi->rx_mode_work);
++	netif_rx_mode_set_flag(dev, NETIF_RX_MODE_SET_SKIP, cfg_disabled);
+ }
  
- 	kfree(rcu_dereference_protected(dev->ingress_queue, 1));
+ static int virtnet_vlan_rx_add_vid(struct net_device *dev,
+@@ -5776,7 +5763,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ 	/* Make sure no work handler is accessing the device */
+ 	flush_work(&vi->config_work);
+ 	disable_rx_mode_work(vi);
+-	flush_work(&vi->rx_mode_work);
++	netif_flush_rx_mode_work(vi->dev);
+ 
+ 	if (netif_running(vi->dev)) {
+ 		rtnl_lock();
+@@ -6279,6 +6266,7 @@ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_validate_addr   = eth_validate_addr,
+ 	.ndo_set_mac_address = virtnet_set_mac_address,
+ 	.ndo_set_rx_mode     = virtnet_set_rx_mode,
++	.ndo_write_rx_mode   = virtnet_write_rx_mode,
+ 	.ndo_get_stats64     = virtnet_stats,
+ 	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
+ 	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
+@@ -6900,7 +6888,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	vdev->priv = vi;
+ 
+ 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+-	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
+ 	spin_lock_init(&vi->refill_lock);
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
+@@ -7205,7 +7192,7 @@ static void virtnet_remove(struct virtio_device *vdev)
+ 	/* Make sure no work handler is accessing the device. */
+ 	flush_work(&vi->config_work);
+ 	disable_rx_mode_work(vi);
+-	flush_work(&vi->rx_mode_work);
++	netif_flush_rx_mode_work(vi->dev);
+ 
+ 	virtnet_free_irq_moder(vi);
  
 -- 
 2.47.3
