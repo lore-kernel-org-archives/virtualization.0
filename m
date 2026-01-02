@@ -1,208 +1,246 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFC152EF660
-	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 11:28:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767353290; cv=none; b=Ghp3xZF+f+CsGEjGZ7NSvGVYYziHRO7dEuyctGQh9PeF/xNJxl6L7wx3xKMkxkWOgiswgOH5dFf8+kZ2Pk3qixGFaJbJhZpsMBLye0fOSMjJn2cO96ULIWNRaBu+KLKseCY2m5CBndDHZ2T5EUphFUwEzhFv46MnoLmPXGtlb+s=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767353290; c=relaxed/simple;
-	bh=MrA/iC6uXK00oFfnomIoFNL4cI3ON8WRR4eo/8OcvIg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ZVdEWecn1I/aj69evMKX7byOnl2gPI7iuZlhpNsXk3JQmqYIkVlS1ltg/Bx1sokJYt41nf99HLWI4hGqybnssVhzzjy8KfAUq6wKKMGbK3fq+rn3C87JZSlQyKm46lKNiBMlxc0aMakBwliFLBqvxqq2CspGYJzFund5v9U5Me4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dI7Lckbo; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA25930EF77
+	for <virtualization@lists.linux-foundation.org>; Fri,  2 Jan 2026 12:09:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767355757; cv=fail; b=SA5ntRZYpCE5bgbnwP1hoJ3oqr2IXOZwei2dYo/qcVH+k/YtNPJTHnsFulsupY0hwBeHt2e/FvN2Jv1uRyVfPHpQ4KSYrWtSqoX8CwPkhfF9USxclGA+pfUsx4dc1kLAy2hQqlP4KG78TcRShgB2DlMApA600tywzuns7qwa3G8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767355757; c=relaxed/simple;
+	bh=ikIfiLx3wYeHl77XkrAToDkCzB3NDyEWzOh/mCqo3lA=;
+	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=bpKTI6uWsqEbksMqR/8yr//erx7oT4KUJ5pTAagM9xlTY0/TYHLS010JxmIXWhPYcBP+XcGwun+3RWXNNL7QWaQEsW6zm9p4lp/v1A2pRcCRGB+meUYd4d0yl8r2hEIIklqPmBzklaXFG1vpUHrcJ0hBkPMUkHSFO98eV/ds5Ig=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=tNI2vE0z; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dI7Lckbo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767353285;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=a5KWW+w9vwNZz8IB9ClsEs76JwqPsCktHDEUEsy01HU=;
-	b=dI7Lckboi80iZ0dJA+V4RhW+wpynm253tVqDDXuJCj6HjExmVBNvNNGrpXtIRpKgLT+7CO
-	mae0l8IVAknqYOw4uK4WYleXsxbaljq0NheKwKGaIk8cTeKf8KxD2q04NFxt+Y1Mg57HiW
-	iPvmuEGn0bj/OwO+uTX9txKLrRIpouE=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-54-sFU7IRw0PO-JOzaA3u0aug-1; Fri, 02 Jan 2026 06:28:01 -0500
-X-MC-Unique: sFU7IRw0PO-JOzaA3u0aug-1
-X-Mimecast-MFC-AGG-ID: sFU7IRw0PO-JOzaA3u0aug_1767353280
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477964c22e0so88436425e9.0
-        for <virtualization@lists.linux.dev>; Fri, 02 Jan 2026 03:28:01 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767353280; x=1767958080;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=a5KWW+w9vwNZz8IB9ClsEs76JwqPsCktHDEUEsy01HU=;
-        b=kF4KRqtsB7VdlAIdihnow7rET5W1d8FNt3uO1wtx329BdWZAcVcYhYSwrkYL7PtUr/
-         pcsoYn14TaAGSyPXVDb2wmiFZZF1E29sBFRES0mBBnPOfhrq+YFzFimD1NcGA0UHHAUx
-         c1QDanDIP4GAa7ka6a6DkWc+DKT0VmzpCBU1Sq0Ookq7UiRYOnsZxaxrdcGAU5SrA0Qk
-         zwXf7PAYzRD6F13i0A2bi2SFUb1/PGomSreZfwPgvKc+yQzofbZN1LR0I8r03jrbQ0RD
-         kcx15RRBStU2i2YzeZtBZaDekRrNOw0IEyUIx4MlgqusFci6NXbBquSLoOg9E5+68udZ
-         qCEg==
-X-Forwarded-Encrypted: i=1; AJvYcCX6uZ6JOhCaZUMY1x6gjvuiHHLvScbVYONJkDsWLIx03QeWAVzpqxd7vAYUDis/4URHIvk/Dx3v43Lob15Lmw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzlzOwzjJDmRZ9cPaXUls3Q01ZuVWnN22Ri4ncFRea/3A8xtj0Z
-	mxb8h0WbFdfBAMBVrY96S7znbR0IzbTFJ8+a1bvmget4xLcc8HKur/9ELFw9Lwv4muCdQlPbNlQ
-	6GwV/sabv+38j62/DRFhF8pXX7yQRCGDcz3grDd8rVKwJi38vskdvfWXF5cCn74QWFxbl
-X-Gm-Gg: AY/fxX4c2odSz2oiA8fztcR0AHRjaN/AVio0ymFpll57j7D9UuK9SUlnaqnbKcLmwKZ
-	ol9oWxJtvvvVLSLjHGFuO2JVHs4lTq90P898JNIoE/GUOOF0EYRepPVB/b0p6r+bTbEmLNTkjsq
-	ZpLWV/TBpupRkdncIc73Z8VyqSST2UVUwbXXanQhrw4If6vHrxWf+Y3sIqU+r/kJc9NQQfq6b+w
-	iKnGe04/yuHKjWtRiI7A3fPEp8EGQznV++pwfYqvYZH7XB5gFk5JtrgwNK00DksqYnKeImdK0tA
-	eIXtakuwaEWNL62E2jFHWXpHpveuZcMVfoeh4UqBJbJXfq6EuJJTkEUPJLPvvst+7uNIzWax5lu
-	34WCKGtsubvFpM6NNHWaxZVuxOPAtaxUrGw==
-X-Received: by 2002:a05:600c:8b11:b0:479:13e9:3d64 with SMTP id 5b1f17b1804b1-47d2d273999mr523916875e9.15.1767353280495;
-        Fri, 02 Jan 2026 03:28:00 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGSem6shw7vwIlPX3e1/RTDoSJUqFE1OPFk1fBhHK+goG5CCxGxCuV653N1vyh7HUcu+1Ah3w==
-X-Received: by 2002:a05:600c:8b11:b0:479:13e9:3d64 with SMTP id 5b1f17b1804b1-47d2d273999mr523916635e9.15.1767353280022;
-        Fri, 02 Jan 2026 03:28:00 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47be27c2260sm769656105e9.15.2026.01.02.03.27.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Jan 2026 03:27:59 -0800 (PST)
-Date: Fri, 2 Jan 2026 06:27:56 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Kommula Shiva Shankar <kshankar@marvell.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	jerinj@marvell.com, ndabilpuram@marvell.com, schalla@marvell.com
-Subject: Re: [PATCH net] virtio_net: fix device mismatch in
- devm_kzalloc/devm_kfree
-Message-ID: <20260102062457-mutt-send-email-mst@kernel.org>
-References: <20260102101900.692770-1-kshankar@marvell.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="tNI2vE0z"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4DB86400A5
+	for <virtualization@lists.linux-foundation.org>; Fri,  2 Jan 2026 12:09:15 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id yCr_ZVBPYWXv for <virtualization@lists.linux-foundation.org>;
+ Fri,  2 Jan 2026 12:09:14 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c107::1; helo=ph8pr06cu001.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 616204007C
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 616204007C
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=tNI2vE0z
+Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azlp170120001.outbound.protection.outlook.com [IPv6:2a01:111:f403:c107::1])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 616204007C
+	for <virtualization@lists.linux-foundation.org>; Fri,  2 Jan 2026 12:09:13 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=dSZtnlqKfRyqMD3lBnx7gbp9RVdHhn441H+tz0q1k3RAv3xd3wmW6p7Y0sZdMlFbHhpKPTUTh1sNxhwFRq4yazAIyo50Wvg+MIhddgVp1lHRYsT/4OPyZSYweE/VeZHaJtC4FUJHNH1hv2PYwQt9Ro+k6Z9nVIkK/gdpjk6IuMEuohStKMLyIPviNktcRJXQDzWKXgqOc3VYOGGMB4R93SM+HQQC23ebEgImGROmsQkaeenLidXBr3xZ54vVb5q4MEiWuIBH0lPtrj0yRy5lIG0MSh8wQVm8phJv8yHSNVvB42yxmASbWSzG1byTP1wPIKCSCQNzj+awjcrQpXCrKA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=XMbItBKWMb2M9CwUHj6+GDk7nwmJpBtd+kHfj0vmiIg=;
+ b=GEa7q4a4RjKYmkqvr32igRUcgfGdEMouc7hd6FWhxGdQNbmznx2pRamPcL2nHcWdJjwNdoKGnKDUDSGC4AbUFLSEiwPuFOok7SddVuhSb/0wbyk5i4idp7yFGYj4pmOdEso81JEPp3HbJd/Ki7TOW/e1jc8fkS8p3oAIK+18+Bh/af8jTj27dTR8IkuRFh/xSo3TJYXVacHs3CB34GHjXGjrEio5Y6fgZn9WU/ZSa+lz8VYUbdOGVSCH+KPxK0X0CR+WHxBcEMHvs4uC0FgxVKL3EAvJWahT7ZvJlyDsJ8SDAqWHlC00775zGrDe+V9szN3aD9VoCCs5xcXsKj/XWg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XMbItBKWMb2M9CwUHj6+GDk7nwmJpBtd+kHfj0vmiIg=;
+ b=tNI2vE0z/erjjUh5IkwNY2a04IbAKhOM4+mr9V5Y19uUP0Pp2ku9oym3yOsYF1UkS+LUMsS0c9bzZ8ethcQLT9t7JPBsgssVFsx/RS4eQUebhusBCKyUUFi3mod5YeVLWugP9Q/24XBtpxYEir2+PP8Au9gLu8ogZcOsCd3c2P1If8Q7S00q0Bq9Kg/UwnMvBcATMFiOVYKwMMAmM58S/8Sz9BOJCZ8zpRGrcvdDhvoODv7ledM1yh7YhCCzk1t3PhY7z3U6vFSKpKTipveTvpTnRfyUpoNOxTKOQYd+8J2zMmubE6RNTewHM0S7b1XBUoe9zwPvD5gdElWpswSGsg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CH3PR12MB8728.namprd12.prod.outlook.com (2603:10b6:610:171::12)
+ by DM4PR12MB6373.namprd12.prod.outlook.com (2603:10b6:8:a4::7) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9478.4; Fri, 2 Jan 2026 12:09:11 +0000
+Received: from CH3PR12MB8728.namprd12.prod.outlook.com
+ ([fe80::7e7c:df25:af76:ab87]) by CH3PR12MB8728.namprd12.prod.outlook.com
+ ([fe80::7e7c:df25:af76:ab87%5]) with mapi id 15.20.9478.004; Fri, 2 Jan 2026
+ 12:09:11 +0000
+Message-ID: <09178761-3ff7-4c6d-bdf4-cbf16531d71e@nvidia.com>
+Date: Fri, 2 Jan 2026 13:09:07 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/3] vdpa/mlx5: update mlx_features with driver state
+ check
+To: Cindy Lu <lulu@redhat.com>, mst@redhat.com, jasowang@redhat.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ kvm@vger.kernel.org, netdev@vger.kernel.org
+References: <20251229071614.779621-1-lulu@redhat.com>
+Content-Language: en-US
+From: Dragos Tatulea <dtatulea@nvidia.com>
+In-Reply-To: <20251229071614.779621-1-lulu@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: FRYP281CA0008.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10::18)
+ To CH3PR12MB8728.namprd12.prod.outlook.com (2603:10b6:610:171::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260102101900.692770-1-kshankar@marvell.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XcgydfGqBFvSw2fNgZNIBl3LggTleJ6W2dYbUsiwpRM_1767353280
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH3PR12MB8728:EE_|DM4PR12MB6373:EE_
+X-MS-Office365-Filtering-Correlation-Id: 206eb313-bc99-4800-6122-08de49f7bcfe
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?ZjN5WmxZTkIrQy9LWnEzNG1ibW1JSENzUUtiYXZMNlNlWDFJVmxTcFpqbEFT?=
+ =?utf-8?B?ZC91UUw1d3RKMjhvb2FnUU9jVXJ6Q25YNHJqRUVzZlNiTkRMY3pSdlJRVlI0?=
+ =?utf-8?B?WUZVSGtLbjVSdHhQL3pRWGFxUnNhYnM5T3diM1RRRzN5Q0RXRVc1RC9DME1y?=
+ =?utf-8?B?alR3TCs3MXRheEwvUkhZcGM0RjIyeExySWVDWjEwSy9IeUtWSGRXV0NuRjJn?=
+ =?utf-8?B?dUptQzRXU21IYlUwMzN3ekRIU2J6VDdNVTcwTHBaNVlkTE1PcU5sZGtpYlRC?=
+ =?utf-8?B?UTFJSXRBbElXRmpyZUJFN1JIKzJmczdpU0xjWG00R0FIdXJaa2o5amV3Rm5a?=
+ =?utf-8?B?R0dubE9tOU1OMEVmazBDdmIybWtobzQ2aG92T2RGKzNBYmFRUXA1OEFMeUUw?=
+ =?utf-8?B?NUZJL0tITUVxZW0ybXgzeHAzZ3VycG4xSU1mOWdZT2FpbTR6Z3VCVSsxWnVF?=
+ =?utf-8?B?Ym9FdnNYdDZLbmgvYjIvWlNIMW9EaTJsYlpPVjRPRkQ1amg5bzBCc0ZhNDRi?=
+ =?utf-8?B?NkJoZWd4QXZQTTFJWmVHajRDckc5VFdoU3BUY3BOQ3k3WElZa1JHaTlIa1N6?=
+ =?utf-8?B?Zm9JTnJac245dHNkS20wUzJGL1RyaTdQeWczMy9sRDY4K2M4MzJWMVJYNDho?=
+ =?utf-8?B?SE5Lb2FoaHZOQ3VocEJ5MVRYKzhuR29WbVpvU2dzV1pKMzMzZHVRWmVJUC9m?=
+ =?utf-8?B?TVFkNU1xRjZMNVJuY3JIZW8yTVFFeTFtUDlYL1BlcFFnaVJJbGc1THV6U0E1?=
+ =?utf-8?B?VXBVUXVGYXV1ZHNCS2JjM0JmTmt1Lzk2M3VNVnpaRG1PaE94UTJqUkFRTGR0?=
+ =?utf-8?B?T0x2SHF0NDlYOU9jVUhlaE5IYStoZTM0VU56emhGYVlFREZ4VmRvZHJ5RHp5?=
+ =?utf-8?B?ankrTGlwN3ZQY3djc0NoYy9mRXZqZVNYUFdKa2pUYkFQTGdNdnU0NnJaY3Q2?=
+ =?utf-8?B?d25Ja1pRSE5kQXpaazhubUR3Szd0TUZuR2NMWUZ5MkZvZWk5MmRtOTJjR0tH?=
+ =?utf-8?B?VU1WeWhHQlFWVGZGK2pDSmU3OTZuSWZzUTBVNjZHTVlnOVRrbTVLcEVvL1Bu?=
+ =?utf-8?B?T3B4VzBrZTR4c2p1dmNEVldYWGNKU1NleTN4KzdWcXpTeUtva0c5dnBzcHY4?=
+ =?utf-8?B?dCsrdFcxZFBscjFwMysrOXV4VmVwdEJDUXBOamRoYjQranpYU245RDM5VnBV?=
+ =?utf-8?B?LzNoRHZVY3IxcnVQRGZFQ3dYTGVrNmtsRVRNeUJXUVpVMzA0TnU3aWlEd00z?=
+ =?utf-8?B?MnRsNlJYc1hCZ240MlJRNGFTb1pybWVTNkdlMFZrTlp5T1ZPdEk2ZUxMNjI2?=
+ =?utf-8?B?RGFxazY2WjVhdGlVZFpWUXNzaFdDc2F2UnhKMFdmUzFuUGdJTGpMRHlrM2Qw?=
+ =?utf-8?B?TjZoQVBzVHhwY2RidlFSTjgxOFlsbEpTVTZaV0lnVmduNDZuTWVVZlhsN2dJ?=
+ =?utf-8?B?TWJnK2ZiRm5GaVhHUlRFeGVYNktXVGNWL3RWWmFjY0N4M3lpN0RjbWF0aXIr?=
+ =?utf-8?B?YzJ4dUhIT1B4a2lzQjVpSEltN3pDYkY0cDJOcnIxV3ZaOEN0ME5lS0VSUDEz?=
+ =?utf-8?B?czRWbmVOTHc3Q1VXWUh2K3g1b1pGNGN0ZENUb1BWM21VaW5PN1pDbHhBZG9R?=
+ =?utf-8?B?a2JLWGdlQlhVb241K0x5dHBVVTBOV1gyck0xTXREMGRKc1k2bCtmUmVtY2tL?=
+ =?utf-8?B?YlBUR0JoK0MvdmM3SHBFNS9qbWtNZUFtNkFlZEp4Y1JCT2NKREhmRmxycUlB?=
+ =?utf-8?B?T1NBSE9lMjNVMmxnYTAyaittMnN5cGd0OC9NRzdaYVVES09wZTRhdFUvTllE?=
+ =?utf-8?B?Y2hlK2FlMGFteWhjVi9LMU1wVVpxRWkrT2V0TmhYU2dHcmsvRnF4aWtCNElE?=
+ =?utf-8?B?UlhkdFdmdzdQU013S0E1Q2svaVVtNGtuNXJ5WXhQRFA4dzRKNTdnSlRRSFlo?=
+ =?utf-8?Q?VOK2FzMnsV/m/yDZwF0m/zsTGMzBAVMZ?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8728.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?cHVtNGNMSURUczh3L3o3N002VnVlbU00REFiNVE1YTNqeUVXNE5sTE85N1NB?=
+ =?utf-8?B?QUwwWENQVEQzQ3RGY2IvWHlKM1hJM0FZazJkQW9RWlFRT2w5UlJ4TjU3QUtu?=
+ =?utf-8?B?T0YwWFVMRUVoUmxhMzdMK2RhdkUvU0RweG9EUzk1NjBTYk1NMEtsRG1nbTds?=
+ =?utf-8?B?SnF6T1dsdUVRNlFpSERHLzhVVUNoaEJQSmg2ZFBBZUtHQTJaelI4UUZlbDlC?=
+ =?utf-8?B?T2VtMng5Wks3SUhuNkNoOFgza2tuSzJvOU50OVlWeEJ2czcvRkVpNnAxdmdQ?=
+ =?utf-8?B?bFNhWEZ4WGtZRlFqb0daS2xzb1lUK0JVOGphMU1lazB5dzQrbXh6amVyeHV6?=
+ =?utf-8?B?T1pUYVVvL3p0b095dlpJKzBhbGZHYVc2MHBHUlVPaE1EVG9YQTVLejRQSm9y?=
+ =?utf-8?B?SFcvTDlTdDgwaW5IeVE2dzl2K2RtRHVkOW9xTFByd2UybDBWWmdocC9RVDlB?=
+ =?utf-8?B?SkdjRXlsQTR6SWhRcEV0MWJOSmdOYzRSeHl4aW9PU1NtM1UzcmQrV1dDdG82?=
+ =?utf-8?B?Q01Ua2RuTnE3bWRBQm04VzRkcUJSOUhYWUkrM0lHWm9KWExYOHJMS1FyVWNV?=
+ =?utf-8?B?TTlzQjYrSzZOYU4reC8yTTVDenB4NlMyeGp3OXFPSUtIczMyRkFrenFrNndl?=
+ =?utf-8?B?QzFVME5XV2I1ejdiQVdGcng1MkwrM0dXN3ZKN1JrZ3pFQ0gwRmVTRUJCTTIx?=
+ =?utf-8?B?TUI4SUdzcjNpMmVwL0Z5K2poMUNJcVA2SEVUYU9QTzlBZXNjbFBHazUyZ3Bm?=
+ =?utf-8?B?QnFiS3VuUEtsaDBueWErN1pFRVZ3VG1FbDZrUWtjR3NScTdwb3BDcGhCWWU1?=
+ =?utf-8?B?THNJbzlVbG00M0h1SG91cXJiRFhCZG4rczZoQ2l4Wm5ZL05WYWRIalZ3OXNS?=
+ =?utf-8?B?MXNWeEh0NWtSNm0rMm9YeUIzUTNpTTd5Q0pwT1puSDJNeGJvTG80bm0xRFE0?=
+ =?utf-8?B?MGZ3THYvaURNRm91TXJaeEh0MmYzM2M1NTNYa2JkZnlQdzAwVThDVzNFY2hF?=
+ =?utf-8?B?V1h1eFNLZVg3cGpkNGVjaEhjSUprREUxK2ZKQlpRMkpqZEJiUGV0QmxjVDRq?=
+ =?utf-8?B?dnJ2VGxzSExwWXN2QWUyRGN3WlVLVm5CMHRZWmg5bmR6Vi9NVlRGdS9TdXpR?=
+ =?utf-8?B?SEdkUVhReUFFelJPSmFrMFhlNVJTWlkvVVhpNWpqa3dlbU95dUx0M21TYldY?=
+ =?utf-8?B?aVNCNVNTUEhFL0VWbUY3L25sNXRxYUcxSnk5b1VaVzZadHRqS3owWWJqcG05?=
+ =?utf-8?B?OW9meUJWNDgxUEN5Y2JpTjhkbytxaXpPMGx3NGRqUjAxNTFPcDZJVlFFRnVW?=
+ =?utf-8?B?OUxxazBZT2hMbFZuUU5UWlF2MnlXenhGS1FCVVpSM3FyVWUvTDFJZlZxRDB6?=
+ =?utf-8?B?Q2ppRnVEUWJYTDlhTDBPOW15WCtxd25oaFk1aHZ6SHMwSkxWSzBGRlkzRm90?=
+ =?utf-8?B?U000ci9KdHczSCtuemNKVzJFWTA2ZTNEdlA0S2V1bTVvQk9KUzh4cWFWNXBy?=
+ =?utf-8?B?TmkwbC8rUUQrK05CSDZLbVpLTU5GYWUrYWdjWERXZFA0M1JOYjZpaUt4MFFj?=
+ =?utf-8?B?TlZhUXV6UDVTcDlQd1dOOUMzTHRtS0pMWTNDQXZCenR5UHlJYU5PQXBlZ29w?=
+ =?utf-8?B?aUZZR3RBWnY1SnhHUWs5NSs5YllLdmpudi8vZGhoSDdsZ1FpY3lVd1dvSUda?=
+ =?utf-8?B?UkZRSzlpQUhHeHFSbHFaYVNMYmNsZVFrVWhCaVIzdWlNRmpMalhJOTlicnVN?=
+ =?utf-8?B?R1djbktvQTBNNmpzWkNJeXBLNHNxQTBreEM2aEtuenUyVTNPYmg2RkVab01u?=
+ =?utf-8?B?SFdxanZ3cUErR2xSSXA5T2RmNUZxSlcxYjc3QVRUbkQvZVdCWUNjZTY0UU13?=
+ =?utf-8?B?SEVjWjVHaDdGRTFPR3FmamM5VGl3OUsvZmFzMUJJSmtMWVhxWjdubG1RTHN5?=
+ =?utf-8?B?K2tmeHRjQ2xkemFSOHk0V3hpODNZclV5bnBPeUtUcWhnek5kWmNaeFlsNXdT?=
+ =?utf-8?B?a2UvWjRPUWwrbDNwNVkxQStkSXpWbXRZcHh0YnYvazdZbUI2cHF0NmNsMlUx?=
+ =?utf-8?B?S1BQcVo1ZkRQSHh2cXU1dXcyb1RJb2N1VlNHNExnSnN3OVN0N0tLTGJqa2Rz?=
+ =?utf-8?B?VjRSSllFbUZGdXpRR2poZnh1RC9YMVRjOU4xUm0vT253bjhYbjVuSzlDNFFa?=
+ =?utf-8?B?dEpxZktOK0tPOHZJU0R3M0UxYWswTmhyN0pzSCtjSzIwZis2RVZYcENpRjR2?=
+ =?utf-8?B?cEdnK3VJTFgraVdMOVFsSFB1UVVCRlN5aVhoSEh3TjBYRFJzN24xQ3pHY1JL?=
+ =?utf-8?B?WEJPNktiV3ZxWWxzMkJmMUgvdHJBeDRWWCtGQTY0S1duUG1OUExmdz09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 206eb313-bc99-4800-6122-08de49f7bcfe
+X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8728.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Jan 2026 12:09:11.1507
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 6jlLDsdWCYKavx+tDKHIwmP7KRxmH8B2V+hmXCochpFza3B/hawdya+5iUyZglw2TqZA2uMX7qjE3Bkr9aFL+w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6373
 
-On Fri, Jan 02, 2026 at 03:49:00PM +0530, Kommula Shiva Shankar wrote:
-> Initial rss_hdr allocation uses virtio_device->device,
-> but virtnet_set_queues() frees using net_device->device.
-> This device mismatch causing below devres warning
-> 
-> [ 3788.514041] ------------[ cut here ]------------
-> [ 3788.514044] WARNING: drivers/base/devres.c:1095 at devm_kfree+0x84/0x98, CPU#16: vdpa/1463
-> [ 3788.514054] Modules linked in: octep_vdpa virtio_net virtio_vdpa [last unloaded: virtio_vdpa]
-> [ 3788.514064] CPU: 16 UID: 0 PID: 1463 Comm: vdpa Tainted: G        W           6.18.0 #10 PREEMPT
-> [ 3788.514067] Tainted: [W]=WARN
-> [ 3788.514069] Hardware name: Marvell CN106XX board (DT)
-> [ 3788.514071] pstate: 63400009 (nZCv daif +PAN -UAO +TCO +DIT -SSBS BTYPE=--)
-> [ 3788.514074] pc : devm_kfree+0x84/0x98
-> [ 3788.514076] lr : devm_kfree+0x54/0x98
-> [ 3788.514079] sp : ffff800084e2f220
-> [ 3788.514080] x29: ffff800084e2f220 x28: ffff0003b2366000 x27: 000000000000003f
-> [ 3788.514085] x26: 000000000000003f x25: ffff000106f17c10 x24: 0000000000000080
-> [ 3788.514089] x23: ffff00045bb8ab08 x22: ffff00045bb8a000 x21: 0000000000000018
-> [ 3788.514093] x20: ffff0004355c3080 x19: ffff00045bb8aa00 x18: 0000000000080000
-> [ 3788.514098] x17: 0000000000000040 x16: 000000000000001f x15: 000000000007ffff
-> [ 3788.514102] x14: 0000000000000488 x13: 0000000000000005 x12: 00000000000fffff
-> [ 3788.514106] x11: ffffffffffffffff x10: 0000000000000005 x9 : ffff800080c8c05c
-> [ 3788.514110] x8 : ffff800084e2eeb8 x7 : 0000000000000000 x6 : 000000000000003f
-> [ 3788.514115] x5 : ffff8000831bafe0 x4 : ffff800080c8b010 x3 : ffff0004355c3080
-> [ 3788.514119] x2 : ffff0004355c3080 x1 : 0000000000000000 x0 : 0000000000000000
-> [ 3788.514123] Call trace:
-> [ 3788.514125]  devm_kfree+0x84/0x98 (P)
-> [ 3788.514129]  virtnet_set_queues+0x134/0x2e8 [virtio_net]
-> [ 3788.514135]  virtnet_probe+0x9c0/0xe00 [virtio_net]
-> [ 3788.514139]  virtio_dev_probe+0x1e0/0x338
-> [ 3788.514144]  really_probe+0xc8/0x3a0
-> [ 3788.514149]  __driver_probe_device+0x84/0x170
-> [ 3788.514152]  driver_probe_device+0x44/0x120
-> [ 3788.514155]  __device_attach_driver+0xc4/0x168
-> [ 3788.514158]  bus_for_each_drv+0x8c/0xf0
-> [ 3788.514161]  __device_attach+0xa4/0x1c0
-> [ 3788.514164]  device_initial_probe+0x1c/0x30
-> [ 3788.514168]  bus_probe_device+0xb4/0xc0
-> [ 3788.514170]  device_add+0x614/0x828
-> [ 3788.514173]  register_virtio_device+0x214/0x258
-> [ 3788.514175]  virtio_vdpa_probe+0xa0/0x110 [virtio_vdpa]
-> [ 3788.514179]  vdpa_dev_probe+0xa8/0xd8
-> [ 3788.514183]  really_probe+0xc8/0x3a0
-> [ 3788.514186]  __driver_probe_device+0x84/0x170
-> [ 3788.514189]  driver_probe_device+0x44/0x120
-> [ 3788.514192]  __device_attach_driver+0xc4/0x168
-> [ 3788.514195]  bus_for_each_drv+0x8c/0xf0
-> [ 3788.514197]  __device_attach+0xa4/0x1c0
-> [ 3788.514200]  device_initial_probe+0x1c/0x30
-> [ 3788.514203]  bus_probe_device+0xb4/0xc0
-> [ 3788.514206]  device_add+0x614/0x828
-> [ 3788.514209]  _vdpa_register_device+0x58/0x88
-> [ 3788.514211]  octep_vdpa_dev_add+0x104/0x228 [octep_vdpa]
-> [ 3788.514215]  vdpa_nl_cmd_dev_add_set_doit+0x2d0/0x3c0
-> [ 3788.514218]  genl_family_rcv_msg_doit+0xe4/0x158
-> [ 3788.514222]  genl_rcv_msg+0x218/0x298
-> [ 3788.514225]  netlink_rcv_skb+0x64/0x138
-> [ 3788.514229]  genl_rcv+0x40/0x60
-> [ 3788.514233]  netlink_unicast+0x32c/0x3b0
-> [ 3788.514237]  netlink_sendmsg+0x170/0x3b8
-> [ 3788.514241]  __sys_sendto+0x12c/0x1c0
-> [ 3788.514246]  __arm64_sys_sendto+0x30/0x48
-> [ 3788.514249]  invoke_syscall.constprop.0+0x58/0xf8
-> [ 3788.514255]  do_el0_svc+0x48/0xd0
-> [ 3788.514259]  el0_svc+0x48/0x210
-> [ 3788.514264]  el0t_64_sync_handler+0xa0/0xe8
-> [ 3788.514268]  el0t_64_sync+0x198/0x1a0
-> [ 3788.514271] ---[ end trace 0000000000000000 ]---
-> 
-> Fix by using virtio_device->device consistently for
-> allocation and deallocation
-> 
-> Fixes: 4944be2f5ad8c ("virtio_net: Allocate rss_hdr with devres")
-> Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
 
-And not just a warning, it can be a memleak/double free, right?
+Hi Cindy,
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Thanks for your patch!
+
+On 29.12.25 08:16, Cindy Lu wrote:
+> Add logic in mlx5_vdpa_set_attr() to ensure the VIRTIO_NET_F_MAC
+> feature bit is properly set only when the device is not yet in
+> the DRIVER_OK (running) state.
+> 
+> This makes the MAC address visible in the output of:
+> 
+>  vdpa dev config show -jp
+> 
+> when the device is created without an initial MAC address.
+> 
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+
+Having a cover letter with the summary, history and links series would
+make the review process easier.
 
 > ---
->  drivers/net/virtio_net.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 13 +++++++++++--
+>  1 file changed, 11 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 1bb3aeca66c6..22d894101c01 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3791,7 +3791,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
->  	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
->  		old_rss_hdr = vi->rss_hdr;
->  		old_rss_trailer = vi->rss_trailer;
-> -		vi->rss_hdr = devm_kzalloc(&dev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
-> +		vi->rss_hdr = devm_kzalloc(&vi->vdev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
->  		if (!vi->rss_hdr) {
->  			vi->rss_hdr = old_rss_hdr;
->  			return -ENOMEM;
-> @@ -3802,7 +3802,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index ddaa1366704b..6e42bae7c9a1 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -4049,7 +4049,7 @@ static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
+>  	struct mlx5_vdpa_dev *mvdev;
+>  	struct mlx5_vdpa_net *ndev;
+>  	struct mlx5_core_dev *mdev;
+> -	int err = -EOPNOTSUPP;
+> +	int err = 0;
 >  
->  		if (!virtnet_commit_rss_command(vi)) {
->  			/* restore ctrl_rss if commit_rss_command failed */
-> -			devm_kfree(&dev->dev, vi->rss_hdr);
-> +			devm_kfree(&vi->vdev->dev, vi->rss_hdr);
->  			vi->rss_hdr = old_rss_hdr;
->  			vi->rss_trailer = old_rss_trailer;
+>  	mvdev = to_mvdev(dev);
+>  	ndev = to_mlx5_vdpa_ndev(mvdev);
+> @@ -4057,13 +4057,22 @@ static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
+>  	config = &ndev->config;
 >  
-> @@ -3810,7 +3810,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
->  				 queue_pairs);
->  			return -EINVAL;
->  		}
-> -		devm_kfree(&dev->dev, old_rss_hdr);
-> +		devm_kfree(&vi->vdev->dev, old_rss_hdr);
->  		goto succ;
+>  	down_write(&ndev->reslock);
+> -	if (add_config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
+> +
+> +	if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
+> +		if (!(ndev->mvdev.status & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> +			ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MAC);
+> +		} else {
+> +			mlx5_vdpa_warn(mvdev, "device running, skip updating MAC\n");
+> +			err = -EBUSY;
+> +			goto out;
+> +		}
+>  		pfmdev = pci_get_drvdata(pci_physfn(mdev->pdev));
+>  		err = mlx5_mpfs_add_mac(pfmdev, config->mac);
+>  		if (!err)
+>  			ether_addr_copy(config->mac, add_config->net.mac);
 >  	}
 >  
-> -- 
-> 2.48.1
+> +out:
+>  	up_write(&ndev->reslock);
+>  	return err;
+>  }
+The patch itself makes sense. For it you can add:
 
+Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+
+Thanks,
+Dragos
