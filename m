@@ -1,235 +1,192 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 707E730F533
-	for <virtualization@lists.linux-foundation.org>; Fri,  2 Jan 2026 12:14:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767356052; cv=fail; b=mDWpGCIeavo6KR8K3DS8HG1medwsH0CbKoPjtfOmZ7k5CGK0ezGEAJOlms12Qma4zc1XElXgH17xSGGYN12RiDCFfnbeX+q4ROeKY6Li1rgu/J7IEBBpNgIU0t8s6y8rXltRaVDCiJrMeAL+rO0sWHYKCNlP+cVx8g5v2d+ZVI0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767356052; c=relaxed/simple;
-	bh=hEOBqfIEBufsGBIa3dYKqXwHOhCtIYyvn4BN/kDCDn0=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=i/p5/WjsDSLGAbaxT4gRfDocIjTO2j2qAh5MCNbc4sI6L7asTvGYz5jdRqGnVbz3y1KqF/1yqyo+dyhe8UQi7p4fB4wCuNxzrvjDeQOw42S2eF4lzc9eX1iwCJ7PxbyVXwlkd6hZOXfFesvTcQpFpKzin2+JP4C591SrhfCqk7U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Si0Dr9Lp; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1760C30FF03
+	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 12:30:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767357012; cv=none; b=Xiz9elUJ+QWxHMBFurtqreM54XW7+eLYTLY0DDoCDaHOXTxMX+dETp12i312mM9kSJ5plGvQUSYFqXp32omRxWQqxz7xR6indY5fz+KoRaFYVYvPk/9BsGDtuR5PzRUTbitikAITBYtywQL2aiOOgDo46/o1/jUGBqJU08khCLk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767357012; c=relaxed/simple;
+	bh=AmaWQ5CXbUg3ciml/z9VJ5JFV4qJeUFdMIaYJrDMXlg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=o+e4KCUjWKBl/Fz1eF9Rs4wfUUJmJwJ6fHEqV03js7RnWlvBMxwP7O2vqFvNWjOTKLfKmFCRHPbQOP7xe2w9znzXjGLsF7eq+WibdPB4/6s3pPIpU7ZJfZrGHsTkcdVIsp43ICnetnW1dZsLD6H9gD3gwf8aII7ViFsVOvR5ErQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Yld8HJ4m; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Si0Dr9Lp"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E4F3780E6A
-	for <virtualization@lists.linux-foundation.org>; Fri,  2 Jan 2026 12:14:10 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id tUAlIVLEFlWj for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jan 2026 12:14:10 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c107::1; helo=ph8pr06cu001.outbound.protection.outlook.com; envelope-from=dtatulea@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org EC17480E38
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EC17480E38
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Si0Dr9Lp
-Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azlp170120001.outbound.protection.outlook.com [IPv6:2a01:111:f403:c107::1])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EC17480E38
-	for <virtualization@lists.linux-foundation.org>; Fri,  2 Jan 2026 12:14:09 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=B5GGNyoqC+kuHMI2flbP/evr9uqgKqcTdJmJx5gBvFpGGXTU+gLxvyXdF36Mg9zuJdLXSGiBKJK8K+NmPFOHMhZKXNC0y68C7LbR4sAUHTHxjxlMPp/0Zy5L0hl4Y1pn5De5zp/Kl0iojV2XhowPJWO1DdzGJWIC0fCD7uFVmyFYGQ+hYEUwGXsTm7xoKdkFcNG/V+bjkq3xtZMgqAdZBW90VQFOnrX3KyHpA7ODqIL3eVZ5SJgUNFwd4i5YLmsYacEiBprcAB+dc2+TYWYTgOUO24tkiOQW1KimxOmFFvA0+7xHJndZyROnh8G7Sb5d/trxmtyRSWDMbcaVmlm4Ow==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1/B1tyI/e5+EhzXBK6s8NoUl4VuEW+WM2Y/wyqJC/7k=;
- b=qMyqNGWzyiTNFCACwBsaQ0YtgD35gY2AIXgj49F4fNpUoutSAW3Z2Twp3adbUfai1hBWpJGNZNmia873BEpgplWIYYsq/qYUAUiXduF5CgwUnVtutkQp50/Xk59RhLj9TXQUkObIfXkm9eMFdIE/L7ZTqOWCOqMcFEnXoviSI91XzMZxWvMrVv73WLmz/ikJnBA/rVM0dxd0HhmhDcYdkgLzxPqT79f5dHyFQqVRJHhlIV782iAnUmThfi/DMBsvH2kzFdX7D8uozm+1VPs5g6QguLM3jK6Sv3KpK/II2C1aGj4b0JZf+g3l3+tKbeIE35Upm4a4FlfBCszZ5d/WwA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1/B1tyI/e5+EhzXBK6s8NoUl4VuEW+WM2Y/wyqJC/7k=;
- b=Si0Dr9LpUzlNL4gI1A2ySiJvs00ZOxSk8C0Bko4aCgF6cGjvYjiHuksXkV9hfil+wZD/2ig5PSDoo9zplCdAyFnkn279m7/0gMxCRg3/rWJlo6Dij31vMUw7FVRt6f2mP7pApqXbs4zJN2PRgFae+TiqASnUsys4uFk05SYLrdO2gP272rFrzub/t1QtBhgap8wIiAuGctFyY7YPGUAHTXCk/8iN+qAomI/BNIDCVOxy9RmqWUCCAKwW1b9gzgqFZ5d9rWqrgYCuf43kTp6DomFZUzD7NmWNMWZXCKuksUbHuxhjuLrt3Hg1qyPmz8TNT1ARmUixhcaducDm3AoKYA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8728.namprd12.prod.outlook.com (2603:10b6:610:171::12)
- by MN2PR12MB4063.namprd12.prod.outlook.com (2603:10b6:208:1dc::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9478.4; Fri, 2 Jan
- 2026 12:14:04 +0000
-Received: from CH3PR12MB8728.namprd12.prod.outlook.com
- ([fe80::7e7c:df25:af76:ab87]) by CH3PR12MB8728.namprd12.prod.outlook.com
- ([fe80::7e7c:df25:af76:ab87%5]) with mapi id 15.20.9478.004; Fri, 2 Jan 2026
- 12:14:04 +0000
-Message-ID: <3fa838af-4eec-441c-8739-020990d1826d@nvidia.com>
-Date: Fri, 2 Jan 2026 13:14:00 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/3] vdpa/mlx5: update MAC address handling in
- mlx5_vdpa_set_attr()
-To: Cindy Lu <lulu@redhat.com>, mst@redhat.com, jasowang@redhat.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- kvm@vger.kernel.org, netdev@vger.kernel.org
-References: <20251229071614.779621-1-lulu@redhat.com>
- <20251229071614.779621-3-lulu@redhat.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <20251229071614.779621-3-lulu@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR3P281CA0078.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:1f::19) To CH3PR12MB8728.namprd12.prod.outlook.com
- (2603:10b6:610:171::12)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yld8HJ4m"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2a1022dda33so98195225ad.2
+        for <virtualization@lists.linux.dev>; Fri, 02 Jan 2026 04:30:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767357010; x=1767961810; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=8BoW0bcmK/sCMsuQ6Inc10VNOGnxhb+hS2Ao4sv1iKQ=;
+        b=Yld8HJ4mrofVH7SeUM+HdUc8pEzO1TM/0xOvNf0Nj8GI7mvXuPm+3W/6HGjFTjXNlK
+         AXEmN+L5w19qbj7CtwiWI6Gb1uQzQfCG+1XfbT1czpjpXxGHQ/GcfPIcOVCJ+MFbkNl9
+         Yn1g6adILhqEgB6TzbaCKLyi0LoybLWdsG9Dh0Iz+dIPQFANY0ljPcnRXtgSX5LqB9n1
+         D2PIGPa2C4e7v3HoT6yO5Dulg6J88ZGiileAjnAnFxOFxCjYTa7ceT+P3rzdiTawT62j
+         uS2+pnn9cItFX7bOS3PNZF+TF3FF7VUjRxAfzntT0Sgi790t6MK9F0uxe1fgY6MbuYcA
+         4Rqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767357010; x=1767961810;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8BoW0bcmK/sCMsuQ6Inc10VNOGnxhb+hS2Ao4sv1iKQ=;
+        b=Uol6uLzTsU4GnqW1fOAWjZ0O9MIdMgnHdQ7ILECcLZtbdF48xipeIch8Sk5FB3UrGb
+         MtH9U3S5ar213u/AEbihdRaz2/NMYqPa1/NC+yZ14uXVWEpE9hxuov+vbzqe4oUkL42L
+         KydpgaE4sRYigHSVhJUhiYh3ppJln6kgWG6ie2Q7XvLyQ90MYfK/kKu1o8ivDfFG02re
+         XJ755gPpIGsS+6eRLvTV2IlZYx0WTTshd6gnU38+9IigxZIBUu6WSHgPkIrmQZqiAv0h
+         bPYpVi/fKlmZRFt3Cezk0gUkIIquy/7AmZwhLDaod7JyiK94BQ83xIqeX+1A5rrn3de/
+         AjaQ==
+X-Forwarded-Encrypted: i=1; AJvYcCViXGj7DhDH/kN4+zL6RYJEWVwFGJkgO+JQug3810aYKlIyErDdixA5emP3k3p9MwnOThWakicn0bj2GELzdg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyaxasENvKJVt6aD0pDz8yDGfIWUveaRMsTLzn51IaRmbzC4a/T
+	/PmSjqReUvmX/b2qPaqim3lvOKW5UMkj5uJe5dn5xFCwbx+4RKesgG3MD7nc8hZJtH2mWZIF1H3
+	2cQ3FmSacLypI8ynrB+b3wKuTqFYe4OY=
+X-Gm-Gg: AY/fxX7VE/jPTB9Y8YWxIwspoR0w22EwhZ+S4u3zo5r9X14hDLYE4kX6B8MhO0mV8XT
+	UmVvVB7/Q00wt9Jsk6Q9JS1r81a5+qDRf1qH68evwfPeFbQkV4tDxFT0GTLU8DKHk/eGYPSc6bO
+	spXiLVlre5mAyXdh0Dr2BQqfTj4OYK4Y2v0S5dO4wJl6dlVgOm2JibUk7PBwUdp/1OtZd2hge/u
+	0DJ4g6hMFCv3VSl5N2SHTjzTFePhvl6mab0V+S9RM/GI0S1lmR4WSjNi0YmHgKBjR0Z8yRh
+X-Google-Smtp-Source: AGHT+IGx+INPR/R4gVPyo42+4do1Mx5vMHRBzkq/BpyzBu528TDuEHQ9iOd5kFbLBxSrkiHob0RQ7Fq1B4FWfMYB/Ro=
+X-Received: by 2002:a17:903:2b0f:b0:2a0:b02b:210a with SMTP id
+ d9443c01a7336-2a2f28368c1mr434803905ad.37.1767357010333; Fri, 02 Jan 2026
+ 04:30:10 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8728:EE_|MN2PR12MB4063:EE_
-X-MS-Office365-Filtering-Correlation-Id: 105ad3e2-2bab-49ec-2ef2-08de49f86bfd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?dndWdllmTVJjUHdVZThwN2NlWFVwUlcrbmM0L2FveFFPOVhKd1ZkQndQbmlt?=
- =?utf-8?B?dm5GNFROeWZNQ0Z1TzdmTmFpK2IxcGRSQTBUekNOenFnVHdBM24xdkxKeGlt?=
- =?utf-8?B?eG8zazZRdnFnNi83dm5CeFcyb2xhQlJOR2c5YWk3TGQ2RklKRGtmejZTaGp0?=
- =?utf-8?B?OG4wK2lOVEhTeUpZUDN2b0xoUHoweE14djhPVms1SytIQUplWENQdVJwczBq?=
- =?utf-8?B?MkV3YTZBQXJFZ1M2bnFJNll0Z3RhWXd0N0h5VGNLLzB0ckxnZlVnUk9NdHhN?=
- =?utf-8?B?NFo4dEx5ZnVITU5QdVNoNXBGS3FyTHlQYk0zRUlLcnhtTWRMdWtRNUVUemo4?=
- =?utf-8?B?VWFMZHFaeWh4eWl4TmEyRXkzbkNIajJrQm9UbWVpNHVjVkFNODI5VzI5SFIw?=
- =?utf-8?B?aFNyRFZESFNIZGMvaFRNc0RVTkxhbjFWeTFkNXFsNEVOam8rT1Z3bU5mQ3Fy?=
- =?utf-8?B?R2VtMEN1cG9IUDJPUnozeXR6YWNWTjRodkg4cG93WTVHM0o4K2ZDVnhuWC9k?=
- =?utf-8?B?bFJlb2hFdjIzL3B5LzZMOUNGVWxMbUdrT3ZrUHEzeTQwMUNBM21MY2piT3JC?=
- =?utf-8?B?OWFoeVVEeDV3V0lIcXZrQzNJSHVseUQvQUZpcDlSTkptVERQV0tYbFA1MnVJ?=
- =?utf-8?B?R2JmTExFVmpTcXBUaERzZjAwVXl1ZFI4aDhET0VaRWlQeUtiVThPc29jSGZG?=
- =?utf-8?B?Tzh0bE42WjhiK0c2WkdtZ2ZDMUpjNlBqTlNyTVo3STZUUzNKcG9ESGRoM3Yr?=
- =?utf-8?B?aVhsSkFjS3dabEpYOFR2UzM5MGJHMERRSGNvWU5Ka3VHTnZLQy9MUFErYkZ4?=
- =?utf-8?B?cjh2VmJ0YkhGSGoxMDgvMzh5eVhWOVM5c05KWFlRd0FDaThSNG02RmtoKzR3?=
- =?utf-8?B?Nlordm8rcHo3Zko1RXZnV3FTNGhESVdQWWJ3aTNua3ZRUFdJRU9FRmNhZ3Vt?=
- =?utf-8?B?RWUzY0trMEprS3RXWmxJcm1ScThvem00dVN1Nk1vQUxYV2FqTHU2cXU1YUlw?=
- =?utf-8?B?eGkyTENHY2NiSVFtQm4xdDdNbkVhZDFyeXZPUXgyRUtDNGtqN2JBbDhDV0g3?=
- =?utf-8?B?aVJkTmhlMitoQWpNdlFvT3NYR25xc1FPNmVsK2tjNXNIdnRpY1VEQ0R2ME5C?=
- =?utf-8?B?UXZkenE4YUZNUWw4aXd4R0hHS0hSTlROTUptT1ZNdjNMckxMSjhoWVdyTHRt?=
- =?utf-8?B?WmJYUWR3MVhzY1MvNEdYMDNYcnZXY3hLclRlV3NQZHpLUXdzcnEwaFBDSU5x?=
- =?utf-8?B?cnZkWW14OHM3Q1pGb1VpaGJQZis4bC9jdHl5L3d5Z3NCbTdIc29VbzdQOVJS?=
- =?utf-8?B?Sy90ZW1uZ1J5SkV1RnpIOXN0NkhFQjJsdFpKYnJWNjZjS3ZoZmRQM0lncDQ0?=
- =?utf-8?B?WlNVSFVnQ0p4d3RuLzd3RmFPN0JhTVFaeWpzWmwvblZ3eGMwVVhuYld1dkRU?=
- =?utf-8?B?RlIwU1FKbkhoSURFdytFL0dxRDFISHZGZ1ZpalpES1cvSmNsdHlOOGJhNms5?=
- =?utf-8?B?bVhCYm9mcTh1UStFR0hZSmYxRGlFSVpvSE1kRytzNlQzSnNudGpFeUsvdmRN?=
- =?utf-8?B?Z2owKysxNFIzYVJRanM3TTI3LzQ4RWcwY0RWSG44QmRtR01yYk13Q1pFYWZt?=
- =?utf-8?B?WlQrQVVwVnNuNThUblAyUGcwcEZURzdhZFJCVUg5Y0xrcUo3cCtoeXFWT0hR?=
- =?utf-8?B?Q0Y4NDVRQU1nM0Z4WE5GdkQzeWNBSUx2UWR4eHdncEl5T1RjK1RBMGlIa0VL?=
- =?utf-8?B?RXZWeG14ZFhaa1pUeFdyOGgxakNHUG5xMDhYa0lsVXpXZDJnbHFnRktqZDJt?=
- =?utf-8?B?dEQ4KytpNldKZ2NUVU5Jczk4UlRPMXh0ZmNKakNuVzVZdndDRFVuWHl3em43?=
- =?utf-8?B?bnBjYk1NVW95VzA4b0ZVaVBza3NYSXhYUWJSWVZKSHZHaGJHTjYyckszbUMv?=
- =?utf-8?Q?wCEnECFHVq6BRoTOMNhyHj7qDrcK5hEE?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8728.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?R2I1Z2dNc1UyMExGOXJGRzAxR0JZSFYrNW52UFNkUnRpR0xxeXRmUXJ5OVJt?=
- =?utf-8?B?cmJodlcwSkE3bFl4dU1Zc2loTFRIZ1NXcVUxbGFvVWN0OFVMeUdVY3dETVh4?=
- =?utf-8?B?ZmdjcWJ4ZzI2Q1lyVzl0L0d4blM2YkVQYmhqMHBwREtrTDVDMElQSGRiTHJB?=
- =?utf-8?B?MXozblBzbEI1ckRPU1c1ajQ0anpVeDR6TjVKZk9MMGdmSVVtUm5nUDA4cmM4?=
- =?utf-8?B?YTRjSVVaNVhGVHI5UTUzcG52dEY2T2NpU3lGaWtTQVgyYW1WcHdGdCtab1g0?=
- =?utf-8?B?MDBUUlhJdFFham10dndhWGhTV1k3ODd3NWlsc2lDNW11SE1RUytzc29JWjlS?=
- =?utf-8?B?MkxQTHZZZjk2TmZtbmZrT0ZiK2oyYjBQcDJselpEeVNKSlphKzc0RVNNSHZQ?=
- =?utf-8?B?VjFYU1prVjBwNkkvRjRiblJlK20yMGhPRmxIS3FiZVFZd2tWSE8xRlFlNHZL?=
- =?utf-8?B?elhxL0JUaW1GVzJuUWgxSmVTVENmR2NlazRKVjJPN21KQ1BTdkFOcTMzelFL?=
- =?utf-8?B?Y2VLcjRoa0dzOHprYzBpVDI0T2hjb0J0bEtCNDl1M1FYNC8vK21NSGg4NzFX?=
- =?utf-8?B?QStvVXIvb3BydU9LQVp4U0VJaFc4ZnBrQmFISHFyOHJsQysrNE9sUTUrNjkz?=
- =?utf-8?B?eFBDYkJMY2dQeHBSSkU1THdNUGI0bFYySEFyclRueTlybVlrSU5WYnYvbjll?=
- =?utf-8?B?dE9CMmttbk5BVWQzQ2lkOG1nT0pma1p5SGJvdlQ1c2I5c29EMmpXU3Yyb2xv?=
- =?utf-8?B?OWNZSUdJdmRYeUJTZWp1alduSVlIRjZQbENCeTk2MlEzQ3EydDRNVVNoU0U0?=
- =?utf-8?B?WGdkVnhFaTIyK2hyQ1NLcjJaRmFmTWZTcmlLU3lZTVhyK1NXVk9GU1RPWC9m?=
- =?utf-8?B?d3cxdnNXSk5MQXpKdlRJQk52cWpKbHRzN3RZMmRFT2ZNV3pybGUyd3VvUDBC?=
- =?utf-8?B?bW10Y1c3eDhCSGd2V1cvNGo3T2pqcXZxclV4V1BINUMrWXdwa1U5ZXBNUnk4?=
- =?utf-8?B?ai9Lc01LQzE1SEQyZzBwZE5sbUEyaU1IQXYvTCt2Rm9CSW11MXJzOW5iYnBa?=
- =?utf-8?B?SktFK3RpL0dnTmZpc092Q3h1SlE1OUtvS3pGWDF4MzhRNlFseDNQWkI2QzB4?=
- =?utf-8?B?dWE0QkY5eE8yQ3d5L0U5UW5KTzhiMHQwN2JzMWtpRU1MUnpMeGFSUmNsV29q?=
- =?utf-8?B?U3VqOFZROEwzZklZdkJGaTBLdGQzb2pKUmlJOXloRkFYaDMrSTdOSEVTUlVr?=
- =?utf-8?B?d2Y5U3g1UHVRL1VDaDFtNzVYNW0ycmQ2ck0za1pCNzdLZnJOUmpqaFdTbUFE?=
- =?utf-8?B?SktKVis0ZjRCZUVyZ0R6cUZzSUJJbGhlK2NiREdqNStWcmdjRWRFclVKdXBh?=
- =?utf-8?B?bm9MZUEyMnhEdGtScFpubk5oRjNvcDZWNElkRFdSYXY4WlBJUmt2TUdib3RS?=
- =?utf-8?B?dWlEbW5vS3I4Mk5jSnlmWXk0M0g4dXA0WWJ4VDZmZEhPd0VVM2h5ZmFIaTFB?=
- =?utf-8?B?UXFaRDZzc2s5dEpTOUdsZnNCb2Q1NGpuV3Nldk11Y3ZlamY1NmgyTkduRCtl?=
- =?utf-8?B?Vk0rc3o1WHYxcjdQQnZEN0RQNWdzSkRqb1hlOWFVbi9MWmgwNDRmTHRlS3Nw?=
- =?utf-8?B?Rmk5cEE0bVkreDRVRzVqQWZUWFdlOUpmQ0NOb293YXVDMVpmWWpDY0xjay9h?=
- =?utf-8?B?aW1mWnk3Sk1jSkltTXNBb3hrcWtTU3lIWTlwZzFtTVZJNXUrQmIrMGw1N1lu?=
- =?utf-8?B?UDBQbG1KSy9GV2tCL1QwdE1qdXVhZlVuVXBMTUtVeW56a2YzUlp1SVVEVCtP?=
- =?utf-8?B?WlRIaHdjZ1RZMFZYV1Z1cTJzZi9hQWc2ZmZMdnRaVkRyN2gxWnNaMlptU0gz?=
- =?utf-8?B?KzhZdndZOEdrb3pISE9hZDBBeFc4WkJoaTByVkZ2ZVVzS2FPWGozNURSN0lm?=
- =?utf-8?B?aWNZblhJOWQ1OXJvdWM3ZHR5SW83TC8vb0dUckdTMk9MMEdZL0NzSEVheE1R?=
- =?utf-8?B?NzB1Ynh1c0VDdFpwK3pkRTJqc1JIcDltWE9TeFE0U2RNcG41SEJUL2pBeHlG?=
- =?utf-8?B?NFViZjdaYTMrOUh6VHp5WDhyaUdCZmwzb0VRRTJNQ2hiVDlVRkpZdjZMTERw?=
- =?utf-8?B?bG50S2g3djNJb2RMM0ZiZXJmV0tsZHEwYXBERXk1WWJsc3FhN3JHZExMNzZa?=
- =?utf-8?B?a0EvTzlhWVNDcVdaMG1nVVR2VXBBQTlrVm9icjl0S1l6MjU2QjVUUHpsTnE0?=
- =?utf-8?B?UEVES09KOFk2cURjemxFZGlUT3BHK2poRkZDaFdVL3lzdU1MMGFBckU0Wkc5?=
- =?utf-8?B?TklKRXEvcXNGU0dKSGYzQVhmNnA5aDB1d2NNVWtGbmwxcXp3cC9DZz09?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 105ad3e2-2bab-49ec-2ef2-08de49f86bfd
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8728.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Jan 2026 12:14:04.7889
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 4FxX8cxUtsc3IEnOUDFaE6VjCxw8wymicrEX5mXZGXMh6aomrkx5Xqybuy+GspS+50tfcLf0lETKMJxClXCz2w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4063
+References: <20251225042915.334117-1-me@linux.beauty> <20251225042915.334117-2-me@linux.beauty>
+In-Reply-To: <20251225042915.334117-2-me@linux.beauty>
+From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Date: Fri, 2 Jan 2026 13:29:59 +0100
+X-Gm-Features: AQt7F2pkDTCumQCutZu713NbzDLbaUdN-VN1zrM4hEgQJfHH3moax5fk1W1gX08
+Message-ID: <CAM9Jb+jvbEQ48=abnQDKwtTEBtuJ0im8SVP+BwTQz-OLh9g6mQ@mail.gmail.com>
+Subject: Re: [PATCH V2 1/5] nvdimm: virtio_pmem: always wake -ENOSPC waiters
+To: Li Chen <me@linux.beauty>
+Cc: Dan Williams <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
+	Dave Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>, nvdimm@lists.linux.dev, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	"Michael S . Tsirkin" <mst@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 
-
-
-On 29.12.25 08:16, Cindy Lu wrote:
-> Improve MAC address handling in mlx5_vdpa_set_attr() to ensure that
-> old MAC entries are properly removed from the MPFS table before
-> adding a new one. The new MAC address is then added to both the MPFS
-> and VLAN tables.
-> 
-> This change fixes an issue where the updated MAC address would not
-> take effect until QEMU was rebooted.
-> 
-> Signed-off-by: Cindy Lu <lulu@redhat.com>
++CC MST
+> virtio_pmem_host_ack() reclaims virtqueue descriptors with
+> virtqueue_get_buf(). The -ENOSPC waiter wakeup is tied to completing the
+> returned token.
+>
+> If token completion is skipped for any reason, reclaimed descriptors may
+> not wake a waiter and the submitter may sleep forever waiting for a free
+> slot.
+>
+> Always wake one -ENOSPC waiter for each virtqueue completion before
+> touching the returned token.
+>
+> Use READ_ONCE()/WRITE_ONCE() for the wait_event() flags (done and
+> wq_buf_avail). They are observed by waiters without pmem_lock, so make
+> the accesses explicit single loads/stores and avoid compiler
+> reordering/caching across the wait/wake paths.
+>
+> Signed-off-by: Li Chen <me@linux.beauty>
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
-> 
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index c87e6395b060..a75788ace401 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -4055,7 +4055,6 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
->  static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *dev,
->  			      const struct vdpa_dev_set_config *add_config)
->  {
-> -	struct virtio_net_config *config;
->  	struct mlx5_core_dev *pfmdev;
->  	struct mlx5_vdpa_dev *mvdev;
->  	struct mlx5_vdpa_net *ndev;
-> @@ -4065,7 +4064,6 @@ static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
->  	mvdev = to_mvdev(dev);
->  	ndev = to_mlx5_vdpa_ndev(mvdev);
->  	mdev = mvdev->mdev;
-> -	config = &ndev->config;
->  
->  	down_write(&ndev->reslock);
->  
-> @@ -4078,9 +4076,7 @@ static int mlx5_vdpa_set_attr(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
->  			goto out;
->  		}
->  		pfmdev = pci_get_drvdata(pci_physfn(mdev->pdev));
-> -		err = mlx5_mpfs_add_mac(pfmdev, config->mac);
-> -		if (!err)
-> -			ether_addr_copy(config->mac, add_config->net.mac);
-> +		err = mlx5_vdpa_change_new_mac(ndev, pfmdev, (u8 *)add_config->net.mac);
->  	}
->  
->  out:
+>  drivers/nvdimm/nd_virtio.c | 35 +++++++++++++++++++++--------------
+>  1 file changed, 21 insertions(+), 14 deletions(-)
+>
+> diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
+> index c3f07be4aa22..6f9890361d0b 100644
+> --- a/drivers/nvdimm/nd_virtio.c
+> +++ b/drivers/nvdimm/nd_virtio.c
+> @@ -9,26 +9,33 @@
+>  #include "virtio_pmem.h"
+>  #include "nd.h"
+>
+> +static void virtio_pmem_wake_one_waiter(struct virtio_pmem *vpmem)
+> +{
+> +       struct virtio_pmem_request *req_buf;
+> +
+> +       if (list_empty(&vpmem->req_list))
+> +               return;
+> +
+> +       req_buf = list_first_entry(&vpmem->req_list,
+> +                                 struct virtio_pmem_request, list);
 
-Thanks for your patch. It looks much better like this.
+[...]
+> +       list_del_init(&req_buf->list);
+> +       WRITE_ONCE(req_buf->wq_buf_avail, true);
+> +       wake_up(&req_buf->wq_buf);
 
-Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+Seems with the above change (3 line fix), you are allowing to wakeup a waiter
+before accessing the token. Maybe simplify the patch by just
+keeping this change in the single patch & other changes (READ_ONCE/WRITE_ONCE)
+onto separate patch with corresponding commit log.
 
 Thanks,
-Dragos
+Pankaj
+
+> +}
+> +
+>   /* The interrupt handler */
+>  void virtio_pmem_host_ack(struct virtqueue *vq)
+>  {
+>         struct virtio_pmem *vpmem = vq->vdev->priv;
+> -       struct virtio_pmem_request *req_data, *req_buf;
+> +       struct virtio_pmem_request *req_data;
+>         unsigned long flags;
+>         unsigned int len;
+>
+>         spin_lock_irqsave(&vpmem->pmem_lock, flags);
+>         while ((req_data = virtqueue_get_buf(vq, &len)) != NULL) {
+> -               req_data->done = true;
+> +               virtio_pmem_wake_one_waiter(vpmem);
+> +               WRITE_ONCE(req_data->done, true);
+>                 wake_up(&req_data->host_acked);
+> -
+> -               if (!list_empty(&vpmem->req_list)) {
+> -                       req_buf = list_first_entry(&vpmem->req_list,
+> -                                       struct virtio_pmem_request, list);
+> -                       req_buf->wq_buf_avail = true;
+> -                       wake_up(&req_buf->wq_buf);
+> -                       list_del(&req_buf->list);
+> -               }
+>         }
+>         spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+>  }
+> @@ -58,7 +65,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
+>         if (!req_data)
+>                 return -ENOMEM;
+>
+> -       req_data->done = false;
+> +       WRITE_ONCE(req_data->done, false);
+>         init_waitqueue_head(&req_data->host_acked);
+>         init_waitqueue_head(&req_data->wq_buf);
+>         INIT_LIST_HEAD(&req_data->list);
+> @@ -79,12 +86,12 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
+>                                         GFP_ATOMIC)) == -ENOSPC) {
+>
+>                 dev_info(&vdev->dev, "failed to send command to virtio pmem device, no free slots in the virtqueue\n");
+> -               req_data->wq_buf_avail = false;
+> +               WRITE_ONCE(req_data->wq_buf_avail, false);
+>                 list_add_tail(&req_data->list, &vpmem->req_list);
+>                 spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
+>
+>                 /* A host response results in "host_ack" getting called */
+> -               wait_event(req_data->wq_buf, req_data->wq_buf_avail);
+> +               wait_event(req_data->wq_buf, READ_ONCE(req_data->wq_buf_avail));
+>                 spin_lock_irqsave(&vpmem->pmem_lock, flags);
+>         }
+>         err1 = virtqueue_kick(vpmem->req_vq);
+> @@ -98,7 +105,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
+>                 err = -EIO;
+>         } else {
+>                 /* A host response results in "host_ack" getting called */
+> -               wait_event(req_data->host_acked, req_data->done);
+> +               wait_event(req_data->host_acked, READ_ONCE(req_data->done));
+>                 err = le32_to_cpu(req_data->resp.ret);
+>         }
+>
+> --
+> 2.52.0
+>
