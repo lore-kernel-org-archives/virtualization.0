@@ -1,167 +1,191 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 974102D321D
-	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 08:15:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E43E621D59B
+	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 10:23:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767341707; cv=none; b=f64UGVCyAjOn5Dg8FdHSFMAk/kIMN+3+zNi6LWVrk19ICL8yjP2yqVG3KI2Hfl7uDC6laQT51D+1r+h64QW65u25XXWsYsLcqP4MJXG9JcAZb8wGI+OdOIQdFu4pvstqk0Su8g2y5adTWsz/xXveJ3DlMnSsF46Kj7G7GfBocn8=
+	t=1767349415; cv=none; b=cluRvFAvJ6e9tnq6WrTGWfWAJ8MeOGWUMj/6u+fAqetH9muYk/NFS+Hoh5cYMr0Zoz54Yju/3zkfc5SzGAVpkSZEyWuHs09qmM53H9aYbhBB1XOnZnrnvNcKVFDOoJTHwKISvTj1MhwC2e/EENU3vDSPPNOsbhGWSXp+Nf9unsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767341707; c=relaxed/simple;
-	bh=pR9J2JcpyuSslYDA7lsLX4ZhILZRZva1Jx7LQCRL2xc=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bo9VcTY6+fiQVK43tNWQVbJp54c6p/3D6i8gQ16FcTQP4pcOy4J/qkuNbJGYAJl5Q7TM1j/B8YKTB2PPeXpo7Np/Z6HR2Ml8G/LEKb77pDsg1VID6Q5HkOlUzS2Nzf9kTtBBIXvggrFPIQk83FWGRqRGKBXfXtYD3eJZjpcDNJU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Q0uwNX9I; arc=none smtp.client-ip=209.85.128.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1767349415; c=relaxed/simple;
+	bh=ajTWQQ+q5aAsOe+jXvHdnyff4T9nCaiiQ2anKx0DmFs=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=a0Vu3vCwgLMb1hMhokvb4Zyk/QgZPQLrgIp//K/WdES5UmuefJ7gWeznQmJcsOy+J9W2a5e6uCmO+eQyGUFKn4fLsgMI2qLBr1be8aNg2+cl2PmjiPKWUV6YE0R4cQvhBdU2pqnePlqJfjQtVx3/tCXfB0AXgG2O+ZFKjgteZOw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=Gn52lJeU; arc=none smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Q0uwNX9I"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-477aa91e75dso12208685e9.3
-        for <virtualization@lists.linux.dev>; Fri, 02 Jan 2026 00:15:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1767341702; x=1767946502; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7B5OROvqw/DgiaRfLYZJf4GjF/wj6CLJOtpsQ8Z+Uq0=;
-        b=Q0uwNX9IlV/kORm8jgAs+Q1ETb6NYhTb9wSaDWfef4NJ/nWrAnH1julBwuPqwmv5ip
-         yDBbRdl5cmjrAMa1hRvahM2hqQFUcQQQzSpYb0DxP6nnGw05MBvQV887ZJrO/oqU4vC5
-         L7CE6nx4GWFlkcwe+TxTIeQfnW8TuCle2yAbi2Mzk9Mu46b+LYD4VgaGLW8Yd7RyNLSD
-         k7DCUyHhaOck1DZR62qWUmqkx3cVGVUw4HJaWEBf8LW1WBgxvOoRPAJMzYk5PLieftuh
-         Gvpxiv4Cx0obZV+JYoAYZkv1EL8PQ8A+EMaq6z+UaEaDSFLW96P0TGIv1dykmTg9CIXZ
-         kcbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767341702; x=1767946502;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=7B5OROvqw/DgiaRfLYZJf4GjF/wj6CLJOtpsQ8Z+Uq0=;
-        b=DBlc6w38PIARgG3jRVbtWoUyUdnFEBYtU5Q2KU4+auV8NxF6aE0tLF6/T0LCLVuJeH
-         5mzGLts1IjzJUNVu4Mx0VSxHXFmP5PInQqWVtudtITo0fq/y4k5NzFIzf4jRqsGS0x3J
-         XF/D2oBT5NtCHkYy89Av1LYBdrm+Ycrl56JVeK47DJgNidjRN1adiuFIIy6a5GTctofZ
-         iGX1xbhFYJjDCnIISi4d+ct/bgMl+gIYtaOWorGvJDERSdc2WOcNG13ceRNlzr6mcovY
-         wpq+2gJn8NWKFfyjGb7voW4//hV6HKziOto3JvJoF2YOQ6rST1mhUHbGCViIt8XSRBdm
-         y3Bg==
-X-Forwarded-Encrypted: i=1; AJvYcCUNYbXwTP97tbOFLvcZeyih37jkcCwDzD9dVPs1BHQN8/Zy/tYzcxq1NPnypr5ZHfgYlWS3ULv+MjUds1t0ZQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yysc9Z3WYXNpJQqbofLKNRYY/pjxl9bHeLxPQHnQc4zxgQQjcwG
-	WIzE9/bA8VW8oAhFUxrgUEG3r4KKLj4deLwMz+Vemz64M4Za2HTxxddROhEMC6y0bt4=
-X-Gm-Gg: AY/fxX7BZpvzf0CbmL1AXOvMDVBKOWevxJJUM7XI9e/HeiS9On1nnGPaxKApKengXxQ
-	36rzzn6uxa+sZ5ELXY33dcrOSoqH1H1SWAdYIMnleSZzPI40D01mLcnn3AVrIblXqePn7blKwUM
-	lEzFIjkSlPeMiPzjLymWn+a+FMEOXSEYoRODbKQulIZH8Sb8mwkIP1TJ1YpyFSbmhkU9l4yMT2Q
-	S0FYBxrPqROmPeCPmuDCmC99N9B6ZgKeMLXDdEnmaISvF3JqVyvrvXHKTVkAv4vJhJVuiMxZ569
-	ZAqkn/9Od8dr29SVT6n6nl4edXr95M7Zu/o6phK3opoAx2BJh5R5+jDRJLUCDXAvuyeWkeywHer
-	2s3FnMsRikiNgOJrWsjAogu/kh0dDImjwHmlh19UQ1HAZrN3/JjMbmcBjTU/1Lt1L+tHC1naV3Y
-	VpN71Z8Tob1XhgzV5ygGBzdBTCzZuwd1eveSi/J5KPUZgRBMtNbQdMLbnrEnde+iMKeBeE3MW1j
-	EUA
-X-Google-Smtp-Source: AGHT+IEG7/UqWg/6ELIcyq0mVb3xfMQn4RI8cpiRrR5W4zXnA35xM+TJgjTRoe1XllkShxIti5fDKg==
-X-Received: by 2002:a05:600c:3151:b0:477:a203:66dd with SMTP id 5b1f17b1804b1-47d197f69demr322547935e9.2.1767341702410;
-        Fri, 02 Jan 2026 00:15:02 -0800 (PST)
-Received: from mordecai (dynamic-2a00-1028-83b8-1e7a-3010-3bd6-8521-caf1.ipv6.o2.cz. [2a00:1028:83b8:1e7a:3010:3bd6:8521:caf1])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47be27b0d5asm792930555e9.13.2026.01.02.00.15.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Jan 2026 00:15:01 -0800 (PST)
-Date: Fri, 2 Jan 2026 09:14:59 +0100
-From: Petr Tesarik <ptesarik@suse.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
- Jonathan Corbet <corbet@lwn.net>, Olivia Mackall <olivia@selenic.com>,
- Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Eugenio =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, "James E.J. Bottomley"
- <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen"
- <martin.petersen@oracle.com>, Gerd Hoffmann <kraxel@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Robin Murphy <robin.murphy@arm.com>, Stefano Garzarella
- <sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
- Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Leon Romanovsky
- <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
- linux-doc@vger.kernel.org, linux-crypto@vger.kernel.org,
- virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
- iommu@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH RFC 01/13] dma-mapping: add
- __dma_from_device_align_begin/end
-Message-ID: <20260102091459.6bec60c2@mordecai>
-In-Reply-To: <20251231154722-mutt-send-email-mst@kernel.org>
-References: <cover.1767089672.git.mst@redhat.com>
-	<ca12c790f6dee2ca0e24f16c0ebf3591867ddc4a.1767089672.git.mst@redhat.com>
-	<20251231150159.1779b585@mordecai>
-	<20251231154722-mutt-send-email-mst@kernel.org>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-suse-linux-gnu)
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="Gn52lJeU"
+Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6025sCeK4036863;
+	Fri, 2 Jan 2026 02:19:06 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pfpt0220; bh=5B3HZ7MSyvayqUbr22rW0pc
+	9f+R2/53Dpzl0nElB6T4=; b=Gn52lJeU1wpQwZBWz2mlI6UShLjNwet1MvA/lb6
+	yrOyKYKetAMGmGyHvq5/QfOAZkgIaHRRyzFDH8LiRTdgElgclVgCW1mIqoIoNoBm
+	lJPyzieDN06Af6G1QS2uwfbqpH3DfgFtxNBDx7s3/zv78ibvJJEy80znP5+ZM7i2
+	Hye+9Tv616bEalFqM23YwOmmenhROgxNos5YMBh9OLhtISTLfXSCxy97//pZThd9
+	zPM4kiWqkif3Dhm0TT4SNL5HbJXlSVBg/yJv6hdP54ddXQ26LFxReLAmviw4WSMh
+	RlkIUpD0zaTc2zO5yZip0r7TZNz9MSw15HOO3lYyYKA/tTA==
+Received: from dc5-exch05.marvell.com ([199.233.59.128])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4be89ag9hm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Jan 2026 02:19:06 -0800 (PST)
+Received: from DC5-EXCH05.marvell.com (10.69.176.209) by
+ DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Fri, 2 Jan 2026 02:19:19 -0800
+Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH05.marvell.com
+ (10.69.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
+ Transport; Fri, 2 Jan 2026 02:19:19 -0800
+Received: from 5810.marvell.com (unknown [10.29.45.105])
+	by maili.marvell.com (Postfix) with ESMTP id 6A62B3F7059;
+	Fri,  2 Jan 2026 02:19:01 -0800 (PST)
+From: Kommula Shiva Shankar <kshankar@marvell.com>
+To: <netdev@vger.kernel.org>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+        <eperezma@redhat.com>, <andrew+netdev@lunn.ch>, <davem@davemloft.net>,
+        <edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+        <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+        <jerinj@marvell.com>, <ndabilpuram@marvell.com>, <schalla@marvell.com>
+Subject: [PATCH net] virtio_net: fix device mismatch in devm_kzalloc/devm_kfree
+Date: Fri, 2 Jan 2026 15:49:00 +0530
+Message-ID: <20260102101900.692770-1-kshankar@marvell.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: LHT1r8lqNWcei800b7K696E1KRi8T7Hp
+X-Proofpoint-ORIG-GUID: LHT1r8lqNWcei800b7K696E1KRi8T7Hp
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTAyMDA4OSBTYWx0ZWRfX11k+mHdgBJl6
+ v/lOWsVBmSDI0y74vNuCCaloBCVQFsIHWAYBh7gn3pIlSydNYuyBri+Mc3HxzbSCUKD4RXHE4bB
+ aZDl8Uq+q6CbDn+P+gzyHVg9s/mFzyh+5eILthsXgSjkt5sWEdwufyQ0+mrQYj8aGtV0m5XO7QV
+ Wp4YLcQET6OrOknC1hOuV5IRafBJteaIFT+ogW1dP1meRcUyUqUmuvpQYVOvY8BwMOnQZGYvqZt
+ QQcoe6JIxyKYnwvn1YHajL9ONYHyYDTl/BnCAaoihB1tTqihOg+SbZB9yn3HsiZnpvRVzFjR2x7
+ iO017tvhMTYctmnBP6tp9Cl7d/r8pXYqoFbbIckso+2rp5ygflGEC+2OgBiNhouZ18rjdlA5jAn
+ /MPzP96PQvcEr5OLxw+B6AxBl0j4L7cF2fEPRDkRy5K0AfLipHaMKsH27inQCPV75IF2sjCpPRh
+ wWPrMQYT1HQY2sfuDcw==
+X-Authority-Analysis: v=2.4 cv=ZbcQ98VA c=1 sm=1 tr=0 ts=69579b9a cx=c_pps
+ a=rEv8fa4AjpPjGxpoe8rlIQ==:117 a=rEv8fa4AjpPjGxpoe8rlIQ==:17
+ a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=M5GUcnROAAAA:8
+ a=AcOwvBPJr7tEbDvczk0A:9 a=OBjm3rFKGHvpk9ecZwUJ:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2026-01-01_07,2025-12-31_01,2025-10-01_01
 
-On Wed, 31 Dec 2025 15:48:26 -0500
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+Initial rss_hdr allocation uses virtio_device->device,
+but virtnet_set_queues() frees using net_device->device.
+This device mismatch causing below devres warning
 
-> On Wed, Dec 31, 2025 at 03:01:59PM +0100, Petr Tesarik wrote:
-> > On Tue, 30 Dec 2025 05:15:46 -0500
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >   
-> > > When a structure contains a buffer that DMA writes to alongside fields
-> > > that the CPU writes to, cache line sharing between the DMA buffer and
-> > > CPU-written fields can cause data corruption on non-cache-coherent
-> > > platforms.
-> > > 
-> > > Add __dma_from_device_aligned_begin/__dma_from_device_aligned_end
-> > > annotations to ensure proper alignment to prevent this:
-> > > 
-> > > struct my_device {
-> > > 	spinlock_t lock1;
-> > > 	__dma_from_device_aligned_begin char dma_buffer1[16];
-> > > 	char dma_buffer2[16];
-> > > 	__dma_from_device_aligned_end spinlock_t lock2;
-> > > };
-> > > 
-> > > When the DMA buffer is the last field in the structure, just
-> > > __dma_from_device_aligned_begin is enough - the compiler's struct
-> > > padding protects the tail:
-> > > 
-> > > struct my_device {
-> > > 	spinlock_t lock;
-> > > 	struct mutex mlock;
-> > > 	__dma_from_device_aligned_begin char dma_buffer1[16];
-> > > 	char dma_buffer2[16];
-> > > };  
-> > 
-> > This works, but it's a bit hard to read. Can we reuse the
-> > __cacheline_group_{begin, end}() macros from <linux/cache.h>?
-> > Something like this:
-> > 
-> > #define __dma_from_device_group_begin(GROUP)			\
-> > 	__cacheline_group_begin(GROUP)				\
-> > 	____dma_from_device_aligned
-> > #define __dma_from_device_group_end(GROUP)			\
-> > 	__cacheline_group_end(GROUP)				\
-> > 	____dma_from_device_aligned
-> > 
-> > And used like this (the "rxbuf" group id was chosen arbitrarily):
-> > 
-> > struct my_device {
-> > 	spinlock_t lock1;
-> > 	__dma_from_device_group_begin(rxbuf);
-> > 	char dma_buffer1[16];
-> > 	char dma_buffer2[16];
-> > 	__dma_from_device_group_end(rxbuf);
-> > 	spinlock_t lock2;
-> > };
-> > 
-> > Petr T  
-> 
-> Made this change, and pushed out to my tree.
-> 
-> I'll post the new version in a couple of days, if no other issues
-> surface.
+[ 3788.514041] ------------[ cut here ]------------
+[ 3788.514044] WARNING: drivers/base/devres.c:1095 at devm_kfree+0x84/0x98, CPU#16: vdpa/1463
+[ 3788.514054] Modules linked in: octep_vdpa virtio_net virtio_vdpa [last unloaded: virtio_vdpa]
+[ 3788.514064] CPU: 16 UID: 0 PID: 1463 Comm: vdpa Tainted: G        W           6.18.0 #10 PREEMPT
+[ 3788.514067] Tainted: [W]=WARN
+[ 3788.514069] Hardware name: Marvell CN106XX board (DT)
+[ 3788.514071] pstate: 63400009 (nZCv daif +PAN -UAO +TCO +DIT -SSBS BTYPE=--)
+[ 3788.514074] pc : devm_kfree+0x84/0x98
+[ 3788.514076] lr : devm_kfree+0x54/0x98
+[ 3788.514079] sp : ffff800084e2f220
+[ 3788.514080] x29: ffff800084e2f220 x28: ffff0003b2366000 x27: 000000000000003f
+[ 3788.514085] x26: 000000000000003f x25: ffff000106f17c10 x24: 0000000000000080
+[ 3788.514089] x23: ffff00045bb8ab08 x22: ffff00045bb8a000 x21: 0000000000000018
+[ 3788.514093] x20: ffff0004355c3080 x19: ffff00045bb8aa00 x18: 0000000000080000
+[ 3788.514098] x17: 0000000000000040 x16: 000000000000001f x15: 000000000007ffff
+[ 3788.514102] x14: 0000000000000488 x13: 0000000000000005 x12: 00000000000fffff
+[ 3788.514106] x11: ffffffffffffffff x10: 0000000000000005 x9 : ffff800080c8c05c
+[ 3788.514110] x8 : ffff800084e2eeb8 x7 : 0000000000000000 x6 : 000000000000003f
+[ 3788.514115] x5 : ffff8000831bafe0 x4 : ffff800080c8b010 x3 : ffff0004355c3080
+[ 3788.514119] x2 : ffff0004355c3080 x1 : 0000000000000000 x0 : 0000000000000000
+[ 3788.514123] Call trace:
+[ 3788.514125]  devm_kfree+0x84/0x98 (P)
+[ 3788.514129]  virtnet_set_queues+0x134/0x2e8 [virtio_net]
+[ 3788.514135]  virtnet_probe+0x9c0/0xe00 [virtio_net]
+[ 3788.514139]  virtio_dev_probe+0x1e0/0x338
+[ 3788.514144]  really_probe+0xc8/0x3a0
+[ 3788.514149]  __driver_probe_device+0x84/0x170
+[ 3788.514152]  driver_probe_device+0x44/0x120
+[ 3788.514155]  __device_attach_driver+0xc4/0x168
+[ 3788.514158]  bus_for_each_drv+0x8c/0xf0
+[ 3788.514161]  __device_attach+0xa4/0x1c0
+[ 3788.514164]  device_initial_probe+0x1c/0x30
+[ 3788.514168]  bus_probe_device+0xb4/0xc0
+[ 3788.514170]  device_add+0x614/0x828
+[ 3788.514173]  register_virtio_device+0x214/0x258
+[ 3788.514175]  virtio_vdpa_probe+0xa0/0x110 [virtio_vdpa]
+[ 3788.514179]  vdpa_dev_probe+0xa8/0xd8
+[ 3788.514183]  really_probe+0xc8/0x3a0
+[ 3788.514186]  __driver_probe_device+0x84/0x170
+[ 3788.514189]  driver_probe_device+0x44/0x120
+[ 3788.514192]  __device_attach_driver+0xc4/0x168
+[ 3788.514195]  bus_for_each_drv+0x8c/0xf0
+[ 3788.514197]  __device_attach+0xa4/0x1c0
+[ 3788.514200]  device_initial_probe+0x1c/0x30
+[ 3788.514203]  bus_probe_device+0xb4/0xc0
+[ 3788.514206]  device_add+0x614/0x828
+[ 3788.514209]  _vdpa_register_device+0x58/0x88
+[ 3788.514211]  octep_vdpa_dev_add+0x104/0x228 [octep_vdpa]
+[ 3788.514215]  vdpa_nl_cmd_dev_add_set_doit+0x2d0/0x3c0
+[ 3788.514218]  genl_family_rcv_msg_doit+0xe4/0x158
+[ 3788.514222]  genl_rcv_msg+0x218/0x298
+[ 3788.514225]  netlink_rcv_skb+0x64/0x138
+[ 3788.514229]  genl_rcv+0x40/0x60
+[ 3788.514233]  netlink_unicast+0x32c/0x3b0
+[ 3788.514237]  netlink_sendmsg+0x170/0x3b8
+[ 3788.514241]  __sys_sendto+0x12c/0x1c0
+[ 3788.514246]  __arm64_sys_sendto+0x30/0x48
+[ 3788.514249]  invoke_syscall.constprop.0+0x58/0xf8
+[ 3788.514255]  do_el0_svc+0x48/0xd0
+[ 3788.514259]  el0_svc+0x48/0x210
+[ 3788.514264]  el0t_64_sync_handler+0xa0/0xe8
+[ 3788.514268]  el0t_64_sync+0x198/0x1a0
+[ 3788.514271] ---[ end trace 0000000000000000 ]---
 
-FTR except my (non-critical) suggestions for PATCH 5/13, the updated
-series looks good to me.
+Fix by using virtio_device->device consistently for
+allocation and deallocation
 
-Thank you!
+Fixes: 4944be2f5ad8c ("virtio_net: Allocate rss_hdr with devres")
+Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
+---
+ drivers/net/virtio_net.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Petr T
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 1bb3aeca66c6..22d894101c01 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3791,7 +3791,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+ 	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
+ 		old_rss_hdr = vi->rss_hdr;
+ 		old_rss_trailer = vi->rss_trailer;
+-		vi->rss_hdr = devm_kzalloc(&dev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
++		vi->rss_hdr = devm_kzalloc(&vi->vdev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
+ 		if (!vi->rss_hdr) {
+ 			vi->rss_hdr = old_rss_hdr;
+ 			return -ENOMEM;
+@@ -3802,7 +3802,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+ 
+ 		if (!virtnet_commit_rss_command(vi)) {
+ 			/* restore ctrl_rss if commit_rss_command failed */
+-			devm_kfree(&dev->dev, vi->rss_hdr);
++			devm_kfree(&vi->vdev->dev, vi->rss_hdr);
+ 			vi->rss_hdr = old_rss_hdr;
+ 			vi->rss_trailer = old_rss_trailer;
+ 
+@@ -3810,7 +3810,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+ 				 queue_pairs);
+ 			return -EINVAL;
+ 		}
+-		devm_kfree(&dev->dev, old_rss_hdr);
++		devm_kfree(&vi->vdev->dev, old_rss_hdr);
+ 		goto succ;
+ 	}
+ 
+-- 
+2.48.1
+
