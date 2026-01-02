@@ -1,192 +1,103 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1760C30FF03
-	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 12:30:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F018276051
+	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 12:46:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767357012; cv=none; b=Xiz9elUJ+QWxHMBFurtqreM54XW7+eLYTLY0DDoCDaHOXTxMX+dETp12i312mM9kSJ5plGvQUSYFqXp32omRxWQqxz7xR6indY5fz+KoRaFYVYvPk/9BsGDtuR5PzRUTbitikAITBYtywQL2aiOOgDo46/o1/jUGBqJU08khCLk=
+	t=1767358019; cv=none; b=sxGBZC6A7XeH9E1QO/9ATX0rExWSKcxyw1VzkSm2pxLdJriILAKd3Ac6lnRWWLrQoD5wOuIeVSksusJP3JE1s9/C0spSye3KmBvN6iA57DiBYBmIAzMkqdgTLlnOpK6UpDTWDgoUnlhWzCdyJ1ksZlJAT32WScO9XLRa2Gj4AL4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767357012; c=relaxed/simple;
-	bh=AmaWQ5CXbUg3ciml/z9VJ5JFV4qJeUFdMIaYJrDMXlg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=o+e4KCUjWKBl/Fz1eF9Rs4wfUUJmJwJ6fHEqV03js7RnWlvBMxwP7O2vqFvNWjOTKLfKmFCRHPbQOP7xe2w9znzXjGLsF7eq+WibdPB4/6s3pPIpU7ZJfZrGHsTkcdVIsp43ICnetnW1dZsLD6H9gD3gwf8aII7ViFsVOvR5ErQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Yld8HJ4m; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1767358019; c=relaxed/simple;
+	bh=6KPWXH/kC7jOHkn729my4NVFkh9cBa46BBKTL8WhXtA=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NQZwkD3kJMiNf4I6Gq1x94fRrZlaOhPZAcXEHVeFd1eIBeHl+2pmGlN6yQHnlO+Wf1FgZsxa4MWOfH17mm19VeIPUXiUA6Wq8oWQCJ4gvcWe/D+QPA0nnpAqDMKumKti1jT9Awya8ShNUQ6zLPpcTr/AXwyclKg60d9HbQALDtk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mo2gvuCI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yld8HJ4m"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2a1022dda33so98195225ad.2
-        for <virtualization@lists.linux.dev>; Fri, 02 Jan 2026 04:30:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767357010; x=1767961810; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=8BoW0bcmK/sCMsuQ6Inc10VNOGnxhb+hS2Ao4sv1iKQ=;
-        b=Yld8HJ4mrofVH7SeUM+HdUc8pEzO1TM/0xOvNf0Nj8GI7mvXuPm+3W/6HGjFTjXNlK
-         AXEmN+L5w19qbj7CtwiWI6Gb1uQzQfCG+1XfbT1czpjpXxGHQ/GcfPIcOVCJ+MFbkNl9
-         Yn1g6adILhqEgB6TzbaCKLyi0LoybLWdsG9Dh0Iz+dIPQFANY0ljPcnRXtgSX5LqB9n1
-         D2PIGPa2C4e7v3HoT6yO5Dulg6J88ZGiileAjnAnFxOFxCjYTa7ceT+P3rzdiTawT62j
-         uS2+pnn9cItFX7bOS3PNZF+TF3FF7VUjRxAfzntT0Sgi790t6MK9F0uxe1fgY6MbuYcA
-         4Rqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767357010; x=1767961810;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8BoW0bcmK/sCMsuQ6Inc10VNOGnxhb+hS2Ao4sv1iKQ=;
-        b=Uol6uLzTsU4GnqW1fOAWjZ0O9MIdMgnHdQ7ILECcLZtbdF48xipeIch8Sk5FB3UrGb
-         MtH9U3S5ar213u/AEbihdRaz2/NMYqPa1/NC+yZ14uXVWEpE9hxuov+vbzqe4oUkL42L
-         KydpgaE4sRYigHSVhJUhiYh3ppJln6kgWG6ie2Q7XvLyQ90MYfK/kKu1o8ivDfFG02re
-         XJ755gPpIGsS+6eRLvTV2IlZYx0WTTshd6gnU38+9IigxZIBUu6WSHgPkIrmQZqiAv0h
-         bPYpVi/fKlmZRFt3Cezk0gUkIIquy/7AmZwhLDaod7JyiK94BQ83xIqeX+1A5rrn3de/
-         AjaQ==
-X-Forwarded-Encrypted: i=1; AJvYcCViXGj7DhDH/kN4+zL6RYJEWVwFGJkgO+JQug3810aYKlIyErDdixA5emP3k3p9MwnOThWakicn0bj2GELzdg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyaxasENvKJVt6aD0pDz8yDGfIWUveaRMsTLzn51IaRmbzC4a/T
-	/PmSjqReUvmX/b2qPaqim3lvOKW5UMkj5uJe5dn5xFCwbx+4RKesgG3MD7nc8hZJtH2mWZIF1H3
-	2cQ3FmSacLypI8ynrB+b3wKuTqFYe4OY=
-X-Gm-Gg: AY/fxX7VE/jPTB9Y8YWxIwspoR0w22EwhZ+S4u3zo5r9X14hDLYE4kX6B8MhO0mV8XT
-	UmVvVB7/Q00wt9Jsk6Q9JS1r81a5+qDRf1qH68evwfPeFbQkV4tDxFT0GTLU8DKHk/eGYPSc6bO
-	spXiLVlre5mAyXdh0Dr2BQqfTj4OYK4Y2v0S5dO4wJl6dlVgOm2JibUk7PBwUdp/1OtZd2hge/u
-	0DJ4g6hMFCv3VSl5N2SHTjzTFePhvl6mab0V+S9RM/GI0S1lmR4WSjNi0YmHgKBjR0Z8yRh
-X-Google-Smtp-Source: AGHT+IGx+INPR/R4gVPyo42+4do1Mx5vMHRBzkq/BpyzBu528TDuEHQ9iOd5kFbLBxSrkiHob0RQ7Fq1B4FWfMYB/Ro=
-X-Received: by 2002:a17:903:2b0f:b0:2a0:b02b:210a with SMTP id
- d9443c01a7336-2a2f28368c1mr434803905ad.37.1767357010333; Fri, 02 Jan 2026
- 04:30:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mo2gvuCI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C78BC116B1
+	for <virtualization@lists.linux.dev>; Fri,  2 Jan 2026 12:46:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1767358019;
+	bh=6KPWXH/kC7jOHkn729my4NVFkh9cBa46BBKTL8WhXtA=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc:From;
+	b=Mo2gvuCIh6e9sPcCb5IzU03yjkBLo4h6nsdwnp0oP+T+l9dghrrR1r9elGcrPRH9w
+	 gmB89BKxlupe8Wkd9eQfUuncMnXpMr+iA0AM0fmN1MMXcKqupmQe6PqaKeETh2fSl+
+	 17Am1SBDB0HZleuAUQ1PN8NVPEjTp4ZSlS8bcbMlBrZNMo3p4Du+GNJyYyBY2BPUSj
+	 HiZ/owx7Yp5hVVtOP/yP8JJ2iybsfSbX+CVi5O9ChZODri1HQEfP0EO5baJ0+JcYlP
+	 /fJ/xmPzdJJV5zPsDUctPujy4I/Vl5I9joe0Kfy2JgZbrz96r+SHAgMDQFZ3ic5iyE
+	 SKi3F49JMTCYw==
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-59584301f0cso2903292e87.0
+        for <virtualization@lists.linux.dev>; Fri, 02 Jan 2026 04:46:59 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXZd3eCcj6mVDFyA4r4cdCNVZSOD9qTNB9+qMov3kpD8WEedxbni90BmtVMyAh7B+wFDlt2s01LryEFj/OU4A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzu+b53/0XmXCP0hOpYQvWJjf1F8mpZTX/779s8QUcWrReeb98C
+	K37LMEtkRZRNV+TrfkNhZ8xUUMoQyU/1x1Y0Ai6+A6t/KSeHpfgqE5sabGD3+skYAm+9ncqNuKz
+	46EG8jPNk+NSVnH3tpBvpftQZWHp1iCQeBRoXUuuHBA==
+X-Google-Smtp-Source: AGHT+IGc2inPJAzzOkCkSBFCoOg9QxkQFVWecr7c4xhZfdJchBGS03PyeQgZEMV/dRlvfiPAbf/AJ8Wav/AAUBMesSQ=
+X-Received: by 2002:a05:6512:33cc:b0:592:f521:188a with SMTP id
+ 2adb3069b0e04-59a17d66a60mr12745131e87.49.1767358012955; Fri, 02 Jan 2026
+ 04:46:52 -0800 (PST)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 2 Jan 2026 06:46:51 -0600
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 2 Jan 2026 06:46:51 -0600
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <6f2f2a7a74141fa3ad92e001ee276c01ffe9ae49.1767112757.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251225042915.334117-1-me@linux.beauty> <20251225042915.334117-2-me@linux.beauty>
-In-Reply-To: <20251225042915.334117-2-me@linux.beauty>
-From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Date: Fri, 2 Jan 2026 13:29:59 +0100
-X-Gm-Features: AQt7F2pkDTCumQCutZu713NbzDLbaUdN-VN1zrM4hEgQJfHH3moax5fk1W1gX08
-Message-ID: <CAM9Jb+jvbEQ48=abnQDKwtTEBtuJ0im8SVP+BwTQz-OLh9g6mQ@mail.gmail.com>
-Subject: Re: [PATCH V2 1/5] nvdimm: virtio_pmem: always wake -ENOSPC waiters
-To: Li Chen <me@linux.beauty>
-Cc: Dan Williams <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
-	Dave Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>, nvdimm@lists.linux.dev, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	"Michael S . Tsirkin" <mst@redhat.com>
+References: <cover.1767089672.git.mst@redhat.com> <6f2f2a7a74141fa3ad92e001ee276c01ffe9ae49.1767112757.git.mst@redhat.com>
+Date: Fri, 2 Jan 2026 06:46:51 -0600
+X-Gmail-Original-Message-ID: <CAMRc=MdaHfsJnbB2hOO6EbVMwZaWqO7zMkv8ZVugHnfOuDn=AA@mail.gmail.com>
+X-Gm-Features: AQt7F2oUFrPkMorjc5uJ7mhwaGHd2BKNe3yeZtbMYJ_tunJRlIVF48L1J9wKaic
+Message-ID: <CAMRc=MdaHfsJnbB2hOO6EbVMwZaWqO7zMkv8ZVugHnfOuDn=AA@mail.gmail.com>
+Subject: Re: [PATCH RFC 14/13] gpio: virtio: fix DMA alignment
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Olivia Mackall <olivia@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
+	Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
+	Robin Murphy <robin.murphy@arm.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Petr Tesarik <ptesarik@suse.com>, Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
+	linux-doc@vger.kernel.org, linux-crypto@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org, 
+	iommu@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org, 
+	"Enrico Weigelt, metux IT consult" <info@metux.net>, Viresh Kumar <vireshk@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-+CC MST
-> virtio_pmem_host_ack() reclaims virtqueue descriptors with
-> virtqueue_get_buf(). The -ENOSPC waiter wakeup is tied to completing the
-> returned token.
+On Tue, 30 Dec 2025 17:40:28 +0100, "Michael S. Tsirkin" <mst@redhat.com> said:
+> The res and ires buffers in struct virtio_gpio_line and struct
+> vgpio_irq_line respectively are used for DMA_FROM_DEVICE via virtqueue_add_sgs().
+> However, within these structs, even though these elements are tagged
+> as ____cacheline_aligned, adjacent struct elements
+> can share DMA cachelines on platforms where ARCH_DMA_MINALIGN >
+> L1_CACHE_BYTES (e.g., arm64 with 128-byte DMA alignment but 64-byte
+> cache lines).
 >
-> If token completion is skipped for any reason, reclaimed descriptors may
-> not wake a waiter and the submitter may sleep forever waiting for a free
-> slot.
+> The existing ____cacheline_aligned annotation aligns to L1_CACHE_BYTES
+> which is now always sufficient for DMA alignment. For example,
+> with L1_CACHE_BYTES = 32 and ARCH_DMA_MINALIGN = 128
+>   - irq_lines[0].ires at offset 128
+>   - irq_lines[1].type at offset 192
+> both in same 128-byte DMA cacheline [128-256)
 >
-> Always wake one -ENOSPC waiter for each virtqueue completion before
-> touching the returned token.
+> When the device writes to irq_lines[0].ires and the CPU concurrently
+> modifies one of irq_lines[1].type/disabled/masked/queued flags,
+> corruption can occur on non-cache-coherent platform.
 >
-> Use READ_ONCE()/WRITE_ONCE() for the wait_event() flags (done and
-> wq_buf_avail). They are observed by waiters without pmem_lock, so make
-> the accesses explicit single loads/stores and avoid compiler
-> reordering/caching across the wait/wake paths.
+> Fix by using __dma_from_device_aligned_begin/end annotations on the
+> DMA buffers. Drop ____cacheline_aligned - it's not required to isolate
+> request and response, and keeping them would increase the memory cost.
 >
-> Signed-off-by: Li Chen <me@linux.beauty>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  drivers/nvdimm/nd_virtio.c | 35 +++++++++++++++++++++--------------
->  1 file changed, 21 insertions(+), 14 deletions(-)
->
-> diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-> index c3f07be4aa22..6f9890361d0b 100644
-> --- a/drivers/nvdimm/nd_virtio.c
-> +++ b/drivers/nvdimm/nd_virtio.c
-> @@ -9,26 +9,33 @@
->  #include "virtio_pmem.h"
->  #include "nd.h"
->
-> +static void virtio_pmem_wake_one_waiter(struct virtio_pmem *vpmem)
-> +{
-> +       struct virtio_pmem_request *req_buf;
-> +
-> +       if (list_empty(&vpmem->req_list))
-> +               return;
-> +
-> +       req_buf = list_first_entry(&vpmem->req_list,
-> +                                 struct virtio_pmem_request, list);
 
-[...]
-> +       list_del_init(&req_buf->list);
-> +       WRITE_ONCE(req_buf->wq_buf_avail, true);
-> +       wake_up(&req_buf->wq_buf);
-
-Seems with the above change (3 line fix), you are allowing to wakeup a waiter
-before accessing the token. Maybe simplify the patch by just
-keeping this change in the single patch & other changes (READ_ONCE/WRITE_ONCE)
-onto separate patch with corresponding commit log.
-
-Thanks,
-Pankaj
-
-> +}
-> +
->   /* The interrupt handler */
->  void virtio_pmem_host_ack(struct virtqueue *vq)
->  {
->         struct virtio_pmem *vpmem = vq->vdev->priv;
-> -       struct virtio_pmem_request *req_data, *req_buf;
-> +       struct virtio_pmem_request *req_data;
->         unsigned long flags;
->         unsigned int len;
->
->         spin_lock_irqsave(&vpmem->pmem_lock, flags);
->         while ((req_data = virtqueue_get_buf(vq, &len)) != NULL) {
-> -               req_data->done = true;
-> +               virtio_pmem_wake_one_waiter(vpmem);
-> +               WRITE_ONCE(req_data->done, true);
->                 wake_up(&req_data->host_acked);
-> -
-> -               if (!list_empty(&vpmem->req_list)) {
-> -                       req_buf = list_first_entry(&vpmem->req_list,
-> -                                       struct virtio_pmem_request, list);
-> -                       req_buf->wq_buf_avail = true;
-> -                       wake_up(&req_buf->wq_buf);
-> -                       list_del(&req_buf->list);
-> -               }
->         }
->         spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
->  }
-> @@ -58,7 +65,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
->         if (!req_data)
->                 return -ENOMEM;
->
-> -       req_data->done = false;
-> +       WRITE_ONCE(req_data->done, false);
->         init_waitqueue_head(&req_data->host_acked);
->         init_waitqueue_head(&req_data->wq_buf);
->         INIT_LIST_HEAD(&req_data->list);
-> @@ -79,12 +86,12 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
->                                         GFP_ATOMIC)) == -ENOSPC) {
->
->                 dev_info(&vdev->dev, "failed to send command to virtio pmem device, no free slots in the virtqueue\n");
-> -               req_data->wq_buf_avail = false;
-> +               WRITE_ONCE(req_data->wq_buf_avail, false);
->                 list_add_tail(&req_data->list, &vpmem->req_list);
->                 spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
->
->                 /* A host response results in "host_ack" getting called */
-> -               wait_event(req_data->wq_buf, req_data->wq_buf_avail);
-> +               wait_event(req_data->wq_buf, READ_ONCE(req_data->wq_buf_avail));
->                 spin_lock_irqsave(&vpmem->pmem_lock, flags);
->         }
->         err1 = virtqueue_kick(vpmem->req_vq);
-> @@ -98,7 +105,7 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
->                 err = -EIO;
->         } else {
->                 /* A host response results in "host_ack" getting called */
-> -               wait_event(req_data->host_acked, req_data->done);
-> +               wait_event(req_data->host_acked, READ_ONCE(req_data->done));
->                 err = le32_to_cpu(req_data->resp.ret);
->         }
->
-> --
-> 2.52.0
->
+Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
