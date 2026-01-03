@@ -1,70 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 918A8233D88
-	for <virtualization@lists.linux.dev>; Sat,  3 Jan 2026 09:13:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A802730C61B
+	for <virtualization@lists.linux.dev>; Sat,  3 Jan 2026 16:57:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767431599; cv=none; b=PYHDf0oXhBMzhFkcdlhsAUUwu4aYMPIZ3IbKt0k97bmELeisaBQOim85fRqEB9mmEP1bgjeg41dwjfO/MlX0i8lHpdRFxociylD7VqcbpmbuI7NzFse+4+l0wYHV3Vvc+cBuCG/f7qIhOQ/2vtVLO//0ODTXe5sqt8bS4Gyj4kI=
+	t=1767459471; cv=none; b=ReMv7FhwQfN1XnsnU2I2YVTP9FTiyap/StF6YVXFBGiZ876LrXOTLJ4TrJvYez1LCBq3+NofUPb4/Uf1fNfzKcK26pQlflwiL8RqBqqnV33f2+OBIv/e1mg2uzVnOaXexiZMabXiajttzbpMEy9rbf8H4+rEYE9/XHCXHE87M/0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767431599; c=relaxed/simple;
-	bh=D2JUwaLgQPVcFVxnKAJxg4vCYvDrhyAGsjt3mPC1zq8=;
+	s=arc-20240116; t=1767459471; c=relaxed/simple;
+	bh=m7kFC8NLRqMykIfn43teN/tTE91nR1HuG4dJPWsxS3M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=sBerhnU46Fos2ww0bQVa+p+7hWJglS0TmYTqoF9eGlc89V468fzDPn/KDKL7WhLDMUh9wM0ZexYsk7Yt+0YEFvzwJI7p4Z1ELTJnJCqmI+DhipnhR3ak0mg3szQ+aKX5w+hv2gveUBdNjc1k+Xe4ToGFHZtMNqdlQd0uYZbJGJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PWG7YkCF; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=BDLQQOorkiTtwM6O55vOTEpKBbh441rHuDTiroGYq9wdAVESzl11xinw6r0WozdK6QeremjL48yQPMEqpkOKIUYiU8xQQeFJ5WramvhWIW53+KrsSsvWsqd/T+/t1kSndmZaGOQX400X5YkDIbBbe9cATA7Pi4VDec/FYKky8YQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LZUQ06SP; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PWG7YkCF"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LZUQ06SP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767431596;
+	s=mimecast20190719; t=1767459468;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=4Hb8jN/L6fYCR7fWSSvv5cBYqP1P00Le5VoBUo+rlAg=;
-	b=PWG7YkCFXoMSJy7ghk1BH/BrbrhNfsQia/RyudIOFjSz2g9ua9Vr1yTp9exalFoAQr72t9
-	motspI/nHiLpS0dBcRLDtxFhihWymbi/K2R8h5dgNdXaVZ/sR0xJItiZSDi2xCGSBmeLRZ
-	i2WMvo3JHD5N/NJRgsSUPR7mHny+fM8=
+	bh=+wZkUF3NRhUPtxghhUm6LslapHbc+LfpmZjiNA6s+nU=;
+	b=LZUQ06SPLbG+qqwTowr9uqSlk06blXhbQNJI0DcNpdeHjfSazHeskUGiLdWykLzwHe2RfO
+	NqzhlZHxHVm0xt59MvWNiao0NBSMhXfEK4ata24mU4z5tYeDQaXWrFniICjfV6i27At4vo
+	dSPQ79Av3YufA9HPDbNbm/IqGpzIh28=
 Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
  [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-528-_Zigb9-XOYOypkYi4Lb1Uw-1; Sat, 03 Jan 2026 04:13:15 -0500
-X-MC-Unique: _Zigb9-XOYOypkYi4Lb1Uw-1
-X-Mimecast-MFC-AGG-ID: _Zigb9-XOYOypkYi4Lb1Uw_1767431594
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-430fb8d41acso6594835f8f.1
-        for <virtualization@lists.linux.dev>; Sat, 03 Jan 2026 01:13:14 -0800 (PST)
+ us-mta-315-kElyjSGvNL2B1T82IgfTJQ-1; Sat, 03 Jan 2026 11:57:45 -0500
+X-MC-Unique: kElyjSGvNL2B1T82IgfTJQ-1
+X-Mimecast-MFC-AGG-ID: kElyjSGvNL2B1T82IgfTJQ_1767459464
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-430fd96b440so6610157f8f.1
+        for <virtualization@lists.linux.dev>; Sat, 03 Jan 2026 08:57:45 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767431594; x=1768036394;
+        d=1e100.net; s=20230601; t=1767459464; x=1768064264;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4Hb8jN/L6fYCR7fWSSvv5cBYqP1P00Le5VoBUo+rlAg=;
-        b=m54e+uoZ6fyOqqZtlG9V+zkDTsG5lpYOT0YlDWGx38IIB9+hg1z+D91rFurxuk3NWW
-         LihM11BivQLmkjtppAm7QqTC5yULYTmtPLGa996sDnmK0Zy9++oH2qjPqqF8dKKS5tCJ
-         2a3ZbiKLXMgwH9cJbCXjV2FAESK7Y+yVSnaTY5B1sxxIf1ZCBJu+buJdLgXARsI/SWBs
-         AW94oTHpHZjtfG3RRMPHfdDecTTrqRMHXg5GYnRQxHY2hlpeqNcrNgEl45K6CghT299i
-         XB956jWMSDlT3w1iIo4m2VZt6Bmiz5cHjaDbQL5YOq+nGP1f4ixHISGSWj1J7KXXaWHh
-         Ksgg==
-X-Forwarded-Encrypted: i=1; AJvYcCW2HNu/3bYuqbWNAYFgsogPkcAtyBG0riPWdC4gh+moHpuwKVcPUFv8asAlmCbllDp/2FjtZxoHz6WogUTwOg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyvu0oIo9nRKbbPS34BUn5iQV04XcWppdxeSoXTCuDACy2XEwtS
-	rZgSJFKfluw5BlCvbD+l/G7SM5/vG5tW7n/6UJ60s8niOAU76FEMssh20Izo5q84u+mSe+bSXlh
-	P8KVeBF1uccGmMNP+bUgyFOhvshSCUP+riFPKf+NcjIM2DqqbH22pHe/6D+ND5cpKggjC
-X-Gm-Gg: AY/fxX4A5/4/an08W7UY4O0X+Nd/KoX1at6jjRIOhUJ+eEqmuMLCe7hRBXid93McXJE
-	+O3IIXnC4nffhxrSFNIJ4Iu4nrZvPYT6JNCD6y1Ua7SW0wF4p80scaKF09gsHLllUEg0xukvq03
-	fjklhvPhKC1jW+n1B35A+r8+T6pmUKeQHHxdlwCUqNlfqJpsTmmh242hm82oOlrhneq1VkgOil5
-	dLp9woQ8bQ/WyYJZHXVROO9dd/rLeImxm6uxVe4Szt6pBatcV5TdCI2oBd0LbLnXO/IRGlUm+Qc
-	c7st0PasUmgiVI9mAysL/KR4I3bWDBUdfirGsuGtHPI8Z0wKozu2AjpMlazJcHK3WQEJ5G6z1R2
-	MdvfCOw==
-X-Received: by 2002:a05:6000:40ce:b0:430:f2ee:b220 with SMTP id ffacd0b85a97d-4324e4cb94dmr57084916f8f.19.1767431593696;
-        Sat, 03 Jan 2026 01:13:13 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE26GgQLEflvynAD5o7MsvyW4N7h1D9HT11b4Oml4DoyBao3uW+BjntwVayJEJqPx+C7BOcZA==
-X-Received: by 2002:a05:6000:40ce:b0:430:f2ee:b220 with SMTP id ffacd0b85a97d-4324e4cb94dmr57084882f8f.19.1767431593183;
-        Sat, 03 Jan 2026 01:13:13 -0800 (PST)
-Received: from redhat.com ([2a06:c701:73d7:4800:ba30:1c4a:380d:b509])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4325b6bfe88sm80644627f8f.19.2026.01.03.01.13.11
+        bh=+wZkUF3NRhUPtxghhUm6LslapHbc+LfpmZjiNA6s+nU=;
+        b=ds0MMxJ4oYFkdQz5X1gRI+snOvtL+/HP/Px2cQkZUpId8y6VExN09P5UUNljno4nrG
+         pRfzOgsq+7A5DYNfmXHfGNmiK2s/vGsM/WvLB9g7EfzazHIhYoBBVJAQncL9nb4aYENl
+         XsIlDudBEsGEmcEtfJujTo80o4piqzPufo1td+IUyS6ryZaC8Ow7TxX+fI7fTl8SdeWr
+         39ZIjczQ7lNNqW2SB/MJbf90gSKGHV+Ux5DizcXIRC+HE05LvPlUnltBZTYxGpYaJiGB
+         TN/6iolaDQvPxxH8Cpn93UBWldkSq5eCi+z14eHo2yVgMLGDVaklLchKHLXXr1Q9KkHI
+         LICQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXFOLH5i2xArzpPJFBVpkRN17ycfqG/MmM4sqwvPOygIQ04iAkc2k/SibQhgGzQVw7P9wqwdWLxsVNP6QDftA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwEg0StOkrtF75eGcW/VzywIChSGiK22Ubd3A5Ww/mkT34ncSdQ
+	FGrulIee6ZmzYTIjcgM5Kx8bhgPBpVbIePQbjdo1fkRhhNiTa4mt86h4KB4Bqxnv9bmfXlAd3MH
+	GS1i5pf7EyEcQjJZejf6uybk0DT4VgGwNPI5JY5vG3H1vhdKILyVhzX1lfk3rSBBzJDGZ
+X-Gm-Gg: AY/fxX58M7AdhR40KYZylEV0CzH6++LKLmNqu28xYbwVRZA0X1D+hkeQrm3KJAogrs4
+	BsuDv54yUcnFKeREsyRW27Kx/GJNs6En3tL3vQfs4UiCUqUvpOOhv6SkEDynff16RcaA5fIkCLr
+	6tzCXMmTIcfFsL7/rambNRWqtUxLNhAhUu4JKUN1OiYfkzktz+KR2ZBirg3y9HhplEx7keReRYm
+	jspEKqZh2+R+QH63BAiIHpB02bs2ZgCm4K3TSL6sJa/51VKgPN1s6NR9294xF33IjBQUCLwG+qW
+	L5Qk+FS7U8LwSCCQThJZld5/cG4vxXhT0CAY9OkjGjDa35Dn2NOwHY8roeOKoxRU5wjB3FzIA4p
+	5WI8=
+X-Received: by 2002:a05:600c:818f:b0:477:7b16:5f77 with SMTP id 5b1f17b1804b1-47d19538725mr584363185e9.3.1767459464023;
+        Sat, 03 Jan 2026 08:57:44 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHusWZ//FZ52Om4ta3xZ2SqfyTWAAUvd8rHgZYV++2oDeDeRRcln+Ih/5srZxMz/V4FtoawtQ==
+X-Received: by 2002:a05:600c:818f:b0:477:7b16:5f77 with SMTP id 5b1f17b1804b1-47d19538725mr584362855e9.3.1767459463570;
+        Sat, 03 Jan 2026 08:57:43 -0800 (PST)
+Received: from redhat.com ([147.235.217.121])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324eab2a94sm90750023f8f.43.2026.01.03.08.57.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 03 Jan 2026 01:13:12 -0800 (PST)
-Date: Sat, 3 Jan 2026 04:13:09 -0500
+        Sat, 03 Jan 2026 08:57:42 -0800 (PST)
+Date: Sat, 3 Jan 2026 11:57:37 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Bui Quang Minh <minhquangbui99@gmail.com>
 Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
@@ -80,82 +80,178 @@ Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
 	John Fastabend <john.fastabend@gmail.com>,
 	Stanislav Fomichev <sdf@fomichev.me>,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: Re: [PATCH net v2 0/3] virtio-net: fix the deadlock when disabling
- rx NAPI
-Message-ID: <20260103041213-mutt-send-email-mst@kernel.org>
+	bpf@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH net v2 1/3] virtio-net: don't schedule delayed refill
+ worker
+Message-ID: <20260103115424-mutt-send-email-mst@kernel.org>
 References: <20260102152023.10773-1-minhquangbui99@gmail.com>
+ <20260102152023.10773-2-minhquangbui99@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260102152023.10773-1-minhquangbui99@gmail.com>
+In-Reply-To: <20260102152023.10773-2-minhquangbui99@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: PZktrcATg12hwV45Gg2qXlySW5iqdjLdFVuoPXgp-M8_1767431594
+X-Mimecast-MFC-PROC-ID: p8ducQjCGPn3zXBiTAC8BmFN79nlr9vruni42BoPSaU_1767459464
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Jan 02, 2026 at 10:20:20PM +0700, Bui Quang Minh wrote:
-> Calling napi_disable() on an already disabled napi can cause the
-> deadlock. In commit 4bc12818b363 ("virtio-net: disable delayed refill
-> when pausing rx"), to avoid the deadlock, when pausing the RX in
-> virtnet_rx_pause[_all](), we disable and cancel the delayed refill work.
-> However, in the virtnet_rx_resume_all(), we enable the delayed refill
-> work too early before enabling all the receive queue napis.
+On Fri, Jan 02, 2026 at 10:20:21PM +0700, Bui Quang Minh wrote:
+> When we fail to refill the receive buffers, we schedule a delayed worker
+> to retry later. However, this worker creates some concurrency issues
+> such as races and deadlocks. To simplify the logic and avoid further
+> problems, we will instead retry refilling in the next NAPI poll.
 > 
-> The deadlock can be reproduced by running
-> selftests/drivers/net/hw/xsk_reconfig.py with multiqueue virtio-net
-> device and inserting a cond_resched() inside the for loop in
-> virtnet_rx_resume_all() to increase the success rate. Because the worker
-> processing the delayed refilled work runs on the same CPU as
-> virtnet_rx_resume_all(), a reschedule is needed to cause the deadlock.
-> In real scenario, the contention on netdev_lock can cause the
-> reschedule.
+> Fixes: 4bc12818b363 ("virtio-net: disable delayed refill when pausing rx")
+> Reported-by: Paolo Abeni <pabeni@redhat.com>
+> Closes: https://netdev-ctrl.bots.linux.dev/logs/vmksft/drv-hw-dbg/results/400961/3-xdp-py/stderr
+> Cc: stable@vger.kernel.org
+> Suggested-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+> ---
+>  drivers/net/virtio_net.c | 55 ++++++++++++++++++++++------------------
+>  1 file changed, 30 insertions(+), 25 deletions(-)
 > 
-> Due to the complexity of delayed refill worker, in this series, we remove
-> it. When we fail to refill the receive buffer, we will retry in the next
-> NAPI poll instead.
-> - Patch 1: removes delayed refill worker schedule and retry refill in next
-> NAPI
-> - Patch 2, 3: removes and clean up unused delayed refill worker code
-> 
-> For testing, I've run the following tests with no issue so far
-> - selftests/drivers/net/hw/xsk_reconfig.py which sets up the XDP zerocopy
-> without providing any descriptors to the fill ring. As a result,
-> try_fill_recv will always fail.
-> - Send TCP packets from host to guest while guest is nearly OOM and some
-> try_fill_recv calls fail.
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 1bb3aeca66c6..ac514c9383ae 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3035,7 +3035,7 @@ static int virtnet_receive_packets(struct virtnet_info *vi,
+>  }
+>  
+>  static int virtnet_receive(struct receive_queue *rq, int budget,
+> -			   unsigned int *xdp_xmit)
+> +			   unsigned int *xdp_xmit, bool *retry_refill)
+>  {
+>  	struct virtnet_info *vi = rq->vq->vdev->priv;
+>  	struct virtnet_rq_stats stats = {};
+> @@ -3047,12 +3047,8 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+>  		packets = virtnet_receive_packets(vi, rq, budget, xdp_xmit, &stats);
+>  
+>  	if (rq->vq->num_free > min((unsigned int)budget, virtqueue_get_vring_size(rq->vq)) / 2) {
+> -		if (!try_fill_recv(vi, rq, GFP_ATOMIC)) {
+> -			spin_lock(&vi->refill_lock);
+> -			if (vi->refill_enabled)
+> -				schedule_delayed_work(&vi->refill, 0);
+> -			spin_unlock(&vi->refill_lock);
+> -		}
+> +		if (!try_fill_recv(vi, rq, GFP_ATOMIC))
+> +			*retry_refill = true;
+>  	}
+>  
+>  	u64_stats_set(&stats.packets, packets);
+> @@ -3129,18 +3125,18 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>  	struct send_queue *sq;
+>  	unsigned int received;
+>  	unsigned int xdp_xmit = 0;
+> -	bool napi_complete;
+> +	bool napi_complete, retry_refill = false;
+>  
+>  	virtnet_poll_cleantx(rq, budget);
+>  
+> -	received = virtnet_receive(rq, budget, &xdp_xmit);
+> +	received = virtnet_receive(rq, budget, &xdp_xmit, &retry_refill);
+>  	rq->packets_in_napi += received;
+>  
+>  	if (xdp_xmit & VIRTIO_XDP_REDIR)
+>  		xdp_do_flush();
+>  
+>  	/* Out of packets? */
+> -	if (received < budget) {
+> +	if (received < budget && !retry_refill) {
+>  		napi_complete = virtqueue_napi_complete(napi, rq->vq, received);
+>  		/* Intentionally not taking dim_lock here. This may result in a
+>  		 * spurious net_dim call. But if that happens virtnet_rx_dim_work
+> @@ -3160,7 +3156,7 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>  		virtnet_xdp_put_sq(vi, sq);
+>  	}
+>  
+> -	return received;
+> +	return retry_refill ? budget : received;
+>  }
+>  
+>  static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
+> @@ -3230,9 +3226,11 @@ static int virtnet_open(struct net_device *dev)
+>  
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		if (i < vi->curr_queue_pairs)
+> -			/* Make sure we have some buffers: if oom use wq. */
+> -			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+> -				schedule_delayed_work(&vi->refill, 0);
+> +			/* If this fails, we will retry later in
+> +			 * NAPI poll, which is scheduled in the below
+> +			 * virtnet_enable_queue_pair
 
-Thanks, the patches look good to me.
-Sent some nitpicking comments, with these addressed:
+hmm do we even need this, then?
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> +			 */
+> +			try_fill_recv(vi, &vi->rq[i], GFP_KERNEL);
+>  
+>  		err = virtnet_enable_queue_pair(vi, i);
+>  		if (err < 0)
+> @@ -3473,15 +3471,15 @@ static void __virtnet_rx_resume(struct virtnet_info *vi,
+>  				bool refill)
+>  {
+>  	bool running = netif_running(vi->dev);
+> -	bool schedule_refill = false;
+>  
+> -	if (refill && !try_fill_recv(vi, rq, GFP_KERNEL))
+> -		schedule_refill = true;
+> +	if (refill)
+> +		/* If this fails, we will retry later in NAPI poll, which is
+> +		 * scheduled in the below virtnet_napi_enable
+> +		 */
+> +		try_fill_recv(vi, rq, GFP_KERNEL);
 
 
+hmm do we even need this, then?
 
-> Changes in v2:
-> - Remove the delayed refill worker to simplify the logic instead of trying
-> to fix it
-> - Link to v1:
-> https://lore.kernel.org/netdev/20251223152533.24364-1-minhquangbui99@gmail.com/
-> 
-> Link to the previous approach and discussion:
-> https://lore.kernel.org/netdev/20251212152741.11656-1-minhquangbui99@gmail.com/
-> 
-> Thanks,
-> Quang Minh.
-> 
-> Bui Quang Minh (3):
->   virtio-net: don't schedule delayed refill worker
->   virtio-net: remove unused delayed refill worker
->   virtio-net: clean up __virtnet_rx_pause/resume
-> 
->  drivers/net/virtio_net.c | 171 +++++++++------------------------------
->  1 file changed, 40 insertions(+), 131 deletions(-)
-> 
+> +
+>  	if (running)
+>  		virtnet_napi_enable(rq);
+> -
+> -	if (schedule_refill)
+> -		schedule_delayed_work(&vi->refill, 0);
+>  }
+>  
+>  static void virtnet_rx_resume_all(struct virtnet_info *vi)
+> @@ -3777,6 +3775,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>  	struct virtio_net_rss_config_trailer old_rss_trailer;
+>  	struct net_device *dev = vi->dev;
+>  	struct scatterlist sg;
+> +	int i;
+>  
+>  	if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ))
+>  		return 0;
+> @@ -3829,11 +3828,17 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>  	}
+>  succ:
+>  	vi->curr_queue_pairs = queue_pairs;
+> -	/* virtnet_open() will refill when device is going to up. */
+> -	spin_lock_bh(&vi->refill_lock);
+> -	if (dev->flags & IFF_UP && vi->refill_enabled)
+> -		schedule_delayed_work(&vi->refill, 0);
+> -	spin_unlock_bh(&vi->refill_lock);
+> +	if (dev->flags & IFF_UP) {
+> +		/* Let the NAPI poll refill the receive buffer for us. We can't
+> +		 * safely call try_fill_recv() here because the NAPI might be
+> +		 * enabled already.
+> +		 */
+
+I'd drop this comment, it does not clarify much.
+
+> +		local_bh_disable();
+> +		for (i = 0; i < vi->curr_queue_pairs; i++)
+> +			virtqueue_napi_schedule(&vi->rq[i].napi, vi->rq[i].vq);
+> +
+> +		local_bh_enable();
+> +	}
+>  
+>  	return 0;
+>  }
 > -- 
 > 2.43.0
 
