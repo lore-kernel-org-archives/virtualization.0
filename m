@@ -1,131 +1,86 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC294502A
-	for <virtualization@lists.linux.dev>; Sun,  4 Jan 2026 06:10:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43AD223EA90
+	for <virtualization@lists.linux.dev>; Sun,  4 Jan 2026 07:21:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767507007; cv=none; b=SmoGAdYFsfxWEZ9e5yF19uqgj8sOTX+6/R7FHbq3+TzFmc3iVT7To29Bjc5qE5Qhw095z2o+Uz+qERlvYAu08ZK67LBOVGDU5XIzN7HphZLrY8mygmuGTplLKlkOf/K6hsm5PzMlDckcCLruocT3e4nLw/TYD2GUUYRv7kzUQxA=
+	t=1767511272; cv=none; b=sQnKgOHDhddzz7WE8ZBqhnNNylRpjSdQMn4h7M373yJabjHvj4VUlAhY5WzclUOwTYrL3nCJYQN/+wjj8BMIsKlC7kT3BgR3YUBbyihT9NoUabV2u60+s7+94F2eFc3EHYJ88ZYb4+rune5rKXRCnGbZQrzn09HmC4D1l6aGcEY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767507007; c=relaxed/simple;
-	bh=CgWb+bYt9Ztv1n+WAJLut3SYzPdUQOxyY6BOp6CaO0Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pQmfJcm0gO1ZTEtmmSck1Shz4blV2qeI3aJ7gGXMsnL7LToVVFyNeHlyLT8QzL/5gk9gMRw/lUUlEVSCuMykxWVBO4PAKT1BsbJFqXQ8pH16KgjssZeWqgpRtOiqhU8X0GY2IdWAyxI/En2jkRo/RFa8RXFKIhBYXRsGf3oz1Fc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YUbTE/dp; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1767511272; c=relaxed/simple;
+	bh=Nk/fjs8FcelrSkKsc+dOnGGEP6Ts5C8YS2rUAQ1wCGE=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=gYuWQO7Bw4Lz9Qejp1yCQe5C2pI6l6ebTz+MoyWS9FO/fUNhQI1SY57phET7nn6YCWkHmfYLDAnb/FVQupUpZby6VVymvtjISnzpqpTKJjSvaJkxkcpSajBz+hKmbRPzbJPPTesKFBnv9DUx7zLTJHabOzcYmelhsO8gIsvMAL0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=U4x7Jn0K; arc=none smtp.client-ip=115.124.30.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YUbTE/dp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767507004;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=UDUhJa7ns/wkThtFrvNhjQ5Dkrpl1vZh0STVmQokDz0=;
-	b=YUbTE/dpvtwvTWMfLR5O65dm0pspAs5nehPSPHfghtXP7oj0nXgaEY5dbuZZarA89FnExn
-	+oRJklbm9wZHGVXehamjlzkKz1V5CNgedgrFWQSge58dGWoygYKfNI8OIdNDZSSjwGb5XD
-	fr2wLpjF+35wBgmEYJUhL66shmt6YGc=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-136-K-sPaSzUNlyyHJYZFPaPIw-1; Sun, 04 Jan 2026 01:10:03 -0500
-X-MC-Unique: K-sPaSzUNlyyHJYZFPaPIw-1
-X-Mimecast-MFC-AGG-ID: K-sPaSzUNlyyHJYZFPaPIw_1767507002
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-34e5a9de94bso28913357a91.0
-        for <virtualization@lists.linux.dev>; Sat, 03 Jan 2026 22:10:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767507002; x=1768111802;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=UDUhJa7ns/wkThtFrvNhjQ5Dkrpl1vZh0STVmQokDz0=;
-        b=i9+YgPm49kVCH0fEW0WwVb6dCyAv3Vr+jPjgS8syDOm8+fPi4gIr6A+8eeUe6x3J3h
-         y2zLJIFjiFfm8kBNaoFpUG+S/5JY3ak0E9qFpw71pw/TAEWNlcrGQJw0SBFu09tZph+I
-         LBVfFJO5EW48fWj5sRH7D8Pv7UMDXEkvur3s5up/msIgSuYyD1ZKBIrlGgWztYXBHMcE
-         1xuVQJNuqZuDzTsM/YDAkUqleG4ehUoh3m2WXGr4brS4DjqAJ+ICozt/i1YrDSJnRMEB
-         J3x0QQJUjnGqIG38rk5o3KO76/eny51YQxe/66O35FFSN3khWjzFKJBKIFPTquzh44RV
-         yQJw==
-X-Forwarded-Encrypted: i=1; AJvYcCUY0sfGF1nJDhlCGvo3FMP+OqpXLCpRgqMbXhOeFtiWFzvDa87LtdvbeTx1kxtxoXdqdcldI1jtrEXT5ysKcw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxvV3mq+ra+hlp8+DHzQ3v2wKfBHJqTctoNe21Al1yp1+DNL8JA
-	o8uKfmM7xdS/0FiK6i7CxdQB+QNMZPBbfQUKbdz23JrBwbVT1qgbnGv2j+T8qRE8ejJOLfi1iCI
-	7k/nOVFh57aWvMxhgS98Qp8MGIlvPhJ+tfudjE9SiUGHGjxfJJkRNW3AmRrXjlWpeUqoo3qm5yY
-	aBAcsgN9+wTCn/10uOvaV+b4AMlaK1QZigxiRFUhREUIs=
-X-Gm-Gg: AY/fxX7KqtaadExxle+Pr9g6XAQeaH4xBOI/kJajiBSAjGBz13jZN2mse2ktiZ+anZ/
-	2k5O1DNb3M90WD2Ht4nqNPZ0BdC9ATgcyDdpC8eboMM30LoywjXjsIo8+ue2cuoGkBB8hN8ZdTA
-	ad/SAKxUAayK9xUUlSOnZvj6dS6/AQtVcCdx9pQu6nIakScvKj78rAxxp2gn0GQjo=
-X-Received: by 2002:a17:90b:1346:b0:34a:8c77:d386 with SMTP id 98e67ed59e1d1-34e92139a88mr37176582a91.9.1767507002440;
-        Sat, 03 Jan 2026 22:10:02 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE/jIXIp00+3wsBa88rGNq0RCxEkgNfLl5HGczyOGGwUeed+9vlY8qvbYpSjgM2CvilksFvzf0C9su5g49lkl0=
-X-Received: by 2002:a17:90b:1346:b0:34a:8c77:d386 with SMTP id
- 98e67ed59e1d1-34e92139a88mr37176554a91.9.1767507002029; Sat, 03 Jan 2026
- 22:10:02 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="U4x7Jn0K"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1767511260; h=Message-ID:Subject:Date:From:To;
+	bh=9HsuVJqs0td5USr9OHW02fGRO++tosykJqJGYFCtWaY=;
+	b=U4x7Jn0KCPV78AOTVYvCcm1wWNSFEKow4yoCGjK3Ac2e/P5hUPBNaSPXrR+goDcHb5Bexkd5SGgbfmQW54x6v6RIn7HxwPQINPaOwL27stt7FPYVtJB6WbiU0qVx/O2muM9PuUQF3LOcgkV7SmR7QSUvkMapgKvU36zffGNFu2c=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WwCk1J._1767511259 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sun, 04 Jan 2026 15:20:59 +0800
+Message-ID: <1767511249.7713199-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net] virtio_net: fix device mismatch in devm_kzalloc/devm_kfree
+Date: Sun, 4 Jan 2026 15:20:49 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Kommula Shiva Shankar <kshankar@marvell.com>
+Cc: <mst@redhat.com>,
+ <jasowang@redhat.com>,
+ <xuanzhuo@linux.alibaba.com>,
+ <eperezma@redhat.com>,
+ <andrew+netdev@lunn.ch>,
+ <davem@davemloft.net>,
+ <edumazet@google.com>,
+ <kuba@kernel.org>,
+ <pabeni@redhat.com>,
+ <virtualization@lists.linux.dev>,
+ <linux-kernel@vger.kernel.org>,
+ <jerinj@marvell.com>,
+ <ndabilpuram@marvell.com>,
+ <schalla@marvell.com>,
+ <netdev@vger.kernel.org>
+References: <20260102101900.692770-1-kshankar@marvell.com>
+In-Reply-To: <20260102101900.692770-1-kshankar@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20260102101900.692770-1-kshankar@marvell.com>
-In-Reply-To: <20260102101900.692770-1-kshankar@marvell.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Sun, 4 Jan 2026 14:09:50 +0800
-X-Gm-Features: AQt7F2opfvGY7kJMOmBx5WfNPjyDArtG_Tzb98wkUc-HQ-rEn7urtxnzwOkQZYQ
-Message-ID: <CACGkMEsSbnrRPFicWxMOJyKqpuY1To52qbf-CFSxC+__XjQ1xA@mail.gmail.com>
-Subject: Re: [PATCH net] virtio_net: fix device mismatch in devm_kzalloc/devm_kfree
-To: Kommula Shiva Shankar <kshankar@marvell.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	jerinj@marvell.com, ndabilpuram@marvell.com, schalla@marvell.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: AomQKddnTlnCGV_NeYdR30soA4AOm9SQFoA24LIwEks_1767507002
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 2, 2026 at 6:19=E2=80=AFPM Kommula Shiva Shankar
-<kshankar@marvell.com> wrote:
->
+
+LGTM
+
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+
+On Fri, 2 Jan 2026 15:49:00 +0530, Kommula Shiva Shankar <kshankar@marvell.com> wrote:
 > Initial rss_hdr allocation uses virtio_device->device,
 > but virtnet_set_queues() frees using net_device->device.
 > This device mismatch causing below devres warning
 >
 > [ 3788.514041] ------------[ cut here ]------------
-> [ 3788.514044] WARNING: drivers/base/devres.c:1095 at devm_kfree+0x84/0x9=
-8, CPU#16: vdpa/1463
-> [ 3788.514054] Modules linked in: octep_vdpa virtio_net virtio_vdpa [last=
- unloaded: virtio_vdpa]
-> [ 3788.514064] CPU: 16 UID: 0 PID: 1463 Comm: vdpa Tainted: G        W   =
-        6.18.0 #10 PREEMPT
-> [ 3788.514067] Tainted: [W]=3DWARN
+> [ 3788.514044] WARNING: drivers/base/devres.c:1095 at devm_kfree+0x84/0x98, CPU#16: vdpa/1463
+> [ 3788.514054] Modules linked in: octep_vdpa virtio_net virtio_vdpa [last unloaded: virtio_vdpa]
+> [ 3788.514064] CPU: 16 UID: 0 PID: 1463 Comm: vdpa Tainted: G        W           6.18.0 #10 PREEMPT
+> [ 3788.514067] Tainted: [W]=WARN
 > [ 3788.514069] Hardware name: Marvell CN106XX board (DT)
-> [ 3788.514071] pstate: 63400009 (nZCv daif +PAN -UAO +TCO +DIT -SSBS BTYP=
-E=3D--)
+> [ 3788.514071] pstate: 63400009 (nZCv daif +PAN -UAO +TCO +DIT -SSBS BTYPE=--)
 > [ 3788.514074] pc : devm_kfree+0x84/0x98
 > [ 3788.514076] lr : devm_kfree+0x54/0x98
 > [ 3788.514079] sp : ffff800084e2f220
-> [ 3788.514080] x29: ffff800084e2f220 x28: ffff0003b2366000 x27: 000000000=
-000003f
-> [ 3788.514085] x26: 000000000000003f x25: ffff000106f17c10 x24: 000000000=
-0000080
-> [ 3788.514089] x23: ffff00045bb8ab08 x22: ffff00045bb8a000 x21: 000000000=
-0000018
-> [ 3788.514093] x20: ffff0004355c3080 x19: ffff00045bb8aa00 x18: 000000000=
-0080000
-> [ 3788.514098] x17: 0000000000000040 x16: 000000000000001f x15: 000000000=
-007ffff
-> [ 3788.514102] x14: 0000000000000488 x13: 0000000000000005 x12: 000000000=
-00fffff
-> [ 3788.514106] x11: ffffffffffffffff x10: 0000000000000005 x9 : ffff80008=
-0c8c05c
-> [ 3788.514110] x8 : ffff800084e2eeb8 x7 : 0000000000000000 x6 : 000000000=
-000003f
-> [ 3788.514115] x5 : ffff8000831bafe0 x4 : ffff800080c8b010 x3 : ffff00043=
-55c3080
-> [ 3788.514119] x2 : ffff0004355c3080 x1 : 0000000000000000 x0 : 000000000=
-0000000
+> [ 3788.514080] x29: ffff800084e2f220 x28: ffff0003b2366000 x27: 000000000000003f
+> [ 3788.514085] x26: 000000000000003f x25: ffff000106f17c10 x24: 0000000000000080
+> [ 3788.514089] x23: ffff00045bb8ab08 x22: ffff00045bb8a000 x21: 0000000000000018
+> [ 3788.514093] x20: ffff0004355c3080 x19: ffff00045bb8aa00 x18: 0000000000080000
+> [ 3788.514098] x17: 0000000000000040 x16: 000000000000001f x15: 000000000007ffff
+> [ 3788.514102] x14: 0000000000000488 x13: 0000000000000005 x12: 00000000000fffff
+> [ 3788.514106] x11: ffffffffffffffff x10: 0000000000000005 x9 : ffff800080c8c05c
+> [ 3788.514110] x8 : ffff800084e2eeb8 x7 : 0000000000000000 x6 : 000000000000003f
+> [ 3788.514115] x5 : ffff8000831bafe0 x4 : ffff800080c8b010 x3 : ffff0004355c3080
+> [ 3788.514119] x2 : ffff0004355c3080 x1 : 0000000000000000 x0 : 0000000000000000
 > [ 3788.514123] Call trace:
 > [ 3788.514125]  devm_kfree+0x84/0x98 (P)
 > [ 3788.514129]  virtnet_set_queues+0x134/0x2e8 [virtio_net]
@@ -176,8 +131,40 @@ E=3D--)
 > Fixes: 4944be2f5ad8c ("virtio_net: Allocate rss_hdr with devres")
 > Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
 > ---
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks
-
+>  drivers/net/virtio_net.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 1bb3aeca66c6..22d894101c01 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3791,7 +3791,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>  	if (vi->has_rss && !netif_is_rxfh_configured(dev)) {
+>  		old_rss_hdr = vi->rss_hdr;
+>  		old_rss_trailer = vi->rss_trailer;
+> -		vi->rss_hdr = devm_kzalloc(&dev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
+> +		vi->rss_hdr = devm_kzalloc(&vi->vdev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
+>  		if (!vi->rss_hdr) {
+>  			vi->rss_hdr = old_rss_hdr;
+>  			return -ENOMEM;
+> @@ -3802,7 +3802,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>
+>  		if (!virtnet_commit_rss_command(vi)) {
+>  			/* restore ctrl_rss if commit_rss_command failed */
+> -			devm_kfree(&dev->dev, vi->rss_hdr);
+> +			devm_kfree(&vi->vdev->dev, vi->rss_hdr);
+>  			vi->rss_hdr = old_rss_hdr;
+>  			vi->rss_trailer = old_rss_trailer;
+>
+> @@ -3810,7 +3810,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>  				 queue_pairs);
+>  			return -EINVAL;
+>  		}
+> -		devm_kfree(&dev->dev, old_rss_hdr);
+> +		devm_kfree(&vi->vdev->dev, old_rss_hdr);
+>  		goto succ;
+>  	}
+>
+> --
+> 2.48.1
+>
