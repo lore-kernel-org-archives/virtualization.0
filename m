@@ -1,122 +1,159 @@
-Received: from mail-ej1-f65.google.com (mail-ej1-f65.google.com [209.85.218.65])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5FB332D7F4
-	for <virtualization@lists.linux.dev>; Mon,  5 Jan 2026 09:39:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43F96313E37
+	for <virtualization@lists.linux.dev>; Mon,  5 Jan 2026 09:40:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767606006; cv=none; b=LI5T30heg2tqR3XW1UKQsUnGpCaKNMBH8OjeGJayYVT/sWM04vHXzTukNPXUvkRZpOD53EaMfwifBVQcusGSRIwhPLqsdhmSGSVC0j8a6g8HxLwwZvCvw/cOcrbk6f2O5pIjc/ai+XKrucfPxqRb1QdxfS9zgTghaSQoHTGXP/8=
+	t=1767606050; cv=none; b=ZxofGm6jytHfR05NiObs8qT4zg7PEEkCDdtB0PjEoOu6Jd/ezTiEJ7Gryp9EazLhbKxdab8Eiiz/mY9h6nUAo3bxSQ7t9kHUL3aHxNGAZ7OXFZJn8mdGFUCF3Yle0ch34UUclj3UY2xEtrtkKEQbaNU50J+9WeHpQkjFILeGYO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767606006; c=relaxed/simple;
-	bh=yZbyxtcRFT/Lb1Diixn5oiGwtslPu8jEsyaY/8ZMxcA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CU9jC7iDuO2+C9HdCDFxpfbFdpWnIy13huxFAvxfZOfZb1dtuBfbe/OREAOzZtKL8r2NTa2QdMKYzpGwcG2m+1vYm0Epb6QUcDcW4ZHTqy1lL6BXXHHPldERp9yPltpDAimkArFtdUftOr8kjOqm4SF4t5YFcCxs/SwoOR8dmbU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ak/KFK3W; arc=none smtp.client-ip=209.85.218.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1767606050; c=relaxed/simple;
+	bh=kfKJrQ5a7Po2zi22PzxrbpGrQhRcJMv+xYYFiP1AGz8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=uizENka6VUeCM5k1WZg9acYZi0LjRyUC/p7eaqWAHA2zpIf0GEfwFxfU8wSowut7u6MU2kbMduYRqjHzhRfhfzyYsIPLPcEl5YotVJTFgOVym7HpZEDKarNd/Z/OfH6bkXk0w8AHlAOE3Ds+M3w3m3ELp7KIoVPD/wj/UJvoR+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=JAp4d4mS; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ak/KFK3W"
-Received: by mail-ej1-f65.google.com with SMTP id a640c23a62f3a-b7cee045187so297820166b.0
-        for <virtualization@lists.linux.dev>; Mon, 05 Jan 2026 01:39:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="JAp4d4mS"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4779b49d724so16817325e9.0
+        for <virtualization@lists.linux.dev>; Mon, 05 Jan 2026 01:40:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767605997; x=1768210797; darn=lists.linux.dev;
+        d=suse.com; s=google; t=1767606040; x=1768210840; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=B4KkUUmpJaT8WXzE5q0SPDr10JBD3nieG+D1UpKxwe0=;
-        b=ak/KFK3WQurUqcKc6AOJrL3AkeTUB1TMFCCqdX+5i5WED3GlhHm+ApVF6Eqpc2ujdn
-         mnWk9pymvx9Zvbl0N4d7enBPSyOcy8TqRfGLOYrLKBw6k7qzCLmcmMvduGcAVDfkZzt0
-         Ue7JGyLpBJUq/cPOAIkNy+5OfR8OF2Gt83zA9gfSxQWofWB7whQJG1fG6cfsmlBNGNCZ
-         VZxdulhy2Ejwv7Ugo/1Oc4fAPm40Q7PF5hAm+CzVzaFK//B5rFi68Vb1QrdEZgIijjHN
-         CddYKJeHPfKG7B4NWPgIuPztZNA5/JEdUir+Y5YGsSxVWBJWLO3/Hl/gSUuv7Hb0P2Uq
-         jusA==
+        bh=uoPF4qbo+ysXILWF9RMN1mDoAoivYGl4rzNQocqtbj4=;
+        b=JAp4d4mSrRR+yqI8E08iWf3zgqlrPuFuZWwl/TWwNA/DoVz+K2/91flgeSbgPi65TY
+         1op7FqKJJ+R+JoR54tttZOtMNXtaOJArtX5d+0SV3n7ZtC3GnmCXfad6TJPRMsbUP31n
+         GSCti5NYT1QiEZ5+/MR6FY4YK0t2uMxj1LYqdQ+SUVwSWecdHxjOZQaDozYsvBSHjZzg
+         pbodljD6+kPryVZtqcN0Q3E2D3OK4ghA5oMid+UHLjKI/3o+M8LyAuV+V+lmHH5m+DA/
+         H4LxR2LwURZtEh/wWBOQSw907WFOsljSWg++MJvZAv/RoI8O0ezKZgdA7EUSSg4i8Q+k
+         gE8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767605997; x=1768210797;
+        d=1e100.net; s=20230601; t=1767606040; x=1768210840;
         h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=B4KkUUmpJaT8WXzE5q0SPDr10JBD3nieG+D1UpKxwe0=;
-        b=bsRYftZGyh2m28dS1IXh5SCTpq+DeUA/aIgru3ne7MM4KlB32yzFaLfYjPvRxE3zcE
-         IQyMie3kvGegLsSU2bYVZOS6p9wP/q+XjNokjaxmTQf5bpFUwxf6CMTEDI7Q8Gn3EXDN
-         pw02aAvB3ggOPvS9rT1ivz+faB7boqdpR1vff27ZabeYBlJba0X08cXF31MQ/zJudy8N
-         mms6xyHZmDkNreGqaJLUiT41JtWjuSzDxW6u/VGjAcn4vtNPbRwhnHWuwICa4iPrYq13
-         +2ZH4K0R2nDOOg3mJucB9OiKZyP8rVco4mEimXKS6XnIewMJmTHA1pE11sVJCwaV/34Q
-         EiMA==
-X-Forwarded-Encrypted: i=1; AJvYcCWLnBGKRuw6FzASX/QXXMOdmGXTmQz6922FAbAZv/K4EC5KtDsSdGONSsTxKD7cPsXtZF3NaBKWXaazNl93zQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YymlfQW0hPON1WRmlfPQ/GXaZPWt0VV23W+6Qqpmy40bq4oI2tN
-	7/dpM40Efxp5PCgosOE8NVcRSFpVyLi9iAuXynGNJ0o+ASM8UPYB+TXV
-X-Gm-Gg: AY/fxX75xnjQHRmA3KI2loA7v9LbV1GukMzbVhwysOPeSON6m9AuKNyoN2FHDELd76w
-	n6qFI7xS9WACTLO5pr2MN650gFz/ysh7mBmOj7bqr2vQ0qO5dItrC5+nfvJB9AnyjHBmSPyEtos
-	GvSjnQ/XPIhwCN20Rg8QihuDcIAvxbGA1OTHhi7M4KvwnZC6XyrZvoNU4FNOE15nFOLAeRDRFjA
-	72KLq7a8NNqBvvglaYVjoZSQdwaGgQpE8FcNBfI6y7jHKw8twVF1cAar8+2q4kY0RFrFyFuBcJ2
-	zDiw+4zQE7T21pKhZV7vtgFXZw9ZJM1zVCTAYnkbJvsnGzr1slEIvQTJZay3qVK6xh/WWIPVR7d
-	jAlswr0SavAUcu6a3OdCQa+/Xk5XEzdLMOobE/0uL3RdbbVvGZcBjH8v0aDcobrpL+DzYuqEpgD
-	7BlU+Fq/CkWNM2nOWLciKY/iwSKfswuSBTGFh1xqa2TGSarqCNYlTvTg==
-X-Google-Smtp-Source: AGHT+IEVbdrZFRNA0RtVYHuo04RS+pjSOxfJqfDpy5JW3TAzvl0mx38pCS1oMImDRXcIEwFroBCGHw==
-X-Received: by 2002:a17:906:318b:b0:b7c:e6fe:bc53 with SMTP id a640c23a62f3a-b83e25b406emr478883266b.7.1767605996934;
-        Mon, 05 Jan 2026 01:39:56 -0800 (PST)
-Received: from fedora ([193.77.86.199])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8037de11dasm5393543466b.35.2026.01.05.01.39.55
+        bh=uoPF4qbo+ysXILWF9RMN1mDoAoivYGl4rzNQocqtbj4=;
+        b=Vgi9BY0gu5RHZu0vsIrPrcB9yzGsi1Fd37z8qWJSyi1+L35Ll6XSaT0+6MgUxsg4/q
+         CXbncV5W7UwL7dIAx85shaIzcWJg67aOeHpWYzqCUKn89xV+y5qbCYjbgl49ekPSAXat
+         FBIIWSZWwJQnAd72c+hzsit6YWjJWaDbeTURBoRc4WH4pDmFaKP0Qp+u4Ipi9QkLR7aT
+         zJiVucvJb0K6bU3JAUi3yWuPXjwiuPaoLlk06+RsT74njM49aQVkGRbTKXIKro8+wLPD
+         tDjM7QS2EYAVe3Bu00iFbAYPZldzHO6nMovtxEEQUSXqnu8YmM+kdSq0RykpNsqj+mWi
+         /7rQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW+bEJ0OC+y7x65CTw7z+b2+OJz7WdHmY4GB4OK/o8R5Z2cvFQMyJ8yQTiP/mh7XJocea0BCCpeP3YH0l/GTg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yze/AnxjNF0oEbCD3qzX2X5KMGicCkugpeZIWhzCfbAU723rsLl
+	SWxt9kdMopthiXNz/0sRWxKsRL74SZgMUqM7Aq+VnCWnnzwcVa/LOyCUk+gIey15Mms=
+X-Gm-Gg: AY/fxX4Xzw4uq/Y8txvyoDejsOjy4i/MekuHcFzdIlqDiyYpquNiKI46Pz7eZ3yyfb9
+	i7FW4aFJmKb/Y2BHd97PqsTjsyS5+ll5edTB1EjnfWnnv4NI41xpurUZ9I743optByCsgusSv74
+	2GOM4yAG53VioiT9ezUzux19/Kq1E/tXzgChXiGkjrwUuy8kFBF34ltv3F03i7iKNG5aejv2D20
+	V1uaGiMpPwpZDsMymGc512mU5tQAo+BekQJ9zFu8DJKPfXd10c3NHWLSqRN9fRT0TzsoGp0zWmd
+	hMuiJOf4HIp2bTfpzdeByMQYDJTpONnO03BD+4Mbl4UsvowJfqABWqljYPUGzGM6YAPL7U5zbh/
+	VdTBl6oE9YDl0EcS8/0EzOxopCSVGxeUpw5IBdUoyFDGzhvUfhL2diizJTcFCWaoxVuKgTq6orN
+	UoaRf7T3Allvdt5ee4VsvtAJDPb9wuwevLj1dBaHpeW78ybxEWoV0WGUH4K8mdaexnoQqkmhhsp
+	TuLDwPiOyfCLPU=
+X-Google-Smtp-Source: AGHT+IH9uJ6jLlQ3sMbfjfqB2tBZwtUo3Z4YZNjyI98ICTrDJSXZI/68FFDolBTS/hTy3IR7RjNHZw==
+X-Received: by 2002:a05:6000:1841:b0:432:84fc:46bb with SMTP id ffacd0b85a97d-43284fc4782mr21485079f8f.6.1767606040029;
+        Mon, 05 Jan 2026 01:40:40 -0800 (PST)
+Received: from mordecai (dynamic-2a00-1028-83b8-1e7a-3010-3bd6-8521-caf1.ipv6.o2.cz. [2a00:1028:83b8:1e7a:3010:3bd6:8521:caf1])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4324e9ba877sm100563291f8f.0.2026.01.05.01.40.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Jan 2026 01:39:56 -0800 (PST)
-From: Uros Bizjak <ubizjak@gmail.com>
-To: bcm-kernel-feedback-list@broadcom.com,
-	virtualization@lists.linux.dev,
-	x86@kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Uros Bizjak <ubizjak@gmail.com>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>
-Subject: [PATCH RESEND 2/2] x86/paravirt: Use XOR r32,r32 to clear register in pv_vcpu_is_preempted()
-Date: Mon,  5 Jan 2026 10:39:07 +0100
-Message-ID: <20260105093944.52387-2-ubizjak@gmail.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260105093944.52387-1-ubizjak@gmail.com>
-References: <20260105093944.52387-1-ubizjak@gmail.com>
+        Mon, 05 Jan 2026 01:40:39 -0800 (PST)
+Date: Mon, 5 Jan 2026 10:40:36 +0100
+From: Petr Tesarik <ptesarik@suse.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+ Jonathan Corbet <corbet@lwn.net>, Olivia Mackall <olivia@selenic.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Eugenio =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, "James E.J. Bottomley"
+ <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen"
+ <martin.petersen@oracle.com>, Gerd Hoffmann <kraxel@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Robin Murphy <robin.murphy@arm.com>, Stefano Garzarella
+ <sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Leon Romanovsky
+ <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, Bartosz Golaszewski
+ <brgl@kernel.org>, linux-doc@vger.kernel.org, linux-crypto@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
+ iommu@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH v2 01/15] dma-mapping: add
+ __dma_from_device_group_begin()/end()
+Message-ID: <20260105104036.09a77f13@mordecai>
+In-Reply-To: <19163086d5e4704c316f18f6da06bc1c72968904.1767601130.git.mst@redhat.com>
+References: <cover.1767601130.git.mst@redhat.com>
+	<19163086d5e4704c316f18f6da06bc1c72968904.1767601130.git.mst@redhat.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-suse-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-x86_64 zero extends 32bit operations, so for 64bit operands,
-XOR r32,r32 is functionally equal to XOR r64,r64, but avoids
-a REX prefix byte when legacy registers are used.
+On Mon, 5 Jan 2026 03:22:54 -0500
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Signed-off-by: Uros Bizjak <ubizjak@gmail.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Cc: Ajay Kaher <ajay.kaher@broadcom.com>
-Cc: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
----
- arch/x86/include/asm/paravirt.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> When a structure contains a buffer that DMA writes to alongside fields
+> that the CPU writes to, cache line sharing between the DMA buffer and
+> CPU-written fields can cause data corruption on non-cache-coherent
+> platforms.
+> 
+> Add __dma_from_device_group_begin()/end() annotations to ensure proper
+> alignment to prevent this:
+> 
+> struct my_device {
+> 	spinlock_t lock1;
+> 	__dma_from_device_group_begin();
+> 	char dma_buffer1[16];
+> 	char dma_buffer2[16];
+> 	__dma_from_device_group_end();
+> 	spinlock_t lock2;
+> };
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 4f6ec60b4cb3..59aec695ae5f 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -577,7 +577,7 @@ static __always_inline void pv_kick(int cpu)
- static __always_inline bool pv_vcpu_is_preempted(long cpu)
- {
- 	return PVOP_ALT_CALLEE1(bool, lock.vcpu_is_preempted, cpu,
--				"xor %%" _ASM_AX ", %%" _ASM_AX,
-+				"xor %%eax, %%eax",
- 				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
- }
- 
--- 
-2.52.0
+LGTM. I'm not formally a reviewer, but FWIW:
+
+Reviewed-by: Petr Tesarik <ptesarik@suse.com>
+
+> ---
+>  include/linux/dma-mapping.h | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+> index aa36a0d1d9df..29ad2ce700f0 100644
+> --- a/include/linux/dma-mapping.h
+> +++ b/include/linux/dma-mapping.h
+> @@ -7,6 +7,7 @@
+>  #include <linux/dma-direction.h>
+>  #include <linux/scatterlist.h>
+>  #include <linux/bug.h>
+> +#include <linux/cache.h>
+>  
+>  /**
+>   * List of possible attributes associated with a DMA mapping. The semantics
+> @@ -703,6 +704,18 @@ static inline int dma_get_cache_alignment(void)
+>  }
+>  #endif
+>  
+> +#ifdef ARCH_HAS_DMA_MINALIGN
+> +#define ____dma_from_device_aligned __aligned(ARCH_DMA_MINALIGN)
+> +#else
+> +#define ____dma_from_device_aligned
+> +#endif
+> +/* Mark start of DMA buffer */
+> +#define __dma_from_device_group_begin(GROUP)			\
+> +	__cacheline_group_begin(GROUP) ____dma_from_device_aligned
+> +/* Mark end of DMA buffer */
+> +#define __dma_from_device_group_end(GROUP)			\
+> +	__cacheline_group_end(GROUP) ____dma_from_device_aligned
+> +
+>  static inline void *dmam_alloc_coherent(struct device *dev, size_t size,
+>  		dma_addr_t *dma_handle, gfp_t gfp)
+>  {
 
