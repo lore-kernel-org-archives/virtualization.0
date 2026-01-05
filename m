@@ -1,53 +1,87 @@
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86ACA33AD9A
-	for <virtualization@lists.linux.dev>; Mon,  5 Jan 2026 11:07:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1F333B96C
+	for <virtualization@lists.linux.dev>; Mon,  5 Jan 2026 11:07:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767611250; cv=none; b=jQM9I5/ZrStBYHnL9pQpZluRfOnoF+yqjWxsi7/BwgZrclRFWlDOzLMzZDuWGWamsLjV7oFAJUCpRUEtQ7jFMoHxNWsrK3vJpy4DUpB3yxp8JeR4y2Z/cSNX9oMHe8qatp1ecYnQtt77BMZcyr2y3o6lGcPqqTW/1lisK2RL5BY=
+	t=1767611257; cv=none; b=SBsejdUuPiSDqsPKUeG8ls6WEMvV6GAxnbVJ/9mRG50wgnnKnIiiGsWS1vbxgx5kw0IZbA4gnE5cR9Ph5ZrqrjyUtywpeGsxG5TpjxvwkBW/ASu5vktHDbFg3+ZcKlnTmFLJUB4VZU1NgyPDVQJZeipcUCEH766qSHW39rLrofs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767611250; c=relaxed/simple;
-	bh=qJvGSurNC4nC+xIXDC77hnqRFvzpL24xFOuN0Pwkxtk=;
+	s=arc-20240116; t=1767611257; c=relaxed/simple;
+	bh=avEbGvChwI1O76zZaAMLIq24RgW9ltLjcQR7UdHT3gU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CMIoRkp8C9Mt6gRxh4p0O1EjKYIrVs90ZEKO33cZmWGSwj9aT2jREyQ9qzC3xdZHZfKHGZIENlvMBPWA5XbGsR+y/n/mN5eOUQLt3pLnithZDvwN1GRMHnFxhyowY9XxoxujTICnZEpxtCsP/YCxjtIw9c0oHHQnAhWFS9+eISM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version; b=UqXZXuRQKgxwHaXorcGgIxssyUpko81zgSzR4Q+KFU1vX3I+liT9XziWlxu17fLZX5LeYJ3l5nM2el4iixE1REgLFQA6FqN7nZJWMqdZ7fOO9d1lysloviJg10TiowfnBRABrqmF8S6ufvAXYcLdBw72x1rY67C7HoA5OfHoTVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=lptGcwlJ; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=lptGcwlJ; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="lptGcwlJ";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="lptGcwlJ"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id AAD2F33741;
-	Mon,  5 Jan 2026 11:07:25 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id D75DC336E8;
+	Mon,  5 Jan 2026 11:07:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1767611251; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m2x+DB8IEEuPPYlyN3XtHvE/Gv0XnNAceoEiDGJY84Y=;
+	b=lptGcwlJAhmpQwpbJbGlZEEbxPHbmEqaetuxTliZGcL+EeP6UwoeE7uCOCBIOYcgAZDE+q
+	TlwgnBovt2zCJGCtwhx3Rd0G6JkBksvJ9JQGvl+Do0+zmoUJ2UDzZeGlSHj/sTY6VL3ifC
+	jAKqXxZcIfJvvRDAMHWSSQd2QToob/k=
 Authentication-Results: smtp-out1.suse.de;
 	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1767611251; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m2x+DB8IEEuPPYlyN3XtHvE/Gv0XnNAceoEiDGJY84Y=;
+	b=lptGcwlJAhmpQwpbJbGlZEEbxPHbmEqaetuxTliZGcL+EeP6UwoeE7uCOCBIOYcgAZDE+q
+	TlwgnBovt2zCJGCtwhx3Rd0G6JkBksvJ9JQGvl+Do0+zmoUJ2UDzZeGlSHj/sTY6VL3ifC
+	jAKqXxZcIfJvvRDAMHWSSQd2QToob/k=
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 433863EA63;
-	Mon,  5 Jan 2026 11:07:25 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 22DFC3EA63;
+	Mon,  5 Jan 2026 11:07:31 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id n469Dm2bW2lyWgAAD6G6ig
-	(envelope-from <jgross@suse.com>); Mon, 05 Jan 2026 11:07:25 +0000
+	id 3hfuBnObW2l4WgAAD6G6ig
+	(envelope-from <jgross@suse.com>); Mon, 05 Jan 2026 11:07:31 +0000
 From: Juergen Gross <jgross@suse.com>
 To: linux-kernel@vger.kernel.org,
 	x86@kernel.org,
-	virtualization@lists.linux.dev
+	linux-hyperv@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org
 Cc: Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Ingo Molnar <mingo@redhat.com>,
 	Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>
-Subject: [PATCH v5 20/21] x86/paravirt: Specify pv_ops array in paravirt macros
-Date: Mon,  5 Jan 2026 12:05:19 +0100
-Message-ID: <20260105110520.21356-21-jgross@suse.com>
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	xen-devel@lists.xenproject.org
+Subject: [PATCH v5 21/21] x86/pvlocks: Move paravirt spinlock functions into own header
+Date: Mon,  5 Jan 2026 12:05:20 +0100
+Message-ID: <20260105110520.21356-22-jgross@suse.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260105110520.21356-1-jgross@suse.com>
 References: <20260105110520.21356-1-jgross@suse.com>
@@ -58,783 +92,670 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
-X-Rspamd-Queue-Id: AAD2F33741
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spam-Score: -4.00
-X-Spam-Level: 
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 X-Spam-Flag: NO
-X-Rspamd-Action: no action
+X-Spam-Score: -6.80
+X-Spam-Level: 
+X-Spamd-Result: default: False [-6.80 / 50.00];
+	REPLY(-4.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-0.989];
+	MIME_GOOD(-0.10)[text/plain];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:email,suse.com:mid];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[25];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FROM_HAS_DN(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	RCVD_TLS_ALL(0.00)[]
 
-In order to prepare having multiple pv_ops arrays, specify the array
-in the paravirt macros.
+Instead of having the pv spinlock function definitions in paravirt.h,
+move them into the new header paravirt-spinlock.h.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
 V2:
-- new patch
+- use new header instead of qspinlock.h
+- use dedicated pv_ops_lock array
+- move more paravirt related lock code
+V3:
+- hide native_pv_lock_init() with CONFIG_SMP (kernel test robot)
+V4:
+- don't reference pv_ops_lock without CONFIG_PARAVIRT_SPINLOCKS
+  (kernel test robot)
+V5:
+- move paravirt_set_cap() declaration into paravirt-base.h
+  (kernel test robot)
 ---
- arch/x86/include/asm/paravirt.h       | 166 +++++++++++++-------------
- arch/x86/include/asm/paravirt_types.h | 140 +++++++++++-----------
- 2 files changed, 153 insertions(+), 153 deletions(-)
+ arch/x86/hyperv/hv_spinlock.c            |  10 +-
+ arch/x86/include/asm/paravirt-base.h     |   6 +
+ arch/x86/include/asm/paravirt-spinlock.h | 145 +++++++++++++++++++++++
+ arch/x86/include/asm/paravirt.h          |  61 ----------
+ arch/x86/include/asm/paravirt_types.h    |  17 ---
+ arch/x86/include/asm/qspinlock.h         |  87 +-------------
+ arch/x86/kernel/Makefile                 |   2 +-
+ arch/x86/kernel/kvm.c                    |  12 +-
+ arch/x86/kernel/paravirt-spinlocks.c     |  26 +++-
+ arch/x86/kernel/paravirt.c               |  21 ----
+ arch/x86/xen/spinlock.c                  |  10 +-
+ tools/objtool/check.c                    |   1 +
+ 12 files changed, 198 insertions(+), 200 deletions(-)
+ create mode 100644 arch/x86/include/asm/paravirt-spinlock.h
 
+diff --git a/arch/x86/hyperv/hv_spinlock.c b/arch/x86/hyperv/hv_spinlock.c
+index 2a3c2afb0154..210b494e4de0 100644
+--- a/arch/x86/hyperv/hv_spinlock.c
++++ b/arch/x86/hyperv/hv_spinlock.c
+@@ -78,11 +78,11 @@ void __init hv_init_spinlocks(void)
+ 	pr_info("PV spinlocks enabled\n");
+ 
+ 	__pv_init_lock_hash();
+-	pv_ops.lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
+-	pv_ops.lock.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
+-	pv_ops.lock.wait = hv_qlock_wait;
+-	pv_ops.lock.kick = hv_qlock_kick;
+-	pv_ops.lock.vcpu_is_preempted = PV_CALLEE_SAVE(hv_vcpu_is_preempted);
++	pv_ops_lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
++	pv_ops_lock.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
++	pv_ops_lock.wait = hv_qlock_wait;
++	pv_ops_lock.kick = hv_qlock_kick;
++	pv_ops_lock.vcpu_is_preempted = PV_CALLEE_SAVE(hv_vcpu_is_preempted);
+ }
+ 
+ static __init int hv_parse_nopvspin(char *arg)
+diff --git a/arch/x86/include/asm/paravirt-base.h b/arch/x86/include/asm/paravirt-base.h
+index 3827ea20de18..982a0b93bc76 100644
+--- a/arch/x86/include/asm/paravirt-base.h
++++ b/arch/x86/include/asm/paravirt-base.h
+@@ -26,4 +26,10 @@ u64 _paravirt_ident_64(u64);
+ #endif
+ #define paravirt_nop	((void *)nop_func)
+ 
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++void paravirt_set_cap(void);
++#else
++static inline void paravirt_set_cap(void) { }
++#endif
++
+ #endif /* _ASM_X86_PARAVIRT_BASE_H */
+diff --git a/arch/x86/include/asm/paravirt-spinlock.h b/arch/x86/include/asm/paravirt-spinlock.h
+new file mode 100644
+index 000000000000..a5011ef3a6cc
+--- /dev/null
++++ b/arch/x86/include/asm/paravirt-spinlock.h
+@@ -0,0 +1,145 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++#ifndef _ASM_X86_PARAVIRT_SPINLOCK_H
++#define _ASM_X86_PARAVIRT_SPINLOCK_H
++
++#include <asm/paravirt_types.h>
++
++#ifdef CONFIG_SMP
++#include <asm/spinlock_types.h>
++#endif
++
++struct qspinlock;
++
++struct pv_lock_ops {
++	void (*queued_spin_lock_slowpath)(struct qspinlock *lock, u32 val);
++	struct paravirt_callee_save queued_spin_unlock;
++
++	void (*wait)(u8 *ptr, u8 val);
++	void (*kick)(int cpu);
++
++	struct paravirt_callee_save vcpu_is_preempted;
++} __no_randomize_layout;
++
++extern struct pv_lock_ops pv_ops_lock;
++
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
++extern void __pv_init_lock_hash(void);
++extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
++extern void __raw_callee_save___pv_queued_spin_unlock(struct qspinlock *lock);
++extern bool nopvspin;
++
++static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
++							 u32 val)
++{
++	PVOP_VCALL2(pv_ops_lock, queued_spin_lock_slowpath, lock, val);
++}
++
++static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
++{
++	PVOP_ALT_VCALLEE1(pv_ops_lock, queued_spin_unlock, lock,
++			  "movb $0, (%%" _ASM_ARG1 ");",
++			  ALT_NOT(X86_FEATURE_PVUNLOCK));
++}
++
++static __always_inline bool pv_vcpu_is_preempted(long cpu)
++{
++	return PVOP_ALT_CALLEE1(bool, pv_ops_lock, vcpu_is_preempted, cpu,
++				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
++				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
++}
++
++#define queued_spin_unlock queued_spin_unlock
++/**
++ * queued_spin_unlock - release a queued spinlock
++ * @lock : Pointer to queued spinlock structure
++ *
++ * A smp_store_release() on the least-significant byte.
++ */
++static inline void native_queued_spin_unlock(struct qspinlock *lock)
++{
++	smp_store_release(&lock->locked, 0);
++}
++
++static inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
++{
++	pv_queued_spin_lock_slowpath(lock, val);
++}
++
++static inline void queued_spin_unlock(struct qspinlock *lock)
++{
++	kcsan_release();
++	pv_queued_spin_unlock(lock);
++}
++
++#define vcpu_is_preempted vcpu_is_preempted
++static inline bool vcpu_is_preempted(long cpu)
++{
++	return pv_vcpu_is_preempted(cpu);
++}
++
++static __always_inline void pv_wait(u8 *ptr, u8 val)
++{
++	PVOP_VCALL2(pv_ops_lock, wait, ptr, val);
++}
++
++static __always_inline void pv_kick(int cpu)
++{
++	PVOP_VCALL1(pv_ops_lock, kick, cpu);
++}
++
++void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
++bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
++#endif /* CONFIG_PARAVIRT_SPINLOCKS */
++
++void __init native_pv_lock_init(void);
++__visible void __native_queued_spin_unlock(struct qspinlock *lock);
++bool pv_is_native_spin_unlock(void);
++__visible bool __native_vcpu_is_preempted(long cpu);
++bool pv_is_native_vcpu_is_preempted(void);
++
++/*
++ * virt_spin_lock_key - disables by default the virt_spin_lock() hijack.
++ *
++ * Native (and PV wanting native due to vCPU pinning) should keep this key
++ * disabled. Native does not touch the key.
++ *
++ * When in a guest then native_pv_lock_init() enables the key first and
++ * KVM/XEN might conditionally disable it later in the boot process again.
++ */
++DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
++
++/*
++ * Shortcut for the queued_spin_lock_slowpath() function that allows
++ * virt to hijack it.
++ *
++ * Returns:
++ *   true - lock has been negotiated, all done;
++ *   false - queued_spin_lock_slowpath() will do its thing.
++ */
++#define virt_spin_lock virt_spin_lock
++static inline bool virt_spin_lock(struct qspinlock *lock)
++{
++	int val;
++
++	if (!static_branch_likely(&virt_spin_lock_key))
++		return false;
++
++	/*
++	 * On hypervisors without PARAVIRT_SPINLOCKS support we fall
++	 * back to a Test-and-Set spinlock, because fair locks have
++	 * horrible lock 'holder' preemption issues.
++	 */
++
++ __retry:
++	val = atomic_read(&lock->val);
++
++	if (val || !atomic_try_cmpxchg(&lock->val, &val, _Q_LOCKED_VAL)) {
++		cpu_relax();
++		goto __retry;
++	}
++
++	return true;
++}
++
++#endif /* _ASM_X86_PARAVIRT_SPINLOCK_H */
 diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index ba6b14b6f36a..ec274d13bae0 100644
+index ec274d13bae0..b21072af731d 100644
 --- a/arch/x86/include/asm/paravirt.h
 +++ b/arch/x86/include/asm/paravirt.h
-@@ -31,11 +31,11 @@ void __init paravirt_set_cap(void);
+@@ -19,15 +19,6 @@
+ #include <linux/cpumask.h>
+ #include <asm/frame.h>
+ 
+-__visible void __native_queued_spin_unlock(struct qspinlock *lock);
+-bool pv_is_native_spin_unlock(void);
+-__visible bool __native_vcpu_is_preempted(long cpu);
+-bool pv_is_native_vcpu_is_preempted(void);
+-
+-#ifdef CONFIG_PARAVIRT_SPINLOCKS
+-void __init paravirt_set_cap(void);
+-#endif
+-
  /* The paravirtualized I/O functions */
  static inline void slow_down_io(void)
  {
--	PVOP_VCALL0(cpu.io_delay);
-+	PVOP_VCALL0(pv_ops, cpu.io_delay);
- #ifdef REALLY_SLOW_IO
--	PVOP_VCALL0(cpu.io_delay);
--	PVOP_VCALL0(cpu.io_delay);
--	PVOP_VCALL0(cpu.io_delay);
-+	PVOP_VCALL0(pv_ops, cpu.io_delay);
-+	PVOP_VCALL0(pv_ops, cpu.io_delay);
-+	PVOP_VCALL0(pv_ops, cpu.io_delay);
- #endif
- }
- 
-@@ -47,57 +47,57 @@ void native_flush_tlb_multi(const struct cpumask *cpumask,
- 
- static inline void __flush_tlb_local(void)
- {
--	PVOP_VCALL0(mmu.flush_tlb_user);
-+	PVOP_VCALL0(pv_ops, mmu.flush_tlb_user);
- }
- 
- static inline void __flush_tlb_global(void)
- {
--	PVOP_VCALL0(mmu.flush_tlb_kernel);
-+	PVOP_VCALL0(pv_ops, mmu.flush_tlb_kernel);
- }
- 
- static inline void __flush_tlb_one_user(unsigned long addr)
- {
--	PVOP_VCALL1(mmu.flush_tlb_one_user, addr);
-+	PVOP_VCALL1(pv_ops, mmu.flush_tlb_one_user, addr);
- }
- 
- static inline void __flush_tlb_multi(const struct cpumask *cpumask,
- 				      const struct flush_tlb_info *info)
- {
--	PVOP_VCALL2(mmu.flush_tlb_multi, cpumask, info);
-+	PVOP_VCALL2(pv_ops, mmu.flush_tlb_multi, cpumask, info);
- }
- 
- static inline void paravirt_arch_exit_mmap(struct mm_struct *mm)
- {
--	PVOP_VCALL1(mmu.exit_mmap, mm);
-+	PVOP_VCALL1(pv_ops, mmu.exit_mmap, mm);
- }
- 
- static inline void notify_page_enc_status_changed(unsigned long pfn,
- 						  int npages, bool enc)
- {
--	PVOP_VCALL3(mmu.notify_page_enc_status_changed, pfn, npages, enc);
-+	PVOP_VCALL3(pv_ops, mmu.notify_page_enc_status_changed, pfn, npages, enc);
- }
- 
- static __always_inline void arch_safe_halt(void)
- {
--	PVOP_VCALL0(irq.safe_halt);
-+	PVOP_VCALL0(pv_ops, irq.safe_halt);
- }
- 
- static inline void halt(void)
- {
--	PVOP_VCALL0(irq.halt);
-+	PVOP_VCALL0(pv_ops, irq.halt);
- }
- 
- #ifdef CONFIG_PARAVIRT_XXL
- static inline void load_sp0(unsigned long sp0)
- {
--	PVOP_VCALL1(cpu.load_sp0, sp0);
-+	PVOP_VCALL1(pv_ops, cpu.load_sp0, sp0);
- }
- 
- /* The paravirtualized CPUID instruction. */
- static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
- 			   unsigned int *ecx, unsigned int *edx)
- {
--	PVOP_VCALL4(cpu.cpuid, eax, ebx, ecx, edx);
-+	PVOP_VCALL4(pv_ops, cpu.cpuid, eax, ebx, ecx, edx);
- }
- 
- /*
-@@ -105,69 +105,69 @@ static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
-  */
- static __always_inline unsigned long paravirt_get_debugreg(int reg)
- {
--	return PVOP_CALL1(unsigned long, cpu.get_debugreg, reg);
-+	return PVOP_CALL1(unsigned long, pv_ops, cpu.get_debugreg, reg);
- }
- #define get_debugreg(var, reg) var = paravirt_get_debugreg(reg)
- static __always_inline void set_debugreg(unsigned long val, int reg)
- {
--	PVOP_VCALL2(cpu.set_debugreg, reg, val);
-+	PVOP_VCALL2(pv_ops, cpu.set_debugreg, reg, val);
- }
- 
- static inline unsigned long read_cr0(void)
- {
--	return PVOP_CALL0(unsigned long, cpu.read_cr0);
-+	return PVOP_CALL0(unsigned long, pv_ops, cpu.read_cr0);
- }
- 
- static inline void write_cr0(unsigned long x)
- {
--	PVOP_VCALL1(cpu.write_cr0, x);
-+	PVOP_VCALL1(pv_ops, cpu.write_cr0, x);
- }
- 
- static __always_inline unsigned long read_cr2(void)
- {
--	return PVOP_ALT_CALLEE0(unsigned long, mmu.read_cr2,
-+	return PVOP_ALT_CALLEE0(unsigned long, pv_ops, mmu.read_cr2,
- 				"mov %%cr2, %%rax;", ALT_NOT_XEN);
- }
- 
- static __always_inline void write_cr2(unsigned long x)
- {
--	PVOP_VCALL1(mmu.write_cr2, x);
-+	PVOP_VCALL1(pv_ops, mmu.write_cr2, x);
- }
- 
- static inline unsigned long __read_cr3(void)
- {
--	return PVOP_ALT_CALL0(unsigned long, mmu.read_cr3,
-+	return PVOP_ALT_CALL0(unsigned long, pv_ops, mmu.read_cr3,
- 			      "mov %%cr3, %%rax;", ALT_NOT_XEN);
- }
- 
- static inline void write_cr3(unsigned long x)
- {
--	PVOP_ALT_VCALL1(mmu.write_cr3, x, "mov %%rdi, %%cr3", ALT_NOT_XEN);
-+	PVOP_ALT_VCALL1(pv_ops, mmu.write_cr3, x, "mov %%rdi, %%cr3", ALT_NOT_XEN);
- }
- 
- static inline void __write_cr4(unsigned long x)
- {
--	PVOP_VCALL1(cpu.write_cr4, x);
-+	PVOP_VCALL1(pv_ops, cpu.write_cr4, x);
- }
- 
- static inline u64 paravirt_read_msr(u32 msr)
- {
--	return PVOP_CALL1(u64, cpu.read_msr, msr);
-+	return PVOP_CALL1(u64, pv_ops, cpu.read_msr, msr);
- }
- 
- static inline void paravirt_write_msr(u32 msr, u64 val)
- {
--	PVOP_VCALL2(cpu.write_msr, msr, val);
-+	PVOP_VCALL2(pv_ops, cpu.write_msr, msr, val);
- }
- 
- static inline int paravirt_read_msr_safe(u32 msr, u64 *val)
- {
--	return PVOP_CALL2(int, cpu.read_msr_safe, msr, val);
-+	return PVOP_CALL2(int, pv_ops, cpu.read_msr_safe, msr, val);
- }
- 
- static inline int paravirt_write_msr_safe(u32 msr, u64 val)
- {
--	return PVOP_CALL2(int, cpu.write_msr_safe, msr, val);
-+	return PVOP_CALL2(int, pv_ops, cpu.write_msr_safe, msr, val);
- }
- 
- #define rdmsr(msr, val1, val2)			\
-@@ -214,154 +214,154 @@ static __always_inline int rdmsrq_safe(u32 msr, u64 *p)
- 
- static __always_inline u64 rdpmc(int counter)
- {
--	return PVOP_CALL1(u64, cpu.read_pmc, counter);
-+	return PVOP_CALL1(u64, pv_ops, cpu.read_pmc, counter);
- }
- 
- static inline void paravirt_alloc_ldt(struct desc_struct *ldt, unsigned entries)
- {
--	PVOP_VCALL2(cpu.alloc_ldt, ldt, entries);
-+	PVOP_VCALL2(pv_ops, cpu.alloc_ldt, ldt, entries);
- }
- 
- static inline void paravirt_free_ldt(struct desc_struct *ldt, unsigned entries)
- {
--	PVOP_VCALL2(cpu.free_ldt, ldt, entries);
-+	PVOP_VCALL2(pv_ops, cpu.free_ldt, ldt, entries);
- }
- 
- static inline void load_TR_desc(void)
- {
--	PVOP_VCALL0(cpu.load_tr_desc);
-+	PVOP_VCALL0(pv_ops, cpu.load_tr_desc);
- }
- static inline void load_gdt(const struct desc_ptr *dtr)
- {
--	PVOP_VCALL1(cpu.load_gdt, dtr);
-+	PVOP_VCALL1(pv_ops, cpu.load_gdt, dtr);
- }
- static inline void load_idt(const struct desc_ptr *dtr)
- {
--	PVOP_VCALL1(cpu.load_idt, dtr);
-+	PVOP_VCALL1(pv_ops, cpu.load_idt, dtr);
- }
- static inline void set_ldt(const void *addr, unsigned entries)
- {
--	PVOP_VCALL2(cpu.set_ldt, addr, entries);
-+	PVOP_VCALL2(pv_ops, cpu.set_ldt, addr, entries);
- }
- static inline unsigned long paravirt_store_tr(void)
- {
--	return PVOP_CALL0(unsigned long, cpu.store_tr);
-+	return PVOP_CALL0(unsigned long, pv_ops, cpu.store_tr);
- }
- 
- #define store_tr(tr)	((tr) = paravirt_store_tr())
- static inline void load_TLS(struct thread_struct *t, unsigned cpu)
- {
--	PVOP_VCALL2(cpu.load_tls, t, cpu);
-+	PVOP_VCALL2(pv_ops, cpu.load_tls, t, cpu);
- }
- 
- static inline void load_gs_index(unsigned int gs)
- {
--	PVOP_VCALL1(cpu.load_gs_index, gs);
-+	PVOP_VCALL1(pv_ops, cpu.load_gs_index, gs);
- }
- 
- static inline void write_ldt_entry(struct desc_struct *dt, int entry,
- 				   const void *desc)
- {
--	PVOP_VCALL3(cpu.write_ldt_entry, dt, entry, desc);
-+	PVOP_VCALL3(pv_ops, cpu.write_ldt_entry, dt, entry, desc);
- }
- 
- static inline void write_gdt_entry(struct desc_struct *dt, int entry,
- 				   void *desc, int type)
- {
--	PVOP_VCALL4(cpu.write_gdt_entry, dt, entry, desc, type);
-+	PVOP_VCALL4(pv_ops, cpu.write_gdt_entry, dt, entry, desc, type);
- }
- 
- static inline void write_idt_entry(gate_desc *dt, int entry, const gate_desc *g)
- {
--	PVOP_VCALL3(cpu.write_idt_entry, dt, entry, g);
-+	PVOP_VCALL3(pv_ops, cpu.write_idt_entry, dt, entry, g);
- }
- 
- #ifdef CONFIG_X86_IOPL_IOPERM
- static inline void tss_invalidate_io_bitmap(void)
- {
--	PVOP_VCALL0(cpu.invalidate_io_bitmap);
-+	PVOP_VCALL0(pv_ops, cpu.invalidate_io_bitmap);
- }
- 
- static inline void tss_update_io_bitmap(void)
- {
--	PVOP_VCALL0(cpu.update_io_bitmap);
-+	PVOP_VCALL0(pv_ops, cpu.update_io_bitmap);
- }
- #endif
- 
- static inline void paravirt_enter_mmap(struct mm_struct *next)
- {
--	PVOP_VCALL1(mmu.enter_mmap, next);
-+	PVOP_VCALL1(pv_ops, mmu.enter_mmap, next);
- }
- 
- static inline int paravirt_pgd_alloc(struct mm_struct *mm)
- {
--	return PVOP_CALL1(int, mmu.pgd_alloc, mm);
-+	return PVOP_CALL1(int, pv_ops, mmu.pgd_alloc, mm);
- }
- 
- static inline void paravirt_pgd_free(struct mm_struct *mm, pgd_t *pgd)
- {
--	PVOP_VCALL2(mmu.pgd_free, mm, pgd);
-+	PVOP_VCALL2(pv_ops, mmu.pgd_free, mm, pgd);
- }
- 
- static inline void paravirt_alloc_pte(struct mm_struct *mm, unsigned long pfn)
- {
--	PVOP_VCALL2(mmu.alloc_pte, mm, pfn);
-+	PVOP_VCALL2(pv_ops, mmu.alloc_pte, mm, pfn);
- }
- static inline void paravirt_release_pte(unsigned long pfn)
- {
--	PVOP_VCALL1(mmu.release_pte, pfn);
-+	PVOP_VCALL1(pv_ops, mmu.release_pte, pfn);
- }
- 
- static inline void paravirt_alloc_pmd(struct mm_struct *mm, unsigned long pfn)
- {
--	PVOP_VCALL2(mmu.alloc_pmd, mm, pfn);
-+	PVOP_VCALL2(pv_ops, mmu.alloc_pmd, mm, pfn);
- }
- 
- static inline void paravirt_release_pmd(unsigned long pfn)
- {
--	PVOP_VCALL1(mmu.release_pmd, pfn);
-+	PVOP_VCALL1(pv_ops, mmu.release_pmd, pfn);
- }
- 
- static inline void paravirt_alloc_pud(struct mm_struct *mm, unsigned long pfn)
- {
--	PVOP_VCALL2(mmu.alloc_pud, mm, pfn);
-+	PVOP_VCALL2(pv_ops, mmu.alloc_pud, mm, pfn);
- }
- static inline void paravirt_release_pud(unsigned long pfn)
- {
--	PVOP_VCALL1(mmu.release_pud, pfn);
-+	PVOP_VCALL1(pv_ops, mmu.release_pud, pfn);
- }
- 
- static inline void paravirt_alloc_p4d(struct mm_struct *mm, unsigned long pfn)
- {
--	PVOP_VCALL2(mmu.alloc_p4d, mm, pfn);
-+	PVOP_VCALL2(pv_ops, mmu.alloc_p4d, mm, pfn);
- }
- 
- static inline void paravirt_release_p4d(unsigned long pfn)
- {
--	PVOP_VCALL1(mmu.release_p4d, pfn);
-+	PVOP_VCALL1(pv_ops, mmu.release_p4d, pfn);
- }
- 
- static inline pte_t __pte(pteval_t val)
- {
--	return (pte_t) { PVOP_ALT_CALLEE1(pteval_t, mmu.make_pte, val,
-+	return (pte_t) { PVOP_ALT_CALLEE1(pteval_t, pv_ops, mmu.make_pte, val,
- 					  "mov %%rdi, %%rax", ALT_NOT_XEN) };
- }
- 
- static inline pteval_t pte_val(pte_t pte)
- {
--	return PVOP_ALT_CALLEE1(pteval_t, mmu.pte_val, pte.pte,
-+	return PVOP_ALT_CALLEE1(pteval_t, pv_ops, mmu.pte_val, pte.pte,
- 				"mov %%rdi, %%rax", ALT_NOT_XEN);
- }
- 
- static inline pgd_t __pgd(pgdval_t val)
- {
--	return (pgd_t) { PVOP_ALT_CALLEE1(pgdval_t, mmu.make_pgd, val,
-+	return (pgd_t) { PVOP_ALT_CALLEE1(pgdval_t, pv_ops, mmu.make_pgd, val,
- 					  "mov %%rdi, %%rax", ALT_NOT_XEN) };
- }
- 
- static inline pgdval_t pgd_val(pgd_t pgd)
- {
--	return PVOP_ALT_CALLEE1(pgdval_t, mmu.pgd_val, pgd.pgd,
-+	return PVOP_ALT_CALLEE1(pgdval_t, pv_ops, mmu.pgd_val, pgd.pgd,
- 				"mov %%rdi, %%rax", ALT_NOT_XEN);
- }
- 
-@@ -371,7 +371,7 @@ static inline pte_t ptep_modify_prot_start(struct vm_area_struct *vma, unsigned
- {
- 	pteval_t ret;
- 
--	ret = PVOP_CALL3(pteval_t, mmu.ptep_modify_prot_start, vma, addr, ptep);
-+	ret = PVOP_CALL3(pteval_t, pv_ops, mmu.ptep_modify_prot_start, vma, addr, ptep);
- 
- 	return (pte_t) { .pte = ret };
- }
-@@ -380,41 +380,41 @@ static inline void ptep_modify_prot_commit(struct vm_area_struct *vma, unsigned
- 					   pte_t *ptep, pte_t old_pte, pte_t pte)
- {
- 
--	PVOP_VCALL4(mmu.ptep_modify_prot_commit, vma, addr, ptep, pte.pte);
-+	PVOP_VCALL4(pv_ops, mmu.ptep_modify_prot_commit, vma, addr, ptep, pte.pte);
- }
- 
- static inline void set_pte(pte_t *ptep, pte_t pte)
- {
--	PVOP_VCALL2(mmu.set_pte, ptep, pte.pte);
-+	PVOP_VCALL2(pv_ops, mmu.set_pte, ptep, pte.pte);
- }
- 
- static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
- {
--	PVOP_VCALL2(mmu.set_pmd, pmdp, native_pmd_val(pmd));
-+	PVOP_VCALL2(pv_ops, mmu.set_pmd, pmdp, native_pmd_val(pmd));
- }
- 
- static inline pmd_t __pmd(pmdval_t val)
- {
--	return (pmd_t) { PVOP_ALT_CALLEE1(pmdval_t, mmu.make_pmd, val,
-+	return (pmd_t) { PVOP_ALT_CALLEE1(pmdval_t, pv_ops, mmu.make_pmd, val,
- 					  "mov %%rdi, %%rax", ALT_NOT_XEN) };
- }
- 
- static inline pmdval_t pmd_val(pmd_t pmd)
- {
--	return PVOP_ALT_CALLEE1(pmdval_t, mmu.pmd_val, pmd.pmd,
-+	return PVOP_ALT_CALLEE1(pmdval_t, pv_ops, mmu.pmd_val, pmd.pmd,
- 				"mov %%rdi, %%rax", ALT_NOT_XEN);
- }
- 
- static inline void set_pud(pud_t *pudp, pud_t pud)
- {
--	PVOP_VCALL2(mmu.set_pud, pudp, native_pud_val(pud));
-+	PVOP_VCALL2(pv_ops, mmu.set_pud, pudp, native_pud_val(pud));
- }
- 
- static inline pud_t __pud(pudval_t val)
- {
- 	pudval_t ret;
- 
--	ret = PVOP_ALT_CALLEE1(pudval_t, mmu.make_pud, val,
-+	ret = PVOP_ALT_CALLEE1(pudval_t, pv_ops, mmu.make_pud, val,
- 			       "mov %%rdi, %%rax", ALT_NOT_XEN);
- 
- 	return (pud_t) { ret };
-@@ -422,7 +422,7 @@ static inline pud_t __pud(pudval_t val)
- 
- static inline pudval_t pud_val(pud_t pud)
- {
--	return PVOP_ALT_CALLEE1(pudval_t, mmu.pud_val, pud.pud,
-+	return PVOP_ALT_CALLEE1(pudval_t, pv_ops, mmu.pud_val, pud.pud,
- 				"mov %%rdi, %%rax", ALT_NOT_XEN);
- }
- 
-@@ -435,12 +435,12 @@ static inline void set_p4d(p4d_t *p4dp, p4d_t p4d)
- {
- 	p4dval_t val = native_p4d_val(p4d);
- 
--	PVOP_VCALL2(mmu.set_p4d, p4dp, val);
-+	PVOP_VCALL2(pv_ops, mmu.set_p4d, p4dp, val);
- }
- 
- static inline p4d_t __p4d(p4dval_t val)
- {
--	p4dval_t ret = PVOP_ALT_CALLEE1(p4dval_t, mmu.make_p4d, val,
-+	p4dval_t ret = PVOP_ALT_CALLEE1(p4dval_t, pv_ops, mmu.make_p4d, val,
- 					"mov %%rdi, %%rax", ALT_NOT_XEN);
- 
- 	return (p4d_t) { ret };
-@@ -448,13 +448,13 @@ static inline p4d_t __p4d(p4dval_t val)
- 
- static inline p4dval_t p4d_val(p4d_t p4d)
- {
--	return PVOP_ALT_CALLEE1(p4dval_t, mmu.p4d_val, p4d.p4d,
-+	return PVOP_ALT_CALLEE1(p4dval_t, pv_ops, mmu.p4d_val, p4d.p4d,
- 				"mov %%rdi, %%rax", ALT_NOT_XEN);
- }
- 
- static inline void __set_pgd(pgd_t *pgdp, pgd_t pgd)
- {
--	PVOP_VCALL2(mmu.set_pgd, pgdp, native_pgd_val(pgd));
-+	PVOP_VCALL2(pv_ops, mmu.set_pgd, pgdp, native_pgd_val(pgd));
- }
- 
- #define set_pgd(pgdp, pgdval) do {					\
-@@ -493,28 +493,28 @@ static inline void pmd_clear(pmd_t *pmdp)
- #define  __HAVE_ARCH_START_CONTEXT_SWITCH
- static inline void arch_start_context_switch(struct task_struct *prev)
- {
--	PVOP_VCALL1(cpu.start_context_switch, prev);
-+	PVOP_VCALL1(pv_ops, cpu.start_context_switch, prev);
- }
- 
- static inline void arch_end_context_switch(struct task_struct *next)
- {
--	PVOP_VCALL1(cpu.end_context_switch, next);
-+	PVOP_VCALL1(pv_ops, cpu.end_context_switch, next);
- }
- 
- #define  __HAVE_ARCH_ENTER_LAZY_MMU_MODE
- static inline void arch_enter_lazy_mmu_mode(void)
- {
--	PVOP_VCALL0(mmu.lazy_mode.enter);
-+	PVOP_VCALL0(pv_ops, mmu.lazy_mode.enter);
- }
- 
- static inline void arch_leave_lazy_mmu_mode(void)
- {
--	PVOP_VCALL0(mmu.lazy_mode.leave);
-+	PVOP_VCALL0(pv_ops, mmu.lazy_mode.leave);
- }
- 
- static inline void arch_flush_lazy_mmu_mode(void)
- {
--	PVOP_VCALL0(mmu.lazy_mode.flush);
-+	PVOP_VCALL0(pv_ops, mmu.lazy_mode.flush);
- }
- 
- static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
-@@ -529,29 +529,29 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
- static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
- 							u32 val)
- {
--	PVOP_VCALL2(lock.queued_spin_lock_slowpath, lock, val);
-+	PVOP_VCALL2(pv_ops, lock.queued_spin_lock_slowpath, lock, val);
- }
- 
- static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
- {
--	PVOP_ALT_VCALLEE1(lock.queued_spin_unlock, lock,
-+	PVOP_ALT_VCALLEE1(pv_ops, lock.queued_spin_unlock, lock,
- 			  "movb $0, (%%" _ASM_ARG1 ");",
- 			  ALT_NOT(X86_FEATURE_PVUNLOCK));
- }
- 
- static __always_inline void pv_wait(u8 *ptr, u8 val)
- {
--	PVOP_VCALL2(lock.wait, ptr, val);
-+	PVOP_VCALL2(pv_ops, lock.wait, ptr, val);
- }
- 
- static __always_inline void pv_kick(int cpu)
- {
--	PVOP_VCALL1(lock.kick, cpu);
-+	PVOP_VCALL1(pv_ops, lock.kick, cpu);
- }
- 
- static __always_inline bool pv_vcpu_is_preempted(long cpu)
- {
--	return PVOP_ALT_CALLEE1(bool, lock.vcpu_is_preempted, cpu,
-+	return PVOP_ALT_CALLEE1(bool, pv_ops, lock.vcpu_is_preempted, cpu,
- 				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
- 				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
- }
-@@ -564,18 +564,18 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
- #ifdef CONFIG_PARAVIRT_XXL
+@@ -522,46 +513,7 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
+ {
+ 	pv_ops.mmu.set_fixmap(idx, phys, flags);
+ }
+-#endif
+-
+-#if defined(CONFIG_SMP) && defined(CONFIG_PARAVIRT_SPINLOCKS)
+-
+-static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
+-							u32 val)
+-{
+-	PVOP_VCALL2(pv_ops, lock.queued_spin_lock_slowpath, lock, val);
+-}
+-
+-static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
+-{
+-	PVOP_ALT_VCALLEE1(pv_ops, lock.queued_spin_unlock, lock,
+-			  "movb $0, (%%" _ASM_ARG1 ");",
+-			  ALT_NOT(X86_FEATURE_PVUNLOCK));
+-}
+-
+-static __always_inline void pv_wait(u8 *ptr, u8 val)
+-{
+-	PVOP_VCALL2(pv_ops, lock.wait, ptr, val);
+-}
+-
+-static __always_inline void pv_kick(int cpu)
+-{
+-	PVOP_VCALL1(pv_ops, lock.kick, cpu);
+-}
+-
+-static __always_inline bool pv_vcpu_is_preempted(long cpu)
+-{
+-	return PVOP_ALT_CALLEE1(bool, pv_ops, lock.vcpu_is_preempted, cpu,
+-				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
+-				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
+-}
+ 
+-void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
+-bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
+-
+-#endif /* SMP && PARAVIRT_SPINLOCKS */
+-
+-#ifdef CONFIG_PARAVIRT_XXL
  static __always_inline unsigned long arch_local_save_flags(void)
  {
--	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl, "pushf; pop %%rax;",
-+	return PVOP_ALT_CALLEE0(unsigned long, pv_ops, irq.save_fl, "pushf; pop %%rax;",
- 				ALT_NOT_XEN);
+ 	return PVOP_ALT_CALLEE0(unsigned long, pv_ops, irq.save_fl, "pushf; pop %%rax;",
+@@ -588,8 +540,6 @@ static __always_inline unsigned long arch_local_irq_save(void)
  }
+ #endif
  
- static __always_inline void arch_local_irq_disable(void)
- {
--	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ALT_NOT_XEN);
-+	PVOP_ALT_VCALLEE0(pv_ops, irq.irq_disable, "cli;", ALT_NOT_XEN);
+-void native_pv_lock_init(void) __init;
+-
+ #else  /* __ASSEMBLER__ */
+ 
+ #ifdef CONFIG_X86_64
+@@ -613,12 +563,6 @@ void native_pv_lock_init(void) __init;
+ #endif /* __ASSEMBLER__ */
+ #else  /* CONFIG_PARAVIRT */
+ # define default_banner x86_init_noop
+-
+-#ifndef __ASSEMBLER__
+-static inline void native_pv_lock_init(void)
+-{
+-}
+-#endif
+ #endif /* !CONFIG_PARAVIRT */
+ 
+ #ifndef __ASSEMBLER__
+@@ -634,10 +578,5 @@ static inline void paravirt_arch_exit_mmap(struct mm_struct *mm)
  }
+ #endif
  
- static __always_inline void arch_local_irq_enable(void)
- {
--	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ALT_NOT_XEN);
-+	PVOP_ALT_VCALLEE0(pv_ops, irq.irq_enable, "sti;", ALT_NOT_XEN);
- }
- 
- static __always_inline unsigned long arch_local_irq_save(void)
+-#ifndef CONFIG_PARAVIRT_SPINLOCKS
+-static inline void paravirt_set_cap(void)
+-{
+-}
+-#endif
+ #endif /* __ASSEMBLER__ */
+ #endif /* _ASM_X86_PARAVIRT_H */
 diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 0d8ea13f2c31..b36d425d099b 100644
+index b36d425d099b..7ccd41628d36 100644
 --- a/arch/x86/include/asm/paravirt_types.h
 +++ b/arch/x86/include/asm/paravirt_types.h
-@@ -212,7 +212,7 @@ struct paravirt_patch_template {
+@@ -184,22 +184,6 @@ struct pv_mmu_ops {
+ #endif
+ } __no_randomize_layout;
+ 
+-#ifdef CONFIG_SMP
+-#include <asm/spinlock_types.h>
+-#endif
+-
+-struct qspinlock;
+-
+-struct pv_lock_ops {
+-	void (*queued_spin_lock_slowpath)(struct qspinlock *lock, u32 val);
+-	struct paravirt_callee_save queued_spin_unlock;
+-
+-	void (*wait)(u8 *ptr, u8 val);
+-	void (*kick)(int cpu);
+-
+-	struct paravirt_callee_save vcpu_is_preempted;
+-} __no_randomize_layout;
+-
+ /* This contains all the paravirt structures: we get a convenient
+  * number for each function using the offset which we use to indicate
+  * what to patch. */
+@@ -207,7 +191,6 @@ struct paravirt_patch_template {
+ 	struct pv_cpu_ops	cpu;
+ 	struct pv_irq_ops	irq;
+ 	struct pv_mmu_ops	mmu;
+-	struct pv_lock_ops	lock;
+ } __no_randomize_layout;
  
  extern struct paravirt_patch_template pv_ops;
+diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
+index 68da67df304d..25a1919542d9 100644
+--- a/arch/x86/include/asm/qspinlock.h
++++ b/arch/x86/include/asm/qspinlock.h
+@@ -7,6 +7,9 @@
+ #include <asm-generic/qspinlock_types.h>
+ #include <asm/paravirt.h>
+ #include <asm/rmwcc.h>
++#ifdef CONFIG_PARAVIRT
++#include <asm/paravirt-spinlock.h>
++#endif
  
--#define paravirt_ptr(op)	[paravirt_opptr] "m" (pv_ops.op)
-+#define paravirt_ptr(array, op)	[paravirt_opptr] "m" (array.op)
+ #define _Q_PENDING_LOOPS	(1 << 9)
  
- /*
-  * This generates an indirect call based on the operation type number.
-@@ -362,19 +362,19 @@ extern struct paravirt_patch_template pv_ops;
-  *   feature is not active, the direct call is used as above via the
-  *   ALT_FLAG_DIRECT_CALL special case and the "always on" feature.
+@@ -27,90 +30,10 @@ static __always_inline u32 queued_fetch_set_pending_acquire(struct qspinlock *lo
+ 	return val;
+ }
+ 
+-#ifdef CONFIG_PARAVIRT_SPINLOCKS
+-extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
+-extern void __pv_init_lock_hash(void);
+-extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
+-extern void __raw_callee_save___pv_queued_spin_unlock(struct qspinlock *lock);
+-extern bool nopvspin;
+-
+-#define	queued_spin_unlock queued_spin_unlock
+-/**
+- * queued_spin_unlock - release a queued spinlock
+- * @lock : Pointer to queued spinlock structure
+- *
+- * A smp_store_release() on the least-significant byte.
+- */
+-static inline void native_queued_spin_unlock(struct qspinlock *lock)
+-{
+-	smp_store_release(&lock->locked, 0);
+-}
+-
+-static inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+-{
+-	pv_queued_spin_lock_slowpath(lock, val);
+-}
+-
+-static inline void queued_spin_unlock(struct qspinlock *lock)
+-{
+-	kcsan_release();
+-	pv_queued_spin_unlock(lock);
+-}
+-
+-#define vcpu_is_preempted vcpu_is_preempted
+-static inline bool vcpu_is_preempted(long cpu)
+-{
+-	return pv_vcpu_is_preempted(cpu);
+-}
++#ifndef CONFIG_PARAVIRT
++static inline void native_pv_lock_init(void) { }
+ #endif
+ 
+-#ifdef CONFIG_PARAVIRT
+-/*
+- * virt_spin_lock_key - disables by default the virt_spin_lock() hijack.
+- *
+- * Native (and PV wanting native due to vCPU pinning) should keep this key
+- * disabled. Native does not touch the key.
+- *
+- * When in a guest then native_pv_lock_init() enables the key first and
+- * KVM/XEN might conditionally disable it later in the boot process again.
+- */
+-DECLARE_STATIC_KEY_FALSE(virt_spin_lock_key);
+-
+-/*
+- * Shortcut for the queued_spin_lock_slowpath() function that allows
+- * virt to hijack it.
+- *
+- * Returns:
+- *   true - lock has been negotiated, all done;
+- *   false - queued_spin_lock_slowpath() will do its thing.
+- */
+-#define virt_spin_lock virt_spin_lock
+-static inline bool virt_spin_lock(struct qspinlock *lock)
+-{
+-	int val;
+-
+-	if (!static_branch_likely(&virt_spin_lock_key))
+-		return false;
+-
+-	/*
+-	 * On hypervisors without PARAVIRT_SPINLOCKS support we fall
+-	 * back to a Test-and-Set spinlock, because fair locks have
+-	 * horrible lock 'holder' preemption issues.
+-	 */
+-
+- __retry:
+-	val = atomic_read(&lock->val);
+-
+-	if (val || !atomic_try_cmpxchg(&lock->val, &val, _Q_LOCKED_VAL)) {
+-		cpu_relax();
+-		goto __retry;
+-	}
+-
+-	return true;
+-}
+-
+-#endif /* CONFIG_PARAVIRT */
+-
+ #include <asm-generic/qspinlock.h>
+ 
+ #endif /* _ASM_X86_QSPINLOCK_H */
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index bc184dd38d99..e9aeeeafad17 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -126,7 +126,7 @@ obj-$(CONFIG_DEBUG_NMI_SELFTEST) += nmi_selftest.o
+ 
+ obj-$(CONFIG_KVM_GUEST)		+= kvm.o kvmclock.o
+ obj-$(CONFIG_PARAVIRT)		+= paravirt.o
+-obj-$(CONFIG_PARAVIRT_SPINLOCKS)+= paravirt-spinlocks.o
++obj-$(CONFIG_PARAVIRT)		+= paravirt-spinlocks.o
+ obj-$(CONFIG_PARAVIRT_CLOCK)	+= pvclock.o
+ obj-$(CONFIG_X86_PMEM_LEGACY_DEVICE) += pmem.o
+ 
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 21b4de55f823..de550b12d9ab 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -829,8 +829,10 @@ static void __init kvm_guest_init(void)
+ 		has_steal_clock = 1;
+ 		static_call_update(pv_steal_clock, kvm_steal_clock);
+ 
+-		pv_ops.lock.vcpu_is_preempted =
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++		pv_ops_lock.vcpu_is_preempted =
+ 			PV_CALLEE_SAVE(__kvm_vcpu_is_preempted);
++#endif
+ 	}
+ 
+ 	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
+@@ -1126,11 +1128,11 @@ void __init kvm_spinlock_init(void)
+ 	pr_info("PV spinlocks enabled\n");
+ 
+ 	__pv_init_lock_hash();
+-	pv_ops.lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
+-	pv_ops.lock.queued_spin_unlock =
++	pv_ops_lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
++	pv_ops_lock.queued_spin_unlock =
+ 		PV_CALLEE_SAVE(__pv_queued_spin_unlock);
+-	pv_ops.lock.wait = kvm_wait;
+-	pv_ops.lock.kick = kvm_kick_cpu;
++	pv_ops_lock.wait = kvm_wait;
++	pv_ops_lock.kick = kvm_kick_cpu;
+ 
+ 	/*
+ 	 * When PV spinlock is enabled which is preferred over
+diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
+index 9e1ea99ad9df..95452444868f 100644
+--- a/arch/x86/kernel/paravirt-spinlocks.c
++++ b/arch/x86/kernel/paravirt-spinlocks.c
+@@ -3,12 +3,22 @@
+  * Split spinlock implementation out into its own file, so it can be
+  * compiled in a FTRACE-compatible way.
   */
--#define ____PVOP_CALL(ret, op, call_clbr, extra_clbr, ...)	\
-+#define ____PVOP_CALL(ret, array, op, call_clbr, extra_clbr, ...)	\
- 	({								\
- 		PVOP_CALL_ARGS;						\
- 		asm volatile(ALTERNATIVE(PARAVIRT_CALL, ALT_CALL_INSTR,	\
- 				ALT_CALL_ALWAYS)			\
- 			     : call_clbr, ASM_CALL_CONSTRAINT		\
--			     : paravirt_ptr(op),			\
-+			     : paravirt_ptr(array, op),			\
- 			       ##__VA_ARGS__				\
- 			     : "memory", "cc" extra_clbr);		\
- 		ret;							\
- 	})
++#include <linux/static_call.h>
+ #include <linux/spinlock.h>
+ #include <linux/export.h>
+ #include <linux/jump_label.h>
  
--#define ____PVOP_ALT_CALL(ret, op, alt, cond, call_clbr,		\
-+#define ____PVOP_ALT_CALL(ret, array, op, alt, cond, call_clbr,		\
- 			  extra_clbr, ...)				\
- 	({								\
- 		PVOP_CALL_ARGS;						\
-@@ -382,102 +382,102 @@ extern struct paravirt_patch_template pv_ops;
- 				 ALT_CALL_INSTR, ALT_CALL_ALWAYS,	\
- 				 alt, cond)				\
- 			     : call_clbr, ASM_CALL_CONSTRAINT		\
--			     : paravirt_ptr(op),			\
-+			     : paravirt_ptr(array, op),			\
- 			       ##__VA_ARGS__				\
- 			     : "memory", "cc" extra_clbr);		\
- 		ret;							\
- 	})
+-#include <asm/paravirt.h>
++DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
  
--#define __PVOP_CALL(rettype, op, ...)					\
--	____PVOP_CALL(PVOP_RETVAL(rettype), op,				\
-+#define __PVOP_CALL(rettype, array, op, ...)				\
-+	____PVOP_CALL(PVOP_RETVAL(rettype), array, op,			\
- 		      PVOP_CALL_CLOBBERS, EXTRA_CLOBBERS, ##__VA_ARGS__)
- 
--#define __PVOP_ALT_CALL(rettype, op, alt, cond, ...)			\
--	____PVOP_ALT_CALL(PVOP_RETVAL(rettype), op, alt, cond,		\
-+#define __PVOP_ALT_CALL(rettype, array, op, alt, cond, ...)		\
-+	____PVOP_ALT_CALL(PVOP_RETVAL(rettype), array, op, alt, cond,	\
- 			  PVOP_CALL_CLOBBERS, EXTRA_CLOBBERS,		\
- 			  ##__VA_ARGS__)
- 
--#define __PVOP_CALLEESAVE(rettype, op, ...)				\
--	____PVOP_CALL(PVOP_RETVAL(rettype), op.func,			\
-+#define __PVOP_CALLEESAVE(rettype, array, op, ...)			\
-+	____PVOP_CALL(PVOP_RETVAL(rettype), array, op.func,		\
- 		      PVOP_CALLEE_CLOBBERS, , ##__VA_ARGS__)
- 
--#define __PVOP_ALT_CALLEESAVE(rettype, op, alt, cond, ...)		\
--	____PVOP_ALT_CALL(PVOP_RETVAL(rettype), op.func, alt, cond,	\
-+#define __PVOP_ALT_CALLEESAVE(rettype, array, op, alt, cond, ...)	\
-+	____PVOP_ALT_CALL(PVOP_RETVAL(rettype), array, op.func, alt, cond, \
- 			  PVOP_CALLEE_CLOBBERS, , ##__VA_ARGS__)
- 
- 
--#define __PVOP_VCALL(op, ...)						\
--	(void)____PVOP_CALL(, op, PVOP_VCALL_CLOBBERS,			\
-+#define __PVOP_VCALL(array, op, ...)					\
-+	(void)____PVOP_CALL(, array, op, PVOP_VCALL_CLOBBERS,		\
- 		       VEXTRA_CLOBBERS, ##__VA_ARGS__)
- 
--#define __PVOP_ALT_VCALL(op, alt, cond, ...)				\
--	(void)____PVOP_ALT_CALL(, op, alt, cond,			\
-+#define __PVOP_ALT_VCALL(array, op, alt, cond, ...)			\
-+	(void)____PVOP_ALT_CALL(, array, op, alt, cond,			\
- 				PVOP_VCALL_CLOBBERS, VEXTRA_CLOBBERS,	\
- 				##__VA_ARGS__)
- 
--#define __PVOP_VCALLEESAVE(op, ...)					\
--	(void)____PVOP_CALL(, op.func,					\
-+#define __PVOP_VCALLEESAVE(array, op, ...)				\
-+	(void)____PVOP_CALL(, array, op.func,				\
- 			    PVOP_VCALLEE_CLOBBERS, , ##__VA_ARGS__)
- 
--#define __PVOP_ALT_VCALLEESAVE(op, alt, cond, ...)			\
--	(void)____PVOP_ALT_CALL(, op.func, alt, cond,			\
-+#define __PVOP_ALT_VCALLEESAVE(array, op, alt, cond, ...)		\
-+	(void)____PVOP_ALT_CALL(, array, op.func, alt, cond,		\
- 				PVOP_VCALLEE_CLOBBERS, , ##__VA_ARGS__)
- 
- 
--#define PVOP_CALL0(rettype, op)						\
--	__PVOP_CALL(rettype, op)
--#define PVOP_VCALL0(op)							\
--	__PVOP_VCALL(op)
--#define PVOP_ALT_CALL0(rettype, op, alt, cond)				\
--	__PVOP_ALT_CALL(rettype, op, alt, cond)
--#define PVOP_ALT_VCALL0(op, alt, cond)					\
--	__PVOP_ALT_VCALL(op, alt, cond)
--
--#define PVOP_CALLEE0(rettype, op)					\
--	__PVOP_CALLEESAVE(rettype, op)
--#define PVOP_VCALLEE0(op)						\
--	__PVOP_VCALLEESAVE(op)
--#define PVOP_ALT_CALLEE0(rettype, op, alt, cond)			\
--	__PVOP_ALT_CALLEESAVE(rettype, op, alt, cond)
--#define PVOP_ALT_VCALLEE0(op, alt, cond)				\
--	__PVOP_ALT_VCALLEESAVE(op, alt, cond)
--
--
--#define PVOP_CALL1(rettype, op, arg1)					\
--	__PVOP_CALL(rettype, op, PVOP_CALL_ARG1(arg1))
--#define PVOP_VCALL1(op, arg1)						\
--	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1))
--#define PVOP_ALT_VCALL1(op, arg1, alt, cond)				\
--	__PVOP_ALT_VCALL(op, alt, cond, PVOP_CALL_ARG1(arg1))
--
--#define PVOP_CALLEE1(rettype, op, arg1)					\
--	__PVOP_CALLEESAVE(rettype, op, PVOP_CALL_ARG1(arg1))
--#define PVOP_VCALLEE1(op, arg1)						\
--	__PVOP_VCALLEESAVE(op, PVOP_CALL_ARG1(arg1))
--#define PVOP_ALT_CALLEE1(rettype, op, arg1, alt, cond)			\
--	__PVOP_ALT_CALLEESAVE(rettype, op, alt, cond, PVOP_CALL_ARG1(arg1))
--#define PVOP_ALT_VCALLEE1(op, arg1, alt, cond)				\
--	__PVOP_ALT_VCALLEESAVE(op, alt, cond, PVOP_CALL_ARG1(arg1))
--
--
--#define PVOP_CALL2(rettype, op, arg1, arg2)				\
--	__PVOP_CALL(rettype, op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2))
--#define PVOP_VCALL2(op, arg1, arg2)					\
--	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2))
--
--#define PVOP_CALL3(rettype, op, arg1, arg2, arg3)			\
--	__PVOP_CALL(rettype, op, PVOP_CALL_ARG1(arg1),			\
-+#define PVOP_CALL0(rettype, array, op)					\
-+	__PVOP_CALL(rettype, array, op)
-+#define PVOP_VCALL0(array, op)						\
-+	__PVOP_VCALL(array, op)
-+#define PVOP_ALT_CALL0(rettype, array, op, alt, cond)			\
-+	__PVOP_ALT_CALL(rettype, array, op, alt, cond)
-+#define PVOP_ALT_VCALL0(array, op, alt, cond)				\
-+	__PVOP_ALT_VCALL(array, op, alt, cond)
++#ifdef CONFIG_SMP
++void __init native_pv_lock_init(void)
++{
++	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
++		static_branch_enable(&virt_spin_lock_key);
++}
++#endif
 +
-+#define PVOP_CALLEE0(rettype, array, op)				\
-+	__PVOP_CALLEESAVE(rettype, array, op)
-+#define PVOP_VCALLEE0(array, op)					\
-+	__PVOP_VCALLEESAVE(array, op)
-+#define PVOP_ALT_CALLEE0(rettype, array, op, alt, cond)			\
-+	__PVOP_ALT_CALLEESAVE(rettype, array, op, alt, cond)
-+#define PVOP_ALT_VCALLEE0(array, op, alt, cond)				\
-+	__PVOP_ALT_VCALLEESAVE(array, op, alt, cond)
-+
-+
-+#define PVOP_CALL1(rettype, array, op, arg1)				\
-+	__PVOP_CALL(rettype, array, op, PVOP_CALL_ARG1(arg1))
-+#define PVOP_VCALL1(array, op, arg1)					\
-+	__PVOP_VCALL(array, op, PVOP_CALL_ARG1(arg1))
-+#define PVOP_ALT_VCALL1(array, op, arg1, alt, cond)			\
-+	__PVOP_ALT_VCALL(array, op, alt, cond, PVOP_CALL_ARG1(arg1))
-+
-+#define PVOP_CALLEE1(rettype, array, op, arg1)				\
-+	__PVOP_CALLEESAVE(rettype, array, op, PVOP_CALL_ARG1(arg1))
-+#define PVOP_VCALLEE1(array, op, arg1)					\
-+	__PVOP_VCALLEESAVE(array, op, PVOP_CALL_ARG1(arg1))
-+#define PVOP_ALT_CALLEE1(rettype, array, op, arg1, alt, cond)		\
-+	__PVOP_ALT_CALLEESAVE(rettype, array, op, alt, cond, PVOP_CALL_ARG1(arg1))
-+#define PVOP_ALT_VCALLEE1(array, op, arg1, alt, cond)			\
-+	__PVOP_ALT_VCALLEESAVE(array, op, alt, cond, PVOP_CALL_ARG1(arg1))
-+
-+
-+#define PVOP_CALL2(rettype, array, op, arg1, arg2)			\
-+	__PVOP_CALL(rettype, array, op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2))
-+#define PVOP_VCALL2(array, op, arg1, arg2)				\
-+	__PVOP_VCALL(array, op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2))
-+
-+#define PVOP_CALL3(rettype, array, op, arg1, arg2, arg3)		\
-+	__PVOP_CALL(rettype, array, op, PVOP_CALL_ARG1(arg1),		\
- 		    PVOP_CALL_ARG2(arg2), PVOP_CALL_ARG3(arg3))
--#define PVOP_VCALL3(op, arg1, arg2, arg3)				\
--	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1),				\
-+#define PVOP_VCALL3(array, op, arg1, arg2, arg3)			\
-+	__PVOP_VCALL(array, op, PVOP_CALL_ARG1(arg1),			\
- 		     PVOP_CALL_ARG2(arg2), PVOP_CALL_ARG3(arg3))
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
+ __visible void __native_queued_spin_unlock(struct qspinlock *lock)
+ {
+ 	native_queued_spin_unlock(lock);
+@@ -17,7 +27,7 @@ PV_CALLEE_SAVE_REGS_THUNK(__native_queued_spin_unlock);
  
--#define PVOP_CALL4(rettype, op, arg1, arg2, arg3, arg4)			\
--	__PVOP_CALL(rettype, op,					\
-+#define PVOP_CALL4(rettype, array, op, arg1, arg2, arg3, arg4)		\
-+	__PVOP_CALL(rettype, array, op,					\
- 		    PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2),		\
- 		    PVOP_CALL_ARG3(arg3), PVOP_CALL_ARG4(arg4))
--#define PVOP_VCALL4(op, arg1, arg2, arg3, arg4)				\
--	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2),	\
-+#define PVOP_VCALL4(array, op, arg1, arg2, arg3, arg4)			\
-+	__PVOP_VCALL(array, op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2), \
- 		     PVOP_CALL_ARG3(arg3), PVOP_CALL_ARG4(arg4))
+ bool pv_is_native_spin_unlock(void)
+ {
+-	return pv_ops.lock.queued_spin_unlock.func ==
++	return pv_ops_lock.queued_spin_unlock.func ==
+ 		__raw_callee_save___native_queued_spin_unlock;
+ }
  
- #endif	/* __ASSEMBLER__ */
+@@ -29,7 +39,7 @@ PV_CALLEE_SAVE_REGS_THUNK(__native_vcpu_is_preempted);
+ 
+ bool pv_is_native_vcpu_is_preempted(void)
+ {
+-	return pv_ops.lock.vcpu_is_preempted.func ==
++	return pv_ops_lock.vcpu_is_preempted.func ==
+ 		__raw_callee_save___native_vcpu_is_preempted;
+ }
+ 
+@@ -41,3 +51,13 @@ void __init paravirt_set_cap(void)
+ 	if (!pv_is_native_vcpu_is_preempted())
+ 		setup_force_cpu_cap(X86_FEATURE_VCPUPREEMPT);
+ }
++
++struct pv_lock_ops pv_ops_lock = {
++	.queued_spin_lock_slowpath	= native_queued_spin_lock_slowpath,
++	.queued_spin_unlock		= PV_CALLEE_SAVE(__native_queued_spin_unlock),
++	.wait				= paravirt_nop,
++	.kick				= paravirt_nop,
++	.vcpu_is_preempted		= PV_CALLEE_SAVE(__native_vcpu_is_preempted),
++};
++EXPORT_SYMBOL(pv_ops_lock);
++#endif
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 5dfbd3f55792..a6ed52cae003 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -57,14 +57,6 @@ DEFINE_ASM_FUNC(pv_native_irq_enable, "sti", .noinstr.text);
+ DEFINE_ASM_FUNC(pv_native_read_cr2, "mov %cr2, %rax", .noinstr.text);
+ #endif
+ 
+-DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
+-
+-void __init native_pv_lock_init(void)
+-{
+-	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
+-		static_branch_enable(&virt_spin_lock_key);
+-}
+-
+ static noinstr void pv_native_safe_halt(void)
+ {
+ 	native_safe_halt();
+@@ -221,19 +213,6 @@ struct paravirt_patch_template pv_ops = {
+ 
+ 	.mmu.set_fixmap		= native_set_fixmap,
+ #endif /* CONFIG_PARAVIRT_XXL */
+-
+-#if defined(CONFIG_PARAVIRT_SPINLOCKS)
+-	/* Lock ops. */
+-#ifdef CONFIG_SMP
+-	.lock.queued_spin_lock_slowpath	= native_queued_spin_lock_slowpath,
+-	.lock.queued_spin_unlock	=
+-				PV_CALLEE_SAVE(__native_queued_spin_unlock),
+-	.lock.wait			= paravirt_nop,
+-	.lock.kick			= paravirt_nop,
+-	.lock.vcpu_is_preempted		=
+-				PV_CALLEE_SAVE(__native_vcpu_is_preempted),
+-#endif /* SMP */
+-#endif
+ };
+ 
+ #ifdef CONFIG_PARAVIRT_XXL
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index fe56646d6919..83ac24ead289 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -134,10 +134,10 @@ void __init xen_init_spinlocks(void)
+ 	printk(KERN_DEBUG "xen: PV spinlocks enabled\n");
+ 
+ 	__pv_init_lock_hash();
+-	pv_ops.lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
+-	pv_ops.lock.queued_spin_unlock =
++	pv_ops_lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
++	pv_ops_lock.queued_spin_unlock =
+ 		PV_CALLEE_SAVE(__pv_queued_spin_unlock);
+-	pv_ops.lock.wait = xen_qlock_wait;
+-	pv_ops.lock.kick = xen_qlock_kick;
+-	pv_ops.lock.vcpu_is_preempted = PV_CALLEE_SAVE(xen_vcpu_stolen);
++	pv_ops_lock.wait = xen_qlock_wait;
++	pv_ops_lock.kick = xen_qlock_kick;
++	pv_ops_lock.vcpu_is_preempted = PV_CALLEE_SAVE(xen_vcpu_stolen);
+ }
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index b3fec88d5bd3..c2952df6842c 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -527,6 +527,7 @@ static struct {
+ 	int idx_off;
+ } pv_ops_tables[] = {
+ 	{ .name = "pv_ops", },
++	{ .name = "pv_ops_lock", },
+ 	{ .name = NULL, .idx_off = -1 }
+ };
+ 
 -- 
 2.51.0
 
