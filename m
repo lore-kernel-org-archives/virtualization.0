@@ -1,69 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BADEA22E3E9
-	for <virtualization@lists.linux.dev>; Mon,  5 Jan 2026 08:22:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE0AC313295
+	for <virtualization@lists.linux.dev>; Mon,  5 Jan 2026 08:23:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767601380; cv=none; b=Pup6PLYq0HEvtPdB7Dzzpdo2E2cN7S8NWqVVlc39LusmJASuHXRYx+B0qcQR4ExXUi/NIFzRmRHxVfdBXtNhxxXARv//KZHTMhS6BBRHU6zws5rfK9bXVnuc0wq1xgZnP1J5XCKch16xMwW/pUEJRsQmAWDRAdPDuKSFbZAMEHY=
+	t=1767601383; cv=none; b=TkmIJE1hlkgDEFqyy7g0m8Wa0Q9COyQTcFYbi4fNAnhcDQwMdRsxdOrWLDK7dSGBC/fLlEUHowucz4OWGvYPw+d58h4pNu2pYOvPmrq+1WT5NYFdUxJKia6x+lqvKd4RX6PiEaAM2n1X5HLkQYrDVaG8ZVNkvf8Ys6BAlBZfujo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767601380; c=relaxed/simple;
-	bh=1rF+5o+RxfvaZWaK/37ivP7Ic43xgdCjtd7a083Lyfc=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=Nas3WRBmyvApbTyNTfcvqwNcjj/s/jNgDQg2Er2IfS4IADgT09IhIBpECK7L2/GUX6mycGZljF77iNwpZ+UMorNnAKE5cA81PQJJEH9ianWB0BoglWHkb8A9dW2BgoVwfqdwh0yCroEdG9Qhis3o3ei87X9SWouXR8GlHwpNdEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OVpQPRID; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1767601383; c=relaxed/simple;
+	bh=OKICx5FGcs8IaWdKqJAnv5nr30MUEvkMmLH/rtLJg90=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=OWsW4nRXRlySi6l6TCV2W/8YrLTuDXYhs/fzuw4I/HSWBqUSn1AwOeZMRK7p9qOD+LtOZLsGtZMFN8uYQXkbTq9XsxHV47BWCpgJE1n8F46E/2HNf4Cqr0oHk1tyNuDzYRvTPtjeiSjxIswrFn2AwKcps8tX6mv+AWEqlWMgDbk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WqVz3irm; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OVpQPRID"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WqVz3irm"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767601377;
+	s=mimecast20190719; t=1767601380;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=++MSvPbbaixtOH+VkhbpdT2tKuVIlO7zEYO24bBcB2o=;
-	b=OVpQPRIDj5fXqBg9A/hP4xVzLw8MYfD0RyVh4Bk3mpjidMcWQVlxb6UWCkDP88f6dbWF3F
-	SvhRQ9LrJEXf8a4sePL5O5s/gicfHgSC7GHHwSCZoSo54sbVX2pEdbD1EQjHEf1CDNwLaQ
-	fzhYe/ROFifr2sDRbPyDY0j+oMXFN/U=
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=flvV58rpfI6B2CbimOq4yKlcklsexX+NampJykNGX78=;
+	b=WqVz3irmgl/1ZpP+3Mg4itom3mhS8h0Rbrdtt95M6DwQFX+h30kcTMJGJZHFGGTXx46C9n
+	k7QD5ZNc1cE4PvrTUNGjMkSJ8cUXCc4UItybwSIPOawmPH1Lus9RXtQaNSe6Q6nmbZntyM
+	9kSdOgbhWt0yWZ60HwGundSiE5kWm3A=
 Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
  [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-683-5kLfMdFaO5K3MExhII2_4g-1; Mon, 05 Jan 2026 03:22:55 -0500
-X-MC-Unique: 5kLfMdFaO5K3MExhII2_4g-1
-X-Mimecast-MFC-AGG-ID: 5kLfMdFaO5K3MExhII2_4g_1767601374
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-477b8a667bcso184528685e9.2
-        for <virtualization@lists.linux.dev>; Mon, 05 Jan 2026 00:22:55 -0800 (PST)
+ us-mta-133-m8U9ULsqN-S7Fuh_UIxQ2Q-1; Mon, 05 Jan 2026 03:22:59 -0500
+X-MC-Unique: m8U9ULsqN-S7Fuh_UIxQ2Q-1
+X-Mimecast-MFC-AGG-ID: m8U9ULsqN-S7Fuh_UIxQ2Q_1767601378
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-47d28e7960fso89204695e9.0
+        for <virtualization@lists.linux.dev>; Mon, 05 Jan 2026 00:22:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767601374; x=1768206174;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=++MSvPbbaixtOH+VkhbpdT2tKuVIlO7zEYO24bBcB2o=;
-        b=lAysxwtyHHwTnD3KGlaJTGpv6haci1tVytiEayYf5ou8H9W3jSmRkBh2OCBwgZfhcy
-         flNrqOrAPuUpYIj2u5BQRbF6Sh48gQA6HdS/uEKPSq7sVG1xAZYO6uw8STyjxn1bA5pH
-         +2W+qcosRqEEoyc6MzhiCHwF5j/tex2nSsO78bawuOlvocaYp1ahbhCsYsYs50YwjMpz
-         gOdT84GWzzvToGHJEZLSFeb7J5GB3bsqiFQg49a0tPvcPKJTzrFxP1+LizLbh3j1zilP
-         xRBAQdcAX4rzWjtTKslPjjKtFPTFNrY3FBACUDyOi7VMPL9ZMHMxohP3J+GcZwwaTLHE
-         Hcrw==
-X-Forwarded-Encrypted: i=1; AJvYcCVCcjOl5n6TLpH7N7fYa1+9KUsZit4CDs80+GYFpEY/QtrZ8UaVJnnjsg2CDZ82lBeqUrsklOYiLxyAnPJUMQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzstaQh1nvyHCsZYsKpxW4qDQwTWNb1rv5SpBeW90fwrD2DQcbm
-	IASfUnAGSY59iMMpUUECwA/QzFDH/piq3DGYPzdUqPEgeCjmhfT1HGDiqyKpyjk2RKnDw3H4hpp
-	MKZ+fvItyEmohBkWmuh1hNL60HdqpCXt/WTCSkwEUF5COFJORSYlrRWMS8Qr+qFfAP5Fo
-X-Gm-Gg: AY/fxX4hlycccsrRvi8CtPZvzom/cvdCB14s6yjfyt7NwS50uvHmW+BhUYxSPrMlgfF
-	kiUXcN2ALqfSQh9GmoxJ03KN5ZnFQv3jswkyiIwgi3Xlbs02JBFtuMOfT/BMuLP88YWUk5ddupp
-	lWis58qnCdPIWxvqjd8otESFZEb7JMXY/mmOm4rjuTZAOxHJ4VCFzgpbG8pEAJ5yslca9HeOnHb
-	sZZGK7TGySPerdquiRphym1z31qBCWjUQTzPdx12jl7eYIdSNKVVtZpirptIQDseK/1MrSDtjyB
-	gah9j65x8lR/PMldyZH3p1lpeI3MEYkjzNu9yPkRtPIXKJ6rJ+kMLTnPqatYF16+Vg5Ro2hrTNz
-	y9Bdh+f80sXQxgGNF5wIhye2MghdbdV6mhg==
-X-Received: by 2002:a05:600c:4ed2:b0:475:e067:f23d with SMTP id 5b1f17b1804b1-47d1959eaaemr640737335e9.25.1767601374439;
-        Mon, 05 Jan 2026 00:22:54 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEXw2Pw2EoWGIJB0fy/EdgimCoNIlh1q5tf6OTMnGxG74FiSYxf17YyIIU15mHj+ck3a5eDtg==
-X-Received: by 2002:a05:600c:4ed2:b0:475:e067:f23d with SMTP id 5b1f17b1804b1-47d1959eaaemr640737005e9.25.1767601373905;
-        Mon, 05 Jan 2026 00:22:53 -0800 (PST)
+        d=1e100.net; s=20230601; t=1767601378; x=1768206178;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=flvV58rpfI6B2CbimOq4yKlcklsexX+NampJykNGX78=;
+        b=masT2Vq8yXsELg0DffYBZARUagelqSYf32iN8PoT+PgvE6KKDqU/u4t8JAXGlz8uX1
+         tMCiNmQnrLSCqP+rbavpCl8l7X07CIQLpLs2D8b3q4KGZnb5AIDMuu+MPdBt9C5bOmh+
+         +mdpxliWZptI3WI3ZQ5/EFyjwPjHyZ0NZdQWIme9+mLiVqjkRebZIu3R9yaXu/1U39Ll
+         A9lo2H3ly2zkuAr5285/jOzb+5gIjA1unRaNAB+JmD0uvbNUiWkuiwW0I7MqEyABwiLh
+         79YWLsBw35JN4ZHUtwWS7b5t6tmHOAgmNivutuuqOjh6SCOWFWp8cDNi5hZMwIrVjGYy
+         jGVw==
+X-Forwarded-Encrypted: i=1; AJvYcCVYQ8s3HRGMgV9MxKO4/jvpuxc8K/2PJZLVl6jIHfFDgiE6ggPLEp7vda2B1k1+aLyh966tGxjc3N47CZZm7w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzCn6CnDkjZovmpIelCu5DvE3p/mt5oDENS9+9xZSLK49b1Q5P0
+	l/CndCcGFGnARVNrZSIDFMx2JecmKU1HQWLcQwvdv0q7faNt93lkAqUMUhk4UIIArx3HsZFoXuh
+	XsDdjAcnxKfis2/mZqT2GPo5gVHBBD21HGKI8vqo+GFOL+w96UT7D92UA8jCgWiwZPqYi
+X-Gm-Gg: AY/fxX5I8rIblyiONgtsiQpMNy9U+Q/oA8Gx0LLj+1m+vSDyHNPS3YVJhipLPHtuP0/
+	WH8JnYIaP4CFNXj6AtYAMBixJvwhFIwNrqj92WionnwRFVKt0iE5CN4kAAcHiSqmDWBz1cjFtbB
+	ni8koYAwIDkt1vUzJmrvLAkbEoTU7xWPMenIhXGZlpw2crA2BmVkwm9PTD+WKcfo87/8DThtozY
+	3AoWdG2xPVHi2NjTxMfrySNXIBCcwCSuctFCUYl5Q03Ghp7YKWdnJ7/kLXGGoL7Uh7ZgtpY3BAO
+	Bb1HCmC0rXxo8YPMJncmY1/oQM3xZhC4AraicvyEkUUL73Lguym6Hc3VtLvWJkKES34Ivbo/AXN
+	RsaLNtD7R8RdQOvyz0IhTOUE1AIjZpKAAjA==
+X-Received: by 2002:a05:600c:a31a:b0:477:b48d:ba7a with SMTP id 5b1f17b1804b1-47d1afcd9e2mr472221805e9.32.1767601378040;
+        Mon, 05 Jan 2026 00:22:58 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEuXSIOihQGqTUh73UD1lwUxn/oQlvSzbaEszKjq8q7pmaQg9MTKbAK1XIofFksKZVCqoImYw==
+X-Received: by 2002:a05:600c:a31a:b0:477:b48d:ba7a with SMTP id 5b1f17b1804b1-47d1afcd9e2mr472221315e9.32.1767601377489;
+        Mon, 05 Jan 2026 00:22:57 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d6ba30531sm56554215e9.1.2026.01.05.00.22.50
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d6d13ed0asm147684535e9.3.2026.01.05.00.22.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Jan 2026 00:22:53 -0800 (PST)
-Date: Mon, 5 Jan 2026 03:22:50 -0500
+        Mon, 05 Jan 2026 00:22:57 -0800 (PST)
+Date: Mon, 5 Jan 2026 03:22:54 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: Cong Wang <xiyou.wangcong@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
@@ -89,72 +90,78 @@ Cc: Cong Wang <xiyou.wangcong@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
 	linux-crypto@vger.kernel.org, virtualization@lists.linux.dev,
 	linux-scsi@vger.kernel.org, iommu@lists.linux.dev,
 	kvm@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH v2 00/15] fix DMA aligment issues around virtio
-Message-ID: <cover.1767601130.git.mst@redhat.com>
+Subject: [PATCH v2 01/15] dma-mapping: add
+ __dma_from_device_group_begin()/end()
+Message-ID: <19163086d5e4704c316f18f6da06bc1c72968904.1767601130.git.mst@redhat.com>
+References: <cover.1767601130.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <cover.1767601130.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eFmFBHtf2zwIJ8ogbupPs-u9B9HjM-JNEJyLW5WND7k_1767601374
+X-Mimecast-MFC-PROC-ID: ReDXrSxMJH_IsGdECfETib7hBJuo878LwnIMFn1SftY_1767601378
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+When a structure contains a buffer that DMA writes to alongside fields
+that the CPU writes to, cache line sharing between the DMA buffer and
+CPU-written fields can cause data corruption on non-cache-coherent
+platforms.
 
-Cong Wang reported dma debug warnings with virtio-vsock
-and proposed a patch, see:
+Add __dma_from_device_group_begin()/end() annotations to ensure proper
+alignment to prevent this:
 
-https://lore.kernel.org/all/20251228015451.1253271-1-xiyou.wangcong@gmail.com/
+struct my_device {
+	spinlock_t lock1;
+	__dma_from_device_group_begin();
+	char dma_buffer1[16];
+	char dma_buffer2[16];
+	__dma_from_device_group_end();
+	spinlock_t lock2;
+};
 
-however, the issue is more widespread.
-This is an attempt to fix it systematically.
-Note: i2c and gio might also be affected, I am still looking
-into it. Help from maintainers welcome.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/linux/dma-mapping.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-Lightly tested.  Cursor/claude used liberally, mostly for
-refactoring/API updates/English.
-
-DMA maintainers, could you please confirm the DMA core changes
-are ok with you?
-
-Thanks!
-
-
-Michael S. Tsirkin (15):
-  dma-mapping: add __dma_from_device_group_begin()/end()
-  docs: dma-api: document __dma_from_device_group_begin()/end()
-  dma-mapping: add DMA_ATTR_CPU_CACHE_CLEAN
-  docs: dma-api: document DMA_ATTR_CPU_CACHE_CLEAN
-  dma-debug: track cache clean flag in entries
-  virtio: add virtqueue_add_inbuf_cache_clean API
-  vsock/virtio: fix DMA alignment for event_list
-  vsock/virtio: use virtqueue_add_inbuf_cache_clean for events
-  virtio_input: fix DMA alignment for evts
-  virtio_scsi: fix DMA cacheline issues for events
-  virtio-rng: fix DMA alignment for data buffer
-  virtio_input: use virtqueue_add_inbuf_cache_clean for events
-  vsock/virtio: reorder fields to reduce padding
-  gpio: virtio: fix DMA alignment
-  gpio: virtio: reorder fields to reduce struct padding
-
- Documentation/core-api/dma-api-howto.rst  | 52 ++++++++++++++
- Documentation/core-api/dma-attributes.rst |  9 +++
- drivers/char/hw_random/virtio-rng.c       |  3 +
- drivers/gpio/gpio-virtio.c                | 15 ++--
- drivers/scsi/virtio_scsi.c                | 17 +++--
- drivers/virtio/virtio_input.c             |  5 +-
- drivers/virtio/virtio_ring.c              | 83 ++++++++++++++++-------
- include/linux/dma-mapping.h               | 20 ++++++
- include/linux/virtio.h                    |  5 ++
- kernel/dma/debug.c                        | 28 ++++++--
- net/vmw_vsock/virtio_transport.c          |  8 ++-
- 11 files changed, 205 insertions(+), 40 deletions(-)
-
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index aa36a0d1d9df..29ad2ce700f0 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -7,6 +7,7 @@
+ #include <linux/dma-direction.h>
+ #include <linux/scatterlist.h>
+ #include <linux/bug.h>
++#include <linux/cache.h>
+ 
+ /**
+  * List of possible attributes associated with a DMA mapping. The semantics
+@@ -703,6 +704,18 @@ static inline int dma_get_cache_alignment(void)
+ }
+ #endif
+ 
++#ifdef ARCH_HAS_DMA_MINALIGN
++#define ____dma_from_device_aligned __aligned(ARCH_DMA_MINALIGN)
++#else
++#define ____dma_from_device_aligned
++#endif
++/* Mark start of DMA buffer */
++#define __dma_from_device_group_begin(GROUP)			\
++	__cacheline_group_begin(GROUP) ____dma_from_device_aligned
++/* Mark end of DMA buffer */
++#define __dma_from_device_group_end(GROUP)			\
++	__cacheline_group_end(GROUP) ____dma_from_device_aligned
++
+ static inline void *dmam_alloc_coherent(struct device *dev, size_t size,
+ 		dma_addr_t *dma_handle, gfp_t gfp)
+ {
 -- 
 MST
 
