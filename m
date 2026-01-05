@@ -1,140 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D26D2EB860;
-	Sun,  4 Jan 2026 20:17:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AC44314B84
+	for <virtualization@lists.linux.dev>; Mon,  5 Jan 2026 04:56:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767557833; cv=none; b=LDiIktcIzOAOJn66d9x0Dz36+Y1Uh8b6mmKDbf7w1F2Jx3bbo6VFv55pNHKA4K9gZ5mTcSM/DEj/eJU4mhGXrcBdsyTvdl6ajhZv2tx+7TjvbxYbTHew7U59/lR2eviPeDSCf6lkUqFNPUEvTqQov2dP8G6tSnxs5ScaRJhqFMY=
+	t=1767589006; cv=none; b=rMR3B8gSmvO9v3F/Yur8uDwxSa4oaDok5iwF+GjarSsyXt2NaXAqQy6G1AbuAQ0GxHE32C2h3ApBNiz4CsUG17RB//I09zH22qiXq6c5u9dw9k0ubgloFZidApHhJhtY7CGrD41MnY0r7VU7GpO/dA13yCp1vUWmm5NF+GD2oac=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767557833; c=relaxed/simple;
-	bh=7mz8v9z0BM17jMr+gaKdu0d01aFsVsqad712bUC+gBQ=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=MsxJXCLVFCXVPph9ouA+9UkThZCa1nnrtlfl+ruH6a1lOw2QP7NrdUeeV7TkNWeYFI10QMzMDrpXaXvFpuqsCjcpGDl4ePBFQN/I+sfHH1SN0ySe3RuPjKMB/JYworDJyGv3iioTVJu/gT44jR2/hwQ9T8ImDEMWnacQImvXyYM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t8JTyoDS; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1767589006; c=relaxed/simple;
+	bh=jBwvhnDfidsek4dpH3nFNU7R+wPfEwm8oFGbdpxTVpU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WuSD/tr10xTMpsVeRK6CM+I2b80vs4KXOs4TX0lvaPUt0LpTwSWr9lxU569IU749erXbKlrkE3J+Fk2cyJwOCWaDpZnOJKAKtPxQlF0uvzh8zmOuuAHJsku0NakZva+rCyT0sBet6yV8xA81TYki3je6rcCnSSP5do43EgqJ+dI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=oCgc1Ihs; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t8JTyoDS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB7FC19422;
-	Sun,  4 Jan 2026 20:17:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767557833;
-	bh=7mz8v9z0BM17jMr+gaKdu0d01aFsVsqad712bUC+gBQ=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=t8JTyoDS4f1raQ9MoKpd9lJm4y/z5Ir+MMLd+ATZY5kc4k15XlXikK7V+3QNnV7YW
-	 BjdGnPgTv36jjn5Gtu1UWfPFA5haJUgXWBm4+TRhCOL+kqJYbanmaHIqeoD14cxCR8
-	 e0/RVULzdg7E7376SUdw8YZ4CnmmidObgtTVdSbaFVR08F3JvKm7l2QtKGRVJ2tNEK
-	 jgHmG/nVAXnobV03yRzPpdOINhIlXNGGemYLTdbUGjS9g+Q6WWL3YzM5Ak16vjwho5
-	 iK4DOUeeyk8TzG/bgfw9yT6d2UsFFb3rD5mA+fEdyQwjvJoBDRlHGGM6WrKV01a6bl
-	 /UeZdQFyt0jUA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3B884380AA58;
-	Sun,  4 Jan 2026 20:13:53 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="oCgc1Ihs"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-34ab8e0df53so13136146a91.3
+        for <virtualization@lists.linux.dev>; Sun, 04 Jan 2026 20:56:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1767589004; x=1768193804; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=3hFH3lNfVrL079RvxBKm1qFjwG/jqKdNHXIh3f8h06U=;
+        b=oCgc1IhsBhBJnrwceWTMe0LuQ9Szsd0CHnYUjE66NDnzHfAjbuxfJXMWjT707SD7XX
+         3KAOZR45HNsfeFhESzMAb8s4e1EyHYslXF16vDnGaVTyEMSOx33QnU6XgMHtIpxLYlHJ
+         /1qHz1iJd/2/QUiD4NL02lHZePu+Au5kmAn8MZi/To7nsu8rLaMvEE55bnHbZtpgYvIR
+         XxyzgPnGoxlVFrBeJr5PYq6kal6rClrh8Z+3QkL+ouH4U1IWDSU19sY0vjH5C9iingod
+         lD+jE6LeaAVFxqyVpabGYOV3upzI4flq2esow+1qpZG3pazlrSrImPYX+n6GG+jWHHpi
+         TnpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767589004; x=1768193804;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3hFH3lNfVrL079RvxBKm1qFjwG/jqKdNHXIh3f8h06U=;
+        b=SSsuhocJTfevOwpeYmGsrS+f0rzKOHVRPGE9Iv+4wtV9d2rDFUrVMM2+p3ssI6RLkU
+         4WAAwWE4JNrEEgrCwvfYCI0IcdKoAYZKbw/4E1HG2PWmGiT/rfVO+Afz8fpoREcmMNqR
+         9pHJaxt/sPp59xmx4QPfJK13jJUyCIds4c9BdzcdqbpUwKk/I2lqOSuzA/DUd/Ihmcwo
+         oAn2x89MQwMde4hBD3IUTpC75m4i6uj1d9C2d608T9SDzJ/22zQlT35iW4cCz2+MkKg2
+         kOFgYbOL1ID+owJSqhxW/P7p/Zzxr6uiM9WBvuglTP0EsgGN1k9cCNPhksswAOw0zN+9
+         HIow==
+X-Forwarded-Encrypted: i=1; AJvYcCV4T7d//vIIB1OJShkVpBVTb6Z+lfrLrgE4dIiyx8yKIns0UXUVroVlj0DoEwuVrnwCvCVF/MchXgT7MuCDIg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwZm+ER/EApvDJdhZU6mJKUuuB09DupBoZAdZD4biH7s2qVtR5J
+	ZOaR/ex1EsSYC/KJeOra4M1TVawN6r3I6FshoDYD+tLhWC82F/nbeuqEeWBa79rr/XM=
+X-Gm-Gg: AY/fxX76HLv6UvZ8YXvCwfg24pUmtg8N31k4h76PoJcuAN1vyVBKT0DsI5/A+puR1AE
+	OtkeOjI2JRrp4FLQR6JvBzHAcE/Aln+tw3XEqI6rc1rvaJ4wYXjlnA4RSsbyecqnttfWWuSoh21
+	GvvVwLymnaAx6z5KCsfmIZOa8kYKMrWZIdn3Gv8ZPmtRZ23b8ymDSZG5djtFs73hagKJx5So/UX
+	RrfRr0G+hqST/8EFvHv/H6fA2wGwDuW9/xFRku4SELOfaZRj6Sa6H4nTa42HYllOw4O9Hq8ZUqO
+	sum8WsGjdMMDiMUgC/a/0n4lLomiYVebEbee+Wr59OBzrnvuz2sWgm44JpU1Z0p1b+ldExIRoYH
+	5kfHBT72+jyjLVf83Knd64XWtEVxhfvtM2+0/gWSGgnIfIOa3ZHCW5URG4w7UAz2BuOdOvCijMG
+	EBB4NI0H5C1e0=
+X-Google-Smtp-Source: AGHT+IFZ00gScIfn7Z/S2C4S8PPgyPbUGX5mTMlgh0Rzf0TnKH5YXmLt4fA7cx6w6t8/JqVkxOTy2w==
+X-Received: by 2002:a05:6a20:918e:b0:364:13aa:a526 with SMTP id adf61e73a8af0-376a9ce54bbmr44864432637.60.1767589003573;
+        Sun, 04 Jan 2026 20:56:43 -0800 (PST)
+Received: from localhost ([122.172.80.63])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c1e7bd61b4csm40590900a12.18.2026.01.04.20.56.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Jan 2026 20:56:42 -0800 (PST)
+Date: Mon, 5 Jan 2026 10:26:40 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Olivia Mackall <olivia@selenic.com>, 
+	Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
+	Robin Murphy <robin.murphy@arm.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Petr Tesarik <ptesarik@suse.com>, Leon Romanovsky <leon@kernel.org>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, linux-doc@vger.kernel.org, linux-crypto@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org, iommu@lists.linux.dev, 
+	kvm@vger.kernel.org, netdev@vger.kernel.org, 
+	"Enrico Weigelt, metux IT consult" <info@metux.net>, Viresh Kumar <vireshk@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
+	linux-gpio@vger.kernel.org
+Subject: Re: [PATCH RFC 14/13] gpio: virtio: fix DMA alignment
+Message-ID: <nyz6mnesozpu5u6p2mxrg37fwuj3sy7hjo2xkyepd3aybm7m52@7weoocg2pbs5>
+References: <cover.1767089672.git.mst@redhat.com>
+ <6f2f2a7a74141fa3ad92e001ee276c01ffe9ae49.1767112757.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] virtio_net: fix device mismatch in
- devm_kzalloc/devm_kfree
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <176755763202.155813.4198468083332935652.git-patchwork-notify@kernel.org>
-Date: Sun, 04 Jan 2026 20:13:52 +0000
-References: <20260102101900.692770-1-kshankar@marvell.com>
-In-Reply-To: <20260102101900.692770-1-kshankar@marvell.com>
-To: Shiva Shankar Kommula <kshankar@marvell.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- jerinj@marvell.com, ndabilpuram@marvell.com, schalla@marvell.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6f2f2a7a74141fa3ad92e001ee276c01ffe9ae49.1767112757.git.mst@redhat.com>
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Fri, 2 Jan 2026 15:49:00 +0530 you wrote:
-> Initial rss_hdr allocation uses virtio_device->device,
-> but virtnet_set_queues() frees using net_device->device.
-> This device mismatch causing below devres warning
+On 30-12-25, 11:40, Michael S. Tsirkin wrote:
+> The res and ires buffers in struct virtio_gpio_line and struct
+> vgpio_irq_line respectively are used for DMA_FROM_DEVICE via virtqueue_add_sgs().
+> However, within these structs, even though these elements are tagged
+> as ____cacheline_aligned, adjacent struct elements
+> can share DMA cachelines on platforms where ARCH_DMA_MINALIGN >
+> L1_CACHE_BYTES (e.g., arm64 with 128-byte DMA alignment but 64-byte
+> cache lines).
 > 
-> [ 3788.514041] ------------[ cut here ]------------
-> [ 3788.514044] WARNING: drivers/base/devres.c:1095 at devm_kfree+0x84/0x98, CPU#16: vdpa/1463
-> [ 3788.514054] Modules linked in: octep_vdpa virtio_net virtio_vdpa [last unloaded: virtio_vdpa]
-> [ 3788.514064] CPU: 16 UID: 0 PID: 1463 Comm: vdpa Tainted: G        W           6.18.0 #10 PREEMPT
-> [ 3788.514067] Tainted: [W]=WARN
-> [ 3788.514069] Hardware name: Marvell CN106XX board (DT)
-> [ 3788.514071] pstate: 63400009 (nZCv daif +PAN -UAO +TCO +DIT -SSBS BTYPE=--)
-> [ 3788.514074] pc : devm_kfree+0x84/0x98
-> [ 3788.514076] lr : devm_kfree+0x54/0x98
-> [ 3788.514079] sp : ffff800084e2f220
-> [ 3788.514080] x29: ffff800084e2f220 x28: ffff0003b2366000 x27: 000000000000003f
-> [ 3788.514085] x26: 000000000000003f x25: ffff000106f17c10 x24: 0000000000000080
-> [ 3788.514089] x23: ffff00045bb8ab08 x22: ffff00045bb8a000 x21: 0000000000000018
-> [ 3788.514093] x20: ffff0004355c3080 x19: ffff00045bb8aa00 x18: 0000000000080000
-> [ 3788.514098] x17: 0000000000000040 x16: 000000000000001f x15: 000000000007ffff
-> [ 3788.514102] x14: 0000000000000488 x13: 0000000000000005 x12: 00000000000fffff
-> [ 3788.514106] x11: ffffffffffffffff x10: 0000000000000005 x9 : ffff800080c8c05c
-> [ 3788.514110] x8 : ffff800084e2eeb8 x7 : 0000000000000000 x6 : 000000000000003f
-> [ 3788.514115] x5 : ffff8000831bafe0 x4 : ffff800080c8b010 x3 : ffff0004355c3080
-> [ 3788.514119] x2 : ffff0004355c3080 x1 : 0000000000000000 x0 : 0000000000000000
-> [ 3788.514123] Call trace:
-> [ 3788.514125]  devm_kfree+0x84/0x98 (P)
-> [ 3788.514129]  virtnet_set_queues+0x134/0x2e8 [virtio_net]
-> [ 3788.514135]  virtnet_probe+0x9c0/0xe00 [virtio_net]
-> [ 3788.514139]  virtio_dev_probe+0x1e0/0x338
-> [ 3788.514144]  really_probe+0xc8/0x3a0
-> [ 3788.514149]  __driver_probe_device+0x84/0x170
-> [ 3788.514152]  driver_probe_device+0x44/0x120
-> [ 3788.514155]  __device_attach_driver+0xc4/0x168
-> [ 3788.514158]  bus_for_each_drv+0x8c/0xf0
-> [ 3788.514161]  __device_attach+0xa4/0x1c0
-> [ 3788.514164]  device_initial_probe+0x1c/0x30
-> [ 3788.514168]  bus_probe_device+0xb4/0xc0
-> [ 3788.514170]  device_add+0x614/0x828
-> [ 3788.514173]  register_virtio_device+0x214/0x258
-> [ 3788.514175]  virtio_vdpa_probe+0xa0/0x110 [virtio_vdpa]
-> [ 3788.514179]  vdpa_dev_probe+0xa8/0xd8
-> [ 3788.514183]  really_probe+0xc8/0x3a0
-> [ 3788.514186]  __driver_probe_device+0x84/0x170
-> [ 3788.514189]  driver_probe_device+0x44/0x120
-> [ 3788.514192]  __device_attach_driver+0xc4/0x168
-> [ 3788.514195]  bus_for_each_drv+0x8c/0xf0
-> [ 3788.514197]  __device_attach+0xa4/0x1c0
-> [ 3788.514200]  device_initial_probe+0x1c/0x30
-> [ 3788.514203]  bus_probe_device+0xb4/0xc0
-> [ 3788.514206]  device_add+0x614/0x828
-> [ 3788.514209]  _vdpa_register_device+0x58/0x88
-> [ 3788.514211]  octep_vdpa_dev_add+0x104/0x228 [octep_vdpa]
-> [ 3788.514215]  vdpa_nl_cmd_dev_add_set_doit+0x2d0/0x3c0
-> [ 3788.514218]  genl_family_rcv_msg_doit+0xe4/0x158
-> [ 3788.514222]  genl_rcv_msg+0x218/0x298
-> [ 3788.514225]  netlink_rcv_skb+0x64/0x138
-> [ 3788.514229]  genl_rcv+0x40/0x60
-> [ 3788.514233]  netlink_unicast+0x32c/0x3b0
-> [ 3788.514237]  netlink_sendmsg+0x170/0x3b8
-> [ 3788.514241]  __sys_sendto+0x12c/0x1c0
-> [ 3788.514246]  __arm64_sys_sendto+0x30/0x48
-> [ 3788.514249]  invoke_syscall.constprop.0+0x58/0xf8
-> [ 3788.514255]  do_el0_svc+0x48/0xd0
-> [ 3788.514259]  el0_svc+0x48/0x210
-> [ 3788.514264]  el0t_64_sync_handler+0xa0/0xe8
-> [ 3788.514268]  el0t_64_sync+0x198/0x1a0
-> [ 3788.514271] ---[ end trace 0000000000000000 ]---
+> The existing ____cacheline_aligned annotation aligns to L1_CACHE_BYTES
+> which is now always sufficient for DMA alignment. For example,
+> with L1_CACHE_BYTES = 32 and ARCH_DMA_MINALIGN = 128
+>   - irq_lines[0].ires at offset 128
+>   - irq_lines[1].type at offset 192
+> both in same 128-byte DMA cacheline [128-256)
 > 
-> [...]
+> When the device writes to irq_lines[0].ires and the CPU concurrently
+> modifies one of irq_lines[1].type/disabled/masked/queued flags,
+> corruption can occur on non-cache-coherent platform.
+> 
+> Fix by using __dma_from_device_aligned_begin/end annotations on the
+> DMA buffers. Drop ____cacheline_aligned - it's not required to isolate
+> request and response, and keeping them would increase the memory cost.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/gpio/gpio-virtio.c | 14 ++++++++++----
+>  1 file changed, 10 insertions(+), 4 deletions(-)
 
-Here is the summary with links:
-  - [net] virtio_net: fix device mismatch in devm_kzalloc/devm_kfree
-    https://git.kernel.org/netdev/net/c/acb4bc6e1ba3
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
 
-You are awesome, thank you!
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+viresh
