@@ -1,115 +1,160 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE69C324B16
-	for <virtualization@lists.linux.dev>; Mon,  5 Jan 2026 04:57:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BADEA22E3E9
+	for <virtualization@lists.linux.dev>; Mon,  5 Jan 2026 08:22:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767589036; cv=none; b=TX6D2d0CSCq/o7ZQAyycg+2asWefGdaDAxE/t6L6wDFIJBBX4mK5089BSzhI0lzWb3swRaWNoLHxXm//FLhpb+GdyWNo6T1kL641NgZSDvLWSsvQ2rL9CROXmXkU4gGOI5QmXKNx+t15xXFMSmq+g+OvT3TEKdRLj+VUW4kMkSo=
+	t=1767601380; cv=none; b=Pup6PLYq0HEvtPdB7Dzzpdo2E2cN7S8NWqVVlc39LusmJASuHXRYx+B0qcQR4ExXUi/NIFzRmRHxVfdBXtNhxxXARv//KZHTMhS6BBRHU6zws5rfK9bXVnuc0wq1xgZnP1J5XCKch16xMwW/pUEJRsQmAWDRAdPDuKSFbZAMEHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767589036; c=relaxed/simple;
-	bh=wdM/b8hJbUaslNLfaUyaSG8t8yHTFzri8J0kMFatf2M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kVsJ/vNnbigmT2d03o67E8nIIT2jYh/TP0UaCI1FslmKGrpHLabVt+PA1qQpqjv9UmK9eez8uUPjuew/MYb0P2Y2UbSsDrLOSJ0GAlZfBzwUb2KBzq7N47a/akdEozEWzEnwWHjNJcjV9t6TtA63EUmOqJ6KlcChHuc7pRrNzxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=QNeRHaKq; arc=none smtp.client-ip=209.85.216.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1767601380; c=relaxed/simple;
+	bh=1rF+5o+RxfvaZWaK/37ivP7Ic43xgdCjtd7a083Lyfc=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=Nas3WRBmyvApbTyNTfcvqwNcjj/s/jNgDQg2Er2IfS4IADgT09IhIBpECK7L2/GUX6mycGZljF77iNwpZ+UMorNnAKE5cA81PQJJEH9ianWB0BoglWHkb8A9dW2BgoVwfqdwh0yCroEdG9Qhis3o3ei87X9SWouXR8GlHwpNdEs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OVpQPRID; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="QNeRHaKq"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-34b75fba315so14729021a91.3
-        for <virtualization@lists.linux.dev>; Sun, 04 Jan 2026 20:57:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1767589034; x=1768193834; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=EOEgCzmZP0GTJHcnce/bEe96Bif2a5t1CJ7MWxViYzU=;
-        b=QNeRHaKqeWuGTF7FVCNp0douRxrlUPraONKNzZqjXV2dkZzJEXixtJxHr6OQFRUgmh
-         bx/2HcDjvKACwVkj9FBUpRIncffw+LTniW3FZSMe33PWbHSfZm7XjC25lphRBNlYbWxD
-         SKll6lT8a56y59SB9kSgISbir3WPv6ErM66NvU2Z5hZWG+oYMoK+sQ4yvmhHh5UxVnpk
-         Hg+m1kft6oMJsEdLUV0awENUDuMbnSM4rz6qDULqBYA0nahwqyEMZG1mReyxD8j725ep
-         k2qcrj4QumcO7uNa5ynHkpKLzY+K6lOZ+EbStyP7oqA/O6W+jRjaxsiW3GuIiJkkLMXw
-         Ueyw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OVpQPRID"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1767601377;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=++MSvPbbaixtOH+VkhbpdT2tKuVIlO7zEYO24bBcB2o=;
+	b=OVpQPRIDj5fXqBg9A/hP4xVzLw8MYfD0RyVh4Bk3mpjidMcWQVlxb6UWCkDP88f6dbWF3F
+	SvhRQ9LrJEXf8a4sePL5O5s/gicfHgSC7GHHwSCZoSo54sbVX2pEdbD1EQjHEf1CDNwLaQ
+	fzhYe/ROFifr2sDRbPyDY0j+oMXFN/U=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-683-5kLfMdFaO5K3MExhII2_4g-1; Mon, 05 Jan 2026 03:22:55 -0500
+X-MC-Unique: 5kLfMdFaO5K3MExhII2_4g-1
+X-Mimecast-MFC-AGG-ID: 5kLfMdFaO5K3MExhII2_4g_1767601374
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-477b8a667bcso184528685e9.2
+        for <virtualization@lists.linux.dev>; Mon, 05 Jan 2026 00:22:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767589034; x=1768193834;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=EOEgCzmZP0GTJHcnce/bEe96Bif2a5t1CJ7MWxViYzU=;
-        b=QVzPWRksR1zXbDI5HwVKjUTTGOK4M1DaYydddcpV8PBouSm4U6oaLL6mjN2z2j9nVa
-         lKB/H7uDknIApQ7tzkIyXyAHCWSiYC/nHG7ccHz1d94m0NvGoi7QJzk+FbU3Ji5pn8tr
-         rPCTakq4IFNOckxiQ0BooalXRCWVx3pzl9SsE2rSq3F4inSqsYn5flJJDNsLYJgFqN8z
-         JkD97WDCT/6CRIeP5snj5iJ5i5Oerp9AEdBdBe72MD6vWI3CSPzkYIelJB2PlVGhSOhK
-         nMVcffQOxWbWXVtB8F0Sqt+lHjAAsDPVy8w7xaiiLD56RWLz8dd1rUCIiGSk1gH1rSFG
-         xupQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUF/fAZPa32XW+dn94XNkyNTsIP9swjLopsMXZ6zLu3r0zoKfTgBHecYb782o3k0Zx+e9MKRk2A1D21gztjqA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwUSmWiB4EcB6OzoQu8gASWGxVqZKROYYyfN82tcs2HXS0e8aw4
-	xl1iSE3hV7GweQ2eZ6gu4/10/S7RNQvwJl0aCXUB4j7YNKtbITmRuY87SwDpRe5Tdls=
-X-Gm-Gg: AY/fxX4lFTUMcsv7cqto5HzdYFG2DhKD+U80SSZJZ+HNNAquFT0zxQkOFlkFiI231dG
-	HCn+gpsyv5A35e2RRXA8iWKZQ2hBC92G/5by2/4rerJWKGNgFI2MJmwqpsstgIT75ujRs2/lEOr
-	fEF7SV6QszUicRVEE2yFS9EO0DMHuiykqsaj6gbxlXLQwyUJ6DGcAaosCRfc/oA4cb2VO11UHvU
-	u9fI38jMc7aayGMrSHbmbEYT6NNBLbV95gQ5AWWEuv/+KqLVqnbl38tNrnjCnlkhRXibyoUNMFU
-	8sVDcw/WZ9yhXFos0Y9Hz7AQtjZWdkLoc9cRWEw4DwIfHQhrcnWYQ4iB20jrp3mJXpEaaG5eJRm
-	V/oGgtpdP7KkL1TpM0HOIT8TJB/XcSDg4um7wSlJKJ4PXJEiCgWXy2rTlRZ2IpYCbzOOHsV2uIL
-	LgPa4QxtUIcfGp/U5x93KVsg==
-X-Google-Smtp-Source: AGHT+IECK/LcBFPZYYyRh4cCx6nIWU2Vivu4V4Wo0++VXRb6DotO+ATVsJPLekWH+2yfoIoKe3qHow==
-X-Received: by 2002:a17:90b:278d:b0:32e:3c57:8a9e with SMTP id 98e67ed59e1d1-34e921f0439mr39742351a91.35.1767589033897;
-        Sun, 04 Jan 2026 20:57:13 -0800 (PST)
-Received: from localhost ([122.172.80.63])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34f476ec31dsm4899585a91.3.2026.01.04.20.57.12
+        d=1e100.net; s=20230601; t=1767601374; x=1768206174;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=++MSvPbbaixtOH+VkhbpdT2tKuVIlO7zEYO24bBcB2o=;
+        b=lAysxwtyHHwTnD3KGlaJTGpv6haci1tVytiEayYf5ou8H9W3jSmRkBh2OCBwgZfhcy
+         flNrqOrAPuUpYIj2u5BQRbF6Sh48gQA6HdS/uEKPSq7sVG1xAZYO6uw8STyjxn1bA5pH
+         +2W+qcosRqEEoyc6MzhiCHwF5j/tex2nSsO78bawuOlvocaYp1ahbhCsYsYs50YwjMpz
+         gOdT84GWzzvToGHJEZLSFeb7J5GB3bsqiFQg49a0tPvcPKJTzrFxP1+LizLbh3j1zilP
+         xRBAQdcAX4rzWjtTKslPjjKtFPTFNrY3FBACUDyOi7VMPL9ZMHMxohP3J+GcZwwaTLHE
+         Hcrw==
+X-Forwarded-Encrypted: i=1; AJvYcCVCcjOl5n6TLpH7N7fYa1+9KUsZit4CDs80+GYFpEY/QtrZ8UaVJnnjsg2CDZ82lBeqUrsklOYiLxyAnPJUMQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzstaQh1nvyHCsZYsKpxW4qDQwTWNb1rv5SpBeW90fwrD2DQcbm
+	IASfUnAGSY59iMMpUUECwA/QzFDH/piq3DGYPzdUqPEgeCjmhfT1HGDiqyKpyjk2RKnDw3H4hpp
+	MKZ+fvItyEmohBkWmuh1hNL60HdqpCXt/WTCSkwEUF5COFJORSYlrRWMS8Qr+qFfAP5Fo
+X-Gm-Gg: AY/fxX4hlycccsrRvi8CtPZvzom/cvdCB14s6yjfyt7NwS50uvHmW+BhUYxSPrMlgfF
+	kiUXcN2ALqfSQh9GmoxJ03KN5ZnFQv3jswkyiIwgi3Xlbs02JBFtuMOfT/BMuLP88YWUk5ddupp
+	lWis58qnCdPIWxvqjd8otESFZEb7JMXY/mmOm4rjuTZAOxHJ4VCFzgpbG8pEAJ5yslca9HeOnHb
+	sZZGK7TGySPerdquiRphym1z31qBCWjUQTzPdx12jl7eYIdSNKVVtZpirptIQDseK/1MrSDtjyB
+	gah9j65x8lR/PMldyZH3p1lpeI3MEYkjzNu9yPkRtPIXKJ6rJ+kMLTnPqatYF16+Vg5Ro2hrTNz
+	y9Bdh+f80sXQxgGNF5wIhye2MghdbdV6mhg==
+X-Received: by 2002:a05:600c:4ed2:b0:475:e067:f23d with SMTP id 5b1f17b1804b1-47d1959eaaemr640737335e9.25.1767601374439;
+        Mon, 05 Jan 2026 00:22:54 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEXw2Pw2EoWGIJB0fy/EdgimCoNIlh1q5tf6OTMnGxG74FiSYxf17YyIIU15mHj+ck3a5eDtg==
+X-Received: by 2002:a05:600c:4ed2:b0:475:e067:f23d with SMTP id 5b1f17b1804b1-47d1959eaaemr640737005e9.25.1767601373905;
+        Mon, 05 Jan 2026 00:22:53 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d6ba30531sm56554215e9.1.2026.01.05.00.22.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Jan 2026 20:57:13 -0800 (PST)
-Date: Mon, 5 Jan 2026 10:27:11 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Olivia Mackall <olivia@selenic.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	Robin Murphy <robin.murphy@arm.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Petr Tesarik <ptesarik@suse.com>, Leon Romanovsky <leon@kernel.org>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, linux-doc@vger.kernel.org, linux-crypto@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org, iommu@lists.linux.dev, 
-	kvm@vger.kernel.org, netdev@vger.kernel.org, 
-	"Enrico Weigelt, metux IT consult" <info@metux.net>, Viresh Kumar <vireshk@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
-	linux-gpio@vger.kernel.org
-Subject: Re: [PATCH RFC 15/13] gpio: virtio: reorder fields to reduce struct
- padding
-Message-ID: <w6to6itartzrxgapaj6dys2q3yqqoz3zetpb5bejnjb4heof2c@jkhmal3chyn2>
-References: <cover.1767089672.git.mst@redhat.com>
- <55e9351282f530e2302e11497c6339c4a2e74471.1767112757.git.mst@redhat.com>
+        Mon, 05 Jan 2026 00:22:53 -0800 (PST)
+Date: Mon, 5 Jan 2026 03:22:50 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Cong Wang <xiyou.wangcong@gmail.com>, Jonathan Corbet <corbet@lwn.net>,
+	Olivia Mackall <olivia@selenic.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, Petr Tesarik <ptesarik@suse.com>,
+	Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-doc@vger.kernel.org,
+	linux-crypto@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-scsi@vger.kernel.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH v2 00/15] fix DMA aligment issues around virtio
+Message-ID: <cover.1767601130.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: eFmFBHtf2zwIJ8ogbupPs-u9B9HjM-JNEJyLW5WND7k_1767601374
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <55e9351282f530e2302e11497c6339c4a2e74471.1767112757.git.mst@redhat.com>
 
-On 30-12-25, 11:40, Michael S. Tsirkin wrote:
-> Reorder struct virtio_gpio_line fields to place the DMA buffers (req/res)
-> last. This eliminates the need for __dma_from_device_aligned_end padding
-> after the DMA buffer, since struct tail padding naturally protects it,
-> making the struct a bit smaller.
-> 
-> Size reduction estimation when ARCH_DMA_MINALIGN=128:
-> - request is 8 bytes
-> - response is 2 bytes
-> - removing _end saves up to 128-6=122 bytes padding to align rxlen field
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/gpio/gpio-virtio.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
 
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Cong Wang reported dma debug warnings with virtio-vsock
+and proposed a patch, see:
+
+https://lore.kernel.org/all/20251228015451.1253271-1-xiyou.wangcong@gmail.com/
+
+however, the issue is more widespread.
+This is an attempt to fix it systematically.
+Note: i2c and gio might also be affected, I am still looking
+into it. Help from maintainers welcome.
+
+Lightly tested.  Cursor/claude used liberally, mostly for
+refactoring/API updates/English.
+
+DMA maintainers, could you please confirm the DMA core changes
+are ok with you?
+
+Thanks!
+
+
+Michael S. Tsirkin (15):
+  dma-mapping: add __dma_from_device_group_begin()/end()
+  docs: dma-api: document __dma_from_device_group_begin()/end()
+  dma-mapping: add DMA_ATTR_CPU_CACHE_CLEAN
+  docs: dma-api: document DMA_ATTR_CPU_CACHE_CLEAN
+  dma-debug: track cache clean flag in entries
+  virtio: add virtqueue_add_inbuf_cache_clean API
+  vsock/virtio: fix DMA alignment for event_list
+  vsock/virtio: use virtqueue_add_inbuf_cache_clean for events
+  virtio_input: fix DMA alignment for evts
+  virtio_scsi: fix DMA cacheline issues for events
+  virtio-rng: fix DMA alignment for data buffer
+  virtio_input: use virtqueue_add_inbuf_cache_clean for events
+  vsock/virtio: reorder fields to reduce padding
+  gpio: virtio: fix DMA alignment
+  gpio: virtio: reorder fields to reduce struct padding
+
+ Documentation/core-api/dma-api-howto.rst  | 52 ++++++++++++++
+ Documentation/core-api/dma-attributes.rst |  9 +++
+ drivers/char/hw_random/virtio-rng.c       |  3 +
+ drivers/gpio/gpio-virtio.c                | 15 ++--
+ drivers/scsi/virtio_scsi.c                | 17 +++--
+ drivers/virtio/virtio_input.c             |  5 +-
+ drivers/virtio/virtio_ring.c              | 83 ++++++++++++++++-------
+ include/linux/dma-mapping.h               | 20 ++++++
+ include/linux/virtio.h                    |  5 ++
+ kernel/dma/debug.c                        | 28 ++++++--
+ net/vmw_vsock/virtio_transport.c          |  8 ++-
+ 11 files changed, 205 insertions(+), 40 deletions(-)
 
 -- 
-viresh
+MST
+
