@@ -1,118 +1,113 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A1B5324B19
-	for <virtualization@lists.linux.dev>; Tue,  6 Jan 2026 07:57:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E98133A9FD
+	for <virtualization@lists.linux.dev>; Tue,  6 Jan 2026 10:28:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767686242; cv=none; b=dDRxrldTFt+p4BNXXNOsrftjZUplb9VRPmUfgkfStEt+2YMLH+/tqVTxaX3amwVFhvyHYRkWp7UhUFymoMCmMKsmhGWfToY6aiEDBFdmzgTb1G94HxWma75mlecnf7lMP/aVWZaqR5nPiJh6PayFe9DICU9ufsZbjkKAGWce2UQ=
+	t=1767695312; cv=none; b=dFOyIDNclw1+Woy+w9ipzs4GzZ5i9ont6zExO8HaYmt0tqBMsF9lHXpBMAwfD9g/X/p2aeENIbe1FrpYGRRstKHLuvqgoHvVg6ZE0WkyO6YuJHvhJBmbJTlLbe+2SSre9110ZEeUATSal2QInVbBo5lrloiObxgOnm0VJhVrQes=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767686242; c=relaxed/simple;
-	bh=2dfXE3T5FZ6K7+lqEmh5QGLTAful/RxL5/OXaLyX+Qg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=DgLClPIwrLwZaGe2QNMcEjOcespq4mwP/tsjiDjbW3EEciWhK3vCgr2Ixhl5iyCYYaBdShkh58aLlS2isFnI8ZHTMI4+VUkXT/dAPpO9bebNlpgPwlPognp431PIBbpfsOY2bPBg+CNuYTpp3iXjeGSbVOT0ayQV2RXgnuuB78o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Jw29zZzF; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1767695312; c=relaxed/simple;
+	bh=nEu4WOz+vtpJU2TGs6EPbQkaMhnf0O8StNk988KhUnE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jCpO64bq8Datbf1Owy1CZ4IHfw5X6moOTskO235W3dQVS/qHdKZZDrrsB3FHLq2M01P6B56YUscgBhoFd77iFtt1Xhgojro2MMMcPjIuVtpeyDwCFybodrbsSFeIYWarcjyMUyzyzK/0V226TnGq5YY5UNhlNF1fUIVqdhHDoH8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lWttEKLg; arc=none smtp.client-ip=209.85.208.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Jw29zZzF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767686240;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=I4TYkMIrp7AW9u8pmueM8oRPi406uK0ebNKTuLEzFRw=;
-	b=Jw29zZzFglG919JgI7i0xklQ2oObYZyc5leVLnIfHti9CJweJNPNRzG8C5PabdVmP4/3fY
-	M+7UoQk0lJjSmBkBb7s9m1F/B8AYBTpQLUP/nNuyP4dtnrpMhO1TRrPHTSZfGnUDm1nqke
-	v82l+dtoQG1lYYlghba+tsFch4GvB/Y=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-663-f31WUT15OgGzj1083f4m5A-1; Tue, 06 Jan 2026 02:57:19 -0500
-X-MC-Unique: f31WUT15OgGzj1083f4m5A-1
-X-Mimecast-MFC-AGG-ID: f31WUT15OgGzj1083f4m5A_1767686238
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-43065ad16a8so338581f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 05 Jan 2026 23:57:18 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lWttEKLg"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-650854c473fso286445a12.1
+        for <virtualization@lists.linux.dev>; Tue, 06 Jan 2026 02:28:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767695309; x=1768300109; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=BAJkKuJpYWdtj8kvDzq7kj79D0dSrUm44Ey46PsxwVE=;
+        b=lWttEKLgsTdtmr2Pkk91kRhPY3uA709i0d1P1sDvTwwk+T8a/Dj+IyCt9Py50QiyBh
+         8UxXVm0NADIY0WkjHBInk/TPIy5i6NFognLvlMmCaIlEZNIIWNqicKeKxXMTW3JRogPa
+         NF0q5SZ5+zoz49Ixpy1pUipgINHTH1uM5uYUFoJTVCgBeEzT9ktCo3p82zGmdRKFofvc
+         4kUXGbIASaWOr4WO3lo/rbVOoScPtgYs/05iaP65NtnwWJAP8ANVWgUK2Q6oY7lPtcX1
+         yvGgBBokN1+nv6+agkWfuX7YkoEZiqJw6Lv0wjxstVuFva0zvYOeCuX/9YD/Lqt17ZXy
+         Z+aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767686238; x=1768291038;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=I4TYkMIrp7AW9u8pmueM8oRPi406uK0ebNKTuLEzFRw=;
-        b=W8I4KxYZeIzwPxhAxp5CNFFCXGGxGJzfdKbwKhHjSwkgOsJdIwmOWvXQYod+WB0kjw
-         ck2LKFZARXxLJ0OD9keLiiy8TqLrrICPlxw/xr5Hy7zyod8n2YYUlVCj422yt2Ujsr6b
-         kLlXrsG8LgNeb8oad2myZtYyjR7BNGchK2BNKW9Q8dT7clXURwi8q6Rnu+8pXvDQYlLn
-         7Fjq/m9HaXg5L+tnT3g5ep4kEEUvnvvU89h6NMln/FBkb4zEBBBPninWtda4GzvI9gCg
-         0+4QelXHF8zGufs581e3Zh05uPryJPeV59mzIkNj2CP/HMxxNVKXzpqVNebf9EVkNbiV
-         nAow==
-X-Forwarded-Encrypted: i=1; AJvYcCXyEMmf8GYi1kjq7EoZUQhEBgiUZPJy3DqY6xh90M1OhmkPxnkDo9leMMgfiV0mJM8QFBVvV2L0cfGqS5fc4A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy6UQwR1cXp7KMHnRbH3UFyzlsKdQSRGtxTb0eE2Kk5eRtWIbxn
-	HqMfTEa3qEAN/ke+e2lBMchuIzSQJaY5/W12MunEauN0fSBj5WU86yh8XWxsWucJP9RSLRhA7Fr
-	GexJeN93Z+oRdmrbZ0a3GaLW7CE3BoaNFzKOEDSo0PDUIll326cUoZG2k9DULjozjs/ao
-X-Gm-Gg: AY/fxX6Q8sJFn78+9wawH+jSqMZWAVS54tDxfVueqUkzLRH97luHvwZKzOhvftP0ab8
-	swMS/zw/bmwjjk+p0JXUpvtwjCAK413u5ONuWZSOaFb5HXwW7F0uZz30EbGCcj3mLFI+t5O6CL+
-	j+U5QZ2mjB1ujcy0h9MxKCbXFor3aJr7EieYjH4zJG8LRijYsZFzCzuLGvwTF5QJqwEhyYlHW09
-	yoaNgYucGeVdnp5DpuXsyutUQsRIuNDLJ0uK2KnllStdvwHtwCdJ9H1n8AD0HCVDvp1b4IFQQ6v
-	5ovHw1UXFwSUt5/nVg19vEGOI2TtF6KRkYG7a8sLpO5v96qqYON3WdbgPZtxTkaPDflbSbt3jhK
-	lw2hxYS5j8gejkGjHyGf8gGc/HBC03907ew==
-X-Received: by 2002:a05:600c:444d:b0:46e:32d4:46a1 with SMTP id 5b1f17b1804b1-47d7f09ca36mr23148355e9.22.1767686237773;
-        Mon, 05 Jan 2026 23:57:17 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHkOtxCvNvgEtYJhHLldkg64fSo56Dqfda5jX1IeA0WMV+CtMRCrIRIjLAWwju8ZN5FopMEIQ==
-X-Received: by 2002:a05:600c:444d:b0:46e:32d4:46a1 with SMTP id 5b1f17b1804b1-47d7f09ca36mr23148085e9.22.1767686237184;
-        Mon, 05 Jan 2026 23:57:17 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f65d9f0sm28518895e9.12.2026.01.05.23.57.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Jan 2026 23:57:16 -0800 (PST)
-Date: Tue, 6 Jan 2026 02:57:14 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Hillf Danton <hdanton@sina.com>
-Cc: syzbot <syzbot+a9528028ab4ca83e8bac@syzkaller.appspotmail.com>,
-	eperezma@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
-Subject: Re: [syzbot] INFO: task hung in vhost_worker_killed (2)
-Message-ID: <20260106024033-mutt-send-email-mst@kernel.org>
-References: <695b796e.050a0220.1c9965.002a.GAE@google.com>
- <20260106014632.2007-1-hdanton@sina.com>
+        d=1e100.net; s=20230601; t=1767695309; x=1768300109;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BAJkKuJpYWdtj8kvDzq7kj79D0dSrUm44Ey46PsxwVE=;
+        b=Cr1USl7oll5DDYz/g3fjaaXriSk69b8m6Zke55Odw+nX3njaap8g4mQhYSWI25NJiT
+         hjiU5Hq3Pw7gXtM9pl6+1tK058x9benHNMUd5ZT1tgF5ulKlMEk7d8ub0OrxHuvDRcP3
+         XCESM/XM/0DXONfUmbLfDk+wo16hY4ybbNKMRR7tJKylHLt74EEtfd7ALrS09Gp+G7Bo
+         0wfgy8ypd0gIz3bdgIgRy0+wT/TZG3ms5qvI1m8GqT27c3tx46nl5TMmb1Wb9vZ2lhWS
+         pKc9WtJWESfqDGLFJW6PWviZdaMzOk/RDyse4OcbXx9P50qQzW+cUzMmAFeQ67osQaIA
+         0m8g==
+X-Forwarded-Encrypted: i=1; AJvYcCVkwQYq8TOIkcStUmFcCsIoMjLllnKCpcbbW70QQTjVFWRB758lxDkKMDVA2HTmlPruA83qalPPUDJrzxDDQQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzClN45d6cw1ziE235iahMYSqtTYMO52el7nry6QOqBj/GtdS/n
+	9cSlXvDig3XvRbJZ9KLbvS6uPeZA42HBa5Vvq7NB9fMsPBKnXz661PbqCfbd/HzMr0SyCY198tD
+	50F4wJm+S1hgwh7oV7rgf55o499JIevA=
+X-Gm-Gg: AY/fxX5kW8eW8LeHnfmnaRofhRaIAEUf7HGFKiu3wUhBdhG6myXW4yqmu0iv/2nu8Bo
+	0y/Q+5l8QCQ2cE9IlXKOupiUpsBtCC+ArFFPAjd2oOjGMSmC407yKdNdX53Z5tHmi96Q6uFiKDm
+	PzwFUqGIigwIex9R0QC/HX33nDvPXfsvvZNxpizPTNcH6AkWsJVfgudJDpZlFMk4fm/hw2WUehY
+	9HYnim3eONpg2T3jP2K/MYGvGXAqIYn6nFsPsakdlCgh67YSTP2UBuNLtjkoR07GNPKbpRZEms/
+	ZFCXC9QVJuXAxghwHvQ/UIo8E6Y=
+X-Google-Smtp-Source: AGHT+IE596N+CStEx+ymFl4KP/IAg7DPwvIzsQgEPdelrrDg73nHTs58Enhoj6GXrimF8vBvgCjK+cC8m257+3fVL7o=
+X-Received: by 2002:aa7:c343:0:b0:64b:a52b:fa1b with SMTP id
+ 4fb4d7f45d1cf-6507bc60919mr1656343a12.6.1767695308725; Tue, 06 Jan 2026
+ 02:28:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260106014632.2007-1-hdanton@sina.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Etq1kkZmkKYaq72A20jcQOlt322lfFOl410uOTQ2ijg_1767686238
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20260102180530.1559514-1-viswanathiyyappan@gmail.com> <20260102180530.1559514-2-viswanathiyyappan@gmail.com>
+In-Reply-To: <20260102180530.1559514-2-viswanathiyyappan@gmail.com>
+From: I Viswanath <viswanathiyyappan@gmail.com>
+Date: Tue, 6 Jan 2026 15:58:16 +0530
+X-Gm-Features: AQt7F2qFv-ofQsHt7p0xfCLNT_q5NACm8CoTMw_f6VL8XWeKj3K9Y8M7vOIoYlU
+Message-ID: <CAPrAcgNR+=GS0RxH_UP1Hz3U-HJL3_ZdGoy=hqkdS=iXL8zF8w@mail.gmail.com>
+Subject: Re: [PATCH net-next v7 1/2] net: refactor set_rx_mode into snapshot
+ and deferred I/O
+To: edumazet@google.com, andrew+netdev@lunn.ch, horms@kernel.org, 
+	kuba@kernel.org, pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com, 
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Jan 06, 2026 at 09:46:30AM +0800, Hillf Danton wrote:
-> > taking vq mutex in a kill handler is probably not wise.
-> > we should have a separate lock just for handling worker
-> > assignment.
-> > 
-> Better not before showing us the root cause of the hung to
-> avoid adding a blind lock.
+> +static void netif_free_cleanup_work(struct net_device *dev)
+> +{
+> +       if (!dev->cleanup_work)
+> +               return;
+> +
+> +       cancel_work_sync(&dev->cleanup_work->work);
+> +       kfree(dev->cleanup_work);
+> +       dev->cleanup_work = NULL;
+> +}
+> +
+> @@ -1682,6 +1882,16 @@ static int __dev_open(struct net_device *dev, struct netlink_ext_ack *extack)
+>         if (!ret && ops->ndo_open)
+>                 ret = ops->ndo_open(dev);
+>
+> +       if (!ret && dev->needs_cleanup_work) {
+> +               if (!dev->cleanup_work)
+> +                       ret = netif_alloc_cleanup_work(dev);
+> +               else
+> +                       cancel_work_sync(&dev->cleanup_work->work);
+> +       }
+> +
+> +       if (!ret && ops->ndo_write_rx_mode)
+> +               ret = netif_alloc_rx_mode_ctx(dev);
+> +
+>         netpoll_poll_enable(dev);
 
-Well I think it's pretty clear but the issue is that just another lock
-is not enough, we have bigger problems with this mutex.
+This is the response to the AI review. Honestly impressed by how good
+the AI review is
 
-It's held around userspace accesses so if the vhost thread gets into
-uninterruptible sleep holding that, a userspace thread trying to take it
-with mutex_lock will be uninterruptible.
+My bad, It should be flush_work() not cancel_work_sync() in
+__dev_open() and also in
+netif_free_cleanup_work(). These are the only places where execution
+needs to wait
+for completion of the cleanup work
 
-So it propagates the uninterruptible status between vhost and a
-userspace thread.
-
-It's not a new issue but the new(ish) thread management APIs make
-it more visible.
-
-Here it's the kill handler that got hung but it's not really limited
-to that, any ioctl can do that, and I do not want to add another
-lock on data path.
-
--- 
-MST
-
+It's ok to just cancel rx_mode work so this issue is only with the cleanup work
