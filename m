@@ -1,70 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 175C333123C
-	for <virtualization@lists.linux.dev>; Tue,  6 Jan 2026 14:50:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E64C2334C04
+	for <virtualization@lists.linux.dev>; Tue,  6 Jan 2026 14:51:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767711011; cv=none; b=G5u8GpPg1BcbfKoF+j/pH1dAH4Y/ilDO9hk5cZdI/3RelizwjQ+J6GzyBcnc5EvMbA88wfeCCI1zaZHxokdm0b0K9YZiQMHiBt1cJTlaPxHar16ne1ixxMvdSdYkXL++eCK37ymz/NDJazZqCRFdd/m0EQE1wkIRD6U+HsA9jPI=
+	t=1767711119; cv=none; b=dGar/ql/YIMua2tOIIg3FsFvffAv6oZhR96vD/SyhUXTp4Je8bgSBRQF3btt7VmdEOmDlg//BgstVN2cFATE2Mfsd6gBUKXBQu5fQdpJNiTVTKM1feJS6QMNzFitxNlZ+sfLDI3ydwHeHuh8SEl6Kjl9K2S8KWTZkatGHimd2P8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767711011; c=relaxed/simple;
-	bh=RqfJjI32FdZ7MpeaFMqvXp4bO7LyOB4RofYVb7BWxmE=;
+	s=arc-20240116; t=1767711119; c=relaxed/simple;
+	bh=OtGN4S8+ZWGuAfn6+2YZp7eQlkz7c6TNLgozVUvUCR0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=YOQ3ddBhL0XDCC1xGBlzU7W+wXeltw5bsGORU+Hd7JHBJXFJAhPJwPfaV92YTvBLrCuxftksShlxWLADNAGYVYZHGOcptDHlQLyRiSFzSaEgYIN0G2g/gycteKrp+y0nODeTCkaNmV78PWUyAfhztwQEaBhP4EeM1BXHLdfsu3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q6N9B7rq; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=TR41pXA9vMZXbHqvzfUKQee85gZwm0iPt104fy4hzgfU22AkCEm7LYkbseBZA287/7U4Y6SrL1SK9XY8WuQA8aVh8LSjcUNziX6OnbwEhqRX2gl/a9elAegXB9WeLFIEe+bAoDIADsoeWYP4b2Mr9klSl/sUxbNKn8sn7EKGpwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BL/teLkI; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q6N9B7rq"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BL/teLkI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767711008;
+	s=mimecast20190719; t=1767711116;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=0jRp3cPG5jRtvX04esVBCT8Xv2J8JEx5kZGeR0bhCr4=;
-	b=Q6N9B7rqBOy0edULfnPlNXw7pyLqnuaZ2kNeNi/0yvEpuUlPAM74/ALShcP0D8LK8pl7aE
-	RyAIL7DkJq/N2Ik4ubtpFZ3y3dt9u5EJyLMNZ0u8EGrDZmXZAP3Y4N4X5EElvXoGhAjASm
-	9e+El8SlpopjnrZbBE0ZpFD7PJKDNUA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=v8xGpc9e0AHSzqXJdY4dTy2UmvNhNHIufeUOIUm/LzQ=;
+	b=BL/teLkIPThhL9jHSrLxfnXBDAY94IA+4vZjWBnQV3yo45uDf/RAL3O+P6o/grWXBJUjBy
+	kSdVyRT+DYU1jyL9Eh3w4KbjJ22QUBmyP4Qj/RE/9lA4/4ta+qMswvZeeitZXTT4Xgm/pF
+	VPPkgscRwkHWKhiljX3vgwBG56z+dwE=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-630-QOrKQF9AOqqL7yexPyPZGQ-1; Tue, 06 Jan 2026 09:50:06 -0500
-X-MC-Unique: QOrKQF9AOqqL7yexPyPZGQ-1
-X-Mimecast-MFC-AGG-ID: QOrKQF9AOqqL7yexPyPZGQ_1767711006
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-477c49f273fso10752865e9.3
-        for <virtualization@lists.linux.dev>; Tue, 06 Jan 2026 06:50:06 -0800 (PST)
+ us-mta-397-UR7UtxEJOA6mDfdy0UTuSg-1; Tue, 06 Jan 2026 09:51:53 -0500
+X-MC-Unique: UR7UtxEJOA6mDfdy0UTuSg-1
+X-Mimecast-MFC-AGG-ID: UR7UtxEJOA6mDfdy0UTuSg_1767711112
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-430f4609e80so488361f8f.3
+        for <virtualization@lists.linux.dev>; Tue, 06 Jan 2026 06:51:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767711005; x=1768315805;
+        d=1e100.net; s=20230601; t=1767711112; x=1768315912;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0jRp3cPG5jRtvX04esVBCT8Xv2J8JEx5kZGeR0bhCr4=;
-        b=ns9oJEP9bL0uZgUFt/t737v67c1/alSfVBXgFeELNdEMOB4oWYfdQvgYaQ+mBZkV91
-         uCzEAnh6Fwl2s3OgIBvk+MDx/3FDP1BeYP/3mnCFxzng+85SqZTl6sCfbMiHSLHOZlLM
-         mk5eu6x52fPLbOj5AMJ1mW/8bIF4PpDQzm4BA793PErKxgiXF/gzertKQnccKJ8YSkta
-         1DAzoDFlkSuqCvuHYG1dOQSMYLgCIabVxy0+qf6zC8CMP5QIc32WCj0Z3EtSOWqNb2DV
-         QNBNuOjbh6tJSN223uEId/2+m6Y3bwFzSn74oaGIw0pm/nM5grw3ScZU4h410MGsTdlz
-         STJg==
-X-Forwarded-Encrypted: i=1; AJvYcCUbXIowJVb7w9eqfBCdFEenQCx1fqbCLu1yhjhIv7x9i1uS1ZwefYxZ6dquTzWwancDLRYIxa7fEwBX1A0+BA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywer9+hZDdfQAKXilXqih8taSWX/s8+/F+yy6Nlq3wbqR4zQqWI
-	a2qBwvzFEX2HJRDm+EdzmJGvP8zwEvKH3cnIQuqK8IZs14DlwUXoi4Fghsrde/WCFZN231IsluQ
-	TzbZxNJI5iidXV1IJwikakNSu8ji5s4jD3+gwK1zTQBWfYSTyeUD9d9/LeM0+z6aDqPr3
-X-Gm-Gg: AY/fxX6VWjwl4iMlPRcG0DF6/XzzBd8Rw+t7tonmqfrJQnOGmAxcxapOhrODwXVE7w3
-	2JXDVeEoGn0UX/X/o/Rbbwr/exYkkb1WoDw0hFrY2359i1ikxYXF9YgjHaqfWWv9KDj9hrbzyJm
-	3YWLi//Tabb1a9AmQreJIj5vbL17i5bXs0n4qsFrj4o7GRNjUDj0UnIRqX4I8IZWcejeXiEKpKy
-	NKvi+HVXoWoLmN9lJy5Njf2bplh0YnX7vTb8ARcZhMShNRYKhbuB+iVFTJtorH5BmzUESwfbLuu
-	sZQnxH9k08FadLUyay3Ejl/tz3+YGn3Rpje2F1SVqkLwLfJr3VA5LXYbbI9QtNd1WKqyheIFU+/
-	J+T9aqPTMzxNcUTdldgwCpN8ujeCLHcfJWA==
-X-Received: by 2002:a05:600c:c0c5:b0:47d:6856:9bd9 with SMTP id 5b1f17b1804b1-47d8383d75cmr7820835e9.23.1767711005516;
-        Tue, 06 Jan 2026 06:50:05 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFXHeGoEH1PxicAu3pvp2IKmLzneQBM5bSFfOKMFfLat4mQRdOWLJ6nIuVR4bStC0oG3LJdHw==
-X-Received: by 2002:a05:600c:c0c5:b0:47d:6856:9bd9 with SMTP id 5b1f17b1804b1-47d8383d75cmr7820345e9.23.1767711004990;
-        Tue, 06 Jan 2026 06:50:04 -0800 (PST)
+        bh=v8xGpc9e0AHSzqXJdY4dTy2UmvNhNHIufeUOIUm/LzQ=;
+        b=qYYgca7P86FY72NPcy9HfLfjxIlrzjmu2t9s235QLlZPRTo7fP94XMeta9U53dYORr
+         NToSzMzg7tCuBqIcTDLCal0wXwieeDxOGjZCbozsYGdiXZgMk+aB570+gnLj8KJ2PX0c
+         kM2fR4UpSO68OLiMDbdgl3/9o/PwH5RsPcoYO9gmSknug8e0yowbmzQDBt28Pu6nFWbO
+         R7BvYfoapHxqvCp32Bu945m7T76bXuyVFymOusSMSoiukBv3122q9bN0fv2c3T6AMt4D
+         +cy8AL7gTSDLACo31cCtchArEl4IF8OP32L4Zwdm/lEkyAvXo33vDf1JtzbMTbz+dAp3
+         1KCA==
+X-Forwarded-Encrypted: i=1; AJvYcCWNSsBEicvfRMyDFsTvZ5kN7Q/iil1yoOBNZN1GpvNDbb42lt2QChCGCvB8O+Ut8jHsDYbTqXchFntn9VW93A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw+WMHlvieHrug17Tu+btfX8Ae3cpZm1v73EN44Y5mijHLD4ydZ
+	UEeQXdlhvc0ADvXYy25Q4XPIq/4LzDH+xEqNNEOztDUYgHGw2SM2dUYCvBBHngilQxay6himwLB
+	0J09QYVeMmUSOXICUzEocK8WqM72RcuV1RpThZyLJQzxjIUxbN9l6dti+6Yvud2AQvxsP
+X-Gm-Gg: AY/fxX5IkCOQaN0DJ/Co/m2dySHBtb00Df/PBxPwsJrblbQsjpPekaJopNAnOR8UhJA
+	kUBwTAWXTwK4sZ3kVjvjVynU6g0/M7MfXPVXPV6wx1uwXO6K0iheu5NLYC8d2qdo3CgTorlnvdt
+	ehKGBa8UUCivT0PoBxJLcgZi0AHI/huIk5GHfV6uxhE14jeXE1VVMF39KPh1A1vGrmW7EEk3XGI
+	mSUu/SriVwce09WraoB7EJUjQt9qK8NX6wh0iBmqV1kjblY1aAthYW1Usn7/0J5+wnzZiPviSaR
+	oL5G/q2czs431dsYm3j8c2dtNwkFOpZ0GHxnP6ZTuHxZz1TTuO05VAKP8K2Oiiw8KxydMFACGOM
+	iQ7VcKllGoejUD5TTP2KqwymAbWpB/302lA==
+X-Received: by 2002:a05:6000:200f:b0:431:b6e:8be3 with SMTP id ffacd0b85a97d-432bc9f6dccmr4753203f8f.38.1767711112123;
+        Tue, 06 Jan 2026 06:51:52 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGOynDA9QP29UwN/sUhG6OCzOdNXrD0Y6rHdaimQHcJZW2G3EKin+vfxrhBk6BDORYTgSmwkg==
+X-Received: by 2002:a05:6000:200f:b0:431:b6e:8be3 with SMTP id ffacd0b85a97d-432bc9f6dccmr4753140f8f.38.1767711111656;
+        Tue, 06 Jan 2026 06:51:51 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f695956sm48129575e9.6.2026.01.06.06.50.02
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432bd5ede7esm4752453f8f.32.2026.01.06.06.51.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Jan 2026 06:50:04 -0800 (PST)
-Date: Tue, 6 Jan 2026 09:50:00 -0500
+        Tue, 06 Jan 2026 06:51:51 -0800 (PST)
+Date: Tue, 6 Jan 2026 09:51:46 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Stefan Hajnoczi <stefanha@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
@@ -91,7 +91,7 @@ Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
 	linux-scsi@vger.kernel.org, iommu@lists.linux.dev,
 	kvm@vger.kernel.org, netdev@vger.kernel.org
 Subject: Re: [PATCH v2 10/15] virtio_scsi: fix DMA cacheline issues for events
-Message-ID: <20260106094824-mutt-send-email-mst@kernel.org>
+Message-ID: <20260106095044-mutt-send-email-mst@kernel.org>
 References: <cover.1767601130.git.mst@redhat.com>
  <8801aeef7576a155299f19b6887682dd3a272aba.1767601130.git.mst@redhat.com>
  <20260105181939.GA59391@fedora>
@@ -103,7 +103,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20260105181939.GA59391@fedora>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: QmqQCsMBB556dA0vzRwsOqPsd_4XlLPIrRlsAjbKjFE_1767711006
+X-Mimecast-MFC-PROC-ID: 6ScovXHQ7yQ5GZt3SSThkS51DzJ-1ipSWN6bAHkdyCw_1767711112
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -131,14 +131,7 @@ On Mon, Jan 05, 2026 at 01:19:39PM -0500, Stefan Hajnoczi wrote:
 > If the device emits two events in rapid succession, could the CPU see
 > stale data for the second event because it already holds the cache line
 > for reading the first event?
-
-No because virtio does unmap and syncs the cache line.
-
-In other words, CPU reads cause no issues.
-
-The issues are exclusively around CPU writes dirtying the
-cache and writeback overwriting DMA data.
-
+> 
 > In other words, it's not obvious to me that the DMA warnings are indeed
 > spurious and should be silenced here.
 > 
@@ -148,4 +141,11 @@ cache and writeback overwriting DMA data.
 > 
 > Stefan
 
+
+
+To add to what I wrote, that's a lot of overhead: 8 * 128 - about 1K on
+some platforms, and these happen to be low end ones.
+
+-- 
+MST
 
