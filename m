@@ -1,126 +1,101 @@
-Received: from mo4-p01-ob.smtp.rzone.de (mo4-p01-ob.smtp.rzone.de [85.215.255.52])
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 084A233D4F0
-	for <virtualization@lists.linux.dev>; Tue,  6 Jan 2026 19:46:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=85.215.255.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767728817; cv=pass; b=bKv1wxbFTpkGvBvaYKco9zjEAGP/AGTjiuD+FUnEgFJnpYrQGuaKgKD9U7Sr0pWnqCXioHFm0d/tjrO/z6QmuylcfHbPTpKeDuVCDVnVe3rEQrPdH+liAkhWdqRa3fPqyunHQNpigIv+RSSQ0M3KiDG3LTh9qN6Gz8zRJWiY+nI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767728817; c=relaxed/simple;
-	bh=eLJKCMZeavACeG8gllAT7B6hWi87H60u6pW0IFLjwKo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hBUZRE9gsJ9IqKw9GJ0K0w5rzRZkvrf8fWo5BugTViG2ceKSlzK/dscVyL1EnwWxMOwubLKnmXwc2npG+jbIvhufhjmtFDgc5iaKcfa9RXZ1O1h5V7PoDrTH0ys/zRQPY4FYu7BbZQgssazueB76z5xBsag7VYIoGoQUsy1+3wA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hartkopp.net; spf=pass smtp.mailfrom=hartkopp.net; dkim=pass (2048-bit key) header.d=hartkopp.net header.i=@hartkopp.net header.b=gruy97b3; dkim=permerror (0-bit key) header.d=hartkopp.net header.i=@hartkopp.net header.b=LXs9XWPs; arc=pass smtp.client-ip=85.215.255.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hartkopp.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hartkopp.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBC66270540
+	for <virtualization@lists.linux.dev>; Tue,  6 Jan 2026 22:19:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767737978; cv=none; b=GJrCdcSLoikxFwoSv0cpYENWjGkZPhHVhaS9+L//0aI5O4QgFbXkTv+lZp5C7iJND+QI583lyP78h3kJ0xi7SgSMg3DrsQFtl2e9QvShjoe2HOqSzM+pMMDHIJ8pzsJjT4Ry2H3IHF7gCY3Xlo+IoG8zjU7bs/lNHa7GZXOnk7o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767737978; c=relaxed/simple;
+	bh=osjuNtKD8Ym3YQ+hCPBYdHOxHh9TwGZ5KltzBhchfZo=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lP48oVkVfsKshsEV1L8gk085iznQjvyLS6B1rpQz0D14ah+tGdl0knqa8asJq/0XQV/JI+butyniQ4fPTO7+F9YuBY10FScek0mrCQ1VQD0lwgQoovKemxgUVOC7xkuETzr175PcSmnUHBdYXxL2Ahrke2AkqLFh2SSb+ctOBmc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=LBo4Svbo; arc=none smtp.client-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hartkopp.net header.i=@hartkopp.net header.b="gruy97b3";
-	dkim=permerror (0-bit key) header.d=hartkopp.net header.i=@hartkopp.net header.b="LXs9XWPs"
-ARC-Seal: i=1; a=rsa-sha256; t=1767728629; cv=none;
-    d=strato.com; s=strato-dkim-0002;
-    b=RoNmr2PF8J9i8DzFmBfA3L0fMRxNyZgNzZ6lMJy9ysSsyn9HZaJNEp/CRPDKUMWN7g
-    bRYJGI92CBsGlXwxXC7WWC5CuoqZQrqy6jxs735uOw8f8JXWX78j6/LRp+evglibNNEo
-    W4IyGAOJpPBdmIwBu37b4K2Jx+O4RHiQ052S/FbDrKxf5IDTeM+Nl/wX2if3KbuhOYB3
-    jqwT9GJ5MYrw6kkb8+wHVB9h9Xu/VkWy9Y7nMIa1v1J4WT832bGQ644g6+KkBGG8Vj3b
-    ZFlL/fcSZhUkbHNd9zRSdkvTXw5/eQx2+7aTjL1rLIjYo0LyHxfzE0/arRrh/t2eMV/x
-    tfYw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1767728629;
-    s=strato-dkim-0002; d=strato.com;
-    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=ResBB95FxK+keR8Mgta1PB4ApDotZa4b+5nSrW73gow=;
-    b=PgCM0utVBclm8IZ+kxvB2AYQ8V4LZjnHpgG3WRXsE3hi/MhCS32rUbOClZqEN2E3vV
-    SV8Arugg/ghFX+B2/LOYRsGLeGPOP/f68DNYieLIUQvNcSj0L1kYCnDS9mkPt+NmDIP8
-    uVTcJIBVWvO6tdz3Xva4viejIyH+nmsTXZpNVQioambZPkaXs+95bhR7bS9gfejL/hFW
-    jmYD/ys8Y8TndMUy1PSEIK8ZL3JodL0ZTZx0RUE6SM5EX8vT2POrEwaUygNX9dNmTQZQ
-    9CMuW0fMzS+aksAxlTt/WONk5ao9twKHB8HvxbXsS5hZ95IjEZKIap/YGe1bmTc1XC+e
-    ilhA==
-ARC-Authentication-Results: i=1; strato.com;
-    arc=none;
-    dkim=none
-X-RZG-CLASS-ID: mo01
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1767728629;
-    s=strato-dkim-0002; d=hartkopp.net;
-    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=ResBB95FxK+keR8Mgta1PB4ApDotZa4b+5nSrW73gow=;
-    b=gruy97b3GO7PEmAcqoHfKWrDL9hGltLJyJFBmgbqS8zpGJxhKn+lM94kt3QXjECME+
-    MDkJ+f0X9BpHxG8b6DNp7RMv0lz0EtmkeZ0k8OI6kumjy7mOnYtv31f7Ujej6Qd3wAj/
-    bPwC5ji06pBET0nmPlafhKY0BSuCSoeL2CipPEs/Ga/0sh4zx1/YinSOhQNiH2YUfVaS
-    iquSH3pRxJ3YRhE+IWUDVCRTIIiej5Nqb6DD2xFdJ8VLbLBxZKRVhcKF5vN2z4Dl7qXO
-    rjsR5In7eLtPOCpMXBciPSUPnJy8i5KHzfEzDzc2yhMqkyzr8allQ4rbjKOXzkn70BBU
-    btPA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1767728629;
-    s=strato-dkim-0003; d=hartkopp.net;
-    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=ResBB95FxK+keR8Mgta1PB4ApDotZa4b+5nSrW73gow=;
-    b=LXs9XWPsidZRMFcOV/+INqlUqdEUxaoNnbz6vS4ohx5jAk5JOm+IAeYy9FFw0dHkqs
-    hR7Tku+oNvkBSFLvuiCA==
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjH4JKvMdQv2tTUsMrZpkO3Mw3lZ/t54cFxeEQ7s8bGWj0Q=="
-Received: from [IPV6:2a00:6020:4a38:6810::9f3]
-    by smtp.strato.de (RZmta 54.1.0 AUTH)
-    with ESMTPSA id K0e68b206Jhm6Zg
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-	(Client did not present a certificate);
-    Tue, 6 Jan 2026 20:43:48 +0100 (CET)
-Message-ID: <4cf222cb-e6e3-4d09-a7d8-bc64b8e148bd@hartkopp.net>
-Date: Tue, 6 Jan 2026 20:43:42 +0100
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="LBo4Svbo"
+Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 606IqnTE1802704;
+	Tue, 6 Jan 2026 14:19:29 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=s2048-2025-q2; bh=zvci3aTmM6CQM7tp+0
+	/6a+L0pSedUyDT4fKpD3qbqH0=; b=LBo4SvboYDENovBa6KD3tsHcb5Ptca/JAu
+	Ui1uaLcfMErWVuh43Jc+DgN3CZrY0B7eVCx3rb7mjHBU4AnDhep1czXg0O+81crx
+	DeAyG2IXNd3FxoyyyMDAXeo1qLGwmLLplLEc5mX0eTcRz/iU+GYeC3WCeRouEF4Q
+	sd8HMl5MUsPy++NvAGwXIWd32MXXmYbnZj71KONd1mf8WQoKt0WGCMimmDpgzpCr
+	wBuKm8cNgi10iSDW9UfOPLCArI1/NR4NP2aWSFiIKJZOhlLMwFfAEJhp9f2FVwYs
+	Td+85mf4D7plEJ3CzSa+UBwdYb458GntmwZ6pxn060SjZPzUiaGw==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4bh14vd8cp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Tue, 06 Jan 2026 14:19:28 -0800 (PST)
+Received: from localhost (2620:10d:c085:208::7cb7) by mail.thefacebook.com
+ (2620:10d:c08b:78::2ac9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.29; Tue, 6 Jan
+ 2026 22:19:28 +0000
+From: Vishwanath Seshagiri <vishs@meta.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?=
+	<eperezma@redhat.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        "David S .
+ Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, David Wei
+	<dw@davidwei.uk>,
+        <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 0/2] virtio_net: add page_pool support
+Date: Tue, 6 Jan 2026 14:19:22 -0800
+Message-ID: <20260106221924.123856-1-vishs@meta.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
-To: Harald Mommer <harald.mommer@oss.qualcomm.com>,
- Francesco Valla <francesco@valla.it>,
- Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
- Vincent Mailhol <mailhol@kernel.org>,
- Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
- virtualization@lists.linux.dev, Wolfgang Grandegger <wg@grandegger.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>
-References: <aQJRnX7OpFRY/1+H@fedora> <aQkgsuxa2UaL_qdt@bywater>
- <aTsE1VIk4V/A49HE@fedora> <aT7XAsTWr0_yyfx_@bywater>
- <aVLOPMmpvArnVAHZ@fedora> <aVLq1ibPcPHk-7Qv@bywater>
- <e5bc1353-ed3e-478b-a26e-0bb9a50b3863@oss.qualcomm.com>
-Content-Language: en-US
-From: Oliver Hartkopp <socketcan@hartkopp.net>
-In-Reply-To: <e5bc1353-ed3e-478b-a26e-0bb9a50b3863@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Authority-Analysis: v=2.4 cv=dtPWylg4 c=1 sm=1 tr=0 ts=695d8a70 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=hKZMIC-r0YC8lGmEUlcA:9
+ a=zZCYzV9kfG8A:10
+X-Proofpoint-GUID: ar30F3q-2ZBwa72H-2s-IeJFRSvG8rLF
+X-Proofpoint-ORIG-GUID: ar30F3q-2ZBwa72H-2s-IeJFRSvG8rLF
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTA2MDE5MyBTYWx0ZWRfXyIUw8ZWvCFMt
+ pM+n97rixUaL2m2sAuWXZ2zzpDdFO9W6sGydvfz18hQX1Vkif+rciFdrMD/ZffYNUqyraPKGSNk
+ PoINYvMyfyqqUXI6bBMQhKJl4CZi106wMf8UbAtiEWdEzOgrfb2wepZIkwyFsZZVeTVuI50dn8n
+ s4/DUqn9DM8PZ/MGDUF3ogIMKz81UClRxNNnnvo1x6t38qSInwe3Ntp5+GJPKGufGyLuVlszrIk
+ q81NyYLm6XApO86Bw1BQuO/r4K106n6r6e/3N8burEBB3tkunMTNIPSbFXP5/yX6lS4/po3zdUe
+ nOVJKeDnj8kPe8U5QRwiEUT5Ki50C98f97oUpRvqD4+Vv1QrNwCZwQOhEuikxjjtOBbge3cmI3E
+ iSD82RugyPTtLx/pnHebHsaixF+WpvISGCO39fBb03Q4WzNgqxgZMStcT+MmNujsZoj4ZmVTJdC
+ x5eM2W/rTV5R/B3WlJg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2026-01-06_02,2026-01-06_01,2025-10-01_01
 
+Introduce page_pool support in virtio_net driver in order to recycle
+pages in RX buffer allocation and avoid reallocating through the page
+allocator. This applies to mergeable and small buffer modes.
 
+The patch has been tested using the included selftests and additional
+edge case scripts covering device unbind/bind cycles, rapid interface
+open/close, traffic during close, ethtool stress with feature toggling,
+close with pending refill work, and data integrity verification.
 
-On 06.01.26 17:50, Harald Mommer wrote:
->> With the plain 'cangen' you are not really flooding the interface, since
->> you are only sending a random CAN frame every 200ms. The only way I can
->> reproduce this behaviour in a consistent manner is running from the host:
->>
->>      while true; do cansend vcan0 134#00; done
->>
->> which seems to generate the maximum amount of traffic.
->>
->> This is not of course a realistic bus load, but is leading the system
->> (at least on my setup) to a corner case somewhere.
-> 
-> I have no idea how long the shell needs for a loop, always used cangen -g 0 to stress the setup which is most probably faster than the shell interpreter, and sometimes did this for both directions (RX and TX).
-> 
-> Full load is a realistic setup. And even if it was not, if something stopped working or worse crashes torturing the setup this was a problem.
-> 
+Vishwanath Seshagiri (2):
+  virtio_net: add page pool support for buffer allocation
+  selftests: virtio_net: add buffer circulation test
 
-Yes. cangen -g 0 -i <interface> creates full load - even on real CAN 
-interfaces. You can also generate fixed content if you want to omit the 
-generation of randomized content. 'cangen -?' prints a help text.
+ drivers/net/virtio_net.c                      | 246 +++++++++++++++---
+ .../drivers/net/virtio_net/basic_features.sh  |  70 +++++
+ 2 files changed, 275 insertions(+), 41 deletions(-)
 
-Best regards,
-Oliver
-
+-- 
+2.47.3
 
