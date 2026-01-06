@@ -1,113 +1,234 @@
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E98133A9FD
-	for <virtualization@lists.linux.dev>; Tue,  6 Jan 2026 10:28:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48CC731ED7F
+	for <virtualization@lists.linux.dev>; Tue,  6 Jan 2026 11:24:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767695312; cv=none; b=dFOyIDNclw1+Woy+w9ipzs4GzZ5i9ont6zExO8HaYmt0tqBMsF9lHXpBMAwfD9g/X/p2aeENIbe1FrpYGRRstKHLuvqgoHvVg6ZE0WkyO6YuJHvhJBmbJTlLbe+2SSre9110ZEeUATSal2QInVbBo5lrloiObxgOnm0VJhVrQes=
+	t=1767698645; cv=none; b=VAZdHDm7IQUptspE+aH4TGt04bkegTOOWfJ8RLvE4ziXvb5aFfZFRN7S0h9gWwRPO6TW4od+cPSbcda7bnqFYnZghx5tqyD83jvYcMBOmiugt13r1ta4JwrDu1fL9gKqHap0kcT4MQtvfLvgAeuMx7Pc3/vNbxpwBxPCM9YRCko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767695312; c=relaxed/simple;
-	bh=nEu4WOz+vtpJU2TGs6EPbQkaMhnf0O8StNk988KhUnE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jCpO64bq8Datbf1Owy1CZ4IHfw5X6moOTskO235W3dQVS/qHdKZZDrrsB3FHLq2M01P6B56YUscgBhoFd77iFtt1Xhgojro2MMMcPjIuVtpeyDwCFybodrbsSFeIYWarcjyMUyzyzK/0V226TnGq5YY5UNhlNF1fUIVqdhHDoH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lWttEKLg; arc=none smtp.client-ip=209.85.208.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1767698645; c=relaxed/simple;
+	bh=rFDJdW7RlUGxZ8mbpqcEbbOtuMy6ucJx5AeKD2kkwDQ=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=BUBfh6iNiWrz8qLPso/oelLzgDY7+b1G2nCN7PeefYq9+2RR/qQA09BCa+7lB+imk30RqpPwg34KnrU3mfc07JhobOOYtbU4z0ZlOTjb6Q0Mwud7f1y7ghcEQXzOlj5in2RvWvfITGAy5ogsGL5Bu/NNZIBTGOvLIIbXsVss8uA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=O49LYbk5; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lWttEKLg"
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-650854c473fso286445a12.1
-        for <virtualization@lists.linux.dev>; Tue, 06 Jan 2026 02:28:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1767695309; x=1768300109; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=BAJkKuJpYWdtj8kvDzq7kj79D0dSrUm44Ey46PsxwVE=;
-        b=lWttEKLgsTdtmr2Pkk91kRhPY3uA709i0d1P1sDvTwwk+T8a/Dj+IyCt9Py50QiyBh
-         8UxXVm0NADIY0WkjHBInk/TPIy5i6NFognLvlMmCaIlEZNIIWNqicKeKxXMTW3JRogPa
-         NF0q5SZ5+zoz49Ixpy1pUipgINHTH1uM5uYUFoJTVCgBeEzT9ktCo3p82zGmdRKFofvc
-         4kUXGbIASaWOr4WO3lo/rbVOoScPtgYs/05iaP65NtnwWJAP8ANVWgUK2Q6oY7lPtcX1
-         yvGgBBokN1+nv6+agkWfuX7YkoEZiqJw6Lv0wjxstVuFva0zvYOeCuX/9YD/Lqt17ZXy
-         Z+aw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767695309; x=1768300109;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BAJkKuJpYWdtj8kvDzq7kj79D0dSrUm44Ey46PsxwVE=;
-        b=Cr1USl7oll5DDYz/g3fjaaXriSk69b8m6Zke55Odw+nX3njaap8g4mQhYSWI25NJiT
-         hjiU5Hq3Pw7gXtM9pl6+1tK058x9benHNMUd5ZT1tgF5ulKlMEk7d8ub0OrxHuvDRcP3
-         XCESM/XM/0DXONfUmbLfDk+wo16hY4ybbNKMRR7tJKylHLt74EEtfd7ALrS09Gp+G7Bo
-         0wfgy8ypd0gIz3bdgIgRy0+wT/TZG3ms5qvI1m8GqT27c3tx46nl5TMmb1Wb9vZ2lhWS
-         pKc9WtJWESfqDGLFJW6PWviZdaMzOk/RDyse4OcbXx9P50qQzW+cUzMmAFeQ67osQaIA
-         0m8g==
-X-Forwarded-Encrypted: i=1; AJvYcCVkwQYq8TOIkcStUmFcCsIoMjLllnKCpcbbW70QQTjVFWRB758lxDkKMDVA2HTmlPruA83qalPPUDJrzxDDQQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzClN45d6cw1ziE235iahMYSqtTYMO52el7nry6QOqBj/GtdS/n
-	9cSlXvDig3XvRbJZ9KLbvS6uPeZA42HBa5Vvq7NB9fMsPBKnXz661PbqCfbd/HzMr0SyCY198tD
-	50F4wJm+S1hgwh7oV7rgf55o499JIevA=
-X-Gm-Gg: AY/fxX5kW8eW8LeHnfmnaRofhRaIAEUf7HGFKiu3wUhBdhG6myXW4yqmu0iv/2nu8Bo
-	0y/Q+5l8QCQ2cE9IlXKOupiUpsBtCC+ArFFPAjd2oOjGMSmC407yKdNdX53Z5tHmi96Q6uFiKDm
-	PzwFUqGIigwIex9R0QC/HX33nDvPXfsvvZNxpizPTNcH6AkWsJVfgudJDpZlFMk4fm/hw2WUehY
-	9HYnim3eONpg2T3jP2K/MYGvGXAqIYn6nFsPsakdlCgh67YSTP2UBuNLtjkoR07GNPKbpRZEms/
-	ZFCXC9QVJuXAxghwHvQ/UIo8E6Y=
-X-Google-Smtp-Source: AGHT+IE596N+CStEx+ymFl4KP/IAg7DPwvIzsQgEPdelrrDg73nHTs58Enhoj6GXrimF8vBvgCjK+cC8m257+3fVL7o=
-X-Received: by 2002:aa7:c343:0:b0:64b:a52b:fa1b with SMTP id
- 4fb4d7f45d1cf-6507bc60919mr1656343a12.6.1767695308725; Tue, 06 Jan 2026
- 02:28:28 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="O49LYbk5"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1767698633; h=Message-ID:Subject:Date:From:To;
+	bh=qpJOiwyTfx3WIFfeSNOkU0yY/KPGHRtRT7EydZH4SVY=;
+	b=O49LYbk5jKojRaoVNqLcwzbv05pqa0rB2HmU/UjWuXMzf/NCzkpprzjKrs6tQ/dhvGAXUmsIE2idk6d5O2tS3lxD37NJ0acTZVX5PSnAY67zqlz3AlXIlEdfLdEIQz36k9CslWEU+kWh96nQoZsVuqEOoLohglGECkW6lK7Eh1g=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0WwVZ7bt_1767698632 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 06 Jan 2026 19:23:52 +0800
+Message-ID: <1767698557.9158366-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v7 2/2] virtio-net: Implement ndo_write_rx_mode callback
+Date: Tue, 6 Jan 2026 19:22:37 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: I Viswanath <viswanathiyyappan@gmail.com>
+Cc: netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org,
+ I Viswanath <viswanathiyyappan@gmail.com>,
+ edumazet@google.com,
+ andrew+netdev@lunn.ch,
+ horms@kernel.org,
+ kuba@kernel.org,
+ pabeni@redhat.com,
+ mst@redhat.com,
+ eperezma@redhat.com,
+ jasowang@redhat.com
+References: <20260102180530.1559514-1-viswanathiyyappan@gmail.com>
+ <20260102180530.1559514-3-viswanathiyyappan@gmail.com>
+In-Reply-To: <20260102180530.1559514-3-viswanathiyyappan@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20260102180530.1559514-1-viswanathiyyappan@gmail.com> <20260102180530.1559514-2-viswanathiyyappan@gmail.com>
-In-Reply-To: <20260102180530.1559514-2-viswanathiyyappan@gmail.com>
-From: I Viswanath <viswanathiyyappan@gmail.com>
-Date: Tue, 6 Jan 2026 15:58:16 +0530
-X-Gm-Features: AQt7F2qFv-ofQsHt7p0xfCLNT_q5NACm8CoTMw_f6VL8XWeKj3K9Y8M7vOIoYlU
-Message-ID: <CAPrAcgNR+=GS0RxH_UP1Hz3U-HJL3_ZdGoy=hqkdS=iXL8zF8w@mail.gmail.com>
-Subject: Re: [PATCH net-next v7 1/2] net: refactor set_rx_mode into snapshot
- and deferred I/O
-To: edumazet@google.com, andrew+netdev@lunn.ch, horms@kernel.org, 
-	kuba@kernel.org, pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com, 
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-> +static void netif_free_cleanup_work(struct net_device *dev)
-> +{
-> +       if (!dev->cleanup_work)
-> +               return;
-> +
-> +       cancel_work_sync(&dev->cleanup_work->work);
-> +       kfree(dev->cleanup_work);
-> +       dev->cleanup_work = NULL;
-> +}
-> +
-> @@ -1682,6 +1882,16 @@ static int __dev_open(struct net_device *dev, struct netlink_ext_ack *extack)
->         if (!ret && ops->ndo_open)
->                 ret = ops->ndo_open(dev);
+
+If this is a common requirement, it would be better to provide more examples of
+driver modifications.
+
+Thanks.
+
+
+On Fri,  2 Jan 2026 23:35:30 +0530, I Viswanath <viswanathiyyappan@gmail.com> wrote:
+> Implement ndo_write_rx_mode callback for virtio-net
 >
-> +       if (!ret && dev->needs_cleanup_work) {
-> +               if (!dev->cleanup_work)
-> +                       ret = netif_alloc_cleanup_work(dev);
-> +               else
-> +                       cancel_work_sync(&dev->cleanup_work->work);
-> +       }
-> +
-> +       if (!ret && ops->ndo_write_rx_mode)
-> +               ret = netif_alloc_rx_mode_ctx(dev);
-> +
->         netpoll_poll_enable(dev);
-
-This is the response to the AI review. Honestly impressed by how good
-the AI review is
-
-My bad, It should be flush_work() not cancel_work_sync() in
-__dev_open() and also in
-netif_free_cleanup_work(). These are the only places where execution
-needs to wait
-for completion of the cleanup work
-
-It's ok to just cancel rx_mode work so this issue is only with the cleanup work
+> Signed-off-by: I Viswanath <viswanathiyyappan@gmail.com>
+> ---
+>  drivers/net/virtio_net.c | 55 +++++++++++++++-------------------------
+>  1 file changed, 21 insertions(+), 34 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 1bb3aeca66c6..83d543bf6ae2 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -460,9 +460,6 @@ struct virtnet_info {
+>  	/* Work struct for config space updates */
+>  	struct work_struct config_work;
+>
+> -	/* Work struct for setting rx mode */
+> -	struct work_struct rx_mode_work;
+> -
+>  	/* OK to queue work setting RX mode? */
+>  	bool rx_mode_work_enabled;
+>
+> @@ -3866,33 +3863,31 @@ static int virtnet_close(struct net_device *dev)
+>  	return 0;
+>  }
+>
+> -static void virtnet_rx_mode_work(struct work_struct *work)
+> +static void virtnet_write_rx_mode(struct net_device *dev)
+>  {
+> -	struct virtnet_info *vi =
+> -		container_of(work, struct virtnet_info, rx_mode_work);
+> +	struct virtnet_info *vi = netdev_priv(dev);
+>  	u8 *promisc_allmulti  __free(kfree) = NULL;
+> -	struct net_device *dev = vi->dev;
+>  	struct scatterlist sg[2];
+>  	struct virtio_net_ctrl_mac *mac_data;
+> -	struct netdev_hw_addr *ha;
+> +	char *ha_addr;
+>  	int uc_count;
+>  	int mc_count;
+>  	void *buf;
+> +	int idx;
+>  	int i;
+>
+>  	/* We can't dynamically set ndo_set_rx_mode, so return gracefully */
+>  	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
+>  		return;
+>
+> -	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_KERNEL);
+> +	promisc_allmulti = kzalloc(sizeof(*promisc_allmulti), GFP_ATOMIC);
+>  	if (!promisc_allmulti) {
+>  		dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n");
+>  		return;
+>  	}
+>
+> -	rtnl_lock();
+> -
+> -	*promisc_allmulti = !!(dev->flags & IFF_PROMISC);
+> +	*promisc_allmulti = netif_rx_mode_get_cfg(dev,
+> +						  NETIF_RX_MODE_CFG_PROMISC);
+>  	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+>
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+> @@ -3900,7 +3895,8 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+>  		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
+>  			 *promisc_allmulti ? "en" : "dis");
+>
+> -	*promisc_allmulti = !!(dev->flags & IFF_ALLMULTI);
+> +	*promisc_allmulti = netif_rx_mode_get_cfg(dev,
+> +						  NETIF_RX_MODE_CFG_ALLMULTI);
+>  	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+>
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+> @@ -3908,27 +3904,22 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+>  		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
+>  			 *promisc_allmulti ? "en" : "dis");
+>
+> -	netif_addr_lock_bh(dev);
+> -
+> -	uc_count = netdev_uc_count(dev);
+> -	mc_count = netdev_mc_count(dev);
+> +	uc_count = netif_rx_mode_get_uc_count(dev);
+> +	mc_count = netif_rx_mode_get_mc_count(dev);
+>  	/* MAC filter - use one buffer for both lists */
+>  	buf = kzalloc(((uc_count + mc_count) * ETH_ALEN) +
+>  		      (2 * sizeof(mac_data->entries)), GFP_ATOMIC);
+>  	mac_data = buf;
+> -	if (!buf) {
+> -		netif_addr_unlock_bh(dev);
+> -		rtnl_unlock();
+> +	if (!buf)
+>  		return;
+> -	}
+>
+>  	sg_init_table(sg, 2);
+>
+>  	/* Store the unicast list and count in the front of the buffer */
+>  	mac_data->entries = cpu_to_virtio32(vi->vdev, uc_count);
+>  	i = 0;
+> -	netdev_for_each_uc_addr(ha, dev)
+> -		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
+> +	netif_rx_mode_for_each_uc_addr(dev, ha_addr, idx)
+> +		memcpy(&mac_data->macs[i++][0], ha_addr, ETH_ALEN);
+>
+>  	sg_set_buf(&sg[0], mac_data,
+>  		   sizeof(mac_data->entries) + (uc_count * ETH_ALEN));
+> @@ -3938,10 +3929,8 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+>
+>  	mac_data->entries = cpu_to_virtio32(vi->vdev, mc_count);
+>  	i = 0;
+> -	netdev_for_each_mc_addr(ha, dev)
+> -		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
+> -
+> -	netif_addr_unlock_bh(dev);
+> +	netif_rx_mode_for_each_mc_addr(dev, ha_addr, idx)
+> +		memcpy(&mac_data->macs[i++][0], ha_addr, ETH_ALEN);
+>
+>  	sg_set_buf(&sg[1], mac_data,
+>  		   sizeof(mac_data->entries) + (mc_count * ETH_ALEN));
+> @@ -3950,17 +3939,15 @@ static void virtnet_rx_mode_work(struct work_struct *work)
+>  				  VIRTIO_NET_CTRL_MAC_TABLE_SET, sg))
+>  		dev_warn(&dev->dev, "Failed to set MAC filter table.\n");
+>
+> -	rtnl_unlock();
+> -
+>  	kfree(buf);
+>  }
+>
+>  static void virtnet_set_rx_mode(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> +	char cfg_disabled = !vi->rx_mode_work_enabled;
+>
+> -	if (vi->rx_mode_work_enabled)
+> -		schedule_work(&vi->rx_mode_work);
+> +	netif_rx_mode_set_flag(dev, NETIF_RX_MODE_SET_SKIP, cfg_disabled);
+>  }
+>
+>  static int virtnet_vlan_rx_add_vid(struct net_device *dev,
+> @@ -5776,7 +5763,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+>  	/* Make sure no work handler is accessing the device */
+>  	flush_work(&vi->config_work);
+>  	disable_rx_mode_work(vi);
+> -	flush_work(&vi->rx_mode_work);
+> +	netif_flush_rx_mode_work(vi->dev);
+>
+>  	if (netif_running(vi->dev)) {
+>  		rtnl_lock();
+> @@ -6279,6 +6266,7 @@ static const struct net_device_ops virtnet_netdev = {
+>  	.ndo_validate_addr   = eth_validate_addr,
+>  	.ndo_set_mac_address = virtnet_set_mac_address,
+>  	.ndo_set_rx_mode     = virtnet_set_rx_mode,
+> +	.ndo_write_rx_mode   = virtnet_write_rx_mode,
+>  	.ndo_get_stats64     = virtnet_stats,
+>  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
+>  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
+> @@ -6900,7 +6888,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	vdev->priv = vi;
+>
+>  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+> -	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
+>  	spin_lock_init(&vi->refill_lock);
+>
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
+> @@ -7205,7 +7192,7 @@ static void virtnet_remove(struct virtio_device *vdev)
+>  	/* Make sure no work handler is accessing the device. */
+>  	flush_work(&vi->config_work);
+>  	disable_rx_mode_work(vi);
+> -	flush_work(&vi->rx_mode_work);
+> +	netif_flush_rx_mode_work(vi->dev);
+>
+>  	virtnet_free_irq_moder(vi);
+>
+> --
+> 2.47.3
+>
