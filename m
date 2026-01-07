@@ -1,153 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FBA234B413
-	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 16:14:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8377438756E
+	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 16:29:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767802499; cv=none; b=fkUp0L9eoJBJZGN/3omro/Op7Y7zMxcnF7rFvl5I8Jozqa/ChBpN5Om0O4zqxJ6n2Bt1md23jPcKN/A/jE5U9m4Fu5NFYfP0wZerzQ8aYxjUu+W/ABrwgMyiZVsLHyK7hP7UFsXTOLqwiSL40SLndtGCppYoVTZeX0bkRtP1XRg=
+	t=1767803403; cv=none; b=f65Z3StgQSRlsJbJa96Fh7Qyyt1Vkv4kOX+GDqpUQZ6u7PE3TekIa5PpVmFycruZWeG7sv/iHBD3EGs56yvBaO2XfTQ190Sw+bz6oetHBi4SnnkodDAD8C7Zg7TJjPEI489u3lVtrmPuo3AGFhnQOHQPI8273Yoxyi19Nz6vlj4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767802499; c=relaxed/simple;
-	bh=4Bf2zwdKuMQPmjyomvCRiDRso9p7R/TYGKy2hGAhLa0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HzKpecxa4S+LWw7vIAH9KSBax5KZeXJAQiEVyyFzeHfm5SoXA9kst114x1yyMpWNPFzyYGLeidMuOHBkFxG0oC+z+oVVJmAYEsSuvJDUpac/5N+o+4I7lV6v/UxY/QadUvuHFbG4qRI4kjPhYKb52lE95ZKIMPrKH/ecidgYWRs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EE06gifo; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1767803403; c=relaxed/simple;
+	bh=0oAhWnNUCvoYJlR8h3KsHoUFJ6kTwCI1fBKauISCjvU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SwrClk5K8y+RKZO5ReSfo0+rCxI6N4kSrWThYIpeREDEKvpLxiCViNt23oqAxYRCDkXA2e8B9TqQfrg/IuIL5jfR4rgw9hm/gqDB3r9WG6TMmQq7/mIWQox2qMdbj1WHk1bdU1kU2ICHr0W6qKtP96o2xNZZ/nghcNBmVgeFzw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WQWdQo+8; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EE06gifo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WQWdQo+8"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767802481;
+	s=mimecast20190719; t=1767803391;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Y7TulDsUIoUUXsalob4NbrEsky01/JB7jW1KypFdcu0=;
-	b=EE06gifoBYagQkH/s1U4zuqgJ28lUpq8psIL5EaRqyV15y6CS8SZ/2l2y99VAPPtcE65s6
-	X/z7hExKzRg8ps7hxp5/Zp7zZF5rYmGOWAiPEJHP0OCmeQRn8jLujKkXlGukro3LKldOCX
-	guOUv0Qmghlk0iAQuEv+pso3/fuVSTU=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-227-c_8sUXRXNmmeP_IFEWrYsQ-1; Wed, 07 Jan 2026 11:14:38 -0500
-X-MC-Unique: c_8sUXRXNmmeP_IFEWrYsQ-1
-X-Mimecast-MFC-AGG-ID: c_8sUXRXNmmeP_IFEWrYsQ_1767802478
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-b841fc79f3eso226809666b.2
-        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 08:14:38 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767802478; x=1768407278;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Y7TulDsUIoUUXsalob4NbrEsky01/JB7jW1KypFdcu0=;
-        b=LfbyxrsL98MvGI65kGzDVSFIi8yzJEVeAOKOIKc0F2aN/YNaycItTIDmwwBaFcGMPA
-         mBEfPtINbQchWtXEVm0Txho2n+VMRehZAVB+lr6efD0pOmMKJOdbnDJXgWcCaA2uizK9
-         fvQJOghqx+Omrjh/oNKAmYK51PgLvOQcvgFWsOMn8+p/KmT7E3s7fakAoNAUdMVsWJBE
-         Ae/AlQMwwFQsz74NREbCRS9of7w2Rqy8uCavAXBrEIWnDIWvQ+mCqCZUFj8SijID88lw
-         3Q13N5KzYP8x8eJDKUxbjK20qwIiH3xzjMekuSAGLqiBO0TtvC6x2OzsOk24hJ1z/dvs
-         AKOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVsYRGofzAobPmF0YWvuqKFieyeFU62ZA5fipqeqplFJT0m9W5LDSXfLtmhCuuKKB+2cWRmLAf7Dgql3/fYJw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXoRniqHzYCgi0ArlAEX9lVAeIRsc06CORDR51E6EtvsF1tzcO
-	QKfNjGYOoXL4XTUeaeuaxBJtPxaxxUnXtZK+GtIp5lyrCEXTKPqh/yCcddC580VWXOQPuc9lUZ7
-	W7JQsjHLVP8/vTtc788lbIt5XkHQnb6bTTeK4bw/cuQeaXiTj2G2dRqtMTxvNbKTcHaUebgtQfi
-	oRNJeUqCmWcCIDCfrBOr7BngtNtIjnpTBr4bXa2M9DVkk=
-X-Gm-Gg: AY/fxX7sHx60bOJhTama9EHHNoF4D1upOI3Yu67Y/HuvqVX9miAloPNywIXtGyoJERM
-	6Dd6FvjjbREEWzKtXLHzXbr/l5EYlNI7We4iKjyIUoafM7Ust39ZGLLDHrhVrQRN4BFCPululto
-	PYSQbeWh4yb6flQdzn1tbOS0+FkvLWXqPd8W1oYYBkpiQGKAW8LxqpBYEjchakeXPImtSxN9VEr
-	Tx4cbKKG0GTBb3VqwaefRP1
-X-Received: by 2002:a17:907:d8e:b0:b7d:266a:7728 with SMTP id a640c23a62f3a-b84453695d3mr284847766b.44.1767802477671;
-        Wed, 07 Jan 2026 08:14:37 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IElzm7zkv7ZclGZmqUlhgAe5G5tLnSradBGNYxt46392ibtMetTmULGCAhQlqjI1V8VHmLYzPP/1+tnQ3XTs/k=
-X-Received: by 2002:a17:907:d8e:b0:b7d:266a:7728 with SMTP id
- a640c23a62f3a-b84453695d3mr284844566b.44.1767802477239; Wed, 07 Jan 2026
- 08:14:37 -0800 (PST)
+	bh=c8hcqhJufBn494ZuyCMGepJhpX1rw4g16WnIwLV2/F4=;
+	b=WQWdQo+8bDxELV7PI7NtrgPJHRnpKrmD5rFU1oLlK6nXIgy3HOtSIagWEpnjXVOk+hRfg2
+	Frcy3xS4/qg0lRO9xlS6S3uXO5Avo/h2Ax+yNf85HIa7Ao5eKWfoHaNPkdTTYHYA/M1OrE
+	r+2lh6KSvXIwEBZd0dhGefqkUCyyKHY=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-36-p-o-fWEJMiC85iH2n2Af0Q-1; Wed,
+ 07 Jan 2026 11:29:49 -0500
+X-MC-Unique: p-o-fWEJMiC85iH2n2Af0Q-1
+X-Mimecast-MFC-AGG-ID: p-o-fWEJMiC85iH2n2Af0Q_1767803386
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id F17CC1954B21;
+	Wed,  7 Jan 2026 16:29:44 +0000 (UTC)
+Received: from localhost (unknown [10.2.17.77])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 4386B30002D1;
+	Wed,  7 Jan 2026 16:29:41 +0000 (UTC)
+Date: Wed, 7 Jan 2026 11:29:39 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Olivia Mackall <olivia@selenic.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, Petr Tesarik <ptesarik@suse.com>,
+	Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-doc@vger.kernel.org,
+	linux-crypto@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-scsi@vger.kernel.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH v2 10/15] virtio_scsi: fix DMA cacheline issues for events
+Message-ID: <20260107162939.GA193868@fedora>
+References: <cover.1767601130.git.mst@redhat.com>
+ <8801aeef7576a155299f19b6887682dd3a272aba.1767601130.git.mst@redhat.com>
+ <20260105181939.GA59391@fedora>
+ <20260106094824-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <aQJRnX7OpFRY/1+H@fedora> <aQkgsuxa2UaL_qdt@bywater>
- <aTsE1VIk4V/A49HE@fedora> <aT7XAsTWr0_yyfx_@bywater> <aU6lCL_vrF93lpYa@bywater>
-In-Reply-To: <aU6lCL_vrF93lpYa@bywater>
-From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Date: Wed, 7 Jan 2026 17:14:25 +0100
-X-Gm-Features: AQt7F2rxsUoKHks-6LhmwpO5LgspFNWkVaIpGX4dwhn6wdf4jpflCBL5LBTJN7E
-Message-ID: <CAHYGQ0yHSvhOibhvxtFjZ7H3Tczb22JZ1UuaX5kkOtok0JjDgQ@mail.gmail.com>
-Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
-To: Francesco Valla <francesco@valla.it>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol <mailhol@kernel.org>, 
-	Harald Mommer <harald.mommer@oss.qualcomm.com>, 
-	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org, 
-	virtualization@lists.linux.dev, Wolfgang Grandegger <wg@grandegger.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ea0PPRrqOcrSno6mnTId11wTwg2_ZpYS9V9C_xIxjqE_1767802478
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="qt5XKVxNjAL6wL8U"
+Content-Disposition: inline
+In-Reply-To: <20260106094824-mutt-send-email-mst@kernel.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+
+
+--qt5XKVxNjAL6wL8U
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 26, 2025 at 4:09=E2=80=AFPM Francesco Valla <francesco@valla.it=
-> wrote:
->
-> Hi,
->
-> On Sun, Dec 14, 2025 at 04:25:54PM +0100, Francesco Valla wrote:
-> > While stress testing this, I noticed that flooding the virtio-can
-> > interface with packets leads to an hang of the interface itself.
-> > I am seeing this issuing, at host side:
-> >
-> >       while true; do cansend can0 123#00; done
-> >
-> > with:
-> >
-> >  - QEMU: the tip of the master branch plus [2]
-> >  - vhost-device: the tip of the main branch
-> >
-> > and the following QEMU invocation:
-> >
-> > qemu-system-x86_64 -serial mon:stdio \
-> >     -m 2G -smp 2 \
-> >     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
-> >     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
-> >     -append "loglevel=3D7 console=3DttyS0" \
-> >     -machine memory-backend=3Dpc.ram \
-> >     -object memory-backend-file,id=3Dpc.ram,size=3D2G,mem-path=3D/tmp/p=
-c.ram,share=3Don \
-> >     -chardev socket,id=3Dcan0,path=3D/tmp/sock-can0 \
-> >     -device vhost-user-can-pci,chardev=3Dcan0
-> >
-> >
-> > Restarting the interface (i.e.: ip link set down and the up) does not
-> > fix the situation.
-> >
-> > I'll try to do some more testing during the next days.
->
-> After a deep dive, I _think_ the problem actually lies in vhost-device,
-> since it is not there (or al least, it seems so) using an alternative
-> implementation that uses the qemu socketcan support [0] (implementation
-> which builds on top of the work done by Harald and Mikhail):
->
-> qemu-system-x86_64 -serial mon:stdio \
->     -m 2G -smp 2 -enable-kvm \
->     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
->     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
->     -append "loglevel=3D7 console=3DttyS0" \
->     -object can-bus,id=3Dcanbus0 -object can-host-socketcan,id=3Dcanhost0=
-,if=3Dvcan0,canbus=3Dcanbus0 \
->     -device virtio-can-pci,canbus=3Dcanbus0
->
-> Unfortunately, my Rust knoweledge is not sufficient to understand the
-> vhost-device implementation [1]; the issue seems to be related to the
-> host->guest vring becoming empty and not refilling anymore.
->
+On Tue, Jan 06, 2026 at 09:50:00AM -0500, Michael S. Tsirkin wrote:
+> On Mon, Jan 05, 2026 at 01:19:39PM -0500, Stefan Hajnoczi wrote:
+> > On Mon, Jan 05, 2026 at 03:23:29AM -0500, Michael S. Tsirkin wrote:
+> > > @@ -61,7 +62,7 @@ struct virtio_scsi_cmd {
+> > > =20
+> > >  struct virtio_scsi_event_node {
+> > >  	struct virtio_scsi *vscsi;
+> > > -	struct virtio_scsi_event event;
+> > > +	struct virtio_scsi_event *event;
+> > >  	struct work_struct work;
+> > >  };
+> > > =20
+> > > @@ -89,6 +90,11 @@ struct virtio_scsi {
+> > > =20
+> > >  	struct virtio_scsi_vq ctrl_vq;
+> > >  	struct virtio_scsi_vq event_vq;
+> > > +
+> > > +	__dma_from_device_group_begin();
+> > > +	struct virtio_scsi_event events[VIRTIO_SCSI_EVENT_LEN];
+> > > +	__dma_from_device_group_end();
+> >=20
+> > If the device emits two events in rapid succession, could the CPU see
+> > stale data for the second event because it already holds the cache line
+> > for reading the first event?
+>=20
+> No because virtio does unmap and syncs the cache line.
+>=20
+> In other words, CPU reads cause no issues.
+>=20
+> The issues are exclusively around CPU writes dirtying the
+> cache and writeback overwriting DMA data.
 
-Can you try with
-https://github.com/MatiasVara/vhost-device/commits/fix-for-923/?
+I see. In that case I'm happy with the virtio-scsi change:
 
-Thanks, Matias
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--qt5XKVxNjAL6wL8U
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmleifMACgkQnKSrs4Gr
+c8hcVAf/WNemA8s8X2IEi5T6b93Oq3H7yBSOTyvJIsAVGGG0HMv002nCDfd6Jx88
+M5+0cLDN09kY62wqd/Awd8juPCIv0q5bmyWB0WYeHA93QHK4tEHgGv2+hPw4zdDT
+cfBFbv3nRkHZ/Vmb9qtclA1N93XULyvUn0gLkT2cUms2ZdK+vpqxvGgdZQ/R3pmK
+8TgFK8lq1kcUx8mlizEQ4TDb85DBcSr5yB6jrfgMgttm+41mDmOVhJNkkRuLissy
+z4K/d8xZqWMXCv7p3/l3rrhwOm8kVasQtbKe9LO//3qd8R3Yy+8X7ZORuVW5aPbs
+HeDfkWgBMGt/hmqL9Fk+OLB7vJqqmQ==
+=FfpF
+-----END PGP SIGNATURE-----
+
+--qt5XKVxNjAL6wL8U--
 
