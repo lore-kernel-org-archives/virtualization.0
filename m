@@ -1,193 +1,255 @@
-Received: from delivery.antispam.mailspamprotection.com (delivery.antispam.mailspamprotection.com [185.56.87.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f100.google.com (mail-qv1-f100.google.com [209.85.219.100])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 688DE76026
-	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 18:55:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=185.56.87.13
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767812158; cv=pass; b=OrvMUGrvKAEgV0oKjDxipekdTY6Xv492sSoywBPEAJdeIc31xiA9if0a3SK5z5gDHOS9LC97buTWpEGfEopHlXR/uecSHOGvxRVU6nWDSzgEPuEjYal1jx1CmEpLSVzXadc53y0zZCT8GiEzFHCmOPxWcHblm07sUq+rQfnEzFw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767812158; c=relaxed/simple;
-	bh=p3m1YQ/9P5vNTomEXOUxwQentxiVuYEKEgDewVGrR0I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s7p/fzEcIdA6+DfrYO4X6cCUvb1utiFbSTYJX7QTnbPpfWCPJGEsiyAmXyqZTmYjJAZr0o7I51s+xb7JdHrUCPblz0rOjL0mAkLYbvZJaLGhzjmvduDFdr3HBymJUMLi5Xqk6x5NEl56PKtwzAOKCEGwXaMMSeLNzD1RzlNFMs0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it; spf=pass smtp.mailfrom=valla.it; dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b=m+apLgfg; dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b=CrVlLEfJ; arc=pass smtp.client-ip=185.56.87.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=valla.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=valla.it
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 223CB1A3179
+	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 20:19:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.100
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767817167; cv=none; b=mm6Q6VqmUhAZFr6tCIR5aqM6HvdaNfKfRQGPT+zcsbpvckT5b1NZBbGPfqPlcPBZhIrtvEl2htX/6Pqksd0EUVlRBkgmJM/xGKR1lqz4hfwn8NHskm3TZFBgnLPPtR9Kle+9lQ48Tbf0kRoy6JBmqrfY7TwsiGmgalseFMr7JO0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767817167; c=relaxed/simple;
+	bh=WgO72s1ynGcwkNsytWGBOWu6FCETUWC+LF6+sDMT2sg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IrlktbRufBtSCfuDjkoLCEKezWqVxO7uVrVNIwGtbVjoC89Dw7b19FwtiDggenbKirzBIn53gw3I6aROoDYpavDU4Mn6hl2n4vQV5xIkicp3DCNrgzuDWGIMAgGl0R0WEVM/kopBo/V0aSS7EaDQ3KaaoHDrCeBSlsJuhn11s3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=KIdgyZBP; arc=none smtp.client-ip=209.85.219.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antispam.mailspamprotection.com header.i=@antispam.mailspamprotection.com header.b="m+apLgfg";
-	dkim=pass (1024-bit key) header.d=valla.it header.i=@valla.it header.b="CrVlLEfJ"
-ARC-Seal: i=1; cv=none; a=rsa-sha256; d=outgoing.instance-europe-west4-15n0.prod.antispam.mailspamprotection.com; s=arckey; t=1767812155;
-	 b=ninNJ6NlhSNor0XErxbiGkWZfSncI9Av5Uop9/e6THmNHwLB7heCrOGcgB1TGDPGP5VaDKcofm
-	  M61WXH3dGwGTwvi1pRTBpb6vGYt2afUnM3jSxTVkOJusHIA5/ss5Q1o220FY4jknWZQlVsmn0k
-	  LsuCBgu5GEHW6Xmc7HIQze13prr91IZ/pXza1LPsHgnWx5PZ97kurFGQQzKTe/LqXO0xGQ5/vd
-	  uY5QlUbuyzYxIi/hnbtK6bjmsfDqJqnYU1WMlpbjO6xd0YyCPAAtZ9WL/QDzt2COt3qhQDHzlD
-	  O+wuOAHxP4Y7J44f2spV6OPC3IBydULAU/UJiQwdFe0gOA==;
-ARC-Authentication-Results: i=1; outgoing.instance-europe-west4-15n0.prod.antispam.mailspamprotection.com; smtp.remote-ip=35.214.173.214;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed; d=outgoing.instance-europe-west4-15n0.prod.antispam.mailspamprotection.com; s=arckey; t=1767812155;
-	bh=p3m1YQ/9P5vNTomEXOUxwQentxiVuYEKEgDewVGrR0I=;
-	h=In-Reply-To:Content-Transfer-Encoding:Content-Type:MIME-Version:References:
-	  Message-ID:Subject:Cc:To:From:Date:DKIM-Signature:DKIM-Signature;
-	b=oe4mikrniemXn5haHaFwxeOa6Clfqfn6z3TrU9NvJnsWDkTV6SiUq5cXFvDPzbzwaMG91LJbDI
-	  k0XnCNwl2aAjd2coawQUVfB2JtOkYZys4rQRyLP/GtJQonom5+RqEhLvs5EX/UI0nZESg6/eGC
-	  CDtZSNBmk9/5YC8YgGHzlqog1l9Q9o7z+oDjUlCRwf9HD8oox8bNy87ehJ4wSMtoV1SP6uwwHh
-	  ObidAOX9x7VQjmAgJW9mWM956bsbKw0S3wzBNe+/7+9lrgRCofdhRkI47HJISCqWswVs96t2gQ
-	  wn0IrLcoqin6MOAbMvTzGGyP5z65CenuW1lsYTKdo863pQ==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=antispam.mailspamprotection.com; s=default; h=CFBL-Feedback-ID:CFBL-Address
-	:Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Subject:Cc:To
-	:From:Date:Reply-To:List-Unsubscribe;
-	bh=iUMyPLpJ71jeIRwYpzO9IcEWcMDLagnGl8XB+6L+pRY=; b=m+apLgfgSvYIMcXv5xI7HoT7SJ
-	/XzLVP5m5eACA7gpqee/a945SEG0gZzWasxu9k0wQ86q9hOShIOjI8trhpALsVHgJsE2j3ILcgJ8Q
-	KtD/St0yXZ/5s4sFu8Xo24wvyIQQA1Aw7gX0i9vP7fB6vcs3VMkARGke9PRKx8zATqJk=;
-Received: from 214.173.214.35.bc.googleusercontent.com ([35.214.173.214] helo=esm19.siteground.biz)
-	by instance-europe-west4-15n0.prod.antispam.mailspamprotection.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1vdYh7-00000001sWb-0eD7
-	for virtualization@lists.linux.dev;
-	Wed, 07 Jan 2026 18:55:47 +0000
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=valla.it;
-	s=default; h=Subject:Cc:To:From:Date:list-help:list-unsubscribe:
-	list-subscribe:list-post:list-owner:list-archive;
-	bh=iUMyPLpJ71jeIRwYpzO9IcEWcMDLagnGl8XB+6L+pRY=; b=CrVlLEfJDO/RE8P7SNCAUqguH4
-	SPG4x3JfwN5mPy+ARPsEDM8o24G8SS3JYDYBMyEK2nYpfpx5YW5xEZtSiNcwPj18Cm69rXmhz2iOG
-	ehHIZTc785TKpKLFtklMGSTnm8Q02Jaihyi2ahkQAHcA/huI/IktkpxDEA2rg+nwVIrI=;
-Received: from [95.248.141.113] (port=62266 helo=bywater)
-	by esm19.siteground.biz with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.98.1)
-	(envelope-from <francesco@valla.it>)
-	id 1vdYgq-00000000AfQ-1T6g;
-	Wed, 07 Jan 2026 18:55:28 +0000
-Date: Wed, 7 Jan 2026 19:55:26 +0100
-From: Francesco Valla <francesco@valla.it>
-To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol@kernel.org>,
-	Harald Mommer <harald.mommer@oss.qualcomm.com>,
-	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Wolfgang Grandegger <wg@grandegger.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
-Message-ID: <aV6sHofXnZuu84OV@bywater>
-References: <aQJRnX7OpFRY/1+H@fedora>
- <aQkgsuxa2UaL_qdt@bywater>
- <aTsE1VIk4V/A49HE@fedora>
- <aT7XAsTWr0_yyfx_@bywater>
- <aU6lCL_vrF93lpYa@bywater>
- <CAHYGQ0yHSvhOibhvxtFjZ7H3Tczb22JZ1UuaX5kkOtok0JjDgQ@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="KIdgyZBP"
+Received: by mail-qv1-f100.google.com with SMTP id 6a1803df08f44-88fe44cce7eso19678816d6.3
+        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 12:19:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767817165; x=1768421965;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:dkim-signature:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=z+D0U0I/QMaRvqdVI4kOajEvXFaO+vpLvikp7KFwDvI=;
+        b=kI2gMcg5Vp9WDREQwreM95RHtG/i+WGFTuqhot0/5iNlF4hhKbCWHuwEzs7lW+IQ1p
+         6gsWEC2PMILAPDAHTjfkWGP82OimeAHhh6yKIYzkcCjJm8ww2YybsME4nVtXzNFvCqgm
+         U4eW59cnDfFxT1RpLjT0nDow0lXnejFtd4ft5matnZ8RMtBkZ48ERdjh4EDwE7Ex6kvt
+         4vbXxWqiqhuAMgj6VTyJZtVrLiRZmq8gFoofssq4fH77EyjPmdKc2S5k5WKzNalN1pJb
+         5ZQm3OFyxRlRD3TJEyReW1KqYNCg4KDOdWFJ7uIpfj/F4FCf4E7dUdTZj8T3PidZsXSU
+         EIwA==
+X-Forwarded-Encrypted: i=1; AJvYcCUb3WOv+fWSp/fbi3KzscFuaSgbYHZxoI8nQNz1cjiUtvop7XYChsVdm0S2q4vw9NOP6Wn7ws973ukEGlvO1w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxI8kjf1avJ3iaNHFaHvmzsEJe5YZUV4CYBK8vfCmi2Bhn+iuT/
+	2YnhFu7CtJ6W4F1GqVMb6r30XDoQmMoFVa+4xGZbS97b3E3k1McgtQFwFd7h3yfEPMev3W9mYmk
+	k483inO8nLJRwru0NAig8UnWN8pVFf0V0ggZhb0OhOC/4p1E2fu56sbxZ1Ezs42s5P3hlZSL62p
+	LB7rfdP5GZTIoJg7dN0piQnaL40wg6FfjwhdioZfjFNOUaSdNNJyy1KGjgNHzDlC6bkCLy/ycsn
+	V2sb7xjzphMKd0ffYaXtCPpMQ==
+X-Gm-Gg: AY/fxX6fwobnVNV1cy16v+cSH4fv9mhLaM/X8GAaPG7evGw43cRF2UuHr/kZ9i8pFPb
+	/JJaa0ffWEqFJs1x54OPBfFm+NvFWjH3EahDF9fWljtpM2Ulnbu/tzLQ6D53ER1P8Ho9Q1ZhRwS
+	PyOycAHpGNxcCbD8lBnMPh0vZYSI8Hq7uh87IV/b8Uatqp2z0f7c69sqcLzh4jX3pxPizs36Wve
+	oHYD/TRzyqokZX/NRbPS4JENxjiV/6Z5fSHo5I5CNeVTrQasliKE0Y0sD2qfhTmz8xaqd3oKSyK
+	+DqPA/725lI9Cae/FyTLEljpH3GY41mYxySZHCMLHY0OaWZEQlW7dShVSpzO/5BtKnMi0aDoRdH
+	LbechO6j08IRT0Z57iHlZDEbJrNj8bntCHNhBasPfFgVvAK4Gpiyy0yV/KB2y/o4pMNaNMz8gP/
+	6UwwwuMX2eTjAHY99gko/nqqC9A7dqLhFfdg4kryUW4uMtROPA/g4=
+X-Google-Smtp-Source: AGHT+IEVTEqdfWox4FfsCNTNscx22R3YI2EdsrQ2jfjDvTudifqTcCfjD30v6dwKudkb6sw2E0SB/Lp6tcn5
+X-Received: by 2002:a05:6214:590f:b0:888:3d1e:f95 with SMTP id 6a1803df08f44-8908426ac55mr50624736d6.32.1767817164676;
+        Wed, 07 Jan 2026 12:19:24 -0800 (PST)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-120.dlp.protect.broadcom.com. [144.49.247.120])
+        by smtp-relay.gmail.com with ESMTPS id 6a1803df08f44-8907715cdc9sm7211936d6.28.2026.01.07.12.19.24
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 07 Jan 2026 12:19:24 -0800 (PST)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-2ac3019faadso5726099eec.1
+        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 12:19:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1767817163; x=1768421963; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=z+D0U0I/QMaRvqdVI4kOajEvXFaO+vpLvikp7KFwDvI=;
+        b=KIdgyZBPhYyRoGC6A0+65EkNmq1eU7wRvbal/6O1tp30ySC8ISCqJ0N3liZA6vs6VW
+         kZpc7VS5udlK4dUxm6kHhUP0aG7JCSEgweq0DTGDijO6CTXaYgWwUKXJOSX2q62F66nr
+         /G5GLdQIUmJQd1I9xJNrugeWEq1uvRBxoq0rs=
+X-Forwarded-Encrypted: i=1; AJvYcCVS7uVfToex+LRqEsT8hNI13i7VpdXx/4mkPWVenCyhJ+1FkczgVROy7xDPjIyY8wsE+0RmyVPyscHYw2WH3A==@lists.linux.dev
+X-Received: by 2002:a05:693c:6085:b0:2ae:5020:afe1 with SMTP id 5a478bee46e88-2b17d2080bdmr2430468eec.14.1767817163213;
+        Wed, 07 Jan 2026 12:19:23 -0800 (PST)
+X-Received: by 2002:a05:693c:6085:b0:2ae:5020:afe1 with SMTP id 5a478bee46e88-2b17d2080bdmr2430455eec.14.1767817162698;
+        Wed, 07 Jan 2026 12:19:22 -0800 (PST)
+Received: from [10.66.193.70] ([192.19.161.250])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b1707d57aasm6888830eec.30.2026.01.07.12.19.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 07 Jan 2026 12:19:22 -0800 (PST)
+Message-ID: <89115e05-16ac-4520-afbb-b9b2c86bd6a7@broadcom.com>
+Date: Wed, 7 Jan 2026 12:19:19 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHYGQ0yHSvhOibhvxtFjZ7H3Tczb22JZ1UuaX5kkOtok0JjDgQ@mail.gmail.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - esm19.siteground.biz
-X-AntiAbuse: Original Domain - lists.linux.dev
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - valla.it
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-SGantispam-id: 1701ceb4260c0ca71e1f0d282223ff90
-AntiSpam-DLS: false
-AntiSpam-DLSP: 
-AntiSpam-DLSRS: 
-AntiSpam-TS: 1.0
-CFBL-Address: feedback@antispam.mailspamprotection.com; report=arf
-CFBL-Feedback-ID: 1vdYh7-00000001sWb-0eD7-feedback@antispam.mailspamprotection.com
-Authentication-Results: outgoing.instance-europe-west4-15n0.prod.antispam.mailspamprotection.com;
-	iprev=pass (214.173.214.35.bc.googleusercontent.com) smtp.remote-ip=35.214.173.214;
-	auth=pass (LOGIN) smtp.auth=esm19.siteground.biz;
-	dkim=pass header.d=valla.it header.s=default header.a=rsa-sha256;
-	arc=none
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RESEND 1/2] x86/paravirt: Remove trailing semicolons from
+ alternative asm templates
+To: Uros Bizjak <ubizjak@gmail.com>, bcm-kernel-feedback-list@broadcom.com,
+ virtualization@lists.linux.dev, x86@kernel.org, linux-kernel@vger.kernel.org
+Cc: Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>
+References: <20260105093944.52387-1-ubizjak@gmail.com>
+Content-Language: en-US
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
+ 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 EuY0
+In-Reply-To: <20260105093944.52387-1-ubizjak@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-Hi Matias,
 
-On Wed, Jan 07, 2026 at 05:14:25PM +0100, Matias Ezequiel Vara Larsen wrote:
-> On Fri, Dec 26, 2025 at 4:09 PM Francesco Valla <francesco@valla.it> wrote:
-> >
-> > Hi,
-> >
-> > On Sun, Dec 14, 2025 at 04:25:54PM +0100, Francesco Valla wrote:
-> > > While stress testing this, I noticed that flooding the virtio-can
-> > > interface with packets leads to an hang of the interface itself.
-> > > I am seeing this issuing, at host side:
-> > >
-> > >       while true; do cansend can0 123#00; done
-> > >
-> > > with:
-> > >
-> > >  - QEMU: the tip of the master branch plus [2]
-> > >  - vhost-device: the tip of the main branch
-> > >
-> > > and the following QEMU invocation:
-> > >
-> > > qemu-system-x86_64 -serial mon:stdio \
-> > >     -m 2G -smp 2 \
-> > >     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
-> > >     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
-> > >     -append "loglevel=7 console=ttyS0" \
-> > >     -machine memory-backend=pc.ram \
-> > >     -object memory-backend-file,id=pc.ram,size=2G,mem-path=/tmp/pc.ram,share=on \
-> > >     -chardev socket,id=can0,path=/tmp/sock-can0 \
-> > >     -device vhost-user-can-pci,chardev=can0
-> > >
-> > >
-> > > Restarting the interface (i.e.: ip link set down and the up) does not
-> > > fix the situation.
-> > >
-> > > I'll try to do some more testing during the next days.
-> >
-> > After a deep dive, I _think_ the problem actually lies in vhost-device,
-> > since it is not there (or al least, it seems so) using an alternative
-> > implementation that uses the qemu socketcan support [0] (implementation
-> > which builds on top of the work done by Harald and Mikhail):
-> >
-> > qemu-system-x86_64 -serial mon:stdio \
-> >     -m 2G -smp 2 -enable-kvm \
-> >     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
-> >     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
-> >     -append "loglevel=7 console=ttyS0" \
-> >     -object can-bus,id=canbus0 -object can-host-socketcan,id=canhost0,if=vcan0,canbus=canbus0 \
-> >     -device virtio-can-pci,canbus=canbus0
-> >
-> > Unfortunately, my Rust knoweledge is not sufficient to understand the
-> > vhost-device implementation [1]; the issue seems to be related to the
-> > host->guest vring becoming empty and not refilling anymore.
-> >
+
+On 1/5/26 1:39 AM, Uros Bizjak wrote:
+> GCC inline asm treats semicolons as instruction separators, so a
+> semicolon after the last instruction is not required.
 > 
-> Can you try with
-> https://github.com/MatiasVara/vhost-device/commits/fix-for-923/?
-
-I'll stress test it during the night, but this seems to fix it. Before
-it was reproducible in a consistent manner after mere seconds, while i
-now in a bunch of runs I never reproduced it.
-
-I also agree with your analysis on the commit.
-
+> Signed-off-by: Uros Bizjak <ubizjak@gmail.com>
+> Reviewed-by: Juergen Gross <jgross@suse.com>
+> Cc: Ajay Kaher <ajay.kaher@broadcom.com>
+> Cc: Alexey Makhalov <alexey.makhalov@broadcom.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@kernel.org>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> ---
+>   arch/x86/include/asm/paravirt.h       | 20 ++++++++++----------
+>   arch/x86/include/asm/paravirt_types.h |  2 +-
+>   2 files changed, 11 insertions(+), 11 deletions(-)
 > 
-> Thanks, Matias
-> 
-> 
+> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+> index b5e59a7ba0d0..4f6ec60b4cb3 100644
+> --- a/arch/x86/include/asm/paravirt.h
+> +++ b/arch/x86/include/asm/paravirt.h
+> @@ -151,7 +151,7 @@ static inline void write_cr0(unsigned long x)
+>   static __always_inline unsigned long read_cr2(void)
+>   {
+>   	return PVOP_ALT_CALLEE0(unsigned long, mmu.read_cr2,
+> -				"mov %%cr2, %%rax;", ALT_NOT_XEN);
+> +				"mov %%cr2, %%rax", ALT_NOT_XEN);
+>   }
+>   
+>   static __always_inline void write_cr2(unsigned long x)
+> @@ -162,7 +162,7 @@ static __always_inline void write_cr2(unsigned long x)
+>   static inline unsigned long __read_cr3(void)
+>   {
+>   	return PVOP_ALT_CALL0(unsigned long, mmu.read_cr3,
+> -			      "mov %%cr3, %%rax;", ALT_NOT_XEN);
+> +			      "mov %%cr3, %%rax", ALT_NOT_XEN);
+>   }
+>   
+>   static inline void write_cr3(unsigned long x)
+> @@ -560,7 +560,7 @@ static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
+>   static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
+>   {
+>   	PVOP_ALT_VCALLEE1(lock.queued_spin_unlock, lock,
+> -			  "movb $0, (%%" _ASM_ARG1 ");",
+> +			  "movb $0, (%%" _ASM_ARG1 ")",
+>   			  ALT_NOT(X86_FEATURE_PVUNLOCK));
+>   }
+>   
+> @@ -577,7 +577,7 @@ static __always_inline void pv_kick(int cpu)
+>   static __always_inline bool pv_vcpu_is_preempted(long cpu)
+>   {
+>   	return PVOP_ALT_CALLEE1(bool, lock.vcpu_is_preempted, cpu,
+> -				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
+> +				"xor %%" _ASM_AX ", %%" _ASM_AX,
+>   				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
+>   }
+>   
+> @@ -657,18 +657,18 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
+>   #ifdef CONFIG_PARAVIRT_XXL
+>   static __always_inline unsigned long arch_local_save_flags(void)
+>   {
+> -	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl, "pushf; pop %%rax;",
+> +	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl, "pushf; pop %%rax",
+>   				ALT_NOT_XEN);
+>   }
+>   
+>   static __always_inline void arch_local_irq_disable(void)
+>   {
+> -	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ALT_NOT_XEN);
+> +	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli", ALT_NOT_XEN);
+>   }
+>   
+>   static __always_inline void arch_local_irq_enable(void)
+>   {
+> -	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ALT_NOT_XEN);
+> +	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti", ALT_NOT_XEN);
+>   }
+>   
+>   static __always_inline unsigned long arch_local_irq_save(void)
+> @@ -713,9 +713,9 @@ void native_pv_lock_init(void) __init;
+>   	call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);
+>   .endm
+>   
+> -#define SAVE_FLAGS ALTERNATIVE_2 "PARA_IRQ_save_fl;",			\
+> -				 "ALT_CALL_INSTR;", ALT_CALL_ALWAYS,	\
+> -				 "pushf; pop %rax;", ALT_NOT_XEN
+> +#define SAVE_FLAGS ALTERNATIVE_2 "PARA_IRQ_save_fl",			\
+> +				 "ALT_CALL_INSTR", ALT_CALL_ALWAYS,	\
+> +				 "pushf; pop %rax", ALT_NOT_XEN
+>   #endif
+>   #endif /* CONFIG_PARAVIRT_XXL */
+>   #endif	/* CONFIG_X86_64 */
+> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+> index 3502939415ad..e82dba084198 100644
+> --- a/arch/x86/include/asm/paravirt_types.h
+> +++ b/arch/x86/include/asm/paravirt_types.h
+> @@ -250,7 +250,7 @@ extern struct paravirt_patch_template pv_ops;
+>    */
+>   #define PARAVIRT_CALL					\
+>   	ANNOTATE_RETPOLINE_SAFE "\n\t"			\
+> -	"call *%[paravirt_opptr];"
+> +	"call *%[paravirt_opptr]"
+>   
+>   /*
+>    * These macros are intended to wrap calls through one of the paravirt
 
-Thank you!
 
-Francesco
-
+Acked-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
