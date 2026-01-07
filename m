@@ -1,260 +1,150 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from mo4-p02-ob.smtp.rzone.de (mo4-p02-ob.smtp.rzone.de [81.169.146.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96D8832AAAC
-	for <virtualization@lists.linux-foundation.org>; Wed,  7 Jan 2026 12:24:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767788667; cv=none; b=gk/qJDRDd1GKLY6VwDMPaq/XFd9o42+BIafQciSuRfVJ9yoiBT8fJmQVDcGgMRlpKrNK932HP/5NfVQeo3AFmaRpOgrn6hPr4kY37snINH3/PBkh5tZlLGRGGD8gvWrWlfbamNHmfV9cBB7j3xygs67ndttfXSL/+VnXWkJyFcs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767788667; c=relaxed/simple;
-	bh=IsygWTMZdTG0Nq6crJvMpuu1naoy0zMIB4K4PhC/N+g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uWch7AUZ0bOY4/UElD194cgCGw2WjLwlPs5VxaxSV4KdovQzDwgsR8mVevCMCkTeOX01AUARTryNOt5BbhMct11LBEyZsaU2mp/MgaFTk7Wi3+2srP2plS/76q9snECGjMaggwVlzQ1eIDO1+Zaksva04pkkN4Q7lRFWexDoEyU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IQPBqY3d; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A0BB38E107
+	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 15:45:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=81.169.146.168
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767800729; cv=pass; b=f9kQ4EauC3lLrHU6oG9MY8HbKLpaS0oVCQTF8nKGZX9dW2+pNVvEbHt4oZuwu7K9fNn9rlZ9iEHycmGAiTmzQX1DOLQVzOOciOlDskVdCnLazKBJLWPiBNFVXG0KGRMeQRmxoOuS7EwEvFMlMMlmdg3vmpL2p9dNTXE6uPyKtIk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767800729; c=relaxed/simple;
+	bh=SUxYKUuFHhAEpGGBNH5IL8n/03E74REN90pkA/Ek6ac=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FsQhf8NWt44AGSR+xthoYk4IsJBoO+b4UeTz/oAmsPeo+TeykCoMFkYF102U1ll8nfiJk6JUBKAgjj2+GLJJPNpXCYWPQRD56eiXGIIfJe+BAtTSMw1u5+s/cU7G2V+9qppRxHWqUqyGn4MRLqq0JG07A6rf2+qNA42VVObNZNs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hartkopp.net; spf=pass smtp.mailfrom=hartkopp.net; dkim=pass (2048-bit key) header.d=hartkopp.net header.i=@hartkopp.net header.b=MKoJodo5; dkim=permerror (0-bit key) header.d=hartkopp.net header.i=@hartkopp.net header.b=kYONKIEQ; arc=pass smtp.client-ip=81.169.146.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hartkopp.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hartkopp.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IQPBqY3d"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DE21340327
-	for <virtualization@lists.linux-foundation.org>; Wed,  7 Jan 2026 12:24:24 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 0hE8xiCWjQDK for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Jan 2026 12:24:24 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=horms@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 1DA1E4022E
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1DA1E4022E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=IQPBqY3d
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 1DA1E4022E
-	for <virtualization@lists.linux-foundation.org>; Wed,  7 Jan 2026 12:24:23 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id 44FBF406D7;
-	Wed,  7 Jan 2026 12:24:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F7A2C4CEF7;
-	Wed,  7 Jan 2026 12:24:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767788663;
-	bh=IsygWTMZdTG0Nq6crJvMpuu1naoy0zMIB4K4PhC/N+g=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=IQPBqY3d1wDsYM2p0cWdND2XmtPcU6sME/U61WJINvoK0+GWxk+WGZrcW5N1NQM1N
-	 73Sb6VNbTLeyVeVtSvcGuq01XdzERHaNnnCSIpllqmR85o83ujea5Gm5hz2MczeBy/
-	 JHWs91IWhHNoW7DLlmSc8UndW/pTYDFOLFNQ7GY00vA2nrOibnCos/9s1USnf0dGuD
-	 qEvBv22WKdjZnB8dCGLvYpmSR5Unp3anb0PsaOw6LL7fGw1RXS2LJG9DTpV/RznDhd
-	 0/H8+MMiRmpEnx0rGGoIo6HoQhpSHd0SRTD8/G338qS7bZt6Mel6qlFXr6gHiG7O2V
-	 h2Fospv+Dq25g==
-Date: Wed, 7 Jan 2026 12:24:18 +0000
-From: Simon Horman <horms@kernel.org>
-To: Cindy Lu <lulu@redhat.com>
-Cc: mst@redhat.com, jasowang@redhat.com, dtatulea@nvidia.com,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] vdpa/mlx5: reuse common function for MAC address
- updates
-Message-ID: <20260107122418.GB196631@kernel.org>
-References: <20251229071614.779621-1-lulu@redhat.com>
- <20251229071614.779621-2-lulu@redhat.com>
+	dkim=pass (2048-bit key) header.d=hartkopp.net header.i=@hartkopp.net header.b="MKoJodo5";
+	dkim=permerror (0-bit key) header.d=hartkopp.net header.i=@hartkopp.net header.b="kYONKIEQ"
+ARC-Seal: i=1; a=rsa-sha256; t=1767800546; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=WOudiYoSVUwbG3ydltPWbpAD7QxdEugD3fcoSfrKkXrvevToc4eutsGHGgvuOexvQI
+    zZrJAYgIC9r+da/zDZ1xfJSBqD4CfpNjOdZLEyHGn2zmRRReEXAYCJ7wbAcGvcG5s2q8
+    jMXyH2asp+3zPCH0xL1dSOAbuUTgT+599bidcRnLvStbDZ5mU0nT/fk1tfKxPrqmuqwX
+    yQ8rcD4gwgJvXf0R6RtTQgf0m+cGyb7Vb1EVagZtuk5LLp/2PquIWnhaL78IoYXdbTuX
+    qdUiVAqjh1yJtu9O6IXVGWgY/iTu++XfZFQdYESPhR39bclElLsJ79si27OiDoKChn9B
+    xDTQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1767800546;
+    s=strato-dkim-0002; d=strato.com;
+    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
+    From:Subject:Sender;
+    bh=vOIIEfctkpVxXTnIIS08Zn5exdpTl3dZ8IoObdGk2SQ=;
+    b=SzmUY+WPu/KUNYAkzyXPYzb8ZvQwFESnQw628+vK5sGfS8bK4n7l03W87NcvoPOcOt
+    /Td2sykmyy6WsDKe2Notrp/NMwPRc7sYX6/tn6vjOaakY8cS3KQ/SM0BlUuejOOeBFlt
+    klpj7IsjqVoqxRaZO/6ecR1ELxBSkIJS2c24P16q4xvqEkKmauIZpHvgiQ/HfJlnuthC
+    YvP3HuqkzIqd09rYhKb3diVNlujmuS1TY2ZIH39xAZeb6qwdNzUIIM8vr5Wm5SRPChCN
+    /Fuz23USTJZ5+Iof9rDuiIgPocS1X0u94B5vFFA23gfGMmYuwhU/ma/KzvFvoxCTgpEO
+    ZN0g==
+ARC-Authentication-Results: i=1; strato.com;
+    arc=none;
+    dkim=none
+X-RZG-CLASS-ID: mo02
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1767800546;
+    s=strato-dkim-0002; d=hartkopp.net;
+    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
+    From:Subject:Sender;
+    bh=vOIIEfctkpVxXTnIIS08Zn5exdpTl3dZ8IoObdGk2SQ=;
+    b=MKoJodo5KuVCqxoc/Mp28Nj6Oi+H+l32iIqLSxmvugVpvK80aSjKyPMhun62Ogvrky
+    aK7S4M+NEsZWdR/dwwGNGQMgJTL9SnPSQ806asvGdgJhKv+QC5LDWfO7W3zo8EY7n4Zn
+    RXODdjDCaqX5qia7KP432ykKJn2yUSuzCjRU1NJ8Su2F+z2ou4qICOZRtsYLwk8KUb0p
+    bZqfbIwE9hDf5J3ZE6+uzKoSX4IDLxjoVL4AKDjKQL1Y30tv4XigLlqjKzEWeWe92HQn
+    Bkfu7KHP3qsgbUfI23C2zJ5MHJkE/Q9iuavWF7C28eU4Srg/LT6pNuH7gFQ/JCumFVW3
+    HS1A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1767800546;
+    s=strato-dkim-0003; d=hartkopp.net;
+    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
+    From:Subject:Sender;
+    bh=vOIIEfctkpVxXTnIIS08Zn5exdpTl3dZ8IoObdGk2SQ=;
+    b=kYONKIEQy/q29Y/uzeRV1RGaQxqhx1SeBlM6+NhauwDK9pF3DeI7mr3VU4bOe8NWvy
+    5OEZXkaYITmgS9DuIZCA==
+X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjH4JKvMdQv2tTUsMrZpkO3Mw3lZ/t54cFxeFQ7s8bGWj0Q=="
+Received: from [IPV6:2a00:6020:4a38:6800::9f3]
+    by smtp.strato.de (RZmta 54.1.0 AUTH)
+    with ESMTPSA id K0e68b207FgPD9c
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+	(Client did not present a certificate);
+    Wed, 7 Jan 2026 16:42:25 +0100 (CET)
+Message-ID: <8134fcf0-9a9d-41be-bcc3-80db23932f9b@hartkopp.net>
+Date: Wed, 7 Jan 2026 16:42:24 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251229071614.779621-2-lulu@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
+To: Francesco Valla <francesco@valla.it>
+Cc: Harald Mommer <harald.mommer@oss.qualcomm.com>,
+ Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
+ Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol
+ <mailhol@kernel.org>,
+ Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
+ virtualization@lists.linux.dev, Wolfgang Grandegger <wg@grandegger.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>
+References: <aQJRnX7OpFRY/1+H@fedora> <aQkgsuxa2UaL_qdt@bywater>
+ <aTsE1VIk4V/A49HE@fedora> <aT7XAsTWr0_yyfx_@bywater>
+ <aVLOPMmpvArnVAHZ@fedora> <aVLq1ibPcPHk-7Qv@bywater>
+ <e5bc1353-ed3e-478b-a26e-0bb9a50b3863@oss.qualcomm.com>
+ <4cf222cb-e6e3-4d09-a7d8-bc64b8e148bd@hartkopp.net>
+ <aV1zB_fYQE_OBZm2@bywater>
+Content-Language: en-US
+From: Oliver Hartkopp <socketcan@hartkopp.net>
+In-Reply-To: <aV1zB_fYQE_OBZm2@bywater>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Dec 29, 2025 at 03:16:13PM +0800, Cindy Lu wrote:
-> Factor out MAC address update logic and reuse it from handle_ctrl_mac().
+Hi Francesco,
+
+On 06.01.26 21:39, Francesco Valla wrote:
+> Hello Harald, Oliver,
 > 
-> This ensures that old MAC entries are removed from the MPFS table
-> before adding a new one and that the forwarding rules are updated
-> accordingly. If updating the flow table fails, the original MAC and
-> rules are restored as much as possible to keep the software and
-> hardware state consistent.
+> On Tue, Jan 06, 2026 at 08:43:42PM +0100, Oliver Hartkopp wrote:
+>>
+>>
+>> On 06.01.26 17:50, Harald Mommer wrote:
+>>>> With the plain 'cangen' you are not really flooding the interface, since
+>>>> you are only sending a random CAN frame every 200ms. The only way I can
+>>>> reproduce this behaviour in a consistent manner is running from the host:
+>>>>
+>>>>       while true; do cansend vcan0 134#00; done
+>>>>
+>>>> which seems to generate the maximum amount of traffic.
+>>>>
+>>>> This is not of course a realistic bus load, but is leading the system
+>>>> (at least on my setup) to a corner case somewhere.
+>>>
+>>> I have no idea how long the shell needs for a loop, always used cangen -g 0 to stress the setup which is most probably faster than the shell interpreter, and sometimes did this for both directions (RX and TX).
+>>>
+>>> Full load is a realistic setup. And even if it was not, if something stopped working or worse crashes torturing the setup this was a problem.
+>>>
+>>
+>> Yes. cangen -g 0 -i <interface> creates full load - even on real CAN
+>> interfaces. You can also generate fixed content if you want to omit the
+>> generation of randomized content. 'cangen -?' prints a help text.
+>>
 > 
-> Signed-off-by: Cindy Lu <lulu@redhat.com>
-> ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 95 +++++++++++++++++--------------
->  1 file changed, 53 insertions(+), 42 deletions(-)
+> I agree with both of you - I was simply arguing that a plain 'cangen'
+> with no parameters is not really loading the interface.
 > 
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 6e42bae7c9a1..c87e6395b060 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -2125,62 +2125,48 @@ static void teardown_steering(struct mlx5_vdpa_net *ndev)
->  	mlx5_destroy_flow_table(ndev->rxft);
->  }
->  
-> -static virtio_net_ctrl_ack handle_ctrl_mac(struct mlx5_vdpa_dev *mvdev, u8 cmd)
-> +static int mlx5_vdpa_change_new_mac(struct mlx5_vdpa_net *ndev,
-> +				    struct mlx5_core_dev *pfmdev,
-> +				    const u8 *new_mac)
->  {
-> -	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-> -	struct mlx5_control_vq *cvq = &mvdev->cvq;
-> -	virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
-> -	struct mlx5_core_dev *pfmdev;
-> -	size_t read;
-> -	u8 mac[ETH_ALEN], mac_back[ETH_ALEN];
-> -
-> -	pfmdev = pci_get_drvdata(pci_physfn(mvdev->mdev->pdev));
-> -	switch (cmd) {
-> -	case VIRTIO_NET_CTRL_MAC_ADDR_SET:
-> -		read = vringh_iov_pull_iotlb(&cvq->vring, &cvq->riov, (void *)mac, ETH_ALEN);
-> -		if (read != ETH_ALEN)
-> -			break;
-> -
-> -		if (!memcmp(ndev->config.mac, mac, 6)) {
-> -			status = VIRTIO_NET_OK;
-> -			break;
-> -		}
-> +	struct mlx5_vdpa_dev *mvdev = &ndev->mvdev;
-> +	u8 old_mac[ETH_ALEN];
->  
-> -		if (is_zero_ether_addr(mac))
-> -			break;
-> +	if (is_zero_ether_addr(new_mac))
-> +		return -EINVAL;
->  
-> -		if (!is_zero_ether_addr(ndev->config.mac)) {
-> -			if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
-> -				mlx5_vdpa_warn(mvdev, "failed to delete old MAC %pM from MPFS table\n",
-> -					       ndev->config.mac);
-> -				break;
-> -			}
-> +	if (!is_zero_ether_addr(ndev->config.mac)) {
-> +		if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
-> +			mlx5_vdpa_warn(mvdev, "failed to delete old MAC %pM from MPFS table\n",
-> +				       ndev->config.mac);
-> +			return -EIO;
->  		}
-> +	}
->  
-> -		if (mlx5_mpfs_add_mac(pfmdev, mac)) {
-> -			mlx5_vdpa_warn(mvdev, "failed to insert new MAC %pM into MPFS table\n",
-> -				       mac);
-> -			break;
-> -		}
-> +	if (mlx5_mpfs_add_mac(pfmdev, (u8 *)new_mac)) {
-> +		mlx5_vdpa_warn(mvdev, "failed to insert new MAC %pM into MPFS table\n",
-> +			       new_mac);
-> +		return -EIO;
-> +	}
->  
->  		/* backup the original mac address so that if failed to add the forward rules
->  		 * we could restore it
->  		 */
-> -		memcpy(mac_back, ndev->config.mac, ETH_ALEN);
-> +		memcpy(old_mac, ndev->config.mac, ETH_ALEN);
->  
-> -		memcpy(ndev->config.mac, mac, ETH_ALEN);
-> +		memcpy(ndev->config.mac, new_mac, ETH_ALEN);
+> For some reason, I was only able to trigger the unwanted behavior with
+> cansend in a while loop and not with cangen -g 0, even with fixed ID and
+> payload. However, I suspect the issue is a matter of timing and
+> coincidences rather than load level.
 
-...
+Yes, the difference is, that you open a new CAN socket each time with 
+cansend, while cangen opens one socket and pushes lots of frames into it.
 
-Hi Cindy,
+Btw. this should not lead to a stuck CAN interface.
 
-I realise that this makes the diffstat significantly more verbose.
-And hides material changes. So perhaps there is a nicer way to do this.
+Is the interface usable from another terminal (with cansend/candump) or 
+how does this 'stuck interface' look like?
 
-But with the current arrangement of this patch, I think that
-the indentation from just above, until the end of this function
-needs to be updated.
+Best regards,
+Oliver
 
-I.e. the following incremental patch on top of this one.
-
-This was flagged by Smatch.
-
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index c87e6395b060..c796f502b604 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2149,48 +2149,48 @@ static int mlx5_vdpa_change_new_mac(struct mlx5_vdpa_net *ndev,
- 		return -EIO;
- 	}
- 
--		/* backup the original mac address so that if failed to add the forward rules
--		 * we could restore it
--		 */
--		memcpy(old_mac, ndev->config.mac, ETH_ALEN);
-+	/* backup the original mac address so that if failed to add the forward rules
-+	 * we could restore it
-+	 */
-+	memcpy(old_mac, ndev->config.mac, ETH_ALEN);
- 
--		memcpy(ndev->config.mac, new_mac, ETH_ALEN);
-+	memcpy(ndev->config.mac, new_mac, ETH_ALEN);
- 
--		/* Need recreate the flow table entry, so that the packet could forward back
--		 */
--		mac_vlan_del(ndev, old_mac, 0, false);
-+	/* Need recreate the flow table entry, so that the packet could forward back
-+	 */
-+	mac_vlan_del(ndev, old_mac, 0, false);
- 
--		if (mac_vlan_add(ndev, ndev->config.mac, 0, false)) {
--			mlx5_vdpa_warn(mvdev, "failed to insert forward rules, try to restore\n");
-+	if (mac_vlan_add(ndev, ndev->config.mac, 0, false)) {
-+		mlx5_vdpa_warn(mvdev, "failed to insert forward rules, try to restore\n");
- 
--			/* Although it hardly run here, we still need double check */
--			if (is_zero_ether_addr(old_mac)) {
--				mlx5_vdpa_warn(mvdev, "restore mac failed: Original MAC is zero\n");
--				return -EIO;
--			}
-+		/* Although it hardly run here, we still need double check */
-+		if (is_zero_ether_addr(old_mac)) {
-+			mlx5_vdpa_warn(mvdev, "restore mac failed: Original MAC is zero\n");
-+			return -EIO;
-+		}
- 
--			/* Try to restore original mac address to MFPS table, and try to restore
--			 * the forward rule entry.
--			 */
--			if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
--				mlx5_vdpa_warn(mvdev, "restore mac failed: delete MAC %pM from MPFS table failed\n",
--					       ndev->config.mac);
--			}
-+		/* Try to restore original mac address to MFPS table, and try to restore
-+		 * the forward rule entry.
-+		 */
-+		if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
-+			mlx5_vdpa_warn(mvdev, "restore mac failed: delete MAC %pM from MPFS table failed\n",
-+				       ndev->config.mac);
-+		}
- 
--			if (mlx5_mpfs_add_mac(pfmdev, old_mac)) {
--				mlx5_vdpa_warn(mvdev, "restore mac failed: insert old MAC %pM into MPFS table failed\n",
--					       old_mac);
--			}
-+		if (mlx5_mpfs_add_mac(pfmdev, old_mac)) {
-+			mlx5_vdpa_warn(mvdev, "restore mac failed: insert old MAC %pM into MPFS table failed\n",
-+				       old_mac);
-+		}
- 
--			memcpy(ndev->config.mac, old_mac, ETH_ALEN);
-+		memcpy(ndev->config.mac, old_mac, ETH_ALEN);
- 
--			if (mac_vlan_add(ndev, ndev->config.mac, 0, false))
--				mlx5_vdpa_warn(mvdev, "restore forward rules failed: insert forward rules failed\n");
-+		if (mac_vlan_add(ndev, ndev->config.mac, 0, false))
-+			mlx5_vdpa_warn(mvdev, "restore forward rules failed: insert forward rules failed\n");
- 
--			return -EIO;
--		}
-+		return -EIO;
-+	}
- 
--		return 0;
-+	return 0;
- }
- 
- static virtio_net_ctrl_ack handle_ctrl_mac(struct mlx5_vdpa_dev *mvdev, u8 cmd)
