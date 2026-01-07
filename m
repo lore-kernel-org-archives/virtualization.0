@@ -1,195 +1,538 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010035.outbound.protection.outlook.com [52.101.201.35])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f227.google.com (mail-yw1-f227.google.com [209.85.128.227])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 460C325CC6C
-	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 22:09:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.35
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767823748; cv=fail; b=otzYnqItwugzSjetIxz+cfO/a6Tip5vii9A7Jj7Hyv6Gnz300qMMBmf54vWqEio8In1VFER4kXFCE0ouVa31yHmUqxROmSp5A0O4YKddDm0B4+7GcVtBwb5i0aD95xVa1pZpscHXFIopimjZVfAAGkc0giCl2itGMDrRHwI8fNc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767823748; c=relaxed/simple;
-	bh=Fkcb5BJS9xeUzlbLEelay3vBqDrK29qm/RQAkYK/gRM=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Vhs2AehWip3uzrHMc4DTtgJ8MFtpSqagCs1n2S1fzM12zJXz2jlh7+Ht+4yFzh8i0BGvMjJ4sphiT8hEV8g70kMXQe2NyvXjxFkb+vXy1phvu37m4d8qvWthxZ7+Wsj0B1Kohq4jXygyFHrdZRuzsKmrgAPVeyZ6Vfe76cxrA7Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=XJbojQ1K; arc=fail smtp.client-ip=52.101.201.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C51E1DBB3A
+	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 22:48:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.227
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767826141; cv=none; b=ul/4Bc/HTo8S9I1x/F3Xc94UylmFAP9M2BnTp6STZJqK7V5SVXZ7+t1Fmxxa8pCEs7CLO8tZO1T192ybn07+UAkzXRqHlxbvAokKPIy7YuQAOrdVgxRVHyhKUqLRr3lCae4MUC8MX6+M02q8UNIK+X+4fF1J066H8E8JVQHTU+M=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767826141; c=relaxed/simple;
+	bh=PVEAGmhmuKu0GUvYF93uoWHQP+VNVE9ps/U4SnJqf/c=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RoEplLvsOfBdeQWT7bA3NttygTGBf7Yrrzm/IbjIFfPOyX/toCfq/CvzztO2tz6Hdx3BeJ/88x6UoWShuN28VY4DgP5jw3X4ZGF2LvFvHOt+rZonKUbEezOpfgOYxhZcL7SJAB1e7IlGXBq2o9OMF8/2S20LbxRlidvfdeqQp28=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=G2nQEJVw; arc=none smtp.client-ip=209.85.128.227
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="XJbojQ1K"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Ea7eLRC2//AhzIXA+pnBU6SboB4Bza+QBRMXPZi7PhsWxYzZp1KK1gyF3ZWDEvWd1NVLHxnJu64vfAlDY+t1B2nCxdZe1nm4kBzpRD4HL35TaHfk8GAjEVNRzSquw+pikG9sd+A0UueWmg0wnHEoDa6W3K6mPWsqmNmyxkj5jjXa1uSiO5P5k84Akjp0TEonr2ohygdNz+0NuWYHpcZSkkjnNQsCoVgF4JCrVZX9MmTG4/BiVdXDIbJ0zMLL6b5ipACPbQ3L4lAuHyPh3SvDKTR7bXo/I+x2L6i53sgYYCFNN10gEFnw7lUwd9yMnlKaTMzFf6mggJa4x6RGQuqLcg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NztjAclZ3iA1/D1fXkyMnRc9rEVYgooG0k134V9kX1g=;
- b=Co7eLhyUnUKJHB+T0uALUmcnKevbGGQJluyGWMiTHr2b4jObMReRiuG6i2k7BxAbMxmkEGIeWHuSAxZYbQHzZA9cJofnJfQDHYdKHXGED5ztgeTGun9NU8W95kjHMZPd6X9pK0YGYskl7MtMjX5jdfWdhM6rS9D99KdkEzPZTzUfTZ16tGrTMVNYCKM49aJ39DgLsst8M8HJuEkLYkej9ynkppfV8tg/uHzCf43HVTGFeh7kWDFy34EDgA5v15QlqjQfffRgwY7oi0YOplONKxf+hj+dgQoHzjkr3FTmAj7FGFL+bmfSvS3eEU/pbHmava/ltO5TsCdoDObuxE3w7g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NztjAclZ3iA1/D1fXkyMnRc9rEVYgooG0k134V9kX1g=;
- b=XJbojQ1KqbnKALlUuMlJO+uTsNF14s8ke2EKlsY/Js7l6LHAvTFNKXuNlPdP5ONo3HZmloGWkL0NXSNcr7CodWm/vDGGJg1vT4YKVWG4UDPirDKCv0CC1eFDvBm6/SUQP3t6Wvz+YOtzfEO0k9TWzSoNCqlknxUTxTQU4A2ZfPKQBmeogFkcjIq1YdmvkERvnzpT8HdtD7j1vDOCHhGY3ei/aL/+GRUvwdzE/r3+0fSxQwgTjwe5hJZ6hOZk+/S0sOq6gsCmxlkl0YRVAl2/D+kc+OAxYv1mR3ym2tlBCxM7zCBXmZduFD4ULx5WZh89N/JUvwzen/JxJnAG+D3JJw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com (2603:10b6:303:22f::17)
- by SJ2PR12MB8135.namprd12.prod.outlook.com (2603:10b6:a03:4f3::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9499.2; Wed, 7 Jan
- 2026 22:09:03 +0000
-Received: from MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c]) by MW4PR12MB7309.namprd12.prod.outlook.com
- ([fe80::ea00:2082:ce2d:74c%5]) with mapi id 15.20.9499.002; Wed, 7 Jan 2026
- 22:09:03 +0000
-Message-ID: <17453401-86b8-4fbc-8907-c2cf1faa06ac@nvidia.com>
-Date: Wed, 7 Jan 2026 16:09:01 -0600
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v15 05/12] virtio_net: Query and set flow filter
- caps
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- pabeni@redhat.com, virtualization@lists.linux.dev, parav@nvidia.com,
- shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
- andrew+netdev@lunn.ch, edumazet@google.com
-References: <20260107170422.407591-1-danielj@nvidia.com>
- <20260107170422.407591-6-danielj@nvidia.com>
- <20260107133747.2ae75f3d@kernel.org>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20260107133747.2ae75f3d@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SA9PR13CA0045.namprd13.prod.outlook.com
- (2603:10b6:806:22::20) To MW4PR12MB7309.namprd12.prod.outlook.com
- (2603:10b6:303:22f::17)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="G2nQEJVw"
+Received: by mail-yw1-f227.google.com with SMTP id 00721157ae682-78fb7704cb4so26350037b3.3
+        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 14:48:59 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767826138; x=1768430938;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:dkim-signature:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Juxc6ADlnOHcZ+omKTaruPmPtvn8DO25aXGDHp0qX/Y=;
+        b=AOms7DXuEYkCfzs59hhRQ9X/lrDFYDt4XK0GlEWgWrzgPOKKoMaKObtfEObXtkUukV
+         nRIcY7eGOqsyCSAPtVvIQOa0iRpuFx2p9LFWaHxDEPJCIfRVl2GHeBuO7eorqPIuhBxJ
+         w/Oeyw7glEnxmZJUL3UvFgbRZ9SRQXxoPvA1HhIqDvHvHruSvuQQilyMiiA8sYlCCYBn
+         9RJGEjvaVdoEIMYlKBLpD9F4KCfHtSj2Iicft6ys7q0ks6UPu6jqQldW8W39HLVTmjA0
+         BZ6ao7Ns6hCrAOTtRPvkNTX7ZPqFwkj5KuH/cxidH2NAt0sGelvXfqcNmL8iHCronv3L
+         dP/A==
+X-Forwarded-Encrypted: i=1; AJvYcCVz/amiSuXv8tJVcJxSiKE5DnZ32ErSoFUyWkdpThIBzH58RMNX1Chvss5zvKxgzIpxaDeGrtkOmHbuW0MMKQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy3VD6StWtpx+wLBT1DQcN60FMh4yHz12OLofAziZjR70LGLFuU
+	eLXnPByiWlmAWf3gZ/CFTagjL8oVNp4lPC3vEg/9wj+Ip1X66EXFc0UmrBL7mirU8mj2LsEcAMJ
+	BBLJxhG5nmZ20q6Jm4bv1I0u6jq5SyU1ubhSrK8hZdpl5m4lmKnuzTf5S1nW8/nLcXiew60Pc8s
+	5Egcvo51HE+WK3i48Tqk7M8vkcxiyCd7nZSpiQiX9RMG3kO1YUkaF8PMFA3JKBaciuiO+y+q6I+
+	1hzlQ0RJEAJGtmRFYsfmicf9A==
+X-Gm-Gg: AY/fxX6ua1YeFDf9s9Hhm82G70avQzh7YWhQIP3LbwYPqV7PO0tIpJKbtgcSrW0iTc4
+	ZzUxV0w6XznDyQJv75EgV3ssJVSFNg96Ba+RwqT4Iq0IhB+KU1PQ+o/6Q8whZqbCNaIDHo1JIEX
+	LuxeBPIEmuezG/9E7pPhCwHsDZQqY7fkOidzu4qMHWE2ufAVbz2sCgIkNynHBruEaxfPk1L6SYA
+	skLRZBUyRFaqIHAKAm2+3g15eNg1NYzE+r9aPABmeSvLqOB+ixbpH7QwTETa61Ryg2o2kM7ObRp
+	Rv1xhwU7ZJdwydy5U8rstF6njvaVQ9bKZZaYaiNlmgsG57dMDC9QX2L0H91drFMGEJgcT1Kdhrv
+	k4YQH9oTEiEYy7EpZ7zrfUdcXqVnihh8crOrpvzCr+TpeyW+Qo04dmoDGNcOYNZQRxq09SuYCUc
+	znf3hezT/4SbNK7uC6qXV/RCaKyI8H/HxvQBTJsvZ+Sb/ddw==
+X-Google-Smtp-Source: AGHT+IEOigJzad565e1TPX7t503gRkBIjh8D5ypEDudhBN3wRvj3BrlzPwwucBOmmHXfVcLz0SA1KVH+cMA9
+X-Received: by 2002:a05:690e:1c07:b0:644:402a:8d3b with SMTP id 956f58d0204a3-64716b34a28mr3659483d50.10.1767826138271;
+        Wed, 07 Jan 2026 14:48:58 -0800 (PST)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-2.dlp.protect.broadcom.com. [144.49.247.2])
+        by smtp-relay.gmail.com with ESMTPS id 00721157ae682-790aa583b83sm4807717b3.8.2026.01.07.14.48.57
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 07 Jan 2026 14:48:58 -0800 (PST)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-dl1-f70.google.com with SMTP id a92af1059eb24-11f4617e256so10461257c88.0
+        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 14:48:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1767826137; x=1768430937; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=Juxc6ADlnOHcZ+omKTaruPmPtvn8DO25aXGDHp0qX/Y=;
+        b=G2nQEJVw8E/fzkPXREHOf+YBe5+wzdOxtJemklU++BzGenSjrtGSTSih4cHH+IUxIa
+         mXOsET1zVSgzgyXx1UEDEjRcUeh3mzGtXwuU6mSHXZeT8/NTzkpPEXPLQUJ0TfaLSgiu
+         WtOkkaghwO1ABW4NV+ROd1RnHgSqNaU6SUjx4=
+X-Forwarded-Encrypted: i=1; AJvYcCWFo+wtdOMKmwiD+0iv4+eoXMTK4uIH9who9bQjwWHoExhuCSHIgyk5U73B63MtSzr/MFNXSFh+PHD5mQf5TA==@lists.linux.dev
+X-Received: by 2002:a05:7022:a8d:b0:11b:d4a8:d24d with SMTP id a92af1059eb24-121f8ad8096mr3559547c88.12.1767826136604;
+        Wed, 07 Jan 2026 14:48:56 -0800 (PST)
+X-Received: by 2002:a05:7022:a8d:b0:11b:d4a8:d24d with SMTP id a92af1059eb24-121f8ad8096mr3559506c88.12.1767826135928;
+        Wed, 07 Jan 2026 14:48:55 -0800 (PST)
+Received: from [10.66.193.70] ([192.19.161.250])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-121f248c246sm11503734c88.11.2026.01.07.14.48.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 07 Jan 2026 14:48:55 -0800 (PST)
+Message-ID: <ce5d54a2-fed5-4039-846d-b0ae11d15810@broadcom.com>
+Date: Wed, 7 Jan 2026 14:48:51 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR12MB7309:EE_|SJ2PR12MB8135:EE_
-X-MS-Office365-Filtering-Correlation-Id: cae5f27c-9605-4228-586c-08de4e395e4f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|7416014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?M3VVaTd3ajYwQUNDWExNKzduVlNBWEczYmJaTkhmRW0vYzhnM005UUtzcUk0?=
- =?utf-8?B?ak5RK2xEcVNxZEZUWWM4YjdjRnpxbFgxZUkyL0s5Z1NrSVlwTEZ6bjJmeXNu?=
- =?utf-8?B?bWtCWU12N1EraXV5Z3pPLzlXWlZFOGVLZndvRVZCM2pVL1Rxejd5NHRWajhu?=
- =?utf-8?B?MWhtVjZ5ZU4rRy9XKytlK014OWx2YXNOZ2JtbTFtaVhpUWpWbENZY0Y2am9S?=
- =?utf-8?B?R0VlT25iQ1FaVjBWNFdXcnBLVGZRbG5FYTYzNkFZVllwS2gybG9LQzE1b2lD?=
- =?utf-8?B?aTNpZHg4M25lVzMwU1doaFRCYU9rcXlmdE9QQkFLL1BNYlN0VWFwZlJPdWxo?=
- =?utf-8?B?M3llanl6WlI2dGlCRTQyK0RMa1AzSE5NVVZ4MlVzbDh5NStiYjJSOGtqU3pR?=
- =?utf-8?B?RzY5THN5ZU5nS3FRdUUwQWJrUkh2VzEwbHB2UzQrTDZyK2FvU3JUNzdrRVk4?=
- =?utf-8?B?UXE1NjVSd2dRZDk4VVJkQ1MyNUMzd0Zib0ZwL0pHajF5dERKQ2xuWjB5VkhC?=
- =?utf-8?B?SExVbnFxNVh2VjdGbGVpdDFUQlcvT0NDenVIYmNiR3hHYmN5cHJ4SDFqWGlO?=
- =?utf-8?B?RzVEYStqdE1tZm9CMnR2TTc1c0RzZk53VDNNbnkrQmNmWktONm53Z3lvRFVa?=
- =?utf-8?B?QzhkTWNRNURsb1dzbEtKWUMySVI0UzZoV1REVDVaZE5Bc3NMNlRRRjF1dzZG?=
- =?utf-8?B?TXVPVGQxM3Jia3psb3NhT2xnb01mODhiYzlCUTBmUTBlc3hXRjdiUzFDb2NQ?=
- =?utf-8?B?TFcvVE1DQ0hrd05hK2JEN3BWMjkydEV0dEQxYmJFNjgycUFNYTBVV1orbmZp?=
- =?utf-8?B?T0x5UUJnY2dSTG96N0JRZEQrM3VvRG9DUzZ4Y1RJZjVBZnFDOEt6QXJOa1RR?=
- =?utf-8?B?Q2xKbDh0VVhjckg0eWFsdC9DU1NCQURiVTZHSzB0UVhHR2FPUll6allTTWp5?=
- =?utf-8?B?b0NJbVRCTmt1OWFxV0hSYTd0cm1wT0ZDOVRoZlhHdlJwYVA0S3dXLzBWdXBv?=
- =?utf-8?B?aXlpZjJYNGNQMzFsdGFHSTVLcE1KcjR4VStyZS9QVHAzcGM0elZSOGpwTExk?=
- =?utf-8?B?RkpwRjFlb3dLUUpEc05ZaHVBUXJwMDhtbnZ6OG84VU91Znd6bEJRUWN3U2tW?=
- =?utf-8?B?dDFobGVQcVhyUTRUaGl1VDhxWVVOenpwZHN2K2RVM2dVKzRHL3l5bnlINUZi?=
- =?utf-8?B?Z1hNUDk0Q1dsaWZyRlAxSll0cDhOS1ExKzZsOGgwT0VGcW1jWmpJWTJTUDhX?=
- =?utf-8?B?ZHFsUmFJTCtQb1NsQWNmVmx0Q2RjbXZhMjVDelg1ZjRuYi9SWDBWT1RsUzY5?=
- =?utf-8?B?aUVPd1NzRGtPdmIvMHhCRGI1T1lFN3ZBTzZhd2pPUjAvV2tkN2RSYzV5VjZn?=
- =?utf-8?B?a1pOd1ppQkdqdTJqdm0za2hRWmV0K1oxcnFkN3ZtS0d6QzM5WWxOcXFzUTJW?=
- =?utf-8?B?S3BvSVZlcTY3dXJ1MFQ3NHo2cy96dTlNL2JyY29HRVJnU2c1VDgyZlJWRzIx?=
- =?utf-8?B?cHh6MHJXdWZvYUszYUNrVS9MUkRjeE1YOUFDM1JVUlQ2aWxZNkhqMDN4djc2?=
- =?utf-8?B?WEMwcDdOb3NKTXJ2eUNqR2JoWnVobC9FdHhIWDVnRkgxSlFtemlSWEdJN1JI?=
- =?utf-8?B?N1hmazg2UTdROGlWbDlMVXpZUHQvbEFzMzVMSS92YTliWHc2dzJkUUlVd1JD?=
- =?utf-8?B?OU5ld3RRQ3hKZlRpdURIaXNibzFUVlI2K2FuUmRaK3NtMXBXSlVmNWhENFdr?=
- =?utf-8?B?ZkU0UGcxVXJBSTNNb1doUG1yNDR4UWE2dDlpNDlnN1k4RmwvWXFQYVpBb3p2?=
- =?utf-8?B?cFVRMkdBTkthRXNHK2lsU25ybGJtV1I0cDA0b0d5Q3gvcXhYQzY1ZVg5TnJT?=
- =?utf-8?B?OE1lRnRlbTdsVW91by9tbnFaSjZ6T0svNURFWXVqQVcrTm13cGpkNzVzN3Fl?=
- =?utf-8?Q?w9tbVMsKdOlLjy5Npg4oaiz+WsHRE9G5?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR12MB7309.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?UTJTdkxNaGRlbzJnTHJFeWR1NHBKL0N6eDhTRWhRd3c0eVpQb0RoU2ZlQ3p5?=
- =?utf-8?B?a1R0VU55aXhmbGc2QXE4aWJSUEJJS3dDVHhxS25aY1hIcGlNSUtaazR3Y1RX?=
- =?utf-8?B?ZFkzV01PMEduWGUrYzd6VzFWSEdwb1FQb0JhajI2WUZ2Z254dmNGZFVibXVW?=
- =?utf-8?B?c0FsUjdmVER0ZUVIN3NaTnlOTHlqTHFHSXRGTUhLUk1KWTE2QnVaL2JHS2RM?=
- =?utf-8?B?Y01ES2lna0NQVWIrR3JjUjdZNk5oVVFHbWI5aHl1T0ZvQ3FNMzkvUm9zaHJC?=
- =?utf-8?B?bm1vWkdWTk9MVDB2S1NRQzczUnBia2Qwem9mVnpYTkxzbGwyVWFaZDNpYURN?=
- =?utf-8?B?RnlidzVqWG02clFHWElOWmlvYm5KVElmSUtVT3Z5bVNhUm92ZklvSkRrRjNQ?=
- =?utf-8?B?MDNiZzJOV0FlR0dvcmUzRUJQNG1ZcWRTSEFEdHBKaE5RQ1BXdjg5d0F6R3FJ?=
- =?utf-8?B?aTVTcW1Qb2hSa1A3ajNoNytHVk9QU0sxRituRTBZZ09OZXFrcllBbTN5UnZN?=
- =?utf-8?B?UGpHTEE4RE5xNmIwZ3BXNFVZaU14QWptS2Y0Z1JXMytMZFpaaHZ6SHhSUmF2?=
- =?utf-8?B?MWZQUHJzRGQzZTZ0cUo5d0hrTTlmSmNuaTRvc1lWdWNQU2svQ3YrUnRhcXJr?=
- =?utf-8?B?MFovWDBIcWpXb08wTXNpZ202MFlWVGo1RnVGVUI0MDJXdG5wU0xBMXZITmpw?=
- =?utf-8?B?TXR1emVUaXlKL1pvd1g4SWZoK3RJalJzUjU3UmJHSEorY1B0eGpwVEwvSkx0?=
- =?utf-8?B?ODhPTDBpeWFwaVM5SjkzVnh1UWUvVnU1VnFTcHVOQkJDN2JHUnh4RUZneTJq?=
- =?utf-8?B?Y09BdFRCd2l0cWNIOGw0WmdNRHdxQSs4V1NyTnp2STl0Qllsc0JrMjNZT0lw?=
- =?utf-8?B?ZDBjVTJYVUtwMWEwYmhxWFR4R0s5alJVMG50bjFJTG9jbVZKVWVOUzIzWnR4?=
- =?utf-8?B?c05hdDZrZEZuS05FWjVYTytWYVBXYzduQXZKdnBnSkpNMHFLZDJ1Q3JUc0hZ?=
- =?utf-8?B?UnYyck40NHo3cHg2bFZDTk9nTkxNYWZmNFRDM0IzR28vOXFXNGJZcytOdmgx?=
- =?utf-8?B?bGNhZk02ZHgxTG1YcEVIUUpIWnJ3cWNRYUd1MHlqbUtLMmZBL0dGdTdqcjNl?=
- =?utf-8?B?NHRENEY4U3htRHVxLys4Q09GR0hhZm0zNVhQcytqRWs3ZitRa2hMbks2c2tB?=
- =?utf-8?B?NEtVWGlhTTJQLzg1dm54VTF3L2EydTdpZ20vbTFaWEVMK2lDdU1Cbk9Jd2VX?=
- =?utf-8?B?T2lsaiszSWEwdG9rTWttZkpyY2hIZGdlSklOYi9mZkQyTVJRR0M3T1Q2ckUy?=
- =?utf-8?B?cEk5NE1ETVVBWXY1WVpMS3cxQXBiWG9DeDE0eW5JYzM3Y25IU3UvdUJPODdn?=
- =?utf-8?B?Z3Z1S3l5Tnc5dU5LVFA5SEtoYk84R0xuRFpIYnBPOVFZTkhRZHlTWHQ5dFB3?=
- =?utf-8?B?YWpLWkl2eE1yMTBlK0x0RnluMUhNQmNhTUhpeTYxTmhlbFNaTW10OTRuNHd4?=
- =?utf-8?B?bExIRTVoK1R2SURJWFJraWI5amFoS1c2M0o5WC9laVRpY2kvTCtvQnFueFB1?=
- =?utf-8?B?L0ZkbDUrTWxkamtxeVUrYTVEM05lSVpjMFZPZFBFSTFSZTJ5UTJEdGQ2eGl5?=
- =?utf-8?B?REpoY1V0eDdrVklNeGRCL2pFNy9LVm9tYXFoSG9PSld6WnE0cnNuMy9yLzhn?=
- =?utf-8?B?djBxREJ5b0ZxMXVpR1cvcTFGMGE4eVZzUVdxOWk5OS80YjJUWHV4a3VJbnIw?=
- =?utf-8?B?c3VoRFhkQVBaVHAwc2JRZmMrdHNEVERvRjZNUzluenNwbXQyVGk5TThWUUV2?=
- =?utf-8?B?MG8vRUhRdlB3b0J5b0tZZExMQmxocjJkaWl6Z3RGMGZOVFpVdWxwekFwVEZn?=
- =?utf-8?B?M3kzaEMxZVBkVmpyd0kxeFArbnhDUHNiVEY3Qm8wRURDZytIVHBwMDFDYk93?=
- =?utf-8?B?VkFDUE9ST2N2cXpBT3piRXN1OC96Qld5Mjhjc2pwaFlNOE5mTW9CY3Q2RXls?=
- =?utf-8?B?MGlwaEJFQUQ0MFRwQldVTGJ2dXBUS3YxdWsvZFZTT2IxZ3p3bFV3RUgxU1BH?=
- =?utf-8?B?MVcwSGxHdmF4cTVFNjJvb3RKaURqRTA3Q2krVnZITXhHL3dtUnlwUmw3aTFE?=
- =?utf-8?B?MUZyNEdXbUlRMHJTMWt6c3VzRGluSUVEbXRZalBWMXNXSGphUDRpWHZaWWNs?=
- =?utf-8?B?bFppVjByR3VFQ0hidkZWVVhyK2Q3WnhVR1RNSzc5dFp0dUZCQXdDbGRvUkxp?=
- =?utf-8?B?d2ZoM3drT1pzYWw5ZFlhdXFJRHhPa20ybXNvS3ovUHpXTGl2NDYvUUdXNEpI?=
- =?utf-8?B?d3BlR2VFaFBId0NEUVFzc0I2Q0JtUWlJVGdmNGFXeitQdi9JZWJxdz09?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cae5f27c-9605-4228-586c-08de4e395e4f
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR12MB7309.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jan 2026 22:09:03.7025
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: CCFiP0dGKsrlrefhwaq+SJDZs4askVH3Zf6MRt3LVhKbNjAuH81xfIOiTUANfZ09IdLBeh/Zn8xawhLTsgLWAA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8135
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 06/21] sched: Move clock related paravirt code to
+ kernel/sched
+To: Juergen Gross <jgross@suse.com>
+Cc: Ajay Kaher <ajay.kaher@broadcom.com>, loongarch@lists.linux.dev,
+ x86@kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, kvm@vger.kernel.org,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Russell King
+ <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ Peter Zijlstra <peterz@infradead.org>, Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+ linux-arm-kernel@lists.infradead.org, xen-devel@lists.xenproject.org
+References: <20251006074606.1266-1-jgross@suse.com>
+ <20251006074606.1266-7-jgross@suse.com>
+Content-Language: en-US
+From: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
+ 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 EuY0
+In-Reply-To: <20251006074606.1266-7-jgross@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-On 1/7/26 3:37 PM, Jakub Kicinski wrote:
-> On Wed, 7 Jan 2026 11:04:15 -0600 Daniel Jurgens wrote:
->> +	if (err && err != -EOPNOTSUPP) {
->> +		if (netif_running(vi->dev))
->> +			virtnet_close(vi->dev);
->> +
->> +		/* disable_rx_mmode_work takes the rtnl_lock, so just set the
->> +		 * flag here while holding the lock.
->> +		 *
->> +		 * remove_vq_common resets the device and frees the vqs.
->> +		 */
->> +		vi->rx_mode_work_enabled = false;
->> +		disable_delayed_refill(vi);
->> +		rtnl_unlock();
->> +		remove_vq_common(vi);
->> +		return err;
-> 
-> disable_delayed_refill() is going away in net 
-> 
-> https://lore.kernel.org/all/20260106150438.7425-1-minhquangbui99@gmail.com/
-> 
-> You'll have to wait for that change to propagate to net-next to avoid
-> a transient build issue:
-> 
-> https://netdev.bots.linux.dev/contest.html?pw-n=0&branch=net-next-2026-01-07--21-00&pw-n=0&pass=0
 
-Thanks for the heads up. The AI bot flagged another bug with the return
-value of virtnet_restore_up so I'll send a v16 once this patch comes in.
+
+On 10/6/25 12:45 AM, Juergen Gross wrote:
+> Paravirt clock related functions are available in multiple archs.
+> 
+> In order to share the common parts, move the common static keys
+> to kernel/sched/ and remove them from the arch specific files.
+> 
+> Make a common paravirt_steal_clock() implementation available in
+> kernel/sched/cputime.c, guarding it with a new config option
+> CONFIG_HAVE_PV_STEAL_CLOCK_GEN, which can be selected by an arch
+> in case it wants to use that common variant.
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>   arch/Kconfig                           |  3 +++
+>   arch/arm/include/asm/paravirt.h        |  4 ----
+>   arch/arm/kernel/paravirt.c             |  3 ---
+>   arch/arm64/include/asm/paravirt.h      |  4 ----
+>   arch/arm64/kernel/paravirt.c           |  4 +---
+>   arch/loongarch/include/asm/paravirt.h  |  3 ---
+>   arch/loongarch/kernel/paravirt.c       |  3 +--
+>   arch/powerpc/include/asm/paravirt.h    |  3 ---
+>   arch/powerpc/platforms/pseries/setup.c |  4 +---
+>   arch/riscv/include/asm/paravirt.h      |  4 ----
+>   arch/riscv/kernel/paravirt.c           |  4 +---
+>   arch/x86/include/asm/paravirt.h        |  4 ----
+>   arch/x86/kernel/cpu/vmware.c           |  1 +
+>   arch/x86/kernel/kvm.c                  |  1 +
+>   arch/x86/kernel/paravirt.c             |  3 ---
+>   drivers/xen/time.c                     |  1 +
+>   include/linux/sched/cputime.h          | 18 ++++++++++++++++++
+>   kernel/sched/core.c                    |  5 +++++
+>   kernel/sched/cputime.c                 | 13 +++++++++++++
+>   kernel/sched/sched.h                   |  2 +-
+>   20 files changed, 47 insertions(+), 40 deletions(-)
+> 
+> diff --git a/arch/Kconfig b/arch/Kconfig
+> index ebe08b9186ad..f310ac346fa4 100644
+> --- a/arch/Kconfig
+> +++ b/arch/Kconfig
+> @@ -1051,6 +1051,9 @@ config HAVE_IRQ_TIME_ACCOUNTING
+>   	  Archs need to ensure they use a high enough resolution clock to
+>   	  support irq time accounting and then call enable_sched_clock_irqtime().
+>   
+> +config HAVE_PV_STEAL_CLOCK_GEN
+> +	bool
+> +
+>   config HAVE_MOVE_PUD
+>   	bool
+>   	help
+> diff --git a/arch/arm/include/asm/paravirt.h b/arch/arm/include/asm/paravirt.h
+> index 95d5b0d625cd..69da4bdcf856 100644
+> --- a/arch/arm/include/asm/paravirt.h
+> +++ b/arch/arm/include/asm/paravirt.h
+> @@ -5,10 +5,6 @@
+>   #ifdef CONFIG_PARAVIRT
+>   #include <linux/static_call_types.h>
+>   
+> -struct static_key;
+> -extern struct static_key paravirt_steal_enabled;
+> -extern struct static_key paravirt_steal_rq_enabled;
+> -
+>   u64 dummy_steal_clock(int cpu);
+>   
+>   DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
+> diff --git a/arch/arm/kernel/paravirt.c b/arch/arm/kernel/paravirt.c
+> index 7dd9806369fb..3895a5578852 100644
+> --- a/arch/arm/kernel/paravirt.c
+> +++ b/arch/arm/kernel/paravirt.c
+> @@ -12,9 +12,6 @@
+>   #include <linux/static_call.h>
+>   #include <asm/paravirt.h>
+>   
+> -struct static_key paravirt_steal_enabled;
+> -struct static_key paravirt_steal_rq_enabled;
+> -
+>   static u64 native_steal_clock(int cpu)
+>   {
+>   	return 0;
+> diff --git a/arch/arm64/include/asm/paravirt.h b/arch/arm64/include/asm/paravirt.h
+> index 9aa193e0e8f2..c9f7590baacb 100644
+> --- a/arch/arm64/include/asm/paravirt.h
+> +++ b/arch/arm64/include/asm/paravirt.h
+> @@ -5,10 +5,6 @@
+>   #ifdef CONFIG_PARAVIRT
+>   #include <linux/static_call_types.h>
+>   
+> -struct static_key;
+> -extern struct static_key paravirt_steal_enabled;
+> -extern struct static_key paravirt_steal_rq_enabled;
+> -
+>   u64 dummy_steal_clock(int cpu);
+>   
+>   DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
+> diff --git a/arch/arm64/kernel/paravirt.c b/arch/arm64/kernel/paravirt.c
+> index aa718d6a9274..943b60ce12f4 100644
+> --- a/arch/arm64/kernel/paravirt.c
+> +++ b/arch/arm64/kernel/paravirt.c
+> @@ -19,14 +19,12 @@
+>   #include <linux/slab.h>
+>   #include <linux/types.h>
+>   #include <linux/static_call.h>
+> +#include <linux/sched/cputime.h>
+>   
+>   #include <asm/paravirt.h>
+>   #include <asm/pvclock-abi.h>
+>   #include <asm/smp_plat.h>
+>   
+> -struct static_key paravirt_steal_enabled;
+> -struct static_key paravirt_steal_rq_enabled;
+> -
+>   static u64 native_steal_clock(int cpu)
+>   {
+>   	return 0;
+> diff --git a/arch/loongarch/include/asm/paravirt.h b/arch/loongarch/include/asm/paravirt.h
+> index 3f4323603e6a..d219ea0d98ac 100644
+> --- a/arch/loongarch/include/asm/paravirt.h
+> +++ b/arch/loongarch/include/asm/paravirt.h
+> @@ -5,9 +5,6 @@
+>   #ifdef CONFIG_PARAVIRT
+>   
+>   #include <linux/static_call_types.h>
+> -struct static_key;
+> -extern struct static_key paravirt_steal_enabled;
+> -extern struct static_key paravirt_steal_rq_enabled;
+>   
+>   u64 dummy_steal_clock(int cpu);
+>   DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
+> diff --git a/arch/loongarch/kernel/paravirt.c b/arch/loongarch/kernel/paravirt.c
+> index b1b51f920b23..8caaa94fed1a 100644
+> --- a/arch/loongarch/kernel/paravirt.c
+> +++ b/arch/loongarch/kernel/paravirt.c
+> @@ -6,11 +6,10 @@
+>   #include <linux/kvm_para.h>
+>   #include <linux/reboot.h>
+>   #include <linux/static_call.h>
+> +#include <linux/sched/cputime.h>
+>   #include <asm/paravirt.h>
+>   
+>   static int has_steal_clock;
+> -struct static_key paravirt_steal_enabled;
+> -struct static_key paravirt_steal_rq_enabled;
+>   static DEFINE_PER_CPU(struct kvm_steal_time, steal_time) __aligned(64);
+>   DEFINE_STATIC_KEY_FALSE(virt_spin_lock_key);
+>   
+> diff --git a/arch/powerpc/include/asm/paravirt.h b/arch/powerpc/include/asm/paravirt.h
+> index b78b82d66057..92343a23ad15 100644
+> --- a/arch/powerpc/include/asm/paravirt.h
+> +++ b/arch/powerpc/include/asm/paravirt.h
+> @@ -23,9 +23,6 @@ static inline bool is_shared_processor(void)
+>   }
+>   
+>   #ifdef CONFIG_PARAVIRT_TIME_ACCOUNTING
+> -extern struct static_key paravirt_steal_enabled;
+> -extern struct static_key paravirt_steal_rq_enabled;
+> -
+>   u64 pseries_paravirt_steal_clock(int cpu);
+>   
+>   static inline u64 paravirt_steal_clock(int cpu)
+> diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
+> index b10a25325238..50b26ed8432d 100644
+> --- a/arch/powerpc/platforms/pseries/setup.c
+> +++ b/arch/powerpc/platforms/pseries/setup.c
+> @@ -42,6 +42,7 @@
+>   #include <linux/memblock.h>
+>   #include <linux/swiotlb.h>
+>   #include <linux/seq_buf.h>
+> +#include <linux/sched/cputime.h>
+>   
+>   #include <asm/mmu.h>
+>   #include <asm/processor.h>
+> @@ -83,9 +84,6 @@ DEFINE_STATIC_KEY_FALSE(shared_processor);
+>   EXPORT_SYMBOL(shared_processor);
+>   
+>   #ifdef CONFIG_PARAVIRT_TIME_ACCOUNTING
+> -struct static_key paravirt_steal_enabled;
+> -struct static_key paravirt_steal_rq_enabled;
+> -
+>   static bool steal_acc = true;
+>   static int __init parse_no_stealacc(char *arg)
+>   {
+> diff --git a/arch/riscv/include/asm/paravirt.h b/arch/riscv/include/asm/paravirt.h
+> index c0abde70fc2c..17e5e39c72c0 100644
+> --- a/arch/riscv/include/asm/paravirt.h
+> +++ b/arch/riscv/include/asm/paravirt.h
+> @@ -5,10 +5,6 @@
+>   #ifdef CONFIG_PARAVIRT
+>   #include <linux/static_call_types.h>
+>   
+> -struct static_key;
+> -extern struct static_key paravirt_steal_enabled;
+> -extern struct static_key paravirt_steal_rq_enabled;
+> -
+>   u64 dummy_steal_clock(int cpu);
+>   
+>   DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
+> diff --git a/arch/riscv/kernel/paravirt.c b/arch/riscv/kernel/paravirt.c
+> index fa6b0339a65d..d3c334f16172 100644
+> --- a/arch/riscv/kernel/paravirt.c
+> +++ b/arch/riscv/kernel/paravirt.c
+> @@ -16,15 +16,13 @@
+>   #include <linux/printk.h>
+>   #include <linux/static_call.h>
+>   #include <linux/types.h>
+> +#include <linux/sched/cputime.h>
+>   
+>   #include <asm/barrier.h>
+>   #include <asm/page.h>
+>   #include <asm/paravirt.h>
+>   #include <asm/sbi.h>
+>   
+> -struct static_key paravirt_steal_enabled;
+> -struct static_key paravirt_steal_rq_enabled;
+> -
+>   static u64 native_steal_clock(int cpu)
+>   {
+>   	return 0;
+> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+> index 1344d2fb2b86..0ef797ea8440 100644
+> --- a/arch/x86/include/asm/paravirt.h
+> +++ b/arch/x86/include/asm/paravirt.h
+> @@ -30,10 +30,6 @@ static __always_inline u64 paravirt_sched_clock(void)
+>   	return static_call(pv_sched_clock)();
+>   }
+>   
+> -struct static_key;
+> -extern struct static_key paravirt_steal_enabled;
+> -extern struct static_key paravirt_steal_rq_enabled;
+> -
+>   __visible void __native_queued_spin_unlock(struct qspinlock *lock);
+>   bool pv_is_native_spin_unlock(void);
+>   __visible bool __native_vcpu_is_preempted(long cpu);
+> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+> index cb3f900c46fc..a3e6936839b1 100644
+> --- a/arch/x86/kernel/cpu/vmware.c
+> +++ b/arch/x86/kernel/cpu/vmware.c
+> @@ -29,6 +29,7 @@
+>   #include <linux/efi.h>
+>   #include <linux/reboot.h>
+>   #include <linux/static_call.h>
+> +#include <linux/sched/cputime.h>
+>   #include <asm/div64.h>
+>   #include <asm/x86_init.h>
+>   #include <asm/hypervisor.h>
+> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+> index b67d7c59dca0..d54fd2bc0402 100644
+> --- a/arch/x86/kernel/kvm.c
+> +++ b/arch/x86/kernel/kvm.c
+> @@ -29,6 +29,7 @@
+>   #include <linux/syscore_ops.h>
+>   #include <linux/cc_platform.h>
+>   #include <linux/efi.h>
+> +#include <linux/sched/cputime.h>
+>   #include <asm/timer.h>
+>   #include <asm/cpu.h>
+>   #include <asm/traps.h>
+> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+> index ab3e172dcc69..a3ba4747be1c 100644
+> --- a/arch/x86/kernel/paravirt.c
+> +++ b/arch/x86/kernel/paravirt.c
+> @@ -60,9 +60,6 @@ void __init native_pv_lock_init(void)
+>   		static_branch_enable(&virt_spin_lock_key);
+>   }
+>   
+> -struct static_key paravirt_steal_enabled;
+> -struct static_key paravirt_steal_rq_enabled;
+> -
+>   static u64 native_steal_clock(int cpu)
+>   {
+>   	return 0;
+> diff --git a/drivers/xen/time.c b/drivers/xen/time.c
+> index 5683383d2305..d360ded2ef39 100644
+> --- a/drivers/xen/time.c
+> +++ b/drivers/xen/time.c
+> @@ -8,6 +8,7 @@
+>   #include <linux/gfp.h>
+>   #include <linux/slab.h>
+>   #include <linux/static_call.h>
+> +#include <linux/sched/cputime.h>
+>   
+>   #include <asm/paravirt.h>
+>   #include <asm/xen/hypervisor.h>
+> diff --git a/include/linux/sched/cputime.h b/include/linux/sched/cputime.h
+> index 5f8fd5b24a2e..e90efaf6d26e 100644
+> --- a/include/linux/sched/cputime.h
+> +++ b/include/linux/sched/cputime.h
+> @@ -2,6 +2,7 @@
+>   #ifndef _LINUX_SCHED_CPUTIME_H
+>   #define _LINUX_SCHED_CPUTIME_H
+>   
+> +#include <linux/static_call_types.h>
+>   #include <linux/sched/signal.h>
+>   
+>   /*
+> @@ -180,4 +181,21 @@ static inline void prev_cputime_init(struct prev_cputime *prev)
+>   extern unsigned long long
+>   task_sched_runtime(struct task_struct *task);
+>   
+> +#ifdef CONFIG_PARAVIRT
+> +struct static_key;
+> +extern struct static_key paravirt_steal_enabled;
+> +extern struct static_key paravirt_steal_rq_enabled;
+> +
+> +#ifdef CONFIG_HAVE_PV_STEAL_CLOCK_GEN
+> +u64 dummy_steal_clock(int cpu);
+> +
+> +DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
+> +
+> +static inline u64 paravirt_steal_clock(int cpu)
+> +{
+> +	return static_call(pv_steal_clock)(cpu);
+> +}
+> +#endif
+> +#endif
+> +
+>   #endif /* _LINUX_SCHED_CPUTIME_H */
+> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> index 198d2dd45f59..06a9a20820d4 100644
+> --- a/kernel/sched/core.c
+> +++ b/kernel/sched/core.c
+> @@ -769,6 +769,11 @@ struct rq *task_rq_lock(struct task_struct *p, struct rq_flags *rf)
+>    * RQ-clock updating methods:
+>    */
+>   
+> +/* Use CONFIG_PARAVIRT as this will avoid more #ifdef in arch code. */
+> +#ifdef CONFIG_PARAVIRT
+> +struct static_key paravirt_steal_rq_enabled;
+> +#endif
+> +
+>   static void update_rq_clock_task(struct rq *rq, s64 delta)
+>   {
+>   /*
+> diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+> index 7097de2c8cda..ed8f71e08047 100644
+> --- a/kernel/sched/cputime.c
+> +++ b/kernel/sched/cputime.c
+> @@ -251,6 +251,19 @@ void __account_forceidle_time(struct task_struct *p, u64 delta)
+>    * ticks are not redelivered later. Due to that, this function may on
+>    * occasion account more time than the calling functions think elapsed.
+>    */
+> +#ifdef CONFIG_PARAVIRT
+> +struct static_key paravirt_steal_enabled;
+> +
+> +#ifdef CONFIG_HAVE_PV_STEAL_CLOCK_GEN
+> +static u64 native_steal_clock(int cpu)
+> +{
+> +	return 0;
+> +}
+> +
+> +DEFINE_STATIC_CALL(pv_steal_clock, native_steal_clock);
+> +#endif
+> +#endif
+> +
+>   static __always_inline u64 steal_account_process_time(u64 maxtime)
+>   {
+>   #ifdef CONFIG_PARAVIRT
+> diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+> index 0d0fa13cab5c..72fd9268008e 100644
+> --- a/kernel/sched/sched.h
+> +++ b/kernel/sched/sched.h
+> @@ -82,7 +82,7 @@ struct rt_rq;
+>   struct sched_group;
+>   struct cpuidle_state;
+>   
+> -#ifdef CONFIG_PARAVIRT
+> +#if defined(CONFIG_PARAVIRT) && !defined(CONFIG_HAVE_PV_STEAL_CLOCK_GEN)
+>   # include <asm/paravirt.h>
+>   #endif
+>   
+
+Acked-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
