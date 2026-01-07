@@ -1,146 +1,199 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010065.outbound.protection.outlook.com [40.93.198.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8377438756E
-	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 16:29:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767803403; cv=none; b=f65Z3StgQSRlsJbJa96Fh7Qyyt1Vkv4kOX+GDqpUQZ6u7PE3TekIa5PpVmFycruZWeG7sv/iHBD3EGs56yvBaO2XfTQ190Sw+bz6oetHBi4SnnkodDAD8C7Zg7TJjPEI489u3lVtrmPuo3AGFhnQOHQPI8273Yoxyi19Nz6vlj4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767803403; c=relaxed/simple;
-	bh=0oAhWnNUCvoYJlR8h3KsHoUFJ6kTwCI1fBKauISCjvU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SwrClk5K8y+RKZO5ReSfo0+rCxI6N4kSrWThYIpeREDEKvpLxiCViNt23oqAxYRCDkXA2e8B9TqQfrg/IuIL5jfR4rgw9hm/gqDB3r9WG6TMmQq7/mIWQox2qMdbj1WHk1bdU1kU2ICHr0W6qKtP96o2xNZZ/nghcNBmVgeFzw0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WQWdQo+8; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38875346A0D
+	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 17:04:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.65
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767805488; cv=fail; b=gzdTzTPQ3HRLLoU/NR2ejG8F7MzFlRrVgtc2janPbAnnKeXE0LQaSgTSzCglkpnFH9NM29UVU6F7qHbHVZ5ChujME+h8p7HjW+HJGFF27/kDJdwvXYUSTyESaHP7tHk0VEceyiDEJz9aXPYOLr4ORl4kqmCGLZuD22rfLNxYaLg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767805488; c=relaxed/simple;
+	bh=wsGUHq5OPVhfOEtt/rMv3q+JFLZAeVhlUX16tLUzxUo=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=BvVVLf5rzcsiKAQpSn2aygw0g5QlYbm+Q+RCaBSPkfcLp40QGJH6l76XioEYLrNEJ2Lo8Kkk3D0fsCc0rduXs88CUEXfwOcfs/TQzvnmoo6x93tWXvwJrkHjP7Krcw8QoGUT9kBrpjCskGzFm7X50ImYi6YPYQpwn9qmf4nTnSs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=V6gFqDHR; arc=fail smtp.client-ip=40.93.198.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WQWdQo+8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767803391;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=c8hcqhJufBn494ZuyCMGepJhpX1rw4g16WnIwLV2/F4=;
-	b=WQWdQo+8bDxELV7PI7NtrgPJHRnpKrmD5rFU1oLlK6nXIgy3HOtSIagWEpnjXVOk+hRfg2
-	Frcy3xS4/qg0lRO9xlS6S3uXO5Avo/h2Ax+yNf85HIa7Ao5eKWfoHaNPkdTTYHYA/M1OrE
-	r+2lh6KSvXIwEBZd0dhGefqkUCyyKHY=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-36-p-o-fWEJMiC85iH2n2Af0Q-1; Wed,
- 07 Jan 2026 11:29:49 -0500
-X-MC-Unique: p-o-fWEJMiC85iH2n2Af0Q-1
-X-Mimecast-MFC-AGG-ID: p-o-fWEJMiC85iH2n2Af0Q_1767803386
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id F17CC1954B21;
-	Wed,  7 Jan 2026 16:29:44 +0000 (UTC)
-Received: from localhost (unknown [10.2.17.77])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 4386B30002D1;
-	Wed,  7 Jan 2026 16:29:41 +0000 (UTC)
-Date: Wed, 7 Jan 2026 11:29:39 -0500
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Olivia Mackall <olivia@selenic.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, Petr Tesarik <ptesarik@suse.com>,
-	Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-doc@vger.kernel.org,
-	linux-crypto@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-scsi@vger.kernel.org, iommu@lists.linux.dev,
-	kvm@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH v2 10/15] virtio_scsi: fix DMA cacheline issues for events
-Message-ID: <20260107162939.GA193868@fedora>
-References: <cover.1767601130.git.mst@redhat.com>
- <8801aeef7576a155299f19b6887682dd3a272aba.1767601130.git.mst@redhat.com>
- <20260105181939.GA59391@fedora>
- <20260106094824-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="V6gFqDHR"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=r8MatBVzb7gq2YwmG5mMkWkm41KCp1G/s9pJBhI1NJT0ZG21eGIIQR+SYgjSDoORgVZrvXdRQdwWyeVIcnD7BCXF2+F7LYaUscFcXQ3Iz2R2Th0I9jFQq3S9/KKkN/j/DlmPbfliYJMbcSa7m5L/PqDfxmCOxT4E5QRALoELejMIkpT3mplIfcqD++xXSoyBhqYZjckEMCM8L/YSVfUALgf77Eco1MFg47jcSexi97A6vBC/5CK8Pm43mwHJxJPTXzCmdMc+PWTpUJBy33Yo5b4ECl1DFC80RKfp0KicUaUyXF3S4AG8ADtNq2fVNRUF9H/5v4sAikYKMXL3YJ4BCg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=NlJi7cDaXABF4XlI/hECzIo+dxPjFTo6en3eJYwHZIE=;
+ b=m1FEvR8y9dkjRKbLic+ZmSOZdYWOYKi6lsoF0pSQ1gE2JqPEbA2Gj0qMDE1S/28LhOOqP5Xxl/F2YQ+3nxt+Q9uJx2TdFf65YjMBYOE5L/a/KUTg5Vt4PcqIvpla5tpWDZtKLU+3gAcf4q0GPWd0SOMbsFayYzMsJTTWI6flpx6cq/qrZ+ZcvXO73EwT/R8GWZFtqO1vC6pxRSisUJdYtAe3y7eaZtxdCIaq9C5OF3rjYKNV0pzk7P6dLclGGC3IROr/7r6FnR3oAURWq1KKXYkEieaq7SsUhQoGDL645BL5VQspefI/INcHfbPIZ25l7mTtWx7H8QNoAh7PxbXALA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.232) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=NlJi7cDaXABF4XlI/hECzIo+dxPjFTo6en3eJYwHZIE=;
+ b=V6gFqDHRtch+wFL9+pVdbXcaLa0QGxnQRF544TqolC2b2sC/vpvpgalkT4ESJ+blF+WOUulgxdZBeNbnrkEuRuIKuOGhIr7EKvGcei2wX19cWmi6d5ufqgCxPvoSg4WR+akaLfTolOui7amG2MwriDzyRBKoftcOhcCxAh8WqqdhHeIvlrIWAs7z7O7GK+GbDapVgpvXuPnZiE2fdC0E+51W09WH+gYXiDwypCBOmGsYRx5IvpSUKCIbTx2QFAfdpvo9PNDSt57QaPpbIFYtV2zuC4DxdEro/oXHwe9mwGDSWoEee02Y+HyGjcOA6fpKdtwQYe+weZ1C10xCNDkaeg==
+Received: from BL1PR13CA0376.namprd13.prod.outlook.com (2603:10b6:208:2c0::21)
+ by DS5PPF6BCF148B6.namprd12.prod.outlook.com (2603:10b6:f:fc00::652) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9499.2; Wed, 7 Jan
+ 2026 17:04:44 +0000
+Received: from BL02EPF0001A101.namprd05.prod.outlook.com
+ (2603:10b6:208:2c0:cafe::ee) by BL1PR13CA0376.outlook.office365.com
+ (2603:10b6:208:2c0::21) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9499.2 via Frontend Transport; Wed, 7
+ Jan 2026 17:04:43 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.232) by
+ BL02EPF0001A101.mail.protection.outlook.com (10.167.241.132) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9499.1 via Frontend Transport; Wed, 7 Jan 2026 17:04:43 +0000
+Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
+ (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 7 Jan
+ 2026 09:04:29 -0800
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Wed, 7 Jan 2026 09:04:29 -0800
+Received: from vdi.nvidia.com (10.127.8.14) by mail.nvidia.com
+ (10.126.190.181) with Microsoft SMTP Server id 15.2.2562.20 via Frontend
+ Transport; Wed, 7 Jan 2026 09:04:27 -0800
+From: Daniel Jurgens <danielj@nvidia.com>
+To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
+	<pabeni@redhat.com>
+CC: <virtualization@lists.linux.dev>, <parav@nvidia.com>,
+	<shshitrit@nvidia.com>, <yohadt@nvidia.com>, <xuanzhuo@linux.alibaba.com>,
+	<eperezma@redhat.com>, <jgg@ziepe.ca>, <kevin.tian@intel.com>,
+	<kuba@kernel.org>, <andrew+netdev@lunn.ch>, <edumazet@google.com>, "Daniel
+ Jurgens" <danielj@nvidia.com>
+Subject: [PATCH net-next v15 01/12] virtio_pci: Remove supported_cap size build assert
+Date: Wed, 7 Jan 2026 11:04:11 -0600
+Message-ID: <20260107170422.407591-2-danielj@nvidia.com>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260107170422.407591-1-danielj@nvidia.com>
+References: <20260107170422.407591-1-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="qt5XKVxNjAL6wL8U"
-Content-Disposition: inline
-In-Reply-To: <20260106094824-mutt-send-email-mst@kernel.org>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL02EPF0001A101:EE_|DS5PPF6BCF148B6:EE_
+X-MS-Office365-Filtering-Correlation-Id: bd9dbe2f-5f5e-4f3f-5c2f-08de4e0edab5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|7416014|82310400026|1800799024|36860700013;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?zxtRNLzVNRtV/yGe9ZWCoVmdjF/mJ4JxqHX1q9LJp5MqJFisS3S0BCmkcVm+?=
+ =?us-ascii?Q?Sjwo2Ou1cHFd0H/U6LD/V2MELOGl8tq6ncAapYMlfEfz0cBaN+rqVJBxdQZ1?=
+ =?us-ascii?Q?LDObH3z2kS1AhYQ4LxsePZif7pvoDkbtxOdbWYOcSREmAWYV3le9zLv9sQ9l?=
+ =?us-ascii?Q?ULbbwVZy/nSESVKSOKlj8xHYU27/9n0MyCTeAnhbPTYlCD9S0vdVrElS/wIO?=
+ =?us-ascii?Q?rHiylycQ7gM02r0Y8mNJCLOvgb09I0QmYkFWLdpRm5LrZAoku3aG1eMyEAjW?=
+ =?us-ascii?Q?F0vX3kuyNgHVFzDJLUE8YUnYLh+vjmBIe7FOwyajvNbKVxfHxM3D95mhk7Ag?=
+ =?us-ascii?Q?VRUc5sH/x0eURx+5cH93iJ+reth5pNwWnZLmjjanxa/bUd56SBnt68KxKEJE?=
+ =?us-ascii?Q?4k0dnXfH/s7H4UmLHXmpG0ISAS1xU2lstoNwwMCsMUNArFvAwOG79MoKwrun?=
+ =?us-ascii?Q?yBPxZUTmadD4obWnsf2etl4emPZ94iCelq16B9snQPoAAKtgVPd4G1X0vowi?=
+ =?us-ascii?Q?cY2I1A0trveKp1O4luuU0MqbEyWVpyKNy688UYW3cTYGnUVHZg1PD+TQ4iSF?=
+ =?us-ascii?Q?68PSkLrpIw7FAryk27rpRKMiwdvi+3PPnH8pBJEUTGWV7EhL4Rfk7k5DLAe6?=
+ =?us-ascii?Q?mX0YUgLX9sQkbarq3Y4IRph3cz1aWnU4a7JUqTema3DngqfiHvhFfdiiQJ9L?=
+ =?us-ascii?Q?Ddt77tDlqJ7Zfgd5taU7xcQKCzVdVmMqa7IP4bj2BnglFJM4dHNNqYmTDSbI?=
+ =?us-ascii?Q?yQ9PcKMXF1cLPQQNTD7hd+ULWKxOaaiO0lR1ASKEtC7l201s+0ihtjDXWEbh?=
+ =?us-ascii?Q?tRh646fzkdkn0ADv7arld1ejJ2vAdMSjlOnEBGNJ0yDXiU1GwE/yNy8orZUI?=
+ =?us-ascii?Q?+WVfV4qiIuiQh8444S45ltNXe7N0F/vPdOEqPOfpp4J4iTNGgeUh3OOcFwZb?=
+ =?us-ascii?Q?+Qpyabd6pdGQh+hK7w8xjID3YMmM1Z8SMLjUeMNoVjYDA6lhb6c/Q666IHeK?=
+ =?us-ascii?Q?/Bmk9h0+Oix2M6o7Bay0bAOeWHM1G45S6wSYX/OLdndnrSdHC0WkqqmLvpoZ?=
+ =?us-ascii?Q?3YlzUBd8rmwyy5lXz0sCUKoY3/YjVB0U97cDxueCGlma0edwJ4nvpmoWlPGf?=
+ =?us-ascii?Q?Ao8YQVogG1yRiJk7rJ725XAb308DtQOPX8w+kiz0S5nH1Tc9RFPtGJ990AHU?=
+ =?us-ascii?Q?Yj3ZNChso7CcAVGUAnCR9mfH3ZfqWTWYb1z/IXjulFrkqwK8vTK55MdTzZiZ?=
+ =?us-ascii?Q?fFx2/eo3ir5S3AO5OWwEESlAZzCEa+A1x40tmHXRxN7bapyOEMUDriIPQ4xc?=
+ =?us-ascii?Q?B9JOUOm2iVzAmxAwPBhaytoal1Xx1RDxS3OVmlyeSaFSQaRMMh5PlKJFMiAB?=
+ =?us-ascii?Q?xQcbJCRAohQiML93vnXuvIlXAKhbHdJuGDeRluALs7weXMVexS1H6QnREsMw?=
+ =?us-ascii?Q?NaCfpj8/xuGasvo+ZKPqH4rwFBiahh0AySfADdZ95UhtuWdwThrnY4z0zjoV?=
+ =?us-ascii?Q?BA9hQOERL0zw6WzJ44xf3+eX12md8RbYBPnU/KZjfF8P1i0eD9W4ArWX3M3u?=
+ =?us-ascii?Q?UzK2Kf6j6kl6aHW6tlI=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(7416014)(82310400026)(1800799024)(36860700013);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jan 2026 17:04:43.7722
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: bd9dbe2f-5f5e-4f3f-5c2f-08de4e0edab5
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BL02EPF0001A101.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS5PPF6BCF148B6
 
+The cap ID list can be more than 64 bits. Remove the build assert. Also
+remove caching of the supported caps, it wasn't used.
 
---qt5XKVxNjAL6wL8U
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+Reviewed-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-On Tue, Jan 06, 2026 at 09:50:00AM -0500, Michael S. Tsirkin wrote:
-> On Mon, Jan 05, 2026 at 01:19:39PM -0500, Stefan Hajnoczi wrote:
-> > On Mon, Jan 05, 2026 at 03:23:29AM -0500, Michael S. Tsirkin wrote:
-> > > @@ -61,7 +62,7 @@ struct virtio_scsi_cmd {
-> > > =20
-> > >  struct virtio_scsi_event_node {
-> > >  	struct virtio_scsi *vscsi;
-> > > -	struct virtio_scsi_event event;
-> > > +	struct virtio_scsi_event *event;
-> > >  	struct work_struct work;
-> > >  };
-> > > =20
-> > > @@ -89,6 +90,11 @@ struct virtio_scsi {
-> > > =20
-> > >  	struct virtio_scsi_vq ctrl_vq;
-> > >  	struct virtio_scsi_vq event_vq;
-> > > +
-> > > +	__dma_from_device_group_begin();
-> > > +	struct virtio_scsi_event events[VIRTIO_SCSI_EVENT_LEN];
-> > > +	__dma_from_device_group_end();
-> >=20
-> > If the device emits two events in rapid succession, could the CPU see
-> > stale data for the second event because it already holds the cache line
-> > for reading the first event?
->=20
-> No because virtio does unmap and syncs the cache line.
->=20
-> In other words, CPU reads cause no issues.
->=20
-> The issues are exclusively around CPU writes dirtying the
-> cache and writeback overwriting DMA data.
+---
+v4: New patch for V4
+v5:
+   - support_caps -> supported_caps (Alok Tiwari)
+   - removed unused variable (test robot)
 
-I see. In that case I'm happy with the virtio-scsi change:
+v12
+   - Change supported_caps check to byte swap the constant. MST
+---
+ drivers/virtio/virtio_pci_common.h | 1 -
+ drivers/virtio/virtio_pci_modern.c | 8 +-------
+ 2 files changed, 1 insertion(+), 8 deletions(-)
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---qt5XKVxNjAL6wL8U
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmleifMACgkQnKSrs4Gr
-c8hcVAf/WNemA8s8X2IEi5T6b93Oq3H7yBSOTyvJIsAVGGG0HMv002nCDfd6Jx88
-M5+0cLDN09kY62wqd/Awd8juPCIv0q5bmyWB0WYeHA93QHK4tEHgGv2+hPw4zdDT
-cfBFbv3nRkHZ/Vmb9qtclA1N93XULyvUn0gLkT2cUms2ZdK+vpqxvGgdZQ/R3pmK
-8TgFK8lq1kcUx8mlizEQ4TDb85DBcSr5yB6jrfgMgttm+41mDmOVhJNkkRuLissy
-z4K/d8xZqWMXCv7p3/l3rrhwOm8kVasQtbKe9LO//3qd8R3Yy+8X7ZORuVW5aPbs
-HeDfkWgBMGt/hmqL9Fk+OLB7vJqqmQ==
-=FfpF
------END PGP SIGNATURE-----
-
---qt5XKVxNjAL6wL8U--
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index 8cd01de27baf..fc26e035e7a6 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -48,7 +48,6 @@ struct virtio_pci_admin_vq {
+ 	/* Protects virtqueue access. */
+ 	spinlock_t lock;
+ 	u64 supported_cmds;
+-	u64 supported_caps;
+ 	u8 max_dev_parts_objects;
+ 	struct ida dev_parts_ida;
+ 	/* Name of the admin queue: avq.$vq_index. */
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index dd0e65f71d41..1675d6cda416 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -304,7 +304,6 @@ virtio_pci_admin_cmd_dev_parts_objects_enable(struct virtio_device *virtio_dev)
+ 
+ static void virtio_pci_admin_cmd_cap_init(struct virtio_device *virtio_dev)
+ {
+-	struct virtio_pci_device *vp_dev = to_vp_device(virtio_dev);
+ 	struct virtio_admin_cmd_query_cap_id_result *data;
+ 	struct virtio_admin_cmd cmd = {};
+ 	struct scatterlist result_sg;
+@@ -323,12 +322,7 @@ static void virtio_pci_admin_cmd_cap_init(struct virtio_device *virtio_dev)
+ 	if (ret)
+ 		goto end;
+ 
+-	/* Max number of caps fits into a single u64 */
+-	BUILD_BUG_ON(sizeof(data->supported_caps) > sizeof(u64));
+-
+-	vp_dev->admin_vq.supported_caps = le64_to_cpu(data->supported_caps[0]);
+-
+-	if (!(vp_dev->admin_vq.supported_caps & (1 << VIRTIO_DEV_PARTS_CAP)))
++	if (!(data->supported_caps[0] & cpu_to_le64(1 << VIRTIO_DEV_PARTS_CAP)))
+ 		goto end;
+ 
+ 	virtio_pci_admin_cmd_dev_parts_objects_enable(virtio_dev);
+-- 
+2.50.1
 
