@@ -1,81 +1,81 @@
-Received: from mail-qv1-f100.google.com (mail-qv1-f100.google.com [209.85.219.100])
+Received: from mail-oi1-f226.google.com (mail-oi1-f226.google.com [209.85.167.226])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 223CB1A3179
-	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 20:19:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09C08331A6A
+	for <virtualization@lists.linux.dev>; Wed,  7 Jan 2026 20:24:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.226
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767817167; cv=none; b=mm6Q6VqmUhAZFr6tCIR5aqM6HvdaNfKfRQGPT+zcsbpvckT5b1NZBbGPfqPlcPBZhIrtvEl2htX/6Pqksd0EUVlRBkgmJM/xGKR1lqz4hfwn8NHskm3TZFBgnLPPtR9Kle+9lQ48Tbf0kRoy6JBmqrfY7TwsiGmgalseFMr7JO0=
+	t=1767817501; cv=none; b=Bodksh4mjvnr2RbnjIXURhFaCf4edGnZeHB8SgbKpOlJit7g93Ky9OePft88LjOHYb/4vMSAXCNEcaEfSWZTHg4t/FL+E6gXbOrnrqUwZ416+QhzHtQdU4UcXIezejGdJWOU5We44yBwfaxDBjpHPeyTJj7coq99UlBbYgjhV54=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767817167; c=relaxed/simple;
-	bh=WgO72s1ynGcwkNsytWGBOWu6FCETUWC+LF6+sDMT2sg=;
+	s=arc-20240116; t=1767817501; c=relaxed/simple;
+	bh=r11/Ufcev321fPtyC477taw82p3yQHKJeJaU6ETpkWA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IrlktbRufBtSCfuDjkoLCEKezWqVxO7uVrVNIwGtbVjoC89Dw7b19FwtiDggenbKirzBIn53gw3I6aROoDYpavDU4Mn6hl2n4vQV5xIkicp3DCNrgzuDWGIMAgGl0R0WEVM/kopBo/V0aSS7EaDQ3KaaoHDrCeBSlsJuhn11s3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=KIdgyZBP; arc=none smtp.client-ip=209.85.219.100
+	 In-Reply-To:Content-Type; b=CXWjpxY0yPgK4wcjlUHAP6Av3Ygvi/Tq5GN2Rvf4T7Fk1X94oa/60zBgKQ281m18mEpxDM7lNQEjmch62RImx26fYsD5zyFOhyDGmND3k2VAX+KbTXUyS8R1kaCAY7Wfo+shPli43mta8BZJ1e8gW3rU64R2EnzUAmzA3huXfbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=gaDqNg52; arc=none smtp.client-ip=209.85.167.226
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="KIdgyZBP"
-Received: by mail-qv1-f100.google.com with SMTP id 6a1803df08f44-88fe44cce7eso19678816d6.3
-        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 12:19:25 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="gaDqNg52"
+Received: by mail-oi1-f226.google.com with SMTP id 5614622812f47-455dc1cf59aso1499156b6e.0
+        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 12:24:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767817165; x=1768421965;
+        d=1e100.net; s=20230601; t=1767817499; x=1768422299;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:dkim-signature:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=z+D0U0I/QMaRvqdVI4kOajEvXFaO+vpLvikp7KFwDvI=;
-        b=kI2gMcg5Vp9WDREQwreM95RHtG/i+WGFTuqhot0/5iNlF4hhKbCWHuwEzs7lW+IQ1p
-         6gsWEC2PMILAPDAHTjfkWGP82OimeAHhh6yKIYzkcCjJm8ww2YybsME4nVtXzNFvCqgm
-         U4eW59cnDfFxT1RpLjT0nDow0lXnejFtd4ft5matnZ8RMtBkZ48ERdjh4EDwE7Ex6kvt
-         4vbXxWqiqhuAMgj6VTyJZtVrLiRZmq8gFoofssq4fH77EyjPmdKc2S5k5WKzNalN1pJb
-         5ZQm3OFyxRlRD3TJEyReW1KqYNCg4KDOdWFJ7uIpfj/F4FCf4E7dUdTZj8T3PidZsXSU
-         EIwA==
-X-Forwarded-Encrypted: i=1; AJvYcCUb3WOv+fWSp/fbi3KzscFuaSgbYHZxoI8nQNz1cjiUtvop7XYChsVdm0S2q4vw9NOP6Wn7ws973ukEGlvO1w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxI8kjf1avJ3iaNHFaHvmzsEJe5YZUV4CYBK8vfCmi2Bhn+iuT/
-	2YnhFu7CtJ6W4F1GqVMb6r30XDoQmMoFVa+4xGZbS97b3E3k1McgtQFwFd7h3yfEPMev3W9mYmk
-	k483inO8nLJRwru0NAig8UnWN8pVFf0V0ggZhb0OhOC/4p1E2fu56sbxZ1Ezs42s5P3hlZSL62p
-	LB7rfdP5GZTIoJg7dN0piQnaL40wg6FfjwhdioZfjFNOUaSdNNJyy1KGjgNHzDlC6bkCLy/ycsn
-	V2sb7xjzphMKd0ffYaXtCPpMQ==
-X-Gm-Gg: AY/fxX6fwobnVNV1cy16v+cSH4fv9mhLaM/X8GAaPG7evGw43cRF2UuHr/kZ9i8pFPb
-	/JJaa0ffWEqFJs1x54OPBfFm+NvFWjH3EahDF9fWljtpM2Ulnbu/tzLQ6D53ER1P8Ho9Q1ZhRwS
-	PyOycAHpGNxcCbD8lBnMPh0vZYSI8Hq7uh87IV/b8Uatqp2z0f7c69sqcLzh4jX3pxPizs36Wve
-	oHYD/TRzyqokZX/NRbPS4JENxjiV/6Z5fSHo5I5CNeVTrQasliKE0Y0sD2qfhTmz8xaqd3oKSyK
-	+DqPA/725lI9Cae/FyTLEljpH3GY41mYxySZHCMLHY0OaWZEQlW7dShVSpzO/5BtKnMi0aDoRdH
-	LbechO6j08IRT0Z57iHlZDEbJrNj8bntCHNhBasPfFgVvAK4Gpiyy0yV/KB2y/o4pMNaNMz8gP/
-	6UwwwuMX2eTjAHY99gko/nqqC9A7dqLhFfdg4kryUW4uMtROPA/g4=
-X-Google-Smtp-Source: AGHT+IEVTEqdfWox4FfsCNTNscx22R3YI2EdsrQ2jfjDvTudifqTcCfjD30v6dwKudkb6sw2E0SB/Lp6tcn5
-X-Received: by 2002:a05:6214:590f:b0:888:3d1e:f95 with SMTP id 6a1803df08f44-8908426ac55mr50624736d6.32.1767817164676;
-        Wed, 07 Jan 2026 12:19:24 -0800 (PST)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-120.dlp.protect.broadcom.com. [144.49.247.120])
-        by smtp-relay.gmail.com with ESMTPS id 6a1803df08f44-8907715cdc9sm7211936d6.28.2026.01.07.12.19.24
+        bh=AojCRT0od10+Ud81n/eLNQSyI9wJA2R4G5VpVEYo8Tw=;
+        b=NHfX4VhNTDccaDqMg1lSm+TWX9XwTrqhhxl6fyxkx0D6p040neWKKcNrmRl3jiFHd0
+         8TwZR6TFQgGL+LqJ+6GCKTPCijLFk2ngjEnQTS5/GqtAIIksieIhUKQ6n1wPfc3NBv8o
+         I9vYIyGpGcklSwiMb53EkYhUiP3VNk5UnBwNAbyAcNao5I5BQy8Wb0yxGrXq4KIbQikJ
+         SBRc7/nMYyGI8SyxzC4fS8BP4EzmRep3kyNqUOO7YvPggRlYpN3p0Fhuz2n8+3Dza+j0
+         HaFHqEuVJvB937lIYRHeyEhg8nGYyhlmglSYbjQnR0deH5T5HA/QpiWG+GcKuzNaCwzj
+         H0JQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXIn1ztX/puqohnXasb0ryTuTM7vUYrAVp08x7njegailg35p7NU164MLiAwZHktPBHcjMiFUT1BqDo2KD90A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy+5mhs2jbYqpxeFvEh2YM1v8R6h1SAP7/wn4T6pLCSK2klz66U
+	26tjLBAOiQ6DbIn1yFJGHzsMcHWDHL/uacm0hTpJ32OLgrYZte7qn+BXra08cGgXVfbTJJkvR5V
+	GaY8hZ15EAlkc2qE8ysqFYiV70n8WxRdir1+1YN0apz5jCWxj2QBi95helCJbGBleh/O8VF67th
+	Nt5o7bm+5wdfhfGJQymxFkqBhsvHxWehw74zBgQbdAUMDvZoIkWYYT8566J7P8ZAN6Rdsb852Wd
+	pKJDreiobA8Sa2AjFkOWhYc/w==
+X-Gm-Gg: AY/fxX4jHUYKHxt2QsxyT+N0f/VM7579TqjuO690+bsKnoeCrMg1TGJs/BWznr7as1b
+	FBM9OF4qRVB2C/mtYsUc5thjMYrIvNR5fJ7wDCkoQjYHuenxJ1+qsWCL1faRmUvWq8nP2WomRj3
+	NdLCptlxzjoK9fr9oxS3y/fbcoKA+PCF729vgVDV92DSqhslpkfWO8WGm/sExs/4/95I2PUIdt1
+	0QHqzn3YIdGrv6cR32q1kMbXTdUpZ6PQ5o9YlhagEy4ND+mzMxzhSkrcTCU7FlMPAUbN/YzSIx/
+	5DXXhQy5/XfqHqLEn7X70u7JNJFXP824HOqxYL2hazaUyNMYmiDDCJGN+7u0RmjGOCRSA5das9Y
+	2IJ4UbUrgopCkMv4Ri7cm6zPOBUmIxKCK752dQvobCwdBZWyfHanjk4jSdAkX8FKXzeXwfDfL/9
+	MI6K6uVPfKW6p7QTEfNAF0eMNVNphAjUOcWSI5MtCVPMspcQ==
+X-Google-Smtp-Source: AGHT+IFdgNjGxD7/XB+Y6Nlotnv8epdxlh1r4p448HgKnsCt5GXrCKqdEJEuD6oFXw3+9kv/XWhFVhFn1tcq
+X-Received: by 2002:a05:6808:1451:b0:453:50af:c3c2 with SMTP id 5614622812f47-45a6bea491bmr1519469b6e.50.1767817498860;
+        Wed, 07 Jan 2026 12:24:58 -0800 (PST)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-1.dlp.protect.broadcom.com. [144.49.247.1])
+        by smtp-relay.gmail.com with ESMTPS id 46e09a7af769-7ce4789e847sm898217a34.6.2026.01.07.12.24.58
         for <virtualization@lists.linux.dev>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 07 Jan 2026 12:19:24 -0800 (PST)
+        Wed, 07 Jan 2026 12:24:58 -0800 (PST)
 X-Relaying-Domain: broadcom.com
 X-CFilter-Loop: Reflected
-Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-2ac3019faadso5726099eec.1
-        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 12:19:24 -0800 (PST)
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-8c38129a433so629662085a.2
+        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 12:24:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1767817163; x=1768421963; darn=lists.linux.dev;
+        d=broadcom.com; s=google; t=1767817497; x=1768422297; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=z+D0U0I/QMaRvqdVI4kOajEvXFaO+vpLvikp7KFwDvI=;
-        b=KIdgyZBPhYyRoGC6A0+65EkNmq1eU7wRvbal/6O1tp30ySC8ISCqJ0N3liZA6vs6VW
-         kZpc7VS5udlK4dUxm6kHhUP0aG7JCSEgweq0DTGDijO6CTXaYgWwUKXJOSX2q62F66nr
-         /G5GLdQIUmJQd1I9xJNrugeWEq1uvRBxoq0rs=
-X-Forwarded-Encrypted: i=1; AJvYcCVS7uVfToex+LRqEsT8hNI13i7VpdXx/4mkPWVenCyhJ+1FkczgVROy7xDPjIyY8wsE+0RmyVPyscHYw2WH3A==@lists.linux.dev
-X-Received: by 2002:a05:693c:6085:b0:2ae:5020:afe1 with SMTP id 5a478bee46e88-2b17d2080bdmr2430468eec.14.1767817163213;
-        Wed, 07 Jan 2026 12:19:23 -0800 (PST)
-X-Received: by 2002:a05:693c:6085:b0:2ae:5020:afe1 with SMTP id 5a478bee46e88-2b17d2080bdmr2430455eec.14.1767817162698;
-        Wed, 07 Jan 2026 12:19:22 -0800 (PST)
+        bh=AojCRT0od10+Ud81n/eLNQSyI9wJA2R4G5VpVEYo8Tw=;
+        b=gaDqNg52BrnE41wR4FL+5gKISVQ32PPoFk3sRni55uNi9OkVExIyEeoK6EyugvV8/v
+         4G8GNdDIcIdDO6gQT3I1amRHDuSdNBo/4ccA70P0zW4gb1m8uf/uWDMC8TDgPt9AuPYp
+         WEZ5Z+04R3v0Ey7n8fFzEgadfptwtIVAllb70=
+X-Forwarded-Encrypted: i=1; AJvYcCXzEITpkQNFcH7ukpMZC5t9yBK6ZXpuMtpvIX7LaBcDzneh9GBfDG1eLSQJ8yYBnYBShBJAXQRzxGjw0E3TPg==@lists.linux.dev
+X-Received: by 2002:a05:620a:4804:b0:8b2:7536:bd2c with SMTP id af79cd13be357-8c3894188a8mr512813385a.78.1767817497596;
+        Wed, 07 Jan 2026 12:24:57 -0800 (PST)
+X-Received: by 2002:a05:620a:4804:b0:8b2:7536:bd2c with SMTP id af79cd13be357-8c3894188a8mr512809585a.78.1767817497067;
+        Wed, 07 Jan 2026 12:24:57 -0800 (PST)
 Received: from [10.66.193.70] ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b1707d57aasm6888830eec.30.2026.01.07.12.19.21
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c37f4b9c31sm437112185a.20.2026.01.07.12.24.55
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 07 Jan 2026 12:19:22 -0800 (PST)
-Message-ID: <89115e05-16ac-4520-afbb-b9b2c86bd6a7@broadcom.com>
-Date: Wed, 7 Jan 2026 12:19:19 -0800
+        Wed, 07 Jan 2026 12:24:56 -0800 (PST)
+Message-ID: <75651326-1d18-4db0-8995-ff4dd6dc1da3@broadcom.com>
+Date: Wed, 7 Jan 2026 12:24:53 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,8 +83,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND 1/2] x86/paravirt: Remove trailing semicolons from
- alternative asm templates
+Subject: Re: [PATCH RESEND 2/2] x86/paravirt: Use XOR r32,r32 to clear
+ register in pv_vcpu_is_preempted()
 To: Uros Bizjak <ubizjak@gmail.com>, bcm-kernel-feedback-list@broadcom.com,
  virtualization@lists.linux.dev, x86@kernel.org, linux-kernel@vger.kernel.org
 Cc: Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
@@ -92,6 +92,7 @@ Cc: Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
  Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
  "H. Peter Anvin" <hpa@zytor.com>
 References: <20260105093944.52387-1-ubizjak@gmail.com>
+ <20260105093944.52387-2-ubizjak@gmail.com>
 Content-Language: en-US
 From: Alexey Makhalov <alexey.makhalov@broadcom.com>
 Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
@@ -137,7 +138,7 @@ Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
  fqqZgi3rxgu4sc5lmR846emZ/Tx85/nizqWCv7xUBxQwmhRPZRW+37vS2OLpyrTtBj3/tEM9
  m9GMmTZqaJFeK7WCpprJV4jNHpWZuNAsQrdK1MrceIxb0/6wYe0xK79lScxms+zs9pGTrO4U
  5RoS4gXK65ECcBH8/mumV6oBmLrNxKUrzTczdo9PnkmRyZcAa6AndbjmQDznwxvTZu2LjMPC EuY0
-In-Reply-To: <20260105093944.52387-1-ubizjak@gmail.com>
+In-Reply-To: <20260105093944.52387-2-ubizjak@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
@@ -145,8 +146,9 @@ X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
 
 On 1/5/26 1:39 AM, Uros Bizjak wrote:
-> GCC inline asm treats semicolons as instruction separators, so a
-> semicolon after the last instruction is not required.
+> x86_64 zero extends 32bit operations, so for 64bit operands,
+> XOR r32,r32 is functionally equal to XOR r64,r64, but avoids
+> a REX prefix byte when legacy registers are used.
 > 
 > Signed-off-by: Uros Bizjak <ubizjak@gmail.com>
 > Reviewed-by: Juergen Gross <jgross@suse.com>
@@ -158,98 +160,21 @@ On 1/5/26 1:39 AM, Uros Bizjak wrote:
 > Cc: Dave Hansen <dave.hansen@linux.intel.com>
 > Cc: "H. Peter Anvin" <hpa@zytor.com>
 > ---
->   arch/x86/include/asm/paravirt.h       | 20 ++++++++++----------
->   arch/x86/include/asm/paravirt_types.h |  2 +-
->   2 files changed, 11 insertions(+), 11 deletions(-)
+>   arch/x86/include/asm/paravirt.h | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 > diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-> index b5e59a7ba0d0..4f6ec60b4cb3 100644
+> index 4f6ec60b4cb3..59aec695ae5f 100644
 > --- a/arch/x86/include/asm/paravirt.h
 > +++ b/arch/x86/include/asm/paravirt.h
-> @@ -151,7 +151,7 @@ static inline void write_cr0(unsigned long x)
->   static __always_inline unsigned long read_cr2(void)
->   {
->   	return PVOP_ALT_CALLEE0(unsigned long, mmu.read_cr2,
-> -				"mov %%cr2, %%rax;", ALT_NOT_XEN);
-> +				"mov %%cr2, %%rax", ALT_NOT_XEN);
->   }
->   
->   static __always_inline void write_cr2(unsigned long x)
-> @@ -162,7 +162,7 @@ static __always_inline void write_cr2(unsigned long x)
->   static inline unsigned long __read_cr3(void)
->   {
->   	return PVOP_ALT_CALL0(unsigned long, mmu.read_cr3,
-> -			      "mov %%cr3, %%rax;", ALT_NOT_XEN);
-> +			      "mov %%cr3, %%rax", ALT_NOT_XEN);
->   }
->   
->   static inline void write_cr3(unsigned long x)
-> @@ -560,7 +560,7 @@ static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
->   static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
->   {
->   	PVOP_ALT_VCALLEE1(lock.queued_spin_unlock, lock,
-> -			  "movb $0, (%%" _ASM_ARG1 ");",
-> +			  "movb $0, (%%" _ASM_ARG1 ")",
->   			  ALT_NOT(X86_FEATURE_PVUNLOCK));
->   }
->   
 > @@ -577,7 +577,7 @@ static __always_inline void pv_kick(int cpu)
 >   static __always_inline bool pv_vcpu_is_preempted(long cpu)
 >   {
 >   	return PVOP_ALT_CALLEE1(bool, lock.vcpu_is_preempted, cpu,
-> -				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
-> +				"xor %%" _ASM_AX ", %%" _ASM_AX,
+> -				"xor %%" _ASM_AX ", %%" _ASM_AX,
+> +				"xor %%eax, %%eax",
 >   				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
 >   }
 >   
-> @@ -657,18 +657,18 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
->   #ifdef CONFIG_PARAVIRT_XXL
->   static __always_inline unsigned long arch_local_save_flags(void)
->   {
-> -	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl, "pushf; pop %%rax;",
-> +	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl, "pushf; pop %%rax",
->   				ALT_NOT_XEN);
->   }
->   
->   static __always_inline void arch_local_irq_disable(void)
->   {
-> -	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ALT_NOT_XEN);
-> +	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli", ALT_NOT_XEN);
->   }
->   
->   static __always_inline void arch_local_irq_enable(void)
->   {
-> -	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ALT_NOT_XEN);
-> +	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti", ALT_NOT_XEN);
->   }
->   
->   static __always_inline unsigned long arch_local_irq_save(void)
-> @@ -713,9 +713,9 @@ void native_pv_lock_init(void) __init;
->   	call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);
->   .endm
->   
-> -#define SAVE_FLAGS ALTERNATIVE_2 "PARA_IRQ_save_fl;",			\
-> -				 "ALT_CALL_INSTR;", ALT_CALL_ALWAYS,	\
-> -				 "pushf; pop %rax;", ALT_NOT_XEN
-> +#define SAVE_FLAGS ALTERNATIVE_2 "PARA_IRQ_save_fl",			\
-> +				 "ALT_CALL_INSTR", ALT_CALL_ALWAYS,	\
-> +				 "pushf; pop %rax", ALT_NOT_XEN
->   #endif
->   #endif /* CONFIG_PARAVIRT_XXL */
->   #endif	/* CONFIG_X86_64 */
-> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-> index 3502939415ad..e82dba084198 100644
-> --- a/arch/x86/include/asm/paravirt_types.h
-> +++ b/arch/x86/include/asm/paravirt_types.h
-> @@ -250,7 +250,7 @@ extern struct paravirt_patch_template pv_ops;
->    */
->   #define PARAVIRT_CALL					\
->   	ANNOTATE_RETPOLINE_SAFE "\n\t"			\
-> -	"call *%[paravirt_opptr];"
-> +	"call *%[paravirt_opptr]"
->   
->   /*
->    * These macros are intended to wrap calls through one of the paravirt
-
 
 Acked-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
