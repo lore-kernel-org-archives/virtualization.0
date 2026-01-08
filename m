@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CF1B40F8F7
-	for <virtualization@lists.linux.dev>; Thu,  8 Jan 2026 14:18:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91C1033D510
+	for <virtualization@lists.linux.dev>; Thu,  8 Jan 2026 14:27:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767881909; cv=none; b=Zyacp6/RBfUV4i2H1vTtHbzmuseaahuXX1+AnqQvy0Y0OffkqV9Nb/eot0t0MXMLJVJjyz3DfiCFlobIInKMbzTfG4hH4LDwMRq0aVuCghDTml6Z7M9NbjQtqChv2kOe2aHcWMeW6YcMWkLN+YTeoMzhxIV5CZP4OSYDMdpFi1o=
+	t=1767882450; cv=none; b=rRmhp2Ljruwkw+OGdt+Eq7CCiVesUf4IegBG/JzaPCSBiGctOxUZDmr2DcPzz1YEovqtN3ViPK8gH5ZrMDfevE2fEaD920v2FFlxWPo6gymLLya6MuAvFh34cM2I5kEpMdS/QO/WPg4/h6NWOkFi3u5irl5Jglah+GlqgOF8rVA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767881909; c=relaxed/simple;
-	bh=SJZE4KTbW/+usatKP1Sr4PPUbIQlx0UuUvCG+8I8T1A=;
+	s=arc-20240116; t=1767882450; c=relaxed/simple;
+	bh=9NRW4Rdf/VUGYmBYvief2R2tb60IwahWPnIEBIYe7so=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gAlb5HNlA0ZC+XrU6nfRRrKVZ2n/RzEVm9Rc/turXaWeUwTJ1l+gGzjsIPAFyEC93ls85MXO27eT2WSsZyqSt6f+Mj0nI727MUuihgxFEevWU7vPmamZyjuFYnyRDgnZwQSl0ZoDerNPodGMnr/W33dHSKd/DiHxMJrebsg4R1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R3wFfw2A; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=OFn+zX46IlbGwBNt/7eEVMT60l2XZQ6CZ2cZCrGP6eFOE5Os0SQDkvyG7k99m2vLyEkKpf6HurVXZCD7g7Jl4gJ6IVHw2AeTIH2IN8p4ZTq8DgrwEuS9vYJ5FlIz3oJGs2ka/IqW2rkuGMcKTR+d02Mh31yTIW1cK5/Lsk6Gs7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=fail smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KYeaAZxG; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R3wFfw2A"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KYeaAZxG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767881906;
+	s=mimecast20190719; t=1767882446;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rqZiGHlphsIXyTZBYYB1RUSRDC4SlQ7PgnKFPfthJ9A=;
-	b=R3wFfw2ApP7SxgdllfSlk6Xr+mhi7oYYZcbmMIjmw1iabWKHleyN1zTXPTfqz5F+1B71u+
-	trFMeqMvQD5sOnW6N8WIqkuB9xsjXW5myFh4/Z8gnQU4aFc6LmZ3gGj1//PVyqIQdO874e
-	NdQSWOClviM6Qrt68NZf050vLdies4o=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=MYUfQokxCybKNz25/1oiXAmTT63P9X7nVn3prJ03xRo=;
+	b=KYeaAZxGWHR4laUKmOpFYc6ltRFo7EdMJSnGatv2CvFolSz6P3yPSiAlRX7CKLkSxLAJH2
+	hqLq6SPfHFyQ21/+6tnk/cA9BkCyIH2rwftYqMHk4ytveKUAO/90dFnhGrhnPiDRehAaOe
+	yMZ41WbQF53CObGbIbkLKEMOiqW6ipk=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-122-kyY84W2nMI6w2vwon9xcyA-1; Thu, 08 Jan 2026 09:18:25 -0500
-X-MC-Unique: kyY84W2nMI6w2vwon9xcyA-1
-X-Mimecast-MFC-AGG-ID: kyY84W2nMI6w2vwon9xcyA_1767881904
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-b7d28772a67so284836766b.1
-        for <virtualization@lists.linux.dev>; Thu, 08 Jan 2026 06:18:24 -0800 (PST)
+ us-mta-118-TqrSWUQuOAaGt628xLxBsg-1; Thu, 08 Jan 2026 09:27:23 -0500
+X-MC-Unique: TqrSWUQuOAaGt628xLxBsg-1
+X-Mimecast-MFC-AGG-ID: TqrSWUQuOAaGt628xLxBsg_1767882442
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-b831e10ba03so501829466b.1
+        for <virtualization@lists.linux.dev>; Thu, 08 Jan 2026 06:27:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767881904; x=1768486704;
+        d=1e100.net; s=20230601; t=1767882442; x=1768487242;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rqZiGHlphsIXyTZBYYB1RUSRDC4SlQ7PgnKFPfthJ9A=;
-        b=NaigtGLfIs3q3BMKZvIL3KmeQpDPg7l+W2DjSNho7c5PEUQ1B1P/oXKgR1FBOn2YCv
-         XHDCir+c5OvuK1qfNGgVd1AhD+u3nUM6GVrIxzfJx6FflbcuIihmP0HCSaWGdChbF30k
-         ZR8hRxjJ2C1eqIuY7aI+s4UxB7hDYbXTh3sM6OcjTlHjwIpJ7JRSTcXKMf5SATw3T5R4
-         ahcyRTRvFcOfQYmY69fXz1VDjdvC4K0KwCzvbkd1N60DR0YpfayTFtcNr47vgarBQzTd
-         G8f3BQpKRsk88ETgemEjyLlrJPoAGL0g+g+VOlyMR/15n9znbnvOL7lx9Y+XLr4kRY/P
-         9Zag==
-X-Forwarded-Encrypted: i=1; AJvYcCU9Db0jJ8/l2TqzZ4ATGO122Px+E72gzhNay0mtAbRHcRDTAMEBclT8D7Xc90UfuUBLE+pAMVEjuudtfYxekw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz5aQO3cxo/bDfnNgT6ReyQcHs3lkR5I+25fh1xx+IAXAGexlGZ
-	OMY1DBVkPGz/9l/KwFcmCfxuslB2UTN2kpWvVhHMDpw4etHXnOV2TgTizaO47Pr2MMismRVLUUo
-	Zvw9sfZCOahPQ/KSJoJvICGd0DJaBXumXYNIDci4JYnTqcs3fQnb8KSK1OLDlSvS3AjTV
-X-Gm-Gg: AY/fxX4TkUagkSxVjCB7Be6HGKDYmvLFBzRD8ZpfNtPjkzAw0SfF/zvtcfNej6uGgrr
-	/P99lgSKTNThth4lOoKLwhb9i46vUy3Spi6Ir6sSFa/M8EwFgmGEiTdMrjDYtA3VLYi/tiupjNQ
-	8C0GtJN5qBNDt82xBwOHrceyz3Vi9XXC/0Uu/c6FiBzPpPYMPk6vozqVEVh6j19xqp772Yu5pGY
-	bpvuOGmGXvnZc+hZ4C4lsq+eVsj4djI4/yIBAWcg2JUsmvU6cjbzHf+EQHPSBYLJJlNRZue5MB7
-	PBBVU9R33xTWLYb7dci8cmp+y2D9Lq6EI24IVjNtsERmVlXAgXFL4kHNX52aL2xxlrEs//hCr34
-	Y0HesyfLWL8yG3CI8
-X-Received: by 2002:a17:907:2d07:b0:b84:1fc7:944b with SMTP id a640c23a62f3a-b8445066498mr627907366b.58.1767881903667;
-        Thu, 08 Jan 2026 06:18:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH3Dxa4w6bRkF+MtZ8LKCNuWLpqie07t2Imxvb7EeEx+3jZGwolIwvKYG0CWJg5J8bgXET92Q==
-X-Received: by 2002:a17:907:2d07:b0:b84:1fc7:944b with SMTP id a640c23a62f3a-b8445066498mr627904166b.58.1767881902999;
-        Thu, 08 Jan 2026 06:18:22 -0800 (PST)
+        bh=MYUfQokxCybKNz25/1oiXAmTT63P9X7nVn3prJ03xRo=;
+        b=PgUpUpoqoJ1KOeJglAQp58mlQ3+jHzOmKK+j9AJoMxdBLz8q4ZM6W40Dr+wt7Emm1S
+         NyN9hAMHbj2+ytUN8SX8yNQdlpfHqik8Zn3M7mvizfzrgyFFz3X5SImtZ5EaXZr/FoGE
+         YqjARwfXYxiABThCYmFDZjPzTpO2/8ep34pZiiVVtEEQvhIQ+nYQDpdxcRtl1eTe9yXn
+         JLZfFTkBvGF03Dw8SwOvn4ugQIsJD8sFxnG/gFedQNvlv41Z1/ASBnj6FwXMx+77v1lc
+         SSnKvhzIRkKVtN3dFEG0ZlJjvtK4aUd0Y7NzW0VOzIbK90iwzEtT06oQePXfobkEk82B
+         vjSg==
+X-Forwarded-Encrypted: i=1; AJvYcCWHx6yW+HfcdPlSLMZ5L+QqoF5WrnGKpMZJMUbs9u70C7m/GHKHWJ0f5PqSlIVHLFrFkwnUvo1005WAENDQZw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyEi93cjcvwFJQfeQxMGNrKgjZY+dPRIebueHyhH+Po+EQY4yGq
+	/lBodIYElTNGMjojaomBXCSqsKGS8ruytTyAHG6tJaNZxwh3xCW9J9uHi9FhLh64A78vyCOcp1V
+	1umOMxFjVQW01zZt2wHm+SZSP0EqMkTKZgn3aYI72+Tui+UkCNUmEEW4yQrhF5GJleAWQ
+X-Gm-Gg: AY/fxX75Opg4EagRfYLV4ndWkiN2LQQgZB1lGCQLQofnH+faqj6FeaT9JZuSPbgcUQb
+	CHyvM7+QcF2uYXua9EP0pAD1OYhDvpwoAXjEHYnuivTOzX/I2gSYHxtja4rGKlo2w2XY0h2kQ+W
+	R+2Fs0Bh/O/SQZAM/NtAv6KIN++ga1a1PfO0op6YebJ40ToJ/jzzVJX9rL7vgtQTBz7IlT2EDrC
+	fP1w4UeDez4RFl2xmmgvyxjAcOu9l4kI8hgXQ3PbLuIRdNrlAL+27W3whkhvS4DWuARJlexrBYs
+	Y+JpLZi7StHTnwCh8qgZODVinpK3HO/BmiXa048vDd3chu9QlQu1SDxzAEdYI/b2MDChLhzfldf
+	Z3BAMQZypmgubIj6j
+X-Received: by 2002:a17:907:1c09:b0:b79:eaf6:8f44 with SMTP id a640c23a62f3a-b8444f4f056mr726211666b.40.1767882441997;
+        Thu, 08 Jan 2026 06:27:21 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEJ6L4DqIanAXgw2ktUhRyngdJSX+H/rkKSIqtNQ9+qAgBUByhlaCVegL7JEtxsi+D3mXwYrw==
+X-Received: by 2002:a17:907:1c09:b0:b79:eaf6:8f44 with SMTP id a640c23a62f3a-b8444f4f056mr726205266b.40.1767882441415;
+        Thu, 08 Jan 2026 06:27:21 -0800 (PST)
 Received: from sgarzare-redhat ([193.207.223.215])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b842a22ff58sm817309166b.6.2026.01.08.06.18.19
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b842a4cfd97sm787982066b.36.2026.01.08.06.27.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Jan 2026 06:18:22 -0800 (PST)
-Date: Thu, 8 Jan 2026 15:18:13 +0100
+        Thu, 08 Jan 2026 06:27:20 -0800 (PST)
+Date: Thu, 8 Jan 2026 15:27:04 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>, 
@@ -81,91 +81,111 @@ Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
 	Jason Gunthorpe <jgg@ziepe.ca>, Bartosz Golaszewski <brgl@kernel.org>, linux-doc@vger.kernel.org, 
 	linux-crypto@vger.kernel.org, virtualization@lists.linux.dev, linux-scsi@vger.kernel.org, 
 	iommu@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH v2 07/15] vsock/virtio: fix DMA alignment for event_list
-Message-ID: <aV-7QoTi5AfMcfQa@sgarzare-redhat>
+Subject: Re: [PATCH v2 13/15] vsock/virtio: reorder fields to reduce padding
+Message-ID: <aV-9F42fMfKGP4Rg@sgarzare-redhat>
 References: <cover.1767601130.git.mst@redhat.com>
- <f19ebd74f70c91cab4b0178df78cf6a6e107a96b.1767601130.git.mst@redhat.com>
- <aV-4mPQYn3MUW10A@sgarzare-redhat>
- <20260108090639-mutt-send-email-mst@kernel.org>
+ <fdc1da263186274b37cdf7660c0d1e8793f8fe40.1767601130.git.mst@redhat.com>
+ <aV-6gniRnZlNvkwc@sgarzare-redhat>
+ <20260108091514-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260108090639-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260108091514-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ZNJr5fhSq3KDDmer1Bzs1QESjNCgnMSMA7n3IcNSI9o_1767881904
+X-Mimecast-MFC-PROC-ID: CPQTz9FYO93mfGoT18uur1I9DhJjVLS4LJig-EZlfCg_1767882442
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Thu, Jan 08, 2026 at 09:07:53AM -0500, Michael S. Tsirkin wrote:
->On Thu, Jan 08, 2026 at 03:04:07PM +0100, Stefano Garzarella wrote:
->> On Mon, Jan 05, 2026 at 03:23:17AM -0500, Michael S. Tsirkin wrote:
->> > On non-cache-coherent platforms, when a structure contains a buffer
->> > used for DMA alongside fields that the CPU writes to, cacheline sharing
->> > can cause data corruption.
->> >
->> > The event_list array is used for DMA_FROM_DEVICE operations via
->> > virtqueue_add_inbuf(). The adjacent event_run and guest_cid fields are
->> > written by the CPU while the buffer is available, so mapped for the
->> > device. If these share cachelines with event_list, CPU writes can
->> > corrupt DMA data.
->> >
->> > Add __dma_from_device_group_begin()/end() annotations to ensure event_list
->> > is isolated in its own cachelines.
+On Thu, Jan 08, 2026 at 09:17:49AM -0500, Michael S. Tsirkin wrote:
+>On Thu, Jan 08, 2026 at 03:11:36PM +0100, Stefano Garzarella wrote:
+>> On Mon, Jan 05, 2026 at 03:23:41AM -0500, Michael S. Tsirkin wrote:
+>> > Reorder struct virtio_vsock fields to place the DMA buffer (event_list)
+>> > last. This eliminates the padding from aligning the struct size on
+>> > ARCH_DMA_MINALIGN.
 >> >
 >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 >> > ---
->> > net/vmw_vsock/virtio_transport.c | 4 +++-
->> > 1 file changed, 3 insertions(+), 1 deletion(-)
+>> > net/vmw_vsock/virtio_transport.c | 8 +++++---
+>> > 1 file changed, 5 insertions(+), 3 deletions(-)
 >> >
 >> > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->> > index 8c867023a2e5..bb94baadfd8b 100644
+>> > index ef983c36cb66..964d25e11858 100644
 >> > --- a/net/vmw_vsock/virtio_transport.c
 >> > +++ b/net/vmw_vsock/virtio_transport.c
->> > @@ -17,6 +17,7 @@
->> > #include <linux/virtio_ids.h>
->> > #include <linux/virtio_config.h>
->> > #include <linux/virtio_vsock.h>
->> > +#include <linux/dma-mapping.h>
->> > #include <net/sock.h>
->> > #include <linux/mutex.h>
->> > #include <net/af_vsock.h>
->> > @@ -59,8 +60,9 @@ struct virtio_vsock {
+>> > @@ -60,9 +60,7 @@ struct virtio_vsock {
 >> > 	 */
 >> > 	struct mutex event_lock;
 >> > 	bool event_run;
->> > +	__dma_from_device_group_begin();
->> > 	struct virtio_vsock_event event_list[8];
->> > -
->> > +	__dma_from_device_group_end();
+>> > -	__dma_from_device_group_begin();
+>> > -	struct virtio_vsock_event event_list[8];
+>> > -	__dma_from_device_group_end();
+>> > +
+>> > 	u32 guest_cid;
+>> > 	bool seqpacket_allow;
+>> >
+>> > @@ -76,6 +74,10 @@ struct virtio_vsock {
+>> > 	 */
+>> > 	struct scatterlist *out_sgs[MAX_SKB_FRAGS + 1];
+>> > 	struct scatterlist out_bufs[MAX_SKB_FRAGS + 1];
+>> > +
 >>
->> Can we keep the blank line before `guest_cid` so that the comment before
->> this section makes sense? (regarding the lock required to access these
->> fields)
+>> IIUC we would like to have these fields always on the bottom of this struct,
+>> so would be better to add a comment here to make sure we will not add other
+>> fields in the future after this?
+>
+>not necessarily - you can add fields after, too - it's just that
+>__dma_from_device_group_begin already adds a bunch of padding, so adding
+>fields in this padding is cheaper.
+>
+
+Okay, I see.
+
+>
+>do we really need to add comments to teach people about the art of
+>struct packing?
+
+I can do it later if you prefer, I don't want to block this work, but 
+yes, I'd prefer to have a comment because otherwise I'll have to ask 
+every time to avoid, especially for new contributors xD
+
+>
+>> Maybe we should also add a comment about the `ev`nt_lock` requirement 
+>> we
+>> have in the section above.
 >>
 >> Thanks,
 >> Stefano
 >
->A follow up patch re-introduces it, so I don't think it matters?
+>hmm which requirement do you mean?
 
-Yes, I saw it later. Of course I don't want you to resend the whole 
-series just for this. So if you have to resend the series for other 
-reasons, I would avoid removing the line here because I don't see any 
-value on removing it and add back later.
+That `event_list` must be accessed with `event_lock`.
 
-In both cases:
+So maybe we can move also `event_lock` and `event_run`, so we can just 
+move that comment. I mean something like this:
 
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
 
->
->> > 	u32 guest_cid;
->> > 	bool seqpacket_allow;
->> >
->> > --
->> > MST
->> >
->
+@@ -74,6 +67,15 @@ struct virtio_vsock {
+          */
+         struct scatterlist *out_sgs[MAX_SKB_FRAGS + 1];
+         struct scatterlist out_bufs[MAX_SKB_FRAGS + 1];
++
++       /* The following fields are protected by event_lock.
++        * vqs[VSOCK_VQ_EVENT] must be accessed with event_lock held.
++        */
++       struct mutex event_lock;
++       bool event_run;
++       __dma_from_device_group_begin();
++       struct virtio_vsock_event event_list[8];
++       __dma_from_device_group_end();
+  };
+
+  static u32 virtio_transport_get_local_cid(void)
+
+
+Thanks,
+Stefano
 
