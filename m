@@ -1,178 +1,274 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9712026560D;
-	Thu,  8 Jan 2026 16:33:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B5652E7F25
+	for <virtualization@lists.linux.dev>; Thu,  8 Jan 2026 20:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767890030; cv=none; b=I77AXDgw93x4SGmz0z5h8Ad8AOHtkR+ER2p/rCLKKChpQXoxlaCqhLzdA47VKkVg9z3mwS6WbbbGTkvorpuIXW22SmgL2BaH1ZNZNtK5W+4AP9aNQI1a/vUlU/5vf0RbJdaydOJY5yOZDFCYb1LzHRaNAubHutXgJh8DLLyqpbM=
+	t=1767903715; cv=none; b=kk9T7EJjJx89u602MrPf9L+MnkaHhiLB3ZnqcSwcRs4IRHqZjFMS1TJ1ZdKFnfnd1LVMtOMwL8Ds65xZ5zQPaHrtMhFE619MOJP2ijabVBcsG9eh609ytUUx5HJQvnvhQGjX0bQ0AJ7whssX4JLN921UxsipAV6a5hUuTKxuR+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767890030; c=relaxed/simple;
-	bh=AGZNwDpQqmCuS0ZembsvxsxGBegKk8NFWbTC37qZICc=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=IWN85CXK5MkihAN+q/nB9p9Vbxyh17z830vzO3gQ7z9P7qnb9inOEHrrlwSy7rnD9bLXj0k6fTF3QP88eVbCMbtEKffZ76JpbzcjWuONp9RlJn4ZlmA3Qh6Ixh3/f+H9teSSybyLHecISFJ+BSyLYe8AGrGpCQ0tzsL7okDWrGg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=hUtEYCw3; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
+	s=arc-20240116; t=1767903715; c=relaxed/simple;
+	bh=CmlVuq1VZzJ4QPtFQNOI9/euJaJPj6jqYo36MIDVNXw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fQmKTNUN1JFUxuc2rGz+8zxhsv5rRYT/8rhEHeWAU8Sry5ZDycZtrIXgjjFIQVcnyUXKrF7Lzoqy+6OXVo7Jc3Bigq6/cKEMnqh0AHYdWb/vBT3ThRkVcvqZy56506kubXZ6Srbf/4r9ULRMClfH5afFipIHGq6VzdOqYUCf2gs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iVaAz8gg; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="hUtEYCw3"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=MIME-Version:Content-Type:References:
-	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=g8c5uFLop3/jlRNNx8JcaFswrG8Sx8WRDiJjznTPOag=; b=hUtEYCw3CM/puZ7Yote1TTXoB1
-	xzCYTks/1nTe1OO//2zJ2G+5c5gZaHcSvR6hynMQXYMqyUfIwFWrvFBIy2m2rv7Zy9r2aMdKlqwc3
-	hUKH5dhRixs1i6zYqD4zyCPQXefUnyxaQz77zWefL/wG63iJ91jpPKYIhckBq/I3LHPFRnuvc+a/I
-	YS65/g9VBoitFNElOEkMSlNic2N69UHgQyX06PTQ1wjv8HSWNxRFkLPWDuM3sG8OFeByBSaqhRpRu
-	SBCqUSfgZIJmKFoBZ3RVxzPBZFQ5ib81XiQbviZLV+mv6SeQrI7AKPEeqLo9LNUGyhymscLNQxoJU
-	zyvFA1wQ==;
-Received: from [149.13.74.102] (helo=u09cd745991455d.ant.amazon.com)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vdsxE-0000000Dfep-0n42;
-	Thu, 08 Jan 2026 16:33:44 +0000
-Message-ID: <fa3cd687961e63dd2b79780eb84c243c8d35532a.camel@infradead.org>
-Subject: Re: [PATCH v4 4/9] vsock/virtio: Resize receive buffers so that
- each SKB fits in a 4K page
-From: David Woodhouse <dwmw2@infradead.org>
-To: Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org
-Cc: Keir Fraser <keirf@google.com>, Steven Moreland <smoreland@google.com>, 
- Frederick Mayle <fmayle@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>,  "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Eugenio
- =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, netdev@vger.kernel.org,
- virtualization@lists.linux.dev
-Date: Thu, 08 Jan 2026 17:33:42 +0100
-In-Reply-To: <20250717090116.11987-5-will@kernel.org>
-References: <20250717090116.11987-1-will@kernel.org>
-	 <20250717090116.11987-5-will@kernel.org>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-ht17kk5Y4zMafZO0ELKM"
-User-Agent: Evolution 3.52.3-0ubuntu1.1 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iVaAz8gg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1767903712;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EzMl2lf5wfervHBeYiZB1UDrn3oKykhMBIvMEP9ZDyQ=;
+	b=iVaAz8ggn5pteEOjkGwdTpyB5YxLPOJgK275r/1gMqptlVTipTZHax6NRJWdYK7XZ9BL9U
+	TGVqq6cuoGVHJJfjC6/H9F1US4DUYPsVkgIzfIikGDdQ0+YjymtWNgUL568MfDKgmZgq95
+	034lIVWvy+kJIgGNpneVPSAgHa0kFl4=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-581-i4Fx0BgVMAK8DMk-3lHBkA-1; Thu, 08 Jan 2026 15:21:51 -0500
+X-MC-Unique: i4Fx0BgVMAK8DMk-3lHBkA-1
+X-Mimecast-MFC-AGG-ID: i4Fx0BgVMAK8DMk-3lHBkA_1767903710
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-b8395caeb26so590038966b.0
+        for <virtualization@lists.linux.dev>; Thu, 08 Jan 2026 12:21:51 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767903710; x=1768508510;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=EzMl2lf5wfervHBeYiZB1UDrn3oKykhMBIvMEP9ZDyQ=;
+        b=kEaq9ZUY3PDVUMda67syD7bvxLTZioQRxdpV5ST55lmfKzBMD3MwsJmmSeMcXRrxOu
+         jTLY3ce3r3ijyeywAd+p2UTKJD10pCbfaloukKY+biFa5UcuWbMN1+L2gqVTQXPWDiSr
+         a3X8DErWdXpOsci96i7Bjs4/c1X54oxGl1ltSDIDTSkTOanz5r9Wl8hWXn/vdF1z52uD
+         1Pmmle/3AAufUGB5ZWgBFTIhhLGXs9lk8d00XQhQuOW1JIyTVoEDKsy0ekL8vp6vYn2U
+         NtH7h5JzMbjpmiPmFm3Lp8HiM9zU7l473tMqE9wuNb9WcR6Dsf3qB8UV17TrRAcMxf7k
+         FCCg==
+X-Forwarded-Encrypted: i=1; AJvYcCXZZ3eQgT6eYzowqIMaAk7t09OhOyS+uwGkN0SeA+w9LgZVYIvW9OYhDg70STpuaKfbMm2jexZ5xLqlt5XslA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxsC2mQVMK8c6KTjqqx9VCaM8PjjPS70i4yMzx9dgNg+twAdXQJ
+	4k0SaD6xP303yO+b2pizIKrudCPaf0kUV/Q4fiOfE94B28aXk6CqM4J/rya52cWsp23SYwaqHYK
+	BHZmEPhs4rnAaFWE2hmLAaipwmXB4W2lvPid2J7F7zeC+zt4bauCCwVGdXfl+ox9l8uwGiXhGhh
+	F4FYv2MC7ZKKLWKL2wdwWVEiK96zfJEgSVKARYKMSU1N8=
+X-Gm-Gg: AY/fxX7hlarLmEbLcxytPKacxOJosKOatr1vb1gaH7wsSMoE8W/IVQ8hisp6vx9TfkM
+	BYrHzPOttLxEAFvynlTk+YCpP6XKIgwr++grt4nlqbrYLcGOuhWSqUCZoSj1LO4XooX5+fa1wKW
+	BQCLH5hl11PTEE3g5I8XyLqMo2XWXo4a937NiJMcJYjseN1DQJ2bwnW8sJqvxp2U3Av4T1VlAqW
+	1FzL8IrwWkB+Gp+d7ODflkg
+X-Received: by 2002:a17:907:1b08:b0:b80:3fb7:f3a8 with SMTP id a640c23a62f3a-b8445427d4dmr713617866b.63.1767903710001;
+        Thu, 08 Jan 2026 12:21:50 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEe4z9hk785ik31xjpmJ49qvthn+Dn6J/lk+VSduGWBe6cOZIlpU3qyrudI3zg3yRdeNfJzESXTUc0W9fABBQE=
+X-Received: by 2002:a17:907:1b08:b0:b80:3fb7:f3a8 with SMTP id
+ a640c23a62f3a-b8445427d4dmr713615366b.63.1767903709500; Thu, 08 Jan 2026
+ 12:21:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
-
-
---=-ht17kk5Y4zMafZO0ELKM
+References: <aQJRnX7OpFRY/1+H@fedora> <aQkgsuxa2UaL_qdt@bywater>
+ <aTsE1VIk4V/A49HE@fedora> <aT7XAsTWr0_yyfx_@bywater> <aU6lCL_vrF93lpYa@bywater>
+ <CAHYGQ0yHSvhOibhvxtFjZ7H3Tczb22JZ1UuaX5kkOtok0JjDgQ@mail.gmail.com>
+ <aV6sHofXnZuu84OV@bywater> <aV7lplXiOehmw2iR@bywater> <CAHYGQ0yQ=20eFJN-_=_+uqyk=nRyotQLgf01B-Rb8NVk9N4DpQ@mail.gmail.com>
+In-Reply-To: <CAHYGQ0yQ=20eFJN-_=_+uqyk=nRyotQLgf01B-Rb8NVk9N4DpQ@mail.gmail.com>
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Date: Thu, 8 Jan 2026 21:21:38 +0100
+X-Gm-Features: AQt7F2r7y1JM7wbF19_CDer5KyA2VfYb4v3iyeNbLqnMCKk2nRR4hWrvA0FIxeE
+Message-ID: <CAHYGQ0waHHLOOjX6cSkSHkNRGYDqsCccKUa5E2DGZwR9DtjMUA@mail.gmail.com>
+Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
+To: Francesco Valla <francesco@valla.it>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol <mailhol@kernel.org>, 
+	Harald Mommer <harald.mommer@oss.qualcomm.com>, 
+	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org, 
+	virtualization@lists.linux.dev, Wolfgang Grandegger <wg@grandegger.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: eeNeoyJd629tEambqtsLoabblxQQIqClavRpvHBef3A_1767903710
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2025-07-17 at 10:01 +0100, Will Deacon wrote:
->=20
-> -#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
-> +/* Dimension the RX SKB so that the entire thing fits exactly into
-> + * a single 4KiB page. This avoids wasting memory due to alloc_skb()
-> + * rounding up to the next page order and also means that we
-> + * don't leave higher-order pages sitting around in the RX queue.
-> + */
-> +#define
-> VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	SKB_WITH_OVERHEAD(1024 * 4)
+On Thu, Jan 8, 2026 at 12:21=E2=80=AFAM Matias Ezequiel Vara Larsen
+<mvaralar@redhat.com> wrote:
+>
+> On Thu, Jan 8, 2026 at 12:01=E2=80=AFAM Francesco Valla <francesco@valla.=
+it> wrote:
+> >
+> > On Wed, Jan 07, 2026 at 07:55:26PM +0100, Francesco Valla wrote:
+> > > Hi Matias,
+> > >
+> > > On Wed, Jan 07, 2026 at 05:14:25PM +0100, Matias Ezequiel Vara Larsen=
+ wrote:
+> > > > On Fri, Dec 26, 2025 at 4:09=E2=80=AFPM Francesco Valla <francesco@=
+valla.it> wrote:
+> > > > >
+> > > > > Hi,
+> > > > >
+> > > > > On Sun, Dec 14, 2025 at 04:25:54PM +0100, Francesco Valla wrote:
+> > > > > > While stress testing this, I noticed that flooding the virtio-c=
+an
+> > > > > > interface with packets leads to an hang of the interface itself=
+.
+> > > > > > I am seeing this issuing, at host side:
+> > > > > >
+> > > > > >       while true; do cansend can0 123#00; done
+> > > > > >
+> > > > > > with:
+> > > > > >
+> > > > > >  - QEMU: the tip of the master branch plus [2]
+> > > > > >  - vhost-device: the tip of the main branch
+> > > > > >
+> > > > > > and the following QEMU invocation:
+> > > > > >
+> > > > > > qemu-system-x86_64 -serial mon:stdio \
+> > > > > >     -m 2G -smp 2 \
+> > > > > >     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
+> > > > > >     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
+> > > > > >     -append "loglevel=3D7 console=3DttyS0" \
+> > > > > >     -machine memory-backend=3Dpc.ram \
+> > > > > >     -object memory-backend-file,id=3Dpc.ram,size=3D2G,mem-path=
+=3D/tmp/pc.ram,share=3Don \
+> > > > > >     -chardev socket,id=3Dcan0,path=3D/tmp/sock-can0 \
+> > > > > >     -device vhost-user-can-pci,chardev=3Dcan0
+> > > > > >
+> > > > > >
+> > > > > > Restarting the interface (i.e.: ip link set down and the up) do=
+es not
+> > > > > > fix the situation.
+> > > > > >
+> > > > > > I'll try to do some more testing during the next days.
+> > > > >
+> > > > > After a deep dive, I _think_ the problem actually lies in vhost-d=
+evice,
+> > > > > since it is not there (or al least, it seems so) using an alterna=
+tive
+> > > > > implementation that uses the qemu socketcan support [0] (implemen=
+tation
+> > > > > which builds on top of the work done by Harald and Mikhail):
+> > > > >
+> > > > > qemu-system-x86_64 -serial mon:stdio \
+> > > > >     -m 2G -smp 2 -enable-kvm \
+> > > > >     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
+> > > > >     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
+> > > > >     -append "loglevel=3D7 console=3DttyS0" \
+> > > > >     -object can-bus,id=3Dcanbus0 -object can-host-socketcan,id=3D=
+canhost0,if=3Dvcan0,canbus=3Dcanbus0 \
+> > > > >     -device virtio-can-pci,canbus=3Dcanbus0
+> > > > >
+> > > > > Unfortunately, my Rust knoweledge is not sufficient to understand=
+ the
+> > > > > vhost-device implementation [1]; the issue seems to be related to=
+ the
+> > > > > host->guest vring becoming empty and not refilling anymore.
+> > > > >
+> > > >
+> > > > Can you try with
+> > > > https://github.com/MatiasVara/vhost-device/commits/fix-for-923/?
+> > >
+> > > I'll stress test it during the night, but this seems to fix it. Befor=
+e
+> > > it was reproducible in a consistent manner after mere seconds, while =
+i
+> > > now in a bunch of runs I never reproduced it.
+> > >
+> > > I also agree with your analysis on the commit.
+> > >
+> >
+> > Quick update, unfortunately not good: the RX issue is solved, but now I
+> > have a different one: if I send a single message either from the guset
+> > or the host (e.g.: cansend can0 111#00) I get:
+> >
+> > [   16.496923] irq 11: nobody cared (try booting with the "irqpoll" opt=
+ion)
+> > [   16.511875] CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted 6.18.0-=
+00002-gded0a4b9da5a #29 PREEMPT(voluntary)
+> > [   16.511883] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), B=
+IOS rel-1.17.0-0-gb52ca86e094d-prebuilt.qemu.org 04/01/2014
+> > [   16.511887] Call Trace:
+> > [   16.511933]  <IRQ>
+> > [   16.511938]  dump_stack_lvl+0x4d/0x70
+> > [   16.511973]  __report_bad_irq+0x30/0xb7
+> > [   16.511986]  note_interrupt.cold+0x28/0x66
+> > [   16.511988]  handle_irq_event+0x6d/0x70
+> > [   16.512004]  handle_fasteoi_irq+0xd5/0x1f0
+> > [   16.512011]  __common_interrupt+0x3f/0xd0
+> > [   16.512023]  ? tick_nohz_irq_exit+0x2e/0x60
+> > [   16.512035]  common_interrupt+0x3b/0x90
+> > [   16.512057]  asm_common_interrupt+0x26/0x40
+> > [   16.512073] RIP: 0010:handle_softirqs+0x6d/0x270
+> > [   16.512081] Code: 02 00 01 00 00 89 5c 24 14 48 89 6c 24 08 c7 44 24=
+ 10 0a 00 00 00 89 7c 24 04 31 c0 65 66 89 05 01 ce 3e 02 fb bb ff ff ff ff=
+ <49> c7 c2 c0 80 a0 a2 44 89 ed 41 0f bc dd 83 c3 01 74 76 8d 43 ff
+> > [   16.512082] RSP: 0018:ffffb22480003f98 EFLAGS: 00000246
+> > [   16.512086] RAX: 0000000000000000 RBX: 00000000ffffffff RCX: 0000000=
+000000838
+> > [   16.512087] RDX: 0000000000000000 RSI: ffffffffa2a0e940 RDI: 0000000=
+000000000
+> > [   16.512088] RBP: 00000000fffbac3e R08: 0000000000000001 R09: 0000000=
+000000000
+> > [   16.512088] R10: ffffa2d57da249d0 R11: ffffb22480003ff8 R12: 0000000=
+000000000
+> > [   16.512091] R13: 0000000000000082 R14: 0000000000000000 R15: 0000000=
+000000000
+> > [   16.512097]  irq_exit_rcu+0x89/0xb0
+> > [   16.512099]  sysvec_apic_timer_interrupt+0x6b/0x80
+> > [   16.512103]  </IRQ>
+> > [   16.512104]  <TASK>
+> > [   16.512104]  asm_sysvec_apic_timer_interrupt+0x1a/0x20
+> > [   16.512105] RIP: 0010:pv_native_safe_halt+0xf/0x20
+> > [   16.512107] Code: 2c 81 00 c3 cc cc cc cc 0f 1f 00 90 90 90 90 90 90=
+ 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa eb 07 0f 00 2d 05 cf 18 00 fb f4=
+ <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 66 90 90 90 90 90 90
+> > [   16.512109] RSP: 0018:ffffffffa2a03e80 EFLAGS: 00000212
+> > [   16.512110] RAX: ffffa2d5da523000 RBX: ffffffffa2a0e940 RCX: 0000000=
+000000838
+> > [   16.512111] RDX: 4000000000000000 RSI: 0000000000000087 RDI: 0000000=
+0000a722c
+> > [   16.512111] RBP: 0000000000000000 R08: 00000000000a722c R09: ffffa2d=
+57da249d0
+> > [   16.512112] R10: ffffa2d57da1bac0 R11: 0000000000000001 R12: 0000000=
+000000000
+> > [   16.512112] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000=
+000014770
+> > [   16.512113]  default_idle+0x9/0x10
+> > [   16.512117]  default_idle_call+0x2a/0xf0
+> > [   16.512119]  do_idle+0x1cb/0x230
+> > [   16.512129]  cpu_startup_entry+0x24/0x30
+> > [   16.512130]  rest_init+0xbc/0xc0
+> > [   16.512133]  start_kernel+0x6d7/0x6e0
+> > [   16.512164]  x86_64_start_reservations+0x24/0x30
+> > [   16.512172]  x86_64_start_kernel+0xc8/0xd0
+> > [   16.512173]  common_startup_64+0x13e/0x148
+> > [   16.512181]  </TASK>
+> > [   16.512181] handlers:
+> > [   16.513166] [<00000000b61218c7>] vp_interrupt
+> > [   16.515096] Disabling IRQ #11
+> >
+> > with IRQ#11 being:
+> >
+> > # cat /proc/interrupts
+> >            CPU0       CPU1
+> >  11:     102218          0  IO-APIC  11-fasteoi   virtio0
+> >
+> >
+> > This cannot be reproduced with the old version of vhost-device. I think
+> > it is due to the removal of the req_rx_buf variable and associated
+> > logic: a vq kick is now being performed at every cycle of the event
+> > loop, even if no processing happened. At guest side, this results in a
+> > IRQ not cared for.
+> >
+>
+> Thanks Francesco! right, I made a mistake. process_rx_queue() is only
+> invoking signal_used_queue() when req_rx_buf is true, i.e., the device
+> has actually added something to the used ring. I'll fix that.
+>
+Feel free to test the updated commit. I just fixed a few bugs. So far
+my tests seem correct.
 
-Should this be SKB_WITH_OVERHEAD()?
+Matias
 
-Or should it subtract VIRTIO_VSOCK_SKB_HEADROOM instead?
-
-(And also, I have use cases where I want to expand this to 64KiB. Can I
-make it controllable with a sockopt? module param?)
-
---=-ht17kk5Y4zMafZO0ELKM
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
-ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
-AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
-BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
-MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
-a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
-jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
-GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
-aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
-nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
-8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
-HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
-IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
-KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
-BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
-QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
-QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
-ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
-/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
-uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
-xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
-W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
-c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
-VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
-NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
-DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
-sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
-w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
-i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
-kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
-0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
-ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
-blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
-hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
-VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
-HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
-ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
-AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
-cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
-cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
-AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
-aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
-hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
-iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
-8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
-JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
-xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
-EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
-B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
-MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
-KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
-Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
-nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
-WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
-W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
-nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
-g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
-9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
-9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
-sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
-a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
-ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
-AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
-dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
-MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
-YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
-4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
-6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
-QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
-nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
-MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
-VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
-ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDEwODE2MzM0
-MlowLwYJKoZIhvcNAQkEMSIEICCHBA1SHWAE6uqhm2Gao3MaPR2MuLQrDCOlLpNR868RMGQGCSsG
-AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
-cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
-VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
-cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAQ3y6tQP5bL2E
-E/76suhh6VjJ5W4G34yWYN8ADVe8zSooAPy3d3KD1HvvFm+zhDzOzluwI1+5PObYKi07eaTKDom4
-zuhmWKIsYeibR0vm2nmgsEdhvC//pO1RJ7B7+GBLw8icxsvwCLBquUlXowoOWZxNKhxDXx1L7z4T
-/ONTnLMTrRHoNAi+H9oC6xpzRYOCcEsANfytiymtVPHkZgx2/WKLlfKh96vch1/AYBK5SQdGBxoB
-IsQrapfazidfm4qY/tPadgT78/6Xjo0AjOG43T5IQga4zrwsA4ym6zyc03ZKy5Ibc7MKrjp4OE+r
-mfQa+64VNKlAlAfvRcARSgm6aelEc4cOzw6pnDCxfu7Q6pAkR37+rmohBlS3MpbusFheZb2iYiGX
-UHn8rLZAXhqYnifY4Uumgp/ZPtlznoK1kp3oMSSAqxJx28+AfBjvRVluhc0Gx5Q20Vg909Iw2NaN
-rsjZ5vLlQ0K8CQ58Q9+PZzNG+uFG0qypfIeJDciTJyQcZmssg4usBm8rZi3mMR9K+MVkCIBeNSfm
-+UxR6x0E8Img8DPlZs5wV2bDbQ2S/1SnyaCSTnuhjUVFWOdNCpGA2oN2v8e0YAlAOIrsAKrBZWYK
-QTveURdVUeRleRp4gHVFQv2l7jQJw9AnQTQWTxruzm14s2CLZa/SY/fDuHO+ypoAAAAAAAA=
-
-
---=-ht17kk5Y4zMafZO0ELKM--
