@@ -1,45 +1,45 @@
 Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7946E438390;
-	Thu,  8 Jan 2026 09:55:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4951943839C;
+	Thu,  8 Jan 2026 09:55:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767866151; cv=none; b=eG8w4/1Bgi6K1fqQV2KdrgC9xpSbsdXTbAl31kDQDZwZqKVGNPq4x1w1pzqt+nmaBeLU1vlkXHBQfEcH+VozbNVFH+u0i26sVikEdvKVp3GhWscrnT3HzmP6aNriswPcri8wuipfP5W/faN8wQ/OatVYfVdpQtvMBkm3ChQYUzY=
+	t=1767866151; cv=none; b=rb+sTU7jvMAmNIn67Wne17YFug8XW+dQn4NJnX8fZV7GRxIfKD1XxQoYtFDNZFbW+eauGFYCN502b+5H4ipkK0hDferQrD+ptWSOInCz8Z+DAeABWhTwGx8WjKf3YvZSaetac5jS7MTDQ/osGBa/TiatDLKlR3IgQl7/BdUojqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1767866151; c=relaxed/simple;
-	bh=EvIONFN7UXUZL6xMVob3uUTPUEaNiM+IyoWJle+1bRo=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=AZcVijksr10XdlxkgZKf9/CL2+ZIP8kn4LgMJRDdKrf+A/O1cM4OF2pWVynGkrGLi+OaK77ARTD8U/V2sqv0nV8Up23YPHwYS1clNkykhqv02ag5J0tQNiUph3IFKwWxk2IO2YVhSj8LFHKDRwHv8smYobfuRs4Dm8BeOhOZb7c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=LuUrR0+l; arc=none smtp.client-ip=185.226.149.38
+	bh=iJfRlKeMUO7hZk716maG+9Rh9rC1sx9th/OS3Y5rewY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=c0j2omhSh+JetZ3Gd/up5JCctSX/dr2GfMKSLEGNFD3O/94z6Q2fPEKBZP2weA6IG4lyjQVOrJ3xo8uRH/xREm6P/uMgS5AN7pmLC5LkajloaaVCqKSbP9lI+t2bClgIid2CLa/AyuOXAsHMCAqswL728uwnjXP+dl4A9WcaxFA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=Q45wSUUn; arc=none smtp.client-ip=185.226.149.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="LuUrR0+l"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="Q45wSUUn"
 Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
 	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
 	(Exim 4.93)
 	(envelope-from <mhal@rbox.co>)
-	id 1vdmjp-0000fS-Tv; Thu, 08 Jan 2026 10:55:29 +0100
+	id 1vdmjp-0000fF-D1; Thu, 08 Jan 2026 10:55:29 +0100
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
-	Message-Id:Date:Subject:From; bh=P3hj6q3gjtPJPbpzzaDTeFeR0mK65piI4fXLK4GYSOQ=
-	; b=LuUrR0+lSF0ZCpK1mRKfpcF4cGx437j9yQIJ4UtNCEm+N1wGJBkFpxCXsSioHem2HL0kFObR2
-	SP6J1TDsKIi9NFtUUZn7IVD3KVgT5ZJnVyEM9zgFY6Wc5lLVd0UxAf1ehejI1csLtXtLlSi8eBdKN
-	VP8BbxqrsWTBCjQgzyppdVCtU41LoKdH7J1ArrEh/LuUThOp8pKQL11RmzBZXP2NBgia28s6CJNzv
-	CfTOG3SEHmOKWkDOHOSVZi4VwoYoYUy0o30lMSwFWwLXBJBhnoOBaTYUzlQTxRpWbOSnqcifjA61/
-	kcYeKOOqaMZJowzU2+SiBRvtUnZRtcTwhP6JIA==;
+	s=selector2; h=Cc:To:In-Reply-To:References:Message-Id:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From;
+	bh=gzlvfrpy1K4hTAKMoW8f2yDrhOt+qjbv/u9I1nI7fRQ=; b=Q45wSUUnWNiVYCZbUUNhSTyRcY
+	mRH+IgOIKbTp1Ap6wKfOnOuvNUEW5qCalkNl5ctk77fCu2OhYW2Mp6PyO3fXPGkB9FcePhWfqw2S1
+	Bql2Z3+dFKRv+pMpmglg0dmf1+UO1RJRRZlsQftFG7Jk4Ho5apkLHxTzYfdmDSqd3gc2Ej8yeach/
+	1lRK1aRXJr9LwNTfIEw2CLyaGona4xXfWoD+R6IzlkqlpK/9u7OJhFcaasYpmqCdyQrZ6fyEdjpk9
+	9+/xjosh4NFC0TN96qc0CJx07Mdxmf7p3IalQLMZS0CrKdergnizPbfjWBU+lTeEYbEuGTYmw6H+5
+	ECtXQCqw==;
 Received: from [10.9.9.73] (helo=submission02.runbox)
 	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
 	(envelope-from <mhal@rbox.co>)
-	id 1vdmjp-0000fD-8A; Thu, 08 Jan 2026 10:55:29 +0100
+	id 1vdmjm-0000eJ-Sx; Thu, 08 Jan 2026 10:55:27 +0100
 Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim 4.93)
-	id 1vdmjY-00AchK-Rh; Thu, 08 Jan 2026 10:55:12 +0100
+	id 1vdmjZ-00AchK-PX; Thu, 08 Jan 2026 10:55:13 +0100
 From: Michal Luczaj <mhal@rbox.co>
-Subject: [PATCH 0/2] vsock/virtio: Fix data loss/disclosure due to joining
- of non-linear skb in RX queue
-Date: Thu, 08 Jan 2026 10:54:53 +0100
-Message-Id: <20260108-vsock-recv-coalescence-v1-0-26f97bb9a99b@rbox.co>
+Date: Thu, 08 Jan 2026 10:54:54 +0100
+Subject: [PATCH 1/2] vsock/virtio: Coalesce only linear skb
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,10 +48,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAO1+X2kC/x3MQQqDMBBG4avIrB1IFFrxKqWLMP5ph5ZEMhAEy
- d0NLr/FeycZisJoHU4qqGqaU4cfB5JvSB+wbt00uenhvJu5WpYfF0hlyeEPEyQBz4t/LjHEzTu
- hHu8FUY97/Hq3dgFpg+z3aAAAAA==
-X-Change-ID: 20260103-vsock-recv-coalescence-38178fafd10c
+Message-Id: <20260108-vsock-recv-coalescence-v1-1-26f97bb9a99b@rbox.co>
+References: <20260108-vsock-recv-coalescence-v1-0-26f97bb9a99b@rbox.co>
+In-Reply-To: <20260108-vsock-recv-coalescence-v1-0-26f97bb9a99b@rbox.co>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
  Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
  =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
@@ -66,28 +65,39 @@ Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
  Michal Luczaj <mhal@rbox.co>
 X-Mailer: b4 0.14.3
 
-Loopback transport coalesces some skbs too eagerly. Handling a zerocopy
-(non-linear) skb as a linear one leads to skb data loss and kernel memory
-disclosure.
+Vsock/virtio common tries to coalesce buffers in rx queue: if a linear skb
+(with a spare tail room) is followed by a small skb (length limited by
+GOOD_COPY_LEN = 128), an attempt is made to join them.
 
-Plug the loss/leak by allowing only linear skb join. Provide a test.
+Since the introduction of MSG_ZEROCOPY support, assumption that a small skb
+will always be linear is incorrect (see loopback transport). In the
+zerocopy case, data is lost and the linear skb is appended with
+uninitialized kernel memory.
 
+Ensure only linear skbs are coalesced. Note that skb_tailroom(last_skb) > 0
+guarantees last_skb is linear.
+
+Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
 Signed-off-by: Michal Luczaj <mhal@rbox.co>
 ---
-Michal Luczaj (2):
-      vsock/virtio: Coalesce only linear skb
-      vsock/test: Add test for a linear and non-linear skb getting coalesced
+ net/vmw_vsock/virtio_transport_common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- net/vmw_vsock/virtio_transport_common.c   |  3 +-
- tools/testing/vsock/vsock_test.c          |  5 +++
- tools/testing/vsock/vsock_test_zerocopy.c | 67 +++++++++++++++++++++++++++++++
- tools/testing/vsock/vsock_test_zerocopy.h |  3 ++
- 4 files changed, 77 insertions(+), 1 deletion(-)
----
-base-commit: 653267321f05316f159e05b3ef562aa700632db6
-change-id: 20260103-vsock-recv-coalescence-38178fafd10c
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index dcc8a1d5851e..cf35eb7190cc 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1375,7 +1375,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
+ 		 * of a new message.
+ 		 */
+ 		if (skb->len < skb_tailroom(last_skb) &&
+-		    !(le32_to_cpu(last_hdr->flags) & VIRTIO_VSOCK_SEQ_EOM)) {
++		    !(le32_to_cpu(last_hdr->flags) & VIRTIO_VSOCK_SEQ_EOM) &&
++		    !skb_is_nonlinear(skb)) {
+ 			memcpy(skb_put(last_skb, skb->len), skb->data, skb->len);
+ 			free_pkt = true;
+ 			last_hdr->flags |= hdr->flags;
 
-Best regards,
 -- 
-Michal Luczaj <mhal@rbox.co>
+2.52.0
 
