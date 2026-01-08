@@ -1,206 +1,178 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFA52F4FA
-	for <virtualization@lists.linux.dev>; Thu,  8 Jan 2026 14:45:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9712026560D;
+	Thu,  8 Jan 2026 16:33:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767883537; cv=none; b=ALdvqX+2PLUa7WRRggE6Wx69ID+kusg21elxK7IYZRYNu66aBcyZdfJIz4UUocZirPIin/K716aMrXj6a7/pU2aH+oM+lLnUsTCZ2IeJ+Epb5Vll6pFs7kBYxJ3kCCs6rLjqiDZ0rS0kIFFqEctKGyCVo1jkUN3rTsufyTgxaso=
+	t=1767890030; cv=none; b=I77AXDgw93x4SGmz0z5h8Ad8AOHtkR+ER2p/rCLKKChpQXoxlaCqhLzdA47VKkVg9z3mwS6WbbbGTkvorpuIXW22SmgL2BaH1ZNZNtK5W+4AP9aNQI1a/vUlU/5vf0RbJdaydOJY5yOZDFCYb1LzHRaNAubHutXgJh8DLLyqpbM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767883537; c=relaxed/simple;
-	bh=ScTKP+c2rR672BgupG9wm67XF9gVvJQXcIgn+/1V/bU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=De3MZFMfHAleRLa3LmyGf1Ie9Ca6cAZQp3m8uBe1WkP2OvIXP94uCGlgzGr4lSKiTxzgvRKLech4pYYESqdbEKTlbit2Xb5zM+ikmOXjLgDiN4I7wK/MLIV3nhQnN2tdIfgcgFgcnCjchtF5YgwYSnc0GQ2QCy9TCb95Ji2vaIM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cEGkcdDU; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1767890030; c=relaxed/simple;
+	bh=AGZNwDpQqmCuS0ZembsvxsxGBegKk8NFWbTC37qZICc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=IWN85CXK5MkihAN+q/nB9p9Vbxyh17z830vzO3gQ7z9P7qnb9inOEHrrlwSy7rnD9bLXj0k6fTF3QP88eVbCMbtEKffZ76JpbzcjWuONp9RlJn4ZlmA3Qh6Ixh3/f+H9teSSybyLHecISFJ+BSyLYe8AGrGpCQ0tzsL7okDWrGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=hUtEYCw3; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cEGkcdDU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767883533;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=WfT1Va6tq1fm9ghByqfjKPhOxaDhZdEa8+dMcUknkTw=;
-	b=cEGkcdDUtwCQAciuSSLPqYzZQLxzlTFaGDIdEP0X8UFn5G8Y/D6hxjUZg6yiUflE7EN2k4
-	J2U1U795kp1zBtn1Tn6S8CWBMwNd3tkOmU7bmO8HpD+flpM/BpJphL2Hil55M32c8aQq2e
-	Amn28rycEmRtPiKgq24J22/GVIogvmI=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-466-yYQ0NsN2M_idwI-iXf4V1A-1; Thu, 08 Jan 2026 09:45:31 -0500
-X-MC-Unique: yYQ0NsN2M_idwI-iXf4V1A-1
-X-Mimecast-MFC-AGG-ID: yYQ0NsN2M_idwI-iXf4V1A_1767883530
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-b7d282ac8aaso477514966b.2
-        for <virtualization@lists.linux.dev>; Thu, 08 Jan 2026 06:45:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767883530; x=1768488330;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=WfT1Va6tq1fm9ghByqfjKPhOxaDhZdEa8+dMcUknkTw=;
-        b=dRFfHt3VWf/E8+VnDNzQST+GYxanpsz1qNfKE5MBC1TSVM/N8zPk9YAsvuinsCxzxm
-         pHLg8vLb6XB7Vwrq/I2RHx8z/HvkP3n70QixLPj85rekE71RI8FiO0P1f3HQtEvzRS0b
-         rou57DXVy6Sx6gAhG+K8Xb3HD/DW2iY5nXjxvxU15QSk4TcUkk92cNBXHbkOXBMnwslA
-         ilpI444KwpyGw0RNhJnJ+EuGagsFRuOZCiCDvgXqONVuqP939xuK4l7uplHEWacKTxI9
-         yKnmkLlyx5I5BWn+bvzcSJEFPwf2BGYKLxQ29eApw8K9pGd9Dezo2yztJj5Y7sDWLS/u
-         H4dg==
-X-Forwarded-Encrypted: i=1; AJvYcCWK3J+C7w1LS0RzQlm6VTJC3JpHMPnAzVb9AOnyXZlkKNjSJtUqjKDftf9OCim4RhfngPawxMfGF+USsUsJtQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwrsK82/v+tLJ7ZaaDScocwxubcWrer2rA0fFIvBvkJCT3L+cUY
-	6RsQ92oPseGiOLnaeOwMA74DKiNAydle4DtMBNVCNpM1n54hI0zIRl1lr3Y9498++7FSfiGyd7s
-	rPwQXfUVBkEpuZzE+us88BHZABcKxtFAQVbpIxGYeaJrgtjOswe0I4KJ7pU9T9/qlZGky
-X-Gm-Gg: AY/fxX55zxpN/fneK9v7VdzXCRqKtce1/JFzHRTfSSDc0BtTzf71fWhMnWaPhEocqeD
-	aarKDVfBSOQyZ2kiERkAXwVuqSGzT0rzUSzOFzF1iStxinMfl+BPX6NdoSaAi5iRGSJAqAtjel+
-	m6LNOE2lsgX6RlmnoyJT+FGXomGkTK0HVcv67EE8nUDOa64Udfv5WjSBeblXp82dL8OVtsPnNtE
-	jBG0tNMtkzlQJ7sBca5SwQazARHEOr706VIWzcvXgv/qDcjn5Qcwf8NDGekPxM00lSAjymquvnI
-	l+W3L+smvhRlXJ2XxJOE0qCB3mwet+dnkvTJ4cp4zcrFfoHpH21I2GOQzQLrGW/C7mPX8yh7ND6
-	gkCwlFaJLioyEDgYO
-X-Received: by 2002:a17:906:c103:b0:b79:e974:4060 with SMTP id a640c23a62f3a-b8444fd41a2mr660535066b.48.1767883530428;
-        Thu, 08 Jan 2026 06:45:30 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEy4t9xkgOZMs7kPUcCm9yBAey59kExadAcY+9phGlSdjSpATKGUSBjtzXbWCkzKn2HKwCwkQ==
-X-Received: by 2002:a17:906:c103:b0:b79:e974:4060 with SMTP id a640c23a62f3a-b8444fd41a2mr660529166b.48.1767883529753;
-        Thu, 08 Jan 2026 06:45:29 -0800 (PST)
-Received: from sgarzare-redhat ([193.207.223.215])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b842a564255sm848076466b.63.2026.01.08.06.45.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Jan 2026 06:45:28 -0800 (PST)
-Date: Thu, 8 Jan 2026 15:45:20 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Olivia Mackall <olivia@selenic.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	Robin Murphy <robin.murphy@arm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Petr Tesarik <ptesarik@suse.com>, Leon Romanovsky <leon@kernel.org>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Bartosz Golaszewski <brgl@kernel.org>, linux-doc@vger.kernel.org, 
-	linux-crypto@vger.kernel.org, virtualization@lists.linux.dev, linux-scsi@vger.kernel.org, 
-	iommu@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH v2 13/15] vsock/virtio: reorder fields to reduce padding
-Message-ID: <aV_Cr_f47qqc2JoP@sgarzare-redhat>
-References: <cover.1767601130.git.mst@redhat.com>
- <fdc1da263186274b37cdf7660c0d1e8793f8fe40.1767601130.git.mst@redhat.com>
- <aV-6gniRnZlNvkwc@sgarzare-redhat>
- <20260108091514-mutt-send-email-mst@kernel.org>
- <aV-9F42fMfKGP4Rg@sgarzare-redhat>
- <20260108092931-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="hUtEYCw3"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=g8c5uFLop3/jlRNNx8JcaFswrG8Sx8WRDiJjznTPOag=; b=hUtEYCw3CM/puZ7Yote1TTXoB1
+	xzCYTks/1nTe1OO//2zJ2G+5c5gZaHcSvR6hynMQXYMqyUfIwFWrvFBIy2m2rv7Zy9r2aMdKlqwc3
+	hUKH5dhRixs1i6zYqD4zyCPQXefUnyxaQz77zWefL/wG63iJ91jpPKYIhckBq/I3LHPFRnuvc+a/I
+	YS65/g9VBoitFNElOEkMSlNic2N69UHgQyX06PTQ1wjv8HSWNxRFkLPWDuM3sG8OFeByBSaqhRpRu
+	SBCqUSfgZIJmKFoBZ3RVxzPBZFQ5ib81XiQbviZLV+mv6SeQrI7AKPEeqLo9LNUGyhymscLNQxoJU
+	zyvFA1wQ==;
+Received: from [149.13.74.102] (helo=u09cd745991455d.ant.amazon.com)
+	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vdsxE-0000000Dfep-0n42;
+	Thu, 08 Jan 2026 16:33:44 +0000
+Message-ID: <fa3cd687961e63dd2b79780eb84c243c8d35532a.camel@infradead.org>
+Subject: Re: [PATCH v4 4/9] vsock/virtio: Resize receive buffers so that
+ each SKB fits in a 4K page
+From: David Woodhouse <dwmw2@infradead.org>
+To: Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org
+Cc: Keir Fraser <keirf@google.com>, Steven Moreland <smoreland@google.com>, 
+ Frederick Mayle <fmayle@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>,  "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Eugenio
+ =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev
+Date: Thu, 08 Jan 2026 17:33:42 +0100
+In-Reply-To: <20250717090116.11987-5-will@kernel.org>
+References: <20250717090116.11987-1-will@kernel.org>
+	 <20250717090116.11987-5-will@kernel.org>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-ht17kk5Y4zMafZO0ELKM"
+User-Agent: Evolution 3.52.3-0ubuntu1.1 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260108092931-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: UlAZNFa0UnS0x08rMcmPDzL7EUL1piXjyOYa8aLfN9Y_1767883530
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
 
-On Thu, Jan 08, 2026 at 09:32:23AM -0500, Michael S. Tsirkin wrote:
->On Thu, Jan 08, 2026 at 03:27:04PM +0100, Stefano Garzarella wrote:
->> On Thu, Jan 08, 2026 at 09:17:49AM -0500, Michael S. Tsirkin wrote:
->> > On Thu, Jan 08, 2026 at 03:11:36PM +0100, Stefano Garzarella wrote:
->> > > On Mon, Jan 05, 2026 at 03:23:41AM -0500, Michael S. Tsirkin wrote:
->> > > > Reorder struct virtio_vsock fields to place the DMA buffer (event_list)
->> > > > last. This eliminates the padding from aligning the struct size on
->> > > > ARCH_DMA_MINALIGN.
->> > > >
->> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> > > > ---
->> > > > net/vmw_vsock/virtio_transport.c | 8 +++++---
->> > > > 1 file changed, 5 insertions(+), 3 deletions(-)
->> > > >
->> > > > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->> > > > index ef983c36cb66..964d25e11858 100644
->> > > > --- a/net/vmw_vsock/virtio_transport.c
->> > > > +++ b/net/vmw_vsock/virtio_transport.c
->> > > > @@ -60,9 +60,7 @@ struct virtio_vsock {
->> > > > 	 */
->> > > > 	struct mutex event_lock;
->> > > > 	bool event_run;
->> > > > -	__dma_from_device_group_begin();
->> > > > -	struct virtio_vsock_event event_list[8];
->> > > > -	__dma_from_device_group_end();
->> > > > +
->> > > > 	u32 guest_cid;
->> > > > 	bool seqpacket_allow;
->> > > >
->> > > > @@ -76,6 +74,10 @@ struct virtio_vsock {
->> > > > 	 */
->> > > > 	struct scatterlist *out_sgs[MAX_SKB_FRAGS + 1];
->> > > > 	struct scatterlist out_bufs[MAX_SKB_FRAGS + 1];
->> > > > +
->> > >
->> > > IIUC we would like to have these fields always on the bottom of this struct,
->> > > so would be better to add a comment here to make sure we will not add other
->> > > fields in the future after this?
->> >
->> > not necessarily - you can add fields after, too - it's just that
->> > __dma_from_device_group_begin already adds a bunch of padding, so adding
->> > fields in this padding is cheaper.
->> >
->>
->> Okay, I see.
->>
->> >
->> > do we really need to add comments to teach people about the art of
->> > struct packing?
->>
->> I can do it later if you prefer, I don't want to block this work, but yes,
->> I'd prefer to have a comment because otherwise I'll have to ask every time
->> to avoid, especially for new contributors xD
->
->On the one hand you are right on the other I don't want it
->duplicated each time __dma_from_device_group_begin is invoked.
 
-yeah, I see.
+--=-ht17kk5Y4zMafZO0ELKM
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
->Pls come up with something you like, and we'll discuss.
+On Thu, 2025-07-17 at 10:01 +0100, Will Deacon wrote:
+>=20
+> -#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
+> +/* Dimension the RX SKB so that the entire thing fits exactly into
+> + * a single 4KiB page. This avoids wasting memory due to alloc_skb()
+> + * rounding up to the next page order and also means that we
+> + * don't leave higher-order pages sitting around in the RX queue.
+> + */
+> +#define
+> VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	SKB_WITH_OVERHEAD(1024 * 4)
 
-sure, I'll check a bit similar cases to have some inspiration.
+Should this be SKB_WITH_OVERHEAD()?
 
->
->> >
->> > > Maybe we should also add a comment about the `ev`nt_lock`
->> > > requirement we
->> > > have in the section above.
->> > >
->> > > Thanks,
->> > > Stefano
->> >
->> > hmm which requirement do you mean?
->>
->> That `event_list` must be accessed with `event_lock`.
->>
->> So maybe we can move also `event_lock` and `event_run`, so we can just move
->> that comment. I mean something like this:
->>
->>
->> @@ -74,6 +67,15 @@ struct virtio_vsock {
->>          */
->>         struct scatterlist *out_sgs[MAX_SKB_FRAGS + 1];
->>         struct scatterlist out_bufs[MAX_SKB_FRAGS + 1];
->> +
->> +       /* The following fields are protected by event_lock.
->> +        * vqs[VSOCK_VQ_EVENT] must be accessed with event_lock held.
->> +        */
->> +       struct mutex event_lock;
->> +       bool event_run;
->> +       __dma_from_device_group_begin();
->> +       struct virtio_vsock_event event_list[8];
->> +       __dma_from_device_group_end();
->>  };
->>
->>  static u32 virtio_transport_get_local_cid(void)
->
->Yea this makes sense.
+Or should it subtract VIRTIO_VSOCK_SKB_HEADROOM instead?
 
-Thanks for that!
-Stefano
+(And also, I have use cases where I want to expand this to 64KiB. Can I
+make it controllable with a sockopt? module param?)
 
+--=-ht17kk5Y4zMafZO0ELKM
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
+ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
+AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
+BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
+MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
+a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
+jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
+GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
+aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
+nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
+8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
+HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
+IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
+KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
+BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
+QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
+QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
+ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
+/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
+uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
+xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
+W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
+c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
+VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
+NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
+DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
+sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
+w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
+i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
+kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
+0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
+ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
+blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
+hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
+VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
+HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
+ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
+AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
+cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
+cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
+AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
+aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
+hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
+iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
+8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
+JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
+xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
+EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
+B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
+MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
+KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
+Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
+nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
+WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
+W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
+nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
+g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
+9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
+9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
+sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
+a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
+ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
+AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
+dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
+MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
+YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
+4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
+6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
+QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
+nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
+MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
+VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
+ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDEwODE2MzM0
+MlowLwYJKoZIhvcNAQkEMSIEICCHBA1SHWAE6uqhm2Gao3MaPR2MuLQrDCOlLpNR868RMGQGCSsG
+AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
+cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
+VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
+cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAQ3y6tQP5bL2E
+E/76suhh6VjJ5W4G34yWYN8ADVe8zSooAPy3d3KD1HvvFm+zhDzOzluwI1+5PObYKi07eaTKDom4
+zuhmWKIsYeibR0vm2nmgsEdhvC//pO1RJ7B7+GBLw8icxsvwCLBquUlXowoOWZxNKhxDXx1L7z4T
+/ONTnLMTrRHoNAi+H9oC6xpzRYOCcEsANfytiymtVPHkZgx2/WKLlfKh96vch1/AYBK5SQdGBxoB
+IsQrapfazidfm4qY/tPadgT78/6Xjo0AjOG43T5IQga4zrwsA4ym6zyc03ZKy5Ibc7MKrjp4OE+r
+mfQa+64VNKlAlAfvRcARSgm6aelEc4cOzw6pnDCxfu7Q6pAkR37+rmohBlS3MpbusFheZb2iYiGX
+UHn8rLZAXhqYnifY4Uumgp/ZPtlznoK1kp3oMSSAqxJx28+AfBjvRVluhc0Gx5Q20Vg909Iw2NaN
+rsjZ5vLlQ0K8CQ58Q9+PZzNG+uFG0qypfIeJDciTJyQcZmssg4usBm8rZi3mMR9K+MVkCIBeNSfm
++UxR6x0E8Img8DPlZs5wV2bDbQ2S/1SnyaCSTnuhjUVFWOdNCpGA2oN2v8e0YAlAOIrsAKrBZWYK
+QTveURdVUeRleRp4gHVFQv2l7jQJw9AnQTQWTxruzm14s2CLZa/SY/fDuHO+ypoAAAAAAAA=
+
+
+--=-ht17kk5Y4zMafZO0ELKM--
