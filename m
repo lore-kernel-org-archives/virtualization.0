@@ -1,274 +1,338 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B5652E7F25
-	for <virtualization@lists.linux.dev>; Thu,  8 Jan 2026 20:21:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9E9732F74D;
+	Thu,  8 Jan 2026 20:30:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767903715; cv=none; b=kk9T7EJjJx89u602MrPf9L+MnkaHhiLB3ZnqcSwcRs4IRHqZjFMS1TJ1ZdKFnfnd1LVMtOMwL8Ds65xZ5zQPaHrtMhFE619MOJP2ijabVBcsG9eh609ytUUx5HJQvnvhQGjX0bQ0AJ7whssX4JLN921UxsipAV6a5hUuTKxuR+Y=
+	t=1767904228; cv=none; b=XcBvByvYiMhPKIMAYq4k5UCfSwnjr9cS44AT+oPCVkrJL8FRLTgsW3OEW5pO6bSlZG57ceW6ep66l/tBkcprQVo78I25KSPcHdXPRAx6wraPjwJm9YPPmCr/39XaF0w7MGil6bWjo3qZdKe5d9TcCk0L2IEYeVB6UIpgT2kLt14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767903715; c=relaxed/simple;
-	bh=CmlVuq1VZzJ4QPtFQNOI9/euJaJPj6jqYo36MIDVNXw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fQmKTNUN1JFUxuc2rGz+8zxhsv5rRYT/8rhEHeWAU8Sry5ZDycZtrIXgjjFIQVcnyUXKrF7Lzoqy+6OXVo7Jc3Bigq6/cKEMnqh0AHYdWb/vBT3ThRkVcvqZy56506kubXZ6Srbf/4r9ULRMClfH5afFipIHGq6VzdOqYUCf2gs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iVaAz8gg; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1767904228; c=relaxed/simple;
+	bh=5FDjJzy6AOW1qFhOgfm62fFBhHaSU5fD45eqi9Wu6i4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lSsDDvn570ECa2WGwB3yRXyaeJp2YVPWRH2BoDsZbZtxgqkcuHVQ9DQzfnYvZYociAI3mz6UTchCXPpfvG3XYTelpTVcttiMow2qBDxb6RcpZG1TXbJid65xMLVgzjnynqkJDbtfUlx0rCPXF2P82+6v6Jc8w0mSuVhAB6zUT7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dUE3kdM2; arc=none smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iVaAz8gg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767903712;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EzMl2lf5wfervHBeYiZB1UDrn3oKykhMBIvMEP9ZDyQ=;
-	b=iVaAz8ggn5pteEOjkGwdTpyB5YxLPOJgK275r/1gMqptlVTipTZHax6NRJWdYK7XZ9BL9U
-	TGVqq6cuoGVHJJfjC6/H9F1US4DUYPsVkgIzfIikGDdQ0+YjymtWNgUL568MfDKgmZgq95
-	034lIVWvy+kJIgGNpneVPSAgHa0kFl4=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-581-i4Fx0BgVMAK8DMk-3lHBkA-1; Thu, 08 Jan 2026 15:21:51 -0500
-X-MC-Unique: i4Fx0BgVMAK8DMk-3lHBkA-1
-X-Mimecast-MFC-AGG-ID: i4Fx0BgVMAK8DMk-3lHBkA_1767903710
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-b8395caeb26so590038966b.0
-        for <virtualization@lists.linux.dev>; Thu, 08 Jan 2026 12:21:51 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767903710; x=1768508510;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=EzMl2lf5wfervHBeYiZB1UDrn3oKykhMBIvMEP9ZDyQ=;
-        b=kEaq9ZUY3PDVUMda67syD7bvxLTZioQRxdpV5ST55lmfKzBMD3MwsJmmSeMcXRrxOu
-         jTLY3ce3r3ijyeywAd+p2UTKJD10pCbfaloukKY+biFa5UcuWbMN1+L2gqVTQXPWDiSr
-         a3X8DErWdXpOsci96i7Bjs4/c1X54oxGl1ltSDIDTSkTOanz5r9Wl8hWXn/vdF1z52uD
-         1Pmmle/3AAufUGB5ZWgBFTIhhLGXs9lk8d00XQhQuOW1JIyTVoEDKsy0ekL8vp6vYn2U
-         NtH7h5JzMbjpmiPmFm3Lp8HiM9zU7l473tMqE9wuNb9WcR6Dsf3qB8UV17TrRAcMxf7k
-         FCCg==
-X-Forwarded-Encrypted: i=1; AJvYcCXZZ3eQgT6eYzowqIMaAk7t09OhOyS+uwGkN0SeA+w9LgZVYIvW9OYhDg70STpuaKfbMm2jexZ5xLqlt5XslA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxsC2mQVMK8c6KTjqqx9VCaM8PjjPS70i4yMzx9dgNg+twAdXQJ
-	4k0SaD6xP303yO+b2pizIKrudCPaf0kUV/Q4fiOfE94B28aXk6CqM4J/rya52cWsp23SYwaqHYK
-	BHZmEPhs4rnAaFWE2hmLAaipwmXB4W2lvPid2J7F7zeC+zt4bauCCwVGdXfl+ox9l8uwGiXhGhh
-	F4FYv2MC7ZKKLWKL2wdwWVEiK96zfJEgSVKARYKMSU1N8=
-X-Gm-Gg: AY/fxX7hlarLmEbLcxytPKacxOJosKOatr1vb1gaH7wsSMoE8W/IVQ8hisp6vx9TfkM
-	BYrHzPOttLxEAFvynlTk+YCpP6XKIgwr++grt4nlqbrYLcGOuhWSqUCZoSj1LO4XooX5+fa1wKW
-	BQCLH5hl11PTEE3g5I8XyLqMo2XWXo4a937NiJMcJYjseN1DQJ2bwnW8sJqvxp2U3Av4T1VlAqW
-	1FzL8IrwWkB+Gp+d7ODflkg
-X-Received: by 2002:a17:907:1b08:b0:b80:3fb7:f3a8 with SMTP id a640c23a62f3a-b8445427d4dmr713617866b.63.1767903710001;
-        Thu, 08 Jan 2026 12:21:50 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEe4z9hk785ik31xjpmJ49qvthn+Dn6J/lk+VSduGWBe6cOZIlpU3qyrudI3zg3yRdeNfJzESXTUc0W9fABBQE=
-X-Received: by 2002:a17:907:1b08:b0:b80:3fb7:f3a8 with SMTP id
- a640c23a62f3a-b8445427d4dmr713615366b.63.1767903709500; Thu, 08 Jan 2026
- 12:21:49 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dUE3kdM2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1767904227; x=1799440227;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=5FDjJzy6AOW1qFhOgfm62fFBhHaSU5fD45eqi9Wu6i4=;
+  b=dUE3kdM2N7NoA6KlFYsH1pUh9YOVtqe3KJv0xsHRow5/Eh/ULoXjwPk+
+   AOASlt2zn99CBnQa+VW5c9vzdm8dgJw/skJCrkU7piZPBEOfajvNZ031I
+   zrqNznZvreXA8pTv5z3fhLfFrLeCIheBQtCN9syAsFliKxcMM/wadvRcP
+   ImFNejIBYL/Iu2NKWInBttfaXq/KHjqUDtVuam+LqRfBZv6DaiCAS33Qh
+   fcYcHHivkHX9eXrb6BBiri2xXO6pPOlnUkcjLA74z5bCr94xThSsL+T4P
+   DK1eITJU8yR4DREEKjKIqTEcOSPfGQzEmvrUaZ1tZcVPn0zCEiDvCu4oW
+   g==;
+X-CSE-ConnectionGUID: fQfLIr4GSfelN178OTgZEw==
+X-CSE-MsgGUID: Ekycf6DMQwyNaFd4j9tV5g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11665"; a="68485840"
+X-IronPort-AV: E=Sophos;i="6.21,211,1763452800"; 
+   d="scan'208";a="68485840"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jan 2026 12:30:26 -0800
+X-CSE-ConnectionGUID: Rb7WE93tRy+8OPHVD/Fexw==
+X-CSE-MsgGUID: Ba3oBSLTQpek6cr9+Yqu0w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,211,1763452800"; 
+   d="scan'208";a="226706557"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa002.fm.intel.com with ESMTP; 08 Jan 2026 12:30:16 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1003)
+	id 8983166; Thu, 08 Jan 2026 21:30:15 +0100 (CET)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Mark Brown <broonie@kernel.org>,
+	Varshini Rajendran <varshini.rajendran@microchip.com>,
+	Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Sunny Luo <sunny.luo@amlogic.com>,
+	Janne Grunau <j@jannau.net>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>,
+	CL Wang <cl634@andestech.com>,
+	Manikandan Muralidharan <manikandan.m@microchip.com>,
+	David Lechner <dlechner@baylibre.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Jonas Gorski <jonas.gorski@gmail.com>,
+	Hang Zhou <929513338@qq.com>,
+	Jun Guo <jun.guo@cixtech.com>,
+	Philipp Stanner <phasta@kernel.org>,
+	Charles Keepax <ckeepax@opensource.cirrus.com>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	=?UTF-8?q?Beno=C3=AEt=20Monin?= <benoit.monin@bootlin.com>,
+	Shiji Yang <yangshiji66@outlook.com>,
+	James Clark <james.clark@linaro.org>,
+	Jonathan Marek <jonathan@marek.ca>,
+	Carlos Song <carlos.song@nxp.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Xianwei Zhao <xianwei.zhao@amlogic.com>,
+	Prajna Rajendra Kumar <prajna.rajendrakumar@microchip.com>,
+	Sergio Perez Gonzalez <sperezglz@gmail.com>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Qianfeng Rong <rongqianfeng@vivo.com>,
+	Haibo Chen <haibo.chen@nxp.com>,
+	Gabor Juhos <j4g8y7@gmail.com>,
+	Md Sadre Alam <quic_mdalam@quicinc.com>,
+	Rosen Penev <rosenp@gmail.com>,
+	Luis de Arquer <luis.dearquer@inertim.com>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>,
+	Tudor Ambarus <tudor.ambarus@linaro.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Longbin Li <looong.bin@gmail.com>,
+	Patrice Chotard <patrice.chotard@foss.st.com>,
+	=?UTF-8?q?Cl=C3=A9ment=20Le=20Goffic?= <clement.legoffic@foss.st.com>,
+	Alessandro Grassi <alessandro.grassi@mailbox.org>,
+	Chen-Yu Tsai <wens@kernel.org>,
+	Darshan R <rathod.darshan.0896@gmail.com>,
+	Aaron Kling <webgeek1234@gmail.com>,
+	Vishwaroop A <va@nvidia.com>,
+	Haixu Cui <quic_haixcui@quicinc.com>,
+	Darshan Rathod <darshanrathod475@gmail.com>,
+	linux-spi@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-amlogic@lists.infradead.org,
+	asahi@lists.linux.dev,
+	linux-aspeed@lists.ozlabs.org,
+	openbmc@lists.ozlabs.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-sound@vger.kernel.org,
+	patches@opensource.cirrus.com,
+	imx@lists.linux.dev,
+	linux-arm-msm@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-mediatek@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Lorenzo Bianconi <lorenzo@kernel.org>,
+	Ray Liu <ray.liu@airoha.com>,
+	Sven Peter <sven@kernel.org>,
+	Neal Gompa <neal@gompa.dev>,
+	=?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+	Joel Stanley <joel@jms.id.au>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Ryan Wanner <ryan.wanner@microchip.com>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+	Kamal Dasu <kamal.dasu@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Ray Jui <rjui@broadcom.com>,
+	Scott Branden <sbranden@broadcom.com>,
+	William Zhang <william.zhang@broadcom.com>,
+	Kursad Oney <kursad.oney@broadcom.com>,
+	Anand Gore <anand.gore@broadcom.com>,
+	=?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+	David Rhodes <david.rhodes@cirrus.com>,
+	Richard Fitzgerald <rf@opensource.cirrus.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	Frank Li <Frank.Li@nxp.com>,
+	Jean-Marie Verdun <verdun@hpe.com>,
+	Nick Hawkins <nick.hawkins@hpe.com>,
+	Yang Shen <shenyang39@huawei.com>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Lixu Zhang <lixu.zhang@intel.com>,
+	Yinbo Zhu <zhuyinbo@loongson.cn>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	Conor Dooley <conor.dooley@microchip.com>,
+	Daire McNamara <daire.mcnamara@microchip.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Avi Fishman <avifishman70@gmail.com>,
+	Tomer Maimon <tmaimon77@gmail.com>,
+	Tali Perry <tali.perry1@gmail.com>,
+	Patrick Venture <venture@google.com>,
+	Nancy Yuen <yuenn@google.com>,
+	Benjamin Fair <benjaminfair@google.com>,
+	Han Xu <han.xu@nxp.com>,
+	Yogesh Gaur <yogeshgaur.83@gmail.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Daniel Mack <daniel@zonque.org>,
+	Haojian Zhuang <haojian.zhuang@gmail.com>,
+	Robert Jarzmik <robert.jarzmik@free.fr>,
+	Chris Packham <chris.packham@alliedtelesis.co.nz>,
+	Heiko Stuebner <heiko@sntech.de>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Alim Akhtar <alim.akhtar@samsung.com>,
+	Paul Walmsley <pjw@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Orson Zhai <orsonzhai@gmail.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Alain Volmat <alain.volmat@foss.st.com>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Li-hao Kuo <lhjeff911@gmail.com>,
+	Masahisa Kojima <masahisa.kojima@linaro.org>,
+	Jassi Brar <jaswinder.singh@linaro.org>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Sowjanya Komatineni <skomatineni@nvidia.com>,
+	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	=?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+	Michal Simek <michal.simek@amd.com>,
+	Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH v1 0/4] spi: Make SPI core to take care of fwnode assignment
+Date: Thu,  8 Jan 2026 21:23:37 +0100
+Message-ID: <20260108203004.3538449-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <aQJRnX7OpFRY/1+H@fedora> <aQkgsuxa2UaL_qdt@bywater>
- <aTsE1VIk4V/A49HE@fedora> <aT7XAsTWr0_yyfx_@bywater> <aU6lCL_vrF93lpYa@bywater>
- <CAHYGQ0yHSvhOibhvxtFjZ7H3Tczb22JZ1UuaX5kkOtok0JjDgQ@mail.gmail.com>
- <aV6sHofXnZuu84OV@bywater> <aV7lplXiOehmw2iR@bywater> <CAHYGQ0yQ=20eFJN-_=_+uqyk=nRyotQLgf01B-Rb8NVk9N4DpQ@mail.gmail.com>
-In-Reply-To: <CAHYGQ0yQ=20eFJN-_=_+uqyk=nRyotQLgf01B-Rb8NVk9N4DpQ@mail.gmail.com>
-From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Date: Thu, 8 Jan 2026 21:21:38 +0100
-X-Gm-Features: AQt7F2r7y1JM7wbF19_CDer5KyA2VfYb4v3iyeNbLqnMCKk2nRR4hWrvA0FIxeE
-Message-ID: <CAHYGQ0waHHLOOjX6cSkSHkNRGYDqsCccKUa5E2DGZwR9DtjMUA@mail.gmail.com>
-Subject: Re: [PATCH v6] can: virtio: Add virtio CAN driver
-To: Francesco Valla <francesco@valla.it>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol <mailhol@kernel.org>, 
-	Harald Mommer <harald.mommer@oss.qualcomm.com>, 
-	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org, 
-	virtualization@lists.linux.dev, Wolfgang Grandegger <wg@grandegger.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eeNeoyJd629tEambqtsLoabblxQQIqClavRpvHBef3A_1767903710
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jan 8, 2026 at 12:21=E2=80=AFAM Matias Ezequiel Vara Larsen
-<mvaralar@redhat.com> wrote:
->
-> On Thu, Jan 8, 2026 at 12:01=E2=80=AFAM Francesco Valla <francesco@valla.=
-it> wrote:
-> >
-> > On Wed, Jan 07, 2026 at 07:55:26PM +0100, Francesco Valla wrote:
-> > > Hi Matias,
-> > >
-> > > On Wed, Jan 07, 2026 at 05:14:25PM +0100, Matias Ezequiel Vara Larsen=
- wrote:
-> > > > On Fri, Dec 26, 2025 at 4:09=E2=80=AFPM Francesco Valla <francesco@=
-valla.it> wrote:
-> > > > >
-> > > > > Hi,
-> > > > >
-> > > > > On Sun, Dec 14, 2025 at 04:25:54PM +0100, Francesco Valla wrote:
-> > > > > > While stress testing this, I noticed that flooding the virtio-c=
-an
-> > > > > > interface with packets leads to an hang of the interface itself=
-.
-> > > > > > I am seeing this issuing, at host side:
-> > > > > >
-> > > > > >       while true; do cansend can0 123#00; done
-> > > > > >
-> > > > > > with:
-> > > > > >
-> > > > > >  - QEMU: the tip of the master branch plus [2]
-> > > > > >  - vhost-device: the tip of the main branch
-> > > > > >
-> > > > > > and the following QEMU invocation:
-> > > > > >
-> > > > > > qemu-system-x86_64 -serial mon:stdio \
-> > > > > >     -m 2G -smp 2 \
-> > > > > >     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
-> > > > > >     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
-> > > > > >     -append "loglevel=3D7 console=3DttyS0" \
-> > > > > >     -machine memory-backend=3Dpc.ram \
-> > > > > >     -object memory-backend-file,id=3Dpc.ram,size=3D2G,mem-path=
-=3D/tmp/pc.ram,share=3Don \
-> > > > > >     -chardev socket,id=3Dcan0,path=3D/tmp/sock-can0 \
-> > > > > >     -device vhost-user-can-pci,chardev=3Dcan0
-> > > > > >
-> > > > > >
-> > > > > > Restarting the interface (i.e.: ip link set down and the up) do=
-es not
-> > > > > > fix the situation.
-> > > > > >
-> > > > > > I'll try to do some more testing during the next days.
-> > > > >
-> > > > > After a deep dive, I _think_ the problem actually lies in vhost-d=
-evice,
-> > > > > since it is not there (or al least, it seems so) using an alterna=
-tive
-> > > > > implementation that uses the qemu socketcan support [0] (implemen=
-tation
-> > > > > which builds on top of the work done by Harald and Mikhail):
-> > > > >
-> > > > > qemu-system-x86_64 -serial mon:stdio \
-> > > > >     -m 2G -smp 2 -enable-kvm \
-> > > > >     -kernel $(pwd)/BUILD.bin/arch/x86/boot/bzImage \
-> > > > >     -initrd /home/francesco/SRC/LINUX_KERNEL/initramfs.gz \
-> > > > >     -append "loglevel=3D7 console=3DttyS0" \
-> > > > >     -object can-bus,id=3Dcanbus0 -object can-host-socketcan,id=3D=
-canhost0,if=3Dvcan0,canbus=3Dcanbus0 \
-> > > > >     -device virtio-can-pci,canbus=3Dcanbus0
-> > > > >
-> > > > > Unfortunately, my Rust knoweledge is not sufficient to understand=
- the
-> > > > > vhost-device implementation [1]; the issue seems to be related to=
- the
-> > > > > host->guest vring becoming empty and not refilling anymore.
-> > > > >
-> > > >
-> > > > Can you try with
-> > > > https://github.com/MatiasVara/vhost-device/commits/fix-for-923/?
-> > >
-> > > I'll stress test it during the night, but this seems to fix it. Befor=
-e
-> > > it was reproducible in a consistent manner after mere seconds, while =
-i
-> > > now in a bunch of runs I never reproduced it.
-> > >
-> > > I also agree with your analysis on the commit.
-> > >
-> >
-> > Quick update, unfortunately not good: the RX issue is solved, but now I
-> > have a different one: if I send a single message either from the guset
-> > or the host (e.g.: cansend can0 111#00) I get:
-> >
-> > [   16.496923] irq 11: nobody cared (try booting with the "irqpoll" opt=
-ion)
-> > [   16.511875] CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted 6.18.0-=
-00002-gded0a4b9da5a #29 PREEMPT(voluntary)
-> > [   16.511883] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), B=
-IOS rel-1.17.0-0-gb52ca86e094d-prebuilt.qemu.org 04/01/2014
-> > [   16.511887] Call Trace:
-> > [   16.511933]  <IRQ>
-> > [   16.511938]  dump_stack_lvl+0x4d/0x70
-> > [   16.511973]  __report_bad_irq+0x30/0xb7
-> > [   16.511986]  note_interrupt.cold+0x28/0x66
-> > [   16.511988]  handle_irq_event+0x6d/0x70
-> > [   16.512004]  handle_fasteoi_irq+0xd5/0x1f0
-> > [   16.512011]  __common_interrupt+0x3f/0xd0
-> > [   16.512023]  ? tick_nohz_irq_exit+0x2e/0x60
-> > [   16.512035]  common_interrupt+0x3b/0x90
-> > [   16.512057]  asm_common_interrupt+0x26/0x40
-> > [   16.512073] RIP: 0010:handle_softirqs+0x6d/0x270
-> > [   16.512081] Code: 02 00 01 00 00 89 5c 24 14 48 89 6c 24 08 c7 44 24=
- 10 0a 00 00 00 89 7c 24 04 31 c0 65 66 89 05 01 ce 3e 02 fb bb ff ff ff ff=
- <49> c7 c2 c0 80 a0 a2 44 89 ed 41 0f bc dd 83 c3 01 74 76 8d 43 ff
-> > [   16.512082] RSP: 0018:ffffb22480003f98 EFLAGS: 00000246
-> > [   16.512086] RAX: 0000000000000000 RBX: 00000000ffffffff RCX: 0000000=
-000000838
-> > [   16.512087] RDX: 0000000000000000 RSI: ffffffffa2a0e940 RDI: 0000000=
-000000000
-> > [   16.512088] RBP: 00000000fffbac3e R08: 0000000000000001 R09: 0000000=
-000000000
-> > [   16.512088] R10: ffffa2d57da249d0 R11: ffffb22480003ff8 R12: 0000000=
-000000000
-> > [   16.512091] R13: 0000000000000082 R14: 0000000000000000 R15: 0000000=
-000000000
-> > [   16.512097]  irq_exit_rcu+0x89/0xb0
-> > [   16.512099]  sysvec_apic_timer_interrupt+0x6b/0x80
-> > [   16.512103]  </IRQ>
-> > [   16.512104]  <TASK>
-> > [   16.512104]  asm_sysvec_apic_timer_interrupt+0x1a/0x20
-> > [   16.512105] RIP: 0010:pv_native_safe_halt+0xf/0x20
-> > [   16.512107] Code: 2c 81 00 c3 cc cc cc cc 0f 1f 00 90 90 90 90 90 90=
- 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa eb 07 0f 00 2d 05 cf 18 00 fb f4=
- <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 66 90 90 90 90 90 90
-> > [   16.512109] RSP: 0018:ffffffffa2a03e80 EFLAGS: 00000212
-> > [   16.512110] RAX: ffffa2d5da523000 RBX: ffffffffa2a0e940 RCX: 0000000=
-000000838
-> > [   16.512111] RDX: 4000000000000000 RSI: 0000000000000087 RDI: 0000000=
-0000a722c
-> > [   16.512111] RBP: 0000000000000000 R08: 00000000000a722c R09: ffffa2d=
-57da249d0
-> > [   16.512112] R10: ffffa2d57da1bac0 R11: 0000000000000001 R12: 0000000=
-000000000
-> > [   16.512112] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000=
-000014770
-> > [   16.512113]  default_idle+0x9/0x10
-> > [   16.512117]  default_idle_call+0x2a/0xf0
-> > [   16.512119]  do_idle+0x1cb/0x230
-> > [   16.512129]  cpu_startup_entry+0x24/0x30
-> > [   16.512130]  rest_init+0xbc/0xc0
-> > [   16.512133]  start_kernel+0x6d7/0x6e0
-> > [   16.512164]  x86_64_start_reservations+0x24/0x30
-> > [   16.512172]  x86_64_start_kernel+0xc8/0xd0
-> > [   16.512173]  common_startup_64+0x13e/0x148
-> > [   16.512181]  </TASK>
-> > [   16.512181] handlers:
-> > [   16.513166] [<00000000b61218c7>] vp_interrupt
-> > [   16.515096] Disabling IRQ #11
-> >
-> > with IRQ#11 being:
-> >
-> > # cat /proc/interrupts
-> >            CPU0       CPU1
-> >  11:     102218          0  IO-APIC  11-fasteoi   virtio0
-> >
-> >
-> > This cannot be reproduced with the old version of vhost-device. I think
-> > it is due to the removal of the req_rx_buf variable and associated
-> > logic: a vq kick is now being performed at every cycle of the event
-> > loop, even if no processing happened. At guest side, this results in a
-> > IRQ not cared for.
-> >
->
-> Thanks Francesco! right, I made a mistake. process_rx_queue() is only
-> invoking signal_used_queue() when req_rx_buf is true, i.e., the device
-> has actually added something to the used ring. I'll fix that.
->
-Feel free to test the updated commit. I just fixed a few bugs. So far
-my tests seem correct.
+It seems all of the SPI drivers want to propagate fwnode (or of_node)
+of the physical device to the SPI device. Make sure we don't duplicate
+it over and over in each new driver (+2 in this cycle) by making core
+to take care of that. Note, similar is done already by IIO and
+I²C subsystems.
 
-Matias
+There is one noticeable and quite specific case that is taken care in
+the first patch and would be nice to have a confirmation from Cirrus
+that everything is okay. The rest is just a mechanical conversion.
+
+Andy Shevchenko (4):
+  spi: Propagate default fwnode to the SPI controller device
+  spi: Drop duplicate of_node assignment
+  spi: Drop duplicate fwnode assignment
+  spi: Drop duplicate device_set_node() call
+
+ drivers/spi/atmel-quadspi.c          | 1 -
+ drivers/spi/spi-airoha-snfi.c        | 1 -
+ drivers/spi/spi-altera-platform.c    | 2 --
+ drivers/spi/spi-amlogic-spifc-a1.c   | 1 -
+ drivers/spi/spi-amlogic-spisg.c      | 1 -
+ drivers/spi/spi-apple.c              | 1 -
+ drivers/spi/spi-ar934x.c             | 1 -
+ drivers/spi/spi-armada-3700.c        | 4 +---
+ drivers/spi/spi-aspeed-smc.c         | 1 -
+ drivers/spi/spi-atcspi200.c          | 1 -
+ drivers/spi/spi-ath79.c              | 1 -
+ drivers/spi/spi-atmel.c              | 1 -
+ drivers/spi/spi-axi-spi-engine.c     | 1 -
+ drivers/spi/spi-bcm-qspi.c           | 1 -
+ drivers/spi/spi-bcm2835.c            | 1 -
+ drivers/spi/spi-bcm2835aux.c         | 1 -
+ drivers/spi/spi-bcm63xx-hsspi.c      | 1 -
+ drivers/spi/spi-bcm63xx.c            | 1 -
+ drivers/spi/spi-bcmbca-hsspi.c       | 1 -
+ drivers/spi/spi-cadence-quadspi.c    | 1 -
+ drivers/spi/spi-cadence-xspi.c       | 1 -
+ drivers/spi/spi-cadence.c            | 1 -
+ drivers/spi/spi-cavium-octeon.c      | 1 -
+ drivers/spi/spi-cavium-thunderx.c    | 1 -
+ drivers/spi/spi-clps711x.c           | 1 -
+ drivers/spi/spi-cs42l43.c            | 8 ++++++++
+ drivers/spi/spi-davinci.c            | 1 -
+ drivers/spi/spi-dln2.c               | 2 --
+ drivers/spi/spi-dw-core.c            | 2 --
+ drivers/spi/spi-ep93xx.c             | 1 -
+ drivers/spi/spi-falcon.c             | 1 -
+ drivers/spi/spi-fsl-dspi.c           | 1 -
+ drivers/spi/spi-fsl-espi.c           | 1 -
+ drivers/spi/spi-fsl-lib.c            | 1 -
+ drivers/spi/spi-fsl-lpspi.c          | 1 -
+ drivers/spi/spi-geni-qcom.c          | 1 -
+ drivers/spi/spi-gpio.c               | 1 -
+ drivers/spi/spi-gxp.c                | 1 -
+ drivers/spi/spi-hisi-kunpeng.c       | 1 -
+ drivers/spi/spi-img-spfi.c           | 1 -
+ drivers/spi/spi-imx.c                | 1 -
+ drivers/spi/spi-ingenic.c            | 1 -
+ drivers/spi/spi-lantiq-ssc.c         | 1 -
+ drivers/spi/spi-ljca.c               | 1 -
+ drivers/spi/spi-loongson-core.c      | 1 -
+ drivers/spi/spi-lp8841-rtc.c         | 1 -
+ drivers/spi/spi-meson-spicc.c        | 1 -
+ drivers/spi/spi-meson-spifc.c        | 1 -
+ drivers/spi/spi-microchip-core-spi.c | 1 -
+ drivers/spi/spi-mpc512x-psc.c        | 2 --
+ drivers/spi/spi-mpc52xx-psc.c        | 2 --
+ drivers/spi/spi-mpc52xx.c            | 1 -
+ drivers/spi/spi-mpfs.c               | 1 -
+ drivers/spi/spi-mt65xx.c             | 1 -
+ drivers/spi/spi-mt7621.c             | 1 -
+ drivers/spi/spi-mtk-nor.c            | 1 -
+ drivers/spi/spi-mtk-snfi.c           | 1 -
+ drivers/spi/spi-mux.c                | 1 -
+ drivers/spi/spi-mxic.c               | 1 -
+ drivers/spi/spi-npcm-fiu.c           | 1 -
+ drivers/spi/spi-npcm-pspi.c          | 1 -
+ drivers/spi/spi-nxp-fspi.c           | 2 --
+ drivers/spi/spi-nxp-xspi.c           | 1 -
+ drivers/spi/spi-oc-tiny.c            | 1 -
+ drivers/spi/spi-orion.c              | 1 -
+ drivers/spi/spi-pl022.c              | 1 -
+ drivers/spi/spi-pxa2xx.c             | 2 --
+ drivers/spi/spi-qcom-qspi.c          | 1 -
+ drivers/spi/spi-qpic-snand.c         | 1 -
+ drivers/spi/spi-qup.c                | 1 -
+ drivers/spi/spi-rb4xx.c              | 1 -
+ drivers/spi/spi-realtek-rtl-snand.c  | 1 -
+ drivers/spi/spi-realtek-rtl.c        | 1 -
+ drivers/spi/spi-rockchip-sfc.c       | 1 -
+ drivers/spi/spi-rockchip.c           | 1 -
+ drivers/spi/spi-rspi.c               | 1 -
+ drivers/spi/spi-rzv2h-rspi.c         | 2 --
+ drivers/spi/spi-rzv2m-csi.c          | 2 --
+ drivers/spi/spi-s3c64xx.c            | 1 -
+ drivers/spi/spi-sc18is602.c          | 2 --
+ drivers/spi/spi-sg2044-nor.c         | 1 -
+ drivers/spi/spi-sh-hspi.c            | 1 -
+ drivers/spi/spi-sh-msiof.c           | 1 -
+ drivers/spi/spi-sifive.c             | 1 -
+ drivers/spi/spi-slave-mt27xx.c       | 1 -
+ drivers/spi/spi-sn-f-ospi.c          | 1 -
+ drivers/spi/spi-sprd-adi.c           | 1 -
+ drivers/spi/spi-sprd.c               | 1 -
+ drivers/spi/spi-stm32-ospi.c         | 1 -
+ drivers/spi/spi-stm32-qspi.c         | 1 -
+ drivers/spi/spi-stm32.c              | 1 -
+ drivers/spi/spi-sun4i.c              | 1 -
+ drivers/spi/spi-sun6i.c              | 1 -
+ drivers/spi/spi-sunplus-sp7021.c     | 1 -
+ drivers/spi/spi-synquacer.c          | 3 ---
+ drivers/spi/spi-tegra114.c           | 1 -
+ drivers/spi/spi-tegra20-sflash.c     | 1 -
+ drivers/spi/spi-tegra20-slink.c      | 1 -
+ drivers/spi/spi-tegra210-quad.c      | 1 -
+ drivers/spi/spi-ti-qspi.c            | 1 -
+ drivers/spi/spi-uniphier.c           | 1 -
+ drivers/spi/spi-virtio.c             | 2 --
+ drivers/spi/spi-wpcm-fiu.c           | 1 -
+ drivers/spi/spi-xcomm.c              | 1 -
+ drivers/spi/spi-xilinx.c             | 1 -
+ drivers/spi/spi-xlp.c                | 1 -
+ drivers/spi/spi-xtensa-xtfpga.c      | 1 -
+ drivers/spi/spi.c                    | 3 +++
+ 108 files changed, 12 insertions(+), 121 deletions(-)
+
+-- 
+2.50.1
 
