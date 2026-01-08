@@ -1,133 +1,238 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 822DF289340
-	for <virtualization@lists.linux.dev>; Thu,  8 Jan 2026 04:38:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767847131; cv=none; b=qG2029qlxTLwTo+xvzonfnyZcCWzsM1PktTQSwe/gH1d6ZUmf3BscmeOZXo4BSgsXQOrSddBvh6do/DxGDs6QQRcGX9jkiw+iwVXt0UK1aCsQVwJf2T376iT3xP+dYzGrgmgIzIhbfHAXEgzjdhqUW8bc5pz+YAhxFKAtZ7fFEo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767847131; c=relaxed/simple;
-	bh=1Mw4+/RnBE3HC1Gi2CHwhB4Ll3ThRjwOgtBMJvxn2cE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CdEnQBPmcvD0Nrh+Iy+7QXVVNHuQV3Nh0d/LNSKMeRdiNnA3yj9dm6ibpEzphjNtoKVN6Aah2c3LaGOftSZZVRqngC4q+MzNRWYTqoNgBIzUYa4zsczZLAdaDMNIcooWJnQCr2YsX0n7dfWCbgr2/cu/qdO9Hv9vbdBt9MFVxkU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GG7/ztLi; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 494CF2D7394
+	for <virtualization@lists.linux.dev>; Thu,  8 Jan 2026 05:24:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.145.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1767849849; cv=fail; b=B3q6gYKV5edHz7pJmNPqaL7FROI/n91vchCvM13ZwKE/Cihg2y6i0Drm0hvx4dDvjM/QtIusDEkOcZjQk80qvsLa6VgPn8nM5Co+FVjr6UB93x77MI7CUbnqh4HXoBt/rFWMQ52jFPn9HthVbfnBzcYynQfLVkISdL3m1GGs0Q0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1767849849; c=relaxed/simple;
+	bh=7pGeGmy9E5jwjtyDLVKKmgg7U4jde2bZs6Q7gJNVXyc=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=h3KtzyKkDlnOyTuOlaFjak2ScJSNmUIgSoI5qugHFIfY9WHnjzJMV1RHvgHntVDgvpuyqEP1sXkmp3zE6N4Z0rKiGqbDljxJkPPBpx6G+3OUjrfkbPsDrM5y8yHWl0JQSj5c1dbSIG8W26SJ0+onOCXO9K5hCt2d0mvmIu2ApQA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=qNPVR5t4; arc=fail smtp.client-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GG7/ztLi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767847128;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ITK/RdRB2R5i8Otgr7paxSBzAk4X73xXTbyRHE7SKp4=;
-	b=GG7/ztLi5ftZNh8vtEnStI3pSrtSbPJ1btNCJHg3mnVRyLzdBz5Gf6Y3wlEbOrr/JDcSga
-	TGA0cYwt7odG85rldIHPtWRbbhbhtmT7N3GfErJOxyF9y9tZjaxAEy+HIynr0hrnt8GOB7
-	rq4SkGG3uYqvNO1hXu1C0HVqNEmwxpg=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-458-9wgb7MU7M8edVxwGHvokmA-1; Wed, 07 Jan 2026 23:38:47 -0500
-X-MC-Unique: 9wgb7MU7M8edVxwGHvokmA-1
-X-Mimecast-MFC-AGG-ID: 9wgb7MU7M8edVxwGHvokmA_1767847126
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-34c5d203988so5480703a91.3
-        for <virtualization@lists.linux.dev>; Wed, 07 Jan 2026 20:38:47 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767847126; x=1768451926;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ITK/RdRB2R5i8Otgr7paxSBzAk4X73xXTbyRHE7SKp4=;
-        b=oNM5GHwQESAMIFUwjB4YCP2vpXJZgaGt5Q6dUOn6f15JIjqKu8ml2BCKaRSJJ7plIM
-         qq6/R5ACPriZ2NOk7csBV062gxyKLvwyP8pGfH2x4jV/bQvuCTn1GXdDhNEHNuU8WpLa
-         NgO9+ufQrTbULe/Z3Mk2qGnzdJVX9tWjkcRIYM8/8Vfy99hJuXmjzTvcwQiNio4ZvOjv
-         3dzRvGiLB9fQ/ozn1475S8y1ePU6SG8dNx693RoI4HqedNRKgM0AUnVG5TzlLkX8O0f9
-         QOse289b99YsLYnWqEE8o2cCHrnlJAz/8sxlbYXS9CmlfKkBzz1xGw4e8HfwYUE0QyQH
-         UW1Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWCCy3tpdTP3o8JnGsZM1OaOdSX1yHEsA6cOoJEbTMGJOJqGzFREN2IYFbUGlfUuZhX6xakxcDRYK9HlUVO1w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzr+0iS51XkYUW68dvop7vpdESxYAsKF4HNuIg+O11c8KW+VhZH
-	sig9/aog9gxy5ZKaT05Dcw6UI7Cl6iUhgtCERh5WOG7k/34ZrMkqZDh6cfiYeus96xt80gQR2XF
-	KcuWUn3KJEBRIotTt2IarZuHpmdZiiRfgsqe2riJ6X9LsQ09DD5+Ik6sEFcskYfjGG79JDf5omF
-	bQb2/m4QH1O4CivosRRrTWXCgzgzO11cigbj3axW3X0zw=
-X-Gm-Gg: AY/fxX5q1NujJjijWpRSEqzhBPByhFQ/F90vmHGZdVzang7wGvf3vIUzLyWIEB/ycMs
-	5I5KaUGPqMjJ5Pgx/c4fsYPythAv98utyzdLWEzkGspgIaBhARbJAkfrcDeHreaCJKYj0p0gr29
-	iRoX7OiA99zT1mECg2W+rqyVjWvGPcSfcc6hnnfcvDpbMFqW5SpzAzgq8KUP3hoE8=
-X-Received: by 2002:a17:90b:38cd:b0:340:ad5e:cb with SMTP id 98e67ed59e1d1-34f68b8325amr4472105a91.8.1767847126208;
-        Wed, 07 Jan 2026 20:38:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF5VQZiGe7r1S4uFGT8iu+UqDGLcVAm47K+xxuFBZErtPwJUSS5ANbzbriNBgtK4Or956wAzsqxr3sqB3YdRdc=
-X-Received: by 2002:a17:90b:38cd:b0:340:ad5e:cb with SMTP id
- 98e67ed59e1d1-34f68b8325amr4472074a91.8.1767847125793; Wed, 07 Jan 2026
- 20:38:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="qNPVR5t4"
+Received: from pps.filterd (m0044010.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6081L8v53748942;
+	Wed, 7 Jan 2026 21:24:00 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=s2048-2025-q2;
+	 bh=YrutjsA8Io2HCkBgL21xvQLzxBgBQdD8sNW1SIXIj9o=; b=qNPVR5t4we/X
+	0/HQuRwMz/omgwbc0WGR5hwdFTqsM2M4WNRnJp71gWzd/30T4+lpy0fnvKUjmKSg
+	1fWELytTL6XKvX3O18G7OEDIeNay6xkcW3aH/dARVezepZSC5prTdMg4We527DC8
+	jgj0J51gOz9vdV0kJkttBeZ0fY/l/1uBOuKT+lwoy54Px0vVkXL0Z77jkGntvVcl
+	Guyx69Hg/k7bhd/Jge1nGt7h2NX1pfANQS6EML4mizJrw/0slGpojNKIXxRXqBZ4
+	szHAKGF0Zma0iwCoM3ZWQ8+j2F6bxz7RPgWWWJSrHsuFDLjojkqkw6Wyf2TWOCTC
+	1rSSY5FSBw==
+Received: from sa9pr02cu001.outbound.protection.outlook.com (mail-southcentralusazon11013023.outbound.protection.outlook.com [40.93.196.23])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4bhuu0x4t9-2
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 07 Jan 2026 21:24:00 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=DxjRP1P1/s3vyCNz+4Jc0WVqzGiRXX7JEWObEfN9hsaLxy20Ehp2bE2VGVqPbwRNMFDuQ0WC6ExwmO/Ej+jElbnUesDcca4vVprzBrpfcMl5DTpKiCJlNLRs1VJVMmOTLkj88NvMsPQmLAHsCGKl+2lA08SXhjdVDiCAcsfS+v6HvPBJyL8oAYCtkejFrYDFSi05FlaRsHZbeZEh/rPNT13ZvaS3EmrlYGG4PMfZE+3rrb4s+NrSY6QGpoXLb+OUVZNaiGbmyGsNjR7Wl40Mqa4uL95seUKdQx4O0WTnSc953hr8ddtxLYrBz/C0O38tFnupRJaj3b+2GNI1UrNrKQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=YrutjsA8Io2HCkBgL21xvQLzxBgBQdD8sNW1SIXIj9o=;
+ b=mTliWEl3QChlR1ggUeQpn2G/kr2ippgLZPZDRDtUHtB7BYrXaMSeVOt8W0GIgE2OHuu/z+V36wKbANt6IO0wc6odS2P4Tsqnuzu95qDsx40Hk/Hix/rN92P1bQd7ae/44J4rqlTBtXEDD61VzwXF5/alKtcI3dhA7ngc+cl/MobRA4Mkc+HsBfVTZKROsUoAMLP6/Q3nEGXgpolNF6RnWQMsJMl1tfXA8R4f8AkXoPo/QBQx6JnEenEISj91XDIOrVA7KQw1WRJmEzObzIqlKN1dmx6WBt+yt1BUDDMgkaW7Ec6jBtTdKfbin3FrYRxiKkoEprHoMRh0IZqdjUPlbQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=meta.com; dmarc=pass action=none header.from=meta.com;
+ dkim=pass header.d=meta.com; arc=none
+Received: from BLAPR15MB3889.namprd15.prod.outlook.com (2603:10b6:208:27a::11)
+ by DS7PR15MB5859.namprd15.prod.outlook.com (2603:10b6:8:e3::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9499.2; Thu, 8 Jan
+ 2026 05:23:58 +0000
+Received: from BLAPR15MB3889.namprd15.prod.outlook.com
+ ([fe80::d5d7:f18c:a916:6044]) by BLAPR15MB3889.namprd15.prod.outlook.com
+ ([fe80::d5d7:f18c:a916:6044%5]) with mapi id 15.20.9478.004; Thu, 8 Jan 2026
+ 05:23:58 +0000
+Message-ID: <ecda097e-e3cc-47c4-aad3-61f6af950a71@meta.com>
+Date: Wed, 7 Jan 2026 21:23:46 -0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/2] virtio_net: add page_pool support
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        "David S . Miller"
+ <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, David Wei <dw@davidwei.uk>,
+        netdev@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-kernel@vger.kernel.org
+References: <20260106221924.123856-1-vishs@meta.com>
+ <20260107032738-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Vishwanath Seshagiri <vishs@meta.com>
+In-Reply-To: <20260107032738-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: BYAPR08CA0061.namprd08.prod.outlook.com
+ (2603:10b6:a03:117::38) To BLAPR15MB3889.namprd15.prod.outlook.com
+ (2603:10b6:208:27a::11)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de> <20260107210448.37851-8-simon.schippers@tu-dortmund.de>
-In-Reply-To: <20260107210448.37851-8-simon.schippers@tu-dortmund.de>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 8 Jan 2026 12:38:34 +0800
-X-Gm-Features: AQt7F2ojlTg8w4ZELX6uaVy4snIzQbNmqFa41GC72EmW5kfc8xJcEouDgWh6mwE
-Message-ID: <CACGkMEtndGm+GX+3Kn5AWTkEc+PK0Fo1=VSZzhgBQoYRQbicQw@mail.gmail.com>
-Subject: Re: [PATCH net-next v7 7/9] vhost-net: vhost-net: replace rx_ring
- with tun/tap ring wrappers
-To: Simon Schippers <simon.schippers@tu-dortmund.de>
-Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch, 
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	mst@redhat.com, eperezma@redhat.com, leiyang@redhat.com, 
-	stephen@networkplumber.org, jon@nutanix.com, tim.gebauer@tu-dortmund.de, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: pIItHMzcDLhO7EFg-iDytJ57-ZcSMzgtKtxS3WgNPGw_1767847126
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BLAPR15MB3889:EE_|DS7PR15MB5859:EE_
+X-MS-Office365-Filtering-Correlation-Id: 65ff34e4-9413-4b84-039a-08de4e761ec6
+X-LD-Processed: 8ae927fe-1255-47a7-a2af-5f3a069daaa2,ExtAddr
+X-FB-Source: Internal
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+ BCL:0;ARA:13230040|1800799024|10070799003|376014|7416014|366016;
+X-Microsoft-Antispam-Message-Info:
+ =?utf-8?B?RkhoN2RyY2pNNmFTb25ONHMzN2NabWZHaVNGc0ZtZzJaMVVzenJ4WE8zRFBX?=
+ =?utf-8?B?eTlLUThJcHJaKzJqM25NdzUzY01mNGU0dkRsMUh5dkhkNWVIZjRCNGdYSXRK?=
+ =?utf-8?B?S3ExMVNHY3hJbFNlTG8zNGFJczVYZEt6S1Fyd2pzQ2poR2g2b09sRTFTM0to?=
+ =?utf-8?B?V05nVUdKV0hIeHk2blZLbDEwVnN6dVh2eFFqNGRHMUJIcnNmQXA1N1h2eGZ0?=
+ =?utf-8?B?R1M1ZitrOTRaVXMwdlA1Y2lZYkgwdEs0c2hjTHhONkpDeEpudk8weEw3Nnlj?=
+ =?utf-8?B?TWE3dHBqUnY4Vm5IR1FwYllTbnVkRExKeU5SRHpzVGw1cGFjMmVtSUMrZ3B5?=
+ =?utf-8?B?THdQZWpDeUVvS3QzTWtrTkFRV0czOWdLTHNqaVIzOHVQcXphbjFtWkNNQXhP?=
+ =?utf-8?B?K3B3K253YmtwTk1MMVd4RjRrZy9uVjBON1hVcFFvd0U0YitFWmhYSy92NjUr?=
+ =?utf-8?B?SHRvNkx3NGNiclBLOGF6eWZ4bXRvSytSdERKOVVJQUFMb2ZqdURNZWlhOVFM?=
+ =?utf-8?B?VXoyMEtmcUpOYjJJcXlGbVozSHpNemxxSDEvN1F3MW0rS0xOMEwvbE5Sc1hz?=
+ =?utf-8?B?Tmk5UHdDcVRGRVZET3EvOHh6UlFrUFZ5bjRwZkJjZURGeDRYcnoxL0dDc2to?=
+ =?utf-8?B?SHg3bFV4d0ZWVTVOQVVvTkxjay9wUEhuUDNFVVlGcE1HeUlESDh0N1FnQnh6?=
+ =?utf-8?B?Z3ltZHM4ZjI0QjJTcTlCQXo1MWRXY3ZYM2Fpell5bm9Ja0l4bjJ6VnFIeGtM?=
+ =?utf-8?B?bmk0UmNFcWdsMURYZWZaSE1mczdqR0FnMWhVMVJ3UDNoK3NkKzNDdWNTTFNa?=
+ =?utf-8?B?VTN5R1VqT3VNUlpuTnVVZUVYeDJBaFREVEwyaWx4Z1MyMmQ4WmxjQ3o1UVVR?=
+ =?utf-8?B?TTV2TFp1UEhRbmJYVWtZRWJoN3FFcFBVUmRQWVRxTVVUWTRtUGhLZjl2SzYr?=
+ =?utf-8?B?WHU2Q0VhNGZQSDNCSXJxSkVMeFh0ZUdybDNoRXgrV3NtSXpXNmQrRURqRTJi?=
+ =?utf-8?B?TGNpNWFoU2xoTEFQTHU3emYrc1psOENXQkpleDlEYnpGTVcyZUZpa2Z2SDVS?=
+ =?utf-8?B?b1hnb3o0N1B6NVVyVURxeTJIS0Q3YTNoQjdyckFoQTBsUEd3QW9GNWdaclJr?=
+ =?utf-8?B?SG5sTmhUNDl6SXZVVFYwaktrbGwzSUJwTFdRSE80TURVZkJCdXhtNHUvblpi?=
+ =?utf-8?B?NUhQRjR4Z1RBUHlwOGVVNVRpNWdyQXpvN0lRQW80ZWVWemUrQXlZZ25mTDRy?=
+ =?utf-8?B?NnRhVGdCUFdMb3R1eDBMWHZHZk5uYmpCczkrWFM0WERZOUVuZURXdVBXeTlO?=
+ =?utf-8?B?K3RCNTZ4YzR1Q3gvcmlxM3FFSTJFMEdIMEcyQllMUmU3QVh3V1FaTUM0eklj?=
+ =?utf-8?B?UGh3OSszeHhUUDVGQ1ZQL2tQQ0lMbHptdS9yRWJyazJha2VGYW4zQTcwRUpV?=
+ =?utf-8?B?WFhhMlBoWnJFV2dWUFdiWVMrajJ4c0t3azNVTWQ0elZzV0IwQ0I3bkpKbEQ0?=
+ =?utf-8?B?M0ErSllyb0YwNDY0Y1RBSHB2QkdJZW1hUmtvMGRIMEVZbW81b3ovMXpPRUg1?=
+ =?utf-8?B?UlBJRlhPQ2w1NzJWMnNQYUVNUG9EYllsNzRpZmxURldJY01wUVQzZC9YOWt3?=
+ =?utf-8?B?M1lCUk1MQmN3WE1maExJRmxLWllHelF2a0pMa2wvbXE5QUc1eFVLRUs1Ujh6?=
+ =?utf-8?B?WldLTmJsYUtHQk02WkV2aFprYXNBaFNMa3hoM3ljODh0dFhJMXVydGtjamJF?=
+ =?utf-8?B?Y2V1eW1YM1U5dUFSS0dBMk5yaHY2Um5sSWFKYm9XK2h1bW1peG9VSy9ETTFT?=
+ =?utf-8?B?SFJIQjdpY0o2bVE3blRpd0pMZTBJNStHMWZXVjdrSi96Ry81MlArSStoMDdN?=
+ =?utf-8?B?K3ZLZ0tsSmEzMU5iUE0vWHp4dG5sZzZNTktaeE45eWxqU3pPQ1Y3bVZvWVFD?=
+ =?utf-8?Q?cmsFwANorRg6mlmDgllRKBvj4zEEcoM/?=
+X-Forefront-Antispam-Report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BLAPR15MB3889.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(10070799003)(376014)(7416014)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+ =?utf-8?B?K25vcWo1alAzQnU5WUVHU3pKUU9lMUZpZVpFRTlTektkZEJrU3hNYVZOcmNI?=
+ =?utf-8?B?MngzM21ZbHhuOU1BMitLbGE2NUc3UWJyNUpWZU5MSnRPekFZNnVtNFp6cmh4?=
+ =?utf-8?B?b1k0dit6b2VTYStmWThDTHd2VTBGSFZHMXlQRC9iaWFxR0t1cU9hd2lQTXRP?=
+ =?utf-8?B?UmJNRzAvZUJ0QTBWQXJabEhPbko0KzZFNlFhdnZ1amhhZ2dGeXZBR000NlhO?=
+ =?utf-8?B?WFJ0ejZLeDRha2FnZVkzb0tSMnNLaFQ0MUZyT2xGallQMVhHTlc4eWlPeXgr?=
+ =?utf-8?B?ZDh6VEpBeXV6ek1CVW1OZU5KWmt4QUx1aTB4UG1vQlo1eXZZRXVESm9vcVk1?=
+ =?utf-8?B?dXhFbTVFSUNEZGRJVjNSS0VtbVNPOVo4dEdlS1ExZ1ltekQ3SGx2dGNId0NL?=
+ =?utf-8?B?VFdsVm9uRmpzRHc0dHIxaG80TzhnMSt2bUozUVlyS01DU1c2WGpaTlI0UWFp?=
+ =?utf-8?B?cllINjA3cG1WalRkMWtlUWlseVNVRU9NWVo2MnMxMEtmcGc5Q3hCaDZsdkc2?=
+ =?utf-8?B?WDVTdlkzaXRBSWthVG9STGE3RWw5cTZvTzdUaVRHamptSE1BZmlGaVUzYnRS?=
+ =?utf-8?B?VGdZMXdpOE8zZHNaMDJEclN5UUdNdjR4N0lvWHlCNkJPQnVRWVhSdjBuZlcy?=
+ =?utf-8?B?MDlEd1NncGQ1ZllGLzd5a0cwOEU2Z2lJT25yWWNsODk0cUlJaURlbklmRFBM?=
+ =?utf-8?B?SU5JT3gvNE96WnVRY3dobUJmbGorY2JrQkFNeWJXN2k1UlhEaSs0bDRHampO?=
+ =?utf-8?B?L2d5cUxCZlZhNGVjQ2dZQ29TL09McUhEN3lpL1FXblZDNkwwRVk0K2hnR05Z?=
+ =?utf-8?B?cjc1eEt6eGMyS0phai9VeTZKYUlyMDBXYUxHK1FtcW0xWXVRRzFoaUlvUm9H?=
+ =?utf-8?B?L2lCWmNVUXBEYytsT1BzODdIOVVKaEd1Mnhqcy9tUEl0VFEwaG1OSHk2ellH?=
+ =?utf-8?B?QzdXVWNYdGlZZUdpZ0VLYWkxS3g0a3FoT0hPYnZDdnh0ZVpXQlpkOVZDczE4?=
+ =?utf-8?B?MkhYUmcyNi9mT1NVVFNEZzhmbXVtMVM2eUdhNVJ1ck1mOEtXNnNXdS9nam1x?=
+ =?utf-8?B?RWRxYWVrMWQ3bGcrejNkWUM2RHRXMXNvWDlObVgvRGd5dkl2V3FJdFM0UXZa?=
+ =?utf-8?B?R0p5c0ZOWk0vbUhlV1RHeEpOSklvMFNtMFNaTEJsdXczdW12a2NKa0xObUpu?=
+ =?utf-8?B?WUxkM2VFY3JRNnhHWDl4WHl3d1BSR21NQWV3dUxyMG90S3k0dTNjMW5Qc0Js?=
+ =?utf-8?B?ck5Oa21CN1ZoeFA4Q1dtL2FFVDNrbmNSMkkvNU9IdXB4eGdZbXpWUmYzalhl?=
+ =?utf-8?B?akRuRFpYTzhCcndwQXVvWi9iYTFhckh6V2pwNld4RlBiTWhmQ0hmTGZ5dU5G?=
+ =?utf-8?B?bzdZQkdLMUpNaUQzTGN3UWphTW51UlZvNXRpTmZBYVZMblhoNkYyYlExbjRO?=
+ =?utf-8?B?YkNpSG01bUswSzcyVTBteXVVbkpndDRhRUxTZVlYOHJDbjhjV2xnNHd2Mkc3?=
+ =?utf-8?B?bXgwdTQwQkFPM1NXR3dtcittcFY2b2lyQm96UHhlZ0hIN3hyZmJvQTlNQ1ph?=
+ =?utf-8?B?WDBCTGR3ektML3hYNW13cDRzK1QrMlJlZHdwQ0JWdW9seExwbnE0azU2L0w4?=
+ =?utf-8?B?RFVobW1xMXpMS3JIWFltdm5hTWRPcC9UOUw3VDBYN1FWNGp1YXpXN3d4MytC?=
+ =?utf-8?B?N0J4cXRaNlgzM2RESXM1RkY4a2hOSkhkZGk3cExPeFdtWVBvc2g0d1lSeitM?=
+ =?utf-8?B?dXh3MUtYaFArWktGMDdqd3VCNG1FZWdlZ2RHbGd5S0F6SnJqU0NwYzZ2eGtS?=
+ =?utf-8?B?YnFsTkR6QmVFS0dEUFZseVJ4YTlURStkRGVrTzhJS0hqZy9lNUZNaUFyZTVD?=
+ =?utf-8?B?dWE2VURoVVAyN0FUcW9kT2RhZkFkYnRDM0hWZGdnWHQ2VWZJbXVpSFo2NHZ1?=
+ =?utf-8?B?THNidVhtNEVtZlJTRUN3ai9qdWJDVHlGL0t1ZUdUYjR3cVdzcDd6cFFWWkpS?=
+ =?utf-8?B?WEU2QlBIK1hHcUtISk1zeHBWa1YvVzVIL3Z1STV5aXV5aWZpYUx6SzVlYXVE?=
+ =?utf-8?B?T3RZbVZyKzlOek9pRCthRC9Rcm9mNEVhMjljSlhMTm16S3lNcXFUR2RxRWhH?=
+ =?utf-8?B?RHV1c01UckNvRUM5QkpxcEpCbXhsTmlMemh1TS93Y0dKYkVtNUl2Q3QxSyth?=
+ =?utf-8?B?SmdUWDdQTHdKZE1Sazl1Y0prOUdCR0hvbG9aSEI4WGxPa1hBVEhpOG8xbzBZ?=
+ =?utf-8?B?R3pLL2dBTzhsbUs1UVZtOTZSRDRPL1czOTd6WEhEZ0pLM0RrZjlONStXOXh4?=
+ =?utf-8?B?SFcxbjFIVTB6M0V5SGpVSHlNZWwxSUYycWRCclFNTTRGbGc4QXNOMVBwNEho?=
+ =?utf-8?Q?tPkPuzURRx3uKvwaAXewuNPZSNoUoE6H7uAcr?=
+X-OriginatorOrg: meta.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 65ff34e4-9413-4b84-039a-08de4e761ec6
+X-MS-Exchange-CrossTenant-AuthSource: BLAPR15MB3889.namprd15.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jan 2026 05:23:58.2518
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: bZde/5KADQ8rSLG8lGgc6zGM+8CjVMJgsomac32Qx8QfIGqEvZKFvUzMGHL4N4fF
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR15MB5859
+X-Authority-Analysis: v=2.4 cv=bKkb4f+Z c=1 sm=1 tr=0 ts=695f3f70 cx=c_pps
+ a=iHXbSHwDNs+yH6wS+48/mw==:117 a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19
+ a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19
+ a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=pBlTsiValDllgsjDkycA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: Rsny4glSzGuAOc3yzpJdQKfjvwIoTBtJ
+X-Proofpoint-GUID: Rsny4glSzGuAOc3yzpJdQKfjvwIoTBtJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTA4MDAzMiBTYWx0ZWRfX/+VcUOJG51aH
+ 6MV/CTU6ASjITMCZO88S6Wyfsd7N1d0Ss/qUnJrWq7mgwA9umy2LqxXb9K+9+fH2/ovzIBv2DEG
+ 8hY+jojvqVwd0SkCdW/S+a4u1q+QMf+XmtoAc3cveJaT1yFKIVNEsV/6WZd3T8ju+6fSxaRhV7r
+ RnquprjWNCob3/3AG+Vf5TLMPpe2TVgFvXNBvXakjn8S+Xq+TV92EXk2dgZOP+p+OzSF7emQ7fQ
+ H5oPfAJDE2gGuxmWUYUSRjo2AiBJWkYaEkqeEKOBmJwaDxGpJnFxK9CNHkD5x20oVbFIgbbwH6g
+ Mn0u1dHRxd5xtu+huVCbkJTMXqGcL2mEMNcoUnxot3eBtj17T+JJKTzBG7+lc2lDxZzMMq1+Vye
+ FwlWmGN4aXq2WYn3WvJ8xQfwmqZ2QeimNmzOdt0QBhU4XxkLn9fwdWzknU6CqNNUfDCcEpcJker
+ GJy1S8O0WK02Y4O729w==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2026-01-07_05,2026-01-07_03,2025-10-01_01
 
-On Thu, Jan 8, 2026 at 5:06=E2=80=AFAM Simon Schippers
-<simon.schippers@tu-dortmund.de> wrote:
->
-> Replace the direct use of ptr_ring in the vhost-net virtqueue with
-> tun/tap ring wrapper helpers. Instead of storing an rx_ring pointer,
-> the virtqueue now stores the interface type (IF_TUN, IF_TAP, or IF_NONE)
-> and dispatches to the corresponding tun/tap helpers for ring
-> produce, consume, and unconsume operations.
->
-> Routing ring operations through the tun/tap helpers enables netdev
-> queue wakeups, which are required for upcoming netdev queue flow
-> control support shared by tun/tap and vhost-net.
->
-> No functional change is intended beyond switching to the wrapper
-> helpers.
->
-> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> Co-developed by: Jon Kohler <jon@nutanix.com>
-> Signed-off-by: Jon Kohler <jon@nutanix.com>
-> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-> ---
->  drivers/vhost/net.c | 92 +++++++++++++++++++++++++++++----------------
->  1 file changed, 60 insertions(+), 32 deletions(-)
->
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 7f886d3dba7d..215556f7cd40 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -90,6 +90,12 @@ enum {
->         VHOST_NET_VQ_MAX =3D 2,
->  };
->
-> +enum if_type {
-> +       IF_NONE =3D 0,
-> +       IF_TUN =3D 1,
-> +       IF_TAP =3D 2,
-> +};
+On 1/7/26 12:28 AM, Michael S. Tsirkin wrote:
+> On Tue, Jan 06, 2026 at 02:19:22PM -0800, Vishwanath Seshagiri wrote:
+>> Introduce page_pool support in virtio_net driver in order to recycle
+>> pages in RX buffer allocation and avoid reallocating through the page
+>> allocator. This applies to mergeable and small buffer modes.
+>>
+>> The patch has been tested using the included selftests and additional
+>> edge case scripts covering device unbind/bind cycles, rapid interface
+>> open/close, traffic during close, ethtool stress with feature toggling,
+>> close with pending refill work, and data integrity verification.
+> 
+> 
+> Yay! thanks for working on this!
+> Could you share perf data please?
+> After all, page pool is an optimization.
 
-This looks not elegant, can we simply export objects we want to use to
-vhost like get_tap_socket()?
+Thanks! I'll add benchmark numbers in v2 of the patch.
+Beyond performance, page pool support is pre requisite for enabling
+memory provider based zero copy implementations in virtio_net such as
+devmem TCP and io-uring ZCRX. These features require the driver to use
+page pools for buffer management. I'll update the cover letter to make
+this motivation clearer.
 
-Thanks
+> 
+> 
+>> Vishwanath Seshagiri (2):
+>>    virtio_net: add page pool support for buffer allocation
+>>    selftests: virtio_net: add buffer circulation test
+>>
+>>   drivers/net/virtio_net.c                      | 246 +++++++++++++++---
+>>   .../drivers/net/virtio_net/basic_features.sh  |  70 +++++
+>>   2 files changed, 275 insertions(+), 41 deletions(-)
+>>
+>> -- 
+>> 2.47.3
+> 
 
