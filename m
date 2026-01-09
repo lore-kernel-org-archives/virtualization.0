@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37450347C6
-	for <virtualization@lists.linux.dev>; Fri,  9 Jan 2026 16:18:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90BCC36403D
+	for <virtualization@lists.linux.dev>; Fri,  9 Jan 2026 16:32:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767975515; cv=none; b=MaXroyhBEPlSn/hcA+3RpkSppPTDVYXs5xeqtOOjHPzc+dKWduCsEytFICfitFTE5drPZxC7nSXRWJNSgUgzUoBq64xo2b7lmG52U9w5RwwAjhUq/l6D46u1abxwdWBhowsR+AhvsBiwevQUqShyvFlX1kNCQl7TlBpUlO/9O00=
+	t=1767976360; cv=none; b=Dw+aaEauj8NF38vW/YYBd1JgI7Ggcx8FvuhGHXUkyPPRq2hZyAZML8frkDnj+tLlhji/NLozFLR6V4W04/RfE9rxick0CGSsFrY6vkZa0yXSCg2Jyg9Zeh//oW5o6pLMlPjKCKwqRzgZzrlyGltzugzBtVvvS07A7+0JYeQML2k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767975515; c=relaxed/simple;
-	bh=a1/DesK3SdmsYTBBaArmoKyDaDj/3FIZv0uZ3aW3q6E=;
+	s=arc-20240116; t=1767976360; c=relaxed/simple;
+	bh=AhO0W3QqPyvRX+DZ7rtuWNPWm1Y+nD8N2kgT7qXsPh8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rUkL5YLXO8JMlCYJKxiApqmyhSlLr02gDXVVCvqCkvdNqck1qR9mUDg/3tYGNdmj3LJXXanBG/pSLalh5Lk0q4fLcwkTjoPhfcC14hxlq0tzcEGl2p6zpDpzFhtGQ5h/hwHuRDXWSnajddICfNgUilrGW8ICWuDx65EuhWD5bYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cKiAbeLy; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=JEFisNJdPtZuOIYtKM6Yg1fguoLUZVmNtvNCQquBOsWswSezMItprzfh6QnDBX3A7pu1BnjqRyPSKIeMKJK+SjeXDC5/t7dAxCe8QIc6wk/uN1MEKVIe6YUls3AfVCT/BJ599D3dnWp4MW8F4eyhxeaFYwhIGeoVR5keWi88+cg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UenxCe//; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cKiAbeLy"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UenxCe//"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767975510;
+	s=mimecast20190719; t=1767976356;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/krVGPsvJddi7hg5z9iCRy/aoNIgxBgy+h5yAK6W1kg=;
-	b=cKiAbeLyx1v+pyYLplqORQGMeAGJNFSLGROg77KxFMO6OExlwKL+wVxk+A44NxURO+OnaD
-	G9Nv767X6VOHr7Dk79V9DHGeGg8yndM3HFCoVokb3PvEDdH84u46ygfRFm8aWabYuzf/SS
-	9BDdpAZsi3NDbloAm9DWgzrz7X44NDI=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=dEreNKulSbEm1+LE8N+VyJH3RewoJdVfa+9kn/ikLWM=;
+	b=UenxCe//1c7fPa3OzQ3G48dlzxO9aoRW4WoPoDk0LIbSzCMslQRsSGm82MFPV6ulwEFg+F
+	dJ7zlzE0yd0jE8MLXCriO+TqrSqhblxvGwxLihM1HuihuNxmq22r9rWa6WQfPnHi35aumB
+	NWfBxgui+8ClwLW7/IRjJi5k8xUc5xk=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-131-e3txoAcsNgGPszEbT_GDqA-1; Fri, 09 Jan 2026 11:18:29 -0500
-X-MC-Unique: e3txoAcsNgGPszEbT_GDqA-1
-X-Mimecast-MFC-AGG-ID: e3txoAcsNgGPszEbT_GDqA_1767975508
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-b79fcc35ab2so375386166b.2
-        for <virtualization@lists.linux.dev>; Fri, 09 Jan 2026 08:18:29 -0800 (PST)
+ us-mta-299-WDMxQJXoO5mwfKvaF4npfw-1; Fri, 09 Jan 2026 11:32:33 -0500
+X-MC-Unique: WDMxQJXoO5mwfKvaF4npfw-1
+X-Mimecast-MFC-AGG-ID: WDMxQJXoO5mwfKvaF4npfw_1767976352
+Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-6505cbe401aso4789655a12.0
+        for <virtualization@lists.linux.dev>; Fri, 09 Jan 2026 08:32:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767975508; x=1768580308;
+        d=1e100.net; s=20230601; t=1767976352; x=1768581152;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/krVGPsvJddi7hg5z9iCRy/aoNIgxBgy+h5yAK6W1kg=;
-        b=RxArjm0rsCFHCjgfqgBBxGCTS2UQAGk6R1OeLp2jAs3QxB7b1Z/EqN2DSMPHQT6L58
-         kcrvBTcRLDKWuOTlTTRHcy+VKIvmeA7nstO62/Q9xMtsbaqpI6ryPkyG1ccLoG6rYpzK
-         +B6QUnxrThZkzRQVNDFYTIbs5UvYfE5EyMcZnFZwYEzW+X3g09eaNf4OeFT+bXNQ8oVT
-         +c/Lmkb+LlqCvjevsryAersB4EXBZOG1nHDxdcHf3DBHt40Cz5IVIN60kHUp1V1xRyEz
-         THDKnqhzGa7LCX/LDa1M3/B1MBVhYKn68zHE+cUJhGuTgpUZHB0jqnOoWCJuddVhsVPS
-         KIBw==
-X-Forwarded-Encrypted: i=1; AJvYcCUiT4ho6LEulPgqBuHP9wlaKk34yqaKYR3dS5G1ourZ41Ku0Etx+j8L8ee32vQ4o8sXP8Mszieird7GihNu3g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz0lwrXr1aGoHLv26DS2hSOwVbUZBdh9cyhQpgOdj65mpfXt8i6
-	YmN0U44CjQw/wCjAmlPZGUMiPwJhnVslPsTH9ooQRycykCHpM7b5EuCWelhm6ndhZILYYK3/MGj
-	EzVd/1f+EcWfvdnwrotZMBFuooadFiprlZKN0OzSBEOPLhF1xarGC1sj/lO8HAcekP9t+
-X-Gm-Gg: AY/fxX7xiZFXPKiyHsiyNWli9rN9t7Esf6+X0nXb7IJIG0P4I6OhuLXYHA6hWb4Z/9u
-	DtrpE0Y5hbTP4aIKDZZxZDUaVyHSQT78nL+mdKel+VaIjyAHPgpiaDSZ2hIlczLFGQ+a9Q5YCUS
-	8+ulkFvhrou0QZTsnahOWqcgVn7U5de3DwPM/13FgB0svlGF7KxRwMTcnBfvhwAplmSK836Hgmz
-	fy+F4kVdx+Ss7nHprFcvcU9yg0hOrH/1YL16sng9Bx0CRJLbn2pbfR3NVxDL9gJ+qwDBktnqXGj
-	QYM6ITCZalaIYK86NByhmotJ99qoNc88cozuapMeN4OEXSq2+D5iYsAtjkWhOm1NbjC7TnxvI++
-	pNJ3LAsg9U2JX0nU=
-X-Received: by 2002:a17:907:1b0f:b0:b6d:9bab:a7ba with SMTP id a640c23a62f3a-b8445179d97mr1040652266b.42.1767975507957;
-        Fri, 09 Jan 2026 08:18:27 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHr2olBdquSj4gJBneVi4T80pCx/5PM/5koZL1efVNkWaXxHFkv/Bw2psyCF7rUeZB6h9BHnw==
-X-Received: by 2002:a17:907:1b0f:b0:b6d:9bab:a7ba with SMTP id a640c23a62f3a-b8445179d97mr1040648366b.42.1767975507266;
-        Fri, 09 Jan 2026 08:18:27 -0800 (PST)
+        bh=dEreNKulSbEm1+LE8N+VyJH3RewoJdVfa+9kn/ikLWM=;
+        b=DAJlUH84z5t8OkgaB0wIvO5K/TBHBIVOQzlyVMMTpv8UooZDvpPXxvPRQibJw9OENC
+         4Va7WrmHofp27ZACBvPbGd4CvlRmc/FCeyK47N/inaYixxE9B4NPRKymBX15RrRkS/0Q
+         LMQ2adnz67ciqDCGrlHbBDRNBpdqjx4VAzB7O5cQmVebFcVJa3Y/Y+h2P2wmzeXcjTHh
+         R/HFSZe5Md6j+scvn5mV/WQHHt8HWRaifOC6YoZEwtM0SphFFUMB7sZgNMhzEywoY5pg
+         iy5Km7r+MUC8MwmEW5TDcbvc+d4/xcheYO8HKnRI3artNh1Ai4fJtpEhhAFc64knScHB
+         JTDw==
+X-Forwarded-Encrypted: i=1; AJvYcCV9w9EORNvwGAu/6lKaIocD/Qr2L1nJUHTjdPHQsZLXyzIfwWB1JFAuL2aDGJQKvcEjKB6i+6pg4w6zyQsetg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YywnYucH9zBmdMOhYIOOyFWcQXy1dah4iW8I9wsJYQZ4DYlJVPD
+	oTBZ0EHVYVJc+HqKM0v6/bqmZqkdTquFa+CyWZkpEhUwcWNJV1Sx6wnz7DvyOOSiMnJsnJUWGJC
+	aEqDtLRrAfIxAOnHwny3Pl3rKn96I1NVTrSa9mkJK9XgEVblzw2ixwUYNBZV6zum/5qaL
+X-Gm-Gg: AY/fxX4R84cnIfN3gMvOrYPpgC0RCBGYYXzlb2NgXxorOhzjidu6y8gb+Rlvii0zzil
+	dRyQZoMCphtG9iTtQXMrMdx5sLYh3u6s7Q7i7YsLcmUWevZzfIxMBwuQojtCcb1U+gmGAJ3kKGv
+	NEG6jDkXQi92putarX0CK4FBdB+MIE7Xa7/8iMBKXkGBHWSWucKhYJKcUKXIdStLQmwvVZrRBP2
+	IqndwLK7avCdrPooG0H3VJbETvVQZhp45YS4CxAhieDLphLGLx3hgY/R6OCOU7Sid5zW2EppmCq
+	qLTjXWnGfhPqcrP1TR94hOJZGoh/S0hldfY3eeY/m2ZeeyZvvHuKP4TgqLO9BLEiTuuWkTqjp4e
+	wpyzT8YDUVCKWP6Y=
+X-Received: by 2002:a05:6402:5214:b0:649:afbf:ce4c with SMTP id 4fb4d7f45d1cf-65097dd19d0mr10206800a12.3.1767976351964;
+        Fri, 09 Jan 2026 08:32:31 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEh9F6wrxt+tH3YONGJ8MMPHym5YuR5cSOU8k+Xh+56gOqWbHHpSyrYloIioAY7C+cjecCrrw==
+X-Received: by 2002:a05:6402:5214:b0:649:afbf:ce4c with SMTP id 4fb4d7f45d1cf-65097dd19d0mr10206768a12.3.1767976351430;
+        Fri, 09 Jan 2026 08:32:31 -0800 (PST)
 Received: from sgarzare-redhat ([193.207.176.59])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b842a51183asm1175084666b.49.2026.01.09.08.18.24
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6507b9d4c0asm10815163a12.9.2026.01.09.08.32.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Jan 2026 08:18:26 -0800 (PST)
-Date: Fri, 9 Jan 2026 17:18:19 +0100
+        Fri, 09 Jan 2026 08:32:30 -0800 (PST)
+Date: Fri, 9 Jan 2026 17:32:22 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Michal Luczaj <mhal@rbox.co>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
@@ -74,77 +74,176 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
 	Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] vsock/virtio: Coalesce only linear skb
-Message-ID: <aWEnYm6ePitdHPQe@sgarzare-redhat>
+Subject: Re: [PATCH 2/2] vsock/test: Add test for a linear and non-linear skb
+ getting coalesced
+Message-ID: <aWEqjjE1vb_t35lQ@sgarzare-redhat>
 References: <20260108-vsock-recv-coalescence-v1-0-26f97bb9a99b@rbox.co>
- <20260108-vsock-recv-coalescence-v1-1-26f97bb9a99b@rbox.co>
+ <20260108-vsock-recv-coalescence-v1-2-26f97bb9a99b@rbox.co>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260108-vsock-recv-coalescence-v1-1-26f97bb9a99b@rbox.co>
+In-Reply-To: <20260108-vsock-recv-coalescence-v1-2-26f97bb9a99b@rbox.co>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: gZde53hQa_SvUmQCSqwEgzkTqk-HHbFwpNQqbirxLRY_1767975508
+X-Mimecast-MFC-PROC-ID: 0OzvOkipTcDIvSQ8is7yp0HCeblVKI7KwIc2-178FfQ_1767976352
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Thu, Jan 08, 2026 at 10:54:54AM +0100, Michal Luczaj wrote:
->Vsock/virtio common tries to coalesce buffers in rx queue: if a linear skb
->(with a spare tail room) is followed by a small skb (length limited by
->GOOD_COPY_LEN = 128), an attempt is made to join them.
+On Thu, Jan 08, 2026 at 10:54:55AM +0100, Michal Luczaj wrote:
+>Loopback transport can mangle data in rx queue when a linear skb is
+>followed by a small MSG_ZEROCOPY packet.
+
+Can we describe a bit more what the test is doing?
+
 >
->Since the introduction of MSG_ZEROCOPY support, assumption that a small skb
->will always be linear is incorrect (see loopback transport). In the
->zerocopy case, data is lost and the linear skb is appended with
->uninitialized kernel memory.
->
->Ensure only linear skbs are coalesced. Note that skb_tailroom(last_skb) > 0
->guarantees last_skb is linear.
->
->Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
 >Signed-off-by: Michal Luczaj <mhal@rbox.co>
 >---
-> net/vmw_vsock/virtio_transport_common.c | 3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
+> tools/testing/vsock/vsock_test.c          |  5 +++
+> tools/testing/vsock/vsock_test_zerocopy.c | 67 +++++++++++++++++++++++++++++++
+> tools/testing/vsock/vsock_test_zerocopy.h |  3 ++
+> 3 files changed, 75 insertions(+)
 >
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index dcc8a1d5851e..cf35eb7190cc 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -1375,7 +1375,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
-> 		 * of a new message.
-> 		 */
-> 		if (skb->len < skb_tailroom(last_skb) &&
->-		    !(le32_to_cpu(last_hdr->flags) & VIRTIO_VSOCK_SEQ_EOM)) {
->+		    !(le32_to_cpu(last_hdr->flags) & VIRTIO_VSOCK_SEQ_EOM) &&
->+		    !skb_is_nonlinear(skb)) {
+>diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>index bbe3723babdc..21c8616100f1 100644
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -2403,6 +2403,11 @@ static struct test_case test_cases[] = {
+> 		.run_client = test_stream_accepted_setsockopt_client,
+> 		.run_server = test_stream_accepted_setsockopt_server,
+> 	},
+>+	{
+>+		.name = "SOCK_STREAM MSG_ZEROCOPY coalescence corruption",
 
-Why here? I mean we can do the check even early, something like this:
+This is essentially a regression test for virtio transport, so I'd add 
+virtio in the test name.
 
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1361,7 +1361,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
-          * to avoid wasting memory queueing the entire buffer with a small
-          * payload.
-          */
--       if (len <= GOOD_COPY_LEN && !skb_queue_empty(&vvs->rx_queue)) {
-+       if (len <= GOOD_COPY_LEN && !skb_queue_empty(&vvs->rx_queue) &&
-+           !skb_is_nonlinear(skb)) {
-                 struct virtio_vsock_hdr *last_hdr;
-                 struct sk_buff *last_skb;
+>+		.run_client = test_stream_msgzcopy_mangle_client,
+>+		.run_server = test_stream_msgzcopy_mangle_server,
+>+	},
+> 	{},
+> };
+>
+>diff --git a/tools/testing/vsock/vsock_test_zerocopy.c b/tools/testing/vsock/vsock_test_zerocopy.c
+>index 9d9a6cb9614a..6735a9d7525d 100644
+>--- a/tools/testing/vsock/vsock_test_zerocopy.c
+>+++ b/tools/testing/vsock/vsock_test_zerocopy.c
+>@@ -9,11 +9,13 @@
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <string.h>
+>+#include <sys/ioctl.h>
+> #include <sys/mman.h>
+> #include <unistd.h>
+> #include <poll.h>
+> #include <linux/errqueue.h>
+> #include <linux/kernel.h>
+>+#include <linux/sockios.h>
+> #include <errno.h>
+>
+> #include "control.h"
+>@@ -356,3 +358,68 @@ void test_stream_msgzcopy_empty_errq_server(const struct test_opts *opts)
+> 	control_expectln("DONE");
+> 	close(fd);
+> }
+>+
+>+#define GOOD_COPY_LEN	128	/* net/vmw_vsock/virtio_transport_common.c */
 
+I think we don't need this, I mean we can eventually just send a single 
+byte, no?
 
-I would also add the reason in the comment before that to make it clear.
+>+
+>+void test_stream_msgzcopy_mangle_client(const struct test_opts *opts)
+>+{
+>+	char sbuf1[PAGE_SIZE + 1], sbuf2[GOOD_COPY_LEN];
+>+	struct pollfd fds;
+>+	int fd;
+>+
+>+	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
+>+	if (fd < 0) {
+>+		perror("connect");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	enable_so_zerocopy_check(fd);
+>+
+>+	memset(sbuf1, '1', sizeof(sbuf1));
+>+	memset(sbuf2, '2', sizeof(sbuf2));
+>+
+>+	send_buf(fd, sbuf1, sizeof(sbuf1), 0, sizeof(sbuf1));
+>+	send_buf(fd, sbuf2, sizeof(sbuf2), MSG_ZEROCOPY, sizeof(sbuf2));
+>+
+>+	fds.fd = fd;
+>+	fds.events = 0;
+>+
+>+	if (poll(&fds, 1, -1) != 1 || !(fds.revents & POLLERR)) {
+>+		perror("poll");
+>+		exit(EXIT_FAILURE);
+>+	}
 
-Thanks for the fix!
+Should we also call vsock_recv_completion() or we don't care about the 
+result?
+
+If we need it, maybe we can factor our the poll + 
+vsock_recv_completion().
+
+>+
+>+	close(fd);
+>+}
+>+
+>+static void recv_verify(int fd, char *buf, unsigned int len, char pattern)
+>+{
+>+	recv_buf(fd, buf, len, 0, len);
+>+
+>+	while (len--) {
+>+		if (*buf++ != pattern) {
+>+			fprintf(stderr, "Incorrect data received\n");
+>+			exit(EXIT_FAILURE);
+>+		}
+>+	}
+>+}
+>+
+>+void test_stream_msgzcopy_mangle_server(const struct test_opts *opts)
+>+{
+>+	char rbuf[PAGE_SIZE + 1];
+>+	int fd;
+>+
+>+	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+>+	if (fd < 0) {
+>+		perror("accept");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	/* Wait, don't race the (buggy) skbs coalescence. */
+>+	vsock_ioctl_int(fd, SIOCINQ, PAGE_SIZE + 1 + GOOD_COPY_LEN);
+
+This is cool, another option is to add a barrier here (and after the 
+poll), but yeah, this should be even better.
+
+Thanks,
 Stefano
 
-> 			memcpy(skb_put(last_skb, skb->len), skb->data, skb->len);
-> 			free_pkt = true;
-> 			last_hdr->flags |= hdr->flags;
+>+
+>+	recv_verify(fd, rbuf, PAGE_SIZE + 1, '1');
+>+	recv_verify(fd, rbuf, GOOD_COPY_LEN, '2');
+>+
+>+	close(fd);
+>+}
+>diff --git a/tools/testing/vsock/vsock_test_zerocopy.h b/tools/testing/vsock/vsock_test_zerocopy.h
+>index 3ef2579e024d..d46c91a69f16 100644
+>--- a/tools/testing/vsock/vsock_test_zerocopy.h
+>+++ b/tools/testing/vsock/vsock_test_zerocopy.h
+>@@ -12,4 +12,7 @@ void test_seqpacket_msgzcopy_server(const struct test_opts *opts);
+> void test_stream_msgzcopy_empty_errq_client(const struct test_opts *opts);
+> void test_stream_msgzcopy_empty_errq_server(const struct test_opts 
+> *opts);
+>
+>+void test_stream_msgzcopy_mangle_client(const struct test_opts *opts);
+>+void test_stream_msgzcopy_mangle_server(const struct test_opts *opts);
+>+
+> #endif /* VSOCK_TEST_ZEROCOPY_H */
 >
 >-- 
 >2.52.0
