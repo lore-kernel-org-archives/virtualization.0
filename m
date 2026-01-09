@@ -1,35 +1,80 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88EA632E732;
-	Fri,  9 Jan 2026 10:15:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A16733859E
+	for <virtualization@lists.linux.dev>; Fri,  9 Jan 2026 10:34:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767953706; cv=none; b=qCSTNUajhmk79XHYFc/YzB6S3yrj2U5nhyk2kqEirUqkKykJxVrsbB4FPobU8FhO4e/1dDPwjh0pEmGMac5FQWFCQMpXFSQ1FgBHGt8JYyTNBsePtEk1t+XpAZt1n7FLZIzzjdNbIGBgafn6zd9XIC7EdjrsXlx58Ntkh4oJGtc=
+	t=1767954883; cv=none; b=HuYxhTO8ftBxb+hn+5F3SzeMX0sBjPrNMUC2BmV2jPBsGszdSRkjxxvAxc0ecyoNuvhzcAiAjw6UMDT854Lz5MpNJCmXFMiaW7OTZLvFTjAMGw9kbFfKYvljXO9e4Wc1lWI/sNahbsNoPZeF3u/XZSkEGe9cHnD3OrW/+4PrGpI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767953706; c=relaxed/simple;
-	bh=o7JZKnKjaE69MTIhA9EF55nlKQYXzW6zANd0/gTwhds=;
+	s=arc-20240116; t=1767954883; c=relaxed/simple;
+	bh=pDV+Y2brq5Y/jlC+k4P9H3Hzq52Ia6LIXFxRhCL7Apk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Qde/nN9w/72DnEgL+K48A+d8i8GzuiC6BHYuFwXQYmJYZHsgPoHrU3NPH9RAbBd+HdrBwRV+EVcNZllMotgTrm9PhPUewb+gHrien31R/8pzCSeLWNOyjC6U5hKS4fZs6QJF4WdMePeRXQL2MbSfYAJoIdtug8kME2voMOGoLSQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=GXP9kHST; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	 In-Reply-To:Content-Type; b=Ec14OwQgChe5B0ttTsl2EX//tegG6w9GI9V2xdo7BETR5ZZPQoRCNerXDI57G7t2vnlnVvL8BHZkSh3EQg5EexTXjDZ90z9p3RCOyRuM6MX25HF+knEsfxBinwlSx+ShSvcf0DCy5e/H2Gm9dkoMO/MXzokzIra1fAF1AwVXiCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AYGkFnRw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=IHUFvxjX; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AYGkFnRw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=IHUFvxjX; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="GXP9kHST"
-Received: from [129.217.186.165] ([129.217.186.165])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.1.16/8.18.1.16) with ESMTPSA id 609AEsWt003313
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 9 Jan 2026 11:14:55 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1767953695;
-	bh=o7JZKnKjaE69MTIhA9EF55nlKQYXzW6zANd0/gTwhds=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=GXP9kHSTN96tyHIbLuG+YZD3/mt0iz1I0EFcEetx3SCrvbAGGmoA+xpesYfSArqss
-	 9Rtv1DtbTrhfUSQRhy3+zRbDYgaOpeaoG8FYzTwplvLFhAXTMAyavRGimTtYAfovAU
-	 qTAMhF85wHOtgLHFSDFyWj+cBM2+CT5bpXDYk1EI=
-Message-ID: <900c364b-f5ca-4458-a711-bf3e0433b537@tu-dortmund.de>
-Date: Fri, 9 Jan 2026 11:14:54 +0100
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AYGkFnRw";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="IHUFvxjX";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AYGkFnRw";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="IHUFvxjX"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 892485BD4C;
+	Fri,  9 Jan 2026 10:34:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1767954869; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=quXykmFucH86nMSyArVgl9RjHoQwr+Ungu8b5HjPcy4=;
+	b=AYGkFnRwOFEi2fS+0MgdGKuPjA5xML1KOEc0VNsILP7ImaqRJ4uUWXamjRs8/0o0vpKGhf
+	7MdEAeqQ4bcAxw2TDloU/+OssmLjWH5UUlO21Va39W6gTXrp1mv9PEbzCDRLA8v7bJkvGC
+	fj9pE11XRgdPxIiiCGMLZ4rIU7VzfFA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1767954869;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=quXykmFucH86nMSyArVgl9RjHoQwr+Ungu8b5HjPcy4=;
+	b=IHUFvxjXt6RNe94raOnQ1X8PE56K7NAxMjFmxFzfDsr06Ts6Avcj62ovlK3mxFEbcYeb9j
+	Lla84MGwl3Bi/IDw==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1767954869; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=quXykmFucH86nMSyArVgl9RjHoQwr+Ungu8b5HjPcy4=;
+	b=AYGkFnRwOFEi2fS+0MgdGKuPjA5xML1KOEc0VNsILP7ImaqRJ4uUWXamjRs8/0o0vpKGhf
+	7MdEAeqQ4bcAxw2TDloU/+OssmLjWH5UUlO21Va39W6gTXrp1mv9PEbzCDRLA8v7bJkvGC
+	fj9pE11XRgdPxIiiCGMLZ4rIU7VzfFA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1767954869;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=quXykmFucH86nMSyArVgl9RjHoQwr+Ungu8b5HjPcy4=;
+	b=IHUFvxjXt6RNe94raOnQ1X8PE56K7NAxMjFmxFzfDsr06Ts6Avcj62ovlK3mxFEbcYeb9j
+	Lla84MGwl3Bi/IDw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 5C7883EA63;
+	Fri,  9 Jan 2026 10:34:28 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id LvUmFbTZYGkGRAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 09 Jan 2026 10:34:28 +0000
+Message-ID: <c816f7ed-66e0-4773-b3d1-4769234bd30b@suse.de>
+Date: Fri, 9 Jan 2026 11:34:27 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,161 +82,255 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: [PATCH net-next v7 9/9] tun/tap & vhost-net: avoid ptr_ring tail-drop
- when qdisc is present
-To: Jason Wang <jasowang@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
-        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
- <20260107210448.37851-10-simon.schippers@tu-dortmund.de>
- <CACGkMEuQikCsHn9cdhVxxHbjKAyW288SPNxAyXQ7FWNxd7Qenw@mail.gmail.com>
- <bd41afae-cf1e-46ab-8948-4c7fa280b20f@tu-dortmund.de>
- <CACGkMEs8VHGjiLqn=-Gt5=WPMzqAXNM2GcK73dLarP9CQw3+rw@mail.gmail.com>
+Subject: Re: [PATCH 00/12] Recover sysfb after DRM probe failure
+To: Zack Rusin <zack.rusin@broadcom.com>, dri-devel@lists.freedesktop.org
+Cc: Alex Deucher <alexander.deucher@amd.com>, amd-gfx@lists.freedesktop.org,
+ Ard Biesheuvel <ardb@kernel.org>, Ce Sun <cesun102@amd.com>,
+ Chia-I Wu <olvaffe@gmail.com>, =?UTF-8?Q?Christian_K=C3=B6nig?=
+ <christian.koenig@amd.com>, Danilo Krummrich <dakr@kernel.org>,
+ Dave Airlie <airlied@redhat.com>, Deepak Rawat <drawat.floss@gmail.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Hans de Goede <hansg@kernel.org>, Hawking Zhang <Hawking.Zhang@amd.com>,
+ Helge Deller <deller@gmx.de>, intel-gfx@lists.freedesktop.org,
+ intel-xe@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
+ Javier Martinez Canillas <javierm@redhat.com>,
+ Jocelyn Falempe <jfalempe@redhat.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Lijo Lazar <lijo.lazar@amd.com>, linux-efi@vger.kernel.org,
+ linux-fbdev@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+ Lyude Paul <lyude@redhat.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ "Mario Limonciello (AMD)" <superm1@kernel.org>,
+ Mario Limonciello <mario.limonciello@amd.com>,
+ Maxime Ripard <mripard@kernel.org>, nouveau@lists.freedesktop.org,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
+ spice-devel@lists.freedesktop.org,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ =?UTF-8?Q?Timur_Krist=C3=B3f?= <timur.kristof@gmail.com>,
+ Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
+ Vitaly Prosyak <vitaly.prosyak@amd.com>
+References: <20251229215906.3688205-1-zack.rusin@broadcom.com>
 Content-Language: en-US
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-In-Reply-To: <CACGkMEs8VHGjiLqn=-Gt5=WPMzqAXNM2GcK73dLarP9CQw3+rw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20251229215906.3688205-1-zack.rusin@broadcom.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com,gmx.de];
+	MIME_TRACE(0.00)[0:+];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	TO_DN_SOME(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[43];
+	TAGGED_RCPT(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLxtqcp3yg5i7i9mi6syp13ijk)];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[amd.com,lists.freedesktop.org,kernel.org,gmail.com,redhat.com,collabora.com,chromium.org,gmx.de,linux.intel.com,vger.kernel.org,intel.com,ffwll.ch,ursulin.net,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[linux.dev:email,suse.com:url,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo,lists.freedesktop.org:email]
+X-Spam-Flag: NO
+X-Spam-Score: -2.80
+X-Spam-Level: 
 
-On 1/9/26 07:09, Jason Wang wrote:
-> On Thu, Jan 8, 2026 at 4:02 PM Simon Schippers
-> <simon.schippers@tu-dortmund.de> wrote:
->>
->> On 1/8/26 05:37, Jason Wang wrote:
->>> On Thu, Jan 8, 2026 at 5:06 AM Simon Schippers
->>> <simon.schippers@tu-dortmund.de> wrote:
->>>>
->>>> This commit prevents tail-drop when a qdisc is present and the ptr_ring
->>>> becomes full. Once an entry is successfully produced and the ptr_ring
->>>> reaches capacity, the netdev queue is stopped instead of dropping
->>>> subsequent packets.
->>>>
->>>> If producing an entry fails anyways, the tun_net_xmit returns
->>>> NETDEV_TX_BUSY, again avoiding a drop. Such failures are expected because
->>>> LLTX is enabled and the transmit path operates without the usual locking.
->>>> As a result, concurrent calls to tun_net_xmit() are not prevented.
->>>>
->>>> The existing __{tun,tap}_ring_consume functions free space in the
->>>> ptr_ring and wake the netdev queue. Races between this wakeup and the
->>>> queue-stop logic could leave the queue stopped indefinitely. To prevent
->>>> this, a memory barrier is enforced (as discussed in a similar
->>>> implementation in [1]), followed by a recheck that wakes the queue if
->>>> space is already available.
->>>>
->>>> If no qdisc is present, the previous tail-drop behavior is preserved.
->>>>
->>>> +-------------------------+-----------+---------------+----------------+
->>>> | pktgen benchmarks to    | Stock     | Patched with  | Patched with   |
->>>> | Debian VM, i5 6300HQ,   |           | noqueue qdisc | fq_codel qdisc |
->>>> | 10M packets             |           |               |                |
->>>> +-----------+-------------+-----------+---------------+----------------+
->>>> | TAP       | Transmitted | 196 Kpps  | 195 Kpps      | 185 Kpps       |
->>>> |           +-------------+-----------+---------------+----------------+
->>>> |           | Lost        | 1618 Kpps | 1556 Kpps     | 0              |
->>>> +-----------+-------------+-----------+---------------+----------------+
->>>> | TAP       | Transmitted | 577 Kpps  | 582 Kpps      | 578 Kpps       |
->>>> |  +        +-------------+-----------+---------------+----------------+
->>>> | vhost-net | Lost        | 1170 Kpps | 1109 Kpps     | 0              |
->>>> +-----------+-------------+-----------+---------------+----------------+
->>>>
->>>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
->>>>
->>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
->>>> ---
->>>>  drivers/net/tun.c | 31 +++++++++++++++++++++++++++++--
->>>>  1 file changed, 29 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
->>>> index 71b6981d07d7..74d7fd09e9ba 100644
->>>> --- a/drivers/net/tun.c
->>>> +++ b/drivers/net/tun.c
->>>> @@ -1008,6 +1008,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
->>>>         struct netdev_queue *queue;
->>>>         struct tun_file *tfile;
->>>>         int len = skb->len;
->>>> +       bool qdisc_present;
->>>> +       int ret;
->>>>
->>>>         rcu_read_lock();
->>>>         tfile = rcu_dereference(tun->tfiles[txq]);
->>>> @@ -1060,13 +1062,38 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
->>>>
->>>>         nf_reset_ct(skb);
->>>>
->>>> -       if (ptr_ring_produce(&tfile->tx_ring, skb)) {
->>>> +       queue = netdev_get_tx_queue(dev, txq);
->>>> +       qdisc_present = !qdisc_txq_has_no_queue(queue);
->>>> +
->>>> +       spin_lock(&tfile->tx_ring.producer_lock);
->>>> +       ret = __ptr_ring_produce(&tfile->tx_ring, skb);
->>>> +       if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
->>>> +               netif_tx_stop_queue(queue);
->>>> +               /* Avoid races with queue wake-up in
->>>> +                * __{tun,tap}_ring_consume by waking if space is
->>>> +                * available in a re-check.
->>>> +                * The barrier makes sure that the stop is visible before
->>>> +                * we re-check.
->>>> +                */
->>>> +               smp_mb__after_atomic();
->>>> +               if (!__ptr_ring_produce_peek(&tfile->tx_ring))
->>>> +                       netif_tx_wake_queue(queue);
->>>
->>> I'm not sure I will get here, but I think those should be moved to the
->>> following if(ret) check. If __ptr_ring_produce() succeed, there's no
->>> need to bother with those queue stop/wake logic?
->>
->> There is a need for that. If __ptr_ring_produce_peek() returns -ENOSPC,
->> we stop the queue proactively.
-> 
-> This seems to conflict with the following NETDEV_TX_BUSY. Or is
-> NETDEV_TX_BUSY prepared for the xdp_xmit?
+Hi
 
-Am I not allowed to stop the queue and then return NETDEV_TX_BUSY?
-And I do not understand the connection with xdp_xmit.
+Am 29.12.25 um 22:58 schrieb Zack Rusin:
+> Almost a rite of passage for every DRM developer and most Linux users
+> is upgrading your DRM driver/updating boot flags/changing some config
+> and having DRM driver fail at probe resulting in a blank screen.
+>
+> Currently there's no way to recover from DRM driver probe failure. PCI
+> DRM driver explicitly throw out the existing sysfb to get exclusive
+> access to PCI resources so if the probe fails the system is left without
+> a functioning display driver.
+>
+> Add code to sysfb to recever system framebuffer when DRM driver's probe
+> fails. This means that a DRM driver that fails to load reloads the system
+> framebuffer driver.
+>
+> This works best with simpledrm. Without it Xorg won't recover because
+> it still tries to load the vendor specific driver which ends up usually
+> not working at all. With simpledrm the system recovers really nicely
+> ending up with a working console and not a blank screen.
+>
+> There's a caveat in that some hardware might require some special magic
+> register write to recover EFI display. I'd appreciate it a lot if
+> maintainers could introduce a temporary failure in their drivers
+> probe to validate that the sysfb recovers and they get a working console.
+> The easiest way to double check it is by adding:
+>   /* XXX: Temporary failure to test sysfb restore - REMOVE BEFORE COMMIT */
+>   dev_info(&pdev->dev, "Testing sysfb restore: forcing probe failure\n");
+>   ret = -EINVAL;
+>   goto out_error;
+> or such right after the devm_aperture_remove_conflicting_pci_devices .
 
-> 
->>
->> I believe what you are aiming for is to always stop the queue if(ret),
->> which I can agree with. In that case, I would simply change the condition
->> to:
->>
->> if (qdisc_present && (ret || __ptr_ring_produce_peek(&tfile->tx_ring)))
->>
->>>
->>>> +       }
->>>> +       spin_unlock(&tfile->tx_ring.producer_lock);
->>>> +
->>>> +       if (ret) {
->>>> +               /* If a qdisc is attached to our virtual device,
->>>> +                * returning NETDEV_TX_BUSY is allowed.
->>>> +                */
->>>> +               if (qdisc_present) {
->>>> +                       rcu_read_unlock();
->>>> +                       return NETDEV_TX_BUSY;
->>>> +               }
->>>>                 drop_reason = SKB_DROP_REASON_FULL_RING;
->>>>                 goto drop;
->>>>         }
->>>>
->>>>         /* dev->lltx requires to do our own update of trans_start */
->>>> -       queue = netdev_get_tx_queue(dev, txq);
->>>>         txq_trans_cond_update(queue);
->>>>
->>>>         /* Notify and wake up reader process */
->>>> --
->>>> 2.43.0
->>>>
->>>
->>> Thanks
->>>
->>
-> 
-> Thanks
-> 
+Recovering the display like that is guess work and will at best work 
+with simple discrete devices where the framebuffer is always located in 
+a confined graphics aperture.
+
+But the problem you're trying to solve is a real one.
+
+What we'd want to do instead is to take the initial hardware state into 
+account when we do the initial mode-setting operation.
+
+The first step is to move each driver's remove_conflicting_devices call 
+to the latest possible location in the probe function. We usually do it 
+first, because that's easy. But on most hardware, it could happen much 
+later. The native driver is free to examine hardware state while probing 
+the device as long as it does not interfere with the pre-configured 
+framebuffer mode/format/address. Hence it can set up it's internal 
+structures while the sysfb device is still active.
+
+The next step for the native driver is to load the pre-configured 
+hardware state into its initial internal atomic state. Maxime has worked 
+on that on and off. The last iteration I'm aware of is at [1].
+
+After the state-readout, the sysfb device has to be unplugged. But as 
+the underlying hardware config remains active, the native driver can now 
+use and modify it. We currently do a drm_mode_config_reset(), which 
+clears the state and then let the first client set a new display state. 
+But with state-readout, we could either pick up the existing framebuffer 
+directly or do a proper modeset from existing state.
+
+As DRM clients control the mode setting, they'd likely need some changes 
+to handle state-readout. There's such code in i915's fbdev support AFAIK.
+
+Best regards
+Thomas
+
+[1] 
+https://lore.kernel.org/dri-devel/20250902-drm-state-readout-v1-0-14ad5315da3f@kernel.org/
+
+>
+> Cc: Alex Deucher <alexander.deucher@amd.com>
+> Cc: amd-gfx@lists.freedesktop.org
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: Ce Sun <cesun102@amd.com>
+> Cc: Chia-I Wu <olvaffe@gmail.com>
+> Cc: "Christian König" <christian.koenig@amd.com>
+> Cc: Danilo Krummrich <dakr@kernel.org>
+> Cc: Dave Airlie <airlied@redhat.com>
+> Cc: Deepak Rawat <drawat.floss@gmail.com>
+> Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: Gurchetan Singh <gurchetansingh@chromium.org>
+> Cc: Hans de Goede <hansg@kernel.org>
+> Cc: Hawking Zhang <Hawking.Zhang@amd.com>
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: intel-gfx@lists.freedesktop.org
+> Cc: intel-xe@lists.freedesktop.org
+> Cc: Jani Nikula <jani.nikula@linux.intel.com>
+> Cc: Javier Martinez Canillas <javierm@redhat.com>
+> Cc: Jocelyn Falempe <jfalempe@redhat.com>
+> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> Cc: Lijo Lazar <lijo.lazar@amd.com>
+> Cc: linux-efi@vger.kernel.org
+> Cc: linux-fbdev@vger.kernel.org
+> Cc: linux-hyperv@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+> Cc: Lyude Paul <lyude@redhat.com>
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Cc: "Mario Limonciello (AMD)" <superm1@kernel.org>
+> Cc: Mario Limonciello <mario.limonciello@amd.com>
+> Cc: Maxime Ripard <mripard@kernel.org>
+> Cc: nouveau@lists.freedesktop.org
+> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> Cc: Simona Vetter <simona@ffwll.ch>
+> Cc: spice-devel@lists.freedesktop.org
+> Cc: "Thomas Hellström" <thomas.hellstrom@linux.intel.com>
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: "Timur Kristóf" <timur.kristof@gmail.com>
+> Cc: Tvrtko Ursulin <tursulin@ursulin.net>
+> Cc: virtualization@lists.linux.dev
+> Cc: Vitaly Prosyak <vitaly.prosyak@amd.com>
+>
+> Zack Rusin (12):
+>    video/aperture: Add sysfb restore on DRM probe failure
+>    drm/vmwgfx: Use devm aperture helpers for sysfb restore on probe
+>      failure
+>    drm/xe: Use devm aperture helpers for sysfb restore on probe failure
+>    drm/amdgpu: Use devm aperture helpers for sysfb restore on probe
+>      failure
+>    drm/virtio: Add sysfb restore on probe failure
+>    drm/nouveau: Use devm aperture helpers for sysfb restore on probe
+>      failure
+>    drm/qxl: Use devm aperture helpers for sysfb restore on probe failure
+>    drm/vboxvideo: Use devm aperture helpers for sysfb restore on probe
+>      failure
+>    drm/hyperv: Add sysfb restore on probe failure
+>    drm/ast: Use devm aperture helpers for sysfb restore on probe failure
+>    drm/radeon: Use devm aperture helpers for sysfb restore on probe
+>      failure
+>    drm/i915: Use devm aperture helpers for sysfb restore on probe failure
+>
+>   drivers/firmware/efi/sysfb_efi.c           |   2 +-
+>   drivers/firmware/sysfb.c                   | 191 +++++++++++++--------
+>   drivers/firmware/sysfb_simplefb.c          |  10 +-
+>   drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |   9 +-
+>   drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c    |   7 +
+>   drivers/gpu/drm/ast/ast_drv.c              |  13 +-
+>   drivers/gpu/drm/hyperv/hyperv_drm_drv.c    |  23 +++
+>   drivers/gpu/drm/i915/i915_driver.c         |  13 +-
+>   drivers/gpu/drm/nouveau/nouveau_drm.c      |  16 +-
+>   drivers/gpu/drm/qxl/qxl_drv.c              |  14 +-
+>   drivers/gpu/drm/radeon/radeon_drv.c        |  15 +-
+>   drivers/gpu/drm/vboxvideo/vbox_drv.c       |  13 +-
+>   drivers/gpu/drm/virtio/virtgpu_drv.c       |  29 ++++
+>   drivers/gpu/drm/vmwgfx/vmwgfx_drv.c        |  13 +-
+>   drivers/gpu/drm/xe/xe_device.c             |   7 +-
+>   drivers/gpu/drm/xe/xe_pci.c                |   7 +
+>   drivers/video/aperture.c                   |  54 ++++++
+>   include/linux/aperture.h                   |  14 ++
+>   include/linux/sysfb.h                      |   6 +
+>   19 files changed, 368 insertions(+), 88 deletions(-)
+>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+
+
