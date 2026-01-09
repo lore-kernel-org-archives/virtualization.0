@@ -1,241 +1,113 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF9302E7F3A
-	for <virtualization@lists.linux.dev>; Fri,  9 Jan 2026 06:48:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2591D2E8DEB
+	for <virtualization@lists.linux.dev>; Fri,  9 Jan 2026 06:50:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767941287; cv=none; b=D5O62O3Ah1MOv58suYH6EmzSQG/kgVtJlpMEWL6GbFNdK3qbdD4y0MSH1E25OjWcrlVjJBhbr9QUglCXBDlzT++i+4Jg5f1sOW8vNc9YAiWi/MOEnzSxhJMuLm833ii8B3ojE3qNaIc5Y7i+v6t5WjbkpkK8lBtMcInsj/AwulY=
+	t=1767941445; cv=none; b=fog6tksGuIeboM5U+SdHk2m5FBQBhLgcBCCFpYGO26aANcAJZQzyzG0cDYQyZhfami4Oj0PlrchxMLY9ZEGtYvdTPheYBWTkTtqCbPpnbfCge6Vne5SB7fJe9bDWArvk2EkMt0jIPoJEBP+X8xN1kpjY7UUvHIaB6VTKdUynFX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767941287; c=relaxed/simple;
-	bh=1t7HpXtfhndr//EM310eF9nsZ7x3boyagBYp2aL6CmE=;
+	s=arc-20240116; t=1767941445; c=relaxed/simple;
+	bh=iEtJOvOiVU5aWrZjX18IWSGkBx5iBhYUuqRnUN225Nk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=PsXGfzKhnsnAVDHgYwzzgiE9BiDzTSlwPCTytqza+ZrPzS98NPu8xs078XNC8rjFVPk9TC+fqjGElXhhl6mwiPnTufw5ArpJ2tjel08KWqCvOLUjox9BZTKR4jSZscUsT9or56CwbPqxlX7q/EQFsRmHWR6sEG+qUsfyMjvDLJo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ifISpdfI; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=GPmYXDgADs+PMw3+1GQNFsHo1TPX1BzKPxzg3ApowUpICURJSN5LszujZ+RuhvQE+kfBaVOmi1ATJyih111zxXSySpnUeaPEDf3OGgKvpeQp62HLyWd9XAKYjSfPqkCwjKkxE8px8kHNUa5iS1Tjr8KjD0nujCS8cncUIRSWgM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KEqd4MEb; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ifISpdfI"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KEqd4MEb"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1767941284;
+	s=mimecast20190719; t=1767941442;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=V/9K6fpSsNoEJIRz5SgfQXESe4sUZm/fKrYlDOxA0/w=;
-	b=ifISpdfIVnoCywjYjOpF8RPEmMbvtQL0wOa5cygaidWp69BrMxEH6oP98tHxlVP+aFe7uH
-	FNezwC8f2Qp83UekhmJf7OOWdR4bNAq/t5o91hU4JFKC+cyXZTNHphW1BOyv9/SNqHov2W
-	CGJJfg+rnXii0elL2J8D3/fjk1sA4jw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=R+ceZQaBHtSWEXMLCYeIz4W2mWMzIw2cMZlyfXRW3eI=;
+	b=KEqd4MEb1p3OpRUvlzeK8GSliegMbo+DVo5RQxG4mcvRZdT4c/m9DjytX0LHiY2pBYxidR
+	c4oKvukteXLKnRQYcT3PNpE1a8Ekof3wb8nDD3I4zMmKbAHH7lCeTXihl/0n3m7z8QHZgd
+	lNS8s7YCwx39VmQL//D0bPEeBqc29pw=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-80-K3fyPnDLPEebw5x2ep5ejw-1; Fri, 09 Jan 2026 01:48:03 -0500
-X-MC-Unique: K3fyPnDLPEebw5x2ep5ejw-1
-X-Mimecast-MFC-AGG-ID: K3fyPnDLPEebw5x2ep5ejw_1767941282
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-47777158a85so44198195e9.3
-        for <virtualization@lists.linux.dev>; Thu, 08 Jan 2026 22:48:03 -0800 (PST)
+ us-mta-313-sMC8NFX6MbKvwRgl1M4VmA-1; Fri, 09 Jan 2026 01:50:39 -0500
+X-MC-Unique: sMC8NFX6MbKvwRgl1M4VmA-1
+X-Mimecast-MFC-AGG-ID: sMC8NFX6MbKvwRgl1M4VmA_1767941438
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4776079ada3so37602355e9.1
+        for <virtualization@lists.linux.dev>; Thu, 08 Jan 2026 22:50:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767941282; x=1768546082;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=V/9K6fpSsNoEJIRz5SgfQXESe4sUZm/fKrYlDOxA0/w=;
-        b=OMOLr1/Zt1QcgR1nVApEDg4sQpbLcQYbcuE8rLLbyISGiC/5+1hExJhbs0YrO6asEv
-         5bSSuFPmCXq0oRg8lMGvq4GvQvCLkl13/1gD8xpmkTYLBDdyaGRegsaX/gZapp3vLXlJ
-         VuokZuXE5Og5pS0kwUjxJwwe/rH/0MdqcNJgX9vgsyI4/Brk9iHSFvKc2KTlJGeG3lj1
-         UnA0wTqtzBy0z4kRjwXh1YoEHCTviFQ5xPCobgKpO1Ki1tUNk0MEl3SohqLbybo2xbEB
-         wXhtHf919Qv33VvOVnxQxJz9Ludfay0J1IzIcgfDNeaj5GszHKzU5HU7v5K67fZ/Vx/N
-         xuog==
-X-Forwarded-Encrypted: i=1; AJvYcCXXHpS190irRS6iAG8fHPYY0HfRv4JYeExTZrZxlLrxfsco2d2/qWv7TIzP/wmlbfdTSJAtucoQmm7Q9by5xA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxVx4IGoNykCFY/u4Hd9Bk2Qxci1AhcD80a+sdUaopcoZUh51MF
-	F8PgDjh6UVvoywMyy1Uj6ZOSlLXVjy2/FLnHFI052QSxYFKauGWDetiCr1EE7nXDrGj3k+1O1HD
-	qjnrG4EwKFgwKtynJBepOJQu3WFs4semJbMfUNTVwA5m0wgHUOQSILPlivyY+Kk2kxOKv
-X-Gm-Gg: AY/fxX6oifknCbIaYLa6mTxNd3rNbx0M5U1jqUs/EM5EERoJ90KIpewAy6BAf90VGYY
-	dg4IGSz2Tc+J3RMMMXOpJa2zvXv17N7/v8qkkorNQcNNXGB5rQiIDZbfDPd7m9flPeycLdMZIPh
-	mdyUNZt5FeRWMYys3NX4jFgCd3OBNThvTpYi4fqno88K7pODV1bR8NjQefx4z78mk8MXzVZg9+T
-	8SYt37EHPvq2apxdx4LQ52iWNuJa3C92adBOcr3apDdfwOu1H7SvX+YJDeoo88kvvchn3uf1f/b
-	3MK16Uz51aAp2SqT7LT0fUTwKgcHtUsN9mBYfhI719JFaL0rHKbWbiWE44BNtwTeC3a9QoHaUpI
-	yG33WEVRemydE+LAul+fDbuhGwmxMZ+aykQ==
-X-Received: by 2002:a05:600c:83c9:b0:45d:5c71:769a with SMTP id 5b1f17b1804b1-47d84b3b650mr97118335e9.26.1767941281931;
-        Thu, 08 Jan 2026 22:48:01 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE5mwMLnpPXtS3sSstkOI4XZ+lgxWp4YHE6MscmmctxPLldO2W4ddVXCOcgeyZ9c3lCcV9aiA==
-X-Received: by 2002:a05:600c:83c9:b0:45d:5c71:769a with SMTP id 5b1f17b1804b1-47d84b3b650mr97117985e9.26.1767941281330;
-        Thu, 08 Jan 2026 22:48:01 -0800 (PST)
+        d=1e100.net; s=20230601; t=1767941438; x=1768546238;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=R+ceZQaBHtSWEXMLCYeIz4W2mWMzIw2cMZlyfXRW3eI=;
+        b=nl8ozrxT9RCgCy2uenFoAhLOlWlUmpD+uR8MoHzTWDSqwcByfDTx1cMR1+5ydbBJ//
+         EBU8JTIEuvtxUJCnTr/y+desRD1tmqp6zQ/PDOXDhd6FiYBKP1kAymgxExsRLKQE8zKL
+         vN/Psz70hXnbNyDzrFfkohgIKmdkke6l1PkcbxkROP8Kg/LLqHlV31izAAS0fEwcZhCL
+         Mtyj4OYPIkON3Si6Ya4dQDhsFc/x4C/qMJBatl++Vge6r56LPGsDB6swyt1N7n3FsAAn
+         qb9kLWiLuRT2rCiWOuwyAvTE3ixN5/J8Ax90AQGQkjP4LJtP8Btdh5pxKdGk8772Tb5j
+         bnGg==
+X-Forwarded-Encrypted: i=1; AJvYcCXOkA4WT6d2HwUdEqZNyeqylp1ffjdKj/0OLbMIi0je+HIAtVvI6A5udRhRsaNwYg0kkf0ENgXJaQ1zYmFEkg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwEw5Hh/ZxUtPcwoo7UT9/uKp4breFngCeBPfLqVxufKkcqHyAK
+	bOeCvdP7mzj9Aj/4KR7kBJidcMJlL4fMel76+KoeCoXiGN8R/Y1QGNnSKtjpm0HkVJsVyeIzJu4
+	6BG8Vo6WUVNM67DzCcEzRrgn4I1L2VA3iqHP+kZkL6jEld3fzn0NBKW//jWe1Osnh7tVj
+X-Gm-Gg: AY/fxX5S08v49reIhePvgkL8vGwNfBnz5UEQajz1ShqdSjSt7tZxCxGe8p1EIq81YXi
+	2qCU+QINVDK4f0tYPDR+p7HjhELjRl3iF8+keebs1VvTkajsFKYv7AYtRVLfZS+NHraC0nzmYTy
+	HxblD1mO0jbiXDUznAXfRj5BTqxrPPmIpGFWrbjIiULHBHktwFo0SqnsQaw+Zt90FolRDaZLMkz
+	fZeN1jFa/gq9xa1Fh4j4TNE89w1dDbK5d/NjltPZeuJc38RJOE1LKetP5MAekesFwjBRqLrlG9Z
+	ubRi/DF/QKmnFwK/B8oCcM7mySoccuvt1yqFs041RFl3xop6aKxLDj/5tJEUYx7Z0FuDjRz3YiI
+	sm6/T0CNT/GcEvd+TQ25q5yvFV4ZxiF+5ew==
+X-Received: by 2002:a05:600c:1988:b0:477:fad:acd9 with SMTP id 5b1f17b1804b1-47d84b54025mr83032915e9.34.1767941437753;
+        Thu, 08 Jan 2026 22:50:37 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGPoTWz83P/iNwID/4Bvz08OjAhrzEJr6LK5HIHVnGFH5eW5Gjhe1uiWsZet3dbhgEY25lNqw==
+X-Received: by 2002:a05:600c:1988:b0:477:fad:acd9 with SMTP id 5b1f17b1804b1-47d84b54025mr83032605e9.34.1767941437006;
+        Thu, 08 Jan 2026 22:50:37 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f410c86sm194224835e9.3.2026.01.08.22.47.59
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d865f84besm59137085e9.1.2026.01.08.22.50.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Jan 2026 22:48:00 -0800 (PST)
-Date: Fri, 9 Jan 2026 01:47:57 -0500
+        Thu, 08 Jan 2026 22:50:36 -0800 (PST)
+Date: Fri, 9 Jan 2026 01:50:33 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Jason Wang <jasowang@redhat.com>
-Cc: Simon Schippers <simon.schippers@tu-dortmund.de>,
-	willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, eperezma@redhat.com, leiyang@redhat.com,
-	stephen@networkplumber.org, jon@nutanix.com,
-	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v7 2/9] ptr_ring: add helper to detect newly
- freed space on consume
-Message-ID: <20260109014322-mutt-send-email-mst@kernel.org>
-References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
- <20260107210448.37851-3-simon.schippers@tu-dortmund.de>
- <CACGkMEsHxu_iyL+MjJG834hBGNy9tY9f3mAEeZfDn5MMwtuz8Q@mail.gmail.com>
- <ba3cffe3-b514-435d-88a8-f20c91be722a@tu-dortmund.de>
- <CACGkMEv2m5q-4kuT5iyu_Z=5h0SMz0YYeKRBu8EtrxC_E-2zWw@mail.gmail.com>
+Cc: Vishwanath Seshagiri <vishs@meta.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	David Wei <dw@davidwei.uk>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] virtio_net: add page pool support for buffer
+ allocation
+Message-ID: <20260109014836-mutt-send-email-mst@kernel.org>
+References: <20260106221924.123856-1-vishs@meta.com>
+ <20260106221924.123856-2-vishs@meta.com>
+ <CACGkMEsfvG5NHd0ShC3DoQEfGH8FeUXDD7FFdb64wK_CkbgQ=g@mail.gmail.com>
+ <bba34d18-6b90-4454-ab61-6769342d9114@meta.com>
+ <CACGkMEuChs5WHg5916e=odvLU09r8ER-1+VXi5rp+LLo0s6UUg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEv2m5q-4kuT5iyu_Z=5h0SMz0YYeKRBu8EtrxC_E-2zWw@mail.gmail.com>
+In-Reply-To: <CACGkMEuChs5WHg5916e=odvLU09r8ER-1+VXi5rp+LLo0s6UUg@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -MDnqQnkzkAdOVq6ekDwLCewvmUmpjyDzFxGHBboWhY_1767941282
+X-Mimecast-MFC-PROC-ID: OGMVgX26mJnuxv9PPIHsdUKapvQbAWMe5deSsft0lJ0_1767941438
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Fri, Jan 09, 2026 at 02:01:54PM +0800, Jason Wang wrote:
-> On Thu, Jan 8, 2026 at 3:21 PM Simon Schippers
-> <simon.schippers@tu-dortmund.de> wrote:
-> >
-> > On 1/8/26 04:23, Jason Wang wrote:
-> > > On Thu, Jan 8, 2026 at 5:06 AM Simon Schippers
-> > > <simon.schippers@tu-dortmund.de> wrote:
-> > >>
-> > >> This proposed function checks whether __ptr_ring_zero_tail() was invoked
-> > >> within the last n calls to __ptr_ring_consume(), which indicates that new
-> > >> free space was created. Since __ptr_ring_zero_tail() moves the tail to
-> > >> the head - and no other function modifies either the head or the tail,
-> > >> aside from the wrap-around case described below - detecting such a
-> > >> movement is sufficient to detect the invocation of
-> > >> __ptr_ring_zero_tail().
-> > >>
-> > >> The implementation detects this movement by checking whether the tail is
-> > >> at most n positions behind the head. If this condition holds, the shift
-> > >> of the tail to its current position must have occurred within the last n
-> > >> calls to __ptr_ring_consume(), indicating that __ptr_ring_zero_tail() was
-> > >> invoked and that new free space was created.
-> > >>
-> > >> This logic also correctly handles the wrap-around case in which
-> > >> __ptr_ring_zero_tail() is invoked and the head and the tail are reset
-> > >> to 0. Since this reset likewise moves the tail to the head, the same
-> > >> detection logic applies.
-> > >>
-> > >> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> > >> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> > >> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-> > >> ---
-> > >>  include/linux/ptr_ring.h | 13 +++++++++++++
-> > >>  1 file changed, 13 insertions(+)
-> > >>
-> > >> diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-> > >> index a5a3fa4916d3..7cdae6d1d400 100644
-> > >> --- a/include/linux/ptr_ring.h
-> > >> +++ b/include/linux/ptr_ring.h
-> > >> @@ -438,6 +438,19 @@ static inline int ptr_ring_consume_batched_bh(struct ptr_ring *r,
-> > >>         return ret;
-> > >>  }
-> > >>
-> > >> +/* Returns true if the consume of the last n elements has created space
-> > >> + * in the ring buffer (i.e., a new element can be produced).
-> > >> + *
-> > >> + * Note: Because of batching, a successful call to __ptr_ring_consume() /
-> > >> + * __ptr_ring_consume_batched() does not guarantee that the next call to
-> > >> + * __ptr_ring_produce() will succeed.
-> > >
-> > > This sounds like a bug that needs to be fixed, as it requires the user
-> > > to know the implementation details. For example, even if
-> > > __ptr_ring_consume_created_space() returns true, __ptr_ring_produce()
-> > > may still fail?
-> >
-> > No, it should not fail in that case.
-> > If you only call consume and after that try to produce, *then* it is
-> > likely to fail because __ptr_ring_zero_tail() is only invoked once per
-> > batch.
+On Fri, Jan 09, 2026 at 11:16:39AM +0800, Jason Wang wrote:
+> > My concern was that virtio has its own DMA abstraction
+> > vdev->map->map_page() (used by VDUSE), and I wasn't sure if page_pool's
+> > standard dma_map_page() would be compatible with all virtio backends.
 > 
-> Well, this makes the helper very hard for users.
-> 
-> So I think at least the documentation should specify the meaning of
-> 'n' here.
+> You are right, DMA is unware about virtio mappings, so we can't use that.
 
-Right. Documenting parameters is good.
+Or maybe we could add an API saying whether virtio mappings are DMA ones
+and then enable that conditionally? Because on some platforms, mapping
+in the pool can save *a lot* of cycles.
 
-> For example, is it the value returned by
-> ptr_ring_consume_batched()(), and is it required to be called
-> immediately after ptr_ring_consume_batched()? If it is, the API is
-> kind of tricky to be used, we should consider to merge two helpers
-> into a new single helper to ease the user.
-
-I think you are right partially it's more a question of documentation and naming.
-It's not that it's hard to use: follow up patches use it
-without issues - it's that neither documentatin nor
-naming explain how.
-
-let's try to document, first of all: if it does not guarantee that
-produce will succeed, then what *is* the guarantee this API gives?
-
-> 
-> What's more, there would be false positives. Considering there's not
-> many entries in the ring, just after the first zeroing,
-> __ptr_ring_consume_created_space() will return true, this will lead to
-> unnecessary wakeups.
-
-well optimizations are judged on their performance not on theoretical
-analysis. in this instance, this should be rare enough.
-
-> 
-> And last, the function will always succeed if n is greater than the batch.
-> 
-> >
-> > >
-> > > Maybe revert fb9de9704775d?
-> >
-> > I disagree, as I consider this to be one of the key features of ptr_ring.
-> 
-> Nope, it's just an optimization and actually it changes the behaviour
-> that might be noticed by the user.
-> 
-> Before the patch, ptr_ring_produce() is guaranteed to succeed after a
-> ptr_ring_consume(). After that patch, it's not. We don't see complaint
-> because the implication is not obvious (e.g more packet dropping).
-> 
-> >
-> > That said, there are several other implementation details that users need
-> > to be aware of.
-> >
-> > For example, __ptr_ring_empty() must only be called by the consumer. This
-> > was for example the issue in dc82a33297fc ("veth: apply qdisc
-> > backpressure on full ptr_ring to reduce TX drops") and the reason why
-> > 5442a9da6978 ("veth: more robust handing of race to avoid txq getting
-> > stuck") exists.
-> 
-> At least the behaviour is documented. This is not the case for the
-> implications of fb9de9704775d.
-> 
-> Thanks
-> 
-> 
-> >
-> > >
-> > >> + */
-> > >> +static inline bool __ptr_ring_consume_created_space(struct ptr_ring *r,
-> > >> +                                                   int n)
-> > >> +{
-> > >> +       return r->consumer_head - r->consumer_tail < n;
-> > >> +}
-> > >> +
-> > >>  /* Cast to structure type and call a function without discarding from FIFO.
-> > >>   * Function must return a value.
-> > >>   * Callers must take consumer_lock.
-> > >> --
-> > >> 2.43.0
-> > >>
-> > >
-> > > Thanks
-> > >
-> >
+-- 
+MST
 
