@@ -1,80 +1,58 @@
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A16733859E
-	for <virtualization@lists.linux.dev>; Fri,  9 Jan 2026 10:34:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0EFA33B6F1
+	for <virtualization@lists.linux.dev>; Fri,  9 Jan 2026 12:08:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767954883; cv=none; b=HuYxhTO8ftBxb+hn+5F3SzeMX0sBjPrNMUC2BmV2jPBsGszdSRkjxxvAxc0ecyoNuvhzcAiAjw6UMDT854Lz5MpNJCmXFMiaW7OTZLvFTjAMGw9kbFfKYvljXO9e4Wc1lWI/sNahbsNoPZeF3u/XZSkEGe9cHnD3OrW/+4PrGpI=
+	t=1767960482; cv=none; b=r/AQzZD/sP3cq4ZDgiHrBgg2+uhwOzwBbHn3A3xdyJ4UjD++MiZvcTq/GPrRDKNTT8oYpZTxabCiTn6r7kFoDVO6YjJrIp501ZhDo9VDLjbumBvxzy2h5qpk5DiA579yNNJNm3Ks4EXMp9G1VERtc/4YeYr/8cOfhdqMoV/VhLY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767954883; c=relaxed/simple;
-	bh=pDV+Y2brq5Y/jlC+k4P9H3Hzq52Ia6LIXFxRhCL7Apk=;
+	s=arc-20240116; t=1767960482; c=relaxed/simple;
+	bh=4Z+d5TRTcuwLi/S5zOetEJtn8Zjhaf3WusJBplaDol4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ec14OwQgChe5B0ttTsl2EX//tegG6w9GI9V2xdo7BETR5ZZPQoRCNerXDI57G7t2vnlnVvL8BHZkSh3EQg5EexTXjDZ90z9p3RCOyRuM6MX25HF+knEsfxBinwlSx+ShSvcf0DCy5e/H2Gm9dkoMO/MXzokzIra1fAF1AwVXiCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AYGkFnRw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=IHUFvxjX; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=AYGkFnRw; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=IHUFvxjX; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	 In-Reply-To:Content-Type; b=ItsRuRb9l5SOb0T0Y7hQ/cgPJgvDtBUyh5SM3qZcTJD+sxoLRVc8PGlZYvvgc2VJ19CV/9Ikw1sWTNJQ1LTm3zK0+dZ451xV0CjQDTQNnIBDqYQs3jjHHsNBf7TtbxCZ3Fr4gy8chPG9pkWyviGBzrtogj8GD36ZGpJMkHpX5bY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=aA3Y/9KC; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=k95zaFPt; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AYGkFnRw";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="IHUFvxjX";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="AYGkFnRw";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="IHUFvxjX"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="aA3Y/9KC";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="k95zaFPt"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 892485BD4C;
-	Fri,  9 Jan 2026 10:34:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1767954869; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	by smtp-out2.suse.de (Postfix) with ESMTPS id E62F95BFFC;
+	Fri,  9 Jan 2026 12:07:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1767960479; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=quXykmFucH86nMSyArVgl9RjHoQwr+Ungu8b5HjPcy4=;
-	b=AYGkFnRwOFEi2fS+0MgdGKuPjA5xML1KOEc0VNsILP7ImaqRJ4uUWXamjRs8/0o0vpKGhf
-	7MdEAeqQ4bcAxw2TDloU/+OssmLjWH5UUlO21Va39W6gTXrp1mv9PEbzCDRLA8v7bJkvGC
-	fj9pE11XRgdPxIiiCGMLZ4rIU7VzfFA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1767954869;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=quXykmFucH86nMSyArVgl9RjHoQwr+Ungu8b5HjPcy4=;
-	b=IHUFvxjXt6RNe94raOnQ1X8PE56K7NAxMjFmxFzfDsr06Ts6Avcj62ovlK3mxFEbcYeb9j
-	Lla84MGwl3Bi/IDw==
+	bh=4Z+d5TRTcuwLi/S5zOetEJtn8Zjhaf3WusJBplaDol4=;
+	b=aA3Y/9KCXCEmqClV3RGYgLOys0emintyICqd2JAe/fdYrAisel9rYOc2SiHAdUyo235Iar
+	V6V+uJKMGR4YssidBXnb53iVtigu5dcBMHammyvA6v7PdGqxdNAhZKvQf2vsuR4QoxziwU
+	e865T+Fy69F2EAQ21+P/PTCjVUPGryA=
 Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1767954869; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	dkim=pass header.d=suse.com header.s=susede1 header.b=k95zaFPt
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1767960478; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=quXykmFucH86nMSyArVgl9RjHoQwr+Ungu8b5HjPcy4=;
-	b=AYGkFnRwOFEi2fS+0MgdGKuPjA5xML1KOEc0VNsILP7ImaqRJ4uUWXamjRs8/0o0vpKGhf
-	7MdEAeqQ4bcAxw2TDloU/+OssmLjWH5UUlO21Va39W6gTXrp1mv9PEbzCDRLA8v7bJkvGC
-	fj9pE11XRgdPxIiiCGMLZ4rIU7VzfFA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1767954869;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=quXykmFucH86nMSyArVgl9RjHoQwr+Ungu8b5HjPcy4=;
-	b=IHUFvxjXt6RNe94raOnQ1X8PE56K7NAxMjFmxFzfDsr06Ts6Avcj62ovlK3mxFEbcYeb9j
-	Lla84MGwl3Bi/IDw==
+	bh=4Z+d5TRTcuwLi/S5zOetEJtn8Zjhaf3WusJBplaDol4=;
+	b=k95zaFPt9RDIKAZ5/+7d7pYm66zVpo3SAxF/Q0von+Okgsg+hb0gC0zkHw8EJMOE3Ee5T3
+	1c3GqBNI63JZ+IxDtNTnKQM4z0Yzp1LWmi6DRQFM/M/h0GGmg7DsCQxmMk2zLD0/C/IH2K
+	V4hTV0PsFkjT1YkS7w9d2JZ1Yi20hik=
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 5C7883EA63;
-	Fri,  9 Jan 2026 10:34:28 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 383B63EA63;
+	Fri,  9 Jan 2026 12:07:58 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id LvUmFbTZYGkGRAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Fri, 09 Jan 2026 10:34:28 +0000
-Message-ID: <c816f7ed-66e0-4773-b3d1-4769234bd30b@suse.de>
-Date: Fri, 9 Jan 2026 11:34:27 +0100
+	id 0XBzCp7vYGmiIQAAD6G6ig
+	(envelope-from <jgross@suse.com>); Fri, 09 Jan 2026 12:07:58 +0000
+Message-ID: <3102d712-8fa7-4567-bb8a-0f39fd71712d@suse.com>
+Date: Fri, 9 Jan 2026 13:07:57 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,255 +60,235 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/12] Recover sysfb after DRM probe failure
-To: Zack Rusin <zack.rusin@broadcom.com>, dri-devel@lists.freedesktop.org
-Cc: Alex Deucher <alexander.deucher@amd.com>, amd-gfx@lists.freedesktop.org,
- Ard Biesheuvel <ardb@kernel.org>, Ce Sun <cesun102@amd.com>,
- Chia-I Wu <olvaffe@gmail.com>, =?UTF-8?Q?Christian_K=C3=B6nig?=
- <christian.koenig@amd.com>, Danilo Krummrich <dakr@kernel.org>,
- Dave Airlie <airlied@redhat.com>, Deepak Rawat <drawat.floss@gmail.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- Hans de Goede <hansg@kernel.org>, Hawking Zhang <Hawking.Zhang@amd.com>,
- Helge Deller <deller@gmx.de>, intel-gfx@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
- Javier Martinez Canillas <javierm@redhat.com>,
- Jocelyn Falempe <jfalempe@redhat.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Lijo Lazar <lijo.lazar@amd.com>, linux-efi@vger.kernel.org,
- linux-fbdev@vger.kernel.org, linux-hyperv@vger.kernel.org,
- linux-kernel@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
- Lyude Paul <lyude@redhat.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- "Mario Limonciello (AMD)" <superm1@kernel.org>,
- Mario Limonciello <mario.limonciello@amd.com>,
- Maxime Ripard <mripard@kernel.org>, nouveau@lists.freedesktop.org,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
- spice-devel@lists.freedesktop.org,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- =?UTF-8?Q?Timur_Krist=C3=B3f?= <timur.kristof@gmail.com>,
- Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
- Vitaly Prosyak <vitaly.prosyak@amd.com>
-References: <20251229215906.3688205-1-zack.rusin@broadcom.com>
+Subject: Re: [PATCH v2 0/5] x86: Cleanups around slow_down_io()
+To: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-block@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
+ Jens Axboe <axboe@kernel.dk>
+References: <20251216134150.2710-1-jgross@suse.com>
 Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20251229215906.3688205-1-zack.rusin@broadcom.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-2.80 / 50.00];
+From: Juergen Gross <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <20251216134150.2710-1-jgross@suse.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------6KmjgHGC0GjFkS6YvFAdgUNk"
+X-Spamd-Result: default: False [-5.41 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
+	SIGNED_PGP(-2.00)[];
+	MIME_BASE64_TEXT_BOGUS(1.00)[];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MIME_GOOD(-0.20)[multipart/signed,multipart/mixed,text/plain];
+	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
 	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_UNKNOWN(0.10)[application/pgp-keys];
+	MIME_BASE64_TEXT(0.10)[];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
 	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com,gmx.de];
-	MIME_TRACE(0.00)[0:+];
+	MIME_TRACE(0.00)[0:+,1:+,2:+,3:+,4:~,5:~];
 	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[43];
-	TAGGED_RCPT(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLxtqcp3yg5i7i9mi6syp13ijk)];
+	RCPT_COUNT_TWELVE(0.00)[19];
 	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[amd.com,lists.freedesktop.org,kernel.org,gmail.com,redhat.com,collabora.com,chromium.org,gmx.de,linux.intel.com,vger.kernel.org,intel.com,ffwll.ch,ursulin.net,lists.linux.dev];
 	RCVD_TLS_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
 	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[linux.dev:email,suse.com:url,suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo,lists.freedesktop.org:email]
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.com:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	HAS_ATTACHMENT(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:dkim,suse.com:mid]
 X-Spam-Flag: NO
-X-Spam-Score: -2.80
+X-Spam-Score: -5.41
+X-Rspamd-Queue-Id: E62F95BFFC
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 X-Spam-Level: 
 
-Hi
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------6KmjgHGC0GjFkS6YvFAdgUNk
+Content-Type: multipart/mixed; boundary="------------Gs0D86kS3xPc0aUTHyn2oG1W";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-block@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
+ Jens Axboe <axboe@kernel.dk>
+Message-ID: <3102d712-8fa7-4567-bb8a-0f39fd71712d@suse.com>
+Subject: Re: [PATCH v2 0/5] x86: Cleanups around slow_down_io()
+References: <20251216134150.2710-1-jgross@suse.com>
+In-Reply-To: <20251216134150.2710-1-jgross@suse.com>
 
-Am 29.12.25 um 22:58 schrieb Zack Rusin:
-> Almost a rite of passage for every DRM developer and most Linux users
-> is upgrading your DRM driver/updating boot flags/changing some config
-> and having DRM driver fail at probe resulting in a blank screen.
->
-> Currently there's no way to recover from DRM driver probe failure. PCI
-> DRM driver explicitly throw out the existing sysfb to get exclusive
-> access to PCI resources so if the probe fails the system is left without
-> a functioning display driver.
->
-> Add code to sysfb to recever system framebuffer when DRM driver's probe
-> fails. This means that a DRM driver that fails to load reloads the system
-> framebuffer driver.
->
-> This works best with simpledrm. Without it Xorg won't recover because
-> it still tries to load the vendor specific driver which ends up usually
-> not working at all. With simpledrm the system recovers really nicely
-> ending up with a working console and not a blank screen.
->
-> There's a caveat in that some hardware might require some special magic
-> register write to recover EFI display. I'd appreciate it a lot if
-> maintainers could introduce a temporary failure in their drivers
-> probe to validate that the sysfb recovers and they get a working console.
-> The easiest way to double check it is by adding:
->   /* XXX: Temporary failure to test sysfb restore - REMOVE BEFORE COMMIT */
->   dev_info(&pdev->dev, "Testing sysfb restore: forcing probe failure\n");
->   ret = -EINVAL;
->   goto out_error;
-> or such right after the devm_aperture_remove_conflicting_pci_devices .
+--------------Gs0D86kS3xPc0aUTHyn2oG1W
+Content-Type: multipart/mixed; boundary="------------Ui1zwu9aMuM48dsP0uysbNdM"
 
-Recovering the display like that is guess work and will at best work 
-with simple discrete devices where the framebuffer is always located in 
-a confined graphics aperture.
+--------------Ui1zwu9aMuM48dsP0uysbNdM
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-But the problem you're trying to solve is a real one.
+R2VudGxlIHBpbmcuDQoNCk9uIDE2LjEyLjI1IDE0OjQxLCBKdWVyZ2VuIEdyb3NzIHdyb3Rl
+Og0KPiBXaGlsZSBsb29raW5nIGF0IHBhcmF2aXJ0IGNsZWFudXBzIEkgc3R1bWJsZWQgb3Zl
+ciBzbG93X2Rvd25faW8oKSBhbmQNCj4gdGhlIHJlbGF0ZWQgUkVBTExZX1NMT1dfSU8gZGVm
+aW5lLg0KPiANCj4gRG8gc2V2ZXJhbCBjbGVhbnVwcywgcmVzdWx0aW5nIGluIGEgZGVsZXRp
+b24gb2YgUkVBTExZX1NMT1dfSU8gYW5kIHRoZQ0KPiBpb19kZWxheSgpIHBhcmF2aXJ0IGZ1
+bmN0aW9uIGhvb2suDQo+IA0KPiBQYXRjaCA0IGlzIHJlbW92aW5nIHRoZSBjb25maWcgb3B0
+aW9ucyBmb3Igc2VsZWN0aW5nIHRoZSBkZWZhdWx0IGRlbGF5DQo+IG1lY2hhbmlzbSBhbmQg
+c2V0cyB0aGUgZGVmYXVsdCB0byAibm8gZGVsYXkiLiBUaGlzIGlzIGluIHByZXBhcmF0aW9u
+IG9mDQo+IHJlbW92aW5nIHRoZSBpb19kZWxheSgpIGZ1bmN0aW9uYWxpdHkgY29tcGxldGVs
+eSwgYXMgc3VnZ2VzdGVkIGJ5IEluZ28NCj4gTW9sbmFyLg0KPiANCj4gUGF0Y2ggNSBpcyBh
+ZGRpbmcgYW4gYWRkaXRpb25hbCBjb25maWcgb3B0aW9uIGFsbG93aW5nIHRvIGF2b2lkDQo+
+IGJ1aWxkaW5nIGlvX2RlbGF5LmMgKGRlZmF1bHQgaXMgc3RpbGwgdG8gYnVpbGQgaXQpLg0K
+PiANCj4gQ2hhbmdlcyBpbiBWMjoNCj4gLSBwYXRjaGVzIDIgYW5kIDMgb2YgVjEgaGF2ZSBi
+ZWVuIGFwcGxpZWQNCj4gLSBuZXcgcGF0Y2hlcyA0IGFuZCA1DQo+IA0KPiBKdWVyZ2VuIEdy
+b3NzICg1KToNCj4gICAgeDg2L3BhcmF2aXJ0OiBSZXBsYWNlIGlvX2RlbGF5KCkgaG9vayB3
+aXRoIGEgYm9vbA0KPiAgICBibG9jay9mbG9wcHk6IERvbid0IHVzZSBSRUFMTFlfU0xPV19J
+TyBmb3IgZGVsYXlzDQo+ICAgIHg4Ni9pbzogUmVtb3ZlIFJFQUxMWV9TTE9XX0lPIGhhbmRs
+aW5nDQo+ICAgIHg4Ni9pb19kZWxheTogU3dpdGNoIGlvX2RlbGF5KCkgZGVmYXVsdCBtZWNo
+YW5pc20gdG8gIm5vbmUiDQo+ICAgIHg4Ni9pb19kZWxheTogQWRkIGNvbmZpZyBvcHRpb24g
+Zm9yIGNvbnRyb2xsaW5nIGJ1aWxkIG9mIGlvX2RlbGF5Lg0KPiANCj4gICBhcmNoL3g4Ni9L
+Y29uZmlnICAgICAgICAgICAgICAgICAgICAgIHwgIDggKysrDQo+ICAgYXJjaC94ODYvS2Nv
+bmZpZy5kZWJ1ZyAgICAgICAgICAgICAgICB8IDMwIC0tLS0tLS0tLS0NCj4gICBhcmNoL3g4
+Ni9pbmNsdWRlL2FzbS9mbG9wcHkuaCAgICAgICAgIHwgMzEgKysrKysrKystLQ0KPiAgIGFy
+Y2gveDg2L2luY2x1ZGUvYXNtL2lvLmggICAgICAgICAgICAgfCAxNyArKystLS0NCj4gICBh
+cmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oICAgICAgIHwgMTEgKy0tLQ0KPiAgIGFy
+Y2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0X3R5cGVzLmggfCAgMyArLQ0KPiAgIGFyY2gv
+eDg2L2tlcm5lbC9NYWtlZmlsZSAgICAgICAgICAgICAgfCAgMyArLQ0KPiAgIGFyY2gveDg2
+L2tlcm5lbC9jcHUvdm13YXJlLmMgICAgICAgICAgfCAgMiArLQ0KPiAgIGFyY2gveDg2L2tl
+cm5lbC9pb19kZWxheS5jICAgICAgICAgICAgfCA4MSArLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0NCj4gICBhcmNoL3g4Ni9rZXJuZWwva3ZtLmMgICAgICAgICAgICAgICAgIHwgIDgg
+Ky0tDQo+ICAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgICAgICAgICAgICB8ICAzICst
+DQo+ICAgYXJjaC94ODYva2VybmVsL3NldHVwLmMgICAgICAgICAgICAgICB8ICA0ICstDQo+
+ICAgYXJjaC94ODYveGVuL2VubGlnaHRlbl9wdi5jICAgICAgICAgICB8ICA2ICstDQo+ICAg
+ZHJpdmVycy9ibG9jay9mbG9wcHkuYyAgICAgICAgICAgICAgICB8ICAyIC0NCj4gICAxNCBm
+aWxlcyBjaGFuZ2VkLCA1NSBpbnNlcnRpb25zKCspLCAxNTQgZGVsZXRpb25zKC0pDQo+IA0K
+DQo=
+--------------Ui1zwu9aMuM48dsP0uysbNdM
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-What we'd want to do instead is to take the initial hardware state into 
-account when we do the initial mode-setting operation.
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-The first step is to move each driver's remove_conflicting_devices call 
-to the latest possible location in the probe function. We usually do it 
-first, because that's easy. But on most hardware, it could happen much 
-later. The native driver is free to examine hardware state while probing 
-the device as long as it does not interfere with the pre-configured 
-framebuffer mode/format/address. Hence it can set up it's internal 
-structures while the sysfb device is still active.
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
-The next step for the native driver is to load the pre-configured 
-hardware state into its initial internal atomic state. Maxime has worked 
-on that on and off. The last iteration I'm aware of is at [1].
+--------------Ui1zwu9aMuM48dsP0uysbNdM--
 
-After the state-readout, the sysfb device has to be unplugged. But as 
-the underlying hardware config remains active, the native driver can now 
-use and modify it. We currently do a drm_mode_config_reset(), which 
-clears the state and then let the first client set a new display state. 
-But with state-readout, we could either pick up the existing framebuffer 
-directly or do a proper modeset from existing state.
+--------------Gs0D86kS3xPc0aUTHyn2oG1W--
 
-As DRM clients control the mode setting, they'd likely need some changes 
-to handle state-readout. There's such code in i915's fbdev support AFAIK.
+--------------6KmjgHGC0GjFkS6YvFAdgUNk
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
-Best regards
-Thomas
+-----BEGIN PGP SIGNATURE-----
 
-[1] 
-https://lore.kernel.org/dri-devel/20250902-drm-state-readout-v1-0-14ad5315da3f@kernel.org/
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmlg750FAwAAAAAACgkQsN6d1ii/Ey+3
+/wgAi5oL7xCqpILZVsO5gRJgR0CTRua+JeXEsT5vAtwtDnpA8iZZVLqBdXDmafTRfSUP0nRw7tUQ
+DVh9aTUpweByMdEoEXUup2HTJwvRf2u7r5yJMS+gM9kQbCqCq8KrhWhDpNzyy46+p9Z8wOnnlFu5
+2FTSjCahYQIRkKgtSxyLmvtAF4kj0adGtpRterfJvgm7RV+FlIUrSHG80G331Lsh/+tRnaFVeyIW
+ETT8zC84K4V6DKfbiFsvmL8zg0ED79+XVtzARSK+Jm+jkXxPXMK8jVqgA9dSvF4/bzbqJckClEK5
+XrBV2JpNaU398fDwvSrPDOhJh8tQYvr7jDyIY+4mRw==
+=fqat
+-----END PGP SIGNATURE-----
 
->
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: amd-gfx@lists.freedesktop.org
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Ce Sun <cesun102@amd.com>
-> Cc: Chia-I Wu <olvaffe@gmail.com>
-> Cc: "Christian König" <christian.koenig@amd.com>
-> Cc: Danilo Krummrich <dakr@kernel.org>
-> Cc: Dave Airlie <airlied@redhat.com>
-> Cc: Deepak Rawat <drawat.floss@gmail.com>
-> Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> Cc: dri-devel@lists.freedesktop.org
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: Gurchetan Singh <gurchetansingh@chromium.org>
-> Cc: Hans de Goede <hansg@kernel.org>
-> Cc: Hawking Zhang <Hawking.Zhang@amd.com>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: intel-gfx@lists.freedesktop.org
-> Cc: intel-xe@lists.freedesktop.org
-> Cc: Jani Nikula <jani.nikula@linux.intel.com>
-> Cc: Javier Martinez Canillas <javierm@redhat.com>
-> Cc: Jocelyn Falempe <jfalempe@redhat.com>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: Lijo Lazar <lijo.lazar@amd.com>
-> Cc: linux-efi@vger.kernel.org
-> Cc: linux-fbdev@vger.kernel.org
-> Cc: linux-hyperv@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Cc: "Mario Limonciello (AMD)" <superm1@kernel.org>
-> Cc: Mario Limonciello <mario.limonciello@amd.com>
-> Cc: Maxime Ripard <mripard@kernel.org>
-> Cc: nouveau@lists.freedesktop.org
-> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> Cc: Simona Vetter <simona@ffwll.ch>
-> Cc: spice-devel@lists.freedesktop.org
-> Cc: "Thomas Hellström" <thomas.hellstrom@linux.intel.com>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: "Timur Kristóf" <timur.kristof@gmail.com>
-> Cc: Tvrtko Ursulin <tursulin@ursulin.net>
-> Cc: virtualization@lists.linux.dev
-> Cc: Vitaly Prosyak <vitaly.prosyak@amd.com>
->
-> Zack Rusin (12):
->    video/aperture: Add sysfb restore on DRM probe failure
->    drm/vmwgfx: Use devm aperture helpers for sysfb restore on probe
->      failure
->    drm/xe: Use devm aperture helpers for sysfb restore on probe failure
->    drm/amdgpu: Use devm aperture helpers for sysfb restore on probe
->      failure
->    drm/virtio: Add sysfb restore on probe failure
->    drm/nouveau: Use devm aperture helpers for sysfb restore on probe
->      failure
->    drm/qxl: Use devm aperture helpers for sysfb restore on probe failure
->    drm/vboxvideo: Use devm aperture helpers for sysfb restore on probe
->      failure
->    drm/hyperv: Add sysfb restore on probe failure
->    drm/ast: Use devm aperture helpers for sysfb restore on probe failure
->    drm/radeon: Use devm aperture helpers for sysfb restore on probe
->      failure
->    drm/i915: Use devm aperture helpers for sysfb restore on probe failure
->
->   drivers/firmware/efi/sysfb_efi.c           |   2 +-
->   drivers/firmware/sysfb.c                   | 191 +++++++++++++--------
->   drivers/firmware/sysfb_simplefb.c          |  10 +-
->   drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |   9 +-
->   drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c    |   7 +
->   drivers/gpu/drm/ast/ast_drv.c              |  13 +-
->   drivers/gpu/drm/hyperv/hyperv_drm_drv.c    |  23 +++
->   drivers/gpu/drm/i915/i915_driver.c         |  13 +-
->   drivers/gpu/drm/nouveau/nouveau_drm.c      |  16 +-
->   drivers/gpu/drm/qxl/qxl_drv.c              |  14 +-
->   drivers/gpu/drm/radeon/radeon_drv.c        |  15 +-
->   drivers/gpu/drm/vboxvideo/vbox_drv.c       |  13 +-
->   drivers/gpu/drm/virtio/virtgpu_drv.c       |  29 ++++
->   drivers/gpu/drm/vmwgfx/vmwgfx_drv.c        |  13 +-
->   drivers/gpu/drm/xe/xe_device.c             |   7 +-
->   drivers/gpu/drm/xe/xe_pci.c                |   7 +
->   drivers/video/aperture.c                   |  54 ++++++
->   include/linux/aperture.h                   |  14 ++
->   include/linux/sysfb.h                      |   6 +
->   19 files changed, 368 insertions(+), 88 deletions(-)
->
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
-
-
+--------------6KmjgHGC0GjFkS6YvFAdgUNk--
