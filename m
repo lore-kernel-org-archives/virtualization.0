@@ -1,153 +1,306 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 313422AD20
-	for <virtualization@lists.linux.dev>; Sun, 11 Jan 2026 05:52:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37F371F419F
+	for <virtualization@lists.linux.dev>; Sun, 11 Jan 2026 06:29:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768110721; cv=none; b=Aw6GHcBiC1/cPY0z0wM3/3wGIIKh55v3oz/xNBqrvP27cpQj54Kv7d1l0NT9N/CS34Y5Mp+XpfUdVUBwFcuuF3LX4ZG0ssKXz6n4JciUJeP5T4jenMI40lCObeYvxCHQPkA+VpNEYA1ia/JL/gK37PWVX87bhpKTOjcteYXc2Vg=
+	t=1768112992; cv=none; b=uy9KtSz/DHsQ0LPzqUFAyIpSir97oyyY+pPyJsu97TNVvZT5xbapz4stf6d8paAdtOX/mLPVzxnmCXLhz+1FTrihHMvPw7U8YhCAliyPyUL9B312CnsvURjA7TW88FeCDuF6/kBN3AWBgC82TPmS/4AV1gZ2zxBdzyOqfydue2k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768110721; c=relaxed/simple;
-	bh=gFOqW5EllA9fOAMNFfoSxTnUWA45XGayQuA1pDHkobg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=L0y8PQp5ARLRM+TZjHnDhP7G76Jsmg5QbGh5GKOXyXVlLFhUHZ2Ux6FmW70ILzAiW6+hIKyu/BEcOFDDRwvf4n9+q4NgcU2pMWko48jhep7jg5hBU78WKDLrAfgPblT+F1rnB2vpT54Bit1doLTJztv9k3J4CrKJFYhWcb1R9NU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P0lTfxA7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768112992; c=relaxed/simple;
+	bh=jBqzGAPrybDMcPA1sSp012FV6F6PScUrNqkxyjb03ao=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=P0Mj3p21qrdJOT+BAAsp3NfX22eIvujGt4lNcLVi1QSu51LKu1JdWLCci8+qJdr3ACXXSQ4BSq/Ac9gotkkVACPH7SDg/IPTBAmip2DPE9/cDasJaYMOXEsLpuM95qmkZc7XSkT5eJ/PQWRDtR8Z0kA5HcljX90TIpx7huau5SE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iBkVDWOr; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P0lTfxA7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FDB8C19423
-	for <virtualization@lists.linux.dev>; Sun, 11 Jan 2026 05:52:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768110721;
-	bh=gFOqW5EllA9fOAMNFfoSxTnUWA45XGayQuA1pDHkobg=;
-	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc:From;
-	b=P0lTfxA7J1vxOQY4hChwaQHlTa9WRMPbmkoUzHG4DuAPpLAvvhJwizp/45xu3tPYm
-	 gvDKAm3Zq7v0Fbfjp0cx0La4P3ldfaxXRa3T0qXjTsAsqNhNgAYS26YwB7iHXgV8FR
-	 l91eXhrG3u0SBvHjZ4mQx+gVkG8nN52cd4aHXCYlxN/cxkX93RlWRGAejgjqmMBwn4
-	 b/VcWocgQ1uDlCCjFttNeDijhBhO7EX3yvy55uWq5isdwRXzWDjUEHS0Eyd/bfGBNw
-	 SYdY1H0+XTsZAaI1Z+C/JfbSg5XTjFv/2Pphs9ocUxbEDFshKnrGaHKltKmdwRK86u
-	 bx6XOxfy1uHPw==
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-59b8364e4ccso2160804e87.3
-        for <virtualization@lists.linux.dev>; Sat, 10 Jan 2026 21:52:00 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCWwX2tuSyLd5UchPqqKtSv5L2neAD8W4sU4YOnKocgF+YCZbmxZsYIydJI53vBs4Zh+mtLLe9z295hNmh11jA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxCHyudAKMclDdZpUx7www0bEMOchE5FbfgQUpvRfya4sDU1mvQ
-	0Xqe8AtDQVIsMhEHE8a+7P9mSW5AkpciAFIH8Y9bBiLMstqT4AENlTBj+skmvIQP+6WRU0mlBex
-	TDWaYPgGe6bTbR8YqCwRZ1MdFatRekbE=
-X-Google-Smtp-Source: AGHT+IHdx8MpFefSjShCgzPfxBNx4mIFIm/zyAePE38bdBhjZyOXA6x69rTwWZ2pdG4l9l0f7a6WNZMxH5DhWbEqc7E=
-X-Received: by 2002:a05:6512:31cd:b0:59b:6853:f085 with SMTP id
- 2adb3069b0e04-59b6ef04985mr5236958e87.16.1768110718798; Sat, 10 Jan 2026
- 21:51:58 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iBkVDWOr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768112988;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=IqILrVCS9tDmtote2rLypfKXBmD+4YEAa7AMdCllKvk=;
+	b=iBkVDWOrRHHjJB0qQDDqckm3A84yFVXVylmivPMy8oMXDOp26r1xSN35av7HUTviPq6eEv
+	mx2gOeDfs2A8D4lI52uM1HOpYhxIWF/xfUkA99UlCFyK+Gj0ZnUhJpb0Be2CHStK3xhVE1
+	COgMrNufD2pL+rzt1naYFfKPDUSyEnI=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-224-Uwo3uSXPNLySTyCzFfCOnA-1; Sun, 11 Jan 2026 01:29:46 -0500
+X-MC-Unique: Uwo3uSXPNLySTyCzFfCOnA-1
+X-Mimecast-MFC-AGG-ID: Uwo3uSXPNLySTyCzFfCOnA_1768112985
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477a1e2b372so51595045e9.2
+        for <virtualization@lists.linux.dev>; Sat, 10 Jan 2026 22:29:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768112985; x=1768717785;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=IqILrVCS9tDmtote2rLypfKXBmD+4YEAa7AMdCllKvk=;
+        b=CWHvnCzrQ7UFQmolp03+MJu1nv63du46GsLcMQAgL6pFs03GhFMlQHAwYy3OZNSpxE
+         5tKP9XJJL7vnqSx3T4tKQ+L+QnJ9Q0OguxPNAZlhsr4576+feApl+YsE+Lf9I9yKTDsV
+         HX9TZwSy4lymmZJFv0IymCOl8SwcNAD2FSUOo49xAA9aygShiTrNv8tx9aau9ushM4NZ
+         XF84F7YfNSN2SeThBp+f4p2F4jWzH9k4k9zdxGuMiXWPV6TiwVgPkDVhJ7j42p7uBDa6
+         z5+Tk2dsPs2CoYd3Q8hcPqKy6VAY3Ti941G0ZD7mw6FkO5dPNEvXwoYg1yhqjlQZtOe/
+         oP0w==
+X-Forwarded-Encrypted: i=1; AJvYcCVA2pD2YXhGPhtL8wEEBGQIK2wGW8G3WihPGsD612iv9O/7iK3ZKNsrVgzEgw4r1uBnmdRT/4unY7783JKWBw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxAkIPPHgWmgxVIyHh1ZxVaS/tkshYT02TcawIPbUcu652ErJY7
+	pzuT60rQE+vHzwNmHQje/SV3rzYwDBn6rg2AfRE4GVusaJBnqfU4nKvfFMi9uNZdjxGpsrD5QjG
+	TlaI74BJrjzEPdrZDsq9SICC+BTR6fM6ib0z37lla8a12v+s39DciIEsI+hnzdCFx6/Kw
+X-Gm-Gg: AY/fxX4tDQLpFeo903kJ0v/h6XAAG8+KBZb8W5arHQGMbjBBrXeaSxHAEIppy+MyXVi
+	cl7L8ZF4Mrh6e/gLML35vWqG+WFYhEnVOWnvfj/+EtgPgCatBrJxpuq0xVJYFCJou+GoRy8AEsl
+	5ZpZF76gzHC7tpcFcy3e++KxyBUv84pO39LkO5sfZrIQHyFWKsexlRJ6+Qs0PEmNAwz/xnzShNj
+	zOAxLuloQ2ZFE7TSdvyXmPfYQjEpOKBs+UMwyAtmPC7c+HBwT5UOj0fCv0JzdFUXhFw+XOLNPnZ
+	Ma5PuMncFESi3wUk1cwMp4mYhBmcjkYWHNfnKI6d43k53L36hcgTT0r2DFNeVegC06xQUPwFMlh
+	KWLFqVk/jmMwAdfmfpvIfUDnh6uJkBwM=
+X-Received: by 2002:a05:600c:8b2c:b0:47d:3690:7490 with SMTP id 5b1f17b1804b1-47d84b1849emr174580915e9.9.1768112985337;
+        Sat, 10 Jan 2026 22:29:45 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGe7rEsXMZNMyBjemsPoyMhuDSMeJztwBU0aSiQDzL5RwbDPn81SkbLht2mUJ8G8HVblfB0mQ==
+X-Received: by 2002:a05:600c:8b2c:b0:47d:3690:7490 with SMTP id 5b1f17b1804b1-47d84b1849emr174580685e9.9.1768112984747;
+        Sat, 10 Jan 2026 22:29:44 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-35-22.inter.net.il. [80.230.35.22])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f68f69dsm287672195e9.1.2026.01.10.22.29.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 10 Jan 2026 22:29:44 -0800 (PST)
+Date: Sun, 11 Jan 2026 01:29:40 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Bryan Tan <bryan-bt.tan@broadcom.com>,
+	Vishnu Dasa <vishnu.dasa@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Shuah Khan <shuah@kernel.org>, Long Li <longli@microsoft.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, kvm@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	berrange@redhat.com, Sargun Dhillon <sargun@sargun.me>,
+	Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH RFC net-next v13 01/13] vsock: add per-net vsock NS mode
+ state
+Message-ID: <20260111012612-mutt-send-email-mst@kernel.org>
+References: <20251223-vsock-vmtest-v13-0-9d6db8e7c80b@meta.com>
+ <20251223-vsock-vmtest-v13-1-9d6db8e7c80b@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260108203004.3538449-1-andriy.shevchenko@linux.intel.com> <20260108203004.3538449-3-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20260108203004.3538449-3-andriy.shevchenko@linux.intel.com>
-Reply-To: wens@kernel.org
-From: Chen-Yu Tsai <wens@kernel.org>
-Date: Sun, 11 Jan 2026 13:51:46 +0800
-X-Gmail-Original-Message-ID: <CAGb2v640nT=+g6bVuROizSG5Qb-upfQefs0-j9X0BnOHf9NYMg@mail.gmail.com>
-X-Gm-Features: AZwV_QjlNyXyyBCLSJ5be_kfqm-PbzUe8msaEi6oZsEaSVwRVLe_bhZOZe6iKv4
-Message-ID: <CAGb2v640nT=+g6bVuROizSG5Qb-upfQefs0-j9X0BnOHf9NYMg@mail.gmail.com>
-Subject: Re: [PATCH v1 2/4] spi: Drop duplicate of_node assignment
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mark Brown <broonie@kernel.org>, 
-	Varshini Rajendran <varshini.rajendran@microchip.com>, 
-	Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Sunny Luo <sunny.luo@amlogic.com>, 
-	Janne Grunau <j@jannau.net>, Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>, 
-	CL Wang <cl634@andestech.com>, Manikandan Muralidharan <manikandan.m@microchip.com>, 
-	David Lechner <dlechner@baylibre.com>, Florian Fainelli <florian.fainelli@broadcom.com>, 
-	Jonas Gorski <jonas.gorski@gmail.com>, Hang Zhou <929513338@qq.com>, Jun Guo <jun.guo@cixtech.com>, 
-	Philipp Stanner <phasta@kernel.org>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
-	Bartosz Golaszewski <brgl@kernel.org>, =?UTF-8?Q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>, 
-	Shiji Yang <yangshiji66@outlook.com>, James Clark <james.clark@linaro.org>, 
-	Jonathan Marek <jonathan@marek.ca>, Carlos Song <carlos.song@nxp.com>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, Huacai Chen <chenhuacai@kernel.org>, 
-	Xianwei Zhao <xianwei.zhao@amlogic.com>, 
-	Prajna Rajendra Kumar <prajna.rajendrakumar@microchip.com>, 
-	Sergio Perez Gonzalez <sperezglz@gmail.com>, Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Qianfeng Rong <rongqianfeng@vivo.com>, Haibo Chen <haibo.chen@nxp.com>, 
-	Gabor Juhos <j4g8y7@gmail.com>, Md Sadre Alam <quic_mdalam@quicinc.com>, 
-	Rosen Penev <rosenp@gmail.com>, Luis de Arquer <luis.dearquer@inertim.com>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, 
-	Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>, 
-	Tudor Ambarus <tudor.ambarus@linaro.org>, Krzysztof Kozlowski <krzk@kernel.org>, 
-	Longbin Li <looong.bin@gmail.com>, Patrice Chotard <patrice.chotard@foss.st.com>, 
-	=?UTF-8?Q?Cl=C3=A9ment_Le_Goffic?= <clement.legoffic@foss.st.com>, 
-	Alessandro Grassi <alessandro.grassi@mailbox.org>, Darshan R <rathod.darshan.0896@gmail.com>, 
-	Aaron Kling <webgeek1234@gmail.com>, Vishwaroop A <va@nvidia.com>, 
-	Haixu Cui <quic_haixcui@quicinc.com>, Darshan Rathod <darshanrathod475@gmail.com>, 
-	linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, linux-amlogic@lists.infradead.org, 
-	asahi@lists.linux.dev, linux-aspeed@lists.ozlabs.org, 
-	openbmc@lists.ozlabs.org, linux-rpi-kernel@lists.infradead.org, 
-	linux-sound@vger.kernel.org, patches@opensource.cirrus.com, 
-	imx@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-mediatek@lists.infradead.org, 
-	linux-rockchip@lists.infradead.org, linux-renesas-soc@vger.kernel.org, 
-	linux-samsung-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	virtualization@lists.linux.dev, Nicolas Ferre <nicolas.ferre@microchip.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Claudiu Beznea <claudiu.beznea@tuxon.dev>, 
-	Lorenzo Bianconi <lorenzo@kernel.org>, Ray Liu <ray.liu@airoha.com>, Sven Peter <sven@kernel.org>, 
-	Neal Gompa <neal@gompa.dev>, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, 
-	Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
-	Ryan Wanner <ryan.wanner@microchip.com>, 
-	Michael Hennerich <michael.hennerich@analog.com>, =?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Kamal Dasu <kamal.dasu@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Ray Jui <rjui@broadcom.com>, 
-	Scott Branden <sbranden@broadcom.com>, William Zhang <william.zhang@broadcom.com>, 
-	Kursad Oney <kursad.oney@broadcom.com>, Anand Gore <anand.gore@broadcom.com>, 
-	=?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>, 
-	David Rhodes <david.rhodes@cirrus.com>, Richard Fitzgerald <rf@opensource.cirrus.com>, 
-	Vladimir Oltean <olteanv@gmail.com>, Frank Li <Frank.Li@nxp.com>, Jean-Marie Verdun <verdun@hpe.com>, 
-	Nick Hawkins <nick.hawkins@hpe.com>, Yang Shen <shenyang39@huawei.com>, 
-	Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
-	Lixu Zhang <lixu.zhang@intel.com>, Yinbo Zhu <zhuyinbo@loongson.cn>, 
-	Neil Armstrong <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>, 
-	Jerome Brunet <jbrunet@baylibre.com>, 
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
-	Conor Dooley <conor.dooley@microchip.com>, Daire McNamara <daire.mcnamara@microchip.com>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, Avi Fishman <avifishman70@gmail.com>, 
-	Tomer Maimon <tmaimon77@gmail.com>, Tali Perry <tali.perry1@gmail.com>, 
-	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>, 
-	Benjamin Fair <benjaminfair@google.com>, Han Xu <han.xu@nxp.com>, 
-	Yogesh Gaur <yogeshgaur.83@gmail.com>, Linus Walleij <linusw@kernel.org>, 
-	Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, 
-	Robert Jarzmik <robert.jarzmik@free.fr>, Chris Packham <chris.packham@alliedtelesis.co.nz>, 
-	Heiko Stuebner <heiko@sntech.de>, Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
-	Paul Walmsley <pjw@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, 
-	Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
-	Chunyan Zhang <zhang.lyra@gmail.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
-	Alexandre Torgue <alexandre.torgue@foss.st.com>, Alain Volmat <alain.volmat@foss.st.com>, 
-	Jernej Skrabec <jernej.skrabec@gmail.com>, Li-hao Kuo <lhjeff911@gmail.com>, 
-	Masahisa Kojima <masahisa.kojima@linaro.org>, Jassi Brar <jaswinder.singh@linaro.org>, 
-	Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, 
-	Jonathan Hunter <jonathanh@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, 
-	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	=?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>, 
-	Michal Simek <michal.simek@amd.com>, Max Filippov <jcmvbkbc@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20251223-vsock-vmtest-v13-1-9d6db8e7c80b@meta.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: FMnt9hyw2h-fDB90j9ndIdtUIXGKLi_QcFa4kVdNMMM_1768112985
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, Jan 9, 2026 at 4:30=E2=80=AFAM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
->
-> The SPI core provides the default of_node for the controller,
-> inherited from the actual (parent) device. No need to repeat it
-> in the driver.
->
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Tue, Dec 23, 2025 at 04:28:35PM -0800, Bobby Eshleman wrote:
+> From: Bobby Eshleman <bobbyeshleman@meta.com>
+> 
+> Add the per-net vsock NS mode state. This only adds the structure for
+> holding the mode and some of the functions for setting/getting and
+> checking the mode, but does not integrate the functionality yet.
+> 
+> Future patches add the uAPI and transport-specific usage of these
+> structures and helpers.
+> 
+> Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+
+
+I do not much like splitting out functionality like this,
+myself - there's little to no docs and one can't figure out
+whether this code does what it is  supposed to do without
+reading the next patch.
+
+I would just squash this with that one.
+
+If you are splitting functionality along some API lines,
+you need detailed docs so one can review implementation
+separately from use.
+
+
 > ---
-[...]
+> Changes in v13:
+> - remove net_mode because net->vsock.mode becomes immutable, no need to
+>   save the mode when vsocks are created.
+> - add the new helpers for child_ns_mode to support ns_mode inheriting
+>   the mode from child_ns_mode.
+> - because ns_mode is immutable and child_ns_mode can be changed multiple
+>   times, remove the write-once lock.
+> - simplify vsock_net_check_mode() to no longer take mode arguments since
+>   the mode can be accessed via the net pointers without fear of the mode
+>   changing.
+> - add logic in vsock_net_check_mode() to infer VSOCK_NET_MODE_GLOBAL
+>   from NULL namespaces in order to allow only net pointers to be passed
+>   to vsock_net_check_mode(), while still allowing namespace-unaware
+>   transports to force global mode.
+> 
+> Changes in v10:
+> - change mode_locked to int (Stefano)
+> 
+> Changes in v9:
+> - use xchg(), WRITE_ONCE(), READ_ONCE() for mode and mode_locked (Stefano)
+> - clarify mode0/mode1 meaning in vsock_net_check_mode() comment
+> - remove spin lock in net->vsock (not used anymore)
+> - change mode from u8 to enum vsock_net_mode in vsock_net_write_mode()
+> 
+> Changes in v7:
+> - clarify vsock_net_check_mode() comments
+> - change to `orig_net_mode == VSOCK_NET_MODE_GLOBAL && orig_net_mode == vsk->orig_net_mode`
+> - remove extraneous explanation of `orig_net_mode`
+> - rename `written` to `mode_locked`
+> - rename `vsock_hdr` to `sysctl_hdr`
+> - change `orig_net_mode` to `net_mode`
+> - make vsock_net_check_mode() more generic by taking just net pointers
+>   and modes, instead of a vsock_sock ptr, for reuse by transports
+>   (e.g., vhost_vsock)
+> 
+> Changes in v6:
+> - add orig_net_mode to store mode at creation time which will be used to
+>   avoid breakage when namespace changes mode during socket/VM lifespan
+> 
+> Changes in v5:
+> - use /proc/sys/net/vsock/ns_mode instead of /proc/net/vsock_ns_mode
+> - change from net->vsock.ns_mode to net->vsock.mode
+> - change vsock_net_set_mode() to vsock_net_write_mode()
+> - vsock_net_write_mode() returns bool for write success to avoid
+>   need to use vsock_net_mode_can_set()
+> - remove vsock_net_mode_can_set()
+> ---
+>  MAINTAINERS                 |  1 +
+>  include/net/af_vsock.h      | 42 ++++++++++++++++++++++++++++++++++++++++++
+>  include/net/net_namespace.h |  4 ++++
+>  include/net/netns/vsock.h   | 17 +++++++++++++++++
+>  4 files changed, 64 insertions(+)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 454b8ed119e9..38d24e5a957c 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -27516,6 +27516,7 @@ L:	netdev@vger.kernel.org
+>  S:	Maintained
+>  F:	drivers/vhost/vsock.c
+>  F:	include/linux/virtio_vsock.h
+> +F:	include/net/netns/vsock.h
+>  F:	include/uapi/linux/virtio_vsock.h
+>  F:	net/vmw_vsock/virtio_transport.c
+>  F:	net/vmw_vsock/virtio_transport_common.c
+> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+> index d40e978126e3..6f5bc9dbefa5 100644
+> --- a/include/net/af_vsock.h
+> +++ b/include/net/af_vsock.h
+> @@ -10,6 +10,7 @@
+>  
+>  #include <linux/kernel.h>
+>  #include <linux/workqueue.h>
+> +#include <net/netns/vsock.h>
+>  #include <net/sock.h>
+>  #include <uapi/linux/vm_sockets.h>
+>  
+> @@ -256,4 +257,45 @@ static inline bool vsock_msgzerocopy_allow(const struct vsock_transport *t)
+>  {
+>  	return t->msgzerocopy_allow && t->msgzerocopy_allow();
+>  }
+> +
+> +static inline enum vsock_net_mode vsock_net_mode(struct net *net)
+> +{
+> +	return READ_ONCE(net->vsock.mode);
+> +}
+> +
+> +static inline void vsock_net_set_child_mode(struct net *net,
+> +					    enum vsock_net_mode mode)
+> +{
+> +	WRITE_ONCE(net->vsock.child_ns_mode, mode);
+> +}
+> +
+> +static inline enum vsock_net_mode vsock_net_child_mode(struct net *net)
+> +{
+> +	return READ_ONCE(net->vsock.child_ns_mode);
+> +}
+> +
+> +/* Return true if two namespaces pass the mode rules. Otherwise, return false.
+> + *
+> + * A NULL namespace is treated as VSOCK_NET_MODE_GLOBAL.
+> + *
+> + * Read more about modes in the comment header of net/vmw_vsock/af_vsock.c.
+> + */
+> +static inline bool vsock_net_check_mode(struct net *ns0, struct net *ns1)
+> +{
+> +	enum vsock_net_mode mode0, mode1;
+> +
+> +	/* Any vsocks within the same network namespace are always reachable,
+> +	 * regardless of the mode.
+> +	 */
+> +	if (net_eq(ns0, ns1))
+> +		return true;
+> +
+> +	mode0 = ns0 ? vsock_net_mode(ns0) : VSOCK_NET_MODE_GLOBAL;
+> +	mode1 = ns1 ? vsock_net_mode(ns1) : VSOCK_NET_MODE_GLOBAL;
+> +
+> +	/* Different namespaces are only reachable if they are both
+> +	 * global mode.
+> +	 */
+> +	return mode0 == VSOCK_NET_MODE_GLOBAL && mode0 == mode1;
+> +}
+>  #endif /* __AF_VSOCK_H__ */
+> diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
+> index cb664f6e3558..66d3de1d935f 100644
+> --- a/include/net/net_namespace.h
+> +++ b/include/net/net_namespace.h
+> @@ -37,6 +37,7 @@
+>  #include <net/netns/smc.h>
+>  #include <net/netns/bpf.h>
+>  #include <net/netns/mctp.h>
+> +#include <net/netns/vsock.h>
+>  #include <net/net_trackers.h>
+>  #include <linux/ns_common.h>
+>  #include <linux/idr.h>
+> @@ -196,6 +197,9 @@ struct net {
+>  	/* Move to a better place when the config guard is removed. */
+>  	struct mutex		rtnl_mutex;
+>  #endif
+> +#if IS_ENABLED(CONFIG_VSOCKETS)
+> +	struct netns_vsock	vsock;
+> +#endif
+>  } __randomize_layout;
+>  
+>  #include <linux/seq_file_net.h>
+> diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
+> new file mode 100644
+> index 000000000000..e2325e2d6ec5
+> --- /dev/null
+> +++ b/include/net/netns/vsock.h
+> @@ -0,0 +1,17 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef __NET_NET_NAMESPACE_VSOCK_H
+> +#define __NET_NET_NAMESPACE_VSOCK_H
+> +
+> +#include <linux/types.h>
+> +
+> +enum vsock_net_mode {
+> +	VSOCK_NET_MODE_GLOBAL,
+> +	VSOCK_NET_MODE_LOCAL,
+> +};
+> +
+> +struct netns_vsock {
+> +	struct ctl_table_header *sysctl_hdr;
+> +	enum vsock_net_mode mode;
+> +	enum vsock_net_mode child_ns_mode;
+> +};
+> +#endif /* __NET_NET_NAMESPACE_VSOCK_H */
+> 
+> -- 
+> 2.47.3
 
->  drivers/spi/spi-sun4i.c              | 1 -
->  drivers/spi/spi-sun6i.c              | 1 -
-
-Acked-by: Chen-Yu Tsai <wens@kernel.org> # sun4i, sun6i
-
-[...]
