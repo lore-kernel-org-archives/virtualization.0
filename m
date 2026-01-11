@@ -1,189 +1,170 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2C0336EC6;
-	Sun, 11 Jan 2026 11:00:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 961831EDA3C;
+	Sun, 11 Jan 2026 19:43:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768129222; cv=none; b=nSZf6TZhICNP8/VXL267rzKWZdpbwex598zojykIvAC18rTlMqNfpe0ZqfCqFKqy4dgo6Xx8DjzCFM3ab/iv/RHY1SXitCnw9Dtkfd85ISYvW9bqd2KLdlzzriWBdlLM5hKagzTqxZAcyAieu/FFn7FXeGPCcCrWFhg3I0d6Cz4=
+	t=1768160604; cv=none; b=NodAetYNj3wLMSY6/xPZ2Isd/h86XxHNWrJ8xHvppxu3/HVNaMHx5GbN/HjHYrmmgJ3I1RtNpxUpT1Ecnx8tcmq7Q7uFKM2Z8e2iHcCTU2qTp1MPCQCtIVFUV0nALehMJrRbJgADDKpNpVs2+150Yl/zYCa+78Bduohp61mzp/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768129222; c=relaxed/simple;
-	bh=ELIZpjH4jshC+q126H2p3RkHz0HlUxEYfJcAfY+Z9YE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=t8jaea0Q615Ns42nqGNUgr1gg55m4DQJkmLFdhNlImipKVnHWXYyW0B9RilENovhmsQmIA70HRDpxOrTg3LyAuYHi1v4yWKBzJjPR3TpX9WmNpbp6KduY7I8LKYRsbNG3hiS+zGnWmb85WOORBoWhnuO1MKpBuAJF+d7atCZrqE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=e0RSaExe; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1768160604; c=relaxed/simple;
+	bh=6ZO358wLWJv/7P+XiGaHMqEVTywze7565bGmQ4IzofM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=m0bG3NSb3GHkqQVAh7bNoGGJW+QT/gMGgKOKDBiW1f0cadVd6q4Gtz3QaHerPNgU7GuL2rpRwsG1GwdOPGWEs/hXAfxkgfx8K4hBTp5Pup00laHE3v7Np+i1s4Yqc73Zp1XwEUQShlt+vYrwis9UG+BaJiCROQdCABRrKwMiJ+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=zGZTG77h; arc=none smtp.client-ip=185.11.138.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="e0RSaExe"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1vetB6-009gyI-Sj; Sun, 11 Jan 2026 12:00:12 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=5uZ3LZfOZWVMlL8l8PLhGgJ10/9cK55ZfyWwVPRLGsk=; b=e0RSaExegxUf16QCIIQ+dyZvdP
-	spQfbYMwB0zpJ/3wGvx1IXbHwIAnXj8hLsOaQWpGPowImVIjE+u4ydYvzhb2pL0srfVdEl/wWObl6
-	agWl8SPivrToaW3n4tdmhccjYG6bGl/LQyCwJ6D6/TBm2wq0f/8yQ8NTjQhMgdidJuXpm+kfuwXhB
-	Xkhqt6GfIErXBPAlL5cL0/ZlTUEqeQUZob1Hv8+9sEu8J/sAGCMTfDiGZmN0keywKZV5q/hSz53L6
-	15MydZzaL0EUGuLHJi8WqOShrn8hvvaI61IzWLr+l6Alv+g18GzcnfUkw5Z7dCY/Gayil2Qwl0Rxp
-	nrBqHsEw==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1vetB6-0006ng-Eu; Sun, 11 Jan 2026 12:00:12 +0100
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1vetAp-007ayA-Cb; Sun, 11 Jan 2026 11:59:55 +0100
-Message-ID: <76ca0c9f-dcda-4a53-ac1f-c5c28d1ecf44@rbox.co>
-Date: Sun, 11 Jan 2026 11:59:54 +0100
+	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="zGZTG77h"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
+	s=gloria202408; h=Content-Type:Content-Transfer-Encoding:MIME-Version:
+	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To;
+	bh=vyCElViucl+cLlUVhuVJcUJ20mw8TamaI7jWvsVoS30=; b=zGZTG77h1xr2PAvnP5M0ngyGAl
+	Es/dPUiyTwI/SyqG+ZIuZ3rOtVW/12j7XQr7d5aonB3wQsRXE8UHrw1tFxPg5ZpfiVZNO2T/cVHLv
+	geG9A3sxKpjugqC8rZYrqV6SEDZZUv5Mz/zmQPX6EGdmLZxgq9EMlRFHGWX2Mj+wXPYPwpJiZFl2h
+	QE7JGQYc7ldmySSxW/k/g2PQfDlA1r7cGsQGuGCqeUQsGaO0Atp/LPRP6U/zy/n24zT2DumDZuWLJ
+	5LcE+MEJKyZ6YgCn00XU73GORZqYWdgtEKhSu84RJQfG43W/cHzHlVz5lv2JLULcfv+EnfC0Ud7yw
+	4NKTtwbQ==;
+Received: from i53875aef.versanet.de ([83.135.90.239] helo=diego.localnet)
+	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <heiko@sntech.de>)
+	id 1vf1K0-001rtK-85; Sun, 11 Jan 2026 20:41:56 +0100
+From: Heiko =?UTF-8?B?U3TDvGJuZXI=?= <heiko@sntech.de>
+To: Mark Brown <broonie@kernel.org>,
+ Varshini Rajendran <varshini.rajendran@microchip.com>,
+ Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Sunny Luo <sunny.luo@amlogic.com>, Janne Grunau <j@jannau.net>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>, CL Wang <cl634@andestech.com>,
+ Manikandan Muralidharan <manikandan.m@microchip.com>,
+ David Lechner <dlechner@baylibre.com>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Jonas Gorski <jonas.gorski@gmail.com>, Hang Zhou <929513338@qq.com>,
+ Jun Guo <jun.guo@cixtech.com>, Philipp Stanner <phasta@kernel.org>,
+ Charles Keepax <ckeepax@opensource.cirrus.com>,
+ Bartosz Golaszewski <brgl@kernel.org>,
+ =?UTF-8?B?QmVub8OudA==?= Monin <benoit.monin@bootlin.com>,
+ Shiji Yang <yangshiji66@outlook.com>, James Clark <james.clark@linaro.org>,
+ Jonathan Marek <jonathan@marek.ca>, Carlos Song <carlos.song@nxp.com>,
+ Sakari Ailus <sakari.ailus@linux.intel.com>,
+ Huacai Chen <chenhuacai@kernel.org>, Xianwei Zhao <xianwei.zhao@amlogic.com>,
+ Prajna Rajendra Kumar <prajna.rajendrakumar@microchip.com>,
+ Sergio Perez Gonzalez <sperezglz@gmail.com>,
+ Miquel Raynal <miquel.raynal@bootlin.com>,
+ Qianfeng Rong <rongqianfeng@vivo.com>, Haibo Chen <haibo.chen@nxp.com>,
+ Gabor Juhos <j4g8y7@gmail.com>, Md Sadre Alam <quic_mdalam@quicinc.com>,
+ Rosen Penev <rosenp@gmail.com>, Luis de Arquer <luis.dearquer@inertim.com>,
+ Geert Uytterhoeven <geert+renesas@glider.be>,
+ Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>,
+ Tudor Ambarus <tudor.ambarus@linaro.org>,
+ Krzysztof Kozlowski <krzk@kernel.org>, Longbin Li <looong.bin@gmail.com>,
+ Patrice Chotard <patrice.chotard@foss.st.com>,
+ =?UTF-8?B?Q2zDqW1lbnQ=?= Le Goffic <clement.legoffic@foss.st.com>,
+ Alessandro Grassi <alessandro.grassi@mailbox.org>,
+ Chen-Yu Tsai <wens@kernel.org>, Darshan R <rathod.darshan.0896@gmail.com>,
+ Aaron Kling <webgeek1234@gmail.com>, Vishwaroop A <va@nvidia.com>,
+ Haixu Cui <quic_haixcui@quicinc.com>,
+ Darshan Rathod <darshanrathod475@gmail.com>, linux-spi@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-amlogic@lists.infradead.org, asahi@lists.linux.dev,
+ linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
+ linux-rpi-kernel@lists.infradead.org, linux-sound@vger.kernel.org,
+ patches@opensource.cirrus.com, imx@lists.linux.dev,
+ linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org,
+ linux-renesas-soc@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ linux-stm32@st-md-mailman.stormreply.com, linux-sunxi@lists.linux.dev,
+ linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+ Lorenzo Bianconi <lorenzo@kernel.org>, Ray Liu <ray.liu@airoha.com>,
+ Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
+ =?UTF-8?B?Q8OpZHJpYw==?= Le Goater <clg@kaod.org>,
+ Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>,
+ Ryan Wanner <ryan.wanner@microchip.com>,
+ Michael Hennerich <michael.hennerich@analog.com>,
+ Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>,
+ Kamal Dasu <kamal.dasu@broadcom.com>,
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+ Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
+ William Zhang <william.zhang@broadcom.com>,
+ Kursad Oney <kursad.oney@broadcom.com>, Anand Gore <anand.gore@broadcom.com>,
+ =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
+ David Rhodes <david.rhodes@cirrus.com>,
+ Richard Fitzgerald <rf@opensource.cirrus.com>,
+ Vladimir Oltean <olteanv@gmail.com>, Frank Li <Frank.Li@nxp.com>,
+ Jean-Marie Verdun <verdun@hpe.com>, Nick Hawkins <nick.hawkins@hpe.com>,
+ Yang Shen <shenyang39@huawei.com>, Shawn Guo <shawnguo@kernel.org>,
+ Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>, Lixu Zhang <lixu.zhang@intel.com>,
+ Yinbo Zhu <zhuyinbo@loongson.cn>, Neil Armstrong <neil.armstrong@linaro.org>,
+ Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ Conor Dooley <conor.dooley@microchip.com>,
+ Daire McNamara <daire.mcnamara@microchip.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ Avi Fishman <avifishman70@gmail.com>, Tomer Maimon <tmaimon77@gmail.com>,
+ Tali Perry <tali.perry1@gmail.com>, Patrick Venture <venture@google.com>,
+ Nancy Yuen <yuenn@google.com>, Benjamin Fair <benjaminfair@google.com>,
+ Han Xu <han.xu@nxp.com>, Yogesh Gaur <yogeshgaur.83@gmail.com>,
+ Linus Walleij <linusw@kernel.org>, Daniel Mack <daniel@zonque.org>,
+ Haojian Zhuang <haojian.zhuang@gmail.com>,
+ Robert Jarzmik <robert.jarzmik@free.fr>,
+ Chris Packham <chris.packham@alliedtelesis.co.nz>,
+ Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+ Andi Shyti <andi.shyti@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>,
+ Paul Walmsley <pjw@kernel.org>, Samuel Holland <samuel.holland@sifive.com>,
+ Orson Zhai <orsonzhai@gmail.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Chunyan Zhang <zhang.lyra@gmail.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Alain Volmat <alain.volmat@foss.st.com>,
+ Jernej Skrabec <jernej.skrabec@gmail.com>, Li-hao Kuo <lhjeff911@gmail.com>,
+ Masahisa Kojima <masahisa.kojima@linaro.org>,
+ Jassi Brar <jaswinder.singh@linaro.org>,
+ Laxman Dewangan <ldewangan@nvidia.com>,
+ Thierry Reding <thierry.reding@gmail.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>,
+ Sowjanya Komatineni <skomatineni@nvidia.com>,
+ Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+ Masami Hiramatsu <mhiramat@kernel.org>,
+ Jonathan =?UTF-8?B?TmV1c2Now6RmZXI=?= <j.neuschaefer@gmx.net>,
+ Michal Simek <michal.simek@amd.com>, Max Filippov <jcmvbkbc@gmail.com>
+Subject: Re: [PATCH v1 2/4] spi: Drop duplicate of_node assignment
+Date: Sun, 11 Jan 2026 20:41:50 +0100
+Message-ID: <2911099.XrmoMso0CX@diego>
+In-Reply-To: <20260108203004.3538449-3-andriy.shevchenko@linux.intel.com>
+References:
+ <20260108203004.3538449-1-andriy.shevchenko@linux.intel.com>
+ <20260108203004.3538449-3-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] vsock/test: Add test for a linear and non-linear skb
- getting coalesced
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>,
- Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260108-vsock-recv-coalescence-v1-0-26f97bb9a99b@rbox.co>
- <20260108-vsock-recv-coalescence-v1-2-26f97bb9a99b@rbox.co>
- <aWEqjjE1vb_t35lQ@sgarzare-redhat>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <aWEqjjE1vb_t35lQ@sgarzare-redhat>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
 
-On 1/9/26 17:32, Stefano Garzarella wrote:
-> On Thu, Jan 08, 2026 at 10:54:55AM +0100, Michal Luczaj wrote:
->> Loopback transport can mangle data in rx queue when a linear skb is
->> followed by a small MSG_ZEROCOPY packet.
-> 
-> Can we describe a bit more what the test is doing?
+Am Donnerstag, 8. Januar 2026, 21:23:39 Mitteleurop=C3=A4ische Normalzeit s=
+chrieb Andy Shevchenko:
+> The SPI core provides the default of_node for the controller,
+> inherited from the actual (parent) device. No need to repeat it
+> in the driver.
+>=20
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
 
-I've expanded the commit message:
+>  drivers/spi/spi-rockchip-sfc.c       | 1 -
+>  drivers/spi/spi-rockchip.c           | 1 -
 
-To exercise the logic, send out two packets: a weirdly sized one (to ensure
-some spare tail room in the skb) and a zerocopy one that's small enough to
-fit in the spare room of its predecessor. Then, wait for both to land in
-the rx queue, and check the data received. Faulty packets merger manifests
-itself by corrupting payload of the later packet.
+Acked-by: Heiko Stuebner <heiko@sntech.de>
 
->> Signed-off-by: Michal Luczaj <mhal@rbox.co>
->> ---
->> tools/testing/vsock/vsock_test.c          |  5 +++
->> tools/testing/vsock/vsock_test_zerocopy.c | 67 +++++++++++++++++++++++++++++++
->> tools/testing/vsock/vsock_test_zerocopy.h |  3 ++
->> 3 files changed, 75 insertions(+)
->>
->> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->> index bbe3723babdc..21c8616100f1 100644
->> --- a/tools/testing/vsock/vsock_test.c
->> +++ b/tools/testing/vsock/vsock_test.c
->> @@ -2403,6 +2403,11 @@ static struct test_case test_cases[] = {
->> 		.run_client = test_stream_accepted_setsockopt_client,
->> 		.run_server = test_stream_accepted_setsockopt_server,
->> 	},
->> +	{
->> +		.name = "SOCK_STREAM MSG_ZEROCOPY coalescence corruption",
-> 
-> This is essentially a regression test for virtio transport, so I'd add 
-> virtio in the test name.
 
-Isn't virtio transport unaffected? It's about loopback transport (that
-shares common code with virtio transport).
-
->> +		.run_client = test_stream_msgzcopy_mangle_client,
->> +		.run_server = test_stream_msgzcopy_mangle_server,
->> +	},
->> 	{},
->> };
->>
->> diff --git a/tools/testing/vsock/vsock_test_zerocopy.c b/tools/testing/vsock/vsock_test_zerocopy.c
->> index 9d9a6cb9614a..6735a9d7525d 100644
->> --- a/tools/testing/vsock/vsock_test_zerocopy.c
->> +++ b/tools/testing/vsock/vsock_test_zerocopy.c
->> @@ -9,11 +9,13 @@
->> #include <stdio.h>
->> #include <stdlib.h>
->> #include <string.h>
->> +#include <sys/ioctl.h>
->> #include <sys/mman.h>
->> #include <unistd.h>
->> #include <poll.h>
->> #include <linux/errqueue.h>
->> #include <linux/kernel.h>
->> +#include <linux/sockios.h>
->> #include <errno.h>
->>
->> #include "control.h"
->> @@ -356,3 +358,68 @@ void test_stream_msgzcopy_empty_errq_server(const struct test_opts *opts)
->> 	control_expectln("DONE");
->> 	close(fd);
->> }
->> +
->> +#define GOOD_COPY_LEN	128	/* net/vmw_vsock/virtio_transport_common.c */
-> 
-> I think we don't need this, I mean we can eventually just send a single 
-> byte, no?
-
-For a single byte sent, you get a single byte of uninitialized kernel
-memory. Uninitialized memory can by anything, in particular it can be
-(coincidentally) what you happen to expect. Which would result in a false
-positive. So instead of estimating what length sufficiently reduces
-probability of such false positive, I just took the upper bound.
-
-BTW, I've realized recv_verify() is reinventing the wheel. How about
-dropping it in favour of what test_seqpacket_msg_bounds_client() does, i.e.
-calc the hash of payload and send it over the control channel for verification?
-
->> +
->> +void test_stream_msgzcopy_mangle_client(const struct test_opts *opts)
->> +{
->> +	char sbuf1[PAGE_SIZE + 1], sbuf2[GOOD_COPY_LEN];
->> +	struct pollfd fds;
->> +	int fd;
->> +
->> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
->> +	if (fd < 0) {
->> +		perror("connect");
->> +		exit(EXIT_FAILURE);
->> +	}
->> +
->> +	enable_so_zerocopy_check(fd);
->> +
->> +	memset(sbuf1, '1', sizeof(sbuf1));
->> +	memset(sbuf2, '2', sizeof(sbuf2));
->> +
->> +	send_buf(fd, sbuf1, sizeof(sbuf1), 0, sizeof(sbuf1));
->> +	send_buf(fd, sbuf2, sizeof(sbuf2), MSG_ZEROCOPY, sizeof(sbuf2));
->> +
->> +	fds.fd = fd;
->> +	fds.events = 0;
->> +
->> +	if (poll(&fds, 1, -1) != 1 || !(fds.revents & POLLERR)) {
->> +		perror("poll");
->> +		exit(EXIT_FAILURE);
->> +	}
-> 
-> Should we also call vsock_recv_completion() or we don't care about the 
-> result?
-> 
-> If we need it, maybe we can factor our the poll + 
-> vsock_recv_completion().
-
-Nope, we don't care about the result.
 
