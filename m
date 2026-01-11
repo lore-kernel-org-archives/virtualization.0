@@ -1,157 +1,100 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FAD332FA2B
-	for <virtualization@lists.linux.dev>; Sun, 11 Jan 2026 09:16:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F4EE42048;
+	Sun, 11 Jan 2026 11:00:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768122971; cv=none; b=eLE4olnfdyUqVLP1qy+1xw8rh5xgYhzWNS1dT9/6t/wYY9lKmBK9298JRaFisyxLHjpzzNLYE552jDdghUJuuKkj4q3BCYUCDKIJ7YhpMYjT/2k5NwZtgQPzDHw1hqMzheAh3tzbsSUeGAdX9GEPQCN1+sc6i3BiVQIHOQzXRck=
+	t=1768129214; cv=none; b=lH9gxZ5ngk5nk9NmenOjFQhE0HN/fGHLuFBWN7AY5ztHb5Hcp+yYY6H1XcjY47ibmdz5cGJjxeNy2nrno5TbXa97Ba4fBhbYyMM7oNkuMCWlGJaG8EmF4SAvdx2qPI0xpsNL8FZIuRhdtc79KqG0XuDVgzEfCS+Hg3FSRxw5zxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768122971; c=relaxed/simple;
-	bh=BZOccm4XxVdjIcV5Tne5ceXK0NuuvIGdkFXUs4hhCZY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=h05nYe7H0BAI4BDG5MCYi/tm3j9udLBvR4FGUBG7wzf/5h/QLNI4f7HI3PHg4vL5Klm3QHi7DFUae5GZP5D+t02gHXB9qj1hpx4BKAJJ1nO0liUEhevwEizGP95rhiSI+FEY5Bj5cDUdWs2zLyRVt2wD3VhiyRBn4LYaiTOnZAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HbM6d8JG; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768129214; c=relaxed/simple;
+	bh=meGd7AwSWHQxCNFnfcJQBz3TtBD4Lp2Slh3imR0wTzg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=s+TauGF0wWrg0jzJ/UM5I64Wi9tKyJjTh+4uJoZXqSFOwap1RfQvYAXmRd0m9ewTeMN6E8+jb6EkYZw+9pZdzEkLsRrnRyMWtZq31bEYA9du/CoFYjbhxYALM5WuqkRkzHoQk1ztc5QkaUOHMSmGzcU9vEbVyt1oTV/Fi817yNM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=gIttdBbc; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HbM6d8JG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768122969;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=WS2+XzdVc7BsmtGzyRzQokn3ZRi3QBRYwnL4Qo9AS50=;
-	b=HbM6d8JGo14VIT0oghY8CjW/kDzJ0BdRuB+VL9HBN05BdZtoFJEt68tjdWb8UsyhWGcOHr
-	ZEv2sdSC1dK9iglmWXPOduJIhUQOU7B6pkicWrtIKsmLa9zkRrLvcMc+g2GkOBLEUCWaQq
-	cL6nZR2NWcD1hGAVh/Lootta1QdIE40=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-118-VXCA4mUdODmYRAa-Ul5Sgg-1; Sun, 11 Jan 2026 04:16:07 -0500
-X-MC-Unique: VXCA4mUdODmYRAa-Ul5Sgg-1
-X-Mimecast-MFC-AGG-ID: VXCA4mUdODmYRAa-Ul5Sgg_1768122966
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477964c22e0so31144855e9.0
-        for <virtualization@lists.linux.dev>; Sun, 11 Jan 2026 01:16:07 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768122966; x=1768727766;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=WS2+XzdVc7BsmtGzyRzQokn3ZRi3QBRYwnL4Qo9AS50=;
-        b=MTo2XVlbO4mC9BYQBCz4dGv2OhiZ2TIYiH+yKW/IUwDbPi7ge+pGmnkjkN0gm3/bD6
-         Fr7/l6yEByN/wBQ2iAEUQAwExBnEME/jC+aiyDMeX/KrqvuzmLmtkx8t00/SHVb7keaK
-         Y4rwVpG8cbLuzNW+xB8wW9fvGlyAx9gRQLmCe5jDCY4OMd4LUiow86dbEbk7aO5sUvQB
-         HEfEtZSxFNpFMd89Ckk3ef6apYZFGpJJzJb9mxZXIezF4oinDF7QNfblcBXZwjUlXJzN
-         9z4MsC+0mIlSRvtF//dStO9/Y1/mnpCRIGZWAAbKjYRAn88MCbWT9Rfec7jPGlVdHzi5
-         8JhQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVDI+EtoW59xu8TnJQ5UKz5Eib9YuI9R3PVnai/rmttM4TDprqZFBZ1qOo9st5TT3x65/33r7Bm+WxZ9L1R/g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzoAYPAGfhLliShfwVybsJ594Pfy7ujccVYoCnfcUD8ZKZIOYpH
-	XXWbHi7q7ne8vUMj0EKcw24tq96pvi/BdxPSDDFkQLZQn5l2Ok14zhTnYOcEqVMwPGsTTDCzL+x
-	x3z5zvCUwgS0YbUHyLf/q8vYt1W79Xm3TTagZe96AbA0q2ePTdgDY4RXa+XVgBQJ/JsdM
-X-Gm-Gg: AY/fxX43AE2R0ujgLOR/C4qJVBI9LTvA7rr8ajPnyUhQVj+TMAuvQtpERdrMZbMeLbt
-	oA6KasKqBKcWUrtrFGzBq2ZToVyN6TfzSMRc3MtBscfgtu1UKq2RDhak++CpzmeMI5y8qnhuhPX
-	YiCxWBBbLZF1qsxBL1VbapnjAhHa+U2GJrVkashX6P5UoAe6Jfwqm5j2jerMVv0/bJvtw+hbD2E
-	gjn/kzrgfICHuxuvA1jtgfYjs6nr3bAD3g1xfSOMeh5/qg/JmYWugCw1pAR0Xr9WzaAWJ58Ebm6
-	JO5dkUfijrLvEb1bczuGxHAm91PGZRf1ur3jlhBD3lwnxbxJcAT6CsT1Vupsox2iHknvA40WT6A
-	y+TWrCm+g2r87tK0wVZpyZceptRxJd8k=
-X-Received: by 2002:a05:600c:3ba9:b0:477:9d88:2da6 with SMTP id 5b1f17b1804b1-47d847d0f30mr193215535e9.0.1768122966072;
-        Sun, 11 Jan 2026 01:16:06 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG1T4RKFHLydRXZSk4hv5pRkHtZL1MUAZhZsWSp+woZTG55Ip7dDXQ0exZCHM77fG+sLNTHpQ==
-X-Received: by 2002:a05:600c:3ba9:b0:477:9d88:2da6 with SMTP id 5b1f17b1804b1-47d847d0f30mr193214965e9.0.1768122965611;
-        Sun, 11 Jan 2026 01:16:05 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-35-22.inter.net.il. [80.230.35.22])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f69e13bsm296398485e9.7.2026.01.11.01.16.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Jan 2026 01:16:05 -0800 (PST)
-Date: Sun, 11 Jan 2026 04:16:01 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Shuah Khan <shuah@kernel.org>, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, berrange@redhat.com,
-	Sargun Dhillon <sargun@sargun.me>,
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v12 02/12] vsock: add netns to vsock core
-Message-ID: <20260111030617-mutt-send-email-mst@kernel.org>
-References: <20251126-vsock-vmtest-v12-0-257ee21cd5de@meta.com>
- <20251126-vsock-vmtest-v12-2-257ee21cd5de@meta.com>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="gIttdBbc"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1vetAn-009gsJ-O0; Sun, 11 Jan 2026 11:59:53 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=scKKsBdmiFKU4HTFxkWMttf7eOA7bKyWv2l9rVYugb4=; b=gIttdBbcr9aXvqOyJrxw1sQn7X
+	vSZyoSfnP6otpsl3gPrIFY+QW3o4rV/Gexi20o8WOfcWPWNox+hcMHZ+NBuFlTGAWS4RNms0qSlna
+	f9Nx3sXU8mvf1J2EK6wWcyfGilKq15eylLUpfFx/Fce4c9xYNGJS5XCmuM3/+PBv4gP423Wdw1fuy
+	RDnst5SluxsjoG7zlh1pZ0e/FzuSrPDy3z5/JaL7dchT/BxrALwHy2ipy39MowBegNJtFIG86xVFb
+	Fp8rSxpWbAjKHs2ACzymtVCPQ6t4UUQlOkSVfOBKtfAavPPfZIiW+HXm1IjZ+QBI5IE96g83kFtr3
+	YAAuKpvQ==;
+Received: from [10.9.9.72] (helo=submission01.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1vetAm-0003Gy-Qw; Sun, 11 Jan 2026 11:59:52 +0100
+Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1vetAg-007axd-2J; Sun, 11 Jan 2026 11:59:46 +0100
+Message-ID: <ae564ab4-2dd2-4a12-a92c-b613fa430829@rbox.co>
+Date: Sun, 11 Jan 2026 11:59:44 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251126-vsock-vmtest-v12-2-257ee21cd5de@meta.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: LVA3TtVMxneihb03OnultseX3QzvZzjmMFZxTbkZH6A_1768122966
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] vsock/virtio: Coalesce only linear skb
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>,
+ Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260108-vsock-recv-coalescence-v1-0-26f97bb9a99b@rbox.co>
+ <20260108-vsock-recv-coalescence-v1-1-26f97bb9a99b@rbox.co>
+ <aWEnYm6ePitdHPQe@sgarzare-redhat>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <aWEnYm6ePitdHPQe@sgarzare-redhat>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Nov 26, 2025 at 11:47:31PM -0800, Bobby Eshleman wrote:
-> From: Bobby Eshleman <bobbyeshleman@meta.com>
-> 
-> Add netns logic to vsock core. Additionally, modify transport hook
-> prototypes to be used by later transport-specific patches (e.g.,
-> *_seqpacket_allow()).
-> 
-> Namespaces are supported primarily by changing socket lookup functions
-> (e.g., vsock_find_connected_socket()) to take into account the socket
-> namespace and the namespace mode before considering a candidate socket a
-> "match".
-> 
-> This patch also introduces the sysctl /proc/sys/net/vsock/ns_mode that
-> accepts the "global" or "local" mode strings.
-> 
-> Add netns functionality (initialization, passing to transports, procfs,
-> etc...) to the af_vsock socket layer. Later patches that add netns
-> support to transports depend on this patch.
-> 
-> dgram_allow(), stream_allow(), and seqpacket_allow() callbacks are
-> modified to take a vsk in order to perform logic on namespace modes. In
-> future patches, the net and net_mode will also be used for socket
-> lookups in these functions.
-> 
-> Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
-> ---
-
+On 1/9/26 17:18, Stefano Garzarella wrote:
+> On Thu, Jan 08, 2026 at 10:54:54AM +0100, Michal Luczaj wrote:
 ...
+>> @@ -1375,7 +1375,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
+>> 		 * of a new message.
+>> 		 */
+>> 		if (skb->len < skb_tailroom(last_skb) &&
+>> -		    !(le32_to_cpu(last_hdr->flags) & VIRTIO_VSOCK_SEQ_EOM)) {
+>> +		    !(le32_to_cpu(last_hdr->flags) & VIRTIO_VSOCK_SEQ_EOM) &&
+>> +		    !skb_is_nonlinear(skb)) {
+> 
+> Why here? I mean we can do the check even early, something like this:
+> 
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -1361,7 +1361,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
+>           * to avoid wasting memory queueing the entire buffer with a small
+>           * payload.
+>           */
+> -       if (len <= GOOD_COPY_LEN && !skb_queue_empty(&vvs->rx_queue)) {
+> +       if (len <= GOOD_COPY_LEN && !skb_queue_empty(&vvs->rx_queue) &&
+> +           !skb_is_nonlinear(skb)) {
+>                  struct virtio_vsock_hdr *last_hdr;
+>                  struct sk_buff *last_skb;
 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index adcba1b7bf74..6113c22db8dc 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
+Right, can do. I've assumed skb being non-linear is the least likely in
+this context.
 
-...
+> I would also add the reason in the comment before that to make it clear.
 
-> @@ -2658,6 +2745,142 @@ static struct miscdevice vsock_device = {
->  	.fops		= &vsock_device_ops,
->  };
->  
-> +static int vsock_net_mode_string(const struct ctl_table *table, int write,
-> +				 void *buffer, size_t *lenp, loff_t *ppos)
-> +{
-> +	char data[VSOCK_NET_MODE_STR_MAX] = {0};
-> +	enum vsock_net_mode mode;
-> +	struct ctl_table tmp;
-
-nit: this file should now include linux/sysctl.h for this struct definition I
-think?
+OK, sure.
 
