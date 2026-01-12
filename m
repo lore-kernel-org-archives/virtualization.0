@@ -1,150 +1,233 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59D89352C30
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 11:00:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 379CE238178;
+	Mon, 12 Jan 2026 11:08:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768215650; cv=none; b=JypfsPJGr7wgIFWf7HYZnMI9NiBCC95tljOc58VIiqrFSHNShGehxYcVKiqsK/TrINic+SkumiFvhNxNPhQAtpEt3x4cYgyLc0O/FIk7qodPe24uBwCo13+AcE86dFyueY9bTi+QB7OS3DU9sbhuhHKUtswgmjS0kc3oFoyqQ7w=
+	t=1768216117; cv=none; b=p1G2XQt7moF3Ru2VeVbShHScj1ImpDIuxeyeVFOuCobNRSHDjI1Iox6JYqX4853vNAv10xe1R1tn3yvab/I6RMBcDzm5/qrxyTwxmPjclzVTJUkwItEdJAMHP+VmUH7fY0wbmMOc0lgGKdSKraXfviBpzQxBw1GVodNiCv1cXck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768215650; c=relaxed/simple;
-	bh=6N0w3HynyaxBFCSLVe4Xx3Rf9r05hgNoJPD8hl0l46U=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=s2iRGW2j6ms7dMGLf5Z0vY6PpXBkTPxGQLcnpNdrCeM2GSGqg4rvmLGy/mOOKWvwTm2rXeYk/Ld7BshEa5BwChJzO9kQ5q9gSCX1KK1bUCKS5DX/drUxmlTx6OxfuAq7jUHb3KBcDhyYgTUkrYvZsWcqQeFHu5EF9LhtYU866Wk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TGOjZIYe; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1768216117; c=relaxed/simple;
+	bh=CfRdX/NMe3rPb/VqfxoApivHSgJ97PjDn39sbHuK+4Q=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mIxzJwYm6nTHf06hyLW06xzVqsfce++r9sx+Bx4a8G/wZeaobWX9+nB2Y2sQbHWneii5guQ/Y5bBKVmFarIadlY0UJYnfT3K3Jk5L6/b2Pf2kTA/M1lqtwvG3tHn4UG6syc6jFZz9ubL34WL5nh/YLCtTg+riyLep4QniWnrHLs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=Sps0gnJ6; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TGOjZIYe"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60BLRa0Y019757;
-	Mon, 12 Jan 2026 11:00:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=2rGg7enf1xOKVJ1j/wY7QPZf7Sq+0n
-	k5rlSbS++b8i8=; b=TGOjZIYe88F1yvH9WKaGzhg+CqbJF/w09gBPr7ECWRyQuo
-	gxoY2BRYQ/C2A9gVO0pxT86Qn5QLULC0v8raBIZ20hx/2/L/K3pUK04oBbv5zSC2
-	yLwI9msyrTBTgwX312rgM0smwkWPSM9N48e/M7JCfgZQlRXaHpNn76sjO7UVGnwC
-	79b+8D6AN3kALwOfyiRU59cBpEMHvcejw3Eu/sl6q/4HsQ3DdtiC51aEzAVGt9fj
-	ncmDx7IPBURIZvRaRuECrh+qh1rk2lz5SsN44CQg61a/a39ZELNafPHi5H8EVNl2
-	G39i05NWgxPrd6MVURr48jEyMh4UnRtHfaIFOzqQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bkedspckw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Jan 2026 11:00:35 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 60CB0YWh010584;
-	Mon, 12 Jan 2026 11:00:34 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bkedspckk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Jan 2026 11:00:34 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60C9IV8m014274;
-	Mon, 12 Jan 2026 11:00:33 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4bm1fxwkcb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Jan 2026 11:00:33 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60CB0VoD40698290
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 12 Jan 2026 11:00:31 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B99662004B;
-	Mon, 12 Jan 2026 11:00:31 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 84BB920040;
-	Mon, 12 Jan 2026 11:00:31 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.87.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 12 Jan 2026 11:00:31 +0000 (GMT)
-From: Sven Schnelle <svens@linux.ibm.com>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-        Richard Cochran
- <richardcochran@gmail.com>,
-        "netdev@vger.kernel.org"
- <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, Jakub
- Kicinski <kuba@kernel.org>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        Xuan
- Zhuo <xuanzhuo@linux.alibaba.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        David Woodhouse <dwmw2@infradead.org>, virtualization@lists.linux.dev,
-        Nick Shi <nick.shi@broadcom.com>, Paolo Abeni <pabeni@redhat.com>,
-        linux-clk@vger.kernel.org
-Subject: Re: [RFC] Defining a home/maintenance model for non-NIC PHC devices
- using the /dev/ptpX API
-In-Reply-To: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com> (Wen
-	Gu's message of "Fri, 9 Jan 2026 10:56:56 +0800")
-References: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
-Date: Mon, 12 Jan 2026 12:00:31 +0100
-Message-ID: <yt9decnv6qpc.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="Sps0gnJ6"
+Received: from [192.168.178.143] (p5dc880d2.dip0.t-ipconnect.de [93.200.128.210])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.1.16/8.18.1.16) with ESMTPSA id 60CB8Eep028120
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 12 Jan 2026 12:08:14 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1768216096;
+	bh=CfRdX/NMe3rPb/VqfxoApivHSgJ97PjDn39sbHuK+4Q=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Sps0gnJ6URDWj7CqbcwtkeDQOawAPDq/q6sWhAgWSz4IHuQ8iEB8/NBclNR+Wb234
+	 92Cggo2HuhO+fU4OowEmK3gy6NZkfcNgSjO+5nFPbfz5CH4zKq7D1KIyQw0mGeDJXi
+	 ZwDQUEjDgLkoVIfAxM0i8t6tI2Ur09SEE4IO5UcM=
+Message-ID: <9aaf2420-089d-4fd9-824d-24982a86a70d@tu-dortmund.de>
+Date: Mon, 12 Jan 2026 12:08:14 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTEyMDA4NiBTYWx0ZWRfX2Xhrrn4DjaLy
- XeeMtnuMIJOIXT/lPd5GLgBkTYFzNP7oUgElbQuegcAQTEvN+fsTAKNULiorgNH+7gHwNX2Z24B
- C3c9+eItaGVZrHoYRRAWfTm+ECbLVUT1VJto5g0KL9bvJTt2+49xKVb0pMeJwtyMZO0hIhupQjv
- tCUjsjitwYLanfRlGnzfJAKrtPjRXPuO6puZlLIbwLsUlEvYbifgJaOS0v77CV62JBnz2S4lRA0
- 3+aQIYh013niMZV4B7fc1EeSutYsu3XryoDRUkWsoH6Ppf0ynRugK/DU7vkTvblDfH4s2Y3IQgl
- 1z8GBnSe86kclucDw6tHpOHwP0SUuBwfzp5ubzjIo7TSQvLBnIjc8+M1hmalu+RyVIHy5IDzYg9
- 6jt6phWBN2B1HP8A540Waf+pyhKtbSRH3bXwLQ24u4PvUWBKYrNpwuFia6/fUS3PHHW18ZD6W45
- Wtorx22AZugbF7ocLGQ==
-X-Proofpoint-GUID: 2dzlkKuuZGqvKD3iJmn2bayCJY5VE71O
-X-Authority-Analysis: v=2.4 cv=WLJyn3sR c=1 sm=1 tr=0 ts=6964d453 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=SRrdq9N9AAAA:8
- a=3nQEIVoXau97ABBm5YcA:9
-X-Proofpoint-ORIG-GUID: DRn0cgi7mHMDldvAvb1qmnSl45Rg90Av
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-12_03,2026-01-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 malwarescore=0 phishscore=0 suspectscore=0
- priorityscore=1501 bulkscore=0 clxscore=1011 impostorscore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2512120000
- definitions=main-2601120086
+User-Agent: Mozilla Thunderbird
+Subject: [PATCH net-next v7 9/9] tun/tap & vhost-net: avoid ptr_ring tail-drop
+ when qdisc is present
+To: Jason Wang <jasowang@redhat.com>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
+        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
+ <20260107210448.37851-10-simon.schippers@tu-dortmund.de>
+ <CACGkMEuQikCsHn9cdhVxxHbjKAyW288SPNxAyXQ7FWNxd7Qenw@mail.gmail.com>
+ <bd41afae-cf1e-46ab-8948-4c7fa280b20f@tu-dortmund.de>
+ <CACGkMEs8VHGjiLqn=-Gt5=WPMzqAXNM2GcK73dLarP9CQw3+rw@mail.gmail.com>
+ <900c364b-f5ca-4458-a711-bf3e0433b537@tu-dortmund.de>
+ <CACGkMEvqoxSiM65ectKaF=UQ6PJn6+FQyJ=_YjgCo+QBCj1umg@mail.gmail.com>
+Content-Language: en-US
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <CACGkMEvqoxSiM65ectKaF=UQ6PJn6+FQyJ=_YjgCo+QBCj1umg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi Wen,
+On 1/12/26 03:22, Jason Wang wrote:
+> On Fri, Jan 9, 2026 at 6:15 PM Simon Schippers
+> <simon.schippers@tu-dortmund.de> wrote:
+>>
+>> On 1/9/26 07:09, Jason Wang wrote:
+>>> On Thu, Jan 8, 2026 at 4:02 PM Simon Schippers
+>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>
+>>>> On 1/8/26 05:37, Jason Wang wrote:
+>>>>> On Thu, Jan 8, 2026 at 5:06 AM Simon Schippers
+>>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>>
+>>>>>> This commit prevents tail-drop when a qdisc is present and the ptr_ring
+>>>>>> becomes full. Once an entry is successfully produced and the ptr_ring
+>>>>>> reaches capacity, the netdev queue is stopped instead of dropping
+>>>>>> subsequent packets.
+>>>>>>
+>>>>>> If producing an entry fails anyways, the tun_net_xmit returns
+>>>>>> NETDEV_TX_BUSY, again avoiding a drop. Such failures are expected because
+>>>>>> LLTX is enabled and the transmit path operates without the usual locking.
+>>>>>> As a result, concurrent calls to tun_net_xmit() are not prevented.
+>>>>>>
+>>>>>> The existing __{tun,tap}_ring_consume functions free space in the
+>>>>>> ptr_ring and wake the netdev queue. Races between this wakeup and the
+>>>>>> queue-stop logic could leave the queue stopped indefinitely. To prevent
+>>>>>> this, a memory barrier is enforced (as discussed in a similar
+>>>>>> implementation in [1]), followed by a recheck that wakes the queue if
+>>>>>> space is already available.
+>>>>>>
+>>>>>> If no qdisc is present, the previous tail-drop behavior is preserved.
+>>>>>>
+>>>>>> +-------------------------+-----------+---------------+----------------+
+>>>>>> | pktgen benchmarks to    | Stock     | Patched with  | Patched with   |
+>>>>>> | Debian VM, i5 6300HQ,   |           | noqueue qdisc | fq_codel qdisc |
+>>>>>> | 10M packets             |           |               |                |
+>>>>>> +-----------+-------------+-----------+---------------+----------------+
+>>>>>> | TAP       | Transmitted | 196 Kpps  | 195 Kpps      | 185 Kpps       |
+>>>>>> |           +-------------+-----------+---------------+----------------+
+>>>>>> |           | Lost        | 1618 Kpps | 1556 Kpps     | 0              |
+>>>>>> +-----------+-------------+-----------+---------------+----------------+
+>>>>>> | TAP       | Transmitted | 577 Kpps  | 582 Kpps      | 578 Kpps       |
+>>>>>> |  +        +-------------+-----------+---------------+----------------+
+>>>>>> | vhost-net | Lost        | 1170 Kpps | 1109 Kpps     | 0              |
+>>>>>> +-----------+-------------+-----------+---------------+----------------+
+>>>>>>
+>>>>>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
+>>>>>>
+>>>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+>>>>>> ---
+>>>>>>  drivers/net/tun.c | 31 +++++++++++++++++++++++++++++--
+>>>>>>  1 file changed, 29 insertions(+), 2 deletions(-)
+>>>>>>
+>>>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+>>>>>> index 71b6981d07d7..74d7fd09e9ba 100644
+>>>>>> --- a/drivers/net/tun.c
+>>>>>> +++ b/drivers/net/tun.c
+>>>>>> @@ -1008,6 +1008,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>>         struct netdev_queue *queue;
+>>>>>>         struct tun_file *tfile;
+>>>>>>         int len = skb->len;
+>>>>>> +       bool qdisc_present;
+>>>>>> +       int ret;
+>>>>>>
+>>>>>>         rcu_read_lock();
+>>>>>>         tfile = rcu_dereference(tun->tfiles[txq]);
+>>>>>> @@ -1060,13 +1062,38 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>>
+>>>>>>         nf_reset_ct(skb);
+>>>>>>
+>>>>>> -       if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+>>>>>> +       queue = netdev_get_tx_queue(dev, txq);
+>>>>>> +       qdisc_present = !qdisc_txq_has_no_queue(queue);
+>>>>>> +
+>>>>>> +       spin_lock(&tfile->tx_ring.producer_lock);
+>>>>>> +       ret = __ptr_ring_produce(&tfile->tx_ring, skb);
+>>>>>> +       if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
+>>>>>> +               netif_tx_stop_queue(queue);
+>>>>>> +               /* Avoid races with queue wake-up in
+>>>>>> +                * __{tun,tap}_ring_consume by waking if space is
+>>>>>> +                * available in a re-check.
+>>>>>> +                * The barrier makes sure that the stop is visible before
+>>>>>> +                * we re-check.
+>>>>>> +                */
+>>>>>> +               smp_mb__after_atomic();
+>>>>>> +               if (!__ptr_ring_produce_peek(&tfile->tx_ring))
+>>>>>> +                       netif_tx_wake_queue(queue);
+>>>>>
+>>>>> I'm not sure I will get here, but I think those should be moved to the
+>>>>> following if(ret) check. If __ptr_ring_produce() succeed, there's no
+>>>>> need to bother with those queue stop/wake logic?
+>>>>
+>>>> There is a need for that. If __ptr_ring_produce_peek() returns -ENOSPC,
+>>>> we stop the queue proactively.
+>>>
+>>> This seems to conflict with the following NETDEV_TX_BUSY. Or is
+>>> NETDEV_TX_BUSY prepared for the xdp_xmit?
+>>
+>> Am I not allowed to stop the queue and then return NETDEV_TX_BUSY?
+> 
+> No, I mean I don't understand why we still need to peek since we've
+> already used NETDEV_TX_BUSY.
 
-Wen Gu <guwen@linux.alibaba.com> writes:
+Yes, if __ptr_ring_produce() returns -ENOSPC, there is no need to check
+__ptr_ring_produce_peek(). I agree with you on this point and will update
+the code accordingly. In all other cases, checking
+__ptr_ring_produce_peek() is still required in order to proactively stop
+the queue.
 
-> 1. Reorganize drivers/ptp/ to make the interface/implementation split
->    explicit,
->
->    * drivers/ptp/core      : PTP core infrastructure and API.
->                              (e.g. ptp_chardev.c, ptp_clock.c,
->                               ptp_sysfs.c, etc.)
->
->    * drivers/ptp/pure      : Non-network ("pure clock") implementation,
->                              they are typically platform/architecture/
->                              virtualization-provided time sources.
->                              (e.g. ptp_kvm, ptp_vmw, ptp_vmclock,
->                               ptp_s390, etc.)
->
->    * drivers/ptp/*         : Network timestamping oriented implementation,
->                              they primarily used together with IEEE1588
->                              over the network.
->                              (e.g. ptp_qoriq, ptp_pch, ptp_dp83640,
->                               ptp_idt82p33 etc.)
+> 
+>> And I do not understand the connection with xdp_xmit.
+> 
+> Since there's we don't modify xdp_xmit path, so even if we peek next
+> ndo_start_xmit can still hit ring full.
 
-I'm fine with splitting paths - but I would propose a different naming
-scheme as 'pure' is not really a common term in the driver world (at
-least in my perception, which might be wrong. How about the following
-instead:
+Ah okay. Would you apply the same stop-and-recheck logic in
+tun_xdp_xmit when __ptr_ring_produce() fails to produce it, or is that
+not permitted there?
 
-drivers/ptp/core    - API as written above
-drivers/ptp/virtual - all PtP drivers somehow emulating a PtP clock
-                      (like the ptp_s390 driver)
-drivers/ptp/net     - all NIC related drivers.
+Apart from that, as noted in the commit message, since we are using LLTX,
+hitting a full ring is still possible anyway. I could see that especially
+at multiqueue tests with pktgen by looking at the qdisc requeues.
 
+Thanks
+
+> 
+> Thanks
+> 
+>>
+>>>
+>>>>
+>>>> I believe what you are aiming for is to always stop the queue if(ret),
+>>>> which I can agree with. In that case, I would simply change the condition
+>>>> to:
+>>>>
+>>>> if (qdisc_present && (ret || __ptr_ring_produce_peek(&tfile->tx_ring)))
+>>>>
+>>>>>
+>>>>>> +       }
+>>>>>> +       spin_unlock(&tfile->tx_ring.producer_lock);
+>>>>>> +
+>>>>>> +       if (ret) {
+>>>>>> +               /* If a qdisc is attached to our virtual device,
+>>>>>> +                * returning NETDEV_TX_BUSY is allowed.
+>>>>>> +                */
+>>>>>> +               if (qdisc_present) {
+>>>>>> +                       rcu_read_unlock();
+>>>>>> +                       return NETDEV_TX_BUSY;
+>>>>>> +               }
+>>>>>>                 drop_reason = SKB_DROP_REASON_FULL_RING;
+>>>>>>                 goto drop;
+>>>>>>         }
+>>>>>>
+>>>>>>         /* dev->lltx requires to do our own update of trans_start */
+>>>>>> -       queue = netdev_get_tx_queue(dev, txq);
+>>>>>>         txq_trans_cond_update(queue);
+>>>>>>
+>>>>>>         /* Notify and wake up reader process */
+>>>>>> --
+>>>>>> 2.43.0
+>>>>>>
+>>>>>
+>>>>> Thanks
+>>>>>
+>>>>
+>>>
+>>> Thanks
+>>>
+>>
+> 
