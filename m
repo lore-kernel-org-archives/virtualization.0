@@ -1,194 +1,249 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazon11010019.outbound.protection.outlook.com [52.101.84.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4978A30AAA6
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 04:42:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768192949; cv=none; b=LV06dt350OPrxLmwdeO1QbB0Nklm7rwOhC7Ctvq82k2zu3XhN8Y1RMxtod98X3fvDvDnqPXHGMkDeoGARrvzOQvYYoQ5YzdvIVbwwn6SABWrzmyCEWiZaeXZfIwl/ZuqSkI0EIPT4f1bOkP792BY2zbLDiXkceKB37g9h+baabU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768192949; c=relaxed/simple;
-	bh=2VltQBFJygJXWBbOcvlhVXQ2y5H6Win1bazyoi6YOU0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=GV0t2AskQwd03G2PtGriOcrOwEkwIrqDCPB70RLONEq056ZE5fXg/adzSYHUSS17HkkJNAlWlI6LWxoXX5Kdych25GUpPCGPdXMDNQLaWswkIoteedwafI2WMAdTLNtzZ5XwB1wJuUKTwKcE0nY8OmFwwIkuuowdV1lVcJTGHVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HMgLth3y; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DB211E5B94;
+	Mon, 12 Jan 2026 07:12:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.84.19
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768201934; cv=fail; b=UIk6iNG4R8h21rrdg4pigh8aisePBm3ePmo/hW8+iI7Kl52qg18tH2MqGosstrTj9WSNtnGtRCmTCToS32ki0rtqGeEsIUzdDMz56ucNAVKH60CgBLPVUGGtrDXrg/ETfWQJthaRStcUpLiEkaRf0xLG6Z5CT4mqYToDZpPX9HI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768201934; c=relaxed/simple;
+	bh=NPDl28R1JosLfHoF7Z1pIdOw8Xq7GICB462Ot5vupGU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=q0ciqJ6R0F3C74g1IhDeUR1rAAhhkWbG4Chi1oelqwhII4mBY3s6TiVgdQjqVn1oWVLvbPNNRCacrdzrb0p50tAYl5QD7i1VGwq/EP3gl9Vf2RqSap2hAJpdem7sY60uXVwjU6BsMrucIfep7DMwxMFf/n/jJ5YyvMckT/xDYy4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=JWMiwXzN; arc=fail smtp.client-ip=52.101.84.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HMgLth3y"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768192945;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eRnCSJo0TmvquSWDDIrpEWk/wUKA+CvYamy20zcpVrg=;
-	b=HMgLth3ys4JwuMtzKCUdVeuPMNCq7VXNNwxl937lYaSXBTnRIjCK6+InKAkDMYIk7a+FDA
-	1Kf6/yHjkr6yW6QJF0Ydce3lY3/DQHXSq9PjjPZ77vD4qG/nbpU1MWmUzUWt8LtkmfBmrN
-	Hpww8KxZNj2IF2m2op8LmRv8pBzqG7E=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-457-E26903q5M7-jillaee0_ug-1; Sun, 11 Jan 2026 23:42:22 -0500
-X-MC-Unique: E26903q5M7-jillaee0_ug-1
-X-Mimecast-MFC-AGG-ID: E26903q5M7-jillaee0_ug_1768192941
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-430fb8d41acso3904902f8f.1
-        for <virtualization@lists.linux.dev>; Sun, 11 Jan 2026 20:42:22 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768192941; x=1768797741;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=eRnCSJo0TmvquSWDDIrpEWk/wUKA+CvYamy20zcpVrg=;
-        b=vyFzZDIbeLSG3zL0eaVwGm7KI4W6ebkefLJGHohKqhDunDv8EWUCHYWAsjO8VlB6Ou
-         mqJ9k020OGkL/Vdwlz4Sr3wDi/+kdOpc/DyI3309ZZ5J4FF+UFuXyCQu3x/1b0TA2Pk2
-         V7XT+lj3LFJE18Pc4kh5veClYd3jLMjAJlHPa7OB6l5WF5VuABOooaU09xfdnkQ54ydq
-         dp6LvvMIuzyE28ZP/IR2y7vIHnsh6eWNGg/QWJ0kTQTMGIhoLpKUgsm6jAZke4mkHgZG
-         8iivb5qKVZomxkT4uS2IGyJwNkhUJN8WnXC/2ZJNvSAJH+zzlQCynGx9Exj0/Nwechmu
-         YD7Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWjdmD7E7zR5bInh7dvYLipMtDSYzkcP9Vtywo8R1ghApYy7XAHqq3y5V4/+Y311D8D1WPTNBqRiIaNJP9X0A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzyu9pkLcYmmnhGOb6Oe2K+wgV+LnbsqGpHjx79ZlWw5ZGp2FTe
-	Nn2A/OmYTJBL2RM9JUO7KIn8FfWzk0MIIsAM+9ePggxDk/XXZLw0T3fCxrn3x6kUYG1ljYGb943
-	cS1IXpdn9Ww1RjK1nzEJWrXcQX08LXWxWvNPNlWJbmTsZHRnM8xQpoH3ZVp5/FaLfiEyK
-X-Gm-Gg: AY/fxX4dN1N4v6owVrFUE/X7k0fpT/NIJt7nx8SCZIjhGLVUQKbe8nAHXs8VNIbbcvD
-	TOo6ll9xxDjbPvyZkKSZSL0h3T2+KVciFAqHISqQxhsa7/c9AxhtZC2lU6I7Y6Rz/O/x5L9/Y7Q
-	0biiGOfJKTd0u1ljF8EBxounmK1sihCZbSIb3GS6SXLUuKk6Yh0trbZb+HBOJdtwrze9qnIr3NI
-	PEJW7mlbZi20qyjc3618u2LjB0IS3wKXLNfutjsj9WQ81+y8leTXp6epbFI/9xrPlNbIPukz2Ho
-	SOmoa75hQSGve4Bk3bPcdirol0XQQbo7Ks1hyjYy/I1Hagi3O/CS2ZdamPisxKijSnf+EX4tpUS
-	IRZNlge8lck98NjetdziudBCOBWD4JNk=
-X-Received: by 2002:a5d:5888:0:b0:42f:edb6:3642 with SMTP id ffacd0b85a97d-432c37767acmr20558543f8f.60.1768192940935;
-        Sun, 11 Jan 2026 20:42:20 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGksWsEOp11E7do7kSJe9rVBAth4jOqGHv4mw3q8StsdQQPY6PxltAQTL2SJSNkU9vJyWdeOw==
-X-Received: by 2002:a5d:5888:0:b0:42f:edb6:3642 with SMTP id ffacd0b85a97d-432c37767acmr20558531f8f.60.1768192940549;
-        Sun, 11 Jan 2026 20:42:20 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-35-22.inter.net.il. [80.230.35.22])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432bd5ff319sm36985010f8f.43.2026.01.11.20.42.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Jan 2026 20:42:19 -0800 (PST)
-Date: Sun, 11 Jan 2026 23:42:16 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Simon Schippers <simon.schippers@tu-dortmund.de>,
-	willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, eperezma@redhat.com, leiyang@redhat.com,
-	stephen@networkplumber.org, jon@nutanix.com,
-	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v7 7/9] vhost-net: vhost-net: replace rx_ring
- with tun/tap ring wrappers
-Message-ID: <20260111234112-mutt-send-email-mst@kernel.org>
-References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
- <20260107210448.37851-8-simon.schippers@tu-dortmund.de>
- <CACGkMEtndGm+GX+3Kn5AWTkEc+PK0Fo1=VSZzhgBQoYRQbicQw@mail.gmail.com>
- <5961e982-9c52-4e7a-b1ca-caaf4c4d0291@tu-dortmund.de>
- <CACGkMEsKFcsumyNU6vVgBE4LjYWNb2XQNaThwd9H5eZ+RjSwfQ@mail.gmail.com>
- <0ae9071b-6d76-4336-8aee-d0338eecc6f5@tu-dortmund.de>
- <CACGkMEsC0-d4oS54BHNdFVKS+74P7SdnNHPHe_d0pmo-_86ipg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="JWMiwXzN"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=DiWjBw3NhX4cyS3lnH2JMD74N88jVMZeCHcUNTZ8zdAZq22MkAmlEy+wDn4fUqyzXbF8hhpiARDecpRSi+0gmlPdNLfrVIiAZ/HoP9cwDCD0WKlNz52Giz93YAC8RRZ9O5CgOgehwCvH7QZ1Satd0zchZpRTN2jzQPbm6KJ7wLTfDMwbk3Cr+Zo8hrLEIaKkC49M4gMAovVCSepFEL5dvpE3pkKRekOXmxgSeFORVYXy9BF0kgFJ1UHVl7tnh4b8swEhccsMePQ4n4DRm+E37Q9S8N/Yat8ObtRmqhXmd7QHmDKJk1SCRb5icIOyDKrDe/2XQw1ZKNitgOEwu0vhTQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5sUtyRzyU2X/5L8qtvUfjHP+2SVXxP81mWDh1Of6sls=;
+ b=bV5+glcNenM4PLDhrF7n5PnEJaopUOIuXyx5YBokvhqC3SNaXqGN4BI7tdgs+RgeNdrKsGKHEywf3ReINzXlWWA2KJ1N2zZ5tUtWgsRZ4sJRw6Z+zHlc+JgfU3tl8KuMS8wxeruIT/RK19BdgTFgrmRUb+NXoK02kzGRuOFOJA2Cd6OHIzFOlB6G/nz/Y0jnDPYMkWyuXjzQDR8mwkhm/WoB0XmC0GsM65T9Q2arK9fFVr5WwgRWOnYrK1HgP8lWH6BFk08FSTWZlM0Nu48Lz2FIKZmE3fnbYEC4yZzsWJCr062agUgskdXTKLZ4qLU27oyg9gC/5BuyTOqIY0ym4w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
+ 164.130.1.59) smtp.rcpttodomain=linux.intel.com smtp.mailfrom=foss.st.com;
+ dmarc=fail (p=none sp=none pct=100) action=none header.from=foss.st.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5sUtyRzyU2X/5L8qtvUfjHP+2SVXxP81mWDh1Of6sls=;
+ b=JWMiwXzNiqiOjlBD+gmAlAWXLcpT4kC4lRUGBL4iAJAF3opUQxylUVz2aB5dST+coYssMF5Fh6RgICWhlnG+eI9u/GR29pvJIEWZHly6urfoSrIaiMVHn5qkomUIbjGlNigrb4JnG8Dn2pimUVEb51h3qEksdlxylLVWM9uGu3u7ePfoQ1DuDbl/eqM4qd4vSl/37dZgqYgxzeetI+eJ6iUoYdn81VKto5ObDIYHOAJzvXJVtBwqxWzndSq3+kIrQBFLjJuZmtNUZEtkS4x3KqbTkz8TBhiErzrB7G16Ib0Eygv03/ufay4bu+fBX/KkM/FGCjuqSEnRWkNoXybo5A==
+Received: from DU7P250CA0026.EURP250.PROD.OUTLOOK.COM (2603:10a6:10:54f::9) by
+ VI1PR10MB3197.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:803:13c::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9499.7; Mon, 12 Jan
+ 2026 07:12:04 +0000
+Received: from DU2PEPF00028D03.eurprd03.prod.outlook.com
+ (2603:10a6:10:54f:cafe::f) by DU7P250CA0026.outlook.office365.com
+ (2603:10a6:10:54f::9) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9499.7 via Frontend Transport; Mon,
+ 12 Jan 2026 07:12:04 +0000
+X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 164.130.1.59)
+ smtp.mailfrom=foss.st.com; dkim=none (message not signed)
+ header.d=none;dmarc=fail action=none header.from=foss.st.com;
+Received-SPF: Fail (protection.outlook.com: domain of foss.st.com does not
+ designate 164.130.1.59 as permitted sender) receiver=protection.outlook.com;
+ client-ip=164.130.1.59; helo=smtpO365.st.com;
+Received: from smtpO365.st.com (164.130.1.59) by
+ DU2PEPF00028D03.mail.protection.outlook.com (10.167.242.187) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9520.1 via Frontend Transport; Mon, 12 Jan 2026 07:12:02 +0000
+Received: from STKDAG1NODE1.st.com (10.75.128.132) by smtpo365.st.com
+ (10.250.44.71) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.29; Mon, 12 Jan
+ 2026 08:13:26 +0100
+Received: from [10.48.86.129] (10.48.86.129) by STKDAG1NODE1.st.com
+ (10.75.128.132) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.29; Mon, 12 Jan
+ 2026 08:11:57 +0100
+Message-ID: <faacf28a-7877-4500-9c2f-f60589462ed5@foss.st.com>
+Date: Mon, 12 Jan 2026 08:11:56 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEsC0-d4oS54BHNdFVKS+74P7SdnNHPHe_d0pmo-_86ipg@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: H8nPbFtwYEMIL9NCGlFik1ulqWEyYjcDgTYL3Uzfugc_1768192941
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 2/4] spi: Drop duplicate of_node assignment
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mark Brown
+	<broonie@kernel.org>, Varshini Rajendran <varshini.rajendran@microchip.com>,
+	Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>, "AngeloGioacchino Del
+ Regno" <angelogioacchino.delregno@collabora.com>, Sunny Luo
+	<sunny.luo@amlogic.com>, Janne Grunau <j@jannau.net>, Chin-Ting Kuo
+	<chin-ting_kuo@aspeedtech.com>, CL Wang <cl634@andestech.com>, "Manikandan
+ Muralidharan" <manikandan.m@microchip.com>, David Lechner
+	<dlechner@baylibre.com>, Florian Fainelli <florian.fainelli@broadcom.com>,
+	Jonas Gorski <jonas.gorski@gmail.com>, Hang Zhou <929513338@qq.com>, Jun Guo
+	<jun.guo@cixtech.com>, Philipp Stanner <phasta@kernel.org>, Charles Keepax
+	<ckeepax@opensource.cirrus.com>, Bartosz Golaszewski <brgl@kernel.org>,
+	=?UTF-8?Q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>, Shiji Yang
+	<yangshiji66@outlook.com>, James Clark <james.clark@linaro.org>, "Jonathan
+ Marek" <jonathan@marek.ca>, Carlos Song <carlos.song@nxp.com>, Sakari Ailus
+	<sakari.ailus@linux.intel.com>, Huacai Chen <chenhuacai@kernel.org>, "Xianwei
+ Zhao" <xianwei.zhao@amlogic.com>, Prajna Rajendra Kumar
+	<prajna.rajendrakumar@microchip.com>, Sergio Perez Gonzalez
+	<sperezglz@gmail.com>, Miquel Raynal <miquel.raynal@bootlin.com>, "Qianfeng
+ Rong" <rongqianfeng@vivo.com>, Haibo Chen <haibo.chen@nxp.com>, Gabor Juhos
+	<j4g8y7@gmail.com>, Md Sadre Alam <quic_mdalam@quicinc.com>, Rosen Penev
+	<rosenp@gmail.com>, Luis de Arquer <luis.dearquer@inertim.com>, "Geert
+ Uytterhoeven" <geert+renesas@glider.be>, Cosmin Tanislav
+	<cosmin-gabriel.tanislav.xa@renesas.com>, Tudor Ambarus
+	<tudor.ambarus@linaro.org>, Krzysztof Kozlowski <krzk@kernel.org>, Longbin Li
+	<looong.bin@gmail.com>, =?UTF-8?Q?Cl=C3=A9ment_Le_Goffic?=
+	<clement.legoffic@foss.st.com>, Alessandro Grassi
+	<alessandro.grassi@mailbox.org>, Chen-Yu Tsai <wens@kernel.org>, Darshan R
+	<rathod.darshan.0896@gmail.com>, Aaron Kling <webgeek1234@gmail.com>,
+	Vishwaroop A <va@nvidia.com>, Haixu Cui <quic_haixcui@quicinc.com>, "Darshan
+ Rathod" <darshanrathod475@gmail.com>, <linux-spi@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+	<linux-amlogic@lists.infradead.org>, <asahi@lists.linux.dev>,
+	<linux-aspeed@lists.ozlabs.org>, <openbmc@lists.ozlabs.org>,
+	<linux-rpi-kernel@lists.infradead.org>, <linux-sound@vger.kernel.org>,
+	<patches@opensource.cirrus.com>, <imx@lists.linux.dev>,
+	<linux-arm-msm@vger.kernel.org>, <linux-riscv@lists.infradead.org>,
+	<linux-mediatek@lists.infradead.org>, <linux-rockchip@lists.infradead.org>,
+	<linux-renesas-soc@vger.kernel.org>, <linux-samsung-soc@vger.kernel.org>,
+	<linux-stm32@st-md-mailman.stormreply.com>, <linux-sunxi@lists.linux.dev>,
+	<linux-tegra@vger.kernel.org>, <virtualization@lists.linux.dev>
+CC: Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni
+	<alexandre.belloni@bootlin.com>, Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Lorenzo Bianconi <lorenzo@kernel.org>, Ray Liu <ray.liu@airoha.com>, "Sven
+ Peter" <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
+	=?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, Joel Stanley
+	<joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>, Ryan Wanner
+	<ryan.wanner@microchip.com>, Michael Hennerich
+	<michael.hennerich@analog.com>, =?UTF-8?Q?Nuno_S=C3=A1?=
+	<nuno.sa@analog.com>, Kamal Dasu <kamal.dasu@broadcom.com>, "Broadcom
+ internal kernel review list" <bcm-kernel-feedback-list@broadcom.com>, Ray Jui
+	<rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, William Zhang
+	<william.zhang@broadcom.com>, Kursad Oney <kursad.oney@broadcom.com>, "Anand
+ Gore" <anand.gore@broadcom.com>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?=
+	<rafal@milecki.pl>, David Rhodes <david.rhodes@cirrus.com>, "Richard
+ Fitzgerald" <rf@opensource.cirrus.com>, Vladimir Oltean <olteanv@gmail.com>,
+	Frank Li <Frank.Li@nxp.com>, Jean-Marie Verdun <verdun@hpe.com>, Nick Hawkins
+	<nick.hawkins@hpe.com>, Yang Shen <shenyang39@huawei.com>, Shawn Guo
+	<shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, "Pengutronix
+ Kernel Team" <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>,
+	"Lixu Zhang" <lixu.zhang@intel.com>, Yinbo Zhu <zhuyinbo@loongson.cn>, "Neil
+ Armstrong" <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>, Martin Blumenstingl
+	<martin.blumenstingl@googlemail.com>, Conor Dooley
+	<conor.dooley@microchip.com>, Daire McNamara <daire.mcnamara@microchip.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>, Avi Fishman
+	<avifishman70@gmail.com>, Tomer Maimon <tmaimon77@gmail.com>, Tali Perry
+	<tali.perry1@gmail.com>, Patrick Venture <venture@google.com>, Nancy Yuen
+	<yuenn@google.com>, Benjamin Fair <benjaminfair@google.com>, Han Xu
+	<han.xu@nxp.com>, Yogesh Gaur <yogeshgaur.83@gmail.com>, Linus Walleij
+	<linusw@kernel.org>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang
+	<haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, "Chris
+ Packham" <chris.packham@alliedtelesis.co.nz>, Heiko Stuebner
+	<heiko@sntech.de>, Fabrizio Castro <fabrizio.castro.jz@renesas.com>, "Andi
+ Shyti" <andi.shyti@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>, "Paul
+ Walmsley" <pjw@kernel.org>, Samuel Holland <samuel.holland@sifive.com>,
+	"Orson Zhai" <orsonzhai@gmail.com>, Baolin Wang
+	<baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>, Maxime
+ Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue
+	<alexandre.torgue@foss.st.com>, Alain Volmat <alain.volmat@foss.st.com>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>, Li-hao Kuo <lhjeff911@gmail.com>,
+	Masahisa Kojima <masahisa.kojima@linaro.org>, Jassi Brar
+	<jaswinder.singh@linaro.org>, "Laxman Dewangan" <ldewangan@nvidia.com>,
+	Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter
+	<jonathanh@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>,
+	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, Masami Hiramatsu
+	<mhiramat@kernel.org>, =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?=
+	<j.neuschaefer@gmx.net>, Michal Simek <michal.simek@amd.com>, Max Filippov
+	<jcmvbkbc@gmail.com>
+References: <20260108203004.3538449-1-andriy.shevchenko@linux.intel.com>
+ <20260108203004.3538449-3-andriy.shevchenko@linux.intel.com>
+Content-Language: en-US
+From: Patrice CHOTARD <patrice.chotard@foss.st.com>
+In-Reply-To: <20260108203004.3538449-3-andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: STKCAS1NODE1.st.com (10.75.128.134) To STKDAG1NODE1.st.com
+ (10.75.128.132)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DU2PEPF00028D03:EE_|VI1PR10MB3197:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1d5c2bce-94d6-45d7-965b-08de51a9e2df
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|7416014|82310400026|1800799024|32650700017|36860700013|7053199007|921020|41080700001;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?VnZWRDJoUC8rR0xOTER6aDdYSlN3bWdqOXJnelZzSlVLeXRscDI2ZURBOHBB?=
+ =?utf-8?B?dHg5YWRmZnpFVllnT2pBQjM1Wm52bVI3dUZmSHlibGcwWEQ2K2QxNEZKNFR1?=
+ =?utf-8?B?RmtuOU50Njc2dWhMbE1Ma3M1c2o4VUFreVNuVEQyR3dHTCtiaGM5aWJweUFG?=
+ =?utf-8?B?MUJGeldDYnRSUllrdGVKMUVVYUVCTlh2RVZCWDc0T1VQMWU5RmhKa1ZleUhK?=
+ =?utf-8?B?SkEwL3ZyT0djV3QrNEx6UlpqaTE0K2RJNFlRdERoZkQzQjhQM0hDOUhoUHZl?=
+ =?utf-8?B?Vy9GQys0QXhXbHRiVStlbURnczhLRUowTXl1Tk9XRzU3cjQzL3oxUGR2b1Bt?=
+ =?utf-8?B?WU9CdXVMVFdjenFuMDMxTk9URGRQc2s4RVVycVYwaGxtVlptUDZXcmw0MWhm?=
+ =?utf-8?B?S3VSNU1PUDkvM3dPaDVYNXJTVzE0aHUyY0o4U0FUZkV3Nm1CMDFSSk5HaS9m?=
+ =?utf-8?B?akpObmVSTDRFbXdyM0NPcHFGRVlqZW55ZHdma1dGVmZ6K2hKelU2WlFRazV0?=
+ =?utf-8?B?TWJLQm10dW1uRXVLV1FRU3A3V2pwbHFObTAxRVArcjI5aGZrelVYQW9SY1RR?=
+ =?utf-8?B?R2EzMUtGejdFSmkxdkluUTc1MUxzZzIxZFhvUUlpREMrYnM4TEFndmVadVps?=
+ =?utf-8?B?TnVZMlBtQmtSVmgxbTlzckpmd1c1YmhMWEJUdHpsOEtDM3ZDODh3OXhqNUVK?=
+ =?utf-8?B?MU1lcUFhTEQzTkdVQjBpSmFFSldnc21sTU4wRnQxaWhOaDNqSnZnTkVSZ2pu?=
+ =?utf-8?B?ZCt3TlBkQWZzL3Vtem1ZYzI2a05CcDk4RE12bUdBZUNta084ZnN1WXBUdXkr?=
+ =?utf-8?B?UTl3Q2F2WmdqVEV4dTRtY1ZXQU9HN3BSZitheGZYeDYxQUZLODFZSHNJWHEy?=
+ =?utf-8?B?UHNSY2VsQU4zNksrODd1T1dhYkY0b2dVeVEzTFcxUUlVaERQUlFwQko0L3A4?=
+ =?utf-8?B?SDVGeCt5Vks4RnlGMVZTZ0lsMGZqeGVtQmRoZjB5SWM5YVN1RUp0dWltRTZN?=
+ =?utf-8?B?bG9Dd0NxNVhhVlZQeVE0dGd5cmdibXk5VWVRblNYVE82QlVWaGgyUjNwblhD?=
+ =?utf-8?B?YkNVN082dnJoTzFRLzQ3RTZXdWVlWE9udjNYbUU1OE1IQWhJRzZWMnQwNzI0?=
+ =?utf-8?B?dE9Tc0hSTVNNbTZiem9OUUtqNi85QzhZS2wzUSs0cXBrNTZEaWZCZTl5ck0x?=
+ =?utf-8?B?UmlPK05YSDVKQmR0RzlMeXp5bnZFQlpVc1lwUTV3cWRHM2k4MXk5aWd0NE1P?=
+ =?utf-8?B?UHV4VXRRQ1krZmpZU0xJVVJBOE9lM2FtT2hpZHVXb1YwZFc2bi9rRU9oK2tP?=
+ =?utf-8?B?T0svRmZ3clFsYW9UZnNRY1BFNGJFRjBhalpPb1ZUdnpCOFVQWFpPRmRsd1NQ?=
+ =?utf-8?B?VlM3OEhyWTE4bjJ5UWJKV1p5MHZvYWlNcTFTKzhtU2VIWkJKbzZGcXM0ZjhR?=
+ =?utf-8?B?bXNkQ1hjeThtVzhWQ1ZzZ1prMFNBYmdoYkMrNU9NZ1VJOHVNaHhyMlRaRWhG?=
+ =?utf-8?B?bHRwVjVyc0p5Snl0aE42ZHN0bTIrYnVPVkNGM1lja2o1Q1o5cTJxOXpuZDFj?=
+ =?utf-8?B?NWlpSkliL0NIUG90dTBSSFVFZHgrYXEyVVRYK0JmRllDR1ExazJ2RDgySmk0?=
+ =?utf-8?B?UGNvQWxDdVFscXp3Vm5uUEpESEFjakEzQ2hEWVNjZDI0Qys5MHNmWkdHZWdj?=
+ =?utf-8?B?dUdTaGM2TUttMHorTVlxRW4wL2Y2MStVQUpQWGZEQVpFb0c0ZmVyMythU1dF?=
+ =?utf-8?B?ejlMcGQvZ01NdDRlMjB0QWhqK3lFWFozNTB2aTh3WTFLVCt5akgrMHVnSkht?=
+ =?utf-8?B?bEpWNFkzV1haMUtIRnY5S3lUcGhoQy9MZUFZSnpYcDF2SVM1MExvSllnb2JV?=
+ =?utf-8?B?a3o0WWtiRk50UVJnVFNLOUplcnNucndNb1AxVzBzMExaR0IxdUwyN0REMWtF?=
+ =?utf-8?B?UlVGOXVMSlVJSWt0VFE5WS9oSXpNUklhRHJBU3RtZzhSKzFWZjFkN1NXZzU1?=
+ =?utf-8?B?VGdYYjZJNCtEMUV1WXA2Z29JQlRQVVRzaFQyS2wxQnkrWHVnN0dUSGR4YSt3?=
+ =?utf-8?B?Uk5PNGcrYW94WDk1aXhQK1BydWFFalhoNXl2UUZNTTRmT28vZUZSenltaW5C?=
+ =?utf-8?B?K002UGkyL3BkcEQxa3MzSXdNUkVsZDR4RlAzdTFOakkzNFNMd09rUlowcURr?=
+ =?utf-8?B?QXc9PQ==?=
+X-Forefront-Antispam-Report:
+	CIP:164.130.1.59;CTRY:IT;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:smtpO365.st.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(376014)(7416014)(82310400026)(1800799024)(32650700017)(36860700013)(7053199007)(921020)(41080700001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	P6BK0ZgB8SUTDfdxaJ8c8uL2dwTw5IEdwkAzylPE9GisUNIQvtA5bN+iI85qmoZR8i60+K5BvP6ArNOViQn0ERimnfKEfjDW+qbxwC5iKX9HkBzfP2v7377aWnloj08itWVqr2QWGH2HO2l601gVnXYqiIk3J43SxEiqnn3aPUgWOvWR3PshG2P+DhiOony75p4grRcx/VJiH15Kpf+oekulACyL/ix2yRIW4Qcfqwmk8U+1U3yZF5kFs9V82SJ2JB9aXDJyxRy7dbiaaIf4DHIum/Mh5OcmsBMb6j0pqyBxRbCsFqrfj8VPj5ZW71yBpCNFxfGyFgprSD624xGOAe3LWUe6M4rXcIg6A4eIBSTkq3z+djWm+KQS94f2BNUYlBv95TTKNP651EKDI86sUgWoig0yBV2TuLLdTyvATXPghfUrXnq87/L9vl+TKbIONKtNb6EVBumKiP2oi9X7tdhuLMjtFuNfK8K33b9p0F60nVvHyaQbH9rl7PQ/eCrCi6P/WzSwWHUk5TgDE7xXdR7/BfUAEfXVvCas//cGrzr6edD8AGoxHAwls8yWjtmbtdvEqWLOoFhtD0k+txJuD0ofeWOyt6LAYwTWmtd96915CwgcqXxaekOrYWjKNn6C4RJJSQHBEXjXfwmajIxQGbgZ3rwY7epTWeybKuFvwrPk06eiGxF2YcrjI+amIA4b
+X-OriginatorOrg: foss.st.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jan 2026 07:12:02.9802
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1d5c2bce-94d6-45d7-965b-08de51a9e2df
+X-MS-Exchange-CrossTenant-Id: 75e027c9-20d5-47d5-b82f-77d7cd041e8f
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=75e027c9-20d5-47d5-b82f-77d7cd041e8f;Ip=[164.130.1.59];Helo=[smtpO365.st.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DU2PEPF00028D03.eurprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR10MB3197
 
-On Mon, Jan 12, 2026 at 10:54:15AM +0800, Jason Wang wrote:
-> On Fri, Jan 9, 2026 at 5:57 PM Simon Schippers
-> <simon.schippers@tu-dortmund.de> wrote:
-> >
-> > On 1/9/26 07:04, Jason Wang wrote:
-> > > On Thu, Jan 8, 2026 at 3:48 PM Simon Schippers
-> > > <simon.schippers@tu-dortmund.de> wrote:
-> > >>
-> > >> On 1/8/26 05:38, Jason Wang wrote:
-> > >>> On Thu, Jan 8, 2026 at 5:06 AM Simon Schippers
-> > >>> <simon.schippers@tu-dortmund.de> wrote:
-> > >>>>
-> > >>>> Replace the direct use of ptr_ring in the vhost-net virtqueue with
-> > >>>> tun/tap ring wrapper helpers. Instead of storing an rx_ring pointer,
-> > >>>> the virtqueue now stores the interface type (IF_TUN, IF_TAP, or IF_NONE)
-> > >>>> and dispatches to the corresponding tun/tap helpers for ring
-> > >>>> produce, consume, and unconsume operations.
-> > >>>>
-> > >>>> Routing ring operations through the tun/tap helpers enables netdev
-> > >>>> queue wakeups, which are required for upcoming netdev queue flow
-> > >>>> control support shared by tun/tap and vhost-net.
-> > >>>>
-> > >>>> No functional change is intended beyond switching to the wrapper
-> > >>>> helpers.
-> > >>>>
-> > >>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> > >>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> > >>>> Co-developed by: Jon Kohler <jon@nutanix.com>
-> > >>>> Signed-off-by: Jon Kohler <jon@nutanix.com>
-> > >>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-> > >>>> ---
-> > >>>>  drivers/vhost/net.c | 92 +++++++++++++++++++++++++++++----------------
-> > >>>>  1 file changed, 60 insertions(+), 32 deletions(-)
-> > >>>>
-> > >>>> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> > >>>> index 7f886d3dba7d..215556f7cd40 100644
-> > >>>> --- a/drivers/vhost/net.c
-> > >>>> +++ b/drivers/vhost/net.c
-> > >>>> @@ -90,6 +90,12 @@ enum {
-> > >>>>         VHOST_NET_VQ_MAX = 2,
-> > >>>>  };
-> > >>>>
-> > >>>> +enum if_type {
-> > >>>> +       IF_NONE = 0,
-> > >>>> +       IF_TUN = 1,
-> > >>>> +       IF_TAP = 2,
-> > >>>> +};
-> > >>>
-> > >>> This looks not elegant, can we simply export objects we want to use to
-> > >>> vhost like get_tap_socket()?
-> > >>
-> > >> No, we cannot do that. We would need access to both the ptr_ring and the
-> > >> net_device. However, the net_device is protected by an RCU lock.
-> > >>
-> > >> That is why {tun,tap}_ring_consume_batched() are used:
-> > >> they take the appropriate locks and handle waking the queue.
-> > >
-> > > How about introducing a callback in the ptr_ring itself, so vhost_net
-> > > only need to know about the ptr_ring?
-> >
-> > That would be great, but I'm not sure whether this should be the
-> > responsibility of the ptr_ring.
-> >
-> > If the ptr_ring were to keep track of the netdev queue, it could handle
-> > all the management itself - stopping the queue when full and waking it
-> > again once space becomes available.
-> >
-> > What would be your idea for implementing this?
+
+
+On 1/8/26 21:23, Andy Shevchenko wrote:
+> The SPI core provides the default of_node for the controller,
+> inherited from the actual (parent) device. No need to repeat it
+> in the driver.
 > 
-> During ptr_ring_init() register a callback, the callback will be
-> trigger during ptr_ring_consume() or ptr_ring_consume_batched() when
-> ptr_ring find there's a space for ptr_ring_produce().
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+
+>  drivers/spi/spi-stm32-ospi.c         | 1 -
+>  drivers/spi/spi-stm32-qspi.c         | 1 -
 > 
-> Thanks
 
-Not sure the perceived elegance is worth the indirect call overhead.
-ptr_ring is trying hard to be low overhead.
-What this does is not really complex to justify that.
-We just need decent documentation.
+Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
 
-> >
-> > >
-> > > Thanks
-> > >
-> > >>
-> > >>>
-> > >>> Thanks
-> > >>>
-> > >>
-> > >
-> >
-
+Thanks
