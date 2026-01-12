@@ -1,248 +1,348 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49F693803ED
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 18:17:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3758133C50F;
+	Mon, 12 Jan 2026 20:35:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768241873; cv=none; b=c7224CCqsNLkjuPd+r8n8sO6+tRbg03Qmd7Te7aWFOn69rAef1FLm+8/tctrrzv29lF0ERPyi46zZf8vvmjbjRMpvE1qY7XJwbpS8oaiV0kRiwKj+cSl9rolsZcMbe6asoIAhL5P3U52sbg4yARPAa6IMkKv41y4we2p+J6+Xt0=
+	t=1768250151; cv=none; b=MGdpXVAhFWC9YueG0eKuSbeC7edVK60ao5l+Mld352NIDd7eBZxfAqB0M2Z7SnwPVasAGdjkXd0FTPZ8G86HDZbCW6uviX2x83zzRUD3OYB6Jy7usiT0/J1UUnrHVYvBIpmo1z8WEarQfdBLP3dDQhgtO3J/SPmcff+FVhF8sw0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768241873; c=relaxed/simple;
-	bh=7+9/4nymDsorNrdw/Y+cdaz+q2znF/7yqtVvfiRWfiw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=analr3qoiUOzklYCV3W3QP6ra/ZUOr0LWA2hZZinsgDUSydyiFqyfhTrcS88IKeXQ6vxyHJGVTVMn05o2iZqMiWGBxJZ/WH/UZGzfpsi+U4eDT3vATm7pA4zPq1KEMXMsyX1n5cEsCvsgNgMR47lIuWNoVslacbViXKpS9hR2VM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=If1Go68w; arc=none smtp.client-ip=209.85.216.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768250151; c=relaxed/simple;
+	bh=REqCyoJrIpewtMdGURz7oYk9zmr7BJajQXuF1TakMwI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=bbGS1yAh0VUEeEaSLCc7590P02F/0RTbfBaSfHE+eTU66J2MS65PUMYp1iuBmo1UdHBVsE/262bvMLCAxsa8PRuhKeGgVirO/7mXbbAXuMQ3lTbVys3F5TQqyUAMQbgUDqP+KTfOdHkgCTnzIHsut8B5dLrf2GWbD/EvGvExqoE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QCguevzN; arc=none smtp.client-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="If1Go68w"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-34c1d98ba11so5270801a91.3
-        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 10:17:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768241871; x=1768846671; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4iPYz0c2/YOE9HPEJLTZDgF+3tXabqT+BOwl+/nVPFU=;
-        b=If1Go68wI9I3xKZD1TcDiFCZKRnAoyWjrrqO6/TRIIn4nfgiSxDuXwBUoKNKk9UtOn
-         08hklNH/eQdzUcF5V9OOj4z4HvCJr6hifjmN/TVgmqBaVoj6xYOUxTmEPXxeowvE/p7N
-         C3poSEQ7z/3a+3edPbc6nAWgGtBCxNj/scfzkjnd+dOTzMkOjyo9Adkpdo5n+aAD32li
-         57YaPD04QqBQLllcCZixhJbGcY4lz3eZjjZ3eUF4rHzBn9LfC0P0zb5HKPogRLRTJgop
-         QHuGg6FTbwKEfCRSpSLeNGL/B1i/dq+fSkmfqWV0NTe+8rSq3wat5M3PqDcXmxdKb3r4
-         fKDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768241871; x=1768846671;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=4iPYz0c2/YOE9HPEJLTZDgF+3tXabqT+BOwl+/nVPFU=;
-        b=FznLjPCZNEFZlCUyXyAWUNTMjaTCBMsjLOUsmjWZ+QlTOGBcG5oE4d05+2MCvX0q8f
-         mJxX3/6Y3EormvzEBd3//X2unMBcERbpZornsyTd2q1ApNNkmQ4LopxBAKi2AynrTaXw
-         kkmjrOdcN47wFKRrg2AWiEwPYd0Y/zReAC9wTQPhutzf4dr52j4dU53Vpvql8Ql200tB
-         vHobQC8h+iyUp3Hi2aq8mP3Rodtbzk+w1e5XCDevtVQJcHmPVlBSnHUPaWE7KkyJFKrf
-         FCjtO8izJtey+bwIbFYXsWSrvaovVmGuxHJlUYpEwPbZ9dCPPSuzoBrlAdhTeErt7Xgz
-         ufdg==
-X-Forwarded-Encrypted: i=1; AJvYcCUun4ScyeAg0TreXLliR0h2nI4SddruxLxRye9CBVPxT6aYEqiNytRr7GL9iVKx/q+EjKrSwBz2TBe0yTHuzQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwfOfD7smVtWk/mFj6tZFwlvrothCTIYh7LKYWa3cwvQe1wBUyJ
-	MkPgcfLNtMLFTo9p0yxq50t4XBD2wgf82Cp0G4FcuiFQb+MO3VMOsHRv
-X-Gm-Gg: AY/fxX6p8vELz/Xy8thvxAMP5i/H3wLaf0m1/xiQo5SP2+7BZJhfMfAN9Y82+ObzdyH
-	EpNpO+J6p5RLLn1xt8c0qtjMdZhKG/Vp9OCBxYTi6M5LNzHW2WbrvCxlanct+mcdLid3KFaOVfY
-	H5eQbOsNw39/4QaCI699LRJCOvo93x/PfNxBn9KcdDl4jFk651VN+Y0ErPsrAqsELD1yOBJpirg
-	gmre87HdSDQYqCmZcQnwMt1VFr1hONKEPXZHw51zHjehuO7C+ptc9du0mfK19Lr1MKIf1WByBON
-	5QEZMgSBAvlG1QbmAFqRcoqSHkl8N8/fAz1BXZR+s891XY18cPmfgEA4UFu/9CIK9XZMXykD/bF
-	+Ycx5HyaE6wUPvor/oOAEoTGkHlKwTNBP/YjXOxbeUfNpW+FD9u8mFLYUapP0El/edqApnpYWcB
-	r45Us7i6uO43fqSZiXatzhqPkgNEh/O8OZzpCsnali6seLPkNegriDz9WOBKF6Jp4z/w==
-X-Google-Smtp-Source: AGHT+IFiK1jweRQzBOm3ZEpB+UiR7srhpNL+qg9Y/k0eatbaDQCE66uWR/fEIuhnV//+2MGMla7rxw==
-X-Received: by 2002:a17:90b:5628:b0:34a:8c77:d386 with SMTP id 98e67ed59e1d1-34f68c91bbemr16740424a91.9.1768241871384;
-        Mon, 12 Jan 2026 10:17:51 -0800 (PST)
-Received: from localhost.localdomain ([122.183.54.120])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34f5f7c4141sm18165365a91.6.2026.01.12.10.17.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jan 2026 10:17:50 -0800 (PST)
-From: I Viswanath <viswanathiyyappan@gmail.com>
-To: edumazet@google.com,
-	horms@kernel.org,
-	sdf@fomichev.me,
-	kuba@kernel.org,
-	andrew+netdev@lunn.ch,
-	pabeni@redhat.com,
-	jasowang@redhat.com,
-	eperezma@redhat.com,
-	mst@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	przemyslaw.kitszel@intel.com,
-	anthony.l.nguyen@intel.com,
-	ronak.doshi@broadcom.com,
-	pcnet32@frontier.com
-Cc: bcm-kernel-feedback-list@broadcom.com,
-	intel-wired-lan@lists.osuosl.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	I Viswanath <viswanathiyyappan@gmail.com>
-Subject: [PATCH net-next v8 6/6] pcnet32: Implement ndo_write_rx_mode callback
-Date: Mon, 12 Jan 2026 23:46:26 +0530
-Message-ID: <20260112181626.20117-7-viswanathiyyappan@gmail.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260112181626.20117-1-viswanathiyyappan@gmail.com>
-References: <20260112181626.20117-1-viswanathiyyappan@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QCguevzN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1768250150; x=1799786150;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=REqCyoJrIpewtMdGURz7oYk9zmr7BJajQXuF1TakMwI=;
+  b=QCguevzNgwfX1JAE49nWByuGOxIM8sxLJ4WqKj2vGkzgURnNGX7qjSlH
+   vBOddmWfj7QO/sQh3HV/IKa0nKA078K+jaGji+FxSpQ4J3yFOotQIbxRK
+   SUwdX7xByKHfkMsYQ3OPgf0pEUWJdQ03oS/7qlMOl0i+cmLI7sgJUcY00
+   A2o4W/Psa5jqwDaMc1f9B0lITHt7/PPCMQ8cWt/3u81+/vCgs5orlFIKz
+   5xhguICZ+yjZBUBSzYmj66TT+ZnFIZ5NghP/qcAb8GW0KRrYBRbygslRQ
+   EXg4r2/nB7n0UGycseTGRWYpgywNY7IFTcWsgHOeTu97nG2v+JGTWCin7
+   g==;
+X-CSE-ConnectionGUID: G1exUEcqT/qoSimPxq+CYw==
+X-CSE-MsgGUID: Ja9MuFdmQsS57OxVA5PAzA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11669"; a="80173651"
+X-IronPort-AV: E=Sophos;i="6.21,221,1763452800"; 
+   d="scan'208";a="80173651"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2026 12:35:49 -0800
+X-CSE-ConnectionGUID: qrF+XUj5Smmcrdyy5Dee6Q==
+X-CSE-MsgGUID: pPBsBLFtQSOQR4pxhpa//Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,221,1763452800"; 
+   d="scan'208";a="208707588"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa004.jf.intel.com with ESMTP; 12 Jan 2026 12:35:38 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1003)
+	id 6841594; Mon, 12 Jan 2026 21:35:37 +0100 (CET)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Mark Brown <broonie@kernel.org>,
+	Varshini Rajendran <varshini.rajendran@microchip.com>,
+	Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Haotian Zhang <vulab@iscas.ac.cn>,
+	Sunny Luo <sunny.luo@amlogic.com>,
+	Janne Grunau <j@jannau.net>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Chen-Yu Tsai <wens@kernel.org>,
+	Amelie Delaunay <amelie.delaunay@foss.st.com>,
+	Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>,
+	CL Wang <cl634@andestech.com>,
+	Patrice Chotard <patrice.chotard@foss.st.com>,
+	Heiko Stuebner <heiko@sntech.de>,
+	William Zhang <william.zhang@broadcom.com>,
+	=?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+	Manikandan Muralidharan <manikandan.m@microchip.com>,
+	David Lechner <dlechner@baylibre.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Jonas Gorski <jonas.gorski@gmail.com>,
+	Hang Zhou <929513338@qq.com>,
+	Jun Guo <jun.guo@cixtech.com>,
+	Philipp Stanner <phasta@kernel.org>,
+	Charles Keepax <ckeepax@opensource.cirrus.com>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	=?UTF-8?q?Beno=C3=AEt=20Monin?= <benoit.monin@bootlin.com>,
+	Shiji Yang <yangshiji66@outlook.com>,
+	James Clark <james.clark@linaro.org>,
+	Jonathan Marek <jonathan@marek.ca>,
+	Carlos Song <carlos.song@nxp.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Xianwei Zhao <xianwei.zhao@amlogic.com>,
+	Prajna Rajendra Kumar <prajna.rajendrakumar@microchip.com>,
+	Sergio Perez Gonzalez <sperezglz@gmail.com>,
+	Qianfeng Rong <rongqianfeng@vivo.com>,
+	Haibo Chen <haibo.chen@nxp.com>,
+	Gabor Juhos <j4g8y7@gmail.com>,
+	Md Sadre Alam <quic_mdalam@quicinc.com>,
+	Rosen Penev <rosenp@gmail.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Luis de Arquer <luis.dearquer@inertim.com>,
+	Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>,
+	Tudor Ambarus <tudor.ambarus@linaro.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Longbin Li <looong.bin@gmail.com>,
+	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+	=?UTF-8?q?Cl=C3=A9ment=20Le=20Goffic?= <clement.legoffic@foss.st.com>,
+	Alessandro Grassi <alessandro.grassi@mailbox.org>,
+	Darshan R <rathod.darshan.0896@gmail.com>,
+	Aaron Kling <webgeek1234@gmail.com>,
+	Vishwaroop A <va@nvidia.com>,
+	Haixu Cui <quic_haixcui@quicinc.com>,
+	Darshan Rathod <darshanrathod475@gmail.com>,
+	linux-spi@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-amlogic@lists.infradead.org,
+	asahi@lists.linux.dev,
+	linux-aspeed@lists.ozlabs.org,
+	openbmc@lists.ozlabs.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-sound@vger.kernel.org,
+	patches@opensource.cirrus.com,
+	imx@lists.linux.dev,
+	linux-arm-msm@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-mediatek@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	linux-renesas-soc@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org,
+	virtualization@lists.linux.dev
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Lorenzo Bianconi <lorenzo@kernel.org>,
+	Ray Liu <ray.liu@airoha.com>,
+	Sven Peter <sven@kernel.org>,
+	Neal Gompa <neal@gompa.dev>,
+	Joel Stanley <joel@jms.id.au>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Ryan Wanner <ryan.wanner@microchip.com>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+	Kamal Dasu <kamal.dasu@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Ray Jui <rjui@broadcom.com>,
+	Scott Branden <sbranden@broadcom.com>,
+	Kursad Oney <kursad.oney@broadcom.com>,
+	Anand Gore <anand.gore@broadcom.com>,
+	=?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+	David Rhodes <david.rhodes@cirrus.com>,
+	Richard Fitzgerald <rf@opensource.cirrus.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	Frank Li <Frank.Li@nxp.com>,
+	Jean-Marie Verdun <verdun@hpe.com>,
+	Nick Hawkins <nick.hawkins@hpe.com>,
+	Yang Shen <shenyang39@huawei.com>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Lixu Zhang <lixu.zhang@intel.com>,
+	Yinbo Zhu <zhuyinbo@loongson.cn>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Conor Dooley <conor.dooley@microchip.com>,
+	Daire McNamara <daire.mcnamara@microchip.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Avi Fishman <avifishman70@gmail.com>,
+	Tomer Maimon <tmaimon77@gmail.com>,
+	Tali Perry <tali.perry1@gmail.com>,
+	Patrick Venture <venture@google.com>,
+	Nancy Yuen <yuenn@google.com>,
+	Benjamin Fair <benjaminfair@google.com>,
+	Han Xu <han.xu@nxp.com>,
+	Yogesh Gaur <yogeshgaur.83@gmail.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Daniel Mack <daniel@zonque.org>,
+	Haojian Zhuang <haojian.zhuang@gmail.com>,
+	Robert Jarzmik <robert.jarzmik@free.fr>,
+	Chris Packham <chris.packham@alliedtelesis.co.nz>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Alim Akhtar <alim.akhtar@samsung.com>,
+	Paul Walmsley <pjw@kernel.org>,
+	Samuel Holland <samuel.holland@sifive.com>,
+	Orson Zhai <orsonzhai@gmail.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Alain Volmat <alain.volmat@foss.st.com>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Li-hao Kuo <lhjeff911@gmail.com>,
+	Masahisa Kojima <masahisa.kojima@linaro.org>,
+	Jassi Brar <jaswinder.singh@linaro.org>,
+	Laxman Dewangan <ldewangan@nvidia.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Sowjanya Komatineni <skomatineni@nvidia.com>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	=?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+	Michal Simek <michal.simek@amd.com>,
+	Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH v2 0/4] spi: Make SPI core to take care of fwnode assignment
+Date: Mon, 12 Jan 2026 21:21:22 +0100
+Message-ID: <20260112203534.4186261-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Add callback and update the code to use the rx_mode snapshot and
-deferred write model
+It seems all of the SPI drivers want to propagate fwnode (or of_node)
+of the physical device to the SPI device. Make sure we don't duplicate
+it over and over in each new driver (+2 in this cycle) by making core
+to take care of that. Note, similar is done already by IIO and
+I²C subsystems.
 
-Signed-off-by: I Viswanath <viswanathiyyappan@gmail.com>
----
- This is a very weird driver in that it calls pcnet32_load_multicast to set up
- the mc filter registers instead of the set_rx_mode callback in ndo_open.
- I can't find a single other driver that does that.
- 
- Apart from that, I don't think it makes sense for the (now) write_rx_mode 
- callback to call netif_wake_queue(). Correct me if I am wrong here.
- 
- drivers/net/ethernet/amd/pcnet32.c | 57 ++++++++++++++++++++++--------
- 1 file changed, 43 insertions(+), 14 deletions(-)
+There is one noticeable and quite specific case that is taken care in
+the first patch and now we have a confirmation from Cirrus that everything
+is okay.  The rest is just a mechanical conversion after checking that
+the parent device is assigned to the same that provides the respective
+fwnode.
 
-diff --git a/drivers/net/ethernet/amd/pcnet32.c b/drivers/net/ethernet/amd/pcnet32.c
-index 9eaefa0f5e80..8bb0bb3da789 100644
---- a/drivers/net/ethernet/amd/pcnet32.c
-+++ b/drivers/net/ethernet/amd/pcnet32.c
-@@ -314,8 +314,9 @@ static void pcnet32_tx_timeout(struct net_device *dev, unsigned int txqueue);
- static irqreturn_t pcnet32_interrupt(int, void *);
- static int pcnet32_close(struct net_device *);
- static struct net_device_stats *pcnet32_get_stats(struct net_device *);
--static void pcnet32_load_multicast(struct net_device *dev);
-+static void pcnet32_load_multicast(struct net_device *dev, bool is_open);
- static void pcnet32_set_multicast_list(struct net_device *);
-+static void pcnet32_write_multicast_list(struct net_device *);
- static int pcnet32_ioctl(struct net_device *, struct ifreq *, int);
- static void pcnet32_watchdog(struct timer_list *);
- static int mdio_read(struct net_device *dev, int phy_id, int reg_num);
-@@ -1580,6 +1581,7 @@ static const struct net_device_ops pcnet32_netdev_ops = {
- 	.ndo_tx_timeout		= pcnet32_tx_timeout,
- 	.ndo_get_stats		= pcnet32_get_stats,
- 	.ndo_set_rx_mode	= pcnet32_set_multicast_list,
-+	.ndo_write_rx_mode	= pcnet32_write_multicast_list,
- 	.ndo_eth_ioctl		= pcnet32_ioctl,
- 	.ndo_set_mac_address 	= eth_mac_addr,
- 	.ndo_validate_addr	= eth_validate_addr,
-@@ -2264,7 +2266,7 @@ static int pcnet32_open(struct net_device *dev)
- 
- 	lp->init_block->mode =
- 	    cpu_to_le16((lp->options & PCNET32_PORT_PORTSEL) << 7);
--	pcnet32_load_multicast(dev);
-+	pcnet32_load_multicast(dev, true);
- 
- 	if (pcnet32_init_ring(dev)) {
- 		rc = -ENOMEM;
-@@ -2680,18 +2682,26 @@ static struct net_device_stats *pcnet32_get_stats(struct net_device *dev)
- }
- 
- /* taken from the sunlance driver, which it took from the depca driver */
--static void pcnet32_load_multicast(struct net_device *dev)
-+static void pcnet32_load_multicast(struct net_device *dev, bool is_open)
- {
- 	struct pcnet32_private *lp = netdev_priv(dev);
- 	volatile struct pcnet32_init_block *ib = lp->init_block;
- 	volatile __le16 *mcast_table = (__le16 *)ib->filter;
- 	struct netdev_hw_addr *ha;
-+	char *ha_addr;
-+	bool allmulti;
- 	unsigned long ioaddr = dev->base_addr;
--	int i;
-+	int i, ni;
- 	u32 crc;
- 
-+	if (is_open)
-+		allmulti = dev->flags & IFF_ALLMULTI;
-+	else
-+		allmulti = netif_rx_mode_get_cfg(dev,
-+						 NETIF_RX_MODE_CFG_ALLMULTI);
-+
- 	/* set all multicast bits */
--	if (dev->flags & IFF_ALLMULTI) {
-+	if (allmulti) {
- 		ib->filter[0] = cpu_to_le32(~0U);
- 		ib->filter[1] = cpu_to_le32(~0U);
- 		lp->a->write_csr(ioaddr, PCNET32_MC_FILTER, 0xffff);
-@@ -2705,20 +2715,40 @@ static void pcnet32_load_multicast(struct net_device *dev)
- 	ib->filter[1] = 0;
- 
- 	/* Add addresses */
--	netdev_for_each_mc_addr(ha, dev) {
--		crc = ether_crc_le(6, ha->addr);
--		crc = crc >> 26;
--		mcast_table[crc >> 4] |= cpu_to_le16(1 << (crc & 0xf));
--	}
-+	if (is_open)
-+		netdev_for_each_mc_addr(ha, dev) {
-+			crc = ether_crc_le(6, ha->addr);
-+			crc = crc >> 26;
-+			mcast_table[crc >> 4] |= cpu_to_le16(1 << (crc & 0xf));
-+		}
-+	else
-+		netif_rx_mode_for_each_mc_addr(ha_addr, dev, ni) {
-+			crc = ether_crc_le(6, ha_addr);
-+			crc = crc >> 26;
-+			mcast_table[crc >> 4] |= cpu_to_le16(1 << (crc & 0xf));
-+		}
-+
- 	for (i = 0; i < 4; i++)
- 		lp->a->write_csr(ioaddr, PCNET32_MC_FILTER + i,
- 				le16_to_cpu(mcast_table[i]));
- }
- 
-+static void pcnet32_set_multicast_list(struct net_device *dev)
-+{
-+	bool allmulti = !!(dev->flags & IFF_ALLMULTI);
-+	bool promisc = !!(dev->flags & IFF_PROMISC);
-+
-+	netif_rx_mode_set_flag(dev, NETIF_RX_MODE_UC_SKIP, true);
-+	netif_rx_mode_set_flag(dev, NETIF_RX_MODE_MC_SKIP, promisc | allmulti);
-+
-+	netif_rx_mode_set_cfg(dev, NETIF_RX_MODE_CFG_ALLMULTI, allmulti);
-+	netif_rx_mode_set_cfg(dev, NETIF_RX_MODE_CFG_PROMISC, promisc);
-+}
-+
- /*
-  * Set or clear the multicast filter for this adaptor.
-  */
--static void pcnet32_set_multicast_list(struct net_device *dev)
-+static void pcnet32_write_multicast_list(struct net_device *dev)
- {
- 	unsigned long ioaddr = dev->base_addr, flags;
- 	struct pcnet32_private *lp = netdev_priv(dev);
-@@ -2727,7 +2757,7 @@ static void pcnet32_set_multicast_list(struct net_device *dev)
- 	spin_lock_irqsave(&lp->lock, flags);
- 	suspended = pcnet32_suspend(dev, &flags, 0);
- 	csr15 = lp->a->read_csr(ioaddr, CSR15);
--	if (dev->flags & IFF_PROMISC) {
-+	if (netif_rx_mode_get_cfg(dev, NETIF_RX_MODE_CFG_PROMISC)) {
- 		/* Log any net taps. */
- 		netif_info(lp, hw, dev, "Promiscuous mode enabled\n");
- 		lp->init_block->mode =
-@@ -2738,7 +2768,7 @@ static void pcnet32_set_multicast_list(struct net_device *dev)
- 		lp->init_block->mode =
- 		    cpu_to_le16((lp->options & PCNET32_PORT_PORTSEL) << 7);
- 		lp->a->write_csr(ioaddr, CSR15, csr15 & 0x7fff);
--		pcnet32_load_multicast(dev);
-+		pcnet32_load_multicast(dev, false);
- 	}
- 
- 	if (suspended) {
-@@ -2746,7 +2776,6 @@ static void pcnet32_set_multicast_list(struct net_device *dev)
- 	} else {
- 		lp->a->write_csr(ioaddr, CSR0, CSR0_STOP);
- 		pcnet32_restart(dev, CSR0_NORMAL);
--		netif_wake_queue(dev);
- 	}
- 
- 	spin_unlock_irqrestore(&lp->lock, flags);
+Changelog v2:
+- collected tags
+- fixed W=1 warning (unused variable) in spi-dln2.c (LKP)
+
+v1: 20260108203004.3538449-1-andriy.shevchenko@linux.intel.com
+
+Andy Shevchenko (4):
+  spi: Propagate default fwnode to the SPI controller device
+  spi: Drop duplicate of_node assignment
+  spi: Drop duplicate fwnode assignment
+  spi: Drop duplicate device_set_node() call
+
+ drivers/spi/atmel-quadspi.c          | 1 -
+ drivers/spi/spi-airoha-snfi.c        | 1 -
+ drivers/spi/spi-altera-platform.c    | 2 --
+ drivers/spi/spi-amlogic-spifc-a1.c   | 1 -
+ drivers/spi/spi-amlogic-spisg.c      | 1 -
+ drivers/spi/spi-apple.c              | 1 -
+ drivers/spi/spi-ar934x.c             | 1 -
+ drivers/spi/spi-armada-3700.c        | 4 +---
+ drivers/spi/spi-aspeed-smc.c         | 1 -
+ drivers/spi/spi-atcspi200.c          | 1 -
+ drivers/spi/spi-ath79.c              | 1 -
+ drivers/spi/spi-atmel.c              | 1 -
+ drivers/spi/spi-axi-spi-engine.c     | 1 -
+ drivers/spi/spi-bcm-qspi.c           | 1 -
+ drivers/spi/spi-bcm2835.c            | 1 -
+ drivers/spi/spi-bcm2835aux.c         | 1 -
+ drivers/spi/spi-bcm63xx-hsspi.c      | 1 -
+ drivers/spi/spi-bcm63xx.c            | 1 -
+ drivers/spi/spi-bcmbca-hsspi.c       | 1 -
+ drivers/spi/spi-cadence-quadspi.c    | 1 -
+ drivers/spi/spi-cadence-xspi.c       | 1 -
+ drivers/spi/spi-cadence.c            | 1 -
+ drivers/spi/spi-cavium-octeon.c      | 1 -
+ drivers/spi/spi-cavium-thunderx.c    | 1 -
+ drivers/spi/spi-clps711x.c           | 1 -
+ drivers/spi/spi-cs42l43.c            | 8 ++++++++
+ drivers/spi/spi-davinci.c            | 1 -
+ drivers/spi/spi-dln2.c               | 3 ---
+ drivers/spi/spi-dw-core.c            | 2 --
+ drivers/spi/spi-ep93xx.c             | 1 -
+ drivers/spi/spi-falcon.c             | 1 -
+ drivers/spi/spi-fsl-dspi.c           | 1 -
+ drivers/spi/spi-fsl-espi.c           | 1 -
+ drivers/spi/spi-fsl-lib.c            | 1 -
+ drivers/spi/spi-fsl-lpspi.c          | 1 -
+ drivers/spi/spi-geni-qcom.c          | 1 -
+ drivers/spi/spi-gpio.c               | 1 -
+ drivers/spi/spi-gxp.c                | 1 -
+ drivers/spi/spi-hisi-kunpeng.c       | 1 -
+ drivers/spi/spi-img-spfi.c           | 1 -
+ drivers/spi/spi-imx.c                | 1 -
+ drivers/spi/spi-ingenic.c            | 1 -
+ drivers/spi/spi-lantiq-ssc.c         | 1 -
+ drivers/spi/spi-ljca.c               | 1 -
+ drivers/spi/spi-loongson-core.c      | 1 -
+ drivers/spi/spi-lp8841-rtc.c         | 1 -
+ drivers/spi/spi-meson-spicc.c        | 1 -
+ drivers/spi/spi-meson-spifc.c        | 1 -
+ drivers/spi/spi-microchip-core-spi.c | 1 -
+ drivers/spi/spi-mpc512x-psc.c        | 2 --
+ drivers/spi/spi-mpc52xx-psc.c        | 2 --
+ drivers/spi/spi-mpc52xx.c            | 1 -
+ drivers/spi/spi-mpfs.c               | 1 -
+ drivers/spi/spi-mt65xx.c             | 1 -
+ drivers/spi/spi-mt7621.c             | 1 -
+ drivers/spi/spi-mtk-nor.c            | 1 -
+ drivers/spi/spi-mtk-snfi.c           | 1 -
+ drivers/spi/spi-mux.c                | 1 -
+ drivers/spi/spi-mxic.c               | 1 -
+ drivers/spi/spi-npcm-fiu.c           | 1 -
+ drivers/spi/spi-npcm-pspi.c          | 1 -
+ drivers/spi/spi-nxp-fspi.c           | 2 --
+ drivers/spi/spi-nxp-xspi.c           | 1 -
+ drivers/spi/spi-oc-tiny.c            | 1 -
+ drivers/spi/spi-orion.c              | 1 -
+ drivers/spi/spi-pl022.c              | 1 -
+ drivers/spi/spi-pxa2xx.c             | 2 --
+ drivers/spi/spi-qcom-qspi.c          | 1 -
+ drivers/spi/spi-qpic-snand.c         | 1 -
+ drivers/spi/spi-qup.c                | 1 -
+ drivers/spi/spi-rb4xx.c              | 1 -
+ drivers/spi/spi-realtek-rtl-snand.c  | 1 -
+ drivers/spi/spi-realtek-rtl.c        | 1 -
+ drivers/spi/spi-rockchip-sfc.c       | 1 -
+ drivers/spi/spi-rockchip.c           | 1 -
+ drivers/spi/spi-rspi.c               | 1 -
+ drivers/spi/spi-rzv2h-rspi.c         | 2 --
+ drivers/spi/spi-rzv2m-csi.c          | 2 --
+ drivers/spi/spi-s3c64xx.c            | 1 -
+ drivers/spi/spi-sc18is602.c          | 2 --
+ drivers/spi/spi-sg2044-nor.c         | 1 -
+ drivers/spi/spi-sh-hspi.c            | 1 -
+ drivers/spi/spi-sh-msiof.c           | 1 -
+ drivers/spi/spi-sifive.c             | 1 -
+ drivers/spi/spi-slave-mt27xx.c       | 1 -
+ drivers/spi/spi-sn-f-ospi.c          | 1 -
+ drivers/spi/spi-sprd-adi.c           | 1 -
+ drivers/spi/spi-sprd.c               | 1 -
+ drivers/spi/spi-stm32-ospi.c         | 1 -
+ drivers/spi/spi-stm32-qspi.c         | 1 -
+ drivers/spi/spi-stm32.c              | 1 -
+ drivers/spi/spi-sun4i.c              | 1 -
+ drivers/spi/spi-sun6i.c              | 1 -
+ drivers/spi/spi-sunplus-sp7021.c     | 1 -
+ drivers/spi/spi-synquacer.c          | 3 ---
+ drivers/spi/spi-tegra114.c           | 1 -
+ drivers/spi/spi-tegra20-sflash.c     | 1 -
+ drivers/spi/spi-tegra20-slink.c      | 1 -
+ drivers/spi/spi-tegra210-quad.c      | 1 -
+ drivers/spi/spi-ti-qspi.c            | 1 -
+ drivers/spi/spi-uniphier.c           | 1 -
+ drivers/spi/spi-virtio.c             | 2 --
+ drivers/spi/spi-wpcm-fiu.c           | 1 -
+ drivers/spi/spi-xcomm.c              | 1 -
+ drivers/spi/spi-xilinx.c             | 1 -
+ drivers/spi/spi-xlp.c                | 1 -
+ drivers/spi/spi-xtensa-xtfpga.c      | 1 -
+ drivers/spi/spi.c                    | 3 +++
+ 108 files changed, 12 insertions(+), 122 deletions(-)
+
 -- 
-2.47.3
+2.50.1
 
