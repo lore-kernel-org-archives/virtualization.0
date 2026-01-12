@@ -1,178 +1,135 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F40BE154425
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 14:11:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22F7B24A069
+	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 14:48:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768227101; cv=none; b=MuF0OMYQnTgpXI4mMQezNVvbiNopYL08xpUoiSEZeGRKgBHGOjcG4DCzhwlmf564vVkSgF+uaePZdnHsi2BZRsWM/Oci6JzxtaJx1QNVCqKhRy3rvVelLVRR+p0vI7WBczaSK+JaYB8FpjZZlmxV7CuJuOksKl/ARM78hOJmJfA=
+	t=1768229301; cv=none; b=ZOuvNNg3jFXQSeCMXVSZVTe9PQeMI1H1sH5dKfgLyVorqRCR7zfSBlaIX33P0WfWGy/n3jjl6jnb98DKy6P7Bkxo7WzAuKfNwamppT8EOAXk6uTJQOYTnw1HayD+ntodTjiIa/lHpQubB2KSwpFDxlXVxpTsMDg+J5EmvVKrNGA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768227101; c=relaxed/simple;
-	bh=bgJaNUM5VIgE3jmg2aRlC1+4Tim4pBQlk9u6DJ16NrA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lldfFWVv5mMhtqAgDVHr2qJ/OuLOewpFGXDSMWS4qJm3KOsbScMeCQkJsBmkpIm+3hp1STz8Z4lE5LqAhRbpqasI2fxLwxXIyOextQP2QW14kIBAFTw9RCHHahcLr3GeWYM+BJ/RfhAz0Ls/hwe07bluxknEHR3uByZPS+gxuEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=CakAumhF; arc=none smtp.client-ip=185.171.202.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1768229301; c=relaxed/simple;
+	bh=unu+z7fUfKJmL/eHLl0giWFWnZl9lhh73IswOVtZOOM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ORn8a0UrfUccRxQTJxyS43FioonuY5QLG5NroWCdibsi5zT/3EyirTyAErnCx+a177IHfDEexCaJCNx9vv/JhO8Dmb3Avdwbb8iDdZ0WRz+LRlvTvcAQAwob3mqIutl65zkqnwsMfSU52pkn7idzQ7EigXgnf8Eb4KTzqJToIxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ld3QigNw; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="CakAumhF"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 83DCAC20868;
-	Mon, 12 Jan 2026 14:11:10 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id DEFBC60732;
-	Mon, 12 Jan 2026 14:11:36 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 736BF103C8C61;
-	Mon, 12 Jan 2026 15:10:37 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1768227090; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=S8c2ARP9HcnV+reUeOF4Vcg2quHBkPmCAqYrhfyr6c0=;
-	b=CakAumhFpasu+3ZI3BaB812kdRiuu+v1Tg/Sp3TTEi8pdVKDZEtVO84AoLEgEc1xrnFluT
-	i+SAwVNTU/VK298rD4GgfOlbL1x1IRBq+LMtmjrslvr8iNw/wqHBq7SowNZ+1bxrqAdaPR
-	ziVMPo032s+fSJqG9mpYJmDIazpKyi53yb/qGj1zj4VwwbAj77lJfzPnCy7GfnRvSCaoiG
-	VLNhV0T9IC//MbbHQG1tnGAF03XNmqvN+K3xG6/Renyw+hJ5Ia+fO3n6d7mTvuZI7e4oUm
-	CIup66ln9btW8iWglHRpKXcMS5I6EydGAat63GN0yLYYuyDF497mBLdXxOQ06g==
-From: =?UTF-8?B?QmVub8OudA==?= Monin <benoit.monin@bootlin.com>
-To: Mark Brown <broonie@kernel.org>,
- Varshini Rajendran <varshini.rajendran@microchip.com>,
- Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Sunny Luo <sunny.luo@amlogic.com>, Janne Grunau <j@jannau.net>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>, CL Wang <cl634@andestech.com>,
- Manikandan Muralidharan <manikandan.m@microchip.com>,
- David Lechner <dlechner@baylibre.com>,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Jonas Gorski <jonas.gorski@gmail.com>, Hang Zhou <929513338@qq.com>,
- Jun Guo <jun.guo@cixtech.com>, Philipp Stanner <phasta@kernel.org>,
- Charles Keepax <ckeepax@opensource.cirrus.com>,
- Bartosz Golaszewski <brgl@kernel.org>, Shiji Yang <yangshiji66@outlook.com>,
- James Clark <james.clark@linaro.org>, Jonathan Marek <jonathan@marek.ca>,
- Carlos Song <carlos.song@nxp.com>,
- Sakari Ailus <sakari.ailus@linux.intel.com>,
- Huacai Chen <chenhuacai@kernel.org>, Xianwei Zhao <xianwei.zhao@amlogic.com>,
- Prajna Rajendra Kumar <prajna.rajendrakumar@microchip.com>,
- Sergio Perez Gonzalez <sperezglz@gmail.com>,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Qianfeng Rong <rongqianfeng@vivo.com>, Haibo Chen <haibo.chen@nxp.com>,
- Gabor Juhos <j4g8y7@gmail.com>, Md Sadre Alam <quic_mdalam@quicinc.com>,
- Rosen Penev <rosenp@gmail.com>, Luis de Arquer <luis.dearquer@inertim.com>,
- Geert Uytterhoeven <geert+renesas@glider.be>,
- Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>,
- Tudor Ambarus <tudor.ambarus@linaro.org>,
- Krzysztof Kozlowski <krzk@kernel.org>, Longbin Li <looong.bin@gmail.com>,
- Patrice Chotard <patrice.chotard@foss.st.com>,
- =?UTF-8?B?Q2zDqW1lbnQ=?= Le Goffic <clement.legoffic@foss.st.com>,
- Alessandro Grassi <alessandro.grassi@mailbox.org>,
- Chen-Yu Tsai <wens@kernel.org>, Darshan R <rathod.darshan.0896@gmail.com>,
- Aaron Kling <webgeek1234@gmail.com>, Vishwaroop A <va@nvidia.com>,
- Haixu Cui <quic_haixcui@quicinc.com>,
- Darshan Rathod <darshanrathod475@gmail.com>, linux-spi@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-amlogic@lists.infradead.org, asahi@lists.linux.dev,
- linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
- linux-rpi-kernel@lists.infradead.org, linux-sound@vger.kernel.org,
- patches@opensource.cirrus.com, imx@lists.linux.dev,
- linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org,
- linux-renesas-soc@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- linux-stm32@st-md-mailman.stormreply.com, linux-sunxi@lists.linux.dev,
- linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Claudiu Beznea <claudiu.beznea@tuxon.dev>,
- Lorenzo Bianconi <lorenzo@kernel.org>, Ray Liu <ray.liu@airoha.com>,
- Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
- =?UTF-8?B?Q8OpZHJpYw==?= Le Goater <clg@kaod.org>,
- Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>,
- Ryan Wanner <ryan.wanner@microchip.com>,
- Michael Hennerich <michael.hennerich@analog.com>,
- Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>,
- Kamal Dasu <kamal.dasu@broadcom.com>,
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
- Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
- William Zhang <william.zhang@broadcom.com>,
- Kursad Oney <kursad.oney@broadcom.com>, Anand Gore <anand.gore@broadcom.com>,
- =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
- David Rhodes <david.rhodes@cirrus.com>,
- Richard Fitzgerald <rf@opensource.cirrus.com>,
- Vladimir Oltean <olteanv@gmail.com>, Frank Li <Frank.Li@nxp.com>,
- Jean-Marie Verdun <verdun@hpe.com>, Nick Hawkins <nick.hawkins@hpe.com>,
- Yang Shen <shenyang39@huawei.com>, Shawn Guo <shawnguo@kernel.org>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Lixu Zhang <lixu.zhang@intel.com>,
- Yinbo Zhu <zhuyinbo@loongson.cn>, Neil Armstrong <neil.armstrong@linaro.org>,
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Conor Dooley <conor.dooley@microchip.com>,
- Daire McNamara <daire.mcnamara@microchip.com>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- Avi Fishman <avifishman70@gmail.com>, Tomer Maimon <tmaimon77@gmail.com>,
- Tali Perry <tali.perry1@gmail.com>, Patrick Venture <venture@google.com>,
- Nancy Yuen <yuenn@google.com>, Benjamin Fair <benjaminfair@google.com>,
- Han Xu <han.xu@nxp.com>, Yogesh Gaur <yogeshgaur.83@gmail.com>,
- Linus Walleij <linusw@kernel.org>, Daniel Mack <daniel@zonque.org>,
- Haojian Zhuang <haojian.zhuang@gmail.com>,
- Robert Jarzmik <robert.jarzmik@free.fr>,
- Chris Packham <chris.packham@alliedtelesis.co.nz>,
- Heiko Stuebner <heiko@sntech.de>,
- Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
- Andi Shyti <andi.shyti@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>,
- Paul Walmsley <pjw@kernel.org>, Samuel Holland <samuel.holland@sifive.com>,
- Orson Zhai <orsonzhai@gmail.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Chunyan Zhang <zhang.lyra@gmail.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Alain Volmat <alain.volmat@foss.st.com>,
- Jernej Skrabec <jernej.skrabec@gmail.com>, Li-hao Kuo <lhjeff911@gmail.com>,
- Masahisa Kojima <masahisa.kojima@linaro.org>,
- Jassi Brar <jaswinder.singh@linaro.org>,
- Laxman Dewangan <ldewangan@nvidia.com>,
- Thierry Reding <thierry.reding@gmail.com>,
- Jonathan Hunter <jonathanh@nvidia.com>,
- Sowjanya Komatineni <skomatineni@nvidia.com>,
- Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Jonathan =?UTF-8?B?TmV1c2Now6RmZXI=?= <j.neuschaefer@gmx.net>,
- Michal Simek <michal.simek@amd.com>, Max Filippov <jcmvbkbc@gmail.com>
-Subject: Re: [PATCH v1 4/4] spi: Drop duplicate device_set_node() call
-Date: Mon, 12 Jan 2026 15:10:36 +0100
-Message-ID: <2776743.vuYhMxLoTh@benoit.monin>
-In-Reply-To: <20260108203004.3538449-5-andriy.shevchenko@linux.intel.com>
-References:
- <20260108203004.3538449-1-andriy.shevchenko@linux.intel.com>
- <20260108203004.3538449-5-andriy.shevchenko@linux.intel.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ld3QigNw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768229299;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+4uY6QtcEAOdroKyjwSP1zoQ56MLnzMwcJEHXal3TGs=;
+	b=Ld3QigNwd3vrrBBohigK3opYRaesqO8WkwovrmMX1RqHOLSLuwzbr6YX9NRnV20Rt7xjy4
+	dKJCTjaUPl4b37X+uEdimTiT9iFqgKzXu0mMLh2ET9sG1O4PgwK1uD4weUSk8/p2Wx1Iln
+	diNCPRjp74Z2Y8aVdVozKN84QLnEQf4=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-389-2MlKD52YMEuuTtSKUjpxyA-1; Mon, 12 Jan 2026 09:48:17 -0500
+X-MC-Unique: 2MlKD52YMEuuTtSKUjpxyA-1
+X-Mimecast-MFC-AGG-ID: 2MlKD52YMEuuTtSKUjpxyA_1768229297
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-430fd96b2f5so4834638f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 06:48:17 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768229297; x=1768834097;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+4uY6QtcEAOdroKyjwSP1zoQ56MLnzMwcJEHXal3TGs=;
+        b=sBipkuDEpRqkHwNYdh/O6Z6FhQRnuVBitBhsw46aQ+odIe64WOnVdzfsqbBBnOuLs4
+         6oTeN/j39c+VnilQsd7Lm3ew2z7H/4vxkyMAGFq6pbTxKwgf3nOOT9l9YDad6wF0hkVT
+         4DPjZF566iaWHu6d8U5iDEQAwkj9DELkdI/Jf/4HlA8Q0OUcg9KrqMyshR63xJRueXHC
+         41lGnN1vTH81XBXaJ1Gnqb/3P6sJ7XzUUrghpQT1NL+thN6WToQkrJx2xCfc+/I8TkWB
+         N01VclhUgwDJdp1jXoVtRFcKvmWTC6NajR319kL6BiR5gsARfeJkkzJ2YvzH/5U+7Na+
+         vqcw==
+X-Forwarded-Encrypted: i=1; AJvYcCVh4fiCHtJM7EQ2SXus4PKEhO0VRmXSojQmeXQGRsEc7lGhBj6ouw0Ysm4YKYdqZo83W+uBgfIrvl8LjDlo1Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyeJZ2Ty410r10GpmHpdxDnOzJBKpebCBbfBEBwAPXTJ8pY/hYn
+	3jEpBNp4k98vg6iGmszeOTkrptoLb46E+FBW/3iQxemxH3e9P5eaEgm0VKCu+IA0DvVlXFN8A+G
+	H3rMTwp7e8fOAJE7mmtTtfLmM6XFaBRaXVU3vxc1OnlQ6JZ+3ZHIJfyVhCoXxQTA60LNl
+X-Gm-Gg: AY/fxX4m6dh75s5BOozftYCZMUz+n85U1cu5WrAwOKoFASejYud/Tsi4pX96yPwspQu
+	fcRUMiLasAUaTdlAN5reXe9cgk7De9QAbaG3uozhllibfihMgOQ5CWck5ud7Fj48nfGNyEVCYFn
+	9yDVN1grPjaaPr+QJKnRnZcHoojsdduhHvvG+3rwPr+GgYtOlTnUTpgkQQatRwr2ly+AeYfXvd2
+	GgUxq1C42lf0+Ck7OH1XJ+KlBdaAnBcji15MilXkYxXmuaKQaIvqhJHTZHnxIR0MoN7ptOxwoU6
+	I6mb3R3hq4vZs5ZtVgiT/ITNo13g4grOj485SA/SUiYpEbJY44sqb6qu6eobcX9B91OgAu+/aXD
+	uvUHbQvphEX+piLVgMKK1z+TxO8r+aPc1itf1vOWxR1YFSEYgY02RdAXSvnkzJA==
+X-Received: by 2002:a05:600c:8b82:b0:477:7b9a:bb07 with SMTP id 5b1f17b1804b1-47d84b5405amr219660125e9.35.1768229296682;
+        Mon, 12 Jan 2026 06:48:16 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFJzr4Y2fS6XgBSkiJLd05rWsmzsrdXz2PkPaLKrPstYswApqBsGl7lyU7UX/8hluUAjZao2w==
+X-Received: by 2002:a05:600c:8b82:b0:477:7b9a:bb07 with SMTP id 5b1f17b1804b1-47d84b5405amr219659855e9.35.1768229296265;
+        Mon, 12 Jan 2026 06:48:16 -0800 (PST)
+Received: from sgarzare-redhat (host-87-12-25-233.business.telecomitalia.it. [87.12.25.233])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432dd78f5a8sm19136662f8f.27.2026.01.12.06.48.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jan 2026 06:48:15 -0800 (PST)
+Date: Mon, 12 Jan 2026 15:48:11 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, 
+	Keir Fraser <keirf@google.com>, Steven Moreland <smoreland@google.com>, 
+	Frederick Mayle <fmayle@google.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH v4 4/9] vsock/virtio: Resize receive buffers so that each
+ SKB fits in a 4K page
+Message-ID: <aWUFnZTkdOrZAest@sgarzare-redhat>
+References: <20250717090116.11987-1-will@kernel.org>
+ <20250717090116.11987-5-will@kernel.org>
+ <fa3cd687961e63dd2b79780eb84c243c8d35532a.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <fa3cd687961e63dd2b79780eb84c243c8d35532a.camel@infradead.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: YlJncaw1Gmqm1oZm8MZWOWoqlvifMWb_WY1kQGRHzkE_1768229297
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Thursday, 8 January 2026 at 21:23:41 CET, Andy Shevchenko wrote:
-> The SPI core provides the default fwnode for the controller,
-> assigned by device_set_node(). No need to repeat it in the driver.
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Thu, Jan 08, 2026 at 05:33:42PM +0100, David Woodhouse wrote:
+>On Thu, 2025-07-17 at 10:01 +0100, Will Deacon wrote:
+>>
+>> -#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
+>> +/* Dimension the RX SKB so that the entire thing fits exactly into
+>> + * a single 4KiB page. This avoids wasting memory due to alloc_skb()
+>> + * rounding up to the next page order and also means that we
+>> + * don't leave higher-order pages sitting around in the RX queue.
+>> + */
+>> +#define
+>> VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	SKB_WITH_OVERHEAD(1024 * 4)
+>
+>Should this be SKB_WITH_OVERHEAD()?
 
->  drivers/spi/spi-dw-core.c           | 2 --
->=20
-Works fine on Mobileye EyeQ6Lplus SoC in both host and target mode.
+ehm, is what the patch is doing, no?
 
-Tested-by: Beno=C3=AEt Monin <benoit.monin@bootlin.com> # dw mobileye
+>
+>Or should it subtract VIRTIO_VSOCK_SKB_HEADROOM instead?
+
+Why?
+
+IIRC the goal of the patch was to have an SKB that fit entirely on one 
+page, to avoid wasting memory, so yes, we are reducing the payload a 
+little bit (4K vs 4K - VIRTIO_VSOCK_SKB_HEADROOM - SKB_OVERHEAD), but we 
+are also reducing segmentation.
+
+>
+>(And also, I have use cases where I want to expand this to 64KiB. Can I
+>make it controllable with a sockopt? module param?)
+
+I'm not sure about sockopt, because this is really device specific and 
+can't be linked to a specific socket, since the device will pre-fill the 
+queue with buffers that can be assigned to different sockets.
+
+But yeah, perhaps a module parameter would suffice, provided that it can 
+only be modified at load time, otherwise we would have to do something 
+similar to NIC and ethtool, but I feel that would be too complicated for 
+this use case.
 
 Thanks,
-=2D-=20
-Beno=C3=AEt Monin, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
-
-
+Stefano
 
