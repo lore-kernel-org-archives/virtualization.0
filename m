@@ -1,149 +1,205 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2FB937BE67
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 17:26:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61286378D6D
+	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 18:17:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768238796; cv=none; b=SdpuafVD93cAyefE6GhoKSR3dF6n/wSXooYtViF9E+b4NiICjYbWzoKZymJ7K9h+RYi6QDIUoK0joEXmYuRpCcEjNFn/LHmb65zBmJm4nENssX/NVZxscpOWzHmG4C+9qfmtNISigXgqHYFghA88NYBNLD0xAyYoArs5VZa7u70=
+	t=1768241828; cv=none; b=ngoDAmisMVw9Mtrh9BXn2ipwBnS/2LF+P2X/YZVrqI4993dskx7uywouvItXCtfrYXYeOzkC+A6BtQhV87B2gdsFZSJiQE/Sr5vxwgrLT1fBKUP+3ZA1kfcKVzhArxqKZ/mzCl6vvguStCVKneu526045WH/Bt1R8nf2T1th2Sw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768238796; c=relaxed/simple;
-	bh=VcWKMM3TsRHjfu+KXLUJOs/P3Fis/5txZmCUs7c62Fs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=USeValVcTK7Ogg7vVU34B6kXmBWr5+cQ1g2gwlh1XptDnqG1y7+H4aFrgUg2NWEVWNAWqA/fv1Wm5V8Mog4IprubV4tYqkVPzYR0N+oJstLBiSMxDPPSm2Cs4vFxoLG/VOwlIYRDUvTP2pm2Kd8MhnGUPBRmKS5TXTEelUk8ec0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JNj0Oim9; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768241828; c=relaxed/simple;
+	bh=afHfmAvZQj+2iviHBO+ZSMwR+6N2HvPs0NvXrGSkTRA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eYB9r2heCSEBXPsaAvBuxTuclJpbflOOJaiwPq8vc4u9sKYFQby+45xWVFXrvH7HERRTsiyoyOcdxrqaCYWhWzjg3h5PJJIOpwo39NVDiMb5fE3cp7ydEYPrYuYSAZQqpwY0EXrWE3QuuNk2vY+TwriyZq2vyb/3ADLAedYgLDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BrGMeY8u; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JNj0Oim9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768238794;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BcomD5fw9IVBx/EvgIn//kfeDV6vnh/bPzC6DXjWibA=;
-	b=JNj0Oim9wKof8VBgCL+0xXrfpqlgwjE0j+zGrhSJX8gZPu83ps7s3wIs2Rp+Oq4y7dpb6g
-	nhFZ4pQe/z4bVWUg09iX/tHoJIZHkcpPjZ1olu1FgzH11ZTeGLEjwElfrYb4ae2FZxy1hD
-	r+gtw4OOZIO6eI1BvpNExri8+RfMl+4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-318-h15uqUZcPqKA8Jbbl1uDcA-1; Mon, 12 Jan 2026 12:26:32 -0500
-X-MC-Unique: h15uqUZcPqKA8Jbbl1uDcA-1
-X-Mimecast-MFC-AGG-ID: h15uqUZcPqKA8Jbbl1uDcA_1768238791
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-477563e531cso47204855e9.1
-        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 09:26:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BrGMeY8u"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-81f416c0473so1559360b3a.3
+        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 10:17:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768241820; x=1768846620; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=yhpaAlKW26OhYlxc15mNDWFg1nSuNxZpLWCT9AQiLQU=;
+        b=BrGMeY8uHA1XSs6d0IcSdYxdpoz08kIGbjc/sQVTwzIec5WxIYTWHVW9fXM6sQSI9j
+         dLu+r9ZWn5dhjovpRks7HzKC5h6qMF/dvUDb3sxbFHoQ87JMCQjl16e9sjaJCi2eyESb
+         RKVrf1X0+1FP6PV9tLyrfaVs7fvupRvZ78wFOgDawa9uuMd2DCNYl9hFYlZkIQoM/igX
+         KI3mBfiUydLIv/9wKI4WuJiM8FBzM1JhLdZwefODpIQQKox2GSKXpEuGscr8VUfR/aIm
+         pR1pJpDoEQUGutoUktZSa5yC/YQzOIPQrTHyPvT8L8d43YdjjmzgBbazRqxEyDEdqePR
+         nHUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768238791; x=1768843591;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BcomD5fw9IVBx/EvgIn//kfeDV6vnh/bPzC6DXjWibA=;
-        b=kA6ojOYj9CVYMJB4nd7/dTYS30jhAOas4hgVsfZfhQJEuaUWP0rtfxER3m1RKGhc7t
-         qYyU9n3hjBBm6a1phJLaxFDsLNfSZqADnX33tXgl5GkXVcTW17JQo4sKoFQvajvpeiBa
-         x/+VmzXwtuu0AOlCddfeWeFDJjy5+FEFksXyFNTvonalD+cGdnT1NF8+uTCYJuclXsK7
-         YtRCEv/J7WdMpyXeIxKU7UU0RDZnNWyntAQ0S4LIk+eayWWIWaELIyy3lwKsLahssdJG
-         BMKL7iuRvohbwDu7JBoJqC7GdAcIeqZv3CcKfW8gQPDYibde79YhyBdgNDNcHX8tMBuS
-         1BOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUBDiYkiRXXb0xOWxzXyZzk5bq/FeqSzIhb2x3WoC6qlZgU7NvzRjlCmzeHFy/hA4Q2qk5bmg6eoMWTbWPazg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyH/TKGTfGbH3uQGPsFTceKn+8VS8mzO9G2/fC6tV76AoCRvJwo
-	c71T6YcQg3tewQ2GU83rSgpkYxSsgjiDc5B6+DBUv2GIlDleBHG5PwpDRIBnouir0FTjakYJxGl
-	/PAGRWPEzE6PyvWMHHhXq0OTOzTundG5fqt+xEpMh7eoss+ivT2ZMTfsNrDT7WQTD3JsS
-X-Gm-Gg: AY/fxX6feZ7LFNKWCEe6OC9Jvjtv1l8vt39CKvMSk+cK2u3sBxJ5nAz0ZBkrZ4d0kUu
-	bdli4WYN0zpPC3Znp63fL+H9jvDkTbUW999dKbkOnB0Z3tu8l0M0VUxIFnXj1wDQ5Je1MKTaT2L
-	QEwfmOhabTFqMf4GAMWl8RbFVvz9Tq89c0mHRSRKwGfMo7dE+DEWEznc0NvgqFLNDSeNkqkhKn5
-	uxaH1GxupKygRG2n7E0aYl/f5zuvS8bBuIxGTVfoT5ajSRmOTX1gns4JwIXkrPmhUBtUABPpdcP
-	4EcvKWJ7XHZPitdM9/AeB3m6Pk1bQB9ZL8hViz1l7UZdbIV2TNxqziQBrK6loeo1d3G+Rkj7xLF
-	vvVfaHb9bSpA3S/wNaEaQOzu82onYwaGpdkBFsXlfBXBIIR8ZWvci/ORcDWIchg==
-X-Received: by 2002:a05:600c:3556:b0:477:9b35:3e49 with SMTP id 5b1f17b1804b1-47d84b0a23cmr220596085e9.3.1768238791230;
-        Mon, 12 Jan 2026 09:26:31 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHbooX6m235tcKkT8gxwgze2BljLHzxenepn63aMTJ5BFbz8FRH46rUY9bsCgL8OFUNeCvvZA==
-X-Received: by 2002:a05:600c:3556:b0:477:9b35:3e49 with SMTP id 5b1f17b1804b1-47d84b0a23cmr220595755e9.3.1768238790766;
-        Mon, 12 Jan 2026 09:26:30 -0800 (PST)
-Received: from sgarzare-redhat (host-87-12-25-233.business.telecomitalia.it. [87.12.25.233])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f6ef868sm358964245e9.11.2026.01.12.09.26.21
+        d=1e100.net; s=20230601; t=1768241820; x=1768846620;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yhpaAlKW26OhYlxc15mNDWFg1nSuNxZpLWCT9AQiLQU=;
+        b=U+aOtEp+7uL3JSLSiziIEf8kc25CEucRopUKTH0fpzuEYVOtWSYbSOJcjF+edh83bA
+         UtOAsV6ujJXFVToM1DxBGsFMr0zchal2Hw4sdU1jT7tfankLsay8m+rex3/W+FfsIcZF
+         fhKNeu2OHkmmv5WIwnrzLhWRyj52SP+cQF863KDeN3RFYzwYwHNlRHK8J7ZE28OHy4/z
+         QrQJf9oUOd2r1Yq7RAGRHOCRdYMzRCvOU5oAzxlU+iA0WOcv9lGTNLwOHg2XtchbvIQh
+         TdxbcG/tmWsEhRcIktKN+0yb4+MlKKhmthnPPgNr+ryuNvnuEbXHW3A5NzU9rUYgDMXy
+         vVbQ==
+X-Forwarded-Encrypted: i=1; AJvYcCURuhVOhrE+HoHPfATbHH2tE9gFOkYnM7aCPOj+cMBHCt5HMYCpfVzNL72iz61QowAcKl4dRRM760x7caP+SA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxoA4VSZ5F6W+ZaT53ylD+z0cYBOUWceTjx31lP4XJ58BePu1GJ
+	+IwzXJlFtZE1flrWhDO1vD66Lxl+MzO78MmLN1b9MHoY9Z+rnnD8CrhX
+X-Gm-Gg: AY/fxX78HtT7XPnDueggy7KcrOyP9nWVnxON0J1sKJgGQweY9wGddtuNBut4ZROXKNo
+	FLCla12k54gMz2GhIPZWOO9Nik00VrrVnhpV+UHBTFKDl4QlvHVkgRmMElqwIVZ+ehCeMYNCnov
+	s08mQSC+WmWC0V4Lz82uGqJcWx9NUe4t/j796dJd5ps11jMHl44VO/RaYDhdiiwW9cwdYpFq/qN
+	JqiAg28aO2zzrhhX0rFct+SpWGjJioqm5Hhz98obxXCbCVVlEMOKUBOa+WNwrE5vEA21f2e2kpW
+	8kllZEgUcqTcUtk7Tr+ph1Z9R00+NjxOmdFvGxgc2GmgZ6A70vChawHJai2y41j1NMsoemn73xo
+	kGDbhV43htrnjzdkBEzgWwrNAhYb8mphhpxt5MfyUz2FfqIXm4inXwYbup36FJdgb2unTA4lFZ9
+	QfqgfyF6Z9unOAwNTdbpa5Dinh3qPbyCNV//mIEn8/5/as0WEp3r4y1Ah/VXN4S+vJfg==
+X-Google-Smtp-Source: AGHT+IHCbvxDzVKglJnQ5DCOnCgrWdajUJ3xC4WJMbnpDbcyewmJC9+3bPGSnBu1mkm93FTZAHDPBA==
+X-Received: by 2002:a05:6a21:6da4:b0:375:4426:e78b with SMTP id adf61e73a8af0-3898f9f0e9dmr17726103637.71.1768241819635;
+        Mon, 12 Jan 2026 10:16:59 -0800 (PST)
+Received: from localhost.localdomain ([122.183.54.120])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34f5f7c4141sm18165365a91.6.2026.01.12.10.16.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jan 2026 09:26:30 -0800 (PST)
-Date: Mon, 12 Jan 2026 18:26:18 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Bobby Eshleman <bobbyeshleman@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, 
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
-	Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Shuah Khan <shuah@kernel.org>, Long Li <longli@microsoft.com>, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	berrange@redhat.com, Sargun Dhillon <sargun@sargun.me>, 
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH RFC net-next v13 00/13] vsock: add namespace support to
- vhost-vsock and loopback
-Message-ID: <aWUnqbDlBmjfnC_Q@sgarzare-redhat>
-References: <20251223-vsock-vmtest-v13-0-9d6db8e7c80b@meta.com>
- <aWGZILlNWzIbRNuO@devvm11784.nha0.facebook.com>
- <20260110191107-mutt-send-email-mst@kernel.org>
+        Mon, 12 Jan 2026 10:16:58 -0800 (PST)
+From: I Viswanath <viswanathiyyappan@gmail.com>
+To: edumazet@google.com,
+	horms@kernel.org,
+	sdf@fomichev.me,
+	kuba@kernel.org,
+	andrew+netdev@lunn.ch,
+	pabeni@redhat.com,
+	jasowang@redhat.com,
+	eperezma@redhat.com,
+	mst@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	przemyslaw.kitszel@intel.com,
+	anthony.l.nguyen@intel.com,
+	ronak.doshi@broadcom.com,
+	pcnet32@frontier.com
+Cc: bcm-kernel-feedback-list@broadcom.com,
+	intel-wired-lan@lists.osuosl.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	I Viswanath <viswanathiyyappan@gmail.com>
+Subject: [PATCH net-next v8 0/6] net: Split ndo_set_rx_mode into snapshot and deferred write
+Date: Mon, 12 Jan 2026 23:46:20 +0530
+Message-ID: <20260112181626.20117-1-viswanathiyyappan@gmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260110191107-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6gc-H4Gg1agJiQkg6HMvrEPKjPubjaP8LmWYXWaH3Zo_1768238791
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Sat, Jan 10, 2026 at 07:12:07PM -0500, Michael S. Tsirkin wrote:
->On Fri, Jan 09, 2026 at 04:11:12PM -0800, Bobby Eshleman wrote:
->> On Tue, Dec 23, 2025 at 04:28:34PM -0800, Bobby Eshleman wrote:
->> > This series adds namespace support to vhost-vsock and loopback. It does
->> > not add namespaces to any of the other guest transports (virtio-vsock,
->> > hyperv, or vmci).
->> >
->> > The current revision supports two modes: local and global. Local
->> > mode is complete isolation of namespaces, while global mode is complete
->> > sharing between namespaces of CIDs (the original behavior).
->> >
->> > The mode is set using the parent namespace's
->> > /proc/sys/net/vsock/child_ns_mode and inherited when a new namespace is
->> > created. The mode of the current namespace can be queried by reading
->> > /proc/sys/net/vsock/ns_mode. The mode can not change after the namespace
->> > has been created.
->> >
->> > Modes are per-netns. This allows a system to configure namespaces
->> > independently (some may share CIDs, others are completely isolated).
->> > This also supports future possible mixed use cases, where there may be
->> > namespaces in global mode spinning up VMs while there are mixed mode
->> > namespaces that provide services to the VMs, but are not allowed to
->> > allocate from the global CID pool (this mode is not implemented in this
->> > series).
->>
->> Stefano, would like me to resend this without the RFC tag, or should I
->> just leave as is for review? I don't have any planned changes at the
->> moment.
->>
->> Best,
->> Bobby
->
->i couldn't apply it on top of net-next so pls do.
->
+This is an implementation of the idea provided by Jakub here
 
-Yeah, some difficulties to apply also here.
-I tried `base-commit: 962ac5ca99a5c3e7469215bf47572440402dfd59` as 
-mentioned in the cover, but didn't apply. After several tries I 
-successfully applied on top of commit bc69ed975203 ("Merge tag 
-'for_linus' of git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost")
+https://lore.kernel.org/netdev/20250923163727.5e97abdb@kernel.org/
 
-So, I agree, better to resend and you can remove RFC.
+ndo_set_rx_mode is problematic because it cannot sleep. 
 
-BTW I'll do my best to start to review tomorrow!
+To address this, this series proposes dividing the concept of setting
+rx_mode into 2 stages: snapshot and deferred I/O. To achieve this, we
+change the semantics of set_rx_mode and add a new ndo write_rx_mode.
 
-Thanks,
-Stefano
+The new set_rx_mode will be responsible for customizing the rx_mode
+snapshot which will be used by write_rx_mode to update the hardware
+
+This refactor has the secondary benefit of stopping set rx_mode
+requests from building up as only the most recent request (before the
+work has gotten a chance to run) will be confirmed/executed.
+
+In brief, the new flow will look something like:
+
+set_rx_mode():
+    ndo_set_rx_mode();
+    prepare_rx_mode();
+
+write_rx_mode():
+    use_snapshot();
+    ndo_write_rx_mode();
+
+write_rx_mode() is called from a work item and doesn't hold the 
+netif_addr_lock spin lock during ndo_write_rx_mode() making it sleepable
+in that section.
+
+This model should work correctly if the following conditions hold:
+
+1. write_rx_mode should use the rx_mode set by the most recent
+    call to prepare_rx_mode() before its execution.
+
+2. If a make_snapshot_ready call happens during execution of write_rx_mode,
+    write_rx_mode() should be rescheduled.
+
+3. All calls to modify rx_mode should pass through the prepare_rx_mode +
+	schedule write_rx_mode() execution flow. netif_schedule_rx_mode_work()
+    has been implemented in core for this purpose.
+
+1 and 2 are implemented in core
+
+Drivers need to ensure 3 using netif_schedule_rx_mode_work()
+
+To use this model, a driver needs to implement the
+ndo_write_rx_mode callback, change the set_rx_mode callback
+appropriately and replace all calls to modify rx mode with
+netif_schedule_rx_mode_work()
+
+Signed-off-by: I Viswanath <viswanathiyyappan@gmail.com>
+---
+
+v1:
+Link: https://lore.kernel.org/netdev/20251020134857.5820-1-viswanathiyyappan@gmail.com/
+
+v2:
+- Exported set_and_schedule_rx_config as a symbol for use in modules
+- Fixed incorrect cleanup for the case of rx_work alloc failing in alloc_netdev_mqs
+- Removed the locked version (cp_set_rx_mode) and renamed __cp_set_rx_mode to cp_set_rx_mode
+Link: https://lore.kernel.org/netdev/20251026175445.1519537-1-viswanathiyyappan@gmail.com/
+
+v3:
+- Added RFT tag
+- Corrected mangled patch
+Link: https://lore.kernel.org/netdev/20251028174222.1739954-1-viswanathiyyappan@gmail.com/
+
+v4:
+- Completely reworked the snapshot mechanism as per v3 comments
+- Implemented the callback for virtio-net instead of 8139cp driver
+- Removed RFC tag
+Link: https://lore.kernel.org/netdev/20251118164333.24842-1-viswanathiyyappan@gmail.com/
+
+v5:
+- Fix broken code and titles
+- Remove RFT tag
+Link: https://lore.kernel.org/netdev/20251120141354.355059-1-viswanathiyyappan@gmail.com/
+
+v6:
+- Added struct netif_deferred_work_cleanup and members needs_deferred_cleanup and deferred_work_cleanup in net_device
+- Moved out ctrl bits from netif_rx_mode_config to netif_rx_mode_work_ctx
+Link: https://lore.kernel.org/netdev/20251227174225.699975-1-viswanathiyyappan@gmail.com/
+
+v7:
+- Improved function, enum and struct names
+Link: https://lore.kernel.org/netdev/20260102180530.1559514-1-viswanathiyyappan@gmail.com/
+
+v8:
+- Implemented the callback for drivers e1000, 8139cp, vmxnet3 and pcnet32
+- Moved the rx_mode config set calls (for prom and allmulti) in prepare_rx_mode to the ndo_set_rx_mode callback for consistency
+- Improved commit messages 
+
+I Viswanath (6):
+  net: refactor set_rx_mode into snapshot and deferred I/O
+  virtio-net: Implement ndo_write_rx_mode callback
+  e1000: Implement ndo_write_rx_mode callback
+  8139cp: Implement ndo_write_rx_mode callback
+  vmxnet3: Implement ndo_write_rx_mode callback
+  pcnet32: Implement ndo_write_rx_mode callback
+
+ drivers/net/ethernet/amd/pcnet32.c            |  57 +++-
+ drivers/net/ethernet/intel/e1000/e1000_main.c |  59 ++--
+ drivers/net/ethernet/realtek/8139cp.c         |  33 ++-
+ drivers/net/virtio_net.c                      |  61 ++--
+ drivers/net/vmxnet3/vmxnet3_drv.c             |  38 ++-
+ include/linux/netdevice.h                     | 112 +++++++-
+ net/core/dev.c                                | 265 +++++++++++++++++-
+ 7 files changed, 522 insertions(+), 103 deletions(-)
+
+-- 
+2.47.3
 
