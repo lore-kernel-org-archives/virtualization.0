@@ -1,170 +1,274 @@
-Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 961831EDA3C;
-	Sun, 11 Jan 2026 19:43:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF657301719
+	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 02:23:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768160604; cv=none; b=NodAetYNj3wLMSY6/xPZ2Isd/h86XxHNWrJ8xHvppxu3/HVNaMHx5GbN/HjHYrmmgJ3I1RtNpxUpT1Ecnx8tcmq7Q7uFKM2Z8e2iHcCTU2qTp1MPCQCtIVFUV0nALehMJrRbJgADDKpNpVs2+150Yl/zYCa+78Bduohp61mzp/s=
+	t=1768184588; cv=none; b=Bi2Kdp1cjtMWU+9a/odYH6u1i7Lp7MZWeOTsa5AL3gTPGTDZg2o+sIOfzaQedoMcCouGczCqseuCVdiGRj3T4c33H8qLIvsAH2Av33bVEjeyp4q98soQGdoJOAhVEHnW8TRPPPJ/6vtXQfn6GdGyRy3QsxKBjoF4mYERfOZ6kIM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768160604; c=relaxed/simple;
-	bh=6ZO358wLWJv/7P+XiGaHMqEVTywze7565bGmQ4IzofM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=m0bG3NSb3GHkqQVAh7bNoGGJW+QT/gMGgKOKDBiW1f0cadVd6q4Gtz3QaHerPNgU7GuL2rpRwsG1GwdOPGWEs/hXAfxkgfx8K4hBTp5Pup00laHE3v7Np+i1s4Yqc73Zp1XwEUQShlt+vYrwis9UG+BaJiCROQdCABRrKwMiJ+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=zGZTG77h; arc=none smtp.client-ip=185.11.138.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
+	s=arc-20240116; t=1768184588; c=relaxed/simple;
+	bh=JmKwPot1HFG3rwXFIsvxegVeHzGSVWS+8mzPzrKuRgw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jLYIXLY2i/jVLQDQa7Pae5c2ZIMZOIeC8C51MO4CAL0VPmnuCQoYKdQxX+NjOvK6eU9Sq2wq8zjTCT1PFONP/+kXI2Gl1mzA7vhyCa0qg65U3us9wl3JtgSk4gLIesfwQ+WqYk1EiODQfFCUJCwq8vI9ijM9Qhw148TYFoKzuyU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QNnWo1SX; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="zGZTG77h"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
-	s=gloria202408; h=Content-Type:Content-Transfer-Encoding:MIME-Version:
-	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Reply-To;
-	bh=vyCElViucl+cLlUVhuVJcUJ20mw8TamaI7jWvsVoS30=; b=zGZTG77h1xr2PAvnP5M0ngyGAl
-	Es/dPUiyTwI/SyqG+ZIuZ3rOtVW/12j7XQr7d5aonB3wQsRXE8UHrw1tFxPg5ZpfiVZNO2T/cVHLv
-	geG9A3sxKpjugqC8rZYrqV6SEDZZUv5Mz/zmQPX6EGdmLZxgq9EMlRFHGWX2Mj+wXPYPwpJiZFl2h
-	QE7JGQYc7ldmySSxW/k/g2PQfDlA1r7cGsQGuGCqeUQsGaO0Atp/LPRP6U/zy/n24zT2DumDZuWLJ
-	5LcE+MEJKyZ6YgCn00XU73GORZqYWdgtEKhSu84RJQfG43W/cHzHlVz5lv2JLULcfv+EnfC0Ud7yw
-	4NKTtwbQ==;
-Received: from i53875aef.versanet.de ([83.135.90.239] helo=diego.localnet)
-	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <heiko@sntech.de>)
-	id 1vf1K0-001rtK-85; Sun, 11 Jan 2026 20:41:56 +0100
-From: Heiko =?UTF-8?B?U3TDvGJuZXI=?= <heiko@sntech.de>
-To: Mark Brown <broonie@kernel.org>,
- Varshini Rajendran <varshini.rajendran@microchip.com>,
- Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Sunny Luo <sunny.luo@amlogic.com>, Janne Grunau <j@jannau.net>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>, CL Wang <cl634@andestech.com>,
- Manikandan Muralidharan <manikandan.m@microchip.com>,
- David Lechner <dlechner@baylibre.com>,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Jonas Gorski <jonas.gorski@gmail.com>, Hang Zhou <929513338@qq.com>,
- Jun Guo <jun.guo@cixtech.com>, Philipp Stanner <phasta@kernel.org>,
- Charles Keepax <ckeepax@opensource.cirrus.com>,
- Bartosz Golaszewski <brgl@kernel.org>,
- =?UTF-8?B?QmVub8OudA==?= Monin <benoit.monin@bootlin.com>,
- Shiji Yang <yangshiji66@outlook.com>, James Clark <james.clark@linaro.org>,
- Jonathan Marek <jonathan@marek.ca>, Carlos Song <carlos.song@nxp.com>,
- Sakari Ailus <sakari.ailus@linux.intel.com>,
- Huacai Chen <chenhuacai@kernel.org>, Xianwei Zhao <xianwei.zhao@amlogic.com>,
- Prajna Rajendra Kumar <prajna.rajendrakumar@microchip.com>,
- Sergio Perez Gonzalez <sperezglz@gmail.com>,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Qianfeng Rong <rongqianfeng@vivo.com>, Haibo Chen <haibo.chen@nxp.com>,
- Gabor Juhos <j4g8y7@gmail.com>, Md Sadre Alam <quic_mdalam@quicinc.com>,
- Rosen Penev <rosenp@gmail.com>, Luis de Arquer <luis.dearquer@inertim.com>,
- Geert Uytterhoeven <geert+renesas@glider.be>,
- Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>,
- Tudor Ambarus <tudor.ambarus@linaro.org>,
- Krzysztof Kozlowski <krzk@kernel.org>, Longbin Li <looong.bin@gmail.com>,
- Patrice Chotard <patrice.chotard@foss.st.com>,
- =?UTF-8?B?Q2zDqW1lbnQ=?= Le Goffic <clement.legoffic@foss.st.com>,
- Alessandro Grassi <alessandro.grassi@mailbox.org>,
- Chen-Yu Tsai <wens@kernel.org>, Darshan R <rathod.darshan.0896@gmail.com>,
- Aaron Kling <webgeek1234@gmail.com>, Vishwaroop A <va@nvidia.com>,
- Haixu Cui <quic_haixcui@quicinc.com>,
- Darshan Rathod <darshanrathod475@gmail.com>, linux-spi@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-amlogic@lists.infradead.org, asahi@lists.linux.dev,
- linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
- linux-rpi-kernel@lists.infradead.org, linux-sound@vger.kernel.org,
- patches@opensource.cirrus.com, imx@lists.linux.dev,
- linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org,
- linux-renesas-soc@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- linux-stm32@st-md-mailman.stormreply.com, linux-sunxi@lists.linux.dev,
- linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Claudiu Beznea <claudiu.beznea@tuxon.dev>,
- Lorenzo Bianconi <lorenzo@kernel.org>, Ray Liu <ray.liu@airoha.com>,
- Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
- =?UTF-8?B?Q8OpZHJpYw==?= Le Goater <clg@kaod.org>,
- Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>,
- Ryan Wanner <ryan.wanner@microchip.com>,
- Michael Hennerich <michael.hennerich@analog.com>,
- Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>,
- Kamal Dasu <kamal.dasu@broadcom.com>,
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
- Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
- William Zhang <william.zhang@broadcom.com>,
- Kursad Oney <kursad.oney@broadcom.com>, Anand Gore <anand.gore@broadcom.com>,
- =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
- David Rhodes <david.rhodes@cirrus.com>,
- Richard Fitzgerald <rf@opensource.cirrus.com>,
- Vladimir Oltean <olteanv@gmail.com>, Frank Li <Frank.Li@nxp.com>,
- Jean-Marie Verdun <verdun@hpe.com>, Nick Hawkins <nick.hawkins@hpe.com>,
- Yang Shen <shenyang39@huawei.com>, Shawn Guo <shawnguo@kernel.org>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Lixu Zhang <lixu.zhang@intel.com>,
- Yinbo Zhu <zhuyinbo@loongson.cn>, Neil Armstrong <neil.armstrong@linaro.org>,
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Conor Dooley <conor.dooley@microchip.com>,
- Daire McNamara <daire.mcnamara@microchip.com>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- Avi Fishman <avifishman70@gmail.com>, Tomer Maimon <tmaimon77@gmail.com>,
- Tali Perry <tali.perry1@gmail.com>, Patrick Venture <venture@google.com>,
- Nancy Yuen <yuenn@google.com>, Benjamin Fair <benjaminfair@google.com>,
- Han Xu <han.xu@nxp.com>, Yogesh Gaur <yogeshgaur.83@gmail.com>,
- Linus Walleij <linusw@kernel.org>, Daniel Mack <daniel@zonque.org>,
- Haojian Zhuang <haojian.zhuang@gmail.com>,
- Robert Jarzmik <robert.jarzmik@free.fr>,
- Chris Packham <chris.packham@alliedtelesis.co.nz>,
- Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
- Andi Shyti <andi.shyti@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>,
- Paul Walmsley <pjw@kernel.org>, Samuel Holland <samuel.holland@sifive.com>,
- Orson Zhai <orsonzhai@gmail.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Chunyan Zhang <zhang.lyra@gmail.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Alain Volmat <alain.volmat@foss.st.com>,
- Jernej Skrabec <jernej.skrabec@gmail.com>, Li-hao Kuo <lhjeff911@gmail.com>,
- Masahisa Kojima <masahisa.kojima@linaro.org>,
- Jassi Brar <jaswinder.singh@linaro.org>,
- Laxman Dewangan <ldewangan@nvidia.com>,
- Thierry Reding <thierry.reding@gmail.com>,
- Jonathan Hunter <jonathanh@nvidia.com>,
- Sowjanya Komatineni <skomatineni@nvidia.com>,
- Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Jonathan =?UTF-8?B?TmV1c2Now6RmZXI=?= <j.neuschaefer@gmx.net>,
- Michal Simek <michal.simek@amd.com>, Max Filippov <jcmvbkbc@gmail.com>
-Subject: Re: [PATCH v1 2/4] spi: Drop duplicate of_node assignment
-Date: Sun, 11 Jan 2026 20:41:50 +0100
-Message-ID: <2911099.XrmoMso0CX@diego>
-In-Reply-To: <20260108203004.3538449-3-andriy.shevchenko@linux.intel.com>
-References:
- <20260108203004.3538449-1-andriy.shevchenko@linux.intel.com>
- <20260108203004.3538449-3-andriy.shevchenko@linux.intel.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QNnWo1SX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768184585;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sRgs/y8WuRWu+uVZoV/9+bsX13ckGLVOYczCcjx/MOU=;
+	b=QNnWo1SXMv6Zt33kdWb+agT+NC6PAU6WrPGqmoW94ykS1Wr91Z5R4mwn8xsj/1VV3kobZO
+	4NG5pmUaFgGUWLwBQ1akcESqzhMmKnfNWoIDRvZHChorwfLinJyZrDWhhYHAxVp30EMAzK
+	ea6ppRpua/lqlAu9QzRUxa0Ir/fOJzA=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-621-rJXYLti5PYaLhdPLuHMecA-1; Sun, 11 Jan 2026 21:23:04 -0500
+X-MC-Unique: rJXYLti5PYaLhdPLuHMecA-1
+X-Mimecast-MFC-AGG-ID: rJXYLti5PYaLhdPLuHMecA_1768184583
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-34eb6589ed2so6219059a91.2
+        for <virtualization@lists.linux.dev>; Sun, 11 Jan 2026 18:23:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768184583; x=1768789383;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=sRgs/y8WuRWu+uVZoV/9+bsX13ckGLVOYczCcjx/MOU=;
+        b=imCfYF0bpxRGJuH1TQEXn5dVtCzqOOHvQR+EQgfj7bfOzoOv31ptA26iycvx69xyen
+         D2F1esSjKB/8oBHdXWcuV+WTUD3Lgy1gXL/RzV3jNkK/2J2YS3xRnFmv/6MkOlF4c0Y5
+         bciqp6nH+exUUHK41kCLpFYuutwsGZ+fdlIBzS5Ns1VV6V0vuyTBoYDE/hQznkmCCXRC
+         BPvosaBFqkAsxAjRpcphcCm+TV5rKUkCQF6g7Su5/jlRv1Me1ckEzfxTqrrvlpmcbjKK
+         6AsJ544BXMe/QhYVXm43BcUMF4YnTa1TuO2dbhRthINWePl1fYa4LknGvzbrC2gjekFB
+         ft+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWlBtw0wh9uXRLWPTAnPDPGF1f8LZS5+sl/DPIexjETwBTDtQ+NLO3XTMqfsFx4XLdTyAKxr0Y2gEWY/2jzNQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwSSs700A2h22Y0lBSdOKO7RqtGj4OcxQiYtWACs4idFeB2hlhU
+	VaNfbNq1syNXXK5X2kl61ubhW9BHWX+qYAzJQhIE8PBzjs8piSl+N3uIsSfi8lJhK1oh7izxGKd
+	5mEmf1/zk7NYatcPRpZ6ovWEm1QDVBpnflRv3N+ymtw8tqnjFu74hIbuEOIiOI8UJTgd6e4OvAl
+	+Tl/lfArWqVMOcx6sU0H9U+8S4DVCF0VO1skSIMme/fYo=
+X-Gm-Gg: AY/fxX6izgjLeqrvk35Sw7++54pVz42NczX8p6ye6JAX0t3yIlfQqU4J6Ql4seKwGEx
+	XUPY4+1Osrm75eZQ6FaiqA18zoGaEthbprD027f0cchgePfrs+h1XApVMR2qIsZeb7o3CbEvleI
+	1Li8FfPK0XXGItQs0WWhQQ+D5KCXROQHGXbenUr70p1WbeyXdk/PDppwu81l5QV5MEpBY=
+X-Received: by 2002:a17:90b:1650:b0:340:d1b5:bfda with SMTP id 98e67ed59e1d1-34f68c33781mr14316847a91.3.1768184583266;
+        Sun, 11 Jan 2026 18:23:03 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGzVFQTinfgVuoT02Ul+n5+3LO4GPPv+fa7/iUBiA4N9KQ7iqYy1PJMve6sJwtFaBPX0HHFdXRRol20Nxi5Vy0=
+X-Received: by 2002:a17:90b:1650:b0:340:d1b5:bfda with SMTP id
+ 98e67ed59e1d1-34f68c33781mr14316821a91.3.1768184582782; Sun, 11 Jan 2026
+ 18:23:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
+ <20260107210448.37851-10-simon.schippers@tu-dortmund.de> <CACGkMEuQikCsHn9cdhVxxHbjKAyW288SPNxAyXQ7FWNxd7Qenw@mail.gmail.com>
+ <bd41afae-cf1e-46ab-8948-4c7fa280b20f@tu-dortmund.de> <CACGkMEs8VHGjiLqn=-Gt5=WPMzqAXNM2GcK73dLarP9CQw3+rw@mail.gmail.com>
+ <900c364b-f5ca-4458-a711-bf3e0433b537@tu-dortmund.de>
+In-Reply-To: <900c364b-f5ca-4458-a711-bf3e0433b537@tu-dortmund.de>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 12 Jan 2026 10:22:51 +0800
+X-Gm-Features: AZwV_QhHI92q6lgD6p0Q1oo70mczijvjl8JIiP2Rj2lWAdmWqkezRiDMgsGAQv4
+Message-ID: <CACGkMEvqoxSiM65ectKaF=UQ6PJn6+FQyJ=_YjgCo+QBCj1umg@mail.gmail.com>
+Subject: Re: [PATCH net-next v7 9/9] tun/tap & vhost-net: avoid ptr_ring
+ tail-drop when qdisc is present
+To: Simon Schippers <simon.schippers@tu-dortmund.de>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	mst@redhat.com, eperezma@redhat.com, leiyang@redhat.com, 
+	stephen@networkplumber.org, jon@nutanix.com, tim.gebauer@tu-dortmund.de, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: GDtalX0Ec_YLgwGRl-p0Va7bC9iB2keV6yXcfhTMzsk_1768184583
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
 
-Am Donnerstag, 8. Januar 2026, 21:23:39 Mitteleurop=C3=A4ische Normalzeit s=
-chrieb Andy Shevchenko:
-> The SPI core provides the default of_node for the controller,
-> inherited from the actual (parent) device. No need to repeat it
-> in the driver.
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
+On Fri, Jan 9, 2026 at 6:15=E2=80=AFPM Simon Schippers
+<simon.schippers@tu-dortmund.de> wrote:
+>
+> On 1/9/26 07:09, Jason Wang wrote:
+> > On Thu, Jan 8, 2026 at 4:02=E2=80=AFPM Simon Schippers
+> > <simon.schippers@tu-dortmund.de> wrote:
+> >>
+> >> On 1/8/26 05:37, Jason Wang wrote:
+> >>> On Thu, Jan 8, 2026 at 5:06=E2=80=AFAM Simon Schippers
+> >>> <simon.schippers@tu-dortmund.de> wrote:
+> >>>>
+> >>>> This commit prevents tail-drop when a qdisc is present and the ptr_r=
+ing
+> >>>> becomes full. Once an entry is successfully produced and the ptr_rin=
+g
+> >>>> reaches capacity, the netdev queue is stopped instead of dropping
+> >>>> subsequent packets.
+> >>>>
+> >>>> If producing an entry fails anyways, the tun_net_xmit returns
+> >>>> NETDEV_TX_BUSY, again avoiding a drop. Such failures are expected be=
+cause
+> >>>> LLTX is enabled and the transmit path operates without the usual loc=
+king.
+> >>>> As a result, concurrent calls to tun_net_xmit() are not prevented.
+> >>>>
+> >>>> The existing __{tun,tap}_ring_consume functions free space in the
+> >>>> ptr_ring and wake the netdev queue. Races between this wakeup and th=
+e
+> >>>> queue-stop logic could leave the queue stopped indefinitely. To prev=
+ent
+> >>>> this, a memory barrier is enforced (as discussed in a similar
+> >>>> implementation in [1]), followed by a recheck that wakes the queue i=
+f
+> >>>> space is already available.
+> >>>>
+> >>>> If no qdisc is present, the previous tail-drop behavior is preserved=
+.
+> >>>>
+> >>>> +-------------------------+-----------+---------------+-------------=
+---+
+> >>>> | pktgen benchmarks to    | Stock     | Patched with  | Patched with=
+   |
+> >>>> | Debian VM, i5 6300HQ,   |           | noqueue qdisc | fq_codel qdi=
+sc |
+> >>>> | 10M packets             |           |               |             =
+   |
+> >>>> +-----------+-------------+-----------+---------------+-------------=
+---+
+> >>>> | TAP       | Transmitted | 196 Kpps  | 195 Kpps      | 185 Kpps    =
+   |
+> >>>> |           +-------------+-----------+---------------+-------------=
+---+
+> >>>> |           | Lost        | 1618 Kpps | 1556 Kpps     | 0           =
+   |
+> >>>> +-----------+-------------+-----------+---------------+-------------=
+---+
+> >>>> | TAP       | Transmitted | 577 Kpps  | 582 Kpps      | 578 Kpps    =
+   |
+> >>>> |  +        +-------------+-----------+---------------+-------------=
+---+
+> >>>> | vhost-net | Lost        | 1170 Kpps | 1109 Kpps     | 0           =
+   |
+> >>>> +-----------+-------------+-----------+---------------+-------------=
+---+
+> >>>>
+> >>>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel=
+.org/
+> >>>>
+> >>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> >>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> >>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+> >>>> ---
+> >>>>  drivers/net/tun.c | 31 +++++++++++++++++++++++++++++--
+> >>>>  1 file changed, 29 insertions(+), 2 deletions(-)
+> >>>>
+> >>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> >>>> index 71b6981d07d7..74d7fd09e9ba 100644
+> >>>> --- a/drivers/net/tun.c
+> >>>> +++ b/drivers/net/tun.c
+> >>>> @@ -1008,6 +1008,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff=
+ *skb, struct net_device *dev)
+> >>>>         struct netdev_queue *queue;
+> >>>>         struct tun_file *tfile;
+> >>>>         int len =3D skb->len;
+> >>>> +       bool qdisc_present;
+> >>>> +       int ret;
+> >>>>
+> >>>>         rcu_read_lock();
+> >>>>         tfile =3D rcu_dereference(tun->tfiles[txq]);
+> >>>> @@ -1060,13 +1062,38 @@ static netdev_tx_t tun_net_xmit(struct sk_bu=
+ff *skb, struct net_device *dev)
+> >>>>
+> >>>>         nf_reset_ct(skb);
+> >>>>
+> >>>> -       if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+> >>>> +       queue =3D netdev_get_tx_queue(dev, txq);
+> >>>> +       qdisc_present =3D !qdisc_txq_has_no_queue(queue);
+> >>>> +
+> >>>> +       spin_lock(&tfile->tx_ring.producer_lock);
+> >>>> +       ret =3D __ptr_ring_produce(&tfile->tx_ring, skb);
+> >>>> +       if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_presen=
+t) {
+> >>>> +               netif_tx_stop_queue(queue);
+> >>>> +               /* Avoid races with queue wake-up in
+> >>>> +                * __{tun,tap}_ring_consume by waking if space is
+> >>>> +                * available in a re-check.
+> >>>> +                * The barrier makes sure that the stop is visible b=
+efore
+> >>>> +                * we re-check.
+> >>>> +                */
+> >>>> +               smp_mb__after_atomic();
+> >>>> +               if (!__ptr_ring_produce_peek(&tfile->tx_ring))
+> >>>> +                       netif_tx_wake_queue(queue);
+> >>>
+> >>> I'm not sure I will get here, but I think those should be moved to th=
+e
+> >>> following if(ret) check. If __ptr_ring_produce() succeed, there's no
+> >>> need to bother with those queue stop/wake logic?
+> >>
+> >> There is a need for that. If __ptr_ring_produce_peek() returns -ENOSPC=
+,
+> >> we stop the queue proactively.
+> >
+> > This seems to conflict with the following NETDEV_TX_BUSY. Or is
+> > NETDEV_TX_BUSY prepared for the xdp_xmit?
+>
+> Am I not allowed to stop the queue and then return NETDEV_TX_BUSY?
 
->  drivers/spi/spi-rockchip-sfc.c       | 1 -
->  drivers/spi/spi-rockchip.c           | 1 -
+No, I mean I don't understand why we still need to peek since we've
+already used NETDEV_TX_BUSY.
 
-Acked-by: Heiko Stuebner <heiko@sntech.de>
+> And I do not understand the connection with xdp_xmit.
 
+Since there's we don't modify xdp_xmit path, so even if we peek next
+ndo_start_xmit can still hit ring full.
 
+Thanks
+
+>
+> >
+> >>
+> >> I believe what you are aiming for is to always stop the queue if(ret),
+> >> which I can agree with. In that case, I would simply change the condit=
+ion
+> >> to:
+> >>
+> >> if (qdisc_present && (ret || __ptr_ring_produce_peek(&tfile->tx_ring))=
+)
+> >>
+> >>>
+> >>>> +       }
+> >>>> +       spin_unlock(&tfile->tx_ring.producer_lock);
+> >>>> +
+> >>>> +       if (ret) {
+> >>>> +               /* If a qdisc is attached to our virtual device,
+> >>>> +                * returning NETDEV_TX_BUSY is allowed.
+> >>>> +                */
+> >>>> +               if (qdisc_present) {
+> >>>> +                       rcu_read_unlock();
+> >>>> +                       return NETDEV_TX_BUSY;
+> >>>> +               }
+> >>>>                 drop_reason =3D SKB_DROP_REASON_FULL_RING;
+> >>>>                 goto drop;
+> >>>>         }
+> >>>>
+> >>>>         /* dev->lltx requires to do our own update of trans_start */
+> >>>> -       queue =3D netdev_get_tx_queue(dev, txq);
+> >>>>         txq_trans_cond_update(queue);
+> >>>>
+> >>>>         /* Notify and wake up reader process */
+> >>>> --
+> >>>> 2.43.0
+> >>>>
+> >>>
+> >>> Thanks
+> >>>
+> >>
+> >
+> > Thanks
+> >
+>
 
