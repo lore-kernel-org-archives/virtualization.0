@@ -1,71 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD2773563FE
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 11:18:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7B8F3563F9
+	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 11:19:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768216706; cv=none; b=T/1X3UHb6Q/Qns7v4Xi4nirF5tH+gvnWV2uhUcOb2NIHED92Rl/v3tGu4ZB4hd0D5/dWlIzc3j3V0NNKdmghXS1CTbpRC3x+1TL1Ya42KovgBypCXWJLrBZtxYmZV8l6dpjBIi2/LVgnwibKS2DtIZLBk+VpZ1L51s+z1BTx9fU=
+	t=1768216776; cv=none; b=jFuaS56JIr6oRqSly34s+7FXYyME6+BMedIfwydpHp2VRfcN3Mr/2XwPTI2PYVaILqoDVDj12rafM3PUXIcW14IyUSgWnxrwQz++BmnbwRvyspgYNdDTVfeha/aqaK4NUd9D/npp0vphy0sd/zQS058XtFu3NE2utIxYZxewjDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768216706; c=relaxed/simple;
-	bh=pkVswsrbi0EtJPSPnnDNq6hfoD5ZVr4Ytx1oZl9fFsQ=;
+	s=arc-20240116; t=1768216776; c=relaxed/simple;
+	bh=dEODH6OKSSM3wWFAUIvzs3xEPFKgpqUcd7jKkQTVgAI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=O7UWcOni+0aHJLJc+QHpnWDPcCCGeCk3BQXifpRVz1Cp+7xlZKY/UnN00G74oKZbJO/enWCDfx2sE7yW5mCytkczjI8Y7Ucdp+Tx0eJQ7Bfnou0OeLrQWg+ANDtbeomlVHsxJUjlSfNot7TTl/OERkICYiV8Homc4EAe73OEYzw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G6NJL9CX; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=NFugDntbzmFHaXo9N68kj+OQN5eDyzlrZVo2ScR8xadn9E2a/PNAkjufHaq4g9NyEgrXR3MNdhVTtVcG/eG2rDbjW3ncaMN3HCLLRfv49eZvA3LvN6kpKE4bD5PoqRxoBaLeqLSd3j6jS+9zALVF3SnrZhiNgWs0gj/HfDyU6bM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZxIvZDpo; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G6NJL9CX"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZxIvZDpo"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768216703;
+	s=mimecast20190719; t=1768216773;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=wDc/S1WIObDz8TA7kjTeIe+EBGyyqU87Vxr9tB+mW5U=;
-	b=G6NJL9CXEmIMxyCvDCNEIqtjuGxWpX6VtX5O7cI78kfTiYPo6WwWsDaz9fIy3rCreL/Cic
-	UMvVq5ubbHAYmTj61bPu8dwsPxj9q4RERuSEyhe4sYWBdj7JoREhLGAjDzPhpMfyQF3Gwk
-	AFva6e1pXE5et9PJ84yVaKhHE4R4K0M=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=uPyEp35yrxB/6+/GJhhyFrjf6xeA9T1VOzgBIjcqhzY=;
+	b=ZxIvZDpocKd5rIweo3DUjH9WnKIXK486vs1zl7me8xO0/k0f3Dx0xIXSYdCJDY8ooDcvRS
+	nehHAH9Oq3X7r6CeNF/KEwaVC0XeRshzbUOveelPeIf6N3avqbNA59CNh9AC5TqPtrARLa
+	I1KE13ZvJx5AYF0xz7XyxdkuLxxGgxY=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-411-dJRDPGQnPVaDPtRj0WB05w-1; Mon, 12 Jan 2026 06:18:20 -0500
-X-MC-Unique: dJRDPGQnPVaDPtRj0WB05w-1
-X-Mimecast-MFC-AGG-ID: dJRDPGQnPVaDPtRj0WB05w_1768216699
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-477a11d9e67so41962935e9.2
-        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 03:18:20 -0800 (PST)
+ us-mta-192-3AwTbI_kNMa39fVQvu2NVQ-1; Mon, 12 Jan 2026 06:19:30 -0500
+X-MC-Unique: 3AwTbI_kNMa39fVQvu2NVQ-1
+X-Mimecast-MFC-AGG-ID: 3AwTbI_kNMa39fVQvu2NVQ_1768216769
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4779edba8f3so49591305e9.3
+        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 03:19:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768216699; x=1768821499;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=wDc/S1WIObDz8TA7kjTeIe+EBGyyqU87Vxr9tB+mW5U=;
-        b=q/Yl7b0njsfiR+8YHdWlG1wcuYW7yKv/MR0OKuwFzznjniWJwETL930/GhkANu89/M
-         qbxHwXnpbf5qVlyGt7ZkKDk4Jltl1WpzyrGxLvDqziYoB2lKVPgMihjb/uCH83izP8HV
-         SVTJAVxn2WYDN+wgJxjhOIZ5cnsqr32NlovGKyxuZ5XKtbGIvRRzYDbGRVVJp20ZrJdw
-         M5V6ijmXUF1Ru7vpVBy0RnH73qNmkaYrT7KilJ1oHAGBK0BKjBoGwCQW0k8Wn54KSvtI
-         uWwELdE7rKjMmecNjX0+YXQuyp1BiTfQhoV6G/BRXBNOQeGG2I7JpsxVKFkwM0DKFiEn
-         MInw==
-X-Forwarded-Encrypted: i=1; AJvYcCVP56I/0NZGi+jkJg06FpyfIzJIS88xam6bGqbyvwGFzABkqf1XXeH5+c3pOdl/41rTNwIG2pmL0hVoA+aBMw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwiAEEY60urS40nz0vNAQ5x1DKx80RhBgr32FuwQghfZvZPvvXL
-	9bpDXbBg+zVNJiaz2OB8xtgPHF5vlTbL9IcspO0ZzpXy8KATMgUKQ/sMiU6vmkdQGGphu6lAVdZ
-	yJtH/w02Ve2IZgCpwKvNn2zKTROgJoA1fEB5xyFs1QFDF/x59S5Jrs5Yu3FLIkrHoon9p
-X-Gm-Gg: AY/fxX5WXi+Yl6ZnXRJA9U132scJuUS+TG/E0JjWw9z66vFUT9HnLD31CCEy/lkn2fJ
-	kRf5DNZNDRZWwuXFEFSERDTQ0N7I0/GwYl49odb5fRQ6Sm11LOUTDciiYbJC5vq/UKsQurlN9K7
-	9MDQtj1rsdGuiTSmY9CsouuDdMgkh7UfeRsDstrJuYKGiSKhGve46vI4ecXIfapNkiC/JBfFnBL
-	3r5JJ/6UjvKm/zpi9v/o2jprvcHqCRKh7aErLt7ctdMaNfI3v3KAN1DeF92lG1iglbIMgz+pqSq
-	Fs2sns1eE0wXG8u0oz3ECP6moq3/8tzulbBk4erCbRF+AY1Rm2py9RGhWUNS8Dd+FDq345Xme8c
-	7cB5qsmInO9ztyNtF6iJm6D4Jo87AFcY=
-X-Received: by 2002:a05:600c:a48:b0:47a:829a:ebb with SMTP id 5b1f17b1804b1-47d84b36a2amr184082615e9.19.1768216698999;
-        Mon, 12 Jan 2026 03:18:18 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH/yWXG4PNK8nWzZOE4GBrCOM9Xs4Vra+av8pc//nciA6emW6OxV8142ysunXFkn8n9dmwmuA==
-X-Received: by 2002:a05:600c:a48:b0:47a:829a:ebb with SMTP id 5b1f17b1804b1-47d84b36a2amr184082135e9.19.1768216698496;
-        Mon, 12 Jan 2026 03:18:18 -0800 (PST)
+        d=1e100.net; s=20230601; t=1768216769; x=1768821569;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=uPyEp35yrxB/6+/GJhhyFrjf6xeA9T1VOzgBIjcqhzY=;
+        b=VpPO5+LTEa8x52i14+RwXEZ5BZob5dIrkmDJkYVff45gpPfLTuJ4igua5vje6xnkwh
+         BJzUz69TI3ksejJbHwyWWRR32OlZw4c6sPdlD5dgkXoNfdl1bxWMx9fyMkDUS7tKPXZ3
+         mAQD3rNa8uYtdahQ7pt4b1kfNgaQMkfx+CWrla95iicESt6HKT1JwETqbkCZL3lnKIyA
+         nDswXOeer5JL5cC9C3t/e9QLr15F3dc4Jzcfipc/lWQoifKv0kDKfbu2l7r3LOSy9Gm3
+         DwMAZfByA+ZODNY9vvm02UgZevYSdcqV5rGqiEjY/QryefUrU1FRDyYgvzWeyKI3dUzR
+         xnHQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX0lMBK5Z73psJxN1BkoInF+a0epSlEyYi9ccRrXyH5LqiUpf6G6BZLFeVJ2yDI/xvrcUW9ubhBuCnJVW7jaQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx71g86ApXYBnNZyDdl1zWAGmNT4J2yMDYj5mdxKAaDu75eHPj2
+	CDGUPcVTXzXsdLPb7pXE+xGlovIfsKR2v9rlxr0Wt4RKF+qXi42qNbenRYUGGhGgXzHOxEdyMes
+	0NH2PPU9O3YXBLZJQf/eljL6GZahJz+Z2MQ2KqDmowGiDEK7M/5duQbw3uveluykEehlh
+X-Gm-Gg: AY/fxX7Wl7hDbdXidfJAkQrrziqcivkDxqHN1ga/iYY0U29DmXc8oJLJx8S52Z1aqTF
+	O/yacs5rZri5d6iUVL4yuS2nss/TGftEgoGA6xk2X6VMEnU9txSIlu/QfrANKnc0bFj9hcDYX/8
+	wJ+XOQUgldkvfaJrBlDxiFuO8b0EzG/2b4XME6+NSpgM6tMqRuaEDUmdBed11if5onRKKxIC350
+	HYemKy4VQbMetkXPVb8PtCCbjHiJWbrMUJlZTSEKLxpJ6w8x6+6fLzdzhQd7AAz1pz6QYPgNmy6
+	EF01hnrYEi++WIuD8sxu8oH2sIGB3avDc8QkzFjRCPuR0uke6+umeA9UKv2gWiKVi7LK1Vz8zvj
+	FIn0BF+TGBGU2NnThPzVKnEBAvj1hLpY=
+X-Received: by 2002:a05:600c:3146:b0:477:b642:9dc9 with SMTP id 5b1f17b1804b1-47d84b3b513mr189681985e9.28.1768216769323;
+        Mon, 12 Jan 2026 03:19:29 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFkXiyM0dc1PZUdH5UxPIiTHeham2VtB7pwju2vrblwSj2QD/OERovKHTVGzk8mENQ3pAgOlw==
+X-Received: by 2002:a05:600c:3146:b0:477:b642:9dc9 with SMTP id 5b1f17b1804b1-47d84b3b513mr189681475e9.28.1768216768829;
+        Mon, 12 Jan 2026 03:19:28 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-35-22.inter.net.il. [80.230.35.22])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f653c61sm355460055e9.10.2026.01.12.03.18.16
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47d7f653cd6sm367623105e9.9.2026.01.12.03.19.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jan 2026 03:18:17 -0800 (PST)
-Date: Mon, 12 Jan 2026 06:18:14 -0500
+        Mon, 12 Jan 2026 03:19:28 -0800 (PST)
+Date: Mon, 12 Jan 2026 06:19:25 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Simon Schippers <simon.schippers@tu-dortmund.de>
 Cc: Jason Wang <jasowang@redhat.com>, willemdebruijn.kernel@gmail.com,
@@ -77,204 +76,53 @@ Cc: Jason Wang <jasowang@redhat.com>, willemdebruijn.kernel@gmail.com,
 	virtualization@lists.linux.dev
 Subject: Re: [PATCH net-next v7 9/9] tun/tap & vhost-net: avoid ptr_ring
  tail-drop when qdisc is present
-Message-ID: <20260112061721-mutt-send-email-mst@kernel.org>
+Message-ID: <20260112061831-mutt-send-email-mst@kernel.org>
 References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
  <20260107210448.37851-10-simon.schippers@tu-dortmund.de>
  <CACGkMEuQikCsHn9cdhVxxHbjKAyW288SPNxAyXQ7FWNxd7Qenw@mail.gmail.com>
  <bd41afae-cf1e-46ab-8948-4c7fa280b20f@tu-dortmund.de>
  <CACGkMEs8VHGjiLqn=-Gt5=WPMzqAXNM2GcK73dLarP9CQw3+rw@mail.gmail.com>
  <900c364b-f5ca-4458-a711-bf3e0433b537@tu-dortmund.de>
- <CACGkMEvqoxSiM65ectKaF=UQ6PJn6+FQyJ=_YjgCo+QBCj1umg@mail.gmail.com>
- <9aaf2420-089d-4fd9-824d-24982a86a70d@tu-dortmund.de>
+ <20260111233129-mutt-send-email-mst@kernel.org>
+ <55bcb1ec-bdbb-44aa-8fa0-470916e986aa@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <9aaf2420-089d-4fd9-824d-24982a86a70d@tu-dortmund.de>
+In-Reply-To: <55bcb1ec-bdbb-44aa-8fa0-470916e986aa@tu-dortmund.de>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nuW0ot0MjSVDtbzZteXNcBAV9ZeYVbr6pG10-OWuI4o_1768216699
+X-Mimecast-MFC-PROC-ID: JuZLasmhnlurlWBUyWxLiV6GtQSMhyTXYI1p53PCRyg_1768216769
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Mon, Jan 12, 2026 at 12:08:14PM +0100, Simon Schippers wrote:
-> On 1/12/26 03:22, Jason Wang wrote:
-> > On Fri, Jan 9, 2026 at 6:15 PM Simon Schippers
-> > <simon.schippers@tu-dortmund.de> wrote:
-> >>
-> >> On 1/9/26 07:09, Jason Wang wrote:
-> >>> On Thu, Jan 8, 2026 at 4:02 PM Simon Schippers
-> >>> <simon.schippers@tu-dortmund.de> wrote:
-> >>>>
-> >>>> On 1/8/26 05:37, Jason Wang wrote:
-> >>>>> On Thu, Jan 8, 2026 at 5:06 AM Simon Schippers
-> >>>>> <simon.schippers@tu-dortmund.de> wrote:
-> >>>>>>
-> >>>>>> This commit prevents tail-drop when a qdisc is present and the ptr_ring
-> >>>>>> becomes full. Once an entry is successfully produced and the ptr_ring
-> >>>>>> reaches capacity, the netdev queue is stopped instead of dropping
-> >>>>>> subsequent packets.
-> >>>>>>
-> >>>>>> If producing an entry fails anyways, the tun_net_xmit returns
-> >>>>>> NETDEV_TX_BUSY, again avoiding a drop. Such failures are expected because
-> >>>>>> LLTX is enabled and the transmit path operates without the usual locking.
-> >>>>>> As a result, concurrent calls to tun_net_xmit() are not prevented.
-> >>>>>>
-> >>>>>> The existing __{tun,tap}_ring_consume functions free space in the
-> >>>>>> ptr_ring and wake the netdev queue. Races between this wakeup and the
-> >>>>>> queue-stop logic could leave the queue stopped indefinitely. To prevent
-> >>>>>> this, a memory barrier is enforced (as discussed in a similar
-> >>>>>> implementation in [1]), followed by a recheck that wakes the queue if
-> >>>>>> space is already available.
-> >>>>>>
-> >>>>>> If no qdisc is present, the previous tail-drop behavior is preserved.
-> >>>>>>
-> >>>>>> +-------------------------+-----------+---------------+----------------+
-> >>>>>> | pktgen benchmarks to    | Stock     | Patched with  | Patched with   |
-> >>>>>> | Debian VM, i5 6300HQ,   |           | noqueue qdisc | fq_codel qdisc |
-> >>>>>> | 10M packets             |           |               |                |
-> >>>>>> +-----------+-------------+-----------+---------------+----------------+
-> >>>>>> | TAP       | Transmitted | 196 Kpps  | 195 Kpps      | 185 Kpps       |
-> >>>>>> |           +-------------+-----------+---------------+----------------+
-> >>>>>> |           | Lost        | 1618 Kpps | 1556 Kpps     | 0              |
-> >>>>>> +-----------+-------------+-----------+---------------+----------------+
-> >>>>>> | TAP       | Transmitted | 577 Kpps  | 582 Kpps      | 578 Kpps       |
-> >>>>>> |  +        +-------------+-----------+---------------+----------------+
-> >>>>>> | vhost-net | Lost        | 1170 Kpps | 1109 Kpps     | 0              |
-> >>>>>> +-----------+-------------+-----------+---------------+----------------+
-> >>>>>>
-> >>>>>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
-> >>>>>>
-> >>>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> >>>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> >>>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-> >>>>>> ---
-> >>>>>>  drivers/net/tun.c | 31 +++++++++++++++++++++++++++++--
-> >>>>>>  1 file changed, 29 insertions(+), 2 deletions(-)
-> >>>>>>
-> >>>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> >>>>>> index 71b6981d07d7..74d7fd09e9ba 100644
-> >>>>>> --- a/drivers/net/tun.c
-> >>>>>> +++ b/drivers/net/tun.c
-> >>>>>> @@ -1008,6 +1008,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
-> >>>>>>         struct netdev_queue *queue;
-> >>>>>>         struct tun_file *tfile;
-> >>>>>>         int len = skb->len;
-> >>>>>> +       bool qdisc_present;
-> >>>>>> +       int ret;
-> >>>>>>
-> >>>>>>         rcu_read_lock();
-> >>>>>>         tfile = rcu_dereference(tun->tfiles[txq]);
-> >>>>>> @@ -1060,13 +1062,38 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
-> >>>>>>
-> >>>>>>         nf_reset_ct(skb);
-> >>>>>>
-> >>>>>> -       if (ptr_ring_produce(&tfile->tx_ring, skb)) {
-> >>>>>> +       queue = netdev_get_tx_queue(dev, txq);
-> >>>>>> +       qdisc_present = !qdisc_txq_has_no_queue(queue);
-> >>>>>> +
-> >>>>>> +       spin_lock(&tfile->tx_ring.producer_lock);
-> >>>>>> +       ret = __ptr_ring_produce(&tfile->tx_ring, skb);
-> >>>>>> +       if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
-> >>>>>> +               netif_tx_stop_queue(queue);
-> >>>>>> +               /* Avoid races with queue wake-up in
-> >>>>>> +                * __{tun,tap}_ring_consume by waking if space is
-> >>>>>> +                * available in a re-check.
-> >>>>>> +                * The barrier makes sure that the stop is visible before
-> >>>>>> +                * we re-check.
-> >>>>>> +                */
-> >>>>>> +               smp_mb__after_atomic();
-> >>>>>> +               if (!__ptr_ring_produce_peek(&tfile->tx_ring))
-> >>>>>> +                       netif_tx_wake_queue(queue);
-> >>>>>
-> >>>>> I'm not sure I will get here, but I think those should be moved to the
-> >>>>> following if(ret) check. If __ptr_ring_produce() succeed, there's no
-> >>>>> need to bother with those queue stop/wake logic?
-> >>>>
-> >>>> There is a need for that. If __ptr_ring_produce_peek() returns -ENOSPC,
-> >>>> we stop the queue proactively.
-> >>>
-> >>> This seems to conflict with the following NETDEV_TX_BUSY. Or is
-> >>> NETDEV_TX_BUSY prepared for the xdp_xmit?
-> >>
+On Mon, Jan 12, 2026 at 12:17:12PM +0100, Simon Schippers wrote:
+> On 1/12/26 05:33, Michael S. Tsirkin wrote:
+> > On Fri, Jan 09, 2026 at 11:14:54AM +0100, Simon Schippers wrote:
 > >> Am I not allowed to stop the queue and then return NETDEV_TX_BUSY?
 > > 
-> > No, I mean I don't understand why we still need to peek since we've
-> > already used NETDEV_TX_BUSY.
-> 
-> Yes, if __ptr_ring_produce() returns -ENOSPC, there is no need to check
-> __ptr_ring_produce_peek(). I agree with you on this point and will update
-> the code accordingly. In all other cases, checking
-> __ptr_ring_produce_peek() is still required in order to proactively stop
-> the queue.
-> 
+> > We jump through a lot of hoops in virtio_net to avoid using
+> > NETDEV_TX_BUSY because that bypasses all the net/ cleverness.
+> > Given your patches aim to improve precisely ring full,
+> > I would say stopping proactively before NETDEV_TX_BUSY
+> > should be a priority.
 > > 
-> >> And I do not understand the connection with xdp_xmit.
-> > 
-> > Since there's we don't modify xdp_xmit path, so even if we peek next
-> > ndo_start_xmit can still hit ring full.
 > 
-> Ah okay. Would you apply the same stop-and-recheck logic in
-> tun_xdp_xmit when __ptr_ring_produce() fails to produce it, or is that
-> not permitted there?
-> 
-> Apart from that, as noted in the commit message, since we are using LLTX,
-> hitting a full ring is still possible anyway. I could see that especially
-> at multiqueue tests with pktgen by looking at the qdisc requeues.
-> 
-> Thanks
+> I already proactively stop here with the approach you proposed in
+> the v6.
+> Or am I missing something (apart from the xdp path)?
 
-If it's an exceptional rare condition (i.e. a race), it's not a big deal. That's why
-NETDEV_TX_BUSY is there in the 1st place. If it's the main modus
-operadi - not good.
+Yes, I am just answering the general question you posed.
 
+> 
+> And yes I also dislike returning NETDEV_TX_BUSY but I do not see how
+> this can be prevented with lltx enabled.
 
-> > 
-> > Thanks
-> > 
-> >>
-> >>>
-> >>>>
-> >>>> I believe what you are aiming for is to always stop the queue if(ret),
-> >>>> which I can agree with. In that case, I would simply change the condition
-> >>>> to:
-> >>>>
-> >>>> if (qdisc_present && (ret || __ptr_ring_produce_peek(&tfile->tx_ring)))
-> >>>>
-> >>>>>
-> >>>>>> +       }
-> >>>>>> +       spin_unlock(&tfile->tx_ring.producer_lock);
-> >>>>>> +
-> >>>>>> +       if (ret) {
-> >>>>>> +               /* If a qdisc is attached to our virtual device,
-> >>>>>> +                * returning NETDEV_TX_BUSY is allowed.
-> >>>>>> +                */
-> >>>>>> +               if (qdisc_present) {
-> >>>>>> +                       rcu_read_unlock();
-> >>>>>> +                       return NETDEV_TX_BUSY;
-> >>>>>> +               }
-> >>>>>>                 drop_reason = SKB_DROP_REASON_FULL_RING;
-> >>>>>>                 goto drop;
-> >>>>>>         }
-> >>>>>>
-> >>>>>>         /* dev->lltx requires to do our own update of trans_start */
-> >>>>>> -       queue = netdev_get_tx_queue(dev, txq);
-> >>>>>>         txq_trans_cond_update(queue);
-> >>>>>>
-> >>>>>>         /* Notify and wake up reader process */
-> >>>>>> --
-> >>>>>> 2.43.0
-> >>>>>>
-> >>>>>
-> >>>>> Thanks
-> >>>>>
-> >>>>
-> >>>
-> >>> Thanks
-> >>>
-> >>
-> > 
+Preventing NETDEV_TX_BUSY 100% of the time is not required. It's there
+to handle races.
+
+-- 
+MST
 
