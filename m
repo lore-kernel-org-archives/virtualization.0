@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0276A333427;
-	Mon, 12 Jan 2026 21:00:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34D3C322B72;
+	Mon, 12 Jan 2026 21:00:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768251620; cv=none; b=RGLpVaPH9dflsjJFtIRuCDxo/BgjiQRZeKED0eDyi4yrQbBip6EiPQKOxBD7VViRj8llfF65K3Hh+zA+fQW4+CfD6I7nCoWikpfCatLian22yUAxwt56jRt776sNUWZWwXKgk8gGWoaAw8IjJHTcKBocRfjidhemkBqJLQPKupA=
+	t=1768251626; cv=none; b=kQX1BeF0VBjpyOSvanHUlrY0icrY6Og+KrrqQeO4osZHD2mU7qHz+XKs+HpPRDeB4oYnz8niaKsi6IGmLrrH08hJiGraL0XmIGwk0ASa4Y46EsDbcoBCtq3ZVw9w/uvVYbRLVH33ueSXucoz6n3tMkZyhJC+Rrlk9VqvyE2q1Dg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768251620; c=relaxed/simple;
-	bh=6MvNfPDEFcfkquy8gkIp2qFI3WAKNMNlg7aMEqc5UPQ=;
+	s=arc-20240116; t=1768251626; c=relaxed/simple;
+	bh=1dfEkIxCgWAtp/rUjtHrnLOGU8vakAdMtVZFS867zsE=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=ERtHecbpFTVvUQgoq3mKiP8eIaz9kHj/5fxQKXiHsqsv8ctGXjxn88VXglqXaimvyjX1QOq4TBY6lGUgTQykhVsClf6SFc9HUIaNTKlvxFf951EUK6TvvsMO1SOt+iLThXmKpjAqx8u1KA0Jc/HLs84ZKW4hkOgZ1Vs4XF/ptMk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LgkcLwAs; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=fz7VPyrIO94bhJrzbEMMN2byxkRb2grx4Ak7kxzjUVZClcduMnn9JFwGHe4CY1FnoRyfOg1YJIzBQ2F+qP041I7IeeCpH5fQC9ixllBpBLK2gmAdwmjS+d4wEc74FvlgkWeIs9d9CqqPwERzcfNotPNOcurZcsDZR45gld6Xd8U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qtgNnn2/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LgkcLwAs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4E83C19421;
-	Mon, 12 Jan 2026 21:00:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qtgNnn2/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D42AC19421;
+	Mon, 12 Jan 2026 21:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768251619;
-	bh=6MvNfPDEFcfkquy8gkIp2qFI3WAKNMNlg7aMEqc5UPQ=;
+	s=k20201202; t=1768251624;
+	bh=1dfEkIxCgWAtp/rUjtHrnLOGU8vakAdMtVZFS867zsE=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=LgkcLwAsPnG17Go3if3ARUaYuY6re3WqdWam724Cf73tWVhHlbqqCgvwrF++2XyXy
-	 kOKhDWMIqvR5mU1NtNU17VXiLcVjpbvyTFtMS3RWsvxmXwmmL9/9eDNU7cIrqRcbHk
-	 jqMuQ3inTaS3LMDX5R1JgacNIdUvO1cz/iD21E2hvoMuMgMjYHp49zV1XtsTDB09+W
-	 hJw6WXswv3FzQQsIrvwpSlxXw84bdcAm6qGrqCYqB+3WUenRoxILEkAm7D17yYI+k9
-	 68nNnbFdp7FPPgsEylEuftWqYjRsrajx/KluUEcpzmTHYh7mMtD4uMcIJi0/7hMql5
-	 a9Av7ANHpOfhQ==
+	b=qtgNnn2/9dW1SBQERQ8x+3KqCfWVk5+JRekGd0ZW5T4beeD5GU73OUKZiJeMJLH74
+	 18dykCr9Dqil5ZHqvoHtb3wE+05yGBG6qZ6+EEtUMyAmEFwjVyY1/4oEgwIHdiZ8am
+	 WbqL4qs3Puq4KywVpL6yM6d4LNZmBcUcASaIMbDO3vUuRylgPhA1MseQdxhtWDFtyG
+	 +6J3sgVAYHHsK1j1FB88r8Wg2es1NTiNjCT8UiL/RNclJ9rfiJzE6/TFFbrWOMqHRR
+	 gw0UMbF8vlCtjwVumisezJykUMY6BwiNV16jfUfBUu0E2d2vKKBFN0tDjdd7tviRiN
+	 2X9zDE3/apgOw==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id F2CF0380CFD5;
-	Mon, 12 Jan 2026 20:56:54 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7884A380CFD5;
+	Mon, 12 Jan 2026 20:56:59 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -37,44 +37,39 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v3 0/3] virtio-net: fix the deadlock when disabling rx
- NAPI
+Subject: Re: [PATCH net v2] vsock/test: add a final full barrier after run all
+ tests
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <176825141377.1092878.9401605106447575333.git-patchwork-notify@kernel.org>
-Date: Mon, 12 Jan 2026 20:56:53 +0000
-References: <20260106150438.7425-1-minhquangbui99@gmail.com>
-In-Reply-To: <20260106150438.7425-1-minhquangbui99@gmail.com>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
- john.fastabend@gmail.com, sdf@fomichev.me, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+ <176825141802.1092878.8585699875911614513.git-patchwork-notify@kernel.org>
+Date: Mon, 12 Jan 2026 20:56:58 +0000
+References: <20260108114419.52747-1-sgarzare@redhat.com>
+In-Reply-To: <20260108114419.52747-1-sgarzare@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ davem@davemloft.net, stefanha@redhat.com, linux-kernel@vger.kernel.org,
+ leonardi@redhat.com
 
 Hello:
 
-This series was applied to netdev/net.git (main)
+This patch was applied to netdev/net.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Tue,  6 Jan 2026 22:04:35 +0700 you wrote:
-> Calling napi_disable() on an already disabled napi can cause the
-> deadlock. In commit 4bc12818b363 ("virtio-net: disable delayed refill
-> when pausing rx"), to avoid the deadlock, when pausing the RX in
-> virtnet_rx_pause[_all](), we disable and cancel the delayed refill work.
-> However, in the virtnet_rx_resume_all(), we enable the delayed refill
-> work too early before enabling all the receive queue napis.
+On Thu,  8 Jan 2026 12:44:19 +0100 you wrote:
+> From: Stefano Garzarella <sgarzare@redhat.com>
+> 
+> If the last test fails, the other side still completes correctly,
+> which could lead to false positives.
+> 
+> Let's add a final barrier that ensures that the last test has finished
+> correctly on both sides, but also that the two sides agree on the
+> number of tests to be performed.
 > 
 > [...]
 
 Here is the summary with links:
-  - [net,v3,1/3] virtio-net: don't schedule delayed refill worker
-    https://git.kernel.org/netdev/net/c/fcdef3bcbb2c
-  - [net,v3,2/3] virtio-net: remove unused delayed refill worker
-    https://git.kernel.org/netdev/net/c/1e7b90aa7988
-  - [net,v3,3/3] virtio-net: clean up __virtnet_rx_pause/resume
-    https://git.kernel.org/netdev/net/c/a0c159647e66
+  - [net,v2] vsock/test: add a final full barrier after run all tests
+    https://git.kernel.org/netdev/net/c/c39a6a277e0e
 
 You are awesome, thank you!
 -- 
