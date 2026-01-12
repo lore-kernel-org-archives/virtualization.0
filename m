@@ -1,99 +1,80 @@
-Received: from out-170.mta1.migadu.com (out-170.mta1.migadu.com [95.215.58.170])
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 084E4225A3D
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 12:16:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 740D52222C4;
+	Mon, 12 Jan 2026 13:25:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768220177; cv=none; b=M9W8GXpgl4BHnj5z0qvr0vzyRuRhRHkccRImRIkK15Uq5plQmvKJ2PEmX3e+LN03aq/JbYgfp2HPUZCoHJxfTdC5azlViVEUoB3/rfMYsozW34Odu9SATcXoolG7yfOkik6TECH9IxGdxY7zimW4AfLyaNrvDQpn7LpC6LVPNKM=
+	t=1768224324; cv=none; b=orVoxeyo+0tF+7WCphaHTgcZvJjlXtbF3MdiY1/QeRfvZyGpOvtk8C36aj3mScQO764DjHG3p8nngkINt7/CR0rvtzJ8q7SY0cVrJJnbfCMjrs6IOSXazNZbzTqDGd3gZWwa//PoedevJ+3ze1RhwsyDO+wgBh4bTg+Z2dD9kRk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768220177; c=relaxed/simple;
-	bh=Wby5pbdHdinyNuXLsFl325fcmFwTqK/T+r+vbQV3SXg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=I0ru0vzHxQ93m00VbCTQVqCu12GltS3JIBi0LxWNfi3RQS+QrOML014g8T2NsH9dF8qR0OA+rbeu8ALNgDTNiI/P6j0A9DG7peM+qyX/GzFo67OMgJhyB7aupinOCtAg0DkpEJY6qrALliCRaqV3C78RteA4qiFrhsetAPSTnjM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=P/osox+N; arc=none smtp.client-ip=95.215.58.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1768224324; c=relaxed/simple;
+	bh=ZtIEImTdbFc51Ru7QpmEbr/ImRDQRUOshNIVRQzsSoE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WcV0yOF9u1Ix1K/NBbsSKPDLuVA+gEu01hUJoV61H7FJl5J9ehygopsNUwAAKQ3H5Nq1YsupEODOFTdYSgihN9foYuHoslrlf9mjD80S/O+qKU4hzvBvKPKrMEjhMKM+Ig4fgOrMPuwCstCtcnEC0vL1pGigh3zE2Mk5T8Re7Ko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=Qpn3gOt5; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="P/osox+N"
-Message-ID: <6a32849d-6c7b-4745-b7f0-762f1b541f3d@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1768220164;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kQOVXHvilFwT2FBnezNb20RaGtDqm9YgbZmZmrCoGto=;
-	b=P/osox+NY4xQtjyJmj+VCJmeEbGjsEtbj77i5VxoBNeSBT8EvnUzJSMpKnDoSsn4WaC6bl
-	mtClrW/QQkhq72pJC8M/u2erWIjlkVE0zrbVLc33Jb5ArL9AU1kwNoCVw4XdOU3Rxf+5JE
-	gefLsSj51b6M6XmEy2c9A+BDgCSUy6U=
-Date: Mon, 12 Jan 2026 12:15:19 +0000
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="Qpn3gOt5"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=iHbP176mpgAGq9kCi92VZjk+dqr0heKyjL7PyZirZAU=; b=Qpn3gOt5j18vViglQafGzGgs7Z
+	aGqRBHTEbpMRnopGmke0ysw231OEgJmD+vg9xfpc0ycQ0Lt1ybVN33dI5rPguR8HkSCbSPgSDqr2u
+	nAW7TKLGpuTHekdPm53Fjs4hafIeYNNY2r8qRd5reJvitrHsAdMHLJHa5W6PS5RjbyJg=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1vfHui-002Tf4-4v; Mon, 12 Jan 2026 14:24:56 +0100
+Date: Mon, 12 Jan 2026 14:24:56 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Vadim Fedorenko <vadim.fedorenko@linux.dev>
+Cc: Sven Schnelle <svens@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Richard Cochran <richardcochran@gmail.com>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	David Woodhouse <dwmw2@infradead.org>,
+	virtualization@lists.linux.dev, Nick Shi <nick.shi@broadcom.com>,
+	Paolo Abeni <pabeni@redhat.com>, linux-clk@vger.kernel.org
+Subject: Re: [RFC] Defining a home/maintenance model for non-NIC PHC devices
+ using the /dev/ptpX API
+Message-ID: <7be41f07-50ab-4363-8a53-dcdda63b9147@lunn.ch>
+References: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
+ <yt9decnv6qpc.fsf@linux.ibm.com>
+ <6a32849d-6c7b-4745-b7f0-762f1b541f3d@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [RFC] Defining a home/maintenance model for non-NIC PHC devices
- using the /dev/ptpX API
-To: Sven Schnelle <svens@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
- Richard Cochran <richardcochran@gmail.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Dust Li <dust.li@linux.alibaba.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, David Woodhouse <dwmw2@infradead.org>,
- virtualization@lists.linux.dev, Nick Shi <nick.shi@broadcom.com>,
- Paolo Abeni <pabeni@redhat.com>, linux-clk@vger.kernel.org
-References: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
- <yt9decnv6qpc.fsf@linux.ibm.com>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Vadim Fedorenko <vadim.fedorenko@linux.dev>
-In-Reply-To: <yt9decnv6qpc.fsf@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6a32849d-6c7b-4745-b7f0-762f1b541f3d@linux.dev>
 
-On 12/01/2026 11:00, Sven Schnelle wrote:
-> Hi Wen,
+> > drivers/ptp/core    - API as written above
+> > drivers/ptp/virtual - all PtP drivers somehow emulating a PtP clock
+> >                        (like the ptp_s390 driver)
+> > drivers/ptp/net     - all NIC related drivers.
+> > 
 > 
-> Wen Gu <guwen@linux.alibaba.com> writes:
 > 
->> 1. Reorganize drivers/ptp/ to make the interface/implementation split
->>     explicit,
->>
->>     * drivers/ptp/core      : PTP core infrastructure and API.
->>                               (e.g. ptp_chardev.c, ptp_clock.c,
->>                                ptp_sysfs.c, etc.)
->>
->>     * drivers/ptp/pure      : Non-network ("pure clock") implementation,
->>                               they are typically platform/architecture/
->>                               virtualization-provided time sources.
->>                               (e.g. ptp_kvm, ptp_vmw, ptp_vmclock,
->>                                ptp_s390, etc.)
->>
->>     * drivers/ptp/*         : Network timestamping oriented implementation,
->>                               they primarily used together with IEEE1588
->>                               over the network.
->>                               (e.g. ptp_qoriq, ptp_pch, ptp_dp83640,
->>                                ptp_idt82p33 etc.)
-> 
-> I'm fine with splitting paths - but I would propose a different naming
-> scheme as 'pure' is not really a common term in the driver world (at
-> least in my perception, which might be wrong. How about the following
-> instead:
-> 
-> drivers/ptp/core    - API as written above
-> drivers/ptp/virtual - all PtP drivers somehow emulating a PtP clock
->                        (like the ptp_s390 driver)
-> drivers/ptp/net     - all NIC related drivers.
-> 
+> Well, drivers/ptp/virtual is not really good, because some drivers are
+> for physical devices exporting PTP interface, but without NIC.
 
+If the lack of a NIC is the differentiating property:
 
-Well, drivers/ptp/virtual is not really good, because some drivers are
-for physical devices exporting PTP interface, but without NIC.
-Another way is to split physical board drivers to another category, like
-drivers/ptp/hardware. The main difference to virtual is that these 
-devices can output signals on external physical pins as well as
-timestamp inputs on physical pins.
+> > drivers/ptp/net     - all NIC related drivers.
+> > drivers/ptp/netless - all related drivers which are not associated to a NIC.
+
+Or
+
+> > drivers/ptp/emulating - all drivers emulating a PtP clock
+
+	Andrew
