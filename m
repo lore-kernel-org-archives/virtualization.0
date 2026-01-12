@@ -1,79 +1,123 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34D3C322B72;
-	Mon, 12 Jan 2026 21:00:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1DFF32E6BE;
+	Mon, 12 Jan 2026 21:21:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768251626; cv=none; b=kQX1BeF0VBjpyOSvanHUlrY0icrY6Og+KrrqQeO4osZHD2mU7qHz+XKs+HpPRDeB4oYnz8niaKsi6IGmLrrH08hJiGraL0XmIGwk0ASa4Y46EsDbcoBCtq3ZVw9w/uvVYbRLVH33ueSXucoz6n3tMkZyhJC+Rrlk9VqvyE2q1Dg=
+	t=1768252880; cv=none; b=Ht7t1yGjwqPs0yMOOi4ZsYSYXSG/xilpM6wTPezIf0UPuYUwwOFPpLH93TWSor6XfOiIWt/9MAImBB3y4QzMuqhphUY4bIRUf0LZgPT3DsrufD5cza7a5tdpsSvT8/8HJtRUa3jySq/AepBVpEsXpt/JJ2bgH7HkX9Z6SHpJa6g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768251626; c=relaxed/simple;
-	bh=1dfEkIxCgWAtp/rUjtHrnLOGU8vakAdMtVZFS867zsE=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=fz7VPyrIO94bhJrzbEMMN2byxkRb2grx4Ak7kxzjUVZClcduMnn9JFwGHe4CY1FnoRyfOg1YJIzBQ2F+qP041I7IeeCpH5fQC9ixllBpBLK2gmAdwmjS+d4wEc74FvlgkWeIs9d9CqqPwERzcfNotPNOcurZcsDZR45gld6Xd8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qtgNnn2/; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768252880; c=relaxed/simple;
+	bh=M2b/BVcIqPLH0m20b1o8UtrXdhDBjzroQliQQoaNdlM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NWAEvUx74IuoEbhGZrTU8htjXCgLmRlsIGKmIg8Q5nNrzrya3JXMUKi+0uRgNvD9sN8nQc/aCUcbFxDZ8ncDyj2SMgqI53IyW3Oy7HH+LSiZqJEyPPA6c87mr8pMo0MKBwj1All9b5fGRrmsVJJs5BE8qgkgG1Br5yxXGVAD8ME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=kUyhV8kN; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qtgNnn2/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D42AC19421;
-	Mon, 12 Jan 2026 21:00:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768251624;
-	bh=1dfEkIxCgWAtp/rUjtHrnLOGU8vakAdMtVZFS867zsE=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=qtgNnn2/9dW1SBQERQ8x+3KqCfWVk5+JRekGd0ZW5T4beeD5GU73OUKZiJeMJLH74
-	 18dykCr9Dqil5ZHqvoHtb3wE+05yGBG6qZ6+EEtUMyAmEFwjVyY1/4oEgwIHdiZ8am
-	 WbqL4qs3Puq4KywVpL6yM6d4LNZmBcUcASaIMbDO3vUuRylgPhA1MseQdxhtWDFtyG
-	 +6J3sgVAYHHsK1j1FB88r8Wg2es1NTiNjCT8UiL/RNclJ9rfiJzE6/TFFbrWOMqHRR
-	 gw0UMbF8vlCtjwVumisezJykUMY6BwiNV16jfUfBUu0E2d2vKKBFN0tDjdd7tviRiN
-	 2X9zDE3/apgOw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7884A380CFD5;
-	Mon, 12 Jan 2026 20:56:59 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="kUyhV8kN"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1vfPLX-00E2ld-SM; Mon, 12 Jan 2026 22:21:07 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=rBR6vEUMh1Kl8UFFaGiQBub9jPk+Q3NHps34ZQeAWJo=; b=kUyhV8kNbBVDZ33ER/KR0TO31L
+	qUmYM3IIozMfFBjFgpM/H0YIp/Qe/+WpDWV6BsGiDTTgL184ZM+IFmqy1U4FogjKfK0vK4+wuagPN
+	1drjit2ZngjAAQXXfoeX1pxO5AhlBfeTcShP13pwkP7npucIRXFJ6t1+bMg9wlEOEPyGcanSlhhYZ
+	yZesd8MpsEFA2FfMDaxX2wUn/KxFHbAa+vEYOfEJ+bfNus8fLNDIfPrxlOaZuMNY+/7XlDmUrq3K7
+	u0HMgqdluuRcN3xYUcUwqZ6VXaWExpShaXm1uCzv8uJBOR79s/WdHT3m2CTx9bnj9o1d9gWDEZHOD
+	KEUQ2zhA==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1vfPLW-0000Da-V6; Mon, 12 Jan 2026 22:21:07 +0100
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1vfPLH-00B6J8-L6; Mon, 12 Jan 2026 22:20:51 +0100
+Message-ID: <0b15644b-9394-4734-9c0e-0a6d1355604a@rbox.co>
+Date: Mon, 12 Jan 2026 22:20:50 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] vsock/test: add a final full barrier after run all
- tests
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <176825141802.1092878.8585699875911614513.git-patchwork-notify@kernel.org>
-Date: Mon, 12 Jan 2026 20:56:58 +0000
-References: <20260108114419.52747-1-sgarzare@redhat.com>
-In-Reply-To: <20260108114419.52747-1-sgarzare@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] vsock/test: Add test for a linear and non-linear skb
+ getting coalesced
 To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
- davem@davemloft.net, stefanha@redhat.com, linux-kernel@vger.kernel.org,
- leonardi@redhat.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>,
+ Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260108-vsock-recv-coalescence-v1-0-26f97bb9a99b@rbox.co>
+ <20260108-vsock-recv-coalescence-v1-2-26f97bb9a99b@rbox.co>
+ <aWEqjjE1vb_t35lQ@sgarzare-redhat>
+ <76ca0c9f-dcda-4a53-ac1f-c5c28d1ecf44@rbox.co>
+ <aWT6EH8oWpw-ADtm@sgarzare-redhat>
+ <080d7ae8-e184-4af8-bd72-765bb30b63a5@rbox.co>
+ <aWUk0axv-GZu7VD2@sgarzare-redhat>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <aWUk0axv-GZu7VD2@sgarzare-redhat>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Thu,  8 Jan 2026 12:44:19 +0100 you wrote:
-> From: Stefano Garzarella <sgarzare@redhat.com>
+On 1/12/26 17:48, Stefano Garzarella wrote:
+>>>>>> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>>>>>> index bbe3723babdc..21c8616100f1 100644
+>>>>>> --- a/tools/testing/vsock/vsock_test.c
+>>>>>> +++ b/tools/testing/vsock/vsock_test.c
+>>>>>> @@ -2403,6 +2403,11 @@ static struct test_case test_cases[] = {
+>>>>>> 		.run_client = test_stream_accepted_setsockopt_client,
+>>>>>> 		.run_server = test_stream_accepted_setsockopt_server,
+>>>>>> 	},
+>>>>>> +	{
+>>>>>> +		.name = "SOCK_STREAM MSG_ZEROCOPY coalescence corruption",
+>>>>>
+>>>>> This is essentially a regression test for virtio transport, so I'd add
+>>>>> virtio in the test name.
+>>>>
+>>>> Isn't virtio transport unaffected? It's about loopback transport (that
+>>>> shares common code with virtio transport).
+>>>
+>>> Why virtio transport is not affected?
+>>
+>> With the usual caveat that I may be completely missing something, aren't
+>> all virtio-transport's rx skbs linear? See virtio_vsock_alloc_linear_skb()
+>> in virtio_vsock_rx_fill().
+>>
 > 
-> If the last test fails, the other side still completes correctly,
-> which could lead to false positives.
+> True, but what about drivers/vhost/vsock.c ?
 > 
-> Let's add a final barrier that ensures that the last test has finished
-> correctly on both sides, but also that the two sides agree on the
-> number of tests to be performed.
-> 
-> [...]
+> IIUC in vhost_vsock_handle_tx_kick() we call vhost_vsock_alloc_skb(), 
+> that calls virtio_vsock_alloc_skb() and pass that skb to 
+> virtio_transport_recv_pkt(). So, it's also affected right?
 
-Here is the summary with links:
-  - [net,v2] vsock/test: add a final full barrier after run all tests
-    https://git.kernel.org/netdev/net/c/c39a6a277e0e
+virtio_vsock_alloc_skb() returns a non-linear skb only if size >
+SKB_WITH_OVERHEAD(PAGE_SIZE << PAGE_ALLOC_COSTLY_ORDER)). And that is way
+more than GOOD_COPY_LEN, so we're good.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+At least until someone increases GOOD_COPY_LEN and/or reduces the size
+condition for non-linear allocation. So, yeah, a bit brittle.
 
+> BTW in general we consider loopback as one of virtio devices since it 
+> really shares with them most of the code.
+
+Fair enough, I'll add "virtio" to the test name.
+
+> That said, now I'm thinking more about Fixes tag.
+> Before commit 6693731487a8 ("vsock/virtio: Allocate nonlinear SKBs for 
+> handling large transmit buffers") was that a real issue?
+
+I don't really think that commit changes anything for the zerocopy case. It
+only makes some big (>GOOD_COPY_LEN) non-ZC skbs turn non-linear.
 
