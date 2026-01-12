@@ -1,145 +1,172 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD6A2329E76
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 09:27:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49A51350A19
+	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 10:56:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768210056; cv=none; b=CBmQWPyU4+mzb8DLMq4yErZEZZA3iHUxu4w7Y1CuFD5JaYvPsfzenb/Nccgt80VQf51uMUpoHtBtlVTz9ICPE3zl/j972YpCV7fxwjfVcgv+lUOcn3EDjH3OkN+ah+26qQouuG2i1oKfFbqXUjwa66FrdF+kNwYUwKI+CTMaa3o=
+	t=1768215381; cv=none; b=M/bpYUYIhNu9UIGDIbrdmUNdv8vI+0GwZuU+KSPqIqNPxzUe5U6hTstYrEqIp1Sx8vkLDZZNfYOSkZovHvUltUH4betEYSkdpb0XyC3zCFPiP6fg2sJkjNPRNzH18KECxQJAY+L3lEgY1lXxiNTtzrwS2FG89pATa8sWemfDqX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768210056; c=relaxed/simple;
-	bh=9Y/o4BFWRX+MFK3cxBtFHx8aWH4WzUPjC2atua8kZ7Q=;
+	s=arc-20240116; t=1768215381; c=relaxed/simple;
+	bh=nGiD7bw2cOMOtg26hDarR/W1rQ2KTZmr9SgL6IwuPvA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DjKd/VKBP5yEiMoit2yIwsuZStJv8tjcaqJVb7T3aBFwSN54JGV1zhPLFFSAEUhGBs+oVyKvxOoObkXFzyy8xqTWjjo+xopILp2D/Ph/c7zha99YTyAMBWUrJ+SFvyIb8ml8lP1PS0pVW0TMwvjNzGRYvSCNfHjeFzZYqhw+Luo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=X06Hl+K/; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=Gib9TqnwTeQ1ZUt/iWigoB2gAI7Ld9TX3087iOMZfE2uoOTjCKWMK+6eHQwMLVO1LJuDd0l/JVJEZHP52iEnfNxDFySoqYnMj4RQPy3uX241EGV14NIYZ+v4Q6d0Qes8zJWeBGY3BXvPSJHpZBQVbbspLwdXvu2VCr56ji2IEUk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HH8HDd6Z; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X06Hl+K/"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HH8HDd6Z"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768210053;
+	s=mimecast20190719; t=1768215375;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=joUA+NIycoHmA9pJswCQKYFsSC0TOGJ+MjRJBe9+5Qw=;
-	b=X06Hl+K/jM0xMJTehkAc4f3SgJzi+7JXTD2xBmeEvEfWQ2nYn07cf2SpqDcJm743OhpKst
-	xOzAAHCaDsppKQF/1k9F2dkZmK/ILCf3EKReuxX/qVOKWcn9Z+kntQZkYFRJJ2wrw0FGPq
-	DXRtO3yo32uFGVILH1jPffPz/cnj1k8=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=UkidxxhbJThge+ww1GsMvdCUGdlZhwic8/zcfvYMO6Q=;
+	b=HH8HDd6ZJhQFAHj9dclsRDrCT1PGj3zKaiHeCTQwa9DQTsIKLtqOg09vdr/pgq87XTwiSj
+	GWqO6u7Yp1B1ncVkp6M8/XSKkpAcFNvHlHgOzfnLDefwtV3ehcOTqx7G8F9gM5jvRO6eiB
+	wgQR8HJAlnEjBeXWHdc8Tqp70iFKCGg=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-119-PU-Fw985PvS5s4vmHKJ6lg-1; Mon, 12 Jan 2026 04:27:32 -0500
-X-MC-Unique: PU-Fw985PvS5s4vmHKJ6lg-1
-X-Mimecast-MFC-AGG-ID: PU-Fw985PvS5s4vmHKJ6lg_1768210051
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-78fb85eddf1so82335037b3.3
-        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 01:27:32 -0800 (PST)
+ us-mta-685-YeZ7XwqvNvqhYhCAcZWLKA-1; Mon, 12 Jan 2026 05:56:14 -0500
+X-MC-Unique: YeZ7XwqvNvqhYhCAcZWLKA-1
+X-Mimecast-MFC-AGG-ID: YeZ7XwqvNvqhYhCAcZWLKA_1768215374
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-7900ab6755fso96283287b3.0
+        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 02:56:14 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768210051; x=1768814851;
+        d=1e100.net; s=20230601; t=1768215374; x=1768820174;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=joUA+NIycoHmA9pJswCQKYFsSC0TOGJ+MjRJBe9+5Qw=;
-        b=wvhxWZDd1u7aizl3czNtZ4jTzqWa/lXfwiRBwkVnKsYkrejzYPyZpckuRja4ZwX6h3
-         dkIgQ4krhQjKrN7CspNAxYkeydUV+dtXoPaWPPbDQ4pjjogBlHoHL9GM9BCRtYkE7Vqa
-         3rU3Gg6UqZU9x0mkxByx/Jq9ibTsxJ7KCIVIg+b1qtz9zFdalBrpn9iFgkYdXJgAH6PI
-         feqWjZiGf4H4sqezQ+2Ow7zdPTL08ckWKNY8xfV1asCL5Okod7oMPgXEtrEWr198uy7/
-         eQtQvxOILKUVhR0EIPUm1qogQl/lOuGHyLyy0gadODw5TH7SiG3JKjMPWpin+QLP/v+I
-         bTdQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWiM5DmPPuaY2DcbiBHta7ayGbzMGjChvr4KQUk9gkStDxgbViNoW7Dpq0tCP/G1XUdknGYV8Cy1rK1fUT3jg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxoqLMwY1x0LxoQUISCa1EZdJXzJnsFSDiV3K+0e4ZiS6on1okW
-	7gwlDfUeAopPPQ1q0jFzPOrn7oaPhYv+w6Yrnttp3lOtW0D56dWRx361mJ1PaWH4CcdaSb2eMAv
-	0UcCWK2m7uAxvYp4gRyHtrglOxzScimpjwXXy62KpTjpGdY4O2BoF9OdunDdSZRy/i8xiG2Ag3i
-	sOywrDlk6mUcJUZ6pVVSyyoLEEwlAGvQ+8xzrf266OYxs=
-X-Gm-Gg: AY/fxX644uV3G1i+Z8lQhc3T3l8CqGNa67yQ0Ux/l7t1CPfp/9xQHB7lbdw79sydixv
-	tFCiGQElTnUBvjLw8G4YU9XIQGZv3uBi9YeONf35Pap8ve6ZmKrta6SJB8tTm/zbyb04h+57eaB
-	7MRt2rFIugM3e+PI1yGnF7YiugQHpQ9Ko7wVi9jn8r+ZAxmVV+oQxlntE1YeZMzXa0VQ==
-X-Received: by 2002:a05:690c:d09:b0:78c:5bb4:1d4c with SMTP id 00721157ae682-790b5800025mr325092407b3.39.1768210051492;
-        Mon, 12 Jan 2026 01:27:31 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGgnkAFchPEYFhM6wE1IpjTF+Se0KVO9jBwe7csQ8qFksXKc63H7XZrkTnZhVkqUK7G8bRnf7szSob4Lv2KfBE=
-X-Received: by 2002:a05:690c:d09:b0:78c:5bb4:1d4c with SMTP id
- 00721157ae682-790b5800025mr325092247b3.39.1768210051160; Mon, 12 Jan 2026
- 01:27:31 -0800 (PST)
+        bh=UkidxxhbJThge+ww1GsMvdCUGdlZhwic8/zcfvYMO6Q=;
+        b=fm0GHCRQ2MLdPNo/eW9E4PM8kyK1lPCDIkeRk7uGz9L5b/JMbzx5Bavyl+luYaueHT
+         dv/nNw54giftVrfKBShRMQZ1hYh3BWjvEFXsfdk9TIu02N6n8+YI+B22fpWtibzUIlMo
+         XrubN0zQxEjvyxaNs3qgay9mcIi0I03UQgb06A67ABLFwM53sIYgsK7igiJe7F5Cp08Q
+         thY0IBfZOyTGPFogBEWwbpPRTxR2WgvKt3njiapUrs5GrFZI5PJF3mQIdEKucERgsbeB
+         UsMoTbrWErcaEy4T41XsqRcq2LxXi6TrOO4NTvBGi1NUR3oHEPB1MM06faHxngUOY0m5
+         8C1w==
+X-Forwarded-Encrypted: i=1; AJvYcCW7+PHCOzNTQmO7igM4ca92qWB37Yn9+zURcNR+GhKPXp/Dx703CQ4sch3gS/1bqUqXu8+pMIU1Ka0t58qupQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwSOXYdNiUzQWiyQNLWdte1A9bDJqCakbVQsLBJCpzTO3jzBI2Y
+	SPwdF53vklZAXTZwOHi436eJEizkYaRqG3OE//0fQvJ37aMzMQRliSZ8OXbuIjrAPdaqch2hPBa
+	r8Eu76qZSf5U/5pJW8TTfwXYFO7EPxXB0iO+ZNdaEZwcn8Wudb/Bg70Mbb3D3xPozWb29NfMaNk
+	Evu16jdpgofS/pu2tdaFnyOpDAUuvt3VHY/g3fCkWzDGk=
+X-Gm-Gg: AY/fxX7uH1MO0pKnCWjk7K97EyQeK5WSz9SqlHK+t07YjNrwCXZtbGDIfbgoVaaBOKe
+	5O8hy0xNvNIJThTwEDWRkKCkBCuFDM2RdvaP2qbgGJqSpKHrm//LVxQqhGtGbXaBMFUbF1NIdL4
+	g4OJ9ayRV9roJEH4Pu3ca0hMY55ZmeOPf8XqDcOJPa/0J4mp1vNOW2zMNFbEYOSOAPUQ==
+X-Received: by 2002:a05:690e:140b:b0:644:7398:6682 with SMTP id 956f58d0204a3-64716ba3225mr14924809d50.30.1768215373759;
+        Mon, 12 Jan 2026 02:56:13 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGKmmfP3F70Is0/v7kJhGPMZ27JCX3KYWq+oBAh6b3Xob35HGfPNXGYsgs38iaQs2lGjoWd+Rm/VuuJUrkyi6A=
+X-Received: by 2002:a05:690e:140b:b0:644:7398:6682 with SMTP id
+ 956f58d0204a3-64716ba3225mr14924797d50.30.1768215373459; Mon, 12 Jan 2026
+ 02:56:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260109152430.512923-1-eperezma@redhat.com> <20260109152430.512923-10-eperezma@redhat.com>
- <20260110185006-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260110185006-mutt-send-email-mst@kernel.org>
+References: <20260109152430.512923-1-eperezma@redhat.com> <20260109152430.512923-11-eperezma@redhat.com>
+ <20260110185423-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260110185423-mutt-send-email-mst@kernel.org>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Mon, 12 Jan 2026 10:26:54 +0100
-X-Gm-Features: AZwV_Qg6cZNN3EX3jEjlnxsCl1uPK4REsbSDBDE6dCHSkp2m5R9PcQebYkOO_30
-Message-ID: <CAJaqyWePwTftOkoycpcKreAAbentzt0oEdRwNUzq0DbF46y+Xw@mail.gmail.com>
-Subject: Re: [PATCH v11 09/12] vduse: take out allocations from vduse_dev_alloc_coherent
+Date: Mon, 12 Jan 2026 11:55:37 +0100
+X-Gm-Features: AZwV_QjhaocZzt9zvw1s3OjTsaGu-bKKM5hwp7iL5KtHWiJWxIiAdfgOpoaXTq0
+Message-ID: <CAJaqyWeKGUL3UboZr8WZh8sUKrmKStbN1D6Jnr_Ex=y4hQjpcw@mail.gmail.com>
+Subject: Re: [PATCH v11 10/12] vduse: merge tree search logic of IOTLB_GET_FD
+ and IOTLB_GET_INFO ioctls
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
 	Maxime Coquelin <mcoqueli@redhat.com>, Laurent Vivier <lvivier@redhat.com>, Cindy Lu <lulu@redhat.com>, 
 	jasowang@redhat.com, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
 	Stefano Garzarella <sgarzare@redhat.com>, Yongji Xie <xieyongji@bytedance.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: jlUy73-UeAAcbDEiC59o8SVen0Oy7GGfNd_xRuqd8uU_1768210051
+X-Mimecast-MFC-PROC-ID: ZTF53-83jRtmEUyRofLMGjIhNCwCsZpuglxNEnJ88mM_1768215374
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jan 11, 2026 at 12:54=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
+On Sun, Jan 11, 2026 at 12:56=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
 > wrote:
 >
-> On Fri, Jan 09, 2026 at 04:24:27PM +0100, Eugenio P=C3=A9rez wrote:
+> On Fri, Jan 09, 2026 at 04:24:28PM +0100, Eugenio P=C3=A9rez wrote:
+> > The next patch adds new ioctl with the ASID member per entry.  Abstract
+> > these two so it can be build on top easily.
+> >
+> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > ---
+> > v11: New in v11
+> > ---
+> >  drivers/vdpa/vdpa_user/vduse_dev.c | 101 ++++++++++++++++-------------
+> >  1 file changed, 55 insertions(+), 46 deletions(-)
+> >
 > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
 r/vduse_dev.c
-> > index 82ee476d45e0..675da1465e0e 100644
+> > index 675da1465e0e..bf437816fd7d 100644
 > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
 > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -923,16 +923,24 @@ static void *vduse_dev_alloc_coherent(union virti=
-o_map token, size_t size,
-> >       if (!token.group)
-> >               return NULL;
-> >
-> > +     addr =3D alloc_pages_exact(size, flag);
-> > +     if (!addr)
-> > +             return NULL;
-> > +
->
-> So addr has allocated pages here ...
->
->
-> >       vdev =3D token.group->dev;
-> >       domain =3D vdev->domain;
-> >       addr =3D vduse_domain_alloc_coherent(domain, size,
-> > -                                        (dma_addr_t *)&iova, flag);
-> > +                                        (dma_addr_t *)&iova, addr);
->
-> and then is overwritten here ...
->
-> >       if (!addr)
-> > -             return NULL;
-> > +             goto err;
->
-> except on error where we go to err ...
->
-> >
-> >       *dma_addr =3D (dma_addr_t)iova;
-> >
-> >       return addr;
-> > +
-> > +err:
-> > +     free_pages_exact(addr, size);
->
-> only to try and free NULL. will leak the original pages, will it not.
->
-
-Right, I missed that in the conversion. I'll change the function
-vduse_domain_alloc_coherent so it returns dma_addr instead of orig,
-making all the code simpler. Thanks!
-
-> > +     return NULL;
+> > @@ -1247,6 +1247,50 @@ static void vduse_vq_update_effective_cpu(struct=
+ vduse_virtqueue *vq)
+> >       vq->irq_effective_cpu =3D curr_cpu;
 > >  }
 > >
-> >  static void vduse_dev_free_coherent(union virtio_map token, size_t siz=
-e,
+> > +static int vduse_dev_iotlb_entry(struct vduse_dev *dev,
+> > +                              struct vduse_iotlb_entry *entry,
+> > +                              struct file **f, uint64_t *capability)
+> > +{
+> > +     int r =3D -EINVAL;
+> > +     struct vhost_iotlb_map *map;
+> > +     const struct vdpa_map_file *map_file;
+> > +
+> > +     if (entry->start > entry->last)
+> > +             return -EINVAL;
+> > +
+> > +     mutex_lock(&dev->domain_lock);
+> > +     if (!dev->domain)
+> > +             goto out;
+> > +
+> > +     spin_lock(&dev->domain->iotlb_lock);
+> > +     map =3D vhost_iotlb_itree_first(dev->domain->iotlb, entry->start,
+> > +                                   entry->last);
+> > +     if (map) {
+> > +             if (f) {
+> > +                     map_file =3D (struct vdpa_map_file *)map->opaque;
+>
+> map_file assigned value when f !=3D NULL here ...
+>
+> > +                     *f =3D get_file(map_file->file);
+> > +             }
+> > +             entry->offset =3D map_file->offset;
+>
+> but dereferenced unconditionally here.
+>
+
+Fixing in the next version, thanks!
+
+> > +             entry->start =3D map->start;
+> > +             entry->last =3D map->last;
+> > +             entry->perm =3D map->perm;
+> > +             if (capability) {
+> > +                     *capability =3D 0;
+> > +
+> > +                     if (dev->domain->bounce_map && map->start =3D=3D =
+0 &&
+> > +                         map->last =3D=3D dev->domain->bounce_size - 1=
+)
+> > +                             *capability |=3D VDUSE_IOVA_CAP_UMEM;
+> > +             }
+> > +
+> > +             r =3D 0;
+> > +     }
+> > +     spin_unlock(&dev->domain->iotlb_lock);
+> > +
+> > +out:
+> > +     mutex_unlock(&dev->domain_lock);
+> > +     return r;
+> > +}
+> > +
+> >  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+> >                           unsigned long arg)
+> >  {
 >
 
