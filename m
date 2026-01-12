@@ -1,123 +1,130 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f52.google.com (mail-yx1-f52.google.com [74.125.224.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1DFF32E6BE;
-	Mon, 12 Jan 2026 21:21:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6355342C92
+	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 23:21:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768252880; cv=none; b=Ht7t1yGjwqPs0yMOOi4ZsYSYXSG/xilpM6wTPezIf0UPuYUwwOFPpLH93TWSor6XfOiIWt/9MAImBB3y4QzMuqhphUY4bIRUf0LZgPT3DsrufD5cza7a5tdpsSvT8/8HJtRUa3jySq/AepBVpEsXpt/JJ2bgH7HkX9Z6SHpJa6g=
+	t=1768260081; cv=none; b=ogbDxJXvEAY63cTZiOdWENSL8wzlmYW0vAA+pzT4GDsdNk6mBD1SqAxsGtfskH4HEJ4db6vOpBPPy2ZTlRPKqh8oizmy7Jzq8xB0swCYjn+xA4ZKZJwADHQegesgvAdKUH8wwicQIG01J9Noijmzf4KG55wd3ZmXCi+yw3ZE+qc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768252880; c=relaxed/simple;
-	bh=M2b/BVcIqPLH0m20b1o8UtrXdhDBjzroQliQQoaNdlM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NWAEvUx74IuoEbhGZrTU8htjXCgLmRlsIGKmIg8Q5nNrzrya3JXMUKi+0uRgNvD9sN8nQc/aCUcbFxDZ8ncDyj2SMgqI53IyW3Oy7HH+LSiZqJEyPPA6c87mr8pMo0MKBwj1All9b5fGRrmsVJJs5BE8qgkgG1Br5yxXGVAD8ME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=kUyhV8kN; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1768260081; c=relaxed/simple;
+	bh=7L4AuwoQwpFDKJ+QfvB8n+UzDOCrhQdo2yK39qUc8cI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=syN8arqzky0+LRXJv8aYQ+sM+RPcpzVko8KbeF6pNMP2GanXpLP7Kx8hNaRUd9hus4SooxURRaNprkx9rVBxpnMSSQtkeqx/IyPRd3aRt+//bEYWwZa2eO7taDYuAG82pDY4BZsKZ07WCl8FVJ09Rsbv3e/KkvP8naNnIeIBVII=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iueOJFTr; arc=none smtp.client-ip=74.125.224.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="kUyhV8kN"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1vfPLX-00E2ld-SM; Mon, 12 Jan 2026 22:21:07 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=rBR6vEUMh1Kl8UFFaGiQBub9jPk+Q3NHps34ZQeAWJo=; b=kUyhV8kNbBVDZ33ER/KR0TO31L
-	qUmYM3IIozMfFBjFgpM/H0YIp/Qe/+WpDWV6BsGiDTTgL184ZM+IFmqy1U4FogjKfK0vK4+wuagPN
-	1drjit2ZngjAAQXXfoeX1pxO5AhlBfeTcShP13pwkP7npucIRXFJ6t1+bMg9wlEOEPyGcanSlhhYZ
-	yZesd8MpsEFA2FfMDaxX2wUn/KxFHbAa+vEYOfEJ+bfNus8fLNDIfPrxlOaZuMNY+/7XlDmUrq3K7
-	u0HMgqdluuRcN3xYUcUwqZ6VXaWExpShaXm1uCzv8uJBOR79s/WdHT3m2CTx9bnj9o1d9gWDEZHOD
-	KEUQ2zhA==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1vfPLW-0000Da-V6; Mon, 12 Jan 2026 22:21:07 +0100
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1vfPLH-00B6J8-L6; Mon, 12 Jan 2026 22:20:51 +0100
-Message-ID: <0b15644b-9394-4734-9c0e-0a6d1355604a@rbox.co>
-Date: Mon, 12 Jan 2026 22:20:50 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iueOJFTr"
+Received: by mail-yx1-f52.google.com with SMTP id 956f58d0204a3-6467b7c3853so4754255d50.0
+        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 15:21:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768260072; x=1768864872; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=jtoLeYJaY/2ODhxZmDU22B5G0cJLjLhdpG7Ly3b1Aek=;
+        b=iueOJFTrm+ZkmNFlJH+Vpq922n8g3Xv9kqR1pwYHCj0dHP4xCO0nY+oDSmueRMdlOs
+         MaT1KRTZz4d7/Y4tNOPh7gp230XMo5GVtnmhsJ4yqs8L7Mx3wRnXo6N1Eldikccak+Ih
+         zKd9M+YrYLjdRTZpQwxFtwUzgIrsosn6g5j9JoGoSxmM2elgOdX1zbP0+DMXufp9kFwp
+         2wW0ged6B2iEBbHnYnM8cYklVsMnMS3MWtE7Qp56fttZLnXL98pxSf/fcNFroANeyY3e
+         7G8HCHHELFPWfAQcsw2GoxxsWFchI5nIR3mzGLsqZUylAWzCvM3jJFgudyewvsd7tM40
+         N6Tg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768260072; x=1768864872;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jtoLeYJaY/2ODhxZmDU22B5G0cJLjLhdpG7Ly3b1Aek=;
+        b=F9Jjpvz1Zc54E/LV4j6SqcDQ02V57rhoRrteQZLLBum1lOZwzzw0nzpcP6jMIgsDYY
+         HZ0KzEevAluUUfnwPhgJUQRg774nufDnT9AVIxiM25R7+2t2iAawi1ZyeZrNpuWm/JpG
+         +81dS86BF0Jcot6TSyIFbxJiTYvsRwOId2Kxtzj3oeuQryAvNIPbNEPPKBjbgyBICw7W
+         rB0VhqCvHNBxgcdawTCKIboV7XacWbn/sR+7ED+vtGYPzeBMZh3EC+4ycVX7J/pw1A8L
+         LbAt2zScrmiOb51fTX0geO/VCY1jCo70KxbOABY3ZZWfBZfTUOQfhuCih34EeaTsBIvH
+         M5RA==
+X-Forwarded-Encrypted: i=1; AJvYcCU35BIAcWQtzcjza+3Y3qvkY8N+Z1nbalDzyHfYKhYFXo2/ohoTHo1poMmrDKJI/7OATmpR6++fX0HsmSnenA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx3td0L/tZVDqVLUa8C59kzTeHmZAVN5LVmOEiOwl57Ka8n/0ms
+	c/JHvSN5TeFGUCW7wuxloXC7jvkd8Tpu8VLaueF9+vIfXVQBaTBYTSiG
+X-Gm-Gg: AY/fxX517jWjSHuXVEoAVzQIKp0T1H8JDun4HRmyiyNt5HhWQ1tsSVI9Aeo45b9TYaw
+	T9y2XGQMuMSl/Mo1VAHjhHaXt3J0pBVOHLuilP2tvMqPAMh8OzuRcrR8Ewqgp6GgQgq+i7NAFlW
+	zn+tJcZ5uIBwsqEKZVSlZTiFWhLkq6nK/GMjJCXkKrOh/R2V1zGprmiUhxdiwM2101hMjGzZoeP
+	k5ERYMBID+12RNnp6+jFSz9yHUn2SAtVWezKUda4V5FpuDIiDeNQtyio0ib+LZnwGwP+wWEM+Zx
+	RGn5FZ+mrtDazeNPmm3DLZ32vC2ee/4QroYnXc/lccShvfRpbyyu2767YWIf+dbsOQWjN6daDxl
+	rkEDyx1Mt9Rn3MQEakuWEQeYH56atFHahZelV361+a84xrNpYmoh+lmmu5yAwMg/cXMn83yYAT6
+	+zuZtfsQIgUXTrCDi4v64C3RMqDxw3mHiusA==
+X-Google-Smtp-Source: AGHT+IGPR3yHTofTNuLsmIGRF/vxUZuNpadx2Jh/erk6LsyOgtC+kyjO5yp6nCVt3XNr+Y0sCRmwIQ==
+X-Received: by 2002:a05:690e:4085:b0:645:5297:3e65 with SMTP id 956f58d0204a3-64716b35ea6mr16989024d50.11.1768260071815;
+        Mon, 12 Jan 2026 15:21:11 -0800 (PST)
+Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:2::])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-790aa6e12ffsm74065287b3.53.2026.01.12.15.21.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jan 2026 15:21:11 -0800 (PST)
+Date: Mon, 12 Jan 2026 15:21:09 -0800
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Bryan Tan <bryan-bt.tan@broadcom.com>,
+	Vishnu Dasa <vishnu.dasa@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Shuah Khan <shuah@kernel.org>, Long Li <longli@microsoft.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, kvm@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	berrange@redhat.com, Sargun Dhillon <sargun@sargun.me>,
+	Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH RFC net-next v13 03/13] virtio: set skb owner of
+ virtio_transport_reset_no_sock() reply
+Message-ID: <aWWB5bvx677ep317@devvm11784.nha0.facebook.com>
+References: <20251223-vsock-vmtest-v13-0-9d6db8e7c80b@meta.com>
+ <20251223-vsock-vmtest-v13-3-9d6db8e7c80b@meta.com>
+ <20260111014500-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] vsock/test: Add test for a linear and non-linear skb
- getting coalesced
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>,
- Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260108-vsock-recv-coalescence-v1-0-26f97bb9a99b@rbox.co>
- <20260108-vsock-recv-coalescence-v1-2-26f97bb9a99b@rbox.co>
- <aWEqjjE1vb_t35lQ@sgarzare-redhat>
- <76ca0c9f-dcda-4a53-ac1f-c5c28d1ecf44@rbox.co>
- <aWT6EH8oWpw-ADtm@sgarzare-redhat>
- <080d7ae8-e184-4af8-bd72-765bb30b63a5@rbox.co>
- <aWUk0axv-GZu7VD2@sgarzare-redhat>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <aWUk0axv-GZu7VD2@sgarzare-redhat>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260111014500-mutt-send-email-mst@kernel.org>
 
-On 1/12/26 17:48, Stefano Garzarella wrote:
->>>>>> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->>>>>> index bbe3723babdc..21c8616100f1 100644
->>>>>> --- a/tools/testing/vsock/vsock_test.c
->>>>>> +++ b/tools/testing/vsock/vsock_test.c
->>>>>> @@ -2403,6 +2403,11 @@ static struct test_case test_cases[] = {
->>>>>> 		.run_client = test_stream_accepted_setsockopt_client,
->>>>>> 		.run_server = test_stream_accepted_setsockopt_server,
->>>>>> 	},
->>>>>> +	{
->>>>>> +		.name = "SOCK_STREAM MSG_ZEROCOPY coalescence corruption",
->>>>>
->>>>> This is essentially a regression test for virtio transport, so I'd add
->>>>> virtio in the test name.
->>>>
->>>> Isn't virtio transport unaffected? It's about loopback transport (that
->>>> shares common code with virtio transport).
->>>
->>> Why virtio transport is not affected?
->>
->> With the usual caveat that I may be completely missing something, aren't
->> all virtio-transport's rx skbs linear? See virtio_vsock_alloc_linear_skb()
->> in virtio_vsock_rx_fill().
->>
+On Sun, Jan 11, 2026 at 01:46:43AM -0500, Michael S. Tsirkin wrote:
+> On Tue, Dec 23, 2025 at 04:28:37PM -0800, Bobby Eshleman wrote:
+> > From: Bobby Eshleman <bobbyeshleman@meta.com>
+> > 
+> > Associate reply packets with the sending socket. When vsock must reply
+> > with an RST packet and there exists a sending socket (e.g., for
+> > loopback), setting the skb owner to the socket correctly handles
+> > reference counting between the skb and sk (i.e., the sk stays alive
+> > until the skb is freed).
+> > 
+> > This allows the net namespace to be used for socket lookups for the
+> > duration of the reply skb's lifetime, preventing race conditions between
+> > the namespace lifecycle and vsock socket search using the namespace
+> > pointer.
+> > 
+> > Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+> > ---
+> > Changes in v11:
+> > - move before adding to netns support (Stefano)
 > 
-> True, but what about drivers/vhost/vsock.c ?
-> 
-> IIUC in vhost_vsock_handle_tx_kick() we call vhost_vsock_alloc_skb(), 
-> that calls virtio_vsock_alloc_skb() and pass that skb to 
-> virtio_transport_recv_pkt(). So, it's also affected right?
+> can you explain about the revert please?
+> I looked at feedback from Stefano and all he said
+> aparently was not to break bisect.
 
-virtio_vsock_alloc_skb() returns a non-linear skb only if size >
-SKB_WITH_OVERHEAD(PAGE_SIZE << PAGE_ALLOC_COSTLY_ORDER)). And that is way
-more than GOOD_COPY_LEN, so we're good.
+The patch that brings support into vsock_loopback depends on this one to
+avoid a introducing a race condition, so it should come before that one.
 
-At least until someone increases GOOD_COPY_LEN and/or reduces the size
-condition for non-linear allocation. So, yeah, a bit brittle.
-
-> BTW in general we consider loopback as one of virtio devices since it 
-> really shares with them most of the code.
-
-Fair enough, I'll add "virtio" to the test name.
-
-> That said, now I'm thinking more about Fixes tag.
-> Before commit 6693731487a8 ("vsock/virtio: Allocate nonlinear SKBs for 
-> handling large transmit buffers") was that a real issue?
-
-I don't really think that commit changes anything for the zerocopy case. It
-only makes some big (>GOOD_COPY_LEN) non-ZC skbs turn non-linear.
-
+Best,
+Bobby
