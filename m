@@ -1,85 +1,114 @@
-Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A5ED883F
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 14:52:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB06627602C;
+	Mon, 12 Jan 2026 15:23:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768229560; cv=none; b=TpYYdzY0tdanGkYGydrD1tG5hPCE/F/0HmQDwjB4hrkjGnhddBqyZG2ncjQv221nyx/MbZeJzq2r2vN5ogB3sLvHGgdhWsAXxogO/u0wXPlJryrXG2+lnFQDCZfHA04s8DSERYG5ibZpsF5gTqI6ZQSHL6W3CqJ6jwECgHemwi0=
+	t=1768231390; cv=none; b=ktFcqs2UY3aQ4XJJcmBcXk59Yua9OYOIZrsLWCzG7Zj4sIIB9wrs5KesK0pFjnynaIAmVLqkszM/PDPohf1ld3mBv+NCDOUVGx6RtJdokoXJPO37Ww+FOfwsToUj+AO9sMOnGkmS4Z43fF36sKHZjRD0FTWIkcoiP9LLovWg79c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768229560; c=relaxed/simple;
-	bh=rk8bXKLs85EyZHFcbsB6vMfK2HtohBmLI1PGrH8lWtk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uWCWlplWLyssXTnvFYfOqXsKDU06FLUiGtj9T84pVsPaNMcC8K4fvI/qOb1wSm/MYZ5OiUO6pFZ7QE+K+mJClSi+F7imIaIJYzOYHr69WzlPvRCVGB6yP4gqkhmCB63siEtPSolI6+X1zrCupwE7dUKOtVqmVG+Up9Ionc6MF4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Qip6fCr2; arc=none smtp.client-ip=91.218.175.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1768231390; c=relaxed/simple;
+	bh=UWx7yPFkkQmM09w3EAQe8LZDF7F0YySqGqrHHQJMuaE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mmiHacHkY01p7FHBin9JZrkJ+fasTz2emkcPQqCvEMC3MHJDk3mW1+qjuxOOinzKLburCaRHfHHaIwlUhDokKEvOOPaSA8awBAo8cc586AEIx36GU5cwivPY5ggnR+Cs05q2OBcHtu3hZqLQ1slAjgAQcr+rjj3FOf/9BVa4E84=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ljI1jKTN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Qip6fCr2"
-Message-ID: <87495044-59a3-49ed-b00c-01a7e9a23f6b@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1768229556;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=t0emvJ+ADmIcSWvy6T91yM9f9/IPC+6X0Ta51udzejc=;
-	b=Qip6fCr24w+mxhxajrnVbpJNOVzhcHP5SS4dq32LFfeHU6v++EZE708vYsjQP9R7ZtENgv
-	3YxK9vD1mGRbCrfHbGZweg3170J+D6Wdn9qD6krCW9LQR4Wkt25LMMic/cLfy+u9tel1xT
-	f1wp+rkLsaWPuOpgKjA53vMXKfcqtHk=
-Date: Mon, 12 Jan 2026 14:52:30 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ljI1jKTN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20ABDC19422;
+	Mon, 12 Jan 2026 15:23:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768231390;
+	bh=UWx7yPFkkQmM09w3EAQe8LZDF7F0YySqGqrHHQJMuaE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ljI1jKTNt6e7G6yhmtu/piIwtEEg5YQN0Jc6qpEYcFAtSqy/1RSWmO7SSLiqLzEbr
+	 6xcpW144b6CmYHQ3qdoJ0+2GnCv0ujWvH8JaTkTYHCElpCd/9YJ4Hq3j4nuA4lHc+d
+	 94g6QHhl7aIIloRiQzHC9AfKzoQ8YAmFLhA9q9fc75lRSXLOBMrvWoo/y6KZl7tkZm
+	 kuMW3TZzxltfTQ8HJGkShbUdhCa6OJl3UoHwqpqspM1qY6qHIiSwvNJVjKWATurJZs
+	 PG0SIYt4XU0C7LEtiO/tOl2LFpaKk4pAapr5AaHMQt56/Jg8EW/qgTWRr/fn5k+hYX
+	 RxsWVZPm6siAw==
+Date: Mon, 12 Jan 2026 15:22:59 +0000
+From: Will Deacon <will@kernel.org>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+	Keir Fraser <keirf@google.com>,
+	Steven Moreland <smoreland@google.com>,
+	Frederick Mayle <fmayle@google.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH v4 4/9] vsock/virtio: Resize receive buffers so that each
+ SKB fits in a 4K page
+Message-ID: <aWUR00JlpXo1Dyl5@willie-the-truck>
+References: <20250717090116.11987-1-will@kernel.org>
+ <20250717090116.11987-5-will@kernel.org>
+ <fa3cd687961e63dd2b79780eb84c243c8d35532a.camel@infradead.org>
+ <aWUFnZTkdOrZAest@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [RFC] Defining a home/maintenance model for non-NIC PHC devices
- using the /dev/ptpX API
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Sven Schnelle <svens@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>,
- Thomas Gleixner <tglx@linutronix.de>,
- Richard Cochran <richardcochran@gmail.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Dust Li <dust.li@linux.alibaba.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, David Woodhouse <dwmw2@infradead.org>,
- virtualization@lists.linux.dev, Nick Shi <nick.shi@broadcom.com>,
- Paolo Abeni <pabeni@redhat.com>, linux-clk@vger.kernel.org
-References: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
- <yt9decnv6qpc.fsf@linux.ibm.com>
- <6a32849d-6c7b-4745-b7f0-762f1b541f3d@linux.dev>
- <7be41f07-50ab-4363-8a53-dcdda63b9147@lunn.ch>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Vadim Fedorenko <vadim.fedorenko@linux.dev>
-In-Reply-To: <7be41f07-50ab-4363-8a53-dcdda63b9147@lunn.ch>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aWUFnZTkdOrZAest@sgarzare-redhat>
 
-On 12/01/2026 13:24, Andrew Lunn wrote:
->>> drivers/ptp/core    - API as written above
->>> drivers/ptp/virtual - all PtP drivers somehow emulating a PtP clock
->>>                         (like the ptp_s390 driver)
->>> drivers/ptp/net     - all NIC related drivers.
->>>
->>
->>
->> Well, drivers/ptp/virtual is not really good, because some drivers are
->> for physical devices exporting PTP interface, but without NIC.
+On Mon, Jan 12, 2026 at 03:48:11PM +0100, Stefano Garzarella wrote:
+> On Thu, Jan 08, 2026 at 05:33:42PM +0100, David Woodhouse wrote:
+> > On Thu, 2025-07-17 at 10:01 +0100, Will Deacon wrote:
+> > > 
+> > > -#define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
+> > > +/* Dimension the RX SKB so that the entire thing fits exactly into
+> > > + * a single 4KiB page. This avoids wasting memory due to alloc_skb()
+> > > + * rounding up to the next page order and also means that we
+> > > + * don't leave higher-order pages sitting around in the RX queue.
+> > > + */
+> > > +#define
+> > > VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	SKB_WITH_OVERHEAD(1024 * 4)
+> > 
+> > Should this be SKB_WITH_OVERHEAD()?
 > 
-> If the lack of a NIC is the differentiating property:
+> ehm, is what the patch is doing, no?
 > 
->>> drivers/ptp/net     - all NIC related drivers.
->>> drivers/ptp/netless - all related drivers which are not associated to a NIC.
+> > 
+> > Or should it subtract VIRTIO_VSOCK_SKB_HEADROOM instead?
 > 
-> Or
+> Why?
 > 
->>> drivers/ptp/emulating - all drivers emulating a PtP clock
+> IIRC the goal of the patch was to have an SKB that fit entirely on one page,
+> to avoid wasting memory, so yes, we are reducing the payload a little bit
+> (4K vs 4K - VIRTIO_VSOCK_SKB_HEADROOM - SKB_OVERHEAD), but we are also
+> reducing segmentation.
+> 
+> > 
+> > (And also, I have use cases where I want to expand this to 64KiB. Can I
+> > make it controllable with a sockopt? module param?)
 
-I would go with "emulating" then.
+What page size are you using? At some point I had this as PAGE_SIZE but
+it wasn't popular:
 
+https://lore.kernel.org/all/20250701201400.52442b0e@pumpkin/
+
+> I'm not sure about sockopt, because this is really device specific and can't
+> be linked to a specific socket, since the device will pre-fill the queue
+> with buffers that can be assigned to different sockets.
 > 
-> 	Andrew
+> But yeah, perhaps a module parameter would suffice, provided that it can
+> only be modified at load time, otherwise we would have to do something
+> similar to NIC and ethtool, but I feel that would be too complicated for
+> this use case.
 
+FWIW, we carried something similar in Android for a while on the
+transmit side and it was a bit of a pain to maintain; we ended up in
+situations where the guest and the host had to be configured similarly
+for things to work, although the non-linear support should solve those
+issues now. I'm not against the idea, I just wouldn't wish that pain on
+anybody else!
+
+Anyway, if we wanted to support something similar upstream for the rx
+buffers, I'd suggest specifying it as a page-order for the entire
+SKB allocation and clamping it to PAGE_ALLOC_COSTLY_ORDER.
+
+Will
