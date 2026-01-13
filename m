@@ -1,67 +1,67 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 593702BD5AD
-	for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 23:53:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DEF322B8BD
+	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 00:52:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768262016; cv=none; b=VWJdbirLrUL5aZkDB9JRTlUQmcrkvfrrov9/dl8fXTdGNSgJWYfRIGArhfK3sD9CkNew/xp1shE4/c+qmkbUeiB7MVSDKXCwe1ayqRYpSEaVPc0CPc4T5x4yYo0YgqkxFERUYA0apYtqBVvDBwQTg5r8ZADBqFLeNQ3p8KjHk04=
+	t=1768265557; cv=none; b=kjI6NyNaCOYrBQj9kIFOsmxvwVBskbzOpDyhA9jJCtQbdkVkf9SWQ6BNQIRq3fzUEs3QFgBjZ00abDDauMVE4jU7dFVy+YqgWeYsFt85LNPRvLupCrj77HuMlysKRnwdM6B5X/+8u11awSbXKY0I9gi2LrYkZyZ50SDJJvodHxQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768262016; c=relaxed/simple;
-	bh=D/QOV+PvgeGDhnZ/ix6Fp2phNTxa9gFGlVxWZXZmAqE=;
+	s=arc-20240116; t=1768265557; c=relaxed/simple;
+	bh=8Vraf+SBhLrmdt2HV0wDbrQyiKEkmpXLCy5Y9glMNTA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CHwMum5s6wqb7DPs0RanG9RH4NfwBnC3ThlfFcZPHsnaBK5PeqgAJMxz/O/qlwCHwJkv2NakASUzgqM+pVsWJoQY77WSIQ7DnyF/wOGjV2h3hJLcMcMNtUHcGGt8SWKUTdE/abe8o5WD5H0mQyuX6MdwL+gFGhGDpRLoA19mvLk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ijPmzolz; arc=none smtp.client-ip=209.85.219.46
+	 Content-Type:Content-Disposition:In-Reply-To; b=jcLPJpkyezzfsvHr+CIDIO/mZ0R6/xo71pDi9T7jDY8BFpuq2VhMSD0XEaI0T8XP9SYXUXpn/ZujV+20f+FgGl+l2zm+aOpyQn0eFnp1FtnYlOVbJzSVE+He7hklNMogXxcH+F+MqXMk8mb/AW9R3s0TwQ4kKn52FhJc2A6HPrU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PTwk6Iuh; arc=none smtp.client-ip=209.85.128.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ijPmzolz"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8908f5ed4aeso55865636d6.3
-        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 15:53:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PTwk6Iuh"
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-79018a412edso72047737b3.0
+        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 16:52:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768262014; x=1768866814; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1768265554; x=1768870354; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=VrgEBLHMQ7w7z7OSk0+LmFxB5np8c3y6da/CYllo/d4=;
-        b=ijPmzolzDGzFTKB10N+aq41oCmRiY3hoeWw/gcCwTDTFwW9IsCGJh93GB7/IcaHb4z
-         b2w6i/2EAZDgC/1Dbkf5HGuSB6ZeWdvsXM2hoMHUIQo/XOYkaVq1Nv+weVfrsCkaay2Z
-         K0RPuGVHhrYUdFITe6S1F1ASxLm0IkK1AwOe3u0OHzxgLeqm2BzqDvnEYy80qhKihtgF
-         YQ1QV5XMXcj4+rxynsruqjvnbeRjoTlsReF1n9t9a/DO8XjfgXd+H03fktO4HpvID8jc
-         hEJu1g8fJOaYAoY3QnxvfX9WGFzr9zntppw0e7he0WsBNG20ngDy2mVb1thFgps+REKO
-         ObtQ==
+        bh=2NF4AyKrauIjTRva3WFey87OryHOgZb6vovp7zFMW8c=;
+        b=PTwk6IuhYYs0Mn9zRNMQO5j2RjsanAjLZQJMkIYLDF5GlKaHtVQerYxMnWRY11qAGc
+         +Cyjr6RUk+tkhQZnH0EiKRn5hpCyzNJdflAQ3eSkc9li17R7mF7/pweq5IUT7803Rlg+
+         Mn7wl+Gv6p8eWBAfgI0x+LOMli0azJMkdFhdKLTyt/3U1ndWBi7AIJkyURJ4NT3t9GnE
+         xOzRHzmtx5TdPKfy0NENsAHlwCKZryBb7CdP05vCDbQNd2/QsLCw5q8XrVBS0JK/ngEO
+         r6JCClbxvFdd499tt/kNOmRlwccgZpS/Hp/PV/BrxkAtkLef9jeBjk6UkacC6p5HNRjy
+         j7mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768262014; x=1768866814;
+        d=1e100.net; s=20230601; t=1768265554; x=1768870354;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=VrgEBLHMQ7w7z7OSk0+LmFxB5np8c3y6da/CYllo/d4=;
-        b=ByrsOEl1+vJb0iSoyUll0kqkHI1PI1g2C4X7LTbsFD9t3Y1xz9t7AGlDQm+cW+D+B9
-         hvx5M9rPsZxclNBGOIJtEqwJMZYApsxKFstovs/CV7VittidPmGLR4kqycKInx4zHUSd
-         lRKJCLUiL4V6Aa00AQSiVZniWELZE0N0kLB0B7ABHBSVBDrw5JM892sJg1oPT1CxN2ow
-         QIXQKI697ST4q2Nn36jMoPDBFai3mSBygjxs7WjduOmgzUU7i5m1ctA4K70BFQ4aQ2iZ
-         cMSHjOWt1BBUSEIC8ctDuZVsJ+LzdZVIZNh+Vi34PUJSlq+vM++1xI+Fm6sfqr65n9Xd
-         YD1w==
-X-Forwarded-Encrypted: i=1; AJvYcCVxtraqPAWyEfnkxjoWKVzVuAezfzTpmyhDjxN5GFhan7+iBYBnetRzvCAvFGIdjSODJmKPXeHhQVAUb1K0QQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzXHaUEKeIYhMzkZFSJDbl6mHO866M5Bqqq9dwagXyZEGgsQjsO
-	C0VuBjvfvX/yR3ifZRutWJqBQGi2NoKyv+fb4W16X1TCgs4BBzoz6jgN+ikaQQ==
-X-Gm-Gg: AY/fxX6qNqd1ebgPdJTpTPGg39S1KjpB5u2b9K7+P/ARI3T1oRdez4daD5/FWFGhy8i
-	XO2+CnfWsMrMXH6M5MHopZijno8FkvR2H4E4oVO33ZiqgBzDvyOvTfYxGBn4IUfEakPx+FY+MOi
-	b1/I8qyQYyrqam9TUwSvZhImAiDjAAPkilVF8VX2SBjhLvuotulfqZy/GsIRCmDnu7R3BxVe19g
-	LzBOSHr4SeeSXY0qCTIZ5X2PgSwQ1s3rAWryfvMzPZSWnc/cABfBjEkwKHICuGt8fsGEBMDA0DG
-	nhv6d+Tv0Isd5THisnr/HUQcvmZsT1Vdu1nT3DsSXoEUcdAVfB/1NuGTgBxwN/33qBAcPcoc6KP
-	B/MolHoVcPl20ttdRA2Dwok6LV0dBsbmWtAuC5zC4/8X4V6CaOeTkoqSDNOsRADNAHMXatZUbaO
-	SWUvzkxLLJ7XaB5HSo5f6Yzm/WvBcFsDFJMg==
-X-Google-Smtp-Source: AGHT+IEEIChW46EWJZZzmGq0dv1aKbX23y4OJcSbpVgI4A7CpdyG+MDzyxvMqujhAfbDeFoADMp1dQ==
-X-Received: by 2002:a53:e303:0:b0:63f:a727:8403 with SMTP id 956f58d0204a3-64716bd78d9mr12404043d50.38.1768254541320;
-        Mon, 12 Jan 2026 13:49:01 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:8::])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-6470d7f7c04sm8530959d50.2.2026.01.12.13.49.00
+        bh=2NF4AyKrauIjTRva3WFey87OryHOgZb6vovp7zFMW8c=;
+        b=I2YyYFQ/XhmlaZXwtPzHutdEKMeIISGcPFg60qpFtw2ahIvru5D3mClvyoK4xveJZa
+         MVEAeGC5x2dCCHSqKyTyEeCwp5+D8uz/5fyQWrADrWkKKECUa4KqRB7q0txrgu1PlHBW
+         lkwP+nlez8HSV76soOSnZUooQoKuBUnpOD0sBf0oMwndbqr6LDYZT3u0cmRE/F4OEBmY
+         W6Rv1LYuEjLR2GhzhQw14zUh9ZXRRexQ9SFCNATU7VnxM5MfTHg4qXOYQU7JdsAbihxm
+         JyYLuaiUcjjGSc5sDTUoYNZITFHLHM6PqofXqebLiDxf4GxSiK/ZqlHBtIV7G7uSop9H
+         xfSg==
+X-Forwarded-Encrypted: i=1; AJvYcCUYh6j2ScQegPYcHZ7HAbWAqmLG2UKCYN+DN8BjzKcmt95bOirDwA3cWJgzoqG1SiHNF/NGoKeF0VXypDrZYw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwNnvdJy4Lm4dhl9WvB1gat5MmHqkz0cbYY5ZfUQzbHJDdF6BYb
+	/AxGWmQGUP2oNeWeBq0VKnwQXOdUML/zb+SOhS0LLqbiJCUzhRpdmE11
+X-Gm-Gg: AY/fxX7pKTX76rFsxeu25d07ZiiZI6Lq5/nOg9Qsh+q5IWBC+D3HIS0SKtqxo5/VlWd
+	jQLidbalg8ODoh/yj3cJbMFPaiBKDz+lxnxMyDAzEEWvVVh2g9Zz5d/Vpmz9B0YGmHSkb81dgPV
+	ZijX8baLym5jkyQrHeTs+q4foyRowlmo5HYQr0WPjymufOL+bMcDouW38IM5BNOaJiuaszN8B25
+	kU55yyugK4JzPp8iA42bB1DhltxXDK+96OJeqn4y2Kn9M8I17jvlVEymrBLpxEuDEMpQoh7YLKu
+	o/maXCRP7zEYo+o9KxU5g5P09JI5b2k4bYKzApVlfExEbfRRtc3LmLR5NQ+KHFwNXI5Hr5jBVfV
+	mDgXg2X5S5I3YyiCcL0EJx15VmZ2VGtyvMj6ZU7g/9rxvWEkadALfiuDWoNDlC2sixak1Jj2Duy
+	o9BEngbaiMLdzxAryTGqPgC6zg0gNRgPSk/8w=
+X-Google-Smtp-Source: AGHT+IEEozBmQjMmBVEF6xh5ga3T6IlFOqAC0ZcZVHFGL77MYegZXmo8YOv/wpih8sNdKD89yTfvfQ==
+X-Received: by 2002:a05:690e:1449:b0:646:6f6f:65e with SMTP id 956f58d0204a3-64716b0011cmr15860280d50.24.1768265553980;
+        Mon, 12 Jan 2026 16:52:33 -0800 (PST)
+Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:44::])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-6470d8b2623sm8674363d50.20.2026.01.12.16.52.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jan 2026 13:49:00 -0800 (PST)
-Date: Mon, 12 Jan 2026 13:48:58 -0800
+        Mon, 12 Jan 2026 16:52:33 -0800 (PST)
+Date: Mon, 12 Jan 2026 16:52:31 -0800
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
@@ -82,13 +82,12 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	linux-hyperv@vger.kernel.org, linux-kselftest@vger.kernel.org,
 	berrange@redhat.com, Sargun Dhillon <sargun@sargun.me>,
 	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH RFC net-next v13 00/13] vsock: add namespace support to
- vhost-vsock and loopback
-Message-ID: <aWVsSq7lORhM+prM@devvm11784.nha0.facebook.com>
+Subject: Re: [PATCH RFC net-next v13 02/13] vsock: add netns to vsock core
+Message-ID: <aWWXTx6SSNiV3a+v@devvm11784.nha0.facebook.com>
 References: <20251223-vsock-vmtest-v13-0-9d6db8e7c80b@meta.com>
- <aWGZILlNWzIbRNuO@devvm11784.nha0.facebook.com>
- <20260110191107-mutt-send-email-mst@kernel.org>
- <aWUnqbDlBmjfnC_Q@sgarzare-redhat>
+ <20251223-vsock-vmtest-v13-2-9d6db8e7c80b@meta.com>
+ <20260111013536-mutt-send-email-mst@kernel.org>
+ <aWWFB2K5H5OXGWP8@devvm11784.nha0.facebook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -97,70 +96,108 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aWUnqbDlBmjfnC_Q@sgarzare-redhat>
+In-Reply-To: <aWWFB2K5H5OXGWP8@devvm11784.nha0.facebook.com>
 
-On Mon, Jan 12, 2026 at 06:26:18PM +0100, Stefano Garzarella wrote:
-> On Sat, Jan 10, 2026 at 07:12:07PM -0500, Michael S. Tsirkin wrote:
-> > On Fri, Jan 09, 2026 at 04:11:12PM -0800, Bobby Eshleman wrote:
-> > > On Tue, Dec 23, 2025 at 04:28:34PM -0800, Bobby Eshleman wrote:
-> > > > This series adds namespace support to vhost-vsock and loopback. It does
-> > > > not add namespaces to any of the other guest transports (virtio-vsock,
-> > > > hyperv, or vmci).
-> > > >
-> > > > The current revision supports two modes: local and global. Local
-> > > > mode is complete isolation of namespaces, while global mode is complete
-> > > > sharing between namespaces of CIDs (the original behavior).
-> > > >
-> > > > The mode is set using the parent namespace's
-> > > > /proc/sys/net/vsock/child_ns_mode and inherited when a new namespace is
-> > > > created. The mode of the current namespace can be queried by reading
-> > > > /proc/sys/net/vsock/ns_mode. The mode can not change after the namespace
-> > > > has been created.
-> > > >
-> > > > Modes are per-netns. This allows a system to configure namespaces
-> > > > independently (some may share CIDs, others are completely isolated).
-> > > > This also supports future possible mixed use cases, where there may be
-> > > > namespaces in global mode spinning up VMs while there are mixed mode
-> > > > namespaces that provide services to the VMs, but are not allowed to
-> > > > allocate from the global CID pool (this mode is not implemented in this
-> > > > series).
+On Mon, Jan 12, 2026 at 03:34:31PM -0800, Bobby Eshleman wrote:
+> On Sun, Jan 11, 2026 at 01:43:37AM -0500, Michael S. Tsirkin wrote:
+> > On Tue, Dec 23, 2025 at 04:28:36PM -0800, Bobby Eshleman wrote:
+> > > From: Bobby Eshleman <bobbyeshleman@meta.com>
 > > > 
-> > > Stefano, would like me to resend this without the RFC tag, or should I
-> > > just leave as is for review? I don't have any planned changes at the
-> > > moment.
+> > > Add netns logic to vsock core. Additionally, modify transport hook
+> > > prototypes to be used by later transport-specific patches (e.g.,
+> > > *_seqpacket_allow()).
 > > > 
-> > > Best,
-> > > Bobby
+> > > Namespaces are supported primarily by changing socket lookup functions
+> > > (e.g., vsock_find_connected_socket()) to take into account the socket
+> > > namespace and the namespace mode before considering a candidate socket a
+> > > "match".
+> > > 
+> > > This patch also introduces the sysctl /proc/sys/net/vsock/ns_mode to
+> > > report the mode and /proc/sys/net/vsock/child_ns_mode to set the mode
+> > > for new namespaces.
+> > > 
+> > > Add netns functionality (initialization, passing to transports, procfs,
+> > > etc...) to the af_vsock socket layer. Later patches that add netns
+> > > support to transports depend on this patch.
+> > > 
+> > > dgram_allow(), stream_allow(), and seqpacket_allow() callbacks are
+> > > modified to take a vsk in order to perform logic on namespace modes. In
+> > > future patches, the net will also be used for socket
+> > > lookups in these functions.
+> > > 
+> > > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 > > 
-> > i couldn't apply it on top of net-next so pls do.
+> > ...
 > > 
+> > 
+> > >  static int __vsock_bind_connectible(struct vsock_sock *vsk,
+> > >  				    struct sockaddr_vm *addr)
+> > >  {
+> > > +	struct net *net = sock_net(sk_vsock(vsk));
+> > >  	static u32 port;
+> > >  	struct sockaddr_vm new_addr;
+> > >
+> > 
+> > 
+> > Hmm this static port gives me pause. So some port number info leaks
+> > between namespaces. I am not saying it's a big security issue
+> > and yet ... people expect isolation.
 > 
-> Yeah, some difficulties to apply also here.
-> I tried `base-commit: 962ac5ca99a5c3e7469215bf47572440402dfd59` as mentioned
-> in the cover, but didn't apply. After several tries I successfully applied
-> on top of commit bc69ed975203 ("Merge tag 'for_linus' of
-> git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost")
+> Probably the easiest solution is making it per-ns, my quick rough draft
+> looks like this:
 > 
-> So, I agree, better to resend and you can remove RFC.
+> diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
+> index e2325e2d6ec5..b34d69a22fa8 100644
+> --- a/include/net/netns/vsock.h
+> +++ b/include/net/netns/vsock.h
+> @@ -11,6 +11,10 @@ enum vsock_net_mode {
+>  
+>  struct netns_vsock {
+>  	struct ctl_table_header *sysctl_hdr;
+> +
+> +	/* protected by the vsock_table_lock in af_vsock.c */
+> +	u32 port;
+> +
+>  	enum vsock_net_mode mode;
+>  	enum vsock_net_mode child_ns_mode;
+>  };
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 9d614e4a4fa5..cd2a47140134 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -748,11 +748,10 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>  				    struct sockaddr_vm *addr)
+>  {
+>  	struct net *net = sock_net(sk_vsock(vsk));
+> -	static u32 port;
+>  	struct sockaddr_vm new_addr;
+>  
+> -	if (!port)
+> -		port = get_random_u32_above(LAST_RESERVED_PORT);
+> +	if (!net->vsock.port)
+> +		net->vsock.port = get_random_u32_above(LAST_RESERVED_PORT);
+>  
+>  	vsock_addr_init(&new_addr, addr->svm_cid, addr->svm_port);
+>  
+> @@ -761,11 +760,11 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>  		unsigned int i;
+>  
+>  		for (i = 0; i < MAX_PORT_RETRIES; i++) {
+> -			if (port == VMADDR_PORT_ANY ||
+> -			    port <= LAST_RESERVED_PORT)
+> -				port = LAST_RESERVED_PORT + 1;
+> +			if (net->vsock.port == VMADDR_PORT_ANY ||
+> +			    net->vsock.port <= LAST_RESERVED_PORT)
+> +				net->vsock.port = LAST_RESERVED_PORT + 1;
+>  
+> -			new_addr.svm_port = port++;
+> +			new_addr.svm_port = net->vsock.port++;
+>  
+>  			if (!__vsock_find_bound_socket_net(&new_addr, net)) {
+>  				found = true;
 > 
-> BTW I'll do my best to start to review tomorrow!
 > 
-> Thanks,
-> Stefano
 > 
 
-Sounds good to me. Sorry about that, I must have done something weird
-with b4 to pin the base commit because it has been
-962ac5ca99a5c3e7469215bf47572440402dfd59 for the last several revisions.
-
-Looks like my local of this is actually based on:
-
-7b8e9264f55a ("Merge tag 'net-6.19-rc2' of git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net")
-
-I'll re-apply to head and resend today!
-
-While I'm at it I will try to address Michael's feedback and bump a
-version.
-
-Best,
-Bobby
+Another option being to follow inet's path and use
+siphash_4u32() the way that secure_ipv4_port_ephemeral() does...
