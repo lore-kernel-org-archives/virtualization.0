@@ -1,116 +1,182 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6921C330663;
-	Tue, 13 Jan 2026 13:54:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C23D9283FC3
+	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 14:30:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768312458; cv=none; b=Ja8j2+P1GqKOo29apaYmxHojakaQv28KSQKOkXI0vvFaSKoVWTmJA7cIce8ZwE8ZPU1jLov7h8vKjZ7pQO8IQLbuG0m5B7kbOOzeJDviug0a2nHh+XPyUOzVsNi3mfFJXPZx0DFmg0oJm5oN9zu1kkytCWvjGOUDDlt9Cruf7YI=
+	t=1768314609; cv=none; b=CEZZTp3G1W3QDTZXqzq9/Sr/fL3DT/TeINd6djkCLCKWTsxQd6BPESRiDvcLxEZX9ZCyxLrJRpz0efwD1WwhI/IabN84stU4rorLaldg2Xa9K5IFMzBYif8nI4V3c7koRNsTFEcfMypUDaQVvpqwSQ5Vucw7aYjo8d3qkqyuIKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768312458; c=relaxed/simple;
-	bh=+bhepDGuDR6MhZWdEj77cvVlTGoNDFhvxgoQK+HG8cY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LY83dVDqIKNqxXgQYAN+yn2FyjZGQ4WD0S9feug2WRR08OicJ1uqxvQxD+BXbTIVUgYhjzlUooR1soVi7bIWY6GBek9+qOq8bdD14kHF+vfOwLGWdN2rwpNRd2UHoBbDltiV6xbC5sNgcbQ8RsOh4XtCiQYkfimQLKtt/mehJLI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AnOpY8CE; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1768314609; c=relaxed/simple;
+	bh=lHu6MXmC881GNys4A4x9dwsGJnuct71yJhITMvkSNBg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=m1NVNVU8wKfZtZcdD/pBuOHegAq5lEl6j9hvMKZ+LWZdCGSRMQczAPdChzfJVIkUf4xy8ME1jkX5/fL9ARnhB6ruLRVfdjIsMCHu5mXWMe9QlZ7hzbYaKV3ohZycFeOPm8cFTXinZe+9RwdtgXYG5/W30G1z95uUpw6I7+kK1EI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QFU/dZ1a; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AnOpY8CE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1768312458; x=1799848458;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=+bhepDGuDR6MhZWdEj77cvVlTGoNDFhvxgoQK+HG8cY=;
-  b=AnOpY8CEbmdo2dNDJhZsO9dsiY/KtLXLMR/OcqPnnwHF8gO6fLMxI2Oo
-   /VPdxWjc7+xofgAMOYozpMWI77wrvhERkToIWjtuRMyq8iHA/NHbQbF91
-   Pgrv0krni1qLLXydQN0wCw4J2RW6Qn1Ka01MpQs0exUPvrWrnLd86PYsa
-   iA3MAnd1JZG0FTxUvucTNjapFVdM9iaYSYkIcIumPb/9kqUjbnOcXdF7K
-   AhKFIKxjp/7+LcMeVk1t0W2H1zdKAQZQLLuQ+w3oON74Z2gRE1BJd1Kju
-   htD8+nD8VtuQPLW1Sp6/rru9J25CukFYFrzGN9vq2Dx7TYASnVSZ5jhKR
-   A==;
-X-CSE-ConnectionGUID: nNLSWgm4Qy2LoaPB7VMgpA==
-X-CSE-MsgGUID: 0FXTqqksRKi9s5Rl46zDVw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11670"; a="69518446"
-X-IronPort-AV: E=Sophos;i="6.21,222,1763452800"; 
-   d="scan'208";a="69518446"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2026 05:54:18 -0800
-X-CSE-ConnectionGUID: S18dgBAeToiEfghkImEGvQ==
-X-CSE-MsgGUID: kD+YWK5HRN66BnGy6WLQVA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,222,1763452800"; 
-   d="scan'208";a="208550518"
-Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by orviesa003.jf.intel.com with ESMTP; 13 Jan 2026 05:54:10 -0800
-Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vfeqV-00000000ErM-25kG;
-	Tue, 13 Jan 2026 13:54:07 +0000
-Date: Tue, 13 Jan 2026 21:53:29 +0800
-From: kernel test robot <lkp@intel.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Long Li <longli@microsoft.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	linux-hyperv@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	berrange@redhat.com, Sargun Dhillon <sargun@sargun.me>,
-	Bobby Eshleman <bobbyeshleman@gmail.com>
-Subject: Re: [PATCH net-next v14 01/12] vsock: add netns to vsock core
-Message-ID: <202601132126.k8ZgzA9M-lkp@intel.com>
-References: <20260112-vsock-vmtest-v14-1-a5c332db3e2b@meta.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QFU/dZ1a"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768314605;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BsGMLadexo/nCzuVTGjgLCJkB33PukmvAkeDyomNP3Y=;
+	b=QFU/dZ1a8NlbMjuSzMe/cxMmRXci8UZAX8ttovMPSYp9vY9/AXgRhlZJGA3qI300cCHH68
+	/32haXfWVOzWFrh0hJZZ6dNUjEFzvTcGXd2SjURrBqGD2/bPqsgNKARgpgmPiHm/S6IC3X
+	5NO1RM6Z36Kp9nrqImlob0JiggukSGk=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-617-S1PhMZXgPJu-rqOvX3GNFQ-1; Tue, 13 Jan 2026 09:30:04 -0500
+X-MC-Unique: S1PhMZXgPJu-rqOvX3GNFQ-1
+X-Mimecast-MFC-AGG-ID: S1PhMZXgPJu-rqOvX3GNFQ_1768314603
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-430ffa9fccaso6218453f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 06:30:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768314603; x=1768919403;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BsGMLadexo/nCzuVTGjgLCJkB33PukmvAkeDyomNP3Y=;
+        b=X2b9GJXah1d3c/u+O/HDsO+DQdqyspVmaF7gCBvJAUC9ZmAad5HC946eqTuyL9+ekg
+         gkyB5bUagMvsg4GBant7Q40eojclmIsWrv8GzjEigcHahBiIUWaPPqCHYRSbaMR51o2H
+         OBdei7Weqfu4ea0ww+5RaKw3g5+BAGK8pBkhdK6E1tewOnlmddZJqlCVyCquDKOrdjAD
+         i5nHOqshIM2CQmWy+k3nUpRPJGLdSnDDHdyhHlQtYX8J6WmxmpQ6j5RBMsVejE01vtzi
+         WqnqMIORxKAF5kISQA/qs4cyGcqn2mTss+UEcMaqyZnqKkiCTHN0kcmPCZFTVF7Tpp/a
+         ATnw==
+X-Forwarded-Encrypted: i=1; AJvYcCV+/yvvXZL2EcDgEVEnv31Ax2EfAsjbp0rD6FnQjHMq7t9H+0hQ+q8ng6bikSlScd3jb9iqF+zzQPnhKzkXjQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy6rxQmHKj/qcOA/PstuenNX/D9cA+aElYMyUP0uE0kLT82heuO
+	7WeofM2ScrudwAAH2Jqu70ME+wf3OWhf2+PBHZkZ0Ibo8h/FrLduJlkZn7F+UKkfAKXoVcukdRD
+	Tbuxvp97tuUHEiOauKbNKN0YN3j4wP2mHLlx1i0IiGj8+zoeoofGh2Vol/DSdRR5ntNcy
+X-Gm-Gg: AY/fxX4dc47LosqOXr2O5DMfBhGuKqgRCN9TohA678R298bqE5BE+AK9f3EfqhraeO7
+	uKy1tDlx2RY33G2rrVHNjQsty311xsfR2aa3MlEfA9D/pte6PCr5qYAkUO/UGLKPf6dD1SF1X5Z
+	asBEgC/6MRDNusJrF3TKlF/4XYWvkLnipK6tykAiLiTAPaefkyaPXXRERC8ZbX9z7NLxX95vuvf
+	qnuUnSIXITuFfRmAqRznEN37UeAuCjteEryvj9aGNzYF42O9JCo9BFsm7SYOtNdGe+T9NImHswI
+	0YNFrq0GSlxaqe3vTwn9NErPQpY0uE5slZq5WnPbJBH6pfR1llnsU9gd8mtTk8mXqujYcB7/zyW
+	qAwkFaY8YCd1d
+X-Received: by 2002:a05:6000:2411:b0:431:c2:c632 with SMTP id ffacd0b85a97d-432c38d22f0mr26992657f8f.57.1768314603286;
+        Tue, 13 Jan 2026 06:30:03 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH/QAVAjAHGrbVqsroQVjucumpuberxPHjIK5D6+36lcnv98Jxe8Pu+ntURZqANmPNOZ6UFhw==
+X-Received: by 2002:a05:6000:2411:b0:431:c2:c632 with SMTP id ffacd0b85a97d-432c38d22f0mr26992605f8f.57.1768314602838;
+        Tue, 13 Jan 2026 06:30:02 -0800 (PST)
+Received: from [192.168.88.32] ([212.105.155.93])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432bd5df9afsm47097191f8f.24.2026.01.13.06.30.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Jan 2026 06:30:02 -0800 (PST)
+Message-ID: <e9607915-892c-4724-b97f-7c90918f86fe@redhat.com>
+Date: Tue, 13 Jan 2026 15:30:00 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260112-vsock-vmtest-v14-1-a5c332db3e2b@meta.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2][next] virtio_net: Fix misalignment bug in struct
+ virtnet_info
+To: "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Akihiko Odaki <akihiko.odaki@daynix.com>,
+ Simon Horman <horms@kernel.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
+ Kees Cook <kees@kernel.org>
+References: <aWIItWq5dV9XTTCJ@kspp>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <aWIItWq5dV9XTTCJ@kspp>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: jn_Q-Xki27Ic3uRdL5WUNdY-pTrmWQ4mreKCcqX6tqs_1768314603
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Bobby,
+On 1/10/26 9:07 AM, Gustavo A. R. Silva wrote:
+> Use the new TRAILING_OVERLAP() helper to fix a misalignment bug
+> along with the following warning:
+> 
+> drivers/net/virtio_net.c:429:46: warning: structure containing a flexible array member is not at the end of another structure [-Wflex-array-member-not-at-end]
+> 
+> This helper creates a union between a flexible-array member (FAM)
+> and a set of members that would otherwise follow it (in this case
+> `u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];`). This
+> overlays the trailing members (rss_hash_key_data) onto the FAM
+> (hash_key_data) while keeping the FAM and the start of MEMBERS aligned.
+> The static_assert() ensures this alignment remains.
+> 
+> Notice that due to tail padding in flexible `struct
+> virtio_net_rss_config_trailer`, `rss_trailer.hash_key_data`
+> (at offset 83 in struct virtnet_info) and `rss_hash_key_data` (at
+> offset 84 in struct virtnet_info) are misaligned by one byte. See
+> below:
+> 
+> struct virtio_net_rss_config_trailer {
+>         __le16                     max_tx_vq;            /*     0     2 */
+>         __u8                       hash_key_length;      /*     2     1 */
+>         __u8                       hash_key_data[];      /*     3     0 */
+> 
+>         /* size: 4, cachelines: 1, members: 3 */
+>         /* padding: 1 */
+>         /* last cacheline: 4 bytes */
+> };
+> 
+> struct virtnet_info {
+> ...
+>         struct virtio_net_rss_config_trailer rss_trailer; /*    80     4 */
+> 
+>         /* XXX last struct has 1 byte of padding */
+> 
+>         u8                         rss_hash_key_data[40]; /*    84    40 */
+> ...
+>         /* size: 832, cachelines: 13, members: 48 */
+>         /* sum members: 801, holes: 8, sum holes: 31 */
+>         /* paddings: 2, sum paddings: 5 */
+> };
+> 
+> After changes, those members are correctly aligned at offset 795:
+> 
+> struct virtnet_info {
+> ...
+>         union {
+>                 struct virtio_net_rss_config_trailer rss_trailer; /*   792     4 */
+>                 struct {
+>                         unsigned char __offset_to_hash_key_data[3]; /*   792     3 */
+>                         u8         rss_hash_key_data[40]; /*   795    40 */
+>                 };                                       /*   792    43 */
+>         };                                               /*   792    44 */
+> ...
+>         /* size: 840, cachelines: 14, members: 47 */
+>         /* sum members: 801, holes: 8, sum holes: 35 */
+>         /* padding: 4 */
+>         /* paddings: 1, sum paddings: 4 */
+>         /* last cacheline: 8 bytes */
+> };
+> 
+> As a result, the RSS key passed to the device is shifted by 1
+> byte: the last byte is cut off, and instead a (possibly
+> uninitialized) byte is added at the beginning.
+> 
+> As a last note `struct virtio_net_rss_config_hdr *rss_hdr;` is also
+> moved to the end, since it seems those three members should stick
+> around together. :)
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: ed3100e90d0d ("virtio_net: Use new RSS config structs")
+> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+> ---
+> Changes in v2:
+>  - Update subject and changelog text (include feedback from Simon and
+>    Michael --thanks folks)
+>  - Add Fixes tag and CC -stable.
 
-kernel test robot noticed the following build warnings:
+@Michael, @Jason: This is still apparently targeting 'net-next', but I
+think it should land in the 'net' tree, right?
 
-[auto build test WARNING on net-next/main]
+/P
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Bobby-Eshleman/virtio-set-skb-owner-of-virtio_transport_reset_no_sock-reply/20260113-125559
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20260112-vsock-vmtest-v14-1-a5c332db3e2b%40meta.com
-patch subject: [PATCH net-next v14 01/12] vsock: add netns to vsock core
-config: hexagon-randconfig-002-20260113 (https://download.01.org/0day-ci/archive/20260113/202601132126.k8ZgzA9M-lkp@intel.com/config)
-compiler: clang version 22.0.0git (https://github.com/llvm/llvm-project 9b8addffa70cee5b2acc5454712d9cf78ce45710)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260113/202601132126.k8ZgzA9M-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202601132126.k8ZgzA9M-lkp@intel.com/
-
-All warnings (new ones prefixed by >>, old ones prefixed by <<):
-
->> WARNING: modpost: vmlinux: section mismatch in reference: vsock_exit+0x34 (section: .exit.text) -> vsock_sysctl_ops (section: .init.data)
-WARNING: modpost: vmlinux: section mismatch in reference: vsock_exit+0x38 (section: .exit.text) -> vsock_sysctl_ops (section: .init.data)
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
