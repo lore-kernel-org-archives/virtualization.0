@@ -1,239 +1,168 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49C06344055
-	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 03:13:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768273994; cv=none; b=C86IlM0yb6JmQrVOdqqGaw7SuDWnD8cqkKh39akg9ctlVEJodpbVQRYmjU1kTU3PI+5bWWXI5JLQw3CQiSNcOfgbjL+NagTZari7bW0npCXv+Pf8zGSnl/nqk63KbP76ZtAal21ghZXOtu4PjriT5diHnPrUZoFwKZblfwG83XM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768273994; c=relaxed/simple;
-	bh=ucIpPosqEiSMdZEyChVr+4AmgFcQlUgInXBmbAzH57o=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=AthV+PwCOzDapn1Hg5ULkMujA0e0ui1uMXE6KI1L1rS5u9kob4HacT80inW2/ai+YOjr0VVsMN4C1Jr0dFxjVdIc91aaEV7Gc2vMLZMMy+nxYPDYKYIuc8ecPvkOdLR935hSOzyHkM0sM4LRrRFW+RL2DRIPEnRg1Ug0cgi6TAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mwvNy9Gy; arc=none smtp.client-ip=209.85.128.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C24732EC54D;
+	Tue, 13 Jan 2026 03:46:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768275970; cv=pass; b=gfjU62YlsRguvoWvlmzmA3SaP4sBWK3/ydX5cicezh07xtV7cUd5w+PDnaBuEDCXrVvdWet7g/3dLcmjX3Itoh+1cJDbfPJ4NRe/0l/BrVRHadz6Xc7slfUyWuBfvbTW5IC0bn7R4hyqycBzPveE3TCmo8MHH8ZOxbz1jNdxcEg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768275970; c=relaxed/simple;
+	bh=yh9WKYXlqUWc5sUsf/ucPYJFwqnKd9qWuYQzeplS0gA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=r6+ZXNRSABPnYj+iSCaVr9+zB7Cq7rw8J6/ehLlCXCqTi7R5twg65uY9ZGYOiDlQDR5WkF5pNA9xb6vwju9zxxIMuGE70suVJvG8920Zqttuc0IzyxS/on+JDPmRAafNvu2lii4B8HKWoX4hbx0cY5ER5yx6OsftPWrQb2Zg8V4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=hNfzTEga; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mwvNy9Gy"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-7927416137dso24959077b3.0
-        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 19:13:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768273989; x=1768878789; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=sNxNvDBVFHGq590i7LC9o7diq8A3tmTtfQIAa+Qj48w=;
-        b=mwvNy9GytJT8suNoeCzA/fVSt+jgnOzyEQos5C5bFfvDPJA0YgHQ/fFZhE6YTkLCA7
-         dlBW902WLdy6oZpsr96ZvgI4H2bNKLnJbFIoychUV0eWMVyd4CbpLNZIpzPA34yJ86GU
-         FrxJHkIEEsYuyX0LoSFzMRvO0ni+wLsTic2JhGRrrpGOrmhdYClGGdHRCZxOc/jpm71O
-         zv05/6bvvsTlXXLzhQxcV4AOn7UQHWBkJrN8KbNNQCDZry46UR1JDxx958nunAUNFl2B
-         p9emOXBZSzNnymEvt6VLdgTf6HrTXaMIkVB4DgE2ySEGIl0rr+5m2+dJYRQMpwfbZOBq
-         3wbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768273989; x=1768878789;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=sNxNvDBVFHGq590i7LC9o7diq8A3tmTtfQIAa+Qj48w=;
-        b=FgB9mnaXllEKk9QIswbK72ytovb/sBVFuzDMaXPDPEi53rUYK2BOQ8hpRU132Abu7M
-         A6a6N0t4LmlDc0cNGXkUt1tKL6hgVbEx0RRLk0rd2IxDFEM3ai6ehYulsqv7DvUdwdOW
-         ZHWhPwt9d8OoC8SrOHHuNb7fd+DY2Tieu/r4GGnCm2gc9917V90CwH3/ecmI9RHnBQ+Y
-         YbIuYCLTEbgaB/I7nrgoLZHKDLuT7FYt49K5h8yK6ctusiDRFA75aQiMzGL56naWhwGe
-         mwpR8rNkSEGWIbLUBX3Mz5G7zFKew/yTOl5SCWAb0lAiMrlZIbwDLRrIue8oCY/D5wbZ
-         V7Lg==
-X-Forwarded-Encrypted: i=1; AJvYcCXSo5erXEXmuAwOavpuclwkVtwyIspxYnUkAo+245bwf8tZ2IxQihpiAP2QjI4KxnJ/w9BvnZ/ecGQ32cX+4w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwwaMeENHjS2qcnnuOUtII3DKmUIw/0xwjMAyj6hkOj3pp9JGEj
-	db9r7uVaffpNYB5lo1qQJtZrUHSyaB3Og1+sEmbjJnvOygtjYGCLQ9p9
-X-Gm-Gg: AY/fxX6T0enSo8mO+gMQ+0gZcZamj2oOieId0XBkhTnVMNt4UwgWgW4qGRChIvREzyd
-	elelQianidVwlbPbhD5nUybvcF1LfQq2+/42ZGQtJXY+Yl0vK9wszYvTtp7RMxxNfIT7PlQtfve
-	dxQkwSdTU0omf+V/S566YH6agq4Sal/ZjF0ehXXZJ3myUBxOs7P9k/8ropFeoY8v+YslbkHoLUn
-	GY/awcMqnT1aRmgWtmUng08ZOM+PIXdO1+Ikv9Fe7pEvBKf1WAefCqexZabHtlqRWB93oFArY3O
-	Avb2ijdlQCGQR5hiQazEc28xzsSJeB+gfh6+V+8autfG45CYEKtGkp+vcbevmpnWWXpnxpHkm/E
-	Jjk9PjTHtx+BViFtldnWKJFHiiFyGPMXJytas/TrUZbMt+njdqj+UGGzPMsi6HRoeBIsM/GQNIy
-	dapPWR+i1UOQ==
-X-Google-Smtp-Source: AGHT+IHajBIIB3lFDpmb/+cpRXnIk1X1l4rqHdpMk0OXknIIotsd4BlSh7ibgscjI2PVi5aqIdrNJw==
-X-Received: by 2002:a53:a342:0:b0:635:4ecd:5fcc with SMTP id 956f58d0204a3-64716bd78c2mr12639723d50.41.1768273988637;
-        Mon, 12 Jan 2026 19:13:08 -0800 (PST)
-Received: from localhost ([2a03:2880:25ff:5b::])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-7916d0c3f72sm49160677b3.21.2026.01.12.19.13.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jan 2026 19:13:08 -0800 (PST)
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Mon, 12 Jan 2026 19:11:21 -0800
-Subject: [PATCH net-next v14 12/12] selftests/vsock: add tests for
- namespace deletion
+	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="hNfzTEga"
+ARC-Seal: i=1; a=rsa-sha256; t=1768275963; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=EZAxQBijCn6Z8Q9Ti677VQ/Pu4qOdsBzKWQ+sS4CwOyFWooPFsy1x4VoPxiWcAPnFp8g7CNHXV+ZA1lQkO/KjWt/n8fjqGnXOdWIl7tT9FWbaaLdA3ZzPRqdXnz9aJhdhtFK+hvJFW5uB9nhcxdGAtCaEa0G3DCTIZQ7eQYUjBU=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1768275963; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=rLeMQF3euqQFHPcQ7Xuf1HGkbhRTdazc0FH9LsglTVo=; 
+	b=ZVl0g3qYzlz0TWDLDPVItHJaPeNO+iI7/Q4FommzLYpGIoBMbNw9/AhqtUEhJZAJiLIq0KVpDXkubTtwTIoC14LRRJd9xzPsjS3OO8XX9s022Nmunp4NpGBNYnlAfVuFiik9ehE0UEt9TT4+gxE5vw/9Ga7zOvwczOLO0VFhga0=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=linux.beauty;
+	spf=pass  smtp.mailfrom=me@linux.beauty;
+	dmarc=pass header.from=<me@linux.beauty>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1768275963;
+	s=zmail; d=linux.beauty; i=me@linux.beauty;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=rLeMQF3euqQFHPcQ7Xuf1HGkbhRTdazc0FH9LsglTVo=;
+	b=hNfzTEgaNb7r7XF9rZgSUSdUHZ8pYeTShGa4T7wVDor+vouZtYtyBkWwVssmLjBI
+	DxLZRRERi85UmFgOk44r2fwojTgP+2nVTb22VtnhBsaQJJbj/UvTMNz1vBuwSwn7dG9
+	+7YSXYqOVrKQ7B9YLS2BfChK5u5bRnOaSAd0a1DY=
+Received: by mx.zohomail.com with SMTPS id 1768275959721742.5854641970693;
+	Mon, 12 Jan 2026 19:45:59 -0800 (PST)
+From: Li Chen <me@linux.beauty>
+To: Dan Williams <dan.j.williams@intel.com>,
+	Vishal Verma <vishal.l.verma@intel.com>,
+	Dave Jiang <dave.jiang@intel.com>,
+	Ira Weiny <ira.weiny@intel.com>,
+	Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Jakub Staron <jstaron@google.com>,
+	nvdimm@lists.linux.dev,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: Li Chen <me@linux.beauty>
+Subject: [PATCH] nvdimm: virtio_pmem: serialize flush requests
+Date: Tue, 13 Jan 2026 11:45:52 +0800
+Message-ID: <20260113034552.62805-1-me@linux.beauty>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260112-vsock-vmtest-v14-12-a5c332db3e2b@meta.com>
-References: <20260112-vsock-vmtest-v14-0-a5c332db3e2b@meta.com>
-In-Reply-To: <20260112-vsock-vmtest-v14-0-a5c332db3e2b@meta.com>
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryan-bt.tan@broadcom.com>, 
- Vishnu Dasa <vishnu.dasa@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- Shuah Khan <shuah@kernel.org>, Long Li <longli@microsoft.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, berrange@redhat.com, 
- Sargun Dhillon <sargun@sargun.me>, Bobby Eshleman <bobbyeshleman@gmail.com>, 
- Bobby Eshleman <bobbyeshleman@meta.com>
-X-Mailer: b4 0.14.3
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-From: Bobby Eshleman <bobbyeshleman@meta.com>
+Under heavy concurrent flush traffic, virtio-pmem can overflow its request
+virtqueue (req_vq): virtqueue_add_sgs() starts returning -ENOSPC and the
+driver logs "no free slots in the virtqueue". Shortly after that the
+device enters VIRTIO_CONFIG_S_NEEDS_RESET and flush requests fail with
+"virtio pmem device needs a reset".
 
-Add tests that validate vsock sockets are resilient to deleting
-namespaces. The vsock sockets should still function normally.
+Serialize virtio_pmem_flush() with a per-device mutex so only one flush
+request is in-flight at a time. This prevents req_vq descriptor overflow
+under high concurrency.
 
-The function check_ns_delete_doesnt_break_connection() is added to
-re-use the step-by-step logic of 1) setup connections, 2) delete ns,
-3) check that the connections are still ok.
+Reproducer (guest with virtio-pmem):
+  - mkfs.ext4 -F /dev/pmem0
+  - mount -t ext4 -o dax,noatime /dev/pmem0 /mnt/bench
+  - fio: ioengine=io_uring rw=randwrite bs=4k iodepth=64 numjobs=64
+        direct=1 fsync=1 runtime=30s time_based=1
+  - dmesg: "no free slots in the virtqueue"
+           "virtio pmem device needs a reset"
 
-Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+Fixes: 6e84200c0a29 ("virtio-pmem: Add virtio pmem driver")
+Signed-off-by: Li Chen <me@linux.beauty>
 ---
-Changes in v13:
-- remove tests that change the mode after socket creation (this is not
-  supported behavior now and the immutability property is tested in other
-  tests)
-- remove "change_mode" behavior of
-  check_ns_changes_dont_break_connection() and rename to
-  check_ns_delete_doesnt_break_connection() because we only need to test
-  namespace deletion (other tests confirm that the mode cannot change)
+ drivers/nvdimm/nd_virtio.c   | 15 +++++++++++----
+ drivers/nvdimm/virtio_pmem.c |  1 +
+ drivers/nvdimm/virtio_pmem.h |  4 ++++
+ 3 files changed, 16 insertions(+), 4 deletions(-)
 
-Changes in v11:
-- remove pipefile (Stefano)
-
-Changes in v9:
-- more consistent shell style
-- clarify -u usage comment for pipefile
----
- tools/testing/selftests/vsock/vmtest.sh | 84 +++++++++++++++++++++++++++++++++
- 1 file changed, 84 insertions(+)
-
-diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index a9eaf37bc31b..dc8dbe74a6d0 100755
---- a/tools/testing/selftests/vsock/vmtest.sh
-+++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -68,6 +68,9 @@ readonly TEST_NAMES=(
- 	ns_same_local_loopback_ok
- 	ns_same_local_host_connect_to_local_vm_ok
- 	ns_same_local_vm_connect_to_local_host_ok
-+	ns_delete_vm_ok
-+	ns_delete_host_ok
-+	ns_delete_both_ok
- )
- readonly TEST_DESCS=(
- 	# vm_server_host_client
-@@ -135,6 +138,15 @@ readonly TEST_DESCS=(
+diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
+index c3f07be4aa22..827a17fe7c71 100644
+--- a/drivers/nvdimm/nd_virtio.c
++++ b/drivers/nvdimm/nd_virtio.c
+@@ -44,19 +44,24 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
+ 	unsigned long flags;
+ 	int err, err1;
  
- 	# ns_same_local_vm_connect_to_local_host_ok
- 	"Run vsock_test client in VM in a local ns with server in same ns."
++	might_sleep();
++	mutex_lock(&vpmem->flush_lock);
 +
-+	# ns_delete_vm_ok
-+	"Check that deleting the VM's namespace does not break the socket connection"
-+
-+	# ns_delete_host_ok
-+	"Check that deleting the host's namespace does not break the socket connection"
-+
-+	# ns_delete_both_ok
-+	"Check that deleting the VM and host's namespaces does not break the socket connection"
- )
+ 	/*
+ 	 * Don't bother to submit the request to the device if the device is
+ 	 * not activated.
+ 	 */
+ 	if (vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_NEEDS_RESET) {
+ 		dev_info(&vdev->dev, "virtio pmem device needs a reset\n");
+-		return -EIO;
++		err = -EIO;
++		goto out_unlock;
+ 	}
  
- readonly USE_SHARED_VM=(
-@@ -1287,6 +1299,78 @@ test_vm_loopback() {
- 	return "${KSFT_PASS}"
- }
+-	might_sleep();
+ 	req_data = kmalloc(sizeof(*req_data), GFP_KERNEL);
+-	if (!req_data)
+-		return -ENOMEM;
++	if (!req_data) {
++		err = -ENOMEM;
++		goto out_unlock;
++	}
  
-+check_ns_delete_doesnt_break_connection() {
-+	local pipefile pidfile outfile
-+	local ns0="global0"
-+	local ns1="global1"
-+	local port=12345
-+	local pids=()
-+	local rc=0
-+
-+	init_namespaces
-+
-+	pidfile="$(create_pidfile)"
-+	if ! vm_start "${pidfile}" "${ns0}"; then
-+		return "${KSFT_FAIL}"
-+	fi
-+	vm_wait_for_ssh "${ns0}"
-+
-+	outfile=$(mktemp)
-+	vm_ssh "${ns0}" -- \
-+		socat VSOCK-LISTEN:"${port}",fork STDOUT > "${outfile}" 2>/dev/null &
-+	pids+=($!)
-+	vm_wait_for_listener "${ns0}" "${port}" "vsock"
-+
-+	# We use a pipe here so that we can echo into the pipe instead of using
-+	# socat and a unix socket file. We just need a name for the pipe (not a
-+	# regular file) so use -u.
-+	pipefile=$(mktemp -u /tmp/vmtest_pipe_XXXX)
-+	ip netns exec "${ns1}" \
-+		socat PIPE:"${pipefile}" VSOCK-CONNECT:"${VSOCK_CID}":"${port}" &
-+	pids+=($!)
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -e '"${pipefile}"' ]]; do sleep 1; done; exit 0'
-+
-+	if [[ "$1" == "vm" ]]; then
-+		ip netns del "${ns0}"
-+	elif [[ "$1" == "host" ]]; then
-+		ip netns del "${ns1}"
-+	elif [[ "$1" == "both" ]]; then
-+		ip netns del "${ns0}"
-+		ip netns del "${ns1}"
-+	fi
-+
-+	echo "TEST" > "${pipefile}"
-+
-+	timeout "${WAIT_PERIOD}" \
-+		bash -c 'while [[ ! -s '"${outfile}"' ]]; do sleep 1; done; exit 0'
-+
-+	if grep -q "TEST" "${outfile}"; then
-+		rc="${KSFT_PASS}"
-+	else
-+		rc="${KSFT_FAIL}"
-+	fi
-+
-+	terminate_pidfiles "${pidfile}"
-+	terminate_pids "${pids[@]}"
-+	rm -f "${outfile}" "${pipefile}"
-+
-+	return "${rc}"
-+}
-+
-+test_ns_delete_vm_ok() {
-+	check_ns_delete_doesnt_break_connection "vm"
-+}
-+
-+test_ns_delete_host_ok() {
-+	check_ns_delete_doesnt_break_connection "host"
-+}
-+
-+test_ns_delete_both_ok() {
-+	check_ns_delete_doesnt_break_connection "both"
-+}
-+
- shared_vm_test() {
- 	local tname
+ 	req_data->done = false;
+ 	init_waitqueue_head(&req_data->host_acked);
+@@ -103,6 +108,8 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
+ 	}
  
-
+ 	kfree(req_data);
++out_unlock:
++	mutex_unlock(&vpmem->flush_lock);
+ 	return err;
+ };
+ 
+diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
+index 2396d19ce549..77b196661905 100644
+--- a/drivers/nvdimm/virtio_pmem.c
++++ b/drivers/nvdimm/virtio_pmem.c
+@@ -64,6 +64,7 @@ static int virtio_pmem_probe(struct virtio_device *vdev)
+ 		goto out_err;
+ 	}
+ 
++	mutex_init(&vpmem->flush_lock);
+ 	vpmem->vdev = vdev;
+ 	vdev->priv = vpmem;
+ 	err = init_vq(vpmem);
+diff --git a/drivers/nvdimm/virtio_pmem.h b/drivers/nvdimm/virtio_pmem.h
+index 0dddefe594c4..f72cf17f9518 100644
+--- a/drivers/nvdimm/virtio_pmem.h
++++ b/drivers/nvdimm/virtio_pmem.h
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <uapi/linux/virtio_pmem.h>
+ #include <linux/libnvdimm.h>
++#include <linux/mutex.h>
+ #include <linux/spinlock.h>
+ 
+ struct virtio_pmem_request {
+@@ -35,6 +36,9 @@ struct virtio_pmem {
+ 	/* Virtio pmem request queue */
+ 	struct virtqueue *req_vq;
+ 
++	/* Serialize flush requests to the device. */
++	struct mutex flush_lock;
++
+ 	/* nvdimm bus registers virtio pmem device */
+ 	struct nvdimm_bus *nvdimm_bus;
+ 	struct nvdimm_bus_descriptor nd_desc;
 -- 
-2.47.3
+2.52.0
 
