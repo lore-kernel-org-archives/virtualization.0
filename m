@@ -1,158 +1,217 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D791374183
-	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 10:13:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99EE1261B8D
+	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 12:34:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768299216; cv=none; b=uSihSg24iUXOYgEY7PR+00Kuqw36OvqDwktKqt6EZXOr9FtvZCbc5yD+tsC1wmd30lxmQR2Cy3LZFIpWp6xeMb/vDBbsBN09bH5EIGNYY5jnfiRrLQWB+I9ttdDhEYLEqSqVXxx4oFXZ+rlK6eXEqhK98QSCKqVnfl0LpTm4GVA=
+	t=1768307699; cv=none; b=nIPsIIwB/Ux2QVKOH+Iba8F+KN89YpFtXeCTIBOcKp/bsp3J2He/Qctk7eLa+GXx4l3Pli6E8Dgl2ANCA2yqEFcuZg6nE/s9l1D5mlcb0nf25Hg7PgX0j+CTqF/E5XBMP4pTlxxV3bIMoZROhtNaKGyl1gAAKPgAK84tHiXiTTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768299216; c=relaxed/simple;
-	bh=RpOnPNW4xfI0Kz9zhPqicYu/rLC2pTmpoM33Trm+SMg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=skiMC2oc0hkx8ITM2WHKwUTpO30CrzRzgDDU0w/YTnG3gW72uInucfa0L6WN92n/IRjRJ1gTk3h921LHHdMgWt9hikral8hdt5A/OjuHBE/8zcKYLuc2X8oAmaNVwgRl6lJJcBbjtXdAWv0XAO1D+1AIRoyQwq56hYnrQELY0Ik=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dBkyBNzZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768307699; c=relaxed/simple;
+	bh=PQLe5MI17+5XqKdF5jxZ/xxXNVu7gNaeK/xezGimfg8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=hU83I5KyJVydB3QLwlhFSgq7+2fPGqTqrjW8Gv5UH4aJ6I/OQ+D1RvhXbbbBz3JswsIRfcjuE+ezdXfCahXpPRQ85Bw2bFFNLn2uwZLVUV8HWfMKgCOCRCkMD+lC+LYpQ77LAfN97q4SFsZ3t1ZiXn6Bk/iuSjFWFqrJv+G/5FY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F6eQiqyz; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dBkyBNzZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DC4EC2BC9E
-	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 10:13:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768299216;
-	bh=RpOnPNW4xfI0Kz9zhPqicYu/rLC2pTmpoM33Trm+SMg=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=dBkyBNzZyikYWHBI84mEzG69MRM616RZBoMsO0F3Q1c1T/St0KrZ9e2JUQUHBxmA2
-	 3ghOxlMMpbwvS/wL74la9lRVcw7lVZLTyWJiprsxF5/oDzdFtYs3SmKTcdV3GQohVx
-	 6ukv6oI7L/80VLsINJQ3gIGwywWiYE4fp1vBKJEyuSQnejwmmr6sqzttwZsXeXj3ba
-	 X+Klx3wBvBhfpoXyoeO/EffiVahCypVxOcHqGQ6XJH0tDrCHhaz16CsG2xGrUPWY6N
-	 NsymtWt2Boevzn0e3ExO19xgQ8iQhqLMnifQUiiSr4WPa1qIiWHnrxefRm2bdiPR2v
-	 DCFLKopJUBlYA==
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-7927541abfaso25774517b3.3
-        for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 02:13:36 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUL++Fp9fyy3+yS29qUxDekAQQ4ykq0KvDSCp+2nRLT4cFDG72AFrl9uw4Q32wg9Ep3i8lHtfRqn/Sg5+fTUg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyXRn8kpsI7P/J1EJ6QDWcvn5MPh5q3ODmEM+g6lhArOKmXaVrK
-	QuhYbWcoAxlWFF8hxgNChX1iLG6Da5IjRyy4QWED8RwSjVC/idbxPxDm2CKcjTk0xo8Ldb+vF5A
-	OZVr5CJZsKdJH6P8UiIQQrymZTie/k8k=
-X-Google-Smtp-Source: AGHT+IEjXK4zNU3B8MFfoIndGOeB/FKQBt1cyG91VMuMhesDC6zUrt9ZhhHY6gJ4lWXzCFjcVvXXmBBHZkq1dqdQ1TU=
-X-Received: by 2002:a05:690e:1442:b0:644:51a4:4f1a with SMTP id
- 956f58d0204a3-64716c67be2mr17455597d50.46.1768299214202; Tue, 13 Jan 2026
- 02:13:34 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F6eQiqyz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768307695;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RMav5ORr40B5ZJ3PX7IVd5/NdRqYgN0BnH9+9JS6Dfg=;
+	b=F6eQiqyzE2Zb1QtCOSlG2qoicQSXEHa+AbWbkA4UcplglH/bHBPHQ64sqFt8WjScJ9rbOW
+	De3AnRstmThmDAscfHSKDlhzI4GvdzdYSE3D45LnP1IZWRyHkOBxz0mOKxX8QHEi7mJ+7J
+	Za/pYL+vRufuHa9+/HS/Qk5HljCRNXo=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-134-CoFVI5HqMNSwrUdIXTshlw-1; Tue, 13 Jan 2026 07:34:54 -0500
+X-MC-Unique: CoFVI5HqMNSwrUdIXTshlw-1
+X-Mimecast-MFC-AGG-ID: CoFVI5HqMNSwrUdIXTshlw_1768307693
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-43009df5ab3so4718439f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 04:34:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768307693; x=1768912493;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=RMav5ORr40B5ZJ3PX7IVd5/NdRqYgN0BnH9+9JS6Dfg=;
+        b=S+FZ6xvSesikL7zrKVItZBQgtmOpX9sJwwVJ/T1BLJxpwLhYupAdBAA4qf+a5nNriR
+         xetPFTqEUKvlhCfO7GWS2LueHEqbvbYkmlknZvEV6rNNcOK+4YuwCpzbLrsAjKyPyluF
+         VF2OtAIMEka3TQ4jQeB9yWXMeFPVkcK8l33isXJwVE9CZMcZAafHuC2Ruoys5faxWLU9
+         /gyLbP7qVbhhIfVfU2Tq3yLDzRj9cnrz9wSxNaxdY90p8XIWtGLtwbCJTB6/Jx+FS8OQ
+         VhPn/5EUD4vgvFfUPWR2c/GZg1mzwLlaAxPpRXVDnMcottGBRqTLg1s1FmRRGKbS2X8j
+         PMWg==
+X-Forwarded-Encrypted: i=1; AJvYcCUCjxB30B33lJ4ZH0xMCL/SN/z/gvmlR0DAnDYZav0Krlal30d1e+jfdW+buyXwpxwzMSCs/aC6tNX0eGIMMw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzdqcUj924af0L/lLVR2yFN0FgEX+33V7G74yGcqsNjGXfdBCmm
+	97LFaDzw64mpymbq+79K9/2qOIxn5IfoFM0NnPC8YBiTG3/N5umNLzaVPr4JxSfj5Carg+hgsgE
+	PEV78g3rzmmEoKdo7PEb/gveam3q3WIe8XtdWwOpsdI+hiQrbc+ccAdhLf6ht1z0ckr6W
+X-Gm-Gg: AY/fxX5k8usOx/qN0OrCtaI3mycflvRc5UiELIw8uSyo7OCHWxPIuwTe0PukbWZP/Vb
+	ajcYSI+owYpSaZTkm+Q4U+DpCwl2K3XUPpu/PgI8rCFi4RSOBRD3FhSxlWRuSQ6Bbo/WFianm3r
+	0xvVpbj0Ahj4TBHB4ppw7v81VNY/oH1UmMJLq3/ROIPpRRpP+v4sFtb3DF4IzTQB91WMWy0ekzE
+	e5AwTjEy/bILT66X07ie5tIqcYL/Tdzq4xmF9Tr85HZdC8Ociftk/ugOgQ926xuK5klrXWALiW3
+	MaPOSnhUPQLefw5Jy/iTKf0P3qslKMsav3kBJ2CQFdyWW4YPfBUHeqL9SYQENw2XevYt7RogkOD
+	bk1I+MWRwO5puqkNUOEdC/jBKVTC+X9E=
+X-Received: by 2002:a05:6000:1848:b0:42f:bb4a:9989 with SMTP id ffacd0b85a97d-432c3643752mr26574339f8f.28.1768307693374;
+        Tue, 13 Jan 2026 04:34:53 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGdMY63/sGfd2busjL/3EFebfjWWEXx17qrEVF2SlUXV5weYiNb4jjXLaF2lxpqKK8G6ehV1Q==
+X-Received: by 2002:a05:6000:1848:b0:42f:bb4a:9989 with SMTP id ffacd0b85a97d-432c3643752mr26574275f8f.28.1768307692882;
+        Tue, 13 Jan 2026 04:34:52 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-35-22.inter.net.il. [80.230.35.22])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-432bd5fe67csm43944494f8f.40.2026.01.13.04.34.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Jan 2026 04:34:52 -0800 (PST)
+Date: Tue, 13 Jan 2026 07:34:48 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Bryan Tan <bryan-bt.tan@broadcom.com>,
+	Vishnu Dasa <vishnu.dasa@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Shuah Khan <shuah@kernel.org>, Long Li <longli@microsoft.com>,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, kvm@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	berrange@redhat.com, Sargun Dhillon <sargun@sargun.me>,
+	Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH RFC net-next v13 02/13] vsock: add netns to vsock core
+Message-ID: <20260113073428-mutt-send-email-mst@kernel.org>
+References: <20251223-vsock-vmtest-v13-0-9d6db8e7c80b@meta.com>
+ <20251223-vsock-vmtest-v13-2-9d6db8e7c80b@meta.com>
+ <20260111013536-mutt-send-email-mst@kernel.org>
+ <aWWFB2K5H5OXGWP8@devvm11784.nha0.facebook.com>
+ <aWWXTx6SSNiV3a+v@devvm11784.nha0.facebook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260112203534.4186261-1-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20260112203534.4186261-1-andriy.shevchenko@linux.intel.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Tue, 13 Jan 2026 11:13:22 +0100
-X-Gmail-Original-Message-ID: <CAD++jLkBKcK9eKOCfry2H1DzG=5Z93w2U-SRwHf2dkRBhyxQRw@mail.gmail.com>
-X-Gm-Features: AZwV_Qgxd8O6AeWZ_24rr74gIMc3R8RlMUxlB-x9t8krXDZ9OpAu7ZlluLqPS50
-Message-ID: <CAD++jLkBKcK9eKOCfry2H1DzG=5Z93w2U-SRwHf2dkRBhyxQRw@mail.gmail.com>
-Subject: Re: [PATCH v2 0/4] spi: Make SPI core to take care of fwnode assignment
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mark Brown <broonie@kernel.org>, 
-	Varshini Rajendran <varshini.rajendran@microchip.com>, 
-	Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Haotian Zhang <vulab@iscas.ac.cn>, 
-	Sunny Luo <sunny.luo@amlogic.com>, Janne Grunau <j@jannau.net>, 
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, Chen-Yu Tsai <wens@kernel.org>, 
-	Amelie Delaunay <amelie.delaunay@foss.st.com>, Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>, 
-	CL Wang <cl634@andestech.com>, Patrice Chotard <patrice.chotard@foss.st.com>, 
-	Heiko Stuebner <heiko@sntech.de>, William Zhang <william.zhang@broadcom.com>, 
-	=?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, 
-	Manikandan Muralidharan <manikandan.m@microchip.com>, David Lechner <dlechner@baylibre.com>, 
-	Florian Fainelli <florian.fainelli@broadcom.com>, Jonas Gorski <jonas.gorski@gmail.com>, 
-	Hang Zhou <929513338@qq.com>, Jun Guo <jun.guo@cixtech.com>, 
-	Philipp Stanner <phasta@kernel.org>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
-	Bartosz Golaszewski <brgl@kernel.org>, =?UTF-8?Q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>, 
-	Shiji Yang <yangshiji66@outlook.com>, James Clark <james.clark@linaro.org>, 
-	Jonathan Marek <jonathan@marek.ca>, Carlos Song <carlos.song@nxp.com>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, Huacai Chen <chenhuacai@kernel.org>, 
-	Xianwei Zhao <xianwei.zhao@amlogic.com>, 
-	Prajna Rajendra Kumar <prajna.rajendrakumar@microchip.com>, 
-	Sergio Perez Gonzalez <sperezglz@gmail.com>, Qianfeng Rong <rongqianfeng@vivo.com>, 
-	Haibo Chen <haibo.chen@nxp.com>, Gabor Juhos <j4g8y7@gmail.com>, 
-	Md Sadre Alam <quic_mdalam@quicinc.com>, Rosen Penev <rosenp@gmail.com>, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, Luis de Arquer <luis.dearquer@inertim.com>, 
-	Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>, 
-	Tudor Ambarus <tudor.ambarus@linaro.org>, Krzysztof Kozlowski <krzk@kernel.org>, 
-	Longbin Li <looong.bin@gmail.com>, Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, 
-	=?UTF-8?Q?Cl=C3=A9ment_Le_Goffic?= <clement.legoffic@foss.st.com>, 
-	Alessandro Grassi <alessandro.grassi@mailbox.org>, Darshan R <rathod.darshan.0896@gmail.com>, 
-	Aaron Kling <webgeek1234@gmail.com>, Vishwaroop A <va@nvidia.com>, 
-	Haixu Cui <quic_haixcui@quicinc.com>, Darshan Rathod <darshanrathod475@gmail.com>, 
-	linux-spi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, linux-amlogic@lists.infradead.org, 
-	asahi@lists.linux.dev, linux-aspeed@lists.ozlabs.org, 
-	openbmc@lists.ozlabs.org, linux-rpi-kernel@lists.infradead.org, 
-	linux-sound@vger.kernel.org, patches@opensource.cirrus.com, 
-	imx@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-mediatek@lists.infradead.org, 
-	linux-rockchip@lists.infradead.org, linux-renesas-soc@vger.kernel.org, 
-	linux-samsung-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	virtualization@lists.linux.dev, Nicolas Ferre <nicolas.ferre@microchip.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Claudiu Beznea <claudiu.beznea@tuxon.dev>, 
-	Lorenzo Bianconi <lorenzo@kernel.org>, Ray Liu <ray.liu@airoha.com>, Sven Peter <sven@kernel.org>, 
-	Neal Gompa <neal@gompa.dev>, Joel Stanley <joel@jms.id.au>, 
-	Andrew Jeffery <andrew@codeconstruct.com.au>, Ryan Wanner <ryan.wanner@microchip.com>, 
-	Michael Hennerich <michael.hennerich@analog.com>, =?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Kamal Dasu <kamal.dasu@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Ray Jui <rjui@broadcom.com>, 
-	Scott Branden <sbranden@broadcom.com>, Kursad Oney <kursad.oney@broadcom.com>, 
-	Anand Gore <anand.gore@broadcom.com>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>, 
-	David Rhodes <david.rhodes@cirrus.com>, Richard Fitzgerald <rf@opensource.cirrus.com>, 
-	Vladimir Oltean <olteanv@gmail.com>, Frank Li <Frank.Li@nxp.com>, Jean-Marie Verdun <verdun@hpe.com>, 
-	Nick Hawkins <nick.hawkins@hpe.com>, Yang Shen <shenyang39@huawei.com>, 
-	Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
-	Lixu Zhang <lixu.zhang@intel.com>, Yinbo Zhu <zhuyinbo@loongson.cn>, 
-	Neil Armstrong <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>, 
-	Jerome Brunet <jbrunet@baylibre.com>, Conor Dooley <conor.dooley@microchip.com>, 
-	Daire McNamara <daire.mcnamara@microchip.com>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	Avi Fishman <avifishman70@gmail.com>, Tomer Maimon <tmaimon77@gmail.com>, 
-	Tali Perry <tali.perry1@gmail.com>, Patrick Venture <venture@google.com>, 
-	Nancy Yuen <yuenn@google.com>, Benjamin Fair <benjaminfair@google.com>, Han Xu <han.xu@nxp.com>, 
-	Yogesh Gaur <yogeshgaur.83@gmail.com>, Daniel Mack <daniel@zonque.org>, 
-	Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, 
-	Chris Packham <chris.packham@alliedtelesis.co.nz>, 
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Alim Akhtar <alim.akhtar@samsung.com>, Paul Walmsley <pjw@kernel.org>, 
-	Samuel Holland <samuel.holland@sifive.com>, Orson Zhai <orsonzhai@gmail.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Alain Volmat <alain.volmat@foss.st.com>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
-	Li-hao Kuo <lhjeff911@gmail.com>, Masahisa Kojima <masahisa.kojima@linaro.org>, 
-	Jassi Brar <jaswinder.singh@linaro.org>, Laxman Dewangan <ldewangan@nvidia.com>, 
-	Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
-	Sowjanya Komatineni <skomatineni@nvidia.com>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	=?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>, 
-	Michal Simek <michal.simek@amd.com>, Max Filippov <jcmvbkbc@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <aWWXTx6SSNiV3a+v@devvm11784.nha0.facebook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: d4qahvIRnV4Tmknw52XFksGx-rhWQ8qFET9u5Ls4fD0_1768307693
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, Jan 12, 2026 at 9:35=E2=80=AFPM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
+On Mon, Jan 12, 2026 at 04:52:31PM -0800, Bobby Eshleman wrote:
+> On Mon, Jan 12, 2026 at 03:34:31PM -0800, Bobby Eshleman wrote:
+> > On Sun, Jan 11, 2026 at 01:43:37AM -0500, Michael S. Tsirkin wrote:
+> > > On Tue, Dec 23, 2025 at 04:28:36PM -0800, Bobby Eshleman wrote:
+> > > > From: Bobby Eshleman <bobbyeshleman@meta.com>
+> > > > 
+> > > > Add netns logic to vsock core. Additionally, modify transport hook
+> > > > prototypes to be used by later transport-specific patches (e.g.,
+> > > > *_seqpacket_allow()).
+> > > > 
+> > > > Namespaces are supported primarily by changing socket lookup functions
+> > > > (e.g., vsock_find_connected_socket()) to take into account the socket
+> > > > namespace and the namespace mode before considering a candidate socket a
+> > > > "match".
+> > > > 
+> > > > This patch also introduces the sysctl /proc/sys/net/vsock/ns_mode to
+> > > > report the mode and /proc/sys/net/vsock/child_ns_mode to set the mode
+> > > > for new namespaces.
+> > > > 
+> > > > Add netns functionality (initialization, passing to transports, procfs,
+> > > > etc...) to the af_vsock socket layer. Later patches that add netns
+> > > > support to transports depend on this patch.
+> > > > 
+> > > > dgram_allow(), stream_allow(), and seqpacket_allow() callbacks are
+> > > > modified to take a vsk in order to perform logic on namespace modes. In
+> > > > future patches, the net will also be used for socket
+> > > > lookups in these functions.
+> > > > 
+> > > > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+> > > 
+> > > ...
+> > > 
+> > > 
+> > > >  static int __vsock_bind_connectible(struct vsock_sock *vsk,
+> > > >  				    struct sockaddr_vm *addr)
+> > > >  {
+> > > > +	struct net *net = sock_net(sk_vsock(vsk));
+> > > >  	static u32 port;
+> > > >  	struct sockaddr_vm new_addr;
+> > > >
+> > > 
+> > > 
+> > > Hmm this static port gives me pause. So some port number info leaks
+> > > between namespaces. I am not saying it's a big security issue
+> > > and yet ... people expect isolation.
+> > 
+> > Probably the easiest solution is making it per-ns, my quick rough draft
+> > looks like this:
+> > 
+> > diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
+> > index e2325e2d6ec5..b34d69a22fa8 100644
+> > --- a/include/net/netns/vsock.h
+> > +++ b/include/net/netns/vsock.h
+> > @@ -11,6 +11,10 @@ enum vsock_net_mode {
+> >  
+> >  struct netns_vsock {
+> >  	struct ctl_table_header *sysctl_hdr;
+> > +
+> > +	/* protected by the vsock_table_lock in af_vsock.c */
+> > +	u32 port;
+> > +
+> >  	enum vsock_net_mode mode;
+> >  	enum vsock_net_mode child_ns_mode;
+> >  };
+> > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> > index 9d614e4a4fa5..cd2a47140134 100644
+> > --- a/net/vmw_vsock/af_vsock.c
+> > +++ b/net/vmw_vsock/af_vsock.c
+> > @@ -748,11 +748,10 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+> >  				    struct sockaddr_vm *addr)
+> >  {
+> >  	struct net *net = sock_net(sk_vsock(vsk));
+> > -	static u32 port;
+> >  	struct sockaddr_vm new_addr;
+> >  
+> > -	if (!port)
+> > -		port = get_random_u32_above(LAST_RESERVED_PORT);
+> > +	if (!net->vsock.port)
+> > +		net->vsock.port = get_random_u32_above(LAST_RESERVED_PORT);
+> >  
+> >  	vsock_addr_init(&new_addr, addr->svm_cid, addr->svm_port);
+> >  
+> > @@ -761,11 +760,11 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+> >  		unsigned int i;
+> >  
+> >  		for (i = 0; i < MAX_PORT_RETRIES; i++) {
+> > -			if (port == VMADDR_PORT_ANY ||
+> > -			    port <= LAST_RESERVED_PORT)
+> > -				port = LAST_RESERVED_PORT + 1;
+> > +			if (net->vsock.port == VMADDR_PORT_ANY ||
+> > +			    net->vsock.port <= LAST_RESERVED_PORT)
+> > +				net->vsock.port = LAST_RESERVED_PORT + 1;
+> >  
+> > -			new_addr.svm_port = port++;
+> > +			new_addr.svm_port = net->vsock.port++;
+> >  
+> >  			if (!__vsock_find_bound_socket_net(&new_addr, net)) {
+> >  				found = true;
+> > 
+> > 
+> > 
+> 
+> Another option being to follow inet's path and use
+> siphash_4u32() the way that secure_ipv4_port_ephemeral() does...
 
-> It seems all of the SPI drivers want to propagate fwnode (or of_node)
-> of the physical device to the SPI device. Make sure we don't duplicate
-> it over and over in each new driver (+2 in this cycle) by making core
-> to take care of that. Note, similar is done already by IIO and
-> I=C2=B2C subsystems.
->
-> There is one noticeable and quite specific case that is taken care in
-> the first patch and now we have a confirmation from Cirrus that everythin=
-g
-> is okay.  The rest is just a mechanical conversion after checking that
-> the parent device is assigned to the same that provides the respective
-> fwnode.
+Also acceptable.
 
-This is clearly making the kernel a better place.
-
-The series:
-Reviewed-by: Linus Walleij <linusw@kernel.org>
-
-Yours,
-Linus Walleij
