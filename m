@@ -1,203 +1,463 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DEF322B8BD
-	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 00:52:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EA0B156F45
+	for <virtualization@lists.linux-foundation.org>; Tue, 13 Jan 2026 02:33:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768265557; cv=none; b=kjI6NyNaCOYrBQj9kIFOsmxvwVBskbzOpDyhA9jJCtQbdkVkf9SWQ6BNQIRq3fzUEs3QFgBjZ00abDDauMVE4jU7dFVy+YqgWeYsFt85LNPRvLupCrj77HuMlysKRnwdM6B5X/+8u11awSbXKY0I9gi2LrYkZyZ50SDJJvodHxQ=
+	t=1768271589; cv=none; b=uYpWZDVODfSni6ouPT4gykPvn5XObblxczi63migWNlFpIySfWrV4i5tFwpWhNRNm4J+jcv2v5wRNhO6xmcXq9e9FLkeoUUW4JM6B8pDO7yiHssgOIov9u4VvBxC3NtFcz+lWFXLJHtuidlPpimqX2bdZaoVnQ+5F35VSbWwnrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768265557; c=relaxed/simple;
-	bh=8Vraf+SBhLrmdt2HV0wDbrQyiKEkmpXLCy5Y9glMNTA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jcLPJpkyezzfsvHr+CIDIO/mZ0R6/xo71pDi9T7jDY8BFpuq2VhMSD0XEaI0T8XP9SYXUXpn/ZujV+20f+FgGl+l2zm+aOpyQn0eFnp1FtnYlOVbJzSVE+He7hklNMogXxcH+F+MqXMk8mb/AW9R3s0TwQ4kKn52FhJc2A6HPrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PTwk6Iuh; arc=none smtp.client-ip=209.85.128.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768271589; c=relaxed/simple;
+	bh=AOuDSE6/eWcFlRb6r186vh6Tjpsg1kdsTdkYdZKJIMo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=T1cqKqGZSLw91/bpCl5cDDahBqJSL1DST2UtK4FQso4Lg+MelqjFg4NbdoLsZkugklwq1MNBVduYHKAlXx/v4jbAuF8hIwrb9YwgBr5/TyUEznY+m94EQleRKuRGCg1gThJLwTjqD+2cYzPusO/9FrnLgm6wPIGbKsi6a+E4usQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JW9QKQov; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PTwk6Iuh"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-79018a412edso72047737b3.0
-        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 16:52:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768265554; x=1768870354; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=2NF4AyKrauIjTRva3WFey87OryHOgZb6vovp7zFMW8c=;
-        b=PTwk6IuhYYs0Mn9zRNMQO5j2RjsanAjLZQJMkIYLDF5GlKaHtVQerYxMnWRY11qAGc
-         +Cyjr6RUk+tkhQZnH0EiKRn5hpCyzNJdflAQ3eSkc9li17R7mF7/pweq5IUT7803Rlg+
-         Mn7wl+Gv6p8eWBAfgI0x+LOMli0azJMkdFhdKLTyt/3U1ndWBi7AIJkyURJ4NT3t9GnE
-         xOzRHzmtx5TdPKfy0NENsAHlwCKZryBb7CdP05vCDbQNd2/QsLCw5q8XrVBS0JK/ngEO
-         r6JCClbxvFdd499tt/kNOmRlwccgZpS/Hp/PV/BrxkAtkLef9jeBjk6UkacC6p5HNRjy
-         j7mg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768265554; x=1768870354;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2NF4AyKrauIjTRva3WFey87OryHOgZb6vovp7zFMW8c=;
-        b=I2YyYFQ/XhmlaZXwtPzHutdEKMeIISGcPFg60qpFtw2ahIvru5D3mClvyoK4xveJZa
-         MVEAeGC5x2dCCHSqKyTyEeCwp5+D8uz/5fyQWrADrWkKKECUa4KqRB7q0txrgu1PlHBW
-         lkwP+nlez8HSV76soOSnZUooQoKuBUnpOD0sBf0oMwndbqr6LDYZT3u0cmRE/F4OEBmY
-         W6Rv1LYuEjLR2GhzhQw14zUh9ZXRRexQ9SFCNATU7VnxM5MfTHg4qXOYQU7JdsAbihxm
-         JyYLuaiUcjjGSc5sDTUoYNZITFHLHM6PqofXqebLiDxf4GxSiK/ZqlHBtIV7G7uSop9H
-         xfSg==
-X-Forwarded-Encrypted: i=1; AJvYcCUYh6j2ScQegPYcHZ7HAbWAqmLG2UKCYN+DN8BjzKcmt95bOirDwA3cWJgzoqG1SiHNF/NGoKeF0VXypDrZYw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwNnvdJy4Lm4dhl9WvB1gat5MmHqkz0cbYY5ZfUQzbHJDdF6BYb
-	/AxGWmQGUP2oNeWeBq0VKnwQXOdUML/zb+SOhS0LLqbiJCUzhRpdmE11
-X-Gm-Gg: AY/fxX7pKTX76rFsxeu25d07ZiiZI6Lq5/nOg9Qsh+q5IWBC+D3HIS0SKtqxo5/VlWd
-	jQLidbalg8ODoh/yj3cJbMFPaiBKDz+lxnxMyDAzEEWvVVh2g9Zz5d/Vpmz9B0YGmHSkb81dgPV
-	ZijX8baLym5jkyQrHeTs+q4foyRowlmo5HYQr0WPjymufOL+bMcDouW38IM5BNOaJiuaszN8B25
-	kU55yyugK4JzPp8iA42bB1DhltxXDK+96OJeqn4y2Kn9M8I17jvlVEymrBLpxEuDEMpQoh7YLKu
-	o/maXCRP7zEYo+o9KxU5g5P09JI5b2k4bYKzApVlfExEbfRRtc3LmLR5NQ+KHFwNXI5Hr5jBVfV
-	mDgXg2X5S5I3YyiCcL0EJx15VmZ2VGtyvMj6ZU7g/9rxvWEkadALfiuDWoNDlC2sixak1Jj2Duy
-	o9BEngbaiMLdzxAryTGqPgC6zg0gNRgPSk/8w=
-X-Google-Smtp-Source: AGHT+IEEozBmQjMmBVEF6xh5ga3T6IlFOqAC0ZcZVHFGL77MYegZXmo8YOv/wpih8sNdKD89yTfvfQ==
-X-Received: by 2002:a05:690e:1449:b0:646:6f6f:65e with SMTP id 956f58d0204a3-64716b0011cmr15860280d50.24.1768265553980;
-        Mon, 12 Jan 2026 16:52:33 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:44::])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-6470d8b2623sm8674363d50.20.2026.01.12.16.52.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jan 2026 16:52:33 -0800 (PST)
-Date: Mon, 12 Jan 2026 16:52:31 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Shuah Khan <shuah@kernel.org>, Long Li <longli@microsoft.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, kvm@vger.kernel.org,
-	linux-hyperv@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	berrange@redhat.com, Sargun Dhillon <sargun@sargun.me>,
-	Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH RFC net-next v13 02/13] vsock: add netns to vsock core
-Message-ID: <aWWXTx6SSNiV3a+v@devvm11784.nha0.facebook.com>
-References: <20251223-vsock-vmtest-v13-0-9d6db8e7c80b@meta.com>
- <20251223-vsock-vmtest-v13-2-9d6db8e7c80b@meta.com>
- <20260111013536-mutt-send-email-mst@kernel.org>
- <aWWFB2K5H5OXGWP8@devvm11784.nha0.facebook.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JW9QKQov"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0E52A40388
+	for <virtualization@lists.linux-foundation.org>; Tue, 13 Jan 2026 02:33:07 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.092
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id cUkn5IN-qr6V for <virtualization@lists.linux-foundation.org>;
+ Tue, 13 Jan 2026 02:33:06 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.10; helo=mgamail.intel.com; envelope-from=wangyang.guo@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E1A634010D
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E1A634010D
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=JW9QKQov
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E1A634010D
+	for <virtualization@lists.linux-foundation.org>; Tue, 13 Jan 2026 02:33:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1768271586; x=1799807586;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=AOuDSE6/eWcFlRb6r186vh6Tjpsg1kdsTdkYdZKJIMo=;
+  b=JW9QKQovp3CxttKORYEjeGX40UU8TjJ7XFcaPLhs2JOA4dPmCfDHn9rV
+   TixTrWXlrSQt4fuyapWyhr54+YkdpwhLEp8ENi/3uLLdYvWRa4HGTBbuv
+   +UtnudO+XMZaZzrY8SzmLOZIq3VfUPjWHvFqwGy+fenP8UtyoRvVXjARQ
+   9sQJ7pjCVvIAcHHxYIQx4MxryQEIo9X4gZESsgUiCsFgd8sFJNsRHYB+J
+   /vMr/UUnNfpjiE60AEd2hCGuCCHrVqKeuQjqhtc3T/VGJ3nc1w3jkD+yt
+   2Hw2FRxEw+vTm3EhCBJ/aGJqMx49CXkJj2J+/yIyOd2k51qaPQGbwReEo
+   Q==;
+X-CSE-ConnectionGUID: emQfhASMTXiUIbD0UPOdFw==
+X-CSE-MsgGUID: Fs/kok2xQZGXn3NlgkCbLA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11669"; a="80916900"
+X-IronPort-AV: E=Sophos;i="6.21,222,1763452800"; 
+   d="scan'208";a="80916900"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2026 18:33:02 -0800
+X-CSE-ConnectionGUID: DjF4Dm12SIGaeRUUVZU1VA==
+X-CSE-MsgGUID: cH5xLomVR4ueF4JafFWPJA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,222,1763452800"; 
+   d="scan'208";a="203462074"
+Received: from linux-pnp-server-11.sh.intel.com ([10.239.176.178])
+  by orviesa010.jf.intel.com with ESMTP; 12 Jan 2026 18:32:59 -0800
+From: Wangyang Guo <wangyang.guo@intel.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	Radu Rendec <rrendec@redhat.com>,
+	Ming Lei <ming.lei@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+	Keith Busch <kbusch@kernel.org>,
+	Jens Axboe <axboe@fb.com>,
+	Christoph Hellwig <hch@lst.de>,
+	Sagi Grimberg <sagi@grimberg.me>,
+	linux-kernel@vger.kernel.org,
+	linux-nvme@lists.infradead.org,
+	virtualization@lists.linux-foundation.org,
+	linux-block@vger.kernel.org,
+	Wangyang Guo <wangyang.guo@intel.com>,
+	Tianyou Li <tianyou.li@intel.com>,
+	Tim Chen <tim.c.chen@linux.intel.com>,
+	Dan Liang <dan.liang@intel.com>
+Subject: [PATCH v2] lib/group_cpus: make group CPU cluster aware
+Date: Tue, 13 Jan 2026 10:29:58 +0800
+Message-ID: <20260113022958.3379650-1-wangyang.guo@intel.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aWWFB2K5H5OXGWP8@devvm11784.nha0.facebook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jan 12, 2026 at 03:34:31PM -0800, Bobby Eshleman wrote:
-> On Sun, Jan 11, 2026 at 01:43:37AM -0500, Michael S. Tsirkin wrote:
-> > On Tue, Dec 23, 2025 at 04:28:36PM -0800, Bobby Eshleman wrote:
-> > > From: Bobby Eshleman <bobbyeshleman@meta.com>
-> > > 
-> > > Add netns logic to vsock core. Additionally, modify transport hook
-> > > prototypes to be used by later transport-specific patches (e.g.,
-> > > *_seqpacket_allow()).
-> > > 
-> > > Namespaces are supported primarily by changing socket lookup functions
-> > > (e.g., vsock_find_connected_socket()) to take into account the socket
-> > > namespace and the namespace mode before considering a candidate socket a
-> > > "match".
-> > > 
-> > > This patch also introduces the sysctl /proc/sys/net/vsock/ns_mode to
-> > > report the mode and /proc/sys/net/vsock/child_ns_mode to set the mode
-> > > for new namespaces.
-> > > 
-> > > Add netns functionality (initialization, passing to transports, procfs,
-> > > etc...) to the af_vsock socket layer. Later patches that add netns
-> > > support to transports depend on this patch.
-> > > 
-> > > dgram_allow(), stream_allow(), and seqpacket_allow() callbacks are
-> > > modified to take a vsk in order to perform logic on namespace modes. In
-> > > future patches, the net will also be used for socket
-> > > lookups in these functions.
-> > > 
-> > > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
-> > 
-> > ...
-> > 
-> > 
-> > >  static int __vsock_bind_connectible(struct vsock_sock *vsk,
-> > >  				    struct sockaddr_vm *addr)
-> > >  {
-> > > +	struct net *net = sock_net(sk_vsock(vsk));
-> > >  	static u32 port;
-> > >  	struct sockaddr_vm new_addr;
-> > >
-> > 
-> > 
-> > Hmm this static port gives me pause. So some port number info leaks
-> > between namespaces. I am not saying it's a big security issue
-> > and yet ... people expect isolation.
-> 
-> Probably the easiest solution is making it per-ns, my quick rough draft
-> looks like this:
-> 
-> diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
-> index e2325e2d6ec5..b34d69a22fa8 100644
-> --- a/include/net/netns/vsock.h
-> +++ b/include/net/netns/vsock.h
-> @@ -11,6 +11,10 @@ enum vsock_net_mode {
->  
->  struct netns_vsock {
->  	struct ctl_table_header *sysctl_hdr;
-> +
-> +	/* protected by the vsock_table_lock in af_vsock.c */
-> +	u32 port;
-> +
->  	enum vsock_net_mode mode;
->  	enum vsock_net_mode child_ns_mode;
->  };
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 9d614e4a4fa5..cd2a47140134 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -748,11 +748,10 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
->  				    struct sockaddr_vm *addr)
->  {
->  	struct net *net = sock_net(sk_vsock(vsk));
-> -	static u32 port;
->  	struct sockaddr_vm new_addr;
->  
-> -	if (!port)
-> -		port = get_random_u32_above(LAST_RESERVED_PORT);
-> +	if (!net->vsock.port)
-> +		net->vsock.port = get_random_u32_above(LAST_RESERVED_PORT);
->  
->  	vsock_addr_init(&new_addr, addr->svm_cid, addr->svm_port);
->  
-> @@ -761,11 +760,11 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
->  		unsigned int i;
->  
->  		for (i = 0; i < MAX_PORT_RETRIES; i++) {
-> -			if (port == VMADDR_PORT_ANY ||
-> -			    port <= LAST_RESERVED_PORT)
-> -				port = LAST_RESERVED_PORT + 1;
-> +			if (net->vsock.port == VMADDR_PORT_ANY ||
-> +			    net->vsock.port <= LAST_RESERVED_PORT)
-> +				net->vsock.port = LAST_RESERVED_PORT + 1;
->  
-> -			new_addr.svm_port = port++;
-> +			new_addr.svm_port = net->vsock.port++;
->  
->  			if (!__vsock_find_bound_socket_net(&new_addr, net)) {
->  				found = true;
-> 
-> 
-> 
+As CPU core counts increase, the number of NVMe IRQs may be smaller than
+the total number of CPUs. This forces multiple CPUs to share the same
+IRQ. If the IRQ affinity and the CPU’s cluster do not align, a
+performance penalty can be observed on some platforms.
 
-Another option being to follow inet's path and use
-siphash_4u32() the way that secure_ipv4_port_ephemeral() does...
+This patch improves IRQ affinity by grouping CPUs by cluster within each
+NUMA domain, ensuring better locality between CPUs and their assigned
+NVMe IRQs.
+
+Details:
+
+Intel Xeon E platform packs 4 CPU cores as 1 module (cluster) and share
+the L2 cache. Let's say, if there are 40 CPUs in 1 NUMA domain and 11
+IRQs to dispatch. The existing algorithm will map first 7 IRQs each with
+4 CPUs and remained 4 IRQs each with 3 CPUs. The last 4 IRQs may
+have cross cluster issue. For example, the 9th IRQ which pinned to
+CPU32, then for CPU31, it will have cross L2 memory access.
+
+CPU |28 29 30 31|32 33 34 35|36 ...
+     -------- -------- --------
+IRQ      8        9       10
+
+If this patch applied, then first 2 IRQs each mapped with 2 CPUs and
+rest 9 IRQs each mapped with 4 CPUs, which avoids the cross cluster
+memory access.
+
+CPU |00 01 02 03|04 05 06 07|08 09 10 11| ...
+     ----- ----- ----------- -----------
+IRQ  1      2        3           4
+
+As a result, 15%+ performance difference is observed in FIO
+libaio/randread/bs=8k.
+
+Changes since V1:
+- Add more performance details in commit messages.
+- Fix endless loop when topology_cluster_cpumask return invalid mask.
+
+History:
+  v1: https://lore.kernel.org/all/20251024023038.872616-1-wangyang.guo@intel.com/
+  v1 [RESEND]: https://lore.kernel.org/all/20251111020608.1501543-1-wangyang.guo@intel.com/
+
+Reviewed-by: Tianyou Li <tianyou.li@intel.com>
+Reviewed-by: Tim Chen <tim.c.chen@linux.intel.com>
+Tested-by: Dan Liang <dan.liang@intel.com>
+Signed-off-by: Wangyang Guo <wangyang.guo@intel.com>
+---
+ lib/group_cpus.c | 271 +++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 206 insertions(+), 65 deletions(-)
+
+diff --git a/lib/group_cpus.c b/lib/group_cpus.c
+index 6d08ac05f371..a93df70919df 100644
+--- a/lib/group_cpus.c
++++ b/lib/group_cpus.c
+@@ -114,48 +114,15 @@ static int ncpus_cmp_func(const void *l, const void *r)
+ 	return ln->ncpus - rn->ncpus;
+ }
+ 
+-/*
+- * Allocate group number for each node, so that for each node:
+- *
+- * 1) the allocated number is >= 1
+- *
+- * 2) the allocated number is <= active CPU number of this node
+- *
+- * The actual allocated total groups may be less than @numgrps when
+- * active total CPU number is less than @numgrps.
+- *
+- * Active CPUs means the CPUs in '@cpu_mask AND @node_to_cpumask[]'
+- * for each node.
+- */
+-static void alloc_nodes_groups(unsigned int numgrps,
+-			       cpumask_var_t *node_to_cpumask,
+-			       const struct cpumask *cpu_mask,
+-			       const nodemask_t nodemsk,
+-			       struct cpumask *nmsk,
+-			       struct node_groups *node_groups)
++static void alloc_groups_to_nodes(unsigned int numgrps,
++				  unsigned int numcpus,
++				  struct node_groups *node_groups,
++				  unsigned int num_nodes)
+ {
+-	unsigned n, remaining_ncpus = 0;
+-
+-	for (n = 0; n < nr_node_ids; n++) {
+-		node_groups[n].id = n;
+-		node_groups[n].ncpus = UINT_MAX;
+-	}
+-
+-	for_each_node_mask(n, nodemsk) {
+-		unsigned ncpus;
+-
+-		cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);
+-		ncpus = cpumask_weight(nmsk);
+-
+-		if (!ncpus)
+-			continue;
+-		remaining_ncpus += ncpus;
+-		node_groups[n].ncpus = ncpus;
+-	}
++	unsigned int n, remaining_ncpus = numcpus;
++	unsigned int  ngroups, ncpus;
+ 
+-	numgrps = min_t(unsigned, remaining_ncpus, numgrps);
+-
+-	sort(node_groups, nr_node_ids, sizeof(node_groups[0]),
++	sort(node_groups, num_nodes, sizeof(node_groups[0]),
+ 	     ncpus_cmp_func, NULL);
+ 
+ 	/*
+@@ -226,9 +193,8 @@ static void alloc_nodes_groups(unsigned int numgrps,
+ 	 * finally for each node X: grps(X) <= ncpu(X).
+ 	 *
+ 	 */
+-	for (n = 0; n < nr_node_ids; n++) {
+-		unsigned ngroups, ncpus;
+ 
++	for (n = 0; n < num_nodes; n++) {
+ 		if (node_groups[n].ncpus == UINT_MAX)
+ 			continue;
+ 
+@@ -246,12 +212,201 @@ static void alloc_nodes_groups(unsigned int numgrps,
+ 	}
+ }
+ 
++/*
++ * Allocate group number for each node, so that for each node:
++ *
++ * 1) the allocated number is >= 1
++ *
++ * 2) the allocated number is <= active CPU number of this node
++ *
++ * The actual allocated total groups may be less than @numgrps when
++ * active total CPU number is less than @numgrps.
++ *
++ * Active CPUs means the CPUs in '@cpu_mask AND @node_to_cpumask[]'
++ * for each node.
++ */
++static void alloc_nodes_groups(unsigned int numgrps,
++			       cpumask_var_t *node_to_cpumask,
++			       const struct cpumask *cpu_mask,
++			       const nodemask_t nodemsk,
++			       struct cpumask *nmsk,
++			       struct node_groups *node_groups)
++{
++	unsigned int n, numcpus = 0;
++
++	for (n = 0; n < nr_node_ids; n++) {
++		node_groups[n].id = n;
++		node_groups[n].ncpus = UINT_MAX;
++	}
++
++	for_each_node_mask(n, nodemsk) {
++		unsigned int ncpus;
++
++		cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);
++		ncpus = cpumask_weight(nmsk);
++
++		if (!ncpus)
++			continue;
++		numcpus += ncpus;
++		node_groups[n].ncpus = ncpus;
++	}
++
++	numgrps = min_t(unsigned int, numcpus, numgrps);
++	alloc_groups_to_nodes(numgrps, numcpus, node_groups, nr_node_ids);
++}
++
++static void assign_cpus_to_groups(unsigned int ncpus,
++				  struct cpumask *nmsk,
++				  struct node_groups *nv,
++				  struct cpumask *masks,
++				  unsigned int *curgrp,
++				  unsigned int last_grp)
++{
++	unsigned int v, cpus_per_grp, extra_grps;
++	/* Account for rounding errors */
++	extra_grps = ncpus - nv->ngroups * (ncpus / nv->ngroups);
++
++	/* Spread allocated groups on CPUs of the current node */
++	for (v = 0; v < nv->ngroups; v++, *curgrp += 1) {
++		cpus_per_grp = ncpus / nv->ngroups;
++
++		/* Account for extra groups to compensate rounding errors */
++		if (extra_grps) {
++			cpus_per_grp++;
++			--extra_grps;
++		}
++
++		/*
++		 * wrapping has to be considered given 'startgrp'
++		 * may start anywhere
++		 */
++		if (*curgrp >= last_grp)
++			*curgrp = 0;
++		grp_spread_init_one(&masks[*curgrp], nmsk, cpus_per_grp);
++	}
++}
++
++static int alloc_cluster_groups(unsigned int ncpus,
++				unsigned int ngroups,
++				struct cpumask *node_cpumask,
++				cpumask_var_t msk,
++				const struct cpumask ***clusters_ptr,
++				struct node_groups **cluster_groups_ptr)
++{
++	unsigned int ncluster = 0;
++	unsigned int cpu, nc, n;
++	const struct cpumask *cluster_mask;
++	const struct cpumask **clusters;
++	struct node_groups *cluster_groups;
++
++	cpumask_copy(msk, node_cpumask);
++
++	/* Probe how many clusters in this node. */
++	while (1) {
++		cpu = cpumask_first(msk);
++		if (cpu >= nr_cpu_ids)
++			break;
++
++		cluster_mask = topology_cluster_cpumask(cpu);
++		if (!cpumask_weight(cluster_mask))
++			goto no_cluster;
++		/* Clean out CPUs on the same cluster. */
++		cpumask_andnot(msk, msk, cluster_mask);
++		ncluster++;
++	}
++
++	/* If ngroups < ncluster, cross cluster is inevitable, skip. */
++	if (ncluster == 0 || ncluster > ngroups)
++		goto no_cluster;
++
++	/* Allocate memory based on cluster number. */
++	clusters = kcalloc(ncluster, sizeof(struct cpumask *), GFP_KERNEL);
++	if (!clusters)
++		goto no_cluster;
++	cluster_groups = kcalloc(ncluster, sizeof(struct node_groups), GFP_KERNEL);
++	if (!cluster_groups)
++		goto fail_cluster_groups;
++
++	/* Filling cluster info for later process. */
++	cpumask_copy(msk, node_cpumask);
++	for (n = 0; n < ncluster; n++) {
++		cpu = cpumask_first(msk);
++		cluster_mask = topology_cluster_cpumask(cpu);
++		nc = cpumask_weight_and(cluster_mask, node_cpumask);
++		clusters[n] = cluster_mask;
++		cluster_groups[n].id = n;
++		cluster_groups[n].ncpus = nc;
++		cpumask_andnot(msk, msk, cluster_mask);
++	}
++
++	alloc_groups_to_nodes(ngroups, ncpus, cluster_groups, ncluster);
++
++	*clusters_ptr = clusters;
++	*cluster_groups_ptr = cluster_groups;
++	return ncluster;
++
++ fail_cluster_groups:
++	kfree(clusters);
++ no_cluster:
++	return 0;
++}
++
++/*
++ * Try group CPUs evenly for cluster locality within a NUMA node.
++ *
++ * Return: true if success, false otherwise.
++ */
++static bool __try_group_cluster_cpus(unsigned int ncpus,
++				     unsigned int ngroups,
++				     struct cpumask *node_cpumask,
++				     struct cpumask *masks,
++				     unsigned int *curgrp,
++				     unsigned int last_grp)
++{
++	struct node_groups *cluster_groups;
++	const struct cpumask **clusters;
++	unsigned int ncluster;
++	bool ret = false;
++	cpumask_var_t nmsk;
++	unsigned int i, nc;
++
++	if (!zalloc_cpumask_var(&nmsk, GFP_KERNEL))
++		goto fail_nmsk_alloc;
++
++	ncluster = alloc_cluster_groups(ncpus, ngroups, node_cpumask, nmsk,
++					&clusters, &cluster_groups);
++
++	if (ncluster == 0)
++		goto fail_no_clusters;
++
++	for (i = 0; i < ncluster; i++) {
++		struct node_groups *nv = &cluster_groups[i];
++
++		/* Get the cpus on this cluster. */
++		cpumask_and(nmsk, node_cpumask, clusters[nv->id]);
++		nc = cpumask_weight(nmsk);
++		if (!nc)
++			continue;
++		WARN_ON_ONCE(nv->ngroups > nc);
++
++		assign_cpus_to_groups(nc, nmsk, nv, masks, curgrp, last_grp);
++	}
++
++	ret = true;
++	kfree(cluster_groups);
++	kfree(clusters);
++ fail_no_clusters:
++	free_cpumask_var(nmsk);
++ fail_nmsk_alloc:
++	return ret;
++}
++
+ static int __group_cpus_evenly(unsigned int startgrp, unsigned int numgrps,
+ 			       cpumask_var_t *node_to_cpumask,
+ 			       const struct cpumask *cpu_mask,
+ 			       struct cpumask *nmsk, struct cpumask *masks)
+ {
+-	unsigned int i, n, nodes, cpus_per_grp, extra_grps, done = 0;
++	unsigned int i, n, nodes, done = 0;
+ 	unsigned int last_grp = numgrps;
+ 	unsigned int curgrp = startgrp;
+ 	nodemask_t nodemsk = NODE_MASK_NONE;
+@@ -287,7 +442,7 @@ static int __group_cpus_evenly(unsigned int startgrp, unsigned int numgrps,
+ 	alloc_nodes_groups(numgrps, node_to_cpumask, cpu_mask,
+ 			   nodemsk, nmsk, node_groups);
+ 	for (i = 0; i < nr_node_ids; i++) {
+-		unsigned int ncpus, v;
++		unsigned int ncpus;
+ 		struct node_groups *nv = &node_groups[i];
+ 
+ 		if (nv->ngroups == UINT_MAX)
+@@ -301,28 +456,14 @@ static int __group_cpus_evenly(unsigned int startgrp, unsigned int numgrps,
+ 
+ 		WARN_ON_ONCE(nv->ngroups > ncpus);
+ 
+-		/* Account for rounding errors */
+-		extra_grps = ncpus - nv->ngroups * (ncpus / nv->ngroups);
+-
+-		/* Spread allocated groups on CPUs of the current node */
+-		for (v = 0; v < nv->ngroups; v++, curgrp++) {
+-			cpus_per_grp = ncpus / nv->ngroups;
+-
+-			/* Account for extra groups to compensate rounding errors */
+-			if (extra_grps) {
+-				cpus_per_grp++;
+-				--extra_grps;
+-			}
+-
+-			/*
+-			 * wrapping has to be considered given 'startgrp'
+-			 * may start anywhere
+-			 */
+-			if (curgrp >= last_grp)
+-				curgrp = 0;
+-			grp_spread_init_one(&masks[curgrp], nmsk,
+-						cpus_per_grp);
++		if (__try_group_cluster_cpus(ncpus, nv->ngroups, nmsk,
++					     masks, &curgrp, last_grp)) {
++			done += nv->ngroups;
++			continue;
+ 		}
++
++		assign_cpus_to_groups(ncpus, nmsk, nv, masks, &curgrp,
++				      last_grp);
+ 		done += nv->ngroups;
+ 	}
+ 	kfree(node_groups);
+-- 
+2.47.3
+
