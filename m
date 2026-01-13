@@ -1,149 +1,122 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAB5E38F92D
-	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 15:10:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 808E5363C64
+	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 15:12:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768317003; cv=none; b=tNDbp8RpvGJYAIKuonkuPJRrjJ+mcwboKy6w0GFfRZwjbNk3fjxI71ZymmlwyC4/Gf/hNBaXgXsMWHLTHr9oAX+WthBxxlMFK0hHFpZqdbj2QEN0BfKQcVh3uwnkMayqdkCIpo139tDhp2Xju+OkLykMs+DMbBIPR/g83Dht5rY=
+	t=1768317123; cv=none; b=UJ6/kCdRFhQhvPMSjDIyXc0F2kiU+5aj02Mlut//iHSa7fmYD8X2e9mWCLJPHHjvL9n9TcoaYIp7lp5KfmcqI2LJFccA8ok8cGC/EfJ8A/NtWI1UtLs8rqvwH4IiT4Nekb5NRg14M7vPp+VL8LjUwriwCW78zjDnciqS/ULSwss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768317003; c=relaxed/simple;
-	bh=IjDfml/1cvOw28maSGmYa6FTlTr0QObwVkLthL0Z9E0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cRWaCuzaGlXvofxpAuojaKAPUxJCsfzNJELm5A2Qz1s2J5sDoeQPNXZVdY4Q2ppiaO9lWsmjDs6UGzWkmuUznQRqWVxLxhtJMhKGfIsLnpQBPRv7NbDcmm0zSqrqQMdR6wB1/V2YtjrEYzjWtorgjBgzGe09M8Cz6kIVkUcOXOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QPsk5HZi; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768317123; c=relaxed/simple;
+	bh=hx7AqJD3qv9gfYaKs+593kiJFrdJtZyUf80B12a0amk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GMrIMnCjqwBBXjmDgumK89CuGRp16ITfkF+3M+ltqnnU7T6x9vRhp81ENKFbhPPluY6myT1AgjNLinXHsDWpyXmG0hDpPmfvpsLubdzxrznzkoKtMOswvHWFFp3Tnz2dq3vk7wD1nzH3DSiVmK9KFgpEIYn6AfqFRGfsrMmFmww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=CI+oWJf0; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QPsk5HZi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768317000;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ZAAeBZ/ggGqoYtjNvmyj/ESVJlgSIndVqwIXnT1NG9o=;
-	b=QPsk5HZirVaONL8Zw5zUyFHtz9vAA9FTXA9/g8HMXANdX35F17WkPw3S+/65nWBpapu9q7
-	YLpxhbfD+sGqyOWvSqkB32ZsIUJQ7rKDYcbcDuRBEnt+2mp0WV7WuXNHwkMDnsEBREG99E
-	yjSPIQxQF4qD4tbaZQ/O3FEwq0PNFbs=
-Received: from mail-yx1-f70.google.com (mail-yx1-f70.google.com
- [74.125.224.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-679-nSX5PU5GPbm9TQ2-iNRy8w-1; Tue, 13 Jan 2026 10:09:59 -0500
-X-MC-Unique: nSX5PU5GPbm9TQ2-iNRy8w-1
-X-Mimecast-MFC-AGG-ID: nSX5PU5GPbm9TQ2-iNRy8w_1768316999
-Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-644548b1dcfso11694168d50.3
-        for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 07:09:59 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768316998; x=1768921798;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ZAAeBZ/ggGqoYtjNvmyj/ESVJlgSIndVqwIXnT1NG9o=;
-        b=R8v10PSX5yrnN71yK6hNBcO9sxIetwe+2PWDCFMS2o84rf9+oCl8Lyleh8sJxTvIAU
-         ll3B4Lp4o/OR6rM6IZFMIvP0otzY6WxP9eDUAmKWgDOclqUqwyLWVMh4N6Ego5yp2jit
-         p7HAFtSqM4Hi7xniOkYEiK+9VKeqr6wfM6rW9yWWuv6M0Bh59INRudh09TDIeJm2WfUD
-         KMCIVodcghG/l9sRruDM3W5aiK4SR5tDmFylPxjKR9zilQUqMRLfmvSRB2hlernvY71s
-         oeVZ9xXYafi40hUwbQQ8w6+RjTCqUNrGW/tt7tMuBkm8KNwuAArSDdO4HovksYMzbhpF
-         rNIg==
-X-Forwarded-Encrypted: i=1; AJvYcCWKuo98Qcf6bUvgTUpwuzX5tDQ/8+uwkFrZdSREh6+TYYjod0BYH0vtiP/h+XKSPouTwA0WDuc+7sRrofcWIA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyo0itUyFKUkh78/rpFrd/seqF1vF+r90ACV86DsHlAuFewqsmJ
-	HG4lmQRiK6ilV7FaTEXrAsgzMp5DQzOkRc0AVxHyQRfa3q34KdKswFTHKeCy58cyWWtkq9Gj3IB
-	f5pxhlpDQdv78abebiqCNifLA3/A4vROsvdgxAEgLbYk+4ADyx6h8Hr/4A8yuoYrqPbQ1FWqb4x
-	2nzky2Jm1VabdQs0nDKI1ww4UGRwJr+mane9eEnehbYdl/RyTBSE7djA==
-X-Gm-Gg: AY/fxX7zJ6Bp3fJfgRvNnnrTRFLrIMgO49X3KUNigxhJKHC58oarOdKg4Pa++KU3nS1
-	Egv2QBEHQ9m11SB15NqNbzE7dKJcGbEHdsOW8pnFSX8PjMAFq1CRWukmctIUosOdZoq+Wy1QUCM
-	onp0ejUpXh4pEr9inBtX1V/ml/553O+SjdV2l+8q/1rTNWTiRztecU2gwYaMMQbm6jHQ==
-X-Received: by 2002:a05:690e:188a:b0:645:5a5c:9e6e with SMTP id 956f58d0204a3-64716c38598mr21012227d50.58.1768316998372;
-        Tue, 13 Jan 2026 07:09:58 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFUQu5b372OR/WzFamLww+5ihUUPM+AKZFRRBPnbReC7DXBcecUS6o/jcoZDs3wKchzx5T+ELijxoadbsoCJVg=
-X-Received: by 2002:a05:690e:188a:b0:645:5a5c:9e6e with SMTP id
- 956f58d0204a3-64716c38598mr21012204d50.58.1768316997915; Tue, 13 Jan 2026
- 07:09:57 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="CI+oWJf0"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1vfg3j-00GJ4O-DD; Tue, 13 Jan 2026 16:11:51 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=1hHdeBqT1SYDsAZ2LmaivRkI41scFYVMHnCQzatSUk0=; b=CI+oWJf05SwV7jhnCaW7k7gABT
+	qxVNCxGtOCUx4Mke4CP+G4yuHaLOTKzMi/LRhRT6NNNlzR/i7LOD0r+1j1TtuEKvsVI5T1TMO4hBF
+	rmhyqW+uk/6voTHvGvWSk4cn5IaVxmQmmOy41ufnOeGPnDRit0Dd/uMw+qAYBwNCik9bU1fsKLM9h
+	kWDthD/gdyWwpzOG45TPuyTISMB+obB45/LfQdiBvTDYt8Xo6jtwzqnAGxW80Cxz1iMfyHDqbauaF
+	IF7ltuGvxFEbrl2vKzATcNY4/fodLaTGsZcs20CGDd+hyDCxmfnN7Y2B53KLUGhxTfKMYwZeJjPlx
+	mSOvHL1A==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1vfg3i-0008Bn-TX; Tue, 13 Jan 2026 16:11:51 +0100
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1vfg3S-00D7GU-TT; Tue, 13 Jan 2026 16:11:35 +0100
+Message-ID: <e16c6062-ca32-4c78-bb97-5860c28102fd@rbox.co>
+Date: Tue, 13 Jan 2026 16:11:33 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260109152430.512923-1-eperezma@redhat.com> <20260109152430.512923-13-eperezma@redhat.com>
- <CACGkMEvt4bK3ihn1QBn-ax7GprH91c-6-muv7jJ1-bR4fkG6=g@mail.gmail.com>
-In-Reply-To: <CACGkMEvt4bK3ihn1QBn-ax7GprH91c-6-muv7jJ1-bR4fkG6=g@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 13 Jan 2026 16:09:20 +0100
-X-Gm-Features: AZwV_QjAYAyd5o7f4z_hRuIUphdspTVKi06NR1fbx6XGNfT2h4vevoQgfU0BSRM
-Message-ID: <CAJaqyWfE3j9B-66Bha2xAvudgWprpkLP9rjxHUkGPJhznujybw@mail.gmail.com>
-Subject: Re: [PATCH v11 12/12] vduse: bump version number
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Laurent Vivier <lvivier@redhat.com>, Cindy Lu <lulu@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Yongji Xie <xieyongji@bytedance.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: G0S68pNB2OblUaBcaSXAoFei79LeEXkR_-pfu157jlg_1768316999
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] vsock/test: Add test for a linear and non-linear skb
+ getting coalesced
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>,
+ Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260108-vsock-recv-coalescence-v1-0-26f97bb9a99b@rbox.co>
+ <20260108-vsock-recv-coalescence-v1-2-26f97bb9a99b@rbox.co>
+ <aWEqjjE1vb_t35lQ@sgarzare-redhat>
+ <76ca0c9f-dcda-4a53-ac1f-c5c28d1ecf44@rbox.co>
+ <aWT6EH8oWpw-ADtm@sgarzare-redhat>
+ <080d7ae8-e184-4af8-bd72-765bb30b63a5@rbox.co>
+ <aWUk0axv-GZu7VD2@sgarzare-redhat>
+ <0b15644b-9394-4734-9c0e-0a6d1355604a@rbox.co>
+ <aWYQRK-fRHOqQNc8@sgarzare-redhat>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <aWYQRK-fRHOqQNc8@sgarzare-redhat>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jan 13, 2026 at 7:25=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Fri, Jan 9, 2026 at 11:25=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redh=
-at.com> wrote:
-> >
-> > Finalize the series by advertising VDUSE API v1 support to userspace.
-> >
-> > Now that all required infrastructure for v1 (ASIDs, VQ groups,
-> > update_iotlb_v2) is in place, VDUSE devices can opt in to the new
-> > features.
-> >
-> > Acked-by: Jason Wang <jasowang@redhat.com>
-> > Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > ---
-> >  drivers/vdpa/vdpa_user/vduse_dev.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
-r/vduse_dev.c
-> > index 8227b5e9f3f6..5ad0ba1392f3 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -2201,7 +2201,7 @@ static long vduse_ioctl(struct file *file, unsign=
-ed int cmd,
-> >                         break;
-> >
-> >                 ret =3D -EINVAL;
-> > -               if (api_version > VDUSE_API_VERSION)
-> > +               if (api_version > VDUSE_API_VERSION_1)
-> >                         break;
-> >
-> >                 ret =3D 0;
-> > @@ -2268,7 +2268,7 @@ static int vduse_open(struct inode *inode, struct=
- file *file)
-> >         if (!control)
-> >                 return -ENOMEM;
-> >
-> > -       control->api_version =3D VDUSE_API_VERSION;
-> > +       control->api_version =3D VDUSE_API_VERSION_1;
->
-> This can break the "legacy" userspace that doesn't call VDUSE_SET_API_VER=
-SION?
->
-> Thanks
->
+On 1/13/26 10:36, Stefano Garzarella wrote:
+> On Mon, Jan 12, 2026 at 10:20:50PM +0100, Michal Luczaj wrote:
+>> On 1/12/26 17:48, Stefano Garzarella wrote:
+>>>>>>>> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>>>>>>>> index bbe3723babdc..21c8616100f1 100644
+>>>>>>>> --- a/tools/testing/vsock/vsock_test.c
+>>>>>>>> +++ b/tools/testing/vsock/vsock_test.c
+>>>>>>>> @@ -2403,6 +2403,11 @@ static struct test_case test_cases[] = {
+>>>>>>>> 		.run_client = test_stream_accepted_setsockopt_client,
+>>>>>>>> 		.run_server = test_stream_accepted_setsockopt_server,
+>>>>>>>> 	},
+>>>>>>>> +	{
+>>>>>>>> +		.name = "SOCK_STREAM MSG_ZEROCOPY coalescence corruption",
+>>>>>>>
+>>>>>>> This is essentially a regression test for virtio transport, so I'd add
+>>>>>>> virtio in the test name.
+>>>>>>
+>>>>>> Isn't virtio transport unaffected? It's about loopback transport (that
+>>>>>> shares common code with virtio transport).
+>>>>>
+>>>>> Why virtio transport is not affected?
+>>>>
+>>>> With the usual caveat that I may be completely missing something, aren't
+>>>> all virtio-transport's rx skbs linear? See virtio_vsock_alloc_linear_skb()
+>>>> in virtio_vsock_rx_fill().
+>>>>
+>>>
+>>> True, but what about drivers/vhost/vsock.c ?
+>>>
+>>> IIUC in vhost_vsock_handle_tx_kick() we call vhost_vsock_alloc_skb(),
+>>> that calls virtio_vsock_alloc_skb() and pass that skb to
+>>> virtio_transport_recv_pkt(). So, it's also affected right?
+>>
+>> virtio_vsock_alloc_skb() returns a non-linear skb only if size >
+>> SKB_WITH_OVERHEAD(PAGE_SIZE << PAGE_ALLOC_COSTLY_ORDER)). And that is way
+>> more than GOOD_COPY_LEN, so we're good.
+>>
+>> At least until someone increases GOOD_COPY_LEN and/or reduces the size
+>> condition for non-linear allocation. So, yeah, a bit brittle.
+> 
+> I see, thanks for clarify. So please add all of this conclusions in the 
+> patch 1 description to make it clear that only loopback is affected, so 
+> no guest/host attack is possible. (not really severe CVE)
 
-It can result in a userland visible change, yes. Protecting it for the
-next version, thanks for pointing it out!
-
-I don't think you can "break" any valid userspace VDUSE actually, the
-only change the userland VDUSE can see is if calls
-VDUSE_IOTLB_GET_FD2, set the vq group in VDUSE_VQ_SETUP, set the asid
-in VDUSE_IOTLB_GET_INFO, or similar. In that case, the userland device
-gets -ENOIOCTLCMD or -EINVAL and suddenly something "valid" happens if
-the kernel applies this patch. But it is an userland visible change
-anyway, so I'll protect it for the next version.
-
-Thanks!
+OK, here's v2:
+https://lore.kernel.org/netdev/20260113-vsock-recv-coalescence-v2-0-552b17837cf4@rbox.co/
 
