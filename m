@@ -1,168 +1,105 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f46.google.com (mail-yx1-f46.google.com [74.125.224.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C24732EC54D;
-	Tue, 13 Jan 2026 03:46:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768275970; cv=pass; b=gfjU62YlsRguvoWvlmzmA3SaP4sBWK3/ydX5cicezh07xtV7cUd5w+PDnaBuEDCXrVvdWet7g/3dLcmjX3Itoh+1cJDbfPJ4NRe/0l/BrVRHadz6Xc7slfUyWuBfvbTW5IC0bn7R4hyqycBzPveE3TCmo8MHH8ZOxbz1jNdxcEg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768275970; c=relaxed/simple;
-	bh=yh9WKYXlqUWc5sUsf/ucPYJFwqnKd9qWuYQzeplS0gA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=r6+ZXNRSABPnYj+iSCaVr9+zB7Cq7rw8J6/ehLlCXCqTi7R5twg65uY9ZGYOiDlQDR5WkF5pNA9xb6vwju9zxxIMuGE70suVJvG8920Zqttuc0IzyxS/on+JDPmRAafNvu2lii4B8HKWoX4hbx0cY5ER5yx6OsftPWrQb2Zg8V4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=hNfzTEga; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ED99315D2C
+	for <virtualization@lists.linux.dev>; Tue, 13 Jan 2026 04:21:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.46
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768278095; cv=none; b=mnY3RmmTcOmwaIgpEP/O66tJRdky3UeyRN/KVeu/U8BMDhmGYcHI0rTRut6+8LzU2UUUIlVssyr+PR+iexb6fl6Zlcg36N6pMmdwuB1BkVDW3c5APksvdqd9X8taYrsh2SEQH4DCbXILqNxnqCGkE15F5byWAJJL4hvhF1J0hcE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768278095; c=relaxed/simple;
+	bh=9z2ygHADRlPRv6GZSQG6Zjqzw6mYA3L1xkaQe+u4lys=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SbmY6xka/rpgSjmyXJmRk9Q9BEFgs+gwqyoteqFbPuTB+O1q/ZFhJDlUM8M8PJcId5k0jG+vN0NE4oMgia+zG0yUOHDphRpHgWZwJZIqa0KigXq3PYBYtur+u6fkMPe9scaYEfIFl5hXawhI2togZhpzIqWbpykJGWANdb0rdKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DUvTDiSl; arc=none smtp.client-ip=74.125.224.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="hNfzTEga"
-ARC-Seal: i=1; a=rsa-sha256; t=1768275963; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=EZAxQBijCn6Z8Q9Ti677VQ/Pu4qOdsBzKWQ+sS4CwOyFWooPFsy1x4VoPxiWcAPnFp8g7CNHXV+ZA1lQkO/KjWt/n8fjqGnXOdWIl7tT9FWbaaLdA3ZzPRqdXnz9aJhdhtFK+hvJFW5uB9nhcxdGAtCaEa0G3DCTIZQ7eQYUjBU=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1768275963; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=rLeMQF3euqQFHPcQ7Xuf1HGkbhRTdazc0FH9LsglTVo=; 
-	b=ZVl0g3qYzlz0TWDLDPVItHJaPeNO+iI7/Q4FommzLYpGIoBMbNw9/AhqtUEhJZAJiLIq0KVpDXkubTtwTIoC14LRRJd9xzPsjS3OO8XX9s022Nmunp4NpGBNYnlAfVuFiik9ehE0UEt9TT4+gxE5vw/9Ga7zOvwczOLO0VFhga0=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=linux.beauty;
-	spf=pass  smtp.mailfrom=me@linux.beauty;
-	dmarc=pass header.from=<me@linux.beauty>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1768275963;
-	s=zmail; d=linux.beauty; i=me@linux.beauty;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=rLeMQF3euqQFHPcQ7Xuf1HGkbhRTdazc0FH9LsglTVo=;
-	b=hNfzTEgaNb7r7XF9rZgSUSdUHZ8pYeTShGa4T7wVDor+vouZtYtyBkWwVssmLjBI
-	DxLZRRERi85UmFgOk44r2fwojTgP+2nVTb22VtnhBsaQJJbj/UvTMNz1vBuwSwn7dG9
-	+7YSXYqOVrKQ7B9YLS2BfChK5u5bRnOaSAd0a1DY=
-Received: by mx.zohomail.com with SMTPS id 1768275959721742.5854641970693;
-	Mon, 12 Jan 2026 19:45:59 -0800 (PST)
-From: Li Chen <me@linux.beauty>
-To: Dan Williams <dan.j.williams@intel.com>,
-	Vishal Verma <vishal.l.verma@intel.com>,
-	Dave Jiang <dave.jiang@intel.com>,
-	Ira Weiny <ira.weiny@intel.com>,
-	Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Cornelia Huck <cohuck@redhat.com>,
-	Jakub Staron <jstaron@google.com>,
-	nvdimm@lists.linux.dev,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Cc: Li Chen <me@linux.beauty>
-Subject: [PATCH] nvdimm: virtio_pmem: serialize flush requests
-Date: Tue, 13 Jan 2026 11:45:52 +0800
-Message-ID: <20260113034552.62805-1-me@linux.beauty>
-X-Mailer: git-send-email 2.52.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DUvTDiSl"
+Received: by mail-yx1-f46.google.com with SMTP id 956f58d0204a3-6468f0d5b1cso6312180d50.1
+        for <virtualization@lists.linux.dev>; Mon, 12 Jan 2026 20:21:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768278093; x=1768882893; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=9z2ygHADRlPRv6GZSQG6Zjqzw6mYA3L1xkaQe+u4lys=;
+        b=DUvTDiSlI4Xl7omVTb+PgeT1qa5alaT0vee9Qjb4hgAUrGSgtjinfnJBXI1A5zLTVE
+         13Oy/En4gxU9AM4/r45cAoQ6kWu1ownGEDr+mtzQVJX32MeOSyK5uoXoL5ywSjrCDYE9
+         RQ3ff/2O5n8hUAd9nixymEB/qEyZ2dMXFLkFDtBb80fSALdwmHs6umqcOzYqVXWH0IWj
+         iyfGoT8FluH8x8Slv9C6VlG/HBKDYQC/lxbpJC/xtlRreLK4Dii/dmeBymf088MvauN3
+         lagowfXcBtZ5vZ58DKqrFgmfPZh6eqxw1VgxedQyVIhXbw4QkVx3oH7ViC9zmiM9fbfb
+         JUOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768278093; x=1768882893;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9z2ygHADRlPRv6GZSQG6Zjqzw6mYA3L1xkaQe+u4lys=;
+        b=shCIwvDwiH/t/VWrJJ4/gqAe5/JTR6BZR4TF20XQjJaGVtjx1227APyMBI/gEz9lt2
+         uQNF2tIz8vahjy8O1xN/Jv8NwMe/oycjiF/KsLqhiD7xzqY1+2IEFMmzqaaWTBbXNsbi
+         HZHpubAwrPUpx9Hk7sflFHAXz2fXo7WDoTyqniucWL/CdyVHhuFNtlS6ZEF+MmvKfhQ8
+         wF1mp7UgDpQQyCg+4n0qq5LHH2lyZA4oCtjdx7byWn6s9IaefxqRWuAlAzpiLxxoedI3
+         vBnLM8QnP7a9/KJqo6ou6JxOZ3aD8jFXVmX2avniq6BPTAIQ6pC0+InE9+v1uw6a/rcZ
+         0LvA==
+X-Forwarded-Encrypted: i=1; AJvYcCVL+oCkyjRlvIURrnap/9e+MfCDpNOqbZmF9HuUR8R+FwVTzW9UESDMXmuOl27lJ5pm1EgcfIJ+nW6O27PHzQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx49KBM0OPs6gnDYaWyhBTd4nrd2nT99jz/mKtu9jKIV+YwwcHF
+	RHjV5xxLFzOf5Lvf8F2N5c3Q54sHK8iS3YlKYQcKAQspUKshu9JiwvCa
+X-Gm-Gg: AY/fxX4ib8boXRVXeAFzX14g9rDJ6rj3CkL/Ng1GgSG7ecsfNqM+gJhyi34D/yv/uU2
+	0kIa4eC3GnaWE0MF8AG9sw56vYY3SwSVAr4Fx6oSt2J+Lri3z/d9tW8Tmt42ah2Z/ctkxctPZo6
+	ImJK0hWAozjkubsMb2rm5zu8A62jCgCvQVKlinyUMUdTkxNcqej0FH9TxA0n9YV3vnZ2IUEnyHR
+	1tPTnK1Uc9rgzBfxuoCbI/ewPie5SUzIVLsQ3TRFq27yzhZDn7RBtK64/y8yNpjvnrVuzjSYL+P
+	Ug/zV/5mEi1mjhKqA6m+79kC8J2pqL3XEfIRjh8G/reJztGhG1WOpqDaKWMRfzXV9sQexibgeWJ
+	kpsTdSxDvwRtszbh5O4R9VaqBw78KKt0wkA9+3dQ1lbeRKMenoZO6z9XOVtk2hp7GvY1rI/UqOC
+	yAtSYNjYDqzkYKaS7wXgIsJQuO5jZ1BaocCW6rGlOV
+X-Google-Smtp-Source: AGHT+IGGcZLGkIPFIQNjOBHEDejVFdSxvol43+/5acwy+R+srjitlMp64hasZauwcNrOFpf7o0YCkA==
+X-Received: by 2002:a05:690e:12c6:b0:641:f5bc:6999 with SMTP id 956f58d0204a3-64716c7a1b8mr16140967d50.85.1768278093158;
+        Mon, 12 Jan 2026 20:21:33 -0800 (PST)
+Received: from hoboy.vegasvil.org ([2600:1700:2430:6f6f:e2d5:5eff:fea5:802f])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-790aa6ac1c4sm76004817b3.45.2026.01.12.20.21.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jan 2026 20:21:32 -0800 (PST)
+Date: Mon, 12 Jan 2026 20:21:29 -0800
+From: Richard Cochran <richardcochran@gmail.com>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	David Woodhouse <dwmw2@infradead.org>,
+	virtualization@lists.linux.dev, Nick Shi <nick.shi@broadcom.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Paolo Abeni <pabeni@redhat.com>, linux-clk@vger.kernel.org
+Subject: Re: [RFC] Defining a home/maintenance model for non-NIC PHC devices
+ using the /dev/ptpX API
+Message-ID: <aWXISRWpkW-oHyUw@hoboy.vegasvil.org>
+References: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
 
-Under heavy concurrent flush traffic, virtio-pmem can overflow its request
-virtqueue (req_vq): virtqueue_add_sgs() starts returning -ENOSPC and the
-driver logs "no free slots in the virtqueue". Shortly after that the
-device enters VIRTIO_CONFIG_S_NEEDS_RESET and flush requests fail with
-"virtio pmem device needs a reset".
+On Fri, Jan 09, 2026 at 10:56:56AM +0800, Wen Gu wrote:
 
-Serialize virtio_pmem_flush() with a per-device mutex so only one flush
-request is in-flight at a time. This prevents req_vq descriptor overflow
-under high concurrency.
+> Introducing a new clock type or a new userspace API (e.g. /dev/XXX) would
+> require widespread userspace changes, duplicated tooling, and long-term
+> fragmentation. This RFC is explicitly NOT proposing a new userspace API.
 
-Reproducer (guest with virtio-pmem):
-  - mkfs.ext4 -F /dev/pmem0
-  - mount -t ext4 -o dax,noatime /dev/pmem0 /mnt/bench
-  - fio: ioengine=io_uring rw=randwrite bs=4k iodepth=64 numjobs=64
-        direct=1 fsync=1 runtime=30s time_based=1
-  - dmesg: "no free slots in the virtqueue"
-           "virtio pmem device needs a reset"
+Actually I disagree.
 
-Fixes: 6e84200c0a29 ("virtio-pmem: Add virtio pmem driver")
-Signed-off-by: Li Chen <me@linux.beauty>
----
- drivers/nvdimm/nd_virtio.c   | 15 +++++++++++----
- drivers/nvdimm/virtio_pmem.c |  1 +
- drivers/nvdimm/virtio_pmem.h |  4 ++++
- 3 files changed, 16 insertions(+), 4 deletions(-)
+The PHC devices appear to user space as clockid_t.
 
-diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-index c3f07be4aa22..827a17fe7c71 100644
---- a/drivers/nvdimm/nd_virtio.c
-+++ b/drivers/nvdimm/nd_virtio.c
-@@ -44,19 +44,24 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
- 	unsigned long flags;
- 	int err, err1;
- 
-+	might_sleep();
-+	mutex_lock(&vpmem->flush_lock);
-+
- 	/*
- 	 * Don't bother to submit the request to the device if the device is
- 	 * not activated.
- 	 */
- 	if (vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_NEEDS_RESET) {
- 		dev_info(&vdev->dev, "virtio pmem device needs a reset\n");
--		return -EIO;
-+		err = -EIO;
-+		goto out_unlock;
- 	}
- 
--	might_sleep();
- 	req_data = kmalloc(sizeof(*req_data), GFP_KERNEL);
--	if (!req_data)
--		return -ENOMEM;
-+	if (!req_data) {
-+		err = -ENOMEM;
-+		goto out_unlock;
-+	}
- 
- 	req_data->done = false;
- 	init_waitqueue_head(&req_data->host_acked);
-@@ -103,6 +108,8 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
- 	}
- 
- 	kfree(req_data);
-+out_unlock:
-+	mutex_unlock(&vpmem->flush_lock);
- 	return err;
- };
- 
-diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
-index 2396d19ce549..77b196661905 100644
---- a/drivers/nvdimm/virtio_pmem.c
-+++ b/drivers/nvdimm/virtio_pmem.c
-@@ -64,6 +64,7 @@ static int virtio_pmem_probe(struct virtio_device *vdev)
- 		goto out_err;
- 	}
- 
-+	mutex_init(&vpmem->flush_lock);
- 	vpmem->vdev = vdev;
- 	vdev->priv = vpmem;
- 	err = init_vq(vpmem);
-diff --git a/drivers/nvdimm/virtio_pmem.h b/drivers/nvdimm/virtio_pmem.h
-index 0dddefe594c4..f72cf17f9518 100644
---- a/drivers/nvdimm/virtio_pmem.h
-+++ b/drivers/nvdimm/virtio_pmem.h
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <uapi/linux/virtio_pmem.h>
- #include <linux/libnvdimm.h>
-+#include <linux/mutex.h>
- #include <linux/spinlock.h>
- 
- struct virtio_pmem_request {
-@@ -35,6 +36,9 @@ struct virtio_pmem {
- 	/* Virtio pmem request queue */
- 	struct virtqueue *req_vq;
- 
-+	/* Serialize flush requests to the device. */
-+	struct mutex flush_lock;
-+
- 	/* nvdimm bus registers virtio pmem device */
- 	struct nvdimm_bus *nvdimm_bus;
- 	struct nvdimm_bus_descriptor nd_desc;
--- 
-2.52.0
+The API for these works seamlessly and interchangeably with SYS-V clock IDs.
 
+The path that is opened, whether /dev/ptpX or some new /dev/hwclkX etc
+is a trivial detail that adds no burden to user space.
+
+Thanks,
+Richard
