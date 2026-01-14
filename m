@@ -1,61 +1,63 @@
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+Received: from mail-ed1-f66.google.com (mail-ed1-f66.google.com [209.85.208.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C7113587AA
-	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 21:20:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17D6E35E55E
+	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 21:20:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768425605; cv=none; b=G6OT1rqsrWSw7o3a4oy2018zj8GhlM7DyY7lR3zhXWJU/LTNUh9JvtwnGrXPbEC5RpqeeuuFxmTksjvJvm03WBUKZhHOjUaofyBuDEirrMWthGhzFP19xKKDOq3nEm3ukz1sfjn9ca6gN+iNKx2vyFMffsTtCGs5Wvs8+XusZKs=
+	t=1768425606; cv=none; b=tfN6M1JAojig3PnvMXB0//v2JO7D9tpBdfmSLy1RFdQZ8CNy/pLMt7PPzqW3m2UJuFMGFzRpob3rJX35OSqXxvQO+fU1AwSsYl8hE0BfShuxoKIFtn2Zd1qQiW1tZT9AXeuaEcn9LOl73+Xsdn0N2Kndpkt2MK1EddjeFO3rF/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768425605; c=relaxed/simple;
-	bh=kpkq2j5rxRipq/uytTDNI6/jUQtKyAbYri7acGHzUwA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GSWjKeV4Xr3kwHLDHLbJT4+V8rUKJpE6waU9UpDAhNSIDGbe9qpRGLmHGmpm0OXrIRFAdCw71NQPjZlC6S2zSAREbYqAybtRIb27qBCSJ2pbn3fvMHIixjY7zezk6nGynNY1A8CPO2gu5igWhXEqntIjYwJYXVCL9OaAPLdTzxc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f5XzRDDb; arc=none smtp.client-ip=209.85.218.44
+	s=arc-20240116; t=1768425606; c=relaxed/simple;
+	bh=us+M3YunWEm7OzaqGsFQXt9sdJff3j8+XzA5/AnpV6Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hO/TnnHKSZ4xn98jUd9599/5VbQMhrh7/+5EssWKypnL59wlnLUYFTjuNDVwZghWy5qdtqb24LgI9CtDAjgX+863YmDK+xzUbK23eC+s3FS6fVJpAx8g618vQChDI1DcoCB9RBpn2eq4/kvEMNwNLDBjZb3dnvkenIH1sWrA6Kk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GBzdDdlB; arc=none smtp.client-ip=209.85.208.66
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f5XzRDDb"
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-b871b6e0c70so42436266b.2
-        for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 13:20:02 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GBzdDdlB"
+Received: by mail-ed1-f66.google.com with SMTP id 4fb4d7f45d1cf-65063a95558so334805a12.0
+        for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 13:20:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768425601; x=1769030401; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=IIN3WvlmSxyI6hejD78KoAYfFiS9lOjkAKs4i0jX9j8=;
-        b=f5XzRDDbxXzZx8a/LQymzY7ffdpVb1pnTevFbcGbKh5AA6w5U37UWZgevX3BhIN1dB
-         eu8qNU+Cv6uJAnFqHscPvdiqLhbGi4zizEO5kNItOPViUJ5rhI8UcvinJd5O2hIl87jX
-         jAt4nDR2pBh2W2yQ+7I/2HJpy+gdt/r20qMS+jzHHzHq8pzBiyju1pLEfKvy7KlIYyjT
-         Hu9G5LqQZL7o+o04jRTtSfDmG6r7XdWHZMPEvZ/rrJsKCE63tvyub39URZXaYFiXI4/2
-         tWYI2khIOoSeqlYnEoboj9D5kd3Pc3BYqWpYzD7PUH6Cn+1RoVXimDz/l9imo132ztup
-         oF6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768425601; x=1769030401;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1768425603; x=1769030403; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IIN3WvlmSxyI6hejD78KoAYfFiS9lOjkAKs4i0jX9j8=;
-        b=MGDRsC+La2bQlaFmho6NhxcDw3IlcVHD6ZWRnQvzrK7okZHGME1ZwBYMlPwgkkAYCx
-         6jUZMj3jmiBqcRtjaYNiu6Nvg+auu7IY7Ng3NV9GQiDRhqT8Rk4sGnAU5gBiaSBn9os5
-         ySzoFkTDrkYJMLO1P6bItjW0wTBgA3duat6yPUiCgk5cI6bBqt9cSsTqriBJGqlYaZkw
-         3Bx665+Wkt4vfHbdD+941g3Bejr8egjUvFKEMzOL0OYWQK8hcc9MoEHqWHBs67CFcqae
-         CBYi42HOdxot8Onwu/ASglgWVwWTEtwEC/odgHIzEpg7M9N149WMfPjTwKEOs0aYxWbT
-         tJ6A==
-X-Forwarded-Encrypted: i=1; AJvYcCUESLTljkpuZUL4KVQQ1+9Po1xr6C3g0Cs0RyeHmN16X9BFYp+RA5Kr84MQnlxzxzjcXvBdQKjUcg3Il3pP7Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyy8/5znezcWEz7gsMHBnjLc3BPCoIhHM8m+3kK74KtfcVVXwnV
-	94p5AD27Eg7DwCn347OhOnhv+iYr/Wid66r6PG9cvOqZV3SGSZk36SvG
-X-Gm-Gg: AY/fxX7qtV2QRW2s4U4VPc7Fu0Q5+HI1kf/s8RJpwx6P5j3cPEcoXTe6HxGx+UrQmSF
-	isUPBOLKKBewrMUNhnnhKamctXUBkWrkgTd2ueBfNMLWuTQ8YJK1qHq9+hWwYu+IPYclN2ZECZa
-	oaxAzDPf0skbXzGx8Zd8e2g7YenlrPa2UnMcOPDDofIdlSI8cCJEhhTJDZZlOh/cEoG9TRhPgNX
-	aBJE+o1Atp8w1hcSSII9bagnjpKV3oj1IB4u844dPwlByiuGiurjPl2EOEAkOVrEHOKHn5mgz0X
-	755Iv1xl7dWQj1gljKAPqCIv2YrzaVB3fzRv3/p+p4r+JzRTfilshP0nENvA9lNzj42Xs6pzgD2
-	Av/LE3iSJ9voWspE9gRyaq3LMN/w4ahxGxenBldH6P7s876k3E5djWU/w38rEoJpqlBMvTw9kqE
-	JX+AsC2KsebYHPpdBKyidM9H6Ge48Eqp+y9ge4oqbcKpA=
-X-Received: by 2002:a17:907:1c26:b0:b73:b05c:38fd with SMTP id a640c23a62f3a-b87612796ccmr367472866b.50.1768425601165;
-        Wed, 14 Jan 2026 13:20:01 -0800 (PST)
+        bh=OTevTYSawAWXq7YTs2Qt887aQOG5Hk0w8Sw4qR5SlaQ=;
+        b=GBzdDdlBlJcVOAyBp7sQhZklXrG7tupwGVeCWrYPqEjIfrAPQYQ9RGP0hbDOAK2oCi
+         aGZn5HZbrioGt1IHG8gLluA3PbzaqjAZggU/u/JNRloQouNw2h9e+tOKpAJKbDYXtewu
+         S65QZWOFTgsoUWUC5vpeFF6nKNBwCTuebZABTEABwAy+EPYQLp+DziD4xObFzKjYciLx
+         aS56xN0fQEvAF57Yxn3YkRhsbBsJSdJcCFx+NMXQ/8l8PMdzOZIpuYvI17rlqgcl2LNa
+         8BKZz9KA4KD/WNN0lsJtgI/BMZ9KrHVXRWzW5QKrxrGqLNTBfBustPuHw1HAbSkP6gLz
+         o4cA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768425603; x=1769030403;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=OTevTYSawAWXq7YTs2Qt887aQOG5Hk0w8Sw4qR5SlaQ=;
+        b=vNP9y4tKW4AlB44eN83f/dXCrZ305zKuwwoWInxgeRP/H3yEkvasrViCDwpjFNlJlt
+         Ko355Xu+O+VRZs18QPRGol7LcE/p7K8fsM8EfGheVkIz41QhCgAa4uLBmZYB7b3Q1AWM
+         MMLlGJgVrNBYs+EATzwSW0C15giOPdmaKcV4oi3s3w5KUI8r1C0SuR9mrgBy3AU7jdTY
+         /jAEcha+0+8l5mJq52vpDV2JjH3P1gJByYDzF6/lyT6CF039rbRKpinvBsQsWs8CwXzz
+         gBjJ09UywD2h3j+T32eSZr3BSX1LJbU5kffdMO0qCemIRpSgcLkIQgHnsVeX+rUMXNR/
+         +rHA==
+X-Forwarded-Encrypted: i=1; AJvYcCXobvXYMRp94bfFHnCC/EKbGGAQVLKJZDMQSM5yiIRorR8vxuaAz1s+ihhq7I9YVJqQb8I+bTXkQG9Ybza+kA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YycNTzbVKq5NC6N/TrlHwKYyaiY5HakcTiHZTvmgRg41w6+lBrx
+	0UMUS7/cQFaGOC1k1Vg5i0heBOE54TwcKfcoYNhPZuH0UGz4rm7HfZW1
+X-Gm-Gg: AY/fxX5CXRzRIlesQ7HSThrsBfYu09gJo+S3VJZD1fplKIkEb6Tv6LO7wj/qfDT0t3K
+	Byb5kSc6lpVcXwEIB5Dx6s+65zx1y5V5mjpQL0m0ru4zRZp6czB6V2BBfafTtXDgDbYiAzBUcMx
+	HjQZj/hthgO8KuwvECTaLGx5PxvrmQb19oFW+2ApXsTYKsyM+OZ9Ouxu54C6M7nmf6S3x19ney9
+	RiPIZfYY5IxQkpW+gt6KCcU2ppFteN/a2tOg6n7Q9qi8MPe2hp6p1Alafr38Qo9iIurDnUqmamF
+	/ptmezSYd06Z9hD4vGDKDWz2H+7a6LCuFRoU3XKiB3CxSUW9/aZeyt+wpUcjUVOHdNa3hMOIEnz
+	GGyPrP8ssQGJyRpkWwK/RoRXGq4ctqpKc6OzaC7oQEwGj8Igy27RkgEC+jUC0MJw97qfgm5SiMx
+	2zbu4lPmSUcx4UPHWRs3gcstf3cv/c/B9jVQfULNMkMsA=
+X-Received: by 2002:a17:906:794d:b0:b72:6728:5bb1 with SMTP id a640c23a62f3a-b876127fea5mr371517566b.56.1768425603282;
+        Wed, 14 Jan 2026 13:20:03 -0800 (PST)
 Received: from fedora ([46.248.82.114])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8731f071e4sm683374166b.66.2026.01.14.13.19.59
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8731f071e4sm683374166b.66.2026.01.14.13.20.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 13:20:00 -0800 (PST)
+        Wed, 14 Jan 2026 13:20:02 -0800 (PST)
 From: Uros Bizjak <ubizjak@gmail.com>
 To: bcm-kernel-feedback-list@broadcom.com,
 	virtualization@lists.linux.dev,
@@ -63,17 +65,19 @@ To: bcm-kernel-feedback-list@broadcom.com,
 	linux-kernel@vger.kernel.org
 Cc: Uros Bizjak <ubizjak@gmail.com>,
 	Juergen Gross <jgross@suse.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
 	Alexey Makhalov <alexey.makhalov@broadcom.com>,
 	Ajay Kaher <ajay.kaher@broadcom.com>,
 	Thomas Gleixner <tglx@kernel.org>,
 	Ingo Molnar <mingo@kernel.org>,
 	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>
-Subject: [PATCH RESEND 1/2]  x86/paravirt: Remove trailing semicolons from alternative asm templates
-Date: Wed, 14 Jan 2026 22:18:14 +0100
-Message-ID: <20260114211948.74774-1-ubizjak@gmail.com>
+	Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH RESEND 2/2]  x86/paravirt: Use XOR r32,r32 to clear register in pv_vcpu_is_preempted()
+Date: Wed, 14 Jan 2026 22:18:15 +0100
+Message-ID: <20260114211948.74774-2-ubizjak@gmail.com>
 X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260114211948.74774-1-ubizjak@gmail.com>
+References: <20260114211948.74774-1-ubizjak@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -82,115 +86,36 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-GCC inline asm treats semicolons as instruction separators, so a
-semicolon after the last instruction is not required.
+x86_64 zero extends 32bit operations, so for 64bit operands,
+XOR r32,r32 is functionally equal to XOR r64,r64, but avoids
+a REX prefix byte when legacy registers are used.
 
 Signed-off-by: Uros Bizjak <ubizjak@gmail.com>
 Reviewed-by: Juergen Gross <jgross@suse.com>
+Acked-by: "H. Peter Anvin" <hpa@zytor.com>
 Acked-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
 Cc: Ajay Kaher <ajay.kaher@broadcom.com>
 Cc: Thomas Gleixner <tglx@kernel.org>
 Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Borislav Petkov <bp@alien8.de>
 Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
 ---
- arch/x86/include/asm/paravirt-spinlock.h |  4 ++--
- arch/x86/include/asm/paravirt.h          | 16 ++++++++--------
- arch/x86/include/asm/paravirt_types.h    |  2 +-
- 3 files changed, 11 insertions(+), 11 deletions(-)
+ arch/x86/include/asm/paravirt-spinlock.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/x86/include/asm/paravirt-spinlock.h b/arch/x86/include/asm/paravirt-spinlock.h
-index a5011ef3a6cc..458b888aba84 100644
+index 458b888aba84..7beffcb08ed6 100644
 --- a/arch/x86/include/asm/paravirt-spinlock.h
 +++ b/arch/x86/include/asm/paravirt-spinlock.h
-@@ -38,14 +38,14 @@ static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
- static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
- {
- 	PVOP_ALT_VCALLEE1(pv_ops_lock, queued_spin_unlock, lock,
--			  "movb $0, (%%" _ASM_ARG1 ");",
-+			  "movb $0, (%%" _ASM_ARG1 ")",
- 			  ALT_NOT(X86_FEATURE_PVUNLOCK));
- }
- 
+@@ -45,7 +45,7 @@ static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
  static __always_inline bool pv_vcpu_is_preempted(long cpu)
  {
  	return PVOP_ALT_CALLEE1(bool, pv_ops_lock, vcpu_is_preempted, cpu,
--				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
-+				"xor %%" _ASM_AX ", %%" _ASM_AX,
+-				"xor %%" _ASM_AX ", %%" _ASM_AX,
++				"xor %%eax, %%eax",
  				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
  }
  
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index b21072af731d..3d0b92a8a557 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -117,7 +117,7 @@ static inline void write_cr0(unsigned long x)
- static __always_inline unsigned long read_cr2(void)
- {
- 	return PVOP_ALT_CALLEE0(unsigned long, pv_ops, mmu.read_cr2,
--				"mov %%cr2, %%rax;", ALT_NOT_XEN);
-+				"mov %%cr2, %%rax", ALT_NOT_XEN);
- }
- 
- static __always_inline void write_cr2(unsigned long x)
-@@ -128,7 +128,7 @@ static __always_inline void write_cr2(unsigned long x)
- static inline unsigned long __read_cr3(void)
- {
- 	return PVOP_ALT_CALL0(unsigned long, pv_ops, mmu.read_cr3,
--			      "mov %%cr3, %%rax;", ALT_NOT_XEN);
-+			      "mov %%cr3, %%rax", ALT_NOT_XEN);
- }
- 
- static inline void write_cr3(unsigned long x)
-@@ -516,18 +516,18 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
- 
- static __always_inline unsigned long arch_local_save_flags(void)
- {
--	return PVOP_ALT_CALLEE0(unsigned long, pv_ops, irq.save_fl, "pushf; pop %%rax;",
-+	return PVOP_ALT_CALLEE0(unsigned long, pv_ops, irq.save_fl, "pushf; pop %%rax",
- 				ALT_NOT_XEN);
- }
- 
- static __always_inline void arch_local_irq_disable(void)
- {
--	PVOP_ALT_VCALLEE0(pv_ops, irq.irq_disable, "cli;", ALT_NOT_XEN);
-+	PVOP_ALT_VCALLEE0(pv_ops, irq.irq_disable, "cli", ALT_NOT_XEN);
- }
- 
- static __always_inline void arch_local_irq_enable(void)
- {
--	PVOP_ALT_VCALLEE0(pv_ops, irq.irq_enable, "sti;", ALT_NOT_XEN);
-+	PVOP_ALT_VCALLEE0(pv_ops, irq.irq_enable, "sti", ALT_NOT_XEN);
- }
- 
- static __always_inline unsigned long arch_local_irq_save(void)
-@@ -553,9 +553,9 @@ static __always_inline unsigned long arch_local_irq_save(void)
- 	call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);
- .endm
- 
--#define SAVE_FLAGS ALTERNATIVE_2 "PARA_IRQ_save_fl;",			\
--				 "ALT_CALL_INSTR;", ALT_CALL_ALWAYS,	\
--				 "pushf; pop %rax;", ALT_NOT_XEN
-+#define SAVE_FLAGS ALTERNATIVE_2 "PARA_IRQ_save_fl",			\
-+				 "ALT_CALL_INSTR", ALT_CALL_ALWAYS,	\
-+				 "pushf; pop %rax", ALT_NOT_XEN
- #endif
- #endif /* CONFIG_PARAVIRT_XXL */
- #endif	/* CONFIG_X86_64 */
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 7ccd41628d36..9bcf6bce88f6 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -210,7 +210,7 @@ extern struct paravirt_patch_template pv_ops;
-  */
- #define PARAVIRT_CALL					\
- 	ANNOTATE_RETPOLINE_SAFE "\n\t"			\
--	"call *%[paravirt_opptr];"
-+	"call *%[paravirt_opptr]"
- 
- /*
-  * These macros are intended to wrap calls through one of the paravirt
 -- 
 2.52.0
 
