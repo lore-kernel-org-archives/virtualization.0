@@ -1,64 +1,64 @@
-Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+Received: from mail-qt1-f196.google.com (mail-qt1-f196.google.com [209.85.160.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E19A3816F9
-	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 08:52:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D25643815F2
+	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 08:52:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768380770; cv=none; b=ULRY1++c3C6YAEyjRkIqz+DB22ReUALJGQkjKQtG58diVUXkCfCOQBroQCGJmYUfg4X87t9fRJiVjrjPy53a7Dpy3XFbDo37YQjuFr46M8OhcHUbTHI4KBwlEJhxld4gJBp5rKiW/AF64juNVtnT16e5gE9veBYASviIGDit044=
+	t=1768380767; cv=none; b=YmJAxW9HSU74KQAj8zmKAwOW9bVFArpnGXH9J70wI9/73s2NnZObnQLf3Ly8kHBwj100UhWVbAvRkBefDAfZpmZh2SgcnOOqTBy6tyAJlTmpWg3AMW6lV5jcKu7KkfAP/zYNKSa70ILBuH252Lte1WbGNq6jOX1v8NZ6SvCEVGQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768380770; c=relaxed/simple;
-	bh=WuxU623lbbMTdGzzm+5bCzIY7yeXdH6a4+PbwDkCxIQ=;
+	s=arc-20240116; t=1768380767; c=relaxed/simple;
+	bh=cImdW1I8gYlqyptmlVX3KT4VCZEIXu721DnCa4CHzjU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pYu1t2kr3pArxCTm51qYHuCLzS/upFQ9UmM50E/u6JnX8pph1TsWmeLcE9yLUEPYs6g4cFaZfXYuGwm2Sra9Fu7ooUo5Ff/kYCTxsEBOg2B8rM9Nq7yNbvFKlXSY3jrtgsRfBWE6deCTMg2mtZfGUZW+dG78Yb79dTU0GeC0Bj0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=OoCXDXdd; arc=none smtp.client-ip=209.85.160.172
+	 MIME-Version; b=uCiGwLh/E01V+Acva6/FWOezK4032sZRjVbPuqJbaTQlhHwHYj87+UrKfIK2Omj4fhvrdVWaewEJZHpnql9cazWjFjYqSxFkHPcNTCkwGh+RovW5+AG5j22nG9FLFo1FU/7eTGH2rPGhH8Mo4bQ6g0Wo2H3jr1h3C9Yn7wCzbew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=MVsZ65+3; arc=none smtp.client-ip=209.85.160.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="OoCXDXdd"
-Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-50145d27b4cso10547291cf.2
-        for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 00:52:44 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="MVsZ65+3"
+Received: by mail-qt1-f196.google.com with SMTP id d75a77b69052e-5014b671367so4672431cf.3
+        for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 00:52:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1768380761; x=1768985561; darn=lists.linux.dev;
+        d=gourry.net; s=google; t=1768380756; x=1768985556; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AHib3jWzP7kVcnP0SE1eJQabXI1WWwo6ABSGI/iwYvU=;
-        b=OoCXDXddnOY+AncYAVGNCyTqgbOq1RMKt9HEgKaII5Z6c2JSOmWr7cfcFt0gXUZVxb
-         SkYckvZ1yzOI/NHY8WVghcAxrnMVdJxXae1SyvkZ3+usDJTTqNrtK28D1aIvqOyp5QIM
-         u4lkKd4eDHqADWn0mqay5vc2xtWnxQsTulWsAMn4Zp2CB7ktGFmDAHcPG0EQfHfDlFOi
-         MVcbb5m9HSORP5rHa4u7wgeagMNDHzgbEMSONqGZpZZTvNi5J5p5FCaaEslyfYLTxWA4
-         RwlhzR2nOSEo0R56VN7rqeSFV6sbHuCc63aqolJ5Gz1EMvaBpCHHw8L26oNczBd616Xb
-         MsgA==
+        bh=HDpE5wtoJCiMhRN5zrFeLb7soUJCKnfGA3SqaObqP6g=;
+        b=MVsZ65+3BjwgxTZaugSWINsTYTZht3CsLrAevEs3vWJtEKP8qbDtm+HYHwyIrNvicg
+         rqZrQqEdsgdKXBdSvkKmV6U9hxQ90deTStFXBicLSehXaRRE6CMJgYrBx1NDfhFtGKGs
+         v0ylfg4Zm4ei5p4sY5HPbL1749m9IDZD+jFWYo5Il2n05FP1Io37kZXQb9lKpsapP2XR
+         rrk3AuUK0wusQ0q2ZKLeFoXjI60BG3yhabImlnyg0xVORfXbowDLVdlKF5ZKvktAXVOi
+         iOnQMuYJxZcz+J8p0LL2MlRL1U5dp/y9s2Reop0hgCjDVl0v75qsXl+O8XzTFdJISx1h
+         pw7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768380761; x=1768985561;
+        d=1e100.net; s=20230601; t=1768380756; x=1768985556;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=AHib3jWzP7kVcnP0SE1eJQabXI1WWwo6ABSGI/iwYvU=;
-        b=hqsEceWW/bDsWhGJC7jbljEiJfMb/4kYSa6eaRYq3ty0O5bNcgIBR4CE7afussROAv
-         5YhwBVJCQD/8ZIDNPgt+xMRiLy6vJbB6kF5vRYDVXzgQu3dnfqYZbOmFtHZfsjD6yLz8
-         XKCjt/CvzXarAXJL5HFBLunoPQQt8eyU7ZYb1qbsqqRN5zPUOmca9HN3BtcJTp2Gjl9T
-         dnzhysMyT4OgD0yaIfmEpMm+B30V2Uyb9mLxAZuGD/4xzNhV9DtHml/inBPI3nYuq2gL
-         uG2zwLLergxOw0L9GZ0Hbg4ABqK2bCe5U1vVSOXxePbEFCWwB/WuFrP4FRj0FkmtRHjV
-         ObBQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXHWybG4chltbdxK9Mbng5XP0rqa0NlNtK47vpITMXizlRACUvNes8eKYJDv+OUT6Y708C8XSZ2O+zZqYXiCg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw8o/ukfQ2PIvRT1511GCSXO7Ter/kJVTeKRGoEcre8aQ+c73+t
-	3CW+NTuEw9LlyMTGoqHcmTrcF5NibKsYyLiTx1RjJEsrm4woBF00nTuW4+3aYfxHYVg=
-X-Gm-Gg: AY/fxX67fwZs7+s51CEPoFcpEzkN2cIdZcdUGuE/Ufcb2fRqE6yOWkPEhshCSksAjqq
-	4CavG4rMLmEwUqAggGb40VnF1VC5Im8oFiD2Qoc6yNBgBtwDRZ+hZbOt1bXBO0Mh+B9uAYTTDPP
-	ShL4X64r81tQzOSLIgHSAYa8nIe2BCn3KReG22cZuklqAxsJyHYrRqtn6onoyuiXdS/RV2maFTn
-	mjw0qfTgqOGnvJP/i2eNqjvMtkAtwm+jVXWjSVtJUZd/vDNoSajbqv22HL89FvQvC4/dRz0qwUu
-	nABEZzSis+k6yOcUj1xzA1C4c4T7Q5hYVDjFTV8HTQpXYlEJ+KL5mYpAqgQHPCbJqyNZJ5FAZIC
-	qmU/3L0Q5qdUjnDLPnxHozg3R64gakVNhjiNf6I6TfYyMH5DmMm9z3nkJn5DwNdeT4Hqzqi71yf
-	hMuTx6eyoPEVQBqE6xPIT6yIzoE2yLgC5dfWdf8/J3Bo6Ki4/fTk/TLu3AZbFEbpMbB2yuBgzg/
-	7c=
-X-Received: by 2002:ac8:7f0a:0:b0:4ee:228d:d6b8 with SMTP id d75a77b69052e-50148482933mr21948301cf.70.1768380761194;
-        Wed, 14 Jan 2026 00:52:41 -0800 (PST)
+        bh=HDpE5wtoJCiMhRN5zrFeLb7soUJCKnfGA3SqaObqP6g=;
+        b=dt74foU9HLw0PDsCNsiVlBcDg1cmVeW64cgTJWDRi7vr+dKe8qlYeswKS13S5FXSsg
+         UJLF23K9VIiGz/XmhxrhDZYJAVXlJC2AL3D1uhaRL6FlqHDq7JMiV2e9m7SysOx+CpIm
+         j+D9ORkloFFcliSdnhV2AnixQDrGG/KRg5QmECHj9/JsYajhtZJQgBuS7UVwyb8qJ69p
+         Y521ROlTxpmX8EZyiTXnKZRmIelHW4qs3UAM/m9Qstyf/LtsCY4T1Nwjj4byTo5JwGnB
+         NU/NHweT5IQHy9AbO6KkLvU+96wGz+9aolTVKdGOZQV5cqqo3WVjdtkWXHZmqhpn9Rs1
+         3LDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUH2Hrn4R5gOpSLrNwwncgJlEiZek6srreId3VT3K7XXX8+JAjk30Ms2dl9o+VHrUUlz02kHqFumzMUQRirog==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzgo/1+CSZzF5RuqzF9j5t31Rwb2vciQjJQ9lnSSsw7yxKtc6QZ
+	OLS1KpKDI1ABnbKa1vdNUxFMUmQc5hLZQk3s0ZdnI1L0qpp77SIxbS12hvPE+APvf9M=
+X-Gm-Gg: AY/fxX6DFbTCjGn9p2m2THtwpf1XKYwbFKay681KB6UEK5uL7EpkekhIE/6Pi3bqS+i
+	oa9gh7qN6JhKCnkBJjO40NO5LYhbhfeyZdh/rqfrLjFg+6xCFP7Ccq+pusiZK9SZggfUxvdXd/r
+	/szDxHNViY1dHChcTXzk9To3jN6ThMtFVYg0cRJ6MWhMfzR8pPmIZ8yu/fHHQRen7W9ZsATbDr/
+	jufzkkLgEicn2cP/kyainnW40C10yS0gdORL/8FRHMhS7ljWMnSuDo7ZpVth6R4G+UGcEBvFtBE
+	Fsd0sQ4u4bU4fcq25yYppOsRRWSGbEQZolPV8+xuGQ7eWHJ4x+G+J0XFMg7iwLSdxXEkNWe/qZ7
+	dVwkP35TZx2m/URJCv+5xhJJYnqufN9maisreOtfv8YSLP+RQ9G0Dpq7RbWuFsG4geYnHpPwEWs
+	aJ+PwwnVkCGCn3SHQn+BWEVfaG+/dhgO0GIhbjFKQ6SqlGys8Je/Dx+jfuKAVDwItPMEgX7KvVW
+	Fp4FC91YmO9Tg==
+X-Received: by 2002:a05:622a:18a9:b0:4f1:ac9c:9388 with SMTP id d75a77b69052e-50148125e71mr26783181cf.0.1768380756171;
+        Wed, 14 Jan 2026 00:52:36 -0800 (PST)
 Received: from gourry-fedora-PF4VCD3F.lan (pool-96-255-20-138.washdc.ftas.verizon.net. [96.255.20.138])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-50148df8759sm10131931cf.10.2026.01.14.00.52.40
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-50148df8759sm10131931cf.10.2026.01.14.00.52.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 00:52:40 -0800 (PST)
+        Wed, 14 Jan 2026 00:52:35 -0800 (PST)
 From: Gregory Price <gourry@gourry.net>
 To: linux-mm@kvack.org
 Cc: linux-cxl@vger.kernel.org,
@@ -76,9 +76,9 @@ Cc: linux-cxl@vger.kernel.org,
 	eperezma@redhat.com,
 	osalvador@suse.de,
 	akpm@linux-foundation.org
-Subject: [PATCH 4/8] mm/memory_hotplug: return online type from add_memory_driver_managed()
-Date: Wed, 14 Jan 2026 03:51:56 -0500
-Message-ID: <20260114085201.3222597-5-gourry@gourry.net>
+Subject: [PATCH 1/8] mm/memory_hotplug: pass online_type to online_memory_block() via arg
+Date: Wed, 14 Jan 2026 03:51:53 -0500
+Message-ID: <20260114085201.3222597-2-gourry@gourry.net>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260114085201.3222597-1-gourry@gourry.net>
 References: <20260114085201.3222597-1-gourry@gourry.net>
@@ -90,80 +90,48 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Change add_memory_driver_managed() to return the online type (MMOP_*)
-on success instead of 0. This allows callers to determine the actual
-online state of the memory after addition, which is important when
-MMOP_SYSTEM_DEFAULT is used and the actual online type depends on the
-system default policy.
+Modify online_memory_block() to accept the online type through its arg
+parameter rather than calling mhp_get_default_online_type() internally.
+This prepares for allowing callers to specify explicit online types.
 
-Update virtio_mem to handle the new return value semantics by checking
-for rc < 0 to detect errors.
+Update the caller in add_memory_resource() to pass the default online
+type via a local variable. No functional change.
 
 Signed-off-by: Gregory Price <gourry@gourry.net>
 ---
- drivers/dax/kmem.c          | 2 +-
- drivers/virtio/virtio_mem.c | 5 +++--
- mm/memory_hotplug.c         | 4 +++-
- 3 files changed, 7 insertions(+), 4 deletions(-)
+ mm/memory_hotplug.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dax/kmem.c b/drivers/dax/kmem.c
-index 5e0cf94a9620..d0dd36c536a0 100644
---- a/drivers/dax/kmem.c
-+++ b/drivers/dax/kmem.c
-@@ -178,7 +178,7 @@ static int dev_dax_kmem_probe(struct dev_dax *dev_dax)
- 				range_len(&range), kmem_name, mhp_flags,
- 				MMOP_SYSTEM_DEFAULT);
- 
--		if (rc) {
-+		if (rc < 0) {
- 			dev_warn(dev, "mapping%d: %#llx-%#llx memory add failed\n",
- 					i, range.start, range.end);
- 			remove_resource(res);
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index b1ec8f2b9e31..4decb44f5a43 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -656,15 +656,16 @@ static int virtio_mem_add_memory(struct virtio_mem *vm, uint64_t addr,
- 	rc = add_memory_driver_managed(vm->mgid, addr, size, vm->resource_name,
- 				       MHP_MERGE_RESOURCE | MHP_NID_IS_MGID,
- 				       MMOP_SYSTEM_DEFAULT);
--	if (rc) {
-+	if (rc < 0) {
- 		atomic64_sub(size, &vm->offline_size);
- 		dev_warn(&vm->vdev->dev, "adding memory failed: %d\n", rc);
- 		/*
- 		 * TODO: Linux MM does not properly clean up yet in all cases
- 		 * where adding of memory failed - especially on -ENOMEM.
- 		 */
-+		return rc;
- 	}
--	return rc;
-+	return 0;
- }
- 
- /*
 diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 515ff9d18039..41974a1ccb91 100644
+index 389989a28abe..5718556121f0 100644
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -1689,7 +1689,7 @@ EXPORT_SYMBOL_GPL(add_memory);
-  * MMOP_ONLINE_MOVABLE to online with that type, MMOP_OFFLINE to leave offline,
-  * or MMOP_SYSTEM_DEFAULT to use the system default policy.
-  *
-- * Returns 0 on success, negative error code on failure.
-+ * Returns the online type (MMOP_*) on success, negative error code on failure.
-  */
- int add_memory_driver_managed(int nid, u64 start, u64 size,
- 			      const char *resource_name, mhp_t mhp_flags,
-@@ -1721,6 +1721,8 @@ int add_memory_driver_managed(int nid, u64 start, u64 size,
- 	rc = __add_memory_resource(nid, res, mhp_flags, online_type);
- 	if (rc < 0)
- 		release_memory_resource(res);
-+	else
-+		rc = online_type;
+@@ -1337,7 +1337,9 @@ static int check_hotplug_memory_range(u64 start, u64 size)
  
- out_unlock:
- 	unlock_device_hotplug();
+ static int online_memory_block(struct memory_block *mem, void *arg)
+ {
+-	mem->online_type = mhp_get_default_online_type();
++	int *online_type = arg;
++
++	mem->online_type = *online_type;
+ 	return device_online(&mem->dev);
+ }
+ 
+@@ -1578,8 +1580,12 @@ int add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
+ 		merge_system_ram_resource(res);
+ 
+ 	/* online pages if requested */
+-	if (mhp_get_default_online_type() != MMOP_OFFLINE)
+-		walk_memory_blocks(start, size, NULL, online_memory_block);
++	if (mhp_get_default_online_type() != MMOP_OFFLINE) {
++		int online_type = mhp_get_default_online_type();
++
++		walk_memory_blocks(start, size, &online_type,
++				   online_memory_block);
++	}
+ 
+ 	return ret;
+ error:
 -- 
 2.52.0
 
