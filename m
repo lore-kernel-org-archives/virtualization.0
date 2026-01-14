@@ -1,111 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-173.mta0.migadu.com (out-173.mta0.migadu.com [91.218.175.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E70C9395258;
-	Wed, 14 Jan 2026 10:49:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39655395257
+	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 10:51:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768387765; cv=none; b=M5B7IeIn5zUZvlSItkA3bEinLAUlxrJgPLxx4GfkLTnz4YZz8zpPjKGlpmsu14j+wBomCME111UKua/ae0dt6N3vWdmdYyFpCe4r0Nc2qmgy801pis1qu13bnE/Xn6glGe/CFOjAIfpjczLvY2YVQ5D/11/sQpN/+zNrOX6BRIk=
+	t=1768387973; cv=none; b=JPzQ4iJGJrWUa36eoI/PcIrdrBzj5kSybZ37mWOZ+OU72/nr0BYOTeen5JRj3tSqIgycGQi5HIqc+WPvi9Qz9W2v8oBX/bFzp7EOdJrrtjHAiR2bCAfR/7oPKM0vUhBMN7VE8etTTZUULEkePorIrx0A6ZEN2PFTcSrhijbN/mg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768387765; c=relaxed/simple;
-	bh=79/0LC4XFZkQa9FcixVBMSelu5diVWBx5HiiyCfVe6U=;
+	s=arc-20240116; t=1768387973; c=relaxed/simple;
+	bh=SP1C5ECn6qTrc/ADnDGMjhhdfGm40PhkP1D0vbgxzkY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eP7N36P6al43IWJpohJyejZhubbu5/0A9LJsnpq0D52D18lRLL3pm+Unu3+apHx+F6zhQunhHtymNMnl3/+mz1Idqq+5u7C3ws9WgbwD12dvc/Lb/GAlWhsuNph1BtzoNreMOnaGSGzufMmbzDIVmRIQCL/HhpP0NBvlfaCFU+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZalrBIh+; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=Zbh8Fl6Vto+I94h34GrhFIiqa7rj/cbZ1lyso+Ul4m2GFq1QGL5KROAMbjPeSGakmBA32x+7Adulxt3OIhMXURDuIh1Rv+zoQjdr2/xADnXDvaFIc5UTkuKew77028SEOgAgU+55vORmk8uowG1IPBMrYhEj5mTGBD/73Lf35+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=X4Now13q; arc=none smtp.client-ip=91.218.175.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZalrBIh+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E45EFC4CEF7;
-	Wed, 14 Jan 2026 10:49:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768387764;
-	bh=79/0LC4XFZkQa9FcixVBMSelu5diVWBx5HiiyCfVe6U=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ZalrBIh+6TpqN7ymyXJCpyYRdW7dF3W8SHHJm8rtm4xILFsYOGZ1dYTT0+5OJuITx
-	 FAF+b88uA8O4ghuRa0FYLpUH2HMkIDWp1zQ/wH4dWLTzXl/f52M53Weh7lUAJIUtYd
-	 QIMO8H4LcGaYyDDipdBsn+13+EA9Yo594MvVJ4PkMk9/i8hwn1re6TZKqRuFLDLieF
-	 b5CbUtqCpzlGAVDLThfdkLSY9Q0nU18U6jHNb6C2aeg2fMgX5W6xEy+xTduL1NPwVv
-	 /xYDwlwS6XmoV8fvratJYauAscLKY/ixlIzEJjty50BxwlgRFyRxAkk0hmF4Hk/F5m
-	 n36k2s8+S77vw==
-Message-ID: <6a9db6ff-2fe8-4be6-baba-7db7913898f2@kernel.org>
-Date: Wed, 14 Jan 2026 11:49:19 +0100
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="X4Now13q"
+Message-ID: <c85c77bc-9a8c-4336-ab79-89a981c43e01@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1768387856;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=MglISJSdDcSFcnyvQNdU82M1uemIRPK39gzYMnHql/s=;
+	b=X4Now13qTN/viHhNP4N1Z2ONBdtxfKZiA0ArDQgEpfyRmsi8HtuJPMtQA20rvH1BCujEQS
+	Uuv6G9O7wwnr4IyXrr+7EpnPu5z1+w+4UW9TPf6456yI2uDiV7XPM3RbLg/pbJFh7dBDmg
+	XMJ4mOhzwuiTeSWh6sKLs88D/dWvvio=
+Date: Wed, 14 Jan 2026 10:50:52 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/8] mm/memory_hotplug: return online type from
- add_memory_driver_managed()
-To: Gregory Price <gourry@gourry.net>, linux-mm@kvack.org
-Cc: linux-cxl@vger.kernel.org, nvdimm@lists.linux.dev,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- kernel-team@meta.com, dan.j.williams@intel.com, vishal.l.verma@intel.com,
- dave.jiang@intel.com, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, osalvador@suse.de,
- akpm@linux-foundation.org
-References: <20260114085201.3222597-1-gourry@gourry.net>
- <20260114085201.3222597-5-gourry@gourry.net>
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
+Subject: Re: [RFC] Defining a home/maintenance model for non-NIC PHC devices
+ using the /dev/ptpX API
+To: Wen Gu <guwen@linux.alibaba.com>, Andrew Lunn <andrew@lunn.ch>,
+ Sven Schnelle <svens@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+ Richard Cochran <richardcochran@gmail.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+ Dust Li <dust.li@linux.alibaba.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, David Woodhouse <dwmw2@infradead.org>,
+ virtualization@lists.linux.dev, Nick Shi <nick.shi@broadcom.com>,
+ Paolo Abeni <pabeni@redhat.com>, linux-clk@vger.kernel.org
+References: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
+ <yt9decnv6qpc.fsf@linux.ibm.com>
+ <6a32849d-6c7b-4745-b7f0-762f1b541f3d@linux.dev>
+ <7be41f07-50ab-4363-8a53-dcdda63b9147@lunn.ch>
+ <87495044-59a3-49ed-b00c-01a7e9a23f6b@linux.dev>
+ <b5a60753-85ed-4d61-a652-568393e0dff3@linux.alibaba.com>
 Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
-In-Reply-To: <20260114085201.3222597-5-gourry@gourry.net>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Vadim Fedorenko <vadim.fedorenko@linux.dev>
+In-Reply-To: <b5a60753-85ed-4d61-a652-568393e0dff3@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On 1/14/26 09:51, Gregory Price wrote:
-> Change add_memory_driver_managed() to return the online type (MMOP_*)
-> on success instead of 0. This allows callers to determine the actual
-> online state of the memory after addition, which is important when
-> MMOP_SYSTEM_DEFAULT is used and the actual online type depends on the
-> system default policy.
+On 14/01/2026 09:13, Wen Gu wrote:
+> 
+> 
+> On 2026/1/12 22:52, Vadim Fedorenko wrote:
+>> On 12/01/2026 13:24, Andrew Lunn wrote:
+>>>>> drivers/ptp/core    - API as written above
+>>>>> drivers/ptp/virtual - all PtP drivers somehow emulating a PtP clock
+>>>>>                         (like the ptp_s390 driver)
+>>>>> drivers/ptp/net     - all NIC related drivers.
+>>>>>
+>>>>
+>>>>
+>>>> Well, drivers/ptp/virtual is not really good, because some drivers are
+>>>> for physical devices exporting PTP interface, but without NIC.
+>>>
+>>> If the lack of a NIC is the differentiating property:
+>>>
+>>>>> drivers/ptp/net     - all NIC related drivers.
+>>>>> drivers/ptp/netless - all related drivers which are not associated 
+>>>>> to a NIC.
+>>>
+>>> Or
+>>>
+>>>>> drivers/ptp/emulating - all drivers emulating a PtP clock
+>>
+>> I would go with "emulating" then.
+>>
+>>>
+>>>     Andrew
+> 
+> Thank you all for your suggestions.
+> 
+> The drivers under drivers/ptp can be divided into (to my knowledge):
+> 
+> 1. Network/1588-oriented clocks, which allow the use of tools like
+>     ptp4l to synchronize the local PHC with an external reference clock
+>     (based on the network or other methods) via the 1588 protocol to
+>     maintain accuracy. Examples include:
+> 
+>     - ptp_dte
+>     - ptp_qoriq
+>     - ptp_ines
+>     - ptp_pch
+>     - ptp_idt82p33
+>     - ptp_clockmatrix
+>     - ptp_fc3
+>     - ptp_mock (mock/testing)
+>     - ptp_dfl_tod
+>     - ptp_netc
+>     - ptp_ocp (a special case which provides a grandmaster
+>                clock for a PTP enabled network, generally
+>                serves as the reference clock)
 
-Another reason to just let the caller handle MMOP_SYSTEM_DEFAULT itself 
-by calling mhp_get_default_online_type() :)
+ptp_ocp is a timecard driver, which doesn't require calibration by
+ptp4l/ts2phc. OCP TimeCards have their own Atomic Clock onboard which
+is disciplined by 1-PPS or 10mhz signal from configurable source. The
+disciplining algorithm is implemented in Atomic Clock package
+controller. The driver exposes ptp device mostly for reading the time.
+So I believe it belongs to group 2 rather than 1588 group.
 
--- 
-Cheers
+> 
+> 2. Platform/infrastructure/hypervisor-provided clocks. They don't
+>     require calibration by ptp4l based on 1588 and reference clocks,
+>     instead the underlay handle this. Users generally read the time.
+>     They include:
+> 
+>     - ptp_kvm
+>     - ptp_vmclock
+>     - ptp_vmw
+>     - ptp_s390
+>     - ptp_cipu (upstreaming)
+> 
+>  From this perspective, I agree that "emulating" could be an appropriate
+> name for the second ones.
+> 
+> And I would like to further group the first ones to "1588", thus
+> divide drivers/ptp to:
+> 
+> - drivers/ptp/core
+> - drivers/ptp/1588
+> - drivers/ptp/emulating
+> 
+> Regards.
 
-David
