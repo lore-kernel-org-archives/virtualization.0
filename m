@@ -1,143 +1,611 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F48739525E;
-	Wed, 14 Jan 2026 10:55:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 018D130EF72
+	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 12:36:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768388127; cv=none; b=VftiQ9YPL6LKF7suIIy+J1xOhA5JvI/PUyD1vdessk5AkxbyMOlApmNv3Y+XaSJXCcp/bx431nBrk2h1QOk6hSO0rx3mHGvsLZIy2AEHZSSBcJlPj7nELxTnSTw6j2pY2RhAoRpOF51wSGxqBL15yxY3z9dO1fChQ3B7uAqMVvo=
+	t=1768394200; cv=none; b=hXfYcHEmyBTs4BwJmkXxvQQHRTzTZvsCLVv7f3p1HaRMG3ZWMDDFq5ISdFM16wPzov5r9uS7b663hUY07ZXWgo31+SFwcpwqTqw+F+7A6ze2wyozd+2nnn9VLjWOSbTkXoFhxNHP+n4mmhHBvDTegmxeBKIyQ2QSBIPB8tnV4T0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768388127; c=relaxed/simple;
-	bh=hIuzYS6a+N3lbpi7hIrLjsDBa5QpNFERvUevfsOEfh4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pr/44fsGD/WcDJM0xVFKaDRmcinsZD+xGjAE7Odyi6pxPlJef/RculwCNY2BY+al1XyN8WZ9tLXQuu4ps6i3avq/dHtUON4zQmlIehPata9bpGjE523DndpvaTz7E+Y6p2GULIo//F4SW7hB89v8yoY5ukfu1UDSJV4lArd6Ecw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UFqFErqz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768394200; c=relaxed/simple;
+	bh=aHUJKAoCLIs+lf/ahcJcWt2kD0IjJ+iArS9Nu7OgZhA=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=P0xRmLYHFjdWV/tIhnwgLeIPrC7eRLhQ3F8XLX7DVBmO3rzMZ6WMG+wcTUFkXSNIm4g9ombmpu2ujY1Uw8PskKWUdsvKQ2rS/CQvyninY/Jy2JZXsM5kZza+SkN8jgKLQ3HqzrnwGaXeDd/Ua/2Bn2ed9fK1WopmQXpd8VHCmoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=AIdKIF5L; arc=none smtp.client-ip=220.197.31.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UFqFErqz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9F41C4CEF7;
-	Wed, 14 Jan 2026 10:55:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768388127;
-	bh=hIuzYS6a+N3lbpi7hIrLjsDBa5QpNFERvUevfsOEfh4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=UFqFErqzPJ9xHsMZc9dlgwx8hnhxKPXXPYUA7gEGkj+uw1ZDtSkdXfwehvBaAUol6
-	 /waiG99gkQrkadIv8oSCIckIZblqs4CzJfSq1HCXsQYuoX/lPqgirgy1JXbyvF2jMp
-	 yls+m+cGqpmVjJ1+5oLRmxDTJx4caD6F6XcJxGkgXJZqBk4sKs0U/zCZW+nlvJD3dc
-	 2TmzI4xtK2riCIBJCO7FIdzuy5ipOvxHnUH3EiP66tjgWs7KYS2vxMt0pNJ2EbXS5q
-	 CC2/9ogYjJtlFKGXCK6PAXDRVwgYd8IjzO3GXNqhfcRjF0tZ/1NnTW+EtjPa22nxTZ
-	 Z0gLImtzc6lZA==
-Message-ID: <3555385d-23de-492c-8192-a991f91d4343@kernel.org>
-Date: Wed, 14 Jan 2026 11:55:21 +0100
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="AIdKIF5L"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version:
+	Content-Type; bh=+Q8bpr6iiNi81XIIibcZxRQnnVZpGIdsRInK/ozNgdI=;
+	b=AIdKIF5L0dXIbXnEFJtn8kxJV0gfFLUSNxCpg9QC8wWg9pi00tBEqKDD7egLGN
+	OKf5BZWad0eqA+Uf9+sQRPmu6229jRac7hBQCbyYcpmMFkuTUDkre5J3+GnST2Bg
+	WNGVr0PdBYO+7vk+QHv/u0pkQYycl92uobCe88qqppYCw=
+Received: from localhost.localdomain (unknown [])
+	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wAHAZrLjWdpmu37Fw--.652S2;
+	Wed, 14 Jan 2026 20:36:28 +0800 (CST)
+From: Longjun Tang <lange_tang@163.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Cc: virtualization@lists.linux.dev,
+	tanglongjun@kylinos.cn,
+	lange_tang@163.com
+Subject: [PATCH v1] virtio_net: add traces for tx/rx and INT response events.
+Date: Wed, 14 Jan 2026 20:36:27 +0800
+Message-Id: <20260114123627.102579-1-lange_tang@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 7/8] dax/kmem: add sysfs interface for runtime hotplug
- state control
-To: Gregory Price <gourry@gourry.net>, linux-mm@kvack.org
-Cc: linux-cxl@vger.kernel.org, nvdimm@lists.linux.dev,
- linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- kernel-team@meta.com, dan.j.williams@intel.com, vishal.l.verma@intel.com,
- dave.jiang@intel.com, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, osalvador@suse.de,
- akpm@linux-foundation.org
-References: <20260114085201.3222597-1-gourry@gourry.net>
- <20260114085201.3222597-8-gourry@gourry.net>
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
-In-Reply-To: <20260114085201.3222597-8-gourry@gourry.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wAHAZrLjWdpmu37Fw--.652S2
+X-Coremail-Antispam: 1Uf129KBjvAXoW3ZFW8Wr18Cw4UKrWfXFy5Jwb_yoW8XryUCo
+	WIqanxXr4rKr18C39Ikry8tF48ZFs2gFW5Zr4YyrZ5Za1xZw4Yya47Zw45JF1fXF1fKFsx
+	AFW0q3s8ArsFqFZ3n29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7v73VFW2AGmfu7bjvjm3
+	AaLaJ3UbIYCTnIWIevJa73UjIFyTuYvjTRgXozUUUUU
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC4gzK+GlnjcwrNQAA3N
 
-On 1/14/26 09:51, Gregory Price wrote:
-> The dax kmem driver currently onlines memory automatically during
-> probe using the system's default online policy but provides no way
-> to control or query the memory state at runtime. Users cannot change
-> the online type after probe, and there's no atomic way to offline and
-> remove memory blocks together.
-> 
-> Add a new 'hotplug' sysfs attribute that allows userspace to control
-> and query the memory state. The interface supports the following states:
-> 
->    - "offline": memory is added but not online
->    - "online": memory is online as normal system RAM
->    - "online_movable": memory is online in ZONE_MOVABLE
->    - "unplug": memory is offlined and removed
-> 
-> The initial state after probe uses MMOP_SYSTEM_DEFAULT to preserve
-> backwards compatibility - existing systems with auto-online policies
-> will continue to work as before.
-> 
-> The state machine enforces valid transitions:
->    - From offline: can transition to online, online_movable, or unplug
->    - From online/online_movable: can transition to offline or unplug
->    - Cannot switch directly between online and online_movable
+From: Longjun Tang <tanglongjun@kylinos.cn>
 
-Do we have to support these transitions right from the start?
+To facilitate tracking the status of virtqueue during rx/tx and
+interrupt response, add trace point at  corresponding func.
 
-What are the use cases for adding memory as offline and then onlining 
-it, and why do we have to support that through this interface?
+Also,to avoid perf hured,it olny available under debug condition.
 
-It would be a lot simpler if we would only allow
+Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
+---
+v1：
+I did some tests with iperf3, as follow:
+host <---> vm
 
- >    - "offline": memory is added but not online
- >    - "online": memory is online as normal system RAM
- >    - "online_movable": memory is online in ZONE_MOVABLE
- >    - "unplug": memory is offlined and removed
+oringnal:
+rx pps: 90915  rx bitrate: 28.5 Gbits/s
+tx pps: 54659   tx bitrate: 26.4 Gbits/s
 
-That is, transitioning from offline to online or vice versa fails with 
--ENOSUPP. User space can do that itself through sysfs and if there is 
-ever a good use case we can extend this interface here to allow it.
+added trace:
+rx pps: 76810  rx bitrate: 26.7 Gbits/s
+tx pps: 54455   tx bitrate: 26.4 Gbits/s
 
-Or is there a good use case that really requires this?
+Based on the results of the above tests, adding tracing has a
+performance hurt, especially on the rx side. Therefore, these
+traces should only be added to the debug virtio_net.
 
+When these traces are needed, uncomment the DEBUG macro definition
+in driver/net/virtio_net.c.
+---
+ drivers/net/virtio_net.c       |  21 ++++-
+ drivers/net/virtio_net_trace.h | 124 ++++++++++++++++++++++++++
+ drivers/virtio/virtio_ring.c   | 155 --------------------------------
+ include/linux/virtio_ring.h    | 156 +++++++++++++++++++++++++++++++++
+ 4 files changed, 297 insertions(+), 159 deletions(-)
+ create mode 100644 drivers/net/virtio_net_trace.h
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 22d894101c01..fabd3e8acb36 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -27,6 +27,11 @@
+ #include <net/netdev_queues.h>
+ #include <net/xdp_sock_drv.h>
+ 
++#if defined(DEBUG)
++#define CREATE_TRACE_POINTS
++#include "virtio_net_trace.h"
++#endif
++
+ static int napi_weight = NAPI_POLL_WEIGHT;
+ module_param(napi_weight, int, 0444);
+ 
+@@ -795,7 +800,9 @@ static void skb_xmit_done(struct virtqueue *vq)
+ 	unsigned int index = vq2txq(vq);
+ 	struct send_queue *sq = &vi->sq[index];
+ 	struct napi_struct *napi = &sq->napi;
+-
++#if defined(DEBUG)
++	trace_skb_xmit_done(napi, vq);
++#endif
+ 	/* Suppress further interrupts. */
+ 	virtqueue_disable_cb(vq);
+ 
+@@ -2671,7 +2678,9 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+ 
+ 	if (unlikely(!skb))
+ 		return;
+-
++#if defined(DEBUG)
++	trace_receive_buf(rq->vq, skb);
++#endif
+ 	virtnet_receive_done(vi, rq, skb, flags);
+ }
+ 
+@@ -2877,7 +2886,9 @@ static void skb_recv_done(struct virtqueue *rvq)
+ {
+ 	struct virtnet_info *vi = rvq->vdev->priv;
+ 	struct receive_queue *rq = &vi->rq[vq2rxq(rvq)];
+-
++#if defined(DEBUG)
++	trace_skb_recv_done(&rq->napi, rvq);
++#endif
+ 	rq->calls++;
+ 	virtqueue_napi_schedule(&rq->napi, rvq);
+ }
+@@ -3389,7 +3400,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	/* timestamp packet in software */
+ 	skb_tx_timestamp(skb);
+-
++#if defined(DEBUG)
++	trace_start_xmit(sq->vq, skb);
++#endif
+ 	/* Try to transmit */
+ 	err = xmit_skb(sq, skb, !use_napi);
+ 
+diff --git a/drivers/net/virtio_net_trace.h b/drivers/net/virtio_net_trace.h
+new file mode 100644
+index 000000000000..0a008cb8f51d
+--- /dev/null
++++ b/drivers/net/virtio_net_trace.h
+@@ -0,0 +1,124 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#if defined(DEBUG)
++
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM virtio_net
++
++#if !defined(_TRACE_VIRTIO_NET_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_VIRTIO_NET_H
++
++#include <linux/virtio.h>
++#include <linux/tracepoint.h>
++#include <linux/virtio_ring.h>
++
++DECLARE_EVENT_CLASS(virtio_net_rxtx_temp,
++
++	TP_PROTO(struct virtqueue *vq, const struct sk_buff *skb),
++
++	TP_ARGS(vq, skb),
++
++	TP_STRUCT__entry(
++		__string(	name,	vq->name	)
++		__field(	unsigned int, num_free	)
++		__field(	unsigned int, index	)
++		__field(	bool, packed_ring	)
++		__field(	bool, broken	)
++		__field(	bool, event	)
++		__field(	u16, last_used_idx	)
++		__field(	__virtio16, avail_flags	)
++		__field(	__virtio16, avail_idx	)
++		__field(	__virtio16, used_idx	)
++		__field(	const void *, skbaddr	)
++	),
++
++	TP_fast_assign(
++		__entry->skbaddr = skb;
++
++		__assign_str(name);
++		__entry->num_free = vq->num_free;
++		__entry->index = vq->index;
++
++		struct vring_virtqueue *vvq;
++
++		vvq = container_of_const(vq, struct vring_virtqueue, vq);
++
++		__entry->packed_ring = vvq->packed_ring;
++		__entry->broken = vvq->broken;
++		__entry->event = vvq->event;
++		if (!vvq->packed_ring) {
++			__entry->last_used_idx = vvq->last_used_idx;
++			__entry->avail_flags = vvq->split.vring.avail->flags;
++			__entry->avail_idx = vvq->split.vring.avail->idx;
++			__entry->used_idx = vvq->split.vring.used->idx;
++		}
++	),
++
++	TP_printk("skbaddr=%p vq=%s num_free=%u index=%u packed=%d broken=%d event=%d last_used_idx=%u avail_flags=%u avail_idx=%u used_idx=%u",
++		__entry->skbaddr, __get_str(name), __entry->num_free, __entry->index,
++		__entry->packed_ring, __entry->broken, __entry->event, __entry->last_used_idx,
++		__entry->avail_flags, __entry->avail_idx, __entry->used_idx)
++)
++
++DEFINE_EVENT(virtio_net_rxtx_temp, receive_buf,
++
++	TP_PROTO(struct virtqueue *vq, const struct sk_buff *skb),
++
++	TP_ARGS(vq, skb)
++);
++
++DEFINE_EVENT(virtio_net_rxtx_temp, start_xmit,
++
++	TP_PROTO(struct virtqueue *vq, const struct sk_buff *skb),
++
++	TP_ARGS(vq, skb)
++);
++
++DECLARE_EVENT_CLASS(virtio_net_int_temp,
++
++	TP_PROTO(struct napi_struct *napi, struct virtqueue *vq),
++
++	TP_ARGS(napi, vq),
++
++	TP_STRUCT__entry(
++		__string(	dev_name,	napi->dev->name	)
++		__string(	vq_name,	vq->name)
++		__field(	u32,	napi_id	)
++		__field(	int,	weight	)
++	),
++
++	TP_fast_assign(
++		__assign_str(dev_name);
++		__assign_str(vq_name);
++		__entry->napi_id = napi->napi_id;
++		__entry->weight = napi->weight;
++	),
++
++	TP_printk("dev=%s vq=%s napi_id=%u weight=%d",
++		__get_str(dev_name), __get_str(vq_name), __entry->napi_id, __entry->weight)
++)
++
++DEFINE_EVENT(virtio_net_int_temp, skb_xmit_done,
++
++	TP_PROTO(struct napi_struct *napi, struct virtqueue *vq),
++
++	TP_ARGS(napi, vq)
++);
++
++DEFINE_EVENT(virtio_net_int_temp, skb_recv_done,
++
++	TP_PROTO(struct napi_struct *napi, struct virtqueue *vq),
++
++	TP_ARGS(napi, vq)
++);
++
++#undef TRACE_INCLUDE_PATH
++#define TRACE_INCLUDE_PATH ../../drivers/net/
++#undef TRACE_INCLUDE_FILE
++#define TRACE_INCLUDE_FILE virtio_net_trace
++
++#endif /* _TRACE_VIRTIO_NET_H */
++
++/* This part must be outside protection */
++#include <trace/define_trace.h>
++
++#endif
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ddab68959671..d413ebb42729 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -67,161 +67,6 @@
+ #define LAST_ADD_TIME_INVALID(vq)
+ #endif
+ 
+-struct vring_desc_state_split {
+-	void *data;			/* Data for callback. */
+-
+-	/* Indirect desc table and extra table, if any. These two will be
+-	 * allocated together. So we won't stress more to the memory allocator.
+-	 */
+-	struct vring_desc *indir_desc;
+-};
+-
+-struct vring_desc_state_packed {
+-	void *data;			/* Data for callback. */
+-
+-	/* Indirect desc table and extra table, if any. These two will be
+-	 * allocated together. So we won't stress more to the memory allocator.
+-	 */
+-	struct vring_packed_desc *indir_desc;
+-	u16 num;			/* Descriptor list length. */
+-	u16 last;			/* The last desc state in a list. */
+-};
+-
+-struct vring_desc_extra {
+-	dma_addr_t addr;		/* Descriptor DMA addr. */
+-	u32 len;			/* Descriptor length. */
+-	u16 flags;			/* Descriptor flags. */
+-	u16 next;			/* The next desc state in a list. */
+-};
+-
+-struct vring_virtqueue_split {
+-	/* Actual memory layout for this queue. */
+-	struct vring vring;
+-
+-	/* Last written value to avail->flags */
+-	u16 avail_flags_shadow;
+-
+-	/*
+-	 * Last written value to avail->idx in
+-	 * guest byte order.
+-	 */
+-	u16 avail_idx_shadow;
+-
+-	/* Per-descriptor state. */
+-	struct vring_desc_state_split *desc_state;
+-	struct vring_desc_extra *desc_extra;
+-
+-	/* DMA address and size information */
+-	dma_addr_t queue_dma_addr;
+-	size_t queue_size_in_bytes;
+-
+-	/*
+-	 * The parameters for creating vrings are reserved for creating new
+-	 * vring.
+-	 */
+-	u32 vring_align;
+-	bool may_reduce_num;
+-};
+-
+-struct vring_virtqueue_packed {
+-	/* Actual memory layout for this queue. */
+-	struct {
+-		unsigned int num;
+-		struct vring_packed_desc *desc;
+-		struct vring_packed_desc_event *driver;
+-		struct vring_packed_desc_event *device;
+-	} vring;
+-
+-	/* Driver ring wrap counter. */
+-	bool avail_wrap_counter;
+-
+-	/* Avail used flags. */
+-	u16 avail_used_flags;
+-
+-	/* Index of the next avail descriptor. */
+-	u16 next_avail_idx;
+-
+-	/*
+-	 * Last written value to driver->flags in
+-	 * guest byte order.
+-	 */
+-	u16 event_flags_shadow;
+-
+-	/* Per-descriptor state. */
+-	struct vring_desc_state_packed *desc_state;
+-	struct vring_desc_extra *desc_extra;
+-
+-	/* DMA address and size information */
+-	dma_addr_t ring_dma_addr;
+-	dma_addr_t driver_event_dma_addr;
+-	dma_addr_t device_event_dma_addr;
+-	size_t ring_size_in_bytes;
+-	size_t event_size_in_bytes;
+-};
+-
+-struct vring_virtqueue {
+-	struct virtqueue vq;
+-
+-	/* Is this a packed ring? */
+-	bool packed_ring;
+-
+-	/* Is DMA API used? */
+-	bool use_map_api;
+-
+-	/* Can we use weak barriers? */
+-	bool weak_barriers;
+-
+-	/* Other side has made a mess, don't try any more. */
+-	bool broken;
+-
+-	/* Host supports indirect buffers */
+-	bool indirect;
+-
+-	/* Host publishes avail event idx */
+-	bool event;
+-
+-	/* Head of free buffer list. */
+-	unsigned int free_head;
+-	/* Number we've added since last sync. */
+-	unsigned int num_added;
+-
+-	/* Last used index  we've seen.
+-	 * for split ring, it just contains last used index
+-	 * for packed ring:
+-	 * bits up to VRING_PACKED_EVENT_F_WRAP_CTR include the last used index.
+-	 * bits from VRING_PACKED_EVENT_F_WRAP_CTR include the used wrap counter.
+-	 */
+-	u16 last_used_idx;
+-
+-	/* Hint for event idx: already triggered no need to disable. */
+-	bool event_triggered;
+-
+-	union {
+-		/* Available for split ring */
+-		struct vring_virtqueue_split split;
+-
+-		/* Available for packed ring */
+-		struct vring_virtqueue_packed packed;
+-	};
+-
+-	/* How to notify other side. FIXME: commonalize hcalls! */
+-	bool (*notify)(struct virtqueue *vq);
+-
+-	/* DMA, allocation, and size information */
+-	bool we_own_ring;
+-
+-	union virtio_map map;
+-
+-#ifdef DEBUG
+-	/* They're supposed to lock for us. */
+-	unsigned int in_use;
+-
+-	/* Figure out if their kicks are too delayed. */
+-	bool last_add_time_valid;
+-	ktime_t last_add_time;
+-#endif
+-};
+-
+ static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
+ static void vring_free(struct virtqueue *_vq);
+ 
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index c97a12c1cda3..1442a02209ec 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -121,4 +121,160 @@ void vring_transport_features(struct virtio_device *vdev);
+ irqreturn_t vring_interrupt(int irq, void *_vq);
+ 
+ u32 vring_notification_data(struct virtqueue *_vq);
++
++struct vring_desc_state_split {
++	void *data;			/* Data for callback. */
++
++	/* Indirect desc table and extra table, if any. These two will be
++	 * allocated together. So we won't stress more to the memory allocator.
++	 */
++	struct vring_desc *indir_desc;
++};
++
++struct vring_desc_state_packed {
++	void *data;			/* Data for callback. */
++
++	/* Indirect desc table and extra table, if any. These two will be
++	 * allocated together. So we won't stress more to the memory allocator.
++	 */
++	struct vring_packed_desc *indir_desc;
++	u16 num;			/* Descriptor list length. */
++	u16 last;			/* The last desc state in a list. */
++};
++
++struct vring_desc_extra {
++	dma_addr_t addr;		/* Descriptor DMA addr. */
++	u32 len;			/* Descriptor length. */
++	u16 flags;			/* Descriptor flags. */
++	u16 next;			/* The next desc state in a list. */
++};
++
++struct vring_virtqueue_split {
++	/* Actual memory layout for this queue. */
++	struct vring vring;
++
++	/* Last written value to avail->flags */
++	u16 avail_flags_shadow;
++
++	/*
++	 * Last written value to avail->idx in
++	 * guest byte order.
++	 */
++	u16 avail_idx_shadow;
++
++	/* Per-descriptor state. */
++	struct vring_desc_state_split *desc_state;
++	struct vring_desc_extra *desc_extra;
++
++	/* DMA address and size information */
++	dma_addr_t queue_dma_addr;
++	size_t queue_size_in_bytes;
++
++	/*
++	 * The parameters for creating vrings are reserved for creating new
++	 * vring.
++	 */
++	u32 vring_align;
++	bool may_reduce_num;
++};
++
++struct vring_virtqueue_packed {
++	/* Actual memory layout for this queue. */
++	struct {
++		unsigned int num;
++		struct vring_packed_desc *desc;
++		struct vring_packed_desc_event *driver;
++		struct vring_packed_desc_event *device;
++	} vring;
++
++	/* Driver ring wrap counter. */
++	bool avail_wrap_counter;
++
++	/* Avail used flags. */
++	u16 avail_used_flags;
++
++	/* Index of the next avail descriptor. */
++	u16 next_avail_idx;
++
++	/*
++	 * Last written value to driver->flags in
++	 * guest byte order.
++	 */
++	u16 event_flags_shadow;
++
++	/* Per-descriptor state. */
++	struct vring_desc_state_packed *desc_state;
++	struct vring_desc_extra *desc_extra;
++
++	/* DMA address and size information */
++	dma_addr_t ring_dma_addr;
++	dma_addr_t driver_event_dma_addr;
++	dma_addr_t device_event_dma_addr;
++	size_t ring_size_in_bytes;
++	size_t event_size_in_bytes;
++};
++
++struct vring_virtqueue {
++	struct virtqueue vq;
++
++	/* Is this a packed ring? */
++	bool packed_ring;
++
++	/* Is DMA API used? */
++	bool use_map_api;
++
++	/* Can we use weak barriers? */
++	bool weak_barriers;
++
++	/* Other side has made a mess, don't try any more. */
++	bool broken;
++
++	/* Host supports indirect buffers */
++	bool indirect;
++
++	/* Host publishes avail event idx */
++	bool event;
++
++	/* Head of free buffer list. */
++	unsigned int free_head;
++	/* Number we've added since last sync. */
++	unsigned int num_added;
++
++	/* Last used index  we've seen.
++	 * for split ring, it just contains last used index
++	 * for packed ring:
++	 * bits up to VRING_PACKED_EVENT_F_WRAP_CTR include the last used index.
++	 * bits from VRING_PACKED_EVENT_F_WRAP_CTR include the used wrap counter.
++	 */
++	u16 last_used_idx;
++
++	/* Hint for event idx: already triggered no need to disable. */
++	bool event_triggered;
++
++	union {
++		/* Available for split ring */
++		struct vring_virtqueue_split split;
++
++		/* Available for packed ring */
++		struct vring_virtqueue_packed packed;
++	};
++
++	/* How to notify other side. FIXME: commonalize hcalls! */
++	bool (*notify)(struct virtqueue *vq);
++
++	/* DMA, allocation, and size information */
++	bool we_own_ring;
++
++	union virtio_map map;
++
++#ifdef DEBUG
++	/* They're supposed to lock for us. */
++	unsigned int in_use;
++
++	/* Figure out if their kicks are too delayed. */
++	bool last_add_time_valid;
++	ktime_t last_add_time;
++#endif
++};
++
+ #endif /* _LINUX_VIRTIO_RING_H */
 -- 
-Cheers
+2.48.1
 
-David
