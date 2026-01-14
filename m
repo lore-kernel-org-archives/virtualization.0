@@ -1,115 +1,81 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 333A836A027;
-	Tue, 13 Jan 2026 23:12:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73C531373;
+	Wed, 14 Jan 2026 02:17:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768345979; cv=none; b=HxhvqZGvHLF8Dc2V+9E5v/WPpcntJHYkueTeWHVfiMS6H5XV9jUBXZMn1ZKjIhxEvy7lh/tspsBLVZZiUKTKYj/s4v+0v89Cac9r4hqn5SeUW/TIo97LZCI4NF5ChHbXa8vuNZmDgR+QfdsgZU+wSVM1ZsjGtIWFOQN5L01d1Sg=
+	t=1768357020; cv=none; b=Lc7gpxf8fMb24Q/c1dgcKmHqzrfWz1WbpnWvY+e8/keqAhqJcVwr0t9lQWkbTZvu+fR2eQsIrj5m3paxtMV/M1EDLF7aD9YuOIgHXgu2+NuXQuB1EeP+cSIOyVwDqrod5x3M3ZklSy3EY5YzvlNf7dwjccLoQ6vepMKtVVgUzgM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768345979; c=relaxed/simple;
-	bh=tfux4HuM++A7BLYQlaWz5mpF//WwyNWgU6Ipl96sA5I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z+4AjqR9eA5ziZVDK48XLB2j9E/YdSXIMcOUYCMVvRJ+ix2BIOI/bKsj8yaZvm1PrtsNu7eRn5A5Ov25uVGMpwhRtnzlKYeguqohp4DpOzi2vLxi+RUXrdqt0FlkuD1+dvRlO7qyBES/D3lwrmRSWcC8P6ylRp5lxx16HzlLouc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nqAAh529; arc=none smtp.client-ip=198.175.65.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1768357020; c=relaxed/simple;
+	bh=vrYvvSPxxxKS+qRXC9HBcSZDdR6f8CDo23l/715VS6c=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=FT03/7oUJYj9ZmlBaxEcCYQkCtSudh5Xd9RfBOxFOaCc0ReLqK3Ma7zwrDAR19hl0MD3pO7S1Wq6QgJXBbidw6keX18rQPQ4L21kL8IslBnNurHV3N6ttZRd8QUVaUOanA7Kf52GBlB9DKMS7IkOX6h+wQB3r8ehObp4hS2uE98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PM0HU06w; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nqAAh529"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1768345978; x=1799881978;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=tfux4HuM++A7BLYQlaWz5mpF//WwyNWgU6Ipl96sA5I=;
-  b=nqAAh529Wap5PRAuBNWOW1ERqtSVdKqybJiJ2X0aGgs8bkMDkE4Ogk5y
-   SqEdgCbGQwAczu0baC93vAUgXpYKyBCfwFpAKxR67zSRxPXZwekkv8/SG
-   DGRdgVLTHv+F2UMaWFVojMUMGh4pzIF73sZVGD7NtMy0Ud2FWZIEJduLL
-   UCYWgXaIkMVhlzLSGTfPPEtUnVhL9gDQRFzrEIB8QOIf9uk9UjfTDe421
-   3z/I6+EOQjSi742o7f2dNl2sVUimySh64fHhUcN4l08TkGLAqzhPOEmMH
-   02V4ZU0eG0n3X+Tmu3jXTOGKmq+wmhwqVJjrJl5tuu0ZcRqztR6xvw2aM
-   Q==;
-X-CSE-ConnectionGUID: ldwani4sQsyNQpfxPcGBkw==
-X-CSE-MsgGUID: Tr6L4RoSR8egjxChli4MSw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11670"; a="69376944"
-X-IronPort-AV: E=Sophos;i="6.21,224,1763452800"; 
-   d="scan'208";a="69376944"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2026 15:12:57 -0800
-X-CSE-ConnectionGUID: kzgyrO3ORaOlo4V3eNE03g==
-X-CSE-MsgGUID: IWu9cYVeQviBmeKCDLTDgg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,224,1763452800"; 
-   d="scan'208";a="204307734"
-Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by orviesa009.jf.intel.com with ESMTP; 13 Jan 2026 15:12:52 -0800
-Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vfnZB-00000000FTo-04NN;
-	Tue, 13 Jan 2026 23:12:49 +0000
-Date: Wed, 14 Jan 2026 07:12:08 +0800
-From: kernel test robot <lkp@intel.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Long Li <longli@microsoft.com>
-Cc: oe-kbuild-all@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, berrange@redhat.com,
-	Sargun Dhillon <sargun@sargun.me>,
-	Bobby Eshleman <bobbyeshleman@gmail.com>
-Subject: Re: [PATCH net-next v14 01/12] vsock: add netns to vsock core
-Message-ID: <202601140749.5TXm5gpl-lkp@intel.com>
-References: <20260112-vsock-vmtest-v14-1-a5c332db3e2b@meta.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PM0HU06w"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FC03C116C6;
+	Wed, 14 Jan 2026 02:16:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768357020;
+	bh=vrYvvSPxxxKS+qRXC9HBcSZDdR6f8CDo23l/715VS6c=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=PM0HU06wUcT9eRu2x+ScRPl1gTWvOWA77eXPaA9gHzW7sTJ0sYth9CHPzU/MRnNjQ
+	 pMxOeFaf8sHZZxkTly9OUq22HKxm/AXsTjWlYIxmK3SFeqBJieFCnFzGiRUkRkyCY7
+	 KRRi20LWEEDq25TNPYJahWtKMrxOY09uZPEubavwhpuvqep/isRt5hN//MSZ0uzy2k
+	 8pCtI6eHNzWPFEa2Uo0YzYurG64Al4y8+DQRV2Gu9wLq9565ONgQuTlJKQQn1z91NG
+	 esIAwaEkt1tod36g50gSA2YO0+dMGM61IASbo5f27xNoqf8uMwFI/O8UFp3PemV8yp
+	 4wy9FgILreuXQ==
+Date: Tue, 13 Jan 2026 18:16:58 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "Gustavo A. R. Silva"
+ <gustavoars@kernel.org>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Akihiko
+ Odaki <akihiko.odaki@daynix.com>, Simon Horman <horms@kernel.org>,
+ netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, Kees Cook
+ <kees@kernel.org>
+Subject: Re: [PATCH v2][next] virtio_net: Fix misalignment bug in struct
+ virtnet_info
+Message-ID: <20260113181658.0b65b96e@kernel.org>
+In-Reply-To: <916a6c1a-681e-4e5e-8d49-75d0de5c46a1@redhat.com>
+References: <aWIItWq5dV9XTTCJ@kspp>
+	<e9607915-892c-4724-b97f-7c90918f86fe@redhat.com>
+	<20260113093839-mutt-send-email-mst@kernel.org>
+	<916a6c1a-681e-4e5e-8d49-75d0de5c46a1@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260112-vsock-vmtest-v14-1-a5c332db3e2b@meta.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi Bobby,
+On Tue, 13 Jan 2026 16:06:05 +0100 Paolo Abeni wrote:
+> > Probably but I'm yet to properly review it. The thing that puzzles me at
+> > a first glance is how are things working right now then?  
+> 
+> Apparently they aren't ?!?
+> 
+> rss self-tests for virtio_net are failing:
+> 
+> https://netdev-ctrl.bots.linux.dev/logs/vmksft/drv-hw-dbg/results/471521/15-rss-api-py/stdout
+> 
+> but the result is into the CI reported as success (no idea why?!?)
 
-kernel test robot noticed the following build warnings:
+To be clear this is a HW test so the fact that it shows up in CI as
+green means just that the 2 sub cases (per [1]) which the CI judged 
+to be stable and passing are still passing. The other 10 sub cases 
+have never passed and still don't. IDK if you QEMU doesn't support 
+RSS or it's something else but AFAICT this patch doesn't appear to 
+make a difference to us.
 
-[auto build test WARNING on net-next/main]
+[1] https://netdev.bots.linux.dev/devices.html
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Bobby-Eshleman/virtio-set-skb-owner-of-virtio_transport_reset_no_sock-reply/20260113-125559
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20260112-vsock-vmtest-v14-1-a5c332db3e2b%40meta.com
-patch subject: [PATCH net-next v14 01/12] vsock: add netns to vsock core
-config: x86_64-buildonly-randconfig-004-20260113 (https://download.01.org/0day-ci/archive/20260114/202601140749.5TXm5gpl-lkp@intel.com/config)
-compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260114/202601140749.5TXm5gpl-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202601140749.5TXm5gpl-lkp@intel.com/
-
-All warnings (new ones prefixed by >>, old ones prefixed by <<):
-
->> WARNING: modpost: net/vmw_vsock/vsock: section mismatch in reference: vsock_exit+0x25 (section: .exit.text) -> vsock_sysctl_ops (section: .init.data)
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+You can see the per-case breakdown of the history here (including 
+the ignored sub-cases):
+https://netdev.bots.linux.dev/flakes.html?tn-needle=drv-hw%2Fselftests-drivers-net-hw%2Frss-api-py&min-flip=0&br-pfx=net-next-hw&ld-cases=1
