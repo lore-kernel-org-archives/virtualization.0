@@ -1,64 +1,64 @@
 Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07BC2337111
-	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 23:51:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 879A238734C
+	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 23:51:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768434672; cv=none; b=daKDilaNZIJJqJbliHz4DV4WgZPf4JMRxUteVHJzISUYlWor/3HYsdrjXXG6XqQMkvOyjWrpOY1LdaFW1ewx6WQFID6KnAm/yEYR413CtA29FkDb98VgycpkSmlKfchSZ83SNVbvZ+Y4B+AGFArl8Gfvfb2h+KJYYczjOTTsDKE=
+	t=1768434673; cv=none; b=Q4J2qhd4++lFCVzpez/T8PyG7TIUUbK3fHpaGgSfwcV+5MEJzRlruoTn6LbsH6oG0VG3nWiPAaymvY5axcqshaRQGjqq+aK1mvXJoML+yj+YVSwkaXWHLtvCmDZj0wtKyVkuTf5Hd1nhsQ54e7wYUD1cQPL/l9VhdJTCbwnog0k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768434672; c=relaxed/simple;
-	bh=nRAut67R7AZnmpI2c6KDyJy5GJhpgCVlac//vrUZeCc=;
+	s=arc-20240116; t=1768434673; c=relaxed/simple;
+	bh=0J/H8yYq5raa3wrU1wqy674f7+nMuVNxr2GjcBjuBZc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=J7K9gWhilvnm/25L24uFAtF/ToHCyCgcfpF8Ok7a4jbcmmx2OlNsQAU2FhA3usWDCVKfLhCqX5wYnXlYFuRbWADFmRPP7RC1U9km/qHyz+1q8c1JPYvR0kHj7m6t0VnvRv9NFoTIUBRe8Y2XX9VQVXcKbbX8RmJ54aSLB94Kk0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=BMqkAlII; arc=none smtp.client-ip=209.85.219.43
+	 MIME-Version; b=mxlyM7iARsz+v6KWM7WZNZ9cF4yrHlK37vLfmSxe+uWCAHXFcD48V/8YRyyxL6ySK6wOlj2aNRhAdkwqIHuOB1/ZwG6lAabymLrUyN7NMk/HqoLdJdU+PNf/f/BMfYLXWFXg+p/hTM+ZCOuv3nHuFnbEiSmawFttK8XufGH7Mfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=OgzQ5wcl; arc=none smtp.client-ip=209.85.219.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="BMqkAlII"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-88888c41a13so3863066d6.3
-        for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 15:51:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="OgzQ5wcl"
+Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-8888a16d243so3203506d6.1
+        for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 15:51:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1768434669; x=1769039469; darn=lists.linux.dev;
+        d=gourry.net; s=google; t=1768434664; x=1769039464; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=D6NjMNgXdh9z9NOdem2QceXvpTYCSkYsdbHZHUdgJ+E=;
-        b=BMqkAlII41PZ+zpQvAFHGGAul9jI1uviRRqDgZCnETSrPbTOg05eYSc4iJ6mRVYeY7
-         HyfSn9BMTkD3LSi0zB5PwjQo+CjuzjNPR3jkek3dHSECA/XAsRQjwMrtbv3xq9geoiN/
-         RlbGm9BVlv3aHo+CI0bEc2BoTqWWmSV7bxtYRl4A7S7riegguzaPmrvkV47ZANv91qNo
-         7E9epHnsDEf9tQJbMID7lUifKUgkTOW122uWKGuQGE9XaeUgonfbIgpSuB7t1jzQsI5T
-         ZR+VxomQv3ATd41JlBdFjleAcguf3I9rai5foGEj6440n0UCrU7TyLZAkosQUPx0RtCV
-         W76w==
+        bh=H7S5DUi0SDbWdByNH4HXVuUJVUsm+o81Wii/GbIa5ZU=;
+        b=OgzQ5wclOdYy+6FvlynL0VkmlTjisHheFbmYBUBq1oYgKsxslwzObOX4N9tFVYCNDl
+         d5mVWYFn2q+cKpWhJE25XunljbKtfKB1c88aSEpQInLGtbPmY1lNQh55t57j+TcG3z4+
+         n6nRIQco9UIOOXdgGbf4up2IFl5ayWpPdKQi5hhsJj9x23j4EFbCy2PIdGjKsFdLd2Pm
+         mBIdvtXnBItXFiavj6vcCKiEHeRKHiS8BQlGbn1mp574sxJvQyfthe0XyTpyy5QZe27q
+         Y4y5+Aws88WYkl1dhfuApzyuu84BL9DaOfd5CM2enh6DjqqrORr+IZxZ9GAXQqR1GFMg
+         3EIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768434669; x=1769039469;
+        d=1e100.net; s=20230601; t=1768434664; x=1769039464;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=D6NjMNgXdh9z9NOdem2QceXvpTYCSkYsdbHZHUdgJ+E=;
-        b=ZywwU4P+RRyQrk+1ngcJRJe5hRQHKsO5e3eCgc2cRZJSSHFPt52ZPZdlHP7n3xtWMf
-         J3Wz5zCmevira8tUyteFx+fI1luNkpbbGB0byh4dPN8P0E7JWFeCzTUNr6iTBLn+n6mc
-         wIaFFj7fPxoY++mRh7t+mCKa9/+Xcrhw0MR9B38ZJIYsHiFivMCCkZvq4rMYvBV5Kinm
-         hKZQtJUnARD1HTZenEsaIV93FyOhazoAF00YaAadFSD3EfavHIbwh7h25NmhmylwnKLY
-         X3A3KS0mVSWanS8O+9n1PifC3LsFnhwGz2V2YpzBDhn28yVnk367azEEDrE3/63okosz
-         l62w==
-X-Forwarded-Encrypted: i=1; AJvYcCXdnZJnkec3oXPkEe8ZaOJQi0bC6xga8XkC7TSdAHaALB9zW5nYo8915OpPdfNFiXyDV3GPW6mBtzkb/c+ZOQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzovcGnhWRZ6OVyjU7XrbyY7HiG4cfrOoLOPi2t+WiM6YazWY2j
-	3ugJD51CGTdhEJBq2KzYSpG59p7Rnxi6QNp02uODG+fUAkD4UvFzT6c0ct3LPxd7QZY=
-X-Gm-Gg: AY/fxX7X/Vt24FUOnv5ZDaNLWHJiRzxSXzrixut6oQ60yGJtbGYU+jZQYA7aYAW+dfN
-	P/4X+aM3yvGEqPrXA/dYdEElX4BW8JNHuVmB4n5DJu4LFVKGhUR0SvGi9+5JA4mpa+krI/xHeNz
-	Uh5WEZDo3ta2PLQEO92B7v5Uuc8YthVLNOPYvYi/ypI6GERSgBpuBfzjtdcrj0ytriSJ/uTpTj3
-	cgH3Dbh5jhVXuzV62co8gk3InWWdh7B5O3FHVa83BCDYyEpsrH2Hcar8wGSHqRXlQnSOpRGO3h/
-	BE/S688q3yhI//CXDN3vfVR6jHtAdO3PTa76yLDDc6dX7jFGX6epjRfmd2ZCLt3LGxEyZPXnNNT
-	uGAPs1U0hGhWs40OUcsFwh9H09KCa4oSkwQQZ/ZN0zG9Zs7LXTgXpUUlEbWiB8sJWpMfLb5Rkht
-	Cf8WTzMa/rfzFMC+zVVuFeVwueAzdyayhSGwdZIyr088TR8sk9HHUF4L0O7xBl28rDNYCXlpU8C
-	IY=
-X-Received: by 2002:a05:6214:2123:b0:882:6797:3a67 with SMTP id 6a1803df08f44-89275ad80acmr64527286d6.13.1768434668684;
-        Wed, 14 Jan 2026 15:51:08 -0800 (PST)
+        bh=H7S5DUi0SDbWdByNH4HXVuUJVUsm+o81Wii/GbIa5ZU=;
+        b=ay1K757P03SM2T8xHadIErT7zTinjERXwdJ9V0r2gEghYRoXq1pDcZw4zRqKIobAN4
+         oiSI7Wzq3rfJXdSepBFOP+bKK8UfxvVFYGJNnsHk6xtAQqdBXBENEO2Fcz6YJBIKOpSE
+         3uy3t35sApUdw87l6OkKESo2rX1xMzVlpAGPRS75jpYg8GxmJNVWUhMPdSX1Mh/FWiSb
+         CWVkM6G8mOGEKH8cgJ/I+v1hZAjGqgIDxqKsl6NXmqpDfIj0qoLUtBeSH3/0aSnPDzZT
+         GDTHLRf1WiJdamc65qxOMcheolvfASbS6bwX5xZJHJmK60LxRnVbvPu6ILsbkiwD53J2
+         5/Gg==
+X-Forwarded-Encrypted: i=1; AJvYcCV8a0UOZLx+iDaL+8Efd50DYIe22AUmvZ3TXD++owT5YGZR3P5W+Kl9je+CemDJuT7Ji0HhfVOjIRzz5xTPcA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwzMkGCFzDzjxDuvblKLhbqTRQ90yqhS19GglusL+X8vwi8ysdr
+	YZciNhHvR1rSbZMLBBsqkSAfebb5s4h5QHCjVJ+GV1v2WNFLzsZlHbBLGMAeL13tQ9Q=
+X-Gm-Gg: AY/fxX7W2FPqtG8CLwbAi4P6i/QxH1L7679+f5bPIXUst3dmbvo9naxFH643xIXWTf3
+	gu7Tunsrc48zARAroMVoGkJRGUUoP5xijFZpcU3nOfgnZO9RBzXhnalvPRGyrW2D96yB8vgAqPE
+	dCnJ3ZqEvRIPmgiVA1WmpsP41DSXG7IJs7sOo6+sa7DLzjhbEKZl3+LnLVelo1XR8iPtL7qv324
+	AV7xhBPLHLA+3Ncxd4Mmt3lpp15ngSUNYuHt0Jpn0FGT6gGW67jQ+OBcGBh7TWyj1X/M9C/U+TU
+	5sYp2SxmuJD5pWuc4v/f4wRvE7V3s4joViTGwbI+3LLchux1pRq5bMkKfvnzOF2LaD1iW40i14i
+	iORFwH16ipqMUXgqVSCkfC0qPlhkJx0wxJwhZF8D6Ro3UZZepUU7TF8tmi6s8vfJS1B+/uaVtFX
+	7KimqZJra8Rd8de3wtZ23QUvfMroe4uJSnQaDGQxKfHuuHJ6eWP21Bt0CdSOQ0WdGYdr1eeVsFy
+	Fc=
+X-Received: by 2002:a05:6214:cc8:b0:88a:2fd1:b582 with SMTP id 6a1803df08f44-89275c28a5fmr45974356d6.47.1768434664338;
+        Wed, 14 Jan 2026 15:51:04 -0800 (PST)
 Received: from gourry-fedora-PF4VCD3F.lan (pool-96-255-20-138.washdc.ftas.verizon.net. [96.255.20.138])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-890772346f8sm188449106d6.35.2026.01.14.15.51.07
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-890772346f8sm188449106d6.35.2026.01.14.15.51.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 15:51:07 -0800 (PST)
+        Wed, 14 Jan 2026 15:51:03 -0800 (PST)
 From: Gregory Price <gourry@gourry.net>
 To: linux-mm@kvack.org
 Cc: linux-cxl@vger.kernel.org,
@@ -76,9 +76,9 @@ Cc: linux-cxl@vger.kernel.org,
 	eperezma@redhat.com,
 	osalvador@suse.de,
 	akpm@linux-foundation.org
-Subject: [PATCH v2 5/5] dax/kmem: add memory notifier to block external state changes
-Date: Wed, 14 Jan 2026 18:50:21 -0500
-Message-ID: <20260114235022.3437787-6-gourry@gourry.net>
+Subject: [PATCH v2 3/5] dax/kmem: extract hotplug/hotremove helper functions
+Date: Wed, 14 Jan 2026 18:50:19 -0500
+Message-ID: <20260114235022.3437787-4-gourry@gourry.net>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260114235022.3437787-1-gourry@gourry.net>
 References: <20260114235022.3437787-1-gourry@gourry.net>
@@ -90,271 +90,373 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add a memory notifier to prevent external operations from changing the
-online/offline state of memory blocks managed by dax_kmem. This ensures
-state changes only occur through the driver's hotplug sysfs interface,
-providing consistent state tracking and preventing races with auto-online
-policies or direct memory block sysfs manipulation.
+Refactor kmem _probe() _remove() by extracting init, cleanup, hotplug,
+and hot-remove logic into separate helper functions:
 
-The goal of this is to prevent `daxN.M/hotplug` from becoming
-inconsistent with the state of the memory blocks it owns.
+  - dax_kmem_init_resources: inits IO_RESOURCE w/ request_mem_region
+  - dax_kmem_cleanup_resources: cleans up initialized IO_RESOURCE
+  - dax_kmem_do_hotplug: handles memory region reservation and adding
+  - dax_kmem_do_hotremove: handles memory removal and resource cleanup
 
-The notifier uses a transition protocol with memory barriers:
-  - Before initiating a state change, set target_state then in_transition
-  - Use barrier to ensure target_state is visible before in_transition
-  - The notifier checks in_transition, then uses barrier before reading
-    target_state to ensure proper ordering on weakly-ordered architectures
+This is a pure refactoring with no functional change. The helpers will
+enable future extensions to support more granular control over memory
+hotplug operations.
 
-The notifier callback:
-  - Returns NOTIFY_DONE for non-overlapping memory (not our concern)
-  - Returns NOTIFY_BAD if in_transition is false (block external ops)
-  - Validates the memory event matches target_state (MEM_GOING_ONLINE
-    for online operations, MEM_GOING_OFFLINE for offline/unplug)
-  - Returns NOTIFY_OK only for driver-initiated operations with matching
-    target_state
-
-This prevents scenarios where:
-  - Users manually change memory state via /sys/devices/system/memory/
-  - Other kernel subsystems interfere with driver-managed memory state
-    (may be important for regions trying to preserve hot-unpluggability)
+We need to split hotplug/remove and init/cleanup in order to have the
+resources available for hot-add.  Otherwise, when probe occurs, the dax
+devices are never added to sysfs because the resources are never
+registered.
 
 Signed-off-by: Gregory Price <gourry@gourry.net>
 ---
- drivers/dax/kmem.c | 157 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 154 insertions(+), 3 deletions(-)
+ drivers/dax/kmem.c | 300 +++++++++++++++++++++++++++++++--------------
+ 1 file changed, 206 insertions(+), 94 deletions(-)
 
 diff --git a/drivers/dax/kmem.c b/drivers/dax/kmem.c
-index c222ae9d675d..f3562f65376c 100644
+index bb13d9ced2e9..3929cb8576de 100644
 --- a/drivers/dax/kmem.c
 +++ b/drivers/dax/kmem.c
-@@ -53,6 +53,9 @@ struct dax_kmem_data {
- 	struct dev_dax *dev_dax;
- 	int state;
- 	struct mutex lock; /* protects hotplug state transitions */
-+	bool in_transition;
-+	int target_state;
-+	struct notifier_block mem_nb;
- 	struct resource *res[];
- };
- 
-@@ -71,6 +74,116 @@ static void kmem_put_memory_types(void)
+@@ -65,14 +65,185 @@ static void kmem_put_memory_types(void)
  	mt_put_memory_types(&kmem_memory_types);
  }
  
 +/**
-+ * dax_kmem_start_transition - begin a driver-initiated state transition
-+ * @data: the dax_kmem_data structure
-+ * @target: the target state (MMOP_ONLINE, MMOP_ONLINE_MOVABLE, or MMOP_OFFLINE)
++ * dax_kmem_do_hotplug - hotplug memory for dax kmem device
++ * @dev_dax: the dev_dax instance
++ * @data: the dax_kmem_data structure with resource tracking
 + *
-+ * Sets up state for a driver-initiated memory operation. The memory notifier
-+ * will only allow operations that match this target state while in transition.
-+ * Uses store-release to ensure target_state is visible before in_transition.
-+ */
-+static void dax_kmem_start_transition(struct dax_kmem_data *data, int target)
-+{
-+	data->target_state = target;
-+	smp_store_release(&data->in_transition, true);
-+}
-+
-+/**
-+ * dax_kmem_end_transition - end a driver-initiated state transition
-+ * @data: the dax_kmem_data structure
++ * Hotplugs all ranges in the dev_dax region as system memory.
 + *
-+ * Clears the in_transition flag after a state change completes or aborts.
++ * Returns the number of successfully mapped ranges, or negative error.
 + */
-+static void dax_kmem_end_transition(struct dax_kmem_data *data)
++static int dax_kmem_do_hotplug(struct dev_dax *dev_dax,
++			       struct dax_kmem_data *data,
++			       int online_type)
 +{
-+	WRITE_ONCE(data->in_transition, false);
-+}
-+
-+/**
-+ * dax_kmem_overlaps_range - check if a memory range overlaps with this device
-+ * @data: the dax_kmem_data structure
-+ * @start: start physical address of the range to check
-+ * @size: size of the range to check
-+ *
-+ * Returns true if the range overlaps with any of the device's memory ranges.
-+ */
-+static bool dax_kmem_overlaps_range(struct dax_kmem_data *data,
-+				    u64 start, u64 size)
-+{
-+	struct dev_dax *dev_dax = data->dev_dax;
-+	int i;
++	struct device *dev = &dev_dax->dev;
++	int i, rc, onlined = 0;
++	mhp_t mhp_flags;
 +
 +	for (i = 0; i < dev_dax->nr_range; i++) {
 +		struct range range;
-+		struct range check = DEFINE_RANGE(start, start + size - 1);
 +
-+		if (dax_kmem_range(dev_dax, i, &range))
++		rc = dax_kmem_range(dev_dax, i, &range);
++		if (rc)
 +			continue;
 +
-+		if (!data->res[i])
-+			continue;
++		mhp_flags = MHP_NID_IS_MGID;
++		if (dev_dax->memmap_on_memory)
++			mhp_flags |= MHP_MEMMAP_ON_MEMORY;
 +
-+		if (range_overlaps(&range, &check))
-+			return true;
++		/*
++		 * Ensure that future kexec'd kernels will not treat
++		 * this as RAM automatically.
++		 */
++		rc = add_memory_driver_managed(data->mgid, range.start,
++				range_len(&range), kmem_name, mhp_flags,
++				online_type);
++
++		if (rc) {
++			dev_warn(dev, "mapping%d: %#llx-%#llx memory add failed\n",
++				 i, range.start, range.end);
++			if (onlined)
++				continue;
++			return rc;
++		}
++		onlined++;
 +	}
-+	return false;
++
++	return onlined;
 +}
 +
 +/**
-+ * dax_kmem_memory_notifier_cb - memory notifier callback for dax kmem
-+ * @nb: the notifier block (embedded in dax_kmem_data)
-+ * @action: the memory event (MEM_GOING_ONLINE, MEM_GOING_OFFLINE, etc.)
-+ * @arg: pointer to memory_notify structure
++ * dax_kmem_init_resources - create memory regions for dax kmem
++ * @dev_dax: the dev_dax instance
++ * @data: the dax_kmem_data structure with resource tracking
 + *
-+ * This callback prevents external operations (e.g., from sysfs or auto-online
-+ * policies) on memory blocks managed by dax_kmem. Only operations initiated
-+ * by the driver itself (via the hotplug sysfs interface) are allowed.
++ * Initializes all the resources for the DAX
 + *
-+ * Returns NOTIFY_OK to allow the operation, NOTIFY_BAD to block it,
-+ * or NOTIFY_DONE if the memory doesn't belong to this device.
++ * Returns the number of successfully mapped ranges, or negative error.
 + */
-+static int dax_kmem_memory_notifier_cb(struct notifier_block *nb,
-+				       unsigned long action, void *arg)
++static int dax_kmem_init_resources(struct dev_dax *dev_dax,
++				   struct dax_kmem_data *data)
 +{
-+	struct dax_kmem_data *data = container_of(nb, struct dax_kmem_data,
-+						  mem_nb);
-+	struct memory_notify *mhp = arg;
-+	const u64 start = PFN_PHYS(mhp->start_pfn);
-+	const u64 size = PFN_PHYS(mhp->nr_pages);
++	struct device *dev = &dev_dax->dev;
++	int i, rc, mapped = 0;
 +
-+	/* Only interested in going online/offline events */
-+	if (action != MEM_GOING_ONLINE && action != MEM_GOING_OFFLINE)
-+		return NOTIFY_DONE;
++	for (i = 0; i < dev_dax->nr_range; i++) {
++		struct resource *res;
++		struct range range;
 +
-+	/* Check if this memory belongs to our device */
-+	if (!dax_kmem_overlaps_range(data, start, size))
-+		return NOTIFY_DONE;
++		rc = dax_kmem_range(dev_dax, i, &range);
++		if (rc)
++			continue;
 +
-+	/*
-+	 * Block all operations unless we're in a driver-initiated transition.
-+	 * When in_transition is set, only allow operations that match our
-+	 * target_state to prevent races with external operations.
-+	 *
-+	 * Use load-acquire to pair with the store-release in
-+	 * dax_kmem_start_transition(), ensuring target_state is visible.
-+	 */
-+	if (!smp_load_acquire(&data->in_transition))
-+		return NOTIFY_BAD;
++		/* Skip ranges already added */
++		if (data->res[i])
++			continue;
 +
-+	/* Online operations expect MEM_GOING_ONLINE */
-+	if (action == MEM_GOING_ONLINE &&
-+	    (data->target_state == MMOP_ONLINE ||
-+	     data->target_state == MMOP_ONLINE_MOVABLE))
-+		return NOTIFY_OK;
-+
-+	/* Offline/hotremove operations expect MEM_GOING_OFFLINE */
-+	if (action == MEM_GOING_OFFLINE && data->target_state == MMOP_OFFLINE)
-+		return NOTIFY_OK;
-+
-+	return NOTIFY_BAD;
++		/* Region is permanently reserved if hotremove fails. */
++		res = request_mem_region(range.start, range_len(&range),
++					 data->res_name);
++		if (!res) {
++			dev_warn(dev, "mapping%d: %#llx-%#llx could not reserve region\n",
++				 i, range.start, range.end);
++			/*
++			 * Once some memory has been onlined we can't
++			 * assume that it can be un-onlined safely.
++			 */
++			if (mapped)
++				continue;
++			return -EBUSY;
++		}
++		data->res[i] = res;
++		/*
++		 * Set flags appropriate for System RAM.  Leave ..._BUSY clear
++		 * so that add_memory() can add a child resource.  Do not
++		 * inherit flags from the parent since it may set new flags
++		 * unknown to us that will break add_memory() below.
++		 */
++		res->flags = IORESOURCE_SYSTEM_RAM;
++		mapped++;
++	}
++	return mapped;
 +}
 +
- /**
-  * dax_kmem_do_hotplug - hotplug memory for dax kmem device
-  * @dev_dax: the dev_dax instance
-@@ -325,11 +438,27 @@ static ssize_t hotplug_store(struct device *dev, struct device_attribute *attr,
- 	if (data->state == online_type)
- 		return len;
- 
-+	/*
-+	 * Start transition with target_state for the notifier.
-+	 * For unplug, use MMOP_OFFLINE since memory goes offline before removal.
-+	 */
-+	if (online_type == DAX_KMEM_UNPLUGGED || online_type == MMOP_OFFLINE)
-+		dax_kmem_start_transition(data, MMOP_OFFLINE);
-+	else
-+		dax_kmem_start_transition(data, online_type);
++#ifdef CONFIG_MEMORY_HOTREMOVE
++/**
++ * dax_kmem_do_hotremove - hot-remove memory for dax kmem device
++ * @dev_dax: the dev_dax instance
++ * @data: the dax_kmem_data structure with resource tracking
++ *
++ * Removes all ranges in the dev_dax region.
++ *
++ * Returns the number of successfully removed ranges.
++ */
++static int dax_kmem_do_hotremove(struct dev_dax *dev_dax,
++				 struct dax_kmem_data *data)
++{
++	struct device *dev = &dev_dax->dev;
++	int i, success = 0;
 +
- 	if (online_type == DAX_KMEM_UNPLUGGED) {
-+		int expected = 0;
++	for (i = 0; i < dev_dax->nr_range; i++) {
++		struct range range;
++		int rc;
 +
-+		for (rc = 0; rc < dev_dax->nr_range; rc++)
-+			if (data->res[rc])
-+				expected++;
++		rc = dax_kmem_range(dev_dax, i, &range);
++		if (rc)
++			continue;
 +
- 		rc = dax_kmem_do_hotremove(dev_dax, data);
--		if (rc < 0) {
-+		dax_kmem_end_transition(data);
-+		if (rc < expected) {
- 			dev_warn(dev, "hotplug state is inconsistent\n");
--			return rc;
-+			return rc == 0 ? -EBUSY : -EIO;
- 		}
- 		data->state = DAX_KMEM_UNPLUGGED;
- 		return len;
-@@ -339,10 +468,14 @@ static ssize_t hotplug_store(struct device *dev, struct device_attribute *attr,
- 	 * online_type is MMOP_ONLINE or MMOP_ONLINE_MOVABLE
- 	 * Cannot switch between online types without unplugging first
- 	 */
--	if (data->state == MMOP_ONLINE || data->state == MMOP_ONLINE_MOVABLE)
-+	if (data->state == MMOP_ONLINE || data->state == MMOP_ONLINE_MOVABLE) {
-+		dax_kmem_end_transition(data);
- 		return -EBUSY;
-+	}
- 
- 	rc = dax_kmem_do_hotplug(dev_dax, data, online_type);
-+	dax_kmem_end_transition(data);
++		/* Skip ranges not currently added */
++		if (!data->res[i])
++			continue;
 +
- 	if (rc < 0)
- 		return rc;
- 
-@@ -430,13 +563,26 @@ static int dev_dax_kmem_probe(struct dev_dax *dev_dax)
- 	if (rc < 0)
- 		goto err_resources;
- 
-+	/* Register memory notifier to block external operations */
-+	data->mem_nb.notifier_call = dax_kmem_memory_notifier_cb;
-+	rc = register_memory_notifier(&data->mem_nb);
-+	if (rc) {
-+		dev_warn(dev, "failed to register memory notifier\n");
-+		goto err_notifier;
++		rc = remove_memory(range.start, range_len(&range));
++		if (rc == 0) {
++			success++;
++			continue;
++		}
++		any_hotremove_failed = true;
++		dev_err(dev, "mapping%d: %#llx-%#llx hotremove failed\n",
++			i, range.start, range.end);
 +	}
 +
- 	/*
- 	 * Hotplug using the system default policy - this preserves backwards
- 	 * for existing users who rely on the default auto-online behavior.
-+	 *
-+	 * Start transition with resolved system default since the notifier
-+	 * validates the operation type matches.
- 	 */
- 	online_type = mhp_get_default_online_type();
- 	if (online_type != MMOP_OFFLINE) {
-+		dax_kmem_start_transition(data, online_type);
- 		rc = dax_kmem_do_hotplug(dev_dax, data, online_type);
-+		dax_kmem_end_transition(data);
- 		if (rc < 0)
- 			goto err_hotplug;
- 		data->state = online_type;
-@@ -449,6 +595,8 @@ static int dev_dax_kmem_probe(struct dev_dax *dev_dax)
- 	return 0;
- 
- err_hotplug:
-+	unregister_memory_notifier(&data->mem_nb);
-+err_notifier:
- 	dax_kmem_cleanup_resources(dev_dax, data);
- err_resources:
- 	dev_set_drvdata(dev, NULL);
-@@ -471,6 +619,7 @@ static void dev_dax_kmem_remove(struct dev_dax *dev_dax)
- 
- 	device_remove_file(dev, &dev_attr_hotplug);
- 	dax_kmem_cleanup_resources(dev_dax, data);
-+	unregister_memory_notifier(&data->mem_nb);
- 	memory_group_unregister(data->mgid);
- 	kfree(data->res_name);
- 	kfree(data);
-@@ -488,8 +637,10 @@ static void dev_dax_kmem_remove(struct dev_dax *dev_dax)
- static void dev_dax_kmem_remove(struct dev_dax *dev_dax)
++	return success;
++}
++#else
++static int dax_kmem_do_hotremove(struct dev_dax *dev_dax,
++				 struct dax_kmem_data *data)
++{
++	return -ENOSUPP;
++}
++#endif /* CONFIG_MEMORY_HOTREMOVE */
++
++/**
++ * dax_kmem_cleanup_resources - remove the dax memory resources
++ * @dev_dax: the dev_dax instance
++ * @data: the dax_kmem_data structure with resource tracking
++ *
++ * Removes all resources in the dev_dax region.
++ */
++static void dax_kmem_cleanup_resources(struct dev_dax *dev_dax,
++				       struct dax_kmem_data *data)
++{
++	int i;
++
++	for (i = 0; i < dev_dax->nr_range; i++) {
++		if (!data->res[i])
++			continue;
++		remove_resource(data->res[i]);
++		kfree(data->res[i]);
++		data->res[i] = NULL;
++	}
++}
++
+ static int dev_dax_kmem_probe(struct dev_dax *dev_dax)
  {
  	struct device *dev = &dev_dax->dev;
-+	struct dax_kmem_data *data = dev_get_drvdata(dev);
+ 	unsigned long total_len = 0, orig_len = 0;
+ 	struct dax_kmem_data *data;
+ 	struct memory_dev_type *mtype;
+-	int i, rc, mapped = 0;
+-	mhp_t mhp_flags;
++	int i, rc;
+ 	int numa_node;
+ 	int adist = MEMTIER_DEFAULT_DAX_ADISTANCE;
  
- 	device_remove_file(dev, &dev_attr_hotplug);
-+	unregister_memory_notifier(&data->mem_nb);
+@@ -134,68 +305,26 @@ static int dev_dax_kmem_probe(struct dev_dax *dev_dax)
+ 		goto err_reg_mgid;
+ 	data->mgid = rc;
  
- 	/*
- 	 * Without hotremove purposely leak the request_mem_region() for the
+-	for (i = 0; i < dev_dax->nr_range; i++) {
+-		struct resource *res;
+-		struct range range;
+-
+-		rc = dax_kmem_range(dev_dax, i, &range);
+-		if (rc)
+-			continue;
+-
+-		/* Region is permanently reserved if hotremove fails. */
+-		res = request_mem_region(range.start, range_len(&range), data->res_name);
+-		if (!res) {
+-			dev_warn(dev, "mapping%d: %#llx-%#llx could not reserve region\n",
+-					i, range.start, range.end);
+-			/*
+-			 * Once some memory has been onlined we can't
+-			 * assume that it can be un-onlined safely.
+-			 */
+-			if (mapped)
+-				continue;
+-			rc = -EBUSY;
+-			goto err_request_mem;
+-		}
+-		data->res[i] = res;
+-
+-		/*
+-		 * Set flags appropriate for System RAM.  Leave ..._BUSY clear
+-		 * so that add_memory() can add a child resource.  Do not
+-		 * inherit flags from the parent since it may set new flags
+-		 * unknown to us that will break add_memory() below.
+-		 */
+-		res->flags = IORESOURCE_SYSTEM_RAM;
+-
+-		mhp_flags = MHP_NID_IS_MGID;
+-		if (dev_dax->memmap_on_memory)
+-			mhp_flags |= MHP_MEMMAP_ON_MEMORY;
+-
+-		/*
+-		 * Ensure that future kexec'd kernels will not treat
+-		 * this as RAM automatically.
+-		 */
+-		rc = add_memory_driver_managed(data->mgid, range.start,
+-				range_len(&range), kmem_name, mhp_flags,
+-				mhp_get_default_online_type());
++	dev_set_drvdata(dev, data);
+ 
+-		if (rc) {
+-			dev_warn(dev, "mapping%d: %#llx-%#llx memory add failed\n",
+-					i, range.start, range.end);
+-			remove_resource(res);
+-			kfree(res);
+-			data->res[i] = NULL;
+-			if (mapped)
+-				continue;
+-			goto err_request_mem;
+-		}
+-		mapped++;
+-	}
++	rc = dax_kmem_init_resources(dev_dax, data);
++	if (rc < 0)
++		goto err_resources;
+ 
+-	dev_set_drvdata(dev, data);
++	/*
++	 * Hotplug using the system default policy - this preserves backwards
++	 * for existing users who rely on the default auto-online behavior.
++	 */
++	rc = dax_kmem_do_hotplug(dev_dax, data, mhp_get_default_online_type());
++	if (rc < 0)
++		goto err_hotplug;
+ 
+ 	return 0;
+ 
+-err_request_mem:
++err_hotplug:
++	dax_kmem_cleanup_resources(dev_dax, data);
++err_resources:
++	dev_set_drvdata(dev, NULL);
+ 	memory_group_unregister(data->mgid);
+ err_reg_mgid:
+ 	kfree(data->res_name);
+@@ -209,7 +338,7 @@ static int dev_dax_kmem_probe(struct dev_dax *dev_dax)
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+ static void dev_dax_kmem_remove(struct dev_dax *dev_dax)
+ {
+-	int i, success = 0;
++	int success;
+ 	int node = dev_dax->target_node;
+ 	struct device *dev = &dev_dax->dev;
+ 	struct dax_kmem_data *data = dev_get_drvdata(dev);
+@@ -220,42 +349,25 @@ static void dev_dax_kmem_remove(struct dev_dax *dev_dax)
+ 	 * there is no way to hotremove this memory until reboot because device
+ 	 * unbind will succeed even if we return failure.
+ 	 */
+-	for (i = 0; i < dev_dax->nr_range; i++) {
+-		struct range range;
+-		int rc;
+-
+-		rc = dax_kmem_range(dev_dax, i, &range);
+-		if (rc)
+-			continue;
+-
+-		rc = remove_memory(range.start, range_len(&range));
+-		if (rc == 0) {
+-			remove_resource(data->res[i]);
+-			kfree(data->res[i]);
+-			data->res[i] = NULL;
+-			success++;
+-			continue;
+-		}
+-		any_hotremove_failed = true;
+-		dev_err(dev,
+-			"mapping%d: %#llx-%#llx cannot be hotremoved until the next reboot\n",
+-				i, range.start, range.end);
++	success = dax_kmem_do_hotremove(dev_dax, data);
++	if (success < dev_dax->nr_range) {
++		dev_err(dev, "Hotplug regions stuck online until reboot\n");
++		return;
+ 	}
+ 
+-	if (success >= dev_dax->nr_range) {
+-		memory_group_unregister(data->mgid);
+-		kfree(data->res_name);
+-		kfree(data);
+-		dev_set_drvdata(dev, NULL);
+-		/*
+-		 * Clear the memtype association on successful unplug.
+-		 * If not, we have memory blocks left which can be
+-		 * offlined/onlined later. We need to keep memory_dev_type
+-		 * for that. This implies this reference will be around
+-		 * till next reboot.
+-		 */
+-		clear_node_memory_type(node, NULL);
+-	}
++	dax_kmem_cleanup_resources(dev_dax, data);
++	memory_group_unregister(data->mgid);
++	kfree(data->res_name);
++	kfree(data);
++	dev_set_drvdata(dev, NULL);
++	/*
++	 * Clear the memtype association on successful unplug.
++	 * If not, we have memory blocks left which can be
++	 * offlined/onlined later. We need to keep memory_dev_type
++	 * for that. This implies this reference will be around
++	 * till next reboot.
++	 */
++	clear_node_memory_type(node, NULL);
+ }
+ #else
+ static void dev_dax_kmem_remove(struct dev_dax *dev_dax)
 -- 
 2.52.0
 
