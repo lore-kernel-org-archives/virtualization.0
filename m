@@ -1,243 +1,158 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B81DF38B7B1
-	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 10:08:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FEED3815DB;
+	Wed, 14 Jan 2026 10:14:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768385292; cv=none; b=WjyH434q2mETix+D9htXN/O55lSaDdamQz+Bb5QmI3P6VvSXOMfbh4W9Q020X10wwa23xybiYEaoGVwMYRH8L6iqR/jMrSZuMjTOdU6CpBg7+JaAuOMjtkrxKsp/XSP60auE2lSUOiDHVy0Xjfy/uxpah0D/dS0ku26CzbkWujo=
+	t=1768385667; cv=none; b=SkLr9UnyRcBric+I3alYyFoPLlr8oQV+9KRwOlf2/vsGMZtlqjdshmR+C5/zUGCpoAyNR2XgTJXRlRA3ZlXFH1aYviSKj6kCwNsOifauj6EmdyMqrGPGm9MoiWT87MqzfwRj1EQ6JOMD2ebx8OE0WNazDBXzRUZhy2IwiGzz9ck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768385292; c=relaxed/simple;
-	bh=R34QuFzq0RM2B+MUSlKhuKjAZtk77eiyestyrQbTikI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=dcC0TyDPobylefByguKFsjQfAoJooUB6bv++i4mClQf8FIzokxDiourOEVSTgKipZNro1W7fNryo3c2ClUkLD9Q8I3xx5Y/dlviCGpNyJD7GLaxDln6NJv5yzyKVA2houOrMwjM/aoczoeoRFtnw3mv4tgEinGTxhqSWiguj3Ss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Rtc8KOcj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768385667; c=relaxed/simple;
+	bh=jRidKOsmBV2qAukpkzJ1Z7JnB+sebWyAj38kbIeO6OY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=THUS+YGBAcafTLbHvxfiP6EQ0Ajle+ibyqSjKbeioaWx6Ahw7xodJzoPK5aS+SanTGfVRartMv9NErbzbCgc6iLb67VpcYqnwPfaJZVBWSUVyo4EgwyZ3pBaBv32jj2FUhM7v3SbqhYYVbeoIoa35F1wKm8dVn6AqLSaBVZWVA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RZ4zbdQd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rtc8KOcj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768385289;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gLVLJe5ZoPPurYSTDDy8POZ2YmIqBUOxjilC1ypOvdA=;
-	b=Rtc8KOcjMycaGITEM+83xcdvYDWhPpg0oyCnXufwsbYpFMaB1PWgqQye0+Ognev1/PPq7X
-	d0bJ1mpwR9v21KfvtVAxOBIbXwJ7+IjAI8hCLeDtvKCzDBXJ5tgLipX0bgB5hl0ob4+8vJ
-	yJjZkbS3CYokKmtoD2Y7oNTxR5rG99E=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-499-jU9L0xYHMlWaJoUagexxHQ-1; Wed, 14 Jan 2026 05:08:08 -0500
-X-MC-Unique: jU9L0xYHMlWaJoUagexxHQ-1
-X-Mimecast-MFC-AGG-ID: jU9L0xYHMlWaJoUagexxHQ_1768385287
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-b872c97a2a2so298317066b.1
-        for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 02:08:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768385287; x=1768990087;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gLVLJe5ZoPPurYSTDDy8POZ2YmIqBUOxjilC1ypOvdA=;
-        b=iZ99yJbFUx02TWKAmN1KWL18VVyXYxmOiVjV4KGGLODaNVgMHaGm0oS+xYX5zEixiN
-         UGMZIUmYlHZmcAh7dLz/NjYG087xALjqOR8NesMCrZhkIrbA5sP9+CaesO/8Tl8tFGWj
-         my8eHny4RdY5NjodxMtv0m5tcBLcW3VVoSOFnjOgb2F9Nj+nK13gP3dp0D0rRhmNez/Y
-         jAeAEek2USYHnoqvdTjQ/yI5Z4SPdfY2UvnqH/QnkWrcwthM4etehFuKiXYBeoX8hP8k
-         WySHz29F5mIvGM2a3KCbzILQTf1zozp8jug5kRC4v5mBzNR27q/Nkas1PnqC2eim5wMB
-         /BsQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV1vYB/2ScpKEgvfOW2WdTPbmE4rncDqZoEhgZv2SV/dEh/zOg/lMuaBqFpLhD70TXVzZ5/UWTYq9jjVXIWPA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxIcMRL0wO41Ud9COSJvE1dY8u2HnJycJFqkMn+3jbykhmMqf4Z
-	sDIRG5PcSjFk7i2DRMXB7DZ9+wSFN/Cfa4rOCKxrzbzzmiTycLDGRKxWQsjvC/DfNE/W2m5GUDz
-	BPmQYZuA56qSf65abhBBiLTYXua4pgkpxP0xWS1/oncwUCoI1Mf+hm7FvwfqecseHw6eN
-X-Gm-Gg: AY/fxX7we7GYdr1m1mx3l+yIg8eUltod4QQtKlK0vr+A0i5Esb4LvMIz2vzcPWImmy7
-	C4q/SoHxPDhgohzBqJFoh9qI8o7AuD46DeTz/Ckxpsk37XICcJkQUVbVbaQt0T8WSGnTyP9rr00
-	3xfCC9nPNXBe7Hqn+MXz7LL5lUZDZuiEZ6tmL6j1a/LJE1lawAcZgp9tj1XlijSYrrSTD1mHfez
-	dnE8WLx7dDi4Lzepasa6EStSYAeoI7tjCWHd5yf+jbBu8Se+CL3d8GsYFHAvMgj9PjYscE9NxQH
-	dvITgMrITacQ1U9PziaNubhdWjD1Y3Qa/UjeSS0HKu0ySt9JdSoYNQT1a/z4QdNhagNZNdCzjVs
-	olsykva+W2SzlJ+Ydt95uIdvbXqTilIawKRHYdq87pEBk60kOKrc2jziYmPj+Ew==
-X-Received: by 2002:a17:906:ef0a:b0:b87:b22:f5eb with SMTP id a640c23a62f3a-b87612a48d8mr180864666b.31.1768385286965;
-        Wed, 14 Jan 2026 02:08:06 -0800 (PST)
-X-Received: by 2002:a17:906:ef0a:b0:b87:b22:f5eb with SMTP id a640c23a62f3a-b87612a48d8mr180858766b.31.1768385286318;
-        Wed, 14 Jan 2026 02:08:06 -0800 (PST)
-Received: from sgarzare-redhat (host-87-12-25-233.business.telecomitalia.it. [87.12.25.233])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b871081b04bsm952619866b.53.2026.01.14.02.08.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 02:08:05 -0800 (PST)
-Date: Wed, 14 Jan 2026 11:07:53 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v2 2/2] vsock/test: Add test for a linear and
- non-linear skb getting coalesced
-Message-ID: <aWdq75AQZv50CMPQ@sgarzare-redhat>
-References: <20260113-vsock-recv-coalescence-v2-0-552b17837cf4@rbox.co>
- <20260113-vsock-recv-coalescence-v2-2-552b17837cf4@rbox.co>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RZ4zbdQd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55ABFC4CEF7;
+	Wed, 14 Jan 2026 10:14:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768385666;
+	bh=jRidKOsmBV2qAukpkzJ1Z7JnB+sebWyAj38kbIeO6OY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=RZ4zbdQd5Y9j899jDtFhUSkFbbgJE06nr6NyLRWaAR2A79x1gC88cDHXW2q4S3wPq
+	 MS34HZSb4I/tbInqH7V+S6NjODGXeRVgPEhLVfR/YU5K5g50qUA+kG1+OQXvw348lC
+	 z+ZOTbDLTh/xSYMHwc7XOOgdBChFu/CgB9wzgvAg/PkbeMHdDArjRX6R3DhH7bb4rz
+	 6MO54LTUuVqxATcfedHnBndnq+n6hRQ89WDH5rZy3wGQE0Xo25KvItgAjftg9V6Ajy
+	 k+oc3ucRRa/qieJJdt03HMDmM1Ro8yvGQTOV7RBnzHyL0XowmUthP4d6iSRwxotf7f
+	 XeFj+QU1pNCRA==
+Message-ID: <c4ed9675-269c-4764-86d5-87f4f83fc74d@kernel.org>
+Date: Wed, 14 Jan 2026 11:14:21 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260113-vsock-recv-coalescence-v2-2-552b17837cf4@rbox.co>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: IucyqMy6i5GdyFboScVjicUUeiBOEuKVE2VXKU-XsIs_1768385287
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/8] mm/memory_hotplug: extract __add_memory_resource()
+ and __offline_memory()
+To: Gregory Price <gourry@gourry.net>, linux-mm@kvack.org
+Cc: linux-cxl@vger.kernel.org, nvdimm@lists.linux.dev,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ kernel-team@meta.com, dan.j.williams@intel.com, vishal.l.verma@intel.com,
+ dave.jiang@intel.com, mst@redhat.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, eperezma@redhat.com, osalvador@suse.de,
+ akpm@linux-foundation.org
+References: <20260114085201.3222597-1-gourry@gourry.net>
+ <20260114085201.3222597-3-gourry@gourry.net>
+From: "David Hildenbrand (Red Hat)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+In-Reply-To: <20260114085201.3222597-3-gourry@gourry.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jan 13, 2026 at 04:08:19PM +0100, Michal Luczaj wrote:
->Loopback transport can mangle data in rx queue when a linear skb is
->followed by a small MSG_ZEROCOPY packet.
->
->To exercise the logic, send out two packets: a weirdly sized one (to ensure
->some spare tail room in the skb) and a zerocopy one that's small enough to
->fit in the spare room of its predecessor. Then, wait for both to land in
->the rx queue, and check the data received. Faulty packets merger manifests
->itself by corrupting payload of the later packet.
->
->Signed-off-by: Michal Luczaj <mhal@rbox.co>
->---
-> tools/testing/vsock/vsock_test.c          |  5 +++
-> tools/testing/vsock/vsock_test_zerocopy.c | 74 +++++++++++++++++++++++++++++++
-> tools/testing/vsock/vsock_test_zerocopy.h |  3 ++
-> 3 files changed, 82 insertions(+)
+On 1/14/26 09:51, Gregory Price wrote:
+> Extract internal helper functions with explicit parameters to prepare
+> for adding new APIs that allow explicit online type control:
+> 
+>    - __add_memory_resource(): accepts an explicit online_type parameter.
+>      Add MMOP_SYSTEM_DEFAULT as a new value that instructs the function
+>      to use mhp_get_default_online_type() for the actual online type.
+>      The existing add_memory_resource() becomes a thin wrapper that
+>      passes MMOP_SYSTEM_DEFAULT to preserve existing behavior.
+> 
+>    - __offline_memory(): extracted from offline_and_remove_memory() to
+>      handle the offline operation with rollback support. The caller
+>      now handles locking and the remove step separately.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index bbe3723babdc..27e39354499a 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -2403,6 +2403,11 @@ static struct test_case test_cases[] = {
-> 		.run_client = test_stream_accepted_setsockopt_client,
-> 		.run_server = test_stream_accepted_setsockopt_server,
-> 	},
->+	{
->+		.name = "SOCK_STREAM virtio MSG_ZEROCOPY coalescence corruption",
->+		.run_client = test_stream_msgzcopy_mangle_client,
->+		.run_server = test_stream_msgzcopy_mangle_server,
->+	},
-> 	{},
-> };
->
->diff --git a/tools/testing/vsock/vsock_test_zerocopy.c b/tools/testing/vsock/vsock_test_zerocopy.c
->index 9d9a6cb9614a..a31ddfc1cd0c 100644
->--- a/tools/testing/vsock/vsock_test_zerocopy.c
->+++ b/tools/testing/vsock/vsock_test_zerocopy.c
->@@ -9,14 +9,18 @@
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <string.h>
->+#include <sys/ioctl.h>
-> #include <sys/mman.h>
-> #include <unistd.h>
-> #include <poll.h>
-> #include <linux/errqueue.h>
-> #include <linux/kernel.h>
->+#include <linux/sockios.h>
->+#include <linux/time64.h>
-> #include <errno.h>
->
-> #include "control.h"
->+#include "timeout.h"
-> #include "vsock_test_zerocopy.h"
-> #include "msg_zerocopy_common.h"
->
->@@ -356,3 +360,73 @@ void test_stream_msgzcopy_empty_errq_server(const struct test_opts *opts)
-> 	control_expectln("DONE");
-> 	close(fd);
-> }
->+
->+#define GOOD_COPY_LEN	128	/* net/vmw_vsock/virtio_transport_common.c */
->+
->+void test_stream_msgzcopy_mangle_client(const struct test_opts *opts)
->+{
->+	char sbuf1[PAGE_SIZE + 1], sbuf2[GOOD_COPY_LEN];
->+	unsigned long hash;
->+	struct pollfd fds;
->+	int fd, i;
->+
->+	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
->+	if (fd < 0) {
->+		perror("connect");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	enable_so_zerocopy_check(fd);
->+
->+	memset(sbuf1, 'x', sizeof(sbuf1));
->+	send_buf(fd, sbuf1, sizeof(sbuf1), 0, sizeof(sbuf1));
->+
->+	for (i = 0; i < sizeof(sbuf2); i++)
->+		sbuf2[i] = rand() & 0xff;
->+
->+	send_buf(fd, sbuf2, sizeof(sbuf2), MSG_ZEROCOPY, sizeof(sbuf2));
->+
->+	hash = hash_djb2(sbuf2, sizeof(sbuf2));
->+	control_writeulong(hash);
->+
->+	fds.fd = fd;
->+	fds.events = 0;
->+
->+	if (poll(&fds, 1, TIMEOUT * MSEC_PER_SEC) != 1 ||
->+	    !(fds.revents & POLLERR)) {
->+		perror("poll");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	close(fd);
->+}
->+
->+void test_stream_msgzcopy_mangle_server(const struct test_opts *opts)
->+{
->+	unsigned long local_hash, remote_hash;
->+	char rbuf[PAGE_SIZE + 1];
->+	int fd;
->+
->+	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
->+	if (fd < 0) {
->+		perror("accept");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	/* Wait, don't race the (buggy) skbs coalescence. */
->+	vsock_ioctl_int(fd, SIOCINQ, PAGE_SIZE + 1 + GOOD_COPY_LEN);
->+
->+	/* Discard the first packet. */
->+	recv_buf(fd, rbuf, PAGE_SIZE + 1, 0, PAGE_SIZE + 1);
->+
->+	recv_buf(fd, rbuf, GOOD_COPY_LEN, 0, GOOD_COPY_LEN);
->+	remote_hash = control_readulong();
->+	local_hash = hash_djb2(rbuf, GOOD_COPY_LEN);
->+
->+	if (local_hash != remote_hash) {
->+		fprintf(stderr, "Data received corrupted\n");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	close(fd);
->+}
->diff --git a/tools/testing/vsock/vsock_test_zerocopy.h b/tools/testing/vsock/vsock_test_zerocopy.h
->index 3ef2579e024d..d46c91a69f16 100644
->--- a/tools/testing/vsock/vsock_test_zerocopy.h
->+++ b/tools/testing/vsock/vsock_test_zerocopy.h
->@@ -12,4 +12,7 @@ void test_seqpacket_msgzcopy_server(const struct test_opts *opts);
-> void test_stream_msgzcopy_empty_errq_client(const struct test_opts *opts);
-> void test_stream_msgzcopy_empty_errq_server(const struct test_opts *opts);
->
->+void test_stream_msgzcopy_mangle_client(const struct test_opts *opts);
->+void test_stream_msgzcopy_mangle_server(const struct test_opts *opts);
->+
-> #endif /* VSOCK_TEST_ZEROCOPY_H */
->
->-- 
->2.52.0
->
+I don't understand why this change is even part of this patch, can you 
+elaborate? You don't add any "explicit parameters to prepare for adding 
+new APIs that allow explicit online type control" there.
 
+So likely you squeezed two independent things into a single patch? :)
+
+Likely you should pair the __add_memory_resource() change with the 
+add_memory_driver_managed() changed and vice versa.
+
+> 
+> This refactoring enables future callers to specify explicit online
+> types (MMOP_OFFLINE, MMOP_ONLINE, MMOP_ONLINE_MOVABLE) or use
+> MMOP_SYSTEM_DEFAULT for the system default policy. The offline logic
+> can also be used independently of the remove step.
+> 
+> Mild functional change: if try_remove_memory() failed after successfully
+> offlining, we would re-online the memory.  We no longer do this, and in
+> practice removal doesn't fail if offline succeeds.
+> 
+> Signed-off-by: Gregory Price <gourry@gourry.net>
+> ---
+>   include/linux/memory_hotplug.h |  2 +
+>   mm/memory_hotplug.c            | 69 ++++++++++++++++++++++------------
+>   2 files changed, 48 insertions(+), 23 deletions(-)
+> 
+> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+> index f2f16cdd73ee..d5407264d72a 100644
+> --- a/include/linux/memory_hotplug.h
+> +++ b/include/linux/memory_hotplug.h
+> @@ -29,6 +29,8 @@ enum {
+>   	MMOP_ONLINE_KERNEL,
+>   	/* Online the memory to ZONE_MOVABLE. */
+>   	MMOP_ONLINE_MOVABLE,
+> +	/* Use system default online type from mhp_get_default_online_type(). */
+> +	MMOP_SYSTEM_DEFAULT,
+
+I don't like having fake options as part of this interface.
+
+Why can't we let selected users use mhp_get_default_online_type() 
+instead? Like add_memory_resource(). We can export that function.
+
+
+-- 
+Cheers
+
+David
