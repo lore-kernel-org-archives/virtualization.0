@@ -1,62 +1,64 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 555293803C9
-	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 08:52:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D583803C9
+	for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 08:52:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768380760; cv=none; b=FE73FFrCeoCPSFM+x86lkRljNx3hk7FH3/MSFaDS9ZjxvqXFe6PTswFfPvwtNWHfRZCf0aJTg2nSP7SQ4EX7iJlJriJ6iXNurlsqqNmAEFmtpcmM5fUxNTHXSirQdnU53J4j1TkOO3IIR+Qn9MrvGfeBo8XZOkeeq943zvn5Jv8=
+	t=1768380769; cv=none; b=SMEO6D2r/OCPyPnUEeQ2FtapuDwxjASTtunKkl8Tj4jK0478Kv/SDDbBJgRWLsyRTAfL9D/JYQ6hu3TANrrBXIVJz3B7AZxnPs4cV1DZtTgXoIG3Inre1nWgAwgmCoXAWxpHMioJQAf0lxtJ7iF+54Ea01t9rmUIsfT86Fusuj4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768380760; c=relaxed/simple;
-	bh=6Gf3O1Z46A6A3V618QjzgUC3TwEE6jvcWp4vN0GZKB8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jb7LjLtHpuQnW1DUqMxJiledo4c7ypsBn4/itlxWacI839B7T4M4BkP81qu0VpqmeHxVS2XCGujnyU20A+T/06Hzm0E4sAmwQnoxdLr/PJfKYSkyTwhJ7c2HSEIud8IBldHTuwiJRP6SzIqO4Q1j9FlOdqDeuyP0FrUsFJu5vHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=nvsYvXkT; arc=none smtp.client-ip=209.85.160.176
+	s=arc-20240116; t=1768380769; c=relaxed/simple;
+	bh=J918bJZtOV4I5js6nJXyAUGdt4ECz0JfHm1xc2oVlZs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=CT4e8yBhTDRze5zdgleOLjuuxebOMoloIv+1ABsGs9Amoqpwkb31Nuc3Ya1HOHV2/cdG0OCn3v757jjsRU1NFw2zsQESbvns/IamXuB3GOBJ9O7vMJ1qf0vgRc0mIWp+Tc+emGLQernt8EhX5EeSxWnQsgSyVPTrSDkEdtSKjOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=bNRk1mos; arc=none smtp.client-ip=209.85.160.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="nvsYvXkT"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-4ed7024c8c5so72310271cf.3
-        for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 00:52:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="bNRk1mos"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-5013c1850bdso15289931cf.0
+        for <virtualization@lists.linux.dev>; Wed, 14 Jan 2026 00:52:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1768380754; x=1768985554; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=4uI7G8mzCwfWt6hpevWSKMuVc2LUYnlWS3FX4pvAwGI=;
-        b=nvsYvXkT8STPzuEmOh1XF3MGHxbEVqvnc1/z3bpGiQsg7wtrlQ9XW20KvJZih3dBKH
-         AD38nXmc2bve0Xtk0HB0tRonIQdr3J9dRQp0ht/Wq2a3euuxbwGQZCKChzzbYcH6b9Pi
-         ahWc7vl6emWc/V/no1I1OumQJl9vpI+u+N/vMUfLi66kAX5bUc2nfIctlIzw4s5Nr7LE
-         c2/aRMoCoo5YXDv94pKvc4jU0hlR+v5J7L2kbyNBcM6GC+d6kus3JAMdEYe+dFGhqEtz
-         YauO0FEs0atBwTEW0MpfpaVce07n7+FwNSn1Wxs+M5gvaYyavQRyZ6RzNGiJb1qyVjw8
-         U3eQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768380754; x=1768985554;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gourry.net; s=google; t=1768380760; x=1768985560; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4uI7G8mzCwfWt6hpevWSKMuVc2LUYnlWS3FX4pvAwGI=;
-        b=NevJysVEtUJcA++qCXuhd9ZR05qrDuNpX8FUbmSZReYYMBimN9BIlwLtDQ/CKk3j7k
-         iyHGUX1BjjD4GvbM4zU3HXv3cf3b8ICjKfqivkHr6Kj1xTGAU++gr6LBMtahBc7aT0BS
-         KHplaa+XWHl2bMP55h3NgHUJHNXv9/0S2iRHukwi/tI7eGimc5UK6g/G53MemSWIS6+n
-         dBl2GiW98wneyVSd9+JezjTiKj8Ll+n0dCBEFrGDLu6C/rPLwGsvBQX9fhFrAP2hEzoA
-         sKsQhN/nAz9Bkahc4jNer+AZzVC7+HbfD0WRlJLIvul/jQpGbDEryn0F9BxwEPuZtm+5
-         HHSg==
-X-Forwarded-Encrypted: i=1; AJvYcCUrTv9ZbAaNaBTlTcE8wrmi6Dq1jwTpq2ghYAnLIabXBPFhiN0UsgHywMQ30vbLtd8g4WwzCn6/2PHOhSKd9A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzlBjPQ5cd2cQeMa2Q4In+q8GrCxqM2pW9yTEQax2BeeKz1o5nn
-	Nr4QBG3jkVpAMqn17X2IRHRCBrnCqGBezAIn84nz4sCSjjqHkob13DitM5lvtRQIFN0=
-X-Gm-Gg: AY/fxX6PVNYUrmcdM71FYcoWb3Qdb0T2VtBEA8CACHrdvcYD2P+sx1ZB9Z16Tp5RgRg
-	liFAVnczI6jWqdxvscXGu8VPs8oZO7C4OpnPwQSKcm5vBClI4vXw5M8zPqdhskPb59FDxuwzxej
-	RFdq3Tk8ZVLvq3dTO1Niioua6hbL9ZKqm1jLojjs1rrsw8kgyKEhPK0IZ5+rY7rNxuDbENTxy6K
-	LAvHunyc1ywY7d2D5hCEFi96WSmGajq1/T/YMAXUeEbsjiq6Yow+pqR4fwKNhQOdM0F3BREdoAk
-	DMl0OueF6MJSzS5i8AkwI0jHvNuas18jBnMLAIRW4aUNerirrvzSQS2vW1WCgofj0FGWFGjhgtX
-	UDPmvbMq/RYfdLM6/pnuGc83cK1RaxS2EdFw3Gz8wuovG5zk+6D1isVLaKs3vBBSfXqkcrriIww
-	FXa8l5IFFldNfgzudULkcU39Mueukh8ReepDA8wiZQirKrn1jdG+FpuEogjoD5zZSeYGfv0v5h+
-	uM=
-X-Received: by 2002:a05:622a:58c5:b0:4f1:ab46:8e36 with SMTP id d75a77b69052e-5014a905f74mr11547531cf.9.1768380754428;
-        Wed, 14 Jan 2026 00:52:34 -0800 (PST)
+        bh=v3pYyw670e7Ltu41laZTVJfsj8n3YRVUYoWc2KV2zc8=;
+        b=bNRk1mosv5IZP0Uuqe0MP6MquvNViKJHBmZq31XDg3WrIDaDh6mN2V5I0BpWp5Xb4W
+         gszPEMhQk6umSrB1xeqcLn2dU313ZNBaHgTDbDSkMiPpPXWxVS2D5GRuoIU8l3/C4AJy
+         43OkBOzODNXzmvnWSjJVVjzZfUmQQNZkaGI4ltRHmzQqxu/n5wLmzjWd4IKPVzryakN2
+         RZDbUih+gXsQtTKkdLxaPnIGqceXcTszVf15QaPV4cS4W/ocgm96ZTbyf242XrWYX49x
+         69H9p2YRdHvAjKP8luxFJD7Nfl7w0YgqpPs0gOgVhbl0APWvfHxURGgMscGFWS3URxw+
+         320w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768380760; x=1768985560;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=v3pYyw670e7Ltu41laZTVJfsj8n3YRVUYoWc2KV2zc8=;
+        b=oMX8t4J6F95NFSTo/dkfVwWD1ec+jz34Snh1cCcrby0P2iKaLQFpy/6Rq+gzi0vCET
+         WpaDjyfwPtkTmjAhYebhw2sABo+Z99ipwHTz1VrebcZs9L2kgHHYnjT2YNjn7UYGyauC
+         dtaCkQcl/sBi+rEm3xmDatR9ATsYock0GgJ+NZJOmi31HkHE+TrXlbM6SYU60AloAN5D
+         9/Wgi2KZtJbqKfa/1KJMfvNM22Y+D1/UAztj9cjECbjSBQGp5TWbkGNsW6K9f+zc8V0Y
+         myb/fmP8hEOK+N9KYZ9cmnBc0jhE16BN/7cmv2FxOHvXant2tP7QZdITOl3Ke83cr/+a
+         WKUw==
+X-Forwarded-Encrypted: i=1; AJvYcCWhxVQJHxGxkn4hgjAbHswW/OoN9vsewWg/dx/nYgFunhqHSWbEJbUWwgtZNcBaPHM27r5vfG32FWBZXrUD5A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwKXx5wyDXs4FzYcsnC8SN5F/XXblL8kKA7Gxn16D8/+ktcGZId
+	Oi6swU9J/Capo0opo7JM7cxGyDadcu5T95kn6JVV+ZOXqTLyr16GkI3ImxAa9HLbo0s=
+X-Gm-Gg: AY/fxX4npAiK+QrW49flaM906V+vhJIogIl0Tx6aV3k8UfCQwyckwJw0Kj2pNy1EDnf
+	MlRnawl25qx9dYAAxCSPw1Nop4UfWOZidU9B2ASPpw9JyXEKRbTBCDGL6RFh6wIl47jsDBCN0oX
+	45RIgZqm/yJxlOOXcNdlSit7LLnhbH4tsQFz+tYt5JU6XO5/aym40Y1U6ngS2hVva2sEXZYWpi0
+	q/0Km0hew5PF/OPqfxI1oZm2BAxhpHJ3VW4cEeo0AzjJ67H08Gv6vJozcXil/Y5oqM3QLg870XR
+	sK63w6q9e0++vcxI8HA2VSsMTyimALFuoXcI8FDljTF4v9vYgJRnEnK6cae0Oz4U8kA8FRso+Ww
+	tofldYL1AE3CgjFFk0OHcNi5JbNKUIL+k0ldlTX9i0lziDMHe1w1m1sacaxvo6rSUfVhRx5B+/i
+	sOcsAM6//zreWRaxB2Vcam10Usq77bMNhG2JhiiET12AaXcZHsW9tE8KJNHvPRaO/dpYP+kgkbQ
+	HI=
+X-Received: by 2002:a05:622a:341:b0:4ed:b5d8:a192 with SMTP id d75a77b69052e-501484689b1mr23203311cf.38.1768380759657;
+        Wed, 14 Jan 2026 00:52:39 -0800 (PST)
 Received: from gourry-fedora-PF4VCD3F.lan (pool-96-255-20-138.washdc.ftas.verizon.net. [96.255.20.138])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-50148df8759sm10131931cf.10.2026.01.14.00.52.33
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-50148df8759sm10131931cf.10.2026.01.14.00.52.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jan 2026 00:52:33 -0800 (PST)
+        Wed, 14 Jan 2026 00:52:39 -0800 (PST)
 From: Gregory Price <gourry@gourry.net>
 To: linux-mm@kvack.org
 Cc: linux-cxl@vger.kernel.org,
@@ -74,10 +76,12 @@ Cc: linux-cxl@vger.kernel.org,
 	eperezma@redhat.com,
 	osalvador@suse.de,
 	akpm@linux-foundation.org
-Subject: Subject: [PATCH 0/8] dax/kmem: add runtime hotplug state control    
-Date: Wed, 14 Jan 2026 03:51:52 -0500
-Message-ID: <20260114085201.3222597-1-gourry@gourry.net>
+Subject: [PATCH 3/8] mm/memory_hotplug: add APIs for explicit online type control
+Date: Wed, 14 Jan 2026 03:51:55 -0500
+Message-ID: <20260114085201.3222597-4-gourry@gourry.net>
 X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260114085201.3222597-1-gourry@gourry.net>
+References: <20260114085201.3222597-1-gourry@gourry.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -86,89 +90,191 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This series adds the ability for the dax_kmem driver to control the
-online/offline state of its entire memory region at runtime through a
-single sysfs interface. This eliminates the need to manually iterate
-over individual memory blocks when changing memory state.             
-                                                                                                                                                  
-Problem                                                                  
-=======                                                                  
-                                                                         
-The dax_kmem driver currently provides no runtime control over memory
-state after probe. Memory is automatically onlined using the system
-default policy, and any subsequent state changes require userspace to:
+Add new memory hotplug APIs that allow callers to explicitly control
+the online type when adding or managing memory:
 
-  1. Enumerate all memory blocks backing the dax region                                                                                           
-  2. Individually offline/online each block via
-     /sys/devices/system/memory/memoryXXX/state
-  3. Handle races with auto-online policies that may re-online blocks
-  4. Coordinate offline+remove operations across multiple blocks
+  - Extend add_memory_driver_managed() with an online_type parameter:
+    Callers can now specify MMOP_ONLINE, MMOP_ONLINE_KERNEL, or
+    MMOP_ONLINE_MOVABLE to online with that type, MMOP_OFFLINE to leave
+    memory offline, or MMOP_SYSTEM_DEFAULT to use the system default
+    policy. Update virtio_mem to pass MMOP_SYSTEM_DEFAULT to maintain
+    existing behavior.
 
-This is error-prone and creates race conditions between userspace
-operations and kernel memory policies. There is no atomic way to                                                                                  
-offline and remove an entire dax region, and no mechanism to prevent
-external interference with driver-managed memory.
+  - online_memory_range(): online a previously-added memory range with
+    a specified online type (MMOP_ONLINE, MMOP_ONLINE_KERNEL, or
+    MMOP_ONLINE_MOVABLE). Validates that the type is valid for onlining.
 
-Solution
-========
+  - offline_memory(): offline a memory range without removing it. This
+    is a wrapper around the internal __offline_memory() that handles
+    locking. Useful for drivers that want to offline memory blocks
+    before performing other operations.
 
-This series introduces a 'hotplug' sysfs attribute for dax devices that
-provides atomic control over the entire memory region:
+These APIs enable drivers like dax_kmem to implement sophisticated
+memory management policies, such as adding memory offline and deferring
+the online decision to userspace.
 
-  /sys/bus/dax/devices/<device>/hotplug
+Signed-off-by: Gregory Price <gourry@gourry.net>
+---
+ drivers/dax/kmem.c             |  3 +-
+ drivers/virtio/virtio_mem.c    |  3 +-
+ include/linux/memory_hotplug.h |  4 ++-
+ mm/memory_hotplug.c            | 63 ++++++++++++++++++++++++++++++++--
+ 4 files changed, 68 insertions(+), 5 deletions(-)
 
-The interface accepts the following states:
-  - "offline": memory is added but not online
-  - "online": memory is online as normal system RAM
-  - "online_movable": memory is online in ZONE_MOVABLE
-  - "unplug": memory is offlined and removed
-
-The driver handles all memory blocks atomically and prevents external
-state changes through a memory notifier that blocks operations not
-initiated by the driver itself.
-
-Series Organization
-===================
-
-Patches 1-4 refactor the mm/memory_hotplug infrastructure:
-
-  - Patch 1: Pass online_type to online_memory_block() via arg
-  - Patch 2: Extract __add_memory_resource() and __offline_memory()
-  - Patch 3: Add APIs for explicit online type control
-  - Patch 4: Return online type from add_memory_driver_managed()
-
-Patches 5-8 implement the dax_kmem functionality:
-
-  - Patch 5: Extract hotplug/hotremove helper functions
-  - Patch 6: Add online/offline helper functions
-  - Patch 7: Add sysfs interface for runtime hotplug state control
-  - Patch 8: Add memory notifier to block external state changes
-
-Backwards Compatibility
-=======================
-The driver uses MMOP_SYSTEM_DEFAULT at probe time to preserve existing
-behavior. Systems with auto-online policies will continue to work as
-before. The new sysfs interface is additive and does not change the
-default probe behavior.
-
-
-Gregory Price (8):
-  mm/memory_hotplug: pass online_type to online_memory_block() via arg
-  mm/memory_hotplug: extract __add_memory_resource() and
-    __offline_memory()
-  mm/memory_hotplug: add APIs for explicit online type control
-  mm/memory_hotplug: return online type from add_memory_driver_managed()
-  dax/kmem: extract hotplug/hotremove helper functions
-  dax/kmem: add online/offline helper functions
-  dax/kmem: add sysfs interface for runtime hotplug state control
-  dax/kmem: add memory notifier to block external state changes
-
- drivers/dax/kmem.c             | 645 ++++++++++++++++++++++++++++-----
- drivers/virtio/virtio_mem.c    |   8 +-
- include/linux/memory_hotplug.h |   6 +-
- mm/memory_hotplug.c            | 139 +++++--
- 4 files changed, 678 insertions(+), 120 deletions(-)
-
+diff --git a/drivers/dax/kmem.c b/drivers/dax/kmem.c
+index c036e4d0b610..5e0cf94a9620 100644
+--- a/drivers/dax/kmem.c
++++ b/drivers/dax/kmem.c
+@@ -175,7 +175,8 @@ static int dev_dax_kmem_probe(struct dev_dax *dev_dax)
+ 		 * this as RAM automatically.
+ 		 */
+ 		rc = add_memory_driver_managed(data->mgid, range.start,
+-				range_len(&range), kmem_name, mhp_flags);
++				range_len(&range), kmem_name, mhp_flags,
++				MMOP_SYSTEM_DEFAULT);
+ 
+ 		if (rc) {
+ 			dev_warn(dev, "mapping%d: %#llx-%#llx memory add failed\n",
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 1688ecd69a04..b1ec8f2b9e31 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -654,7 +654,8 @@ static int virtio_mem_add_memory(struct virtio_mem *vm, uint64_t addr,
+ 	/* Memory might get onlined immediately. */
+ 	atomic64_add(size, &vm->offline_size);
+ 	rc = add_memory_driver_managed(vm->mgid, addr, size, vm->resource_name,
+-				       MHP_MERGE_RESOURCE | MHP_NID_IS_MGID);
++				       MHP_MERGE_RESOURCE | MHP_NID_IS_MGID,
++				       MMOP_SYSTEM_DEFAULT);
+ 	if (rc) {
+ 		atomic64_sub(size, &vm->offline_size);
+ 		dev_warn(&vm->vdev->dev, "adding memory failed: %d\n", rc);
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index d5407264d72a..0f98bea6da65 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -265,6 +265,7 @@ static inline void pgdat_resize_init(struct pglist_data *pgdat) {}
+ extern void try_offline_node(int nid);
+ extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages,
+ 			 struct zone *zone, struct memory_group *group);
++extern int offline_memory(u64 start, u64 size);
+ extern int remove_memory(u64 start, u64 size);
+ extern void __remove_memory(u64 start, u64 size);
+ extern int offline_and_remove_memory(u64 start, u64 size);
+@@ -297,7 +298,8 @@ extern int add_memory_resource(int nid, struct resource *resource,
+ 			       mhp_t mhp_flags);
+ extern int add_memory_driver_managed(int nid, u64 start, u64 size,
+ 				     const char *resource_name,
+-				     mhp_t mhp_flags);
++				     mhp_t mhp_flags, int online_type);
++extern int online_memory_range(u64 start, u64 size, int online_type);
+ extern void move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
+ 				   unsigned long nr_pages,
+ 				   struct vmem_altmap *altmap, int migratetype,
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index ab73c8fcc0f1..515ff9d18039 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1343,6 +1343,34 @@ static int online_memory_block(struct memory_block *mem, void *arg)
+ 	return device_online(&mem->dev);
+ }
+ 
++/**
++ * online_memory_range - online memory blocks in a range
++ * @start: physical start address of memory region
++ * @size: size of memory region
++ * @online_type: MMOP_ONLINE, MMOP_ONLINE_KERNEL, or MMOP_ONLINE_MOVABLE
++ *
++ * Online all memory blocks in the specified range with the given online type.
++ * The memory must have already been added to the system.
++ *
++ * Returns 0 on success, negative error code on failure.
++ */
++int online_memory_range(u64 start, u64 size, int online_type)
++{
++	int rc;
++
++	if (online_type == MMOP_OFFLINE ||
++	    online_type > MMOP_ONLINE_MOVABLE)
++		return -EINVAL;
++
++	lock_device_hotplug();
++	rc = walk_memory_blocks(start, size, &online_type,
++				online_memory_block);
++	unlock_device_hotplug();
++
++	return rc;
++}
++EXPORT_SYMBOL_GPL(online_memory_range);
++
+ #ifndef arch_supports_memmap_on_memory
+ static inline bool arch_supports_memmap_on_memory(unsigned long vmemmap_size)
+ {
+@@ -1656,9 +1684,16 @@ EXPORT_SYMBOL_GPL(add_memory);
+  *
+  * The resource_name (visible via /proc/iomem) has to have the format
+  * "System RAM ($DRIVER)".
++ *
++ * @online_type specifies the online behavior: MMOP_ONLINE, MMOP_ONLINE_KERNEL,
++ * MMOP_ONLINE_MOVABLE to online with that type, MMOP_OFFLINE to leave offline,
++ * or MMOP_SYSTEM_DEFAULT to use the system default policy.
++ *
++ * Returns 0 on success, negative error code on failure.
+  */
+ int add_memory_driver_managed(int nid, u64 start, u64 size,
+-			      const char *resource_name, mhp_t mhp_flags)
++			      const char *resource_name, mhp_t mhp_flags,
++			      int online_type)
+ {
+ 	struct resource *res;
+ 	int rc;
+@@ -1668,6 +1703,13 @@ int add_memory_driver_managed(int nid, u64 start, u64 size,
+ 	    resource_name[strlen(resource_name) - 1] != ')')
+ 		return -EINVAL;
+ 
++	/* Convert system default to actual online type */
++	if (online_type == MMOP_SYSTEM_DEFAULT)
++		online_type = mhp_get_default_online_type();
++
++	if (online_type < 0 || online_type > MMOP_ONLINE_MOVABLE)
++		return -EINVAL;
++
+ 	lock_device_hotplug();
+ 
+ 	res = register_memory_resource(start, size, resource_name);
+@@ -1676,7 +1718,7 @@ int add_memory_driver_managed(int nid, u64 start, u64 size,
+ 		goto out_unlock;
+ 	}
+ 
+-	rc = add_memory_resource(nid, res, mhp_flags);
++	rc = __add_memory_resource(nid, res, mhp_flags, online_type);
+ 	if (rc < 0)
+ 		release_memory_resource(res);
+ 
+@@ -2412,6 +2454,23 @@ static int __offline_memory(u64 start, u64 size)
+ 	return rc;
+ }
+ 
++/*
++ * Try to offline a memory range. Might take a long time to finish in case
++ * memory is still in use. In case of failure, already offlined memory blocks
++ * will be re-onlined.
++ */
++int offline_memory(u64 start, u64 size)
++{
++	int rc;
++
++	lock_device_hotplug();
++	rc = __offline_memory(start, size);
++	unlock_device_hotplug();
++
++	return rc;
++}
++EXPORT_SYMBOL_GPL(offline_memory);
++
+ /*
+  * Try to offline and remove memory. Might take a long time to finish in case
+  * memory is still in use. Primarily useful for memory devices that logically
 -- 
 2.52.0
 
