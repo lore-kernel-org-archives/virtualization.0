@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 776073358AD;
-	Thu, 15 Jan 2026 09:21:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 014342D6E70;
+	Thu, 15 Jan 2026 09:21:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768468900; cv=none; b=IftVNkB13LhyIU46eicg9WfxSO0Si9SKJkafyUXDHyJixn9tky2PJDEgWzgjoxwydA6N7BjQCW4nHM34Ej3874IKq3B8ZoUUyRq0mZc9fJ7pMMx13GsosQYxlAYvzFVnGdIouC81uYdrsecOLL3900P6cRXiprCpzhFTOZKqlw4=
+	t=1768468907; cv=none; b=FB0WK3Qrs+HiBkHhYb4mPl/FP4Cehc2432mniOOG6VFmmflGRFv0n7p1V2anQpLQ/+qutJTasEPdW2z0gVeWYCkanCk21si5gj15FoTvxIiNnOF/Kbvzh4lP0B/93K4Vx7SbnkC4BC7bgWEKQoho2xmNU0uOvd3JuQLPAp2qyZ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768468900; c=relaxed/simple;
-	bh=7Fok2QOLie23GL34zkS9ujQ08CnApW1sZfbHS9ad6qc=;
+	s=arc-20240116; t=1768468907; c=relaxed/simple;
+	bh=QfJODb3fLD5hI0yqpV8bPffFJbeeNR9z0J/ex3110GQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KqnumE11h2PWvL3A7Y+h+UFApqB4J+7ru3g7z52iKii2oX2ti11HrHoJAleSMaNhUWrD8X+SenYR15htW6hBk2N4YvNz0VZ4jGx811ePWMOR993nmMir825dC3WN1KcUw98j1aXaPKKmMGCZn+GUBb1DLAxJrnWSgdPuHsJ/y6o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gjHo4SPq; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=MEiYaL6wvPaTKvaCRogOJrbXPD8UW1n50pZ0bqfbBhmxGYkiHCLYENUCJ2qTnFnKtd5uofjKw40dD1HVIiefKnwgCkDRNtfUSHBbmsa05jUbPsqhLsIiAQjfUsFxj2C1cpqjkk5Xu1zOmyMp3uaNrZvR42SSl2RWOYcPhIg6l0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OFYSnzrR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gjHo4SPq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84860C116D0;
-	Thu, 15 Jan 2026 09:21:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OFYSnzrR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A3F7C116D0;
+	Thu, 15 Jan 2026 09:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768468900;
-	bh=7Fok2QOLie23GL34zkS9ujQ08CnApW1sZfbHS9ad6qc=;
+	s=k20201202; t=1768468906;
+	bh=QfJODb3fLD5hI0yqpV8bPffFJbeeNR9z0J/ex3110GQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=gjHo4SPqXCwAV3VLQdXz/juLHBwZNkzTqrcYtbfYSxBaSvH+n5lb5GZqiD2ycVH9Q
-	 TO+0ZInpSdsqpUqW1vje/qktqMIJNqUZasZtMkmbImz/v+3qyrOUvBLbYel/59dZDx
-	 CHaY+HvEtsPTc6G7ult2MmEWMmgpWMOvgO+sq9j3mSWbmchbR6+3m1WPyJdO/H1dDr
-	 xyP5tNDrUHa5hiq/htOY6d+se+LFPUr2DuRQUibb7RzdR+pFQ8MEF7mIJgiyIz7du9
-	 PJ3LVFh7wFYG3SEZEOBq/kYev6Zmqjg9nRgcroBBwNzHwezu+BBiIaey87TRFW5RDP
-	 ahbnv9gDliQ9A==
+	b=OFYSnzrRIk8CUweoFvnALc8UkccAxZt/i3iCriyBA+I/zJLMeME8Mp2WVUoiICN3b
+	 CBVMgtFX/1kPf6qCUSX8OuUmfeDlgSrLnIZMdi1GXhai8maIA8s0xRP63jmbrO9BkO
+	 2arju4rT7IQiibRnpqgIe+UbVDQRnOx3QuBgrDXkDgnbUIey/MD/gCgq1h9VbyOCmg
+	 BMg15H/nhYtfsbk8SCZQSruMTcFGWI/6EcjjsDuezMPHOdQ9Mv/NfXCh0wJGwx2Cmn
+	 MsAxSB0BlH4irDhYEedCtspCpCYR72b65QBxumJxnErOBx0dBYbhsHJdwr4/+xuw1e
+	 TFQdfFS4JjoLQ==
 From: "David Hildenbrand (Red Hat)" <david@kernel.org>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -55,9 +55,9 @@ Cc: linux-mm@kvack.org,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v2 11/23] drivers/virtio/virtio_balloon: stop using balloon_page_push/pop()
-Date: Thu, 15 Jan 2026 10:20:01 +0100
-Message-ID: <20260115092015.3928975-12-david@kernel.org>
+Subject: [PATCH v2 12/23] mm/balloon_compaction: remove balloon_page_push/pop()
+Date: Thu, 15 Jan 2026 10:20:02 +0100
+Message-ID: <20260115092015.3928975-13-david@kernel.org>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260115092015.3928975-1-david@kernel.org>
 References: <20260115092015.3928975-1-david@kernel.org>
@@ -69,85 +69,69 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Let's stop using these functions so we can remove them. They look like
-belonging to the balloon API for managing the device balloon list when
-really they are just simple helpers only used by virtio-balloon.
-
-Let's just inline them and switch to a proper
-list_for_each_entry_safe().
+Let's remove these helpers as they are unused now.
 
 Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
 ---
- drivers/virtio/virtio_balloon.c | 25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ include/linux/balloon_compaction.h | 30 ------------------------------
+ mm/balloon_compaction.c            |  5 ++---
+ 2 files changed, 2 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 15c1cf5fd249c..6ae00de78b61b 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -242,8 +242,8 @@ static void set_page_pfns(struct virtio_balloon *vb,
- static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num)
- {
- 	unsigned int num_allocated_pages;
-+	struct page *page, *next;
- 	unsigned int num_pfns;
--	struct page *page;
- 	LIST_HEAD(pages);
- 
- 	/* We can only do one array worth at a time. */
-@@ -262,14 +262,15 @@ static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num)
- 			break;
- 		}
- 
--		balloon_page_push(&pages, page);
-+		list_add(&page->lru, &pages);
- 	}
- 
- 	mutex_lock(&vb->balloon_lock);
- 
- 	vb->num_pfns = 0;
- 
--	while ((page = balloon_page_pop(&pages))) {
-+	list_for_each_entry_safe(page, next, &pages, lru) {
-+		list_del(&page->lru);
- 		balloon_page_enqueue(&vb->vb_dev_info, page);
- 
- 		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-@@ -474,15 +475,19 @@ static inline s64 towards_target(struct virtio_balloon *vb)
- static unsigned long return_free_pages_to_mm(struct virtio_balloon *vb,
- 					     unsigned long num_to_return)
- {
--	struct page *page;
--	unsigned long num_returned;
-+	unsigned long num_returned = 0;
-+	struct page *page, *next;
-+
-+	if (unlikely(!num_to_return))
-+		return 0;
- 
- 	spin_lock_irq(&vb->free_page_list_lock);
--	for (num_returned = 0; num_returned < num_to_return; num_returned++) {
--		page = balloon_page_pop(&vb->free_page_list);
--		if (!page)
--			break;
-+
-+	list_for_each_entry_safe(page, next, &vb->free_page_list, lru) {
-+		list_del(&page->lru);
- 		__free_pages(page, VIRTIO_BALLOON_HINT_BLOCK_ORDER);
-+		if (++num_returned == num_to_return)
-+			break;
- 	}
- 	vb->num_free_page_blocks -= num_returned;
- 	spin_unlock_irq(&vb->free_page_list_lock);
-@@ -717,7 +722,7 @@ static int get_free_page_and_send(struct virtio_balloon *vb)
- 		}
- 		virtqueue_kick(vq);
- 		spin_lock_irq(&vb->free_page_list_lock);
--		balloon_page_push(&vb->free_page_list, page);
-+		list_add(&page->lru, &vb->free_page_list);
- 		vb->num_free_page_blocks++;
- 		spin_unlock_irq(&vb->free_page_list_lock);
- 	} else {
+diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
+index 1452ea0635245..e5451cf1f6589 100644
+--- a/include/linux/balloon_compaction.h
++++ b/include/linux/balloon_compaction.h
+@@ -126,34 +126,4 @@ static inline void balloon_page_finalize(struct page *page)
+ 		set_page_private(page, 0);
+ 	/* PageOffline is sticky until the page is freed to the buddy. */
+ }
+-
+-/*
+- * balloon_page_push - insert a page into a page list.
+- * @head : pointer to list
+- * @page : page to be added
+- *
+- * Caller must ensure the page is private and protect the list.
+- */
+-static inline void balloon_page_push(struct list_head *pages, struct page *page)
+-{
+-	list_add(&page->lru, pages);
+-}
+-
+-/*
+- * balloon_page_pop - remove a page from a page list.
+- * @head : pointer to list
+- * @page : page to be added
+- *
+- * Caller must ensure the page is private and protect the list.
+- */
+-static inline struct page *balloon_page_pop(struct list_head *pages)
+-{
+-	struct page *page = list_first_entry_or_null(pages, struct page, lru);
+-
+-	if (!page)
+-		return NULL;
+-
+-	list_del(&page->lru);
+-	return page;
+-}
+ #endif /* _LINUX_BALLOON_COMPACTION_H */
+diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+index c44e0b62203cc..90b2d61a593b7 100644
+--- a/mm/balloon_compaction.c
++++ b/mm/balloon_compaction.c
+@@ -128,9 +128,8 @@ EXPORT_SYMBOL_GPL(balloon_page_alloc);
+  * Drivers must call this function to properly enqueue a new allocated balloon
+  * page before definitively removing the page from the guest system.
+  *
+- * Drivers must not call balloon_page_enqueue on pages that have been pushed to
+- * a list with balloon_page_push before removing them with balloon_page_pop. To
+- * enqueue a list of pages, use balloon_page_list_enqueue instead.
++ * Drivers must not enqueue pages while page->lru is still in
++ * use, and must not use page->lru until a page was unqueued again.
+  */
+ void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
+ 			  struct page *page)
 -- 
 2.52.0
 
