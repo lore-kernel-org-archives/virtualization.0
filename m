@@ -1,263 +1,187 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7221B14BF92
-	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 08:23:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48BE1229B12
+	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 08:41:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768465387; cv=none; b=o/zIkczM3vWtSR3Ok5rI14HriBBYNasMzfaLnKT21XxuQY2RJvXk1dLLve17aRFu7wSLt4juuKg9Frujy0Ov7x3xUVt+KVxgLZfGT6ie5vi+VxRCgqpTnQOc8p/8QKAdPFru5lmaX/y/UEWALFKgoQpp9xRQ5bpZYE3s6/Auplg=
+	t=1768466470; cv=none; b=LDTytp21aT27oSa3UYUhEiJ0cKAIPcTgtU5V48yULaElXssvOPY/x5rg1SuHlpbJ5kqgc3hRB3vRcVx785JXkLlE1okV8fZwQ1qPwcq4+I2TjM/g0i4f+HKE6pyVqhJU7Q6SJk2dFg27yQhO/SY7lu1rXfksAduSrbnr07XAvsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768465387; c=relaxed/simple;
-	bh=zvIgi/JrDpd3uFKVpnFPu0zTuZP5BgxoMlA9LEDO55Y=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MG8KPZQTGoAwAZeClfIhVo8RPjfyVTcuaE7sY1C/MsEDmRupnAXJIM3MYvJRCdzeDAZ6iXRpFguciJihzaHch3vAJb0zeH3NTU/WlNWMoXfLssTW9+irm6Dfuaqa7+6XioLBT87hbWhLlKC29zHK1roNjYrYNd2+k3uGW0eMwtA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jCSskpeb; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1768466470; c=relaxed/simple;
+	bh=+wzBuN4KidO8MO6orQXf7y66N/RZ6NStFOIpjiDyUyY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=bdKoTnQB89h4ePaNMCvM3GdYDjv2QzRDJcSq8whZQq5e4qUbKQt6LPm4lXLagykeA/r9fN7ivgruukN1S6slde2Tfi32Cz44HYZnIbTt3lP1x8AKHpie47gj0DYO3B9ziIwemA4sSZreIi1HG3zRJpjn2DbPDirjDjrqe5PA+/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=doNYV3CS; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jCSskpeb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="doNYV3CS"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768465385;
+	s=mimecast20190719; t=1768466468;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=FepNg6RrcQjnyphAxg43fRgBRnrjl9JjAn5yaxq07GI=;
-	b=jCSskpebWfyPKW+GD+r9hzHkmchHC9S/G5reH1i2bC4V39enJJ+gBhb8MJKr5emS+ceiBJ
-	UgMkMCpqcco0aAhp0ufscwU6awDhKdOkRgYK6E+rRxJMM68xk+MlinxcynaReLutvSNwNG
-	GTW+AtNiIoS+iI1+JmXf07m4/08sSAQ=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CGq0ojxFgIbcUhxRFKzME0p+XYpvzFHdQrjvntUvkPI=;
+	b=doNYV3CStB36AQVxydCMY3Ltvr/EQX0C2V/y9J45rwcX6XPHAHdetULjSiEZXvlvPWnmWw
+	5nr1l4RD7qkXu62vj6WV6mTAooQz8TVSG75SoGhhsyXLobdl44LjwGWPSF1drIT+kTpp2t
+	fB3nYU/ZfszRrX5T+Rm5G6vw2S8Wbl8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-137-0BXpZl1WM8eb9AzM_G0TDg-1; Thu, 15 Jan 2026 03:23:03 -0500
-X-MC-Unique: 0BXpZl1WM8eb9AzM_G0TDg-1
-X-Mimecast-MFC-AGG-ID: 0BXpZl1WM8eb9AzM_G0TDg_1768465383
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-34ab459c051so1450305a91.0
-        for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 00:23:03 -0800 (PST)
+ us-mta-401-K6BRYJbaMRiL3n94Me7NGQ-1; Thu, 15 Jan 2026 03:40:59 -0500
+X-MC-Unique: K6BRYJbaMRiL3n94Me7NGQ-1
+X-Mimecast-MFC-AGG-ID: K6BRYJbaMRiL3n94Me7NGQ_1768466459
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-47d3ffa98fcso3821615e9.3
+        for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 00:40:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768465382; x=1769070182;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=FepNg6RrcQjnyphAxg43fRgBRnrjl9JjAn5yaxq07GI=;
-        b=bZACPxjN15Ey4HaDiprRIQ7p7I+h7M0EbEEbJg8QNJYlRibbz2EURzQAcDTQxXePMZ
-         O/5oK6W87Vfs4rNFqwg6zki8rTTZY+DjtUFw6+4q1mhLfzVK/Uogy4gdG1dYLkZrOctX
-         rz/nC1AjmvKAO4fKcFpQVoI5LWvNqIpLOvNl3dvy1lFNR/S+wHW26CGdW6CWVtEzdqvu
-         nBxAvzrjAvH3XgVzdr0hi3UYY9wHZNJYSPlt6XqJyGpu2Cr09E9Xd02xeuQlAaHlfvAQ
-         YteAgXhdAInoqPzgpP95/ZE0JoOjfCtIFkLy1FvuCK/vrZKgZNlNaKBOdf8En6A7ZWnu
-         B7Ow==
-X-Forwarded-Encrypted: i=1; AJvYcCXtyxpVJB65924jUkK+sWsClzJ5NUK32hrKR85Jyhz4EtbeUPzuhSXlVINaYA98yMKdTGtqjP1EBm3c1bDz9Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxaCAStZNjpqkRtx2RK4GU38aV1fw45LwL2yFJ9LhoKk36DFgB0
-	nozdAEeXYiCJoLBZMEh4llJGQWnDHAdf0jjt1O7rKVl9a/DMEZX/SBcKIU3JcK6myEhB3tgsPxa
-	FRJmhUC9CyiY8zO1tzzfpmoJM2zNVQ+DDsOZTYY4RFlr0FiLmVIvZ4c5MjBYYeX1PfJ1Niq6XM9
-	diOUNE2xPPQ6PuC4imzyV6WRQNJpxli8i1pe4KmSJA4ZE=
-X-Gm-Gg: AY/fxX7yRhKH7b1JMCmVXSw5lqiOZ03XXAprwd3nVx94X0VuDWAhaAVvQhCGyLNktIQ
-	c1T8IapUCPMXpVEuObFlZciWiD5oQPqXgmoxqcLjoIzcMeiFjCPqt3Yz1SdcLA7r3MKOVKMwJmn
-	miqI8MFusOu5tXQKqhLcfNGLo3lt82hxUNQHY0J7fVR38UwxM3R/L8j30S2BH6jJ0y2X4=
-X-Received: by 2002:a17:90b:4c0d:b0:32d:db5b:7636 with SMTP id 98e67ed59e1d1-3510b1454f1mr4536923a91.27.1768465382638;
-        Thu, 15 Jan 2026 00:23:02 -0800 (PST)
-X-Received: by 2002:a17:90b:4c0d:b0:32d:db5b:7636 with SMTP id
- 98e67ed59e1d1-3510b1454f1mr4536902a91.27.1768465382202; Thu, 15 Jan 2026
- 00:23:02 -0800 (PST)
+        d=1e100.net; s=20230601; t=1768466458; x=1769071258;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CGq0ojxFgIbcUhxRFKzME0p+XYpvzFHdQrjvntUvkPI=;
+        b=qv8YdXSWBcFZ0OydoSVGGLbL0t1MFI+iTzG+eku91e2laA54pT9mMNnucjW5bpLFNc
+         WzPnv/vdk4572KsbGU6mAgC/H7AxCGdycIetUe2VzF1lnr9iqZ9mf643cEom9OyCeA3x
+         bGU57lWOPQx5NNXD+p+VB6pynhS3L+n9rfeGF9O3XmgvQuGoXEo42wsEmPq1aaTU7nZM
+         RHK2QYGvNh2yYGlt1vbwIlc2z6FHnjs3V+TMKXHRJuuxpkTqKwJ5CtJjI47bw4w+XA0G
+         1Fz6PSQg9MEyuK36fN/2l/bfkIxYHMxa/njKSLtteAp8fBvajJpcoPAI3lPgBk0B2jFw
+         pFuA==
+X-Forwarded-Encrypted: i=1; AJvYcCWR+U5F2n4y7QYtcVdSyAc79oLlq6vzKtyX/kGBjDISMbeiBjChycr6GHfw/nTISDxCZWYTQnzQEx4erzkoaw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzPu2c86Yhb1XtYJoaNg5OHREeJfTOzUKDn7r8sJIAncRlPYh1P
+	l7sbmH8fulYdY7/SHRTxcrOLODqoKbRiJ3G2q8Lv52zldl71YoVsVcPM1Ddb0sXTKzderHlFZtZ
+	Cl5fBxS3y6GEemSWcjATxijBZPWefbC+JDT2Jcnc1qCxzgrR2CSHKpRnf/8jHEO20iU3p
+X-Gm-Gg: AY/fxX6CFrMwvfEFWY9/Z6wp3gzVPeAwzwYFJ23Jhb1qAvl854HmNFmesQV/k5h3QT+
+	irTvKoHn8px9fjXlOv4ClZngr8SbLyUQmjmpwT5QDGHJBClkjlZC7q5JeFzH9r3OKJrGJ1i2uRf
+	X9Cpyppq5C4+uz+KoQOAtFQaOwPipVTHSEcLp/rO23q56awsAysYFuTwMwq+s1OoWpSCaE/2wse
+	i4wPDGfqcn8qlltgOUwzpp/1g/INhLDsy/HBEuE2En0/MLyIP2j7bo8GIELvnEnfpTv+QhKZu19
+	UI6S/ESTbHvn1eJk85hr7fxRGka+8fHlZ+ncZ52FqzHTc2YSmbVRY3TPj9RrygH1aRNYL+/hlJP
+	vgWA0VQSQj5HUWltRSVIJ4JXXX/aBMw==
+X-Received: by 2002:a05:600c:c4a1:b0:45d:dc85:c009 with SMTP id 5b1f17b1804b1-47ee3342eabmr59984355e9.10.1768466458534;
+        Thu, 15 Jan 2026 00:40:58 -0800 (PST)
+X-Received: by 2002:a05:600c:c4a1:b0:45d:dc85:c009 with SMTP id 5b1f17b1804b1-47ee3342eabmr59984115e9.10.1768466458063;
+        Thu, 15 Jan 2026 00:40:58 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-35-22.inter.net.il. [80.230.35.22])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47f42907141sm34468375e9.9.2026.01.15.00.40.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Jan 2026 00:40:57 -0800 (PST)
+Date: Thu, 15 Jan 2026 03:40:54 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Cc: Maxime Coquelin <mcoqueli@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	virtualization@lists.linux.dev, jasowang@redhat.com,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Yongji Xie <xieyongji@bytedance.com>, linux-kernel@vger.kernel.org,
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>
+Subject: Re: [PATCH v12 13/13] Documentation: Add documentation for VDUSE
+ Address Space IDs
+Message-ID: <20260115033239-mutt-send-email-mst@kernel.org>
+References: <20260114184839.926884-1-eperezma@redhat.com>
+ <20260114184839.926884-14-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260114184839.926884-1-eperezma@redhat.com> <20260114184839.926884-10-eperezma@redhat.com>
-In-Reply-To: <20260114184839.926884-10-eperezma@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 15 Jan 2026 16:22:49 +0800
-X-Gm-Features: AZwV_Qhvumi-95LbNghpgComZ_dH7xvMlv-idS8798zBQrLE8qmej2vZXaYzTbk
-Message-ID: <CACGkMEuMsz8ao0btTixZ=Lh7GadyxdOtu4HQeF=c7=TTirmV+A@mail.gmail.com>
-Subject: Re: [PATCH v12 09/13] vduse: take out allocations from vduse_dev_alloc_coherent
-To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	Stefano Garzarella <sgarzare@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	linux-kernel@vger.kernel.org, Cindy Lu <lulu@redhat.com>, 
-	Laurent Vivier <lvivier@redhat.com>
+In-Reply-To: <20260114184839.926884-14-eperezma@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5j-g7QBfvcq01lKX1zas5a8eqICHcmwcFpFbOmqQAU4_1768465383
+X-Mimecast-MFC-PROC-ID: AJgEbXfz8__Jhw38xxnL0I70WJzilUtpuH81QX2D8PQ_1768466459
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jan 15, 2026 at 2:49=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redhat=
-.com> wrote:
->
-> The function vduse_dev_alloc_coherent will be called under rwlock in
-> next patches.  Make it out of the lock to avoid increasing its fail
-> rate.
->
-> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+On Wed, Jan 14, 2026 at 07:48:39PM +0100, Eugenio Pérez wrote:
+> Address Space IDs allows the VDUSE framework to support devices able to
+> expose different virtqueues to different part of the drivers.  For
+> example, to let QEMU handle the net device control virtqueue, so QEMU
+> always knows the state of the device like mac address or number of
+> queues enabled, while leaving the dataplane passtrhough to the guest
+
+passthrough
+
+> intact.  This enables live migration.
+> 
+> Expands the VDUSE documentation to explain how to use the new ioctls or
+> the new struct members of old ioctls.
+> 
+> Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
 > ---
-> v12:
-> * Avoid free_pages_exact(NULL, size) in case vduse_domain_alloc_coherent
->   fails (MST).
->
-> v11: Remove duplicated call to free_pages_exact (Jason).
+> v12: New in V12. Requested by Jason.
 > ---
->  drivers/vdpa/vdpa_user/iova_domain.c | 24 +++++++-----------------
->  drivers/vdpa/vdpa_user/iova_domain.h |  5 ++---
->  drivers/vdpa/vdpa_user/vduse_dev.c   | 17 +++++++++++------
->  3 files changed, 20 insertions(+), 26 deletions(-)
->
-> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_use=
-r/iova_domain.c
-> index 309cd5a039d1..0a9f668467a8 100644
-> --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> @@ -493,17 +493,15 @@ void vduse_domain_unmap_page(struct vduse_iova_doma=
-in *domain,
->         vduse_domain_free_iova(iovad, dma_addr, size);
->  }
->
-> -void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
-> -                                 size_t size, dma_addr_t *dma_addr,
-> -                                 gfp_t flag)
-> +dma_addr_t vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
-> +                                      size_t size, void *orig)
->  {
->         struct iova_domain *iovad =3D &domain->consistent_iovad;
->         unsigned long limit =3D domain->iova_limit;
->         dma_addr_t iova =3D vduse_domain_alloc_iova(iovad, size, limit);
-> -       void *orig =3D alloc_pages_exact(size, flag);
->
-> -       if (!iova || !orig)
-> -               goto err;
-> +       if (!iova)
-> +               return DMA_MAPPING_ERROR;
->
->         spin_lock(&domain->iotlb_lock);
->         if (vduse_iotlb_add_range(domain, (u64)iova, (u64)iova + size - 1=
-,
-> @@ -514,17 +512,12 @@ void *vduse_domain_alloc_coherent(struct vduse_iova=
-_domain *domain,
->         }
->         spin_unlock(&domain->iotlb_lock);
->
-> -       *dma_addr =3D iova;
-> +       return iova;
->
-> -       return orig;
->  err:
-> -       *dma_addr =3D DMA_MAPPING_ERROR;
-> -       if (orig)
-> -               free_pages_exact(orig, size);
-> -       if (iova)
-> -               vduse_domain_free_iova(iovad, iova, size);
-> +       vduse_domain_free_iova(iovad, iova, size);
->
-> -       return NULL;
-> +       return DMA_MAPPING_ERROR;
->  }
->
->  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size_t=
- size,
-> @@ -533,7 +526,6 @@ void vduse_domain_free_coherent(struct vduse_iova_dom=
-ain *domain, size_t size,
->         struct iova_domain *iovad =3D &domain->consistent_iovad;
->         struct vhost_iotlb_map *map;
->         struct vdpa_map_file *map_file;
-> -       phys_addr_t pa;
->
->         spin_lock(&domain->iotlb_lock);
->         map =3D vhost_iotlb_itree_first(domain->iotlb, (u64)dma_addr,
-> @@ -545,12 +537,10 @@ void vduse_domain_free_coherent(struct vduse_iova_d=
-omain *domain, size_t size,
->         map_file =3D (struct vdpa_map_file *)map->opaque;
->         fput(map_file->file);
->         kfree(map_file);
-> -       pa =3D map->addr;
->         vhost_iotlb_map_free(domain->iotlb, map);
->         spin_unlock(&domain->iotlb_lock);
->
->         vduse_domain_free_iova(iovad, dma_addr, size);
-> -       free_pages_exact(phys_to_virt(pa), size);
->  }
->
->  static vm_fault_t vduse_domain_mmap_fault(struct vm_fault *vmf)
-> diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_use=
-r/iova_domain.h
-> index 081f06c52cdc..e50e55d1396f 100644
-> --- a/drivers/vdpa/vdpa_user/iova_domain.h
-> +++ b/drivers/vdpa/vdpa_user/iova_domain.h
-> @@ -65,9 +65,8 @@ void vduse_domain_unmap_page(struct vduse_iova_domain *=
-domain,
->                              dma_addr_t dma_addr, size_t size,
->                              enum dma_data_direction dir, unsigned long a=
-ttrs);
->
-> -void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
-> -                                 size_t size, dma_addr_t *dma_addr,
-> -                                 gfp_t flag);
-> +dma_addr_t vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
-> +                                      size_t size, void *orig);
->
->  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size_t=
- size,
->                                 dma_addr_t dma_addr, unsigned long attrs)=
-;
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
-vduse_dev.c
-> index 0e3cf5128ad0..6dba1f3224d9 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -916,23 +916,27 @@ static void *vduse_dev_alloc_coherent(union virtio_=
-map token, size_t size,
->  {
->         struct vduse_dev *vdev;
->         struct vduse_iova_domain *domain;
-> -       unsigned long iova;
->         void *addr;
->
->         *dma_addr =3D DMA_MAPPING_ERROR;
->         if (!token.group)
->                 return NULL;
->
-> -       vdev =3D token.group->dev;
-> -       domain =3D vdev->domain;
-> -       addr =3D vduse_domain_alloc_coherent(domain, size,
-> -                                          (dma_addr_t *)&iova, flag);
-> +       addr =3D alloc_pages_exact(size, flag);
->         if (!addr)
->                 return NULL;
->
-> -       *dma_addr =3D (dma_addr_t)iova;
-> +       vdev =3D token.group->dev;
-> +       domain =3D vdev->domain;
-> +       *dma_addr =3D vduse_domain_alloc_coherent(domain, size, addr);
-> +       if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
-> +               goto err;
->
->         return addr;
+>  Documentation/userspace-api/vduse.rst | 49 +++++++++++++++++++++++++++
+>  1 file changed, 49 insertions(+)
+> 
+> diff --git a/Documentation/userspace-api/vduse.rst b/Documentation/userspace-api/vduse.rst
+> index bdb880e01132..66110d918815 100644
+> --- a/Documentation/userspace-api/vduse.rst
+> +++ b/Documentation/userspace-api/vduse.rst
+> @@ -230,4 +230,53 @@ able to start the dataplane processing as follows:
+>  5. Inject an interrupt for specific virtqueue with the VDUSE_INJECT_VQ_IRQ ioctl
+>     after the used ring is filled.
+>  
+> +Enabling ASID (API version 1)
+> +------------------------------
 > +
-> +err:
-> +       free_pages_exact(addr, size);
-> +       return NULL;
->  }
+> +VDUSE supports per-address-space identifiers (ASIDs) starting with API
+> +version 1. Setup it
 
-I think the code tries to hide the iova domain specific things (e.g
-mappings and DMA_MAPPING_ERROR) from vduse core. Could we find a way
-to stick to that?
+Set it up
 
-Thanks
+> with ioctl(VDUSE_SET_API_VERSION) on `/dev/vduse/control` and
+> +pass `VDUSE_API_VERSION_1` before creating a new VDUSE instance with
+> +ioctl(VDUSE_CREATE_DEV).
+> +
+> +Afterwards, you can use the member asid of ioctl(VDUSE_IOTLB_GET_INFO) to
+> +select the address space of the IOTLB you are queryng.
 
->
->  static void vduse_dev_free_coherent(union virtio_map token, size_t size,
-> @@ -949,6 +953,7 @@ static void vduse_dev_free_coherent(union virtio_map =
-token, size_t size,
->         domain =3D vdev->domain;
->
->         vduse_domain_free_coherent(domain, size, dma_addr, attrs);
-> +       free_pages_exact(vaddr, size);
->  }
->
->  static bool vduse_dev_need_sync(union virtio_map token, dma_addr_t dma_a=
-ddr)
-> --
+querying
+
+> Similarly, you can use
+> +ioctl(VDUSE_IOTLB_GET_FD2) to obtain the file descriptor describing an IOVA
+> +region of an specific ASID. Example usage:
+
+a specific
+
+> +
+> +.. code-block:: c
+> +
+> +	static void *iova_to_va(int dev_fd, uint32_t asid, uint64_t iova,
+> +	                        uint64_t *len)
+> +	{
+> +		int fd;
+> +		void *addr;
+> +		size_t size;
+> +		struct vduse_iotlb_entry_v2 entry = { 0 };
+> +
+> +		entry.v1.start = iova;
+> +		entry.v1.last = iova;
+> +		entry.asid = asid;
+> +
+> +		fd = ioctl(dev_fd, VDUSE_IOTLB_GET_FD2, &entry);
+> +		if (fd < 0)
+> +			return NULL;
+> +
+> +		size = entry.v1.last - entry.v1.start + 1;
+> +		*len = entry.v1.last - iova + 1;
+> +		addr = mmap(0, size, perm_to_prot(entry.v1.perm), MAP_SHARED,
+> +			    fd, entry.v1.offset);
+> +		close(fd);
+> +		if (addr == MAP_FAILED)
+> +			return NULL;
+> +
+> +		/*
+> +		 * Using some data structures such as linked list to store
+> +		 * the iotlb mapping. The munmap(2) should be called for the
+> +		 * cached mapping when the corresponding VDUSE_UPDATE_IOTLB
+> +		 * message is received or the device is reset.
+> +		 */
+> +
+> +		return addr + iova - entry.start;
+> +	}
+> +
+>  For more details on the uAPI, please see include/uapi/linux/vduse.h.
+> -- 
 > 2.52.0
->
 
