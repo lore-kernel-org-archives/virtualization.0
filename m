@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C21B374162;
-	Thu, 15 Jan 2026 11:21:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E41C32D73B8;
+	Thu, 15 Jan 2026 11:22:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768476115; cv=none; b=PUgufnF9eGWTUKpkn7jturC0jflEC/AiH6g14khRDOO+IA3vWLvALIsK0ErU8K1DNtkJ3+tMT2oO1BOXl+shaOYqU6RUXFLtLngS3YcMRQMOBUvqBkYhjuHgjVSgrIQkHWr5YYVh/U4DzEq1H+TGSByd81NRiu4uIxdgjaRHREw=
+	t=1768476142; cv=none; b=lkYE4895cu0ERcHhqVi0E5ZWTMfLNVMMM3ajH0nGd4+sJDaRSD/XawOm+V4iI0c/L4/vdRK4NbpSEmFUFjyLYvFFdHYjAkv8SyGfyJN10mXUE21Qujim1Q5dIrw1xHIN29k7gjFIo6me9ElIes527H7z9CXUW4+OGV+jqj6SWnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768476115; c=relaxed/simple;
-	bh=2Z0C9R919FPjOvdBP9DKnEK/UqJnQnMt7nKfehB4BkI=;
+	s=arc-20240116; t=1768476142; c=relaxed/simple;
+	bh=I44va9OEt4jVcZBfMvPSjlSIjgMNsGiYT577FTZiAaA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AqXgkPMgTkvDBuXfEpljOQpehzGYP39yREGQj+BGGEgaPKJN51SLcrU8EqGj8WVix3xck0F171l4aV09jJEPXQnGAAurWEF/uX5V5hzyQA5rE7Yb4Un5UCu9PJRJjXtgiHuOfY1NBQawujJgfpKGSR1h4xce/J7ZXmzoYQ2TYh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YoE0cDx5; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=SIbohzA0QKx5a32sTrCX9w0wRpbrPMNjhVa3px/r7+Be9dCuGKr82Jv+9a6bInuvvLgbqmg1k6VJ8KzjlghPSxXmm62pL9JR1guAGbCeAFikJfYpsCT7OftrCAASjtmNHkhctLm2YsEfgNA79OWb5eCw3sjJt6z97TEspOCjz8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Eq345J4z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YoE0cDx5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDD3AC116D0;
-	Thu, 15 Jan 2026 11:21:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Eq345J4z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C68ABC116D0;
+	Thu, 15 Jan 2026 11:22:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768476115;
-	bh=2Z0C9R919FPjOvdBP9DKnEK/UqJnQnMt7nKfehB4BkI=;
+	s=k20201202; t=1768476141;
+	bh=I44va9OEt4jVcZBfMvPSjlSIjgMNsGiYT577FTZiAaA=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=YoE0cDx50jX40uMmr3HIpKOSOkp/Rg2BfN1hLuF/dzlFyBhJOCmrAZOo+gJVyt0C/
-	 pzAFV9WWBYwonww6PKWLutsK5V508powO6n6juDtlmIjWm7AN3psIaeFGZvyacJuom
-	 ijoqt7/Nf4pkLUAP57zP0FZ53yIw+VvRFUXxxa2S4qudNquTqBgvhWwiWZDcPxvpiu
-	 JZCaSRQDhQA0UXpha8AXI+z/SXs12fKEDrvuNqJ3fN8GsS8rrx46GSE+XrbtbrBraJ
-	 eWkPgnTCKLQBRYVQS0qEP+O3EFESV23lsa321/TFTfYngtU6l0rYJuaZc1rARziX0M
-	 4zW6jNx1OJcSQ==
-Message-ID: <acf9d35a-f8bc-44a6-9092-3a8c719c53c2@kernel.org>
-Date: Thu, 15 Jan 2026 12:21:46 +0100
+	b=Eq345J4zXsoXEojnzBTa/BT5NqCJGPr15PKbHZLjJ49rvtJ3huiO/X14J5xcjPKK5
+	 cVEVw2wQOaTcdC1B7RDfC7bHplcGjapCXtOak1TZCa5uqKikCa/dX6Htp1bE1pQYVM
+	 4g/tFNPRzX6RbccC7WJZuP5sUTRNgCZKrzmgAxAdoUNK+Sr5c6j/BB3e41JrWKLU82
+	 sxwQ/JE05o1SBN/kAVcTTHDvY7hGlX3/BvvL/Uo9DCC5prIIhkxRDASVmdIi8zwoQ5
+	 fXBiiPtW0+ir4Ojxde9w1lykaFQxWYx3njJirBoX8schsoUIBgEcSTOQ/fVkKbyytX
+	 IICNptCv/8+IQ==
+Message-ID: <21ba2222-0b68-4295-b046-77910488fc0e@kernel.org>
+Date: Thu, 15 Jan 2026 12:22:12 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,27 +37,19 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 23/23] MAINTAINERS: move memory balloon infrastructure
  to "MEMORY MANAGEMENT - BALLOON"
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linuxppc-dev@lists.ozlabs.org,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, linux-doc@vger.kernel.org,
- virtualization@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
- Oscar Salvador <osalvador@suse.de>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
- <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>, Arnd Bergmann
- <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
-References: <20260115092015.3928975-1-david@kernel.org>
- <20260115092015.3928975-24-david@kernel.org>
- <20260115043136-mutt-send-email-mst@kernel.org>
+To: Lance Yang <lance.yang@linux.dev>
+Cc: Liam.Howlett@oracle.com, akpm@linux-foundation.org, arnd@arndb.de,
+ bcm-kernel-feedback-list@broadcom.com, christophe.leroy@csgroup.eu,
+ corbet@lwn.net, eperezma@redhat.com, gregkh@linuxfoundation.org,
+ jasowang@redhat.com, jerrin.shaji-george@broadcom.com,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linuxppc-dev@lists.ozlabs.org, lorenzo.stoakes@oracle.com,
+ maddy@linux.ibm.com, mhocko@suse.com, mpe@ellerman.id.au, mst@redhat.com,
+ npiggin@gmail.com, osalvador@suse.de, rppt@kernel.org, surenb@google.com,
+ vbabka@suse.cz, virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
+ ziy@nvidia.com
+References: <20260115092015.3928975-24-david@kernel.org>
+ <20260115093827.12557-1-lance.yang@linux.dev>
 From: "David Hildenbrand (Red Hat)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -103,12 +95,13 @@ Autocrypt: addr=david@kernel.org; keydata=
  cFAM8nBWrEmNU2vvIGJzjJ/NVYYIY0TgOc5bS9wh6jKHL2+chrfDW5neLJjY2x3snF8q7U9G
  EIbBfNHDlOV8SyhEjtX0DyKxQKioTYPOHcW9gdV5fhSz5tEv+ipqt4kIgWqBgzK8ePtDTqRM
  qZq457g1/SXSoSQi4jN+gsneqvlTJdzaEu1bJP0iv6ViVf15+qHuY5iojCz8fa0=
-In-Reply-To: <20260115043136-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260115093827.12557-1-lance.yang@linux.dev>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 1/15/26 10:32, Michael S. Tsirkin wrote:
-> On Thu, Jan 15, 2026 at 10:20:13AM +0100, David Hildenbrand (Red Hat) wrote:
+On 1/15/26 10:38, Lance Yang wrote:
+> 
+> On Thu, 15 Jan 2026 10:20:13 +0100, David Hildenbrand (Red Hat) wrote:
 >> Nowadays, there is nothing virtio-balloon specific anymore about these
 >> files, the basic infrastructure is used by multiple memory balloon
 >> drivers.
@@ -132,12 +125,10 @@ On 1/15/26 10:32, Michael S. Tsirkin wrote:
 >> +MEMORY MANAGEMENT - BALLOON
 >> +M:	Andrew Morton <akpm@linux-foundation.org>
 >> +M:	David Hildenbrand <david@redhat.com>
->> +L:	linux-mm@kvack.org
 > 
-> I'd still like virtualization@lists.linux.dev included, too.
+> Should it be david@kernel.org instead?
 
-Makes sense.
-
+Yes, the patch is apparently a bit older :)
 -- 
 Cheers
 
