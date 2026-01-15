@@ -1,159 +1,96 @@
-Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F5C935CBCB
-	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 09:22:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BF5435A958;
+	Thu, 15 Jan 2026 09:22:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768468948; cv=none; b=N+qjWHj4hOh+JV9Uv/NLAsZ9ipY3fxP4163KpC4UQG6BN+3I6PkGMW4UBXJ3u1FhirO7taga/dLOAyrInxKEXLdSnPLAp3FY0MyUhkV3mROaT0j9VhXcLJicM3Rb5PE6MOwWRBVBh6p0y2yQZ1uL5UdNkTL79eav683woD63XEw=
+	t=1768468948; cv=none; b=rzRYQiLO8NSoAfT3uI1XVVVSwPg365GbiGoB7Pm8mNVtN9f+CeDYahPQFrGEaT6/URG4HeYWR5OUKg3YTG352Y98/Jg/YrDuCRA/LA3x+acmAlExDHLtJcrrnQcGGVHzzJxRt9JXE16zWbVFvXm8UkSxerwvGlfwGGvXALwPKo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1768468948; c=relaxed/simple;
-	bh=g8Yn5AgaZUgHE5rNkKLp9SxKGiCJF8bYtbhFDd0Ejg8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ljzGRdm8eVd1oyDjKs68qfG9/3N9/pgLQT/T4Iyp427nw4OBNd0Ly1UB+hzZ+U272yVh0jxek8TcaTHynOSUCpqow+tZaTZ6CauSiVHRbwjdrvzya46S4+/RYgYJeO0ShvTCi8dyU7XtQqC3a6mmZmcLXh/cVNWZWn8cg1lLuUw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=fail (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=Yi7RdSec reason="key not found in DNS"; arc=none smtp.client-ip=49.212.243.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
+	bh=xIjT/yGPbzWdy9CPPKodSOcwDaIkDPisOU81OKu1Nkw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=gs/EWgu8vNp9IpvpYdgVNHCk5Hu58KFv3xOT9t9F3DA7Dy4r1XrUdq+rzYZtoXqbb1viD8pdyzfIJ3a86WIAmKe6kUJldyw83tplwb6LxwBAhihla04uMnux+oMLcxdCD4lXsw+VibAJpsITFl6Ba0OeT+yd/ror88Efqf129tU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BYTnHiFW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="Yi7RdSec"
-Received: from [133.11.54.205] (h205.csg.ci.i.u-tokyo.ac.jp [133.11.54.205])
-	(authenticated bits=0)
-	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 60F9KMVP007868
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Thu, 15 Jan 2026 18:21:42 +0900 (JST)
-	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
-DKIM-Signature: a=rsa-sha256; bh=LGFqAj8v6WdBrMCPG//9ioSBolgDFMSOBS8r4ka1X7I=;
-        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
-        h=Message-ID:Date:Subject:To:From;
-        s=rs20250326; t=1768468903; v=1;
-        b=Yi7RdSecJdFrZZL7vMGyntOcDjsBWle2MiT4qx7eyGuD9ySh3SMH1X4bdrLTXHcw
-         3ENzByecMhDe0I8Fq0uu+Rt62R/ZhwVWaAKPqiR015qAOmOjym/a2Oj26RBYLhxV
-         6geAw/Nz81K8tAhsDh+LsDV6QP9LadpsKiNf5Yrlof5J4J6Pw6bRbYXrxm2pEL9R
-         VqjGHnh2h1it+xHC9FpZ+PSdT/vbvRiwhReoUtCS141atxTu4KFmU29gnlgYjaLT
-         +Qb9ZnczL0y98QEqx8EC6r6XtNDP1W6wFvQ/JmXL0YwzPhvRgiUVm0wIkrXOQE4L
-         cD5hSa6n3dzBh8ryPoCsVA==
-Message-ID: <5b66df7d-374c-4e9c-88d5-bb514f9a7725@rsg.ci.i.u-tokyo.ac.jp>
-Date: Thu, 15 Jan 2026 18:20:22 +0900
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BYTnHiFW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3FE0C19421;
+	Thu, 15 Jan 2026 09:22:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768468948;
+	bh=xIjT/yGPbzWdy9CPPKodSOcwDaIkDPisOU81OKu1Nkw=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=BYTnHiFW7YPOe2J6Fze71iGPPpPxEwmxWfzUTk14RKrKFn43bosoW++6osAwhU5wA
+	 q1rDiNffO1rJz6FGY3F2Ky5wp0qW7xYClI601zpW0HycKpBc/SJkGGvDucxJk25GoG
+	 wMpJF3z8qZQC1e6zOMpasbtacWBOTpKXfutSC2ewiyGEUStYFrt1GnXGT8w57OD0K1
+	 wmPV95kTvJ3GGM4fs7FU7MYFZ5+73R5SCqaFY8Mkp6QpcLMpKFy2KrC5v3U4UJ8L8B
+	 ScLVUp/VAdCHnagkQF7bLWsOzfl8QWFhD94a+zVmyPP33NRDslhtn6lO/g0hK+i2Up
+	 VO8uFwXwKrqgA==
+From: "David Hildenbrand (Red Hat)" <david@kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org,
+	linuxppc-dev@lists.ozlabs.org,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	linux-doc@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	"David Hildenbrand (Red Hat)" <david@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Oscar Salvador <osalvador@suse.de>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Zi Yan <ziy@nvidia.com>
+Subject: [PATCH v2 18/23] mm/vmscan: drop inclusion of balloon_compaction.h
+Date: Thu, 15 Jan 2026 10:20:08 +0100
+Message-ID: <20260115092015.3928975-19-david@kernel.org>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260115092015.3928975-1-david@kernel.org>
+References: <20260115092015.3928975-1-david@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/5] virtio-gpu: Add userptr support for compute
- workloads
-To: Honglei Huang <honglei1.huang@amd.com>, David Airlie
- <airlied@redhat.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Simona Vetter <simona@ffwll.ch>, Ray.Huang@amd.com
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
-        Chia-I Wu <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
-        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-        Honglei Huang <honghuan@amd.com>
-References: <20260115075851.173318-1-honglei1.huang@amd.com>
-Content-Language: en-US
-From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-In-Reply-To: <20260115075851.173318-1-honglei1.huang@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 2026/01/15 16:58, Honglei Huang wrote:
-> From: Honglei Huang <honghuan@amd.com>
-> 
-> Hello,
-> 
-> This series adds virtio-gpu userptr support to enable ROCm native
-> context for compute workloads. The userptr feature allows the host to
-> directly access guest userspace memory without memcpy overhead, which is
-> essential for GPU compute performance.
-> 
-> The userptr implementation provides buffer-based zero-copy memory access.
-> This approach pins guest userspace pages and exposes them to the host
-> via scatter-gather tables, enabling efficient compute operations.
+Before commit b1123ea6d3b3 ("mm: balloon: use general non-lru movable page
+feature"), the include was required because of isolated_balloon_page().
 
-This description looks identical with what 
-VIRTIO_GPU_BLOB_MEM_HOST3D_GUEST does so there should be some 
-explanation how it makes difference.
+It's no longer required, so let's remove it.
 
-I have already pointed out this when reviewing the QEMU patches[1], but 
-I note that here too, since QEMU is just a middleman and this matter is 
-better discussed by Linux and virglrenderer developers.
+Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
+---
+ mm/vmscan.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-[1] 
-https://lore.kernel.org/qemu-devel/35a8add7-da49-4833-9e69-d213f52c771a@amd.com/
-
-> 
-> Key features:
-> - Zero-copy memory access between guest userspace and host GPU
-> - Read-only and read-write userptr support
-> - Runtime feature detection via VIRTGPU_PARAM_RESOURCE_USERPTR
-> - ROCm capset support for ROCm stack integration
-> - Proper page lifecycle management with FOLL_LONGTERM pinning
-> 
-> Patches overview:
-> 1. Add VIRTIO_GPU_CAPSET_ROCM capability for compute workloads
-> 2. Add virtio-gpu API definitions for userptr blob resources
-> 3. Extend DRM UAPI with comprehensive userptr support
-> 4. Implement core userptr functionality with page management
-> 5. Integrate userptr into blob resource creation and advertise to userspace
-> 
-> Performance: In popular compute benchmarks, this implementation achieves
-> approximately 70% efficiency compared to bare metal OpenCL performance on
-> AMD V2000 hardware, achieves 92% efficiency on AMD W7900 hardware.
-> 
-> Testing: Verified with ROCm stack and OpenCL applications in VIRTIO virtualized
-> environments.
-> - Full OPENCL CTS tests passed on ROCm 5.7.0 in V2000 platform.
-> - Near 70% percentage of OPENCL CTS tests passed on ROCm 7.0 W7900 platform.
-> - most HIP catch tests passed on ROCm 7.0 W7900 platform.
-> - Some AI applications enabled on ROCm 7.0 W7900 platform.
-> 
-> V4 changes:
->      - Renamed VIRTIO_GPU_CAPSET_HSAKMT to VIRTIO_GPU_CAPSET_ROCM
->      - Remove userptr feature probing cause it can reuse the guest
->        blob resource code path, reduce patch count from 6 to 5
->      - Updated corresponding commit messages
->      - Consolidated userptr feature detection in final patch
->      - Update corresponding cover letter content
-> 
-> V3 changes:
->      - Split into focused patches for easier review
->      - Removed complex interval tree userptr management
->      - Simplified resource creation without deduplication
->      - Added VIRTGPU_PARAM_RESOURCE_USERPTR for feature detection
->      - Improved UAPI documentation and error handling
->      - Enhanced code quality with proper cleanup paths
->      - Removed MMU notifier dependencies for simplicity
->      - Fixed resource lifecycle management issues
-> 
-> V2: - Split add HSAKMT context and blob userptr resource to two patches.
->      - Remove MMU notifier related patches, cause use not moveable user space
->        memory with MMU notifier is not a good idea.
->      - Remove HSAKMT context check when create context, let all the context
->        support the userptr feature.
->      - Remove MMU notifier related content in cover letter.
->      - Add more comments  for patch 6 in cover letter.
-> 
-> Honglei Huang (5):
->    drm/virtio-gpu: Add VIRTIO_GPU_CAPSET_ROCM capability
->    virtio-gpu api: add blob userptr resource
->    drm/virtgpu api: add blob userptr resource
->    drm/virtio: implement userptr support for zero-copy memory access
->    drm/virtio: advertise base userptr feature to userspace
-> 
->   drivers/gpu/drm/virtio/Makefile          |   3 +-
->   drivers/gpu/drm/virtio/virtgpu_drv.h     |  33 ++++
->   drivers/gpu/drm/virtio/virtgpu_ioctl.c   |   9 +-
->   drivers/gpu/drm/virtio/virtgpu_object.c  |   6 +
->   drivers/gpu/drm/virtio/virtgpu_userptr.c | 231 +++++++++++++++++++++++
->   include/uapi/drm/virtgpu_drm.h           |   9 +
->   include/uapi/linux/virtio_gpu.h          |   7 +
->   7 files changed, 295 insertions(+), 3 deletions(-)
->   create mode 100644 drivers/gpu/drm/virtio/virtgpu_userptr.c
-> 
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index a0e3f51de749e..cd9f9a779e89b 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -63,7 +63,6 @@
+ #include <asm/div64.h>
+ 
+ #include <linux/swapops.h>
+-#include <linux/balloon_compaction.h>
+ #include <linux/sched/sysctl.h>
+ 
+ #include "internal.h"
+-- 
+2.52.0
 
