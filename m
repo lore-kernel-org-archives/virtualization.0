@@ -1,287 +1,284 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC8B0393DD0
-	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 11:46:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768477620; cv=fail; b=umcRf9dcF3ucMnJzi/wV2NYQQ5QtjyR0eOfELaRWk4wVBTJEnZh456UheVEUALdt+B7MwltFpBjEp9tpv7L9XTikyoPesXI6cW7uvS82zCK0WoDqfyUhgxnJLwdZNOFFz0RItZsFYzxAnKraaNHkQETfBiN42QQfwO5xchSLEVw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768477620; c=relaxed/simple;
-	bh=yCGo5QJgiZQqAdfxcQnpG/fu9yJ4OjUlD2dq1CahFyQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=F2JokLki1zYiaoWM+KfJZSZK44bGTZSwk3M4JsszPdj6jqxl/rKt6TSYFc/m1JKfzaiwxlVgaD46Z8C7noAlKXyVN8Mgf3OvgwPYFiAE94/SL401T5M7HHgnst5w1UY4B4IL2QAfdvIUTksHRxNOw8AV82DFXpE0vaTbEH+LQ3k=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=IVQlEtA4; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=sZxs8bGA; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 272EA3803DA
+	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 11:59:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768478355; cv=none; b=HLulhFdCVgrgmpFNMrGmZuLC/8VwWX/RlLrWKeLeL5WCMlK/EROpoIlcC+CHPiMSocMiZlJJwJMUQn729zWvu+EzqgEjE1i0xe8M2Tv0xs3A6hTRKzG9rxzcJlKGHxb/+KQeqgLH+LzDWT6uLPP6yPj1EzGXM15PmBDzgK/pfrs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768478355; c=relaxed/simple;
+	bh=F2WmHd8QrT1gknqNw82luqFbhY8K+cHfX+f9XHoX2k4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SQUJaJk7HRUYhmnCN2Niubgs0nXp7YqmWgr7kQ8a+2h0/OvCUs6TKxNC6DyNSwJp/usmSrXXCpfa7LncbQAxuYc8pXXfPspdgj8/xKCjBCxxJyVPY7n/UzeIECl3rJ5LctGyAmuHzdMIy3CvHABnhJL7o1Ne8iBlcWqqgJI6R5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h4abnQDf; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="IVQlEtA4";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="sZxs8bGA"
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60FAHW6x1362469;
-	Thu, 15 Jan 2026 11:46:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=corp-2025-04-25; bh=Z73q784EXi17G0oqM8
-	tPUNsqrybVd2SQ4TkBzituy8U=; b=IVQlEtA4pP0MQFUD+TxlGEfvQgQwZxLHma
-	4jJetpeuhIpXmWwYfBIHaQvgysJpZYtl7/zn/HeGBTecyz7S5KOK3jVv133CU/I9
-	+8UP4m/rbusnNbtYOz5O8Bqa1vriPpr3/ouVXbulrZv+QkivzKt25hAHAZnkY+AZ
-	TcRrJK9KOfJFES9PQFkKV2YCVqd5agV1y7TE1sT3Wjp7/9ofHPqTJehp8/jXNL/P
-	lbYG4zJ6AHoLx8iAMAamYJi7rnrER2uPkQeA/vmlA4/sJxL4Cz7LkDDqzJRMEn6+
-	Rkrw35ngbC76M/iAuelOt/B5MsW04NpYHukWVnBJ4asPnUB4f8YQ==
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4bp5vp2sdq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Jan 2026 11:46:32 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 60FAWJVc032693;
-	Thu, 15 Jan 2026 11:46:31 GMT
-Received: from sn4pr2101cu001.outbound.protection.outlook.com (mail-southcentralusazon11012006.outbound.protection.outlook.com [40.93.195.6])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4bkd7b8htb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Jan 2026 11:46:31 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=a7Cl+rxmwcGmg8bDvlu1Ij7Y+a8b/b8jxS8E/Jc/ui/CdbtpndfX0rGunvNXV32+Qh0XGm+Z+9+u+JoWxftGTbVjma0wkFTE6WM/lCirwp764iALD8nS1wXplbGBzq9LJiFDetzpLnb6qrO9KRGiFpZDr/loRE+zWhGuEb7TzrlNlQzFHH6045MdSBjKiPGS6smm47WIjSySOj+aYtFzZqonZcP54kRMmO5BGgf6aZnW+W+2QDXD2xT1wsuEIR0SQwRCgEXYhs7EwlViqbiF+UjxdHkMgR2Gpajj+9oeVlBiksPLrP2vXJJQ+wKsyuciUZYFj4EHFFveiBe0mjIJCQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Z73q784EXi17G0oqM8tPUNsqrybVd2SQ4TkBzituy8U=;
- b=NunrHIEhIAqnREctUGwrBSfDFK86+uA3IVNrtm834NsEWVq1Ns7XCidiDsifFIlcU3BwX1iw9H3BUv7wbs0BdW1jikiw4Tv3Qxk7qz+4Ql/sHVVQmI6FkTsBRaZ/zXAw1yDttVDWTW71/8x7at0mlU+C2euCIPC3a4B2PYeKYjmOjOUTZSqKwW29ZB/H6OgSK2EPC8/RHcXtLsqCZ9Se8/R5LCf2DMqjkbPhP5neG4IGCHggsEFC0BLT5OrLCvJ2flkkHfEkFD3UhqXOk21aGUdLqkP9V6q2gp324pzo15YpQ3ghc5pd/up9C4gKK/icD1gbJIkeBbMmgACcq0GaBA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Z73q784EXi17G0oqM8tPUNsqrybVd2SQ4TkBzituy8U=;
- b=sZxs8bGA+4Nn/RHJDBLQY/MW0JbdvcOgNngv65bb9/ycYXnMFV5iCafVohiiqmimPrEiOS1j37FQ0FqJKywLsam0LvH7jPsAhgBWA0CR63dElIpWDdiZwH7mu6VO764jXUjbV8PwaS6pvIiCQbvaahzfAyAqPD3P4xOoegaTRyo=
-Received: from BL4PR10MB8229.namprd10.prod.outlook.com (2603:10b6:208:4e6::14)
- by CO6PR10MB5601.namprd10.prod.outlook.com (2603:10b6:303:148::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9520.6; Thu, 15 Jan
- 2026 11:46:25 +0000
-Received: from BL4PR10MB8229.namprd10.prod.outlook.com
- ([fe80::552b:16d2:af:c582]) by BL4PR10MB8229.namprd10.prod.outlook.com
- ([fe80::552b:16d2:af:c582%6]) with mapi id 15.20.9520.005; Thu, 15 Jan 2026
- 11:46:25 +0000
-Date: Thu, 15 Jan 2026 11:46:28 +0000
-From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linuxppc-dev@lists.ozlabs.org,
-        Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-        linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-        Zi Yan <ziy@nvidia.com>
-Subject: Re: [PATCH v2 03/23] powerpc/pseries/cmm: remove
- cmm_balloon_compaction_init()
-Message-ID: <5ed94c8a-35ac-4635-aeac-3fe72d4f9c8e@lucifer.local>
-References: <20260115092015.3928975-1-david@kernel.org>
- <20260115092015.3928975-4-david@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260115092015.3928975-4-david@kernel.org>
-X-ClientProxiedBy: LO4P265CA0179.GBRP265.PROD.OUTLOOK.COM
- (2603:10a6:600:311::7) To BL4PR10MB8229.namprd10.prod.outlook.com
- (2603:10b6:208:4e6::14)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h4abnQDf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768478353;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nPd5IjJNB7E4U3GGdHOkSqhEIkc//rZU4fXUUPcRRmI=;
+	b=h4abnQDf5h2mTYi5INXOFOI+pYpIdke0QUIktaDlDWdxab4WoSYtvMDGE4c+sD4UdBrCyg
+	padTCKRKqabstWJ+J2drGXbGsqxVJB+qk/d6eD5ZVeq1IANQjhE/zB6l2pxzuPHB1O+Jbk
+	xkvtaFWVahF2U3rWo3xAWLmkJR9z+FQ=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-653-x1v4okRaOH2f6ihX2PW5mQ-1; Thu, 15 Jan 2026 06:59:10 -0500
+X-MC-Unique: x1v4okRaOH2f6ihX2PW5mQ-1
+X-Mimecast-MFC-AGG-ID: x1v4okRaOH2f6ihX2PW5mQ_1768478349
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-34c21341f56so1625113a91.2
+        for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 03:59:09 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768478349; x=1769083149;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=nPd5IjJNB7E4U3GGdHOkSqhEIkc//rZU4fXUUPcRRmI=;
+        b=a3XufwOT5wl1UvNU8Y/MuP85ZWld8E70htRMWcsqxAbY/IwnQ593rDGP9AhSjk1chY
+         FoXcxnL7uP3tC6qlTbqkA7FXeHseAe3v0BgI+ahLVWOmvFlm6sus1smKsevQrwhhoRuM
+         Zr3bj6EkFa+yNLe+glWQwKAIVEaDAlRFPRVSc0t6IAM7UjjJY6qAoTCToqrVqnLueGDf
+         3/om9VDCUHp6Cogq3qW78JikTcVr1+gfSkXL2+RbCOdjksKzWR1Rnr/rCV6YJBls1Sks
+         RLOsokXxtQSQyHSDvxmamkb/Nac8qSvXeKFcSXVmnR+eFnhD6aUlmrTEeFf4iR4I52bp
+         6YBQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWZb5LJQ/lBAGYEBrvWI4+bOZUenPKWbWuh8DiTENx0SniQWDJ0ZZ7/vOBUfjp32uneKSxSvNOs28A+karaow==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwPQ+PjtsX4UEo47HmKOt0X8rZSti3T4sUvFxmU0/r6FZK5Gble
+	kvsTAT5IPHAIAGQhtmvDTEWwSN+hwc4RuIiaKWqjvDNj48C5BR5baXTo0Mk9sKs4R9Pch6SMbtr
+	PzQ9BE12LgN3ikcc1BUccA3Ku169o63INpVMqf1AzknIyLbglsFfNn9Qs/zokjlCGWWFFIk2fcz
+	pV9sKLyODMIXNx0guGUgjw7pBynBrJfMJG30yLO3ASdkw=
+X-Gm-Gg: AY/fxX5UN5fVsEKgxBbMlLR5Ipa5sqfJzSu+ii6zT/VIydOmYQAnBApSc2pv1WzKfer
+	m/UZJ52V7wV+2QUvDRN3mmWhg3E1F8n/3Cnac+R1zY3Fqdwlzvz0Iwq8qRQv7kyunOcFMcshTrq
+	nrNnulNzTuQOtStFmQd2zmVcTmmzhaBYiqOv8IuEov1UCkw0YwJOT5V0ZbcYwb6ZRNkQA=
+X-Received: by 2002:a17:90b:1d0e:b0:34a:48ff:694 with SMTP id 98e67ed59e1d1-35109137fd5mr6275959a91.31.1768478348957;
+        Thu, 15 Jan 2026 03:59:08 -0800 (PST)
+X-Received: by 2002:a17:90b:1d0e:b0:34a:48ff:694 with SMTP id
+ 98e67ed59e1d1-35109137fd5mr6275942a91.31.1768478348560; Thu, 15 Jan 2026
+ 03:59:08 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL4PR10MB8229:EE_|CO6PR10MB5601:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5431a831-c395-45fd-4b25-08de542bb644
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|366016|1800799024|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?5Xn6woohHihB64x3MqHwBpSW84/MPIOApHTBvl3Plw/aYFwnqsjV2tQCiKkf?=
- =?us-ascii?Q?iDaKpb9gulsqJcGBxq5rWju3AG8RJcMnwrTBoMBsRnsN0w23lL5XGUJWNY7H?=
- =?us-ascii?Q?14al7dPG6sNjSV4MDXp/rlV8kTqnJSK7FbR8Sl5fExRBF8jeIQWTB5Tx2l/i?=
- =?us-ascii?Q?t1FbZjInL6jTcWWoYiL/m0r2fsTV1IBw95szms964oXNNfcFdp9Fc1YfLON9?=
- =?us-ascii?Q?x7oLHynYgfDzYZuXbx6MqtKd0t/s51xlbeZvo7OkT0iXcGDbOTmG6XVmCXdB?=
- =?us-ascii?Q?c8Pe5EIhdC/zpO4pBUAikbWNV+TQk9K+M56hoGDSR2lt7OL6zpM+B4ZjgoYS?=
- =?us-ascii?Q?pOWE3WgL3f4bCt1hvklwWBfNpWfC0acdsyb874F0kHiuh1zdMF/p91+YhTiV?=
- =?us-ascii?Q?J5o9Dt6r3lH5an26nrOcmJCk4cxH+prMDGpsUe6D1CMUx1r6Sg7aGsa/2tm/?=
- =?us-ascii?Q?ZufXeX0SVTCOwF4oDlEYmeBxcCz80FzhTj1H6hc4nl7+P7TTneQjB+Z1oTc/?=
- =?us-ascii?Q?3ZyzSNeUrIkpkYNglwGvVzoWOOgOL051BPDaOk4V35yh+FkPHg4L3A3S/ffS?=
- =?us-ascii?Q?73CkteFGh3hfLJRmE8vEwTBL7D1eidt75poMsPazVtm5yo7j82e73IEnExiF?=
- =?us-ascii?Q?lp780SAii+ctb4wueinvOE0a00iqKGnYL9eEK/83+gbfkOdRGyUDfo+7aW7V?=
- =?us-ascii?Q?qHUTcezO0RfObGrqug02X+a7tVSyQYliHg/QGQ/fiCJDlZXa6rO8SxDGpR3W?=
- =?us-ascii?Q?yeg3SjOBl7TA/wzXH8eQDXMLmPR0VSAJ9WcUl8nSMCMhv4pe3q0y9Nqqrevk?=
- =?us-ascii?Q?JNHO1+ocPAtmP6BinboQ0Y3HDumDYdFEwX7LsJqKIhlThwj53hz2SJ5mvylr?=
- =?us-ascii?Q?+MQKHaJcT9f+x21vUVeAHqFE9p4K+h2cbGxqbHRykeY5ArHEDBB7EPAlZd0D?=
- =?us-ascii?Q?YWjREZDUJqV19zIAvRGdPK8X7P0b/OKOjCJpVU/sTjorSFMJiXKZRDkZYls9?=
- =?us-ascii?Q?DELsHthansdRuzlmZxnKTjQUt6Dq33rwIE1qjW0WtF4/h/YQ/NHhUdm+ppGS?=
- =?us-ascii?Q?vjjPwdWutsGL0/+TRH84E6z9oQkk1i85/sn/rJ37En8avXSmaSzq8srWSZjW?=
- =?us-ascii?Q?SGBgXbd1qz4G6uu2RPxUCcTqflfWjPReOFwHsYy9lVVSfeYCHkB+ZgQTikmj?=
- =?us-ascii?Q?111Wqz3dzk/sRV9W4SJdMNne7BbpaiF5BT63sPYOOyp1cHsn7DdcXShKzgSu?=
- =?us-ascii?Q?BUxDIjY53BPBq5vT57T1kxvRQerhriBQDQEcvJkz0q5RaB4KHEnrMjYJJJO0?=
- =?us-ascii?Q?ketHaNAEt5YUjdTFmY3kZ+2/tLrAdE8NCgqyHwMYFtukFOnDVIQXlCq/9bmb?=
- =?us-ascii?Q?lXpq4frJnzOkDcRZPAiZkqTeA5T0UlhLTbnJt+z6TvOxiKyT6KxGl712sIe4?=
- =?us-ascii?Q?Flfc05nEyf5tle0dc+TaDF1hp2RbUOPwzResGhRL/MR9e4WAsMLAfkgAGHE9?=
- =?us-ascii?Q?hMfRjOqZpiJNcpSzTx8Uhef82MTfEiuT5j4PAPK+IPWxfCvZ0FNMDl/06Ws/?=
- =?us-ascii?Q?w6FGmkXg8f4kyAGcqZw=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL4PR10MB8229.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?A2gbF/9sacFPQHKT4nWc3gDo9MKRkiQ/eSqPvHEagK0OMtMptmWRUqFEg2Kt?=
- =?us-ascii?Q?Y2ZjUI/Eu1Sc/5eO2l90A2xZT0r0mEj++SMi7HfwPfxXcHgKOteLGZmcgQDT?=
- =?us-ascii?Q?YJ0bcbuY6z9LBIHIHduR6lKQ5jxWYIk1QuwkQFDklcw5QSSIhHp65UNMJqnm?=
- =?us-ascii?Q?Som/LLNxg9RVYY2uSULh+6ZbmUlIXxc0XPAV4nI0zaYttEk3dJVW8+zg3GoC?=
- =?us-ascii?Q?qhHT0aTlfq0hOnZvLMyysR9jh11bipLclgvJG3E1utMcG602zChHXoi5iFTH?=
- =?us-ascii?Q?l0p7KyQ2yZrxbiQ29SoT/X5XK5m8oKOu868UWmytKgw/q/8mGpC/1+CT4Hz0?=
- =?us-ascii?Q?tN7jb4+EjmScYroAkpsWrwZ3+XcTFe71a90KRB6ikVDr0IRwBE7EhlIllI0X?=
- =?us-ascii?Q?G1Bmy9DNyOUJEMyshq3PwrMI8FOGULVYk5nIobTUBKZ8s6Z+vD2dAQEugB+h?=
- =?us-ascii?Q?qCOQYdpJkrQKJHxhM2JlhlBwWWgND5vneapSqBC4MDygOZEj/Ht6pKjpGuzV?=
- =?us-ascii?Q?YXtkAXCGCWmvyCNc7YEIOzE+kGGPLSdDM/StrkvoGsufBleUu1jYDup/NrMZ?=
- =?us-ascii?Q?/vt56cLHWGmyhD7HLvg+Lb90hBUuOMb1B5mu0MwjQ85KNf1szGC8QUcT9MIa?=
- =?us-ascii?Q?fWDUu/sQxgMiZRmTtxOqpAScXAqAUVeLwpDEFcv03PNiXEv6Sq9YnN6DjDP1?=
- =?us-ascii?Q?4FXvkquLvQlmsc3szNWHBaaexmS2N0xCQyGA8jTxjA61BaLDShoFTv2k0wDr?=
- =?us-ascii?Q?+KcT172OpPcxKH43g38Ude9N8Tlw6mHWB4PQ6DCtmZEojnKHUAQFHoG/lvlp?=
- =?us-ascii?Q?8ofGuh8zHTRab1zmlZTzGiIqZGV/kh0nio2l0/5HdKtcvs2Kr6U6ADwWZOo4?=
- =?us-ascii?Q?Sj7PH1r0xXFDthiV5BFFSUgg50D/6HvlFpVpSlgYo/JFJUFaSMkdbcheO1Nq?=
- =?us-ascii?Q?SI0fVUE+UD/KLvx+iSqDLzppcxxLqHYLudXv70j9U7GRKrUB37Za4WSZM9wt?=
- =?us-ascii?Q?pytSegrFG4SBCdADxOUjavJpwjMl9XJH316wNrA63ThCKSzkHRcyZrfZyAxw?=
- =?us-ascii?Q?mqDsJkZshBFHUVkpSgjNCh2G0ETJoHfbW/tNhO8ru7/0M93AgWnKZ9d5z1hA?=
- =?us-ascii?Q?o8BaS6PJ9b+8R43WoRpeF5wLK6ehRBnY9gpNWExZDOsgYePWxOMN/PhNL/pd?=
- =?us-ascii?Q?SKP0NmKsY3SpjdG1olDX4paPxoyiLOVPhh0reKw6aHi87liEAfXNjUfJH/7I?=
- =?us-ascii?Q?cf89T2stTONM25Eg1eVDsATPn6aLNnokl2LJANdlhGtIDOG6Vo0GAkLKuBmg?=
- =?us-ascii?Q?vazAOcXo2qJgIQ6DE62ShQb79j6L/mImgf3Wd23dYEIH6kFLVan6e3ppfRQu?=
- =?us-ascii?Q?LKLrJkqZ5vlkjv+OktC383gxcsQVSzD8wFmGTL3ensLw4gFXRvBjusmlj1CM?=
- =?us-ascii?Q?oKEnt5gyq/ZWCprbXrlPBWgDwfOBYdsvo+MoiU/Ptj+QkOc38nAhWn1QbfvV?=
- =?us-ascii?Q?vNNUM5Y81wjCjtd29luw81DAOCxglrQCrOPQ4L68xED1UA+8do0/MIakk8/e?=
- =?us-ascii?Q?cjByQJ+NCC+D0uQ+WdW2L9MVUSoo+0MJU2ZFOKUjoODtqECt/uLfZaiUnhzY?=
- =?us-ascii?Q?tmspyi1ZyNIxt/I12cK83K/2KX0AxIwB7B/HlFQj+UZ/qGFAY6MQOrgv7zYO?=
- =?us-ascii?Q?Pmttn0+/TJ7NSR8wAzR3tHSZwdYMdJf9BtXa6HGVZ+kkLuuXLarCOtkiEYli?=
- =?us-ascii?Q?eGcPvpVAsvHILXRl8LRg/zMbFqf1dUA=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	q3k/U5kelpR+9HDX7lnJASprF0NVBwdmGXOMteDXgdoHY9HZ5YG4zd0Z2pXrPHmFOtZMH+zqEvL/zSImE43wwqwsphd1AVX8dhHEvUzfmtEEIl6BviO0+IZu2Cje5MtqZcUeoskNj2AvJT6t38IGIbiaE/d1/u11wGWzaamvUmUMmFVy/UJoTnMhULY1Y/mooWf2C1FqKvo8JdZwAZDwGrvhthHjwGV5OCTuuMN/Jw4UJecnNFF9dYFKfGhLjxygld2bJ641LGKF26oIQxerlj/XD20c8MdKnXb2WeTt4MT9ttWBWSdwPUF2EiaQIvgzipbJvTi61OCKpbznlDFWApynhCa+tWQNmPN0k0e0gCnoBGIJcLAPty4VYUtJCaepjHAjfohb0JW+f5yYW8dqyNmu/qy6CBYpksedcyYZrmvurkmiFSJt4/Whq8l+YhX9/RUcW0T8+oPLEYuh0y/Qeor7VoV/D8oqtC7TIhbpACl2RDjzEC+MU5i+hX/o0cnObiwVO1/JaIut8QM4v/SqW0dkLOb4IKH6iYtibkK+Kjqw66bnj2AwqRQo9NxukoiCq2aoARbQaP6LwCFGvnKXydBcVeE2Fsa3mumuXISwQng=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5431a831-c395-45fd-4b25-08de542bb644
-X-MS-Exchange-CrossTenant-AuthSource: BL4PR10MB8229.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jan 2026 11:46:25.5646
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: kn884+/CaxuTjSHRE+dsmNFlfoyyZnmJqXW5PFAtFMYvZ+v90xOqcIgPm1yZ+RnnLL/fpuW8c5NHpF8BDauPmLbPn0xdRKz28SLGagm+hlM=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR10MB5601
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-15_03,2026-01-14_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 suspectscore=0
- mlxlogscore=999 bulkscore=0 malwarescore=0 phishscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2512120000
- definitions=main-2601150086
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTE1MDA4NiBTYWx0ZWRfX/IccwVP9nebj
- LE/mMCxHnfx7SmV+dLQOlbVvtr8UKZ0BHDJRMt5wmQ9VatHFz6aR3EV7fSikHqqjX8d7nbR2G3X
- H72Z6QiLYzyUd6tOAeZ/dmckb9SaC3JhPU5LI3F1Wn3o+vc9Yhw3QyHySs0IWxs2/MBjpdLDaqp
- Np7URAQ2yKJQpkY6oJiaryppvB2Cof+UufThX+7RcXkgE1TnkA4pifr+lf/Q1Z4Az94+j3Ykffy
- PI0lCZmMelMd6G7Giwm0HJsGBoNEO4/8UCBkuP7S1fjb89z4s20XOFkDAJVi5eqGQJjlVxQLGFc
- cHDDb2zh7qU4IumeuwxcN84OWrJkNpOzXKoPNj6Jss4biWcgBWfMK1NOpwjEn0r/BJtrp1B5q7K
- 8QzLVQlnEuEbUhMVuD3yecq9n6jUJ3QgjAfBDMQ7SL2qeHsncFLb9tTA1/7VDP/LEdXHvHIuSwA
- dv3tZX0dH24KGoG3tuA==
-X-Proofpoint-GUID: I-42T8YJYIqRG3pXYvzo-nOeSrFLIN_j
-X-Authority-Analysis: v=2.4 cv=aZtsXBot c=1 sm=1 tr=0 ts=6968d398 b=1 cx=c_pps
- a=WeWmnZmh0fydH62SvGsd2A==:117 a=WeWmnZmh0fydH62SvGsd2A==:17
- a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
- a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=vUbySO9Y5rIA:10 a=GoEa3M9JfhUA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=yPCof4ZbAAAA:8 a=ZutnN-bx-cp8jyhSmMkA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: I-42T8YJYIqRG3pXYvzo-nOeSrFLIN_j
+References: <20260114184839.926884-1-eperezma@redhat.com> <20260114184839.926884-10-eperezma@redhat.com>
+ <CACGkMEuMsz8ao0btTixZ=Lh7GadyxdOtu4HQeF=c7=TTirmV+A@mail.gmail.com> <20260115034348-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260115034348-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 15 Jan 2026 19:58:57 +0800
+X-Gm-Features: AZwV_Qiwm1xL9PoCWy5VzcpVaPgalay5JakbGHlw1pbMqU0s_B3x4rEe24rtHxo
+Message-ID: <CACGkMEsXYWzbDCRFyzk_RE8DW8w-OdquGRvygpujwFhNR8assw@mail.gmail.com>
+Subject: Re: [PATCH v12 09/13] vduse: take out allocations from vduse_dev_alloc_coherent
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	virtualization@lists.linux.dev, Stefano Garzarella <sgarzare@redhat.com>, 
+	Yongji Xie <xieyongji@bytedance.com>, linux-kernel@vger.kernel.org, 
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: nphOXl-e7jE2S8sbXVblYvZ_mBtNDUZWowXR0p6SbkE_1768478349
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 15, 2026 at 10:19:53AM +0100, David Hildenbrand (Red Hat) wrote:
-> Now that there is not a lot of logic left, let's just inline setting up
-> the migration function.
+On Thu, Jan 15, 2026 at 4:44=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
 >
-> To avoid #ifdef in the caller we can instead use IS_ENABLED() and make
-> the compiler happy by only providing the function declaration.
+> On Thu, Jan 15, 2026 at 04:22:49PM +0800, Jason Wang wrote:
+> > On Thu, Jan 15, 2026 at 2:49=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@re=
+dhat.com> wrote:
+> > >
+> > > The function vduse_dev_alloc_coherent will be called under rwlock in
+> > > next patches.  Make it out of the lock to avoid increasing its fail
+> > > rate.
+> > >
+> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > ---
+> > > v12:
+> > > * Avoid free_pages_exact(NULL, size) in case vduse_domain_alloc_coher=
+ent
+> > >   fails (MST).
+> > >
+> > > v11: Remove duplicated call to free_pages_exact (Jason).
+> > > ---
+> > >  drivers/vdpa/vdpa_user/iova_domain.c | 24 +++++++-----------------
+> > >  drivers/vdpa/vdpa_user/iova_domain.h |  5 ++---
+> > >  drivers/vdpa/vdpa_user/vduse_dev.c   | 17 +++++++++++------
+> > >  3 files changed, 20 insertions(+), 26 deletions(-)
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa=
+_user/iova_domain.c
+> > > index 309cd5a039d1..0a9f668467a8 100644
+> > > --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> > > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> > > @@ -493,17 +493,15 @@ void vduse_domain_unmap_page(struct vduse_iova_=
+domain *domain,
+> > >         vduse_domain_free_iova(iovad, dma_addr, size);
+> > >  }
+> > >
+> > > -void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
+> > > -                                 size_t size, dma_addr_t *dma_addr,
+> > > -                                 gfp_t flag)
+> > > +dma_addr_t vduse_domain_alloc_coherent(struct vduse_iova_domain *dom=
+ain,
+> > > +                                      size_t size, void *orig)
+> > >  {
+> > >         struct iova_domain *iovad =3D &domain->consistent_iovad;
+> > >         unsigned long limit =3D domain->iova_limit;
+> > >         dma_addr_t iova =3D vduse_domain_alloc_iova(iovad, size, limi=
+t);
+> > > -       void *orig =3D alloc_pages_exact(size, flag);
+> > >
+> > > -       if (!iova || !orig)
+> > > -               goto err;
+> > > +       if (!iova)
+> > > +               return DMA_MAPPING_ERROR;
+> > >
+> > >         spin_lock(&domain->iotlb_lock);
+> > >         if (vduse_iotlb_add_range(domain, (u64)iova, (u64)iova + size=
+ - 1,
+> > > @@ -514,17 +512,12 @@ void *vduse_domain_alloc_coherent(struct vduse_=
+iova_domain *domain,
+> > >         }
+> > >         spin_unlock(&domain->iotlb_lock);
+> > >
+> > > -       *dma_addr =3D iova;
+> > > +       return iova;
+> > >
+> > > -       return orig;
+> > >  err:
+> > > -       *dma_addr =3D DMA_MAPPING_ERROR;
+> > > -       if (orig)
+> > > -               free_pages_exact(orig, size);
+> > > -       if (iova)
+> > > -               vduse_domain_free_iova(iovad, iova, size);
+> > > +       vduse_domain_free_iova(iovad, iova, size);
+> > >
+> > > -       return NULL;
+> > > +       return DMA_MAPPING_ERROR;
+> > >  }
+> > >
+> > >  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, si=
+ze_t size,
+> > > @@ -533,7 +526,6 @@ void vduse_domain_free_coherent(struct vduse_iova=
+_domain *domain, size_t size,
+> > >         struct iova_domain *iovad =3D &domain->consistent_iovad;
+> > >         struct vhost_iotlb_map *map;
+> > >         struct vdpa_map_file *map_file;
+> > > -       phys_addr_t pa;
+> > >
+> > >         spin_lock(&domain->iotlb_lock);
+> > >         map =3D vhost_iotlb_itree_first(domain->iotlb, (u64)dma_addr,
+> > > @@ -545,12 +537,10 @@ void vduse_domain_free_coherent(struct vduse_io=
+va_domain *domain, size_t size,
+> > >         map_file =3D (struct vdpa_map_file *)map->opaque;
+> > >         fput(map_file->file);
+> > >         kfree(map_file);
+> > > -       pa =3D map->addr;
+> > >         vhost_iotlb_map_free(domain->iotlb, map);
+> > >         spin_unlock(&domain->iotlb_lock);
+> > >
+> > >         vduse_domain_free_iova(iovad, dma_addr, size);
+> > > -       free_pages_exact(phys_to_virt(pa), size);
+> > >  }
+> > >
+> > >  static vm_fault_t vduse_domain_mmap_fault(struct vm_fault *vmf)
+> > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa=
+_user/iova_domain.h
+> > > index 081f06c52cdc..e50e55d1396f 100644
+> > > --- a/drivers/vdpa/vdpa_user/iova_domain.h
+> > > +++ b/drivers/vdpa/vdpa_user/iova_domain.h
+> > > @@ -65,9 +65,8 @@ void vduse_domain_unmap_page(struct vduse_iova_doma=
+in *domain,
+> > >                              dma_addr_t dma_addr, size_t size,
+> > >                              enum dma_data_direction dir, unsigned lo=
+ng attrs);
+> > >
+> > > -void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
+> > > -                                 size_t size, dma_addr_t *dma_addr,
+> > > -                                 gfp_t flag);
+> > > +dma_addr_t vduse_domain_alloc_coherent(struct vduse_iova_domain *dom=
+ain,
+> > > +                                      size_t size, void *orig);
+> > >
+> > >  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, si=
+ze_t size,
+> > >                                 dma_addr_t dma_addr, unsigned long at=
+trs);
+> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_u=
+ser/vduse_dev.c
+> > > index 0e3cf5128ad0..6dba1f3224d9 100644
+> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > @@ -916,23 +916,27 @@ static void *vduse_dev_alloc_coherent(union vir=
+tio_map token, size_t size,
+> > >  {
+> > >         struct vduse_dev *vdev;
+> > >         struct vduse_iova_domain *domain;
+> > > -       unsigned long iova;
+> > >         void *addr;
+> > >
+> > >         *dma_addr =3D DMA_MAPPING_ERROR;
+> > >         if (!token.group)
+> > >                 return NULL;
+> > >
+> > > -       vdev =3D token.group->dev;
+> > > -       domain =3D vdev->domain;
+> > > -       addr =3D vduse_domain_alloc_coherent(domain, size,
+> > > -                                          (dma_addr_t *)&iova, flag)=
+;
+> > > +       addr =3D alloc_pages_exact(size, flag);
+> > >         if (!addr)
+> > >                 return NULL;
+> > >
+> > > -       *dma_addr =3D (dma_addr_t)iova;
+> > > +       vdev =3D token.group->dev;
+> > > +       domain =3D vdev->domain;
+> > > +       *dma_addr =3D vduse_domain_alloc_coherent(domain, size, addr)=
+;
+> > > +       if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
+> > > +               goto err;
+> > >
+> > >         return addr;
+> > > +
+> > > +err:
+> > > +       free_pages_exact(addr, size);
+> > > +       return NULL;
+> > >  }
+> >
+> > I think the code tries to hide the iova domain specific things (e.g
+> > mappings and DMA_MAPPING_ERROR) from vduse core. Could we find a way
+> > to stick to that?
+> >
+> > Thanks
 >
-> Now that the function is gone, drop the "out_balloon_compaction" label.
-> Note that before commit 68f2736a8583 ("mm: Convert all PageMovable users
-> to movable_operations") we actually had to undo something, now not anymore.
 >
-> Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
+> what do you suggest more spefically though?
 
-Seems reasonable so:
+I think it would be better to move the dma/map stuffs to the iova_domain.c
 
-Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Thanks
 
-> ---
->  arch/powerpc/platforms/pseries/cmm.c | 16 +++++-----------
->  1 file changed, 5 insertions(+), 11 deletions(-)
 >
-> diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
-> index 4cbbe2ee58aba..9a6efbc80d2ad 100644
-> --- a/arch/powerpc/platforms/pseries/cmm.c
-> +++ b/arch/powerpc/platforms/pseries/cmm.c
-> @@ -548,15 +548,9 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+> > >
+> > >  static void vduse_dev_free_coherent(union virtio_map token, size_t s=
+ize,
+> > > @@ -949,6 +953,7 @@ static void vduse_dev_free_coherent(union virtio_=
+map token, size_t size,
+> > >         domain =3D vdev->domain;
+> > >
+> > >         vduse_domain_free_coherent(domain, size, dma_addr, attrs);
+> > > +       free_pages_exact(vaddr, size);
+> > >  }
+> > >
+> > >  static bool vduse_dev_need_sync(union virtio_map token, dma_addr_t d=
+ma_addr)
+> > > --
+> > > 2.52.0
+> > >
 >
->  	return 0;
->  }
-> -
-> -static void cmm_balloon_compaction_init(void)
-> -{
-> -	b_dev_info.migratepage = cmm_migratepage;
-> -}
->  #else /* CONFIG_BALLOON_COMPACTION */
-> -static void cmm_balloon_compaction_init(void)
-> -{
-> -}
-> +int cmm_migratepage(struct balloon_dev_info *b_dev_info, struct page *newpage,
-> +		    struct page *page, enum migrate_mode mode);
->  #endif /* CONFIG_BALLOON_COMPACTION */
->
->  /**
-> @@ -573,11 +567,12 @@ static int cmm_init(void)
->  		return -EOPNOTSUPP;
->
->  	balloon_devinfo_init(&b_dev_info);
-> -	cmm_balloon_compaction_init();
-> +	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
-> +		b_dev_info.migratepage = cmm_migratepage;
->
->  	rc = register_oom_notifier(&cmm_oom_nb);
->  	if (rc < 0)
-> -		goto out_balloon_compaction;
-> +		return rc;
->
->  	if ((rc = register_reboot_notifier(&cmm_reboot_nb)))
->  		goto out_oom_notifier;
-> @@ -606,7 +601,6 @@ static int cmm_init(void)
->  	unregister_reboot_notifier(&cmm_reboot_nb);
->  out_oom_notifier:
->  	unregister_oom_notifier(&cmm_oom_nb);
-> -out_balloon_compaction:
 
-So silly, I assume before there was more that happened here?
-
->  	return rc;
->  }
->
-> --
-> 2.52.0
->
