@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 014342D6E70;
-	Thu, 15 Jan 2026 09:21:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C51B3358CA;
+	Thu, 15 Jan 2026 09:21:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768468907; cv=none; b=FB0WK3Qrs+HiBkHhYb4mPl/FP4Cehc2432mniOOG6VFmmflGRFv0n7p1V2anQpLQ/+qutJTasEPdW2z0gVeWYCkanCk21si5gj15FoTvxIiNnOF/Kbvzh4lP0B/93K4Vx7SbnkC4BC7bgWEKQoho2xmNU0uOvd3JuQLPAp2qyZ4=
+	t=1768468913; cv=none; b=l407bT4HKIHvRfaPZihXur53A3h6F9z3vbuT2ZuQvjrPWKOa+t1DvkcRtuJPvlVIxwF8qQOrKGDL47lWDbS97j31snIshvE3DiysxGwuITpJ1POp94BJ7PP9W4MEAxEORSMTQ/W8ZUULKY7bLuXoTe5jnQxYVOkRwVWui1eoLSI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768468907; c=relaxed/simple;
-	bh=QfJODb3fLD5hI0yqpV8bPffFJbeeNR9z0J/ex3110GQ=;
+	s=arc-20240116; t=1768468913; c=relaxed/simple;
+	bh=plBsJJDsOVKU21GBNZQ0Y8RZZjUVLRU39NQAtNsDJJk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MEiYaL6wvPaTKvaCRogOJrbXPD8UW1n50pZ0bqfbBhmxGYkiHCLYENUCJ2qTnFnKtd5uofjKw40dD1HVIiefKnwgCkDRNtfUSHBbmsa05jUbPsqhLsIiAQjfUsFxj2C1cpqjkk5Xu1zOmyMp3uaNrZvR42SSl2RWOYcPhIg6l0s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OFYSnzrR; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=PFsct9xzgxB2HYPQ8wB5wgV69dyZvjWO0ktIWs9NeNM4yoB2SYm/u1RocPIOUYSV8TXLpLBdiPhrnyl3z4B70WEKb1Qn+GaLnso+mLd2C3/Za3Tc5QP/jrd98JzxmTNjzQu2GI0HRGJfHE+PPBxifa9Wix620X2KbPyiGyYtFvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hRoEkz+a; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OFYSnzrR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A3F7C116D0;
-	Thu, 15 Jan 2026 09:21:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hRoEkz+a"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4188CC116D0;
+	Thu, 15 Jan 2026 09:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768468906;
-	bh=QfJODb3fLD5hI0yqpV8bPffFJbeeNR9z0J/ex3110GQ=;
+	s=k20201202; t=1768468913;
+	bh=plBsJJDsOVKU21GBNZQ0Y8RZZjUVLRU39NQAtNsDJJk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=OFYSnzrRIk8CUweoFvnALc8UkccAxZt/i3iCriyBA+I/zJLMeME8Mp2WVUoiICN3b
-	 CBVMgtFX/1kPf6qCUSX8OuUmfeDlgSrLnIZMdi1GXhai8maIA8s0xRP63jmbrO9BkO
-	 2arju4rT7IQiibRnpqgIe+UbVDQRnOx3QuBgrDXkDgnbUIey/MD/gCgq1h9VbyOCmg
-	 BMg15H/nhYtfsbk8SCZQSruMTcFGWI/6EcjjsDuezMPHOdQ9Mv/NfXCh0wJGwx2Cmn
-	 MsAxSB0BlH4irDhYEedCtspCpCYR72b65QBxumJxnErOBx0dBYbhsHJdwr4/+xuw1e
-	 TFQdfFS4JjoLQ==
+	b=hRoEkz+axwnx4uvOCDJzNCaEEpypD+Or2qirVm812qm0RODJPsAre4QcDoHRFY5vA
+	 VvzJNNVDMVeOZ6M0jX2zENDqjSJgKmq3oifv1Lk3etoFnUduMtCuUDCWdad/m0rnth
+	 UnuLcfh3utfedo46BP5h6OyQngyqEhhAbE2Klhz/a95rbb9AT3GYON8iv7QnS6qRu4
+	 G+T4YFdkhIO2gvjUSbyHvhwkF4qJtcMlxNTDtkxSYXkZAcUrkfDBJFnNlGgn4/p/ar
+	 9SlBNZXOdFDnUFDs+pp4AAM2r7MeE4fv/JvsPM8gm+cbiSWlt4pF5pLkt0vvE04HUX
+	 IuUAF6cCw2KaQ==
 From: "David Hildenbrand (Red Hat)" <david@kernel.org>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -55,9 +55,9 @@ Cc: linux-mm@kvack.org,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v2 12/23] mm/balloon_compaction: remove balloon_page_push/pop()
-Date: Thu, 15 Jan 2026 10:20:02 +0100
-Message-ID: <20260115092015.3928975-13-david@kernel.org>
+Subject: [PATCH v2 13/23] mm/balloon_compaction: fold balloon_mapping_gfp_mask() into balloon_page_alloc()
+Date: Thu, 15 Jan 2026 10:20:03 +0100
+Message-ID: <20260115092015.3928975-14-david@kernel.org>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260115092015.3928975-1-david@kernel.org>
 References: <20260115092015.3928975-1-david@kernel.org>
@@ -69,69 +69,55 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Let's remove these helpers as they are unused now.
+Let's just remove balloon_mapping_gfp_mask().
 
 Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
 ---
- include/linux/balloon_compaction.h | 30 ------------------------------
- mm/balloon_compaction.c            |  5 ++---
- 2 files changed, 2 insertions(+), 33 deletions(-)
+ include/linux/balloon_compaction.h |  7 -------
+ mm/balloon_compaction.c            | 12 ++++++++----
+ 2 files changed, 8 insertions(+), 11 deletions(-)
 
 diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-index 1452ea0635245..e5451cf1f6589 100644
+index e5451cf1f6589..d1d4739398978 100644
 --- a/include/linux/balloon_compaction.h
 +++ b/include/linux/balloon_compaction.h
-@@ -126,34 +126,4 @@ static inline void balloon_page_finalize(struct page *page)
- 		set_page_private(page, 0);
- 	/* PageOffline is sticky until the page is freed to the buddy. */
+@@ -106,13 +106,6 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+ 	list_add(&page->lru, &balloon->pages);
  }
--
--/*
-- * balloon_page_push - insert a page into a page list.
-- * @head : pointer to list
-- * @page : page to be added
-- *
-- * Caller must ensure the page is private and protect the list.
-- */
--static inline void balloon_page_push(struct list_head *pages, struct page *page)
+ 
+-static inline gfp_t balloon_mapping_gfp_mask(void)
 -{
--	list_add(&page->lru, pages);
+-	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
+-		return GFP_HIGHUSER_MOVABLE;
+-	return GFP_HIGHUSER;
 -}
 -
--/*
-- * balloon_page_pop - remove a page from a page list.
-- * @head : pointer to list
-- * @page : page to be added
-- *
-- * Caller must ensure the page is private and protect the list.
-- */
--static inline struct page *balloon_page_pop(struct list_head *pages)
--{
--	struct page *page = list_first_entry_or_null(pages, struct page, lru);
--
--	if (!page)
--		return NULL;
--
--	list_del(&page->lru);
--	return page;
--}
- #endif /* _LINUX_BALLOON_COMPACTION_H */
+ /*
+  * balloon_page_finalize - prepare a balloon page that was removed from the
+  *			   balloon list for release to the page allocator
 diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index c44e0b62203cc..90b2d61a593b7 100644
+index 90b2d61a593b7..709c57c00b481 100644
 --- a/mm/balloon_compaction.c
 +++ b/mm/balloon_compaction.c
-@@ -128,9 +128,8 @@ EXPORT_SYMBOL_GPL(balloon_page_alloc);
-  * Drivers must call this function to properly enqueue a new allocated balloon
-  * page before definitively removing the page from the guest system.
-  *
-- * Drivers must not call balloon_page_enqueue on pages that have been pushed to
-- * a list with balloon_page_push before removing them with balloon_page_pop. To
-- * enqueue a list of pages, use balloon_page_list_enqueue instead.
-+ * Drivers must not enqueue pages while page->lru is still in
-+ * use, and must not use page->lru until a page was unqueued again.
+@@ -112,10 +112,14 @@ EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
   */
- void balloon_page_enqueue(struct balloon_dev_info *b_dev_info,
- 			  struct page *page)
+ struct page *balloon_page_alloc(void)
+ {
+-	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
+-				       __GFP_NOMEMALLOC | __GFP_NORETRY |
+-				       __GFP_NOWARN);
+-	return page;
++	gfp_t gfp_flags = __GFP_NOMEMALLOC | __GFP_NORETRY | __GFP_NOWARN;
++
++	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
++		gfp_flags |= GFP_HIGHUSER_MOVABLE;
++	else
++		gfp_flags |= GFP_HIGHUSER;
++
++	return alloc_page(gfp_flags);
+ }
+ EXPORT_SYMBOL_GPL(balloon_page_alloc);
+ 
 -- 
 2.52.0
 
