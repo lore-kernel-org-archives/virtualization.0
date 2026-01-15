@@ -1,119 +1,92 @@
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azon11012020.outbound.protection.outlook.com [40.107.209.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1625017736
-	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 14:06:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4205D2FE07D
+	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 14:39:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.209.20
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768486013; cv=fail; b=N8FwklnNklpaDBcjYJmK/6Qq2GRPqCrAP59dAuQAnYv2gmrAHVOPeO7tWVZApVGuA50OCwh/YWH3HrQDWopWGlGA31zDuArOrpltr/T8yy9wKseBOvV8hvEuIDjCoXHssqm3vuitS/sNnwQRJwJ6uX0uSkTCYWJwUYA2YmAl224=
+	t=1768487968; cv=fail; b=CVnaXRz9L7b4bMqR0bAKQtcHpt9o6LQol5tUKb0/1hFJ7ZXNkiVLX8qUx6TW0qS2+y2KPEVmAWsLCOnh9B9YIfJsblmemJfGo7KcdJushv+u7H0S/U+pfy/CS0Lf54F3r+PaRKCfC1RzF2Rg1AhVFi+CKno+4bwKokSUgiWAfXc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768486013; c=relaxed/simple;
-	bh=dkDLuWt2ymFi/M1+I1FZt144FHlTXUdSgCJxwf4lajE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=AZSQtoTsN+iVDl8+qhevZVfYsb7GCPAHbiLrUGDZnBO8tuTxmEN1+Ncq9MpM/Lj7wxU3KcO4nqwEOkpN+L33aM2pk7q4OqOZiq4ig1RfU6S3VFIKIh+HWTdd5bGRyGT4WT/03PYjtN96x1gSwESkXCOVxapCAZofhF7nGJgMc3Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=heHtFfpI; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=n3p9LGy5; arc=fail smtp.client-ip=205.220.177.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	s=arc-20240116; t=1768487968; c=relaxed/simple;
+	bh=T6GLTIia9mKd0cnIZJSFemaG8kWFXaIIqI1KznDE3M8=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=WhvANJTq6NPLkZK1peHsjBhcjh5xauTRo2bJMpD+PDAYUWlK3t7PLAUHHeGh6zaLjXQLcbXvbKN/oM4oK8ZdfjCQ8R2LhpsxpGAxwfpNkn0liVUiQ8+AX9sU6mAWzfJKcEEZ2GRGLqXuhxYcXFvMkV+KyZlWxpO/tE8lErSstD8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=MULS9Li5; arc=fail smtp.client-ip=40.107.209.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="heHtFfpI";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="n3p9LGy5"
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60FDjth72863589;
-	Thu, 15 Jan 2026 14:06:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=corp-2025-04-25; bh=81SwDb2ZUODLNOB/N7
-	wKJ9zbmpWP4I6Lt4Pj0c6Op7M=; b=heHtFfpI6k6z3PxV6kxGp0iBEyUVVo5LHL
-	JB3NZKWxPyD031R1oFZB5LDcUiLB254BKVoxSA0/vac0mMOQ7IBlfWcqDucD+Iq/
-	VI7Hs0VEp8Dox0ED7E2ZULaRtA//0c6ByKLBT59hrYLEl/xq6yHj09uzNgw8JIg1
-	cwIWGNqo1gkudeWgsW3kHMhCd9PKp6M4Yaowyl6cssC7LA0MgzaKI2rMmg29rn2f
-	efNEv82gmp14Ydxo+EzKmiU7EMHTDPppJl/MYBEIfi0Tgj1ng+WF4lwfHt4SPNeq
-	QUmn3z1TGvnar4+BakiIXp1h9gHqUmsIXWwkXv8REgbO5h0200Ww==
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4bkh7nr20q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Jan 2026 14:06:24 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 60FC5UTP004547;
-	Thu, 15 Jan 2026 14:06:23 GMT
-Received: from sn4pr2101cu001.outbound.protection.outlook.com (mail-southcentralusazon11012009.outbound.protection.outlook.com [40.93.195.9])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4bkd7bbehb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Jan 2026 14:06:23 +0000
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="MULS9Li5"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=OxIz0v4B/8X8QyS1RP1WFAPTvDPeK8Q5l9HcgQpl9yN5Pbz9/z7EsEclJXN6S21M87ndg/P0hos73LEnaKKbUbyUjP4XZ49IRaZnG4htWOBb3UmHHWO+PSQz0pRIUT46/HPNfcV0G7sUuszyxvucvxTsNWQx8IWJRgyXyQ1MZYqi4oST0cSzmBvjnPdBvpz5TbTTDw5Jo2u7jEV+0bfypZAevv9R0HTWkHpbXmCUmb1y6rS9KvozHFJcR3uuUAe8ABWun+m6lN+f/YHBRcZ71kC34IQl7rqohd+S/yVQHHlukM2goR2Aq2kzf2l3TppOqmKeG/xBh0MLrL5VyQrs1w==
+ b=PSd7ZKKeUa8iQDG2VidCEQzQVthg4DI1MorZmCkFipHZ6wq14YENWb77nj3VHYjnWeA6Ar49kkSlNNmDwIENIR7LdMuzhiyMYZO8GlfbhKzhcXAYYsXfQxN+Pe7NTVjpR8X9Mn5z06aFnb/OtJLiibOxLEBrGb1c7cOp65HkA1km2pHNnpo2z8KGkEKVSxMSmx7ok+8K8J4eBqAwxucCcwdtB3VDWxzRUa1yZ7Th2/VfXgh/bBnTF5EPpiYYvrp0mPCOVspCC5aBJOM5nnvZAVI57/wpbJe10MZ78Fm4063hrX1nBiYgMDcns1dnarQqmnT9yr8cSSXjdMVcnj/CTQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=81SwDb2ZUODLNOB/N7wKJ9zbmpWP4I6Lt4Pj0c6Op7M=;
- b=q1BrQJ7dVR+D5BSGIyClxph/HtLnaMSpTlUE6V8dmokE6UbuDlbWOItt1F7H6dM2Co011FL+vPvayhs9JDRgr14T497CZcYG64bLIanTaeNi+yVKgUNshMCTCrQqYXMjpMFArf+MRQzYqrisWd7cvu4OhrehztjY1EB2AllGN8MZC+aLmyqx4WKz1Q75veD7zelIXSLCTjCQxDydpWMLhjfEPseZ6oIgFKwqUz+chPQceFEqZIS3sjpoToizNreqOBvueDDTVOx9kw9J3qTZUYgrfuUvuNpQANoxzI9O7Ns3zZXUfIvhfIn2GoI2ogI5m/3Q1IChOUFYoLZqXWiPrg==
+ bh=T6GLTIia9mKd0cnIZJSFemaG8kWFXaIIqI1KznDE3M8=;
+ b=XrkjyLlqR7ZNqfrqRkukbKu/V3kyKCMrdd44dQa7/OVtLo3C0HD+orsmssWcV0AfcFn+YM7SyFQ9ceOZbDRNBuJ+QFUnbwhmwsF/hl3/USAxVF0ehzg7LR0sxNofMG1WtLfWjLub6nnjfy/xw0Np9BYPObhhxJS3fiF6tf59B8qwLNHiyOb098BREnhv5jc3aaR/p1yEaFfq/jup+MzKE0ha1NSjhiih8CLxeiyZhjwSNRO3fLPkJNr/KbO5Ob35HWeYPeqLasrsXQJb4Y26uhm+19XSsMEwnU/05XDXgVppe8C/lYEiiq6xOQjszQx8baJIg8SHJfERQKxsH8VY8w==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=81SwDb2ZUODLNOB/N7wKJ9zbmpWP4I6Lt4Pj0c6Op7M=;
- b=n3p9LGy5H0NWWlI2JzSinI6B98F9MdxROJGdVqeDpF7LWMaCNYwJtYPnFVi1y8+9ryJW2FOfwFwXVOG/ERkHYf8TC5S8MFFvDMeeGBlsY2s4dnD588wXFNpCcZ3RABc1SJ8WhNI6IWCJ9GTdFG2r9gHh7gkcKaPIMBhFE3A57EA=
-Received: from PH0PR10MB5777.namprd10.prod.outlook.com (2603:10b6:510:128::16)
- by DS0PR10MB7201.namprd10.prod.outlook.com (2603:10b6:8:f2::5) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9520.4; Thu, 15 Jan 2026 14:06:19 +0000
-Received: from PH0PR10MB5777.namprd10.prod.outlook.com
- ([fe80::4b84:e58d:c708:c8ce]) by PH0PR10MB5777.namprd10.prod.outlook.com
- ([fe80::4b84:e58d:c708:c8ce%4]) with mapi id 15.20.9520.003; Thu, 15 Jan 2026
- 14:06:18 +0000
-Date: Thu, 15 Jan 2026 09:06:13 -0500
-From: "Liam R. Howlett" <Liam.Howlett@oracle.com>
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linuxppc-dev@lists.ozlabs.org,
-        Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-        linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-        Zi Yan <ziy@nvidia.com>
-Subject: Re: [PATCH v2 05/23] mm/balloon_compaction: centralize
- adjust_managed_page_count() handling
-Message-ID: <vdgwo5wyvuxuijygb5jq4mv4wsxtj3lwweebynyc44iukoiecy@qjdu4qpxpokh>
-Mail-Followup-To: "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
-	"David Hildenbrand (Red Hat)" <david@kernel.org>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
-	linuxppc-dev@lists.ozlabs.org, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, linux-doc@vger.kernel.org, virtualization@lists.linux.dev, 
-	Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.de>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Jerrin Shaji George <jerrin.shaji-george@broadcom.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
-References: <20260115092015.3928975-1-david@kernel.org>
- <20260115092015.3928975-6-david@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260115092015.3928975-6-david@kernel.org>
-User-Agent: NeoMutt/20250905
-X-ClientProxiedBy: YT4PR01CA0006.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:d1::8) To PH0PR10MB5777.namprd10.prod.outlook.com
- (2603:10b6:510:128::16)
+ bh=T6GLTIia9mKd0cnIZJSFemaG8kWFXaIIqI1KznDE3M8=;
+ b=MULS9Li50O7OdjOnKHR9aAg037h9q8E0qAPHfRYZH4SpE9d0EOjV/+D3m/5Jwp5O1UQlGxSEff53O0PiyxEiqbqj0oCf0f2jt+q6PRyBvHSCyXX1Sh3/uOG2P7uwzpXfp5grZwY6WdblZVf5QO4wzalHblcumeQC9V0jfB4atqc=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
+ by IA0PR12MB7628.namprd12.prod.outlook.com (2603:10b6:208:436::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9520.4; Thu, 15 Jan
+ 2026 14:39:13 +0000
+Received: from PH7PR12MB5685.namprd12.prod.outlook.com
+ ([fe80::46fb:96f2:7667:7ca5]) by PH7PR12MB5685.namprd12.prod.outlook.com
+ ([fe80::46fb:96f2:7667:7ca5%4]) with mapi id 15.20.9520.005; Thu, 15 Jan 2026
+ 14:39:13 +0000
+Message-ID: <9058636d-cc18-4c8f-92cf-782fd8f771af@amd.com>
+Date: Thu, 15 Jan 2026 15:39:00 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/12] Recover sysfb after DRM probe failure
+To: Thomas Zimmermann <tzimmermann@suse.de>,
+ Zack Rusin <zack.rusin@broadcom.com>
+Cc: dri-devel@lists.freedesktop.org, Alex Deucher
+ <alexander.deucher@amd.com>, amd-gfx@lists.freedesktop.org,
+ Ard Biesheuvel <ardb@kernel.org>, Ce Sun <cesun102@amd.com>,
+ Chia-I Wu <olvaffe@gmail.com>, Danilo Krummrich <dakr@kernel.org>,
+ Dave Airlie <airlied@redhat.com>, Deepak Rawat <drawat.floss@gmail.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Hans de Goede <hansg@kernel.org>, Hawking Zhang <Hawking.Zhang@amd.com>,
+ Helge Deller <deller@gmx.de>, intel-gfx@lists.freedesktop.org,
+ intel-xe@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
+ Javier Martinez Canillas <javierm@redhat.com>,
+ Jocelyn Falempe <jfalempe@redhat.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Lijo Lazar <lijo.lazar@amd.com>, linux-efi@vger.kernel.org,
+ linux-fbdev@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+ Lyude Paul <lyude@redhat.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ "Mario Limonciello (AMD)" <superm1@kernel.org>,
+ Mario Limonciello <mario.limonciello@amd.com>,
+ Maxime Ripard <mripard@kernel.org>, nouveau@lists.freedesktop.org,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
+ spice-devel@lists.freedesktop.org,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ =?UTF-8?Q?Timur_Krist=C3=B3f?= <timur.kristof@gmail.com>,
+ Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
+ Vitaly Prosyak <vitaly.prosyak@amd.com>
+References: <20251229215906.3688205-1-zack.rusin@broadcom.com>
+ <c816f7ed-66e0-4773-b3d1-4769234bd30b@suse.de>
+ <CABQX2QNQU4XZ1rJFqnJeMkz8WP=t9atj0BqXHbDQab7ZnAyJxg@mail.gmail.com>
+ <97993761-5884-4ada-b345-9fb64819e02a@suse.de>
+Content-Language: en-US
+From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+In-Reply-To: <97993761-5884-4ada-b345-9fb64819e02a@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-ClientProxiedBy: FR2P281CA0064.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:93::12) To PH7PR12MB5685.namprd12.prod.outlook.com
+ (2603:10b6:510:13c::22)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -121,299 +94,258 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR10MB5777:EE_|DS0PR10MB7201:EE_
-X-MS-Office365-Filtering-Correlation-Id: a14e8496-2fa1-42c6-c399-08de543f40ed
+X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|IA0PR12MB7628:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4314b057-eac4-4aba-9e88-08de5443da1d
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
 	BCL:0;ARA:13230040|366016|376014|7416014|1800799024|7053199007;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?STHPXkOPhRd4cVUdDRMsLqWgq71P7Lwez3kU863/IYHXsyAYv5coz1v5hi7f?=
- =?us-ascii?Q?6p47XWW+s51hnh3K70v5+tzuUsjl1alpI3vFgsaew/4K9juZSsww/p4cfo0t?=
- =?us-ascii?Q?zFjmqGpHu9cPCM/MaDVru4Ng/ip+vxWocrLGvNcjhHiLCy2TyU2/a/gPotxl?=
- =?us-ascii?Q?ZJWFo39G3/A9ZJuWJS/r/QxqCk149DVXW0qJFTJeVOhjmWiBTMk63qnmkaBE?=
- =?us-ascii?Q?nQL5FGt9qKo1q4U0pJBT9G0aTrKV4KMTFg8bQtl9w14KH8U18y0igIUiutpu?=
- =?us-ascii?Q?DaUi9Fkyh3MtgCr2f5zYXT8a7iBLbDEthSbxEWSfCPzzkmZk+HnWx51DY4Qk?=
- =?us-ascii?Q?VBpsSgsbM00aljk6K5Bw5UQUYJd1smv8t9cV3odzfpSzCOpRQwvdN7lRoZrv?=
- =?us-ascii?Q?Aep85mRGZ7RdJV8IImS7ieEcg15tozYNU5YlAIXEVlTqkTlnUpVvnnqialpg?=
- =?us-ascii?Q?zIQwpamQzedo0+2hQbfFtn24CjQoBRzTzJzumN4UOscW4mThWCuLaNn0rlD3?=
- =?us-ascii?Q?UgHGCWWnBgEUFIy1tQnbJFp3xoaqKNdlVkUXDhlYe8U2ygraWrEHyAw2hSxn?=
- =?us-ascii?Q?vnC0ts6Sor0of3OcklAVED1HZabkTerjkttCWModU37cEQQb+Up1uU2iRbom?=
- =?us-ascii?Q?Cwcem2wN/KCcEiyJZVd8d6MTg7Ufp8fa9krPE/aeniuLO+Tk4umwq7XwdyOp?=
- =?us-ascii?Q?UEZGd6FrJLO65M4mw8UbmvqNRTdxSpPeAKIPyIEZzXL36lbSDoFcbR5JAP/H?=
- =?us-ascii?Q?Wwj6HnKZ5bZOjKriffQQTYwxngvAeIRebMXLjs1iEmSkDlHy6OxmvJ0ly6WH?=
- =?us-ascii?Q?YTrO4dypFd34iz7NCHWT+15hK0EEPdnlrVPPcFEdQ6YURcHzFrn+sOOrrZqI?=
- =?us-ascii?Q?wu2q1na0r0qU9G/DmFyGD5B2p+NxQyU1fd5oA/al6fdddEdCS0ZpIgXCHv1X?=
- =?us-ascii?Q?K2wpvHVrXjvbvqX1tY+lDZgYk3Gz1I3mbBW9580qNN13bWGRsaMG93VNN+Ip?=
- =?us-ascii?Q?SvSsh0uavoSzgf6WEGgNxwADPxH2hTOuhA6+PWm1idfeewsqMQm/Jdkbowlv?=
- =?us-ascii?Q?gstyBwTEDiqntFFUNnMAEZ4qb9vmeyQJAcuttO4vtBrE6b7BHswLpJ5FBaDn?=
- =?us-ascii?Q?5lMxWBzk+DRxwWv6GaVqoZg5rUwC27SvZ0Ph52LpKFgZ7xJ9sVZo0ugHF6dO?=
- =?us-ascii?Q?XjRbBGOf8k0pFEGohXDqQrK2sNQPW7+SwaMQq5Iq0Bvu9wP6dYUS0cuvuVVY?=
- =?us-ascii?Q?SklD/AlEPQqhiZX95DXbxoVnRBfo32jX3oORFkBaCZ0V46WdmJD+xmeiQ0Ex?=
- =?us-ascii?Q?TlVPmFaPsv3cmGUuqNrYnSimAjgdbmWWzwaIRIgx67r6pE5/T43/51G4cI2c?=
- =?us-ascii?Q?gBY/FsvVPKnN3/1bVT0Ubo+koXMb4wpo99oBWVFnyuZdT0MCF7RQifo8rx07?=
- =?us-ascii?Q?iITaDro2I6JaqJ1HCwPmXMhnvaEN74GjKSQijOFBrFIl+qnhzaPWbAVCsBN7?=
- =?us-ascii?Q?KU618E8Kl+XV+QgnU+W6S4+ogukYhTS2RwqP8pA/VgaMmnJv7ZujFIo8/21Y?=
- =?us-ascii?Q?LmEStCb+Kqi5JrxAC7E=3D?=
+	=?utf-8?B?SHQzekZMRHg4cjY3YTVUVUl4MmcxQVNKOTJUb04wYWxvSXRKdk9SWVJtN0d0?=
+ =?utf-8?B?SXlIYTFpYU44ZWdTWmI4cGVHYllMNms4NGFuL0V6eEJQVHhnSi9Fajc0VER4?=
+ =?utf-8?B?MXU1bU5raEZwUURieEN2MWlHdWVFMUVzN3d0R2RQcFBMTUVPVmI2UDI4QVpv?=
+ =?utf-8?B?dlphWWVpL3QzWGQwVU00NE4rbjR4Vm9YQjRJN1Vja0VHOFQ2OTZxdmFla1ZT?=
+ =?utf-8?B?eXZuNlNMYUZ0M2xhbkZFanB3aG1leVpxQlJDRktka3JOWG0wZ2M3bWhKTXBK?=
+ =?utf-8?B?SGZ0QkEwNkxBTE9lZlBQOUtvU3FiV3ZmaGR0eXNQSi9QdW5ESUhuT0VvRzNy?=
+ =?utf-8?B?eWJlVjVDSGlCd2dHN2VMZ3FTaE1TckhEUXhRVFpINjhVamRDTU1mbHVWZjBN?=
+ =?utf-8?B?MmxRWVhPd1lmQWdvUjQ0ZWxmV296YzkwZ2lSNjlZcUFsdUNkZG1La0MwY09P?=
+ =?utf-8?B?Z1picUNDNUVONFkxczI3enhXMXZjQmhRVEVSWXM3Sm9zSjg0SWwyOW52b0g0?=
+ =?utf-8?B?a0F4WTlsendBVDVvaThWVnNuSWowT1diT0VxYTg5Tk5aNGlKQ2FwbGRvSUVV?=
+ =?utf-8?B?T0NGOERDeU1YWjFPNUk4NURXdkVIRkltWmR5TWhzNUd3UVhVUEJEZ3B0MHFT?=
+ =?utf-8?B?VHh5MmViSkZzL1Z6S1NvSjVaaVVxVG1aeFhzZlNqRDlUUThiQTgxZmRLRUVY?=
+ =?utf-8?B?YUozMFZoeXExa2lxTzJzVzZ4cVhRWnlLa0NmZzZOd2MxU0xTbHBlbEFJbnpU?=
+ =?utf-8?B?dkJzRDY0UTZrY21IM3RZaERyaU9LdnFNd2h1bk5LYzhvQnRKbTVXMWdwQllF?=
+ =?utf-8?B?Nm5mWmlPWE5ySTFDdTFUUXRtMkpPMUdabjA4MllMdDBGZ0JCeTNRL2djN01M?=
+ =?utf-8?B?dmF5dXpJS1ZtdU45YTBVTWo1YUhhZ09PTmo4anA5SzZHV1lyQ0d3RDM1N3ZQ?=
+ =?utf-8?B?cUJ0cjVucXBsUG1ZdU1yTkdPcE5FQ1dHYUh5dDBwMERwS3ZmNDl2M0VEamVr?=
+ =?utf-8?B?Uk5TMkF0S1hUZWxDaUQ4YU9EYkdnYk96cEJJTXdBS1VVOW1YZFY2cG9Ja2NR?=
+ =?utf-8?B?cXVzYktNZ2tNZXRYc0Qwek81NzAxN3p4SHl2aXdsZUs5UWRGQTZSSndYQXRv?=
+ =?utf-8?B?N1dNVXRadmlVaEFLbXFFcU1RalNqald1U2JQblpoSFpNV1A2d1UxZ283TElI?=
+ =?utf-8?B?d0prN1lVQU0zbmdzNVo3LytQcU54OTNVTlB2MSs0OE0vVjZudlRxSnVWKzNE?=
+ =?utf-8?B?WjJVc0VyeXpWUDMzeXhROEZxaUZmRWxValJObFB1K1dBUXFLQWpPRVRBRlFp?=
+ =?utf-8?B?dmJaUmU1S3pqRGc0ejB6Q2YzVm9WSWNaeUZrWnJpMVhNbmR4Uit4eERjMlFV?=
+ =?utf-8?B?QlBDNktvYzdveWpsMXM5NElqbXQ1OURwU3ozcnZWK1ZWN04wbVZmS2NQWEdv?=
+ =?utf-8?B?TUluUWRGWmZIS2JNNHJBRWhjVGd5TVFoeDVEQ2lHTzBXNGRnZEpGUUVEclBG?=
+ =?utf-8?B?d0pFcW1tTWc4WjFQSjFPazZWVG1tbVMwQXA0M3ZldzhMKytGdE1qWHR1RkMz?=
+ =?utf-8?B?RmNxTENmSEpmNVJFaVdVeVNqNHBsQkQwa0tHREZBcTQ0T2lka01zTmdGU0g5?=
+ =?utf-8?B?TERHT3MwVFpMc0tMSUlRdU91VTRBdGxOTXN1ZTkrMm9pTmdCMUZReWRoelVr?=
+ =?utf-8?B?M2gvT3JYRjJDNXVGMHJvSXJRSjNEVGlhSzlwdkhQTjZjTndrUzFxZlVlUHlK?=
+ =?utf-8?B?TCtiU01QK3FiajZmaUw2YmFsTUxrcTdNNHlqUmhyZEZlNk1hVUZ0Q21LeHdI?=
+ =?utf-8?B?b2hYczAxY0U3d1FlOFN4Mk1VRlgvcitkaFFWMnJxMGMzMUsxdTJMeWpBOFls?=
+ =?utf-8?B?QWx0RDgzOG5OSzdhbU5lWWNjSGRlanh3a0NVZmJhY3I1U3dNcW9lYWM4V1Ey?=
+ =?utf-8?B?cjJBZlc0SlZkd0RCM2Y1V0JoL3VleTR4MEYzd08rbUY3UFBOc1pUUG5DRVpa?=
+ =?utf-8?B?ancwOENSU2FpZ241QnpWbWN1WGN0WFZWbW5SRWI0dTgwVkxrTzE0UHF0MU9E?=
+ =?utf-8?B?U2txZG40cVNXc3doVmZkUTkybm50bGI3SkwweHVZT3pJWXcvb2dnMkdPYlpF?=
+ =?utf-8?Q?1Hf8=3D?=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5777.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(7053199007);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(7053199007);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?hLoZL2J5tMhRvDqJBqxO3IyCPBjUW+e76MJLRc7Cq2MjBggEKPCX4m+/Gr02?=
- =?us-ascii?Q?ESyPr14vflX/23Ea1Srn5r7W+UdXgVv1nfWwh/xSOzLgWqvBvtESRZx1DAk4?=
- =?us-ascii?Q?a+HmWayk6ldS4uzwvGQm9jwa28MySTHREeuRUxqYgRqMe8TLg5aWiCTg0aeC?=
- =?us-ascii?Q?Uvz3LvJuKWztAQOKDtO861bcTwSc81lGP/KFkT8JESgL3IvLwhBY49VgPK//?=
- =?us-ascii?Q?JT6HC4ZmjE+AnaQ4cq4xCXUAwXPOQVHq4MxlLzQ8FfLN+8M9p/Etpmd1ESgq?=
- =?us-ascii?Q?thOb9e1FWJPTtxOoDSKyrJsuweKOB3WevJ1Emluk9S4myJVLElw6E3nzlk2I?=
- =?us-ascii?Q?m5N3Z0ZnmhyvzSxKksRS2CWPrYwd5X1tvfgxq+6wI/7SqrDW/bDvDhWbXkKa?=
- =?us-ascii?Q?EZlvOmaLwg0ZZWqyYU/CbEa3bU2kHxNmOjk2l2K6icZRilXYt94E8TxGL+gm?=
- =?us-ascii?Q?2oy6j8q5aKWpeZU3KNsJtpRgOzENpRWv2d+aBIlVewVu9jWY/edpa4uADP+u?=
- =?us-ascii?Q?Cho0xuJ65aR8f3X2F141qbiAQTgl5Ij7ytYxyZtvoThuREEqVTWsXV2gJ61K?=
- =?us-ascii?Q?ioSfnNR8Oii7t0bdy2DBzkJI+Cd0I+s7CYRNbHWhjkFvjqxLI6HL7Yic47r/?=
- =?us-ascii?Q?kCr7AXMij6vGdxhC+wjpzr9aVGwZtludFUhGqdsvgbqeSzo1XXF2LmGrIVuQ?=
- =?us-ascii?Q?eqCkAf0Ev1vvTtaef4fTEEbjquAlrRWdfse9NwHOH1uBd00PFdSwxtmuc87B?=
- =?us-ascii?Q?GPTOM1fPFNNDBZi3XaHUElwne+cQOF6WxYnEUhWWT6JKmwfXVDztbYr4nPVN?=
- =?us-ascii?Q?kYCbWk1t0uLvmFiBRvdG6XGx8j2ibHlx9nHVK/D+HLC08lT4SHOo0oXkXxbA?=
- =?us-ascii?Q?0xuZrULNcmDDq4e0BLL1BlbSkWfIpe4EiZ5QLzbrmFElaKit1Q3IEQySvxgx?=
- =?us-ascii?Q?ofsWsE2TuNxgy6tlyt5zSYorWjxlCTqHM77rM0rw5ZBd0/KOTPKKTU6Ah26K?=
- =?us-ascii?Q?hfRPR9hl/Mi16lX4Ks4tlrvmFAAGjLeW5k40F4OqoN7GLCkOYSN8WRzTJ7S4?=
- =?us-ascii?Q?diLD1+hb0gGECA0XLW8PIIUMiRdJdXuPkY/0T2G/6tZBsvwdnQJ9vBzoxb4J?=
- =?us-ascii?Q?VtqUCDNK+jh+24fOp/yXns5HHiWyHWjibVhe9jyeQNHrmsjkpE8ihN9ODWPv?=
- =?us-ascii?Q?XksUvljtOc2qU59LPzjUsS89R4DXD9YI3BZKK/jK8gSaaRnkAHIjKBBIgj3v?=
- =?us-ascii?Q?MRvIqFTWM8JEhQQ6XRkY+8/VoWnKFgVnz+zU9kxheNftLUHO+UsakLpFrjPN?=
- =?us-ascii?Q?07ljC9+sFn9w0JiXUmZKpPXCjVNkJK5fnITs4T8e5KlvmBRVosNduRMmFBl6?=
- =?us-ascii?Q?ppR/nMdiHx6bzpFAric9f5IWCIzjGOwy3Z7iYu+JeS/bFtGMWazjWboYZ4U6?=
- =?us-ascii?Q?KG7kr4HYEsON8K5pU+PK3EbJProbtPQyM00IfE0mEfip9X/9qjemNr7/oKL7?=
- =?us-ascii?Q?kIoycTgZoU9Zz8XtAZwBMvyHmAufTLbFJl++kXFLqhD7vC5Y3meOqWdHuX7l?=
- =?us-ascii?Q?Jz60P0+jIGsi7dhygrPQuX0MqNbbAvkH2z8G+izduHXGdWHcLrM+lEqna4lN?=
- =?us-ascii?Q?k4OaQuT7QL6WC39LomN++4UAo/D4XKtJRn5oXWTQmGF/+6bvUpy1dehGWHxA?=
- =?us-ascii?Q?BtD1d65OVONYIBFBLg+aXc6ZrdHEg+3EfNHUNdl6g2BOZd6vFFJJt1JUMPor?=
- =?us-ascii?Q?qK0hkonAdw=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	3PZE06udBpZ24zEMgqrsul2z8ObeK50xSRoe94bIAdxBgO9XecXWwAFL4DwG74Yk7k9zcLQbSg8ndILvreQ/x7ypJ13cT9xJs70/GxcquQ97NGYmDFiDIl0nseio0SuNNGCyfrv45lWctyg0k1sgOu/zkIPgnU3eGJHssZUhs6nDHz18cB9sfio6w4IYNJQbMDLIOiPqsTDb4/fMUvhvbsjUKU+UjpSAEx4j7ML3KsIbFvyPH17Mw5ywbPdQPcw+z7shob3HvqCoJrePZ5LfAofBAkuF4hLe94brMLrgcbPknTiJRZUkG5esPnuOnx9GWmm9eYyqG1pK0+cN6Cxlg82XUn7Jmf+W+/zUAv9zV0O6Mse8NjHNrIrAKzXJevKVpfapd/ak56AJ9BhDvHvTuPCoyoVSp6JcZ6AvJq9Loi5g9uvd42GYf1RQpiHGydWlg6Q912df6MjrMl5SmXm1q8uTs9rVjhE4o+mxNP18MCCy0tuaS3fwW74ckq+dDzn2P0dcOxZPZtacmBEuDbLqN/Bja5qqwGKnefn2r8SY2Hrzt+Ita3V7OKanviWrdU6Qh7HeYGJW/SumhRafNp4jIJI6fXVUyEG5FYpxZBmDhd8=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a14e8496-2fa1-42c6-c399-08de543f40ed
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5777.namprd10.prod.outlook.com
+	=?utf-8?B?Smo4N2pHVGdVR0NEa3NDbEVNaTlpWWJ3dGhSdXFidDEvU29ValRYdzZ2SW13?=
+ =?utf-8?B?SzA4RUFvTGVjRE94dG4wZmQ0S0NqemRsVGpHdVdrTU93Ympyd1lSNHQyQ3JI?=
+ =?utf-8?B?a3I1UmxQOWY2M1VUWlo5NDJ2bEhlSVlLKzVMd2lyQnBrVENGOWQrckhIMEJT?=
+ =?utf-8?B?VDJFZU92cGhuSFRqY3R5MC9reXpISlNWNkp1S1ZJaFdDVGR4WkJHQ01Jcmtt?=
+ =?utf-8?B?RzluVGdWc3p5ejJ6S0pwd1liVVF5STF1OURKMWkwdXJ3OVVld1pjR1BPUGJ0?=
+ =?utf-8?B?RDIxWkJ5T1RYK09aQ09SSUllbzhYSjVuem55YXRnUHFPQ0c5cnRjenlTdmZn?=
+ =?utf-8?B?YUFMSFlXM1o2STVEUmVrTmFJaEdHdWkzRWgrSGtKenhXNlZDMmc3cWd6N3Z5?=
+ =?utf-8?B?N0NmMnM1Qk5LaEp6UGNIa0pCbGhnNkkzaE14UEJaV1IxQkVZdEJJN0dWemZ0?=
+ =?utf-8?B?d1pDeEx2OFNnd3I3dE9HUjZnTExpbGZid1RTVmZUV2x6Zm8vK0trVkQ1RG51?=
+ =?utf-8?B?S0ZRUGxSWmQ1TFF4TEJ3SDNsaXNrQ200dVNrY3N3L1F2bGc2OWkyYVdRbEJU?=
+ =?utf-8?B?U2VSa2lNeVpDbDlZam5BemgvZ2JiS1l2VmRkOVA0b3VuZFNzdzNGeGc2M1BC?=
+ =?utf-8?B?anFMY0xLTU5QOFozQWs3a1dJRTdaM2Y4RHFvL0lQYWRrVUt6S0pCL0tpYkdw?=
+ =?utf-8?B?WXpJeEF2SnVINjRmZ1FOYU5XcGZTYnVuYWNEaG93WkVEZE50ZHZKbWk3SXJ1?=
+ =?utf-8?B?V0xabkpmeW1xeTZTOWgrNWdEYmlBMHBrcjZxWkNaY3lZVHNOQnZ6OXZNR1ly?=
+ =?utf-8?B?NHhQTm5rWWJNWEV0RVJxZlhZZXU4OUFPNi9VdWcvL0FaQ0pwRGo5NFhjUDhk?=
+ =?utf-8?B?SDBwTXBzdERQRnhMeVZ3SlBKQURQdTM4WnkxUHJuQ05ud3ZYV1dSaTAxU09B?=
+ =?utf-8?B?T2NQa1hJZnhTa3ROWEN4YzM3aE1wK01xS2pkUWllOXYzTlFMYWp2M3QrMnFi?=
+ =?utf-8?B?UytJOThoSTVUMHpPbjg4QjRxNCtNTk94bnRudUUwR29rWUZTOUlnL0lyZWdV?=
+ =?utf-8?B?NkVpdCtFRXBxTnF6SVppU1pWREZGRTg0d1B6a3o1S1ZqVC9jLzBLZlJKS3Y3?=
+ =?utf-8?B?M2hBUVhYQklKazNiRjQ0c0xRaGJOVG8wMU9UTGlnM1BBOUh5MUV1bWpFWldx?=
+ =?utf-8?B?VC9YYTdRUTVWQXZ2blpoOWRuZGcrQU5VV25SMDZPWGZXYUZWSEtnbDZiazJi?=
+ =?utf-8?B?UzVPZml3cEk1UkRRZmJGN1B2Z3hVcEhDMmg2a2tIMnRqMWRGUTVoNkZtY1BY?=
+ =?utf-8?B?enNSaDZ0MkVRQ1lmRkxTMkRHZnlGL2RaUkV6Y2pMWm1FU2tYM00veGc1V1pV?=
+ =?utf-8?B?eVc3TzMzL1AyQVp2YkYxdjdKS1Vld1hNNmthNWM0UTAvK25YNm1TSHE4WXdl?=
+ =?utf-8?B?eVc4NEc0TnRjTW9ISHJqTlpaTG91T2gyb3FieHpwK1BZYXVhZXhFVEl5QnRl?=
+ =?utf-8?B?Y1QyeW5GQWhqcVdLNVdMc1lKNUY4UEpnV1puR0RPNFNMSWZOelhjZnFPczcv?=
+ =?utf-8?B?Y2kzTGdCeEVuRFR4QkJlWEEyVUF2QmU5Qm1NVTlyTTV4L2dUS21NZEVMV1NE?=
+ =?utf-8?B?cmE0VkdIN1k3T2I4ODVaZHpBOVl0dDF3cXR2Uy9GT29sTUtSUy9oOXBBMzhZ?=
+ =?utf-8?B?ZGhEZ3pMZmpVMjVyNUJnOFRYdm1COEVJeGcwZy93djF4ZzkxeVg5UjJOOVVt?=
+ =?utf-8?B?TWFCYWw2TUlBZU14M09RdGV3WjQza2dXdEJiNHZ2OU5rVm1HRmJJN0loRXZq?=
+ =?utf-8?B?YTN5UWVKZGFlUFNlZ0tBQXRQRVZidHMrN2tnaHdWaW52QXhyb3dpMm5ZWWlX?=
+ =?utf-8?B?c1FITjVMMXdERjZlMmFVdUs4Vnc5RUhQU2UvSEJFc1Fzc2dVVGtSTG41QXVr?=
+ =?utf-8?B?REREVjVZTGVuSkpoQS9rZ09zY3Y0S3A4Tng3QmcydHlYZ3lqYXZ1cHNwamVl?=
+ =?utf-8?B?bDMvK0ZxTERoWW1ZaGFqNFd2TWVaSkVSb3ZMQUFMYkVPcUg4Z1JtVWoxYlQz?=
+ =?utf-8?B?bmYydWxCWk40QTM5WjlldFd0QlZkcXlveUdqcmczNk5PTWovUVUyVlcrT0ov?=
+ =?utf-8?B?a29xYXV4YzdIY1pQVWdWcHoxMUZQRTREVzdRdHhLdXdjOHEwVXZTbFV6WFN6?=
+ =?utf-8?B?ZmdKc2Fwc2sxV3BRNm9lTVFwNGNkRDRPbFFZcGFOeC9sS1UycDFrNXROckNy?=
+ =?utf-8?B?a1JwNTBtTUtCUzc3Uk1nZnNORFM4czVpSXBYVzdtemdON080ck1zSDhHTnJD?=
+ =?utf-8?Q?2ME/JpxcXAEvnzpXVS?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4314b057-eac4-4aba-9e88-08de5443da1d
+X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jan 2026 14:06:18.6332
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jan 2026 14:39:13.5343
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: NA2cQCRlVBd/aSkL+qnjVNSt0frLp2MgQWKTPu3tEfo+CE0n40H+bb5dJEQYRkg5pWFmGVeSisZFGrL/L+Px5w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR10MB7201
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-15_04,2026-01-15_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 malwarescore=0 phishscore=0
- mlxlogscore=999 adultscore=0 suspectscore=0 spamscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2512120000
- definitions=main-2601150104
-X-Proofpoint-GUID: s8wI8iqfIigHJoUS-C8oEAUXy3MuF6Eu
-X-Authority-Analysis: v=2.4 cv=X7Bf6WTe c=1 sm=1 tr=0 ts=6968f460 cx=c_pps
- a=OOZaFjgC48PWsiFpTAqLcw==:117 a=OOZaFjgC48PWsiFpTAqLcw==:17
- a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
- a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=vUbySO9Y5rIA:10 a=GoEa3M9JfhUA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=yPCof4ZbAAAA:8 a=dFmrGhp3TjRllwzZRqMA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTE1MDEwNSBTYWx0ZWRfX8fatSKCT5E0G
- i/GsIQpnDdNrB04Ymv9FprMXDPcNAQzTsrE50oJ8aDyz/ZvT9Na6LmpGl5owzQlLrxiGcQrRQuo
- p+t+jW3ZHvDW8Le1jzYDVXmrGybhmm3VJHLm10Ag0HUx874uNdWvKuzelExH/RIPL/DbRZ4Vf+p
- +O0mpor0nfEeMm6PcjqoeHDH/Ta91J4uhGZFWxIlwfsYhFzR7SNtzaeyGznp1/vCNCYvsFGjTsK
- YNcaZv8YxNiaAKi/OqJ1mK5MDBlOckIoluF1KCQPT01p1cZTzOFiPGhfXQtrQXtnCvzSp8DLNAJ
- lGEa8od4tPP7bC7PMOKpzgdmiLQnjxAiFxD46IU/AbdaksiH7J0GU78tW5gxdb8gYrVr7BzcVpG
- bd81OCagn3PBrHdr0hU6gE6eucozsHdz5cM8CI5LhH5QIvyASkyyTexDxYi0OU5KRsdr7qUWdCr
- ftkXXHC83P20J+cAJZQ==
-X-Proofpoint-ORIG-GUID: s8wI8iqfIigHJoUS-C8oEAUXy3MuF6Eu
+X-MS-Exchange-CrossTenant-UserPrincipalName: V5lH4lQ34hFXrYd7MuXg9KWxYQU0kZJ+nvvXcKBeN/ajb4e+Jh6EqJqaQz0rMRr3
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7628
 
-* David Hildenbrand (Red Hat) <david@kernel.org> [260115 04:21]:
-> Let's centralize it, by allowing for the driver to enable this handling
-> through a new flag (bool for now) in the balloon device info.
-> 
-> Note that we now adjust the counter when adding/removing a page into the
-> balloon list: when removing a page to deflate it, it will now happen
-> before the driver communicated with hypervisor, not afterwards.
-> 
-> This shouldn't make a difference in practice.
-> 
-> Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
+Sorry to being late, but I only now realized what you are doing here.
 
-For what it's worth,
+On 1/15/26 12:02, Thomas Zimmermann wrote:
+> Hi,
+>=20
+> apologies for the delay. I wanted to reply and then forgot about it.
+>=20
+> Am 10.01.26 um 05:52 schrieb Zack Rusin:
+>> On Fri, Jan 9, 2026 at 5:34=E2=80=AFAM Thomas Zimmermann <tzimmermann@su=
+se.de> wrote:
+>>> Hi
+>>>
+>>> Am 29.12.25 um 22:58 schrieb Zack Rusin:
+>>>> Almost a rite of passage for every DRM developer and most Linux users
+>>>> is upgrading your DRM driver/updating boot flags/changing some config
+>>>> and having DRM driver fail at probe resulting in a blank screen.
+>>>>
+>>>> Currently there's no way to recover from DRM driver probe failure. PCI
+>>>> DRM driver explicitly throw out the existing sysfb to get exclusive
+>>>> access to PCI resources so if the probe fails the system is left witho=
+ut
+>>>> a functioning display driver.
+>>>>
+>>>> Add code to sysfb to recever system framebuffer when DRM driver's prob=
+e
+>>>> fails. This means that a DRM driver that fails to load reloads the sys=
+tem
+>>>> framebuffer driver.
+>>>>
+>>>> This works best with simpledrm. Without it Xorg won't recover because
+>>>> it still tries to load the vendor specific driver which ends up usuall=
+y
+>>>> not working at all. With simpledrm the system recovers really nicely
+>>>> ending up with a working console and not a blank screen.
+>>>>
+>>>> There's a caveat in that some hardware might require some special magi=
+c
+>>>> register write to recover EFI display. I'd appreciate it a lot if
+>>>> maintainers could introduce a temporary failure in their drivers
+>>>> probe to validate that the sysfb recovers and they get a working conso=
+le.
+>>>> The easiest way to double check it is by adding:
+>>>> =C2=A0=C2=A0 /* XXX: Temporary failure to test sysfb restore - REMOVE =
+BEFORE COMMIT */
+>>>> =C2=A0=C2=A0 dev_info(&pdev->dev, "Testing sysfb restore: forcing prob=
+e failure\n");
+>>>> =C2=A0=C2=A0 ret =3D -EINVAL;
+>>>> =C2=A0=C2=A0 goto out_error;
+>>>> or such right after the devm_aperture_remove_conflicting_pci_devices .
+>>> Recovering the display like that is guess work and will at best work
+>>> with simple discrete devices where the framebuffer is always located in
+>>> a confined graphics aperture.
+>>>
+>>> But the problem you're trying to solve is a real one.
+>>>
+>>> What we'd want to do instead is to take the initial hardware state into
+>>> account when we do the initial mode-setting operation.
+>>>
+>>> The first step is to move each driver's remove_conflicting_devices call
+>>> to the latest possible location in the probe function. We usually do it
+>>> first, because that's easy. But on most hardware, it could happen much
+>>> later.
+>> Well, some drivers (vbox, vmwgfx, bochs and currus-qemu) do it because
+>> they request pci regions which is going to fail otherwise. Because
+>> grabbining the pci resources is in general the very first thing that
+>> those drivers need to do to setup anything, we
+>> remove_conflicting_devices first or at least very early.
+>=20
+> To my knowledge, requesting resources is more about correctness than a ha=
+rd requirement to use an I/O or memory range. Has this changed?
 
-Acked-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Nope that is not correct.
 
-> ---
->  arch/powerpc/platforms/pseries/cmm.c | 13 +------------
->  drivers/virtio/virtio_balloon.c      | 19 ++-----------------
->  include/linux/balloon_compaction.h   |  2 ++
->  mm/balloon_compaction.c              | 17 +++++++++++++++++
->  4 files changed, 22 insertions(+), 29 deletions(-)
-> 
-> diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
-> index 15f873f733a41..7fd8b3d7e7637 100644
-> --- a/arch/powerpc/platforms/pseries/cmm.c
-> +++ b/arch/powerpc/platforms/pseries/cmm.c
-> @@ -165,7 +165,6 @@ static long cmm_alloc_pages(long nr)
->  
->  		balloon_page_enqueue(&b_dev_info, page);
->  		atomic_long_inc(&loaned_pages);
-> -		adjust_managed_page_count(page, -1);
->  		nr--;
->  	}
->  
-> @@ -190,7 +189,6 @@ static long cmm_free_pages(long nr)
->  		if (!page)
->  			break;
->  		plpar_page_set_active(page);
-> -		adjust_managed_page_count(page, 1);
->  		__free_page(page);
->  		atomic_long_dec(&loaned_pages);
->  		nr--;
-> @@ -515,16 +513,6 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
->  		return -EBUSY;
->  	}
->  
-> -	/*
-> -	 * When we migrate a page to a different zone, we have to fixup the
-> -	 * count of both involved zones as we adjusted the managed page count
-> -	 * when inflating.
-> -	 */
-> -	if (page_zone(page) != page_zone(newpage)) {
-> -		adjust_managed_page_count(page, 1);
-> -		adjust_managed_page_count(newpage, -1);
-> -	}
-> -
->  	/*
->  	 * activate/"deflate" the old page. We ignore any errors just like the
->  	 * other callers.
-> @@ -551,6 +539,7 @@ static int cmm_init(void)
->  		return -EOPNOTSUPP;
->  
->  	balloon_devinfo_init(&b_dev_info);
-> +	b_dev_info.adjust_managed_page_count = true;
->  	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
->  		b_dev_info.migratepage = cmm_migratepage;
->  
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index df2756c071dae..15c1cf5fd249c 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -274,9 +274,6 @@ static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num)
->  
->  		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
->  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> -		if (!virtio_has_feature(vb->vdev,
-> -					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> -			adjust_managed_page_count(page, -1);
->  		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
->  	}
->  
-> @@ -295,9 +292,6 @@ static void release_pages_balloon(struct virtio_balloon *vb,
->  	struct page *page, *next;
->  
->  	list_for_each_entry_safe(page, next, pages, lru) {
-> -		if (!virtio_has_feature(vb->vdev,
-> -					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> -			adjust_managed_page_count(page, 1);
->  		list_del(&page->lru);
->  		put_page(page); /* balloon reference */
->  	}
-> @@ -839,17 +833,6 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
->  	if (!mutex_trylock(&vb->balloon_lock))
->  		return -EAGAIN;
->  
-> -	/*
-> -	  * When we migrate a page to a different zone and adjusted the
-> -	  * managed page count when inflating, we have to fixup the count of
-> -	  * both involved zones.
-> -	  */
-> -	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM) &&
-> -	    page_zone(page) != page_zone(newpage)) {
-> -		adjust_managed_page_count(page, 1);
-> -		adjust_managed_page_count(newpage, -1);
-> -	}
-> -
->  	/* balloon's page migration 1st step  -- inflate "newpage" */
->  	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
->  	set_page_pfns(vb, vb->pfns, newpage);
-> @@ -958,6 +941,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  	if (err)
->  		goto out_free_vb;
->  
-> +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> +		vb->vb_dev_info.adjust_managed_page_count = true;
->  #ifdef CONFIG_BALLOON_COMPACTION
->  	vb->vb_dev_info.migratepage = virtballoon_migratepage;
->  #endif
-> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-> index 7cfe48769239e..3109d3c43d306 100644
-> --- a/include/linux/balloon_compaction.h
-> +++ b/include/linux/balloon_compaction.h
-> @@ -56,6 +56,7 @@ struct balloon_dev_info {
->  	struct list_head pages;		/* Pages enqueued & handled to Host */
->  	int (*migratepage)(struct balloon_dev_info *, struct page *newpage,
->  			struct page *page, enum migrate_mode mode);
-> +	bool adjust_managed_page_count;
->  };
->  
->  extern struct page *balloon_page_alloc(void);
-> @@ -73,6 +74,7 @@ static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
->  	spin_lock_init(&balloon->pages_lock);
->  	INIT_LIST_HEAD(&balloon->pages);
->  	balloon->migratepage = NULL;
-> +	balloon->adjust_managed_page_count = false;
->  }
->  
->  #ifdef CONFIG_BALLOON_COMPACTION
-> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-> index 5444c61bb9e76..fd9ec47cf4670 100644
-> --- a/mm/balloon_compaction.c
-> +++ b/mm/balloon_compaction.c
-> @@ -23,6 +23,8 @@ static void balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
->  	BUG_ON(!trylock_page(page));
->  	balloon_page_insert(b_dev_info, page);
->  	unlock_page(page);
-> +	if (b_dev_info->adjust_managed_page_count)
-> +		adjust_managed_page_count(page, -1);
->  	__count_vm_event(BALLOON_INFLATE);
->  	inc_node_page_state(page, NR_BALLOON_PAGES);
->  }
-> @@ -95,6 +97,8 @@ size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
->  			continue;
->  
->  		list_del(&page->lru);
-> +		if (b_dev_info->adjust_managed_page_count)
-> +			adjust_managed_page_count(page, 1);
->  		balloon_page_finalize(page);
->  		__count_vm_event(BALLOON_DEFLATE);
->  		list_add(&page->lru, pages);
-> @@ -256,12 +260,25 @@ static int balloon_page_migrate(struct page *newpage, struct page *page,
->  
->  		balloon_page_insert(b_dev_info, newpage);
->  		__count_vm_event(BALLOON_MIGRATE);
-> +
-> +		if (b_dev_info->adjust_managed_page_count &&
-> +		    page_zone(page) != page_zone(newpage)) {
-> +			/*
-> +			 * When we migrate a page to a different zone we
-> +			 * have to fixup the count of both involved zones.
-> +			 */
-> +			adjust_managed_page_count(page, 1);
-> +			adjust_managed_page_count(newpage, -1);
-> +		}
->  		break;
->  	case -ENOENT:
->  		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
->  
->  		/* Old page was deflated but new page not inflated. */
->  		__count_vm_event(BALLOON_DEFLATE);
-> +
-> +		if (b_dev_info->adjust_managed_page_count)
-> +			adjust_managed_page_count(page, 1);
->  		break;
->  	default:
->  		return rc;
-> -- 
-> 2.52.0
-> 
+At least for AMD GPUs remove_conflicting_devices() really early is necessar=
+y because otherwise some operations just result in a spontaneous system reb=
+oot.=09
+
+For example resizing the PCIe BAR giving access to VRAM or disabling VGA em=
+ulation (which AFAIK is used for EFI as well) is only possible when the VGA=
+ or EFI framebuffer driver is kicked out first.
+
+And disabling VGA emulation is among the absolutely first steps you do to t=
+ake over the scanout config.
+
+So I absolutely clearly have to reject the amdgpu patch in this series, tha=
+t will break tons of use cases.
+
+Regards,
+Christian.
+
+>> I also don't think it's possible or even desirable by some drivers to
+>> reuse the initial state, good example here is vmwgfx where by default
+>> some people will setup their vm's with e.g. 8mb ram, when the vmwgfx
+>> loads we allow scanning out from system memory, so you can set your vm
+>> up with 8mb of vram but still use 4k resolutions when the driver
+>> loads, this way the suspend size of the vm is very predictable (tiny
+>> vram plus whatever ram was setup) while still allowing a lot of
+>> flexibility.
+>=20
+> If there's no initial state to switch from, the first modeset can fail wh=
+ile leaving the display unusable. There's no way around that. Going back to=
+ the old state is not an option unless the driver has been written to suppo=
+rt this.
+>=20
+> The case of vmwgfx is special, but does not effect the overall problem. F=
+or vmwgfx, it would be best to import that initial state and support a tran=
+sparent modeset from vram to system memory (and back) at least during this =
+initial state.
+>=20
+>=20
+>>
+>> In general I think however this is planned it's two or three separate se=
+ries:
+>> 1) infrastructure to reload the sysfb driver (what this series is)
+>> 2) making sure that drivers that do want to recover cleanly actually
+>> clean out all the state on exit properly,
+>> 3) abstracting at least some of that cleanup in some driver independent =
+way
+>=20
+> That's really not going to work. For example, in the current series, you =
+invoke devm_aperture_remove_conflicting_pci_devices_done() after drm_mode_r=
+eset(), drm_dev_register() and drm_client_setup(). Each of these calls can =
+modify hardware state. In the case of _register() and _setup(), the DRM cli=
+ents can perform a modeset, which destroys the initial hardware state. Patc=
+h 1 of this series removes the sysfb device/driver entirely. That should be=
+ a no-go as it significantly complicates recovery. For example, if the nati=
+ve drivers failed from an allocation failure, the sysfb device/driver is no=
+t likely to come back either. As the very first thing, the series should st=
+ate which failures is is going to resolve, - failed hardware init, - invali=
+d initial modesetting, - runtime errors (such ENOMEM, failed firmware loadi=
+ng), - others? And then specify how a recovery to sysfb could look in each =
+supported scenario. In terms of implementation, make any transition between=
+ drivers
+> gradually. The native driver needs to acquire the hardware resource (fram=
+ebuffer and I/O apertures) without unloading the sysfb driver. Luckily ther=
+e's struct drm_device.unplug, which does that. [1] Flipping this field disa=
+bles hardware access for DRM drivers. All sysfb drivers support this. To ge=
+t the sysfb drivers ready, I suggest dedicated helpers for each drivers ape=
+rture. The aperture helpers can use these callback to flip the DRM driver o=
+ff and on again. For example, efidrm could do this as a minimum: int efidrm=
+_aperture_suspend() { dev->unplug =3D true; remove_resource(/*framebuffer a=
+perture*/) return 0 } int efidrm_aperture_resume() { insert_resource(/*fram=
+ebuffer aperture*/) dev->unplug =3D false; return 0 } struct aperture_funcs=
+ efidrm_aperture_funcs { .suspend =3D efidrm_aperture_suspend, .resume =3D =
+efidrm_aperture_resume, } Pass this struct when efidrm acquires the framebu=
+ffer aperture, so that the aperture helpers can control the behavior of efi=
+drm. With this, a multi-
+> step takeover from sysfb to native driver can be tried. It's still a mass=
+ive effort that requires an audit of each driver's probing logic. There's n=
+o copy-paste pattern AFAICT. I suggest to pick one simple driver first and =
+make a prototype. Let me also say that I DO like the general idea you're pr=
+oposing. But if it was easy, we would likely have done it already. Best reg=
+ards Thomas
+>>
+>> z
+>=20
+
