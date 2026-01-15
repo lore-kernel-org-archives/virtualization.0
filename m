@@ -1,271 +1,578 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0900E7081A
-	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 13:47:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768484856; cv=fail; b=EUSLNzrs93g0l6CfVxqesySmhIZ2OYWjhS1rhkB7h7xylrqDov5dHTC+rXCi+HwXZdYeA6OcPFAMOjvjsWe3c49iZhfvzwo1R0n/qFE9LIX+lhTYlfDCDgKZt3wxNFF2i9ErY6/AAl+w7XpD5851VQHtNlCZvzyUL5Ryk+7gois=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768484856; c=relaxed/simple;
-	bh=Kn80YKsg0IFWiiiVSYVe5W6xvVMg6rGuJzEygFvPnCc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=f6B2yN9Di9/ZQ6/xDMB8kL2IeotyiBiakE9gU5YoVdqpMIoyF/SJeP/Yg6AEul7HIstJIt7WQX6vhhxxmx17+aZBuNO0VWNw1PDHrX8t0xNkE8cSDNU3hbA5eh9onbBUZDtYfYKhmvJFqAzPM0/R2swDgiWAeT66U2rxU13nxxw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=VfGfW2px; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=LnkwvMD8; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 464397081A
+	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 13:48:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768484895; cv=none; b=WX9/KbBaGsN8pe1iUb136wppdNV+JWENvywcIJEAgtgM7Ei1BCUGK3JiXoOGbgcPsYjaPbgZRgf0VvTy45C/CDzpMD6FK8nk+QdnNhN1yBeiHQPe9kDpQFuUYuMgra/jya0YEDb6vmFXEHVlXTgXt0cYxeiDH78DJOjqWPWlwSk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768484895; c=relaxed/simple;
+	bh=v6sL5FlFwcJ9uF4XHSojlpJ3JzC/ns2hLNu0dTxwSIs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WF2XafJOBgkj/oDnEGCVg4xujAlGcKk6ZipV6j0aJqpWeqRi2u91DER6ByjzIP6mxVuBPooPnMs26wHa5TH9bkC2YCG9zOSgJ2vYs21RpY73/bGlvMF/QUJuxRpfZsqTD8fSxgFKWvZaHP0pS/cqxVfd1hSvTdqEYnzEu3vUZsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FH9lnk+y; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="VfGfW2px";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="LnkwvMD8"
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60FAgb5N2755030;
-	Thu, 15 Jan 2026 13:47:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=corp-2025-04-25; bh=ZUamO8Ah86E6t5Rjom
-	pyWUa5TwsuVyMjfL536GRqhnU=; b=VfGfW2pxqFisHspPzO4lXaSiNKmye4kWcq
-	+Hm9StFsrwz2wjIDX4m4BtPaNyFIWAoomYWSsJFzI3RiPOYidhCGN2oS/e0g5VQv
-	vLd6UZh/g1u8f8SBWeG9uIxzRs5v43c/tza4HODPSNGt5ZTJc1rPBL5xCPQ9eA+7
-	NAdwJcfBEc2pEpIZU7pfCkWzsgzmbyld/W1EUrE8/t3XJPoirnJNyF52ao6qzagi
-	xq8TH43sD45sByzq05s8dt1jELMvAzAa8OmOWxc4iezBc+aEVuwXLI4H6RPM7/x3
-	8GORR+eGifDzlFjh1QmvinpLl5eGvQR5HfKmENiL2naSa/fMaOxg==
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4bkpwgqumy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Jan 2026 13:47:08 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 60FCtgI7035569;
-	Thu, 15 Jan 2026 13:47:07 GMT
-Received: from sn4pr2101cu001.outbound.protection.outlook.com (mail-southcentralusazon11012043.outbound.protection.outlook.com [40.93.195.43])
-	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4bkd7bbndy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Jan 2026 13:47:07 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=x/xaokgo1kUJH51PRTc7Ud8HNes4zQQ7Tfa0tZE8X1Gna5UAjo4+Vyr4LkzYwXCwoXautqCCblPzS6Q/UkVrKDy+0tv31GZjURMWP9+drU6JQ/pWxoe7No69I1hkV943B+eRuSQ/KZ0EewvEVovSvjzBR4R912BeIfJ839PGy6B4Q+IPoTaeoxvc4Qj52pQuvyEzLtH8SWUlcTbRzEahOS84gPksatXaty9+w4jrrLPC7IB+A0RXsEnpgBduQaW7aVKXai79q6PrIvBrRFTqPYvWfLdJz43gwGcXUOIMgU5vVjz/srFp/6ahMN3vG+lF9awI5vnJL426SJoU4xmvCA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ZUamO8Ah86E6t5RjompyWUa5TwsuVyMjfL536GRqhnU=;
- b=C/1L4+ZHjm+ZTcP9l1Dk2I3BBYl0ghXEGiiVkgXUKvFzTtTDkDbDsRx8fkHIQc157oEeN7cWvly4UR1sITlE8msuygqkjS/AnfJgDV2mDoJmOxgec8hzzi64otKN4qWNanX4ALsiOktPdVSyfEhmCPcjbPz46PAu8mrc28DGXcavjBep6P4J3hHH0pDZhTF3JEZOYGGzsOBUZOdKT43TvlZPZNfudckrf0RehEIANR6nWwLwNdcjlsjEDxhdPu+QQ3Ibe1L1MVO9lE5FGkvcypq/yrAKkcySC7hYUqIFRJyuelF5malOk7laeig/Noa3+J45AmYjU3VXvRMqLkxAQQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ZUamO8Ah86E6t5RjompyWUa5TwsuVyMjfL536GRqhnU=;
- b=LnkwvMD8IXJhf00hWWrqgzgrU1CHrrPgDQPfjf/v2WV7ttAxFCvtg5n0rJUWVvt1Ia7rWQgfuxFPV9cbsSSGKWAECTt2m2pDzgMfqE9fjHId0qzFL8im9HSFO04Q6GUJ+pWSX/Co9yzBqNTxVXYp5HrOV1M5Tg7dkxmGxwdcbDY=
-Received: from BL4PR10MB8229.namprd10.prod.outlook.com (2603:10b6:208:4e6::14)
- by CH3PR10MB6763.namprd10.prod.outlook.com (2603:10b6:610:147::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9520.6; Thu, 15 Jan
- 2026 13:47:03 +0000
-Received: from BL4PR10MB8229.namprd10.prod.outlook.com
- ([fe80::552b:16d2:af:c582]) by BL4PR10MB8229.namprd10.prod.outlook.com
- ([fe80::552b:16d2:af:c582%6]) with mapi id 15.20.9520.005; Thu, 15 Jan 2026
- 13:47:03 +0000
-Date: Thu, 15 Jan 2026 13:47:06 +0000
-From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        linuxppc-dev@lists.ozlabs.org,
-        Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-        linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-        Zi Yan <ziy@nvidia.com>
-Subject: Re: [PATCH v2 20/23] mm/kconfig: make BALLOON_COMPACTION depend on
- MIGRATION
-Message-ID: <c2dd5cb4-9303-489f-bbd8-2a09a16dd973@lucifer.local>
-References: <20260115092015.3928975-1-david@kernel.org>
- <20260115092015.3928975-21-david@kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260115092015.3928975-21-david@kernel.org>
-X-ClientProxiedBy: LO2P123CA0098.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:139::13) To BL4PR10MB8229.namprd10.prod.outlook.com
- (2603:10b6:208:4e6::14)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FH9lnk+y"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768484892;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LNVB3Cl97VXqWuirwYWckvKJ9pmI3BVBreE+/SzD7NE=;
+	b=FH9lnk+yeGv+DpuD5vwevFwzL8EjovMZxRC9uPvBBWiAZRruyVdmXYtIpG+qmnxE8Qh2cc
+	A64yK55DUqVtVaFpZMVDXppliO6QrUAiycxruXXehZK05C2LsyEkOWniL7oiMhtyPsY9Nr
+	ayjepE1NSXR6SeZ1PPo6CSTD+PMGwko=
+Received: from mail-yx1-f70.google.com (mail-yx1-f70.google.com
+ [74.125.224.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-691-WANMzSRFNjGA52DxBHybOA-1; Thu, 15 Jan 2026 08:48:10 -0500
+X-MC-Unique: WANMzSRFNjGA52DxBHybOA-1
+X-Mimecast-MFC-AGG-ID: WANMzSRFNjGA52DxBHybOA_1768484890
+Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-645535ac027so1144787d50.0
+        for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 05:48:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768484890; x=1769089690;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=LNVB3Cl97VXqWuirwYWckvKJ9pmI3BVBreE+/SzD7NE=;
+        b=d/NbqhuH0ii2CX5QFV1ivGBhvHAyiCUYLUHjAgpWteO0SlOJvoYnNGJUmcCqoni8/s
+         IqgGFUR5kuAq0mHhvUUmDqCG+XIGrVKWda7jFDqO8gVvHi7vfxB+RWdZo/I7JSqS+KPc
+         akTt1rJysDLeKjpbRUO+Sxy3gF5JLJxQ/lZP2aL8RspEsAG6lnEi1rkmCSbWIlnSzXiP
+         V+BMmiuzNNqgXw6mm6pWIyK6rZJJM5qlncs8kJ211slc6JlWliJ3tmUcYqI/mLw5RwNQ
+         vvZVg0PwEq0ED6YmZnIsl0D6EdURTD5druFOvBJj//jeymLzJGZYaNgwFDsyj2vz6Jxp
+         E3SA==
+X-Forwarded-Encrypted: i=1; AJvYcCWHNIC33dcT92ba17I7qY1hQnKfSPy4NfObxgmQFk54S6qN0XOKmwvgFz0bDvKbjJC2uofe/LdA8rwWlN3ORw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyzaWu08DC97k1BrvyW8DEsm49DcHB2za3HXLJ6Rn1B1/pEp7/C
+	BUFS/pyW9TVK1G9P0GvGsS2gU1eKAlH6+8eLJcZWqHj9siAFUSgjkZKLy3yo2bwRqojZSH9Pp4Y
+	DrQrzq8MqFs1uII2iclDWkaWZ9xl/JYL4Ze+K4EgY35rMdjGaf057+yAgwroxl6dlhFIaNVDIBI
+	fMrAk4II1AYeSFWfxchbNyKEW0V6HlG7JUrDdRU+q3/2A=
+X-Gm-Gg: AY/fxX6N8MSorSZAKTgL/zjorfDtErXB59EzG3VNQfT++2vYeDpblzjawkGPnF58L9H
+	GNUhcGIlDafNs/cgrv+sGpDQHcn06OX54aa0RXdXckqAkGQdaIykq7McB/rrhc6EzQvSe1od9ND
+	EXtpCcJKcLYM0AiKtS+tA2gPR9aZgpeHTm9enbTmD2wt3hQMNH1mh8LnvwB5rF8G4fHA==
+X-Received: by 2002:a05:690e:138a:b0:644:60d9:752f with SMTP id 956f58d0204a3-64903b61c49mr4061104d50.97.1768484889924;
+        Thu, 15 Jan 2026 05:48:09 -0800 (PST)
+X-Received: by 2002:a05:690e:138a:b0:644:60d9:752f with SMTP id
+ 956f58d0204a3-64903b61c49mr4061087d50.97.1768484889436; Thu, 15 Jan 2026
+ 05:48:09 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL4PR10MB8229:EE_|CH3PR10MB6763:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8662a325-b575-4994-dd95-08de543c90d9
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?iR9+1UladbCkUFv0GSsswI0xqo2qizQi7x/VmfmrnksPgeavrfnAX8/icjG9?=
- =?us-ascii?Q?RkH95dvrt7OUU7XqQfWOR5n6TmTsM090rongoaeqh4MsWxsNNif9ZG663tlN?=
- =?us-ascii?Q?kcDDzdhgT25/dwr8fvL1LNDaVD9ka8RANS0uI/Bzbi3UBxJqQKI1ZpHw863V?=
- =?us-ascii?Q?8+G9SL0G2mRhiHp3L2Bim/4m/faFNZA0b996DXLeQDRgm9JsShpLRXrdlYry?=
- =?us-ascii?Q?0Q33itf1sALCqDM8GfCVu3Li1vG2jbbTKlYbeAn1fvCMv+YIV4jjpsVnzU8+?=
- =?us-ascii?Q?r5SrzRU3Krpg28L5uraz425r51NuMF5wdvGVDlx1RMBRf+cBzbolLkV+Xv2x?=
- =?us-ascii?Q?dMudQuPlC7qMkqHROMajUCWPVHLzcrrwTWz4rPPBUcyO+EOp1qDI12vN3+bC?=
- =?us-ascii?Q?asaC3s5HoubwcnN+E8g9XI2KUtXkvxbL2ogt3gkh7+vJTnF9vOENvqFjHp3o?=
- =?us-ascii?Q?fbr67VaHoJgqSf8kxVXcwgwC3aKfq/qlVfsWzFFRlXfWJ5Nx5d8JCnMgFKCb?=
- =?us-ascii?Q?iE3wa/Zk496qL5RyzxwQuIx92LAYyyrXbiv8NER/WzQybOylIihdUMAjZlGg?=
- =?us-ascii?Q?78ihS8ZJ44FmiMtY7lopyM3fr1V/xyrDpjJZ2+S2Z0kFl5xMN1HeCOFWsyhB?=
- =?us-ascii?Q?AuWjUNxvIVhzvIiFRD0cAwM9kF4nvPmrwQHz88/iOq5s1qadyCmRBx5QHQre?=
- =?us-ascii?Q?k++eMU4hqNrZcQFf8GUNI5iE3x3QrXr1vfN43J9Ovo8LDuM0wqsSwsvzATfM?=
- =?us-ascii?Q?vU/ifIZSw3L9zI+dPqVYsMoobKgb5O8i9+neFlyv8pNcGczJApoGc5CUuKkb?=
- =?us-ascii?Q?hHO14fo5spLkbifjRsHVpYDQsz1YZnrhRsxecZbnszZvvRvvWSIihb11XfsZ?=
- =?us-ascii?Q?KBdL/jxMFA3UksFQLWyBwg03DBL+LS2rdODgB1tnPXyglQacHfwfJBCkUhMg?=
- =?us-ascii?Q?cLSLhTZ/x3q5AaHulwnqLObhA6RUzfwYmXmM8DwHYaDRRjO2n6mbZ4irHlL7?=
- =?us-ascii?Q?oZB/QxJ5TwJYCmPS9HW+pK+WxdovxWFLvQ3pdp5iui2oa6dmbrcrvmR/7Qqz?=
- =?us-ascii?Q?TcntMQ+lZzsBLVOiguxoxSlJpWyLLFGWp8gSWmLFtkSHUr9baEyoFJTMay6I?=
- =?us-ascii?Q?zoXLWdw1j4wojdZ9T0nRXnubWv4xjmQSLXasjJa+X4ffPFRsWUsEPL1i7Qtq?=
- =?us-ascii?Q?SN+Dk9tZcz0nO1sp6iR5EQeyZtE+pyDItLk0TbfRqIHYshReACcwu+12/TCd?=
- =?us-ascii?Q?ID/mH1IZrLxWQ0pzbRYQu3z0Gex8GkI/9r0dwm7k8eZJSVXcP4E5KhHX/kW1?=
- =?us-ascii?Q?wc+jMMWBs/Nh/MsxDYSFyQ0khk7zjT06PePl78UsKzkXM3/FtxDKPExceu27?=
- =?us-ascii?Q?IyXXIY6qMuLBBAA8E/codOBGVz1aJ4ljO+mOG7avyKcnv2ptXoypjv4tNpE6?=
- =?us-ascii?Q?ganqXzL+jDiZuURCmHOvjRwMQ2LFV4WUv9C+pMLLFwRvSYT2JEcM65Oa6z23?=
- =?us-ascii?Q?et/QBzmh51oRxKE4AyAKLBbCuBXptn+PlsCPYix9/rYR/vvKGGcgD25KGcaW?=
- =?us-ascii?Q?lbn1+ql1lAgg+gk1dlA=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL4PR10MB8229.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?hz3VY7xFYoAdXTZn8y184RP8I2ubUT3VPBOr4O5jQOLpoMljWFsBfZU/L//R?=
- =?us-ascii?Q?PAn/DdtBPbtG6JuE2QMLGQysiRU5BJoG+9wKjaENs0SK+fy18QmeeVrC2Xmm?=
- =?us-ascii?Q?A9ngy71ewJrWsIiJDMPVpXeec8g0yWCx6gilzRDbtttdI5O0SFHylrfrIUk8?=
- =?us-ascii?Q?B82bRjvKvodeptxe59TyvVSKQW9Og9KgwAakGh5rvPogy/uiVbLJNNxru2hI?=
- =?us-ascii?Q?AlyYE5e5tQs6OJBQs/dgoomTCHWwSZqLeBtfB03erQ9KV13VjYXbVmi4pk/+?=
- =?us-ascii?Q?cBa4r/M4/nulFAC7RuP8sPlaQ4fWpXCEbgMrHtQUk0st5dYZUm6P/vEDQzTF?=
- =?us-ascii?Q?bsD+6Wm5iKx3G7JHuD/9Ce83oaNFZt+NFPsYu1212HO5lGn4OrareLsJBKhE?=
- =?us-ascii?Q?axHKJuS/o42+cW5cVOKvd52pTEHDQ7FSmuzrZ39JYZkuNAqtzA12FpUTw0PX?=
- =?us-ascii?Q?WLRBHDFjr02Xbzla6KjetRClVMnG/XDl3lukPs1O7wfDBnr5DqR2LSfeJp6X?=
- =?us-ascii?Q?+4TnqXcdH/aZWneeRRXxkL2mW+WolMWzsfC39ApwFOLka+HU1HGTckNlVdg6?=
- =?us-ascii?Q?Co9HjVtXF8RDAQD7393KGlrG+mibjpbDEZo47qtWEKsUVmvztPOwBh8R180a?=
- =?us-ascii?Q?JM5ldD+UguyYnX7tV1pey4TRM2vaq3/GnFB++NcuVBFTpBaaSGJHZXRz213T?=
- =?us-ascii?Q?VgYuCiF8abVmZ66VwwznH1t8/8g7dY+EP1bmhtLohnD8J771JGeCEpYonJ+Q?=
- =?us-ascii?Q?YHlrxD5q2Hu7RdWCvH98VQjbI23GEZV2KcY3wEbxLlYG05oDi7hP5Ujo9TiB?=
- =?us-ascii?Q?xqaouqsTJNoGOhKtR7LWXfoCvpKBoHoUpGyfHtZjjlTiIKrz7ePpcCuHIsi9?=
- =?us-ascii?Q?LpqDRLJKy2MENO/Q/dXyuwkuW7cHma9xd9czBvZh7WWgNL4TZUs+mr/KgY5+?=
- =?us-ascii?Q?RlVxQ0jJJDBxa8ZNqp6fMGxspduTpW7icifZTNd8AmZon91sG1bnvg8JvxQg?=
- =?us-ascii?Q?C2lxjn4uw6+F2f0mdg0DMbqoj5Rgqut0fjV5LFDnmaZ0Oe0q6yhAIXg2b0yo?=
- =?us-ascii?Q?AOK5ANlro2l0lz48YzHq4014M2bXTfnJifgWAn95bvyp3o8DLaD2jpA87h+Z?=
- =?us-ascii?Q?dzmPDfTxrmgXyt1korWgIPByG6pnTAAZs8QdhHsw4wYwuF2e7qW6MM+6lmTl?=
- =?us-ascii?Q?47PpspOAMz2HB3xEz/b/7fJJzYJTjBwZ6wtzdc0FwB3mgep6dJLy2cBe9GnT?=
- =?us-ascii?Q?/QyW3A1Rtb07G2HtCY47MNNQQnZSNhGGQgyFe5cTmb1Bphf5+l1OLuN7rsgo?=
- =?us-ascii?Q?TOLvdrCnjOu1Tnt0UB8VDr8rNUdjC6j/2nSrYTyjPmpZfK/clL5MtDrIW0Ej?=
- =?us-ascii?Q?5xVr4SQAWzHfFHbk0MUvggimV7FXJiyWtbpzWzvbEi3oN/NV3JpHzp1YLAIQ?=
- =?us-ascii?Q?UwHq691wmlKhnHu8cW9YyQGviiEXuvKv8eqWgjeNE+dSKlEkEHsZ78sFvBKq?=
- =?us-ascii?Q?uI9J7I7SMD1m3Deuv1s9tmXouXr2ltOzhWbg3lMdBEzsc8uS9E1VAjPHvC7+?=
- =?us-ascii?Q?gWjJmmJugO0gLIZDDrD7HeIq0pUtFX3QeBTRb5zEyhO+asdq08CtJWreGkmp?=
- =?us-ascii?Q?im81NXhnptMkIgiMWmdgiyGwE+RoQcPFZq/W8QPHb1nfKL0Ga7i6mZkNHpsl?=
- =?us-ascii?Q?v60zoSdq8/nIpjePfY5UGVXGp/Uc22LpxlcTL9gkWExRun6+D+t3BZX6DdDH?=
- =?us-ascii?Q?aW+zFvNqJloq8SmmYIYQMRXf594oA7Y=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	J2vs7vqi34YcdP19uvu94S71RkoeLGubavQ5f7PZgW9SmOxplnHLzjLO16TYzcWqAcpmpryxMaawugQQDlQKGKbKN11qoSkqIo7UGqV9XnjbV7mEjgown4dNmVEsuSSR6unlzD0+TDBw3fyZ/99PjgviM7hDjRJhaA6dpeFJnM4K/kJDxjoSMdG6kwFykHanD1fgqfshxLGS2B/h8H2KCxoqm3RyrAbacA4vEo0LeYG2Y+o+cfRbQ6PT2EtHn9rSLbfwzlVSZjv+mQ642mizYrDc3QOozgPsRwTCOyB+E737aIfR8N2eiDJ4n+web4ElLrMMg3xs4yHHBtqGxkDrL7KJ+5iocHG6bUinRoYoDnAK8G76cIGDdy8+Ujg+aUdgUoO4GI2zqeUq68wr7rMCVNMDrZ9XY7zflUNBSWPW51eD/nv3J0ILFBm/sDWAnAcPtcucihkLtsliU0HA7WqQUBH9lmewKsoTgCydzj9MYx5fYv/5YSdeMMV/fJ6UmYvl50ziY59a6iqxFNjLcrpVqS/CeQ/MqJj/5Kcw1+qecLhsVgfCmlFwpT53K0ZJNTXrd39wUgeZ191DeARIAtgXqSk3T9fLekwgV7cFKkNfoJk=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8662a325-b575-4994-dd95-08de543c90d9
-X-MS-Exchange-CrossTenant-AuthSource: BL4PR10MB8229.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jan 2026 13:47:03.9176
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: LKkWPnr7z8HhGJMmuc/EtyALCA2kmk/2ikr9qIIH33WRTPGbfeGpA1C+cg5ej/ecjbAV8a//UnEtZzDYvuStHAZgepu4nCi/mTiYB4Fict4=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR10MB6763
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-15_04,2026-01-15_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 suspectscore=0
- mlxlogscore=999 bulkscore=0 malwarescore=0 phishscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2512120000
- definitions=main-2601150102
-X-Proofpoint-GUID: W6gY-XAeMnrwHgR_I4Y7VMmrZ4l1K3pk
-X-Proofpoint-ORIG-GUID: W6gY-XAeMnrwHgR_I4Y7VMmrZ4l1K3pk
-X-Authority-Analysis: v=2.4 cv=ZtLg6t7G c=1 sm=1 tr=0 ts=6968efdc b=1 cx=c_pps
- a=WeWmnZmh0fydH62SvGsd2A==:117 a=WeWmnZmh0fydH62SvGsd2A==:17
- a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
- a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=vUbySO9Y5rIA:10 a=GoEa3M9JfhUA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=yPCof4ZbAAAA:8 a=puuS-rSIhbKgJCg3g3kA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTE1MDEwMiBTYWx0ZWRfXzXFCeJZ0VGwH
- OfwcFPpKIXuQQ5S5x/ajmq7AjJoyRB630o1shdh214yF/YgyCKZaBgPUxk/Id1y0FKtUHiCQF7A
- NrAH8Hc06PEK+TR2iL20T9TusHvxYQWgpIJvnl37M/UCSJnA4ld6G1NnOrmwowVidq7ENUmA5Fk
- o7NtinThu88LDiH3ZF14ETNnk8r/HoDsGzuTBe9b/rDXuBK52tZGuiPh3MwN81Iud/Bqb3ZXoOM
- B01Y5f6DVYlQ1pzOT6WIUi/kNgKveXeHDKEzqxKpTqbTgkCh/mHYamfzNyisdsbsEq+W8SXhO51
- pT0sJF0MVNIZFL7HqwfK1XtCdZp5dllxonO7N//vO04PqMF89io1CXhPauK2u6B0g8BZNU3B/sC
- 9R96f8WNPZfUMqQ+yjqzouFtZyjXbbXMnm/Imjz2mrT8FTlGTvYSYWuV8+4zp7X43UCITIv9zp4
- gSCSsRh9EsKEIGsN73g==
+References: <20260114184839.926884-1-eperezma@redhat.com> <20260114184839.926884-12-eperezma@redhat.com>
+ <CACGkMEtUv7Kge4A6rcSSiVu4moi5vSNU97pQ7_LiUmprOb0wBw@mail.gmail.com>
+In-Reply-To: <CACGkMEtUv7Kge4A6rcSSiVu4moi5vSNU97pQ7_LiUmprOb0wBw@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 15 Jan 2026 14:47:32 +0100
+X-Gm-Features: AZwV_Qi3nIJtBXMs-mGYADMy-bz-WHzm_nzMIa0g2RLFNt0VpahlxmOQ-dfoM4o
+Message-ID: <CAJaqyWckHQmTT78E-hnz3w5-qJJGX1_gp3orMDoAupyypcTOVQ@mail.gmail.com>
+Subject: Re: [PATCH v12 11/13] vduse: add vq group asid support
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
+	Stefano Garzarella <sgarzare@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	linux-kernel@vger.kernel.org, Cindy Lu <lulu@redhat.com>, 
+	Laurent Vivier <lvivier@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: SJHWIFaHxBU9amwep-6ufAP0nvBVSrQvKggxvYge0oc_1768484890
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 15, 2026 at 10:20:10AM +0100, David Hildenbrand (Red Hat) wrote:
-> Migration support for balloon memory depends on MIGRATION not
-> COMPACTION. Compaction is simply another user of page migration.
+On Thu, Jan 15, 2026 at 9:41=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
 >
-> The last dependency on compaction.c was effectively removed with
-> commit 3d388584d599 ("mm: convert "movable" flag in page->mapping to a
-> page flag"). Ever since, everything for handling movable_ops page
-> migration resides in core migration code.
+> On Thu, Jan 15, 2026 at 2:49=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redh=
+at.com> wrote:
+> >
+> > Add support for assigning Address Space Identifiers (ASIDs) to each VQ
+> > group.  This enables mapping each group into a distinct memory space.
+> >
+> > The vq group to ASID association is protected by a rwlock now.  But the
+> > mutex domain_lock keeps protecting the domains of all ASIDs, as some
+> > operations like the one related with the bounce buffer size still
+> > requires to lock all the ASIDs.
+> >
+> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> >
+> > ---
+> > Future improvements can include performance optimizations on top like
+> > ore to RCU or thread synchronized atomics, or hardening by tracking ASI=
+D
+> > or ASID hashes on unused bits of the DMA address.
+> >
+> > Tested virtio_vdpa by adding manually two threads in vduse_set_status:
+> > one of them modifies the vq group 0 ASID and the other one map and unma=
+p
+> > memory continuously.  After a while, the two threads stop and the usual
+> > work continues.  Test with version 0, version 1 with the old ioctl, and
+> > version 1 with the new ioctl.
+> >
+> > Tested with vhost_vdpa by migrating a VM while ping on OVS+VDUSE.  A fe=
+w
+> > workaround were needed in some parts:
+> > * Do not enable CVQ before data vqs in QEMU, as VDUSE does not forward
+> >   the enable message to the userland device.  This will be solved in th=
+e
+> >   future.
+> > * Share the suspended state between all vhost devices in QEMU:
+> >   https://lists.nongnu.org/archive/html/qemu-devel/2025-11/msg02947.htm=
+l
+> > * Implement a fake VDUSE suspend vdpa operation callback that always
+> >   returns true in the kernel.  DPDK suspend the device at the first
+> >   GET_VRING_BASE.
+> > * Remove the CVQ blocker in ASID.
+> >
+> > The driver vhost_vdpa was also tested with version 0, version 1 with th=
+e
+> > old ioctl, version 1 with the new ioctl but only one ASID, and version =
+1
+> > with many ASID.
+> >
+> > ---
+> > v12:
+> > * Using scoped guards for vq group rwlock, so the one queue optimizatio=
+n
+> >   is not missed (Jason proposed to factor them into helpers).
+> > * Add the _v2 suffix to vduse_iova_range_v2 struct name fixing the doc
+> >   (MST).
+> > * s/verion/version/ in patch message.
+> > * Remove trailing ; after a comment (Jason).
+> >
+> > v11:
+> > * Remove duplicated free_pages_exact in vduse_domain_free_coherent
+> >   (Jason).
+> > * Do not take the vq groups lock if nas =3D=3D 1.
+> > * Do not reset the vq group ASID in vq reset (Jason).  Removed extra
+> >   function vduse_set_group_asid_nomsg, not needed anymore.
+> > * Move the vduse_iotlb_entry_v2 argument to a new ioctl, as argument
+> >   didn't match the previous VDUSE_IOTLB_GET_FD.
+> > * Move the asid < dev->nas check to vdpa core.
+> >
+> > v10:
+> > * Back to rwlock version so stronger locks are used.
+> > * Take out allocations from rwlock.
+> > * Forbid changing ASID of a vq group after DRIVER_OK (Jason)
+> > * Remove bad fetching again of domain variable in
+> >   vduse_dev_max_mapping_size (Yongji).
+> > * Remove unused vdev definition in vdpa map_ops callbacks (kernel test
+> >   robot).
+> >
+> > v9:
+> > * Replace mutex with rwlock, as the vdpa map_ops can run from atomic
+> >   context.
+> >
+> > v8:
+> > * Revert the mutex to rwlock change, it needs proper profiling to
+> >   justify it.
+> >
+> > v7:
+> > * Take write lock in the error path (Jason).
+> >
+> > v6:
+> > * Make vdpa_dev_add use gotos for error handling (MST).
+> > * s/(dev->api_version < 1) ?/(dev->api_version < VDUSE_API_VERSION_1) ?=
+/
+> >   (MST).
+> > * Fix struct name not matching in the doc.
+> >
+> > v5:
+> > * Properly return errno if copy_to_user returns >0 in VDUSE_IOTLB_GET_F=
+D
+> >   ioctl (Jason).
+> > * Properly set domain bounce size to divide equally between nas (Jason)=
+.
+> > * Exclude "padding" member from the only >V1 members in
+> >   vduse_dev_request.
+> >
+> > v4:
+> > * Divide each domain bounce size between the device bounce size (Jason)=
+.
+> > * revert unneeded addr =3D NULL assignment (Jason)
+> > * Change if (x && (y || z)) return to if (x) { if (y) return; if (z)
+> >   return; } (Jason)
+> > * Change a bad multiline comment, using @ caracter instead of * (Jason)=
+.
+> > * Consider config->nas =3D=3D 0 as a fail (Jason).
+> >
+> > v3:
+> > * Get the vduse domain through the vduse_as in the map functions
+> >   (Jason).
+> > * Squash with the patch creating the vduse_as struct (Jason).
+> > * Create VDUSE_DEV_MAX_AS instead of comparing agains a magic number
+> >   (Jason)
+> >
+> > v2:
+> > * Convert the use of mutex to rwlock.
+> >
+> > RFC v3:
+> > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
+> >   value to reduce memory consumption, but vqs are already limited to
+> >   that value and userspace VDUSE is able to allocate that many vqs.
+> > * Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
+> >   VDUSE_IOTLB_GET_INFO.
+> > * Use of array_index_nospec in VDUSE device ioctls.
+> > * Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
+> > * Move the umem mutex to asid struct so there is no contention between
+> >   ASIDs.
+> >
+> > RFC v2:
+> > * Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
+> >   part of the struct is the same.
+> > ---
+> >  drivers/vdpa/vdpa_user/vduse_dev.c | 385 +++++++++++++++++++----------
+> >  include/uapi/linux/vduse.h         |  63 ++++-
+> >  2 files changed, 312 insertions(+), 136 deletions(-)
+> >
+> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
+r/vduse_dev.c
+> > index d658f3e1cebf..2727c0c26003 100644
+> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > @@ -9,6 +9,7 @@
+> >   */
+> >
+> >  #include "linux/virtio_net.h"
+> > +#include <linux/cleanup.h>
+> >  #include <linux/init.h>
+> >  #include <linux/module.h>
+> >  #include <linux/cdev.h>
+> > @@ -41,6 +42,7 @@
+> >
+> >  #define VDUSE_DEV_MAX (1U << MINORBITS)
+> >  #define VDUSE_DEV_MAX_GROUPS 0xffff
+> > +#define VDUSE_DEV_MAX_AS 0xffff
+> >  #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
+> >  #define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
+> >  #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
+> > @@ -86,7 +88,15 @@ struct vduse_umem {
+> >         struct mm_struct *mm;
+> >  };
+> >
+> > +struct vduse_as {
+> > +       struct vduse_iova_domain *domain;
+> > +       struct vduse_umem *umem;
+> > +       struct mutex mem_lock;
+> > +};
+> > +
+> >  struct vduse_vq_group {
+> > +       rwlock_t as_lock;
+> > +       struct vduse_as *as; /* Protected by as_lock */
+> >         struct vduse_dev *dev;
+> >  };
+> >
+> > @@ -94,7 +104,7 @@ struct vduse_dev {
+> >         struct vduse_vdpa *vdev;
+> >         struct device *dev;
+> >         struct vduse_virtqueue **vqs;
+> > -       struct vduse_iova_domain *domain;
+> > +       struct vduse_as *as;
+> >         char *name;
+> >         struct mutex lock;
+> >         spinlock_t msg_lock;
+> > @@ -122,9 +132,8 @@ struct vduse_dev {
+> >         u32 vq_num;
+> >         u32 vq_align;
+> >         u32 ngroups;
+> > -       struct vduse_umem *umem;
+> > +       u32 nas;
+> >         struct vduse_vq_group *groups;
+> > -       struct mutex mem_lock;
+> >         unsigned int bounce_size;
+> >         struct mutex domain_lock;
+> >  };
+> > @@ -314,7 +323,7 @@ static int vduse_dev_set_status(struct vduse_dev *d=
+ev, u8 status)
+> >         return vduse_dev_msg_sync(dev, &msg);
+> >  }
+> >
+> > -static int vduse_dev_update_iotlb(struct vduse_dev *dev,
+> > +static int vduse_dev_update_iotlb(struct vduse_dev *dev, u32 asid,
+> >                                   u64 start, u64 last)
+> >  {
+> >         struct vduse_dev_msg msg =3D { 0 };
+> > @@ -323,8 +332,14 @@ static int vduse_dev_update_iotlb(struct vduse_dev=
+ *dev,
+> >                 return -EINVAL;
+> >
+> >         msg.req.type =3D VDUSE_UPDATE_IOTLB;
+> > -       msg.req.iova.start =3D start;
+> > -       msg.req.iova.last =3D last;
+> > +       if (dev->api_version < VDUSE_API_VERSION_1) {
+> > +               msg.req.iova.start =3D start;
+> > +               msg.req.iova.last =3D last;
+> > +       } else {
+> > +               msg.req.iova_v2.start =3D start;
+> > +               msg.req.iova_v2.last =3D last;
+> > +               msg.req.iova_v2.asid =3D asid;
+> > +       }
+> >
+> >         return vduse_dev_msg_sync(dev, &msg);
+> >  }
+> > @@ -439,11 +454,14 @@ static __poll_t vduse_dev_poll(struct file *file,=
+ poll_table *wait)
+> >  static void vduse_dev_reset(struct vduse_dev *dev)
+> >  {
+> >         int i;
+> > -       struct vduse_iova_domain *domain =3D dev->domain;
+> >
+> >         /* The coherent mappings are handled in vduse_dev_free_coherent=
+() */
+> > -       if (domain && domain->bounce_map)
+> > -               vduse_domain_reset_bounce_map(domain);
+> > +       for (i =3D 0; i < dev->nas; i++) {
+> > +               struct vduse_iova_domain *domain =3D dev->as[i].domain;
+> > +
+> > +               if (domain && domain->bounce_map)
+> > +                       vduse_domain_reset_bounce_map(domain);
+> > +       }
+> >
+> >         down_write(&dev->rwsem);
+> >
+> > @@ -622,6 +640,42 @@ static union virtio_map vduse_get_vq_map(struct vd=
+pa_device *vdpa, u16 idx)
+> >         return ret;
+> >  }
+> >
+> > +DEFINE_GUARD(vq_group_as_read_lock, struct vduse_vq_group *,
+> > +       if (_T->dev->nas > 1)
+> > +               read_lock(&_T->as_lock),
+> > +       if (_T->dev->nas > 1)
+> > +               read_unlock(&_T->as_lock))
+> > +
+> > +DEFINE_GUARD(vq_group_as_write_lock, struct vduse_vq_group *,
+> > +       if (_T->dev->nas > 1)
+> > +               write_lock(&_T->as_lock),
+> > +       if (_T->dev->nas > 1)
+> > +               write_unlock(&_T->as_lock))
+> > +
+> > +static int vduse_set_group_asid(struct vdpa_device *vdpa, unsigned int=
+ group,
+> > +                               unsigned int asid)
+> > +{
+> > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > +       struct vduse_dev_msg msg =3D { 0 };
+> > +       int r;
+> > +
+> > +       if (dev->api_version < VDUSE_API_VERSION_1)
+> > +               return -EINVAL;
+> > +
+> > +       msg.req.type =3D VDUSE_SET_VQ_GROUP_ASID;
+> > +       msg.req.vq_group_asid.group =3D group;
+> > +       msg.req.vq_group_asid.asid =3D asid;
+> > +
+> > +       r =3D vduse_dev_msg_sync(dev, &msg);
+> > +       if (r < 0)
+> > +               return r;
+> > +
+> > +       guard(vq_group_as_write_lock)(&dev->groups[group]);
+> > +       dev->groups[group].as =3D &dev->as[asid];
+> > +
+> > +       return 0;
+> > +}
+> > +
+> >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx,
+> >                                 struct vdpa_vq_state *state)
+> >  {
+> > @@ -793,13 +847,13 @@ static int vduse_vdpa_set_map(struct vdpa_device =
+*vdpa,
+> >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> >         int ret;
+> >
+> > -       ret =3D vduse_domain_set_map(dev->domain, iotlb);
+> > +       ret =3D vduse_domain_set_map(dev->as[asid].domain, iotlb);
+> >         if (ret)
+> >                 return ret;
+> >
+> > -       ret =3D vduse_dev_update_iotlb(dev, 0ULL, ULLONG_MAX);
+> > +       ret =3D vduse_dev_update_iotlb(dev, asid, 0ULL, ULLONG_MAX);
+> >         if (ret) {
+> > -               vduse_domain_clear_map(dev->domain, iotlb);
+> > +               vduse_domain_clear_map(dev->as[asid].domain, iotlb);
+> >                 return ret;
+> >         }
+> >
+> > @@ -842,6 +896,7 @@ static const struct vdpa_config_ops vduse_vdpa_conf=
+ig_ops =3D {
+> >         .get_vq_affinity        =3D vduse_vdpa_get_vq_affinity,
+> >         .reset                  =3D vduse_vdpa_reset,
+> >         .set_map                =3D vduse_vdpa_set_map,
+> > +       .set_group_asid         =3D vduse_set_group_asid,
+> >         .get_vq_map             =3D vduse_get_vq_map,
+> >         .free                   =3D vduse_vdpa_free,
+> >  };
+> > @@ -850,15 +905,13 @@ static void vduse_dev_sync_single_for_device(unio=
+n virtio_map token,
+> >                                              dma_addr_t dma_addr, size_=
+t size,
+> >                                              enum dma_data_direction di=
+r)
+> >  {
+> > -       struct vduse_dev *vdev;
+> >         struct vduse_iova_domain *domain;
+> >
+> >         if (!token.group)
+> >                 return;
+> >
+> > -       vdev =3D token.group->dev;
+> > -       domain =3D vdev->domain;
+> > -
+> > +       guard(vq_group_as_read_lock)(token.group);
+> > +       domain =3D token.group->as->domain;
+> >         vduse_domain_sync_single_for_device(domain, dma_addr, size, dir=
+);
+> >  }
+> >
+> > @@ -866,15 +919,13 @@ static void vduse_dev_sync_single_for_cpu(union v=
+irtio_map token,
+> >                                              dma_addr_t dma_addr, size_=
+t size,
+> >                                              enum dma_data_direction di=
+r)
+> >  {
+> > -       struct vduse_dev *vdev;
+> >         struct vduse_iova_domain *domain;
+> >
+> >         if (!token.group)
+> >                 return;
+> >
+> > -       vdev =3D token.group->dev;
+> > -       domain =3D vdev->domain;
+> > -
+> > +       guard(vq_group_as_read_lock)(token.group);
+> > +       domain =3D token.group->as->domain;
+> >         vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir);
+> >  }
+> >
+> > @@ -883,15 +934,13 @@ static dma_addr_t vduse_dev_map_page(union virtio=
+_map token, struct page *page,
+> >                                      enum dma_data_direction dir,
+> >                                      unsigned long attrs)
+> >  {
+> > -       struct vduse_dev *vdev;
+> >         struct vduse_iova_domain *domain;
+> >
+> >         if (!token.group)
+> >                 return DMA_MAPPING_ERROR;
+> >
+> > -       vdev =3D token.group->dev;
+> > -       domain =3D vdev->domain;
+> > -
+> > +       guard(vq_group_as_read_lock)(token.group);
+> > +       domain =3D token.group->as->domain;
+> >         return vduse_domain_map_page(domain, page, offset, size, dir, a=
+ttrs);
+> >  }
+> >
+> > @@ -899,23 +948,19 @@ static void vduse_dev_unmap_page(union virtio_map=
+ token, dma_addr_t dma_addr,
+> >                                  size_t size, enum dma_data_direction d=
+ir,
+> >                                  unsigned long attrs)
+> >  {
+> > -       struct vduse_dev *vdev;
+> >         struct vduse_iova_domain *domain;
+> >
+> >         if (!token.group)
+> >                 return;
+> >
+> > -       vdev =3D token.group->dev;
+> > -       domain =3D vdev->domain;
+> > -
+> > -       return vduse_domain_unmap_page(domain, dma_addr, size, dir, att=
+rs);
+> > +       guard(vq_group_as_read_lock)(token.group);
+> > +       domain =3D token.group->as->domain;
+> > +       vduse_domain_unmap_page(domain, dma_addr, size, dir, attrs);
+> >  }
+> >
+> >  static void *vduse_dev_alloc_coherent(union virtio_map token, size_t s=
+ize,
+> >                                       dma_addr_t *dma_addr, gfp_t flag)
+> >  {
+> > -       struct vduse_dev *vdev;
+> > -       struct vduse_iova_domain *domain;
+> >         void *addr;
+> >
+> >         *dma_addr =3D DMA_MAPPING_ERROR;
+> > @@ -926,11 +971,15 @@ static void *vduse_dev_alloc_coherent(union virti=
+o_map token, size_t size,
+> >         if (!addr)
+> >                 return NULL;
+> >
+> > -       vdev =3D token.group->dev;
+> > -       domain =3D vdev->domain;
+> > -       *dma_addr =3D vduse_domain_alloc_coherent(domain, size, addr);
+> > -       if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
+> > -               goto err;
+> > +       {
+> > +               struct vduse_iova_domain *domain;
+> > +
+> > +               guard(vq_group_as_read_lock)(token.group);
+> > +               domain =3D token.group->as->domain;
+> > +               *dma_addr =3D vduse_domain_alloc_coherent(domain, size,=
+ addr);
+> > +               if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
+> > +                       goto err;
+> > +       }
 >
-> So let's change the dependency and adjust the description +
-> help text.
+> Nit: Having a standalone block probably means we have the chance to
+> optimize the code, maybe using a helper?
 >
-> We'll rename BALLOON_COMPACTION separately next.
->
-> Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
 
-Far pithier also. LGTM so:
+What do you mean by optimize the code? Would you prefer
+vduse_dev_alloc_coherent function to be changed like this (untested)?
 
-Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c
+b/drivers/vdpa/vdpa_user/vduse_dev.c
+index d658f3e1cebf..3561d3c00c89 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -911,11 +911,19 @@ static void vduse_dev_unmap_page(union
+virtio_map token, dma_addr_t dma_addr,
+        return vduse_domain_unmap_page(domain, dma_addr, size, dir, attrs);
+ }
 
-> ---
->  mm/Kconfig | 17 +++++++----------
->  1 file changed, 7 insertions(+), 10 deletions(-)
->
-> diff --git a/mm/Kconfig b/mm/Kconfig
-> index 24a3ff149a1b0..0d13c1b36e1c1 100644
-> --- a/mm/Kconfig
-> +++ b/mm/Kconfig
-> @@ -599,17 +599,14 @@ config MEMORY_BALLOON
->  #
->  # support for memory balloon compaction
->  config BALLOON_COMPACTION
-> -	bool "Allow for balloon memory compaction/migration"
-> +	bool "Allow for balloon memory migration"
->  	default y
-> -	depends on COMPACTION && MEMORY_BALLOON
-> -	help
-> -	  Memory fragmentation introduced by ballooning might reduce
-> -	  significantly the number of 2MB contiguous memory blocks that can be
-> -	  used within a guest, thus imposing performance penalties associated
-> -	  with the reduced number of transparent huge pages that could be used
-> -	  by the guest workload. Allowing the compaction & migration for memory
-> -	  pages enlisted as being part of memory balloon devices avoids the
-> -	  scenario aforementioned and helps improving memory defragmentation.
-> +	depends on MIGRATION && MEMORY_BALLOON
-> +	help
-> +	  Allow for migration of pages inflated in a memory balloon such that
-> +	  they can be allocated from memory areas only available for movable
-> +	  allocations (e.g., ZONE_MOVABLE, CMA) and such that they can be
-> +	  migrated for memory defragmentation purposes by memory compaction.
->
->  #
->  # support for memory compaction
-> --
-> 2.52.0
->
++static dma_addr_t *vduse_vq_group_alloc_coherent(struct vduse_vq_group *gr=
+oup,
++                                                size_t size, void *addr)
++{
++       struct vduse_iova_domain *domain;
++
++       guard(vq_group_as_read_lock)(token.group);
++       domain =3D token.group->as->domain;
++       return vduse_domain_alloc_coherent(domain, size, addr);
++}
++
+ static void *vduse_dev_alloc_coherent(union virtio_map token, size_t size,
+                                      dma_addr_t *dma_addr, gfp_t flag)
+ {
+-       struct vduse_dev *vdev;
+-       struct vduse_iova_domain *domain;
+        void *addr;
+
+        *dma_addr =3D DMA_MAPPING_ERROR;
+@@ -926,9 +934,7 @@ static void *vduse_dev_alloc_coherent(union
+virtio_map token, size_t size,
+        if (!addr)
+                return NULL;
+
+-       vdev =3D token.group->dev;
+-       domain =3D vdev->domain;
+-       *dma_addr =3D vduse_domain_alloc_coherent(domain, size, addr);
++       *dma_addr =3D vduse_vq_group_alloc_coherent(token.group, size, addr=
+);
+        if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
+                goto err;
+
+---
+
+I don't love single use functions but I'm ok with the change if that's
+what you want.
+
