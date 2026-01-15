@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71F7F374171;
-	Thu, 15 Jan 2026 11:25:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFCF22877FA;
+	Thu, 15 Jan 2026 11:26:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768476317; cv=none; b=Mbfn/6sEa1qi0GnRiMs8k9gAZ7XvdZFQLYKTY5Dvtf/pmkOGK939LxTwWfYSa3jaH/Zt42yS0n2CGOkKdzhONAX1/ogsq+iy+PIXPTtLFD1SS27or9+jZ7/q0T8FriwNYLj+4ko43OTl3EbrtpsIZNNF112jop3J0O/SYuz3rqU=
+	t=1768476402; cv=none; b=XXJxSpEFQL64MV/luUiBqbYTzvU+V/suZuJ8pzRRCPyhdxAOBs5huMqOm/VulHlcxIRQN9KL6XY75jpbjlTuWFpRZdMw0koY4dT2Feu7wI2wk4YL6/KVNDchk4GS54QT/8amMJMDzVUa709nt+dTwhlkVXD3xrAtJv590zJmYTk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768476317; c=relaxed/simple;
-	bh=NuUJNg7p9CvssE+wFfb/T6IHWjNCFDhowE2ia/5IzEk=;
+	s=arc-20240116; t=1768476402; c=relaxed/simple;
+	bh=uGIn0uiB7IcuN9gqtjkvIgCdXPQNjB5DOqHCWisIo6A=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GrUGI10Ud1f22ur7gVU4gXO9aXUUY2AfF3asy1nCXSZPGX+m+ZrsEuzpo4qxFAUclh81ssF34kGowK7eMP0YqTKa6NBIDzfCGYeBxtaQsmZzgzQXESKQsog37Xw+zmH/GmonkW/A5pSiwY3/kQrN11YGTZiI3BxXS/9xO3zJdnI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ORih6Y0E; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=aTF8a+ZZyqUUMxI3H6bhWsZLMRWrOMgJQgFbQ+vkGhGQ7YZP964/8qrj7QJaB+1QPJUU1MgXSSCZFqlMcwp1yOWEeR73qdE4F6LUFcxvYOUZbGQWQqIN7t+Es1eFpMRlAfKTU/Uhv0F3f336Q5Elt6lmQB+i1Wr44JXJELw0WqY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s8PhOPdL; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ORih6Y0E"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CE0C116D0;
-	Thu, 15 Jan 2026 11:25:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s8PhOPdL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 223E7C116D0;
+	Thu, 15 Jan 2026 11:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768476317;
-	bh=NuUJNg7p9CvssE+wFfb/T6IHWjNCFDhowE2ia/5IzEk=;
+	s=k20201202; t=1768476402;
+	bh=uGIn0uiB7IcuN9gqtjkvIgCdXPQNjB5DOqHCWisIo6A=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ORih6Y0EXFhuySDVAym0zw7a4Ro9HhQ5U76opqbKNnk7ft8cB7JfjO4eyVcBpdzUm
-	 Euwm1NacPErtdn3bWR0yhfRKmLZcbB4iCbSPV2IydL3OPEG9NuQ9sCxw6TbzHIM869
-	 thQLNel1cZWzkIjUrepp41qvXQkh80Bj77BR9o0Hq9nS2funrG0WrAUvF+6qMmJZD2
-	 t4yQPtM+vifkuyMZOJpeIWkuTrUGDBZYkxgI8lAdvAkT1BBvOYglNIeMVmaSJ8Zas0
-	 hdc/DrbqiigpQ/dBDd5g4D6FWaqjkDRzeohfNG2/KAOdiRIsIbjDMQByATMAS8bnbB
-	 e83vuA1vazYBQ==
-Message-ID: <284775bd-767d-45f8-b66b-96709dabcc5e@kernel.org>
-Date: Thu, 15 Jan 2026 12:25:08 +0100
+	b=s8PhOPdLs2iDhxXBCFmEZSONVJsxDi7MeVITCsSMpo+fJN8cdm17AFt3IXqxGBp2+
+	 p/ZVHOIhlKg6YPifaA0nbHKTIscyRaQUkchFXGcsekQmiKbAHNck+qYgd0+ohuVhT1
+	 RCxITTx3qUgVwpVFqakzsWdkeiENwAHLLQ2LXs/8K60+1qam6wuEy+bDrFsPzbmcvT
+	 PK501aOwFucfHPiOCvqB+6yIgXhrr1K0OMqqf+DTS2Xuqco8osOpniacO6UE7KtUMX
+	 hwI4QvvL0kKZI+OqCit/SluptX3dOv0hIHU6TcfP8Kq0N6q1GQMoVJiBbIPFYGvQOY
+	 l63cXyljrKIWg==
+Message-ID: <f0091aab-c90e-403c-9f91-f7d82b651985@kernel.org>
+Date: Thu, 15 Jan 2026 12:26:34 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,29 +35,27 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 23/23] MAINTAINERS: move memory balloon infrastructure
- to "MEMORY MANAGEMENT - BALLOON"
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Subject: Re: [PATCH v2 00/23] mm: balloon infrastructure cleanups
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
  linuxppc-dev@lists.ozlabs.org,
  Broadcom internal kernel review list
  <bcm-kernel-feedback-list@broadcom.com>, linux-doc@vger.kernel.org,
  virtualization@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
- Oscar Salvador <osalvador@suse.de>, "Liam R. Howlett"
- <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Oscar Salvador <osalvador@suse.de>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
  Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
  Christophe Leroy <christophe.leroy@csgroup.eu>, Arnd Bergmann
  <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
  Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
 References: <20260115092015.3928975-1-david@kernel.org>
- <20260115092015.3928975-24-david@kernel.org>
- <f2ce1126-0059-481c-b54f-0b09518666d3@lucifer.local>
+ <20260115043240-mutt-send-email-mst@kernel.org>
 From: "David Hildenbrand (Red Hat)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -103,78 +101,38 @@ Autocrypt: addr=david@kernel.org; keydata=
  cFAM8nBWrEmNU2vvIGJzjJ/NVYYIY0TgOc5bS9wh6jKHL2+chrfDW5neLJjY2x3snF8q7U9G
  EIbBfNHDlOV8SyhEjtX0DyKxQKioTYPOHcW9gdV5fhSz5tEv+ipqt4kIgWqBgzK8ePtDTqRM
  qZq457g1/SXSoSQi4jN+gsneqvlTJdzaEu1bJP0iv6ViVf15+qHuY5iojCz8fa0=
-In-Reply-To: <f2ce1126-0059-481c-b54f-0b09518666d3@lucifer.local>
+In-Reply-To: <20260115043240-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 1/15/26 10:39, Lorenzo Stoakes wrote:
-> On Thu, Jan 15, 2026 at 10:20:13AM +0100, David Hildenbrand (Red Hat) wrote:
->> Nowadays, there is nothing virtio-balloon specific anymore about these
->> files, the basic infrastructure is used by multiple memory balloon
->> drivers.
+On 1/15/26 10:32, Michael S. Tsirkin wrote:
+> On Thu, Jan 15, 2026 at 10:19:50AM +0100, David Hildenbrand (Red Hat) wrote:
+>> I started with wanting to remove the dependency of the balloon
+>> infrastructure on the page lock, but ended up performing various other
+>> cleanups, some of which I had on my todo list for years.
 >>
->> For now we'll route it through Andrew's tree, maybe in some future it
->> makes sense to route this through a separate tree.
+>> This series heavily cleans up and simplifies our balloon infrastructure,
+>> including our balloon page migration functionality.
 >>
->> Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
-> 
-> Assuming below fixed + Michael's concern addressed, LGTM so:
-> 
-> Acked-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> 
->> ---
->>   MAINTAINERS | 12 ++++++++++--
->>   1 file changed, 10 insertions(+), 2 deletions(-)
+>> With this series, we no longer make use of the page lock for PageOffline
+>> pages as part of the balloon infrastructure (preparing for memdescs
+>> where PageOffline pages won't have any such lock), and simplifies
+>> migration handling such that refcounting can more easily be adjusted
+>> later (long-term focus is for PageOffline pages to not have a refcount
+>> either).
 >>
->> diff --git a/MAINTAINERS b/MAINTAINERS
->> index de8f89ca1149f..b974f8c1c2225 100644
->> --- a/MAINTAINERS
->> +++ b/MAINTAINERS
->> @@ -16454,6 +16454,16 @@ T:	quilt git://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new
->>   F:	mm/
->>   F:	tools/mm/
+>> Plenty of related cleanups.
 >>
->> +MEMORY MANAGEMENT - BALLOON
->> +M:	Andrew Morton <akpm@linux-foundation.org>
->> +M:	David Hildenbrand <david@redhat.com>
+>> Heavily compile-tested and heavily runtime-tested with virtio-balloon.
+>> PPC CMM and the VMware balloon are untested and I'd appreciate a helping
+>> hand from people that have suitable environments.
+>>
+>> Not CCing maintainers for the vmscan.c and migrate.c change as they
+>> are rather trivial and I don't want to patchbomb them.
 > 
-> david@kernel.org you mean? ;)
-
-Maybe I just want all the patches to go to /dev/null soon? ;)
-
-The following on top:
-
-
- From 3d344330b1ff6088582fe8e3bbff49d1557eba22 Mon Sep 17 00:00:00 2001
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Date: Thu, 15 Jan 2026 12:23:57 +0100
-Subject: [PATCH] fixup: MAINTAINERS: move memory balloon infrastructure to
-  "MEMORY MANAGEMENT - BALLOON"
-
-CC the virt list and use the proper mail address.
-
-Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
----
-  MAINTAINERS | 3 ++-
-  1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index b974f8c1c2225..11720728d92f2 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -16456,8 +16456,9 @@ F:	tools/mm/
-  
-  MEMORY MANAGEMENT - BALLOON
-  M:	Andrew Morton <akpm@linux-foundation.org>
--M:	David Hildenbrand <david@redhat.com>
-+M:	David Hildenbrand <david@kernel.org>
-  L:	linux-mm@kvack.org
-+L:	virtualization@lists.linux.dev
-  S:	Maintained
-  W:	http://www.linux-mm.org
-  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
--- 
-2.52.0
+> besides MAINTAINERS thing:
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
 
 Thanks!
