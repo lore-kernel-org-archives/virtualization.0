@@ -1,578 +1,513 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 464397081A
-	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 13:48:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768484895; cv=none; b=WX9/KbBaGsN8pe1iUb136wppdNV+JWENvywcIJEAgtgM7Ei1BCUGK3JiXoOGbgcPsYjaPbgZRgf0VvTy45C/CDzpMD6FK8nk+QdnNhN1yBeiHQPe9kDpQFuUYuMgra/jya0YEDb6vmFXEHVlXTgXt0cYxeiDH78DJOjqWPWlwSk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768484895; c=relaxed/simple;
-	bh=v6sL5FlFwcJ9uF4XHSojlpJ3JzC/ns2hLNu0dTxwSIs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WF2XafJOBgkj/oDnEGCVg4xujAlGcKk6ZipV6j0aJqpWeqRi2u91DER6ByjzIP6mxVuBPooPnMs26wHa5TH9bkC2YCG9zOSgJ2vYs21RpY73/bGlvMF/QUJuxRpfZsqTD8fSxgFKWvZaHP0pS/cqxVfd1hSvTdqEYnzEu3vUZsY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FH9lnk+y; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1BD87081A
+	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 13:53:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768485198; cv=fail; b=QvmpmXN6Ni7m/oOuMkuRPGUEIfC1jZ8Yob3PxDdTOnBF12npuVDbeMr1ZeU2dZS9ViGXMcxvsTEAoEEGNQPiwjylUbiRqcif3SG30mhxqTGtkNm6zwebyfNIg6j4YJxTmv4SidfdpWHdu1/dFoio1lT3DEnft/GUIAdyGZakpu0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768485198; c=relaxed/simple;
+	bh=41fKrCYO3Uwzs50eAb4OLIFEHJf4ITsHZ6MCnIiGQtQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=KoWsmtqSiUFlG7J1ndDoGr3H+twQiezlM+kIjBphLOWE/FkWliuhj0php204NjpyvEYZ4+IqRmPF4xGJ0APUG9HeR+OsVJtCPi8TzradyGUOaWxWAgIg7zUN/Wdrf+ayL58pmYqTRO4hfLX8e0McmdQWdFMXcQJbB3QikwdPDB8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=EnEzk1Bh; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=f25FHsFk; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FH9lnk+y"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768484892;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LNVB3Cl97VXqWuirwYWckvKJ9pmI3BVBreE+/SzD7NE=;
-	b=FH9lnk+yeGv+DpuD5vwevFwzL8EjovMZxRC9uPvBBWiAZRruyVdmXYtIpG+qmnxE8Qh2cc
-	A64yK55DUqVtVaFpZMVDXppliO6QrUAiycxruXXehZK05C2LsyEkOWniL7oiMhtyPsY9Nr
-	ayjepE1NSXR6SeZ1PPo6CSTD+PMGwko=
-Received: from mail-yx1-f70.google.com (mail-yx1-f70.google.com
- [74.125.224.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-691-WANMzSRFNjGA52DxBHybOA-1; Thu, 15 Jan 2026 08:48:10 -0500
-X-MC-Unique: WANMzSRFNjGA52DxBHybOA-1
-X-Mimecast-MFC-AGG-ID: WANMzSRFNjGA52DxBHybOA_1768484890
-Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-645535ac027so1144787d50.0
-        for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 05:48:10 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768484890; x=1769089690;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=LNVB3Cl97VXqWuirwYWckvKJ9pmI3BVBreE+/SzD7NE=;
-        b=d/NbqhuH0ii2CX5QFV1ivGBhvHAyiCUYLUHjAgpWteO0SlOJvoYnNGJUmcCqoni8/s
-         IqgGFUR5kuAq0mHhvUUmDqCG+XIGrVKWda7jFDqO8gVvHi7vfxB+RWdZo/I7JSqS+KPc
-         akTt1rJysDLeKjpbRUO+Sxy3gF5JLJxQ/lZP2aL8RspEsAG6lnEi1rkmCSbWIlnSzXiP
-         V+BMmiuzNNqgXw6mm6pWIyK6rZJJM5qlncs8kJ211slc6JlWliJ3tmUcYqI/mLw5RwNQ
-         vvZVg0PwEq0ED6YmZnIsl0D6EdURTD5druFOvBJj//jeymLzJGZYaNgwFDsyj2vz6Jxp
-         E3SA==
-X-Forwarded-Encrypted: i=1; AJvYcCWHNIC33dcT92ba17I7qY1hQnKfSPy4NfObxgmQFk54S6qN0XOKmwvgFz0bDvKbjJC2uofe/LdA8rwWlN3ORw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyzaWu08DC97k1BrvyW8DEsm49DcHB2za3HXLJ6Rn1B1/pEp7/C
-	BUFS/pyW9TVK1G9P0GvGsS2gU1eKAlH6+8eLJcZWqHj9siAFUSgjkZKLy3yo2bwRqojZSH9Pp4Y
-	DrQrzq8MqFs1uII2iclDWkaWZ9xl/JYL4Ze+K4EgY35rMdjGaf057+yAgwroxl6dlhFIaNVDIBI
-	fMrAk4II1AYeSFWfxchbNyKEW0V6HlG7JUrDdRU+q3/2A=
-X-Gm-Gg: AY/fxX6N8MSorSZAKTgL/zjorfDtErXB59EzG3VNQfT++2vYeDpblzjawkGPnF58L9H
-	GNUhcGIlDafNs/cgrv+sGpDQHcn06OX54aa0RXdXckqAkGQdaIykq7McB/rrhc6EzQvSe1od9ND
-	EXtpCcJKcLYM0AiKtS+tA2gPR9aZgpeHTm9enbTmD2wt3hQMNH1mh8LnvwB5rF8G4fHA==
-X-Received: by 2002:a05:690e:138a:b0:644:60d9:752f with SMTP id 956f58d0204a3-64903b61c49mr4061104d50.97.1768484889924;
-        Thu, 15 Jan 2026 05:48:09 -0800 (PST)
-X-Received: by 2002:a05:690e:138a:b0:644:60d9:752f with SMTP id
- 956f58d0204a3-64903b61c49mr4061087d50.97.1768484889436; Thu, 15 Jan 2026
- 05:48:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="EnEzk1Bh";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="f25FHsFk"
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60FBmapq2811623;
+	Thu, 15 Jan 2026 13:52:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=corp-2025-04-25; bh=h5WpEUw2WVc3Mj0gL6
+	fktjVmkcle06OKkcqbkrlFfIY=; b=EnEzk1Bhen85LGHdYE4NuXa0CRJqBXJfGF
+	Y7j1Soveml1TMXbILf3gyrHmAkQcDPW97lnzNyv9zi04kxp4V9oYrwuSxGFpNcGA
+	jYV4RSflY/SANNHDtPmN/0aT/bNAl7YNl9nSG+zr67u9xVEbqHVI0/O7rYoAPV1G
+	cA3x+72QRa7y/1a6W1yaq/DR5x81n2GfgXaezfDOKXUKdgUmhE99L13kjA1lfJis
+	pcxlMvgNEtZai+TVq0HnQ1asaVOSBko1K3krGceo7TUDA5b2krE3tmU20bYt1dCY
+	elcUrEyVsULf7goaLFuZk/hYZldNbFroO2JCyKrgHhhG9R9SXd+Q==
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4bkh7nr0ue-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 15 Jan 2026 13:52:48 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 60FBkl4X001857;
+	Thu, 15 Jan 2026 13:52:47 GMT
+Received: from ph8pr06cu001.outbound.protection.outlook.com (mail-westus3azon11012060.outbound.protection.outlook.com [40.107.209.60])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4bkd7bb0c6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 15 Jan 2026 13:52:47 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=fzxOSNW9GHQmudSr2vV7ikaFB0GbFE7OqWkxbzm3KVTGAFpTGMPSCY8Uv9lS2/wo0+BcI7oooivo+2FQpVE2qWqPfbO7tBEU/o+Hocg0sUuNTlqcBKTcET3FFqiaYfzeR/9P71ejKl1P1vnvIyH7ra6RC8QyGf5IFHmfght2V1dS8P2WQ/kwtOq7NdG9B+R+fdZ09rBL0H17IOOq43cEtkTDj3UeN9MSfGyYNMpkHJLNQFkUJL+SYf1rQmjU7YRfBzpNkMJoW57KQqUqIJtVzJo7A9MTgAsgbGedJEypejG0rqY8zewlvmmG3GSmodcE0GqXx/km7D1M9VE/izx0AQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=h5WpEUw2WVc3Mj0gL6fktjVmkcle06OKkcqbkrlFfIY=;
+ b=n8xue9BGP2rwoZOZOY20+fjei4NID27i39AODvy8bPxDA9O4o9mj7+KfYuV8xpksVqQymr6AmW7fPqrnxvxUr6vcNjkJF5xYNA74h8xouAw8L8mgteVE8Th+S7Ayp7PISX2D7L0heeTpVYqhqlGQfYv9r6TqixUvxIRf6VuFpHYH2RmoyHBTz1HI9IJhG0r5nWvQgXHpqnyluuVhb7+fAdN/L5KiFRrc7XFb1U56aSjUX5weEmjo4dVmeexd0u31lV6XU3hn2kyQfPzqyDHfyD+2AWoJuc04AAmnylL1LI2RaY5xp6AWiNk0NHYAdcXl6Lyoz0NXuiY9dINWkKFxww==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=h5WpEUw2WVc3Mj0gL6fktjVmkcle06OKkcqbkrlFfIY=;
+ b=f25FHsFkOqcBMzMpjJhgHBZZ9Bfbv7yXwzfPjXCKOyF8ezSlc+B4OEL4dOknHsM/Xqu1iTCzhyCMevkrdFJZZekkJjWDuHj2KRXw6hI7XLKFKRXUmmS6NLckuwy8Wp8ti+pR7LpsPP/bmuxzx4e0w5ZvtkbVWPltp94KxhGn0Bs=
+Received: from BL4PR10MB8229.namprd10.prod.outlook.com (2603:10b6:208:4e6::14)
+ by BY5PR10MB4371.namprd10.prod.outlook.com (2603:10b6:a03:210::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9499.7; Thu, 15 Jan
+ 2026 13:52:44 +0000
+Received: from BL4PR10MB8229.namprd10.prod.outlook.com
+ ([fe80::552b:16d2:af:c582]) by BL4PR10MB8229.namprd10.prod.outlook.com
+ ([fe80::552b:16d2:af:c582%6]) with mapi id 15.20.9520.005; Thu, 15 Jan 2026
+ 13:52:44 +0000
+Date: Thu, 15 Jan 2026 13:52:47 +0000
+From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+To: "David Hildenbrand (Red Hat)" <david@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linuxppc-dev@lists.ozlabs.org,
+        Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+        linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+        Zi Yan <ziy@nvidia.com>
+Subject: Re: [PATCH v2 21/23] mm: rename CONFIG_BALLOON_COMPACTION to
+ CONFIG_BALLOON_MIGRATION
+Message-ID: <76a1cf4e-7635-4bba-a350-d6f6da6fbe6e@lucifer.local>
+References: <20260115092015.3928975-1-david@kernel.org>
+ <20260115092015.3928975-22-david@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260115092015.3928975-22-david@kernel.org>
+X-ClientProxiedBy: LO4P265CA0301.GBRP265.PROD.OUTLOOK.COM
+ (2603:10a6:600:391::19) To BL4PR10MB8229.namprd10.prod.outlook.com
+ (2603:10b6:208:4e6::14)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260114184839.926884-1-eperezma@redhat.com> <20260114184839.926884-12-eperezma@redhat.com>
- <CACGkMEtUv7Kge4A6rcSSiVu4moi5vSNU97pQ7_LiUmprOb0wBw@mail.gmail.com>
-In-Reply-To: <CACGkMEtUv7Kge4A6rcSSiVu4moi5vSNU97pQ7_LiUmprOb0wBw@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 15 Jan 2026 14:47:32 +0100
-X-Gm-Features: AZwV_Qi3nIJtBXMs-mGYADMy-bz-WHzm_nzMIa0g2RLFNt0VpahlxmOQ-dfoM4o
-Message-ID: <CAJaqyWckHQmTT78E-hnz3w5-qJJGX1_gp3orMDoAupyypcTOVQ@mail.gmail.com>
-Subject: Re: [PATCH v12 11/13] vduse: add vq group asid support
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	Stefano Garzarella <sgarzare@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	linux-kernel@vger.kernel.org, Cindy Lu <lulu@redhat.com>, 
-	Laurent Vivier <lvivier@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: SJHWIFaHxBU9amwep-6ufAP0nvBVSrQvKggxvYge0oc_1768484890
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL4PR10MB8229:EE_|BY5PR10MB4371:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9d4ab2c9-50a9-41b3-bde0-08de543d5bb8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|7416014|1800799024|366016|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?9xssNg0fJlfvZ8XuWTj83KMfA69XikLLeWy9GAxeH0QhmdF4slux5anguYm3?=
+ =?us-ascii?Q?G/bn8Jkr/V4oxzLQ6XmF2VUV+N/iy8Ll7WPsRpiHqBE4DLGeSMXAy83ybD70?=
+ =?us-ascii?Q?qfygtfVck2aTX5P6kl/o21sxWJKk4vxDaPBEhH7vSNGJIuQj4J+/JQ7Rn/MT?=
+ =?us-ascii?Q?WYBHdGykh6fgCQVmqS/lm7rMSw7gLzSujrc/lxnGbCkTKwUXto6EDZiN7mzR?=
+ =?us-ascii?Q?y6OXNDw0aPdcJ0ldMa5RSIPdKYmyDo9E7UzP93k1Hva5WldaiAeMVn0isqfm?=
+ =?us-ascii?Q?q5aeqDm7qpiYW+vdjO0St5pCIg7DwTpXVSkl7ReXVjUt/yQQVeXOP7VUiP2w?=
+ =?us-ascii?Q?OdobrYqosF2NaqLpE7sjKLfvlnAvTMcD1pA2diH5cntHv0q1HtlpOj0cksVO?=
+ =?us-ascii?Q?0dUqyOPWVI/PuFqfSkH9jWty3I5VhdPVrWtvuSv7vs5mM03QiGUDtePf+9DA?=
+ =?us-ascii?Q?Bp4KS3l2symlNd7gbrdmhibiIg2BaNKZhpHgJOVuQ6vzkgXp/bsMFZdGGrKI?=
+ =?us-ascii?Q?Q3JzO9xFeI5tlS+7tZKWC0WQ947QVTLvT5vAec9bD9C6X4KtmjeChMSp1KnL?=
+ =?us-ascii?Q?UVZQ/10fEoweJfLDMthSMmGro8kQaxisQQwYE/UbzpXhAi+AZEPaujS7uk70?=
+ =?us-ascii?Q?86ouXaqOlhMsbyXJ8qq+cyHJ1FIJ6Mo4w2RLXzFIKTI0xBHg8+cxc/S1wnrk?=
+ =?us-ascii?Q?rOa2rTNCuLbJtIw5y8/cr/Mq2+kF5Y9bNBkAFH4AzNmj540Os4fOGi2aGtgi?=
+ =?us-ascii?Q?Ferb2mpdxbzEyaOQl40JjadzMSv6YeuQbvzujwf2/CXfGPF5QVMW1N1G50VR?=
+ =?us-ascii?Q?ghrr51xhCOSyX2clV6J5CGLrR5EMkhx/xl0CZ9uk+G5kRxAxTvlTXKCIaGEk?=
+ =?us-ascii?Q?ONT2rtGNGBkxHsdy+u8qCPpOge5osDHe/qQSyHrTiJxn2guNHXAfBPtwiNsf?=
+ =?us-ascii?Q?wU03W5Dn3D7QmH8UVCYhSR/e404bxzBmDfObg2OErHPO5UBTqIn/K/CQFnFe?=
+ =?us-ascii?Q?xNEs4iHT+BKslCL56uWDuwxIf/eOJHlMQWjnnbMuZR2g265wXXZYIs5446xI?=
+ =?us-ascii?Q?kfpid3lz2i7f3eCEV4g758cZk4pwn2yPnOPU9iWXd+R/M8MpEtHH648E0jfj?=
+ =?us-ascii?Q?F1mGSBJHhh6j311ry3S57cBOHE6bSNAUDjDGbucM2SMIhS8UjVRg1BuLw2zw?=
+ =?us-ascii?Q?HFOZetYhC62oQ8WXtPyKDt3GlER3Cq1IFCF8Z7I1OoIzf+xovYeS433GRgxP?=
+ =?us-ascii?Q?GtWqyGT3BA3eCicWhV1KmFh+jiXiWp6BzeVptk4DcU6z+m4ci8Fjpz5QNVy2?=
+ =?us-ascii?Q?Z4oVGWKcj3zhSD72tj4uZKiu1VUHMHWTPPxy0Z/oPr9X96ufJySVi7cv7/80?=
+ =?us-ascii?Q?qdkV0d+g/5L7J7jKPDRoUP+uu7nKXznIQ7HAMcAL+0uoJPI8xfAgKqiK6HWC?=
+ =?us-ascii?Q?/9IRphrJG9bMbc1lHLfr9ADePw2jxEeUmjFEZi7zdCyiyA1MBB1eF1Qmo85t?=
+ =?us-ascii?Q?Lj5Cce4Io9LGumP1PJJp+HVRYsAqz8pZ78Fi9y7fMg9dh7LG75k01Y2UpBIZ?=
+ =?us-ascii?Q?hXOw6MiUUDBb4cR3YA0=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL4PR10MB8229.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?9CfO1GVI3n1h+yTOjzZlBwLIGmKFmiOHDbCBAkVgs0F5p3jcDMi9GBNSGA4U?=
+ =?us-ascii?Q?z0k1DM13h2BArpmYKNPzE9hw+QGKTCN3ZR9CORMgANgrXWNYcoWsCU9p/Nrh?=
+ =?us-ascii?Q?5X/t+9/o5h/ogTTzHhnSW6sL2YK7lYIaAlWt3smPnd4JGsmGA9OV37AKoHfO?=
+ =?us-ascii?Q?E7ZKrPrGQ08IezTotHsk+7TvI2zddceRMEnlY/ZUq86NVBF1ihZcJ89O13Qy?=
+ =?us-ascii?Q?1//cuVa9eEcd99C5CTdRfjnpv+5xS7bMzZMI9CMvEiuUUj9D4nW89qN5CUZ8?=
+ =?us-ascii?Q?XHlDkRCh9qOmExewPkGaUNgAow6Kdo0jJxcMLI+M6vFAqrQ4k3gzc5xON0p4?=
+ =?us-ascii?Q?/mFbUgMeIEx6v+LR1yaneQjVojpjakv8SiV6aih0tK5XaMDYzKWy1laiF0o8?=
+ =?us-ascii?Q?YUqBEDRJXiQJZOmHjmtVrGzW9Rk32kzd3yumxs9yMpFwp3sdntABeOOg9akf?=
+ =?us-ascii?Q?PGHrlNR1fPejvbkbsgkYQUt8lJnSKusQi9frXcRK6XxjX78IPa/4LFIPLOj7?=
+ =?us-ascii?Q?A1FiDpe03cMmyyJutODH7/Y/pQGN8XVQs0AUgJ5UL3recqTnLKiTMmhYvJTC?=
+ =?us-ascii?Q?RepN35WmKYou9zPltVEdqricqOh5ahBDaU23dQbDKjQYbuN9aExdnzCfh1+m?=
+ =?us-ascii?Q?5twiOqZNXwc8Eh9DZWMMJsBG3eSaA2z3bLQTahN/MBjBmiEty5p1VcAL7wdv?=
+ =?us-ascii?Q?BlCf4qufnpqqKnAKV8sTMz3qtfISefSXq/mYb6QZuThVHAV137geVio8ct2n?=
+ =?us-ascii?Q?1w+DQu8rQNhLIWMMa2mfxZf4mhJOo3AlR7vEGGjCzSj9aQdPgpwuNyqfnhxO?=
+ =?us-ascii?Q?wurHWTC9ukLZ91fKx2SB421usggWmw3XPJrxxmwhenduCQ4Y3+vCiMFl5yzx?=
+ =?us-ascii?Q?uXh59EuD7lHaERZm9inGppa0A5jyGTXIGThLgda2NnLDd71ef9FInNUiLvmT?=
+ =?us-ascii?Q?2lSIepzvq0GCY/89IYL3ZTOeKXcIdbXyqkm+/Oi98qq/ppzzF0SwigOsuD67?=
+ =?us-ascii?Q?JAFNnrxVE0lfxsU4bOz3y06EKoj/9UMrKekAwMtVCmTOPlDsVffUV2QtB2ev?=
+ =?us-ascii?Q?Y6ZVWOXQn0MZPNJinYmNxwXPYnYMMH+nlip3jel9W6KBMYS2jER+hlvbsaMy?=
+ =?us-ascii?Q?YiBSiUC0y8JkeGsqEkxTXjo88JCApSaFUR1tpGVtr3fPJW/FHV8mtS2os1h0?=
+ =?us-ascii?Q?VbMRvWJCIrQAcGtZtj4FBG7RVlmprcp3H8az/CvECk8OddjMRAQHfh3gTdOV?=
+ =?us-ascii?Q?B8x9TRsD6YeiVsXLSISwMq/0iWkAMcTg4InOSuE3mnthpi4PbJHTavhU/5jD?=
+ =?us-ascii?Q?KpL7wgcttHj3ETBkOGMgnyuX/E3C6B2IsOugXb6g0mJr+tp18XVguZpwdtw6?=
+ =?us-ascii?Q?a2Hq3QjgpAvfLl7pTh7gauTrTXVrvUq8V5LW7vnMLZvUdoggSGP4ro9YlOXv?=
+ =?us-ascii?Q?DZs68zPAIbSHdi5rnBflDhqRBuMqa21kitFsHMmNeiC7hcjh8X9uprGAMiu3?=
+ =?us-ascii?Q?Kuv6V3fvHnKW25XEBFQIoaLmCgkQQp47iwDQXi5xDq/YUy8s2JB2KkoMWphv?=
+ =?us-ascii?Q?/8kqt4QVEQLaGJcLbS2CaDVndFlsuitIXJy1zGl+aX21GMovYY9hFC0fhRhj?=
+ =?us-ascii?Q?zEEnh0vb0778mfsOFCmOEX3/RMdR9aofcro2X3cWO9EmVLs4VjSFII5jDeQ0?=
+ =?us-ascii?Q?XuDsAfDyvypvLcia32EfkFf/OMWxcxr60EO36ORxyU4OH6o13f/54apYyqvj?=
+ =?us-ascii?Q?FA3XIib1eMROAqM3Ns+ikFus+BHd9MQ=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	rmanQWo5wdmYiHK2Z42nXbedUCJTbrNLO7klhxRkadUs0sXJOzAjoJ1mGjzXm+CwvhCjNaNd63AD5Mo5JRJy2+KI8Y5MzyU22WCfT6aKNlgMezLQK85B1d0RhAGv5P831dJbgapSZDOV9UO4/49ZvAR39GeBu941rVKQyaJfhhMOUZaGv2Lq4Hwimj/ug3N607Ab/HQuAigIsN0hB6yNJIevz2jlBonmHgYEhJX8k6twGdw1vHFoulvylnMl3pA0MCg8iDcuwesXggY0pFd55lC2JFv7DiPlbimn4oKFVKHtl39VRmXHvYS4sAVfr/0AezASpre32wqHzn5qaYLFVMix0aWkGFi0DNRmgx3HYJ+xeOgH9nbSQv840Kj+msmxiirhWBPLUkhwZCFO7wuiJ3Dqxk7TzUEyd300Ynw2NCAmeYd65A3ly9QFdDhuQJ1brcwiGsvtvlRU/DIxrFrU0qchNKroi+HkLaysr0Tb71hdbBfKxUZMiJWCmrAnsI4D1HuswmZgR3lFSclxq4AkX3VTBZwrjpQG1Qf9hauvh/zguW0BhLOqGFbQyZwS9AsiB5WYXyDBXWp+GhR4AdhhiXby5JJ5/pWA4b6jJ9FB0nQ=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9d4ab2c9-50a9-41b3-bde0-08de543d5bb8
+X-MS-Exchange-CrossTenant-AuthSource: BL4PR10MB8229.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jan 2026 13:52:44.2897
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: xGsBw3+YWY8RSt8X+VjKNEeNKKduN33skpMuHkiaLIqJrcslXif3XWcARWoClzZlK7c5HztW2jG3MAO5PFeTTlhNKJ0wbmsyaP9amtsTwx0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4371
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2026-01-15_04,2026-01-15_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 malwarescore=0 phishscore=0
+ mlxlogscore=999 adultscore=0 suspectscore=0 spamscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2512120000
+ definitions=main-2601150102
+X-Proofpoint-GUID: HukTMBWSbdGdgIsNZSKnL7-_GV8o8M-v
+X-Authority-Analysis: v=2.4 cv=X7Bf6WTe c=1 sm=1 tr=0 ts=6968f130 cx=c_pps
+ a=OOZaFjgC48PWsiFpTAqLcw==:117 a=OOZaFjgC48PWsiFpTAqLcw==:17
+ a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
+ a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
+ a=vUbySO9Y5rIA:10 a=GoEa3M9JfhUA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VwQbUJbxAAAA:8 a=yPCof4ZbAAAA:8 a=XraGVkj0le8dWsLnROYA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTE1MDEwMiBTYWx0ZWRfX+WWLKp2WDPyW
+ xK/oHuNK3e7kgzDuWgoKLg7b5UD/u7/tM1G16xoa0gBk26sJuPvhi+7dQSPaPzWwUs3wpPvupIx
+ pohWgQA3MljyB/ko1XWYj8/GiPlRBGgH8cmmtuOk8vhmhILCUSCZ7cCn/zbkrciFRbCEifocaWv
+ ZBB1jwYgflG2SDnp1LonAQUeyaNLJ3/DZVKjbFrCUrb0q1ftZvSeQBAnIQAhtSlzQJiJYxenfdG
+ l4ExWutpNM9+Ud+1KC1RL2jE+BM+2bKMto/DKgHb/MWQFsCvx3DlpWHsR3EQERzQr7LcAdiCkdr
+ wja+1nh0eJMC7lUDkKk2WNaHjOdDHGIOPQysTYNYAlmt5CsQVu8n+3vz+4CBKChkZntNIDLxiws
+ BxeIhvtKwtrylvo28O1XnpyjCGnraWDjt+GvE2+lN2yj/l6OKMzbNDFVdVcL/BBd6XbaJrgxZFD
+ xeOUBk2O1PmTpz70TVw==
+X-Proofpoint-ORIG-GUID: HukTMBWSbdGdgIsNZSKnL7-_GV8o8M-v
 
-On Thu, Jan 15, 2026 at 9:41=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
+On Thu, Jan 15, 2026 at 10:20:11AM +0100, David Hildenbrand (Red Hat) wrote:
+> While compaction depends on migration, the other direction is not the
+> case. So let's make it clearer that this is all about migration of
+> balloon pages.
 >
-> On Thu, Jan 15, 2026 at 2:49=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redh=
-at.com> wrote:
-> >
-> > Add support for assigning Address Space Identifiers (ASIDs) to each VQ
-> > group.  This enables mapping each group into a distinct memory space.
-> >
-> > The vq group to ASID association is protected by a rwlock now.  But the
-> > mutex domain_lock keeps protecting the domains of all ASIDs, as some
-> > operations like the one related with the bounce buffer size still
-> > requires to lock all the ASIDs.
-> >
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> >
-> > ---
-> > Future improvements can include performance optimizations on top like
-> > ore to RCU or thread synchronized atomics, or hardening by tracking ASI=
-D
-> > or ASID hashes on unused bits of the DMA address.
-> >
-> > Tested virtio_vdpa by adding manually two threads in vduse_set_status:
-> > one of them modifies the vq group 0 ASID and the other one map and unma=
-p
-> > memory continuously.  After a while, the two threads stop and the usual
-> > work continues.  Test with version 0, version 1 with the old ioctl, and
-> > version 1 with the new ioctl.
-> >
-> > Tested with vhost_vdpa by migrating a VM while ping on OVS+VDUSE.  A fe=
-w
-> > workaround were needed in some parts:
-> > * Do not enable CVQ before data vqs in QEMU, as VDUSE does not forward
-> >   the enable message to the userland device.  This will be solved in th=
-e
-> >   future.
-> > * Share the suspended state between all vhost devices in QEMU:
-> >   https://lists.nongnu.org/archive/html/qemu-devel/2025-11/msg02947.htm=
-l
-> > * Implement a fake VDUSE suspend vdpa operation callback that always
-> >   returns true in the kernel.  DPDK suspend the device at the first
-> >   GET_VRING_BASE.
-> > * Remove the CVQ blocker in ASID.
-> >
-> > The driver vhost_vdpa was also tested with version 0, version 1 with th=
-e
-> > old ioctl, version 1 with the new ioctl but only one ASID, and version =
-1
-> > with many ASID.
-> >
-> > ---
-> > v12:
-> > * Using scoped guards for vq group rwlock, so the one queue optimizatio=
-n
-> >   is not missed (Jason proposed to factor them into helpers).
-> > * Add the _v2 suffix to vduse_iova_range_v2 struct name fixing the doc
-> >   (MST).
-> > * s/verion/version/ in patch message.
-> > * Remove trailing ; after a comment (Jason).
-> >
-> > v11:
-> > * Remove duplicated free_pages_exact in vduse_domain_free_coherent
-> >   (Jason).
-> > * Do not take the vq groups lock if nas =3D=3D 1.
-> > * Do not reset the vq group ASID in vq reset (Jason).  Removed extra
-> >   function vduse_set_group_asid_nomsg, not needed anymore.
-> > * Move the vduse_iotlb_entry_v2 argument to a new ioctl, as argument
-> >   didn't match the previous VDUSE_IOTLB_GET_FD.
-> > * Move the asid < dev->nas check to vdpa core.
-> >
-> > v10:
-> > * Back to rwlock version so stronger locks are used.
-> > * Take out allocations from rwlock.
-> > * Forbid changing ASID of a vq group after DRIVER_OK (Jason)
-> > * Remove bad fetching again of domain variable in
-> >   vduse_dev_max_mapping_size (Yongji).
-> > * Remove unused vdev definition in vdpa map_ops callbacks (kernel test
-> >   robot).
-> >
-> > v9:
-> > * Replace mutex with rwlock, as the vdpa map_ops can run from atomic
-> >   context.
-> >
-> > v8:
-> > * Revert the mutex to rwlock change, it needs proper profiling to
-> >   justify it.
-> >
-> > v7:
-> > * Take write lock in the error path (Jason).
-> >
-> > v6:
-> > * Make vdpa_dev_add use gotos for error handling (MST).
-> > * s/(dev->api_version < 1) ?/(dev->api_version < VDUSE_API_VERSION_1) ?=
-/
-> >   (MST).
-> > * Fix struct name not matching in the doc.
-> >
-> > v5:
-> > * Properly return errno if copy_to_user returns >0 in VDUSE_IOTLB_GET_F=
-D
-> >   ioctl (Jason).
-> > * Properly set domain bounce size to divide equally between nas (Jason)=
-.
-> > * Exclude "padding" member from the only >V1 members in
-> >   vduse_dev_request.
-> >
-> > v4:
-> > * Divide each domain bounce size between the device bounce size (Jason)=
-.
-> > * revert unneeded addr =3D NULL assignment (Jason)
-> > * Change if (x && (y || z)) return to if (x) { if (y) return; if (z)
-> >   return; } (Jason)
-> > * Change a bad multiline comment, using @ caracter instead of * (Jason)=
-.
-> > * Consider config->nas =3D=3D 0 as a fail (Jason).
-> >
-> > v3:
-> > * Get the vduse domain through the vduse_as in the map functions
-> >   (Jason).
-> > * Squash with the patch creating the vduse_as struct (Jason).
-> > * Create VDUSE_DEV_MAX_AS instead of comparing agains a magic number
-> >   (Jason)
-> >
-> > v2:
-> > * Convert the use of mutex to rwlock.
-> >
-> > RFC v3:
-> > * Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
-> >   value to reduce memory consumption, but vqs are already limited to
-> >   that value and userspace VDUSE is able to allocate that many vqs.
-> > * Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
-> >   VDUSE_IOTLB_GET_INFO.
-> > * Use of array_index_nospec in VDUSE device ioctls.
-> > * Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
-> > * Move the umem mutex to asid struct so there is no contention between
-> >   ASIDs.
-> >
-> > RFC v2:
-> > * Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
-> >   part of the struct is the same.
-> > ---
-> >  drivers/vdpa/vdpa_user/vduse_dev.c | 385 +++++++++++++++++++----------
-> >  include/uapi/linux/vduse.h         |  63 ++++-
-> >  2 files changed, 312 insertions(+), 136 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
-r/vduse_dev.c
-> > index d658f3e1cebf..2727c0c26003 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -9,6 +9,7 @@
-> >   */
-> >
-> >  #include "linux/virtio_net.h"
-> > +#include <linux/cleanup.h>
-> >  #include <linux/init.h>
-> >  #include <linux/module.h>
-> >  #include <linux/cdev.h>
-> > @@ -41,6 +42,7 @@
-> >
-> >  #define VDUSE_DEV_MAX (1U << MINORBITS)
-> >  #define VDUSE_DEV_MAX_GROUPS 0xffff
-> > +#define VDUSE_DEV_MAX_AS 0xffff
-> >  #define VDUSE_MAX_BOUNCE_SIZE (1024 * 1024 * 1024)
-> >  #define VDUSE_MIN_BOUNCE_SIZE (1024 * 1024)
-> >  #define VDUSE_BOUNCE_SIZE (64 * 1024 * 1024)
-> > @@ -86,7 +88,15 @@ struct vduse_umem {
-> >         struct mm_struct *mm;
-> >  };
-> >
-> > +struct vduse_as {
-> > +       struct vduse_iova_domain *domain;
-> > +       struct vduse_umem *umem;
-> > +       struct mutex mem_lock;
-> > +};
-> > +
-> >  struct vduse_vq_group {
-> > +       rwlock_t as_lock;
-> > +       struct vduse_as *as; /* Protected by as_lock */
-> >         struct vduse_dev *dev;
-> >  };
-> >
-> > @@ -94,7 +104,7 @@ struct vduse_dev {
-> >         struct vduse_vdpa *vdev;
-> >         struct device *dev;
-> >         struct vduse_virtqueue **vqs;
-> > -       struct vduse_iova_domain *domain;
-> > +       struct vduse_as *as;
-> >         char *name;
-> >         struct mutex lock;
-> >         spinlock_t msg_lock;
-> > @@ -122,9 +132,8 @@ struct vduse_dev {
-> >         u32 vq_num;
-> >         u32 vq_align;
-> >         u32 ngroups;
-> > -       struct vduse_umem *umem;
-> > +       u32 nas;
-> >         struct vduse_vq_group *groups;
-> > -       struct mutex mem_lock;
-> >         unsigned int bounce_size;
-> >         struct mutex domain_lock;
-> >  };
-> > @@ -314,7 +323,7 @@ static int vduse_dev_set_status(struct vduse_dev *d=
-ev, u8 status)
-> >         return vduse_dev_msg_sync(dev, &msg);
-> >  }
-> >
-> > -static int vduse_dev_update_iotlb(struct vduse_dev *dev,
-> > +static int vduse_dev_update_iotlb(struct vduse_dev *dev, u32 asid,
-> >                                   u64 start, u64 last)
-> >  {
-> >         struct vduse_dev_msg msg =3D { 0 };
-> > @@ -323,8 +332,14 @@ static int vduse_dev_update_iotlb(struct vduse_dev=
- *dev,
-> >                 return -EINVAL;
-> >
-> >         msg.req.type =3D VDUSE_UPDATE_IOTLB;
-> > -       msg.req.iova.start =3D start;
-> > -       msg.req.iova.last =3D last;
-> > +       if (dev->api_version < VDUSE_API_VERSION_1) {
-> > +               msg.req.iova.start =3D start;
-> > +               msg.req.iova.last =3D last;
-> > +       } else {
-> > +               msg.req.iova_v2.start =3D start;
-> > +               msg.req.iova_v2.last =3D last;
-> > +               msg.req.iova_v2.asid =3D asid;
-> > +       }
-> >
-> >         return vduse_dev_msg_sync(dev, &msg);
-> >  }
-> > @@ -439,11 +454,14 @@ static __poll_t vduse_dev_poll(struct file *file,=
- poll_table *wait)
-> >  static void vduse_dev_reset(struct vduse_dev *dev)
-> >  {
-> >         int i;
-> > -       struct vduse_iova_domain *domain =3D dev->domain;
-> >
-> >         /* The coherent mappings are handled in vduse_dev_free_coherent=
-() */
-> > -       if (domain && domain->bounce_map)
-> > -               vduse_domain_reset_bounce_map(domain);
-> > +       for (i =3D 0; i < dev->nas; i++) {
-> > +               struct vduse_iova_domain *domain =3D dev->as[i].domain;
-> > +
-> > +               if (domain && domain->bounce_map)
-> > +                       vduse_domain_reset_bounce_map(domain);
-> > +       }
-> >
-> >         down_write(&dev->rwsem);
-> >
-> > @@ -622,6 +640,42 @@ static union virtio_map vduse_get_vq_map(struct vd=
-pa_device *vdpa, u16 idx)
-> >         return ret;
-> >  }
-> >
-> > +DEFINE_GUARD(vq_group_as_read_lock, struct vduse_vq_group *,
-> > +       if (_T->dev->nas > 1)
-> > +               read_lock(&_T->as_lock),
-> > +       if (_T->dev->nas > 1)
-> > +               read_unlock(&_T->as_lock))
-> > +
-> > +DEFINE_GUARD(vq_group_as_write_lock, struct vduse_vq_group *,
-> > +       if (_T->dev->nas > 1)
-> > +               write_lock(&_T->as_lock),
-> > +       if (_T->dev->nas > 1)
-> > +               write_unlock(&_T->as_lock))
-> > +
-> > +static int vduse_set_group_asid(struct vdpa_device *vdpa, unsigned int=
- group,
-> > +                               unsigned int asid)
-> > +{
-> > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > +       struct vduse_dev_msg msg =3D { 0 };
-> > +       int r;
-> > +
-> > +       if (dev->api_version < VDUSE_API_VERSION_1)
-> > +               return -EINVAL;
-> > +
-> > +       msg.req.type =3D VDUSE_SET_VQ_GROUP_ASID;
-> > +       msg.req.vq_group_asid.group =3D group;
-> > +       msg.req.vq_group_asid.asid =3D asid;
-> > +
-> > +       r =3D vduse_dev_msg_sync(dev, &msg);
-> > +       if (r < 0)
-> > +               return r;
-> > +
-> > +       guard(vq_group_as_write_lock)(&dev->groups[group]);
-> > +       dev->groups[group].as =3D &dev->as[asid];
-> > +
-> > +       return 0;
-> > +}
-> > +
-> >  static int vduse_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 idx,
-> >                                 struct vdpa_vq_state *state)
-> >  {
-> > @@ -793,13 +847,13 @@ static int vduse_vdpa_set_map(struct vdpa_device =
-*vdpa,
-> >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> >         int ret;
-> >
-> > -       ret =3D vduse_domain_set_map(dev->domain, iotlb);
-> > +       ret =3D vduse_domain_set_map(dev->as[asid].domain, iotlb);
-> >         if (ret)
-> >                 return ret;
-> >
-> > -       ret =3D vduse_dev_update_iotlb(dev, 0ULL, ULLONG_MAX);
-> > +       ret =3D vduse_dev_update_iotlb(dev, asid, 0ULL, ULLONG_MAX);
-> >         if (ret) {
-> > -               vduse_domain_clear_map(dev->domain, iotlb);
-> > +               vduse_domain_clear_map(dev->as[asid].domain, iotlb);
-> >                 return ret;
-> >         }
-> >
-> > @@ -842,6 +896,7 @@ static const struct vdpa_config_ops vduse_vdpa_conf=
-ig_ops =3D {
-> >         .get_vq_affinity        =3D vduse_vdpa_get_vq_affinity,
-> >         .reset                  =3D vduse_vdpa_reset,
-> >         .set_map                =3D vduse_vdpa_set_map,
-> > +       .set_group_asid         =3D vduse_set_group_asid,
-> >         .get_vq_map             =3D vduse_get_vq_map,
-> >         .free                   =3D vduse_vdpa_free,
-> >  };
-> > @@ -850,15 +905,13 @@ static void vduse_dev_sync_single_for_device(unio=
-n virtio_map token,
-> >                                              dma_addr_t dma_addr, size_=
-t size,
-> >                                              enum dma_data_direction di=
-r)
-> >  {
-> > -       struct vduse_dev *vdev;
-> >         struct vduse_iova_domain *domain;
-> >
-> >         if (!token.group)
-> >                 return;
-> >
-> > -       vdev =3D token.group->dev;
-> > -       domain =3D vdev->domain;
-> > -
-> > +       guard(vq_group_as_read_lock)(token.group);
-> > +       domain =3D token.group->as->domain;
-> >         vduse_domain_sync_single_for_device(domain, dma_addr, size, dir=
-);
-> >  }
-> >
-> > @@ -866,15 +919,13 @@ static void vduse_dev_sync_single_for_cpu(union v=
-irtio_map token,
-> >                                              dma_addr_t dma_addr, size_=
-t size,
-> >                                              enum dma_data_direction di=
-r)
-> >  {
-> > -       struct vduse_dev *vdev;
-> >         struct vduse_iova_domain *domain;
-> >
-> >         if (!token.group)
-> >                 return;
-> >
-> > -       vdev =3D token.group->dev;
-> > -       domain =3D vdev->domain;
-> > -
-> > +       guard(vq_group_as_read_lock)(token.group);
-> > +       domain =3D token.group->as->domain;
-> >         vduse_domain_sync_single_for_cpu(domain, dma_addr, size, dir);
-> >  }
-> >
-> > @@ -883,15 +934,13 @@ static dma_addr_t vduse_dev_map_page(union virtio=
-_map token, struct page *page,
-> >                                      enum dma_data_direction dir,
-> >                                      unsigned long attrs)
-> >  {
-> > -       struct vduse_dev *vdev;
-> >         struct vduse_iova_domain *domain;
-> >
-> >         if (!token.group)
-> >                 return DMA_MAPPING_ERROR;
-> >
-> > -       vdev =3D token.group->dev;
-> > -       domain =3D vdev->domain;
-> > -
-> > +       guard(vq_group_as_read_lock)(token.group);
-> > +       domain =3D token.group->as->domain;
-> >         return vduse_domain_map_page(domain, page, offset, size, dir, a=
-ttrs);
-> >  }
-> >
-> > @@ -899,23 +948,19 @@ static void vduse_dev_unmap_page(union virtio_map=
- token, dma_addr_t dma_addr,
-> >                                  size_t size, enum dma_data_direction d=
-ir,
-> >                                  unsigned long attrs)
-> >  {
-> > -       struct vduse_dev *vdev;
-> >         struct vduse_iova_domain *domain;
-> >
-> >         if (!token.group)
-> >                 return;
-> >
-> > -       vdev =3D token.group->dev;
-> > -       domain =3D vdev->domain;
-> > -
-> > -       return vduse_domain_unmap_page(domain, dma_addr, size, dir, att=
-rs);
-> > +       guard(vq_group_as_read_lock)(token.group);
-> > +       domain =3D token.group->as->domain;
-> > +       vduse_domain_unmap_page(domain, dma_addr, size, dir, attrs);
-> >  }
-> >
-> >  static void *vduse_dev_alloc_coherent(union virtio_map token, size_t s=
-ize,
-> >                                       dma_addr_t *dma_addr, gfp_t flag)
-> >  {
-> > -       struct vduse_dev *vdev;
-> > -       struct vduse_iova_domain *domain;
-> >         void *addr;
-> >
-> >         *dma_addr =3D DMA_MAPPING_ERROR;
-> > @@ -926,11 +971,15 @@ static void *vduse_dev_alloc_coherent(union virti=
-o_map token, size_t size,
-> >         if (!addr)
-> >                 return NULL;
-> >
-> > -       vdev =3D token.group->dev;
-> > -       domain =3D vdev->domain;
-> > -       *dma_addr =3D vduse_domain_alloc_coherent(domain, size, addr);
-> > -       if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
-> > -               goto err;
-> > +       {
-> > +               struct vduse_iova_domain *domain;
-> > +
-> > +               guard(vq_group_as_read_lock)(token.group);
-> > +               domain =3D token.group->as->domain;
-> > +               *dma_addr =3D vduse_domain_alloc_coherent(domain, size,=
- addr);
-> > +               if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
-> > +                       goto err;
-> > +       }
+> Adjust all comments/docs in the core to talk about "migration" instead
+> of "compaction".
+
+Saw:
+
+include/linux/balloon.h:25: * performing balloon page compaction. In order to sort out these racy scenarios
+include/linux/balloon.h:26: * and safely perform balloon's page compaction and migration we must, always,
+Documentation/mm/page_migration.rst:175:balloon-compaction infrastructure residing in the core kernel.
+
+At this commit so maybe a few more to chase up?
+
 >
-> Nit: Having a standalone block probably means we have the chance to
-> optimize the code, maybe using a helper?
+> While at it add some "/* CONFIG_BALLOON_MIGRATION */".
 >
+> Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
 
-What do you mean by optimize the code? Would you prefer
-vduse_dev_alloc_coherent function to be changed like this (untested)?
+Otherwise LGTM, so:
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c
-b/drivers/vdpa/vdpa_user/vduse_dev.c
-index d658f3e1cebf..3561d3c00c89 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -911,11 +911,19 @@ static void vduse_dev_unmap_page(union
-virtio_map token, dma_addr_t dma_addr,
-        return vduse_domain_unmap_page(domain, dma_addr, size, dir, attrs);
- }
+Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 
-+static dma_addr_t *vduse_vq_group_alloc_coherent(struct vduse_vq_group *gr=
-oup,
-+                                                size_t size, void *addr)
-+{
-+       struct vduse_iova_domain *domain;
-+
-+       guard(vq_group_as_read_lock)(token.group);
-+       domain =3D token.group->as->domain;
-+       return vduse_domain_alloc_coherent(domain, size, addr);
-+}
-+
- static void *vduse_dev_alloc_coherent(union virtio_map token, size_t size,
-                                      dma_addr_t *dma_addr, gfp_t flag)
- {
--       struct vduse_dev *vdev;
--       struct vduse_iova_domain *domain;
-        void *addr;
-
-        *dma_addr =3D DMA_MAPPING_ERROR;
-@@ -926,9 +934,7 @@ static void *vduse_dev_alloc_coherent(union
-virtio_map token, size_t size,
-        if (!addr)
-                return NULL;
-
--       vdev =3D token.group->dev;
--       domain =3D vdev->domain;
--       *dma_addr =3D vduse_domain_alloc_coherent(domain, size, addr);
-+       *dma_addr =3D vduse_vq_group_alloc_coherent(token.group, size, addr=
-);
-        if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
-                goto err;
-
----
-
-I don't love single use functions but I'm ok with the change if that's
-what you want.
-
+> ---
+>  Documentation/admin-guide/mm/memory-hotplug.rst |  8 ++++----
+>  arch/powerpc/platforms/pseries/cmm.c            |  8 ++++----
+>  drivers/misc/vmw_balloon.c                      |  8 ++++----
+>  drivers/virtio/virtio_balloon.c                 |  6 +++---
+>  include/linux/balloon.h                         |  2 +-
+>  include/linux/vm_event_item.h                   |  4 ++--
+>  mm/Kconfig                                      |  4 ++--
+>  mm/balloon.c                                    | 10 +++++-----
+>  mm/memory_hotplug.c                             |  4 ++--
+>  mm/migrate.c                                    |  2 +-
+>  mm/vmstat.c                                     |  4 ++--
+>  11 files changed, 30 insertions(+), 30 deletions(-)
+>
+> diff --git a/Documentation/admin-guide/mm/memory-hotplug.rst b/Documentation/admin-guide/mm/memory-hotplug.rst
+> index 6581558fd0d7a..0207f87251421 100644
+> --- a/Documentation/admin-guide/mm/memory-hotplug.rst
+> +++ b/Documentation/admin-guide/mm/memory-hotplug.rst
+> @@ -603,11 +603,11 @@ ZONE_MOVABLE, especially when fine-tuning zone ratios:
+>    memory for metadata and page tables in the direct map; having a lot of offline
+>    memory blocks is not a typical case, though.
+>
+> -- Memory ballooning without balloon compaction is incompatible with
+> -  ZONE_MOVABLE. Only some implementations, such as virtio-balloon and
+> -  pseries CMM, fully support balloon compaction.
+> +- Memory ballooning without support for balloon memory migration is incompatible
+> +  with ZONE_MOVABLE. Only some implementations, such as virtio-balloon and
+> +  pseries CMM, fully support balloon memory migration.
+>
+> -  Further, the CONFIG_BALLOON_COMPACTION kernel configuration option might be
+> +  Further, the CONFIG_BALLOON_MIGRATION kernel configuration option might be
+>    disabled. In that case, balloon inflation will only perform unmovable
+>    allocations and silently create a zone imbalance, usually triggered by
+>    inflation requests from the hypervisor.
+> diff --git a/arch/powerpc/platforms/pseries/cmm.c b/arch/powerpc/platforms/pseries/cmm.c
+> index 7a3c4922685ab..8d83df12430f2 100644
+> --- a/arch/powerpc/platforms/pseries/cmm.c
+> +++ b/arch/powerpc/platforms/pseries/cmm.c
+> @@ -494,7 +494,7 @@ static struct notifier_block cmm_mem_nb = {
+>  	.priority = CMM_MEM_HOTPLUG_PRI
+>  };
+>
+> -#ifdef CONFIG_BALLOON_COMPACTION
+> +#ifdef CONFIG_BALLOON_MIGRATION
+>  static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+>  			   struct page *newpage, struct page *page,
+>  			   enum migrate_mode mode)
+> @@ -520,10 +520,10 @@ static int cmm_migratepage(struct balloon_dev_info *b_dev_info,
+>  	plpar_page_set_active(page);
+>  	return 0;
+>  }
+> -#else /* CONFIG_BALLOON_COMPACTION */
+> +#else /* CONFIG_BALLOON_MIGRATION */
+>  int cmm_migratepage(struct balloon_dev_info *b_dev_info, struct page *newpage,
+>  		    struct page *page, enum migrate_mode mode);
+> -#endif /* CONFIG_BALLOON_COMPACTION */
+> +#endif /* CONFIG_BALLOON_MIGRATION */
+>
+>  /**
+>   * cmm_init - Module initialization
+> @@ -540,7 +540,7 @@ static int cmm_init(void)
+>
+>  	balloon_devinfo_init(&b_dev_info);
+>  	b_dev_info.adjust_managed_page_count = true;
+> -	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
+> +	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION))
+>  		b_dev_info.migratepage = cmm_migratepage;
+>
+>  	rc = register_oom_notifier(&cmm_oom_nb);
+> diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+> index 7fd3f709108c2..216a163959684 100644
+> --- a/drivers/misc/vmw_balloon.c
+> +++ b/drivers/misc/vmw_balloon.c
+> @@ -1719,7 +1719,7 @@ static inline void vmballoon_debugfs_exit(struct vmballoon *b)
+>  #endif	/* CONFIG_DEBUG_FS */
+>
+>
+> -#ifdef CONFIG_BALLOON_COMPACTION
+> +#ifdef CONFIG_BALLOON_MIGRATION
+>  /**
+>   * vmballoon_migratepage() - migrates a balloon page.
+>   * @b_dev_info: balloon device information descriptor.
+> @@ -1803,11 +1803,11 @@ static int vmballoon_migratepage(struct balloon_dev_info *b_dev_info,
+>  	up_read(&b->conf_sem);
+>  	return ret;
+>  }
+> -#else /* CONFIG_BALLOON_COMPACTION */
+> +#else /* CONFIG_BALLOON_MIGRATION */
+>  int vmballoon_migratepage(struct balloon_dev_info *b_dev_info,
+>  			  struct page *newpage, struct page *page,
+>  			  enum migrate_mode mode);
+> -#endif /* CONFIG_BALLOON_COMPACTION */
+> +#endif /* CONFIG_BALLOON_MIGRATION */
+>
+>  static int __init vmballoon_init(void)
+>  {
+> @@ -1827,7 +1827,7 @@ static int __init vmballoon_init(void)
+>  		return error;
+>
+>  	balloon_devinfo_init(&balloon.b_dev_info);
+> -	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
+> +	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION))
+>  		balloon.b_dev_info.migratepage = vmballoon_migratepage;
+>
+>  	INIT_LIST_HEAD(&balloon.huge_pages);
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index de8041c3285a1..4e549abe59ff1 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -802,7 +802,7 @@ static void report_free_page_func(struct work_struct *work)
+>  	}
+>  }
+>
+> -#ifdef CONFIG_BALLOON_COMPACTION
+> +#ifdef CONFIG_BALLOON_MIGRATION
+>  /*
+>   * virtballoon_migratepage - perform the balloon page migration on behalf of
+>   *			     a compaction thread.     (called under page lock)
+> @@ -851,7 +851,7 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
+>  	mutex_unlock(&vb->balloon_lock);
+>  	return 0;
+>  }
+> -#endif /* CONFIG_BALLOON_COMPACTION */
+> +#endif /* CONFIG_BALLOON_MIGRATION */
+>
+>  static unsigned long shrink_free_pages(struct virtio_balloon *vb,
+>  				       unsigned long pages_to_free)
+> @@ -948,7 +948,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>
+>  	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+>  		vb->vb_dev_info.adjust_managed_page_count = true;
+> -#ifdef CONFIG_BALLOON_COMPACTION
+> +#ifdef CONFIG_BALLOON_MIGRATION
+>  	vb->vb_dev_info.migratepage = virtballoon_migratepage;
+>  #endif
+>  	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+> diff --git a/include/linux/balloon.h b/include/linux/balloon.h
+> index 82585542300d6..e8da95ca4ad48 100644
+> --- a/include/linux/balloon.h
+> +++ b/include/linux/balloon.h
+> @@ -45,7 +45,7 @@
+>
+>  /*
+>   * Balloon device information descriptor.
+> - * This struct is used to allow the common balloon compaction interface
+> + * This struct is used to allow the common balloon page migration interface
+>   * procedures to find the proper balloon device holding memory pages they'll
+>   * have to cope for page compaction / migration, as well as it serves the
+>   * balloon driver as a page book-keeper for its registered balloon devices.
+> diff --git a/include/linux/vm_event_item.h b/include/linux/vm_event_item.h
+> index 92f80b4d69a6d..fca34d3473b6b 100644
+> --- a/include/linux/vm_event_item.h
+> +++ b/include/linux/vm_event_item.h
+> @@ -125,9 +125,9 @@ enum vm_event_item { PGPGIN, PGPGOUT, PSWPIN, PSWPOUT,
+>  #ifdef CONFIG_MEMORY_BALLOON
+>  		BALLOON_INFLATE,
+>  		BALLOON_DEFLATE,
+> -#ifdef CONFIG_BALLOON_COMPACTION
+> +#ifdef CONFIG_BALLOON_MIGRATION
+>  		BALLOON_MIGRATE,
+> -#endif
+> +#endif /* CONFIG_BALLOON_MIGRATION */
+>  #endif
+>  #ifdef CONFIG_DEBUG_TLBFLUSH
+>  		NR_TLB_REMOTE_FLUSH,	/* cpu tried to flush others' tlbs */
+> diff --git a/mm/Kconfig b/mm/Kconfig
+> index 0d13c1b36e1c1..460a148d5b71a 100644
+> --- a/mm/Kconfig
+> +++ b/mm/Kconfig
+> @@ -597,8 +597,8 @@ config MEMORY_BALLOON
+>  	bool
+>
+>  #
+> -# support for memory balloon compaction
+> -config BALLOON_COMPACTION
+> +# support for memory balloon page migration
+> +config BALLOON_MIGRATION
+>  	bool "Allow for balloon memory migration"
+>  	default y
+>  	depends on MIGRATION && MEMORY_BALLOON
+> diff --git a/mm/balloon.c b/mm/balloon.c
+> index 5734dae81e318..8a21c6b9a7f0a 100644
+> --- a/mm/balloon.c
+> +++ b/mm/balloon.c
+> @@ -34,7 +34,7 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+>  {
+>  	lockdep_assert_held(&balloon_pages_lock);
+>  	__SetPageOffline(page);
+> -	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION)) {
+> +	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION)) {
+>  		SetPageMovableOps(page);
+>  		set_page_private(page, (unsigned long)balloon);
+>  	}
+> @@ -51,7 +51,7 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+>  static inline void balloon_page_finalize(struct page *page)
+>  {
+>  	lockdep_assert_held(&balloon_pages_lock);
+> -	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
+> +	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION))
+>  		set_page_private(page, 0);
+>  	/* PageOffline is sticky until the page is freed to the buddy. */
+>  }
+> @@ -153,7 +153,7 @@ struct page *balloon_page_alloc(void)
+>  {
+>  	gfp_t gfp_flags = __GFP_NOMEMALLOC | __GFP_NORETRY | __GFP_NOWARN;
+>
+> -	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
+> +	if (IS_ENABLED(CONFIG_BALLOON_MIGRATION))
+>  		gfp_flags |= GFP_HIGHUSER_MOVABLE;
+>  	else
+>  		gfp_flags |= GFP_HIGHUSER;
+> @@ -232,7 +232,7 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
+>  }
+>  EXPORT_SYMBOL_GPL(balloon_page_dequeue);
+>
+> -#ifdef CONFIG_BALLOON_COMPACTION
+> +#ifdef CONFIG_BALLOON_MIGRATION
+>
+>  static bool balloon_page_isolate(struct page *page, isolate_mode_t mode)
+>
+> @@ -340,4 +340,4 @@ static int __init balloon_init(void)
+>  }
+>  core_initcall(balloon_init);
+>
+> -#endif /* CONFIG_BALLOON_COMPACTION */
+> +#endif /* CONFIG_BALLOON_MIGRATION */
+> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> index 389989a28abe0..bc805029da517 100644
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -946,8 +946,8 @@ static struct zone *default_kernel_zone_for_pfn(int nid, unsigned long start_pfn
+>   * We rely on "present pages" instead of "managed pages", as the latter is
+>   * highly unreliable and dynamic in virtualized environments, and does not
+>   * consider boot time allocations. For example, memory ballooning adjusts the
+> - * managed pages when inflating/deflating the balloon, and balloon compaction
+> - * can even migrate inflated pages between zones.
+> + * managed pages when inflating/deflating the balloon, and balloon page
+> + * migration can even migrate inflated pages between zones.
+>   *
+>   * Using "present pages" is better but some things to keep in mind are:
+>   *
+> diff --git a/mm/migrate.c b/mm/migrate.c
+> index 4750a2ba15fef..1bf2cf8c44dd4 100644
+> --- a/mm/migrate.c
+> +++ b/mm/migrate.c
+> @@ -88,7 +88,7 @@ static const struct movable_operations *page_movable_ops(struct page *page)
+>  	 * back to the buddy.
+>  	 */
+>  	if (PageOffline(page))
+> -		/* Only balloon compaction sets PageOffline pages movable. */
+> +		/* Only balloon page migration sets PageOffline pages movable. */
+>  		return offline_movable_ops;
+>  	if (PageZsmalloc(page))
+>  		return zsmalloc_movable_ops;
+> diff --git a/mm/vmstat.c b/mm/vmstat.c
+> index 6ae8891c9693e..e96a344ab5974 100644
+> --- a/mm/vmstat.c
+> +++ b/mm/vmstat.c
+> @@ -1422,9 +1422,9 @@ const char * const vmstat_text[] = {
+>  #ifdef CONFIG_MEMORY_BALLOON
+>  	[I(BALLOON_INFLATE)]			= "balloon_inflate",
+>  	[I(BALLOON_DEFLATE)]			= "balloon_deflate",
+> -#ifdef CONFIG_BALLOON_COMPACTION
+> +#ifdef CONFIG_BALLOON_MIGRATION
+>  	[I(BALLOON_MIGRATE)]			= "balloon_migrate",
+> -#endif
+> +#endif /* CONFIG_BALLOON_MIGRATION */
+>  #endif /* CONFIG_MEMORY_BALLOON */
+>  #ifdef CONFIG_DEBUG_TLBFLUSH
+>  	[I(NR_TLB_REMOTE_FLUSH)]		= "nr_tlb_remote_flush",
+> --
+> 2.52.0
+>
