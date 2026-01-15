@@ -1,271 +1,306 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCBD239A81F;
-	Thu, 15 Jan 2026 12:57:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0926035F8B1
+	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 13:14:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768481877; cv=none; b=D2vo+UYLyNTInLTomfjOV4upU/GjEP24Op2CHIWBPKYoDLEuEKOINCuwsrmr286bMvpNR2Fj4DlbErjVroq3+ruHhEqPC7G0zPjfYFhrgiRQMr174MCkwMSj5HC3zy1tfaU5pBXLJf+zgpSEAS8y6fvzvk6g7jNS2MsmnJQAn64=
+	t=1768482858; cv=none; b=nNjX7loNeEs+dnnUFY2/iOE5zPqjBNk42UBhAs30xegMPsxnMtaP33L3+HrZhvJmQNPkxNKbrJjx8tX/Li9vMdpfNfN5Sp8HizLXVqK0Sc1aN6nn1kcUm0l/9ZTOHzzOR12dAECeBK6CBP3olzAMf8JKap2eWWxTkPH1rZCzrYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768481877; c=relaxed/simple;
-	bh=QQQ5NrqGNbrA87NK6i9QuCICGXnVn9gpkg9MNoJKL0g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=piWCkMCo9H1dEM47euNLL496bOzh+553FIsFBjETQSkn+AFR/SF47F+wl5OIaSRCQZ4ktb2QJ45WXinxV+mwoFIoVbxk3aZr7YqdFUcaWqFvk4CZ3/JTfOOYlFKccLFaSnIgtomgL5vcCtTnrMTP7p/9gYg20L1e+EOW/EqgVd4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PV5Oe7zK; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768482858; c=relaxed/simple;
+	bh=sUmbxOxCbOL4/RyF8PNyO0BNzsSCJO63JEr8qh9SYVg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UOvU6uWspXSfaB+9SjuvkUmygkZyQChi/VKG/LsaiPC5rL4UbTaHuN+fRbJDf80QSYGGDZNHsCk2DasvgepxNYyUKvEUHYSZySIKHVZHKrBeNLrO1nijXjSIcy+GxW3PPY5yPdmHsYsdGCEVbMIIQOhuMyenC935dZD8Pj9BwCw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZvUc0EcO; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PV5Oe7zK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB70C116D0;
-	Thu, 15 Jan 2026 12:57:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768481877;
-	bh=QQQ5NrqGNbrA87NK6i9QuCICGXnVn9gpkg9MNoJKL0g=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=PV5Oe7zKD0UA+A8qh6TXg0N4EGR2AHpg/fqR1w+EZc4T+gwSUdpyz88M847BMl4QD
-	 dbRepGePEAnxC5SNW1WXY259VnC4pPnrZD6SVgL9Zxg5m4nxA9kVwQHmd/JAjnYBKr
-	 OHsfEazF4ddYZC1r1ieJvs2SKC/ndkiulwXnY1eCR0+6udzecSyveAdUECJGFIDAQe
-	 LsIYv/lOGevL6mrmp+nBhkAXCZ7okiMahs3NeV8W9gh2eBHBvkK3H1650Ow79RMx2E
-	 PoM57SzFndTkv2U7JaWHMd9WKbudswbbHONyG5PKGvAVIeXuIh6kg5HUcQledWYIjA
-	 JJuHNvV+TXZ6Q==
-Message-ID: <1539a8cb-4cd7-40dd-9949-a2c8f7e272b9@kernel.org>
-Date: Thu, 15 Jan 2026 13:57:49 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZvUc0EcO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768482856;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kGZGpJ14uBCHWL61vtoZBdWl/RcYmehzPPEjCGrmHyc=;
+	b=ZvUc0EcOxiiMvfibOFR+1PsvSQYrMiPs4B5lART5+2AnA6lKGrIB94wV2z63tScGyDyFrg
+	hA0cRuC9TpPzhX7VLn1pe75QsiZFCJtTfo60phKWD3g3rumklKDc4viduAZTVG4ma2gXYm
+	fGd9RJtp87DGu/jrclkM6LnNQweLW7w=
+Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
+ [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-448-FHEs7Cu1MDK1B-VCeZg22Q-1; Thu, 15 Jan 2026 08:14:14 -0500
+X-MC-Unique: FHEs7Cu1MDK1B-VCeZg22Q-1
+X-Mimecast-MFC-AGG-ID: FHEs7Cu1MDK1B-VCeZg22Q_1768482854
+Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-645592c1b59so1189887d50.0
+        for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 05:14:14 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768482854; x=1769087654;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=kGZGpJ14uBCHWL61vtoZBdWl/RcYmehzPPEjCGrmHyc=;
+        b=qficB3NY5HVG/8nL4yW/Xe+KTV8Ku5I9Y9fqur8zoscAKyE9poQjVQobtJ774pJXGl
+         rRrVUncpETFlIqRwKRtXg41Sc7UBubEocGY3t9hcQUMAhbkGs4flZQBLcOOZ+nd8sIJw
+         4Qn9OUsEoky1vD9KZ5XGMGYf8mOPY6ixu/SWAFGhb3g1Hc6kYxR+OUKB6oRzFHpV70Pt
+         I1cWVPm6+r9EFAolHFgUKbuZiYsC3BMvt1zoozg4mg+uPQiL+B3nCaaWloLbTvifURQn
+         7Mj4aCL+So2reupMzjmGc4q2vxqTcBsvr+dQs8Diqs6DKnkM5gp6EKvRxSInm3DzSOHo
+         c72A==
+X-Forwarded-Encrypted: i=1; AJvYcCXCws+7ObcllUoAiLlSgMIQsSJyzM7KFbzuhvO+zvTL0VRZsBzXoSlTAai6WG/eh3i3iu5B15BA1Fd+R2J/qw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxGwwTJICCqruzFexJsUORma4E27KxawMtYP+MHT0OI/qGm6fq9
+	VcaLKWbpbBeDZn3PvqwNwhxoNvfFoQI4QXPNelXgI//IngEYvLODucdYLWOeEZyM3yK3GLCDope
+	6XfIRBT+2BmECcCc1xY2tCatRHPZgnvdC8IAS8JkDpqEKoOvHuEI2q//5Jmb2ygvRIPOzxaLL2H
+	Ep5ZGaj5dK3RuSgLoSHSvT82r3nUqRy+/piFqffTp8bfM=
+X-Gm-Gg: AY/fxX529Zhey/a6pxsc+MUMTp4QoXQ0W6CmnUcrT251+EUcmNmvPxKDXR+V2wxnAtr
+	f2dqd1JJk2toT/RgWENqewpemsvlDaCdVPEwX41T4U5tHBDTF9aX4JUTpu0UM2+PPi56hVh2vFo
+	1qSGanX4P93ra6Rtr8PF60moBD2tM1QlyLdu4OsBgy9CHep3hmnQa3MiPTTmBlGYms8Q==
+X-Received: by 2002:a05:690e:138f:b0:644:60d9:7508 with SMTP id 956f58d0204a3-64901b2d185mr4503244d50.88.1768482854155;
+        Thu, 15 Jan 2026 05:14:14 -0800 (PST)
+X-Received: by 2002:a05:690e:138f:b0:644:60d9:7508 with SMTP id
+ 956f58d0204a3-64901b2d185mr4503222d50.88.1768482853702; Thu, 15 Jan 2026
+ 05:14:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 04/23] mm/balloon_compaction: centralize basic page
- migration handling
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linuxppc-dev@lists.ozlabs.org,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, linux-doc@vger.kernel.org,
- virtualization@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
- Oscar Salvador <osalvador@suse.de>, "Liam R. Howlett"
- <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>, Arnd Bergmann
- <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
-References: <20260115092015.3928975-1-david@kernel.org>
- <20260115092015.3928975-5-david@kernel.org>
- <821926db-2cbd-41a6-bc40-bdc80a0e2499@lucifer.local>
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
-In-Reply-To: <821926db-2cbd-41a6-bc40-bdc80a0e2499@lucifer.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20260114184839.926884-1-eperezma@redhat.com> <20260114184839.926884-10-eperezma@redhat.com>
+ <CACGkMEuMsz8ao0btTixZ=Lh7GadyxdOtu4HQeF=c7=TTirmV+A@mail.gmail.com>
+ <20260115034348-mutt-send-email-mst@kernel.org> <CACGkMEsXYWzbDCRFyzk_RE8DW8w-OdquGRvygpujwFhNR8assw@mail.gmail.com>
+In-Reply-To: <CACGkMEsXYWzbDCRFyzk_RE8DW8w-OdquGRvygpujwFhNR8assw@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 15 Jan 2026 14:13:35 +0100
+X-Gm-Features: AZwV_QhTboCM5_xyMvgt7qrbrYMHgAgXKqtLaPjSrsBRA2JXw0lwOq405kt0gg8
+Message-ID: <CAJaqyWeeoahJZ86uFXwMhuy-tuQuvhUxekLpRDUNEs_OdNx+ow@mail.gmail.com>
+Subject: Re: [PATCH v12 09/13] vduse: take out allocations from vduse_dev_alloc_coherent
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
+	Stefano Garzarella <sgarzare@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	linux-kernel@vger.kernel.org, Cindy Lu <lulu@redhat.com>, 
+	Laurent Vivier <lvivier@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Tl7KWaM0Ao4wY0y4XmkbDpaLF9gmCMDXPP3i7gSz-80_1768482854
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
->>   #endif /* CONFIG_BALLOON_COMPACTION */
->> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
->> index 03c5dbabb1565..5444c61bb9e76 100644
->> --- a/mm/balloon_compaction.c
->> +++ b/mm/balloon_compaction.c
->> @@ -232,20 +232,49 @@ static void balloon_page_putback(struct page *page)
->>   	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
->>   }
->>
->> -/* move_to_new_page() counterpart for a ballooned page */
->>   static int balloon_page_migrate(struct page *newpage, struct page *page,
->>   		enum migrate_mode mode)
-> 
-> I honestly wonder if page should be 'oldpage', or rather we should just match
-> args to the struct movable_operations e.g. dst, src?
+On Thu, Jan 15, 2026 at 12:59=E2=80=AFPM Jason Wang <jasowang@redhat.com> w=
+rote:
+>
+> On Thu, Jan 15, 2026 at 4:44=E2=80=AFPM Michael S. Tsirkin <mst@redhat.co=
+m> wrote:
+> >
+> > On Thu, Jan 15, 2026 at 04:22:49PM +0800, Jason Wang wrote:
+> > > On Thu, Jan 15, 2026 at 2:49=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@=
+redhat.com> wrote:
+> > > >
+> > > > The function vduse_dev_alloc_coherent will be called under rwlock i=
+n
+> > > > next patches.  Make it out of the lock to avoid increasing its fail
+> > > > rate.
+> > > >
+> > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > ---
+> > > > v12:
+> > > > * Avoid free_pages_exact(NULL, size) in case vduse_domain_alloc_coh=
+erent
+> > > >   fails (MST).
+> > > >
+> > > > v11: Remove duplicated call to free_pages_exact (Jason).
+> > > > ---
+> > > >  drivers/vdpa/vdpa_user/iova_domain.c | 24 +++++++-----------------
+> > > >  drivers/vdpa/vdpa_user/iova_domain.h |  5 ++---
+> > > >  drivers/vdpa/vdpa_user/vduse_dev.c   | 17 +++++++++++------
+> > > >  3 files changed, 20 insertions(+), 26 deletions(-)
+> > > >
+> > > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vd=
+pa_user/iova_domain.c
+> > > > index 309cd5a039d1..0a9f668467a8 100644
+> > > > --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> > > > +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> > > > @@ -493,17 +493,15 @@ void vduse_domain_unmap_page(struct vduse_iov=
+a_domain *domain,
+> > > >         vduse_domain_free_iova(iovad, dma_addr, size);
+> > > >  }
+> > > >
+> > > > -void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain=
+,
+> > > > -                                 size_t size, dma_addr_t *dma_addr=
+,
+> > > > -                                 gfp_t flag)
+> > > > +dma_addr_t vduse_domain_alloc_coherent(struct vduse_iova_domain *d=
+omain,
+> > > > +                                      size_t size, void *orig)
+> > > >  {
+> > > >         struct iova_domain *iovad =3D &domain->consistent_iovad;
+> > > >         unsigned long limit =3D domain->iova_limit;
+> > > >         dma_addr_t iova =3D vduse_domain_alloc_iova(iovad, size, li=
+mit);
+> > > > -       void *orig =3D alloc_pages_exact(size, flag);
+> > > >
+> > > > -       if (!iova || !orig)
+> > > > -               goto err;
+> > > > +       if (!iova)
+> > > > +               return DMA_MAPPING_ERROR;
+> > > >
+> > > >         spin_lock(&domain->iotlb_lock);
+> > > >         if (vduse_iotlb_add_range(domain, (u64)iova, (u64)iova + si=
+ze - 1,
+> > > > @@ -514,17 +512,12 @@ void *vduse_domain_alloc_coherent(struct vdus=
+e_iova_domain *domain,
+> > > >         }
+> > > >         spin_unlock(&domain->iotlb_lock);
+> > > >
+> > > > -       *dma_addr =3D iova;
+> > > > +       return iova;
+> > > >
+> > > > -       return orig;
+> > > >  err:
+> > > > -       *dma_addr =3D DMA_MAPPING_ERROR;
+> > > > -       if (orig)
+> > > > -               free_pages_exact(orig, size);
+> > > > -       if (iova)
+> > > > -               vduse_domain_free_iova(iovad, iova, size);
+> > > > +       vduse_domain_free_iova(iovad, iova, size);
+> > > >
+> > > > -       return NULL;
+> > > > +       return DMA_MAPPING_ERROR;
+> > > >  }
+> > > >
+> > > >  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, =
+size_t size,
+> > > > @@ -533,7 +526,6 @@ void vduse_domain_free_coherent(struct vduse_io=
+va_domain *domain, size_t size,
+> > > >         struct iova_domain *iovad =3D &domain->consistent_iovad;
+> > > >         struct vhost_iotlb_map *map;
+> > > >         struct vdpa_map_file *map_file;
+> > > > -       phys_addr_t pa;
+> > > >
+> > > >         spin_lock(&domain->iotlb_lock);
+> > > >         map =3D vhost_iotlb_itree_first(domain->iotlb, (u64)dma_add=
+r,
+> > > > @@ -545,12 +537,10 @@ void vduse_domain_free_coherent(struct vduse_=
+iova_domain *domain, size_t size,
+> > > >         map_file =3D (struct vdpa_map_file *)map->opaque;
+> > > >         fput(map_file->file);
+> > > >         kfree(map_file);
+> > > > -       pa =3D map->addr;
+> > > >         vhost_iotlb_map_free(domain->iotlb, map);
+> > > >         spin_unlock(&domain->iotlb_lock);
+> > > >
+> > > >         vduse_domain_free_iova(iovad, dma_addr, size);
+> > > > -       free_pages_exact(phys_to_virt(pa), size);
+> > > >  }
+> > > >
+> > > >  static vm_fault_t vduse_domain_mmap_fault(struct vm_fault *vmf)
+> > > > diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vd=
+pa_user/iova_domain.h
+> > > > index 081f06c52cdc..e50e55d1396f 100644
+> > > > --- a/drivers/vdpa/vdpa_user/iova_domain.h
+> > > > +++ b/drivers/vdpa/vdpa_user/iova_domain.h
+> > > > @@ -65,9 +65,8 @@ void vduse_domain_unmap_page(struct vduse_iova_do=
+main *domain,
+> > > >                              dma_addr_t dma_addr, size_t size,
+> > > >                              enum dma_data_direction dir, unsigned =
+long attrs);
+> > > >
+> > > > -void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain=
+,
+> > > > -                                 size_t size, dma_addr_t *dma_addr=
+,
+> > > > -                                 gfp_t flag);
+> > > > +dma_addr_t vduse_domain_alloc_coherent(struct vduse_iova_domain *d=
+omain,
+> > > > +                                      size_t size, void *orig);
+> > > >
+> > > >  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, =
+size_t size,
+> > > >                                 dma_addr_t dma_addr, unsigned long =
+attrs);
+> > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa=
+_user/vduse_dev.c
+> > > > index 0e3cf5128ad0..6dba1f3224d9 100644
+> > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > @@ -916,23 +916,27 @@ static void *vduse_dev_alloc_coherent(union v=
+irtio_map token, size_t size,
+> > > >  {
+> > > >         struct vduse_dev *vdev;
+> > > >         struct vduse_iova_domain *domain;
+> > > > -       unsigned long iova;
+> > > >         void *addr;
+> > > >
+> > > >         *dma_addr =3D DMA_MAPPING_ERROR;
+> > > >         if (!token.group)
+> > > >                 return NULL;
+> > > >
+> > > > -       vdev =3D token.group->dev;
+> > > > -       domain =3D vdev->domain;
+> > > > -       addr =3D vduse_domain_alloc_coherent(domain, size,
+> > > > -                                          (dma_addr_t *)&iova, fla=
+g);
+> > > > +       addr =3D alloc_pages_exact(size, flag);
+> > > >         if (!addr)
+> > > >                 return NULL;
+> > > >
+> > > > -       *dma_addr =3D (dma_addr_t)iova;
+> > > > +       vdev =3D token.group->dev;
+> > > > +       domain =3D vdev->domain;
+> > > > +       *dma_addr =3D vduse_domain_alloc_coherent(domain, size, add=
+r);
+> > > > +       if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
+> > > > +               goto err;
+> > > >
+> > > >         return addr;
+> > > > +
+> > > > +err:
+> > > > +       free_pages_exact(addr, size);
+> > > > +       return NULL;
+> > > >  }
+> > >
+> > > I think the code tries to hide the iova domain specific things (e.g
+> > > mappings and DMA_MAPPING_ERROR) from vduse core. Could we find a way
+> > > to stick to that?
+> > >
+> > > Thanks
+> >
+> >
+> > what do you suggest more spefically though?
+>
+> I think it would be better to move the dma/map stuffs to the iova_domain.=
+c
+>
 
-Yeah, likely it should be made consistent. But not as part of this patch 
-series :)
+I'm not sure, DMA_MAPPING_ERROR was returned by parameter already
+before this series and virtio_ring.c uses it in other functions too. I
+guess we could divert more from the HW DMA and trust in return value
+in virtion_ring.c conditionals checking if vring_use_dma_api, but I
+think to include it here is trying to add too much to this series to
+be honest.
 
-In particular, as we should be making all other things, like 
-balloon_dev_info's migratepage and the ones implementing it use the same 
-terminology in the same go.
+Would that work to do it on top in the future?
 
-On the TODO list.
+> Thanks
+>
+> >
+> > > >
+> > > >  static void vduse_dev_free_coherent(union virtio_map token, size_t=
+ size,
+> > > > @@ -949,6 +953,7 @@ static void vduse_dev_free_coherent(union virti=
+o_map token, size_t size,
+> > > >         domain =3D vdev->domain;
+> > > >
+> > > >         vduse_domain_free_coherent(domain, size, dma_addr, attrs);
+> > > > +       free_pages_exact(vaddr, size);
+> > > >  }
+> > > >
+> > > >  static bool vduse_dev_need_sync(union virtio_map token, dma_addr_t=
+ dma_addr)
+> > > > --
+> > > > 2.52.0
+> > > >
+> >
+>
 
-> 
->>   {
->> -	struct balloon_dev_info *balloon = balloon_page_device(page);
->> +	struct balloon_dev_info *b_dev_info = balloon_page_device(page);
->> +	unsigned long flags;
->> +	int rc;
->>
->>   	VM_BUG_ON_PAGE(!PageLocked(page), page);
->>   	VM_BUG_ON_PAGE(!PageLocked(newpage), newpage);
->>
->>   	/* Isolated balloon pages cannot get deflated. */
-> 
-> Hmm, I'm a bit confused by this comment, isn't 'page' isolated?
-> 
-> This comment reads like !b_dev_info implies page isolated and thus a
-> WARN_ON_ONCE() issue, but later you say 'Free the now-deflated page we isolated
-> in balloon_page_isolate().' in reference to page?
-
-The page is isolated, as documented for "struct movable_operations". And 
-as the comment states, isolated pages cannot deflate.
-
-So consequently, if we reach this point, we still have a balloon device, 
-because the balloon device could not have deflated the page.
-
-I don't really want to change the comment as part of this change here, 
-it logically does not belong into this patch.
-
-Maybe something for a cleanup patch:
-
-"When we isolated the page, the page was inflated in a balloon device. 
-As isolated balloon pages cannot get deflated, we still have a balloon 
-device here."
-
-> 
-> So both can't be true.
-> 
->> -	if (WARN_ON_ONCE(!balloon))
->> +	if (WARN_ON_ONCE(!b_dev_info))
->>   		return -EAGAIN;
->>
->> -	return balloon->migratepage(balloon, newpage, page, mode);
->> +	rc = b_dev_info->migratepage(b_dev_info, newpage, page, mode);
->> +	switch (rc) {
->> +	case 0:
->> +		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
->> +
->> +		/* Insert the new page into the balloon list. */
-> 
-> Slightly weird to put this comment next to the pageref update then a newline
-> hten the actual insertion bit.
-
-When a page is in the list we have to grab a reference. No strong 
-opinion about dropping the newline.
-
-> 
->> +		get_page(newpage);
->> +
->> +		balloon_page_insert(b_dev_info, newpage);
->> +		__count_vm_event(BALLOON_MIGRATE);
->> +		break;
->> +	case -ENOENT:
->> +		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
->> +
->> +		/* Old page was deflated but new page not inflated. */
-> 
-> Weird reference to old page and new page when old page is 'page', with dst, src
-> we could just say destination/source?
-
-I can strip the "Old" for now, but dst vs. src will be handled separately.
-
-> 
->> +		__count_vm_event(BALLOON_DEFLATE);
->> +		break;
->> +	default:
->> +		return rc;
-> 
-> Don't we need to change the isolate stats etc. if we simply fail here? Or does
-> the movable ops logic correctly handle this for us?
-
-A non-0 return value from balloon_page_migrate() means that migration 
-failed and that the (src) page stays isolated.
-
-For example, migration core can later retry migration without re-isolation.
-
-So the migration-core takes care of this.
-
-> 
-> Ah I guess baloon_page_putback() would be invoked :) Fun!
-
-Right, the isolated page has to be putback later.
-
-> 
->> +	}
-> 
-> It's subjective and pedantic but I don't love this use of the switch here, it
-> really makes it seem like 'just another case' to do the _key_ action here of
-> migrating a balloon page. Also could compress things a bit, that's even more
-> subjective :)
-
-You summarized my thoughts well ;)
-
-I had exactly the thing you write below before I converted to switch. I 
-didn't particularly like the filtering for return codes. Let me think 
-about whether I want to go back.
-
-As you note, it's highly subjective.
-[...]
-
-> 
->> +
->> +	b_dev_info->isolated_pages--;
->> +	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
->> +
->> +	/* Free the now-deflated page we isolated in balloon_page_isolate(). */
->> +	balloon_page_finalize(page);
->> +	put_page(page);
-> 
-> OK so we get on migrate, but put the source page which would have got gotten
-> previously I guess?
-
-Right, the (old)/page source was deflated, so we prepare for handing it 
-back to the buddy.
-
-In the future, once these pages are frozen, migration-core will likely 
-take care of doing the freeing, instead of us doing the put_page() here.
-
-One goal of this patch set was to move the getting/putting of pages out 
-as far as possible, such that the return values from 
-isolate/migrate/putback later on indicate who now "owns" the reference 
-to the frozen page.
-
-Thanks for the review!
-
--- 
-Cheers
-
-David
