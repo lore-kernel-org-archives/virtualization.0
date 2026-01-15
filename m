@@ -1,666 +1,263 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55F0032E13B
-	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 08:21:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7221B14BF92
+	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 08:23:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768465291; cv=none; b=QhZdCzYhhCQ0pnWJmuYzVMwwaCmzTfRa4LOE0VQbhAIFfxmYbss4ElmP/sImBwmmDb58x+zk7o+VIURgVmUCtWoqfE0vkDFaLTJuCvZr5rznk0nov2/HMKjzfiRoM5UJMjv75NjmwYO4yat/ITFYey+b634TK1PNm14JPu6mk7U=
+	t=1768465387; cv=none; b=o/zIkczM3vWtSR3Ok5rI14HriBBYNasMzfaLnKT21XxuQY2RJvXk1dLLve17aRFu7wSLt4juuKg9Frujy0Ov7x3xUVt+KVxgLZfGT6ie5vi+VxRCgqpTnQOc8p/8QKAdPFru5lmaX/y/UEWALFKgoQpp9xRQ5bpZYE3s6/Auplg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768465291; c=relaxed/simple;
-	bh=2Et3a03MmMsuReyTQfd81YhGJAVxbzDe7S1pZfy+5xM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=sv/kHPi+XAGwF93ebynZmzAky2PxaCCN7EuJrtnDn/U2BVxBuJzUONT/+pPfwsGDg6PoUpAnjOXEWv+VIdYM4sVFNRmLZwo16Jw7AFB46JbabLR41nRFnUS8pav1b6zGr+hBYIfwQgpdvV4cZyHzVpckloFACqEHQKGVYCgHeOI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RiLTIf1N; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1768465387; c=relaxed/simple;
+	bh=zvIgi/JrDpd3uFKVpnFPu0zTuZP5BgxoMlA9LEDO55Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MG8KPZQTGoAwAZeClfIhVo8RPjfyVTcuaE7sY1C/MsEDmRupnAXJIM3MYvJRCdzeDAZ6iXRpFguciJihzaHch3vAJb0zeH3NTU/WlNWMoXfLssTW9+irm6Dfuaqa7+6XioLBT87hbWhLlKC29zHK1roNjYrYNd2+k3uGW0eMwtA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jCSskpeb; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RiLTIf1N"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jCSskpeb"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768465288;
+	s=mimecast20190719; t=1768465385;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=uNM3ZGdbidvhtLfoID9qrqWdq+WzdVBipCEx3bVHGAA=;
-	b=RiLTIf1N/TekkB6c9r/hRIqgRWEsRpv769TEIU1ygr0xu60qD8xYA8DhnFzVo/XOA4XPgY
-	Ek/QGiNphVJ5SXvLtIdlKJg92O1iQUO6DVuN4S5Urh17w9xkVSNfUrF93TUHWFTAiA1Suo
-	heAElZx6m4ZZgRuZzArlEGCK2iAiK1c=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=FepNg6RrcQjnyphAxg43fRgBRnrjl9JjAn5yaxq07GI=;
+	b=jCSskpebWfyPKW+GD+r9hzHkmchHC9S/G5reH1i2bC4V39enJJ+gBhb8MJKr5emS+ceiBJ
+	UgMkMCpqcco0aAhp0ufscwU6awDhKdOkRgYK6E+rRxJMM68xk+MlinxcynaReLutvSNwNG
+	GTW+AtNiIoS+iI1+JmXf07m4/08sSAQ=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-628-7j095cmgM2-IkQMECTLp_w-1; Thu, 15 Jan 2026 03:21:24 -0500
-X-MC-Unique: 7j095cmgM2-IkQMECTLp_w-1
-X-Mimecast-MFC-AGG-ID: 7j095cmgM2-IkQMECTLp_w_1768465284
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-432586f2c82so457647f8f.0
-        for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 00:21:24 -0800 (PST)
+ us-mta-137-0BXpZl1WM8eb9AzM_G0TDg-1; Thu, 15 Jan 2026 03:23:03 -0500
+X-MC-Unique: 0BXpZl1WM8eb9AzM_G0TDg-1
+X-Mimecast-MFC-AGG-ID: 0BXpZl1WM8eb9AzM_G0TDg_1768465383
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-34ab459c051so1450305a91.0
+        for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 00:23:03 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768465283; x=1769070083;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uNM3ZGdbidvhtLfoID9qrqWdq+WzdVBipCEx3bVHGAA=;
-        b=FGt9KPbUvfY4CEXPNKfStjYtHvpqdXJDQRE23G075UOJwhL1+ruoNDTrFw4j7+RM/E
-         aq7xcDdIcgOtdb4xUTUBQdI8RwLDLti1E/hMUu02mtDC76fsXAv+5ZxdoZ1aVMhdJhj5
-         Kw9e6qI9VSqg1FXbyGcUA1BaY141glW592uCER+MM2U+B9bKUiN8JlNnBzA4jfaovgYq
-         mT4AL8cGX2gEHT/PyGH8cfpX21udRDh8BhmzWfSgEMEyEsVXJTvm363P0gVwOyGZV6OI
-         ykMqcVwFuqgyh5XIlFGdEBh5azsGkG+7XaH2Vyn67ntrb3IR20EBT74DQJR4H4925zrm
-         XmtQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVLsVJ0g1bT4eIKmtR33XFCOpVeYCTjgthZHNDc3RAT4K2GD1JQSxzvt8+QN/9kvchIOs9jMbSuOFKs7BZCsw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzC+dczg+4SAy/E4e8FdyFvx0LC/Zzq0nzDpgYziMscHb6Ir8X0
-	JssdL2dXr64ZgZKH5PCcOkX+b/gTt0yUWu6IIu6b8DtIuxDh2QNEk0iFEDE0Gl0WqC25ES/9SwW
-	Gzks4+Ni/cUKLQ/LK6vL4bu+p9cqWjcNlC3eNb0dS4rJuXsdGbi01VazfKHUPcdWKDIfF
-X-Gm-Gg: AY/fxX7Vsrxv1Z6RoGHR71b2uI3yKkJLIQRPIR2NTanRSvZGfNt9lTHyHtz5E7B2K8l
-	Y0rY2UddpxlyfQIIFbA18k1smwAn39zBri1MqIpDLGVRARPzBmf4MkgfGdvchX8a+WwIYbSEtlc
-	QZ3u3Yi6LPeMF2p7dIoL3020wMSl/1JOV/nutbPPUnRELakp4rWv0faK3BTS1Vyu1FCcixO853D
-	PtWmRNp1mhV08tWD5Yus4gEKLqe/M+H57vcICj6OKdvaPgHncg9qOQ87tc8c6MZ/HDq7RRp4srB
-	XSDy+iVNxY/F08kiCE29QiA6b7Vbw0MqbD86myp3RYyo+eY21r5YaFtxsL1PHyo5hCV1CWCvJh9
-	XMcORvJNWd4ltSiTJ3jQqVShH8qPVuA==
-X-Received: by 2002:a05:6000:1a8a:b0:431:cf0:2e8b with SMTP id ffacd0b85a97d-434d75bde70mr2770103f8f.29.1768465283388;
-        Thu, 15 Jan 2026 00:21:23 -0800 (PST)
-X-Received: by 2002:a05:6000:1a8a:b0:431:cf0:2e8b with SMTP id ffacd0b85a97d-434d75bde70mr2770068f8f.29.1768465282883;
-        Thu, 15 Jan 2026 00:21:22 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-35-22.inter.net.il. [80.230.35.22])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-434af6b2988sm4184084f8f.28.2026.01.15.00.21.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Jan 2026 00:21:22 -0800 (PST)
-Date: Thu, 15 Jan 2026 03:21:20 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Longjun Tang <lange_tang@163.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	virtualization@lists.linux.dev, tanglongjun@kylinos.cn
-Subject: Re: [PATCH v1] virtio_net: add traces for tx/rx and INT response
- events.
-Message-ID: <20260115031728-mutt-send-email-mst@kernel.org>
-References: <20260114123627.102579-1-lange_tang@163.com>
+        d=1e100.net; s=20230601; t=1768465382; x=1769070182;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=FepNg6RrcQjnyphAxg43fRgBRnrjl9JjAn5yaxq07GI=;
+        b=bZACPxjN15Ey4HaDiprRIQ7p7I+h7M0EbEEbJg8QNJYlRibbz2EURzQAcDTQxXePMZ
+         O/5oK6W87Vfs4rNFqwg6zki8rTTZY+DjtUFw6+4q1mhLfzVK/Uogy4gdG1dYLkZrOctX
+         rz/nC1AjmvKAO4fKcFpQVoI5LWvNqIpLOvNl3dvy1lFNR/S+wHW26CGdW6CWVtEzdqvu
+         nBxAvzrjAvH3XgVzdr0hi3UYY9wHZNJYSPlt6XqJyGpu2Cr09E9Xd02xeuQlAaHlfvAQ
+         YteAgXhdAInoqPzgpP95/ZE0JoOjfCtIFkLy1FvuCK/vrZKgZNlNaKBOdf8En6A7ZWnu
+         B7Ow==
+X-Forwarded-Encrypted: i=1; AJvYcCXtyxpVJB65924jUkK+sWsClzJ5NUK32hrKR85Jyhz4EtbeUPzuhSXlVINaYA98yMKdTGtqjP1EBm3c1bDz9Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxaCAStZNjpqkRtx2RK4GU38aV1fw45LwL2yFJ9LhoKk36DFgB0
+	nozdAEeXYiCJoLBZMEh4llJGQWnDHAdf0jjt1O7rKVl9a/DMEZX/SBcKIU3JcK6myEhB3tgsPxa
+	FRJmhUC9CyiY8zO1tzzfpmoJM2zNVQ+DDsOZTYY4RFlr0FiLmVIvZ4c5MjBYYeX1PfJ1Niq6XM9
+	diOUNE2xPPQ6PuC4imzyV6WRQNJpxli8i1pe4KmSJA4ZE=
+X-Gm-Gg: AY/fxX7yRhKH7b1JMCmVXSw5lqiOZ03XXAprwd3nVx94X0VuDWAhaAVvQhCGyLNktIQ
+	c1T8IapUCPMXpVEuObFlZciWiD5oQPqXgmoxqcLjoIzcMeiFjCPqt3Yz1SdcLA7r3MKOVKMwJmn
+	miqI8MFusOu5tXQKqhLcfNGLo3lt82hxUNQHY0J7fVR38UwxM3R/L8j30S2BH6jJ0y2X4=
+X-Received: by 2002:a17:90b:4c0d:b0:32d:db5b:7636 with SMTP id 98e67ed59e1d1-3510b1454f1mr4536923a91.27.1768465382638;
+        Thu, 15 Jan 2026 00:23:02 -0800 (PST)
+X-Received: by 2002:a17:90b:4c0d:b0:32d:db5b:7636 with SMTP id
+ 98e67ed59e1d1-3510b1454f1mr4536902a91.27.1768465382202; Thu, 15 Jan 2026
+ 00:23:02 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260114123627.102579-1-lange_tang@163.com>
+References: <20260114184839.926884-1-eperezma@redhat.com> <20260114184839.926884-10-eperezma@redhat.com>
+In-Reply-To: <20260114184839.926884-10-eperezma@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 15 Jan 2026 16:22:49 +0800
+X-Gm-Features: AZwV_Qhvumi-95LbNghpgComZ_dH7xvMlv-idS8798zBQrLE8qmej2vZXaYzTbk
+Message-ID: <CACGkMEuMsz8ao0btTixZ=Lh7GadyxdOtu4HQeF=c7=TTirmV+A@mail.gmail.com>
+Subject: Re: [PATCH v12 09/13] vduse: take out allocations from vduse_dev_alloc_coherent
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
+	Stefano Garzarella <sgarzare@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	linux-kernel@vger.kernel.org, Cindy Lu <lulu@redhat.com>, 
+	Laurent Vivier <lvivier@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: zDpLOpnnGcsoAEOHfWZtGaYyxTa2LTik79L26NP26cc_1768465284
+X-Mimecast-MFC-PROC-ID: 5j-g7QBfvcq01lKX1zas5a8eqICHcmwcFpFbOmqQAU4_1768465383
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 14, 2026 at 08:36:27PM +0800, Longjun Tang wrote:
-> From: Longjun Tang <tanglongjun@kylinos.cn>
-> 
-> To facilitate tracking the status of virtqueue during rx/tx and
-> interrupt response, add trace point at  corresponding func.
-> 
-> Also,to avoid perf hured,it olny available under debug condition.
-> 
-> Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
+On Thu, Jan 15, 2026 at 2:49=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@redhat=
+.com> wrote:
+>
+> The function vduse_dev_alloc_coherent will be called under rwlock in
+> next patches.  Make it out of the lock to avoid increasing its fail
+> rate.
+>
+> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 > ---
-> v1：
-> I did some tests with iperf3, as follow:
-> host <---> vm
-> 
-> oringnal:
-> rx pps: 90915  rx bitrate: 28.5 Gbits/s
-> tx pps: 54659   tx bitrate: 26.4 Gbits/s
-> 
-> added trace:
-> rx pps: 76810  rx bitrate: 26.7 Gbits/s
-> tx pps: 54455   tx bitrate: 26.4 Gbits/s
-
-probably because you are reading a lot of cache cold
-data and copying it to stack just to discard it when
-trace is disabled?
-
-what if the tracepoints are much ligher weigh, just recording
-the vq number?
-
-
-> Based on the results of the above tests, adding tracing has a
-> performance hurt, especially on the rx side. Therefore, these
-> traces should only be added to the debug virtio_net.
-> 
-> When these traces are needed, uncomment the DEBUG macro definition
-> in driver/net/virtio_net.c.
+> v12:
+> * Avoid free_pages_exact(NULL, size) in case vduse_domain_alloc_coherent
+>   fails (MST).
+>
+> v11: Remove duplicated call to free_pages_exact (Jason).
 > ---
->  drivers/net/virtio_net.c       |  21 ++++-
->  drivers/net/virtio_net_trace.h | 124 ++++++++++++++++++++++++++
->  drivers/virtio/virtio_ring.c   | 155 --------------------------------
->  include/linux/virtio_ring.h    | 156 +++++++++++++++++++++++++++++++++
->  4 files changed, 297 insertions(+), 159 deletions(-)
->  create mode 100644 drivers/net/virtio_net_trace.h
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 22d894101c01..fabd3e8acb36 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -27,6 +27,11 @@
->  #include <net/netdev_queues.h>
->  #include <net/xdp_sock_drv.h>
->  
-> +#if defined(DEBUG)
-> +#define CREATE_TRACE_POINTS
-> +#include "virtio_net_trace.h"
-> +#endif
-> +
->  static int napi_weight = NAPI_POLL_WEIGHT;
->  module_param(napi_weight, int, 0444);
->  
-> @@ -795,7 +800,9 @@ static void skb_xmit_done(struct virtqueue *vq)
->  	unsigned int index = vq2txq(vq);
->  	struct send_queue *sq = &vi->sq[index];
->  	struct napi_struct *napi = &sq->napi;
-> -
-> +#if defined(DEBUG)
-> +	trace_skb_xmit_done(napi, vq);
-> +#endif
->  	/* Suppress further interrupts. */
->  	virtqueue_disable_cb(vq);
->  
-> @@ -2671,7 +2678,9 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
->  
->  	if (unlikely(!skb))
->  		return;
-> -
-> +#if defined(DEBUG)
-> +	trace_receive_buf(rq->vq, skb);
-> +#endif
->  	virtnet_receive_done(vi, rq, skb, flags);
+>  drivers/vdpa/vdpa_user/iova_domain.c | 24 +++++++-----------------
+>  drivers/vdpa/vdpa_user/iova_domain.h |  5 ++---
+>  drivers/vdpa/vdpa_user/vduse_dev.c   | 17 +++++++++++------
+>  3 files changed, 20 insertions(+), 26 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_use=
+r/iova_domain.c
+> index 309cd5a039d1..0a9f668467a8 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> @@ -493,17 +493,15 @@ void vduse_domain_unmap_page(struct vduse_iova_doma=
+in *domain,
+>         vduse_domain_free_iova(iovad, dma_addr, size);
 >  }
->  
-> @@ -2877,7 +2886,9 @@ static void skb_recv_done(struct virtqueue *rvq)
+>
+> -void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
+> -                                 size_t size, dma_addr_t *dma_addr,
+> -                                 gfp_t flag)
+> +dma_addr_t vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
+> +                                      size_t size, void *orig)
 >  {
->  	struct virtnet_info *vi = rvq->vdev->priv;
->  	struct receive_queue *rq = &vi->rq[vq2rxq(rvq)];
-> -
-> +#if defined(DEBUG)
-> +	trace_skb_recv_done(&rq->napi, rvq);
-> +#endif
->  	rq->calls++;
->  	virtqueue_napi_schedule(&rq->napi, rvq);
+>         struct iova_domain *iovad =3D &domain->consistent_iovad;
+>         unsigned long limit =3D domain->iova_limit;
+>         dma_addr_t iova =3D vduse_domain_alloc_iova(iovad, size, limit);
+> -       void *orig =3D alloc_pages_exact(size, flag);
+>
+> -       if (!iova || !orig)
+> -               goto err;
+> +       if (!iova)
+> +               return DMA_MAPPING_ERROR;
+>
+>         spin_lock(&domain->iotlb_lock);
+>         if (vduse_iotlb_add_range(domain, (u64)iova, (u64)iova + size - 1=
+,
+> @@ -514,17 +512,12 @@ void *vduse_domain_alloc_coherent(struct vduse_iova=
+_domain *domain,
+>         }
+>         spin_unlock(&domain->iotlb_lock);
+>
+> -       *dma_addr =3D iova;
+> +       return iova;
+>
+> -       return orig;
+>  err:
+> -       *dma_addr =3D DMA_MAPPING_ERROR;
+> -       if (orig)
+> -               free_pages_exact(orig, size);
+> -       if (iova)
+> -               vduse_domain_free_iova(iovad, iova, size);
+> +       vduse_domain_free_iova(iovad, iova, size);
+>
+> -       return NULL;
+> +       return DMA_MAPPING_ERROR;
 >  }
-> @@ -3389,7 +3400,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  
->  	/* timestamp packet in software */
->  	skb_tx_timestamp(skb);
-> -
-> +#if defined(DEBUG)
-> +	trace_start_xmit(sq->vq, skb);
+>
+>  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size_t=
+ size,
+> @@ -533,7 +526,6 @@ void vduse_domain_free_coherent(struct vduse_iova_dom=
+ain *domain, size_t size,
+>         struct iova_domain *iovad =3D &domain->consistent_iovad;
+>         struct vhost_iotlb_map *map;
+>         struct vdpa_map_file *map_file;
+> -       phys_addr_t pa;
+>
+>         spin_lock(&domain->iotlb_lock);
+>         map =3D vhost_iotlb_itree_first(domain->iotlb, (u64)dma_addr,
+> @@ -545,12 +537,10 @@ void vduse_domain_free_coherent(struct vduse_iova_d=
+omain *domain, size_t size,
+>         map_file =3D (struct vdpa_map_file *)map->opaque;
+>         fput(map_file->file);
+>         kfree(map_file);
+> -       pa =3D map->addr;
+>         vhost_iotlb_map_free(domain->iotlb, map);
+>         spin_unlock(&domain->iotlb_lock);
+>
+>         vduse_domain_free_iova(iovad, dma_addr, size);
+> -       free_pages_exact(phys_to_virt(pa), size);
+>  }
+>
+>  static vm_fault_t vduse_domain_mmap_fault(struct vm_fault *vmf)
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.h b/drivers/vdpa/vdpa_use=
+r/iova_domain.h
+> index 081f06c52cdc..e50e55d1396f 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.h
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.h
+> @@ -65,9 +65,8 @@ void vduse_domain_unmap_page(struct vduse_iova_domain *=
+domain,
+>                              dma_addr_t dma_addr, size_t size,
+>                              enum dma_data_direction dir, unsigned long a=
+ttrs);
+>
+> -void *vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
+> -                                 size_t size, dma_addr_t *dma_addr,
+> -                                 gfp_t flag);
+> +dma_addr_t vduse_domain_alloc_coherent(struct vduse_iova_domain *domain,
+> +                                      size_t size, void *orig);
+>
+>  void vduse_domain_free_coherent(struct vduse_iova_domain *domain, size_t=
+ size,
+>                                 dma_addr_t dma_addr, unsigned long attrs)=
+;
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
+vduse_dev.c
+> index 0e3cf5128ad0..6dba1f3224d9 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -916,23 +916,27 @@ static void *vduse_dev_alloc_coherent(union virtio_=
+map token, size_t size,
+>  {
+>         struct vduse_dev *vdev;
+>         struct vduse_iova_domain *domain;
+> -       unsigned long iova;
+>         void *addr;
+>
+>         *dma_addr =3D DMA_MAPPING_ERROR;
+>         if (!token.group)
+>                 return NULL;
+>
+> -       vdev =3D token.group->dev;
+> -       domain =3D vdev->domain;
+> -       addr =3D vduse_domain_alloc_coherent(domain, size,
+> -                                          (dma_addr_t *)&iova, flag);
+> +       addr =3D alloc_pages_exact(size, flag);
+>         if (!addr)
+>                 return NULL;
+>
+> -       *dma_addr =3D (dma_addr_t)iova;
+> +       vdev =3D token.group->dev;
+> +       domain =3D vdev->domain;
+> +       *dma_addr =3D vduse_domain_alloc_coherent(domain, size, addr);
+> +       if (*dma_addr =3D=3D DMA_MAPPING_ERROR)
+> +               goto err;
+>
+>         return addr;
+> +
+> +err:
+> +       free_pages_exact(addr, size);
+> +       return NULL;
+>  }
 
-Pls prefix APIs with virtio_net or something.
+I think the code tries to hide the iova domain specific things (e.g
+mappings and DMA_MAPPING_ERROR) from vduse core. Could we find a way
+to stick to that?
 
-> +#endif
->  	/* Try to transmit */
->  	err = xmit_skb(sq, skb, !use_napi);
->  
+Thanks
 
-> diff --git a/drivers/net/virtio_net_trace.h b/drivers/net/virtio_net_trace.h
-> new file mode 100644
-> index 000000000000..0a008cb8f51d
-> --- /dev/null
-> +++ b/drivers/net/virtio_net_trace.h
-> @@ -0,0 +1,124 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#if defined(DEBUG)
-> +
-> +#undef TRACE_SYSTEM
-> +#define TRACE_SYSTEM virtio_net
-> +
-> +#if !defined(_TRACE_VIRTIO_NET_H) || defined(TRACE_HEADER_MULTI_READ)
-> +#define _TRACE_VIRTIO_NET_H
-> +
-> +#include <linux/virtio.h>
-> +#include <linux/tracepoint.h>
-> +#include <linux/virtio_ring.h>
-> +
-> +DECLARE_EVENT_CLASS(virtio_net_rxtx_temp,
-> +
-> +	TP_PROTO(struct virtqueue *vq, const struct sk_buff *skb),
-> +
-> +	TP_ARGS(vq, skb),
-> +
-> +	TP_STRUCT__entry(
-> +		__string(	name,	vq->name	)
-> +		__field(	unsigned int, num_free	)
-> +		__field(	unsigned int, index	)
-> +		__field(	bool, packed_ring	)
-> +		__field(	bool, broken	)
-> +		__field(	bool, event	)
-> +		__field(	u16, last_used_idx	)
-> +		__field(	__virtio16, avail_flags	)
-> +		__field(	__virtio16, avail_idx	)
-> +		__field(	__virtio16, used_idx	)
-> +		__field(	const void *, skbaddr	)
-> +	),
-> +
-> +	TP_fast_assign(
-> +		__entry->skbaddr = skb;
-> +
-> +		__assign_str(name);
-> +		__entry->num_free = vq->num_free;
-> +		__entry->index = vq->index;
-> +
-> +		struct vring_virtqueue *vvq;
-> +
-> +		vvq = container_of_const(vq, struct vring_virtqueue, vq);
-> +
-> +		__entry->packed_ring = vvq->packed_ring;
-> +		__entry->broken = vvq->broken;
-> +		__entry->event = vvq->event;
-> +		if (!vvq->packed_ring) {
-> +			__entry->last_used_idx = vvq->last_used_idx;
-> +			__entry->avail_flags = vvq->split.vring.avail->flags;
-> +			__entry->avail_idx = vvq->split.vring.avail->idx;
-> +			__entry->used_idx = vvq->split.vring.used->idx;
-> +		}
-> +	),
-> +
-> +	TP_printk("skbaddr=%p vq=%s num_free=%u index=%u packed=%d broken=%d event=%d last_used_idx=%u avail_flags=%u avail_idx=%u used_idx=%u",
-> +		__entry->skbaddr, __get_str(name), __entry->num_free, __entry->index,
-> +		__entry->packed_ring, __entry->broken, __entry->event, __entry->last_used_idx,
-> +		__entry->avail_flags, __entry->avail_idx, __entry->used_idx)
-> +)
-> +
-> +DEFINE_EVENT(virtio_net_rxtx_temp, receive_buf,
-> +
-> +	TP_PROTO(struct virtqueue *vq, const struct sk_buff *skb),
-> +
-> +	TP_ARGS(vq, skb)
-> +);
-> +
-> +DEFINE_EVENT(virtio_net_rxtx_temp, start_xmit,
-> +
-> +	TP_PROTO(struct virtqueue *vq, const struct sk_buff *skb),
-> +
-> +	TP_ARGS(vq, skb)
-> +);
-> +
-> +DECLARE_EVENT_CLASS(virtio_net_int_temp,
-> +
-> +	TP_PROTO(struct napi_struct *napi, struct virtqueue *vq),
-> +
-> +	TP_ARGS(napi, vq),
-> +
-> +	TP_STRUCT__entry(
-> +		__string(	dev_name,	napi->dev->name	)
-> +		__string(	vq_name,	vq->name)
-> +		__field(	u32,	napi_id	)
-> +		__field(	int,	weight	)
-> +	),
-> +
-> +	TP_fast_assign(
-> +		__assign_str(dev_name);
-> +		__assign_str(vq_name);
-> +		__entry->napi_id = napi->napi_id;
-> +		__entry->weight = napi->weight;
-> +	),
-> +
-> +	TP_printk("dev=%s vq=%s napi_id=%u weight=%d",
-> +		__get_str(dev_name), __get_str(vq_name), __entry->napi_id, __entry->weight)
-> +)
-> +
-> +DEFINE_EVENT(virtio_net_int_temp, skb_xmit_done,
-> +
-> +	TP_PROTO(struct napi_struct *napi, struct virtqueue *vq),
-> +
-> +	TP_ARGS(napi, vq)
-> +);
-> +
-> +DEFINE_EVENT(virtio_net_int_temp, skb_recv_done,
-> +
-> +	TP_PROTO(struct napi_struct *napi, struct virtqueue *vq),
-> +
-> +	TP_ARGS(napi, vq)
-> +);
-> +
-> +#undef TRACE_INCLUDE_PATH
-> +#define TRACE_INCLUDE_PATH ../../drivers/net/
-> +#undef TRACE_INCLUDE_FILE
-> +#define TRACE_INCLUDE_FILE virtio_net_trace
-> +
-> +#endif /* _TRACE_VIRTIO_NET_H */
-> +
-> +/* This part must be outside protection */
-> +#include <trace/define_trace.h>
-> +
-> +#endif
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index ddab68959671..d413ebb42729 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -67,161 +67,6 @@
->  #define LAST_ADD_TIME_INVALID(vq)
->  #endif
->  
-> -struct vring_desc_state_split {
-> -	void *data;			/* Data for callback. */
-> -
-> -	/* Indirect desc table and extra table, if any. These two will be
-> -	 * allocated together. So we won't stress more to the memory allocator.
-> -	 */
-> -	struct vring_desc *indir_desc;
-> -};
-> -
-> -struct vring_desc_state_packed {
-> -	void *data;			/* Data for callback. */
-> -
-> -	/* Indirect desc table and extra table, if any. These two will be
-> -	 * allocated together. So we won't stress more to the memory allocator.
-> -	 */
-> -	struct vring_packed_desc *indir_desc;
-> -	u16 num;			/* Descriptor list length. */
-> -	u16 last;			/* The last desc state in a list. */
-> -};
-> -
-> -struct vring_desc_extra {
-> -	dma_addr_t addr;		/* Descriptor DMA addr. */
-> -	u32 len;			/* Descriptor length. */
-> -	u16 flags;			/* Descriptor flags. */
-> -	u16 next;			/* The next desc state in a list. */
-> -};
-> -
-> -struct vring_virtqueue_split {
-> -	/* Actual memory layout for this queue. */
-> -	struct vring vring;
-> -
-> -	/* Last written value to avail->flags */
-> -	u16 avail_flags_shadow;
-> -
-> -	/*
-> -	 * Last written value to avail->idx in
-> -	 * guest byte order.
-> -	 */
-> -	u16 avail_idx_shadow;
-> -
-> -	/* Per-descriptor state. */
-> -	struct vring_desc_state_split *desc_state;
-> -	struct vring_desc_extra *desc_extra;
-> -
-> -	/* DMA address and size information */
-> -	dma_addr_t queue_dma_addr;
-> -	size_t queue_size_in_bytes;
-> -
-> -	/*
-> -	 * The parameters for creating vrings are reserved for creating new
-> -	 * vring.
-> -	 */
-> -	u32 vring_align;
-> -	bool may_reduce_num;
-> -};
-> -
-> -struct vring_virtqueue_packed {
-> -	/* Actual memory layout for this queue. */
-> -	struct {
-> -		unsigned int num;
-> -		struct vring_packed_desc *desc;
-> -		struct vring_packed_desc_event *driver;
-> -		struct vring_packed_desc_event *device;
-> -	} vring;
-> -
-> -	/* Driver ring wrap counter. */
-> -	bool avail_wrap_counter;
-> -
-> -	/* Avail used flags. */
-> -	u16 avail_used_flags;
-> -
-> -	/* Index of the next avail descriptor. */
-> -	u16 next_avail_idx;
-> -
-> -	/*
-> -	 * Last written value to driver->flags in
-> -	 * guest byte order.
-> -	 */
-> -	u16 event_flags_shadow;
-> -
-> -	/* Per-descriptor state. */
-> -	struct vring_desc_state_packed *desc_state;
-> -	struct vring_desc_extra *desc_extra;
-> -
-> -	/* DMA address and size information */
-> -	dma_addr_t ring_dma_addr;
-> -	dma_addr_t driver_event_dma_addr;
-> -	dma_addr_t device_event_dma_addr;
-> -	size_t ring_size_in_bytes;
-> -	size_t event_size_in_bytes;
-> -};
-> -
-> -struct vring_virtqueue {
-> -	struct virtqueue vq;
-> -
-> -	/* Is this a packed ring? */
-> -	bool packed_ring;
-> -
-> -	/* Is DMA API used? */
-> -	bool use_map_api;
-> -
-> -	/* Can we use weak barriers? */
-> -	bool weak_barriers;
-> -
-> -	/* Other side has made a mess, don't try any more. */
-> -	bool broken;
-> -
-> -	/* Host supports indirect buffers */
-> -	bool indirect;
-> -
-> -	/* Host publishes avail event idx */
-> -	bool event;
-> -
-> -	/* Head of free buffer list. */
-> -	unsigned int free_head;
-> -	/* Number we've added since last sync. */
-> -	unsigned int num_added;
-> -
-> -	/* Last used index  we've seen.
-> -	 * for split ring, it just contains last used index
-> -	 * for packed ring:
-> -	 * bits up to VRING_PACKED_EVENT_F_WRAP_CTR include the last used index.
-> -	 * bits from VRING_PACKED_EVENT_F_WRAP_CTR include the used wrap counter.
-> -	 */
-> -	u16 last_used_idx;
-> -
-> -	/* Hint for event idx: already triggered no need to disable. */
-> -	bool event_triggered;
-> -
-> -	union {
-> -		/* Available for split ring */
-> -		struct vring_virtqueue_split split;
-> -
-> -		/* Available for packed ring */
-> -		struct vring_virtqueue_packed packed;
-> -	};
-> -
-> -	/* How to notify other side. FIXME: commonalize hcalls! */
-> -	bool (*notify)(struct virtqueue *vq);
-> -
-> -	/* DMA, allocation, and size information */
-> -	bool we_own_ring;
-> -
-> -	union virtio_map map;
-> -
-> -#ifdef DEBUG
-> -	/* They're supposed to lock for us. */
-> -	unsigned int in_use;
-> -
-> -	/* Figure out if their kicks are too delayed. */
-> -	bool last_add_time_valid;
-> -	ktime_t last_add_time;
-> -#endif
-> -};
-> -
->  static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
->  static void vring_free(struct virtqueue *_vq);
->  
-> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> index c97a12c1cda3..1442a02209ec 100644
-> --- a/include/linux/virtio_ring.h
-> +++ b/include/linux/virtio_ring.h
-> @@ -121,4 +121,160 @@ void vring_transport_features(struct virtio_device *vdev);
->  irqreturn_t vring_interrupt(int irq, void *_vq);
->  
->  u32 vring_notification_data(struct virtqueue *_vq);
-> +
-> +struct vring_desc_state_split {
-> +	void *data;			/* Data for callback. */
-> +
-> +	/* Indirect desc table and extra table, if any. These two will be
-> +	 * allocated together. So we won't stress more to the memory allocator.
-> +	 */
-> +	struct vring_desc *indir_desc;
-> +};
-> +
-> +struct vring_desc_state_packed {
-> +	void *data;			/* Data for callback. */
-> +
-> +	/* Indirect desc table and extra table, if any. These two will be
-> +	 * allocated together. So we won't stress more to the memory allocator.
-> +	 */
-> +	struct vring_packed_desc *indir_desc;
-> +	u16 num;			/* Descriptor list length. */
-> +	u16 last;			/* The last desc state in a list. */
-> +};
-> +
-> +struct vring_desc_extra {
-> +	dma_addr_t addr;		/* Descriptor DMA addr. */
-> +	u32 len;			/* Descriptor length. */
-> +	u16 flags;			/* Descriptor flags. */
-> +	u16 next;			/* The next desc state in a list. */
-> +};
-> +
-> +struct vring_virtqueue_split {
-> +	/* Actual memory layout for this queue. */
-> +	struct vring vring;
-> +
-> +	/* Last written value to avail->flags */
-> +	u16 avail_flags_shadow;
-> +
-> +	/*
-> +	 * Last written value to avail->idx in
-> +	 * guest byte order.
-> +	 */
-> +	u16 avail_idx_shadow;
-> +
-> +	/* Per-descriptor state. */
-> +	struct vring_desc_state_split *desc_state;
-> +	struct vring_desc_extra *desc_extra;
-> +
-> +	/* DMA address and size information */
-> +	dma_addr_t queue_dma_addr;
-> +	size_t queue_size_in_bytes;
-> +
-> +	/*
-> +	 * The parameters for creating vrings are reserved for creating new
-> +	 * vring.
-> +	 */
-> +	u32 vring_align;
-> +	bool may_reduce_num;
-> +};
-> +
-> +struct vring_virtqueue_packed {
-> +	/* Actual memory layout for this queue. */
-> +	struct {
-> +		unsigned int num;
-> +		struct vring_packed_desc *desc;
-> +		struct vring_packed_desc_event *driver;
-> +		struct vring_packed_desc_event *device;
-> +	} vring;
-> +
-> +	/* Driver ring wrap counter. */
-> +	bool avail_wrap_counter;
-> +
-> +	/* Avail used flags. */
-> +	u16 avail_used_flags;
-> +
-> +	/* Index of the next avail descriptor. */
-> +	u16 next_avail_idx;
-> +
-> +	/*
-> +	 * Last written value to driver->flags in
-> +	 * guest byte order.
-> +	 */
-> +	u16 event_flags_shadow;
-> +
-> +	/* Per-descriptor state. */
-> +	struct vring_desc_state_packed *desc_state;
-> +	struct vring_desc_extra *desc_extra;
-> +
-> +	/* DMA address and size information */
-> +	dma_addr_t ring_dma_addr;
-> +	dma_addr_t driver_event_dma_addr;
-> +	dma_addr_t device_event_dma_addr;
-> +	size_t ring_size_in_bytes;
-> +	size_t event_size_in_bytes;
-> +};
-> +
-> +struct vring_virtqueue {
-> +	struct virtqueue vq;
-> +
-> +	/* Is this a packed ring? */
-> +	bool packed_ring;
-> +
-> +	/* Is DMA API used? */
-> +	bool use_map_api;
-> +
-> +	/* Can we use weak barriers? */
-> +	bool weak_barriers;
-> +
-> +	/* Other side has made a mess, don't try any more. */
-> +	bool broken;
-> +
-> +	/* Host supports indirect buffers */
-> +	bool indirect;
-> +
-> +	/* Host publishes avail event idx */
-> +	bool event;
-> +
-> +	/* Head of free buffer list. */
-> +	unsigned int free_head;
-> +	/* Number we've added since last sync. */
-> +	unsigned int num_added;
-> +
-> +	/* Last used index  we've seen.
-> +	 * for split ring, it just contains last used index
-> +	 * for packed ring:
-> +	 * bits up to VRING_PACKED_EVENT_F_WRAP_CTR include the last used index.
-> +	 * bits from VRING_PACKED_EVENT_F_WRAP_CTR include the used wrap counter.
-> +	 */
-> +	u16 last_used_idx;
-> +
-> +	/* Hint for event idx: already triggered no need to disable. */
-> +	bool event_triggered;
-> +
-> +	union {
-> +		/* Available for split ring */
-> +		struct vring_virtqueue_split split;
-> +
-> +		/* Available for packed ring */
-> +		struct vring_virtqueue_packed packed;
-> +	};
-> +
-> +	/* How to notify other side. FIXME: commonalize hcalls! */
-> +	bool (*notify)(struct virtqueue *vq);
-> +
-> +	/* DMA, allocation, and size information */
-> +	bool we_own_ring;
-> +
-> +	union virtio_map map;
-> +
-> +#ifdef DEBUG
-> +	/* They're supposed to lock for us. */
-> +	unsigned int in_use;
-> +
-> +	/* Figure out if their kicks are too delayed. */
-> +	bool last_add_time_valid;
-> +	ktime_t last_add_time;
-> +#endif
-> +};
-> +
-
-Not excited about exporting all this stuff from virtio-ring
-internals.
-
-
->  #endif /* _LINUX_VIRTIO_RING_H */
-> -- 
-> 2.48.1
+>
+>  static void vduse_dev_free_coherent(union virtio_map token, size_t size,
+> @@ -949,6 +953,7 @@ static void vduse_dev_free_coherent(union virtio_map =
+token, size_t size,
+>         domain =3D vdev->domain;
+>
+>         vduse_domain_free_coherent(domain, size, dma_addr, attrs);
+> +       free_pages_exact(vaddr, size);
+>  }
+>
+>  static bool vduse_dev_need_sync(union virtio_map token, dma_addr_t dma_a=
+ddr)
+> --
+> 2.52.0
+>
 
