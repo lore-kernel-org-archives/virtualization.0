@@ -1,130 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADC8A42049
-	for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 16:53:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10ED8349B0A;
+	Thu, 15 Jan 2026 16:56:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768496029; cv=none; b=Frxxt601tXWGdD20wzuEyTaat1AJwAigXGaCznXj2Rnxrn2ErXzvDrtU+2V00l/1jBrtNj08z9wPoE6ND0LLhMpU+MF08Bem3UgHkEh3/DHP5rdcpYpx8Sb/wzZvCw8/Xp9KzdoCtRToEXPMfld54BMrHBIhHz+PDL6lPzG+Ncs=
+	t=1768496206; cv=none; b=Mw6XOs+8eOiMP28Xja+H5pXgzZBfRxwY3Fl82CprEQQGlC0IKRl68VTNJodufJQ4LKbMPuoT5WBCwqaGJrMs9RyD2qJv67cxgxVfYycvVq8nOIfHgQ+nBwRTOEcTD6H35XE0GIpXC+DOgCCg4O9cTrd9BptHCGqyhB4LQ40Oh00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768496029; c=relaxed/simple;
-	bh=V54PrZBvUZY0PjY3cU1uOI/0T7/YH8EFTu5s2qL0YK8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=dpz38pHpSRuylBRE3jgWuOvdudv4ABL9/9QV8y0B6MnLSqtKKgSmheP3qcFTtzwwdlHNw4hlS/tx0UPOPizWo8pbEV0k79L+SUd4PCqFSOLNc03XOg2kWk50Vyyc/A7WvtLMn8D9Zt6wJaucBEUP0dfD22s3qISiaz/sB/loQRQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Jh+3YafA; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768496206; c=relaxed/simple;
+	bh=8VmEFhbreTwYW0RnJ85L2MDVsnY1y5tGzfjJOAZbf00=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rcGV50nHiUWeXehQYuwRPEFLTDR0IrUZUHshIy66mDazIjITU3lL0EHvoHuOgHv/cKpQ9/ZCBiDgEe7iCyMot/m8uq0VenadEkwaH371PsV/RadXuZjb1JJG/56mi/rekBvyvTjiKgEmxuycQJvJ2sLN56jlB7YSsdQAdNfXOhc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a7LkgmSU; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Jh+3YafA"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768496026;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5su/nAHmwHcmkA811BDe3v/5JJsozj0l7oyd1uJGuPg=;
-	b=Jh+3YafArW+CCsVuXIOQ9BsYxgScd3P5Cf9sqpUa/reaECAbjn6Cuazr+bP+7xib6DlVs1
-	zgtHrtjOQFFk/VWZi8htiWABCBOxv5lXnGc0k61QV9VLugFT5MgTuIOUSZk+/8ui+1eetp
-	nh+DusbFQQ+OoJ24l0Ff4+6a+yGSUIw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-464-s2qw33h_Niq9qogtIPPkJQ-1; Thu, 15 Jan 2026 11:53:45 -0500
-X-MC-Unique: s2qw33h_Niq9qogtIPPkJQ-1
-X-Mimecast-MFC-AGG-ID: s2qw33h_Niq9qogtIPPkJQ_1768496024
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4801c1056c7so5546395e9.2
-        for <virtualization@lists.linux.dev>; Thu, 15 Jan 2026 08:53:45 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768496024; x=1769100824;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5su/nAHmwHcmkA811BDe3v/5JJsozj0l7oyd1uJGuPg=;
-        b=Dmy+/jM2LK/MoWXe+NaeRrhhBbPRdQ0lUdbn4suWigDROM2s99VwUy1lgbrnvdNYcN
-         PvIIoZdJ+HchT4bIMTFhtxWDKUgOs6dDFp95u3EKMtN6kSJZzMzKYJDmPMmlZPr7Tcjr
-         kz3dFSHFlfTmxLD6SK/POc6rE9MzcJEu3XZVXpMzVvsq9loyz84Q+amp5CdEUmLSuCII
-         MSPs0WJ02IqVUBFh5gMn3ASfF85qDELILA1knFeJybWVjM7GZdU7uNU89PwNF8ulYp0r
-         s+XxjGuZcfiWl7NLZaLyDsBu/10QVkqe+smUCW+IFfLgGrGHQ+nY2RekJUbhOIrWyPYa
-         fL7A==
-X-Forwarded-Encrypted: i=1; AJvYcCWbb4pP5VluLPJvm6QXdbIJhrNR8AeYHPhH/PMEz/AWtJ8ut10Sy18bzCKdewwwxbJTBjdHx06UlUJ3beyvbg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxx9GTquW5ur19aopjuCw+vCJXqFCfymbdkNqpjH3jXnOTqsw+s
-	/zqJEQu6q2jw+5xSeA2oo3wDkG9CCquypdtntLzbVTTsqRSiMvhmxfBlrHkYjJVwmx+xuA9OJ7D
-	CocFSY6aqkuUWncty6mgl4TQiFE4ww4CyjJRVjb+HDSkXo+D+BoousE+BP8GsOFTf3zLe
-X-Gm-Gg: AY/fxX4SEHi++UKkn85wRhtcT/h5TWP8dQUkviL3LX27EPXuD/mAo3ht+oCUH4Njml0
-	nClKqnBTKNqWUUVUFXErf7fcaRK4+rTxrYDbgyy34uNA9WzXNUUBkCRAQyo0zAaVTIUelkhYuZf
-	Kl8fMcuvIvPaT/wRJWhNRtdg1XjrYCXwcfb6/u34iqHwXVck57/RyRC5hQiNYaxPlWrpOTYO8Rc
-	+YsQA7jozfEEwk8ZkXINyjv/t/W3UtlT2Ex9bPfJYLRAvWa0zLxBugkOHhQevmSfFlAjyDuXwEW
-	DGRKKZVbvRbnanZupzLM2SWCgF6AyAfJ9FDoRG6GHcbU569890MjFvCvUtRCDRRlUDVd2fPqrUd
-	x0ERK/CFXNNo7XGExldezHpWWCFWdDw==
-X-Received: by 2002:a05:600c:5487:b0:46f:d682:3c3d with SMTP id 5b1f17b1804b1-4801e30d482mr5165645e9.13.1768496024093;
-        Thu, 15 Jan 2026 08:53:44 -0800 (PST)
-X-Received: by 2002:a05:600c:5487:b0:46f:d682:3c3d with SMTP id 5b1f17b1804b1-4801e30d482mr5165105e9.13.1768496023585;
-        Thu, 15 Jan 2026 08:53:43 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-35-22.inter.net.il. [80.230.35.22])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4356992681esm58497f8f.11.2026.01.15.08.53.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Jan 2026 08:53:42 -0800 (PST)
-Date: Thu, 15 Jan 2026 11:53:39 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	linuxppc-dev@lists.ozlabs.org,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Oscar Salvador <osalvador@suse.de>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Zi Yan <ziy@nvidia.com>
-Subject: Re: [PATCH v2 22/23] mm: rename CONFIG_MEMORY_BALLOON ->
- CONFIG_BALLOON
-Message-ID: <20260115115228-mutt-send-email-mst@kernel.org>
-References: <20260115092015.3928975-1-david@kernel.org>
- <20260115092015.3928975-23-david@kernel.org>
- <219f7be4-8355-4376-bf97-3410c6e23867@lucifer.local>
- <37fdb994-59d1-4196-b377-f3f749148b19@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a7LkgmSU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 896FCC116D0;
+	Thu, 15 Jan 2026 16:56:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768496205;
+	bh=8VmEFhbreTwYW0RnJ85L2MDVsnY1y5tGzfjJOAZbf00=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=a7LkgmSUfAqzYJH95EEqbqeLAVB1f9bcBjhTHFAPcPlp3MLNtFJySlN2H6agWcfqB
+	 GzgMiOETf7rD8mXZhp37rWO1JJPt8vevAZrEgxOcEPUNN2h0T4jouF9iG9kuGJmtpQ
+	 450DXIsdfcXl035IplK9FtSzGdg5nY6VCs/EKp8+/GKiyN4JzSvu7k//+XWtC3+ZjS
+	 o54TvepHQJUKjXGrHnEcyZ2YSpKxY+rti1HqaCcfQCjZe5mblkab9CG48zd0mgk4UX
+	 8Dd5Ixcr8U1+N6bSxVaxeA2tuWcTmg9cPvGmmBSDLageIGUoa5NyHMAFVDeVgdxgz4
+	 t7YyakvhNqJmg==
+Message-ID: <71f211f0-498b-4829-8370-0c22885856d5@kernel.org>
+Date: Thu, 15 Jan 2026 17:56:37 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <37fdb994-59d1-4196-b377-f3f749148b19@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: TodwXxfKALBv-5UUE_ctLz5pvAdLqyCth2xxDw_rLXI_1768496024
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 22/23] mm: rename CONFIG_MEMORY_BALLOON ->
+ CONFIG_BALLOON
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linuxppc-dev@lists.ozlabs.org,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, linux-doc@vger.kernel.org,
+ virtualization@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
+ Oscar Salvador <osalvador@suse.de>, "Liam R. Howlett"
+ <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>, Arnd Bergmann
+ <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
+References: <20260115092015.3928975-1-david@kernel.org>
+ <20260115092015.3928975-23-david@kernel.org>
+ <219f7be4-8355-4376-bf97-3410c6e23867@lucifer.local>
+ <37fdb994-59d1-4196-b377-f3f749148b19@kernel.org>
+ <20260115115228-mutt-send-email-mst@kernel.org>
+From: "David Hildenbrand (Red Hat)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+In-Reply-To: <20260115115228-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jan 15, 2026 at 05:33:56PM +0100, David Hildenbrand (Red Hat) wrote:
-> I'll note that the spec also defines a "DEVICE ID of Virtio Cpu balloon device as 47". But
-> no changes really happened in the spec with that for the last two years (only the
-> id is reserved).
+On 1/15/26 17:53, Michael S. Tsirkin wrote:
+> On Thu, Jan 15, 2026 at 05:33:56PM +0100, David Hildenbrand (Red Hat) wrote:
+>> I'll note that the spec also defines a "DEVICE ID of Virtio Cpu balloon device as 47". But
+>> no changes really happened in the spec with that for the last two years (only the
+>> id is reserved).
+>>
+>>
+>> [1] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html#x1-4260001
 > 
 > 
-> [1] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html#x1-4260001
-
-
-Maybe that's a good reason to keep calling it "memory balloon".
-
-And hey, there's also the floating, pops easily kind and maybe someone
-will use those with linux in some way :)
-
-
-> -- 
-> Cheers
+> Maybe that's a good reason to keep calling it "memory balloon".
 > 
-> David
+> And hey, there's also the floating, pops easily kind and maybe someone
+> will use those with linux in some way :)
 
+There is only one true balloon ;) the others can specify it as 
+CPU_BALLOON. If that ever sees the light of day.
+
+-- 
+Cheers
+
+David
