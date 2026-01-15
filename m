@@ -1,150 +1,162 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A51A12701BB;
-	Thu, 15 Jan 2026 16:11:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11C612C0282;
+	Thu, 15 Jan 2026 16:34:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768493480; cv=none; b=AS+N7F6PWy6EX7MKWGCMPZfTVHfIqdH45TD0uNHWu5uaF4OPuiQjYBUBlXIPcQthqWkuShDKqgKFwHZJK9NyhQb6IJ1FpUu+KezfOEx9/hNuCupFuLkuQ1xjhYUGrivDnpILjLtqrI+WdiVBQuVrjI4lGa6BBzEnUUzJ2Cfnb5c=
+	t=1768494845; cv=none; b=G7SvrJWw02kbMn/G8IRGKqE7MIRE2TOWhC8GYl4VmvguFz/KnFf3cZi7tMhc2aBL7F2tGYIrh/tK11JfhLWubJ6jmcZJNC0C0zgKhw2HS4Xz9s/qSk4c0XsEB2nPzP7OGOTk+ouL0rWReFyXJ0g6G1hhw2SgyVuhaV05e/01unU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768493480; c=relaxed/simple;
-	bh=gFIoEC1f1qlzIUpk/6FrkLxr7vkPH7lbau/8uT3TPbk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mZsV9j2H1k1hJypPqXJMrIy/eInuhWNS5jNQ94jmfXoxeCzcZ3B0d9iIXMWG2f1kyS5HrRZPlwirDIOTW/JbZDYLfn4WRGOQ6XF8SFNcjQfQaCSubsTmOAOfVM8YO0te64jVOp/6cGIG3DS9vSxWKz1yvnkT+IaPDlFAXibxmGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nHb5fqTH; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1768494845; c=relaxed/simple;
+	bh=8hxhpYwatqg4ec2o/1bKwmlVi3StWJTQEmDCQHBf2HM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Qs/YN43Ww0xvE2LN8ht/9hwJt40PVRpSMRTO29gue7n5W8ylTEAZL8Af/MwUhD9NzyOPQHM/SD7/6GGyxHeLDgQOezF3h5rcLVBFu31xX+nkmsfBA1Is45X7K3jWVAjYiZ2Kc3OKn2N45j5C1jhudk/QYpcr5gnAURlLqo1Bkvo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=quFB9Of5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nHb5fqTH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1768493479; x=1800029479;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=gFIoEC1f1qlzIUpk/6FrkLxr7vkPH7lbau/8uT3TPbk=;
-  b=nHb5fqTHh6JL/ZYed6nZR6QQsdekrk8T40lmZgrgAquJRx56luF4UQAc
-   MdKNp9AbOB1ZPRtaP7p5K37Hc7gvxy5fXSgQQ+Rih3VrqcbbsvwgzTsU+
-   GS6IfdFpevEBhzFiM5xtvG+oPTUnETqoW/1hc0nk4+XaPpeICyfu3V3lz
-   wnmlkeggoP/x/0+P2UeKwcmblesuDmnOHyNbdFIXOnvjmFdDVTTckWYl5
-   0OIRS+5bupyuPGdwJ6C9PTVBgiktKWJNYTGkjLp9Ms4MIzgLLQLu0GBvs
-   RLBkhSAjJk07ZhkZU6dwRM6l31i892F07K1KEbe72gXnZRb4JHMm1667u
-   A==;
-X-CSE-ConnectionGUID: HFXUPd62R1aDXrkeOuUHvA==
-X-CSE-MsgGUID: cZQaTV4RTjSkcCJoN6cPyg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11672"; a="69701552"
-X-IronPort-AV: E=Sophos;i="6.21,228,1763452800"; 
-   d="scan'208";a="69701552"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jan 2026 08:11:19 -0800
-X-CSE-ConnectionGUID: T0RnRcTxRsGGrhE5Yp0D6g==
-X-CSE-MsgGUID: 0Lh0zAVbQ2yEnGpU34emxg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,228,1763452800"; 
-   d="scan'208";a="205020917"
-Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by orviesa007.jf.intel.com with ESMTP; 15 Jan 2026 08:11:14 -0800
-Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vgPwF-00000000IBQ-0m18;
-	Thu, 15 Jan 2026 16:11:11 +0000
-Date: Fri, 16 Jan 2026 00:10:12 +0800
-From: kernel test robot <lkp@intel.com>
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
-	x86@kernel.org, virtualization@lists.linux.dev, kvm@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, Juergen Gross <jgross@suse.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	xen-devel@lists.xenproject.org
-Subject: Re: [PATCH v3 1/5] x86/paravirt: Replace io_delay() hook with a bool
-Message-ID: <202601152321.kJ6D4yKM-lkp@intel.com>
-References: <20260115084849.31502-2-jgross@suse.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="quFB9Of5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9C67C19422;
+	Thu, 15 Jan 2026 16:33:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768494844;
+	bh=8hxhpYwatqg4ec2o/1bKwmlVi3StWJTQEmDCQHBf2HM=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=quFB9Of5eORu4Ot6l7yrlb+gSDrL7IV3sLfpi/BGIn2H5RovR9oIfLoMmaCjZF0UT
+	 aCgMWFBfwSVPIcRSBogpaoSibyzYGdFaEWbRQ7BYgQdm/JAinkyAwmmoMDoMQB8jet
+	 w1WlHBNhXCkYAa0S7greRyO98Vwu06B1uqXshcYQrAGpK5+DYRPN2deju3oBzqIVGy
+	 R13VoFjcpRxkKR8fYKdRz74vwVOKSm4AjkK4sW7rP+1AcSSbJY7y4XUNCTsFbaYWkk
+	 5G3Cx2mCBnDJnuVrNyMGv0b7OYo6/nsxYV5WX8wVOjAu+56KS7Lo19VFPw7E1dePHH
+	 SIoChbZRn1Rmw==
+Message-ID: <37fdb994-59d1-4196-b377-f3f749148b19@kernel.org>
+Date: Thu, 15 Jan 2026 17:33:56 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260115084849.31502-2-jgross@suse.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 22/23] mm: rename CONFIG_MEMORY_BALLOON ->
+ CONFIG_BALLOON
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linuxppc-dev@lists.ozlabs.org,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, linux-doc@vger.kernel.org,
+ virtualization@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
+ Oscar Salvador <osalvador@suse.de>, "Liam R. Howlett"
+ <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>, Arnd Bergmann
+ <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
+References: <20260115092015.3928975-1-david@kernel.org>
+ <20260115092015.3928975-23-david@kernel.org>
+ <219f7be4-8355-4376-bf97-3410c6e23867@lucifer.local>
+From: "David Hildenbrand (Red Hat)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+In-Reply-To: <219f7be4-8355-4376-bf97-3410c6e23867@lucifer.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Juergen,
+On 1/15/26 14:55, Lorenzo Stoakes wrote:
+> On Thu, Jan 15, 2026 at 10:20:12AM +0100, David Hildenbrand (Red Hat) wrote:
+>> Let's make it consistent with the naming of the files but also with the
+>> naming of CONFIG_BALLOON_MIGRATION.
+>>
+>> While at it, add a "/* CONFIG_BALLOON */".
+> 
+> Probably not relevant but cheap for me to share :) so grepped for
+> 'memory_balloon' and saw:
+> 
+> include/uapi/linux/virtio_ids.h
+> 44:#define VIRTIO_ID_MEMORY_BALLOON	13 /* virtio memory balloon */
+> 
+> This maybe relevant (I guess this isn't actually used anywhere?) though
+> interesting there is also VIRTIO_ID_BALLOON... hmm :)
 
-kernel test robot noticed the following build errors:
+Yeah, we want to leave the virtio stuff alone.
 
-[auto build test ERROR on tip/master]
-[also build test ERROR on next-20260115]
-[cannot apply to kvm/queue kvm/next tip/x86/core kvm/linux-next tip/auto-latest linus/master v6.19-rc5]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Now you'll learn something you probably wish you wouldn't know:
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Juergen-Gross/x86-paravirt-Replace-io_delay-hook-with-a-bool/20260115-165320
-base:   tip/master
-patch link:    https://lore.kernel.org/r/20260115084849.31502-2-jgross%40suse.com
-patch subject: [PATCH v3 1/5] x86/paravirt: Replace io_delay() hook with a bool
-config: x86_64-randconfig-006-20260115 (https://download.01.org/0day-ci/archive/20260115/202601152321.kJ6D4yKM-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.4.0-5) 12.4.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260115/202601152321.kJ6D4yKM-lkp@intel.com/reproduce)
+As you spotted, there is
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202601152321.kJ6D4yKM-lkp@intel.com/
+	#define VIRTIO_ID_BALLOON               5 /* virtio balloon */
 
-All errors (new ones prefixed by >>):
+And
 
-   arch/x86/kernel/tboot.c: In function 'tboot_shutdown':
->> arch/x86/kernel/tboot.c:255:17: error: implicit declaration of function 'halt' [-Werror=implicit-function-declaration]
-     255 |                 halt();
-         |                 ^~~~
-   cc1: some warnings being treated as errors
+	#define VIRTIO_ID_MEMORY_BALLOON        13 /* virtio memory balloon */
 
 
-vim +/halt +255 arch/x86/kernel/tboot.c
+The virtio-spec [1] defines ID 5 to be the "Traditional Memory Balloon Device".
 
-58c41d28259c24 H. Peter Anvin 2009-08-14  225  
-3162534069597e Joseph Cihula  2009-06-30  226  void tboot_shutdown(u32 shutdown_type)
-3162534069597e Joseph Cihula  2009-06-30  227  {
-3162534069597e Joseph Cihula  2009-06-30  228  	void (*shutdown)(void);
-3162534069597e Joseph Cihula  2009-06-30  229  
-3162534069597e Joseph Cihula  2009-06-30  230  	if (!tboot_enabled())
-3162534069597e Joseph Cihula  2009-06-30  231  		return;
-3162534069597e Joseph Cihula  2009-06-30  232  
-11520e5e7c1855 Linus Torvalds 2012-12-15  233  	/*
-11520e5e7c1855 Linus Torvalds 2012-12-15  234  	 * if we're being called before the 1:1 mapping is set up then just
-11520e5e7c1855 Linus Torvalds 2012-12-15  235  	 * return and let the normal shutdown happen; this should only be
-11520e5e7c1855 Linus Torvalds 2012-12-15  236  	 * due to very early panic()
-11520e5e7c1855 Linus Torvalds 2012-12-15  237  	 */
-11520e5e7c1855 Linus Torvalds 2012-12-15  238  	if (!tboot_pg_dir)
-11520e5e7c1855 Linus Torvalds 2012-12-15  239  		return;
-11520e5e7c1855 Linus Torvalds 2012-12-15  240  
-3162534069597e Joseph Cihula  2009-06-30  241  	/* if this is S3 then set regions to MAC */
-3162534069597e Joseph Cihula  2009-06-30  242  	if (shutdown_type == TB_SHUTDOWN_S3)
-58c41d28259c24 H. Peter Anvin 2009-08-14  243  		if (tboot_setup_sleep())
-58c41d28259c24 H. Peter Anvin 2009-08-14  244  			return;
-3162534069597e Joseph Cihula  2009-06-30  245  
-3162534069597e Joseph Cihula  2009-06-30  246  	tboot->shutdown_type = shutdown_type;
-3162534069597e Joseph Cihula  2009-06-30  247  
-3162534069597e Joseph Cihula  2009-06-30  248  	switch_to_tboot_pt();
-3162534069597e Joseph Cihula  2009-06-30  249  
-3162534069597e Joseph Cihula  2009-06-30  250  	shutdown = (void(*)(void))(unsigned long)tboot->shutdown_entry;
-3162534069597e Joseph Cihula  2009-06-30  251  	shutdown();
-3162534069597e Joseph Cihula  2009-06-30  252  
-3162534069597e Joseph Cihula  2009-06-30  253  	/* should not reach here */
-3162534069597e Joseph Cihula  2009-06-30  254  	while (1)
-3162534069597e Joseph Cihula  2009-06-30 @255  		halt();
-3162534069597e Joseph Cihula  2009-06-30  256  }
-3162534069597e Joseph Cihula  2009-06-30  257  
+And in there, we document that
+
+"This is the traditional balloon device. The device number 13 is reserved for
+a new memory balloon interface, with different semantics, which is expected
+in a future version of the standard. "
+
+That's in the spec already like, forever. Likely, at some point someone wanted to implement a
+new version (for whatever reason) and defined ID 13. But that never happened.
+
+So now we have these beautiful two device IDs.
+
+I'll note that the spec also defines a "DEVICE ID of Virtio Cpu balloon device as 47". But
+no changes really happened in the spec with that for the last two years (only the
+id is reserved).
+
+
+[1] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html#x1-4260001
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Cheers
+
+David
