@@ -1,110 +1,182 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C6FF30F550;
-	Fri, 16 Jan 2026 08:53:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C28B2749D5
+	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 08:54:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768553603; cv=none; b=OGgilM98gdj7ydZ3Q2KO+mdI2UVNqIBkqZjiAKkrJTA2OuJJ2TKSGM9MF1l0IIZ6btemi2zpZ0zvoKrqjBgXtaHcL2+fNjV1gwUYI7jkUXyiN5oS2ktw8cD5FENBzSKUoQGJjTZTtjfCubinnW8pbAO3ZyCDVB8EvxcxSXn+ijw=
+	t=1768553697; cv=none; b=uq8Mk4txKaEyjd40UK8k14Lk1CeUbtfsy9hV9mNEkPoAbZW34e6Tl/CmTh0biysaWTd2yhGSjuQVGs7iJmttrcJmT1nU6KJ3Pjrvqv6vwl5KzBXx6Y2WVdXVq921Xx+0LIGHMnglP23k+VFqTn8Nxv8ixM2BBfAmQHcfO44+WzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768553603; c=relaxed/simple;
-	bh=rPRrOO9EpEhd6j2mFqhrpiOMDftBm6VQnFQJlZap5tY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=QPD540x+vvrb5uy9M1ggBL8f2IaroCwAAtVqntniFHtQVhm/Um1aSlFeGxO4n39j7QmTfa49fP3SztzXNuHLLU3VqICH3lxkUNZRP3WDzlmyAabSKF+itVkeJvxk50tofVBLiO7Uun8JR+VLxVhW/U2G7fWTidi2erHltQVlTmE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=ZfmZi7Cd; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1768553697; c=relaxed/simple;
+	bh=pm233wS/ohA2Ydd1X1SihmpDtr3OjRzwQK3DWMrKG1Q=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Hn+U534aDPfZ792USUvMtEmsRm3Dccjzgs4pPsXnsaK5hfjcsPwE4c0HppEuAvdXnWKfnNJfJklCX47rCKfqVsoCijBmUW1uGBWf0FmPPxRiJUfeK1TZo2enPimQDpjnhA7bdHNripqgtErb1xsrufn7+Dl5byAxcJYuq30xfDs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=fail (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=n1dQMUtD reason="key not found in DNS"; arc=none smtp.client-ip=49.212.243.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="ZfmZi7Cd"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1vgfZt-008RKy-AS; Fri, 16 Jan 2026 09:53:09 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
-	MIME-Version:Subject:Date:From;
-	bh=LIqElcPRbRn6PMxm7/HJ/icGwZZsBWYgtsGeUEkL/L4=; b=ZfmZi7CdHmy1VrOQevq3Hsb40T
-	RYqxxjE51+15zasdflKMtTyg5qjsRwqTqCdBeXOCTEmxOMxWM8kXNTm90pujdypI40ghl9wRJXwil
-	Q1oS7Jv+LBOUNJ6OfLEpsuhSRy/rRTk2AeULVOqv/pk/KFBldVegaO68jPFrpW8TLqZhNSUyEh9Ta
-	oOcQE/C6cXcNiyw+FiWobF0J+N6mW1E9IgcBqJdHZeKq0Kf1qfWWa5SGyh4/qaG49w4WrKQsHpmG/
-	WraH6EqwCRYCT78v+0ZuwTYBgEs/CW9w/soaqiiYL12SAK+o7rK27Nwqv8sVE5CV6goKA+0Zzvz11
-	Wa1u+mXw==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1vgfZs-0004kF-V4; Fri, 16 Jan 2026 09:53:09 +0100
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1vgfZn-0036un-Ph; Fri, 16 Jan 2026 09:53:03 +0100
-From: Michal Luczaj <mhal@rbox.co>
-Date: Fri, 16 Jan 2026 09:52:36 +0100
-Subject: [PATCH net] vsock/test: Do not filter kallsyms by symbol type
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="n1dQMUtD"
+Received: from [133.11.54.205] (h205.csg.ci.i.u-tokyo.ac.jp [133.11.54.205])
+	(authenticated bits=0)
+	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 60G8s9Dt038331
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+	Fri, 16 Jan 2026 17:54:15 +0900 (JST)
+	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
+DKIM-Signature: a=rsa-sha256; bh=vMaN48b+DmtoUknmJ5ekzd+XKSx2hXy5fgMpMnhoDAY=;
+        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
+        h=Message-ID:Date:Subject:To:From;
+        s=rs20250326; t=1768553655; v=1;
+        b=n1dQMUtDEijf6li7u4nt1WVL5eMiEQ/i92FXHXxXOpFjVL9YZnk87/P0qCx/dP3l
+         nKn5nbLLDw+g1sidJdqJ2KWVbvRgIDibwsoPcsCCYUv8K8SPS4XmwlhNMDhysPwI
+         pm1MKds06WAeZN4kNOaEWqTL5J3RNE9pQ9W5zAYfHOGvtHme0SNJx5LYIdHBhU6C
+         CGJC7K0HeGVUYytmAGFz1Tl9fugZ7CznASSqlFARhMgoPGORk6Opvz9I7PjXTe7M
+         W2bc+zu9X7CLZa75T//Owxi4yJ2awRKBNYqVWVv2CjXN03CN4lfaqA3I9olFcjha
+         pswJhwgVEFE2AJF+b+4HRw==
+Message-ID: <cc444faa-af80-4bab-ac3b-a013fef4a695@rsg.ci.i.u-tokyo.ac.jp>
+Date: Fri, 16 Jan 2026 17:54:09 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260116-vsock_test-kallsyms-grep-v1-1-3320bc3346f2@rbox.co>
-X-B4-Tracking: v=1; b=H4sIAFP8aWkC/x3MQQqDMBBG4avIrB1IUhDbq5RSJPnVQRslE8Qi3
- t3g8lu8d5AiCZRe1UEJm6gsscDWFfmxiwNYQjE54xpj7YM3Xfz0zdDMUzfP+v8pDwkrw7Q+PJ1
- pnA1U8jWhl/1evyki0+c8L20l+idvAAAA
-X-Change-ID: 20260113-vsock_test-kallsyms-grep-e08cd920621d
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- Luigi Leonardi <leonardi@redhat.com>, Jakub Kicinski <kuba@kernel.org>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Michal Luczaj <mhal@rbox.co>
-X-Mailer: b4 0.14.3
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 0/5] virtio-gpu: Add userptr support for compute
+ workloads
+To: Honglei Huang <honghuan@amd.com>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
+        Chia-I Wu <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+        Honglei Huang <honglei1.huang@amd.com>,
+        David Airlie <airlied@redhat.com>, Ray.Huang@amd.com,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Maxime Ripard <mripard@kernel.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Simona Vetter <simona@ffwll.ch>
+References: <20260115075851.173318-1-honglei1.huang@amd.com>
+ <5b66df7d-374c-4e9c-88d5-bb514f9a7725@rsg.ci.i.u-tokyo.ac.jp>
+ <2ae03f22-740d-4a48-b5f3-114eef92fb29@amd.com>
+Content-Language: en-US
+From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+In-Reply-To: <2ae03f22-740d-4a48-b5f3-114eef92fb29@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Blamed commit implemented logic to discover available vsock transports by
-grepping /proc/kallsyms for known symbols. It incorrectly filtered entries
-by type 'd'.
+On 2026/01/16 16:20, Honglei Huang wrote:
+> 
+> 
+> On 2026/1/15 17:20, Akihiko Odaki wrote:
+>> On 2026/01/15 16:58, Honglei Huang wrote:
+>>> From: Honglei Huang <honghuan@amd.com>
+>>>
+>>> Hello,
+>>>
+>>> This series adds virtio-gpu userptr support to enable ROCm native
+>>> context for compute workloads. The userptr feature allows the host to
+>>> directly access guest userspace memory without memcpy overhead, which is
+>>> essential for GPU compute performance.
+>>>
+>>> The userptr implementation provides buffer-based zero-copy memory 
+>>> access.
+>>> This approach pins guest userspace pages and exposes them to the host
+>>> via scatter-gather tables, enabling efficient compute operations.
+>>
+>> This description looks identical with what 
+>> VIRTIO_GPU_BLOB_MEM_HOST3D_GUEST does so there should be some 
+>> explanation how it makes difference.
+>>
+>> I have already pointed out this when reviewing the QEMU patches[1], 
+>> but I note that here too, since QEMU is just a middleman and this 
+>> matter is better discussed by Linux and virglrenderer developers.
+>>
+>> [1] https://lore.kernel.org/qemu-devel/35a8add7-da49-4833-9e69- 
+>> d213f52c771a@amd.com/
+>>
+> 
+> Thanks for raising this important point about the distinction between
+> VIRTGPU_BLOB_FLAG_USE_USERPTR and VIRTIO_GPU_BLOB_MEM_HOST3D_GUEST.
+> I might not have explained it clearly previously.
+> 
+> The key difference is memory ownership and lifecycle:
+> 
+> BLOB_MEM_HOST3D_GUEST:
+>    - Kernel allocates memory (drm_gem_shmem_create)
+>    - Userspace accesses via mmap(GEM_BO)
+>    - Use case: Graphics resources (Vulkan/OpenGL)
+> 
+> BLOB_FLAG_USE_USERPTR:
+>    - Userspace pre-allocates memory (malloc/mmap)
 
-For some kernel configs having
+"Kernel allocates memory" and "userspace pre-allocates memory" is a bit 
+ambiguous phrasing. Either way, the userspace requests the kernel to map 
+memory with a system call, brk() or mmap().
 
-    CONFIG_VIRTIO_VSOCKETS=m
-    CONFIG_VSOCKETS_LOOPBACK=y
+>    - Kernel only get existing pages
+>    - Use case: Compute workloads (ROCm/CUDA) with large datasets, like
+> GPU needs load a big model file 10G+, UMD mmap the fd file, then give 
+> the mmap ptr into userspace then driver do not need a another copy.
+> But if the shmem is used, the userspace needs copy the file data into a 
+> shmem mmap ptr there is a copy overhead.
+> 
+> Userptr:
+> 
+> file -> open/mmap -> userspace ptr -> driver
+> 
+> shmem:
+> 
+> user alloc shmem ──→ mmap shmem ──→ shmem userspace ptr -> driver
+>                                                ↑
+>                                                │ copy
+>                                                │
+> file ──→ open/mmap ──→ file userptr ──────────┘
+> 
+> 
+> For compute workloads, this matters significantly:
+>    Without userptr: malloc(8GB) → alloc GEM BO → memcpy 8GB → compute → 
+> memcpy 8GB back
+>    With userptr:    malloc(8GB) → create userptr BO → compute (zero-copy)
 
-kallsyms reports
+Why don't you alloc GEM BO first and read the file into there?
 
-    0000000000000000 d virtio_transport	[vmw_vsock_virtio_transport]
-    0000000000000000 t loopback_transport
+> 
+> The explicit flag serves three purposes:
+> 
+> 1. Although both send scatter-gather entries to host. The flag makes the 
+> intent unambiguous.
 
-Overzealous filtering might have affected vsock test suit, resulting in
-insufficient/misleading testing.
+Why will the host care?
 
-Do not filter symbols by type. It never helped much.
+> 
+> 2. Ensures consistency between flag and userptr address field.
 
-Fixes: 3070c05b7afd ("vsock/test: Introduce get_transports()")
-Signed-off-by: Michal Luczaj <mhal@rbox.co>
----
-man nm says: 't' stands for symbol is in the text (code) section. Is this
-correct for `static struct virtio_transport loopback_transport`?
----
- tools/testing/vsock/util.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Addresses are represented with the nr_entries and following struct 
+virtio_gpu_mem_entry entries, whenever 
+VIRTIO_GPU_CMD_RESOURCE_CREATE_BLOB or 
+VIRTIO_GPU_CMD_RESOURCE_ATTACH_BACKING is used. Having a special flag 
+introduces inconsistency.
 
-diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
-index 142c02a6834a..bf633cde82b0 100644
---- a/tools/testing/vsock/util.h
-+++ b/tools/testing/vsock/util.h
-@@ -25,7 +25,7 @@ enum transport {
- };
- 
- static const char * const transport_ksyms[] = {
--	#define x(name, symbol) "d " symbol "_transport",
-+	#define x(name, symbol) " " symbol "_transport",
- 	KNOWN_TRANSPORTS(x)
- 	#undef x
- };
+> 
+> 3. Future HMM support: There is a plan to upgrade userptr implementation 
+> to use Heterogeneous Memory Management for better GPU coherency and 
+> dynamic page migration. The flag provides a clean path to future upgrade.
 
----
-base-commit: a74c7a58ca2ca1cbb93f4c01421cf24b8642b962
-change-id: 20260113-vsock_test-kallsyms-grep-e08cd920621d
+How will the upgrade path with the flag and the one without the flag 
+look like, and in what aspect the upgrade path with the flag is "cleaner"?
 
-Best regards,
--- 
-Michal Luczaj <mhal@rbox.co>
+> 
+> I understand the concern about API complexity. I'll defer to the virtio- 
+> gpu maintainers for the final decision on whether this design is 
+> acceptable or if they prefer an alternative approach.
 
+It is fine to have API complexity. The problem here is the lack of clear 
+motivation and documentation.
+
+Another way to put this is: how will you explain the flag in the virtio 
+specification? It should say "the driver MAY/SHOULD/MUST do something" 
+and/or "the device MAY/SHOULD/MUST do something", and then Linux and 
+virglrenderer can implement the flag accordingly.
+
+Regards,
+Akihiko Odaki
