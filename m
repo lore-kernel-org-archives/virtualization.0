@@ -1,68 +1,68 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 256B23A35DB
-	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 20:15:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A030A3A4AAD
+	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 20:15:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768594529; cv=none; b=F2fC5wfBv2Pyk+48JoB7EOj5RqKc2WwgF+XaWuJRd47jHLdBzdF4SRez0XmpwTMajx8h9QdEy097V3itIRsli/C0YsAu3Q9/4NiOsokh/C+ThbdrFNbzPfw+6B0a/1sXf+3LVkAIYpH69xqMbtLO/uaXiSCivPjYtPLJ5Ff7Px0=
+	t=1768594536; cv=none; b=Eq5c47IGgYscJu6KIgfio90Fi8o6MqHzwtwDScbqodls4RJ8on0fMyHepxNTT+zzE0PFeOGPOBqy3vWwDXKZQ2Zy3/EykZgEJBV9lUvfuee/YgTR6pCG8sBkbuukHFv9fVpJDk4sjn8x1MzCnrnqsfUN4eIE4V7VCT/stG3OGDk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768594529; c=relaxed/simple;
-	bh=A/Z6X724OpOjH0JR1tZITqCXaxlg20lb95ngLUoUj2w=;
+	s=arc-20240116; t=1768594536; c=relaxed/simple;
+	bh=JvMvAj7ZpINza73ylybZV6srp9RLkEGmGWUWUCTvQu4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=e6woNjrccnPyfxkMdmFhqFEFi6wJ7D8gnTyPa+6YANmZ4vWk+aqoGxK530z3zCgfu/Z0OhGcFo0KHpyrmuEiBsPW3wR73S0hJWvjpKz7zBgMfHtzrPJvOsbFBbrK5cE6N5hhjyPmLqEmTgOeUqvnRlduLDrvn1ccpyVU7qhN49g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZWYJ4Z5g; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version:content-type; b=l4GxL1DTNo4E8b1vDLdQnCFqp1xqUtW76KqbVRk2+Sd5V1SuguLKGDOVvs0AwPs0r+13lm+vzyKqe7vqpW/rsd2BzyUiW2WucVlxCol2lFXr5ICSr3/Iv0PRgyDwaBGdNwfwDGsfSALHGtB7SWPo/cCvnFg+gDfFhJToWg0L+/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ILpsUEcZ; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZWYJ4Z5g"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ILpsUEcZ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768594527;
+	s=mimecast20190719; t=1768594533;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ArUbsQ+kNBjAUv+ApSXUG5Hd0kEcrS3qPgkd0OoiEwI=;
-	b=ZWYJ4Z5ghFJA1eR0IVQZKKii8hfXPUZbhE9rTix5fEjIKERQnqyb6D4DDWskCQYq5M5jmz
-	ImqlUzAuhlNrecUe+RRcuGxw18fSWaG6KUR1kPCx+vXhxrFzo9fSJj15GbOiGFeH7oyYyl
-	FXxu0X3uucBHvZnVnXrAepOWrr/uphE=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=voXLQ/q07d6hv5Ud8qhwOuK2vYxSCpA8ze6BckDLUOE=;
+	b=ILpsUEcZfRhkQBIAxXCZ9zOdILDyYdeqTaoA/vYpd+QV1PCknvaBjwHi1b79f7SHJ+eMVX
+	aIHcigqM8SPSU42aBFG4XRhUBvl/GVQKw7Xj49ufVrdleNdwhZckL/bl6xZVESUAQUrzV5
+	uLkoO9lGjkZT7TQ5nmrncobfWvSQlXk=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-355-b42a54nzO0i7awHTrUadvQ-1; Fri, 16 Jan 2026 15:15:26 -0500
-X-MC-Unique: b42a54nzO0i7awHTrUadvQ-1
-X-Mimecast-MFC-AGG-ID: b42a54nzO0i7awHTrUadvQ_1768594525
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-47ed980309aso17488255e9.0
-        for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 12:15:25 -0800 (PST)
+ us-mta-613-AohF8KHfMUaO9WvPJkuDzA-1; Fri, 16 Jan 2026 15:15:32 -0500
+X-MC-Unique: AohF8KHfMUaO9WvPJkuDzA-1
+X-Mimecast-MFC-AGG-ID: AohF8KHfMUaO9WvPJkuDzA_1768594531
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-430fdaba167so1831879f8f.3
+        for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 12:15:31 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768594525; x=1769199325;
+        d=1e100.net; s=20230601; t=1768594531; x=1769199331;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=ArUbsQ+kNBjAUv+ApSXUG5Hd0kEcrS3qPgkd0OoiEwI=;
-        b=AqcxO5KrzKNAE1BPcPmjTonLCGQZ5buCLnra6VhqLVlaqOt/0I50Hj7g84kv2t5R5D
-         WfjW9w8bQsb1DVD2fbXV0J7PzdPOIHWeLWc+pyj/XOXbs7E+jnseS5/PISGUUOQEUMov
-         yh0IHzipYVS7YAxF5VWgL9hlyJCdKkPnWatBOCD8+XooZ96rhsU1fTr/uTV0d6a4E7Lg
-         yeaI8nHLQsrzX39VZt1DWusq62sVNci/w+BcoYk5DbJ9oZ4lNnMRwSmJyUhIYBAD5Y8J
-         ps2lC1MqImFy+Tst4fyMFKPOMq7H01/ntvCst6HBYe0cXx1VPWCNKAMu1baDRLKdzQu+
-         tbwA==
-X-Gm-Message-State: AOJu0YxWWiWCVPnDRMycuuG3oLU3RzwhTEicZjCpw6mRvbAVG+tqClLy
-	e4YtsAs2c0Iw8yrE2cKSC6g+wfHmozFZ7iLy2iNFRHKA9hI3JjF37QU4kYXfbS6kFCwtj4f+LgC
-	tAj+FrpgylrvOEqMA8jZYQrJplt8SjW+x5liQX0TyJLasQ7yvg9kRNkbmHZkKDlUOAIMV
-X-Gm-Gg: AY/fxX7TGN3TeBdb8VDGL/tNva6+djwPYm2QWTV+9atND/LIgqUW7XqrntJsjHEzQqh
-	hgM4cP79H2mcwT+4avfq+OzroSGY3OS7yFoQB+OwM4e+PQWwmiXzAvS27ujlyJa1HgUKozAiZc0
-	BU6iEjY/65dmVYwyoQXGmBylL3iBZ+dRWLahRANY69aClgdhR9VHRdh5erIQEpE9E0ft5rCk6Oy
-	pStv/z/pvyNZfF2GSoPHALtD5YNfxpATjjvfIBgMtnlvllMeYN5dDD/C2pY0rLa8J2gslMQzhd7
-	RBmS823CpLHX2tQMpem98FcvldNP6YKDF1Y8JSbvyFa7M7jT7ZIujVBP9mavw2RsmdBhB+jefV5
-	Vvj8VR8nIr+Yz89GVEz+jMbhS5H1VYz2qXUWyT7/W4ReFq2OID0ASVRg64feL
-X-Received: by 2002:a05:600c:1f86:b0:477:a289:d854 with SMTP id 5b1f17b1804b1-4801e53ca36mr57538705e9.5.1768594524930;
-        Fri, 16 Jan 2026 12:15:24 -0800 (PST)
-X-Received: by 2002:a05:600c:1f86:b0:477:a289:d854 with SMTP id 5b1f17b1804b1-4801e53ca36mr57538465e9.5.1768594524424;
-        Fri, 16 Jan 2026 12:15:24 -0800 (PST)
+        bh=voXLQ/q07d6hv5Ud8qhwOuK2vYxSCpA8ze6BckDLUOE=;
+        b=tk/IFBAlaJuzJtQ5xeH7OPllF5jcfXh7bcjRUXnspdkAv+rijHYQoHIm3f5XRi35X+
+         hYp8f7k6bvk3rR0H65Y29L6458lu60rV3H/pugwwiL35yic5PMuBpyUVS/yT0q9IJqg8
+         oiveN0Rlp091Dtcs0bQOYSWAZKk2LFhha0m7r2BFUeRtIxoRspV1qn9ZvDNdC8g8VIYR
+         cyk75i4mCsq04o6WCDZ6E76F5N/e4smO5rwWm1LNPDIw6vOigRCHoTEKNjRNQTuyOjTb
+         o29pVJ4LGl2zWy9DoKa17gFnLDCjbnYRaR4DDvsWgGIpkcoWy2Dbi3fJp564pp/D6HbB
+         zY2g==
+X-Gm-Message-State: AOJu0Yy+NFsDa6mEV1GdMnAQPlOUflZKDsSa9eWLeRHTiDkw8vTo6P+s
+	0HFCuIXX1fqQPNkvoptnm0ZANMCHMOj9yzEbpj+duZa4QDOvpxWVbiwmMN6V0uonCXnIElSJGx2
+	/jNqBppVGZLRQVNEbfS6zJPr9f8toC7G9IxRUzfD1xfTZM2gndZBrRz7H43F/BVRq1sdX
+X-Gm-Gg: AY/fxX7L7lBvzkqPV9iN+ahvXtGFS9f3d3wdkUBZE1LP0VtFQSRHPHEht/g+Xxtjzif
+	Teb6g6wnhpZw5Ao7jXlbdLOW27FDiCjiwAS/quLoVLaA33NjdxkeB6Pk7P4+wZWCvF7Fy9GeDyV
+	tEG6nERP8z5MEVLf12rWwtQ+HW6nQFW4bEyQEMt7cfmBZsu3PeeLYCe1Ti4gpkvkjkXX/Io1BoA
+	oAi5Ap2XJ9BFOO0UFrhBu1krh5o6e/R00J+fM/Tgw9gwHjHoE6XMCRNmiPrG5IpgkvTtFcq46ni
+	UU6yZWafc96w+d/H0AQrbZ9BgNGKX3F9SUGdpijno5Qj4HJVs75rPKuFtO3ACKpKUGtLmA/jWif
+	F7A0/Xx422BEleNKgGHlk3gHhYO6ZH99UXx90e3t29DG4+67yNTtKeoSqcUOV
+X-Received: by 2002:a05:6000:238a:b0:432:c07a:ee62 with SMTP id ffacd0b85a97d-43569bd48a4mr5632682f8f.62.1768594530762;
+        Fri, 16 Jan 2026 12:15:30 -0800 (PST)
+X-Received: by 2002:a05:6000:238a:b0:432:c07a:ee62 with SMTP id ffacd0b85a97d-43569bd48a4mr5632658f8f.62.1768594530330;
+        Fri, 16 Jan 2026 12:15:30 -0800 (PST)
 Received: from stex1.redhat.com (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4801e879537sm57802005e9.5.2026.01.16.12.15.22
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4356992681esm7109861f8f.11.2026.01.16.12.15.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Jan 2026 12:15:23 -0800 (PST)
+        Fri, 16 Jan 2026 12:15:28 -0800 (PST)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: netdev@vger.kernel.org
 Cc: virtualization@lists.linux.dev,
@@ -81,11 +81,10 @@ Cc: virtualization@lists.linux.dev,
 	Asias He <asias@redhat.com>,
 	Stefano Garzarella <sgarzare@redhat.com>,
 	Jakub Kicinski <kuba@kernel.org>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Melbin K Mathew <mlbnkm1@gmail.com>
-Subject: [PATCH RESEND net v5 1/4] vsock/virtio: fix potential underflow in virtio_transport_get_credit()
-Date: Fri, 16 Jan 2026 21:15:14 +0100
-Message-ID: <20260116201517.273302-2-sgarzare@redhat.com>
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: [PATCH RESEND net v5 2/4] vsock/test: fix seqpacket message bounds test
+Date: Fri, 16 Jan 2026 21:15:15 +0100
+Message-ID: <20260116201517.273302-3-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260116201517.273302-1-sgarzare@redhat.com>
 References: <20260116201517.273302-1-sgarzare@redhat.com>
@@ -96,94 +95,58 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: fUN0oH9EU8pymlWwQ5ZQk0NG6jFBnIlHCsOh8jwcDns_1768594525
+X-Mimecast-MFC-PROC-ID: 3IDOXWA6XSi9AVbqT04GMwBk_89eu9b9sZjw92AIOrw_1768594531
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-From: Melbin K Mathew <mlbnkm1@gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-The credit calculation in virtio_transport_get_credit() uses unsigned
-arithmetic:
+The test requires the sender (client) to send all messages before waking
+up the receiver (server).
+Since virtio-vsock had a bug and did not respect the size of the TX
+buffer, this test worked, but now that we are going to fix the bug, the
+test hangs because the sender would fill the TX buffer before waking up
+the receiver.
 
-  ret = vvs->peer_buf_alloc - (vvs->tx_cnt - vvs->peer_fwd_cnt);
+Set the buffer size in the sender (client) as well, as we already do for
+the receiver (server).
 
-If the peer shrinks its advertised buffer (peer_buf_alloc) while bytes
-are in flight, the subtraction can underflow and produce a large
-positive value, potentially allowing more data to be queued than the
-peer can handle.
-
-Reuse virtio_transport_has_space() which already handles this case and
-add a comment to make it clear why we are doing that.
-
-Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Melbin K Mathew <mlbnkm1@gmail.com>
-[Stefano: use virtio_transport_has_space() instead of duplicating the code]
-[Stefano: tweak the commit message]
+Fixes: 5c338112e48a ("test/vsock: rework message bounds test")
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/virtio_transport_common.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ tools/testing/vsock/vsock_test.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index dcc8a1d5851e..2fe341be6ce2 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -28,6 +28,7 @@
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index bbe3723babdc..ad1eea0f5ab8 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -351,6 +351,7 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
  
- static void virtio_transport_cancel_close_work(struct vsock_sock *vsk,
- 					       bool cancel_timeout);
-+static s64 virtio_transport_has_space(struct virtio_vsock_sock *vvs);
- 
- static const struct virtio_transport *
- virtio_transport_get_ops(struct vsock_sock *vsk)
-@@ -499,9 +500,7 @@ u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 credit)
- 		return 0;
- 
- 	spin_lock_bh(&vvs->tx_lock);
--	ret = vvs->peer_buf_alloc - (vvs->tx_cnt - vvs->peer_fwd_cnt);
--	if (ret > credit)
--		ret = credit;
-+	ret = min_t(u32, credit, virtio_transport_has_space(vvs));
- 	vvs->tx_cnt += ret;
- 	vvs->bytes_unsent += ret;
- 	spin_unlock_bh(&vvs->tx_lock);
-@@ -877,11 +876,14 @@ u32 virtio_transport_seqpacket_has_data(struct vsock_sock *vsk)
- }
- EXPORT_SYMBOL_GPL(virtio_transport_seqpacket_has_data);
- 
--static s64 virtio_transport_has_space(struct vsock_sock *vsk)
-+static s64 virtio_transport_has_space(struct virtio_vsock_sock *vvs)
+ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
  {
--	struct virtio_vsock_sock *vvs = vsk->trans;
- 	s64 bytes;
++	unsigned long long sock_buf_size;
+ 	unsigned long curr_hash;
+ 	size_t max_msg_size;
+ 	int page_size;
+@@ -363,6 +364,16 @@ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
+ 		exit(EXIT_FAILURE);
+ 	}
  
-+	/* Use s64 arithmetic so if the peer shrinks peer_buf_alloc while
-+	 * we have bytes in flight (tx_cnt - peer_fwd_cnt), the subtraction
-+	 * does not underflow.
-+	 */
- 	bytes = (s64)vvs->peer_buf_alloc - (vvs->tx_cnt - vvs->peer_fwd_cnt);
- 	if (bytes < 0)
- 		bytes = 0;
-@@ -895,7 +897,7 @@ s64 virtio_transport_stream_has_space(struct vsock_sock *vsk)
- 	s64 bytes;
++	sock_buf_size = SOCK_BUF_SIZE;
++
++	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE,
++			     sock_buf_size,
++			     "setsockopt(SO_VM_SOCKETS_BUFFER_MAX_SIZE)");
++
++	setsockopt_ull_check(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
++			     sock_buf_size,
++			     "setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
++
+ 	/* Wait, until receiver sets buffer size. */
+ 	control_expectln("SRVREADY");
  
- 	spin_lock_bh(&vvs->tx_lock);
--	bytes = virtio_transport_has_space(vsk);
-+	bytes = virtio_transport_has_space(vvs);
- 	spin_unlock_bh(&vvs->tx_lock);
- 
- 	return bytes;
-@@ -1490,7 +1492,7 @@ static bool virtio_transport_space_update(struct sock *sk,
- 	spin_lock_bh(&vvs->tx_lock);
- 	vvs->peer_buf_alloc = le32_to_cpu(hdr->buf_alloc);
- 	vvs->peer_fwd_cnt = le32_to_cpu(hdr->fwd_cnt);
--	space_available = virtio_transport_has_space(vsk);
-+	space_available = virtio_transport_has_space(vvs);
- 	spin_unlock_bh(&vvs->tx_lock);
- 	return space_available;
- }
 -- 
 2.52.0
 
