@@ -1,333 +1,286 @@
-Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazon11012018.outbound.protection.outlook.com [40.93.195.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BF962DF13F
-	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 07:20:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.195.18
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768548053; cv=fail; b=quHn4GlVALBzHvF5eO+DMXZTkoWqZhA5z+alwkBMdm7Gsb3ll5cWWO/yTxlt1Q1x6ABIX9yhckdx8sVGBgzdPAU2Hg/BhgLPs4RAnbw8gduzv5qUwjNJaCvcpY6otaQ1Riqn6AvEK4S87TnsKca4RlPcE2oOwSKcfc8vUXmr92g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768548053; c=relaxed/simple;
-	bh=yTaiqY6NR0xU5vIUfnI/vZjbBfvxn5cFLtss5s5APVY=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=s5X/8n55ZpMS4bWF6HOAev+JQifsv+czHZ57Y4ymCKEinc82avTz5NV8+XQdtMTZ3iQUX3ow1pHnmKYUVu30iEvYgMollkzw/2jtQw+Ejtgq52vCXyMUkc10b28vv+xI7u7jkDcgYW2YKrwm8ziE2Zz6+96DlULldvXHu6Ni1rk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=b0968u8h; arc=fail smtp.client-ip=40.93.195.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7CF82DE719
+	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 07:40:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768549203; cv=none; b=X2wL12JdRlw9Z10ugXUmXl64P1JRNY4gZsNmPts5FiHJ9JdWiwpBZzGJ0QYV4000kjDwjiSakwmd8/51tL4S44ewBxv7vcXO6+KdOBBss10XS9qR2o4bt8gnmBAsnjytLTA86XLrP+exgu56Espn8v9aCWLwNryspVhKoMa7Nck=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768549203; c=relaxed/simple;
+	bh=ZWO7ipSut2nHBbZxNGfNJfOFZdEXMj8+fyvaJM0SqoA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=snKSGYhG4mlBIoH8ySahcnqHol2Oh7AhhNFf2Za/EfaMA3sLQuTu0AST/n2x/dYbbMhh0AeBnFp0+ODt48NrJ7i5nL61NW0rsZlVITDzhukKUCiho0fZO4/FdfTTGoF9qPUeDpqk8ESGIjDFjuKVaAhWe2t9z3bWurwluDVn/QI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=jw7e/ex2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MJtkUgZv; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=SmrxYqfV; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=hmXNtqMR; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="b0968u8h"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=tCGSz0ZY+Y0M9N8ea9PuknYKldul/OErpQ7yKG3eBmWJgEFuBof0XvcSo06gxsXnLy9uvC60vUVhc+DGkpV+NiMywerOyzI1JDgVFOUbPxvOR4ZMhe90hRmeTN92V4xjIdjlflUIcPEcYfUF8kS8juituZxB0V4hiqegnQ+y0Y2//H7rY4rcfgSebgez1cNxlKNJgrc0jsNzLtH344a7kI2yqkOkxCgokz6VcU/ydPGYNySYh9isxBzoBSz3GxS+CtJqKdkWH7uE/XJVw6QBJs1Nmj3ujeCUWs+8e5U0ecXdDwGN0si2I3hooV+qjDibFzviSVbO4YP6Rmm3Yg5c6w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=p6o6vB+ZCGkAIBdv9DzJBJbxeUmiR5QP+uaGQzBVEao=;
- b=M6ZpGoZLA4XBiDGXKbUU47c1Gmyd5lfZFBrPFb8J3hql0CT8PFchOoDdyRsFq1y45JAJbMYCQ1QCGtoh8n8lyk681uf2wsb8h4sjLMaB9VC97hqFSavTBt77vcO78PxisuDbmQD+orEfiVqd+ViKfVAhi+nmzPB7rnivdnm3Amk3KMxjOlOf+3fHiyNzhjWzyXZD2nucXI6k/M2WcbzOxx17EXyusy6TTds7n43Yx6ZQK0P/0lT6W+H9B9OsfS1pdZ2mS7GUTQQLu1slo14GjGU36yA3wGbbnNTc2G7v6FGTFfKtvXLvUUdsDfhVIfzJ43okYQ0kqJcBdFyyQ9+u3g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=p6o6vB+ZCGkAIBdv9DzJBJbxeUmiR5QP+uaGQzBVEao=;
- b=b0968u8h3Ff/MwdFbW/+AuHiSiSlOMLEzmKZ5mvEy7MKqVEFMDYvyUkXLRRrIdxa14UCsRY/Ei3u28Y5zbSVdiIqM1L6iXxeCITXPPINojiKX++Q0q0+7T2+tPNpLxeVwIEVa385ROxw/Iky8n78D45FHmInBkCyXICBp4JjNko=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10)
- by SJ5PPFF6E64BC2C.namprd12.prod.outlook.com (2603:10b6:a0f:fc02::9aa) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9520.4; Fri, 16 Jan
- 2026 07:20:48 +0000
-Received: from IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::8b77:7cdb:b17a:a8e2]) by IA1PR12MB6435.namprd12.prod.outlook.com
- ([fe80::8b77:7cdb:b17a:a8e2%5]) with mapi id 15.20.9520.005; Fri, 16 Jan 2026
- 07:20:47 +0000
-Message-ID: <2ae03f22-740d-4a48-b5f3-114eef92fb29@amd.com>
-Date: Fri, 16 Jan 2026 15:20:36 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/5] virtio-gpu: Add userptr support for compute
- workloads
-To: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
- Chia-I Wu <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- Honglei Huang <honglei1.huang@amd.com>, David Airlie <airlied@redhat.com>,
- Ray.Huang@amd.com, Gerd Hoffmann <kraxel@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Thomas Zimmermann <tzimmermann@suse.de>, Maxime Ripard <mripard@kernel.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Simona Vetter <simona@ffwll.ch>
-References: <20260115075851.173318-1-honglei1.huang@amd.com>
- <5b66df7d-374c-4e9c-88d5-bb514f9a7725@rsg.ci.i.u-tokyo.ac.jp>
-Content-Language: en-US
-From: Honglei Huang <honghuan@amd.com>
-In-Reply-To: <5b66df7d-374c-4e9c-88d5-bb514f9a7725@rsg.ci.i.u-tokyo.ac.jp>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: KU3P306CA0009.MYSP306.PROD.OUTLOOK.COM
- (2603:1096:d10:15::13) To IA1PR12MB6435.namprd12.prod.outlook.com
- (2603:10b6:208:3ad::10)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="jw7e/ex2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MJtkUgZv";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="SmrxYqfV";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="hmXNtqMR"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id D48555BCC6;
+	Fri, 16 Jan 2026 07:39:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1768549200; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=doC+gr/uKXnBI9fa1D1ITWlyxb9ov7FKbR1ka90ESNE=;
+	b=jw7e/ex2X389f3AFhyAZnl2hvMJU508Bex8N7VeZX0CgSEvy+WJOgiZe1hpnYHuw9dU6pz
+	XGUL1L7UAjAeqVnO0c1kXceKw9QD9mcvCTeIBHEbxaDf1cijwITwT29u6J00f4qfi0iNG8
+	MEvZip3NY/altH/tBwCeubV3L4Vt9AY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1768549200;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=doC+gr/uKXnBI9fa1D1ITWlyxb9ov7FKbR1ka90ESNE=;
+	b=MJtkUgZv2krE16xoEQrTym0crZeD7+/Qb7fHCWOYzx0iZn0sRwUZ75tk8XMfCSOSpOLBbp
+	JuKYj155nHWlpSBw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=SmrxYqfV;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=hmXNtqMR
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1768549199; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=doC+gr/uKXnBI9fa1D1ITWlyxb9ov7FKbR1ka90ESNE=;
+	b=SmrxYqfVEJuy9QvBr5Of2Dj5QRAjsQ44DVAbry90cElHS2cFSe5XZyOnp5kf8dy879wYSE
+	u2uZB0mNlbDM+MZEbu7MebiLGkoyWMmfvRWfNjLnCa6sAz7svLv9e6GKUteIRUhgcyCNR3
+	RP3IqqTFHGnpVGmoDEy+tb8XVlzaS/o=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1768549199;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=doC+gr/uKXnBI9fa1D1ITWlyxb9ov7FKbR1ka90ESNE=;
+	b=hmXNtqMR8Zq9Cj2K4bcjV8kVCy3TmC831+rvpW2syEmQSZx0DR9IkouSjTbqYLOrzKGxFG
+	jmAmCsW2MZK4eEDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B4FA23EA63;
+	Fri, 16 Jan 2026 07:39:58 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id slDoKk7raWmoUwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 16 Jan 2026 07:39:58 +0000
+Message-ID: <72e8c696-8cd7-4bf3-a1e8-d367f3addfe0@suse.de>
+Date: Fri, 16 Jan 2026 08:39:58 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA1PR12MB6435:EE_|SJ5PPFF6E64BC2C:EE_
-X-MS-Office365-Filtering-Correlation-Id: 915e6219-f937-4776-378e-08de54cfc4db
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|7416014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?aHcwYVNOZVhwRTZmQXRMSkZlNlUvOSsyc05McW1HWExwQ1F1QUpPS3QvYVdV?=
- =?utf-8?B?VktlL01lL1J3M0RiT0ZtdExkemNIOTJHanlVVkIrWjRtWGNUVzRkMng5MUsy?=
- =?utf-8?B?bXc1YjBiTEtjd1MzYW4zbktNT3YwbzN1d2hZWDh1bEZIT1UrcFVhZXVLWkNp?=
- =?utf-8?B?dzlhb29vVjJBSUdTb3l4RmNSSUQ3UUpxVC8ycHhaTE1BQklsNXNwdDluRG5x?=
- =?utf-8?B?MEdqRTE4c3diN2ViZ1NIeW56NVpYUlA1QzNRQzJCNmo0d0pGUnlna0pYeW51?=
- =?utf-8?B?RTlYR3ZoK0oxa24xZWFXcEVkVVRsSTNITlhpcXg2NUdGWlRjUE0ya0lNVWRp?=
- =?utf-8?B?dUdLNXlJRXhFaG5PcFVPb1AxVkpMQTFIQlo1Y0JUdE80RlUvU2JzNjB6ZkFt?=
- =?utf-8?B?QjRoR1dOTFMzRk9mUXh2SGxreUJ0dVQxSTRPUWtCekRlMTdUTGtuVkRDcE1V?=
- =?utf-8?B?V1ZzTC9QODVPQVVSNk5OZFFiTmd6S1VGVzIyeFN0TUJycElqV09xNkxQYUh4?=
- =?utf-8?B?T1FZMU80ZEwyb0paTURYcUtJMXFHS2RQNWZGK3Fidm1wV0xJNHgzQUQxRUI5?=
- =?utf-8?B?b0xMUnZOVm1VK1Z1OEFkaHNMMUc2c1dVcDZOUGxrcmlkRi9FRDM3NTlMNmps?=
- =?utf-8?B?Z2ttdmgrQ3ZkQXFQN1Nxc0NPaXl5aERRT2JTeUZlL2VxOTNTQ1QxUi81Sk80?=
- =?utf-8?B?TjJxVElMN1A0TFpVNUFtVzZzQnVVSUkwNXZzUFA3SkNkeW9iSkl3WVZRdHNK?=
- =?utf-8?B?em1XN3p4T1BPMHRiNkRxWmxhY1l3NmZRVjFZZnlRK1kxSkNmbWUxT0xvQ2VK?=
- =?utf-8?B?NnJNWDlDcnZISUJmWEU0L2JEdnpYbm1UaHY5Z0J0M3lIY0tMTzdFVk1MMjZi?=
- =?utf-8?B?VldNRS9pemJ2Nzk4Y2dubW4yWVFpSlhONXRLNGdIaU5iVnd5ZDJwQU5RZ044?=
- =?utf-8?B?emErWWQwNDRWSFQ2WlVuSlo0dWJlRzE3NnJ3bjhPQXVaYTRTRy9NbW9YckU0?=
- =?utf-8?B?S00xa0pzSWdhVDl2UG9WYUxKR0R3eW8wa1FpTFg1MWlZRmtFWGE3bXE5aFl4?=
- =?utf-8?B?MTgzS0pkK0NjeTVvSXUxWnNwY3R1aml3QXA2RHBGZUVhekJ6eVpBa2VIdHo4?=
- =?utf-8?B?OEMxeVpaYlEzVnFEa3kzOFhEZmx3ams0S2U3bWlYOFkxRlkvMnoyRGhkZnJt?=
- =?utf-8?B?clhlVEU0SEVVbWNneGpYZThPU1lpR0VISU5mL0k2Qm56U0pxbmNJMkFXZ3Bx?=
- =?utf-8?B?d0txeHJJZlh4Unl6bWZ2RDYrY3c3TEluR1drN2hNdUVkb3RDbDIyUldFOWRB?=
- =?utf-8?B?OWJUV0pkNWxZSVFIeWQ5WE8rTWFrK2JUQzhOWnUvSnNqOTNmbmlJVTBkVEM4?=
- =?utf-8?B?TGpiYWErY3BsdUt0cW1CM3U3LzRqaVk4cG5CVGozYkZwbjVDRkN3R2taQ3cz?=
- =?utf-8?B?Umt1UmQzcmNuenQ5Y3ZXWGdpdXNIVGhXSHdpWkM5NEFxM2ZtWnd0bmdQOUFQ?=
- =?utf-8?B?Z0xuUFVuN2tsYW90aUYrT2kyNmxPQU5Yckx0ZFV1MnlxSGZjZFpJeklGV2Jl?=
- =?utf-8?B?YjBmYUkwVElUVWZjbzVQcm15OUYydHExYzFSOEVYMGc3QnJMb2JxK1Rlelds?=
- =?utf-8?B?S1M0UDJQaTZGSlNObFJzUXE3bkZ4dHE0Rnc3VklrZ0JmbUs2aUpNVlA2RzQr?=
- =?utf-8?B?VmIyNkpTaGlCQmFwam9SSlVqb1ZwbFFraFlMTmJMTlJ4YWkyZElGMHN0RDZ0?=
- =?utf-8?B?dFdVdVJzb3BZc1JuZWthNUtXMDROSnVuM0tGcXJObXMya1YzUng2aERmdHJt?=
- =?utf-8?B?Tk4zalZVOVFOamt4dXNrOGJkQ2dpMTBZdjNBM1VzdnhFWDU4b3lrSThRYmJM?=
- =?utf-8?B?ZXhuK05VYzNCMWNpaFp2aE5hN3lDdW9GeDBKbEFvV3N2dHlGY3RPNDhGbDVm?=
- =?utf-8?B?NHFvUFpYZjQ3TjFERDFISTZ0cXJlanpPMkJHT1ljSm11SE9UeTlWVWFPQXJk?=
- =?utf-8?B?N3NKWEorUW1WS1lsNW9PMWx2b1J3QlhXTVU2b1ZQWU9pQjY0NS9pMFpteEc3?=
- =?utf-8?B?Sm1LUFlFUUswQm1QeTVVN2NqTjNCbklrbXQ1c0VtWTNqRC9ITGFEVEp4TWNy?=
- =?utf-8?Q?DGMI=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR12MB6435.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(7416014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?KzJhTE5mUEQ5YXJpbVc2TzB5Ky9jWGl0WGQ2OFp5TjdkVldHYjBlbk1wdk9a?=
- =?utf-8?B?UVk3RU95b2dQL2hEdnNaTGpFVS9LblpVcUFHbXM3MkhqcVUwdHVrYUZ4Skph?=
- =?utf-8?B?NWtvdnY4TmthQmxIK00xd2tsNHg1eTllWXRhcyt3aEE4N3hjVUNjOGh4Q3lw?=
- =?utf-8?B?aGZJeVM2d01qSHZPdnJtSEkzN3FuWnRmNXpFNmU2bXJVd0hYaWFvNEpQVHQy?=
- =?utf-8?B?N1ltWUtjdDQyeDg2M1lhajFOa245U0NUM2Yyc2hxMEcvS0lhMWJiaytmUENq?=
- =?utf-8?B?WU9xcXdCSVowbW1lem52OVdvMjFpRmYyeE5QMjg0eHJ5Tm1VTEpJL0R5cEtK?=
- =?utf-8?B?Sm1Ud0tSdDZyakNTbUl3TFB2elJUbmlXaTBQUFB4ZlVpUGtaTmJCcDcrQU1F?=
- =?utf-8?B?UXdWOUtyY3NleWw1ZUlzZXdxTXZkYys1ZEh2QmFIMnFhV2thTWdveGlOdjNG?=
- =?utf-8?B?L0NoaG9KOXNvWG9Sc2VtN0ZwTDVmMTBuT2tZQkF1M2J2d0xLeDhpS2MyYzRa?=
- =?utf-8?B?ZjVsZ0R6MWYrejA4RTlRRVgzNnB4UE1UdjdrM0h4Y0pTV3l0aUI5VXBZdjFi?=
- =?utf-8?B?Z095dmM1d0daOUkyTDFoa2h2NnRMQ1EzUllUQVZWUCtuVk5HeDNwc0F3bVlE?=
- =?utf-8?B?SFl3eGR2bWhpZ29OVDBDUlJXemZaNEhCSXVnbkc2aDEvRkdGQldJa1RwZkox?=
- =?utf-8?B?S2JyMDRUMFBheUpLWU5OQnhvRVA1WnlDWkJJZ2pwU2lBdDFtN093VGFZUFpU?=
- =?utf-8?B?SUVCSEYyN0ZIMUJ1UW5QdTQ3TjZhWFY1bmNWY2x6Q09qamM0dUtkSjJWYmF0?=
- =?utf-8?B?Y2pJcE4vcXZmUXcyM2QvdVB2dnlhTFYwdlVyWlpFRERhYlhOSzdZRS9PVkdR?=
- =?utf-8?B?WEUzWWxQdUFxSm5mNHA3cGVzWHIwVkE0TzVFendqaWt5bEQ3YnRYN3MvNHZ0?=
- =?utf-8?B?bS8xYlB3VWppNm9rQUlnQjNCTklNeW8yR0tZRFlDS2pvOHFpaXZQUU5JVnA5?=
- =?utf-8?B?a1JIMXpXVmFUcjNzL3Y1ZkhhNXd6eThyK3p1ZGkvNHo1NTk4MDZnUjhNMXpm?=
- =?utf-8?B?RXpMdGtsMkY3SUppcEhnSmgvMlhxbDdFZE1OcXVKclR4UW5sdTRZK1NlMzM2?=
- =?utf-8?B?di9ISVlEUVhZL0NISUJtRlhMNEllTmgzbEtWcG1vbEt6QXp5aTJWamtKdFJa?=
- =?utf-8?B?aEM0YitVVGxaV3NXWmlDRUU0RHU0ZUlyOHo4RFgweCs5a0dsRi9KVXEzTnFY?=
- =?utf-8?B?VlRTY1hHR2o0enF3QmhWNGRUYVk1VFFZNkdnUmo4SkJra0h1VCtuV3NENmxt?=
- =?utf-8?B?a3JTS1kvN00yaDRSdS9iUkNuWGFGcm5mb2ptSFVmSEZiZmk4SU9QclQ2VG9Z?=
- =?utf-8?B?R0VQejFtU1o4WmVmbVpVK3JQeTNCWWNTZTR2eDFKLzBEeXgwV2s3eldsTXhs?=
- =?utf-8?B?UDFGZkRxS0tRVHY0dnU4UHZoMEtqZ3Fnb3BRTTdUSEw2OFY2NDVpV25pWWh6?=
- =?utf-8?B?SEdCNnlqNXIyY0ZzU29nVjUxU3hLd0s2L3NQNmNsTlQ5UHJpS24yRlIwZTFa?=
- =?utf-8?B?N2MyekM4TVVsVzF6T0p3aHJpWGF5cG9yb3JwTFoycVdDaklBaTJzUVlYTFhX?=
- =?utf-8?B?QXc4TFZEQnlWVENkOHI4WENnVWNhcmhIQlV6bHhlQ01zMG56TWdHdTAyMHBD?=
- =?utf-8?B?UlY3bytZQVhDQ2xocmMzbXZQa0lEQm8zNHBRckIwL0NHRnAxR0Q3UnM5RHNR?=
- =?utf-8?B?aVEzclg5cTRrSEp4NVdYRkU3Vzl0dTJta2c1RlFzTEdHdnA5YXNwekNYRlMw?=
- =?utf-8?B?ZTBjeXBYM2ZIUVlUcFBzTDhWK3BtQUE3RFo4cHVwRkVmUnpFMlJrNVpvRGI0?=
- =?utf-8?B?N0NHdzViTmk2SEt1OVJEc0NkTEplWlNlYlFkOXFxb1ViVjl2QVlhRjBUTW1O?=
- =?utf-8?B?Z05ZQjlrdlB6TllUL2kybmdQelhqU3RDRzVkMHN3T09pQUlTMnFQanZTbVd0?=
- =?utf-8?B?NnBoR0JRZXkwS0tRQXNqWXQwNFdkaW1yaTJVemZaMzZkeTZrQnEwdk5vUXEv?=
- =?utf-8?B?ZmhTTGY0WE03UTM2UEZlOU9sSFlOQndMMlMvUFNTeG9mUUVpS1J2aHk5Rko0?=
- =?utf-8?B?UmhmRmptSk1iakdOc1FmcVFXSVZWOGdmbWdxRU01RmNnT1M2UWYrMWR6U21O?=
- =?utf-8?B?eE1oV0MzNlZyZW5TUEt4c0xaZWY2czlzZVhYWWR0dGNHSldOUkZBaHNIVWFm?=
- =?utf-8?B?NFhxVkxMRExaWnZ5U0pQNkJCZUg2WndkcG1KR2ZzL29TR3Q4RHk4TytXanZK?=
- =?utf-8?B?VERzSXFkTVExZWJGTmw5Vy9rSzJhVlRPdHFubldTUStMNXJwU0w0UT09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 915e6219-f937-4776-378e-08de54cfc4db
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR12MB6435.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jan 2026 07:20:47.4031
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Cy/FoIxTsszSOHF3WhOUaPVRkYnKLji6RMwXbibb97SFvwKL2tCWQHTDSvidObTLOMpjjrAxlJrA6UUT4Fur/Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ5PPFF6E64BC2C
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/12] Recover sysfb after DRM probe failure
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+Cc: Zack Rusin <zack.rusin@broadcom.com>, dri-devel@lists.freedesktop.org,
+ Alex Deucher <alexander.deucher@amd.com>, amd-gfx@lists.freedesktop.org,
+ Ard Biesheuvel <ardb@kernel.org>, Ce Sun <cesun102@amd.com>,
+ Chia-I Wu <olvaffe@gmail.com>, Danilo Krummrich <dakr@kernel.org>,
+ Dave Airlie <airlied@redhat.com>, Deepak Rawat <drawat.floss@gmail.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Hans de Goede <hansg@kernel.org>, Hawking Zhang <Hawking.Zhang@amd.com>,
+ Helge Deller <deller@gmx.de>, intel-gfx@lists.freedesktop.org,
+ intel-xe@lists.freedesktop.org, Jani Nikula <jani.nikula@linux.intel.com>,
+ Javier Martinez Canillas <javierm@redhat.com>,
+ Jocelyn Falempe <jfalempe@redhat.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Lijo Lazar <lijo.lazar@amd.com>, linux-efi@vger.kernel.org,
+ linux-fbdev@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+ Lyude Paul <lyude@redhat.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ "Mario Limonciello (AMD)" <superm1@kernel.org>,
+ Mario Limonciello <mario.limonciello@amd.com>,
+ Maxime Ripard <mripard@kernel.org>, nouveau@lists.freedesktop.org,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
+ spice-devel@lists.freedesktop.org,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ =?UTF-8?Q?Timur_Krist=C3=B3f?= <timur.kristof@gmail.com>,
+ Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev,
+ Vitaly Prosyak <vitaly.prosyak@amd.com>
+References: <20251229215906.3688205-1-zack.rusin@broadcom.com>
+ <c816f7ed-66e0-4773-b3d1-4769234bd30b@suse.de>
+ <CABQX2QNQU4XZ1rJFqnJeMkz8WP=t9atj0BqXHbDQab7ZnAyJxg@mail.gmail.com>
+ <97993761-5884-4ada-b345-9fb64819e02a@suse.de>
+ <9058636d-cc18-4c8f-92cf-782fd8f771af@amd.com> <aWkDYO1o9T1BhvXj@intel.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <aWkDYO1o9T1BhvXj@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -3.01
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com,gmx.de];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_TWELVE(0.00)[44];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_CC(0.00)[broadcom.com,lists.freedesktop.org,amd.com,kernel.org,gmail.com,redhat.com,collabora.com,chromium.org,gmx.de,linux.intel.com,vger.kernel.org,intel.com,ffwll.ch,ursulin.net,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	R_RATELIMIT(0.00)[to_ip_from(RL516un6i87yts6oyas1exgued)];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:dkim,suse.de:mid,suse.de:email,suse.com:url]
+X-Spam-Level: 
+X-Rspamd-Action: no action
+X-Rspamd-Queue-Id: D48555BCC6
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: NO
 
+Hi
 
-
-On 2026/1/15 17:20, Akihiko Odaki wrote:
-> On 2026/01/15 16:58, Honglei Huang wrote:
->> From: Honglei Huang <honghuan@amd.com>
+Am 15.01.26 um 16:10 schrieb Ville Syrjälä:
+> On Thu, Jan 15, 2026 at 03:39:00PM +0100, Christian König wrote:
+>> Sorry to being late, but I only now realized what you are doing here.
 >>
->> Hello,
+>> On 1/15/26 12:02, Thomas Zimmermann wrote:
+>>> Hi,
+>>>
+>>> apologies for the delay. I wanted to reply and then forgot about it.
+>>>
+>>> Am 10.01.26 um 05:52 schrieb Zack Rusin:
+>>>> On Fri, Jan 9, 2026 at 5:34 AM Thomas Zimmermann <tzimmermann@suse.de> wrote:
+>>>>> Hi
+>>>>>
+>>>>> Am 29.12.25 um 22:58 schrieb Zack Rusin:
+>>>>>> Almost a rite of passage for every DRM developer and most Linux users
+>>>>>> is upgrading your DRM driver/updating boot flags/changing some config
+>>>>>> and having DRM driver fail at probe resulting in a blank screen.
+>>>>>>
+>>>>>> Currently there's no way to recover from DRM driver probe failure. PCI
+>>>>>> DRM driver explicitly throw out the existing sysfb to get exclusive
+>>>>>> access to PCI resources so if the probe fails the system is left without
+>>>>>> a functioning display driver.
+>>>>>>
+>>>>>> Add code to sysfb to recever system framebuffer when DRM driver's probe
+>>>>>> fails. This means that a DRM driver that fails to load reloads the system
+>>>>>> framebuffer driver.
+>>>>>>
+>>>>>> This works best with simpledrm. Without it Xorg won't recover because
+>>>>>> it still tries to load the vendor specific driver which ends up usually
+>>>>>> not working at all. With simpledrm the system recovers really nicely
+>>>>>> ending up with a working console and not a blank screen.
+>>>>>>
+>>>>>> There's a caveat in that some hardware might require some special magic
+>>>>>> register write to recover EFI display. I'd appreciate it a lot if
+>>>>>> maintainers could introduce a temporary failure in their drivers
+>>>>>> probe to validate that the sysfb recovers and they get a working console.
+>>>>>> The easiest way to double check it is by adding:
+>>>>>>     /* XXX: Temporary failure to test sysfb restore - REMOVE BEFORE COMMIT */
+>>>>>>     dev_info(&pdev->dev, "Testing sysfb restore: forcing probe failure\n");
+>>>>>>     ret = -EINVAL;
+>>>>>>     goto out_error;
+>>>>>> or such right after the devm_aperture_remove_conflicting_pci_devices .
+>>>>> Recovering the display like that is guess work and will at best work
+>>>>> with simple discrete devices where the framebuffer is always located in
+>>>>> a confined graphics aperture.
+>>>>>
+>>>>> But the problem you're trying to solve is a real one.
+>>>>>
+>>>>> What we'd want to do instead is to take the initial hardware state into
+>>>>> account when we do the initial mode-setting operation.
+>>>>>
+>>>>> The first step is to move each driver's remove_conflicting_devices call
+>>>>> to the latest possible location in the probe function. We usually do it
+>>>>> first, because that's easy. But on most hardware, it could happen much
+>>>>> later.
+>>>> Well, some drivers (vbox, vmwgfx, bochs and currus-qemu) do it because
+>>>> they request pci regions which is going to fail otherwise. Because
+>>>> grabbining the pci resources is in general the very first thing that
+>>>> those drivers need to do to setup anything, we
+>>>> remove_conflicting_devices first or at least very early.
+>>> To my knowledge, requesting resources is more about correctness than a hard requirement to use an I/O or memory range. Has this changed?
+>> Nope that is not correct.
 >>
->> This series adds virtio-gpu userptr support to enable ROCm native
->> context for compute workloads. The userptr feature allows the host to
->> directly access guest userspace memory without memcpy overhead, which is
->> essential for GPU compute performance.
+>> At least for AMD GPUs remove_conflicting_devices() really early is necessary because otherwise some operations just result in a spontaneous system reboot.	
 >>
->> The userptr implementation provides buffer-based zero-copy memory access.
->> This approach pins guest userspace pages and exposes them to the host
->> via scatter-gather tables, enabling efficient compute operations.
-> 
-> This description looks identical with what 
-> VIRTIO_GPU_BLOB_MEM_HOST3D_GUEST does so there should be some 
-> explanation how it makes difference.
-> 
-> I have already pointed out this when reviewing the QEMU patches[1], but 
-> I note that here too, since QEMU is just a middleman and this matter is 
-> better discussed by Linux and virglrenderer developers.
-> 
-> [1] https://lore.kernel.org/qemu-devel/35a8add7-da49-4833-9e69- 
-> d213f52c771a@amd.com/
-> 
-
-Thanks for raising this important point about the distinction between
-VIRTGPU_BLOB_FLAG_USE_USERPTR and VIRTIO_GPU_BLOB_MEM_HOST3D_GUEST.
-I might not have explained it clearly previously.
-
-The key difference is memory ownership and lifecycle:
-
-BLOB_MEM_HOST3D_GUEST:
-   - Kernel allocates memory (drm_gem_shmem_create)
-   - Userspace accesses via mmap(GEM_BO)
-   - Use case: Graphics resources (Vulkan/OpenGL)
-
-BLOB_FLAG_USE_USERPTR:
-   - Userspace pre-allocates memory (malloc/mmap)
-   - Kernel only get existing pages
-   - Use case: Compute workloads (ROCm/CUDA) with large datasets, like
-GPU needs load a big model file 10G+, UMD mmap the fd file, then give 
-the mmap ptr into userspace then driver do not need a another copy.
-But if the shmem is used, the userspace needs copy the file data into a 
-shmem mmap ptr there is a copy overhead.
-
-Userptr:
-
-file -> open/mmap -> userspace ptr -> driver
-
-shmem:
-
-user alloc shmem ──→ mmap shmem ──→ shmem userspace ptr -> driver
-                                               ↑
-                                               │ copy
-                                               │
-file ──→ open/mmap ──→ file userptr ──────────┘
-
-
-For compute workloads, this matters significantly:
-   Without userptr: malloc(8GB) → alloc GEM BO → memcpy 8GB → compute → 
-memcpy 8GB back
-   With userptr:    malloc(8GB) → create userptr BO → compute (zero-copy)
-
-The explicit flag serves three purposes:
-
-1. Although both send scatter-gather entries to host. The flag makes the 
-intent unambiguous.
-
-2. Ensures consistency between flag and userptr address field.
-
-3. Future HMM support: There is a plan to upgrade userptr implementation 
-to use Heterogeneous Memory Management for better GPU coherency and 
-dynamic page migration. The flag provides a clean path to future upgrade.
-
-I understand the concern about API complexity. I'll defer to the 
-virtio-gpu maintainers for the final decision on whether this design is 
-acceptable or if they prefer an alternative approach.
-
-Regards,
-Honglei Huang
-
+>> For example resizing the PCIe BAR giving access to VRAM or disabling VGA emulation (which AFAIK is used for EFI as well) is only possible when the VGA or EFI framebuffer driver is kicked out first.
 >>
->> Key features:
->> - Zero-copy memory access between guest userspace and host GPU
->> - Read-only and read-write userptr support
->> - Runtime feature detection via VIRTGPU_PARAM_RESOURCE_USERPTR
->> - ROCm capset support for ROCm stack integration
->> - Proper page lifecycle management with FOLL_LONGTERM pinning
->>
->> Patches overview:
->> 1. Add VIRTIO_GPU_CAPSET_ROCM capability for compute workloads
->> 2. Add virtio-gpu API definitions for userptr blob resources
->> 3. Extend DRM UAPI with comprehensive userptr support
->> 4. Implement core userptr functionality with page management
->> 5. Integrate userptr into blob resource creation and advertise to 
->> userspace
->>
->> Performance: In popular compute benchmarks, this implementation achieves
->> approximately 70% efficiency compared to bare metal OpenCL performance on
->> AMD V2000 hardware, achieves 92% efficiency on AMD W7900 hardware.
->>
->> Testing: Verified with ROCm stack and OpenCL applications in VIRTIO 
->> virtualized
->> environments.
->> - Full OPENCL CTS tests passed on ROCm 5.7.0 in V2000 platform.
->> - Near 70% percentage of OPENCL CTS tests passed on ROCm 7.0 W7900 
->> platform.
->> - most HIP catch tests passed on ROCm 7.0 W7900 platform.
->> - Some AI applications enabled on ROCm 7.0 W7900 platform.
->>
->> V4 changes:
->>      - Renamed VIRTIO_GPU_CAPSET_HSAKMT to VIRTIO_GPU_CAPSET_ROCM
->>      - Remove userptr feature probing cause it can reuse the guest
->>        blob resource code path, reduce patch count from 6 to 5
->>      - Updated corresponding commit messages
->>      - Consolidated userptr feature detection in final patch
->>      - Update corresponding cover letter content
->>
->> V3 changes:
->>      - Split into focused patches for easier review
->>      - Removed complex interval tree userptr management
->>      - Simplified resource creation without deduplication
->>      - Added VIRTGPU_PARAM_RESOURCE_USERPTR for feature detection
->>      - Improved UAPI documentation and error handling
->>      - Enhanced code quality with proper cleanup paths
->>      - Removed MMU notifier dependencies for simplicity
->>      - Fixed resource lifecycle management issues
->>
->> V2: - Split add HSAKMT context and blob userptr resource to two patches.
->>      - Remove MMU notifier related patches, cause use not moveable 
->> user space
->>        memory with MMU notifier is not a good idea.
->>      - Remove HSAKMT context check when create context, let all the 
->> context
->>        support the userptr feature.
->>      - Remove MMU notifier related content in cover letter.
->>      - Add more comments  for patch 6 in cover letter.
->>
->> Honglei Huang (5):
->>    drm/virtio-gpu: Add VIRTIO_GPU_CAPSET_ROCM capability
->>    virtio-gpu api: add blob userptr resource
->>    drm/virtgpu api: add blob userptr resource
->>    drm/virtio: implement userptr support for zero-copy memory access
->>    drm/virtio: advertise base userptr feature to userspace
->>
->>   drivers/gpu/drm/virtio/Makefile          |   3 +-
->>   drivers/gpu/drm/virtio/virtgpu_drv.h     |  33 ++++
->>   drivers/gpu/drm/virtio/virtgpu_ioctl.c   |   9 +-
->>   drivers/gpu/drm/virtio/virtgpu_object.c  |   6 +
->>   drivers/gpu/drm/virtio/virtgpu_userptr.c | 231 +++++++++++++++++++++++
->>   include/uapi/drm/virtgpu_drm.h           |   9 +
->>   include/uapi/linux/virtio_gpu.h          |   7 +
->>   7 files changed, 295 insertions(+), 3 deletions(-)
->>   create mode 100644 drivers/gpu/drm/virtio/virtgpu_userptr.c
->>
-> 
+>> And disabling VGA emulation is among the absolutely first steps you do to take over the scanout config.
+> It's similar for Intel. For us VGA emulation won't be used for
+> EFI boot, but we still can't have the previous driver poking
+> around in memory while the real driver is initializing. The
+> entire memory layout may get completely shuffled so there's
+> no telling where such memory accesses would land.
+
+Isn't there code in display/intel_fbdev.c that reads back the old state 
+from hardware before initializing fbdev? [1] How does that work then? 
+Wouldn't the HW state be invalid already?
+
+Best regards
+Thomas
+
+[1] 
+https://elixir.bootlin.com/linux/v6.18.5/source/drivers/gpu/drm/i915/display/intel_fbdev.c#L356
+
+>
+> And I suppose reBAR is a concern for us as well.
+>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+
 
