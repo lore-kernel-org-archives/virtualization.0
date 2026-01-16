@@ -1,455 +1,280 @@
-Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C51D24E016
-	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 13:23:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 162052BE658
+	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 14:05:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768569822; cv=none; b=Prei+TV+iyVxKTcwzoQ6CazlvrP2ulBajdIo3Rzzmni/zNY8iCIbtP4nl2EbikZ1GXR3CGze1GFhm3mCtagn1rnrX3YHdJIfgWVnUysYBa6vb2whf73QSG86En/vwuQ+2aASIhWoSmBM1DU/9iMC2Hr1HB2R0Rl9Y200uVx7l+o=
+	t=1768572308; cv=none; b=qJic20wu/7tVdBFOjKkxAd+w/XDa4QkAAosLDnuFOMh7arAEkdBjMv3o1oeNc3NpGS/VHeWnPmFtHYe+AxdOqF/fCsqkZ+cXxJOW/oNZsTLwYKAUvK1yycixdutxGR+EfkXQcA27+JYLJ3YH9UquIbsMb3+3CmrODVBV5EF6SnA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768569822; c=relaxed/simple;
-	bh=bFiL+4Yq6wv7su+DxbvmM96ZJsMwhSYCdFfJGYvmZ8Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gTmgeQtsz/KoiJBaazzUCTSftgeGt55ud2tbxffGiF10g4MX/g5GBWQio4AVbilWSiWGC3coPZxINtMJlyOGnpi3fwwJi5NnufLfp3Osu+9M8pOvqpA1HC7pfq7rCyZwxZWSJC5tgAXsk/1HQJA+lyxKKwNEkXVfpnsJkgt9vbM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=fail (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=haGQfbwu reason="key not found in DNS"; arc=none smtp.client-ip=49.212.243.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
+	s=arc-20240116; t=1768572308; c=relaxed/simple;
+	bh=Xgs5hQtv2r2wXj45+M5ldcLKX3yzQFtnuyM0Ib3PhVI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=XdrEBNHypqWGj/7mXoN5i9Fi2CIAC5LeGnwriL1NeFN/NTo/8Wm3s/ZPi/e06HrKmiaSVStgUMXXTgKBAjjI1gkOhroEwrPju3cUFHGSy7n+XZzkVMj7HQgognBVwTdeqj7wSRWjYv5qfIYIR3z29BrEWkz5ZisJaBhx7t/NIyA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fdiodx+s; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="haGQfbwu"
-Received: from [192.168.10.110] (p865013-ipoe.ipoe.ocn.ne.jp [153.242.222.12])
-	(authenticated bits=0)
-	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 60GDMMXI002886
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Fri, 16 Jan 2026 22:23:02 +0900 (JST)
-	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
-DKIM-Signature: a=rsa-sha256; bh=DIiqY95FyG1h1xFVOGHzWKTTpEflfk4mfFcs9PBvjpE=;
-        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
-        h=Message-ID:Date:Subject:To:From;
-        s=rs20250326; t=1768569782; v=1;
-        b=haGQfbwuVzxm6GKK5v5V5uDKtp96aPOLmTKwkF/iXaaFVSCYckH+BXRe9/UnFjJZ
-         kf0OXqeXMLINpeNoLugcxE3LQ63UrKg9Cs5QLbUzEI0REIbRTiEmEohHaY1LcWO4
-         1GuDzItyPGZR8IpYV3q+4QWP0TbgNQ2BkrWZxrARZ4cFRVUyXlFcA2P9AzyjkNST
-         z5BMMYKkYoRnUHKqxS1w7G0kPTjXmws1RVsGxTZnVXJbvcR176cJyb+7rv3x4FXO
-         uDE5wXFbAyy35pc/yQLLUdVh+bcdtkrf6HxlytTDrCaTpG5WRiAbBAZToNzz/rS1
-         cqLW7k0YKem/dGlW4gzQYA==
-Message-ID: <b69439ec-0ebd-4527-873b-85b283e03888@rsg.ci.i.u-tokyo.ac.jp>
-Date: Fri, 16 Jan 2026 22:22:22 +0900
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fdiodx+s"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768572306;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=GQxcL1w9Fh5dnKM+fLnv+sFa1mkvBZ9nqDg/z7B9yGs=;
+	b=fdiodx+sDOi2hBIfuCvzbeSvczXvMeU+BZoZnhJYWb2370EzaucpxZdw6UBIaM9EANvdl1
+	lXOOi3Ntgqr9nrilAxibHk3R7Q2Fi+a51PpInVaCkJeUJrB51aN7bGsJysp7pGltWrsT+G
+	6irnVO5osQ9M5BuLKnDNSNVEgq9R6pg=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-38-SVQcPz2TMTaIZb2emmapLg-1; Fri,
+ 16 Jan 2026 09:05:02 -0500
+X-MC-Unique: SVQcPz2TMTaIZb2emmapLg-1
+X-Mimecast-MFC-AGG-ID: SVQcPz2TMTaIZb2emmapLg_1768572301
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5681D18005AE;
+	Fri, 16 Jan 2026 14:05:01 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.226.82])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6B1D730002D6;
+	Fri, 16 Jan 2026 14:04:57 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: "Michael S . Tsirkin " <mst@redhat.com>
+Cc: Laurent Vivier <lvivier@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	jasowang@redhat.com,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Maxime Coquelin <mcoqueli@redhat.com>,
+	Cindy Lu <lulu@redhat.com>,
+	virtualization@lists.linux.dev,
+	Yongji Xie <xieyongji@bytedance.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH v14 00/13] Add multiple address spaces support to VDUSE
+Date: Fri, 16 Jan 2026 15:04:42 +0100
+Message-ID: <20260116140455.1560491-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/5] virtio-gpu: Add userptr support for compute
- workloads
-To: Honglei Huang <honghuan@amd.com>
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
-        Chia-I Wu <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
-        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-        Honglei Huang <honglei1.huang@amd.com>,
-        David Airlie <airlied@redhat.com>, Ray.Huang@amd.com,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Maxime Ripard <mripard@kernel.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Simona Vetter <simona@ffwll.ch>
-References: <20260115075851.173318-1-honglei1.huang@amd.com>
- <5b66df7d-374c-4e9c-88d5-bb514f9a7725@rsg.ci.i.u-tokyo.ac.jp>
- <2ae03f22-740d-4a48-b5f3-114eef92fb29@amd.com>
- <cc444faa-af80-4bab-ac3b-a013fef4a695@rsg.ci.i.u-tokyo.ac.jp>
- <4aff513b-eb38-494d-a4f8-78dbc18d0062@amd.com>
- <9874a952-e084-4594-a397-cb4fbe5cc3b7@rsg.ci.i.u-tokyo.ac.jp>
- <17a563f0-14ad-49bf-a734-648615b822fc@amd.com>
- <2c9cb801-3163-42ae-98bd-afcb9a6a3a5a@rsg.ci.i.u-tokyo.ac.jp>
- <e4d93a84-5a8d-4f1e-874e-901b13570e92@amd.com>
-Content-Language: en-US
-From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-In-Reply-To: <e4d93a84-5a8d-4f1e-874e-901b13570e92@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On 2026/01/16 21:34, Honglei Huang wrote:
-> 
-> 
-> On 2026/1/16 19:03, Akihiko Odaki wrote:
->> On 2026/01/16 19:32, Honglei Huang wrote:
->>>
->>>
->>> On 2026/1/16 18:01, Akihiko Odaki wrote:
->>>> On 2026/01/16 18:39, Honglei Huang wrote:
->>>>>
->>>>>
->>>>> On 2026/1/16 16:54, Akihiko Odaki wrote:
->>>>>> On 2026/01/16 16:20, Honglei Huang wrote:
->>>>>>>
->>>>>>>
->>>>>>> On 2026/1/15 17:20, Akihiko Odaki wrote:
->>>>>>>> On 2026/01/15 16:58, Honglei Huang wrote:
->>>>>>>>> From: Honglei Huang <honghuan@amd.com>
->>>>>>>>>
->>>>>>>>> Hello,
->>>>>>>>>
->>>>>>>>> This series adds virtio-gpu userptr support to enable ROCm native
->>>>>>>>> context for compute workloads. The userptr feature allows the 
->>>>>>>>> host to
->>>>>>>>> directly access guest userspace memory without memcpy overhead, 
->>>>>>>>> which is
->>>>>>>>> essential for GPU compute performance.
->>>>>>>>>
->>>>>>>>> The userptr implementation provides buffer-based zero-copy 
->>>>>>>>> memory access.
->>>>>>>>> This approach pins guest userspace pages and exposes them to 
->>>>>>>>> the host
->>>>>>>>> via scatter-gather tables, enabling efficient compute operations.
->>>>>>>>
->>>>>>>> This description looks identical with what 
->>>>>>>> VIRTIO_GPU_BLOB_MEM_HOST3D_GUEST does so there should be some 
->>>>>>>> explanation how it makes difference.
->>>>>>>>
->>>>>>>> I have already pointed out this when reviewing the QEMU 
->>>>>>>> patches[1], but I note that here too, since QEMU is just a 
->>>>>>>> middleman and this matter is better discussed by Linux and 
->>>>>>>> virglrenderer developers.
->>>>>>>>
->>>>>>>> [1] https://lore.kernel.org/qemu-devel/35a8add7-da49-4833-9e69- 
->>>>>>>> d213f52c771a@amd.com/
->>>>>>>>
->>>>>>>
->>>>>>> Thanks for raising this important point about the distinction 
->>>>>>> between
->>>>>>> VIRTGPU_BLOB_FLAG_USE_USERPTR and VIRTIO_GPU_BLOB_MEM_HOST3D_GUEST.
->>>>>>> I might not have explained it clearly previously.
->>>>>>>
->>>>>>> The key difference is memory ownership and lifecycle:
->>>>>>>
->>>>>>> BLOB_MEM_HOST3D_GUEST:
->>>>>>>    - Kernel allocates memory (drm_gem_shmem_create)
->>>>>>>    - Userspace accesses via mmap(GEM_BO)
->>>>>>>    - Use case: Graphics resources (Vulkan/OpenGL)
->>>>>>>
->>>>>>> BLOB_FLAG_USE_USERPTR:
->>>>>>>    - Userspace pre-allocates memory (malloc/mmap)
->>>>>>
->>>>>> "Kernel allocates memory" and "userspace pre-allocates memory" is 
->>>>>> a bit ambiguous phrasing. Either way, the userspace requests the 
->>>>>> kernel to map memory with a system call, brk() or mmap().
->>>>>
->>>>> They are different:
->>>>> BLOB_MEM_HOST3D_GUEST (kernel-managed pages):
->>>>>    - Allocated via drm_gem_shmem_create() as GFP_KERNEL pages
->>>>>    - Kernel guarantees pages won't swap or migrate while GEM object 
->>>>> exists
->>>>>    - Physical addresses remain stable → safe for DMA
->>>>>
->>>>> BLOB_FLAG_USE_USERPTR (userspace pages):
->>>>>    - From regular malloc/mmap - subject to MM policies
->>>>>    - Can be swapped, migrated, or compacted by kernel
->>>>>    - Requires FOLL_LONGTERM pinning to make DMA-safe
->>>>>
->>>>> The device must treat them differently. Kernel-managed pages have 
->>>>> stable physical
->>>>> addresses. Userspace pages need explicit pinning and the device 
->>>>> must be prepared
->>>>> for potential invalidation.
->>>>>
->>>>> This is why all compute drivers (amdgpu, i915, nouveau) implement 
->>>>> userptr - to
->>>>> make arbitrary userspace allocations DMA-accessible while 
->>>>> respecting their different
->>>>> page mobility characteristics.
->>>>> And the drm already has a better frame work for it: SVM, and this 
->>>>> verions is a super simplified verion.
->>>>> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/ 
->>>>> tree/ drivers/gpu/drm/ 
->>>>> drm_gpusvm.c#:~:text=*%20GPU%20Shared%20Virtual%20Memory%20(GPU%20SVM)%20layer%20for%20the%20Direct%20Rendering%20Manager%20(DRM)
->>>>
->>>> I referred to phrasing "kernel allocates" vs "userspace allocates". 
->>>> Using GFP_KERNEL, swapping, migrating, or pinning is all what the 
->>>> kernel does.
->>>
->>> I am talking about the virtio gpu driver side, the virtio gpu driver 
->>> need handle those two type memory differently.
->>>
->>>>
->>>>>
->>>>>
->>>>>>
->>>>>>>    - Kernel only get existing pages
->>>>>>>    - Use case: Compute workloads (ROCm/CUDA) with large datasets, 
->>>>>>> like
->>>>>>> GPU needs load a big model file 10G+, UMD mmap the fd file, then 
->>>>>>> give the mmap ptr into userspace then driver do not need a 
->>>>>>> another copy.
->>>>>>> But if the shmem is used, the userspace needs copy the file data 
->>>>>>> into a shmem mmap ptr there is a copy overhead.
->>>>>>>
->>>>>>> Userptr:
->>>>>>>
->>>>>>> file -> open/mmap -> userspace ptr -> driver
->>>>>>>
->>>>>>> shmem:
->>>>>>>
->>>>>>> user alloc shmem ──→ mmap shmem ──→ shmem userspace ptr -> driver
->>>>>>>                                                ↑
->>>>>>>                                                │ copy
->>>>>>>                                                │
->>>>>>> file ──→ open/mmap ──→ file userptr ──────────┘
->>>>>>>
->>>>>>>
->>>>>>> For compute workloads, this matters significantly:
->>>>>>>    Without userptr: malloc(8GB) → alloc GEM BO → memcpy 8GB → 
->>>>>>> compute → memcpy 8GB back
->>>>>>>    With userptr:    malloc(8GB) → create userptr BO → compute 
->>>>>>> (zero- copy)
->>>>>>
->>>>>> Why don't you alloc GEM BO first and read the file into there?
->>>>>
->>>>> Because that defeats the purpose of zero-copy.
->>>>>
->>>>> With GEM-BO-first (what you suggest):
->>>>>
->>>>> void *gembo = virtgpu_gem_create(10GB);     // Allocate GEM buffer
->>>>> void *model = mmap(..., model_file_fd, 0);  // Map model file
->>>>> memcpy(gembo, model, 10GB);                 // Copy 10GB - NOT 
->>>>> zero- copy
->>>>> munmap(model, 10GB);
->>>>> gpu_compute(gembo);
->>>>>
->>>>> Result: 10GB copy overhead + double memory usage during copy.
->>>>
->>>> How about:
->>>>
->>>> void *gembo = virtgpu_gem_create(10GB);
->>>> read(model_file_fd, gembo, 10GB);
->>>
->>> I believe there is still memory copy in read operation
->>> model_file_fd -> gembo, they have different physical pages,
->>> but the userptr/SVM feature will access the model_file_fd physical 
->>> pages directly.
->>
->> You can use O_DIRECT if you want.
->>
->>>
->>>
->>>>
->>>> Result: zero-copy + simpler code.
->>>>
->>>>>
->>>>> With userptr (zero-copy):
->>>>>
->>>>> void *model = mmap(..., model_file_fd, 0);  // Map model file
->>>>> hsa_memory_register(model, 10GB);           // Pin pages, create 
->>>>> userptr BO
->>>>> gpu_compute(model);                         // GPU reads directly 
->>>>> from file pages
->>>>>
->>>>>
->>>>>>
->>>>>>>
->>>>>>> The explicit flag serves three purposes:
->>>>>>>
->>>>>>> 1. Although both send scatter-gather entries to host. The flag 
->>>>>>> makes the intent unambiguous.
->>>>>>
->>>>>> Why will the host care?
->>>>>
->>>>> The flag tells host this is a userptr, host side need handle it 
->>>>> specially.
->>>>
->>>> Please provide the concrete requirement. What is the special 
->>>> handling the host side needs to perform?
->>>
->>> Every hardware has it own special API to handle userptr, for amdgpu ROCm
->>> it is hsaKmtRegisterMemoryWithFlags.
->>
->> On the host side, BLOB_MEM_HOST3D_GUEST will always result in a 
->> userspace pointer. Below is how the address is translated:
->>
->> 1) (with the ioctl you are adding)
->>     Guest kernel translates guest userspace pointer to guest PA.
->> 2) (with IOMMU)
->>     Guest kernel translates guest PA to device VA
->> 3) The host VMM translates device VA to host userspace pointer
->> 4) virglrenderer passes userspace pointer to the GPU API (ROCm)
->>
->> BLOB_FLAG_USE_USERPTR tells 1) happened. But the succeeding process is 
->> not affected by that.
->>
->>>
->>>>
->>>>>
->>>>>
->>>>>>
->>>>>>>
->>>>>>> 2. Ensures consistency between flag and userptr address field.
->>>>>>
->>>>>> Addresses are represented with the nr_entries and following struct 
->>>>>> virtio_gpu_mem_entry entries, whenever 
->>>>>> VIRTIO_GPU_CMD_RESOURCE_CREATE_BLOB or 
->>>>>> VIRTIO_GPU_CMD_RESOURCE_ATTACH_BACKING is used. Having a special 
->>>>>> flag introduces inconsistency.
->>>>>
->>>>> For this part I am talking about the virito gpu guest UMD side, in 
->>>>> blob create io ctrl we need this flag to
->>>>> check the userptr address and is it a read-only attribute:
->>>>>      if (rc_blob->blob_flags & VIRTGPU_BLOB_FLAG_USE_USERPTR) {
->>>>>          if (!rc_blob->userptr)
->>>>>              return -EINVAL;
->>>>>      } else {
->>>>>          if (rc_blob->userptr)
->>>>>              return -EINVAL;
->>>>>
->>>>>          if (rc_blob->blob_flags & VIRTGPU_BLOB_FLAG_USERPTR_RDONLY)
->>>>>              return -EINVAL;
->>>>>      }
->>>>
->>>> I see. That shows VIRTGPU_BLOB_FLAG_USE_USERPTR is necessary for the 
->>>> ioctl.
->>>>
->>>>>
->>>>>>
->>>>>>>
->>>>>>> 3. Future HMM support: There is a plan to upgrade userptr 
->>>>>>> implementation to use Heterogeneous Memory Management for better 
->>>>>>> GPU coherency and dynamic page migration. The flag provides a 
->>>>>>> clean path to future upgrade.
->>>>>>
->>>>>> How will the upgrade path with the flag and the one without the 
->>>>>> flag look like, and in what aspect the upgrade path with the flag 
->>>>>> is "cleaner"?
->>>>>
->>>>> As I mentioned above the userptr handling is different with shmem/ 
->>>>> GEM BO.
->>>>
->>>> All the above describes the guest-internal behavior. What about the 
->>>> interaction between the guest and host? How will virtio as a guest- 
->>>> host interface having VIRTIO_GPU_BLOB_FLAG_USE_USERPTR ease future 
->>>> upgrade?
->>>
->>> It depends on how we implement it, the current version is the 
->>> simplest implementation, similar to the implementation in Intel's i915.
->>> If virtio side needs HMM to implement a SVM type userptr feature
->>> I think VIRTIO_GPU_BLOB_FLAG_USE_USERPTR is must needed, stack needs 
->>> to know if it is a userptr resource, and to perform advanced 
->>> operations such as updating page tables, splitting BOs, etc.
->>
->> Why do the device need to know if it is a userptr resource to perform 
->> operations when the device always get device VAs?
->>
->>>
->>>>
->>>>>
->>>>>>
->>>>>>>
->>>>>>> I understand the concern about API complexity. I'll defer to the 
->>>>>>> virtio- gpu maintainers for the final decision on whether this 
->>>>>>> design is acceptable or if they prefer an alternative approach.
->>>>>>
->>>>>> It is fine to have API complexity. The problem here is the lack of 
->>>>>> clear motivation and documentation.
->>>>>>
->>>>>> Another way to put this is: how will you explain the flag in the 
->>>>>> virtio specification? It should say "the driver MAY/SHOULD/MUST do 
->>>>>> something" and/or "the device MAY/SHOULD/MUST do something", and 
->>>>>> then Linux and virglrenderer can implement the flag accordingly.
->>>>>
->>>>> you're absolutely right that the specification should
->>>>> be written in proper virtio spec language. The draft should be:
->>>>>
->>>>> VIRTIO_GPU_BLOB_FLAG_USE_USERPTR:
->>>>>
->>>>> Linux virtio driver requirements:
->>>>> - MUST set userptr to valid guest userspace VA in 
->>>>> drm_virtgpu_resource_create_blob
->>>>> - SHOULD keep VA mapping valid until resource destruction
->>>>> - MUST pin pages or use HMM at blob creation time
->>>>
->>>> These descriptions are not for the virtio specification. The virtio 
->>>> specification describes the interaction between the driver and 
->>>> device. These statements describe the interaction between the guest 
->>>> userspace and the guest kernel.
->>>>
->>>>>
->>>>> Virglrenderer requirements:
->>>>> - must use correspoonding API for userptr resource
->>>>
->>>> What is the "corresponding API"?
->>>
->>> It may can be:
->>> **VIRTIO_GPU_BLOB_FLAG_USE_USERPTR specification:**
->>>
->>> Driver requirements:
->>> - MUST populate mem_entry[] with valid guest physical addresses of 
->>> pinned userspace pages
->>
->> "Userspace" is a the guest-internal concepts and irrelevant with the 
->> interaction between the driver and device.
->>
->>> - MUST set blob_mem to VIRTIO_GPU_BLOB_FLAG_USE_USERPTR when using 
->>> this flag
->>
->> When should the driver use the flag?
->>
->>> - SHOULD keep pages pinned until VIRTIO_GPU_CMD_RESOURCE_UNREF
->>
->> It is not a new requirement. The page must stay at the same position 
->> whether VIRTIO_GPU_BLOB_FLAG_USE_USERPTR is used or not.
->>
->>>
->>> Device requirements:
->>> - MUST establish IOMMU mappings using the provided iovec array with 
->>> specific API.(hsaKmtRegisterMemoryWithFlags for ROCm)
->>
->> This should be also true even when VIRTIO_GPU_BLOB_FLAG_USE_USERPTR is 
->> not set.
->>
->>>
->>>
->>>
->>> Really thanks for your comments, and I believe we need some input of
->>> virito gpu maintainers.
->>>
->>> VIRTIO_GPU_BLOB_FLAG_USE_USERPTR flag is a flag for how to use, and 
->>> it doen't conflict with VIRTGPU_BLOB_MEM_HOST3D_GUEST. Just like a 
->>> resource is used for VIRTGPU_BLOB_FLAG_USE_SHAREABLE but it can be a 
->>> guest resource or a host resource.
->>>
->>> If we don't have VIRTIO_GPU_BLOB_FLAG_USE_USERPTR flag, we may have some
->>> resource conflict in host side, guest kernel can use 'userptr' param 
->>> to identify. But in host side the 'userptr' param is lost, we only 
->>> know it is just a guest flag resource.
->>
->> I still don't see why knowing it is a guest resource is insufficient 
->> for the host.
-> 
-> All right, I totally agreed with you.
-> 
-> And let virtio gpu maintainer/drm decide how to design the flag/params 
-> maybe is better.
-> 
-> 
-> I believe the core gap between you and me is the concept of userptr/SVM.
-> What does userptr/SVM used for, it let GPU and CPU share the userspace 
-> virtual address. Perhaps my description is not accurate enough.
+When used by vhost-vDPA bus driver for VM, the control virtqueue
+should be shadowed via userspace VMM (QEMU) instead of being assigned
+directly to Guest. This is because QEMU needs to know the device state
+in order to start and stop device correctly (e.g for Live Migration).
 
-That is not what your QEMU patch series does; QEMU sees an address space 
-bound to the virtio-gpu device which is not the guest userspace virtual 
-address space.
+This requies to isolate the memory mapping for control virtqueue
+presented by vhost-vDPA to prevent guest from accessing it directly.
 
-Below is my points in the discussion:
+This series add support to multiple address spaces in VDUSE device
+allowing selective virtqueue isolation through address space IDs (ASID).
 
-- Zero copy is not a new thing, but virtio already has features for
-   that: VIRTIO_GPU_BLOB_MEM_GUEST and VIRTIO_GPU_BLOB_MEM_HOST3D_GUEST.
+The VDUSE device needs to report:
+* Number of virtqueue groups
+* Association of each vq group with each virtqueue
+* Number of address spaces supported.
 
-- You *always* need hsaKmtRegisterMemoryWithFlags() or similar when
-   implementing VIRTIO_GPU_BLOB_MEM_GUEST and/or
-   VIRTIO_GPU_BLOB_MEM_HOST3D_GUEST, so having another flag does not make
-   any difference.
+Then, the vDPA driver can modify the ASID assigned to each VQ group to
+isolate the memory AS.  This aligns VDUSE with vdpa_sim and nvidia mlx5
+devices which already support ASID.
 
-- The guest userspace virtual address is never exposed to the host in
-   your QEMU patch series in contrary to your description.
+This helps to isolate the environments for the virtqueues that will not
+be assigned directly. E.g in the case of virtio-net, the control
+virtqueue will not be assigned directly to guest.
 
-Regards,
-Akihiko Odaki
+Also, to be able to test this patch, the user needs to manually revert the
+56e71885b0349 ("vduse: Temporarily fail if control queue feature requested")
+commit.
+
+Tested by creating a VDUSE device OVS with and without MQ, and live migrating
+between two hosts back and forth while maintaining ping alive in all the
+stages.  All tested with and without lockdep, with the old VDUSE_IOTLB_GET_FD
+and the new VDUSE_IOTLB_GET_FD2, and with the VDUSE API 0 and 1.
+
+A few workaround were needed in some parts to test live migration with
+vhost_vdpa:
+* Do not enable CVQ before data vqs in QEMU, as VDUSE does not forward
+  the enable message to the userland device.  This will be solved in the
+  future.
+* Share the suspended state between all vhost devices in QEMU:
+  https://lists.nongnu.org/archive/html/qemu-devel/2025-11/msg02947.html
+* Implement a fake VDUSE suspend vdpa operation callback that always
+  returns true in the kernel.  DPDK suspend the device at the first
+  GET_VRING_BASE.
+* Remove the CVQ blocker in ASID.
+
+The driver vhost_vdpa was also tested with version 0, version 1 with the
+old ioctl, version 1 with the new ioctl but only one ASID, and version 1
+with many ASID.
+
+Also tested with virtio_vdpa with just one ASID, and by creating two threads
+that maps and unmaps memory randomly while ASID is changed [1].
+
+[1] https://lore.kernel.org/lkml/CAJaqyWeDjBfzrA93riYTmefY4oLbctWWBMPcpR5Q6r50dUGOEw@mail.gmail.com
+
+PATCH v14:
+* Add header documentation for VDUSE_SET_VQ_READY VDUSE message to userspace.
+
+PATCH v13:
+* Fix s/VDUSE_IOTLB_GET_INFO/VDUSE_VQ_SETUP/ in Documentation.
+* Document VDUSE_SET_VQ_GROUP_ASID VDUSE message (Jason).
+* Fix doc typos (MST and Jason).
+
+PATCH v12:
+* Add API version 1 usage in Documentation/userspace-api/vduse.rst.
+* Assume API version 0 by default if the VDUSE instance does not ask
+  (Jason).
+* Using scoped guards for vq group rwlock, so the one queue optimization
+  is not missed (Jason proposed to factor them into helpers).
+* Add the _v2 suffix to vduse_iova_range_v2 struct name fixing the doc
+  (MST).
+* Avoid dereferencing map_file if not assigned in vduse_dev_iotlb_entry
+  function (MST).
+* Avoid free_pages_exact(NULL, size) in case vduse_domain_alloc_coherent
+  fails (MST).
+* Add Fixes: tag (MST).
+* s/verion/version/;s/accomodated/accommodated;s/behavious/behaviour in
+  patch messages, and more rewording of them (MST).
+* Remove trailing ; after a comment (Jason).
+* Change the style of checking for vq group == 0 in VDUSE_VQ_SETUP dev
+  ioctl if api_version < 1 (MST).
+
+PATCH v11:
+* Remove duplicated free_pages_exact in vduse_domain_free_coherent (Jason).
+* Move the vduse_iotlb_entry_v2 argument to a new ioctl, as argument
+  didn't match the previous VDUSE_IOTLB_GET_FD.
+* Do not reset the vq group ASID in vq reset (Jason).  Removed extra function
+  vduse_set_group_asid_nomsg, not needed anymore.
+* Do not take the vq groups lock if nas == 1.
+* Move the asid < dev->nas check to vdpa core.
+* Rename vq->vq_group to vq->group (Jason).
+* Do not reset vq group at virtio reset (Jason).
+
+PATCH v10:
+* Back to rwlock version so stronger locks are used.
+* Take out allocations from rwlock.
+* Forbid changing ASID of a vq group after DRIVER_OK (Jason)
+* Remove bad fetching again of domain variable in vduse_dev_max_mapping_size
+  (Yongji).
+* Remove unused vdev definition in vdpa map_ops callbacks (kernel test robot).
+
+PATCH v9:
+* Change to RCU.
+
+PATCH v8:
+* Revert the change from mutex to rwlock (MST).
+
+PATCH v7:
+* Fix not taking the write lock in the registering vdpa device error path
+  (Jason).
+
+PATCH v6:
+* Make vdpa_dev_add use gotos for error handling (MST).
+* s/(dev->api_version < 1) ?/(dev->api_version < VDUSE_API_VERSION_1) ?/
+  in group and nas handling at device creation (MST).
+* Fix struct name not matching in the doc.
+* s/sepparate/separate (MST).
+
+PATCH v5:
+* Properly return errno if copy_to_user returns >0 in VDUSE_IOTLB_GET_FD
+  ioctl (Jason).
+* Properly set domain bounce size to divide equally between nas (Jason).
+* Revert core vdpa changes (Jason).
+* Fix group == ngroup case in checking VQ_SETUP argument (Jason).
+* Exclude "padding" member from the only >V1 members in
+  vduse_dev_request.
+
+PATCH v4:
+* Consider config->nas == 0 and config->ngroups == 0 as a fail (Jason).
+* Revert the "invalid vq group" concept and assume 0 if not set.
+* Divide each domain bounce size between the device bounce size (Jason).
+* Revert unneeded addr = NULL assignment (Jason)
+* Change if (x && (y || z)) return to if (x) { if (y) return; if (z)
+  return; } (Jason)
+* Change a bad multiline comment, using @ caracter instead of * (Jason).
+
+PATCH v3:
+* Make the default group an invalid group as long as VDUSE device does
+  not set it to some valid u32 value.  Modify the vdpa core to take that
+  into account (Jason).  Adapt all the virtio_map_ops callbacks to it.
+* Make setting status DRIVER_OK fail if vq group is not valid.
+* Create the VDUSE_DEV_MAX_GROUPS and VDUSE_DEV_MAX_AS instead of using a magic
+  number
+* Remove the _int name suffix from struct vduse_vq_group.
+* Get the vduse domain through the vduse_as in the map functions (Jason).
+* Squash the patch implementing the AS logic with the patch creating the
+  vduse_as struct (Jason).
+
+PATCH v2:
+* Now the vq group is in vduse_vq_config struct instead of issuing one
+  VDUSE message per vq.
+* Convert the use of mutex to rwlock (Xie Yongji).
+
+PATCH v1:
+* Fix: Remove BIT_ULL(VIRTIO_S_*), as _S_ is already the bit (Maxime)
+* Using vduse_vq_group_int directly instead of an empty struct in union
+  virtio_map.
+
+RFC v3:
+* Increase VDUSE_MAX_VQ_GROUPS to 0xffff (Jason). It was set to a lower
+  value to reduce memory consumption, but vqs are already limited to
+  that value and userspace VDUSE is able to allocate that many vqs.  Also, it's
+  a dynamic array now.  Same with ASID.
+* Move the valid vq groups range check to vduse_validate_config.
+* Embed vduse_iotlb_entry into vduse_iotlb_entry_v2.
+* Use of array_index_nospec in VDUSE device ioctls.
+* Move the umem mutex to asid struct so there is no contention between
+  ASIDs.
+* Remove the descs vq group capability as it will not be used and we can
+  add it on top.
+* Do not ask for vq groups in number of vq groups < 2.
+* Remove TODO about merging VDUSE_IOTLB_GET_FD ioctl with
+  VDUSE_IOTLB_GET_INFO.
+
+RFC v2:
+* Cache group information in kernel, as we need to provide the vq map
+  tokens properly.
+* Add descs vq group to optimize SVQ forwarding and support indirect
+  descriptors out of the box.
+* Make iotlb entry the last one of vduse_iotlb_entry_v2 so the first
+  part of the struct is the same.
+* Fixes detected testing with OVS+VDUSE.
+
+Eugenio Pérez (13):
+  vhost: move vdpa group bound check to vhost_vdpa
+  vduse: add v1 API definition
+  vduse: add vq group support
+  vduse: return internal vq group struct as map token
+  vdpa: document set_group_asid thread safety
+  vhost: forbid change vq groups ASID if DRIVER_OK is set
+  vduse: refactor vdpa_dev_add for goto err handling
+  vduse: remove unused vaddr parameter of vduse_domain_free_coherent
+  vduse: take out allocations from vduse_dev_alloc_coherent
+  vduse: merge tree search logic of IOTLB_GET_FD and IOTLB_GET_INFO
+    ioctls
+  vduse: add vq group asid support
+  vduse: bump version number
+  Documentation: Add documentation for VDUSE Address Space IDs
+
+ Documentation/userspace-api/vduse.rst |  53 +++
+ drivers/vdpa/mlx5/net/mlx5_vnet.c     |   3 -
+ drivers/vdpa/vdpa_sim/vdpa_sim.c      |   6 -
+ drivers/vdpa/vdpa_user/iova_domain.c  |  27 +-
+ drivers/vdpa/vdpa_user/iova_domain.h  |   8 +-
+ drivers/vdpa/vdpa_user/vduse_dev.c    | 540 +++++++++++++++++++-------
+ drivers/vhost/vdpa.c                  |   4 +-
+ include/linux/vdpa.h                  |   4 +-
+ include/linux/virtio.h                |   6 +-
+ include/uapi/linux/vduse.h            |  79 +++-
+ 10 files changed, 553 insertions(+), 177 deletions(-)
+
+-- 
+2.52.0
+
