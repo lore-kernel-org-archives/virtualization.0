@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0863E2D29AA
-	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 14:05:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EA4128468E
+	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 14:05:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768572310; cv=none; b=eClB9DQODI+M7W9OXGc2vngX2M8vUx3c7xJZ3J/e2ovdMreDH+XhM4d6ct0DfpsDiHIrkrue0r2bWD1A5egRK/n/JfR8DOgtjVYMcveZJ3vSJlG+heDFgPzfraoPh985TekkNltMYDAEFnFD4FUx71+gGd/jTd6WX4x16dy98Us=
+	t=1768572316; cv=none; b=DTlwy0u+rmwrB3N+qNor4qNJkGvB1WMkUXwW0OQHgfsKdNSDTp1hybPSzWfOx1GeoGousmOU9EknkZo3ewFD1UuWhNpzvmi8tl0NfnIFN8DdZjLW2S7AojWilTpZKKR6OY0gUtSCcLGBn/d0nbywJSJiLuwYDXPDFMsy8rrzcus=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768572310; c=relaxed/simple;
-	bh=dA8aM5+FTrs2SZyvHM/kGbqORmpjrkxKf/g72PEscSU=;
+	s=arc-20240116; t=1768572316; c=relaxed/simple;
+	bh=5ECYxaYeBJVIOWeqy/iDdDa/H00cLiMfLM4EhoJhPCA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=MGgKh6GTJ0XHQgANNhHQC73gDOZYozNxe21xN1mpGSXOliQiR6EpP2UgNdDno08a7KNanLgi6Hdp8inAzrmOXi8Sul/bwN1Q/t8MR8lNp549hdvmJk6JbmL57G93RWm4+KFo0ixKN+Xe8L/MwMPj9zMu629bvgIPeMx978aSxt0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IsekEOXD; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=UGqfBWWD3pEIalxYZJHOLqFrodZWrFEZsbHRgK8hRAqH10BCCBOgQJSqV68+d1H4XTH6cf2i0nSA7K4jpFg3oIfOQSGsXEVgr2KBBeFKMe31EehHAs7rjDNDv64wDVaDPTHzmADofDLxNoIH/RuvzSKuMmvyuHlRKidnwx5O0AI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Mua1vhFd; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IsekEOXD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Mua1vhFd"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768572308;
+	s=mimecast20190719; t=1768572314;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=EdiLQGvhjs6xdz37edyKpYey6rGP6zjGCqgHSVUedJM=;
-	b=IsekEOXDa1pSYLhiLz8ccbdojnprjbelVC44SA2ckixjawH7RQNmuJXvpuio40FYFVhTet
-	gBRKWDqUCmjNrmkERyI1tDP3VWs0M/IkdlGp1vTfwdwMpImLJ9+PQNtrzxAm0PvQvxFe4c
-	DqNA4yeuxFwF2pTw4ZHYzeRsvPQUZDg=
+	bh=o5hO8Psqd6yn9uKa/WLE0Q8XbzNZAyPQD8caCcDa5fs=;
+	b=Mua1vhFdf5IvaWAuHtprZMI1RjurG1/xhxo7PikrjOkzDdMtEoKDlCMqbMAovUIPI6Kjex
+	xrQI0h5GhPBA/bFA+nFk2RXL7WGJo82L7e/BndYstft2YU9HV+NbXEmp/RI9VyHwJXTBvW
+	8tnf8GTh8jrEfDgE7oCEibKVj4dOjvk=
 Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-194-WmchroI4MRyqea59CQqaVQ-1; Fri,
- 16 Jan 2026 09:05:06 -0500
-X-MC-Unique: WmchroI4MRyqea59CQqaVQ-1
-X-Mimecast-MFC-AGG-ID: WmchroI4MRyqea59CQqaVQ_1768572305
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-689-9rup_N1vMx2iP2MGrnK-0w-1; Fri,
+ 16 Jan 2026 09:05:11 -0500
+X-MC-Unique: 9rup_N1vMx2iP2MGrnK-0w-1
+X-Mimecast-MFC-AGG-ID: 9rup_N1vMx2iP2MGrnK-0w_1768572310
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7E0241956095;
-	Fri, 16 Jan 2026 14:05:05 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9871F19560B0;
+	Fri, 16 Jan 2026 14:05:09 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.45.226.82])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D3AC93001DBA;
-	Fri, 16 Jan 2026 14:05:01 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0660E30002D6;
+	Fri, 16 Jan 2026 14:05:05 +0000 (UTC)
 From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
 To: "Michael S . Tsirkin " <mst@redhat.com>
 Cc: Laurent Vivier <lvivier@redhat.com>,
@@ -54,9 +54,9 @@ Cc: Laurent Vivier <lvivier@redhat.com>,
 	virtualization@lists.linux.dev,
 	Yongji Xie <xieyongji@bytedance.com>,
 	Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v14 01/13] vhost: move vdpa group bound check to vhost_vdpa
-Date: Fri, 16 Jan 2026 15:04:43 +0100
-Message-ID: <20260116140455.1560491-2-eperezma@redhat.com>
+Subject: [PATCH v14 02/13] vduse: add v1 API definition
+Date: Fri, 16 Jan 2026 15:04:44 +0100
+Message-ID: <20260116140455.1560491-3-eperezma@redhat.com>
 In-Reply-To: <20260116140455.1560491-1-eperezma@redhat.com>
 References: <20260116140455.1560491-1-eperezma@redhat.com>
 Precedence: bulk
@@ -69,67 +69,36 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Remove duplication by consolidating these here.  This reduces the
-posibility of a parent driver missing them.
+This allows the kernel to detect whether the userspace VDUSE device
+supports the VQ group and ASID features.  VDUSE devices that don't set
+the V1 API will not receive the new messages, and vdpa device will be
+created with only one vq group and asid.
 
-While we're at it, fix a bug in vdpa_sim where a valid ASID can be
-assigned to a group equal to ngroups, causing an out of bound write.
+The next patches implement the new feature incrementally, only enabling
+the VDUSE device to set the V1 API version by the end of the series.
 
-Cc: stable@vger.kernel.org
-Fixes: bda324fd037a ("vdpasim: control virtqueue support")
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
 Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
 ---
-v12: Add Fixes tag (MST).
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.c  | 6 ------
- drivers/vhost/vdpa.c              | 2 +-
- 3 files changed, 1 insertion(+), 10 deletions(-)
+ include/uapi/linux/vduse.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index ddaa1366704b..44062e9d68f0 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -3640,9 +3640,6 @@ static int mlx5_set_group_asid(struct vdpa_device *vdev, u32 group,
- 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
- 	int err = 0;
+diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+index 10ad71aa00d6..ccb92a1efce0 100644
+--- a/include/uapi/linux/vduse.h
++++ b/include/uapi/linux/vduse.h
+@@ -10,6 +10,10 @@
  
--	if (group >= MLX5_VDPA_NUMVQ_GROUPS)
--		return -EINVAL;
--
- 	mvdev->mres.group2asid[group] = asid;
+ #define VDUSE_API_VERSION	0
  
- 	mutex_lock(&mvdev->mres.lock);
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index c1c6431950e1..df9c7ddc5d78 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -606,12 +606,6 @@ static int vdpasim_set_group_asid(struct vdpa_device *vdpa, unsigned int group,
- 	struct vhost_iotlb *iommu;
- 	int i;
- 
--	if (group > vdpasim->dev_attr.ngroups)
--		return -EINVAL;
--
--	if (asid >= vdpasim->dev_attr.nas)
--		return -EINVAL;
--
- 	iommu = &vdpasim->iommu[asid];
- 
- 	mutex_lock(&vdpasim->mutex);
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 05a481e4c385..9d25b735b43d 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -680,7 +680,7 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 	case VHOST_VDPA_SET_GROUP_ASID:
- 		if (copy_from_user(&s, argp, sizeof(s)))
- 			return -EFAULT;
--		if (s.num >= vdpa->nas)
-+		if (idx >= vdpa->ngroups || s.num >= vdpa->nas)
- 			return -EINVAL;
- 		if (!ops->set_group_asid)
- 			return -EOPNOTSUPP;
++/* VQ groups and ASID support */
++
++#define VDUSE_API_VERSION_1	1
++
+ /*
+  * Get the version of VDUSE API that kernel supported (VDUSE_API_VERSION).
+  * This is used for future extension.
 -- 
 2.52.0
 
