@@ -1,158 +1,115 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A17FB2DE6FA
-	for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 14:06:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C498336ECC;
+	Fri, 16 Jan 2026 15:54:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768572363; cv=none; b=bZLoQaIj59eGBEvyI7881o1ykyHdEAlKA5DkLBQ5nKQmQC14LJer9J9iTWDCAJi5TsqM9AQZxT567GXhKMhsQeyFaxnEFhuL5qHW8w8j7fSAoCdsYhxnsLipDSNrC6JzSpGjhj8iQfJEohHoIh1ZZzYEd8MNXt49jPVYpmCiDQk=
+	t=1768578898; cv=none; b=eeKuSruURS9QQEXqXMe4bwDpxzk1A0Y2QXCpEr0VM+Xx8HtEVZw5SXWuu4Dg9/7I6BBfDaqu7LUAOYg3gReMcEZ4bCRfTDWB5slUFHNlvZrvE8hSHo/fzVHPKUPIMliWBbMwUkVWwuV1uZX6Zl78NsEKfdXrGlft4uU1HZoZQsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768572363; c=relaxed/simple;
-	bh=4EwCR6GlI45bds4ADtR+kW2/e8FFpywDhKtJPD7Llug=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qm/bi9shMCK7IpfahyvLnayjqeqX/X3FsdwHgWqwRt0+cJLxMt7EYuj6EEfLcp9FhAhTFDtdLTbHahmXA46CDr+Ey1mw9Pc428wwG6fL62VkPb4zFJr07kC2v/yG9S7e7fpVmbKQ1zlpzibvxEjxuUjK66ARDtjZzQNkCgfldTI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DtcvV8mL; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768578898; c=relaxed/simple;
+	bh=B+Awa794dqIO+/Uzgn/CPs4acC9KvBiq6b83PYrRyWE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=lLvshlmfOKXcbBkb3rzrJMm1j2vjQnOumHDT1fiKK8LGXT2E2/0jpdO6mmQW4ClPcoCFuYjv1svjj66FNW6kxbkidh2h/FnBk18KqVcmiEBseo5G8ezLzYRVfMniplJyxJB/voZbt9z6YAe3NndEkslVRxKSadbqmtKLHStAXfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=W83LidmA; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DtcvV8mL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768572360;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SBNRZryqSqW24NxPnEz/S1Ky8CSJvJTqZ/Uc5bpSyY0=;
-	b=DtcvV8mLRZ9lBaFe22Oj4lA2U3CpI/ctJcpub7rMynybuP2Cy0dDvIHaUHioID0WwZNeOi
-	4lPOhHIDvlNtZWi9ED/gP9mIPaPNqGe+sZJYx6H5Lsinmh5SKeo270Hn65fCwtWTDj+00E
-	y60yAaWrIDknojnOIJ/aqYVmC9pi0e8=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-74-kbxYtFOcMAOroA2Dl4-pNA-1; Fri,
- 16 Jan 2026 09:05:57 -0500
-X-MC-Unique: kbxYtFOcMAOroA2Dl4-pNA-1
-X-Mimecast-MFC-AGG-ID: kbxYtFOcMAOroA2Dl4-pNA_1768572356
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3331D1800357;
-	Fri, 16 Jan 2026 14:05:56 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.226.82])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B6D1430002D6;
-	Fri, 16 Jan 2026 14:05:52 +0000 (UTC)
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-To: "Michael S . Tsirkin " <mst@redhat.com>
-Cc: Laurent Vivier <lvivier@redhat.com>,
-	linux-kernel@vger.kernel.org,
-	jasowang@redhat.com,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Maxime Coquelin <mcoqueli@redhat.com>,
-	Cindy Lu <lulu@redhat.com>,
-	virtualization@lists.linux.dev,
-	Yongji Xie <xieyongji@bytedance.com>,
-	Stefano Garzarella <sgarzare@redhat.com>
-Subject: [PATCH v14 13/13] Documentation: Add documentation for VDUSE Address Space IDs
-Date: Fri, 16 Jan 2026 15:04:55 +0100
-Message-ID: <20260116140455.1560491-14-eperezma@redhat.com>
-In-Reply-To: <20260116140455.1560491-1-eperezma@redhat.com>
-References: <20260116140455.1560491-1-eperezma@redhat.com>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="W83LidmA"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1vgm9x-009emH-3T; Fri, 16 Jan 2026 16:54:49 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=pPLXmraDS/TUqdgYNNIBp7gWJwJ6pPMA1qllGIDWHm0=; b=W83LidmAkqN0xBwx1jzBstFEzZ
+	9C2xl/3Ener0pW3Q4W4jEwpMzrSvmqu0WKhUxQTxSd1MOCyPcCv2KHw4mSceKC66cLc2AS6tJIIYd
+	byLyFi/u9Uj7i6aWwivuFAZ7yQ1pPUjNflazWPKDgq87LUXiOEFMqWS/jyost3mPDFpiYziWd/Vkw
+	Yyl3b52hB7G3KL6K2g+Xnw/48HM4B935jkbFmZMN/VCUpckCPA9C1i+SSE3RT+YursLCwz+cDlNVf
+	8GQdUHzROdlB0zJbmjupWo9ixh65nKzxTRTVZ3AaLyOK+nov3zWb565Vc7BWRRyRZVJrugu6eU+Eg
+	04PzLP3A==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1vgm9w-0004kJ-Nn; Fri, 16 Jan 2026 16:54:48 +0100
+Received: by submission02.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1vgm9i-004Ln0-Ll; Fri, 16 Jan 2026 16:54:34 +0100
+Message-ID: <27a29281-03a3-4ec5-b0b1-28d474e0539e@rbox.co>
+Date: Fri, 16 Jan 2026 16:54:33 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] vsock/test: Do not filter kallsyms by symbol type
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Luigi Leonardi <leonardi@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260116-vsock_test-kallsyms-grep-v1-1-3320bc3346f2@rbox.co>
+ <aWoKNf1AI9s1bmYM@sgarzare-redhat>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <aWoKNf1AI9s1bmYM@sgarzare-redhat>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+Content-Transfer-Encoding: 7bit
 
-Address Space IDs allows the VDUSE framework to support devices able to
-expose different virtqueues to different part of the drivers.  For
-example, to let QEMU handle the net device control virtqueue, so QEMU
-always knows the state of the device like mac address or number of
-queues enabled, while leaving the dataplane passthrough to the guest
-intact.  This enables live migration.
+On 1/16/26 11:11, Stefano Garzarella wrote:
+> On Fri, Jan 16, 2026 at 09:52:36AM +0100, Michal Luczaj wrote:
+>> Blamed commit implemented logic to discover available vsock transports by
+>> grepping /proc/kallsyms for known symbols. It incorrectly filtered entries
+>> by type 'd'.
+>>
+>> For some kernel configs having
+>>
+>>    CONFIG_VIRTIO_VSOCKETS=m
+>>    CONFIG_VSOCKETS_LOOPBACK=y
+>>
+>> kallsyms reports
+>>
+>>    0000000000000000 d virtio_transport	[vmw_vsock_virtio_transport]
+>>    0000000000000000 t loopback_transport
+>>
+>> Overzealous filtering might have affected vsock test suit, resulting in
+>> insufficient/misleading testing.
+>>
+>> Do not filter symbols by type. It never helped much.
+>>
+>> Fixes: 3070c05b7afd ("vsock/test: Introduce get_transports()")
+>> Signed-off-by: Michal Luczaj <mhal@rbox.co>
+>> ---
+>> man nm says: 't' stands for symbol is in the text (code) section. Is this
+>> correct for `static struct virtio_transport loopback_transport`?
+> 
+> I'm not an expert, but yeah I was expecting "d" too, but maybe since
+> it's static and built-in will be in the text section?
 
-Expands the VDUSE documentation to explain how to use the new ioctls or
-the new struct members of old ioctls.
+But it does not end up in the text section. Address points at RW NX
+(read-writeable non-executable) pages. Please see below.
 
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
----
-v13:
-* Fix s/VDUSE_IOTLB_GET_INFO/VDUSE_VQ_SETUP/.
-* Document VDUSE_SET_VQ_GROUP_ASID VDUSE message (Jason).
-* Fix typos (MST and Jason).
+> BTW I just checked and for example on my 6.18.4-100.fc42.x86_64 I have:
+> 
+> 0000000000000000 t sock_fs_type
+> 0000000000000000 t proto_net_ops
+> 0000000000000000 t net_inuse_ops
+> 
+> And they are all static structs of built-in modules.
+> So it seems it is common.
 
-v12: New in V12. Requested by Jason.
----
- Documentation/userspace-api/vduse.rst | 53 +++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+$ mv .config .config.orig
+$ vng -k --configitem RANDOMIZE_BASE=n --configitem CONFIG_PTDUMP_DEBUGFS=y
+$ vng -b
+$ vng --user root "grep sock_fs_type /proc/kallsyms"
+ffffffff82c1f000 t sock_fs_type
+$ vng --user root "grep 0xffffffff82 /sys/kernel/debug/page_tables/kernel"
+0xffffffff82a00000-0xffffffff83000000     6M    RW    PSE   GLB NX pmd
 
-diff --git a/Documentation/userspace-api/vduse.rst b/Documentation/userspace-api/vduse.rst
-index bdb880e01132..aa067da92cf5 100644
---- a/Documentation/userspace-api/vduse.rst
-+++ b/Documentation/userspace-api/vduse.rst
-@@ -230,4 +230,57 @@ able to start the dataplane processing as follows:
- 5. Inject an interrupt for specific virtqueue with the VDUSE_INJECT_VQ_IRQ ioctl
-    after the used ring is filled.
- 
-+Enabling ASID (API version 1)
-+------------------------------
-+
-+VDUSE supports per-address-space identifiers (ASIDs) starting with API
-+version 1. Set it up with ioctl(VDUSE_SET_API_VERSION) on `/dev/vduse/control`
-+and pass `VDUSE_API_VERSION_1` before creating a new VDUSE instance with
-+ioctl(VDUSE_CREATE_DEV).
-+
-+Afterwards, you can use the member asid of ioctl(VDUSE_VQ_SETUP) argument to
-+select the address space of the IOTLB you are querying.  The driver could
-+change the address space of any virtqueue group by using the
-+VDUSE_SET_VQ_GROUP_ASID VDUSE message type, and the VDUSE instance needs to
-+reply with VDUSE_REQ_RESULT_OK if it was possible to change it.
-+
-+Similarly, you can use ioctl(VDUSE_IOTLB_GET_FD2) to obtain the file descriptor
-+describing an IOVA region of a specific ASID. Example usage:
-+
-+.. code-block:: c
-+
-+	static void *iova_to_va(int dev_fd, uint32_t asid, uint64_t iova,
-+	                        uint64_t *len)
-+	{
-+		int fd;
-+		void *addr;
-+		size_t size;
-+		struct vduse_iotlb_entry_v2 entry = { 0 };
-+
-+		entry.v1.start = iova;
-+		entry.v1.last = iova;
-+		entry.asid = asid;
-+
-+		fd = ioctl(dev_fd, VDUSE_IOTLB_GET_FD2, &entry);
-+		if (fd < 0)
-+			return NULL;
-+
-+		size = entry.v1.last - entry.v1.start + 1;
-+		*len = entry.v1.last - iova + 1;
-+		addr = mmap(0, size, perm_to_prot(entry.v1.perm), MAP_SHARED,
-+			    fd, entry.v1.offset);
-+		close(fd);
-+		if (addr == MAP_FAILED)
-+			return NULL;
-+
-+		/*
-+		 * Using some data structures such as linked list to store
-+		 * the iotlb mapping. The munmap(2) should be called for the
-+		 * cached mapping when the corresponding VDUSE_UPDATE_IOTLB
-+		 * message is received or the device is reset.
-+		 */
-+
-+		return addr + iova - entry.start;
-+	}
-+
- For more details on the uAPI, please see include/uapi/linux/vduse.h.
--- 
-2.52.0
+And if I try a 2-year-old v6.13, kallsyms shows 'd' as we'd expect. I've
+bisected it down to commit cb33ff9e063c ("x86/kexec: Move relocate_kernel
+to kernel .data section"), but I still don't know if it's a bug or a feature.
 
