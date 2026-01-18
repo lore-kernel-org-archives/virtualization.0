@@ -1,276 +1,160 @@
-Received: from mail-oo1-f99.google.com (mail-oo1-f99.google.com [209.85.161.99])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 076852D77E6
-	for <virtualization@lists.linux.dev>; Sat, 17 Jan 2026 06:03:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90D7920ED;
+	Sun, 18 Jan 2026 12:08:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768629786; cv=none; b=lmmk4nuoy/asxNC5vnrktb0zUGEn3C9hEeZJIMQoncyhSyBaGvq45YeZdaxvpBsCYHnCf3A6nmIWwnmq5DJWIe3/JyJ048zhG+iy7tOLrmxwCeNPmPIm2xSCxi7IH+q/UnZUJy1OdWpgXVg/KlIlhibF7/k7TPNklswhmbijtfo=
+	t=1768738139; cv=none; b=lDaJSOugUGDSbb271L84PTRNmh9nvmbNMEZVFR3yi8mU0o6EAfoohx2SpLWZHjEvOuFqQzJxVgiZ9chYnAHASCBg/w8DaybEHAO16kxQku6+Bp4YZuVfgzEzGvAw20MpQ62ynEN6prUWZ8PmQb1uLuhuHuxDas5L/+EwYIOjFTE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768629786; c=relaxed/simple;
-	bh=KkNeGfGnqPqz2+8K4sWpDytjh3R4+KiI8SMobMKH52I=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GD9tJ6SrYfNAHYNuP6WmqyY2BTPlQ2LeOfypR//YA6RhqnVjuGs+aJ5fHb3s7QnIN8BeitZi3VnR85vPZtALtqB/WAGdt5BwZonFOZ1uErnQl8r3M0lznO5sZ6ItozCWIiEs5+6FpbaaX1jCl08FVds+gouhJt2c1vLDN7jgK5w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=Fgg3rqwI; arc=none smtp.client-ip=209.85.161.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1768738139; c=relaxed/simple;
+	bh=6bmUHSFT3Q7/+tXPCxCaiihzWsFX2kmrdZwwrHRlKhY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=MsGCw/N+Um7WB9Rl4wloCR2zWEixQjiTUCHSMVBda9xHloyjKMpUEoXOHApMaEa7PKx3Nt3Slb69SHQTYrcuMp+6uxTfHeYLe0t4TnqmeWcZy6QQrmOXkgQs7aHfQHQtpvMUe6nk4l6OY2Z8ViLgFHBBu3qJ/HIWwdP+Dijamag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aG4uK31r; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Fgg3rqwI"
-Received: by mail-oo1-f99.google.com with SMTP id 006d021491bc7-6610ab85165so799535eaf.3
-        for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 22:03:04 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768629784; x=1769234584;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=KkNeGfGnqPqz2+8K4sWpDytjh3R4+KiI8SMobMKH52I=;
-        b=CfQODqrF6VadJILe+qhGa0OkxIm+ngX1rv7BbxQ9TDWVe7Q/74xiaDmrvh5SIPaLgR
-         epDq7zSyxCJqmz9936PgWAOxVbPx5TKn/V5VkRZCTsiTp6fZc5gddmZiBq30IaxG1e7l
-         fILCYhR79TyBRwiyTTgMAsblaKQvJK2xk1ACwrxOiWL67Ff/xa8Ezrb78zHaEBf33zk0
-         ckIzCHuy08nWZ6JE18e4pdC67g3dXETNzpglN6JNoM5T15FeTgApm+bvdAl21UwUqC3h
-         4w0QAZ96dWDFIi2icepMTfw8ytIwhjx9tdkC5eN1VdUekGrLIQxeGENXhZjvX1wFONSg
-         okug==
-X-Forwarded-Encrypted: i=1; AJvYcCXRRzfIS8nVz0IqYupmbf976Xt2DBXzBctBSQwyDlOc/zP6v30OS0E4l/hxc6s7XLCJWaeCTDbZtp5wTdRFUA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxye1shVV0vQYWcARgfWWQPAiq41qwU81bhdZJnT7F5MthuMcPl
-	KmZigAfOp5Mu0NL7fZvu39eNnV37i0cXDYkvmftAS8R4uiwrbbgNW2nK+Mj51oypU4/C6BInwvQ
-	mRO/oXioFkzmFj/Rst1m1qsL4YjT10GRbjGM0d7ngHTrEBItDlBXM9y2Na4wICcYQVbTT4VYBfU
-	ShZLmTwci9BdYSn3uBakJqgdBbP4nCIq7ynsGmfgtwed8VerWfD39XYEkFSMPN5Len1isBXLnjt
-	SAX7FEGHpeG05QpnCM=
-X-Gm-Gg: AY/fxX6QZGPqFYep+EG5mJomF6gIKOX6n0hLXEB4thVxZulcS6IH90VQ/aJzOtKR2PS
-	U6gphb286e6qtm7OOsdWpkgA++f0xjEzNhgRfAq5jnaOh3n7QYnI1TR8KGcikcjoRYyOAQTz+fp
-	mnwVly5/N6ikMaudXgmhAZDT5w08K3bEhzFfN/Y1ayeC0ALYeBIUwX/EN2vKrBV6EtLWzq8JzWd
-	s9cvqreakHnZeZS0BsgqZRgHTunqz7iu3lj1TLbbf8LR/SJ7+7PPuvRIO1+awIVHmsM/NzrhlOo
-	WI9B0xcgBDbWxSTx4KRHHiYXH0RcpJrfI1qg5zIAvRAW50BVPkfgfneUvRCnBKU6RxdiNzQsr3u
-	AvlDv6d1cT+yAU1LCWiXJYt+rnhFGU9ETmjtU+AYLt1qIZcC5u+rB//eiWqXnPtOvcw6Sep5var
-	3Xiq1sQw1RnYmsThmlcvb4BWaAMy1uWgUVhB7H+6oMB9hC
-X-Received: by 2002:a05:6820:1c89:b0:65f:12ab:14ca with SMTP id 006d021491bc7-661179c315emr2401005eaf.44.1768629783749;
-        Fri, 16 Jan 2026 22:03:03 -0800 (PST)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-118.dlp.protect.broadcom.com. [144.49.247.118])
-        by smtp-relay.gmail.com with ESMTPS id 586e51a60fabf-4044bb0a87csm498837fac.2.2026.01.16.22.03.03
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 16 Jan 2026 22:03:03 -0800 (PST)
-X-Relaying-Domain: broadcom.com
-X-CFilter-Loop: Reflected
-Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-38310a79f92so20099051fa.3
-        for <virtualization@lists.linux.dev>; Fri, 16 Jan 2026 22:03:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1768629782; x=1769234582; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=KkNeGfGnqPqz2+8K4sWpDytjh3R4+KiI8SMobMKH52I=;
-        b=Fgg3rqwIR/bI951t796QVJ8fFVgjHSa9anCRlB+qUwq/v7q6v5B3F6NWSHshJIdr9w
-         MY8otIxnmSFzS58doBYF7LpUFfLMwuQjHKMCEpHpH9oyPQ6Ph1Ot0wR4mFY2WTQq5zZo
-         1I9IJIDzO50xm76JtuvMyalO/Wjl609nvJRlk=
-X-Forwarded-Encrypted: i=1; AJvYcCW+nR8yH5k2oO4xShMnGYV0WTpF4+0nCwDkef4QAuUgeGBK+a+njk0zBSRU4dBkP7rZvfrOlvhUuIWYvogifA==@lists.linux.dev
-X-Received: by 2002:a05:6512:10cb:b0:598:f262:15c7 with SMTP id 2adb3069b0e04-59baeef7c0amr1501659e87.25.1768629781439;
-        Fri, 16 Jan 2026 22:03:01 -0800 (PST)
-X-Received: by 2002:a05:6512:10cb:b0:598:f262:15c7 with SMTP id
- 2adb3069b0e04-59baeef7c0amr1501644e87.25.1768629780919; Fri, 16 Jan 2026
- 22:03:00 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aG4uK31r"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92637C116D0;
+	Sun, 18 Jan 2026 12:08:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768738139;
+	bh=6bmUHSFT3Q7/+tXPCxCaiihzWsFX2kmrdZwwrHRlKhY=;
+	h=From:To:Cc:Subject:Date:From;
+	b=aG4uK31r0MqVjWD9XffPW7en2hhZsO688W532e1q8M7HRFYm320SE5m73+UGstOff
+	 0HrYZuKbh0toNswE4Xbm1P0QHSQKJblqIbIyQy0jq+i0SdliWxS4tc1gq5JCChkVGi
+	 Riax/uALSvMxc5oVBHWULvwd01DMvBqLuON9emQT4OVyyB5VdFxK+Ox4k/LswzZTkG
+	 Ah6VK2r5SR451CP05ufhWEs0FXamSBFN+a8yO057BxF8fnGNz5hAvSNoSnggXxVhx0
+	 5vL8oOMNUSVxROdcIeYu7DAAiE4l0/WXHLT4AilQNGqLbTAZ2WoezH1KLPDu6Lmimm
+	 EDaAW2lmOJo2A==
+From: Leon Romanovsky <leon@kernel.org>
+To: Sumit Semwal <sumit.semwal@linaro.org>,
+	=?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	=?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Leon Romanovsky <leon@kernel.org>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Alex Williamson <alex@shazbot.org>
+Cc: linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org,
+	linux-rdma@vger.kernel.org,
+	iommu@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: [PATCH v2 0/4] dma-buf: document revoke mechanism to invalidate shared buffers
+Date: Sun, 18 Jan 2026 14:08:44 +0200
+Message-ID: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20251229215906.3688205-1-zack.rusin@broadcom.com>
- <c816f7ed-66e0-4773-b3d1-4769234bd30b@suse.de> <CABQX2QNQU4XZ1rJFqnJeMkz8WP=t9atj0BqXHbDQab7ZnAyJxg@mail.gmail.com>
- <97993761-5884-4ada-b345-9fb64819e02a@suse.de> <CABQX2QMn_dTh2h44LRwB7+RxGqK3Jn+QCx38xWrzpNJG5SZ9-Q@mail.gmail.com>
- <f3643c19-c250-4927-b39d-37d2494c7c84@suse.de>
-In-Reply-To: <f3643c19-c250-4927-b39d-37d2494c7c84@suse.de>
-From: Zack Rusin <zack.rusin@broadcom.com>
-Date: Sat, 17 Jan 2026 01:02:48 -0500
-X-Gm-Features: AZwV_QiUnz_If_z8Rkd9UgQ6zWILOg85OCTnKGucjTIyh0yZ4kAyPDhffMT5Rew
-Message-ID: <CABQX2QM0_6DJtrahJS7x9iF_wcSZRc4dohEiPnMCtAg7Vt7JPQ@mail.gmail.com>
-Subject: Re: [PATCH 00/12] Recover sysfb after DRM probe failure
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: dri-devel@lists.freedesktop.org, Alex Deucher <alexander.deucher@amd.com>, 
-	amd-gfx@lists.freedesktop.org, Ard Biesheuvel <ardb@kernel.org>, Ce Sun <cesun102@amd.com>, 
-	Chia-I Wu <olvaffe@gmail.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Danilo Krummrich <dakr@kernel.org>, Dave Airlie <airlied@redhat.com>, 
-	Deepak Rawat <drawat.floss@gmail.com>, Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
-	Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
-	Hans de Goede <hansg@kernel.org>, Hawking Zhang <Hawking.Zhang@amd.com>, Helge Deller <deller@gmx.de>, 
-	intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-	Jani Nikula <jani.nikula@linux.intel.com>, Javier Martinez Canillas <javierm@redhat.com>, 
-	Jocelyn Falempe <jfalempe@redhat.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
-	Lijo Lazar <lijo.lazar@amd.com>, linux-efi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Lucas De Marchi <lucas.demarchi@intel.com>, Lyude Paul <lyude@redhat.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	"Mario Limonciello (AMD)" <superm1@kernel.org>, Mario Limonciello <mario.limonciello@amd.com>, 
-	Maxime Ripard <mripard@kernel.org>, nouveau@lists.freedesktop.org, 
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>, 
-	spice-devel@lists.freedesktop.org, 
-	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
-	=?UTF-8?Q?Timur_Krist=C3=B3f?= <timur.kristof@gmail.com>, 
-	Tvrtko Ursulin <tursulin@ursulin.net>, virtualization@lists.linux.dev, 
-	Vitaly Prosyak <vitaly.prosyak@amd.com>
-X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-	boundary="000000000000e58b7c06488f35f4"
-
---000000000000e58b7c06488f35f4
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+X-Change-ID: 20251221-dmabuf-revoke-b90ef16e4236
+X-Mailer: b4 0.15-dev-a6db3
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 16, 2026 at 2:58=E2=80=AFAM Thomas Zimmermann <tzimmermann@suse=
-.de> wrote:
->
-> Hi
->
-> Am 16.01.26 um 04:59 schrieb Zack Rusin:
-> > On Thu, Jan 15, 2026 at 6:02=E2=80=AFAM Thomas Zimmermann <tzimmermann@=
-suse.de> wrote:
-> >> That's really not going to work. For example, in the current series, y=
-ou
-> >> invoke devm_aperture_remove_conflicting_pci_devices_done() after
-> >> drm_mode_reset(), drm_dev_register() and drm_client_setup().
-> > That's perfectly fine,
-> > devm_aperture_remove_conflicting_pci_devices_done is removing the
-> > reload behavior not doing anything.
-> >
-> > This series, essentially, just adds a "defer" statement to
-> > aperture_remove_conflicting_pci_devices that says
-> >
-> > "reload sysfb if this driver unloads".
-> >
-> > devm_aperture_remove_conflicting_pci_devices_done just cancels that def=
-er.
->
-> Exactly. And if that reload happens after the hardware state has been
-> changed, the result is undefined.
-
-This is all predicated on drivers actually cleaning up after
-themselves. I don't think any amount of good will or api design is
-going to fix device specific state mismatches.
-
-> The current recovery/reload is not reliable in any case. A number of
-> high-profile devs have also said that it doesn't work with their driver.
-> The same is true for ast. So the current approach is not going to happen.
->
-> > There also might be the case of some crazy behavior, e.g. pci bar
-> > resize in the driver makes the vga hardware crash or something, in
-> > which case, yea, we should definitely skip this patch, at least until
-> > those drivers properly cleanup on exit.
->
-> There's nothing crazy here. It's standard probing code.
->
-> If you want to to move forward, my suggestion is to look at the proposal
-> with the aperture_funcs callbacks that control sysfb device access. And
-> from there, build a full prototype with one or two drivers.
-
-I don't think that approach is going to work. I don't think there's
-anything that can be done if drivers didn't cleanup everything they've
-done that might have broken sysfb on unload. I'm going to drop it
-then, it's obviously a shame because it works fine with virtualized
-drivers and they're ones that would likely profit from this the most
-but I'm sceptical that I could do full system state set reset in a
-generalized fashion for hw drivers or that the work required would be
-worth the payoff.
-
-z
-
---000000000000e58b7c06488f35f4
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-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
-6U6qgI8F5eiKsQyE0HgYrQJx/sDs9LLVZlaNiA3U8M8CgEnb8VhuH3BN/yXphhEQdJXb1TyaJA60
-SmHcZdEQZbl4EjwUcs3UIowmI/Mhi7ADQB7VNsO/BaOVBEQk53xH+4djY/cg7jvqTTeliY05j2Yx
-uwwXcDC4mWjGzxAT5DVqC8fKQvon1uc2heorHb555+sLdwYxAgMBAAGjggHYMIIB1DAOBgNVHQ8B
-Af8EBAMCBaAwgZMGCCsGAQUFBwEBBIGGMIGDMEYGCCsGAQUFBzAChjpodHRwOi8vc2VjdXJlLmds
-b2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2c21pbWVjYTIwMjMuY3J0MDkGCCsGAQUFBzABhi1o
-dHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMwZQYDVR0gBF4wXDAJ
-BgdngQwBBQMBMAsGCSsGAQQBoDIBKDBCBgorBgEEAaAyCgMCMDQwMgYIKwYBBQUHAgEWJmh0dHBz
-Oi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1UdEwQCMAAwQQYDVR0fBDowODA2
-oDSgMoYwaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMuY3JsMCIG
-A1UdEQQbMBmBF3phY2sucnVzaW5AYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB8G
-A1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBQNDn2m/OLuDx9YjEqPLCDB
-s/VKNTANBgkqhkiG9w0BAQsFAAOCAgEAF463syOLTQkWZmEyyR60W1sM3J1cbnMRrBFUBt3S2NTY
-SJ2NAvkTAxbPoOhK6IQdaTyrWi8xdg2tftr5FC1bOSUdxudY6dipq2txe7mEoUE6VlpJid/56Mo4
-QJRb6YiykQeIfoJiYMKsyuXWsTB1rhQxlxfnaFxi8Xy3+xKAeX68DcsHG3ZU0h1beBURA44tXcz6
-fFDNPQ2k6rWDFz+XNN2YOPqfse2wEm3DXpqNT79ycU7Uva7e51b8XdbmJ6XVzUFmWzhjXy5hvV8z
-iF+DvP+KT1/bjO6aNL2/3PWiy1u6xjnWvobHuAYVrXxQ5wzk8aPOnED9Q8pt2nqk/UIzw2f67Cn9
-3CxrVqXUKm93J+rupyKVTGgKO9T1ODVPo665aIbM72RxSI9Wsofatm2fo8DWOkrfs29pYfy6eECl
-91qfFMl+IzIVfDgIrEX6gSngJ2ZLaG6L+/iNrUxHxxsaUmyDwBbTfjYwr10H6NKES3JaxVRslnpF
-06HTTciJNx2wowbYF1c+BFY4r/19LHygijIVa+hZEgNuMrVLyAamaAKZ1AWxTdv8Q/eeNN3Myq61
-b1ykTSPCXjBq/03CMF/wT1wly16jYjLDXZ6II/HYyJt34QeqnBENU9zXTc9RopqcuHD2g+ROT7lI
-VLi5ffzC8rVliltTltbYPc7F0lAvGKAxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYD
-VQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBD
-QSAyMDIzAgxhPxw+eieHWB40hPkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIEIBCK
-e4A3z3CqFQe3IsyXO5x3uXMpy+yDDD7NQNrNRe7NMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-HAYJKoZIhvcNAQkFMQ8XDTI2MDExNzA2MDMwMlowXAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQME
-ASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcwCwYJ
-YIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBADnfpLDRtY3ZBZL7ltI8Yiq6c5TD0Tv/FGci0rA9
-txHbRGMB2w3d8WiU4il+YNMHiRyF/mcsSF+E/SIuH/aWtoRV6uao8r12CQ+B+hgxLtBMZ8Gq/ZSF
-Ygy6pZG95T6EeyeDoH9VLfcFey4WfC/Mnfu2R7fPJxZihHras/uGgHcga0YhzuyHXB8eXvnDKvST
-hcbY0XvAHAFdItfmWdb/CGGfPkVKwtmwj0wRKu90qvMLh7TTNok8Mggcw5Y9mcvnkBcw3ae8DZKT
-hC8kPEAjk0glu1GFV9fZ62/LuAH0OkZw/b7+fLmEFbwOb17yrKMWw/H9rihgpjw1NYOlWePvmC4=
---000000000000e58b7c06488f35f4--
+Changelog:=0D
+v2:=0D
+ * Changed series to document the revoke semantics instead of=0D
+   implementing it.=0D
+v1: https://patch.msgid.link/20260111-dmabuf-revoke-v1-0-fb4bcc8c259b@nvidi=
+a.com=0D
+=0D
+-------------------------------------------------------------------------=0D
+This series documents a dma-buf =E2=80=9Crevoke=E2=80=9D mechanism: to allo=
+w a dma-buf=0D
+exporter to explicitly invalidate (=E2=80=9Ckill=E2=80=9D) a shared buffer =
+after it has=0D
+been distributed to importers, so that further CPU and device access is=0D
+prevented and importers reliably observe failure.=0D
+=0D
+The change in this series is to properly document and use existing core=0D
+=E2=80=9Crevoked=E2=80=9D state on the dma-buf object and a corresponding e=
+xporter-triggered=0D
+revoke operation. Once a dma-buf is revoked, new access paths are blocked s=
+o=0D
+that attempts to DMA-map, vmap, or mmap the buffer fail in a consistent way=
+.=0D
+=0D
+Thanks=0D
+=0D
+Cc: linux-media@vger.kernel.org=0D
+Cc: dri-devel@lists.freedesktop.org=0D
+Cc: linaro-mm-sig@lists.linaro.org=0D
+Cc: linux-kernel@vger.kernel.org=0D
+Cc: amd-gfx@lists.freedesktop.org=0D
+Cc: virtualization@lists.linux.dev=0D
+Cc: intel-xe@lists.freedesktop.org=0D
+Cc: linux-rdma@vger.kernel.org=0D
+Cc: iommu@lists.linux.dev=0D
+Cc: kvm@vger.kernel.org=0D
+To: Sumit Semwal <sumit.semwal@linaro.org>=0D
+To: Christian K=C3=B6nig <christian.koenig@amd.com>=0D
+To: Alex Deucher <alexander.deucher@amd.com>=0D
+To: David Airlie <airlied@gmail.com>=0D
+To: Simona Vetter <simona@ffwll.ch>=0D
+To: Gerd Hoffmann <kraxel@redhat.com>=0D
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>=0D
+To: Gurchetan Singh <gurchetansingh@chromium.org>=0D
+To: Chia-I Wu <olvaffe@gmail.com>=0D
+To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>=0D
+To: Maxime Ripard <mripard@kernel.org>=0D
+To: Thomas Zimmermann <tzimmermann@suse.de>=0D
+To: Lucas De Marchi <lucas.demarchi@intel.com>=0D
+To: Thomas Hellstr=C3=B6m <thomas.hellstrom@linux.intel.com>=0D
+To: Rodrigo Vivi <rodrigo.vivi@intel.com>=0D
+To: Jason Gunthorpe <jgg@ziepe.ca>=0D
+To: Leon Romanovsky <leon@kernel.org>=0D
+To: Kevin Tian <kevin.tian@intel.com>=0D
+To: Joerg Roedel <joro@8bytes.org>=0D
+To: Will Deacon <will@kernel.org>=0D
+To: Robin Murphy <robin.murphy@arm.com>=0D
+To: Alex Williamson <alex@shazbot.org>=0D
+=0D
+---=0D
+Leon Romanovsky (4):=0D
+      dma-buf: Rename .move_notify() callback to a clearer identifier=0D
+      dma-buf: Document revoke semantics=0D
+      iommufd: Require DMABUF revoke semantics=0D
+      vfio: Add pinned interface to perform revoke semantics=0D
+=0D
+ drivers/dma-buf/dma-buf.c                   |  6 +++---=0D
+ drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c |  4 ++--=0D
+ drivers/gpu/drm/virtio/virtgpu_prime.c      |  2 +-=0D
+ drivers/gpu/drm/xe/tests/xe_dma_buf.c       |  6 +++---=0D
+ drivers/gpu/drm/xe/xe_dma_buf.c             |  2 +-=0D
+ drivers/infiniband/core/umem_dmabuf.c       |  4 ++--=0D
+ drivers/infiniband/hw/mlx5/mr.c             |  2 +-=0D
+ drivers/iommu/iommufd/pages.c               | 11 +++++++++--=0D
+ drivers/vfio/pci/vfio_pci_dmabuf.c          | 16 ++++++++++++++++=0D
+ include/linux/dma-buf.h                     | 25 ++++++++++++++++++++++---=
+=0D
+ 10 files changed, 60 insertions(+), 18 deletions(-)=0D
+---=0D
+base-commit: 9ace4753a5202b02191d54e9fdf7f9e3d02b85eb=0D
+change-id: 20251221-dmabuf-revoke-b90ef16e4236=0D
+=0D
+Best regards,=0D
+--  =0D
+Leon Romanovsky <leonro@nvidia.com>=0D
+=0D
