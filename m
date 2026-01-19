@@ -1,127 +1,132 @@
-Received: from mail-qk1-f196.google.com (mail-qk1-f196.google.com [209.85.222.196])
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A77653115A2
-	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 16:24:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B58B938944A
+	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 16:30:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768839869; cv=none; b=VgbWnMcCXAQlWyCq+/Pii3L1uGi/dfJ242US9ICDRV+OdTKTlzOyi7LJsbEcagPfKD/f/rdiyEjs7uRBOln2IPLD99DLopB5lsl3C4y4zQqpCcKhgFZwR01sMHGzgSrI0wOhioV0WclaRWxT68zqV+jLpUjaQEFGTYHW1K9+TUU=
+	t=1768840249; cv=none; b=XMfce/B7DRVu092UWzCeB6sDVCIqdM84vjPRFseNsGrSnAPMlRTffL6o6uxfACRf4APQtmOl60224QrF49lZOxoMNhyTcJmYJkZ6d8l2gtV2UrXnsNEo0RCq3hN/4/aISfFHTRnt14Gvgcx2o8/9u/1TjvoKXjKnFZ9pAgF6+TM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768839869; c=relaxed/simple;
-	bh=y4swwYbPI6raB2hvkPRsghll5RR/RHHzFup3OVrjU1M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=K1EW/y6f0fIZw/pR0bgOEw3Tuga7RrhRxxXYzeqL0/VS0nsJpl9V41gE3ANI46zDm6hO8DPdRc8U5jT6LL+FyAwmV7zcAWRseIRowSYF3u6Q0JtuS5MPGltG2q3HbktN4hlihjixVlJoXIe5m09vITXvoix9/e9Eif7CijGmllQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=CislqUfv; arc=none smtp.client-ip=209.85.222.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1768840249; c=relaxed/simple;
+	bh=74nuZh3CRHnlUvBAbWZ6tYHKEa5PfTvtDxqJmYiZgE8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mx3xk8U6GgP88E0ZrQvHqnWCRkDWhPL6yVfNs/a5txWGaLPTTJnexCKpT/Wfav4iejizqTuSUq4Hxb4K7BMCjcOGMI5J/WJuleghfj0uCIpuav/C6IeOWwXZ5KqoQPRHPRFLhMjOTGZ4HaZKdhv/AahsyMgAxoIH7broMBgA4AA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sj7t84WD; arc=none smtp.client-ip=209.85.218.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="CislqUfv"
-Received: by mail-qk1-f196.google.com with SMTP id af79cd13be357-8c537a42b53so697780785a.0
-        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 08:24:26 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sj7t84WD"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b87cc82fd85so220540666b.2
+        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 08:30:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1768839866; x=1769444666; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=zCRrpohPCspJo8o5qWVDG1aTKo63AMTSXJRpwyKl02I=;
-        b=CislqUfv34gE7OcRNtPj3BcVW6YbJ1IahbGjSqddNvqzBlUmZ2AZf+rf6oCmEF+R1e
-         Bgh/TR/vsdEhb7HgVAa4gWL5DhQpJRGGuJkB/mmiWbVJbH+WbjWqbGWe6PipWj46ktCo
-         Kocd3I7h43y+c2lv5iT4RBi686qNiJhhZU2GA3fG99/WYSqKWZgZ6TcD2OyBgndKLRsB
-         qIFyn6/SD8z9ablKh21TYjygyLKtn2fp6+sSqKL4eD8KTgLUnLCTL+qANUWWgPaQfSYL
-         872+zOrwW0S8mviwVD2eBh6J+DtBqPwIZ9nIxMP+95yiYFKC0fmXCYgw2X7p+oBG5pDD
-         775A==
+        d=gmail.com; s=20230601; t=1768840246; x=1769445046; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=MAx9ToKLl7t8y9PiSc/w47xhuek7x5/AEgqS5Sqqu4g=;
+        b=Sj7t84WDmTIbJEkAwtrA+XjybVjUQW/Pc2tSZh4fqhPAxiNOvtceji6uguNWNT+pHG
+         Jh8zaJW7BrZANqmLFS4bBnrbmbkkp+UZfGemr3qf9pX8gy2PP1opt0vLE+suUJS7s8Ak
+         azERN++7bpww4XCNtxBXQ7CkxjOCQGZx/44DEtOs4HbNGkt4gX2p1/K3+bYfUt7Y9B+d
+         42e1Aqz+e8AMNIbe1TKWGIj9pO09lKPaIObNP1TmzD5W6SJgP3kDiTXrmbf8wpHoIdop
+         bEHyrdh+Hg5HwhkmobLy/JOi7tvSc44Xx3gVr/mzSGDpzvLDJMztmmc6sAQHS1dML+wm
+         CpDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768839866; x=1769444666;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zCRrpohPCspJo8o5qWVDG1aTKo63AMTSXJRpwyKl02I=;
-        b=vXO4cCwQm4L7sUEspnwxrzqyIjLAOXjgEUnxPm7pXrgGpCfFrqLPQiCCwzZMbCjwYu
-         QMxbb+OqBzxBihAr+KsFwxKRpL1dwubI/hQXZ4ub3kufRXh43nGVGEid6A/+8moTPzp2
-         0wrC2CrcQ6Fe0ghCJM4HJWx2QX+hu83X3ul82UP/Cpvc84WxyF/edsncGebJSdAg1ReC
-         937lnQTbFDRtdVVryrepHUjHkJ57aaNhzrbndh+uzu136JoQEorS8U6Hsbl00rLXXUeR
-         1fkTvyTRkzu1PJGI9c+sR+mgV1we2RFaE6hkrAGtVHaI10RU5ZB8TnVMY9mgY+UZFHXY
-         EHMQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWcxNWAgJArvHyRAIhFJMvyI+6Acf6lk3nWbmWCCxkH2Ud2yp4Dsjhgyv46l3pQ3lqJLsKnhMxzj3WBqBf0Kg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxuMwDZOub00Lslv+BHAmdWSJ4aQi+Qz6uhhpfe5skznquTa/6o
-	hg3LVwxKi45FTT0bMXceVYE7eZXtHGlZiiukd4rwKT9rztGMb9TrwOBuyX04n/uU91c=
-X-Gm-Gg: AY/fxX5C0f2i27MFcbn1Ej7nW38AtOCh1fkJSyIrk8SnFodi4ESsLxV94hXLhwOuLcF
-	9DkHi0WKEMcwoTif/BJqtN7OtyIoH725heIUUCM7jmhEm3csVo3/2NvPYiYFMGqUUKVoq7Ap4aq
-	1NGfSKHgevO25PXjkmlGYe79TRFSowWI8rur6EDpzRYA2ddCCGSpLxskiOyRiOh/JTXyo0C5p91
-	qsvTIvoG06/6H0fSqHPObyLWNz1NgrdhOMLAib0bE+gOsr80NcMd9w03a15uLwrV/dJUVlU2mZt
-	RxCLw+MDHnhm+y1bVt0akWa1EolO3JRckx2rkt2H3l87UcsOAmSFAppgi8vdkEh7+rW8QZ6yNlp
-	8s4Q20K7FIw+JR3OGs553EdGBUfdVRHRvb2Q9a5YKR3w8mPr1J1uoq3xG/IX2NhB36aReyCtO+y
-	CgcdFoOTCl+cAd+ZximS8kiz5YLDMAgbUUP+PtEk2hb/YfqEdegYxAs6d1f5wgZJfEd64=
-X-Received: by 2002:a05:620a:2a02:b0:8c5:33bf:5252 with SMTP id af79cd13be357-8c6a6963403mr1445548485a.70.1768839865634;
-        Mon, 19 Jan 2026 08:24:25 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6a724a484sm800372485a.33.2026.01.19.08.24.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Jan 2026 08:24:25 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1vhs3E-00000005I0S-2Krj;
-	Mon, 19 Jan 2026 12:24:24 -0400
-Date: Mon, 19 Jan 2026 12:24:24 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>
-Cc: Leon Romanovsky <leon@kernel.org>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Alex Williamson <alex@shazbot.org>, linux-media@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
-	linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
-	linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH v2 0/4] dma-buf: document revoke mechanism to invalidate
- shared buffers
-Message-ID: <20260119162424.GE961572@ziepe.ca>
-References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
- <f115c91bbc9c6087d8b32917b9e24e3363a91f33.camel@linux.intel.com>
- <20260119075229.GE13201@unreal>
- <9112a605d2ee382e83b84b50c052dd9e4a79a364.camel@linux.intel.com>
+        d=1e100.net; s=20230601; t=1768840246; x=1769445046;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MAx9ToKLl7t8y9PiSc/w47xhuek7x5/AEgqS5Sqqu4g=;
+        b=MB/ejXtd9vuhgoYmm9dZRPJMBD7pHVxu8mCeQHw4ojkO9H6rDTYHBw1h4B2PYtqnM7
+         5p0GouBIUsSW0zGZ+UEJojmIp/1qdPb99OOvlxGaVwvb5ugMUYQkjSMyXL+HjSq1drs7
+         kPz+T05UJP8o0S8BMtSbbnywFycIUM6rpzox/W2aUnjCBAcSNS0V0jMJN/6PJeaUBrC6
+         bOR1g247aZc0QbKbpz4jSGWL6VfwBp5LQS5Ylz78rS91G3BntSsaRBQ+7GuudRSfqd7U
+         eX/rSV5Fr/o5+bfhoBwc4VR6tawcUNmAaPVUCZ2UP+Wod+roCuYcZN7Yffmy8b4CTLdu
+         A19A==
+X-Forwarded-Encrypted: i=1; AJvYcCVkFiKLAobToUTEdAwtP7F4oXn/alXPBC0ST9VowmCoUWfA+vPp6Kry7jCK5MCOFsfwb7tPCTPXEaJkRW9SUg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz2GOokM9Pd/1qUPbOZqiHsFfxyrxOhWb6iaBku3NdrUjM3r/bj
+	FSwjHs7jd2ZGzbrWalccZlmA7ERShF6Wv9N9tiDygvy4Oa8UG6edjGllCxww2Q==
+X-Gm-Gg: AY/fxX6DAF0ZZ8qvyiGqBdFjuuU73eu3SkJkm2Sokm/WPULVuQtBciwPyPadqF3eY1h
+	CiSj61CciVhIxO5sz6CqLgDsJQoT8Jfie+U0RzeE3IZhPPQMF7/MaUL5FFzRmoATtXT3XIMGRKt
+	ULm0WwUTyg5I+GS+d8vuyPC2Di1bgPbZjWoTrNwSX839mHD4NN+Z+7c4eGGU5G9G9V/PH8N4s60
+	KdWIVuNn8Kf6heeUhgsttCj34UqUltux2/lwODO8q6UwwewxDuAE3pu/PyZxssuNUh3ror/mZZl
+	h6nu8kWWoSyTdkeprby4E8+MllIXeugv1PBHdL0zucOgVVZ4ttdTLkdmnNEI6W1WtDb7jNrSBCc
+	BUY788OqPWndGq2Ob5gnZOFvgJ9ucrwyOOF721Mi6ePrPN7dUbUpVw2iPNwgG6RJFTQ6OBlDk+Z
+	a6rycEMzYHYkfejuT/0BkGfQuC4zJrF55zy+epwO5icA==
+X-Received: by 2002:a17:906:4fd0:b0:b7c:e320:5250 with SMTP id a640c23a62f3a-b87968d1745mr879203466b.7.1768840245683;
+        Mon, 19 Jan 2026 08:30:45 -0800 (PST)
+Received: from [10.24.66.11] ([15.248.2.27])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8795169d30sm1167827566b.25.2026.01.19.08.30.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Jan 2026 08:30:45 -0800 (PST)
+Message-ID: <dae84252-1d61-499b-8297-54ad41d9a518@gmail.com>
+Date: Mon, 19 Jan 2026 16:30:44 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9112a605d2ee382e83b84b50c052dd9e4a79a364.camel@linux.intel.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH] virtio_balloon: Support wait on ACK for hinting
+To: "David Hildenbrand (Red Hat)" <david@kernel.org>, mst@redhat.com,
+ jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ kalyazin@amazon.co.uk, xmarcalx@amazon.co.uk, jackabt@amazon.com
+References: <20260119154236.39412-1-jackabt.amazon@gmail.com>
+ <6c3f8061-302e-40c1-829b-2f8555bee70c@kernel.org>
+Content-Language: en-US
+From: "Thomson, Jack" <jackabt.amazon@gmail.com>
+In-Reply-To: <6c3f8061-302e-40c1-829b-2f8555bee70c@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Jan 19, 2026 at 10:27:00AM +0100, Thomas Hellström wrote:
-> this sounds like it's not just undocumented but also in some cases
-> unimplemented. The xe driver for one doesn't expect move_notify() to be
-> called on pinned buffers, so if that is indeed going to be part of the
-> dma-buf protocol,  wouldn't support for that need to be advertised by
-> the importer?
 
-Can you clarify this?
 
-I don't see xe's importer calling dma_buf_pin() or dma_buf_attach()
-outside of tests? It's importer implements a fully functional looking
-dynamic attach with move_notify()?
+On 19/01/2026 3:50 pm, David Hildenbrand (Red Hat) wrote:
+> On 1/19/26 16:42, Jack Thomson wrote:
+>> From: Jack Thomson <jackabt@amazon.com>
+>>
+>> This RFC patch adds a new virtio feature for the virtio-balloon driver
+>> during free page hinting, which will wait on device ack before
+>> committing the range to the free_page_list. The reason for the change is
+>> it allows the device to modify this range without it being reclaimed
+>> from the free_page_list before the ack is sent. As expected, testing
+>> shows this adds overhead to the hinting run duration, increasing it by
+>> ~30% with our Firecracker setup. Currently free page hinting is used
+>> mainly for live migration, but this would open it up for a new use-case.
+>>
+>> We would like to leverage this with MADV_DONTNEED to reduce RSS of a
+>> guest. We'd like to use hinting because of the flexibility of control it
+>> brings compared to reporting, allowing memory to be reclaimed in
+>> deterministic periods. 
+> 
+> Can you elaborate in more detail why you don't simply use reporting, 
+> like QEMU?
 
-I see the exporer is checking for pinned and then not calling
-move_notify - is that what you mean?
+Ideally we'd like to use hinting as the API allows us to control when
+this reclamation takes place so as not to impact active VMs. For example
+if we know a VM is idle we can reclaim memory but also cancel the
+reclamation quickly if the VM receives new work (something we can't do
+quickly with the traditional balloon.)
 
-When I looked through all the importers only RDMA obviously didn't
-support move_notify on pinned buffers.
+> Could you instead see optimizations being done to reporting that could 
+> make it fly for your use case?
 
-Jason
+One thing that I considered was having reporting running but skip
+reported ranges during active times. But this may lead to missing
+reclamation opportunities.
+
+> 
+> Hinting is a rather special case thing only used for reducing VM 
+> migration time in QEMU AFAIR.
+> 
+
+Yeah, its API allowing direct control was what interested us. With this
+extension it made a great pairing just needed the synchronisation to
+make it safe.
+
+-- 
+Thanks,
+Jack
