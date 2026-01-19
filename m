@@ -1,123 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f193.google.com (mail-qk1-f193.google.com [209.85.222.193])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30A1E38BDDB;
-	Mon, 19 Jan 2026 15:50:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5EC628850B
+	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 16:20:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768837812; cv=none; b=o9HFVJ4qhxP+R3DHBZliPaDgU7lNeHVJdCqbGbBGeGFvuNjsJRqMaJABR/4fEteHhp/XB7Dqu5c7NnKVPl6z55pEo9eDk7pofQ3sLMBlrS3q/QBsXW6BR6bi72W0ILmT9qW0N7HLPWoN15rwEEn1oPaV3Tqo28BJzwi0URaNMBA=
+	t=1768839631; cv=none; b=ingTCvtaigVAaEcO/rNITpm+K2oSecDGwBwFBv+l0Wubd79wwZ3FWmve0tuc/fUayss2uutQSYJwJo6AgmZ1p0NU+UP0j1MpIDmf0H2xHNpxKAz+NKrCfCevx1gFcr13IhbS595pO9P30GU7K+gRUaEVjvg06moU5LB0dIedHfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768837812; c=relaxed/simple;
-	bh=Ge9a4W+ScNHnrmyDYC412nampeZPIhF0MI75Naq8xpA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JCxTljdh46YtrLs0je6tCnIJXKOElTFmNrEMha+ZalJ55k0A9hh/uTRPHcLMkjspZ0XCtUcfQt4ba69kgXk6jcZm3l3n+OwPbrL+xT50yRkc+cCl9uRHC7meHPhR5I1CwO/y/82de6YWnJA0E748Av/B06DG6bypVKh1XrDykrQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dZ/SV3dl; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768839631; c=relaxed/simple;
+	bh=lLsaw5dNuTdwtV9+A4M72uMo0bYM3iY+i5XXMuIoHPA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Y82OcIbeNWbduMWVt7jxbhVL5w04cC/BGzM0Bfaez70mJxdxAhefe+T9pVY2aOPbErU48IQgnrzUaXf9zwfVjFHXmOzk6vt/amnIKOjSe3r7+dzPwKd6QA3E4fj6J45IFQDZSCTy4Y4Y1LGA+CFgkdlVxEx1AwmzlWPT4E8Ej3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=K9PHWl7Z; arc=none smtp.client-ip=209.85.222.193
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dZ/SV3dl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 936F6C116C6;
-	Mon, 19 Jan 2026 15:50:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768837811;
-	bh=Ge9a4W+ScNHnrmyDYC412nampeZPIhF0MI75Naq8xpA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=dZ/SV3dlZW495MXI0aLbck5VMqdHMguCknlACk68Up73QNrFUPkpdQGBmflfG5/su
-	 zP6y2wW61oNvnOOxYqAQLYsv764wrQHmFOr3aeVppps6TjdlV6sZtrMzjAbF5BIlxm
-	 W7Rf0jVDs6dFbl+awCQofsyR5vtwyUfNjpUVPfDM/GsOTGgW5/HXuaMdfoqL6f8XME
-	 /l4rjY7Tz76OtC8NUOYwxogDSm8cGu85syhWJfYw5CdXIAz03D39n6y/5OIVu51IzZ
-	 yBmr0ZJswUsan6j6SF7J1EnfZZADmnytyZccmiiCjs4qLMGwjw1CfO68p4fmNRZRYz
-	 CGxfvycWg1+9A==
-Message-ID: <6c3f8061-302e-40c1-829b-2f8555bee70c@kernel.org>
-Date: Mon, 19 Jan 2026 16:50:06 +0100
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="K9PHWl7Z"
+Received: by mail-qk1-f193.google.com with SMTP id af79cd13be357-8c5384ee23fso484379585a.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 08:20:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1768839629; x=1769444429; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=8e3LOQmDLtNbqPr2ZRZYrAEb0+eSE57gTBol5BlL7sE=;
+        b=K9PHWl7ZnDUz0MrewIh/oz33gCPvrGyLg4/Ug6Fgnrc9Z81VsE5AR8mC2hWzR4AqEr
+         lviNdgfqS1VljPbG0kSo0LBmwuPmAtzvRY2tGCP6b10rJxGJx+9BzyV0HMbQGuw4w7jS
+         FXP/8YffqXUZ6S3wbG85wpp+xZaaFLlj/NPZs1+YERWVabAbOWh58wv7tDHkWRPYck5U
+         iy5vEKYZGRW2Co1VpZ/PfNSGDPvz04K5JGgnLmCLDhwehHJ1RmvbxqMBWGaC8YE2Eis1
+         wytdY5+tuS/N36Q8+9yqhQy4hKEpLP9bUeZ294Zf7xyUegLhC6F2v/UrPl0OnSybCRBf
+         5lmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768839629; x=1769444429;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=8e3LOQmDLtNbqPr2ZRZYrAEb0+eSE57gTBol5BlL7sE=;
+        b=qjX3AUlWo86tiNoo7kBuzKhWhc98kjA5Wz4Ul4xHPUtC7jJ0YR+o+ssac7XORU4N4W
+         F3V6SWBsUKNsNvrhEnkmlBBjA/pHj5uk2BI1DM/TI1iXa6+NZBypEWMRuMjQhxWcU8+I
+         tmpIQq5dBIvpdGGnHdNoNscIlascscLXmzAAqxwm/7SWOgSGas34ETkwkPDTmsR3piub
+         UIfYpZBxjVDUC5GifxWzQNRtzX5rvbkIv8C6mUMHTP3W+CEBQK4v80PqfATHG8FtoXMv
+         6VIXmN7rVi+ZGJXMFfddEyz9SFLyGBkZqek904F2o7AWOuwgqTQC8Hl2pxAvPfJEovg6
+         8Vlg==
+X-Forwarded-Encrypted: i=1; AJvYcCV2YhKOwNtkItyPsWOCKFY4w3TtUOLg+UhtesXhlFvBFEo6HqdNLd8AJBpZm6Fje+4NJIB+cnC56Cm7GWR/yQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzWlchx2Usp67utB0EBrP1xUiuPVBLCNcpZiakRhehNRGOpeyWt
+	dYyDVX8XeUlCboG5bxrZxjSrlau8L0wJ+IfCHczFQZ448r6gAIrY71cavGVYghGTRNs=
+X-Gm-Gg: AY/fxX5JjKhw5RHqY5CV4J64paHNqa/R+ll1YET0asLAq3GOcfrW9guVOMa5VRVA9xc
+	Ekxn5ZkswDyjvyeOGbVS7UIF0k2lan3RcSy4vMPjN5Eh6An88sOdP6Xec1oDeH/5z4v5q+4Wzp5
+	MHJ/73hbJ4vAjarSoJF8aA6EStJrisNlUcfDQHdNHL7yRNi+6XWsWh1IafHD7Y37Glsr9sN8lUi
+	9j2KQq/ZwuNiZIfLNzH+C+A+7Rw/0waQVqEU6YNeGu7B6yjFkhwgQe70u2BW69BbuUiFHfZbaXu
+	/Xz5FLik0jl+wFHAYO8amHHLNmh7eTxrTnb5k8m/+Yd9Y9PoCWUF7P/wDu4ZEP3oz8gx+evvjgK
+	m/VAhkGwhzYgSZsClaKB+vf2I6nWwMXPNOjI76ERHvFA74CiM6YSc28HE1JL/CHo5LLerQAQ2RO
+	Wi6nw0SW2PXAODKRzr+cvcSDa6HOvJxLxG8q8amE/KfwJnDtLpQ0wrBSV/Na2V8U7vC4+RCqF3s
+	s97RQ==
+X-Received: by 2002:a05:620a:7102:b0:8b2:7679:4d2d with SMTP id af79cd13be357-8c6a6948169mr1559881085a.63.1768839628533;
+        Mon, 19 Jan 2026 08:20:28 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c6af506829sm597447585a.37.2026.01.19.08.20.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Jan 2026 08:20:27 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1vhrzP-00000005HvQ-0mnE;
+	Mon, 19 Jan 2026 12:20:27 -0400
+Date: Mon, 19 Jan 2026 12:20:27 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>
+Cc: Leon Romanovsky <leon@kernel.org>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Alex Williamson <alex@shazbot.org>, linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
+	linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH v2 0/4] dma-buf: document revoke mechanism to invalidate
+ shared buffers
+Message-ID: <20260119162027.GD961572@ziepe.ca>
+References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
+ <f115c91bbc9c6087d8b32917b9e24e3363a91f33.camel@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH] virtio_balloon: Support wait on ACK for hinting
-To: Jack Thomson <jackabt.amazon@gmail.com>, mst@redhat.com,
- jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- kalyazin@amazon.co.uk, xmarcalx@amazon.co.uk, jackabt@amazon.com
-References: <20260119154236.39412-1-jackabt.amazon@gmail.com>
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
-In-Reply-To: <20260119154236.39412-1-jackabt.amazon@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f115c91bbc9c6087d8b32917b9e24e3363a91f33.camel@linux.intel.com>
 
-On 1/19/26 16:42, Jack Thomson wrote:
-> From: Jack Thomson <jackabt@amazon.com>
+On Sun, Jan 18, 2026 at 03:16:25PM +0100, Thomas Hellström wrote:
+> > core
+> > “revoked” state on the dma-buf object and a corresponding exporter-
+> > triggered
+> > revoke operation. Once a dma-buf is revoked, new access paths are
+> > blocked so
+> > that attempts to DMA-map, vmap, or mmap the buffer fail in a
+> > consistent way.
 > 
-> This RFC patch adds a new virtio feature for the virtio-balloon driver
-> during free page hinting, which will wait on device ack before
-> committing the range to the free_page_list. The reason for the change is
-> it allows the device to modify this range without it being reclaimed
-> from the free_page_list before the ack is sent. As expected, testing
-> shows this adds overhead to the hinting run duration, increasing it by
-> ~30% with our Firecracker setup. Currently free page hinting is used
-> mainly for live migration, but this would open it up for a new use-case.
+> This sounds like it does not match how many GPU-drivers use the
+> move_notify() callback.
 > 
-> We would like to leverage this with MADV_DONTNEED to reduce RSS of a
-> guest. We'd like to use hinting because of the flexibility of control it
-> brings compared to reporting, allowing memory to be reclaimed in
-> deterministic periods. 
+> move_notify() would typically invalidate any device maps and any
+> asynchronous part of that invalidation would be complete when the dma-
+> buf's reservation object becomes idle WRT DMA_RESV_USAGE_BOOKKEEP
+> fences.
+> 
+> However, the importer could, after obtaining the resv lock, obtain a
+> new map using dma_buf_map_attachment(), and I'd assume the CPU maps
+> work in the same way, I.E. move_notify() does not *permanently* revoke
+> importer access.
 
-Can you elaborate in more detail why you don't simply use reporting, 
-like QEMU?
+I think this was explained a bit in this thread, but I wanted to
+repeat the explanation to be really clear..
 
-Could you instead see optimizations being done to reporting that could 
-make it fly for your use case?
+If the attachment is not pinned than calling move_notify() is as you
+say. The importer should expect multiple move_notify() calls and
+handle all of them. The exporter can move the location around and make
+it revoked/unrevoked at will. If it is revoked then
+dma_buf_map_attachment() fails, the importer could cache this and fail
+DMAs until the next move_notify().
 
-Hinting is a rather special case thing only used for reducing VM 
-migration time in QEMU AFAIR.
+If the attachment is *pinned* then we propose to allow the importer to
+revoke only and not require restoration. IOW a later move_notify()
+that signals a previously failing dma_buf_map_attachment() is no
+longer failing can be igmored by a pinned importer.
 
--- 
-Cheers
+This at least matches what iommufd is able to do right now.
 
-David
+IOW, calling move_notify() on a pinned DMABUF is a special operationg
+we are calling "revoke" and means that the exporter accepts that the
+mapping is potentially gone from pinned importers forever. ie don't
+use it lightly.
+
+Jason
