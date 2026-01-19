@@ -1,162 +1,198 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F1D137FF58
-	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 14:34:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFE50313291;
+	Mon, 19 Jan 2026 14:48:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768833250; cv=none; b=JI6UfZeQbH6jWgyNGuVHti15Xd0uhX4nNF/K0gLv5Op/d0eLg1u3Lxjz0cEK2ZW7WaWj9U4jCR9oO8vsxc0JkvQ8WQHPsafmpU4Fn6swmIlf1czh5Tni3MdjwIapVzB+2E1Ywjxsz3ooWU2+e+6hWU97F3J2eev/tzCsur2Wtfk=
+	t=1768834129; cv=none; b=q1LYGEWklfMZPCvHOpUMncIhjSAZmZvIToY+hcacfzVb1MyYhxJTu7UYJ/8Ge0TnF7v3HxbHzi1i2cnDFa3QOPDSgf/YAM0/ruEAYAH367zk6QhYsZBC3+6NxxIjNGHSjvdlOC8gd9BEE0XCg6zk+xOOTpGPBInhitcpfToBbEg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768833250; c=relaxed/simple;
-	bh=NGjKeFkyq5Uv2V+Ni6SJXTtK6+OYA6I44gdWE4xJQEM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=AzfImhdMm2WLwVQOSaA6kraNIluIuX5kvO47Ye9TCdCPW4+UvUIIlD2pS4QPU43/NpT+hYjiicC6iTS2Et5PTtP8GKAsOblRgSqgJNp5L5RiHLUFWUAVuNUd4jJSqxpgm1LFHDFl50C6zkd5U2kjknDnJB/OFA6RMORLHI5Ibgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TyL6nFh5; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768834129; c=relaxed/simple;
+	bh=1ATbY9s5yzxtnoP+yy0E0lx3gCwRzt0h+ETy1ner61s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=s1AJNeWOtLjy6+uZStrMJrppn3GprOhIYMAFoUmQEIKFr6vCutUdWJLx5HwAqTFNwRyeK0LAHo9DBejgWRuEBIX44W3GwI1QL6R+IT5rvc0Rzf8CO8jbvBK7nN8l7MGEEtIkmiu6hOg2+xza0IrJ2lHboT/kC5PgzZp1rFYSNFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DO93/L8h; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TyL6nFh5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768833247;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eO8a1JRlFjaf2mdpm87e4EhF46DWNQB8lolOsRlRRHs=;
-	b=TyL6nFh5otffpnVCn5YFur6kAHBUR5t10FHXIEfJInX5c8bYTpwtPFGf1JbciiE+YQ5AtT
-	4OYYHctoo3JCNc+w4wrYutB4ETRRlhc38o6Ut82dsaX1UQInip2aCnIJ8Onmczhc29O7f2
-	ly36zV/tG5JzleOsP98VOqdbEgOxJWs=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-91-OQHaO85gMvS0LD_e-uoRKA-1; Mon,
- 19 Jan 2026 09:34:06 -0500
-X-MC-Unique: OQHaO85gMvS0LD_e-uoRKA-1
-X-Mimecast-MFC-AGG-ID: OQHaO85gMvS0LD_e-uoRKA_1768833245
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1426A18005B4;
-	Mon, 19 Jan 2026 14:34:05 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.33.172])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 91BE5180066A;
-	Mon, 19 Jan 2026 14:34:01 +0000 (UTC)
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-To: "Michael S . Tsirkin " <mst@redhat.com>
-Cc: virtualization@lists.linux.dev,
-	Yongji Xie <xieyongji@bytedance.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Maxime Coquelin <mcoqueli@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	jasowang@redhat.com,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Laurent Vivier <lvivier@redhat.com>,
-	Cindy Lu <lulu@redhat.com>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v15 13/13] Documentation: Add documentation for VDUSE Address Space IDs
-Date: Mon, 19 Jan 2026 15:33:06 +0100
-Message-ID: <20260119143306.1818855-14-eperezma@redhat.com>
-In-Reply-To: <20260119143306.1818855-1-eperezma@redhat.com>
-References: <20260119143306.1818855-1-eperezma@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DO93/L8h"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3D98C116C6;
+	Mon, 19 Jan 2026 14:48:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768834129;
+	bh=1ATbY9s5yzxtnoP+yy0E0lx3gCwRzt0h+ETy1ner61s=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DO93/L8hXUobAdfLQOXZWcQTerOyK2jCQCGzG3z+iaMEg+Hi0CMVWpQM6vja/7SHZ
+	 8Lk0hHOwTgD7bVIDKg1EdhBRmQsOlMZFbUr1fX4stxt7A+m/K1xKBrRWN3XjtWaHLl
+	 lJxAI89Ab5t2xWDsVoCoHJhN0CH3sZM3kVJexlviDbfuNhfVDPZKRz8Si9XUpKWfhF
+	 G+lSXq7BAuhhLtKRDaK2xtLUMla0N44echwGe5XtJSVj/0YNze9ASQbNjt+1fA9z95
+	 nghEsOakch41JuzIMakgeVqswhuydkOnLJX113Bb9gmw1S82HVw5ob8Y/jw+N9m7yQ
+	 FOtY7pnoaxitQ==
+Date: Mon, 19 Jan 2026 20:18:29 +0530
+From: Manivannan Sadhasivam <mani@kernel.org>
+To: Wen Gu <guwen@linux.alibaba.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, 
+	Richard Cochran <richardcochran@gmail.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	LKML <linux-kernel@vger.kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
+	Dust Li <dust.li@linux.alibaba.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, David Woodhouse <dwmw2@infradead.org>, 
+	virtualization@lists.linux.dev, Nick Shi <nick.shi@broadcom.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>, linux-clk@vger.kernel.org
+Subject: Re: [RFC] Defining a home/maintenance model for non-NIC PHC devices
+ using the /dev/ptpX API
+Message-ID: <yg3ikpcwukvv6z6gf6zzkoxlgu37ihauqpm2pkhmxuz6hsxfcc@eaeqykdvkh5v>
+References: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+In-Reply-To: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
 
-Address Space IDs allows the VDUSE framework to support devices able to
-expose different virtqueues to different part of the drivers.  For
-example, to let QEMU handle the net device control virtqueue, so QEMU
-always knows the state of the device like mac address or number of
-queues enabled, while leaving the dataplane passthrough to the guest
-intact.  This enables live migration.
+Hi Wen,
 
-Expands the VDUSE documentation to explain how to use the new ioctls or
-the new struct members of old ioctls.
+On Fri, Jan 09, 2026 at 10:56:56AM +0800, Wen Gu wrote:
+> 
+> Hi all,
+> 
+> This is an RFC to discuss the appropriate upstream home and maintenance
+> model for a class of devices/drivers which expose a high-precision clock
+> to userspace via the existing PHC interface (/dev/ptpX + standard PTP_*
+> ioctls), but are not tied to a traditional NIC/IEEE1588 packet
+> timestamping pipeline.
+> 
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
----
-v15:
-* Fix doc typo (Alok).
+Thanks for starting the discussion. I sent out an email just today on this
+topic [1] and learned about this thread afterwards.
 
-v13:
-* Fix s/VDUSE_IOTLB_GET_INFO/VDUSE_VQ_SETUP/.
-* Document VDUSE_SET_VQ_GROUP_ASID VDUSE message (Jason).
-* Fix typos (MST and Jason).
+> Examples already in the tree include (non-exhaustive):
+> 
+> - drivers/ptp/ptp_kvm.c [1]
+> - drivers/ptp/ptp_vmw.c [2]
+> - drivers/ptp/ptp_s390.c [3]
+> 
+> There are also examples living in their respective subsystem (out of
+> scope for this RFC),
+> e.g. drivers/hv/hv_util.c [4] and drivers/virtio/virtio_rtc_ptp.c [5].
+> 
+> We (Alibaba Cloud) also posted a driver for a CIPU-provided high-precision
+> clock for review [6]. Based on existing in-tree precedent, we placed it
+> under drivers/ptp/ and sent it to the netdev list.
+> 
 
-v12: New in V12. Requested by Jason.
----
- Documentation/userspace-api/vduse.rst | 53 +++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+Some Qcom MHI devices expose the high precision clock derived from GNSS/Cellular
+network over the MHI registers and we recently sent out a series exposing them
+as PHC [2]. Since this driver is closely tied with MHI bus, we added it as a
+part of drivers/bus/mhi/.
 
-diff --git a/Documentation/userspace-api/vduse.rst b/Documentation/userspace-api/vduse.rst
-index bdb880e01132..81479d47c8b9 100644
---- a/Documentation/userspace-api/vduse.rst
-+++ b/Documentation/userspace-api/vduse.rst
-@@ -230,4 +230,57 @@ able to start the dataplane processing as follows:
- 5. Inject an interrupt for specific virtqueue with the VDUSE_INJECT_VQ_IRQ ioctl
-    after the used ring is filled.
- 
-+Enabling ASID (API version 1)
-+------------------------------
-+
-+VDUSE supports per-address-space identifiers (ASIDs) starting with API
-+version 1. Set it up with ioctl(VDUSE_SET_API_VERSION) on `/dev/vduse/control`
-+and pass `VDUSE_API_VERSION_1` before creating a new VDUSE instance with
-+ioctl(VDUSE_CREATE_DEV).
-+
-+Afterwards, you can use the member asid of ioctl(VDUSE_VQ_SETUP) argument to
-+select the address space of the IOTLB you are querying.  The driver could
-+change the address space of any virtqueue group by using the
-+VDUSE_SET_VQ_GROUP_ASID VDUSE message type, and the VDUSE instance needs to
-+reply with VDUSE_REQ_RESULT_OK if it was possible to change it.
-+
-+Similarly, you can use ioctl(VDUSE_IOTLB_GET_FD2) to obtain the file descriptor
-+describing an IOVA region of a specific ASID. Example usage:
-+
-+.. code-block:: c
-+
-+	static void *iova_to_va(int dev_fd, uint32_t asid, uint64_t iova,
-+	                        uint64_t *len)
-+	{
-+		int fd;
-+		void *addr;
-+		size_t size;
-+		struct vduse_iotlb_entry_v2 entry = { 0 };
-+
-+		entry.v1.start = iova;
-+		entry.v1.last = iova;
-+		entry.asid = asid;
-+
-+		fd = ioctl(dev_fd, VDUSE_IOTLB_GET_FD2, &entry);
-+		if (fd < 0)
-+			return NULL;
-+
-+		size = entry.v1.last - entry.v1.start + 1;
-+		*len = entry.v1.last - iova + 1;
-+		addr = mmap(0, size, perm_to_prot(entry.v1.perm), MAP_SHARED,
-+			    fd, entry.v1.offset);
-+		close(fd);
-+		if (addr == MAP_FAILED)
-+			return NULL;
-+
-+		/*
-+		 * Using some data structures such as linked list to store
-+		 * the iotlb mapping. The munmap(2) should be called for the
-+		 * cached mapping when the corresponding VDUSE_UPDATE_IOTLB
-+		 * message is received or the device is reset.
-+		 */
-+
-+		return addr + iova - entry.v1.start;
-+	}
-+
- For more details on the uAPI, please see include/uapi/linux/vduse.h.
+> During review, concerns were raised that such "non-NIC / pure" PHC drivers
+> are not a good fit for netdev maintainership [7], since they are primarily
+> time/clock devices rather than networking protocol features.
+> 
+> As a result, I’m sending this RFC to align on a consistent upstream home
+> and maintainer model for this class of drivers, both for the existing ones
+> and future additions.
+> 
+> #
+> ## Observation 1: PHC core/API are already not bound to NIC/IEEE1588
+> #
+> 
+> Although PHC support is original associated with NIC-based IEEE 1588
+> timestamping, the kernel tree already contains multiple non-NIC PHC
+> implementations (examples above), including long-standing and recently
+> added drivers. This reflects the reality that the PHC interface is no
+> longer tightly bound to NIC/IEEE1588 implementations.
+> 
+> This is enabled by the PHC interface's clean design, it provides a
+> well-scoped, layered abstraction that separates the userspace access
+> mechanism (/dev/ptpX + standard ioctl semantics) from the underlying
+> clock implementation and discipline method (NIC/IEEE1588 packet timestamping
+> pipeline, virtualization-provided clocks, platform/firmware time services,
+> etc.). The interface defines only generic clock-operation semantics, without
+> baking in assumptions about how the clock is produced or synchronized.
+> 
+> Because of this elegant decoupling, the PHC API naturally fits
+> "pure time source" devices as long as they can provide a stable, precise
+> hardware clock. In practice, PHC has effectively become Linux’s common
+> API for high-precision device clocks, rather than inherently bound to
+> an IEEE1588 NIC implementation.
+> 
+> #
+> ## Observation 2: the PHC (/dev/ptpX) has an established userspace ecosystem
+> #
+> 
+> The PHC character device interface (/dev/ptpX + standard PTP_* ioctls) is
+> a mature, stable, and widely deployed userspace API for accessing
+> high-precision clocks on Linux. It is already the common interface consumed
+> by existing software stacks (e.g. chrony, and other applications built around
+> PHC devices)
+> 
+> Introducing a new clock type or a new userspace API (e.g. /dev/XXX) would
+> require widespread userspace changes, duplicated tooling, and long-term
+> fragmentation. This RFC is explicitly NOT proposing a new userspace API.
+> 
+
++1
+
+> #
+> ## Goal
+> #
+> 
+> Establish an appropriate upstream home and maintainer model for "pure time
+> source" PHC drivers. If they are not suitable to be maintained under netdev,
+> we need a clear place and maintainer(s) for them, and a consistent policy
+> for accepting new ones.
+> 
+> #
+> ## Proposal
+> #
+> 
+> 1. Reorganize drivers/ptp/ to make the interface/implementation split
+>    explicit,
+> 
+>    * drivers/ptp/core      : PTP core infrastructure and API.
+>                              (e.g. ptp_chardev.c, ptp_clock.c,
+>                               ptp_sysfs.c, etc.)
+> 
+>    * drivers/ptp/pure      : Non-network ("pure clock") implementation,
+>                              they are typically platform/architecture/
+>                              virtualization-provided time sources.
+>                              (e.g. ptp_kvm, ptp_vmw, ptp_vmclock,
+>                               ptp_s390, etc.)
+> 
+>    * drivers/ptp/*         : Network timestamping oriented implementation,
+>                              they primarily used together with IEEE1588
+>                              over the network.
+>                              (e.g. ptp_qoriq, ptp_pch, ptp_dp83640,
+>                               ptp_idt82p33 etc.)
+> 
+> 2. Transition drivers/ptp/pure from netdev maintainership to
+>    clock/time maintainership (with an appropriate MAINTAINERS entry,
+>    e.g. PURE TIME PHC), since these PHC implementations are primarily
+>    clock devices and not network-oriented. New similar drivers can be
+>    added under drivers/ptp/pure as well.
+> 
+> 
+> Possible alternatives (please suggest others):
+> 
+> - Move/align "pure time source" PHC drivers under an existing
+>   timekeeping/clocksource/virt area, without changing the userspace API.
+> 
+> 
+> I’d like to drive this discussion towards consensus, and I’m happy to
+> adapt our series to match whatever direction is agreed upon.
+> 
+
+If we get a consensus to move forward with exposing the device clocks as PHC, we
+will respin the MHI driver and would love to get an ACK from the (new)
+maintainers.
+
+- Mani
+
+[1] https://lore.kernel.org/all/vmwwnl3zv26lmmuqp2vqltg2fudalpc5jrw7k6ifg6l5cwlk3j@i7jm62zcsl67/
+[2] https://lore.kernel.org/mhi/20250818-tsc_time_sync-v1-0-2747710693ba@oss.qualcomm.com/
+
 -- 
-2.52.0
-
+மணிவண்ணன் சதாசிவம்
