@@ -1,154 +1,197 @@
-Received: from mail-qk1-f193.google.com (mail-qk1-f193.google.com [209.85.222.193])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA12E2DEA6B
-	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 19:54:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 744732FC881;
+	Mon, 19 Jan 2026 22:22:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768852490; cv=none; b=PLdmjPclO1AUi+04SrS0LP4GCS3igxIwABZk2rf1IR+htXSVVbAFmwwOcp5PjsM7K5ArHRbifKBpfG5+R96j9bcN9bLpiWwCZwRgMsAV+8wXAv+xPGLPGz4yLORZqAuJz+AloPtTIXeIxvXOh3HeAdIwTiFgfi3Qis09DA2jWGc=
+	t=1768861337; cv=none; b=A+opdruq9W0wYZ26m5jua2jEIuFQq4JcmcgcnS6NxPKIxaKUcBymO1ZZrCne8qaRs3LOaL2gb5OEXwiWeyP6Yvqb4CweFkAIThI87cuYslNOJS4ewV4aq+q0idRnq94h6ZFLqnEnO2pVuoZXfVtjRrH293JuTxr89Gmdc2ckpS4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768852490; c=relaxed/simple;
-	bh=EgdbrvHnoBh/zDpp9ewcIGQxrvWxBBXiNgVYU0RjdCs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NVQo2yWrTGClg/JliYMwi7NqljkXyd7DweQeXRmgd+87RgNBTs8umAtaRcCzQLj9opdBYUHh4gZfjoiSChKncmCRM0r6s5qVeYmu095Y4Nyi/MPEYDAYZ+UokHWNxmlAq42XSImzrb/AXLKqNevW7osobUauBrUq6G18ihhpMC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=Jql7siU7; arc=none smtp.client-ip=209.85.222.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1768861337; c=relaxed/simple;
+	bh=PSAX+ibtrxSZ0sZ9PO1JFriJ7cqe4buDvYhzubMRIgY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NK25mrUY4RXIsmtl70kxCsfb/cNpLJHAAOJdac11ISotx4Rl4rGz27R84hA43Lw16cjEXFrWyotLlveED5Ytz0IieY7/pkKjIEENI5saKFzn1KmDv2OrlToslLiIRuS/N4GJ0uRrCTiv0bp7xa7dPqa+jcFSKSHZ04dyBQg4DBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NyDwwFuy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="Jql7siU7"
-Received: by mail-qk1-f193.google.com with SMTP id af79cd13be357-8c5265d06c3so561414385a.1
-        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 11:54:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1768852487; x=1769457287; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=zwZ9o3ha19w1BUlcGeJzNZvsy/mlKSz+FRMjn04+Z/c=;
-        b=Jql7siU7T8SrrFxwgL7D9N+WTkMzGGs+iG6gvPay9LI2pvvaVfqW06kcfcSkbbR3jD
-         bO4XMm/OaAiLfdx8fhwxKmjL/W0UOkLIGm/Cmw+P5/WbB3hm9O5yY7Ibq7Y59uOIJD53
-         aD9Wz/Wjye6+HL13ZBT4FTDzf3RIkLZq7gbPBenA1Uqlw/6978nu2sbVUemD7iw3QTXD
-         SWoGV+tmqh8Ps5OZ5Xdoq/h5l6pOlpeAAgwStPrQs7AUoA7Hv9wFWw0w25LdcRALjOSM
-         EElVIdIZzJ9S3FQfxF+RBNbNmtCM0nh6UOZytVabwsXnRI1ESVghlUy0WkeoUWtgt4qT
-         SsHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768852487; x=1769457287;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zwZ9o3ha19w1BUlcGeJzNZvsy/mlKSz+FRMjn04+Z/c=;
-        b=V5r6lz6JtmiBZd0vayfWNUtoiCtTQm0kzeuq3RvJyOAAfN9eWvGTjYreBb+usFcZSu
-         q1mzXXPd84/7pLIqEs51/fLo5fLpMCM6dLuFE5zAaUhoZW9XK5GSTJqqtQb09ru0OYqe
-         NevYR0eDk0XUeP6oS5zVUbw+c0/4DhKrTKgUEm19JcZyDK2H0cFUVjc7LrYUIpHP9MyW
-         xqBPh4u4qSrgaf/WV3qAmrwtAbFLoLm+62W5q/bPgvrbeu5G/e/UTaZVZCupJVly7Qe0
-         lzHIxZQUWCTSrrjAw771o914/h9tHSwKY3l3f1+pPRxWKQjimItiksC/3nlqPZ8g4bro
-         sp/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWl/pVdZ8+puA9Mr2RRuuS+qcQlwsL9Zo0TJRRk3VesyhWi8GmaFj1EZDNOgJ8Z514A/OSV9Zkl7vi/c+USRg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx7OxsHBppg2PBg2WaqH+jycHlwJrBep0pWtPnbNp4zgMXXK4Rm
-	RgZGgdo51bLFumd37gBkMNui7lcj7oScwTkIntuUc2qLfqocnu1U82BflsD9sv12hYY=
-X-Gm-Gg: AY/fxX5qXKluU842OhaAP8vtgoPiDkSE+LrrQAhO+ZDpdxEfWpcUJgkXL/Ev19BuFQr
-	RpA4KaQzQgjp4ZpK8EpzYt5KhhpJ8Ir3m39gLhdJnuzlNK28+Xey709TGL7ujIf74cVoIYvSjor
-	kOY6rv95rHv+oUKIelJlMryTgoSqm57JMeuzKZiyZIWZ2MGN92t1tNhKFAlpHl/H/smS+pcAUPA
-	gN+MjejHJb7R2BA5rArtXUBD3LIrztBCYo0d6Jf9Hzwtel+5HhnQouQZgXovjOxmWUnM3zetORX
-	Wv38JX3GfDjkN1Q1WjwbNC2vgZQDmQfPcsOYK2pFkMXLdg8JaqSbzmjfpPYdKGTAKMkRJEhRljo
-	P2/kMtw1rNEwzt0kg+QdmSkMP0pdClVBoA/MHkqrJNbY3WTbjs3nNoGz6ZeAN3Wm7ZoE+BcYG2Z
-	gMYnMFPnv5ifpGnoTuz4T1A7lHHgOKagcvDDDIBQJ6qwcGEWnAgv8FO/iLiQH8mWEYIAQ=
-X-Received: by 2002:a05:620a:4606:b0:8a3:a42e:6e14 with SMTP id af79cd13be357-8c589b9706emr2117693085a.10.1768852486747;
-        Mon, 19 Jan 2026 11:54:46 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8942e6ad75asm86947906d6.31.2026.01.19.11.54.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Jan 2026 11:54:44 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1vhvKm-00000005JRT-0mKA;
-	Mon, 19 Jan 2026 15:54:44 -0400
-Date: Mon, 19 Jan 2026 15:54:44 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>,
-	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Alex Williamson <alex@shazbot.org>, linux-media@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
-	linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
-	linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH v2 3/4] iommufd: Require DMABUF revoke semantics
-Message-ID: <20260119195444.GL961572@ziepe.ca>
-References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
- <20260118-dmabuf-revoke-v2-3-a03bb27c0875@nvidia.com>
- <20260119165951.GI961572@ziepe.ca>
- <20260119182300.GO13201@unreal>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NyDwwFuy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D88FC116C6;
+	Mon, 19 Jan 2026 22:22:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768861337;
+	bh=PSAX+ibtrxSZ0sZ9PO1JFriJ7cqe4buDvYhzubMRIgY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=NyDwwFuyD3RiW+jvlXOeCC8Y931wHEnIExpF99aiyYqCL/dFYBR0eXuM1hgSVC8ZX
+	 dV7Ci7euBrjp8mM58FN81Ju81Fdby/UqtW7bsSr+wSuChvelcSkcpzm3Askr5Ji+8b
+	 zTGqcx6ojNzjZWvZkeFrthAhbbOqQVCgTKFin0OIW82NsY+2rIJttSWW25MavsR1Ar
+	 nEEVlzo7uw1QEKLA/BTg0pMF91wUNDoOki1EZoyW+wzHSv2jPML2uQxgOcIbHyzb92
+	 g5LBoPU5xe2ff2Y8JGdoMv9ujG7qMWHb7+mHX4Dqx1u2SdCUxIiFJRT79qP7DHdo44
+	 7u8us4s0Tkwkw==
+Message-ID: <ca9e4ebb-e6b5-475b-8a21-a261e27c3ca7@kernel.org>
+Date: Mon, 19 Jan 2026 23:22:08 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260119182300.GO13201@unreal>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 04/23] mm/balloon_compaction: centralize basic page
+ migration handling
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, linux-doc@vger.kernel.org,
+ virtualization@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
+ Oscar Salvador <osalvador@suse.de>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>, Arnd Bergmann
+ <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
+References: <20260115092015.3928975-1-david@kernel.org>
+ <20260115092015.3928975-5-david@kernel.org>
+From: "David Hildenbrand (Red Hat)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+In-Reply-To: <20260115092015.3928975-5-david@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Jan 19, 2026 at 08:23:00PM +0200, Leon Romanovsky wrote:
-> On Mon, Jan 19, 2026 at 12:59:51PM -0400, Jason Gunthorpe wrote:
-> > On Sun, Jan 18, 2026 at 02:08:47PM +0200, Leon Romanovsky wrote:
-> > > From: Leon Romanovsky <leonro@nvidia.com>
-> > > 
-> > > IOMMUFD does not support page fault handling, and after a call to
-> > > .invalidate_mappings() all mappings become invalid. Ensure that
-> > > the IOMMUFD DMABUF importer is bound to a revoke‑aware DMABUF exporter
-> > > (for example, VFIO).
-> > > 
-> > > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> > > ---
-> > >  drivers/iommu/iommufd/pages.c | 9 ++++++++-
-> > >  1 file changed, 8 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/iommu/iommufd/pages.c b/drivers/iommu/iommufd/pages.c
-> > > index 76f900fa1687..a5eb2bc4ef48 100644
-> > > --- a/drivers/iommu/iommufd/pages.c
-> > > +++ b/drivers/iommu/iommufd/pages.c
-> > > @@ -1501,16 +1501,22 @@ static int iopt_map_dmabuf(struct iommufd_ctx *ictx, struct iopt_pages *pages,
-> > >  		mutex_unlock(&pages->mutex);
-> > >  	}
-> > >  
-> > > -	rc = sym_vfio_pci_dma_buf_iommufd_map(attach, &pages->dmabuf.phys);
-> > > +	rc = dma_buf_pin(attach);
-> > >  	if (rc)
-> > >  		goto err_detach;
-> > >  
-> > > +	rc = sym_vfio_pci_dma_buf_iommufd_map(attach, &pages->dmabuf.phys);
-> > > +	if (rc)
-> > > +		goto err_unpin;
-> > > +
-> > >  	dma_resv_unlock(dmabuf->resv);
-> > >  
-> > >  	/* On success iopt_release_pages() will detach and put the dmabuf. */
-> > >  	pages->dmabuf.attach = attach;
-> > >  	return 0;
-> > 
-> > Don't we need an explicit unpin after unmapping?
+On 1/15/26 10:19, David Hildenbrand (Red Hat) wrote:
+> Let's update the balloon page references, the balloon page list, the
+> BALLOON_MIGRATE counter and the isolated-pages counter in
+> balloon_page_migrate(), after letting the balloon->migratepage()
+> callback deal with the actual inflation+deflation.
 > 
-> Yes, but this patch is going to be dropped in v3 because of this
-> suggestion.
-> https://lore.kernel.org/all/a397ff1e-615f-4873-98a9-940f9c16f85c@amd.com
+> Note that we now perform the balloon list modifications outside of any
+> implementation-specific locks: which is fine, there is nothing special
+> about these page actions that the lock would be protecting.
+> 
+> The old page is already no longer in the list (isolated) and the new page
+> is not yet in the list.
+> 
+> Let's use -ENOENT to communicate the special "inflation of new page
+> failed after already deflating the old page" to balloon_page_migrate() so
+> it can handle it accordingly.
+> 
+> While at it, rename balloon->b_dev_info to make it match the other
+> functions. Also, drop the comment above balloon_page_migrate(), which
+> seems unnecessary.
+> 
+> Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
+> ---
 
-That's not right, that suggestion is about changing VFIO. iommufd must
-still act as a pinning importer!
+Andrew, the following on top:
 
-Jason
+ From 4c8b4f0aba5859a4ec71c7449a98b10e0547237f Mon Sep 17 00:00:00 2001
+From: "David Hildenbrand (Red Hat)" <david@kernel.org>
+Date: Mon, 19 Jan 2026 23:20:41 +0100
+Subject: [PATCH] fixup: mm/balloon_compaction: centralize basic page migration
+  handling
+
+Remove newline, talk about "page" instead of "old page" and avoid the
+switch.
+
+Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
+---
+  mm/balloon_compaction.c | 22 +++++++---------------
+  1 file changed, 7 insertions(+), 15 deletions(-)
+
+diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+index 5444c61bb9e76..b859411811d0b 100644
+--- a/mm/balloon_compaction.c
++++ b/mm/balloon_compaction.c
+@@ -247,29 +247,21 @@ static int balloon_page_migrate(struct page *newpage, struct page *page,
+  		return -EAGAIN;
+  
+  	rc = b_dev_info->migratepage(b_dev_info, newpage, page, mode);
+-	switch (rc) {
+-	case 0:
+-		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
++	if (rc < 0 && rc != -ENOENT)
++		return rc;
+  
++	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
++	if (!rc) {
+  		/* Insert the new page into the balloon list. */
+  		get_page(newpage);
+-
+  		balloon_page_insert(b_dev_info, newpage);
+-		__count_vm_event(BALLOON_MIGRATE);
+-		break;
+-	case -ENOENT:
+-		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+-
+-		/* Old page was deflated but new page not inflated. */
+-		__count_vm_event(BALLOON_DEFLATE);
+-		break;
+-	default:
+-		return rc;
+  	}
+-
+  	b_dev_info->isolated_pages--;
+  	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
+  
++	/* If -ENOENT, page was deflated but new page not inflated. */
++	__count_vm_event(rc ? BALLOON_DEFLATE : BALLOON_MIGRATE);
++
+  	/* Free the now-deflated page we isolated in balloon_page_isolate(). */
+  	balloon_page_finalize(page);
+  	put_page(page);
+-- 
+2.52.0
+
+
+-- 
+Cheers
+
+David
