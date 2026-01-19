@@ -1,198 +1,194 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFE50313291;
-	Mon, 19 Jan 2026 14:48:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50F9238B9AF
+	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 15:44:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768834129; cv=none; b=q1LYGEWklfMZPCvHOpUMncIhjSAZmZvIToY+hcacfzVb1MyYhxJTu7UYJ/8Ge0TnF7v3HxbHzi1i2cnDFa3QOPDSgf/YAM0/ruEAYAH367zk6QhYsZBC3+6NxxIjNGHSjvdlOC8gd9BEE0XCg6zk+xOOTpGPBInhitcpfToBbEg=
+	t=1768837444; cv=none; b=kR+H/9RQiZ2gMDgDHEiSFX7FS92kgXke0b22yPQajeY4xCjoNE6OytKQ/RBluZj1ghxVkgC4hXRFrEUvz4LFFM7ippDAOs79aZYAdCac7vH2FmDxpxWUjg6HR3NJGj5MPqn1i0teBS97gPE08o0VA7POgGF36weAiS0Y+B5mfPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768834129; c=relaxed/simple;
-	bh=1ATbY9s5yzxtnoP+yy0E0lx3gCwRzt0h+ETy1ner61s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s1AJNeWOtLjy6+uZStrMJrppn3GprOhIYMAFoUmQEIKFr6vCutUdWJLx5HwAqTFNwRyeK0LAHo9DBejgWRuEBIX44W3GwI1QL6R+IT5rvc0Rzf8CO8jbvBK7nN8l7MGEEtIkmiu6hOg2+xza0IrJ2lHboT/kC5PgzZp1rFYSNFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DO93/L8h; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768837444; c=relaxed/simple;
+	bh=2HuE6tbSpLQ62H6pjoqaeKbW/rufO55isJK3aHLjh8U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kKYjFyzP2tEV+WtpzqwAgEvjudFnHox/9N/kxQ0qIWGJXqW3vhzO+OAADl6RG0Smzd5OAaf8UnueLVW27nTGejT0gJSHNhDHiiWUgQ+Qlt9QtOm1SzlQ/lBEsf4lMy0j7jFbroG92uleE6KrRaOBxNdTGfs3Md9UrKjc+sq9D4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ho/XNJ3U; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DO93/L8h"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3D98C116C6;
-	Mon, 19 Jan 2026 14:48:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768834129;
-	bh=1ATbY9s5yzxtnoP+yy0E0lx3gCwRzt0h+ETy1ner61s=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=DO93/L8hXUobAdfLQOXZWcQTerOyK2jCQCGzG3z+iaMEg+Hi0CMVWpQM6vja/7SHZ
-	 8Lk0hHOwTgD7bVIDKg1EdhBRmQsOlMZFbUr1fX4stxt7A+m/K1xKBrRWN3XjtWaHLl
-	 lJxAI89Ab5t2xWDsVoCoHJhN0CH3sZM3kVJexlviDbfuNhfVDPZKRz8Si9XUpKWfhF
-	 G+lSXq7BAuhhLtKRDaK2xtLUMla0N44echwGe5XtJSVj/0YNze9ASQbNjt+1fA9z95
-	 nghEsOakch41JuzIMakgeVqswhuydkOnLJX113Bb9gmw1S82HVw5ob8Y/jw+N9m7yQ
-	 FOtY7pnoaxitQ==
-Date: Mon, 19 Jan 2026 20:18:29 +0530
-From: Manivannan Sadhasivam <mani@kernel.org>
-To: Wen Gu <guwen@linux.alibaba.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, 
-	Richard Cochran <richardcochran@gmail.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-	LKML <linux-kernel@vger.kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-	Dust Li <dust.li@linux.alibaba.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, David Woodhouse <dwmw2@infradead.org>, 
-	virtualization@lists.linux.dev, Nick Shi <nick.shi@broadcom.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>, linux-clk@vger.kernel.org
-Subject: Re: [RFC] Defining a home/maintenance model for non-NIC PHC devices
- using the /dev/ptpX API
-Message-ID: <yg3ikpcwukvv6z6gf6zzkoxlgu37ihauqpm2pkhmxuz6hsxfcc@eaeqykdvkh5v>
-References: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ho/XNJ3U"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-47ff94b46afso29215145e9.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 07:44:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768837442; x=1769442242; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=EWJKJQsunGDWGcktrSRSGAJYI4Y83xT0WkUFHjnbal0=;
+        b=Ho/XNJ3UXEuJtad+aMn/0gt2kchxoNyKMyizSCcf1HM4NRXYbxZitcmuT6gYMZ2TyE
+         lZqMz50qfFecfOlWEYUyoYHxbTz7c1YQvzwlMwNtpPnmvnKMw2/DUT3MZ5ieZUPDACWM
+         9OivT59z69GrP92aqY5vNG30Dsq/fs6QwxB5t4v9c7+w+aJNpkV6gwxcu6qpBgDkedaG
+         bP2TR6Sv+mQMYG5yl6eBV45jXv9DLq+R9FKQv+CEkr33suU9U3FuzI6Uxju5qiNBTG3u
+         VI1j5s2sr6EjwPcCuW2d+wKvHwR+INgSgIqZvlf0bB8JjoAnDsvsgPLs68JDlZIgA+yS
+         yyTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768837442; x=1769442242;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EWJKJQsunGDWGcktrSRSGAJYI4Y83xT0WkUFHjnbal0=;
+        b=PilWxWejiU7RJldml0Vth/Tl86m4jBc+QOcNqblvhgL4PTPtFyNaqhj2NN+g3gTVEc
+         vQ48SsDumbv2LBC8f+ukrRW+yNUwu8RKusYO6mSsmKyGyb5IMp4H4O+6wql+8V88c9oD
+         ODp/injSI8YeOoELffqjxUmwN3sqt0A5W9A2eua0GCAtemI2v15h9Bc8QnkAp4m3fK3k
+         WQSj5agrfLgQI+I7EEe41+qzzUtmijnXcn2IE+xF8we9jo1qVZZ7xf3xpz2nT4L6xDOW
+         QDb2q7hjp++NiUlMsObdMZJjWMP23u8ie+ktWnoiLTpB7v05F/euxKYF719KfhcYGujB
+         wzOg==
+X-Forwarded-Encrypted: i=1; AJvYcCUi0X9fqHhDJTnEC8j5AeVSb3kbF9/swNXH+Roc3aRDDn77c7IrVGp4/mrUndIFRwyEP+fXuchIAMJmPxn79Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywq3T2J6Y80HJQepcJMwm5saLsSUudVUr9bsAnb2cftMZxWjThr
+	1b7PwmlrG/WPZCdgO5vABh5V3lW6gLPH8c7ks7JJAoKVyVQNNRQYJb08
+X-Gm-Gg: AY/fxX5jNbVF8CzNrL4uQDgrsaTwRzpfWbsOIiAUPMWNMfpP6zRsXPYPV5+BhadyFvR
+	8fETEEXSJ0LSq5p/g5LtyFDTtWG2KAqixmvmz06BvdHrIQTECCnyjJU6ReNuxtLh4j/gkdrN/7m
+	l3xhPpdwM8bJY1sRMOU1teBV4I4hjKYR9pKJfLWEYuqCN1lsz9lU6DKmkS0cmu3kpUoRshrkItL
+	66ra38doHXnSiSk+rGeUaLBn+LDj1fpvaEG4sEB1GZkShLWlrAIjUdFrzbxxzjgFFj0gPAJ1EQw
+	Sa4l9OnsrrEuInK4XIBHPQlRY2DDrLU+FGYbE532rZYUpe3Iq15gMVpPI9E7QJE44mdkr3N3smK
+	Cqjms75VmiiCnCZHgEU6WK/Oge/I2GS2QJdK2lKOnMMnk4JSbtalAEdfE55E8+xV6X+1bfMw9ax
+	Pa623WL4U1Vnu5ESAhlF7e/H4mqNLV56jQX0RY48wl5LLSkB8wJGrVqM/IQIEGb9+GQw==
+X-Received: by 2002:a05:600c:8b6c:b0:46e:2815:8568 with SMTP id 5b1f17b1804b1-4801e66fcc5mr130852245e9.10.1768837441407;
+        Mon, 19 Jan 2026 07:44:01 -0800 (PST)
+Received: from f4d4888f22f2.ant.amazon.com.com ([15.248.2.27])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47f428ac749sm261155365e9.5.2026.01.19.07.44.00
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 19 Jan 2026 07:44:01 -0800 (PST)
+From: Jack Thomson <jackabt.amazon@gmail.com>
+To: mst@redhat.com,
+	david@kernel.org,
+	jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	kalyazin@amazon.co.uk,
+	xmarcalx@amazon.co.uk,
+	jackabt@amazon.com
+Subject: [RFC PATCH] virtio_balloon: Support wait on ACK for hinting
+Date: Mon, 19 Jan 2026 15:42:36 +0000
+Message-ID: <20260119154236.39412-1-jackabt.amazon@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
 
-Hi Wen,
+From: Jack Thomson <jackabt@amazon.com>
 
-On Fri, Jan 09, 2026 at 10:56:56AM +0800, Wen Gu wrote:
-> 
-> Hi all,
-> 
-> This is an RFC to discuss the appropriate upstream home and maintenance
-> model for a class of devices/drivers which expose a high-precision clock
-> to userspace via the existing PHC interface (/dev/ptpX + standard PTP_*
-> ioctls), but are not tied to a traditional NIC/IEEE1588 packet
-> timestamping pipeline.
-> 
+This RFC patch adds a new virtio feature for the virtio-balloon driver
+during free page hinting, which will wait on device ack before
+committing the range to the free_page_list. The reason for the change is
+it allows the device to modify this range without it being reclaimed
+from the free_page_list before the ack is sent. As expected, testing
+shows this adds overhead to the hinting run duration, increasing it by
+~30% with our Firecracker setup. Currently free page hinting is used
+mainly for live migration, but this would open it up for a new use-case.
 
-Thanks for starting the discussion. I sent out an email just today on this
-topic [1] and learned about this thread afterwards.
+We would like to leverage this with MADV_DONTNEED to reduce RSS of a
+guest. We'd like to use hinting because of the flexibility of control it
+brings compared to reporting, allowing memory to be reclaimed in
+deterministic periods. The traditional balloon device was tested to be
+much slower when compared to hinting for these workloads. Currently,
+without this synchronization, hinted pages may be reclaimed from the
+free list before the device finishes processing them, making hinting
+unsuitable for this use-case.
 
-> Examples already in the tree include (non-exhaustive):
-> 
-> - drivers/ptp/ptp_kvm.c [1]
-> - drivers/ptp/ptp_vmw.c [2]
-> - drivers/ptp/ptp_s390.c [3]
-> 
-> There are also examples living in their respective subsystem (out of
-> scope for this RFC),
-> e.g. drivers/hv/hv_util.c [4] and drivers/virtio/virtio_rtc_ptp.c [5].
-> 
-> We (Alibaba Cloud) also posted a driver for a CIPU-provided high-precision
-> clock for review [6]. Based on existing in-tree precedent, we placed it
-> under drivers/ptp/ and sent it to the netdev list.
-> 
+Signed-off-by: Jack Thomson <jackabt@amazon.com>
+---
+ drivers/virtio/virtio_balloon.c     | 21 ++++++++++++++++++---
+ include/uapi/linux/virtio_balloon.h |  1 +
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
-Some Qcom MHI devices expose the high precision clock derived from GNSS/Cellular
-network over the MHI registers and we recently sent out a series exposing them
-as PHC [2]. Since this driver is closely tied with MHI bus, we added it as a
-part of drivers/bus/mhi/.
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 74fe59f5a78c..82b560422279 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -596,8 +596,11 @@ static int init_vqs(struct virtio_balloon *vb)
+ 		vqs_info[VIRTIO_BALLOON_VQ_STATS].callback = stats_request;
+ 	}
+ 
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+ 		vqs_info[VIRTIO_BALLOON_VQ_FREE_PAGE].name = "free_page_vq";
++		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK))
++			vqs_info[VIRTIO_BALLOON_VQ_FREE_PAGE].callback = balloon_ack;
++	}
+ 
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
+ 		vqs_info[VIRTIO_BALLOON_VQ_REPORTING].name = "reporting_vq";
+@@ -669,8 +672,11 @@ static int send_cmd_id_start(struct virtio_balloon *vb)
+ 					virtio_balloon_cmd_id_received(vb));
+ 	sg_init_one(&sg, &vb->cmd_id_active, sizeof(vb->cmd_id_active));
+ 	err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_active, GFP_KERNEL);
+-	if (!err)
++	if (!err) {
+ 		virtqueue_kick(vq);
++		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK))
++			wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
++	}
+ 	return err;
+ }
+ 
+@@ -686,8 +692,11 @@ static int send_cmd_id_stop(struct virtio_balloon *vb)
+ 
+ 	sg_init_one(&sg, &vb->cmd_id_stop, sizeof(vb->cmd_id_stop));
+ 	err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_stop, GFP_KERNEL);
+-	if (!err)
++	if (!err) {
+ 		virtqueue_kick(vq);
++		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK))
++			wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
++	}
+ 	return err;
+ }
+ 
+@@ -722,6 +731,8 @@ static int get_free_page_and_send(struct virtio_balloon *vb)
+ 			return err;
+ 		}
+ 		virtqueue_kick(vq);
++		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK))
++			wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
+ 		spin_lock_irq(&vb->free_page_list_lock);
+ 		balloon_page_push(&vb->free_page_list, page);
+ 		vb->num_free_page_blocks++;
+@@ -1186,6 +1197,9 @@ static int virtballoon_validate(struct virtio_device *vdev)
+ 	else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
+ 		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+ 
++	if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
++		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK);
++
+ 	__virtio_clear_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
+ 	return 0;
+ }
+@@ -1197,6 +1211,7 @@ static unsigned int features[] = {
+ 	VIRTIO_BALLOON_F_FREE_PAGE_HINT,
+ 	VIRTIO_BALLOON_F_PAGE_POISON,
+ 	VIRTIO_BALLOON_F_REPORTING,
++	VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK,
+ };
+ 
+ static struct virtio_driver virtio_balloon_driver = {
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index ee35a372805d..86698ab06261 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -37,6 +37,7 @@
+ #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
+ #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
+ #define VIRTIO_BALLOON_F_REPORTING	5 /* Page reporting virtqueue */
++#define VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK	6 /* Page hinting waits on device ack */
+ 
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
 
-> During review, concerns were raised that such "non-NIC / pure" PHC drivers
-> are not a good fit for netdev maintainership [7], since they are primarily
-> time/clock devices rather than networking protocol features.
-> 
-> As a result, I’m sending this RFC to align on a consistent upstream home
-> and maintainer model for this class of drivers, both for the existing ones
-> and future additions.
-> 
-> #
-> ## Observation 1: PHC core/API are already not bound to NIC/IEEE1588
-> #
-> 
-> Although PHC support is original associated with NIC-based IEEE 1588
-> timestamping, the kernel tree already contains multiple non-NIC PHC
-> implementations (examples above), including long-standing and recently
-> added drivers. This reflects the reality that the PHC interface is no
-> longer tightly bound to NIC/IEEE1588 implementations.
-> 
-> This is enabled by the PHC interface's clean design, it provides a
-> well-scoped, layered abstraction that separates the userspace access
-> mechanism (/dev/ptpX + standard ioctl semantics) from the underlying
-> clock implementation and discipline method (NIC/IEEE1588 packet timestamping
-> pipeline, virtualization-provided clocks, platform/firmware time services,
-> etc.). The interface defines only generic clock-operation semantics, without
-> baking in assumptions about how the clock is produced or synchronized.
-> 
-> Because of this elegant decoupling, the PHC API naturally fits
-> "pure time source" devices as long as they can provide a stable, precise
-> hardware clock. In practice, PHC has effectively become Linux’s common
-> API for high-precision device clocks, rather than inherently bound to
-> an IEEE1588 NIC implementation.
-> 
-> #
-> ## Observation 2: the PHC (/dev/ptpX) has an established userspace ecosystem
-> #
-> 
-> The PHC character device interface (/dev/ptpX + standard PTP_* ioctls) is
-> a mature, stable, and widely deployed userspace API for accessing
-> high-precision clocks on Linux. It is already the common interface consumed
-> by existing software stacks (e.g. chrony, and other applications built around
-> PHC devices)
-> 
-> Introducing a new clock type or a new userspace API (e.g. /dev/XXX) would
-> require widespread userspace changes, duplicated tooling, and long-term
-> fragmentation. This RFC is explicitly NOT proposing a new userspace API.
-> 
-
-+1
-
-> #
-> ## Goal
-> #
-> 
-> Establish an appropriate upstream home and maintainer model for "pure time
-> source" PHC drivers. If they are not suitable to be maintained under netdev,
-> we need a clear place and maintainer(s) for them, and a consistent policy
-> for accepting new ones.
-> 
-> #
-> ## Proposal
-> #
-> 
-> 1. Reorganize drivers/ptp/ to make the interface/implementation split
->    explicit,
-> 
->    * drivers/ptp/core      : PTP core infrastructure and API.
->                              (e.g. ptp_chardev.c, ptp_clock.c,
->                               ptp_sysfs.c, etc.)
-> 
->    * drivers/ptp/pure      : Non-network ("pure clock") implementation,
->                              they are typically platform/architecture/
->                              virtualization-provided time sources.
->                              (e.g. ptp_kvm, ptp_vmw, ptp_vmclock,
->                               ptp_s390, etc.)
-> 
->    * drivers/ptp/*         : Network timestamping oriented implementation,
->                              they primarily used together with IEEE1588
->                              over the network.
->                              (e.g. ptp_qoriq, ptp_pch, ptp_dp83640,
->                               ptp_idt82p33 etc.)
-> 
-> 2. Transition drivers/ptp/pure from netdev maintainership to
->    clock/time maintainership (with an appropriate MAINTAINERS entry,
->    e.g. PURE TIME PHC), since these PHC implementations are primarily
->    clock devices and not network-oriented. New similar drivers can be
->    added under drivers/ptp/pure as well.
-> 
-> 
-> Possible alternatives (please suggest others):
-> 
-> - Move/align "pure time source" PHC drivers under an existing
->   timekeeping/clocksource/virt area, without changing the userspace API.
-> 
-> 
-> I’d like to drive this discussion towards consensus, and I’m happy to
-> adapt our series to match whatever direction is agreed upon.
-> 
-
-If we get a consensus to move forward with exposing the device clocks as PHC, we
-will respin the MHI driver and would love to get an ACK from the (new)
-maintainers.
-
-- Mani
-
-[1] https://lore.kernel.org/all/vmwwnl3zv26lmmuqp2vqltg2fudalpc5jrw7k6ifg6l5cwlk3j@i7jm62zcsl67/
-[2] https://lore.kernel.org/mhi/20250818-tsc_time_sync-v1-0-2747710693ba@oss.qualcomm.com/
-
+base-commit: 24d479d26b25bce5faea3ddd9fa8f3a6c3129ea7
 -- 
-மணிவண்ணன் சதாசிவம்
+2.43.0
+
