@@ -1,194 +1,123 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50F9238B9AF
-	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 15:44:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30A1E38BDDB;
+	Mon, 19 Jan 2026 15:50:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768837444; cv=none; b=kR+H/9RQiZ2gMDgDHEiSFX7FS92kgXke0b22yPQajeY4xCjoNE6OytKQ/RBluZj1ghxVkgC4hXRFrEUvz4LFFM7ippDAOs79aZYAdCac7vH2FmDxpxWUjg6HR3NJGj5MPqn1i0teBS97gPE08o0VA7POgGF36weAiS0Y+B5mfPw=
+	t=1768837812; cv=none; b=o9HFVJ4qhxP+R3DHBZliPaDgU7lNeHVJdCqbGbBGeGFvuNjsJRqMaJABR/4fEteHhp/XB7Dqu5c7NnKVPl6z55pEo9eDk7pofQ3sLMBlrS3q/QBsXW6BR6bi72W0ILmT9qW0N7HLPWoN15rwEEn1oPaV3Tqo28BJzwi0URaNMBA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768837444; c=relaxed/simple;
-	bh=2HuE6tbSpLQ62H6pjoqaeKbW/rufO55isJK3aHLjh8U=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kKYjFyzP2tEV+WtpzqwAgEvjudFnHox/9N/kxQ0qIWGJXqW3vhzO+OAADl6RG0Smzd5OAaf8UnueLVW27nTGejT0gJSHNhDHiiWUgQ+Qlt9QtOm1SzlQ/lBEsf4lMy0j7jFbroG92uleE6KrRaOBxNdTGfs3Md9UrKjc+sq9D4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ho/XNJ3U; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768837812; c=relaxed/simple;
+	bh=Ge9a4W+ScNHnrmyDYC412nampeZPIhF0MI75Naq8xpA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JCxTljdh46YtrLs0je6tCnIJXKOElTFmNrEMha+ZalJ55k0A9hh/uTRPHcLMkjspZ0XCtUcfQt4ba69kgXk6jcZm3l3n+OwPbrL+xT50yRkc+cCl9uRHC7meHPhR5I1CwO/y/82de6YWnJA0E748Av/B06DG6bypVKh1XrDykrQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dZ/SV3dl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ho/XNJ3U"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-47ff94b46afso29215145e9.1
-        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 07:44:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768837442; x=1769442242; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=EWJKJQsunGDWGcktrSRSGAJYI4Y83xT0WkUFHjnbal0=;
-        b=Ho/XNJ3UXEuJtad+aMn/0gt2kchxoNyKMyizSCcf1HM4NRXYbxZitcmuT6gYMZ2TyE
-         lZqMz50qfFecfOlWEYUyoYHxbTz7c1YQvzwlMwNtpPnmvnKMw2/DUT3MZ5ieZUPDACWM
-         9OivT59z69GrP92aqY5vNG30Dsq/fs6QwxB5t4v9c7+w+aJNpkV6gwxcu6qpBgDkedaG
-         bP2TR6Sv+mQMYG5yl6eBV45jXv9DLq+R9FKQv+CEkr33suU9U3FuzI6Uxju5qiNBTG3u
-         VI1j5s2sr6EjwPcCuW2d+wKvHwR+INgSgIqZvlf0bB8JjoAnDsvsgPLs68JDlZIgA+yS
-         yyTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768837442; x=1769442242;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EWJKJQsunGDWGcktrSRSGAJYI4Y83xT0WkUFHjnbal0=;
-        b=PilWxWejiU7RJldml0Vth/Tl86m4jBc+QOcNqblvhgL4PTPtFyNaqhj2NN+g3gTVEc
-         vQ48SsDumbv2LBC8f+ukrRW+yNUwu8RKusYO6mSsmKyGyb5IMp4H4O+6wql+8V88c9oD
-         ODp/injSI8YeOoELffqjxUmwN3sqt0A5W9A2eua0GCAtemI2v15h9Bc8QnkAp4m3fK3k
-         WQSj5agrfLgQI+I7EEe41+qzzUtmijnXcn2IE+xF8we9jo1qVZZ7xf3xpz2nT4L6xDOW
-         QDb2q7hjp++NiUlMsObdMZJjWMP23u8ie+ktWnoiLTpB7v05F/euxKYF719KfhcYGujB
-         wzOg==
-X-Forwarded-Encrypted: i=1; AJvYcCUi0X9fqHhDJTnEC8j5AeVSb3kbF9/swNXH+Roc3aRDDn77c7IrVGp4/mrUndIFRwyEP+fXuchIAMJmPxn79Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywq3T2J6Y80HJQepcJMwm5saLsSUudVUr9bsAnb2cftMZxWjThr
-	1b7PwmlrG/WPZCdgO5vABh5V3lW6gLPH8c7ks7JJAoKVyVQNNRQYJb08
-X-Gm-Gg: AY/fxX5jNbVF8CzNrL4uQDgrsaTwRzpfWbsOIiAUPMWNMfpP6zRsXPYPV5+BhadyFvR
-	8fETEEXSJ0LSq5p/g5LtyFDTtWG2KAqixmvmz06BvdHrIQTECCnyjJU6ReNuxtLh4j/gkdrN/7m
-	l3xhPpdwM8bJY1sRMOU1teBV4I4hjKYR9pKJfLWEYuqCN1lsz9lU6DKmkS0cmu3kpUoRshrkItL
-	66ra38doHXnSiSk+rGeUaLBn+LDj1fpvaEG4sEB1GZkShLWlrAIjUdFrzbxxzjgFFj0gPAJ1EQw
-	Sa4l9OnsrrEuInK4XIBHPQlRY2DDrLU+FGYbE532rZYUpe3Iq15gMVpPI9E7QJE44mdkr3N3smK
-	Cqjms75VmiiCnCZHgEU6WK/Oge/I2GS2QJdK2lKOnMMnk4JSbtalAEdfE55E8+xV6X+1bfMw9ax
-	Pa623WL4U1Vnu5ESAhlF7e/H4mqNLV56jQX0RY48wl5LLSkB8wJGrVqM/IQIEGb9+GQw==
-X-Received: by 2002:a05:600c:8b6c:b0:46e:2815:8568 with SMTP id 5b1f17b1804b1-4801e66fcc5mr130852245e9.10.1768837441407;
-        Mon, 19 Jan 2026 07:44:01 -0800 (PST)
-Received: from f4d4888f22f2.ant.amazon.com.com ([15.248.2.27])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47f428ac749sm261155365e9.5.2026.01.19.07.44.00
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 19 Jan 2026 07:44:01 -0800 (PST)
-From: Jack Thomson <jackabt.amazon@gmail.com>
-To: mst@redhat.com,
-	david@kernel.org,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	kalyazin@amazon.co.uk,
-	xmarcalx@amazon.co.uk,
-	jackabt@amazon.com
-Subject: [RFC PATCH] virtio_balloon: Support wait on ACK for hinting
-Date: Mon, 19 Jan 2026 15:42:36 +0000
-Message-ID: <20260119154236.39412-1-jackabt.amazon@gmail.com>
-X-Mailer: git-send-email 2.50.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dZ/SV3dl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 936F6C116C6;
+	Mon, 19 Jan 2026 15:50:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768837811;
+	bh=Ge9a4W+ScNHnrmyDYC412nampeZPIhF0MI75Naq8xpA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=dZ/SV3dlZW495MXI0aLbck5VMqdHMguCknlACk68Up73QNrFUPkpdQGBmflfG5/su
+	 zP6y2wW61oNvnOOxYqAQLYsv764wrQHmFOr3aeVppps6TjdlV6sZtrMzjAbF5BIlxm
+	 W7Rf0jVDs6dFbl+awCQofsyR5vtwyUfNjpUVPfDM/GsOTGgW5/HXuaMdfoqL6f8XME
+	 /l4rjY7Tz76OtC8NUOYwxogDSm8cGu85syhWJfYw5CdXIAz03D39n6y/5OIVu51IzZ
+	 yBmr0ZJswUsan6j6SF7J1EnfZZADmnytyZccmiiCjs4qLMGwjw1CfO68p4fmNRZRYz
+	 CGxfvycWg1+9A==
+Message-ID: <6c3f8061-302e-40c1-829b-2f8555bee70c@kernel.org>
+Date: Mon, 19 Jan 2026 16:50:06 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH] virtio_balloon: Support wait on ACK for hinting
+To: Jack Thomson <jackabt.amazon@gmail.com>, mst@redhat.com,
+ jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ kalyazin@amazon.co.uk, xmarcalx@amazon.co.uk, jackabt@amazon.com
+References: <20260119154236.39412-1-jackabt.amazon@gmail.com>
+From: "David Hildenbrand (Red Hat)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+In-Reply-To: <20260119154236.39412-1-jackabt.amazon@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Jack Thomson <jackabt@amazon.com>
+On 1/19/26 16:42, Jack Thomson wrote:
+> From: Jack Thomson <jackabt@amazon.com>
+> 
+> This RFC patch adds a new virtio feature for the virtio-balloon driver
+> during free page hinting, which will wait on device ack before
+> committing the range to the free_page_list. The reason for the change is
+> it allows the device to modify this range without it being reclaimed
+> from the free_page_list before the ack is sent. As expected, testing
+> shows this adds overhead to the hinting run duration, increasing it by
+> ~30% with our Firecracker setup. Currently free page hinting is used
+> mainly for live migration, but this would open it up for a new use-case.
+> 
+> We would like to leverage this with MADV_DONTNEED to reduce RSS of a
+> guest. We'd like to use hinting because of the flexibility of control it
+> brings compared to reporting, allowing memory to be reclaimed in
+> deterministic periods. 
 
-This RFC patch adds a new virtio feature for the virtio-balloon driver
-during free page hinting, which will wait on device ack before
-committing the range to the free_page_list. The reason for the change is
-it allows the device to modify this range without it being reclaimed
-from the free_page_list before the ack is sent. As expected, testing
-shows this adds overhead to the hinting run duration, increasing it by
-~30% with our Firecracker setup. Currently free page hinting is used
-mainly for live migration, but this would open it up for a new use-case.
+Can you elaborate in more detail why you don't simply use reporting, 
+like QEMU?
 
-We would like to leverage this with MADV_DONTNEED to reduce RSS of a
-guest. We'd like to use hinting because of the flexibility of control it
-brings compared to reporting, allowing memory to be reclaimed in
-deterministic periods. The traditional balloon device was tested to be
-much slower when compared to hinting for these workloads. Currently,
-without this synchronization, hinted pages may be reclaimed from the
-free list before the device finishes processing them, making hinting
-unsuitable for this use-case.
+Could you instead see optimizations being done to reporting that could 
+make it fly for your use case?
 
-Signed-off-by: Jack Thomson <jackabt@amazon.com>
----
- drivers/virtio/virtio_balloon.c     | 21 ++++++++++++++++++---
- include/uapi/linux/virtio_balloon.h |  1 +
- 2 files changed, 19 insertions(+), 3 deletions(-)
+Hinting is a rather special case thing only used for reducing VM 
+migration time in QEMU AFAIR.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 74fe59f5a78c..82b560422279 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -596,8 +596,11 @@ static int init_vqs(struct virtio_balloon *vb)
- 		vqs_info[VIRTIO_BALLOON_VQ_STATS].callback = stats_request;
- 	}
- 
--	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
-+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
- 		vqs_info[VIRTIO_BALLOON_VQ_FREE_PAGE].name = "free_page_vq";
-+		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK))
-+			vqs_info[VIRTIO_BALLOON_VQ_FREE_PAGE].callback = balloon_ack;
-+	}
- 
- 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
- 		vqs_info[VIRTIO_BALLOON_VQ_REPORTING].name = "reporting_vq";
-@@ -669,8 +672,11 @@ static int send_cmd_id_start(struct virtio_balloon *vb)
- 					virtio_balloon_cmd_id_received(vb));
- 	sg_init_one(&sg, &vb->cmd_id_active, sizeof(vb->cmd_id_active));
- 	err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_active, GFP_KERNEL);
--	if (!err)
-+	if (!err) {
- 		virtqueue_kick(vq);
-+		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK))
-+			wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
-+	}
- 	return err;
- }
- 
-@@ -686,8 +692,11 @@ static int send_cmd_id_stop(struct virtio_balloon *vb)
- 
- 	sg_init_one(&sg, &vb->cmd_id_stop, sizeof(vb->cmd_id_stop));
- 	err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_stop, GFP_KERNEL);
--	if (!err)
-+	if (!err) {
- 		virtqueue_kick(vq);
-+		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK))
-+			wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
-+	}
- 	return err;
- }
- 
-@@ -722,6 +731,8 @@ static int get_free_page_and_send(struct virtio_balloon *vb)
- 			return err;
- 		}
- 		virtqueue_kick(vq);
-+		if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK))
-+			wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
- 		spin_lock_irq(&vb->free_page_list_lock);
- 		balloon_page_push(&vb->free_page_list, page);
- 		vb->num_free_page_blocks++;
-@@ -1186,6 +1197,9 @@ static int virtballoon_validate(struct virtio_device *vdev)
- 	else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
- 		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
- 
-+	if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
-+		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK);
-+
- 	__virtio_clear_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
- 	return 0;
- }
-@@ -1197,6 +1211,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_FREE_PAGE_HINT,
- 	VIRTIO_BALLOON_F_PAGE_POISON,
- 	VIRTIO_BALLOON_F_REPORTING,
-+	VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index ee35a372805d..86698ab06261 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -37,6 +37,7 @@
- #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
- #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
- #define VIRTIO_BALLOON_F_REPORTING	5 /* Page reporting virtqueue */
-+#define VIRTIO_BALLOON_F_HINT_WAIT_ON_ACK	6 /* Page hinting waits on device ack */
- 
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
-
-base-commit: 24d479d26b25bce5faea3ddd9fa8f3a6c3129ea7
 -- 
-2.43.0
+Cheers
 
+David
