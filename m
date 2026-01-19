@@ -1,266 +1,224 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010005.outbound.protection.outlook.com [52.101.201.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBC05276050;
-	Mon, 19 Jan 2026 12:13:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.5
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768824796; cv=fail; b=mBhM96g62IWQH9ROquiSNiMXlNsMR631GzFu211LSYqkOM9hk+YVykzAVdGz/QcabN7jgXNJTCY3zXyqw47pHq7/jXoohYaiyFRavKVjEziUCFeYdgFyoeGmq1T2eBVq/Buzamy89SlPJIbYcD0wz6TTPob8tofGpfiYJHx5Nx0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768824796; c=relaxed/simple;
-	bh=SFteUsRfkqj3Qm8+OmajuD8jscDZOIil00yZdkz5vLE=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=RY5qGLEc4poOSVbKLJGOSGKMGCb3+CSrc+URE2uq2GMSmdSoPCCiC+dwytG6AXdvXkQFez8TGHBeySNjlwDLdLgKe6BZxOthLQnPMdTexSQwzvTrFf0STHxMI0/ohm1h0eyp5fih0etpL4pQff55zuOwh2HbTHX6jqfKg6d54xY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=s+uVo0uk; arc=fail smtp.client-ip=52.101.201.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 817D3314B6A
+	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 12:25:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1768825536; cv=none; b=KNysohlOUBGxZJpa85r9RlZdo8JWFIM2b3m87KHbmi7U3AsXCNPlygfv88LV1RBuS2410FxSWAkDVbp5gSDYb4yuNq71lHR/tbj51MUYcdcG+diDHRACn6596FP6Fa6YhlqjM6FzjAw8AUEtNKk/GbBpwLKzKQeIjJYi1+UMwHA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1768825536; c=relaxed/simple;
+	bh=x2tya32T5ud6Njv8S5CvYJAn12K/oL7vj+wbyqjPawk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KkjSCoiFMytb00qq2XI9b6JJ8jZMZnVV+cr5CN25x+88DzF70IpI16V8tmmBb6JQ7ythYIqFWNcuykCMWzvvM2wCNr6gmnirzGkrUdcJy5cPJqUqeVD/5MCktSU/Jy2vkJj0OulSS9jMvlfjpSx23VkqHNLRpukWSq80GCS/R8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R2MtugTz; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="s+uVo0uk"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=K448iUGpZvKk51QY/s+FKgY7kVIXNlM8Cc+hL6HN+pzjrNSeHYH2sveLhiYjJlx29eUOkRGYCZZgVfQptpTTVeAF1JyTcjTAxm/NYsKnnXKl6wrvxRVqp/Gb738Dj+0wrflDVbE4q6kNHA2PaKjyDOD9hdfi0s87I3CFEcJfGUsHtLqzA/rr6n0iVDqdTuouLOhuwCDRbNNUsDtnU0cEFo2wYhTHleigniH9PSCjqocSr3y3j9wAat0kEyrK3m0DHxkHBFm8hNcFOfiPivxFX+cykOP4pVEd+8FiZyaPT3mwJ6LW4howjvywBD2gPKdvf4Hv5zF8KM94+gkie0gubQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2gveICgaLhhrgKIccpuD5uQr7+CNwWh4xOTG0NbNZA4=;
- b=V3Oykn+459+vVna5oc+gF3eBuBu2rLrhAngCuxZFtlDSPzs2PSsHMKwwVo5A8ijDqdIDH/d+HYqXcf96WpgWgpanMXYNN60ZNUjD8Wy5zyx3f/E4wo1AtI/soHTJMorpYr3zW+n7A10zWxT5bEY2YY2gCQS2Pi7CCL7Dwcr1ycu09K1Sr4mYvG8/n5r/xAoFA6P93sM47WWEAyK3gJOakwzl1cAPRvf+QvBtbA1Oa28b9FfE/vA1zA54ydJqp8BRd6Pth7haJDtBeWGV+2HeLlK7U9r3eYt1p3r9sESJVOw66GxjFDn3F7T4KscW/vpkg9lBS59HEtPO8PIz+5LiwQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2gveICgaLhhrgKIccpuD5uQr7+CNwWh4xOTG0NbNZA4=;
- b=s+uVo0ukJEIYB5uWBMrGRrrjRykSMR2P4vvoovhODyyw+D2uKZTWwWpzGoIiptpK/YTnMc+EmFnaqHGubKFtihRzmvibC+0/F9T3NtnB4vJVKbYnY+Zzq2WNJfyKEB4qsISXzNkxEzsEnLG1C8f3eWw96ATNUkZl35zCOaEAim8=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by SA3PR12MB7903.namprd12.prod.outlook.com (2603:10b6:806:307::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9520.9; Mon, 19 Jan
- 2026 12:13:00 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::46fb:96f2:7667:7ca5]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::46fb:96f2:7667:7ca5%4]) with mapi id 15.20.9520.011; Mon, 19 Jan 2026
- 12:12:59 +0000
-Message-ID: <bd37adf0-afd0-49c4-b608-7f9aa5994f7b@amd.com>
-Date: Mon, 19 Jan 2026 13:12:45 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/4] vfio: Add pinned interface to perform revoke
- semantics
-To: Leon Romanovsky <leon@kernel.org>, Sumit Semwal
- <sumit.semwal@linaro.org>, Alex Deucher <alexander.deucher@amd.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Lucas De Marchi <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
- Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- Alex Williamson <alex@shazbot.org>
-Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
- intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
- iommu@lists.linux.dev, kvm@vger.kernel.org
-References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
- <20260118-dmabuf-revoke-v2-4-a03bb27c0875@nvidia.com>
-Content-Language: en-US
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <20260118-dmabuf-revoke-v2-4-a03bb27c0875@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR4P281CA0154.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:ba::7) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R2MtugTz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768825533;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=rSw7y3upc4AgVNmsptTH129octiJTx3PmTd4wjgwavo=;
+	b=R2MtugTzYIV1CP/DG9OD8jI3DP+HUq5Iyg6+C7lpEnMhqTmM6Ls7K41vRw4B0v3M6QVuex
+	+bsAJm+8xXZH7XZ7AWVOZ5mVA2QwfJOeRcemQmlSrHHpP/vLaEjLLJk+Hj8pqip2aGW2y9
+	Bhw1uxickVWv86x97mCi9TDQ22SmbWI=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-417-S1F_zHZgPG-OtRBthNoJPQ-1; Mon, 19 Jan 2026 07:25:32 -0500
+X-MC-Unique: S1F_zHZgPG-OtRBthNoJPQ-1
+X-Mimecast-MFC-AGG-ID: S1F_zHZgPG-OtRBthNoJPQ_1768825531
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-34c43f8ef9bso5032943a91.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 04:25:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768825531; x=1769430331;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=rSw7y3upc4AgVNmsptTH129octiJTx3PmTd4wjgwavo=;
+        b=m7GFFa/Yu6u80uJIuYFCaxk9uGTnxyWCx0357msodsGd/MQO7165m4OUwnXP71zHp8
+         Hank36sK2Qn+FtCrmAdMq5KSUuyoEoveR7gMwsrr8s4gJgO8PaI/dlTt3+IpRVJEZSxo
+         mnPf48ba10zFj0QWJmyNsHrvF3bxOAwMwcSx/6IWkerT4Xw32t0VySydarv/5yT79ZAc
+         rj14Ah0/QPvSNbHJM2qT1R+VKo6OHEHrEtKEsyxs6rLS4CWRM9/h/CFpzti8FRC7x6G6
+         2bVGbIGdeZeQXcN7hc0asSUdQaV6xgbzf6u5vAxzoZLaR4bH1jmAJVu0Vw6Dj7FRUynV
+         8LYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUDtwFv52Qfu1iAxxLjJx2vVdWs9AlYSzfKISdQ7EXFh50p3bWnj89gBf+7eMrqmOqMPz/+YvUDrWLPCXf4cg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw500Eck+afyy7+XO4CxaVPbDJSU8MN1myKxGgI+hzWTUBziyLq
+	wrLf51A3uv2zgrFOSJaD8byp6fpR3xYN5TK+riuxyUvs1NQ3eo/BvdGiIsyvm3HnrgxBGNZ3lzg
+	hEKgBCLUTbRgA77sT+/O4JpLdrUIuf6CjUda58ahd0bEttH2dLYM7WU6f185C9ZnSD8X+hD2pzl
+	YA/BEL9UfQD62Fyib6BvborHDZADC1Vk30dfI/3mk5CsU=
+X-Gm-Gg: AZuq6aK7l7o5zceMb2IZpgV4CEhfLQTFswwAxe5uB6h0jxsk2uRYHAuPJjWwpFtDLG9
+	l7abXh3F3dVh9XYNXXbgF0wsL9iZ4PyeQ56lZfSx+Ct4h9sorCvvwkyz863wsD2hTIho8ycHPiu
+	CleMzlMAJq0xyqdg2RCfHpwkxdkKSJ2SNjFiYjrtWazJda71M9/58/9zg4OiCJbKj0hw==
+X-Received: by 2002:a17:90b:2b86:b0:34c:9cec:3898 with SMTP id 98e67ed59e1d1-352678d9b78mr11715679a91.13.1768825531006;
+        Mon, 19 Jan 2026 04:25:31 -0800 (PST)
+X-Received: by 2002:a17:90b:2b86:b0:34c:9cec:3898 with SMTP id
+ 98e67ed59e1d1-352678d9b78mr11715658a91.13.1768825530355; Mon, 19 Jan 2026
+ 04:25:30 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|SA3PR12MB7903:EE_
-X-MS-Office365-Filtering-Correlation-Id: 96055d42-6e3a-4487-7d5f-08de57541640
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|376014|7416014|1800799024|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?Y2ZSbC9NSm9aLzJpWklGUXlheC9laGlGcGJSMWFVWU5aZnpRcGF4UmJ6OXBG?=
- =?utf-8?B?MzMvTktNTjU4QzgxQVBPYmZmc3ZHT0dReVcreEZVVVhiSlNQR0psYWt2NlQy?=
- =?utf-8?B?NGtPSjFSS0hUYk85SGpCa0VacGpPTlZuTjNZZm1VdjU1UHVhSXRsQ3pLQzRN?=
- =?utf-8?B?b2p5YlB5TThPMGg3WkdiRXZ4TnM3eGZXcEdVbTd6TkxyM3Z4cmllR2lESGVU?=
- =?utf-8?B?cXo5ZEZKdUw4MHBnL3l6QkE4S1RkY1pJSVUraGY1ZEJVYXVESTdIU09wME5x?=
- =?utf-8?B?UmlzN00zUHIwTGRXa0lrdm9QRWJaTXdkMCtUMEx2V3FKSVU2emZxY1czcUtW?=
- =?utf-8?B?VEI5L3RwWm03aTRxRW9RS2tlTE9PekRGOEkrK3NTZ1NyYXowdWlRcFNSbjJv?=
- =?utf-8?B?eWZmVjdTVzB5MEU1ek1lS0hVaUlFcnBKOGNSUWhzL3B5QWVKck1icThpQUth?=
- =?utf-8?B?VGhhYllIZldWRGp5WlEzb24rTU9HQXdsY0QzY25ycVZrdkdmVjFMWFFtL2lz?=
- =?utf-8?B?cXROT1RyLzRWMzEvakpuRjNyRm9KdWNnQkN3d0RGMHlTVVJhM283MXVCbWxK?=
- =?utf-8?B?Nnp2T0tmdFB6UjVMd1VMclZ6TG56QUhKcW9jenZNSUsyNEJDdVd2Z0VTUmRM?=
- =?utf-8?B?ZVRUMUhNU0VXRlBiQ3AwbGlOOXlMM0dRNmtaUjVhQkI3b0FYN3MzeDA1Sk91?=
- =?utf-8?B?SzVuUDBab0YxMTU5UFhhamZISlRnOG4wSC9rcllyZ1JZWVNGUGNZMzREbzMr?=
- =?utf-8?B?R1BDR0x1NExGZ21ReHhqb3poM2M3MnBUd0RhdWhQOEV6Ync0aGpXY2ZnQ2lB?=
- =?utf-8?B?U3gyVStDeU1RcWJKOGI0MFlTeVBVbFBDbDlNVVR3Qy9CZCtKdzM2UEJHK3ZY?=
- =?utf-8?B?OFlhYkttRDhJOXF1RnlEWEZ0aC9MV2xyMktOWUE3VGxHazRxbDBLZ3pXMWJr?=
- =?utf-8?B?OE5jeXZOY2lGTXBCblZjSUpDTDI3anRXYzVxNmtkOUpvazNzTVFrbTlNY0tR?=
- =?utf-8?B?ZkJBNGZmN21QMW5LMlpuenlENzNudEMrdFJxZzNsTGhSakRlMGlJZmMxdDB5?=
- =?utf-8?B?dnFNUDV2UkRVVUlYQnF2amdtUkg2Z2tRdTQrd3pSaVNoZUhEZDEyaFVoZEN4?=
- =?utf-8?B?ZFlwZ05XMEQrdzZIZ1p5aWN2aU5KTElJK2p6cUFjUmhWOFBWd1JXRndISDVS?=
- =?utf-8?B?bDRUODRGM1gxV29pU1FQVjl4YmZyM0VqWmJaS2dUeVQ2ekRMS2R2VENiWkNt?=
- =?utf-8?B?dkw5MlNpMGtvQkovWHZJMkcxbXhNMDM1T3p5RGsvTmVzSkhhaUpsSFJpUUVO?=
- =?utf-8?B?MndMNzZRMy9IMG5tekx4akFBZ0dLUDNyNWZPODlzNkp6Mk5VVUVqeDFwRU4w?=
- =?utf-8?B?YkVHTE05cWhBQTA2NHZTaTZyTGZ6YTVxbTNINjcycTZKaGdMRHFWbmRPZWRw?=
- =?utf-8?B?blIzUWdLanZzU3F6Vm1XOUFpakp1VFVQN0xFM1R6dU5MNmJXeHVQYXhYbmY0?=
- =?utf-8?B?WmFVTnhGbDBGNTVpd3VXeGMxUzRtTk13Wlc3ZG1CRWdaeHRkWkpwbXFoc04v?=
- =?utf-8?B?Rk9pbEp0bi9tSzNnNFl1NXpNK2hReDAwQmUwcFhZLy9CTm5HbVpHazFiWlJa?=
- =?utf-8?B?cEhNRUh3Y21CRkhLVTRYS0JDamZFNU1yS1hPTG9iR3MxcGRhNytnUE5hZGVP?=
- =?utf-8?B?RmJWcldMSlowSTdPb1NPcVZGbTRGNGwwczJYays3aWo1RW9yMWxvTUt5Wno1?=
- =?utf-8?B?VnhIMHNkY1FvaWRBMlpSSUFOR2V4MTA3czFUa3hYdWZvQUgrcE9vZnNuWUlL?=
- =?utf-8?B?VVF6UkdadHZnTU9qOWdLanVRUXI3dHhWc1FuaGk4N2ZrT21MRk1seGVVSG13?=
- =?utf-8?B?ZVhvL3VRQk1Yck5oRy9RdVN0VGhxcWwvdWtvWm0rM1YwdHQ1RzRrTTRudU9h?=
- =?utf-8?B?d0R0TDVlM29MbFdMSDhiNWppN1J5bGVmUEZ3THdyUUdxa0l0UVo1eFdBa21p?=
- =?utf-8?B?MWpVTzIycnM4TUxHdUpxb2xBbXlNTkFQcXJuNGJTdnBxN1BsNlVOZ0xWRy9n?=
- =?utf-8?B?Y0ZQc2poQk9mdEd4bVMrcEJvTWRDVnk2VHBKdlFzSUg4SjJ2YThhdm9sZFZ0?=
- =?utf-8?B?UENiRzdQVzRra3hZY3NadzhpVGU1V3Rtc3E2Nm5FTGhuZXgrZnVlM3k2YUE0?=
- =?utf-8?B?eUE9PQ==?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?ZHhvbDFZd3NnTW0vZGN3V2diTDV6Z1ZrUVNZYlpUVk5YZWZoTWlQMCtNRDNW?=
- =?utf-8?B?TmgzZ2ZtN0RvZ3JnVjdGM1U5bUVTZUJxRVIzMmxJVVovWUhXOGlrNzZaMXY3?=
- =?utf-8?B?TDVKYUZmVkN1KzVuMkZkUElSaDR1WERxcFRvUitiUVp3MnM1dFdGdnJTa05Q?=
- =?utf-8?B?THlsQU9EbjlGbEZERGtXekdha1Z6eWk0cUc4eUdyWUNrZ3ZrUkQ3WHgyNnhq?=
- =?utf-8?B?b2hSV1BhTVUrUmtBbVltU0JPZit2V2F1dDljYlNhR0RhNlZrR0tpb0l2K1FJ?=
- =?utf-8?B?V3JKSFlDZVFlUTl2emVLTjFHVG9JQysxY3hzcmsvK3RMcFk0c0ZqMGpJbTlF?=
- =?utf-8?B?M2VDQ1JPUHNxTW51NWdJRGJ3bktZZ3BEME16dXRMQ0U4QjI2czBJSzlPaG4r?=
- =?utf-8?B?czlENHMzdlFtaHN3Zm8rV1hhRFZsQng5WTd0eDRObll1Tm9OekZWaGcyUHVC?=
- =?utf-8?B?eWxTLzJucTVobG5KQ1hwU0J2cUZOSmxoc0ttRHpmNFJoTFlOSFloNG9NUWh3?=
- =?utf-8?B?QjREczYwSVlMaEdpRUpVZ0RuQmtiN1ljSXZWelpGM3Z5Q042M0lSM2Z2bTVt?=
- =?utf-8?B?QWNDZ1lNelZkZVF5ZEZVd1hYMUhqYlpMWmVueHNCdTVKNFpqaVFSTHJGcVBB?=
- =?utf-8?B?MHJGK2p6UzdLNVB2TldGa01XNUFKM0xXL3kweTAweVU0Z0RsU25hQmNPaDA2?=
- =?utf-8?B?VlI3UEpFQnJ1azdjdEVnSHQrdloyRUlzY3NxRHR2YUc2bUJ5Qzk4T3M3a3Jw?=
- =?utf-8?B?UkVhRjJxcHd4WnFla1Z4d2JuYzFkZWpXaUU2VE00bTJZSFUzMDJPZzVEZUpT?=
- =?utf-8?B?U2NaT3ZzUG9VNk42a0p3cjZCRVlzMVBXTmtiNjBrYVJqVU4zczNxd3pzYlMr?=
- =?utf-8?B?dG5yU2dPc1dRMThWZzBSLzdReUg3N1VRaUZGWlBvbFp1KzFqcGMrYURtZ3VK?=
- =?utf-8?B?cER6c2x6N2g4MkZkd0NmWDU0V3kvRXZhdmNoMVlXQVNuU1NRdTJRVU9pSUZE?=
- =?utf-8?B?VEhvQ2JocjU1WTlrNE12a01EenB0V1padnlmY0M5eDZPU1UvcEtDMWNaOUpk?=
- =?utf-8?B?TkliWE83MExnL2ZLYnNrVUtHMnluQWhUd1FPK2N6aWJIUlJyVkM2a205aDJI?=
- =?utf-8?B?L2tkdUxaQVhjbVlnc2Evbzg5ZVhTenlvOXNpY1BtNVFIcUhuY2ROaE5yWnpB?=
- =?utf-8?B?REUzanZDNXJYUThIY2cveG03UUJLNmJ3aHMwM0JmT25Sb1Bhb1lGRVhQeGRX?=
- =?utf-8?B?dkxTOXZ0ZEtXVGVCQ3EzaDJVaU1TZVFYK2xJTXAyVDZ0MkZmeEsyam16eFNF?=
- =?utf-8?B?VzIrSHFuLysrVzRoS203MWp2ZDZsSEpPUGVFU0RBdmYra3ZLd1h5eXp0RzBZ?=
- =?utf-8?B?M3VBUC91dmR1VENpTWl4cENUMVRUc2xOcTVPK3lBWFZGbHc4clBCYURxSU8x?=
- =?utf-8?B?OHg2WkI5UEdFUmxZWmt0clZIQnpweFFNUWdQMS9zMG9KdEN0amYzdlNJdngz?=
- =?utf-8?B?emovdmJiV1I3QVBIKy9hcmFSMzU0a2hpaDlteFBLYVJmblphNzNEWXdWeURu?=
- =?utf-8?B?VWgzQWNoMFpUUC90Y1ZIKzdMb3Bsd2xkelZQWlZrMFBUMTVSWXZHU2hHMnl3?=
- =?utf-8?B?K3F3RXAyemo2bEhtaG0ybGUza1NkSUNPenMrN2RvOVVnUmE1V0JuMWJtdC8w?=
- =?utf-8?B?TEdublk5V3ErNkg3YTVHVzNWeHMxNlJVQXVKSHprOGcwdjZwNTlRekM4K1ZR?=
- =?utf-8?B?L0puVXdLQnpSeWJxQUZ2SGI4SzV4L3dPcEVZMjhsWTFCaFc4cHlPU1lQbTgr?=
- =?utf-8?B?b0hMTXB4S1hUcnl4VE51aExSWDBzeUptVVgrQmQ3S2hZS01UWE9LOEtnUFlR?=
- =?utf-8?B?L2R6MWV5QjZ3bGEwQ2FHNFNiVFpTdEdyWDNpMm5JbFN1eTlobFVQM0VMOHlQ?=
- =?utf-8?B?ZVV3d0VDcmowVnJVWjZ4czVLZjJFMUxwdkhxeDY4R01OVDVjVjJOSmRJcUlk?=
- =?utf-8?B?VUgwY1RqQjV6cCtJb3grcnZGSnY1ZTgyQ3FhbHpUcCtxb3VHUWJ2WUtaK25v?=
- =?utf-8?B?TjFkWGRQbUdKZ3F2K3VlWk5EcDV5aUg3STBwaTFpYmRZWEV5dExBL0I4Nng3?=
- =?utf-8?B?SzdCY1VwZGFhQWthYmtwVWhJd0EwT2ZsWWdnaWNMQUVJK2JoeC9TNWl6WUZ2?=
- =?utf-8?B?KzhndjRSQllvZmhLUlIwbzBpVzFoWGF2UTlweVZDWFZBNnhMSXhERENzSklB?=
- =?utf-8?B?bTA4cTU0UDYyYU9raFpoeGVFaXI4QWxuVTk3NUhsbDNwd0NvMTZCV0NyYTF1?=
- =?utf-8?Q?lOmbP6c7lsf3LUEr15?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 96055d42-6e3a-4487-7d5f-08de57541640
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Jan 2026 12:12:59.8208
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5ITxMD1iCXc2/x342+lqPVseLP2ExWGq0ZRLyKgSN0fmkOKc2+Un4spRTjguo/hD
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB7903
+References: <20260116140455.1560491-1-eperezma@redhat.com> <20260116140455.1560491-12-eperezma@redhat.com>
+ <CACGkMEvJB5uyNnxmr=rap14Tc-JSy4=XGAtDZu6rg3+nucXUOw@mail.gmail.com>
+ <CAJaqyWf_37cwV6mK-_nj4GnwquSxUYCPFKUOkxCaPQkJ9iewLQ@mail.gmail.com>
+ <CACGkMEtyyPJQ3t_ckwZyNRHW2_fqm=09DEe-__Rvz0pQoUqtsQ@mail.gmail.com> <CAJaqyWc6OQs9GP=CjSU1B1hU1K8yArzivo6aK3A7aTQ33Fjq6w@mail.gmail.com>
+In-Reply-To: <CAJaqyWc6OQs9GP=CjSU1B1hU1K8yArzivo6aK3A7aTQ33Fjq6w@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 19 Jan 2026 20:25:18 +0800
+X-Gm-Features: AZwV_QiY9fo3rL3XYC2y9nsDkpI3UknKJo-O3GURjcze1lGKw6IShVU486kZWpU
+Message-ID: <CACGkMEv_=U_xa=EyQDchGWHpPU7w=-m1Ag0N7RKLo+YtNWDL3A@mail.gmail.com>
+Subject: Re: [PATCH v14 11/13] vduse: add vq group asid support
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Laurent Vivier <lvivier@redhat.com>, linux-kernel@vger.kernel.org, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	Cindy Lu <lulu@redhat.com>, virtualization@lists.linux.dev, 
+	Yongji Xie <xieyongji@bytedance.com>, Stefano Garzarella <sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: jWJ9SwGVJlRr5wMp8VfHSGuEQCQfd29lW7XWd9nRpjo_1768825531
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 1/18/26 13:08, Leon Romanovsky wrote:
-> From: Leon Romanovsky <leonro@nvidia.com>
-> 
-> DMABUF ->pin() interface is called when the DMABUF importer perform
-> its DMA mapping, so let's use this opportunity to check if DMABUF
-> exporter revoked its buffer or not.
-> 
-> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> ---
->  drivers/vfio/pci/vfio_pci_dmabuf.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> index d4d0f7d08c53..af9c315ddf71 100644
-> --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
-> +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> @@ -20,6 +20,20 @@ struct vfio_pci_dma_buf {
->  	u8 revoked : 1;
->  };
->  
-> +static int vfio_pci_dma_buf_pin(struct dma_buf_attachment *attachment)
-> +{
-> +	struct vfio_pci_dma_buf *priv = attachment->dmabuf->priv;
-> +
-> +	dma_resv_assert_held(priv->dmabuf->resv);
-> +
-> +	return dma_buf_attachment_is_revoke(attachment) ? 0 : -EOPNOTSUPP;
+On Mon, Jan 19, 2026 at 6:29=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Mon, Jan 19, 2026 at 9:34=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Mon, Jan 19, 2026 at 4:10=E2=80=AFPM Eugenio Perez Martin
+> > <eperezma@redhat.com> wrote:
+> > >
+> > > On Mon, Jan 19, 2026 at 8:17=E2=80=AFAM Jason Wang <jasowang@redhat.c=
+om> wrote:
+> > > >
+> > > > On Fri, Jan 16, 2026 at 10:05=E2=80=AFPM Eugenio P=C3=A9rez <eperez=
+ma@redhat.com> wrote:
+> > > > >
+> > > > > Add support for assigning Address Space Identifiers (ASIDs) to ea=
+ch VQ
+> > > > > group.  This enables mapping each group into a distinct memory sp=
+ace.
+> > > > >
+> > > > > The vq group to ASID association is protected by a rwlock now.  B=
+ut the
+> > > > > mutex domain_lock keeps protecting the domains of all ASIDs, as s=
+ome
+> > > > > operations like the one related with the bounce buffer size still
+> > > > > requires to lock all the ASIDs.
+> > > > >
+> > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > >
+> > > > > ---
+> > > > > Future improvements can include performance optimizations on top =
+like
+> > > > > ore to RCU or thread synchronized atomics, or hardening by tracki=
+ng ASID
+> > > > > or ASID hashes on unused bits of the DMA address.
+> > > > >
+> > > > > Tested virtio_vdpa by adding manually two threads in vduse_set_st=
+atus:
+> > > > > one of them modifies the vq group 0 ASID and the other one map an=
+d unmap
+> > > > > memory continuously.  After a while, the two threads stop and the=
+ usual
+> > > > > work continues.  Test with version 0, version 1 with the old ioct=
+l, and
+> > > > > version 1 with the new ioctl.
+> > > > >
+> > > > > Tested with vhost_vdpa by migrating a VM while ping on OVS+VDUSE.=
+  A few
+> > > > > workaround were needed in some parts:
+> > > > > * Do not enable CVQ before data vqs in QEMU, as VDUSE does not fo=
+rward
+> > > > >   the enable message to the userland device.  This will be solved=
+ in the
+> > > > >   future.
+> > > > > * Share the suspended state between all vhost devices in QEMU:
+> > > > >   https://lists.nongnu.org/archive/html/qemu-devel/2025-11/msg029=
+47.html
+> > > > > * Implement a fake VDUSE suspend vdpa operation callback that alw=
+ays
+> > > > >   returns true in the kernel.  DPDK suspend the device at the fir=
+st
+> > > > >   GET_VRING_BASE.
+> > > > > * Remove the CVQ blocker in ASID.
+> > > > >
+> > > > > The driver vhost_vdpa was also tested with version 0, version 1 w=
+ith the
+> > > > > old ioctl, version 1 with the new ioctl but only one ASID, and ve=
+rsion 1
+> > > > > with many ASID.
+> > > > >
+> > > >
+> > > > Looks good overall, but I spot a small issue:
+> > > >
+> > > > int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *do=
+main,
+> > > >                                        struct page **pages, int cou=
+nt)
+> > > > {
+> > > >         struct vduse_bounce_map *map, *head_map;
+> > > >         ...
+> > > >
+> > > >         /* Now we don't support partial mapping */
+> > > >         if (count !=3D (domain->bounce_size >> PAGE_SHIFT))
+> > > >                 return -EINVAL;
+> > > >
+> > > > Here we still use domain->bounce_size even if we support multiple a=
+s,
+> > > > this conflicts with the case without userspace memory.
+> > > >
+> > >
+> > > I don't follow you. My understanding from the previous discussion is
+> > > that the bounce size is distributed evenly per AS. Should we just hav=
+e
+> > > a global bounce buffer size and protect that the amount of added
+> > > memory of all domains is less than that bounce size?
+> >
+> > I meant we require bounce_size / nas to be the size of the bounce
+> > buffer size of each AS.
+> >
+> > But for userspace registered memory, it requires bounce_size per AS.
+> >
+>
+> I still don't follow you, sorry :(.
+>
+> Can you explain in terms of "Previously, the VDUSE userspace could
+> perform XXX ioctl and YYY action and now it is impossible", or "I
+> expect future VDUSE applications to be able to do XXX action through
+> YYY but it is not possible to do in the current series".
+>
+> I think we have three options for bounce_size regarding ASID:
+> 1) We make all of the AS respect a total bounce size, like the firsts
+> iterations of the series, and then we need total sync between them in
+> calls like this. The userland application can only allocate user
+> bounce pages in one AS with this code. I can modify it but it still
+> requires synchronization across all domains.
+> 2) We distribute the bounce pages evenly between AS,
+> as the current
+> version. As discussed, it may be a waste for CVQ for example but it
+> seems reasonable to just not add user pages to CVQ and just bounce it
+> in the kernel. Management can just expand the total size and live with
+> it [1].
+> 3) We expand the /sys attributes so the userland can specify bounce
+> sizes per AS. I think we agreed it is overkill, and honestly I'd leave
+> that for future improvements on top if we find we actually need it.
+>
+> [1] https://lore.kernel.org/lkml/CACGkMEsZiX-M-PNGX8W7GprBJmiGi9Gz1=3DayE=
+=3DiMaP3WO3vr2Q@mail.gmail.com/
 
-It's probably better to do that check in vfio_pci_dma_buf_attach.
+Apologize, I misread the code. I think the code is fine.
 
-And BTW the function vfio_pci_dma_buf_move() seems to be broken:
+So
 
-void vfio_pci_dma_buf_move(struct vfio_pci_core_device *vdev, bool revoked)
-{
-        struct vfio_pci_dma_buf *priv;
-        struct vfio_pci_dma_buf *tmp;
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-        lockdep_assert_held_write(&vdev->memory_lock);
-
-        list_for_each_entry_safe(priv, tmp, &vdev->dmabufs, dmabufs_elm) {
-                if (!get_file_active(&priv->dmabuf->file))
-                        continue;
-
-                if (priv->revoked != revoked) {
-                        dma_resv_lock(priv->dmabuf->resv, NULL);
-                        priv->revoked = revoked;
-                        dma_buf_move_notify(priv->dmabuf);
-
-A dma_buf_move_notify() just triggers asynchronous invalidation of the mapping!
-
-You need to use dma_resv_wait() to wait for that to finish.
-
-                        dma_resv_unlock(priv->dmabuf->resv);
-                }
-                fput(priv->dmabuf->file);
-        }
-}
-
-Regards,
-Christian.
-
-
-> +}
-> +
-> +static void vfio_pci_dma_buf_unpin(struct dma_buf_attachment *attachment)
-> +{
-> +	/* Do nothing */
-> +}
-> +
->  static int vfio_pci_dma_buf_attach(struct dma_buf *dmabuf,
->  				   struct dma_buf_attachment *attachment)
->  {
-> @@ -76,6 +90,8 @@ static void vfio_pci_dma_buf_release(struct dma_buf *dmabuf)
->  }
->  
->  static const struct dma_buf_ops vfio_pci_dmabuf_ops = {
-> +	.pin = vfio_pci_dma_buf_pin,
-> +	.unpin = vfio_pci_dma_buf_unpin,
->  	.attach = vfio_pci_dma_buf_attach,
->  	.map_dma_buf = vfio_pci_dma_buf_map,
->  	.unmap_dma_buf = vfio_pci_dma_buf_unmap,
-> 
+Thanks
 
