@@ -1,132 +1,196 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+Received: from mail-qt1-f196.google.com (mail-qt1-f196.google.com [209.85.160.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B58B938944A
-	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 16:30:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8041531D39A
+	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 16:44:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768840249; cv=none; b=XMfce/B7DRVu092UWzCeB6sDVCIqdM84vjPRFseNsGrSnAPMlRTffL6o6uxfACRf4APQtmOl60224QrF49lZOxoMNhyTcJmYJkZ6d8l2gtV2UrXnsNEo0RCq3hN/4/aISfFHTRnt14Gvgcx2o8/9u/1TjvoKXjKnFZ9pAgF6+TM=
+	t=1768841066; cv=none; b=A6UTRZfJp1nZSiqcsZVsJwrHIsui65nnbAemVCNxmw4iyTeLfaL+0cPLKbFDte52S8LIyI4WbtZxIe2VVcBL/bWGtiNnmdrkP8JkfyXdCNHr7Xjw4Ub8GeeJ40hDhnCWdvrnTFjEreKodkp+Qz8K2Jt5e/hnabAPeTsdXd94GbE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768840249; c=relaxed/simple;
-	bh=74nuZh3CRHnlUvBAbWZ6tYHKEa5PfTvtDxqJmYiZgE8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mx3xk8U6GgP88E0ZrQvHqnWCRkDWhPL6yVfNs/a5txWGaLPTTJnexCKpT/Wfav4iejizqTuSUq4Hxb4K7BMCjcOGMI5J/WJuleghfj0uCIpuav/C6IeOWwXZ5KqoQPRHPRFLhMjOTGZ4HaZKdhv/AahsyMgAxoIH7broMBgA4AA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sj7t84WD; arc=none smtp.client-ip=209.85.218.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1768841066; c=relaxed/simple;
+	bh=Bnp3gemiqQAFqwPr305DyvhcAz0o+HO4/eTH34cXlNc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kuzAYpyQ0QpsD5l8rLW6xdv2uVd9oHXJy0oVJ7e4pLccqqKFXC5QVP9w/J0Xt1qg8FXNna2/tQAQT0ie2GG+nm+JA0zzwI/YSZBh1dHaUj8ZAVpHiy5OMnmeKH4fDDan449o62vhGvKEyDw0GRufduL7JHKJk91gww1TV6ozyII=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=ZRn6J2r9; arc=none smtp.client-ip=209.85.160.196
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sj7t84WD"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b87cc82fd85so220540666b.2
-        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 08:30:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="ZRn6J2r9"
+Received: by mail-qt1-f196.google.com with SMTP id d75a77b69052e-5014b671367so56784731cf.3
+        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 08:44:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768840246; x=1769445046; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=MAx9ToKLl7t8y9PiSc/w47xhuek7x5/AEgqS5Sqqu4g=;
-        b=Sj7t84WDmTIbJEkAwtrA+XjybVjUQW/Pc2tSZh4fqhPAxiNOvtceji6uguNWNT+pHG
-         Jh8zaJW7BrZANqmLFS4bBnrbmbkkp+UZfGemr3qf9pX8gy2PP1opt0vLE+suUJS7s8Ak
-         azERN++7bpww4XCNtxBXQ7CkxjOCQGZx/44DEtOs4HbNGkt4gX2p1/K3+bYfUt7Y9B+d
-         42e1Aqz+e8AMNIbe1TKWGIj9pO09lKPaIObNP1TmzD5W6SJgP3kDiTXrmbf8wpHoIdop
-         bEHyrdh+Hg5HwhkmobLy/JOi7tvSc44Xx3gVr/mzSGDpzvLDJMztmmc6sAQHS1dML+wm
-         CpDw==
+        d=ziepe.ca; s=google; t=1768841062; x=1769445862; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=7mLdSjko9gcpWp2LFuEj2HWiy0Q3Aa6qTfE9JkGPgsY=;
+        b=ZRn6J2r948twTnMWPUQ+8DL86/zB14MfdGra4+af7MuPW/6pJyjm2U9uu2h3FZQPD5
+         cyR9V5VUj7232F/CeYJXfGdNMjXwaXogUy9LyNTkl2pJMily1qfABBSvrZ5rsf07j0Ea
+         dyNVXiYJZVRNDNPA0l/PqxW6pFci6PuEcK+DtqgoTnEefw83SI8Xy/Gm64lWZEXKOgWR
+         tjpY5ZkNRCGASOrjSuUo9AJ4LgYIvnkfmQiZ8rqx2t70+8aTDMmJujwc0R2JBWlvkI0F
+         ciYAIjfXEqVa/QukhOZmVNTGGFR0gukBDi1x5Bis5z+w3G4xTo6CSEc9HGrlNwdedGa/
+         ws9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768840246; x=1769445046;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=MAx9ToKLl7t8y9PiSc/w47xhuek7x5/AEgqS5Sqqu4g=;
-        b=MB/ejXtd9vuhgoYmm9dZRPJMBD7pHVxu8mCeQHw4ojkO9H6rDTYHBw1h4B2PYtqnM7
-         5p0GouBIUsSW0zGZ+UEJojmIp/1qdPb99OOvlxGaVwvb5ugMUYQkjSMyXL+HjSq1drs7
-         kPz+T05UJP8o0S8BMtSbbnywFycIUM6rpzox/W2aUnjCBAcSNS0V0jMJN/6PJeaUBrC6
-         bOR1g247aZc0QbKbpz4jSGWL6VfwBp5LQS5Ylz78rS91G3BntSsaRBQ+7GuudRSfqd7U
-         eX/rSV5Fr/o5+bfhoBwc4VR6tawcUNmAaPVUCZ2UP+Wod+roCuYcZN7Yffmy8b4CTLdu
-         A19A==
-X-Forwarded-Encrypted: i=1; AJvYcCVkFiKLAobToUTEdAwtP7F4oXn/alXPBC0ST9VowmCoUWfA+vPp6Kry7jCK5MCOFsfwb7tPCTPXEaJkRW9SUg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz2GOokM9Pd/1qUPbOZqiHsFfxyrxOhWb6iaBku3NdrUjM3r/bj
-	FSwjHs7jd2ZGzbrWalccZlmA7ERShF6Wv9N9tiDygvy4Oa8UG6edjGllCxww2Q==
-X-Gm-Gg: AY/fxX6DAF0ZZ8qvyiGqBdFjuuU73eu3SkJkm2Sokm/WPULVuQtBciwPyPadqF3eY1h
-	CiSj61CciVhIxO5sz6CqLgDsJQoT8Jfie+U0RzeE3IZhPPQMF7/MaUL5FFzRmoATtXT3XIMGRKt
-	ULm0WwUTyg5I+GS+d8vuyPC2Di1bgPbZjWoTrNwSX839mHD4NN+Z+7c4eGGU5G9G9V/PH8N4s60
-	KdWIVuNn8Kf6heeUhgsttCj34UqUltux2/lwODO8q6UwwewxDuAE3pu/PyZxssuNUh3ror/mZZl
-	h6nu8kWWoSyTdkeprby4E8+MllIXeugv1PBHdL0zucOgVVZ4ttdTLkdmnNEI6W1WtDb7jNrSBCc
-	BUY788OqPWndGq2Ob5gnZOFvgJ9ucrwyOOF721Mi6ePrPN7dUbUpVw2iPNwgG6RJFTQ6OBlDk+Z
-	a6rycEMzYHYkfejuT/0BkGfQuC4zJrF55zy+epwO5icA==
-X-Received: by 2002:a17:906:4fd0:b0:b7c:e320:5250 with SMTP id a640c23a62f3a-b87968d1745mr879203466b.7.1768840245683;
-        Mon, 19 Jan 2026 08:30:45 -0800 (PST)
-Received: from [10.24.66.11] ([15.248.2.27])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8795169d30sm1167827566b.25.2026.01.19.08.30.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Jan 2026 08:30:45 -0800 (PST)
-Message-ID: <dae84252-1d61-499b-8297-54ad41d9a518@gmail.com>
-Date: Mon, 19 Jan 2026 16:30:44 +0000
+        d=1e100.net; s=20230601; t=1768841062; x=1769445862;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=7mLdSjko9gcpWp2LFuEj2HWiy0Q3Aa6qTfE9JkGPgsY=;
+        b=eMQLw9AatqGrXMuFSEpazjp037BE7hozJwULFP9e2d4V656wK36sm0Fe1TjTWyinEB
+         LJPFm6hTl2g5TsqGzfTxol0n+d15zXZJhZ9qTdPLjm05J4kngEE/Hy1OtZdfdmZUhds4
+         ZCPgeyM5VTciejzuisVsRPi3Hc2MCNZr7b2SQtF+sgotMxQuFFrgEg4S9PqjR9R1eC6q
+         eIwC+IDeys7miBMXwVZl3ioI+xB6tRlfk6UI/O1FZoFZc2gWO4fQDVkc/i5x06qvBG6F
+         oUOPsob2VMgS6eL3a0TB3CXe2BhSVBgckK2EMlZH8RUPlEDHHdMADyVPkc8V1uCaR7Ai
+         2wBg==
+X-Forwarded-Encrypted: i=1; AJvYcCXZY5PNMc68QfYQLq/mWrwNfe5aQ9KKhsZZwqYiB2MJEimfZyGRQkDkzENlpa8/IAVahzCInDFX4JFV1oaBHg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx5NXRE6unnlbv3vAUQt2ZNjX35nDU1M6Qhztl8/gb9LxvCGoRE
+	1zKz1Om9qadprXZUoOsB+8a68uwc6gw8MPwhjIq4sPMbNY5PO7O7eJqUVsGcLkPvNrk=
+X-Gm-Gg: AY/fxX4WH5ngkg1zvM/kWFaHrEd68jG/ssn5C8t96WuHUNRHDmpD12lWV/kWpcy+YTC
+	/LVz2J0E9cI6pNXWZPaTdqdk+/0fB/AsjOf/PX0j3c++MB3A3kM/SSyQ2Vq3vvhObyQUfeS5reo
+	xuZm+Rl20tRghBFcvSb62b5NmfKlXVnPhtkIXOjeMUly9LrnSmothfPQEDquP4COOGE90fFutan
+	qk3s8TJj1LGp2IUwiIBwNrbZCDyrHRA3Pr2ZmnQMtUyTvMcFXWIgvZThYzNK0f9VPHO8Zbbppvk
+	u5tK2UvU/YUMukzo/wYVAse/vf/u2LP3Hnlz6GFeF6EjoygJ/ruPj1D7AVtfdZG8J/HRQfBOjxt
+	KNUIqMgUVL0LrKqFH1AmEvNR/X3Fn3AgsV7hXZmAnCxRQFPysaLvcnWafrLow5QzQ/hz5EVjqIs
+	1qvwpG9JXa1iH2X504dWUlAwbo5k4UP7DrRny7oG9wWgRZbTa4rAda9LNTSw3qD5y6Wq8=
+X-Received: by 2002:ac8:7d16:0:b0:4ee:1b36:b5c2 with SMTP id d75a77b69052e-502a1f87eb4mr182498161cf.68.1768841062394;
+        Mon, 19 Jan 2026 08:44:22 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-502a1ed3155sm72779401cf.19.2026.01.19.08.44.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Jan 2026 08:44:21 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1vhsMX-00000005IKH-0ezs;
+	Mon, 19 Jan 2026 12:44:21 -0400
+Date: Mon, 19 Jan 2026 12:44:21 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>,
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Alex Williamson <alex@shazbot.org>, linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
+	linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH v2 2/4] dma-buf: Document revoke semantics
+Message-ID: <20260119164421.GF961572@ziepe.ca>
+References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
+ <20260118-dmabuf-revoke-v2-2-a03bb27c0875@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH] virtio_balloon: Support wait on ACK for hinting
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>, mst@redhat.com,
- jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- kalyazin@amazon.co.uk, xmarcalx@amazon.co.uk, jackabt@amazon.com
-References: <20260119154236.39412-1-jackabt.amazon@gmail.com>
- <6c3f8061-302e-40c1-829b-2f8555bee70c@kernel.org>
-Content-Language: en-US
-From: "Thomson, Jack" <jackabt.amazon@gmail.com>
-In-Reply-To: <6c3f8061-302e-40c1-829b-2f8555bee70c@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260118-dmabuf-revoke-v2-2-a03bb27c0875@nvidia.com>
 
-
-
-On 19/01/2026 3:50 pm, David Hildenbrand (Red Hat) wrote:
-> On 1/19/26 16:42, Jack Thomson wrote:
->> From: Jack Thomson <jackabt@amazon.com>
->>
->> This RFC patch adds a new virtio feature for the virtio-balloon driver
->> during free page hinting, which will wait on device ack before
->> committing the range to the free_page_list. The reason for the change is
->> it allows the device to modify this range without it being reclaimed
->> from the free_page_list before the ack is sent. As expected, testing
->> shows this adds overhead to the hinting run duration, increasing it by
->> ~30% with our Firecracker setup. Currently free page hinting is used
->> mainly for live migration, but this would open it up for a new use-case.
->>
->> We would like to leverage this with MADV_DONTNEED to reduce RSS of a
->> guest. We'd like to use hinting because of the flexibility of control it
->> brings compared to reporting, allowing memory to be reclaimed in
->> deterministic periods. 
+On Sun, Jan 18, 2026 at 02:08:46PM +0200, Leon Romanovsky wrote:
+> From: Leon Romanovsky <leonro@nvidia.com>
 > 
-> Can you elaborate in more detail why you don't simply use reporting, 
-> like QEMU?
-
-Ideally we'd like to use hinting as the API allows us to control when
-this reclamation takes place so as not to impact active VMs. For example
-if we know a VM is idle we can reclaim memory but also cancel the
-reclamation quickly if the VM receives new work (something we can't do
-quickly with the traditional balloon.)
-
-> Could you instead see optimizations being done to reporting that could 
-> make it fly for your use case?
-
-One thing that I considered was having reporting running but skip
-reported ranges during active times. But this may lead to missing
-reclamation opportunities.
-
+> Document a DMA-buf revoke mechanism that allows an exporter to explicitly
+> invalidate ("kill") a shared buffer after it has been handed out to
+> importers. Once revoked, all further CPU and device access is blocked, and
+> importers consistently observe failure.
 > 
-> Hinting is a rather special case thing only used for reducing VM 
-> migration time in QEMU AFAIR.
+> This requires both importers and exporters to honor the revoke contract.
 > 
+> For importers, this means implementing .invalidate_mappings() and calling
+> dma_buf_pin() after the DMA‑buf is attached to verify the exporter’s support
+> for revocation.
+> 
+> For exporters, this means implementing the .pin() callback, which checks
+> the DMA‑buf attachment for a valid revoke implementation.
+> 
+> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> ---
+>  include/linux/dma-buf.h | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+> 
+> diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
+> index 1b397635c793..e0bc0b7119f5 100644
+> --- a/include/linux/dma-buf.h
+> +++ b/include/linux/dma-buf.h
+> @@ -579,6 +579,25 @@ static inline bool dma_buf_is_dynamic(struct dma_buf *dmabuf)
+>  	return !!dmabuf->ops->pin;
+>  }
+>  
+> +/**
+> + * dma_buf_attachment_is_revoke - check if a DMA-buf importer implements
+> + * revoke semantics.
+> + * @attach: the DMA-buf attachment to check
+> + *
+> + * Returns true if DMA-buf importer honors revoke semantics, which is
+> + * negotiated with the exporter, by making sure that importer implements
+> + * .invalidate_mappings() callback and calls to dma_buf_pin() after
+> + * DMA-buf attach.
+> + */
 
-Yeah, its API allowing direct control was what interested us. With this
-extension it made a great pairing just needed the synchronisation to
-make it safe.
+I think this clarification should also have comment to
+dma_buf_move_notify(). Maybe like this:
 
--- 
-Thanks,
-Jack
+@@ -1324,7 +1324,18 @@ EXPORT_SYMBOL_NS_GPL(dma_buf_sgt_unmap_attachment_unlocked, "DMA_BUF");
+  * @dmabuf:    [in]    buffer which is moving
+  *
+  * Informs all attachments that they need to destroy and recreate all their
+- * mappings.
++ * mappings. If the attachment is dynamic then the dynamic importer is expected
++ * to invalidate any caches it has of the mapping result and perform a new
++ * mapping request before allowing HW to do any further DMA.
++ *
++ * If the attachment is pinned then this informs the pinned importer that
++ * the underlying mapping is no longer available. Pinned importers may take
++ * this is as a permanent revocation so exporters should not trigger it
++ * lightly.
++ *
++ * For legacy pinned importers that cannot support invalidation this is a NOP.
++ * Drivers can call dma_buf_attachment_is_revoke() to determine if the
++ * importer supports this.
+  */
+
+Also it would be nice to document what Christian pointed out regarding
+fences after move_notify.
+
+> +static inline bool
+> +dma_buf_attachment_is_revoke(struct dma_buf_attachment *attach)
+> +{
+> +	return IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY) &&
+> +	       dma_buf_is_dynamic(attach->dmabuf) &&
+> +	       (attach->importer_ops &&
+> +		attach->importer_ops->invalidate_mappings);
+> +}
+
+And I don't think we should use a NULL invalidate_mappings function
+pointer to signal this.
+
+It sounds like the direction is to require importers to support
+move_notify, so we should not make it easy to just drop a NULL in the
+ops struct to get out of the desired configuration.
+
+I suggest defining a function
+"dma_buf_unsupported_invalidate_mappings" and use
+EXPORT_SYMBOL_FOR_MODULES so only RDMA can use it. Then check for that
+along with NULL importer_ops to cover the two cases where it is not
+allowed.
+
+The only reason RDMA has to use dma_buf_dynamic_attach() is to set the
+allow_p2p=true ..
+
+Jason
