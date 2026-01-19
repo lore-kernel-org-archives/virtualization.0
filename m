@@ -1,224 +1,229 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 817D3314B6A
-	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 12:25:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08FBF3254A8
+	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 12:27:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768825536; cv=none; b=KNysohlOUBGxZJpa85r9RlZdo8JWFIM2b3m87KHbmi7U3AsXCNPlygfv88LV1RBuS2410FxSWAkDVbp5gSDYb4yuNq71lHR/tbj51MUYcdcG+diDHRACn6596FP6Fa6YhlqjM6FzjAw8AUEtNKk/GbBpwLKzKQeIjJYi1+UMwHA=
+	t=1768825644; cv=none; b=GSPcVTsIJA3ZpxB/BK6vASMrSyu1rMqTOmPUWqgD+FNRcCkaxMbO9NzhA9jdQepxPYnT1VQSiaKmlRpzhMtjPuQ/GDGP1MTKvki7HkgUCGNlp9gL41JMamPkdxGQfaPXi+5/IhcKnfsSIUFMx/sl7uXnkE3A5gSiGYwyFoob1vk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768825536; c=relaxed/simple;
-	bh=x2tya32T5ud6Njv8S5CvYJAn12K/oL7vj+wbyqjPawk=;
+	s=arc-20240116; t=1768825644; c=relaxed/simple;
+	bh=KoDiNaIzynAaRg6TgbZno1bBRgzrJr8GseyC5BPA/DA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KkjSCoiFMytb00qq2XI9b6JJ8jZMZnVV+cr5CN25x+88DzF70IpI16V8tmmBb6JQ7ythYIqFWNcuykCMWzvvM2wCNr6gmnirzGkrUdcJy5cPJqUqeVD/5MCktSU/Jy2vkJj0OulSS9jMvlfjpSx23VkqHNLRpukWSq80GCS/R8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R2MtugTz; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=gyeoZG4jWiwQfnm1lBPMj912ExPgU3rI/x6SR0+iBJxRNDQWNoYgVT2LPzzUZt0tBaPyaMB/OA1S9QxQpotltEProMx41Ebk6Bu3n5d6nMlofGQmVbEvMq2sdyC+W+czGO2EECsa6MD82N6J9jvoLwMFTAowVQi+ij/4C8UWZOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DRNUOeAt; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R2MtugTz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DRNUOeAt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768825533;
+	s=mimecast20190719; t=1768825638;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rSw7y3upc4AgVNmsptTH129octiJTx3PmTd4wjgwavo=;
-	b=R2MtugTzYIV1CP/DG9OD8jI3DP+HUq5Iyg6+C7lpEnMhqTmM6Ls7K41vRw4B0v3M6QVuex
-	+bsAJm+8xXZH7XZ7AWVOZ5mVA2QwfJOeRcemQmlSrHHpP/vLaEjLLJk+Hj8pqip2aGW2y9
-	Bhw1uxickVWv86x97mCi9TDQ22SmbWI=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=PJifwmw7Y/0YZkAQUm+uIRlf1mBDtu4TYZfZSmOx2gE=;
+	b=DRNUOeAtLaYpY7DMVjv/Gz1DT3yx04+ggS1erFjbkloIdaiLVmLR6efCJqgjsTOhFhmRi0
+	K74y2cWw2z7Wr/DM8s7rSi4kMNbwEJiPBu9qAKwcdDigADlnaRT/c/d8zL8Mng6MaNHqR5
+	iyaFPEyS1ub7VgqgrQXjYcng4rjXeKM=
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
+ [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-417-S1F_zHZgPG-OtRBthNoJPQ-1; Mon, 19 Jan 2026 07:25:32 -0500
-X-MC-Unique: S1F_zHZgPG-OtRBthNoJPQ-1
-X-Mimecast-MFC-AGG-ID: S1F_zHZgPG-OtRBthNoJPQ_1768825531
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-34c43f8ef9bso5032943a91.1
-        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 04:25:32 -0800 (PST)
+ us-mta-644-oWTKMym5PuiBoOti9jnwQg-1; Mon, 19 Jan 2026 07:27:17 -0500
+X-MC-Unique: oWTKMym5PuiBoOti9jnwQg-1
+X-Mimecast-MFC-AGG-ID: oWTKMym5PuiBoOti9jnwQg_1768825636
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-81f8c209cfbso1960904b3a.2
+        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 04:27:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768825531; x=1769430331;
+        d=1e100.net; s=20230601; t=1768825636; x=1769430436;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=rSw7y3upc4AgVNmsptTH129octiJTx3PmTd4wjgwavo=;
-        b=m7GFFa/Yu6u80uJIuYFCaxk9uGTnxyWCx0357msodsGd/MQO7165m4OUwnXP71zHp8
-         Hank36sK2Qn+FtCrmAdMq5KSUuyoEoveR7gMwsrr8s4gJgO8PaI/dlTt3+IpRVJEZSxo
-         mnPf48ba10zFj0QWJmyNsHrvF3bxOAwMwcSx/6IWkerT4Xw32t0VySydarv/5yT79ZAc
-         rj14Ah0/QPvSNbHJM2qT1R+VKo6OHEHrEtKEsyxs6rLS4CWRM9/h/CFpzti8FRC7x6G6
-         2bVGbIGdeZeQXcN7hc0asSUdQaV6xgbzf6u5vAxzoZLaR4bH1jmAJVu0Vw6Dj7FRUynV
-         8LYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUDtwFv52Qfu1iAxxLjJx2vVdWs9AlYSzfKISdQ7EXFh50p3bWnj89gBf+7eMrqmOqMPz/+YvUDrWLPCXf4cg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw500Eck+afyy7+XO4CxaVPbDJSU8MN1myKxGgI+hzWTUBziyLq
-	wrLf51A3uv2zgrFOSJaD8byp6fpR3xYN5TK+riuxyUvs1NQ3eo/BvdGiIsyvm3HnrgxBGNZ3lzg
-	hEKgBCLUTbRgA77sT+/O4JpLdrUIuf6CjUda58ahd0bEttH2dLYM7WU6f185C9ZnSD8X+hD2pzl
-	YA/BEL9UfQD62Fyib6BvborHDZADC1Vk30dfI/3mk5CsU=
-X-Gm-Gg: AZuq6aK7l7o5zceMb2IZpgV4CEhfLQTFswwAxe5uB6h0jxsk2uRYHAuPJjWwpFtDLG9
-	l7abXh3F3dVh9XYNXXbgF0wsL9iZ4PyeQ56lZfSx+Ct4h9sorCvvwkyz863wsD2hTIho8ycHPiu
-	CleMzlMAJq0xyqdg2RCfHpwkxdkKSJ2SNjFiYjrtWazJda71M9/58/9zg4OiCJbKj0hw==
-X-Received: by 2002:a17:90b:2b86:b0:34c:9cec:3898 with SMTP id 98e67ed59e1d1-352678d9b78mr11715679a91.13.1768825531006;
-        Mon, 19 Jan 2026 04:25:31 -0800 (PST)
-X-Received: by 2002:a17:90b:2b86:b0:34c:9cec:3898 with SMTP id
- 98e67ed59e1d1-352678d9b78mr11715658a91.13.1768825530355; Mon, 19 Jan 2026
- 04:25:30 -0800 (PST)
+        bh=PJifwmw7Y/0YZkAQUm+uIRlf1mBDtu4TYZfZSmOx2gE=;
+        b=UHM1qAHD5oo9gxq9BEeDZ1oBElTI2Uz7kqu4eoFNsh3glgYBwyps7ojG5G7KU7ww5t
+         2jztaUWLooZFyU3wj5aOUJrMk5Iq2vFKwO5FJE/EiQ+EaXJTP0XKRWcpwIp+heR2Ah4v
+         H6GoaWtZM4ek0UnoHu0tRWqbxJtWitNTvMT0igCEB2II3UOZNWQsGzoj7OUvZe2AtVAE
+         Ti8HOh1WPZCxi6DTYR6SaSDt4iCFPdWW5AZLLjGSHGIVk43XzRquSdd2LaNJJYWHR5IA
+         mxwHTCOkFtygK2h4l0fazQQ9xazcP4C8/4pt6nDuJVgnnuX+fqMqkdkPuoSYAxU7Y7aO
+         UA5w==
+X-Forwarded-Encrypted: i=1; AJvYcCWz9OetPhdtcv3RP4BSTpjyT+cjcGv5UakzZ4pdS3M7kIwodI1Pu9i9a6mpemLaOD7fCYLGAhXbEuuJGhxKBw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz4DsQ9gzveTxxLZwuytPVj65IC76WhXQgUupw/DkvSdcQoMNps
+	m+OgGgg72HkRVfWG/rlsJ75j+omBgO70l9Vy7Jvop8MX62J06/CplM2GejsIQl2n1AYHkWP2SoP
+	JjYpAzy8aN0dXu244WC7zYVQL/UDxKmMKMnmWN0WGJXP76SjMjdSasjGBfAm8f3oINLz+75uG0B
+	A6ZHyKo9zicUxx25dY9txqcPbCbJDMavLkD3Q8uUP7N8w=
+X-Gm-Gg: AY/fxX5q/e6qiCDvZkhKszrd9QVrCJHtrWLd9a9K52IccuGXzf0MSxFS+cHOuKURqOH
+	TTDe514/NCmBZIUQRFtD/vmBslLRfqw2C1rsrXwxsZYi3SuHtvj2lRbLpqE/ewc2TvgM7/CfhwM
+	yZcxHp8Sxpc6eNLhDYag8XoS6Dt7qPvLUjzkd5vqvy0qfTJ+oXjrU5SGF4GTDqomB3fw==
+X-Received: by 2002:a05:6a21:339c:b0:35f:aa1b:bbff with SMTP id adf61e73a8af0-38dfe590741mr10608144637.11.1768825636199;
+        Mon, 19 Jan 2026 04:27:16 -0800 (PST)
+X-Received: by 2002:a05:6a21:339c:b0:35f:aa1b:bbff with SMTP id
+ adf61e73a8af0-38dfe590741mr10608125637.11.1768825635757; Mon, 19 Jan 2026
+ 04:27:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260116140455.1560491-1-eperezma@redhat.com> <20260116140455.1560491-12-eperezma@redhat.com>
- <CACGkMEvJB5uyNnxmr=rap14Tc-JSy4=XGAtDZu6rg3+nucXUOw@mail.gmail.com>
- <CAJaqyWf_37cwV6mK-_nj4GnwquSxUYCPFKUOkxCaPQkJ9iewLQ@mail.gmail.com>
- <CACGkMEtyyPJQ3t_ckwZyNRHW2_fqm=09DEe-__Rvz0pQoUqtsQ@mail.gmail.com> <CAJaqyWc6OQs9GP=CjSU1B1hU1K8yArzivo6aK3A7aTQ33Fjq6w@mail.gmail.com>
-In-Reply-To: <CAJaqyWc6OQs9GP=CjSU1B1hU1K8yArzivo6aK3A7aTQ33Fjq6w@mail.gmail.com>
+References: <20260116140455.1560491-1-eperezma@redhat.com> <20260116140455.1560491-14-eperezma@redhat.com>
+ <CACGkMEthnMXVYDEO+=XPumyWf9abN8bCLVQ42emYOWZQuDLG-w@mail.gmail.com> <CAJaqyWcMJ0mdwW9wwVZp2K5j2GA74w0P1atDpPG-PP8Dz7tsmg@mail.gmail.com>
+In-Reply-To: <CAJaqyWcMJ0mdwW9wwVZp2K5j2GA74w0P1atDpPG-PP8Dz7tsmg@mail.gmail.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 19 Jan 2026 20:25:18 +0800
-X-Gm-Features: AZwV_QiY9fo3rL3XYC2y9nsDkpI3UknKJo-O3GURjcze1lGKw6IShVU486kZWpU
-Message-ID: <CACGkMEv_=U_xa=EyQDchGWHpPU7w=-m1Ag0N7RKLo+YtNWDL3A@mail.gmail.com>
-Subject: Re: [PATCH v14 11/13] vduse: add vq group asid support
+Date: Mon, 19 Jan 2026 20:27:03 +0800
+X-Gm-Features: AZwV_Qjj2vQvQlahpF6ew1W7FjSjfTiMPmINjdoGWk_9659xDJB_HxHqPVOKCxM
+Message-ID: <CACGkMEu09+AjRoKpGkF_QogkUdS_QZigKT-quHv3v16oqenmkg@mail.gmail.com>
+Subject: Re: [PATCH v14 13/13] Documentation: Add documentation for VDUSE
+ Address Space IDs
 To: Eugenio Perez Martin <eperezma@redhat.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Laurent Vivier <lvivier@redhat.com>, linux-kernel@vger.kernel.org, 
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
 	Cindy Lu <lulu@redhat.com>, virtualization@lists.linux.dev, 
 	Yongji Xie <xieyongji@bytedance.com>, Stefano Garzarella <sgarzare@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: jWJ9SwGVJlRr5wMp8VfHSGuEQCQfd29lW7XWd9nRpjo_1768825531
+X-Mimecast-MFC-PROC-ID: 5ccJXO78cRkxqucGJNfeVKh_RRLqH6bPKSSjDOPAqAU_1768825636
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 19, 2026 at 6:29=E2=80=AFPM Eugenio Perez Martin
+On Mon, Jan 19, 2026 at 3:40=E2=80=AFPM Eugenio Perez Martin
 <eperezma@redhat.com> wrote:
 >
-> On Mon, Jan 19, 2026 at 9:34=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+> On Mon, Jan 19, 2026 at 8:19=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
 wrote:
 > >
-> > On Mon, Jan 19, 2026 at 4:10=E2=80=AFPM Eugenio Perez Martin
-> > <eperezma@redhat.com> wrote:
+> > On Fri, Jan 16, 2026 at 10:05=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@r=
+edhat.com> wrote:
 > > >
-> > > On Mon, Jan 19, 2026 at 8:17=E2=80=AFAM Jason Wang <jasowang@redhat.c=
-om> wrote:
-> > > >
-> > > > On Fri, Jan 16, 2026 at 10:05=E2=80=AFPM Eugenio P=C3=A9rez <eperez=
-ma@redhat.com> wrote:
-> > > > >
-> > > > > Add support for assigning Address Space Identifiers (ASIDs) to ea=
-ch VQ
-> > > > > group.  This enables mapping each group into a distinct memory sp=
-ace.
-> > > > >
-> > > > > The vq group to ASID association is protected by a rwlock now.  B=
-ut the
-> > > > > mutex domain_lock keeps protecting the domains of all ASIDs, as s=
-ome
-> > > > > operations like the one related with the bounce buffer size still
-> > > > > requires to lock all the ASIDs.
-> > > > >
-> > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > > >
-> > > > > ---
-> > > > > Future improvements can include performance optimizations on top =
-like
-> > > > > ore to RCU or thread synchronized atomics, or hardening by tracki=
-ng ASID
-> > > > > or ASID hashes on unused bits of the DMA address.
-> > > > >
-> > > > > Tested virtio_vdpa by adding manually two threads in vduse_set_st=
-atus:
-> > > > > one of them modifies the vq group 0 ASID and the other one map an=
-d unmap
-> > > > > memory continuously.  After a while, the two threads stop and the=
- usual
-> > > > > work continues.  Test with version 0, version 1 with the old ioct=
-l, and
-> > > > > version 1 with the new ioctl.
-> > > > >
-> > > > > Tested with vhost_vdpa by migrating a VM while ping on OVS+VDUSE.=
-  A few
-> > > > > workaround were needed in some parts:
-> > > > > * Do not enable CVQ before data vqs in QEMU, as VDUSE does not fo=
-rward
-> > > > >   the enable message to the userland device.  This will be solved=
- in the
-> > > > >   future.
-> > > > > * Share the suspended state between all vhost devices in QEMU:
-> > > > >   https://lists.nongnu.org/archive/html/qemu-devel/2025-11/msg029=
-47.html
-> > > > > * Implement a fake VDUSE suspend vdpa operation callback that alw=
-ays
-> > > > >   returns true in the kernel.  DPDK suspend the device at the fir=
-st
-> > > > >   GET_VRING_BASE.
-> > > > > * Remove the CVQ blocker in ASID.
-> > > > >
-> > > > > The driver vhost_vdpa was also tested with version 0, version 1 w=
-ith the
-> > > > > old ioctl, version 1 with the new ioctl but only one ASID, and ve=
-rsion 1
-> > > > > with many ASID.
-> > > > >
-> > > >
-> > > > Looks good overall, but I spot a small issue:
-> > > >
-> > > > int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *do=
-main,
-> > > >                                        struct page **pages, int cou=
-nt)
-> > > > {
-> > > >         struct vduse_bounce_map *map, *head_map;
-> > > >         ...
-> > > >
-> > > >         /* Now we don't support partial mapping */
-> > > >         if (count !=3D (domain->bounce_size >> PAGE_SHIFT))
-> > > >                 return -EINVAL;
-> > > >
-> > > > Here we still use domain->bounce_size even if we support multiple a=
-s,
-> > > > this conflicts with the case without userspace memory.
-> > > >
+> > > Address Space IDs allows the VDUSE framework to support devices able =
+to
+> > > expose different virtqueues to different part of the drivers.  For
+> > > example, to let QEMU handle the net device control virtqueue, so QEMU
+> > > always knows the state of the device like mac address or number of
+> > > queues enabled, while leaving the dataplane passthrough to the guest
+> > > intact.  This enables live migration.
 > > >
-> > > I don't follow you. My understanding from the previous discussion is
-> > > that the bounce size is distributed evenly per AS. Should we just hav=
-e
-> > > a global bounce buffer size and protect that the amount of added
-> > > memory of all domains is less than that bounce size?
+> > > Expands the VDUSE documentation to explain how to use the new ioctls =
+or
+> > > the new struct members of old ioctls.
+> > >
+> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > ---
+> > > v13:
+> > > * Fix s/VDUSE_IOTLB_GET_INFO/VDUSE_VQ_SETUP/.
+> > > * Document VDUSE_SET_VQ_GROUP_ASID VDUSE message (Jason).
+> > > * Fix typos (MST and Jason).
+> > >
+> > > v12: New in V12. Requested by Jason.
+> > > ---
+> > >  Documentation/userspace-api/vduse.rst | 53 +++++++++++++++++++++++++=
+++
+> > >  1 file changed, 53 insertions(+)
+> > >
+> > > diff --git a/Documentation/userspace-api/vduse.rst b/Documentation/us=
+erspace-api/vduse.rst
+> > > index bdb880e01132..aa067da92cf5 100644
+> > > --- a/Documentation/userspace-api/vduse.rst
+> > > +++ b/Documentation/userspace-api/vduse.rst
+> > > @@ -230,4 +230,57 @@ able to start the dataplane processing as follow=
+s:
+> > >  5. Inject an interrupt for specific virtqueue with the VDUSE_INJECT_=
+VQ_IRQ ioctl
+> > >     after the used ring is filled.
+> > >
+> > > +Enabling ASID (API version 1)
+> > > +------------------------------
+> > > +
+> > > +VDUSE supports per-address-space identifiers (ASIDs) starting with A=
+PI
+> > > +version 1. Set it up with ioctl(VDUSE_SET_API_VERSION) on `/dev/vdus=
+e/control`
+> > > +and pass `VDUSE_API_VERSION_1` before creating a new VDUSE instance =
+with
+> > > +ioctl(VDUSE_CREATE_DEV).
+> > > +
+> > > +Afterwards, you can use the member asid of ioctl(VDUSE_VQ_SETUP) arg=
+ument to
+> > > +select the address space of the IOTLB you are querying.  The driver =
+could
+> > > +change the address space of any virtqueue group by using the
+> > > +VDUSE_SET_VQ_GROUP_ASID VDUSE message type, and the VDUSE instance n=
+eeds to
+> > > +reply with VDUSE_REQ_RESULT_OK if it was possible to change it.
 > >
-> > I meant we require bounce_size / nas to be the size of the bounce
-> > buffer size of each AS.
+> > Nitpick: Is this better to move this to the part of
 > >
-> > But for userspace registered memory, it requires bounce_size per AS.
+> > "There are now three types of messages introduced by VDUSE framework:"
+> >
+> > ?
 > >
 >
-> I still don't follow you, sorry :(.
->
-> Can you explain in terms of "Previously, the VDUSE userspace could
-> perform XXX ioctl and YYY action and now it is impossible", or "I
-> expect future VDUSE applications to be able to do XXX action through
-> YYY but it is not possible to do in the current series".
->
-> I think we have three options for bounce_size regarding ASID:
-> 1) We make all of the AS respect a total bounce size, like the firsts
-> iterations of the series, and then we need total sync between them in
-> calls like this. The userland application can only allocate user
-> bounce pages in one AS with this code. I can modify it but it still
-> requires synchronization across all domains.
-> 2) We distribute the bounce pages evenly between AS,
-> as the current
-> version. As discussed, it may be a waste for CVQ for example but it
-> seems reasonable to just not add user pages to CVQ and just bounce it
-> in the kernel. Management can just expand the total size and live with
-> it [1].
-> 3) We expand the /sys attributes so the userland can specify bounce
-> sizes per AS. I think we agreed it is overkill, and honestly I'd leave
-> that for future improvements on top if we find we actually need it.
->
-> [1] https://lore.kernel.org/lkml/CACGkMEsZiX-M-PNGX8W7GprBJmiGi9Gz1=3DayE=
-=3DiMaP3WO3vr2Q@mail.gmail.com/
+> It makes more sense to add th ASID on top of the simple app example to
+> me, so developers of simpler apps with no ASID don't need to mess with
+> it.
 
-Apologize, I misread the code. I think the code is fine.
+That's fine.
+
+> But I'm happy to move it if you want.
+>
 
 So
 
 Acked-by: Jason Wang <jasowang@redhat.com>
+
+> > > +
+> > > +Similarly, you can use ioctl(VDUSE_IOTLB_GET_FD2) to obtain the file=
+ descriptor
+> > > +describing an IOVA region of a specific ASID. Example usage:
+> > > +
+> > > +.. code-block:: c
+> > > +
+> > > +       static void *iova_to_va(int dev_fd, uint32_t asid, uint64_t i=
+ova,
+> > > +                               uint64_t *len)
+> > > +       {
+> > > +               int fd;
+> > > +               void *addr;
+> > > +               size_t size;
+> > > +               struct vduse_iotlb_entry_v2 entry =3D { 0 };
+> > > +
+> > > +               entry.v1.start =3D iova;
+> > > +               entry.v1.last =3D iova;
+> > > +               entry.asid =3D asid;
+> > > +
+> > > +               fd =3D ioctl(dev_fd, VDUSE_IOTLB_GET_FD2, &entry);
+> > > +               if (fd < 0)
+> > > +                       return NULL;
+> > > +
+> > > +               size =3D entry.v1.last - entry.v1.start + 1;
+> > > +               *len =3D entry.v1.last - iova + 1;
+> > > +               addr =3D mmap(0, size, perm_to_prot(entry.v1.perm), M=
+AP_SHARED,
+> > > +                           fd, entry.v1.offset);
+> > > +               close(fd);
+> > > +               if (addr =3D=3D MAP_FAILED)
+> > > +                       return NULL;
+> > > +
+> > > +               /*
+> > > +                * Using some data structures such as linked list to =
+store
+> > > +                * the iotlb mapping. The munmap(2) should be called =
+for the
+> > > +                * cached mapping when the corresponding VDUSE_UPDATE=
+_IOTLB
+> > > +                * message is received or the device is reset.
+> > > +                */
+> > > +
+> > > +               return addr + iova - entry.start;
+> > > +       }
+> > > +
+> > >  For more details on the uAPI, please see include/uapi/linux/vduse.h.
+> > > --
+> > > 2.52.0
+> > >
+> >
+> > Thanks
+> >
+>
 
 Thanks
 
