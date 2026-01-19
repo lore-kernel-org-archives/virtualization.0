@@ -1,229 +1,243 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08FBF3254A8
-	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 12:27:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE28630BB91;
+	Mon, 19 Jan 2026 12:39:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768825644; cv=none; b=GSPcVTsIJA3ZpxB/BK6vASMrSyu1rMqTOmPUWqgD+FNRcCkaxMbO9NzhA9jdQepxPYnT1VQSiaKmlRpzhMtjPuQ/GDGP1MTKvki7HkgUCGNlp9gL41JMamPkdxGQfaPXi+5/IhcKnfsSIUFMx/sl7uXnkE3A5gSiGYwyFoob1vk=
+	t=1768826360; cv=none; b=K/l2aBq6/n5AyrnjWZAljigBs1N+9RViAJ26jxK8pjbHXpCAw41Db37mls03f+x/mFXk09jaqlNwNhaFCEUV+8jOv5ry4ZKo4X6TMGBv/qLovojh6e4sAZLahuPzMoY9N3ajtUHsOkYvOPUyA6j41viRk/9nzMFhpRi+8uD2b4g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768825644; c=relaxed/simple;
-	bh=KoDiNaIzynAaRg6TgbZno1bBRgzrJr8GseyC5BPA/DA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gyeoZG4jWiwQfnm1lBPMj912ExPgU3rI/x6SR0+iBJxRNDQWNoYgVT2LPzzUZt0tBaPyaMB/OA1S9QxQpotltEProMx41Ebk6Bu3n5d6nMlofGQmVbEvMq2sdyC+W+czGO2EECsa6MD82N6J9jvoLwMFTAowVQi+ij/4C8UWZOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DRNUOeAt; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1768826360; c=relaxed/simple;
+	bh=Xp09gWC1E9OCNc+qqpGNdGNtAiJK448gBZX2ws7J5IM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kbyxEF5SWjo3ihzPLm18f/akNLDmOaMETnCfwpWWSm+07NbzB5qVAryBBrHTeNLG1c07AxReBWRVI2DcnK76zwYjcbE2ffLRQQ/J9qaIZZgJARNz1kzZCs33J3WS1Z/AO0sXG8t5bLQtbykZ3wjgzkKAaxx+wSSpl7yTVACtXyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L9YcDKgs; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DRNUOeAt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768825638;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=PJifwmw7Y/0YZkAQUm+uIRlf1mBDtu4TYZfZSmOx2gE=;
-	b=DRNUOeAtLaYpY7DMVjv/Gz1DT3yx04+ggS1erFjbkloIdaiLVmLR6efCJqgjsTOhFhmRi0
-	K74y2cWw2z7Wr/DM8s7rSi4kMNbwEJiPBu9qAKwcdDigADlnaRT/c/d8zL8Mng6MaNHqR5
-	iyaFPEyS1ub7VgqgrQXjYcng4rjXeKM=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-644-oWTKMym5PuiBoOti9jnwQg-1; Mon, 19 Jan 2026 07:27:17 -0500
-X-MC-Unique: oWTKMym5PuiBoOti9jnwQg-1
-X-Mimecast-MFC-AGG-ID: oWTKMym5PuiBoOti9jnwQg_1768825636
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-81f8c209cfbso1960904b3a.2
-        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 04:27:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768825636; x=1769430436;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=PJifwmw7Y/0YZkAQUm+uIRlf1mBDtu4TYZfZSmOx2gE=;
-        b=UHM1qAHD5oo9gxq9BEeDZ1oBElTI2Uz7kqu4eoFNsh3glgYBwyps7ojG5G7KU7ww5t
-         2jztaUWLooZFyU3wj5aOUJrMk5Iq2vFKwO5FJE/EiQ+EaXJTP0XKRWcpwIp+heR2Ah4v
-         H6GoaWtZM4ek0UnoHu0tRWqbxJtWitNTvMT0igCEB2II3UOZNWQsGzoj7OUvZe2AtVAE
-         Ti8HOh1WPZCxi6DTYR6SaSDt4iCFPdWW5AZLLjGSHGIVk43XzRquSdd2LaNJJYWHR5IA
-         mxwHTCOkFtygK2h4l0fazQQ9xazcP4C8/4pt6nDuJVgnnuX+fqMqkdkPuoSYAxU7Y7aO
-         UA5w==
-X-Forwarded-Encrypted: i=1; AJvYcCWz9OetPhdtcv3RP4BSTpjyT+cjcGv5UakzZ4pdS3M7kIwodI1Pu9i9a6mpemLaOD7fCYLGAhXbEuuJGhxKBw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz4DsQ9gzveTxxLZwuytPVj65IC76WhXQgUupw/DkvSdcQoMNps
-	m+OgGgg72HkRVfWG/rlsJ75j+omBgO70l9Vy7Jvop8MX62J06/CplM2GejsIQl2n1AYHkWP2SoP
-	JjYpAzy8aN0dXu244WC7zYVQL/UDxKmMKMnmWN0WGJXP76SjMjdSasjGBfAm8f3oINLz+75uG0B
-	A6ZHyKo9zicUxx25dY9txqcPbCbJDMavLkD3Q8uUP7N8w=
-X-Gm-Gg: AY/fxX5q/e6qiCDvZkhKszrd9QVrCJHtrWLd9a9K52IccuGXzf0MSxFS+cHOuKURqOH
-	TTDe514/NCmBZIUQRFtD/vmBslLRfqw2C1rsrXwxsZYi3SuHtvj2lRbLpqE/ewc2TvgM7/CfhwM
-	yZcxHp8Sxpc6eNLhDYag8XoS6Dt7qPvLUjzkd5vqvy0qfTJ+oXjrU5SGF4GTDqomB3fw==
-X-Received: by 2002:a05:6a21:339c:b0:35f:aa1b:bbff with SMTP id adf61e73a8af0-38dfe590741mr10608144637.11.1768825636199;
-        Mon, 19 Jan 2026 04:27:16 -0800 (PST)
-X-Received: by 2002:a05:6a21:339c:b0:35f:aa1b:bbff with SMTP id
- adf61e73a8af0-38dfe590741mr10608125637.11.1768825635757; Mon, 19 Jan 2026
- 04:27:15 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L9YcDKgs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92B42C116C6;
+	Mon, 19 Jan 2026 12:39:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768826360;
+	bh=Xp09gWC1E9OCNc+qqpGNdGNtAiJK448gBZX2ws7J5IM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=L9YcDKgs50KwJZGaXvzaVA0Yp3w/krSD3QMG7JsW5vxsmyEn0KUELJ1jYPQAp5Z/v
+	 VBkiVWlhhvj3yrBeFE7OhgwN3fQgMqwg2qM1wvugj+u7yU3hEHleIqcitM0AbAt5Hg
+	 cHFkr3rvhS1/zB8uke+f/4cSX2lIRpkTECfd3aI1gUWCCq4znqSoT/Z5/etfG8ugEc
+	 FVa+8T0LNTI/SUEp9uIilTCH56WTr/putQpQsFiaX2+G2yEq70O9WPgkiEiVHDqLl2
+	 7VKdZRo2xsyc43V7hwP2oLaeEnGeODjuXz4lvCbwuLkEsglYtbUJGLHhwIzvy1iXhw
+	 jKmui593JczFg==
+Date: Mon, 19 Jan 2026 14:39:15 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Alex Williamson <alex@shazbot.org>, linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
+	linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] dma-buf: Rename .move_notify() callback to a
+ clearer identifier
+Message-ID: <20260119123915.GM13201@unreal>
+References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
+ <20260118-dmabuf-revoke-v2-1-a03bb27c0875@nvidia.com>
+ <345b8dcb-5015-4801-b263-0dca4d1b3fca@amd.com>
+ <20260119113809.GK13201@unreal>
+ <871628d8-14b6-4d38-b05e-a33822f8d71b@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260116140455.1560491-1-eperezma@redhat.com> <20260116140455.1560491-14-eperezma@redhat.com>
- <CACGkMEthnMXVYDEO+=XPumyWf9abN8bCLVQ42emYOWZQuDLG-w@mail.gmail.com> <CAJaqyWcMJ0mdwW9wwVZp2K5j2GA74w0P1atDpPG-PP8Dz7tsmg@mail.gmail.com>
-In-Reply-To: <CAJaqyWcMJ0mdwW9wwVZp2K5j2GA74w0P1atDpPG-PP8Dz7tsmg@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 19 Jan 2026 20:27:03 +0800
-X-Gm-Features: AZwV_Qjj2vQvQlahpF6ew1W7FjSjfTiMPmINjdoGWk_9659xDJB_HxHqPVOKCxM
-Message-ID: <CACGkMEu09+AjRoKpGkF_QogkUdS_QZigKT-quHv3v16oqenmkg@mail.gmail.com>
-Subject: Re: [PATCH v14 13/13] Documentation: Add documentation for VDUSE
- Address Space IDs
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Laurent Vivier <lvivier@redhat.com>, linux-kernel@vger.kernel.org, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	Cindy Lu <lulu@redhat.com>, virtualization@lists.linux.dev, 
-	Yongji Xie <xieyongji@bytedance.com>, Stefano Garzarella <sgarzare@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5ccJXO78cRkxqucGJNfeVKh_RRLqH6bPKSSjDOPAqAU_1768825636
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <871628d8-14b6-4d38-b05e-a33822f8d71b@amd.com>
 
-On Mon, Jan 19, 2026 at 3:40=E2=80=AFPM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Mon, Jan 19, 2026 at 8:19=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
-wrote:
-> >
-> > On Fri, Jan 16, 2026 at 10:05=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@r=
-edhat.com> wrote:
-> > >
-> > > Address Space IDs allows the VDUSE framework to support devices able =
-to
-> > > expose different virtqueues to different part of the drivers.  For
-> > > example, to let QEMU handle the net device control virtqueue, so QEMU
-> > > always knows the state of the device like mac address or number of
-> > > queues enabled, while leaving the dataplane passthrough to the guest
-> > > intact.  This enables live migration.
-> > >
-> > > Expands the VDUSE documentation to explain how to use the new ioctls =
-or
-> > > the new struct members of old ioctls.
-> > >
-> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > ---
-> > > v13:
-> > > * Fix s/VDUSE_IOTLB_GET_INFO/VDUSE_VQ_SETUP/.
-> > > * Document VDUSE_SET_VQ_GROUP_ASID VDUSE message (Jason).
-> > > * Fix typos (MST and Jason).
-> > >
-> > > v12: New in V12. Requested by Jason.
-> > > ---
-> > >  Documentation/userspace-api/vduse.rst | 53 +++++++++++++++++++++++++=
-++
-> > >  1 file changed, 53 insertions(+)
-> > >
-> > > diff --git a/Documentation/userspace-api/vduse.rst b/Documentation/us=
-erspace-api/vduse.rst
-> > > index bdb880e01132..aa067da92cf5 100644
-> > > --- a/Documentation/userspace-api/vduse.rst
-> > > +++ b/Documentation/userspace-api/vduse.rst
-> > > @@ -230,4 +230,57 @@ able to start the dataplane processing as follow=
-s:
-> > >  5. Inject an interrupt for specific virtqueue with the VDUSE_INJECT_=
-VQ_IRQ ioctl
-> > >     after the used ring is filled.
-> > >
-> > > +Enabling ASID (API version 1)
-> > > +------------------------------
-> > > +
-> > > +VDUSE supports per-address-space identifiers (ASIDs) starting with A=
-PI
-> > > +version 1. Set it up with ioctl(VDUSE_SET_API_VERSION) on `/dev/vdus=
-e/control`
-> > > +and pass `VDUSE_API_VERSION_1` before creating a new VDUSE instance =
-with
-> > > +ioctl(VDUSE_CREATE_DEV).
-> > > +
-> > > +Afterwards, you can use the member asid of ioctl(VDUSE_VQ_SETUP) arg=
-ument to
-> > > +select the address space of the IOTLB you are querying.  The driver =
-could
-> > > +change the address space of any virtqueue group by using the
-> > > +VDUSE_SET_VQ_GROUP_ASID VDUSE message type, and the VDUSE instance n=
-eeds to
-> > > +reply with VDUSE_REQ_RESULT_OK if it was possible to change it.
-> >
-> > Nitpick: Is this better to move this to the part of
-> >
-> > "There are now three types of messages introduced by VDUSE framework:"
-> >
-> > ?
-> >
->
-> It makes more sense to add th ASID on top of the simple app example to
-> me, so developers of simpler apps with no ASID don't need to mess with
-> it.
+On Mon, Jan 19, 2026 at 01:00:18PM +0100, Christian König wrote:
+> On 1/19/26 12:38, Leon Romanovsky wrote:
+> > On Mon, Jan 19, 2026 at 11:22:27AM +0100, Christian König wrote:
+> >> On 1/18/26 13:08, Leon Romanovsky wrote:
+> >>> From: Leon Romanovsky <leonro@nvidia.com>
+> >>>
+> >>> Rename the .move_notify() callback to .invalidate_mappings() to make its
+> >>> purpose explicit and highlight that it is responsible for invalidating
+> >>> existing mappings.
+> >>>
+> >>> Suggested-by: Christian König <christian.koenig@amd.com>
+> >>> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> >>
+> >> Reviewed-by: Christian König <christian.koenig@amd.com>
+> > 
+> > Thanks,
+> > 
+> > BTW, I didn't update the various xxx_move_notify() functions to use
+> > xxx_invalidate_mappings() names. Should those be converted as well?
+> 
+> No, those importer specific functions can keep their name.
+> 
+> More important is the config option. Haven't thought about that one.
+> 
+> Probably best if we either rename or completely remove that one, it was to keep the MOVE_NOTIFY functionality separate for initial testing but we have clearly supassed this long time ago.
 
-That's fine.
+I removed it and will send in v3.
 
-> But I'm happy to move it if you want.
->
+commit 05ad416fc0b8c9b07714f9b23dbb038c991b819d
+Author: Leon Romanovsky <leonro@nvidia.com>
+Date:   Mon Jan 19 07:24:26 2026 -0500
 
-So
+    dma-buf: Always build with DMABUF_MOVE_NOTIFY
+    
+    DMABUF_MOVE_NOTIFY was introduced in 2018 and has been marked as
+    experimental and disabled by default ever since. Six years later,
+    all new importers implement this callback.
+    
+    It is therefore reasonable to drop CONFIG_DMABUF_MOVE_NOTIFY and
+    always build DMABUF with support for it enabled.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+    Suggested-by: Christian König <christian.koenig@amd.com>
+    Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 
-> > > +
-> > > +Similarly, you can use ioctl(VDUSE_IOTLB_GET_FD2) to obtain the file=
- descriptor
-> > > +describing an IOVA region of a specific ASID. Example usage:
-> > > +
-> > > +.. code-block:: c
-> > > +
-> > > +       static void *iova_to_va(int dev_fd, uint32_t asid, uint64_t i=
-ova,
-> > > +                               uint64_t *len)
-> > > +       {
-> > > +               int fd;
-> > > +               void *addr;
-> > > +               size_t size;
-> > > +               struct vduse_iotlb_entry_v2 entry =3D { 0 };
-> > > +
-> > > +               entry.v1.start =3D iova;
-> > > +               entry.v1.last =3D iova;
-> > > +               entry.asid =3D asid;
-> > > +
-> > > +               fd =3D ioctl(dev_fd, VDUSE_IOTLB_GET_FD2, &entry);
-> > > +               if (fd < 0)
-> > > +                       return NULL;
-> > > +
-> > > +               size =3D entry.v1.last - entry.v1.start + 1;
-> > > +               *len =3D entry.v1.last - iova + 1;
-> > > +               addr =3D mmap(0, size, perm_to_prot(entry.v1.perm), M=
-AP_SHARED,
-> > > +                           fd, entry.v1.offset);
-> > > +               close(fd);
-> > > +               if (addr =3D=3D MAP_FAILED)
-> > > +                       return NULL;
-> > > +
-> > > +               /*
-> > > +                * Using some data structures such as linked list to =
-store
-> > > +                * the iotlb mapping. The munmap(2) should be called =
-for the
-> > > +                * cached mapping when the corresponding VDUSE_UPDATE=
-_IOTLB
-> > > +                * message is received or the device is reset.
-> > > +                */
-> > > +
-> > > +               return addr + iova - entry.start;
-> > > +       }
-> > > +
-> > >  For more details on the uAPI, please see include/uapi/linux/vduse.h.
-> > > --
-> > > 2.52.0
-> > >
-> >
-> > Thanks
-> >
->
-
-Thanks
-
+diff --git a/drivers/dma-buf/Kconfig b/drivers/dma-buf/Kconfig
+index b46eb8a552d7..84d5e9b24e20 100644
+--- a/drivers/dma-buf/Kconfig
++++ b/drivers/dma-buf/Kconfig
+@@ -40,18 +40,6 @@ config UDMABUF
+          A driver to let userspace turn memfd regions into dma-bufs.
+          Qemu can use this to create host dmabufs for guest framebuffers.
+ 
+-config DMABUF_MOVE_NOTIFY
+-       bool "Move notify between drivers (EXPERIMENTAL)"
+-       default n
+-       depends on DMA_SHARED_BUFFER
+-       help
+-         Don't pin buffers if the dynamic DMA-buf interface is available on
+-         both the exporter as well as the importer. This fixes a security
+-         problem where userspace is able to pin unrestricted amounts of memory
+-         through DMA-buf.
+-         This is marked experimental because we don't yet have a consistent
+-         execution context and memory management between drivers.
+-
+ config DMABUF_DEBUG
+        bool "DMA-BUF debug checks"
+        depends on DMA_SHARED_BUFFER
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index 59cc647bf40e..cd3b60ce4863 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -837,18 +837,10 @@ static void mangle_sg_table(struct sg_table *sg_table)
+ 
+ }
+ 
+-static inline bool
+-dma_buf_attachment_is_dynamic(struct dma_buf_attachment *attach)
+-{
+-       return !!attach->importer_ops;
+-}
+-
+ static bool
+ dma_buf_pin_on_map(struct dma_buf_attachment *attach)
+ {
+-       return attach->dmabuf->ops->pin &&
+-               (!dma_buf_attachment_is_dynamic(attach) ||
+-                !IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY));
++       return attach->dmabuf->ops->pin && !attach->importer_ops;
+ }
+ 
+ /**
+@@ -1124,7 +1116,7 @@ struct sg_table *dma_buf_map_attachment(struct dma_buf_attachment *attach,
+        /*
+         * Importers with static attachments don't wait for fences.
+         */
+-       if (!dma_buf_attachment_is_dynamic(attach)) {
++       if (!attach->importer_ops) {
+                ret = dma_resv_wait_timeout(attach->dmabuf->resv,
+                                            DMA_RESV_USAGE_KERNEL, true,
+                                            MAX_SCHEDULE_TIMEOUT);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c
+index 863454148b28..349215549e8f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c
+@@ -145,13 +145,9 @@ static int amdgpu_dma_buf_pin(struct dma_buf_attachment *attach)
+         * notifiers are disabled, only allow pinning in VRAM when move
+         * notiers are enabled.
+         */
+-       if (!IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY)) {
+-               domains &= ~AMDGPU_GEM_DOMAIN_VRAM;
+-       } else {
+-               list_for_each_entry(attach, &dmabuf->attachments, node)
+-                       if (!attach->peer2peer)
+-                               domains &= ~AMDGPU_GEM_DOMAIN_VRAM;
+-       }
++       list_for_each_entry(attach, &dmabuf->attachments, node)
++               if (!attach->peer2peer)
++                       domains &= ~AMDGPU_GEM_DOMAIN_VRAM;
+ 
+        if (domains & AMDGPU_GEM_DOMAIN_VRAM)
+                bo->flags |= AMDGPU_GEM_CREATE_CPU_ACCESS_REQUIRED;
+diff --git a/drivers/gpu/drm/amd/amdkfd/Kconfig b/drivers/gpu/drm/amd/amdkfd/Kconfig
+index 16e12c9913f9..a5d7467c2f34 100644
+--- a/drivers/gpu/drm/amd/amdkfd/Kconfig
++++ b/drivers/gpu/drm/amd/amdkfd/Kconfig
+@@ -27,7 +27,7 @@ config HSA_AMD_SVM
+ 
+ config HSA_AMD_P2P
+        bool "HSA kernel driver support for peer-to-peer for AMD GPU devices"
+-       depends on HSA_AMD && PCI_P2PDMA && DMABUF_MOVE_NOTIFY
++       depends on HSA_AMD && PCI_P2PDMA
+        help
+          Enable peer-to-peer (P2P) communication between AMD GPUs over
+          the PCIe bus. This can improve performance of multi-GPU compute
+diff --git a/drivers/gpu/drm/xe/tests/xe_dma_buf.c b/drivers/gpu/drm/xe/tests/xe_dma_buf.c
+index 1f2cca5c2f81..c107687ef3c0 100644
+--- a/drivers/gpu/drm/xe/tests/xe_dma_buf.c
++++ b/drivers/gpu/drm/xe/tests/xe_dma_buf.c
+@@ -22,8 +22,7 @@ static bool p2p_enabled(struct dma_buf_test_params *params)
+ 
+ static bool is_dynamic(struct dma_buf_test_params *params)
+ {
+-       return IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY) && params->attach_ops &&
+-               params->attach_ops->invalidate_mappings;
++       return params->attach_ops && params->attach_ops->invalidate_mappings;
+ }
+ 
+ static void check_residency(struct kunit *test, struct xe_bo *exported,
+diff --git a/drivers/gpu/drm/xe/xe_dma_buf.c b/drivers/gpu/drm/xe/xe_dma_buf.c
+index 1b9cd043e517..ea370cd373e9 100644
+--- a/drivers/gpu/drm/xe/xe_dma_buf.c
++++ b/drivers/gpu/drm/xe/xe_dma_buf.c
+@@ -56,14 +56,10 @@ static int xe_dma_buf_pin(struct dma_buf_attachment *attach)
+        bool allow_vram = true;
+        int ret;
+ 
+-       if (!IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY)) {
+-               allow_vram = false;
+-       } else {
+-               list_for_each_entry(attach, &dmabuf->attachments, node) {
+-                       if (!attach->peer2peer) {
+-                               allow_vram = false;
+-                               break;
+-                       }
++       list_for_each_entry(attach, &dmabuf->attachments, node) {
++               if (!attach->peer2peer) {
++                       allow_vram = false;
++                       break;
+                }
+        }
+ 
