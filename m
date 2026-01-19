@@ -1,113 +1,158 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C256D3370E5;
-	Mon, 19 Jan 2026 08:04:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ED0133987B
+	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 08:10:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768809850; cv=none; b=Z18jE2VKlB6pWWisVbCTnBObVia055/d0vbKYD7tDxULRXsqrFF0GPLVUpryXZXYu/eAt/OxOgSx5+uihDzwbiDAqbKYYtAwT5SPVpOkyWoXrb9AeRSLycyYlDx0jG5gEFy6FR0CCCFzt8d29iV56T+t0KBjLyU+rfRDWNhNQXk=
+	t=1768810221; cv=none; b=n+2itwXSyNrtbxWUruQSioE0jNwqEvhb8tmFa6RDqEQq7JoYL5u8TQ8b3BWIiqBa6gzknRRjfYmOqyEjzfxowNFgATd3ZwVhP91vJj/eEpCEz+G2AdKqSmhyfgEqpAzYnVJOCkRKvLb8vdEKKJnOFGpc0zZEuS4zUuNs83yoFyk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768809850; c=relaxed/simple;
-	bh=HRBEt4RF/jLlwOJnYEYMNWDtdCxSUN5YasBH6jxxKIg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q6urBFqensCv5nhhtqSnaTzg4da2aWwTnARKRaubWeMJLxz9JhXw7wxAilCwIq1Cm6QUvB+2KYmgtCW8FqKymdYGQD7Cya8Ec8ojf31f4V7qUDdBqEDPZHxqJIypaeb+WbT15hypO9MlE3l/pwPcKSoStQdIyIt+6I/x7MIHH9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BDgV12G7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768810221; c=relaxed/simple;
+	bh=eSSfq6Rc1PeFehs3stDBcfGUjIge+zA6CVd2c65760U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QT2CdOuHjReBD0uviV8AJGN0k3xLsXSaeeo0TbZx4JhOmLvzxkIJfV3+tfm64T2s+uFSr3AhACqY9DedOtL/+xMotiyjQwBXY/xrLRSM1CDTDXL5x2rzRO7CBIkV4euMRD+yRGIlAvKQ3rM3PfnQYK5jhIQFpYcfF+a5J+Vfhh8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GP4afcVH; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BDgV12G7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C7CAC116C6;
-	Mon, 19 Jan 2026 08:04:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768809850;
-	bh=HRBEt4RF/jLlwOJnYEYMNWDtdCxSUN5YasBH6jxxKIg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BDgV12G7l5a1sp8yv1MAiOTY/L1jkmyTQZGAh3jpU9VjkGMv9/T3jgHh2lE5LuXTK
-	 Q0XiE0/v6mTCIL++UG0OUkE3zwpNkiDWjOwRxhFFIi2wh+H4hSil6YHS5SELsgqCDn
-	 WeDdVnUzfPkFP37afqzkaFH2kBs5cZ3OkLmqvQ8WC6xPHnyiZoM6tCbAr4Rpggc7r2
-	 +twjbWsZJSrJk1zeM7aeq7DGnmBtEQc4wcipZGljnLygNxxBENIhR7XiKP9tHHgxTC
-	 bG2/CJQU8uA+pwflgnBuItu8+MXhQXRs68HQNRr/vZQQeXMAP3G3vwl+sklL/3KSsp
-	 iWYoOtPON0K+w==
-Date: Mon, 19 Jan 2026 10:04:04 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: John Hubbard <jhubbard@nvidia.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Alex Williamson <alex@shazbot.org>, linux-media@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
-	linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
-	linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] dma-buf: Document revoke semantics
-Message-ID: <20260119080404.GF13201@unreal>
-References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
- <20260118-dmabuf-revoke-v2-2-a03bb27c0875@nvidia.com>
- <d41d08e3-6a86-40a4-925c-6a3172670079@nvidia.com>
- <20260119072524.GD13201@unreal>
- <3380a80a-7574-4dbf-87cb-0735fb20cd15@nvidia.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GP4afcVH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768810219;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NiFJD5PzgI7Rff884xgJnduEZD/g9NyAah8X9rySYIg=;
+	b=GP4afcVH6oDMXlNYp63bV/E3RgoT0iLZpuoxyQ+uozLNUvYYAmy/qdIdPOaDriPeZZhMtY
+	SfuKwLXB4y04eRCRSNT/5Rva4zQZTkY9RO1a+G9miAZTgg8LgGHjiwMRvs1Gfa5h3ftYOZ
+	I03CcO0XaPEskvYznovLX0bNBlDhdPQ=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-631-EHFFsaa9O3-zYDzWFCSZGw-1; Mon, 19 Jan 2026 03:10:16 -0500
+X-MC-Unique: EHFFsaa9O3-zYDzWFCSZGw-1
+X-Mimecast-MFC-AGG-ID: EHFFsaa9O3-zYDzWFCSZGw_1768810215
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-78fc790162bso45086487b3.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 00:10:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768810215; x=1769415015;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=NiFJD5PzgI7Rff884xgJnduEZD/g9NyAah8X9rySYIg=;
+        b=S4sWS75q1/IOJVi4qPOzwqQlPZj6DSvywtaDw4hTbyZI7m5Iej1jF1W98kQbo7024Y
+         Qu7cRbojuaDbuqr7cBL1LmpnMmhD++mE8zOut9UYFSMbYfNtDmAan3RvjEa5bk/+pKO1
+         TmO5RtL5RhLDDMvpuNBGTsERHDOtrGVv8EIx/OiB4whA46of6zZT6nPqbBI5ZtxjfthO
+         rvZjoO/fHoGgxeGcx5hTlFY2D58fk4rGRF6d5JG1sGiDqLQ4GFFhUjbEtewmxsHLFiY8
+         lS9Ex+cKdtJu75CuUfqS04r6bcqHQpTacVxTp3iIpUr41h5JTzYTFhBAq+nTYB1iLC93
+         XL5w==
+X-Forwarded-Encrypted: i=1; AJvYcCViWk+DtI4GAl3TYtmewVfZg/G6Sv7QcpwfSB+kZnU+xF3ZfPoBrI0VaQVz+BGr3Ehv5D0wklxOi/11u/aLPA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw+MFT94PtbgW9gg9EJZ8sMERxOqXk9BlAoRpm47FyCckjuMf+1
+	/DUb96ys17ePvanJwUr4kRNb93+AT5+d4GgwxMckn9+HQWE4n3CdCT7lgZhVuDbANiTlEkToDWl
+	HiSuSiLwnGoKOKbgarVfUDoTD8fp7am/N9yD7HaXGi74rJlsLgvLmntFYgz5N2L6G/AstmlY1rV
+	8dDJ+SbjvgRJP/xxa+RRXiM0k4mqqxg/Xm7Mh1oH85bco=
+X-Gm-Gg: AZuq6aJqRqRGn24s//gBFejSUIJR3wxHJMyyNa+3dncq/l53opxm+c5H/nI3EQiALyK
+	VxKEB/0LiDoNQW7o3Srhs8X64O4n5mlQz072J1G/NavBh7gm93gthYOaK2hMEzzAydqFU7Qjzfj
+	7v1yAjrKGODDXlb/txdRSecedQqQCiqxPmXrefnguhTVmDJ6t+o8zZIP9hwFYtHNmCYQ==
+X-Received: by 2002:a05:690c:9c0b:b0:793:b353:9dd7 with SMTP id 00721157ae682-793c683524bmr89785257b3.53.1768810215529;
+        Mon, 19 Jan 2026 00:10:15 -0800 (PST)
+X-Received: by 2002:a05:690c:9c0b:b0:793:b353:9dd7 with SMTP id
+ 00721157ae682-793c683524bmr89785047b3.53.1768810215113; Mon, 19 Jan 2026
+ 00:10:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3380a80a-7574-4dbf-87cb-0735fb20cd15@nvidia.com>
+References: <20260116140455.1560491-1-eperezma@redhat.com> <20260116140455.1560491-12-eperezma@redhat.com>
+ <CACGkMEvJB5uyNnxmr=rap14Tc-JSy4=XGAtDZu6rg3+nucXUOw@mail.gmail.com>
+In-Reply-To: <CACGkMEvJB5uyNnxmr=rap14Tc-JSy4=XGAtDZu6rg3+nucXUOw@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Mon, 19 Jan 2026 09:09:38 +0100
+X-Gm-Features: AZwV_QgpEMyt61duS9J1Dtm3TxOILQEQM_kXZqRmG2nop8VeR5MDjHbqP31zz_Q
+Message-ID: <CAJaqyWf_37cwV6mK-_nj4GnwquSxUYCPFKUOkxCaPQkJ9iewLQ@mail.gmail.com>
+Subject: Re: [PATCH v14 11/13] vduse: add vq group asid support
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Laurent Vivier <lvivier@redhat.com>, linux-kernel@vger.kernel.org, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	Cindy Lu <lulu@redhat.com>, virtualization@lists.linux.dev, 
+	Yongji Xie <xieyongji@bytedance.com>, Stefano Garzarella <sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: aoKAkCEbAZnUk_ACCcvTDU8VEY4j_QS-bIcRkorA4t8_1768810215
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jan 18, 2026 at 11:32:20PM -0800, John Hubbard wrote:
-> On 1/18/26 11:25 PM, Leon Romanovsky wrote:
-> > On Sun, Jan 18, 2026 at 01:40:11PM -0800, John Hubbard wrote:
-> > > On 1/18/26 4:08 AM, Leon Romanovsky wrote:
-> > > > From: Leon Romanovsky <leonro@nvidia.com>
-> > > ...
-> > > > +/**
-> > > > + * dma_buf_attachment_is_revoke - check if a DMA-buf importer implements
-> > > > + * revoke semantics.
-> > > > + * @attach: the DMA-buf attachment to check
-> > > > + *
-> > > > + * Returns true if DMA-buf importer honors revoke semantics, which is
-> > > > + * negotiated with the exporter, by making sure that importer implements
-> > > > + * .invalidate_mappings() callback and calls to dma_buf_pin() after
-> > > > + * DMA-buf attach.
-> > > > + */
-> > > > +static inline bool
-> > > > +dma_buf_attachment_is_revoke(struct dma_buf_attachment *attach)
-> > > 
-> > > Maybe a slight rename, to dma_buf_attachment_is_revocable()?
-> > 
-> > I can do that. The issue is that even "dma_buf_attachment_is_revoke"
-> > is already too long. :)
-> > 
-> 
-> If you're really pressed for space for some reason,
+On Mon, Jan 19, 2026 at 8:17=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Fri, Jan 16, 2026 at 10:05=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@red=
+hat.com> wrote:
+> >
+> > Add support for assigning Address Space Identifiers (ASIDs) to each VQ
+> > group.  This enables mapping each group into a distinct memory space.
+> >
+> > The vq group to ASID association is protected by a rwlock now.  But the
+> > mutex domain_lock keeps protecting the domains of all ASIDs, as some
+> > operations like the one related with the bounce buffer size still
+> > requires to lock all the ASIDs.
+> >
+> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> >
+> > ---
+> > Future improvements can include performance optimizations on top like
+> > ore to RCU or thread synchronized atomics, or hardening by tracking ASI=
+D
+> > or ASID hashes on unused bits of the DMA address.
+> >
+> > Tested virtio_vdpa by adding manually two threads in vduse_set_status:
+> > one of them modifies the vq group 0 ASID and the other one map and unma=
+p
+> > memory continuously.  After a while, the two threads stop and the usual
+> > work continues.  Test with version 0, version 1 with the old ioctl, and
+> > version 1 with the new ioctl.
+> >
+> > Tested with vhost_vdpa by migrating a VM while ping on OVS+VDUSE.  A fe=
+w
+> > workaround were needed in some parts:
+> > * Do not enable CVQ before data vqs in QEMU, as VDUSE does not forward
+> >   the enable message to the userland device.  This will be solved in th=
+e
+> >   future.
+> > * Share the suspended state between all vhost devices in QEMU:
+> >   https://lists.nongnu.org/archive/html/qemu-devel/2025-11/msg02947.htm=
+l
+> > * Implement a fake VDUSE suspend vdpa operation callback that always
+> >   returns true in the kernel.  DPDK suspend the device at the first
+> >   GET_VRING_BASE.
+> > * Remove the CVQ blocker in ASID.
+> >
+> > The driver vhost_vdpa was also tested with version 0, version 1 with th=
+e
+> > old ioctl, version 1 with the new ioctl but only one ASID, and version =
+1
+> > with many ASID.
+> >
+>
+> Looks good overall, but I spot a small issue:
+>
+> int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
+>                                        struct page **pages, int count)
+> {
+>         struct vduse_bounce_map *map, *head_map;
+>         ...
+>
+>         /* Now we don't support partial mapping */
+>         if (count !=3D (domain->bounce_size >> PAGE_SHIFT))
+>                 return -EINVAL;
+>
+> Here we still use domain->bounce_size even if we support multiple as,
+> this conflicts with the case without userspace memory.
+>
 
-Mainly aesthetics.
+I don't follow you. My understanding from the previous discussion is
+that the bounce size is distributed evenly per AS. Should we just have
+a global bounce buffer size and protect that the amount of added
+memory of all domains is less than that bounce size?
 
-> maybe dma_buf_attach_revocable() ?
-> 
-> Just trying to hang on to the "revocable" part of the name, as
-> I think it's an improvement.
-
-Sure
-
-> 
-> thanks,
-> -- 
-> John Hubbard
-> 
-> 
