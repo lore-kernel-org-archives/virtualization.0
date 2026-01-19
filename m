@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 744732FC881;
-	Mon, 19 Jan 2026 22:22:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 425572F9D9A;
+	Mon, 19 Jan 2026 22:25:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768861337; cv=none; b=A+opdruq9W0wYZ26m5jua2jEIuFQq4JcmcgcnS6NxPKIxaKUcBymO1ZZrCne8qaRs3LOaL2gb5OEXwiWeyP6Yvqb4CweFkAIThI87cuYslNOJS4ewV4aq+q0idRnq94h6ZFLqnEnO2pVuoZXfVtjRrH293JuTxr89Gmdc2ckpS4=
+	t=1768861518; cv=none; b=BZc2bwt/7TIBHYybiJndOdd1S/Xo7Wh4K7vZmijHxt3nnEDul4hXZGC8dBSMkDtIh4UjOAHqWzD1H2JFOzyP+xRSt9RvVwcxVi1gosKJdUueJCx8+g1STgTH0qC/UGNDbMENyS/lhDFw9Rvbyy29W5kpRPt69c6PR3FjpdV1fjA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768861337; c=relaxed/simple;
-	bh=PSAX+ibtrxSZ0sZ9PO1JFriJ7cqe4buDvYhzubMRIgY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NK25mrUY4RXIsmtl70kxCsfb/cNpLJHAAOJdac11ISotx4Rl4rGz27R84hA43Lw16cjEXFrWyotLlveED5Ytz0IieY7/pkKjIEENI5saKFzn1KmDv2OrlToslLiIRuS/N4GJ0uRrCTiv0bp7xa7dPqa+jcFSKSHZ04dyBQg4DBA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NyDwwFuy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768861518; c=relaxed/simple;
+	bh=FAhDAb0u3mhKiWuTRu6Dbpf4eWwLQGrJyZKWWKJe3go=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=QmYSHMpUN28fO9qtEX8qLQmoWZK90FeROXsDzH0sEUFVyGKqRLhM5C0UM0vftE3sV+ypfOBUV9gLFLo4Ut7Nt1/i8j0mJd0O+x/T5+ibZFpVIhqSfDTDcwGuWMKOc7onASr2JqVvFdkR3+iFChYvLJxga6uCwECBfvql0fCVOgI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WmGzBhmm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NyDwwFuy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D88FC116C6;
-	Mon, 19 Jan 2026 22:22:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WmGzBhmm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 107A2C116C6;
+	Mon, 19 Jan 2026 22:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768861337;
-	bh=PSAX+ibtrxSZ0sZ9PO1JFriJ7cqe4buDvYhzubMRIgY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=NyDwwFuyD3RiW+jvlXOeCC8Y931wHEnIExpF99aiyYqCL/dFYBR0eXuM1hgSVC8ZX
-	 dV7Ci7euBrjp8mM58FN81Ju81Fdby/UqtW7bsSr+wSuChvelcSkcpzm3Askr5Ji+8b
-	 zTGqcx6ojNzjZWvZkeFrthAhbbOqQVCgTKFin0OIW82NsY+2rIJttSWW25MavsR1Ar
-	 nEEVlzo7uw1QEKLA/BTg0pMF91wUNDoOki1EZoyW+wzHSv2jPML2uQxgOcIbHyzb92
-	 g5LBoPU5xe2ff2Y8JGdoMv9ujG7qMWHb7+mHX4Dqx1u2SdCUxIiFJRT79qP7DHdo44
-	 7u8us4s0Tkwkw==
-Message-ID: <ca9e4ebb-e6b5-475b-8a21-a261e27c3ca7@kernel.org>
-Date: Mon, 19 Jan 2026 23:22:08 +0100
+	s=k20201202; t=1768861518;
+	bh=FAhDAb0u3mhKiWuTRu6Dbpf4eWwLQGrJyZKWWKJe3go=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
+	b=WmGzBhmmvAQt5l5PbvA8zaQPDgIuoNJskhe2N4F8kWZBPAyFdiTaUh/0OAgssMGd2
+	 wmR9MvAzNiAjh0x3J/R2+upFQVVUoOV7ZvNeRcDxof0gAxpDlGIU3XZhrWxn+d/rXR
+	 VSsdH/bnurWZxA7coDt74Hi4pzAMr1cK42OTzJq3HDfk2DF8vlS81Gq3/Pi3QNBgHY
+	 71HZGZJlIPV0hfC/5Y0hpCXejNXp82PxIRri2qQvnH84xKv+ovHC48pyIa7PUaN2V6
+	 kLD7UHibuKDHv2Y5KmPkLd3dt6r4MamPb71DAKpl4k2EJN4VhbZHHfRJTm8doogByw
+	 BcwE41Ikj3k9A==
+Message-ID: <7cbea892-0ccd-4132-af55-d72abd704d6c@kernel.org>
+Date: Mon, 19 Jan 2026 23:25:10 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,6 +37,7 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 04/23] mm/balloon_compaction: centralize basic page
  migration handling
+From: "David Hildenbrand (Red Hat)" <david@kernel.org>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
  Broadcom internal kernel review list
@@ -57,7 +58,7 @@ Cc: linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
  <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
 References: <20260115092015.3928975-1-david@kernel.org>
  <20260115092015.3928975-5-david@kernel.org>
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
+ <ca9e4ebb-e6b5-475b-8a21-a261e27c3ca7@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -102,94 +103,39 @@ Autocrypt: addr=david@kernel.org; keydata=
  cFAM8nBWrEmNU2vvIGJzjJ/NVYYIY0TgOc5bS9wh6jKHL2+chrfDW5neLJjY2x3snF8q7U9G
  EIbBfNHDlOV8SyhEjtX0DyKxQKioTYPOHcW9gdV5fhSz5tEv+ipqt4kIgWqBgzK8ePtDTqRM
  qZq457g1/SXSoSQi4jN+gsneqvlTJdzaEu1bJP0iv6ViVf15+qHuY5iojCz8fa0=
-In-Reply-To: <20260115092015.3928975-5-david@kernel.org>
+In-Reply-To: <ca9e4ebb-e6b5-475b-8a21-a261e27c3ca7@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 1/15/26 10:19, David Hildenbrand (Red Hat) wrote:
-> Let's update the balloon page references, the balloon page list, the
-> BALLOON_MIGRATE counter and the isolated-pages counter in
-> balloon_page_migrate(), after letting the balloon->migratepage()
-> callback deal with the actual inflation+deflation.
+On 1/19/26 23:22, David Hildenbrand (Red Hat) wrote:
+> On 1/15/26 10:19, David Hildenbrand (Red Hat) wrote:
+>> Let's update the balloon page references, the balloon page list, the
+>> BALLOON_MIGRATE counter and the isolated-pages counter in
+>> balloon_page_migrate(), after letting the balloon->migratepage()
+>> callback deal with the actual inflation+deflation.
+>>
+>> Note that we now perform the balloon list modifications outside of any
+>> implementation-specific locks: which is fine, there is nothing special
+>> about these page actions that the lock would be protecting.
+>>
+>> The old page is already no longer in the list (isolated) and the new page
+>> is not yet in the list.
+>>
+>> Let's use -ENOENT to communicate the special "inflation of new page
+>> failed after already deflating the old page" to balloon_page_migrate() so
+>> it can handle it accordingly.
+>>
+>> While at it, rename balloon->b_dev_info to make it match the other
+>> functions. Also, drop the comment above balloon_page_migrate(), which
+>> seems unnecessary.
+>>
+>> Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
+>> ---
 > 
-> Note that we now perform the balloon list modifications outside of any
-> implementation-specific locks: which is fine, there is nothing special
-> about these page actions that the lock would be protecting.
-> 
-> The old page is already no longer in the list (isolated) and the new page
-> is not yet in the list.
-> 
-> Let's use -ENOENT to communicate the special "inflation of new page
-> failed after already deflating the old page" to balloon_page_migrate() so
-> it can handle it accordingly.
-> 
-> While at it, rename balloon->b_dev_info to make it match the other
-> functions. Also, drop the comment above balloon_page_migrate(), which
-> seems unnecessary.
-> 
-> Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
-> ---
+> Andrew, the following on top:
 
-Andrew, the following on top:
-
- From 4c8b4f0aba5859a4ec71c7449a98b10e0547237f Mon Sep 17 00:00:00 2001
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Date: Mon, 19 Jan 2026 23:20:41 +0100
-Subject: [PATCH] fixup: mm/balloon_compaction: centralize basic page migration
-  handling
-
-Remove newline, talk about "page" instead of "old page" and avoid the
-switch.
-
-Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
----
-  mm/balloon_compaction.c | 22 +++++++---------------
-  1 file changed, 7 insertions(+), 15 deletions(-)
-
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index 5444c61bb9e76..b859411811d0b 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -247,29 +247,21 @@ static int balloon_page_migrate(struct page *newpage, struct page *page,
-  		return -EAGAIN;
-  
-  	rc = b_dev_info->migratepage(b_dev_info, newpage, page, mode);
--	switch (rc) {
--	case 0:
--		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-+	if (rc < 0 && rc != -ENOENT)
-+		return rc;
-  
-+	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
-+	if (!rc) {
-  		/* Insert the new page into the balloon list. */
-  		get_page(newpage);
--
-  		balloon_page_insert(b_dev_info, newpage);
--		__count_vm_event(BALLOON_MIGRATE);
--		break;
--	case -ENOENT:
--		spin_lock_irqsave(&b_dev_info->pages_lock, flags);
--
--		/* Old page was deflated but new page not inflated. */
--		__count_vm_event(BALLOON_DEFLATE);
--		break;
--	default:
--		return rc;
-  	}
--
-  	b_dev_info->isolated_pages--;
-  	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
-  
-+	/* If -ENOENT, page was deflated but new page not inflated. */
-+	__count_vm_event(rc ? BALLOON_DEFLATE : BALLOON_MIGRATE);
-+
-  	/* Free the now-deflated page we isolated in balloon_page_isolate(). */
-  	balloon_page_finalize(page);
-  	put_page(page);
--- 
-2.52.0
-
+Ah no, I'll rather resend the whole thing, as it creates some conflicts 
+in the other patches.
 
 -- 
 Cheers
