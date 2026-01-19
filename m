@@ -1,267 +1,177 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCEA6346AC6;
-	Mon, 19 Jan 2026 09:27:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECE853502B7
+	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 09:39:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768814841; cv=none; b=bxxJb1P+9cxFVWR0IKSpaaayxH2yONz7cQhdR2C/huq3wtRevfPqNT9vD7lhsycGG5PSJDCrKKvIYxxoeAGGjWbgcOjT9HkAwEL0ZstE3qQ+MOYeIRmrq7VDQOsH9kP5Q8PhRtpcDyOMgEBbvDeDSNMmCkIcsWGWDiVvPnXOZ5k=
+	t=1768815566; cv=none; b=gkWe6ZpBZ+tcBZkZazNM7ly7e7FXyHwCeiSTdbdjwwz2CQStW1mPE5e4wSvS/Xy27Ckq6ZILfkF8SryI8i2DCvI/hqXeaLCT4iDwc/+Kt/E1PUaaO8vTe6IEY22jyZm9ksDCnmB3Wwo/iWGZgXytpcIbwDp73RTP5uGXAwoENNU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768814841; c=relaxed/simple;
-	bh=1LWdKy0wxcp3AbNhZv5YgZA5HhjEKmlwhhAIxDXEKnI=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=rSiVBb02I61goujlGPCug/xLruhlUgvSXIWxYVbJpQHmKdHdyzykKLFM3ax9KZlddbykCM0UAidb2p1L8GhcMbA+eeCZszWMhSINM3uWbKLbFj8/caCkRoLHCVx2S35vtUP+pseRO6RXG+HrvMZcJP0LExTcVKpdqAG73o7wqIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lCUcN4om; arc=none smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1768815566; c=relaxed/simple;
+	bh=PK23E4LbAZyB80y9PT5PlqOxzIUOmcAumiKThlM4djw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=uPzJD1ouLltv2BQACngdAScNh4+7QBidK5SasZzzbHhqdlx1huYYfuG6nC+c0a1+KNCe+CUDpyta/sg5RFXkMDiXM9KMD/GchDg5YoeVFyyGGfxTvmucbIr81wfJtGguZE9b8LyrYZBAuD0QRfmC3yoIeqdqzq7dTe7OVqXZaAM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KE3UozL3; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lCUcN4om"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1768814840; x=1800350840;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=1LWdKy0wxcp3AbNhZv5YgZA5HhjEKmlwhhAIxDXEKnI=;
-  b=lCUcN4omlnVLN9ToWQL+8Os53D1o+igys0Zvkj+AmwYNh3yNMpzITGQ9
-   LKVVm536jQWElFYBWjbDRfuTyXh8OGHIuiEU4bfBL6AEgip3PsMOtekuC
-   UgkHnxyiVSuOIpqeUBcCsxK9d5CPOjflvWtNcls+sM3quly4iT2X1QmXD
-   +Uj3JsByIjomPs5SNQnPZjQmmNNb9N4sdMNQmASFP0ncAl+HjbB6R/vXS
-   9iX11OmRwFl2xgdnPcKoWGJNm3gXpMRhePV3RghoSVq8E/DzsF6o8DxVS
-   CpVh4kTALyT5kciHzRfGdvTeWBvfCg85VGKs26DYKE4dLnnbLhnKByW2B
-   A==;
-X-CSE-ConnectionGUID: 4Y8JB1R9Sjaqwzh8/RbcDQ==
-X-CSE-MsgGUID: Q50hyPx2R3yzIbycO0jTUA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11675"; a="69223445"
-X-IronPort-AV: E=Sophos;i="6.21,237,1763452800"; 
-   d="scan'208";a="69223445"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2026 01:27:19 -0800
-X-CSE-ConnectionGUID: wVDcltDLQGSQ0FDWpueWJw==
-X-CSE-MsgGUID: rdbnuLpiR2SkFhlwu7xzJw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,237,1763452800"; 
-   d="scan'208";a="210835738"
-Received: from egrumbac-mobl6.ger.corp.intel.com (HELO [10.245.244.32]) ([10.245.244.32])
-  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2026 01:27:11 -0800
-Message-ID: <9112a605d2ee382e83b84b50c052dd9e4a79a364.camel@linux.intel.com>
-Subject: Re: [PATCH v2 0/4] dma-buf: document revoke mechanism to invalidate
- shared buffers
-From: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>, Christian
- =?ISO-8859-1?Q?K=F6nig?=	 <christian.koenig@amd.com>, Alex Deucher
- <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>, Simona
- Vetter <simona@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>,  Dmitry
- Osipenko <dmitry.osipenko@collabora.com>, Gurchetan Singh
- <gurchetansingh@chromium.org>, Chia-I Wu	 <olvaffe@gmail.com>, Maarten
- Lankhorst <maarten.lankhorst@linux.intel.com>,  Maxime Ripard
- <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Lucas De
- Marchi	 <lucas.demarchi@intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>, Joerg
- Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy
- <robin.murphy@arm.com>, Alex Williamson <alex@shazbot.org>, 
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org, 
-	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org, 
-	iommu@lists.linux.dev, kvm@vger.kernel.org
-Date: Mon, 19 Jan 2026 10:27:00 +0100
-In-Reply-To: <20260119075229.GE13201@unreal>
-References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
-	 <f115c91bbc9c6087d8b32917b9e24e3363a91f33.camel@linux.intel.com>
-	 <20260119075229.GE13201@unreal>
-Organization: Intel Sweden AB, Registration Number: 556189-6027
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.54.3 (3.54.3-2.fc41) 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KE3UozL3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768815564;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/3GM8FPdhRriZq6AO20diaaV+30mJHwkaKlJ0PtdWcA=;
+	b=KE3UozL3qS/mhljDInSOsLnGIGaU9cVWFpel+3XlLer7X4cgpIl+BILk04IoNpregobO/N
+	Uzr51xa98wldgSorNNhxlH01jVLQyXFgUyoZGEM2dAvJZ6cIR8oi1wZFuhhOIkJ1QJ3FFn
+	KBPXFQLaGfFIoj0XhSLJpkjG9VVbj2U=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-614-bcoIS593O8SfIB5yMpI5Qg-1; Mon, 19 Jan 2026 04:39:22 -0500
+X-MC-Unique: bcoIS593O8SfIB5yMpI5Qg-1
+X-Mimecast-MFC-AGG-ID: bcoIS593O8SfIB5yMpI5Qg_1768815561
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-430f8866932so3466207f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 01:39:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768815561; x=1769420361;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=/3GM8FPdhRriZq6AO20diaaV+30mJHwkaKlJ0PtdWcA=;
+        b=Ud6oCSYCFwjCyHJuLhxT5LPWwBH5bmiBtROofwwDjJqRPzOa13JwG9ev23Fm4FuanB
+         ZZjxAQZLErTlH3c2mVNC1BFc9IH6TPRVlNS9m1TonMajenAW9fap8bO2w9Mr3MXN6qOk
+         JsteYgZ0vNPpqo2VgByu7xpAPTk5CQmwQ0g3D43cqFlMwkx4EfTayfQWj+sg78BNjGZh
+         9Qa3IvlFqJtV4eUA5SiBSryZ/l829xpJb74oeynG4XUixnKuqbn1cNF9EKwVB0a1LaJO
+         /YrGHd5EOnhCkyN4E1OPFxtyiRXpfr7yh2NTmYEnf9n3YIOKuAy7rWjyiuTe2aAMeQF3
+         43dQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW5l3pfHVRDkrLFb1aNkawCuDb1eG/uYpynLk5Dc4EeU+/14UBxzBwF9YpJYmbbWQue/4ayT8QaTPcJh1+K+Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyGDq+hipAvIBWskkhPrMlacAFHK3dgTwNGbx3H7PthJvO6PvEL
+	/luQzfJREpSb7jVpRAJbOkuKGRXEwUI6yMrCsIUaB7Rso94AV430AvW/5Toj7ZViiiQv93LT47e
+	jTwGi051Cvt2ZyljV17RaCT1NvWXQDspIHMcbE2poNbZF4zr7cdaZpfIK9D2w6xGqpGGc
+X-Gm-Gg: AY/fxX7v6w2dWZ7NTLH0EhfKPA94G7cRrWHuV/7igsiFhU0FJmK4e1lXorrxVzD5rcj
+	S0+BnZYOTHfO0nv4jBRQWmrMxo8TV2WwC7kTo1MBf7uRUEBGArrYmAZf2fZ2N269y48MVZ2V3G/
+	HJPxLxFT3ooXHgNBVt8Acj/2KD7l7+2teMvUV7lAiyTJYwY2uqjrCmnZgRGWBO0jGiOwl/wC570
+	7zyFqHDfmqszP1CD9fABf0/b7HH515Dc8gGr5a9UY/8BdDoCijxBgkoaf1unBCx8zSDexoX9reD
+	LU3MCPuuFR7s97Xg2jSrsVLSOLRqJLqC35uYKy7auyDzGI29dIks25xqpg44AT/XEzvldttWLUe
+	dW9CBd6L1zuFl2t3sghOy5gKUCabm8Wc=
+X-Received: by 2002:a05:600c:3114:b0:46e:4a30:2b0f with SMTP id 5b1f17b1804b1-4801e348326mr132243785e9.29.1768815561287;
+        Mon, 19 Jan 2026 01:39:21 -0800 (PST)
+X-Received: by 2002:a05:600c:3114:b0:46e:4a30:2b0f with SMTP id 5b1f17b1804b1-4801e348326mr132243355e9.29.1768815560841;
+        Mon, 19 Jan 2026 01:39:20 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-35-22.inter.net.il. [80.230.35.22])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4801fd3bcd2sm84408095e9.1.2026.01.19.01.39.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Jan 2026 01:39:20 -0800 (PST)
+Date: Mon, 19 Jan 2026 04:39:17 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Eugenio Perez Martin <eperezma@redhat.com>,
+	Laurent Vivier <lvivier@redhat.com>, linux-kernel@vger.kernel.org,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Maxime Coquelin <mcoqueli@redhat.com>, Cindy Lu <lulu@redhat.com>,
+	virtualization@lists.linux.dev,
+	Yongji Xie <xieyongji@bytedance.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v14 11/13] vduse: add vq group asid support
+Message-ID: <20260119043804-mutt-send-email-mst@kernel.org>
+References: <20260116140455.1560491-1-eperezma@redhat.com>
+ <20260116140455.1560491-12-eperezma@redhat.com>
+ <CACGkMEvJB5uyNnxmr=rap14Tc-JSy4=XGAtDZu6rg3+nucXUOw@mail.gmail.com>
+ <CAJaqyWf_37cwV6mK-_nj4GnwquSxUYCPFKUOkxCaPQkJ9iewLQ@mail.gmail.com>
+ <CACGkMEtyyPJQ3t_ckwZyNRHW2_fqm=09DEe-__Rvz0pQoUqtsQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <CACGkMEtyyPJQ3t_ckwZyNRHW2_fqm=09DEe-__Rvz0pQoUqtsQ@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: qDeLcF0X2FHQpDhCtCZwrsRozlw747zBQF_SSu6NOVg_1768815561
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Mon, 2026-01-19 at 09:52 +0200, Leon Romanovsky wrote:
-> On Sun, Jan 18, 2026 at 03:16:25PM +0100, Thomas Hellstr=C3=B6m wrote:
-> > Hi, Leon,
-> >=20
-> > On Sun, 2026-01-18 at 14:08 +0200, Leon Romanovsky wrote:
-> > > Changelog:
-> > > v2:
-> > > =C2=A0* Changed series to document the revoke semantics instead of
-> > > =C2=A0=C2=A0 implementing it.
-> > > v1:
-> > > https://patch.msgid.link/20260111-dmabuf-revoke-v1-0-fb4bcc8c259b@nvi=
-dia.com
-> > >=20
-> > > -----------------------------------------------------------------
-> > > ----
-> > > ----
-> > > This series documents a dma-buf =E2=80=9Crevoke=E2=80=9D mechanism: t=
-o allow a
-> > > dma-
-> > > buf
-> > > exporter to explicitly invalidate (=E2=80=9Ckill=E2=80=9D) a shared b=
-uffer after
-> > > it
-> > > has
-> > > been distributed to importers, so that further CPU and device
-> > > access
-> > > is
-> > > prevented and importers reliably observe failure.
-> > >=20
-> > > The change in this series is to properly document and use
-> > > existing
-> > > core
-> > > =E2=80=9Crevoked=E2=80=9D state on the dma-buf object and a correspon=
-ding
-> > > exporter-
-> > > triggered
-> > > revoke operation. Once a dma-buf is revoked, new access paths are
-> > > blocked so
-> > > that attempts to DMA-map, vmap, or mmap the buffer fail in a
-> > > consistent way.
-> >=20
-> > This sounds like it does not match how many GPU-drivers use the
-> > move_notify() callback.
->=20
-> No change for them.
->=20
-> >=20
-> > move_notify() would typically invalidate any device maps and any
-> > asynchronous part of that invalidation would be complete when the
-> > dma-
-> > buf's reservation object becomes idle WRT DMA_RESV_USAGE_BOOKKEEP
-> > fences.
->=20
-> This part has not changed and remains the same for the revocation
-> flow as well.
->=20
-> >=20
-> > However, the importer could, after obtaining the resv lock, obtain
-> > a
-> > new map using dma_buf_map_attachment(), and I'd assume the CPU maps
-> > work in the same way, I.E. move_notify() does not *permanently*
-> > revoke
-> > importer access.
->=20
-> This part diverges by design and is documented to match revoke
-> semantics.=C2=A0=20
-> It defines what must occur after the exporter requests that the
-> buffer be=C2=A0=20
-> "killed". An importer that follows revoke semantics will not attempt
-> to call=C2=A0=20
-> dma_buf_map_attachment(), and the exporter will block any remapping
-> attempts=C2=A0=20
-> regardless. See the priv->revoked flag in the VFIO exporter.
->=20
-> In addition, in this email thread, Christian explains that revoke
-> semantics already exists, with the combination of dma_buf_pin and
-> dma_buf_move_notify, just not documented:
-> https://lore.kernel.org/all/f7f1856a-44fa-44af-b496-eb1267a05d11@amd.com/
-
-
-Hmm,
-
-Considering=20
-
-https://elixir.bootlin.com/linux/v6.19-rc5/source/drivers/infiniband/core/u=
-mem_dmabuf.c#L192
-
-this sounds like it's not just undocumented but also in some cases
-unimplemented. The xe driver for one doesn't expect move_notify() to be
-called on pinned buffers, so if that is indeed going to be part of the
-dma-buf protocol,  wouldn't support for that need to be advertised by
-the importer?
-
-Thanks,
-Thomas
-
->=20
+On Mon, Jan 19, 2026 at 04:34:11PM +0800, Jason Wang wrote:
+> On Mon, Jan 19, 2026 at 4:10 PM Eugenio Perez Martin
+> <eperezma@redhat.com> wrote:
+> >
+> > On Mon, Jan 19, 2026 at 8:17 AM Jason Wang <jasowang@redhat.com> wrote:
+> > >
+> > > On Fri, Jan 16, 2026 at 10:05 PM Eugenio Pérez <eperezma@redhat.com> wrote:
+> > > >
+> > > > Add support for assigning Address Space Identifiers (ASIDs) to each VQ
+> > > > group.  This enables mapping each group into a distinct memory space.
+> > > >
+> > > > The vq group to ASID association is protected by a rwlock now.  But the
+> > > > mutex domain_lock keeps protecting the domains of all ASIDs, as some
+> > > > operations like the one related with the bounce buffer size still
+> > > > requires to lock all the ASIDs.
+> > > >
+> > > > Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+> > > >
+> > > > ---
+> > > > Future improvements can include performance optimizations on top like
+> > > > ore to RCU or thread synchronized atomics, or hardening by tracking ASID
+> > > > or ASID hashes on unused bits of the DMA address.
+> > > >
+> > > > Tested virtio_vdpa by adding manually two threads in vduse_set_status:
+> > > > one of them modifies the vq group 0 ASID and the other one map and unmap
+> > > > memory continuously.  After a while, the two threads stop and the usual
+> > > > work continues.  Test with version 0, version 1 with the old ioctl, and
+> > > > version 1 with the new ioctl.
+> > > >
+> > > > Tested with vhost_vdpa by migrating a VM while ping on OVS+VDUSE.  A few
+> > > > workaround were needed in some parts:
+> > > > * Do not enable CVQ before data vqs in QEMU, as VDUSE does not forward
+> > > >   the enable message to the userland device.  This will be solved in the
+> > > >   future.
+> > > > * Share the suspended state between all vhost devices in QEMU:
+> > > >   https://lists.nongnu.org/archive/html/qemu-devel/2025-11/msg02947.html
+> > > > * Implement a fake VDUSE suspend vdpa operation callback that always
+> > > >   returns true in the kernel.  DPDK suspend the device at the first
+> > > >   GET_VRING_BASE.
+> > > > * Remove the CVQ blocker in ASID.
+> > > >
+> > > > The driver vhost_vdpa was also tested with version 0, version 1 with the
+> > > > old ioctl, version 1 with the new ioctl but only one ASID, and version 1
+> > > > with many ASID.
+> > > >
+> > >
+> > > Looks good overall, but I spot a small issue:
+> > >
+> > > int vduse_domain_add_user_bounce_pages(struct vduse_iova_domain *domain,
+> > >                                        struct page **pages, int count)
+> > > {
+> > >         struct vduse_bounce_map *map, *head_map;
+> > >         ...
+> > >
+> > >         /* Now we don't support partial mapping */
+> > >         if (count != (domain->bounce_size >> PAGE_SHIFT))
+> > >                 return -EINVAL;
+> > >
+> > > Here we still use domain->bounce_size even if we support multiple as,
+> > > this conflicts with the case without userspace memory.
+> > >
+> >
+> > I don't follow you. My understanding from the previous discussion is
+> > that the bounce size is distributed evenly per AS. Should we just have
+> > a global bounce buffer size and protect that the amount of added
+> > memory of all domains is less than that bounce size?
+> 
+> I meant we require bounce_size / nas to be the size of the bounce
+> buffer size of each AS.
+> 
+> But for userspace registered memory, it requires bounce_size per AS.
+> 
 > Thanks
->=20
-> >=20
-> > /Thomas
-> >=20
-> >=20
-> > >=20
-> > > Thanks
-> > >=20
-> > > Cc: linux-media@vger.kernel.org
-> > > Cc: dri-devel@lists.freedesktop.org
-> > > Cc: linaro-mm-sig@lists.linaro.org
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Cc: amd-gfx@lists.freedesktop.org
-> > > Cc: virtualization@lists.linux.dev
-> > > Cc: intel-xe@lists.freedesktop.org
-> > > Cc: linux-rdma@vger.kernel.org
-> > > Cc: iommu@lists.linux.dev
-> > > Cc: kvm@vger.kernel.org
-> > > To: Sumit Semwal <sumit.semwal@linaro.org>
-> > > To: Christian K=C3=B6nig <christian.koenig@amd.com>
-> > > To: Alex Deucher <alexander.deucher@amd.com>
-> > > To: David Airlie <airlied@gmail.com>
-> > > To: Simona Vetter <simona@ffwll.ch>
-> > > To: Gerd Hoffmann <kraxel@redhat.com>
-> > > To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> > > To: Gurchetan Singh <gurchetansingh@chromium.org>
-> > > To: Chia-I Wu <olvaffe@gmail.com>
-> > > To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> > > To: Maxime Ripard <mripard@kernel.org>
-> > > To: Thomas Zimmermann <tzimmermann@suse.de>
-> > > To: Lucas De Marchi <lucas.demarchi@intel.com>
-> > > To: Thomas Hellstr=C3=B6m <thomas.hellstrom@linux.intel.com>
-> > > To: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > > To: Jason Gunthorpe <jgg@ziepe.ca>
-> > > To: Leon Romanovsky <leon@kernel.org>
-> > > To: Kevin Tian <kevin.tian@intel.com>
-> > > To: Joerg Roedel <joro@8bytes.org>
-> > > To: Will Deacon <will@kernel.org>
-> > > To: Robin Murphy <robin.murphy@arm.com>
-> > > To: Alex Williamson <alex@shazbot.org>
-> > >=20
-> > > ---
-> > > Leon Romanovsky (4):
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 dma-buf: Rename .move_notify() callbac=
-k to a clearer
-> > > identifier
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 dma-buf: Document revoke semantics
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 iommufd: Require DMABUF revoke semanti=
-cs
-> > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 vfio: Add pinned interface to perform =
-revoke semantics
-> > >=20
-> > > =C2=A0drivers/dma-buf/dma-buf.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=
-=C2=A0 6 +++---
-> > > =C2=A0drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c |=C2=A0 4 ++--
-> > > =C2=A0drivers/gpu/drm/virtio/virtgpu_prime.c=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 |=C2=A0 2 +-
-> > > =C2=A0drivers/gpu/drm/xe/tests/xe_dma_buf.c=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 |=C2=A0 6 +++---
-> > > =C2=A0drivers/gpu/drm/xe/xe_dma_buf.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 2 +-
-> > > =C2=A0drivers/infiniband/core/umem_dmabuf.c=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 |=C2=A0 4 ++--
-> > > =C2=A0drivers/infiniband/hw/mlx5/mr.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 2 +-
-> > > =C2=A0drivers/iommu/iommufd/pages.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 11 +++++++++--
-> > > =C2=A0drivers/vfio/pci/vfio_pci_dmabuf.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0 | 16
-> > > ++++++++++++++++
-> > > =C2=A0include/linux/dma-buf.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 | 25
-> > > ++++++++++++++++++++++---
-> > > =C2=A010 files changed, 60 insertions(+), 18 deletions(-)
-> > > ---
-> > > base-commit: 9ace4753a5202b02191d54e9fdf7f9e3d02b85eb
-> > > change-id: 20251221-dmabuf-revoke-b90ef16e4236
-> > >=20
-> > > Best regards,
-> > > --=C2=A0=20
-> > > Leon Romanovsky <leonro@nvidia.com>
-> > >=20
-> >=20
+
+I don't really understand what you are saying here, either.
+Could you explain what your suggestion is?
+
+
+> >
 
