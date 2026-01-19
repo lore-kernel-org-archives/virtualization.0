@@ -1,326 +1,154 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-qk1-f193.google.com (mail-qk1-f193.google.com [209.85.222.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53D7D36BCE0
-	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 18:26:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA12E2DEA6B
+	for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 19:54:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768847213; cv=none; b=gLAkA7LnTVkWF/bVy8g6U2cMZgs/YbQUYEO7tUptomixoVmDlgQY6FyLJuWVawYbUZwXJSPB24Uz7Ek/XHTJv0paYmUpy4kUvLlJHoz6lk2KLi2hRz9dhyJwSyibktVqbhgaIBwDWWeZf5PKkFsbAL6W+IbNYllBtL1mvKUvn04=
+	t=1768852490; cv=none; b=PLdmjPclO1AUi+04SrS0LP4GCS3igxIwABZk2rf1IR+htXSVVbAFmwwOcp5PjsM7K5ArHRbifKBpfG5+R96j9bcN9bLpiWwCZwRgMsAV+8wXAv+xPGLPGz4yLORZqAuJz+AloPtTIXeIxvXOh3HeAdIwTiFgfi3Qis09DA2jWGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768847213; c=relaxed/simple;
-	bh=/jxORShp/7pQ9aq/eOmr/qMTvF9YNR+XnutRRaupg3Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZoDzZRYX+KtDLcZHFVbfeQWr2PIx0amsADPw/hKnvUGz0C6XI9S5IqePdl1AA8LZoyJRkNRu/tkclrQ0F1oWwi08cvi+lghH2Vt+OaTkfpV11SXV6BLoI6qrcWwNRngraMTMjD/uP6EqrozydcimZyF27fVJh/mp85J7ZRhCYFQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=MHdJ4bZv; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=MHdJ4bZv; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1768852490; c=relaxed/simple;
+	bh=EgdbrvHnoBh/zDpp9ewcIGQxrvWxBBXiNgVYU0RjdCs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NVQo2yWrTGClg/JliYMwi7NqljkXyd7DweQeXRmgd+87RgNBTs8umAtaRcCzQLj9opdBYUHh4gZfjoiSChKncmCRM0r6s5qVeYmu095Y4Nyi/MPEYDAYZ+UokHWNxmlAq42XSImzrb/AXLKqNevW7osobUauBrUq6G18ihhpMC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=Jql7siU7; arc=none smtp.client-ip=209.85.222.193
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="MHdJ4bZv";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="MHdJ4bZv"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 7F8025BCCF;
-	Mon, 19 Jan 2026 18:26:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1768847207; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AptIhJVLc4BAPjc93uyYDO0mqV71EtV4n2ofFaZETBA=;
-	b=MHdJ4bZvPaLDXUUOQ3i7gfZ7SaV5KwjmoaFwAn84TqAqysh6unnWea6ggMSDJ/PpHkvkjo
-	I0bcsilVrid3zIhgY/mNdw68yalgrA6NjTLwct4FKvMxS8yXswniUi2Aw805dPA794XFJp
-	PwpYIqSNVMu84lONkQNyMxjfHxIq6NE=
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.com header.s=susede1 header.b=MHdJ4bZv
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1768847207; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AptIhJVLc4BAPjc93uyYDO0mqV71EtV4n2ofFaZETBA=;
-	b=MHdJ4bZvPaLDXUUOQ3i7gfZ7SaV5KwjmoaFwAn84TqAqysh6unnWea6ggMSDJ/PpHkvkjo
-	I0bcsilVrid3zIhgY/mNdw68yalgrA6NjTLwct4FKvMxS8yXswniUi2Aw805dPA794XFJp
-	PwpYIqSNVMu84lONkQNyMxjfHxIq6NE=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id F0E353EA63;
-	Mon, 19 Jan 2026 18:26:46 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id bQUXOWZ3bmlDaQAAD6G6ig
-	(envelope-from <jgross@suse.com>); Mon, 19 Jan 2026 18:26:46 +0000
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	virtualization@lists.linux.dev,
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="Jql7siU7"
+Received: by mail-qk1-f193.google.com with SMTP id af79cd13be357-8c5265d06c3so561414385a.1
+        for <virtualization@lists.linux.dev>; Mon, 19 Jan 2026 11:54:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1768852487; x=1769457287; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=zwZ9o3ha19w1BUlcGeJzNZvsy/mlKSz+FRMjn04+Z/c=;
+        b=Jql7siU7T8SrrFxwgL7D9N+WTkMzGGs+iG6gvPay9LI2pvvaVfqW06kcfcSkbbR3jD
+         bO4XMm/OaAiLfdx8fhwxKmjL/W0UOkLIGm/Cmw+P5/WbB3hm9O5yY7Ibq7Y59uOIJD53
+         aD9Wz/Wjye6+HL13ZBT4FTDzf3RIkLZq7gbPBenA1Uqlw/6978nu2sbVUemD7iw3QTXD
+         SWoGV+tmqh8Ps5OZ5Xdoq/h5l6pOlpeAAgwStPrQs7AUoA7Hv9wFWw0w25LdcRALjOSM
+         EElVIdIZzJ9S3FQfxF+RBNbNmtCM0nh6UOZytVabwsXnRI1ESVghlUy0WkeoUWtgt4qT
+         SsHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768852487; x=1769457287;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=zwZ9o3ha19w1BUlcGeJzNZvsy/mlKSz+FRMjn04+Z/c=;
+        b=V5r6lz6JtmiBZd0vayfWNUtoiCtTQm0kzeuq3RvJyOAAfN9eWvGTjYreBb+usFcZSu
+         q1mzXXPd84/7pLIqEs51/fLo5fLpMCM6dLuFE5zAaUhoZW9XK5GSTJqqtQb09ru0OYqe
+         NevYR0eDk0XUeP6oS5zVUbw+c0/4DhKrTKgUEm19JcZyDK2H0cFUVjc7LrYUIpHP9MyW
+         xqBPh4u4qSrgaf/WV3qAmrwtAbFLoLm+62W5q/bPgvrbeu5G/e/UTaZVZCupJVly7Qe0
+         lzHIxZQUWCTSrrjAw771o914/h9tHSwKY3l3f1+pPRxWKQjimItiksC/3nlqPZ8g4bro
+         sp/Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWl/pVdZ8+puA9Mr2RRuuS+qcQlwsL9Zo0TJRRk3VesyhWi8GmaFj1EZDNOgJ8Z514A/OSV9Zkl7vi/c+USRg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx7OxsHBppg2PBg2WaqH+jycHlwJrBep0pWtPnbNp4zgMXXK4Rm
+	RgZGgdo51bLFumd37gBkMNui7lcj7oScwTkIntuUc2qLfqocnu1U82BflsD9sv12hYY=
+X-Gm-Gg: AY/fxX5qXKluU842OhaAP8vtgoPiDkSE+LrrQAhO+ZDpdxEfWpcUJgkXL/Ev19BuFQr
+	RpA4KaQzQgjp4ZpK8EpzYt5KhhpJ8Ir3m39gLhdJnuzlNK28+Xey709TGL7ujIf74cVoIYvSjor
+	kOY6rv95rHv+oUKIelJlMryTgoSqm57JMeuzKZiyZIWZ2MGN92t1tNhKFAlpHl/H/smS+pcAUPA
+	gN+MjejHJb7R2BA5rArtXUBD3LIrztBCYo0d6Jf9Hzwtel+5HhnQouQZgXovjOxmWUnM3zetORX
+	Wv38JX3GfDjkN1Q1WjwbNC2vgZQDmQfPcsOYK2pFkMXLdg8JaqSbzmjfpPYdKGTAKMkRJEhRljo
+	P2/kMtw1rNEwzt0kg+QdmSkMP0pdClVBoA/MHkqrJNbY3WTbjs3nNoGz6ZeAN3Wm7ZoE+BcYG2Z
+	gMYnMFPnv5ifpGnoTuz4T1A7lHHgOKagcvDDDIBQJ6qwcGEWnAgv8FO/iLiQH8mWEYIAQ=
+X-Received: by 2002:a05:620a:4606:b0:8a3:a42e:6e14 with SMTP id af79cd13be357-8c589b9706emr2117693085a.10.1768852486747;
+        Mon, 19 Jan 2026 11:54:46 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8942e6ad75asm86947906d6.31.2026.01.19.11.54.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Jan 2026 11:54:44 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1vhvKm-00000005JRT-0mKA;
+	Mon, 19 Jan 2026 15:54:44 -0400
+Date: Mon, 19 Jan 2026 15:54:44 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>,
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Alex Williamson <alex@shazbot.org>, linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
+	linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
 	kvm@vger.kernel.org
-Cc: Juergen Gross <jgross@suse.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	xen-devel@lists.xenproject.org
-Subject: [PATCH v4 2/6] x86/paravirt: Replace io_delay() hook with a bool
-Date: Mon, 19 Jan 2026 19:26:28 +0100
-Message-ID: <20260119182632.596369-3-jgross@suse.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260119182632.596369-1-jgross@suse.com>
-References: <20260119182632.596369-1-jgross@suse.com>
+Subject: Re: [PATCH v2 3/4] iommufd: Require DMABUF revoke semantics
+Message-ID: <20260119195444.GL961572@ziepe.ca>
+References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
+ <20260118-dmabuf-revoke-v2-3-a03bb27c0875@nvidia.com>
+ <20260119165951.GI961572@ziepe.ca>
+ <20260119182300.GO13201@unreal>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	MIME_TRACE(0.00)[0:+];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	RCPT_COUNT_TWELVE(0.00)[17];
-	RCVD_COUNT_TWO(0.00)[2];
-	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.com:mid,suse.com:dkim,suse.com:email];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLkdkdrsxe9hqhhs5ask8616i6)];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	DKIM_TRACE(0.00)[suse.com:+];
-	FROM_HAS_DN(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	TO_DN_SOME(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:mid,suse.com:dkim,suse.com:email]
-X-Spam-Flag: NO
-X-Spam-Score: -3.01
-X-Rspamd-Queue-Id: 7F8025BCCF
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spam-Level: 
+In-Reply-To: <20260119182300.GO13201@unreal>
 
-The io_delay() paravirt hook is in no way performance critical and all
-users setting it to a different function than native_io_delay() are
-using an empty function as replacement.
+On Mon, Jan 19, 2026 at 08:23:00PM +0200, Leon Romanovsky wrote:
+> On Mon, Jan 19, 2026 at 12:59:51PM -0400, Jason Gunthorpe wrote:
+> > On Sun, Jan 18, 2026 at 02:08:47PM +0200, Leon Romanovsky wrote:
+> > > From: Leon Romanovsky <leonro@nvidia.com>
+> > > 
+> > > IOMMUFD does not support page fault handling, and after a call to
+> > > .invalidate_mappings() all mappings become invalid. Ensure that
+> > > the IOMMUFD DMABUF importer is bound to a revoke‑aware DMABUF exporter
+> > > (for example, VFIO).
+> > > 
+> > > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > > ---
+> > >  drivers/iommu/iommufd/pages.c | 9 ++++++++-
+> > >  1 file changed, 8 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/iommu/iommufd/pages.c b/drivers/iommu/iommufd/pages.c
+> > > index 76f900fa1687..a5eb2bc4ef48 100644
+> > > --- a/drivers/iommu/iommufd/pages.c
+> > > +++ b/drivers/iommu/iommufd/pages.c
+> > > @@ -1501,16 +1501,22 @@ static int iopt_map_dmabuf(struct iommufd_ctx *ictx, struct iopt_pages *pages,
+> > >  		mutex_unlock(&pages->mutex);
+> > >  	}
+> > >  
+> > > -	rc = sym_vfio_pci_dma_buf_iommufd_map(attach, &pages->dmabuf.phys);
+> > > +	rc = dma_buf_pin(attach);
+> > >  	if (rc)
+> > >  		goto err_detach;
+> > >  
+> > > +	rc = sym_vfio_pci_dma_buf_iommufd_map(attach, &pages->dmabuf.phys);
+> > > +	if (rc)
+> > > +		goto err_unpin;
+> > > +
+> > >  	dma_resv_unlock(dmabuf->resv);
+> > >  
+> > >  	/* On success iopt_release_pages() will detach and put the dmabuf. */
+> > >  	pages->dmabuf.attach = attach;
+> > >  	return 0;
+> > 
+> > Don't we need an explicit unpin after unmapping?
+> 
+> Yes, but this patch is going to be dropped in v3 because of this
+> suggestion.
+> https://lore.kernel.org/all/a397ff1e-615f-4873-98a9-940f9c16f85c@amd.com
 
-This enables to replace the hook with a bool indicating whether
-native_io_delay() should be called.
+That's not right, that suggestion is about changing VFIO. iommufd must
+still act as a pinning importer!
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V3:
-- rebase to tip/master kernel branch
----
- arch/x86/include/asm/io.h             |  9 ++++++---
- arch/x86/include/asm/paravirt-base.h  |  6 ++++++
- arch/x86/include/asm/paravirt.h       | 11 -----------
- arch/x86/include/asm/paravirt_types.h |  2 --
- arch/x86/kernel/cpu/vmware.c          |  2 +-
- arch/x86/kernel/kvm.c                 |  8 +-------
- arch/x86/kernel/paravirt.c            |  3 +--
- arch/x86/xen/enlighten_pv.c           |  6 +-----
- 8 files changed, 16 insertions(+), 31 deletions(-)
-
-diff --git a/arch/x86/include/asm/io.h b/arch/x86/include/asm/io.h
-index ca309a3227c7..8a9292ce7d2d 100644
---- a/arch/x86/include/asm/io.h
-+++ b/arch/x86/include/asm/io.h
-@@ -243,11 +243,16 @@ extern int io_delay_type;
- extern void io_delay_init(void);
- 
- #if defined(CONFIG_PARAVIRT)
--#include <asm/paravirt.h>
-+#include <asm/paravirt-base.h>
- #else
-+#define call_io_delay() true
-+#endif
- 
- static inline void slow_down_io(void)
- {
-+	if (!call_io_delay())
-+		return;
-+
- 	native_io_delay();
- #ifdef REALLY_SLOW_IO
- 	native_io_delay();
-@@ -256,8 +261,6 @@ static inline void slow_down_io(void)
- #endif
- }
- 
--#endif
--
- #define BUILDIO(bwl, type)						\
- static inline void out##bwl##_p(type value, u16 port)			\
- {									\
-diff --git a/arch/x86/include/asm/paravirt-base.h b/arch/x86/include/asm/paravirt-base.h
-index 982a0b93bc76..3b9e7772d196 100644
---- a/arch/x86/include/asm/paravirt-base.h
-+++ b/arch/x86/include/asm/paravirt-base.h
-@@ -15,6 +15,8 @@ struct pv_info {
- #ifdef CONFIG_PARAVIRT_XXL
- 	u16 extra_user_64bit_cs;  /* __USER_CS if none */
- #endif
-+	bool io_delay;
-+
- 	const char *name;
- };
- 
-@@ -26,6 +28,10 @@ u64 _paravirt_ident_64(u64);
- #endif
- #define paravirt_nop	((void *)nop_func)
- 
-+#ifdef CONFIG_PARAVIRT
-+#define call_io_delay() pv_info.io_delay
-+#endif
-+
- #ifdef CONFIG_PARAVIRT_SPINLOCKS
- void paravirt_set_cap(void);
- #else
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index b21072af731d..f4885bd98a18 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -19,17 +19,6 @@
- #include <linux/cpumask.h>
- #include <asm/frame.h>
- 
--/* The paravirtualized I/O functions */
--static inline void slow_down_io(void)
--{
--	PVOP_VCALL0(pv_ops, cpu.io_delay);
--#ifdef REALLY_SLOW_IO
--	PVOP_VCALL0(pv_ops, cpu.io_delay);
--	PVOP_VCALL0(pv_ops, cpu.io_delay);
--	PVOP_VCALL0(pv_ops, cpu.io_delay);
--#endif
--}
--
- void native_flush_tlb_local(void);
- void native_flush_tlb_global(void);
- void native_flush_tlb_one_user(unsigned long addr);
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 7ccd41628d36..3946d0f69921 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -30,8 +30,6 @@ struct pv_lazy_ops {
- 
- struct pv_cpu_ops {
- 	/* hooks for various privileged instructions */
--	void (*io_delay)(void);
--
- #ifdef CONFIG_PARAVIRT_XXL
- 	unsigned long (*get_debugreg)(int regno);
- 	void (*set_debugreg)(int regno, unsigned long value);
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index a3e6936839b1..eee0d1a48802 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -339,7 +339,7 @@ arch_initcall(activate_jump_labels);
- static void __init vmware_paravirt_ops_setup(void)
- {
- 	pv_info.name = "VMware hypervisor";
--	pv_ops.cpu.io_delay = paravirt_nop;
-+	pv_info.io_delay = false;
- 
- 	if (vmware_tsc_khz == 0)
- 		return;
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 26ab6f8e36df..911950c9110c 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -75,12 +75,6 @@ DEFINE_PER_CPU_DECRYPTED(struct kvm_steal_time, steal_time) __aligned(64) __visi
- static int has_steal_clock = 0;
- 
- static int has_guest_poll = 0;
--/*
-- * No need for any "IO delay" on KVM
-- */
--static void kvm_io_delay(void)
--{
--}
- 
- #define KVM_TASK_SLEEP_HASHBITS 8
- #define KVM_TASK_SLEEP_HASHSIZE (1<<KVM_TASK_SLEEP_HASHBITS)
-@@ -327,7 +321,7 @@ static void __init paravirt_ops_setup(void)
- 	pv_info.name = "KVM";
- 
- 	if (kvm_para_has_feature(KVM_FEATURE_NOP_IO_DELAY))
--		pv_ops.cpu.io_delay = kvm_io_delay;
-+		pv_info.io_delay = false;
- 
- #ifdef CONFIG_X86_IO_APIC
- 	no_timer_check = 1;
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index a6ed52cae003..792fa96b3233 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -94,6 +94,7 @@ struct pv_info pv_info = {
- #ifdef CONFIG_PARAVIRT_XXL
- 	.extra_user_64bit_cs = __USER_CS,
- #endif
-+	.io_delay = true,
- };
- 
- /* 64-bit pagetable entries */
-@@ -101,8 +102,6 @@ struct pv_info pv_info = {
- 
- struct paravirt_patch_template pv_ops = {
- 	/* Cpu ops. */
--	.cpu.io_delay		= native_io_delay,
--
- #ifdef CONFIG_PARAVIRT_XXL
- 	.cpu.cpuid		= native_cpuid,
- 	.cpu.get_debugreg	= pv_native_get_debugreg,
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 8a19a88190ee..9c9695f5d158 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1046,10 +1046,6 @@ static void xen_update_io_bitmap(void)
- }
- #endif
- 
--static void xen_io_delay(void)
--{
--}
--
- static DEFINE_PER_CPU(unsigned long, xen_cr0_value);
- 
- static unsigned long xen_read_cr0(void)
-@@ -1209,6 +1205,7 @@ void __init xen_setup_vcpu_info_placement(void)
- 
- static const struct pv_info xen_info __initconst = {
- 	.extra_user_64bit_cs = FLAT_USER_CS64,
-+	.io_delay = false,
- 	.name = "Xen",
- };
- 
-@@ -1392,7 +1389,6 @@ asmlinkage __visible void __init xen_start_kernel(struct start_info *si)
- 	pv_ops.cpu.invalidate_io_bitmap = xen_invalidate_io_bitmap;
- 	pv_ops.cpu.update_io_bitmap = xen_update_io_bitmap;
- #endif
--	pv_ops.cpu.io_delay = xen_io_delay;
- 	pv_ops.cpu.start_context_switch = xen_start_context_switch;
- 	pv_ops.cpu.end_context_switch = xen_end_context_switch;
- 
--- 
-2.52.0
-
+Jason
