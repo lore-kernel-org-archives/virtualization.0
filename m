@@ -1,30 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B8606FC3;
-	Mon, 19 Jan 2026 23:01:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C0EE1B81D3;
+	Mon, 19 Jan 2026 23:01:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768863702; cv=none; b=sBM5ikfki0Ambekgul5BvFcAZqp43HYHZ/FDHqALDzvWBerm1aEEn+0vLv6pAnQJqZ6FfI0q3mAaZ1PLhdpgsohiH9DHXEUviDJA3N+aWPMTA+ur7ibAtkCdffw2ph5ehRZ6NHVhIVv9ut32YRDHxE2lAfYdhHTrlkm2k15RZFA=
+	t=1768863709; cv=none; b=gyqZtvvDWVbPkTM60VMG5LNRgsGPs5LZvpkSPbArC8L9fxTUixj6hNfo7gMMM8Z7An4VwSf0Lkm10eJqh53kyOuQgMsfbgCjaHBMX3KzeJKBTKtRDzF5Un1ExJ1iUxcsTfZUln/fef40bBZWuDFiQg0t+R1R4Z3vGzHCV8C3bA8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768863702; c=relaxed/simple;
-	bh=pkO47DmDTlCVZ4qWJyLDetbEa5q1OzobH5egyxMl/Xc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Ikk+AVPpMKhw81X0EAHY8O5K4FgH0CgE7u0ehp5lhHXyRjk9LzAW6uG0NJuBoLbmSu7O12Ki/aeJAzH7qcqOcQH5pBkI3MYeuFatCO44OdRc5jvF80czNjziW/zvKrX47WnD6AYReUxP8im+IZ+1raQRsE/I5wPamhedUPRzGbA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RftC9SBk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768863709; c=relaxed/simple;
+	bh=luihl3MbyU6omYSiSWj4BOo3mmNqgAivFPTCpm64S5A=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Q20iWzPgigxAbnQUfhymW4eY+7AM8nmvYTYPRyo3w+cnvUJMHMIkyI/qGOUtmyroKAA4lXc2y8Fr6zBkOlGh2hmnbJuewckaUuz6Kb+qZcqiEPf9zAKsRKBej1mZ08GCV8quY3bCIaAjtMM5uO/64ySQzeYFvQNzO0HPti8q4Ak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ty14IhFY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RftC9SBk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 742E9C116C6;
-	Mon, 19 Jan 2026 23:01:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ty14IhFY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 531E9C19423;
+	Mon, 19 Jan 2026 23:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768863701;
-	bh=pkO47DmDTlCVZ4qWJyLDetbEa5q1OzobH5egyxMl/Xc=;
-	h=From:To:Cc:Subject:Date:From;
-	b=RftC9SBkj9jynEzKvEsWZNv24oX1nY1eTCTvgu0zWx5vcx/TAqUodDraVVJ6yyQlt
-	 jFCksuPGdnY0aN7o82O4UUhCSnO7fRapHqehFETIxw94lG3xwNmxThkWvhVpjmrJVQ
-	 wTYFG8cXS44T/p0hca8aNArdiOczaKjFXYDb7+rWepH1lGYeEdhZ1E/OjX5iUTgOhQ
-	 X6p31FWDuqzbxFyOsxMyhIDYJ9K3ewTKBRlJjOozr+b46wTyLd6JlbJ/6VzIUE3iUN
-	 wHQ68zwSdazzPYKx+CNSTQu7vHgT2W1vhN/JK3oCMTxZAiHP4SjR9kWBCQe2s3GmZA
-	 CwfqDt2NtDkTg==
+	s=k20201202; t=1768863709;
+	bh=luihl3MbyU6omYSiSWj4BOo3mmNqgAivFPTCpm64S5A=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=Ty14IhFYRg1l/2Ez+3EIhcGA92inZASN9By1yGWpfoCYQQoaXhF9GeSHpXh/4o7wh
+	 rv2jd1KqUv7sxbQENf3+a93+kiHs6Pt5G9xfUtig2LlyAvg5fqgjrRlYOU451DxdQV
+	 xFS/6MQL9QO4d/tcIUcQUVkk5Ga5MkYY1UtDOLULiGw7WY4N60Pad45nIyjD3Ohaa7
+	 1u8b3HPjwXFqvexE1sUgx5Pa9UxBfNk4UNre7uxGAjjqz0uqzNWWM+n6+PIJW/KZC+
+	 PdVBqArgnZb/xbX+khcmpQlrZp1iBBmSTeD10FX6KYq5s943DkILJgOIVYjGLYJiq6
+	 qwGIPnllyT+GA==
 From: "David Hildenbrand (Red Hat)" <david@kernel.org>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -53,142 +54,54 @@ Cc: linux-mm@kvack.org,
 	Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v3 00/24] mm: balloon infrastructure cleanups
-Date: Tue, 20 Jan 2026 00:01:08 +0100
-Message-ID: <20260119230133.3551867-1-david@kernel.org>
+	Zi Yan <ziy@nvidia.com>,
+	SeongJae Park <sj@kernel.org>
+Subject: [PATCH v3 01/24] vmw_balloon: adjust BALLOON_DEFLATE when deflating while migrating
+Date: Tue, 20 Jan 2026 00:01:09 +0100
+Message-ID: <20260119230133.3551867-2-david@kernel.org>
 X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260119230133.3551867-1-david@kernel.org>
+References: <20260119230133.3551867-1-david@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-I started with wanting to remove the dependency of the balloon
-infrastructure on the page lock, but ended up performing various other
-cleanups, some of which I had on my todo list for years.
+When we're effectively deflating the balloon while migrating a page
+because inflating the new page failed, we're not adjusting
+BALLOON_DEFLATE.
 
-This series heavily cleans up and simplifies our balloon infrastructure,
-including our balloon page migration functionality.
+Let's do that. This is a preparation for factoring out this handling to
+the core code, making it work in a similar way first.
 
-With this series, we no longer make use of the page lock for PageOffline
-pages as part of the balloon infrastructure (preparing for memdescs
-where PageOffline pages won't have any such lock), and simplifies
-migration handling such that refcounting can more easily be adjusted
-later (long-term focus is for PageOffline pages to not have a refcount
-either).
+As this (deflating while migrating because of inflation error) is a
+corner case that I don't really expect to happen in practice
+and the stats are not that crucial, this likely doesn't classify as a fix.
 
-Plenty of related cleanups.
+Reviewed-by: SeongJae Park <sj@kernel.org>
+Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
+---
+ drivers/misc/vmw_balloon.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Heavily compile-tested and heavily runtime-tested with virtio-balloon.
-PPC CMM and the VMware balloon are untested and I'd appreciate a helping
-hand from people that have suitable environments.
-
-Not CCing maintainers for the vmscan.c and migrate.c change as they
-are rather trivial and I don't want to patchbomb them.
-
---
-
-v2 -> v3:
-* "mm/balloon_compaction: centralize basic page migration handling"
-  -> Remove newline
-  -> Talk about "page" instead of "old page"
-  -> avoid the switch statement
-* "mm/balloon_compaction: move internal helpers to balloon_compaction.c"
-  -> No need to carry over the "inline"
-* "fixup mm: rename CONFIG_BALLOON_COMPACTION to CONFIG_BALLOON_MIGRATION
-  -> Remove some more "balloon page compaction" thingies
-*  "MAINTAINERS: move memory balloon infrastructure to "MEMORY MANAGEMENT -
-    BALLOON"
-   -> CC the virt list and use the proper mail address
-* "mm/balloon_compaction: improve comments for WARN_ON_ONCE(!b_dev_info)
-   -> Added
-
-v1 -> v2:
-* Rebased to latest mm/mm-unstable without any conflicts
-* Minor patch description/subject and comment fixups
-* Retested
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jerrin Shaji George <jerrin.shaji-george@broadcom.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: "Eugenio Pérez" <eperezma@redhat.com>
-Cc: Zi Yan <ziy@nvidia.com>
-
-David Hildenbrand (Red Hat) (24):
-  vmw_balloon: adjust BALLOON_DEFLATE when deflating while migrating
-  vmw_balloon: remove vmballoon_compaction_init()
-  powerpc/pseries/cmm: remove cmm_balloon_compaction_init()
-  mm/balloon_compaction: improve comments for WARN_ON_ONCE(!b_dev_info)
-  mm/balloon_compaction: centralize basic page migration handling
-  mm/balloon_compaction: centralize adjust_managed_page_count() handling
-  vmw_balloon: stop using the balloon_dev_info lock
-  mm/balloon_compaction: use a device-independent balloon (list) lock
-  mm/balloon_compaction: remove dependency on page lock
-  mm/balloon_compaction: make balloon_mops static
-  mm/balloon_compaction: drop fs.h include from balloon_compaction.h
-  drivers/virtio/virtio_balloon: stop using balloon_page_push/pop()
-  mm/balloon_compaction: remove balloon_page_push/pop()
-  mm/balloon_compaction: fold balloon_mapping_gfp_mask() into
-    balloon_page_alloc()
-  mm/balloon_compaction: move internal helpers to balloon_compaction.c
-  mm/balloon_compaction: assert that the balloon_pages_lock is held
-  mm/balloon_compaction: mark remaining functions for having proper
-    kerneldoc
-  mm/balloon_compaction: remove "extern" from functions
-  mm/vmscan: drop inclusion of balloon_compaction.h
-  mm: rename balloon_compaction.(c|h) to balloon.(c|h)
-  mm/kconfig: make BALLOON_COMPACTION depend on MIGRATION
-  mm: rename CONFIG_BALLOON_COMPACTION to CONFIG_BALLOON_MIGRATION
-  mm: rename CONFIG_MEMORY_BALLOON -> CONFIG_BALLOON
-  MAINTAINERS: move memory balloon infrastructure to "MEMORY MANAGEMENT
-    - BALLOON"
-
- .../admin-guide/mm/memory-hotplug.rst         |   8 +-
- Documentation/core-api/mm-api.rst             |   2 +-
- MAINTAINERS                                   |  13 +-
- arch/powerpc/platforms/pseries/Kconfig        |   2 +-
- arch/powerpc/platforms/pseries/cmm.c          |  53 +----
- drivers/misc/Kconfig                          |   2 +-
- drivers/misc/vmw_balloon.c                    | 105 +++------
- drivers/virtio/Kconfig                        |   2 +-
- drivers/virtio/virtio_balloon.c               |  64 ++----
- include/linux/balloon.h                       |  77 +++++++
- include/linux/balloon_compaction.h            | 160 --------------
- include/linux/vm_event_item.h                 |   8 +-
- mm/Kconfig                                    |  23 +-
- mm/Makefile                                   |   2 +-
- mm/{balloon_compaction.c => balloon.c}        | 200 ++++++++++++------
- mm/memory_hotplug.c                           |   4 +-
- mm/migrate.c                                  |   2 +-
- mm/vmscan.c                                   |   1 -
- mm/vmstat.c                                   |   8 +-
- 19 files changed, 319 insertions(+), 417 deletions(-)
- create mode 100644 include/linux/balloon.h
- delete mode 100644 include/linux/balloon_compaction.h
- rename mm/{balloon_compaction.c => balloon.c} (58%)
-
-
-base-commit: f8ed52ac0cfbddff992bb9600941bfe51e1e385a
+diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+index cc1d18b3df5ca..2cc34c4968fac 100644
+--- a/drivers/misc/vmw_balloon.c
++++ b/drivers/misc/vmw_balloon.c
+@@ -1818,6 +1818,8 @@ static int vmballoon_migratepage(struct balloon_dev_info *b_dev_info,
+ 	if (status == VMW_BALLOON_SUCCESS) {
+ 		balloon_page_insert(&b->b_dev_info, newpage);
+ 		__count_vm_event(BALLOON_MIGRATE);
++	} else {
++		__count_vm_event(BALLOON_DEFLATE);
+ 	}
+ 
+ 	/*
 -- 
 2.52.0
 
