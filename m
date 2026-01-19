@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80B821B142D;
-	Mon, 19 Jan 2026 23:02:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1F9329BDAD;
+	Mon, 19 Jan 2026 23:02:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768863771; cv=none; b=KWFgJSfXexk426508muaEi/QnnuiPzpkZsq5JOnnrK53qUTH/xetB8WPkYoDnqiDbhlsLlr9Y5l8gsofZh3cgNARYpjf8mn7PzcwlFks5xKZwprBFa7YknQA8wzZknz7znrmEwUHk5CF84m9TYjBYr3FP2TFl/FThtx/kh4K3pQ=
+	t=1768863780; cv=none; b=n9T98ILd8oReq2kjz+SWm8oQIkr3GaYrCOhUUcjdyTfLfJBc4BZtHK+zewXuYS0GY4HEbIlKEQAE6vpcJ6gDzT/h/bbejXT19BLYaBXGu86p5lB6Bfk05mSB36B38odjyGZ4og/AxJcAsrVPojOnjtaeSJ4d6O0mmZHastn+gWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768863771; c=relaxed/simple;
-	bh=L0GQNAdOR/JPbtfKkp93QvUS5ciLoWv5t16Us2SfM7A=;
+	s=arc-20240116; t=1768863780; c=relaxed/simple;
+	bh=QtradRf0GStbdIUHbJa+QxsYtSkr1ee15tID6//kWAc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ocy3pAjV4JHOXi8Ok+iGJzowI5kk7W2umzvXb/Vp4GE7NH8+kgWex/u2tND+hL/aiCF1u0+t5XaCvyFZLOKkb0eqeGut3VLTLzEQb/nDHOqjOmpnHgHiYiVuFDz3c7aeV7dXVWCcqsrLP+Ku5OfTV3VebYwNKKRxbmduX//+K0w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HvOvpttf; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=oPGMSXAkHf2SDXUROECGj8K88wOXEgLZTfqoc8gZxSRmDzyoyZdsrX911FoD1jsDkCKV4OLwag59mQlpz7Br0U8W135gkxqQ0my2tPgTObPWA+NmklN8WNDRKuFDhEnjN6Y7MdtNx0/G8QkAd5lW2YfAYL1cGF8Es8Liuqlzp2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Br5khT2B; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HvOvpttf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D84FCC116C6;
-	Mon, 19 Jan 2026 23:02:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Br5khT2B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5F01C116C6;
+	Mon, 19 Jan 2026 23:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768863771;
-	bh=L0GQNAdOR/JPbtfKkp93QvUS5ciLoWv5t16Us2SfM7A=;
+	s=k20201202; t=1768863778;
+	bh=QtradRf0GStbdIUHbJa+QxsYtSkr1ee15tID6//kWAc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=HvOvpttf1kAvLfqKLjmfytunK2LOvgBgWZQy98vpmZf7M69HJPyEbpN59hjBYAgAN
-	 5IC6xIovQKda6++cNe2jxPvRgCcQJ+i8VziIHmD+7tQWhJ500BB/Szo1tx1O6Niu0y
-	 Qi5Ch2QWUIG2rXheRPalPAahZeIRoYRBP8prE05DO0S7M7eTw7FTcTH84epyfKTlhG
-	 dAy/nCWJ9Xevj+prD5Id4gP3Bda+nuYUvOyk7JlBtw/QY79TkePDV3UN9A2wMPFxQy
-	 XKgu9yINJPlolyHER1O5vx7qk05ZEiAOV+fLo5L70CTssW7IxUYcfiSq9tAC06TS5H
-	 00IZRTVLUlvPA==
+	b=Br5khT2BqgdVGETSbAaQu5YrjdjqXAvfXqQO1VMxW81Py8o5g7cf/09LcteyZ+CjP
+	 VMkGGAnJ8GPsE1LyANcYOnXfeiSRbDgg7MhrSmwtzPuqS4MgxJRjqVToYtAkXTPVJA
+	 80NtDQhI3xgllJk3hAdxv2JszAzpIuLWMNjNgYDsHPyM1gnGqRaq8jiISVtc3DSKb1
+	 4XUufNGKEG13eLM3e8HEUHsOs6WdQVrPLBpmRGZZS+cPouXUJUplA+4tg7GZ+4ZUma
+	 BO4JhKXQUjH3JcydqiW4udhJysaXEMdd7XxhQCej1whSbJaHBvADBiVb/EtAMzsa2t
+	 rnfM2VyKYEtZw==
 From: "David Hildenbrand (Red Hat)" <david@kernel.org>
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org,
@@ -55,9 +55,9 @@ Cc: linux-mm@kvack.org,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v3 10/24] mm/balloon_compaction: make balloon_mops static
-Date: Tue, 20 Jan 2026 00:01:18 +0100
-Message-ID: <20260119230133.3551867-11-david@kernel.org>
+Subject: [PATCH v3 11/24] mm/balloon_compaction: drop fs.h include from balloon_compaction.h
+Date: Tue, 20 Jan 2026 00:01:19 +0100
+Message-ID: <20260119230133.3551867-12-david@kernel.org>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260119230133.3551867-1-david@kernel.org>
 References: <20260119230133.3551867-1-david@kernel.org>
@@ -69,41 +69,29 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-There is no need to expose this anymore, so let's just make it static.
+Ever since commit 68f2736a8583 ("mm: Convert all PageMovable users to
+movable_operations") we no longer store an inode in balloon_dev_info,
+so we can stop including "fs.h".
 
 Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
 ---
  include/linux/balloon_compaction.h | 1 -
- mm/balloon_compaction.c            | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ 1 file changed, 1 deletion(-)
 
 diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-index ad594af6ed100..7db66c2c86cdc 100644
+index 7db66c2c86cdc..1452ea0635245 100644
 --- a/include/linux/balloon_compaction.h
 +++ b/include/linux/balloon_compaction.h
-@@ -78,7 +78,6 @@ static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
- }
+@@ -42,7 +42,6 @@
+ #include <linux/migrate.h>
+ #include <linux/gfp.h>
+ #include <linux/err.h>
+-#include <linux/fs.h>
+ #include <linux/list.h>
  
- #ifdef CONFIG_BALLOON_COMPACTION
--extern const struct movable_operations balloon_mops;
  /*
-  * balloon_page_device - get the b_dev_info descriptor for the balloon device
-  *			 that enqueues the given page.
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index 75763c73dbd52..cf4d931763920 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -288,7 +288,7 @@ static int balloon_page_migrate(struct page *newpage, struct page *page,
- 	return 0;
- }
- 
--const struct movable_operations balloon_mops = {
-+static const struct movable_operations balloon_mops = {
- 	.migrate_page = balloon_page_migrate,
- 	.isolate_page = balloon_page_isolate,
- 	.putback_page = balloon_page_putback,
 -- 
 2.52.0
 
