@@ -1,38 +1,36 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12E7842E01A;
-	Tue, 20 Jan 2026 13:34:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2DB042EEDE;
+	Tue, 20 Jan 2026 14:07:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768916044; cv=none; b=pNi/R5QC6HpBG/eadw11+UbzQDKRAQHN8cz3ccXPurhM9T5o7HqQIzxmZku8rw5anoJ0n4gARV7i/gRw8rO7ehZS2okSzE8BkKCuxSqhNibVe9/pqImafiUjQ3RMTMFHY4blpBBEagrOv4D8bX91cKV2QsfN+6TZf/Ot4lx6Ie8=
+	t=1768918038; cv=none; b=sP/XpyfF4vVWds77KSc8ImTl9YWkoJZBrQRkqTY/PG6t/15We+fOKPvRqUSOO8gKBcWESXJ72Rpph62dtlUHMYOT8SV3fdQ6yfK0/k5XhAANW77aiEbuzQ9Z7uuy2hmPKVVZbMA1Q7Yxbdhpy+GUkC03vAqSABVCfMA3dgyWgqo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768916044; c=relaxed/simple;
-	bh=oLJ2iu9KlHT5QrDdejkQxW6aJLgiN+DqMd8h51OdTRU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kPYLmd6BBFuH7rrM74o8RIyL90PSdttM3jGJLc9oXhJNNejkrNfEw+9ajbxbVCwOvoxBq9h4n5jboDrWWzuPuTVSuzWO0OTgm3ubc+FS5nOtMLbT0Y+6RxKnKB5sGA30mR1Tu/wMlvr2Ax6utJuhVNA4ukINgHWGMPwBHYkxg7E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JpEG1sP9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1768918038; c=relaxed/simple;
+	bh=ROKkB0mIS7khlsv4KQDOsZjX4a+rHO4aJnOw0MFmrm0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QhjteGRkiu+XR4fC1LCwMdmswioFFca1vvqs7R9wmNpuxO912BgsXlze1oW0ACbZLdIZ4s5HSFEANjnbPRB4+8uGKpAd3sshRAnAwSo5irxL4bZcray06BxJ7n15KIueztg4k1MWF7cgIAiC3qpAA+0AqxQ5Xv+zuO552c5J5bs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z9FPLJNH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JpEG1sP9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC30AC16AAE;
-	Tue, 20 Jan 2026 13:34:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z9FPLJNH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 347A2C16AAE;
+	Tue, 20 Jan 2026 14:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768916043;
-	bh=oLJ2iu9KlHT5QrDdejkQxW6aJLgiN+DqMd8h51OdTRU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=JpEG1sP9sdoE2iRilDGuE2cq1/H2M6cDuai69Nw+oSU99dcdoZdWBvI1Ukv0pmCi9
-	 TsEw1r+DamQwCel7MoQtDe43k96uNEN2EIGYyUqy+LKVNlFKvNVQdDnF9gRgkw6+oE
-	 Iyr3Ih5rCshWR5ndygaol8Ath9Rlm/yA6Sguxq2x2tSUxefkc1flchRkXEHVN8GCfi
-	 tJskCUcB7JdPmjSewrBWCzbAo1v7780XPg1+FKbkQX6nJPso+uCdLPziwkOu29i/jw
-	 mD8HoF6GofHxxX6dhDDXQOlk4BrG8fNLd2RXpMxN3Qn9LCRK7nBxumFh6AjnzbEM7k
-	 ZfnVnW6TNMaYg==
-Date: Tue, 20 Jan 2026 15:33:57 +0200
+	s=k20201202; t=1768918037;
+	bh=ROKkB0mIS7khlsv4KQDOsZjX4a+rHO4aJnOw0MFmrm0=;
+	h=From:To:Cc:Subject:Date:From;
+	b=Z9FPLJNHtjmg+g+XBBXJHq1bk31q3tuCG8U641sPe5PuEyRi4qoevHZQgLWvE3BeV
+	 NHcVnzAv548oIrOaPpNs4fPlzIzY8D6OAgDy24afQIILoJ5sUJRw4C9U44GL1Jk1Gs
+	 6mqU9Gb2bBQDbKFny5CeMgMjvN3hpdZnU3hUFMqdq7O8rVtRv92lUsTZvkNBoFIycl
+	 RYDK/SoQiG5vtv2N1Wn7zoWr52yIAtUVuf58teP6LzB3tVY3Xrzd0h81xYeR4xRJwD
+	 Brafxmuv73RoqMNIrYdIQvZy7BhjYWgDSpoh6V83F3ly/524nRWpBY6F66Y2zu5aT3
+	 /oAR4obsvM6mA==
 From: Leon Romanovsky <leon@kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+To: Sumit Semwal <sumit.semwal@linaro.org>,
+	=?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
 	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
 	Gerd Hoffmann <kraxel@redhat.com>,
 	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
 	Gurchetan Singh <gurchetansingh@chromium.org>,
@@ -41,94 +39,135 @@ Cc: Sumit Semwal <sumit.semwal@linaro.org>,
 	Maxime Ripard <mripard@kernel.org>,
 	Thomas Zimmermann <tzimmermann@suse.de>,
 	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	=?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
 	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Alex Williamson <alex@shazbot.org>, linux-media@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
-	linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
-	linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Leon Romanovsky <leon@kernel.org>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Felix Kuehling <Felix.Kuehling@amd.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>
+Cc: linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org,
+	linux-rdma@vger.kernel.org,
+	iommu@lists.linux.dev,
 	kvm@vger.kernel.org
-Subject: Re: [PATCH v2 3/4] iommufd: Require DMABUF revoke semantics
-Message-ID: <20260120133357.GT13201@unreal>
-References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
- <20260118-dmabuf-revoke-v2-3-a03bb27c0875@nvidia.com>
- <20260119165951.GI961572@ziepe.ca>
- <20260119182300.GO13201@unreal>
- <20260119195444.GL961572@ziepe.ca>
- <20260120131046.GS13201@unreal>
- <20260120131530.GN961572@ziepe.ca>
+Subject: [PATCH v3 0/7] dma-buf: Use revoke mechanism to invalidate shared buffers
+Date: Tue, 20 Jan 2026 16:07:00 +0200
+Message-ID: <20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+X-Change-ID: 20251221-dmabuf-revoke-b90ef16e4236
+X-Mailer: b4 0.15-dev-a6db3
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260120131530.GN961572@ziepe.ca>
 
-On Tue, Jan 20, 2026 at 09:15:30AM -0400, Jason Gunthorpe wrote:
-> On Tue, Jan 20, 2026 at 03:10:46PM +0200, Leon Romanovsky wrote:
-> > On Mon, Jan 19, 2026 at 03:54:44PM -0400, Jason Gunthorpe wrote:
-> > > On Mon, Jan 19, 2026 at 08:23:00PM +0200, Leon Romanovsky wrote:
-> > > > On Mon, Jan 19, 2026 at 12:59:51PM -0400, Jason Gunthorpe wrote:
-> > > > > On Sun, Jan 18, 2026 at 02:08:47PM +0200, Leon Romanovsky wrote:
-> > > > > > From: Leon Romanovsky <leonro@nvidia.com>
-> > > > > > 
-> > > > > > IOMMUFD does not support page fault handling, and after a call to
-> > > > > > .invalidate_mappings() all mappings become invalid. Ensure that
-> > > > > > the IOMMUFD DMABUF importer is bound to a revoke‑aware DMABUF exporter
-> > > > > > (for example, VFIO).
-> > > > > > 
-> > > > > > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> > > > > > ---
-> > > > > >  drivers/iommu/iommufd/pages.c | 9 ++++++++-
-> > > > > >  1 file changed, 8 insertions(+), 1 deletion(-)
-> > > > > > 
-> > > > > > diff --git a/drivers/iommu/iommufd/pages.c b/drivers/iommu/iommufd/pages.c
-> > > > > > index 76f900fa1687..a5eb2bc4ef48 100644
-> > > > > > --- a/drivers/iommu/iommufd/pages.c
-> > > > > > +++ b/drivers/iommu/iommufd/pages.c
-> > > > > > @@ -1501,16 +1501,22 @@ static int iopt_map_dmabuf(struct iommufd_ctx *ictx, struct iopt_pages *pages,
-> > > > > >  		mutex_unlock(&pages->mutex);
-> > > > > >  	}
-> > > > > >  
-> > > > > > -	rc = sym_vfio_pci_dma_buf_iommufd_map(attach, &pages->dmabuf.phys);
-> > > > > > +	rc = dma_buf_pin(attach);
-> > > > > >  	if (rc)
-> > > > > >  		goto err_detach;
-> > > > > >  
-> > > > > > +	rc = sym_vfio_pci_dma_buf_iommufd_map(attach, &pages->dmabuf.phys);
-> > > > > > +	if (rc)
-> > > > > > +		goto err_unpin;
-> > > > > > +
-> > > > > >  	dma_resv_unlock(dmabuf->resv);
-> > > > > >  
-> > > > > >  	/* On success iopt_release_pages() will detach and put the dmabuf. */
-> > > > > >  	pages->dmabuf.attach = attach;
-> > > > > >  	return 0;
-> > > > > 
-> > > > > Don't we need an explicit unpin after unmapping?
-> > > > 
-> > > > Yes, but this patch is going to be dropped in v3 because of this
-> > > > suggestion.
-> > > > https://lore.kernel.org/all/a397ff1e-615f-4873-98a9-940f9c16f85c@amd.com
-> > > 
-> > > That's not right, that suggestion is about changing VFIO. iommufd must
-> > > still act as a pinning importer!
-> > 
-> > There is no change in iommufd, as it invokes dma_buf_dynamic_attach()
-> > with a valid &iopt_dmabuf_attach_revoke_ops. The check determining whether
-> > iommufd can perform a revoke is handled there.
-> 
-> iommufd is a pining importer. I did not add a call to pin because it
-> only worked with VFIO that would not support it. Now that this series
-> fixes it the pin must be added. Don't drop this patch.
+Changelog:
+v3:
+ * Used Jason's wordings for commits and cover letter.
+ * Removed IOMMUFD patch.
+ * Renamed dma_buf_attachment_is_revoke() to be dma_buf_attach_revocable().
+ * Added patch to remove CONFIG_DMABUF_MOVE_NOTIFY.
+ * Added Reviewed-by tags.
+ * Called to dma_resv_wait_timeout() after dma_buf_move_notify() in VFIO.
+ * Added dma_buf_attach_revocable() check to VFIO DMABUF attach function.
+ * Slightly changed commit messages.
+v2: https://patch.msgid.link/20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com
+ * Changed series to document the revoke semantics instead of
+   implementing it.
+v1: https://patch.msgid.link/20260111-dmabuf-revoke-v1-0-fb4bcc8c259b@nvidia.com
 
-No problem, let's keep it.
+-------------------------------------------------------------------------
+This series documents a dma-buf “revoke” mechanism: to allow a dma-buf
+exporter to explicitly invalidate (“kill”) a shared buffer after it has
+been distributed to importers, so that further CPU and device access is
+prevented and importers reliably observe failure.
+
+The change in this series is to properly document and use existing core
+“revoked” state on the dma-buf object and a corresponding exporter-triggered
+revoke operation.
+
+dma-buf has quietly allowed calling move_notify on pinned dma-bufs, even
+though legacy importers using dma_buf_attach() would simply ignore
+these calls.
+
+RDMA saw this and needed to use allow_peer2peer=true, so implemented a
+new-style pinned importer with an explicitly non-working move_notify()
+callback.
+
+This has been tolerable because the existing exporters are thought to
+only call move_notify() on a pinned DMABUF under RAS events and we
+have been willing to tolerate the UAF that results by allowing the
+importer to continue to use the mapping in this rare case.
+
+VFIO wants to implement a pin supporting exporter that will issue a
+revoking move_notify() around FLRs and a few other user triggerable
+operations. Since this is much more common we are not willing to
+tolerate the security UAF caused by interworking with non-move_notify()
+supporting drivers. Thus till now VFIO has required dynamic importers,
+even though it never actually moves the buffer location.
+
+To allow VFIO to work with pinned importers, according to how dma-buf
+was intended, we need to allow VFIO to detect if an importer is legacy
+or RDMA and does not actually implement move_notify().
+
+Introduce a new function that exporters can call to detect these less
+capable importers. VFIO can then refuse to accept them during attach.
+
+In theory all exporters that call move_notify() on pinned dma-buf's
+should call this function, however that would break a number of widely
+used NIC/GPU flows. Thus for now do not spread this further than VFIO
+until we can understand how much of RDMA can implement the full
+semantic.
+
+In the process clarify how move_notify is intended to be used with
+pinned dma-bufs.
 
 Thanks
+
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+---
+Leon Romanovsky (7):
+      dma-buf: Rename .move_notify() callback to a clearer identifier
+      dma-buf: Always build with DMABUF_MOVE_NOTIFY
+      dma-buf: Document RDMA non-ODP invalidate_mapping() special case
+      dma-buf: Add check function for revoke semantics
+      iommufd: Pin dma-buf importer for revoke semantics
+      vfio: Wait for dma-buf invalidation to complete
+      vfio: Validate dma-buf revocation semantics
+
+ drivers/dma-buf/Kconfig                     | 12 -----
+ drivers/dma-buf/dma-buf.c                   | 69 +++++++++++++++++++++++------
+ drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c | 14 +++---
+ drivers/gpu/drm/amd/amdkfd/Kconfig          |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_prime.c      |  2 +-
+ drivers/gpu/drm/xe/tests/xe_dma_buf.c       |  7 ++-
+ drivers/gpu/drm/xe/xe_dma_buf.c             | 14 +++---
+ drivers/infiniband/core/umem_dmabuf.c       | 13 +-----
+ drivers/infiniband/hw/mlx5/mr.c             |  2 +-
+ drivers/iommu/iommufd/pages.c               | 11 ++++-
+ drivers/vfio/pci/vfio_pci_dmabuf.c          |  8 ++++
+ include/linux/dma-buf.h                     |  9 ++--
+ 12 files changed, 96 insertions(+), 67 deletions(-)
+---
+base-commit: 9ace4753a5202b02191d54e9fdf7f9e3d02b85eb
+change-id: 20251221-dmabuf-revoke-b90ef16e4236
+
+Best regards,
+--  
+Leon Romanovsky <leonro@nvidia.com>
+
