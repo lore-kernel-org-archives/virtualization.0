@@ -1,37 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5C0D478876;
-	Tue, 20 Jan 2026 19:22:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC358303C87;
+	Tue, 20 Jan 2026 19:23:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768936959; cv=none; b=a6+qCrlqUVUAn7YeBDK2lLmdbzGS/f2rU6h/xnCAPUxWzj0T7gcnWQHVO3Sjbe63wMimZpU7Lb/jN4WBenvGSVliUNKobIwHqxToBk/hB+obHLMkbS3AlFRrKqoW0sMJAFJcvXDOjMu2RhX4xoT6NCL7ehXV+3QvVReMTvb8iA8=
+	t=1768936984; cv=none; b=teDMDnyOGKs9WZ3x8X8RUAtpVr0UzCWCsitGUPSkEFmSYrh8eyKpcrUNmU4b7sgEuqEVFpJE4lPcMOoD6YR4Q7jiqLjDX7EM8+TNcJTDER2YkgFBjvpoGh/ip/hJydgsYPZUB6ar/SdBO1kIkOqrwQUj1kZrleJkZhJeCs4DSSo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768936959; c=relaxed/simple;
-	bh=OVmbkw3k7fJ26f3GTMylBqqrvRkFQLNjf2AcM9UevMU=;
+	s=arc-20240116; t=1768936984; c=relaxed/simple;
+	bh=8rZs4ctIFUWV+s7flKGQlMaVzkDSCztd/ihtff8Ht6w=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=spci6KxDjVDn1GUZvW3mSJy/+UvS0QNjQlktC4mtcKMfkgiNPDovvhHKOOCAXr5LMLTrqvBu71hWhjFhYwZ9wH24CCXdim/Vfh9egJ3rPR+8UkBkjL0mYsIjIbSshK+qXbdsrxle0vpu04tfbyITPt6bFwQ/bcgqzmpajIXNabc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YlIDWci6; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=G7Eiee9cOQ7+u1BNFsUax/4KwwNrloQeR9+EXUPBiJB+58yb/xZao0fPVJmdr7NzQfekOpcl4sEWeSpR4j2Q3AA+hZPRMKpQYbspgG4HskHfENCg9QEXW6u8SFbSslNR34AVlljEMDLkCO0JfmRzK6geu5/LyrjkWtL2n2J/VZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jgX58MKi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YlIDWci6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3BB5C19422;
-	Tue, 20 Jan 2026 19:22:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jgX58MKi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEA9BC16AAE;
+	Tue, 20 Jan 2026 19:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768936958;
-	bh=OVmbkw3k7fJ26f3GTMylBqqrvRkFQLNjf2AcM9UevMU=;
+	s=k20201202; t=1768936983;
+	bh=8rZs4ctIFUWV+s7flKGQlMaVzkDSCztd/ihtff8Ht6w=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=YlIDWci6NaIrYvDjAq2yhQz8tWegT2Dg6owXkPTtWwCCNZy6TIGjxdkf0SjWMqrBS
-	 HZ1OYluozzxuGUb+8XWZyPhjHzhZZBTdn+x4fAQviriIGxbMX1dqT/c1f/SDma9EII
-	 glDqd9riC4rVx6B2QSNL57WNsH5WjpCsMft/TEmFUb+YsHy2dFuwVHN2w/p0QKAC/w
-	 5Sj7i2icD1/pyQOPwPNE/B2LChkgA736lCjfJaMApcMxmC8AfGe77IDEawz4zO7gsp
-	 7BnFoBJwZbhJtt0PHorTsf9ENVZR5l7hg6xF7YMzjdh3zo3J0vrT/Hr5cse6h9pQHI
-	 VNOGdReIfciTA==
+	b=jgX58MKi+zjgv/xDIQx4cHK0wTdbY5WHIpWy6zaWGiyru1YA6cG7Qbw7G8M9RhL3S
+	 SSiru+ZKHzsLIh6rtTpzRanq5020WDpXXkfsUjC/Hil6perlOH41PXAjqsRSipdXvS
+	 IPP61htVkOsCqcy9Pqn5fLS8BPsTMosoZ9eOUO70Q6cEURtv9hoJC0lOmTM5QlYWiG
+	 wz6tqUkz/prRaWfMAFRhQ1iN0dHrXg8oROA8glqKMy/5Onkhv0z+Jp0+qs66q2UQYi
+	 BzO1NPQx1qqbWombFmTG5JqwfCmxs4g31+tAPZmi39pA4KsUWJBmYbw0vvIV/lZYxv
+	 FMvcuLOxsC4SQ==
 From: Mark Brown <broonie@kernel.org>
 To: Varshini Rajendran <varshini.rajendran@microchip.com>, 
  Mikhail Kshevetskiy <mikhail.kshevetskiy@iopsys.eu>, 
  AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
- Sunny Luo <sunny.luo@amlogic.com>, Janne Grunau <j@jannau.net>, 
+ Haotian Zhang <vulab@iscas.ac.cn>, Sunny Luo <sunny.luo@amlogic.com>, 
+ Janne Grunau <j@jannau.net>, 
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
+ Geert Uytterhoeven <geert+renesas@glider.be>, 
+ Chen-Yu Tsai <wens@kernel.org>, 
+ Amelie Delaunay <amelie.delaunay@foss.st.com>, 
  Chin-Ting Kuo <chin-ting_kuo@aspeedtech.com>, CL Wang <cl634@andestech.com>, 
+ Patrice Chotard <patrice.chotard@foss.st.com>, 
+ Heiko Stuebner <heiko@sntech.de>, 
+ William Zhang <william.zhang@broadcom.com>, 
+ =?utf-8?q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, 
  Manikandan Muralidharan <manikandan.m@microchip.com>, 
  David Lechner <dlechner@baylibre.com>, 
  Florian Fainelli <florian.fainelli@broadcom.com>, 
@@ -47,18 +56,17 @@ To: Varshini Rajendran <varshini.rajendran@microchip.com>,
  Xianwei Zhao <xianwei.zhao@amlogic.com>, 
  Prajna Rajendra Kumar <prajna.rajendrakumar@microchip.com>, 
  Sergio Perez Gonzalez <sperezglz@gmail.com>, 
- Miquel Raynal <miquel.raynal@bootlin.com>, 
  Qianfeng Rong <rongqianfeng@vivo.com>, Haibo Chen <haibo.chen@nxp.com>, 
  Gabor Juhos <j4g8y7@gmail.com>, Md Sadre Alam <quic_mdalam@quicinc.com>, 
- Rosen Penev <rosenp@gmail.com>, Luis de Arquer <luis.dearquer@inertim.com>, 
- Geert Uytterhoeven <geert+renesas@glider.be>, 
+ Rosen Penev <rosenp@gmail.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
+ Luis de Arquer <luis.dearquer@inertim.com>, 
  Cosmin Tanislav <cosmin-gabriel.tanislav.xa@renesas.com>, 
  Tudor Ambarus <tudor.ambarus@linaro.org>, 
  Krzysztof Kozlowski <krzk@kernel.org>, Longbin Li <looong.bin@gmail.com>, 
- Patrice Chotard <patrice.chotard@foss.st.com>, 
+ Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, 
  =?utf-8?q?Cl=C3=A9ment_Le_Goffic?= <clement.legoffic@foss.st.com>, 
  Alessandro Grassi <alessandro.grassi@mailbox.org>, 
- Chen-Yu Tsai <wens@kernel.org>, Darshan R <rathod.darshan.0896@gmail.com>, 
+ Darshan R <rathod.darshan.0896@gmail.com>, 
  Aaron Kling <webgeek1234@gmail.com>, Vishwaroop A <va@nvidia.com>, 
  Haixu Cui <quic_haixcui@quicinc.com>, 
  Darshan Rathod <darshanrathod475@gmail.com>, linux-spi@vger.kernel.org, 
@@ -78,7 +86,6 @@ Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
  Claudiu Beznea <claudiu.beznea@tuxon.dev>, 
  Lorenzo Bianconi <lorenzo@kernel.org>, Ray Liu <ray.liu@airoha.com>, 
  Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>, 
- =?utf-8?q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, 
  Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
  Ryan Wanner <ryan.wanner@microchip.com>, 
  Michael Hennerich <michael.hennerich@analog.com>, 
@@ -86,7 +93,6 @@ Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
  Kamal Dasu <kamal.dasu@broadcom.com>, 
  Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
  Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, 
- William Zhang <william.zhang@broadcom.com>, 
  Kursad Oney <kursad.oney@broadcom.com>, 
  Anand Gore <anand.gore@broadcom.com>, 
  =?utf-8?q?Rafa=C5=82_Mi=C5=82ecki?= <rafal@milecki.pl>, 
@@ -101,7 +107,6 @@ Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
  Yinbo Zhu <zhuyinbo@loongson.cn>, 
  Neil Armstrong <neil.armstrong@linaro.org>, 
  Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
  Conor Dooley <conor.dooley@microchip.com>, 
  Daire McNamara <daire.mcnamara@microchip.com>, 
  Matthias Brugger <matthias.bgg@gmail.com>, 
@@ -113,7 +118,6 @@ Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
  Haojian Zhuang <haojian.zhuang@gmail.com>, 
  Robert Jarzmik <robert.jarzmik@free.fr>, 
  Chris Packham <chris.packham@alliedtelesis.co.nz>, 
- Heiko Stuebner <heiko@sntech.de>, 
  Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
  Andi Shyti <andi.shyti@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
  Paul Walmsley <pjw@kernel.org>, Samuel Holland <samuel.holland@sifive.com>, 
@@ -130,16 +134,15 @@ Cc: Nicolas Ferre <nicolas.ferre@microchip.com>,
  Thierry Reding <thierry.reding@gmail.com>, 
  Jonathan Hunter <jonathanh@nvidia.com>, 
  Sowjanya Komatineni <skomatineni@nvidia.com>, 
- Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, 
  Masami Hiramatsu <mhiramat@kernel.org>, 
  =?utf-8?q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>, 
  Michal Simek <michal.simek@amd.com>, Max Filippov <jcmvbkbc@gmail.com>
-In-Reply-To: <20260108203004.3538449-1-andriy.shevchenko@linux.intel.com>
-References: <20260108203004.3538449-1-andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 0/4] spi: Make SPI core to take care of fwnode
+In-Reply-To: <20260112203534.4186261-1-andriy.shevchenko@linux.intel.com>
+References: <20260112203534.4186261-1-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2 0/4] spi: Make SPI core to take care of fwnode
  assignment
-Message-Id: <176893693352.778248.9155805475563647239.b4-ty@kernel.org>
-Date: Tue, 20 Jan 2026 19:22:13 +0000
+Message-Id: <176893695845.778248.8132133480043006428.b4-ty@kernel.org>
+Date: Tue, 20 Jan 2026 19:22:38 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -150,7 +153,7 @@ Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Mailer: b4 0.15-dev-47773
 
-On Thu, 08 Jan 2026 21:23:37 +0100, Andy Shevchenko wrote:
+On Mon, 12 Jan 2026 21:21:22 +0100, Andy Shevchenko wrote:
 > It seems all of the SPI drivers want to propagate fwnode (or of_node)
 > of the physical device to the SPI device. Make sure we don't duplicate
 > it over and over in each new driver (+2 in this cycle) by making core
@@ -158,8 +161,10 @@ On Thu, 08 Jan 2026 21:23:37 +0100, Andy Shevchenko wrote:
 > I²C subsystems.
 > 
 > There is one noticeable and quite specific case that is taken care in
-> the first patch and would be nice to have a confirmation from Cirrus
-> that everything is okay. The rest is just a mechanical conversion.
+> the first patch and now we have a confirmation from Cirrus that everything
+> is okay.  The rest is just a mechanical conversion after checking that
+> the parent device is assigned to the same that provides the respective
+> fwnode.
 > 
 > [...]
 
