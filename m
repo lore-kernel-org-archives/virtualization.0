@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE8DA1DF736;
-	Tue, 20 Jan 2026 09:46:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92452E9EA1;
+	Tue, 20 Jan 2026 13:10:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768902365; cv=none; b=Os9wYKzHfRYTuiE1aP5Yp3GgBe6gRfJw7U8qeP1p48DvEfSXNlCED4SAjWMUhJhaqT6mgh9yO32lyZE1yssJRqgOymqqYvevaMPMB+xlcgqd84I6AdjO4sQW2P0RPHIFS7jA/0gRuOQHkgHMTIiAjeD96tzs2WFdUIwkcOrHUgc=
+	t=1768914651; cv=none; b=FdBErIVV65RSbCvR1hm3jjPbuxqrtJ7SgzKA/bul8DyyCNpSiE3dklpJk2nXRiDbptYdE0FN4seZltr+eyzTS+IJFpkuqkGJEi7TwzNTjYnD70tHMl37LyZUQ1oZPl+O8UEwZlnQQ6e1vtOufIlpskCmWBO2jOnZ3Y1ecxX++n8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768902365; c=relaxed/simple;
-	bh=xwqfvmhHmuW9plUqJwJFOo0A9JPdncx7ymGaNl95+yo=;
+	s=arc-20240116; t=1768914651; c=relaxed/simple;
+	bh=FxDNhPLLAfmPmJMIRFTFPDZNe22KPzHCzmgh6qnQqZo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nroogO/3HRp/VoyM6bgFdytpivsnGKdcxq8MANBBr4bGVUHuRZ37UzyVehhMOZoM4LNItHR12e3l1RuLiEaS2YoZtL9CPx3R1dJMyu4peRxjjrRg7u80fHjtUKai21lnUpnXJ2u9jQ/uJkFSVDoh6d+FCygKdEny8/0hV7DiDG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dLp9ReyQ; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=apbacqRBfK41W/5b4oapztr1OB3e2/JgrQ/FeLVFg6itdZFXKlIjl58iTd1GgTy8uOn6NUC2wA1zDSwedcl6QUdj41C/Qm8DPtCm3sUiRXhsvEpuGxxwBhfe5i1b0hU458km2MAd5X+6AApYaEVTgPXrg29U8lYbFyhlG44uPTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H66meatB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dLp9ReyQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B94BC16AAE;
-	Tue, 20 Jan 2026 09:46:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H66meatB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75BAFC16AAE;
+	Tue, 20 Jan 2026 13:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768902365;
-	bh=xwqfvmhHmuW9plUqJwJFOo0A9JPdncx7ymGaNl95+yo=;
+	s=k20201202; t=1768914651;
+	bh=FxDNhPLLAfmPmJMIRFTFPDZNe22KPzHCzmgh6qnQqZo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=dLp9ReyQRpZBQ1HsP4UfwVvklS8InFrF5hZROHOsUQf2ANERezVMKk+6yLg6Ao4g3
-	 bLcG3imT0sMt+H8fCaljcj6H6q3C49oKM5UFuq9mCGfKKoc58e7IfUyEjHp9yyDWly
-	 YIKTxAK65ASJJqdGUsUzRrjLdUxxrZkSb5a45Yin99EzC3KcC/KU54U44uAJoCTHCk
-	 /GXbSQK/AWWMtHtI6tfkHgvO0RI0YfUByVjh5FRuPknr3l7QRpVrbBG7WUGy8+TysZ
-	 sOw9jD1XrRQTSSUqXvrM/yMlG1kzWM8fP+8vKPFCkbcyIu4rYCttJvTje8CuUxTa6t
-	 RL0gf/JISbozw==
-Date: Tue, 20 Jan 2026 11:45:59 +0200
+	b=H66meatBSh1LI3Kc+LtMKEFS7m/ZmLrZH8aGGFmAavlTQIAP9kvlFc180LzVGJOgr
+	 VoRWA4PU3SRHk8ISpZJdCvufUfOsvhppfpHpEfM58TVVzk9DO1cdoyeGURjHg7KtNd
+	 KABkX1mR2+dvVQiNrmFGlqzzMsXnRBAxpFHqa85G/7inSS7ETTqyimUMX3lonMWl6T
+	 bm5tEJJ4PHjUrvp4SfDAhg4FbxylObYHHNiJu7ye5doDxIjXpEUakjTHcek5KgasRt
+	 eArvXoDxK+mhIA6mo36uedrLvFigSp5RiqJqQg/qPinytKXgMEvV0BndlvT75uBnWe
+	 oNtAMHkWz4fAA==
+Date: Tue, 20 Jan 2026 15:10:46 +0200
 From: Leon Romanovsky <leon@kernel.org>
 To: Jason Gunthorpe <jgg@ziepe.ca>
 Cc: Sumit Semwal <sumit.semwal@linaro.org>,
@@ -51,11 +51,13 @@ Cc: Sumit Semwal <sumit.semwal@linaro.org>,
 	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
 	linux-rdma@vger.kernel.org, iommu@lists.linux.dev,
 	kvm@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] dma-buf: Document revoke semantics
-Message-ID: <20260120094559.GR13201@unreal>
+Subject: Re: [PATCH v2 3/4] iommufd: Require DMABUF revoke semantics
+Message-ID: <20260120131046.GS13201@unreal>
 References: <20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com>
- <20260118-dmabuf-revoke-v2-2-a03bb27c0875@nvidia.com>
- <20260119164421.GF961572@ziepe.ca>
+ <20260118-dmabuf-revoke-v2-3-a03bb27c0875@nvidia.com>
+ <20260119165951.GI961572@ziepe.ca>
+ <20260119182300.GO13201@unreal>
+ <20260119195444.GL961572@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -65,119 +67,62 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260119164421.GF961572@ziepe.ca>
+In-Reply-To: <20260119195444.GL961572@ziepe.ca>
 
-On Mon, Jan 19, 2026 at 12:44:21PM -0400, Jason Gunthorpe wrote:
-> On Sun, Jan 18, 2026 at 02:08:46PM +0200, Leon Romanovsky wrote:
-> > From: Leon Romanovsky <leonro@nvidia.com>
+On Mon, Jan 19, 2026 at 03:54:44PM -0400, Jason Gunthorpe wrote:
+> On Mon, Jan 19, 2026 at 08:23:00PM +0200, Leon Romanovsky wrote:
+> > On Mon, Jan 19, 2026 at 12:59:51PM -0400, Jason Gunthorpe wrote:
+> > > On Sun, Jan 18, 2026 at 02:08:47PM +0200, Leon Romanovsky wrote:
+> > > > From: Leon Romanovsky <leonro@nvidia.com>
+> > > > 
+> > > > IOMMUFD does not support page fault handling, and after a call to
+> > > > .invalidate_mappings() all mappings become invalid. Ensure that
+> > > > the IOMMUFD DMABUF importer is bound to a revoke‑aware DMABUF exporter
+> > > > (for example, VFIO).
+> > > > 
+> > > > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > > > ---
+> > > >  drivers/iommu/iommufd/pages.c | 9 ++++++++-
+> > > >  1 file changed, 8 insertions(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/drivers/iommu/iommufd/pages.c b/drivers/iommu/iommufd/pages.c
+> > > > index 76f900fa1687..a5eb2bc4ef48 100644
+> > > > --- a/drivers/iommu/iommufd/pages.c
+> > > > +++ b/drivers/iommu/iommufd/pages.c
+> > > > @@ -1501,16 +1501,22 @@ static int iopt_map_dmabuf(struct iommufd_ctx *ictx, struct iopt_pages *pages,
+> > > >  		mutex_unlock(&pages->mutex);
+> > > >  	}
+> > > >  
+> > > > -	rc = sym_vfio_pci_dma_buf_iommufd_map(attach, &pages->dmabuf.phys);
+> > > > +	rc = dma_buf_pin(attach);
+> > > >  	if (rc)
+> > > >  		goto err_detach;
+> > > >  
+> > > > +	rc = sym_vfio_pci_dma_buf_iommufd_map(attach, &pages->dmabuf.phys);
+> > > > +	if (rc)
+> > > > +		goto err_unpin;
+> > > > +
+> > > >  	dma_resv_unlock(dmabuf->resv);
+> > > >  
+> > > >  	/* On success iopt_release_pages() will detach and put the dmabuf. */
+> > > >  	pages->dmabuf.attach = attach;
+> > > >  	return 0;
+> > > 
+> > > Don't we need an explicit unpin after unmapping?
 > > 
-> > Document a DMA-buf revoke mechanism that allows an exporter to explicitly
-> > invalidate ("kill") a shared buffer after it has been handed out to
-> > importers. Once revoked, all further CPU and device access is blocked, and
-> > importers consistently observe failure.
-> > 
-> > This requires both importers and exporters to honor the revoke contract.
-> > 
-> > For importers, this means implementing .invalidate_mappings() and calling
-> > dma_buf_pin() after the DMA‑buf is attached to verify the exporter’s support
-> > for revocation.
-> > 
-> > For exporters, this means implementing the .pin() callback, which checks
-> > the DMA‑buf attachment for a valid revoke implementation.
-> > 
-> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> > ---
-> >  include/linux/dma-buf.h | 19 +++++++++++++++++++
-> >  1 file changed, 19 insertions(+)
-> > 
-> > diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
-> > index 1b397635c793..e0bc0b7119f5 100644
-> > --- a/include/linux/dma-buf.h
-> > +++ b/include/linux/dma-buf.h
-> > @@ -579,6 +579,25 @@ static inline bool dma_buf_is_dynamic(struct dma_buf *dmabuf)
-> >  	return !!dmabuf->ops->pin;
-> >  }
-> >  
-> > +/**
-> > + * dma_buf_attachment_is_revoke - check if a DMA-buf importer implements
-> > + * revoke semantics.
-> > + * @attach: the DMA-buf attachment to check
-> > + *
-> > + * Returns true if DMA-buf importer honors revoke semantics, which is
-> > + * negotiated with the exporter, by making sure that importer implements
-> > + * .invalidate_mappings() callback and calls to dma_buf_pin() after
-> > + * DMA-buf attach.
-> > + */
+> > Yes, but this patch is going to be dropped in v3 because of this
+> > suggestion.
+> > https://lore.kernel.org/all/a397ff1e-615f-4873-98a9-940f9c16f85c@amd.com
 > 
-> I think this clarification should also have comment to
-> dma_buf_move_notify(). Maybe like this:
-> 
-> @@ -1324,7 +1324,18 @@ EXPORT_SYMBOL_NS_GPL(dma_buf_sgt_unmap_attachment_unlocked, "DMA_BUF");
->   * @dmabuf:    [in]    buffer which is moving
->   *
->   * Informs all attachments that they need to destroy and recreate all their
-> - * mappings.
-> + * mappings. If the attachment is dynamic then the dynamic importer is expected
-> + * to invalidate any caches it has of the mapping result and perform a new
-> + * mapping request before allowing HW to do any further DMA.
-> + *
-> + * If the attachment is pinned then this informs the pinned importer that
-> + * the underlying mapping is no longer available. Pinned importers may take
-> + * this is as a permanent revocation so exporters should not trigger it
-> + * lightly.
-> + *
-> + * For legacy pinned importers that cannot support invalidation this is a NOP.
-> + * Drivers can call dma_buf_attachment_is_revoke() to determine if the
-> + * importer supports this.
->   */
-> 
-> Also it would be nice to document what Christian pointed out regarding
-> fences after move_notify.
+> That's not right, that suggestion is about changing VFIO. iommufd must
+> still act as a pinning importer!
 
-I added this comment too:
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index 6dd70f7b992d..478127dc63e9 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -1253,6 +1253,10 @@ EXPORT_SYMBOL_NS_GPL(dma_buf_unmap_attachment_unlocked, "DMA_BUF");
-  * For legacy pinned importers that cannot support invalidation this is a NOP.
-  * Drivers can call dma_buf_attach_revocable() to determine if the importer
-  * supports this.
-+ *
-+ * NOTE: The invalidation triggers asynchronous HW operation and the callers
-+ * need to wait for this operation to complete by calling
-+ * to dma_resv_wait_timeout().
-  */
- void dma_buf_move_notify(struct dma_buf *dmabuf)
- {
+There is no change in iommufd, as it invokes dma_buf_dynamic_attach()
+with a valid &iopt_dmabuf_attach_revoke_ops. The check determining whether
+iommufd can perform a revoke is handled there.
 
-> 
-> > +static inline bool
-> > +dma_buf_attachment_is_revoke(struct dma_buf_attachment *attach)
-> > +{
-> > +	return IS_ENABLED(CONFIG_DMABUF_MOVE_NOTIFY) &&
-> > +	       dma_buf_is_dynamic(attach->dmabuf) &&
-> > +	       (attach->importer_ops &&
-> > +		attach->importer_ops->invalidate_mappings);
-> > +}
-> 
-> And I don't think we should use a NULL invalidate_mappings function
-> pointer to signal this.
-> 
-> It sounds like the direction is to require importers to support
-> move_notify, so we should not make it easy to just drop a NULL in the
-> ops struct to get out of the desired configuration.
-> 
-> I suggest defining a function
-> "dma_buf_unsupported_invalidate_mappings" and use
-> EXPORT_SYMBOL_FOR_MODULES so only RDMA can use it. Then check for that
-> along with NULL importer_ops to cover the two cases where it is not
-> allowed.
-> 
-> The only reason RDMA has to use dma_buf_dynamic_attach() is to set the
-> allow_p2p=true ..
-
-Will do.
+Thanks
 
 > 
 > Jason
+> 
