@@ -1,82 +1,159 @@
-Received: from mail-oo1-f70.google.com (mail-oo1-f70.google.com [209.85.161.70])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2F1A3B8D4D
-	for <virtualization@lists.linux.dev>; Tue, 20 Jan 2026 08:45:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 678E33A9DBF
+	for <virtualization@lists.linux.dev>; Tue, 20 Jan 2026 09:37:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768898727; cv=none; b=hX2wJHnTDmQKY66JeDQqgiai1LxvpB0ju44V+euqTGA//0ML3V7xoDYf/TJcioIlumNSR018aSaKUJ4NpY4UQYt/9VK4xZe+lgGBCxT5lM2rTJ1p+pGt/qP8+4c8jHsMw0VBYVp8H9qQPJ3EhfVzYQJmejkhTK2eTDXN9CHYrtk=
+	t=1768901862; cv=none; b=PQkxVNQRQFfpPsUlCEBIdRwb/uWgWMUZ28xMijg3/Sz8hwKyKM2pRYGrgkMcGBnBL8U5T2S2BhutMON2gv/I8nMg3sIbjG4U9gpY5nDVTsjkKiIvkMhxqD+BGAGEtBO8UmuegEupDWjoJRyXnrGE6sa8i57aqdSLFwNQW+mvU8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768898727; c=relaxed/simple;
-	bh=Mv+XYssUcq1JRoIRI8zhanwca233mP5gwWMz8w1qVzI=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Zvu3MJebcUdOwOL448yDbj+NMXGuv3vHOpj78gGAoTNGaqavD09dS3uq9GwRfJw7UjG/MJ0P4cNR94Ip9O+AfjRzjjK5xyzKdZt0gRofCuLLImX+IzkLf9BgHs/8EL6lgG3BheXdfmv4LvPUSD7954MWBdYzRrkfSg1LRAq01Ww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f70.google.com with SMTP id 006d021491bc7-6611c5723e0so7325476eaf.1
-        for <virtualization@lists.linux.dev>; Tue, 20 Jan 2026 00:45:25 -0800 (PST)
+	s=arc-20240116; t=1768901862; c=relaxed/simple;
+	bh=gJ8LRdePpGdfZIJ/xvuV9faBPChp54PHBmUoMXirzAw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=FnIw8NG7IM//FdSb/sxgaQTvYh8jXcvpShctxt8ArC6MVCqlVcRhuh9pS9GTc8F1UN3teX5+h7VBpWPrWRCx3LI+IjvZznS1I6RXIjAzBETifq+Zv9nG5We50EAFHGxWi9L1jDXZQg8SLKsR8Gx7rVcwR9Gp72zFJ/n4YdaXHYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K8+JF6mM; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K8+JF6mM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1768901859;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1riUelQkHubbog4Pig/nehvQm9nmVpndQsv6Cs1UVao=;
+	b=K8+JF6mMHL76bZxS+ci6CY7KEnR5jdjxJGutZ+fuCfQlF0fbr47SzwJjAOKJRQ0ugF1xb0
+	2Y71nRwmVtTchM1c6Un9PoE5UDZrtlTG8co6aH7HiMY+vimmGji2SprwxZjyjaG8yEzvWS
+	uC2gzmgydR7cJT0JMc9UHzoDT7IdtXQ=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-340-dCbRQOkuP3qmKGji1nF4Lw-1; Tue, 20 Jan 2026 04:37:37 -0500
+X-MC-Unique: dCbRQOkuP3qmKGji1nF4Lw-1
+X-Mimecast-MFC-AGG-ID: dCbRQOkuP3qmKGji1nF4Lw_1768901856
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-430f57cd2caso4293342f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 20 Jan 2026 01:37:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768898724; x=1769503524;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=CyKzCfA/rbYiXqYgIn79amYkQxKJV6ra5SPE7xZXxjU=;
-        b=Gge/xqXbD2RLyfXQ5zzVzc6pf6i+ZMEb2TS3zGmTflL5yzCaUgBHADItJ0jnd5xN8A
-         DKNU8T5H7rvGhGdnpdJKbg513VfV+57VzrupuSonhwdaiu9UXuX6ABb/+99P1Jgh2iza
-         NvlYIMvWyLRrRZclPEzyEsafZRvVn6dfHrP5avWSCsX7DdyVLs67U0I3I2KEISF9gd5o
-         kfbDsn9DYzmIlJHDLCP1FwkgxOg5vxkSi5EDujN4Y/8LmOtC8fTPny28jbFNV4PIz5na
-         d3TKPxxIEXhuAy9FqZWHRmF9TlNpekm2Vi45yJCdsP9kqQEsxUlMMK2FYHAL4mQFxC0+
-         kElA==
-X-Forwarded-Encrypted: i=1; AJvYcCWRKsWemF7bFmJolGAKgmrbMTh3pWyc1H+c0niSGoJsLTeCvcGTrMTczt3JMlwb+eGDer8Xq6/m73gfNYdOGg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzdVPPUxej1Z9rmJv+CkD+QV43cBBxEh8+RHlOWNfUKxdVvHnbB
-	rwR7PumuWKG5MzHNmfhKEf16frKWbNLaAPvhMTdZp0RxKjJIHJcpIFW8L7BwxKOHCBeCl6ycXKI
-	C7GGN82PnR8jhu6p3tX3XHnBqrQ+Lqai20T9fUSRhcE0i+jnZUCKKMLxboMg=
+        d=1e100.net; s=20230601; t=1768901856; x=1769506656;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1riUelQkHubbog4Pig/nehvQm9nmVpndQsv6Cs1UVao=;
+        b=tnpofcYRLTpB2Ldlrre6jhe0dY3POqlNw8sSiJaKaltItFldY8iA1bjnW7pPAIC9Ls
+         jN6eEqD0bgQKhHxeTHPUZ6fZGfdzaXcmDfUnvcmI+/RVnPUglKA4wBs0GSHd+epOk7tP
+         67/WMibwR8R0yjuWS89bs74CL4YczY251kHVgURW5tgJmJ3NSFC54tmEYPxx1AtC7Jze
+         viqfITd3YP4dgNhnHQpFZ5a5pAwnmcg8d/EyU0ORlXTUjvWXnPgXlxXMHyG00FRZXp60
+         p5kYEUPkAO2GnphcdOz7OJ45gU50dcpargaaaqFO1RTtPFt5ke2q6WYzlvPbNvVi3Mbj
+         rkHw==
+X-Forwarded-Encrypted: i=1; AJvYcCVm5GYMalqXSUtt8KXwhIfuL4/beUdf630f5i5O6ak0xXjO6JgMUSaWzcf6BF+unbXyPDVkwa+u/5jtUjsbOA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzUuynBBBKshHHNRpz8mT5L0TDrS47QFgSp7nyLzp1IhPXe4NIZ
+	vsnaLfvib329geNbYXBjn9FQn6G8LT39p8MjyK7428Me9w2oQc6mngbm7v+RShm4aNt4UrhfN7U
+	/Syvevx+cmD6I5IJKJj2s0ml/X9Yv3f4XC+3dChyUc6oJ1w5FdcniB+7JWhxAabetTOY+
+X-Gm-Gg: AZuq6aLjTaE2PpIlmwIrKlqMpEP5WduFuNrycYWw10tLiR+Ep1CMadCS8Op2YZFTcRT
+	SO4Zv21zkBYj/qH3iV1LLImTuMSAwqbApayKb4i1l6/8PleGuXsvRCadL06ha4TU5lORLpOw3s6
+	CcakMBufxPmlxFAdU0inbA5pM4gCXQFb6m4F6RZypxSLOL3DsvfQ0EIt2SmGyW6MUUROlNso1k+
+	Ktyxqf0O24awHsjxXukYgBc3zVZOnh3e+qvHafiwVvWnypGJHGhPpsy8O8A9dZShpqvpb2lcF1u
+	q5lsXrHqgWukVt2baksB8H+/MwB457B1fx64vRswiOChKLvcYPmpn3Y1Fc1dB6eROrABfPbgMKl
+	9aErnuwUkUb5AX53/JWd+oBmmWseBhx7g84SUqsALwPAkmlJaXwILBRs7e28=
+X-Received: by 2002:a05:6000:2f83:b0:432:5b81:480 with SMTP id ffacd0b85a97d-4356a03d2demr19167518f8f.24.1768901855992;
+        Tue, 20 Jan 2026 01:37:35 -0800 (PST)
+X-Received: by 2002:a05:6000:2f83:b0:432:5b81:480 with SMTP id ffacd0b85a97d-4356a03d2demr19167470f8f.24.1768901855514;
+        Tue, 20 Jan 2026 01:37:35 -0800 (PST)
+Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4356996cefdsm27663754f8f.24.2026.01.20.01.37.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Jan 2026 01:37:34 -0800 (PST)
+Date: Tue, 20 Jan 2026 10:37:12 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Paolo Abeni <pabeni@redhat.com>, kvm@vger.kernel.org, 
+	Eric Dumazet <edumazet@google.com>, linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>, 
+	Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Simon Horman <horms@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Arseniy Krasnov <AVKrasnov@sberdevices.ru>, 
+	Asias He <asias@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH RESEND net v5 0/4] vsock/virtio: fix TX credit handling
+Message-ID: <aW9L0xiwotBnRMw2@sgarzare-redhat>
+References: <20260116201517.273302-1-sgarzare@redhat.com>
+ <20260119101734.01cbe934@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:2915:b0:65f:5416:1df with SMTP id
- 006d021491bc7-662affadb3dmr418055eaf.18.1768898724759; Tue, 20 Jan 2026
- 00:45:24 -0800 (PST)
-Date: Tue, 20 Jan 2026 00:45:24 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <696f40a4.050a0220.4cb9c.0005.GAE@google.com>
-Subject: [syzbot] Monthly virt report (Jan 2026)
-From: syzbot <syzbot+list43e8b7fcf8f49b474466@syzkaller.appspotmail.com>
-To: linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20260119101734.01cbe934@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: aCRrV86u2Zu7ACZNLsA0v9AlfO71BNWI7JRR2rRTors_1768901856
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Hello virt maintainers/developers,
+On Mon, Jan 19, 2026 at 10:17:34AM -0800, Jakub Kicinski wrote:
+>On Fri, 16 Jan 2026 21:15:13 +0100 Stefano Garzarella wrote:
+>> Resend with the right cc (sorry, a mistake on my env)
+>
+>Please don't resend within 24h unless asked to:
+>https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#tl-dr
 
-This is a 31-day syzbot report for the virt subsystem.
-All related reports/information can be found at:
-https://syzkaller.appspot.com/upstream/s/virt
+Sorry for that, I'll avoid in the future.
 
-During the period, 1 new issues were detected and 0 were fixed.
-In total, 6 issues are still open and 58 have already been fixed.
+>
+>> The original series was posted by Melbin K Mathew <mlbnkm1@gmail.com> till
+>> v4: https://lore.kernel.org/netdev/20251217181206.3681159-1-mlbnkm1@gmail.com/
+>>
+>> Since it's a real issue and the original author seems busy, I'm sending
+>> the v5 fixing my comments but keeping the authorship (and restoring mine
+>> on patch 2 as reported on v4).
+>
+>Does not apply to net:
+>
+>Switched to a new branch 'vsock-virtio-fix-tx-credit-handling'
+>Applying: vsock/virtio: fix potential underflow in virtio_transport_get_credit()
+>Applying: vsock/test: fix seqpacket message bounds test
+>Applying: vsock/virtio: cap TX credit to local buffer size
+>Applying: vsock/test: add stream TX credit bounds test
+>error: patch failed: tools/testing/vsock/vsock_test.c:2414
+>error: tools/testing/vsock/vsock_test.c: patch does not apply
+>Patch failed at 0004 vsock/test: add stream TX credit bounds test
+>hint: Use 'git am --show-current-patch=diff' to see the failed patch
+>hint: When you have resolved this problem, run "git am --continue".
+>hint: If you prefer to skip this patch, run "git am --skip" instead.
+>hint: To restore the original branch and stop patching, run "git am --abort".
+>hint: Disable this message with "git config set advice.mergeConflict false"
+>
+>Did you generate against net-next or there's some mid-air collision?
+>(if the former please share the resolution for the resulting conflict;))
 
-Some of the still happening issues:
+Ooops, a new test landed in net, this should be the resolution:
 
-Ref Crashes Repro Title
-<1> 335     Yes   INFO: task hung in __vhost_worker_flush
-                  https://syzkaller.appspot.com/bug?extid=7f3bbe59e8dd2328a990
-<2> 86      No    KCSAN: data-race in virtqueue_disable_cb / virtqueue_disable_cb (5)
-                  https://syzkaller.appspot.com/bug?extid=9d46c74b27b961b244a9
-<3> 1       Yes   memory leak in napi_skb_cache_get (2)
-                  https://syzkaller.appspot.com/bug?extid=7ff4013eabad1407b70a
+diff --cc tools/testing/vsock/vsock_test.c
+index 668fbe9eb3cc,6933f986ef2a..000000000000
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@@ -2414,11 -2510,11 +2510,16 @@@ static struct test_case test_cases[] =
+                 .run_client = test_stream_accepted_setsockopt_client,
+                 .run_server = test_stream_accepted_setsockopt_server,
+         },
+  +      {
+  +              .name = "SOCK_STREAM virtio MSG_ZEROCOPY coalescence corruption",
+  +              .run_client = test_stream_msgzcopy_mangle_client,
+  +              .run_server = test_stream_msgzcopy_mangle_server,
+  +      },
++       {
++               .name = "SOCK_STREAM TX credit bounds",
++               .run_client = test_stream_tx_credit_bounds_client,
++               .run_server = test_stream_tx_credit_bounds_server,
++       },
+         {},
+   };
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-To disable reminders for individual bugs, reply with the following command:
-#syz set <Ref> no-reminders
+If you prefer I can send a v6. In the mean time I pushed the branch 
+here: 
+https://github.com/stefano-garzarella/linux/tree/vsock_virtio_fix_tx_credit
 
-To change bug's subsystems, reply with:
-#syz set <Ref> subsystems: new-subsystem
+Thanks,
+Stefano
 
-You may send multiple commands in a single email message.
