@@ -1,281 +1,82 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f70.google.com (mail-oo1-f70.google.com [209.85.161.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A34F2387592;
-	Tue, 20 Jan 2026 06:43:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2F1A3B8D4D
+	for <virtualization@lists.linux.dev>; Tue, 20 Jan 2026 08:45:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768891406; cv=none; b=XYhWCdIjitNKssZWODD7o304R8uRPEExgpX7zqsw1IcK96dsl2vGyKDZBlizDTbZ1SQ3GCNtU6F+GxSsL5qYMAO5400RjwXd0j1h+rhGv0a9WShOvzHFV+V4JqAS/BzGk0BgKrUtJtKu+5yBeSrB79CxyGWyE7rM3+WDExGi9Ds=
+	t=1768898727; cv=none; b=hX2wJHnTDmQKY66JeDQqgiai1LxvpB0ju44V+euqTGA//0ML3V7xoDYf/TJcioIlumNSR018aSaKUJ4NpY4UQYt/9VK4xZe+lgGBCxT5lM2rTJ1p+pGt/qP8+4c8jHsMw0VBYVp8H9qQPJ3EhfVzYQJmejkhTK2eTDXN9CHYrtk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768891406; c=relaxed/simple;
-	bh=Q6DZgPGZjNX1B9EVQMzmA20g4dsscqih90PlrSVuaYc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bKHWf9GQzNd2n21idwUxgkHjgikcWj8MvkQi3KMQHMLF6NLOsq2UKgs1tY/pzUBIjrcjz/iUxntjMF/QJOevM4ckm+W0axkkO7WbWXSnhsy1k/TeFE30yxpq0u4yMrbnoubmA5wL9J09ozmqGQ5hSD0JqP63FoIF4GN9qjDM5Fw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nk4HkZgj; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nk4HkZgj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72DB0C19424;
-	Tue, 20 Jan 2026 06:43:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1768891403;
-	bh=Q6DZgPGZjNX1B9EVQMzmA20g4dsscqih90PlrSVuaYc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Nk4HkZgjrYVS+vhm53rXMdVIPfF/97GazOLwF6yiaxf1o4KqZQTLLVJF7anBpTgW8
-	 IX0EjbkwPDONkljjeuUrH9DeRlecTWkuglPX0u1Ksldi8dlywyFAqrWEOJAgw8A94X
-	 kK/W1bCa86MHEZezshHbLp3czwvGHHJqlgh52Xk3zzFP7kbzfgV2iUMd27UjsI/g14
-	 5tO71nd1Kj4c7PJV1rc1n/+2BoaBm+PLjAsgpfqS5J5UhhoaXoZ70Bxi55xoleKVLd
-	 YIOPFXksCOdxkz0/lg9MkziwkVfBoxdaLQ71BWcCKWCekvgvd+N/fTwo9KM5nbV2Le
-	 VQ/XM0a6NfcFw==
-Message-ID: <27f0adf1-54c1-4d99-8b7f-fd45574e7f41@kernel.org>
-Date: Tue, 20 Jan 2026 07:43:15 +0100
+	s=arc-20240116; t=1768898727; c=relaxed/simple;
+	bh=Mv+XYssUcq1JRoIRI8zhanwca233mP5gwWMz8w1qVzI=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Zvu3MJebcUdOwOL448yDbj+NMXGuv3vHOpj78gGAoTNGaqavD09dS3uq9GwRfJw7UjG/MJ0P4cNR94Ip9O+AfjRzjjK5xyzKdZt0gRofCuLLImX+IzkLf9BgHs/8EL6lgG3BheXdfmv4LvPUSD7954MWBdYzRrkfSg1LRAq01Ww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo1-f70.google.com with SMTP id 006d021491bc7-6611c5723e0so7325476eaf.1
+        for <virtualization@lists.linux.dev>; Tue, 20 Jan 2026 00:45:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768898724; x=1769503524;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=CyKzCfA/rbYiXqYgIn79amYkQxKJV6ra5SPE7xZXxjU=;
+        b=Gge/xqXbD2RLyfXQ5zzVzc6pf6i+ZMEb2TS3zGmTflL5yzCaUgBHADItJ0jnd5xN8A
+         DKNU8T5H7rvGhGdnpdJKbg513VfV+57VzrupuSonhwdaiu9UXuX6ABb/+99P1Jgh2iza
+         NvlYIMvWyLRrRZclPEzyEsafZRvVn6dfHrP5avWSCsX7DdyVLs67U0I3I2KEISF9gd5o
+         kfbDsn9DYzmIlJHDLCP1FwkgxOg5vxkSi5EDujN4Y/8LmOtC8fTPny28jbFNV4PIz5na
+         d3TKPxxIEXhuAy9FqZWHRmF9TlNpekm2Vi45yJCdsP9kqQEsxUlMMK2FYHAL4mQFxC0+
+         kElA==
+X-Forwarded-Encrypted: i=1; AJvYcCWRKsWemF7bFmJolGAKgmrbMTh3pWyc1H+c0niSGoJsLTeCvcGTrMTczt3JMlwb+eGDer8Xq6/m73gfNYdOGg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzdVPPUxej1Z9rmJv+CkD+QV43cBBxEh8+RHlOWNfUKxdVvHnbB
+	rwR7PumuWKG5MzHNmfhKEf16frKWbNLaAPvhMTdZp0RxKjJIHJcpIFW8L7BwxKOHCBeCl6ycXKI
+	C7GGN82PnR8jhu6p3tX3XHnBqrQ+Lqai20T9fUSRhcE0i+jnZUCKKMLxboMg=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 15/24] mm/balloon_compaction: move internal helpers to
- balloon_compaction.c
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, linux-doc@vger.kernel.org,
- virtualization@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
- Oscar Salvador <osalvador@suse.de>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
- <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Jonathan Corbet <corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>, Arnd Bergmann
- <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jerrin Shaji George <jerrin.shaji-george@broadcom.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Zi Yan <ziy@nvidia.com>
-References: <20260119230133.3551867-1-david@kernel.org>
- <20260119230133.3551867-16-david@kernel.org>
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
-In-Reply-To: <20260119230133.3551867-16-david@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6820:2915:b0:65f:5416:1df with SMTP id
+ 006d021491bc7-662affadb3dmr418055eaf.18.1768898724759; Tue, 20 Jan 2026
+ 00:45:24 -0800 (PST)
+Date: Tue, 20 Jan 2026 00:45:24 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <696f40a4.050a0220.4cb9c.0005.GAE@google.com>
+Subject: [syzbot] Monthly virt report (Jan 2026)
+From: syzbot <syzbot+list43e8b7fcf8f49b474466@syzkaller.appspotmail.com>
+To: linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On 1/20/26 00:01, David Hildenbrand (Red Hat) wrote:
-> Let's move the helpers that are not required by drivers anymore.
-> 
-> While at it, drop the doc of balloon_page_device() as it is trivial.
-> 
-> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
-> ---
->   include/linux/balloon_compaction.h | 44 ------------------------------
->   mm/balloon_compaction.c            | 38 ++++++++++++++++++++++++++
->   2 files changed, 38 insertions(+), 44 deletions(-)
-> 
-> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-> index d1d4739398978..eec8994056a44 100644
-> --- a/include/linux/balloon_compaction.h
-> +++ b/include/linux/balloon_compaction.h
-> @@ -75,48 +75,4 @@ static inline void balloon_devinfo_init(struct balloon_dev_info *balloon)
->   	balloon->migratepage = NULL;
->   	balloon->adjust_managed_page_count = false;
->   }
-> -
-> -#ifdef CONFIG_BALLOON_COMPACTION
-> -/*
-> - * balloon_page_device - get the b_dev_info descriptor for the balloon device
-> - *			 that enqueues the given page.
-> - */
-> -static inline struct balloon_dev_info *balloon_page_device(struct page *page)
-> -{
-> -	return (struct balloon_dev_info *)page_private(page);
-> -}
-> -#endif /* CONFIG_BALLOON_COMPACTION */
-> -
-> -/*
-> - * balloon_page_insert - insert a page into the balloon's page list and make
-> - *			 the page->private assignment accordingly.
-> - * @balloon : pointer to balloon device
-> - * @page    : page to be assigned as a 'balloon page'
-> - *
-> - * Caller must ensure the balloon_pages_lock is held.
-> - */
-> -static inline void balloon_page_insert(struct balloon_dev_info *balloon,
-> -				       struct page *page)
-> -{
-> -	__SetPageOffline(page);
-> -	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION)) {
-> -		SetPageMovableOps(page);
-> -		set_page_private(page, (unsigned long)balloon);
-> -	}
-> -	list_add(&page->lru, &balloon->pages);
-> -}
-> -
-> -/*
-> - * balloon_page_finalize - prepare a balloon page that was removed from the
-> - *			   balloon list for release to the page allocator
-> - * @page: page to be released to the page allocator
-> - *
-> - * Caller must ensure the balloon_pages_lock is held.
-> - */
-> -static inline void balloon_page_finalize(struct page *page)
-> -{
-> -	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
-> -		set_page_private(page, 0);
-> -	/* PageOffline is sticky until the page is freed to the buddy. */
-> -}
->   #endif /* _LINUX_BALLOON_COMPACTION_H */
-> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-> index 1843e168db3ca..e0a4b481c3eda 100644
-> --- a/mm/balloon_compaction.c
-> +++ b/mm/balloon_compaction.c
-> @@ -17,6 +17,44 @@
->    */
->   static DEFINE_SPINLOCK(balloon_pages_lock);
->   
-> +static struct balloon_dev_info *balloon_page_device(struct page *page)
-> +{
-> +	return (struct balloon_dev_info *)page_private(page);
-> +}
-> +
-> +/*
-> + * balloon_page_insert - insert a page into the balloon's page list and make
-> + *			 the page->private assignment accordingly.
-> + * @balloon : pointer to balloon device
-> + * @page    : page to be assigned as a 'balloon page'
-> + *
-> + * Caller must ensure the balloon_pages_lock is held.
-> + */
-> +static void balloon_page_insert(struct balloon_dev_info *balloon,
-> +				       struct page *page)
-> +{
-> +	__SetPageOffline(page);
-> +	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION)) {
-> +		SetPageMovableOps(page);
-> +		set_page_private(page, (unsigned long)balloon);
-> +	}
-> +	list_add(&page->lru, &balloon->pages);
-> +}
-> +
-> +/*
-> + * balloon_page_finalize - prepare a balloon page that was removed from the
-> + *			   balloon list for release to the page allocator
-> + * @page: page to be released to the page allocator
-> + *
-> + * Caller must ensure the balloon_pages_lock is held.
-> + */
-> +static void balloon_page_finalize(struct page *page)
-> +{
-> +	if (IS_ENABLED(CONFIG_BALLOON_COMPACTION))
-> +		set_page_private(page, 0);
-> +	/* PageOffline is sticky until the page is freed to the buddy. */
-> +}
-> +
->   static void balloon_page_enqueue_one(struct balloon_dev_info *b_dev_info,
->   				     struct page *page)
->   {
+Hello virt maintainers/developers,
 
-The following on top to silence [1]. Results in two contextual conflicts
-in later patches which is easy to resolve. As an alternative, we could throw in a
-__maybe_unused but this is cleaner.
+This is a 31-day syzbot report for the virt subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/virt
 
-[1] https://lkml.kernel.org/r/202601201338.4muFmFHV-lkp@intel.com
+During the period, 1 new issues were detected and 0 were fixed.
+In total, 6 issues are still open and 58 have already been fixed.
 
+Some of the still happening issues:
 
- From a02a0de0670a6be9a34d06eea3ba41297ce547dc Mon Sep 17 00:00:00 2001
-From: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Date: Tue, 20 Jan 2026 07:37:39 +0100
-Subject: [PATCH] fixup: mm/balloon_compaction: move internal helpers to
-  balloon_compaction.c
+Ref Crashes Repro Title
+<1> 335     Yes   INFO: task hung in __vhost_worker_flush
+                  https://syzkaller.appspot.com/bug?extid=7f3bbe59e8dd2328a990
+<2> 86      No    KCSAN: data-race in virtqueue_disable_cb / virtqueue_disable_cb (5)
+                  https://syzkaller.appspot.com/bug?extid=9d46c74b27b961b244a9
+<3> 1       Yes   memory leak in napi_skb_cache_get (2)
+                  https://syzkaller.appspot.com/bug?extid=7ff4013eabad1407b70a
 
-Move balloon_page_device() under CONFIG_BALLOON_COMPACTION.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/oe-kbuild-all/202601201338.4muFmFHV-lkp@intel.com/
-Signed-off-by: David Hildenbrand (Red Hat) <david@kernel.org>
 ---
-  mm/balloon_compaction.c | 9 ++++-----
-  1 file changed, 4 insertions(+), 5 deletions(-)
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index e0a4b481c3eda..30fa7ee8e1f3a 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -17,11 +17,6 @@
-   */
-  static DEFINE_SPINLOCK(balloon_pages_lock);
-  
--static struct balloon_dev_info *balloon_page_device(struct page *page)
--{
--	return (struct balloon_dev_info *)page_private(page);
--}
--
-  /*
-   * balloon_page_insert - insert a page into the balloon's page list and make
-   *			 the page->private assignment accordingly.
-@@ -232,6 +227,10 @@ struct page *balloon_page_dequeue(struct balloon_dev_info *b_dev_info)
-  EXPORT_SYMBOL_GPL(balloon_page_dequeue);
-  
-  #ifdef CONFIG_BALLOON_COMPACTION
-+static struct balloon_dev_info *balloon_page_device(struct page *page)
-+{
-+	return (struct balloon_dev_info *)page_private(page);
-+}
-  
-  static bool balloon_page_isolate(struct page *page, isolate_mode_t mode)
-  
--- 
-2.52.0
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
 
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
 
--- 
-Cheers
-
-David
+You may send multiple commands in a single email message.
