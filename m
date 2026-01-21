@@ -1,67 +1,35 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A0BB3AE71B
-	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 14:22:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99E1147DFB5;
+	Wed, 21 Jan 2026 14:25:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769005363; cv=none; b=MTTJp3zC2z2oJkb4hk/YzmepNz2aOzT8psIwxGlwLFIlK5Qc/UtgCy4741Se5UDmPDHjJk4ivR0AWKgpOfQSYAnC3OctjwiQVa/VmqaReujNju36Xu5cRri46yMdEzrcBZuTpPTCoRToMRCmWE+69QiIFMBOXVRIIJctNv2fKbM=
+	t=1769005533; cv=none; b=Xhjc2T1RxFVplSiyRUqqdMas8R+d9CDO9F9NwFAVT7hQlOnYf0ufEvCftG5ZuNMXGqeHpM0qdnFrV3s+GR0sJLfgu7ElaoVN+A6t99i3k4t6DJ75fZzpOHBJr+VlS7qWyUgmsSQHuuH5Wx1UexHcPfqT0bSDMhn48pl2BAuRdH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769005363; c=relaxed/simple;
-	bh=go5t4J2oCqftUfdoUso726J9QdhgF091WBBQZFq2rJc=;
+	s=arc-20240116; t=1769005533; c=relaxed/simple;
+	bh=Z1b1OV+NsXvKxZL5y0yjDvYw+BPD/t+tNec7lO1yOeQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M6g0gXj3g3mxzTBQ3v9y7eJJgJE99tmUxAyaNM5Mjcg4HNtQ8j86RafTwWGzjNIlQquCCgoYzsxjY0r7OBnY1VRFwZT8nMztDzqmYn7E1eSp2LX0umPHLYBG1Mxj30uVdeLh/CVoVJ0mwa02otxGtiI2HLhbbVXClWvURtv3Cv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=imMP9pgM; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=rlYBbiXpHBP4VkDo7QRz+wGZ1hmlMPbGueKdb0/Lowk5brr75T5p1988U4RyZXRZZLa6DPmP20Snkg7f41lej3H+ZZ5CSals23AfVhxCoPNa2Ll/c4tQs2em1N4+SH1fPH6U7+nJMOn7wNMUuX4xQb5ISgydAFIi8KJW/0X7N+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ge0gfH42; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="imMP9pgM"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2a1462573caso88645ad.0
-        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 06:22:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1769005361; x=1769610161; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Df9DnST7C0sPqC8cKGnMiT7cxfRi0XBTWHY9JjLQ7zk=;
-        b=imMP9pgMw3An003kzIKUIZ2p5C1YpTti8hNMZYl735lUCQHEBp2hwvfPNJ5dDF9z11
-         LLpXyJOAiABW29XhO4DRJntWqxf8uWaDQ1l5ck98UCp6nV+MZWw9pgAaPcUkWv/VWc4g
-         KmJLtEmK26sduHIgbdgEPjTGNVAD1wJdvQ07G8NcSCZqB0fqARHLQqxfXo06Z9KgWOg4
-         Mgwe9rDlLZPj8LDjjCwyNzeoWHqOIvorod2tWhqEm7qBxFFDlvb0OQa3FvXvASF9EQsb
-         dXaV8JyLDoCyJ0ILTGjLGkpaw92pDPvJy0Vj4zbr2HrRPG8Be6w7leETcgaztiBoB1KQ
-         xVyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769005361; x=1769610161;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Df9DnST7C0sPqC8cKGnMiT7cxfRi0XBTWHY9JjLQ7zk=;
-        b=MWRrVx7rKxx1nxWdQHfoyyQ8ILzPEFKPDbsk4zC88Wk6R3Qg1b80WgY/sbdtGscbpd
-         vL9ZldgWubU1uOVJq1SMdX4VM2HTDqc6yvFp74HU5AAdJXjVerRwCIFQqkl9cEVtEWSv
-         RJ3yKx42AZg52E7xr+S3VwcsSF4BnX2Cq8FsD6+1jiwaoK5aVNEZDDxe6xzFAeNhh3vr
-         pQ/xLDsTgcOH3ablMHrg0OC+7MD42DL0sVCh8hWGlaQw5nXcID8pYvKhGiZcKPAThOge
-         V1MaoM8Y+Ta+RbVUcCdeC93NmvIgYfVC0A6m5ejlHX8bCYnA7SuffGOKVdg4eNX5mdiP
-         SQmA==
-X-Forwarded-Encrypted: i=1; AJvYcCXy7EOsuZ6ZNIYlNSRRhjsNDYL3KeNUdm2jY7jj+qbkzZYmvCiRySG040hWYWczBwWGeeLwGk3s79QgnQgnYg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyH1pJCMkbfqzVLuOE+tHuV88LRjbrmBC4lqVdH7N9IUBcBk3f9
-	2U486rytp/5WU9CdOrf74eKloh7CA8PjK0h3J6VTX79PE7piI3VrwniUBhBQ0F7vdA==
-X-Gm-Gg: AZuq6aIeTdT+lmf71C0pNz7kSXh1h0iII91KxGF6vZ8wKlR5VE3Ll9XDYxo9XGPUrft
-	gEfPtxbEDkQZVVOXPJlJE+DqccarnmUU6Wikhf9GzxxRuYzsqmQOdj3Dzi+REjk3c0ttZpDt9e3
-	Dj0qCZ5EpjZ3lodPD8Y9MwHFC7XOX1y4RUCDnS6IASigomvTkweEnU+zeQg1D6bBvbLwkgbq+7V
-	8DxhocZBRm2AIoJ/9TSsisATqbnYArCWPFB6lcfeD0NlI1plWLoxS5nh3PSN5EC4Nr8mhTy7bVT
-	Mbgz6llRG7oH0oSv3ki4G6lgHHYqSWWNprbMP2pzHWPfr9/OGcXgCmsSJOLu+zEkvBzsaMWrgKG
-	6jIRynDRWoIY9WS0FU2OsEWmK9ME+7l/QOLq3FIsHacPH1fBF0MDKDz3/Y+cIj6XhraihdCz8Rx
-	Fx/2hFpy7EGy8YqpAobS7HjRYz2KprDFqh3Mf0MH9IXPUUDT6i
-X-Received: by 2002:a17:903:1c8:b0:295:5405:46be with SMTP id d9443c01a7336-2a7a23cc8f3mr2519245ad.1.1769005361111;
-        Wed, 21 Jan 2026 06:22:41 -0800 (PST)
-Received: from google.com (222.245.187.35.bc.googleusercontent.com. [35.187.245.222])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a7190ce6a9sm159451235ad.34.2026.01.21.06.22.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 06:22:40 -0800 (PST)
-Date: Wed, 21 Jan 2026 14:22:31 +0000
-From: Pranjal Shrivastava <praan@google.com>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Leon Romanovsky <leon@kernel.org>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ge0gfH42"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B46B1C4CEF1;
+	Wed, 21 Jan 2026 14:25:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769005533;
+	bh=Z1b1OV+NsXvKxZL5y0yjDvYw+BPD/t+tNec7lO1yOeQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ge0gfH42x3ObIVHqMUppthrzucjXvd0sKFBBGu4TSY+DEJrnvIfuVNOm/mqKYdhDY
+	 yRDoNVy9wGFl4Ut19lSeYJrZe1wCJhZj8ub12kLqzIUXGFSWsV2rP3hdPPT/s+/Bzd
+	 CNaQbyUxt0oTU0nSQY9kuHTyvAqfiinywrhwtEMUV9GHruLOW8ZAKWIwXf2aeNTpP2
+	 re5/XOlW/nicBV4K88fU1PWmqnjNVT5UYqPTrWW4KLfK4zZvyO+aP+i6vFjcIWCD3y
+	 /TbHj97MVtfL42yJ9golJbaNDyXRlaBRj2ChbMR7xPn3wzQIArZQpFbMw80UjQAQRs
+	 hWPGykweNH8jA==
+Date: Wed, 21 Jan 2026 16:25:28 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Pranjal Shrivastava <praan@google.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Sumit Semwal <sumit.semwal@linaro.org>,
 	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
 	Alex Deucher <alexander.deucher@amd.com>,
 	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
@@ -87,10 +55,11 @@ Cc: Leon Romanovsky <leon@kernel.org>,
 	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
 	iommu@lists.linux.dev, kvm@vger.kernel.org
 Subject: Re: [PATCH v4 8/8] vfio: Validate dma-buf revocation semantics
-Message-ID: <aXDhJ89Yru577jeY@google.com>
+Message-ID: <20260121142528.GC13201@unreal>
 References: <20260121-dmabuf-revoke-v4-0-d311cbc8633d@nvidia.com>
  <20260121-dmabuf-revoke-v4-8-d311cbc8633d@nvidia.com>
  <20260121134712.GZ961572@ziepe.ca>
+ <aXDhJ89Yru577jeY@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -99,60 +68,68 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260121134712.GZ961572@ziepe.ca>
+In-Reply-To: <aXDhJ89Yru577jeY@google.com>
 
-On Wed, Jan 21, 2026 at 09:47:12AM -0400, Jason Gunthorpe wrote:
-> On Wed, Jan 21, 2026 at 02:59:16PM +0200, Leon Romanovsky wrote:
-> > From: Leon Romanovsky <leonro@nvidia.com>
+On Wed, Jan 21, 2026 at 02:22:31PM +0000, Pranjal Shrivastava wrote:
+> On Wed, Jan 21, 2026 at 09:47:12AM -0400, Jason Gunthorpe wrote:
+> > On Wed, Jan 21, 2026 at 02:59:16PM +0200, Leon Romanovsky wrote:
+> > > From: Leon Romanovsky <leonro@nvidia.com>
+> > > 
+> > > Use the new dma_buf_attach_revocable() helper to restrict attachments to
+> > > importers that support mapping invalidation.
+> > > 
+> > > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > > ---
+> > >  drivers/vfio/pci/vfio_pci_dmabuf.c | 3 +++
+> > >  1 file changed, 3 insertions(+)
+> > > 
+> > > diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > > index 5fceefc40e27..85056a5a3faf 100644
+> > > --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > > +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > > @@ -31,6 +31,9 @@ static int vfio_pci_dma_buf_attach(struct dma_buf *dmabuf,
+> > >  	if (priv->revoked)
+> > >  		return -ENODEV;
+> > >  
+> > > +	if (!dma_buf_attach_revocable(attachment))
+> > > +		return -EOPNOTSUPP;
+> > > +
+> > >  	return 0;
+> > >  }
 > > 
-> > Use the new dma_buf_attach_revocable() helper to restrict attachments to
-> > importers that support mapping invalidation.
+> > We need to push an urgent -rc fix to implement a pin function here
+> > that always fails. That was missed and it means things like rdma can
+> > import vfio when the intention was to block that. It would be bad for
+> > that uAPI mistake to reach a released kernel.
 > > 
-> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> > ---
-> >  drivers/vfio/pci/vfio_pci_dmabuf.c | 3 +++
-> >  1 file changed, 3 insertions(+)
+> > It's tricky that NULL pin ops means "I support pin" :|
 > > 
-> > diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> > index 5fceefc40e27..85056a5a3faf 100644
-> > --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
-> > +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> > @@ -31,6 +31,9 @@ static int vfio_pci_dma_buf_attach(struct dma_buf *dmabuf,
-> >  	if (priv->revoked)
-> >  		return -ENODEV;
-> >  
-> > +	if (!dma_buf_attach_revocable(attachment))
-> > +		return -EOPNOTSUPP;
-> > +
-> >  	return 0;
-> >  }
 > 
-> We need to push an urgent -rc fix to implement a pin function here
-> that always fails. That was missed and it means things like rdma can
-> import vfio when the intention was to block that. It would be bad for
-> that uAPI mistake to reach a released kernel.
+> I've been wondering about this for a while now, I've been sitting on the
+> following:
 > 
-> It's tricky that NULL pin ops means "I support pin" :|
+> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+> index a4d8f2ff94e4..962bce959366 100644
+> --- a/drivers/dma-buf/dma-buf.c
+> +++ b/drivers/dma-buf/dma-buf.c
+> @@ -1133,6 +1133,8 @@ int dma_buf_pin(struct dma_buf_attachment *attach)
 > 
+>         if (dmabuf->ops->pin)
+>                 ret = dmabuf->ops->pin(attach);
+> +       else
+> +               ret = -EOPNOTSUPP;
+> 
+>         return ret;
+>  }
+> 
+> But didn't get a chance to dive in the history yet. I thought there's a
+> good reason we didn't have it? Would it break exisitng dmabuf users?
 
-I've been wondering about this for a while now, I've been sitting on the
-following:
+Probably every importer which called to dma_buf_pin() while connecting
+to existing exporters as many in tree implementation don't have ->pin()
+implemented.
 
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index a4d8f2ff94e4..962bce959366 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -1133,6 +1133,8 @@ int dma_buf_pin(struct dma_buf_attachment *attach)
+Thanks
 
-        if (dmabuf->ops->pin)
-                ret = dmabuf->ops->pin(attach);
-+       else
-+               ret = -EOPNOTSUPP;
-
-        return ret;
- }
-
-But didn't get a chance to dive in the history yet. I thought there's a
-good reason we didn't have it? Would it break exisitng dmabuf users?
-
-Praan
+> 
+> Praan
