@@ -1,125 +1,138 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C37F3B9608
-	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 14:29:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABE504949E8;
+	Wed, 21 Jan 2026 14:31:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769005795; cv=none; b=qDFh9UDJ8Rq0DcrOKdKgVwKe2VAA5nqTbBH3YaiN+dwsXvc6QNAT/SDbUBac1ybNpgNQg9sK4aSCZ2YTo4BA2kwg4K6oDnMTpUUKj18lnmMGNbCOLUkMapIgIvPpc1ZABz7p80yx0Yni8cHjPJeBgY0NQJVOV2kvfqFNFu4djqE=
+	t=1769005914; cv=none; b=p9qyc78i0CtCIOusEQTzUg87wRaS+IAir1SXxjRRdcHmFJhR85xEWqJm9mKaCezs5zpL4x0TjsNgDiidDJ/TGlHPhet0dKknF+PXtpcBxXIfCiUIxKDIzsfpsITs0GDdATM4X2EqLIN67IKQOBuCFFxDc+ZfTYMBWvB4Pj4XfwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769005795; c=relaxed/simple;
-	bh=KagpBM1xhCXcwRRQAyfDGwB0x0YrZNc/aSqT1LfkuFk=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=ZOeQs2haCQdwdoHs4oz0cMNjl7GKgVO1HtXEgvFjLlq8tcPjaYAArVsWED4qcaAszTnSSXqmjSlUgo/26PwFRmbRHuTXLhRYRerYbxXTxODoJGFEWo2or6pDyAYeB4s3l3GGnzZwpACklDV/vqsojgMQIoF0t3oBwVOJV1YBwrA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=QWEbSFYE; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1769005914; c=relaxed/simple;
+	bh=PeR5g4KP8x/lJhIeGe2dDKX2Op8R7HIZRzZ9ayHsJco=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AslVuI0aRbLVvFM9DRUeEnTvhQrw03T6UfGosytyPJjlGJJHUPfeMvJLOLsS5ChyAlD6ypgSPyEZ5BanW+jlilpZjPVLmVe1dIdEraMEst6Qk+ArM7E/BVH5QHezpJCL6RLva21cm0HHhdik+lxhNd2+NF14ma7syZFzYSTyFFY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KqhQkB0H; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="QWEbSFYE"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1769005782; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
-	bh=k5BQxu6CMUOTbyhVOtJ/lDBq0GrbMvlHNo3WQj6zhqc=;
-	b=QWEbSFYEhuYjNj7cXsJsGwzmnssAqoFE8brJDPWupf9CKihy298XCqpcr34KyF72CJ63mke7hfHxHJfHK3X22ksDhTACxKsF4LqHkVANia1LT/RzGO/ayAkS4PrE6T+3cWaUQcD2VYf3PIXczOpp6hpUNLga7GjhFfGZcFSz1Sg=
-Received: from 30.221.145.201(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WxYU0Oi_1769005781 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 21 Jan 2026 22:29:42 +0800
-Message-ID: <51e8d8ce-f291-4e31-a938-2c1a0e8684c2@linux.alibaba.com>
-Date: Wed, 21 Jan 2026 22:29:41 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KqhQkB0H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2629C4CEF1;
+	Wed, 21 Jan 2026 14:31:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769005914;
+	bh=PeR5g4KP8x/lJhIeGe2dDKX2Op8R7HIZRzZ9ayHsJco=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=KqhQkB0HZ1m+DKmEb4iOkwxeDGvAPNkuGn61XTxaCqhuL9qVbUQfxtrTwPujoAdVb
+	 VrWiUmPtEeUvE9nGyKANKxMoUIMS0e5nHQ31T+VEQXUu37yer/5Hzj5XuurNOilyo2
+	 +YYGfaIa3Dbj0S4Qd6g3VaXA17/1wzg6rpzqnlrG4nsV8pQRcJ1G7Oj+N6BLxO/rpy
+	 nVcDdV+4eAHtYRPFNU2TGJOODjbr6a9NoxnTowpmmzFAyZbPWVMuabJ0YV3hjf1iNz
+	 8aDY8IqPHmmGAsQTtHkqpxZzOBU4w+H2paxEDwGUBatWmmBD4eAn1X2NjKOH85/uBz
+	 eYXBSWhDgDLeQ==
+Date: Wed, 21 Jan 2026 16:31:50 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Sumit Semwal <sumit.semwal@linaro.org>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Felix Kuehling <Felix.Kuehling@amd.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>,
+	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+	iommu@lists.linux.dev, kvm@vger.kernel.org
+Subject: Re: [PATCH v3 3/7] dma-buf: Document RDMA non-ODP
+ invalidate_mapping() special case
+Message-ID: <20260121143150.GD13201@unreal>
+References: <20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com>
+ <20260120-dmabuf-revoke-v3-3-b7e0b07b8214@nvidia.com>
+ <4fe42e7e-846c-4aae-8274-3e9a5e7f9a6d@amd.com>
+ <20260121091423.GY13201@unreal>
+ <7cfe0495-f654-4f9d-8194-fa5717eeafff@amd.com>
+ <20260121131852.GX961572@ziepe.ca>
+ <8a8ba092-6cfa-41d2-8137-e5e9d917e914@amd.com>
+ <20260121135948.GB961572@ziepe.ca>
+ <8689345b-241a-47f4-8e9a-61cde285bf8b@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC] Defining a home/maintenance model for non-NIC PHC devices
- using the /dev/ptpX API
-From: Wen Gu <guwen@linux.alibaba.com>
-To: Thomas Gleixner <tglx@linutronix.de>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Richard Cochran <richardcochran@gmail.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, Dust Li <dust.li@linux.alibaba.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- David Woodhouse <dwmw2@infradead.org>, virtualization@lists.linux.dev,
- Nick Shi <nick.shi@broadcom.com>, Sven Schnelle <svens@linux.ibm.com>,
- Paolo Abeni <pabeni@redhat.com>, linux-clk@vger.kernel.org
-References: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
-In-Reply-To: <0afe19db-9c7f-4228-9fc2-f7b34c4bc227@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <8689345b-241a-47f4-8e9a-61cde285bf8b@amd.com>
 
-
-
-On 2026/1/9 10:56, Wen Gu wrote:
+On Wed, Jan 21, 2026 at 03:15:46PM +0100, Christian K�nig wrote:
+> On 1/21/26 14:59, Jason Gunthorpe wrote:
+> > On Wed, Jan 21, 2026 at 02:52:53PM +0100, Christian K�nig wrote:
+> >> On 1/21/26 14:18, Jason Gunthorpe wrote:
+> >>> On Wed, Jan 21, 2026 at 10:17:16AM +0100, Christian K�nig wrote:
+> >>>> The whole idea is to make invalidate_mappings truly optional.
+> >>>
+> >>> But it's not really optional! It's absence means we are ignoring UAF
+> >>> security issues when the exporters do their move_notify() and nothing
+> >>> happens.
+> >>
+> >> No that is unproblematic.
+> >>
+> >> See the invalidate_mappings callback just tells the importer that
+> >> the mapping in question can't be relied on any more.
+> >>
+> >> But the mapping is truly freed only by the importer calling
+> >> dma_buf_unmap_attachment().
+> >>
+> >> In other words the invalidate_mappings give the signal to the
+> >> importer to disable all operations and the
+> >> dma_buf_unmap_attachment() is the signal from the importer that the
+> >> housekeeping structures can be freed and the underlying address
+> >> space or backing object re-used.
+> > 
+> > I see
+> > 
+> > Can we document this please, I haven't seen this scheme described
+> > anyhwere.
+> > 
+> > And let's clarify what I said in my other email that this new revoke
+> > semantic is not just a signal to maybe someday unmap but a hard
+> > barrier that it must be done once the fences complete, similar to
+> > non-pinned importers.
 > 
-> #
-> ## Proposal
-> #
+> Well, I would avoid that semantics.
 > 
-> 1. Reorganize drivers/ptp/ to make the interface/implementation split
->     explicit,
+> Even when the exporter requests the mapping to be invalidated it does not mean that the mapping can go away immediately.
 > 
->     * drivers/ptp/core      : PTP core infrastructure and API.
->                               (e.g. ptp_chardev.c, ptp_clock.c,
->                                ptp_sysfs.c, etc.)
+> It's fine when accesses initiated after an invalidation and then waiting for fences go into nirvana and have undefined results, but they should not trigger PCI AER, warnings from the IOMMU or even worse end up in some MMIO BAR of a newly attached devices.
 > 
->     * drivers/ptp/pure      : Non-network ("pure clock") implementation,
->                               they are typically platform/architecture/
->                               virtualization-provided time sources.
->                               (e.g. ptp_kvm, ptp_vmw, ptp_vmclock,
->                                ptp_s390, etc.)
+> So if the exporter wants to be 100% sure that nobody is using the mapping any more then it needs to wait for the importer to call dma_buf_unmap_attachment().
 > 
->     * drivers/ptp/*         : Network timestamping oriented implementation,
->                               they primarily used together with IEEE1588
->                               over the network.
->                               (e.g. ptp_qoriq, ptp_pch, ptp_dp83640,
->                                ptp_idt82p33 etc.)
+> > The cover letter should be clarified with this understanding too.
 > 
+> Yeah, completely agree. We really need to flash out that semantics in the documentation.
 
-Thanks for the feedback so far. It seems we are close to consensus on
-the directory split, as [1] summarized:
+Someone knowledgeable needs to document this properly, either in the code  
+or in the official documentation. A cover letter is not the right place for  
+subtle design decisions.
 
-- drivers/ptp/core       : PTP core infrastructure and API
-- drivers/ptp/1588       : network/IEEE 1588 oriented PTP clocks
-- drivers/ptp/emulating  : platform/hardware/hypervisor-provided pure clocks
+Thanks
 
-For how the existing drivers in `drivers/ptp` are categorized into the
-directories above, please also refer to [1] and the follow-up replies.
-
-> 2. Transition drivers/ptp/pure from netdev maintainership to
->     clock/time maintainership (with an appropriate MAINTAINERS entry,
->     e.g. PURE TIME PHC), since these PHC implementations are primarily
->     clock devices and not network-oriented. New similar drivers can be
->     added under drivers/ptp/pure as well.
-
-
-Then the open item now is maintainership and the merge path.
-
-Based on previous guidance[2] and the current MAINTAINERS structure,
-it seems reasonable to have it maintained under the clock/timekeeping
-domain (following the existing timekeeping pull chain), with a
-dedicated MAINTAINERS entry.
-
-
-Hi Thomas and clock/timekeeping maintainers,
-
-Would you agree with this approach? If so, could you please advise on
-the appropriate maintainer/reviewer for this MAINTAINERS entry?
-
-Below is a strawman MAINTAINERS entry (happy to adjust):
-
-EMULATING PTP CLOCK SUPPORT
-L:     linux-kernel@vger.kernel.org
-S:     Maintained
-F:     drivers/ptp/emulating/*
-
-
-We (Alibaba) are also willing to be the maintainer for this entry as
-a fallback.
-
-[1] https://lore.kernel.org/netdev/b5a60753-85ed-4d61-a652-568393e0dff3@linux.alibaba.com/
-[2] https://lore.kernel.org/netdev/20251216135848.174e010f@kernel.org/
-
-Regards.
+> 
+> Regards,
+> Christian.
+> 
+> > 
+> > Jason
+> 
