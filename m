@@ -1,151 +1,162 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17E912D5936
-	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 06:46:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1C403D522D;
+	Wed, 21 Jan 2026 07:59:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768978007; cv=none; b=iMxtNDqBekwywg4CZiX64MRYdZDfcXWq3OLnXVZ8RqsQyccp/AIo4S7u9IgxLkC3C769Mps1CbKpWx+kus8rf/0TQ77GALwGiCRVuihp4rTFqYXDJmJjGT4E6EK2ZNXYID6MrB9MT3TbfOQJ49U9GRFj0543IY75kU36KDiktpY=
+	t=1768982375; cv=none; b=nfDDEPWk8OqJnlCDq6cZAfeSqxnbUyJS/p4of2OeG5MLPnUIu+gngIm/ZkW4VUy7wqNSON8H/OZ37iHzuCD5Q7b53kLOn3ZUP85UWQD/+BszYKFL7Jrv+OsR8xmTVTV6FZvKG7t1PTx/yHn3aRRaaXHd+a4exfhR5bcrwsWs65M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768978007; c=relaxed/simple;
-	bh=BjEonW32c5YOMq0hqq7Xvkwknsp7bLBK5sRV2QqHoDQ=;
+	s=arc-20240116; t=1768982375; c=relaxed/simple;
+	bh=lEy1yZ/ijqL0f8O4r3b/+kmhBy9GW/pNUeqgzBHM/dA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=k3DVO6105e2ofBK3Ptb0uwLnVz1dSetmKxqVg+hYLJNg/eeNwTwjEcXXoRaVMHK3Go8ftiAnpy+/1SJxFvZqQ2JQ2L3RSdljMqo1S3oLMFZpEHu9QxGxzv4jaI6JQHwphMDTi/0Hihxs6g61LUoHpbdVajbKgrqdkzZXVFJZTug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GE5OuXV/; arc=none smtp.client-ip=209.85.222.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=naQthyK+orayeVtgZKBRYosB74QZWGSwwlEDiKF4JHjDqnvUx5BzqTrWcfCxFZxZ+ZvlZs9eq2x0wOw+JIt/CkOqkAXxWcVsghqTATF1PsiKPFWEiZOmKZ0lu3TcdNRPyYdxk96WyxfQX8aieYplF8oflBHlIvu9V19tt7ivnpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dfyuJlQZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GE5OuXV/"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-8c531473fdcso822442785a.3
-        for <virtualization@lists.linux.dev>; Tue, 20 Jan 2026 22:46:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1768978005; x=1769582805; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=dr4ikofTW2/lOylz+wqvxKyTxo3lmrOIQRlztmAAggk=;
-        b=GE5OuXV/u++61fS3M3Koqy4sbmPcFS3d+44ezAvcJZIFNJr+33fd2i43iY7bObHd+C
-         s649T1nK2/2T/+mz9OVFZWMnOJhkXl8xtFDKQUgZ2g9AlydSfERAWYwl8fr03Gg+mOlW
-         XHObQED4qAHh/Im+jycqVFKrKeS1ImNakpiMrWNZi0bcUlQbee5c7dEVfBFILHDX9JiX
-         4hrP4xZpjxhoH+Gi4FASd604EAOq/grq2LmAlGh6Qx86d35OZqzhzrCLEoiBIs01Adjm
-         eOdOJmKOm5TCqgWOnnvYz3VPWlVU/yyEB3TchXy1PieQQyun43UprdytLehUWDlG2ygZ
-         4NDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768978005; x=1769582805;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dr4ikofTW2/lOylz+wqvxKyTxo3lmrOIQRlztmAAggk=;
-        b=aovx8NllAG3jp8TXcr1OQgxuLWO/6bEoeuEixr97qEdrNn8pJUk32xL7UGtgHE1kpP
-         RgBFbdcSdPrlD+/cIWYmcD10hmwuPn4wzngR9H8taHEthpLywwW9B+ls2r78F43PH51P
-         wyJterPOZPfnmtTEXmPN5wwOaj6nXLQ2Ts31GtShfo5g7Kw73eGloy816rLkq5RWY5ZY
-         JDPBHQxmLAfRbApuwT8Rj1rT6R0XJn0j4t1VhRitIw1XNdIUYP2YP7mh2EYSXXF3D3kp
-         Cs91F6fe7drrb/zZxkLzMH/Te3R4BTdUroE6bT2bi3ZOzKIB86DhhW4ybVWCBTc2XPL0
-         8KRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW2H/V9PNprCjq9w8clQXRKwiqo6YYgJHxOZWyyXIrhJq3ZOUU+IKjvcZvSf6qyAxt83yBOVLnSpUqPLTLF7A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwJt4AIT9ANQwGEfoN7c+wbJ8R9aazWbmOTSkai0Da8D8AwLtFq
-	cUHwfbB2nEZrYpyNZjoDUDwgmRu6Rg3e/6TWbq9jpOO+LGtY0fB22vLQFhxb9Q==
-X-Gm-Gg: AZuq6aJ43V2OhNVqFOhzVJoLl2OrhHI1hO8hq1aACBaR9aHNH4J7xUiTqMF2mqhQh/T
-	rI0qZSk50iUVSuE6oWxG6wDDLdjFlGeWR0XX9B+vDulTK3EX1n4n10mr4pH1QXdultZIxcYvTy5
-	ibHnl85K+HTl1kTzHW13yQCcnhvdR8tBIBVqzqkzKjgs+aKs7iabvmBk9sf9nvr/zWgLyczG3uQ
-	8W/y3u3E6z0Y8WN2srtkcZl+8vc5eVkwsHcyYKIG0M0J/aVJ6FgX/kRPBsVM2cw5TOrh4u97sIq
-	GkLRYEKJNSlZbNz2tTyDKcKwRzFZNt0cyvJVH07ryle2ItlmMQb4lq+kkpweSqa3nOu5+y5dxHQ
-	hpDmtknaw+uRkCGCv4iMXa17Ox6bp75NnpoIgGg1uyp3X33ZR1gdacqSsQRu7ufQiEW3lLXZePH
-	zQO1MUdat6fZcKS9H4Sa/chbnfucTha9r9rrQ=
-X-Received: by 2002:a05:690c:ec4:b0:788:1086:8843 with SMTP id 00721157ae682-793c66b7cd1mr130884437b3.2.1768972588159;
-        Tue, 20 Jan 2026 21:16:28 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:74::])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-793c6888b83sm60922327b3.48.2026.01.20.21.16.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jan 2026 21:16:27 -0800 (PST)
-Date: Tue, 20 Jan 2026 21:16:26 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: sgarzare@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-	mst@redhat.com, horms@kernel.org, bobbyeshleman@meta.com,
-	corbet@lwn.net, xuanzhuo@linux.alibaba.com, haiyangz@microsoft.com,
-	jasowang@redhat.com, linux-hyperv@vger.kernel.org,
-	pabeni@redhat.com, kys@microsoft.com, vishnu.dasa@broadcom.com,
-	longli@microsoft.com, linux-doc@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-	stefanha@redhat.com, berrange@redhat.com, decui@microsoft.com,
-	bryan-bt.tan@broadcom.com, eperezma@redhat.com, wei.liu@kernel.org,
-	davem@davemloft.net, shuah@kernel.org,
-	bcm-kernel-feedback-list@broadcom.com, edumazet@google.com,
-	virtualization@lists.linux.dev, sargun@sargun.me
-Subject: Re: [net-next,v15,06/12] selftests/vsock: prepare vm management
- helpers for namespaces
-Message-ID: <aXBhKlAxxAkvr4/u@devvm11784.nha0.facebook.com>
-References: <20260116-vsock-vmtest-v15-6-bbfd1a668548@meta.com>
- <20260121025420.1999992-2-kuba@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dfyuJlQZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9A6FC116D0;
+	Wed, 21 Jan 2026 07:59:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768982374;
+	bh=lEy1yZ/ijqL0f8O4r3b/+kmhBy9GW/pNUeqgzBHM/dA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=dfyuJlQZbT+khgy1UNrCtf//gRr41b5TeKPoiYg80AS6Fc/HmDd3VwtiI+5NSenuw
+	 2Spobvzc4gCbVDeqXVaQQbRwrS6+CHKVy3XbpOJDk9mphG7a3wdXKInoc7n0OfcKWE
+	 8SWHbICqvKTijL1hBIfRy4blDhgnKn5Fu+boDiKbghi+pmOrn0ZdSCoarjSE6+E1nR
+	 24AKgBy+Kh5VI/MLAyjcYTcRF130zk6/0Xf1/w1d4GVohJUI57MraMOfQ3eptReL80
+	 6JZuVHv3OQrm+n2zA8FnYBMhG1FJ8jnjl2gjc7wulNG8aRh7RUGCDXECKS4I2EibU8
+	 Rp2oext3FgQ8w==
+Date: Wed, 21 Jan 2026 09:59:29 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Matthew Brost <matthew.brost@intel.com>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Felix Kuehling <Felix.Kuehling@amd.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>,
+	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+	iommu@lists.linux.dev, kvm@vger.kernel.org
+Subject: Re: [PATCH v3 6/7] vfio: Wait for dma-buf invalidation to complete
+Message-ID: <20260121075929.GU13201@unreal>
+References: <20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com>
+ <20260120-dmabuf-revoke-v3-6-b7e0b07b8214@nvidia.com>
+ <aW/pQmOO8komCgOK@lstrano-desk.jf.intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260121025420.1999992-2-kuba@kernel.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aW/pQmOO8komCgOK@lstrano-desk.jf.intel.com>
 
-On Tue, Jan 20, 2026 at 06:54:21PM -0800, Jakub Kicinski wrote:
-> In case you need to respin..
+On Tue, Jan 20, 2026 at 12:44:50PM -0800, Matthew Brost wrote:
+> On Tue, Jan 20, 2026 at 04:07:06PM +0200, Leon Romanovsky wrote:
+> > From: Leon Romanovsky <leonro@nvidia.com>
+> > 
+> > dma-buf invalidation is performed asynchronously by hardware, so VFIO must
+> > wait until all affected objects have been fully invalidated.
+> > 
+> > Fixes: 5d74781ebc86 ("vfio/pci: Add dma-buf export support for MMIO regions")
+> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > ---
+> >  drivers/vfio/pci/vfio_pci_dmabuf.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> > 
+> > diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > index d4d0f7d08c53..33bc6a1909dd 100644
+> > --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > @@ -321,6 +321,9 @@ void vfio_pci_dma_buf_move(struct vfio_pci_core_device *vdev, bool revoked)
+> >  			dma_resv_lock(priv->dmabuf->resv, NULL);
+> >  			priv->revoked = revoked;
+> >  			dma_buf_move_notify(priv->dmabuf);
+> > +			dma_resv_wait_timeout(priv->dmabuf->resv,
+> > +					      DMA_RESV_USAGE_KERNEL, false,
+> > +					      MAX_SCHEDULE_TIMEOUT);
 > 
-> This is an AI-generated review of your patch.
-> For local reproduction steps see https://netdev-ai.bots.linux.dev/ai-local.html
-> ---
-> selftests/vsock: prepare vm management helpers for namespaces
+> Should we explicitly call out in the dma_buf_move_notify() /
+> invalidate_mappings kernel-doc that KERNEL slots are the mechanism
+> for communicating asynchronous dma_buf_move_notify /
+> invalidate_mappings events via fences?
 > 
-> This commit adds namespace support to VM management helpers and wrapper
-> functions, requiring callers to explicitly pass "init_ns" for the init
-> namespace. The commit message states "No functional changes for existing
-> tests. All have been updated to pass 'init_ns' explicitly."
+> Yes, this is probably implied, but it wouldn’t hurt to state this
+> explicitly as part of the cross-driver contract.
 > 
-> > diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-> > index c2bdc293b94c..1d03acb62347 100755
-> > --- a/tools/testing/selftests/vsock/vmtest.sh
-> > +++ b/tools/testing/selftests/vsock/vmtest.sh
-> > @@ -135,7 +135,18 @@ del_namespaces() {
-> >  }
-> >
-> >  vm_ssh() {
-> > -	ssh -q -o UserKnownHostsFile=/dev/null -p ${SSH_HOST_PORT} localhost "$@"
-> > +	local ns_exec
-> > +
-> > +	if [[ "${1}" == init_ns ]]; then
-> > +		ns_exec=""
-> > +	else
-> > +		ns_exec="ip netns exec ${1}"
-> > +	fi
-> > +
-> > +	shift
-> > +
-> > +	${ns_exec} ssh -q -o UserKnownHostsFile=/dev/null -p "${SSH_HOST_PORT}" localhost "$@"
-> > +
-> >  	return $?
-> >  }
+> Here is what we have now:
 > 
-> The vm_ssh() function now expects a namespace as its first argument, but
-> run_shared_vm_test() still calls vm_ssh without this parameter:
-> 
->     vm_oops_cnt_before=$(vm_ssh -- dmesg | grep -c -i 'Oops')
->     vm_warn_cnt_before=$(vm_ssh -- dmesg --level=warn | grep -c -i 'vsock')
->     vm_oops_cnt_after=$(vm_ssh -- dmesg | grep -i 'Oops' | wc -l)
->     vm_warn_cnt_after=$(vm_ssh -- dmesg --level=warn | grep -c -i 'vsock')
-> 
-> When called as "vm_ssh -- dmesg", the "--" is interpreted as the namespace
-> argument. Since "--" does not equal "init_ns", the function sets
-> ns_exec="ip netns exec --" which is invalid. The shift then consumes "--"
-> and the command becomes "ip netns exec -- ssh ... dmesg" which will fail.
-> 
-> Interestingly, the v9 version of this patch on lore correctly updated these
-> calls to pass "init_ns", but this change appears to have been lost between
-> v9 and v15. The fix for this regression is present later in the series in
-> commit 3ae984505e00 ("selftests/vsock: add vm_dmesg_{warn,oops}_count()
-> helpers").
-> 
-> [ ... ]
+>  	 * - Dynamic importers should set fences for any access that they can't
+> 	 *   disable immediately from their &dma_buf_attach_ops.invalidate_mappings
+>  	 *   callback.
 
-Got it, thank you.
+I believe I documented this in patch 4:
+https://lore.kernel.org/all/20260120-dmabuf-revoke-v3-4-b7e0b07b8214@nvidia.com/"
+Is there anything else that should be added?
 
-Best,
-Bobby
+  1275 /**
+  1276  * dma_buf_move_notify - notify attachments that DMA-buf is moving
+  1277  *
+  1278  * @dmabuf:     [in]    buffer which is moving
+  1279  *
+  1280  * Informs all attachments that they need to destroy and recreate all their
+  1281  * mappings. If the attachment is dynamic then the dynamic importer is expected
+  1282  * to invalidate any caches it has of the mapping result and perform a new
+  1283  * mapping request before allowing HW to do any further DMA.
+  1284  *
+  1285  * If the attachment is pinned then this informs the pinned importer that
+  1286  * the underlying mapping is no longer available. Pinned importers may take
+  1287  * this is as a permanent revocation so exporters should not trigger it
+  1288  * lightly.
+  1289  *
+  1290  * For legacy pinned importers that cannot support invalidation this is a NOP.
+  1291  * Drivers can call dma_buf_attach_revocable() to determine if the importer
+  1292  * supports this.
+  1293  *
+  1294  * NOTE: The invalidation triggers asynchronous HW operation and the callers
+  1295  * need to wait for this operation to complete by calling
+  1296  * to dma_resv_wait_timeout().
+  1297  */
+
+Thanks
+
+
+> 
+> Matt
+> 
+> >  			dma_resv_unlock(priv->dmabuf->resv);
+> >  		}
+> >  		fput(priv->dmabuf->file);
+> > @@ -342,6 +345,8 @@ void vfio_pci_dma_buf_cleanup(struct vfio_pci_core_device *vdev)
+> >  		priv->vdev = NULL;
+> >  		priv->revoked = true;
+> >  		dma_buf_move_notify(priv->dmabuf);
+> > +		dma_resv_wait_timeout(priv->dmabuf->resv, DMA_RESV_USAGE_KERNEL,
+> > +				      false, MAX_SCHEDULE_TIMEOUT);
+> >  		dma_resv_unlock(priv->dmabuf->resv);
+> >  		vfio_device_put_registration(&vdev->vdev);
+> >  		fput(priv->dmabuf->file);
+> > 
+> > -- 
+> > 2.52.0
+> > 
