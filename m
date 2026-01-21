@@ -1,111 +1,141 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AABF48032D
-	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 09:48:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37896481FC3;
+	Wed, 21 Jan 2026 10:14:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768988893; cv=none; b=p4bSjZrExZA/M+JA/Htyj/SJ/dFp8oZ8ChoZ/i9csC9Qg+gMV4qch/DYwwvbOUbmIwFXPDFEdt1Ce0GaZTYE1IfiV3D+0Y79cgTJ/ZlLCcl1Upmv1H38UzwGyHLHlJeJx/oi4amAqDgPBuBkldkwgTOU8p2tIU4+LK14Ak3TY6g=
+	t=1768990467; cv=none; b=URAKnxQfKFt0kVE0q2dtRklh+F7fsnMiUtNKMvgr6im+ZnHqX3/t8Lq52xnlXN/dWsptY8Wi+cVC7oSR81kzC0hNM1MMmp4e6snrIG4+NpzmCsxyJutIZUcKYZHkSD9b8blmVz5Ne0HVZhgzGAkZVxQS1ZoqRNWzqLAOAQLGhno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768988893; c=relaxed/simple;
-	bh=hepF0A2LSGlCyRDBXglqMBeLZzFYJb45MCxfhvn7i1s=;
+	s=arc-20240116; t=1768990467; c=relaxed/simple;
+	bh=Tfo/OWueoKu8rex7Tl9fDhj3HYw8PFEJM2EofHNagw8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ncvcZ0mMgS6Ydndx3k3M9iXsQ1EqJPb+pIfb+q/K9sdqyLz/cI753Hw0EseDjiTW8B6HaLR/7soUFatd8Z413UbPx098I6L3VhG304/hY20XwSeKxIPdijPi+ogSYG1Svoi8Ua9XzVSHEONxE20vd56aptOW1VOwdQn88eBYH+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fIoVYjaW; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=SDDnkdHMnvKDwMluaYUq6aceQ1Jz0nuJJGboAbkS0BPACVoZvOx0lCCPQU5NxoYHrcUwuJ4nbyB9PjKUy1u799Hna1Il5SJ6Qxdy6YnOKI8yfzbN9k0N2IF3um4HFPUsWWaTMGogHELNSydC1WFLZjc4xZLmELmCere2ckcZh9c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N5mnHwlZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fIoVYjaW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1768988889;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hepF0A2LSGlCyRDBXglqMBeLZzFYJb45MCxfhvn7i1s=;
-	b=fIoVYjaW9NDxX2C9etPe+QYGTiYKIjW3AQlDN9QRm2p+ziIiH1gD38PUO0Y5Gbfjsfxzhh
-	27CHujhAchMM6Z6v8RXLT8iFc8Lh/KAgkj3np5Zpkx2lNsJaMJiPfcgnTjZ/58MPw5m7Qr
-	RY5L8Vb2aeiVGfq3LLr/5SumkfTd9I4=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-531-CRQX8BeuPbOW4HjiqDG2UA-1; Wed, 21 Jan 2026 04:48:08 -0500
-X-MC-Unique: CRQX8BeuPbOW4HjiqDG2UA-1
-X-Mimecast-MFC-AGG-ID: CRQX8BeuPbOW4HjiqDG2UA_1768988887
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-430fc83f58dso4338451f8f.2
-        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 01:48:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768988887; x=1769593687;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hepF0A2LSGlCyRDBXglqMBeLZzFYJb45MCxfhvn7i1s=;
-        b=NzEgjY4BF4MiQMxC/MqpAGaWBGifA102w8iCJqTJ0RMoWzIKZwgGqpdqEwHGgrWJyX
-         4WSDQV1w4RTVvGnpc1/vnnHSImIAQIwBtVkeT4MI0OpTtZ3wwdL8Mfs47TVNihuWCKCM
-         Y+72feyjS33LzoNpw0S42AsN7RcTOifs5V1TBtZIr4Vr8TJa74i9Ea06ysJKobAZ8YRT
-         kbae7H1OjJkl9mrH+qBzN17AFjgCp3ABAPYOvngu5lsNc09B3vJhluP5IJ6CIcoeAqq9
-         qr4RYx5e5TH3MLNSRASFqwY4UBeR2R8U3ZGKAJQH6rtJQVxBxd/4EdE/uq3+uGQiQ3lB
-         4Cag==
-X-Forwarded-Encrypted: i=1; AJvYcCVZSmTFTjc6TonOBGOwwvgegkTirSrS2sTKZ8S6/EXWbJaDivV3qAsHLu2W5OhR4EXA2q0BP9OfCxA1bGD2Tg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwpJKSt0w/PI3xRYU6sGTUTVIO0h3RHNQjhD5yP1kyKCFdPse14
-	l3V2liIhX+JelDwfhsu4PjxJaUzF5MxlCUXHrhpgRz6JFaqTEScTrm6KHXOWkI+r2SiwCaLqk2s
-	JPWRc8u/Yjm9TwMccrfeULEM3qAMVg3oiIyv/7xZvEFQ7bV4hEREtc2LUBJOwnIt5zOJ4
-X-Gm-Gg: AZuq6aKn2T9aQXJiNG7az0cCHR+JQ3b+6GiIs+iiPgqVCryb8RDA8mB4ne3ZkXDr95x
-	1AFbLljU8esy5NfA73+kWWGdRDLJ2UUNO/TDHKAfJbGOx9fgq/3wreb6ZBD1+WvkMS4JDFfNVph
-	VST/fRyPV7FnTbzzJwX074kTbaYqy1d9SuMuqV9dMSPTwSCCBgvqaUBPN40gbg6vsCBmikF40Wa
-	rXhkS/Ts6NVbYtA4v2RUftxxs7V961fFL3GNqaSWGqlho5votIMfe0eJZ3hbKFsqsrcAGCjr+qT
-	JJbIWS4GIZIzDmSjhF85atr7OHWIPN+r8hJAwExXrvcBuExRxa3hiC5+SnMmWUDMFQ8Z3DTaY/W
-	he3H5W+sDkucYpdWQesaJJ8U9sJL3CLiazsNmV5H/oZ943qJIEkGGijr6h2M=
-X-Received: by 2002:a05:600c:8b78:b0:47e:e8c2:905f with SMTP id 5b1f17b1804b1-4801e30a790mr252559195e9.8.1768988887164;
-        Wed, 21 Jan 2026 01:48:07 -0800 (PST)
-X-Received: by 2002:a05:600c:8b78:b0:47e:e8c2:905f with SMTP id 5b1f17b1804b1-4801e30a790mr252558715e9.8.1768988886678;
-        Wed, 21 Jan 2026 01:48:06 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47f429071besm351751895e9.10.2026.01.21.01.48.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 01:48:05 -0800 (PST)
-Date: Wed, 21 Jan 2026 10:45:50 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Paolo Abeni <pabeni@redhat.com>, kvm@vger.kernel.org, 
-	Eric Dumazet <edumazet@google.com>, linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>, 
-	Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>, Simon Horman <horms@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Arseniy Krasnov <AVKrasnov@sberdevices.ru>, 
-	Asias He <asias@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH RESEND net v5 0/4] vsock/virtio: fix TX credit handling
-Message-ID: <aXCfnIFT6_HqC8v9@sgarzare-redhat>
-References: <20260116201517.273302-1-sgarzare@redhat.com>
- <20260119101734.01cbe934@kernel.org>
- <aW9L0xiwotBnRMw2@sgarzare-redhat>
- <20260120151848.3b145279@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N5mnHwlZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0DD7C19422;
+	Wed, 21 Jan 2026 10:14:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768990466;
+	bh=Tfo/OWueoKu8rex7Tl9fDhj3HYw8PFEJM2EofHNagw8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=N5mnHwlZ4VBOzCaF2qAu+DjTaYQWAFbky4+JT2mBLPGjrNKxQ+fM9k9d6IllOUceW
+	 j1tAd0RJdJnA6QxkAhArkPbFRodriKbgtOU4tbyG0Ur1/cdjnP09GyrxTAfwHP4xnP
+	 X2So8WSV2cSYLZ1AZt0vyY20Gne5NDjhKQIqOjY28If9yXQcsOj1ST1qi7+CzWJcpx
+	 Bps75wKKBhcc5ddkolv1NkPvv+0fB5Nv0q0I8EgTvOodoH6D+g2E7dAFxYKe7BHlLR
+	 hPLlN+CWPcGoGBCvh/VKV743I73C6D0fJrJ2uaTEJdSDWeaB+0vclUS32VmzRQQIbg
+	 QHhoM3gbQHIKg==
+Date: Wed, 21 Jan 2026 12:14:21 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Felix Kuehling <Felix.Kuehling@amd.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>,
+	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+	iommu@lists.linux.dev, kvm@vger.kernel.org
+Subject: Re: [PATCH v3 2/7] dma-buf: Always build with DMABUF_MOVE_NOTIFY
+Message-ID: <20260121101421.GZ13201@unreal>
+References: <20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com>
+ <20260120-dmabuf-revoke-v3-2-b7e0b07b8214@nvidia.com>
+ <24c7a7e6-b1bd-4407-b62d-4d9ea4cdeee4@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260120151848.3b145279@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: K5B66J4e3vOZmfUwTC8ta5jECWta-fOt-JdjOUAh1IY_1768988887
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <24c7a7e6-b1bd-4407-b62d-4d9ea4cdeee4@amd.com>
 
-On Tue, Jan 20, 2026 at 03:18:48PM -0800, Jakub Kicinski wrote:
->On Tue, 20 Jan 2026 10:37:12 +0100 Stefano Garzarella wrote:
->> If you prefer I can send a v6.
->
->We'll need a v6, patchwork can't do its thing if the series doesn't
->apply and last time I applied something without patchwork checks it
->broke selftest build:
->https://lore.kernel.org/all/20260120180319.1673271-1-kuba@kernel.org/
->:(
->
+On Wed, Jan 21, 2026 at 09:55:38AM +0100, Christian König wrote:
+> On 1/20/26 15:07, Leon Romanovsky wrote:
+> > From: Leon Romanovsky <leonro@nvidia.com>
+> > 
+> > DMABUF_MOVE_NOTIFY was introduced in 2018 and has been marked as
+> > experimental and disabled by default ever since. Six years later,
+> > all new importers implement this callback.
+> > 
+> > It is therefore reasonable to drop CONFIG_DMABUF_MOVE_NOTIFY and
+> > always build DMABUF with support for it enabled.
+> > 
+> > Suggested-by: Christian König <christian.koenig@amd.com>
+> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > ---
+> >  drivers/dma-buf/Kconfig                     | 12 ------------
+> >  drivers/dma-buf/dma-buf.c                   | 12 ++----------
+> >  drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c | 10 +++-------
+> >  drivers/gpu/drm/amd/amdkfd/Kconfig          |  2 +-
+> >  drivers/gpu/drm/xe/tests/xe_dma_buf.c       |  3 +--
+> >  drivers/gpu/drm/xe/xe_dma_buf.c             | 12 ++++--------
+> >  6 files changed, 11 insertions(+), 40 deletions(-)
+> > 
+> > diff --git a/drivers/dma-buf/Kconfig b/drivers/dma-buf/Kconfig
+> > index b46eb8a552d7..84d5e9b24e20 100644
+> > --- a/drivers/dma-buf/Kconfig
+> > +++ b/drivers/dma-buf/Kconfig
+> > @@ -40,18 +40,6 @@ config UDMABUF
+> >  	  A driver to let userspace turn memfd regions into dma-bufs.
+> >  	  Qemu can use this to create host dmabufs for guest framebuffers.
+> >  
+> > -config DMABUF_MOVE_NOTIFY
+> > -	bool "Move notify between drivers (EXPERIMENTAL)"
+> > -	default n
+> > -	depends on DMA_SHARED_BUFFER
+> > -	help
+> > -	  Don't pin buffers if the dynamic DMA-buf interface is available on
+> > -	  both the exporter as well as the importer. This fixes a security
+> > -	  problem where userspace is able to pin unrestricted amounts of memory
+> > -	  through DMA-buf.
+> > -	  This is marked experimental because we don't yet have a consistent
+> > -	  execution context and memory management between drivers.
+> > -
+> >  config DMABUF_DEBUG
+> >  	bool "DMA-BUF debug checks"
+> >  	depends on DMA_SHARED_BUFFER
+> > diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+> > index 59cc647bf40e..cd3b60ce4863 100644
+> > --- a/drivers/dma-buf/dma-buf.c
+> > +++ b/drivers/dma-buf/dma-buf.c
+> > @@ -837,18 +837,10 @@ static void mangle_sg_table(struct sg_table *sg_table)
+> >  
+> >  }
+> >  
+> > -static inline bool
+> > -dma_buf_attachment_is_dynamic(struct dma_buf_attachment *attach)
+> 
+> I would rather like to keep the wrapper and even add some explanation what it means when true is returned.
 
-Sure, not a problem at all, v6 is out now:
-https://lore.kernel.org/netdev/20260121093628.9941-1-sgarzare@redhat.com/
+We have different opinion here. I don't like single line functions which
+are called only twice. I'll keep this function to ensure progress the
+series.
 
-Thanks for the help!
-Stefano
+Thanks
 
+> 
+> Apart from that looks good to me.
+> 
+> Regards,
+> Christian.
