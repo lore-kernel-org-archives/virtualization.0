@@ -1,251 +1,151 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78B2E3ACEE8;
-	Wed, 21 Jan 2026 09:32:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F1163A89DF;
+	Wed, 21 Jan 2026 09:36:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768987967; cv=none; b=DhrXnnzPXB/AWjSm+Bd1Inibd3llfIP40w+adTw16L40Zvz6jiu4ZejqDTTQjralJzj/ExArnUNqYXkVJhFJNG2S2fmgkr7ABKu4FW+Bzls+BVlRKXdtum7dKtqCeqtd1xONjXGmcMnuCegJVVmzGlkuAvkKiFEXJl1kWkCA/LI=
+	t=1768988193; cv=none; b=jUohS2oTU4pkHlupZ9eeo0GYmJ6Jxwtoes1CodpnAltnObHGivqjXSz0HfumwxSTgVpCFBVFzzHqMf4L7g2jkygYoUp50wegVbBmpNIhHci8CKZB2Ii9AAwonSK3y/E7sRXMQ7IxE1KuMhGs0wgsmBor7C81psTMjHSCooFxnko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768987967; c=relaxed/simple;
-	bh=S6Jsr9iC1GnVhpjf+bKMgc9kqfY4K5WhFGlPiUf4D5c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=neufYmS2FbM9EJiHMukk0ypHuGSmnrCyOhDUAgIxsJeFZRmH6JQ/mY84wAbEJEQbVgC0aZ3JXDHuBI2cCpSJFAlSFcJ4t6lgxvAr4M9jN4nn32JEr5RX+sSbZAbU1pnS6ZcZg9weLmAeEXLTUH6E9rVaMDowk958ow9dLFAWelM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=oLPc+O2a; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	s=arc-20240116; t=1768988193; c=relaxed/simple;
+	bh=qL9iu/H5hpUrP/X6+ggfEAqN7pCzi7K6vLcfE1tY/YA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=QuMmbgvBSplIwaHBmYOhCah9o6mbgs0+4sM12+qf8KZVl+QWC0VqjoW28tDsF9Z0URh373txQLnwWDhU7nW++w91wz7XHyAl9X6j71ceX12LCXsDldf/qUiOKYp7p83+F5yOiZA1R2drugTRp1Obep5AFJ0zCTjCAhf1IXZDLMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=e6+k0CNt; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="oLPc+O2a"
-Received: from [129.217.186.154] ([129.217.186.154])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.1.16/8.18.1.16) with ESMTPSA id 60L9WTZn002712
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 21 Jan 2026 10:32:29 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1768987950;
-	bh=S6Jsr9iC1GnVhpjf+bKMgc9kqfY4K5WhFGlPiUf4D5c=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=oLPc+O2a+imba04rEJKdoffOHEI3asOVNiGnLpMjfxgrQvT/+R5Wxp6keF24mbA26
-	 aH6sY8FA3gQ6Gq4JT5v8QeONQnluxk7jCFygUmvE4sroDo4KYMibV5g8Wb0DdGQtGW
-	 VeHETgZHaQkMGedV1/x8YlYBotJSzhkj3fMpuSQk=
-Message-ID: <afa40345-acbe-42b0-81d1-0a838343792d@tu-dortmund.de>
-Date: Wed, 21 Jan 2026 10:32:29 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="e6+k0CNt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1768988192; x=1800524192;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=qL9iu/H5hpUrP/X6+ggfEAqN7pCzi7K6vLcfE1tY/YA=;
+  b=e6+k0CNtnOrCxHtia9YZYzbn6HZW3/yeAn50pdVz48/oDX5d4hn1NAYZ
+   AInXBnGemUHtxKJnNyMo7YZGh6+wwKxRd/vnrFhKidws+QIUrRyByb5cK
+   i5jtMfa5qcBvSykXn2mD/yhUo09Ffm2jPdVwBGS5K++DEEhU6Vs3zfemu
+   VJJMw6Wc0AIqNAjVbY9xaKDolfHAe2/3Rmli8FxqZgcgHNbpp2WisUxpA
+   lt3ipjM7CI28EH6dxYEFYSMjlh1hdfSAZeZfQhNw5cBGfRJlqgJrXCb0n
+   bvpOioRiWQNwV6oR2t/cagC6zqPVVgTD6FnRdJKINY9eHEwwahWl4TP1n
+   Q==;
+X-CSE-ConnectionGUID: +3vixW59T2iGtLgadeEdvA==
+X-CSE-MsgGUID: 3/4sbLe8TECPXl90qqF/Sw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11677"; a="87624095"
+X-IronPort-AV: E=Sophos;i="6.21,242,1763452800"; 
+   d="scan'208";a="87624095"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jan 2026 01:36:31 -0800
+X-CSE-ConnectionGUID: 60Hy4B3ETOyz27yzkkUGrg==
+X-CSE-MsgGUID: Cg2+ahF4Sdui1FjdHXerRA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,242,1763452800"; 
+   d="scan'208";a="206639396"
+Received: from egrumbac-mobl6.ger.corp.intel.com (HELO [10.245.245.107]) ([10.245.245.107])
+  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jan 2026 01:36:24 -0800
+Message-ID: <107464758df9444a465a3a9e387f5a42827aff51.camel@linux.intel.com>
+Subject: Re: [PATCH v3 6/7] vfio: Wait for dma-buf invalidation to complete
+From: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>
+To: Christian =?ISO-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, Leon
+ Romanovsky <leon@kernel.org>, Sumit Semwal <sumit.semwal@linaro.org>, Alex
+ Deucher	 <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>,
+ Simona Vetter	 <simona@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>, Dmitry
+ Osipenko	 <dmitry.osipenko@collabora.com>, Gurchetan Singh
+ <gurchetansingh@chromium.org>,  Chia-I Wu <olvaffe@gmail.com>, Maarten
+ Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard	
+ <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Lucas De
+ Marchi	 <lucas.demarchi@intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>, Joerg
+ Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy
+ <robin.murphy@arm.com>, Felix Kuehling	 <Felix.Kuehling@amd.com>, Alex
+ Williamson <alex@shazbot.org>, Ankit Agrawal	 <ankita@nvidia.com>, Vivek
+ Kasireddy <vivek.kasireddy@intel.com>
+Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org, 
+	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev, 
+	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org, 
+	iommu@lists.linux.dev, kvm@vger.kernel.org
+Date: Wed, 21 Jan 2026 10:36:09 +0100
+In-Reply-To: <b129f0c1-b61e-4efb-9e25-d8cdadaca1b3@amd.com>
+References: <20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com>
+	 <20260120-dmabuf-revoke-v3-6-b7e0b07b8214@nvidia.com>
+	 <b129f0c1-b61e-4efb-9e25-d8cdadaca1b3@amd.com>
+Organization: Intel Sweden AB, Registration Number: 556189-6027
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.2 (3.58.2-1.fc43) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: [PATCH net-next v7 3/9] tun/tap: add ptr_ring consume helper with
- netdev queue wakeup
-To: Jason Wang <jasowang@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
-        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
- <20260107210448.37851-4-simon.schippers@tu-dortmund.de>
- <CACGkMEuSiEcyaeFeZd0=RgNpviJgNvUDq_ctjeMLT5jZTgRkwQ@mail.gmail.com>
- <1e30464c-99ae-441e-bb46-6d0485d494dc@tu-dortmund.de>
- <CACGkMEtzD3ORJuJcc8VeqwASiGeVFdQmJowsK6PYVEF_Zkcn8Q@mail.gmail.com>
-Content-Language: en-US
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-In-Reply-To: <CACGkMEtzD3ORJuJcc8VeqwASiGeVFdQmJowsK6PYVEF_Zkcn8Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-On 1/9/26 07:02, Jason Wang wrote:
-> On Thu, Jan 8, 2026 at 3:41 PM Simon Schippers
-> <simon.schippers@tu-dortmund.de> wrote:
->>
->> On 1/8/26 04:38, Jason Wang wrote:
->>> On Thu, Jan 8, 2026 at 5:06 AM Simon Schippers
->>> <simon.schippers@tu-dortmund.de> wrote:
->>>>
->>>> Introduce {tun,tap}_ring_consume() helpers that wrap __ptr_ring_consume()
->>>> and wake the corresponding netdev subqueue when consuming an entry frees
->>>> space in the underlying ptr_ring.
->>>>
->>>> Stopping of the netdev queue when the ptr_ring is full will be introduced
->>>> in an upcoming commit.
->>>>
->>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
->>>> ---
->>>>  drivers/net/tap.c | 23 ++++++++++++++++++++++-
->>>>  drivers/net/tun.c | 25 +++++++++++++++++++++++--
->>>>  2 files changed, 45 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
->>>> index 1197f245e873..2442cf7ac385 100644
->>>> --- a/drivers/net/tap.c
->>>> +++ b/drivers/net/tap.c
->>>> @@ -753,6 +753,27 @@ static ssize_t tap_put_user(struct tap_queue *q,
->>>>         return ret ? ret : total;
->>>>  }
->>>>
->>>> +static void *tap_ring_consume(struct tap_queue *q)
->>>> +{
->>>> +       struct ptr_ring *ring = &q->ring;
->>>> +       struct net_device *dev;
->>>> +       void *ptr;
->>>> +
->>>> +       spin_lock(&ring->consumer_lock);
->>>> +
->>>> +       ptr = __ptr_ring_consume(ring);
->>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1))) {
->>>> +               rcu_read_lock();
->>>> +               dev = rcu_dereference(q->tap)->dev;
->>>> +               netif_wake_subqueue(dev, q->queue_index);
->>>> +               rcu_read_unlock();
->>>> +       }
->>>> +
->>>> +       spin_unlock(&ring->consumer_lock);
->>>> +
->>>> +       return ptr;
->>>> +}
->>>> +
->>>>  static ssize_t tap_do_read(struct tap_queue *q,
->>>>                            struct iov_iter *to,
->>>>                            int noblock, struct sk_buff *skb)
->>>> @@ -774,7 +795,7 @@ static ssize_t tap_do_read(struct tap_queue *q,
->>>>                                         TASK_INTERRUPTIBLE);
->>>>
->>>>                 /* Read frames from the queue */
->>>> -               skb = ptr_ring_consume(&q->ring);
->>>> +               skb = tap_ring_consume(q);
->>>>                 if (skb)
->>>>                         break;
->>>>                 if (noblock) {
->>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
->>>> index 8192740357a0..7148f9a844a4 100644
->>>> --- a/drivers/net/tun.c
->>>> +++ b/drivers/net/tun.c
->>>> @@ -2113,13 +2113,34 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->>>>         return total;
->>>>  }
->>>>
->>>> +static void *tun_ring_consume(struct tun_file *tfile)
->>>> +{
->>>> +       struct ptr_ring *ring = &tfile->tx_ring;
->>>> +       struct net_device *dev;
->>>> +       void *ptr;
->>>> +
->>>> +       spin_lock(&ring->consumer_lock);
->>>> +
->>>> +       ptr = __ptr_ring_consume(ring);
->>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1))) {
->>>
->>> I guess it's the "bug" I mentioned in the previous patch that leads to
->>> the check of __ptr_ring_consume_created_space() here. If it's true,
->>> another call to tweak the current API.
->>>
->>>> +               rcu_read_lock();
->>>> +               dev = rcu_dereference(tfile->tun)->dev;
->>>> +               netif_wake_subqueue(dev, tfile->queue_index);
->>>
->>> This would cause the producer TX_SOFTIRQ to run on the same cpu which
->>> I'm not sure is what we want.
->>
->> What else would you suggest calling to wake the queue?
-> 
-> I don't have a good method in my mind, just want to point out its implications.
+Hi, Christian,
 
-I have to admit I'm a bit stuck at this point, particularly with this
-aspect.
+On Wed, 2026-01-21 at 10:20 +0100, Christian K=C3=B6nig wrote:
+> On 1/20/26 15:07, Leon Romanovsky wrote:
+> > From: Leon Romanovsky <leonro@nvidia.com>
+> >=20
+> > dma-buf invalidation is performed asynchronously by hardware, so
+> > VFIO must
+> > wait until all affected objects have been fully invalidated.
+> >=20
+> > Fixes: 5d74781ebc86 ("vfio/pci: Add dma-buf export support for MMIO
+> > regions")
+> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+>=20
+> Reviewed-by: Christian K=C3=B6nig <christian.koenig@amd.com>
+>=20
+> Please also keep in mind that the while this wait for all fences for
+> correctness you also need to keep the mapping valid until
+> dma_buf_unmap_attachment() was called.
 
-What is the correct way to pass the producer CPU ID to the consumer?
-Would it make sense to store smp_processor_id() in the tfile inside
-tun_net_xmit(), or should it instead be stored in the skb (similar to the
-XDP bit)? In the latter case, my concern is that this information may
-already be significantly outdated by the time it is used.
+I'm wondering shouldn't we require DMA_RESV_USAGE_BOOKKEEP here, as
+*any* unsignaled fence could indicate access through the map?
 
-Based on that, my idea would be for the consumer to wake the producer by
-invoking a new function (e.g., tun_wake_queue()) on the producer CPU via
-smp_call_function_single().
-Is this a reasonable approach?
+/Thomas
 
-More generally, would triggering TX_SOFTIRQ on the consumer CPU be
-considered a deal-breaker for the patch set?
-
-Thanks!
-
-> 
->>
->>>
->>>> +               rcu_read_unlock();
->>>> +       }
->>>
->>> Btw, this function duplicates a lot of logic of tap_ring_consume() we
->>> should consider to merge the logic.
->>
->> Yes, it is largely the same approach, but it would require accessing the
->> net_device each time.
-> 
-> The problem is that, at least for TUN, the socket is loosely coupled
-> with the netdev. It means the netdev can go away while the socket
-> might still exist. That's why vhost only talks to the socket, not the
-> netdev. If we really want to go this way, here, we should at least
-> check the existence of tun->dev first.
-> 
->>
->>>
->>>> +
->>>> +       spin_unlock(&ring->consumer_lock);
->>>> +
->>>> +       return ptr;
->>>> +}
->>>> +
->>>>  static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
->>>>  {
->>>>         DECLARE_WAITQUEUE(wait, current);
->>>>         void *ptr = NULL;
->>>>         int error = 0;
->>>>
->>>> -       ptr = ptr_ring_consume(&tfile->tx_ring);
->>>> +       ptr = tun_ring_consume(tfile);
->>>
->>> I'm not sure having a separate patch like this may help. For example,
->>> it will introduce performance regression.
->>
->> I ran benchmarks for the whole patch set with noqueue (where the queue is
->> not stopped to preserve the old behavior), as described in the cover
->> letter, and observed no performance regression. This leads me to conclude
->> that there is no performance impact because of this patch when the queue
->> is not stopped.
-> 
-> Have you run a benchmark per patch? Or it might just be because the
-> regression is not obvious. But at least this patch would introduce
-> more atomic operations or it might just because the TUN doesn't
-> support burst so pktgen can't have the best PPS.
-> 
-> Thanks
-> 
-> 
->>
->>>
->>>>         if (ptr)
->>>>                 goto out;
->>>>         if (noblock) {
->>>> @@ -2131,7 +2152,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
->>>>
->>>>         while (1) {
->>>>                 set_current_state(TASK_INTERRUPTIBLE);
->>>> -               ptr = ptr_ring_consume(&tfile->tx_ring);
->>>> +               ptr = tun_ring_consume(tfile);
->>>>                 if (ptr)
->>>>                         break;
->>>>                 if (signal_pending(current)) {
->>>> --
->>>> 2.43.0
->>>>
->>>
->>> Thanks
->>>
->>
-> 
+>=20
+> In other words you can only redirect the DMA-addresses previously
+> given out into nirvana (or a dummy memory or similar), but you still
+> need to avoid re-using them for something else.
+>=20
+> Regards,
+> Christian.
+>=20
+> > ---
+> > =C2=A0drivers/vfio/pci/vfio_pci_dmabuf.c | 5 +++++
+> > =C2=A01 file changed, 5 insertions(+)
+> >=20
+> > diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > index d4d0f7d08c53..33bc6a1909dd 100644
+> > --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > @@ -321,6 +321,9 @@ void vfio_pci_dma_buf_move(struct
+> > vfio_pci_core_device *vdev, bool revoked)
+> > =C2=A0			dma_resv_lock(priv->dmabuf->resv, NULL);
+> > =C2=A0			priv->revoked =3D revoked;
+> > =C2=A0			dma_buf_move_notify(priv->dmabuf);
+> > +			dma_resv_wait_timeout(priv->dmabuf->resv,
+> > +					=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0
+> > DMA_RESV_USAGE_KERNEL, false,
+> > +					=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0
+> > MAX_SCHEDULE_TIMEOUT);
+> > =C2=A0			dma_resv_unlock(priv->dmabuf->resv);
+> > =C2=A0		}
+> > =C2=A0		fput(priv->dmabuf->file);
+> > @@ -342,6 +345,8 @@ void vfio_pci_dma_buf_cleanup(struct
+> > vfio_pci_core_device *vdev)
+> > =C2=A0		priv->vdev =3D NULL;
+> > =C2=A0		priv->revoked =3D true;
+> > =C2=A0		dma_buf_move_notify(priv->dmabuf);
+> > +		dma_resv_wait_timeout(priv->dmabuf->resv,
+> > DMA_RESV_USAGE_KERNEL,
+> > +				=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 false,
+> > MAX_SCHEDULE_TIMEOUT);
+> > =C2=A0		dma_resv_unlock(priv->dmabuf->resv);
+> > =C2=A0		vfio_device_put_registration(&vdev->vdev);
+> > =C2=A0		fput(priv->dmabuf->file);
+> >=20
