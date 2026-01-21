@@ -1,193 +1,164 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CF26330678
-	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 16:02:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E7472820A9
+	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 16:32:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769011325; cv=none; b=nSwfpINMeoNsQOd2fwAvwtQaDojaBBTDK3mjwfjjwnnBcZ/fnoXMDBhryP3/SHCRAP/oErcQJsNfdr31RAaErqPVR+5bO20tzqj9C4CqJ6NkPWOOqIzSDiOeYWaBTuNWpVj1X8CFPHBAF9SZYo90wbxmlU8ozcK0THmMKGg7xgE=
+	t=1769013163; cv=none; b=CQyL5eI9NLVLTZmuu+R/z7lw+ATJZGtKKKbHSpoVlRcCv+w6dj4CFEZhe3yg6vAyk2FzlMJGOk3QdIv5Ie58Se1WjggG9bWO/s5sM2Lj6IYkQT2U7j08HMPFM54BVa10NKkGWUA2hLLHrLtiNRtftHCXM+Epy/L/81H03qCb6Ek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769011325; c=relaxed/simple;
-	bh=ALN3BZ1h37bw87fH1I2phtqMuOjkp7pNGMZRlYvqJKU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MZzXwIKTpMP1CoN451RpPtG/j1RZaWe4UogN3oSKj6CjI0Sarmi0uhyNIbbsbPGS5z90BHnabsnfwBAAbMqJxOXgXx34AN+786dDPrHO4WhpwyGkEheNOZ9ewRvM5PuhvPGzogZtNAof919zpnB5oVP2tOEYX7AqDCrjvpVfiak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=BE4Ni8wB; arc=none smtp.client-ip=209.85.219.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1769013163; c=relaxed/simple;
+	bh=FoyiK1L3Q2N5n/FjMNfanm0zKz84UsrOOXkZRg0Kqz0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PIwAayOQRMXXXjrrMq3dIssZWjVH2notIyDpUgFa3nqw/0ybPg+jj0w2mM/3FJSsN9RVsbOmQBeH/zVB+DVGK/nAySPyGAkLMW/RHRKMg9MnbfqzkjIRVQFsrPmu0b3G3awQDx1GrpHJ0nA6qd+QZ+LQJVyKgOXyolGEMMrZL90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YfOxEdLr; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="BE4Ni8wB"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-894724bc5cbso8692116d6.1
-        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 08:02:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1769011321; x=1769616121; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Xk50a3DJCYgVIrcCVz4YsPwnwCkWAaxm0jVyWa00IrY=;
-        b=BE4Ni8wB0bzXIn/IGkhnHvKDdywG4G53zNoaqsVtTZ8DLqfNVQ/tIsbkZkZKFOGKnf
-         EqKJaPCJJUeLRByZKRCNzh0oq4HaZevXEFyq1tEqAnLKbr5+QbiNcTyjZDzzg4YiQkSt
-         HOzk/Pq2wKlkUW3jIY3dpjgRbD4ibCsytER8L/XCLs1A21HF5YltmzEHWlCgE5oxqDZ2
-         t0uAlYelD1HAVZODTBi6/Wh5ZGrFZXo/YRoAHibiIY1Nru+d1/8jfRnaAnszlZbtznmE
-         AiQ4vDWSNKoNNZfM6t0KgA+rfiPaUIA/oXva8+UkmynrR0qcPTWNpUw0wkJbESo8CkTn
-         sZbw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YfOxEdLr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769013161;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nW2BnBCkF2OGoFoub+qogRSB+R7/eG5W/AiAxbiNHik=;
+	b=YfOxEdLrzGHpTeog8pXvSFEY2dGp5/5QO+o3lIshkGSWsop7XUoceIq79xPp9WlbiLYm5T
+	j+8oKKKVJfDgfXKLB53ompC92xLOgf8c1dXDjbohxSnqzr17Ik273EuHg53wj3KJ0PmNlA
+	dLdWZtqRGTPVMExacqO0BTfSvVZA5IM=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-582-5cfRgUP5NQWEB8B2HOoesA-1; Wed, 21 Jan 2026 11:32:39 -0500
+X-MC-Unique: 5cfRgUP5NQWEB8B2HOoesA-1
+X-Mimecast-MFC-AGG-ID: 5cfRgUP5NQWEB8B2HOoesA_1769013159
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-430fcb6b2ebso899f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 08:32:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769011321; x=1769616121;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Xk50a3DJCYgVIrcCVz4YsPwnwCkWAaxm0jVyWa00IrY=;
-        b=jgMYsuKlddUg35zY5GHqvF00CBqD2zdjRp+N1CNN9OWwj1Ft5TJRtBLQUU+AYEVKY6
-         APWN92b6yhdbMzCtMsflSIApSeJaO297ja2DzRxEJYcVYShj4x9VTe1NcC4pcFcUcd6X
-         uZr6Q6FUEY/Lg4uJrj+jjJ/fzxId8LTyEIZ54wk191LnzBslBeYiRK941mvE6Ij6ULke
-         CJeumh/I690L4l/YuDFfnkAPHInAKOrQgkzY91tCDZPNY3OTHKdEpQuDdnujFbDdK0zK
-         L0HUcq8KS2IgqrUrWOR3kVR3Wms+8R0k+3eXA2z8fqhVrZzYmBsy5Bsa6SlPEYT9gh+a
-         4FHQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVv87DLg5FAkpXsISB6LRlDROdVDeJVZgLCacg2MgvooP/ukOy7tksLY3fJSHDKcVLdVU40bxPrGcG2thPiWw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwCEBWMrfXnoy8e4EIGBdUN+hbiiyCATWzqb8zOQgj4gR30SkUB
-	w0e84+Db/qkbrDSc2TlbTGz01v/+8aSfxDRsZR2ByacNFit+s62U6bQWZ6AwHMwqKIU=
-X-Gm-Gg: AZuq6aKbGHEEUG8rVFEeukCj2GhH/5TAuonj3yM6Duik5S1vivZCeOHRrxqhcAVABcV
-	JgZ9suJim/F9jNz8AXPf9CIOgQ29kK4mv2N7n1DOZJVBBSl3BuD6TB8oAPGkym1iFYnqo6sQotj
-	GYu+7PiNVh9jN0EcvafU+OcpelrZlPhESf0pYGcmDzjFAfSNcKXF6d8GV/oJYcTIamp43uKmLXw
-	5HGvrp7pJwZkFqMO02J5xWwGcM8xW7PVxGSHPjOC2q6ef2cHTPfzfviaxhdjVL7Rz9LoCh6eL23
-	AmItEU2o6dBFrPzGqY9u83mWxtYiMK44T2enb3FU5MYpGo+bJhg0BtX5+VxukgkGwMJYxzYncxl
-	e81xhJlXHCoc4v/bmS5IrjFLAtVtHjnEqzsHYMUmvN/3ddw+EP9CqOH0Ei2xQtmQunm1JieR6t8
-	v1pHSUir2S+ZPycqbxOr+Ex8a+Fi4uYvgtgSTOjhrXjo2c/4T8TcXiXzuVMJZpc1WUO9A/TKHUz
-	nmS6A==
-X-Received: by 2002:ad4:5c4d:0:b0:88a:3861:9131 with SMTP id 6a1803df08f44-893982737e8mr294508076d6.34.1769011302558;
-        Wed, 21 Jan 2026 08:01:42 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8946e3aee12sm27692726d6.39.2026.01.21.08.01.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 08:01:41 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1viaeK-00000006Es6-2jLq;
-	Wed, 21 Jan 2026 12:01:40 -0400
-Date: Wed, 21 Jan 2026 12:01:40 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>
-Cc: Leon Romanovsky <leon@kernel.org>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Felix Kuehling <Felix.Kuehling@amd.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Vivek Kasireddy <vivek.kasireddy@intel.com>,
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
-	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
-	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	iommu@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v3 6/7] vfio: Wait for dma-buf invalidation to complete
-Message-ID: <20260121160140.GF961572@ziepe.ca>
-References: <20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com>
- <20260120-dmabuf-revoke-v3-6-b7e0b07b8214@nvidia.com>
- <b129f0c1-b61e-4efb-9e25-d8cdadaca1b3@amd.com>
- <20260121133146.GY961572@ziepe.ca>
- <b88b500c-bacc-483d-9d1a-725d4158302a@amd.com>
+        d=1e100.net; s=20230601; t=1769013158; x=1769617958;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=nW2BnBCkF2OGoFoub+qogRSB+R7/eG5W/AiAxbiNHik=;
+        b=DwWsABJzlkA7nxOD15EwdzYvtc6B/GNHaxOZgoomsfojhamYjj3jVd+xGscZB5moPV
+         g2ulTXw/cwIBLWVj0qGe81VJY+v/4ttlBHmkujty3pR8jUxKnSMd2wbnHovHsOarXrb0
+         TR9FCl/isTJVlMreOdOI7WStYRYGa/KfoyIlQ+jeEqueIAli2DBlEH5jpwW3NgGXZ10w
+         229GEBUoKzbpol1gNKsuqOdhIupWcxLi5euzpTsaChG43FUQdVHC3M51c1ASEQdRD1F4
+         9c+TChv99OM7kdc0YX7drWkqjxCzpWeyYRGbha/5nIqFrtuE7rS6dp1KEUd3WCy1o9wk
+         mJ3Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWfmw3ELZazlsGPPn9znI4GMD9/NLVGAK3cp9V8ivefv1Sj/FUQpJSFE6ezLtds/ytNwGqDuv1a+ERbiFSh1g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywi7oyDl8pXZxc/xc9Nl3GxMeM94e1wXMXmX+MVxILYAZrVCJwc
+	IWQkHaiVi63Ws1fm2I9qX9kzMdN9vXsHrC/5PqVnh5w/VI2ZbCYpBJ8CP1ExCuAY5PLw60hXz/b
+	uNztFWQdbS4PaMdDUosgb529P79y85zcqbYcDij1hWF7NvgyyVoaj4LBbSuIE/qXpP+nm
+X-Gm-Gg: AZuq6aIUJ8uTvfT3Z+YE3ldgVKiv/tA7zAc9UqEuhjVy2QweCh8hoVVXeTVmriNkKzH
+	aTrhNhOjQ+o5B+H1VJKyNw4TvD0j2z6BGn9JLY59F61NmPON5oUOkqJe/loiTR6x8X8+WEpSHOk
+	iUc/IQbEIeOeIR6+FnNF0iyv8/eGkIxdZSl0dpyegNzZHX1UtCpZtWO2PLp3qFRdYfnS+o1sJFt
+	detPcar8RnILwFM5BGUGWSrCJI6nBGYkGS/MIhSEo3AxSf5hxl8XUk5cM5tKY1s7ObH2wOtNrcJ
+	IKyzKM9juYjNT7ptheEUa9O7WqKUHejH3e/BBAUfq5bfRaEUh4+J1ehjIxIYUcNVciIv13vWqp8
+	xSRwbUXe7W67z
+X-Received: by 2002:a05:6000:2082:b0:435:693e:c03e with SMTP id ffacd0b85a97d-4356998afa2mr25422041f8f.19.1769013158374;
+        Wed, 21 Jan 2026 08:32:38 -0800 (PST)
+X-Received: by 2002:a05:6000:2082:b0:435:693e:c03e with SMTP id ffacd0b85a97d-4356998afa2mr25421964f8f.19.1769013157874;
+        Wed, 21 Jan 2026 08:32:37 -0800 (PST)
+Received: from [192.168.88.32] ([216.128.11.175])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4356996cf58sm38575864f8f.22.2026.01.21.08.32.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 21 Jan 2026 08:32:36 -0800 (PST)
+Message-ID: <4997118e-471c-45fe-bc1f-8f6140199db5@redhat.com>
+Date: Wed, 21 Jan 2026 17:32:34 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <b88b500c-bacc-483d-9d1a-725d4158302a@amd.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v15 01/12] vsock: add netns to vsock core
+To: Stefano Garzarella <sgarzare@redhat.com>,
+ Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "K. Y. Srinivasan"
+ <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
+ Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+ Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa
+ <vishnu.dasa@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Shuah Khan <shuah@kernel.org>,
+ Long Li <longli@microsoft.com>, Jonathan Corbet <corbet@lwn.net>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, berrange@redhat.com,
+ Sargun Dhillon <sargun@sargun.me>, linux-doc@vger.kernel.org,
+ Bobby Eshleman <bobbyeshleman@meta.com>
+References: <20260116-vsock-vmtest-v15-0-bbfd1a668548@meta.com>
+ <20260116-vsock-vmtest-v15-1-bbfd1a668548@meta.com>
+ <aXDYfYy3f1NQm5A0@sgarzare-redhat>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <aXDYfYy3f1NQm5A0@sgarzare-redhat>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: BV6DU0NbuvJbrSOcfmecVbFjABQ29MyED5b6Q3c7E7M_1769013159
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jan 21, 2026 at 04:28:17PM +0100, Christian König wrote:
-> On 1/21/26 14:31, Jason Gunthorpe wrote:
-> > On Wed, Jan 21, 2026 at 10:20:51AM +0100, Christian König wrote:
-> >> On 1/20/26 15:07, Leon Romanovsky wrote:
-> >>> From: Leon Romanovsky <leonro@nvidia.com>
-> >>>
-> >>> dma-buf invalidation is performed asynchronously by hardware, so VFIO must
-> >>> wait until all affected objects have been fully invalidated.
-> >>>
-> >>> Fixes: 5d74781ebc86 ("vfio/pci: Add dma-buf export support for MMIO regions")
-> >>> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> >>
-> >> Reviewed-by: Christian König <christian.koenig@amd.com>
-> >>
-> >> Please also keep in mind that the while this wait for all fences for
-> >> correctness you also need to keep the mapping valid until
-> >> dma_buf_unmap_attachment() was called.
-> > 
-> > Can you elaborate on this more?
-> > 
-> > I think what we want for dma_buf_attach_revocable() is the strong
-> > guarentee that the importer stops doing all access to the memory once
-> > this sequence is completed and the exporter can rely on it. I don't
-> > think this works any other way.
-> > 
-> > This is already true for dynamic move capable importers, right?
+On 1/21/26 3:48 PM, Stefano Garzarella wrote:
+>> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+>> index a8d0afde7f85..b6e3bfe365a1 100644
+>> --- a/Documentation/admin-guide/kernel-parameters.txt
+>> +++ b/Documentation/admin-guide/kernel-parameters.txt
+>> @@ -8253,6 +8253,20 @@ Kernel parameters
+>> 			            them quite hard to use for exploits but
+>> 			            might break your system.
+>>
+>> +	vsock_init_ns_mode=
+>> +			[KNL,NET] Set the vsock namespace mode for the init
+>> +			(root) network namespace.
+>> +
+>> +			global      [default] The init namespace operates in
+>> +			            global mode where CIDs are system-wide and
+>> +			            sockets can communicate across global
+>> +			            namespaces.
+>> +
+>> +			local       The init namespace operates in local mode
+>> +			            where CIDs are private to the namespace and
+>> +			            sockets can only communicate within the same
+>> +			            namespace.
+>> +
 > 
-> Not quite, no.
-
-:(
-
-It is kind of shocking to hear these APIs work like this with such a
-loose lifetime definition. Leon can you include some of these detail
-in the new comments?
-
-> >> In other words you can only redirect the DMA-addresses previously
-> >> given out into nirvana (or a dummy memory or similar), but you still
-> >> need to avoid re-using them for something else.
-> > 
-> > Does any driver do this? If you unload/reload a GPU driver it is
-> > going to re-use the addresses handed out?
+> My comment on v14 was more to start a discussion :-) sorry to not be 
+> clear.
 > 
-> I never fully read through all the source code, but if I'm not
-> completely mistaken that is enforced for all GPU drivers through the
-> DMA-buf and DRM layer lifetime handling and I think even in other in
-> kernel frameworks like V4L, alsa etc...
+> I briefly discussed it with Paolo in chat to better understand our 
+> policy between cmdline parameters and module parameters, and it seems 
+> that both are discouraged.
 
-> What roughly happens is that each DMA-buf mapping through a couple
-> of hoops keeps a reference on the device, so even after a hotplug
-> event the device can only fully go away after all housekeeping
-> structures are destroyed and buffers freed.
+Double checking the git log it looks like __setup() usage is less
+constrained/restricted than what I thought.
 
-A simple reference on the device means nothing for these kinds of
-questions. It does not stop unloading and reloading a driver.
+> So he asked me if we have a use case for this, and thinking about it, I 
+> don't have one at the moment. Also, if a user decides to set all netns 
+> to local, whether init_net is local or global doesn't really matter, 
+> right?
+> 
+> So perhaps before adding this, we should have a real use case.
+> Perhaps more than this feature, I would add a way to change the default 
+> of all netns (including init_net) from global to local. But we can do 
+> that later, since all netns have a way to understand what mode they are 
+> in, so we don't break anything and the user has to explicitly change it, 
+> knowing that they are breaking compatibility with pre-netns support.\
 
-Obviously if the driver is loaded fresh it will reallocate.
+Lacking a clear use-case for vsock_init_ns_mode I tend to think it would
+be better to postpone its introduction. It should be easier to add it
+later than vice-versa.
 
-To do what you are saying the DRM drivers would have to block during
-driver remove until all unmaps happen.
+If there is a clear/well defined/known use-case, I guess the series can
+go as-is.
 
-> Background is that a lot of device still make reads even after you
-> have invalidated a mapping, but then discard the result.
+/P
 
-And they also don't insert fences to conclude that?
-
-> So when you don't have same grace period you end up with PCI AER,
-> warnings from IOMMU, random accesses to PCI BARs which just happen
-> to be in the old location of something etc...
-
-Yes, definitely. It is very important to have a definitive point in
-the API where all accesses stop. While "read but discard" seems
-harmless on the surface, there are corner cases where it is not OK.
-
-Am I understanding right that these devices must finish their reads
-before doing unmap?
-
-> I would rather like to keep that semantics even for forcefully
-> shootdowns since it proved to be rather reliable.
-
-We can investigate making unmap the barrier point if this is the case.
-
-Jason
