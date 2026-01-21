@@ -1,67 +1,67 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
+Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C8C1449ED7
-	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 22:12:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FD954418CB
+	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 22:12:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769033543; cv=none; b=ZzDmlMJuXielDzOZ9O/cibZLtaJkhESDQE+b3NE3VJtp/zQqx5ePL+tytF+3KfDJyYXnLbAnFTQDiiGkIp99anDRcMMFO9dZg65oe+JjpuCzIMQlIUzYhIu8NinG+MiwTh6YZTZExX7tYuGWzw62XQN8p8/EVjxBzsMnxKG52AQ=
+	t=1769033542; cv=none; b=i/2sDXFsVUp7G+LwSzSY9vW091Pks3pNtbPiroM+CPhHxQAfr33TwDYvnMNJ9hvkxXRTYsF1jYIu1fHvPcGUqjEMlRqARF804T+zf9AQXZehPcKyWgJVC6d10vQfuckfLzCLcbMoqWiKjPiig3kTo0JYliygHUOpW28vYprwxdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769033543; c=relaxed/simple;
-	bh=vL5YpgYxz0FfLIIl5csPYBNFRkmEcElkoa8UW4/4fuc=;
+	s=arc-20240116; t=1769033542; c=relaxed/simple;
+	bh=43YZlXDQmW65hszyjr5m3UtpfpB8+72+oSXEtxR8B+c=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=NScf+3IeRx7hvmGxpqmZs6Pd/bILVjcl+CwBiMD0amzemuqdAJQpTBB6Ud29GjD6g3DaXD9TYKRaJwCCHJsMzX7c8IGLIlz/ovsOz1hQqBXEy5ERVWRHvPsFH1uNvm31o9tty0HxlHFL/G1eMvc0MLsewUrx8rwm6SdHVDAvyls=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KbLO9nHJ; arc=none smtp.client-ip=209.85.128.177
+	 In-Reply-To:To:Cc; b=QjGJlL+n+CySxJMlJyn6Y5W8vYFNLgECrXb1vsY8GmYvVBWmBpLSfy7wnubu3evk5ruqrJBx6rQPf/jOpoFwRxuwIX4py1sO1ztDS4Hrr+B26BbgC+la3x47DHKOxqM3gvhKeV5qrk5PtE9HXLMN/9DpXpJtsqJUyFnBJe8JXPk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VIz+NWSF; arc=none smtp.client-ip=209.85.128.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KbLO9nHJ"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-78c66bdf675so3133327b3.2
-        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 14:12:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VIz+NWSF"
+Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-7927541abfaso3189007b3.3
+        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 14:12:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769033529; x=1769638329; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1769033528; x=1769638328; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=kDPkpLUOyafJq1ujPR6WZLawhOFGoQnGZ+I2HIEtiX8=;
-        b=KbLO9nHJNBTb2rSKF6DLlK22Mae6lRFQLMFQL19n5zDwAn5TJNjhs2Io+yjCOyS8LF
-         sR7bmhQq9pclUdSADoAMjPLM7bvjPJLCKklljZOo4hdDvYEfHY/C2W7Cuq1Cqsd67IRY
-         J6c2RWQpr1fQuwI9RnK9GGzEx3EXG7GYjFYzXFBHDNKEnPRQUEg4rXhxAs33OawGxEec
-         YuUOJL0lu4iAtvxpU4yCP9Gt+Yr6W9SkBCj4/34nawv5mEHoUOFua+28zRitOwEhz445
-         r1tT6cFJjJfHLKe9C4qHaL5SaIbZf28UoUCKVjLZb6x+s6lxwyIfQamd6LCowmyGzUEg
-         4JwA==
+        bh=Y3I8QcIsIeOrh9cIrz38ZjjL+G5z3ujRC9KA0ugGud8=;
+        b=VIz+NWSFs5nvmC2nzDzJStk9lhiCpGrWF69FgFOEjTW25ua/0oF5eu7zDJUh28EWgq
+         E5tfO1TkaoMLeQRLAZREqWSw2Gc5zXbJ1MSS4QVmMjNaqlV/eAtXNqLZeJkeg76u7Vyq
+         bclplcJdgtsL66mtDOAKmrb+KWSvRQoDB7IQyXvfT3+nrn2ZUYE9JGDYWoFyXJv7trQb
+         d2Vdmk2bTQAb8vgLwZ7fgq6ARGSue/4ODOMfnnAIgEitqdWXFMle9WnDttpTum6sM5AA
+         ui2zfPlP8AZ9Esdhhb1UJe/B/sHv/aGWQAcMCfBp4A85OObdn+HDFQzc9W8lqBmCmgGf
+         tPcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769033529; x=1769638329;
+        d=1e100.net; s=20230601; t=1769033528; x=1769638328;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=kDPkpLUOyafJq1ujPR6WZLawhOFGoQnGZ+I2HIEtiX8=;
-        b=jlNHv1BvuX6V4bXd5fK9AxheuGjTTgNRwNEncUZgSzo2QmEEmld2YHssT65pbrxutK
-         uJbVZdfbDaBlF0trXOCFj6yy+lz+HA6bQMs6P+GfuWvF5PkOUM2FPUZWbCjuHsNvZ21i
-         P3ZvmavTrnEzrcIbOmb/ZkeFxMl1WPc+fNx6FInfcd2NOE2ZT9E7XhrM/WYWkZmoxjgS
-         WVYUj0KrZELIGFa7GiCpHKl12Qk9Y4Y9Pm69ZUgUJvbBsHdHFnmL1IYzcl5WKX32klo2
-         Z4tRCu9511fRAEoIAcPCsUWTbtGhs1qaHwFNUojevOivcXia2HcZrbQ3/1PBLOlq7J8D
-         mh3w==
-X-Forwarded-Encrypted: i=1; AJvYcCU0RK+s28U00fl4jVRHN4Wc0uagcsPqOl+Fk55GYcQV1yGoFRAkLDPytoGkbySABPixi7rzOX1AYVRVNsD8kA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxlM4VFafxI3t0Ib/St+nlPO+3pwqVfISouf36Jb1OwWkKXdsl3
-	9s8ylWpJSi/3n1rWm5YLZi3bam841fBC6B2ObXeIDW2+LjRAV0BFR/sJ
-X-Gm-Gg: AZuq6aJa/igJTAD0hxzy/LpIi8Qf7W1gWFqUHuurQnyiHya45DKcLOxc60QR8+H8FyP
-	/nBX7uXJZJCs0c0mb69yRoZnF4J5hGEr3Ppb/9AOYlI8sT5x/WnYDLHhR+iUQ74tSG+Nwn+W5f3
-	A+jYyuEnbXijUaOPKxH9z15SYwAA32P2RWzaRyFIJoInX/wwyT3aaif5zRMlac2BVV4qBqQ9Ply
-	WCposdLEYb5hlJ1g6+CIu8HJAX169eyNCmkZ9IRNZTNpDy/9Yyh/oIMUCIpGmYuyD7sgjApeL1k
-	r+bYMo+De+blNf0ih96GOroXKiQNI2exCtUeYoO0hUa+rjzvmaVPDd7HHXOEO2OAzlc2xKTp53F
-	Jgr85xDiExh/aVNBHf+hJ6r6uCOcBQ9SGnHD0ZCLzqiaPOmfq0ZX0XpDf54gJNDKJyMoLVEXOtD
-	YuQyMIvqPU
-X-Received: by 2002:a05:690c:4b85:b0:793:d0b5:9bcb with SMTP id 00721157ae682-7940a153cf5mr53910977b3.24.1769033528799;
-        Wed, 21 Jan 2026 14:12:08 -0800 (PST)
-Received: from localhost ([2a03:2880:25ff:3::])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-793c68d664asm71002447b3.57.2026.01.21.14.12.08
+        bh=Y3I8QcIsIeOrh9cIrz38ZjjL+G5z3ujRC9KA0ugGud8=;
+        b=wgqB8KJAqYhDwgX66czUCfr1UOjSL6CQVBjsuSIzq+nY7721lkUnRePGjXt2UneiDC
+         Dw0S+q5h13G4OCYefiwqw9IfpgSjQmllA41Jj+dyzHB8sqMlM4LVI/j8wsvc4R3fxOGA
+         uf2lhFejS9YBHmg1A1WMb2LJsPTUFapriG4Idi0d/9d/37XZGip+M7bHZ2Da9IakZ+5n
+         CFUO5B/NHtsGpgDwz272HeNXjg0cOSI8iR5vSs8ywRJLGUoHfk3WgZQg8dCamjrnZ3Tg
+         c/jk7MOkPj0vJBWUD0rFWELDLXkITYkVrVB7FQ5Uz/dAELzb0Ibxf9hnBPGxuHnJ5dtB
+         1fJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXoJHZKbQ55OkzC3cTgK3it36/X3k86Apt1XkHhx4bDtZBgeLr1jUcFYjIZCgcxjHbc1IIAY8fYx1czqfKxhQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyenTDXt46+SB6bRscqmfR0nGfrhGEKzgyZMMrQ280zvfHKvYWd
+	pVOi2Mzbfazhtka8kVB+PHzqPQNesZKUCRBOw121D+20/aIzyF4C/dcn
+X-Gm-Gg: AZuq6aIYv8+b0NwBh5x8SM85ONpAXIvLzDSYZAbVQdZdRXEkOv6cm1pOl5ev6w0fhQl
+	jgpzMc03VU+BV9XniTC7yONhW/hfmBfnlqLJl8+OsbsO7cGmEvybfmC1KwPFPf4KYfZJ9fTAykx
+	3T/o/PzXME94BwTABHsSX5O73ZZAGVvJtquTFcnCifPIcvVdSa/U8ife3mVvcVNXWOfTY4cz+LP
+	fGtpjlIurCQj0Y8fGOy06duI2gxlmQ41efsN2sXuO8XlU7tlwjpxea5cgDQvZ7JSr8Ie8fE4gHe
+	A6WZclej1X3uGe/Pl/tfh3gNDahIEzgpDvi6/E2DoGAeBhFUyBGJC9taSmSpW7k1Sb8n0P3fAM3
+	mEaNZXWv3FplpTvcf2trrZNMFic/vS8yFvvqVDeZdnbpMZ5PqXF/Cp9oI54AW9GnXLdS2KDTf8n
+	966vQn8HBkgA==
+X-Received: by 2002:a05:690e:134c:b0:649:328b:66c1 with SMTP id 956f58d0204a3-6493c85636fmr4655728d50.71.1769033527964;
+        Wed, 21 Jan 2026 14:12:07 -0800 (PST)
+Received: from localhost ([2a03:2880:25ff:42::])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-6494686dd20sm1661755d50.22.2026.01.21.14.12.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 14:12:08 -0800 (PST)
+        Wed, 21 Jan 2026 14:12:07 -0800 (PST)
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Wed, 21 Jan 2026 14:11:51 -0800
-Subject: [PATCH net-next v16 11/12] selftests/vsock: add tests for host <->
- vm connectivity with namespaces
+Date: Wed, 21 Jan 2026 14:11:50 -0800
+Subject: [PATCH net-next v16 10/12] selftests/vsock: add namespace tests
+ for CID collisions
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,7 +70,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260121-vsock-vmtest-v16-11-2859a7512097@meta.com>
+Message-Id: <20260121-vsock-vmtest-v16-10-2859a7512097@meta.com>
 References: <20260121-vsock-vmtest-v16-0-2859a7512097@meta.com>
 In-Reply-To: <20260121-vsock-vmtest-v16-0-2859a7512097@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, 
@@ -97,719 +97,139 @@ X-Mailer: b4 0.14.3
 
 From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Add tests to validate namespace correctness using vsock_test and socat.
-The vsock_test tool is used to validate expected success tests, but
-socat is used for expected failure tests. socat is used to ensure that
-connections are rejected outright instead of failing due to some other
-socket behavior (as tested in vsock_test). Additionally, socat is
-already required for tunneling TCP traffic from vsock_test. Using only
-one of the vsock_test tests like 'test_stream_client_close_client' would
-have yielded a similar result, but doing so wouldn't remove the socat
-dependency.
+Add tests to verify CID collision rules across different vsock namespace
+modes.
 
-Additionally, check for the dependency socat. socat needs special
-handling beyond just checking if it is on the path because it must be
-compiled with support for both vsock and unix. The function
-check_socat() checks that this support exists.
+1. Two VMs with the same CID cannot start in different global namespaces
+   (ns_global_same_cid_fails)
+2. Two VMs with the same CID can start in different local namespaces
+   (ns_local_same_cid_ok)
+3. VMs with the same CID can coexist when one is in a global namespace
+   and another is in a local namespace (ns_global_local_same_cid_ok and
+   ns_local_global_same_cid_ok)
 
-Add more padding to test name printf strings because the tests added in
-this patch would otherwise overflow.
+The tests ns_global_local_same_cid_ok and ns_local_global_same_cid_ok
+make sure that ordering does not matter.
 
-Add vm_dmesg_* helpers to encapsulate checking dmesg
-for oops and warnings.
-
-Add ability to pass extra args to host-side vsock_test so that tests
-that cause false positives may be skipped with arg --skip.
+The tests use a shared helper function namespaces_can_boot_same_cid()
+that attempts to start two VMs with identical CIDs in the specified
+namespaces and verifies whether VM initialization failed or succeeded.
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 ---
-Changes in v12:
-- add test skip (vsock_test test 29) when host_vsock_test() uses client
-  mode in a local namespace. Test 29 causes a false positive to trigger.
-
 Changes in v11:
-- add 'sleep "${WAIT_PERIOD}"' after any non-TCP socat LISTEN cmd
-  (Stefano)
-- add host_wait_for_listener() after any socat TCP-LISTEN (Stefano)
-- reuse vm_dmesg_{oops,warn}_count() inside vm_dmesg_check()
-- fix copy-paste in test_ns_same_local_vm_connect_to_local_host_ok()
-  (Stefano)
-
-Changes in v10:
-- add vm_dmesg_start() and vm_dmesg_check()
-
-Changes in v9:
-- consistent variable quoting
+- check vm_start() rc in namespaces_can_boot_same_cid() (Stefano)
+- fix ns_local_same_cid_ok() to use local0 and local1 instead of reusing
+  local0 twice. This check should pass, ensuring local namespaces do not
+  collide (Stefano)
 ---
- tools/testing/selftests/vsock/vmtest.sh | 572 +++++++++++++++++++++++++++++++-
- 1 file changed, 568 insertions(+), 4 deletions(-)
+ tools/testing/selftests/vsock/vmtest.sh | 78 +++++++++++++++++++++++++++++++++
+ 1 file changed, 78 insertions(+)
 
 diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index 1bf537410ea6..a9eaf37bc31b 100755
+index 38785a102236..1bf537410ea6 100755
 --- a/tools/testing/selftests/vsock/vmtest.sh
 +++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -7,6 +7,7 @@
- #		* virtme-ng
- #		* busybox-static (used by virtme-ng)
- #		* qemu	(used by virtme-ng)
-+#		* socat
- #
- # shellcheck disable=SC2317,SC2119
- 
-@@ -54,6 +55,19 @@ readonly TEST_NAMES=(
- 	ns_local_same_cid_ok
- 	ns_global_local_same_cid_ok
- 	ns_local_global_same_cid_ok
-+	ns_diff_global_host_connect_to_global_vm_ok
-+	ns_diff_global_host_connect_to_local_vm_fails
-+	ns_diff_global_vm_connect_to_global_host_ok
-+	ns_diff_global_vm_connect_to_local_host_fails
-+	ns_diff_local_host_connect_to_local_vm_fails
-+	ns_diff_local_vm_connect_to_local_host_fails
-+	ns_diff_global_to_local_loopback_local_fails
-+	ns_diff_local_to_global_loopback_fails
-+	ns_diff_local_to_local_loopback_fails
-+	ns_diff_global_to_global_loopback_ok
-+	ns_same_local_loopback_ok
-+	ns_same_local_host_connect_to_local_vm_ok
-+	ns_same_local_vm_connect_to_local_host_ok
+@@ -50,6 +50,10 @@ readonly TEST_NAMES=(
+ 	vm_loopback
+ 	ns_host_vsock_ns_mode_ok
+ 	ns_host_vsock_child_ns_mode_ok
++	ns_global_same_cid_fails
++	ns_local_same_cid_ok
++	ns_global_local_same_cid_ok
++	ns_local_global_same_cid_ok
  )
  readonly TEST_DESCS=(
  	# vm_server_host_client
-@@ -82,6 +96,45 @@ readonly TEST_DESCS=(
+@@ -66,6 +70,18 @@ readonly TEST_DESCS=(
  
- 	# ns_local_global_same_cid_ok
- 	"Check QEMU successfully starts one VM in a local ns and then another VM in a global ns with the same CID."
+ 	# ns_host_vsock_child_ns_mode_ok
+ 	"Check /proc/sys/net/vsock/ns_mode is read-only and child_ns_mode is writable."
 +
-+	# ns_diff_global_host_connect_to_global_vm_ok
-+	"Run vsock_test client in global ns with server in VM in another global ns."
++	# ns_global_same_cid_fails
++	"Check QEMU fails to start two VMs with same CID in two different global namespaces."
 +
-+	# ns_diff_global_host_connect_to_local_vm_fails
-+	"Run socat to test a process in a global ns fails to connect to a VM in a local ns."
++	# ns_local_same_cid_ok
++	"Check QEMU successfully starts two VMs with same CID in two different local namespaces."
 +
-+	# ns_diff_global_vm_connect_to_global_host_ok
-+	"Run vsock_test client in VM in a global ns with server in another global ns."
++	# ns_global_local_same_cid_ok
++	"Check QEMU successfully starts one VM in a global ns and then another VM in a local ns with the same CID."
 +
-+	# ns_diff_global_vm_connect_to_local_host_fails
-+	"Run socat to test a VM in a global ns fails to connect to a host process in a local ns."
-+
-+	# ns_diff_local_host_connect_to_local_vm_fails
-+	"Run socat to test a host process in a local ns fails to connect to a VM in another local ns."
-+
-+	# ns_diff_local_vm_connect_to_local_host_fails
-+	"Run socat to test a VM in a local ns fails to connect to a host process in another local ns."
-+
-+	# ns_diff_global_to_local_loopback_local_fails
-+	"Run socat to test a loopback vsock in a global ns fails to connect to a vsock in a local ns."
-+
-+	# ns_diff_local_to_global_loopback_fails
-+	"Run socat to test a loopback vsock in a local ns fails to connect to a vsock in a global ns."
-+
-+	# ns_diff_local_to_local_loopback_fails
-+	"Run socat to test a loopback vsock in a local ns fails to connect to a vsock in another local ns."
-+
-+	# ns_diff_global_to_global_loopback_ok
-+	"Run socat to test a loopback vsock in a global ns successfully connects to a vsock in another global ns."
-+
-+	# ns_same_local_loopback_ok
-+	"Run socat to test a loopback vsock in a local ns successfully connects to a vsock in the same ns."
-+
-+	# ns_same_local_host_connect_to_local_vm_ok
-+	"Run vsock_test client in a local ns with server in VM in same ns."
-+
-+	# ns_same_local_vm_connect_to_local_host_ok
-+	"Run vsock_test client in VM in a local ns with server in same ns."
++	# ns_local_global_same_cid_ok
++	"Check QEMU successfully starts one VM in a local ns and then another VM in a global ns with the same CID."
  )
  
  readonly USE_SHARED_VM=(
-@@ -112,7 +165,7 @@ usage() {
- 	for ((i = 0; i < ${#TEST_NAMES[@]}; i++)); do
- 		name=${TEST_NAMES[${i}]}
- 		desc=${TEST_DESCS[${i}]}
--		printf "\t%-35s%-35s\n" "${name}" "${desc}"
-+		printf "\t%-55s%-35s\n" "${name}" "${desc}"
- 	done
- 	echo
- 
-@@ -222,7 +275,7 @@ check_args() {
- }
- 
- check_deps() {
--	for dep in vng ${QEMU} busybox pkill ssh ss; do
-+	for dep in vng ${QEMU} busybox pkill ssh ss socat; do
- 		if [[ ! -x $(command -v "${dep}") ]]; then
- 			echo -e "skip:    dependency ${dep} not found!\n"
- 			exit "${KSFT_SKIP}"
-@@ -273,6 +326,20 @@ check_vng() {
- 	fi
- }
- 
-+check_socat() {
-+	local support_string
-+
-+	support_string="$(socat -V)"
-+
-+	if [[ "${support_string}" != *"WITH_VSOCK 1"* ]]; then
-+		die "err: socat is missing vsock support"
-+	fi
-+
-+	if [[ "${support_string}" != *"WITH_UNIX 1"* ]]; then
-+		die "err: socat is missing unix support"
-+	fi
-+}
-+
- handle_build() {
- 	if [[ ! "${BUILD}" -eq 1 ]]; then
- 		return
-@@ -321,6 +388,14 @@ terminate_pidfiles() {
- 	done
- }
- 
-+terminate_pids() {
-+	local pid
-+
-+	for pid in "$@"; do
-+		kill -SIGTERM "${pid}" &>/dev/null || :
-+	done
-+}
-+
- vm_start() {
- 	local pidfile=$1
- 	local ns=$2
-@@ -459,6 +534,28 @@ vm_dmesg_warn_count() {
- 	vm_ssh "${ns}" -- dmesg --level=warn 2>/dev/null | grep -c -i 'vsock'
- }
- 
-+vm_dmesg_check() {
-+	local pidfile=$1
-+	local ns=$2
-+	local oops_before=$3
-+	local warn_before=$4
-+	local oops_after warn_after
-+
-+	oops_after=$(vm_dmesg_oops_count "${ns}")
-+	if [[ "${oops_after}" -gt "${oops_before}" ]]; then
-+		echo "FAIL: kernel oops detected on vm in ns ${ns}" | log_host
-+		return 1
-+	fi
-+
-+	warn_after=$(vm_dmesg_warn_count "${ns}")
-+	if [[ "${warn_after}" -gt "${warn_before}" ]]; then
-+		echo "FAIL: kernel warning detected on vm in ns ${ns}" | log_host
-+		return 1
-+	fi
-+
-+	return 0
-+}
-+
- vm_vsock_test() {
- 	local ns=$1
- 	local host=$2
-@@ -502,6 +599,8 @@ host_vsock_test() {
- 	local host=$2
- 	local cid=$3
- 	local port=$4
-+	shift 4
-+	local extra_args=("$@")
- 	local rc
- 
- 	local cmd="${VSOCK_TEST}"
-@@ -516,13 +615,15 @@ host_vsock_test() {
- 			--mode=client \
- 			--peer-cid="${cid}" \
- 			--control-host="${host}" \
--			--control-port="${port}" 2>&1 | log_host
-+			--control-port="${port}" \
-+			"${extra_args[@]}" 2>&1 | log_host
- 		rc=$?
- 	else
- 		${cmd} \
- 			--mode=server \
- 			--peer-cid="${cid}" \
--			--control-port="${port}" 2>&1 | log_host &
-+			--control-port="${port}" \
-+			"${extra_args[@]}" 2>&1 | log_host &
- 		rc=$?
- 
- 		if [[ $rc -ne 0 ]]; then
-@@ -593,6 +694,468 @@ test_ns_host_vsock_ns_mode_ok() {
+@@ -577,6 +593,68 @@ test_ns_host_vsock_ns_mode_ok() {
  	return "${KSFT_PASS}"
  }
  
-+test_ns_diff_global_host_connect_to_global_vm_ok() {
-+	local oops_before warn_before
-+	local pids pid pidfile
-+	local ns0 ns1 port
-+	declare -a pids
-+	local unixfile
-+	ns0="global0"
-+	ns1="global1"
-+	port=1234
-+	local rc
-+
-+	init_namespaces
-+
-+	pidfile="$(create_pidfile)"
-+
-+	if ! vm_start "${pidfile}" "${ns0}"; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	vm_wait_for_ssh "${ns0}"
-+	oops_before=$(vm_dmesg_oops_count "${ns0}")
-+	warn_before=$(vm_dmesg_warn_count "${ns0}")
-+
-+	unixfile=$(mktemp -u /tmp/XXXX.sock)
-+	ip netns exec "${ns1}" \
-+		socat TCP-LISTEN:"${TEST_HOST_PORT}",fork \
-+			UNIX-CONNECT:"${unixfile}" &
-+	pids+=($!)
-+	host_wait_for_listener "${ns1}" "${TEST_HOST_PORT}" "tcp"
-+
-+	ip netns exec "${ns0}" socat UNIX-LISTEN:"${unixfile}",fork \
-+		TCP-CONNECT:localhost:"${TEST_HOST_PORT}" &
-+	pids+=($!)
-+	host_wait_for_listener "${ns0}" "${unixfile}" "unix"
-+
-+	vm_vsock_test "${ns0}" "server" 2 "${TEST_GUEST_PORT}"
-+	vm_wait_for_listener "${ns0}" "${TEST_GUEST_PORT}" "tcp"
-+	host_vsock_test "${ns1}" "127.0.0.1" "${VSOCK_CID}" "${TEST_HOST_PORT}"
-+	rc=$?
-+
-+	vm_dmesg_check "${pidfile}" "${ns0}" "${oops_before}" "${warn_before}"
-+	dmesg_rc=$?
-+
-+	terminate_pids "${pids[@]}"
-+	terminate_pidfiles "${pidfile}"
-+
-+	if [[ "${rc}" -ne 0 ]] || [[ "${dmesg_rc}" -ne 0 ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_diff_global_host_connect_to_local_vm_fails() {
-+	local oops_before warn_before
-+	local ns0="global0"
-+	local ns1="local0"
-+	local port=12345
-+	local dmesg_rc
-+	local pidfile
-+	local result
-+	local pid
-+
-+	init_namespaces
-+
-+	outfile=$(mktemp)
-+
-+	pidfile="$(create_pidfile)"
-+	if ! vm_start "${pidfile}" "${ns1}"; then
-+		log_host "failed to start vm (cid=${VSOCK_CID}, ns=${ns0})"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	vm_wait_for_ssh "${ns1}"
-+	oops_before=$(vm_dmesg_oops_count "${ns1}")
-+	warn_before=$(vm_dmesg_warn_count "${ns1}")
-+
-+	vm_ssh "${ns1}" -- socat VSOCK-LISTEN:"${port}" STDOUT > "${outfile}" &
-+	vm_wait_for_listener "${ns1}" "${port}" "vsock"
-+	echo TEST | ip netns exec "${ns0}" \
-+		socat STDIN VSOCK-CONNECT:"${VSOCK_CID}":"${port}" 2>/dev/null
-+
-+	vm_dmesg_check "${pidfile}" "${ns1}" "${oops_before}" "${warn_before}"
-+	dmesg_rc=$?
-+
-+	terminate_pidfiles "${pidfile}"
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" == "TEST" ]] || [[ "${dmesg_rc}" -ne 0 ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+}
-+
-+test_ns_diff_global_vm_connect_to_global_host_ok() {
-+	local oops_before warn_before
-+	local ns0="global0"
-+	local ns1="global1"
-+	local port=12345
-+	local unixfile
-+	local dmesg_rc
-+	local pidfile
-+	local pids
-+	local rc
-+
-+	init_namespaces
-+
-+	declare -a pids
-+
-+	log_host "Setup socat bridge from ns ${ns0} to ns ${ns1} over port ${port}"
-+
-+	unixfile=$(mktemp -u /tmp/XXXX.sock)
-+
-+	ip netns exec "${ns0}" \
-+		socat TCP-LISTEN:"${port}" UNIX-CONNECT:"${unixfile}" &
-+	pids+=($!)
-+	host_wait_for_listener "${ns0}" "${port}" "tcp"
-+
-+	ip netns exec "${ns1}" \
-+		socat UNIX-LISTEN:"${unixfile}" TCP-CONNECT:127.0.0.1:"${port}" &
-+	pids+=($!)
-+	host_wait_for_listener "${ns1}" "${unixfile}" "unix"
-+
-+	log_host "Launching ${VSOCK_TEST} in ns ${ns1}"
-+	host_vsock_test "${ns1}" "server" "${VSOCK_CID}" "${port}"
-+
-+	pidfile="$(create_pidfile)"
-+	if ! vm_start "${pidfile}" "${ns0}"; then
-+		log_host "failed to start vm (cid=${cid}, ns=${ns0})"
-+		terminate_pids "${pids[@]}"
-+		rm -f "${unixfile}"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	vm_wait_for_ssh "${ns0}"
-+
-+	oops_before=$(vm_dmesg_oops_count "${ns0}")
-+	warn_before=$(vm_dmesg_warn_count "${ns0}")
-+
-+	vm_vsock_test "${ns0}" "10.0.2.2" 2 "${port}"
-+	rc=$?
-+
-+	vm_dmesg_check "${pidfile}" "${ns0}" "${oops_before}" "${warn_before}"
-+	dmesg_rc=$?
-+
-+	terminate_pidfiles "${pidfile}"
-+	terminate_pids "${pids[@]}"
-+	rm -f "${unixfile}"
-+
-+	if [[ "${rc}" -ne 0 ]] || [[ "${dmesg_rc}" -ne 0 ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
-+
-+}
-+
-+test_ns_diff_global_vm_connect_to_local_host_fails() {
-+	local ns0="global0"
-+	local ns1="local0"
-+	local port=12345
-+	local oops_before warn_before
-+	local dmesg_rc
-+	local pidfile
-+	local result
-+	local pid
-+
-+	init_namespaces
-+
-+	log_host "Launching socat in ns ${ns1}"
-+	outfile=$(mktemp)
-+
-+	ip netns exec "${ns1}" socat VSOCK-LISTEN:"${port}" STDOUT &> "${outfile}" &
-+	pid=$!
-+	host_wait_for_listener "${ns1}" "${port}" "vsock"
-+
-+	pidfile="$(create_pidfile)"
-+	if ! vm_start "${pidfile}" "${ns0}"; then
-+		log_host "failed to start vm (cid=${cid}, ns=${ns0})"
-+		terminate_pids "${pid}"
-+		rm -f "${outfile}"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	vm_wait_for_ssh "${ns0}"
-+
-+	oops_before=$(vm_dmesg_oops_count "${ns0}")
-+	warn_before=$(vm_dmesg_warn_count "${ns0}")
-+
-+	vm_ssh "${ns0}" -- \
-+		bash -c "echo TEST | socat STDIN VSOCK-CONNECT:2:${port}" 2>&1 | log_guest
-+
-+	vm_dmesg_check "${pidfile}" "${ns0}" "${oops_before}" "${warn_before}"
-+	dmesg_rc=$?
-+
-+	terminate_pidfiles "${pidfile}"
-+	terminate_pids "${pid}"
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]] && [[ "${dmesg_rc}" -eq 0 ]]; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+test_ns_diff_local_host_connect_to_local_vm_fails() {
-+	local ns0="local0"
-+	local ns1="local1"
-+	local port=12345
-+	local oops_before warn_before
-+	local dmesg_rc
-+	local pidfile
-+	local result
-+	local pid
-+
-+	init_namespaces
-+
-+	outfile=$(mktemp)
-+
-+	pidfile="$(create_pidfile)"
-+	if ! vm_start "${pidfile}" "${ns1}"; then
-+		log_host "failed to start vm (cid=${cid}, ns=${ns0})"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	vm_wait_for_ssh "${ns1}"
-+	oops_before=$(vm_dmesg_oops_count "${ns1}")
-+	warn_before=$(vm_dmesg_warn_count "${ns1}")
-+
-+	vm_ssh "${ns1}" -- socat VSOCK-LISTEN:"${port}" STDOUT > "${outfile}" &
-+	vm_wait_for_listener "${ns1}" "${port}" "vsock"
-+
-+	echo TEST | ip netns exec "${ns0}" \
-+		socat STDIN VSOCK-CONNECT:"${VSOCK_CID}":"${port}" 2>/dev/null
-+
-+	vm_dmesg_check "${pidfile}" "${ns1}" "${oops_before}" "${warn_before}"
-+	dmesg_rc=$?
-+
-+	terminate_pidfiles "${pidfile}"
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]] && [[ "${dmesg_rc}" -eq 0 ]]; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+test_ns_diff_local_vm_connect_to_local_host_fails() {
-+	local oops_before warn_before
-+	local ns0="local0"
-+	local ns1="local1"
-+	local port=12345
-+	local dmesg_rc
-+	local pidfile
-+	local result
-+	local pid
-+
-+	init_namespaces
-+
-+	log_host "Launching socat in ns ${ns1}"
-+	outfile=$(mktemp)
-+	ip netns exec "${ns1}" socat VSOCK-LISTEN:"${port}" STDOUT &> "${outfile}" &
-+	pid=$!
-+	host_wait_for_listener "${ns1}" "${port}" "vsock"
-+
-+	pidfile="$(create_pidfile)"
-+	if ! vm_start "${pidfile}" "${ns0}"; then
-+		log_host "failed to start vm (cid=${cid}, ns=${ns0})"
-+		rm -f "${outfile}"
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	vm_wait_for_ssh "${ns0}"
-+	oops_before=$(vm_dmesg_oops_count "${ns0}")
-+	warn_before=$(vm_dmesg_warn_count "${ns0}")
-+
-+	vm_ssh "${ns0}" -- \
-+		bash -c "echo TEST | socat STDIN VSOCK-CONNECT:2:${port}" 2>&1 | log_guest
-+
-+	vm_dmesg_check "${pidfile}" "${ns0}" "${oops_before}" "${warn_before}"
-+	dmesg_rc=$?
-+
-+	terminate_pidfiles "${pidfile}"
-+	terminate_pids "${pid}"
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" != TEST ]] && [[ "${dmesg_rc}" -eq 0 ]]; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+__test_loopback_two_netns() {
++namespaces_can_boot_same_cid() {
 +	local ns0=$1
 +	local ns1=$2
-+	local port=12345
-+	local result
-+	local pid
-+
-+	modprobe vsock_loopback &> /dev/null || :
-+
-+	log_host "Launching socat in ns ${ns1}"
-+	outfile=$(mktemp)
-+
-+	ip netns exec "${ns1}" socat VSOCK-LISTEN:"${port}" STDOUT > "${outfile}" 2>/dev/null &
-+	pid=$!
-+	host_wait_for_listener "${ns1}" "${port}" "vsock"
-+
-+	log_host "Launching socat in ns ${ns0}"
-+	echo TEST | ip netns exec "${ns0}" socat STDIN VSOCK-CONNECT:1:"${port}" 2>/dev/null
-+	terminate_pids "${pid}"
-+
-+	result=$(cat "${outfile}")
-+	rm -f "${outfile}"
-+
-+	if [[ "${result}" == TEST ]]; then
-+		return 0
-+	fi
-+
-+	return 1
-+}
-+
-+test_ns_diff_global_to_local_loopback_local_fails() {
-+	init_namespaces
-+
-+	if ! __test_loopback_two_netns "global0" "local0"; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+test_ns_diff_local_to_global_loopback_fails() {
-+	init_namespaces
-+
-+	if ! __test_loopback_two_netns "local0" "global0"; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+test_ns_diff_local_to_local_loopback_fails() {
-+	init_namespaces
-+
-+	if ! __test_loopback_two_netns "local0" "local1"; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+test_ns_diff_global_to_global_loopback_ok() {
-+	init_namespaces
-+
-+	if __test_loopback_two_netns "global0" "global1"; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+test_ns_same_local_loopback_ok() {
-+	init_namespaces
-+
-+	if __test_loopback_two_netns "local0" "local0"; then
-+		return "${KSFT_PASS}"
-+	fi
-+
-+	return "${KSFT_FAIL}"
-+}
-+
-+test_ns_same_local_host_connect_to_local_vm_ok() {
-+	local oops_before warn_before
-+	local ns="local0"
-+	local port=1234
-+	local dmesg_rc
-+	local pidfile
++	local pidfile1 pidfile2
 +	local rc
 +
-+	init_namespaces
++	pidfile1="$(create_pidfile)"
 +
-+	pidfile="$(create_pidfile)"
-+
-+	if ! vm_start "${pidfile}" "${ns}"; then
-+		return "${KSFT_FAIL}"
++	# The first VM should be able to start. If it can't then we have
++	# problems and need to return non-zero.
++	if ! vm_start "${pidfile1}" "${ns0}"; then
++		return 1
 +	fi
 +
-+	vm_wait_for_ssh "${ns}"
-+	oops_before=$(vm_dmesg_oops_count "${ns}")
-+	warn_before=$(vm_dmesg_warn_count "${ns}")
-+
-+	vm_vsock_test "${ns}" "server" 2 "${TEST_GUEST_PORT}"
-+
-+	# Skip test 29 (transport release use-after-free): This test attempts
-+	# binding both G2H and H2G CIDs. Because virtio-vsock (G2H) doesn't
-+	# support local namespaces the test will fail when
-+	# transport_g2h->stream_allow() returns false. This edge case only
-+	# happens for vsock_test in client mode on the host in a local
-+	# namespace. This is a false positive.
-+	host_vsock_test "${ns}" "127.0.0.1" "${VSOCK_CID}" "${TEST_HOST_PORT}" --skip=29
++	pidfile2="$(create_pidfile)"
++	vm_start "${pidfile2}" "${ns1}"
 +	rc=$?
++	terminate_pidfiles "${pidfile1}" "${pidfile2}"
 +
-+	vm_dmesg_check "${pidfile}" "${ns}" "${oops_before}" "${warn_before}"
-+	dmesg_rc=$?
++	return "${rc}"
++}
 +
-+	terminate_pidfiles "${pidfile}"
++test_ns_global_same_cid_fails() {
++	init_namespaces
 +
-+	if [[ "${rc}" -ne 0 ]] || [[ "${dmesg_rc}" -ne 0 ]]; then
++	if namespaces_can_boot_same_cid "global0" "global1"; then
 +		return "${KSFT_FAIL}"
 +	fi
 +
 +	return "${KSFT_PASS}"
 +}
 +
-+test_ns_same_local_vm_connect_to_local_host_ok() {
-+	local oops_before warn_before
-+	local ns="local0"
-+	local port=1234
-+	local dmesg_rc
-+	local pidfile
-+	local rc
-+
++test_ns_local_global_same_cid_ok() {
 +	init_namespaces
 +
-+	pidfile="$(create_pidfile)"
-+
-+	if ! vm_start "${pidfile}" "${ns}"; then
-+		return "${KSFT_FAIL}"
++	if namespaces_can_boot_same_cid "local0" "global0"; then
++		return "${KSFT_PASS}"
 +	fi
 +
-+	vm_wait_for_ssh "${ns}"
-+	oops_before=$(vm_dmesg_oops_count "${ns}")
-+	warn_before=$(vm_dmesg_warn_count "${ns}")
-+
-+	host_vsock_test "${ns}" "server" "${VSOCK_CID}" "${port}"
-+	vm_vsock_test "${ns}" "10.0.2.2" 2 "${port}"
-+	rc=$?
-+
-+	vm_dmesg_check "${pidfile}" "${ns}" "${oops_before}" "${warn_before}"
-+	dmesg_rc=$?
-+
-+	terminate_pidfiles "${pidfile}"
-+
-+	if [[ "${rc}" -ne 0 ]] || [[ "${dmesg_rc}" -ne 0 ]]; then
-+		return "${KSFT_FAIL}"
-+	fi
-+
-+	return "${KSFT_PASS}"
++	return "${KSFT_FAIL}"
 +}
 +
- namespaces_can_boot_same_cid() {
- 	local ns0=$1
- 	local ns1=$2
-@@ -882,6 +1445,7 @@ fi
- check_args "${ARGS[@]}"
- check_deps
- check_vng
-+check_socat
- handle_build
- 
- echo "1..${#ARGS[@]}"
++test_ns_global_local_same_cid_ok() {
++	init_namespaces
++
++	if namespaces_can_boot_same_cid "global0" "local0"; then
++		return "${KSFT_PASS}"
++	fi
++
++	return "${KSFT_FAIL}"
++}
++
++test_ns_local_same_cid_ok() {
++	init_namespaces
++
++	if namespaces_can_boot_same_cid "local0" "local1"; then
++		return "${KSFT_PASS}"
++	fi
++
++	return "${KSFT_FAIL}"
++}
++
+ test_ns_host_vsock_child_ns_mode_ok() {
+ 	local orig_mode
+ 	local rc
 
 -- 
 2.47.3
