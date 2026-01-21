@@ -1,73 +1,73 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9499A346E6C
-	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 15:50:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CF26330678
+	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 16:02:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769010605; cv=none; b=r9PcfvJqOMwN23nRxNK8+OMjp8+xTUx2fORBvcz4jsn5QmSH3hU9LfyChOQ0OGDeGwkaySVOXA3SQTJGWBlYaDU6lkK0sW/hKGca2lvUHKwkQ0kZB7FOWxypJvwdaEhXy2Mzj0BWKAJBmRjCxD7KTBxQ8Wow+Jwi94uYdhVO5P4=
+	t=1769011325; cv=none; b=nSwfpINMeoNsQOd2fwAvwtQaDojaBBTDK3mjwfjjwnnBcZ/fnoXMDBhryP3/SHCRAP/oErcQJsNfdr31RAaErqPVR+5bO20tzqj9C4CqJ6NkPWOOqIzSDiOeYWaBTuNWpVj1X8CFPHBAF9SZYo90wbxmlU8ozcK0THmMKGg7xgE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769010605; c=relaxed/simple;
-	bh=q7hXpke/3/yOS39pnZAAHMgYMjm6i7TC9CfciaL4A2Y=;
+	s=arc-20240116; t=1769011325; c=relaxed/simple;
+	bh=ALN3BZ1h37bw87fH1I2phtqMuOjkp7pNGMZRlYvqJKU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EYdT5YIh7zRB9iyscz/uIotO7lURVTAdOiBXPpYM8u9UaAAFZ9JezPvGb/M8BtAFb423FT5hnTywNQJk21bff4/jhPk+0Bm6B5kQvXPukdip06c2vtdE2fTfESwnNj1mkHqh1ykLiyKqGHzlh+HwEbTy5bL88HxKSU8vFp70N8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=nZUVGpxt; arc=none smtp.client-ip=209.85.222.179
+	 Content-Type:Content-Disposition:In-Reply-To; b=MZzXwIKTpMP1CoN451RpPtG/j1RZaWe4UogN3oSKj6CjI0Sarmi0uhyNIbbsbPGS5z90BHnabsnfwBAAbMqJxOXgXx34AN+786dDPrHO4WhpwyGkEheNOZ9ewRvM5PuhvPGzogZtNAof919zpnB5oVP2tOEYX7AqDCrjvpVfiak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=BE4Ni8wB; arc=none smtp.client-ip=209.85.219.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="nZUVGpxt"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-8c537a42b53so993359785a.0
-        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 07:50:02 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="BE4Ni8wB"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-894724bc5cbso8692116d6.1
+        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 08:02:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1769010601; x=1769615401; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=q7hXpke/3/yOS39pnZAAHMgYMjm6i7TC9CfciaL4A2Y=;
-        b=nZUVGpxt8Rl3ANaRPtFG3YTk3vP0mq49LXuiK2IKtC/z7grN2ASbxYV+gdA3+rt5v0
-         OPpfBsuODEJhrifTdDkkJD4kShvODnMrUJupz2at+mBb6igxHRiMtEWivRo9bxsXZ3UN
-         Sp1xwZJ4oYI1t2ptZ/yWeQ9YagqwyIsKTnZlOB99fmsMM8yO/ICUeTvVtgi+DHlmYL+k
-         9NlnnEF2xOrFGnj9YOkiDb3fiW3FFi7WEsGoLZEZuoBDPF5g8VMmdV63Ysh2uxjJZba4
-         AIGcTz5VL9fChN8WT7rDtj/QtAOwKszOMwPEMYtRVHkIr2Yy/aSdcJIQoZSswjMG+8lI
-         Wspg==
+        d=ziepe.ca; s=google; t=1769011321; x=1769616121; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Xk50a3DJCYgVIrcCVz4YsPwnwCkWAaxm0jVyWa00IrY=;
+        b=BE4Ni8wB0bzXIn/IGkhnHvKDdywG4G53zNoaqsVtTZ8DLqfNVQ/tIsbkZkZKFOGKnf
+         EqKJaPCJJUeLRByZKRCNzh0oq4HaZevXEFyq1tEqAnLKbr5+QbiNcTyjZDzzg4YiQkSt
+         HOzk/Pq2wKlkUW3jIY3dpjgRbD4ibCsytER8L/XCLs1A21HF5YltmzEHWlCgE5oxqDZ2
+         t0uAlYelD1HAVZODTBi6/Wh5ZGrFZXo/YRoAHibiIY1Nru+d1/8jfRnaAnszlZbtznmE
+         AiQ4vDWSNKoNNZfM6t0KgA+rfiPaUIA/oXva8+UkmynrR0qcPTWNpUw0wkJbESo8CkTn
+         sZbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769010601; x=1769615401;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=q7hXpke/3/yOS39pnZAAHMgYMjm6i7TC9CfciaL4A2Y=;
-        b=e9pqLf2KzvxoRovRrbgGSV1dsoC/W9vumzvSd1dyU6jywI9EzJ/WU/oTKVVaqWG2jS
-         jfTPHT9Ao0qyCEfMTuPz8tA4b3uEXSA2UJjJ4TJ2+GZwoNdvU/9AElkBY52wKOMbURv3
-         h3za76LxAxz2MNdasbC7Xfsf2F/ZidE5l5MmGxmi4BWKk2uFoG1NplwW9HmQ2fGdIX7M
-         0EmXqlbdKwUZym2kd4zdx7JF5VqJmQZt7d87WHzKkSWQ//BJmk8ZNWja3A/lNdYW+wbV
-         8oY7xIxqmCX7EACvWN50dO37ncthi4fNjz6TatNo52K9cf6uKk1ixT3qW6ZNSQFEmPw1
-         fyJg==
-X-Forwarded-Encrypted: i=1; AJvYcCXZDAyb4k5vRUUX7yxonr9YjI5iASHKtJ/e+ryvHg3Ev7OOZnNVe++cbjoQj86hGcCcHHcLaVDKFaiC8OnAMg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxwYI0kM6gbzkZz/siiPmGvRdBYY9q8Il1A0LGB9ZK1vYz91WCJ
-	flCgetyrcRKWW5C57BxydjrpIYNrWwN6wG/Iuha5fkgHFBWHTLsmqfYAFKL4kD74fOk=
-X-Gm-Gg: AZuq6aLOw/xEa55nDu2AFkQGf97rc3MIoSzAOT8GL5WZW8ZKWRCpzUROHDO2KghMKb8
-	QCysfx71IqnAhP1dHXDeaS0m9TNB29WYGC8grrm+vLOUYeows6L1u1MtZTZn0ulBwpRB//BqjCn
-	kOg2QPFP6Z5qBiWjrPNwX+tW/SOUIXtb7dKWGLtiZc4gMeGck1sBB3dvCJR9qsPDzoNazemYBJF
-	XeQE871FJw+zvc+dzaAjKlPeR0Y/7lKGG69+2faZYYYGS3K0vBYcu/oqCeQrFbDEkVmATjmiYlp
-	j6y7kDcz87Mwmekn/bL6Hfog66oq2X0tixK6akL8EznTo+rerv0Q0fBUTwt1nRNIfff6DSZLbet
-	EYArdMFePo/xen7O4ajox5yJsfWGxiiac2g+Rr3JoHyyOuGYB7BpPqzsiR2S3AKTvZewdcZs8tw
-	JynOJ488zpt+qHETqxuuc+rP2GUo1R+FYL4XVD/PQAUmp0urDIzXuyFJJc6J4Lrn5pWjZ8jsfp2
-	h6SwQ==
-X-Received: by 2002:a05:620a:298a:b0:8b2:7290:27da with SMTP id af79cd13be357-8c6a68ec70emr2561552085a.12.1769010601362;
-        Wed, 21 Jan 2026 07:50:01 -0800 (PST)
+        d=1e100.net; s=20230601; t=1769011321; x=1769616121;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Xk50a3DJCYgVIrcCVz4YsPwnwCkWAaxm0jVyWa00IrY=;
+        b=jgMYsuKlddUg35zY5GHqvF00CBqD2zdjRp+N1CNN9OWwj1Ft5TJRtBLQUU+AYEVKY6
+         APWN92b6yhdbMzCtMsflSIApSeJaO297ja2DzRxEJYcVYShj4x9VTe1NcC4pcFcUcd6X
+         uZr6Q6FUEY/Lg4uJrj+jjJ/fzxId8LTyEIZ54wk191LnzBslBeYiRK941mvE6Ij6ULke
+         CJeumh/I690L4l/YuDFfnkAPHInAKOrQgkzY91tCDZPNY3OTHKdEpQuDdnujFbDdK0zK
+         L0HUcq8KS2IgqrUrWOR3kVR3Wms+8R0k+3eXA2z8fqhVrZzYmBsy5Bsa6SlPEYT9gh+a
+         4FHQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVv87DLg5FAkpXsISB6LRlDROdVDeJVZgLCacg2MgvooP/ukOy7tksLY3fJSHDKcVLdVU40bxPrGcG2thPiWw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwCEBWMrfXnoy8e4EIGBdUN+hbiiyCATWzqb8zOQgj4gR30SkUB
+	w0e84+Db/qkbrDSc2TlbTGz01v/+8aSfxDRsZR2ByacNFit+s62U6bQWZ6AwHMwqKIU=
+X-Gm-Gg: AZuq6aKbGHEEUG8rVFEeukCj2GhH/5TAuonj3yM6Duik5S1vivZCeOHRrxqhcAVABcV
+	JgZ9suJim/F9jNz8AXPf9CIOgQ29kK4mv2N7n1DOZJVBBSl3BuD6TB8oAPGkym1iFYnqo6sQotj
+	GYu+7PiNVh9jN0EcvafU+OcpelrZlPhESf0pYGcmDzjFAfSNcKXF6d8GV/oJYcTIamp43uKmLXw
+	5HGvrp7pJwZkFqMO02J5xWwGcM8xW7PVxGSHPjOC2q6ef2cHTPfzfviaxhdjVL7Rz9LoCh6eL23
+	AmItEU2o6dBFrPzGqY9u83mWxtYiMK44T2enb3FU5MYpGo+bJhg0BtX5+VxukgkGwMJYxzYncxl
+	e81xhJlXHCoc4v/bmS5IrjFLAtVtHjnEqzsHYMUmvN/3ddw+EP9CqOH0Ei2xQtmQunm1JieR6t8
+	v1pHSUir2S+ZPycqbxOr+Ex8a+Fi4uYvgtgSTOjhrXjo2c/4T8TcXiXzuVMJZpc1WUO9A/TKHUz
+	nmS6A==
+X-Received: by 2002:ad4:5c4d:0:b0:88a:3861:9131 with SMTP id 6a1803df08f44-893982737e8mr294508076d6.34.1769011302558;
+        Wed, 21 Jan 2026 08:01:42 -0800 (PST)
 Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8942e6a9d97sm127467116d6.34.2026.01.21.07.50.00
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8946e3aee12sm27692726d6.39.2026.01.21.08.01.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 07:50:00 -0800 (PST)
+        Wed, 21 Jan 2026 08:01:41 -0800 (PST)
 Received: from jgg by wakko with local (Exim 4.97)
 	(envelope-from <jgg@ziepe.ca>)
-	id 1viaT2-00000006Emy-0KMB;
-	Wed, 21 Jan 2026 11:50:00 -0400
-Date: Wed, 21 Jan 2026 11:50:00 -0400
+	id 1viaeK-00000006Es6-2jLq;
+	Wed, 21 Jan 2026 12:01:40 -0400
+Date: Wed, 21 Jan 2026 12:01:40 -0400
 From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Pranjal Shrivastava <praan@google.com>
+To: Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>
 Cc: Leon Romanovsky <leon@kernel.org>,
 	Sumit Semwal <sumit.semwal@linaro.org>,
-	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
 	Alex Deucher <alexander.deucher@amd.com>,
 	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
 	Gerd Hoffmann <kraxel@redhat.com>,
@@ -91,29 +91,103 @@ Cc: Leon Romanovsky <leon@kernel.org>,
 	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
 	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
 	iommu@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v4 8/8] vfio: Validate dma-buf revocation semantics
-Message-ID: <20260121155000.GE961572@ziepe.ca>
-References: <20260121-dmabuf-revoke-v4-0-d311cbc8633d@nvidia.com>
- <20260121-dmabuf-revoke-v4-8-d311cbc8633d@nvidia.com>
- <20260121134712.GZ961572@ziepe.ca>
- <aXDhJ89Yru577jeY@google.com>
- <20260121142528.GC13201@unreal>
- <aXDnAVzTuCSZHxgF@google.com>
+Subject: Re: [PATCH v3 6/7] vfio: Wait for dma-buf invalidation to complete
+Message-ID: <20260121160140.GF961572@ziepe.ca>
+References: <20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com>
+ <20260120-dmabuf-revoke-v3-6-b7e0b07b8214@nvidia.com>
+ <b129f0c1-b61e-4efb-9e25-d8cdadaca1b3@amd.com>
+ <20260121133146.GY961572@ziepe.ca>
+ <b88b500c-bacc-483d-9d1a-725d4158302a@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <aXDnAVzTuCSZHxgF@google.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <b88b500c-bacc-483d-9d1a-725d4158302a@amd.com>
 
-On Wed, Jan 21, 2026 at 02:47:29PM +0000, Pranjal Shrivastava wrote:
-> But at the same time, I'd like to discuss if we should think about
-> changing the dmabuf core, NULL op == success feels like relying on a bug
+On Wed, Jan 21, 2026 at 04:28:17PM +0100, Christian König wrote:
+> On 1/21/26 14:31, Jason Gunthorpe wrote:
+> > On Wed, Jan 21, 2026 at 10:20:51AM +0100, Christian König wrote:
+> >> On 1/20/26 15:07, Leon Romanovsky wrote:
+> >>> From: Leon Romanovsky <leonro@nvidia.com>
+> >>>
+> >>> dma-buf invalidation is performed asynchronously by hardware, so VFIO must
+> >>> wait until all affected objects have been fully invalidated.
+> >>>
+> >>> Fixes: 5d74781ebc86 ("vfio/pci: Add dma-buf export support for MMIO regions")
+> >>> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> >>
+> >> Reviewed-by: Christian König <christian.koenig@amd.com>
+> >>
+> >> Please also keep in mind that the while this wait for all fences for
+> >> correctness you also need to keep the mapping valid until
+> >> dma_buf_unmap_attachment() was called.
+> > 
+> > Can you elaborate on this more?
+> > 
+> > I think what we want for dma_buf_attach_revocable() is the strong
+> > guarentee that the importer stops doing all access to the memory once
+> > this sequence is completed and the exporter can rely on it. I don't
+> > think this works any other way.
+> > 
+> > This is already true for dynamic move capable importers, right?
+> 
+> Not quite, no.
 
-Agree, IMHO, it is surprising and counter intuitive in the kernel that
-a NULL op means the feature is supported and default to success.
+:(
+
+It is kind of shocking to hear these APIs work like this with such a
+loose lifetime definition. Leon can you include some of these detail
+in the new comments?
+
+> >> In other words you can only redirect the DMA-addresses previously
+> >> given out into nirvana (or a dummy memory or similar), but you still
+> >> need to avoid re-using them for something else.
+> > 
+> > Does any driver do this? If you unload/reload a GPU driver it is
+> > going to re-use the addresses handed out?
+> 
+> I never fully read through all the source code, but if I'm not
+> completely mistaken that is enforced for all GPU drivers through the
+> DMA-buf and DRM layer lifetime handling and I think even in other in
+> kernel frameworks like V4L, alsa etc...
+
+> What roughly happens is that each DMA-buf mapping through a couple
+> of hoops keeps a reference on the device, so even after a hotplug
+> event the device can only fully go away after all housekeeping
+> structures are destroyed and buffers freed.
+
+A simple reference on the device means nothing for these kinds of
+questions. It does not stop unloading and reloading a driver.
+
+Obviously if the driver is loaded fresh it will reallocate.
+
+To do what you are saying the DRM drivers would have to block during
+driver remove until all unmaps happen.
+
+> Background is that a lot of device still make reads even after you
+> have invalidated a mapping, but then discard the result.
+
+And they also don't insert fences to conclude that?
+
+> So when you don't have same grace period you end up with PCI AER,
+> warnings from IOMMU, random accesses to PCI BARs which just happen
+> to be in the old location of something etc...
+
+Yes, definitely. It is very important to have a definitive point in
+the API where all accesses stop. While "read but discard" seems
+harmless on the surface, there are corner cases where it is not OK.
+
+Am I understanding right that these devices must finish their reads
+before doing unmap?
+
+> I would rather like to keep that semantics even for forcefully
+> shootdowns since it proved to be rather reliable.
+
+We can investigate making unmap the barrier point if this is the case.
 
 Jason
