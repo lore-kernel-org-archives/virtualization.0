@@ -1,406 +1,239 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010030.outbound.protection.outlook.com [52.101.46.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 816FF4C041C
-	for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 14:48:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769006909; cv=none; b=uuAQfj6Hzpnr4TkkuLl3Jgi8fE8Xb4O4oKQ3W62xXyydo7oZpz9k/wumdMl0VkJEUYQa+30jGkZY0YbfWk2DG8LffuYs+zwtDtDoAUkb+4E2FkanTF/402oO8/HDAkhFs2UITKCUSi5Hbep16PD07G4LalZ51WJg53ICwfqErmY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769006909; c=relaxed/simple;
-	bh=QUpRm5BO1PsMpJA/m+7TudemIjgPpKiHIo5jnkzHoIA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=qYc6qPOgheNZDxnVIbdu3M0TttNEnJroTYu/r1OQuGxWyTYrfDuWwAIGDZ4iRlHypOCOexskNQndL6eXvvAZoZ0meHqL8yhHZLeuoYpfFzoH0gxSboSWrpvnur9u+lWSBgM4xVL0hrekESbM6V4epzrAVjtaSNfbV27tGs8653o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fH4kfMra; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4FC51917ED;
+	Wed, 21 Jan 2026 15:28:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.46.30
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769009322; cv=fail; b=f+o/Eqn/hTuuvViyURp8lUfQ25fKWAIQMJ6UMMbE8zjx6Om7p+yL4vXMxzrm0VSpgcLc1JSVjfjuba0je1n5CM8OV5CiEOJrWI53wp573Kl39dtXWe4VuA9y8jiDzA6ZT1ylZOd7hoDXsdF33dfTFADDJSZu1pEM9dIBqvqZVuI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769009322; c=relaxed/simple;
+	bh=pjQB+3ZkLMMycYE7sylGS1LUOPNM4pNL0uqWgYLPkn8=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=gSscdUT93e73wcxW+uKy1gH35mFMdmFq8HC/VfBECRXfrPd6C+5An3zW2F1oVFeyrx6eJg8BQKEBXtuFs2lymp5dRoArVhgLFpW0DM/WsRD36Nae4DXxUWtA9LVD8fdH6HZHC2DjMstZkKmYKqAikfz2OBCxjbu98PiMIqFJwvg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Zq2XomQY; arc=fail smtp.client-ip=52.101.46.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fH4kfMra"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769006906;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VUJ1S4k/wjMiGcuwXZdRwnP1r4qcoeHu/Fk7TCF9Czg=;
-	b=fH4kfMraPDUrLPhWTicQb+PPtDz4cIdHPfvOreovYhFuEea/EXn6Wh8uRUtac9Rmd1wUHy
-	VW//BtjKC5+Tp4r8jhOeNAkp5XgQMMJhnuIOZ2GYyxzVOTmkYTwa0qk5PvSh45Pqdy3VpC
-	u7lcAZtyXhV78nY1MurBo/5rUOr/MQ4=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-670-bcImzIZpPI2cgxVff2aBMg-1; Wed, 21 Jan 2026 09:48:20 -0500
-X-MC-Unique: bcImzIZpPI2cgxVff2aBMg-1
-X-Mimecast-MFC-AGG-ID: bcImzIZpPI2cgxVff2aBMg_1769006899
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477cf25ceccso67888365e9.0
-        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 06:48:19 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769006898; x=1769611698;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=VUJ1S4k/wjMiGcuwXZdRwnP1r4qcoeHu/Fk7TCF9Czg=;
-        b=fjXDuZKHcySM5wlq5GmK30wW9rSVDVCzBbouj1xqksN8tCajJ2Rcw5MUaXKr0sjv1i
-         qDhX8VqJcKIWIV3EnhK9w/l1A7MO431opjMFBttSTM2ZsMZkIu+M6gK2cJ4bxpzXyq7j
-         GwI7hmyuID+Oq5Sb3XsHVD3SzVhjVBR+m4z3r0NbSJ4FD2hbVPL6mSyBWw7sY1xmOMbj
-         kbrY+O4dHoz8AYoJS5Lhz9hZoxnvOZUHoIv2Pq5d+Ikee9jpZuzTthrhhQC4/j5uV9dg
-         ZI+JDzyfeM+kSzUpEW2+Cvo3qur+/WSToBtLKsAZVw+HzWbMy0rj09MgpZ5nJYNEiUIC
-         YSGQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUyHyE2mM1ZohaNwNHmtO446FnzL9dCucr0/9eOE9U9bGMoYUeW/dAe0Klc8+3d3YEgCYlCfl6YsZy7VScLpg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz7c/OT/FOIZ3w/6dcr5qMwZV7pK0oVyAGYqIygt+ViN0bPUE/v
-	lX6Fr+3FojIyruT1SziU9Uhh4gZHtMsqcSlyfg8GzjvsGZl52uhFESm8jJpZxOQ1JRRv/W6r4Lj
-	q3a0cuH93ypc51caY7E0914APPDci+gBRiGEpam3YQn/9W6tRKk1oYcc47rkUUpbZPJo3
-X-Gm-Gg: AZuq6aJvR2kVOxHcZeooWnsjBKit29HrIfK1J1QkpwmZi7UkobcaaOfqSYprUuFWJSF
-	URcy9p10FYHu6oSA5+COktlPV/sAhHE9wjU9ObPrj2/CWXoP0FZNiXOvT/+ENj1hRoc/IqBlBlu
-	9lV4OZJmlkGUkpsfJgSxlkLQH3A+My625p20vEhcEtx7H0d0nZxO6KwmxyK2JawoPkYJN3+lmyV
-	O8QyvWIc88SyuqOxeEc009zJlEQFADwMlzs+m5xe8cELq8UJRR1waY6JLxapjaNxpge/g7maRDB
-	Rf+97DjRSvZsbVy8fpyPr9pTsHAEg6zw52zQ8YqTc8o44lT2vdbBbcNCSFhA2mmXZow3a6E/7yT
-	sFeBd74L8AJTrN0bs8M4ADHMRMc+hHUJAskqlQk8zftRPxoTZRLS7JG4p+3A=
-X-Received: by 2002:a05:600c:820b:b0:47a:9560:ec28 with SMTP id 5b1f17b1804b1-4803e7a2d1dmr73114055e9.13.1769006898440;
-        Wed, 21 Jan 2026 06:48:18 -0800 (PST)
-X-Received: by 2002:a05:600c:820b:b0:47a:9560:ec28 with SMTP id 5b1f17b1804b1-4803e7a2d1dmr73113705e9.13.1769006897944;
-        Wed, 21 Jan 2026 06:48:17 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48042c5965fsm22479875e9.17.2026.01.21.06.48.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 06:48:16 -0800 (PST)
-Date: Wed, 21 Jan 2026 15:48:13 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
-	Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Shuah Khan <shuah@kernel.org>, Long Li <longli@microsoft.com>, 
-	Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, berrange@redhat.com, Sargun Dhillon <sargun@sargun.me>, 
-	linux-doc@vger.kernel.org, Bobby Eshleman <bobbyeshleman@meta.com>
-Subject: Re: [PATCH net-next v15 01/12] vsock: add netns to vsock core
-Message-ID: <aXDYfYy3f1NQm5A0@sgarzare-redhat>
-References: <20260116-vsock-vmtest-v15-0-bbfd1a668548@meta.com>
- <20260116-vsock-vmtest-v15-1-bbfd1a668548@meta.com>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Zq2XomQY"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=E08DXAPBPMwwz9P90LfK26h4LRqe3iuveW6z303H1J+wYopCle1I38N2sYNwKcHGk4Di/j8sAnPKYv4RpvLgylASyDiZu6KhMVWFntQR2SbQB435KnNrKnnjWikK+dYidd1vnB6iRl+ApBkT/ZImviUcpDE8XPTJZRJaTKVXHsEWiJDnAQ0HRDUlvktbzx+Kx7JYMLwbD8J6qO7tBdWoWPEjfVYRKpyjAPeQ0CJccxaaoidr518gHBCcckNlcoZVpgZo+i3IKFsaVtzUoaPzG9oHYIobOc61klkl72VMnYYtZH4dQPu7vQ+61w91lnMPuNh/wQLeMBb6HfQLFmrRWw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZclmBqj4Mr0Ba4rvFM9PQ0OGYmWIrQax2yR3AVlCtWY=;
+ b=u0VuVEnFGmPKwb8Qbf/m0kYkvT3SgfKRab+hOR7iyN7H9jcjN1j6cDFg5sIlig1eH+E4XF4OT/G0p9ybqcZMgd46uoZ2XrGxoSZkAXmdYiRqQ4eApgjjfasA76rDGA/2EigqNo9BCCkc/JfzxeFAXUtIYPm1XvloVvtfrTv0HouD2JopHxeZtFWMBjmxHLP4ZLj6ZcPIyEkrA0I5Xj4av04CLFdWxgs+YVI5qAfd2Q9vWW46H18kdQhvKGvTCw4SJ2nptYW5BRBqceSPOIllX1MxCkxKVKGKlMA7EZVm8hUA3uGvdjMMx2r4bsD2STlXy8565R+hG79YcgmKEtGCRw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZclmBqj4Mr0Ba4rvFM9PQ0OGYmWIrQax2yR3AVlCtWY=;
+ b=Zq2XomQYy7PshhH21Sk8ceOisEClWvWtgKNLWIycknhaSS4/OxkMXrgt6PqfBPe5nKrpYdWdhEEINzlieyHJpsO/3iRax1XgBBnuYz8Ledh3Wa8zwGld5UvgTidKGWwXgMuv/h3Vyh0ndQFBvDPkd7g9NvgRNRg7NcuueAxLQWg=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
+ by LV9PR12MB9760.namprd12.prod.outlook.com (2603:10b6:408:2f0::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9542.9; Wed, 21 Jan
+ 2026 15:28:37 +0000
+Received: from PH7PR12MB5685.namprd12.prod.outlook.com
+ ([fe80::46fb:96f2:7667:7ca5]) by PH7PR12MB5685.namprd12.prod.outlook.com
+ ([fe80::46fb:96f2:7667:7ca5%4]) with mapi id 15.20.9542.008; Wed, 21 Jan 2026
+ 15:28:36 +0000
+Message-ID: <b88b500c-bacc-483d-9d1a-725d4158302a@amd.com>
+Date: Wed, 21 Jan 2026 16:28:17 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 6/7] vfio: Wait for dma-buf invalidation to complete
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Leon Romanovsky <leon@kernel.org>, Sumit Semwal
+ <sumit.semwal@linaro.org>, Alex Deucher <alexander.deucher@amd.com>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Lucas De Marchi <lucas.demarchi@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, Felix Kuehling
+ <Felix.Kuehling@amd.com>, Alex Williamson <alex@shazbot.org>,
+ Ankit Agrawal <ankita@nvidia.com>,
+ Vivek Kasireddy <vivek.kasireddy@intel.com>, linux-media@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+ linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+ virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
+ linux-rdma@vger.kernel.org, iommu@lists.linux.dev, kvm@vger.kernel.org
+References: <20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com>
+ <20260120-dmabuf-revoke-v3-6-b7e0b07b8214@nvidia.com>
+ <b129f0c1-b61e-4efb-9e25-d8cdadaca1b3@amd.com>
+ <20260121133146.GY961572@ziepe.ca>
+Content-Language: en-US
+From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+In-Reply-To: <20260121133146.GY961572@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: FR4P281CA0004.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:c8::16) To PH7PR12MB5685.namprd12.prod.outlook.com
+ (2603:10b6:510:13c::22)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260116-vsock-vmtest-v15-1-bbfd1a668548@meta.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: v7FFY7-P2s8W5NMm2qxTT3NQT7w06-XUajgKqEMTqhs_1769006899
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|LV9PR12MB9760:EE_
+X-MS-Office365-Filtering-Correlation-Id: b12601c8-a27e-4ba1-b9c6-08de5901beba
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?NzBmVXlPRSt6S3NDUE1TdlE5KzRuUlFEOVdKb1U0VC91czhBR3l5SEcvRzVu?=
+ =?utf-8?B?SWtwbkswV1pObC9oTEt4YXZvbUtZTEtSYlppWGl1ZVhlc3FveGx3amVMK3Ew?=
+ =?utf-8?B?OXEwQlFNVjBTQ2dhZTczMHFjRHdRUHlRK09IWGFFU1Q3dmh5LzFoVkNyY1Vj?=
+ =?utf-8?B?emQxZDhzZFdrUFUrcHFVYmRnVjdBSGJycTdXSE9COS9JVW1OZG4yV1B0dFIw?=
+ =?utf-8?B?aklyS0lWd1E3bUluYU1UWFNYSEFkWWhzQVZDT2I2UkU5cDZydmpQaWxKQnNI?=
+ =?utf-8?B?NmxIZ1F6RUt3VzNlYVIzN0JLU3hCa2xNMmNaWE1XQ2RsVGFUNk1BdzR6UmxN?=
+ =?utf-8?B?SExnaVV3T29wVEdrbGFzZWtrLzRKaVd1b3hTclEwckgzOUNXMW9YZmhVQStN?=
+ =?utf-8?B?eEtaTDZMMjdMeTJYT3VRaURRMHNTdW1kZnVsQ3Naa2FaeW5wdnBCM2k3RlN5?=
+ =?utf-8?B?bUszZU93aFlheiszODY5b2FpY3hiNUMwM2psRWJSYjBYclRLaWRFWkdhQUs5?=
+ =?utf-8?B?cWJVcCtmZUhvNWMzR3pqSnRtQnFrN0h5UzFPSnUwUUI3ZUhSZllmTldMQVB0?=
+ =?utf-8?B?Y05LY1h4WGZrUUhwdmhlb0k3azNJN1IzNkxVeEJ1ZHkxTHZNc1ZhT0ZTNGNu?=
+ =?utf-8?B?VHRrME5MRUZCZ2Fha1NYZ0U4SGZXclNrT0tzaHVldnFicEVLZDU4QnA1Szkx?=
+ =?utf-8?B?SVByNWk1ekJ0aVp1RExWWjdEVnV4endqQUhEU1lSWkdFUVVyVHRnTk8wNUwx?=
+ =?utf-8?B?aDQ2WUtUNmk1OHVBQUFKKzA4eU5yMmV0MVY4WkNJRUNQUDRLOGd3VFI3VVlz?=
+ =?utf-8?B?SFg4WGlGN3QvOVBlaWRnOC9xTVJpT2Q4eENUM2RNWHpiVEJpYmlBSHpPdzlG?=
+ =?utf-8?B?R29JZUZPZ000VmJsU1NtVlNNbXd4d3lCZUxvVEdWRi9TZnF0cjhTVk9yWmFS?=
+ =?utf-8?B?N2RzWTEwZG44TEZtLzRBejJDZVJIQTN0VTBreGNnY0tBRTlsUElCWHMyblNN?=
+ =?utf-8?B?c0ZHczl6T0h1WSttcmFpc05NK3JjbzVJN0w3bHJvT2xKQXN4WGROUzNRa2JE?=
+ =?utf-8?B?S0FRRTlxbDlDQ2JXK3NqY2NyU0gxQVNDWmdSdVZUTlJpNzJlWk91bm1ZT3hQ?=
+ =?utf-8?B?aVpyd1pDNk5PbEp0OTl1NHBkKzZkODRrQi8rdWxuZEd3eU1hbkZDNSs0aHlX?=
+ =?utf-8?B?Q0YyMEh2OXF1ZHozdU1uUllJM0ZpSThQQVM3NDgwdmt6VDMrZEx2dVNLckFX?=
+ =?utf-8?B?cHRDclZEYXVLQkgzRkM1SkFBbVBWZVlKcDNwRklCVXdlQ3IrZmpOYXVVQkR1?=
+ =?utf-8?B?dHVDMnJOUUd3MS9kaEdoV3J1NzZDaGd0SmVkRmgvdXdXTkpjM3ZQdUt2eTlT?=
+ =?utf-8?B?YTg3ZzZkRGMwRnl5RHJValdsaTNVL1FwTXFiT2FiSUJ1U1EzeHFQbDJwS1Va?=
+ =?utf-8?B?bDYzMEg4WkdmdFNON2tPRUhJMGRlQ1lIbkpqVFMvekRrYmducTRlNi8vK3FJ?=
+ =?utf-8?B?Y0RwUlZZZ3BxbTlSR3RWTmRZZDJQVjJnN3k5eldCdXd2WC91eGdNM2hORXlB?=
+ =?utf-8?B?cTdPRGwvRTBzdXMydWtrZ2NicFZCWnZHOWV1MjF0aTRlQlV2bllYOEpSbDJ5?=
+ =?utf-8?B?RGNJUDZ4WHZmUTNUWkhZd1QydmxCVW5SL0NTalI1aTFmbWtGbnptZUtzQjJ6?=
+ =?utf-8?B?UlZvaWZ3V082RVVJRnVyTThtMHUvVHRrTlhXMktQQWlscGJEODFMNjZsSUZl?=
+ =?utf-8?B?Mk43OTluU2RxQmxoS1UrTEtGbEdLNEJCRGs2dnpmZ0N2RERobmtMLzQvNzdC?=
+ =?utf-8?B?MVZCR2xZYktreGlpVlFGYjhNcnhaSEp6OGgrRDF4YWtwTU5SZzRxSjc4QVlM?=
+ =?utf-8?B?QVVtUjM2TlhCMytzY3E4U3FYWEF2clU1SG5wWUphTCs3UGkyTlN0bjl2UitF?=
+ =?utf-8?B?NE9KZ3c4bG9VUXRpNThNM3J6ZEF0YXlGcEhjd1o1b1owNGxUSlFNcE9EUHA4?=
+ =?utf-8?B?b2FQMUVIbFl4Z1F6VTBnSzBvbmRsZ0N4TGZGRUNFTG5md2Q3ZnUxMmtQM1J0?=
+ =?utf-8?B?Zjhvd1loQUcwUWxMc3YwVmdDZGMwYXZKRVRQdUtheHBTeHE5eWw2ZFRDSURk?=
+ =?utf-8?Q?r/vM=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?VW9YbEpNbDNhQm1OOHliL3VkOEhHdkFVRk1pd0FEbERmNnltc3NDaUFUYm4w?=
+ =?utf-8?B?eGpXaDQxak5US0dxd29TWXZxenVKUmxMbkNmK3BJelA3V1JMRldlbGdEVGxx?=
+ =?utf-8?B?Unk1S1lxNDNNYXY0SjVKejNNbURpVERWT0xEMFlobzhVVVpSY1lBSHNTeGxv?=
+ =?utf-8?B?SDZVVHB4VXVOT2ZxZzdGOVczeVI2RmYrREVpT3dyYmkyckNwTmRHQ3I5cW9l?=
+ =?utf-8?B?UzVPUXFoWjJEZE00V0tVU2dXaGxiUDJISEd5R1JQMU5KQit0TlBBM1VTV281?=
+ =?utf-8?B?SjRBV3p0MTNTMlRqUzJmSnNmbzdETGtxbUdQaUJYZll3R3lVanBhSC9KWWNq?=
+ =?utf-8?B?cHRBNDRPN0RlakF1OVBFeXNjOXV4M2k3V1hVRm5PSGJZaFVMaFRQazBjYnZv?=
+ =?utf-8?B?T24rdk54UHYybTZoMmVYVWhaUDhPMGN3SVB1L2R4K1ZMcFBLYlN1aFd0K0V2?=
+ =?utf-8?B?aDY3eEVRQzdBUVdnQ0M4OEg4dyt3SUxTYTBxcFdRS0N3UHRkdDIxLzVKN0NN?=
+ =?utf-8?B?WjdkYmhQekhaN0pXL2tTNVgrMittdHNBOEZWNEdsdjVOcmdOdDcybW41Rkwy?=
+ =?utf-8?B?WG5xRWg4MlJacUZ6R3NkbTNaRlllRk5rS1IrWitFRDVkZFg0bWtyUmpZblRP?=
+ =?utf-8?B?NThzVUNTajI0aEhDVnZZVmUrN0J5NjdEeC9paERKcVVGNCtOUWdGdkZYWVdq?=
+ =?utf-8?B?bHhMVkRDQ3kxSVBSN1FqR2JjenlYeFQ4R1JMZndRakkySXVDVGtuV2kvdGx6?=
+ =?utf-8?B?UXVENGtuR1g5cy9tTnA1MWI1UVRiVit0Y1p0S3NCOERUY083T2V0QzA0aFB2?=
+ =?utf-8?B?bm8yM1h3b2lnMVF6bFY3bjFiKzVQcFRseStLcEVqNHI0OFo5cnNNSU5adHh0?=
+ =?utf-8?B?SXlmM1lmUXVGaytCZlRFVWNlK2NESW5YVmhRT0hsM2lwRHNuZDhFcC9vTHZW?=
+ =?utf-8?B?SHkxaXRGcjdOck8xY29URUVjRGwzbE81eDZzOGNsVXc4OEJuMHNHTkRYZGdD?=
+ =?utf-8?B?ZWRoOW1MZysxaFFSL3lhbWZOYnlCL2pINVZYTTArMU1IN2FlRzN4UlA5VVhv?=
+ =?utf-8?B?V1d6V1NLSjRUVVJFTE8yMzlEaFhXdzN2WW55cG1DazlWamxKcnJ3QUN0b093?=
+ =?utf-8?B?NG15cFZOL0U3SG5QKzBBVVQ0MDR5aURQaSszcTdDaFJXd2dVcFBKVnB4Ylcx?=
+ =?utf-8?B?MEQ5NkRiU1dmbStnaFJuRWJVdnpKWGNoQUEybVNsT3pCS3ZmWEg1OWljYStt?=
+ =?utf-8?B?Ym1ONmUvNXhzYUJnZ0JZVWNCc2E0bElsLysyaW02bm14U1ZEaFBzbnBEcTJv?=
+ =?utf-8?B?cFJXNHB5Q241S0drd1gxYnd5alhFeWIrUXQ1ajd0K01ETDdNWFd2TzFyWlNK?=
+ =?utf-8?B?WTIxYUs2aW42dDFXejYvTWdmSDlVanlKYmUvNHBwRWhDVmhCR2tUeTlvTFBa?=
+ =?utf-8?B?ZXdhMnU2SGtLcEVmSkxaY2JHNUhKeVRBbE9PQzh1bXRodllXUk9WL1pGVStm?=
+ =?utf-8?B?UnFBTzBwMkZJOHoyd0Z0UXhCclNtSTNhMldUaFNPY2lNdjZ6eVBjelBxM3Mz?=
+ =?utf-8?B?T0dFTGxhK3BqQi9hcXZ1YkJkTkZrYVlCVjJBcjdwV09HWGxaMVB5MTJTNVRl?=
+ =?utf-8?B?cmVVdEJCL1BlZy9XWDRQbU9LKzJsbTZkM2VwcnFRUkFvbmRseFhINWlsYjVp?=
+ =?utf-8?B?UVp3bGQycmx4TVJMYmNiOFhCbUFlNXNOQ01CMUc1dk5nUmEzT2ZxanZoOTFT?=
+ =?utf-8?B?dTU1dnppQ3E0N3JHWTRSVTl2UitrTS9DRDJBS2Y3YnM1Nm5tU0VjT1BuVWYx?=
+ =?utf-8?B?ZEhHS1hFOEVGMGJlU3hrYTF2Z1krYWp4eUV1NzJmUTNTWkZ0M3NHdTdBZHZ5?=
+ =?utf-8?B?RmlqV3NVT2dmayt6ZEFqeERteU1GRWplVS9HT1psdFBxN25jUVFkY1dlbE9j?=
+ =?utf-8?B?eERmUGptRDBnMk0yWHYyUXUrbXdVa3BpMDUrTFBJem50VlhxdjZsbndSK2Zk?=
+ =?utf-8?B?QU93aDNKMDc2aytCaU9KNVNJMllQQmZVRy9HWm0vUXdqN2pxcmU0UFRFK0Fi?=
+ =?utf-8?B?TFJWc3Z5bmdLajQ5enUzTHphY1BNYTVLZHV6UzNGazZ4MHpiSXpCNGdpbkNC?=
+ =?utf-8?B?OEFzcWZ4U0tUQ1NRK3ZQMFU0L3cvN0JwYmJjZXRMY05td1V0ZWwwc2hPWkk4?=
+ =?utf-8?B?YURzVnJSd21zL1hqY2ZlNWtYTCs2NmEvbGZmanR4RGgvZmdyS1Y5Q29xcllB?=
+ =?utf-8?B?R3FyNnJ0eE9YckVQQ2E0ekVweFluNDlzODhuQU9mZ0dwQ24welpMZGsvc3d1?=
+ =?utf-8?Q?4+ifT9xZ0h73/FkrYx?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b12601c8-a27e-4ba1-b9c6-08de5901beba
+X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jan 2026 15:28:36.5671
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Ows2tTmRAun6pWABXfitH47ZmRTPKjyVVhmTOV4sYjeGisFbSAS/2h1yCH13nVzQ
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV9PR12MB9760
 
-On Fri, Jan 16, 2026 at 01:28:41PM -0800, Bobby Eshleman wrote:
->From: Bobby Eshleman <bobbyeshleman@meta.com>
->
->Add netns logic to vsock core. Additionally, modify transport hook
->prototypes to be used by later transport-specific patches (e.g.,
->*_seqpacket_allow()).
->
->Namespaces are supported primarily by changing socket lookup functions
->(e.g., vsock_find_connected_socket()) to take into account the socket
->namespace and the namespace mode before considering a candidate socket a
->"match".
->
->This patch also introduces the sysctl /proc/sys/net/vsock/ns_mode to
->report the mode and /proc/sys/net/vsock/child_ns_mode to set the mode
->for new namespaces.
->
->Add netns functionality (initialization, passing to transports, procfs,
->etc...) to the af_vsock socket layer. Later patches that add netns
->support to transports depend on this patch.
+On 1/21/26 14:31, Jason Gunthorpe wrote:
+> On Wed, Jan 21, 2026 at 10:20:51AM +0100, Christian König wrote:
+>> On 1/20/26 15:07, Leon Romanovsky wrote:
+>>> From: Leon Romanovsky <leonro@nvidia.com>
+>>>
+>>> dma-buf invalidation is performed asynchronously by hardware, so VFIO must
+>>> wait until all affected objects have been fully invalidated.
+>>>
+>>> Fixes: 5d74781ebc86 ("vfio/pci: Add dma-buf export support for MMIO regions")
+>>> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+>>
+>> Reviewed-by: Christian König <christian.koenig@amd.com>
+>>
+>> Please also keep in mind that the while this wait for all fences for
+>> correctness you also need to keep the mapping valid until
+>> dma_buf_unmap_attachment() was called.
+> 
+> Can you elaborate on this more?
+> 
+> I think what we want for dma_buf_attach_revocable() is the strong
+> guarentee that the importer stops doing all access to the memory once
+> this sequence is completed and the exporter can rely on it. I don't
+> think this works any other way.
+> 
+> This is already true for dynamic move capable importers, right?
 
-nit: maybe we should mention here why we changed the random port 
-allocation
+Not quite, no.
 
-(not a big deal, only if you need to resend)
+> For the non-revocable importers I can see the invalidate sequence is
+> more of an advisory thing and you can't know the access is gone until
+> the map is undone.
+> 
+>> In other words you can only redirect the DMA-addresses previously
+>> given out into nirvana (or a dummy memory or similar), but you still
+>> need to avoid re-using them for something else.
+> 
+> Does any driver do this? If you unload/reload a GPU driver it is
+> going to re-use the addresses handed out?
 
->
->dgram_allow(), stream_allow(), and seqpacket_allow() callbacks are
->modified to take a vsk in order to perform logic on namespace modes. In
->future patches, the net will also be used for socket
->lookups in these functions.
->
->Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
->---
->Changes in v15:
->- make static port in __vsock_bind_connectible per-netns
->- remove __net_initdata because we want the ops beyond just boot
->- add vsock_init_ns_mode kernel cmdline parameter to set init ns mode
->- use if (ret || !write) in __vsock_net_mode_string() (Stefano)
->- add vsock_net_mode_global() (Stefano)
->- hide !net == VSOCK_NET_MODE_GLOBAL inside vsock_net_mode() (Stefano)
->- clarify af_vsock.c comments on ns_mode/child_ns_mode (Stefano)
->
->Changes in v14:
->- include linux/sysctl.h in af_vsock.c
->- squash patch 'vsock: add per-net vsock NS mode state' into this patch
->  (prior version can be found here):
->  https://lore.kernel.org/all/20251223-vsock-vmtest-v13-1-9d6db8e7c80b@meta.com/)
->
->Changes in v13:
->- remove net_mode and replace with direct accesses to net->vsock.mode,
->  since this is now immutable.
->- update comments about mode behavior and mutability, and sysctl API
->- only pass NULL for net when wanting global, instead of net_mode ==
->  VSOCK_NET_MODE_GLOBAL. This reflects the new logic
->  of vsock_net_check_mode() that only requires net pointers (not
->  net_mode).
->- refactor sysctl string code into a re-usable function, because
->  child_ns_mode and ns_mode both handle the same strings.
->- remove redundant vsock_net_init(&init_net) call in module init because
->  pernet registration calls the callback on the init_net too
->
->Changes in v12:
->- return true in dgram_allow(), stream_allow(), and seqpacket_allow()
->  only if net_mode == VSOCK_NET_MODE_GLOBAL (Stefano)
->- document bind(VMADDR_CID_ANY) case in af_vsock.c (Stefano)
->- change order of stream_allow() call in vmci so we can pass vsk
->  to it
->
->Changes in v10:
->- add file-level comment about what happens to sockets/devices
->  when the namespace mode changes (Stefano)
->- change the 'if (write)' boolean in vsock_net_mode_string() to
->  if (!write), this simplifies a later patch which adds "goto"
->  for mutex unlocking on function exit.
->
->Changes in v9:
->- remove virtio_vsock_alloc_rx_skb() (Stefano)
->- remove vsock_global_dummy_net, not needed as net=NULL +
->  net_mode=VSOCK_NET_MODE_GLOBAL achieves identical result
->
->Changes in v7:
->- hv_sock: fix hyperv build error
->- explain why vhost does not use the dummy
->- explain usage of __vsock_global_dummy_net
->- explain why VSOCK_NET_MODE_STR_MAX is 8 characters
->- use switch-case in vsock_net_mode_string()
->- avoid changing transports as much as possible
->- add vsock_find_{bound,connected}_socket_net()
->- rename `vsock_hdr` to `sysctl_hdr`
->- add virtio_vsock_alloc_linear_skb() wrapper for setting dummy net and
->  global mode for virtio-vsock, move skb->cb zero-ing into wrapper
->- explain seqpacket_allow() change
->- move net setting to __vsock_create() instead of vsock_create() so
->  that child sockets also have their net assigned upon accept()
->
->Changes in v6:
->- unregister sysctl ops in vsock_exit()
->- af_vsock: clarify description of CID behavior
->- af_vsock: fix buf vs buffer naming, and length checking
->- af_vsock: fix length checking w/ correct ctl_table->maxlen
->
->Changes in v5:
->- vsock_global_net() -> vsock_global_dummy_net()
->- update comments for new uAPI
->- use /proc/sys/net/vsock/ns_mode instead of /proc/net/vsock_ns_mode
->- add prototype changes so patch remains c)mpilable
->---
-> Documentation/admin-guide/kernel-parameters.txt |  14 +
-> MAINTAINERS                                     |   1 +
-> drivers/vhost/vsock.c                           |   6 +-
-> include/linux/virtio_vsock.h                    |   4 +-
-> include/net/af_vsock.h                          |  61 ++++-
-> include/net/net_namespace.h                     |   4 +
-> include/net/netns/vsock.h                       |  21 ++
-> net/vmw_vsock/af_vsock.c                        | 328 ++++++++++++++++++++++--
-> net/vmw_vsock/hyperv_transport.c                |   7 +-
-> net/vmw_vsock/virtio_transport.c                |   9 +-
-> net/vmw_vsock/virtio_transport_common.c         |   6 +-
-> net/vmw_vsock/vmci_transport.c                  |  26 +-
-> net/vmw_vsock/vsock_loopback.c                  |   8 +-
-> 13 files changed, 444 insertions(+), 51 deletions(-)
->
->diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
->index a8d0afde7f85..b6e3bfe365a1 100644
->--- a/Documentation/admin-guide/kernel-parameters.txt
->+++ b/Documentation/admin-guide/kernel-parameters.txt
->@@ -8253,6 +8253,20 @@ Kernel parameters
-> 			            them quite hard to use for exploits but
-> 			            might break your system.
->
->+	vsock_init_ns_mode=
->+			[KNL,NET] Set the vsock namespace mode for the init
->+			(root) network namespace.
->+
->+			global      [default] The init namespace operates in
->+			            global mode where CIDs are system-wide and
->+			            sockets can communicate across global
->+			            namespaces.
->+
->+			local       The init namespace operates in local mode
->+			            where CIDs are private to the namespace and
->+			            sockets can only communicate within the same
->+			            namespace.
->+
+I never fully read through all the source code, but if I'm not completely mistaken that is enforced for all GPU drivers through the DMA-buf and DRM layer lifetime handling and I think even in other in kernel frameworks like V4L, alsa etc...
 
-My comment on v14 was more to start a discussion :-) sorry to not be 
-clear.
+What roughly happens is that each DMA-buf mapping through a couple of hoops keeps a reference on the device, so even after a hotplug event the device can only fully go away after all housekeeping structures are destroyed and buffers freed.
 
-I briefly discussed it with Paolo in chat to better understand our 
-policy between cmdline parameters and module parameters, and it seems 
-that both are discouraged.
+Background is that a lot of device still make reads even after you have invalidated a mapping, but then discard the result.
 
-So he asked me if we have a use case for this, and thinking about it, I 
-don't have one at the moment. Also, if a user decides to set all netns 
-to local, whether init_net is local or global doesn't really matter, 
-right?
+So when you don't have same grace period you end up with PCI AER, warnings from IOMMU, random accesses to PCI BARs which just happen to be in the old location of something etc...
 
-So perhaps before adding this, we should have a real use case.
-Perhaps more than this feature, I would add a way to change the default 
-of all netns (including init_net) from global to local. But we can do 
-that later, since all netns have a way to understand what mode they are 
-in, so we don't break anything and the user has to explicitly change it, 
-knowing that they are breaking compatibility with pre-netns support.\
+I would rather like to keep that semantics even for forcefully shootdowns since it proved to be rather reliable.
 
+Regards,
+Christian.
 
-That said, at this point, maybe we can remove this, documenting that 
-init_net is always global, and if we have a use case in the future, we 
-can add this (or something else) to set the init_net mode (or change the 
-default for all netns).
-
-Let's wait a bit before next version to wait a comment from Paolo or 
-Jakub on this. But I'm almost fine with both ways, so:
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-> 	vt.color=	[VT] Default text color.
-> 			Format: 0xYX, X = foreground, Y = background.
-> 			Default: 0x07 = light gray on black.
-
-[...]
-
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index a3505a4dcee0..3fc8160d51df 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
-
-[...]
-
->@@ -235,33 +303,42 @@ static void __vsock_remove_connected(struct 
->vsock_sock *vsk)
-> 	sock_put(&vsk->sk);
-> }
->
-
-In the v14 I suggested to add some documentation on top of the 
-vsock_find*() vs vsock_find_*_net() to explain better which one should 
-be used by transports.
-
-Again is not a big deal, we can fix later if you don't need to resend.
-
-Thanks,
-Stefano
-
->-static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
->+static struct sock *__vsock_find_bound_socket_net(struct sockaddr_vm *addr,
->+						  struct net *net)
-> {
-> 	struct vsock_sock *vsk;
->
-> 	list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) {
->-		if (vsock_addr_equals_addr(addr, &vsk->local_addr))
->-			return sk_vsock(vsk);
->+		struct sock *sk = sk_vsock(vsk);
->+
->+		if (vsock_addr_equals_addr(addr, &vsk->local_addr) &&
->+		    vsock_net_check_mode(sock_net(sk), net))
->+			return sk;
->
-> 		if (addr->svm_port == vsk->local_addr.svm_port &&
-> 		    (vsk->local_addr.svm_cid == VMADDR_CID_ANY ||
->-		     addr->svm_cid == VMADDR_CID_ANY))
->-			return sk_vsock(vsk);
->+		     addr->svm_cid == VMADDR_CID_ANY) &&
->+		     vsock_net_check_mode(sock_net(sk), net))
->+			return sk;
-> 	}
->
-> 	return NULL;
-> }
->
->-static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *src,
->-						  struct sockaddr_vm *dst)
->+static struct sock *
->+__vsock_find_connected_socket_net(struct sockaddr_vm *src,
->+				  struct sockaddr_vm *dst, struct net *net)
-> {
-> 	struct vsock_sock *vsk;
->
-> 	list_for_each_entry(vsk, vsock_connected_sockets(src, dst),
-> 			    connected_table) {
->+		struct sock *sk = sk_vsock(vsk);
->+
-> 		if (vsock_addr_equals_addr(src, &vsk->remote_addr) &&
->-		    dst->svm_port == vsk->local_addr.svm_port) {
->-			return sk_vsock(vsk);
->+		    dst->svm_port == vsk->local_addr.svm_port &&
->+		    vsock_net_check_mode(sock_net(sk), net)) {
->+			return sk;
-> 		}
-> 	}
->
->@@ -304,12 +381,13 @@ void vsock_remove_connected(struct vsock_sock *vsk)
-> }
-> EXPORT_SYMBOL_GPL(vsock_remove_connected);
->
->-struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
->+struct sock *vsock_find_bound_socket_net(struct sockaddr_vm *addr,
->+					 struct net *net)
-> {
-> 	struct sock *sk;
->
-> 	spin_lock_bh(&vsock_table_lock);
->-	sk = __vsock_find_bound_socket(addr);
->+	sk = __vsock_find_bound_socket_net(addr, net);
-> 	if (sk)
-> 		sock_hold(sk);
->
->@@ -317,15 +395,22 @@ struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
->
-> 	return sk;
-> }
->+EXPORT_SYMBOL_GPL(vsock_find_bound_socket_net);
->+
->+struct sock *vsock_find_bound_socket(struct sockaddr_vm *addr)
->+{
->+	return vsock_find_bound_socket_net(addr, NULL);
->+}
-> EXPORT_SYMBOL_GPL(vsock_find_bound_socket);
->
->-struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
->-					 struct sockaddr_vm *dst)
->+struct sock *vsock_find_connected_socket_net(struct sockaddr_vm *src,
->+					     struct sockaddr_vm *dst,
->+					     struct net *net)
-> {
-> 	struct sock *sk;
->
-> 	spin_lock_bh(&vsock_table_lock);
->-	sk = __vsock_find_connected_socket(src, dst);
->+	sk = __vsock_find_connected_socket_net(src, dst, net);
-> 	if (sk)
-> 		sock_hold(sk);
->
->@@ -333,6 +418,13 @@ struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
->
-> 	return sk;
-> }
->+EXPORT_SYMBOL_GPL(vsock_find_connected_socket_net);
->+
->+struct sock *vsock_find_connected_socket(struct sockaddr_vm *src,
->+					 struct sockaddr_vm *dst)
->+{
->+	return vsock_find_connected_socket_net(src, dst, NULL);
->+}
-> EXPORT_SYMBOL_GPL(vsock_find_connected_socket);
->
-> void vsock_remove_sock(struct vsock_sock *vsk)
+> 
+> Jason
 
