@@ -1,132 +1,222 @@
-Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 502EF883F
-	for <virtualization@lists.linux.dev>; Thu, 22 Jan 2026 19:43:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEE14364EB2
+	for <virtualization@lists.linux.dev>; Thu, 22 Jan 2026 21:52:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769110989; cv=none; b=CMEceYu0nRxDe0kQM1ZwP71fqryYxW+XerANgBsZ4H207fpFOGIQMaouGWxeIg05Ic019sVvYrey9zqcs/bAbQqn64gC4Rtu0FUcBB4p2oCzJdjLDPww3ncIfk5PXSNIZiK857l7hfYPv/FrblCYFfrfvChtqYqc3lIfSu2VioA=
+	t=1769118731; cv=none; b=NtJBOqcNuyg9yLIBuHPlYANZfUJUKzJssx8emnB5prct+0/BWv7eYbEs8WDxUqcIX6bCSf6FzslJVagAFw4DvIWDD5apiQd6ofM8ti/loZZ6VOdRlecx1oY1mXvpL3D0RVr0EcYnAa87jqFZIE2YOWD+iuKyMa/z5mDf3EXPxvg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769110989; c=relaxed/simple;
-	bh=McfjPJzKwS57vSW0MyNDedyv+QITcO0lgUUipuZFNug=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=sT3NEoAC2yWQh4fDow1V83lYMxCZTvEsehDH0A3Gb8RHI2wzrXjKT6mA2qDfp4lO6kohCy1dxbLM0H7S7/4rRXmOJnJAHqhLN2SbU6FWbI14VkESF6teX9OJWup5UK82xozoK6xq4R3SKaQVj5KXdMMuuZ4kuzuBvgzQFhKD16U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MBhIhvVu; arc=none smtp.client-ip=209.85.128.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1769118731; c=relaxed/simple;
+	bh=vBKOE2qVFcm4p0Uyp9ThApwnQdHm19ApCeX565t096c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=gFbYXBNGPGCETRYsijom8cU2l0izsHzjpOx4euTeP04L4Ccaw1NWcBZy2mkCbpvcxwszfAnp9ODHpRprpVFLKdWRe6hGXI4wa79OeXul+xT7su6OnpG1WV7uozHSYIF+iiAviRYmCbtO3ytsF3LWqroJQdbxbtHB3wh7y+7oC7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MLzD4QV1; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MBhIhvVu"
-Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-7942b9663f8so12772307b3.2
-        for <virtualization@lists.linux.dev>; Thu, 22 Jan 2026 11:43:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769110979; x=1769715779; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=McfjPJzKwS57vSW0MyNDedyv+QITcO0lgUUipuZFNug=;
-        b=MBhIhvVuFhA5QYmNcVSYwY6Ta9+Tt02J5HEVzR4qspP5YWL4wb/r2Qv7sTFkZkV/aV
-         Xf7q9wa/YD7OaFxwsOC5M8qSYNjq5mrjm3KKibYCN+hsRUaG83GH9KPgjSNAw38/cFiv
-         sKfM38PDKfKn1F3X3Hj0R4TzTvtqS6ZtpBv7FO8NYiY9JT4LrNcNH1feb3b+zxXyFyBf
-         SSVnYst3vxe43NlL6RxNIb7ad3weMXp/z0FHRVr5qX494Wu8y3ilp5iO3gxJPE5zUkDh
-         kasi51npudDWIS8jrl7BhggQfHWKIcXL/o7uY3+IaSrjzzSEpvYCj1CUWLo1j1/ka1Sp
-         JsIA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MLzD4QV1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769118723;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ZW5gSdhItogFEcRflAqU8aOpgxsdIYIRekkLZQNMM3c=;
+	b=MLzD4QV1zw6JEmu8gK9F8VHJtQIstoZK4RYMolX9/CG+U8SrWF8Nzw4RZ4hYNnYbFBl+qs
+	WkLn3BRLEaZaFi72gMbNDBMfuEGrm4dMJts9CcT9331wY5fuJII08mFiDnsU1WEV2xVFLD
+	lcagbuYu+KP+ExVNA36tlcKccQKXM84=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-625-kn16SJaINr-7iYeJiuEZSQ-1; Thu, 22 Jan 2026 16:52:02 -0500
+X-MC-Unique: kn16SJaINr-7iYeJiuEZSQ-1
+X-Mimecast-MFC-AGG-ID: kn16SJaINr-7iYeJiuEZSQ_1769118721
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-47ee3dd7fc8so14930445e9.3
+        for <virtualization@lists.linux.dev>; Thu, 22 Jan 2026 13:52:02 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769110979; x=1769715779;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=McfjPJzKwS57vSW0MyNDedyv+QITcO0lgUUipuZFNug=;
-        b=bfd7GBOmk+Rbz5y8mdoMGwRvHsaKUco3E2txOhI0wyKCvxweYduqhlwoBvdMnY0tmx
-         gy5ZxflAe0zOAgu56aOS39j7CX4WIZgAnMX2YwB3WQWEFpDXCsebz0V0Ivp3/uA0cwlW
-         UxCv2YaMQ0JKdnekeJgJwzivXQOPFCTxwsy33q7kTcp5Lt4gqBymPLJdv48p5bGstMMY
-         59mS55GsWZAyHnW6uPU1bC3wKEUfQElKCGJoOICcGjmxFGMXigASF75l+ZeyE4kGly1J
-         Uj3TpqG4cSBaN1aO4GoLSILChkfmNbnZZqEt5AGRlz7vxG3S7/21v5D+/WqAHbiAfNCl
-         7SRA==
-X-Forwarded-Encrypted: i=1; AJvYcCXtnbzqhdSKgzaM/SgJCx2o0mbj9DG2PvI6WwHB8uHnjW3WIzqNpDPQaHr3Wft/RVe6EbuFVNX3YncM2JVyHw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz32dh2GH4v6jVRV2R6S5B6MCE4dFLrg9gDEVKtpE7bo73oObML
-	tx9wc8HmPxYc2Xr4GCQM4eWQwdriGCjGgeVtBPvGxrPK6tBr0xGKhuSe
-X-Gm-Gg: AZuq6aLIrimmc1CA/JlJ3pUad49t5tnlWfuzAG9FyUxa76cPa4N1OxOkP+GWZ719jp+
-	RaP2d6zbabAhsmRWue/EszTAEWeHTMx3UaW345QmrNUJHXk6wtxl0+pDccoMiJOVzx6rkInLDF/
-	imsTQIeQiNawjoXMq6W+YuN7ueKvOXdYg5mydLCFTIyUiU2FJ/PxJHE5HuDQ/5zbj/ePiuMuj43
-	CA6yw7iaS4dPdDKd3UypC686aVbCIQCwPj6LKk8KC0Gaz7wevqK83r2LboO1aoDabTxyPZg7Au9
-	ndOaWb7QKqo7hNQN60ncDs0tDqNPU9XrXpY6wOtTNLICulyeytobPkgRsfwHEOlBYYrPYdvDMBJ
-	WGOfJCYtC2lymgC8a9K49tCAlWYrdbzy+025vh5pJTrcjaWUYTYBX+uJE6LXJtnp2e2wdXSbKX/
-	psvOyzHqotC4Oftvh8fLXPuYTBSkPZNGyJU7X6feWOPE3hxSegsWQPEDkloFk=
-X-Received: by 2002:a05:690c:c509:b0:794:2c3d:7947 with SMTP id 00721157ae682-794399c7302mr7365507b3.38.1769110978900;
-        Thu, 22 Jan 2026 11:42:58 -0800 (PST)
-Received: from gmail.com (21.33.48.34.bc.googleusercontent.com. [34.48.33.21])
-        by smtp.gmail.com with UTF8SMTPSA id 00721157ae682-7943af1443dsm678977b3.2.2026.01.22.11.42.58
+        d=1e100.net; s=20230601; t=1769118721; x=1769723521;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZW5gSdhItogFEcRflAqU8aOpgxsdIYIRekkLZQNMM3c=;
+        b=FkblxVQLEWgXIU184Yr3OjUB+U1XAuDvhEN2zioBbwOZG5f31wPZuJyHT6niHXxSRv
+         1L4jubuwwZsFTq3Biidrj29hE3vBoYN39RRA0527qWWCmRUNIO7xL+VXN9PJO2VLLTA+
+         duaxNoooeqOy5qOpguUbbYGHeUNAgb8MXdq/K/NO4DKfb4K8D72rt9jubaxyeuXTzXAe
+         c0LJUJENeRN/YudNuzrfhjhh9mu5T06wKKBlgAm0A00+5wtGsg8xC464Zhd59DgwNynT
+         zJtaZh4yjUN4QGk/woUxtxkXgZHlYGHMN8Qt7o8QPHZ+LEaDhTjJ6lHxD6r01cPiBhd9
+         ekLg==
+X-Forwarded-Encrypted: i=1; AJvYcCWI91TX/Iu30Q8BjrwsrOLIm8J7vYrjBgMMuSUaii3lz4nGIqRERamqbvxJPkixZhKgkrKNJ/t1osq8+k5b0Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxtbs4hiIxPooC/ZwJHfZsogjCRObcBJLBN4rtPRQGziOaVvelS
+	qcs2hR4cDK1Fz4UJz7tU/vlNuYosN1UIt2AEOrUgvHw7lq1FHVsZOmylY9kmXwzgMg7GCyHt0uC
+	0tLrvi+zJvHwAZyzQ0Nau6UezCa0m1kYOVag+75b75FnCmE5F9avnyUwiq6UApDpMsZ11
+X-Gm-Gg: AZuq6aL+zS9g9n3OHcGP1qPGcoARHEzExYcSg4OJWYULzl6wQXQmhKmxgIcYYHzpPNx
+	yc/Zjcv0evgAeEClbjDJYMFtYEg/AYWDevO2PgJwD5rZwXC4zo7aTXVswTq9FfS8KaMpbv54yTp
+	TbDzKJd0jknraNH7FPbA3dB/gCZzEYQQdPpiQhxwCV9gnNkGmxkk67FHtWTBebmeRHpKngnings
+	4SDfPjRdKBUnI4V1hNIhDfIcpkfJ1s1s3pya7rFKKONswev3UsSD2aTWgHINpTUYmmNFvYlG27N
+	9CPuwo1kXQuCT9aAKTqHf0ubE0kv6QtEgpzVi9hjwyr9FrhnjOx5pVajtIcP8KVxdsNCeLUGIpH
+	LNCCJRRdC7lcntHbjnJ+syojZwkQBIkcw5w==
+X-Received: by 2002:a05:600c:1f84:b0:477:97c7:9be7 with SMTP id 5b1f17b1804b1-4804c947d4dmr17354495e9.1.1769118720926;
+        Thu, 22 Jan 2026 13:52:00 -0800 (PST)
+X-Received: by 2002:a05:600c:1f84:b0:477:97c7:9be7 with SMTP id 5b1f17b1804b1-4804c947d4dmr17354035e9.1.1769118720351;
+        Thu, 22 Jan 2026 13:52:00 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435b1e717cbsm1597488f8f.24.2026.01.22.13.51.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Jan 2026 11:42:58 -0800 (PST)
-Date: Thu, 22 Jan 2026 14:42:57 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>
-Cc: Srujana Challa <schalla@marvell.com>, 
- Willem de Bruijn <willemb@google.com>, 
- netdev@vger.kernel.org, 
- virtualization@lists.linux.dev, 
- pabeni@redhat.com, 
- mst@redhat.com, 
- jasowang@redhat.com, 
- xuanzhuo@linux.alibaba.com, 
- eperezma@redhat.com, 
- andrew+netdev@lunn.ch, 
- davem@davemloft.net, 
- ndabilpuram@marvell.com, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Message-ID: <willemdebruijn.kernel.359531d88f721@gmail.com>
-In-Reply-To: <willemdebruijn.kernel.113a625cf37a9@gmail.com>
-References: <20260122091527.339180-1-schalla@marvell.com>
- <20260122075206.504ec591@kernel.org>
- <CANn89iL5s+egLhothNtnQf0jtAeftezUjNmbuXtUWgfVV3+bzg@mail.gmail.com>
- <willemdebruijn.kernel.113a625cf37a9@gmail.com>
-Subject: Re: [PATCH net-next] virtio_net: Increase RSS max key size to match
- NETDEV_RSS_KEY_LEN
+        Thu, 22 Jan 2026 13:51:59 -0800 (PST)
+Date: Thu, 22 Jan 2026 16:51:56 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+	virtualization@lists.linux.dev, parav@nvidia.com,
+	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+Subject: Re: [PATCH net-next v16 06/12] virtio_net: Create a FF group for
+ ethtool steering
+Message-ID: <20260122165014-mutt-send-email-mst@kernel.org>
+References: <20260121220652.894364-1-danielj@nvidia.com>
+ <20260121220652.894364-7-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+In-Reply-To: <20260121220652.894364-7-danielj@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: NgMJXGr-GU6MSvf8R6CN5g7l2SFrgn05xYoA0AVdVO8_1769118721
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Willem de Bruijn wrote:
-> Eric Dumazet wrote:
-> > On Thu, Jan 22, 2026 at 4:52=E2=80=AFPM Jakub Kicinski <kuba@kernel.o=
-rg> wrote:
-> > >
-> > > On Thu, 22 Jan 2026 14:45:27 +0530 Srujana Challa wrote:
-> > > > Increase VIRTIO_NET_RSS_MAX_KEY_SIZE from 40 to 52 bytes to align=
- with
-> > > > the kernel's standard RSS key length defined by NETDEV_RSS_KEY_LE=
-N.
-> > >
-> > > I've been meaning to bump NETDEV_RSS_KEY_LEN to 128 or some such.
-> > > Most modern drivers can't use netdev_rss_key_fill() either because
-> > > core generates a tiny key. And the devices support hashing over two=
+On Wed, Jan 21, 2026 at 04:06:46PM -0600, Daniel Jurgens wrote:
+> All ethtool steering rules will go in one group, create it during
+> initialization.
+> 
+> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> 
+> ---
+> v4: Documented UAPI
+> ---
+> ---
+>  drivers/net/virtio_net.c           | 29 +++++++++++++++++++++++++++++
+>  include/uapi/linux/virtio_net_ff.h | 15 +++++++++++++++
+>  2 files changed, 44 insertions(+)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 03bd3d2c2b0e..b406f5f1c75e 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -286,6 +286,9 @@ static const struct virtnet_stat_desc virtnet_stats_tx_speed_desc_qstat[] = {
+>  	VIRTNET_STATS_DESC_TX_QSTAT(speed, ratelimit_packets, hw_drop_ratelimits),
+>  };
+>  
+> +#define VIRTNET_FF_ETHTOOL_GROUP_PRIORITY 1
+> +#define VIRTNET_FF_MAX_GROUPS 1
+> +
+>  struct virtnet_ff {
+>  	struct virtio_device *vdev;
+>  	bool ff_supported;
+> @@ -5724,6 +5727,7 @@ static int virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
+>  	size_t ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data) +
+>  			      sizeof(struct virtio_net_ff_selector) *
+>  			      VIRTIO_NET_FF_MASK_TYPE_MAX;
+> +	struct virtio_net_resource_obj_ff_group ethtool_group = {};
+>  	struct virtio_admin_cmd_query_cap_id_result *cap_id_list;
+>  	struct virtio_net_ff_selector *sel;
+>  	unsigned long sel_types = 0;
+> @@ -5808,6 +5812,12 @@ static int virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
+>  	if (err)
+>  		goto err_ff_action;
+>  
+> +	if (le32_to_cpu(ff->ff_caps->groups_limit) < VIRTNET_FF_MAX_GROUPS) {
+> +		err = -ENOSPC;
+> +		goto err_ff_action;
+> +	}
+> +	ff->ff_caps->groups_limit = cpu_to_le32(VIRTNET_FF_MAX_GROUPS);
+> +
+>  	err = virtio_admin_cap_set(vdev,
+>  				   VIRTIO_NET_FF_RESOURCE_CAP,
+>  				   ff->ff_caps,
+> @@ -5854,6 +5864,19 @@ static int virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
+>  	if (err)
+>  		goto err_ff_action;
+>  
+> +	ethtool_group.group_priority = cpu_to_le16(VIRTNET_FF_ETHTOOL_GROUP_PRIORITY);
+> +
+> +	/* Use priority for the object ID. */
+> +	err = virtio_admin_obj_create(vdev,
+> +				      VIRTIO_NET_RESOURCE_OBJ_FF_GROUP,
+> +				      VIRTNET_FF_ETHTOOL_GROUP_PRIORITY,
 
-> > > layers of IPv6 for tunnels.
-> > =
+This (3rd param to virtio_admin_obj_create)
+is the object ID actually. Setting this to 1 means it is outside
+of range for group limit which should be 0...limit - 1 and limit is 1.
 
-> > Seems fine to me. Back in 2014, RSS was limited to 52 bytes on all kn=
-own NIC.
-> =
-
-> What is the purpose of extending?
-> =
-
-> The current length is sufficient for standard Toeplitz 4-tuple hashing.=
+don't you mean 0?
 
 
-Never mind, I should read better:
+> +				      VIRTIO_ADMIN_GROUP_TYPE_SELF,
+> +				      0,
+> +				      &ethtool_group,
+> +				      sizeof(ethtool_group));
+> +	if (err)
+> +		goto err_ff_action;
+> +
+>  	ff->vdev = vdev;
+>  	ff->ff_supported = true;
+>  
+> @@ -5881,6 +5904,12 @@ static void virtnet_ff_cleanup(struct virtnet_ff *ff)
+>  	if (!ff->ff_supported)
+>  		return;
+>  
+> +	virtio_admin_obj_destroy(ff->vdev,
+> +				 VIRTIO_NET_RESOURCE_OBJ_FF_GROUP,
+> +				 VIRTNET_FF_ETHTOOL_GROUP_PRIORITY,
+> +				 VIRTIO_ADMIN_GROUP_TYPE_SELF,
 
-> And the devices support hashing over two layers of IPv6 for tunnels.
 
-I'm hard pressed to see over 128 B of entropy. But if extending, might
-as well go to 256 B right away.
+same
 
+> +				 0);
+> +
+>  	kfree(ff->ff_actions);
+>  	kfree(ff->ff_mask);
+>  	kfree(ff->ff_caps);
+> diff --git a/include/uapi/linux/virtio_net_ff.h b/include/uapi/linux/virtio_net_ff.h
+> index d025e252ee26..66af9ecdb674 100644
+> --- a/include/uapi/linux/virtio_net_ff.h
+> +++ b/include/uapi/linux/virtio_net_ff.h
+> @@ -11,6 +11,8 @@
+>  #define VIRTIO_NET_FF_SELECTOR_CAP 0x801
+>  #define VIRTIO_NET_FF_ACTION_CAP 0x802
+>  
+> +#define VIRTIO_NET_RESOURCE_OBJ_FF_GROUP 0x0200
+> +
+>  /**
+>   * struct virtio_net_ff_cap_data - Flow filter resource capability limits
+>   * @groups_limit: maximum number of flow filter groups supported by the device
+> @@ -87,4 +89,17 @@ struct virtio_net_ff_actions {
+>  	__u8 reserved[7];
+>  	__u8 actions[];
+>  };
+> +
+> +/**
+> + * struct virtio_net_resource_obj_ff_group - Flow filter group object
+> + * @group_priority: priority of the group used to order evaluation
+> + *
+> + * This structure is the payload for the VIRTIO_NET_RESOURCE_OBJ_FF_GROUP
+> + * administrative object. Devices use @group_priority to order flow filter
+> + * groups. Multi-byte fields are little-endian.
+> + */
+> +struct virtio_net_resource_obj_ff_group {
+> +	__le16 group_priority;
+> +};
+> +
+>  #endif
+> -- 
+> 2.50.1
 
