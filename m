@@ -1,311 +1,115 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62A5044BC8C
-	for <virtualization@lists.linux.dev>; Thu, 22 Jan 2026 05:36:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EB21314D37
+	for <virtualization@lists.linux.dev>; Thu, 22 Jan 2026 09:16:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769060178; cv=none; b=gz9PoV+03i3vQEUm8dteBqAx/oTpt+0if+TCuuREj3hV46/bo2sQR053tgby+hX5QkR/nLc+WWzyNmFJACTnxDsOl2AE2vRwUNGJLo9eyQxuGtNHilqtMdSN3/q0+1vwxloEPMTZ66JqASFxiwDf0ryyzcJcEKjjV8gY2W/jdoY=
+	t=1769073397; cv=none; b=TUHbGAw0c+52GpbtmRtpSJDiEHuqGCbTEpYv+QrA+CNWo+sEqET7mtrOzr8yWVgtYvBAHrv3aJ1Tfke2vEztl/dd6k1AnygwZ/EGr70OjmS1e8XHl1dwU9YaW6Nr1DUowyP7NykkVdkfDA2D2/Q3Raz/c8fCpwzf5L8Me/SpCu8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769060178; c=relaxed/simple;
-	bh=4u7RqhYyUxDdVXDwJ31YEx+CsrnO+8ttQ47Alq+R+iI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DYaqKhjYMTYw/xmv0Zko5+LtvyXoNPBdsKD962iNWARFDwyDVUVpyxb8YRuBIwersgdVksRAkB2uvqP3OuCM4wO4Y5QAtuc69YWPpej46GWGdLc6izi5PhgJbC3mmn5k/Iop3Ku77PPJqpMHLTHaXwKODb/k9alhiRPdrCsP8w0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fIqyA4T4; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1769073397; c=relaxed/simple;
+	bh=PplpYZG54yCTO5Zvm8cd60PmTtW5IMnM+N/1Ic97wbI=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=F7ibj7h368tY4XfzbgDcn76MfmPraetGO/v/igNzGqT9Gz6nXytmgJkHVdkVlBzMwwGSvHkboACVLsKjdKWaqrj/wrUEZXO+EWkOxS4G4Pj2UL0yG594QuqDkZjnNGFT1zxl4lRShtawdR2fVl/rgLlnOXQjKXccKxCoiNE2rLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=ciXaTA3M; arc=none smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fIqyA4T4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769060174;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ED7l/hs/bCd8Y3NS4tIwlZAqaShpZQlaHK2896w0TZ8=;
-	b=fIqyA4T4CTpewq4nU32SX+w7S4XSNv4rpGk2vHByY0H3NTCqb743/ZUmCfaCDEAeo7wfkW
-	iCK+DOoBuEbBJ7HSdDlM+rZhBPKIIUjRVuwG6irnXFVoMrU4xGVhge6XO2IiYazGGHOlhs
-	qzazjW8MfD8qrrobMwH5HpMi1HY5ufU=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-190-xnaAhOsMPA2B2Tr8V_aPzQ-1; Thu, 22 Jan 2026 00:36:12 -0500
-X-MC-Unique: xnaAhOsMPA2B2Tr8V_aPzQ-1
-X-Mimecast-MFC-AGG-ID: xnaAhOsMPA2B2Tr8V_aPzQ_1769060172
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-34c704d5d15so1177167a91.1
-        for <virtualization@lists.linux.dev>; Wed, 21 Jan 2026 21:36:12 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769060170; x=1769664970;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ED7l/hs/bCd8Y3NS4tIwlZAqaShpZQlaHK2896w0TZ8=;
-        b=JFp2FJkTWA4tVx27+ZV2BQ0eZS75crae/Nd/ngyxaJ0lvNIdSPm1uNNkZVi32tAqhs
-         XPeI/H6YOuhmU8IhlASh+WcAnbCXc+MAb/fadqL+7y4Sf6J2FjloNLhxxCNVr5WLYBnD
-         RDXgEHBiB1Yempar7l8VzVjfECIzx1fckQBX9kcjp1MLtUyR3HiRTyoiE1364k9C9oTG
-         Plmh/ROqwGYc8P6+IRj9ouvcM8q18opxxbKw1V/VhblyXXjwbMiotcPMgbjAWAQs5LMV
-         Fyg/GEkNwP7Z6KKC+lS0wU/fnWPcjrCtYNdZLA0L32yJS8Bi4Cv5AotsEN43SueMERv+
-         eKkQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUsWh9h3wpZPsX5OYD1LXj3bHbVZyxltyUcfTdE3sHZmT1t2SLvdCEvgeL3fAdoc8K77fuzY1JUfXAH/Wx+gg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyDgbxAi7eBW2Agk0q5+J254tLkT/q8LsNT5WEMFpdWMw0gHTYF
-	RQhkfwVWJqKBO0gxQ/4368schvtHM66s+NtLwB000KRrrpTOJNVpSM+0rlM8mYToDep7xBgtwnS
-	RGBDyVfAA+zqilS8aOsQyR4pK/iwx7EehJV5tPlclo6kyeogpSCq8fq9hO1DkNGSPTjHeqYv3VQ
-	AzomSC23ot4TdjRd4T9f/Wi21/+N7VzkUFSQa/6LwkNsU=
-X-Gm-Gg: AZuq6aLOGeQ07MXIm3n91mR7tEQDdWYGQM0mBBoeKqRpq8ptNsbv5zWZM1GHbh58pnG
-	Q1wlBrJ+TLL3kHi7ro/I2zYQg4+DpOypXwrsVcLtFUzhl4X4htdgbZHT6G9tftvXvHLVis+A59S
-	uOT61jrDtzrhiHiz6c7NuDcHhDb6SD55ZntKEKvhjUFJUP/xmnzbt25Pi36Q07qr/FBUI=
-X-Received: by 2002:a17:90b:51:b0:353:41e:1f51 with SMTP id 98e67ed59e1d1-353041e787cmr3670052a91.32.1769060170503;
-        Wed, 21 Jan 2026 21:36:10 -0800 (PST)
-X-Received: by 2002:a17:90b:51:b0:353:41e:1f51 with SMTP id
- 98e67ed59e1d1-353041e787cmr3670034a91.32.1769060170061; Wed, 21 Jan 2026
- 21:36:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="ciXaTA3M"
+Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60M6Wf1P1834067;
+	Thu, 22 Jan 2026 01:16:25 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pfpt0220; bh=RCQPDNXijAeVUWmVf6wLg88
+	flEUv6pUUQ7mfKMo2dXI=; b=ciXaTA3MG45HJsi1ie0LtUEPjvzzykCA/86QduX
+	29ZMLyvFRP7T9P2cUolN6xVI/E/ik4Pim1cTGCgvHky4Ul5s6enSxHfM+BCZO7MT
+	8wHVLPJ+S9W5Tsm8Vq1ZgBm0EQLCtnYMTFKg3dLU5OJjtmahU6KmWi7TRNOHtUwX
+	Y0ArJY9FOHu4stHu1lbPJBwy7BGHU9yhGTlhI8kWntBJS8YqCKvMYxJf+ddlzX/A
+	hoeKtCHk2tJTrLi1wSvjHNNHy6q2WCLkx81bwW5uSqganWYNpYmdbdTzIBmWBU4s
+	ZxvYlY9M1xTJ0/zQEor5laGooZNgJRdgZ+AQkvtizRsVEBA==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4btm3nktr5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 22 Jan 2026 01:16:13 -0800 (PST)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Thu, 22 Jan 2026 01:15:32 -0800
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
+ Transport; Thu, 22 Jan 2026 01:15:32 -0800
+Received: from localhost.localdomain (unknown [10.28.36.175])
+	by maili.marvell.com (Postfix) with ESMTP id 7DB483F70A7;
+	Thu, 22 Jan 2026 01:15:28 -0800 (PST)
+From: Srujana Challa <schalla@marvell.com>
+To: <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>
+CC: <pabeni@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
+        <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
+        <andrew+netdev@lunn.ch>, <davem@davemloft.net>, <edumazet@google.com>,
+        <kuba@kernel.org>, <ndabilpuram@marvell.com>, <schalla@marvell.com>
+Subject: [PATCH net-next] virtio_net: Increase RSS max key size to match NETDEV_RSS_KEY_LEN
+Date: Thu, 22 Jan 2026 14:45:27 +0530
+Message-ID: <20260122091527.339180-1-schalla@marvell.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
- <20260107210448.37851-4-simon.schippers@tu-dortmund.de> <CACGkMEuSiEcyaeFeZd0=RgNpviJgNvUDq_ctjeMLT5jZTgRkwQ@mail.gmail.com>
- <1e30464c-99ae-441e-bb46-6d0485d494dc@tu-dortmund.de> <CACGkMEtzD3ORJuJcc8VeqwASiGeVFdQmJowsK6PYVEF_Zkcn8Q@mail.gmail.com>
- <afa40345-acbe-42b0-81d1-0a838343792d@tu-dortmund.de>
-In-Reply-To: <afa40345-acbe-42b0-81d1-0a838343792d@tu-dortmund.de>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 22 Jan 2026 13:35:57 +0800
-X-Gm-Features: AZwV_Qj0WIKFoTOn0eU2tLMfUdJil-HIikNxIFlK3wwyEXYRVe6obOMN0rB6aW0
-Message-ID: <CACGkMEtxRoavBMTXom8Z=FM-pvu3pHbsuwCs+e450b1B=V7iWA@mail.gmail.com>
-Subject: Re: [PATCH net-next v7 3/9] tun/tap: add ptr_ring consume helper with
- netdev queue wakeup
-To: Simon Schippers <simon.schippers@tu-dortmund.de>
-Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch, 
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	mst@redhat.com, eperezma@redhat.com, leiyang@redhat.com, 
-	stephen@networkplumber.org, jon@nutanix.com, tim.gebauer@tu-dortmund.de, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wC_14zOK5JkG1a7cuUM6XtR46yJ1Uu5gdCwHvj0O3OU_1769060172
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTIyMDA2MyBTYWx0ZWRfX9r2h1FS5WQcK
+ U/pruugap6TWlwP3coPhDCYguUbRDh15zKgj0LBgC5WNWzdux0TIfqpmxRg7kjZZ0HH5SdB+zk3
+ A9o91V7uuU15zfpsbAKy+39zdWeK0kd2r3RPZka/NyQMnsimhUF6ZfzQUFhaact4zZE1vxNpo8G
+ iBMhhzy/T/KCIZ5Yaf31z1hsWXlNbUS55jA1lOet84P4fc2NwSdrRh9Syuonv2BjmFjYXbGvFCq
+ K+qXc8nHUmt6Qgnc3Gt3ApyozUFrRu8yB5gshNHYMig0kOVdub/hjsTNlnuqdv0lKzmDRThz4JS
+ Cpk/CiUdngCc+/BbEQH9ih3rHJ4oKZudW3i+pKPTpmBrovvmjj6v01XONYOuPKobi0SJgJ6KQQD
+ AGNi/VOx9R/Jd5ZcIV0EVIJDTsfQZwZjp3FJPLZgy6nuPeVtUNP9ksoXg+hOmi+h2pzOwHNMFPK
+ ItN5fpvaOWT0vNDo8Rg==
+X-Authority-Analysis: v=2.4 cv=JeSxbEKV c=1 sm=1 tr=0 ts=6971eadd cx=c_pps
+ a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
+ a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22 a=M5GUcnROAAAA:8
+ a=tN_10AvwJLKXjGWysDEA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
+X-Proofpoint-ORIG-GUID: lfpShW07b5drNxv4SqoIKUJFJ1sgbB5I
+X-Proofpoint-GUID: lfpShW07b5drNxv4SqoIKUJFJ1sgbB5I
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
+ definitions=2026-01-21_04,2026-01-20_01,2025-10-01_01
 
-On Wed, Jan 21, 2026 at 5:33=E2=80=AFPM Simon Schippers
-<simon.schippers@tu-dortmund.de> wrote:
->
-> On 1/9/26 07:02, Jason Wang wrote:
-> > On Thu, Jan 8, 2026 at 3:41=E2=80=AFPM Simon Schippers
-> > <simon.schippers@tu-dortmund.de> wrote:
-> >>
-> >> On 1/8/26 04:38, Jason Wang wrote:
-> >>> On Thu, Jan 8, 2026 at 5:06=E2=80=AFAM Simon Schippers
-> >>> <simon.schippers@tu-dortmund.de> wrote:
-> >>>>
-> >>>> Introduce {tun,tap}_ring_consume() helpers that wrap __ptr_ring_cons=
-ume()
-> >>>> and wake the corresponding netdev subqueue when consuming an entry f=
-rees
-> >>>> space in the underlying ptr_ring.
-> >>>>
-> >>>> Stopping of the netdev queue when the ptr_ring is full will be intro=
-duced
-> >>>> in an upcoming commit.
-> >>>>
-> >>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> >>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> >>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-> >>>> ---
-> >>>>  drivers/net/tap.c | 23 ++++++++++++++++++++++-
-> >>>>  drivers/net/tun.c | 25 +++++++++++++++++++++++--
-> >>>>  2 files changed, 45 insertions(+), 3 deletions(-)
-> >>>>
-> >>>> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-> >>>> index 1197f245e873..2442cf7ac385 100644
-> >>>> --- a/drivers/net/tap.c
-> >>>> +++ b/drivers/net/tap.c
-> >>>> @@ -753,6 +753,27 @@ static ssize_t tap_put_user(struct tap_queue *q=
-,
-> >>>>         return ret ? ret : total;
-> >>>>  }
-> >>>>
-> >>>> +static void *tap_ring_consume(struct tap_queue *q)
-> >>>> +{
-> >>>> +       struct ptr_ring *ring =3D &q->ring;
-> >>>> +       struct net_device *dev;
-> >>>> +       void *ptr;
-> >>>> +
-> >>>> +       spin_lock(&ring->consumer_lock);
-> >>>> +
-> >>>> +       ptr =3D __ptr_ring_consume(ring);
-> >>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1=
-))) {
-> >>>> +               rcu_read_lock();
-> >>>> +               dev =3D rcu_dereference(q->tap)->dev;
-> >>>> +               netif_wake_subqueue(dev, q->queue_index);
-> >>>> +               rcu_read_unlock();
-> >>>> +       }
-> >>>> +
-> >>>> +       spin_unlock(&ring->consumer_lock);
-> >>>> +
-> >>>> +       return ptr;
-> >>>> +}
-> >>>> +
-> >>>>  static ssize_t tap_do_read(struct tap_queue *q,
-> >>>>                            struct iov_iter *to,
-> >>>>                            int noblock, struct sk_buff *skb)
-> >>>> @@ -774,7 +795,7 @@ static ssize_t tap_do_read(struct tap_queue *q,
-> >>>>                                         TASK_INTERRUPTIBLE);
-> >>>>
-> >>>>                 /* Read frames from the queue */
-> >>>> -               skb =3D ptr_ring_consume(&q->ring);
-> >>>> +               skb =3D tap_ring_consume(q);
-> >>>>                 if (skb)
-> >>>>                         break;
-> >>>>                 if (noblock) {
-> >>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> >>>> index 8192740357a0..7148f9a844a4 100644
-> >>>> --- a/drivers/net/tun.c
-> >>>> +++ b/drivers/net/tun.c
-> >>>> @@ -2113,13 +2113,34 @@ static ssize_t tun_put_user(struct tun_struc=
-t *tun,
-> >>>>         return total;
-> >>>>  }
-> >>>>
-> >>>> +static void *tun_ring_consume(struct tun_file *tfile)
-> >>>> +{
-> >>>> +       struct ptr_ring *ring =3D &tfile->tx_ring;
-> >>>> +       struct net_device *dev;
-> >>>> +       void *ptr;
-> >>>> +
-> >>>> +       spin_lock(&ring->consumer_lock);
-> >>>> +
-> >>>> +       ptr =3D __ptr_ring_consume(ring);
-> >>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1=
-))) {
-> >>>
-> >>> I guess it's the "bug" I mentioned in the previous patch that leads t=
-o
-> >>> the check of __ptr_ring_consume_created_space() here. If it's true,
-> >>> another call to tweak the current API.
-> >>>
-> >>>> +               rcu_read_lock();
-> >>>> +               dev =3D rcu_dereference(tfile->tun)->dev;
-> >>>> +               netif_wake_subqueue(dev, tfile->queue_index);
-> >>>
-> >>> This would cause the producer TX_SOFTIRQ to run on the same cpu which
-> >>> I'm not sure is what we want.
-> >>
-> >> What else would you suggest calling to wake the queue?
-> >
-> > I don't have a good method in my mind, just want to point out its impli=
-cations.
->
-> I have to admit I'm a bit stuck at this point, particularly with this
-> aspect.
->
-> What is the correct way to pass the producer CPU ID to the consumer?
-> Would it make sense to store smp_processor_id() in the tfile inside
-> tun_net_xmit(), or should it instead be stored in the skb (similar to the
-> XDP bit)? In the latter case, my concern is that this information may
-> already be significantly outdated by the time it is used.
->
-> Based on that, my idea would be for the consumer to wake the producer by
-> invoking a new function (e.g., tun_wake_queue()) on the producer CPU via
-> smp_call_function_single().
-> Is this a reasonable approach?
+Increase VIRTIO_NET_RSS_MAX_KEY_SIZE from 40 to 52 bytes to align with
+the kernel's standard RSS key length defined by NETDEV_RSS_KEY_LEN.
 
-I'm not sure but it would introduce costs like IPI.
+The virtio specification requires devices to support at least 40 bytes
+for the RSS key size. However, devices may support larger key sizes
+up to 52 bytes (as reported by the device's rss_max_key_size config
+field). This change allows such devices to work properly.
+Previously, devices reporting rss_max_key_size > 40 would fail with
+an error during initialization.
 
->
-> More generally, would triggering TX_SOFTIRQ on the consumer CPU be
-> considered a deal-breaker for the patch set?
+The driver already handles variable key sizes dynamically through
+vi->rss_key_size, so increasing the maximum limit is safe and
+maintains backward compatibility with devices that support smaller
+key sizes.
 
-It depends on whether or not it has effects on the performance.
-Especially when vhost is pinned.
+Signed-off-by: Srujana Challa <schalla@marvell.com>
+---
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks
-
->
-> Thanks!
->
-> >
-> >>
-> >>>
-> >>>> +               rcu_read_unlock();
-> >>>> +       }
-> >>>
-> >>> Btw, this function duplicates a lot of logic of tap_ring_consume() we
-> >>> should consider to merge the logic.
-> >>
-> >> Yes, it is largely the same approach, but it would require accessing t=
-he
-> >> net_device each time.
-> >
-> > The problem is that, at least for TUN, the socket is loosely coupled
-> > with the netdev. It means the netdev can go away while the socket
-> > might still exist. That's why vhost only talks to the socket, not the
-> > netdev. If we really want to go this way, here, we should at least
-> > check the existence of tun->dev first.
-> >
-> >>
-> >>>
-> >>>> +
-> >>>> +       spin_unlock(&ring->consumer_lock);
-> >>>> +
-> >>>> +       return ptr;
-> >>>> +}
-> >>>> +
-> >>>>  static void *tun_ring_recv(struct tun_file *tfile, int noblock, int=
- *err)
-> >>>>  {
-> >>>>         DECLARE_WAITQUEUE(wait, current);
-> >>>>         void *ptr =3D NULL;
-> >>>>         int error =3D 0;
-> >>>>
-> >>>> -       ptr =3D ptr_ring_consume(&tfile->tx_ring);
-> >>>> +       ptr =3D tun_ring_consume(tfile);
-> >>>
-> >>> I'm not sure having a separate patch like this may help. For example,
-> >>> it will introduce performance regression.
-> >>
-> >> I ran benchmarks for the whole patch set with noqueue (where the queue=
- is
-> >> not stopped to preserve the old behavior), as described in the cover
-> >> letter, and observed no performance regression. This leads me to concl=
-ude
-> >> that there is no performance impact because of this patch when the que=
-ue
-> >> is not stopped.
-> >
-> > Have you run a benchmark per patch? Or it might just be because the
-> > regression is not obvious. But at least this patch would introduce
-> > more atomic operations or it might just because the TUN doesn't
-> > support burst so pktgen can't have the best PPS.
-> >
-> > Thanks
-> >
-> >
-> >>
-> >>>
-> >>>>         if (ptr)
-> >>>>                 goto out;
-> >>>>         if (noblock) {
-> >>>> @@ -2131,7 +2152,7 @@ static void *tun_ring_recv(struct tun_file *tf=
-ile, int noblock, int *err)
-> >>>>
-> >>>>         while (1) {
-> >>>>                 set_current_state(TASK_INTERRUPTIBLE);
-> >>>> -               ptr =3D ptr_ring_consume(&tfile->tx_ring);
-> >>>> +               ptr =3D tun_ring_consume(tfile);
-> >>>>                 if (ptr)
-> >>>>                         break;
-> >>>>                 if (signal_pending(current)) {
-> >>>> --
-> >>>> 2.43.0
-> >>>>
-> >>>
-> >>> Thanks
-> >>>
-> >>
-> >
->
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index db88dcaefb20..5f06cbc058d7 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -381,7 +381,7 @@ struct receive_queue {
+ 	struct xdp_buff **xsk_buffs;
+ };
+ 
+-#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
++#define VIRTIO_NET_RSS_MAX_KEY_SIZE     52
+ 
+ /* Control VQ buffers: protected by the rtnl lock */
+ struct control_buf {
+-- 
+2.25.1
 
