@@ -1,145 +1,132 @@
-Received: from mail-qk1-f194.google.com (mail-qk1-f194.google.com [209.85.222.194])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AED41FE46D
-	for <virtualization@lists.linux.dev>; Fri, 23 Jan 2026 16:31:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17FA62D8DB0;
+	Fri, 23 Jan 2026 16:52:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769185896; cv=none; b=REUjOp0h7oE2yci5nu9FRUJziHxl7FQWmlch6VU3d0UU6JB90P4/zZe9vP9J+9sNza7FgMpSyXYwU6TDrKMbjbEiFZsT1ZkclrGnfOAGTdOpC4Giuog4fFr6c+GEzbNBIRwU4SlCA2Va3rdEpdRhIPtm9+lXxHvCA/TZm6boYx0=
+	t=1769187175; cv=none; b=hc/k6IsGwhGA7lxPiWZ6s5MxYARbaH+34QDx1MwGcEXqfiCqPeZkqub6uc3ZFMYQ6JnS1q3mUnpHQdEkX6M9a6YRoqglJU6UAPUhJb0SDLYhcoTCTEH6aev2dG0KhNvBQcJkWENPcEyORkw1TZhh9/kMraszCb7v+mfb14+enak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769185896; c=relaxed/simple;
-	bh=/94C/UlPmwUDToYy/+qtR2DFocibuSIwzpBkOhnUW50=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M2ANTekuajwSgHyNraQYGmVAVflad8/e5qR2NHC0Q5RoiMUwsY5rqZHVilILz5xJbCznHL4SeNNDNwGul1ONoS3wIe6dzgk3TNYzuFakN3rhBZTiQ8X9MNuE7arbJMilQaO3laEJRrnFl+5X1Dgg3VLYhM2sFow2Od9Ky776rUQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=S1Exg5gx; arc=none smtp.client-ip=209.85.222.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1769187175; c=relaxed/simple;
+	bh=QQNvnGxUaxh9NMq2l8I37svC9XpWKBuEcZtJHkVSsiY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=T5sQArEn2DCX3b2HTqb1dbm+Y6iDApQDmp69qFzTesGsecF0pwAcmQn8FScpVfYvmJHeCXgPSUTscZSGIwZEhh5zDIF7uYMvSuaZEqs7xEbSZqYy9XbvR8AItyrQyIVxrrndOWjaqW+UqmAQCzm+24cNW9PVBBRkYwRoRMtSSqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=X2e2cBUk; arc=none smtp.client-ip=185.226.149.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="S1Exg5gx"
-Received: by mail-qk1-f194.google.com with SMTP id af79cd13be357-8c5389c3d4cso275261085a.3
-        for <virtualization@lists.linux.dev>; Fri, 23 Jan 2026 08:31:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1769185893; x=1769790693; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=871+kMuUuN8eKawcT4NNcOEOt4uiGeIzveYuD9+CVek=;
-        b=S1Exg5gxnaZ7jUx0IoaNVZDmzsxuyZUcojxAOR7c3+KCcqTQyo05NW1jjMGd58o4UZ
-         IwFrHpMMPQQfZiQeYuNz5z9PD4ljqLE7nS3gX1wMsnLJIirqmjv7Q4pBXMkthDs4F3Ge
-         TcRCZVSqTRLUAFx/dlbMXk9hBYshBoltWEqdZKTB+WBSR/y9TYuL6L6kkDo9zzJzLgHZ
-         /TlOSSMxMQrLBl32/gil+XpgBCcLwkhSwi3lFJ/6dZ1kCd250MFQSGrDwNy5GJg5DvFe
-         Ot8Admvsz+k71BffKiYo6mClLhvhD4EnZq4acB0ccibhbJAUZWTxCVlB3Bx8/pP8zEgI
-         p/eA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769185893; x=1769790693;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=871+kMuUuN8eKawcT4NNcOEOt4uiGeIzveYuD9+CVek=;
-        b=H9JDU/Kddln/C4bmyzTkB66YXV3nZzsdP9tgTlou1i+KCF3VGLKNC0JCIEhQ6ETdTI
-         tO8gtHjWogRVTFWcTLC9ujE+aoIgEO3Hw0L7d7J0ZH0HBGZSoXBMVYyrK91LX3hLknWN
-         UrIhhk6sf4s8N2CORnCw1n1hJsf1DvGFgKKJssmnfiw0yHqFBKPYF6lePmgF1UFj5QMf
-         U/X0xdgOhDFpq8CXDl0s9nJOo85M8sKeTOsjJ/pltKkV7qz3F82WrSlBFOA5bv3J4TjM
-         TlAGs/Y5+8LKfxCTdDhyXMbCBoD1c/CnkXBvUAdrpZZwjJFrz2DGM9jEOGBrErrKnF0g
-         dtaA==
-X-Forwarded-Encrypted: i=1; AJvYcCWc2d7ZMShLp///1r8VddwRsQqbgR8Y77FuuI7Thv8Dnhu+BwbY6L10eLsu2a+itcxe5oOi0xXvJxOeF99JHQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzdFyyZfeaexaBZ7QtMpL+lK3da/P+RTdI68NFZlKbWKzhcgEuZ
-	CJJh2lcITlLPxSRmWPnnoXYW2pzVbssbrqS3hXWdSBmgM/X1pOH5dw6ZAQK/8T92+LE=
-X-Gm-Gg: AZuq6aI7KxsuvtE/dK6cddMFWQPRZxen3igX9b2+rzfMpGLxTTOM7RZng/XUpeQlKCK
-	C0Vzrs0H8aP894AAGYAF7i7chudqwj+u3Mms03Ofzn+W/oJhXYGagKEqEvAN6umJzS03m/UJ5Ad
-	H9rQJSfIjW7DDB5X7EVeswqck5mLXng9S24XYEMLRkhvur84ySFBNh4m5MBsoK9H3XOIdsPeHah
-	8VrKEEpLcsTv2yEjL5HaaQZkdnGbLC6SV6RjkZ/kGLO3i/RxAwU3J4gSneRTucATMObC3yZWT0g
-	rUwUf46pKUTJ88sQzrd5I8oyP2zJYMBeK/aRVsL1eeKoLyvYFxxlNx1wO/7JitP45q/IpqQUfhc
-	vxCqhFOwMtF9uUaUInvXabxFqcKS/E/MCSQd6+xSWAosUpBgJoYPLfgjUg0Ux+lDNNzTrCNMPGV
-	FcK59fZw+lx0jgjWYGhj79TB2gDSZcG6HIm0Y9ugUGiKEvEyAzfJWe5oY1sCjHJt/70SQ=
-X-Received: by 2002:a05:620a:1901:b0:8c6:c9a2:504d with SMTP id af79cd13be357-8c6e2e48438mr431308085a.59.1769185893221;
-        Fri, 23 Jan 2026 08:31:33 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8949193cdc1sm19709316d6.47.2026.01.23.08.31.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jan 2026 08:31:32 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1vjK4K-00000007Grc-04II;
-	Fri, 23 Jan 2026 12:31:32 -0400
-Date: Fri, 23 Jan 2026 12:31:32 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>
-Cc: Leon Romanovsky <leon@kernel.org>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Felix Kuehling <Felix.Kuehling@amd.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Vivek Kasireddy <vivek.kasireddy@intel.com>,
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
-	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
-	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	iommu@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v3 6/7] vfio: Wait for dma-buf invalidation to complete
-Message-ID: <20260123163132.GA1641016@ziepe.ca>
-References: <20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com>
- <20260120-dmabuf-revoke-v3-6-b7e0b07b8214@nvidia.com>
- <b129f0c1-b61e-4efb-9e25-d8cdadaca1b3@amd.com>
- <20260121133146.GY961572@ziepe.ca>
- <b88b500c-bacc-483d-9d1a-725d4158302a@amd.com>
- <20260121160140.GF961572@ziepe.ca>
- <a1c55bd8-9891-4064-83fe-ac56141e586f@amd.com>
- <20260122234404.GB1589888@ziepe.ca>
- <20260123141140.GC1589888@ziepe.ca>
- <98b74c7a-44c1-49ba-997b-bbbab60429ba@amd.com>
+	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="X2e2cBUk"
+Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
+	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <mhal@rbox.co>)
+	id 1vjKOu-00FEMW-VK; Fri, 23 Jan 2026 17:52:48 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
+	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
+	bh=lveKEYj3xW9x8OtJnfcIghmFfofT+bfpgJirVpnBRiU=; b=X2e2cBUkdY7sGQgayQvvGqFZ8P
+	L4Nfb26f7eUf9UwjeAHkrADJgZzzkakpI4uuCy0h+614aiL3kUsmmD/ibsbVfOIkiA99htZwOF1LV
+	afbQA2mlfLv40W+IkmLw6OfzAr73QQKeTupopOfeDxf1V1vDFHo9xtrlqtNfvkXs5dBMRYKm3flea
+	IV6pOIamq7iYkFNAR20yDatRblXW3upvyQzmRpoGZjsPtZB+tGMjnf5SLNUO5iRWL1JwNBb7K//KR
+	LsRMZNddyoXJvt47+hZy2AslWbrC5kNbhOzuCPjOak8vG9LWZlnijBvtZ9+kGALWAuPwq6N0TGBH8
+	bBl9Jx6w==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <mhal@rbox.co>)
+	id 1vjKOu-0005hw-Hu; Fri, 23 Jan 2026 17:52:48 +0100
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1vjKOn-004Ea7-L1; Fri, 23 Jan 2026 17:52:41 +0100
+Message-ID: <4feef462-95db-4c88-8dec-eb9ff89ede1b@rbox.co>
+Date: Fri, 23 Jan 2026 17:52:40 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <98b74c7a-44c1-49ba-997b-bbbab60429ba@amd.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] vsock: Ignore signal/timeout on connect() if already
+ established
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co>
+ <dh6gl6xzufrxk23dwei3dcyljjlspjx3gwdhi6o3umtltpypkw@ef4n6llndg5p>
+ <98e2ac89-34e9-42d9-bfcf-e81e7a04504d@rbox.co>
+ <rptu2o7jpqw5u5g4xt76ntyupsak3dcs7rzfhzeidn6vcwf6ku@dcd47yt6ebhu>
+ <09c6de68-06aa-404d-9753-907eab61b9ab@rbox.co>
+ <663yvkk2sh5lesfvdeerlca567xb64qbwih52bxjftob3umsah@eamuykmarrfr>
+ <1b2255c7-0e97-4b37-b7ab-e13e90b7b0b9@rbox.co>
+ <06936b55-b359-4e3d-bec0-b157ca32d237@rbox.co>
+ <fy3ep725gwaislzz6lyu27ckswp2iyy5gj6afw6jji6c3get3l@lqa6wpptq5ii>
+ <69a3d223-dd95-43df-af3a-522968d6b850@rbox.co>
+ <pstj7youxwwrpj3bl2a76kh2t62by2vdakv5elqvueobw3o4pj@tnknzlqdt344>
+Content-Language: pl-PL, en-GB
+From: Michal Luczaj <mhal@rbox.co>
+In-Reply-To: <pstj7youxwwrpj3bl2a76kh2t62by2vdakv5elqvueobw3o4pj@tnknzlqdt344>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jan 23, 2026 at 05:23:34PM +0100, Christian König wrote:
-> > It is illegal to call the DMA API after your driver is unprobed. The
-> > kernel can oops. So if a driver is allowing remove() to complete
-> > before all the dma_buf_unmaps have been called it is buggy and risks
-> > an oops.
-> > 
-> > https://lore.kernel.org/lkml/8067f204-1380-4d37-8ffd-007fc6f26738@kernel.org/T/#m0c7dda0fb5981240879c5ca489176987d688844c
-> > 
-> > As calling a dma_buf_unmap() -> dma_unma_sg() after remove() returns
-> > is not allowed..
+On 11/24/25 12:49, Stefano Garzarella wrote:
+> On Sun, Nov 23, 2025 at 10:46:22PM +0100, Michal Luczaj wrote:
+>> On 11/21/25 10:21, Stefano Garzarella wrote:
+>>> On Thu, Nov 20, 2025 at 10:12:20PM +0100, Michal Luczaj wrote:
+>>>> On 11/19/25 20:52, Michal Luczaj wrote:
+>>>>> ...
+>>>>> To follow up, should I add a version of syzkaller's lockdep warning repro
+>>>>> to vsock test suite? In theory it could test this fix here as well, but in
+>>>>> practice the race window is small and hitting it (the brute way) takes
+>>>>> prohibitively long.
+>>>>
+>>>> Replying to self to add more data.
+>>>>
+>>>> After reverting
+>>>>
+>>>> f7c877e75352 ("vsock: fix lock inversion in vsock_assign_transport()")
+>>>> 002541ef650b ("vsock: Ignore signal/timeout on connect() if already
+>>>> established")
+>>>>
+>>>> adding
+>>>>
+>>>> --- a/tools/testing/vsock/vsock_test.c
+>>>> +++ b/tools/testing/vsock/vsock_test.c
+>>>> @@ -2014,6 +2014,7 @@ static void test_stream_transport_change_client(const
+>>>> struct test_opts *opts)
+>>>>                        perror("socket");
+>>>>                        exit(EXIT_FAILURE);
+>>>>                }
+>>>> +               enable_so_linger(s, 1);
+>>>>
+>>>>                ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
+>>>>                /* The connect can fail due to signals coming from the
+>>>>
+>>>> is enough for vsock_test to trigger the lockdep warning syzkaller found.
+>>>>
+>>>
+>>> cool, so if it's only that, maybe is worth adding.
+>>
+>> Ok, there it is:
+>> https://lore.kernel.org/netdev/20251123-vsock_test-linger-lockdep-warn-v1-1-4b1edf9d8cdc@rbox.co/
 > 
-> That is not even in the hands of the driver. The DMA-buf framework
-> itself does a module_get() on the exporter.
+> Great!
+> 
+>>
+>> And circling back to [1], let me know if you think it's worth adding to the
+>> suit. I guess it would test the case #2 from [2], but it'd take another 2s
+> 
+> If you think it is better to put them in vsock tests, instead of bpf,
+> it's fine by me. 2s more is okay IMO.
 
-module_get() prevents the module from being unloaded. It does not
-prevent the user from using /sys/../unbind or various other ways to
-remove the driver from the device.
+OK, here's a followup:
+https://lore.kernel.org/bpf/20260123-selftest-signal-on-connect-v1-0-b0256e7025b6@rbox.co/
 
-rmmod is a popular way to trigger remove() on a driver but not the
-only way, and you can't point to a module_get() to dismiss issues with
-driver remove() correctness.
+[...]
 
-> Revoking the DMA mappings won't change anything on that, the
-> importer needs to stop using the DMA-buf and drop all their
-> references.
-
-And to be correct an exporting driver needs to wait in its remove
-function until all the unmaps are done.
-
-Jason
+>> [1]:
+>> https://lore.kernel.org/netdev/fjy4jaww6xualdudevfuyoavnrbu45cg4d7erv4rttde363xfc@nahglijbl2eg/
+>> [2]:
+>> https://lore.kernel.org/netdev/20251119-vsock-interrupted-connect-v2-1-70734cf1233f@rbox.co/
