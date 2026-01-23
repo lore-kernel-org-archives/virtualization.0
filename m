@@ -1,132 +1,94 @@
-Received: from mailtransmit04.runbox.com (mailtransmit04.runbox.com [185.226.149.37])
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17FA62D8DB0;
-	Fri, 23 Jan 2026 16:52:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92277238C3A;
+	Fri, 23 Jan 2026 18:25:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769187175; cv=none; b=hc/k6IsGwhGA7lxPiWZ6s5MxYARbaH+34QDx1MwGcEXqfiCqPeZkqub6uc3ZFMYQ6JnS1q3mUnpHQdEkX6M9a6YRoqglJU6UAPUhJb0SDLYhcoTCTEH6aev2dG0KhNvBQcJkWENPcEyORkw1TZhh9/kMraszCb7v+mfb14+enak=
+	t=1769192734; cv=none; b=CYxXeuMgKPocvPYi0kM/vrWW9/wBJgr/OzCbrn9TtpbfylnwrT2CnBpD3Fe2961scDrqja8droy1s9zM2khf+YjCioDEpHq5LOaHNxGWikMlzfyliVC/qGnGTp8d7RVkRZmVt1iHdCv5Q6Q7vmSMP+XCShMVtbha3+jUunHXmVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769187175; c=relaxed/simple;
-	bh=QQNvnGxUaxh9NMq2l8I37svC9XpWKBuEcZtJHkVSsiY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=T5sQArEn2DCX3b2HTqb1dbm+Y6iDApQDmp69qFzTesGsecF0pwAcmQn8FScpVfYvmJHeCXgPSUTscZSGIwZEhh5zDIF7uYMvSuaZEqs7xEbSZqYy9XbvR8AItyrQyIVxrrndOWjaqW+UqmAQCzm+24cNW9PVBBRkYwRoRMtSSqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=X2e2cBUk; arc=none smtp.client-ip=185.226.149.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="X2e2cBUk"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit04.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1vjKOu-00FEMW-VK; Fri, 23 Jan 2026 17:52:48 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=lveKEYj3xW9x8OtJnfcIghmFfofT+bfpgJirVpnBRiU=; b=X2e2cBUkdY7sGQgayQvvGqFZ8P
-	L4Nfb26f7eUf9UwjeAHkrADJgZzzkakpI4uuCy0h+614aiL3kUsmmD/ibsbVfOIkiA99htZwOF1LV
-	afbQA2mlfLv40W+IkmLw6OfzAr73QQKeTupopOfeDxf1V1vDFHo9xtrlqtNfvkXs5dBMRYKm3flea
-	IV6pOIamq7iYkFNAR20yDatRblXW3upvyQzmRpoGZjsPtZB+tGMjnf5SLNUO5iRWL1JwNBb7K//KR
-	LsRMZNddyoXJvt47+hZy2AslWbrC5kNbhOzuCPjOak8vG9LWZlnijBvtZ9+kGALWAuPwq6N0TGBH8
-	bBl9Jx6w==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1vjKOu-0005hw-Hu; Fri, 23 Jan 2026 17:52:48 +0100
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1vjKOn-004Ea7-L1; Fri, 23 Jan 2026 17:52:41 +0100
-Message-ID: <4feef462-95db-4c88-8dec-eb9ff89ede1b@rbox.co>
-Date: Fri, 23 Jan 2026 17:52:40 +0100
+	s=arc-20240116; t=1769192734; c=relaxed/simple;
+	bh=VW7R3rd/BXUDquFzJCJ5EgrsgJ2mIIc9ebQv6uxx16M=;
+	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=lqWm8n9Vp1ry20/duGF/DUXBoTOREQ0ko1ZfQu5yoPyjTkm4cngeUmh2yR5J+p9+URpXKYRDbhaEObNy/tusMbTdSVUZucoDlvD9djSL1d4DIE+ixGwh+YNM5WEWGGCFfGDnX7Ymgd1LQ3g1eXki7j1kPpt9wr1N7wUzotjqjcM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.18.224.107])
+	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4dyRDV5hM0zJ467F;
+	Sat, 24 Jan 2026 02:24:58 +0800 (CST)
+Received: from dubpeml500005.china.huawei.com (unknown [7.214.145.207])
+	by mail.maildlp.com (Postfix) with ESMTPS id 85A9F40570;
+	Sat, 24 Jan 2026 02:25:28 +0800 (CST)
+Received: from localhost (10.203.177.15) by dubpeml500005.china.huawei.com
+ (7.214.145.207) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Fri, 23 Jan
+ 2026 18:25:27 +0000
+Date: Fri, 23 Jan 2026 18:25:26 +0000
+From: Jonathan Cameron <jonathan.cameron@huawei.com>
+To: Gregory Price <gourry@gourry.net>
+CC: "David Hildenbrand (Red Hat)" <david@kernel.org>, <linux-mm@kvack.org>,
+	<linux-cxl@vger.kernel.org>, <nvdimm@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<kernel-team@meta.com>, <dan.j.williams@intel.com>,
+	<vishal.l.verma@intel.com>, <dave.jiang@intel.com>, <mst@redhat.com>,
+	<jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
+	<osalvador@suse.de>, <akpm@linux-foundation.org>
+Subject: Re: [PATCH 3/8] mm/memory_hotplug: add APIs for explicit online
+ type control
+Message-ID: <20260123182526.00005ee8@huawei.com>
+In-Reply-To: <aXLCAtwMkSMH3DNj@gourry-fedora-PF4VCD3F>
+References: <20260114085201.3222597-1-gourry@gourry.net>
+	<20260114085201.3222597-4-gourry@gourry.net>
+	<b3d435d2-643f-4dad-9928-bc7fb5080181@kernel.org>
+	<aWfR86RIKEvyZsh6@gourry-fedora-PF4VCD3F>
+	<4520e7b0-8218-404d-8ede-e62d95c50825@kernel.org>
+	<aXLCAtwMkSMH3DNj@gourry-fedora-PF4VCD3F>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.42; x86_64-w64-mingw32)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] vsock: Ignore signal/timeout on connect() if already
- established
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20251117-vsock-interrupted-connect-v1-1-bc021e907c3f@rbox.co>
- <dh6gl6xzufrxk23dwei3dcyljjlspjx3gwdhi6o3umtltpypkw@ef4n6llndg5p>
- <98e2ac89-34e9-42d9-bfcf-e81e7a04504d@rbox.co>
- <rptu2o7jpqw5u5g4xt76ntyupsak3dcs7rzfhzeidn6vcwf6ku@dcd47yt6ebhu>
- <09c6de68-06aa-404d-9753-907eab61b9ab@rbox.co>
- <663yvkk2sh5lesfvdeerlca567xb64qbwih52bxjftob3umsah@eamuykmarrfr>
- <1b2255c7-0e97-4b37-b7ab-e13e90b7b0b9@rbox.co>
- <06936b55-b359-4e3d-bec0-b157ca32d237@rbox.co>
- <fy3ep725gwaislzz6lyu27ckswp2iyy5gj6afw6jji6c3get3l@lqa6wpptq5ii>
- <69a3d223-dd95-43df-af3a-522968d6b850@rbox.co>
- <pstj7youxwwrpj3bl2a76kh2t62by2vdakv5elqvueobw3o4pj@tnknzlqdt344>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <pstj7youxwwrpj3bl2a76kh2t62by2vdakv5elqvueobw3o4pj@tnknzlqdt344>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: lhrpeml500009.china.huawei.com (7.191.174.84) To
+ dubpeml500005.china.huawei.com (7.214.145.207)
 
-On 11/24/25 12:49, Stefano Garzarella wrote:
-> On Sun, Nov 23, 2025 at 10:46:22PM +0100, Michal Luczaj wrote:
->> On 11/21/25 10:21, Stefano Garzarella wrote:
->>> On Thu, Nov 20, 2025 at 10:12:20PM +0100, Michal Luczaj wrote:
->>>> On 11/19/25 20:52, Michal Luczaj wrote:
->>>>> ...
->>>>> To follow up, should I add a version of syzkaller's lockdep warning repro
->>>>> to vsock test suite? In theory it could test this fix here as well, but in
->>>>> practice the race window is small and hitting it (the brute way) takes
->>>>> prohibitively long.
->>>>
->>>> Replying to self to add more data.
->>>>
->>>> After reverting
->>>>
->>>> f7c877e75352 ("vsock: fix lock inversion in vsock_assign_transport()")
->>>> 002541ef650b ("vsock: Ignore signal/timeout on connect() if already
->>>> established")
->>>>
->>>> adding
->>>>
->>>> --- a/tools/testing/vsock/vsock_test.c
->>>> +++ b/tools/testing/vsock/vsock_test.c
->>>> @@ -2014,6 +2014,7 @@ static void test_stream_transport_change_client(const
->>>> struct test_opts *opts)
->>>>                        perror("socket");
->>>>                        exit(EXIT_FAILURE);
->>>>                }
->>>> +               enable_so_linger(s, 1);
->>>>
->>>>                ret = connect(s, (struct sockaddr *)&sa, sizeof(sa));
->>>>                /* The connect can fail due to signals coming from the
->>>>
->>>> is enough for vsock_test to trigger the lockdep warning syzkaller found.
->>>>
->>>
->>> cool, so if it's only that, maybe is worth adding.
->>
->> Ok, there it is:
->> https://lore.kernel.org/netdev/20251123-vsock_test-linger-lockdep-warn-v1-1-4b1edf9d8cdc@rbox.co/
+On Thu, 22 Jan 2026 19:34:10 -0500
+Gregory Price <gourry@gourry.net> wrote:
+
+> On Thu, Jan 22, 2026 at 11:41:24PM +0100, David Hildenbrand (Red Hat) wrote:
+> > 
+> > Right, but I don't want any other OOT kernel module to be able to make use
+> > of add_memory_driver_managed() to do arbitrary things, because we don't know
+> > if it's really user space setting the policy for that memory then.
+> >   
 > 
-> Great!
+> Ah, this was lost on me.
 > 
->>
->> And circling back to [1], let me know if you think it's worth adding to the
->> suit. I guess it would test the case #2 from [2], but it'd take another 2s
+> > So either restrict add_memory_driver_managed() to kmem+virtio_mem
+> > completely, or add another variant that will be kmem-only (or however that
+> > dax/cxl module is called).  
 > 
-> If you think it is better to put them in vsock tests, instead of bpf,
-> it's fine by me. 2s more is okay IMO.
+> unclear to me how to restrict a function to specific drivers, but i can
+> add add_and_online_memory_driver_managed() trivially so no big issue.
 
-OK, here's a followup:
-https://lore.kernel.org/bpf/20260123-selftest-signal-on-connect-v1-0-b0256e7025b6@rbox.co/
+Is EXPORT_SYMBOL_GPL_FOR_MODULE() enough?
 
-[...]
+> 
+> You'd be ok with with this?
+> 
+> add_and_online_memory_driver_managed(..., online_type) {
+>    ... existing add_memory_driver_managed() code ...
+> }
+> 
+> add_memory_driver_managed(...) {
+>    add_and_online_memory_driver_managed(..., mhp_get_default_policy());
+> }
 
->> [1]:
->> https://lore.kernel.org/netdev/fjy4jaww6xualdudevfuyoavnrbu45cg4d7erv4rttde363xfc@nahglijbl2eg/
->> [2]:
->> https://lore.kernel.org/netdev/20251119-vsock-interrupted-connect-v2-1-70734cf1233f@rbox.co/
+> 
+> ~Gregory
+> 
+
