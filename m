@@ -1,119 +1,216 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E44B257843
-	for <virtualization@lists.linux.dev>; Fri, 23 Jan 2026 19:12:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D72E71CD1E4;
+	Sat, 24 Jan 2026 19:14:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769195548; cv=none; b=pkKUcfr24ErAtMKMoCINiWy9MY8+R3KlAW5TF0S7yD0zyysPCzcoyGwyB582KhKFGgBliadsmLihHUpwD53aw0PqozZ1VOLowe5YmGj1y/JDFw+2YF6e4FgIKFCraFrPPSoC78Pnl+O5eDKpRd1RrdE1ZhRTnMUvm6VSCYTmDWA=
+	t=1769282074; cv=none; b=TQtW4CzaA7OOdm2dWEoYzTSn1Ow5YuSN5XdANt1wF/N0QZhbSFtuXaEZ7mI4JZLjt675BZ/8IfYHfMgy6lg1ex3oeGY3Bucjd8a6KjXhObH5oWGEAu/yiSo5nRYJqnDg5iDj1RNFAQelm7q2qk4hnovDv+52qNDlOSSaYUSrc/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769195548; c=relaxed/simple;
-	bh=dwNTImMJO2gHVlejeQ8Ezs9GSst86dOsrCCdrs8fh6Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bj/fW8liVi7AEE0hjhlhVikZ2WsXDzDKk/PceSG/Qvq6OqI5NmCGg2OdOCur6rqyjruD2kGxL89nKuf6JKMsXPkcjQE9V4D2iWm8FVKzmDxkyq8GnWt1hWyUX3txccv4HOPVckfj8hSrzXWBQRPWtWPGKpegVyGLGsKPwOyE0eg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=nNDmdg4W; arc=none smtp.client-ip=209.85.219.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	s=arc-20240116; t=1769282074; c=relaxed/simple;
+	bh=NATdES5Oox4rtKNrsa+ZhkierotfR0B1Snwy5+c+Bbs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=OIZdFUcbB0kgYYH9aq3OdLp5jQr3OOZwo8Ce1/D6bhrOQpQ9ZGI5C02JJbjXBKKY8/4FSNkgIAeNhSngN8mWblxNLvO95UAQ/pDM4h+/o6OSJBF3uDIbyZ1hXAzDpiObm8eGV9M9EPn7cJhz6870zc64i5mGiBDZ05XW3+FZ8As=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X+xeQLyr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="nNDmdg4W"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8948273f5d0so23048686d6.0
-        for <virtualization@lists.linux.dev>; Fri, 23 Jan 2026 11:12:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1769195546; x=1769800346; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=iAb3V8FwAoFt+i7QIjKEQtHflVF/O2of2sgUimojvUA=;
-        b=nNDmdg4W7MfPeieSfkdNfZ0zgX+KDBvF7gwY5/FSn+YTYVXkOx2GUx6GwI+zF2PCWI
-         HXbSyYoFqCXkOJsstVJCIAI+nzij0UzbhltVICNGZTtSyjNLH3kC+Ysv4nh3RW98jMRv
-         15mRAKWvRDT3IoTHGMvirJgY7V/PgVotqJnsfEDDkmt8jH7/Lm/8IS9nLEhqokSqhJtH
-         xn0aHQctOU4dVuQfPpn7Cprjj30EKAisof6LcA+7Ylu83ux0+AlTcZXqnJxRZSK4K42j
-         ECyjW7ogU+dQJwAtM8DqIE4nXeOXVzznQdbuLJHIc7V5upBe/fdKsYohILbYW2w8fLjG
-         Ax9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769195546; x=1769800346;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iAb3V8FwAoFt+i7QIjKEQtHflVF/O2of2sgUimojvUA=;
-        b=WmaB0Yf4udhquUE+6qbIudAiqdo2zWk5mti20wXiAoCdDwvOSPzQUSrAj9BMN+G3XR
-         YdImz471HR3MV1f/Fbl86oecRNAfL7L2Hi/UIu5Yr5khxlRau5TnBke3sGqbaafvePNw
-         sMcNDmADODVlKbBCQQ7fFnDui6qpkhywEv6zNsOOF6D32ytGNSafa4wZ4R2JlMBdx8Dl
-         JRegzVZP5AXz34n/HvZ/voJ1OA9EfAxRP326O1L0C15x5NRcYv9ydmvew9tXEGMpIsXk
-         iRav9pNStb0qGohzGzXklcO7pUnue7AGqbVJWQ3/V+IjfjksR/utN5dhKp9zJbN9hd8c
-         S3wg==
-X-Forwarded-Encrypted: i=1; AJvYcCVf1Py1pr05CrVAxMaJuwTNbs4gZRQulDQQv70FleoX89hUx77Ih2RqYyFCuVuaYJHbUvp3qx0JibjYpXMFBw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzHrngzrQhbkq86KYtuHlxYLZ+kPcuz+YQoq2ea5UFNIMl0kuIK
-	l5B3VT3VHnuUDaMjyQvEg65U0r9z91ucQzDIJW9fUAGNTnMZGVJVXukOyitjdSNv1Cc=
-X-Gm-Gg: AZuq6aKHALEHscrtLa0gNvXTVTcjkU+nLVVl87rdrgofEBwsRp0O+zkSuSOvT3GFWBy
-	g5qYU7wN0DJGgkx7EzEzsDaAkqWduO6VaRO6c8k2JRefdH5s1N4eEe23Zb4niDTBvKQ9oEXz26E
-	KlKoU5WNJ5RQPqAcrjrWCRkLIAdz7kNjDIjdfOxVc1hYhNolLSJ6fKFRWC12PzaENX6cy46VLNc
-	Iy0Pef9m7YQ/cUaRwrU6nNBOFZrh4Zocia1vJUAgjLt/Md+RuE1SFJ8lfPlV8HrEgYhlfvV33Gf
-	GcYyECYZ4Q28HApbTduEFi0Io5AZdWAVhkQE8LU8qyIJZ38xflaIP9GDSrYYyYdx2E83R3gDfSX
-	ejxq4cigvwzJtWhdoi+qYgOkkXYZdELcYeXJLCkxyQAaYviLp0QvsOq++Zpxn0cshjxQF5LxibG
-	yW3n9cDpcXGvGOs0Xl6HCg8IFFzxpvxT7H44Yo8CC0GoiRs11krJExVXNTQFtcfqqw+uq3cNi13
-	5o5mx4/
-X-Received: by 2002:a05:6214:3008:b0:88a:2ac8:9b3 with SMTP id 6a1803df08f44-8947df771admr103884956d6.9.1769195546348;
-        Fri, 23 Jan 2026 11:12:26 -0800 (PST)
-Received: from gourry-fedora-PF4VCD3F (pool-96-255-20-138.washdc.ftas.verizon.net. [96.255.20.138])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-89491823cf0sm23001816d6.8.2026.01.23.11.12.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jan 2026 11:12:25 -0800 (PST)
-Date: Fri, 23 Jan 2026 14:12:24 -0500
-From: Gregory Price <gourry@gourry.net>
-To: Jonathan Cameron <jonathan.cameron@huawei.com>
-Cc: "David Hildenbrand (Red Hat)" <david@kernel.org>, linux-mm@kvack.org,
-	linux-cxl@vger.kernel.org, nvdimm@lists.linux.dev,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	kernel-team@meta.com, dan.j.williams@intel.com,
-	vishal.l.verma@intel.com, dave.jiang@intel.com, mst@redhat.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, osalvador@suse.de, akpm@linux-foundation.org
-Subject: Re: [PATCH 3/8] mm/memory_hotplug: add APIs for explicit online type
- control
-Message-ID: <aXPIGMVAvVEBgFhJ@gourry-fedora-PF4VCD3F>
-References: <20260114085201.3222597-1-gourry@gourry.net>
- <20260114085201.3222597-4-gourry@gourry.net>
- <b3d435d2-643f-4dad-9928-bc7fb5080181@kernel.org>
- <aWfR86RIKEvyZsh6@gourry-fedora-PF4VCD3F>
- <4520e7b0-8218-404d-8ede-e62d95c50825@kernel.org>
- <aXLCAtwMkSMH3DNj@gourry-fedora-PF4VCD3F>
- <20260123182526.00005ee8@huawei.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X+xeQLyr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCCF3C116D0;
+	Sat, 24 Jan 2026 19:14:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769282074;
+	bh=NATdES5Oox4rtKNrsa+ZhkierotfR0B1Snwy5+c+Bbs=;
+	h=From:To:Cc:Subject:Date:From;
+	b=X+xeQLyrmiha8BnMyD/M7eCAnElWAXyx4WoXt4tfQS4vL+Lj18HptF4vdWkGC4rsF
+	 l8VbI+pUbykRLgy+6HA7aEBf907qD9ZZ68jrJPOWicwTO+ZPQM7fh1ZBoWto4NeTPO
+	 o4hShgOgl/vcRYumX0eSg2+G78kV/SGlmCWKgkqVnHTOl9emqQWFdABDA/b2N39qv0
+	 Xiv1ayiZVo9ubVfOKCJjfRXnVDqvVzFz/s589xDn35UnaZbuVmhRZT8jXS+iF8zWsu
+	 5djtR6/w1SSZRATrIsFH01/wqz8sQFLKMWlV+ljHqiEl9WbAG4nfs7qWXfJLeFekkc
+	 w2VlG2FGlCcNA==
+From: Leon Romanovsky <leon@kernel.org>
+To: Sumit Semwal <sumit.semwal@linaro.org>,
+	=?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	=?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Leon Romanovsky <leon@kernel.org>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Felix Kuehling <Felix.Kuehling@amd.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>
+Cc: linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org,
+	linux-rdma@vger.kernel.org,
+	iommu@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: [PATCH v5 0/8] dma-buf: Use revoke mechanism to invalidate shared buffers
+Date: Sat, 24 Jan 2026 21:14:12 +0200
+Message-ID: <20260124-dmabuf-revoke-v5-0-f98fca917e96@nvidia.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260123182526.00005ee8@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+X-Change-ID: 20251221-dmabuf-revoke-b90ef16e4236
+X-Mailer: b4 0.15-dev-47773
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jan 23, 2026 at 06:25:26PM +0000, Jonathan Cameron wrote:
-> On Thu, 22 Jan 2026 19:34:10 -0500
-> Gregory Price <gourry@gourry.net> wrote:
-> 
-> > On Thu, Jan 22, 2026 at 11:41:24PM +0100, David Hildenbrand (Red Hat) wrote:
-> > > 
-> > > Right, but I don't want any other OOT kernel module to be able to make use
-> > > of add_memory_driver_managed() to do arbitrary things, because we don't know
-> > > if it's really user space setting the policy for that memory then.
-> > >   
-> > 
-> > Ah, this was lost on me.
-> > 
-> > > So either restrict add_memory_driver_managed() to kmem+virtio_mem
-> > > completely, or add another variant that will be kmem-only (or however that
-> > > dax/cxl module is called).  
-> > 
-> > unclear to me how to restrict a function to specific drivers, but i can
-> > add add_and_online_memory_driver_managed() trivially so no big issue.
-> 
-> Is EXPORT_SYMBOL_GPL_FOR_MODULE() enough?
-> 
+Changelog:
+v5:
+ * Documented the DMA-BUF expectations around DMA unmap.
+ * Added wait support in VFIO for DMA unmap.
+ * Reordered patches.
+ * Improved commit messages to document even more.
+v4: https://lore.kernel.org/all/20260121-dmabuf-revoke-v4-0-d311cbc8633d@nvidia.com
+ * Changed DMA_RESV_USAGE_KERNEL to DMA_RESV_USAGE_BOOKKEEP.
+ * Made .invalidate_mapping() truly optional.
+ * Added patch which renames dma_buf_move_notify() to be
+   dma_buf_invalidate_mappings().
+ * Restored dma_buf_attachment_is_dynamic() function.
+v3: https://lore.kernel.org/all/20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com/
+ * Used Jason's wordings for commits and cover letter.
+ * Removed IOMMUFD patch.
+ * Renamed dma_buf_attachment_is_revoke() to be dma_buf_attach_revocable().
+ * Added patch to remove CONFIG_DMABUF_MOVE_NOTIFY.
+ * Added Reviewed-by tags.
+ * Called to dma_resv_wait_timeout() after dma_buf_move_notify() in VFIO.
+ * Added dma_buf_attach_revocable() check to VFIO DMABUF attach function.
+ * Slightly changed commit messages.
+v2: https://patch.msgid.link/20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com
+ * Changed series to document the revoke semantics instead of
+   implementing it.
+v1: https://patch.msgid.link/20260111-dmabuf-revoke-v1-0-fb4bcc8c259b@nvidia.com
 
-Is the issue just that add_memory_driver_manage is `extern`?  If so
-yeah, i can just do the EXPORT_*_GPL path.
+-------------------------------------------------------------------------
+This series is based on latest VFIO fix, which will be sent to Linus
+very soon.
 
-If you prefer FOR_MODULE, then yes I can do this.
+https://lore.kernel.org/all/20260121-vfio-add-pin-v1-1-4e04916b17f1@nvidia.com/
 
-~Gregory
+Thanks
+-------------------------------------------------------------------------
+This series documents a dma-buf “revoke” mechanism: to allow a dma-buf
+exporter to explicitly invalidate (“kill”) a shared buffer after it has
+been distributed to importers, so that further CPU and device access is
+prevented and importers reliably observe failure.
+
+The change in this series is to properly document and use existing core
+“revoked” state on the dma-buf object and a corresponding exporter-triggered
+revoke operation.
+
+dma-buf has quietly allowed calling move_notify on pinned dma-bufs, even
+though legacy importers using dma_buf_attach() would simply ignore
+these calls.
+
+The intention was that move_notify() would tell the importer to expedite
+it's unmapping process and once the importer is fully finished with DMA it
+would unmap the dma-buf which finally signals that the importer is no
+longer ever going to touch the memory again. Importers that touch past
+their unmap() call can trigger IOMMU errors, AER and beyond, however
+read-and-discard access between move_notify() and unmap is allowed.
+
+Thus, we can define the exporter's revoke sequence for pinned dma-buf as:
+
+	dma_resv_lock(dmabuf->resv, NULL);
+	// Prevent new mappings from being established
+	priv->revoked = true;
+
+	// Tell all importers to eventually unmap
+	dma_buf_invalidate_mappings(dmabuf);
+
+	// Wait for any inprogress fences on the old mapping
+	dma_resv_wait_timeout(dmabuf->resv,
+			      DMA_RESV_USAGE_BOOKKEEP, false,
+			      MAX_SCHEDULE_TIMEOUT);
+	dma_resv_unlock(dmabuf->resv, NULL);
+
+	// Wait for all importers to complete unmap
+	wait_for_completion(&priv->unmapp_comp);
+
+However, dma-buf also supports importers that don't do anything on
+move_notify(), and will not unmap the buffer in bounded time.
+
+Since such importers would cause the above sequence to hang, a new
+mechanism is needed to detect incompatible importers.
+
+Introduce dma_buf_attach_revocable() which if true indicates the above
+sequence is safe to use and will complete in kernel-only bounded time for
+this attachment.
+
+Unfortunately dma_buf_attach_revocable() is going to fail for the popular
+RDMA pinned importer, which means we cannot introduce it to existing
+places using pinned move_notify() without potentially breaking existing
+userspace flows.
+
+Existing exporters that only trigger this flow for RAS errors should not
+call dma_buf_attach_revocable() and will suffer an unbounded block on the
+final completion, hoping that the userspace will notice the RAS and clean
+things up. Without revoke support on the RDMA pinned importers it doesn't
+seem like any other non-breaking option is currently possible.
+
+For new exporters, like VFIO and RDMA, that have userspace triggered
+revoke events, the unbouned sleep would not be acceptable. They can call
+dma_buf_attach_revocable() and will not work with the RDMA pinned importer
+from day 0, preventing regressions.
+
+In the process add documentation explaining the above details.
+
+Thanks
+
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+---
+Leon Romanovsky (8):
+      dma-buf: Rename .move_notify() callback to a clearer identifier
+      dma-buf: Rename dma_buf_move_notify() to dma_buf_invalidate_mappings()
+      dma-buf: Always build with DMABUF_MOVE_NOTIFY
+      vfio: Wait for dma-buf invalidation to complete
+      dma-buf: Make .invalidate_mapping() truly optional
+      dma-buf: Add dma_buf_attach_revocable()
+      vfio: Permit VFIO to work with pinned importers
+      iommufd: Add dma_buf_pin()
+
+ drivers/dma-buf/Kconfig                     | 12 ----
+ drivers/dma-buf/dma-buf.c                   | 69 +++++++++++++++++-----
+ drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c | 14 ++---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c  |  2 +-
+ drivers/gpu/drm/amd/amdkfd/Kconfig          |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_prime.c      |  2 +-
+ drivers/gpu/drm/xe/tests/xe_dma_buf.c       |  7 +--
+ drivers/gpu/drm/xe/xe_bo.c                  |  2 +-
+ drivers/gpu/drm/xe/xe_dma_buf.c             | 14 ++---
+ drivers/infiniband/core/umem_dmabuf.c       | 13 -----
+ drivers/infiniband/hw/mlx5/mr.c             |  2 +-
+ drivers/iommu/iommufd/pages.c               | 11 +++-
+ drivers/iommu/iommufd/selftest.c            |  2 +-
+ drivers/vfio/pci/vfio_pci_dmabuf.c          | 90 +++++++++++++++++++++++------
+ include/linux/dma-buf.h                     | 17 +++---
+ 15 files changed, 164 insertions(+), 95 deletions(-)
+---
+base-commit: 61ceaf236115f20f4fdd7cf60f883ada1063349a
+change-id: 20251221-dmabuf-revoke-b90ef16e4236
+
+Best regards,
+--  
+Leon Romanovsky <leonro@nvidia.com>
+
