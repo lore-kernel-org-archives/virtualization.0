@@ -1,265 +1,168 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD86C29D267
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Jan 2026 09:49:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21C57315D22
+	for <virtualization@lists.linux.dev>; Mon, 26 Jan 2026 10:06:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769420966; cv=none; b=TlXUutLz9RwOMZG32Ho3pBsLScxOzjzpWBv3X1wj5sSAMPTo2dIARPIQyKTHwch/CSAVUCoM1gBkNUQSyxvVMS7XQgfkEjjU+BNl13mdKgDDz9xfGlEXAQqO7BFE+HWsetEA8m33Vz++rady5+UofDsAKrsiy31VEAO0e5nLgC0=
+	t=1769422006; cv=none; b=Gx4qSOB/1AJwXYI76Ug3WPAIYS7YjVjEiauLJlDy1ON2dClVgKp0U+DDMelOUzNWuZ6LG9FcywSJbtWlt+tS8P30lzoF+Yd85nf1O9Ve9HpdOLbWG46cjOfX5MtKErKkz9qNIO195pvJM76V63QiQjuGRMdh8kgtSZMa04723vM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769420966; c=relaxed/simple;
-	bh=SCfbIDBZ0i8ji2Il2O+CBn4hTNVv8fyBRR1E4OC8jIk=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=p4pmy8mIbeRAUforWD97fAjxMhZtTZGzfwfcHyAcDyYYuT6pQHivfj+x0vzVnsk2JevwSXAwAn5iOOhAaS/Fw8vUmWIRmZTZeSr9qNqM34StzxHGfHAoQFuzxlTNSbgiejVbmng6c/wWzHB5dz26Rse3YzptGznN6k+K3if/ckw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SPgVIWXI; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1769422006; c=relaxed/simple;
+	bh=RwbCROst0SrKoPI0Mz/RhGJ6cgMIVH0PkBXsjkD/Qrg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=DpcP9DOUK0ROqgOy/siOLsoeO6XUOYMd8akWN9NIliQVBeJhBSWoWwufokm0Lgl6Yk5zEXkG9GnyGvjkEe09B5HaCM9144hS153Tdk+hTDm2OJC4h16c9RTaxLjgh1YSfCCMtzOVV5Vo7GQQ5RTEcQYU+YxjCOzNrNXtQ2LXDh0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bR0W1fD3; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SPgVIWXI"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 619FE401F6
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Jan 2026 09:49:22 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.795
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 5FmiOJZaKCbc for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jan 2026 09:49:21 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 586C840079
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 586C840079
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SPgVIWXI
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 586C840079
-	for <virtualization@lists.linux-foundation.org>; Mon, 26 Jan 2026 09:49:21 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bR0W1fD3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769420959;
+	s=mimecast20190719; t=1769422004;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=95rlxJBn2msZ3au3wfm2bXPdC8+xLSko1wIOaCjjM/M=;
-	b=SPgVIWXINdUSECRNhIj8VNcw7MU2iwj/pTAtDejrti4+6XJVtZ4nXsTqvNb1rtkTEXv46y
-	fNl/l7w977uZnIkkdNwrUHKOw3I48aavZLOgmobeC4fYxcHogaPhifi5Ee0iCLkBkjP9y8
-	F85M3VO/bU7EnpoDeIGa7AQWSdDNdAQ=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-611-Wi9pjlujN9a4MFgG7eoDRA-1; Mon,
- 26 Jan 2026 04:49:08 -0500
-X-MC-Unique: Wi9pjlujN9a4MFgG7eoDRA-1
-X-Mimecast-MFC-AGG-ID: Wi9pjlujN9a4MFgG7eoDRA_1769420947
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2E5BA1944EA8;
-	Mon, 26 Jan 2026 09:49:07 +0000 (UTC)
-Received: from S2.redhat.com (unknown [10.72.112.82])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8F19618001D5;
-	Mon, 26 Jan 2026 09:49:01 +0000 (UTC)
-From: Cindy Lu <lulu@redhat.com>
-To: lulu@redhat.com,
-	dtatulea@nvidia.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: [PATCH v4 2/3] vdpa/mlx5: reuse common function for MAC address updates
-Date: Mon, 26 Jan 2026 17:45:37 +0800
-Message-ID: <20260126094848.9601-3-lulu@redhat.com>
-In-Reply-To: <20260126094848.9601-1-lulu@redhat.com>
-References: <20260126094848.9601-1-lulu@redhat.com>
+	bh=zGZ7zVWK6KG4OaKzcOGu+si3YSRlswA4cevBUVUMjg8=;
+	b=bR0W1fD35gOc2yX6KVjidOCVSwEUBOEbAWd8/rKipA6j4rhUB3coZNpnSrO/j11pN5TK4p
+	rExwQSKsCxPAu3zjNZ4JoKS3c2xXDjpaWpAanP110T3u28vFVZzveJRg/5IKKG+STnr37w
+	je/mHD38fQS9blPx18AMFh5ZBXks/2k=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-463-pxSqHZpXO7-v6d5dNFWmMg-1; Mon, 26 Jan 2026 05:06:42 -0500
+X-MC-Unique: pxSqHZpXO7-v6d5dNFWmMg-1
+X-Mimecast-MFC-AGG-ID: pxSqHZpXO7-v6d5dNFWmMg_1769422001
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-47ee432070aso39049365e9.1
+        for <virtualization@lists.linux.dev>; Mon, 26 Jan 2026 02:06:42 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769422001; x=1770026801;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zGZ7zVWK6KG4OaKzcOGu+si3YSRlswA4cevBUVUMjg8=;
+        b=m2IN4oGvXkXW9mZpMCWXakqyei0z20r/xIXno3XJSUNWqCc8tiK74psRGwK3nsqJhw
+         l4i0pM6K5efNuB4mUD9+4srdRNO9zFQCo5xuhbzGlBvLM1Oh6oT/DN/uuOdBDdVzMHH/
+         uN8ETz1nSKeFjBoq5xArXeNxJXTbDETJPLFyCSiNCFkA8x4tMg1nYMagCvHZhA6kUdIu
+         WYLNqFOx9mRw71ciAeYAFB4nFqZDm88HR0DUwmr4dq7VoV2xHrq2oBlpIKZtjn+bMVw3
+         zTIZiw56vRxADtsvqqiHIRXN0Jm3pWNpyv44emhsVy8UnZzf5zAkDhPa5z8EFRLqF7DO
+         A5JA==
+X-Forwarded-Encrypted: i=1; AJvYcCVY3ADboUySMVPPUM8AZVXvaxMOxPmA94P0a+w0pRd6KYz/xjqgJ7JG6X17ezyiLVf+t0BG1MwAq4Kt+4jyjw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YymsxzJ92lt2wQ14yLOIbUxMPQVHppxc/qMJJYwUgA8l7OBe35N
+	snbotLBOiH13Ix2tjpVxTi+qimBRs93IBSWz2PDHe+PdMbft1fMmufnCmFnbEC5G7XlrXVx97NU
+	q6Wnm171twiScPQe2cViERt7tGzaFILaicabBGQTpvb5VZAb959vVqchpJH87akdNOK9P
+X-Gm-Gg: AZuq6aLFuTU/hWlXRA0bTUUN1ZMDrJN/JkxsJD0Vw9VFyFCAnSSwUP1P4FY/tCvqiDT
+	jhZDqUbKTcXpAMK4fJ8b73tDe5RskhoyETVydOCEf/vOcHK1CD2mXespruakPFQD8+b5X7Edl3h
+	wJDjecgnoDV1f+JoaFCx+V/L1Z6FJl3Td72PXcefrWSfIoB7Uif0SVijzo8g+n3XxsB3hbfqqA/
+	3IlJZuCdIbvt2ydxYuuGqiLFsTI294fKN90TLie9WFQsDt/k9JedTRHvpvy03qoZcb5pUeOJFPX
+	/Z5IpV2VOH3+lF8tUhyAaGdXtS58BtsA6wFll3hGaeCkFMJjfNLd7QnZlNyI5t3EGcTCWoSJMXo
+	+nTY=
+X-Received: by 2002:a05:600c:8b0e:b0:477:63db:c718 with SMTP id 5b1f17b1804b1-4805ce4def9mr74286525e9.16.1769422001248;
+        Mon, 26 Jan 2026 02:06:41 -0800 (PST)
+X-Received: by 2002:a05:600c:8b0e:b0:477:63db:c718 with SMTP id 5b1f17b1804b1-4805ce4def9mr74286025e9.16.1769422000817;
+        Mon, 26 Jan 2026 02:06:40 -0800 (PST)
+Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4804d85206fsm266170605e9.6.2026.01.26.02.06.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Jan 2026 02:06:40 -0800 (PST)
+Date: Mon, 26 Jan 2026 11:06:38 +0100
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+To: Francesco Valla <francesco@valla.it>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Harald Mommer <harald.mommer@oss.qualcomm.com>,
+	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	Wolfgang Grandegger <wg@grandegger.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v8] can: virtio: Add virtio CAN driver
+Message-ID: <aXc8rhN8SvmOFbJ0@fedora>
+References: <aW/D8kiFu666wiuD@fedora>
+ <aXYkWO0ShTsrjP1R@bywater>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+In-Reply-To: <aXYkWO0ShTsrjP1R@bywater>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: VI2EH6srZLYhIrvBIO76VxRoYM5Drcdpq-CTHZPSG8Y_1769422001
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Factor out MAC address update logic and reuse it from handle_ctrl_mac().
+On Sun, Jan 25, 2026 at 03:10:32PM +0100, Francesco Valla wrote:
+> Hi Matias,
+> 
+> If an additional version is foreseen, consider dropping some more
+> note-like comments, as in future they might become dangling.
+> 
 
-This ensures that old MAC entries are removed from the MPFS table
-before adding a new one and that the forwarding rules are updated
-accordingly. If updating the flow table fails, the original MAC and
-rules are restored as much as possible to keep the software and
-hardware state consistent.
+Yes! I am planing to remove some comments and send v9. I was not
+completely sure which ones. Also, I was thinking to set myself as a
+maintainer in case Harald is busy.
 
-Signed-off-by: Cindy Lu <lulu@redhat.com>
+> E.g.:
+> 
+> On Tue, Jan 20, 2026 at 07:05:38PM +0100, Matias Ezequiel Vara Larsen wrote:
+> 
+> [...]
+> 
+> > +
+> > +/* Poll TX used queue for sent CAN messages
+> > + * See https://wiki.linuxfoundation.org/networking/napi function
+> > + * int (*poll)(struct napi_struct *napi, int budget);
+> > + */
+> > +static int virtio_can_tx_poll(struct napi_struct *napi, int quota)
+> > +{
+> 
+> [...]
+> 
+> > +/* See m_can_poll() / m_can_handle_state_errors() m_can_handle_state_change() */
+> > +static int virtio_can_handle_busoff(struct net_device *dev)
+> > +{
+> 
+> [...]
+> 
+> > +/* Poll RX used queue for received CAN messages
+> > + * See https://wiki.linuxfoundation.org/networking/napi function
+> > + * int (*poll)(struct napi_struct *napi, int budget);
+> > + * Important: "The networking subsystem promises that poll() will not be
+> > + * invoked simultaneously (for the same napi_struct) on multiple processors"
+> > + */
+> > +static int virtio_can_rx_poll(struct napi_struct *napi, int quota)
+> > +{
+> > +
+> 
+> [...]
+> 
+> > +/* Compare with m_can.c/m_can_suspend(), virtio_net.c/virtnet_freeze() and
+> > + * virtio_card.c/virtsnd_freeze()
+> > + */
+> > +static int __maybe_unused virtio_can_freeze(struct virtio_device *vdev)
+> > +{
+> 
+> [...]
+> > +
+> > +/* Compare with m_can.c/m_can_resume(), virtio_net.c/virtnet_restore() and
+> > + * virtio_card.c/virtsnd_restore()
+> > + */
+> > +static int __maybe_unused virtio_can_restore(struct virtio_device *vdev)
+> > +{
+> 
+> 
+> With this (maybe negligible) note considered: 
+> 
+> Reviewed-by: Francesco Valla <francesco@valla.it>
+> Tested-by: Francesco Valla <francesco@valla.it>
+> 
 
-Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 131 ++++++++++++++++--------------
- 1 file changed, 71 insertions(+), 60 deletions(-)
+Thanks Francesco!
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 6e42bae7c9a1..78a4b80d1ce2 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2125,86 +2125,97 @@ static void teardown_steering(struct mlx5_vdpa_net *ndev)
- 	mlx5_destroy_flow_table(ndev->rxft);
- }
- 
--static virtio_net_ctrl_ack handle_ctrl_mac(struct mlx5_vdpa_dev *mvdev, u8 cmd)
-+static int mlx5_vdpa_change_mac(struct mlx5_vdpa_net *ndev,
-+				struct mlx5_core_dev *pfmdev,
-+				const u8 *new_mac)
- {
--	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
--	struct mlx5_control_vq *cvq = &mvdev->cvq;
--	virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
--	struct mlx5_core_dev *pfmdev;
--	size_t read;
--	u8 mac[ETH_ALEN], mac_back[ETH_ALEN];
-+	struct mlx5_vdpa_dev *mvdev = &ndev->mvdev;
-+	u8 old_mac[ETH_ALEN];
- 
--	pfmdev = pci_get_drvdata(pci_physfn(mvdev->mdev->pdev));
--	switch (cmd) {
--	case VIRTIO_NET_CTRL_MAC_ADDR_SET:
--		read = vringh_iov_pull_iotlb(&cvq->vring, &cvq->riov, (void *)mac, ETH_ALEN);
--		if (read != ETH_ALEN)
--			break;
-+	if (is_zero_ether_addr(new_mac))
-+		return -EINVAL;
- 
--		if (!memcmp(ndev->config.mac, mac, 6)) {
--			status = VIRTIO_NET_OK;
--			break;
-+	if (!is_zero_ether_addr(ndev->config.mac)) {
-+		if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
-+			mlx5_vdpa_warn(mvdev, "failed to delete old MAC %pM from MPFS table\n",
-+				       ndev->config.mac);
-+			return -EIO;
- 		}
-+	}
- 
--		if (is_zero_ether_addr(mac))
--			break;
-+	if (mlx5_mpfs_add_mac(pfmdev, (u8 *)new_mac)) {
-+		mlx5_vdpa_warn(mvdev, "failed to insert new MAC %pM into MPFS table\n",
-+			       new_mac);
-+		return -EIO;
-+	}
- 
--		if (!is_zero_ether_addr(ndev->config.mac)) {
--			if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
--				mlx5_vdpa_warn(mvdev, "failed to delete old MAC %pM from MPFS table\n",
--					       ndev->config.mac);
--				break;
--			}
--		}
-+	/* backup the original mac address so that if failed to add the forward rules
-+	 * we could restore it
-+	 */
-+	ether_addr_copy(old_mac, ndev->config.mac);
- 
--		if (mlx5_mpfs_add_mac(pfmdev, mac)) {
--			mlx5_vdpa_warn(mvdev, "failed to insert new MAC %pM into MPFS table\n",
--				       mac);
--			break;
--		}
-+	ether_addr_copy(ndev->config.mac, new_mac);
- 
--		/* backup the original mac address so that if failed to add the forward rules
--		 * we could restore it
--		 */
--		memcpy(mac_back, ndev->config.mac, ETH_ALEN);
-+	/* Need recreate the flow table entry, so that the packet could forward back
-+	 */
-+	mac_vlan_del(ndev, old_mac, 0, false);
- 
--		memcpy(ndev->config.mac, mac, ETH_ALEN);
-+	if (mac_vlan_add(ndev, ndev->config.mac, 0, false)) {
-+		mlx5_vdpa_warn(mvdev, "failed to insert forward rules, try to restore\n");
- 
--		/* Need recreate the flow table entry, so that the packet could forward back
-+		/* Although it hardly run here, we still need double check */
-+		if (is_zero_ether_addr(old_mac)) {
-+			mlx5_vdpa_warn(mvdev, "restore mac failed: Original MAC is zero\n");
-+			return -EIO;
-+		}
-+
-+		/* Try to restore original mac address to MFPS table, and try to restore
-+		 * the forward rule entry.
- 		 */
--		mac_vlan_del(ndev, mac_back, 0, false);
-+		if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
-+			mlx5_vdpa_warn(mvdev, "restore mac failed: delete MAC %pM from MPFS table failed\n",
-+				       ndev->config.mac);
-+		}
- 
--		if (mac_vlan_add(ndev, ndev->config.mac, 0, false)) {
--			mlx5_vdpa_warn(mvdev, "failed to insert forward rules, try to restore\n");
-+		if (mlx5_mpfs_add_mac(pfmdev, old_mac)) {
-+			mlx5_vdpa_warn(mvdev, "restore mac failed: insert old MAC %pM into MPFS table failed\n",
-+				       old_mac);
-+		}
- 
--			/* Although it hardly run here, we still need double check */
--			if (is_zero_ether_addr(mac_back)) {
--				mlx5_vdpa_warn(mvdev, "restore mac failed: Original MAC is zero\n");
--				break;
--			}
-+		ether_addr_copy(ndev->config.mac, old_mac);
- 
--			/* Try to restore original mac address to MFPS table, and try to restore
--			 * the forward rule entry.
--			 */
--			if (mlx5_mpfs_del_mac(pfmdev, ndev->config.mac)) {
--				mlx5_vdpa_warn(mvdev, "restore mac failed: delete MAC %pM from MPFS table failed\n",
--					       ndev->config.mac);
--			}
-+		if (mac_vlan_add(ndev, ndev->config.mac, 0, false))
-+			mlx5_vdpa_warn(mvdev, "restore forward rules failed: insert forward rules failed\n");
- 
--			if (mlx5_mpfs_add_mac(pfmdev, mac_back)) {
--				mlx5_vdpa_warn(mvdev, "restore mac failed: insert old MAC %pM into MPFS table failed\n",
--					       mac_back);
--			}
-+		return -EIO;
-+	}
- 
--			memcpy(ndev->config.mac, mac_back, ETH_ALEN);
-+	return 0;
-+}
- 
--			if (mac_vlan_add(ndev, ndev->config.mac, 0, false))
--				mlx5_vdpa_warn(mvdev, "restore forward rules failed: insert forward rules failed\n");
-+static virtio_net_ctrl_ack handle_ctrl_mac(struct mlx5_vdpa_dev *mvdev, u8 cmd)
-+{
-+	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-+	struct mlx5_control_vq *cvq = &mvdev->cvq;
-+	virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
-+	struct mlx5_core_dev *pfmdev;
-+	size_t read;
-+	u8 mac[ETH_ALEN];
- 
-+	pfmdev = pci_get_drvdata(pci_physfn(mvdev->mdev->pdev));
-+	switch (cmd) {
-+	case VIRTIO_NET_CTRL_MAC_ADDR_SET:
-+		read = vringh_iov_pull_iotlb(&cvq->vring, &cvq->riov,
-+					     (void *)mac, ETH_ALEN);
-+		if (read != ETH_ALEN)
- 			break;
--		}
- 
--		status = VIRTIO_NET_OK;
-+		if (!memcmp(ndev->config.mac, mac, 6)) {
-+			status = VIRTIO_NET_OK;
-+			break;
-+		}
-+		status = mlx5_vdpa_change_mac(ndev, pfmdev, mac) ? VIRTIO_NET_ERR :
-+								       VIRTIO_NET_OK;
- 		break;
- 
- 	default:
--- 
-2.51.0
+Matias
 
