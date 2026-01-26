@@ -1,63 +1,63 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B7A22D6E74
-	for <virtualization@lists.linux.dev>; Mon, 26 Jan 2026 20:38:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32BE2298CAB
+	for <virtualization@lists.linux.dev>; Mon, 26 Jan 2026 20:54:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769459937; cv=none; b=Eme2BEx9wwcSjHZGFRiYNpyu2OqbVQvOxHZ+/qc26sCI1a6wB8D0zIrog90EERrA+tKlqRNINp7Mi2UsuUO97TH/1d/1Wm3bmwdT9M1cgx9OltP416kyzPK1CHGTKKHgXdTmEZr+JyNswm6IX3tlMNwEjbqs2ogheoRVqGbsLIc=
+	t=1769460849; cv=none; b=DbrWgg4Q2MnOLRx44H8/Hmc+zZaEsUoREuVxfa12JjIpNEs3GUbzJ1LF9Y1s2XWXwvOlFNLmYlB4XekD35FMTIyhGCq9UPimHLlsQm2bsiXixmV8OQmDLgRXfWIrhXkOXXbZN560Y1FT8mqDlg0i7+4BhFLuCfR6B/EdMy3LKDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769459937; c=relaxed/simple;
-	bh=ReePk5ebIABc/04zyOJasPQOtiwxWbIgDXrD19pnIPk=;
+	s=arc-20240116; t=1769460849; c=relaxed/simple;
+	bh=RchACan6pmnNROmj5Nm+BsCnm9+nHETTFHN4ErlJ6d8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bDAePSlXw0U2Rn7myW1W4bJZY1Q5fUuPS1Flgcns4YW6q1WqiiLxVBqAkaa3oF7YPRec3iwytx3oJb1h2rI6v7g0B1K3lQbMlJ7Fxbfv3rgjQS3ZPRxq1t21Ky8oNXwurFR4pVN10azL5YGeIihyaxXSHMzAumkZLdUYQjceqxw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=3wgG4lN5; arc=none smtp.client-ip=209.85.214.181
+	 Content-Type:Content-Disposition:In-Reply-To; b=rkXpUwzInTLZxWb86+iGWsLdiK+uCpIZCJ5a2+3NK6r6OKgYHQ6yXt6XSgRd+QM1V2pJe8qF1Xq1j6KFxRGGOeqT+T6lytae1go8TtPRVBdXGCB19UOl2PD8GTxLZBcC4eEi/uZy3xWZTmPLE3KchmsUUEVl5UPQTv7V5PTCU6I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=rtPBTP7K; arc=none smtp.client-ip=209.85.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="3wgG4lN5"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2a35ae38bdfso1705ad.1
-        for <virtualization@lists.linux.dev>; Mon, 26 Jan 2026 12:38:54 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rtPBTP7K"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2a0d06cfa93so3245ad.1
+        for <virtualization@lists.linux.dev>; Mon, 26 Jan 2026 12:54:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1769459934; x=1770064734; darn=lists.linux.dev;
+        d=google.com; s=20230601; t=1769460846; x=1770065646; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=heQW4XXGxVNpbsMWtr+Uf/Qjg2mRHLgzAq6EBq5z5Gc=;
-        b=3wgG4lN5S20A42o/e7sgVg1a+cStHF+a/1Vhl5H68n+GDVfScQ+ZXwW1tU9siI6LFm
-         WpGX3IJbbSX2DzLMXeeQmD2fRMfji42IB2n/LOJjbWaRNA1s2lqog0wpuclOs5Q3b6Cq
-         apJlgEgRkMGzNf9lff/95+L4gawsTFNo2N42tesP0IJibqwtD98K2Uiir+m3OG8ShNXa
-         wyhAEkIrXc32hwUT23qMhkDncPfp2F0QTN9DogpjibQd3eFpZHbCQF6YvCI5En3hZSFR
-         eLtzziJU0JpJh1mlj/oiMYy/NELGW9QaeoSEAdsM7sYBSL4eWescffE+OHuH61jwWh+f
-         NFhA==
+        bh=Hzbl67LvVO3G9O2kTwPWCnjF6/j6A2BV5AiFShhPhBU=;
+        b=rtPBTP7KMWu79WPySlVzjNuTfZKm1CWzkiIQQEHGMr6SYjzjOnJsQUJtSY/+8X07Am
+         /sViirum9BP7QlDjwyjx9KeMXwsr2gLirmGqphHhkISNwxzHz9M3bjuyGtxmy5V2ee74
+         actvdH9jVqLC3INpu162xvF7aRG4V/T3ih4SPnZ/dYB+OVxPY+u3/c9t6/WRbylO6V4E
+         3iSUELCrQNwpN2ZAqhXBhO0qiOPsZwFgu49EmQRlRlk/54bT532bH+zL2ok+7evejgaI
+         l0v3kG+/0cYGijnhcVx7qmlkz4itFBG98RNg6mi+p8iGIkcbBPPEZeIPsxjUIG+1sor7
+         bIfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769459934; x=1770064734;
+        d=1e100.net; s=20230601; t=1769460846; x=1770065646;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=heQW4XXGxVNpbsMWtr+Uf/Qjg2mRHLgzAq6EBq5z5Gc=;
-        b=ftTCpnuq5uEo97YZfjZ/s19vrAcXWXQxgvriGupcoQjy6MWlFlRPVwNwIs1teyzAB8
-         vEawe2MVFIPex/nxR/jHTHJdj9JWDUYl1spVa6Y/JJ4/7ZX2/VdDlvAcspoFVo4SDONN
-         QVCFDhTSujdcw12W7k+smrBh1Q7kC9StkR75JI3Qvl+ezcwALlxMPxjPjiKp78sAUKOW
-         JtJDhOmtaCCnm9/TXft6eHN+d71MM2c4P9XJRaaxY4n21IJeGqF4DZsjpgUrQMLMxkUC
-         edp+MpPPFvuRh1a0hOi6dbMm/uTvUluhLETaRXIak3R8++//wlq7IOrWguamxy6RTMtH
-         +Buw==
-X-Forwarded-Encrypted: i=1; AJvYcCURCnH1u8pBkcYvZESigprqOwPK1TitnTWSXYv0FChf5h6waz4KV8Ufrx3yeTsDAIYRcuxrPheYULJPXdHJeg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwbKmiU1dYn6uwEbo9P2mnlE+icb0yZluuHN4knAN3wbaRva+AN
-	RsN2i7vN8MtNHP2o2l55V5HPfHy3jMClqFoyuTswy9uuy0wALPsjuW2xYuUcNCt5wg==
-X-Gm-Gg: AZuq6aLt7e+sMJBee02vQ2Iu4rTEO+AKIh4wZasBVC7ABC+74oEZFm68bf1TkqeI+qE
-	zbPp1RNyNT64wAADzF3Pd8If2ZzyLmN1TcazcJGxF2+GkgFS4K/XLUsZfBt7Zeru6Pm8QDBHrzt
-	627Jr2X42dQzAusivB57qg096P9iF6c7Kxn617iS0F48M1UtqNl+4yoTi0VgaUdZ3wXjeAaNdVf
-	DSYUmd3zDjWeBObmMAvWVaL0QN3DSacn2A6V0CrdW0n8knAST2UdXAvnM3ct2E0lCzjGGH7he9H
-	QEoiAO9sXhp5XNbpPOK4uxxcXxvo6B4fRDSU9yhwLUAmDOEfIy7dQIgxjoW4xscIzV7psghTrSm
-	ADhmJ8wuEwbyzkl5y+Re074ZhaNP+HHgLd/QUNAU5cUw+AS5WhTcTp/QzFlwt7oAFdv4ffw2Lgs
-	BWXU4hSR+eyqG6ZcIu06GZa634pboVwf5H/mJ98jQy0PiibfMF
-X-Received: by 2002:a17:903:32d2:b0:2a7:7f07:340e with SMTP id d9443c01a7336-2a844901809mr3288195ad.4.1769459933510;
-        Mon, 26 Jan 2026 12:38:53 -0800 (PST)
+        bh=Hzbl67LvVO3G9O2kTwPWCnjF6/j6A2BV5AiFShhPhBU=;
+        b=BD5b6Zuq/UcclCjx+PgMwcbiZ2Iyf9zmqy3UcUB9c2JQsdhfNPV3DWDR5/yg5+2YB7
+         WQ92mpRCXzcNIomAx9yYyTcX+XAw6bICZehM0u1eHaDkvNKwNTdbzvX7PkzRCupP/7f3
+         Kk4S/H/G734cFS+GGsGCVvfKWHJP7fm0OaNq+wzO7+2IJIVlJLAhnXHdxOEQi8ytfAb4
+         lk2pbGctDhM9v+gkFHUzvIHT3mga3wQC622IDOJNRSIoOU4xspfO/TMWSf6GwDOvZpUx
+         e96dHH1HJ9vhgFsq3zAoCXfO14ySmyLGNQXPTIx2nHu46D2NiFb8cqpMsymrdR+wiGZW
+         VxQA==
+X-Forwarded-Encrypted: i=1; AJvYcCVoy71VQ11J/IF8wvWdKyKkAfHurojN8T6yDO5AMrXoCAb+2m4QPvxGittXiL+/2vaTw4Mh7aNAXSFBDZDh2g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw9K2aBNBc+mBt4FJzPjm17WM7BHuDfUc3whCaRru+EgAiTCzX4
+	tEnJO6bIa5rZqn4k8UaPdBcmevUGVFWiciawD2MZX4vAS2m6eVEqhcK81jQ2sljktQ==
+X-Gm-Gg: AZuq6aIJDQH9Et3pTYeKK6M06KREjvp8Q+3tg38H1uH3RDLYWjxkWz2WJUL+EjR5nkr
+	quwqYSQRd6SPsHbjHFH+fS5xQPBbiwniGkAy5dXu2DGXR/JC6vY/VJ2OCyyB2cWYJButdcavW1p
+	K9mEhSeBBEH/vY5T/dEQ+wvizpmkVoh+clnurnOOG8rBcscfmJ4DvJsFHPSyZUcS9KW18VHkj+6
+	jmRnF2lJDOnd4EypeGYuK7CFAKE/TBxaxOsx58aUsirI2Jz0L6XmajEpRqvpylcN3IBqC8hYg+b
+	KAnVWnYR/5uVeuHSIXWoHDVFkLGFAjh/+84bYmdGiHbcpXTql/OAlpyRsZcJyBoS3vaVG3QBt3S
+	cIuJGp3LVBWRxwMH+6r1WjZDfyTVrR0mNipdWZ7TvO7qWD2deDeJ++okl8xZdgEoaeNJvmVLD/5
+	Pc0RpXs78Foi3lSfyBakN3zakolST6K6BDnjpmnkEe2/IA6EkU
+X-Received: by 2002:a17:903:1cc:b0:295:5405:46be with SMTP id d9443c01a7336-2a8447fe3b6mr3809735ad.1.1769460846094;
+        Mon, 26 Jan 2026 12:54:06 -0800 (PST)
 Received: from google.com (222.245.187.35.bc.googleusercontent.com. [35.187.245.222])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a802fdce1fsm94536115ad.101.2026.01.26.12.38.47
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a802fda160sm94991165ad.88.2026.01.26.12.53.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Jan 2026 12:38:53 -0800 (PST)
-Date: Mon, 26 Jan 2026 20:38:44 +0000
+        Mon, 26 Jan 2026 12:54:05 -0800 (PST)
+Date: Mon, 26 Jan 2026 20:53:57 +0000
 From: Pranjal Shrivastava <praan@google.com>
 To: Leon Romanovsky <leon@kernel.org>
 Cc: Sumit Semwal <sumit.semwal@linaro.org>,
@@ -86,10 +86,10 @@ Cc: Sumit Semwal <sumit.semwal@linaro.org>,
 	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
 	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
 	iommu@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v5 6/8] dma-buf: Add dma_buf_attach_revocable()
-Message-ID: <aXfQ1LFNDUrfeuHf@google.com>
+Subject: Re: [PATCH v5 4/8] vfio: Wait for dma-buf invalidation to complete
+Message-ID: <aXfUZcSEr9N18o6w@google.com>
 References: <20260124-dmabuf-revoke-v5-0-f98fca917e96@nvidia.com>
- <20260124-dmabuf-revoke-v5-6-f98fca917e96@nvidia.com>
+ <20260124-dmabuf-revoke-v5-4-f98fca917e96@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -98,102 +98,193 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260124-dmabuf-revoke-v5-6-f98fca917e96@nvidia.com>
+In-Reply-To: <20260124-dmabuf-revoke-v5-4-f98fca917e96@nvidia.com>
 
-Hi Leon,
-
-On Sat, Jan 24, 2026 at 09:14:18PM +0200, Leon Romanovsky wrote:
+On Sat, Jan 24, 2026 at 09:14:16PM +0200, Leon Romanovsky wrote:
 > From: Leon Romanovsky <leonro@nvidia.com>
 > 
-> Some exporters need a flow to synchronously revoke access to the DMA-buf
-> by importers. Once revoke is completed the importer is not permitted to
-> touch the memory otherwise they may get IOMMU faults, AERs, or worse.
+> dma-buf invalidation is handled asynchronously by the hardware, so VFIO
+> must wait until all affected objects have been fully invalidated.
 > 
-> DMA-buf today defines a revoke flow, for both pinned and dynamic
-> importers, which is broadly:
+> In addition, the dma-buf exporter is expecting that all importers unmap any
+> buffers they previously mapped.
 > 
-> 	dma_resv_lock(dmabuf->resv, NULL);
-> 	// Prevent new mappings from being established
-> 	priv->revoked = true;
-> 
-> 	// Tell all importers to eventually unmap
-> 	dma_buf_invalidate_mappings(dmabuf);
-> 
-> 	// Wait for any inprogress fences on the old mapping
-> 	dma_resv_wait_timeout(dmabuf->resv,
-> 			      DMA_RESV_USAGE_BOOKKEEP, false,
-> 			      MAX_SCHEDULE_TIMEOUT);
-> 	dma_resv_unlock(dmabuf->resv, NULL);
-> 
-> 	// Wait for all importers to complete unmap
-> 	wait_for_completion(&priv->unmapped_comp);
-> 
-> This works well, and an importer that continues to access the DMA-buf
-> after unmapping it is very buggy.
-> 
-> However, the final wait for unmap is effectively unbounded. Several
-> importers do not support invalidate_mappings() at all and won't unmap
-> until userspace triggers it.
-> 
-> This unbounded wait is not suitable for exporters like VFIO and RDMA tha
-> need to issue revoke as part of their normal operations.
-> 
-> Add dma_buf_attach_revocable() to allow exporters to determine the
-> difference between importers that can complete the above in bounded time,
-> and those that can't. It can be called inside the exporter's attach op to
-> reject incompatible importers.
-> 
-> Document these details about how dma_buf_invalidate_mappings() works and
-> what the required sequence is to achieve a full revocation.
-> 
+> Fixes: 5d74781ebc86 ("vfio/pci: Add dma-buf export support for MMIO regions")
 > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 > ---
->  drivers/dma-buf/dma-buf.c | 48 ++++++++++++++++++++++++++++++++++++++++++++++-
->  include/linux/dma-buf.h   |  9 +++------
->  2 files changed, 50 insertions(+), 7 deletions(-)
+>  drivers/vfio/pci/vfio_pci_dmabuf.c | 71 ++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 68 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-> index 1629312d364a..f0e05227bda8 100644
-> --- a/drivers/dma-buf/dma-buf.c
-> +++ b/drivers/dma-buf/dma-buf.c
-> @@ -1242,13 +1242,59 @@ void dma_buf_unmap_attachment_unlocked(struct dma_buf_attachment *attach,
->  }
->  EXPORT_SYMBOL_NS_GPL(dma_buf_unmap_attachment_unlocked, "DMA_BUF");
+> diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> index d8ceafabef48..485515629fe4 100644
+> --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
+> +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> @@ -17,6 +17,8 @@ struct vfio_pci_dma_buf {
+>  	struct dma_buf_phys_vec *phys_vec;
+>  	struct p2pdma_provider *provider;
+>  	u32 nr_ranges;
+> +	struct kref kref;
+> +	struct completion comp;
+>  	u8 revoked : 1;
+>  };
 >  
-> +/**
-> + * dma_buf_attach_revocable - check if a DMA-buf importer implements
-> + * revoke semantics.
-> + * @attach: the DMA-buf attachment to check
-> + *
-> + * Returns true if the DMA-buf importer can support the revoke sequence
-> + * explained in dma_buf_invalidate_mappings() within bounded time. Meaning the
-> + * importer implements invalidate_mappings() and ensures that unmap is called as
-> + * a result.
-> + */
-> +bool dma_buf_attach_revocable(struct dma_buf_attachment *attach)
+> @@ -44,27 +46,46 @@ static int vfio_pci_dma_buf_attach(struct dma_buf *dmabuf,
+>  	return 0;
+>  }
+>  
+> +static void vfio_pci_dma_buf_done(struct kref *kref)
 > +{
-> +	return attach->importer_ops &&
-> +	       attach->importer_ops->invalidate_mappings;
-> +}
-> +EXPORT_SYMBOL_NS_GPL(dma_buf_attach_revocable, "DMA_BUF");
+> +	struct vfio_pci_dma_buf *priv =
+> +		container_of(kref, struct vfio_pci_dma_buf, kref);
 > +
+> +	complete(&priv->comp);
+> +}
+> +
+>  static struct sg_table *
+>  vfio_pci_dma_buf_map(struct dma_buf_attachment *attachment,
+>  		     enum dma_data_direction dir)
+>  {
+>  	struct vfio_pci_dma_buf *priv = attachment->dmabuf->priv;
+> +	struct sg_table *ret;
+>  
+>  	dma_resv_assert_held(priv->dmabuf->resv);
+>  
+>  	if (priv->revoked)
+>  		return ERR_PTR(-ENODEV);
+>  
+> -	return dma_buf_phys_vec_to_sgt(attachment, priv->provider,
+> -				       priv->phys_vec, priv->nr_ranges,
+> -				       priv->size, dir);
+> +	ret = dma_buf_phys_vec_to_sgt(attachment, priv->provider,
+> +				      priv->phys_vec, priv->nr_ranges,
+> +				      priv->size, dir);
+> +	if (IS_ERR(ret))
+> +		return ret;
+> +
+> +	kref_get(&priv->kref);
+> +	return ret;
+>  }
+>  
+>  static void vfio_pci_dma_buf_unmap(struct dma_buf_attachment *attachment,
+>  				   struct sg_table *sgt,
+>  				   enum dma_data_direction dir)
+>  {
+> +	struct vfio_pci_dma_buf *priv = attachment->dmabuf->priv;
+> +
+> +	dma_resv_assert_held(priv->dmabuf->resv);
+> +
+>  	dma_buf_free_sgt(attachment, sgt, dir);
+> +	kref_put(&priv->kref, vfio_pci_dma_buf_done);
+>  }
+>  
+>  static void vfio_pci_dma_buf_release(struct dma_buf *dmabuf)
+> @@ -287,6 +308,9 @@ int vfio_pci_core_feature_dma_buf(struct vfio_pci_core_device *vdev, u32 flags,
+>  		goto err_dev_put;
+>  	}
+>  
+> +	kref_init(&priv->kref);
+> +	init_completion(&priv->comp);
+> +
+>  	/* dma_buf_put() now frees priv */
+>  	INIT_LIST_HEAD(&priv->dmabufs_elm);
+>  	down_write(&vdev->memory_lock);
+> @@ -326,6 +350,8 @@ void vfio_pci_dma_buf_move(struct vfio_pci_core_device *vdev, bool revoked)
+>  	lockdep_assert_held_write(&vdev->memory_lock);
+>  
+>  	list_for_each_entry_safe(priv, tmp, &vdev->dmabufs, dmabufs_elm) {
+> +		unsigned long wait;
+> +
+>  		if (!get_file_active(&priv->dmabuf->file))
+>  			continue;
+>  
+> @@ -333,7 +359,37 @@ void vfio_pci_dma_buf_move(struct vfio_pci_core_device *vdev, bool revoked)
+>  			dma_resv_lock(priv->dmabuf->resv, NULL);
+>  			priv->revoked = revoked;
+>  			dma_buf_invalidate_mappings(priv->dmabuf);
+> +			dma_resv_wait_timeout(priv->dmabuf->resv,
+> +					      DMA_RESV_USAGE_BOOKKEEP, false,
+> +					      MAX_SCHEDULE_TIMEOUT);
+>  			dma_resv_unlock(priv->dmabuf->resv);
+> +			if (revoked) {
+> +				kref_put(&priv->kref, vfio_pci_dma_buf_done);
+> +				/* Let's wait till all DMA unmap are completed. */
+> +				wait = wait_for_completion_timeout(
+> +					&priv->comp, secs_to_jiffies(1));
 
-I noticed that Patch 5 removes the invalidate_mappings stub from 
-umem_dmabuf.c, effectively making the callback NULL for an RDMA 
-importer. Consequently, dma_buf_attach_revocable() (introduced here)
-will return false for these importers.
+Is the 1-second constant sufficient for all hardware, or should the 
+invalidate_mappings() contract require the callback to block until 
+speculative reads are strictly fenced? I'm wondering about a case where
+a device's firmware has a high response latency, perhaps due to internal
+management tasks like error recovery or thermal and it exceeds the 1s 
+timeout. 
 
-Since the cover letter mentions that VFIO will use
-dma_buf_attach_revocable() to prevent unbounded waits, this appears to
-effectively block paths like the VFIO-export -> RDMA-import path..
+If the device is in the middle of a large DMA burst and the firmware is
+slow to flush the internal pipelines to a fully "quiesced"
+read-and-discard state, reclaiming the memory at exactly 1.001 seconds
+risks triggering platform-level faults..
 
-Given that RDMA is a significant consumer of dma-bufs, are there plans
-to implement proper revocation support in the IB/RDMA core (umem_dmabuf)? 
+Since the wen explicitly permit these speculative reads until unmap is
+complete, relying on a hardcoded timeout in the exporter seems to 
+introduce a hardware-dependent race condition that could compromise
+system stability via IOMMU errors or AER faults. 
 
-It would be good to know if there's a plan for bringing such importers
-into compliance with the new revocation semantics so they can interop
-with VFIO OR are we completely ruling out users like RDMA / IB importing
-any DMABUFs exported by VFIO?
+Should the importer instead be required to guarantee that all 
+speculative access has ceased before the invalidation call returns?
 
-Thanks,
+Thanks
 Praan
+
+> +				/*
+> +				 * If you see this WARN_ON, it means that
+> +				 * importer didn't call unmap in response to
+> +				 * dma_buf_invalidate_mappings() which is not
+> +				 * allowed.
+> +				 */
+> +				WARN(!wait,
+> +				     "Timed out waiting for DMABUF unmap, importer has a broken invalidate_mapping()");
+> +			} else {
+> +				/*
+> +				 * Kref is initialize again, because when revoke
+> +				 * was performed the reference counter was decreased
+> +				 * to zero to trigger completion.
+> +				 */
+> +				kref_init(&priv->kref);
+> +				/*
+> +				 * There is no need to wait as no mapping was
+> +				 * performed when the previous status was
+> +				 * priv->revoked == true.
+> +				 */
+> +				reinit_completion(&priv->comp);
+> +			}
+>  		}
+>  		fput(priv->dmabuf->file);
+>  	}
+> @@ -346,6 +402,8 @@ void vfio_pci_dma_buf_cleanup(struct vfio_pci_core_device *vdev)
+>  
+>  	down_write(&vdev->memory_lock);
+>  	list_for_each_entry_safe(priv, tmp, &vdev->dmabufs, dmabufs_elm) {
+> +		unsigned long wait;
+> +
+>  		if (!get_file_active(&priv->dmabuf->file))
+>  			continue;
+>  
+> @@ -354,7 +412,14 @@ void vfio_pci_dma_buf_cleanup(struct vfio_pci_core_device *vdev)
+>  		priv->vdev = NULL;
+>  		priv->revoked = true;
+>  		dma_buf_invalidate_mappings(priv->dmabuf);
+> +		dma_resv_wait_timeout(priv->dmabuf->resv,
+> +				      DMA_RESV_USAGE_BOOKKEEP, false,
+> +				      MAX_SCHEDULE_TIMEOUT);
+>  		dma_resv_unlock(priv->dmabuf->resv);
+> +		kref_put(&priv->kref, vfio_pci_dma_buf_done);
+> +		wait = wait_for_completion_timeout(&priv->comp,
+> +						   secs_to_jiffies(1));
+> +		WARN_ON(!wait);
+>  		vfio_device_put_registration(&vdev->vdev);
+>  		fput(priv->dmabuf->file);
+>  	}
+> 
+> -- 
+> 2.52.0
+> 
+> 
