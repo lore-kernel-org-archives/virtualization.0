@@ -1,123 +1,88 @@
-Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
+Received: from pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.34.181.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0A0C2C0296
-	for <virtualization@lists.linux.dev>; Tue, 27 Jan 2026 08:39:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.153.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E02562745C
+	for <virtualization@lists.linux.dev>; Tue, 27 Jan 2026 08:47:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.34.181.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769503192; cv=none; b=swKN1rLTWzpWVxhwlv/hWAmKOL26Nx5oJtYs2+wSfEb+RfcpGxwWJFKBTQYVRUiANp1nmTG1xIFKP+k9Uuzs+47R4uhHN8i30cQBrHnVeZdi2F6eU5fzMxAbVt2fs6PcOW4oYToD97C2KF71AnuGpnIiEtqG0Wip9Lm7jp8fnts=
+	t=1769503673; cv=none; b=e6NlUpGR0k7y5We4/7NpUyhTQ6+7KKndLW2pDfgTe4agnbPrw+12HtIGFYZuQKF4AyAIKmp0BBWTvyHSC0tQTtXCVTYhAMzLAovdwnga10ZgXSg4JYddS+TJBS0dvJH7EnpyCjsdE29NxbEJ99qlN/XLg9IdIPSwCFx8f4r5EC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769503192; c=relaxed/simple;
-	bh=FWQl+ThD6FfnU8sAPTGh3+UCUS6+i6Rts9l/UHPRygg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EJRPmLUYdTwMa8pswAY5ur1i3oZNzx5EzS5YJkVhXbfxzU+bOgzHHoteBWhw84s1Os1X8f/2IlN5OaT9jzAWhI/zYm32rC0TRDghDzQF1B/M0EkOiSa1xZuz25+biZfmkPe13+Gnau9udpUtcdojxnp9mBZlD9niLMxylE+BQFY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=RVGVqXe0; arc=none smtp.client-ip=216.71.153.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1769503673; c=relaxed/simple;
+	bh=nY4XcP3Pyle7mXB/jfIKDXI1KnACXN1OeL+7wkvZRCY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=iWJSbzLZjHZhMrFsxPa2D46pQ+8QEOjLIfIv4h1ebrgBmslFP+sTT+mhPu+wuDjNhJuY448L6/PG2DCn68sQHV1W3DvKOvA3gHmKaAFRHzoIV3fja95HTp7z0SRVn2fiBebTsRwGnVe/+kkRzVK1qi7fKiVZTRpeSUGc4wvDf54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=i8c5YMeZ; arc=none smtp.client-ip=52.34.181.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="RVGVqXe0"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1769503190; x=1801039190;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=FWQl+ThD6FfnU8sAPTGh3+UCUS6+i6Rts9l/UHPRygg=;
-  b=RVGVqXe07Qi9fJiQBd5Lax+XMJckHvgsVJNXy/71i5vOYlwyke42G3L6
-   fsPWhf/DZD7Kj+rCyokXMrBVdIf0OFhrfpthudJI9dVSPQxUBqZxH3/Ed
-   o5EPwMLLgAbtPTX/FX4u4RSG/iGGTFw1uB7mfB6+44Oo4wbd0fyuOqXf4
-   GSuFnGRT6p6gZLjXuLRFyabyQNJsTR1E96rJXK22NAcMmxfVsqhIRnqEu
-   nPjuz1XWiT8HmrGAxzxVEcs9yB+AJV8ew8GIobjxheZCQarTjo6pNw3JX
-   Cn6b5Q/rFpuImHW9nohMYKXLLOuDQRljT/NFOX8KJ4Tqj7FA/iA9z6dKw
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="i8c5YMeZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1769503671; x=1801039671;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=nY4XcP3Pyle7mXB/jfIKDXI1KnACXN1OeL+7wkvZRCY=;
+  b=i8c5YMeZ2haw0QhG5LQP2j8+OYDRXSWy1TrDKbQ3rc7iOzGorsD0pg2y
+   S6M60W5iPo2U5WSxFP9yUNQ4vNyZozuRlH1lPKB+zyGmc+qevG+wgZjyE
+   QU1ftwOA4Ye/cQyv7SzGEbo2VcrMn5TATyEzYErRUgwei02m2cFPtel6W
+   UEb7wd96ygT4ZBmN8Phvj6l5qjGJPsCMJpFfWsNiGqI77WyE6mYr397PB
+   MYK6ZjeWH+CThgiaAtyBeQfwW7mInF9t50IzpVEkjRK7v8SHSMu0E9Z9l
+   VrhIyohgPP6oqImpaiiLLxrn7RKbPhQqGzBSs/dZsfxAyjY+NHpQ2mc/P
    A==;
-X-CSE-ConnectionGUID: ZYO9w2gvS0mGI8JTExjvGQ==
-X-CSE-MsgGUID: xXMYSu8VT9u7jHAFh/N8uA==
-X-IronPort-AV: E=Sophos;i="6.21,256,1763395200"; 
-   d="scan'208";a="140205744"
-Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep03.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 27 Jan 2026 16:39:37 +0800
-IronPort-SDR: 697879ca_wfEKUFaeyu6XFZB6xLxNymj9TCKUyoGdyIZu00kXqCfy1Ls
- x2BDY7I7NP+55LESLvR8c7roRDyiq7nFd0Pnz6w==
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep03.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 27 Jan 2026 00:39:38 -0800
-WDCIronportException: Internal
-Received: from 5cg02580n2.ad.shared (HELO neo.wdc.com) ([10.224.28.78])
-  by uls-op-cesaip02.wdc.com with ESMTP; 27 Jan 2026 00:39:36 -0800
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-To: virtualization@lists.linux.dev
-Cc: Alexander Graf <graf@amazon.com>,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	linux-kernel@vger.kernel.org,
-	Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Subject: [PATCH RFC 3/3] virtio: silence KCSAN warning in vring_interrupt
-Date: Tue, 27 Jan 2026 09:39:26 +0100
-Message-ID: <20260127083926.865555-4-johannes.thumshirn@wdc.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260127083926.865555-1-johannes.thumshirn@wdc.com>
-References: <20260127083926.865555-1-johannes.thumshirn@wdc.com>
+X-CSE-ConnectionGUID: lfWOblo4QCOJSLNyJyx2wA==
+X-CSE-MsgGUID: KoHUvIoITkaj9B6H9C5n+A==
+X-IronPort-AV: E=Sophos;i="6.21,256,1763424000"; 
+   d="scan'208";a="11669962"
+Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
+  by internal-pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jan 2026 08:47:49 +0000
+Received: from EX19MTAUWC002.ant.amazon.com [205.251.233.51:17856]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.14.141:2525] with esmtp (Farcaster)
+ id 4aa833c6-e639-4d95-b62a-c7f9bb7eacb2; Tue, 27 Jan 2026 08:47:49 +0000 (UTC)
+X-Farcaster-Flow-ID: 4aa833c6-e639-4d95-b62a-c7f9bb7eacb2
+Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
+ EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
+ Tue, 27 Jan 2026 08:47:48 +0000
+Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
+ (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35; Tue, 27 Jan 2026
+ 08:47:46 +0000
+Message-ID: <fed4ce78-37c5-4bb5-86de-6d60f053dbf3@amazon.com>
+Date: Tue, 27 Jan 2026 09:47:43 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 0/3] virtio: silence KCSAN warnings
+To: Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+	<virtualization@lists.linux.dev>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<eperezma@redhat.com>, <linux-kernel@vger.kernel.org>
+References: <20260127083926.865555-1-johannes.thumshirn@wdc.com>
+Content-Language: en-US
+From: Alexander Graf <graf@amazon.com>
+In-Reply-To: <20260127083926.865555-1-johannes.thumshirn@wdc.com>
+X-ClientProxiedBy: EX19D040UWB002.ant.amazon.com (10.13.138.89) To
+ EX19D020UWC004.ant.amazon.com (10.13.138.149)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 
-When booting a Qemu VM with virtio-blk and KCSAN enabled, KCSAN emits
-the following warning about a data-race in vring_interrupt().
-
- ==================================================================
- BUG: KCSAN: data-race in vring_interrupt+0x125/0x1f0
-
- race at unknown origin, with read to 0xffff88810218d942 of 2 bytes by interrupt on cpu 7:
-  vring_interrupt+0x125/0x1f0
-  __handle_irq_event_percpu+0xaf/0x310
-  handle_irq_event+0x76/0xf0
-  handle_edge_irq+0x1fc/0x3e0
-  __common_interrupt+0x79/0x160
-  common_interrupt+0xa6/0xe0
-  asm_common_interrupt+0x26/0x40
-  pv_native_safe_halt+0x17/0x20
-  default_idle+0x9/0x10
-  default_idle_call+0x3c/0x110
-  do_idle+0x166/0x190
-  cpu_startup_entry+0x29/0x30
-  start_secondary+0x114/0x140
-  common_startup_64+0x129/0x138
-
- value changed: 0x3a3a -> 0x3a3b
-
- Reported by Kernel Concurrency Sanitizer on:
- CPU: 7 UID: 0 PID: 0 Comm: swapper/7 Not tainted 6.19.0-rc7+ #223 PREEMPT(none)
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.17.0-9.fc43 06/10/2025
- ==================================================================
-
-This warning is likely a false positive as the change happens on the
-virtio vring.
-
-Annotate the return of more_used() with data_race() to silence the
-warning.
-
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
----
- drivers/virtio/virtio_ring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index d1033768b6cd..7fa8f2ebe94e 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2695,7 +2695,7 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
--	if (!more_used(vq)) {
-+	if (data_race(!more_used(vq))) {
- 		pr_debug("virtqueue interrupt with no work for %p\n", vq);
- 		return IRQ_NONE;
- 	}
--- 
-2.52.0
+Ck9uIDI3LjAxLjI2IDA5OjM5LCBKb2hhbm5lcyBUaHVtc2hpcm4gd3JvdGU6Cj4gV2hlbiBib290
+aW5nIGEgUWVtdSBWTSB3aGl0aCBLQ1NBTiB0byBkZWJ1ZyBmaWxlc3lzdGVtIHJhY2VzIEkKPiBl
+bmNvdW50ZXJlZCBhIGJ1bmNoIG9mIEtDU0FOIHNwbGF0cyBpbiB2aXJ0aW8uCj4KPiBJIHN1c3Bl
+Y3QgdGhlbSB0byBiZSBmYWxzZSBwb3NpdGl2ZXMuCj4KPiBJIGRlY2lkZWQgdG8gc2VuZCB0aGlz
+IGFzIGFuIFJGQyBwYXRjaHNldCwgYXMgSSBoYXZlIG5vIHByaW9yIGtub3dsZWRnZQo+IG9mIHZp
+cnRpby4KCgpBbGwgb2YgdGhlc2UgbG9va3MgbGlrZSBLQ1NBTiB3YXMganVzdCBkZXRlY3Rpbmcg
+dGhlIGh5cGVydmlzb3Igd3JpdGluZyAKZGF0YS4gSXMgdGhlcmUgYSBtb3JlIGdlbmVyaWMgd2F5
+IHdlIGNhbiBjYXB0dXJlIHRoYXQgaW4gdGhlIHZpcnRpbyAKaGVscGVycz8gU28gaW5zdGVhZCBv
+ZiBwYXRjaGluZyB0aGUgY29uc3VtZXJzIG9mIGZ1bmN0aW9ucyBzdWNoIGFzIAp2cmluZ19pbnRl
+cnJ1cHQoKSwgY2FuIHdlIGFubm90YXRlIHRoZSB3aG9sZSB2cmluZyBzdHJ1Y3QgYXMgImlnbm9y
+ZSBmb3IgCktDU0FOIj8KCgpBbGV4CgoKCgoKQW1hem9uIFdlYiBTZXJ2aWNlcyBEZXZlbG9wbWVu
+dCBDZW50ZXIgR2VybWFueSBHbWJIClRhbWFyYS1EYW56LVN0ci4gMTMKMTAyNDMgQmVybGluCkdl
+c2NoYWVmdHNmdWVocnVuZzogQ2hyaXN0b2YgSGVsbG1pcywgQW5kcmVhcyBTdGllZ2VyCkVpbmdl
+dHJhZ2VuIGFtIEFtdHNnZXJpY2h0IENoYXJsb3R0ZW5idXJnIHVudGVyIEhSQiAyNTc3NjQgQgpT
+aXR6OiBCZXJsaW4KVXN0LUlEOiBERSAzNjUgNTM4IDU5Nwo=
 
