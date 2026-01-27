@@ -1,222 +1,164 @@
-Received: from DM1PR04CU001.outbound.protection.outlook.com (mail-centralusazon11010010.outbound.protection.outlook.com [52.101.61.10])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB31D286405;
-	Tue, 27 Jan 2026 10:02:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.61.10
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769508143; cv=fail; b=IMwNGgy9G9hUyM12HjIT5nW/TPW3f/WyIoMybxNhhaPCmpP56tVkPQC9G9bwOaieadM44hzW/A8kpKr9FYafdUqxBrzA+sk7OhEeDHGOmmZ1HnjxGkWbbFsfTgsYLrXsbPeVE/OTTTLz86J1SBpLfxLrGeFBn88fGnTInZIpr18=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769508143; c=relaxed/simple;
-	bh=NiTx7XnPsVcUSlJDrLnX7/W8LGUdmCP8ypDOmErcxgc=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=oQ2KMidjvNUccZerRxAQXwAnHkLjSsnDvJ9hjvHgY/fFhZsIuDfQIKrMeIqOCvgAExOkvF60+XgMQwNBHgXS5gScIvFdOw+1CiNg3t98ELpKXFMNSqGbKs9Zpeqi9ZucAiCpZ4W9naob1Bn5J/hkbg1g0o4TaUXe5WRgt+J3rZ8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Op5Sd4y5; arc=fail smtp.client-ip=52.101.61.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4096533CE9B
+	for <virtualization@lists.linux.dev>; Tue, 27 Jan 2026 10:44:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769510668; cv=none; b=S3EuoW77ShRwB1eVAkLxSkWI8JPsrAEbTLRMaZWkPSK83ly5YCDfiYS+hMUoT3rbd0gKNF7DQlkv9Z17qfxEpsY6mXIaQnzUK0YnSSJ76ED7dhXKXqJPVeGeKBCM9yFMbeySAWR4gei2vAnIWPaqdG0rD1KDprCKDv0v2acyUPM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769510668; c=relaxed/simple;
+	bh=vrKMHfK+jZccgVy53jFWZbkRm0Iff0NWCOMHyQbgupU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=qpqNAJv9l+5LEdsQFqIYORN8M7wKeIHRrUhQZfFXCxSofHs62N0WFJrpsI5QHFUEXXponXSaYHcOiVgj+VZ9UQJHKe6wqT3a7Xi/l524HOlNx2NelzgRYNVpdnAznP6h5Nj5rpOT020KviWQu8e7J8F/TjGfGBAj10hLgDcxW/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=ZmuuAy4X; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Op5Sd4y5"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=LjkGa7KPpZe4a1hSY9FTnsWsj8qyHoKPqt27M6R/8+K1FCB7qCUNxcJhnNpQzKfgsMYl+rQmwsjU3eZjuytHGHZ8PHOINJwe9BDTGAs8nOFwGpxn18b5HO6MT/19KDsGaPdpbi1qtt3TnBkcP1OPlb9n02mtKrU4AhMVv+vhCCG+SMgTbNJTpNqNhQnm2Seu2TDNgLgL0P0P2sT1WobNZf4cPUYokxRH0HYO2gUj1bB7vE1bFvpm8bj31QDwJISUFyE74HilzhWmNBz95hJK3tA+SINRAgSoCKfl4cEMsDmNTzA1EdXXbJntSlNBtkXSwmClv0HVMzzXv5A4E//ocA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=a5OG70meHMNFS9hLg4HUd2dgegalGNxG1begs2OWnbg=;
- b=jRDGhpWa9IMp9NGYg958bmMHLJePi8zribrOC48VlP5zpOtFJ5FAoZvkvbhkmPJ8ZHy8G7K4iN60fbufgjdsGis2XTWE5wbwfTmD6l9FrgLuXT5UE0dyvXvM/EZNojMtc5a7v8tMLnMWyLK2rXjYdaJmn2vLgbma4/XzG+5DrjSxhfn14C8YI5CKRPryo908oLyCLWYo+cAlDqoPbEP9lc1cdtLcY43DsPZZZAlVr1GJZvEZx3+/Wm8ta6az6TZdclBEGrfzV6y1rl2dMRNPOl0yVM+FlmrP4IGzWzR6UwQuu798hGQsUTlsCd55KFkVIxKqs4WwvxfZeaG+T3/DTw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=a5OG70meHMNFS9hLg4HUd2dgegalGNxG1begs2OWnbg=;
- b=Op5Sd4y5+e6a8mi5nqdl5y63wFNi/BhEI9tVnr/wcu6V8ClrEYdIGWvJ5JqEfot9U/y4YPYN1iVjPtDz90Z07ISwEZd+/GNR3+32NycOD3dKhBJWlU4rlUYHEPGYmZOxXq0GpC9Gaxj0vbKAOHlJX6jAI79pjExE4iUbwREGajE=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by MW4PR12MB7263.namprd12.prod.outlook.com (2603:10b6:303:226::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9542.16; Tue, 27 Jan
- 2026 10:02:17 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::46fb:96f2:7667:7ca5]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::46fb:96f2:7667:7ca5%4]) with mapi id 15.20.9542.009; Tue, 27 Jan 2026
- 10:02:16 +0000
-Message-ID: <83cd911c-99ea-4fab-821e-fcf703209731@amd.com>
-Date: Tue, 27 Jan 2026 11:02:03 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 3/8] dma-buf: Always build with DMABUF_MOVE_NOTIFY
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>,
- Alex Deucher <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Lucas De Marchi <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
- Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- Felix Kuehling <Felix.Kuehling@amd.com>, Alex Williamson <alex@shazbot.org>,
- Ankit Agrawal <ankita@nvidia.com>,
- Vivek Kasireddy <vivek.kasireddy@intel.com>, linux-media@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
- linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
- virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
- linux-rdma@vger.kernel.org, iommu@lists.linux.dev, kvm@vger.kernel.org
-References: <20260124-dmabuf-revoke-v5-0-f98fca917e96@nvidia.com>
- <20260124-dmabuf-revoke-v5-3-f98fca917e96@nvidia.com>
- <0d2ec2d6-c999-45d8-a2bd-b5b21883db47@amd.com>
- <20260127095831.GR13967@unreal>
-Content-Language: en-US
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <20260127095831.GR13967@unreal>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BN9PR03CA0850.namprd03.prod.outlook.com
- (2603:10b6:408:13d::15) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ZmuuAy4X"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1769510657;
+	bh=vrKMHfK+jZccgVy53jFWZbkRm0Iff0NWCOMHyQbgupU=;
+	h=From:To:Cc:Subject:Date:From;
+	b=ZmuuAy4XR4xaY64h4v0IoNHx3qlVSJHc6IQ2HmPWCtZ5uokj9ZEtgbZeXr3HSTIGU
+	 wvumhyLr5qTbPe2EQptpgA6/07ZQNScRK56xJT1QYkgOZ2BX5pNb03zFPKkVKQP8yU
+	 j5Owl5XlBW2W3a8UmIWoko3YsRQQ9+1hGK6NJhRX+9ulZ4pCcNo0mkYCSZV2JxqjZP
+	 BiB7EmQ3LfMune35mElYW349RfnXJ36qDciWzPzS5zQ2ZJi3VVbchoxUXya6tgtZqX
+	 X9QeJJ/9Sx+2fdsMlJjAvkODK7FBFhcy3Eqe4MwYvOwaNXC2PEKwTiRIQu1DNbzTIc
+	 12EjiAcHvjEFA==
+Received: from vignesh-thinkpad.. (unknown [171.76.81.211])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 99DE217E00AC;
+	Tue, 27 Jan 2026 11:44:13 +0100 (CET)
+From: Vignesh Raman <vignesh.raman@collabora.com>
+To: dri-devel@lists.freedesktop.org
+Cc: daniels@collabora.com,
+	helen.fornazier@gmail.com,
+	airlied@gmail.com,
+	simona.vetter@ffwll.ch,
+	dmitry.baryshkov@oss.qualcomm.com,
+	lumag@kernel.org,
+	robdclark@gmail.com,
+	robin.clark@oss.qualcomm.com,
+	guilherme.gallo@collabora.com,
+	sergi.blanch.torne@collabora.com,
+	valentine.burley@collabora.com,
+	linux-mediatek@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	amd-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1 0/7] drm/ci: add new jobs, uprev IGT and mesa
+Date: Tue, 27 Jan 2026 16:13:55 +0530
+Message-ID: <20260127104406.200505-1-vignesh.raman@collabora.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|MW4PR12MB7263:EE_
-X-MS-Office365-Filtering-Correlation-Id: 074df125-e27e-4bf3-9200-08de5d8b26cb
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|7416014|376014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?S0N5YmZtczlOYmFodjZ3b1RWTWhEWEdFQzNWUWZtU0xFODQxbS9CSHZodkJ0?=
- =?utf-8?B?ck80TUQzYzcxd0pBdUR5di9qcUF5VjBvNlY3aTEyWmRlU1FZamsxa1ozMW1Q?=
- =?utf-8?B?enlaNU1taDgxdW1BYStwZDhvVnk2OUV3cGtrUmMwdjQ2T09mY0JCV3hSWVI1?=
- =?utf-8?B?NWh4dHhUZTBLQU1CN1Mya0VQZ3RMRzZqTTZjSncvZWdQLzREdjZPYzVrOTI2?=
- =?utf-8?B?cWtuaWI4ckZwUFUwSFR3WTl3bVhld29YWCs5TkxaazNua1dDRllaeFVvMlVH?=
- =?utf-8?B?SU1iN3B6M3c1L0t1Y2gramhFQy9YaFRuTTJ1Szc2WkJCRGMzcE51NW5IMVl2?=
- =?utf-8?B?RnJpR1hPZUFsdmMwRU5rNEI5VVM5U0wvT3RmOEdrKzN1REhZcVdrMWJYVHd5?=
- =?utf-8?B?N2h1UExsQUR4Tkg4bXdxbTJ0TFA3Z0FPd21tQmp6Qk1RdjU4MFR2Y0doOXA3?=
- =?utf-8?B?WTNpMFNXT2xRcGh2NGVLSlFrVlF5eDJxNDhuNndlZTJtbTZUQ2srTXpCUWNa?=
- =?utf-8?B?aUUrUHAwS2ttYVB1emRYZjNWTEh6VmJLTEltTVArNlhuNkQ0bVZzVlRYZGVv?=
- =?utf-8?B?QXh3eko4dUJYVjFNKzN5b2puZDgwSEllSTlWZ0laazlrWFBlbktOYjBYWnVo?=
- =?utf-8?B?Sk9PWi9qT25OcHNPVEhZUDlkTGsxWjJhbVZSTkpZYWFVNVRQY3dVUEYxZ0s0?=
- =?utf-8?B?bnlNeUp2YlY2TkZVRE9EOGVmSWFtU1ZIclF5S05MT1RyUzdhZjNpUEJxTGVv?=
- =?utf-8?B?WFVsZmNiSXpua1Z5ZncveVB1Y2psK05jL0QzT3FURkdGdU1qVmp5ejA5Q2ZR?=
- =?utf-8?B?T3ZRcG14dmgwSDk5RldyWm9qVVFJVzhSZUVWM28vSGNUYzdKNVhzWVZBNDJZ?=
- =?utf-8?B?L0pSSE1xQ0lObVB1dVFtNWJmdS9tTkhSS09HYjdFUWZhSWEzREk0R2hTVXZk?=
- =?utf-8?B?MzBaYXRyRElCMkloZEtUNU5QcE1rdUpPSFIvVDdVbnY2RGlBb3ZZVXpYZm5N?=
- =?utf-8?B?MDdJdDB5SkJKZExlMmp4ckVjWis1YVZEWlEveVlVRkl1Ny9wVG1rejd0VUV5?=
- =?utf-8?B?TDEyMVhrV080YmgvMkRBVVVlOGNlcEJpMldsZ0Zwd1JlWElGVS9FNkgxN3Yy?=
- =?utf-8?B?RExqaHloaFpSYW9BUEJKamYxOXNweEVJaGhyTzZhaXdhQVQ4MFlRQ0txc1k2?=
- =?utf-8?B?YnFzSnVhdENyMkppbThRVzIzZmUyRHZDRmVyMlAvUGVFTHhrcVZBeVFvbmlI?=
- =?utf-8?B?MUJaV1phRGRqbG44UGdhUFk2bU0xbFphYmNZT1pYSXJEdjdZaGJJSGYrWGox?=
- =?utf-8?B?Tk5KZzg5YTNxSXB5d2pnQ3M3anRIYXlrTkZVbWpzOTBST2FJeFQ1Tkl1MXpm?=
- =?utf-8?B?aUc3NWg0cnhuWEpSQmZIMHp0N2RBNG41VXhaWXFXYSs2MUhDMEdYVkFLQmlD?=
- =?utf-8?B?a3FhYldwckdoVlo0Q21pU3ozblcwb1hZeU9mL1JWa04yUmFsV0RsOEU5Y1pz?=
- =?utf-8?B?d1VnVE1waDAxc3ZRb1JQb2E1OENVZmFpYzVuQS9KSGZSN0ZYZVJHOVp3dGlM?=
- =?utf-8?B?Zlo4UjFXVTJBN2pVVXFoQnJVdUltMHBlbVNTeG5TSTU0UFdCMm41VWdMajAy?=
- =?utf-8?B?ZkZ4UGtnQzgwd0U0Z0VucW9rVmF6K2NRTWg4c01SUnBmUStFczEyR1lkaks3?=
- =?utf-8?B?YjVBVTMyN25MU0xpY0crd09LMmp1aUc5YnJINnFtZzRmREcxSmFrbVZjN3hq?=
- =?utf-8?B?NDY0V0pJelRUZXptYURJeHdaVkc3emhpQmVsWmxvNWcwckJ1b2lIWUpac0Zw?=
- =?utf-8?B?Q1FrNnhCQ2hBd2V0ZHFyOWZmdVFnYkhDK0RxcDBSWVlPRjB0ckN2cjZKeFoy?=
- =?utf-8?B?VVd5bXlkLzAzTjhkeGozTGErWTQ3OFc0dENrY2d6UXZ4cmVZSk5UbkFOUmNq?=
- =?utf-8?B?UEdBR2htcXpPYXNZdUJRbnYxSkFhclVtNmZhKzhHbjBDY3RTTmVLYUJIYTMx?=
- =?utf-8?B?T3VheWdKUzJLZFpYQTZCOSs4K29naXp0YW14NWZBUENpVG1kMXlPWSt0dGpo?=
- =?utf-8?B?K0p5M1I0dS9CMkVrajhLbk51ck50ci9mL2tKT1BzY3BMNVdHRXFzd0JuVVFT?=
- =?utf-8?Q?9soA=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?eUdmdEgvOEZDTXZYZmpQUWdieXdLUktnOGJyOHZzQmFIditkVUV5bVFJVHVS?=
- =?utf-8?B?UTk4cnNvVmdoMGwzMitMY3g2QWgvUExZeUxxeE5ya0FBUVVTcjZlS0FNVkQz?=
- =?utf-8?B?bmtFa3loSGNwMTBRNWRHeXhxVzR2eFgvM05NSXhadFpNMkc3Qys4dkNBZzQ1?=
- =?utf-8?B?QkgwRHBUdFhRS2tiOFFhRHhaZm0zYUxEWlArb1NtUGtRWDlzQ05ocnpnd2x6?=
- =?utf-8?B?VlhuUlp5T2JRekEwRXVrRU1jRjhuNERPWU9kSy92WDJiUTlGM29US0FIMDda?=
- =?utf-8?B?UThjVXMzYmVpRGhyc2Fad0RVbjdxbVBraFhIZ3VERjJ4QWZEWi9Za0crT1ph?=
- =?utf-8?B?cHRkVW1iQXg1T0V0S1VGSkdXNEFpMlVNZUt5a2RSZmdNY1lWSCsvUUtCbkVP?=
- =?utf-8?B?eDdoZWlDc0d1Q0xhMnNiM1daTW5abFRWWDJjNzVQMGcyNnhKMjNrZXpzNnRX?=
- =?utf-8?B?dHZRYmhlY0xGY1piQ1kyV3grdWNJaC9Mc3ZKL1cyVC9BeWNvdklianNFZ1Ar?=
- =?utf-8?B?ZFR6UjdsU0VmZXZZdytBUWZEVEw4SFl5ZVlzVWJvU09iZXRGdlZidnYzYVRO?=
- =?utf-8?B?OFBOblRQOVZJRTdJdWVXREt0OVNBazZnM1ZnYnlTQTA0ZDEyYmdsc2VTcUcr?=
- =?utf-8?B?NTZXQVYwVnhJTUxUTmx4dlJ6SWdLQUkvK1JXRE04QlRBcmdZbXFKa2s3THF5?=
- =?utf-8?B?elBJaHdHY0crdk1nOXI4QW12Q01RSnFOMVZWeGtUOHZ2QnB1NzZpejI3Mzhu?=
- =?utf-8?B?YmVKVjdhWUFWbTVFMzdmZThGcWFFc3FjczE5UkhzcVVyQkRjeW1xZFljQndm?=
- =?utf-8?B?UVZRVGpMK3lkb1ZOeWY3WjZqKzRISTZ2Z1MzTTJRRjRXbWlyQ051M3RWTXdI?=
- =?utf-8?B?L0ZYSUVsVE4wYy9ycVBMejhjZlVJaFh0TGhPcmZOT29LbkR0QlpNYlFWUGw0?=
- =?utf-8?B?Y0NGaVFjdmR6TUEvdERMTGhEQVMyc3hEYWt4U0tOU0JLb1Nvd3VSYlNPWEZG?=
- =?utf-8?B?ZGVvc2Y2ZGZLeXB0dmUwM0ozaENTT2JXamtCMHdkRllJRlpYbmZqbEdiblh4?=
- =?utf-8?B?MWdpSWZXYW4vUCtDaGJYQW9zbXg4MjlXNHROZXVzYzkwY3cxUy9VaVRRTUFO?=
- =?utf-8?B?WU94aW4zY3FZK21WckEwdEk3MFZHSnJmR2VIVERZMmI3bFVhUUxlRXpPMWUy?=
- =?utf-8?B?SFRuTVZXSEdNZEFKdDNTQUd6ZDE3UmlQcDVrK3JqaHN0cmNIUzIyL2F6ODBX?=
- =?utf-8?B?ckMvMmhVTHJYd05MSnZXU0Q3WUlScGtYV1d4dlhWTjBETUZ6SElYVFJBNFhi?=
- =?utf-8?B?ZUc3TWFYZGVicUdQZm5ydXNlZCt5Y2c5ekVOcG1aVlpGakhBUkFnb0tsS2Qr?=
- =?utf-8?B?T1ZiTG9VVlBzUkJoTno4anF2QVRLNG9ENENkWE1RTStCOFZsZ1NVWVlaRW1S?=
- =?utf-8?B?TGMxYUl4RTduZHdsR1RQamY0QmI2RWQ1UWlwZDh0KzBydDAzSE5hVHdpU2tN?=
- =?utf-8?B?QlJBUFB3aXdyV1F5ejlaU1pQdEZEb2xRV203eTNBM1ExTmU0V2Z2UlBFQnp3?=
- =?utf-8?B?U0FreWY5T0RHdm1yY2grc1JCbncxK3VaOUVvWVZKcWl5OFdRTkViL3cxOTdq?=
- =?utf-8?B?bFpyUWxBV0pIckdkaldsSU5PNHA0U2xlTkhiVElmcW5VSTFqSlM2NGVuMXpR?=
- =?utf-8?B?dkZkRkJyZEQvNDU2SUs2VjIrZXIvazZSZ1c4TmE5b3gvRm80cHdnQzhlMnJO?=
- =?utf-8?B?cDBiWnlLbG1LdFJDNHpzQU4yOE1QaGJ2MHNHSGpwb296cVBWNE9zcW5nRzU5?=
- =?utf-8?B?VGlGNW54eVJZQTNWRWEyeitqSjBIb2RwblRSU3d2d3N6WUlnOFJJOVNPd0Ix?=
- =?utf-8?B?MVRTMzAwcmRTRmRiWXdzWk1pN2FJOHlIMXpTd0o4OWRnL1ZpNGRIWUQ3bjc5?=
- =?utf-8?B?VDVFd1lKeHBpOGhxVzczK3dhdjVkd29tR0w2UTNBcFdXUUpNV1lJdXl3L0ZY?=
- =?utf-8?B?YUp3NlFUcmtSRDRUZEFmS040QWdMaWdZRmEwY2hGelRZOHpLU3Qzb1lja2U4?=
- =?utf-8?B?T3RtQnNleTVrRXEzM3hyVVN2THc1eG05bnJhTWJoNlRuSTYzT1VHMXQzbGVV?=
- =?utf-8?B?RzlmZlQ0ak1mMFJ6cDgwczNXaHFrdWZOL2FJSlJNRlI3L1dhR0tnVnJwRmUv?=
- =?utf-8?B?eTlESkRVK2JXcmJ5bk1nVll5NnoxUmJONVBMSDJtNEx3YUFsWjRGS04ramRw?=
- =?utf-8?B?Mk5vTndyWGRqbGplWWxQQm1GZUE1RGVxSkdjMFYvbk1HV05nSmdHQ1hqbENz?=
- =?utf-8?Q?WqOhCM8APO6L25QH6X?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 074df125-e27e-4bf3-9200-08de5d8b26cb
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Jan 2026 10:02:16.7533
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: c/5aUzbgDB5/NnCfXXNdvCr1DqRs+RQlGB48aCIojHsQrUysfaq80Gxl3Qz8XdYX
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7263
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 1/27/26 10:58, Leon Romanovsky wrote:
-> On Tue, Jan 27, 2026 at 10:26:26AM +0100, Christian König wrote:
->> On 1/24/26 20:14, Leon Romanovsky wrote:
->>> From: Leon Romanovsky <leonro@nvidia.com>
->>>
->>> DMABUF_MOVE_NOTIFY was introduced in 2018 and has been marked as
->>> experimental and disabled by default ever since. Six years later,
->>> all new importers implement this callback.
->>>
->>> It is therefore reasonable to drop CONFIG_DMABUF_MOVE_NOTIFY and
->>> always build DMABUF with support for it enabled.
->>>
->>> Suggested-by: Christian König <christian.koenig@amd.com>
->>> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
->>
->> Reviewed-by: Christian König <christian.koenig@amd.com>
->>
->> As long as nobody starts screaming in the last second or I encounter some other problem I'm going to push the first three patches to drm-misc-next now.
-> 
-> How do you see progress of other patches?
-> Can they be queued for that tree as well?
+This series introduces new job to drm-ci for testing the following
+devices:
+- rk3588-rock-5b
 
-I was hoping to get through them by the end of the week.
+Other updates include:
+- Uprev IGT and updating test expectations accordingly.
+- Adapting to recent changes in Mesa CI, such as:
+   - LAVA overlay-based firmware handling
+   - Container/job rule separation
+   - Removal of the python-artifacts job
+   - Use of the Alpine container for LAVA jobs
+   - Various other CI improvements
+- Move bare-metal jobs for apq8016 and apq8096 to LAVA, as these devices
+  are migrated to Collabora LAVA farm.
+- Updating the runner tag for i915: cml (switching from hatch to puff)
+  to improve device availability.
+- Adjusting parallelism in jobs (sm8350-hdk, amly) to better utilize
+  test resources.
+- Fix issues with rebase with external fixes branch.
 
-Just wanted to make sure that CI systems start to see the first three patches (who affect everybody), so that we get early feedback should we have missed something.
+Pipeline: https://gitlab.freedesktop.org/vigneshraman/msm/-/pipelines/1591806
+MR: https://gitlab.freedesktop.org/drm/msm/-/merge_requests/213
 
-Regards,
-Christian.
+mediatek:mt8183 fails and it is reported upstream - https://lore.kernel.org/linux-mediatek/CAAq5pW9o3itC0G16LnJO7KMAQ_XoqXUpB=cuJ_7e3-H11zKd5Q@mail.gmail.com/#r
+Few intel jobs fails, this will be investigated and a seperate patch to update xfails will be sent.
 
-> 
-> Thanks
-> 
->>
->> They are basically just cleanups we should have done a long time ago.
->>
->> Regards,
->> Christian.
->>
+Link to v1: https://lore.kernel.org/dri-devel/20251114030056.1139570-1-vignesh.raman@collabora.com/
+
+Vignesh Raman (7):
+  drm/ci: uprev mesa
+  drm/ci: move qualcomm baremetal jobs to lava
+  drm/ci: reduce sm8350-hdk parallel jobs from 4 to 2
+  drm/ci: i915: cml: update runner tag
+  drm/ci: add rk3588-rock-5b
+  drm/ci: uprev IGT
+  drm/ci: disable rebase when pulling *-external-fixes
+
+ MAINTAINERS                                   |   1 +
+ drivers/gpu/drm/ci/arm64.config               |   6 +
+ drivers/gpu/drm/ci/build.sh                   |  13 +-
+ drivers/gpu/drm/ci/build.yml                  |  22 +--
+ drivers/gpu/drm/ci/container.yml              |  28 +++-
+ drivers/gpu/drm/ci/gitlab-ci.yml              |  98 ++++++++++---
+ drivers/gpu/drm/ci/igt_runner.sh              |   6 +-
+ drivers/gpu/drm/ci/image-tags.yml             |  22 +--
+ drivers/gpu/drm/ci/lava-submit.sh             | 101 +++++++-------
+ drivers/gpu/drm/ci/static-checks.yml          |   1 +
+ drivers/gpu/drm/ci/test.yml                   | 119 ++++++++--------
+ .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt |  16 ++-
+ .../drm/ci/xfails/amdgpu-stoney-flakes.txt    |   7 +
+ drivers/gpu/drm/ci/xfails/i915-amly-fails.txt |  32 +----
+ drivers/gpu/drm/ci/xfails/i915-amly-skips.txt |  65 +++++++++
+ drivers/gpu/drm/ci/xfails/i915-apl-fails.txt  |  24 +---
+ drivers/gpu/drm/ci/xfails/i915-cml-fails.txt  |  29 +---
+ drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt |   7 +
+ drivers/gpu/drm/ci/xfails/i915-glk-fails.txt  |  35 +----
+ drivers/gpu/drm/ci/xfails/i915-glk-skips.txt  | 131 ++++++++++++++++++
+ drivers/gpu/drm/ci/xfails/i915-jsl-fails.txt  |  37 +----
+ drivers/gpu/drm/ci/xfails/i915-jsl-skips.txt  |  50 +++++++
+ drivers/gpu/drm/ci/xfails/i915-kbl-fails.txt  |   4 +
+ drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt  |   5 +-
+ drivers/gpu/drm/ci/xfails/i915-tgl-flakes.txt |   6 +
+ drivers/gpu/drm/ci/xfails/i915-whl-fails.txt  |  16 +--
+ .../drm/ci/xfails/mediatek-mt8173-fails.txt   |  13 +-
+ .../drm/ci/xfails/mediatek-mt8173-flakes.txt  | 119 ++++++++++++++++
+ .../drm/ci/xfails/mediatek-mt8183-fails.txt   |   7 +-
+ .../gpu/drm/ci/xfails/meson-g12b-fails.txt    |   1 +
+ .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |   4 +
+ .../gpu/drm/ci/xfails/msm-apq8096-fails.txt   |   2 +
+ .../msm-sc7180-trogdor-kingoftown-fails.txt   |   1 +
+ ...sm-sc7180-trogdor-lazor-limozeen-fails.txt |   1 +
+ .../drm/ci/xfails/msm-sm8350-hdk-fails.txt    |   1 +
+ .../drm/ci/xfails/panfrost-mt8183-fails.txt   |   1 +
+ .../drm/ci/xfails/panfrost-rk3288-fails.txt   |   1 +
+ .../drm/ci/xfails/panfrost-rk3399-fails.txt   |   1 +
+ .../drm/ci/xfails/panthor-rk3588-fails.txt    |   5 +
+ .../drm/ci/xfails/panthor-rk3588-skips.txt    |  20 +++
+ .../drm/ci/xfails/rockchip-rk3288-fails.txt   |  14 +-
+ .../drm/ci/xfails/rockchip-rk3288-flakes.txt  |  21 +++
+ .../drm/ci/xfails/rockchip-rk3399-fails.txt   |  12 +-
+ .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |  35 +++++
+ .../drm/ci/xfails/rockchip-rk3588-fails.txt   |  10 ++
+ .../drm/ci/xfails/rockchip-rk3588-skips.txt   |  14 ++
+ .../drm/ci/xfails/virtio_gpu-none-fails.txt   |  50 -------
+ drivers/gpu/drm/ci/xfails/vkms-none-fails.txt |   2 +
+ drivers/gpu/drm/ci/xfails/vkms-none-skips.txt |   3 +
+ 49 files changed, 835 insertions(+), 384 deletions(-)
+ create mode 100644 drivers/gpu/drm/ci/xfails/i915-tgl-flakes.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panthor-rk3588-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/panthor-rk3588-skips.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3588-fails.txt
+ create mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3588-skips.txt
+
+-- 
+2.47.3
 
