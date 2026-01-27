@@ -1,54 +1,35 @@
-Received: from pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.77.92])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A00A2FE582
-	for <virtualization@lists.linux.dev>; Tue, 27 Jan 2026 16:30:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.77.92
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6771436074D;
+	Tue, 27 Jan 2026 16:47:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769531425; cv=none; b=KjGuSoCWs3jnIaM86wRzyvEP0UVDJ8CgBQtDKg/JK3jcpCfnI+Cn2XPF8oZSTdMSdcDnPydGoHg8+Aio321Y97YQC/uZf1XAWbRAs75sZp+QDu1c7PtvHAhYKutUWczttDvWwQDUvnT/z3Pv3SjLxc5PbBJizyKRyUPChW/yR/E=
+	t=1769532474; cv=none; b=TyMM/vKKZ7JSZ1sNY4pxXr9s4aFOC3OquWeZbbPtp7tYnRpttZjqtqBnA+sNNo9ZyRLMyGQokH81KVaDBZnRO9am1BnowElNRqslH+AnbEqNjOf2KrVUh4OO95jdEAy4NSDS4WYJClcQXbLUUYDWaPr3Q9+q/SLMyTEeH9RHDVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769531425; c=relaxed/simple;
-	bh=J79QeSqXanWU6QNBr971ClAuWG9HKxmGgPVjhp8GzH8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=e6O7J0kOSD0ywDLld0kpJqQLL4IoWU6zzDQiYllsF/KF6/3ZbNDbpd8d4hUD8pEnIQNbVkE7JvMTl0P1of2IQhh6nCwXtBAKnTNqzwiqqnosuW554YL3kkE8yONzyYHlrLGS7Cl5b4G/1DyT8aManXOU3Q1bPpJzYBYh0ktw/rU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=OqVKLYcR; arc=none smtp.client-ip=44.246.77.92
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+	s=arc-20240116; t=1769532474; c=relaxed/simple;
+	bh=XK4NldxnrmNFyYoe4tFSDQOd8+EZGjIVoCf7QhQESiY=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=pZvbVEGYUhMIw4uFKnQHvVI+BOoCG6GZ9+8PbRXjzqleVMjfaroB3aGoJ+6mMWhq7slT/ZmVQAKQKVwwj+fW4h836PaFv/RtufPbo3bcWM3DNHOi7f9KdPSuO4S7mGj3BenWnkt2dSIMA7oFtREvyt+fOXmRomzPQO+shTVnzgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=bWJfd73r; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="OqVKLYcR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1769531424; x=1801067424;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=J79QeSqXanWU6QNBr971ClAuWG9HKxmGgPVjhp8GzH8=;
-  b=OqVKLYcRyjdSs/NAoqeQaSXzGTDvrIJGUSZrRMEtyg6LD+Kx7in0KV5Q
-   Il2c5sE+uYrvfDDXp5rJTFInVEhEuLCxhtB74aZut6WHLxiNtxhjUX8V/
-   9epkNUFCJRhuAMsrZFBeXuK55fdLoCnS06RtUo50BbhpNWdI9a3SnTPZb
-   MXgnWhNziqdjSwmVkE1uIzOPa19DusyCeAnF4OsIDn3JWkrnwk21Jizre
-   9GEiUhwsMdAGvjksU2pVeoiYpRqPVbDmVdnX6Jm6Q+ZzzR3in5rsAotyB
-   EGiow+vnsgTGW2CnJMNjcy6YoCjirpIG1Wr3RYduc1IY5hMVbcHifwIvB
-   w==;
-X-CSE-ConnectionGUID: 6fMGG6I9RYax4+iPE+thoQ==
-X-CSE-MsgGUID: kBiMxcjxT7SYiG1T4GEAtg==
-X-IronPort-AV: E=Sophos;i="6.21,257,1763424000"; 
-   d="scan'208";a="11686597"
-Received: from ip-10-5-9-48.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.9.48])
-  by internal-pdx-out-004.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jan 2026 16:30:22 +0000
-Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.234:19116]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.37.46:2525] with esmtp (Farcaster)
- id 4afaa9e1-48c8-4184-b200-e016b37a71cc; Tue, 27 Jan 2026 16:30:21 +0000 (UTC)
-X-Farcaster-Flow-ID: 4afaa9e1-48c8-4184-b200-e016b37a71cc
-Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
- EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Tue, 27 Jan 2026 16:30:21 +0000
-Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
- (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35; Tue, 27 Jan 2026
- 16:30:19 +0000
-Message-ID: <184ced70-f3ec-49c0-9b18-96f0ad044a78@amazon.com>
-Date: Tue, 27 Jan 2026 17:30:17 +0100
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="bWJfd73r"
+Received: from [129.217.186.38] ([129.217.186.38])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.1.16/8.18.1.16) with ESMTPSA id 60RGlcvK018197
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 27 Jan 2026 17:47:38 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1769532459;
+	bh=XK4NldxnrmNFyYoe4tFSDQOd8+EZGjIVoCf7QhQESiY=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To;
+	b=bWJfd73rP/VRoOkqucSD2r/PV7VTDmqrhQdkjGf85G9N4lZWrU1ukqmfSgl8pW+Fh
+	 UoHtI2tL8Ayh6VGhzWWmYoJH8Y+V32S90j8GCFE7SA/1UOQilM1xU/lvw/57uULVdS
+	 4KKjf+sGseDvNjuW+oTaTwhSO1y7MI7Y0rg5udsU=
+Message-ID: <3a1d6232-efe4-4e79-a196-44794fdc0f33@tu-dortmund.de>
+Date: Tue, 27 Jan 2026 17:47:38 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -56,66 +37,221 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/2] virtio: silence KCSAN warning in
- virtqueue_get_buf_ctx_split
-To: Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-	<virtualization@lists.linux.dev>
-CC: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
-	<eperezma@redhat.com>, <linux-kernel@vger.kernel.org>
-References: <20260127152524.200465-1-johannes.thumshirn@wdc.com>
- <20260127152524.200465-2-johannes.thumshirn@wdc.com>
+Subject: [PATCH net-next v7 3/9] tun/tap: add ptr_ring consume helper with
+ netdev queue wakeup
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+To: Jason Wang <jasowang@redhat.com>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
+        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
+ <20260107210448.37851-4-simon.schippers@tu-dortmund.de>
+ <CACGkMEuSiEcyaeFeZd0=RgNpviJgNvUDq_ctjeMLT5jZTgRkwQ@mail.gmail.com>
+ <1e30464c-99ae-441e-bb46-6d0485d494dc@tu-dortmund.de>
+ <CACGkMEtzD3ORJuJcc8VeqwASiGeVFdQmJowsK6PYVEF_Zkcn8Q@mail.gmail.com>
+ <afa40345-acbe-42b0-81d1-0a838343792d@tu-dortmund.de>
+ <CACGkMEtxRoavBMTXom8Z=FM-pvu3pHbsuwCs+e450b1B=V7iWA@mail.gmail.com>
+ <CACGkMEsJKeEsH=G8H5RzMNHY4g3HNdciMDMhciShawh-9Xb9hg@mail.gmail.com>
+ <bc1078e5-65fc-4de6-8475-517f626d8d96@tu-dortmund.de>
 Content-Language: en-US
-From: Alexander Graf <graf@amazon.com>
-In-Reply-To: <20260127152524.200465-2-johannes.thumshirn@wdc.com>
-X-ClientProxiedBy: EX19D032UWA003.ant.amazon.com (10.13.139.37) To
- EX19D020UWC004.ant.amazon.com (10.13.138.149)
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: base64
+In-Reply-To: <bc1078e5-65fc-4de6-8475-517f626d8d96@tu-dortmund.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Ck9uIDI3LjAxLjI2IDE2OjI1LCBKb2hhbm5lcyBUaHVtc2hpcm4gd3JvdGU6Cj4gV2hlbiBib290
-aW5nIGEgUWVtdSBWTSB3aXRoIHZpcnRpby1ibGsgYW5kIEtDU0FOIGVuYWJsZWQsIEtDU0FOIGVt
-aXRzCj4gdGhlIGZvbGxvd2luZyB3YXJuaW5nIGFib3V0IGEgZGF0YS1yYWNlIGluIHZpcnRxdWV1
-ZV9nZXRfYnVmX2N0eF9zcGxpdCgpLgo+Cj4gICA9PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KPiAgIEJVRzogS0NTQU46IGRh
-dGEtcmFjZSBpbiB2aXJ0cXVldWVfZ2V0X2J1Zl9jdHhfc3BsaXQrMHg2ZS8weDI2MAo+Cj4gICBy
-YWNlIGF0IHVua25vd24gb3JpZ2luLCB3aXRoIHJlYWQgdG8gMHhmZmZmODg4MTAyMGYxOTQyIG9m
-IDIgYnl0ZXMgYnkgdGFzayAxIG9uIGNwdSA3Ogo+ICAgIHZpcnRxdWV1ZV9nZXRfYnVmX2N0eF9z
-cGxpdCsweDZlLzB4MjYwCj4gICAgdmlydHF1ZXVlX2dldF9idWYrMHg0Yi8weDYwCj4gICAgX19z
-ZW5kX3RvX3BvcnQrMHgxNTYvMHgxNzAKPiAgICBwdXRfY2hhcnMrMHhjYi8weDExMAo+ICAgIGh2
-Y19jb25zb2xlX3ByaW50KzB4MWQ2LzB4MmEwCj4gICAgY29uc29sZV9mbHVzaF9vbmVfcmVjb3Jk
-KzB4M2RkLzB4NTEwCj4gICAgY29uc29sZV91bmxvY2srMHg4Yy8weDE2MAo+ICAgIHZwcmludGtf
-ZW1pdCsweDJmZS8weDM4MAo+ICAgIHZwcmludGtfZGVmYXVsdCsweDFkLzB4MzAKPiAgICB2cHJp
-bnRrKzB4ZS8weDIwCj4gICAgX3ByaW50aysweDRjLzB4NjAKPiAgICBidHJmc190ZXN0X3JhaWRf
-c3RyaXBlX3RyZWUrMHgyNS8weDkwCj4gICAgYnRyZnNfcnVuX3Nhbml0eV90ZXN0cy5jb2xkKzB4
-ZjEvMHgxM2IKPiAgICBpbml0X2J0cmZzX2ZzKzB4NzMvMHgxMTAKPiAgICBkb19vbmVfaW5pdGNh
-bGwrMHg1Yi8weDJkMAo+ICAgIGtlcm5lbF9pbml0X2ZyZWVhYmxlKzB4MmEyLzB4MzQwCj4gICAg
-a2VybmVsX2luaXQrMHgxZS8weDFiMAo+ICAgIHJldF9mcm9tX2ZvcmsrMHgxMzcvMHgxYjAKPiAg
-ICByZXRfZnJvbV9mb3JrX2FzbSsweDFhLzB4MzAKPgo+ICAgdmFsdWUgY2hhbmdlZDogMHgwMTYw
-IC0+IDB4MDE2MQo+Cj4gICBSZXBvcnRlZCBieSBLZXJuZWwgQ29uY3VycmVuY3kgU2FuaXRpemVy
-IG9uOgo+ICAgQ1BVOiA3IFVJRDogMCBQSUQ6IDEgQ29tbTogc3dhcHBlci8wIE5vdCB0YWludGVk
-IDYuMTkuMC1yYzcrICMyMTkgUFJFRU1QVChub25lKQo+ICAgSGFyZHdhcmUgbmFtZTogUUVNVSBT
-dGFuZGFyZCBQQyAoaTQ0MEZYICsgUElJWCwgMTk5NiksIEJJT1MgMS4xNy4wLTkuZmM0MyAwNi8x
-MC8yMDI1Cj4gICA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT0KPgo+IFRoaXMgd2FybmluZyBpcyBsaWtlbHkgYSBmYWxzZSBw
-b3NpdGl2ZSBhcyB0aGUgY2hhbmdlIGhhcHBlbnMgb24gdGhlCj4gdmlydGlvIHZyaW5nLgo+Cj4g
-QW5ub3RhdGUgdGhlIHJldHVybiBvZiBtb3JlX3VzZWRfc3BsaXQoKSB3aXRoIGRhdGFfcmFjZSgp
-IHRvIHNpbGVuY2UKPiB0aGUgd2FybmluZy4KPgo+IFNpZ25lZC1vZmYtYnk6IEpvaGFubmVzIFRo
-dW1zaGlybiA8am9oYW5uZXMudGh1bXNoaXJuQHdkYy5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fcmluZy5jIHwgNCArKy0tCj4gICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRp
-b25zKCspLCAyIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3Zp
-cnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gaW5kZXggZGRhYjY4
-OTU5NjcxLi4xZGIyN2VlMmQ4OWYgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlv
-X3JpbmcuYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiBAQCAtODA4LDgg
-KzgwOCw4IEBAIHN0YXRpYyB2b2lkIGRldGFjaF9idWZfc3BsaXQoc3RydWN0IHZyaW5nX3ZpcnRx
-dWV1ZSAqdnEsIHVuc2lnbmVkIGludCBoZWFkLAo+Cj4gICBzdGF0aWMgYm9vbCBtb3JlX3VzZWRf
-c3BsaXQoY29uc3Qgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEpCgoKVGhpcyBwYXRjaGVzIHRo
-ZSBzcGxpdCB2cmluZyBmb3JtYXQsIGJ1dCBkb2VzIG5vdCB0b3VjaCB0aGUgcGFja2VkIG9uZS4g
-CldoYXQgaGFwcGVucyBpZiB5b3UgcnVuIHRoZSBzYW1lIHRlc3Qgd2l0aCB0aGUgcGFja2VkIGZv
-cm1hdD8gWW91IGNhbiBkbyAKc28gYnkgcGFzc2luZyAicGFja2VkPW9uIiBhcyBhcmd1bWVudCB0
-byB5b3VyIC1kZXZpY2UgcGFyYW1ldGVyLgoKCkFsZXgKCgoKCgpBbWF6b24gV2ViIFNlcnZpY2Vz
-IERldmVsb3BtZW50IENlbnRlciBHZXJtYW55IEdtYkgKVGFtYXJhLURhbnotU3RyLiAxMwoxMDI0
-MyBCZXJsaW4KR2VzY2hhZWZ0c2Z1ZWhydW5nOiBDaHJpc3RvZiBIZWxsbWlzLCBBbmRyZWFzIFN0
-aWVnZXIKRWluZ2V0cmFnZW4gYW0gQW10c2dlcmljaHQgQ2hhcmxvdHRlbmJ1cmcgdW50ZXIgSFJC
-IDI1Nzc2NCBCClNpdHo6IEJlcmxpbgpVc3QtSUQ6IERFIDM2NSA1MzggNTk3Cg==
+On 1/23/26 10:54, Simon Schippers wrote:
+> On 1/23/26 04:05, Jason Wang wrote:
+>> On Thu, Jan 22, 2026 at 1:35 PM Jason Wang <jasowang@redhat.com> wrote:
+>>>
+>>> On Wed, Jan 21, 2026 at 5:33 PM Simon Schippers
+>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>
+>>>> On 1/9/26 07:02, Jason Wang wrote:
+>>>>> On Thu, Jan 8, 2026 at 3:41 PM Simon Schippers
+>>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>>
+>>>>>> On 1/8/26 04:38, Jason Wang wrote:
+>>>>>>> On Thu, Jan 8, 2026 at 5:06 AM Simon Schippers
+>>>>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>>>>
+>>>>>>>> Introduce {tun,tap}_ring_consume() helpers that wrap __ptr_ring_consume()
+>>>>>>>> and wake the corresponding netdev subqueue when consuming an entry frees
+>>>>>>>> space in the underlying ptr_ring.
+>>>>>>>>
+>>>>>>>> Stopping of the netdev queue when the ptr_ring is full will be introduced
+>>>>>>>> in an upcoming commit.
+>>>>>>>>
+>>>>>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+>>>>>>>> ---
+>>>>>>>>  drivers/net/tap.c | 23 ++++++++++++++++++++++-
+>>>>>>>>  drivers/net/tun.c | 25 +++++++++++++++++++++++--
+>>>>>>>>  2 files changed, 45 insertions(+), 3 deletions(-)
+>>>>>>>>
+>>>>>>>> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+>>>>>>>> index 1197f245e873..2442cf7ac385 100644
+>>>>>>>> --- a/drivers/net/tap.c
+>>>>>>>> +++ b/drivers/net/tap.c
+>>>>>>>> @@ -753,6 +753,27 @@ static ssize_t tap_put_user(struct tap_queue *q,
+>>>>>>>>         return ret ? ret : total;
+>>>>>>>>  }
+>>>>>>>>
+>>>>>>>> +static void *tap_ring_consume(struct tap_queue *q)
+>>>>>>>> +{
+>>>>>>>> +       struct ptr_ring *ring = &q->ring;
+>>>>>>>> +       struct net_device *dev;
+>>>>>>>> +       void *ptr;
+>>>>>>>> +
+>>>>>>>> +       spin_lock(&ring->consumer_lock);
+>>>>>>>> +
+>>>>>>>> +       ptr = __ptr_ring_consume(ring);
+>>>>>>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1))) {
+>>>>>>>> +               rcu_read_lock();
+>>>>>>>> +               dev = rcu_dereference(q->tap)->dev;
+>>>>>>>> +               netif_wake_subqueue(dev, q->queue_index);
+>>>>>>>> +               rcu_read_unlock();
+>>>>>>>> +       }
+>>>>>>>> +
+>>>>>>>> +       spin_unlock(&ring->consumer_lock);
+>>>>>>>> +
+>>>>>>>> +       return ptr;
+>>>>>>>> +}
+>>>>>>>> +
+>>>>>>>>  static ssize_t tap_do_read(struct tap_queue *q,
+>>>>>>>>                            struct iov_iter *to,
+>>>>>>>>                            int noblock, struct sk_buff *skb)
+>>>>>>>> @@ -774,7 +795,7 @@ static ssize_t tap_do_read(struct tap_queue *q,
+>>>>>>>>                                         TASK_INTERRUPTIBLE);
+>>>>>>>>
+>>>>>>>>                 /* Read frames from the queue */
+>>>>>>>> -               skb = ptr_ring_consume(&q->ring);
+>>>>>>>> +               skb = tap_ring_consume(q);
+>>>>>>>>                 if (skb)
+>>>>>>>>                         break;
+>>>>>>>>                 if (noblock) {
+>>>>>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+>>>>>>>> index 8192740357a0..7148f9a844a4 100644
+>>>>>>>> --- a/drivers/net/tun.c
+>>>>>>>> +++ b/drivers/net/tun.c
+>>>>>>>> @@ -2113,13 +2113,34 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+>>>>>>>>         return total;
+>>>>>>>>  }
+>>>>>>>>
+>>>>>>>> +static void *tun_ring_consume(struct tun_file *tfile)
+>>>>>>>> +{
+>>>>>>>> +       struct ptr_ring *ring = &tfile->tx_ring;
+>>>>>>>> +       struct net_device *dev;
+>>>>>>>> +       void *ptr;
+>>>>>>>> +
+>>>>>>>> +       spin_lock(&ring->consumer_lock);
+>>>>>>>> +
+>>>>>>>> +       ptr = __ptr_ring_consume(ring);
+>>>>>>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1))) {
+>>>>>>>
+>>>>>>> I guess it's the "bug" I mentioned in the previous patch that leads to
+>>>>>>> the check of __ptr_ring_consume_created_space() here. If it's true,
+>>>>>>> another call to tweak the current API.
+>>>>>>>
+>>>>>>>> +               rcu_read_lock();
+>>>>>>>> +               dev = rcu_dereference(tfile->tun)->dev;
+>>>>>>>> +               netif_wake_subqueue(dev, tfile->queue_index);
+>>>>>>>
+>>>>>>> This would cause the producer TX_SOFTIRQ to run on the same cpu which
+>>>>>>> I'm not sure is what we want.
+>>>>>>
+>>>>>> What else would you suggest calling to wake the queue?
+>>>>>
+>>>>> I don't have a good method in my mind, just want to point out its implications.
+>>>>
+>>>> I have to admit I'm a bit stuck at this point, particularly with this
+>>>> aspect.
+>>>>
+>>>> What is the correct way to pass the producer CPU ID to the consumer?
+>>>> Would it make sense to store smp_processor_id() in the tfile inside
+>>>> tun_net_xmit(), or should it instead be stored in the skb (similar to the
+>>>> XDP bit)? In the latter case, my concern is that this information may
+>>>> already be significantly outdated by the time it is used.
+>>>>
+>>>> Based on that, my idea would be for the consumer to wake the producer by
+>>>> invoking a new function (e.g., tun_wake_queue()) on the producer CPU via
+>>>> smp_call_function_single().
+>>>> Is this a reasonable approach?
+>>>
+>>> I'm not sure but it would introduce costs like IPI.
+>>>
+>>>>
+>>>> More generally, would triggering TX_SOFTIRQ on the consumer CPU be
+>>>> considered a deal-breaker for the patch set?
+>>>
+>>> It depends on whether or not it has effects on the performance.
+>>> Especially when vhost is pinned.
+>>
+>> I meant we can benchmark to see the impact. For example, pin vhost to
+>> a specific CPU and the try to see the impact of the TX_SOFTIRQ.
+>>
+>> Thanks
+>>
+> 
+> I ran benchmarks with vhost pinned to CPU 0 using taskset -p -c 0 ...
+> for both the stock and patched versions. The benchmarks were run with
+> the full patch series applied, since testing only patches 1-3 would not
+> be meaningful - the queue is never stopped in that case, so no
+> TX_SOFTIRQ is triggered.
+> 
+> Compared to the non-pinned CPU benchmarks in the cover letter,
+> performance is lower for pktgen with a single thread but higher with
+> four threads. The results show no regression for the patched version,
+> with even slight performance improvements observed:
+> 
+> +-------------------------+-----------+----------------+
+> | pktgen benchmarks to    | Stock     | Patched with   |
+> | Debian VM, i5 6300HQ,   |           | fq_codel qdisc |
+> | 100M packets            |           |                |
+> | vhost pinned to core 0  |           |                |
+> +-----------+-------------+-----------+----------------+
+> | TAP       | Transmitted | 452 Kpps  | 454 Kpps       |
+> |  +        +-------------+-----------+----------------+
+> | vhost-net | Lost        | 1154 Kpps | 0              |
+> +-----------+-------------+-----------+----------------+
+> 
+> +-------------------------+-----------+----------------+
+> | pktgen benchmarks to    | Stock     | Patched with   |
+> | Debian VM, i5 6300HQ,   |           | fq_codel qdisc |
+> | 100M packets            |           |                |
+> | vhost pinned to core 0  |           |                |
+> | *4 threads*             |           |                |
+> +-----------+-------------+-----------+----------------+
+> | TAP       | Transmitted | 71 Kpps   | 79 Kpps        |
+> |  +        +-------------+-----------+----------------+
+> | vhost-net | Lost        | 1527 Kpps | 0              |
+> +-----------+-------------+-----------+----------------+
+> 
+> +------------------------+-------------+----------------+
+> | iperf3 TCP benchmarks  | Stock       | Patched with   |
+> | to Debian VM 120s      |             | fq_codel qdisc |
+> | vhost pinned to core 0 |             |                |
+> +------------------------+-------------+----------------+
+> | TAP                    | 22.0 Gbit/s | 22.0 Gbit/s    |
+> |  +                     |             |                |
+> | vhost-net              |             |                |
+> +------------------------+-------------+----------------+
+> 
+> +---------------------------+-------------+----------------+
+> | iperf3 TCP benchmarks     | Stock       | Patched with   |
+> | to Debian VM 120s         |             | fq_codel qdisc |
+> | vhost pinned to core 0    |             |                |
+> | *4 iperf3 client threads* |             |                |
+> +---------------------------+-------------+----------------+
+> | TAP                       | 21.4 Gbit/s | 21.5 Gbit/s    |
+> |  +                        |             |                |
+> | vhost-net                 |             |                |
+> +---------------------------+-------------+----------------+
+
+What are your thoughts on this?
+
+Thanks!
 
