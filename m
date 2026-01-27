@@ -1,107 +1,140 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A1FC32C930
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 Jan 2026 07:39:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCED8225775
+	for <virtualization@lists.linux-foundation.org>; Tue, 27 Jan 2026 08:06:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769499581; cv=none; b=YhDfjKnkGTIXTGjkgLUIlxfIn1ba/6AFGliUclynHKaD4VcXUHwAmLscvP+4IlRvTcsZLL3OVvhQg21xPQemT8QpJ41xJ8pqjx0iM3VIHV9t8gBTVdGb40SIzyrsABTCNagMw87zzDiF/pVaQmbJimoERiR6ct5uQprRyF2U7aQ=
+	t=1769501197; cv=none; b=NMdcYXj8eMyJa5QcI2p4CNAt1Km8/WAEXWuLR8MlxlbZs6v0X9nLi7hlqbLpCe+Kkt6sbxXpFbpCx+lp+WZHWUzb6NhtgUYwt0RIO6LUUfWGZrrgRspABwWdPgTYeTEuY3MPeTSjb4DIwKx1cDriBOiorx4uy3Tde0P7oKU6O/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769499581; c=relaxed/simple;
-	bh=eHi/F5rgbKOLh7VbcqHDYhy9AXrHcsfvJc2Mvm/kcHo=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=MUMYy4lPSCgBeO4Wo0pts7pFp3GMIcxJv8nsfKPBg9B/RhiMQ6gEHytNuR1jc34wSAxDoIhvS+C8Qw182whVXDk8qiFuSHiNncxnhZi0ZWIQUQhcWXcTUfZ9s2bBmlooSfYU8ohHLHpKo7rsTV0eywpFNHLfraTJgX25OF6huW8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PNkVqh5/; arc=none smtp.client-ip=140.211.166.138
+	s=arc-20240116; t=1769501197; c=relaxed/simple;
+	bh=TTzX35zi7e2uDGzGbD+UvIWRM4CrGZWHR2CuACTNbQM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lAF1dB2GXHfn4LQjaFr5jIQrV8GyI3yAiap5ppanW4Gyz9dVrXsRGsTMRhurprucQ9wCosNrQ2gRNsJHdUucPcmYPcvbPQzfZR8H9LTffnxVuKmIntB4qZxX0jJsIrJKLO9o3ghoMRTqmtGppQfQ91uglfvEFx/97ikpcp88yv8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f6zn9PCm; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PNkVqh5/"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f6zn9PCm"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E126A80BF7
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 Jan 2026 07:39:39 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 808D040B9C
+	for <virtualization@lists.linux-foundation.org>; Tue, 27 Jan 2026 08:06:35 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -5.795
+X-Spam-Score: -5.792
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id VOqsnCo3UWHf for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jan 2026 07:39:39 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=lulu@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A219380BD3
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A219380BD3
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PNkVqh5/
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A219380BD3
-	for <virtualization@lists.linux-foundation.org>; Tue, 27 Jan 2026 07:39:37 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 9NYevjs8avx1 for <virtualization@lists.linux-foundation.org>;
+ Tue, 27 Jan 2026 08:06:34 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=jasowang@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 6854340794
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6854340794
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=f6zn9PCm
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6854340794
+	for <virtualization@lists.linux-foundation.org>; Tue, 27 Jan 2026 08:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769499576;
+	s=mimecast20190719; t=1769501192;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=bwBEw1zd5t7ZpgQXNt7Oa6aG6SzuHHJ86eogm7XJGHU=;
-	b=PNkVqh5/J+maEXZV/icf4NwplqhB3osCR8/fTd4nI9UJz04oGqKTUyHakv2BIHTFHA0PNq
-	DTsRSXO/SqW8lr5I+esCsBRNkdPc8q3icD/IRe5V8AOTXjqbofmDMur2MDSG2/DDT33o6M
-	Khp3D2QhUN7+sIW/F5CMwaBmUKOxsMQ=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-537-2_lOBWUsNrWB4IwVkR7Cmw-1; Tue,
- 27 Jan 2026 02:39:30 -0500
-X-MC-Unique: 2_lOBWUsNrWB4IwVkR7Cmw-1
-X-Mimecast-MFC-AGG-ID: 2_lOBWUsNrWB4IwVkR7Cmw_1769499569
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1DA661944B17;
-	Tue, 27 Jan 2026 07:39:29 +0000 (UTC)
-Received: from S2.redhat.com (unknown [10.72.112.73])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A25081800665;
-	Tue, 27 Jan 2026 07:39:25 +0000 (UTC)
-From: Cindy Lu <lulu@redhat.com>
-To: lulu@redhat.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] vhost: remove impossible check in VHOST_GET_FORK_FROM_OWNER ioctl
-Date: Tue, 27 Jan 2026 15:39:11 +0800
-Message-ID: <20260127073921.175981-1-lulu@redhat.com>
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Np7Cptnfw+XZkLrXgFu9BqaG1+Fb7vNwdeFnlALDuRg=;
+	b=f6zn9PCmaoBzFX7mLrnVckZZVXJZAQ1m55gT2mWyh3S314Z6b49joxTuw3iA3/YFHBXt/v
+	rjNOmrtwi/sSlcS0p6DJDXgBF8fOptqdHFQDdKFnPFLN0K/K/8VBhvIdJIOdAcqLTvrfBN
+	a67028b/IFZsbV7R/19MxjAkD7RBSlc=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-474-TWKp3wlOPmuMLAA5eWz0pw-1; Tue, 27 Jan 2026 03:06:28 -0500
+X-MC-Unique: TWKp3wlOPmuMLAA5eWz0pw-1
+X-Mimecast-MFC-AGG-ID: TWKp3wlOPmuMLAA5eWz0pw_1769501187
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-c61dee98720so2775116a12.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 27 Jan 2026 00:06:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769501187; x=1770105987;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Np7Cptnfw+XZkLrXgFu9BqaG1+Fb7vNwdeFnlALDuRg=;
+        b=jXcUgs//B1s0cR7kVnkGyovazgpj3uRsNP90+iPFrTssGy2lg2Ed3/05w/q21vCAPU
+         8Q/YCc4Sqy5e5IiIDqlD9TSqWYYrrmkYrH3kA3875YqF5AAVfbjgHBDaInlDjB9ksnO3
+         5Gf7JX6OIylIohr1AwKHXs2cbnetzUNabJXVwYN8NVxHwWV591OYxWO+JghU0aEmLsB2
+         Rh75+/y95VjXswSyFx7orjbzcAh4hbBhFHNozDSeMpwHaWXBB1et5cuQ4sFGkl9xExTp
+         DDnzK9iBDFR8rdiZGOibPiWWcj2xZAqpBJHpnRVrF48TJPyhzm7SAf7lbH5DUDoZGnpc
+         pSIw==
+X-Forwarded-Encrypted: i=1; AJvYcCViBmAS+iE5oRNBfao5WQk1Vzmqpnfj1RqXcjCZd9s6MoKUUgsk1AwU8LDtfEk4BM74x2Uz2EFNv6AALu0DXg==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxBgf3xujvQi8QTYej8bZLDoJg+yuZoHe2Ew177am/KTwSR/E7F
+	6jE8Mlh8MUDEwagzJPUEEsTKVooQa9ceaWlKB23zrLHnchnrJqpvuXAjg7qSm3JDhrbQtz8Y7lW
+	PbqML95ZrSUVnEqK3QkbVn8l6H2IjggShNaoQjzMVLWUitgmsb1lJs1DUtcz6wms3HOCztuniTu
+	pFBnL4nlJopE0TL1CvE97yBWdLjUEp0uO5F6R1TVL42n4qP7CjBG2xHzxZXA==
+X-Gm-Gg: AZuq6aKX/LmNqD/ckw1CvpUCdn83jGrbf5OQFagmVRfbvTKncvvNHVl+Vpm4MVrkw7q
+	rpp8U6MHo6eDCoWNfjo1OpIhvO6dIRRDj9dR47FvR0rAWpBKJ/LxodmWRrX60+qfxL9mlN0R23N
+	gHgzhYPXl7PK7q/VBVO7hN+8AfgvmC1jvcpJs0YrWmjerxdVvOAsqyvnm23V25EuW5keU=
+X-Received: by 2002:a05:6300:670b:b0:361:63eb:d024 with SMTP id adf61e73a8af0-38ec62c85f2mr864710637.23.1769501187110;
+        Tue, 27 Jan 2026 00:06:27 -0800 (PST)
+X-Received: by 2002:a05:6300:670b:b0:361:63eb:d024 with SMTP id
+ adf61e73a8af0-38ec62c85f2mr864691637.23.1769501186706; Tue, 27 Jan 2026
+ 00:06:26 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+References: <20260127073921.175981-1-lulu@redhat.com>
+In-Reply-To: <20260127073921.175981-1-lulu@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 27 Jan 2026 16:06:14 +0800
+X-Gm-Features: AZwV_Qi9BNqEGOfaJTvxImo9xsBd4ZDBvvBGEwTUkdPThnSlmVC_s4smZpdhUJw
+Message-ID: <CACGkMEuEjtnY=-BFj-hhn7JG+N=LtjOJYM1HSonjgKo+wf3m5A@mail.gmail.com>
+Subject: Re: [PATCH] vhost: remove impossible check in VHOST_GET_FORK_FROM_OWNER
+ ioctl
+To: Cindy Lu <lulu@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ToYdNfH6QIEJCKp9mfqgPQWGIdnTtMsP3CLQIsks1JU_1769501187
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-remove impossible fork_owner check in VHOST_GET_FORK_FROM_OWNER ioctl
+On Tue, Jan 27, 2026 at 3:39=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+>
+> remove impossible fork_owner check in VHOST_GET_FORK_FROM_OWNER ioctl
+>
+> Fixes: 7d9896e9f6d02d8a ("vhost: Reintroduce kthread API and add mode sel=
+ection")
+>
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> ---
+>  drivers/vhost/vhost.c | 5 -----
+>  1 file changed, 5 deletions(-)
+>
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index bccdc9eab267..889481c92236 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2338,11 +2338,6 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned=
+ int ioctl, void __user *argp)
+>         if (ioctl =3D=3D VHOST_GET_FORK_FROM_OWNER) {
+>                 u8 fork_owner_val =3D d->fork_owner;
+>
+> -               if (fork_owner_val !=3D VHOST_FORK_OWNER_TASK &&
+> -                   fork_owner_val !=3D VHOST_FORK_OWNER_KTHREAD) {
 
-Fixes: 7d9896e9f6d02d8a ("vhost: Reintroduce kthread API and add mode selection")
+There's another similar check in VHOST_SET_FORK_FROM_OWNER?
 
-Signed-off-by: Cindy Lu <lulu@redhat.com>
----
- drivers/vhost/vhost.c | 5 -----
- 1 file changed, 5 deletions(-)
+Thanks
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index bccdc9eab267..889481c92236 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2338,11 +2338,6 @@ long vhost_dev_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *argp)
- 	if (ioctl == VHOST_GET_FORK_FROM_OWNER) {
- 		u8 fork_owner_val = d->fork_owner;
- 
--		if (fork_owner_val != VHOST_FORK_OWNER_TASK &&
--		    fork_owner_val != VHOST_FORK_OWNER_KTHREAD) {
--			r = -EINVAL;
--			goto done;
--		}
- 		if (put_user(fork_owner_val, (u8 __user *)argp)) {
- 			r = -EFAULT;
- 			goto done;
--- 
-2.51.0
+> -                       r =3D -EINVAL;
+> -                       goto done;
+> -               }
+>                 if (put_user(fork_owner_val, (u8 __user *)argp)) {
+>                         r =3D -EFAULT;
+>                         goto done;
+> --
+> 2.51.0
+>
 
