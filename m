@@ -1,37 +1,38 @@
 Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4096533CE9B
-	for <virtualization@lists.linux.dev>; Tue, 27 Jan 2026 10:44:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B19333446B5
+	for <virtualization@lists.linux.dev>; Tue, 27 Jan 2026 10:44:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769510668; cv=none; b=S3EuoW77ShRwB1eVAkLxSkWI8JPsrAEbTLRMaZWkPSK83ly5YCDfiYS+hMUoT3rbd0gKNF7DQlkv9Z17qfxEpsY6mXIaQnzUK0YnSSJ76ED7dhXKXqJPVeGeKBCM9yFMbeySAWR4gei2vAnIWPaqdG0rD1KDprCKDv0v2acyUPM=
+	t=1769510670; cv=none; b=hgH6bcR5nQspdPyEkhfg9U4Q6Pmg8qFVBi8XDpZPospUrmT4Z+orfG32ObG5bFzkh77g8aT2Kv6euwzyocBa0GN2DPLtVVDDpY7Weq8EpzAUr4e9z3W5pkFOy7uQ0aMHY392P6wIAhtQGmUy1hySXAmJKfgi1t2UwWECp3iJqlY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769510668; c=relaxed/simple;
-	bh=vrKMHfK+jZccgVy53jFWZbkRm0Iff0NWCOMHyQbgupU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=qpqNAJv9l+5LEdsQFqIYORN8M7wKeIHRrUhQZfFXCxSofHs62N0WFJrpsI5QHFUEXXponXSaYHcOiVgj+VZ9UQJHKe6wqT3a7Xi/l524HOlNx2NelzgRYNVpdnAznP6h5Nj5rpOT020KviWQu8e7J8F/TjGfGBAj10hLgDcxW/c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=ZmuuAy4X; arc=none smtp.client-ip=148.251.105.195
+	s=arc-20240116; t=1769510670; c=relaxed/simple;
+	bh=8k1knDjmTySyw7ZGPkl+PripTkXl+ZQ0RVPekZtLf28=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ps0LGZVL/iHWNxpfp9BNgp7sGqCfjfw4yMVtzAKvvlmF01D+VskAVVZJyFZ3yxBOkQYjq4lGDXo+jRWpY+EVzOmkgiGYahAEGrao7f3/SNtNWaEBFe6sstNDhCzi00wpM/EG4pQhPIYwqzK4QLZQShtNLAgxTwwYAnCTRbvZ5TY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=ovdPJImi; arc=none smtp.client-ip=148.251.105.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ZmuuAy4X"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ovdPJImi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1769510657;
-	bh=vrKMHfK+jZccgVy53jFWZbkRm0Iff0NWCOMHyQbgupU=;
-	h=From:To:Cc:Subject:Date:From;
-	b=ZmuuAy4XR4xaY64h4v0IoNHx3qlVSJHc6IQ2HmPWCtZ5uokj9ZEtgbZeXr3HSTIGU
-	 wvumhyLr5qTbPe2EQptpgA6/07ZQNScRK56xJT1QYkgOZ2BX5pNb03zFPKkVKQP8yU
-	 j5Owl5XlBW2W3a8UmIWoko3YsRQQ9+1hGK6NJhRX+9ulZ4pCcNo0mkYCSZV2JxqjZP
-	 BiB7EmQ3LfMune35mElYW349RfnXJ36qDciWzPzS5zQ2ZJi3VVbchoxUXya6tgtZqX
-	 X9QeJJ/9Sx+2fdsMlJjAvkODK7FBFhcy3Eqe4MwYvOwaNXC2PEKwTiRIQu1DNbzTIc
-	 12EjiAcHvjEFA==
+	s=mail; t=1769510667;
+	bh=8k1knDjmTySyw7ZGPkl+PripTkXl+ZQ0RVPekZtLf28=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=ovdPJImiDu34OGf0iZGBId/tNMCq2xrdk6D5or+cjMUx6afma9RK2n6bM/SvFBXyI
+	 +N1/JWv2Nmf4Jl7IC6bOLcEmrKT5ssCBLVYvSBmY9ZlgIEuTFey/Be1+/Tx70KY2If
+	 SdlFsAoUG1uBFeAEpu/0MyiUteaK0v4XVL2oaRguhlG4ZI/iWdbK9jgw3l0TejCnVz
+	 up+otSBFooml21DrmPxnQkhx4JpC7QKLiRe9PAXVgHzfOCt3eM6lSgqcDBiMl3gYzL
+	 YNEMDCaA3Q9P76QR1l3SqldotHEOpyDBRuiSzKMMHafD5lUZ21GxjlYliAKUK+z72V
+	 BH7HxHkUcu3PA==
 Received: from vignesh-thinkpad.. (unknown [171.76.81.211])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: vignesh)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 99DE217E00AC;
-	Tue, 27 Jan 2026 11:44:13 +0100 (CET)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 3120C17E0DB7;
+	Tue, 27 Jan 2026 11:44:23 +0100 (CET)
 From: Vignesh Raman <vignesh.raman@collabora.com>
 To: dri-devel@lists.freedesktop.org
 Cc: daniels@collabora.com,
@@ -53,112 +54,160 @@ Cc: daniels@collabora.com,
 	intel-gfx@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v1 0/7] drm/ci: add new jobs, uprev IGT and mesa
-Date: Tue, 27 Jan 2026 16:13:55 +0530
-Message-ID: <20260127104406.200505-1-vignesh.raman@collabora.com>
+Subject: [PATCH v1 2/7] drm/ci: move qualcomm baremetal jobs to lava
+Date: Tue, 27 Jan 2026 16:13:57 +0530
+Message-ID: <20260127104406.200505-3-vignesh.raman@collabora.com>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260127104406.200505-1-vignesh.raman@collabora.com>
+References: <20260127104406.200505-1-vignesh.raman@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-This series introduces new job to drm-ci for testing the following
-devices:
-- rk3588-rock-5b
+Qualcomm apq8016 and apq8096 DUTS are moved to Collabora lava
+farm. So enable these jobs to use lava and update expectation
+files.
 
-Other updates include:
-- Uprev IGT and updating test expectations accordingly.
-- Adapting to recent changes in Mesa CI, such as:
-   - LAVA overlay-based firmware handling
-   - Container/job rule separation
-   - Removal of the python-artifacts job
-   - Use of the Alpine container for LAVA jobs
-   - Various other CI improvements
-- Move bare-metal jobs for apq8016 and apq8096 to LAVA, as these devices
-  are migrated to Collabora LAVA farm.
-- Updating the runner tag for i915: cml (switching from hatch to puff)
-  to improve device availability.
-- Adjusting parallelism in jobs (sm8350-hdk, amly) to better utilize
-  test resources.
-- Fix issues with rebase with external fixes branch.
+Co-developed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+---
+ drivers/gpu/drm/ci/arm64.config               |  1 +
+ drivers/gpu/drm/ci/test.yml                   | 62 ++++++-------------
+ .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |  4 ++
+ .../gpu/drm/ci/xfails/msm-apq8096-fails.txt   |  2 +
+ 4 files changed, 27 insertions(+), 42 deletions(-)
 
-Pipeline: https://gitlab.freedesktop.org/vigneshraman/msm/-/pipelines/1591806
-MR: https://gitlab.freedesktop.org/drm/msm/-/merge_requests/213
-
-mediatek:mt8183 fails and it is reported upstream - https://lore.kernel.org/linux-mediatek/CAAq5pW9o3itC0G16LnJO7KMAQ_XoqXUpB=cuJ_7e3-H11zKd5Q@mail.gmail.com/#r
-Few intel jobs fails, this will be investigated and a seperate patch to update xfails will be sent.
-
-Link to v1: https://lore.kernel.org/dri-devel/20251114030056.1139570-1-vignesh.raman@collabora.com/
-
-Vignesh Raman (7):
-  drm/ci: uprev mesa
-  drm/ci: move qualcomm baremetal jobs to lava
-  drm/ci: reduce sm8350-hdk parallel jobs from 4 to 2
-  drm/ci: i915: cml: update runner tag
-  drm/ci: add rk3588-rock-5b
-  drm/ci: uprev IGT
-  drm/ci: disable rebase when pulling *-external-fixes
-
- MAINTAINERS                                   |   1 +
- drivers/gpu/drm/ci/arm64.config               |   6 +
- drivers/gpu/drm/ci/build.sh                   |  13 +-
- drivers/gpu/drm/ci/build.yml                  |  22 +--
- drivers/gpu/drm/ci/container.yml              |  28 +++-
- drivers/gpu/drm/ci/gitlab-ci.yml              |  98 ++++++++++---
- drivers/gpu/drm/ci/igt_runner.sh              |   6 +-
- drivers/gpu/drm/ci/image-tags.yml             |  22 +--
- drivers/gpu/drm/ci/lava-submit.sh             | 101 +++++++-------
- drivers/gpu/drm/ci/static-checks.yml          |   1 +
- drivers/gpu/drm/ci/test.yml                   | 119 ++++++++--------
- .../gpu/drm/ci/xfails/amdgpu-stoney-fails.txt |  16 ++-
- .../drm/ci/xfails/amdgpu-stoney-flakes.txt    |   7 +
- drivers/gpu/drm/ci/xfails/i915-amly-fails.txt |  32 +----
- drivers/gpu/drm/ci/xfails/i915-amly-skips.txt |  65 +++++++++
- drivers/gpu/drm/ci/xfails/i915-apl-fails.txt  |  24 +---
- drivers/gpu/drm/ci/xfails/i915-cml-fails.txt  |  29 +---
- drivers/gpu/drm/ci/xfails/i915-cml-flakes.txt |   7 +
- drivers/gpu/drm/ci/xfails/i915-glk-fails.txt  |  35 +----
- drivers/gpu/drm/ci/xfails/i915-glk-skips.txt  | 131 ++++++++++++++++++
- drivers/gpu/drm/ci/xfails/i915-jsl-fails.txt  |  37 +----
- drivers/gpu/drm/ci/xfails/i915-jsl-skips.txt  |  50 +++++++
- drivers/gpu/drm/ci/xfails/i915-kbl-fails.txt  |   4 +
- drivers/gpu/drm/ci/xfails/i915-tgl-fails.txt  |   5 +-
- drivers/gpu/drm/ci/xfails/i915-tgl-flakes.txt |   6 +
- drivers/gpu/drm/ci/xfails/i915-whl-fails.txt  |  16 +--
- .../drm/ci/xfails/mediatek-mt8173-fails.txt   |  13 +-
- .../drm/ci/xfails/mediatek-mt8173-flakes.txt  | 119 ++++++++++++++++
- .../drm/ci/xfails/mediatek-mt8183-fails.txt   |   7 +-
- .../gpu/drm/ci/xfails/meson-g12b-fails.txt    |   1 +
- .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |   4 +
- .../gpu/drm/ci/xfails/msm-apq8096-fails.txt   |   2 +
- .../msm-sc7180-trogdor-kingoftown-fails.txt   |   1 +
- ...sm-sc7180-trogdor-lazor-limozeen-fails.txt |   1 +
- .../drm/ci/xfails/msm-sm8350-hdk-fails.txt    |   1 +
- .../drm/ci/xfails/panfrost-mt8183-fails.txt   |   1 +
- .../drm/ci/xfails/panfrost-rk3288-fails.txt   |   1 +
- .../drm/ci/xfails/panfrost-rk3399-fails.txt   |   1 +
- .../drm/ci/xfails/panthor-rk3588-fails.txt    |   5 +
- .../drm/ci/xfails/panthor-rk3588-skips.txt    |  20 +++
- .../drm/ci/xfails/rockchip-rk3288-fails.txt   |  14 +-
- .../drm/ci/xfails/rockchip-rk3288-flakes.txt  |  21 +++
- .../drm/ci/xfails/rockchip-rk3399-fails.txt   |  12 +-
- .../drm/ci/xfails/rockchip-rk3399-flakes.txt  |  35 +++++
- .../drm/ci/xfails/rockchip-rk3588-fails.txt   |  10 ++
- .../drm/ci/xfails/rockchip-rk3588-skips.txt   |  14 ++
- .../drm/ci/xfails/virtio_gpu-none-fails.txt   |  50 -------
- drivers/gpu/drm/ci/xfails/vkms-none-fails.txt |   2 +
- drivers/gpu/drm/ci/xfails/vkms-none-skips.txt |   3 +
- 49 files changed, 835 insertions(+), 384 deletions(-)
- create mode 100644 drivers/gpu/drm/ci/xfails/i915-tgl-flakes.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/panthor-rk3588-fails.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/panthor-rk3588-skips.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3588-fails.txt
- create mode 100644 drivers/gpu/drm/ci/xfails/rockchip-rk3588-skips.txt
-
+diff --git a/drivers/gpu/drm/ci/arm64.config b/drivers/gpu/drm/ci/arm64.config
+index fddfbd4d2493..b850b88787ad 100644
+--- a/drivers/gpu/drm/ci/arm64.config
++++ b/drivers/gpu/drm/ci/arm64.config
+@@ -83,6 +83,7 @@ CONFIG_SC_DISPCC_7180=y
+ CONFIG_SC_GPUCC_7180=y
+ CONFIG_SM_GPUCC_8350=y
+ CONFIG_QCOM_SPMI_ADC5=y
++CONFIG_QCOM_SPMI_VADC=y
+ CONFIG_DRM_PARADE_PS8640=y
+ CONFIG_DRM_LONTIUM_LT9611UXC=y
+ CONFIG_PHY_QCOM_USB_HS=y
+diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
+index 754db71049f0..84153aa2ad68 100644
+--- a/drivers/gpu/drm/ci/test.yml
++++ b/drivers/gpu/drm/ci/test.yml
+@@ -67,31 +67,6 @@
+     - testing:x86_64
+     - igt:x86_64
+ 
+-.baremetal-igt-arm64:
+-  extends:
+-    - .baremetal-test-arm64-gl
+-    - .use-debian/baremetal_arm64_test-gl
+-    - .allow_failure_lockdep
+-  timeout: "1h30m"
+-  rules:
+-    - !reference [.scheduled_pipeline-rules, rules]
+-    - !reference [.google-freedreno-farm-rules, rules]
+-    - when: on_success
+-  variables:
+-    FDO_CI_CONCURRENT: 10
+-    HWCI_TEST_SCRIPT: "/install/igt_runner.sh"
+-    S3_ARTIFACT_NAME: "arm64/kernel-files"
+-    BM_KERNEL: https://${PIPELINE_ARTIFACTS_BASE}/arm64/Image.gz
+-    BM_CMDLINE: "ip=dhcp console=ttyMSM0,115200n8 $BM_KERNEL_EXTRA_ARGS root=/dev/nfs rw nfsrootdebug nfsroot=,tcp,nfsvers=4.2 init=/init $BM_KERNELARGS"
+-    FARM: google
+-  needs:
+-    - debian/baremetal_arm64_test-gl
+-    - job: testing:arm64
+-      artifacts: false
+-    - igt:arm64
+-  tags:
+-    - $RUNNER_TAG
+-
+ .software-driver:
+   stage: software-driver
+   extends:
+@@ -149,34 +124,37 @@ msm:sc7180-trogdor-kingoftown:
+ 
+ msm:apq8016:
+   extends:
+-    - .baremetal-igt-arm64
++    - .lava-igt:arm64
+   stage: msm
++  parallel: 3
+   variables:
+-    DEVICE_TYPE: apq8016-sbc-usb-host
++    BOOT_METHOD: fastboot
++    DEVICE_TYPE: dragonboard-410c
+     DRIVER_NAME: msm
+-    BM_DTB: https://${PIPELINE_ARTIFACTS_BASE}/arm64/${DEVICE_TYPE}.dtb
++    DTB: apq8016-sbc-usb-host
++    FARM: collabora
+     GPU_VERSION: apq8016
+-    # disabling unused clocks congests with the MDSS runtime PM trying to
+-    # disable those clocks and causes boot to fail.
+-    # Reproducer: DRM_MSM=y, DRM_I2C_ADV7511=m
+-    BM_KERNEL_EXTRA_ARGS: clk_ignore_unused
+-    RUNNER_TAG: google-freedreno-db410c
+-  script:
+-    - ./install/bare-metal/fastboot.sh || exit $?
++    KERNEL_IMAGE_NAME: "Image.gz"
++    KERNEL_IMAGE_TYPE: ""
++    RUNNER_TAG: mesa-ci-x86-64-lava-dragonboard-410c
++    LAVA_FIRMWARE: qcom-lava
+ 
+ msm:apq8096:
+   extends:
+-    - .baremetal-igt-arm64
++    - .lava-igt:arm64
+   stage: msm
++  parallel: 3
+   variables:
+-    DEVICE_TYPE: apq8096-db820c
++    BOOT_METHOD: fastboot
++    DEVICE_TYPE: dragonboard-820c
+     DRIVER_NAME: msm
+-    BM_KERNEL_EXTRA_ARGS: maxcpus=2
+-    BM_DTB: https://${PIPELINE_ARTIFACTS_BASE}/arm64/${DEVICE_TYPE}.dtb
++    DTB: apq8096-db820c
++    FARM: collabora
+     GPU_VERSION: apq8096
+-    RUNNER_TAG: google-freedreno-db820c
+-  script:
+-    - ./install/bare-metal/fastboot.sh || exit $?
++    KERNEL_IMAGE_NAME: "Image.gz"
++    KERNEL_IMAGE_TYPE: ""
++    RUNNER_TAG: mesa-ci-x86-64-lava-dragonboard-820c
++    LAVA_FIRMWARE: qcom-lava
+ 
+ msm:sm8350-hdk:
+   extends:
+diff --git a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
+index 72c469021b66..4546363447ff 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
+@@ -1,5 +1,9 @@
++core_setmaster@master-drop-set-user,Fail
+ kms_3d,Fail
++kms_cursor_legacy@forked-move,Fail
++kms_cursor_legacy@single-bo,Fail
+ kms_force_connector_basic@force-edid,Fail
+ kms_hdmi_inject@inject-4k,Fail
+ kms_lease@lease-uevent,Fail
++msm/msm_mapping@memptrs,Fail
+ msm/msm_mapping@ring,Fail
+diff --git a/drivers/gpu/drm/ci/xfails/msm-apq8096-fails.txt b/drivers/gpu/drm/ci/xfails/msm-apq8096-fails.txt
+index 2893f98a6b97..0d5cb2a87e67 100644
+--- a/drivers/gpu/drm/ci/xfails/msm-apq8096-fails.txt
++++ b/drivers/gpu/drm/ci/xfails/msm-apq8096-fails.txt
+@@ -1,2 +1,4 @@
++core_setmaster@master-drop-set-user,Fail
+ kms_3d,Fail
+ kms_lease@lease-uevent,Fail
++msm/msm_mapping@memptrs,Fail
 -- 
 2.47.3
 
