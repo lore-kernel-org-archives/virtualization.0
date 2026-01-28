@@ -1,230 +1,310 @@
-Received: from pdx-out-008.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-008.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.42.203.116])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 586152853F3
-	for <virtualization@lists.linux.dev>; Wed, 28 Jan 2026 14:47:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.42.203.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3448228682
+	for <virtualization@lists.linux.dev>; Wed, 28 Jan 2026 17:23:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769611659; cv=none; b=RwTPBDPqc8qstuH6nLx/7IHrjsBDLPnxaWducFtwekAk9MYaQ43/9svS+OMmtyhEjVoBuXDkI2JoVRAvL8YD64xaJDXxb+c/Ds9mLFSBC65oOJZC+sGNhI5KbFutQO5bJG73EgW67Yp2afi1q9K8bxGwkU3Mv+g4BGcZG5ZrtIA=
+	t=1769621025; cv=none; b=YKhUaw+XuW6sdYZaJoYTMntYpX3POlp5jt1vSCz2fHyV7qWmpM/9ut7kFNU4o9xEVJeRItGkSSf5wkKNUruYrww566UtIamb17TgwaepDyAUlO2NldQTnKIdckN1iwn2fwSV/1mjAI5YibrO6qeXeIukAw3AtdX1kIT6wKW8ZaA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769611659; c=relaxed/simple;
-	bh=EbXXWV0w2UKdMOhQ6SA5AB51eB8/9wYYRTBssFPzTZw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=Dw83HFCDoMS64Vd/UnVuFWqXyynmEHViSPrCSpGIdFYwslqoJbCsKQxSe1BFRv/VK8gSGqqjqrNgN/pPGp1lap833fJZex64CRkD+UBmjT2cpauVqNuxlLC7zlvJkYwdMaaZ5oHjK5wJHGF/Pa0gv5kAsypvXQXgqMCo/DaCGVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=Qw8N43ds; arc=none smtp.client-ip=52.42.203.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+	s=arc-20240116; t=1769621025; c=relaxed/simple;
+	bh=qbbTNigXkPLBi/kTiMQHzZE3hHFs36knucV3j8O5E5c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=tcOWsbN00bQTsIjKLurlRVPIoN5cXa1crDdeBcvQFd7+a+Dt8Tia2WuN97r4vOIlAYsBQ6h3qZorsASQ5YnHoIXP+tfAhl6LZB0KI16YA1kTNLISkjWT/iTWApeG5oYdOYzpbDkLBtX+XwviPd+ZHAyyfalG6vuzfs+dO4cP3bA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CfJ7TPnZ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="Qw8N43ds"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1769611657; x=1801147657;
-  h=message-id:date:mime-version:subject:to:references:from:
-   in-reply-to:content-transfer-encoding;
-  bh=EbXXWV0w2UKdMOhQ6SA5AB51eB8/9wYYRTBssFPzTZw=;
-  b=Qw8N43dslEFzWycrMM7vNRFRydqR0k5V9/82kvmcOnon+pESNoBadCqK
-   RR1WbhesOyj/Gxn5KU8KAgar3cru4rVrBLRi5j5bOKnOHb8YbsNUgNGlJ
-   R0r2WyxMkK6lf4ZWcjYJGSerH8AxwcjDpi4f0KkoXrE/bk7F2YG4AId3K
-   BYsu63itAE76JQgF7DKuI1DiWFDIJkVY8vdHqGy0iz3QlhiKdu75qHso7
-   F/U6k6ek6uOVYXsH6qncBqPfLXgzdmhPGPsB/kwgBlynKJb6RU1S3Q4rN
-   7Ieyr6M2QxmxGmbR6MOGgIQbP/6S3nhi9b+t9OxnhwFKQJEunJj2ZVzfk
-   g==;
-X-CSE-ConnectionGUID: bizZOlolTyejnq3xjFG1/Q==
-X-CSE-MsgGUID: PLjclmnuTSSPCEJecZELFQ==
-X-IronPort-AV: E=Sophos;i="6.21,258,1763424000"; 
-   d="scan'208";a="11756051"
-Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
-  by internal-pdx-out-008.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 14:47:33 +0000
-Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.234:14120]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.0.174:2525] with esmtp (Farcaster)
- id 9bd17054-c0a4-447f-a55d-ba7eb77f6cff; Wed, 28 Jan 2026 14:47:33 +0000 (UTC)
-X-Farcaster-Flow-ID: 9bd17054-c0a4-447f-a55d-ba7eb77f6cff
-Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
- EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
- Wed, 28 Jan 2026 14:47:32 +0000
-Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
- (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35; Wed, 28 Jan 2026
- 14:47:30 +0000
-Message-ID: <9494f555-0b18-41f6-9e8d-fc0b198c27cd@amazon.com>
-Date: Wed, 28 Jan 2026 15:47:27 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CfJ7TPnZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769621023;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gPnWFJelX/wlQBx2ivYdH45+n52GlMlmx8tnvEyIbww=;
+	b=CfJ7TPnZHSaFx+SXAz2+CMx0Fs1f7FEh5I+7lEV9jPfGbVE/HiUsjl9QdErJNZ9sXjV6MJ
+	J+/ib+ODf66DgjiKJmIBHF7UR3yke9fQ965lOQIbyjZAI7lJ87fkYXxL3IxnsaXQs1vVYt
+	iJ7Omt+k2utU8F5caCQztGRnlmnr+OE=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-590-kASwmKFXO22hGU5wATfLrQ-1; Wed, 28 Jan 2026 12:23:41 -0500
+X-MC-Unique: kASwmKFXO22hGU5wATfLrQ-1
+X-Mimecast-MFC-AGG-ID: kASwmKFXO22hGU5wATfLrQ_1769621020
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-59e0d5d1c81so29919e87.0
+        for <virtualization@lists.linux.dev>; Wed, 28 Jan 2026 09:23:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769621020; x=1770225820;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gPnWFJelX/wlQBx2ivYdH45+n52GlMlmx8tnvEyIbww=;
+        b=rjrdZewkRURiuBmhbbJZrI8ur9sedbko39ERYIXIx8UKhlkcV79C7ESh1gVeB/JAwp
+         +pPqgWQwC3HLMl4IgTuYxvGc7MYxia1eIgGnropnAdJ/oaB4LewEIpeR/59nE1BOH8PL
+         tzGUARgY4fgIEmzf8xPO1ux9m+eOkXnxYEcLqfYCMP0Cwbk6dtNHdqOtLOWMFGBHqOvv
+         QaUE6u0VrvPdmCLgaXxlHgLXUwn9LKxLNzuYBMfOgC/+qTLRV0V1lUUMKjarBFJ472yK
+         dCuYYeRJL8PLEvhHGEsO0VQSJfHWJUMa7/cOzzhtaTuyWRG0cFUo5I16IUH1ff2e1ke8
+         qcPg==
+X-Forwarded-Encrypted: i=1; AJvYcCWsn6JtbOjkkHgBeqsZiBCRUkMeMdRKFPV6RzLfBapsL86nkBMteRhTnFP3zvWpO7a5FrzR6ZV7SWnDAt9WUA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzU0ERK3s8HckABzBbZTBG52kheEA9I+X5ZQ914Q8WB7j3+B5Wl
+	9N7xWu86jR3esd7qkhqCCOwi9X0D8yX5dQsBnPUMicB/X59FcNuurvo5G9zuhx7Xr5N/wg6VG0n
+	gwcVUrlt1C+SHe8Y3ons0KTR0W6VqdAlyIJxFLXMWhcQ46XRBbFcbn4uT16q/+NnLs8E5
+X-Gm-Gg: AZuq6aJFwxq7wKm9teJH+KC5hkEoUNyH2kJpd+Yqohhg6V5LIMTc9V2slS0v5eYie01
+	UzDi4kG//BDHAQfTb9+t9JkVcDEYn7+xDKsXLt6XI1E6SaLe7nXNG0kCwLob0SIN9cloRzAusLL
+	MAvbn6IMYUSVv7RsF14iMs2n3KIucWPwMe0KuMsoDy7QwsKjfOy5VOOTehqqU2nVdcQI5mOwRfn
+	YOyt11C0og61xCZiHz3ZxXqHKTMhMgzK8OpDS1TP6UoCY6/8GRawoLmDeTCK0G1lWlhG20uJJQv
+	zD2DMtMpKhgtpY9fJsFRQHQNmAFDT7pWZ771vX9cIVhGgBlOwPIK/LDzEHJrRiBaFVPsKkPwNTh
+	sF4sjda72WEhmXpe7HIp/wwaLKvuVtOesCQ==
+X-Received: by 2002:a05:6512:3b99:b0:59d:4a12:5f7 with SMTP id 2adb3069b0e04-59e04025374mr2793097e87.31.1769621019838;
+        Wed, 28 Jan 2026 09:23:39 -0800 (PST)
+X-Received: by 2002:a05:6512:3b99:b0:59d:4a12:5f7 with SMTP id 2adb3069b0e04-59e04025374mr2793078e87.31.1769621019241;
+        Wed, 28 Jan 2026 09:23:39 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59e074b7a8csm643655e87.77.2026.01.28.09.23.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Jan 2026 09:23:38 -0800 (PST)
+Date: Wed, 28 Jan 2026 12:23:35 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"open list:VIRTIO CORE" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>,
+	Alexander Graf <graf@amazon.com>
+Subject: Re: [PATCH] virtio_ring: Add READ_ONCE annotations for
+ device-writable fields
+Message-ID: <20260128121309-mutt-send-email-mst@kernel.org>
+References: <20260128135947.455686-1-johannes.thumshirn@wdc.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_ring: Add READ_ONCE annotations for
- device-writable fields
-To: Johannes Thumshirn <johannes.thumshirn@wdc.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
-	<eperezma@redhat.com>, "open list:VIRTIO CORE"
-	<virtualization@lists.linux.dev>, open list <linux-kernel@vger.kernel.org>
-References: <20260128135947.455686-1-johannes.thumshirn@wdc.com>
-Content-Language: en-US
-From: Alexander Graf <graf@amazon.com>
 In-Reply-To: <20260128135947.455686-1-johannes.thumshirn@wdc.com>
-X-ClientProxiedBy: EX19D045UWC002.ant.amazon.com (10.13.139.230) To
- EX19D020UWC004.ant.amazon.com (10.13.138.149)
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: base64
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: aYYMLjJ9GogPuslVulNEwfXeNhtY4vo3NMfNB5_aizM_1769621020
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Ck9uIDI4LjAxLjI2IDE0OjU5LCBKb2hhbm5lcyBUaHVtc2hpcm4gd3JvdGU6Cj4gRnJvbTogQWxl
-eGFuZGVyIEdyYWYgPGdyYWZAYW1hem9uLmNvbT4KPgo+IEtDU0FOIHJlcG9ydHMgZGF0YSByYWNl
-cyB3aGVuIGFjY2Vzc2luZyB2aXJ0aW8gcmluZyBmaWVsZHMgdGhhdCBhcmUKPiBjb25jdXJyZW50
-bHkgd3JpdHRlbiBieSB0aGUgZGV2aWNlIChob3N0KS4gVGhlc2UgYXJlIGxlZ2l0aW1hdGUKPiBj
-b25jdXJyZW50IGFjY2Vzc2VzIHdoZXJlIHRoZSBDUFUgcmVhZHMgZmllbGRzIHRoYXQgdGhlIGRl
-dmljZSB1cGRhdGVzCj4gdmlhIERNQS1saWtlIG1lY2hhbmlzbXMuCj4KPiBBZGQgYWNjZXNzb3Ig
-ZnVuY3Rpb25zIHRoYXQgdXNlIFJFQURfT05DRSgpIHRvIHByb3Blcmx5IGFubm90YXRlIHRoZXNl
-Cj4gZGV2aWNlLXdyaXRhYmxlIGZpZWxkcyBhbmQgcHJldmVudCBjb21waWxlciBvcHRpbWl6YXRp
-b25zIHRoYXQgY291bGQKPiBicmVhayB0aGUgY29kZS4gVGhpcyBhbHNvIHNlcnZlcyBhcyBkb2N1
-bWVudGF0aW9uIHNob3dpbmcgd2hpY2ggZmllbGRzCj4gYXJlIHNoYXJlZCB3aXRoIHRoZSBkZXZp
-Y2UuCj4KPiBUaGUgYWZmZWN0ZWQgZmllbGRzIGFyZToKPiAtIFNwbGl0IHJpbmc6IHVzZWQtPmlk
-eCwgdXNlZC0+cmluZ1tdLmlkLCB1c2VkLT5yaW5nW10ubGVuCj4gLSBQYWNrZWQgcmluZzogZGVz
-Y1tdLmZsYWdzLCBkZXNjW10uaWQsIGRlc2NbXS5sZW4KPgo+IFJlcG9ydGVkLWJ5OiBLZXJuZWwg
-Q29uY3VycmVuY3kgU2FuaXRpemVyIChLQ1NBTikKPiBTaWduZWQtb2ZmLWJ5OiBBbGV4YW5kZXIg
-R3JhZiA8Z3JhZkBhbWF6b24uY29tPgoKClRoYW5rcyBmb3IgcGVyc2lzdGVudGx5IHRyeWluZyB0
-byBmaXggdGhlc2UgS0NTQU4gd2FybmluZ3MhIDopCgpUaGlzIHBhdGNoIHdhcyBhbiBpbml0aWFs
-IEFJIGdlbmVyYXRlZCBzdGFiIGF0IHNlZWluZyB3aGV0aGVyIFJFQURfT05DRSAKd291bGQgd29y
-ayBhbmQgaG93IHRvIG1ha2UgaXQgcHJldHR5LiBJdCB3YXMgbm90IG1lYW50IHRvIGdvIHRvIHRo
-ZSAKbWFpbGluZyBsaXN0IGFzIGlzLiBTb21lIGNvbW1lbnRzIG9uIHdoYXQgd2Ugd291bGQgbmVl
-ZCB0byBpbXByb3ZlIHRvIApicmluZyBpdCB0byBhIG1lcmdlYWJsZSBzdGF0ZS4KCgpHaXZlbiB0
-aGlzIGlzIG5vdCBhIHN1YnN5c3RlbS1jb250cmlidXRvciByZWxhdGlvbnNoaXAsIEkgYWxzbyB0
-aGluayBpdCAKd291bGQgYmUgQ28tZGV2ZWxvcGVkLWJ5IGluc3RlYWQgb2Ygc2lnbmVkLW9mZi1i
-eSA6KS4KCj4gW2p0aDogQWRkIFJFQURfT05DRSBpbiB2aXJ0cXVldWVfa2lja19wcmVwYXJlX3Nw
-bGl0IF0KPiBTaWduZWQtb2ZmLWJ5OiBKb2hhbm5lcyBUaHVtc2hpcm4gPGpvaGFubmVzLnRodW1z
-aGlybkB3ZGMuY29tPgo+IC0tLQo+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyB8IDg4
-ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLQo+ICAgMSBmaWxlIGNoYW5nZWQs
-IDczIGluc2VydGlvbnMoKyksIDE1IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4g
-aW5kZXggZGRhYjY4OTU5NjcxLi43NDk1N2M4M2UxMzggMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92
-aXJ0aW8vdmlydGlvX3JpbmcuYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMK
-PiBAQCAtMjIyLDYgKzIyMiw2MyBAQCBzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlIHsKPiAgICNlbmRp
-Zgo+ICAgfTsKPgo+ICsvKgo+ICsgKiBBY2Nlc3NvcnMgZm9yIGRldmljZS13cml0YWJsZSBmaWVs
-ZHMgaW4gdmlydGlvIHJpbmdzLgo+ICsgKiBUaGVzZSBmaWVsZHMgYXJlIGNvbmN1cnJlbnRseSB3
-cml0dGVuIGJ5IHRoZSBkZXZpY2UgYW5kIHJlYWQgYnkgdGhlIGRyaXZlci4KPiArICogVXNlIFJF
-QURfT05DRSgpIHRvIHByZXZlbnQgY29tcGlsZXIgb3B0aW1pemF0aW9ucyBhbmQgZG9jdW1lbnQg
-dGhlCj4gKyAqIGludGVudGlvbmFsIGRhdGEgcmFjZS4KCgpTaG91bGQgbWVudGlvbiB0aGF0IHRo
-aXMgaXMgbmVjZXNzYXJ5IGZvciBLQ1NBTi4KCgo+ICsgKi8KPiArCj4gKy8qIFNwbGl0IHJpbmc6
-IHJlYWQgZGV2aWNlLXdyaXR0ZW4gZmllbGRzIGZyb20gdXNlZCByaW5nICovCgoKVXNlbGVzcyBj
-b21tZW50CgoKPiArc3RhdGljIGlubGluZSB1MTYgdnJpbmdfdXNlZF9pZHhfcmVhZChjb25zdCBz
-dHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSkKCgpKdXN0IGRvIGEgY29tcGxldGUgc2VkIHMvX3Jl
-YWQvLyBvbiB0aGlzIHBhdGNoLiBOb2JvZHkgbmVlZHMgdGhlc2UgX3JlYWQgCnN1ZmZpeGVzLgoK
-Cj4gK3sKPiArICAgICAgIHJldHVybiB2aXJ0aW8xNl90b19jcHUodnEtPnZxLnZkZXYsCj4gKyAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIFJFQURfT05DRSh2cS0+c3BsaXQudnJpbmcudXNl
-ZC0+aWR4KSk7Cj4gK30KPiArCj4gK3N0YXRpYyBpbmxpbmUgdTMyIHZyaW5nX3VzZWRfaWRfcmVh
-ZChjb25zdCBzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSwKPiArICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgdTE2IGlkeCkKPiArewo+ICsgICAgICAgcmV0dXJuIHZpcnRpbzMy
-X3RvX2NwdSh2cS0+dnEudmRldiwKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgUkVB
-RF9PTkNFKHZxLT5zcGxpdC52cmluZy51c2VkLT5yaW5nW2lkeF0uaWQpKTsKPiArfQo+ICsKPiAr
-c3RhdGljIGlubGluZSB1MzIgdnJpbmdfdXNlZF9sZW5fcmVhZChjb25zdCBzdHJ1Y3QgdnJpbmdf
-dmlydHF1ZXVlICp2cSwKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHUx
-NiBpZHgpCj4gK3sKPiArICAgICAgIHJldHVybiB2aXJ0aW8zMl90b19jcHUodnEtPnZxLnZkZXYs
-Cj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFJFQURfT05DRSh2cS0+c3BsaXQudnJp
-bmcudXNlZC0+cmluZ1tpZHhdLmxlbikpOwo+ICt9Cj4gKwo+ICsvKiBQYWNrZWQgcmluZzogcmVh
-ZCBkZXZpY2Utd3JpdHRlbiBmaWVsZHMgZnJvbSBkZXNjcmlwdG9ycyAqLwoKClVzZWxlc3MgY29t
-bWVudAoKCj4gK3N0YXRpYyBpbmxpbmUgdTE2IHZyaW5nX3BhY2tlZF9kZXNjX2ZsYWdzX3JlYWQo
-Y29uc3Qgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEsCj4gKyAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICB1MTYgaWR4KQo+ICt7Cj4gKyAgICAgICByZXR1cm4g
-bGUxNl90b19jcHUoUkVBRF9PTkNFKHZxLT5wYWNrZWQudnJpbmcuZGVzY1tpZHhdLmZsYWdzKSk7
-Cj4gK30KPiArCj4gK3N0YXRpYyBpbmxpbmUgdTE2IHZyaW5nX3BhY2tlZF9kZXNjX2lkX3JlYWQo
-Y29uc3Qgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEsCj4gKyAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICB1MTYgaWR4KQo+ICt7Cj4gKyAgICAgICByZXR1cm4gbGUx
-Nl90b19jcHUoUkVBRF9PTkNFKHZxLT5wYWNrZWQudnJpbmcuZGVzY1tpZHhdLmlkKSk7Cj4gK30K
-PiArCj4gK3N0YXRpYyBpbmxpbmUgdTMyIHZyaW5nX3BhY2tlZF9kZXNjX2xlbl9yZWFkKGNvbnN0
-IHN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxLAo+ICsgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIHUxNiBpZHgpCj4gK3sKPiArICAgICAgIHJldHVybiBsZTMyX3Rv
-X2NwdShSRUFEX09OQ0UodnEtPnBhY2tlZC52cmluZy5kZXNjW2lkeF0ubGVuKSk7Cj4gK30KPiAr
-Cj4gKy8qCj4gKyAqIE5vdGU6IFdlIGRvbid0IG5lZWQgUkVBRF9PTkNFIGZvciBkcml2ZXItPmRl
-dmljZSBmaWVsZHMgbGlrZToKPiArICogLSBzcGxpdC52cmluZy5hdmFpbC0+aWR4IChkcml2ZXIg
-d3JpdGVzLCBkZXZpY2UgcmVhZHMpCj4gKyAqIC0gcGFja2VkLnZyaW5nLmRlc2NbXS5hZGRyIChk
-cml2ZXIgd3JpdGVzLCBkZXZpY2UgcmVhZHMpCj4gKyAqIFRoZXNlIGFyZSB3cml0dGVuIGJ5IHRo
-ZSBkcml2ZXIgYW5kIG9ubHkgcmVhZCBieSB0aGUgZGV2aWNlLCBzbyB0aGUKPiArICogZHJpdmVy
-IGNhbiBzYWZlbHkgYWNjZXNzIHRoZW0gd2l0aG91dCBSRUFEX09OQ0UuIFRoZSBkZXZpY2UgbXVz
-dCB1c2UKPiArICogYXBwcm9wcmlhdGUgYmFycmllcnMgb24gaXRzIHNpZGUuCj4gKyAqLwoKClVz
-ZWxlc3MgY29tbWVudCByZWFsbHkuIElmIHlvdSB0aGluayBpdCdzIHdvcnRod2hpbGUgdG8gbWVu
-dGlvbiB0aGUgCmFib3ZlLCBwdXQgaXQgaW50byB0aGUgcGF0Y2ggZGVzY3JpcHRpb24uCgoKPiAr
-Cj4gKwo+ICAgc3RhdGljIHN0cnVjdCB2cmluZ19kZXNjX2V4dHJhICp2cmluZ19hbGxvY19kZXNj
-X2V4dHJhKHVuc2lnbmVkIGludCBudW0pOwo+ICAgc3RhdGljIHZvaWQgdnJpbmdfZnJlZShzdHJ1
-Y3QgdmlydHF1ZXVlICpfdnEpOwo+Cj4gQEAgLTczNiw5ICs3OTMsMTAgQEAgc3RhdGljIGJvb2wg
-dmlydHF1ZXVlX2tpY2tfcHJlcGFyZV9zcGxpdChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4gICAg
-ICAgICAgTEFTVF9BRERfVElNRV9JTlZBTElEKHZxKTsKPgo+ICAgICAgICAgIGlmICh2cS0+ZXZl
-bnQpIHsKPiAtICAgICAgICAgICAgICAgbmVlZHNfa2ljayA9IHZyaW5nX25lZWRfZXZlbnQodmly
-dGlvMTZfdG9fY3B1KF92cS0+dmRldiwKPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgdnJpbmdfYXZhaWxfZXZlbnQoJnZxLT5zcGxpdC52cmluZykpLAo+IC0gICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBuZXcsIG9sZCk7Cj4gKyAgICAg
-ICAgICAgICAgIHUxNiBldmVudCA9IHZpcnRpbzE2X3RvX2NwdShfdnEtPnZkZXYsCj4gKyAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICBSRUFEX09OQ0UodnJpbmdfYXZhaWxfZXZlbnQoJnZx
-LT5zcGxpdC52cmluZykpKTsKPiArCj4gKyAgICAgICAgICAgICAgIG5lZWRzX2tpY2sgPSB2cmlu
-Z19uZWVkX2V2ZW50KGV2ZW50LCBuZXcsIG9sZCk7Cj4gICAgICAgICAgfSBlbHNlIHsKPiAgICAg
-ICAgICAgICAgICAgIG5lZWRzX2tpY2sgPSAhKHZxLT5zcGxpdC52cmluZy51c2VkLT5mbGFncyAm
-Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjcHVfdG9fdmlydGlv
-MTYoX3ZxLT52ZGV2LAo+IEBAIC04MDgsOCArODY2LDcgQEAgc3RhdGljIHZvaWQgZGV0YWNoX2J1
-Zl9zcGxpdChzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSwgdW5zaWduZWQgaW50IGhlYWQsCj4K
-PiAgIHN0YXRpYyBib29sIG1vcmVfdXNlZF9zcGxpdChjb25zdCBzdHJ1Y3QgdnJpbmdfdmlydHF1
-ZXVlICp2cSkKPiAgIHsKPiAtICAgICAgIHJldHVybiB2cS0+bGFzdF91c2VkX2lkeCAhPSB2aXJ0
-aW8xNl90b19jcHUodnEtPnZxLnZkZXYsCj4gLSAgICAgICAgICAgICAgICAgICAgICAgdnEtPnNw
-bGl0LnZyaW5nLnVzZWQtPmlkeCk7Cj4gKyAgICAgICByZXR1cm4gdnEtPmxhc3RfdXNlZF9pZHgg
-IT0gdnJpbmdfdXNlZF9pZHhfcmVhZCh2cSk7Cj4gICB9Cj4KPiAgIHN0YXRpYyB2b2lkICp2aXJ0
-cXVldWVfZ2V0X2J1Zl9jdHhfc3BsaXQoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxLAo+IEBAIC04Mzgs
-MTAgKzg5NSw4IEBAIHN0YXRpYyB2b2lkICp2aXJ0cXVldWVfZ2V0X2J1Zl9jdHhfc3BsaXQoc3Ry
-dWN0IHZpcnRxdWV1ZSAqX3ZxLAo+ICAgICAgICAgIHZpcnRpb19ybWIodnEtPndlYWtfYmFycmll
-cnMpOwo+Cj4gICAgICAgICAgbGFzdF91c2VkID0gKHZxLT5sYXN0X3VzZWRfaWR4ICYgKHZxLT5z
-cGxpdC52cmluZy5udW0gLSAxKSk7Cj4gLSAgICAgICBpID0gdmlydGlvMzJfdG9fY3B1KF92cS0+
-dmRldiwKPiAtICAgICAgICAgICAgICAgICAgICAgICB2cS0+c3BsaXQudnJpbmcudXNlZC0+cmlu
-Z1tsYXN0X3VzZWRdLmlkKTsKPiAtICAgICAgICpsZW4gPSB2aXJ0aW8zMl90b19jcHUoX3ZxLT52
-ZGV2LAo+IC0gICAgICAgICAgICAgICAgICAgICAgIHZxLT5zcGxpdC52cmluZy51c2VkLT5yaW5n
-W2xhc3RfdXNlZF0ubGVuKTsKPiArICAgICAgIGkgPSB2cmluZ191c2VkX2lkX3JlYWQodnEsIGxh
-c3RfdXNlZCk7Cj4gKyAgICAgICAqbGVuID0gdnJpbmdfdXNlZF9sZW5fcmVhZCh2cSwgbGFzdF91
-c2VkKTsKPgo+ICAgICAgICAgIGlmICh1bmxpa2VseShpID49IHZxLT5zcGxpdC52cmluZy5udW0p
-KSB7Cj4gICAgICAgICAgICAgICAgICBCQURfUklORyh2cSwgImlkICV1IG91dCBvZiByYW5nZVxu
-IiwgaSk7Cj4gQEAgLTkyMyw4ICs5NzgsNyBAQCBzdGF0aWMgYm9vbCB2aXJ0cXVldWVfcG9sbF9z
-cGxpdChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsIHVuc2lnbmVkIGludCBsYXN0X3VzZWRfaQo+ICAg
-ewo+ICAgICAgICAgIHN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZxKF92cSk7Cj4K
-PiAtICAgICAgIHJldHVybiAodTE2KWxhc3RfdXNlZF9pZHggIT0gdmlydGlvMTZfdG9fY3B1KF92
-cS0+dmRldiwKPiAtICAgICAgICAgICAgICAgICAgICAgICB2cS0+c3BsaXQudnJpbmcudXNlZC0+
-aWR4KTsKPiArICAgICAgIHJldHVybiAodTE2KWxhc3RfdXNlZF9pZHggIT0gdnJpbmdfdXNlZF9p
-ZHhfcmVhZCh2cSk7Cj4gICB9Cj4KPiAgIHN0YXRpYyBib29sIHZpcnRxdWV1ZV9lbmFibGVfY2Jf
-ZGVsYXllZF9zcGxpdChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEpCj4gQEAgLTE3MDEsMTAgKzE3NTUs
-MTAgQEAgc3RhdGljIHZvaWQgZGV0YWNoX2J1Zl9wYWNrZWQoc3RydWN0IHZyaW5nX3ZpcnRxdWV1
-ZSAqdnEsCj4gICBzdGF0aWMgaW5saW5lIGJvb2wgaXNfdXNlZF9kZXNjX3BhY2tlZChjb25zdCBz
-dHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSwKPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgdTE2IGlkeCwgYm9vbCB1c2VkX3dyYXBfY291bnRlcikKPiAgIHsKPiAtICAg
-ICAgIGJvb2wgYXZhaWwsIHVzZWQ7Cj4gICAgICAgICAgdTE2IGZsYWdzOwo+ICsgICAgICAgYm9v
-bCBhdmFpbCwgdXNlZDsKPgo+IC0gICAgICAgZmxhZ3MgPSBsZTE2X3RvX2NwdSh2cS0+cGFja2Vk
-LnZyaW5nLmRlc2NbaWR4XS5mbGFncyk7Cj4gKyAgICAgICBmbGFncyA9IHZyaW5nX3BhY2tlZF9k
-ZXNjX2ZsYWdzX3JlYWQodnEsIGlkeCk7Cj4gICAgICAgICAgYXZhaWwgPSAhIShmbGFncyAmICgx
-IDw8IFZSSU5HX1BBQ0tFRF9ERVNDX0ZfQVZBSUwpKTsKPiAgICAgICAgICB1c2VkID0gISEoZmxh
-Z3MgJiAoMSA8PCBWUklOR19QQUNLRURfREVTQ19GX1VTRUQpKTsKPgo+IEBAIC0xNzUxLDggKzE4
-MDUsOCBAQCBzdGF0aWMgdm9pZCAqdmlydHF1ZXVlX2dldF9idWZfY3R4X3BhY2tlZChzdHJ1Y3Qg
-dmlydHF1ZXVlICpfdnEsCj4gICAgICAgICAgbGFzdF91c2VkX2lkeCA9IFJFQURfT05DRSh2cS0+
-bGFzdF91c2VkX2lkeCk7Cj4gICAgICAgICAgdXNlZF93cmFwX2NvdW50ZXIgPSBwYWNrZWRfdXNl
-ZF93cmFwX2NvdW50ZXIobGFzdF91c2VkX2lkeCk7Cj4gICAgICAgICAgbGFzdF91c2VkID0gcGFj
-a2VkX2xhc3RfdXNlZChsYXN0X3VzZWRfaWR4KTsKPiAtICAgICAgIGlkID0gbGUxNl90b19jcHUo
-dnEtPnBhY2tlZC52cmluZy5kZXNjW2xhc3RfdXNlZF0uaWQpOwo+IC0gICAgICAgKmxlbiA9IGxl
-MzJfdG9fY3B1KHZxLT5wYWNrZWQudnJpbmcuZGVzY1tsYXN0X3VzZWRdLmxlbik7Cj4gKyAgICAg
-ICBpZCA9IHZyaW5nX3BhY2tlZF9kZXNjX2lkX3JlYWQodnEsIGxhc3RfdXNlZCk7Cj4gKyAgICAg
-ICAqbGVuID0gdnJpbmdfcGFja2VkX2Rlc2NfbGVuX3JlYWQodnEsIGxhc3RfdXNlZCk7Cj4KPiAg
-ICAgICAgICBpZiAodW5saWtlbHkoaWQgPj0gdnEtPnBhY2tlZC52cmluZy5udW0pKSB7Cj4gICAg
-ICAgICAgICAgICAgICBCQURfUklORyh2cSwgImlkICV1IG91dCBvZiByYW5nZVxuIiwgaWQpOwo+
-IEBAIC0xODUwLDYgKzE5MDQsMTAgQEAgc3RhdGljIGJvb2wgdmlydHF1ZXVlX3BvbGxfcGFja2Vk
-KHN0cnVjdCB2aXJ0cXVldWUgKl92cSwgdTE2IG9mZl93cmFwKQo+ICAgICAgICAgIGJvb2wgd3Jh
-cF9jb3VudGVyOwo+ICAgICAgICAgIHUxNiB1c2VkX2lkeDsKPgo+ICsgICAgICAgLyoKPiArICAg
-ICAgICAqIE5vdGU6IG9mZl93cmFwIGlzIGZyb20gdmlydHF1ZXVlX2VuYWJsZV9jYl9wcmVwYXJl
-X3BhY2tlZCgpIHdoaWNoCj4gKyAgICAgICAgKiBhbHJlYWR5IHVzZWQgUkVBRF9PTkNFIG9uIHZx
-LT5sYXN0X3VzZWRfaWR4LCBzbyB3ZSBkb24ndCBuZWVkIGl0IGFnYWluLgo+ICsgICAgICAgICov
-CgoKT24gaXRzIG93biBpbiB0aGlzIGNvZGUgYmFzZSA1IHllYXJzIGZyb20gbm93LCB0aGlzIGNv
-bW1lbnQgd2lsbCBiZSAKc3VwZXIgY29uZnVzaW5nLiBCZWNhdXNlIG5vYm9keSBoYXMgY29udGV4
-dCB3aGF0IHRoaXMgbm90ZSBpcyBhYm91dC4gSSdkIApzYXkganVzdCByZW1vdmUgaXQuCgoKQWxl
-eAoKCj4gICAgICAgICAgd3JhcF9jb3VudGVyID0gb2ZmX3dyYXAgPj4gVlJJTkdfUEFDS0VEX0VW
-RU5UX0ZfV1JBUF9DVFI7Cj4gICAgICAgICAgdXNlZF9pZHggPSBvZmZfd3JhcCAmIH4oMSA8PCBW
-UklOR19QQUNLRURfRVZFTlRfRl9XUkFQX0NUUik7Cj4KPiAtLQo+IDIuNTIuMAo+CgoKCkFtYXpv
-biBXZWIgU2VydmljZXMgRGV2ZWxvcG1lbnQgQ2VudGVyIEdlcm1hbnkgR21iSApUYW1hcmEtRGFu
-ei1TdHIuIDEzCjEwMjQzIEJlcmxpbgpHZXNjaGFlZnRzZnVlaHJ1bmc6IENocmlzdG9mIEhlbGxt
-aXMsIEFuZHJlYXMgU3RpZWdlcgpFaW5nZXRyYWdlbiBhbSBBbXRzZ2VyaWNodCBDaGFybG90dGVu
-YnVyZyB1bnRlciBIUkIgMjU3NzY0IEIKU2l0ejogQmVybGluClVzdC1JRDogREUgMzY1IDUzOCA1
-OTcK
+On Wed, Jan 28, 2026 at 02:59:46PM +0100, Johannes Thumshirn wrote:
+> From: Alexander Graf <graf@amazon.com>
+> 
+> KCSAN reports data races when accessing virtio ring fields that are
+> concurrently written by the device (host). These are legitimate
+> concurrent accesses where the CPU reads fields that the device updates
+> via DMA-like mechanisms.
+> 
+> Add accessor functions that use READ_ONCE() to properly annotate these
+> device-writable fields and prevent compiler optimizations that could
+
+let's add "in theory" here
+
+> break the code. This also serves as documentation showing which fields
+> are shared with the device.
+> 
+> The affected fields are:
+> - Split ring: used->idx, used->ring[].id, used->ring[].len
+> - Packed ring: desc[].flags, desc[].id, desc[].len
+
+I would add here: using WRITE_ONCE for driver writes into fields
+isn't done here as it does not currently trigger warnings.
+
+
+> 
+> Reported-by: Kernel Concurrency Sanitizer (KCSAN)
+> Signed-off-by: Alexander Graf <graf@amazon.com>
+> [jth: Add READ_ONCE in virtqueue_kick_prepare_split ]
+> Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+
+Looks good to me. Yet something to improve:
+
+> ---
+>  drivers/virtio/virtio_ring.c | 88 ++++++++++++++++++++++++++++++------
+>  1 file changed, 73 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index ddab68959671..74957c83e138 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -222,6 +222,63 @@ struct vring_virtqueue {
+>  #endif
+>  };
+>  
+> +/*
+> + * Accessors for device-writable fields in virtio rings.
+> + * These fields are concurrently written by the device and read by the driver.
+> + * Use READ_ONCE() to prevent compiler optimizations and document the
+> + * intentional data race.
+
+... and prevent KCSAN warnings
+
+> + */
+> +
+> +/* Split ring: read device-written fields from used ring */
+> +static inline u16 vring_used_idx_read(const struct vring_virtqueue *vq)
+
+I'd prefer a consistent prefix. Maybe:
+
+vring_read_used_idx
+
+and so on.
+
+
+
+
+> +{
+> +	return virtio16_to_cpu(vq->vq.vdev,
+> +			       READ_ONCE(vq->split.vring.used->idx));
+> +}
+> +
+> +static inline u32 vring_used_id_read(const struct vring_virtqueue *vq,
+> +				     u16 idx)
+> +{
+> +	return virtio32_to_cpu(vq->vq.vdev,
+> +			       READ_ONCE(vq->split.vring.used->ring[idx].id));
+> +}
+> +
+> +static inline u32 vring_used_len_read(const struct vring_virtqueue *vq,
+> +				      u16 idx)
+> +{
+> +	return virtio32_to_cpu(vq->vq.vdev,
+> +			       READ_ONCE(vq->split.vring.used->ring[idx].len));
+> +}
+> +
+> +/* Packed ring: read device-written fields from descriptors */
+> +static inline u16 vring_packed_desc_flags_read(const struct vring_virtqueue *vq,
+> +					       u16 idx)
+> +{
+> +	return le16_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].flags));
+> +}
+> +
+> +static inline u16 vring_packed_desc_id_read(const struct vring_virtqueue *vq,
+> +					    u16 idx)
+> +{
+> +	return le16_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].id));
+> +}
+> +
+> +static inline u32 vring_packed_desc_len_read(const struct vring_virtqueue *vq,
+> +					     u16 idx)
+> +{
+> +	return le32_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].len));
+> +}
+> +
+> +/*
+> + * Note: We don't need READ_ONCE for driver->device fields like:
+> + * - split.vring.avail->idx (driver writes, device reads)
+> + * - packed.vring.desc[].addr (driver writes, device reads)
+> + * These are written by the driver and only read by the device, so the
+> + * driver can safely access them
+
+read them, really.
+
+> without READ_ONCE.
+
+... and without triggering KCSAM warnings.
+
+> The device must use
+> + * appropriate barriers on its side.
+> + */
+> +
+> +
+
+extra empty line here.
+
+>  static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
+>  static void vring_free(struct virtqueue *_vq);
+>  
+> @@ -736,9 +793,10 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+>  	LAST_ADD_TIME_INVALID(vq);
+>  
+>  	if (vq->event) {
+> -		needs_kick = vring_need_event(virtio16_to_cpu(_vq->vdev,
+> -					vring_avail_event(&vq->split.vring)),
+> -					      new, old);
+> +		u16 event = virtio16_to_cpu(_vq->vdev,
+> +				READ_ONCE(vring_avail_event(&vq->split.vring)));
+
+why not wrap this one, too?
+
+> +
+> +		needs_kick = vring_need_event(event, new, old);
+>  	} else {
+>  		needs_kick = !(vq->split.vring.used->flags &
+>  					cpu_to_virtio16(_vq->vdev,
+> @@ -808,8 +866,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+>  
+>  static bool more_used_split(const struct vring_virtqueue *vq)
+>  {
+> -	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev,
+> -			vq->split.vring.used->idx);
+> +	return vq->last_used_idx != vring_used_idx_read(vq);
+>  }
+>  
+>  static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+> @@ -838,10 +895,8 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+>  	virtio_rmb(vq->weak_barriers);
+>  
+>  	last_used = (vq->last_used_idx & (vq->split.vring.num - 1));
+> -	i = virtio32_to_cpu(_vq->vdev,
+> -			vq->split.vring.used->ring[last_used].id);
+> -	*len = virtio32_to_cpu(_vq->vdev,
+> -			vq->split.vring.used->ring[last_used].len);
+> +	i = vring_used_id_read(vq, last_used);
+> +	*len = vring_used_len_read(vq, last_used);
+>  
+>  	if (unlikely(i >= vq->split.vring.num)) {
+>  		BAD_RING(vq, "id %u out of range\n", i);
+> @@ -923,8 +978,7 @@ static bool virtqueue_poll_split(struct virtqueue *_vq, unsigned int last_used_i
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> -	return (u16)last_used_idx != virtio16_to_cpu(_vq->vdev,
+> -			vq->split.vring.used->idx);
+> +	return (u16)last_used_idx != vring_used_idx_read(vq);
+>  }
+>  
+>  static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+> @@ -1701,10 +1755,10 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+>  static inline bool is_used_desc_packed(const struct vring_virtqueue *vq,
+>  				       u16 idx, bool used_wrap_counter)
+>  {
+> -	bool avail, used;
+>  	u16 flags;
+> +	bool avail, used;
+>  
+> -	flags = le16_to_cpu(vq->packed.vring.desc[idx].flags);
+> +	flags = vring_packed_desc_flags_read(vq, idx);
+>  	avail = !!(flags & (1 << VRING_PACKED_DESC_F_AVAIL));
+>  	used = !!(flags & (1 << VRING_PACKED_DESC_F_USED));
+>  
+> @@ -1751,8 +1805,8 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
+>  	last_used_idx = READ_ONCE(vq->last_used_idx);
+>  	used_wrap_counter = packed_used_wrap_counter(last_used_idx);
+>  	last_used = packed_last_used(last_used_idx);
+> -	id = le16_to_cpu(vq->packed.vring.desc[last_used].id);
+> -	*len = le32_to_cpu(vq->packed.vring.desc[last_used].len);
+> +	id = vring_packed_desc_id_read(vq, last_used);
+> +	*len = vring_packed_desc_len_read(vq, last_used);
+>  
+>  	if (unlikely(id >= vq->packed.vring.num)) {
+>  		BAD_RING(vq, "id %u out of range\n", id);
+> @@ -1850,6 +1904,10 @@ static bool virtqueue_poll_packed(struct virtqueue *_vq, u16 off_wrap)
+>  	bool wrap_counter;
+>  	u16 used_idx;
+>  
+> +	/*
+> +	 * Note: off_wrap is from virtqueue_enable_cb_prepare_packed() which
+> +	 * already used READ_ONCE on vq->last_used_idx, so we don't need it again.
+
+we don't need what again? off_wrap is a local variable.
+
+> +	 */
+>  	wrap_counter = off_wrap >> VRING_PACKED_EVENT_F_WRAP_CTR;
+>  	used_idx = off_wrap & ~(1 << VRING_PACKED_EVENT_F_WRAP_CTR);
+>  
+> -- 
+> 2.52.0
 
