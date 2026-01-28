@@ -1,115 +1,315 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6767C2C324E
-	for <virtualization@lists.linux.dev>; Tue, 27 Jan 2026 23:32:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D7062D0C9C
+	for <virtualization@lists.linux.dev>; Wed, 28 Jan 2026 07:03:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769556723; cv=none; b=Spbf9AZ7MufzTb9wPU45CmmdKLEoSUPeijtKDG+jw3cPmg4TlRJnZokEQF+sx8wa4Pj3lYNMYynKszQf0+WNDmrOxg3SClZAJRVGss9dV3A3BtV7sp62er4xt5ihcm+P2AKqcOM+rpi06//tNJnK4yfoCJ7CVJB6gwzXlq4oxAQ=
+	t=1769583815; cv=none; b=asn6qEcq2yjiEyNmlA5FzzwD1H6Qo4hAbz+SaCFhzO0B4r7wiPi5q9HhHbiW8mNTOyPVZuztPpgGQQlWdXe9VTQxlQkoV6tAL7q0mmn6JKdn4YZUYQmtuTP9/RB59wcFu7Y6PV8WBZ/K7bsrYOgUdYiJt3m/YFIejPZqaJP7hcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769556723; c=relaxed/simple;
-	bh=llUOrd6g/HLx5FAhx+SUViFFF+wpjL4tX6AinX9dVkI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PjpbLdNbGJHESzIgR00iahI/fDjPvm5h85vBiKhc5Q1tTpgZ/1pnaMM2dcI/sdzv0/lqWAmi+8aOmuwxv54tB3BhxdNjTdnAO9iiJBp7vClx3hxFw3TXtTNJKu60X4+VDXcP6D4ZhfZabnyoEMp2BVvZlmGEJDI8T3wafpTATWY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=AEEh/kqz; arc=none smtp.client-ip=209.85.222.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	s=arc-20240116; t=1769583815; c=relaxed/simple;
+	bh=Cg45hZ0q54h2bhG/P3fSulN0EvcFY+v0s3Ih49jJOI8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Ket6+AgtHvoql2GwtUyZDAWn+CJPT5ZvgjdEBLhOrYibaIJQq1Kf4V9QN4oSqhtNI3ArlVValnAuSLoYFgiCRq9Mz5lT5qs9wZRbbxYijUloZo75HShIhReeAgHOfOrX46Ei8By74NSt1JlEXTZ6N41UTQ8UJnb4Y3GBPBseDks=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BeOb9bek; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="AEEh/kqz"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-8c6d8751c88so659195685a.2
-        for <virtualization@lists.linux.dev>; Tue, 27 Jan 2026 15:32:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1769556721; x=1770161521; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=y8ffCxgqfPNNOI1L/bqqAX6TLyKV0Tim54t2cjmn71o=;
-        b=AEEh/kqz8lIqi8ikWY49h4o19W/dKihl26dSquwG3ga0zkacv8JAMovpk0ha3vQ/uy
-         FmphcWWFzibFHzc78VbBR2KfmbcwsZh2qnva2VfdQZTemVUUjNtgYYzVn7bQguedlD2g
-         SHbI7isa3d04Ds6KswHBiUlC8HjGbPsy2PCs1s2jG6fL34cybOaubcM1InIa9P1b99Mf
-         CmB/yuLm3XfZfPf4WhPi70PVGY37FttQhiZutWgJACTTpGMnVyFeX9JJWd4U/NannH3r
-         jDpn7FlfluEoqu9brqQkC84dcENt9f6XIZJC1lPuLZn0A5kE6zu7J+miaYGiV6wgq8Ln
-         iXRw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BeOb9bek"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769583812;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xuKStyX4gBGrd4NIad9hOrKnHqdXGE6jzr0Ewri1egY=;
+	b=BeOb9bekh3Cemze6ouJA9pQGfrBwm18cZSccw9bPJSJtxi8UsGg2++WXXvfXatxKz75/Cn
+	7FBimmBIbXTEjQTkqAdinu+s541T7bRCzHMIwo/nh3qQumhOG8WJ9pZFFb3dAXi9KnKGNw
+	C9dRyZ/QlLE2+scvfL4y2ij7sKO3qE4=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-264-zN-zD4fNPAiSWuQlMpVGlQ-1; Wed, 28 Jan 2026 02:03:31 -0500
+X-MC-Unique: zN-zD4fNPAiSWuQlMpVGlQ-1
+X-Mimecast-MFC-AGG-ID: zN-zD4fNPAiSWuQlMpVGlQ_1769583810
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-c613929d317so3712235a12.2
+        for <virtualization@lists.linux.dev>; Tue, 27 Jan 2026 23:03:31 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769556721; x=1770161521;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=y8ffCxgqfPNNOI1L/bqqAX6TLyKV0Tim54t2cjmn71o=;
-        b=rF2XcnG2VrfSRiM6boEi05Tc6bjZSAbF9AOYHBWS8UWLbt4k6rNxq8lvmAPO8WL0ot
-         IJ3spMkN0juszfHm0yCdk5DTv7JzNXlAxpvNbtXC++rX6NnfrvaWIIsXsH8fFj4XCHNQ
-         3q5QQbA3opJbrEWuG2RQfEc/Z8X0qr2nt8uoM/VOtFy70rekiZosUsK6CXNR8kQbc5i8
-         yLTtB8Dz6kDPaTFj5hxlstZpjVlWtIaWUDvbKuk/ksaXjY/sb82uwkQ9U3Cx1lD05zHT
-         RFHDRxWUqNLLmPjvd0/4aDAS6hAZitJz8u66z1oLQM4Bt6tZU8O61jTTKaE3kTNy8YcK
-         7Mjg==
-X-Forwarded-Encrypted: i=1; AJvYcCUnMo5V1alw1NogZWmpGqVSGcB4JQx8elk0+hqxpU0FDnJ8Epu/IYt86buzJnidrFnEGDuZ+nLPaBbPm7PIQA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzHdZFYECR7PpWuWM5UgSs0m9VoZQLdQdBaYOUcqB9oG+INGPjK
-	au7Hgmpcr/p7h3ecIq3Ou05kl3+zvb+h+6GFoLeVO5XzUe/CYiz+BPKo1VJwjna8B4E=
-X-Gm-Gg: AZuq6aJPY8F2PRd8NxB9am0Ty277G2adCNYWxY+vP0pfQKNA+L3whY3eGaREJfAfC2x
-	H93xkV0z4u8jQ8Hqk6UNI3s+ZBc39g+8O1EqV+HK1j6M5EUu5vqNYIFpg2oN3fhEW1t6Y8L2aq7
-	PA5O1ZyK0yiQgbaPJc73fXqrzMoFs+Nu5SaNyxT/ODMdqJmQ233Zap4WMqCc9ezcQKCbFIBDvQN
-	0m+8AhTJOq72DSvmwVZptaxxbEMt6AYrCnUDrgds2zZwLnX4paihC4wOEcVs6lmxCS73TIQIC8C
-	BtMLle3VLgwteQsyrUy87jQQzGVLQdTNIyemcQ3dSgiYLuKmVss67tB3rcY+HDHslnEBorbHFsP
-	HtMUpDum//XB9bvNPKvU/HUDdia7pA2wojLjRc0il0rMTMJK4jptsgnkgZOYnzhP2+V8VM8duyI
-	z70r3ptAXVjiTrnwxeAr21GmwYbhomgM/8bEAgqnr6l5Ro46OFjq6rLB61k/uG8ZA8StiDgg==
-X-Received: by 2002:a05:620a:1908:b0:8c5:2f70:c62b with SMTP id af79cd13be357-8c70b92d7cdmr423216285a.85.1769556721349;
-        Tue, 27 Jan 2026 15:32:01 -0800 (PST)
-Received: from gourry-fedora-PF4VCD3F (pool-96-255-20-138.washdc.ftas.verizon.net. [96.255.20.138])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8c711b98539sm71997685a.20.2026.01.27.15.32.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Jan 2026 15:32:00 -0800 (PST)
-Date: Tue, 27 Jan 2026 18:31:59 -0500
-From: Gregory Price <gourry@gourry.net>
-To: "David Hildenbrand (Red Hat)" <david@kernel.org>
-Cc: Jonathan Cameron <jonathan.cameron@huawei.com>, linux-mm@kvack.org,
-	linux-cxl@vger.kernel.org, nvdimm@lists.linux.dev,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	kernel-team@meta.com, dan.j.williams@intel.com,
-	vishal.l.verma@intel.com, dave.jiang@intel.com, mst@redhat.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, osalvador@suse.de, akpm@linux-foundation.org
-Subject: Re: [PATCH 3/8] mm/memory_hotplug: add APIs for explicit online type
- control
-Message-ID: <aXlK74ZlUf76nBE_@gourry-fedora-PF4VCD3F>
-References: <20260114085201.3222597-1-gourry@gourry.net>
- <20260114085201.3222597-4-gourry@gourry.net>
- <b3d435d2-643f-4dad-9928-bc7fb5080181@kernel.org>
- <aWfR86RIKEvyZsh6@gourry-fedora-PF4VCD3F>
- <4520e7b0-8218-404d-8ede-e62d95c50825@kernel.org>
- <aXLCAtwMkSMH3DNj@gourry-fedora-PF4VCD3F>
- <20260123182526.00005ee8@huawei.com>
- <aXPIGMVAvVEBgFhJ@gourry-fedora-PF4VCD3F>
- <793fb531-1fda-4de4-b73f-fb46444ca613@kernel.org>
+        d=1e100.net; s=20230601; t=1769583807; x=1770188607;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=xuKStyX4gBGrd4NIad9hOrKnHqdXGE6jzr0Ewri1egY=;
+        b=R1WF0jQcXhCnZKkm3PPWpVOlFlOBdM853OL7tTJu5qihqR2dOUPaNhTa4tOJLN0iuy
+         Ml9KCuugTrOLQ9g9Z89QpaIJ44hghoTxvYL05DP9QoSMhO2tAbmzo9R3XtkF6Hpq6fVq
+         1UyfVvHZEVipAUknAJdlYI0+7Zotq9/3Hx61d2ibpVhjLPMVEXwyETEDdFpRpjvrBWXB
+         HK8WhnKCKtsPgIRBDDFWGiQdMmjinXhkBdmI6n59NUv9UoWxoEkskwx2gVVK2gNcOGup
+         ZFEFBG9YwHJeSNjxOadrcfhDOzx6013VJhTUV/D2B4SL3JXInTiW1sU9FnZzGIn5QctN
+         sDWA==
+X-Forwarded-Encrypted: i=1; AJvYcCXfuyz1cTnnDhmzy82D3m1GVAuBLKLtYOogMfzTWu5dUjNUBMjVbztFUO1c0bUBaRPFX1vAQ6KqdpYThzS1iA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yycj0SWReTqZGyOOszcihF4HP0Lrc4kvJodj/6nqGv4LG8EhUk8
+	kW0f1mGSeWZrv7s6u2EeDAZAEBR8xSUZbvDZxbWo4uP1eUgif343MtBl+U6uibJ11QsjyKKmLef
+	SDzmdDzCEmpcbMtjb2Cg25hChkRafm522uzSyBC9UrVGtBacj8YCzAo2IpB9f5vTcPDh+DryU9S
+	hpBtKodmyuE0KsvzpkEPrMPtv0QEoKtmc0JACRQKUNJZM=
+X-Gm-Gg: AZuq6aIMrMgshyr5DedUqOasvQQXID/dbR77/9HkM/5I86BEtxg43IWolvl+NJLhNCA
+	mt7kiJM7QsCsuYOfokXVXF0cWBrrAfJFVt4liGR3uzPd4W+5G9fYOY2EcVnU7gfeWr+5tTa1/oU
+	Ul6NHLGd7ig5RV2FJxjEK9P/YnJeoof4g71/GxO4JC9b9jq60hidFHlxV1rjiHOcBk
+X-Received: by 2002:a05:6a21:3388:b0:38d:ee4a:e833 with SMTP id adf61e73a8af0-38ec6549c19mr3702328637.62.1769583806895;
+        Tue, 27 Jan 2026 23:03:26 -0800 (PST)
+X-Received: by 2002:a05:6a21:3388:b0:38d:ee4a:e833 with SMTP id
+ adf61e73a8af0-38ec6549c19mr3702286637.62.1769583806348; Tue, 27 Jan 2026
+ 23:03:26 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <793fb531-1fda-4de4-b73f-fb46444ca613@kernel.org>
+References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
+ <20260107210448.37851-4-simon.schippers@tu-dortmund.de> <CACGkMEuSiEcyaeFeZd0=RgNpviJgNvUDq_ctjeMLT5jZTgRkwQ@mail.gmail.com>
+ <1e30464c-99ae-441e-bb46-6d0485d494dc@tu-dortmund.de> <CACGkMEtzD3ORJuJcc8VeqwASiGeVFdQmJowsK6PYVEF_Zkcn8Q@mail.gmail.com>
+ <afa40345-acbe-42b0-81d1-0a838343792d@tu-dortmund.de> <CACGkMEtxRoavBMTXom8Z=FM-pvu3pHbsuwCs+e450b1B=V7iWA@mail.gmail.com>
+ <CACGkMEsJKeEsH=G8H5RzMNHY4g3HNdciMDMhciShawh-9Xb9hg@mail.gmail.com>
+ <bc1078e5-65fc-4de6-8475-517f626d8d96@tu-dortmund.de> <3a1d6232-efe4-4e79-a196-44794fdc0f33@tu-dortmund.de>
+In-Reply-To: <3a1d6232-efe4-4e79-a196-44794fdc0f33@tu-dortmund.de>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 28 Jan 2026 15:03:11 +0800
+X-Gm-Features: AZwV_QhDC_bWR-juret8NZb1IfXLfm23zEjia-LWh6nai9zCNajkiH0ao9SG7CE
+Message-ID: <CACGkMEv71kn91FPAUrxJg=YB3+B0MRTgOidMPHjK7Qq0WEhGtw@mail.gmail.com>
+Subject: Re: [PATCH net-next v7 3/9] tun/tap: add ptr_ring consume helper with
+ netdev queue wakeup
+To: Simon Schippers <simon.schippers@tu-dortmund.de>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	mst@redhat.com, eperezma@redhat.com, leiyang@redhat.com, 
+	stephen@networkplumber.org, jon@nutanix.com, tim.gebauer@tu-dortmund.de, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: E6FlfXYY6TR8QhJXGq5ffoSpkeVJynaQNR28O-KvU5w_1769583810
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 28, 2026 at 12:06:01AM +0100, David Hildenbrand (Red Hat) wrote:
-> I'd go for
-> 
-> 	EXPORT_SYMBOL_FOR_MODULES(__add_memory_driver_managed, "dax")
-> 
-> (or would it be the kmem module?)
-> 
+On Wed, Jan 28, 2026 at 12:48=E2=80=AFAM Simon Schippers
+<simon.schippers@tu-dortmund.de> wrote:
+>
+> On 1/23/26 10:54, Simon Schippers wrote:
+> > On 1/23/26 04:05, Jason Wang wrote:
+> >> On Thu, Jan 22, 2026 at 1:35=E2=80=AFPM Jason Wang <jasowang@redhat.co=
+m> wrote:
+> >>>
+> >>> On Wed, Jan 21, 2026 at 5:33=E2=80=AFPM Simon Schippers
+> >>> <simon.schippers@tu-dortmund.de> wrote:
+> >>>>
+> >>>> On 1/9/26 07:02, Jason Wang wrote:
+> >>>>> On Thu, Jan 8, 2026 at 3:41=E2=80=AFPM Simon Schippers
+> >>>>> <simon.schippers@tu-dortmund.de> wrote:
+> >>>>>>
+> >>>>>> On 1/8/26 04:38, Jason Wang wrote:
+> >>>>>>> On Thu, Jan 8, 2026 at 5:06=E2=80=AFAM Simon Schippers
+> >>>>>>> <simon.schippers@tu-dortmund.de> wrote:
+> >>>>>>>>
+> >>>>>>>> Introduce {tun,tap}_ring_consume() helpers that wrap __ptr_ring_=
+consume()
+> >>>>>>>> and wake the corresponding netdev subqueue when consuming an ent=
+ry frees
+> >>>>>>>> space in the underlying ptr_ring.
+> >>>>>>>>
+> >>>>>>>> Stopping of the netdev queue when the ptr_ring is full will be i=
+ntroduced
+> >>>>>>>> in an upcoming commit.
+> >>>>>>>>
+> >>>>>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> >>>>>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> >>>>>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+> >>>>>>>> ---
+> >>>>>>>>  drivers/net/tap.c | 23 ++++++++++++++++++++++-
+> >>>>>>>>  drivers/net/tun.c | 25 +++++++++++++++++++++++--
+> >>>>>>>>  2 files changed, 45 insertions(+), 3 deletions(-)
+> >>>>>>>>
+> >>>>>>>> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+> >>>>>>>> index 1197f245e873..2442cf7ac385 100644
+> >>>>>>>> --- a/drivers/net/tap.c
+> >>>>>>>> +++ b/drivers/net/tap.c
+> >>>>>>>> @@ -753,6 +753,27 @@ static ssize_t tap_put_user(struct tap_queu=
+e *q,
+> >>>>>>>>         return ret ? ret : total;
+> >>>>>>>>  }
+> >>>>>>>>
+> >>>>>>>> +static void *tap_ring_consume(struct tap_queue *q)
+> >>>>>>>> +{
+> >>>>>>>> +       struct ptr_ring *ring =3D &q->ring;
+> >>>>>>>> +       struct net_device *dev;
+> >>>>>>>> +       void *ptr;
+> >>>>>>>> +
+> >>>>>>>> +       spin_lock(&ring->consumer_lock);
+> >>>>>>>> +
+> >>>>>>>> +       ptr =3D __ptr_ring_consume(ring);
+> >>>>>>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(rin=
+g, 1))) {
+> >>>>>>>> +               rcu_read_lock();
+> >>>>>>>> +               dev =3D rcu_dereference(q->tap)->dev;
+> >>>>>>>> +               netif_wake_subqueue(dev, q->queue_index);
+> >>>>>>>> +               rcu_read_unlock();
+> >>>>>>>> +       }
+> >>>>>>>> +
+> >>>>>>>> +       spin_unlock(&ring->consumer_lock);
+> >>>>>>>> +
+> >>>>>>>> +       return ptr;
+> >>>>>>>> +}
+> >>>>>>>> +
+> >>>>>>>>  static ssize_t tap_do_read(struct tap_queue *q,
+> >>>>>>>>                            struct iov_iter *to,
+> >>>>>>>>                            int noblock, struct sk_buff *skb)
+> >>>>>>>> @@ -774,7 +795,7 @@ static ssize_t tap_do_read(struct tap_queue =
+*q,
+> >>>>>>>>                                         TASK_INTERRUPTIBLE);
+> >>>>>>>>
+> >>>>>>>>                 /* Read frames from the queue */
+> >>>>>>>> -               skb =3D ptr_ring_consume(&q->ring);
+> >>>>>>>> +               skb =3D tap_ring_consume(q);
+> >>>>>>>>                 if (skb)
+> >>>>>>>>                         break;
+> >>>>>>>>                 if (noblock) {
+> >>>>>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> >>>>>>>> index 8192740357a0..7148f9a844a4 100644
+> >>>>>>>> --- a/drivers/net/tun.c
+> >>>>>>>> +++ b/drivers/net/tun.c
+> >>>>>>>> @@ -2113,13 +2113,34 @@ static ssize_t tun_put_user(struct tun_s=
+truct *tun,
+> >>>>>>>>         return total;
+> >>>>>>>>  }
+> >>>>>>>>
+> >>>>>>>> +static void *tun_ring_consume(struct tun_file *tfile)
+> >>>>>>>> +{
+> >>>>>>>> +       struct ptr_ring *ring =3D &tfile->tx_ring;
+> >>>>>>>> +       struct net_device *dev;
+> >>>>>>>> +       void *ptr;
+> >>>>>>>> +
+> >>>>>>>> +       spin_lock(&ring->consumer_lock);
+> >>>>>>>> +
+> >>>>>>>> +       ptr =3D __ptr_ring_consume(ring);
+> >>>>>>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(rin=
+g, 1))) {
+> >>>>>>>
+> >>>>>>> I guess it's the "bug" I mentioned in the previous patch that lea=
+ds to
+> >>>>>>> the check of __ptr_ring_consume_created_space() here. If it's tru=
+e,
+> >>>>>>> another call to tweak the current API.
+> >>>>>>>
+> >>>>>>>> +               rcu_read_lock();
+> >>>>>>>> +               dev =3D rcu_dereference(tfile->tun)->dev;
+> >>>>>>>> +               netif_wake_subqueue(dev, tfile->queue_index);
+> >>>>>>>
+> >>>>>>> This would cause the producer TX_SOFTIRQ to run on the same cpu w=
+hich
+> >>>>>>> I'm not sure is what we want.
+> >>>>>>
+> >>>>>> What else would you suggest calling to wake the queue?
+> >>>>>
+> >>>>> I don't have a good method in my mind, just want to point out its i=
+mplications.
+> >>>>
+> >>>> I have to admit I'm a bit stuck at this point, particularly with thi=
+s
+> >>>> aspect.
+> >>>>
+> >>>> What is the correct way to pass the producer CPU ID to the consumer?
+> >>>> Would it make sense to store smp_processor_id() in the tfile inside
+> >>>> tun_net_xmit(), or should it instead be stored in the skb (similar t=
+o the
+> >>>> XDP bit)? In the latter case, my concern is that this information ma=
+y
+> >>>> already be significantly outdated by the time it is used.
+> >>>>
+> >>>> Based on that, my idea would be for the consumer to wake the produce=
+r by
+> >>>> invoking a new function (e.g., tun_wake_queue()) on the producer CPU=
+ via
+> >>>> smp_call_function_single().
+> >>>> Is this a reasonable approach?
+> >>>
+> >>> I'm not sure but it would introduce costs like IPI.
+> >>>
+> >>>>
+> >>>> More generally, would triggering TX_SOFTIRQ on the consumer CPU be
+> >>>> considered a deal-breaker for the patch set?
+> >>>
+> >>> It depends on whether or not it has effects on the performance.
+> >>> Especially when vhost is pinned.
+> >>
+> >> I meant we can benchmark to see the impact. For example, pin vhost to
+> >> a specific CPU and the try to see the impact of the TX_SOFTIRQ.
+> >>
+> >> Thanks
+> >>
+> >
+> > I ran benchmarks with vhost pinned to CPU 0 using taskset -p -c 0 ...
+> > for both the stock and patched versions. The benchmarks were run with
+> > the full patch series applied, since testing only patches 1-3 would not
+> > be meaningful - the queue is never stopped in that case, so no
+> > TX_SOFTIRQ is triggered.
+> >
+> > Compared to the non-pinned CPU benchmarks in the cover letter,
+> > performance is lower for pktgen with a single thread but higher with
+> > four threads. The results show no regression for the patched version,
+> > with even slight performance improvements observed:
+> >
+> > +-------------------------+-----------+----------------+
+> > | pktgen benchmarks to    | Stock     | Patched with   |
+> > | Debian VM, i5 6300HQ,   |           | fq_codel qdisc |
+> > | 100M packets            |           |                |
+> > | vhost pinned to core 0  |           |                |
+> > +-----------+-------------+-----------+----------------+
+> > | TAP       | Transmitted | 452 Kpps  | 454 Kpps       |
+> > |  +        +-------------+-----------+----------------+
+> > | vhost-net | Lost        | 1154 Kpps | 0              |
+> > +-----------+-------------+-----------+----------------+
+> >
+> > +-------------------------+-----------+----------------+
+> > | pktgen benchmarks to    | Stock     | Patched with   |
+> > | Debian VM, i5 6300HQ,   |           | fq_codel qdisc |
+> > | 100M packets            |           |                |
+> > | vhost pinned to core 0  |           |                |
+> > | *4 threads*             |           |                |
+> > +-----------+-------------+-----------+----------------+
+> > | TAP       | Transmitted | 71 Kpps   | 79 Kpps        |
+> > |  +        +-------------+-----------+----------------+
+> > | vhost-net | Lost        | 1527 Kpps | 0              |
+> > +-----------+-------------+-----------+----------------+
 
-it would be kmem.
+The PPS seems to be low. I'd suggest using testpmd (rxonly) mode in
+the guest or an xdp program that did XDP_DROP in the guest.
 
-I'll let the accelerator folks argue for loosening the restriction for
-OOT modules, for me I think this is sufficient.
+> >
+> > +------------------------+-------------+----------------+
+> > | iperf3 TCP benchmarks  | Stock       | Patched with   |
+> > | to Debian VM 120s      |             | fq_codel qdisc |
+> > | vhost pinned to core 0 |             |                |
+> > +------------------------+-------------+----------------+
+> > | TAP                    | 22.0 Gbit/s | 22.0 Gbit/s    |
+> > |  +                     |             |                |
+> > | vhost-net              |             |                |
+> > +------------------------+-------------+----------------+
+> >
+> > +---------------------------+-------------+----------------+
+> > | iperf3 TCP benchmarks     | Stock       | Patched with   |
+> > | to Debian VM 120s         |             | fq_codel qdisc |
+> > | vhost pinned to core 0    |             |                |
+> > | *4 iperf3 client threads* |             |                |
+> > +---------------------------+-------------+----------------+
+> > | TAP                       | 21.4 Gbit/s | 21.5 Gbit/s    |
+> > |  +                        |             |                |
+> > | vhost-net                 |             |                |
+> > +---------------------------+-------------+----------------+
+>
+> What are your thoughts on this?
+>
+> Thanks!
+>
+>
 
-In the long term, for the private-node set, i think this might also be
-ok, as the intent is to only allow "enlightened users" access to private
-nodes anyway - zones are less important since the driver still has
-a say in how memory gets moved there.
+Thanks
 
-(e.g. compressed-memory is a demotion-only target, which implies only
- only movable allocations can occur there... so zones are mostly
- pointless and the whole policy setup can be ignored and the original
- interface can just be used)
-
-~Gregory
