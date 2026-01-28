@@ -1,286 +1,136 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
+Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B5B232AAD6;
-	Wed, 28 Jan 2026 07:54:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49CE4275AE3
+	for <virtualization@lists.linux.dev>; Wed, 28 Jan 2026 08:46:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769586845; cv=none; b=uTPIR6Oz97Vp77f4uEHi2SD7kyX1WTm9QrUN0OfN0218e52pMS964imd40wMglUEFvIybw3Ki4HcJhh0X8swbSzLchydCYkgUqXTO8Csyh7nBJMtiOGKFovuQQuuVXXzQfeTBzNpO3m12k2Nj7ImpuMFFNE6xprgUCOXgaZSwE8=
+	t=1769589970; cv=none; b=SXZBbvlFHQFA3cjxCD8oN+KI272bj8fYB2H5BLuPGw5sYzZTzRQjQNsIpJeNutjr5SZDXDjw66B/113KeMkjHgJnwxbB62JIMzUU0jtIyccyjyyZkzbSLJhBWXpsMaxBwaPf6bjzX491nsmppafCGEnaEqP+znATEueE6Bgnh0s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769586845; c=relaxed/simple;
-	bh=RJpZbsGqYhQMnwJL6cFQDDTzLA15QLu6kSCexH+vLQM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QXfkUV/n0uCXBXtbd/ntI5zhXDmqA5/QjDGBy491/W69Ia1qWd1Zwx+b7j/iYWynqtFYN+lIa6xtWp5Q/5hThGAUOBZo+vw+hsnsT7r4QkngAmAyxs2av29jpRiRIr4zUbWmkHukLOUeqT/rwi/30aex0VNA+LnTjyJViTW3LVs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=JKfJAniW; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	s=arc-20240116; t=1769589970; c=relaxed/simple;
+	bh=NYPgB44pc7Pok9nzrR7OebNtleH8cRs70K3euGX68L8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pIl0x0y2lgh7nDKw2kEhlr8bX5O6eiQpJxYEzT2q4VOjS0ELxNEwdGrY+aaRee4yavOQPZTJHzf6evpLB3atNY/zrEWhtyTRQ/zxP4OxWezGn4O+OF+X4GhSqZiX3ddSj5J5zY+dmGecHubL3Tj0vDdmt7nY2fYFvFUKwkZrtIw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=WEgeJEjl; arc=none smtp.client-ip=216.71.154.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="JKfJAniW"
-Received: from [129.217.186.38] ([129.217.186.38])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.1.16/8.18.1.16) with ESMTPSA id 60S7rpqT026743
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 28 Jan 2026 08:53:51 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1769586832;
-	bh=RJpZbsGqYhQMnwJL6cFQDDTzLA15QLu6kSCexH+vLQM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=JKfJAniWA0VqNwLZyYUe74fLrCCYzysB56Ucdi6Pe1pSmfCbpEJfvHKLKGiaTa3JF
-	 jSaTA4EPvuJS3CxoNjJWL3t0IeY3dj8N/EwoN17EQaN8xBXhn8MmgTbDiJ7f/Ee9NA
-	 ehNTZPE1mxecu+orQ1vrQXnFlm8jzmPRXMgHAMFw=
-Message-ID: <260f48cd-caa1-4684-a235-8e1192722b3a@tu-dortmund.de>
-Date: Wed, 28 Jan 2026 08:53:51 +0100
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="WEgeJEjl"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1769589967; x=1801125967;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=NYPgB44pc7Pok9nzrR7OebNtleH8cRs70K3euGX68L8=;
+  b=WEgeJEjlt2prXv9BEbvnP30lWJFzmysWUyInsrSz1DaDu93DumCFl4st
+   vsbnNb1KQSwYVax50pcNehT1WB8I06JLMp9cPJlyo0rKIgVaeuXuspDe6
+   E0TDw16JQ2M01TbbNAlFLYkN/AERgwr3OqrTgGJqrkU/u3+b/9ye0ynSF
+   EvGY6jP3GLqUfyTPG8BnxJSRiqZ8I+ys6CdafmcCGTpXne9xXIz8Rvl4d
+   TVMC7pClEMV85nOrtHJP71qtKkpY8H8et0y5VUx8cHxjQFQpCOAK59HeZ
+   DpXY9yzbrjgctiDmGO4w7i5sI5dyCOuGyncx7paP9k9IkVP3G4OD8k/Az
+   g==;
+X-CSE-ConnectionGUID: twZVEUXlT2+KyALROizWng==
+X-CSE-MsgGUID: VCkoNO7mThKBBOjcRnKvJA==
+X-IronPort-AV: E=Sophos;i="6.21,258,1763395200"; 
+   d="scan'208";a="138838728"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep03.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 28 Jan 2026 16:46:06 +0800
+IronPort-SDR: 6979ccd0_vB5eXa/8UbVjPfw6c/oW5F0/CSSTcRZCePiJKAVZFbsaXh2
+ iiAn2ZvX7Qhk48+PbfCXw9GEMVmIH1AhI4lZqeQ==
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep03.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 28 Jan 2026 00:46:08 -0800
+WDCIronportException: Internal
+Received: from c02cd2rwlvdl.ad.shared (HELO neo.fritz.box) ([10.224.28.86])
+  by uls-op-cesaip01.wdc.com with ESMTP; 28 Jan 2026 00:46:06 -0800
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+To: virtualization@lists.linux.dev
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Alexander Graf <graf@amazon.com>,
+	linux-kernel@vger.kernel.org,
+	Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+	kernel test robot <lkp@intel.com>
+Subject: [PATCH] virtio: fix compilation error in __vringh_notify_enable
+Date: Wed, 28 Jan 2026 09:45:59 +0100
+Message-ID: <20260128084559.256235-1-johannes.thumshirn@wdc.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: [PATCH net-next v7 3/9] tun/tap: add ptr_ring consume helper with
- netdev queue wakeup
-To: Jason Wang <jasowang@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
-        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
- <20260107210448.37851-4-simon.schippers@tu-dortmund.de>
- <CACGkMEuSiEcyaeFeZd0=RgNpviJgNvUDq_ctjeMLT5jZTgRkwQ@mail.gmail.com>
- <1e30464c-99ae-441e-bb46-6d0485d494dc@tu-dortmund.de>
- <CACGkMEtzD3ORJuJcc8VeqwASiGeVFdQmJowsK6PYVEF_Zkcn8Q@mail.gmail.com>
- <afa40345-acbe-42b0-81d1-0a838343792d@tu-dortmund.de>
- <CACGkMEtxRoavBMTXom8Z=FM-pvu3pHbsuwCs+e450b1B=V7iWA@mail.gmail.com>
- <CACGkMEsJKeEsH=G8H5RzMNHY4g3HNdciMDMhciShawh-9Xb9hg@mail.gmail.com>
- <bc1078e5-65fc-4de6-8475-517f626d8d96@tu-dortmund.de>
- <3a1d6232-efe4-4e79-a196-44794fdc0f33@tu-dortmund.de>
- <CACGkMEv71kn91FPAUrxJg=YB3+B0MRTgOidMPHjK7Qq0WEhGtw@mail.gmail.com>
-Content-Language: en-US
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-In-Reply-To: <CACGkMEv71kn91FPAUrxJg=YB3+B0MRTgOidMPHjK7Qq0WEhGtw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 1/28/26 08:03, Jason Wang wrote:
-> On Wed, Jan 28, 2026 at 12:48 AM Simon Schippers
-> <simon.schippers@tu-dortmund.de> wrote:
->>
->> On 1/23/26 10:54, Simon Schippers wrote:
->>> On 1/23/26 04:05, Jason Wang wrote:
->>>> On Thu, Jan 22, 2026 at 1:35 PM Jason Wang <jasowang@redhat.com> wrote:
->>>>>
->>>>> On Wed, Jan 21, 2026 at 5:33 PM Simon Schippers
->>>>> <simon.schippers@tu-dortmund.de> wrote:
->>>>>>
->>>>>> On 1/9/26 07:02, Jason Wang wrote:
->>>>>>> On Thu, Jan 8, 2026 at 3:41 PM Simon Schippers
->>>>>>> <simon.schippers@tu-dortmund.de> wrote:
->>>>>>>>
->>>>>>>> On 1/8/26 04:38, Jason Wang wrote:
->>>>>>>>> On Thu, Jan 8, 2026 at 5:06 AM Simon Schippers
->>>>>>>>> <simon.schippers@tu-dortmund.de> wrote:
->>>>>>>>>>
->>>>>>>>>> Introduce {tun,tap}_ring_consume() helpers that wrap __ptr_ring_consume()
->>>>>>>>>> and wake the corresponding netdev subqueue when consuming an entry frees
->>>>>>>>>> space in the underlying ptr_ring.
->>>>>>>>>>
->>>>>>>>>> Stopping of the netdev queue when the ptr_ring is full will be introduced
->>>>>>>>>> in an upcoming commit.
->>>>>>>>>>
->>>>>>>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>>>>>>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>>>>>>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
->>>>>>>>>> ---
->>>>>>>>>>  drivers/net/tap.c | 23 ++++++++++++++++++++++-
->>>>>>>>>>  drivers/net/tun.c | 25 +++++++++++++++++++++++--
->>>>>>>>>>  2 files changed, 45 insertions(+), 3 deletions(-)
->>>>>>>>>>
->>>>>>>>>> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
->>>>>>>>>> index 1197f245e873..2442cf7ac385 100644
->>>>>>>>>> --- a/drivers/net/tap.c
->>>>>>>>>> +++ b/drivers/net/tap.c
->>>>>>>>>> @@ -753,6 +753,27 @@ static ssize_t tap_put_user(struct tap_queue *q,
->>>>>>>>>>         return ret ? ret : total;
->>>>>>>>>>  }
->>>>>>>>>>
->>>>>>>>>> +static void *tap_ring_consume(struct tap_queue *q)
->>>>>>>>>> +{
->>>>>>>>>> +       struct ptr_ring *ring = &q->ring;
->>>>>>>>>> +       struct net_device *dev;
->>>>>>>>>> +       void *ptr;
->>>>>>>>>> +
->>>>>>>>>> +       spin_lock(&ring->consumer_lock);
->>>>>>>>>> +
->>>>>>>>>> +       ptr = __ptr_ring_consume(ring);
->>>>>>>>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1))) {
->>>>>>>>>> +               rcu_read_lock();
->>>>>>>>>> +               dev = rcu_dereference(q->tap)->dev;
->>>>>>>>>> +               netif_wake_subqueue(dev, q->queue_index);
->>>>>>>>>> +               rcu_read_unlock();
->>>>>>>>>> +       }
->>>>>>>>>> +
->>>>>>>>>> +       spin_unlock(&ring->consumer_lock);
->>>>>>>>>> +
->>>>>>>>>> +       return ptr;
->>>>>>>>>> +}
->>>>>>>>>> +
->>>>>>>>>>  static ssize_t tap_do_read(struct tap_queue *q,
->>>>>>>>>>                            struct iov_iter *to,
->>>>>>>>>>                            int noblock, struct sk_buff *skb)
->>>>>>>>>> @@ -774,7 +795,7 @@ static ssize_t tap_do_read(struct tap_queue *q,
->>>>>>>>>>                                         TASK_INTERRUPTIBLE);
->>>>>>>>>>
->>>>>>>>>>                 /* Read frames from the queue */
->>>>>>>>>> -               skb = ptr_ring_consume(&q->ring);
->>>>>>>>>> +               skb = tap_ring_consume(q);
->>>>>>>>>>                 if (skb)
->>>>>>>>>>                         break;
->>>>>>>>>>                 if (noblock) {
->>>>>>>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
->>>>>>>>>> index 8192740357a0..7148f9a844a4 100644
->>>>>>>>>> --- a/drivers/net/tun.c
->>>>>>>>>> +++ b/drivers/net/tun.c
->>>>>>>>>> @@ -2113,13 +2113,34 @@ static ssize_t tun_put_user(struct tun_struct *tun,
->>>>>>>>>>         return total;
->>>>>>>>>>  }
->>>>>>>>>>
->>>>>>>>>> +static void *tun_ring_consume(struct tun_file *tfile)
->>>>>>>>>> +{
->>>>>>>>>> +       struct ptr_ring *ring = &tfile->tx_ring;
->>>>>>>>>> +       struct net_device *dev;
->>>>>>>>>> +       void *ptr;
->>>>>>>>>> +
->>>>>>>>>> +       spin_lock(&ring->consumer_lock);
->>>>>>>>>> +
->>>>>>>>>> +       ptr = __ptr_ring_consume(ring);
->>>>>>>>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1))) {
->>>>>>>>>
->>>>>>>>> I guess it's the "bug" I mentioned in the previous patch that leads to
->>>>>>>>> the check of __ptr_ring_consume_created_space() here. If it's true,
->>>>>>>>> another call to tweak the current API.
->>>>>>>>>
->>>>>>>>>> +               rcu_read_lock();
->>>>>>>>>> +               dev = rcu_dereference(tfile->tun)->dev;
->>>>>>>>>> +               netif_wake_subqueue(dev, tfile->queue_index);
->>>>>>>>>
->>>>>>>>> This would cause the producer TX_SOFTIRQ to run on the same cpu which
->>>>>>>>> I'm not sure is what we want.
->>>>>>>>
->>>>>>>> What else would you suggest calling to wake the queue?
->>>>>>>
->>>>>>> I don't have a good method in my mind, just want to point out its implications.
->>>>>>
->>>>>> I have to admit I'm a bit stuck at this point, particularly with this
->>>>>> aspect.
->>>>>>
->>>>>> What is the correct way to pass the producer CPU ID to the consumer?
->>>>>> Would it make sense to store smp_processor_id() in the tfile inside
->>>>>> tun_net_xmit(), or should it instead be stored in the skb (similar to the
->>>>>> XDP bit)? In the latter case, my concern is that this information may
->>>>>> already be significantly outdated by the time it is used.
->>>>>>
->>>>>> Based on that, my idea would be for the consumer to wake the producer by
->>>>>> invoking a new function (e.g., tun_wake_queue()) on the producer CPU via
->>>>>> smp_call_function_single().
->>>>>> Is this a reasonable approach?
->>>>>
->>>>> I'm not sure but it would introduce costs like IPI.
->>>>>
->>>>>>
->>>>>> More generally, would triggering TX_SOFTIRQ on the consumer CPU be
->>>>>> considered a deal-breaker for the patch set?
->>>>>
->>>>> It depends on whether or not it has effects on the performance.
->>>>> Especially when vhost is pinned.
->>>>
->>>> I meant we can benchmark to see the impact. For example, pin vhost to
->>>> a specific CPU and the try to see the impact of the TX_SOFTIRQ.
->>>>
->>>> Thanks
->>>>
->>>
->>> I ran benchmarks with vhost pinned to CPU 0 using taskset -p -c 0 ...
->>> for both the stock and patched versions. The benchmarks were run with
->>> the full patch series applied, since testing only patches 1-3 would not
->>> be meaningful - the queue is never stopped in that case, so no
->>> TX_SOFTIRQ is triggered.
->>>
->>> Compared to the non-pinned CPU benchmarks in the cover letter,
->>> performance is lower for pktgen with a single thread but higher with
->>> four threads. The results show no regression for the patched version,
->>> with even slight performance improvements observed:
->>>
->>> +-------------------------+-----------+----------------+
->>> | pktgen benchmarks to    | Stock     | Patched with   |
->>> | Debian VM, i5 6300HQ,   |           | fq_codel qdisc |
->>> | 100M packets            |           |                |
->>> | vhost pinned to core 0  |           |                |
->>> +-----------+-------------+-----------+----------------+
->>> | TAP       | Transmitted | 452 Kpps  | 454 Kpps       |
->>> |  +        +-------------+-----------+----------------+
->>> | vhost-net | Lost        | 1154 Kpps | 0              |
->>> +-----------+-------------+-----------+----------------+
->>>
->>> +-------------------------+-----------+----------------+
->>> | pktgen benchmarks to    | Stock     | Patched with   |
->>> | Debian VM, i5 6300HQ,   |           | fq_codel qdisc |
->>> | 100M packets            |           |                |
->>> | vhost pinned to core 0  |           |                |
->>> | *4 threads*             |           |                |
->>> +-----------+-------------+-----------+----------------+
->>> | TAP       | Transmitted | 71 Kpps   | 79 Kpps        |
->>> |  +        +-------------+-----------+----------------+
->>> | vhost-net | Lost        | 1527 Kpps | 0              |
->>> +-----------+-------------+-----------+----------------+
-> 
-> The PPS seems to be low. I'd suggest using testpmd (rxonly) mode in
-> the guest or an xdp program that did XDP_DROP in the guest.
+Commit d43eaf1d749b ("virtio: silence KCSAN warning in
+virtqueue_kick_prepare") introduced a compile error in
+__vringh_notify_enable() because __vringh_notify_enable dereferences the
+return of the vring_avail_event() macro making it incompatible with the
+data_race() annotation added in d43eaf1d749b.
 
-I forgot to mention that these PPS values are per thread.
-So overall we have 71 Kpps * 4 = 284 Kpps and 79 Kpps * 4 = 326 Kpps,
-respectively. For packet loss, that comes out to 1154 Kpps * 4 =
-4616 Kpps and 0, respectively.
+Remove the data_race() annotation in vring_avail_event() and move it
+into it's callers instead.
 
-Sorry about that!
+Fixes: d43eaf1d749b ("virtio: silence KCSAN warning in virtqueue_kick_prepare")
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202601280148.8Z2rFqjo-lkp@intel.com/
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+---
 
-The pktgen benchmarks with a single thread look fine, right?
+Michael: I wasn't sure if you want a patch on top (what I did) or a new
+version of the broken patch to replace it. Just drop me a note if I
+should take the other way.
 
-I'll still look into using an XDP program that does XDP_DROP in the
-guest.
 
-Thanks!
+ drivers/vhost/vringh.c           | 4 ++--
+ drivers/virtio/virtio_ring.c     | 2 +-
+ include/uapi/linux/virtio_ring.h | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-> 
->>>
->>> +------------------------+-------------+----------------+
->>> | iperf3 TCP benchmarks  | Stock       | Patched with   |
->>> | to Debian VM 120s      |             | fq_codel qdisc |
->>> | vhost pinned to core 0 |             |                |
->>> +------------------------+-------------+----------------+
->>> | TAP                    | 22.0 Gbit/s | 22.0 Gbit/s    |
->>> |  +                     |             |                |
->>> | vhost-net              |             |                |
->>> +------------------------+-------------+----------------+
->>>
->>> +---------------------------+-------------+----------------+
->>> | iperf3 TCP benchmarks     | Stock       | Patched with   |
->>> | to Debian VM 120s         |             | fq_codel qdisc |
->>> | vhost pinned to core 0    |             |                |
->>> | *4 iperf3 client threads* |             |                |
->>> +---------------------------+-------------+----------------+
->>> | TAP                       | 21.4 Gbit/s | 21.5 Gbit/s    |
->>> |  +                        |             |                |
->>> | vhost-net                 |             |                |
->>> +---------------------------+-------------+----------------+
->>
->> What are your thoughts on this?
->>
->> Thanks!
->>
->>
-> 
-> Thanks
-> 
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 925858cc6096..47d3a8bb9c52 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -556,10 +556,10 @@ static inline bool __vringh_notify_enable(struct vringh *vrh,
+ 			return true;
+ 		}
+ 	} else {
+-		if (putu16(vrh, &vring_avail_event(&vrh->vring),
++		if (putu16(vrh, data_race(&vring_avail_event(&vrh->vring)),
+ 			   vrh->last_avail_idx) != 0) {
+ 			vringh_bad("Updating avail event index %p",
+-				   &vring_avail_event(&vrh->vring));
++				   data_race(&vring_avail_event(&vrh->vring)));
+ 			return true;
+ 		}
+ 	}
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 1db27ee2d89f..95744d03b284 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -737,7 +737,7 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+ 
+ 	if (vq->event) {
+ 		needs_kick = vring_need_event(virtio16_to_cpu(_vq->vdev,
+-					vring_avail_event(&vq->split.vring)),
++					data_race(vring_avail_event(&vq->split.vring))),
+ 					      new, old);
+ 	} else {
+ 		needs_kick = !(vq->split.vring.used->flags &
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index 32568cfa1c63..f8c20d3de8da 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -194,7 +194,7 @@ struct vring {
+ /* We publish the used event index at the end of the available ring, and vice
+  * versa. They are at the end for backwards compatibility. */
+ #define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
+-#define vring_avail_event(vr) (data_race(*(__virtio16 *)&(vr)->used->ring[(vr)->num]))
++#define vring_avail_event(vr) (*(__virtio16 *)&(vr)->used->ring[(vr)->num])
+ 
+ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 			      unsigned long align)
+-- 
+2.52.0
+
