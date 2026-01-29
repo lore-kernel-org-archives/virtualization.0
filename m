@@ -1,272 +1,238 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010045.outbound.protection.outlook.com [52.101.46.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45C2534FF47
-	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 18:11:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769710310; cv=none; b=njtETuUIgUr5cO45PwZKyIo8Bc7ubDQ7DaSTEL653XBDYQH+/58kc0c6Knfy4SVjFzc1T7oep//6CsI3dJ/kcQMZ5Gxog5OCvCg6j5Fxyak4KVY4H5V5qRlUtcj/JzFM6A5YvP0XqQ0rvVHwfWUY8V+tE6cgvXxu4DEBczG3AFE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769710310; c=relaxed/simple;
-	bh=3kNfQon72BntdnPcyCmIVY1CnJOW18aHomAr9Tp38M4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Zu/fMchDnGhulgxQycjSs31vYku9L3a35RjYVUWh7GMxZhqMziIrMiMgkvF+L2llTXEbRfAkPE/12Ky6KPV3tm7cE6mcE2F7U8N+oLkNdpMlET7GeMLkuO6qIT7ZMYv35zVidfQBYAkjcmdx7ijpNvEJIp5k38cMrJrc/qktHkQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GrHpwfyG; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6496A26E6F9
+	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 18:46:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.46.45
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769712408; cv=fail; b=kuNZ53P/VAYWX7Fbg6+Tsa5qmgRjofX98Yv59/KrWFgsLaTd/toHQZcN6q2FSVfdYN3pK+Q5OKKNma45gP9INVsV3I9k710lm8T+ZqnbOZ4KWqoOMUTGR5iGfmMDFxEXwJZdFe2iCMNYXpgHeDL+xjoibZK1R2t1KcY8wUNg7Vs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769712408; c=relaxed/simple;
+	bh=cCSnmOGNtwAyEqZNKgXjAqOgk56BDtxGMYs2hdaBBZA=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=IWo9Pe5nJATYu5j5Vws/RV54oBpsAanHPeD0zqu6jUeF1s35NHheXvnqGjwxC1iafPyuHPqFyyy+JeA2kqVGS4rDHJq2Q0kdsb7NOTcAVBWoCaWcTq249nrHdOxibKJJBtADlW5B4ZgiozU+9JfA54BDlIVBHX1qyNIKze/9E8c=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=X1y1xMwl; arc=fail smtp.client-ip=52.101.46.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GrHpwfyG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769710308;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sR+lMNDRP3cmxx8RR95s6vZsFNJKZiISbaEJv5rMD4Q=;
-	b=GrHpwfyGYXqe+SEEtc9Q3pE/JkhgkmhutRxbpRIvbmxopNwXPJgw2RdxVdRnpI5VC1E/g/
-	vKlYeh9G6yLxvaoBIFPaiWcIqsn+vyyGE7beaDhVpl9iBUdcqurWyTVT8Ah3W19dSNu1VZ
-	IdZQlar1fsX9eZW2KCamxaOkGN5/AUw=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-348-xOL4J0JdNdyeJ3DrolfpFw-1; Thu, 29 Jan 2026 13:11:46 -0500
-X-MC-Unique: xOL4J0JdNdyeJ3DrolfpFw-1
-X-Mimecast-MFC-AGG-ID: xOL4J0JdNdyeJ3DrolfpFw_1769710306
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-480686b3b4cso11909265e9.0
-        for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 10:11:46 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769710305; x=1770315105;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sR+lMNDRP3cmxx8RR95s6vZsFNJKZiISbaEJv5rMD4Q=;
-        b=o8XWMxrwy7DWD7/CWmbG8fiF5UkJY+TNybXCq9/hYDMTevKpyZdpxVBU3iDIn12KPO
-         MvS29+mh+ua4M5VBhLx3Qihaw4TNI8hjuMmhZYNuUCFaWSbwPrdR9WohmRJAw3LzNNwk
-         rJzpCVdIYR61xNW8tr/mel5GUOjDQfwITNKvIrcFeyoolovj4ePM6e0BzXdEGStPHkIR
-         LcCFke7ehsmVwWwjJbOYT8whYwgRHBZZQ10UWpT3JvMPlPj08WOaLkiq1BsYEg2m7nEa
-         ytOmbT80ClRrzhBt5txcR80JlpbZBMihojsONHHkRSFHnt56NZpf8eCXF3jFy+OOyc5H
-         BAvQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWWBLyiFMU2BDoWgApUc2cpYN0YBzwXRYTFgHi8aMOTScvsJVUTW+ipErGy2vKo11z9fHatHB94XNV85Q5TWA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxkGFN5Q/knSNjkyPx99bZIQhUrV76+N94p76AAp1ClPLv3ke6S
-	CHfwcDEwXxR1rt21HZNOypDkQgVhpKdzQWL6k9Yg08DpUvYj8Zw0niw75Ne3FyiDCQmr4yufVRY
-	NXqbSLua/Z2h7bOmnTveSx11TvovUNfwETDRLkWevd8+g/AbbCj+8IXjmR/f56IgZ8UUC2JuKGk
-	9g
-X-Gm-Gg: AZuq6aKoGEDiwXBprREEDJpRQoPvkhPHk3O58K36/yVtJD0bg4dA5h9ThG/7R+bI9WA
-	LwucGWFx0HClkdwqv32WuoZiEITxVIGtNywS049EUweNBXQ2ua3ijG3INAmoNeMICxbFWit1jep
-	NwDuTr4nX96kStPzp1MjPhc5unStcdnUbeiGl5l4haKR/ATOiZODPex2WYReNJFbA1Mdra01fxr
-	u5IF5qGxXy0aGHrhpM/EYckLspwsYkNWgosKnP59tNR/Ht/Z95N94scd/v+zSqYgmHlWtva76Rm
-	Bnfy2x/X89ahoDB/O1yndedSHnX1oVojzYw7G1jCT6pH7B4zjZ+Wzm5kCjEPn+Y0QSMc52f/5ZE
-	D5d8SBzYkkpA5czCeL0X/Bk551pQx/Rz/IA==
-X-Received: by 2002:a05:600c:3f16:b0:477:54cd:200e with SMTP id 5b1f17b1804b1-482db4569c0mr779135e9.1.1769710305300;
-        Thu, 29 Jan 2026 10:11:45 -0800 (PST)
-X-Received: by 2002:a05:600c:3f16:b0:477:54cd:200e with SMTP id 5b1f17b1804b1-482db4569c0mr778815e9.1.1769710304801;
-        Thu, 29 Jan 2026 10:11:44 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4806cddffe9sm196831645e9.4.2026.01.29.10.11.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jan 2026 10:11:44 -0800 (PST)
-Date: Thu, 29 Jan 2026 13:11:41 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Cc: Alexander Graf <graf@amazon.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"open list:VIRTIO CORE" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] virtio_ring: Add READ_ONCE annotations for
- device-writable fields
-Message-ID: <20260129130818-mutt-send-email-mst@kernel.org>
-References: <20260129121604.745681-1-johannes.thumshirn@wdc.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="X1y1xMwl"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=SycuShY9fLe8nHz3bZDDyy6ExDdH/MWp2s/spHdFEr+/Cs4tPnfxith0OJEBdByG5hgmGClQDUG6dd1oyDv3jnvrBRYjs+Kbn1sdYEcb7ricbK2gosxvU69qDF4LGcBqLte4qXJ+gEQr+1cM+1K58kPwGJIlnXUN9cBUkdEbNE4KyEWSfy/vKH864QaLkp5aGds0pPCAbXpROCbz5bvZbvJbYRMUGycSwwh98j/tCnScHhF6j8pC29LAHTjWcIH1tD7l64aS+QucJ44kms0bVFleTwL8dQxHSCVHSvJePiWvPMgr2S040qyjRx8brLxsudc4CDjEBpltxiCVkja1rg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=4TMrSnokUOLA6abqd/Vth/eElDVDFSTrSd1LYUgxHWE=;
+ b=jQ9v/rYqTQdLvfQIvu/Xfd7lDIhXcSzr6m4Cip3KPaJbIk10GnjLdIgb3BihZJKZpSoXnewZnLFz/YL311WT64B7NPJrPAK0BTxrF3eqijEo+QJinNj6yRQ9/zpkf6SscEZeUuxqWY/tFfNTGQ2VvnIIxn1ZkACSIrEkHgnn9XPhuv2yhkQ4DnVrGw9JqW3kAC89j9iV69yws3fPBWaRUZ+h4DFVqesSiqTXpD5Gc72kWQEHj9H1NowlEDsYuZNbFqowWZP+yTJup9XgjvGyh3ex1tF26wfVkXKKlnu1w3ARAhkQtBWfBgtddtcHvnKEPKlW7eLuJyG/qXmGyIoeZg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=4TMrSnokUOLA6abqd/Vth/eElDVDFSTrSd1LYUgxHWE=;
+ b=X1y1xMwlaSLxrUxK/luC5WqIWwUFa0iK70r3T8DVd001sGgAvww3XxKmsC3RYoiUyDg3QIIxi33qEZbFx+VkvUW840QBPoG5VibU5+9/y4k1VXKpjg5fHule+f4k94NS/KghrBMVq8ZkOeiWLCdoFtFsILf2DObYDMAmlcRRuMxWomp2JOr4EAybfgjHWAY+y1FewD8eMwPDP1+oaxPBSesfO8XFwn+sB3KZU6Tt9gtqor/mOPTQL10HKghrCyTTs92Jl9UrcTxwSxM0yU/RSHUprTJcQaCAVvZ+61klaseiGD71jERXZGbB1MFw8fI66GwqNK33d1qIaA4r1jhr9Q==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DM8PR12MB5415.namprd12.prod.outlook.com (2603:10b6:8:25::5) by
+ DM4PR12MB6398.namprd12.prod.outlook.com (2603:10b6:8:b5::19) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9564.7; Thu, 29 Jan 2026 18:46:40 +0000
+Received: from DM8PR12MB5415.namprd12.prod.outlook.com
+ ([fe80::e757:d15e:4293:e24b]) by DM8PR12MB5415.namprd12.prod.outlook.com
+ ([fe80::e757:d15e:4293:e24b%4]) with mapi id 15.20.9564.008; Thu, 29 Jan 2026
+ 18:46:40 +0000
+Message-ID: <7f972038-3e19-49ef-af55-91ce190ba829@nvidia.com>
+Date: Thu, 29 Jan 2026 12:46:36 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v16 09/12] virtio_net: Implement IPv4 ethtool
+ flow rules
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+ virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+ yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
+ edumazet@google.com
+References: <20260121220652.894364-1-danielj@nvidia.com>
+ <20260121220652.894364-10-danielj@nvidia.com>
+ <20260122115857-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Dan Jurgens <danielj@nvidia.com>
+In-Reply-To: <20260122115857-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: BY1P220CA0025.NAMP220.PROD.OUTLOOK.COM
+ (2603:10b6:a03:5c3::12) To DM8PR12MB5415.namprd12.prod.outlook.com
+ (2603:10b6:8:25::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260129121604.745681-1-johannes.thumshirn@wdc.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: viuXtYCzyhUNhx_pTAIH_mPnk7u9x2a11a85EAr-Pf8_1769710306
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM8PR12MB5415:EE_|DM4PR12MB6398:EE_
+X-MS-Office365-Filtering-Correlation-Id: 878aeed4-7502-4a0d-e155-08de5f66bd46
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|7416014|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?RndOMXFab0VjNlZHOU9kUmYrMVFWNGM5NUNTSXkxWStQNDViTzN1RDMrZHJM?=
+ =?utf-8?B?WEY4SUQ5cFRMcHVhakxTeTFINVdpcDhWT3NjRnpuQkZINkZpRzRGZGhJdFpQ?=
+ =?utf-8?B?TlVjVTdIaHFNUm04bGNVWEpKWUdUSnJmOE5jU3U4MkN6M2orRzVuTVNmVnRG?=
+ =?utf-8?B?MFluMmx3T0pxVHN5SWRTcG9ZNWkzYkl0Y2tGK1FkSXZ2eTdHcGovR1JqcTF3?=
+ =?utf-8?B?ejV2cWlhYXloY1NiV050V3dBT0JZb1dLdGZFSXhzTWdQWllXSXBQcU1iV1gr?=
+ =?utf-8?B?Yjk2THU5b01vc3hrZFZIbEVnVHd0dUREM2FPSmtvelczMjdMZDZUWFcxd21Y?=
+ =?utf-8?B?OW9ZS01yQXBqL0dzem9lTFFBcldxNVNYUEdtelhIUG9raVczSkZzaCs1K05V?=
+ =?utf-8?B?VzVoN0NnT3BrWVoxSnVQdWVlMVJKeWg1Y1NSQndrZmFUZVMrMG00Y1B4SjZF?=
+ =?utf-8?B?bmpZRmhOWFZPWTVZS3RoT2oyaWhFMlZGZ0FwSmdsQjZZcHFLcWJ1QTJhVU1U?=
+ =?utf-8?B?UG5iYmZjWElxeU5tbDFYUUEwVUFEblVuSDNVU3hHQnpiSlBIdlJTUk0rL1dr?=
+ =?utf-8?B?WFY5VnZjYk1Qd3lvem1HSDdmLzQrNHV2R0RZSXdXU09CalJDTEJSNm5CTk9H?=
+ =?utf-8?B?SWZVZ280ejNZNWg1KzBpd1BSTy9odGRhZm16bXMrYlkyMEUzTWJnYzJWU0Jk?=
+ =?utf-8?B?cmdjRzM0MjRaT3JXNlVhZmhQcTUwT0lhTnRSTWdkTDZDaXl6clh2QmhYRXRC?=
+ =?utf-8?B?RFlUSUtPTGl6VWRjNjl0RVhKYWZHNmNjWmxOQVpJZXdnd0h0K2pLSnczNTJY?=
+ =?utf-8?B?emtEeWRjTVJaUVQzanRwMXQ4WktzdGNQeXBOeldzTDB1eGxpSnBQTzZqYm95?=
+ =?utf-8?B?VDBMNG9mQlhEYnNXOUFhdUVNcHBnTG1CK2dtTVFhRGl6OVRHbHpXQS9DWCtn?=
+ =?utf-8?B?WTRZQ2RZaEo2cU5lcEFNZ3RuK25lZjZBZlY1dk1PYXpiSU5ibzU2V3o4WlRU?=
+ =?utf-8?B?NlFMZmZ5RTRjdDlxQk14eThSbzlNckp6aVc2amdBdnNUNVhCRGhHMUJMS0lh?=
+ =?utf-8?B?U09WQUc0Mm5hTzVaNENvTVFpak9LbG5Ob1Z6L2FmbUsvVFRIT2FHNE5VOEt2?=
+ =?utf-8?B?RnJmOWlraTZCMVV3elFQZC9qbGc0NWhETkpmUjN3NE9MWWZpOTZ4SllST0JC?=
+ =?utf-8?B?S2x4VE9aUnhySmJpcks4dkVEMlZHQnVmYjIrdzdhcTdWc0E4eEF4Z04yeTQ0?=
+ =?utf-8?B?ZlA4ajBvRFRNWTZxY0FDODl3ZUZURlZMb0xGYy9yMHNMbVBVTE81b1p1V1FT?=
+ =?utf-8?B?ZWFmOGpqdnBHSk5DNUtmR1A3RlJZMUtzTU9MVkQ5ams4UXIvcXQxNE5pVCtm?=
+ =?utf-8?B?UnBuTzRXUVZMdjdVRTNkcTBweGk1cWhHWnlyb3JYWloyb0xsdzI4b0p5NWN6?=
+ =?utf-8?B?eDAwaHBBRmdURkw1WEJORW02L3B4VElYVUkwMW45TVh5UElGN1IvSnU5ODV3?=
+ =?utf-8?B?elRnem95MjhTUFNoajBDUm12YWJIeHRvR2xsellWVnh3cyswWjVmaCtMTDIw?=
+ =?utf-8?B?clJiUVVjYjI4eEdaWkY5VWNueE1Tb2w3cUFtM1VzT2FVR2dFcUtSRTlhei9h?=
+ =?utf-8?B?SkhDY2g4eTBJV253V0tnYzJzbnU3TXBETkpmNmdyM1NjTmpqK2s0SWdZdEdN?=
+ =?utf-8?B?WjJ5ZGJqRXBwUlYvaVBrdkkxSWRqZWR4Qys0Y3NRbmw0Nk9FL1dvNTd4NEE0?=
+ =?utf-8?B?WTZTK1Z2SWJNZ2VmcVMybzNHUHRtSFBjbnFkK05meFZsbkg1bHdHOWtIdWVG?=
+ =?utf-8?B?TnQzL0JxQmwxQ3dUMGJOTEdlWEpMa1JWR0VlS2ZpWUFiVFNKM3pqQWNQVW5R?=
+ =?utf-8?B?aEpJSUlWUWVSemhKQ3ZndEI0cUlKYkZhQU55N1hoQTlyNGRsSDFWdG9RNk5I?=
+ =?utf-8?B?ZWJ5QUJxa1Q2dkRrSWhLekYyVkdEUDFzOE01b050MFFqSGdhVjR3bzRQeVQx?=
+ =?utf-8?B?TklZOVVZWWhEUG5iOC9uVHhvMGM0a1Z4dkxONEh2UzVaVFFsMXRyYkkzaVpa?=
+ =?utf-8?B?RndnVW15V0JNNThkLzgxUTRTSGpwSTBXK0tNS0kveDYwL1pmaVYvdU05aUhM?=
+ =?utf-8?Q?oPBg=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM8PR12MB5415.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?aW9KTCtTTTVkRHhRS1ptWXRYTUdLN2J1RzE0OWhBOXQ0dU4zVEVQQThKOEEr?=
+ =?utf-8?B?RlFVVUlsNVVIVFJmcWpoTVhuc3JIVUtUS0dQWlZ4SkQxQTl6Z1plQ0hNUm9t?=
+ =?utf-8?B?WXhoWW1wN1FPUklBVXk5SkVQS3pIUitqQlVNNUU4MzV2OW5yKzVLazNKSEQ0?=
+ =?utf-8?B?Q0lOeEw4NEhRZlNoMkFGVWFyWVJ5RnpaaHNUdFhrVEdNTVFvTklKdkp4Y2l0?=
+ =?utf-8?B?dTlQWHdGb1lVTmcxMnJYR3NhTTIrZGVidjZidmhVL01RMVptNDRnN0pFTjRy?=
+ =?utf-8?B?eHRqNWZvWnhXUGVybUt0dmNZTVFLQ2tPTmcyNUU1UENDbENCOElUaERXKzl2?=
+ =?utf-8?B?dkF1TGpVODJVejNaQUNiNllJZUMrTVk5RUo1MlRpQVIvaUtPWU9JWUtRWHVi?=
+ =?utf-8?B?ZzF6M2M4WjVQMXFrc0xlTVZsZVJENkpWUURnQ1kwZFBTV2JTVFJ4Y21GMlJE?=
+ =?utf-8?B?a1prUVJaRUpYcW5qblBjY0wrVDF0SWFNeVViYUZER1NGRUhGOVlaV1lVU0lT?=
+ =?utf-8?B?bUNtVmVwcUFLTjdzeEE1WGZSZkRGMkJjRXBPYzlQZHlZOThWemtRaUp4Qjlj?=
+ =?utf-8?B?SWpWY0RtSmVCRlM1WW4wOGhkaGVZRlBGd1hjMnhiZUtGeU43SWp1d01QdzhV?=
+ =?utf-8?B?dTFiOXFoV0tuQ01wbGduRUo4cHpGVDBlR1g2MVZ0Sm1OQm9kbExPcHJ5bVQ0?=
+ =?utf-8?B?RjFTUGlDOThqbGlmRUZjZkVsa1NIdG15SXZ0T2M0cDd2VmdTUjBJUFdGMFZ3?=
+ =?utf-8?B?YVU2RmN3NFhoNkhkUFkydnNRdmprNy9PYU5WQVlIbDB1Y0J1VlY4RDM4eTBQ?=
+ =?utf-8?B?LzBwWkhlelN2RnQzYkFzRi9QTVh2bm02ZjVYRWttMDdodjFOZGxLczFTZU5B?=
+ =?utf-8?B?QWVpOUZtclhPZVR6UkN2UWNZY252bnZaSGpXSXFQNk1XRGlPM0NFYm8zaFlK?=
+ =?utf-8?B?WTU5R0RROGIzVWo4dXJXNHczdUxEMHY3NWUyVkUxbzRoSk51YkduSGlCd3Va?=
+ =?utf-8?B?RE5CVU0zeGE5Q216cjk1dlErYTV6dlZmNHMrYjdNajQ1UUNPd005enJWQ1Vs?=
+ =?utf-8?B?QStReCtBS2l5TldzTTFNRjVoclNvNGozaWphZ1V1T0MvN1VVVXYzT3ZjVEpz?=
+ =?utf-8?B?K1RkZVhIUWk1TjZYMlp1bkZkUElObUk5QXRKQk1FNXpUVHNHbytVV0lyM1Jl?=
+ =?utf-8?B?eGtQdHplSjEwcU03cG14Y2ptOFgvRzNsRXRQYlZGQzdiYnc4cE90ZFppVEV4?=
+ =?utf-8?B?bmt6eWplVDlQVFhKcExZQWdJclRaZ0pzek5YUHk4TVhWdmtLRGpmNTR6Yjc4?=
+ =?utf-8?B?OEkrSWk0dUVVS0h1a2hSYzFnOEQzZmMxaFN4RDl0YUcrS3FIanVEMFRkY0Zi?=
+ =?utf-8?B?bkw1U2Rha0R6UmE5ZmF5UU83MHpEbTVubG5TQUVYVHJUcGRyYzU4aVJYbE5J?=
+ =?utf-8?B?REhwSWFDTkdkdTdjWEFFRnhWYUJQeEw5R3IxallhWThBdTMvQzNKMmRDQ3pQ?=
+ =?utf-8?B?MDRvU2I1dlIwNEhkNk5yTFBvOE01QXc5VFRNdzBMTlhacjc1ZEk4NHhaZGlN?=
+ =?utf-8?B?aHFLOGUzVlZ1N21kKzlQajVxSkJSVWN1SFk0b1BHcTBKSmxWZHpFUXlKOUFx?=
+ =?utf-8?B?c21DWmUzN2Q1Q00xSUpFTmFTNUJOVll4dWtLZzZGa2RYUno2YzFiUVB1R2xW?=
+ =?utf-8?B?SGZsZUhSb3dJRU5nZSs5SVR5OUE2WnppYnJzM3RubTZtaHR6MGV3ZHZCcU1R?=
+ =?utf-8?B?NmdOVEY5SXo2U01IR051cGhEYkZ6cGs4WHVQRFd5QzE0NEYrcW9vRy9MRjJV?=
+ =?utf-8?B?ZWxnQVQwMUpXSnJUQWQvSTMvRmVFQm5za3c3N1h4RlFlN3hMUnkrek0xcTh4?=
+ =?utf-8?B?TExLQjRBQWp1SDduVjIzRHEwYVNpbFBRM1l5emNZMlYrV3hNblBCNkdiL0pk?=
+ =?utf-8?B?SVBIVlVsakcxdm5VTWtXOGI5Z2dRTVFVN0FkcXFNSmZhRWFGZ3JJNmUxVGhG?=
+ =?utf-8?B?bnJKOXJJMjQ4Y2hROUNoT25qTjc0WlRiWDlIUlFxemt5QzNucFE3N1NleDM0?=
+ =?utf-8?B?SzQvWmF6bnF2SXRDY1JlMEwvdTVKT1gxc3k0M0szSktkN29rTTlxci9nUDhR?=
+ =?utf-8?B?UnhkcTUrQVY0czBtUEsrSGgwaGlhR0dBSEZESkRJL016bVAvdGcyQW0vdjRK?=
+ =?utf-8?B?Z29xQUx2aUpUcnR2WXI1cmhPaEY3K24vekJYeS9RSHYvRkpPNmlRcmJDNkNx?=
+ =?utf-8?B?Z1g2emFNUThnVmt1eWNhTU1JK3ZXNExTUDlsdUduWjhyOVl4Y1pGSzRpcnpq?=
+ =?utf-8?B?MTNpSk93eFE3QXNuZURIRzZ4eHg0M1h0Tmd2eG04L1ZuNUQ3amZOdz09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 878aeed4-7502-4a0d-e155-08de5f66bd46
+X-MS-Exchange-CrossTenant-AuthSource: DM8PR12MB5415.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jan 2026 18:46:40.1718
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 6SUMz+E2kYR8cPjQAoqF5Mwx6wy8P2rj0Zw7i4GUqVHAIiJy2FDEeznj6iUtAoKRpUp7Gjxzo0w5DAGfuL1ZQw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6398
 
-Thanks for the patch! yet something to improve:
-
-On Thu, Jan 29, 2026 at 01:15:58PM +0100, Johannes Thumshirn wrote:
-> From: Alexander Graf <graf@amazon.com>
+On 1/22/26 11:21 AM, Michael S. Tsirkin wrote:
+> On Wed, Jan 21, 2026 at 04:06:49PM -0600, Daniel Jurgens wrote:
+>> Add support for IP_USER type rules from ethtool.
+>>
+>> Example:
+>> $ ethtool -U ens9 flow-type ip4 src-ip 192.168.51.101 action -1
+>> Added rule with ID 1
+>>
+>> The example rule will drop packets with the source IP specified.
+>>
+>> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
+>> Reviewed-by: Parav Pandit <parav@nvidia.com>
+>> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
+>> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>> ---
+>> v4:
+>>     - Fixed bug in protocol check of parse_ip4
+>>     - (u8 *) to (void *) casting.
+>>     - Alignment issues.
+>>
+>> v12
+>>     - refactor calculate_flow_sizes to remove goto. MST
+>>     - refactor build_and_insert to remove goto validate. MST
+>>     - Move parse_ip4 l3_mask check to TCP/UDP patch. MST
+>>     - Check saddr/daddr mask before copying in parse_ip4. MST
+>>     - Remove tos check in setup_ip_key_mask.
+>>     - check l4_4_bytes mask is 0 in setup_ip_key_mask. MST
+>>     - changed return of setup_ip_key_mask to -EINVAL.
+>>     - BUG_ON if key overflows u8 size in calculate_flow_sizes. MST
+>>
+>> v13:
+>>     - Set tos field if applicable in parse_ip4. MST
+>>     - Check tos in validate_ip4_mask. MST
+>>     - check l3_mask before setting addr and mask in parse_ip4. MST
+>>     - use has_ipv4 vs numhdrs for branching in build_and_insert. MST
+>> ---
+>> ---
+>>  drivers/net/virtio_net.c | 129 +++++++++++++++++++++++++++++++++++++--
+>>  1 file changed, 123 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index ba231f10b803..7ce120baeb41 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -5818,6 +5818,39 @@ static bool validate_eth_mask(const struct virtnet_ff *ff,
+>>  	return true;
+>>  }
+>>  
+>> +static bool validate_ip4_mask(const struct virtnet_ff *ff,
+>> +			      const struct virtio_net_ff_selector *sel,
+>> +			      const struct virtio_net_ff_selector *sel_cap)
+>> +{
+>> +	bool partial_mask = !!(sel_cap->flags & VIRTIO_NET_FF_MASK_F_PARTIAL_MASK);
+>> +	struct iphdr *cap, *mask;
+>> +
+>> +	cap = (struct iphdr *)&sel_cap->mask;
+>> +	mask = (struct iphdr *)&sel->mask;
 > 
-> KCSAN reports data races when accessing virtio ring fields that are
-> concurrently written by the device (host). These are legitimate
-> concurrent accesses where the CPU reads fields that the device updates
-> via DMA-like mechanisms.
 > 
-> Add accessor functions that use READ_ONCE() to properly annotate these
-> device-writable fields and prevent compiler optimizations that could in
-> theory break the code. This also serves as documentation showing which
-> fields are shared with the device.
+> this cast is only portable if sel and sel_cap are properly aligned.
 > 
-> The affected fields are:
-> - Split ring: used->idx, used->ring[].id, used->ring[].len
-> - Packed ring: desc[].flags, desc[].id, desc[].len
 > 
-> Signed-off-by: Alexander Graf <graf@amazon.com>
-> [jth: Add READ_ONCE in virtqueue_kick_prepare_split ]
-> Co-developed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-> Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> 
+> Because if not then at least saddr/daddr accesses below are
+> not portable and need
+> Documentation/core-api/unaligned-memory-access.rst
 > 
 
-drop the empty line pls.
-
-> ---
-
-
-
-> Changes to v1:
-> - Updated comments (mst, agraf)
-> - Moved _read suffix to prefix in newly introduced functions (mst)
-> - Update my minor contribution to Co-developed-by (agraf)
-> - Add "in theory" to changelog
-> ---
->  drivers/virtio/virtio_ring.c | 69 ++++++++++++++++++++++++++++--------
->  1 file changed, 54 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index ddab68959671..66802d11d30e 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -222,6 +222,48 @@ struct vring_virtqueue {
->  #endif
->  };
->  
-> +/*
-> + * Accessors for device-writable fields in virtio rings.
-> + * These fields are concurrently written by the device and read by the driver.
-> + * Use READ_ONCE() to prevent compiler optimizations and document the
-> + * intentional data race and prevent KCSAN warnings.
-
-	Use READ_ONCE ... , document ... and prevent
-
-> + */
-> +static inline u16 vring_read_used_idx(const struct vring_virtqueue *vq)
-> +{
-> +	return virtio16_to_cpu(vq->vq.vdev,
-> +			       READ_ONCE(vq->split.vring.used->idx));
-> +}
-> +
-> +static inline u32 vring_read_used_id(const struct vring_virtqueue *vq, u16 idx)
-> +{
-> +	return virtio32_to_cpu(vq->vq.vdev,
-> +			       READ_ONCE(vq->split.vring.used->ring[idx].id));
-> +}
-> +
-> +static inline u32 vring_read_used_len(const struct vring_virtqueue *vq, u16 idx)
-> +{
-> +	return virtio32_to_cpu(vq->vq.vdev,
-> +			       READ_ONCE(vq->split.vring.used->ring[idx].len));
-> +}
-> +
-
-above are only for split I think? then pls note in the name: e.g.
-vring_read_split_used_len
-
-
-> +static inline u16 vring_read_packed_desc_flags(const struct vring_virtqueue *vq,
-> +					       u16 idx)
-> +{
-> +	return le16_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].flags));
-> +}
-> +
-> +static inline u16 vring_read_packed_desc_id(const struct vring_virtqueue *vq,
-> +				            u16 idx)
-> +{
-> +	return le16_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].id));
-> +}
-> +
-> +static inline u32 vring_read_packed_desc_len(const struct vring_virtqueue *vq,
-> +				             u16 idx)
-> +{
-> +	return le32_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].len));
-> +}
-> +
-
-hmm the names are very long now. maybe drop _read_ from there.
-
->  static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
->  static void vring_free(struct virtqueue *_vq);
->  
-> @@ -736,9 +778,10 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
->  	LAST_ADD_TIME_INVALID(vq);
->  
->  	if (vq->event) {
-> -		needs_kick = vring_need_event(virtio16_to_cpu(_vq->vdev,
-> -					vring_avail_event(&vq->split.vring)),
-> -					      new, old);
-> +		u16 event = virtio16_to_cpu(_vq->vdev,
-> +				READ_ONCE(vring_avail_event(&vq->split.vring)));
-> +
-
-why not wrap this one then?
-
-> +		needs_kick = vring_need_event(event, new, old);
->  	} else {
->  		needs_kick = !(vq->split.vring.used->flags &
->  					cpu_to_virtio16(_vq->vdev,
-> @@ -808,8 +851,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
->  
->  static bool more_used_split(const struct vring_virtqueue *vq)
->  {
-> -	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev,
-> -			vq->split.vring.used->idx);
-> +	return vq->last_used_idx != vring_read_used_idx(vq);
->  }
->  
->  static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
-> @@ -838,10 +880,8 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->  	virtio_rmb(vq->weak_barriers);
->  
->  	last_used = (vq->last_used_idx & (vq->split.vring.num - 1));
-> -	i = virtio32_to_cpu(_vq->vdev,
-> -			vq->split.vring.used->ring[last_used].id);
-> -	*len = virtio32_to_cpu(_vq->vdev,
-> -			vq->split.vring.used->ring[last_used].len);
-> +	i = vring_read_used_id(vq, last_used);
-> +	*len = vring_read_used_len(vq, last_used);
->  
->  	if (unlikely(i >= vq->split.vring.num)) {
->  		BAD_RING(vq, "id %u out of range\n", i);
-> @@ -923,8 +963,7 @@ static bool virtqueue_poll_split(struct virtqueue *_vq, unsigned int last_used_i
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  
-> -	return (u16)last_used_idx != virtio16_to_cpu(_vq->vdev,
-> -			vq->split.vring.used->idx);
-> +	return (u16)last_used_idx != vring_read_used_idx(vq);
->  }
->  
->  static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
-> @@ -1701,10 +1740,10 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
->  static inline bool is_used_desc_packed(const struct vring_virtqueue *vq,
->  				       u16 idx, bool used_wrap_counter)
->  {
-> -	bool avail, used;
->  	u16 flags;
-> +	bool avail, used;
->  
-> -	flags = le16_to_cpu(vq->packed.vring.desc[idx].flags);
-> +	flags = vring_read_packed_desc_flags(vq, idx);
->  	avail = !!(flags & (1 << VRING_PACKED_DESC_F_AVAIL));
->  	used = !!(flags & (1 << VRING_PACKED_DESC_F_USED));
->  
-> @@ -1751,8 +1790,8 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
->  	last_used_idx = READ_ONCE(vq->last_used_idx);
->  	used_wrap_counter = packed_used_wrap_counter(last_used_idx);
->  	last_used = packed_last_used(last_used_idx);
-> -	id = le16_to_cpu(vq->packed.vring.desc[last_used].id);
-> -	*len = le32_to_cpu(vq->packed.vring.desc[last_used].len);
-> +	id = vring_read_packed_desc_id(vq, last_used);
-> +	*len = vring_read_packed_desc_len(vq, last_used);
->  
->  	if (unlikely(id >= vq->packed.vring.num)) {
->  		BAD_RING(vq, "id %u out of range\n", id);
-> -- 
-> 2.52.0
-
+I'll fix this here, and in the next 2 patches.
