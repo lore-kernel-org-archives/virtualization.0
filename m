@@ -1,111 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5D9B38D;
-	Thu, 29 Jan 2026 01:37:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AFBD337BAB
+	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 02:00:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769650659; cv=none; b=qBnubqx7i1osmiLRvQhXrR8cf1VYlT6EO8iKur0JywNwrVTL9djnUomvXJPO01UXot+/r/rGM5NcJutXsVGFMoEsTgTKU3Yah5gXNqWI7VXX+I728qfsZAf1RzPPaOyip4V7P8vmJ8njm5pXl0ja+ewFyU4YS3v3ZebYCz2XGKQ=
+	t=1769652050; cv=none; b=i9ZwBa5jOZe/TwqTNpI61eXv9zpXToK8gxNwm14UM1A7eKEWaMulkOXRUwXM+AWX9810f9cuQTBDdF4US/Pcmm4LoK4n4HuAQGa9fkfzucC2U0JkKuTDTSHxX0GCmA1okjFx9tgD4xJNQWfubFVjlWDdwCEC7AQ2IeM4j+ZD6HQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769650659; c=relaxed/simple;
-	bh=UpefWZnsINPXuje56adpAAgvFDVZXVdOcJunh4vFuDM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=eLPBhHh7EzC2XeT0W4QmiE/sko1BkD2eJqTI3tG0vDpyEc5dNf2Cz7wdBr8xl0gZkq7Fz7oApjJt+9HFFaFf0ox8xQ/gjWvC6cXYLVFOoV5CqVrAbwPNyqZbmx8Tot7sj5rE8DzLknuuSaNzeoYc1fxfXLsuQQn/lWqqiDyDuWY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kXNQnXuc; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769652050; c=relaxed/simple;
+	bh=wvEcaLwL+OyU7IPHb//TyZ/L3nX8HcPEOdA047ABCTM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hoNU/ZQdGltNwlnbkELkQNb+ktnCpfDH50b2SDdeDeMG9hdJ/8sZHC9xNtTE8EbvMezlC8RGwzlBwYBoDfTIZAiOYL7hwIq2LUPPE0GP8T7O7sTnxMPM83e+lRyg6Edd3d74qf/3VyeIaU08ZHUDrug7B07PqztC+OaTeVjEEV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f90kfKii; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kXNQnXuc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE0AAC4CEF1;
-	Thu, 29 Jan 2026 01:37:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769650659;
-	bh=UpefWZnsINPXuje56adpAAgvFDVZXVdOcJunh4vFuDM=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=kXNQnXucGx6WZDfTkLtX+vh7nvqAyG993qtHQAu4i4OY9iovNXjm5Y/CUR/Pec5PQ
-	 vcQwBNiO0jHQqWLX1aXnS+aw6fOWPkNnBHtpy2LaBTZvzXE2l8Y3DLTSj1jQbCSFCD
-	 GSuhizGny5tfyZDArLzjAtsw91xJZ1C50zQCuLhZsV2yY1toVRBjuGoU0n0cXsK9SR
-	 TnGs4jIC0Fgnc6YQt5c1x+ylaPkINDv+Q844jt/O57AQ1k1I42vvSWTcVByp5DmlgH
-	 dzsKJyruIlRUwC5xB+AebocQbB/JD55ey9SCWEcKBQ/0Cub0pLPQtLWdWLHXyhCF93
-	 rVqtra0u8k6qg==
-Date: Wed, 28 Jan 2026 17:37:37 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Vishwanath Seshagiri <vishs@meta.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang
- <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
- =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Lunn
- <andrew+netdev@lunn.ch>, "David S . Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, David Wei
- <dw@davidwei.uk>, <netdev@vger.kernel.org>,
- <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 net-next 0/2] virtio_net: add page_pool support
-Message-ID: <20260128173737.04277eeb@kernel.org>
-In-Reply-To: <20260128212031.1431746-1-vishs@meta.com>
-References: <20260128212031.1431746-1-vishs@meta.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f90kfKii"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769652037;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=uw/UiCzpvl877qlxbTo59H00R161y0KVIHeAnf0YUuk=;
+	b=f90kfKiiSDSTmOESgAnBXgty95mOvusqsFf+T4nBKQff9bTOtH+R3hJtvf0ZsfET8dMCTk
+	0VYdBR1ScJZGXWcc4HM9R0oo3duQpNfDHZqNUTNn07MRCt1pDQFhNtlZYlOZsQlF6lBOR5
+	lCKFxCH3uZgp+G71FepcWjtb8czkBEo=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-441-UnW50YJ7P16xdVkkrcWAtw-1; Wed, 28 Jan 2026 21:00:35 -0500
+X-MC-Unique: UnW50YJ7P16xdVkkrcWAtw-1
+X-Mimecast-MFC-AGG-ID: UnW50YJ7P16xdVkkrcWAtw_1769652034
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-34ab459c051so798630a91.0
+        for <virtualization@lists.linux.dev>; Wed, 28 Jan 2026 18:00:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769652034; x=1770256834;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=uw/UiCzpvl877qlxbTo59H00R161y0KVIHeAnf0YUuk=;
+        b=IenrkN/IM/uhBCmHf6kNQCHz4ZBgR75UtviEO0Rb1UaAHCIKbZFp1XhEEezo/F4l2h
+         69yQgv2b+q79V03cf0Ovvui/UNQbytEzPVnta7xS+yNUhwXvng/qo9mryecnCfJ1VBuY
+         NQmzHqcK2QZSWlTL34HsPkdMrTqDuS8XF6fnffwD47zUbXX8tJbiWbgnr8gQy+JWw0j4
+         aX/YEziJRKlfub0mAHTRi8etpUK6aNOprKX8HvHdeXVDmRL4OadxRbBP4cHuIAys1rld
+         7Q8kF4FyzJdhR/shtQP0dIc5S4t00OAMoqWxcdk2XTepSX3kpEKfx2dOrB2E+9Ziq9kA
+         vABg==
+X-Forwarded-Encrypted: i=1; AJvYcCXHFwq07bhL83LCHxeR4LkR6upqsYAHw5ErHo9fCTtSXbG9ACs8GdEZhZ1MSQFEY4/sajfaAxz/qrW/8Du4VQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YznCnwwTYJQp9C63lBsrRlMSCsHxIsvv3yy6KfoegY2xpbvFef5
+	eXkRhBwS6YqejfHYhwM3YSVpKAymu+OFHJQlEm1tFHBB/Z80gNKSeXfutnWcgYWYOtmyeK0eOl3
+	MU/9I4grgsileCnTgPHKaigmMXmDZeCUKN8uhCH/I3KIyZnKXvWg8+ykrk5DieKfA+KLjuuIZhq
+	1gh4h9BT0TV2KOYC6clNUH/+7EbUjoJoY2E/YEXy5vc00=
+X-Gm-Gg: AZuq6aL6k/+D+JgZjkuUqLh1UVqdkBd5RNIT5/EYz38m6Dm1uM61l3gEuyJvdFV3E4s
+	PW2WJ6nwe4rwlOUEfZ/tr8pfe9F2o8CMXH9j6sOOgJPtGy4OR/Mwytgrd+1/zoEz51LuZ/a52sD
+	2dyvO0269vSAHYUD1IpEUCeV/IMy8sjqh9sXSk2qG/eyfDIz9pKSYdHrywIRMQMX7J
+X-Received: by 2002:a17:90b:2e52:b0:353:c:643b with SMTP id 98e67ed59e1d1-353fed9c60cmr6302443a91.27.1769652034325;
+        Wed, 28 Jan 2026 18:00:34 -0800 (PST)
+X-Received: by 2002:a17:90b:2e52:b0:353:c:643b with SMTP id
+ 98e67ed59e1d1-353fed9c60cmr6302409a91.27.1769652033832; Wed, 28 Jan 2026
+ 18:00:33 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20260128124524.875271-1-eperezma@redhat.com> <20260128124524.875271-4-eperezma@redhat.com>
+In-Reply-To: <20260128124524.875271-4-eperezma@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 29 Jan 2026 10:00:20 +0800
+X-Gm-Features: AZwV_Qhsb2c3gAe09w_inqon5xNBOJYjl9nFwbXoRL5KiXLZ0UO9yXkR20Z_o-8
+Message-ID: <CACGkMEspErSiv7y5=zHAfJ-G7HVxv5Yr=AA+ttfyxWVVs7Rmmw@mail.gmail.com>
+Subject: Re: [PATCH 3/6] vduse: Add API v2 definition
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: fPI9ohiAHhV3XonKzhHf3oedBnED4UXcaypgLT3bGjM_1769652034
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 28 Jan 2026 13:20:29 -0800 Vishwanath Seshagiri wrote:
-> Introduce page_pool support in virtio_net driver to enable page recycling
-> in RX buffer allocation and avoid repeated page allocator calls. This
-> applies to mergeable and small buffer modes.
-> 
-> Beyond performance improvements, this patch is a prerequisite for enabling
-> memory provider-based zero-copy features in virtio_net, specifically devmem
-> TCP and io_uring ZCRX, which require drivers to use page_pool for buffer
-> management.
+On Wed, Jan 28, 2026 at 8:45=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redhat=
+.com> wrote:
+>
+> Introduce the definition for VDUSE API V2.  This version serves as a
+> gateway for feature negotiation.
+>
+> The kernel uses this version to determine if the userspace device
+> supports feature flags. Devices that do not explicitly negotiate API V2
+> will be blocked from querying available VDUSE features, ensuring
+> backward compatibility.
+>
+> The next patches implement the new feature incrementally, only enabling
+> the VDUSE device to set the V2 API version by the end of the series.
+>
+> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> ---
+>  include/uapi/linux/vduse.h | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> index 68b4287f9fac..dea89ed281a7 100644
+> --- a/include/uapi/linux/vduse.h
+> +++ b/include/uapi/linux/vduse.h
+> @@ -14,6 +14,10 @@
+>
+>  #define VDUSE_API_VERSION_1    1
+>
+> +/* Features support */
+> +
+> +#define VDUSE_API_VERSION_2    2
 
-Struggles to boot in the CI:
+If we can catch the next release cycle, I would perfer not bumping
+VDUSE version twice in the same release.
 
-[   11.424197][    C0] Oops: general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] SMP KASAN
-[   11.424454][    C0] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-[   11.424606][    C0] CPU: 0 UID: 0 PID: 271 Comm: ip Not tainted 6.19.0-rc6-virtme #1 PREEMPT(full) 
-[   11.424784][    C0] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-[   11.424913][    C0] RIP: 0010:page_pool_alloc_frag_netmem+0x34/0x8e0
-[   11.425054][    C0] Code: b8 00 00 00 00 00 fc ff df 41 57 41 89 c8 41 56 41 55 41 89 d5 48 89 fa 41 54 48 c1 ea 03 49 89 f4 55 53 48 89 fb 48 83 ec 30 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 32 05 00 00 8b 0b 83 f9 3f 0f
-[   11.425413][    C0] RSP: 0018:ffa0000000007a00 EFLAGS: 00010286
-[   11.425544][    C0] RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000820
-[   11.425697][    C0] RDX: 0000000000000000 RSI: ffa0000000007ac0 RDI: 0000000000000000
-[   11.425846][    C0] RBP: 1ff4000000000f54 R08: 0000000000000820 R09: fff3fc0000000f8f
-[   11.426000][    C0] R10: fff3fc0000000f90 R11: 0000000000000001 R12: ffa0000000007ac0
-[   11.426156][    C0] R13: 0000000000000600 R14: ff11000008719d00 R15: ff1100000926de00
-[   11.426308][    C0] FS:  00007f4db5334400(0000) GS:ff110000786fe000(0000) knlGS:0000000000000000
-[   11.426487][    C0] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   11.426617][    C0] CR2: 00000000004e5e60 CR3: 000000000b9da001 CR4: 0000000000771ef0
-[   11.426768][    C0] PKRU: 55555554
-[   11.426846][    C0] Call Trace:
-[   11.426927][    C0]  <IRQ>
-[   11.426981][    C0]  ? alloc_chain_hlocks+0x1e5/0x5c0
-[   11.427085][    C0]  ? buf_to_xdp.isra.0+0x2f0/0x2f0
-[   11.427190][    C0]  page_pool_alloc_frag+0xe/0x20
-[   11.427289][    C0]  add_recvbuf_mergeable+0x1e0/0x940
-[   11.427392][    C0]  ? page_to_skb+0x760/0x760
-[   11.427497][    C0]  ? lock_acquire.part.0+0xbc/0x260
-[   11.427597][    C0]  ? find_held_lock+0x2b/0x80
-[   11.427696][    C0]  try_fill_recv+0x180/0x240
-[   11.427794][    C0]  virtnet_poll+0xc79/0x1450
-[   11.427901][    C0]  ? receive_buf+0x690/0x690
-[   11.428005][    C0]  ? virtnet_xdp_handler+0x900/0x900
-[   11.428109][    C0]  ? do_raw_spin_unlock+0x59/0x250
-[   11.428208][    C0]  ? rcu_is_watching+0x15/0xd0
-[   11.428310][    C0]  __napi_poll.constprop.0+0x97/0x390
-[   11.428415][    C0]  net_rx_action+0x4f6/0xed0
-[   11.428517][    C0]  ? run_backlog_napi+0x90/0x90
-[   11.428617][    C0]  ? sched_balance_domains+0x270/0xd40
-[   11.428721][    C0]  ? lockdep_hardirqs_on_prepare.part.0+0x9a/0x160
-[   11.428844][    C0]  ? lockdep_hardirqs_on+0x84/0x130
-[   11.428949][    C0]  ? sched_balance_update_blocked_averages+0x137/0x1a0
-[   11.429073][    C0]  ? mark_held_locks+0x40/0x70
-[   11.429172][    C0]  handle_softirqs+0x1d7/0x840
-[   11.429271][    C0]  ? _local_bh_enable+0xd0/0xd0
-[   11.429371][    C0]  ? __flush_smp_call_function_queue+0x449/0x6d0
-[   11.429497][    C0]  ? rcu_is_watching+0x15/0xd0
-[   11.429597][    C0]  do_softirq+0xa9/0xe0
+> +
+>  /*
+>   * Get the version of VDUSE API that kernel supported (VDUSE_API_VERSION=
+).
+>   * This is used for future extension.
+> --
+> 2.52.0
+>
 
-https://netdev-ctrl.bots.linux.dev/logs/vmksft/virtio/results/494081/1-basic-features-sh/stderr
--- 
-pw-bot: cr
+Thanks
+
