@@ -1,137 +1,97 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from pdx-out-006.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-006.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.26.1.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08DB3316904
-	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 14:58:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51CAB33985A
+	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 16:39:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.26.1.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769698735; cv=none; b=QuTaLAQzR335PlKd5sPym+0NsppdfdkBiiquY8Z7QJcHknZGcAy+gcQLR+F8d4WthV3NeMPgO+GYsf9krWc6aRbIhApO5H/3lvXzpYSfpVrtWNxt4zQKX/WSj/7hUpYaJkboLea7+fsWiPInO+KIzXRJyEBWaEceZtYyBnj5XbA=
+	t=1769704765; cv=none; b=naZnCEk8WsYgHJGpgtQw5Tzjvg+YYNyDYsztfBOiVadFYfXB8KKeHFVDFJNuyBMRRD6CSBi9zVVZKB/WRtkBegvxW2W5s07EzbCX4qSyoi9ynAgAoc5hJc6FTb13K3EBdjHUoAv+a9BXYWwlRgw0UVBy1UgFMHVgcEj3VRRrjhg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769698735; c=relaxed/simple;
-	bh=K929Qe1UqCZl76ieO2aMPpP3RDbZ+XEIE24yDLHrmkk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nzECF/WfiqpixoAsEKSxwW2MnK4miNrrSWzVV5vvd31dLX2u5D1VsRejrL7TBFuboxk4rvXOuxrnn+gTRbAX5CWXnLN0FCkkmpG8eX3wcc/qIxF/wtWqgI4LfgfRXZ5Kgxys6MQGN6gqMGUTvbblsqWH5giqc2cKz5IP982skKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=YL+YG5w2; arc=none smtp.client-ip=209.85.222.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1769704765; c=relaxed/simple;
+	bh=Fc/cgxlRFDNreo7V/sGH4YF+Ny5qj9VmO/oiDU3g1yc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=PnyteyZb+AbhG4Vz9hhDFG7EMrjOiLNjv0ErADTo5XYlB5m0kzI79JR3nHOKHrI/T0wetGP8uVyJz6Vok3H5pu3vulFh1gUWQ7WIzZlCP4xBctb1Ksw6IYc/SlDVuYUa+ZBxoUPTxmtp5yqeQZLYS8n1oK5pduozjoWe5uI0u3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=JxPuN3zI; arc=none smtp.client-ip=52.26.1.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="YL+YG5w2"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-8c6aaf3cd62so113616385a.3
-        for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 06:58:53 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="JxPuN3zI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1769698733; x=1770303533; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=o4w2e3JsR9J6c+UOY9xxx12hv3SNlcI3MEz/ixg8Unk=;
-        b=YL+YG5w2igfhop24kw4kFg/6idyn6qxXRewmnLNJF5KaVbDaP7irQsImCI0vQyAu8D
-         Q4AecQNFLNyB/QEL5XU3Qm/5QMBKjAbo1xrZMT9VfTQMMui/pzgQjl2VmszOPybfS+YE
-         Ljh0qnc/U1VjK4xu6UVTNTytmE3CDCVTckpDicAQRHekAX+ZhLWCuikXbJTxzitQKzvJ
-         HRfDxMETUmt1Hq0t1tV1ay1gxCMDsj/BpTGbL2+oyV/xyiybgCcjIoLUIaHY7JzptCab
-         qP2L/bfDgZlEDekRs5YWW4SAEO0KbHBxofgQF8uiDfhj5UKMMQHWdY8FPVfEcWKDKydQ
-         SX2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769698733; x=1770303533;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=o4w2e3JsR9J6c+UOY9xxx12hv3SNlcI3MEz/ixg8Unk=;
-        b=A7p6Qq6ns5nmJZMLJryfp+sVXYNeU4IjKKF0k0cWygK71uGtZswd14Kzu98+CvFE7Q
-         jyH9FGzLt1+oeJXXDvZ9rGuCJRBlMwGkDWRrt6AIsYYtECzg8vradZv8Ql/vGx/yTFck
-         0EwEaFW+1nzszG9baruC9Ap5Mh/Q1E+UTcBf0QlgxToE7TYkQ7MvFLJ7PTQ6EQQ6sH7b
-         7WGFeSIuy8HxcbsyKv465MS5Tn1EGpwknmbEkW2myD55RmKkvn/KTLOfBHSu9T6gj4ek
-         KxgWX8p3uMcCs1M4nBIW+/4PEMG4bW7HOPbUxX8B15CZQhkqsXRG3By19m+1jwXyciWl
-         ZywA==
-X-Forwarded-Encrypted: i=1; AJvYcCUcIcXRYO7laLV33DkXRYte0OcYU4Y7ZIYfZVIocQabyvcOI0BKQlcgsRcIDxasW8otBXyrpTw7qtR8RQm+Gw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz6x6NoxUnMD6zVkzD5q6++xVSMXF9esyfNAKBwwvjAs+9s0ljX
-	lsKkA20i/rq3YMSkqPjkSe5Pm2v8Eb1WTm/3HCTl4jB0AelGgm1WuthaxiTyUbgEukk=
-X-Gm-Gg: AZuq6aISYpigXP7qK51X8DF6VNo2qkuznAUpbfg2mY19KeMTjieds4aUV5TW+IfJ4hS
-	2GbiIayPxJa1xMPURrGVzptCH0Q5QXvTZDAWkUxeuvHsjB8OVVnPqk7aXjTaATrI+TnKp9eefFN
-	Zcy0NccwsNddCtx+FlyVr6p5TcPzHgDY2glQUswVVGmFTxZItGhPSYxKUSu0q5Tdvr7Vabmsarr
-	GWAnJ0joBzP8n1cxmC/61Knf4Z6PVV8OUdlkxnsIt3rp6fjw+dhufJiLNreG6nSDR4BqjXfQgzi
-	XmsM/zpTuVvM1JJnap8N3Y6CLFfAOpJtQfbswVooI1tk1R8jYcaVdGmOrc6TrMC5Cm6nSEodly8
-	tf9Y8hMcmYcTu1a5JIzTVYCPrh/l+dKZiOMWpPvO3VWKOesxah7ESUWttJ2MVKUM1BXFSZ+LXZB
-	B1laHRXDuhT0owDT5mLdtS3jfiCoR2AICrzn7coEXoKaWSxR1BxTZVa9RyO7GvEXkyeUI=
-X-Received: by 2002:a05:620a:2550:b0:8c6:d398:4a76 with SMTP id af79cd13be357-8c70b833da6mr1225384185a.2.1769698732651;
-        Thu, 29 Jan 2026 06:58:52 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-894d375c0d8sm38242676d6.43.2026.01.29.06.58.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jan 2026 06:58:52 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1vlTTv-00000009kfJ-363L;
-	Thu, 29 Jan 2026 10:58:51 -0400
-Date: Thu, 29 Jan 2026 10:58:51 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Tian, Kevin" <kevin.tian@intel.com>
-Cc: Leon Romanovsky <leon@kernel.org>,
-	Pranjal Shrivastava <praan@google.com>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	"Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Felix Kuehling <Felix.Kuehling@amd.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	"Kasireddy, Vivek" <vivek.kasireddy@intel.com>,
-	"linux-media@vger.kernel.org" <linux-media@vger.kernel.org>,
-	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-	"linaro-mm-sig@lists.linaro.org" <linaro-mm-sig@lists.linaro.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"intel-xe@lists.freedesktop.org" <intel-xe@lists.freedesktop.org>,
-	"linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-	"iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Subject: Re: [PATCH v5 4/8] vfio: Wait for dma-buf invalidation to complete
-Message-ID: <20260129145851.GE2307128@ziepe.ca>
-References: <20260124-dmabuf-revoke-v5-0-f98fca917e96@nvidia.com>
- <20260124-dmabuf-revoke-v5-4-f98fca917e96@nvidia.com>
- <aXfUZcSEr9N18o6w@google.com>
- <20260127085835.GQ13967@unreal>
- <20260127162754.GH1641016@ziepe.ca>
- <BN9PR11MB5276B99D4E8C6496B0C447888C9EA@BN9PR11MB5276.namprd11.prod.outlook.com>
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1769704764; x=1801240764;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=Fc/cgxlRFDNreo7V/sGH4YF+Ny5qj9VmO/oiDU3g1yc=;
+  b=JxPuN3zIeQwqzvbumke6gDP+KnQnc/IpVGWXvWrZJ3GnkVAbBoyekWj6
+   UWxnPDE0O/S8gCKz8Wl/3SyqKWE/zMTGFFmEHKUWII32sI5ANWtDpEJgc
+   q73bOPInNNDyJSWwWL+aDCtIZIoZTQ5Oeg3L//6zkPYIcX9865PaMBD54
+   krdSE92esWmLm3IXRw96IiUGI1KFlCtE9LpH+Abl8VyEuI0o/LOv+Dc4j
+   qGJgcMj6RKDAk0XnwwKqymm92RSUBOEgTX93cmLn2+9lVna0wer+kZSEW
+   +uK6on8DMRB5cMG1sa4K5hbMfANcVwdpOPXiEMXdJ5dsefjcRd/zwvwxP
+   g==;
+X-CSE-ConnectionGUID: 7H9g9UeMSIi8+Q9d7g1J6A==
+X-CSE-MsgGUID: Scqj9ktcQ969WVJL3JnWBQ==
+X-IronPort-AV: E=Sophos;i="6.21,261,1763424000"; 
+   d="scan'208";a="11853402"
+Received: from ip-10-5-9-48.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.9.48])
+  by internal-pdx-out-006.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 16:39:22 +0000
+Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.111:6028]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.20.168:2525] with esmtp (Farcaster)
+ id 49177a38-027e-4937-ac71-a0e3cb355b67; Thu, 29 Jan 2026 16:39:21 +0000 (UTC)
+X-Farcaster-Flow-ID: 49177a38-027e-4937-ac71-a0e3cb355b67
+Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
+ EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35;
+ Thu, 29 Jan 2026 16:39:21 +0000
+Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
+ (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.35; Thu, 29 Jan 2026
+ 16:39:19 +0000
+Message-ID: <3df69121-b4ac-48ce-a26c-5dd3035a3b78@amazon.com>
+Date: Thu, 29 Jan 2026 17:39:17 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BN9PR11MB5276B99D4E8C6496B0C447888C9EA@BN9PR11MB5276.namprd11.prod.outlook.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] virtio_ring: Add READ_ONCE annotations for
+ device-writable fields
+To: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+CC: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+	<eperezma@redhat.com>, "open list:VIRTIO CORE"
+	<virtualization@lists.linux.dev>, open list <linux-kernel@vger.kernel.org>
+References: <20260129121604.745681-1-johannes.thumshirn@wdc.com>
+Content-Language: en-US
+From: Alexander Graf <graf@amazon.com>
+In-Reply-To: <20260129121604.745681-1-johannes.thumshirn@wdc.com>
+X-ClientProxiedBy: EX19D031UWA004.ant.amazon.com (10.13.139.19) To
+ EX19D020UWC004.ant.amazon.com (10.13.138.149)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 
-On Thu, Jan 29, 2026 at 07:06:37AM +0000, Tian, Kevin wrote:
-> Bear me if it's an ignorant question.
-> 
-> The commit msg of patch6 says that VFIO doesn't tolerate unbounded
-> wait, which is the reason behind the 2nd timeout wait here.
+Ck9uIDI5LjAxLjI2IDEzOjE1LCBKb2hhbm5lcyBUaHVtc2hpcm4gd3JvdGU6Cj4gRnJvbTogQWxl
+eGFuZGVyIEdyYWYgPGdyYWZAYW1hem9uLmNvbT4KPgo+IEtDU0FOIHJlcG9ydHMgZGF0YSByYWNl
+cyB3aGVuIGFjY2Vzc2luZyB2aXJ0aW8gcmluZyBmaWVsZHMgdGhhdCBhcmUKPiBjb25jdXJyZW50
+bHkgd3JpdHRlbiBieSB0aGUgZGV2aWNlIChob3N0KS4gVGhlc2UgYXJlIGxlZ2l0aW1hdGUKPiBj
+b25jdXJyZW50IGFjY2Vzc2VzIHdoZXJlIHRoZSBDUFUgcmVhZHMgZmllbGRzIHRoYXQgdGhlIGRl
+dmljZSB1cGRhdGVzCj4gdmlhIERNQS1saWtlIG1lY2hhbmlzbXMuCj4KPiBBZGQgYWNjZXNzb3Ig
+ZnVuY3Rpb25zIHRoYXQgdXNlIFJFQURfT05DRSgpIHRvIHByb3Blcmx5IGFubm90YXRlIHRoZXNl
+Cj4gZGV2aWNlLXdyaXRhYmxlIGZpZWxkcyBhbmQgcHJldmVudCBjb21waWxlciBvcHRpbWl6YXRp
+b25zIHRoYXQgY291bGQgaW4KPiB0aGVvcnkgYnJlYWsgdGhlIGNvZGUuIFRoaXMgYWxzbyBzZXJ2
+ZXMgYXMgZG9jdW1lbnRhdGlvbiBzaG93aW5nIHdoaWNoCj4gZmllbGRzIGFyZSBzaGFyZWQgd2l0
+aCB0aGUgZGV2aWNlLgo+Cj4gVGhlIGFmZmVjdGVkIGZpZWxkcyBhcmU6Cj4gLSBTcGxpdCByaW5n
+OiB1c2VkLT5pZHgsIHVzZWQtPnJpbmdbXS5pZCwgdXNlZC0+cmluZ1tdLmxlbgo+IC0gUGFja2Vk
+IHJpbmc6IGRlc2NbXS5mbGFncywgZGVzY1tdLmlkLCBkZXNjW10ubGVuCgoKUGxlYXNlIGFkZCAi
+VGhpcyBwYXRjaCB3YXMgcGFydGlhbGx5IHdyaXR0ZW4gdXNpbmcgdGhlIGhlbHAgb2YgS2lybywg
+YW4gCkFJIGNvZGluZyBhc3Npc3RlbnQsIHRvIGF1dG9tYXRlIHRoZSBtZWNoYW5pY2FsIHdvcmsg
+b2YgZ2VuZXJhdGluZyB0aGUgCmlubGluZSBmdW5jdGlvbiBkZWZpbml0aW9uLiIKCgpPdGhlcndp
+c2UgTEdUTSEKClJldmlld2VkLWJ5OiBBbGV4YW5kZXIgR3JhZiA8Z3JhZkBhbWF6b24uY29tPgoK
+CkFsZXgKCgoKCkFtYXpvbiBXZWIgU2VydmljZXMgRGV2ZWxvcG1lbnQgQ2VudGVyIEdlcm1hbnkg
+R21iSApUYW1hcmEtRGFuei1TdHIuIDEzCjEwMjQzIEJlcmxpbgpHZXNjaGFlZnRzZnVlaHJ1bmc6
+IENocmlzdG9mIEhlbGxtaXMsIEFuZHJlYXMgU3RpZWdlcgpFaW5nZXRyYWdlbiBhbSBBbXRzZ2Vy
+aWNodCBDaGFybG90dGVuYnVyZyB1bnRlciBIUkIgMjU3NzY0IEIKU2l0ejogQmVybGluClVzdC1J
+RDogREUgMzY1IDUzOCA1OTcK
 
-As far as I understand dmabuf design a fence wait should complete
-eventually under kernel control, because these sleeps are
-sprinkled all around the kernel today.
-
-I suspect that is not actually true for every HW, probably something
-like "shader programs can run forever technically".
-
-We can argue if those cases should not report revocable either, but at
-least this will work "correctly" even if it takes a huge amount of
-time.
-
-I wouldn't mind seeing a shorter timeout and print on the fence too
-just in case.
-
-Jason
