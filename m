@@ -1,171 +1,239 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90E74273D8D
-	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 06:26:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B21313783D1
+	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 06:30:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769668004; cv=none; b=iIE0ldGYtI2etkLp7pURZkiUbr+sh8DzXFTDJx2ALARaY2d9rkWa6NehZ5KuIErYVeEBPF9J3h0lcuoKeu+A4TriR6ZVd/tQLxnYebJKqO+HLWexc5HAq9aGatCmVEqSMqBkSvXe5Kl4vMu/iyuziLcUR3wqwf+scQqFESjERb0=
+	t=1769668219; cv=none; b=YeCpBRdBGbizDP8FjSUQIZ+oP/t/hqT59Tw7ruTK5GlheXsn2Lnw6uWQJImQ0LFvZr0NNhtERQW8K70rZhIIiFNah8lN6S40k62TKwypeI2JpwgkfIY/+48DgSeolO+5Q0jTyhSDYmF2yfPEvbV8cuJUnqAaQ4XNssXSjtNUJC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769668004; c=relaxed/simple;
-	bh=mBj/lNBLU520Nu/WoebEFbbg8DJogOSQSBU2JVGFtTE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hGXuy3ORtrmlhh0aq+CXLM8ayl0yYa+ytFysBpDDdFso1YjopBSqIg8PMGHk8ht0bkh4+y1wjSkiABOQcmvmy/zSw2dx/2ey6W6CkwBzapDmHhjczicIuKwCSlZ5UnVFg6moqJ03zhewout8TalA+4anB55AHGqDmkRAIo2xjgc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a4IfOpkB; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1769668219; c=relaxed/simple;
+	bh=8QClyySW+wJVgknArgrur9ktWhv9cOQWP2hM9vwZEUA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=p+RaDLJA7Uf7AtgqiaNnM3AAteu8M2Ogqlq3SZ5F/jHTLO7mGABXuhapJTRyPwW4IhUrcsXMf2gePYsW4XH315zWdRT5LilWo4VqFvXBPlmSb56M/Z4/IWsaF2HirhfOFbZ2zLvae3jnzccAb3nd2qzbzayY2sUMWXrKlT5oXnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gzu0YFgS; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a4IfOpkB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gzu0YFgS"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769668001;
+	s=mimecast20190719; t=1769668216;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=j/Sshgb0i0F6ZLu2U6Q0l3JX/CsW0xM0V4+hKEXnYnI=;
-	b=a4IfOpkBNVwQtBt/3xs3IZMk3oKuCQ5rhTs7ObhgdC2dgV/nxYvgYsFAGWPDIU8+k3Ghfv
-	O3nYEDZ/UVDBzpFSaEHntXaSKnF+48IvZZHQXaF8W0xF9mSDxWJjXfI88BgZNQbXk9Upla
-	PfeyS1FZHzKnl+ZZbGDvVFN76PR/y3Y=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=aYa8EZaTCN3bCG6/fsxPsqgYySk+lPWQCwt/l6kwY1g=;
+	b=gzu0YFgShXS8B5V9wKHYhxngZWvlOebAkntsF189Iuz6VqFoZSJm999qHwZU4X9n6o96XT
+	96NxTCMFvoN4bbh0niq8Gwc+gNf8lEkqgEVVUd6+BYPu7KjAvYj7k8YVHmBp0sBevSbFqD
+	XWrkV4Nqhg3Xpx5AHYh+N6yXDCbODSM=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-575-1xdL-ookMcSNMY6zAMNPlw-1; Thu, 29 Jan 2026 01:26:39 -0500
-X-MC-Unique: 1xdL-ookMcSNMY6zAMNPlw-1
-X-Mimecast-MFC-AGG-ID: 1xdL-ookMcSNMY6zAMNPlw_1769667999
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-7948fd222d0so10075897b3.3
-        for <virtualization@lists.linux.dev>; Wed, 28 Jan 2026 22:26:39 -0800 (PST)
+ us-mta-691-qAwoSAxkPjeaMRQWftjGTQ-1; Thu, 29 Jan 2026 01:30:13 -0500
+X-MC-Unique: qAwoSAxkPjeaMRQWftjGTQ-1
+X-Mimecast-MFC-AGG-ID: qAwoSAxkPjeaMRQWftjGTQ_1769668212
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-47edf8ba319so4615225e9.2
+        for <virtualization@lists.linux.dev>; Wed, 28 Jan 2026 22:30:13 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769667999; x=1770272799;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=j/Sshgb0i0F6ZLu2U6Q0l3JX/CsW0xM0V4+hKEXnYnI=;
-        b=dFPpMoFwe5ytbVW6+r7o11aaHK/MwfCDc4RXdUwzoyOLHofjhEiqglmmj2XIQ8G16A
-         w9taCdu0NFCHtH/jwYVutSYCEg251y/CqOcrTcdUWLSuzobhfzj6n1HtuLQIXrp1xp+i
-         PfuN/cv4NA2Txh6Se0qmuGAZLm7tOEXujT2VyQsbPwaAlYkiu7+meBa2GEO/akQqfdO5
-         C06DucAHHDr8Gj/LE0ySHmWzqk4nRi1B1WdDLAJNWd2JZtCWYq5TrOkhKbT+vqxrZ+sP
-         dPplarPp0zP+SKUJzQAs+OSp4tiWlUcVJbopk+lXNhhs/M4lFigXsuLyYuGxiwJiBFrp
-         k/8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUQeMFPjw1w8raQ4y0qA0iAHv6cE2FfYMj9733laRybLmfAm343gF3r8VxKInId16HCMpWKF0wf4HXAQxUaZA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwCyJ1Zx6dzQ/lMl9g6ArYOISw0KetAHTANN5qpnDWiGRtOHNdX
-	WoxCE9PW6frpVlhpqlEyaXNfTAjmtL7IBYvK1N2DS/mstHxRFiXmJPcKgoWol7eS6KMQVVVXkr2
-	UGjMugsB4iMKa0LIbYrCIhK21c7gTMDMXE+UBV3r5fuYfJVbRHMPg6xS58k+JQW7rXFSuCGccDo
-	TRKeJXj12GRal7WUBv3D2cp4v1eVGpLGSvBUvul4vu0EE=
-X-Gm-Gg: AZuq6aL4R9XvxTj3pChXKer3O8GOP30FXtFgqOyNAucUvwqx0QWMEDYyKaxFzkUnCTN
-	967SDU/KlW56ZT+O2LC29fxPNAjpvM+nmgBVjIWLodsvEAX3hmdsbo1s42IVKwBNyWyReQbLuWA
-	QpWaeUuyEFjMv6ZorLXLJH6BupJeIE+KVw5fLGwHVsrO0J4c4+NT6ArVUPf1sOOh8WyA==
-X-Received: by 2002:a05:690c:314:b0:794:7866:2611 with SMTP id 00721157ae682-7947aa17549mr63435387b3.1.1769667999377;
-        Wed, 28 Jan 2026 22:26:39 -0800 (PST)
-X-Received: by 2002:a05:690c:314:b0:794:7866:2611 with SMTP id
- 00721157ae682-7947aa17549mr63435277b3.1.1769667999002; Wed, 28 Jan 2026
- 22:26:39 -0800 (PST)
+        d=1e100.net; s=20230601; t=1769668212; x=1770273012;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aYa8EZaTCN3bCG6/fsxPsqgYySk+lPWQCwt/l6kwY1g=;
+        b=uBhcXslj1+tcckFJD0tnS03K/3dlmuuFqpHAW9iUDRu9WKPVhE4eNo/1ywWZFF8uDD
+         2OFFPziyV/Q4eM3FBkm0ScZt58Q1mn01w0nbc4SHTabuKBNk6AEruSPKiwx4car3t1Ui
+         sQrmrzf6XygCCw7+U+C9hDcISBpKGie/GkG+0dtqI7HHTWnfwgvCzf9wQGaWF9uj/2QB
+         KP5x6jMCRirJ4hzRq2PnBMiLDMTMYWKhZ0qQfiPJHuE9ZWGKNjnWnm2p3z22pVU39A8m
+         4GEnZvsA7DoxhZ/IZc8x1SqLyQUjMeNx2ro3Fs6/pBpiOa+fc0bRnrVaIGJhwc92H0JT
+         0NCw==
+X-Forwarded-Encrypted: i=1; AJvYcCUQPaL/k6GdKC8ln0qNXiUUsZuU2TC/T/pcCCVrGPMh7Xj8O5u6Fd3YgVnLDoGgNWdgzoVazksgbuNORdTYtQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzHPvXP//oNf2Na8y+Wks917qY1tcgDv2SuQLMwQbrVVDZsdCfR
+	z0YjVgMm9ellHge7Cn+tfHgoN0BDeLY7w/NtTvvgMhDnlEhxD19HOjvijVjeEnrzAY+D3E8ctX6
+	atpyBsB+OrqXa4B7rNES/cHHYQaebjEjppJXHJcfbTAvfEuTNcwL4xF/P0MEz7S+vpl+h
+X-Gm-Gg: AZuq6aJapEflSneB2imtGOJDp8a1UcyMk0KOTpWWJ5rrQR9UAmRXC2fGkJjRUb31CjW
+	OhGiZBZ4nBg04W63MwpuKzGoWnk8Mncd6aBdkY7Olt3ZTYCE58CHePEew/glH1PHk+/qHpggicm
+	DVSmb73tBVeoXIncEtycuauQzjm/DrEKrpZp2+On5S8NKXMt7NUMgjyZC2owFLN1e6bDOQy9Hcv
+	0YSNr5szs28VsmbbvhnN43mPVWZwNH74TS6d9ngoxbEnY/kJ/omCFQeXtbEDDSuCu4Qd3X4n1/a
+	kY8QviAkVYPEf350x4l1pJxjxjMcw9jJq3Dp43wJ1uXLmPk8GbWYgTF7nawRP7zBP9bbHcJh4s9
+	1RPZrRJYdl6WLbL/4mO5q6s3kZpEXKBhWSA==
+X-Received: by 2002:a05:600c:458a:b0:477:5b0a:e616 with SMTP id 5b1f17b1804b1-48069c16459mr88749065e9.5.1769668211909;
+        Wed, 28 Jan 2026 22:30:11 -0800 (PST)
+X-Received: by 2002:a05:600c:458a:b0:477:5b0a:e616 with SMTP id 5b1f17b1804b1-48069c16459mr88748675e9.5.1769668211366;
+        Wed, 28 Jan 2026 22:30:11 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-481a5d3199csm2677665e9.3.2026.01.28.22.30.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Jan 2026 22:30:10 -0800 (PST)
+Date: Thu, 29 Jan 2026 01:30:07 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Vishwanath Seshagiri <vishs@meta.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	David Wei <dw@davidwei.uk>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 net-next 1/2] virtio_net: add page_pool support for
+ buffer allocation
+Message-ID: <20260129012534-mutt-send-email-mst@kernel.org>
+References: <20260128212031.1431746-1-vishs@meta.com>
+ <20260128212031.1431746-2-vishs@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260128124524.875271-1-eperezma@redhat.com> <20260128124524.875271-6-eperezma@redhat.com>
- <CACGkMEtuAG-uZYJWZcsT1A0+QBCTOnkr7m0dt8MdbTwd5UNyNw@mail.gmail.com>
-In-Reply-To: <CACGkMEtuAG-uZYJWZcsT1A0+QBCTOnkr7m0dt8MdbTwd5UNyNw@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 29 Jan 2026 07:26:02 +0100
-X-Gm-Features: AZwV_QgHM6k4hECc7ue71EnwU1wBsYl6Iqf793Dic5kbqbPwDtWxxMAlC-1iUTU
-Message-ID: <CAJaqyWc8_B82n1a3JaBKKvhkWN=Rs93=kcfCU6e9RfzsPXdF5g@mail.gmail.com>
-Subject: Re: [PATCH 5/6] vduse: add F_QUEUE_READY feature
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, 
-	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	virtualization@lists.linux.dev
+In-Reply-To: <20260128212031.1431746-2-vishs@meta.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 0McNyRewwsNcgtQe8UzcVhEG-5gJwCjwsFq1YAmNbAs_1769667999
+X-Mimecast-MFC-PROC-ID: imWgmk8reA833m0AmvFwFq05uPHfBhF6lr5oyI1Rxlk_1769668212
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, Jan 29, 2026 at 3:12=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Wed, Jan 28, 2026 at 8:45=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redh=
-at.com> wrote:
-> >
-> > Add the VDUSE_F_QUEUE_READY feature flag. This allows the kernel module
-> > to explicitly signal userspace when a specific virtqueue has been
-> > enabled.
-> >
-> > In scenarios like Live Migration of VirtIO net devices, the dataplane
-> > starts after the control virtqueue allowing QEMU to apply configuration
-> > in the destination device.
-> >
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > ---
-> >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 +++++++++++++++++++++++++++-
-> >  include/uapi/linux/vduse.h         | 19 +++++++++++++++++++
-> >  2 files changed, 46 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
-r/vduse_dev.c
-> > index e7da69c2ad71..1d93b540db4d 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -9,6 +9,7 @@
-> >   */
-> >
-> >  #include "linux/virtio_net.h"
-> > +#include <linux/bits.h>
-> >  #include <linux/cleanup.h>
-> >  #include <linux/init.h>
-> >  #include <linux/module.h>
-> > @@ -53,7 +54,7 @@
-> >  #define IRQ_UNBOUND -1
-> >
-> >  /* Supported VDUSE features */
-> > -static const uint64_t vduse_features;
-> > +static const uint64_t vduse_features =3D BIT_U64(VDUSE_F_QUEUE_READY);
-> >
-> >  /*
-> >   * VDUSE instance have not asked the vduse API version, so assume 0.
-> > @@ -120,6 +121,7 @@ struct vduse_dev {
-> >         char *name;
-> >         struct mutex lock;
-> >         spinlock_t msg_lock;
-> > +       u64 vduse_features;
-> >         u64 msg_unique;
-> >         u32 msg_timeout;
-> >         wait_queue_head_t waitq;
-> > @@ -619,7 +621,30 @@ static void vduse_vdpa_set_vq_ready(struct vdpa_de=
-vice *vdpa,
-> >  {
-> >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> >         struct vduse_virtqueue *vq =3D dev->vqs[idx];
-> > +       struct vduse_dev_msg msg =3D { 0 };
-> > +       int r;
-> > +
-> > +       if (!(dev->vduse_features & BIT_U64(VDUSE_F_QUEUE_READY)))
-> > +               goto out;
-> > +
-> > +       msg.req.type =3D VDUSE_SET_VQ_READY;
-> > +       msg.req.vq_ready.num =3D idx;
-> > +       msg.req.vq_ready.ready =3D !!ready;
-> > +
-> > +       r =3D vduse_dev_msg_sync(dev, &msg);
-> >
-> > +       if (r < 0) {
-> > +               dev_dbg(&vdpa->dev, "device refuses to set vq %u ready =
-%u",
-> > +                       idx, ready);
-> > +
-> > +               /* We can't do better than break the device in this cas=
-e */
-> > +               spin_lock(&dev->msg_lock);
-> > +               vduse_dev_broken(dev);
->
-> This has been done by vduse_dev_msg_sync().
+On Wed, Jan 28, 2026 at 01:20:30PM -0800, Vishwanath Seshagiri wrote:
+> Use page_pool for RX buffer allocation in mergeable and small buffer
+> modes to enable page recycling and avoid repeated page allocator calls.
+> skb_mark_for_recycle() enables page reuse in the network stack.
+> 
+> Big packets mode is unchanged because it uses page->private for linked
+> list chaining of multiple pages per buffer, which conflicts with
+> page_pool's internal use of page->private.
+> 
+> Implement conditional DMA premapping using virtqueue_dma_dev():
+> - When non-NULL (vhost, virtio-pci): use PP_FLAG_DMA_MAP with page_pool
+>   handling DMA mapping, submit via virtqueue_add_inbuf_premapped()
+> - When NULL (VDUSE, direct physical): page_pool handles allocation only,
+>   submit via virtqueue_add_inbuf_ctx()
+> 
+> This preserves the DMA premapping optimization from commit 31f3cd4e5756b
+> ("virtio-net: rq submits premapped per-buffer") while adding page_pool
+> support as a prerequisite for future zero-copy features (devmem TCP,
+> io_uring ZCRX).
+> 
+> Page pools are created in probe and destroyed in remove (not open/close),
+> following existing driver behavior where RX buffers remain in virtqueues
+> across interface state changes.
+> 
+> The rx_mode_work_enabled flag prevents virtnet_rx_mode_work() from
+> sending control virtqueue commands while ndo_close is tearing down
+> device state, avoiding virtqueue corruption during concurrent operations.
+> 
+> Signed-off-by: Vishwanath Seshagiri <vishs@meta.com>
+> ---
+>  drivers/net/Kconfig      |   1 +
+>  drivers/net/virtio_net.c | 353 ++++++++++++++++++++++-----------------
+>  2 files changed, 203 insertions(+), 151 deletions(-)
+> 
+> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+> index ac12eaf11755..f1e6b6b0a86f 100644
+> --- a/drivers/net/Kconfig
+> +++ b/drivers/net/Kconfig
+> @@ -450,6 +450,7 @@ config VIRTIO_NET
+>  	depends on VIRTIO
+>  	select NET_FAILOVER
+>  	select DIMLIB
+> +	select PAGE_POOL
+>  	help
+>  	  This is the virtual network driver for virtio.  It can be used with
+>  	  QEMU based VMMs (like KVM or Xen).  Say Y or M.
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index db88dcaefb20..df2a5fc5187e 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -26,6 +26,7 @@
+>  #include <net/netdev_rx_queue.h>
+>  #include <net/netdev_queues.h>
+>  #include <net/xdp_sock_drv.h>
+> +#include <net/page_pool/helpers.h>
+>  
+>  static int napi_weight = NAPI_POLL_WEIGHT;
+>  module_param(napi_weight, int, 0444);
+> @@ -359,6 +360,11 @@ struct receive_queue {
+>  	/* Page frag for packet buffer allocation. */
+>  	struct page_frag alloc_frag;
+>  
+> +	struct page_pool *page_pool;
+> +
+> +	/* True if page_pool handles DMA mapping via PP_FLAG_DMA_MAP */
+> +	bool use_page_pool_dma;
+> +
+>  	/* RX: fragments + linear part + virtio header */
+>  	struct scatterlist sg[MAX_SKB_FRAGS + 2];
+>  
+> @@ -521,11 +527,13 @@ static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
+>  			       struct virtnet_rq_stats *stats);
+>  static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *rq,
+>  				 struct sk_buff *skb, u8 flags);
+> -static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
+> +static struct sk_buff *virtnet_skb_append_frag(struct receive_queue *rq,
+> +					       struct sk_buff *head_skb,
+>  					       struct sk_buff *curr_skb,
+>  					       struct page *page, void *buf,
+>  					       int len, int truesize);
+>  static void virtnet_xsk_completed(struct send_queue *sq, int num);
+> +static void free_unused_bufs(struct virtnet_info *vi);
+>  
+>  enum virtnet_xmit_type {
+>  	VIRTNET_XMIT_TYPE_SKB,
+> @@ -706,15 +714,21 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
+>  	return p;
+>  }
+>  
+> +static void virtnet_put_page(struct receive_queue *rq, struct page *page,
+> +			     bool allow_direct)
+> +{
+> +	page_pool_put_page(rq->page_pool, page, -1, allow_direct);
+> +}
+> +
+>  static void virtnet_rq_free_buf(struct virtnet_info *vi,
+>  				struct receive_queue *rq, void *buf)
+>  {
+>  	if (vi->mergeable_rx_bufs)
+> -		put_page(virt_to_head_page(buf));
+> +		virtnet_put_page(rq, virt_to_head_page(buf), false);
+>  	else if (vi->big_packets)
+>  		give_pages(rq, buf);
+>  	else
+> -		put_page(virt_to_head_page(buf));
+> +		virtnet_put_page(rq, virt_to_head_page(buf), false);
+>  }
+
+
+what I dislike here is how big_packets mode still pokes
+at give_pages but other modes use the page pool.
+
+Given all modes operate with struct page it's hard to
+shake the feeling we could be trying to put a page
+we did not get from the pool back into the pool,
+or vice versa.
+
+
+
+>  
+>  static void enable_rx_mode_work(struct virtnet_info *vi)
+> @@ -877,9 +891,6 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>  		if (unlikely(!skb))
+>  			return NULL;
+>  
+> -		page = (struct page *)page->private;
+> -		if (page)
+> -			give_pages(rq, page);
+>  		goto ok;
+>  	}
 >
 
-This is done by msg_sync() when userland does not reply in a
-timeframe, but not when userland replies with VDUSE_REQ_RESULT_FAILED.
-Should I add a comment?
+For example above you did not touch give_pages, here
+you are ripping out give_pages. Superficially, weird.
+
+
+I ask myself whether page pool is not better than the
+homegrown linked list that give_pages uses, anyway.
+
+Will need some perf testing though.
+
+-- 
+MST
 
