@@ -1,116 +1,139 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C52E3195E3
-	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 08:07:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E815537AA6F
+	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 08:08:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769674028; cv=none; b=oDQTfywFwr5XVCcADTktAdHLXi9alrAG5q89EBLIzSU9NO+Rz5CDvO2PredMAPvidJ95zGLMVzG267IhDDUitTK9PEvKFzd3RUzSqOm38rWbJFb5ew2qbdLyE5qR3BGEcfeHb8ykE5fXPcwrBSlwfHa2+Mnx1JNXgaJr8ix5qRs=
+	t=1769674086; cv=none; b=RYb64vZyFkH14dNJrLX320wmx+UiPn9ZfIzfoprQ3sY/LeyWPhZ5SbTn3c+IZiw6+ba6di5PvufHa3pxoT6R9spIJ1Ayv4pvzmAZT10S9Zu+PbxWL99dBAlDEQTPAyjpYA12VACLP3U7HUSnduRLmyuIOj9p/JInJYmG0JNC2Cw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769674028; c=relaxed/simple;
-	bh=L4jc0RFkSEobO61Huzyq9HmNenulyjlvnXHrYnr4Gm8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=PS74zRaLJTn8D4sD4W+nIE4nAvdV+iGIjwfbC8UGSw8q1FPwhk2YxW7ROIRltIwFoFAae5Z6SbDVK33x6mOJq9VlYpSuFeETgWufoRZIg7Az1ILASSn49Ue//2riiB7hP3u8InAGSh2UisZ1zpRDcTRru/FQ8vK7GSm2AlNNSxA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from ptz.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::77] helo=ratatoskr.trumtrar.info)
-	by metis.whiteo.stw.pengutronix.de with esmtp (Exim 4.92)
-	(envelope-from <s.trumtrar@pengutronix.de>)
-	id 1vlN3J-0006b0-QZ; Thu, 29 Jan 2026 09:06:57 +0100
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-Date: Thu, 29 Jan 2026 09:06:41 +0100
-Subject: [PATCH RFC v2 1/2] tun: support rx-tstamp
+	s=arc-20240116; t=1769674086; c=relaxed/simple;
+	bh=RDZd1XDZOb12bQalVM9Buy+Q/ujHr6OjighcCFf+fhs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aTRK6Ggcjsf2uWMkdwnjUQC9dpyyTsLouIvTUyKLvMJVbW7pnJluuKioDQWNyKCOE+3kQN6Q2r1hr4GFe9j8PgIoFlo4V1cq9GPPFvr+3dl1T/ButxTQLQs8n6vv/1CtrNDnbCsR71Tj/GAsdOjfQ8ZUzj2LSK8QJNN7JhHKzBk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WX0Z8aVu; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WX0Z8aVu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769674084;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=QY996VA0VzTb4IlNzzhJrTkp8LX9guUA4A9e5fDLMRc=;
+	b=WX0Z8aVuwPhpb2O69ekVN+/kC+hmWlkCymBUYt3MCHLw920J/3bAuAmHjXccdOikRuK0nN
+	+Qm2vaWsf9ADZ3z5EM877L1C7Y3gKiOiXg4lEQmZG6gdbrJYdwISXKDY3cm1vGFnRDR8vH
+	K7oxN9Ed0x2XN19QptbCvjwNCCauyCQ=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-185-azwmINFKNZqXFEBnzQ1sfA-1; Thu, 29 Jan 2026 03:08:00 -0500
+X-MC-Unique: azwmINFKNZqXFEBnzQ1sfA-1
+X-Mimecast-MFC-AGG-ID: azwmINFKNZqXFEBnzQ1sfA_1769674080
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-79269803c05so8090867b3.2
+        for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 00:08:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769674080; x=1770278880;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=QY996VA0VzTb4IlNzzhJrTkp8LX9guUA4A9e5fDLMRc=;
+        b=SVMfeWtt3Axt3U6j1rN0nzHWG31/W9REWVrYhYr6yhaWhC75crAU2hnXWwFIUr3GP0
+         rIVNHgEKf5mNbX7Rq9spbmERjwv/q5+aaoBqxqTSs8lTtb8FvUKAQiBOAmVXX5em6/Kk
+         heWTJ7E5Rl0pCrfyoPtzXPkM31/JnYnW3Aa7lLUN+e+UpEp0e+GmJdUERB9GUPI5ixzV
+         qP3ZOlyoWG5HEoIU6tsKIDjwsjsG+LsoWNEbOZxt2e+kQwdVguPo7LtdUXlagHdiK1SS
+         95cP9utid+SJbHjJien5wi/1NcyGrwwy8o+8BNOsI0HlO5N4q0feXXaA4VicdKFt68y7
+         Jgiw==
+X-Forwarded-Encrypted: i=1; AJvYcCVn/TQ/aRDQ3pw+I7ilOc6EyNw9G9x7IhsGkUn1SHl7EJ+BsTe4dPUnl8WV0MXGadDWxMV1hY/hONnBWdoYIQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxfEiZ9cqrWJnFGCLPW7iuA+IgSFimILCLGmnIanJ574ohycR3j
+	EhKJx07tZhOLbJiNUPDVfnZkCA8UOt98UVyplI1OXnCzwx8M+AckKmBlpwGo7R9A1b41QmFpj1Z
+	YRtPDszewnJlhPI9PqrICTUUG1R5uKqzYTsbMKsmR6ZbH/lo060T5mt7ap48m9yUzbYWIHKT3xZ
+	ZSuclQgsjmLYD9+l5ZB3io2lIw8AkfkVqeqGZLTwSbkVw=
+X-Gm-Gg: AZuq6aJgWSEHw7tfVK/un1NrwVpQVCycQoZ7NSGb0KjfgrOCwiEyoiYzWfKsFFa+B+t
+	GEVWcekhT1qoGEQKmRJmBvKMgADUbDTKlEXo6xX8YokDKIgHzIDm20550P6R7Aeonsj30axCjTq
+	tHJB6Cu15LNfy72ndHxPFmaEdVYohiRC91iX/s2AvoKT98QedDTFH/fX3pjknHrMHhFA==
+X-Received: by 2002:a05:690c:4d05:b0:792:6c16:110c with SMTP id 00721157ae682-7947ac9bdbbmr57781587b3.61.1769674080059;
+        Thu, 29 Jan 2026 00:08:00 -0800 (PST)
+X-Received: by 2002:a05:690c:4d05:b0:792:6c16:110c with SMTP id
+ 00721157ae682-7947ac9bdbbmr57781427b3.61.1769674079699; Thu, 29 Jan 2026
+ 00:07:59 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260129-v6-7-topic-virtio-net-ptp-v2-1-30a27dc52760@pengutronix.de>
-References: <20260129-v6-7-topic-virtio-net-ptp-v2-0-30a27dc52760@pengutronix.de>
-In-Reply-To: <20260129-v6-7-topic-virtio-net-ptp-v2-0-30a27dc52760@pengutronix.de>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Richard Cochran <richardcochran@gmail.com>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Steffen Trumtrar <s.trumtrar@pengutronix.de>
-X-Mailer: b4 0.14.3
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:900:1d::77
-X-SA-Exim-Mail-From: s.trumtrar@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: virtualization@lists.linux.dev
+References: <20260128124524.875271-1-eperezma@redhat.com> <20260128124524.875271-4-eperezma@redhat.com>
+ <CACGkMEspErSiv7y5=zHAfJ-G7HVxv5Yr=AA+ttfyxWVVs7Rmmw@mail.gmail.com>
+In-Reply-To: <CACGkMEspErSiv7y5=zHAfJ-G7HVxv5Yr=AA+ttfyxWVVs7Rmmw@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 29 Jan 2026 09:07:23 +0100
+X-Gm-Features: AZwV_QjGE1FP-lycGMTBlraMGfrJQzK_puvQQb1qgw_WLCfaBYyVPiuprjJyE44
+Message-ID: <CAJaqyWeMuGouepjgVg3Q1nyL04pjJMeVKa6kVZJ-sS_LBBXQXg@mail.gmail.com>
+Subject: Re: [PATCH 3/6] vduse: Add API v2 definition
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: J7yY_5BO6BljuGObCf1mViyJx3ZSz3_GHUGvdI5JW8Y_1769674080
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Demonstrate support for new virtio-net features
+On Thu, Jan 29, 2026 at 3:00=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Wed, Jan 28, 2026 at 8:45=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redh=
+at.com> wrote:
+> >
+> > Introduce the definition for VDUSE API V2.  This version serves as a
+> > gateway for feature negotiation.
+> >
+> > The kernel uses this version to determine if the userspace device
+> > supports feature flags. Devices that do not explicitly negotiate API V2
+> > will be blocked from querying available VDUSE features, ensuring
+> > backward compatibility.
+> >
+> > The next patches implement the new feature incrementally, only enabling
+> > the VDUSE device to set the V2 API version by the end of the series.
+> >
+> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > ---
+> >  include/uapi/linux/vduse.h | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> >
+> > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> > index 68b4287f9fac..dea89ed281a7 100644
+> > --- a/include/uapi/linux/vduse.h
+> > +++ b/include/uapi/linux/vduse.h
+> > @@ -14,6 +14,10 @@
+> >
+> >  #define VDUSE_API_VERSION_1    1
+> >
+> > +/* Features support */
+> > +
+> > +#define VDUSE_API_VERSION_2    2
+>
+> If we can catch the next release cycle, I would perfer not bumping
+> VDUSE version twice in the same release.
+>
 
-VIRTIO_NET_HDR_F_TSTAMP
+Following the number of versions that ASID required I don't expect
+this one to be ready for the next release cycle :).
 
-This is not intended to be merged.
+But if you ack the patches related with the vduse features handling,
+MST is ok with that, and we're still in time to reach linux-next and
+the next Linux, I can prepare a series where I add the features bits
+to V1 API. Then, all ASID and VQ_ENABLE will be handled by feature
+bits. Would that work for both of you?
 
-A full feature test also requires a patched qemu binary that knows
-these features and negotiates correct vnet_hdr_sz in
-virtio_net_set_mrg_rx_bufs. See
-https://github.com/strumtrar/qemu/tree/v10.2.0/virtio-rx-stamps
+If we're out of time, I'd prefer ASID to reach the next release cycle
+as the series is already big.
 
-Not-yet-signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
----
- drivers/net/tun.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 8192740357a09..aa988a9c4bc99 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -2065,23 +2065,29 @@ static ssize_t tun_put_user(struct tun_struct *tun,
- 	}
- 
- 	if (vnet_hdr_sz) {
--		struct virtio_net_hdr_v1_hash_tunnel hdr;
--		struct virtio_net_hdr *gso;
-+		struct virtio_net_hdr_v1_hash_tunnel_ts hdr;
-+
-+		memset(&hdr, 0, sizeof(hdr));
- 
- 		ret = tun_vnet_hdr_tnl_from_skb(tun->flags, tun->dev, skb,
--						&hdr);
-+						(struct virtio_net_hdr_v1_hash_tunnel *)&hdr);
- 		if (ret)
- 			return ret;
- 
--		/*
--		 * Drop the packet if the configured header size is too small
--		 * WRT the enabled offloads.
--		 */
--		gso = (struct virtio_net_hdr *)&hdr;
--		ret = __tun_vnet_hdr_put(vnet_hdr_sz, tun->dev->features,
--					 iter, gso);
--		if (ret)
--			return ret;
-+		if (vnet_hdr_sz >= sizeof(struct virtio_net_hdr_v1_hash_tunnel_ts)) {
-+			__le64 tstamp = cpu_to_le64(ktime_get_ns());
-+
-+			hdr.tstamp_0 = (tstamp & 0x000000000000ffffULL) >> 0;
-+			hdr.tstamp_1 = (tstamp & 0x00000000ffff0000ULL) >> 16;
-+			hdr.tstamp_2 = (tstamp & 0x0000ffff00000000ULL) >> 32;
-+			hdr.tstamp_3 = (tstamp & 0xffff000000000000ULL) >> 48;
-+		}
-+
-+		if (unlikely(iov_iter_count(iter) < vnet_hdr_sz))
-+			return -EINVAL;
-+
-+		if (unlikely(copy_to_iter(&hdr, vnet_hdr_sz, iter) != vnet_hdr_sz))
-+			return -EFAULT;
- 	}
- 
- 	if (vlan_hlen) {
-
--- 
-2.52.0
+Thanks!
 
