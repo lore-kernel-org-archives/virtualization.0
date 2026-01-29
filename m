@@ -1,135 +1,111 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3837333755
-	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 01:17:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5D9B38D;
+	Thu, 29 Jan 2026 01:37:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769649431; cv=none; b=V+yTjMELXtxvmrPU1ohcxvMrfLBqbuSoXwIAWnkqus+3HhaIK4Rolt4EuEi5JmW2mEbQavU9/f5CGpO7KsTVucN1bpmDOLxR/S8I6w+PTUYnuTCP9wjG6esewgDAYz+XhpXmFhiG08qzf/i0NhGMNb3I+VYEf4+YEH03dDbTpGE=
+	t=1769650659; cv=none; b=qBnubqx7i1osmiLRvQhXrR8cf1VYlT6EO8iKur0JywNwrVTL9djnUomvXJPO01UXot+/r/rGM5NcJutXsVGFMoEsTgTKU3Yah5gXNqWI7VXX+I728qfsZAf1RzPPaOyip4V7P8vmJ8njm5pXl0ja+ewFyU4YS3v3ZebYCz2XGKQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769649431; c=relaxed/simple;
-	bh=fxh9UX83P3JRvT1QZj0Ew8+w5A5aRcFATvqvjpUELss=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mv9TfOfsvnISXPSHVq9iOpCEMlfrKkgYaE0gg0kwbKlRiPy4xYiHHdJ7RcJsbfskxB1+pYzB5wsif45UpWKkQcZYXhUkgEj83/k7Wy8jy4kQIDGalR8GKP/TlkYlUj9Bs/eF0pm2wI9rzMbjYESj7AsjqB/V7nSVrgtygtgtQxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LRDNCT+O; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1769650659; c=relaxed/simple;
+	bh=UpefWZnsINPXuje56adpAAgvFDVZXVdOcJunh4vFuDM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=eLPBhHh7EzC2XeT0W4QmiE/sko1BkD2eJqTI3tG0vDpyEc5dNf2Cz7wdBr8xl0gZkq7Fz7oApjJt+9HFFaFf0ox8xQ/gjWvC6cXYLVFOoV5CqVrAbwPNyqZbmx8Tot7sj5rE8DzLknuuSaNzeoYc1fxfXLsuQQn/lWqqiDyDuWY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kXNQnXuc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LRDNCT+O"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769649428;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=k0KMokPgNgLq+I8yj1NI8KqZ8pUmt8yqhmlzl/fR26Y=;
-	b=LRDNCT+OYKysJh0QiY9+KKuXkW147m23UU2+IK3sGwIT+9+GnGo2Qh/E7HRMjgb3Zux3OY
-	fhKCgZLBXSXtEYY4jC0sNM9CXyDDTHV/rF2PnKoalV6WDwEB39L8d3KWhOyoR6BoCypvW4
-	eKbugJTrnCTwFoKpxsFb+HLPB7MWHnc=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-596-8tDZJ-gWMUu6q0rfJSIhYg-1; Wed, 28 Jan 2026 20:17:05 -0500
-X-MC-Unique: 8tDZJ-gWMUu6q0rfJSIhYg-1
-X-Mimecast-MFC-AGG-ID: 8tDZJ-gWMUu6q0rfJSIhYg_1769649424
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-34ab8693a2cso829486a91.0
-        for <virtualization@lists.linux.dev>; Wed, 28 Jan 2026 17:17:04 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769649424; x=1770254224;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=k0KMokPgNgLq+I8yj1NI8KqZ8pUmt8yqhmlzl/fR26Y=;
-        b=j+DuRwQY7x8qRg9FiDo4hqye9fCrW2PaJJslXLVuU1ouKhF2zAujYTnW2L1DBwZ12z
-         9+NhmfGuLqFJDttuYV7pALTGgXEWjH81PbH/jDYa5gNND4HW9WuVyP5HmJvjzZH72Y3u
-         Uk2zpZTTPKN8HJx4QJvnWv+8sYOc83tHmB0ld/eCI4TNcXctVHTtzfSaOtcq7RQYhB/X
-         W2p6IQT5sISv2l9Ti43ftZNicA4taD7sEVTUcYGr3O7xsDOyxjsXPPoLHjA8DMMRgk8a
-         o82XY9E83jZcc364d8F0XRDLMHAJSJcOgwV9IlQ1FGS+Xvd9T5VuzalHn6Aoe7z82Umk
-         6l8w==
-X-Forwarded-Encrypted: i=1; AJvYcCVU5FcPu9g0NmeMuEJapTSJcLo11IhOBRVUUtklRGt+bgFXlkeUocqlrlfyxhi3ko4O9CsO5uVLTsZ8JvbwrA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxOhXiEjdjeqJBM2RMpBRYDoYg5k6mq8Rc022o5Ah5uZrAXRj4U
-	8oWkfIkIhXZwSRTUkxeuQPWj413CXQgc72LoqWb2LgxSpSjUnHyhn8hr6zOgV5sQfxqV4jbLvOK
-	sjSn3HKUJpgop0NLOVq2Yj1o7isZXrIKhNOBf3fBnzrVqCEMlMO2j14n4kKp48Ormao+w6D3SMP
-	dQawSV+uL7SUIbLUboXAeQuZ27AVdpsqVCyQdxnNoSH04=
-X-Gm-Gg: AZuq6aL4tJRhgzHA0mhvs89m9/2nbY+PmE72iIjmq/QTySzZfgM/VuTGmtk0zc/cn+d
-	r7frsUkBIZgU+lEYM7Mw6hCA7tr5CQU6wZe/kYyYtJQTSe3fSsokSQsV96M6Mog6ozXin1ZSe5H
-	csdZoA/uNp6A9Fh9JDq/F4EqTTkY0Gl63o7HPh28n7cMf1lFce2GAfqj/mAptj493z
-X-Received: by 2002:a17:90b:388b:b0:34e:5aa2:cf61 with SMTP id 98e67ed59e1d1-353feda7688mr5752783a91.28.1769649423906;
-        Wed, 28 Jan 2026 17:17:03 -0800 (PST)
-X-Received: by 2002:a17:90b:388b:b0:34e:5aa2:cf61 with SMTP id
- 98e67ed59e1d1-353feda7688mr5752771a91.28.1769649423507; Wed, 28 Jan 2026
- 17:17:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kXNQnXuc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE0AAC4CEF1;
+	Thu, 29 Jan 2026 01:37:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769650659;
+	bh=UpefWZnsINPXuje56adpAAgvFDVZXVdOcJunh4vFuDM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=kXNQnXucGx6WZDfTkLtX+vh7nvqAyG993qtHQAu4i4OY9iovNXjm5Y/CUR/Pec5PQ
+	 vcQwBNiO0jHQqWLX1aXnS+aw6fOWPkNnBHtpy2LaBTZvzXE2l8Y3DLTSj1jQbCSFCD
+	 GSuhizGny5tfyZDArLzjAtsw91xJZ1C50zQCuLhZsV2yY1toVRBjuGoU0n0cXsK9SR
+	 TnGs4jIC0Fgnc6YQt5c1x+ylaPkINDv+Q844jt/O57AQ1k1I42vvSWTcVByp5DmlgH
+	 dzsKJyruIlRUwC5xB+AebocQbB/JD55ey9SCWEcKBQ/0Cub0pLPQtLWdWLHXyhCF93
+	 rVqtra0u8k6qg==
+Date: Wed, 28 Jan 2026 17:37:37 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Vishwanath Seshagiri <vishs@meta.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "David S . Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, David Wei
+ <dw@davidwei.uk>, <netdev@vger.kernel.org>,
+ <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 net-next 0/2] virtio_net: add page_pool support
+Message-ID: <20260128173737.04277eeb@kernel.org>
+In-Reply-To: <20260128212031.1431746-1-vishs@meta.com>
+References: <20260128212031.1431746-1-vishs@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260128124524.875271-1-eperezma@redhat.com> <20260128124524.875271-2-eperezma@redhat.com>
-In-Reply-To: <20260128124524.875271-2-eperezma@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 29 Jan 2026 09:16:50 +0800
-X-Gm-Features: AZwV_QgdfKhO_ODzY5F0RT9UoFxdsTnLGxTiJmH7HqX3w_FjefooNxtdKbWqDF0
-Message-ID: <CACGkMEuDPgkEVzpu0c+oKvOqgaSR5=CnHMe9iZDi_PFQan0m6g@mail.gmail.com>
-Subject: Re: [PATCH 1/6] vduse: ensure vq->ready access is smp safe
-To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, 
-	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vtAHBSLxS9iLHBFPAfLh3xPsx5EBoij6OlkUhhPnBLg_1769649424
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jan 28, 2026 at 8:45=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redhat=
-.com> wrote:
->
-> The vduse_vdpa_set_vq_ready can be called in the lifetime of the device
-> well after initial setup, and the device can read it afterwards.
->
-> Ensure that reads and writes to vq->ready are SMP safe so that the
-> caller can trust that virtqueue kicks and calls behave as expected
-> immediately after the operation returns.
->
-> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 34 +++++++++++++++++++++++-------
->  1 file changed, 26 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
-vduse_dev.c
-> index 73d1d517dc6c..a4963aaf9332 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -460,6 +460,24 @@ static __poll_t vduse_dev_poll(struct file *file, po=
-ll_table *wait)
->         return mask;
->  }
->
-> +static bool vduse_vq_get_ready(const struct vduse_virtqueue *vq)
-> +{
-> +       /*
-> +        * Paired with vduse_vq_set_ready smp_store, as the driver may mo=
-dify
-> +        * it while the VDUSE instance is reading it.
-> +        */
-> +       return smp_load_acquire(&vq->ready);
-> +}
-> +
-> +static void vduse_vq_set_ready(struct vduse_virtqueue *vq, bool ready)
-> +{
-> +       /*
-> +        * Paired with vduse_vq_get_ready smp_load, as the driver may mod=
-ify
-> +        * it while the VDUSE instance is reading it.
-> +        */
-> +       smp_store_release(&vq->ready, ready);
+On Wed, 28 Jan 2026 13:20:29 -0800 Vishwanath Seshagiri wrote:
+> Introduce page_pool support in virtio_net driver to enable page recycling
+> in RX buffer allocation and avoid repeated page allocator calls. This
+> applies to mergeable and small buffer modes.
+> 
+> Beyond performance improvements, this patch is a prerequisite for enabling
+> memory provider-based zero-copy features in virtio_net, specifically devmem
+> TCP and io_uring ZCRX, which require drivers to use page_pool for buffer
+> management.
 
-Assuming this is not used in the datapath, I wonder if we can simply
-use vq_lock mutex.
+Struggles to boot in the CI:
 
-Thanks
+[   11.424197][    C0] Oops: general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] SMP KASAN
+[   11.424454][    C0] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+[   11.424606][    C0] CPU: 0 UID: 0 PID: 271 Comm: ip Not tainted 6.19.0-rc6-virtme #1 PREEMPT(full) 
+[   11.424784][    C0] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+[   11.424913][    C0] RIP: 0010:page_pool_alloc_frag_netmem+0x34/0x8e0
+[   11.425054][    C0] Code: b8 00 00 00 00 00 fc ff df 41 57 41 89 c8 41 56 41 55 41 89 d5 48 89 fa 41 54 48 c1 ea 03 49 89 f4 55 53 48 89 fb 48 83 ec 30 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 32 05 00 00 8b 0b 83 f9 3f 0f
+[   11.425413][    C0] RSP: 0018:ffa0000000007a00 EFLAGS: 00010286
+[   11.425544][    C0] RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000820
+[   11.425697][    C0] RDX: 0000000000000000 RSI: ffa0000000007ac0 RDI: 0000000000000000
+[   11.425846][    C0] RBP: 1ff4000000000f54 R08: 0000000000000820 R09: fff3fc0000000f8f
+[   11.426000][    C0] R10: fff3fc0000000f90 R11: 0000000000000001 R12: ffa0000000007ac0
+[   11.426156][    C0] R13: 0000000000000600 R14: ff11000008719d00 R15: ff1100000926de00
+[   11.426308][    C0] FS:  00007f4db5334400(0000) GS:ff110000786fe000(0000) knlGS:0000000000000000
+[   11.426487][    C0] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   11.426617][    C0] CR2: 00000000004e5e60 CR3: 000000000b9da001 CR4: 0000000000771ef0
+[   11.426768][    C0] PKRU: 55555554
+[   11.426846][    C0] Call Trace:
+[   11.426927][    C0]  <IRQ>
+[   11.426981][    C0]  ? alloc_chain_hlocks+0x1e5/0x5c0
+[   11.427085][    C0]  ? buf_to_xdp.isra.0+0x2f0/0x2f0
+[   11.427190][    C0]  page_pool_alloc_frag+0xe/0x20
+[   11.427289][    C0]  add_recvbuf_mergeable+0x1e0/0x940
+[   11.427392][    C0]  ? page_to_skb+0x760/0x760
+[   11.427497][    C0]  ? lock_acquire.part.0+0xbc/0x260
+[   11.427597][    C0]  ? find_held_lock+0x2b/0x80
+[   11.427696][    C0]  try_fill_recv+0x180/0x240
+[   11.427794][    C0]  virtnet_poll+0xc79/0x1450
+[   11.427901][    C0]  ? receive_buf+0x690/0x690
+[   11.428005][    C0]  ? virtnet_xdp_handler+0x900/0x900
+[   11.428109][    C0]  ? do_raw_spin_unlock+0x59/0x250
+[   11.428208][    C0]  ? rcu_is_watching+0x15/0xd0
+[   11.428310][    C0]  __napi_poll.constprop.0+0x97/0x390
+[   11.428415][    C0]  net_rx_action+0x4f6/0xed0
+[   11.428517][    C0]  ? run_backlog_napi+0x90/0x90
+[   11.428617][    C0]  ? sched_balance_domains+0x270/0xd40
+[   11.428721][    C0]  ? lockdep_hardirqs_on_prepare.part.0+0x9a/0x160
+[   11.428844][    C0]  ? lockdep_hardirqs_on+0x84/0x130
+[   11.428949][    C0]  ? sched_balance_update_blocked_averages+0x137/0x1a0
+[   11.429073][    C0]  ? mark_held_locks+0x40/0x70
+[   11.429172][    C0]  handle_softirqs+0x1d7/0x840
+[   11.429271][    C0]  ? _local_bh_enable+0xd0/0xd0
+[   11.429371][    C0]  ? __flush_smp_call_function_queue+0x449/0x6d0
+[   11.429497][    C0]  ? rcu_is_watching+0x15/0xd0
+[   11.429597][    C0]  do_softirq+0xa9/0xe0
 
+https://netdev-ctrl.bots.linux.dev/logs/vmksft/virtio/results/494081/1-basic-features-sh/stderr
+-- 
+pw-bot: cr
