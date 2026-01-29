@@ -1,371 +1,272 @@
-Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 004B63542C9
-	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 17:49:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.153.30
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769708943; cv=fail; b=SL+aLCG5l+AmY4NJCavZQB1NoRBWPB4MTF3MIig0ckh6Ejpkus9VeawYMsUCNV2YdesiIrx50hhxe3HdSgLf9VjKf9zpwNCGFXDGO42L719j8B3xcMuYiZ2rk9k3IDFQul056vyBRB+UQM5j6GOaTGRmvUyqgWXqFggbfG+5fuk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769708943; c=relaxed/simple;
-	bh=l7X5WOnKTeJ54jcA5KJblC7DdV4K/0CO0rBOsE1xU/w=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ogba5I5/3XcW/DKYB8LN/7VS0uuHXX9+4Bgb5LhXlxcMK3REiI+9qCH8JzWz5xt3uQmBtXib2i2kOINa0ANpvPXAvU24rWZS39c6Li8ikFHbcLNUFFCXczFYpGLIobZPuBIIfwk1rIeBZQJfZmV+nEUjVK7vHqvhkN8jh0Btfa0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=TRj1ztaF; arc=fail smtp.client-ip=67.231.153.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45C2534FF47
+	for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 18:11:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769710310; cv=none; b=njtETuUIgUr5cO45PwZKyIo8Bc7ubDQ7DaSTEL653XBDYQH+/58kc0c6Knfy4SVjFzc1T7oep//6CsI3dJ/kcQMZ5Gxog5OCvCg6j5Fxyak4KVY4H5V5qRlUtcj/JzFM6A5YvP0XqQ0rvVHwfWUY8V+tE6cgvXxu4DEBczG3AFE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769710310; c=relaxed/simple;
+	bh=3kNfQon72BntdnPcyCmIVY1CnJOW18aHomAr9Tp38M4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Zu/fMchDnGhulgxQycjSs31vYku9L3a35RjYVUWh7GMxZhqMziIrMiMgkvF+L2llTXEbRfAkPE/12Ky6KPV3tm7cE6mcE2F7U8N+oLkNdpMlET7GeMLkuO6qIT7ZMYv35zVidfQBYAkjcmdx7ijpNvEJIp5k38cMrJrc/qktHkQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GrHpwfyG; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="TRj1ztaF"
-Received: from pps.filterd (m0109331.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60TCthce3205954;
-	Thu, 29 Jan 2026 09:48:53 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=s2048-2025-q2;
-	 bh=4vD+0CtjqY3j7CwiJ1vMQHEQbcUqoyWXoG/kmQhI5qM=; b=TRj1ztaFRKQv
-	QXiFLgmVoYanJ1xg7GPR9r5OhRlScLYHDnjWPW6DK61VKVwEwkINjvF6rqMhf7bJ
-	6U1Jv6/SYKYg/Ur49WmZAMkUp9JRbGISb2RQi78pzL+GLNU3WRNznSbNh/WN4THO
-	cCaAYETO6wKzgNpHsvDXVBZq9ue/HBv6aPnGL/OOgbXQU78FubVuFxW1a3i4lvgY
-	JGTPZedrqEIGVKXTp5EbcRdmJfMfFUNkCiEVjRmIHQjb1mp+DYJS/Amo7l9cOp+c
-	ArnNtrOo+lrkX3CosxpTEJOurzTdxcMXBbJ4tiikRvmOGJfSfMmFYNwDSocMJxvv
-	TKxfvkMPNg==
-Received: from sj2pr03cu001.outbound.protection.outlook.com (mail-westusazon11012071.outbound.protection.outlook.com [52.101.43.71])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4c080037pg-2
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 29 Jan 2026 09:48:53 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ouen4ZD0BIt9wj9T0Y8xTtbkIzkYCYovODvVDDTQ0kW9yl9Muk8k486Bb6YXqujk7qyW6lMzjQgWAnkHTbjaVvwhw9yw3hfHNtuT7tWch9wpa+CGAohwzA2khxYnCIX63R2AmT9XG+83yI4bQrKSMxDHxLoEQVmphZlJpLBt1l7afbsXiRo7dIkpuFWR0TpkJhU+4CDdTmmuqSHfX4AOECqXIsRoCJ84iMobnXHybwSy6lDUJUjZGEGubYKiOXLdf9lkNwZ1Evpcr6R6h3L8Q27Tfq10eTiBGM9VdwunDeyqaRdvna/3GOpglfzd56j0bvl5N901VhoqeoB1ApFMaQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4vD+0CtjqY3j7CwiJ1vMQHEQbcUqoyWXoG/kmQhI5qM=;
- b=bHfI0vwDBb5RVnG0l1cBeGROShQvaxoEF4ZwS+wV5I7Z5eKpfhx5/31s7PeM4nu3OY7atRVGoONAq0NEPoveqmlaBrAFhBX0JoGZJmIiWBTY4va1GfRlREvpVDTxbVQZ4eWkGrp3PXMFSkHkmLl7y+16DsoJSdnmu/Vhbe4bUuetSVQyPCkRjAfy+aXhcKLz0YZeHqRffXD55vUPiD0a7v0jHILAmk0Ill3E46+xp6tgNAjUUtmq59UWlmDzGWoaJEIvN1k8Jka0B+BQqs/jXlsWIcvOOgY/IioYVzu0ZsqMhSKmambHpL5f2ORFforxD/1XuujghoHwDKkWW6fCyQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=meta.com; dmarc=pass action=none header.from=meta.com;
- dkim=pass header.d=meta.com; arc=none
-Received: from BLAPR15MB3889.namprd15.prod.outlook.com (2603:10b6:208:27a::11)
- by IA1PR15MB5489.namprd15.prod.outlook.com (2603:10b6:208:3aa::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.10; Thu, 29 Jan
- 2026 17:48:48 +0000
-Received: from BLAPR15MB3889.namprd15.prod.outlook.com
- ([fe80::d5d7:f18c:a916:6044]) by BLAPR15MB3889.namprd15.prod.outlook.com
- ([fe80::d5d7:f18c:a916:6044%5]) with mapi id 15.20.9564.006; Thu, 29 Jan 2026
- 17:48:48 +0000
-Message-ID: <6d7386ba-0012-4f13-b31b-fcd7a15f173e@meta.com>
-Date: Thu, 29 Jan 2026 09:48:42 -0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 net-next 1/2] virtio_net: add page_pool support for
- buffer allocation
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S . Miller"
- <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, David Wei <dw@davidwei.uk>,
-        netdev@vger.kernel.org, virtualization@lists.linux.dev,
-        linux-kernel@vger.kernel.org
-References: <20260128212031.1431746-1-vishs@meta.com>
- <20260128212031.1431746-2-vishs@meta.com>
- <20260129012534-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Vishwanath Seshagiri <vishs@meta.com>
-In-Reply-To: <20260129012534-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: BY3PR03CA0018.namprd03.prod.outlook.com
- (2603:10b6:a03:39a::23) To BLAPR15MB3889.namprd15.prod.outlook.com
- (2603:10b6:208:27a::11)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GrHpwfyG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769710308;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sR+lMNDRP3cmxx8RR95s6vZsFNJKZiISbaEJv5rMD4Q=;
+	b=GrHpwfyGYXqe+SEEtc9Q3pE/JkhgkmhutRxbpRIvbmxopNwXPJgw2RdxVdRnpI5VC1E/g/
+	vKlYeh9G6yLxvaoBIFPaiWcIqsn+vyyGE7beaDhVpl9iBUdcqurWyTVT8Ah3W19dSNu1VZ
+	IdZQlar1fsX9eZW2KCamxaOkGN5/AUw=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-348-xOL4J0JdNdyeJ3DrolfpFw-1; Thu, 29 Jan 2026 13:11:46 -0500
+X-MC-Unique: xOL4J0JdNdyeJ3DrolfpFw-1
+X-Mimecast-MFC-AGG-ID: xOL4J0JdNdyeJ3DrolfpFw_1769710306
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-480686b3b4cso11909265e9.0
+        for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 10:11:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769710305; x=1770315105;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sR+lMNDRP3cmxx8RR95s6vZsFNJKZiISbaEJv5rMD4Q=;
+        b=o8XWMxrwy7DWD7/CWmbG8fiF5UkJY+TNybXCq9/hYDMTevKpyZdpxVBU3iDIn12KPO
+         MvS29+mh+ua4M5VBhLx3Qihaw4TNI8hjuMmhZYNuUCFaWSbwPrdR9WohmRJAw3LzNNwk
+         rJzpCVdIYR61xNW8tr/mel5GUOjDQfwITNKvIrcFeyoolovj4ePM6e0BzXdEGStPHkIR
+         LcCFke7ehsmVwWwjJbOYT8whYwgRHBZZQ10UWpT3JvMPlPj08WOaLkiq1BsYEg2m7nEa
+         ytOmbT80ClRrzhBt5txcR80JlpbZBMihojsONHHkRSFHnt56NZpf8eCXF3jFy+OOyc5H
+         BAvQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWWBLyiFMU2BDoWgApUc2cpYN0YBzwXRYTFgHi8aMOTScvsJVUTW+ipErGy2vKo11z9fHatHB94XNV85Q5TWA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxkGFN5Q/knSNjkyPx99bZIQhUrV76+N94p76AAp1ClPLv3ke6S
+	CHfwcDEwXxR1rt21HZNOypDkQgVhpKdzQWL6k9Yg08DpUvYj8Zw0niw75Ne3FyiDCQmr4yufVRY
+	NXqbSLua/Z2h7bOmnTveSx11TvovUNfwETDRLkWevd8+g/AbbCj+8IXjmR/f56IgZ8UUC2JuKGk
+	9g
+X-Gm-Gg: AZuq6aKoGEDiwXBprREEDJpRQoPvkhPHk3O58K36/yVtJD0bg4dA5h9ThG/7R+bI9WA
+	LwucGWFx0HClkdwqv32WuoZiEITxVIGtNywS049EUweNBXQ2ua3ijG3INAmoNeMICxbFWit1jep
+	NwDuTr4nX96kStPzp1MjPhc5unStcdnUbeiGl5l4haKR/ATOiZODPex2WYReNJFbA1Mdra01fxr
+	u5IF5qGxXy0aGHrhpM/EYckLspwsYkNWgosKnP59tNR/Ht/Z95N94scd/v+zSqYgmHlWtva76Rm
+	Bnfy2x/X89ahoDB/O1yndedSHnX1oVojzYw7G1jCT6pH7B4zjZ+Wzm5kCjEPn+Y0QSMc52f/5ZE
+	D5d8SBzYkkpA5czCeL0X/Bk551pQx/Rz/IA==
+X-Received: by 2002:a05:600c:3f16:b0:477:54cd:200e with SMTP id 5b1f17b1804b1-482db4569c0mr779135e9.1.1769710305300;
+        Thu, 29 Jan 2026 10:11:45 -0800 (PST)
+X-Received: by 2002:a05:600c:3f16:b0:477:54cd:200e with SMTP id 5b1f17b1804b1-482db4569c0mr778815e9.1.1769710304801;
+        Thu, 29 Jan 2026 10:11:44 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4806cddffe9sm196831645e9.4.2026.01.29.10.11.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Jan 2026 10:11:44 -0800 (PST)
+Date: Thu, 29 Jan 2026 13:11:41 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc: Alexander Graf <graf@amazon.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"open list:VIRTIO CORE" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] virtio_ring: Add READ_ONCE annotations for
+ device-writable fields
+Message-ID: <20260129130818-mutt-send-email-mst@kernel.org>
+References: <20260129121604.745681-1-johannes.thumshirn@wdc.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BLAPR15MB3889:EE_|IA1PR15MB5489:EE_
-X-MS-Office365-Filtering-Correlation-Id: 34aaffed-a0bf-4cfd-6b76-08de5f5ea817
-X-LD-Processed: 8ae927fe-1255-47a7-a2af-5f3a069daaa2,ExtAddr
-X-FB-Source: Internal
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
- BCL:0;ARA:13230040|10070799003|7416014|366016|1800799024|376014;
-X-Microsoft-Antispam-Message-Info:
- =?utf-8?B?ejlTd05HcmJwRCtCMC9ERUJ5Y25aanpXMEtWdjFYbDl6aWRYeGdhMkdKbndu?=
- =?utf-8?B?TVc0S2RtVlV3ZlpHVFN4ZnAzcllFaWlMRmRUeFdzUlo5bEM4NFNlVERyeERF?=
- =?utf-8?B?QmxKRmdZNlRqVzZJQmFZZFZralc0M0tDWGkxNGswQ3IxMjFjWkkybDYwNVFj?=
- =?utf-8?B?NkJlbzFDQk1qTkJvZG42NWVIM1hiUU1UT0d1RDdSRmpKZ0xMSUMwUnA1d1Iw?=
- =?utf-8?B?RGxvUHA1RUhkVGsyNnp3NTMxSGZXS0lxMmkrTEc0ZmVpVUpqeXZORWQyTnZ0?=
- =?utf-8?B?UXlVcmlqOXJJYml6bGRyaGgySkYvVTJYMEJqcFRCRnlreGVldDNsSGpYbE9M?=
- =?utf-8?B?RC9qRG5KWnBNV3Z0SVlKRWdBam9PY2hWNytYcFdkeisxczZFRnQyWDdsSXln?=
- =?utf-8?B?ckRBcmkyeUVubUhVbDlhbzFkM2xoYVl1V05WYS9UT2l6MjRCOHFFVXVPa3Y2?=
- =?utf-8?B?ZUNZd3RTVnEwY0tZWjUrTjIzcjNQeDEvbHg4UUFpYldPbHRzQ2J2WGJNQmE3?=
- =?utf-8?B?aXJTNnVhR1VEcWJHMmhnOFhHdkhsMUFpTUJpM0ZXQklkZ0hLVGJoeHNFZmZ3?=
- =?utf-8?B?T3VaS25kOHlWSVZxaTBBZFJCNFphVHN4eHNWR3hZKzEydEdjTVRXbGc1aWtT?=
- =?utf-8?B?WGZvWmNQa1dPVnY2aHMzSE9MYlRibHBKSGM4TFhpMFc4bm4xaHhOaXJ5SEdq?=
- =?utf-8?B?Uk9OMVFUNFg5U004NnhKc0x2R1RjNW00cDBsc3VsSGdLbGMwLzFTaDdXdUYv?=
- =?utf-8?B?Y3U0UEVQejEvdUZsQjBSbzFWN0N6K0twRlhQejdYakI5bnVsQWZkQ2ExWlNh?=
- =?utf-8?B?bmx2SERrV3ZnRFZ3ZzJSYW93LzN5eTlRKzM2UE5oaE50eFF1cEl0OEVZcmw5?=
- =?utf-8?B?N0Q3blhaQjMzU3VpcVdyZ2xFazVGME1rdkZPUXc5S3BHb3liSnNGaWJuNGRs?=
- =?utf-8?B?OEQyb0VYbkQydkhTNW05NDZ5eVd0OElpeTMxeGNLUG9FQnd5RkJtYVRCWStS?=
- =?utf-8?B?UVNLY2pmQ2U5eUZYY09SS21YYnVOYUo2eW9FTEtCeGcxNVcxRGRLRmlidFdo?=
- =?utf-8?B?UTBpTlo1OHVNMDFkWUt5NUUySEpvdlhWaFZqOGFPdFBkTXhSbHhIYzZPMjlC?=
- =?utf-8?B?U3dFV3JzNWo5djVZY3NLdURlTm1QTUkzMWI5WDNxMDQxM0x1YkpoMTZqdGd5?=
- =?utf-8?B?Y2UvMHJrYVp1ZUwzU29qa0wxZ3AvelF1SThpd0lkcDE1bmJQM00xMTVoVnA2?=
- =?utf-8?B?TEhlMnRiR0dPZmp2dzNUT05SRjdrQU9sMG5Pc2dQb0NseFdCeUV0bDUxbGhw?=
- =?utf-8?B?L2VNdnRYeEVNWnV4RlhUbUZFd0hUYjBWb2h4T1o2NXpHeVcrZ2V0TEdPWnhs?=
- =?utf-8?B?V204dGxMQVZLczF5b2dGSFFpaVNNc1ZoWkJDZ0ZCeTQvVndXV01BQzRSU3VB?=
- =?utf-8?B?b2FTZDIvUTVKUDJyTVhyNnpudDBGOTd6UWJxKzZXMFp4L3k5TDk2NTVkc0lG?=
- =?utf-8?B?MTJ5QTlic3NOVGdGeFU4dWZzVnQ3QjNLeHoxdFEwREVGVkJGRGNPWG9RL21X?=
- =?utf-8?B?SE9vSnd2TjBEbVN6NHJoSWdLWEZibXF4bXZOV0FmcythNG54Szh0aEFhR0lz?=
- =?utf-8?B?bTdFMkt2clJGTlM5NjBQYm5sYnpRVG5JZ2ZIczgwMHg0WVYybzRIdVYxV1Mv?=
- =?utf-8?B?b3YycFBYMFhuYUJMWTlwODIwYTQvMGRhY0p3dUJZWm9qSStpR1ArcXRRQVFK?=
- =?utf-8?B?S0MrbVFQOFFnRjlpbzJqUCsvcWNpRGNCVnpkbzdTM1lhamZYQXhMZWhXZEw3?=
- =?utf-8?B?RnVMQTBGOVRkeCtGeG5jd0s1Si9NQnZnUDlwQ2R6ZUF6NEw1cHF4dFJYNVMr?=
- =?utf-8?B?SnNmU1JpYy91Vzk1NFlHY0lLd3o2SG1sdTkzbXhmb0ViQ3ZvSW1meDY5UDd2?=
- =?utf-8?B?Z2FzUHlyMGwxeVJHOFNkcWdvSldLSmptRU9CczdOVTZrOVdxenRuK1Y0TXZ4?=
- =?utf-8?B?NzRlNkxZNjNBZjFSUURVN2E1dlYrSUZpZVQrQVdvajhKWnAzWTlkMUZicG1Q?=
- =?utf-8?B?VEFlMDNjSHh3a1VGVTJwS2U1Vkw0SkE5TThWZHM2ZFpvL3lXc3pxZ21KQ2Yz?=
- =?utf-8?Q?P2BE=3D?=
-X-Forefront-Antispam-Report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BLAPR15MB3889.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(10070799003)(7416014)(366016)(1800799024)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
- =?utf-8?B?SVNTdk5ITnB4bjdnUCtMMDVpTHB2TVlHcTlJRjFPYW5zWlRiSk9lN3ZXc2dt?=
- =?utf-8?B?ZnFKSHFJV0FwUlpMT2M5VkJXdWpUTXJVdURnS2VDSHVvZUs3ZElUMlUxTTNE?=
- =?utf-8?B?eGJLT0c2cFd3OU9PQkt3Q2M2ZEZ6VTgyUnJ2VHZpVDllVERuVnE2NjFpNC9x?=
- =?utf-8?B?YWk5K2dlWmwyWmhYMFRZSnprMDczcTBjK2trMXU5MW5rQ2FQSEgxYitrMkw0?=
- =?utf-8?B?d0h3dlZ6UXVVWGhTOGhSUEJVS2cwaUZTTUYySHB6RzVPTFQ3SFl0MUNNKzFv?=
- =?utf-8?B?TE9GSUVrTVdJWTlMekVoWlRaWTJNZkJKaGpVenF1Q29uOVQ1QUQyeFVkMFFQ?=
- =?utf-8?B?YXhEQ090aDZWNEl5Z2EzYUNlWDN1R25hMWNGdERYK1dQQVBtLzAxaWlhRkpK?=
- =?utf-8?B?RDlOeXAyMWJhdFl5bHJjQXVwT1JkUS9ibjJYeHRYM0hYL1I4cld5VmlWek55?=
- =?utf-8?B?K1VqV1ZhcFlBczloaXl3dlB4aHRhd2JmR0x4a1lOU2E4dEt6U0VUdlI3aENE?=
- =?utf-8?B?TTF0ekIxaUJsd2NFVm5xdGdZOHByaXpSUC8xTUFpMXQrQ0RIbHAyMGZQUXdi?=
- =?utf-8?B?cHJPT1FiSjRrNk5TVXhHVXQ0SFVYeFNtcTEvNCtvQ1ZFamErS1JrekoxMHMx?=
- =?utf-8?B?RC9tS3pWc1k0UWdURE5yUDZET0VuWGhWZzlxT1ZZM2x6SFJlNFY5eDJWcVNS?=
- =?utf-8?B?UnBKUXFvK1M4Mi9SNHhPWE9hWHBBM3hPcThnR2xwYWdzVXFMbklyMDNLZlEv?=
- =?utf-8?B?dkJxb0gzN1ZBZzluSkpyUXRnMytzN05PaDhYZ1cxLzlZT2xUOEkyd3FtVWZC?=
- =?utf-8?B?azdFSHN4Nlo5U2kza3NETXBUR0gycEoyeFRuMUVHbUZaL0ZML1VEWmJpSzNi?=
- =?utf-8?B?YTNSMXlOcmdTWnROakF0WDhOcDlYL1E4dm9CVGR4T0hvNnl2UHZvd0dCdW9q?=
- =?utf-8?B?cHNCcWNwQ0hmc3JFUEtQQUZjRXBXU01sN3BGYVl1SVN2aE9sU0NMSnA3cUFE?=
- =?utf-8?B?amNHRmlnWkhzR2x4SmthUkFXdk0rZXdEaWxJeU4wdG5wVU15S0x3RmRDYUxP?=
- =?utf-8?B?S2FQUzAxRWg4SFBpVWdUa01tRHUyUEZkeHE1dEJQMm91VnFRTStZWDIrVyt4?=
- =?utf-8?B?UVhjNklNTmJqMWorcTdxWnNVU3EzRVhZNW1hR3dHdE1tRkVtak9DWSs0eG9T?=
- =?utf-8?B?bmdmK01sZVBtM3hxdFlHQ0dYSlM0VUdXNHFMNFQwaXo4eFBPc3R2dDBjT09V?=
- =?utf-8?B?M0E1NC9FeERINHdleWZWeUpmR0NTcGp4YUF5N1RQQUFsV1Qydjl4WXJZUk1j?=
- =?utf-8?B?M2RLczZvSFdxYXlHSVJBSGVjVENaNjFDU2lmSzUvTjkxdjFpVDNtQnd5RGp4?=
- =?utf-8?B?MUdjbDVPS3lOZHZnbnpLQWVMdksrQXAxbjdXeE1vLzIxaUZhNit2K0x5NWdY?=
- =?utf-8?B?ZmRsRmY0K0RNcmhHVFlBZk5ydS84cHlvTC9KSFROUjlkNys1WEFieVJLV2tj?=
- =?utf-8?B?T1N6U3R5eVpDQ25SNUZRSFFvSWpzTklJMVRpU2MxcU5NR2psWkZHUktKQ0lZ?=
- =?utf-8?B?NDFsSURBV3lxcUFuVm5EN1RYNy9vSlErZVdCSVFQWU5pSG5Hb1E1SkNCckRk?=
- =?utf-8?B?cElEK2JqKzk3V3Q0VmVPQkxHaUdJYnhQeXJCU3NVeUxQc2hiVnJSWTJyeGtG?=
- =?utf-8?B?dkdQS0tXWkZUMTdIdVVvWG1zOVVFTFQvMTdNcFIyL1NBMFozVGxZdUMvY0x4?=
- =?utf-8?B?Z3dCMDJJRGh0Wis0Zmp5T0JWNkwxQVdYWGhVbXQ3dGwzSGx1SGNlWHYvQUps?=
- =?utf-8?B?UitvWElUUzFRNnBrV05HNHZrRzVnMjJQS01zcmtjd1V3cHJYZEFIWDliMjQr?=
- =?utf-8?B?ZlY0V1ZJQ05LNzRBZE9MNkVhSDRrSlhVYU9SckRKSDZLTEkxVWJ4NDQvL2ti?=
- =?utf-8?B?WXJVRTVEbXNWay9CUWs2TnFTdGlSRElFRmVxV000cnVKZHY3UkEyeFZPVDRE?=
- =?utf-8?B?cGtkMm9tN0hVNkF1MUJXWmQ1WFpBNTRvZThxUmRiYzFRNEhHbDdFV01ra3FW?=
- =?utf-8?B?Z3pDdTJwTUEvVXZ4emltYVIvcDNNOE44R0k2cnoyRXVqL1htY00zeXN2TnJS?=
- =?utf-8?B?dzQ4b25EWVhWZjd5aHNnbXpESTFUR1JFM1lMbHVsQWEvTzZPN2NMOUNyRWpC?=
- =?utf-8?B?K1BsSlpRWGcrUDZnbVB6TmlxKzZDL0liVGtPWndCUHE2Ly9SQnBmbndBRzIy?=
- =?utf-8?B?NlVkTzhVUGQwekVSS3dVVHl6OGJQRE51c1MrYWlJNmd0OW9uSGRDeE5FcWR5?=
- =?utf-8?B?bUg0Q1NuSDlUNzhTdmtqR2YzNXpKVmRDazFaWmdwd0RDRVRocVpYbElSRVRQ?=
- =?utf-8?Q?V+Ca0CPnSEaws7i1BKIB4doo3Cg+DSMLrSxix?=
-X-OriginatorOrg: meta.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 34aaffed-a0bf-4cfd-6b76-08de5f5ea817
-X-MS-Exchange-CrossTenant-AuthSource: BLAPR15MB3889.namprd15.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jan 2026 17:48:48.7883
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: z7ZZ9rG0ziCD0OchEVkCQzRXeXOHtuIj0wwlBExohqrI88gIpuKItb8ugzKInnhx
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR15MB5489
-X-Authority-Analysis: v=2.4 cv=AojjHe9P c=1 sm=1 tr=0 ts=697b9d85 cx=c_pps
- a=Upp9xsdEppYJlq5B+Xcl6Q==:117 a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19
- a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19
- a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=VabnemYjAAAA:8 a=_-5IICEH9htX8uYARTEA:9
- a=QEXdDO2ut3YA:10 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-ORIG-GUID: pX5j8SmF8P9qAvNcytWMVVVHE7BemDWS
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI5MDEyNiBTYWx0ZWRfXw6R6DU0dJq5D
- XawWmDC3YfPVdCofRTUzKq1zFBHOfWKKQBsdaI3tQEoE9xqNN87ScJGT5ihKDhvErkxR2n0mBr/
- qD1b7+8aYi15vmfGZJX5DXMakTDKMqZUqMD80VJebSYTHzzeLXy5NalmPecC1gmfUU6fN//irhU
- jnLGDkJOKWI/WTttzgQGO4XHZqO6ubpZp2ZSNAsiNAhMCcFpR7R/DWQ266S2uVvfXNt2qR0Nmsj
- EYGPrsj2719OeWXLD3JHK5ufKDtyynFZNHs6UI5SqWA+/MZu56uuAi87duA8WXkkTyCdS1jw3by
- Dh3BzlkOesnn25yMVp8SiCiPgKYvKuNhM5bQtwqmSkXjnSHKgNiE5x+I65pOkY5tEepnAYxOI9O
- nhQvwMScTIjPgdc0EPs7S+6O7dyljpEDO8vzbGYFn5W+z3jJj2NE9rkCfbpQAXh3mN7v3BXi0Yq
- NZjMDvY4eaoWKdppI+Q==
-X-Proofpoint-GUID: pX5j8SmF8P9qAvNcytWMVVVHE7BemDWS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-01-29_02,2026-01-29_01,2025-10-01_01
+In-Reply-To: <20260129121604.745681-1-johannes.thumshirn@wdc.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: viuXtYCzyhUNhx_pTAIH_mPnk7u9x2a11a85EAr-Pf8_1769710306
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 1/28/26 10:30 PM, Michael S. Tsirkin wrote:
-> On Wed, Jan 28, 2026 at 01:20:30PM -0800, Vishwanath Seshagiri wrote:
->> Use page_pool for RX buffer allocation in mergeable and small buffer
->> modes to enable page recycling and avoid repeated page allocator calls.
->> skb_mark_for_recycle() enables page reuse in the network stack.
->>
->> Big packets mode is unchanged because it uses page->private for linked
->> list chaining of multiple pages per buffer, which conflicts with
->> page_pool's internal use of page->private.
->>
->> Implement conditional DMA premapping using virtqueue_dma_dev():
->> - When non-NULL (vhost, virtio-pci): use PP_FLAG_DMA_MAP with page_pool
->>    handling DMA mapping, submit via virtqueue_add_inbuf_premapped()
->> - When NULL (VDUSE, direct physical): page_pool handles allocation only,
->>    submit via virtqueue_add_inbuf_ctx()
->>
->> This preserves the DMA premapping optimization from commit 31f3cd4e5756b
->> ("virtio-net: rq submits premapped per-buffer") while adding page_pool
->> support as a prerequisite for future zero-copy features (devmem TCP,
->> io_uring ZCRX).
->>
->> Page pools are created in probe and destroyed in remove (not open/close),
->> following existing driver behavior where RX buffers remain in virtqueues
->> across interface state changes.
->>
->> The rx_mode_work_enabled flag prevents virtnet_rx_mode_work() from
->> sending control virtqueue commands while ndo_close is tearing down
->> device state, avoiding virtqueue corruption during concurrent operations.
->>
->> Signed-off-by: Vishwanath Seshagiri <vishs@meta.com>
->> ---
->>   drivers/net/Kconfig      |   1 +
->>   drivers/net/virtio_net.c | 353 ++++++++++++++++++++++-----------------
->>   2 files changed, 203 insertions(+), 151 deletions(-)
->>
->> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
->> index ac12eaf11755..f1e6b6b0a86f 100644
->> --- a/drivers/net/Kconfig
->> +++ b/drivers/net/Kconfig
->> @@ -450,6 +450,7 @@ config VIRTIO_NET
->>   	depends on VIRTIO
->>   	select NET_FAILOVER
->>   	select DIMLIB
->> +	select PAGE_POOL
->>   	help
->>   	  This is the virtual network driver for virtio.  It can be used with
->>   	  QEMU based VMMs (like KVM or Xen).  Say Y or M.
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index db88dcaefb20..df2a5fc5187e 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -26,6 +26,7 @@
->>   #include <net/netdev_rx_queue.h>
->>   #include <net/netdev_queues.h>
->>   #include <net/xdp_sock_drv.h>
->> +#include <net/page_pool/helpers.h>
->>   
->>   static int napi_weight = NAPI_POLL_WEIGHT;
->>   module_param(napi_weight, int, 0444);
->> @@ -359,6 +360,11 @@ struct receive_queue {
->>   	/* Page frag for packet buffer allocation. */
->>   	struct page_frag alloc_frag;
->>   
->> +	struct page_pool *page_pool;
->> +
->> +	/* True if page_pool handles DMA mapping via PP_FLAG_DMA_MAP */
->> +	bool use_page_pool_dma;
->> +
->>   	/* RX: fragments + linear part + virtio header */
->>   	struct scatterlist sg[MAX_SKB_FRAGS + 2];
->>   
->> @@ -521,11 +527,13 @@ static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
->>   			       struct virtnet_rq_stats *stats);
->>   static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *rq,
->>   				 struct sk_buff *skb, u8 flags);
->> -static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
->> +static struct sk_buff *virtnet_skb_append_frag(struct receive_queue *rq,
->> +					       struct sk_buff *head_skb,
->>   					       struct sk_buff *curr_skb,
->>   					       struct page *page, void *buf,
->>   					       int len, int truesize);
->>   static void virtnet_xsk_completed(struct send_queue *sq, int num);
->> +static void free_unused_bufs(struct virtnet_info *vi);
->>   
->>   enum virtnet_xmit_type {
->>   	VIRTNET_XMIT_TYPE_SKB,
->> @@ -706,15 +714,21 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
->>   	return p;
->>   }
->>   
->> +static void virtnet_put_page(struct receive_queue *rq, struct page *page,
->> +			     bool allow_direct)
->> +{
->> +	page_pool_put_page(rq->page_pool, page, -1, allow_direct);
->> +}
->> +
->>   static void virtnet_rq_free_buf(struct virtnet_info *vi,
->>   				struct receive_queue *rq, void *buf)
->>   {
->>   	if (vi->mergeable_rx_bufs)
->> -		put_page(virt_to_head_page(buf));
->> +		virtnet_put_page(rq, virt_to_head_page(buf), false);
->>   	else if (vi->big_packets)
->>   		give_pages(rq, buf);
->>   	else
->> -		put_page(virt_to_head_page(buf));
->> +		virtnet_put_page(rq, virt_to_head_page(buf), false);
->>   }
-> 
-> 
-> what I dislike here is how big_packets mode still pokes
-> at give_pages but other modes use the page pool.
-> 
-> Given all modes operate with struct page it's hard to
-> shake the feeling we could be trying to put a page
-> we did not get from the pool back into the pool,
-> or vice versa.
+Thanks for the patch! yet something to improve:
 
-The allocation and free paths are symmetric for each of the modes.
-Although, I made an error in the give_pages() path of big buffers.
-That being said, the dual system approach is fragile. and I excluded
-big_packets because it chains via page->private, which conflicts with
-page_pool's internal use of page->private.
-
-Would you prefer I extend the page_pool to big_packets in v3 or
-followup? This would require building an alternate chaining mechanism,
-which conflicts with page_pool's internal use of page->private.
-
+On Thu, Jan 29, 2026 at 01:15:58PM +0100, Johannes Thumshirn wrote:
+> From: Alexander Graf <graf@amazon.com>
 > 
+> KCSAN reports data races when accessing virtio ring fields that are
+> concurrently written by the device (host). These are legitimate
+> concurrent accesses where the CPU reads fields that the device updates
+> via DMA-like mechanisms.
 > 
+> Add accessor functions that use READ_ONCE() to properly annotate these
+> device-writable fields and prevent compiler optimizations that could in
+> theory break the code. This also serves as documentation showing which
+> fields are shared with the device.
 > 
->>   
->>   static void enable_rx_mode_work(struct virtnet_info *vi)
->> @@ -877,9 +891,6 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
->>   		if (unlikely(!skb))
->>   			return NULL;
->>   
->> -		page = (struct page *)page->private;
->> -		if (page)
->> -			give_pages(rq, page);
->>   		goto ok;
->>   	}
->>
+> The affected fields are:
+> - Split ring: used->idx, used->ring[].id, used->ring[].len
+> - Packed ring: desc[].flags, desc[].id, desc[].len
 > 
-> For example above you did not touch give_pages, here
-> you are ripping out give_pages. Superficially, weird.
+> Signed-off-by: Alexander Graf <graf@amazon.com>
+> [jth: Add READ_ONCE in virtqueue_kick_prepare_split ]
+> Co-developed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> 
 
-This was done in error, I will fix it in v3.
+drop the empty line pls.
 
+> ---
+
+
+
+> Changes to v1:
+> - Updated comments (mst, agraf)
+> - Moved _read suffix to prefix in newly introduced functions (mst)
+> - Update my minor contribution to Co-developed-by (agraf)
+> - Add "in theory" to changelog
+> ---
+>  drivers/virtio/virtio_ring.c | 69 ++++++++++++++++++++++++++++--------
+>  1 file changed, 54 insertions(+), 15 deletions(-)
 > 
-> 
-> I ask myself whether page pool is not better than the
-> homegrown linked list that give_pages uses, anyway.
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index ddab68959671..66802d11d30e 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -222,6 +222,48 @@ struct vring_virtqueue {
+>  #endif
+>  };
+>  
+> +/*
+> + * Accessors for device-writable fields in virtio rings.
+> + * These fields are concurrently written by the device and read by the driver.
+> + * Use READ_ONCE() to prevent compiler optimizations and document the
+> + * intentional data race and prevent KCSAN warnings.
 
-Extending page pool support is not only for performance, but
-it is also needed for future zero copy features across RX modes.
+	Use READ_ONCE ... , document ... and prevent
 
-> 
-> Will need some perf testing though.
+> + */
+> +static inline u16 vring_read_used_idx(const struct vring_virtqueue *vq)
+> +{
+> +	return virtio16_to_cpu(vq->vq.vdev,
+> +			       READ_ONCE(vq->split.vring.used->idx));
+> +}
+> +
+> +static inline u32 vring_read_used_id(const struct vring_virtqueue *vq, u16 idx)
+> +{
+> +	return virtio32_to_cpu(vq->vq.vdev,
+> +			       READ_ONCE(vq->split.vring.used->ring[idx].id));
+> +}
+> +
+> +static inline u32 vring_read_used_len(const struct vring_virtqueue *vq, u16 idx)
+> +{
+> +	return virtio32_to_cpu(vq->vq.vdev,
+> +			       READ_ONCE(vq->split.vring.used->ring[idx].len));
+> +}
+> +
 
-If you want me to run specific performance tests, I can add it in v3.
+above are only for split I think? then pls note in the name: e.g.
+vring_read_split_used_len
 
-> 
+
+> +static inline u16 vring_read_packed_desc_flags(const struct vring_virtqueue *vq,
+> +					       u16 idx)
+> +{
+> +	return le16_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].flags));
+> +}
+> +
+> +static inline u16 vring_read_packed_desc_id(const struct vring_virtqueue *vq,
+> +				            u16 idx)
+> +{
+> +	return le16_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].id));
+> +}
+> +
+> +static inline u32 vring_read_packed_desc_len(const struct vring_virtqueue *vq,
+> +				             u16 idx)
+> +{
+> +	return le32_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].len));
+> +}
+> +
+
+hmm the names are very long now. maybe drop _read_ from there.
+
+>  static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
+>  static void vring_free(struct virtqueue *_vq);
+>  
+> @@ -736,9 +778,10 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+>  	LAST_ADD_TIME_INVALID(vq);
+>  
+>  	if (vq->event) {
+> -		needs_kick = vring_need_event(virtio16_to_cpu(_vq->vdev,
+> -					vring_avail_event(&vq->split.vring)),
+> -					      new, old);
+> +		u16 event = virtio16_to_cpu(_vq->vdev,
+> +				READ_ONCE(vring_avail_event(&vq->split.vring)));
+> +
+
+why not wrap this one then?
+
+> +		needs_kick = vring_need_event(event, new, old);
+>  	} else {
+>  		needs_kick = !(vq->split.vring.used->flags &
+>  					cpu_to_virtio16(_vq->vdev,
+> @@ -808,8 +851,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+>  
+>  static bool more_used_split(const struct vring_virtqueue *vq)
+>  {
+> -	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev,
+> -			vq->split.vring.used->idx);
+> +	return vq->last_used_idx != vring_read_used_idx(vq);
+>  }
+>  
+>  static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+> @@ -838,10 +880,8 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+>  	virtio_rmb(vq->weak_barriers);
+>  
+>  	last_used = (vq->last_used_idx & (vq->split.vring.num - 1));
+> -	i = virtio32_to_cpu(_vq->vdev,
+> -			vq->split.vring.used->ring[last_used].id);
+> -	*len = virtio32_to_cpu(_vq->vdev,
+> -			vq->split.vring.used->ring[last_used].len);
+> +	i = vring_read_used_id(vq, last_used);
+> +	*len = vring_read_used_len(vq, last_used);
+>  
+>  	if (unlikely(i >= vq->split.vring.num)) {
+>  		BAD_RING(vq, "id %u out of range\n", i);
+> @@ -923,8 +963,7 @@ static bool virtqueue_poll_split(struct virtqueue *_vq, unsigned int last_used_i
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> -	return (u16)last_used_idx != virtio16_to_cpu(_vq->vdev,
+> -			vq->split.vring.used->idx);
+> +	return (u16)last_used_idx != vring_read_used_idx(vq);
+>  }
+>  
+>  static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+> @@ -1701,10 +1740,10 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+>  static inline bool is_used_desc_packed(const struct vring_virtqueue *vq,
+>  				       u16 idx, bool used_wrap_counter)
+>  {
+> -	bool avail, used;
+>  	u16 flags;
+> +	bool avail, used;
+>  
+> -	flags = le16_to_cpu(vq->packed.vring.desc[idx].flags);
+> +	flags = vring_read_packed_desc_flags(vq, idx);
+>  	avail = !!(flags & (1 << VRING_PACKED_DESC_F_AVAIL));
+>  	used = !!(flags & (1 << VRING_PACKED_DESC_F_USED));
+>  
+> @@ -1751,8 +1790,8 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
+>  	last_used_idx = READ_ONCE(vq->last_used_idx);
+>  	used_wrap_counter = packed_used_wrap_counter(last_used_idx);
+>  	last_used = packed_last_used(last_used_idx);
+> -	id = le16_to_cpu(vq->packed.vring.desc[last_used].id);
+> -	*len = le32_to_cpu(vq->packed.vring.desc[last_used].len);
+> +	id = vring_read_packed_desc_id(vq, last_used);
+> +	*len = vring_read_packed_desc_len(vq, last_used);
+>  
+>  	if (unlikely(id >= vq->packed.vring.num)) {
+>  		BAD_RING(vq, "id %u out of range\n", id);
+> -- 
+> 2.52.0
 
