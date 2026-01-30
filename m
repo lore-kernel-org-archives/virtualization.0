@@ -1,104 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5E8B18E1F;
-	Fri, 30 Jan 2026 07:00:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84ACE3128A2
+	for <virtualization@lists.linux.dev>; Fri, 30 Jan 2026 07:42:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769756426; cv=none; b=OllqJ5tLolwZlIZSO8cbc4rtZRbvIrBto/lSB+P0UYZtC1tQhYrAFi27sQ0HcHY6is2CegqUZ+lEaDONmqVH+HrbhXsF/J4FxK9HpHA44CPBQpmvBa5G+FSPNCqczaDAvTjRd+TtAe834tw3Wnp6xcK1wLJG2mrCWWgtlvKHIi8=
+	t=1769758934; cv=none; b=RSDpmXqZ1mBwi6mW2ocyeHAbvSd+2+Cgf1YjlzJmyRC5BusVU8SGmqEQS3+YA86wAaixZCLvd/ntsntAme+4jERtIh5PTl82HWS2tgG6Jy8NR/ONRIzCIcdGz+uNGGQa4sRYHIAQbjrM1L0pAOg+8DdP368NqF50qG4c4waWZ2M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769756426; c=relaxed/simple;
-	bh=SwKC4Xj637CvF1FqfD2Ffqfuyi88P+/KMhUf6nGE4LM=;
+	s=arc-20240116; t=1769758934; c=relaxed/simple;
+	bh=UXTdlt1wI24qvqQsO+1DtbYd2cStysl45AaASSMaipE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VDbsPrfMOs6VI7Fo/dL7mE51N5gt6Y4teTFcJZgilkiK0fu7ZB8qyCzBKbrWEV0+mILuPPfa/NpdxHdztOSjBPLJbwzDnU29kBCJV1WHymmc8+0rNqQYscxxuvWeRlPZjxZ0mhszgVvNa50D/w87E6ayT5zsXQqHp9WKzknUBlQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XgFgDh/B; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type:Content-Disposition; b=RDtV9Qy9d40AaSxa4E3THa6vSA6EJiI2Op/gqaZjrenMD0bKM85h0fQrKrpstj9ODWZV97FJZOUj/tVrYmZW7zN7jjoC3cU/heZqD01jCYr1PYCdCzrYT1AeSRJlMPN4mJpSrp0oA7ECtzW9VEeLE+F2rxjqp5XVLl71bpN+B6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O1FZWVtU; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XgFgDh/B"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D936C4CEF7;
-	Fri, 30 Jan 2026 07:00:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769756425;
-	bh=SwKC4Xj637CvF1FqfD2Ffqfuyi88P+/KMhUf6nGE4LM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=XgFgDh/B2YishN2dcZMkY4CYAevPBkIu68baPIcKz/BgbT6K1tAsL2PyN3wiTtTdC
-	 jo/kJAT5trQs3MZIEI2HGW5+AMnkxt5iV0ImdQgQsoTCoQBNrmrR0NYasy+oABNKse
-	 2506cQYBt7VCpgmNR0NGwk8KJuGzVDxaTxLm5zv3CFufoJRLo+BJmBbclqkeysqioP
-	 G9FDslcvaLNN+jr1zhicNXavcYV8aWXwLQJxJl1mt6q9n8l+XfSHeCoa1t8NTjNH4p
-	 +u5KQMWBIITybzgApJ5DlFVUHQvpdI2Ck7QaRsJjuRp1K7FbNEEVLaxkSmNyiD2Fm/
-	 rdwqK8S3ocnHQ==
-Date: Fri, 30 Jan 2026 09:00:20 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Felix Kuehling <Felix.Kuehling@amd.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Vivek Kasireddy <vivek.kasireddy@intel.com>,
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
-	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
-	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	iommu@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v5 3/8] dma-buf: Always build with DMABUF_MOVE_NOTIFY
-Message-ID: <20260130070020.GM10992@unreal>
-References: <20260124-dmabuf-revoke-v5-0-f98fca917e96@nvidia.com>
- <20260124-dmabuf-revoke-v5-3-f98fca917e96@nvidia.com>
- <0d2ec2d6-c999-45d8-a2bd-b5b21883db47@amd.com>
- <20260127095831.GR13967@unreal>
- <83cd911c-99ea-4fab-821e-fcf703209731@amd.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O1FZWVtU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769758932;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=l13seWwAdAZQPIaHiLynfs2twMZr5h3vDo6Uupa88F4=;
+	b=O1FZWVtUN8jombTnihUA9mI9xT5bFfYWFz6HCPvHYeni0hp7eGkvjQ/G1Vv8UZ17U/BCtB
+	+yCmkhJYwLbFXIAjNufPIbRrVyI7/QYhAb9ZoXYg0dbzM6CcDseJh1VG+UxiFr5QKrWzwT
+	K9l+0grO/gdcbfKcqxjQ6vrOGBmqiyc=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-272-jCmTyC80PwKo-VC08yksxA-1; Fri, 30 Jan 2026 02:42:10 -0500
+X-MC-Unique: jCmTyC80PwKo-VC08yksxA-1
+X-Mimecast-MFC-AGG-ID: jCmTyC80PwKo-VC08yksxA_1769758929
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-47d4029340aso33072055e9.3
+        for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 23:42:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769758929; x=1770363729;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=l13seWwAdAZQPIaHiLynfs2twMZr5h3vDo6Uupa88F4=;
+        b=V48P/h32GpVOmdfyhbES3q594NCMCzzB66+ZudMPgYs2yffq+Hr1HLRoz4LMWUHvN/
+         H2w6fmOtFoSmOMxkJUItYMfuhNG/zz+TBeOPdIbUEqN6vCebRPqP7pxeEFxt7QloV6dd
+         sNAzmPjWSOnu+0sErAaB5EEXZ115i2hxokH9PACQIoMQerM9QGquS9t7C2YP/5Ms550S
+         YD9WuP6QlENlL+//hcrAyiPTTUH+Ln1iDjCaTSgAVF5K+vUgNs6TXZ3NbdKodsxrgDdl
+         lS63HCY7cgVFzL5KpZu20/WzrwadXtXiN9IniGeOB81Je1QaLdSWSOCAA3NK+icx9lef
+         7ROg==
+X-Forwarded-Encrypted: i=1; AJvYcCWVq5DYPAUl8wd1pgR++NSngj+2ryC3JJYABmvqti+yzHy29Lw1lCEfZp2G27yWpIxvrscOkoR2xyMc5FQn6Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxpcRkGBH6xQKrVNvhbCIRrXhh18LUBX8Up9/oBTG2LQzpS6SqQ
+	SoRgvNZ7Wy6VNANMtBQANETkKsJ/kWLcvmpOuVF3f1bh2LtouWDbDDl6cSVQ5LKjv5ghbcH7NBJ
+	ATf+8rPhYX1tIyao0qGeWBzj+UyDI0Xs7C6oF0rs8hD7QtQEEBndBkMkHLMt0W0n3YI4r
+X-Gm-Gg: AZuq6aKEqF/qfLPkWaCkTJR9o4nqsCDx6/zIOLBZ7FaD6moMIqWUEdHqN/9Cgo/47FC
+	lhiAqG8uTgZlPXU0ADIggAchKruFq9XmiUZLZXjtf3fGgTdkzEQq1s/0uBXNjmxpGTOfaD3Ec6E
+	z9sX4DKzmuwpjG7AL1tEO1wQlzWaomiWAuyccxooCw0vXJBwZMHRKjfJLCqlUSMz4/oOKOO6Bwy
+	SVTtrAX2CGDcD5+xlH/X0294EYzbtq56OFYPWRsWPlLBqKYz7NkpiDAdgGeEYeZt4dj56onPTdA
+	YOhp91MY3wlkiDwdD4l5gw/04zzc7PVm/AgAH4Tc+J9Et9xtwGmKrESyBxeLl2JeBKPA95K7/vT
+	JOLZX2vUgCb0aJgCT2qgOJ0NlJEmzLvji4g==
+X-Received: by 2002:a05:600c:8b31:b0:480:1dc6:269c with SMTP id 5b1f17b1804b1-482db49e6demr18609845e9.37.1769758928929;
+        Thu, 29 Jan 2026 23:42:08 -0800 (PST)
+X-Received: by 2002:a05:600c:8b31:b0:480:1dc6:269c with SMTP id 5b1f17b1804b1-482db49e6demr18609505e9.37.1769758928331;
+        Thu, 29 Jan 2026 23:42:08 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48066c37420sm260871765e9.9.2026.01.29.23.42.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Jan 2026 23:42:07 -0800 (PST)
+Date: Fri, 30 Jan 2026 02:42:05 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+	Alexander Graf <graf@amazon.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"open list:VIRTIO CORE" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] virtio_ring: Add READ_ONCE annotations for
+ device-writable fields
+Message-ID: <20260130024139-mutt-send-email-mst@kernel.org>
+References: <20260129121604.745681-1-johannes.thumshirn@wdc.com>
+ <CACGkMEtqBJKaG0H6zcyr_RJZ3bZgdNvT1KX52fKHpA=bLsUuew@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <CACGkMEtqBJKaG0H6zcyr_RJZ3bZgdNvT1KX52fKHpA=bLsUuew@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 8G9AUHK5V4dWOxoJ2s08iykdoU9NU-jouMM3AIS2dgI_1769758929
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <83cd911c-99ea-4fab-821e-fcf703209731@amd.com>
 
-On Tue, Jan 27, 2026 at 11:02:03AM +0100, Christian König wrote:
-> On 1/27/26 10:58, Leon Romanovsky wrote:
-> > On Tue, Jan 27, 2026 at 10:26:26AM +0100, Christian König wrote:
-> >> On 1/24/26 20:14, Leon Romanovsky wrote:
-> >>> From: Leon Romanovsky <leonro@nvidia.com>
-> >>>
-> >>> DMABUF_MOVE_NOTIFY was introduced in 2018 and has been marked as
-> >>> experimental and disabled by default ever since. Six years later,
-> >>> all new importers implement this callback.
-> >>>
-> >>> It is therefore reasonable to drop CONFIG_DMABUF_MOVE_NOTIFY and
-> >>> always build DMABUF with support for it enabled.
-> >>>
-> >>> Suggested-by: Christian König <christian.koenig@amd.com>
-> >>> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> >>
-> >> Reviewed-by: Christian König <christian.koenig@amd.com>
-> >>
-> >> As long as nobody starts screaming in the last second or I encounter some other problem I'm going to push the first three patches to drm-misc-next now.
-> > 
-> > How do you see progress of other patches?
-> > Can they be queued for that tree as well?
+On Fri, Jan 30, 2026 at 10:03:23AM +0800, Jason Wang wrote:
+> On Thu, Jan 29, 2026 at 8:16â€¯PM Johannes Thumshirn
+> <johannes.thumshirn@wdc.com> wrote:
+> >
+> > From: Alexander Graf <graf@amazon.com>
+> >
+> > KCSAN reports data races when accessing virtio ring fields that are
+> > concurrently written by the device (host). These are legitimate
+> > concurrent accesses where the CPU reads fields that the device updates
+> > via DMA-like mechanisms.
 > 
-> I was hoping to get through them by the end of the week.
+> Technically, the device can write to the descriptor ring as well, do
+> we need to care about this case or not?
 
-Christian,
+Why would we?
 
-Can we please merge the whole series now?
+> >
+> > Add accessor functions that use READ_ONCE() to properly annotate these
+> > device-writable fields and prevent compiler optimizations that could in
+> > theory break the code. This also serves as documentation showing which
+> > fields are shared with the device.
+> >
+> > The affected fields are:
+> > - Split ring: used->idx, used->ring[].id, used->ring[].len
+> > - Packed ring: desc[].flags, desc[].id, desc[].len
+> >
+> > Signed-off-by: Alexander Graf <graf@amazon.com>
+> > [jth: Add READ_ONCE in virtqueue_kick_prepare_split ]
+> > Co-developed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> > Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> >
+> 
+> Thanks
 
-Thanks
