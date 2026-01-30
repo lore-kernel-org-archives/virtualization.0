@@ -1,128 +1,165 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84ACE3128A2
-	for <virtualization@lists.linux.dev>; Fri, 30 Jan 2026 07:42:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07B7D244665
+	for <virtualization@lists.linux.dev>; Fri, 30 Jan 2026 07:56:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769758934; cv=none; b=RSDpmXqZ1mBwi6mW2ocyeHAbvSd+2+Cgf1YjlzJmyRC5BusVU8SGmqEQS3+YA86wAaixZCLvd/ntsntAme+4jERtIh5PTl82HWS2tgG6Jy8NR/ONRIzCIcdGz+uNGGQa4sRYHIAQbjrM1L0pAOg+8DdP368NqF50qG4c4waWZ2M=
+	t=1769759805; cv=none; b=ftQw5j3vXpV0JE37VCFRWDaulzLYVjkImwAAbM5i/ibKpBXIo164dIlPYxazUHm81iGCZwogzIp6MTuC7jJ/nezPsFmun9GRCzB4HWhWrpaRoQqZVy5Be3zOYGDGuzw0kSobRLk5Uj5/Grs3w/37H33tOx/6O+4kCtTOQ6E8tTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769758934; c=relaxed/simple;
-	bh=UXTdlt1wI24qvqQsO+1DtbYd2cStysl45AaASSMaipE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=RDtV9Qy9d40AaSxa4E3THa6vSA6EJiI2Op/gqaZjrenMD0bKM85h0fQrKrpstj9ODWZV97FJZOUj/tVrYmZW7zN7jjoC3cU/heZqD01jCYr1PYCdCzrYT1AeSRJlMPN4mJpSrp0oA7ECtzW9VEeLE+F2rxjqp5XVLl71bpN+B6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O1FZWVtU; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1769759805; c=relaxed/simple;
+	bh=fE8RqfdeT8n2cj9Kr8G8OzS1dK7J7ieEZZVC8rS0dS8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sCsITng37h3IZb0/KdYmMjDYLcREYqR3Dnd4EpzPF+RU3AaJC3IG9qsSSonF+piO7y7jBNGi+lR8B4ADvlqmP9pJp541jRzLnJuvIk0ZchVCxBaKnq6eyUgzGiZIED9vykKO5hvdIcYaLynwfTkD5KoqiO3MrQmd0k+bReQeEoI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RAG15B05; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O1FZWVtU"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RAG15B05"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769758932;
+	s=mimecast20190719; t=1769759803;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=l13seWwAdAZQPIaHiLynfs2twMZr5h3vDo6Uupa88F4=;
-	b=O1FZWVtUN8jombTnihUA9mI9xT5bFfYWFz6HCPvHYeni0hp7eGkvjQ/G1Vv8UZ17U/BCtB
-	+yCmkhJYwLbFXIAjNufPIbRrVyI7/QYhAb9ZoXYg0dbzM6CcDseJh1VG+UxiFr5QKrWzwT
-	K9l+0grO/gdcbfKcqxjQ6vrOGBmqiyc=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=EWSsnngUAxQZNYuSUD32175ZT9aMPq2aue7wOMEswgs=;
+	b=RAG15B05MtWn/WtLXsQxK9NmYrGJoZSmmHt43mBvJqFI+DLeyQWIxlOyLjpjRVEUXwtzwR
+	8/ojnVAKxBrssttXyZckVi6DvtV1g06EohQOxyFsnGwRsRy8xixCAX5AgUa5FpcRk4QO35
+	0e97uOP+BiGBxGLJFI3QweRT1Erck3o=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-272-jCmTyC80PwKo-VC08yksxA-1; Fri, 30 Jan 2026 02:42:10 -0500
-X-MC-Unique: jCmTyC80PwKo-VC08yksxA-1
-X-Mimecast-MFC-AGG-ID: jCmTyC80PwKo-VC08yksxA_1769758929
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-47d4029340aso33072055e9.3
-        for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 23:42:10 -0800 (PST)
+ us-mta-511-34FrAVoeO3udVLOhJQeEfw-1; Fri, 30 Jan 2026 02:56:41 -0500
+X-MC-Unique: 34FrAVoeO3udVLOhJQeEfw-1
+X-Mimecast-MFC-AGG-ID: 34FrAVoeO3udVLOhJQeEfw_1769759801
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-78fc63a4637so28042397b3.3
+        for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 23:56:41 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769758929; x=1770363729;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=l13seWwAdAZQPIaHiLynfs2twMZr5h3vDo6Uupa88F4=;
-        b=V48P/h32GpVOmdfyhbES3q594NCMCzzB66+ZudMPgYs2yffq+Hr1HLRoz4LMWUHvN/
-         H2w6fmOtFoSmOMxkJUItYMfuhNG/zz+TBeOPdIbUEqN6vCebRPqP7pxeEFxt7QloV6dd
-         sNAzmPjWSOnu+0sErAaB5EEXZ115i2hxokH9PACQIoMQerM9QGquS9t7C2YP/5Ms550S
-         YD9WuP6QlENlL+//hcrAyiPTTUH+Ln1iDjCaTSgAVF5K+vUgNs6TXZ3NbdKodsxrgDdl
-         lS63HCY7cgVFzL5KpZu20/WzrwadXtXiN9IniGeOB81Je1QaLdSWSOCAA3NK+icx9lef
-         7ROg==
-X-Forwarded-Encrypted: i=1; AJvYcCWVq5DYPAUl8wd1pgR++NSngj+2ryC3JJYABmvqti+yzHy29Lw1lCEfZp2G27yWpIxvrscOkoR2xyMc5FQn6Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxpcRkGBH6xQKrVNvhbCIRrXhh18LUBX8Up9/oBTG2LQzpS6SqQ
-	SoRgvNZ7Wy6VNANMtBQANETkKsJ/kWLcvmpOuVF3f1bh2LtouWDbDDl6cSVQ5LKjv5ghbcH7NBJ
-	ATf+8rPhYX1tIyao0qGeWBzj+UyDI0Xs7C6oF0rs8hD7QtQEEBndBkMkHLMt0W0n3YI4r
-X-Gm-Gg: AZuq6aKEqF/qfLPkWaCkTJR9o4nqsCDx6/zIOLBZ7FaD6moMIqWUEdHqN/9Cgo/47FC
-	lhiAqG8uTgZlPXU0ADIggAchKruFq9XmiUZLZXjtf3fGgTdkzEQq1s/0uBXNjmxpGTOfaD3Ec6E
-	z9sX4DKzmuwpjG7AL1tEO1wQlzWaomiWAuyccxooCw0vXJBwZMHRKjfJLCqlUSMz4/oOKOO6Bwy
-	SVTtrAX2CGDcD5+xlH/X0294EYzbtq56OFYPWRsWPlLBqKYz7NkpiDAdgGeEYeZt4dj56onPTdA
-	YOhp91MY3wlkiDwdD4l5gw/04zzc7PVm/AgAH4Tc+J9Et9xtwGmKrESyBxeLl2JeBKPA95K7/vT
-	JOLZX2vUgCb0aJgCT2qgOJ0NlJEmzLvji4g==
-X-Received: by 2002:a05:600c:8b31:b0:480:1dc6:269c with SMTP id 5b1f17b1804b1-482db49e6demr18609845e9.37.1769758928929;
-        Thu, 29 Jan 2026 23:42:08 -0800 (PST)
-X-Received: by 2002:a05:600c:8b31:b0:480:1dc6:269c with SMTP id 5b1f17b1804b1-482db49e6demr18609505e9.37.1769758928331;
-        Thu, 29 Jan 2026 23:42:08 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48066c37420sm260871765e9.9.2026.01.29.23.42.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jan 2026 23:42:07 -0800 (PST)
-Date: Fri, 30 Jan 2026 02:42:05 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-	Alexander Graf <graf@amazon.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"open list:VIRTIO CORE" <virtualization@lists.linux.dev>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] virtio_ring: Add READ_ONCE annotations for
- device-writable fields
-Message-ID: <20260130024139-mutt-send-email-mst@kernel.org>
-References: <20260129121604.745681-1-johannes.thumshirn@wdc.com>
- <CACGkMEtqBJKaG0H6zcyr_RJZ3bZgdNvT1KX52fKHpA=bLsUuew@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1769759801; x=1770364601;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=EWSsnngUAxQZNYuSUD32175ZT9aMPq2aue7wOMEswgs=;
+        b=fOy3f3jJijqohln6yx/jr1/U9CTsY++uz0G+hyNNZU9+vCiqS9laQy91FQO2HRDbMI
+         o4la+Up8eVX5ii18iKNP2YPQWs58HWSdHhhY8bQD/OGb8BzSSUKnIzg3iT0skMWZM/P4
+         8HBWgNV9A69hvzqWrtJjv0IWL/O+Xp/pIGbjExVdTpFKBlFomh+jlMnemphuXakG+2SX
+         IC1HeduYhx3cFNVUc+fh9o/+hJLTawH1KV51Sh/FkFknfOtQs5n826+LB7jQYAFwpBM2
+         ekprzVy/OCESG2cAU7f5lBcXyd7k5J6zafJjGByrLM2j8ecTq9sqteOmGrANs8PHW0Fd
+         /JXg==
+X-Forwarded-Encrypted: i=1; AJvYcCWGJ4mSnQ7jiT3ldA4Nn8tq5Rj6doIG84UOqRss8Kz5pmFDDsM48mWeHJv8zDIPwXGsLxQAqQOoiomymqjTwQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyqeBDvT6UIEA1YgVSoYWMaN8h0WGu+fsPbRAussSo1I3oUnUWv
+	cUaIcHbpb4QhLp6XJLt+tX/z0SjAjrvT5gy9+B/B4a3D2Uk4WMfxOTiasxblORo2vFAlR2sPx9g
+	ap1hIIenKxga3Q/BdI0LnZNL8BNMGurCqg1Ts63pr2+DlnvclZO2wvy5vnXsWNTAha1ASim0C31
+	nIOS5v956yyN0JeSgJovLNZpQKKisD1LpLxC+36P5k264=
+X-Gm-Gg: AZuq6aL/lbZ8QXffr3Fq9OrD21EM0zjZErBCZaV0iSrnBMTuTeImKLedn3xiiR9PPaL
+	/iXUts8J3Hz4V4aJZ9tEcC8T028aQvi5Ow+T4060wEt6tX+5hFsY68nOCW5Jgt195F6BnMCYc8h
+	NkMYu1F2RLQceBVFXhkufcDh5y1u+gHx0eyO7d38tec2HUarKLefeFTZct9iiak/tAEA==
+X-Received: by 2002:a05:690c:22c6:b0:78c:69ce:c430 with SMTP id 00721157ae682-7949deb6985mr20920107b3.21.1769759800950;
+        Thu, 29 Jan 2026 23:56:40 -0800 (PST)
+X-Received: by 2002:a05:690c:22c6:b0:78c:69ce:c430 with SMTP id
+ 00721157ae682-7949deb6985mr20919957b3.21.1769759800561; Thu, 29 Jan 2026
+ 23:56:40 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtqBJKaG0H6zcyr_RJZ3bZgdNvT1KX52fKHpA=bLsUuew@mail.gmail.com>
+References: <20260128124524.875271-1-eperezma@redhat.com> <20260128124524.875271-2-eperezma@redhat.com>
+ <CACGkMEuDPgkEVzpu0c+oKvOqgaSR5=CnHMe9iZDi_PFQan0m6g@mail.gmail.com>
+ <CAJaqyWf5sC38oT2ZkmfR_MkiYWjLsuyF4Z4opSmgS1nG8BZhgw@mail.gmail.com> <CACGkMEsr_cx-xR85wZ5c=QfegLfG5j0wHTjokEADpgn37gQRJQ@mail.gmail.com>
+In-Reply-To: <CACGkMEsr_cx-xR85wZ5c=QfegLfG5j0wHTjokEADpgn37gQRJQ@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Fri, 30 Jan 2026 08:56:04 +0100
+X-Gm-Features: AZwV_Qhc9FWSqH7mbHoItRc6it2kMfiJuDaFTdnjeJmh1fMOvkyj0L62SYFnfv0
+Message-ID: <CAJaqyWcVdMc+xQ=oq4ipu_sGh4uMJGidC8CFYSaa+5ZcwiKZ7g@mail.gmail.com>
+Subject: Re: [PATCH 1/6] vduse: ensure vq->ready access is smp safe
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 8G9AUHK5V4dWOxoJ2s08iykdoU9NU-jouMM3AIS2dgI_1769758929
+X-Mimecast-MFC-PROC-ID: RAFhihZPubwkdfMkEDPzaBAQ735T_phbCNmf59BoEe0_1769759801
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 30, 2026 at 10:03:23AM +0800, Jason Wang wrote:
-> On Thu, Jan 29, 2026 at 8:16 PM Johannes Thumshirn
-> <johannes.thumshirn@wdc.com> wrote:
+On Fri, Jan 30, 2026 at 3:18=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+ote:
+>
+> On Thu, Jan 29, 2026 at 2:21=E2=80=AFPM Eugenio Perez Martin
+> <eperezma@redhat.com> wrote:
 > >
-> > From: Alexander Graf <graf@amazon.com>
+> > On Thu, Jan 29, 2026 at 2:17=E2=80=AFAM Jason Wang <jasowang@redhat.com=
+> wrote:
+> > >
+> > > On Wed, Jan 28, 2026 at 8:45=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@=
+redhat.com> wrote:
+> > > >
+> > > > The vduse_vdpa_set_vq_ready can be called in the lifetime of the de=
+vice
+> > > > well after initial setup, and the device can read it afterwards.
+> > > >
+> > > > Ensure that reads and writes to vq->ready are SMP safe so that the
+> > > > caller can trust that virtqueue kicks and calls behave as expected
+> > > > immediately after the operation returns.
+> > > >
+> > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > ---
+> > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 34 +++++++++++++++++++++++---=
+----
+> > > >  1 file changed, 26 insertions(+), 8 deletions(-)
+> > > >
+> > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa=
+_user/vduse_dev.c
+> > > > index 73d1d517dc6c..a4963aaf9332 100644
+> > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > @@ -460,6 +460,24 @@ static __poll_t vduse_dev_poll(struct file *fi=
+le, poll_table *wait)
+> > > >         return mask;
+> > > >  }
+> > > >
+> > > > +static bool vduse_vq_get_ready(const struct vduse_virtqueue *vq)
+> > > > +{
+> > > > +       /*
+> > > > +        * Paired with vduse_vq_set_ready smp_store, as the driver =
+may modify
+> > > > +        * it while the VDUSE instance is reading it.
+> > > > +        */
+> > > > +       return smp_load_acquire(&vq->ready);
+> > > > +}
+> > > > +
+> > > > +static void vduse_vq_set_ready(struct vduse_virtqueue *vq, bool re=
+ady)
+> > > > +{
+> > > > +       /*
+> > > > +        * Paired with vduse_vq_get_ready smp_load, as the driver m=
+ay modify
+> > > > +        * it while the VDUSE instance is reading it.
+> > > > +        */
+> > > > +       smp_store_release(&vq->ready, ready);
+> > >
+> > > Assuming this is not used in the datapath, I wonder if we can simply
+> > > use vq_lock mutex.
+> > >
 > >
-> > KCSAN reports data races when accessing virtio ring fields that are
-> > concurrently written by the device (host). These are legitimate
-> > concurrent accesses where the CPU reads fields that the device updates
-> > via DMA-like mechanisms.
-> 
-> Technically, the device can write to the descriptor ring as well, do
-> we need to care about this case or not?
+> > The function vduse_vq_set/get_ready are not in the datapath, but
+> > vduse_vq_kick and vduse_vq_signal_irqfd are.  I'm ok if you want to
+> > switch to vq_mutex if you want though, maybe it's even comparable with
+> > the cost of the ioctls or eventfd signaling.
+>
+> I'd like to use mutex for simplicity.
+>
 
-Why would we?
+I cannot move it to a mutex, as we need to take it in the critical
+sections of the kick_lock and irq_lock spinlocks.
 
-> >
-> > Add accessor functions that use READ_ONCE() to properly annotate these
-> > device-writable fields and prevent compiler optimizations that could in
-> > theory break the code. This also serves as documentation showing which
-> > fields are shared with the device.
-> >
-> > The affected fields are:
-> > - Split ring: used->idx, used->ring[].id, used->ring[].len
-> > - Packed ring: desc[].flags, desc[].id, desc[].len
-> >
-> > Signed-off-by: Alexander Graf <graf@amazon.com>
-> > [jth: Add READ_ONCE in virtqueue_kick_prepare_split ]
-> > Co-developed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-> > Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-> >
-> 
-> Thanks
+I can move it to a spinlock, but it seems more complicated to me. We
+need to make sure we always take these kick_lock and irq_lock in the
+same order as the ready_lock, to not create deadlocks, and they always
+protect just the ready boolean. But sure, I'll send the spinlock
+version for V2.
 
