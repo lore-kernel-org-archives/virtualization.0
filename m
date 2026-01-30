@@ -1,115 +1,104 @@
-Received: from mail-oa1-f48.google.com (mail-oa1-f48.google.com [209.85.160.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 839C0334694
-	for <virtualization@lists.linux.dev>; Fri, 30 Jan 2026 06:41:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769755279; cv=pass; b=o2HPw9ZCSLRi9RCCdk+bodLugjxd5g+V8wz+/S889DPWxLHCAokCKQebOeGEb87XkbehKZwHtZ3MTQrPWs2IVa0lip4QEX5K4mKRJ/ErOYXycTybWRyLuMmNwyDaKOyRmCA4CiWyebh9m7+pECEq6Bt/m3EapkpOwx4DacAfWCQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769755279; c=relaxed/simple;
-	bh=e92lWZPVFugVAMygpaYDs5ATJ6LSykDjIR5hT6LiqIY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WXH3WuJYODg9T+wYpUZj3s4e5BGhC0nwemAsLMcC4hPCCD9kIxkkZUvmcT4t8kGWniQy36MIadrrByB9kDwKPi7E0r8ehd4iqxJPeWjEmlf3dtPAKP8gpGvuCfCAKsnGZW6BA0QsxPmaXZNLuM7jEUO26NLTIZImu5JNJJiEJUw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=HmEf7VxX; arc=pass smtp.client-ip=209.85.160.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5E8B18E1F;
+	Fri, 30 Jan 2026 07:00:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769756426; cv=none; b=OllqJ5tLolwZlIZSO8cbc4rtZRbvIrBto/lSB+P0UYZtC1tQhYrAFi27sQ0HcHY6is2CegqUZ+lEaDONmqVH+HrbhXsF/J4FxK9HpHA44CPBQpmvBa5G+FSPNCqczaDAvTjRd+TtAe834tw3Wnp6xcK1wLJG2mrCWWgtlvKHIi8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769756426; c=relaxed/simple;
+	bh=SwKC4Xj637CvF1FqfD2Ffqfuyi88P+/KMhUf6nGE4LM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VDbsPrfMOs6VI7Fo/dL7mE51N5gt6Y4teTFcJZgilkiK0fu7ZB8qyCzBKbrWEV0+mILuPPfa/NpdxHdztOSjBPLJbwzDnU29kBCJV1WHymmc8+0rNqQYscxxuvWeRlPZjxZ0mhszgVvNa50D/w87E6ayT5zsXQqHp9WKzknUBlQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XgFgDh/B; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="HmEf7VxX"
-Received: by mail-oa1-f48.google.com with SMTP id 586e51a60fabf-40423dbe98bso854314fac.2
-        for <virtualization@lists.linux.dev>; Thu, 29 Jan 2026 22:41:17 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769755276; cv=none;
-        d=google.com; s=arc-20240605;
-        b=LA2O7SvAAKH7CGbKkXIIVIkZzRL0AwBOCBuIE1AD97WWUN4+SaZ7cwIHwRvMF2lW3C
-         WwdlC92yYg63KgtVf90aB1BQPyRgwt3bIDHfDOPcxsW4HbxiI37hVmddGmLcMroqR+Gb
-         R6up61J5Gg/9ViLJPdCVqKrBScubFCvkIKR4sm+PP5PZUYJVfy1bUK94s40LEtEX7/iV
-         9krrQgGw688REW/6ybQBR/KEyujc+L741BOLvXH0kWTldi/5VOKThzy1AuzpbhtmyMJS
-         8F11cEg5pO3h2qWjCL4uG1h1r/eDGt3hmFFkx79ayTM0Jw7AcQbNfLLDVhBrj92hoAV2
-         fM5g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=e92lWZPVFugVAMygpaYDs5ATJ6LSykDjIR5hT6LiqIY=;
-        fh=HtOUPL3lFFQWxocjNouLSsILjwRAxPg1Wdh8/8pHKY8=;
-        b=c4s5dAA734PLqt59OrPyAueGjljW9VthPozfS+SUq+Q7nBKTbX8xnrKDFUjyDpyfb/
-         ET4AlM43fx26x2S9voNYcet76MzKtrvpzm2SCN5pwIRikKo8SHdjpcklAIzA9Z8PUBgK
-         Kho4hLVYWlUip+MX+PaBMD7kMm+p0KrhXA6VbaATI7oLURfsV99ORWxYSirygTJBA/oE
-         k+o70n786LnKuoOHmePEGkCBrnwbJPFRzfNbUlBVrDNc6UQ5D1wPx8dmc9qWrl2E+L9p
-         D6usIQdAlrX0L3eBdQQt6107DjpnN/IwCwFt52dq0Y6QtGdP1jHglH7jRS1w4xUg8fou
-         ZCYQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1769755276; x=1770360076; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=e92lWZPVFugVAMygpaYDs5ATJ6LSykDjIR5hT6LiqIY=;
-        b=HmEf7VxX1Hu9T2cmt2Re2/RlDHBT+G2jMIa6AgfbH0KJ9JPB5EBBJ33VGGSC8WUnbN
-         5737A1Siur56wvEh/CXg/nl8AZt/bEYaUXpmlIjw7kFv1ooVn7Mx6+Oy7RBreL/jFitS
-         1ywixTXsNWGDlzilGH72M/8j+egLbc/rcTMSL/r2940Zs1ymGMMb29fUANOg67ptd5MN
-         noZ3hL3OwptIr3i0c5LvHjjpRup2JoFCR6uWeS3fIqc1zyIjtRwe2XkNMtACIVZCs3md
-         OnTQif5HkgrbpZXrDHzg5wqSapzGbflUdFZSeIlrXHALrm57J9EbhykKwvCVQucrPQ7o
-         k69g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769755276; x=1770360076;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=e92lWZPVFugVAMygpaYDs5ATJ6LSykDjIR5hT6LiqIY=;
-        b=XCnrMnPS07Iv2zuX7jgUEYtm4342ElestC0BDEp0tahPS1lIzXi0XGTPJjyV0iXuXR
-         hO0Qn7IbCpCz8uI+ge2+Ao/jV6iXzSnzQzXSgHnEDflgJwbgn16mS68L8FRLvxIEFfTP
-         JHiEil0ue1qmzOqn/DJMRJCfmLeAYJ9Re3nUtqUlpnAVgKMsee/6bQGgXt8cD7GTXau7
-         BJF93PwHzWqtULmZfg5XjhKAKF3ZNes4cIGEMIjzTxPj+Z22/s+vtxnkOXUfstLB3oRY
-         HrRD2Qgm3+rh3pSI+dSQtiKtCcTuuOFMPkn9PN4ea2gVT0hOWLuhTZegtVmgVQtx6ceb
-         i4jg==
-X-Forwarded-Encrypted: i=1; AJvYcCUTLNvrFwHr8xzVl8XpFhiTmVSE4CjAZgpkFGLTfZbaM/uahh7c5ulTvKSWlKeXWIsBvEb3d5Kr1NG3jmJ6Jg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxvPMB1SdEqjQqpLeEFQX6CjwSdIYtvJiZg32KBIf+sUB+UftTV
-	CfhDXO3N0XAtQZSPpq3waQIHRz2JQZR+ykks+tZaE7m6qhi9dY59Su2Qy5P9saZ5KwZylKAyUtX
-	AgqYcYx/Z/myBIt2cCjsknb2QIqUBcm4snaozFN7w
-X-Gm-Gg: AZuq6aKX9+vem1ZBJWUyUnC4wkrLjuCDchCqlUodFHIv810k7ZzwBWbWW8jJLk4hQXE
-	h3kiZvL6Wd0x+ZBDlzZkrol4jKDxazBdM0GDQtb7VFTd0+i09lhMd86FXWFPx3ledVEX1A03OFI
-	v7VyHhuJEDlzVHHZZSvxkSAhH6CXKQpuvGYV1BqZm9J87r2QAmrA/LBi3G7h/Umcm2LiVkatOCl
-	j3VsM95xMdE7gx3HghlqLRZ5CWYd0Bh1PewpkrK9sGc3CsSFQKEbCf6xNaYeSDJrUZ3xZs6ZkO/
-	uPHQBwE=
-X-Received: by 2002:a4a:ee0d:0:b0:663:c8a:f14d with SMTP id
- 006d021491bc7-6630f34ec68mr804679eaf.29.1769755276000; Thu, 29 Jan 2026
- 22:41:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XgFgDh/B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D936C4CEF7;
+	Fri, 30 Jan 2026 07:00:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769756425;
+	bh=SwKC4Xj637CvF1FqfD2Ffqfuyi88P+/KMhUf6nGE4LM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=XgFgDh/B2YishN2dcZMkY4CYAevPBkIu68baPIcKz/BgbT6K1tAsL2PyN3wiTtTdC
+	 jo/kJAT5trQs3MZIEI2HGW5+AMnkxt5iV0ImdQgQsoTCoQBNrmrR0NYasy+oABNKse
+	 2506cQYBt7VCpgmNR0NGwk8KJuGzVDxaTxLm5zv3CFufoJRLo+BJmBbclqkeysqioP
+	 G9FDslcvaLNN+jr1zhicNXavcYV8aWXwLQJxJl1mt6q9n8l+XfSHeCoa1t8NTjNH4p
+	 +u5KQMWBIITybzgApJ5DlFVUHQvpdI2Ck7QaRsJjuRp1K7FbNEEVLaxkSmNyiD2Fm/
+	 rdwqK8S3ocnHQ==
+Date: Fri, 30 Jan 2026 09:00:20 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Felix Kuehling <Felix.Kuehling@amd.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>,
+	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+	iommu@lists.linux.dev, kvm@vger.kernel.org
+Subject: Re: [PATCH v5 3/8] dma-buf: Always build with DMABUF_MOVE_NOTIFY
+Message-ID: <20260130070020.GM10992@unreal>
+References: <20260124-dmabuf-revoke-v5-0-f98fca917e96@nvidia.com>
+ <20260124-dmabuf-revoke-v5-3-f98fca917e96@nvidia.com>
+ <0d2ec2d6-c999-45d8-a2bd-b5b21883db47@amd.com>
+ <20260127095831.GR13967@unreal>
+ <83cd911c-99ea-4fab-821e-fcf703209731@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260130050750.4050-1-jasowang@redhat.com>
-In-Reply-To: <20260130050750.4050-1-jasowang@redhat.com>
-From: Yongji Xie <xieyongji@bytedance.com>
-Date: Fri, 30 Jan 2026 14:41:05 +0800
-X-Gm-Features: AZwV_QjZWXvGY6fbhwTXsBsPoSEryCiwjIw8p9jgzeUbuJsf6rP1qz6KrDl9010
-Message-ID: <CACycT3tVT5x3hoDrtuzqMgLgmw_1JbDtQwwJQ2o4mV2xUkFc9w@mail.gmail.com>
-Subject: Re: [PATCH] VDUSE: avoid leaking information to userspace
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
-	linux-kernel <linux-kernel@vger.kernel.org>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio Perez Martin <eperezma@redhat.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <83cd911c-99ea-4fab-821e-fcf703209731@amd.com>
 
-On Fri, Jan 30, 2026 at 1:08=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> The bounceing is not necessarily page aligned, so current VDUSE can
-> leak kernel information through mapping bounce pages to
-> userspace. Allocate bounce pages with __GFP_ZERO to avoid leaking
-> information to userspace.
->
-> Fixes: 8c773d53fb7b ("vduse: Implement an MMU-based software IOTLB")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+On Tue, Jan 27, 2026 at 11:02:03AM +0100, Christian König wrote:
+> On 1/27/26 10:58, Leon Romanovsky wrote:
+> > On Tue, Jan 27, 2026 at 10:26:26AM +0100, Christian König wrote:
+> >> On 1/24/26 20:14, Leon Romanovsky wrote:
+> >>> From: Leon Romanovsky <leonro@nvidia.com>
+> >>>
+> >>> DMABUF_MOVE_NOTIFY was introduced in 2018 and has been marked as
+> >>> experimental and disabled by default ever since. Six years later,
+> >>> all new importers implement this callback.
+> >>>
+> >>> It is therefore reasonable to drop CONFIG_DMABUF_MOVE_NOTIFY and
+> >>> always build DMABUF with support for it enabled.
+> >>>
+> >>> Suggested-by: Christian König <christian.koenig@amd.com>
+> >>> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> >>
+> >> Reviewed-by: Christian König <christian.koenig@amd.com>
+> >>
+> >> As long as nobody starts screaming in the last second or I encounter some other problem I'm going to push the first three patches to drm-misc-next now.
+> > 
+> > How do you see progress of other patches?
+> > Can they be queued for that tree as well?
+> 
+> I was hoping to get through them by the end of the week.
 
-Thanks for catching this!
+Christian,
 
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+Can we please merge the whole series now?
 
-Thanks,
-Yongji
+Thanks
