@@ -1,142 +1,186 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8586324B3C
-	for <virtualization@lists.linux.dev>; Fri, 30 Jan 2026 08:55:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EF63327C06
+	for <virtualization@lists.linux.dev>; Fri, 30 Jan 2026 10:16:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769763360; cv=none; b=Gsr7AvxpcocbhGazgaQBG5KrooMMcjowdyKxNS21orzbL0QwbVlhjC1NlDaZSQT6oQ7itvhZsD9iYJqbOdmUkj/5k2DK+Z+rWzBHCfLeyhiaJE+ycKQK/KfCGhNeIt1p3TFbDpud6U5mSZ9BQt/qyMzfQxsyoXE9PP8MZRNRneA=
+	t=1769768181; cv=none; b=J6uEuTuK57uGlFdVzZMR1VppUO8/+nuVfW3k5IlVgYkm6KyzTD/wmJO0GBDnWg58+WPjvlSvynCVJ/pWSuR/sMtI+WwAR8EVy9HekBkroSr5t6PXA4iSBypzF0/uzlFQIritni9dr/rcjAXYOZ1lcmGTsGjL+Sb1O2r7nDtqFhM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769763360; c=relaxed/simple;
-	bh=tDUV2M7sFM1EXX304FGpuqw+CFIvJOM0R/NfHzgnVWk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qC8FXT4r+ZRtUA0jkrgMdTjLThIlWDVR9JQtSuVlMrK9BWZqN/dRqopLgBXxPJBfHVno0VrAHUPMv2SdomAGpdIvxI6bHDC9Cus/8SZzf4giKSGY/KkQNeSoHySQIvyyahUysSE433wg7c60hJBQ6rIABgeJUHdqFXLesyA+YHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y6k09UEn; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1769768181; c=relaxed/simple;
+	bh=wDiVkyqU9C0vk9M4TKF5Wcavq9FOed38ZuYx7EmboGQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=lTlfT1GPOk2iwvF30PD8VwqB4+rSRRxxrStZ+DqjNu6GGmNIbum5oqV0q7cc8+f1xjx1dzVk6we66rt/3ib7M8/ldsj2Bsk9Ta+wRcBhHK93z4MZPUNzqB9/n6CUf56pdme7cyuR+m03zip15d9IEtUGlUMJDAki4ln+xIrWhu0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eiIavUZT; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y6k09UEn"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eiIavUZT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769763358;
+	s=mimecast20190719; t=1769768178;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=hy7Lg/JNukiw01dctwhw0lTv8BVxCRgkGATAIRLOljo=;
-	b=Y6k09UEnbYqjuUJoP3Q2j3fjIRQ3nJFR1bR4mM4NaRVMrSSXWbXqO+167/yDy93TyAOhNf
-	uAIgbU2Rwj09bUsSEy1O9WNThxtzgYhSbBPhh3/owzyeyFNPNnshLujzpft4X1Rsgoi0Ew
-	u7ZO7n13eonGHAKCFggJMXxgmkejc2w=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=dsp10hElzOX/V0wpyRfKhh5/ZNh15PcbrtBbOpulVsA=;
+	b=eiIavUZTdLhg44Bx5FSAX+cNmpTpe7soWGfk0h1c0WP3OZHGrp6bxzim/3jgn5oZ30lrlJ
+	BfqakrMCR9ZnGUFxFUB3pz3rjamPT9wqenqSxgPyeQkVUF91++9YwQYm5y2Gh6FFE6dIF6
+	u5oU2TjaBN1+lnWglny6U2khIHgUDXA=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-601-MJ37zsfwMtyWRBd5F3fgaQ-1; Fri, 30 Jan 2026 03:55:55 -0500
-X-MC-Unique: MJ37zsfwMtyWRBd5F3fgaQ-1
-X-Mimecast-MFC-AGG-ID: MJ37zsfwMtyWRBd5F3fgaQ_1769763355
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-7943aea6515so26701397b3.1
-        for <virtualization@lists.linux.dev>; Fri, 30 Jan 2026 00:55:55 -0800 (PST)
+ us-mta-661-TKuziyPkMsWS6oJkEJPpxw-1; Fri, 30 Jan 2026 05:16:17 -0500
+X-MC-Unique: TKuziyPkMsWS6oJkEJPpxw-1
+X-Mimecast-MFC-AGG-ID: TKuziyPkMsWS6oJkEJPpxw_1769768176
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4802bb29400so26115115e9.0
+        for <virtualization@lists.linux.dev>; Fri, 30 Jan 2026 02:16:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769763355; x=1770368155;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=hy7Lg/JNukiw01dctwhw0lTv8BVxCRgkGATAIRLOljo=;
-        b=c2w6+Pt5BOIpPrkv8PNXSVWzS5rkBGIM5yeeUQ3g8Wu6YFSv2GbsHIrSDbmc5ij3Pa
-         kmkqXQJxe0pKbRaSZz6Bjj+iSMjrJclmFQ+aAGE/LU+4QqyQ8BKOQpWYgiwFTXht+Ata
-         qaFU2gKiP/CwRJDiA7bd3HDM3D3TtJuBRp4oAdH2bjGjE+QZyNgS0peKd1z9ksa4Vov8
-         kr32hiKuhBOJHJPPOjAdVjlAGiFbL9LjVpzGeN8GlfvpHo/MCrsEw7DUSotJrt+y/5Jz
-         VAwxywBmb+7sYFWuYQplMJrHRvUS+ErQwbmXQLDfc41qqG3QwP2hud7aTXL/tqv2yR3P
-         OnkA==
-X-Forwarded-Encrypted: i=1; AJvYcCX35aEzWKBz9iOcgdeMLrPtEKLpNo3siswlI7LiV58QCePYwfFI6ONgviN41u+VFv+AS6UjlttMFF8fEYbx2Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwNOkY4/nDWbLoW0NQ4Xm2Ox49hTM0/mFW24eC0aPJSG+Pisr9v
-	7bhtokU7Xlyuv+PMSOU3Bz4+y1XxS3aHKEcXAlIj/gYrs7/8nYjKaFOEVqGpBvx6+0gIB7Q/Vza
-	47DwgQm41c0pfp8RJt3TOym8jt7JYv+kqRuqa/dwtGuuTYuICGDk/L+TNE6LsikoTDvT/D0xCfB
-	Gxos0Q/qi/4S8ZYWH9sql1BcF6JTiwakdwlZglATNW0hU=
-X-Gm-Gg: AZuq6aL+1xAG699OCm5nvKxSjO7XftJYicXVA+rXls+bA0A6atfUS7vctGYwKikDnjt
-	wz03jUPyjiF0AMR526bsOO+fsRMsPdn+T0OGiLCidK4pCleLx15gRad5fCBcBUp0tfxAgF2jYdl
-	rgse9636aMeLo/Fmgj38XbLNUT7AAXhdYplZpBB40WrnhPCC8QwvxDNAd7F/NWbxKlDg==
-X-Received: by 2002:a05:690c:45c5:b0:794:8f0f:e8c5 with SMTP id 00721157ae682-7949e01d485mr20229037b3.58.1769763355269;
-        Fri, 30 Jan 2026 00:55:55 -0800 (PST)
-X-Received: by 2002:a05:690c:45c5:b0:794:8f0f:e8c5 with SMTP id
- 00721157ae682-7949e01d485mr20228917b3.58.1769763354885; Fri, 30 Jan 2026
- 00:55:54 -0800 (PST)
+        d=1e100.net; s=20230601; t=1769768176; x=1770372976;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=dsp10hElzOX/V0wpyRfKhh5/ZNh15PcbrtBbOpulVsA=;
+        b=MhMD/so5hxyG9UqPjpLGQCLZ5tk//Meqiu2zgCs/NW7avg94mwa8XxRB8VXpz4KZ02
+         aZsN/2QKUNbngDcvDOK+5tCv0CKcCFWRKieTPmjEBSgeW3p1HvkILtKp3QfSCQxS04Fl
+         enr90ecAefJPieCRCXtFLCV+d0bpmLqllsEi654Pz+Dv/zRgbSO6Cv0XC5RnxicEtxcg
+         PaTRkk8jJiersjsydF7IhP1MCyNjWGw2dtrtKjx0cj1mGUc2x7FohDicxleSROjvevBe
+         pKpoBYDe5oz9TWTJxXveh0w9olqrr9+e6EZKYIDabWOnsOCZOELPpJkCBgV5FmVG23fU
+         qutg==
+X-Forwarded-Encrypted: i=1; AJvYcCVCQGODMaXbcZcBb/oERLVR4AQv85Qb26791MH7Xi4hEb2Vpx+Im6Wmw8RW8uSNkgP7K2z3BzOwzlBXE5uuYg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywwcor3hCn062pfTGkqp97DyLg2WveYuSxbsmz1OJn7iGmYek95
+	Cjm95lj64O8YIH1zCtvs1Jl65O/DAk/vbkq18w/HVFRBk+2sONNFDqGnWhb9vgswu7gNLvQBhgE
+	Vf6PM+cqUQJEmSu0UipW2uJaC2Kd8jhe97aRmYihi7zxoIMRPpcorrfdoqLvfl+TGh3oK
+X-Gm-Gg: AZuq6aJs3aJPM4HaZF5MHad/NIs/iKvSm/IB5q5tCzBMfg63gDB57zomaMqyY7apJTo
+	m0sfpocjEFDHDRR9O7i8Ia6yebMX3jEGcTUu/Jeq5kIErX4BVokWLE804nuVngwhRaQzMVrWD1S
+	bp3EmALCPsbC3xQsDUZu6FO/r+XSjVfMMx8ZfaKwov2qqfHtQzPvGwp2TJ4OHOPPsqUM7Xt7fjk
+	YCM7gB8aHx0jBhQ7q2WyA+y7Pk+Siu/ijTEpB6IJkesvpiuIeD0Fc4dox+fWyNeow17dFtzO92/
+	PMTzocRv1l0m0aouF7gJm67S3B985ZLYTKooZPnLN5MCHO/1AX5nKvHo0EYd6YCPlc/3Qsrgr4p
+	ZkPxUB/EAcpOvvIM8X2lDuRxJfNPmKpssDQ==
+X-Received: by 2002:a05:600c:3152:b0:47d:6140:3284 with SMTP id 5b1f17b1804b1-482db4a1011mr24847455e9.37.1769768175824;
+        Fri, 30 Jan 2026 02:16:15 -0800 (PST)
+X-Received: by 2002:a05:600c:3152:b0:47d:6140:3284 with SMTP id 5b1f17b1804b1-482db4a1011mr24847135e9.37.1769768175303;
+        Fri, 30 Jan 2026 02:16:15 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-482da903a30sm22140855e9.1.2026.01.30.02.16.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Jan 2026 02:16:14 -0800 (PST)
+Date: Fri, 30 Jan 2026 05:16:12 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Zhang Tianci <zhangtianci.1997@bytedance.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	marco.crivellari@suse.com, anders.roxell@linaro.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	Xie Yongji <xieyongji@bytedance.com>
+Subject: Re: [PATCH] vduse: Fix msg list race in vduse_dev_read_iter
+Message-ID: <20260130050818-mutt-send-email-mst@kernel.org>
+References: <20260130081524.81271-1-zhangtianci.1997@bytedance.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260130050750.4050-1-jasowang@redhat.com>
-In-Reply-To: <20260130050750.4050-1-jasowang@redhat.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Fri, 30 Jan 2026 09:55:18 +0100
-X-Gm-Features: AZwV_Qj4av1QMp6k4LYgz2oCC7PDlNamd-x8snWeLLa05FtKcVnQe5UNZ4leKag
-Message-ID: <CAJaqyWdciiqB7uvUs0_13zYY9bO_h0KSxGqESDUN0ZRGfuWODg@mail.gmail.com>
-Subject: Re: [PATCH] VDUSE: avoid leaking information to userspace
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, xuanzhuo@linux.alibaba.com, 
-	xieyongji@bytedance.com, stable@vger.kernel.org
+In-Reply-To: <20260130081524.81271-1-zhangtianci.1997@bytedance.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: sSow9Sek5vcFz1zyI-1BylpXB6GnJQ1Rgo_724_BZ48_1769763355
+X-Mimecast-MFC-PROC-ID: mw0XYcUV-J4Dj_FN6Ziz6qA9z1nMoa_qbQATAZps7og_1769768176
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, Jan 30, 2026 at 6:08=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> The bounceing is not necessarily page aligned, so current VDUSE can
-> leak kernel information through mapping bounce pages to
-> userspace. Allocate bounce pages with __GFP_ZERO to avoid leaking
-> information to userspace.
->
-> Fixes: 8c773d53fb7b ("vduse: Implement an MMU-based software IOTLB")
-> Cc: stable@vger.kernel.org
+Thanks for the patch! yet something to improve:
 
-Reviewed-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+On Fri, Jan 30, 2026 at 04:15:24PM +0800, Zhang Tianci wrote:
+> Move the message to recv_list before dropping msg_lock and copying the
+> request to userspace, avoiding a transient unlinked state that can race
+> with the msg_sync timeout path. Roll back to send_list on copy failures.
 
-Thanks!
+this is not how you write commit messages, though.
+describe the problem then how you fix it, please.
+something like:
 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+if msg_sync timeout triggers after a message has been removed
+from send_list and before it was added to
+recv_list, then .... as a result ....
+
+To fix, move the message ...
+
+> 
+> Signed-off-by: Zhang Tianci <zhangtianci.1997@bytedance.com>
+> Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
 > ---
->  drivers/vdpa/vdpa_user/iova_domain.c | 2 +-
->  drivers/vdpa/vdpa_user/vduse_dev.c   | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_use=
-r/iova_domain.c
-> index 0a9f668467a8..ec743bed361c 100644
-> --- a/drivers/vdpa/vdpa_user/iova_domain.c
-> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
-> @@ -124,7 +124,7 @@ static int vduse_domain_map_bounce_page(struct vduse_=
-iova_domain *domain,
->                 if (!map->bounce_page) {
->                         head_map =3D &domain->bounce_maps[(iova & PAGE_MA=
-SK) >> BOUNCE_MAP_SHIFT];
->                         if (!head_map->bounce_page) {
-> -                               tmp_page =3D alloc_page(GFP_ATOMIC);
-> +                               tmp_page =3D alloc_page(GFP_ATOMIC | __GF=
-P_ZERO);
->                                 if (!tmp_page)
->                                         return -ENOMEM;
->                                 if (cmpxchg(&head_map->bounce_page, NULL,=
- tmp_page))
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
-vduse_dev.c
-> index 73d1d517dc6c..57a40a821c65 100644
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 30 ++++++++++++++++++++++--------
+>  1 file changed, 22 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index ae357d014564c..b6a558341c06c 100644
 > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
 > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -976,7 +976,7 @@ static void *vduse_dev_alloc_coherent(union virtio_ma=
-p token, size_t size,
->         if (!token.group)
->                 return NULL;
->
-> -       addr =3D alloc_pages_exact(size, flag);
-> +       addr =3D alloc_pages_exact(size, flag | __GFP_ZERO);
->         if (!addr)
->                 return NULL;
->
-> --
-> 2.34.1
->
+> @@ -325,6 +325,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb, struct iov_iter *to)
+>  	struct file *file = iocb->ki_filp;
+>  	struct vduse_dev *dev = file->private_data;
+>  	struct vduse_dev_msg *msg;
+> +	struct vduse_dev_request req;
+>  	int size = sizeof(struct vduse_dev_request);
+>  	ssize_t ret;
+>  
+> @@ -339,7 +340,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb, struct iov_iter *to)
+>  
+>  		ret = -EAGAIN;
+>  		if (file->f_flags & O_NONBLOCK)
+> -			goto unlock;
+> +			break;
+>  
+>  		spin_unlock(&dev->msg_lock);
+>  		ret = wait_event_interruptible_exclusive(dev->waitq,
+> @@ -349,17 +350,30 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb, struct iov_iter *to)
+>  
+>  		spin_lock(&dev->msg_lock);
+>  	}
+> +	if (!msg) {
+> +		spin_unlock(&dev->msg_lock);
+> +		return ret;
+> +	}
+> +
+> +	memcpy(&req, &msg->req, sizeof(req));
+> +	/*
+> +	 * Move @msg to recv_list before dropping msg_lock.
+> +	 * This avoids a window where @msg is detached from any list and
+> +	 * vduse_dev_msg_sync() timeout path may operate on an unlinked node.
+> +	 */
+
+when standing by itself, not as part of the patch, this
+comment confuses more than it clarifies.
+
+> +	vduse_enqueue_msg(&dev->recv_list, msg);
+>  	spin_unlock(&dev->msg_lock);
+> -	ret = copy_to_iter(&msg->req, size, to);
+> -	spin_lock(&dev->msg_lock);
+> +
+> +	ret = copy_to_iter(&req, size, to);
+>  	if (ret != size) {
+> +		spin_lock(&dev->msg_lock);
+> +		/* Roll back: move msg back to send_list if still pending. */
+> +		msg = vduse_find_msg(&dev->recv_list, req.request_id);
+
+Looks like this always scans the whole list.
+Make a variant using list_for_each_entry_reverse maybe?
+
+> +		if (msg)
+> +			vduse_enqueue_msg(&dev->send_list, msg);
+
+why is it not a concern that it will be at the tail of the send_list now,
+reordering the messages?
+
+> +		spin_unlock(&dev->msg_lock);
+>  		ret = -EFAULT;
+> -		vduse_enqueue_msg(&dev->send_list, msg);
+> -		goto unlock;
+>  	}
+> -	vduse_enqueue_msg(&dev->recv_list, msg);
+> -unlock:
+> -	spin_unlock(&dev->msg_lock);
+>  
+>  	return ret;
+>  }
+> -- 
+> 2.39.5
 
