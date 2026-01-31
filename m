@@ -1,110 +1,223 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8F2B28DB56;
-	Sat, 31 Jan 2026 02:55:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F90A329C70;
+	Sat, 31 Jan 2026 05:34:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769828119; cv=none; b=az/y4ZRfA+BRCHK7QEIiikqQHkN5dlTjAhlvbI7jEBD6oMtQNWVWXM4+v6o5NwogwosJI5tCV1fByqtpmURhU8uVFExljSV1yW3p/t9db6D7e0/xhGvccHVUUdwjq1huNtrCEbe2lPaJLJtLoTsoVCswKBMe4/Tve8g1SjSSATQ=
+	t=1769837672; cv=none; b=CMfA37vVBhcHPhN3qzmN0cx4f3Eex0JNDrm+AfqapZG0a0WEjx1UqWWqBQXQINNGIzZKUnsOCQNoDLyidbQ21qNYhlh46hhUEONW78nOPB9X0LN5RIBeyPPviXnUebsa6maM3lHYuITIJbPZvxcgO6+0vTO07Dbg3shlxK1EMmI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769828119; c=relaxed/simple;
-	bh=IA+ghsh360HYo4gsHo8NEIHFS5DulWQ3PK4IoStuT9k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ScPbZYARjSCSdfEeKWlp1MCT5ArX1gVzncwTndGQorUPsiXg+HI91xvCD/5LAL8Wu0xYYM3/LDIPxzb2j4tkWqxlyzjU4zHrd4In91DfzSVTqHzQnA/tHjpsFcXql+XE32H9k2/+z2cwXXq2456YGQB3qTn4ppIlN5cyQsESMdo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=UT7g4hXD; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1769837672; c=relaxed/simple;
+	bh=msfuCI1mY6PBsAwy2WktEJP8SjPAURCVBqQLlK4s1IY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DGukIj0yA4WgqCvTQ40lwfhe6zKNZJRZ6q3p/vfrsJC8z3Z1KGE6uocSJwjCzw1yAP7FxOOS9MdKMBlmkDUHFaZ4sjLDZjUFXWRkBKxadVripkFiCA0F+OvDDn06DeL3SG68jw+qqTXrUbuCtWgUJtLB8q2N9qOeqqRperE3byQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o13LoX0p; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="UT7g4hXD"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=qXdDCrUIU9Rw9G1TuIJ+LeB79yzkx61r7N1iQJdvtJA=; 
-	b=UT7g4hXDbmQzhy1H5Ulv7MIbmi1NZEvLqsYx8bI+9sgRrYTwbZQQIxXb1wwDwRbr/M6mSnYZROP
-	WPaaEoekbYDTM591iyjqoe5JQrtoBErtQ8cYtHWlO+lR3yB5JoZrI14tqjdejcFg0QOoj2/A18+u0
-	BhFUOHCjiRmR0XtJLIdP6C8CgJOs9L7wR7gIsO3KkPeDyQ2HLsWDKjbkdlqH/z2qG16OeWA9ay+Wx
-	XRPgzYyMMOMvFSO44t1yXSJtZxMtqoPTaLDKCU+KYMNh0/JzvM3rmNFXmrxyxkAa8s5F1HvNg0oRz
-	TfEt82E+tPP4gUumJ58uFbj1NQQB8BqlHmUQ==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1vm18G-003S02-3B;
-	Sat, 31 Jan 2026 10:54:46 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sat, 31 Jan 2026 10:54:44 +0800
-Date: Sat, 31 Jan 2026 10:54:44 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Bibo Mao <maobibo@loongson.cn>
-Cc: Gonglei <arei.gonglei@huawei.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	wangyangxin <wangyangxin1@huawei.com>,
-	virtualization@lists.linux.dev, linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 0/3] crypto: virtio: Some bugfix and enhancement
-Message-ID: <aX1u9MbmxwGywyDd@gondor.apana.org.au>
-References: <20260113030556.3522533-1-maobibo@loongson.cn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o13LoX0p"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8EEAC4CEF1;
+	Sat, 31 Jan 2026 05:34:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769837672;
+	bh=msfuCI1mY6PBsAwy2WktEJP8SjPAURCVBqQLlK4s1IY=;
+	h=From:To:Cc:Subject:Date:From;
+	b=o13LoX0plOpo0vBJc9mVNoSBiGBPjuXeBgly0DF0Y6Z9fvbMwCRJB1jfjOuteo9w0
+	 lCjGeWn3p6XnYBj1WoLQx0fmynI6SKOv7YqDl9BzJuJ1NkrNKYt9s1m3qouZ/1PJmq
+	 bALF6cFB9fMEt8ehH4stMaT3mazp09t6JOVZXKZPAlCNNad7J94+S076j8c8CKUqDc
+	 ITyG6MY5i3pVd9wBz16yqyH4jGtq5bYnqJNuwE3xGMQkKRkGJ/u77HJaQf03jhm99W
+	 nBk4Tr7sOJLDNGqwiGAXmZ7+M4BoVWyEHos8gEt7sqPGrfOY59guoZBeYQ+PXUtlPS
+	 vB0NCkW6SG7Ag==
+From: Leon Romanovsky <leon@kernel.org>
+To: Sumit Semwal <sumit.semwal@linaro.org>,
+	=?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	=?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Leon Romanovsky <leon@kernel.org>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Felix Kuehling <Felix.Kuehling@amd.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>
+Cc: linux-media@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org,
+	linux-rdma@vger.kernel.org,
+	iommu@lists.linux.dev,
+	kvm@vger.kernel.org
+Subject: [PATCH v7 0/8] dma-buf: Use revoke mechanism to invalidate shared buffers
+Date: Sat, 31 Jan 2026 07:34:10 +0200
+Message-ID: <20260131-dmabuf-revoke-v7-0-463d956bd527@nvidia.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260113030556.3522533-1-maobibo@loongson.cn>
+Content-Type: text/plain; charset="utf-8"
+X-Change-ID: 20251221-dmabuf-revoke-b90ef16e4236
+X-Mailer: b4 0.15-dev-47773
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jan 13, 2026 at 11:05:53AM +0800, Bibo Mao wrote:
-> There is problem when multiple processes add encrypt/decrypt requests
-> with virtio crypto device and spinlock is missing with command response
-> handling. Also there is duplicated virtqueue_kick() without lock hold.
-> 
-> Here these two issues are fixed, also there is code cleanup, such as use
-> logical numa id rather than physical package id when checking matched
-> virtio device with current CPU.
-> 
-> ---
-> v4 ... v5:
->   1. Only add bugfix patches and remove code cleanup patches.
-> 
-> v3 ... v4:
->   1. Remove patch 10 which adds ECB AES algo, since application and qemu
->      backend emulation is not ready for ECB AES algo.
->   2. Add Cc stable tag with patch 2 which removes duplicated
->      virtqueue_kick() without lock hold.
-> 
-> v2 ... v3:
->   1. Remove NULL checking with req_data where kfree() is called, since
->      NULL pointer is workable with kfree() API.
->   2. In patch 7 and patch 8, req_data and IV buffer which are preallocated
->      are sensitive data, memzero_explicit() is used even on error path
->      handling.
->   3. Remove duplicated virtqueue_kick() in new patch 2, since it is
->      already called in previous __virtio_crypto_skcipher_do_req().
-> 
-> v1 ... v2:
->   1. Add Fixes tag with patch 1.
->   2. Add new patch 2 - patch 9 to add ecb aes algo support.
-> ---
-> Bibo Mao (3):
->   crypto: virtio: Add spinlock protection with virtqueue notification
->   crypto: virtio: Remove duplicated virtqueue_kick in
->     virtio_crypto_skcipher_crypt_req
->   crypto: virtio: Replace package id with numa node id
-> 
->  drivers/crypto/virtio/virtio_crypto_common.h        | 2 +-
->  drivers/crypto/virtio/virtio_crypto_core.c          | 5 +++++
->  drivers/crypto/virtio/virtio_crypto_skcipher_algs.c | 2 --
->  3 files changed, 6 insertions(+), 3 deletions(-)
-> 
-> 
-> base-commit: 9c7ef209cd0f7c1a92ed61eed3e835d6e4abc66c
-> -- 
-> 2.39.3
+Changelog:
+v7:
+ * Fixed messed VFIO patch due to rebase.
+v6: https://patch.msgid.link/20260130-dmabuf-revoke-v6-0-06278f9b7bf0@nvidia.com
+ * Added Reviewed-by tags.
+ * Changed for blocking wait_for_completion() in VFIO
+ * Fixed race between ->attach and move_notify, where priv->revoked is
+   flipped and lock is released.
+v5: https://patch.msgid.link/20260124-dmabuf-revoke-v5-0-f98fca917e96@nvidia.com
+ * Documented the DMA-BUF expectations around DMA unmap.
+ * Added wait support in VFIO for DMA unmap.
+ * Reordered patches.
+ * Improved commit messages to document even more.
+v4: https://lore.kernel.org/all/20260121-dmabuf-revoke-v4-0-d311cbc8633d@nvidia.com
+ * Changed DMA_RESV_USAGE_KERNEL to DMA_RESV_USAGE_BOOKKEEP.
+ * Made .invalidate_mapping() truly optional.
+ * Added patch which renames dma_buf_move_notify() to be
+   dma_buf_invalidate_mappings().
+ * Restored dma_buf_attachment_is_dynamic() function.
+v3: https://lore.kernel.org/all/20260120-dmabuf-revoke-v3-0-b7e0b07b8214@nvidia.com/
+ * Used Jason's wordings for commits and cover letter.
+ * Removed IOMMUFD patch.
+ * Renamed dma_buf_attachment_is_revoke() to be dma_buf_attach_revocable().
+ * Added patch to remove CONFIG_DMABUF_MOVE_NOTIFY.
+ * Added Reviewed-by tags.
+ * Called to dma_resv_wait_timeout() after dma_buf_move_notify() in VFIO.
+ * Added dma_buf_attach_revocable() check to VFIO DMABUF attach function.
+ * Slightly changed commit messages.
+v2: https://patch.msgid.link/20260118-dmabuf-revoke-v2-0-a03bb27c0875@nvidia.com
+ * Changed series to document the revoke semantics instead of
+   implementing it.
+v1: https://patch.msgid.link/20260111-dmabuf-revoke-v1-0-fb4bcc8c259b@nvidia.com
 
-All applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+-------------------------------------------------------------------------
+This series is based on latest VFIO fix, which will be sent to Linus
+very soon.
+
+https://lore.kernel.org/all/20260121-vfio-add-pin-v1-1-4e04916b17f1@nvidia.com/
+
+Thanks
+-------------------------------------------------------------------------
+This series documents a dma-buf “revoke” mechanism: to allow a dma-buf
+exporter to explicitly invalidate (“kill”) a shared buffer after it has
+been distributed to importers, so that further CPU and device access is
+prevented and importers reliably observe failure.
+
+The change in this series is to properly document and use existing core
+“revoked” state on the dma-buf object and a corresponding exporter-triggered
+revoke operation.
+
+dma-buf has quietly allowed calling move_notify on pinned dma-bufs, even
+though legacy importers using dma_buf_attach() would simply ignore
+these calls.
+
+The intention was that move_notify() would tell the importer to expedite
+it's unmapping process and once the importer is fully finished with DMA it
+would unmap the dma-buf which finally signals that the importer is no
+longer ever going to touch the memory again. Importers that touch past
+their unmap() call can trigger IOMMU errors, AER and beyond, however
+read-and-discard access between move_notify() and unmap is allowed.
+
+Thus, we can define the exporter's revoke sequence for pinned dma-buf as:
+
+	dma_resv_lock(dmabuf->resv, NULL);
+	// Prevent new mappings from being established
+	priv->revoked = true;
+
+	// Tell all importers to eventually unmap
+	dma_buf_invalidate_mappings(dmabuf);
+
+	// Wait for any inprogress fences on the old mapping
+	dma_resv_wait_timeout(dmabuf->resv,
+			      DMA_RESV_USAGE_BOOKKEEP, false,
+			      MAX_SCHEDULE_TIMEOUT);
+	dma_resv_unlock(dmabuf->resv, NULL);
+
+	// Wait for all importers to complete unmap
+	wait_for_completion(&priv->unmapp_comp);
+
+However, dma-buf also supports importers that don't do anything on
+move_notify(), and will not unmap the buffer in bounded time.
+
+Since such importers would cause the above sequence to hang, a new
+mechanism is needed to detect incompatible importers.
+
+Introduce dma_buf_attach_revocable() which if true indicates the above
+sequence is safe to use and will complete in kernel-only bounded time for
+this attachment.
+
+Unfortunately dma_buf_attach_revocable() is going to fail for the popular
+RDMA pinned importer, which means we cannot introduce it to existing
+places using pinned move_notify() without potentially breaking existing
+userspace flows.
+
+Existing exporters that only trigger this flow for RAS errors should not
+call dma_buf_attach_revocable() and will suffer an unbounded block on the
+final completion, hoping that the userspace will notice the RAS and clean
+things up. Without revoke support on the RDMA pinned importers it doesn't
+seem like any other non-breaking option is currently possible.
+
+For new exporters, like VFIO and RDMA, that have userspace triggered
+revoke events, the unbouned sleep would not be acceptable. They can call
+dma_buf_attach_revocable() and will not work with the RDMA pinned importer
+from day 0, preventing regressions.
+
+In the process add documentation explaining the above details.
+
+Thanks
+
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+---
+Leon Romanovsky (8):
+      dma-buf: Rename .move_notify() callback to a clearer identifier
+      dma-buf: Rename dma_buf_move_notify() to dma_buf_invalidate_mappings()
+      dma-buf: Always build with DMABUF_MOVE_NOTIFY
+      vfio: Wait for dma-buf invalidation to complete
+      dma-buf: Make .invalidate_mapping() truly optional
+      dma-buf: Add dma_buf_attach_revocable()
+      vfio: Permit VFIO to work with pinned importers
+      iommufd: Add dma_buf_pin()
+
+ drivers/dma-buf/Kconfig                     | 12 -----
+ drivers/dma-buf/dma-buf.c                   | 69 ++++++++++++++++++++-----
+ drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c | 14 ++---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c  |  2 +-
+ drivers/gpu/drm/amd/amdkfd/Kconfig          |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_prime.c      |  2 +-
+ drivers/gpu/drm/xe/tests/xe_dma_buf.c       |  7 ++-
+ drivers/gpu/drm/xe/xe_bo.c                  |  2 +-
+ drivers/gpu/drm/xe/xe_dma_buf.c             | 14 ++---
+ drivers/infiniband/core/umem_dmabuf.c       | 13 -----
+ drivers/infiniband/hw/mlx5/mr.c             |  2 +-
+ drivers/iommu/iommufd/pages.c               | 11 +++-
+ drivers/iommu/iommufd/selftest.c            |  2 +-
+ drivers/vfio/pci/vfio_pci_dmabuf.c          | 80 ++++++++++++++++++++++-------
+ include/linux/dma-buf.h                     | 17 +++---
+ 15 files changed, 153 insertions(+), 96 deletions(-)
+---
+base-commit: 61ceaf236115f20f4fdd7cf60f883ada1063349a
+change-id: 20251221-dmabuf-revoke-b90ef16e4236
+
+Best regards,
+--  
+Leon Romanovsky <leonro@nvidia.com>
+
