@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2641835EDCB
-	for <virtualization@lists.linux.dev>; Sat, 31 Jan 2026 17:46:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80EE2361648
+	for <virtualization@lists.linux.dev>; Sat, 31 Jan 2026 17:47:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769881589; cv=none; b=FKA2hY26CONmH0pZFbAAIEDDIzufCWdum0LKVIL/WNXiua9cp5JQoMkSbiI3TanKKr0ouHxAEStzs030Z1D3kWEmwEiGS0TT4oRU4a3slznRiUD1LJskkmo5x2wha7eb5ewi7GKzXvZdG1NLn68nY2629+bzwmUtdNDN3hM0RU0=
+	t=1769881643; cv=none; b=EdnRWaYFtiMPkHKJ8TA2hwjomqSCXXmfTb4+sbXBcioq6MKW3BCdtil/RHPDm6kizn4SI10dAqy3ap/247aKE8B4ienx0TttDCEqeRxSWuxBALo84WyuSHnIb5snAQi4LnGrA0AfsfERDOREcCH3q+tXDOpJ/1uN7Fs3uACQVYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769881589; c=relaxed/simple;
-	bh=FO0XxGiW7YqfVtzLltyctsCxTlWqT0+V7VxlKQHFZjY=;
+	s=arc-20240116; t=1769881643; c=relaxed/simple;
+	bh=euC1NR7KWzjKk7aJJoJp/mDOt//epXbAUPHvHSiARFQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=GFvysBrQGQtiFd+FIoOzYAOYvyFxKBZ7NwaNLFs4cypjTWJNe2r8xTuUdqBpUr+l+Otta3AzhVnG4d27o9tI45X7x83MNsQwsaFAFk6yjiCViqgr8XO+j/HT/yu4jnBju0a0rwvy+gSUq9sBZgTzkkV7z9xY2Y/EYT0rVfIncKM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LXzVlO8v; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=DTJlnXzV/x62GPX+nMtmWJSqot6AbLFG50O/ZTt2bOcSIfwCVpsOYytu1y0s4GKEaErwFbu8AwNZ6RkjBiefzMMZ46YLqUnj85waEC/mupjThqNvgpfPisIKPlsfjTeyb+34kLg5sIe+zK9ixS35srpE55jbHrOLScD/Ti+zc8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F8mTs3m/; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LXzVlO8v"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F8mTs3m/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769881586;
+	s=mimecast20190719; t=1769881641;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5XwIcJJrN88f5EmnbhwkMpwuoOxnaOad2/ndcUFOcSM=;
-	b=LXzVlO8vs4axWQd715chtDsx9UvKnJxT9ejNqnRJLzH+1wlomTjR9l4v/DwGcWR2syUTUZ
-	7SoI7z2mQakNK1L4juxewjagoUFVB3PTQKzGEuxCZInxhxIOa6GUToHA2E2TMby1WtC/37
-	pp2TsIxAyT+jkZs3LfxI3TNjjFUnt0Q=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=lyC9AeugLVf6y9Ie9AFkVUdIHXhswpQlP3HqazDDtWI=;
+	b=F8mTs3m/OU77D5QvXM8ulweZ89A86qGQFGZJ95upVU3NdP/JxnZtOV8CLES2Kwh/TvQjEt
+	e8lSE9J7kRD8RS+kDMJCjPITAWI9Hw1X/0WVsoJbrLTvZOcZl4lJnUQTcuB1+PRh7abexV
+	V5QCFwONOfVK1M69q8fGU00Ei2tSOiw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-615-gepnafg5OmyfHoJayBu2iA-1; Sat, 31 Jan 2026 12:46:24 -0500
-X-MC-Unique: gepnafg5OmyfHoJayBu2iA-1
-X-Mimecast-MFC-AGG-ID: gepnafg5OmyfHoJayBu2iA_1769881583
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-430fcb6b2ebso2453504f8f.2
-        for <virtualization@lists.linux.dev>; Sat, 31 Jan 2026 09:46:24 -0800 (PST)
+ us-mta-121-ahenXFgGMMO-tYT4i7mj8w-1; Sat, 31 Jan 2026 12:47:20 -0500
+X-MC-Unique: ahenXFgGMMO-tYT4i7mj8w-1
+X-Mimecast-MFC-AGG-ID: ahenXFgGMMO-tYT4i7mj8w_1769881639
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4803b4e3b9eso24033155e9.3
+        for <virtualization@lists.linux.dev>; Sat, 31 Jan 2026 09:47:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769881583; x=1770486383;
+        d=1e100.net; s=20230601; t=1769881639; x=1770486439;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5XwIcJJrN88f5EmnbhwkMpwuoOxnaOad2/ndcUFOcSM=;
-        b=kP7Qwq6FwIOq4N6x7bpcvIxtb8y0eR69wQkif65Up5Dnx3yywFCGPQKLuVIr0jkM2q
-         TzgudraiC8EN7U/X6rGRJIRAZa5jQe6qsWDfxHicgU8/Wwbln3MKhAWo5r5GplDieTKR
-         1sb9jcR6b6i+6KH+2aba7tZ5SdBjCyuw9FQpDUVhzdoCkqdjPopDh2mWEodr1WtgPc0O
-         lzJ8j10/wJghCkJzn4S1kEliVQu2IIjCEJmMPOoqvd6mNDKhfGN4wftId5TXgSE6aflB
-         VIm9KmM2fmaBelxAEm55VmQ0KZHQP7QunW01m/VvADRHzKJfusECFU7BDnnFFRxV+G8I
-         M/KQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXskeFzS7yC5zLqlJlFvdRfVAt0EW4EErCSX3YpyvvvjeHRNvhCMdzfSCdX3hHKmVIp9DhwKRdeBVX+UHApxw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YybrwOKYsAAIPfepfCawr/SyxeT2JjTheqmOzpA8aZQBPXCe9CF
-	NO/nSz8vB35wF4mQkXxvFZoR9flQi5q0AcY9WXwX3TgjVWLqyUMkf3obvFRaeesbbYJXcYUey3O
-	hjZB0CgA1Syb53gSVP2R9MAGHc66i3YVpPummhlwfsPa5jHGH3bCRkXo6F7JKZJezrCNZ
-X-Gm-Gg: AZuq6aL8kH88LpZsdQPgxVAASBrQPQmYkJh/j8L1txegWvWmL1EyL8F5VXF7asBKCBc
-	eYZzdggemTlMsyO+Yin4pA8KgbBE5BlIwj2YJP5ma/uxBMi1Mv9hzJqKoG5mMEf0jzErYOgBWrV
-	Kch3/81Z6NPQKh2U7fMTpGYFuk5+X220JDheRaW71mQs3iV7GUFYpBdQ8ZqvUwIbKmX4eGwMXT2
-	USVBxwFLOpMbBDK26YCfh1YKAiF6bDgP+qnaZxGXDQO+mabjyTgbYIjd7RiFGBRHGX9R9v/Pyl3
-	Hv7soilsRpXwgbOcj95Xe5RB6lC4Sugi5vYMAK33J/10bX+6VjOEYsxwXn+CZMZpf9o8Xn59nAa
-	osCi3Fw==
-X-Received: by 2002:a05:600c:34c4:b0:480:52fd:d2e4 with SMTP id 5b1f17b1804b1-482db012dd7mr87513055e9.0.1769881583158;
-        Sat, 31 Jan 2026 09:46:23 -0800 (PST)
-X-Received: by 2002:a05:600c:34c4:b0:480:52fd:d2e4 with SMTP id 5b1f17b1804b1-482db012dd7mr87512805e9.0.1769881582675;
-        Sat, 31 Jan 2026 09:46:22 -0800 (PST)
+        bh=lyC9AeugLVf6y9Ie9AFkVUdIHXhswpQlP3HqazDDtWI=;
+        b=n1+BcTRuTJlC3O11ZYmhhqBHurFwuhYvpiibXM+SXS4YqIAo0Zq4VAYwA/0nSKvb+s
+         OoDoxJzRvR3HWLIdKWwKDe4RUaWYHnfXGjVihodMYth6MzbnAmb9lLY15DvPua/0hLEn
+         kXNWHgjaFOLkNGVSSoSPxFm63AWMWjkrj2qwYOtur1Tv+a5QFkxUoGYoBXSbAp+LpQSJ
+         aoSadDFcViXqhBplIZ9ZQTYBnrg2dt8rH38MDU/Pu4lFdw68+tYHPTpbetFv7CEA5nBS
+         JHswmXlKY32oXgdbFVbDgNbR4HFui6olpEbDAfidyBhqdq8X0lUCVDV+wH7rbOrFtVcr
+         Z4KA==
+X-Forwarded-Encrypted: i=1; AJvYcCXWIOAF7mbMAtFoXg6bCEIkCO0iz/Z2OwCrBCFPvFYiQ4RYulLQPFpVrR5E0Dcq5KGFJ3meYjv2IEmp3dKNgg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyMtY9r0PUVxhDJYw9vNWSLXP7uTzkuFRgzslg/UHVbIkfsv0Is
+	LNKaGxnFOR6XYJp0lgM3pifBzupHV7Gr/Wx52LtWoWdlrzdPytsoxqjkz5vJ/3KMuAu4fJsO5X+
+	eQ6ikU2vg881bN6VmMgedlQDvs4tYlBMi/HoDOLKvvSn80in46WpSMji9m0Hj+5UOi4Dm
+X-Gm-Gg: AZuq6aJU5CoqLJPKbVYEn+qk5ju3/g8BVNzx9jPDFSo2zF3uIH2W2679lZV0vYGVxD5
+	sywnLPUNOFDmVbU2sC01MKSH2IfaMv/i7gZVElkTDXoY2/0Z0aO3TycLj9OPWnl6BJHq9OSQsKn
+	zFB5EQ8m7DLD7xrQoX8hvInvE21mwuAFjRtbPlBDrZ9chuVdDhKcgZ3N8Iw6dMuX12ktE91ZRR7
+	NO9xq5sZ9ENPvtYUlShlzmJOxCHyRTTj9lY7c9AxWtG+xu1u2lvvTB+7JlEIvySMJyHb5TI6R79
+	M/guNjRL++k5fVgeoi8BFgMGBPN4+3Mi1F4J1bwBpas+jV6nIZBpvu8pOCvzETPta7PctyIRv8p
+	aeTDxJg==
+X-Received: by 2002:a05:600c:3ba0:b0:47e:e71a:e13a with SMTP id 5b1f17b1804b1-482db4ee2camr81020325e9.32.1769881638749;
+        Sat, 31 Jan 2026 09:47:18 -0800 (PST)
+X-Received: by 2002:a05:600c:3ba0:b0:47e:e71a:e13a with SMTP id 5b1f17b1804b1-482db4ee2camr81020105e9.32.1769881638297;
+        Sat, 31 Jan 2026 09:47:18 -0800 (PST)
 Received: from redhat.com ([2a06:c701:73e3:8f00:866c:5eeb:fc46:7674])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4806ce4c3d1sm289628525e9.9.2026.01.31.09.46.20
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4806ce5ec6bsm294453495e9.15.2026.01.31.09.47.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Jan 2026 09:46:21 -0800 (PST)
-Date: Sat, 31 Jan 2026 12:46:19 -0500
+        Sat, 31 Jan 2026 09:47:17 -0800 (PST)
+Date: Sat, 31 Jan 2026 12:47:15 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Ira Weiny <ira.weiny@intel.com>
 Cc: Li Chen <me@linux.beauty>, Dan Williams <dan.j.williams@intel.com>,
@@ -74,7 +74,7 @@ Cc: Li Chen <me@linux.beauty>, Dan Williams <dan.j.williams@intel.com>,
 	Jakub Staron <jstaron@google.com>, nvdimm@lists.linux.dev,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] nvdimm: virtio_pmem: serialize flush requests
-Message-ID: <20260131124554-mutt-send-email-mst@kernel.org>
+Message-ID: <20260131124628-mutt-send-email-mst@kernel.org>
 References: <20260113034552.62805-1-me@linux.beauty>
  <697d19fc772ad_f6311008@iweiny-mobl.notmuch>
 Precedence: bulk
@@ -85,7 +85,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <697d19fc772ad_f6311008@iweiny-mobl.notmuch>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: I0GewIEm5LIekaPjjFszOeojQcO44L9uTyKP9aRdIG0_1769881583
+X-Mimecast-MFC-PROC-ID: cMBW0D99EVutNDVi9QUgrJzlugD5RqGaNIgwL_DC6-E_1769881639
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -153,15 +153,15 @@ On Fri, Jan 30, 2026 at 02:52:12PM -0600, Ira Weiny wrote:
 > >  	int err, err1;
 > >  
 > > +	might_sleep();
-
-
-for that matter might_sleep not really needed near mutex_lock.
-
-
 > > +	mutex_lock(&vpmem->flush_lock);
 > 
 > Assuming this does fix a bug I'd rather use guard here.
-> 
+
+Do you, from code review, agree with the logic that
+it's racy right now?
+Whether the bug is reproducible isn't really the question.
+
+
 > 	guard(mutex)(&vpmem->flush_lock);
 > 
 > Then skip all the gotos and out_unlock stuff.
