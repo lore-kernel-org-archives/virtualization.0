@@ -1,335 +1,358 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF7893EBF32
-	for <virtualization@lists.linux.dev>; Sun,  1 Feb 2026 09:17:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A81692AD00;
+	Sun,  1 Feb 2026 20:19:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769937468; cv=none; b=E+YAfcUfE7uj4tPaLHZkqMOdTnvG9OTdHTPm/v8MWzU2EVXPkYJ7Ce1NlnPZhlkMJ6VOskBjnjBEm38XOohwopK3XhaY8bAskqkGNUf89ukR4SZUgWmKjjIUSHqaFNSKjO1J2Ty1ZYz5bQdB6aICqNst6V2oIIR+spqkGA0YMxE=
+	t=1769977181; cv=none; b=LR4B40wODEvPtmDqaq/pISoHj6Hf+91PNTI+XAXubxr3KCfS5aN6imfJeYd2bFKQ8vadZozXMWrWnkUP3pcjODGpEWJE6mSPh3rQsyX8C5DQ7j0JqpWb8kbQtDikYcP81bUL7uRQNbGUgH9nIWSDp1+N0AKjXxXBHZTDfC0bqJE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769937468; c=relaxed/simple;
-	bh=LaKEqrgvYkhsFwqyindBMnW1p2HUBq4DbwnLjR4F0Go=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=InvNDVsYycri56LA+X8+OYGadpE2kde7Nmz25J+FMH/26ALi7of/y6HjZo4+p/mbXp7E8mbRWjToOwOUe3cN1xqGvRLIURmu9T8WFZscOOhFSlouxayfh15LOs7HRL1ZfIBHfHWCi9s4pfpB0+Tkly/1RecL/bVlITt4G8Avgac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZMFwtY5D; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1769977181; c=relaxed/simple;
+	bh=KnqahI823dby2t3W4nsZXOrMp5OxyRHyQv9tM/EmL0Q=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Z5OY2KphBr0QKnvPnW27oBt/nRk6TBhYh+wUl1Rsz0ZkEuRtyI1jFhKAMquHl1moeX5QxCT6I30e/kEfQVdaSsP3zSVV/peE53Wm9c2diUOmETJuc4sUNrJ2ZPCauPjEkyjxsbCIZW78NV1MMbxkOMq8XuoarpYFZff9eFDqBM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=YDs78gcR; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZMFwtY5D"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769937464;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=b1F5jlC4KkSLd9axs6reavDIsao7rIgQww1rrTaK/DA=;
-	b=ZMFwtY5D0nzd7Rwx24Llyd63vm7hRPECVEJRDLS4JD0U/MlcwMU8150DsyqP4unL2zk2QH
-	UNsY8llyJATtkZwsUjzx97MASvD6xSVy9higavJCL5KL5GxxqA4S30xq0mPXVY6PZLE5fB
-	z/GNPKAzBJeQhKZTBHVxQkUGtXlj0SA=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-479-gp28zjvKMLCNpE7wmB-Epw-1; Sun, 01 Feb 2026 04:17:43 -0500
-X-MC-Unique: gp28zjvKMLCNpE7wmB-Epw-1
-X-Mimecast-MFC-AGG-ID: gp28zjvKMLCNpE7wmB-Epw_1769937462
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4325b81081aso5481789f8f.3
-        for <virtualization@lists.linux.dev>; Sun, 01 Feb 2026 01:17:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769937462; x=1770542262;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=b1F5jlC4KkSLd9axs6reavDIsao7rIgQww1rrTaK/DA=;
-        b=Ller5IQvpBKQA+pnzejO19H9ekoGXfVFN9dg0NVaxqXSHPvJ99Ic/bNjDpHWMfpZSw
-         GUvVLZMSUV5NkEikAh7nHCD1TT6jfxVlccdR3nMdKPx+Rp92LVstkf8HZXhqmBpVlFDw
-         N51d/o/3/baDFjOuKLBBfmZULXB0STs6WkRm4xIocHYurqOXgVmJuJlDFGNlqmSQMFaY
-         1NqdZYgr31ZUfMZP54iPKrmCHkA5Qob+o+7OV9yaQaPLWAfCXVMu1iNqBMMhZHV6BEVU
-         1dDSBKyiOGkh/SZpyp66lzMWiz3iu4DACVEjCxqzQYLoPO8r578lGA3A7ukHhzR3hQUK
-         bTHg==
-X-Forwarded-Encrypted: i=1; AJvYcCXHM5GfDmobQSehVo/7I8QweDq0AGRA+JFaZ/jH3sO1MZY1HcMYJc8/imRbth8jol/PMUKCq4Yuy62XZMKL1Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxvGUjx2EyHF9XPnqeWV9kaA/uNWbgEWLZzGBGVTXFxYyRGN6Le
-	im3ZQKHbdB7SQvYOx1UBZsAoEM3zch7jUNAXEFR2lpwPzMr14LTRN4nUDKVbf43oZyWEag3O2X1
-	Qcmrn8ZgUJ5z2huHv2apmkCwHkxIPNoX/1AEZrjiQCWL4BKiPEuHl2+iyHAOwnOrigUxfOhKbM3
-	sg
-X-Gm-Gg: AZuq6aL7c+2Dq8yQaLsp1aFBu7wS1dWTOuwcoWAO1+qvmbfoaDKBVeRD/QFiaArtxZE
-	nwKak579SqtRmC2mifEwJQF58JZVcMNn2iBKr5rp1PAtJeWHBTX5XlbbHc608O0gXkAAByjw4WP
-	+NfHZclrOyP2HgrP/YKX5ppB8KnfSrGkMN/UYUZKVpIlbYnLYHneu2P9gjhCJ1sJ6yakjHRefm7
-	j+PxCwXRBRsUfI1i6bQ8n8w1UA7WdKVwb0SEpxgyU5JgOLpWvM5c1Dj/mgemrtGzwB6rCuLKMj9
-	GIhgo4p00cynYBNht2iNULnIHq2VsR9bxJVlvi1hgVkhDz6qxc1VGHAaMXWi7rgh/KNGPTpElIq
-	z1jsC8+ruQo/TmYIZaCTx8+vnUqEsiXUlyA==
-X-Received: by 2002:a05:6000:4313:b0:432:dfea:1fa8 with SMTP id ffacd0b85a97d-435f3abc65cmr11406033f8f.45.1769937461785;
-        Sun, 01 Feb 2026 01:17:41 -0800 (PST)
-X-Received: by 2002:a05:6000:4313:b0:432:dfea:1fa8 with SMTP id ffacd0b85a97d-435f3abc65cmr11405975f8f.45.1769937461191;
-        Sun, 01 Feb 2026 01:17:41 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435e131ce58sm34407293f8f.20.2026.02.01.01.17.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Feb 2026 01:17:40 -0800 (PST)
-Date: Sun, 1 Feb 2026 04:17:35 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: chia-yu.chang@nokia-bell-labs.com
-Cc: tariqt@nvidia.com, linux-rdma@vger.kernel.org, shaojijie@huawei.com,
-	shenjian15@huawei.com, salil.mehta@huawei.com, mbloch@nvidia.com,
-	saeedm@nvidia.com, leon@kernel.org, eperezma@redhat.com,
-	brett.creeley@amd.com, jasowang@redhat.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
-	pabeni@redhat.com, edumazet@google.com, parav@nvidia.com,
-	linux-doc@vger.kernel.org, corbet@lwn.net, horms@kernel.org,
-	dsahern@kernel.org, kuniyu@google.com, bpf@vger.kernel.org,
-	netdev@vger.kernel.org, dave.taht@gmail.com, jhs@mojatatu.com,
-	kuba@kernel.org, stephen@networkplumber.org,
-	xiyou.wangcong@gmail.com, jiri@resnulli.us, davem@davemloft.net,
-	andrew+netdev@lunn.ch, donald.hunter@gmail.com, ast@fiberby.net,
-	liuhangbin@gmail.com, shuah@kernel.org,
-	linux-kselftest@vger.kernel.org, ij@kernel.org,
-	ncardwell@google.com, koen.de_schepper@nokia-bell-labs.com,
-	g.white@cablelabs.com, ingemar.s.johansson@ericsson.com,
-	mirja.kuehlewind@ericsson.com, cheshire@apple.com, rs.ietf@gmx.at,
-	Jason_Livingood@comcast.com, vidhi_goel@apple.com
-Subject: Re: [PATCH v1 net-next 3/3] virtio_net: Accurate ECN flag in
- virtio_net_hdr
-Message-ID: <20260201035912-mutt-send-email-mst@kernel.org>
-References: <20260131225510.2946-1-chia-yu.chang@nokia-bell-labs.com>
- <20260131225510.2946-4-chia-yu.chang@nokia-bell-labs.com>
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="YDs78gcR"
+Received: from [192.168.178.121] (p5dc880d2.dip0.t-ipconnect.de [93.200.128.210])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.1.16/8.18.1.16) with ESMTPSA id 611KJH4M005137
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Sun, 1 Feb 2026 21:19:18 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1769977160;
+	bh=KnqahI823dby2t3W4nsZXOrMp5OxyRHyQv9tM/EmL0Q=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=YDs78gcR3MB23Pl+N3NdhkHZhAMEUs8mGh6PtHWwjDe8C8ep16a7wQcqV+OWyWK/G
+	 KpozbSjJRl1b+tBN4aXZMD3UDEBEijNswjJT6bb6aM2RbgZqyW13O7g+1juxpyztDG
+	 +RY8bMUaoB5BFbHdfb5BOa0m9VdKdvWMZF5fIPlk=
+Message-ID: <0ebc00ba-35e7-4570-a44f-b0ae634f2316@tu-dortmund.de>
+Date: Sun, 1 Feb 2026 21:19:17 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260131225510.2946-4-chia-yu.chang@nokia-bell-labs.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Of3Zx3kqE8a8l3oNLDNbSlvHmGlYCAOSAVwSrM5hGW4_1769937462
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: [PATCH net-next v7 3/9] tun/tap: add ptr_ring consume helper with
+ netdev queue wakeup
+To: Jason Wang <jasowang@redhat.com>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
+        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20260107210448.37851-1-simon.schippers@tu-dortmund.de>
+ <20260107210448.37851-4-simon.schippers@tu-dortmund.de>
+ <CACGkMEuSiEcyaeFeZd0=RgNpviJgNvUDq_ctjeMLT5jZTgRkwQ@mail.gmail.com>
+ <1e30464c-99ae-441e-bb46-6d0485d494dc@tu-dortmund.de>
+ <CACGkMEtzD3ORJuJcc8VeqwASiGeVFdQmJowsK6PYVEF_Zkcn8Q@mail.gmail.com>
+ <afa40345-acbe-42b0-81d1-0a838343792d@tu-dortmund.de>
+ <CACGkMEtxRoavBMTXom8Z=FM-pvu3pHbsuwCs+e450b1B=V7iWA@mail.gmail.com>
+ <CACGkMEsJKeEsH=G8H5RzMNHY4g3HNdciMDMhciShawh-9Xb9hg@mail.gmail.com>
+ <bc1078e5-65fc-4de6-8475-517f626d8d96@tu-dortmund.de>
+ <3a1d6232-efe4-4e79-a196-44794fdc0f33@tu-dortmund.de>
+ <CACGkMEv71kn91FPAUrxJg=YB3+B0MRTgOidMPHjK7Qq0WEhGtw@mail.gmail.com>
+ <260f48cd-caa1-4684-a235-8e1192722b3a@tu-dortmund.de>
+ <CACGkMEsVMz+vS3KxykYBGXvyt3MZcstnYWUiYJZhLSMoHC5Smw@mail.gmail.com>
+ <ba17ba38-9f61-4a10-b375-d0da805e6b73@tu-dortmund.de>
+ <CACGkMEtnLw2b8iDysQzRbXxTj2xbgzKqEZUbhmZz9tXPLTE6Sw@mail.gmail.com>
+Content-Language: en-US
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <CACGkMEtnLw2b8iDysQzRbXxTj2xbgzKqEZUbhmZz9tXPLTE6Sw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thanks for the patch! Yet something to improve:
-
-On Sat, Jan 31, 2026 at 11:55:10PM +0100, chia-yu.chang@nokia-bell-labs.com wrote:
-> From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+On 1/30/26 02:51, Jason Wang wrote:
+> On Thu, Jan 29, 2026 at 5:25 PM Simon Schippers
+> <simon.schippers@tu-dortmund.de> wrote:
+>>
+>> On 1/29/26 02:14, Jason Wang wrote:
+>>> On Wed, Jan 28, 2026 at 3:54 PM Simon Schippers
+>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>
+>>>> On 1/28/26 08:03, Jason Wang wrote:
+>>>>> On Wed, Jan 28, 2026 at 12:48 AM Simon Schippers
+>>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>>
+>>>>>> On 1/23/26 10:54, Simon Schippers wrote:
+>>>>>>> On 1/23/26 04:05, Jason Wang wrote:
+>>>>>>>> On Thu, Jan 22, 2026 at 1:35 PM Jason Wang <jasowang@redhat.com> wrote:
+>>>>>>>>>
+>>>>>>>>> On Wed, Jan 21, 2026 at 5:33 PM Simon Schippers
+>>>>>>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>>>>>>
+>>>>>>>>>> On 1/9/26 07:02, Jason Wang wrote:
+>>>>>>>>>>> On Thu, Jan 8, 2026 at 3:41 PM Simon Schippers
+>>>>>>>>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>>>>>>>>
+>>>>>>>>>>>> On 1/8/26 04:38, Jason Wang wrote:
+>>>>>>>>>>>>> On Thu, Jan 8, 2026 at 5:06 AM Simon Schippers
+>>>>>>>>>>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>>>>>>>>>>
+>>>>>>>>>>>>>> Introduce {tun,tap}_ring_consume() helpers that wrap __ptr_ring_consume()
+>>>>>>>>>>>>>> and wake the corresponding netdev subqueue when consuming an entry frees
+>>>>>>>>>>>>>> space in the underlying ptr_ring.
+>>>>>>>>>>>>>>
+>>>>>>>>>>>>>> Stopping of the netdev queue when the ptr_ring is full will be introduced
+>>>>>>>>>>>>>> in an upcoming commit.
+>>>>>>>>>>>>>>
+>>>>>>>>>>>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>>>>>>>>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>>>>>>>>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+>>>>>>>>>>>>>> ---
+>>>>>>>>>>>>>>  drivers/net/tap.c | 23 ++++++++++++++++++++++-
+>>>>>>>>>>>>>>  drivers/net/tun.c | 25 +++++++++++++++++++++++--
+>>>>>>>>>>>>>>  2 files changed, 45 insertions(+), 3 deletions(-)
+>>>>>>>>>>>>>>
+>>>>>>>>>>>>>> diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+>>>>>>>>>>>>>> index 1197f245e873..2442cf7ac385 100644
+>>>>>>>>>>>>>> --- a/drivers/net/tap.c
+>>>>>>>>>>>>>> +++ b/drivers/net/tap.c
+>>>>>>>>>>>>>> @@ -753,6 +753,27 @@ static ssize_t tap_put_user(struct tap_queue *q,
+>>>>>>>>>>>>>>         return ret ? ret : total;
+>>>>>>>>>>>>>>  }
+>>>>>>>>>>>>>>
+>>>>>>>>>>>>>> +static void *tap_ring_consume(struct tap_queue *q)
+>>>>>>>>>>>>>> +{
+>>>>>>>>>>>>>> +       struct ptr_ring *ring = &q->ring;
+>>>>>>>>>>>>>> +       struct net_device *dev;
+>>>>>>>>>>>>>> +       void *ptr;
+>>>>>>>>>>>>>> +
+>>>>>>>>>>>>>> +       spin_lock(&ring->consumer_lock);
+>>>>>>>>>>>>>> +
+>>>>>>>>>>>>>> +       ptr = __ptr_ring_consume(ring);
+>>>>>>>>>>>>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1))) {
+>>>>>>>>>>>>>> +               rcu_read_lock();
+>>>>>>>>>>>>>> +               dev = rcu_dereference(q->tap)->dev;
+>>>>>>>>>>>>>> +               netif_wake_subqueue(dev, q->queue_index);
+>>>>>>>>>>>>>> +               rcu_read_unlock();
+>>>>>>>>>>>>>> +       }
+>>>>>>>>>>>>>> +
+>>>>>>>>>>>>>> +       spin_unlock(&ring->consumer_lock);
+>>>>>>>>>>>>>> +
+>>>>>>>>>>>>>> +       return ptr;
+>>>>>>>>>>>>>> +}
+>>>>>>>>>>>>>> +
+>>>>>>>>>>>>>>  static ssize_t tap_do_read(struct tap_queue *q,
+>>>>>>>>>>>>>>                            struct iov_iter *to,
+>>>>>>>>>>>>>>                            int noblock, struct sk_buff *skb)
+>>>>>>>>>>>>>> @@ -774,7 +795,7 @@ static ssize_t tap_do_read(struct tap_queue *q,
+>>>>>>>>>>>>>>                                         TASK_INTERRUPTIBLE);
+>>>>>>>>>>>>>>
+>>>>>>>>>>>>>>                 /* Read frames from the queue */
+>>>>>>>>>>>>>> -               skb = ptr_ring_consume(&q->ring);
+>>>>>>>>>>>>>> +               skb = tap_ring_consume(q);
+>>>>>>>>>>>>>>                 if (skb)
+>>>>>>>>>>>>>>                         break;
+>>>>>>>>>>>>>>                 if (noblock) {
+>>>>>>>>>>>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+>>>>>>>>>>>>>> index 8192740357a0..7148f9a844a4 100644
+>>>>>>>>>>>>>> --- a/drivers/net/tun.c
+>>>>>>>>>>>>>> +++ b/drivers/net/tun.c
+>>>>>>>>>>>>>> @@ -2113,13 +2113,34 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+>>>>>>>>>>>>>>         return total;
+>>>>>>>>>>>>>>  }
+>>>>>>>>>>>>>>
+>>>>>>>>>>>>>> +static void *tun_ring_consume(struct tun_file *tfile)
+>>>>>>>>>>>>>> +{
+>>>>>>>>>>>>>> +       struct ptr_ring *ring = &tfile->tx_ring;
+>>>>>>>>>>>>>> +       struct net_device *dev;
+>>>>>>>>>>>>>> +       void *ptr;
+>>>>>>>>>>>>>> +
+>>>>>>>>>>>>>> +       spin_lock(&ring->consumer_lock);
+>>>>>>>>>>>>>> +
+>>>>>>>>>>>>>> +       ptr = __ptr_ring_consume(ring);
+>>>>>>>>>>>>>> +       if (unlikely(ptr && __ptr_ring_consume_created_space(ring, 1))) {
+>>>>>>>>>>>>>
+>>>>>>>>>>>>> I guess it's the "bug" I mentioned in the previous patch that leads to
+>>>>>>>>>>>>> the check of __ptr_ring_consume_created_space() here. If it's true,
+>>>>>>>>>>>>> another call to tweak the current API.
+>>>>>>>>>>>>>
+>>>>>>>>>>>>>> +               rcu_read_lock();
+>>>>>>>>>>>>>> +               dev = rcu_dereference(tfile->tun)->dev;
+>>>>>>>>>>>>>> +               netif_wake_subqueue(dev, tfile->queue_index);
+>>>>>>>>>>>>>
+>>>>>>>>>>>>> This would cause the producer TX_SOFTIRQ to run on the same cpu which
+>>>>>>>>>>>>> I'm not sure is what we want.
+>>>>>>>>>>>>
+>>>>>>>>>>>> What else would you suggest calling to wake the queue?
+>>>>>>>>>>>
+>>>>>>>>>>> I don't have a good method in my mind, just want to point out its implications.
+>>>>>>>>>>
+>>>>>>>>>> I have to admit I'm a bit stuck at this point, particularly with this
+>>>>>>>>>> aspect.
+>>>>>>>>>>
+>>>>>>>>>> What is the correct way to pass the producer CPU ID to the consumer?
+>>>>>>>>>> Would it make sense to store smp_processor_id() in the tfile inside
+>>>>>>>>>> tun_net_xmit(), or should it instead be stored in the skb (similar to the
+>>>>>>>>>> XDP bit)? In the latter case, my concern is that this information may
+>>>>>>>>>> already be significantly outdated by the time it is used.
+>>>>>>>>>>
+>>>>>>>>>> Based on that, my idea would be for the consumer to wake the producer by
+>>>>>>>>>> invoking a new function (e.g., tun_wake_queue()) on the producer CPU via
+>>>>>>>>>> smp_call_function_single().
+>>>>>>>>>> Is this a reasonable approach?
+>>>>>>>>>
+>>>>>>>>> I'm not sure but it would introduce costs like IPI.
+>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>> More generally, would triggering TX_SOFTIRQ on the consumer CPU be
+>>>>>>>>>> considered a deal-breaker for the patch set?
+>>>>>>>>>
+>>>>>>>>> It depends on whether or not it has effects on the performance.
+>>>>>>>>> Especially when vhost is pinned.
+>>>>>>>>
+>>>>>>>> I meant we can benchmark to see the impact. For example, pin vhost to
+>>>>>>>> a specific CPU and the try to see the impact of the TX_SOFTIRQ.
+>>>>>>>>
+>>>>>>>> Thanks
+>>>>>>>>
+>>>>>>>
+>>>>>>> I ran benchmarks with vhost pinned to CPU 0 using taskset -p -c 0 ...
+>>>>>>> for both the stock and patched versions. The benchmarks were run with
+>>>>>>> the full patch series applied, since testing only patches 1-3 would not
+>>>>>>> be meaningful - the queue is never stopped in that case, so no
+>>>>>>> TX_SOFTIRQ is triggered.
+>>>>>>>
+>>>>>>> Compared to the non-pinned CPU benchmarks in the cover letter,
+>>>>>>> performance is lower for pktgen with a single thread but higher with
+>>>>>>> four threads. The results show no regression for the patched version,
+>>>>>>> with even slight performance improvements observed:
+>>>>>>>
+>>>>>>> +-------------------------+-----------+----------------+
+>>>>>>> | pktgen benchmarks to    | Stock     | Patched with   |
+>>>>>>> | Debian VM, i5 6300HQ,   |           | fq_codel qdisc |
+>>>>>>> | 100M packets            |           |                |
+>>>>>>> | vhost pinned to core 0  |           |                |
+>>>>>>> +-----------+-------------+-----------+----------------+
+>>>>>>> | TAP       | Transmitted | 452 Kpps  | 454 Kpps       |
+>>>>>>> |  +        +-------------+-----------+----------------+
+>>>>>>> | vhost-net | Lost        | 1154 Kpps | 0              |
+>>>>>>> +-----------+-------------+-----------+----------------+
+>>>>>>>
+>>>>>>> +-------------------------+-----------+----------------+
+>>>>>>> | pktgen benchmarks to    | Stock     | Patched with   |
+>>>>>>> | Debian VM, i5 6300HQ,   |           | fq_codel qdisc |
+>>>>>>> | 100M packets            |           |                |
+>>>>>>> | vhost pinned to core 0  |           |                |
+>>>>>>> | *4 threads*             |           |                |
+>>>>>>> +-----------+-------------+-----------+----------------+
+>>>>>>> | TAP       | Transmitted | 71 Kpps   | 79 Kpps        |
+>>>>>>> |  +        +-------------+-----------+----------------+
+>>>>>>> | vhost-net | Lost        | 1527 Kpps | 0              |
+>>>>>>> +-----------+-------------+-----------+----------------+
+>>>>>
+>>>>> The PPS seems to be low. I'd suggest using testpmd (rxonly) mode in
+>>>>> the guest or an xdp program that did XDP_DROP in the guest.
+>>>>
+>>>> I forgot to mention that these PPS values are per thread.
+>>>> So overall we have 71 Kpps * 4 = 284 Kpps and 79 Kpps * 4 = 326 Kpps,
+>>>> respectively. For packet loss, that comes out to 1154 Kpps * 4 =
+>>>> 4616 Kpps and 0, respectively.
+>>>>
+>>>> Sorry about that!
+>>>>
+>>>> The pktgen benchmarks with a single thread look fine, right?
+>>>
+>>> Still looks very low. E.g I just have a run of pktgen (using
+>>> pktgen_sample03_burst_single_flow.sh) without a XDP_DROP in the guest,
+>>> I can get 1Mpps.
+>>
+>> Keep in mind that I am using an older CPU (i5-6300HQ). For the
+>> single-threaded tests I always used pktgen_sample01_simple.sh, and for
+>> the multi-threaded tests I always used pktgen_sample02_multiqueue.sh.
+>>
+>> Using pktgen_sample03_burst_single_flow.sh as you did fails for me (even
+>> though the same parameters work fine for sample01 and sample02):
+>>
+>> samples/pktgen/pktgen_sample03_burst_single_flow.sh -i tap0 -m
+>> 52:54:00:12:34:56 -d 10.0.0.2 -n 100000000
+>> /samples/pktgen/functions.sh: line 79: echo: write error: Operation not
+>> supported
+>> ERROR: Write error(1) occurred
+>> cmd: "burst 32 > /proc/net/pktgen/tap0@0"
+>>
+>> ...and I do not know what I am doing wrong, even after looking at
+>> Documentation/networking/pktgen.rst. Every burst size except 1 fails.
+>> Any clues?
 > 
-> Unlike RFC 3168 ECN, accurate ECN uses the CWR flag as part of the ACE
-> field to count new packets with CE mark; however, it will be corrupted
-> by the RFC 3168 ECN-aware TSO. Therefore, fallback shall be applied by
-> seting NETIF_F_GSO_ACCECN to ensure that the CWR flag should not be
-> changed within a super-skb.
+> Please use -b 0, and I'm Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz.
+
+I tried using "-b 0", and while it worked, there was no noticeable
+performance improvement.
+
 > 
-> To apply the aforementieond new AccECN GSO for virtio, new featue bits
-> for host and guest are added for feature negotiation between driver and
-> device. And the translation of Accurate ECN GSO flag between
-> virtio_net_hdr and skb header for NETIF_F_GSO_ACCECN is also added to
-> avoid CWR flag corruption due to RFC3168 ECN TSO.
+> Another thing I can think of is to disable
 > 
-> Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+> 1) mitigations in both guest and host
+> 2) any kernel debug features in both host and guest
 
+I also rebuilt the kernel with everything disabled under
+"Kernel hacking", but that didn’t make any difference either.
 
-To the best of my understanding, this is a new feature - support
-for VIRTIO_NET_F_HOST_ACCECN, VIRTIO_NET_F_GUEST_ACCECN?
-The commit log makes it sound like it fixes some behaviour for
-existing hardware, but that is not the case.
+Because of this, I ran "pktgen_sample01_simple.sh" and
+"pktgen_sample02_multiqueue.sh" on my AMD Ryzen 5 5600X system. The
+results were about 374 Kpps with TAP and 1192 Kpps with TAP+vhost_net,
+with very similar performance between the stock and patched kernels.
 
+Personally, I think the low performance is to blame on the hardware.
 
-
-
-
-> ---
-> v2:
-> - Replace VIRTIO_NET_HDR_GSO_ECN with VIRTIO_NET_HDR_GSO_ECN_FLAGS
-
-but where is v2? this is v1...
-
-> ---
->  drivers/net/virtio_net.c        | 14 +++++++++++---
->  drivers/vdpa/pds/debugfs.c      |  6 ++++++
->  include/linux/virtio_net.h      | 18 +++++++++++-------
->  include/uapi/linux/virtio_net.h |  5 +++++
->  4 files changed, 33 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index db88dcaefb20..103fb87c690e 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -75,6 +75,7 @@ static const unsigned long guest_offloads[] = {
->  	VIRTIO_NET_F_GUEST_TSO4,
->  	VIRTIO_NET_F_GUEST_TSO6,
->  	VIRTIO_NET_F_GUEST_ECN,
-> +	VIRTIO_NET_F_GUEST_ACCECN,
->  	VIRTIO_NET_F_GUEST_UFO,
->  	VIRTIO_NET_F_GUEST_CSUM,
->  	VIRTIO_NET_F_GUEST_USO4,
-> @@ -87,6 +88,7 @@ static const unsigned long guest_offloads[] = {
->  #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
->  			(1ULL << VIRTIO_NET_F_GUEST_TSO6) | \
->  			(1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
-> +			(1ULL << VIRTIO_NET_F_GUEST_ACCECN) | \
->  			(1ULL << VIRTIO_NET_F_GUEST_UFO)  | \
->  			(1ULL << VIRTIO_NET_F_GUEST_USO4) | \
->  			(1ULL << VIRTIO_NET_F_GUEST_USO6) | \
-> @@ -5976,6 +5978,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
->  	    && (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
->  	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
->  	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
-> +		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ACCECN) ||
->  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO) ||
->  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM) ||
->  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_USO4) ||
-> @@ -6635,6 +6638,7 @@ static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
->  	return virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
->  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
->  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
-> +		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ACCECN) ||
->  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO) ||
->  		(virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_USO4) &&
->  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_USO6));
-> @@ -6749,6 +6753,8 @@ static int virtnet_probe(struct virtio_device *vdev)
->  			dev->hw_features |= NETIF_F_TSO6;
->  		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_ECN))
->  			dev->hw_features |= NETIF_F_TSO_ECN;
-> +		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_ACCECN))
-> +			dev->hw_features |= NETIF_F_GSO_ACCECN;
->  		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_USO))
->  			dev->hw_features |= NETIF_F_GSO_UDP_L4;
->  
-> @@ -7169,9 +7175,11 @@ static struct virtio_device_id id_table[] = {
->  	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM, \
->  	VIRTIO_NET_F_MAC, \
->  	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6, \
-> -	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6, \
-> -	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO, \
-> -	VIRTIO_NET_F_HOST_USO, VIRTIO_NET_F_GUEST_USO4, VIRTIO_NET_F_GUEST_USO6, \
-> +	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_HOST_ACCECN, \
-> +	VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6, \
-> +	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_ACCECN, \
-> +	VIRTIO_NET_F_GUEST_UFO, VIRTIO_NET_F_HOST_USO, \
-> +	VIRTIO_NET_F_GUEST_USO4, VIRTIO_NET_F_GUEST_USO6, \
->  	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ, \
->  	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN, \
->  	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
-> diff --git a/drivers/vdpa/pds/debugfs.c b/drivers/vdpa/pds/debugfs.c
-> index c328e694f6e7..90bd95db0245 100644
-> --- a/drivers/vdpa/pds/debugfs.c
-> +++ b/drivers/vdpa/pds/debugfs.c
-> @@ -78,6 +78,9 @@ static void print_feature_bits_all(struct seq_file *seq, u64 features)
->  		case BIT_ULL(VIRTIO_NET_F_GUEST_ECN):
->  			seq_puts(seq, " VIRTIO_NET_F_GUEST_ECN");
->  			break;
-> +		case BIT_ULL(VIRTIO_NET_F_GUEST_ACCECN):
-> +			seq_puts(seq, " VIRTIO_NET_F_GUEST_ACCECN");
-> +			break;
->  		case BIT_ULL(VIRTIO_NET_F_GUEST_UFO):
->  			seq_puts(seq, " VIRTIO_NET_F_GUEST_UFO");
->  			break;
-> @@ -90,6 +93,9 @@ static void print_feature_bits_all(struct seq_file *seq, u64 features)
->  		case BIT_ULL(VIRTIO_NET_F_HOST_ECN):
->  			seq_puts(seq, " VIRTIO_NET_F_HOST_ECN");
->  			break;
-> +		case BIT_ULL(VIRTIO_NET_F_HOST_ACCECN):
-> +			seq_puts(seq, " VIRTIO_NET_F_HOST_ACCECN");
-> +			break;
->  		case BIT_ULL(VIRTIO_NET_F_HOST_UFO):
->  			seq_puts(seq, " VIRTIO_NET_F_HOST_UFO");
->  			break;
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 75dabb763c65..0cf86b026828 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -11,7 +11,7 @@
->  
->  static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
->  {
-> -	switch (gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-> +	switch (gso_type & ~VIRTIO_NET_HDR_GSO_ECN_FLAGS) {
->  	case VIRTIO_NET_HDR_GSO_TCPV4:
->  		return protocol == cpu_to_be16(ETH_P_IP);
->  	case VIRTIO_NET_HDR_GSO_TCPV6:
-> @@ -31,7 +31,7 @@ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
->  	if (skb->protocol)
->  		return 0;
->  
-> -	switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-> +	switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN_FLAGS) {
->  	case VIRTIO_NET_HDR_GSO_TCPV4:
->  	case VIRTIO_NET_HDR_GSO_UDP:
->  	case VIRTIO_NET_HDR_GSO_UDP_L4:
-> @@ -58,7 +58,7 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
->  	unsigned int ip_proto;
->  
->  	if (hdr_gso_type != VIRTIO_NET_HDR_GSO_NONE) {
-> -		switch (hdr_gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-> +		switch (hdr_gso_type & ~VIRTIO_NET_HDR_GSO_ECN_FLAGS) {
->  		case VIRTIO_NET_HDR_GSO_TCPV4:
->  			gso_type = SKB_GSO_TCPV4;
->  			ip_proto = IPPROTO_TCP;
-> @@ -84,7 +84,9 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
->  			return -EINVAL;
->  		}
->  
-> -		if (hdr_gso_type & VIRTIO_NET_HDR_GSO_ECN)
-> +		if (hdr_gso_type & VIRTIO_NET_HDR_GSO_ACCECN)
-> +			gso_type |= SKB_GSO_TCP_ACCECN;
-> +		else if (hdr_gso_type & VIRTIO_NET_HDR_GSO_ECN)
->  			gso_type |= SKB_GSO_TCP_ECN;
->  
->  		if (hdr->gso_size == 0)
-> @@ -159,7 +161,7 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
->  		unsigned int nh_off = p_off;
->  		struct skb_shared_info *shinfo = skb_shinfo(skb);
->  
-> -		switch (gso_type & ~SKB_GSO_TCP_ECN) {
-> +		switch (gso_type & ~(SKB_GSO_TCP_ECN | SKB_GSO_TCP_ACCECN)) {
->  		case SKB_GSO_UDP:
->  			/* UFO may not include transport header in gso_size. */
->  			nh_off -= thlen;
-> @@ -231,7 +233,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
->  			hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP_L4;
->  		else
->  			return -EINVAL;
-> -		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
-> +		if (sinfo->gso_type & SKB_GSO_TCP_ACCECN)
-> +			hdr->gso_type |= VIRTIO_NET_HDR_GSO_ACCECN;
-> +		else if (sinfo->gso_type & SKB_GSO_TCP_ECN)
->  			hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
->  	} else
->  		hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
-> @@ -282,7 +286,7 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
->  		return -EINVAL;
->  
->  	/* The UDP tunnel must carry a GSO packet, but no UFO. */
-> -	gso_inner_type = hdr->gso_type & ~(VIRTIO_NET_HDR_GSO_ECN |
-> +	gso_inner_type = hdr->gso_type & ~(VIRTIO_NET_HDR_GSO_ECN_FLAGS |
->  					   VIRTIO_NET_HDR_GSO_UDP_TUNNEL);
->  	if (!gso_inner_type || gso_inner_type == VIRTIO_NET_HDR_GSO_UDP)
->  		return -EINVAL;
-> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> index 1db45b01532b..af5bfe45aa1f 100644
-> --- a/include/uapi/linux/virtio_net.h
-> +++ b/include/uapi/linux/virtio_net.h
-> @@ -56,6 +56,8 @@
->  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
->  					 * Steering */
->  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
-> +#define VIRTIO_NET_F_HOST_ACCECN 25	/* Host can handle GSO of AccECN */
-> +#define VIRTIO_NET_F_GUEST_ACCECN 26	/* Guest can handle GSO of AccECN */
->  #define VIRTIO_NET_F_DEVICE_STATS 50	/* Device can provide device-level statistics. */
->  #define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
->  #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
-> @@ -165,6 +167,9 @@ struct virtio_net_hdr_v1 {
->  #define VIRTIO_NET_HDR_GSO_UDP_TUNNEL (VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 | \
->  				       VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6)
->  #define VIRTIO_NET_HDR_GSO_ECN		0x80	/* TCP has ECN set */
-> +#define VIRTIO_NET_HDR_GSO_ACCECN	0x10	/* TCP AccECN segmentation */
-> +#define VIRTIO_NET_HDR_GSO_ECN_FLAGS	(VIRTIO_NET_HDR_GSO_ECN | \
-> +					 VIRTIO_NET_HDR_GSO_ACCECN)
->  	__u8 gso_type;
->  	__virtio16 hdr_len;	/* Ethernet + IP + tcp/udp hdrs */
->  	__virtio16 gso_size;	/* Bytes to append to hdr_len per frame */
-
-
-UAPI changes need to be added to the virtio spec.
-Pls get this approved by the virtio TC.
 Thanks!
 
-
-> -- 
-> 2.34.1
-
+> 
+> Thanks
+> 
+>>
+>> Thanks!
+>>
+>>>
+>>>>
+>>>> I'll still look into using an XDP program that does XDP_DROP in the
+>>>> guest.
+>>>>
+>>>> Thanks!
+>>>
+>>> Thanks
+>>>
+>>>>
+>>>>>
+>>>>>>>
+>>>>>>> +------------------------+-------------+----------------+
+>>>>>>> | iperf3 TCP benchmarks  | Stock       | Patched with   |
+>>>>>>> | to Debian VM 120s      |             | fq_codel qdisc |
+>>>>>>> | vhost pinned to core 0 |             |                |
+>>>>>>> +------------------------+-------------+----------------+
+>>>>>>> | TAP                    | 22.0 Gbit/s | 22.0 Gbit/s    |
+>>>>>>> |  +                     |             |                |
+>>>>>>> | vhost-net              |             |                |
+>>>>>>> +------------------------+-------------+----------------+
+>>>>>>>
+>>>>>>> +---------------------------+-------------+----------------+
+>>>>>>> | iperf3 TCP benchmarks     | Stock       | Patched with   |
+>>>>>>> | to Debian VM 120s         |             | fq_codel qdisc |
+>>>>>>> | vhost pinned to core 0    |             |                |
+>>>>>>> | *4 iperf3 client threads* |             |                |
+>>>>>>> +---------------------------+-------------+----------------+
+>>>>>>> | TAP                       | 21.4 Gbit/s | 21.5 Gbit/s    |
+>>>>>>> |  +                        |             |                |
+>>>>>>> | vhost-net                 |             |                |
+>>>>>>> +---------------------------+-------------+----------------+
+>>>>>>
+>>>>>> What are your thoughts on this?
+>>>>>>
+>>>>>> Thanks!
+>>>>>>
+>>>>>>
+>>>>>
+>>>>> Thanks
+>>>>>
+>>>>
+>>>
+>>
+> 
