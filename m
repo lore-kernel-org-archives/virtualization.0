@@ -1,83 +1,222 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 964BD3EBF1F;
-	Sun,  1 Feb 2026 00:45:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769906719; cv=none; b=OlNwRV7bBYQPxhvxF+DVgdiw3CmZkTq2VQwCZgUBMTymfGI7cXXTT4cAhj9CN8cmytc5vpIQPwnhhHFnMEoMWo2M/YFBwWFmS8s7QENJcZ2s5s35fpj3EAJlgyP0MKxGqff26FjnYMxjMFUxK5hdnC9mh17nqhWc/4+Lo7PB9ZA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769906719; c=relaxed/simple;
-	bh=3H50njZHf/MxF1LMF+V5Pv639i4KiMLWrfP4zBIYZyI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XFSlELtCOYrfIVXq1ybsR55Zi0wfEEaM8bBuKqp/yfx04GDMqKCoTpEmyvp4D3IRcYjOWQrmX9vURq0a4X7my5A3cMHjVX3In5SGh/VkOF1a6QjO9q+lHfvFnYtzMKbuL/9PyL1xmOtcIsmX693ppHyRdyRX7kzW0ES+Y3sS4Wg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S7bY3VXT; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51AE71E9B3A;
+	Sun,  1 Feb 2026 04:22:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769919741; cv=pass; b=KjefT/TqQvStrtmHkWMzdxhB5lPtyw1yqOj3LbMGMuhBxhqXKEU8XHKIQy67cMzXvRWNJdgSblyMHVCJzDfYwNP3Uj30J6EQI76tnzJLQVd9HjVuAQ7MT4Cg/auGjMxzutALTmoFoxJ3uMofRvwCFVnEKbDwhpmymiu9LBMW+a4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769919741; c=relaxed/simple;
+	bh=olkTrYBMYem0rX/rHnRWof6if/mHTZJa4L5ebYJzIxg=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=eb3ZpXBbyUTVXAN+r1zC+k5zW1EkzKpF6OHnPyeXdQkk6qFWL4cY/xwGX2nQ+Q0zZ6HJAaljmM3B4hpp+sgcm2o+A+344PSgXAQVV27LTQREU/kquZW7cor6yWoxmbsreccnxEqKVEV28GW4xa5NF/sGmSbJNKYtXllCsMI1nRc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=mQHqkKkQ; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S7bY3VXT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 165EBC4CEF1;
-	Sun,  1 Feb 2026 00:45:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769906719;
-	bh=3H50njZHf/MxF1LMF+V5Pv639i4KiMLWrfP4zBIYZyI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=S7bY3VXTi93jajlzzf9u55uwY1CbLXh0X1C+sbA+21hInHUw0Fpej/aYRhSU3/jXh
-	 nBooIc/RlWsgFA/cGDkdsLhGmVYdaNWGpjHaWxhjtx4sMbsZcqB5HAQtYYHzIOJdhm
-	 lrkfaUHOyP5Vf6mqT/2D3UFb/0eGVCbrSV9yENRYzeN5a5FEJpzGjms7dHoravUEi/
-	 B05bkLXi+uGuGGJ5x1xp8hbG3dZFgWdNAsgNoCWEHTs7/m/EsK03somqEOGxIrna83
-	 xZHPgiuGZS5Wd8T2nPL9S3XufRfuaV1SRvpVzRDh0v0lK25et8Bkl0zgfD/id0oj3/
-	 TSKJyytk0CGZQ==
-Date: Sat, 31 Jan 2026 16:45:16 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: chia-yu.chang@nokia-bell-labs.com
-Cc: tariqt@nvidia.com, linux-rdma@vger.kernel.org, shaojijie@huawei.com,
- shenjian15@huawei.com, salil.mehta@huawei.com, mbloch@nvidia.com,
- saeedm@nvidia.com, leon@kernel.org, eperezma@redhat.com,
- brett.creeley@amd.com, jasowang@redhat.com, virtualization@lists.linux.dev,
- mst@redhat.com, xuanzhuo@linux.alibaba.com, pabeni@redhat.com,
- edumazet@google.com, parav@nvidia.com, linux-doc@vger.kernel.org,
- corbet@lwn.net, horms@kernel.org, dsahern@kernel.org, kuniyu@google.com,
- bpf@vger.kernel.org, netdev@vger.kernel.org, dave.taht@gmail.com,
- jhs@mojatatu.com, stephen@networkplumber.org, xiyou.wangcong@gmail.com,
- jiri@resnulli.us, davem@davemloft.net, andrew+netdev@lunn.ch,
- donald.hunter@gmail.com, ast@fiberby.net, liuhangbin@gmail.com,
- shuah@kernel.org, linux-kselftest@vger.kernel.org, ij@kernel.org,
- ncardwell@google.com, koen.de_schepper@nokia-bell-labs.com,
- g.white@cablelabs.com, ingemar.s.johansson@ericsson.com,
- mirja.kuehlewind@ericsson.com, cheshire@apple.com, rs.ietf@gmx.at,
- Jason_Livingood@comcast.com, vidhi_goel@apple.com
-Subject: Re: [PATCH v1 net-next 0/3] ECN offload handling for AccECN series
-Message-ID: <20260131164516.4a423230@kernel.org>
-In-Reply-To: <20260131225510.2946-1-chia-yu.chang@nokia-bell-labs.com>
-References: <20260131225510.2946-1-chia-yu.chang@nokia-bell-labs.com>
+	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="mQHqkKkQ"
+ARC-Seal: i=1; a=rsa-sha256; t=1769919731; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=eIFd4jIEVFIhQreMRbhXHvakX7U/IdwZw3qHyAEV5cKxhquy1ChnY5g2yr/dllfnlDki3Lo3JHgymOPYeH0mD9qQoB2buNVVdAX2w38weSRvyiKtBIvN8/OMUPWOtsEtlbZOWmf1k2pqmVF3DnsjkpPvwurSjSsxFI87HkK1W30=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1769919731; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=6W3rvFmobWfkSj0nzHOc/WAZuUo4cDO1pU8oIl/2UuI=; 
+	b=FJ8FVqCTt0shMA9c0PDp0HOoHKT+ghmdp+9Vo2mHeEA+a9hzXM73zlnxvYj85OjNj6zmT6X0/1CZdXbFKYN39OUNtIXqYMtksRay2kufpuQ3rBQi5V3R3OxLjAGpuinhDeA11AX9Af7OFGbxi+biR8BR+PPf0gQHjJ/oFWDds2I=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=linux.beauty;
+	spf=pass  smtp.mailfrom=me@linux.beauty;
+	dmarc=pass header.from=<me@linux.beauty>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1769919731;
+	s=zmail; d=linux.beauty; i=me@linux.beauty;
+	h=Date:Date:Message-ID:From:From:To:To:Cc:Cc:Subject:Subject:In-Reply-To:References:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=6W3rvFmobWfkSj0nzHOc/WAZuUo4cDO1pU8oIl/2UuI=;
+	b=mQHqkKkQlE0AuDptph3qYMOb2M2DnHSkydubk5d+WwtY50iACTvo0Ks8BOW1LfiT
+	KcZQraW+5c3RRliLhOvHjL3Hpq5CvNM6qnsOv/irlu6uy4GTFDdwiqXzq1XFflQInPv
+	3M4FTwkXZ5EVHMpoILLe+fNE57yL36bsHCjqnK6U=
+Received: by mx.zohomail.com with SMTPS id 1769919727866976.9152410728299;
+	Sat, 31 Jan 2026 20:22:07 -0800 (PST)
+Date: Sun, 01 Feb 2026 12:21:42 +0800
+Message-ID: <87a4xtozzd.wl-me@linux.beauty>
+From: Li Chen <me@linux.beauty>
+To: Ira Weiny <ira.weiny@intel.com>
+Cc: Dan Williams <dan.j.williams@intel.com>,
+	"Vishal Verma" <vishal.l.verma@intel.com>,
+	Dave Jiang <dave.jiang@intel.com>,
+	Pankaj Gupta
+	<pankaj.gupta.linux@gmail.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Jakub Staron <jstaron@google.com>,
+	<nvdimm@lists.linux.dev>,
+	<virtualization@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] nvdimm: virtio_pmem: serialize flush requests
+In-Reply-To: <697d19fc772ad_f6311008@iweiny-mobl.notmuch>
+References: <20260113034552.62805-1-me@linux.beauty>
+	<697d19fc772ad_f6311008@iweiny-mobl.notmuch>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?ISO-8859-4?Q?Goj=F2?=) APEL-LB/10.8 EasyPG/1.0.0
+ Emacs/30.2 (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-ZohoMailClient: External
 
-On Sat, 31 Jan 2026 23:55:07 +0100 chia-yu.chang@nokia-bell-labs.com
-wrote:
-> ---
-> v2:
-> - Replace VIRTIO_NET_HDR_GSO_ECN with VIRTIO_NET_HDR_GSO_ECN_FLAGS
 
-For the future:
+Hi Ira,
 
-Quoting documentation:
+On Sat, 31 Jan 2026 04:52:12 +0800,
+Ira Weiny wrote:
+>=20
+> Li Chen wrote:
+> > Under heavy concurrent flush traffic, virtio-pmem can overflow its requ=
+est
+> > virtqueue (req_vq): virtqueue_add_sgs() starts returning -ENOSPC and the
+> > driver logs "no free slots in the virtqueue". Shortly after that the
+> > device enters VIRTIO_CONFIG_S_NEEDS_RESET and flush requests fail with
+> > "virtio pmem device needs a reset".
+> >=20
+> > Serialize virtio_pmem_flush() with a per-device mutex so only one flush
+> > request is in-flight at a time. This prevents req_vq descriptor overflow
+> > under high concurrency.
+> >=20
+> > Reproducer (guest with virtio-pmem):
+> >   - mkfs.ext4 -F /dev/pmem0
+> >   - mount -t ext4 -o dax,noatime /dev/pmem0 /mnt/bench
+> >   - fio: ioengine=3Dio_uring rw=3Drandwrite bs=3D4k iodepth=3D64 numjob=
+s=3D64
+> >         direct=3D1 fsync=3D1 runtime=3D30s time_based=3D1
+>=20
+> I don't see this error.
+>=20
+> <file>
+> 13:28:50 > cat foo.fio=20
+> # test http://lore.kernel.org/20260113034552.62805-1-me@linux.beauty
+>=20
+> [global]
+> filename=3D/mnt/bench/foo
+> ioengine=3Dio_uring
+> size=3D1G
+> bs=3D4K
+> iodepth=3D64
+> numjobs=3D64
+> direct=3D1
+> fsync=3D1
+> runtime=3D30s
+> time_based=3D1
+>=20
+> [rand-write]
+> rw=3Drandwrite
+> </file>
+>=20
+> It's possible I'm doing something wrong.  Can you share your qemu cmdline
+> or more details on the bug yall see.
 
-  Limit patches outstanding on mailing list
-  -----------------------------------------
-  
-  Avoid having more than 15 patches, across all series, outstanding for
-  review on the mailing list for a single tree. In other words, a maximum of
-  15 patches under review on net, and a maximum of 15 patches under review on
-  net-next.
-  
-  This limit is intended to focus developer effort on testing patches before
-  upstream review. Aiding the quality of upstream submissions, and easing the
-  load on reviewers.
-    
-See: https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#limit-patches-outstanding-on-mailing-list
+Thanks for taking a look.
+
+I can reproduce the issue here, but it is timing dependent. A single fio run
+does not always hit it, so I suspect that's why you're not seeing the dmesg
+messages.
+
+Environment:
+QEMU: 10.1.2
+virtio-pmem backend: memory-backend-ram (shared)
+
+The virtio-pmem relevant QEMU bits:
+  -object memory-backend-ram,id=3Dpmem0,size=3D10G,share=3Don
+  -device virtio-pmem-pci,id=3Dvirtio-pmem0,memdev=3Dpmem0
+
+For completeness, this is the full QEMU command line I used (paths replaced
+with placeholders):
+  qemu-system-x86_64 -enable-kvm -cpu host -smp 16 -m 10G,maxmem=3D20G \\
+    -netdev user,id=3Dnet0,hostfwd=3Dtcp::<ssh_port>-:22 \\
+    -device virtio-net,netdev=3Dnet0 \\
+    -drive file=3D<guest.qcow2>,if=3Dnone,id=3Dboot0,format=3Dqcow2 \\
+    -device virtio-blk-pci,drive=3Dboot0,num-queues=3D4 \\
+    -object memory-backend-ram,id=3Dpmem0,size=3D10G,share=3Don \\
+    -device virtio-pmem-pci,id=3Dvirtio-pmem0,memdev=3Dpmem0 \\
+    -nographic -kernel <bzImage> -append "<cmdline>"
+
+Kernel under test (baseline, no patch):
+  v6.18-764-g7aa104c7e8e9
+
+I used the same fio parameters from the cover letter. The only difference is
+that I run it in a loop so it has multiple chances to trigger. Each iterati=
+on
+does a fresh mkfs + mount and clears dmesg before running fio:
+This should be equivalent to the foo.fio you posted.
+
+  for i in $(seq 1 10); do
+    umount -l /mnt/bench 2>/dev/null || true
+    mkfs.ext4 -F /dev/pmem0
+    mkdir -p /mnt/bench
+    dmesg -C
+    mount -t ext4 -o dax,noatime /dev/pmem0 /mnt/bench
+    fio --name=3Drandwrite_fsync --filename=3D/mnt/bench/foo --size=3D1G \\
+      --ioengine=3Dio_uring --rw=3Drandwrite --bs=3D4k --iodepth=3D64 --num=
+jobs=3D64 \\
+      --direct=3D1 --fsync=3D1 --runtime=3D30 --time_based=3D1
+    dmesg | egrep -i \\
+      -e "no free slots in the virtqueue" \\
+      -e "virtio pmem device needs a reset" && break
+  done
+
+If it does not trigger in 10 iterations, reboot the guest and repeat.
+
+On the baseline kernel, I see:
+"failed to send command to virtio pmem device, no free slots in the virtque=
+ue"
+and "virtio pmem device needs a reset"
+Typically within a few iterations (often on the first one).
+
+With the fix applied, I ran 10 iterations back-to-back and did not see the
+above messages.
+=20
+> >   - dmesg: "no free slots in the virtqueue"
+> >            "virtio pmem device needs a reset"
+> >=20
+> > Fixes: 6e84200c0a29 ("virtio-pmem: Add virtio pmem driver")
+> > Signed-off-by: Li Chen <me@linux.beauty>
+> > ---
+> >  drivers/nvdimm/nd_virtio.c   | 15 +++++++++++----
+> >  drivers/nvdimm/virtio_pmem.c |  1 +
+> >  drivers/nvdimm/virtio_pmem.h |  4 ++++
+> >  3 files changed, 16 insertions(+), 4 deletions(-)
+> >=20
+> > diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
+> > index c3f07be4aa22..827a17fe7c71 100644
+> > --- a/drivers/nvdimm/nd_virtio.c
+> > +++ b/drivers/nvdimm/nd_virtio.c
+> > @@ -44,19 +44,24 @@ static int virtio_pmem_flush(struct nd_region *nd_r=
+egion)
+> >  	unsigned long flags;
+> >  	int err, err1;
+> > =20
+> > +	might_sleep();
+> > +	mutex_lock(&vpmem->flush_lock);
+>=20
+> Assuming this does fix a bug I'd rather use guard here.
+>=20
+> 	guard(mutex)(&vpmem->flush_lock);
+>=20
+> Then skip all the gotos and out_unlock stuff.
+
+Agreed. I'll use guard in v2.
+=20
+> Also, does this affect performance at all?
+
+I did a quick sanity check. With a smaller numjobs value (numjobs=3D16,
+iodepth=3D64, fsync=3D1, bs=3D4k, runtime=3D30s), I did not see a regressio=
+n on this
+setup. At numjobs=3D64 the baseline frequently hits NEEDS_RESET, so correct=
+ness
+is the primary motivation here.
+
+Regards,
+Li=E2=80=8B
