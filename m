@@ -1,70 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F6A2DECA3
-	for <virtualization@lists.linux.dev>; Sun,  1 Feb 2026 09:01:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCE3031B10B
+	for <virtualization@lists.linux.dev>; Sun,  1 Feb 2026 09:05:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769936488; cv=none; b=f27PTEAU4Hq3VxSXBjHWh6ztNsmJJVMFLb+iIcugd9Sn6qNIfUa7dheqBiLo90tD5tbZGOPHSOHYtX3rlPgLA04JjdxrI96pQNH6b9GFmk+KPuuiLEcHJQ4NLItntW3rbCoP+nOZ1n3sh2LYx7/5XsFwUlA15Oaadvn6w1NP72Y=
+	t=1769936715; cv=none; b=fidaRnQ60Xhnq13+wlbR1TTQADDypKfAPrU/J4ZpsEgUZnqNhCNGneMCOJIX1ZaRSvO/CM7yyzczNnCZgh8y6t+Zdcm6IY151hX1eBPLO7rZZmFFY82GEmjsKbyAXdJmDbS+hxsrsBT7RbwlXqb7/qfF5FzSifI5UWlyo7qN0UY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769936488; c=relaxed/simple;
-	bh=uLCjGvitM7MZI+iiZOhsAyamc3vLUAP3Bnzyj3zmxmw=;
+	s=arc-20240116; t=1769936715; c=relaxed/simple;
+	bh=QEWaTUGYIM3AUbjp29sbAba2kUUYgtptVEBxmi5dzvQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Nv7EhDz/0RYUxqyfuz8yiEXB/BQH6ONbFUiuSGdTYh+R3eqiPulxk7MrJa5rXNKM4W12WbkYaZbUMI3rO+wIiUHOM4VSUQGiBSDZlZt31ARaoO5+RM9eycUyBAygTY/UaSS9xWBfKBEfRUXlesUMP51nIHxpuPN/ss36AiDrvQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XK9lUsSg; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=M+DFmCGKJEFTkLbd6kxaF1O3VNmzdGrPAQFbItTpMwuqMXyIXdN5QXlT42sX+FQDewJe5XeqHhv+R0FSn0PDxmACP/1yJoAmx6IHhcfMwzALUUNc4kfS27wOIVRdIB38h7QbRL5Xr6w4omDnzSKcTE8xrDult9rQQaJ6X4tPwHQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RpOd99rs; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XK9lUsSg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RpOd99rs"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769936485;
+	s=mimecast20190719; t=1769936712;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=PbdMtd8ZV0Hoqg/gvmWguCwsRV3oQaDigUGA5FFlPEw=;
-	b=XK9lUsSgv5NmGKEW2yTbUcVZFlIN3gn6FVpOPZzTGj2iAkW6M30LRWxWBpmXbgMYy2zEx4
-	UmOIm8j8nIfsLX05vipwZJ4njvGoLoJmOMchwA3pBhCJKiaE7YOXEPMnz0TBmZOaKHP1uf
-	Gh9ewvy+u49vmQVe2LPZZ50PPddgPA0=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=n3PpGZtslxQ3EtKo9C9Fdk6vH37O76cwSZfkhQe8fSc=;
+	b=RpOd99rsu2w5SJNX9Vk/2uYXjpY37sSLOPifsFbBCPR2lxnSDufXKc7NnyPnCOWmJRxCWf
+	iugPXjU4PGQ9ZPxGcDShxsiHCJ7ydmPhIHoU1JvG5xjTfrHd/SG2vnPBnzDqLNIspl0SsU
+	tRLf/0yCNLFLF2YEd7eOCdmU+GsGgWg=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-587-_RJIRl0XPr-Ijgq2FmEudg-1; Sun, 01 Feb 2026 04:01:24 -0500
-X-MC-Unique: _RJIRl0XPr-Ijgq2FmEudg-1
-X-Mimecast-MFC-AGG-ID: _RJIRl0XPr-Ijgq2FmEudg_1769936483
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-430fe16b481so2252093f8f.3
-        for <virtualization@lists.linux.dev>; Sun, 01 Feb 2026 01:01:24 -0800 (PST)
+ us-mta-64-_pNbQ3QQMOyDaQJw3qwivw-1; Sun, 01 Feb 2026 04:05:09 -0500
+X-MC-Unique: _pNbQ3QQMOyDaQJw3qwivw-1
+X-Mimecast-MFC-AGG-ID: _pNbQ3QQMOyDaQJw3qwivw_1769936708
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-47ee056e5cfso31104455e9.1
+        for <virtualization@lists.linux.dev>; Sun, 01 Feb 2026 01:05:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769936483; x=1770541283;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PbdMtd8ZV0Hoqg/gvmWguCwsRV3oQaDigUGA5FFlPEw=;
-        b=B8U5GuvGqoKvWBR8O4TRmdHa08G7+kKqi6RXtlkwOIjXpS2CbcSz+RVDt0/TW0tDjG
-         Ot/apw3oMH4n3YmBX1NsggM3+6NIPfbluREhSQ3tllQAE1s+Iw0E5G9X+kzxAClANrLA
-         takHhJ5v0ujwdrENDaN1JH0SP0fKYpFx57yFpAhYTSELT6rJ1BdMqhTn7IMjM74BAmhC
-         iYBqlJIq2R0RSuHe5kzESbpJg1EmAEWTwI/x9w0YLL5cWzMt7E/4dR9pMFjlVQYOzG/h
-         lybTl73VOpD5wyCLy7VVgsia4uPXH5wT9WgVwX9LjudlNVbxSEfNPQNQ6XkKp/4Jmp5J
-         6RYg==
-X-Forwarded-Encrypted: i=1; AJvYcCWWPi4hCA/NXBWifUIZeQaqZNhWDe5B4tvtDVZZfZtyG4hnvEd9Ds3Z/63e3KGeEMTxLvb/qy91PTaWT3Dktw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwQIBz8Gk2ezLSCFaaxc8KjbP6DbsXnT/9nblSEonyFzpT21FEJ
-	BOoFyvDumiNGkUy8fwJuJQyizMPIEVw11h/r6VXd+1FXzfEod7KBN9cUqIXpMXf4/08NlEs1oAv
-	AtHH7BCcqYh6B8oOZMNpQSJd6OnivPW/3XcuN4jNTgFX63ZqQLQ6yFj6yTY68Vrqr93UI
-X-Gm-Gg: AZuq6aLkDvksbv2D1flBCB34fjUfaohciQnVeun1gu0iFNTeMIRv5Pfx48L+Pw3boZs
-	xCouIGwrfzpc6EH7mkKECNtc8AMdTEABm0DD/IfGmeNaeYVkVYAkV1O8qzNIG7fVsLSJ1fVUH3j
-	omZRzcLv1wbTsBDXhVU5RBlsiqSNzy6frGRhnZj8zkW7dzSA3aSb15KFMTAU+Io82pN9CsmgmJV
-	1c5+HVobwqKxnbBKChsLBBK1mL6Z1htZuR7uugMO+osugXKqizfjmyuWdwrN7ypE/qVVKG/yEYO
-	xp4HrPzDe4oEbiRprW9bQzol7FoefcPA5TX4dupl6X+Q0qfqrh17pG97ZbaILZdmWnDIBM68e/z
-	AuA5N43fIupgjqzeh9Dhga8dYtXkNGKHakw==
-X-Received: by 2002:a05:6000:2883:b0:430:f742:fbb4 with SMTP id ffacd0b85a97d-435f3aaea5bmr11593868f8f.43.1769936482919;
-        Sun, 01 Feb 2026 01:01:22 -0800 (PST)
-X-Received: by 2002:a05:6000:2883:b0:430:f742:fbb4 with SMTP id ffacd0b85a97d-435f3aaea5bmr11593790f8f.43.1769936482295;
-        Sun, 01 Feb 2026 01:01:22 -0800 (PST)
+        d=1e100.net; s=20230601; t=1769936708; x=1770541508;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=n3PpGZtslxQ3EtKo9C9Fdk6vH37O76cwSZfkhQe8fSc=;
+        b=l5EPd/9Ed3i+/kO1xsH/D5FHHslr3bKrUr+NOyIBM4xRIb62khxSnilwG371KeIZla
+         RowdDJqLWiw/YaVsu+Pu8iEhuo441EPCgPezijMFF/MIhCYKWg2v3PQOZZ/qbUaXHS4C
+         8lCCPNHVjBb4oJs2+h5oQwBNhIlJ9fdMJtThWkp5Waz0Fyx166VjmRAAuJTXSriGZsG5
+         A6y3+T5+sSYRbtJN0wKdelTzN990v5ixoekiO0hLfZa2NiMg5kYftRROnbPB9zJFH+AQ
+         /ou9dWx6DusK2AuvlA8DGQv/k8iubQDz/B/LVbkM7p6AKL2FHX/KLhNeseoRyY9+NnbK
+         6dPg==
+X-Forwarded-Encrypted: i=1; AJvYcCVeAdPNn1bXDtiANrR8AOvPsmMqqRKhzxWx4CLdTIcboGLgnw68Z7A9f+1NTufvwBx3b1R+J7V22ei5E9gfbQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyXJq4Vn40ASgOSLYIFLk/I594CtOAsmk9OnjU4ZA57Xig8Bv9m
+	fQNRgv7wwl3hW2uKCx5Ext23TUb/OMm8ej04md509FqbUZqbTWQ0DNBz/ayDVgxFVel1s5o9ve6
+	z/Qtnbgvgjgn5A/yx9c99Bncm6u/EUv1iu/heQI2SPaV5VNieh8sHLVehvohaNfb62szS
+X-Gm-Gg: AZuq6aIRQ/XdX7kzb7QhJB+7+LWKWOOQLFXwwJW6AFyV7VAYG8CsBIyvYRiUPeaQqtx
+	ImH7h3+mKmwSnQQZK891Rw9GxpZP6cIPTFmIGY7YFK7st/GitAspk/SV0eWr9uIsdPaOSECK4s8
+	t9FB5zpFsXNtkwmO6eTODRRuD8Nc0SRxId2IwUtn6lH4iqVkfnylkwex2dYTzNNsstK5d5k/U7m
+	yLjPzAQ2WPdfZwY+x7p38dgztCzYoSlzpnbCrioIbU6AWQjP/B+4lsW7fPrNAoGf/7DpUlSd3ej
+	Q5WU/COqrVC2p3SriNUUbCrAzUckNpcfnP2z5Fo648wNPEwtIIEVxz4gKmRo68JZ8o45Hi1TRR+
+	617JOobBVe1rjGEBqGtjwrdU4HtF8cI0itA==
+X-Received: by 2002:a05:600c:4e56:b0:47e:f481:24b7 with SMTP id 5b1f17b1804b1-482db47cd9emr108399905e9.17.1769936708028;
+        Sun, 01 Feb 2026 01:05:08 -0800 (PST)
+X-Received: by 2002:a05:600c:4e56:b0:47e:f481:24b7 with SMTP id 5b1f17b1804b1-482db47cd9emr108399225e9.17.1769936707599;
+        Sun, 01 Feb 2026 01:05:07 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435e131ce70sm36590005f8f.27.2026.02.01.01.01.18
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-482e04c13a2sm61038245e9.5.2026.02.01.01.05.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Feb 2026 01:01:21 -0800 (PST)
-Date: Sun, 1 Feb 2026 04:01:16 -0500
+        Sun, 01 Feb 2026 01:05:07 -0800 (PST)
+Date: Sun, 1 Feb 2026 04:05:02 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: chia-yu.chang@nokia-bell-labs.com
 Cc: tariqt@nvidia.com, linux-rdma@vger.kernel.org, shaojijie@huawei.com,
@@ -85,74 +84,85 @@ Cc: tariqt@nvidia.com, linux-rdma@vger.kernel.org, shaojijie@huawei.com,
 	g.white@cablelabs.com, ingemar.s.johansson@ericsson.com,
 	mirja.kuehlewind@ericsson.com, cheshire@apple.com, rs.ietf@gmx.at,
 	Jason_Livingood@comcast.com, vidhi_goel@apple.com
-Subject: Re: [PATCH v1 net-next 1/3] net: update commnets for SKB_GSO_TCP_ECN
- and SKB_GSO_TCP_ACCECN
-Message-ID: <20260201040043-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v1 net-next 2/3] net: hns3/mlx5e: avoid corrupting CWR
+ flag when receiving GRO packet
+Message-ID: <20260201040151-mutt-send-email-mst@kernel.org>
 References: <20260131225510.2946-1-chia-yu.chang@nokia-bell-labs.com>
- <20260131225510.2946-2-chia-yu.chang@nokia-bell-labs.com>
+ <20260131225510.2946-3-chia-yu.chang@nokia-bell-labs.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260131225510.2946-2-chia-yu.chang@nokia-bell-labs.com>
+In-Reply-To: <20260131225510.2946-3-chia-yu.chang@nokia-bell-labs.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 64ZLhHqgnONTUivW9yy7T-AiU4s9OIfa-1eiZ8oC9Ig_1769936483
+X-Mimecast-MFC-PROC-ID: MzKxNVRxsjciba2d_JnERZY1TjrrVO6DpoV8N6iNdaA_1769936708
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Sat, Jan 31, 2026 at 11:55:08PM +0100, chia-yu.chang@nokia-bell-labs.com wrote:
+On Sat, Jan 31, 2026 at 11:55:09PM +0100, chia-yu.chang@nokia-bell-labs.com wrote:
 > From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
 > 
-> No functional changes.
+> In Accurate ECN, ACE counter (AE, ECE, CWR flags) changes only when new
+> CE packets arrive, while setting SKB_GSO_TCP_ECN in case of not knowing
+> the ECN variant can result in header change that corrupts the ACE field.
+> The new flag SKB_GSO_TCP_ACCECN is to prevent SKB_GSO_TCP_ECN or
+> NETIF_F_TSO_ECN offloading to be used because they would corrupt CWR
+> flag somewhere.
 > 
-> Co-developed-by: Ilpo Järvinen <ij@kernel.org>
-> Signed-off-by: Ilpo Järvinen <ij@kernel.org>
 > Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
 
-Subject: comments?
+Not my driver, but a better format is something along the lines of:
+
+Currently .... this is wrong because ... as the result .... fix this by ...
+so that ....
+
+the coding style does say that you should use the imperative form.
+
+
 
 > ---
->  include/linux/skbuff.h | 16 +++++++++++++++-
->  1 file changed, 15 insertions(+), 1 deletion(-)
+>  drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 2 +-
+>  drivers/net/ethernet/mellanox/mlx5/core/en_rx.c | 4 ++--
+>  2 files changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-> index e6bfe5d0c525..30a8dc4233ba 100644
-> --- a/include/linux/skbuff.h
-> +++ b/include/linux/skbuff.h
-> @@ -671,7 +671,13 @@ enum {
->  	/* This indicates the skb is from an untrusted source. */
->  	SKB_GSO_DODGY = 1 << 1,
+> diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+> index a47464a22751..3a1cf4335477 100644
+> --- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+> +++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+> @@ -3897,7 +3897,7 @@ static int hns3_gro_complete(struct sk_buff *skb, u32 l234info)
 >  
-> -	/* This indicates the tcp segment has CWR set. */
-> +	/* For Tx, this indicates the first TCP segment has CWR set, and any
-> +	 * subsequent segment in the same skb has CWR cleared. However, because
-> +	 * the connection to which the segment belongs is not tracked to use
-> +	 * RFC3168 or AccECN (RFC9768), and using RFC3168 ECN offload may clear
-> +	 * ACE signal (CWR is one of it). Therefore, this cannot be used on Rx.
-> +	 * Instead, SKB_GSO_TCP_ACCECN shall be used to avoid CWR corruption.
-> +	 */
->  	SKB_GSO_TCP_ECN = 1 << 2,
+>  	skb_shinfo(skb)->gso_segs = NAPI_GRO_CB(skb)->count;
+>  	if (th->cwr)
+> -		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
+> +		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ACCECN;
 >  
->  	__SKB_GSO_TCP_FIXEDID = 1 << 3,
-> @@ -706,6 +712,14 @@ enum {
+>  	if (l234info & BIT(HNS3_RXD_GRO_FIXID_B))
+>  		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_FIXEDID;
+> diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+> index 1fc3720d2201..d174f83478a3 100644
+> --- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+> +++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+> @@ -1311,7 +1311,7 @@ static void mlx5e_shampo_update_ipv4_tcp_hdr(struct mlx5e_rq *rq, struct iphdr *
+>  	skb->csum_offset = offsetof(struct tcphdr, check);
 >  
->  	SKB_GSO_FRAGLIST = 1 << 18,
+>  	if (tcp->cwr)
+> -		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
+> +		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ACCECN;
+>  }
 >  
-> +	/* For TX, this indicates the TCP segment uses the CWR flag as part of
-> +	 * ACE signal, and the CWR flag is not modified in the skb. For RX, any
-> +	 * CWR flagged segment must use SKB_GSO_TCP_ACCECN to ensure CWR flag
-> +	 * is not cleared by any RFC3168 ECN offload, and thus keeping ACE
-> +	 * signal of AccECN segments. This is particularly used for Rx of
-> +	 * virtio_net driver in order to tell latter GSO Tx in a forwarding
-> +	 * scenario that it is NOT ok to clean CWR flag from the 2nd segment.
-> +	 */
->  	SKB_GSO_TCP_ACCECN = 1 << 19,
+>  static void mlx5e_shampo_update_ipv6_tcp_hdr(struct mlx5e_rq *rq, struct ipv6hdr *ipv6,
+> @@ -1332,7 +1332,7 @@ static void mlx5e_shampo_update_ipv6_tcp_hdr(struct mlx5e_rq *rq, struct ipv6hdr
+>  	skb->csum_offset = offsetof(struct tcphdr, check);
 >  
->  	/* These indirectly map onto the same netdev feature.
+>  	if (tcp->cwr)
+> -		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
+> +		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ACCECN;
+>  }
+>  
+>  static void mlx5e_shampo_update_hdr(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe, bool match)
 > -- 
 > 2.34.1
 
