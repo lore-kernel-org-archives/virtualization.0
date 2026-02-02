@@ -1,417 +1,158 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from out-188.mta0.migadu.com (out-188.mta0.migadu.com [91.218.175.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92D4F2882B2
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 07:35:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91F662BD5A7
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 07:46:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770017710; cv=none; b=psjqIhRnsVQ6DnKYIujvLokGfBDgPCFpHS+tEePb07s32/Si4JL/8LmaFKOAE66YFwizrqdYvX4Dgbyi6HP69BDB6HFq/FcPXtyqIQ4rUl8wKdH75jamtsIrEcN7yZiniKZWm4yefJ26NE3lCMCDimBn2wHfj//18B86g6OxRpM=
+	t=1770018392; cv=none; b=geZ1S+iPhmM63wiBZUtKWF1LyfMQiu6Mear0kPTyCYbx4DWuHOLesHvGwg8oMQBVg6Zqa5wzrQse757FEO2Xv8WlBSxTd7hvl9wcZ8n9AkPpnFZp5Wa39YzRtugBJc/eHZ1H2lSWYcAOKP3W4qRVmPaKLKjcPIYzRbsxn00/P9Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770017710; c=relaxed/simple;
-	bh=Iq0B9B671UG9bZSa5AaOH5xIdno8Irtx1Rn/B2QQ7d0=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Mwl0CrskOLX0hbZbCxZSGFnEPs3BMMUZxBSop8i6bScmWy1ztKMJGov4a/te8WV7Wx7HRySNNXrMACnSroJ0qC+wiP5n7jSLh7xlBFFgHmkf11yrjaOi9mPIIgZIeQXnuQ6tSmDoLNYVEbGufRw0zUP9XNe5ZojrfvN02ANHRUQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from ptz.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::77] helo=ratatoskr.pengutronix.de)
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <s.trumtrar@pengutronix.de>)
-	id 1vmoSb-0001sD-IV; Mon, 02 Feb 2026 08:35:01 +0100
-From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,  Jason Wang
- <jasowang@redhat.com>,  Xuan Zhuo <xuanzhuo@linux.alibaba.com>,  "David S.
- Miller" <davem@davemloft.net>,  Eric Dumazet <edumazet@google.com>,  Jakub
- Kicinski <kuba@kernel.org>,  Paolo Abeni <pabeni@redhat.com>,  Richard
- Cochran <richardcochran@gmail.com>,  Andrew Lunn <andrew+netdev@lunn.ch>,
-  Eugenio =?utf-8?Q?P=C3=A9rez?= <eperezma@redhat.com>,
-  virtualization@lists.linux.dev,
-  netdev@vger.kernel.org,  linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC v2 2/2] virtio-net: support receive timestamp
-In-Reply-To: <willemdebruijn.kernel.37516e24f10fa@gmail.com> (Willem de
-	Bruijn's message of "Sun, 01 Feb 2026 16:05:54 -0500")
-References: <20260129-v6-7-topic-virtio-net-ptp-v2-0-30a27dc52760@pengutronix.de>
-	<20260129-v6-7-topic-virtio-net-ptp-v2-2-30a27dc52760@pengutronix.de>
-	<willemdebruijn.kernel.37516e24f10fa@gmail.com>
-User-Agent: mu4e 1.12.13; emacs 30.2
-Date: Mon, 02 Feb 2026 08:34:58 +0100
-Message-ID: <87tsvzr42l.fsf@pengutronix.de>
+	s=arc-20240116; t=1770018392; c=relaxed/simple;
+	bh=gF4zFDW2PehmZJWhDlu3AKfkUoaA8TXz36nx5WblA30=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o+5NzNGQVrZHQ38eMpKsYOwuQ4vxkeXPJ/HltNyu+aXKZQrkg0U5mOvep2+Sp9rhK1uNRwiP/K6RyIFS0Ar9PgC99bni3Liqfs6PuPlCDguSN7TOJfBQJNPWfh3h6od0oKsqMiouBIy4UhbxW1GBqX+PhL/yLwR0vjpk+MfAZbI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=wosxrHeY; arc=none smtp.client-ip=91.218.175.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="wosxrHeY"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1770018388;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=YYvAr2zSKhz9oURt6YezfDRfsalBr4ckW+gKtHKbiDk=;
+	b=wosxrHeYuzwDZibEFFnXesvD5X7Y36t3WcKsgiDyoJ2SLGHe1hgNHCCdxP+y1kkOmpUxuA
+	ne4uNUPl7BldrNTKnxZey7beFJS2CLXaR6wQX3nM0I3kAsyzGEv9vQkbHRFw3xVf7CIkzp
+	OkP3H2EUOnHpoEgzNH1DFhkFAlP2nGs=
+From: Lance Yang <lance.yang@linux.dev>
+To: akpm@linux-foundation.org
+Cc: david@kernel.org,
+	dave.hansen@intel.com,
+	dave.hansen@linux.intel.com,
+	ypodemsk@redhat.com,
+	hughd@google.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	peterz@infradead.org,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	x86@kernel.org,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	lorenzo.stoakes@oracle.com,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	Liam.Howlett@oracle.com,
+	npache@redhat.com,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	shy828301@gmail.com,
+	riel@surriel.com,
+	jannh@google.com,
+	jgross@suse.com,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	boris.ostrovsky@oracle.com,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	ioworker0@gmail.com
+Subject: [PATCH v4 0/3] targeted TLB sync IPIs for lockless page table walkers
+Date: Mon,  2 Feb 2026 15:45:54 +0800
+Message-ID: <20260202074557.16544-1-lance.yang@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:900:1d::77
-X-SA-Exim-Mail-From: s.trumtrar@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: virtualization@lists.linux.dev
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On 2026-02-01 at 16:05 -05, Willem de Bruijn <willemdebruijn.kernel@gmail.com> wrote:
+When freeing or unsharing page tables we send an IPI to synchronize with
+concurrent lockless page table walkers (e.g. GUP-fast). Today we broadcast
+that IPI to all CPUs, which is costly on large machines and hurts RT
+workloads[1].
 
-> Steffen Trumtrar wrote:
-> > Add optional hardware rx timestamp offload for virtio-net.
-> > 
-> > Introduce virtio feature VIRTIO_NET_F_TSTAMP. If negotiated, the
-> > virtio-net header is expanded with room for a timestamp.
-> > 
-> > To get and set the hwtstamp the functions ndo_hwtstamp_set/get need
-> > to be implemented. This allows filtering the packets and only time stamp
-> > the packets where the filter matches. This way, the timestamping can
-> > be en/disabled at runtime.
-> > 
-> > Tested:
-> >   guest: ./timestamping eth0 \
-> >           SOF_TIMESTAMPING_RAW_HARDWARE \
-> >           SOF_TIMESTAMPING_RX_HARDWARE
-> >   host: nc -4 -u 192.168.1.1 319
-> > 
-> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
-> > 
-> > --
-> >   Changes to last version:
-> >   - rework series to use flow filters
-> >   - add new struct virtio_net_hdr_v1_hash_tunnel_ts
-> >   - original work done by: Willem de Bruijn <willemb@google.com>
-> > ---
-> >  drivers/net/virtio_net.c        | 136 ++++++++++++++++++++++++++++++++++++----
-> >  include/uapi/linux/virtio_net.h |   9 +++
-> >  2 files changed, 133 insertions(+), 12 deletions(-)
-> > 
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 1bb3aeca66c6e..4e8d9b20c1b34 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -429,6 +429,9 @@ struct virtnet_info {
-> >  	struct virtio_net_rss_config_trailer rss_trailer;
-> >  	u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];
-> >  
-> > +	/* Device passes time stamps from the driver */
-> > +	bool has_tstamp;
-> > +
-> >  	/* Has control virtqueue */
-> >  	bool has_cvq;
-> >  
-> > @@ -475,6 +478,8 @@ struct virtnet_info {
-> >  
-> >  	struct control_buf *ctrl;
-> >  
-> > +	struct kernel_hwtstamp_config tstamp_config;
-> > +
-> >  	/* Ethtool settings */
-> >  	u8 duplex;
-> >  	u32 speed;
-> > @@ -511,6 +516,7 @@ struct virtio_net_common_hdr {
-> >  		struct virtio_net_hdr_mrg_rxbuf	mrg_hdr;
-> >  		struct virtio_net_hdr_v1_hash hash_v1_hdr;
-> >  		struct virtio_net_hdr_v1_hash_tunnel tnl_hdr;
-> > +		struct virtio_net_hdr_v1_hash_tunnel_ts ts_hdr;
-> 
-> Jason, Michael: creating a new struct for every field is not very
-> elegant. Is it time to find a more forward looking approach to
-> expanding with new fields? Like a TLV, or how netlink structs like
-> tcp_info are extended with support for legacy users that only use
-> a truncated struct?
->
+This series makes those IPIs targeted. We track which CPUs are currently
+doing a lockless page table walk for a given mm (per-CPU
+active_lockless_pt_walk_mm). When we need to sync, we only IPI those CPUs.
+GUP-fast and perf_get_page_size() set/clear the tracker around their walk;
+tlb_remove_table_sync_mm() uses it and replaces the previous broadcast in
+the free/unshare paths.
 
-Yes, this gets complicated real fast and leads to really long calls for all the nested fields. If there is a different way, I'd prefer that.
+On x86, when the TLB flush path already sends IPIs (native without INVLPGB,
+or KVM), the extra sync IPI is redundant. We add a property on pv_mmu_ops
+so each backend can declare whether its flush_tlb_multi sends real IPIs; if
+so, tlb_remove_table_sync_mm() is a no-op. We also have tlb_flush() pass
+both freed_tables and unshared_tables so lazy-TLB CPUs get IPIs during
+hugetlb unshare.
 
-> >  	};
-> >  };
-> >  
-> > @@ -682,6 +688,13 @@ skb_vnet_common_hdr(struct sk_buff *skb)
-> >  	return (struct virtio_net_common_hdr *)skb->cb;
-> >  }
-> >  
-> > +static inline struct virtio_net_hdr_v1_hash_tunnel_ts *skb_vnet_hdr_ts(struct sk_buff *skb)
-> > +{
-> > +	BUILD_BUG_ON(sizeof(struct virtio_net_hdr_v1_hash_tunnel_ts) > sizeof(skb->cb));
-> > +
-> > +	return (void *)skb->cb;
-> > +}
-> > +
-> >  /*
-> >   * private is used to chain pages for big packets, put the whole
-> >   * most recent used list in the beginning for reuse
-> > @@ -2560,6 +2573,15 @@ virtio_net_hash_value(const struct virtio_net_hdr_v1_hash *hdr_hash)
-> >  		(__le16_to_cpu(hdr_hash->hash_value_hi) << 16);
-> >  }
-> >  
-> > +static inline u64
-> > +virtio_net_tstamp_value(const struct virtio_net_hdr_v1_hash_tunnel_ts *hdr_hash_ts)
-> > +{
-> > +	return  (u64)__le16_to_cpu(hdr_hash_ts->tstamp_0) |
-> > +	       ((u64)__le16_to_cpu(hdr_hash_ts->tstamp_1) << 16) |
-> > +	       ((u64)__le16_to_cpu(hdr_hash_ts->tstamp_2) << 32) |
-> > +	       ((u64)__le16_to_cpu(hdr_hash_ts->tstamp_3) << 48);
-> > +}
-> > +
-> >  static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
-> >  				struct sk_buff *skb)
-> >  {
-> > @@ -2589,6 +2611,18 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
-> >  	skb_set_hash(skb, virtio_net_hash_value(hdr_hash), rss_hash_type);
-> >  }
-> >  
-> > +static inline void virtnet_record_rx_tstamp(const struct virtnet_info *vi,
-> > +					    struct sk_buff *skb)
-> > +{
-> > +	struct skb_shared_hwtstamps *shhwtstamps = skb_hwtstamps(skb);
-> > +	const struct virtio_net_hdr_v1_hash_tunnel_ts *h = skb_vnet_hdr_ts(skb);
-> > +	u64 ts;
-> > +
-> > +	ts = virtio_net_tstamp_value(h);
-> > +	memset(shhwtstamps, 0, sizeof(struct skb_shared_hwtstamps));
-> > +	shhwtstamps->hwtstamp = ns_to_ktime(ts);
-> > +}
-> > +
-> >  static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *rq,
-> >  				 struct sk_buff *skb, u8 flags)
-> >  {
-> > @@ -2617,6 +2651,8 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
-> >  		goto frame_err;
-> >  	}
-> >  
-> > +	if (vi->has_tstamp && vi->tstamp_config.rx_filter != HWTSTAMP_FILTER_NONE)
-> > +		virtnet_record_rx_tstamp(vi, skb);
-> >  	skb_record_rx_queue(skb, vq2rxq(rq->vq));
-> >  	skb->protocol = eth_type_trans(skb, dev);
-> >  	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
-> > @@ -3321,7 +3357,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
-> >  {
-> >  	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
-> >  	struct virtnet_info *vi = sq->vq->vdev->priv;
-> > -	struct virtio_net_hdr_v1_hash_tunnel *hdr;
-> > +	struct virtio_net_hdr_v1_hash_tunnel_ts *hdr;
-> >  	int num_sg;
-> >  	unsigned hdr_len = vi->hdr_len;
-> >  	bool can_push;
-> > @@ -3329,8 +3365,8 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
-> >  	pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
-> >  
-> >  	/* Make sure it's safe to cast between formats */
-> > -	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->hash_hdr));
-> > -	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->hash_hdr.hdr));
-> > +	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->tnl.hash_hdr));
-> > +	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->tnl.hash_hdr.hdr));
-> >  
-> >  	can_push = vi->any_header_sg &&
-> >  		!((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
-> > @@ -3338,18 +3374,18 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
-> >  	/* Even if we can, don't push here yet as this would skew
-> >  	 * csum_start offset below. */
-> >  	if (can_push)
-> > -		hdr = (struct virtio_net_hdr_v1_hash_tunnel *)(skb->data -
-> > -							       hdr_len);
-> > +		hdr = (struct virtio_net_hdr_v1_hash_tunnel_ts *)(skb->data -
-> > +								  hdr_len);
-> >  	else
-> > -		hdr = &skb_vnet_common_hdr(skb)->tnl_hdr;
-> > +		hdr = &skb_vnet_common_hdr(skb)->ts_hdr;
-> >  
-> > -	if (virtio_net_hdr_tnl_from_skb(skb, hdr, vi->tx_tnl,
-> > +	if (virtio_net_hdr_tnl_from_skb(skb, &hdr->tnl, vi->tx_tnl,
-> >  					virtio_is_little_endian(vi->vdev), 0,
-> >  					false))
-> >  		return -EPROTO;
-> >  
-> >  	if (vi->mergeable_rx_bufs)
-> > -		hdr->hash_hdr.hdr.num_buffers = 0;
-> > +		hdr->tnl.hash_hdr.hdr.num_buffers = 0;
-> >  
-> >  	sg_init_table(sq->sg, skb_shinfo(skb)->nr_frags + (can_push ? 1 : 2));
-> >  	if (can_push) {
-> > @@ -5563,6 +5599,22 @@ static int virtnet_get_per_queue_coalesce(struct net_device *dev,
-> >  	return 0;
-> >  }
-> >  
-> > +static int virtnet_get_ts_info(struct net_device *dev,
-> > +			       struct kernel_ethtool_ts_info *info)
-> > +{
-> > +	/* setup default software timestamp */
-> > +	ethtool_op_get_ts_info(dev, info);
-> > +
-> > +	info->rx_filters = (BIT(HWTSTAMP_FILTER_NONE) |
-> > +			    BIT(HWTSTAMP_FILTER_PTP_V1_L4_SYNC) |
-> > +			    BIT(HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ) |
-> > +			    BIT(HWTSTAMP_FILTER_ALL));
-> > +
-> > +	info->tx_types = HWTSTAMP_TX_OFF;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static void virtnet_init_settings(struct net_device *dev)
-> >  {
-> >  	struct virtnet_info *vi = netdev_priv(dev);
-> > @@ -5658,7 +5710,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
-> >  	.get_ethtool_stats = virtnet_get_ethtool_stats,
-> >  	.set_channels = virtnet_set_channels,
-> >  	.get_channels = virtnet_get_channels,
-> > -	.get_ts_info = ethtool_op_get_ts_info,
-> > +	.get_ts_info = virtnet_get_ts_info,
-> >  	.get_link_ksettings = virtnet_get_link_ksettings,
-> >  	.set_link_ksettings = virtnet_set_link_ksettings,
-> >  	.set_coalesce = virtnet_set_coalesce,
-> > @@ -6242,6 +6294,58 @@ static void virtnet_tx_timeout(struct net_device *dev, unsigned int txqueue)
-> >  		   jiffies_to_usecs(jiffies - READ_ONCE(txq->trans_start)));
-> >  }
-> >  
-> > +static int virtnet_hwtstamp_get(struct net_device *dev,
-> > +				struct kernel_hwtstamp_config *tstamp_config)
-> > +{
-> > +	struct virtnet_info *vi = netdev_priv(dev);
-> > +
-> > +	if (!netif_running(dev))
-> > +		return -EINVAL;
-> > +
-> > +	*tstamp_config = vi->tstamp_config;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int virtnet_hwtstamp_set(struct net_device *dev,
-> > +				struct kernel_hwtstamp_config *tstamp_config,
-> > +				struct netlink_ext_ack *extack)
-> > +{
-> > +	struct virtnet_info *vi = netdev_priv(dev);
-> > +
-> > +	if (!netif_running(dev))
-> > +		return -EINVAL;
-> > +
-> > +	switch (tstamp_config->rx_filter) {
-> > +	case HWTSTAMP_FILTER_PTP_V1_L4_SYNC:
-> > +	case HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ:
-> > +		break;
-> > +	case HWTSTAMP_FILTER_PTP_V2_EVENT:
-> > +	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
-> > +	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
-> > +	case HWTSTAMP_FILTER_PTP_V2_SYNC:
-> > +	case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
-> > +	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
-> > +	case HWTSTAMP_FILTER_PTP_V2_DELAY_REQ:
-> > +	case HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ:
-> > +	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
-> > +		tstamp_config->rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
-> > +		break;
-> > +	case HWTSTAMP_FILTER_NONE:
-> > +		break;
-> > +	case HWTSTAMP_FILTER_ALL:
-> > +		tstamp_config->rx_filter = HWTSTAMP_FILTER_ALL;
-> > +		break;
-> 
-> It's fine to implement filters, but also fine to only support ALL or
-> NONE for simplicity.
-> 
-> In the end it probably depends on what the underlying physical device
-> supports.
-> 
-> > +	default:
-> > +		tstamp_config->rx_filter = HWTSTAMP_FILTER_ALL;
-> > +		return -ERANGE;
-> > +	}
-> > +
-> > +	vi->tstamp_config = *tstamp_config;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static int virtnet_init_irq_moder(struct virtnet_info *vi)
-> >  {
-> >  	u8 profile_flags = 0, coal_flags = 0;
-> > @@ -6289,6 +6393,8 @@ static const struct net_device_ops virtnet_netdev = {
-> >  	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
-> >  	.ndo_set_features	= virtnet_set_features,
-> >  	.ndo_tx_timeout		= virtnet_tx_timeout,
-> > +	.ndo_hwtstamp_set	= virtnet_hwtstamp_set,
-> > +	.ndo_hwtstamp_get	= virtnet_hwtstamp_get,
-> >  };
-> >
-> >  static void virtnet_config_changed_work(struct work_struct *work)
-> > @@ -6911,6 +7017,9 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT))
-> >  		vi->has_rss_hash_report = true;
-> >  
-> > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_TSTAMP))
-> > +		vi->has_tstamp = true;
-> > +
-> >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
-> >  		vi->has_rss = true;
-> >  
-> > @@ -6945,8 +7054,10 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >  		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
-> >  	}
-> >  
-> > -	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) ||
-> > -	    virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
-> > +	if (vi->has_tstamp)
-> > +		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel_ts);
-> > +	else if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) ||
-> > +		 virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
-> >  		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel);
-> >  	else if (vi->has_rss_hash_report)
-> >  		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
-> > @@ -7269,7 +7380,8 @@ static struct virtio_device_id id_table[] = {
-> >  	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
-> >  	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
-> >  	VIRTIO_NET_F_VQ_NOTF_COAL, \
-> > -	VIRTIO_NET_F_GUEST_HDRLEN, VIRTIO_NET_F_DEVICE_STATS
-> > +	VIRTIO_NET_F_GUEST_HDRLEN, VIRTIO_NET_F_DEVICE_STATS, \
-> > +	VIRTIO_NET_F_TSTAMP
-> >  
-> >  static unsigned int features[] = {
-> >  	VIRTNET_FEATURES,
-> > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> > index 1db45b01532b5..9f967575956b8 100644
-> > --- a/include/uapi/linux/virtio_net.h
-> > +++ b/include/uapi/linux/virtio_net.h
-> > @@ -56,6 +56,7 @@
-> >  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
-> >  					 * Steering */
-> >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
-> > +#define VIRTIO_NET_F_TSTAMP	  49	/* Device sends TAI receive time */
-> >  #define VIRTIO_NET_F_DEVICE_STATS 50	/* Device can provide device-level statistics. */
-> >  #define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
-> >  #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
-> > @@ -215,6 +216,14 @@ struct virtio_net_hdr_v1_hash_tunnel {
-> >  	__le16 inner_nh_offset;
-> >  };
-> >  
-> > +struct virtio_net_hdr_v1_hash_tunnel_ts {
-> > +	struct virtio_net_hdr_v1_hash_tunnel tnl;
-> > +	__le16 tstamp_0;
-> > +	__le16 tstamp_1;
-> > +	__le16 tstamp_2;
-> > +	__le16 tstamp_3;
-> > +};
-> 
-> Why the multiple fields, rather than u64.
+David Hildenbrand did the initial implementation. I built on his work and
+relied on off-list discussions to push it further - thanks a lot David!
 
-Should have added a comment, but this is based on this patch
+[1] https://lore.kernel.org/linux-mm/1b27a3fa-359a-43d0-bdeb-c31341749367@kernel.org/
 
-    c3838262b824c71c145cd3668722e99a69bc9cd9
-    virtio_net: fix alignment for virtio_net_hdr_v1_hash
-      
-    Changing alignment of header would mean it's no longer safe to cast a
-    2 byte aligned pointer between formats. Use two 16 bit fields to make
-    it 2 byte aligned as previously.
+v3 -> v4:
+- Rework based on David's two-step direction and per-CPU idea:
+  1) Targeted IPIs: per-CPU variable when entering/leaving lockless page
+     table walk; tlb_remove_table_sync_mm() IPIs only those CPUs.
+  2) On x86, pv_mmu_ops property set at init to skip the extra sync when
+     flush_tlb_multi() already sends IPIs.
+  https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+- https://lore.kernel.org/linux-mm/20260106120303.38124-1-lance.yang@linux.dev/
 
-> 
-> More broadly: can my old patchset be dusted off as is. Does it require
-> significant changes?
->
+v2 -> v3:
+- Complete rewrite: use dynamic IPI tracking instead of static checks
+  (per Dave Hansen, thanks!)
+- Track IPIs via mmu_gather: native_flush_tlb_multi() sets flag when
+  actually sending IPIs
+- Motivation for skipping redundant IPIs explained by David:
+  https://lore.kernel.org/linux-mm/1b27a3fa-359a-43d0-bdeb-c31341749367@kernel.org/
+- https://lore.kernel.org/linux-mm/20251229145245.85452-1-lance.yang@linux.dev/
 
-This is the dusted off version ;) With the flow filter it should be possible to turn the timestamps on and off during runtime.
+v1 -> v2:
+- Fix cover letter encoding to resolve send-email issues. Apologies for
+  any email flood caused by the failed send attempts :(
 
+RFC -> v1:
+- Use a callback function in pv_mmu_ops instead of comparing function
+  pointers (per David)
+- Embed the check directly in tlb_remove_table_sync_one() instead of
+  requiring every caller to check explicitly (per David)
+- Move tlb_table_flush_implies_ipi_broadcast() outside of
+  CONFIG_MMU_GATHER_RCU_TABLE_FREE to fix build error on architectures
+  that don't enable this config.
+  https://lore.kernel.org/oe-kbuild-all/202512142156.cShiu6PU-lkp@intel.com/
+- https://lore.kernel.org/linux-mm/20251213080038.10917-1-lance.yang@linux.dev/
 
-Best regards,
-Steffen
+Lance Yang (3):
+  mm: use targeted IPIs for TLB sync with lockless page table walkers
+  mm: switch callers to tlb_remove_table_sync_mm()
+  x86/tlb: add architecture-specific TLB IPI optimization support
+
+ arch/x86/hyperv/mmu.c                 |  5 ++
+ arch/x86/include/asm/paravirt.h       |  5 ++
+ arch/x86/include/asm/paravirt_types.h |  6 +++
+ arch/x86/include/asm/tlb.h            | 20 +++++++-
+ arch/x86/kernel/kvm.c                 |  6 +++
+ arch/x86/kernel/paravirt.c            | 18 +++++++
+ arch/x86/kernel/smpboot.c             |  1 +
+ arch/x86/xen/mmu_pv.c                 |  2 +
+ include/asm-generic/tlb.h             | 28 +++++++++--
+ include/linux/mm.h                    | 34 +++++++++++++
+ kernel/events/core.c                  |  2 +
+ mm/gup.c                              |  2 +
+ mm/khugepaged.c                       |  2 +-
+ mm/mmu_gather.c                       | 69 ++++++++++++++++++++++++---
+ 14 files changed, 187 insertions(+), 13 deletions(-)
 
 -- 
-Pengutronix e.K.                | Dipl.-Inform. Steffen Trumtrar |
-Steuerwalder Str. 21            | https://www.pengutronix.de/    |
-31137 Hildesheim, Germany       | Phone: +49-5121-206917-0       |
-Amtsgericht Hildesheim, HRA 2686| Fax:   +49-5121-206917-5555    |
+2.49.0
+
