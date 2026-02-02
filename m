@@ -1,284 +1,273 @@
-Received: from jpms-ob01.noc.sony.co.jp (jpms-ob01.noc.sony.co.jp [211.125.140.164])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD8923570CE
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 10:01:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.125.140.164
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 114A121FF48
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 10:27:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770026515; cv=none; b=nkJ0acGHX6xRP1tUQjdZyJeGsIxWyCMuvOyMQ+AUT7t876rUEZjpHeprdZs02lz1q5dhjhMlX5LfjkQPKrQQN35NuTvoruU1yN5CsVrKMRSsrOyO8Scx401zJHNRC9AFqB0KDwm+nAX3jsibwKCDaaVJ4BA7PoIv0kEm49j4yiM=
+	t=1770028045; cv=none; b=JcIycWuHqXhwi/56+zKqcRpZfZmoAcR/SIgHvVwBi+phKWRnHhFjLdvVk7AsMavd5eYFY6LN7SAYn1/blgByjFLrcIpmPJ9n+Sus73+WamDnP2IRCDEMrxOFltYGTjuoZ1VhPUNgLN+FsBG/+MhYAgutJv1JN2dgtrkdxQdLJGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770026515; c=relaxed/simple;
-	bh=40ywH2ksTo16iKGC5c7aKcdzHSb3M0fEznHdLx5ChZY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cd7u8pn4DTcenx0t2wYizB3yV1snvJTyG9BXsqTiaHOKidPpF6yoUXtCgKlu+EXDGPb7qlUjP7sT+KpDWYJcSSj31WS2JY7af5OBQEOG1OvPku19IL9EStGFZEIlG29A4volJ+StVGfTKXHGIEwj9ycxqevLZV2qHfUVKcV+SaA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com; spf=pass smtp.mailfrom=sony.com; dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b=mPVWqzr7; arc=none smtp.client-ip=211.125.140.164
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sony.com
+	s=arc-20240116; t=1770028045; c=relaxed/simple;
+	bh=l+3o+MHKL82BTRKdVCIUQ3bcYUyRbNh1DNTmf0Cc978=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=szeCKS8grFZjdyxepmm7qizvw2xku1ZeTi6J6UM0Hi9vGkjjkcx+011/UQtya1HNra767LIeEtcx47vj9zO1yy7ayJDqfCxGzcP9NPR69Jdqw2NFvKSNjwtyV6WueSgNFUU3T7M/9Rl10phYa4zl0gighBvYvygYRpWDQ1YzHEY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Lz/i0BC+; arc=none smtp.client-ip=209.85.218.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b="mPVWqzr7"
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Lz/i0BC+"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-b885e8c679bso661505066b.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Feb 2026 02:27:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=sony.com; s=s1jp; t=1770026514; x=1801562514;
-  h=from:date:subject:mime-version:content-transfer-encoding:
-   message-id:references:in-reply-to:to:cc;
-  bh=UGbV0HlypAsqDyqCwF4KKZshjhbYqkotn40a85H3Q7U=;
-  b=mPVWqzr7c75SznMgulipRECjQ2TVmhw7Yi7VQDoRUVmk/Ar6+vY2mgk4
-   dCM0RoK5qtQGvXA5h8PXtuF+rFtcn07BlxyRNOwRDz9L2RO7H8DUuZGAO
-   jUqoqfxcRMlti+4505ZXp0bjCEnPTKz+vcKvQZpPZZJx23k/6DHO7DE5g
-   0RRe0mO9+y7BGhfW9iv/77GbqKwRqUx+zqD6zlgM6uJ3aXY3KOuJMOq26
-   xU7HWhm4NkO6FCSqVmfzMf/DNLOpMZmFt2DI8l0gj29c+hHUwPnXUaSmT
-   KsWpmbgumrWipTlE1fLl9bFibHGAKehG+uAMZMlcyw09xV8vXWA/yNfnz
-   w==;
-Received: from unknown (HELO jpmta-ob1.noc.sony.co.jp) ([IPv6:2001:cf8:0:6e7::6])
-  by jpms-ob01.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 18:51:38 +0900
-X-IronPort-AV: E=Sophos;i="6.21,268,1763391600"; 
-   d="scan'208";a="607384938"
-Received: from unknown (HELO [127.0.1.1]) ([IPv6:2001:cf8:1:573:0:dddd:6b3e:119e])
-  by jpmta-ob1.noc.sony.co.jp with ESMTP; 02 Feb 2026 18:51:38 +0900
-From: Shashank Balaji <shashank.mahadasyam@sony.com>
-Date: Mon, 02 Feb 2026 18:51:04 +0900
-Subject: [PATCH 3/3] x86/virt: rename x2apic_available to
- x2apic_without_ir_available
+        d=suse.com; s=google; t=1770028041; x=1770632841; darn=lists.linux.dev;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=l+3o+MHKL82BTRKdVCIUQ3bcYUyRbNh1DNTmf0Cc978=;
+        b=Lz/i0BC+X2I9UVQ9x4OvKctVPMNoJMPt8V3S7V/SbIDw7AfcCA9pyda0DnWX1L8C+C
+         PcsgPbMQtUiOUBzPtM6I5t92lZuaoXGU5Ew7mOEfEypYwLk72ZhbwWLLZujrx+D2l1Ba
+         DMjHaDcLnwFnHjaZcQ3slnJ8WH+4ZkY3nlIAb6C881x17SluXRw4/w+ve2L7OhtXOoJA
+         aw0yqDUshAHKRhpMuesL5KECjlHTflMwgkxfYxgfk4o3Xm8zamLlEbMx8OX4YMqbSDmo
+         Ly3T3ao08K94tBa6uIaCzfACxD8Udds46E25h5H3fXwoR8Qg6/q5yTsZoitG+29xJfw7
+         dfBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770028041; x=1770632841;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=l+3o+MHKL82BTRKdVCIUQ3bcYUyRbNh1DNTmf0Cc978=;
+        b=FNV/xHMHVrtDi+3S7Sbf+rOW0CkC9Y4aXi0HiQKNxydFgcn1ktzArNB3F8dseEh4VX
+         QA9ME2fJWwGypNMsS9fF05+uOtHCqJ4hJTgQjE5w3sjPw94F+75pn+hV4PlbF8+DkxsD
+         dI+4/Kt/EUqRJOHXAU7VP+o6OunUE6goTcxvUtxhtFhalrq/mWmSRN7Ae7HFgTgMffiA
+         TO0h2bEHeXXavUhv8lnzC7bnLRiw1eKtxbGOw4EUJuKviXESoaRPzn1qUJiBuf01KB3B
+         VZqWwEPdp15qQpYtRoGbE0j/kydbk61VGZCsQCih73negAM0xy17Mdk3WkM5YHXMIVCo
+         ZJow==
+X-Forwarded-Encrypted: i=1; AJvYcCWDpl801aYb5krQhGbLdikRVOhUgikvYz/ZR4NMITNAuqh4E1YIrOKwRqbHGoBBGtczwjMpPpR5xzk9zfDHCw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzT6mrE95yde/ELNnFNNuVFUn9dSdkXeZ3X1xKg6jzjUL4L99uq
+	JMpQlqu2JMNmueyhpLfYYxtnEsmVtKH5r7wSZ8lKRiv1dbvWzjz7HW+qlttf82xHqtA=
+X-Gm-Gg: AZuq6aKe/AuX48Llsna+dVJjm+udCqpPdoZJhbmnJK+w1Xq8CvC3+cweWfUAYjPfEBg
+	M94va0RXM//kd4V5obpFDLZNG3CTvrsUEQ4yx867NzEZ8dykyol4mqCyi1Z11XEMTOIp+H5dacR
+	hMT7EDm1zKimZao64lC+3PFN+Mj5h19zgS1EGlS3Db41ylhvJFAHgEMwqU/GEM0HOC6Z3Ld/xj2
+	lmkgTLeQb8WrzdzvaLkhSF6Q2jW1/EI8xpTcH//x2/7WY8hXkPEddwDp8saxB1qeowPJLLrp+bi
+	qNEGRgs8UQvoREU92EtGf2QDt/lhQSHDA3689CjU4KCaDWoTagQbIsQHsgcJh2Muzpm7tHurvrk
+	TN8AUNraVb5hKGWwXpof3NFqmzjbl7wjppwrjULPbT8mHxuxSQuzfzhEi/jC2F0PNrQU99wtxCC
+	Eg6B7fc0R3TrWekeX0dQHYiIWRN2l5pWyybztLrxvy7Lbs2hCnPrGXRVvbtm99ttsoDJeDbDM24
+	h7CFGfEHGKx3cqTgcFwFuE+V3x3ZV2HaXjxFw==
+X-Received: by 2002:a17:906:d54e:b0:b87:6af7:c186 with SMTP id a640c23a62f3a-b8dff8674d3mr755283566b.54.1770028041362;
+        Mon, 02 Feb 2026 02:27:21 -0800 (PST)
+Received: from ?IPV6:2a00:12d0:af5b:2f01:4042:c03:ce4d:a5a1? (2a00-12d0-af5b-2f01-4042-c03-ce4d-a5a1.ip.tng.de. [2a00:12d0:af5b:2f01:4042:c03:ce4d:a5a1])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8de3d734aesm688456966b.7.2026.02.02.02.27.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Feb 2026 02:27:21 -0800 (PST)
+Message-ID: <0afb8dc5-6ab9-4f61-af3a-8424835386e4@suse.com>
+Date: Mon, 2 Feb 2026 11:27:20 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260202-x2apic-fix-v1-3-71c8f488a88b@sony.com>
-References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
-In-Reply-To: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
-To: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
- Suresh Siddha <suresh.b.siddha@intel.com>, 
- "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
- Ajay Kaher <ajay.kaher@broadcom.com>, 
- Alexey Makhalov <alexey.makhalov@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- Jan Kiszka <jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>, 
- Vitaly Kuznetsov <vkuznets@redhat.com>, Juergen Gross <jgross@suse.com>, 
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, 
- linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
- jailhouse-dev@googlegroups.com, kvm@vger.kernel.org, 
- xen-devel@lists.xenproject.org, Rahul Bukte <rahul.bukte@sony.com>, 
- Shashank Balaji <shashank.mahadasyam@sony.com>, 
- Daniel Palmer <daniel.palmer@sony.com>, Tim Bird <tim.bird@sony.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=8661;
- i=shashank.mahadasyam@sony.com; h=from:subject:message-id;
- bh=40ywH2ksTo16iKGC5c7aKcdzHSb3M0fEznHdLx5ChZY=;
- b=owGbwMvMwCU2bX1+URVTXyjjabUkhsyG4pV73BSkW2t+bFj8lP/axHMSXQ/nLg+dcOZBrWq1l
- IycyNnlHaUsDGJcDLJiiiylStW/9q4IWtJz5rUizBxWJpAhDFycAjAR/UqGn4xiaRxyy02Nn4be
- 9Xesdnx9Matg+r2d2y7WH5tzzWHmuTSG/4lN6178i2r5JLaG8/tKKYYCxeYn2uGibz7WxSq6yev
- mMAAA
-X-Developer-Key: i=shashank.mahadasyam@sony.com; a=openpgp;
- fpr=75227BFABDA852A48CCCEB2196AF6F727A028E55
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
+To: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-block@vger.kernel.org
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
+ Jens Axboe <axboe@kernel.dk>
+References: <20260119182632.596369-1-jgross@suse.com>
+Content-Language: en-US
+From: Juergen Gross <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <20260119182632.596369-1-jgross@suse.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------EFFtuyAw2mxdAKPsAqPioBPH"
 
-No functional change.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------EFFtuyAw2mxdAKPsAqPioBPH
+Content-Type: multipart/mixed; boundary="------------DPiBTuW4WhK0KFF1cKCxJjmg";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-block@vger.kernel.org
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
+ Jens Axboe <axboe@kernel.dk>
+Message-ID: <0afb8dc5-6ab9-4f61-af3a-8424835386e4@suse.com>
+Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
+References: <20260119182632.596369-1-jgross@suse.com>
+In-Reply-To: <20260119182632.596369-1-jgross@suse.com>
 
-x86_init.hyper.x2apic_available is used only in try_to_enable_x2apic to check if
-x2apic needs to be disabled if interrupt remapping support isn't present. But
-the name x2apic_available doesn't reflect that usage.
+--------------DPiBTuW4WhK0KFF1cKCxJjmg
+Content-Type: multipart/mixed; boundary="------------liiRpZ2LGHl5C0gioM2bJdPR"
 
-This is what x2apic_available is set to for various hypervisors:
+--------------liiRpZ2LGHl5C0gioM2bJdPR
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-	acrn		boot_cpu_has(X86_FEATURE_X2APIC)
-	mshyperv	boot_cpu_has(X86_FEATURE_X2APIC)
-	xen		boot_cpu_has(X86_FEATURE_X2APIC) or false
-	vmware		vmware_legacy_x2apic_available
-	kvm		kvm_cpuid_base() != 0
-	jailhouse	x2apic_enabled()
-	bhyve		true
-	default		false
+UGluZz8NCg0KT24gMTkuMDEuMjYgMTk6MjYsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+IFdo
+aWxlIGxvb2tpbmcgYXQgcGFyYXZpcnQgY2xlYW51cHMgSSBzdHVtYmxlZCBvdmVyIHNsb3df
+ZG93bl9pbygpIGFuZA0KPiB0aGUgcmVsYXRlZCBSRUFMTFlfU0xPV19JTyBkZWZpbmUuDQo+
+IA0KPiBEbyBzZXZlcmFsIGNsZWFudXBzLCByZXN1bHRpbmcgaW4gYSBkZWxldGlvbiBvZiBS
+RUFMTFlfU0xPV19JTyBhbmQgdGhlDQo+IGlvX2RlbGF5KCkgcGFyYXZpcnQgZnVuY3Rpb24g
+aG9vay4NCj4gDQo+IFBhdGNoIDQgaXMgcmVtb3ZpbmcgdGhlIGNvbmZpZyBvcHRpb25zIGZv
+ciBzZWxlY3RpbmcgdGhlIGRlZmF1bHQgZGVsYXkNCj4gbWVjaGFuaXNtIGFuZCBzZXRzIHRo
+ZSBkZWZhdWx0IHRvICJubyBkZWxheSIuIFRoaXMgaXMgaW4gcHJlcGFyYXRpb24gb2YNCj4g
+cmVtb3ZpbmcgdGhlIGlvX2RlbGF5KCkgZnVuY3Rpb25hbGl0eSBjb21wbGV0ZWx5LCBhcyBz
+dWdnZXN0ZWQgYnkgSW5nbw0KPiBNb2xuYXIuDQo+IA0KPiBQYXRjaCA1IGlzIGFkZGluZyBh
+biBhZGRpdGlvbmFsIGNvbmZpZyBvcHRpb24gYWxsb3dpbmcgdG8gYXZvaWQNCj4gYnVpbGRp
+bmcgaW9fZGVsYXkuYyAoZGVmYXVsdCBpcyBzdGlsbCB0byBidWlsZCBpdCkuDQo+IA0KPiBD
+aGFuZ2VzIGluIFYyOg0KPiAtIHBhdGNoZXMgMiBhbmQgMyBvZiBWMSBoYXZlIGJlZW4gYXBw
+bGllZA0KPiAtIG5ldyBwYXRjaGVzIDQgYW5kIDUNCj4gDQo+IENoYW5nZXMgaW4gVjM6DQo+
+IC0gcmViYXNlIHRvIHRpcC9tYXN0ZXIga2VybmVsIGJyYW5jaA0KPiANCj4gQ2hhbmdlcyBp
+biBWNDoNCj4gLSBhZGQgcGF0Y2ggMSBhcyBwcmVyZXEgcGF0Y2ggdG8gdGhlIHNlcmllcw0K
+PiANCj4gSnVlcmdlbiBHcm9zcyAoNik6DQo+ICAgIHg4Ni9pcnFmbGFnczogRml4IGJ1aWxk
+IGZhaWx1cmUNCj4gICAgeDg2L3BhcmF2aXJ0OiBSZXBsYWNlIGlvX2RlbGF5KCkgaG9vayB3
+aXRoIGEgYm9vbA0KPiAgICBibG9jay9mbG9wcHk6IERvbid0IHVzZSBSRUFMTFlfU0xPV19J
+TyBmb3IgZGVsYXlzDQo+ICAgIHg4Ni9pbzogUmVtb3ZlIFJFQUxMWV9TTE9XX0lPIGhhbmRs
+aW5nDQo+ICAgIHg4Ni9pb19kZWxheTogU3dpdGNoIGlvX2RlbGF5KCkgZGVmYXVsdCBtZWNo
+YW5pc20gdG8gIm5vbmUiDQo+ICAgIHg4Ni9pb19kZWxheTogQWRkIGNvbmZpZyBvcHRpb24g
+Zm9yIGNvbnRyb2xsaW5nIGJ1aWxkIG9mIGlvX2RlbGF5Lg0KPiANCj4gICBhcmNoL3g4Ni9L
+Y29uZmlnICAgICAgICAgICAgICAgICAgICAgIHwgIDggKysrDQo+ICAgYXJjaC94ODYvS2Nv
+bmZpZy5kZWJ1ZyAgICAgICAgICAgICAgICB8IDMwIC0tLS0tLS0tLS0NCj4gICBhcmNoL3g4
+Ni9pbmNsdWRlL2FzbS9mbG9wcHkuaCAgICAgICAgIHwgMzEgKysrKysrKystLQ0KPiAgIGFy
+Y2gveDg2L2luY2x1ZGUvYXNtL2lvLmggICAgICAgICAgICAgfCAxOSArKysrLS0tDQo+ICAg
+YXJjaC94ODYvaW5jbHVkZS9hc20vaXJxZmxhZ3MuaCAgICAgICB8ICA2ICstDQo+ICAgYXJj
+aC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQtYmFzZS5oICB8ICA2ICsrDQo+ICAgYXJjaC94
+ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQuaCAgICAgICB8IDExIC0tLS0NCj4gICBhcmNoL3g4
+Ni9pbmNsdWRlL2FzbS9wYXJhdmlydF90eXBlcy5oIHwgIDIgLQ0KPiAgIGFyY2gveDg2L2tl
+cm5lbC9NYWtlZmlsZSAgICAgICAgICAgICAgfCAgMyArLQ0KPiAgIGFyY2gveDg2L2tlcm5l
+bC9jcHUvdm13YXJlLmMgICAgICAgICAgfCAgMiArLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9p
+b19kZWxheS5jICAgICAgICAgICAgfCA4MSArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0N
+Cj4gICBhcmNoL3g4Ni9rZXJuZWwva3ZtLmMgICAgICAgICAgICAgICAgIHwgIDggKy0tDQo+
+ICAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LmMgICAgICAgICAgICB8ICAzICstDQo+ICAg
+YXJjaC94ODYva2VybmVsL3NldHVwLmMgICAgICAgICAgICAgICB8ICA0ICstDQo+ICAgYXJj
+aC94ODYveGVuL2VubGlnaHRlbl9wdi5jICAgICAgICAgICB8ICA2ICstDQo+ICAgZHJpdmVy
+cy9ibG9jay9mbG9wcHkuYyAgICAgICAgICAgICAgICB8ICAyIC0NCj4gICAxNiBmaWxlcyBj
+aGFuZ2VkLCA2MyBpbnNlcnRpb25zKCspLCAxNTkgZGVsZXRpb25zKC0pDQo+IA0KDQo=
+--------------liiRpZ2LGHl5C0gioM2bJdPR
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-Bare metal and vmware correctly check if x2apic is available without interrupt
-remapping. The rest of them check if x2apic is enabled/supported, and kvm just
-checks if the kernel is running on kvm. The other hypervisors may have to have
-their checks audited.
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-Also fix the backwards pr_info message printed on disabling x2apic because of
-lack of irq remapping support.
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
-Compile tested with all the hypervisor guest support enabled.
+--------------liiRpZ2LGHl5C0gioM2bJdPR--
 
-Co-developed-by: Rahul Bukte <rahul.bukte@sony.com>
-Signed-off-by: Rahul Bukte <rahul.bukte@sony.com>
-Signed-off-by: Shashank Balaji <shashank.mahadasyam@sony.com>
----
- arch/x86/include/asm/x86_init.h |  4 ++--
- arch/x86/kernel/apic/apic.c     |  4 ++--
- arch/x86/kernel/cpu/acrn.c      |  2 +-
- arch/x86/kernel/cpu/bhyve.c     |  2 +-
- arch/x86/kernel/cpu/mshyperv.c  |  2 +-
- arch/x86/kernel/cpu/vmware.c    |  2 +-
- arch/x86/kernel/jailhouse.c     |  2 +-
- arch/x86/kernel/kvm.c           |  2 +-
- arch/x86/kernel/x86_init.c      | 12 ++++++------
- arch/x86/xen/enlighten_hvm.c    |  4 ++--
- 10 files changed, 18 insertions(+), 18 deletions(-)
+--------------DPiBTuW4WhK0KFF1cKCxJjmg--
 
-diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
-index 6c8a6ead84f6..b270d9eed755 100644
---- a/arch/x86/include/asm/x86_init.h
-+++ b/arch/x86/include/asm/x86_init.h
-@@ -116,7 +116,7 @@ struct x86_init_pci {
-  * struct x86_hyper_init - x86 hypervisor init functions
-  * @init_platform:		platform setup
-  * @guest_late_init:		guest late init
-- * @x2apic_available:		X2APIC detection
-+ * @x2apic_without_ir_available: is x2apic available without irq remap?
-  * @msi_ext_dest_id:		MSI supports 15-bit APIC IDs
-  * @init_mem_mapping:		setup early mappings during init_mem_mapping()
-  * @init_after_bootmem:		guest init after boot allocator is finished
-@@ -124,7 +124,7 @@ struct x86_init_pci {
- struct x86_hyper_init {
- 	void (*init_platform)(void);
- 	void (*guest_late_init)(void);
--	bool (*x2apic_available)(void);
-+	bool (*x2apic_without_ir_available)(void);
- 	bool (*msi_ext_dest_id)(void);
- 	void (*init_mem_mapping)(void);
- 	void (*init_after_bootmem)(void);
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index cc64d61f82cf..8820b631f8a2 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1836,8 +1836,8 @@ static __init void try_to_enable_x2apic(int remap_mode)
- 		 * Using X2APIC without IR is not architecturally supported
- 		 * on bare metal but may be supported in guests.
- 		 */
--		if (!x86_init.hyper.x2apic_available()) {
--			pr_info("x2apic: IRQ remapping doesn't support X2APIC mode\n");
-+		if (!x86_init.hyper.x2apic_without_ir_available()) {
-+			pr_info("x2apic: Not supported without IRQ remapping\n");
- 			x2apic_disable();
- 			return;
- 		}
-diff --git a/arch/x86/kernel/cpu/acrn.c b/arch/x86/kernel/cpu/acrn.c
-index 2c5b51aad91a..9204b98d4786 100644
---- a/arch/x86/kernel/cpu/acrn.c
-+++ b/arch/x86/kernel/cpu/acrn.c
-@@ -77,5 +77,5 @@ const __initconst struct hypervisor_x86 x86_hyper_acrn = {
- 	.detect                 = acrn_detect,
- 	.type			= X86_HYPER_ACRN,
- 	.init.init_platform     = acrn_init_platform,
--	.init.x2apic_available  = acrn_x2apic_available,
-+	.init.x2apic_without_ir_available = acrn_x2apic_available,
- };
-diff --git a/arch/x86/kernel/cpu/bhyve.c b/arch/x86/kernel/cpu/bhyve.c
-index f1a8ca3dd1ed..91a90a7459ce 100644
---- a/arch/x86/kernel/cpu/bhyve.c
-+++ b/arch/x86/kernel/cpu/bhyve.c
-@@ -61,6 +61,6 @@ const struct hypervisor_x86 x86_hyper_bhyve __refconst = {
- 	.name			= "Bhyve",
- 	.detect			= bhyve_detect,
- 	.init.init_platform	= x86_init_noop,
--	.init.x2apic_available	= bhyve_x2apic_available,
-+	.init.x2apic_without_ir_available = bhyve_x2apic_available,
- 	.init.msi_ext_dest_id	= bhyve_ext_dest_id,
- };
-diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-index 579fb2c64cfd..61458855094a 100644
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -760,7 +760,7 @@ const __initconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
- 	.name			= "Microsoft Hyper-V",
- 	.detect			= ms_hyperv_platform,
- 	.type			= X86_HYPER_MS_HYPERV,
--	.init.x2apic_available	= ms_hyperv_x2apic_available,
-+	.init.x2apic_without_ir_available = ms_hyperv_x2apic_available,
- 	.init.msi_ext_dest_id	= ms_hyperv_msi_ext_dest_id,
- 	.init.init_platform	= ms_hyperv_init_platform,
- 	.init.guest_late_init	= ms_hyperv_late_init,
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index cb3f900c46fc..46d325818797 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -585,7 +585,7 @@ const __initconst struct hypervisor_x86 x86_hyper_vmware = {
- 	.detect				= vmware_platform,
- 	.type				= X86_HYPER_VMWARE,
- 	.init.init_platform		= vmware_platform_setup,
--	.init.x2apic_available		= vmware_legacy_x2apic_available,
-+	.init.x2apic_without_ir_available = vmware_legacy_x2apic_available,
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- 	.runtime.sev_es_hcall_prepare	= vmware_sev_es_hcall_prepare,
- 	.runtime.sev_es_hcall_finish	= vmware_sev_es_hcall_finish,
-diff --git a/arch/x86/kernel/jailhouse.c b/arch/x86/kernel/jailhouse.c
-index 9e9a591a5fec..84a0bbe15989 100644
---- a/arch/x86/kernel/jailhouse.c
-+++ b/arch/x86/kernel/jailhouse.c
-@@ -291,6 +291,6 @@ const struct hypervisor_x86 x86_hyper_jailhouse __refconst = {
- 	.name			= "Jailhouse",
- 	.detect			= jailhouse_detect,
- 	.init.init_platform	= jailhouse_init_platform,
--	.init.x2apic_available	= jailhouse_x2apic_available,
-+	.init.x2apic_without_ir_available = jailhouse_x2apic_available,
- 	.ignore_nopv		= true,
- };
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 37dc8465e0f5..709eba87d58e 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -1042,7 +1042,7 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
- 	.detect				= kvm_detect,
- 	.type				= X86_HYPER_KVM,
- 	.init.guest_late_init		= kvm_guest_init,
--	.init.x2apic_available		= kvm_para_available,
-+	.init.x2apic_without_ir_available = kvm_para_available,
- 	.init.msi_ext_dest_id		= kvm_msi_ext_dest_id,
- 	.init.init_platform		= kvm_init_platform,
- #if defined(CONFIG_AMD_MEM_ENCRYPT)
-diff --git a/arch/x86/kernel/x86_init.c b/arch/x86/kernel/x86_init.c
-index ebefb77c37bb..9ddf8c901ac6 100644
---- a/arch/x86/kernel/x86_init.c
-+++ b/arch/x86/kernel/x86_init.c
-@@ -112,12 +112,12 @@ struct x86_init_ops x86_init __initdata = {
- 	},
- 
- 	.hyper = {
--		.init_platform		= x86_init_noop,
--		.guest_late_init	= x86_init_noop,
--		.x2apic_available	= bool_x86_init_noop,
--		.msi_ext_dest_id	= bool_x86_init_noop,
--		.init_mem_mapping	= x86_init_noop,
--		.init_after_bootmem	= x86_init_noop,
-+		.init_platform			= x86_init_noop,
-+		.guest_late_init		= x86_init_noop,
-+		.x2apic_without_ir_available	= bool_x86_init_noop,
-+		.msi_ext_dest_id		= bool_x86_init_noop,
-+		.init_mem_mapping		= x86_init_noop,
-+		.init_after_bootmem		= x86_init_noop,
- 	},
- 
- 	.acpi = {
-diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
-index fe57ff85d004..42f3d21f313d 100644
---- a/arch/x86/xen/enlighten_hvm.c
-+++ b/arch/x86/xen/enlighten_hvm.c
-@@ -311,7 +311,7 @@ static uint32_t __init xen_platform_hvm(void)
- 		 * detect PVH and panic there.
- 		 */
- 		h->init_platform = x86_init_noop;
--		h->x2apic_available = bool_x86_init_noop;
-+		h->x2apic_without_ir_available = bool_x86_init_noop;
- 		h->init_mem_mapping = x86_init_noop;
- 		h->init_after_bootmem = x86_init_noop;
- 		h->guest_late_init = xen_hvm_guest_late_init;
-@@ -325,7 +325,7 @@ struct hypervisor_x86 x86_hyper_xen_hvm __initdata = {
- 	.detect                 = xen_platform_hvm,
- 	.type			= X86_HYPER_XEN_HVM,
- 	.init.init_platform     = xen_hvm_guest_init,
--	.init.x2apic_available  = xen_x2apic_available,
-+	.init.x2apic_without_ir_available = xen_x2apic_available,
- 	.init.init_mem_mapping	= xen_hvm_init_mem_mapping,
- 	.init.guest_late_init	= xen_hvm_guest_late_init,
- 	.init.msi_ext_dest_id   = msi_ext_dest_id,
+--------------EFFtuyAw2mxdAKPsAqPioBPH
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
--- 
-2.43.0
+-----BEGIN PGP SIGNATURE-----
 
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmmAfAgFAwAAAAAACgkQsN6d1ii/Ey/2
+zAf+IkVIvbIONVNOIsFijpcb0ksuCVfDZvIq2cPAb9rfEt4SV/Fv87G1BkwNCtKbrpMKsTjK2E8V
+YxPglU6me8lcaWM/t2j74OrYLM0B0yfhTzS6I5AbtpGIMsQxiITsr//ZP64nl5N5/YvNKpLhvAkG
+rqdkNYFQh4GB5FgSl079/ebN9POZERI4nOBDWTiJ69297xhtHXPambNil4kLLpNyi+I0vETf6+05
+0pPWs7hQsNqqHWfyCdehYqc+H8ZZkY2Jg0uanT5Qv1kWieoCWahhlRcpKyz9tMoIofilTuPuAkGu
+XnCl3azsTfUBNhgwDBPjw50R1tSidPTjMLavCd43jA==
+=T21t
+-----END PGP SIGNATURE-----
+
+--------------EFFtuyAw2mxdAKPsAqPioBPH--
