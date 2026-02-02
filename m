@@ -1,100 +1,201 @@
-Received: from out-176.mta1.migadu.com (out-176.mta1.migadu.com [95.215.58.176])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9EAF36C0B0
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 14:38:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90367371058;
+	Mon,  2 Feb 2026 15:03:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770043086; cv=none; b=bhD8tTEMjADao7UUDbnAstMlYFnAiYNYxrVu9od4U0gJ5xJkvvON9YnBvVMvYlbGxqv06Vw5HaHf2Y+MkY8ELiDXnyDcTEKfbSIbZldCIeyWzwmqyH1y0YLFMRvOY+pCe55r3pc9tKoAKST/fivDD6ZWSgWKOCKQxUOmR/yKfLI=
+	t=1770044589; cv=none; b=thUb8X4dE2w6bzgeplfw3Pgl8vNou01PIuPk/m3Hngk+99S0Rbj5X3dsVS8aZm/IfwVPmgGevjuKsTbeRPUYLz+8mzslU2po9ix/RGtzeliNZHuDtZ5m7KgfzOEyo2H2tXhESZbsqNmfipAbUU730Bvsw9c0lZIyqaDglGWorHc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770043086; c=relaxed/simple;
-	bh=EP4rPh+OJOsPFBs2ZsaC+NH+c7KI9VBuz89x+6oRA3c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gDrAKoPGuDD3EFazGQXCiW2XfGQySeyMpOKYtTn9qWDNttDx/vSKg5z5zcnM0HU2MYaexraxsx4fNnx/3YMrlB2cXRYb2JBLNqWmn6wURyfqScHWJD2WWED6gBRHrfGNxv/67m49Qejvbel3tGuXpjRcvnIjFy+1PC4iKdvCSyI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UgCRKXtO; arc=none smtp.client-ip=95.215.58.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1770044589; c=relaxed/simple;
+	bh=f4jiSWaAUMy80OsaVE6o84JI4KEEK5M17ot8dH2cPts=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bxnjH2Pvx5aAAr8cf8EjtkocTZfw0NFTLL2sPzGXsJDfI1ElKLYiZrqaouYk68jhTNlWjnCBDVunSR1WTA7pah1PWSdm0gfOpdgQ2NvYGQ62RFZ6BFBknTi80MCGNE6m1gUrkRA0PIhSar0L+n9oKTlqzwajEr+w6CeuNtslrO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jKJj06CP; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UgCRKXtO"
-Message-ID: <540adec9-c483-460a-a682-f2076cf015c2@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1770043082;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+YuikHIpXYtVLQeTjpDEpyPPM+rwsAsIsRE/N+8+UvM=;
-	b=UgCRKXtOZlfN+/7cORPTlSVzR8UJHh7JqxgK0CfCBKekoSTHFgghh9HracXNSrSC3awjkU
-	H+AQz66kUh63gKnKZVfMkiJJ+X9mVe1TcLsZJJK3NjU7aPXYAA3puXscll30N4PFjBYfdj
-	QKaUx6BxL4dSPBiJMateUtbngiHNtnw=
-Date: Mon, 2 Feb 2026 22:37:39 +0800
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jKJj06CP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1770044587; x=1801580587;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=f4jiSWaAUMy80OsaVE6o84JI4KEEK5M17ot8dH2cPts=;
+  b=jKJj06CPv+ezALh2mBlTbMnJoPB1sy3SbWh8JCRhDhurYymgQUePITGV
+   h8GQx/Qf0FR8z1RWlEA5oElZ4B/HYCyBINzP4myqR4g+E1Gce4PEmum5M
+   FSzRL5PbwG6cot3ECjtklMaoukzc4uvYq6G9LHMg8gW33YkSrmZ8iNz8O
+   h3cacoszZR/hWHUv2pgWFOpn3S8Z/0l5sM/IfoPoS9dXNfRMx+eNhmM1w
+   hT6vR6AqGuotCmm4TRpMXdva3rqayH6bfXTfsRpfTTUFgMyL26/QRp6Dw
+   fIUjmylWvU9fVc7J7qaKdmBRwieOrP+pucZwa0zFPYM7YGGSUFb627awN
+   w==;
+X-CSE-ConnectionGUID: pN6tubccS9eU/yGir1rN6g==
+X-CSE-MsgGUID: WtoZcdRUQ/qCoZixPn0P9g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11690"; a="71099602"
+X-IronPort-AV: E=Sophos;i="6.21,269,1763452800"; 
+   d="scan'208";a="71099602"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 07:03:06 -0800
+X-CSE-ConnectionGUID: 1Sm55USrTViCYi6oLwwXlg==
+X-CSE-MsgGUID: ZhozEz8UQCq9wlrljDbqsQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,269,1763452800"; 
+   d="scan'208";a="209698373"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by fmviesa008.fm.intel.com with ESMTP; 02 Feb 2026 07:03:00 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vmvS4-00000000ffw-49bj;
+	Mon, 02 Feb 2026 15:02:56 +0000
+Date: Mon, 2 Feb 2026 23:02:50 +0800
+From: kernel test robot <lkp@intel.com>
+To: Shashank Balaji <shashank.mahadasyam@sony.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Suresh Siddha <suresh.b.siddha@intel.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Juergen Gross <jgross@suse.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+	jailhouse-dev@googlegroups.com, kvm@vger.kernel.org,
+	xen-devel@lists.xenproject.org, Rahul Bukte <rahul.bukte@sony.com>,
+	Shashank Balaji <shashank.mahadasyam@sony.com>,
+	Daniel Palmer <daniel.palmer@sony.com>,
+	Tim Bird <tim.bird@sony.com>
+Subject: Re: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel
+ expects so
+Message-ID: <202602022242.iSdFHMDI-lkp@intel.com>
+References: <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v4 0/3] targeted TLB sync IPIs for lockless page table
-Content-Language: en-US
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Liam.Howlett@oracle.com, akpm@linux-foundation.org,
- aneesh.kumar@kernel.org, arnd@arndb.de, baohua@kernel.org,
- baolin.wang@linux.alibaba.com, boris.ostrovsky@oracle.com, bp@alien8.de,
- dave.hansen@intel.com, dave.hansen@linux.intel.com, david@kernel.org,
- dev.jain@arm.com, hpa@zytor.com, hughd@google.com, ioworker0@gmail.com,
- jannh@google.com, jgross@suse.com, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, lorenzo.stoakes@oracle.com, mingo@redhat.com,
- npache@redhat.com, npiggin@gmail.com, pbonzini@redhat.com, riel@surriel.com,
- ryan.roberts@arm.com, seanjc@google.com, shy828301@gmail.com,
- tglx@linutronix.de, virtualization@lists.linux.dev, will@kernel.org,
- x86@kernel.org, ypodemsk@redhat.com, ziy@nvidia.com
-References: <20260202095414.GE2995752@noisy.programming.kicks-ass.net>
- <20260202110329.74397-1-lance.yang@linux.dev>
- <20260202125030.GB1395266@noisy.programming.kicks-ass.net>
- <c6fda7c2-ad54-416a-a869-1499c97c7bd7@linux.dev>
- <4700e7ba-8456-4a93-9e28-7e5a3ca2a1be@linux.dev>
- <20260202133713.GF1395266@noisy.programming.kicks-ass.net>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Lance Yang <lance.yang@linux.dev>
-In-Reply-To: <20260202133713.GF1395266@noisy.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
+
+Hi Shashank,
+
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on 18f7fcd5e69a04df57b563360b88be72471d6b62]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Shashank-Balaji/x86-x2apic-disable-x2apic-on-resume-if-the-kernel-expects-so/20260202-181147
+base:   18f7fcd5e69a04df57b563360b88be72471d6b62
+patch link:    https://lore.kernel.org/r/20260202-x2apic-fix-v1-1-71c8f488a88b%40sony.com
+patch subject: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel expects so
+config: x86_64-buildonly-randconfig-001-20260202 (https://download.01.org/0day-ci/archive/20260202/202602022242.iSdFHMDI-lkp@intel.com/config)
+compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260202/202602022242.iSdFHMDI-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202602022242.iSdFHMDI-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   arch/x86/kernel/apic/apic.c: In function 'lapic_resume':
+>> arch/x86/kernel/apic/apic.c:2463:17: error: implicit declaration of function '__x2apic_disable'; did you mean '__x2apic_enable'? [-Wimplicit-function-declaration]
+    2463 |                 __x2apic_disable();
+         |                 ^~~~~~~~~~~~~~~~
+         |                 __x2apic_enable
 
 
+vim +2463 arch/x86/kernel/apic/apic.c
 
-On 2026/2/2 21:37, Peter Zijlstra wrote:
-> On Mon, Feb 02, 2026 at 09:07:10PM +0800, Lance Yang wrote:
-> 
->>>> Right, but if we can use full RCU for PT_RECLAIM, why can't we do so
->>>> unconditionally and not add overhead?
->>>
->>> The sync (IPI) is mainly needed for unshare (e.g. hugetlb) and collapse
->>> (khugepaged) paths, regardless of whether table free uses RCU, IIUC.
->>
->> In addition: We need the sync when we modify page tables (e.g. unshare,
->> collapse), not only when we free them. RCU can defer freeing but does
->> not prevent lockless walkers from seeing concurrent in-place
->> modifications, so we need the IPI to synchronize with those walkers
->> first.
-> 
-> Currently PT_RECLAIM=y has no IPI; are you saying that is broken? If
-> not, then why do we need this at all?
+  2435	
+  2436	static void lapic_resume(void *data)
+  2437	{
+  2438		unsigned int l, h;
+  2439		unsigned long flags;
+  2440		int maxlvt;
+  2441	
+  2442		if (!apic_pm_state.active)
+  2443			return;
+  2444	
+  2445		local_irq_save(flags);
+  2446	
+  2447		/*
+  2448		 * IO-APIC and PIC have their own resume routines.
+  2449		 * We just mask them here to make sure the interrupt
+  2450		 * subsystem is completely quiet while we enable x2apic
+  2451		 * and interrupt-remapping.
+  2452		 */
+  2453		mask_ioapic_entries();
+  2454		legacy_pic->mask_all();
+  2455	
+  2456		if (x2apic_mode) {
+  2457			__x2apic_enable();
+  2458		} else {
+  2459			/*
+  2460			 * x2apic may have been re-enabled by the
+  2461			 * firmware on resuming from s2ram
+  2462			 */
+> 2463			__x2apic_disable();
+  2464	
+  2465			/*
+  2466			 * Make sure the APICBASE points to the right address
+  2467			 *
+  2468			 * FIXME! This will be wrong if we ever support suspend on
+  2469			 * SMP! We'll need to do this as part of the CPU restore!
+  2470			 */
+  2471			if (boot_cpu_data.x86 >= 6) {
+  2472				rdmsr(MSR_IA32_APICBASE, l, h);
+  2473				l &= ~MSR_IA32_APICBASE_BASE;
+  2474				l |= MSR_IA32_APICBASE_ENABLE | mp_lapic_addr;
+  2475				wrmsr(MSR_IA32_APICBASE, l, h);
+  2476			}
+  2477		}
+  2478	
+  2479		maxlvt = lapic_get_maxlvt();
+  2480		apic_write(APIC_LVTERR, ERROR_APIC_VECTOR | APIC_LVT_MASKED);
+  2481		apic_write(APIC_ID, apic_pm_state.apic_id);
+  2482		apic_write(APIC_DFR, apic_pm_state.apic_dfr);
+  2483		apic_write(APIC_LDR, apic_pm_state.apic_ldr);
+  2484		apic_write(APIC_TASKPRI, apic_pm_state.apic_taskpri);
+  2485		apic_write(APIC_SPIV, apic_pm_state.apic_spiv);
+  2486		apic_write(APIC_LVT0, apic_pm_state.apic_lvt0);
+  2487		apic_write(APIC_LVT1, apic_pm_state.apic_lvt1);
+  2488	#ifdef CONFIG_X86_THERMAL_VECTOR
+  2489		if (maxlvt >= 5)
+  2490			apic_write(APIC_LVTTHMR, apic_pm_state.apic_thmr);
+  2491	#endif
+  2492	#ifdef CONFIG_X86_MCE_INTEL
+  2493		if (maxlvt >= 6)
+  2494			apic_write(APIC_LVTCMCI, apic_pm_state.apic_cmci);
+  2495	#endif
+  2496		if (maxlvt >= 4)
+  2497			apic_write(APIC_LVTPC, apic_pm_state.apic_lvtpc);
+  2498		apic_write(APIC_LVTT, apic_pm_state.apic_lvtt);
+  2499		apic_write(APIC_TDCR, apic_pm_state.apic_tdcr);
+  2500		apic_write(APIC_TMICT, apic_pm_state.apic_tmict);
+  2501		apic_write(APIC_ESR, 0);
+  2502		apic_read(APIC_ESR);
+  2503		apic_write(APIC_LVTERR, apic_pm_state.apic_lvterr);
+  2504		apic_write(APIC_ESR, 0);
+  2505		apic_read(APIC_ESR);
+  2506	
+  2507		irq_remapping_reenable(x2apic_mode);
+  2508	
+  2509		local_irq_restore(flags);
+  2510	}
+  2511	
 
-PT_RECLAIM=y does have IPI for unshare/collapse — those paths call
-tlb_flush_unshared_tables() (for hugetlb unshare) and collapse_huge_page()
-(in khugepaged collapse), which already send IPIs today (broadcast to all
-CPUs via tlb_remove_table_sync_one()).
-
-What PT_RECLAIM=y doesn't need IPI for is table freeing (
-__tlb_remove_table_one() uses call_rcu() instead). But table modification
-(unshare, collapse) still needs IPI to synchronize with lockless walkers,
-regardless of PT_RECLAIM.
-
-So PT_RECLAIM=y is not broken; it already has IPI where needed. This series
-just makes those IPIs targeted instead of broadcast. Does that clarify?
-
-
-Thanks,
-Lance
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
