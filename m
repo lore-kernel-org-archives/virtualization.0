@@ -1,81 +1,202 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DFF72DC333;
-	Mon,  2 Feb 2026 09:54:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CB4F3563F7;
+	Mon,  2 Feb 2026 09:59:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770026081; cv=none; b=kvE6CJrNPniZ6sinogaHpGspf7SPLQQudX0EHtQ8kxY4aYldik/cO3KgRPoFrxa/9n7s7U0sjX1cOvJ3VxlADVnP42nHA2RqKoQNpM9BmYzzi30UugQfcus/sUEpvKPvSsam2UnwFmIDiqKMrXveo+X0PpYEeTLwRjFrhClc9SQ=
+	t=1770026386; cv=none; b=qPjiIRRwjNntMo5hXU0bFhpgtY2ZZSI/54SS9pLAUC8TDSZk6IvQiomK6KHsgCFTWRSP2ny6XBI1/0XhYUHaHpTHLf3QJuBSeO6SW89HCJvVgsjLPaeD23vGAc9NvDoAr9qouO8g/9GSTBv74ro6jvEdv+OpMOgRIxmWCosU1d8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770026081; c=relaxed/simple;
-	bh=HHlut04wQGtpXbbVMqYEOMquVZyPWGleVrBmqPbUjKo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LBEuBZA0vV8dA/Xq/6n23r9sxjqTHppJfUN5U8cduGEC6+ug2EpFs0tK5KPOx7TKytG8pWtJt42/tjrhIH1pCfX5EFHtaSykBjMd2q5IUBvO7PziLVvw3wwmAnqEbn0GXXheFKdGoEgvxqZUPHCn58C7qVimJHfVsCC0bieiTxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ByWUxsUO; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1770026386; c=relaxed/simple;
+	bh=pF6YGx3RZsVuHs/wNmNxMg3/97lYgI02Is4iPd9f628=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Cl7IEuDUASfcCaq/6UOHdzwnrerQYOd6lmJRRX7RYYLTZchuIXgTvG4B+cl9ZuxKXRHvxC5wHqc6dH3CnTPgPFIxxqKQCWbOF9d8NgjFiaFcamZ1OKMEPQq2ic00q/0dez7pb86BoAaLabp7RKBDysA/usxZM7QCNyXL1v0ZEoE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o4DlN9HU; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ByWUxsUO"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=+Pu0UsVCQG9vrf6r9L2k7y8BIrpfSaWQDN3W3VbUraQ=; b=ByWUxsUOcWxLMhnki3SEF9i7Qs
-	1Ryp6PQfjEpUpjKlHGRbJdhwYJQ1FlbPczZF407bYKoaimf7VMzfJFOUdToV1R3510WBOYyhEhply
-	sd4lBMP1V/EtAksGDPpBiBBxW2QMugzzCYO1KvCmt+tBzJ6kRJtJ33LkxFu6pZDJyVwhnYyXwDix0
-	NljZJH3Ooooo1ciud410bnqC7x/V46U+m3cLexl4MdeHw5fWM/P0gc9bQvNCh+8r/KnoURwWIowPf
-	W6DfQsbStxwg74gKRTmICCEYiB9rwcx9ZlBKnJNXqnMgb8PBPxBDpoKR47hqlm4FH9havUqjOXLJ+
-	h2KvJ5Pw==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vmqdL-0000000GJ5I-0aps;
-	Mon, 02 Feb 2026 09:54:15 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 98BFF303031; Mon, 02 Feb 2026 10:54:14 +0100 (CET)
-Date: Mon, 2 Feb 2026 10:54:14 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Lance Yang <lance.yang@linux.dev>
-Cc: akpm@linux-foundation.org, david@kernel.org, dave.hansen@intel.com,
-	dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com,
-	will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
-	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
-	hpa@zytor.com, arnd@arndb.de, lorenzo.stoakes@oracle.com,
-	ziy@nvidia.com, baolin.wang@linux.alibaba.com,
-	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com,
-	dev.jain@arm.com, baohua@kernel.org, shy828301@gmail.com,
-	riel@surriel.com, jannh@google.com, jgross@suse.com,
-	seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, ioworker0@gmail.com
-Subject: Re: [PATCH v4 0/3] targeted TLB sync IPIs for lockless page table
- walkers
-Message-ID: <20260202095414.GE2995752@noisy.programming.kicks-ass.net>
-References: <20260202074557.16544-1-lance.yang@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o4DlN9HU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCB4BC116C6;
+	Mon,  2 Feb 2026 09:59:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770026386;
+	bh=pF6YGx3RZsVuHs/wNmNxMg3/97lYgI02Is4iPd9f628=;
+	h=From:To:Cc:Subject:Date:From;
+	b=o4DlN9HUSWyMSsjX0ygPDEmKc94+nItM3RDKZJQIQD9I7KJCkmxxb7+FaoUtvuODc
+	 +h1MEZoUUotAN49StCCv7OiA7xofB8UqHC4CBUxitBWqA3s4spuf4mpgDOGqz9s6Cr
+	 blC+DqDlVAccYot1vNcdzjzmQH1slNwySdbZq/4Jov+ODBkGMfiuyMmUjdrl8xT1yq
+	 mEXFK8Mvg71+SQ82+Fqq58QpCtQ6SHLyksk6bkI5oEmjVt3eOdhbK70QL37+hAeZ1X
+	 VrvvgchExULpy5Ot5nkfa2+hsjeikgCNSXTnV5HA4ShSSYe7cKz03eAlPcyAfuOGan
+	 k8wBwoZVzA7wg==
+From: Arnd Bergmann <arnd@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Xie Yongji <xieyongji@bytedance.com>,
+	Anders Roxell <anders.roxell@linaro.org>,
+	Marco Crivellari <marco.crivellari@suse.com>,
+	Ashwini Sahu <ashwini@wisig.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] vduse: avoid adding implicit padding
+Date: Mon,  2 Feb 2026 10:59:31 +0100
+Message-Id: <20260202095940.1358613-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260202074557.16544-1-lance.yang@linux.dev>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Feb 02, 2026 at 03:45:54PM +0800, Lance Yang wrote:
-> When freeing or unsharing page tables we send an IPI to synchronize with
-> concurrent lockless page table walkers (e.g. GUP-fast). Today we broadcast
-> that IPI to all CPUs, which is costly on large machines and hurts RT
-> workloads[1].
-> 
-> This series makes those IPIs targeted. We track which CPUs are currently
-> doing a lockless page table walk for a given mm (per-CPU
-> active_lockless_pt_walk_mm). When we need to sync, we only IPI those CPUs.
-> GUP-fast and perf_get_page_size() set/clear the tracker around their walk;
-> tlb_remove_table_sync_mm() uses it and replaces the previous broadcast in
-> the free/unshare paths.
+From: Arnd Bergmann <arnd@arndb.de>
 
-I'm confused. This only happens when !PT_RECLAIM, because if PT_RECLAIM
-__tlb_remove_table_one() actually uses RCU.
+The vduse_iova_range_v2 and vduse_iotlb_entry_v2 structures are both
+defined in a way that adds implicit padding and is incompatible between
+i386 and x86_64 userspace because of the different structure alignment
+requirements. Building the header with -Wpadded shows these new warnings:
 
-So why are you making things more expensive for no reason?
+vduse.h:305:1: error: padding struct size to alignment boundary with 4 bytes [-Werror=padded]
+vduse.h:374:1: error: padding struct size to alignment boundary with 4 bytes [-Werror=padded]
+
+Change the amount of padding in these two structures to align them to
+64 bit words and avoid those problems. Since the v1 vduse_iotlb_entry
+already has an inconsistent size, do not attempt to reuse the structure
+but rather list the members indiviudally, with a fixed amount of
+padding.
+
+Fixes: 079212f6877e ("vduse: add vq group asid support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/vdpa/vdpa_user/vduse_dev.c | 40 +++++++++++-------------------
+ include/uapi/linux/vduse.h         |  9 +++++--
+ 2 files changed, 21 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index 73d1d517dc6c..405d59610f76 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -1301,7 +1301,7 @@ static int vduse_dev_iotlb_entry(struct vduse_dev *dev,
+ 	int r = -EINVAL;
+ 	struct vhost_iotlb_map *map;
+ 
+-	if (entry->v1.start > entry->v1.last || entry->asid >= dev->nas)
++	if (entry->start > entry->last || entry->asid >= dev->nas)
+ 		return -EINVAL;
+ 
+ 	asid = array_index_nospec(entry->asid, dev->nas);
+@@ -1312,18 +1312,18 @@ static int vduse_dev_iotlb_entry(struct vduse_dev *dev,
+ 
+ 	spin_lock(&dev->as[asid].domain->iotlb_lock);
+ 	map = vhost_iotlb_itree_first(dev->as[asid].domain->iotlb,
+-				      entry->v1.start, entry->v1.last);
++				      entry->start, entry->last);
+ 	if (map) {
+ 		if (f) {
+ 			const struct vdpa_map_file *map_file;
+ 
+ 			map_file = (struct vdpa_map_file *)map->opaque;
+-			entry->v1.offset = map_file->offset;
++			entry->offset = map_file->offset;
+ 			*f = get_file(map_file->file);
+ 		}
+-		entry->v1.start = map->start;
+-		entry->v1.last = map->last;
+-		entry->v1.perm = map->perm;
++		entry->start = map->start;
++		entry->last = map->last;
++		entry->perm = map->perm;
+ 		if (capability) {
+ 			*capability = 0;
+ 
+@@ -1363,14 +1363,8 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+ 			break;
+ 
+ 		ret = -EFAULT;
+-		if (cmd == VDUSE_IOTLB_GET_FD2) {
+-			if (copy_from_user(&entry, argp, sizeof(entry)))
+-				break;
+-		} else {
+-			if (copy_from_user(&entry.v1, argp,
+-					   sizeof(entry.v1)))
+-				break;
+-		}
++		if (copy_from_user(&entry, argp, _IOC_SIZE(cmd)))
++			break;
+ 
+ 		ret = -EINVAL;
+ 		if (!is_mem_zero((const char *)entry.reserved,
+@@ -1385,19 +1379,13 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+ 		if (!f)
+ 			break;
+ 
+-		if (cmd == VDUSE_IOTLB_GET_FD2)
+-			ret = copy_to_user(argp, &entry,
+-					   sizeof(entry));
+-		else
+-			ret = copy_to_user(argp, &entry.v1,
+-					   sizeof(entry.v1));
+-
++		ret = copy_to_user(argp, &entry, _IOC_SIZE(cmd));
+ 		if (ret) {
+ 			ret = -EFAULT;
+ 			fput(f);
+ 			break;
+ 		}
+-		ret = receive_fd(f, NULL, perm_to_file_flags(entry.v1.perm));
++		ret = receive_fd(f, NULL, perm_to_file_flags(entry.perm));
+ 		fput(f);
+ 		break;
+ 	}
+@@ -1603,16 +1591,16 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+ 		} else if (info.asid >= dev->nas)
+ 			break;
+ 
+-		entry.v1.start = info.start;
+-		entry.v1.last = info.last;
++		entry.start = info.start;
++		entry.last = info.last;
+ 		entry.asid = info.asid;
+ 		ret = vduse_dev_iotlb_entry(dev, &entry, NULL,
+ 					    &info.capability);
+ 		if (ret < 0)
+ 			break;
+ 
+-		info.start = entry.v1.start;
+-		info.last = entry.v1.last;
++		info.start = entry.start;
++		info.last = entry.last;
+ 		info.asid = entry.asid;
+ 
+ 		ret = -EFAULT;
+diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+index faae7718bd2e..deca8c7b9178 100644
+--- a/include/uapi/linux/vduse.h
++++ b/include/uapi/linux/vduse.h
+@@ -299,9 +299,13 @@ struct vduse_iova_info {
+  * Structure used by VDUSE_IOTLB_GET_FD2 ioctl to find an overlapped IOVA region.
+  */
+ struct vduse_iotlb_entry_v2 {
+-	struct vduse_iotlb_entry v1;
++	__u64 offset;
++	__u64 start;
++	__u64 last;
++	__u8 perm;
++	__u8 padding[7];
+ 	__u32 asid;
+-	__u32 reserved[12];
++	__u32 reserved[11];
+ };
+ 
+ /*
+@@ -371,6 +375,7 @@ struct vduse_iova_range_v2 {
+ 	__u64 start;
+ 	__u64 last;
+ 	__u32 asid;
++	__u32 padding;
+ };
+ 
+ /**
+-- 
+2.39.5
+
