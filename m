@@ -1,244 +1,152 @@
-Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11013011.outbound.protection.outlook.com [40.107.159.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26A23156F45
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 16:44:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770050660; cv=fail; b=bMPabLd0t8ws8zbC7hCI31PBX6MAGpyNWFJTARf+C8usAz68jvgAc3tBYkFWBN79KDszoZjZw4aTFxUTrW22u3NQa6NZO5+8zJa/fmHugwugWD9nnMOo5IYTV/t4PCMJJsl8xdd7WQ0gO1LfXyBnHrj8LHd/CqflnO7QjlGCgRg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770050660; c=relaxed/simple;
-	bh=qL4BZWdCxL6sYc7KV/VzxYtNXI2qldRi8GvVXEfKNl8=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Jip6abhMVlk1duVOSfQ44ydQoSO8vedYFZpAyUObulkUVzgAgsMYEz6ck31+EomlfMrHtUKkN9JQPfUqhLEELzDRpl8rRUD6N6U6Aa02P46o49JRQVdSZCqinCDyVtQKWzG3Un4Mx3NUXl4KTNeEiKHr4Vw92bzFlQbX6KyD3rI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com; spf=fail smtp.mailfrom=nokia-bell-labs.com; dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b=jTX0dXE/; arc=fail smtp.client-ip=40.107.159.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nokia-bell-labs.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D4752C08BD
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 16:45:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770050722; cv=none; b=i8gfyOTeJzgxNm7UVCjrugFoyTK5+8K6EOwcTs+OfXi2MhONQuAqARBszo+7QVrXQAnKvJig0+6VvZo0TejGDz2IyLmUeWejYXxo3dI7QySe8/1GnfwvClNixxkIBBkFfG75Iiaw2UWVfoScL7w0BBEEwQuvrR7t0+N0WR44pys=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770050722; c=relaxed/simple;
+	bh=lkML6C8/WI/y0YcNHGPg1vTCJcq1BxkxXOZpicvA2+E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=T7RQJsJ1ewi+XOZRynpywkIxVfVvOMVvXtPxKDxVIuhjsH/YbGGOK/rFN09TL3MjvwknP1Q3lxGTXjw2NMKem4pO2QgET/5Npl+az2RgkessSvnV2CsyHQ7oIh+gFzuBGI+nOacrL/BVuwnMz9PSc+rc1Rkl6lAIzLOen05RB9g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QrpEmD6x; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b="jTX0dXE/"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=EHva7si8mj6JdysAzrTpbhNfl2XdJ9wPRiDufC7oRRulUS8HD7Z2lwTFrXj+MYO1DcmhJgTgxPu65oJYD6V2J6XaDnAxt2sUCEg7//vwvBRAs3bLf+ydTsbt8XsBL+0iBD5L8ZvPpt7e8iRRb5YffUNqxRNncyrndmDhmj6tDhAr9JRD+/z8M+0HqMxN0pTuMnr6VvW0/X9nN7NMhqwcWv/EYjEr5mjtR7CA+MvkyYj/6ToaczdyqCgdZsvz7Fsv1Jq/VpMaLHyEmL5EIbV52k3bZ3JjBZ3dAC344158hlcen9N/F0sIr2MaSKNXrON7AuK8/9cKX6sPNOOpX7IA6w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qL4BZWdCxL6sYc7KV/VzxYtNXI2qldRi8GvVXEfKNl8=;
- b=ZEKY1OkSVxtAFruAXCRRlK8URDhoNETDl2dQJlO3rTBymmd34wAlDgGL59FVP3mHfP414YPSDAYbsDpwqMq7kZ3lss0uzLWcSzhRWHSnOahPKY/BZyvtBJ/efLuZs5jDPFvDuloHgNlrImZgFEjzXPa97nUv3v+iUGpFQ6GFtoZ1H88GlkGcCQLYpFHpZaiqQSbqFSEVW8g8CTOySjuHQqIGg32+vWG4qYByoX4QVndiRrK4a1deZvo9HZXTpmr3q2hCUmb/Xx/IW5BOWoTxZe8quFPPJVqzw3y06+ytkA5mkw+BHR/Ch+B782AWfdKwaBgsqfNbxFcaORoToZd+tA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nokia-bell-labs.com; dmarc=pass action=none
- header.from=nokia-bell-labs.com; dkim=pass header.d=nokia-bell-labs.com;
- arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia-bell-labs.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qL4BZWdCxL6sYc7KV/VzxYtNXI2qldRi8GvVXEfKNl8=;
- b=jTX0dXE/dhGlB0KdziuOEIkLMFAejRnEHJUPb9BG8hYF98zy32Z4RwIYoNH9pwEt8ySeIfx5S54yiayAoyPZMgvkTkGXo8yvkS0OZzsyRyT34NnR4W9W/MAsiWqyV13VSoKHOHKe/WwVNcPEtvbPv2eScZHc0sK5cMUkNVV3xFEQ26CV2ZzEFc1iDGP5IT1FGxPmst9AYYFlsOXThhWNlplbk41nD5VnAdibb/Fpnb8ieav9kD4oKR6n/Cohap87dtcgKK/VaKvAVbXn7Je560W19BmwtjHw4DXNRRMFdXF/Xc2H7O6MF+64dvbg1DEi8ySkbq4UOc5/YAFH/Ae1RA==
-Received: from AM9PR07MB7969.eurprd07.prod.outlook.com (2603:10a6:20b:302::15)
- by DB9PR07MB7866.eurprd07.prod.outlook.com (2603:10a6:10:2a9::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.7; Mon, 2 Feb
- 2026 16:44:13 +0000
-Received: from AM9PR07MB7969.eurprd07.prod.outlook.com
- ([fe80::b676:5e6b:e3e7:4bbd]) by AM9PR07MB7969.eurprd07.prod.outlook.com
- ([fe80::b676:5e6b:e3e7:4bbd%5]) with mapi id 15.20.9564.007; Mon, 2 Feb 2026
- 16:44:13 +0000
-From: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: "tariqt@nvidia.com" <tariqt@nvidia.com>, "linux-rdma@vger.kernel.org"
-	<linux-rdma@vger.kernel.org>, "shaojijie@huawei.com" <shaojijie@huawei.com>,
-	"shenjian15@huawei.com" <shenjian15@huawei.com>, "salil.mehta@huawei.com"
-	<salil.mehta@huawei.com>, "mbloch@nvidia.com" <mbloch@nvidia.com>,
-	"saeedm@nvidia.com" <saeedm@nvidia.com>, "leon@kernel.org" <leon@kernel.org>,
-	"eperezma@redhat.com" <eperezma@redhat.com>, "brett.creeley@amd.com"
-	<brett.creeley@amd.com>, "jasowang@redhat.com" <jasowang@redhat.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"pabeni@redhat.com" <pabeni@redhat.com>, "edumazet@google.com"
-	<edumazet@google.com>, "parav@nvidia.com" <parav@nvidia.com>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "corbet@lwn.net"
-	<corbet@lwn.net>, "horms@kernel.org" <horms@kernel.org>, "dsahern@kernel.org"
-	<dsahern@kernel.org>, "kuniyu@google.com" <kuniyu@google.com>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "dave.taht@gmail.com" <dave.taht@gmail.com>,
-	"jhs@mojatatu.com" <jhs@mojatatu.com>, "kuba@kernel.org" <kuba@kernel.org>,
-	"stephen@networkplumber.org" <stephen@networkplumber.org>,
-	"xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>, "jiri@resnulli.us"
-	<jiri@resnulli.us>, "davem@davemloft.net" <davem@davemloft.net>,
-	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, "donald.hunter@gmail.com"
-	<donald.hunter@gmail.com>, "ast@fiberby.net" <ast@fiberby.net>,
-	"liuhangbin@gmail.com" <liuhangbin@gmail.com>, "shuah@kernel.org"
-	<shuah@kernel.org>, "linux-kselftest@vger.kernel.org"
-	<linux-kselftest@vger.kernel.org>, "ij@kernel.org" <ij@kernel.org>,
-	"ncardwell@google.com" <ncardwell@google.com>, "Koen De Schepper (Nokia)"
-	<koen.de_schepper@nokia-bell-labs.com>, "g.white@cablelabs.com"
-	<g.white@cablelabs.com>, "ingemar.s.johansson@ericsson.com"
-	<ingemar.s.johansson@ericsson.com>, "mirja.kuehlewind@ericsson.com"
-	<mirja.kuehlewind@ericsson.com>, "cheshire@apple.com" <cheshire@apple.com>,
-	"rs.ietf@gmx.at" <rs.ietf@gmx.at>, "Jason_Livingood@comcast.com"
-	<Jason_Livingood@comcast.com>, "vidhi_goel@apple.com" <vidhi_goel@apple.com>
-Subject: RE: [PATCH v1 net-next 2/3] net: hns3/mlx5e: avoid corrupting CWR
- flag when receiving GRO packet
-Thread-Topic: [PATCH v1 net-next 2/3] net: hns3/mlx5e: avoid corrupting CWR
- flag when receiving GRO packet
-Thread-Index: AQHckwSt1lZq3PZXMEC6xBSDLZdEMrVtjakAgAIRs4A=
-Date: Mon, 2 Feb 2026 16:44:13 +0000
-Message-ID:
- <AM9PR07MB796950DABBAD4F5052DB9B39A39AA@AM9PR07MB7969.eurprd07.prod.outlook.com>
-References: <20260131225510.2946-1-chia-yu.chang@nokia-bell-labs.com>
- <20260131225510.2946-3-chia-yu.chang@nokia-bell-labs.com>
- <20260201040151-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260201040151-mutt-send-email-mst@kernel.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nokia-bell-labs.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: AM9PR07MB7969:EE_|DB9PR07MB7866:EE_
-x-ms-office365-filtering-correlation-id: 94dbcc9c-40fb-491b-162a-08de627a4c42
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|366016|7416014|376014|1800799024|38070700021;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?L2r/SEgNC7cJonuGSuhXuDmx70cmqDRAAd2YxrALFa6+kzcm7pED6uxQzI2W?=
- =?us-ascii?Q?PjjazxRksu39nCu0xq5aIzJrdKVYvE7l1HbDJqkH1aEFXqF0NWjxgFVU4fFH?=
- =?us-ascii?Q?NmYAWrexqFt06KoRMV/a3vY/sDGD3d/zYycPIsy/hzSD3W8UmsCWDYOU3yP7?=
- =?us-ascii?Q?vofOp0pGLpXcFIQ7uPk2agzcvulCyWPoc2yRK3y5S5o7HVN4nF4OsVm2MCtL?=
- =?us-ascii?Q?Judt1wp5PgsAY/tLzCtJAbYW1CgVlvPlHxj9sD9L/ekPwPTGc0e0IVJ85aOR?=
- =?us-ascii?Q?MRPHqJM9dMc01SIzybXDnkPXcMcXBzbXztmLZgn2qxuASQiY1mbModDjipny?=
- =?us-ascii?Q?3/pL/yExKurv1kddFWBxOZrNFzK3pbOD04OdvSMCdcTD2AIZo/uVqYltTSo1?=
- =?us-ascii?Q?+3CDTFh6c9qz//XCHU1z+DSG4HcqdYxkaf+4yXi3UwfxWw58ZqI+IhS04Io+?=
- =?us-ascii?Q?OpQf63yo1gAnDc0Z+fQ/N8BuIKAPAjuZEx6kzVXqSxIduqDWx4KUbNdeMplp?=
- =?us-ascii?Q?bly/AZjMvHtMMEhuU3XyJkFDc4u0SF8xMqGFXDNq11pEYws8D1AbxMNRzyYY?=
- =?us-ascii?Q?kX5m1dk4jRimBdLoKd7BNAFdk5HszOMqtG5OiynxHJCKErzYQ93N1sgeu6C9?=
- =?us-ascii?Q?aCzHEn8WIPHapfBc80FecX712Pv+xIhZbpuK2/NL77048gY6X5C5xpTzKulM?=
- =?us-ascii?Q?G0GR8rgcvEMZSHwvgRRxHNGzoAlhpYHL87ktX8tF+adHNa3ViiMIkg66OGew?=
- =?us-ascii?Q?Nn+1rpWkYGASiG4MOjsAwpZ7RKV8Qp8nXJodb4BIysOu+juVN0RtKnKfsFGj?=
- =?us-ascii?Q?ChB6pgM1fd6PAU2DlaDnGws+vAhxUcG9EpqxChbC9mH32EH/4aoryYbkDppt?=
- =?us-ascii?Q?RrbphqCSIJ7zGYAiEe7kK1vl1rEb3XDSFZXcUwHO7juXY6G6FfYx7V8hLh2F?=
- =?us-ascii?Q?kzD7si7cdITeMNWTiKYSLkxHtv4ovmMNZzy1pRkxeLCSiYmY8ZtpyITuOx/K?=
- =?us-ascii?Q?hG/BmyNr1BEdbPy+FWqEFwGD9Uqn6VqKy7dqU9lhRX97zhZKHH9mQghwY4Dj?=
- =?us-ascii?Q?jzLv3OlIbCZ1ATrveaurkJiz6hqCxDtM0uIIUHKmfzjIoYLvgwFChSFBO+gC?=
- =?us-ascii?Q?cKTAulnEdMzzLHxFHPQeNmA93fRI5GxzjoLM2ebGBwTNVtRHp3TngovSTDV0?=
- =?us-ascii?Q?74t/hNHwyCBUh/cBVYbLeLNdNiNwHE2shgMHxi+uZZGjKJzdvYZBb6Pjf9N0?=
- =?us-ascii?Q?QGqInPdcIpv7fD58/TC/RQ2fxCnXzaOtrK2uD7KWDYlGxUXcZLWq6ClkVbNi?=
- =?us-ascii?Q?eQ/tLcj2lOGrkCr8aFbmUgI3k+Z8YDSfpJhTj6pp4UA9quLkkJA1wKZQVo10?=
- =?us-ascii?Q?iVQEgjvS1l0fZrKvn6kTlAQysErJCHQlorH9i3rema28qUTlpeRSvFXjeDoJ?=
- =?us-ascii?Q?rMZ7SMCzcy5hF1VKFC9Jp8JByJmWJMRqyifnPp9sg5bTDQTmkerdyoYeVLhG?=
- =?us-ascii?Q?DLL+XvewiCjGT6k7Y2MBOI6VqI6y37t+Hy1uJncwtn6lR15H10T2tjhCAQjQ?=
- =?us-ascii?Q?BHcPYWjlJwAH2OQcYkMfFdieaE3ysmPwmYh57BjSeb4PPWX6Dyte3O+RSvzt?=
- =?us-ascii?Q?+pJ9S7JP1JHk0/ylNu4PhI8=3D?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR07MB7969.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?pagT5sopuPumoWZmyCwcHEnt/9KbRWq1PRpjoI4RCd37Ip2ShnQdVsLNh0Nk?=
- =?us-ascii?Q?dUI5xDTfNCs2sZsRI1d1UmWraDEIER6OKJLKAsMWAQgmb2ieaF7864MrQLzF?=
- =?us-ascii?Q?FpQCZWh8lVz2Bmq4f+dYBUxUjB6tcWYOOFtrBQcREghjkFGR9uSWzoUN90Or?=
- =?us-ascii?Q?z9WxYQdqezhIjWfEo8wswsKcMixKJmO51GrP5y+wJ9PS3rscG3/GRs/V811N?=
- =?us-ascii?Q?bAUY6L+T0kpOamNywMdM8jTF07ryQrEJlOAqsinutfmSfC+oTxQcGVfQ2DLb?=
- =?us-ascii?Q?CWHygwJDC0CkbrcA9m9hX9v6gbpWzdq5Qw5SoHUCaFlJrWSaO5C85DMAzTjc?=
- =?us-ascii?Q?+sFqA2R1K5RZyS9AdGGU0vZ5xQfhVwY19wpKhA63AQHXKDJOHt0L1Lh7H6DT?=
- =?us-ascii?Q?dQTQYXiz7P2yV9llzwaUiBhRWdDEkAR1X+4rVmC1yL8JjJCK1BPGIJVW+lOR?=
- =?us-ascii?Q?yuu2pWCLX/ipUMAusC9Mp9sDFg3TeoHfULzHgwRdz7JtweozJoW2w3kwzbsd?=
- =?us-ascii?Q?TaWEeA5of4A/lhEVYKtGe6RQ9iFyGqz0qvmcksnmKWhZ4FWbr4cctylCbBm0?=
- =?us-ascii?Q?GKatSTmHkoZxBLye1e3NCaBxVwBIGh4Ne2uHFQdu29t3a3AXQeh8sefB2qrw?=
- =?us-ascii?Q?zXRQgQYCRI52jfYFm9gpFKZK/+ioF4dasvOB6NzROwg3OkRzVBnkbsALtOM7?=
- =?us-ascii?Q?kpnUbhyBSCvVrRlpm44AzaT3nwxRZOrsxXSy3HsYXi23OyVZEA+OVX47ERVh?=
- =?us-ascii?Q?JttRX06JGaEtSalehAY5aqhmGD6pCyfOHViun67wFGEP6u2VxJpRMIATJrey?=
- =?us-ascii?Q?cs4+iliNtpnytgscrZpZkBmmFigSLNvOk1xZk7df2FKFdccTcGWVpoqLjeFX?=
- =?us-ascii?Q?f4V823Q27ukXVPKtlXyCy4KU1qMNX1LvEyE6JaGXr+b7rvu1z03sbQu4mse8?=
- =?us-ascii?Q?icVJyEnlrCs3K2z/l8M2bf7i3+o6I+ySU9zCLXZ9sEowjEd3wjDDH88K1tdg?=
- =?us-ascii?Q?yqX5lfZVrcbu8Ox1dazPIL4RXcseIAHmWoZYm6D+DXhVbaLpmza/A8ncnRJ9?=
- =?us-ascii?Q?Fp5MmY/n1Hg6iCqNtG6/MXbEDRxA9XOqH3Jr8v/pVFvoSU87XvHBAblIM4n5?=
- =?us-ascii?Q?Hazr/dvEb4DcaDTKBm1GRJm8PpokmZwKSSb4RfjL2Hs+p4tudpVGKf6TVYgN?=
- =?us-ascii?Q?JeM66FiDSURYrqieN1Nm1RRRzqPzUzKWMDf/gcvI4x49C7b3CTJPFiEQKIPY?=
- =?us-ascii?Q?oc388UKM0fdzZdPLsRGROghDbWbHHIW1JUTvUAbUqselJx1+absrPkMfx0w8?=
- =?us-ascii?Q?K9o19LffBVv7ciq3kNzcYGRt8q3jQWhX7OvPpM6e4nejPjn36o8xyFbF+7lj?=
- =?us-ascii?Q?JQ3hMv/sYF+ZvP7YR3fAFBeEkgUt/9dSEIMJQTK4fCVIj+tOFYs6hNtPOn6r?=
- =?us-ascii?Q?LpkGpWhZ8H80krX/31L02/jmo6QBM0VzPbWjkAId+LFZa0xu5i02X2avaMPw?=
- =?us-ascii?Q?2i55Yy4qgI1IVkGJhv6gLYKJLMfbH7C4iSqepJcTYE/L67M3CbcCKNnUz6EF?=
- =?us-ascii?Q?ALDirBYQKrCso15oBJ6VQyeWbeeT3kpzVg80t56mlVxfrDgQf0nmaA6r6pV2?=
- =?us-ascii?Q?wGvd2FzYaO63lv2FH3Sr52q2NCkx3EPqz3LGeLrFBz8KKk3LK837sVQraDm3?=
- =?us-ascii?Q?kvohUrvZajpSlLGXDtEniqg8rn/zK0v/lEy+Y7u383XAdMdgpYxJcf0p+Bxi?=
- =?us-ascii?Q?CFS84c3csIfu9ACK5nO2a1Kr641L2Yo=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QrpEmD6x"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770050720;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1MaLyDAEXIM+1K7joqwk/7F2Jjy8XHWKQlNGyxT7zGc=;
+	b=QrpEmD6xnBiViuo+mPtx3ktk9RyUVxWZE2721efjU0AyuPbZpF/izPj1MZC+dM3XyADzb2
+	WbF9yTMYOyfGGx20QmdNtdUZt25nGHeUqK4iozKUqMGAqOvPGuZ0yJ4kl5NZpqaVFNCD0K
+	w4FrBdh7zwmKIs8QIwpP/yxQ7+ltsAo=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-621-mT7G8JHdMw-F86hPhAqbYQ-1; Mon, 02 Feb 2026 11:45:19 -0500
+X-MC-Unique: mT7G8JHdMw-F86hPhAqbYQ-1
+X-Mimecast-MFC-AGG-ID: mT7G8JHdMw-F86hPhAqbYQ_1770050718
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-47ee1fe7b24so46309175e9.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Feb 2026 08:45:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770050718; x=1770655518;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=1MaLyDAEXIM+1K7joqwk/7F2Jjy8XHWKQlNGyxT7zGc=;
+        b=KHbrguwz3hYG+l0kDd28PBk0WxcsuD7fP/ZnCNpYkRAHXtcf6Md1Y6l8J4QkyHHMFM
+         7rHpY9Jk0S+PIyHIT28zYwIfYcizybIuX5cVcRPWi6H1aA1hyyfovItU2rt2nAcVmEXi
+         ej2htcarlqEHca5vP8yfEeHmiZtWjMtjG/O9Ieohg0h0LU1OayA0oVxZv0eQSFPkmPLk
+         NuA9GLv1HzMr0sbR3e5epXsoGOTFK6iiVlch0ptc7tZ+nHtKFqLJgorSk/UvDPInrAwx
+         SXvMcXjJwvdUkazdEYErcBCb6sqLNW+ufTVaC9J9070AIos8lDKwV7by0fuIGPvyYuER
+         EnwA==
+X-Forwarded-Encrypted: i=1; AJvYcCWU/Gl/+oV8VIABH/3tMiXnNjNmm+EgR5ufaroktI4oZ/z6xRKx4Mpjg7QJMoNBlOXs/W0f29w7cyN/DkhCrA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyHzWfsjVACfnP7W+G8UpOquG15929RpXgm912E4aqMW96iDrLQ
+	HEsNtkePtPRypCke3VGGqfeJP7G/MW33H9vJfEyDVCr6sp752m5+4/5WRx/pzkApp49kp2C4mTn
+	uH8MEhxY+OE9WJO/S5VKefkTkYmj7zz18+tp2b+f3Z6LIjjr679lKskz91bxdIqgupVJt
+X-Gm-Gg: AZuq6aJHJr9BMMZIiAGtP+bBlvU+nBr87A81606pUI0C2CzFo01NxV3eivWXFr+ty4k
+	z4v1H6B2KR5oL3pGEWsGY6t5wU+eSwBoJWQO3CgUoSRzW5OHtXQU/8U8kPjcwK2+iUWiu9Z08Ne
+	l3L5A4tnFoo5kMtH5QTyD8Sd/5Va06eg75d8SaJEC4kkLzl02HMbaNu29cM40feS/BC88R/44gc
+	DajYUVcpKnB7zDyRzswEZKzN2C3YyqX0/e53CJ3xWHHhUqrwvG5mugjSS6CgLVE5ls/cit1O7WI
+	qqf8fXp6PTr/OeeEfjAiik1BP3SoaNTulHRGZdE2i6nBmORVmftLBB6aMNxZN+GSMDd7TCyFNao
+	usNR1/g==
+X-Received: by 2002:a05:600d:8449:b0:482:ef72:5778 with SMTP id 5b1f17b1804b1-482ef7258admr74875155e9.8.1770050717803;
+        Mon, 02 Feb 2026 08:45:17 -0800 (PST)
+X-Received: by 2002:a05:600d:8449:b0:482:ef72:5778 with SMTP id 5b1f17b1804b1-482ef7258admr74874785e9.8.1770050717367;
+        Mon, 02 Feb 2026 08:45:17 -0800 (PST)
+Received: from redhat.com ([2a06:c701:73e3:8f00:866c:5eeb:fc46:7674])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483051247ebsm1055045e9.4.2026.02.02.08.45.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Feb 2026 08:45:16 -0800 (PST)
+Date: Mon, 2 Feb 2026 11:45:13 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Arnd Bergmann <arnd@kernel.org>, Jason Wang <jasowang@redhat.com>,
+	Xie Yongji <xieyongji@bytedance.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Anders Roxell <anders.roxell@linaro.org>,
+	Marco Crivellari <marco.crivellari@suse.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] vduse: fix compat handling for
+ VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
+Message-ID: <20260202114412-mutt-send-email-mst@kernel.org>
+References: <20260202095940.1358613-1-arnd@kernel.org>
+ <20260202095940.1358613-2-arnd@kernel.org>
+ <CAJaqyWeJs4u6G46gEg=-G6o3u6LsgzVC03fTGR=O_qd_HujLuw@mail.gmail.com>
+ <30db98bd-8361-46f5-aec1-ffbc4e8574dd@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: nokia-bell-labs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: AM9PR07MB7969.eurprd07.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 94dbcc9c-40fb-491b-162a-08de627a4c42
-X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Feb 2026 16:44:13.7914
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: gFdEicGF9UD198qsTgBjw34PgWUJAm3DUDpD9pIj3rxu7aaWTxuGHi0mgkK5W8LlrkgY+t3RzpLsJPhCuVT8LlpoGDhXbsoeZMkk0ZFYJbL9cxY5RARi7FmPkPd0x+Sq
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR07MB7866
+In-Reply-To: <30db98bd-8361-46f5-aec1-ffbc4e8574dd@app.fastmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: TnnK6QKGhWV4OQAtLOReNM4pMlAFlOSY4GVKhjIzI28_1770050718
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-> -----Original Message-----
-> From: Michael S. Tsirkin <mst@redhat.com>=20
-> Sent: Sunday, February 1, 2026 10:05 AM
-> To: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>
-> Cc: tariqt@nvidia.com; linux-rdma@vger.kernel.org; shaojijie@huawei.com; =
-shenjian15@huawei.com; salil.mehta@huawei.com; mbloch@nvidia.com; saeedm@nv=
-idia.com; leon@kernel.org; eperezma@redhat.com; brett.creeley@amd.com; jaso=
-wang@redhat.com; virtualization@lists.linux.dev; xuanzhuo@linux.alibaba.com=
-; pabeni@redhat.com; edumazet@google.com; parav@nvidia.com; linux-doc@vger.=
-kernel.org; corbet@lwn.net; horms@kernel.org; dsahern@kernel.org; kuniyu@go=
-ogle.com; bpf@vger.kernel.org; netdev@vger.kernel.org; dave.taht@gmail.com;=
- jhs@mojatatu.com; kuba@kernel.org; stephen@networkplumber.org; xiyou.wangc=
-ong@gmail.com; jiri@resnulli.us; davem@davemloft.net; andrew+netdev@lunn.ch=
-; donald.hunter@gmail.com; ast@fiberby.net; liuhangbin@gmail.com; shuah@ker=
-nel.org; linux-kselftest@vger.kernel.org; ij@kernel.org; ncardwell@google.c=
-om; Koen De Schepper (Nokia) <koen.de_schepper@nokia-bell-labs.com>; g.whit=
-e@cablelabs.com; ingemar.s.johansson@ericsson.com; mirja.kuehlewind@ericsso=
-n.com; cheshire@apple.com; rs.ietf@gmx.at; Jason_Livingood@comcast.com; vid=
-hi_goel@apple.com
-> Subject: Re: [PATCH v1 net-next 2/3] net: hns3/mlx5e: avoid corrupting CW=
-R flag when receiving GRO packet
->=20
->=20
-> CAUTION: This is an external email. Please be very careful when clicking =
-links or opening attachments. See the URL nok.it/ext for additional informa=
-tion.
->=20
->=20
->=20
-> On Sat, Jan 31, 2026 at 11:55:09PM +0100, chia-yu.chang@nokia-bell-labs.c=
-om wrote:
-> > From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+On Mon, Feb 02, 2026 at 12:59:03PM +0100, Arnd Bergmann wrote:
+> On Mon, Feb 2, 2026, at 12:34, Eugenio Perez Martin wrote:
+> > On Mon, Feb 2, 2026 at 11:07 AM Arnd Bergmann <arnd@kernel.org> wrote:
+> >>
+> >> From: Arnd Bergmann <arnd@arndb.de>
+> >>
+> >> These two ioctls are incompatible on 32-bit x86 userspace, because
+> >> the data structures are shorter than they are on 64-bit.
+> >>
+> >> Add compad handling to the regular ioctl handler to just handle
+> >> them the same way and ignore the extra padding. This could be
+> >> done in a separate .compat_ioctl handler, but the main one already
+> >> handles two versions of VDUSE_IOTLB_GET_FD, so adding a third one
+> >> fits in rather well.
+> >>
 > >
-> > In Accurate ECN, ACE counter (AE, ECE, CWR flags) changes only when=20
-> > new CE packets arrive, while setting SKB_GSO_TCP_ECN in case of not=20
-> > knowing the ECN variant can result in header change that corrupts the A=
-CE field.
-> > The new flag SKB_GSO_TCP_ACCECN is to prevent SKB_GSO_TCP_ECN or=20
-> > NETIF_F_TSO_ECN offloading to be used because they would corrupt CWR=20
-> > flag somewhere.
-> >
-> > Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
->=20
-> Not my driver, but a better format is something along the lines of:
->=20
-> Currently .... this is wrong because ... as the result .... fix this by .=
-..
-> so that ....
->=20
-> the coding style does say that you should use the imperative form.
->=20
-Hi Michael,
+> > I'm just learning about the COMPAT_ stuff but does this mean the
+> > userland app need to call a different ioctl depending if it is
+> > compiled for 32 bits or 64 bits? I guess it is not the case, but how
+> > is that handled?
+> 
+> In a definition like
+> 
+> #define VDUSE_IOTLB_GET_FD      _IOWR(VDUSE_BASE, 0x10, struct vduse_iotlb_entry)
+> 
+> The resulting integer value encodes sizeof(struct vduse_iotlb_entry)
+> in some of the bits. Since x86-32 and x86-64 have different
+> sizes for this particular structure, the command codes are
+> different for the same macro. The recommendation from 
+> Documentation/driver-api/ioctl.rst is to use structures with
+> a consistent layout across all architectures to avoid that.
+> 
+> The normal way to handle this once it has gone wrong is to split
+> out the actual handler into a function that takes the kernel
+> structure, and a .compat_ioctl() handler that copies the
+> 32-bit structure to the stack in the correct format.
+> 
+> Since the v1 structures here are /almost/ compatible aside from
+> the padding at the end, my patch here takes a shortcut and does
+> not add a custom .compat_ioctl handler but instead changes
+> the native version on x86-64 to deal with both layouts.
+> This does mean that the kernel driver now also accepts the
+> 64-bit layout coming from compat tasks, and the compat layout
+> coming from 64-bit tasks.
+> 
+> Nothing in userspace changes, as it still just uses the existing
+> VDUSE_IOTLB_GET_FD macro, and the kernel continues to handle
+> the native layout as before.
+> 
+>     Arnd
 
-I will update the commit messages for all these 3 patches.
-And sorry for the typo, this shall be v2, and the next version will be v3 -=
- will clarify it.
-Thanks.
+I think .compat_ioctl would be cleaner frankly. Just look at
+all the ifdefery. And who knows what broken-ness userspace
+comes up with with this approach. Better use the standard approach.
 
-Chia-Yu
