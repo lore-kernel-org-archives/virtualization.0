@@ -1,77 +1,75 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05958221DB9
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 03:12:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 764B22BDC1C
+	for <virtualization@lists.linux-foundation.org>; Mon,  2 Feb 2026 06:58:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770001980; cv=none; b=s1RtiDZiRvttJXm0WVxz8kJh018mXDAysbaMGQLbKInh9Acg6bTWc3tMk+lf4S4DoN1XunU8JJIM2pCQWUK/vnYxBIIStj74vXRLKGv2lqgzkboDZoiw5O1NURcO9PY7rZdSBDdFehu9LnxqHVFfuKMqxV85WEJIRr8B6qAZpTY=
+	t=1770015484; cv=none; b=aN4OL+0+hKikurv8qiDmrfycAqRd5ERbPfw+DAWMyUGjV3S2FAf+JNJ92pnJeMEV0c/qtmbyK4fQy19PgfqLr8erLxuEyRWN28lPaXto80GWTbnQiUYaC6cDd2SHUX0AKnTO7oTnCVZC2V+P+10S2WjApxPR2ivhuLcDYdZrbkk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770001980; c=relaxed/simple;
-	bh=7yhISprganOOYxh69Ev9h0O7lWNMFwfj4PHkG6GLE90=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h3s5XXe9dThuVlz66jyDSv3g44Shb3f1HUfw8SmLWm7/L1Z9+hkqg2seMCpITK/BAOu9Nvn4hqcnnK0drTZsP8sTHP7mwxAVZFBwtF13NS9UzRfCQApABGtiqGUyXili8nulG336R/DK9xbnK1J1a6rnfkinbNvQwQhJWbovoW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=b1RlqShn; arc=none smtp.client-ip=209.85.214.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	s=arc-20240116; t=1770015484; c=relaxed/simple;
+	bh=79QRdfY8Kh+DAQbA6nusrCU+fQQBIGh+BTOLrtWJ15M=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=MNg0u6wXZubV/mhmQZ7P2cqXj3FFrnj3S8nyndOKyEHXydmEKG9oTo4n7gUi6vpFYXBR+IJTwnkCRPi7PYPKJHrvh0tURYcg0eUJXMzK1ifR9SP6QHuSwCdq1q6s71oGaLdDG2z4ICU5PFK5Ww+yyt485W8ymWkv8/5HgmHC5WE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=139.com header.i=@139.com header.b=Ea7hJZIc; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="b1RlqShn"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2a8ff2ca490so4784185ad.2
-        for <virtualization@lists.linux.dev>; Sun, 01 Feb 2026 19:12:58 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=139.com header.i=@139.com header.b="Ea7hJZIc"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2AD3C4066C
+	for <virtualization@lists.linux-foundation.org>; Mon,  2 Feb 2026 06:58:02 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.14
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id IAlbWGLC_ePB for <virtualization@lists.linux-foundation.org>;
+ Mon,  2 Feb 2026 06:58:00 +0000 (UTC)
+X-Greylist: delayed 627 seconds by postgrey-1.37 at util1.osuosl.org; Mon, 02 Feb 2026 06:57:57 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 22D3F405AE
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=139.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 22D3F405AE
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=139.com header.i=@139.com header.a=rsa-sha256 header.s=dkim header.b=Ea7hJZIc
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=120.232.169.113; helo=n169-113.mail.139.com; envelope-from=1468888505@139.com; receiver=<UNKNOWN> 
+Received: from n169-113.mail.139.com (n169-113.mail.139.com [120.232.169.113])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 22D3F405AE
+	for <virtualization@lists.linux-foundation.org>; Mon,  2 Feb 2026 06:57:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1770001978; x=1770606778; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=WmjllnZw+5iXRdcSzwZdOKzRNkr16JL8ICqTiH9EaYg=;
-        b=b1RlqShnGMXejsdEZh8L3bf6r2H8CwPSI0HI1l/CyOV4zaAhgq0mshcg4+CsKjgoaU
-         TLkEGL2l9fB2DIL0Yfdzyvri3MWsCabUzISApQ85fVvDojRvb+GHRHRcyxANNjYnqJpp
-         u6Wli0y0wui7EXbtcHe177EXkBR0Gn5znyvTmJsSxEY5UGSiDWObrFgwrJV4VJ8zQdeg
-         S1UsCPW3MX/j5Iw4yRBlgIqtbxgIDtpUcM1rvsZkXyj+aa4ERxBl0pXJKt5EhqyK6beD
-         EFzPMl6q1la4EybeCBPzYbPalRQC9jSxGGBkE+iHG7en95zsAB+H9wuMh7VMTIERz5nu
-         43RQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770001978; x=1770606778;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WmjllnZw+5iXRdcSzwZdOKzRNkr16JL8ICqTiH9EaYg=;
-        b=IGAUd0IQd6CiO6QyywuXAOCGn6UKoWbC+/OzH9vgwRO9/bnPDpqVD5G4FHY0xyRcPi
-         IHh3kioeQHC09XXQ3Cd44rOvEmZU0Zmu9oT2VwzOhIg04n3dgQRmvx/omBVpMFk7IDQ+
-         LMZJtxTI88sciRwRFCFTTtAzm8fuMFU+3yRWeemqcbLchkdsT/V0uZS3PuDk4+AIwwaH
-         H9pc31CT6pshZOtFN8xzK1wt4GYV5D1SI2h2fP1M0MmXou2wkYBxp1DpRmKZ/DDS7MoK
-         ewGi7T+puUdP74x9sHcJJUPu9+QBfhmtbZ5r8LZwXReHX4qUWS983KjZ8nTnpmgf86Yq
-         Dtew==
-X-Forwarded-Encrypted: i=1; AJvYcCW772OYqWJ5MN5yMCqggVHb+RV+bI+AFhSzs4LPsgyu7tpJm1IhokqayX9nfInJB0OhRHAceqlk1bc+W8KJjA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzPppjGxCj2GFvYRWwec0hUafBN+xw/4RVBnNUxjUBs3NbjcOrR
-	MQQSfeEsfaPG41Fzaltau93LEUkx7QC7JAauMAsXfKC8WJAMaZlKGu+BJ6pLfonqwFA=
-X-Gm-Gg: AZuq6aLa9IjiZ013yeSRkmH1iaCNU7KaNw+Z3ph49hCi2/R15Km3QFPwolG6COK6Ku5
-	h7hd/axuQW/gdk4diYDg6zevJS6E6wlgdZ5BJtfdsmFLs/5thurzDm7QNM+cSWR25+38umSstNg
-	NNefiVjlLkhrOmbzHxEwpnvctYNeEFTE1cWh9y206oLoRJiJZWespjVQhoq/jG6lDgV+4Dwg8V8
-	1liHFKKBVPMicL0VNCaiKpr15xYLTLV1b+HlcbHHqgv4bw/EDqSL5ohz6+DCV5el1ClFKNTR7KE
-	4BIsxRvZedYmq0o0m9k0JSJUtGJ+jJRKe435Fo4leOXqrqa2uk0oZtk2g3P1Br3CQ7QaxZdCnnz
-	sY0l5XdiNZ04dAirYhpVTbVbu2NHioJwhf84kJm5DbW9j4BqtopkH4U7XCkjta0Mni48jpwMKeM
-	G8g0tq2dPvnpydgx2KwHJP2HYaaDptGhMbyq9R6pdXZU8OOVtWKFAnKq5HCg==
-X-Received: by 2002:a17:903:190:b0:2a0:34ee:3725 with SMTP id d9443c01a7336-2a8d7ed32ecmr103955495ad.14.1770001978153;
-        Sun, 01 Feb 2026 19:12:58 -0800 (PST)
-Received: from tianci-mac.bytedance.net ([63.216.146.167])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a88b5d93cdsm127466295ad.70.2026.02.01.19.12.54
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 01 Feb 2026 19:12:57 -0800 (PST)
-From: Zhang Tianci <zhangtianci.1997@bytedance.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	marco.crivellari@suse.com,
-	anders.roxell@linaro.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Zhang Tianci <zhangtianci.1997@bytedance.com>,
+	d=139.com; s=dkim; l=0;
+	h=from:subject:message-id:to:cc:mime-version;
+	bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+	b=Ea7hJZIcRwhgFQQhJKhefcXvmBkcNsRnweH1xGaUt9jFHnpLK3veN5QXseIugetZkpT8l+ifj+m4q
+	 ytaKl49Zi5FE56UTl3lp0axemitE/8mPsG+JenpR1ifs5RaFZm3eK4wBNMDH8h8x1mG6L3ozJyInBu
+	 8jHZMQ/qNtSLeVnc=
+X-RM-TagInfo: emlType=0                                       
+X-RM-SPAM:                                                                                        
+X-RM-SPAM-FLAG:00000000
+Received:from NTT-kernel-dev (unknown[60.247.85.88])
+	by rmsmtp-lg-appmail-36-12050 (RichMail) with SMTP id 2f1269804dba213-0223f;
+	Mon, 02 Feb 2026 15:09:54 +0800 (CST)
+X-RM-TRANSID:2f1269804dba213-0223f
+From: Li hongliang <1468888505@139.com>
+To: gregkh@linuxfoundation.org,
 	stable@vger.kernel.org,
-	Xie Yongji <xieyongji@bytedance.com>
-Subject: [PATCH v2] vduse: Fix race in vduse_dev_msg_sync and vduse_dev_read_iter
-Date: Mon,  2 Feb 2026 11:12:12 +0800
-Message-ID: <20260202031212.26871-1-zhangtianci.1997@bytedance.com>
-X-Mailer: git-send-email 2.48.1
+	michael.christie@oracle.com
+Cc: patches@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	pbonzini@redhat.com,
+	stefanha@redhat.com,
+	mlombard@redhat.com,
+	asias@redhat.com,
+	nab@linux-iscsi.org,
+	virtualization@lists.linux-foundation.org,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	wh1sper@zju.edu.cn,
+	sgarzare@redhat.com
+Subject: [PATCH 6.1.y] vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint
+Date: Mon,  2 Feb 2026 14:47:19 +0800
+Message-Id: <20260202064719.642351-1-1468888505@139.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,95 +78,175 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-There is one race case in vduse_dev_msg_sync and vduse_dev_read_iter:
+From: Mike Christie <michael.christie@oracle.com>
 
-vduse_dev_read_iter():
-    lock(msg_lock);
-    dequeue_msg(send_list);
-    unlock(msg_lock);
-vduse_dev_msg_sync():
-    wait_timeout() finish
-    lock(msg_lock);
-    check msg->complete is false
-        list_del(msg);   <- double list_del() crash!
+[ Upstream commit 5dd639a1646ef5fe8f4bf270fad47c5c3755b9b6 ]
 
-To fix this case, we shall ensure vduse_msg is on send_list or recv_list
-outside the msg_lock critical section.
+If vhost_scsi_set_endpoint is called multiple times without a
+vhost_scsi_clear_endpoint between them, we can hit multiple bugs
+found by Haoran Zhang:
 
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhang Tianci <zhangtianci.1997@bytedance.com>
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+1. Use-after-free when no tpgs are found:
+
+This fixes a use after free that occurs when vhost_scsi_set_endpoint is
+called more than once and calls after the first call do not find any
+tpgs to add to the vs_tpg. When vhost_scsi_set_endpoint first finds
+tpgs to add to the vs_tpg array match=true, so we will do:
+
+vhost_vq_set_backend(vq, vs_tpg);
+...
+
+kfree(vs->vs_tpg);
+vs->vs_tpg = vs_tpg;
+
+If vhost_scsi_set_endpoint is called again and no tpgs are found
+match=false so we skip the vhost_vq_set_backend call leaving the
+pointer to the vs_tpg we then free via:
+
+kfree(vs->vs_tpg);
+vs->vs_tpg = vs_tpg;
+
+If a scsi request is then sent we do:
+
+vhost_scsi_handle_vq -> vhost_scsi_get_req -> vhost_vq_get_backend
+
+which sees the vs_tpg we just did a kfree on.
+
+2. Tpg dir removal hang:
+
+This patch fixes an issue where we cannot remove a LIO/target layer
+tpg (and structs above it like the target) dir due to the refcount
+dropping to -1.
+
+The problem is that if vhost_scsi_set_endpoint detects a tpg is already
+in the vs->vs_tpg array or if the tpg has been removed so
+target_depend_item fails, the undepend goto handler will do
+target_undepend_item on all tpgs in the vs_tpg array dropping their
+refcount to 0. At this time vs_tpg contains both the tpgs we have added
+in the current vhost_scsi_set_endpoint call as well as tpgs we added in
+previous calls which are also in vs->vs_tpg.
+
+Later, when vhost_scsi_clear_endpoint runs it will do
+target_undepend_item on all the tpgs in the vs->vs_tpg which will drop
+their refcount to -1. Userspace will then not be able to remove the tpg
+and will hang when it tries to do rmdir on the tpg dir.
+
+3. Tpg leak:
+
+This fixes a bug where we can leak tpgs and cause them to be
+un-removable because the target name is overwritten when
+vhost_scsi_set_endpoint is called multiple times but with different
+target names.
+
+The bug occurs if a user has called VHOST_SCSI_SET_ENDPOINT and setup
+a vhost-scsi device to target/tpg mapping, then calls
+VHOST_SCSI_SET_ENDPOINT again with a new target name that has tpgs we
+haven't seen before (target1 has tpg1 but target2 has tpg2). When this
+happens we don't teardown the old target tpg mapping and just overwrite
+the target name and the vs->vs_tpg array. Later when we do
+vhost_scsi_clear_endpoint, we are passed in either target1 or target2's
+name and we will only match that target's tpgs when we loop over the
+vs->vs_tpg. We will then return from the function without doing
+target_undepend_item on the tpgs.
+
+Because of all these bugs, it looks like being able to call
+vhost_scsi_set_endpoint multiple times was never supported. The major
+user, QEMU, already has checks to prevent this use case. So to fix the
+issues, this patch prevents vhost_scsi_set_endpoint from being called
+if it's already successfully added tpgs. To add, remove or change the
+tpg config or target name, you must do a vhost_scsi_clear_endpoint
+first.
+
+Fixes: 25b98b64e284 ("vhost scsi: alloc cmds per vq instead of session")
+Fixes: 4f7f46d32c98 ("tcm_vhost: Use vq->private_data to indicate if the endpoint is setup")
+Reported-by: Haoran Zhang <wh1sper@zju.edu.cn>
+Closes: https://lore.kernel.org/virtualization/e418a5ee-45ca-4d18-9b5d-6f8b6b1add8e@oracle.com/T/#me6c0041ce376677419b9b2563494172a01487ecb
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Message-Id: <20250129210922.121533-1-michael.christie@oracle.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+[ Minor conflict resolved. ]
+Signed-off-by: Li hongliang <1468888505@139.com>
 ---
-v2:
- - Rewrite commit message.                        [Michael]
- - Add Fixes tag and cc stable email list.        [Eugenio]
- - Rewrite one comment.                           [Michael]
+ drivers/vhost/scsi.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-v1: https://lkml.org/lkml/2026/1/30/323
-
- drivers/vdpa/vdpa_user/vduse_dev.c | 30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index ae357d014564c..a70d0580d54e8 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -325,6 +325,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb, struct iov_iter *to)
- 	struct file *file = iocb->ki_filp;
- 	struct vduse_dev *dev = file->private_data;
- 	struct vduse_dev_msg *msg;
-+	struct vduse_dev_request req;
- 	int size = sizeof(struct vduse_dev_request);
- 	ssize_t ret;
- 
-@@ -339,7 +340,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb, struct iov_iter *to)
- 
- 		ret = -EAGAIN;
- 		if (file->f_flags & O_NONBLOCK)
--			goto unlock;
-+			break;
- 
- 		spin_unlock(&dev->msg_lock);
- 		ret = wait_event_interruptible_exclusive(dev->waitq,
-@@ -349,17 +350,30 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb, struct iov_iter *to)
- 
- 		spin_lock(&dev->msg_lock);
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index de6f108a50a9..f9ef17c3e566 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1572,14 +1572,19 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 		}
  	}
-+	if (!msg) {
-+		spin_unlock(&dev->msg_lock);
-+		return ret;
+ 
++	if (vs->vs_tpg) {
++		pr_err("vhost-scsi endpoint already set for %s.\n",
++		       vs->vs_vhost_wwpn);
++		ret = -EEXIST;
++		goto out;
 +	}
 +
-+	memcpy(&req, &msg->req, sizeof(req));
-+	/*
-+	 * We must ensure vduse_msg is on send_list or recv_list before unlock
-+	 * dev->msg_lock. Because vduse_dev_msg_sync() may be timeout when we
-+	 * copy data to userspace, and will call list_del() for this msg.
-+	 */
-+	vduse_enqueue_msg(&dev->recv_list, msg);
- 	spin_unlock(&dev->msg_lock);
--	ret = copy_to_iter(&msg->req, size, to);
--	spin_lock(&dev->msg_lock);
-+
-+	ret = copy_to_iter(&req, size, to);
- 	if (ret != size) {
-+		spin_lock(&dev->msg_lock);
-+		/* Roll back: move msg back to send_list if still pending. */
-+		msg = vduse_find_msg(&dev->recv_list, req.request_id);
-+		if (msg)
-+			vduse_enqueue_msg(&dev->send_list, msg);
-+		spin_unlock(&dev->msg_lock);
- 		ret = -EFAULT;
--		vduse_enqueue_msg(&dev->send_list, msg);
--		goto unlock;
+ 	len = sizeof(vs_tpg[0]) * VHOST_SCSI_MAX_TARGET;
+ 	vs_tpg = kzalloc(len, GFP_KERNEL);
+ 	if (!vs_tpg) {
+ 		ret = -ENOMEM;
+ 		goto out;
  	}
--	vduse_enqueue_msg(&dev->recv_list, msg);
--unlock:
--	spin_unlock(&dev->msg_lock);
+-	if (vs->vs_tpg)
+-		memcpy(vs_tpg, vs->vs_tpg, len);
  
- 	return ret;
- }
+ 	list_for_each_entry(tpg, &vhost_scsi_list, tv_tpg_list) {
+ 		mutex_lock(&tpg->tv_tpg_mutex);
+@@ -1594,11 +1599,6 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 		tv_tport = tpg->tport;
+ 
+ 		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
+-			if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
+-				mutex_unlock(&tpg->tv_tpg_mutex);
+-				ret = -EEXIST;
+-				goto undepend;
+-			}
+ 			/*
+ 			 * In order to ensure individual vhost-scsi configfs
+ 			 * groups cannot be removed while in use by vhost ioctl,
+@@ -1643,15 +1643,15 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 		}
+ 		ret = 0;
+ 	} else {
+-		ret = -EEXIST;
++		ret = -ENODEV;
++		goto free_tpg;
+ 	}
+ 
+ 	/*
+-	 * Act as synchronize_rcu to make sure access to
+-	 * old vs->vs_tpg is finished.
++	 * Act as synchronize_rcu to make sure requests after this point
++	 * see a fully setup device.
+ 	 */
+ 	vhost_scsi_flush(vs);
+-	kfree(vs->vs_tpg);
+ 	vs->vs_tpg = vs_tpg;
+ 	goto out;
+ 
+@@ -1668,6 +1668,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
+ 		}
+ 	}
++free_tpg:
+ 	kfree(vs_tpg);
+ out:
+ 	mutex_unlock(&vs->dev.mutex);
+@@ -1757,6 +1758,7 @@ vhost_scsi_clear_endpoint(struct vhost_scsi *vs,
+ 	vhost_scsi_flush(vs);
+ 	kfree(vs->vs_tpg);
+ 	vs->vs_tpg = NULL;
++	memset(vs->vs_vhost_wwpn, 0, sizeof(vs->vs_vhost_wwpn));
+ 	WARN_ON(vs->vs_events_nr);
+ 	mutex_unlock(&vs->dev.mutex);
+ 	mutex_unlock(&vhost_scsi_mutex);
 -- 
-2.39.5
+2.34.1
+
 
