@@ -1,272 +1,150 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f45.google.com (mail-yx1-f45.google.com [74.125.224.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE7AD3859EC
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 17:19:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EB0B3876A0
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 17:40:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770052801; cv=none; b=su30y9cXsYqYVzGcp2H5p+Fv2CwVLAC6bft8e+jV96bb3b41ADNX+ZI+1FFkfIZ2ofeXcsjr6rPYL24wa7MAwU1WA3OWYixRHTFl+S7rbvXgiwH2M8gDL46fgaynWXYb3Kf8K7k9WsUoFfDAthuzCPShmfZFKr4TXCxGHeA37OQ=
+	t=1770054040; cv=none; b=WL5kZrda6RO6e/j9xn6nnUScHSC8zOTjkKe1+aVgSkxzXJlaX3HbWdGkgSqQZbGTdEFAdhRR/Rw/b6/pW1YFPlbiURxU4t6tQodLMwZU8HXFBCuO+oibseZJKjT5mP72dRIoXHkBsEVkuZxYUz0wD+xSHAiHubommTOjuFX+hnk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770052801; c=relaxed/simple;
-	bh=HxokrcUDBIzw4LrI1bf7IsFPbjKVSbqIhYFuWa6zAEQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=HFHRSw3CoBNua5Gz/fQe6ugwfC2CEcBw1AAqMQSNnMDSV/3lJNPni8DSjnIb3RNRKJj4EEb/umBqjPFRmgzEmxyalDvqJJqU+ROyhQx+03Z8flTVSUMT2/TDudvF2ESUExcqE8SmR4BpPny5oWHTNY0O3bE2Fd8r83+gmMuLsSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UX2D4fQo; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1770054040; c=relaxed/simple;
+	bh=VRCx+c4hexJbmDKx+kICIYWJ1xdiJDc4rP2eOiSEuIU=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=kMRo6Zp2poR7k1swYteDucdXsAj8wqfOUwSSCqrgTwnr2FE8IXyV3am+YkLeDO3QGXXBgALomb9U6hMwSr9WtvKcLbzyezpbmAt4vz+KrPi1a3oqIucpcpvLQJa1k7yDFJ/RMMv+xF/+MJiEEmTKyJTGdl6xKDUeUxs84p/PEpo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bk+Dm4k8; arc=none smtp.client-ip=74.125.224.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UX2D4fQo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770052798;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qK9fmq1vPLn9Q2ZXuyz/OjqW7jSwwfNi/Rf4Xya5cvo=;
-	b=UX2D4fQoQl9uhD5P9QCYr1n1pkrjbhlJlgZp0wEcGuFRGajBF5b32OWirSqsBhWnBrqTDX
-	bQX0d75BvMfonTHCenUxGfkLTascbqg/RBtgIwMyYzwXfxCGqt7ZEJqwGod7i1xvA3aULc
-	hdiNPJHVzTv+B8PVW6QsIAZcxL6L9io=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-649-s4-nS8CuPemm6IMMZdb1Sw-1; Mon, 02 Feb 2026 12:19:55 -0500
-X-MC-Unique: s4-nS8CuPemm6IMMZdb1Sw-1
-X-Mimecast-MFC-AGG-ID: s4-nS8CuPemm6IMMZdb1Sw_1770052794
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-432db1a9589so3221917f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 02 Feb 2026 09:19:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bk+Dm4k8"
+Received: by mail-yx1-f45.google.com with SMTP id 956f58d0204a3-64942ebf1a3so4283551d50.3
+        for <virtualization@lists.linux.dev>; Mon, 02 Feb 2026 09:40:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770054037; x=1770658837; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Lr0owY/HcJsxUU3YNVxCg49UjG1nqp/rA/XqNsApWS4=;
+        b=bk+Dm4k8L8mXp+ZjAK0mhiygblxx8zLVms7bZ6FG8XYxhGnl6VLwx7J73vFpIq77GG
+         ma2fO5hal7ngRJ3rBhVCQVExWhJblejg4gUBr41GC7Dal3FBBeyw6ZMr5E+uqfKUYwUt
+         EJIRUcrv4jbXo322AoVPaowXjBJ1Dm70cfg3gffIbO30c7uI3iqEdayscqZP+1Aiqxpo
+         e1Oz3fihhEnlufptMaQLU1hJAhUmODT4xv4I2kcltYXEy9D8zTXuHAklDEmIALb6Ya6g
+         g5IWvprU9ochs1Jequ/YMVtblEtUDU1GLJzIkpSQr/6BaMIkB+6I9krS3OB/StKo4Uop
+         yTgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770052794; x=1770657594;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ueRmNBsULHX80WZv6MW3ddncHXPCqgI+9LkeT0jMc9E=;
-        b=AhnM/9xJAjfaGSSx5cquVT3ghdcQDLHgvwVVNfNbf7WTkwJ+TTPnSITnhpH3sgBQyv
-         891w4ue1wbL95uF63Brj9RJfnIATo/BX+2bFJKUndHO7WWGyYnsS0UMUG4+yyhWIZXFh
-         BBE051bS9RXfKdyOPa6SASiPHpq0tMmReOGaWU4ZuuMKX6vLQjfPlZXx4gZ6znm5IF4Q
-         dq2XDcQUdmE4va1plPsHEu3oucErUuC72qreI2gLW9VJux9ZPvMVkbwiShOCfJpVx+w7
-         q6EBKIVQ4uIhYSwSWZaDth39zKM4s8qgRNDlLAw4yCUPaL96LZ3uN74rR9eCsOb9OQQE
-         V6IA==
-X-Forwarded-Encrypted: i=1; AJvYcCWTSestBEqyul3v+7kMuUnGKIF82tauPQ3PL/9x1aiZJqthB4qnnL1fQG+iKb/JuqNHDYZf1i4YEUxTsHrj0A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YycNhXtqT4n/l13z5TsOm0DgASooWtT74s4fM/UzFbaEaEXHYQD
-	+WJlm5Qx9YYAOE/LfjTgXe2RmFE/foDURD5WvQu4224VKb9oe8AE3HDl9UfSbyuh0Jp47rJofUI
-	Sc4W75HlgvCulnKpyEBZi+yYRM6bBgI/ge4yWUOq8xc79Zg3xriQRRPD9KUePUSbuCoTY
-X-Gm-Gg: AZuq6aL+DXMz5yp67gcYwh3u791M1veEzXwB2LxL091gtDboFC1d4JAtnJD0zhlLkEL
-	d8Zegawp76d/Y5iAoWnUe06KE1E9JBcBbb+mxR9op1ZAHdbNgN8OnS7RfzdCCQ/8PO7AYfbT7Dd
-	tMB5J5Dyjx6GPZc7IRqB14AG9DstOA9Ds15oRedCz6olI3nBe+G4Ze4xIbSjgD+oBZVj+naHJ0m
-	zlQ4UUyXNfKlSVPhG7dlO2o3CILosJHWbPFArOkh2PtLGjZR7l2Fp4mn/CbgyevJcaFVGQ5RJlv
-	cDO1XcSkvsNzEt1UcCr5z23ssi0BnM80GY55PEGIa3kHXEjR3PKmO4fED9uM5rL2s/LQeTL4Ofn
-	bvB91zA==
-X-Received: by 2002:a05:600c:c4a5:b0:47e:e946:3a59 with SMTP id 5b1f17b1804b1-482db4992d3mr133150025e9.34.1770052794288;
-        Mon, 02 Feb 2026 09:19:54 -0800 (PST)
-X-Received: by 2002:a05:600c:c4a5:b0:47e:e946:3a59 with SMTP id 5b1f17b1804b1-482db4992d3mr133149375e9.34.1770052793718;
-        Mon, 02 Feb 2026 09:19:53 -0800 (PST)
-Received: from redhat.com ([2a06:c701:73e3:8f00:866c:5eeb:fc46:7674])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48305129419sm2637285e9.6.2026.02.02.09.19.50
+        d=1e100.net; s=20230601; t=1770054037; x=1770658837;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Lr0owY/HcJsxUU3YNVxCg49UjG1nqp/rA/XqNsApWS4=;
+        b=IBHIHFhITiV9rRZyCdYIKK/og2Y2mvG+Nwzkf3BGsganIV6T6kYcYZY8jxoAQI8IC/
+         rO+/++304HrDVp8d65e2TJKrgEih3otxtm2Y/0AdM9+OYsRJQnM3a0FSnSTPijT2Ojba
+         JN9Yr0h9unAvP6Ge0E8g/DK+haWaSSGogrVtQ6QCnXmgxR04fY9IZkrL6YXiPWJmbQo9
+         khBqGWiEcJSHQkGBCjlVjdsB4S048k4dMs/8wfTQBapRUpMyD28I5335Kx4zzljqA7ql
+         snz59xfzNO6uIhl4znhRULmM+/VqVGTXuwI06z7b6wI1Phk0nDAZNcQvpFFnlzoIZrFl
+         9HTg==
+X-Forwarded-Encrypted: i=1; AJvYcCUW5i/l++E6IHyS7C0M9/HPhk8Prrs9aePqYiMduMIA3OITANWNFRX21/Uw5cIZtLnGfLYaG17YOxPS7AkLBg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxKtVNw0pvvNYpa1UjlZ/o5JEMHi4r1LfirU+HtisvhPdm1/EpO
+	A1vBZcDCpOwmv6xwxSwOX9/lu9AjGaUf3h1PAfIZpPMGTrdBTYdyQkz8
+X-Gm-Gg: AZuq6aKE06fQJIIjeQWE7LrlM1X4wMigd7cTnFH1DsL16LHBHoSQ72RC+Y9Y/el6WcJ
+	aaZc7oQeqaX6Ye1fMKkarqMu291uolW9MV27GA6dIUAScITT55whfYPu83wmnCBL4JDnej/0Ik5
+	HQo/k/ShJN7Y9MBZez2q9ovQ1kU0CaFoe/EmlCb52C9iG59aapKKV5mYnbjj27VqBsqP2rRq9AY
+	NV1nf+O9mpsBStd31vAB6SY1xc+eTj40k26QX0AFA0gsGNMHV5I3Jzf28cyRt/+zSHqZBYwr/mi
+	VhbxhBmyX8XgRc5AKOB7jpY01HMqXhLIXKJcMWfN1UfuIkTxD8zqE1zk0DZN0lD/9lKze+Je31w
+	SUtTvDbPfkRadCn4lMVvAUhZSIuhzilJKcoLJIypDrayZUHIlBsphc252BpUzTt+rlvbu7QIAPi
+	mvUtT2Yh62eHHvS5Ak2QGxfySBouwBJHmMZmWj4rIoQk90UbhmG2ZctbVhUsk=
+X-Received: by 2002:a05:690e:c49:b0:649:66c5:74ec with SMTP id 956f58d0204a3-649a849ef90mr9532381d50.56.1770054037437;
+        Mon, 02 Feb 2026 09:40:37 -0800 (PST)
+Received: from gmail.com (21.33.48.34.bc.googleusercontent.com. [34.48.33.21])
+        by smtp.gmail.com with UTF8SMTPSA id 956f58d0204a3-64996063a24sm9718869d50.5.2026.02.02.09.40.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Feb 2026 09:19:53 -0800 (PST)
-Date: Mon, 2 Feb 2026 12:19:48 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>
-Cc: "tariqt@nvidia.com" <tariqt@nvidia.com>,
-	"linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-	"shaojijie@huawei.com" <shaojijie@huawei.com>,
-	"shenjian15@huawei.com" <shenjian15@huawei.com>,
-	"salil.mehta@huawei.com" <salil.mehta@huawei.com>,
-	"mbloch@nvidia.com" <mbloch@nvidia.com>,
-	"saeedm@nvidia.com" <saeedm@nvidia.com>,
-	"leon@kernel.org" <leon@kernel.org>,
-	"eperezma@redhat.com" <eperezma@redhat.com>,
-	"brett.creeley@amd.com" <brett.creeley@amd.com>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"pabeni@redhat.com" <pabeni@redhat.com>,
-	"edumazet@google.com" <edumazet@google.com>,
-	"parav@nvidia.com" <parav@nvidia.com>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"corbet@lwn.net" <corbet@lwn.net>,
-	"horms@kernel.org" <horms@kernel.org>,
-	"dsahern@kernel.org" <dsahern@kernel.org>,
-	"kuniyu@google.com" <kuniyu@google.com>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"dave.taht@gmail.com" <dave.taht@gmail.com>,
-	"jhs@mojatatu.com" <jhs@mojatatu.com>,
-	"kuba@kernel.org" <kuba@kernel.org>,
-	"stephen@networkplumber.org" <stephen@networkplumber.org>,
-	"xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>,
-	"jiri@resnulli.us" <jiri@resnulli.us>,
-	"davem@davemloft.net" <davem@davemloft.net>,
-	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>,
-	"donald.hunter@gmail.com" <donald.hunter@gmail.com>,
-	"ast@fiberby.net" <ast@fiberby.net>,
-	"liuhangbin@gmail.com" <liuhangbin@gmail.com>,
-	"shuah@kernel.org" <shuah@kernel.org>,
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
-	"ij@kernel.org" <ij@kernel.org>,
-	"ncardwell@google.com" <ncardwell@google.com>,
-	"Koen De Schepper (Nokia)" <koen.de_schepper@nokia-bell-labs.com>,
-	"g.white@cablelabs.com" <g.white@cablelabs.com>,
-	"ingemar.s.johansson@ericsson.com" <ingemar.s.johansson@ericsson.com>,
-	"mirja.kuehlewind@ericsson.com" <mirja.kuehlewind@ericsson.com>,
-	"cheshire@apple.com" <cheshire@apple.com>,
-	"rs.ietf@gmx.at" <rs.ietf@gmx.at>,
-	"Jason_Livingood@comcast.com" <Jason_Livingood@comcast.com>,
-	"vidhi_goel@apple.com" <vidhi_goel@apple.com>
-Subject: Re: [PATCH v1 net-next 3/3] virtio_net: Accurate ECN flag in
- virtio_net_hdr
-Message-ID: <20260202121830-mutt-send-email-mst@kernel.org>
-References: <20260131225510.2946-1-chia-yu.chang@nokia-bell-labs.com>
- <20260131225510.2946-4-chia-yu.chang@nokia-bell-labs.com>
- <20260201035912-mutt-send-email-mst@kernel.org>
- <AM9PR07MB79696F945D8DBEF370CD4DC6A39AA@AM9PR07MB7969.eurprd07.prod.outlook.com>
+        Mon, 02 Feb 2026 09:40:36 -0800 (PST)
+Date: Mon, 02 Feb 2026 12:40:36 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>, 
+ Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ Richard Cochran <richardcochran@gmail.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org
+Message-ID: <willemdebruijn.kernel.16b0979449c84@gmail.com>
+In-Reply-To: <20260202025322-mutt-send-email-mst@kernel.org>
+References: <20260129-v6-7-topic-virtio-net-ptp-v2-0-30a27dc52760@pengutronix.de>
+ <20260129-v6-7-topic-virtio-net-ptp-v2-2-30a27dc52760@pengutronix.de>
+ <willemdebruijn.kernel.37516e24f10fa@gmail.com>
+ <20260202025322-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH RFC v2 2/2] virtio-net: support receive timestamp
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <AM9PR07MB79696F945D8DBEF370CD4DC6A39AA@AM9PR07MB7969.eurprd07.prod.outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: lLUTzjrlpyrUjQjZ1JkWenE9X7bbDbqoYFROfZbb2OY_1770052794
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Feb 02, 2026 at 04:56:38PM +0000, Chia-Yu Chang (Nokia) wrote:
-> > -----Original Message-----
-> > From: Michael S. Tsirkin <mst@redhat.com>=20
-> > Sent: Sunday, February 1, 2026 10:18 AM
-> > To: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>
-> > Cc: tariqt@nvidia.com; linux-rdma@vger.kernel.org; shaojijie@huawei.com=
-; shenjian15@huawei.com; salil.mehta@huawei.com; mbloch@nvidia.com; saeedm@=
-nvidia.com; leon@kernel.org; eperezma@redhat.com; brett.creeley@amd.com; ja=
-sowang@redhat.com; virtualization@lists.linux.dev; xuanzhuo@linux.alibaba.c=
-om; pabeni@redhat.com; edumazet@google.com; parav@nvidia.com; linux-doc@vge=
-r.kernel.org; corbet@lwn.net; horms@kernel.org; dsahern@kernel.org; kuniyu@=
-google.com; bpf@vger.kernel.org; netdev@vger.kernel.org; dave.taht@gmail.co=
-m; jhs@mojatatu.com; kuba@kernel.org; stephen@networkplumber.org; xiyou.wan=
-gcong@gmail.com; jiri@resnulli.us; davem@davemloft.net; andrew+netdev@lunn.=
-ch; donald.hunter@gmail.com; ast@fiberby.net; liuhangbin@gmail.com; shuah@k=
-ernel.org; linux-kselftest@vger.kernel.org; ij@kernel.org; ncardwell@google=
-.com; Koen De Schepper (Nokia) <koen.de_schepper@nokia-bell-labs.com>; g.wh=
-ite@cablelabs.com; ingemar.s.johansson@ericsson.com; mirja.kuehlewind@erics=
-son.com; cheshire@apple.com; rs.ietf@gmx.at; Jason_Livingood@comcast.com; v=
-idhi_goel@apple.com
-> > Subject: Re: [PATCH v1 net-next 3/3] virtio_net: Accurate ECN flag in v=
-irtio_net_hdr
-> >=20
-> >=20
-> > CAUTION: This is an external email. Please be very careful when clickin=
-g links or opening attachments. See the URL nok.it/ext for additional infor=
-mation.
-> >=20
-> >=20
-> >=20
-> > Thanks for the patch! Yet something to improve:
-> >=20
-> > On Sat, Jan 31, 2026 at 11:55:10PM +0100, chia-yu.chang@nokia-bell-labs=
-.com wrote:
-> > > From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
-> > >
-> > > Unlike RFC 3168 ECN, accurate ECN uses the CWR flag as part of the AC=
-E=20
-> > > field to count new packets with CE mark; however, it will be corrupte=
-d=20
-> > > by the RFC 3168 ECN-aware TSO. Therefore, fallback shall be applied b=
-y=20
-> > > seting NETIF_F_GSO_ACCECN to ensure that the CWR flag should not be=
-=20
-> > > changed within a super-skb.
-> > >
-> > > To apply the aforementieond new AccECN GSO for virtio, new featue bit=
-s=20
-> > > for host and guest are added for feature negotiation between driver=
-=20
-> > > and device. And the translation of Accurate ECN GSO flag between=20
-> > > virtio_net_hdr and skb header for NETIF_F_GSO_ACCECN is also added to=
-=20
-> > > avoid CWR flag corruption due to RFC3168 ECN TSO.
-> > >
-> > > Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
-> >=20
-> >=20
-> > To the best of my understanding, this is a new feature - support for VI=
-RTIO_NET_F_HOST_ACCECN, VIRTIO_NET_F_GUEST_ACCECN?
-> > The commit log makes it sound like it fixes some behaviour for existing=
- hardware, but that is not the case.
-> >=20
->=20
-> Thansk for the feedback, I will update commit message in v3.
-> >=20
-> > > ---
-> > > v2:
-> > > - Replace VIRTIO_NET_HDR_GSO_ECN with VIRTIO_NET_HDR_GSO_ECN_FLAGS
-> >=20
-> > but where is v2? this is v1...
->=20
-> I shall update this version as v2, will do at the next version.
->=20
-> [...]
-> > > diff --git a/include/uapi/linux/virtio_net.h=20
-> > > b/include/uapi/linux/virtio_net.h index 1db45b01532b..af5bfe45aa1f=20
-> > > 100644
-> > > --- a/include/uapi/linux/virtio_net.h
-> > > +++ b/include/uapi/linux/virtio_net.h
-> > > @@ -56,6 +56,8 @@
-> > >  #define VIRTIO_NET_F_MQ      22      /* Device supports Receive Flow
-> > >                                        * Steering */
-> > >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23        /* Set MAC address */
-> > > +#define VIRTIO_NET_F_HOST_ACCECN 25  /* Host can handle GSO of AccEC=
-N=20
-> > > +*/ #define VIRTIO_NET_F_GUEST_ACCECN 26 /* Guest can handle GSO of=
-=20
-> > > +AccECN */
-> > >  #define VIRTIO_NET_F_DEVICE_STATS 50 /* Device can provide=20
-> > > device-level statistics. */  #define VIRTIO_NET_F_VQ_NOTF_COAL 52 /* =
-Device supports virtqueue notification coalescing */
-> > >  #define VIRTIO_NET_F_NOTF_COAL       53      /* Device supports noti=
-fications coalescing */
-> > > @@ -165,6 +167,9 @@ struct virtio_net_hdr_v1 {  #define=20
-> > > VIRTIO_NET_HDR_GSO_UDP_TUNNEL (VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 | \
-> > >                                      VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IP=
-V6)
-> > >  #define VIRTIO_NET_HDR_GSO_ECN               0x80    /* TCP has ECN =
-set */
-> > > +#define VIRTIO_NET_HDR_GSO_ACCECN    0x10    /* TCP AccECN segmentat=
-ion */
-> > > +#define VIRTIO_NET_HDR_GSO_ECN_FLAGS (VIRTIO_NET_HDR_GSO_ECN | \
-> > > +                                      VIRTIO_NET_HDR_GSO_ACCECN)
-> > >       __u8 gso_type;
-> > >       __virtio16 hdr_len;     /* Ethernet + IP + tcp/udp hdrs */
-> > >       __virtio16 gso_size;    /* Bytes to append to hdr_len per frame=
- */
-> >=20
-> >=20
-> > UAPI changes need to be added to the virtio spec.
-> > Pls get this approved by the virtio TC.
-> > Thanks!
->=20
-> There were some discussions last October in virtio-comment@lists.linux.de=
-v mailing list.
+Michael S. Tsirkin wrote:
+> On Sun, Feb 01, 2026 at 04:05:54PM -0500, Willem de Bruijn wrote:
+> > Steffen Trumtrar wrote:
+> > > Add optional hardware rx timestamp offload for virtio-net.
+> > > 
+> > > Introduce virtio feature VIRTIO_NET_F_TSTAMP. If negotiated, the
+> > > virtio-net header is expanded with room for a timestamp.
+> > > 
+> > > To get and set the hwtstamp the functions ndo_hwtstamp_set/get need
+> > > to be implemented. This allows filtering the packets and only time stamp
+> > > the packets where the filter matches. This way, the timestamping can
+> > > be en/disabled at runtime.
+> > > 
+> > > Tested:
+> > >   guest: ./timestamping eth0 \
+> > >           SOF_TIMESTAMPING_RAW_HARDWARE \
+> > >           SOF_TIMESTAMPING_RX_HARDWARE
+> > >   host: nc -4 -u 192.168.1.1 319
+> > > 
+> > > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
 
+> > > @@ -475,6 +478,8 @@ struct virtnet_info {
+> > >  
+> > >  	struct control_buf *ctrl;
+> > >  
+> > > +	struct kernel_hwtstamp_config tstamp_config;
+> > > +
+> > >  	/* Ethtool settings */
+> > >  	u8 duplex;
+> > >  	u32 speed;
+> > > @@ -511,6 +516,7 @@ struct virtio_net_common_hdr {
+> > >  		struct virtio_net_hdr_mrg_rxbuf	mrg_hdr;
+> > >  		struct virtio_net_hdr_v1_hash hash_v1_hdr;
+> > >  		struct virtio_net_hdr_v1_hash_tunnel tnl_hdr;
+> > > +		struct virtio_net_hdr_v1_hash_tunnel_ts ts_hdr;
+> > 
+> > Jason, Michael: creating a new struct for every field is not very
+> > elegant. Is it time to find a more forward looking approach to
+> > expanding with new fields? Like a TLV, or how netlink structs like
+> > tcp_info are extended with support for legacy users that only use
+> > a truncated struct?
+> 
+> I certainly wouldn't mind, though I suspect tlv is too complex as
+> hardware implementations can't efficiently follow linked lists.  I'll
+> try to ping some hardware designers for what works well for offloads.
 
-That's it I could not find it. Could you include the archive link pls?=20
+Great thanks.
 
+Agreed that TLV was probably the wrong suggestion.
 
-> At that moment, it is suggested to make Linux kernel accept new comments =
-for SKB_GSO_TCP_ECN and SKB_GSO_TCP_ACCECN first.
-> So, could virtio-spec colleague give your feedback? (Parav?).
->=20
-> Otherwise, the CWR handling of virtio will be wrong after all Accurate EC=
-N commits are merged in Linux.
->=20
-> Chia-Yu
-
-if there's a general agreement we don't need to block linux on tc
-approval.
-
---=20
-MST
-
+We can definitely have a required order of fields. My initial thought
+is as said like many user/kernel structures: where both sides agree on
+the basic order of the struct, and pass along the length, so that they
+agree only to process the min of both their supported lengths. New
+fields are added at the tail of the struct. See for instance getsockopt
+TCP_INFO.
