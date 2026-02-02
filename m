@@ -1,364 +1,205 @@
-Received: from GVXPR05CU001.outbound.protection.outlook.com (mail-swedencentralazon11013006.outbound.protection.outlook.com [52.101.83.6])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5802309EFA
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 21:09:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.83.6
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770066576; cv=fail; b=AudThM249g4EKFbQtP3gU+vN/TY21j0f+rQFpG4bk8xtxXspI1tN2H8yllRzi3iBFi/AopPFQynk9t+9vGXU3SJt0cZr9ss8ENoLysH9ZP8dG5u8mYePMrxDsMyfTW4lcyeR1RPZ21IcrvuVokzJHfGH6jVheFo3584Q2oxjEYU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770066576; c=relaxed/simple;
-	bh=xkq/S85vUyS5iKg6ayGv0WbkmpBE1rwr1ETMqJ8H4X0=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Zc/ka1cOfXu3WtxT7dWp7FNzQDiD90qNSoirChRSVYs4qJ8OX8o5JTqa/ATvGh3eVnysgHoSE7y1Ndbl4wENKH2zHzsDKkNJ9P7XfbhK/4MTcRaWPyXdegBKam+xwOKpOwWY2nmqPaBUcjKk6jgWXz70WgH9O1OAnednCDTcPrw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com; spf=fail smtp.mailfrom=nokia-bell-labs.com; dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b=n+bdpNIl; arc=fail smtp.client-ip=52.101.83.6
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nokia-bell-labs.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F07536EAAB;
+	Mon,  2 Feb 2026 22:33:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770071584; cv=none; b=ivb0cOijOB76wMNMkCmQfC3GoCYyc9RAoMi0L7wumiGtxWxbfw096uswJpWaljj3DOVg3QKJxbyPaczY9t3EazUgxEqiE5w3/xhdDGSJsjRDqez4hrTU6cd5dGJyUbdOTygJAp6ZOMkVYa8TLSMqI1F8uLdgx0s3LMaUbBFCjnU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770071584; c=relaxed/simple;
+	bh=K94Yr5tqFVaHsCYCKnsxMVUvUOkbufB1DVdDJ7sbhdg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fq9JH+mgG4M5ShiuA6UxYh35iZ+MhrRTtTQQsuWv25rjZFSDfGbb4Hm0axYis+nl2ZGLu9NJatZsHjK85sOx6Eni+sxNajdldDKQxIrqQt/WRmGiDnKbIMidy5jKXpIlm6t2plq4ywr5p0qfPz1oUAp1fzPxfI7227U+mjUbTlk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=BKlViKJA; arc=none smtp.client-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b="n+bdpNIl"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=TqnCQxIN7V+p6B6ZS1VYLHX0O0XcazzB76qFhFlTC5KzSOOCPnMw0e+dvE3O1a1FuGOL5qBaR7146qO2Uv76IjdtF88NqdA6lUvKPv8vxX/1PHHP8KP1mgCF7lVOetJHm5DhoSZWFSvHVz/rNqNV2XyFv3udTIm7nxj0OBXN4iYj3i1dhWNKG+uTobHA3oB6NzEzxJblRsHjFdyEnud9rjEzsS6ScwPYdQkZ+jInyfHTowADjlDZEc+GiFr6r1AHl9Hj223rRtR3PnCIX2jFCm9yjArsu9DdKyckRceW9x2cxjS/NiciajI8x627CsQSkBo4D3Qe60m93BrhPfX3bQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=LjomvUGWsd66Y9jbHaXhqlS99ya+BKpyCpHOt2HV91k=;
- b=h1TmUKmbPfq5t0ikyfcM+0wT0I5y83LXNDWjG7ad5sG8+GOiPeitQHlU9hKfgmefNtN7oCWnhDdI28E9xxCjJIcr9WptWxvuylwNJmHSNrsa+xJIoDJ+mwaFA7UzyHVnQr/zVUfU2ibZED/UyWmPTprNML8UmcEwZnY55mj0E0LNELuiasbPN1oiDySyrGJmsYV+ye7ZuMQU+Jl3xiz5PJkih+UU6TzHc0/7HEhEDfsqW9XrjHR5cME4v119L4Y7e+G3KICG9QZloIv89N5L89pmtTy3gB2Kbs3vcWoQfPiTXBKezZJglnfX23sRXI6dlYPTJipxAOGydhRjr16nYw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nokia-bell-labs.com; dmarc=pass action=none
- header.from=nokia-bell-labs.com; dkim=pass header.d=nokia-bell-labs.com;
- arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia-bell-labs.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LjomvUGWsd66Y9jbHaXhqlS99ya+BKpyCpHOt2HV91k=;
- b=n+bdpNIltcIpNRx1XuGyHQxXE2vqLMLboWUzGrP9J15t+YDmeDrm+qe79UQmpTLgvw3NZWAHACCznXd4R9Jqk4KCMLnGKFXgiDfsu14FeUYieOrXyttDLmnLl0OWbXG0HXNLxhrwT19A+d+SEIWK2cSRneMR8rdEO4IOvdo4S4fheDzNamZlYwA0t3nQ8oTwZ25Ja6DkHJK5VXdai3j4eosfXIqZCB5ajrSq7lQGWH3l5AjmMKbyPtZLx7kVTH09S54Bo0WIB81t3gUoRIGV1kLlnfoNLyG+1Na2EXz7UucHCtC5kZLzCmd8dFI7d26yGoiYFqOfs7QzNZbLp28X9Q==
-Received: from PAXPR07MB7984.eurprd07.prod.outlook.com (2603:10a6:102:133::12)
- by VI0PR07MB10807.eurprd07.prod.outlook.com (2603:10a6:800:2c9::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.16; Mon, 2 Feb
- 2026 21:09:28 +0000
-Received: from PAXPR07MB7984.eurprd07.prod.outlook.com
- ([fe80::b7f8:dc0a:7e8d:56]) by PAXPR07MB7984.eurprd07.prod.outlook.com
- ([fe80::b7f8:dc0a:7e8d:56%2]) with mapi id 15.20.9520.005; Mon, 2 Feb 2026
- 21:09:28 +0000
-From: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: "tariqt@nvidia.com" <tariqt@nvidia.com>, "linux-rdma@vger.kernel.org"
-	<linux-rdma@vger.kernel.org>, "shaojijie@huawei.com" <shaojijie@huawei.com>,
-	"shenjian15@huawei.com" <shenjian15@huawei.com>, "salil.mehta@huawei.com"
-	<salil.mehta@huawei.com>, "mbloch@nvidia.com" <mbloch@nvidia.com>,
-	"saeedm@nvidia.com" <saeedm@nvidia.com>, "leon@kernel.org" <leon@kernel.org>,
-	"eperezma@redhat.com" <eperezma@redhat.com>, "brett.creeley@amd.com"
-	<brett.creeley@amd.com>, "jasowang@redhat.com" <jasowang@redhat.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"pabeni@redhat.com" <pabeni@redhat.com>, "edumazet@google.com"
-	<edumazet@google.com>, "parav@nvidia.com" <parav@nvidia.com>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "corbet@lwn.net"
-	<corbet@lwn.net>, "horms@kernel.org" <horms@kernel.org>, "dsahern@kernel.org"
-	<dsahern@kernel.org>, "kuniyu@google.com" <kuniyu@google.com>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "dave.taht@gmail.com" <dave.taht@gmail.com>,
-	"jhs@mojatatu.com" <jhs@mojatatu.com>, "kuba@kernel.org" <kuba@kernel.org>,
-	"stephen@networkplumber.org" <stephen@networkplumber.org>,
-	"xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>, "jiri@resnulli.us"
-	<jiri@resnulli.us>, "davem@davemloft.net" <davem@davemloft.net>,
-	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, "donald.hunter@gmail.com"
-	<donald.hunter@gmail.com>, "ast@fiberby.net" <ast@fiberby.net>,
-	"liuhangbin@gmail.com" <liuhangbin@gmail.com>, "shuah@kernel.org"
-	<shuah@kernel.org>, "linux-kselftest@vger.kernel.org"
-	<linux-kselftest@vger.kernel.org>, "ij@kernel.org" <ij@kernel.org>,
-	"ncardwell@google.com" <ncardwell@google.com>, "Koen De Schepper (Nokia)"
-	<koen.de_schepper@nokia-bell-labs.com>, "g.white@cablelabs.com"
-	<g.white@cablelabs.com>, "ingemar.s.johansson@ericsson.com"
-	<ingemar.s.johansson@ericsson.com>, "mirja.kuehlewind@ericsson.com"
-	<mirja.kuehlewind@ericsson.com>, "cheshire@apple.com" <cheshire@apple.com>,
-	"rs.ietf@gmx.at" <rs.ietf@gmx.at>, "Jason_Livingood@comcast.com"
-	<Jason_Livingood@comcast.com>, "vidhi_goel@apple.com" <vidhi_goel@apple.com>
-Subject: RE: [PATCH v1 net-next 3/3] virtio_net: Accurate ECN flag in
- virtio_net_hdr
-Thread-Topic: [PATCH v1 net-next 3/3] virtio_net: Accurate ECN flag in
- virtio_net_hdr
-Thread-Index: AQHckwSvr7yGsOyrpUmxwtqxbyNbCbVtkSqAgAIPIWCAAAnvAIAACFrQ
-Date: Mon, 2 Feb 2026 21:09:28 +0000
-Message-ID:
- <PAXPR07MB7984B37862D3FBBE363AE5A8A39AA@PAXPR07MB7984.eurprd07.prod.outlook.com>
-References: <20260131225510.2946-1-chia-yu.chang@nokia-bell-labs.com>
- <20260131225510.2946-4-chia-yu.chang@nokia-bell-labs.com>
- <20260201035912-mutt-send-email-mst@kernel.org>
- <AM9PR07MB79696F945D8DBEF370CD4DC6A39AA@AM9PR07MB7969.eurprd07.prod.outlook.com>
- <20260202121830-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260202121830-mutt-send-email-mst@kernel.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nokia-bell-labs.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PAXPR07MB7984:EE_|VI0PR07MB10807:EE_
-x-ms-office365-filtering-correlation-id: 593589ab-4a2a-4b6f-1ad1-08de629f5a2e
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|1800799024|366016|376014|7416014|13003099007|38070700021;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?YeyKsOCZaSFMioY6hQHSapN5iBu/3Of8jK8KwV1H9VRc9LkKW8ALnro6VC7w?=
- =?us-ascii?Q?DvJb8Wss6RBD0Ig0ZYjBKDD7KwwR/Y7XGPFsY79n/CVNEE62ccD7Ny45cZRw?=
- =?us-ascii?Q?Nehs4jtAD7xlc0AR/MzdIPpQFKXL+RlZnKlQt9EaxQiyaZHRZL0H9JrwUCkr?=
- =?us-ascii?Q?y95JEMKyo+qNlN9GLuUjLBmRUxn0Gr2FCUt5t4zviJXu900xjJRrjKYGYtJd?=
- =?us-ascii?Q?T+7LMxj2s6jH9RG1oXdTWTRueaieX5G8EE8UOA1TECK6xp8D3NVgnpo99T1B?=
- =?us-ascii?Q?0m6/Rn27iOE2a0/7ZUPlSiOVTl+Tb9rYYVbBZKprcjnAPoXQ1y06OdjGmYwY?=
- =?us-ascii?Q?Y0IEeYGBoTz8N0dmRSmpLl2Who5V6nzNAgmnwZraZFiPyTOSYCE0zb77hYZu?=
- =?us-ascii?Q?SMUn7MBNTnumV9nNafSYFdLUm9rzaNzvxvKjJaV8KWGfQ0JdiwMmUSjfYxQs?=
- =?us-ascii?Q?dVSP2dAAZRYRoQohuQ/HPsNV6TCAgo3rCWoG1SzBdbK4qCf+ji0Tos9n4pdI?=
- =?us-ascii?Q?GnUBvSVtBSGcYVqSKwVuAc6bj6hw+x6LN9UeB2miZddEVskAzePHnVlagrmP?=
- =?us-ascii?Q?ZuDylbP3b5M0lrnd/uCDjEysmZHmrZtan+14RnNOE5PUuljPjTCJkmZYzNbE?=
- =?us-ascii?Q?51EjNI4aMCmUOLB0/3Rq/9mJsNtwDl1SFzOIIVbd5g4pLj+acuIL6RcoNbn/?=
- =?us-ascii?Q?x7p/BQEqK+YkXiGWBLXvr+/v794X1nP5Q/VWy4CJaOH4EUCaNL/l04a89Krj?=
- =?us-ascii?Q?dInhR75QIQvXLufjDHNjJjob8XNBmNTLSws9Wojkqrl0JGbc18pqxnFoeagC?=
- =?us-ascii?Q?rmAwmCFjUgKyqSX5sOrwvrZPJizpIJ52zOlRJuCBIDPSYicqT0qjmHLxXYtQ?=
- =?us-ascii?Q?kE0UHxxtFRumWo+BLrG686d1uwQX0s1vUjI55M7zU/+zd0P/9YY6TBa7Avvp?=
- =?us-ascii?Q?HtdX2ogYfmvmiKcQYI/73gcr0YK/qbif+mzC4mz/U+XRHPUrcWKlUv4/e/Mb?=
- =?us-ascii?Q?AwVyENa0uI4NZeZch6T7yaLka8FMnS4SzWdfJ3+1KCxpIVQQ+3cI30KXJ71U?=
- =?us-ascii?Q?hhNypnbuMEohjnOJ26Pu76ZyjGvaJXbXk+4ExKMdZq4pAdhHj3auuVT9b7xu?=
- =?us-ascii?Q?Eudo1egYCk5ted8vGF5h6Y6klm4zTdPrq3lenKDu43bhb2HXSmx9UOjuU4b4?=
- =?us-ascii?Q?ULMf8m8WVe7XZJdsP4hTGOjAYLRWIQ6W3WFypfvPoboU70UOxp33TWW14pXe?=
- =?us-ascii?Q?ViTsOCswTQB2SGkYGWiZ5KDeIsEt5QeiiVpDxB8EhaMsCszo/axiidsBILOX?=
- =?us-ascii?Q?AZRovFCEoPKW6Pct/PJ8hwBL95DUABKQF5H0ORizfKBNflnBIHk51WUfLWDH?=
- =?us-ascii?Q?IFvRjD5mONEHTvff2L4zESbm88OQaG1e65LMtnxa22+rgSw+yucD4LJd0j9N?=
- =?us-ascii?Q?IAB5Cg9vOXv2wVrAP6IpCLhn6vI4Gbq7VsB/TQDMT4rohpTQd84q/Yy6+aFw?=
- =?us-ascii?Q?9XMh3SdAWz+0Fx5uttK+cF0rF4abM6q0Lu0m9iqkqiPD185TKhugQZGi6Fbc?=
- =?us-ascii?Q?mwtn9GFYCmT6aXEtsB6URIN3JOsZtiBW7e4Ng8Ee?=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR07MB7984.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(13003099007)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?UfMBdPQDbk1z8w+0vOJ++gTIw1bQXZhOdljtqVIJuiSIJyF4bgD85tdU9Ao+?=
- =?us-ascii?Q?YUrovmls2Oun00qeOKSsSQ0Gl/WiHRUqv/FZFAMWPmu8jKSs3rbIftasoODc?=
- =?us-ascii?Q?CDZ3RE4oX1BEh6jOxH9bAH6qUreIsmGu7mjZ9LhWSOgL/WxxtWN3gZ0hQsH9?=
- =?us-ascii?Q?xgq6Woz4jnIaSCcLAiwBNka96cIdMyPAkKd6lcMKiku/6bGYSBpwSpPly2Bk?=
- =?us-ascii?Q?WdKGSQ2Q3r+ct/DrirgP6F6eGK6eA4nFaNcr1/FlKzrbbr20xoW4xxG/KNTB?=
- =?us-ascii?Q?nZ9dtl78UQF5b1LGWI5dRXJi2lfpsDesZiE4R/8F97Wt+478FF4IdDBKNwUl?=
- =?us-ascii?Q?vexCYN4FUFjrr08oP7TJLGkgewjtpSmLk73fCrqL3mnBx3qSd3hec+ufD++7?=
- =?us-ascii?Q?LOkIDCofzNSZUMCcH24HtJSH3MrRELiVx//nqbO8vQaTx7t0GbKSogNObNlO?=
- =?us-ascii?Q?GD/rZE3+KIkCvgkdwxL+t7NNiCuKI2Uld2qTqdUzUUQtckJpaqAZocxCwuVI?=
- =?us-ascii?Q?d7PIqPIFjqv5WW3Vb104aOKM9KrT2HJAZS68TgRJQiz4YGLCg6KL7RvgrnCR?=
- =?us-ascii?Q?QqY1nWzby7Ez+/vF3xeOAOdnsCUhQDNkoBVkNR3Jdo80VqapGWWqUClQ5aAf?=
- =?us-ascii?Q?/01e3tlkd6Cx420irS94hO8KwKfYCfFQ95DCXgE7eEbkkWdW66nBdcCc+y4T?=
- =?us-ascii?Q?ZIJx+SWA2/X58MoE92nktHpBo+xKZjyhvRhsSxZ3SAmW68F0mNAYfDCv8RQc?=
- =?us-ascii?Q?2RZGUzQRmcei7nsLRq/TQzXMySp9y8/SDLArz7+ab2r8zpZABqM7uL4gtK0j?=
- =?us-ascii?Q?BdgX+mF1uWNdkh6hS73IgkFg0NWAAw8Cp5n/GltetPe/GEDwULOx4yK3LPYI?=
- =?us-ascii?Q?oYSaM5M1l68Aa+5KRck5v4uulD98zC17Krs8PnXZCFRPJBsDG8y82I0cu8lH?=
- =?us-ascii?Q?One5ytKLKB5gsJtMPOkBgBOFD9R8UaPWZ0H3bbMqRJen9TdUzlw+FjCaVwon?=
- =?us-ascii?Q?sf9QJowiuKJXMtbwksmbNR/o2JF/EwGAXnJUHzajQJf6gQkJW6WeULt7Ug67?=
- =?us-ascii?Q?2nJziZWVd35UiggCG/xNC+v6/6yg5gQRYjJ00dlsyc0iSSFe8DR2HGpO1Gfe?=
- =?us-ascii?Q?icGlP+xWQKU4Mm72OYmi/2KWP1POiKcn+ElP1xRzkSK9bJqagJZMigjSYiLk?=
- =?us-ascii?Q?trXwzzNGpZPK5z9O5w9sec6oRtEK+bRuL5ulO21FIf3r3ZNJZl+5d0wrqMqC?=
- =?us-ascii?Q?lrpEEy4nlVa6RoXRkaaNBE56zkDGeBQCF1iaDmL+ZfPFra1hAzee/+eRIILO?=
- =?us-ascii?Q?QYwGVwnlMOUmeSpDIQX0z5lILlFofuu82SeiGdgsUsK8yHGrxemIMjf+z7hj?=
- =?us-ascii?Q?w96iW/GdG/Wztcxcfir+mI5Vyb7gejx7B0cz9JoZ8OrhvdMck7dFvdrxloZt?=
- =?us-ascii?Q?aKW66faycEbIq4dj7nktjj9nd1pHiukK0qWpmE7W38zXB8ZbsT1HQwRQkhU2?=
- =?us-ascii?Q?yoEbT35Sl6jIfwSKKZoUigd2L9N8XrVuV2jneFu3vgbrnwVr+2xkQUclPAj0?=
- =?us-ascii?Q?fbx1gIZerWGaMrQlsGMV68o9Rzr46Oz/R5YLMh4Qerhlh+bOYLFr+/+1D0Xc?=
- =?us-ascii?Q?PToD/O1RuLoBWsTddoZwQUlqHfk9k5gsV0hF08lLBZ5Z0eZOW7T/geIy4uag?=
- =?us-ascii?Q?VoHAxU/YxYo0+WPdsQ+CKZr4IT+1Kapu/0XjowIFJFPd+Cf//L14IIIAao8U?=
- =?us-ascii?Q?VLPI5uJzRuSgC6BDucPXi7AaxYH/iK8=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BKlViKJA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1770071583; x=1801607583;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=K94Yr5tqFVaHsCYCKnsxMVUvUOkbufB1DVdDJ7sbhdg=;
+  b=BKlViKJAVVGto3CtjwFrfkcBkI8FG1P7WHq9O/azjGYnocBOesCY9tiS
+   /GVIGMtCnIp81025Wb25B2YYDNcLCRJIZF2VxhKWSvHk8onBEQ2dVD+dn
+   6kBBfr3+ZyyZ6VbbjwhM//5XN3sikGxLYxRt5cuzY25KyWPXXg6Ln8v1w
+   LchPbAT/HqZsL5/mpbYuWryV1u1PVZIvno2QSl4aSb6/xTNJR/V93GuhF
+   Xw8N7qKN7K1yqRwsB4FS6rmtd1dv2GWbrCv2qoqjFD12NtVA4jB5o7rOs
+   nQquHg3tQSf34ciZCS0MZzkjgb/TRLgGbfnF6rCUuK0TzOhAMC/OBHMHU
+   Q==;
+X-CSE-ConnectionGUID: olDvU4euTSOCSqspAOwVFA==
+X-CSE-MsgGUID: JRp+Y5gGQliLzQb3mURrSQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11690"; a="82348627"
+X-IronPort-AV: E=Sophos;i="6.21,269,1763452800"; 
+   d="scan'208";a="82348627"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 14:33:02 -0800
+X-CSE-ConnectionGUID: f0cfM4HPRO+EXrWtBO5R7A==
+X-CSE-MsgGUID: e2M1VSzVScuy0rx2orDXBg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,269,1763452800"; 
+   d="scan'208";a="209657809"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by orviesa008.jf.intel.com with ESMTP; 02 Feb 2026 14:32:27 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vn2T3-00000000g1M-0wih;
+	Mon, 02 Feb 2026 22:32:25 +0000
+Date: Tue, 3 Feb 2026 06:31:40 +0800
+From: kernel test robot <lkp@intel.com>
+To: Shashank Balaji <shashank.mahadasyam@sony.com>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Suresh Siddha <suresh.b.siddha@intel.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Juergen Gross <jgross@suse.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	virtualization@lists.linux.dev, jailhouse-dev@googlegroups.com,
+	kvm@vger.kernel.org, xen-devel@lists.xenproject.org,
+	Rahul Bukte <rahul.bukte@sony.com>,
+	Shashank Balaji <shashank.mahadasyam@sony.com>,
+	Daniel Palmer <daniel.palmer@sony.com>,
+	Tim Bird <tim.bird@sony.com>
+Subject: Re: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel
+ expects so
+Message-ID: <202602030600.jFhsJyEC-lkp@intel.com>
+References: <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: nokia-bell-labs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PAXPR07MB7984.eurprd07.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 593589ab-4a2a-4b6f-1ad1-08de629f5a2e
-X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Feb 2026 21:09:28.5121
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: MtBBou0Yj+VZ41rnCedkIskWWA9dTgvC8gWbcnw/q+xoClo940lnu4n0y95Q8ycmcdsbudP4VesiZ5tuX/0sAxVB85InO4AIfRm9g4Wy/dGC7zFzh25zARgbnB4vhvWz
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI0PR07MB10807
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
 
-> -----Original Message-----
-> From: Michael S. Tsirkin <mst@redhat.com>=20
-> Sent: Monday, February 2, 2026 6:20 PM
-> To: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>
-> Cc: tariqt@nvidia.com; linux-rdma@vger.kernel.org; shaojijie@huawei.com; =
-shenjian15@huawei.com; salil.mehta@huawei.com; mbloch@nvidia.com; saeedm@nv=
-idia.com; leon@kernel.org; eperezma@redhat.com; brett.creeley@amd.com; jaso=
-wang@redhat.com; virtualization@lists.linux.dev; xuanzhuo@linux.alibaba.com=
-; pabeni@redhat.com; edumazet@google.com; parav@nvidia.com; linux-doc@vger.=
-kernel.org; corbet@lwn.net; horms@kernel.org; dsahern@kernel.org; kuniyu@go=
-ogle.com; bpf@vger.kernel.org; netdev@vger.kernel.org; dave.taht@gmail.com;=
- jhs@mojatatu.com; kuba@kernel.org; stephen@networkplumber.org; xiyou.wangc=
-ong@gmail.com; jiri@resnulli.us; davem@davemloft.net; andrew+netdev@lunn.ch=
-; donald.hunter@gmail.com; ast@fiberby.net; liuhangbin@gmail.com; shuah@ker=
-nel.org; linux-kselftest@vger.kernel.org; ij@kernel.org; ncardwell@google.c=
-om; Koen De Schepper (Nokia) <koen.de_schepper@nokia-bell-labs.com>; g.whit=
-e@cablelabs.com; ingemar.s.johansson@ericsson.com; mirja.kuehlewind@ericsso=
-n.com; cheshire@apple.com; rs.ietf@gmx.at; Jason_Livingood@comcast.com; vid=
-hi_goel@apple.com
-> Subject: Re: [PATCH v1 net-next 3/3] virtio_net: Accurate ECN flag in vir=
-tio_net_hdr
->=20
->=20
-> CAUTION: This is an external email. Please be very careful when clicking =
-links or opening attachments. See the URL nok.it/ext for additional informa=
-tion.
->=20
->=20
->=20
-> On Mon, Feb 02, 2026 at 04:56:38PM +0000, Chia-Yu Chang (Nokia) wrote:
-> > > -----Original Message-----
-> > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > Sent: Sunday, February 1, 2026 10:18 AM
-> > > To: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>
-> > > Cc: tariqt@nvidia.com; linux-rdma@vger.kernel.org;=20
-> > > shaojijie@huawei.com; shenjian15@huawei.com; salil.mehta@huawei.com;=
-=20
-> > > mbloch@nvidia.com; saeedm@nvidia.com; leon@kernel.org;=20
-> > > eperezma@redhat.com; brett.creeley@amd.com; jasowang@redhat.com;=20
-> > > virtualization@lists.linux.dev; xuanzhuo@linux.alibaba.com;=20
-> > > pabeni@redhat.com; edumazet@google.com; parav@nvidia.com;=20
-> > > linux-doc@vger.kernel.org; corbet@lwn.net; horms@kernel.org;=20
-> > > dsahern@kernel.org; kuniyu@google.com; bpf@vger.kernel.org;=20
-> > > netdev@vger.kernel.org; dave.taht@gmail.com; jhs@mojatatu.com;=20
-> > > kuba@kernel.org; stephen@networkplumber.org;=20
-> > > xiyou.wangcong@gmail.com; jiri@resnulli.us; davem@davemloft.net;=20
-> > > andrew+netdev@lunn.ch; donald.hunter@gmail.com; ast@fiberby.net;=20
-> > > liuhangbin@gmail.com; shuah@kernel.org;=20
-> > > linux-kselftest@vger.kernel.org; ij@kernel.org;=20
-> > > ncardwell@google.com; Koen De Schepper (Nokia)=20
-> > > <koen.de_schepper@nokia-bell-labs.com>; g.white@cablelabs.com;=20
-> > > ingemar.s.johansson@ericsson.com; mirja.kuehlewind@ericsson.com;=20
-> > > cheshire@apple.com; rs.ietf@gmx.at; Jason_Livingood@comcast.com;=20
-> > > vidhi_goel@apple.com
-> > > Subject: Re: [PATCH v1 net-next 3/3] virtio_net: Accurate ECN flag=20
-> > > in virtio_net_hdr
-> > >
-> > >
-> > > CAUTION: This is an external email. Please be very careful when click=
-ing links or opening attachments. See the URL nok.it/ext for additional inf=
-ormation.
-> > >
-> > >
-> > >
-> > > Thanks for the patch! Yet something to improve:
-> > >
-> > > On Sat, Jan 31, 2026 at 11:55:10PM +0100, chia-yu.chang@nokia-bell-la=
-bs.com wrote:
-> > > > From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
-> > > >
-> > > > Unlike RFC 3168 ECN, accurate ECN uses the CWR flag as part of the=
-=20
-> > > > ACE field to count new packets with CE mark; however, it will be=20
-> > > > corrupted by the RFC 3168 ECN-aware TSO. Therefore, fallback shall=
-=20
-> > > > be applied by seting NETIF_F_GSO_ACCECN to ensure that the CWR=20
-> > > > flag should not be changed within a super-skb.
-> > > >
-> > > > To apply the aforementieond new AccECN GSO for virtio, new featue=20
-> > > > bits for host and guest are added for feature negotiation between=20
-> > > > driver and device. And the translation of Accurate ECN GSO flag=20
-> > > > between virtio_net_hdr and skb header for NETIF_F_GSO_ACCECN is=20
-> > > > also added to avoid CWR flag corruption due to RFC3168 ECN TSO.
-> > > >
-> > > > Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
-> > >
-> > >
-> > > To the best of my understanding, this is a new feature - support for =
-VIRTIO_NET_F_HOST_ACCECN, VIRTIO_NET_F_GUEST_ACCECN?
-> > > The commit log makes it sound like it fixes some behaviour for existi=
-ng hardware, but that is not the case.
-> > >
-> >
-> > Thansk for the feedback, I will update commit message in v3.
-> > >
-> > > > ---
-> > > > v2:
-> > > > - Replace VIRTIO_NET_HDR_GSO_ECN with VIRTIO_NET_HDR_GSO_ECN_FLAGS
-> > >
-> > > but where is v2? this is v1...
-> >
-> > I shall update this version as v2, will do at the next version.
-> >
-> > [...]
-> > > > diff --git a/include/uapi/linux/virtio_net.h=20
-> > > > b/include/uapi/linux/virtio_net.h index 1db45b01532b..af5bfe45aa1f
-> > > > 100644
-> > > > --- a/include/uapi/linux/virtio_net.h
-> > > > +++ b/include/uapi/linux/virtio_net.h
-> > > > @@ -56,6 +56,8 @@
-> > > >  #define VIRTIO_NET_F_MQ      22      /* Device supports Receive Fl=
-ow
-> > > >                                        * Steering */
-> > > >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23        /* Set MAC address */
-> > > > +#define VIRTIO_NET_F_HOST_ACCECN 25  /* Host can handle GSO of=20
-> > > > +AccECN */ #define VIRTIO_NET_F_GUEST_ACCECN 26 /* Guest can=20
-> > > > +handle GSO of AccECN */
-> > > >  #define VIRTIO_NET_F_DEVICE_STATS 50 /* Device can provide=20
-> > > > device-level statistics. */  #define VIRTIO_NET_F_VQ_NOTF_COAL 52 /=
-* Device supports virtqueue notification coalescing */
-> > > >  #define VIRTIO_NET_F_NOTF_COAL       53      /* Device supports no=
-tifications coalescing */
-> > > > @@ -165,6 +167,9 @@ struct virtio_net_hdr_v1 {  #define=20
-> > > > VIRTIO_NET_HDR_GSO_UDP_TUNNEL (VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 |=
- \
-> > > >                                      VIRTIO_NET_HDR_GSO_UDP_TUNNEL_=
-IPV6)
-> > > >  #define VIRTIO_NET_HDR_GSO_ECN               0x80    /* TCP has EC=
-N set */
-> > > > +#define VIRTIO_NET_HDR_GSO_ACCECN    0x10    /* TCP AccECN segment=
-ation */
-> > > > +#define VIRTIO_NET_HDR_GSO_ECN_FLAGS (VIRTIO_NET_HDR_GSO_ECN | \
-> > > > +                                      VIRTIO_NET_HDR_GSO_ACCECN)
-> > > >       __u8 gso_type;
-> > > >       __virtio16 hdr_len;     /* Ethernet + IP + tcp/udp hdrs */
-> > > >       __virtio16 gso_size;    /* Bytes to append to hdr_len per fra=
-me */
-> > >
-> > >
-> > > UAPI changes need to be added to the virtio spec.
-> > > Pls get this approved by the virtio TC.
-> > > Thanks!
-> >
-> > There were some discussions last October in virtio-comment@lists.linux.=
-dev mailing list.
->=20
->=20
-> That's it I could not find it. Could you include the archive link pls?
+Hi Shashank,
 
-The email thread I found is https://yhbt.net/lore/all/20250814120118.81787-=
-1-chia-yu.chang@nokia-bell-labs.com/T/#m62dd5e559a68e8d3e5872e85d37c924f65f=
-c7033
+kernel test robot noticed the following build errors:
 
-There were discussions about updating the documents of SKB_GSO_TCP_ECN and =
-SKB_GSO_TCP_ACCECN, and you can find it in the first patch of this series.
+[auto build test ERROR on 18f7fcd5e69a04df57b563360b88be72471d6b62]
 
->=20
->=20
-> > At that moment, it is suggested to make Linux kernel accept new comment=
-s for SKB_GSO_TCP_ECN and SKB_GSO_TCP_ACCECN first.
-> > So, could virtio-spec colleague give your feedback? (Parav?).
-> >
-> > Otherwise, the CWR handling of virtio will be wrong after all Accurate =
-ECN commits are merged in Linux.
-> >
-> > Chia-Yu
->=20
-> if there's a general agreement we don't need to block linux on tc approva=
-l.
->=20
-> --
-> MST
+url:    https://github.com/intel-lab-lkp/linux/commits/Shashank-Balaji/x86-x2apic-disable-x2apic-on-resume-if-the-kernel-expects-so/20260202-181147
+base:   18f7fcd5e69a04df57b563360b88be72471d6b62
+patch link:    https://lore.kernel.org/r/20260202-x2apic-fix-v1-1-71c8f488a88b%40sony.com
+patch subject: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel expects so
+config: i386-randconfig-001-20260202 (https://download.01.org/0day-ci/archive/20260203/202602030600.jFhsJyEC-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260203/202602030600.jFhsJyEC-lkp@intel.com/reproduce)
 
-Shall I also submit patches to virtio-spec? Please suggest ways forwards.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202602030600.jFhsJyEC-lkp@intel.com/
 
-Thanks!
+All errors (new ones prefixed by >>):
 
-Chia-Yu
+>> arch/x86/kernel/apic/apic.c:2463:3: error: call to undeclared function '__x2apic_disable'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    2463 |                 __x2apic_disable();
+         |                 ^
+   arch/x86/kernel/apic/apic.c:2463:3: note: did you mean '__x2apic_enable'?
+   arch/x86/kernel/apic/apic.c:1896:20: note: '__x2apic_enable' declared here
+    1896 | static inline void __x2apic_enable(void) { }
+         |                    ^
+   1 error generated.
+
+
+vim +/__x2apic_disable +2463 arch/x86/kernel/apic/apic.c
+
+  2435	
+  2436	static void lapic_resume(void *data)
+  2437	{
+  2438		unsigned int l, h;
+  2439		unsigned long flags;
+  2440		int maxlvt;
+  2441	
+  2442		if (!apic_pm_state.active)
+  2443			return;
+  2444	
+  2445		local_irq_save(flags);
+  2446	
+  2447		/*
+  2448		 * IO-APIC and PIC have their own resume routines.
+  2449		 * We just mask them here to make sure the interrupt
+  2450		 * subsystem is completely quiet while we enable x2apic
+  2451		 * and interrupt-remapping.
+  2452		 */
+  2453		mask_ioapic_entries();
+  2454		legacy_pic->mask_all();
+  2455	
+  2456		if (x2apic_mode) {
+  2457			__x2apic_enable();
+  2458		} else {
+  2459			/*
+  2460			 * x2apic may have been re-enabled by the
+  2461			 * firmware on resuming from s2ram
+  2462			 */
+> 2463			__x2apic_disable();
+  2464	
+  2465			/*
+  2466			 * Make sure the APICBASE points to the right address
+  2467			 *
+  2468			 * FIXME! This will be wrong if we ever support suspend on
+  2469			 * SMP! We'll need to do this as part of the CPU restore!
+  2470			 */
+  2471			if (boot_cpu_data.x86 >= 6) {
+  2472				rdmsr(MSR_IA32_APICBASE, l, h);
+  2473				l &= ~MSR_IA32_APICBASE_BASE;
+  2474				l |= MSR_IA32_APICBASE_ENABLE | mp_lapic_addr;
+  2475				wrmsr(MSR_IA32_APICBASE, l, h);
+  2476			}
+  2477		}
+  2478	
+  2479		maxlvt = lapic_get_maxlvt();
+  2480		apic_write(APIC_LVTERR, ERROR_APIC_VECTOR | APIC_LVT_MASKED);
+  2481		apic_write(APIC_ID, apic_pm_state.apic_id);
+  2482		apic_write(APIC_DFR, apic_pm_state.apic_dfr);
+  2483		apic_write(APIC_LDR, apic_pm_state.apic_ldr);
+  2484		apic_write(APIC_TASKPRI, apic_pm_state.apic_taskpri);
+  2485		apic_write(APIC_SPIV, apic_pm_state.apic_spiv);
+  2486		apic_write(APIC_LVT0, apic_pm_state.apic_lvt0);
+  2487		apic_write(APIC_LVT1, apic_pm_state.apic_lvt1);
+  2488	#ifdef CONFIG_X86_THERMAL_VECTOR
+  2489		if (maxlvt >= 5)
+  2490			apic_write(APIC_LVTTHMR, apic_pm_state.apic_thmr);
+  2491	#endif
+  2492	#ifdef CONFIG_X86_MCE_INTEL
+  2493		if (maxlvt >= 6)
+  2494			apic_write(APIC_LVTCMCI, apic_pm_state.apic_cmci);
+  2495	#endif
+  2496		if (maxlvt >= 4)
+  2497			apic_write(APIC_LVTPC, apic_pm_state.apic_lvtpc);
+  2498		apic_write(APIC_LVTT, apic_pm_state.apic_lvtt);
+  2499		apic_write(APIC_TDCR, apic_pm_state.apic_tdcr);
+  2500		apic_write(APIC_TMICT, apic_pm_state.apic_tmict);
+  2501		apic_write(APIC_ESR, 0);
+  2502		apic_read(APIC_ESR);
+  2503		apic_write(APIC_LVTERR, apic_pm_state.apic_lvterr);
+  2504		apic_write(APIC_ESR, 0);
+  2505		apic_read(APIC_ESR);
+  2506	
+  2507		irq_remapping_reenable(x2apic_mode);
+  2508	
+  2509		local_irq_restore(flags);
+  2510	}
+  2511	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
