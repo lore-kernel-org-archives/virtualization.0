@@ -1,172 +1,417 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 651411F181F
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 07:27:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92D4F2882B2
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 07:35:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770017241; cv=none; b=t2fGZPcbOtkkEeAx69eTPjMt3XxeKIwzUh1Dvs26lS3yXkFFYENy0ToPDBkhrc4w26ZigkvNsLNZYf/I2S+jy4wVpikbg+CVgVgEKqwTWqiXeL8RGtxpSv4ps9RL6dPKXTo9HPfqzogLLRHWOus+uOyigikEtcdAJku1gaPyqD8=
+	t=1770017710; cv=none; b=psjqIhRnsVQ6DnKYIujvLokGfBDgPCFpHS+tEePb07s32/Si4JL/8LmaFKOAE66YFwizrqdYvX4Dgbyi6HP69BDB6HFq/FcPXtyqIQ4rUl8wKdH75jamtsIrEcN7yZiniKZWm4yefJ26NE3lCMCDimBn2wHfj//18B86g6OxRpM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770017241; c=relaxed/simple;
-	bh=pl6VwA/VUV/Zau9QfAtae90e95h4JJbv1lONMJ4/9Qc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qUqW7MhC3lukB0NnBlTgnuQ+GEoewOcMRyuv1xYz2Mu7mrkHfVCIzEwQDUH+HB/32azzUN41xZ/I3dKfQHv+O6vVVjVwSDP3HZmblyptdfAfZN4qSMl9DwG40I+DP06roEW9N9vXGAIk/VHLUro36sujYZq8V325TdG8uWJfV9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=QF6ofgQh; arc=none smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="QF6ofgQh"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-c633984fbeeso1683318a12.0
-        for <virtualization@lists.linux.dev>; Sun, 01 Feb 2026 23:27:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1770017240; x=1770622040; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Kmq6UkeFlJ38GZ9Njho8FK6yJ51WYaa7aCjJvi0pQSw=;
-        b=QF6ofgQh+8FQkM0ENBL52EoKUIfzM2W2jRMstaN43klursXkncJJHPNTewyW2cVU4t
-         LrIp879sF+R+U8DbjYqIUWcEetpL86Gl4TxLdvmkiBxs8kVKV8v+0q9Ubdj0v3hPDsDx
-         dWLibQMLDZ+58eLgnMxjSJ4xnJ99/rDUvj8VD7HXCG5FelKGVQbb56DaqwQqQnOMsNsT
-         DDs63Ns71e6pFOSy1dAml8TbkcEukGCczHjPU+kf7XXHBJha5S6wgmYXy7H7uAKni0qe
-         0V0bCD8m+RjOnogg4jzxHXXUTmniSFd+Pcl0CnhQWllXwpW+Pk/BK3a4AxC2jNz2DkGC
-         F35A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770017240; x=1770622040;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Kmq6UkeFlJ38GZ9Njho8FK6yJ51WYaa7aCjJvi0pQSw=;
-        b=g0dbC+yIf26A5MCwZ6QWbCLLPhdHcFU1l4iwzyA3kACWl5dM4lqbX8gPBchfKrzEeP
-         cQm88Tgz4ueAz9WiQ+3u1M6ATRp1CXqMXZ5awxP8txI4QRvSeQSPpUrMwaADM9Px7G+k
-         IjssxNKwxHr3L8gyYiuF8BSwYMJr4+VGpkblyBBacMf5NDo5pubJRVRET+QecE4ng3F/
-         n5IhH2nV1z5j9v+Z1RPRED+lj8pcPonEdyoVA66HQlOu+gd7MvFqZmKIy0FtROG+Ltwp
-         aylDMZJYFzpCTDb6n9QwC6PzXN5e1mIGjErwVV+fYUEKn3GGr7fV2pSLeseRZ1fYEKTq
-         WuXw==
-X-Forwarded-Encrypted: i=1; AJvYcCXWzOK/JjpY201ZW4M4b7DbhCi6pf/rQZ7xlw4DLWioHrZwg4KB97KlJ9vzk7oWvzy6bXXIX9ZSLScfrVN5Hw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzXukR0gqV2OgSgowK5i32bRT0+Cv96hYGbOm65TODg1qCozwaO
-	snA+oaia7DaplXxIauERIkdiDo7mfuU4+7I/1pRCmIQg+gYmzU1OaoduTEtGlexB9FfQ0x0cYH/
-	bIIIsMTDMfuG7
-X-Gm-Gg: AZuq6aI0BNG9yZB2bi8vZK6fvSb2FRxFwrLsfpHkVhC2Kpn2dcb3Fgj4nGlUMYbqqqw
-	pb3VJoP2m+P7NeTA2MTvk2dFzkL4I02XkmcW8MsQCZ3JeEo5zAwWxQiVBzSP2RM1+bFrxyrpz/z
-	kq57SIOojhMxWvtL79JAMKsRLlTNzoQMstnIPNZPjm821g7a7U8JeAcd9UatxLKeK8u/NoD5+aD
-	2gJkJKoDzhB6OngX86UVY1Y9ATjPWa5yjuiw8NnmK/XAOimY7/zIImHxBfypYQlHAPaMem+Kl9k
-	r/tQy+EMmgbjxTpha+FkgU17ef/Z2Vy78XqT9AiCkrLHox/VCIrbKcaxziDXG5zD4VWlFsiPksD
-	3DIyGbUEodom+txQ8DPBbhAfkaae5hPok7o/0PE3m3W9sI/jad3QRXy3brZvZ4UkYpDkUlWEl7z
-	IDN/8D+d8m8bkr6WU5jwAFtfzrWjLZoVcJfcjIvewDqntkdkaZsBnIaZIdLaJ66vrWBKI=
-X-Received: by 2002:a17:903:380b:b0:29f:1b1f:784 with SMTP id d9443c01a7336-2a8bd3ebfeemr152850155ad.4.1770017239838;
-        Sun, 01 Feb 2026 23:27:19 -0800 (PST)
-Received: from tianci-mac.bytedance.net ([61.213.176.14])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a88b5d88f0sm145352365ad.67.2026.02.01.23.27.17
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 01 Feb 2026 23:27:19 -0800 (PST)
-From: Zhang Tianci <zhangtianci.1997@bytedance.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	marco.crivellari@suse.com,
-	anders.roxell@linaro.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Zhang Tianci <zhangtianci.1997@bytedance.com>,
-	stable@vger.kernel.org,
-	Xie Yongji <xieyongji@bytedance.com>
-Subject: [PATCH v3 2/2] vduse: Fix race in vduse_dev_msg_sync and vduse_dev_read_iter
-Date: Mon,  2 Feb 2026 15:26:55 +0800
-Message-ID: <20260202072655.95143-3-zhangtianci.1997@bytedance.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20260202072655.95143-1-zhangtianci.1997@bytedance.com>
-References: <20260202072655.95143-1-zhangtianci.1997@bytedance.com>
+	s=arc-20240116; t=1770017710; c=relaxed/simple;
+	bh=Iq0B9B671UG9bZSa5AaOH5xIdno8Irtx1Rn/B2QQ7d0=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=Mwl0CrskOLX0hbZbCxZSGFnEPs3BMMUZxBSop8i6bScmWy1ztKMJGov4a/te8WV7Wx7HRySNNXrMACnSroJ0qC+wiP5n7jSLh7xlBFFgHmkf11yrjaOi9mPIIgZIeQXnuQ6tSmDoLNYVEbGufRw0zUP9XNe5ZojrfvN02ANHRUQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from ptz.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::77] helo=ratatoskr.pengutronix.de)
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <s.trumtrar@pengutronix.de>)
+	id 1vmoSb-0001sD-IV; Mon, 02 Feb 2026 08:35:01 +0100
+From: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,  Jason Wang
+ <jasowang@redhat.com>,  Xuan Zhuo <xuanzhuo@linux.alibaba.com>,  "David S.
+ Miller" <davem@davemloft.net>,  Eric Dumazet <edumazet@google.com>,  Jakub
+ Kicinski <kuba@kernel.org>,  Paolo Abeni <pabeni@redhat.com>,  Richard
+ Cochran <richardcochran@gmail.com>,  Andrew Lunn <andrew+netdev@lunn.ch>,
+  Eugenio =?utf-8?Q?P=C3=A9rez?= <eperezma@redhat.com>,
+  virtualization@lists.linux.dev,
+  netdev@vger.kernel.org,  linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC v2 2/2] virtio-net: support receive timestamp
+In-Reply-To: <willemdebruijn.kernel.37516e24f10fa@gmail.com> (Willem de
+	Bruijn's message of "Sun, 01 Feb 2026 16:05:54 -0500")
+References: <20260129-v6-7-topic-virtio-net-ptp-v2-0-30a27dc52760@pengutronix.de>
+	<20260129-v6-7-topic-virtio-net-ptp-v2-2-30a27dc52760@pengutronix.de>
+	<willemdebruijn.kernel.37516e24f10fa@gmail.com>
+User-Agent: mu4e 1.12.13; emacs 30.2
+Date: Mon, 02 Feb 2026 08:34:58 +0100
+Message-ID: <87tsvzr42l.fsf@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; format=flowed
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:900:1d::77
+X-SA-Exim-Mail-From: s.trumtrar@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: virtualization@lists.linux.dev
 
-There is one race case in vduse_dev_msg_sync and vduse_dev_read_iter:
+On 2026-02-01 at 16:05 -05, Willem de Bruijn <willemdebruijn.kernel@gmail.com> wrote:
 
-vduse_dev_read_iter():
-    lock(msg_lock);
-    dequeue_msg(send_list);
-    unlock(msg_lock);
-vduse_dev_msg_sync():
-    wait_timeout() finish
-    lock(msg_lock);
-    check msg->complete is false
-        list_del(msg);   <- double list_del() crash!
+> Steffen Trumtrar wrote:
+> > Add optional hardware rx timestamp offload for virtio-net.
+> > 
+> > Introduce virtio feature VIRTIO_NET_F_TSTAMP. If negotiated, the
+> > virtio-net header is expanded with room for a timestamp.
+> > 
+> > To get and set the hwtstamp the functions ndo_hwtstamp_set/get need
+> > to be implemented. This allows filtering the packets and only time stamp
+> > the packets where the filter matches. This way, the timestamping can
+> > be en/disabled at runtime.
+> > 
+> > Tested:
+> >   guest: ./timestamping eth0 \
+> >           SOF_TIMESTAMPING_RAW_HARDWARE \
+> >           SOF_TIMESTAMPING_RX_HARDWARE
+> >   host: nc -4 -u 192.168.1.1 319
+> > 
+> > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> > 
+> > --
+> >   Changes to last version:
+> >   - rework series to use flow filters
+> >   - add new struct virtio_net_hdr_v1_hash_tunnel_ts
+> >   - original work done by: Willem de Bruijn <willemb@google.com>
+> > ---
+> >  drivers/net/virtio_net.c        | 136 ++++++++++++++++++++++++++++++++++++----
+> >  include/uapi/linux/virtio_net.h |   9 +++
+> >  2 files changed, 133 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 1bb3aeca66c6e..4e8d9b20c1b34 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -429,6 +429,9 @@ struct virtnet_info {
+> >  	struct virtio_net_rss_config_trailer rss_trailer;
+> >  	u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];
+> >  
+> > +	/* Device passes time stamps from the driver */
+> > +	bool has_tstamp;
+> > +
+> >  	/* Has control virtqueue */
+> >  	bool has_cvq;
+> >  
+> > @@ -475,6 +478,8 @@ struct virtnet_info {
+> >  
+> >  	struct control_buf *ctrl;
+> >  
+> > +	struct kernel_hwtstamp_config tstamp_config;
+> > +
+> >  	/* Ethtool settings */
+> >  	u8 duplex;
+> >  	u32 speed;
+> > @@ -511,6 +516,7 @@ struct virtio_net_common_hdr {
+> >  		struct virtio_net_hdr_mrg_rxbuf	mrg_hdr;
+> >  		struct virtio_net_hdr_v1_hash hash_v1_hdr;
+> >  		struct virtio_net_hdr_v1_hash_tunnel tnl_hdr;
+> > +		struct virtio_net_hdr_v1_hash_tunnel_ts ts_hdr;
+> 
+> Jason, Michael: creating a new struct for every field is not very
+> elegant. Is it time to find a more forward looking approach to
+> expanding with new fields? Like a TLV, or how netlink structs like
+> tcp_info are extended with support for legacy users that only use
+> a truncated struct?
+>
 
-To fix this case, we shall ensure vduse_msg is on send_list or recv_list
-outside the msg_lock critical section.
+Yes, this gets complicated real fast and leads to really long calls for all the nested fields. If there is a different way, I'd prefer that.
 
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhang Tianci <zhangtianci.1997@bytedance.com>
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
----
- drivers/vdpa/vdpa_user/vduse_dev.c | 30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+> >  	};
+> >  };
+> >  
+> > @@ -682,6 +688,13 @@ skb_vnet_common_hdr(struct sk_buff *skb)
+> >  	return (struct virtio_net_common_hdr *)skb->cb;
+> >  }
+> >  
+> > +static inline struct virtio_net_hdr_v1_hash_tunnel_ts *skb_vnet_hdr_ts(struct sk_buff *skb)
+> > +{
+> > +	BUILD_BUG_ON(sizeof(struct virtio_net_hdr_v1_hash_tunnel_ts) > sizeof(skb->cb));
+> > +
+> > +	return (void *)skb->cb;
+> > +}
+> > +
+> >  /*
+> >   * private is used to chain pages for big packets, put the whole
+> >   * most recent used list in the beginning for reuse
+> > @@ -2560,6 +2573,15 @@ virtio_net_hash_value(const struct virtio_net_hdr_v1_hash *hdr_hash)
+> >  		(__le16_to_cpu(hdr_hash->hash_value_hi) << 16);
+> >  }
+> >  
+> > +static inline u64
+> > +virtio_net_tstamp_value(const struct virtio_net_hdr_v1_hash_tunnel_ts *hdr_hash_ts)
+> > +{
+> > +	return  (u64)__le16_to_cpu(hdr_hash_ts->tstamp_0) |
+> > +	       ((u64)__le16_to_cpu(hdr_hash_ts->tstamp_1) << 16) |
+> > +	       ((u64)__le16_to_cpu(hdr_hash_ts->tstamp_2) << 32) |
+> > +	       ((u64)__le16_to_cpu(hdr_hash_ts->tstamp_3) << 48);
+> > +}
+> > +
+> >  static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
+> >  				struct sk_buff *skb)
+> >  {
+> > @@ -2589,6 +2611,18 @@ static void virtio_skb_set_hash(const struct virtio_net_hdr_v1_hash *hdr_hash,
+> >  	skb_set_hash(skb, virtio_net_hash_value(hdr_hash), rss_hash_type);
+> >  }
+> >  
+> > +static inline void virtnet_record_rx_tstamp(const struct virtnet_info *vi,
+> > +					    struct sk_buff *skb)
+> > +{
+> > +	struct skb_shared_hwtstamps *shhwtstamps = skb_hwtstamps(skb);
+> > +	const struct virtio_net_hdr_v1_hash_tunnel_ts *h = skb_vnet_hdr_ts(skb);
+> > +	u64 ts;
+> > +
+> > +	ts = virtio_net_tstamp_value(h);
+> > +	memset(shhwtstamps, 0, sizeof(struct skb_shared_hwtstamps));
+> > +	shhwtstamps->hwtstamp = ns_to_ktime(ts);
+> > +}
+> > +
+> >  static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *rq,
+> >  				 struct sk_buff *skb, u8 flags)
+> >  {
+> > @@ -2617,6 +2651,8 @@ static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *
+> >  		goto frame_err;
+> >  	}
+> >  
+> > +	if (vi->has_tstamp && vi->tstamp_config.rx_filter != HWTSTAMP_FILTER_NONE)
+> > +		virtnet_record_rx_tstamp(vi, skb);
+> >  	skb_record_rx_queue(skb, vq2rxq(rq->vq));
+> >  	skb->protocol = eth_type_trans(skb, dev);
+> >  	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
+> > @@ -3321,7 +3357,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+> >  {
+> >  	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
+> >  	struct virtnet_info *vi = sq->vq->vdev->priv;
+> > -	struct virtio_net_hdr_v1_hash_tunnel *hdr;
+> > +	struct virtio_net_hdr_v1_hash_tunnel_ts *hdr;
+> >  	int num_sg;
+> >  	unsigned hdr_len = vi->hdr_len;
+> >  	bool can_push;
+> > @@ -3329,8 +3365,8 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+> >  	pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
+> >  
+> >  	/* Make sure it's safe to cast between formats */
+> > -	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->hash_hdr));
+> > -	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->hash_hdr.hdr));
+> > +	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->tnl.hash_hdr));
+> > +	BUILD_BUG_ON(__alignof__(*hdr) != __alignof__(hdr->tnl.hash_hdr.hdr));
+> >  
+> >  	can_push = vi->any_header_sg &&
+> >  		!((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
+> > @@ -3338,18 +3374,18 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb, bool orphan)
+> >  	/* Even if we can, don't push here yet as this would skew
+> >  	 * csum_start offset below. */
+> >  	if (can_push)
+> > -		hdr = (struct virtio_net_hdr_v1_hash_tunnel *)(skb->data -
+> > -							       hdr_len);
+> > +		hdr = (struct virtio_net_hdr_v1_hash_tunnel_ts *)(skb->data -
+> > +								  hdr_len);
+> >  	else
+> > -		hdr = &skb_vnet_common_hdr(skb)->tnl_hdr;
+> > +		hdr = &skb_vnet_common_hdr(skb)->ts_hdr;
+> >  
+> > -	if (virtio_net_hdr_tnl_from_skb(skb, hdr, vi->tx_tnl,
+> > +	if (virtio_net_hdr_tnl_from_skb(skb, &hdr->tnl, vi->tx_tnl,
+> >  					virtio_is_little_endian(vi->vdev), 0,
+> >  					false))
+> >  		return -EPROTO;
+> >  
+> >  	if (vi->mergeable_rx_bufs)
+> > -		hdr->hash_hdr.hdr.num_buffers = 0;
+> > +		hdr->tnl.hash_hdr.hdr.num_buffers = 0;
+> >  
+> >  	sg_init_table(sq->sg, skb_shinfo(skb)->nr_frags + (can_push ? 1 : 2));
+> >  	if (can_push) {
+> > @@ -5563,6 +5599,22 @@ static int virtnet_get_per_queue_coalesce(struct net_device *dev,
+> >  	return 0;
+> >  }
+> >  
+> > +static int virtnet_get_ts_info(struct net_device *dev,
+> > +			       struct kernel_ethtool_ts_info *info)
+> > +{
+> > +	/* setup default software timestamp */
+> > +	ethtool_op_get_ts_info(dev, info);
+> > +
+> > +	info->rx_filters = (BIT(HWTSTAMP_FILTER_NONE) |
+> > +			    BIT(HWTSTAMP_FILTER_PTP_V1_L4_SYNC) |
+> > +			    BIT(HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ) |
+> > +			    BIT(HWTSTAMP_FILTER_ALL));
+> > +
+> > +	info->tx_types = HWTSTAMP_TX_OFF;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> >  static void virtnet_init_settings(struct net_device *dev)
+> >  {
+> >  	struct virtnet_info *vi = netdev_priv(dev);
+> > @@ -5658,7 +5710,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+> >  	.get_ethtool_stats = virtnet_get_ethtool_stats,
+> >  	.set_channels = virtnet_set_channels,
+> >  	.get_channels = virtnet_get_channels,
+> > -	.get_ts_info = ethtool_op_get_ts_info,
+> > +	.get_ts_info = virtnet_get_ts_info,
+> >  	.get_link_ksettings = virtnet_get_link_ksettings,
+> >  	.set_link_ksettings = virtnet_set_link_ksettings,
+> >  	.set_coalesce = virtnet_set_coalesce,
+> > @@ -6242,6 +6294,58 @@ static void virtnet_tx_timeout(struct net_device *dev, unsigned int txqueue)
+> >  		   jiffies_to_usecs(jiffies - READ_ONCE(txq->trans_start)));
+> >  }
+> >  
+> > +static int virtnet_hwtstamp_get(struct net_device *dev,
+> > +				struct kernel_hwtstamp_config *tstamp_config)
+> > +{
+> > +	struct virtnet_info *vi = netdev_priv(dev);
+> > +
+> > +	if (!netif_running(dev))
+> > +		return -EINVAL;
+> > +
+> > +	*tstamp_config = vi->tstamp_config;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int virtnet_hwtstamp_set(struct net_device *dev,
+> > +				struct kernel_hwtstamp_config *tstamp_config,
+> > +				struct netlink_ext_ack *extack)
+> > +{
+> > +	struct virtnet_info *vi = netdev_priv(dev);
+> > +
+> > +	if (!netif_running(dev))
+> > +		return -EINVAL;
+> > +
+> > +	switch (tstamp_config->rx_filter) {
+> > +	case HWTSTAMP_FILTER_PTP_V1_L4_SYNC:
+> > +	case HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ:
+> > +		break;
+> > +	case HWTSTAMP_FILTER_PTP_V2_EVENT:
+> > +	case HWTSTAMP_FILTER_PTP_V2_L2_EVENT:
+> > +	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
+> > +	case HWTSTAMP_FILTER_PTP_V2_SYNC:
+> > +	case HWTSTAMP_FILTER_PTP_V2_L2_SYNC:
+> > +	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
+> > +	case HWTSTAMP_FILTER_PTP_V2_DELAY_REQ:
+> > +	case HWTSTAMP_FILTER_PTP_V2_L2_DELAY_REQ:
+> > +	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
+> > +		tstamp_config->rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
+> > +		break;
+> > +	case HWTSTAMP_FILTER_NONE:
+> > +		break;
+> > +	case HWTSTAMP_FILTER_ALL:
+> > +		tstamp_config->rx_filter = HWTSTAMP_FILTER_ALL;
+> > +		break;
+> 
+> It's fine to implement filters, but also fine to only support ALL or
+> NONE for simplicity.
+> 
+> In the end it probably depends on what the underlying physical device
+> supports.
+> 
+> > +	default:
+> > +		tstamp_config->rx_filter = HWTSTAMP_FILTER_ALL;
+> > +		return -ERANGE;
+> > +	}
+> > +
+> > +	vi->tstamp_config = *tstamp_config;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> >  static int virtnet_init_irq_moder(struct virtnet_info *vi)
+> >  {
+> >  	u8 profile_flags = 0, coal_flags = 0;
+> > @@ -6289,6 +6393,8 @@ static const struct net_device_ops virtnet_netdev = {
+> >  	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
+> >  	.ndo_set_features	= virtnet_set_features,
+> >  	.ndo_tx_timeout		= virtnet_tx_timeout,
+> > +	.ndo_hwtstamp_set	= virtnet_hwtstamp_set,
+> > +	.ndo_hwtstamp_get	= virtnet_hwtstamp_get,
+> >  };
+> >
+> >  static void virtnet_config_changed_work(struct work_struct *work)
+> > @@ -6911,6 +7017,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT))
+> >  		vi->has_rss_hash_report = true;
+> >  
+> > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_TSTAMP))
+> > +		vi->has_tstamp = true;
+> > +
+> >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
+> >  		vi->has_rss = true;
+> >  
+> > @@ -6945,8 +7054,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+> >  		dev->xdp_metadata_ops = &virtnet_xdp_metadata_ops;
+> >  	}
+> >  
+> > -	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) ||
+> > -	    virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
+> > +	if (vi->has_tstamp)
+> > +		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel_ts);
+> > +	else if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO) ||
+> > +		 virtio_has_feature(vdev, VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO))
+> >  		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash_tunnel);
+> >  	else if (vi->has_rss_hash_report)
+> >  		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
+> > @@ -7269,7 +7380,8 @@ static struct virtio_device_id id_table[] = {
+> >  	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
+> >  	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
+> >  	VIRTIO_NET_F_VQ_NOTF_COAL, \
+> > -	VIRTIO_NET_F_GUEST_HDRLEN, VIRTIO_NET_F_DEVICE_STATS
+> > +	VIRTIO_NET_F_GUEST_HDRLEN, VIRTIO_NET_F_DEVICE_STATS, \
+> > +	VIRTIO_NET_F_TSTAMP
+> >  
+> >  static unsigned int features[] = {
+> >  	VIRTNET_FEATURES,
+> > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> > index 1db45b01532b5..9f967575956b8 100644
+> > --- a/include/uapi/linux/virtio_net.h
+> > +++ b/include/uapi/linux/virtio_net.h
+> > @@ -56,6 +56,7 @@
+> >  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+> >  					 * Steering */
+> >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> > +#define VIRTIO_NET_F_TSTAMP	  49	/* Device sends TAI receive time */
+> >  #define VIRTIO_NET_F_DEVICE_STATS 50	/* Device can provide device-level statistics. */
+> >  #define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
+> >  #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
+> > @@ -215,6 +216,14 @@ struct virtio_net_hdr_v1_hash_tunnel {
+> >  	__le16 inner_nh_offset;
+> >  };
+> >  
+> > +struct virtio_net_hdr_v1_hash_tunnel_ts {
+> > +	struct virtio_net_hdr_v1_hash_tunnel tnl;
+> > +	__le16 tstamp_0;
+> > +	__le16 tstamp_1;
+> > +	__le16 tstamp_2;
+> > +	__le16 tstamp_3;
+> > +};
+> 
+> Why the multiple fields, rather than u64.
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index b37f18a0ce6fd..1e274688bba32 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -331,6 +331,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb, struct iov_iter *to)
- 	struct file *file = iocb->ki_filp;
- 	struct vduse_dev *dev = file->private_data;
- 	struct vduse_dev_msg *msg;
-+	struct vduse_dev_request req;
- 	int size = sizeof(struct vduse_dev_request);
- 	ssize_t ret;
- 
-@@ -345,7 +346,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb, struct iov_iter *to)
- 
- 		ret = -EAGAIN;
- 		if (file->f_flags & O_NONBLOCK)
--			goto unlock;
-+			break;
- 
- 		spin_unlock(&dev->msg_lock);
- 		ret = wait_event_interruptible_exclusive(dev->waitq,
-@@ -355,17 +356,30 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb, struct iov_iter *to)
- 
- 		spin_lock(&dev->msg_lock);
- 	}
-+	if (!msg) {
-+		spin_unlock(&dev->msg_lock);
-+		return ret;
-+	}
-+
-+	memcpy(&req, &msg->req, sizeof(req));
-+	/*
-+	 * We must ensure vduse_msg is on send_list or recv_list before unlock
-+	 * dev->msg_lock. Because vduse_dev_msg_sync() may be timeout when we
-+	 * copy data to userspace, and will call list_del() for this msg.
-+	 */
-+	vduse_enqueue_msg(&dev->recv_list, msg);
- 	spin_unlock(&dev->msg_lock);
--	ret = copy_to_iter(&msg->req, size, to);
--	spin_lock(&dev->msg_lock);
-+
-+	ret = copy_to_iter(&req, size, to);
- 	if (ret != size) {
-+		spin_lock(&dev->msg_lock);
-+		/* Roll back: move msg back to send_list if still pending. */
-+		msg = vduse_find_msg(&dev->recv_list, req.request_id);
-+		if (msg)
-+			vduse_enqueue_msg_head(&dev->send_list, msg);
-+		spin_unlock(&dev->msg_lock);
- 		ret = -EFAULT;
--		vduse_enqueue_msg_head(&dev->send_list, msg);
--		goto unlock;
- 	}
--	vduse_enqueue_msg(&dev->recv_list, msg);
--unlock:
--	spin_unlock(&dev->msg_lock);
- 
- 	return ret;
- }
+Should have added a comment, but this is based on this patch
+
+    c3838262b824c71c145cd3668722e99a69bc9cd9
+    virtio_net: fix alignment for virtio_net_hdr_v1_hash
+      
+    Changing alignment of header would mean it's no longer safe to cast a
+    2 byte aligned pointer between formats. Use two 16 bit fields to make
+    it 2 byte aligned as previously.
+
+> 
+> More broadly: can my old patchset be dusted off as is. Does it require
+> significant changes?
+>
+
+This is the dusted off version ;) With the flow filter it should be possible to turn the timestamps on and off during runtime.
+
+
+Best regards,
+Steffen
+
 -- 
-2.39.5
-
+Pengutronix e.K.                | Dipl.-Inform. Steffen Trumtrar |
+Steuerwalder Str. 21            | https://www.pengutronix.de/    |
+31137 Hildesheim, Germany       | Phone: +49-5121-206917-0       |
+Amtsgericht Hildesheim, HRA 2686| Fax:   +49-5121-206917-5555    |
