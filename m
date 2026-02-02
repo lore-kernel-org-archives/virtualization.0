@@ -1,151 +1,244 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11013011.outbound.protection.outlook.com [40.107.159.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04F4823C4E9
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 16:20:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770049217; cv=none; b=Fdx58uTMUi8dXHe7nS2jS15eWmlD9cbUrrKxgUSsrPLcZPDxCh23tSS9v9UymuZ2BqdnqWyFkaux0PzFl1ZxUzWoq6U1B1vrBbToPICfPI0ZnI8lhGZ/qfxRG8OIz8x6DDpWSJ9B6IOUS5vtLB9XScBfuYTIZz8V6FtrKZaybxM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770049217; c=relaxed/simple;
-	bh=BqUNHuuS4fu5iC8Ie1ZyL9H3NYhFXNxYeGHx9tpVVrQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RdQOWGMNuoj9wligQ6kr67Io/19ayrf11zBNUu99QRzVbFGfE8J7B5oFVmLiHuLdCnF/xBx6W3V4cm2E5wg4efx91kEX6Bl8bPWZjOPOcJdZ5etrIOrpJt6Ytw3tma+JQ3M9Za6jh+rgbC0zE9jQFDL60ygL07f2dEIzwsaqJmg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=E9kcZ6wP; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26A23156F45
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 16:44:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770050660; cv=fail; b=bMPabLd0t8ws8zbC7hCI31PBX6MAGpyNWFJTARf+C8usAz68jvgAc3tBYkFWBN79KDszoZjZw4aTFxUTrW22u3NQa6NZO5+8zJa/fmHugwugWD9nnMOo5IYTV/t4PCMJJsl8xdd7WQ0gO1LfXyBnHrj8LHd/CqflnO7QjlGCgRg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770050660; c=relaxed/simple;
+	bh=qL4BZWdCxL6sYc7KV/VzxYtNXI2qldRi8GvVXEfKNl8=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=Jip6abhMVlk1duVOSfQ44ydQoSO8vedYFZpAyUObulkUVzgAgsMYEz6ck31+EomlfMrHtUKkN9JQPfUqhLEELzDRpl8rRUD6N6U6Aa02P46o49JRQVdSZCqinCDyVtQKWzG3Un4Mx3NUXl4KTNeEiKHr4Vw92bzFlQbX6KyD3rI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com; spf=fail smtp.mailfrom=nokia-bell-labs.com; dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b=jTX0dXE/; arc=fail smtp.client-ip=40.107.159.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nokia-bell-labs.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="E9kcZ6wP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1770049216; x=1801585216;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=BqUNHuuS4fu5iC8Ie1ZyL9H3NYhFXNxYeGHx9tpVVrQ=;
-  b=E9kcZ6wPeC/EFTMPP9CpMPv82n/6gAS2yrn5oXmjviajnBRWHpiGL59B
-   qtsUf9MBuBClv2jIyDAUnEnWTjdTYBWLML34KVEbGiNNF/vB8YncXvn2z
-   F/pwEVaxeEGggVZwTzL4WB1LRATKmE1fsaAR5QSyki1k3DhHChzDuD+OF
-   cpfZMv8ZuJxzW1mOlIiPMmP53rMWPqjpw6Gg5YH4V5qqhVB1b/0dfCgig
-   qq/3zSBT6borQDcn2isxH+JPZrybOAvumPQNS41GlKIuByiwRafrkVies
-   N2wJJSFYDU1RVyzGl+rZHVHKgbE2OduO7Kr8gDcq7IHE9Nr5g02gHYe3e
-   g==;
-X-CSE-ConnectionGUID: ayu3E7LVSxiC86vO8v+43g==
-X-CSE-MsgGUID: 97TYavGLQJmwuShnBYdd5Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11690"; a="71263368"
-X-IronPort-AV: E=Sophos;i="6.21,269,1763452800"; 
-   d="scan'208";a="71263368"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 08:20:15 -0800
-X-CSE-ConnectionGUID: vGtb2QeURBqmGgaBVcjwTA==
-X-CSE-MsgGUID: AHy1YBBZQ3e5qR8b6S8+Ww==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,269,1763452800"; 
-   d="scan'208";a="214089413"
-Received: from spandruv-desk1.amr.corp.intel.com (HELO [10.125.110.145]) ([10.125.110.145])
-  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 08:20:15 -0800
-Message-ID: <be38af98-e344-4552-a77b-b5345135e382@intel.com>
-Date: Mon, 2 Feb 2026 08:20:13 -0800
+	dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b="jTX0dXE/"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=EHva7si8mj6JdysAzrTpbhNfl2XdJ9wPRiDufC7oRRulUS8HD7Z2lwTFrXj+MYO1DcmhJgTgxPu65oJYD6V2J6XaDnAxt2sUCEg7//vwvBRAs3bLf+ydTsbt8XsBL+0iBD5L8ZvPpt7e8iRRb5YffUNqxRNncyrndmDhmj6tDhAr9JRD+/z8M+0HqMxN0pTuMnr6VvW0/X9nN7NMhqwcWv/EYjEr5mjtR7CA+MvkyYj/6ToaczdyqCgdZsvz7Fsv1Jq/VpMaLHyEmL5EIbV52k3bZ3JjBZ3dAC344158hlcen9N/F0sIr2MaSKNXrON7AuK8/9cKX6sPNOOpX7IA6w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=qL4BZWdCxL6sYc7KV/VzxYtNXI2qldRi8GvVXEfKNl8=;
+ b=ZEKY1OkSVxtAFruAXCRRlK8URDhoNETDl2dQJlO3rTBymmd34wAlDgGL59FVP3mHfP414YPSDAYbsDpwqMq7kZ3lss0uzLWcSzhRWHSnOahPKY/BZyvtBJ/efLuZs5jDPFvDuloHgNlrImZgFEjzXPa97nUv3v+iUGpFQ6GFtoZ1H88GlkGcCQLYpFHpZaiqQSbqFSEVW8g8CTOySjuHQqIGg32+vWG4qYByoX4QVndiRrK4a1deZvo9HZXTpmr3q2hCUmb/Xx/IW5BOWoTxZe8quFPPJVqzw3y06+ytkA5mkw+BHR/Ch+B782AWfdKwaBgsqfNbxFcaORoToZd+tA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nokia-bell-labs.com; dmarc=pass action=none
+ header.from=nokia-bell-labs.com; dkim=pass header.d=nokia-bell-labs.com;
+ arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia-bell-labs.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qL4BZWdCxL6sYc7KV/VzxYtNXI2qldRi8GvVXEfKNl8=;
+ b=jTX0dXE/dhGlB0KdziuOEIkLMFAejRnEHJUPb9BG8hYF98zy32Z4RwIYoNH9pwEt8ySeIfx5S54yiayAoyPZMgvkTkGXo8yvkS0OZzsyRyT34NnR4W9W/MAsiWqyV13VSoKHOHKe/WwVNcPEtvbPv2eScZHc0sK5cMUkNVV3xFEQ26CV2ZzEFc1iDGP5IT1FGxPmst9AYYFlsOXThhWNlplbk41nD5VnAdibb/Fpnb8ieav9kD4oKR6n/Cohap87dtcgKK/VaKvAVbXn7Je560W19BmwtjHw4DXNRRMFdXF/Xc2H7O6MF+64dvbg1DEi8ySkbq4UOc5/YAFH/Ae1RA==
+Received: from AM9PR07MB7969.eurprd07.prod.outlook.com (2603:10a6:20b:302::15)
+ by DB9PR07MB7866.eurprd07.prod.outlook.com (2603:10a6:10:2a9::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.7; Mon, 2 Feb
+ 2026 16:44:13 +0000
+Received: from AM9PR07MB7969.eurprd07.prod.outlook.com
+ ([fe80::b676:5e6b:e3e7:4bbd]) by AM9PR07MB7969.eurprd07.prod.outlook.com
+ ([fe80::b676:5e6b:e3e7:4bbd%5]) with mapi id 15.20.9564.007; Mon, 2 Feb 2026
+ 16:44:13 +0000
+From: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: "tariqt@nvidia.com" <tariqt@nvidia.com>, "linux-rdma@vger.kernel.org"
+	<linux-rdma@vger.kernel.org>, "shaojijie@huawei.com" <shaojijie@huawei.com>,
+	"shenjian15@huawei.com" <shenjian15@huawei.com>, "salil.mehta@huawei.com"
+	<salil.mehta@huawei.com>, "mbloch@nvidia.com" <mbloch@nvidia.com>,
+	"saeedm@nvidia.com" <saeedm@nvidia.com>, "leon@kernel.org" <leon@kernel.org>,
+	"eperezma@redhat.com" <eperezma@redhat.com>, "brett.creeley@amd.com"
+	<brett.creeley@amd.com>, "jasowang@redhat.com" <jasowang@redhat.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+	"pabeni@redhat.com" <pabeni@redhat.com>, "edumazet@google.com"
+	<edumazet@google.com>, "parav@nvidia.com" <parav@nvidia.com>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "corbet@lwn.net"
+	<corbet@lwn.net>, "horms@kernel.org" <horms@kernel.org>, "dsahern@kernel.org"
+	<dsahern@kernel.org>, "kuniyu@google.com" <kuniyu@google.com>,
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "dave.taht@gmail.com" <dave.taht@gmail.com>,
+	"jhs@mojatatu.com" <jhs@mojatatu.com>, "kuba@kernel.org" <kuba@kernel.org>,
+	"stephen@networkplumber.org" <stephen@networkplumber.org>,
+	"xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>, "jiri@resnulli.us"
+	<jiri@resnulli.us>, "davem@davemloft.net" <davem@davemloft.net>,
+	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, "donald.hunter@gmail.com"
+	<donald.hunter@gmail.com>, "ast@fiberby.net" <ast@fiberby.net>,
+	"liuhangbin@gmail.com" <liuhangbin@gmail.com>, "shuah@kernel.org"
+	<shuah@kernel.org>, "linux-kselftest@vger.kernel.org"
+	<linux-kselftest@vger.kernel.org>, "ij@kernel.org" <ij@kernel.org>,
+	"ncardwell@google.com" <ncardwell@google.com>, "Koen De Schepper (Nokia)"
+	<koen.de_schepper@nokia-bell-labs.com>, "g.white@cablelabs.com"
+	<g.white@cablelabs.com>, "ingemar.s.johansson@ericsson.com"
+	<ingemar.s.johansson@ericsson.com>, "mirja.kuehlewind@ericsson.com"
+	<mirja.kuehlewind@ericsson.com>, "cheshire@apple.com" <cheshire@apple.com>,
+	"rs.ietf@gmx.at" <rs.ietf@gmx.at>, "Jason_Livingood@comcast.com"
+	<Jason_Livingood@comcast.com>, "vidhi_goel@apple.com" <vidhi_goel@apple.com>
+Subject: RE: [PATCH v1 net-next 2/3] net: hns3/mlx5e: avoid corrupting CWR
+ flag when receiving GRO packet
+Thread-Topic: [PATCH v1 net-next 2/3] net: hns3/mlx5e: avoid corrupting CWR
+ flag when receiving GRO packet
+Thread-Index: AQHckwSt1lZq3PZXMEC6xBSDLZdEMrVtjakAgAIRs4A=
+Date: Mon, 2 Feb 2026 16:44:13 +0000
+Message-ID:
+ <AM9PR07MB796950DABBAD4F5052DB9B39A39AA@AM9PR07MB7969.eurprd07.prod.outlook.com>
+References: <20260131225510.2946-1-chia-yu.chang@nokia-bell-labs.com>
+ <20260131225510.2946-3-chia-yu.chang@nokia-bell-labs.com>
+ <20260201040151-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260201040151-mutt-send-email-mst@kernel.org>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nokia-bell-labs.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AM9PR07MB7969:EE_|DB9PR07MB7866:EE_
+x-ms-office365-filtering-correlation-id: 94dbcc9c-40fb-491b-162a-08de627a4c42
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|366016|7416014|376014|1800799024|38070700021;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?L2r/SEgNC7cJonuGSuhXuDmx70cmqDRAAd2YxrALFa6+kzcm7pED6uxQzI2W?=
+ =?us-ascii?Q?PjjazxRksu39nCu0xq5aIzJrdKVYvE7l1HbDJqkH1aEFXqF0NWjxgFVU4fFH?=
+ =?us-ascii?Q?NmYAWrexqFt06KoRMV/a3vY/sDGD3d/zYycPIsy/hzSD3W8UmsCWDYOU3yP7?=
+ =?us-ascii?Q?vofOp0pGLpXcFIQ7uPk2agzcvulCyWPoc2yRK3y5S5o7HVN4nF4OsVm2MCtL?=
+ =?us-ascii?Q?Judt1wp5PgsAY/tLzCtJAbYW1CgVlvPlHxj9sD9L/ekPwPTGc0e0IVJ85aOR?=
+ =?us-ascii?Q?MRPHqJM9dMc01SIzybXDnkPXcMcXBzbXztmLZgn2qxuASQiY1mbModDjipny?=
+ =?us-ascii?Q?3/pL/yExKurv1kddFWBxOZrNFzK3pbOD04OdvSMCdcTD2AIZo/uVqYltTSo1?=
+ =?us-ascii?Q?+3CDTFh6c9qz//XCHU1z+DSG4HcqdYxkaf+4yXi3UwfxWw58ZqI+IhS04Io+?=
+ =?us-ascii?Q?OpQf63yo1gAnDc0Z+fQ/N8BuIKAPAjuZEx6kzVXqSxIduqDWx4KUbNdeMplp?=
+ =?us-ascii?Q?bly/AZjMvHtMMEhuU3XyJkFDc4u0SF8xMqGFXDNq11pEYws8D1AbxMNRzyYY?=
+ =?us-ascii?Q?kX5m1dk4jRimBdLoKd7BNAFdk5HszOMqtG5OiynxHJCKErzYQ93N1sgeu6C9?=
+ =?us-ascii?Q?aCzHEn8WIPHapfBc80FecX712Pv+xIhZbpuK2/NL77048gY6X5C5xpTzKulM?=
+ =?us-ascii?Q?G0GR8rgcvEMZSHwvgRRxHNGzoAlhpYHL87ktX8tF+adHNa3ViiMIkg66OGew?=
+ =?us-ascii?Q?Nn+1rpWkYGASiG4MOjsAwpZ7RKV8Qp8nXJodb4BIysOu+juVN0RtKnKfsFGj?=
+ =?us-ascii?Q?ChB6pgM1fd6PAU2DlaDnGws+vAhxUcG9EpqxChbC9mH32EH/4aoryYbkDppt?=
+ =?us-ascii?Q?RrbphqCSIJ7zGYAiEe7kK1vl1rEb3XDSFZXcUwHO7juXY6G6FfYx7V8hLh2F?=
+ =?us-ascii?Q?kzD7si7cdITeMNWTiKYSLkxHtv4ovmMNZzy1pRkxeLCSiYmY8ZtpyITuOx/K?=
+ =?us-ascii?Q?hG/BmyNr1BEdbPy+FWqEFwGD9Uqn6VqKy7dqU9lhRX97zhZKHH9mQghwY4Dj?=
+ =?us-ascii?Q?jzLv3OlIbCZ1ATrveaurkJiz6hqCxDtM0uIIUHKmfzjIoYLvgwFChSFBO+gC?=
+ =?us-ascii?Q?cKTAulnEdMzzLHxFHPQeNmA93fRI5GxzjoLM2ebGBwTNVtRHp3TngovSTDV0?=
+ =?us-ascii?Q?74t/hNHwyCBUh/cBVYbLeLNdNiNwHE2shgMHxi+uZZGjKJzdvYZBb6Pjf9N0?=
+ =?us-ascii?Q?QGqInPdcIpv7fD58/TC/RQ2fxCnXzaOtrK2uD7KWDYlGxUXcZLWq6ClkVbNi?=
+ =?us-ascii?Q?eQ/tLcj2lOGrkCr8aFbmUgI3k+Z8YDSfpJhTj6pp4UA9quLkkJA1wKZQVo10?=
+ =?us-ascii?Q?iVQEgjvS1l0fZrKvn6kTlAQysErJCHQlorH9i3rema28qUTlpeRSvFXjeDoJ?=
+ =?us-ascii?Q?rMZ7SMCzcy5hF1VKFC9Jp8JByJmWJMRqyifnPp9sg5bTDQTmkerdyoYeVLhG?=
+ =?us-ascii?Q?DLL+XvewiCjGT6k7Y2MBOI6VqI6y37t+Hy1uJncwtn6lR15H10T2tjhCAQjQ?=
+ =?us-ascii?Q?BHcPYWjlJwAH2OQcYkMfFdieaE3ysmPwmYh57BjSeb4PPWX6Dyte3O+RSvzt?=
+ =?us-ascii?Q?+pJ9S7JP1JHk0/ylNu4PhI8=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR07MB7969.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(38070700021);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?pagT5sopuPumoWZmyCwcHEnt/9KbRWq1PRpjoI4RCd37Ip2ShnQdVsLNh0Nk?=
+ =?us-ascii?Q?dUI5xDTfNCs2sZsRI1d1UmWraDEIER6OKJLKAsMWAQgmb2ieaF7864MrQLzF?=
+ =?us-ascii?Q?FpQCZWh8lVz2Bmq4f+dYBUxUjB6tcWYOOFtrBQcREghjkFGR9uSWzoUN90Or?=
+ =?us-ascii?Q?z9WxYQdqezhIjWfEo8wswsKcMixKJmO51GrP5y+wJ9PS3rscG3/GRs/V811N?=
+ =?us-ascii?Q?bAUY6L+T0kpOamNywMdM8jTF07ryQrEJlOAqsinutfmSfC+oTxQcGVfQ2DLb?=
+ =?us-ascii?Q?CWHygwJDC0CkbrcA9m9hX9v6gbpWzdq5Qw5SoHUCaFlJrWSaO5C85DMAzTjc?=
+ =?us-ascii?Q?+sFqA2R1K5RZyS9AdGGU0vZ5xQfhVwY19wpKhA63AQHXKDJOHt0L1Lh7H6DT?=
+ =?us-ascii?Q?dQTQYXiz7P2yV9llzwaUiBhRWdDEkAR1X+4rVmC1yL8JjJCK1BPGIJVW+lOR?=
+ =?us-ascii?Q?yuu2pWCLX/ipUMAusC9Mp9sDFg3TeoHfULzHgwRdz7JtweozJoW2w3kwzbsd?=
+ =?us-ascii?Q?TaWEeA5of4A/lhEVYKtGe6RQ9iFyGqz0qvmcksnmKWhZ4FWbr4cctylCbBm0?=
+ =?us-ascii?Q?GKatSTmHkoZxBLye1e3NCaBxVwBIGh4Ne2uHFQdu29t3a3AXQeh8sefB2qrw?=
+ =?us-ascii?Q?zXRQgQYCRI52jfYFm9gpFKZK/+ioF4dasvOB6NzROwg3OkRzVBnkbsALtOM7?=
+ =?us-ascii?Q?kpnUbhyBSCvVrRlpm44AzaT3nwxRZOrsxXSy3HsYXi23OyVZEA+OVX47ERVh?=
+ =?us-ascii?Q?JttRX06JGaEtSalehAY5aqhmGD6pCyfOHViun67wFGEP6u2VxJpRMIATJrey?=
+ =?us-ascii?Q?cs4+iliNtpnytgscrZpZkBmmFigSLNvOk1xZk7df2FKFdccTcGWVpoqLjeFX?=
+ =?us-ascii?Q?f4V823Q27ukXVPKtlXyCy4KU1qMNX1LvEyE6JaGXr+b7rvu1z03sbQu4mse8?=
+ =?us-ascii?Q?icVJyEnlrCs3K2z/l8M2bf7i3+o6I+ySU9zCLXZ9sEowjEd3wjDDH88K1tdg?=
+ =?us-ascii?Q?yqX5lfZVrcbu8Ox1dazPIL4RXcseIAHmWoZYm6D+DXhVbaLpmza/A8ncnRJ9?=
+ =?us-ascii?Q?Fp5MmY/n1Hg6iCqNtG6/MXbEDRxA9XOqH3Jr8v/pVFvoSU87XvHBAblIM4n5?=
+ =?us-ascii?Q?Hazr/dvEb4DcaDTKBm1GRJm8PpokmZwKSSb4RfjL2Hs+p4tudpVGKf6TVYgN?=
+ =?us-ascii?Q?JeM66FiDSURYrqieN1Nm1RRRzqPzUzKWMDf/gcvI4x49C7b3CTJPFiEQKIPY?=
+ =?us-ascii?Q?oc388UKM0fdzZdPLsRGROghDbWbHHIW1JUTvUAbUqselJx1+absrPkMfx0w8?=
+ =?us-ascii?Q?K9o19LffBVv7ciq3kNzcYGRt8q3jQWhX7OvPpM6e4nejPjn36o8xyFbF+7lj?=
+ =?us-ascii?Q?JQ3hMv/sYF+ZvP7YR3fAFBeEkgUt/9dSEIMJQTK4fCVIj+tOFYs6hNtPOn6r?=
+ =?us-ascii?Q?LpkGpWhZ8H80krX/31L02/jmo6QBM0VzPbWjkAId+LFZa0xu5i02X2avaMPw?=
+ =?us-ascii?Q?2i55Yy4qgI1IVkGJhv6gLYKJLMfbH7C4iSqepJcTYE/L67M3CbcCKNnUz6EF?=
+ =?us-ascii?Q?ALDirBYQKrCso15oBJ6VQyeWbeeT3kpzVg80t56mlVxfrDgQf0nmaA6r6pV2?=
+ =?us-ascii?Q?wGvd2FzYaO63lv2FH3Sr52q2NCkx3EPqz3LGeLrFBz8KKk3LK837sVQraDm3?=
+ =?us-ascii?Q?kvohUrvZajpSlLGXDtEniqg8rn/zK0v/lEy+Y7u383XAdMdgpYxJcf0p+Bxi?=
+ =?us-ascii?Q?CFS84c3csIfu9ACK5nO2a1Kr641L2Yo=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 1/3] mm: use targeted IPIs for TLB sync with lockless
- page table walkers
-To: Lance Yang <lance.yang@linux.dev>, Peter Zijlstra <peterz@infradead.org>
-Cc: akpm@linux-foundation.org, david@kernel.org, dave.hansen@linux.intel.com,
- ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
- aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
- arnd@arndb.de, lorenzo.stoakes@oracle.com, ziy@nvidia.com,
- baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
- ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
- shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
- seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, ioworker0@gmail.com
-References: <20260202074557.16544-1-lance.yang@linux.dev>
- <20260202074557.16544-2-lance.yang@linux.dev>
- <20260202094245.GD2995752@noisy.programming.kicks-ass.net>
- <0f44dfb7-fce3-44c1-ab25-b013ba18a59b@linux.dev>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <0f44dfb7-fce3-44c1-ab25-b013ba18a59b@linux.dev>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: nokia-bell-labs.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AM9PR07MB7969.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 94dbcc9c-40fb-491b-162a-08de627a4c42
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Feb 2026 16:44:13.7914
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: gFdEicGF9UD198qsTgBjw34PgWUJAm3DUDpD9pIj3rxu7aaWTxuGHi0mgkK5W8LlrkgY+t3RzpLsJPhCuVT8LlpoGDhXbsoeZMkk0ZFYJbL9cxY5RARi7FmPkPd0x+Sq
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR07MB7866
 
-On 2/2/26 04:14, Lance Yang wrote:
->>> Note that the tracking adds ~3% latency to GUP-fast, as measured on a
->>> 64-core system.
->>
->> What architecture, and that is acceptable?
-> 
-> x86-64.
-> 
-> I ran ./gup_bench which spawns 60 threads, each doing 500k GUP-fast
-> operations (pinning 8 pages per call) via the gup_test ioctl.
-> 
-> Results for pin pages:
-> - Before: avg 1.489s (10 runs)
-> - After:  avg 1.533s (10 runs)
-> 
-> Given we avoid broadcast IPIs on large systems, I think this is a
-> reasonable trade-off 🙂
+> -----Original Message-----
+> From: Michael S. Tsirkin <mst@redhat.com>=20
+> Sent: Sunday, February 1, 2026 10:05 AM
+> To: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>
+> Cc: tariqt@nvidia.com; linux-rdma@vger.kernel.org; shaojijie@huawei.com; =
+shenjian15@huawei.com; salil.mehta@huawei.com; mbloch@nvidia.com; saeedm@nv=
+idia.com; leon@kernel.org; eperezma@redhat.com; brett.creeley@amd.com; jaso=
+wang@redhat.com; virtualization@lists.linux.dev; xuanzhuo@linux.alibaba.com=
+; pabeni@redhat.com; edumazet@google.com; parav@nvidia.com; linux-doc@vger.=
+kernel.org; corbet@lwn.net; horms@kernel.org; dsahern@kernel.org; kuniyu@go=
+ogle.com; bpf@vger.kernel.org; netdev@vger.kernel.org; dave.taht@gmail.com;=
+ jhs@mojatatu.com; kuba@kernel.org; stephen@networkplumber.org; xiyou.wangc=
+ong@gmail.com; jiri@resnulli.us; davem@davemloft.net; andrew+netdev@lunn.ch=
+; donald.hunter@gmail.com; ast@fiberby.net; liuhangbin@gmail.com; shuah@ker=
+nel.org; linux-kselftest@vger.kernel.org; ij@kernel.org; ncardwell@google.c=
+om; Koen De Schepper (Nokia) <koen.de_schepper@nokia-bell-labs.com>; g.whit=
+e@cablelabs.com; ingemar.s.johansson@ericsson.com; mirja.kuehlewind@ericsso=
+n.com; cheshire@apple.com; rs.ietf@gmx.at; Jason_Livingood@comcast.com; vid=
+hi_goel@apple.com
+> Subject: Re: [PATCH v1 net-next 2/3] net: hns3/mlx5e: avoid corrupting CW=
+R flag when receiving GRO packet
+>=20
+>=20
+> CAUTION: This is an external email. Please be very careful when clicking =
+links or opening attachments. See the URL nok.it/ext for additional informa=
+tion.
+>=20
+>=20
+>=20
+> On Sat, Jan 31, 2026 at 11:55:09PM +0100, chia-yu.chang@nokia-bell-labs.c=
+om wrote:
+> > From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+> >
+> > In Accurate ECN, ACE counter (AE, ECE, CWR flags) changes only when=20
+> > new CE packets arrive, while setting SKB_GSO_TCP_ECN in case of not=20
+> > knowing the ECN variant can result in header change that corrupts the A=
+CE field.
+> > The new flag SKB_GSO_TCP_ACCECN is to prevent SKB_GSO_TCP_ECN or=20
+> > NETIF_F_TSO_ECN offloading to be used because they would corrupt CWR=20
+> > flag somewhere.
+> >
+> > Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+>=20
+> Not my driver, but a better format is something along the lines of:
+>=20
+> Currently .... this is wrong because ... as the result .... fix this by .=
+..
+> so that ....
+>=20
+> the coding style does say that you should use the imperative form.
+>=20
+Hi Michael,
 
-I thought the big databases were really sensitive to GUP-fast latency.
-They like big systems, too. Won't they howl when this finally hits their
-testing?
+I will update the commit messages for all these 3 patches.
+And sorry for the typo, this shall be v2, and the next version will be v3 -=
+ will clarify it.
+Thanks.
 
-Also, two of the "write" side here are:
-
- * collapse_huge_page() (khugepaged)
- * tlb_remove_table() (in an "-ENOMEM" path)
-
-Those are quite slow paths, right? Shouldn't the design here favor
-keeping gup-fast as fast as possible as opposed to impacting those?
+Chia-Yu
