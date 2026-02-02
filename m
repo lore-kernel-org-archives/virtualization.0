@@ -1,154 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from jpms-ob01.noc.sony.co.jp (jpms-ob01.noc.sony.co.jp [211.125.140.164])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F06FA3570CC;
-	Mon,  2 Feb 2026 09:59:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7297E1F418F
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 10:01:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.125.140.164
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770026394; cv=none; b=gLivVZBPDBoBa3h4BwikgCvDYLXHPkm8TAk+NiSKZDtqElShWlE4Y1gdna7jUcU3I148MwUYVhtFfGNajLV48AiFQeXShTQlKVO2Loh7okDE0UkYg8gcKJ/9JqfSsx5jrKf6jyqalDk+dOubPqhmcUsRS2LkpC9fqeEIDHxAubo=
+	t=1770026511; cv=none; b=t4C6ncvVe1lmcWiOzRhBaXnaGeCTfM+DRY7AxfCs3sHnAgtbuYOcSEX1kchHpgFGyIVrLOk0lfegDnkApMu0A4AEUeaopTZsLZvMgjH6UFCGBkyb9IiPHrAaImyn35AgmrtMOfHPTBWuGGY3IKkbqx2xl0e21HZFFav8htdpFO0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770026394; c=relaxed/simple;
-	bh=TmoHHrqGpHnyUdm3r7UYpmil7JS9bcpmpcteUVJVhlU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=OW+HosDJNwTb1iPPlMkHTVVwknLyhEv82LqR4DuB+niXaR0TIdCMarLlI5m5CF4U6S3UF/OQjLOevNHGaIU048tTfXwLLXw+IbnzyZlF5bqRr3hEr7UT6iIaCmy4JzJOYVKLiYS6wgf54hIV4ezsngWcYcROwEeineCd95JjA48=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BVwlTeHj; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770026511; c=relaxed/simple;
+	bh=rciqWe9MknIhKucUK+4wbzClj9FvwHeXsn6kPpt+wM8=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=CjEol7uscSrBu/Fn883/DfSD2IVkr0LfT1A4bygIAFgwkeJHQAeMORCjqFEpWsZkxoWTAC6g39C4E5/ucpWB9GFZIf+LDn/mAlhhekC/6Pyhb3iiWTmvV4maMB5fSGqAD/0Pnb8VWyOfhUQ78aSEKTWQ0dpOQJ2zzFOdevrwvYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com; spf=pass smtp.mailfrom=sony.com; dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b=WthYmqm1; arc=none smtp.client-ip=211.125.140.164
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sony.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BVwlTeHj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74C46C2BC87;
-	Mon,  2 Feb 2026 09:59:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770026393;
-	bh=TmoHHrqGpHnyUdm3r7UYpmil7JS9bcpmpcteUVJVhlU=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=BVwlTeHjyRMw/f98dRafO+WxW2pa/VChMQknnYrwRrBoESK1uYOq95icigvzwSlwX
-	 Lob6jtX48avGe+fkSVTSL1sIV1YpmDeyg/7FsKPD2hGZNA2+GaHzZcCXaiao6Bd1Lp
-	 wstfrGk86S/LkLBIEmLDayFpbjXKdlcTxDA7Xgt53ONDewUeg1SrHB3kkKnAjpNqDo
-	 A3JiaEfkK7PSNAtRznkhBFP4cq4dNhzcUWtcTzIyhvBpvez1M2jLEkKzv6TtLOyOTy
-	 vIsGuKyKbAt49t7UjQdX1M2/9GW6ZwDNuRBqdB3W6AlayGbFSgjTFZ6xbZsAemQDuo
-	 59fOBxTfTrHNQ==
-From: Arnd Bergmann <arnd@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xie Yongji <xieyongji@bytedance.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Anders Roxell <anders.roxell@linaro.org>,
-	Marco Crivellari <marco.crivellari@suse.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] vduse: fix compat handling for VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
-Date: Mon,  2 Feb 2026 10:59:32 +0100
-Message-Id: <20260202095940.1358613-2-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20260202095940.1358613-1-arnd@kernel.org>
-References: <20260202095940.1358613-1-arnd@kernel.org>
+	dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b="WthYmqm1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=sony.com; s=s1jp; t=1770026509; x=1801562509;
+  h=from:subject:date:message-id:mime-version:
+   content-transfer-encoding:to:cc;
+  bh=9aqqCS44lWCHB49Zm7J55r5rkQXnOnuoUWB3fHL0bvM=;
+  b=WthYmqm18NcKRaulODHiMrXwGk3KNmOKbApGsp+aHd/mAzUUanpb2H8a
+   yMcqfdsJlcTu5MnszvUuh0csC3XBtbZEp5j4anZFRIKP4Lc/EMRScPGaO
+   3/0Y+DplUVZrK9huDVcZKw5TyrpyjIC4nGeE2vM2hGV6kK+oHqImMJVYa
+   zyNVPmTUbQ8DOKlzU+GuOAgBJ7tOc2xODkLD/NgZL5E7MH9DRQe0aKoTK
+   ec1JfmUVIV+qix/aM3Nud5bihiFYlwJ4JGLPh54wapM/hieiCKfCsIgQl
+   Cmp8WGKnIceiUNEljFyW1t0VabUqnn1ug0P1l40vuGqcFYjAESoh+Ypbd
+   A==;
+Received: from unknown (HELO jpmta-ob1.noc.sony.co.jp) ([IPv6:2001:cf8:0:6e7::6])
+  by jpms-ob01.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 18:51:37 +0900
+X-IronPort-AV: E=Sophos;i="6.21,268,1763391600"; 
+   d="scan'208";a="607384933"
+Received: from unknown (HELO [127.0.1.1]) ([IPv6:2001:cf8:1:573:0:dddd:6b3e:119e])
+  by jpmta-ob1.noc.sony.co.jp with ESMTP; 02 Feb 2026 18:51:37 +0900
+From: Shashank Balaji <shashank.mahadasyam@sony.com>
+Subject: [PATCH 0/3] x86/x2apic: Fix hang-up of defconfig kernel on resume
+ from s2ram
+Date: Mon, 02 Feb 2026 18:51:01 +0900
+Message-Id: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAIZzgGkC/x2MQQqAIBAAvyJ7TlDBsL4SHXTbai8mCiGIf086z
+ sBMg0KZqcAqGmR6ufATB+hJAN4+XiT5GAxGmVkZpWU1PjHKk6t0Fh3qYDEsCkaQMg39z7a99w8
+ R+TM4XAAAAA==
+X-Change-ID: 20260201-x2apic-fix-85c8c1b5cb90
+To: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+ Suresh Siddha <suresh.b.siddha@intel.com>, 
+ "K. Y. Srinivasan" <kys@microsoft.com>, 
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+ Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+ Ajay Kaher <ajay.kaher@broadcom.com>, 
+ Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+ Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+ Jan Kiszka <jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+ Vitaly Kuznetsov <vkuznets@redhat.com>, Juergen Gross <jgross@suse.com>, 
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org, 
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
+ jailhouse-dev@googlegroups.com, kvm@vger.kernel.org, 
+ xen-devel@lists.xenproject.org, Rahul Bukte <rahul.bukte@sony.com>, 
+ Shashank Balaji <shashank.mahadasyam@sony.com>, 
+ Daniel Palmer <daniel.palmer@sony.com>, Tim Bird <tim.bird@sony.com>, 
+ stable@vger.kernel.org
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2357;
+ i=shashank.mahadasyam@sony.com; h=from:subject:message-id;
+ bh=rciqWe9MknIhKucUK+4wbzClj9FvwHeXsn6kPpt+wM8=;
+ b=owGbwMvMwCU2bX1+URVTXyjjabUkhsyG4hXbtvp/s2L/pXvGSPVq9wtGQUU/0+sZWw9OOKhfs
+ jfkl8CHjlIWBjEuBlkxRZZSpepfe1cELek581oRZg4rE8gQBi5OAZhIlhTD/8DScGFBO6NF8ydO
+ ftFcVXsmfwpX6p0FupNYLebce84rq8zI0Cddbi5zcoJG8MkZzSbn5D/+eMqwb04Pw8ycnOdp7hW
+ XuQA=
+X-Developer-Key: i=shashank.mahadasyam@sony.com; a=openpgp;
+ fpr=75227BFABDA852A48CCCEB2196AF6F727A028E55
 
-From: Arnd Bergmann <arnd@arndb.de>
+On resume from s2ram, a defconfig kernel gets into a state where the x2apic
+hardware state and the kernel's perceived state are different.
 
-These two ioctls are incompatible on 32-bit x86 userspace, because
-the data structures are shorter than they are on 64-bit.
+On boot, x2apic is enabled by the firmware, and then the kernel does the
+following (relevant lines from dmesg):
 
-Add compad handling to the regular ioctl handler to just handle
-them the same way and ignore the extra padding. This could be
-done in a separate .compat_ioctl handler, but the main one already
-handles two versions of VDUSE_IOTLB_GET_FD, so adding a third one
-fits in rather well.
+	[    0.000381] x2apic: enabled by BIOS, switching to x2apic ops
+	[    0.009939] APIC: Switched APIC routing to: cluster x2apic
+	[    0.095151] x2apic: IRQ remapping doesn't support X2APIC mode
+	[    0.095154] x2apic disabled
+	[    0.095551] APIC: Switched APIC routing to: physical flat
 
-Fixes: ad146355bfad ("vduse: Support querying information of IOVA regions")
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+defconfig has CONFIG_IRQ_REMAP=n, which leads to x2apic being disabled,
+because on bare metal, x2apic has an architectural dependence on interrupt
+remapping.
+
+While resuming from s2ram, x2apic is enabled again by the firmware, but
+the kernel continues using the physical flat apic routing. This causes a
+hang-up and no console output.
+
+Patch 1 fixes this in lapic_resume by disabling x2apic when the kernel expects
+it to be disabled.
+Patch 2 enables CONFIG_IRQ_REMAP in defconfig so that defconfig kernels at
+least don't disable x2apic because of a lack of IRQ_REMAP support.
+Patch 3 is a non-functional change renaming x2apic_available to
+x2apic_without_ir_available in struct x86_hyper_init, to better convey
+the semantic.
+
+Signed-off-by: Rahul Bukte <rahul.bukte@sony.com>
+Signed-off-by: Shashank Balaji <shashank.mahadasyam@sony.com>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 43 +++++++++++++++++++++++++++---
- 1 file changed, 40 insertions(+), 3 deletions(-)
+Shashank Balaji (3):
+      x86/x2apic: disable x2apic on resume if the kernel expects so
+      x86/defconfig: add CONFIG_IRQ_REMAP
+      x86/virt: rename x2apic_available to x2apic_without_ir_available
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 405d59610f76..39cbff2f379d 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1341,6 +1341,37 @@ static int vduse_dev_iotlb_entry(struct vduse_dev *dev,
- 	return r;
- }
- 
-+#if defined(CONFIG_X86_64) && defined(CONFIG_COMPAT)
-+/*
-+ * i386 has different alignment constraints than x86_64,
-+ * so there are only 3 bytes of padding instead of 7.
-+ */
-+struct compat_vduse_iotlb_entry {
-+	compat_u64 offset;
-+	compat_u64 start;
-+	compat_u64 last;
-+	__u8 perm;
-+	__u8 padding[__alignof__(compat_u64) - 1];
-+};
-+#define COMPAT_VDUSE_IOTLB_GET_FD	_IOWR(VDUSE_BASE, 0x10, struct compat_vduse_iotlb_entry)
-+
-+struct compat_vduse_vq_info {
-+	__u32 index;
-+	__u32 num;
-+	compat_u64 desc_addr;
-+	compat_u64 driver_addr;
-+	compat_u64 device_addr;
-+	union {
-+		struct vduse_vq_state_split split;
-+		struct vduse_vq_state_packed packed;
-+	};
-+	__u8 ready;
-+	__u8 padding[__alignof__(compat_u64) - 1];
-+} __uapi_arch_align;
-+#define COMPAT_VDUSE_VQ_GET_INFO	_IOWR(VDUSE_BASE, 0x15, struct compat_vduse_vq_info)
-+
-+#endif
-+
- static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
- 			    unsigned long arg)
- {
-@@ -1352,6 +1383,9 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
- 		return -EPERM;
- 
- 	switch (cmd) {
-+#if defined(CONFIG_X86_64) && defined(CONFIG_COMPAT)
-+	case COMPAT_VDUSE_IOTLB_GET_FD:
-+#endif
- 	case VDUSE_IOTLB_GET_FD:
- 	case VDUSE_IOTLB_GET_FD2: {
- 		struct vduse_iotlb_entry_v2 entry = {0};
-@@ -1455,13 +1489,16 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
- 		ret = 0;
- 		break;
- 	}
-+#if defined(CONFIG_X86_64) && defined(CONFIG_COMPAT)
-+	case COMPAT_VDUSE_VQ_GET_INFO:
-+#endif
- 	case VDUSE_VQ_GET_INFO: {
--		struct vduse_vq_info vq_info;
-+		struct vduse_vq_info vq_info = {};
- 		struct vduse_virtqueue *vq;
- 		u32 index;
- 
- 		ret = -EFAULT;
--		if (copy_from_user(&vq_info, argp, sizeof(vq_info)))
-+		if (copy_from_user(&vq_info, argp, _IOC_SIZE(cmd)))
- 			break;
- 
- 		ret = -EINVAL;
-@@ -1491,7 +1528,7 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
- 		vq_info.ready = vq->ready;
- 
- 		ret = -EFAULT;
--		if (copy_to_user(argp, &vq_info, sizeof(vq_info)))
-+		if (copy_to_user(argp, &vq_info, _IOC_SIZE(cmd)))
- 			break;
- 
- 		ret = 0;
+ arch/x86/configs/x86_64_defconfig |  1 +
+ arch/x86/include/asm/x86_init.h   |  4 ++--
+ arch/x86/kernel/apic/apic.c       | 10 ++++++++--
+ arch/x86/kernel/cpu/acrn.c        |  2 +-
+ arch/x86/kernel/cpu/bhyve.c       |  2 +-
+ arch/x86/kernel/cpu/mshyperv.c    |  2 +-
+ arch/x86/kernel/cpu/vmware.c      |  2 +-
+ arch/x86/kernel/jailhouse.c       |  2 +-
+ arch/x86/kernel/kvm.c             |  2 +-
+ arch/x86/kernel/x86_init.c        | 12 ++++++------
+ arch/x86/xen/enlighten_hvm.c      |  4 ++--
+ 11 files changed, 25 insertions(+), 18 deletions(-)
+---
+base-commit: 18f7fcd5e69a04df57b563360b88be72471d6b62
+change-id: 20260201-x2apic-fix-85c8c1b5cb90
+
+Best regards,
 -- 
-2.39.5
+Shashank Balaji <shashank.mahadasyam@sony.com>
 
