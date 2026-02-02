@@ -1,110 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C52742580E1;
-	Mon,  2 Feb 2026 16:04:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04F4823C4E9
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 16:20:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770048272; cv=none; b=M2kf1Ixo46XoUC6w8rwLKDzFw8BU+lOKkcTmUbXQrH79jua1tE8orndWgsusjT6W4eG47GveVNZRvBeoAxNDRhFrUkn5awWvc/yZ1YKVrWBvOZbDUclOZb2Y2QqCmoI1SghQHoGKN9S7s3Z5/zpSA6NBAGM1+HUi/FvEAdaRzkA=
+	t=1770049217; cv=none; b=Fdx58uTMUi8dXHe7nS2jS15eWmlD9cbUrrKxgUSsrPLcZPDxCh23tSS9v9UymuZ2BqdnqWyFkaux0PzFl1ZxUzWoq6U1B1vrBbToPICfPI0ZnI8lhGZ/qfxRG8OIz8x6DDpWSJ9B6IOUS5vtLB9XScBfuYTIZz8V6FtrKZaybxM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770048272; c=relaxed/simple;
-	bh=7imNtjuPs1te+Kisp0FjgtPNX3MVFkhCCfZGQjL0zdE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pmMQPeTkX5DzKi989wvZDfxI6ZqCUnw9FGB6ZzqJrZ9EbtlWw9t9cMrqRiVGiU3HntWinoxKBYgQPJY18QtBNE3RpwvQprdt1yyaXmxrwJCaealZESJSsCbkmjdlahQJVhKcE9lc2fpjhf146dQdfkemKraQYFX4mVQ2CVwxVOI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f/aB5C6X; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770049217; c=relaxed/simple;
+	bh=BqUNHuuS4fu5iC8Ie1ZyL9H3NYhFXNxYeGHx9tpVVrQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RdQOWGMNuoj9wligQ6kr67Io/19ayrf11zBNUu99QRzVbFGfE8J7B5oFVmLiHuLdCnF/xBx6W3V4cm2E5wg4efx91kEX6Bl8bPWZjOPOcJdZ5etrIOrpJt6Ytw3tma+JQ3M9Za6jh+rgbC0zE9jQFDL60ygL07f2dEIzwsaqJmg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=E9kcZ6wP; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f/aB5C6X"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63C6C116C6;
-	Mon,  2 Feb 2026 16:04:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770048272;
-	bh=7imNtjuPs1te+Kisp0FjgtPNX3MVFkhCCfZGQjL0zdE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=f/aB5C6XvMX7ySgFLbkB7nsbkNjnx01Vj3syyHczl0oLlRz9+pP1I+iCDjrW/iGE/
-	 O7AQHu69UN3T+TU5FuhDC1Gqg+whGbB6rUX5kvnaFYduFi4aQqmdZskSdFLIsH+yV/
-	 3WVLf9QxlXUBZ/YCuEJD7DKWz4xBbcsnh3zo8X8aT698GMC9lUyGwKC82KAXlXEAK+
-	 YSvnfx0cc6lZCbWhfI0bW1MJi2So9rZTK5TNjLGe78XaGFRLlFEPJTrTLXTdK+R0LO
-	 aJrihNOOGO4iUaVjnls8WcA2+TFWeUMSBuRwtDAFQoNTDAthUbI/n2zQR/DAnDLQwF
-	 kG55IL5/qUQWQ==
-Date: Mon, 2 Feb 2026 18:04:25 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Felix Kuehling <Felix.Kuehling@amd.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Vivek Kasireddy <vivek.kasireddy@intel.com>,
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
-	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
-	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	iommu@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v7 0/8] dma-buf: Use revoke mechanism to invalidate
- shared buffers
-Message-ID: <20260202160425.GO34749@unreal>
-References: <20260131-dmabuf-revoke-v7-0-463d956bd527@nvidia.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="E9kcZ6wP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1770049216; x=1801585216;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=BqUNHuuS4fu5iC8Ie1ZyL9H3NYhFXNxYeGHx9tpVVrQ=;
+  b=E9kcZ6wPeC/EFTMPP9CpMPv82n/6gAS2yrn5oXmjviajnBRWHpiGL59B
+   qtsUf9MBuBClv2jIyDAUnEnWTjdTYBWLML34KVEbGiNNF/vB8YncXvn2z
+   F/pwEVaxeEGggVZwTzL4WB1LRATKmE1fsaAR5QSyki1k3DhHChzDuD+OF
+   cpfZMv8ZuJxzW1mOlIiPMmP53rMWPqjpw6Gg5YH4V5qqhVB1b/0dfCgig
+   qq/3zSBT6borQDcn2isxH+JPZrybOAvumPQNS41GlKIuByiwRafrkVies
+   N2wJJSFYDU1RVyzGl+rZHVHKgbE2OduO7Kr8gDcq7IHE9Nr5g02gHYe3e
+   g==;
+X-CSE-ConnectionGUID: ayu3E7LVSxiC86vO8v+43g==
+X-CSE-MsgGUID: 97TYavGLQJmwuShnBYdd5Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11690"; a="71263368"
+X-IronPort-AV: E=Sophos;i="6.21,269,1763452800"; 
+   d="scan'208";a="71263368"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 08:20:15 -0800
+X-CSE-ConnectionGUID: vGtb2QeURBqmGgaBVcjwTA==
+X-CSE-MsgGUID: AHy1YBBZQ3e5qR8b6S8+Ww==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,269,1763452800"; 
+   d="scan'208";a="214089413"
+Received: from spandruv-desk1.amr.corp.intel.com (HELO [10.125.110.145]) ([10.125.110.145])
+  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 08:20:15 -0800
+Message-ID: <be38af98-e344-4552-a77b-b5345135e382@intel.com>
+Date: Mon, 2 Feb 2026 08:20:13 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260131-dmabuf-revoke-v7-0-463d956bd527@nvidia.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 1/3] mm: use targeted IPIs for TLB sync with lockless
+ page table walkers
+To: Lance Yang <lance.yang@linux.dev>, Peter Zijlstra <peterz@infradead.org>
+Cc: akpm@linux-foundation.org, david@kernel.org, dave.hansen@linux.intel.com,
+ ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
+ mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
+ arnd@arndb.de, lorenzo.stoakes@oracle.com, ziy@nvidia.com,
+ baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
+ ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
+ shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
+ seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, ioworker0@gmail.com
+References: <20260202074557.16544-1-lance.yang@linux.dev>
+ <20260202074557.16544-2-lance.yang@linux.dev>
+ <20260202094245.GD2995752@noisy.programming.kicks-ass.net>
+ <0f44dfb7-fce3-44c1-ab25-b013ba18a59b@linux.dev>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <0f44dfb7-fce3-44c1-ab25-b013ba18a59b@linux.dev>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Sat, Jan 31, 2026 at 07:34:10AM +0200, Leon Romanovsky wrote:
-> Changelog:
-> v7:
-
-<...>
-
-> Leon Romanovsky (8):
->       dma-buf: Rename .move_notify() callback to a clearer identifier
->       dma-buf: Rename dma_buf_move_notify() to dma_buf_invalidate_mappings()
->       dma-buf: Always build with DMABUF_MOVE_NOTIFY
->       vfio: Wait for dma-buf invalidation to complete
->       dma-buf: Make .invalidate_mapping() truly optional
->       dma-buf: Add dma_buf_attach_revocable()
->       vfio: Permit VFIO to work with pinned importers
->       iommufd: Add dma_buf_pin()
+On 2/2/26 04:14, Lance Yang wrote:
+>>> Note that the tracking adds ~3% latency to GUP-fast, as measured on a
+>>> 64-core system.
+>>
+>> What architecture, and that is acceptable?
 > 
->  drivers/dma-buf/Kconfig                     | 12 -----
->  drivers/dma-buf/dma-buf.c                   | 69 ++++++++++++++++++++-----
->  drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c | 14 ++---
->  drivers/gpu/drm/amd/amdgpu/amdgpu_object.c  |  2 +-
->  drivers/gpu/drm/amd/amdkfd/Kconfig          |  2 +-
->  drivers/gpu/drm/virtio/virtgpu_prime.c      |  2 +-
->  drivers/gpu/drm/xe/tests/xe_dma_buf.c       |  7 ++-
->  drivers/gpu/drm/xe/xe_bo.c                  |  2 +-
->  drivers/gpu/drm/xe/xe_dma_buf.c             | 14 ++---
->  drivers/infiniband/core/umem_dmabuf.c       | 13 -----
->  drivers/infiniband/hw/mlx5/mr.c             |  2 +-
->  drivers/iommu/iommufd/pages.c               | 11 +++-
->  drivers/iommu/iommufd/selftest.c            |  2 +-
->  drivers/vfio/pci/vfio_pci_dmabuf.c          | 80 ++++++++++++++++++++++-------
->  include/linux/dma-buf.h                     | 17 +++---
->  15 files changed, 153 insertions(+), 96 deletions(-)
+> x86-64.
+> 
+> I ran ./gup_bench which spawns 60 threads, each doing 500k GUP-fast
+> operations (pinning 8 pages per call) via the gup_test ioctl.
+> 
+> Results for pin pages:
+> - Before: avg 1.489s (10 runs)
+> - After:  avg 1.533s (10 runs)
+> 
+> Given we avoid broadcast IPIs on large systems, I think this is a
+> reasonable trade-off 🙂
 
-Christian,
+I thought the big databases were really sensitive to GUP-fast latency.
+They like big systems, too. Won't they howl when this finally hits their
+testing?
 
-Given the ongoing discussion around patch v5, I'm a bit unclear on the
-current state. Is the series ready for merging, or do you need me to
-rework anything further?
+Also, two of the "write" side here are:
 
-Thanks
+ * collapse_huge_page() (khugepaged)
+ * tlb_remove_table() (in an "-ENOMEM" path)
+
+Those are quite slow paths, right? Shouldn't the design here favor
+keeping gup-fast as fast as possible as opposed to impacting those?
