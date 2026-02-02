@@ -1,223 +1,256 @@
-Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azon11012036.outbound.protection.outlook.com [40.107.209.36])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 751B229D26E;
-	Mon,  2 Feb 2026 08:42:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.209.36
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770021757; cv=fail; b=E0HgtOaV1m7zHGsZcKBcHRKhX+nnVEsDgvBtOQHRUQIY4NNt3x+UjiLGRzlc/Ak2xKxOCpgKlUB5lwuUVwcLkFcYb32IK3z/AaGS9Qt1a2m9MCNuQksVmHnahn+x1FghMput/hAw7rutbJbvqZNzLKGw1zivDKbB45qhZlymsXA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770021757; c=relaxed/simple;
-	bh=zw/CV4GgEbsIMHCIEOQvMvS/i0FqAjovAIeNtOgRpm8=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=XXBMmMsuOiPa+TlM+BJgQ8YFBdiryEGyO2i+t5zkMEXwEoYeKeWwYL9YVh7FvAFJ8FDOOyr90EhvXsqOTf5CxiM/pepDZ04ZAk7Qe/6SeXf8kMU1wwYeZWNRT0UdDgYQO07tElFwPwQGSpP2lvR2/Y5aQWxt6ngbCfYF0J56IWw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Dp5h2klO; arc=fail smtp.client-ip=40.107.209.36
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 873A0285C98
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 09:29:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770024577; cv=none; b=Ex4Nk1dS8sUBV1yMFdvC7vbzvISWXqq4ZEDpR1HFFDY9wNldbfEmtnPT8eF8NTEsCJG243lgjTRjm1rHMQq/E4X3Uh6So2ir2+Zg6xdTIjyPKcXEnXZm0leIOucjp63fpe1TrS8SYny1UxWvy7tlb4t/ufsdRKyxbruIBoKlnX0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770024577; c=relaxed/simple;
+	bh=3IhHg2qGjCWWrH3tJI/p3IIFJllNt3XBEPltfF4pOdQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mglyBUYK6DFcSnax99uNBdCq0/CFXrAzmxIJqIbXjC+/PbBK3Gaj+BV5tKuKAENGodqG7UehveEVkzGlCj9Bnm16oemdUBDOELr+YM5qFwVP9L7A7xA3DZplueH4VbnZaQXyWPQP5YhbaBzBZNUEU+VqPPRX4/9PLSTKRANaRcY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bDjCOYWe; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Dp5h2klO"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=QM9HsnbeUecBFXonJJ63R5IVnNHKhIGsCub4x/w1RoFaFiGwYi0+SaNqlrXj7mulcoLYeiVIM2neehKCumriJBEzZDHF8E+f0hs0G7A6Uw9lrUsTNQDL/93XUnfjaVFR3p06vQC9U15+rKfaucK2+uO02GtEa7sUg33LD1eoAFYbMNXjWHcjxPFCkpSKdsaIcsbTRP/IqVRv7uj2dWAU9+O1d0Bh6kYpTY1h7kyQKexIQdW7S53twyrJ85bApxeREYk8GJ+raf9ZsBziyb5qSKRs8LxQ1Ck8mWU/5NHbeU7f//N8mS7kypy2x0sMEWD0RgvfE5j+hAVanq+Bqwboyg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8kJzNZX8h31W5fLJ8L0MqQLy5Sg+f1R9yJakGLekFxA=;
- b=r8mKBxwN3zi+u2PxY4njKKnxm7Llr24JpvsgzPJZH+3MwslkAF8qk87Z1t87PEejz5XajsoFqTxwZGa4wkMWdNgZHTa40eSe0iNLlSYInLixSamxa1bVVqrOz9mRSuLB1Nos1mcktF5IMEU1Fa3GiUbpHJ/OoQpAX/f1EuPc7XkD3A9moZxoXW86iijhvuh6wJH5mPFdN/RhZC4QLaxh65I5bbV/bB47BJWpGZ3nHdhUuxKhG+StB9Z87pBRGY4xNTNUL5bCl1HfOvEGZa7I7qhf8svrX893+S1EKlzfRJzHaEtwW+9W+yCtGrOhjR/HyrHHO6rsHy1Z4gN12F5iQw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8kJzNZX8h31W5fLJ8L0MqQLy5Sg+f1R9yJakGLekFxA=;
- b=Dp5h2klOua3fIUYHa1Vlt7BxbZjoPUtQ2cX+pjcoIccJIa2T8PpOvYaNs3ziFjqXl7WjTMX1v28opMawzCXCdVNzI4ev6kvMBl3y7p8MR6krdys0fK4hsNedSv4XiZCvlrOAzsIAeITpE6o2M4VqUcHUV9zFtz4hHgI8+jDdMtM=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by IA1PR12MB6459.namprd12.prod.outlook.com (2603:10b6:208:3a9::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.16; Mon, 2 Feb
- 2026 08:42:33 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c%5]) with mapi id 15.20.9564.016; Mon, 2 Feb 2026
- 08:42:32 +0000
-Message-ID: <c976c33c-4fa7-4350-8dcc-a5c218d1b0d6@amd.com>
-Date: Mon, 2 Feb 2026 09:42:22 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 4/8] vfio: Wait for dma-buf invalidation to complete
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Leon Romanovsky <leon@kernel.org>, Sumit Semwal
- <sumit.semwal@linaro.org>, Alex Deucher <alexander.deucher@amd.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Lucas De Marchi <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>, Felix Kuehling
- <Felix.Kuehling@amd.com>, Alex Williamson <alex@shazbot.org>,
- Ankit Agrawal <ankita@nvidia.com>,
- Vivek Kasireddy <vivek.kasireddy@intel.com>, linux-media@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
- linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
- virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
- linux-rdma@vger.kernel.org, iommu@lists.linux.dev, kvm@vger.kernel.org
-References: <20260124-dmabuf-revoke-v5-0-f98fca917e96@nvidia.com>
- <20260124-dmabuf-revoke-v5-4-f98fca917e96@nvidia.com>
- <31872c87-5cba-4081-8196-72cc839c6122@amd.com>
- <20260130130131.GO10992@unreal>
- <d25bead8-8372-4791-a741-3371342f4698@amd.com>
- <20260130135618.GC2328995@ziepe.ca>
- <d1dce6c1-9a89-4ae4-90eb-7b6d8cdcdd91@amd.com>
- <20260130144415.GE2328995@ziepe.ca>
-Content-Language: en-US
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <20260130144415.GE2328995@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BN9PR03CA0312.namprd03.prod.outlook.com
- (2603:10b6:408:112::17) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bDjCOYWe"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770024574;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OrbP4sgebgqs0JpTgDFG08jJm58o0TDtZ6dkP3Wvvag=;
+	b=bDjCOYWemmsfUl03j8FapysEtUxuAHxFPP56S/FKlAX04kJIqHNyZnNkUJNVPZR9RstvJ2
+	DxDoVgyvDsp98Rwxsfrz4zs+izN57UYLQlko6WjnD/SM65bXzf36vBp/yeQWGcLwlUr6eD
+	t5DuvwUjOZaTDjgjJGFRUuF9GrYj5qA=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-659-rAzoaGs-MUm23Lb5oKi7hQ-1; Mon, 02 Feb 2026 04:29:33 -0500
+X-MC-Unique: rAzoaGs-MUm23Lb5oKi7hQ-1
+X-Mimecast-MFC-AGG-ID: rAzoaGs-MUm23Lb5oKi7hQ_1770024573
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-794c28a770aso15982747b3.2
+        for <virtualization@lists.linux.dev>; Mon, 02 Feb 2026 01:29:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770024573; x=1770629373;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=OrbP4sgebgqs0JpTgDFG08jJm58o0TDtZ6dkP3Wvvag=;
+        b=LGYrFdMyOxbgmdk4XT+Ye1QLMJbXBLx7cgbW16TRvDRaBJxbcdi1yNQLXGF050W2sn
+         sRN6/uqsNL4rc1V8oKKFHlAam6NZt1I+UPq8AGYkDu2IEP78NTdN1yCGHtWxyjNendni
+         7/3fxSqJZHMVFVe2OPIwnh0ZVhqqYXGLwNFOxuaO6E9ImVtquryavR0ia4p+PyKG3qmt
+         yNyUpzW/Jh/jjG3KMF3lmxNU6f9WvcvrcvGschQaIryVyaijzU2zvJGREWwgFGNt8AqB
+         b3oS7djYgRr6Ui4zqohG/JccgZaIThTUAg2AzwR0zm3CaDSmp5lS4jTtQhM1HG7+nIOd
+         bhJA==
+X-Forwarded-Encrypted: i=1; AJvYcCWtOMkp2/OLAradD08VV2wjoS6t2+BrY8OA7Qq1/RKD8Dxz398XxPlVaOcm6iYzAfVk50Grn9pojM+ls5CC0Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwzI1RaZeGoYphrSa4UkCpzE/q1mtR+YlbkR4JrQ93DI2z3SFT7
+	ZuKQNwrTeeVByxMesIq9ngIVPM6W9DtI/nUb0qlaDFArkUcCigLdsDpWn30ynx7v6NuYtq8T68b
+	Xyc0O6cR5wZnhyJTKww1cMw4xZ+Tu9bcD/PL87dcBxHwCFfQqNYaJDpVBscNmGJLvvUPp0sPYCg
+	0vWpyfPfauhNYZZ0VpusXGIJaeNFcHGrf1y0F3lzusBUU=
+X-Gm-Gg: AZuq6aJI233UUBT0spLKcq+18mazRORJUcHeth6opHzaqeum6I56Qel3j00r31Wo26F
+	JC8csXqvjIrHAcpw8hqfW7DG+J3kCOh8OD54GEqpWUmcinhfUgLRqDdt8AuVlTtSUaH0fAJHWpu
+	fBJJ+Dc1+jimy2sqVz1B8SiLZ++r95K95Lqgjb5gFtk6jsPN1fWzhMVWiNEZnGu/t6aw==
+X-Received: by 2002:a05:690c:38b:b0:794:8cde:3ef0 with SMTP id 00721157ae682-7949e025a14mr81504587b3.61.1770024572913;
+        Mon, 02 Feb 2026 01:29:32 -0800 (PST)
+X-Received: by 2002:a05:690c:38b:b0:794:8cde:3ef0 with SMTP id
+ 00721157ae682-7949e025a14mr81504427b3.61.1770024572539; Mon, 02 Feb 2026
+ 01:29:32 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|IA1PR12MB6459:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0ca55eab-a0e2-4ab4-0742-08de62370198
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|7416014|376014|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?MXRNd213Z015RjNpRW84WG15WkFNM1lKVkM3Q1lhY0R3dkVDdlVFSkxDUHVk?=
- =?utf-8?B?Y1pta1lycFhNRitvQ3JLclpmdkluZ0VPbmk5dHhlcDF2WGZtb29tblJGOXlL?=
- =?utf-8?B?UmVtMGk3SXZVNldCVlhQTThVdS9FQ25jSFhHVlNnTDBkdWtiZktPNzBEYlBX?=
- =?utf-8?B?VVJLbi9EMWhtWTF3NGtSQ0tITDgxOFpsNzhHT1VmTGhITFFTUCtQMHQrZ3I1?=
- =?utf-8?B?NTRuNGVWbzJOVC9sVVRKaXBxWmQ0cVhGUzF6ViszdGx6UFA1b2ZNTWh1aTNl?=
- =?utf-8?B?SElWMDNrUThSSFlZTVlIRm03WGRSOXBkajFxeUFsa1RLc0RVdlR5OGhvTEFF?=
- =?utf-8?B?S2VmL0o3SDVIV0UxVTIwQ29TUDFjN3NOU29mWmFydStpc1hxRDJIbHd3U0xw?=
- =?utf-8?B?V2M4ZkxUWjZCRTh4NDc4ZWVxM1F5M0JxVGlnYW45N3ZmL2RaKzdYWVBGS3lB?=
- =?utf-8?B?WTduT1o3MUZ6NTI5TWd0R0pMUXBWalNwTzNEd20zT2dhbmpxYWxXc21yTXJx?=
- =?utf-8?B?eDMvM1hBMlRrTVhKWFlQR3Bjd3lQNk9seTl6UUhMdmxLOTJMNTR3eWROcHFr?=
- =?utf-8?B?Q0d4aU5nd2YzZ2hLd0IxL1NMcHpYakQ2YW1UZEdoelZFb2FMU3FrMmFZNk8x?=
- =?utf-8?B?RGppRDZlay9tZUZXSXhJWTUrbHYxVTNBd2ovWG9MMlcvOE9wLzZsclVYeExI?=
- =?utf-8?B?ZUdWSFpNNldzTU1zRlVoSWx5SkJkcXhxU3p4bVZPME9KenVBOERXVkxUZmhM?=
- =?utf-8?B?L3ZvYkZZd1N3TjhZUkJuMWRIdFIvOGxoWFVMb3hGaHBkdnhoVVlEMWU4TmYw?=
- =?utf-8?B?Tm1FWmhKZUlXYlFOQXZzaklhbW42a1RwMUdTNTdXaW42blFHYVJ4enc4QTBv?=
- =?utf-8?B?T0x5K21sWUpJTHFUM290bS8zMUdyY1pjRlVpeEtYVGZublRHSXJqc2hubG9Y?=
- =?utf-8?B?NUZTNFVNUGxoeWhnNFd6Ui9nWko2QnhpODdtN1d1N3ZuV2R4RnNJaTJiWHdw?=
- =?utf-8?B?UDIvcklURW12eWpJcUtLdjlISnhCdnJabTFPZ213dlBRdTlQT2dEa1I0ZjhH?=
- =?utf-8?B?VGZtbFE3VHg4ck9DbmVRM2J3c0FidFRrSVFWWXpna2xxeEpvNGxNRGtFcSts?=
- =?utf-8?B?K2FCNVd6T21XQjkySllOZEtmTFdpWGk3SkE1K3M3Zkh0K2FRZVByTElyY1Nv?=
- =?utf-8?B?SHhjeTRjU1hJcGliZVpselIwbDhzZFBTeTg4WVAvWWVmYU45ZUFBWVhTbUlm?=
- =?utf-8?B?UTFzMTVGZmd6STRUL0U5NVpZTHJjYzJ5ZzI3aWFCYjJ6R3hBcVlyNEhJRGM2?=
- =?utf-8?B?L3N1R256ZDBObmJwV1BiOUdhU1JTTXg3c0lDaXVtNVZRRUMrTTYyVVVnaE9G?=
- =?utf-8?B?WTJVS0JrUXpvenh0MVN1N0JxVXhBLzdJbENPUVNRenRaTHc2a00rQW1YVGFt?=
- =?utf-8?B?eEdaK1FkcmhWclNnY3lEZkY0RXE3Nnk4VVc3Y2FxWCtWTUV3Qy9NRzhXZFdC?=
- =?utf-8?B?WkVTSkpuNG1pdjg1WWNvMHc4dWIrQXlPQXN2aUVXREJxQWxqU1g2eWpmaE5X?=
- =?utf-8?B?T1I5eXgveXVNTUR4MjYvS2lYN3hhWkNuTjJrb2sxMUxiblFBZ09ZcTNVZnBJ?=
- =?utf-8?B?NGlXcE80K3dOaTMrMExvQmpxNWxqcjJQcERiYTRnR0xvd2pTRHpqd0o3Sm1q?=
- =?utf-8?B?QitXYmNFYmM3bG9HZkhMdTVrYmV4V0V5eUxGREYwakRHbWJoeGsxOGxKTFBn?=
- =?utf-8?B?K3BrajdWWnk2R2pwNGJNd3phMWNjVml2UDkyMVIwYktIck1sSFVzRWU1cUwz?=
- =?utf-8?B?c3hHcGw3bThBcXg4cWhENEduWkJFVVQrYXNZVkpUMmpST2lVUnNrMUgvck5m?=
- =?utf-8?B?NlM5K0p4N2w3YTdWUmljLzM2S0g5WnNqVGx1Q1JpbFpyN1Mzak1CWDB0U002?=
- =?utf-8?B?TDhmSGIxSW9CYTdybFBFMGVDOFBjWEg5QURjV0dkSG45MnovNDFSZ0JSVks5?=
- =?utf-8?B?eXpQNWN5UjgrSVo1ZXllTWhndURrZ2QxdTA4bnRzOE1oN2c5TGtiMVNLZ084?=
- =?utf-8?B?MmtEWmY5clU3TFlZV3hKeGdBTmFNQUJ5Y1VkRDViTW8zZ1hReFpqWlQxS0pk?=
- =?utf-8?Q?pxyw=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?eGpHbHZ3MEpTalp5c3I3SzZMMHdvZmthQVk2VHpDYm4xTUxuMUE5bnhEYjBR?=
- =?utf-8?B?UGIvMEtJUWowTzhlNmpPaXdkeUE4Q3N2Qm9kZS9LT3JWck5Ya092ZnJGMGhY?=
- =?utf-8?B?Rm9NMWhZSWh6OXVQbXY1ejdmeGVHQllEalJaQm56WTlWYktqbS9qMGRUZ080?=
- =?utf-8?B?MERzdjRRR00vc1JiL3loUEFKbVN5aFh1VWtYcXBVSXZNR2t3N3dZSWNuSmxY?=
- =?utf-8?B?NWJndnA3SVNhSlBxVjR6TWgrMlloUU5lUkRLbFhzU05lSkJEaTdRM3hrSjhv?=
- =?utf-8?B?QTFpOEZuMDIwU1hvUWRQc21VWEgzTGxTSlVHNU91bk1PWmwxQnlGRU5zbDkz?=
- =?utf-8?B?MzVlVUljT1RtWmN4VWUzNTJlNENuSVl2dElsekVHbGU0SkxDdnNoTEdSUVJP?=
- =?utf-8?B?djMzMmE0MEw5Q0hTUE1zVy9seUpIVkozZXUxU1pOUzFSSzFXbk04KzhUZ2Jw?=
- =?utf-8?B?M1BrZ3ZJaEJwSHh3UG9BbU9oN25hd0dnZmhjZW10elZ6ZXVZUmRGMFhVUW1x?=
- =?utf-8?B?NGpOaDZ4d25lUWd1UmNOdXdJYkM0N3dBQUhiSVV6SjV3em55VHJaM3htdEVY?=
- =?utf-8?B?NUZQMUtReXpIV3ZWbzhYbnhsZGxraDJhTjFpbFFPZVhHR2VJRkxPS2tkRnpv?=
- =?utf-8?B?OE8xcTJZaVEzUU9CMW1Pa0dKcjBNc2RNSThpcnVWMjNlU3g1NlhZUUVsajNW?=
- =?utf-8?B?dmI2QnlQeVcrSE1ha1A0RnM3Yk9SSnVFd3I4Y1YzbjVjOTZYaFF3a3dWS1JH?=
- =?utf-8?B?Z1NaZ0wwNHc1QURZenJZbzJ4cUdTNDNDaVBCZGVrdFJ6eHN2MlN1ZHUrY1dE?=
- =?utf-8?B?WHFvb1hYOW5xMGNRejA1blFWMWlKK1RqM1B2K0pzSjZZa3RQS3pCYU9JWnNK?=
- =?utf-8?B?TXBkL2lhQ3dnbEVYMlVldHJkN3ZsSGVhak1za1pyOGFYeTl1RGpaZEFOOXRl?=
- =?utf-8?B?S01KMHhYZzFwQTlTaHhwZDVLRndTem1KR1BBN21Ld25KYjc0YzVoTW1mYVRa?=
- =?utf-8?B?QVMrSGppVjV6Q01yZ2pxdFY4R0MvZkQzcGNiUmtYc2pjSFREMXRRdGl4MTRE?=
- =?utf-8?B?Z003YkU3Ymg0bklDUm12dCtsenlnRjcyNmY0WW9HcnI3UVBsZXZrVHk4YW9G?=
- =?utf-8?B?OVhFeFpwUFlSdzVhKy9kdlByK2l1dWsrSGMxbWhZbUFBclhLRWVrbncxeXRw?=
- =?utf-8?B?ZTM0bVF0bzM2VjdNZldzL281Mnp4OFdyeldBaSs0eUNHamd3SmljbGMrLzk4?=
- =?utf-8?B?Q0ZTdTJLNEZ6OWNiTzZaZ2hNc29SU3d1TllpZllPbjVnN3lqdVBsakMxYW5t?=
- =?utf-8?B?N2YwMzEwZGFrbzFxeC94elZCL1RXcEkxSk5ESk5WVDE1SU02bUE5YVZZNmZS?=
- =?utf-8?B?STdUSFZvdXNJY21GOFJJZEZsVUl6bk9BZERwS0YwYnNGVkloYW54Z0ZEQmNi?=
- =?utf-8?B?c1A1Uk94REZiemwxelp2OXBrNWdmR1I2dWVzVXNwbmtlOU8rYnhJclFoY2Zr?=
- =?utf-8?B?ZlkxQmV3UlNKa3ZTaFVHNFdtWHpKcm1nbEQ1KzZOTXMrWHlLWVRFTnpnQkZF?=
- =?utf-8?B?VWtwVG52aGhnakV4bG1ISElGQ2FTV1MrT09kUXhxUmRFWjcvdVVDa3oxd1lB?=
- =?utf-8?B?aXNkbkV4d21IblN4aFdYbGNTdUFNRlc0aVgxakNYU1ArbkR1UC8za3hWOVZW?=
- =?utf-8?B?ODFselNMQngwTWl3V0pDN093YkhKMWNQZXhpQjRJaU9rOWlNb0FqSTg2cGwy?=
- =?utf-8?B?VlVoYk1FQWNHYlRKMWd6dGI4ZVg1SlJ1SDNyNldLN0tUc0RnR2lBQ1VSbGlz?=
- =?utf-8?B?TGJpams4UnlFeHkxY0lLTlM4LzlFeDdhU3pMWUNueFlxRXVPYW9mVE93SHVs?=
- =?utf-8?B?L2h0UVhDY2VlaWJqYk0wcVdkeHowMGtMYldqKytONmdpYk5rQXRjYmlzdi9V?=
- =?utf-8?B?U3hWTk5FcHhEWDllSzNIaVNaZDZ5MXZzQ285NjluV01CL0VDWi9sYW82M0RR?=
- =?utf-8?B?Mm5Ea203RG5sOHNjQmt4aTRGR2g5a3grbnM5TkFCQ0xmMUJuK1ZRRlgySjV1?=
- =?utf-8?B?ZHY2cWQrQjYrMkc0RXFKcW5LYUJhUW1sRUFkajVRNTllYjJNTHpMSzYva1or?=
- =?utf-8?B?dk5CL29CMVZ1aVlYeUxiekVTSnQvWmVMeTVKckZPUVVDTk1BWjhXeHRPSTNi?=
- =?utf-8?B?cUt4T1BtdlBmTE9QdExWUTdoUmJ4SUNnN0tPU1htbm9pZ1EybmJ3elVJclp4?=
- =?utf-8?B?SnNnV1VBVVpnbWtYM1IrYS8wK21nZmVVeUQ5d2wvOTk1aE5wbDEya1BueUM3?=
- =?utf-8?Q?q0WM0x5Kvi4CT5IfY/?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0ca55eab-a0e2-4ab4-0742-08de62370198
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2026 08:42:32.5134
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tY2z0byBey6eiVNkvhy4L+ZWNsVdatMNzulE74Xsriu+490LZHzdXBbcAMkD52/Q
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6459
+References: <20260130081524.81271-1-zhangtianci.1997@bytedance.com>
+ <CAJaqyWepzL6uzwDtEd7MJLxp2Ywy8RODDFUpDXA1iksCEGW3nw@mail.gmail.com> <CAP4dvscscRNbJBKwDLE-gebPT24fOJg08xap_0t00cPbYZ4xvQ@mail.gmail.com>
+In-Reply-To: <CAP4dvscscRNbJBKwDLE-gebPT24fOJg08xap_0t00cPbYZ4xvQ@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Mon, 2 Feb 2026 10:28:55 +0100
+X-Gm-Features: AZwV_QhIpNAjFf0Q9TCBSGyNn0ctloJU0xVi5359A_WjiwIaWZ1sR1Mx2-1gCu8
+Message-ID: <CAJaqyWcbKc6RdmA+JPnhGiYO_J55s6hs637xbtFOXGH_WejPEw@mail.gmail.com>
+Subject: Re: [External] Re: [PATCH] vduse: Fix msg list race in vduse_dev_read_iter
+To: Zhang Tianci <zhangtianci.1997@bytedance.com>
+Cc: Michael Tsirkin <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, marco.crivellari@suse.com, 
+	anders.roxell@linaro.org, virtualization <virtualization@lists.linux.dev>, 
+	linux-kernel <linux-kernel@vger.kernel.org>, Xie Yongji <xieyongji@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: rUfjJ7tQD6ASVqysamlG4ErEqZjheZIPdzIJcAzRhvc_1770024573
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 1/30/26 15:44, Jason Gunthorpe wrote:
-> On Fri, Jan 30, 2026 at 03:11:48PM +0100, Christian König wrote:
->> On 1/30/26 14:56, Jason Gunthorpe wrote:
->>> On Fri, Jan 30, 2026 at 02:21:08PM +0100, Christian König wrote:
->>>
->>>> That would work for me.
->>>>
->>>> Question is if you really want to do it this way? See usually
->>>> exporters try to avoid blocking such functions.
->>>
->>> Yes, it has to be this way, revoke is a synchronous user space
->>> triggered operation around things like FLR or device close. We can't
->>> defer it into some background operation like pm.
->>
->> Yeah, but you only need that in a couple of use cases and not all.
-> 
-> Not all, that is why the dma_buf_attach_revocable() is there to
-> distinguish this case from others.
+On Sat, Jan 31, 2026 at 8:15=E2=80=AFAM Zhang Tianci
+<zhangtianci.1997@bytedance.com> wrote:
+>
+> Hi Eugenio,
+>
+> On Fri, Jan 30, 2026 at 7:52=E2=80=AFPM Eugenio Perez Martin
+> <eperezma@redhat.com> wrote:
+> >
+> > On Fri, Jan 30, 2026 at 9:15=E2=80=AFAM Zhang Tianci
+> > <zhangtianci.1997@bytedance.com> wrote:
+> > >
+> > > Move the message to recv_list before dropping msg_lock and copying th=
+e
+> > > request to userspace, avoiding a transient unlinked state that can ra=
+ce
+> > > with the msg_sync timeout path. Roll back to send_list on copy failur=
+es.
+> > >
+> >
+> > Missed Fixes: tag and Cc: stable@vger.kernel.org. Or maybe we can
+> > consider this a change in the behavior? I don't think any VDUSE
+> > instance should trust it will never receive that message that it
+> > received partially once but still...
+>
+> I'll add the Fixes tag and CC stable list in v2 patch.
+>
+> >
+> >
+> > > Signed-off-by: Zhang Tianci <zhangtianci.1997@bytedance.com>
+> > > Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+> > > ---
+> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 30 ++++++++++++++++++++++------=
+--
+> > >  1 file changed, 22 insertions(+), 8 deletions(-)
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_u=
+ser/vduse_dev.c
+> > > index ae357d014564c..b6a558341c06c 100644
+> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > @@ -325,6 +325,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *=
+iocb, struct iov_iter *to)
+> > >         struct file *file =3D iocb->ki_filp;
+> > >         struct vduse_dev *dev =3D file->private_data;
+> > >         struct vduse_dev_msg *msg;
+> > > +       struct vduse_dev_request req;
+> > >         int size =3D sizeof(struct vduse_dev_request);
+> > >         ssize_t ret;
+> > >
+> > > @@ -339,7 +340,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *=
+iocb, struct iov_iter *to)
+> > >
+> > >                 ret =3D -EAGAIN;
+> > >                 if (file->f_flags & O_NONBLOCK)
+> > > -                       goto unlock;
+> > > +                       break;
+> > >
+> > >                 spin_unlock(&dev->msg_lock);
+> > >                 ret =3D wait_event_interruptible_exclusive(dev->waitq=
+,
+> > > @@ -349,17 +350,30 @@ static ssize_t vduse_dev_read_iter(struct kiocb=
+ *iocb, struct iov_iter *to)
+> > >
+> > >                 spin_lock(&dev->msg_lock);
+> > >         }
+> > > +       if (!msg) {
+> > > +               spin_unlock(&dev->msg_lock);
+> > > +               return ret;
+> > > +       }
+> > > +
+> > > +       memcpy(&req, &msg->req, sizeof(req));
+> > > +       /*
+> > > +        * Move @msg to recv_list before dropping msg_lock.
+> > > +        * This avoids a window where @msg is detached from any list =
+and
+> > > +        * vduse_dev_msg_sync() timeout path may operate on an unlink=
+ed node.
+> >
+> > But in the timeout case, msg->completed is false so list_del is never
+> > called, isn't it?
+>
+> Did you misread it?
 
-No, no that's not what I mean.
+Yes, I probably misread the code :). I should not post on Friday evenings!
 
-See on the one hand you have runtime PM which automatically shuts down your device after some time when the last user stops using it.
+> Here's the code:
+>          spin_lock(&dev->msg_lock);
+>          if (!msg->completed) {       <- here msg->completed is false.
+>                  list_del(&msg->list);   <- boom
+>                  msg->resp.result =3D VDUSE_REQ_RESULT_FAILED;
+>                  /* Mark the device as malfunction when there is a timeou=
+t */
+>                  if (!ret)
+>                          vduse_dev_broken(dev);
+>          }
+>          ret =3D (msg->resp.result =3D=3D VDUSE_REQ_RESULT_OK) ? 0 : -EIO=
+;
+>          spin_unlock(&dev->msg_lock);
+>
+> >
+> > Is there even any event that may cause more than one packet in either
+> > queue? Maybe we can simplify a lot of this if we don't have that
+> > assumption.
+>
+> That makes sense. However, I believe that even though such a scenario doe=
+sn't
+> exist at present, we cannot depend on the queue containing just a single =
+entry.
+> This is a very fragile assumption and can easily be invalidated by modifi=
+cations
+> to upper-layer operations.
+>
 
-Then on the other hand you have an intentional revoke triggered by userspace.
+I didn't mean to change the external character device, that would be a
+userland visible change. Just to simplify the part of the code
+internal to the module.
 
-As far as I've read up on the code currently both are handled the same way, and that doesn't sound correct to me.
+For example, instead of having a list, have a permanent msg with an
+enum state: free (as "no message in flight)", sent_to_userland,
+completed. So we don't need to worry about lists etc.
 
-Runtime PM should *not* trigger automatically when there are still mappings or even DMA-bufs in existence for the VFIO device.
+If vduse ever implements more than one message in flight it is very
+easy to come back to the list. Note that I'm also interested in
+speeding up the vdpa initialization and to have many msgs in flight is
+one of the most straightforward ways to do it, I'm not against that in
+the long term :).
 
-Regards,
-Christian.
+> >
+> > > +        */
+> > > +       vduse_enqueue_msg(&dev->recv_list, msg);
 
-> 
-> Jason
+If we re-enqueue it, another read from another userland thread could
+read the same message again concurrently with this vduse_dev_read_iter
+call, isn't it?
+
+> > >         spin_unlock(&dev->msg_lock);
+> > > -       ret =3D copy_to_iter(&msg->req, size, to);
+> > > -       spin_lock(&dev->msg_lock);
+> > > +
+> > > +       ret =3D copy_to_iter(&req, size, to);
+> > >         if (ret !=3D size) {
+> > > +               spin_lock(&dev->msg_lock);
+> > > +               /* Roll back: move msg back to send_list if still pen=
+ding. */
+> > > +               msg =3D vduse_find_msg(&dev->recv_list, req.request_i=
+d);
+> > > +               if (msg)
+> > > +                       vduse_enqueue_msg(&dev->send_list, msg)
+> > > +               spin_unlock(&dev->msg_lock);
+> > >                 ret =3D -EFAULT;
+> > > -               vduse_enqueue_msg(&dev->send_list, msg);
+> > > -               goto unlock;
+> > >         }
+> > > -       vduse_enqueue_msg(&dev->recv_list, msg);
+> > > -unlock:
+> > > -       spin_unlock(&dev->msg_lock);
+> > >
+> > >         return ret;
+> > >  }
+> > > --
+> > > 2.39.5
+> > >
+> >
+>
+> I'll send out the v2 patch soon.
+>
+> Thanks,
+> Tianci
+>
 
