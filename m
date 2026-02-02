@@ -1,43 +1,42 @@
 Received: from jpms-ob01.noc.sony.co.jp (jpms-ob01.noc.sony.co.jp [211.125.140.164])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 659D02E6CA5
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 10:01:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7791D3563D1
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 10:01:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.125.140.164
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770026513; cv=none; b=leXERQWnD8VYG4dCypkKRQjV6cA3Aw4/T0O+NKo6Oa9xu9dAt/UGuw1g+MlptQDYNsQalP0EnLhsHAFZ2mowNoX8GDpfoWeQz2Egiu99KsGL4D3N5G9mcmN7dy2eWNirGF0Rxa60VVu21pxRkH1tJXPOrnlbry5CJATB2ypt0Ng=
+	t=1770026514; cv=none; b=llfKK6qsYIwYNrdihz5HqE7hVlfkn0hC0a+9q9Dtwf1mhTF5e9Tqu9puVkvsVx8KaKu6vdee0+H+gYJFH2wlKXHFNZMt9P1H7CKQRGNzj0IKp3jBXPhwR8AFbcHueVsh5sDFIIBlOdPP4cPpjs2KJOdbtiCTtSw5f59PgTAbPxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770026513; c=relaxed/simple;
-	bh=paULGXp6rwtbR4pGaBXqE9RYtLD7iRkEUs2lKCF5e4o=;
+	s=arc-20240116; t=1770026514; c=relaxed/simple;
+	bh=WGBqeRf3m3q38dcFfIzoZC7KITAdIHJXG+fCWgOOD40=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=tJODujgfzSsIzeu776RIjZ78VBTaL2gCWFgUuhVoDEQ81Vi7TEtRnVOzlc0LueXNIk4ElfE0O3uPTHBWKyOaGHHCdG3WWm+s4kGkI5eWbsljfyqZjjbNDQj+hDa8PzVeDtRoKsltAzwhxpUjedsh/Wi3BQD/XNyWKJ8RYUilVWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com; spf=pass smtp.mailfrom=sony.com; dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b=HO7tl8SE; arc=none smtp.client-ip=211.125.140.164
+	 In-Reply-To:To:Cc; b=AdsCfNbvPWUvM5bBpnKD2jJ1x68Ghw9urMstdX1YiBWiS9vu1k9xJEdYOCXLWZA5onWis7Wqyhj1EFG/RO0pDKDAdISLLxygY54nzE2BfSracXdwC24y3d+TeIhdh3C2hEyur/M3U7O05yjm23OALiDg/SnvdvyWp67bWNvg//M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com; spf=pass smtp.mailfrom=sony.com; dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b=YBO6/r95; arc=none smtp.client-ip=211.125.140.164
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sony.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b="HO7tl8SE"
+	dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b="YBO6/r95"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=sony.com; s=s1jp; t=1770026511; x=1801562511;
+  d=sony.com; s=s1jp; t=1770026513; x=1801562513;
   h=from:date:subject:mime-version:content-transfer-encoding:
    message-id:references:in-reply-to:to:cc;
-  bh=4/LXZGnNgY5t+nsrdXbfktyTBcde00tw0WwNVU5EQeQ=;
-  b=HO7tl8SE03PUd0XlIchjhbyh7kJ0qcxLeKAO2qfntj28WoYLPk15KRUM
-   enJd7STKWW1tmlplX7Glue6aUTu5vI2jii5OgVej/MF/8wK4wdSZ1IX03
-   etdBsXzrpYZKbjC5xSMmaGua2hL1+oF0NR58a3YgvdNVsXv2C38xrKnbu
-   cJnIIR2PZuhsnSC1RPBcKVPAW8p++rvb8jmug7B9dlYdVoquzVwAdo7oq
-   9fVIAtEm+l17mIRb4KfGK+TFy795PToniMxYZsvqMuO2Egi4xo+uIhVf5
-   y1WnL4KmuD7fmspl682xeU21RIKAqU2u9WqNLfCbhxkryK7cyvVJUR/mA
-   w==;
+  bh=GI9OPx+uxZW/9+u+5es0pePWKf46Zy6n4IWktANHhfk=;
+  b=YBO6/r95No/EEep/Aw4S11bj4awfD3Ir5r00dQJWXKSfiR+i2lWCwYw9
+   LsYaJpE0WXZFwTdoBiu5PZ9aWPPLBA5AUvtFfqHob3idbgzbW73pZSRM5
+   /FdUlatXmTPAzwImzVzYTQjHq2by0+eacePu3iZZ+8QMuiMTnkaN67oVU
+   qq3SX9Vrr4Z40coS4QdG2MkSIi6wVi8W2ADTn0E3ul9anUz28DOX7/EYN
+   SaAMyic4IyxOwl+DdxRGbh6NtVSjHW9tOO5CbqXIWcrNZsp258/92GjZ8
+   VQFZvFlgRH8rJRqf0O9/eHiJX7l2Ql7QhqBwzWDKutJi+cKW54ll8qMiT
+   Q==;
 Received: from unknown (HELO jpmta-ob1.noc.sony.co.jp) ([IPv6:2001:cf8:0:6e7::6])
   by jpms-ob01.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 18:51:38 +0900
 X-IronPort-AV: E=Sophos;i="6.21,268,1763391600"; 
-   d="scan'208";a="607384935"
+   d="scan'208";a="607384937"
 Received: from unknown (HELO [127.0.1.1]) ([IPv6:2001:cf8:1:573:0:dddd:6b3e:119e])
   by jpmta-ob1.noc.sony.co.jp with ESMTP; 02 Feb 2026 18:51:38 +0900
 From: Shashank Balaji <shashank.mahadasyam@sony.com>
-Date: Mon, 02 Feb 2026 18:51:02 +0900
-Subject: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel
- expects so
+Date: Mon, 02 Feb 2026 18:51:03 +0900
+Subject: [PATCH 2/3] x86/defconfig: add CONFIG_IRQ_REMAP
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,7 +45,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
+Message-Id: <20260202-x2apic-fix-v1-2-71c8f488a88b@sony.com>
 References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
 In-Reply-To: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
 To: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
@@ -67,55 +66,41 @@ Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
  jailhouse-dev@googlegroups.com, kvm@vger.kernel.org, 
  xen-devel@lists.xenproject.org, Rahul Bukte <rahul.bukte@sony.com>, 
  Shashank Balaji <shashank.mahadasyam@sony.com>, 
- Daniel Palmer <daniel.palmer@sony.com>, Tim Bird <tim.bird@sony.com>, 
- stable@vger.kernel.org
+ Daniel Palmer <daniel.palmer@sony.com>, Tim Bird <tim.bird@sony.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1476;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=897;
  i=shashank.mahadasyam@sony.com; h=from:subject:message-id;
- bh=paULGXp6rwtbR4pGaBXqE9RYtLD7iRkEUs2lKCF5e4o=;
- b=owGbwMvMwCU2bX1+URVTXyjjabUkhsyG4hUGCzw4VzFOfPGnVC7+kcNGzhiLW3NYOT9WyZ0Rv
- y9psSK2o5SFQYyLQVZMkaVUqfrX3hVBS3rOvFaEmcPKBDKEgYtTACaytoXhv9Nrfese5QfJMkqT
- Qxp2Whn+q/TjDzf7xqHB/8O9W3/eVob/iW1Xy2aecbmXM6u73+ju1V8pak2+7/wsF/ZYNW4wOtz
- NCwA=
+ bh=WGBqeRf3m3q38dcFfIzoZC7KITAdIHJXG+fCWgOOD40=;
+ b=owGbwMvMwCU2bX1+URVTXyjjabUkhsyG4hWJ5ZPesy10dLqdVPT13NLfdzYoem+Z+6FTrppr+
+ 3YRUxvJjlIWBjEuBlkxRZZSpepfe1cELek581oRZg4rE8gQBi5OAZiI71yG/3G5dneW7G7keJnx
+ 4Wd+z+9zOUtZjcKVjm+qm6rqVBCX9Jnhf+n3kx2OkYsNn+1Qe6/XFrn9pXSWzssdU98b3/BZ2S2
+ XyAQA
 X-Developer-Key: i=shashank.mahadasyam@sony.com; a=openpgp;
  fpr=75227BFABDA852A48CCCEB2196AF6F727A028E55
 
-In lapic_resume, ensure x2apic is actually disabled when the kernel expects it
-to be disabled, i.e. when x2apic_mode = 0.
+Interrupt remapping is an architectural dependency of x2apic, which is already
+enabled in the defconfig. Enable CONFIG_IRQ_REMAP so that a defconfig kernel on
+bare metal actually uses x2apic.
 
-x2apic_mode is set to 0 and x2apic is disabled on boot if the kernel doesn't
-support irq remapping or for other reasons. On resume from s2ram
-(/sys/power/mem_sleep = deep), firmware can re-enable x2apic, but the kernel
-continues using the xapic interface because it didn't check to see if someone
-enabled x2apic behind its back, which causes hangs. This situation happens on
-defconfig + bare metal + s2ram, on which this fix has been tested.
-
-Fixes: 6e1cb38a2aef ("x64, x2apic/intr-remap: add x2apic support, including enabling interrupt-remapping")
-Cc: stable@vger.kernel.org
 Co-developed-by: Rahul Bukte <rahul.bukte@sony.com>
 Signed-off-by: Rahul Bukte <rahul.bukte@sony.com>
 Signed-off-by: Shashank Balaji <shashank.mahadasyam@sony.com>
 ---
- arch/x86/kernel/apic/apic.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/configs/x86_64_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index d93f87f29d03..cc64d61f82cf 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -2456,6 +2456,12 @@ static void lapic_resume(void *data)
- 	if (x2apic_mode) {
- 		__x2apic_enable();
- 	} else {
-+		/*
-+		 * x2apic may have been re-enabled by the
-+		 * firmware on resuming from s2ram
-+		 */
-+		__x2apic_disable();
-+
- 		/*
- 		 * Make sure the APICBASE points to the right address
- 		 *
+diff --git a/arch/x86/configs/x86_64_defconfig b/arch/x86/configs/x86_64_defconfig
+index 7d7310cdf8b0..269f7d808be4 100644
+--- a/arch/x86/configs/x86_64_defconfig
++++ b/arch/x86/configs/x86_64_defconfig
+@@ -230,6 +230,7 @@ CONFIG_EEEPC_LAPTOP=y
+ CONFIG_AMD_IOMMU=y
+ CONFIG_INTEL_IOMMU=y
+ # CONFIG_INTEL_IOMMU_DEFAULT_ON is not set
++CONFIG_IRQ_REMAP=y
+ CONFIG_EXT4_FS=y
+ CONFIG_EXT4_FS_POSIX_ACL=y
+ CONFIG_EXT4_FS_SECURITY=y
 
 -- 
 2.43.0
