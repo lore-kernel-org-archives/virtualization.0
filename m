@@ -1,214 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-a8-smtp.messagingengine.com (fhigh-a8-smtp.messagingengine.com [103.168.172.159])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C03CA2D77E3;
-	Mon,  2 Feb 2026 22:48:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 777272BE05B
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 22:54:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.159
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770072536; cv=none; b=JQNeaA9IK2S3EhmP/6gSM8PCB+aMu4A75Zuz4p80Ro6gJfRSUOldU6MMTlHrfFM5RKYmc4z5vSe8J/YMNJjsbTbsgvSmbs8JRefR6hQS71BNNp9CCaJkQ6d4Iu34SVA+sa4GlcxQv9JSBEDSl22U7sonoGkH8tZ/UzKiCyvQsA0=
+	t=1770072880; cv=none; b=SpOR5f65xvxPTonPWxiQ7A+U/ho11LvLvonjEB9yDQwcbSXXc0BSHKeS7Adtl40MLIo1as4IBPE1vDOhxDCidKNTzdDhPNCHdd1w4GuJm9c4hzSIkvvFz3pHY/8Zf/Q+cA0Lrs/TsDT2u+sjze6W4+Aak7YEJH0R8Cg9nAe80+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770072536; c=relaxed/simple;
-	bh=2SQk6akRnaJrtIkyw0e1kuGJW8iEQ/1VXNLrxse1/Lc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=MvmlV+fzH8a+UgumZc89tkPmbe19PWnM9k6amEeCjCXl+Zpoi235GInd4ALdjivAMgNjX28ITyq7LGmIoWQRTYAA3aUj0NSTD1pzj+AgBn0G9H4XEdzAAnlXoA9sQ4QCToVL681DO4cd3zTRtfhENw28Yzz+sIjQ2EN8eCNfufc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AjWyEUAf; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770072880; c=relaxed/simple;
+	bh=kO2OdjGJkl5cG1pUcA6A+dYqrqKpdB9d5eYHNdrcMiw=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=PuoBISPBxPdFiYPMO/EE8/9LZDNSL0JYLHWYPtl/l0/Z3SwSuMXxLdC2xWsY+0CejNJXeys+BOcIHLMpm+r77eHJU1nqlFDjTE0XZi8qT/RY9H88IAfSOAcXm5djBGaOJNyFB5BXe/WBquEbkHvNyLHpgBtGgvNfTknBRJGaOuQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=ck0yhdDZ; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=pw9Bhim9; arc=none smtp.client-ip=103.168.172.159
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AjWyEUAf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFCA0C116C6;
-	Mon,  2 Feb 2026 22:48:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770072536;
-	bh=2SQk6akRnaJrtIkyw0e1kuGJW8iEQ/1VXNLrxse1/Lc=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=AjWyEUAfT3DxKONc8hQCQSbOvfqFjl9L6OdMc658VwYjwwxemxAfJSaaD9MoJWQ6W
-	 ayf/9mrv1HEj5uSWPuFI60ab34RQl9J4FZ982INCFeaFsinCDW8XbtGlBshjgdnLq8
-	 m5ZFoAs1yFx8eBrsZ64+IJjWnUUmMp2FOAwSm82HnCsF5kYribq0vYgPL/nb5K58x3
-	 jrWj4pTqrCmPvZFz4hpgJLsUwSt86fgoj2llStxffae4dLfch8DTNCVzBom0hOZm5z
-	 bSUIWA9IpDYZF4YwvFIJpDhDCGl/CSoOX6jSsm9xMtgrixKA9mLdYMu5IYDZPdpB3x
-	 DXfBF/pBAxaaA==
-From: Arnd Bergmann <arnd@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xie Yongji <xieyongji@bytedance.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] [v2] vduse: fix compat handling for VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
-Date: Mon,  2 Feb 2026 23:48:08 +0100
-Message-Id: <20260202224835.559538-2-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20260202224835.559538-1-arnd@kernel.org>
-References: <20260202224835.559538-1-arnd@kernel.org>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="ck0yhdDZ";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="pw9Bhim9"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id BFB40140013E;
+	Mon,  2 Feb 2026 17:54:38 -0500 (EST)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-04.internal (MEProxy); Mon, 02 Feb 2026 17:54:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1770072878;
+	 x=1770159278; bh=ow7F9Go20V5fmmV9x+7vVu68DePix131nFmr3pVXz/0=; b=
+	ck0yhdDZtAdAYqQ0vUCaaTNT//mqjnh/drqIrG5KzICuznjK/7ACmHi1H5hdNiie
+	CRWevAis7FzGaNlGhIyPuTyHsOSX8m/BrUDYeLYf1/IBduM474/TWyIy3PZ+PqGC
+	ANwcsDrjguM67fghbTuZDfArOsR/9s31n4ZAmRLjxNYjCyym/azl4ccwdv5hNnNP
+	PTzXvkwwo7+YsuyJFO5ta/S7BJff6BMTc6ortyOd/vIJxhDoI73hqJOr2qynfmYI
+	RliAt1tb8nd5zit9KRcHZVcrZeM558RCWP3V+tYf1QiLv1nQVZyUX9d+2KhFgXk9
+	iXAfnl/zNdIgehBa1vZE+Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1770072878; x=
+	1770159278; bh=ow7F9Go20V5fmmV9x+7vVu68DePix131nFmr3pVXz/0=; b=p
+	w9Bhim9HQ4mZni1lExjHWAzxsKNRKJu+myTxSV08WJqnjY2I1aFN6CvAkfrUgolK
+	t0pi7hN2Aix1Bim07OdGRWbcP8Bk7oxkVBz6TrJJ+aVmAeWm+XmrII+uJ0O5VQuV
+	r3lyWwtYssgZbKcRHtKva70YKS3N2uT//10ijh2hU3XV47fcEGbU339flf/5jaiN
+	5gEsb4rd0kggzfLeq9FcJuGOnuflZHPryfC9Y/iRmk3LVrpCxeYwsp5qcgKOphjh
+	DXjW0qV6T4NGisNyegplx1BjoN6eScOtEZAS0JokbvNfQ4z8o0qAvWOaY9YntK3W
+	utbznnP1QPNylbDo6iG+g==
+X-ME-Sender: <xms:LSuBaXxHxm5T3UcG7w6bX7T_WTWnnz7xf2J6Lxtaay9ud-_YHShvPg>
+    <xme:LSuBaaGrhJhRRlYA7OCHIU97KSgu_BsHe54PQz0yJ6DLcgMc6Zf9Cs2s0eKwYBBc8
+    b08y1fIL2tTf27GCE899ANtjd4xRuGZ0t8F95UnI4MC1_-KmYelMBw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddujeekkeelucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhephfdthfdvtdefhedukeetgefggffhjeeggeetfefggfevudegudevledvkefhvdei
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
+    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepuddtpdhmohguvgepshhmthhpohhu
+    thdprhgtphhtthhopeigihgvhihonhhgjhhisegshihtvggurghntggvrdgtohhmpdhrtg
+    hpthhtoheprghrnhgusehkvghrnhgvlhdrohhrghdprhgtphhtthhopegrnhguvghrshdr
+    rhhogigvlhhlsehlihhnrghrohdrohhrghdprhgtphhtthhopeiguhgrnhiihhhuoheslh
+    hinhhugidrrghlihgsrggsrgdrtghomhdprhgtphhtthhopehvihhrthhurghlihiirght
+    ihhonheslhhishhtshdrlhhinhhugidruggvvhdprhgtphhtthhopegvphgvrhgviihmrg
+    esrhgvughhrghtrdgtohhmpdhrtghpthhtohepjhgrshhofigrnhhgsehrvgguhhgrthdr
+    tghomhdprhgtphhtthhopehmshhtsehrvgguhhgrthdrtghomhdprhgtphhtthhopehmrg
+    hrtghordgtrhhivhgvlhhlrghrihesshhushgvrdgtohhm
+X-ME-Proxy: <xmx:LSuBaXUfAgMCnc72M_YoioKuJEpYW9S7cxj_ih2rYH4G_PYNmfyXTA>
+    <xmx:LSuBaXyTeGi1WqYciA6Iq5dbe9Np5bqpMaznxUHbQORON8hsaT22SQ>
+    <xmx:LSuBae_1otegJaeJw4JJpNvDw35zVtN2Ee7e0onKdHPtBw5eAvRKAg>
+    <xmx:LSuBac_2I5bahtSugbrCqhB9eVNP3YoDxm_J2PPdj-buH5loa493KQ>
+    <xmx:LiuBaY9MfjOggP8mBNDGuNFggI95ezPm5P7P8WFvG-M3Aq88LYAgSnJf>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id B487F700065; Mon,  2 Feb 2026 17:54:37 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-ThreadId: Ae52e6Y4Oh4g
+Date: Mon, 02 Feb 2026 23:54:17 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "Arnd Bergmann" <arnd@kernel.org>, "Jason Wang" <jasowang@redhat.com>,
+ "Xie Yongji" <xieyongji@bytedance.com>,
+ "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
+ "Anders Roxell" <anders.roxell@linaro.org>,
+ "Marco Crivellari" <marco.crivellari@suse.com>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Message-Id: <34d3ce77-84b2-476c-a678-e092831041ae@app.fastmail.com>
+In-Reply-To: <20260202114412-mutt-send-email-mst@kernel.org>
+References: <20260202095940.1358613-1-arnd@kernel.org>
+ <20260202095940.1358613-2-arnd@kernel.org>
+ <CAJaqyWeJs4u6G46gEg=-G6o3u6LsgzVC03fTGR=O_qd_HujLuw@mail.gmail.com>
+ <30db98bd-8361-46f5-aec1-ffbc4e8574dd@app.fastmail.com>
+ <20260202114412-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 2/2] vduse: fix compat handling for
+ VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Mon, Feb 2, 2026, at 17:45, Michael S. Tsirkin wrote:
+> On Mon, Feb 02, 2026 at 12:59:03PM +0100, Arnd Bergmann wrote:
+>
+> I think .compat_ioctl would be cleaner frankly. Just look at
+> all the ifdefery. And who knows what broken-ness userspace
+> comes up with with this approach. Better use the standard approach.
 
-These two ioctls are incompatible on 32-bit x86 userspace, because
-the data structures are shorter than they are on 64-bit.
+Sent now.
 
-Add a proper .compat_ioctl handler for x86 that reads the structures
-with the smaller padding before calling the internal handlers.
+I'm not sure it's much better because there is quite a bit of
+code duplication, and reducing that would be a larger rework.
 
-Fixes: ad146355bfad ("vduse: Support querying information of IOVA regions")
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
-The code is directly copied from the native ioctl handler, but I
-did not test this with actual x86-32 userspace, so please review
-carefully.
----
- drivers/vdpa/vdpa_user/vduse_dev.c | 123 ++++++++++++++++++++++++++++-
- 1 file changed, 122 insertions(+), 1 deletion(-)
+It may be best to hold off on patch 2 for the coming merge window
+since the compat ioctl code has apparently always been broken for
+x86 here.
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 405d59610f76..3ada167ac260 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1618,6 +1618,127 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
- 	return ret;
- }
- 
-+/*
-+ * i386 has different alignment constraints than x86_64,
-+ * so there are only 3 bytes of padding instead of 7.
-+ */
-+struct compat_vduse_iotlb_entry {
-+	compat_u64 offset;
-+	compat_u64 start;
-+	compat_u64 last;
-+	__u8 perm;
-+	__u8 padding[__alignof__(compat_u64) - 1];
-+};
-+#define COMPAT_VDUSE_IOTLB_GET_FD	_IOWR(VDUSE_BASE, 0x10, struct compat_vduse_iotlb_entry)
-+
-+struct compat_vduse_vq_info {
-+	__u32 index;
-+	__u32 num;
-+	compat_u64 desc_addr;
-+	compat_u64 driver_addr;
-+	compat_u64 device_addr;
-+	union {
-+		struct vduse_vq_state_split split;
-+		struct vduse_vq_state_packed packed;
-+	};
-+	__u8 ready;
-+	__u8 padding[__alignof__(compat_u64) - 1];
-+} __uapi_arch_align;
-+#define COMPAT_VDUSE_VQ_GET_INFO	_IOWR(VDUSE_BASE, 0x15, struct compat_vduse_vq_info)
-+
-+static long vduse_dev_compat_ioctl(struct file *file, unsigned int cmd,
-+				   unsigned long arg)
-+{
-+	struct vduse_dev *dev = file->private_data;
-+	void __user *argp = (void __user *)arg;
-+	int ret;
-+
-+	if (!IS_ENABLED(CONFIG_X86_64))
-+		return vduse_dev_ioctl(file, cmd,
-+				       (unsigned long)compat_ptr(arg));
-+
-+	if (unlikely(dev->broken))
-+		return -EPERM;
-+
-+	switch (cmd) {
-+	case COMPAT_VDUSE_IOTLB_GET_FD: {
-+		struct vduse_iotlb_entry_v2 entry = {0};
-+		struct file *f = NULL;
-+
-+		ret = -EFAULT;
-+		if (copy_from_user(&entry, argp, _IOC_SIZE(cmd)))
-+			break;
-+
-+		ret = vduse_dev_iotlb_entry(dev, &entry, &f, NULL);
-+		if (ret)
-+			break;
-+
-+		ret = -EINVAL;
-+		if (!f)
-+			break;
-+
-+		ret = copy_to_user(argp, &entry, _IOC_SIZE(cmd));
-+		if (ret) {
-+			ret = -EFAULT;
-+			fput(f);
-+			break;
-+		}
-+		ret = receive_fd(f, NULL, perm_to_file_flags(entry.perm));
-+		fput(f);
-+		break;
-+	}
-+	case COMPAT_VDUSE_VQ_GET_INFO: {
-+		struct vduse_vq_info vq_info = {};
-+		struct vduse_virtqueue *vq;
-+		u32 index;
-+
-+		ret = -EFAULT;
-+		if (copy_from_user(&vq_info, argp,
-+				   sizeof(struct compat_vduse_vq_info)))
-+			break;
-+
-+		ret = -EINVAL;
-+		if (vq_info.index >= dev->vq_num)
-+			break;
-+
-+		index = array_index_nospec(vq_info.index, dev->vq_num);
-+		vq = dev->vqs[index];
-+		vq_info.desc_addr = vq->desc_addr;
-+		vq_info.driver_addr = vq->driver_addr;
-+		vq_info.device_addr = vq->device_addr;
-+		vq_info.num = vq->num;
-+
-+		if (dev->driver_features & BIT_ULL(VIRTIO_F_RING_PACKED)) {
-+			vq_info.packed.last_avail_counter =
-+				vq->state.packed.last_avail_counter;
-+			vq_info.packed.last_avail_idx =
-+				vq->state.packed.last_avail_idx;
-+			vq_info.packed.last_used_counter =
-+				vq->state.packed.last_used_counter;
-+			vq_info.packed.last_used_idx =
-+				vq->state.packed.last_used_idx;
-+		} else
-+			vq_info.split.avail_index =
-+				vq->state.split.avail_index;
-+
-+		vq_info.ready = vq->ready;
-+
-+		ret = -EFAULT;
-+		if (copy_to_user(argp, &vq_info,
-+		    sizeof(struct compat_vduse_vq_info)))
-+			break;
-+
-+		ret = 0;
-+		break;
-+	}
-+	default:
-+		ret = -ENOIOCTLCMD;
-+		break;
-+	}
-+
-+	return vduse_dev_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
-+}
-+
- static int vduse_dev_release(struct inode *inode, struct file *file)
- {
- 	struct vduse_dev *dev = file->private_data;
-@@ -1678,7 +1799,7 @@ static const struct file_operations vduse_dev_fops = {
- 	.write_iter	= vduse_dev_write_iter,
- 	.poll		= vduse_dev_poll,
- 	.unlocked_ioctl	= vduse_dev_ioctl,
--	.compat_ioctl	= compat_ptr_ioctl,
-+	.compat_ioctl	= PTR_IF(IS_ENABLED(CONFIG_COMPAT), vduse_dev_compat_ioctl),
- 	.llseek		= noop_llseek,
- };
- 
--- 
-2.39.5
+I hope we can at least get patch 1/2 merged along with the
+new code though, otherwise it would get a lot harder to sort
+it out properly, with the v2 struct members overlapping the
+old padding fields.
 
+     Arnd
