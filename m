@@ -1,118 +1,267 @@
-Received: from out-170.mta0.migadu.com (out-170.mta0.migadu.com [91.218.175.170])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27A6935DD02
-	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 11:04:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E14693612DC
+	for <virtualization@lists.linux.dev>; Mon,  2 Feb 2026 11:29:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770030268; cv=none; b=axKo6cuWRGjs9y1uvDy3BbauvUxsxyoN2iMQ7fHKRZXIFBRQJ0U5yp4Gjt9hGMqb+xTqyEnRBuJdRD/E4fetzZrIqbHXt8+Xz+lTDYsDE5Ozq19Q8xUo8pRe3tZVNmsMllhWlj5FZjX4CsD8u36ju8ZOMuIi3ceDH0dFrDheMP0=
+	t=1770031748; cv=none; b=XWJzpD6cA/TItOXL/CTUiDLaCBq/kFEGFDCGoWxnUlVStiNCdA27zuLI7tXez02WlU+XIdXG/vlyWcUxvwzNYobJtauCRnVzG7XsG55zgyLgYShbDr4Vx3WGWCTDXtkPLqOWA5/WClEsqb/piIH+htlHcd/hwn9Mjoa2slkTyMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770030268; c=relaxed/simple;
-	bh=nM8/mPmcpF2IB9y8k1rI6PzWyX/nU/v4hE+k12HL1pk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hJz+5vhlL/LvmHnEq+jueTAdXzTt16WSJHV9buTKnQ8Hspq+VoZu2F9W54S5b6Vt/4qFIkvs8dGanIMAmk8C1yP95gwtibeeKXCJu6FNJzQi2Ug+OPPK8s5Vu9n8FM67fBiT/nElLIswBx+hWJck2mghfobGaCU/pszCaGXP3y8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=VcHreQ2z; arc=none smtp.client-ip=91.218.175.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1770031748; c=relaxed/simple;
+	bh=GjlQSndozBKfBvafD0kZgNTtxz+hinvLFjD7eNgIPKw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cPNx4vZP6bjcU9HvM4DCnP14ym5MYxND/OnuKr0uKkSegzt2PU5+VjLaimcO2PZ0W1uEeV/5kDMqUr2zxs4VtKfSYl2+2m9dJyn8YJUgUxQCXurLnrge7gnQ+4o2F81vIlj7+jfylvNusZqIfsJovXZwZz0NoJG8CghCLr/4l0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ALOVDkrI; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="VcHreQ2z"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1770030262;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ALOVDkrI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770031746;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=RZEap9olFo7mT2sNYk1w5rpD3JOe/VQuaiSKjgwHkTY=;
-	b=VcHreQ2zTk7FVhSAZ6GgUVFwokNTeD4Qx5X8cU/BISIGZVGpdy7EuBWbXiewHlZJITBq1v
-	h/0NPTey/RmvLR2J0f+PVlOVl0tKua0+75bhoCb7KXd8iwLBkGedJYaf/5skYt6MUHgfFl
-	4MeXi+ZucQEe1Qgwzqawa5cry7k29lc=
-From: Lance Yang <lance.yang@linux.dev>
-To: peterz@infradead.org
-Cc: Liam.Howlett@oracle.com,
-	akpm@linux-foundation.org,
-	aneesh.kumar@kernel.org,
-	arnd@arndb.de,
-	baohua@kernel.org,
-	baolin.wang@linux.alibaba.com,
-	boris.ostrovsky@oracle.com,
-	bp@alien8.de,
-	dave.hansen@intel.com,
-	dave.hansen@linux.intel.com,
-	david@kernel.org,
-	dev.jain@arm.com,
-	hpa@zytor.com,
-	hughd@google.com,
-	ioworker0@gmail.com,
-	jannh@google.com,
-	jgross@suse.com,
-	kvm@vger.kernel.org,
-	lance.yang@linux.dev,
-	linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org,
-	lorenzo.stoakes@oracle.com,
-	mingo@redhat.com,
-	npache@redhat.com,
-	npiggin@gmail.com,
-	pbonzini@redhat.com,
-	riel@surriel.com,
-	ryan.roberts@arm.com,
-	seanjc@google.com,
-	shy828301@gmail.com,
-	tglx@linutronix.de,
-	virtualization@lists.linux.dev,
-	will@kernel.org,
-	x86@kernel.org,
-	ypodemsk@redhat.com,
-	ziy@nvidia.com
-Subject: Re: [PATCH v4 0/3] targeted TLB sync IPIs for lockless page table
-Date: Mon,  2 Feb 2026 19:00:16 +0800
-Message-ID: <20260202110329.74397-1-lance.yang@linux.dev>
-In-Reply-To: <20260202095414.GE2995752@noisy.programming.kicks-ass.net>
-References: <20260202095414.GE2995752@noisy.programming.kicks-ass.net>
+	bh=PwPIhjD2z6mcxuXS/Trl18k8mkoG+q/uLpTwXhCmx/o=;
+	b=ALOVDkrILm7Vc7CP1SnLT2JGEzeAR9lBeNaj7aJZTDB0a9QIJIdcse2pnKxJRR06HY1whS
+	JybW6nlIk5UiZzUahDYQCZlZCkhq//c46R1MEiw4zeqKFxI/gy6cINI6UWtwJ3ceMHmhKE
+	jPMPM+gu0KyiFfyAuL1sWcqhe/F9Gm0=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-646-4TpINuBQMfKJztGfD2ej-g-1; Mon, 02 Feb 2026 06:29:04 -0500
+X-MC-Unique: 4TpINuBQMfKJztGfD2ej-g-1
+X-Mimecast-MFC-AGG-ID: 4TpINuBQMfKJztGfD2ej-g_1770031744
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-790656ac3faso60894277b3.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Feb 2026 03:29:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770031744; x=1770636544;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=PwPIhjD2z6mcxuXS/Trl18k8mkoG+q/uLpTwXhCmx/o=;
+        b=oHoI7PBY1jtJwqdbsP3LQtVRCK5Eoi1E17jbUINeSFuP3aDo0VDCzIHe3RJ4eMsDqM
+         qFnWB1D6uQF66rEtPZxdLco80ow2DJfa6YPWd1rKVKk1UUyc3InbQZm+K33eAz/QHTqz
+         CyQtL4MeUL4KKyqtXMPj6wfF58VnJ0IgV/B7+yEMdFQaOfwa+pMQDEQo53tEAT8q+u6s
+         TEYmyPqQEsoFBD3v0K97md1O2Qq0Nmx9InewDyflgmelFmqGlRmGChrB1a3MYsQH/NY4
+         PUkxfGe4pE5mQ1ciPD9bHegTGgB/iI5jCl7zIfceFGUQyFbFuoyTLMWkS7LMvF+EhTvP
+         YH/Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVyUztiIRjvKrnJYoPwHQMDvQq8sDXwHLBBnt+qe4P+/AHmFp8ugeUsx/xLXtdpA6HxFlFzplug19+ZPRG2Fg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxkgmZIddTMCGJeYsuJaWxcbWK/63dFH2Z1XXrs8NyYx2X0Tadc
+	XmHfCG6C0Iezs0hrfx4Nr49AvW08AkgfG75tetNK5BfGKOclkwXunZYaRzAiwIdmvm3db0aiXBv
+	LPwsPXcJtWXvl+z1an+4F3U7EYxqp4vc8o3bZIZ5qFDFfZa1nGuxcadOKzw4RFDFn9u6MKV57vm
+	JHjRpMEup50rRKGQNbtRw/ihaQngc8cMIxtgq2utdATJw=
+X-Gm-Gg: AZuq6aILsVWj1Ty30mZkolk5nl9jFFYUAbxlO+RyuMiv2fkT9zlIr3nINGPrmoorSWt
+	kwaS7FB61sqIV9NrLcBwY3K0P5RjB/VMh56LMbknugSqRkybUxqIVNFl1Hl/z1LaM71JZU4S3Lq
+	kfUHc6GfUEvmIjII70kGih3xuPtOCa3PNSZQ27j5lIilpdxdiRpzR4qOjKWH69GANPuw==
+X-Received: by 2002:a05:690c:4b87:b0:792:7463:c9b7 with SMTP id 00721157ae682-7949deccc58mr92856247b3.20.1770031743981;
+        Mon, 02 Feb 2026 03:29:03 -0800 (PST)
+X-Received: by 2002:a05:690c:4b87:b0:792:7463:c9b7 with SMTP id
+ 00721157ae682-7949deccc58mr92855997b3.20.1770031743610; Mon, 02 Feb 2026
+ 03:29:03 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=y
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+References: <20260202095940.1358613-1-arnd@kernel.org>
+In-Reply-To: <20260202095940.1358613-1-arnd@kernel.org>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Mon, 2 Feb 2026 12:28:26 +0100
+X-Gm-Features: AZwV_Qi9wvklaJjWC-DW2IcFqRsD7T_JyJnPCUkfZOY3S-1rSUcdUQOR_TDJRJM
+Message-ID: <CAJaqyWcrjuQAp=sTfpiQsBu4pS7sxix-ggS4BPCzxyDwW5MZQQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] vduse: avoid adding implicit padding
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Xie Yongji <xieyongji@bytedance.com>, 
+	Anders Roxell <anders.roxell@linaro.org>, Marco Crivellari <marco.crivellari@suse.com>, 
+	Ashwini Sahu <ashwini@wisig.com>, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: dQzWMDI2XxcwTgLEmQ3USOS5CsUCwcyiJDyZ9jhxkng_1770031744
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Feb 2, 2026 at 11:06=E2=80=AFAM Arnd Bergmann <arnd@kernel.org> wro=
+te:
+>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The vduse_iova_range_v2 and vduse_iotlb_entry_v2 structures are both
+> defined in a way that adds implicit padding and is incompatible between
+> i386 and x86_64 userspace because of the different structure alignment
+> requirements. Building the header with -Wpadded shows these new warnings:
+>
+> vduse.h:305:1: error: padding struct size to alignment boundary with 4 by=
+tes [-Werror=3Dpadded]
+> vduse.h:374:1: error: padding struct size to alignment boundary with 4 by=
+tes [-Werror=3Dpadded]
+>
+> Change the amount of padding in these two structures to align them to
+> 64 bit words and avoid those problems. Since the v1 vduse_iotlb_entry
+> already has an inconsistent size, do not attempt to reuse the structure
+> but rather list the members indiviudally, with a fixed amount of
 
-On Mon, 2 Feb 2026 10:54:14 +0100, Peter Zijlstra wrote:
-> On Mon, Feb 02, 2026 at 03:45:54PM +0800, Lance Yang wrote:
-> > When freeing or unsharing page tables we send an IPI to synchronize with
-> > concurrent lockless page table walkers (e.g. GUP-fast). Today we broadcast
-> > that IPI to all CPUs, which is costly on large machines and hurts RT
-> > workloads[1].
-> > 
-> > This series makes those IPIs targeted. We track which CPUs are currently
-> > doing a lockless page table walk for a given mm (per-CPU
-> > active_lockless_pt_walk_mm). When we need to sync, we only IPI those CPUs.
-> > GUP-fast and perf_get_page_size() set/clear the tracker around their walk;
-> > tlb_remove_table_sync_mm() uses it and replaces the previous broadcast in
-> > the free/unshare paths.
-> 
-> I'm confused. This only happens when !PT_RECLAIM, because if PT_RECLAIM
-> __tlb_remove_table_one() actually uses RCU.
-> 
-> So why are you making things more expensive for no reason?
+s/indiviudally/individually/ if v2
 
-You're right that when CONFIG_PT_RECLAIM is set, __tlb_remove_table_one()
-uses call_rcu() and we never call any sync there — this series doesn't
-touch that path.
+> padding.
+>
 
-In the !PT_RECLAIM table-free path (same __tlb_remove_table_one() branch
-that calls tlb_remove_table_sync_mm(tlb->mm) before __tlb_remove_table),
-we're not adding any new sync; we're replacing the existing broadcast IPI
-(tlb_remove_table_sync_one()) with targeted IPIs (tlb_remove_table_sync_mm()).
+That's something I didn't take into account, thanks!
 
-One thing I just realized: when CONFIG_MMU_GATHER_RCU_TABLE_FREE is not
-set, the sync path isn't used at all (tlb_remove_table_sync_one() and
-friends aren't even compiled), so we don't need the tracker in that config.
+> Fixes: 079212f6877e ("vduse: add vq group asid support")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 40 +++++++++++-------------------
+>  include/uapi/linux/vduse.h         |  9 +++++--
+>  2 files changed, 21 insertions(+), 28 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
+vduse_dev.c
+> index 73d1d517dc6c..405d59610f76 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -1301,7 +1301,7 @@ static int vduse_dev_iotlb_entry(struct vduse_dev *=
+dev,
+>         int r =3D -EINVAL;
+>         struct vhost_iotlb_map *map;
+>
+> -       if (entry->v1.start > entry->v1.last || entry->asid >=3D dev->nas=
+)
+> +       if (entry->start > entry->last || entry->asid >=3D dev->nas)
+>                 return -EINVAL;
+>
+>         asid =3D array_index_nospec(entry->asid, dev->nas);
+> @@ -1312,18 +1312,18 @@ static int vduse_dev_iotlb_entry(struct vduse_dev=
+ *dev,
+>
+>         spin_lock(&dev->as[asid].domain->iotlb_lock);
+>         map =3D vhost_iotlb_itree_first(dev->as[asid].domain->iotlb,
+> -                                     entry->v1.start, entry->v1.last);
+> +                                     entry->start, entry->last);
+>         if (map) {
+>                 if (f) {
+>                         const struct vdpa_map_file *map_file;
+>
+>                         map_file =3D (struct vdpa_map_file *)map->opaque;
+> -                       entry->v1.offset =3D map_file->offset;
+> +                       entry->offset =3D map_file->offset;
+>                         *f =3D get_file(map_file->file);
+>                 }
+> -               entry->v1.start =3D map->start;
+> -               entry->v1.last =3D map->last;
+> -               entry->v1.perm =3D map->perm;
+> +               entry->start =3D map->start;
+> +               entry->last =3D map->last;
+> +               entry->perm =3D map->perm;
+>                 if (capability) {
+>                         *capability =3D 0;
+>
+> @@ -1363,14 +1363,8 @@ static long vduse_dev_ioctl(struct file *file, uns=
+igned int cmd,
+>                         break;
+>
+>                 ret =3D -EFAULT;
+> -               if (cmd =3D=3D VDUSE_IOTLB_GET_FD2) {
+> -                       if (copy_from_user(&entry, argp, sizeof(entry)))
+> -                               break;
+> -               } else {
+> -                       if (copy_from_user(&entry.v1, argp,
+> -                                          sizeof(entry.v1)))
+> -                               break;
+> -               }
+> +               if (copy_from_user(&entry, argp, _IOC_SIZE(cmd)))
 
-Thanks for raising this!
-Lance
+I did not know about _IOC_SIZE and I like how it reduces the complexity, th=
+anks!
+
+As a proposal, maybe we can add MIN(_IOC_SIZE, sizeof(entry)) ? Not
+sure if it is too much boilerplate for nothing as the compiler should
+make the code identical and the uapi ioctl part should never change.
+But it seems to me future changes to the code are better tied with the
+MIN.
+
+I'm ok with not including MIN() either way.
+
+> +                       break;
+>
+>                 ret =3D -EINVAL;
+>                 if (!is_mem_zero((const char *)entry.reserved,
+> @@ -1385,19 +1379,13 @@ static long vduse_dev_ioctl(struct file *file, un=
+signed int cmd,
+>                 if (!f)
+>                         break;
+>
+> -               if (cmd =3D=3D VDUSE_IOTLB_GET_FD2)
+> -                       ret =3D copy_to_user(argp, &entry,
+> -                                          sizeof(entry));
+> -               else
+> -                       ret =3D copy_to_user(argp, &entry.v1,
+> -                                          sizeof(entry.v1));
+> -
+> +               ret =3D copy_to_user(argp, &entry, _IOC_SIZE(cmd));
+>                 if (ret) {
+>                         ret =3D -EFAULT;
+>                         fput(f);
+>                         break;
+>                 }
+> -               ret =3D receive_fd(f, NULL, perm_to_file_flags(entry.v1.p=
+erm));
+> +               ret =3D receive_fd(f, NULL, perm_to_file_flags(entry.perm=
+));
+>                 fput(f);
+>                 break;
+>         }
+> @@ -1603,16 +1591,16 @@ static long vduse_dev_ioctl(struct file *file, un=
+signed int cmd,
+>                 } else if (info.asid >=3D dev->nas)
+>                         break;
+>
+> -               entry.v1.start =3D info.start;
+> -               entry.v1.last =3D info.last;
+> +               entry.start =3D info.start;
+> +               entry.last =3D info.last;
+>                 entry.asid =3D info.asid;
+>                 ret =3D vduse_dev_iotlb_entry(dev, &entry, NULL,
+>                                             &info.capability);
+>                 if (ret < 0)
+>                         break;
+>
+> -               info.start =3D entry.v1.start;
+> -               info.last =3D entry.v1.last;
+> +               info.start =3D entry.start;
+> +               info.last =3D entry.last;
+>                 info.asid =3D entry.asid;
+>
+>                 ret =3D -EFAULT;
+> diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> index faae7718bd2e..deca8c7b9178 100644
+> --- a/include/uapi/linux/vduse.h
+> +++ b/include/uapi/linux/vduse.h
+> @@ -299,9 +299,13 @@ struct vduse_iova_info {
+>   * Structure used by VDUSE_IOTLB_GET_FD2 ioctl to find an overlapped IOV=
+A region.
+>   */
+>  struct vduse_iotlb_entry_v2 {
+> -       struct vduse_iotlb_entry v1;
+> +       __u64 offset;
+> +       __u64 start;
+> +       __u64 last;
+> +       __u8 perm;
+> +       __u8 padding[7];
+>         __u32 asid;
+> -       __u32 reserved[12];
+> +       __u32 reserved[11];
+>  };
+>
+>  /*
+> @@ -371,6 +375,7 @@ struct vduse_iova_range_v2 {
+>         __u64 start;
+>         __u64 last;
+>         __u32 asid;
+> +       __u32 padding;
+>  };
+>
+
