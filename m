@@ -1,393 +1,158 @@
-Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11013059.outbound.protection.outlook.com [40.107.162.59])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C57423C1985
-	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 16:11:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.59
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770135116; cv=fail; b=OzwO8pp5OGEz4+evCA4cDnhp4g1M805+X22+UC/97gt6eTTloJIW5kD6VLx2NyCmUivEuI2Di/AZl77zlC1dN0cJK2xWv+WK2y/WIjvjVD440xC+LM7Ae4pV1q7UEnlXEWsSSb0N0QKl5stjPtlOUkrGeaYt22RIY84QnhN9dis=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770135116; c=relaxed/simple;
-	bh=KbLmRj8WBRnYMBFoOO0QwCShhBSyHW/KLWjnDBUJ19g=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=HS3284+FkvflWd4E6VIrYdk7l0tc0LL8Lx8YYILE4ritgBQtY24VRpGPmp6Nn5qSGcOs9nQEGundnUyS0d+hqUmhqm76VQnW9C+tv5vxDGlr6YjJk2UVe4SLrdigFqSMBJcYx3GXqld8+HMAP46BMFEi8Mg9vQGWYyCnry6T1pw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com; spf=fail smtp.mailfrom=nokia-bell-labs.com; dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b=J79Z7PK6; arc=fail smtp.client-ip=40.107.162.59
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nokia-bell-labs.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0F73175D53
+	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 16:20:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770135646; cv=none; b=DJrMVotVOrdqkZqCl3MCO6SScZZsaiYKcGHkvAstjm1LELZrP3TLCMJ/zIRNgDLfy5ma5C7PAiHtB49YB7+TZ83SAFKCbkMvBy4bR0VtiImNzpCh/Ss4oi44AgX53WfH2eSrSmmBzir6ox8qqIiRUa/jLitGX5lgzM8qnPKlKsY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770135646; c=relaxed/simple;
+	bh=gADRKLw82C+tfxUEYY3hlWKJfxUSp+EMySsSF1+SVkY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=f6zCmgs+thRH1C5oaDEtCCDVOAsHWL0HUICtHJJkU3P+Ve8PXmlqrJ3YXY5Xzii6L4cgMnIteaZYcwHXo9UQPOVXXwiLI9DcAdFae84YUEKr4v2SMZTVw3NsayhhNhaadxR9IVvMcJcPu2rsRrY6+sI92hAyW42If/ktnegBg1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JqPUBt66; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b="J79Z7PK6"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=uk80ktl43tzamrT4EhIsXGMcC8BMeOcw8wIwTxukxV3G2zMYOBWW7mx8BV1jSX+9/phnFzjm4fimdJvLuF185tt6wNRm4/a5AHgWZ7fdxFXN3C4qvdP9B1DkowaA4NuqoqkxMkggBykEMIPutCA2ETiZnH15dz9ojXGcXTqwRCyHbRU1wuqHiVSZiiH6XQWZ4Sfm5UyucI7HV9H0Jp+hfhtRw8bIIn0DxNrYacoyBLQIuzD1auAOmAZKf1lAhVm4wB4Fej3Ie6gKAiENjLLyu5+Ko5MwAMqmZqAXPE2HfaG9W2eNTNCRqZd5LutcZGTjpiZ5TdI50KTRg7dyfSHf7g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4R0Q3StBUhc41gdU0/nTfkmVJWxdAHbh1PQ46Pw8OdE=;
- b=VPz7TQ5CXJAUBvdDpnw4dkkSzSX3v1/xXBeYBzTJHtYYUn1SQpC9wbpUGLqN4ZW8zZptroPscI0+LTXs2J3aYhIP4eZFoqzHIsZrq/v7CQF/P/5e5M4qmm7r6Yf37C4tCPVD2NbTb+m+uhCGMrjC0/nUd6yH9TljGGNMwEDR1PaEkJoHjBXrDK5E6dj6exuoAeJT27oxsaqX9b/Kv5VK07RsKf86HoJuTMVHt/WAbSFzem9NC+gVPrjLfZyLqZP0Z442UlELYKVAgsPsYH4JcXg5SuwiMEibQ1FdR3loAqhiGRNwyr3PeEKRi4cxyCRSMvdx2PptTxLAwF5u1wvqcQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 131.228.2.240) smtp.rcpttodomain=amd.com smtp.mailfrom=nokia-bell-labs.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none
- header.from=nokia-bell-labs.com; dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia-bell-labs.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4R0Q3StBUhc41gdU0/nTfkmVJWxdAHbh1PQ46Pw8OdE=;
- b=J79Z7PK6tMA/nic3+/bC9ytuuumFkYgcUnP2WE04ADd+I8rUWvuYzb0juJZsFR7VdHO853afx6aITg/IGmZfSmDB1dbeqq/nfGlVpApZeeZQQyYDt5SijDjZY9xZujtMCRAIOa1jOcOlskcbVOBq3ueTeF9tGZ2EJ2edw51xkJMhM+/AaB1mexkcsM2vpCooIMCURqsizLfrUqHfrAJ4V8mHJw997+kF65A8gLSY1cq0JZ+ua/6kk0yQZ91MqX1DnQU8UEbMNzQmDcw2YIglwMBPO1eAYLN7YMOT92d0/3tqZhCuzaaXlJ+f3Hhw+DYdrRosScuR+8wcNicCCSNYog==
-Received: from AS4P190CA0038.EURP190.PROD.OUTLOOK.COM (2603:10a6:20b:5d1::17)
- by GVXPR07MB9964.eurprd07.prod.outlook.com (2603:10a6:150:122::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.16; Tue, 3 Feb
- 2026 16:11:38 +0000
-Received: from AMS0EPF000001AA.eurprd05.prod.outlook.com
- (2603:10a6:20b:5d1:cafe::9e) by AS4P190CA0038.outlook.office365.com
- (2603:10a6:20b:5d1::17) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9564.16 via Frontend Transport; Tue,
- 3 Feb 2026 16:11:38 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 131.228.2.240)
- smtp.mailfrom=nokia-bell-labs.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nokia-bell-labs.com;
-Received-SPF: Pass (protection.outlook.com: domain of nokia-bell-labs.com
- designates 131.228.2.240 as permitted sender)
- receiver=protection.outlook.com; client-ip=131.228.2.240;
- helo=fihe3nok0735.emea.nsn-net.net; pr=C
-Received: from fihe3nok0735.emea.nsn-net.net (131.228.2.240) by
- AMS0EPF000001AA.mail.protection.outlook.com (10.167.16.150) with Microsoft
- SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.20.9587.10
- via Frontend Transport; Tue, 3 Feb 2026 16:11:38 +0000
-Received: from sarah.nbl.nsn-rdnet.net (sarah.nbl.nsn-rdnet.net [10.0.73.150])
-	by fihe3nok0735.emea.nsn-net.net (Postfix) with ESMTP id 42B9D236C0;
-	Tue,  3 Feb 2026 18:11:36 +0200 (EET)
-From: chia-yu.chang@nokia-bell-labs.com
-To: tariqt@nvidia.com,
-	linux-rdma@vger.kernel.org,
-	shaojijie@huawei.com,
-	shenjian15@huawei.com,
-	salil.mehta@huawei.com,
-	mbloch@nvidia.com,
-	saeedm@nvidia.com,
-	leon@kernel.org,
-	eperezma@redhat.com,
-	brett.creeley@amd.com,
-	jasowang@redhat.com,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JqPUBt66"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770135644;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=KhlncAUQMkbq0DxIaSpkvI2sfDCod5hPiXP+UVdbqP8=;
+	b=JqPUBt66P4dFqVYxn9ft7jooFglCXdmNOVRT7unGcsodq3nm3sup5bNtdydffIc4rjbrDK
+	AriZLKiF/vuZWUktDiH9bhvWsIZUi2OWrsC2WDWSYEflRixu7/Qh9gq3PKkoiSgDc8oD5v
+	/yGWaaM8Pa+zz9kyXCeghLBTy9YvAyM=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-169-uUTVG9oAOUOhblcFwa16Hg-1; Tue, 03 Feb 2026 11:20:40 -0500
+X-MC-Unique: uUTVG9oAOUOhblcFwa16Hg-1
+X-Mimecast-MFC-AGG-ID: uUTVG9oAOUOhblcFwa16Hg_1770135640
+Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-64d1a0f7206so4948161a12.0
+        for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 08:20:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770135639; x=1770740439;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KhlncAUQMkbq0DxIaSpkvI2sfDCod5hPiXP+UVdbqP8=;
+        b=t/5bzNBnNY8SqSFi0LDmGk/J8F6eHurgHbFsTeCKH+ijy5ZSYgQTAX21YGvy91SiOF
+         Tog3Yee5x20sa72jEmezXPomWJ1Y1V07ZKWAG+UdGGLMNXx6zGgiLI0G49kH1TNbsN6U
+         FhKdXAMPtfklbfB/VPrbM506X5lmcBSWv6KVs6aeVWeKG5LQxlIA2ryKzuxnsGPnsOCO
+         Cm5ON6GEo+3sxVGBSW1PE/H/OxkSG/8gaJ6crmWRacdEDy4omlNv2pSusyKxlQIO41xZ
+         gGmHZpAscLvNxdC2wbhylA0bg1e7tEAMhNnJA9GFCD54j4rOLijHRP6zGu0OpNT6S+TT
+         y5Wg==
+X-Forwarded-Encrypted: i=1; AJvYcCWj7maqdeVhT1DevYt7wRBiI3b5ukKRoThN0V/I4mCeme/7A+bGx3Q/uc7tqXQfofi+07/YG7lNsj0/jOkdxQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwzxKAJ/Tp9hHzfYStQdgINuS/9yXeFiQMzJf9zoocpEGrCQuBq
+	lAV5EFkKKih89MsZJH56gkDyAyv1CEeQXkTLacqf0ycJltut4sPqnvg1Eic66AYhwexlO1ULXlG
+	ga9Tkn2PTcvocv2YTDjN58Ooia9HuRQjEhkC7M3WGe3QBhhMf3ZppGoFYvznBEuimh756
+X-Gm-Gg: AZuq6aLMt08BJjojmrwAvPV6dlIUOUGEP4duttGl3Z4AoT94Z+ybfsLVZFu3TOwnuDZ
+	29CWs8orPhOj/JzDkSwsCR1h0l0B6AHHwTWt2vvd3rEq7BZmNNeomHOxNxWVUinX1DOVyFoxfve
+	vWhlIVAiXzajo8nX9lt+fCEAPC3B9cjj6kNEAtQq9efneT9zIO75bRw7tjHWjfDKRuz9Q+H9U0G
+	vouYCr9DjueOYwEcss23ZhETi2Ur6Uusp7xrcCWCkwJq2MwI9HP+RhzrgB+gKp+Ts74DnRqZJmc
+	HMVjLpXmVSsEnxE/Sbfv3fggbJwU2x6DmY2U+cmw2yfvZWTuG7ew7iFwb1ZthWgVQnZE7eA8ai+
+	3lXOikVhN7rcEe6B8srrB9RFB8rGRF48cLw==
+X-Received: by 2002:a05:6402:4413:b0:653:7bdc:9561 with SMTP id 4fb4d7f45d1cf-65949bb66d3mr133789a12.15.1770135639542;
+        Tue, 03 Feb 2026 08:20:39 -0800 (PST)
+X-Received: by 2002:a05:6402:4413:b0:653:7bdc:9561 with SMTP id 4fb4d7f45d1cf-65949bb66d3mr133772a12.15.1770135639048;
+        Tue, 03 Feb 2026 08:20:39 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-65949fd80a7sm49935a12.14.2026.02.03.08.20.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Feb 2026 08:20:38 -0800 (PST)
+Date: Tue, 3 Feb 2026 11:20:35 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Harald Mommer <harald.mommer@oss.qualcomm.com>
+Cc: Francesco Valla <francesco@valla.it>,
+	Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
 	virtualization@lists.linux.dev,
-	mst@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	parav@nvidia.com,
-	linux-doc@vger.kernel.org,
-	corbet@lwn.net,
-	horms@kernel.org,
-	dsahern@kernel.org,
-	kuniyu@google.com,
-	bpf@vger.kernel.org,
-	netdev@vger.kernel.org,
-	dave.taht@gmail.com,
-	jhs@mojatatu.com,
-	kuba@kernel.org,
-	stephen@networkplumber.org,
-	xiyou.wangcong@gmail.com,
-	jiri@resnulli.us,
-	davem@davemloft.net,
-	andrew+netdev@lunn.ch,
-	donald.hunter@gmail.com,
-	ast@fiberby.net,
-	liuhangbin@gmail.com,
-	shuah@kernel.org,
-	linux-kselftest@vger.kernel.org,
-	ij@kernel.org,
-	ncardwell@google.com,
-	koen.de_schepper@nokia-bell-labs.com,
-	g.white@cablelabs.com,
-	ingemar.s.johansson@ericsson.com,
-	mirja.kuehlewind@ericsson.com,
-	cheshire@apple.com,
-	rs.ietf@gmx.at,
-	Jason_Livingood@comcast.com,
-	vidhi_goel@apple.com
-Cc: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
-Subject: [PATCH v3 net-next 3/3] virtio_net: add AccECN feature negotiation and correct ECN flag handling
-Date: Tue,  3 Feb 2026 17:11:26 +0100
-Message-Id: <20260203161126.2436-4-chia-yu.chang@nokia-bell-labs.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260203161126.2436-1-chia-yu.chang@nokia-bell-labs.com>
-References: <20260203161126.2436-1-chia-yu.chang@nokia-bell-labs.com>
+	Wolfgang Grandegger <wg@grandegger.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v7] can: virtio: Add virtio CAN driver
+Message-ID: <20260203111926-mutt-send-email-mst@kernel.org>
+References: <aVwGfOlvRqdv5xj7@fedora>
+ <aWE5duyvXCuwsMAn@bywater>
+ <eec1a83b-e36f-47bb-9a5b-6888b42e063a@oss.qualcomm.com>
+ <20260203070338-mutt-send-email-mst@kernel.org>
+ <5d9645ea-41b8-4904-abbf-3b201183e2fc@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AMS0EPF000001AA:EE_|GVXPR07MB9964:EE_
-Content-Type: text/plain
-X-MS-Office365-Filtering-Correlation-Id: 88d13139-8df5-4522-9907-08de633ee90a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|1800799024|7416014|376014|82310400026|13003099007|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?qNEoieVUW4m1+ha4J3CepvuNlgJilSMm9rPw+cKZ+ct4GPDPGvydEkbNBriz?=
- =?us-ascii?Q?NJuBRAHq/b176AyDANDTl3qo6U+pgrrdzuGnpNlXODVRt6YL2YRubO+ftecM?=
- =?us-ascii?Q?9c0nn8xGqBoDQqibGDdNvc++3+6IBcyuV/EkXHWLkK1cJuFKvW+guZxaOKEk?=
- =?us-ascii?Q?ZA+FBHjcDHPHSTpTx9PF/qvM0Pr+zPZ6iU6v4ZxY2UwcxkDJHPG3YRX8kWs2?=
- =?us-ascii?Q?oXv0jcDZEfdZ2P/30knk9KLdtMr4BdLYblV7URe1fVIXW+ZooUzHxpi5gWs9?=
- =?us-ascii?Q?OzTH3Hhrbdazs954rGcQiQYeXh1JG4cqbggsSY5A0WrWnVsHNT06/2lN4kUT?=
- =?us-ascii?Q?iBVTaTtA2MXtOUYR6mALfJra1wwvrADVtaK8wa2sprOMyKuiZk7N2JTWcmfZ?=
- =?us-ascii?Q?yYsMnwNXtacZw0B21BKPQj3mubP1r596SyFoNBgieMsuTte9YMtP8HJgnbZ0?=
- =?us-ascii?Q?zHxP4VuXF9KBB+L3IvRvJdYP+f3gNV/BEeOmZ2rK5JU+rBIQsuVmq4wQEJIk?=
- =?us-ascii?Q?CDZFuSlthIA+ZoMIkHxfuX72Q9pvKXQSwwZpWHFx3vMqXw9AC3dKBSDyn68L?=
- =?us-ascii?Q?BZJYupcZfF6LF+rTO9QI/tc7GhhCq4cVDfhZbHjitlpqeoA41Za8vUlGBc1Q?=
- =?us-ascii?Q?KsGLnwCBXnM+X/yMz7fKPiY41EfL2DXAOfQ5gm8X9ypRoO1+8Tm8lEZjxtUn?=
- =?us-ascii?Q?JzZnp5U/jkvHIxlIkiSFcSwoVu2YfeAyKUW+hwD8NeM3qbVj14U/lGgU8ze7?=
- =?us-ascii?Q?NtwaJuE6j7tJIgZI6LxuR2FZmXp95bg1T/7xWv34QArrGAuQGpldGjaC+f36?=
- =?us-ascii?Q?nDo5F9GpONlA3N7W7+Lb0nzi1Ihf7tvjLaka5Iqb16yvAQBebi1q5DkC5M1K?=
- =?us-ascii?Q?Hmkm3evosW0q5md5Na2BUrFESVTPdLRKyxA+oON9S7hjqNCng+3uW+SBNdGW?=
- =?us-ascii?Q?iS9TzPR12FzND0pQ9Aql82Sbim+2OxfhZhbv/MCOC35KKyef85kQzIVQ4DEe?=
- =?us-ascii?Q?I863vMhAi3MKX+5Ls+AJxefuMyuPkl/A6bUbhdiJgX6cy9g0X1bCycx9lOtR?=
- =?us-ascii?Q?FfY1i9GnAinu3Dums3SlMh8b+NxXZgV4+nLBJeGkjdZBfpcXCAFbSCEtjVhE?=
- =?us-ascii?Q?U6SfuH7Nw5UjRbsQoU0+bCqU0hcIzmXOP2Zd5zfxZMO5Uw36Jm2hHiX0qS5s?=
- =?us-ascii?Q?nBJC7iFszOAJ79kvuB0Nh8JBG4qPgLNWYAcj4nPMVcsd0DRqCmoFPYuBmcGl?=
- =?us-ascii?Q?xNvI1XnU0LkjxDZcOtN+IxlLxwet5DHPdUoYsa5wrX3rJpE0wqfFYb35ZaHv?=
- =?us-ascii?Q?ydF/DCuoiNHxJU73H+Dxk+Ch7Dn3Q3bDFETEfjvIIh/leHVUntNaVYibI4/3?=
- =?us-ascii?Q?apuZleCkR4VReOcySuYS40Q5GBiB7RN7S/eo7jt6zcDyB9EitIEaPHHqVUcp?=
- =?us-ascii?Q?LBOfDUk2v3mMLNLzp0UNwHe745nQGXiXvKTrzy6Bvx+6ranPS/M6KSxMzp47?=
- =?us-ascii?Q?UEdmDrL/cBLD00yHIp9fjQ1LKoII3zZX+HTzuLrUbDS7fuZ5sF0S3ZQXeb6K?=
- =?us-ascii?Q?M4HkYa0caSBKUl7C235XrrNy/HY3S5ypRYa3E/tTBARtO3Bj77lDUvSPDdy7?=
- =?us-ascii?Q?xagsBOKLvTevuP5/pc60FIMpI6SI89kBtr8ebwDwMdpRVJhUcD/YOKzQTGJT?=
- =?us-ascii?Q?+B8uZDRLtyep4ajz7V4qzOtlKaI=3D?=
-X-Forefront-Antispam-Report:
-	CIP:131.228.2.240;CTRY:FI;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:fihe3nok0735.emea.nsn-net.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700013)(1800799024)(7416014)(376014)(82310400026)(13003099007)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	fYpFQdEQacBE8nHLRRFVU8zhXoY/ZA/a/EadKX+LRnDArgiPwpQZ3CT8380CyCoB5EHRyqLu14NAqLafTmGXev6/Ijv5d8gGw2D6ihWcvZgc76RoLQmKvcLUJJJ2Ao6ytb3fm2ZiFkvDtYv4sAn5I70Zj1Q9qHjJZMBBrVDsBYfzl2q6rSi1zT+Vh52QAve02L+eVQaWhC/Fad7s0lM80ADk7djfE/+YNNbpKhIH27qoUBRs1YCSHbK0c7jyLOWVmtmgxGF3Hbbz1ExhYSVa6U76PqmA62OfgAHw5+MA1Hiw2XG9ymCPndqjYeHfwZo+L/Aeuh5ZV8dq8vgzl9bcIB9x1cCFxXsCHSBDUDTKhlbN2voL8Mmrn0M3zJ14EacK6I5FvltnKDn3JJ4DPHDYVQH4pisiRFL8p2F9zAtZz58RDGG1Zm/6z1Ir5+CClZ3O
-X-OriginatorOrg: nokia-bell-labs.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Feb 2026 16:11:38.1456
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 88d13139-8df5-4522-9907-08de633ee90a
-X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=5d471751-9675-428d-917b-70f44f9630b0;Ip=[131.228.2.240];Helo=[fihe3nok0735.emea.nsn-net.net]
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-AMS0EPF000001AA.eurprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: GVXPR07MB9964
+In-Reply-To: <5d9645ea-41b8-4904-abbf-3b201183e2fc@oss.qualcomm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: D9__ilGBxVesqLZQIpWmDCf9Jw0F021xGl5fvTJLyO4_1770135640
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+On Tue, Feb 03, 2026 at 04:18:09PM +0100, Harald Mommer wrote:
+> 
+> 
+> On 2/3/26 13:05, Michael S. Tsirkin wrote:
+> > On Tue, Feb 03, 2026 at 12:55:07PM +0100, Harald Mommer wrote:
+> >>
+> >>
+> >> On 1/9/26 18:23, Francesco Valla wrote:
+> >>>> +static u8 virtio_can_send_ctrl_msg(struct net_device *ndev, u16 msg_type)
+> >>>> +{
+> >>>> +	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
+> >>>> +	struct virtio_can_priv *priv = netdev_priv(ndev);
+> >>>> +	struct device *dev = &priv->vdev->dev;
+> >>>> +	struct virtqueue *vq;
+> >>>> +	unsigned int len;
+> >>>> +	int err;
+> >>>> +
+> >>>> +	vq = priv->vqs[VIRTIO_CAN_QUEUE_CONTROL];
+> >>> Nit: consider initializing this above, while declaring it.
+> >>
+> >> All those "Nit" regarding initialization cause problems. There is a reason why it was done the way it is.
+> >>
+> >> The network people require that the declaration lines are ordered by line length. longest line first. This is called "Reverse Christmas tree". Don't ask me why, this formatting style is what the network people require. Their subsystem, their rules.
+> >>
+> >> To initialize the vq you need now already the priv initialized. If now the vq line becomes longer than the priv line you will violate the special formatting requirements of the network subsystem.
+> >>
+> >> Solution was: What you see above.
+> >>
+> >> Regards
+> >> Harald
+> > 
+> > So you reorder it then:
+> > 
+> > 	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
+> > 	struct virtqueue *vq = priv->vqs[VIRTIO_CAN_QUEUE_CONTROL]; // priv not initialized, will be done too late in the next line
+> > 	struct virtio_can_priv *priv = netdev_priv(ndev); // you see it?
+> > 	struct device *dev = &priv->vdev->dev;
+> > 	unsigned int len;
+> > 	int err;
+> > 
+> > 
+> > and where is the problem?
+> 
+> The problem is that you use priv here to initialize vq in the line before priv is initialized.
 
-virtio_net currently negotiates ECN-related capabilities through
-VIRTIO_NET_F_HOST_ECN and VIRTIO_NET_F_GUEST_ECN. This is not sufficient
-for flows using AccECN (RFC9768), because AccECN requires preserving the
-ACE signal (CWR flag is part of it) across GSO operations. Without
-explicit AccECN capability bits, the device and driver may treat AccECN
-traffic using the RFC3168 ECN offload logic, causing the CWR flag to be
-cleared. As a result, AccECN segments may lose their ACE signal integrity.
 
-Fix this by adding new AccECN capability bits for negotiation between
-host and guest: VIRTIO_NET_F_HOST_ACCECN and VIRTIO_NET_F_GUEST_ACCECN.
-In addition, translate the AccECN GSO flag correctly between the virtio
-header (VIRTIO_NET_HDR_GSO_ACCECN) and skb metadata (SKB_GSO_TCP_ACCECN)
-to ensure correct ACE signal preservation bwtwen virtio_net and the
-socket stacki.
+Got it. Ignore the tree thing then. It's a guideline.
 
-This corresponds to discussions in virtio mailing list:
-https://lore.kernel.org/all/20250814120118.81787-1-chia-yu.chang@nokia-bell-labs.com/
-And it was suggested to clarify documents of SKB_GSO_TCP_ECN and
-SKB_GSO_TCP_ACCECN first.
 
-Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+> > 
+> > On the flip size, this guarantees we will not forget to initialize.
+> 
+> Static analysis is your friend.
 
----
-v3:
-- Update commit message and title for clarity
-
-v2:
-- Replace VIRTIO_NET_HDR_GSO_ECN with VIRTIO_NET_HDR_GSO_ECN_FLAGS
----
- drivers/net/virtio_net.c        | 14 +++++++++++---
- drivers/vdpa/pds/debugfs.c      |  6 ++++++
- include/linux/virtio_net.h      | 18 +++++++++++-------
- include/uapi/linux/virtio_net.h |  5 +++++
- 4 files changed, 33 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index db88dcaefb20..103fb87c690e 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -75,6 +75,7 @@ static const unsigned long guest_offloads[] = {
- 	VIRTIO_NET_F_GUEST_TSO4,
- 	VIRTIO_NET_F_GUEST_TSO6,
- 	VIRTIO_NET_F_GUEST_ECN,
-+	VIRTIO_NET_F_GUEST_ACCECN,
- 	VIRTIO_NET_F_GUEST_UFO,
- 	VIRTIO_NET_F_GUEST_CSUM,
- 	VIRTIO_NET_F_GUEST_USO4,
-@@ -87,6 +88,7 @@ static const unsigned long guest_offloads[] = {
- #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
- 			(1ULL << VIRTIO_NET_F_GUEST_TSO6) | \
- 			(1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
-+			(1ULL << VIRTIO_NET_F_GUEST_ACCECN) | \
- 			(1ULL << VIRTIO_NET_F_GUEST_UFO)  | \
- 			(1ULL << VIRTIO_NET_F_GUEST_USO4) | \
- 			(1ULL << VIRTIO_NET_F_GUEST_USO6) | \
-@@ -5976,6 +5978,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
- 	    && (virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
- 	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
- 	        virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
-+		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ACCECN) ||
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO) ||
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_CSUM) ||
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_USO4) ||
-@@ -6635,6 +6638,7 @@ static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
- 	return virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO4) ||
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_TSO6) ||
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ECN) ||
-+		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_ACCECN) ||
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_UFO) ||
- 		(virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_USO4) &&
- 		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_USO6));
-@@ -6749,6 +6753,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 			dev->hw_features |= NETIF_F_TSO6;
- 		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_ECN))
- 			dev->hw_features |= NETIF_F_TSO_ECN;
-+		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_ACCECN))
-+			dev->hw_features |= NETIF_F_GSO_ACCECN;
- 		if (virtio_has_feature(vdev, VIRTIO_NET_F_HOST_USO))
- 			dev->hw_features |= NETIF_F_GSO_UDP_L4;
- 
-@@ -7169,9 +7175,11 @@ static struct virtio_device_id id_table[] = {
- 	VIRTIO_NET_F_CSUM, VIRTIO_NET_F_GUEST_CSUM, \
- 	VIRTIO_NET_F_MAC, \
- 	VIRTIO_NET_F_HOST_TSO4, VIRTIO_NET_F_HOST_UFO, VIRTIO_NET_F_HOST_TSO6, \
--	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6, \
--	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO, \
--	VIRTIO_NET_F_HOST_USO, VIRTIO_NET_F_GUEST_USO4, VIRTIO_NET_F_GUEST_USO6, \
-+	VIRTIO_NET_F_HOST_ECN, VIRTIO_NET_F_HOST_ACCECN, \
-+	VIRTIO_NET_F_GUEST_TSO4, VIRTIO_NET_F_GUEST_TSO6, \
-+	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_ACCECN, \
-+	VIRTIO_NET_F_GUEST_UFO, VIRTIO_NET_F_HOST_USO, \
-+	VIRTIO_NET_F_GUEST_USO4, VIRTIO_NET_F_GUEST_USO6, \
- 	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ, \
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN, \
- 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ, \
-diff --git a/drivers/vdpa/pds/debugfs.c b/drivers/vdpa/pds/debugfs.c
-index c328e694f6e7..90bd95db0245 100644
---- a/drivers/vdpa/pds/debugfs.c
-+++ b/drivers/vdpa/pds/debugfs.c
-@@ -78,6 +78,9 @@ static void print_feature_bits_all(struct seq_file *seq, u64 features)
- 		case BIT_ULL(VIRTIO_NET_F_GUEST_ECN):
- 			seq_puts(seq, " VIRTIO_NET_F_GUEST_ECN");
- 			break;
-+		case BIT_ULL(VIRTIO_NET_F_GUEST_ACCECN):
-+			seq_puts(seq, " VIRTIO_NET_F_GUEST_ACCECN");
-+			break;
- 		case BIT_ULL(VIRTIO_NET_F_GUEST_UFO):
- 			seq_puts(seq, " VIRTIO_NET_F_GUEST_UFO");
- 			break;
-@@ -90,6 +93,9 @@ static void print_feature_bits_all(struct seq_file *seq, u64 features)
- 		case BIT_ULL(VIRTIO_NET_F_HOST_ECN):
- 			seq_puts(seq, " VIRTIO_NET_F_HOST_ECN");
- 			break;
-+		case BIT_ULL(VIRTIO_NET_F_HOST_ACCECN):
-+			seq_puts(seq, " VIRTIO_NET_F_HOST_ACCECN");
-+			break;
- 		case BIT_ULL(VIRTIO_NET_F_HOST_UFO):
- 			seq_puts(seq, " VIRTIO_NET_F_HOST_UFO");
- 			break;
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 75dabb763c65..0cf86b026828 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -11,7 +11,7 @@
- 
- static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
- {
--	switch (gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-+	switch (gso_type & ~VIRTIO_NET_HDR_GSO_ECN_FLAGS) {
- 	case VIRTIO_NET_HDR_GSO_TCPV4:
- 		return protocol == cpu_to_be16(ETH_P_IP);
- 	case VIRTIO_NET_HDR_GSO_TCPV6:
-@@ -31,7 +31,7 @@ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
- 	if (skb->protocol)
- 		return 0;
- 
--	switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-+	switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN_FLAGS) {
- 	case VIRTIO_NET_HDR_GSO_TCPV4:
- 	case VIRTIO_NET_HDR_GSO_UDP:
- 	case VIRTIO_NET_HDR_GSO_UDP_L4:
-@@ -58,7 +58,7 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
- 	unsigned int ip_proto;
- 
- 	if (hdr_gso_type != VIRTIO_NET_HDR_GSO_NONE) {
--		switch (hdr_gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
-+		switch (hdr_gso_type & ~VIRTIO_NET_HDR_GSO_ECN_FLAGS) {
- 		case VIRTIO_NET_HDR_GSO_TCPV4:
- 			gso_type = SKB_GSO_TCPV4;
- 			ip_proto = IPPROTO_TCP;
-@@ -84,7 +84,9 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
- 			return -EINVAL;
- 		}
- 
--		if (hdr_gso_type & VIRTIO_NET_HDR_GSO_ECN)
-+		if (hdr_gso_type & VIRTIO_NET_HDR_GSO_ACCECN)
-+			gso_type |= SKB_GSO_TCP_ACCECN;
-+		else if (hdr_gso_type & VIRTIO_NET_HDR_GSO_ECN)
- 			gso_type |= SKB_GSO_TCP_ECN;
- 
- 		if (hdr->gso_size == 0)
-@@ -159,7 +161,7 @@ static inline int __virtio_net_hdr_to_skb(struct sk_buff *skb,
- 		unsigned int nh_off = p_off;
- 		struct skb_shared_info *shinfo = skb_shinfo(skb);
- 
--		switch (gso_type & ~SKB_GSO_TCP_ECN) {
-+		switch (gso_type & ~(SKB_GSO_TCP_ECN | SKB_GSO_TCP_ACCECN)) {
- 		case SKB_GSO_UDP:
- 			/* UFO may not include transport header in gso_size. */
- 			nh_off -= thlen;
-@@ -231,7 +233,9 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
- 			hdr->gso_type = VIRTIO_NET_HDR_GSO_UDP_L4;
- 		else
- 			return -EINVAL;
--		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
-+		if (sinfo->gso_type & SKB_GSO_TCP_ACCECN)
-+			hdr->gso_type |= VIRTIO_NET_HDR_GSO_ACCECN;
-+		else if (sinfo->gso_type & SKB_GSO_TCP_ECN)
- 			hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
- 	} else
- 		hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
-@@ -282,7 +286,7 @@ virtio_net_hdr_tnl_to_skb(struct sk_buff *skb,
- 		return -EINVAL;
- 
- 	/* The UDP tunnel must carry a GSO packet, but no UFO. */
--	gso_inner_type = hdr->gso_type & ~(VIRTIO_NET_HDR_GSO_ECN |
-+	gso_inner_type = hdr->gso_type & ~(VIRTIO_NET_HDR_GSO_ECN_FLAGS |
- 					   VIRTIO_NET_HDR_GSO_UDP_TUNNEL);
- 	if (!gso_inner_type || gso_inner_type == VIRTIO_NET_HDR_GSO_UDP)
- 		return -EINVAL;
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index 1db45b01532b..af5bfe45aa1f 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -56,6 +56,8 @@
- #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
- 					 * Steering */
- #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
-+#define VIRTIO_NET_F_HOST_ACCECN 25	/* Host can handle GSO of AccECN */
-+#define VIRTIO_NET_F_GUEST_ACCECN 26	/* Guest can handle GSO of AccECN */
- #define VIRTIO_NET_F_DEVICE_STATS 50	/* Device can provide device-level statistics. */
- #define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
- #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
-@@ -165,6 +167,9 @@ struct virtio_net_hdr_v1 {
- #define VIRTIO_NET_HDR_GSO_UDP_TUNNEL (VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 | \
- 				       VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6)
- #define VIRTIO_NET_HDR_GSO_ECN		0x80	/* TCP has ECN set */
-+#define VIRTIO_NET_HDR_GSO_ACCECN	0x10	/* TCP AccECN segmentation */
-+#define VIRTIO_NET_HDR_GSO_ECN_FLAGS	(VIRTIO_NET_HDR_GSO_ECN | \
-+					 VIRTIO_NET_HDR_GSO_ACCECN)
- 	__u8 gso_type;
- 	__virtio16 hdr_len;	/* Ethernet + IP + tcp/udp hdrs */
- 	__virtio16 gso_size;	/* Bytes to append to hdr_len per frame */
--- 
-2.34.1
+And then someone monkey patches it to = NULL or something else silly.
+I prefer correct by construction.
 
