@@ -1,140 +1,202 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEB2D312808
-	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 10:35:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CDA42DB783
+	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 10:35:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770114931; cv=none; b=IAXpVGnMZ86r1JWNliddl/s1l+2Xmguu6LguR8L8E+36ssJnZLvbp8NlEbpm8OfzqC+BupYsvVym/cOfzZ03BJGD53Q2jlndP+BGYBQQ35qf5+rekvfa9VUoIxreHYNnFYN7eMUn/WsTMyQ+KvinhCIhlR38CEKtDLAYr5DR1xA=
+	t=1770114943; cv=none; b=USfySAqqFK9d24b6y9Uefcb1uVLAEropqTz42lhXFGyCPpIXaoBLTA0H5YgiI+K0ajBZM3UeOyLl2g9tRybBN/J2An92L+pe0FxgPqBeNTjCqtJWZl60RDD7wAyePkAMUuCLuwMfk2zWck8RmjCmKqFpiOLq+FM11J5hXNhkelw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770114931; c=relaxed/simple;
-	bh=S4nCe9RdyPpAtp7Mp2ZNE6h69mNCvah2U45wBSCykJ8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Hx7oq2vpyFbLU2f+ASLPJkLpJJ2T3O+3RWpl3/lOw1oqwNau5SeU2QiX+QgRZGS1sGLmVhLRZEBp75QJFk+YheSAeFoZwVq0Riu05Ag/h2aO2ZbQWHun3mNX6pc8TOth2iRXANy4isy+2Yn0B+OiWyMSK6ERH+MWfw1Gq/bGdNk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D2sywt62; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1770114943; c=relaxed/simple;
+	bh=nI1HcJP7gMO08+++hMShU+M5QpgIMH/WDWRUhgc9uRk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=M68/A+YMOaMuAGRNRqDj+F+WZ/L1sjXJY1SVPmBmv5VuiP28CoX0iMfAZJfnfqwNCV8xyH22bs2n7gOyunvAXn7EB9mDotT/QI02vcmDHh27Sp2shznHRZefA9uvI8YhSxFtLs9YYkWik/QCgX4MGVSV0SDlOMAM7MNKPlnwQfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hff4WWwP; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D2sywt62"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hff4WWwP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770114928;
+	s=mimecast20190719; t=1770114940;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=dG/1ixmI6/hveTX8LWUk7DTwV/HbziRIWxtK3JNwm8w=;
-	b=D2sywt62Emq0ZlGiVTC0DR9DoHHAYXGUOFweRqOduc5dLaFRpFA60TKi0+xAKDiyjtuDsj
-	tFSbYOOpxj8T6KG9K/O9quhSiPprl8um+XhBIbB/nEMqMA9up+XW6hgPLEk8HLYg5206OU
-	HVA+6qOSYwX2RLgoSajWMihvBNrrSG4=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=D7Uy/io/DTucHPQrrClIQq+8Z7bSLhtESQLZZO7tH/I=;
+	b=hff4WWwP3XSZVaE0vGbztKX95CoVQtnThAZECezNE3U0ZQa17fnYgPM2sV/V4aXoyqVIId
+	GOA/znShr2r64iDNdaecxJt1+QyS0t5v8Jl6yvXAMlybWNdZ8yU2PfeOZNyQ1uEoMlRp64
+	sn5YELuYBRk2mgAyfA1DV/oLrIaI8rE=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-441-vZvBye4rM12W7MKo1fQSzA-1; Tue, 03 Feb 2026 05:35:25 -0500
-X-MC-Unique: vZvBye4rM12W7MKo1fQSzA-1
-X-Mimecast-MFC-AGG-ID: vZvBye4rM12W7MKo1fQSzA_1770114924
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-b8861544696so585302866b.3
-        for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 02:35:25 -0800 (PST)
+ us-mta-671-lTQj7001PauffD_sI7hE_w-1; Tue, 03 Feb 2026 05:35:39 -0500
+X-MC-Unique: lTQj7001PauffD_sI7hE_w-1
+X-Mimecast-MFC-AGG-ID: lTQj7001PauffD_sI7hE_w_1770114938
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-794f00a879eso8122977b3.0
+        for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 02:35:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770114924; x=1770719724;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dG/1ixmI6/hveTX8LWUk7DTwV/HbziRIWxtK3JNwm8w=;
-        b=rASzKMEs48YOqmpR03aGP8ABimPRm3G37014dIDNpnWYNqxlRIsUd0kLd09bxYJvZS
-         6JZuPtIlwUI+XB4bkjvPn3asUNKIuxrG8ECbbZ8V1Kg2wXBvp5XdBULWYULSnbD/6C3o
-         UgK20xwwY+kNfp9k8oH1tzR6MT0TVTBAavve7lvIK9xXlyYAbuPGEJUIs1J0VlRkxBt2
-         0RTOAV8urNQCOrDpdyPdoyfhjpPjqpzjM043wO9TXHslabTN6rtw9ffmmURwoSAiDuKF
-         a3F25tIKd6ka9p89PMcBzXbQlVv0SYDp7wU90AwBw2zBsAGufXsH5sMGnbqRwm2FJK6O
-         SGZA==
-X-Forwarded-Encrypted: i=1; AJvYcCWw7tiyLS7mzTcB9AQYqVtZ4Sk5UPFoO8/uPGyknj0+9JL5nmM947obeo05utRUrXE2I0mr35KSssaiLM5qfw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxfs0FvEhwpuhvc9kpPAk5MbCaV2mmOe3gAQSJgQ7uciWEQetcK
-	mAAGdGWbXfby/5sG/oVXyeqwSRnO4s2Kb/Ecf/I4aBTUq04Wfs+KCnLAsLl1Ss0c+XZI7qEBhXE
-	EqC7GGmH0y8U87OE9I4p+qCzIQqDTYs48j22YnH6MrtAqvGeZ8PqQoyOS/EZ7gm06gj1R
-X-Gm-Gg: AZuq6aIgAprhwyOLaOaeN8cB5swwbN517tVn5cNMUMi4KmFvT4qBrVSMh+c097mVida
-	irCz/Fo7Su7wusMjYwhD31Mh3eSSWt1OHYBmGDXYdpBL/A/AVv69LkSheiKoZ9pKt3re5d4Nl4Y
-	zaoGEFpvLutWr6+N3i6K4rod3IpYOuE4IclLI5W/sdyFinUWf7IO6cxLmm8S6BW23yTkGkKMACT
-	mffQ+T1nVhPTMIOp/9CPT0wugXuLawIGLckINAT/FLuOo0/De3GtGLxBUVmE+HheMmYGf4B3PZC
-	jdzp/GZT33hbgx3fc3Om+3H587V8xCZnIOUYIaXPeHf06MoyeRm8EsoJGFYtk7BqTDw5AIrc4jW
-	qhoJE52KYPlL0Q2yXmeqELPouIVE4XRXvNg==
-X-Received: by 2002:a17:907:c09:b0:b87:2780:1b1e with SMTP id a640c23a62f3a-b8dff6680aemr922343866b.41.1770114924258;
-        Tue, 03 Feb 2026 02:35:24 -0800 (PST)
-X-Received: by 2002:a17:907:c09:b0:b87:2780:1b1e with SMTP id a640c23a62f3a-b8dff6680aemr922341966b.41.1770114923761;
-        Tue, 03 Feb 2026 02:35:23 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8decc368fbsm814985666b.6.2026.02.03.02.35.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Feb 2026 02:35:23 -0800 (PST)
-Date: Tue, 3 Feb 2026 05:35:20 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Arnd Bergmann <arnd@kernel.org>, Jason Wang <jasowang@redhat.com>,
-	Xie Yongji <xieyongji@bytedance.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Anders Roxell <anders.roxell@linaro.org>,
-	Marco Crivellari <marco.crivellari@suse.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] vduse: fix compat handling for
- VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
-Message-ID: <20260203053142-mutt-send-email-mst@kernel.org>
-References: <20260202095940.1358613-1-arnd@kernel.org>
- <20260202095940.1358613-2-arnd@kernel.org>
- <CAJaqyWeJs4u6G46gEg=-G6o3u6LsgzVC03fTGR=O_qd_HujLuw@mail.gmail.com>
- <30db98bd-8361-46f5-aec1-ffbc4e8574dd@app.fastmail.com>
- <20260202114412-mutt-send-email-mst@kernel.org>
- <34d3ce77-84b2-476c-a678-e092831041ae@app.fastmail.com>
+        d=1e100.net; s=20230601; t=1770114938; x=1770719738;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=D7Uy/io/DTucHPQrrClIQq+8Z7bSLhtESQLZZO7tH/I=;
+        b=GqCAxuZw0T47erQNw26agzQHQNKWMxWcuhFsEYqknC5qHP9nO2fuUmj1hmrkqYZ8jQ
+         Y8cEnRCDjAlPg1hJTG6kzSijaCEWsy0o1HwAKpmod4C+wErRO8aBKFIdzNztM5K2MHQe
+         oes6FwInCZyG9HuNmgmp2s8chDa6oV5EhukPpvFhvXTur0Om8w2tt3egEHDOBB06SJHY
+         PNce3jCb3TvzYuM/sWkCWwbuIEEX7ByJ2dihWrKEClddarfzs7PzaMfWSfBKs8YuEh3k
+         tiGKanaO0rmJzMnQbg2DRwbr3w8apLaybGQENn03QLzdPW0TFr/czDc9IvpR1sd5QWgv
+         RAIg==
+X-Forwarded-Encrypted: i=1; AJvYcCVAOXHsaCnwQF0/6kMi/zuGdEYwFD7kIXhxTHrE/sq85+W5xu6pDCg4QszgklecczzHdFENKmShQ4aEf0SdBg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyX2lBCIrJLL8grNsFro8BjAJjWheU+fNwzafaGjQS58yUOkiMy
+	z/5UpYav0Wnuovt/p3+5W87Ue4Ki1hTaJMXyI/X2IsJ5T+plGmOihem/tPuiKnRoZ+AiBQPX3tc
+	sx96MShgvxUvb97Ld9dnh8z8zLJU5MjN9bM711lIBYrumwPnsn9pFG+DHO+NMLGwrBlIOb1TjYt
+	vG7N8LlmtDTmxhS/e25S5rjniPBkA1kHx6WAhJVqdqRqE=
+X-Gm-Gg: AZuq6aJWppj/d+vr41mK9sT9Zieb+kjhuyzanqS1fx4O7m0rF9XZZcJyGcOJLGZ2vdG
+	zaikGRJapDL0m716pECpkxf0wVwiCW4HA7Focelj1qzq7Oq15sxXVGczDOTC3x/6qat/O3phqSH
+	MgQ67gVJ7zKqYnvIiCFtV3c5BdnpJ839+vi/bQR1wHis3vWponj/kqe3x9kL+VfyTJww==
+X-Received: by 2002:a05:690c:30b:b0:78d:6657:fd01 with SMTP id 00721157ae682-7949de6db2dmr132886537b3.12.1770114938639;
+        Tue, 03 Feb 2026 02:35:38 -0800 (PST)
+X-Received: by 2002:a05:690c:30b:b0:78d:6657:fd01 with SMTP id
+ 00721157ae682-7949de6db2dmr132886327b3.12.1770114938252; Tue, 03 Feb 2026
+ 02:35:38 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <34d3ce77-84b2-476c-a678-e092831041ae@app.fastmail.com>
+References: <20260128124524.875271-1-eperezma@redhat.com> <20260128124524.875271-2-eperezma@redhat.com>
+ <CACGkMEuDPgkEVzpu0c+oKvOqgaSR5=CnHMe9iZDi_PFQan0m6g@mail.gmail.com>
+ <CAJaqyWf5sC38oT2ZkmfR_MkiYWjLsuyF4Z4opSmgS1nG8BZhgw@mail.gmail.com>
+ <CACGkMEsr_cx-xR85wZ5c=QfegLfG5j0wHTjokEADpgn37gQRJQ@mail.gmail.com>
+ <CAJaqyWcVdMc+xQ=oq4ipu_sGh4uMJGidC8CFYSaa+5ZcwiKZ7g@mail.gmail.com> <CACGkMEuNZzDVccF_yiinJowrfGgWRAR_-ZvOqNmFz=cLVKN-+w@mail.gmail.com>
+In-Reply-To: <CACGkMEuNZzDVccF_yiinJowrfGgWRAR_-ZvOqNmFz=cLVKN-+w@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 3 Feb 2026 11:35:01 +0100
+X-Gm-Features: AZwV_Qi2OhqdIqST7lX4q9BPGuvmFCxUSd6uR6xWowi7K-WM0nHukVzaTICj9nk
+Message-ID: <CAJaqyWfpJxPYKtUcncpbEvn_wi-Rc3VRyLE5f=0Md9HAksr6Dg@mail.gmail.com>
+Subject: Re: [PATCH 1/6] vduse: ensure vq->ready access is smp safe
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: u4LSv-nmNaU-014TkL7x-z3wlzgaoXYmnUhKArJNbrU_1770114924
+X-Mimecast-MFC-PROC-ID: rO2BsNS5ABi9WyKikRvesNQHLLYeOQpDiJx32jBgGt4_1770114938
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 02, 2026 at 11:54:17PM +0100, Arnd Bergmann wrote:
-> On Mon, Feb 2, 2026, at 17:45, Michael S. Tsirkin wrote:
-> > On Mon, Feb 02, 2026 at 12:59:03PM +0100, Arnd Bergmann wrote:
+On Tue, Feb 3, 2026 at 5:05=E2=80=AFAM Jason Wang <jasowang@redhat.com> wro=
+te:
+>
+> On Fri, Jan 30, 2026 at 3:56=E2=80=AFPM Eugenio Perez Martin
+> <eperezma@redhat.com> wrote:
 > >
-> > I think .compat_ioctl would be cleaner frankly. Just look at
-> > all the ifdefery. And who knows what broken-ness userspace
-> > comes up with with this approach. Better use the standard approach.
-> 
-> Sent now.
-> 
-> I'm not sure it's much better because there is quite a bit of
-> code duplication, and reducing that would be a larger rework.
+> > On Fri, Jan 30, 2026 at 3:18=E2=80=AFAM Jason Wang <jasowang@redhat.com=
+> wrote:
+> > >
+> > > On Thu, Jan 29, 2026 at 2:21=E2=80=AFPM Eugenio Perez Martin
+> > > <eperezma@redhat.com> wrote:
+> > > >
+> > > > On Thu, Jan 29, 2026 at 2:17=E2=80=AFAM Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > >
+> > > > > On Wed, Jan 28, 2026 at 8:45=E2=80=AFPM Eugenio P=C3=A9rez <epere=
+zma@redhat.com> wrote:
+> > > > > >
+> > > > > > The vduse_vdpa_set_vq_ready can be called in the lifetime of th=
+e device
+> > > > > > well after initial setup, and the device can read it afterwards=
+.
+> > > > > >
+> > > > > > Ensure that reads and writes to vq->ready are SMP safe so that =
+the
+> > > > > > caller can trust that virtqueue kicks and calls behave as expec=
+ted
+> > > > > > immediately after the operation returns.
+> > > > > >
+> > > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > > > ---
+> > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 34 ++++++++++++++++++++++=
++-------
+> > > > > >  1 file changed, 26 insertions(+), 8 deletions(-)
+> > > > > >
+> > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/=
+vdpa_user/vduse_dev.c
+> > > > > > index 73d1d517dc6c..a4963aaf9332 100644
+> > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > @@ -460,6 +460,24 @@ static __poll_t vduse_dev_poll(struct file=
+ *file, poll_table *wait)
+> > > > > >         return mask;
+> > > > > >  }
+> > > > > >
+> > > > > > +static bool vduse_vq_get_ready(const struct vduse_virtqueue *v=
+q)
+> > > > > > +{
+> > > > > > +       /*
+> > > > > > +        * Paired with vduse_vq_set_ready smp_store, as the dri=
+ver may modify
+> > > > > > +        * it while the VDUSE instance is reading it.
+> > > > > > +        */
+> > > > > > +       return smp_load_acquire(&vq->ready);
+> > > > > > +}
+> > > > > > +
+> > > > > > +static void vduse_vq_set_ready(struct vduse_virtqueue *vq, boo=
+l ready)
+> > > > > > +{
+> > > > > > +       /*
+> > > > > > +        * Paired with vduse_vq_get_ready smp_load, as the driv=
+er may modify
+> > > > > > +        * it while the VDUSE instance is reading it.
+> > > > > > +        */
+> > > > > > +       smp_store_release(&vq->ready, ready);
+> > > > >
+> > > > > Assuming this is not used in the datapath, I wonder if we can sim=
+ply
+> > > > > use vq_lock mutex.
+> > > > >
+> > > >
+> > > > The function vduse_vq_set/get_ready are not in the datapath, but
+> > > > vduse_vq_kick and vduse_vq_signal_irqfd are.  I'm ok if you want to
+> > > > switch to vq_mutex if you want though, maybe it's even comparable w=
+ith
+> > > > the cost of the ioctls or eventfd signaling.
+> > >
+> > > I'd like to use mutex for simplicity.
+> > >
+> >
+> > I cannot move it to a mutex, as we need to take it in the critical
+> > sections of the kick_lock and irq_lock spinlocks.
+> >
+> > I can move it to a spinlock, but it seems more complicated to me. We
+> > need to make sure we always take these kick_lock and irq_lock in the
+> > same order as the ready_lock, to not create deadlocks, and they always
+> > protect just the ready boolean. But sure, I'll send the spinlock
+> > version for V2.
+>
+> Thinking about this, I'm not sure I understand the issue.
+>
+> Maybe you can give me an example of the race.
+>
 
-yes but on the flip side, we can put it all inside ifdef CONFIG_COMPAT
-(which this code did not do, but should IMHO).
+It's the same issue as you describe with set_group_asid on cpu1 and
+dma_map and dma_unmap in cpu1 in this mail [0], but now the functions
+are set_vq_ready in the vdpa driver side and VDUSE_VQ_GET_INFO in the
+VDUSE instance.
 
-> It may be best to hold off on patch 2 for the coming merge window
-> since the compat ioctl code has apparently always been broken for
-> x86 here.
+To me, the barriers should be in the driver and the VDUSE instance,
+and the VDUSE instance should use the VDUSE_SET_VQ_READY message to
+know when a VQ is ready. But I don't expect all the VDUSE instances to
+opt-in for that, so the flow without smp barriers is:
 
-And it needs testing.
+[cpu0] .set_vq_ready(vq, true)
+[cpu1] VDUSE_VQ_GET_INFO(vq)
+[cpu1] check vq->ready, and it races with the set_vq_ready from cpu0.
 
-> I hope we can at least get patch 1/2 merged along with the
-> new code though, otherwise it would get a lot harder to sort
-> it out properly, with the v2 struct members overlapping the
-> old padding fields.
-> 
->      Arnd
-
-Along with it or no, surely before the release.
-Given 32 on 64 with this apparently has been broken forever,
-I will merge this just based on even you did not bother testing compat, I am
-inclined to say I am merging this but not rebasing because
-of this.
-
-Oh and we got lucky this didn't leak kernel stack info.
-
-Eugenio, note for the future: please help make sure UAPI
-structs do not have hidden padding.
-
--- 
-MST
+[0] https://patchew.org/linux/20251113115558.1277981-1-eperezma@redhat.com/=
+20251113115558.1277981-6-eperezma@redhat.com/#CACGkMEtMyte91bbdb0hfUo+YgSpZ=
+djoWe0meKwbDc18CfWdATA@mail.gmail.com
 
