@@ -1,161 +1,281 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1225433A9D2
-	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 11:55:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D60633C19A
+	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 12:02:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770119713; cv=none; b=oYdz0VcJZRQv5928G1zo7ZoYG8X/VNrI/GJ6G03jCUQGocmfIcVzGuJSWMg9RhZTmmhKebUQzkRPFNhT+rZDeOh8ONRjuyO6fizwrcCXmLJ+vr+4xUoO8yByjgPwX1JRqKJ0SMgYLrMREVQQVTmPltf36JBXItl6VYLo6sYBh0w=
+	t=1770120153; cv=none; b=pbZriJF0rAeV1min+YOcwt1iORD3oXK8bhEVP62FcGlafX5HV5DZTdS6sbQ10PsBVtUPVjAJMk+kArddTIOrl5HONwaJLbAdhge8k3JNMXjkWkNM1pi/vdjWY8RsbkOq/XAU5YGaoZZaipPM8DolE/Zur0FyYwQSc47vqky4DEg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770119713; c=relaxed/simple;
-	bh=lOecQHF5OFB8heiN8hsmTHJySpCloKpE7IzIr70fBoU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Xg+QXNOSeSll/5+Gzjt1DYQpgKtrbyq4ct7srA5mV1rF2BtIFWczl+BNXmNgdL/kQf6YwaBS7jzwxDWtEsoRpD8Lwr4EZmQfWaoLnGpPqZB6PXtUqnEmaSZBGsuwWMv+iPFb1DH7Pift4XHUMl/QDX8PZCiJBNT7qYX5WrfG2X8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=LpAk0F/E; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=WcwfnCuR; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1770120153; c=relaxed/simple;
+	bh=Hwhc4x2WfdwOZK+OJPmSWLUnsjg35OvmJI9yzaMB7UY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=twx7xvAVzgqckDOJREbCtAbCBOk51ua+94r/jEkbYboHhpaSpLz/a+V3voeUTHG/QyWAmjhAHnUhZKyp5tvylYZ2PS9i1WSw4eZ+xBzq+HUO/E2Ja0elb0LVtveVwT0fgrdZHjaA/9r50UdO2qVNvAqNUukhaJ3CqxDq/j4TWis=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A02VYRAc; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="LpAk0F/E";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="WcwfnCuR"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6136URxd277414
-	for <virtualization@lists.linux.dev>; Tue, 3 Feb 2026 11:55:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	MDuT0B7OylkoIAE5tcgNAXoUzztKFfX7/W2HioUlO8k=; b=LpAk0F/EBp5Lajim
-	lhaFUI7b7iw8ZMu2CBA7SW/INIYXw2SqjreERufOq2JIQQx+PpuFL6xCiq2zZYeX
-	LnzzbCZRYEG4An4ZnYmWeFb9M+55YP7HC/6GmdUF20BrV0PehwpNmkO1SpIsR2Dv
-	WsEA4d1RMGlovvFPCQkyebtFYoAsST/BaRXF7MvvmdscNXLFuF/hTl+aegI9NYJx
-	SrOOa9fEpYXLtafUQQOps8VEx04rbSdHZum/yGvmgNYHNOZXAHfv4ttVkknij/kk
-	4FbZ6/15lah2RS6lbQbfsLxYX4NfZsecW3UlK2oWZWPBK1MiZWMB5adevXuu3J69
-	DmN1Zw==
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c32s3ag4j-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 11:55:11 +0000 (GMT)
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-8c6cfd52556so234538085a.0
-        for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 03:55:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1770119710; x=1770724510; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=MDuT0B7OylkoIAE5tcgNAXoUzztKFfX7/W2HioUlO8k=;
-        b=WcwfnCuRaXdPKa5iGF+qJUA85YwFS/jpGVXrIazdgsqeVb/VrRIFExt0P4a5PaAa0J
-         corlqGGB7yFX7PUvRJt3BNvqGyeUox/dbKx6Fgy/K0E2iIt+rbI/O3T+we825srAh73K
-         tS7UdbkTD6pTrrIfJ9OPyk4OlzjrepkRV0EIdizAaupP4+HB0kETeyYhdRmw4k3CAKFe
-         20/RyAx43hfMyhSOVtueOrS7B5vDskHvlNt6/6NUUqSBrfFssTfCbJuRcJg5TNPOcGxa
-         JgUY2bPrgahZ5Sa1TCZNCG3nxRN0i5t4l9xbS/+haae5CXpo8SzPzHmaIC7o+KfDw4x2
-         40DQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A02VYRAc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770120150;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bsFb6G89eaHJioHtnihfU+Eir4eP2AJ6k/uAy6FwbCc=;
+	b=A02VYRAckUUH6G906mKLpaEALs7JIBkqewAA0zgJKfz9XPAllmOYUHn+TW/HDavRDxYjmg
+	G7frrxV6f+GlPmwKyZjJ4p/zrJhy8k70OBipEntbIyKOHFcbDmsVSWh68z/Jt4iSK7x+df
+	GuvZY80aHD9ABP+EIWmgEtp2rKiTOu4=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-492-fnM7_p6bNjKUfpoXFvTR_Q-1; Tue, 03 Feb 2026 07:02:29 -0500
+X-MC-Unique: fnM7_p6bNjKUfpoXFvTR_Q-1
+X-Mimecast-MFC-AGG-ID: fnM7_p6bNjKUfpoXFvTR_Q_1770120148
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-435a2de6ec0so3333804f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 04:02:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770119710; x=1770724510;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=MDuT0B7OylkoIAE5tcgNAXoUzztKFfX7/W2HioUlO8k=;
-        b=mqexFu8PLpeCqxVv6hRc8rowS8DqRn6nXkgz6XpyfxTNjPVF0HAvDNgHUyeDXUuFjV
-         iesCMYN4g8ra2OBtF8b1Uvm7N8XlIGj5y7tyZKh3ZGiMRD2jiVsemswDBTjQU91TDsG/
-         PEk9sAjb4tm5yImXsJb5vBV566S9DBko+0esfV79EfTxtG7Mr0IxJzeR1AHWF/QrDgcZ
-         xho/9w0w9oUwtTAUNoqU6lZ3FmY489SafQzBEN3RDT687nrhQV+PyuRE0SCZJh7OfsHW
-         dvO6TDSe75x5Pm12i1J1tYdIvki3ehN8doas0915Zds6D23nkWAh+yjkFpcbsijaFt7+
-         QmSA==
-X-Forwarded-Encrypted: i=1; AJvYcCUGAVcmnwzN3M6UFi1mgKsRj33cYiWhanMOuTOpn/kNQ8gHuvJcVwNFGnyrlqlj/9xZUY/ta/9MLAQQEG843w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw2ZFheI7kMm+RUbc7/VYQXwXKTfzo5U26buWsw8Hige2eyxEki
-	w3ZIVw4MGdCU5DAnTmDqOShxKJ5jfsDyIGnrxlVj8DOdMaiLmvWgK1/Afy68QmE9SAENMsVE4wP
-	SiGjanCsV+2g5iDY3l3BlbsHnnniCo+OhrzXEVGhOHxIljGygWIYfYN40vWXmSur1IZoLvg==
-X-Gm-Gg: AZuq6aLNisuNEKUVTub2HFFF7texq9Qr1XhCkxMUqRJxiDZ3mc9BoT4vsg6ggCbTx33
-	KIy15WWpPPdGBGJQwF1hHQ15aO/vAA/xSkpR41J5IzvIqIv6BJiVNB4kQ8WSkDxcjzwKuIqyZoI
-	ailTxE3NaOT2J/fnqP5jh5n7gXT3zDDJ/Q2kbpI4ajBkKd4XoD29Xa84icJzadJjhkzqh/1fkPs
-	JVfSLY+By2x5n9YeK2D4jAA/wlC2YcvjTCThUVMBBpXSRMZRL2z5GhWd/Q8qQkzG9oF5Os/RmX/
-	/s1iOi1RXnGDV8bhUKvTOon4TbyjxPxOOEU8BfRZTZdpWuWNkY989xOZd7ZGfPaXEyHmJKWiOjF
-	n/e2KS3IBirXZjcMDRiMFiIs=
-X-Received: by 2002:a05:620a:f12:b0:828:faae:b444 with SMTP id af79cd13be357-8ca20483debmr282371585a.20.1770119710080;
-        Tue, 03 Feb 2026 03:55:10 -0800 (PST)
-X-Received: by 2002:a05:620a:f12:b0:828:faae:b444 with SMTP id af79cd13be357-8ca20483debmr282369385a.20.1770119709628;
-        Tue, 03 Feb 2026 03:55:09 -0800 (PST)
-Received: from [172.22.19.48] ([212.136.9.4])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-482dbd4a5b8sm143604075e9.5.2026.02.03.03.55.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Feb 2026 03:55:09 -0800 (PST)
-Message-ID: <eec1a83b-e36f-47bb-9a5b-6888b42e063a@oss.qualcomm.com>
-Date: Tue, 3 Feb 2026 12:55:07 +0100
+        d=1e100.net; s=20230601; t=1770120148; x=1770724948;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bsFb6G89eaHJioHtnihfU+Eir4eP2AJ6k/uAy6FwbCc=;
+        b=togKes/0Hn8O4yHDKH0YK09ttas834mYzzOWWGKyBoWlDphG2LLB1+5jKFUiwahcsT
+         XZdzo+Z/EFPk2gWsvwAnEM/HTQEh9+m+aea5q9SgbQWUfKLeK9iKiA25PixWyfMhKwed
+         SEgRog4r1HnvGBb30vU9Efs4yv3y+74qmUtgmWybusxI8VuCrpblGbMETboTkjwlxmGn
+         0a+gSnIrTqdxpM94J4wwEshR6sqp25p+BkHLaBU0Yi8Ej6DiuGsQZbvUWKpimeMsTSbo
+         JkYLadAQlY3LgNYIzsSjb6P50YXiUhzaRaF5EGbcAcKhPd4AdrUGuvT2dpQplmfkxdU+
+         J6SQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVIRBbG0AqzMv1KM0wEqjVxFa+81ZlX0lPtxh4I5iLmeHM9QdJjX4h06dTb5QYyXwBCQxG+Oybj07+oEOi3ww==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwR4uPTlb4msHe9dalUHW6h07t+lvcnk009+DaE0RPD+GyTyDoc
+	8wx2B7sMDG+y1JMPd6T/CmrdUepcnxJ1YZpfMi6gSEabtOzAYFOG6IQ8OObzHiTazqTWc35pBe3
+	dXWxNe7yJzvDKJ4gKugYsAcKbCSLB6x/ces9IxXxfF9d5htBVd2Hd3SPvxi88NZOX12gB
+X-Gm-Gg: AZuq6aKXeKn/Xjoha+K0Z++RSPG9T2RFjSYnO4YQbw1SsvXFukNGpWwre9GcvnH5eKX
+	6b7xmHH7GfA3AYNRd6UKVMNMtJwcik0hlVmH7bY7BXAjTLzay3kogboPTyGf9hjjdmfZrzfG/VA
+	gLWrKSkgt8v/cRPby2bfO3Ae33TiDYmmuiitiuJg7iFTVKKyOw4tjEXE7+Q7Mym7wbye8QEwika
+	7r9D7J7QWfSj1dxuoMYaOcTedffNgg2K8HNtEZ5Lzyj3UXWW26cxYEtrjNzFk13GZhQCw2XZlBY
+	oxU9rE/cKk8tudRxUiZK0y6tRlhWKWre3J6Q1qskWF1OMXn/bREg+83LoP+oi8iYy4UaKy4bIEU
+	p9mHOOLtgaXbOcnu/6nM3LDEU1+/Z9iq6TA==
+X-Received: by 2002:a05:600c:348b:b0:47e:e779:36d with SMTP id 5b1f17b1804b1-482db4d826dmr165148975e9.23.1770120147811;
+        Tue, 03 Feb 2026 04:02:27 -0800 (PST)
+X-Received: by 2002:a05:600c:348b:b0:47e:e779:36d with SMTP id 5b1f17b1804b1-482db4d826dmr165148425e9.23.1770120147195;
+        Tue, 03 Feb 2026 04:02:27 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-482e256f639sm114827355e9.13.2026.02.03.04.02.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Feb 2026 04:02:26 -0800 (PST)
+Date: Tue, 3 Feb 2026 07:02:23 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+	Alexander Graf <graf@amazon.com>, Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"open list:VIRTIO CORE" <virtualization@lists.linux.dev>,
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3] virtio_ring: Add READ_ONCE annotations for
+ device-writable fields
+Message-ID: <20260203065312-mutt-send-email-mst@kernel.org>
+References: <20260131102810.1254845-1-johannes.thumshirn@wdc.com>
+ <1770107244.8746088-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7] can: virtio: Add virtio CAN driver
-To: Francesco Valla <francesco@valla.it>,
-        Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
-        Vincent Mailhol <mailhol@kernel.org>,
-        Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
-        virtualization@lists.linux.dev,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>
-References: <aVwGfOlvRqdv5xj7@fedora> <aWE5duyvXCuwsMAn@bywater>
-Content-Language: en-US
-From: Harald Mommer <harald.mommer@oss.qualcomm.com>
-In-Reply-To: <aWE5duyvXCuwsMAn@bywater>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=Zc4Q98VA c=1 sm=1 tr=0 ts=6981e21f cx=c_pps
- a=qKBjSQ1v91RyAK45QCPf5w==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=Am9B1zxb3eBZUTWmzOgA:9 a=QEXdDO2ut3YA:10
- a=NFOGd7dJGGMPyQGDc5-O:22
-X-Proofpoint-ORIG-GUID: VmGxZdMN9FJMds5w49D_Q2TxFwMmS8As
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjAzMDA5NCBTYWx0ZWRfXwPo88/6AJwmj
- qV1kNuKxdTfR066Cj+61Zi4+XgSXHBpVqQKynDyO4gXPV0huoiR0hYB5iK8Ntay4+AmE3h2rFFb
- msII5vbFrwyxTdYtGApPJpiPZ/0cVqk6tHC7QZPq3JuO2GIQCUefuNs95Lv3qfz5sj5N6XihT1P
- qM2YBiAThCSnPf3ZIU5tUWAM3i6It4NkSqboEzDc1FgNr0AvFsWM19M2j4B7UA8bRQqGvE/2EZz
- KoBulTxK8uBEsuEuTtTbhATVzgxgKTuv7sB3CwXZtLo6SYb7vOoUabhNriVJVD37qQhlZo5KKfy
- d+YFntYPqW9oyLl0eUFaavRAea5yHYsBH5ZesX7gmHrkl+KfL0NqUMrYR9sNFS/+0TcWA//odCE
- yIjdlu2RiMHxAieU8lgmjfc4L2eZ2Z0WIWhv3F8eAR3L5pwcy8vC5lK2/SRF351aHrE/qA8fPBi
- 5HtvAd6ccF3xMwpSrCg==
-X-Proofpoint-GUID: VmGxZdMN9FJMds5w49D_Q2TxFwMmS8As
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-03_03,2026-02-02_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 suspectscore=0 impostorscore=0 adultscore=0
- phishscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602030094
+In-Reply-To: <1770107244.8746088-1-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: cHYkahIoR4E-SWqFjRyHxIqLI76CroBCFX9D59Oc59U_1770120148
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Feb 03, 2026 at 04:27:24PM +0800, Xuan Zhuo wrote:
+> On Sat, 31 Jan 2026 11:28:09 +0100, Johannes Thumshirn <johannes.thumshirn@wdc.com> wrote:
+> > From: Alexander Graf <graf@amazon.com>
+> >
+> > KCSAN reports data races when accessing virtio ring fields that are
+> > concurrently written by the device (host). These are legitimate
+> > concurrent accesses where the CPU reads fields that the device updates
+> > via DMA-like mechanisms.
+> >
+> > Add accessor functions that use READ_ONCE() to properly annotate these
+> > device-writable fields and prevent compiler optimizations that could in
+> > theory break the code. This also serves as documentation showing which
+> > fields are shared with the device.
+> >
+> > The affected fields are:
+> > - Split ring: used->idx, used->ring[].id, used->ring[].len
+> > - Packed ring: desc[].flags, desc[].id, desc[].len
+> >
+> > This patch was partially written using the help of Kiro, an
+> > AI coding assistant, to automate the mechanical work of generating the
+> > inline function definition.
+> >
+> > Signed-off-by: Alexander Graf <graf@amazon.com>
+> > [jth: Add READ_ONCE in virtqueue_kick_prepare_split ]
+> > Co-developed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> > Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> > Reviewed-by: Alexander Graf <graf@amazon.com>
+> > ---
+> > Changes to v2:
+> > - Add AI statement (agraf)
+> > - Add R-b from agraf
+> > - Update comment (mst)
+> > - Add split to function names handling split rings (mst)
+> > - Add vring_read_split_avail_event() (mst)
+> >
+> > Changes to v1:
+> > - Updated comments (mst, agraf)
+> > - Moved _read suffix to prefix in newly introduced functions (mst)
+> > - Update my minor contribution to Co-developed-by (agraf)
+> > - Add "in theory" to changelog
+> > ---
+> >  drivers/virtio/virtio_ring.c | 72 +++++++++++++++++++++++++++++-------
+> >  1 file changed, 58 insertions(+), 14 deletions(-)
+> >
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index ddab68959671..53d5334576bc 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -222,6 +222,55 @@ struct vring_virtqueue {
+> >  #endif
+> >  };
+> >
+> > +/*
+> > + * Accessors for device-writable fields in virtio rings.
+> > + * These fields are concurrently written by the device and read by the driver.
+> > + * Use READ_ONCE() to prevent compiler optimizations, document the
+> > + * intentional data race and prevent KCSAN warnings.
+> > + */
+> > +static inline u16 vring_read_split_used_idx(const struct vring_virtqueue *vq)
+> 
+> "inline" is not recommended in *.c files.
+
+why would it be? it's a compiler hint. given this is the hottest path,
+it makes sense.
+
+
+> Ohters LGTM.
+> 
+> Thanks.
 
 
 
-On 1/9/26 18:23, Francesco Valla wrote:
->> +static u8 virtio_can_send_ctrl_msg(struct net_device *ndev, u16 msg_type)
->> +{
->> +	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
->> +	struct virtio_can_priv *priv = netdev_priv(ndev);
->> +	struct device *dev = &priv->vdev->dev;
->> +	struct virtqueue *vq;
->> +	unsigned int len;
->> +	int err;
->> +
->> +	vq = priv->vqs[VIRTIO_CAN_QUEUE_CONTROL];
-> Nit: consider initializing this above, while declaring it.
 
-All those "Nit" regarding initialization cause problems. There is a reason why it was done the way it is.
-
-The network people require that the declaration lines are ordered by line length. longest line first. This is called "Reverse Christmas tree". Don't ask me why, this formatting style is what the network people require. Their subsystem, their rules.
-
-To initialize the vq you need now already the priv initialized. If now the vq line becomes longer than the priv line you will violate the special formatting requirements of the network subsystem.
-
-Solution was: What you see above.
-
-Regards
-Harald
+> 
+> > +{
+> > +	return virtio16_to_cpu(vq->vq.vdev,
+> > +			       READ_ONCE(vq->split.vring.used->idx));
+> > +}
+> > +
+> > +static inline u32 vring_read_split_used_id(const struct vring_virtqueue *vq,
+> > +					   u16 idx)
+> > +{
+> > +	return virtio32_to_cpu(vq->vq.vdev,
+> > +			       READ_ONCE(vq->split.vring.used->ring[idx].id));
+> > +}
+> > +
+> > +static inline u32 vring_read_split_used_len(const struct vring_virtqueue *vq, u16 idx)
+> > +{
+> > +	return virtio32_to_cpu(vq->vq.vdev,
+> > +			       READ_ONCE(vq->split.vring.used->ring[idx].len));
+> > +}
+> > +
+> > +static inline u16 vring_read_split_avail_event(const struct vring_virtqueue *vq)
+> > +{
+> > +	return virtio16_to_cpu(vq->vq.vdev,
+> > +			       READ_ONCE(vring_avail_event(&vq->split.vring)));
+> > +}
+> > +
+> > +static inline u16 vring_read_packed_desc_flags(const struct vring_virtqueue *vq,
+> > +					       u16 idx)
+> > +{
+> > +	return le16_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].flags));
+> > +}
+> > +
+> > +static inline u16 vring_read_packed_desc_id(const struct vring_virtqueue *vq,
+> > +				            u16 idx)
+> > +{
+> > +	return le16_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].id));
+> > +}
+> > +
+> > +static inline u32 vring_read_packed_desc_len(const struct vring_virtqueue *vq,
+> > +				             u16 idx)
+> > +{
+> > +	return le32_to_cpu(READ_ONCE(vq->packed.vring.desc[idx].len));
+> > +}
+> > +
+> >  static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
+> >  static void vring_free(struct virtqueue *_vq);
+> >
+> > @@ -736,8 +785,7 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+> >  	LAST_ADD_TIME_INVALID(vq);
+> >
+> >  	if (vq->event) {
+> > -		needs_kick = vring_need_event(virtio16_to_cpu(_vq->vdev,
+> > -					vring_avail_event(&vq->split.vring)),
+> > +		needs_kick = vring_need_event(vring_read_split_avail_event(vq),
+> >  					      new, old);
+> >  	} else {
+> >  		needs_kick = !(vq->split.vring.used->flags &
+> > @@ -808,8 +856,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+> >
+> >  static bool more_used_split(const struct vring_virtqueue *vq)
+> >  {
+> > -	return vq->last_used_idx != virtio16_to_cpu(vq->vq.vdev,
+> > -			vq->split.vring.used->idx);
+> > +	return vq->last_used_idx != vring_read_split_used_idx(vq);
+> >  }
+> >
+> >  static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+> > @@ -838,10 +885,8 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+> >  	virtio_rmb(vq->weak_barriers);
+> >
+> >  	last_used = (vq->last_used_idx & (vq->split.vring.num - 1));
+> > -	i = virtio32_to_cpu(_vq->vdev,
+> > -			vq->split.vring.used->ring[last_used].id);
+> > -	*len = virtio32_to_cpu(_vq->vdev,
+> > -			vq->split.vring.used->ring[last_used].len);
+> > +	i = vring_read_split_used_id(vq, last_used);
+> > +	*len = vring_read_split_used_len(vq, last_used);
+> >
+> >  	if (unlikely(i >= vq->split.vring.num)) {
+> >  		BAD_RING(vq, "id %u out of range\n", i);
+> > @@ -923,8 +968,7 @@ static bool virtqueue_poll_split(struct virtqueue *_vq, unsigned int last_used_i
+> >  {
+> >  	struct vring_virtqueue *vq = to_vvq(_vq);
+> >
+> > -	return (u16)last_used_idx != virtio16_to_cpu(_vq->vdev,
+> > -			vq->split.vring.used->idx);
+> > +	return (u16)last_used_idx != vring_read_split_used_idx(vq);
+> >  }
+> >
+> >  static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
+> > @@ -1701,10 +1745,10 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+> >  static inline bool is_used_desc_packed(const struct vring_virtqueue *vq,
+> >  				       u16 idx, bool used_wrap_counter)
+> >  {
+> > -	bool avail, used;
+> >  	u16 flags;
+> > +	bool avail, used;
+> >
+> > -	flags = le16_to_cpu(vq->packed.vring.desc[idx].flags);
+> > +	flags = vring_read_packed_desc_flags(vq, idx);
+> >  	avail = !!(flags & (1 << VRING_PACKED_DESC_F_AVAIL));
+> >  	used = !!(flags & (1 << VRING_PACKED_DESC_F_USED));
+> >
+> > @@ -1751,8 +1795,8 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
+> >  	last_used_idx = READ_ONCE(vq->last_used_idx);
+> >  	used_wrap_counter = packed_used_wrap_counter(last_used_idx);
+> >  	last_used = packed_last_used(last_used_idx);
+> > -	id = le16_to_cpu(vq->packed.vring.desc[last_used].id);
+> > -	*len = le32_to_cpu(vq->packed.vring.desc[last_used].len);
+> > +	id = vring_read_packed_desc_id(vq, last_used);
+> > +	*len = vring_read_packed_desc_len(vq, last_used);
+> >
+> >  	if (unlikely(id >= vq->packed.vring.num)) {
+> >  		BAD_RING(vq, "id %u out of range\n", id);
+> > --
+> > 2.52.0
+> >
 
