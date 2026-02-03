@@ -1,150 +1,196 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5217283FCF;
-	Tue,  3 Feb 2026 02:14:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770084868; cv=pass; b=UBEabvD3QLR04zWBYhU/blMMFnXHM1ms6hiC4tVgsz1G8A31+dmL8bDNnpHoRenXFEClcIsUUA0MbFIOIVu5mnS444HP4Xb793jKcetjUjF+mM/3jVFVJETUZAkbeHWfBnpQSTSZe1UQrA+Z1+tnxMGbLebbhIrtwpO+OcSosuU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770084868; c=relaxed/simple;
-	bh=WEWhjNjgMTivhK1+Z3T+JZM4cBxsWzERCWLL8mqoxzQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gpPfDVMV8hf3iJwFIT64l7polQzu9vq9qNxLltEdvfgkG/rMMpOZygX6faVQTfTb4MAyAODfvhwIIkV160ojHRTuqCC3IMevwiwySMoB1a/CBXP2CxBWckje2ym0LFX3FG10mTttqfxq7jOYXSDpPmb2pRGc2MkErX/gFgQ+frY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=QaE3k+Wm; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 745E5125D0
+	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 03:23:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770088998; cv=none; b=Uql80DjsbJnchh7ZWZtNzgNMlPPkM2F7WTaEU1R6ZeeP4muGTE/82nlWUAYV58JlUq0PXwUOHtyhycVb6+BkbMUPgTTb/maWNSRg6WQXWMPMg0X9QNsOKLWKipe5mMdhSUhjqYhCM3LfGzVyhRUuP1YMcnXftChSg7SrWOtuXGA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770088998; c=relaxed/simple;
+	bh=KrtGgk294GRjBEs6iQyOp5BKbLlkhgJGu4IdQFjdyrc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=eLoRdZ3Cr5rhYIi+ABldLbIU/zIlkZuKbt5FMpHCUbq5JeHbYV4meDKpyfL5CGUWohdXzT7sYNe15DXgdYOEJAcWj5FkiZPvZm4Rv5To83I5qLJK3iCLgvbczp2CYTo2gMj0p3cS/whAA1TOAqGjYRVEjD4gMXwgcrHM2BqdDck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IwZJwF/8; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="QaE3k+Wm"
-ARC-Seal: i=1; a=rsa-sha256; t=1770084855; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=E/mHbg3eB+6FQr/BtveC7fDluD+mFkXEZsbud/PidyJSxTl/wouo6mrYNmFHSAHR5GcqkHBnE8lj1WFk8Xj5hzO6PLWNHp/sU0mUZDY6uIPb/EaM94HesZ7M9casC2U6CS9K1oBKi0mFy/MnxRdK+NEkkIsWXhidMogL87mXhK4=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1770084855; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=EllBWXmAPg3ovIJDYXMDe9Fex2OSK19yvQg5WdHQF4w=; 
-	b=XUWkdi7oIVbt/udwU7tAfFVh/a6FxIwmZF43g/Fgi+JQaEDJevdfL7A+1nt8jx/bWeYUWfCbcUsIAxMhBHrB+CUEIIVYSLKap3ak/7S8rpu96oK+R/LD3o4v89VY8J70QsbN5ZYHORWuVGjr6OjXYV+TUi96viqLVbdvTYvKFLk=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=linux.beauty;
-	spf=pass  smtp.mailfrom=me@linux.beauty;
-	dmarc=pass header.from=<me@linux.beauty>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1770084855;
-	s=zmail; d=linux.beauty; i=me@linux.beauty;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=EllBWXmAPg3ovIJDYXMDe9Fex2OSK19yvQg5WdHQF4w=;
-	b=QaE3k+Wmh/gx5qr1Upm0qL0Inj7PEa6EA3QAMU+BD3uK7dQbecfcIgDfF8aFHImG
-	7MEJx0odQe04kz7LqQrluT0/3OFnP3bsNGzYqqD5w9ypzLKaeLAUfEWwU7EyzdbxdT+
-	exGHEs5o2//4MHs4zteLybWsY17lxJ4ALPsgnoKs=
-Received: by mx.zohomail.com with SMTPS id 1770084853055993.3306336899888;
-	Mon, 2 Feb 2026 18:14:13 -0800 (PST)
-From: Li Chen <me@linux.beauty>
-To: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Vishal Verma <vishal.l.verma@intel.com>,
-	Dave Jiang <dave.jiang@intel.com>,
-	Ira Weiny <ira.weiny@intel.com>,
-	Cornelia Huck <cohuck@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Yuval Shaia <yuval.shaia@oracle.com>,
-	virtualization@lists.linux.dev,
-	nvdimm@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Cc: Li Chen <me@linux.beauty>
-Subject: [PATCH v2] nvdimm: virtio_pmem: serialize flush requests
-Date: Tue,  3 Feb 2026 10:13:51 +0800
-Message-ID: <20260203021353.121091-1-me@linux.beauty>
-X-Mailer: git-send-email 2.52.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IwZJwF/8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770088995;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=IL3VVCy6HeFE+SU5i9MQx2mEMpgSKX2XiM1AgerOcGg=;
+	b=IwZJwF/8qWtw7yKB0UdLXpeeX57KCcsb6JeTR0Qh/HE8lxwA4rg8L4rce+3jMiZz8gnN8A
+	AHIAWL5Si+ECSS1hlc18Sw7g5y8PUi8DsSkKY15I6xTTqYUvu8DaNQDStqvN2q84xp6MFf
+	HJQ2D165enoRJFokPCiD0b9gEI9fKqQ=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-373-IdqQ0a-mPUuAUhO1C2TQ-w-1; Mon, 02 Feb 2026 22:23:14 -0500
+X-MC-Unique: IdqQ0a-mPUuAUhO1C2TQ-w-1
+X-Mimecast-MFC-AGG-ID: IdqQ0a-mPUuAUhO1C2TQ-w_1770088993
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2a0a4b748a0so109816885ad.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Feb 2026 19:23:14 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770088993; x=1770693793;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=IL3VVCy6HeFE+SU5i9MQx2mEMpgSKX2XiM1AgerOcGg=;
+        b=TXEW/J9JijP8cMcuAGzfQIqP2tvJWJii0/BKEL/I1/SwzzXOWEqKbhsriRn50hCm/4
+         a3AQeMuP9A7AUkOGlCR7G/jbsJPM2cNFHpNLQi5hH8Rcsc/08/aEhYR1YtTgBkLCE4HE
+         V1eddEtzX3fgDDJKMKnW4iJd4OLsaiyN1kzgWaDqwXenjxMYnei6UGU6kCtkI9/hVDTY
+         ZDJaxJrS63KT7WGdg5bHAXYcXIgrL3fBPgMo0yuS3y61CYC2+XJTU8pBUw41Qc2qmjmj
+         fQG56MAPhvY+g3gW+FufNnHZV/LfrUgC1GlnDWpOQmqEM3aJyvYehKfORm2a6cFYQ4ql
+         KKuA==
+X-Forwarded-Encrypted: i=1; AJvYcCUfrz+h3eFwQSLlzsVBPlKQnOMXfFfZB53Q6VnywWBPsPyLFwKkKjifxNXYbD/pfnWzCVs4RZ2i0wwfpSjVPw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzlQkomk+kEZsHxBkx1L/fcc0R1L+J2erR6pFNommMpMtY3jZkc
+	jIKdu9E/sEUYNRPc5SleO0lb0/jjVmh9OR+rcGwLN3tQW4LyoiR4Jqe3goYymY359oHqx+bsgvI
+	4Z9KV1LIVHdcXiLz8oSBkMLz4bggdx15Ol79fdVZEozYX0zXrwO1I0s/jzCi1q2FnD3UFRvbTWj
+	2+Kkc2smFw6ry4Sv7aIw7y6gm06MSSu5+NAtNiCF8GjXk=
+X-Gm-Gg: AZuq6aLnVYcQlFyEIvsq0b6mN4DWQbOTzdpMTNBq1XOfqyjbSWdazcTs+k1n/HryRPq
+	fah/2FYq+WitAyaOkeCu/ZE2JWqWKMbEaccRecYbKlHlNCKTBsgZTM61tl1Fe/EqhdfTSEm3K0D
+	Dseh5N130KHRoBQJccI6vyfSgsiC0zz6sGAHln06kBcxtyPoU1mbWrNVslbuOUvn6QPKY=
+X-Received: by 2002:a17:903:2b0c:b0:295:8c51:64ff with SMTP id d9443c01a7336-2a8d9919237mr141235215ad.29.1770088993352;
+        Mon, 02 Feb 2026 19:23:13 -0800 (PST)
+X-Received: by 2002:a17:903:2b0c:b0:295:8c51:64ff with SMTP id
+ d9443c01a7336-2a8d9919237mr141234955ad.29.1770088992952; Mon, 02 Feb 2026
+ 19:23:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+References: <20260202031212.26871-1-zhangtianci.1997@bytedance.com>
+In-Reply-To: <20260202031212.26871-1-zhangtianci.1997@bytedance.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 3 Feb 2026 11:23:01 +0800
+X-Gm-Features: AZwV_QiXK5cVba8qXcynunVqAEqDCvgPd9117zHmBgehD1PDOxYKFN17tYOeGKo
+Message-ID: <CACGkMEvrMC6Lh42aX=4D3yZVWx6mxpHZAw+Z6djPBw2yrLEOrw@mail.gmail.com>
+Subject: Re: [PATCH v2] vduse: Fix race in vduse_dev_msg_sync and vduse_dev_read_iter
+To: Zhang Tianci <zhangtianci.1997@bytedance.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	marco.crivellari@suse.com, anders.roxell@linaro.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: jb0yn_Z04MHPKrNIdFkSWENPmruz5NwbYxsIgXalpkc_1770088993
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Under heavy concurrent flush traffic, virtio-pmem can overflow its request
-virtqueue (req_vq): virtqueue_add_sgs() starts returning -ENOSPC and the
-driver logs "no free slots in the virtqueue". Shortly after that the
-device enters VIRTIO_CONFIG_S_NEEDS_RESET and flush requests fail with
-"virtio pmem device needs a reset".
+On Mon, Feb 2, 2026 at 11:13=E2=80=AFAM Zhang Tianci
+<zhangtianci.1997@bytedance.com> wrote:
+>
+> There is one race case in vduse_dev_msg_sync and vduse_dev_read_iter:
+>
+> vduse_dev_read_iter():
+>     lock(msg_lock);
+>     dequeue_msg(send_list);
+>     unlock(msg_lock);
+> vduse_dev_msg_sync():
+>     wait_timeout() finish
+>     lock(msg_lock);
+>     check msg->complete is false
+>         list_del(msg);   <- double list_del() crash!
+>
+> To fix this case, we shall ensure vduse_msg is on send_list or recv_list
+> outside the msg_lock critical section.
+>
+> Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Zhang Tianci <zhangtianci.1997@bytedance.com>
+> Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+> ---
+> v2:
+>  - Rewrite commit message.                        [Michael]
+>  - Add Fixes tag and cc stable email list.        [Eugenio]
+>  - Rewrite one comment.                           [Michael]
+>
+> v1: https://lkml.org/lkml/2026/1/30/323
+>
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 30 ++++++++++++++++++++++--------
+>  1 file changed, 22 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/=
+vduse_dev.c
+> index ae357d014564c..a70d0580d54e8 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -325,6 +325,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb=
+, struct iov_iter *to)
+>         struct file *file =3D iocb->ki_filp;
+>         struct vduse_dev *dev =3D file->private_data;
+>         struct vduse_dev_msg *msg;
+> +       struct vduse_dev_request req;
+>         int size =3D sizeof(struct vduse_dev_request);
+>         ssize_t ret;
+>
+> @@ -339,7 +340,7 @@ static ssize_t vduse_dev_read_iter(struct kiocb *iocb=
+, struct iov_iter *to)
+>
+>                 ret =3D -EAGAIN;
+>                 if (file->f_flags & O_NONBLOCK)
+> -                       goto unlock;
+> +                       break;
+>
+>                 spin_unlock(&dev->msg_lock);
+>                 ret =3D wait_event_interruptible_exclusive(dev->waitq,
+> @@ -349,17 +350,30 @@ static ssize_t vduse_dev_read_iter(struct kiocb *io=
+cb, struct iov_iter *to)
+>
+>                 spin_lock(&dev->msg_lock);
+>         }
+> +       if (!msg) {
+> +               spin_unlock(&dev->msg_lock);
+> +               return ret;
+> +       }
 
-Serialize virtio_pmem_flush() with a per-device mutex so only one flush
-request is in-flight at a time. This prevents req_vq descriptor overflow
-under high concurrency.
+Nit: this check seems to be redundant, I'd suggest to
 
-Reproducer (guest with virtio-pmem):
-  - mkfs.ext4 -F /dev/pmem0
-  - mount -t ext4 -o dax,noatime /dev/pmem0 /mnt/bench
-  - fio: ioengine=io_uring rw=randwrite bs=4k iodepth=64 numjobs=64
-        direct=1 fsync=1 runtime=30s time_based=1
-  - dmesg: "no free slots in the virtqueue"
-           "virtio pmem device needs a reset"
+1) move the spin_unlock() before the check of file->f_flags & O_NONBLOCK
+2) then we can simply do "return ret" when it's a nonblocking read.
 
-Fixes: 6e84200c0a29 ("virtio-pmem: Add virtio pmem driver")
-Signed-off-by: Li Chen <me@linux.beauty>
----
-v2:
-- Use guard(mutex)() for flush_lock (as suggested by Ira Weiny).
-- Drop redundant might_sleep() next to guard(mutex)() (as suggested by Michael S. Tsirkin).
+> +
+> +       memcpy(&req, &msg->req, sizeof(req));
+> +       /*
+> +        * We must ensure vduse_msg is on send_list or recv_list before u=
+nlock
+> +        * dev->msg_lock. Because vduse_dev_msg_sync() may be timeout whe=
+n we
+> +        * copy data to userspace, and will call list_del() for this msg.
+> +        */
+> +       vduse_enqueue_msg(&dev->recv_list, msg);
+>         spin_unlock(&dev->msg_lock);
+> -       ret =3D copy_to_iter(&msg->req, size, to);
+> -       spin_lock(&dev->msg_lock);
+> +
+> +       ret =3D copy_to_iter(&req, size, to);
+>         if (ret !=3D size) {
+> +               spin_lock(&dev->msg_lock);
+> +               /* Roll back: move msg back to send_list if still pending=
+. */
+> +               msg =3D vduse_find_msg(&dev->recv_list, req.request_id);
+> +               if (msg)
+> +                       vduse_enqueue_msg(&dev->send_list, msg);
+> +               spin_unlock(&dev->msg_lock);
+>                 ret =3D -EFAULT;
+> -               vduse_enqueue_msg(&dev->send_list, msg);
+> -               goto unlock;
+>         }
+> -       vduse_enqueue_msg(&dev->recv_list, msg);
+> -unlock:
+> -       spin_unlock(&dev->msg_lock);
+>
+>         return ret;
+>  }
+> --
+> 2.39.5
+>
 
- drivers/nvdimm/nd_virtio.c   | 3 ++-
- drivers/nvdimm/virtio_pmem.c | 1 +
- drivers/nvdimm/virtio_pmem.h | 4 ++++
- 3 files changed, 7 insertions(+), 1 deletion(-)
+Thanks
 
-diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-index c3f07be4aa22..af82385be7c6 100644
---- a/drivers/nvdimm/nd_virtio.c
-+++ b/drivers/nvdimm/nd_virtio.c
-@@ -44,6 +44,8 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
- 	unsigned long flags;
- 	int err, err1;
- 
-+	guard(mutex)(&vpmem->flush_lock);
-+
- 	/*
- 	 * Don't bother to submit the request to the device if the device is
- 	 * not activated.
-@@ -53,7 +55,6 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
- 		return -EIO;
- 	}
- 
--	might_sleep();
- 	req_data = kmalloc(sizeof(*req_data), GFP_KERNEL);
- 	if (!req_data)
- 		return -ENOMEM;
-diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
-index 2396d19ce549..77b196661905 100644
---- a/drivers/nvdimm/virtio_pmem.c
-+++ b/drivers/nvdimm/virtio_pmem.c
-@@ -64,6 +64,7 @@ static int virtio_pmem_probe(struct virtio_device *vdev)
- 		goto out_err;
- 	}
- 
-+	mutex_init(&vpmem->flush_lock);
- 	vpmem->vdev = vdev;
- 	vdev->priv = vpmem;
- 	err = init_vq(vpmem);
-diff --git a/drivers/nvdimm/virtio_pmem.h b/drivers/nvdimm/virtio_pmem.h
-index 0dddefe594c4..f72cf17f9518 100644
---- a/drivers/nvdimm/virtio_pmem.h
-+++ b/drivers/nvdimm/virtio_pmem.h
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <uapi/linux/virtio_pmem.h>
- #include <linux/libnvdimm.h>
-+#include <linux/mutex.h>
- #include <linux/spinlock.h>
- 
- struct virtio_pmem_request {
-@@ -35,6 +36,9 @@ struct virtio_pmem {
- 	/* Virtio pmem request queue */
- 	struct virtqueue *req_vq;
- 
-+	/* Serialize flush requests to the device. */
-+	struct mutex flush_lock;
-+
- 	/* nvdimm bus registers virtio pmem device */
- 	struct nvdimm_bus *nvdimm_bus;
- 	struct nvdimm_bus_descriptor nd_desc;
--- 
-2.52.0
