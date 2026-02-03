@@ -1,40 +1,42 @@
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 000D72FF14C
-	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 23:10:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 294FD310620
+	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 23:10:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.153.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770160235; cv=none; b=JdQTTiY2KKdqXiEgwAknS4aLBaob6WK020gb1rKOUVa7cA+dwxrpPxOHZMB5RwRYewbGiv3Fk78i/9ixFo99zLca1Be/urN8Gndm2tThBGcqeEcGjAcnozhUnn4eae6U3ZohdLtANRSqaa1+UZlfbeoaswWJPy7hLtehuxQZOc4=
+	t=1770160236; cv=none; b=HvQanUpt7Yi6oemhhY25HEK6DWrkaJsS84R1vsyDDQkjfilIJfF+etjO4VeEqQ17aBmhtGyl9InPlfs0ysmJZmAB3UQCmnOl9zASxbbnVuYuKsK/ivT+pTyGMKPFGWM85eKzpfompncFp22cQll3c1X/OFRV+S9VqKB3Y7+PeoM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770160235; c=relaxed/simple;
-	bh=5Ni3Bp0ge2za6+KRPRoM9DCnjRIUA72HGSHLNaiPoTE=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Y86WLlNGpRf/BJSpbmSQPtRQXQVk1leU30OI5li/KZBbpGkekBxrO1CwVFSZlehL9s+Rzf6ErLOyMPnA0bkh8DymsjiP7QhdYcTBycLy9SEhJaAJPGEmDkQKuEfsUNstf4ARzOmzWIA8XJWi4EcbZtGtMHpof0qdxBhGEYaCf/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=joQOtqo7; arc=none smtp.client-ip=67.231.145.42
+	s=arc-20240116; t=1770160236; c=relaxed/simple;
+	bh=lUcJN1jg+zED3Isc1cH6enOy5dSIioTA0MdAfnTcs98=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=hfObCg/dT5bdxpzU7uTSWEf2fnC4bYZ+bG8HfLOJjjUh5Em7JKeKvpDglipceeuL9lLeCTvQwFkLNIjJNqnyKuDcPal27UpmVkJ4blI+VXq7WsnhPvhzkHArCFIcEyzpy6VA58/LE+E7O7cfsKl9+QUGGL6EZTF5AYyEMo2MuT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=l8gfBS9K; arc=none smtp.client-ip=67.231.153.30
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="joQOtqo7"
-Received: from pps.filterd (m0109333.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 613KM0nC2623180;
-	Tue, 3 Feb 2026 15:10:24 -0800
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="l8gfBS9K"
+Received: from pps.filterd (m0109332.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 613JpgK0687507;
+	Tue, 3 Feb 2026 15:10:26 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=s2048-2025-q2; bh=vmLrkjZ47OrE/0/EWl
-	+bj5Aa4RWDwurlR0xRhx4++MI=; b=joQOtqo7YTzRiaxkXHtBlwzNrS1/Ad25dh
-	2q8WEeOTJXH8x3oWrFPVZGEBCBc0jo8Xuf3dxIx32uzJFbsqRZ7QF0tSSqafxmII
-	7wMjcN8s0/jdz6f+ftOYqWRyAfzW71gfSgwaOjfHlTdAi8+iTR9q8lNcX4suGZJg
-	YzU6WjMSGFVQOTGQ/Hq4a5hk/spyPv2BK7C0kJ8NqRBUasjk0RDD3Q+YG+5jHLIc
-	UO2ytiFxKY1zwXsQIIN1IKz2n9vA203Lu2YkSM1ZSN7mfsxEypN3PQfWhZ/1+5gy
-	QonhjqkorJj+//+BF1ffEW/rEBZFpO3HvGiaC6kLscqJ5kSLy+6w==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4c3mcxvwv2-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=s2048-2025-q2;
+	 bh=iPTUI/xKO457I8R5No/8MzqCrUFsTAdriLc9ADEbvic=; b=l8gfBS9KNJ/T
+	pU6Yeu70JSIZsSIvStcvRJ0k8Sa9b+YM0sCFzWTrwUHJDzK6HbIDz30Z4j9q0skP
+	gi+p9hWYpplzKwBonB1ayFbYV/G+yHvp9nAVEc6FFafVz4BYNcPoWzknUKxYejuE
+	UUNAyvqfbS9kePKIswjNyAon1sLbwIJgDEP7ncn7nDbXkfTGTiP9ZDLKTnlaBkJl
+	j1QMlOFuDjNCvcpLy9OX3Hb/1CyNKCVG38P0eX1pvOrT37O2kV8j3I7vNQIIMEwP
+	f/U/3eEh9H8BBGq2WMruhITLs90Hkjg9xZqp1FMeq4J8SmU2nrTS1KwJBjOpsCSH
+	bPUzVSg9nA==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4c3m8n5091-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Tue, 03 Feb 2026 15:10:23 -0800 (PST)
-Received: from localhost (2620:10d:c0a8:1c::1b) by mail.thefacebook.com
- (2620:10d:c0a9:6f::237c) with Microsoft SMTP Server (version=TLS1_2,
+	Tue, 03 Feb 2026 15:10:26 -0800 (PST)
+Received: from localhost (2620:10d:c085:108::150d) by mail.thefacebook.com
+ (2620:10d:c08b:78::2ac9) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.35; Tue, 3 Feb
- 2026 23:10:22 +0000
+ 2026 23:10:24 +0000
 From: Vishwanath Seshagiri <vishs@meta.com>
 To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
 CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -52,151 +54,164 @@ CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	<ilias.apalodimas@linaro.org>,
         <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
         <linux-kernel@vger.kernel.org>, <kernel-team@meta.com>
-Subject: [PATCH net-next v3 0/2] virtio_net: add page_pool support
-Date: Tue, 3 Feb 2026 15:10:17 -0800
-Message-ID: <20260203231021.1331392-1-vishs@meta.com>
+Subject: [PATCH net-next v3 2/2] selftests: virtio_net: add buffer circulation test
+Date: Tue, 3 Feb 2026 15:10:19 -0800
+Message-ID: <20260203231021.1331392-3-vishs@meta.com>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260203231021.1331392-1-vishs@meta.com>
+References: <20260203231021.1331392-1-vishs@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: DC3EAMjeT32f4nTpPSPjcSybcNmPubn5
-X-Authority-Analysis: v=2.4 cv=HuJ72kTS c=1 sm=1 tr=0 ts=6982805f cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=VwQbUJbxAAAA:8 a=VabnemYjAAAA:8 a=hDwN4JN7PfQbqHSwlsoA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-ORIG-GUID: DC3EAMjeT32f4nTpPSPjcSybcNmPubn5
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjAzMDE4MiBTYWx0ZWRfX7cqMQqUcGWl+
- jj4I5kEZF9lyNJk64VvK24JLQBWXERFbQATSLOomGOk/dtrDIpscrb1qYRq4c6HTtIdNf6ooEK3
- RNbp0g9Dsjk34Yzx9QSk/gO+fDMtGRRIVrM2PT6/bqhx1LxEYt1y7e8BBxSxYENCnJHYItnT3zD
- 0vUuCMZiLx3i0S6zc0sJpew3qISA+tJqGCo3WLdVdbgOV2wGFBNFKYP2BGBwhNdg4+i/VKoXm2o
- qeBBRgaNr/4qtASACJtFPdpy5MlE7E3dgtr3IYJ8Djy6FsCmKf8H5/VQe/0gYMpiG3PbUGstz1c
- mIvOIQquDeGPg4qRsIY36jN+a9ouNR9WjC/YU4L+iV1dF5/RxE7DM9F5C3RRVLweAtYBeLk/n5o
- 1Npu4X8jQKQd76fXoRchEF+tVexgZh7lyhpDG4K+eTqztZHwJn13CJky/XOUe6pAPZPxKcjhkjI
- 3WttbfoT6ZYscfkXaBQ==
+Content-Type: text/plain
+X-Authority-Analysis: v=2.4 cv=HuB72kTS c=1 sm=1 tr=0 ts=69828062 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VabnemYjAAAA:8
+ a=LsufUKy5yQhhIYM6NHsA:9 a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-GUID: 3msDK3jTq51rh2EBv2oVqDqs2UqkK-O5
+X-Proofpoint-ORIG-GUID: 3msDK3jTq51rh2EBv2oVqDqs2UqkK-O5
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjAzMDE4MiBTYWx0ZWRfX82in5AS0COhG
+ eHbJL0XVYtMQ5Twj4aFEziEBCrsawHTKFl6+GGCmqqks2CeHkIMoMuwrDpbizJ41iR/tUhGuU8t
+ zvkGDc33mFuVotnPyoTubumk5+WmESHHjfSnelCaaZUr4dE44oX1MaYWcOy3+ZnfYSx0q4VYGkW
+ rmNWwNjBF9whsTOgb2c7QS4FZetHgHbIMaIYvQdfpd8Hf03/SO/XOg/kpasRplUMF66pfM3eYrf
+ adrwGaq2vO+8udNi3E83YtkrYEmmqHwAYAsx4FfPitQOq/B6oggYmRFuNHOi3lkEMkVdxel2mhR
+ iuAFTAcCdBHHkF03Q4hJ/TN/ikwcmZyVg/Ua7yc3n4O9uR/0QnHlUWminq8j1u4C650mG1wUoZJ
+ g/FQtAqTydBnTAgsKCj+JjfD3y2drA7bePvllZOynhDx2UiJVJNf95yDdaBxV78tZRda4yAWPyI
+ xwF6ltCUtCXkLpC911Q==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-03_06,2026-02-03_01,2025-10-01_01
 
-Introduce page_pool support in virtio_net driver to enable page
-recycling in RX buffer allocation and avoid repeated page allocator
-calls. This applies to mergeable and small buffer modes.
+Add iperf3-based test to verify RX buffer handling under load.
+Optionally logs page_pool tracepoints when available.
 
-Beyond performance improvements, this patch is a prerequisite for
-enabling memory provider-based zero-copy features in virtio_net, 
-specifically devmem TCP and io_uring ZCRX, which require drivers to 
-use page_pool for buffer management.
+Signed-off-by: Vishwanath Seshagiri <vishs@meta.com>
+---
+ .../drivers/net/virtio_net/basic_features.sh  | 86 +++++++++++++++++++
+ 1 file changed, 86 insertions(+)
 
-The implementation preserves the DMA premapping optimization introduced 
-in commit 31f3cd4e5756 ("virtio-net: rq submits premapped per-buffer")
-by conditionally using PP_FLAG_DMA_MAP when the virtio backend supports 
-standard DMA API (vhost, virtio-pci), and falling back to
-allocation-only mode for backends with custom DMA mechanisms (VDUSE).
-
-================================================================================
-                      VIRTIO-NET PAGE POOL BENCHMARK RESULTS
-================================================================================
-
-CONFIGURATION
--------------
-- Host: pktgen TX → tap interface → vhost-net
-- Guest: virtio-net RX → XDP_DROP
-- Packet sizes: small buffers - 64; merge receivable 64, 1500
-
-SMALL PACKETS (64 bytes) 
-==================================================
-Queues | Base (pps)  | Page Pool (pps) | Improvement | Base (Gb/s) |PP (Gb/s)
--------|-------------|-----------------|-------------|-------------|----------
-  1Q   |    853,493  |      868,923    |   +1.8%     |    0.44     | 0.44
-  2Q   |  1,655,793  |    1,696,707    |   +2.5%     |    0.85     | 0.87
-  4Q   |  3,143,375  |    3,302,511    |   +5.1%     |    1.61     | 1.69
-  8Q   |  6,082,590  |    6,156,894    |   +1.2%     |    3.11     | 3.15
-
-
-RECEIVE MERGEABLE (64 bytes) 
-======================================================
-Queues | Base (pps)  | Page Pool (pps) | Improvement | Base (Gb/s) |PP (Gb/s)
--------|-------------|-----------------|-------------|-------------|----------
-   1Q  |    766,168  |      814,493    |   +6.3%     |    0.39     | 0.42
-   2Q  |  1,384,871  |    1,670,639    |  +20.6%     |    0.71     | 0.86
-   4Q  |  2,773,081  |    3,080,574    |  +11.1%     |    1.42     | 1.58
-   8Q  |  5,600,615  |    6,043,891    |   +7.9%     |    2.87     | 3.10
-
-
-RECEIVE MERGEABLE (1500 bytes) 
-========================================================
-Queues | Base (pps)  | Page Pool (pps) | Improvement | Base (Gb/s) |PP (Gb/s)
--------|-------------|-----------------|-------------|-------------|----------
-  1Q   |    741,579  |      785,442    |   +5.9%     |    8.90     | 9.43
-  2Q   |  1,310,043  |    1,534,554    |  +17.1%     |   15.72     | 18.41
-  4Q   |  2,748,700  |    2,890,582    |   +5.2%     |   32.98     | 34.69
-  8Q   |  5,348,589  |    5,618,664    |   +5.0%     |   64.18     | 67.42
-
-The page_pool implementation showed consistent performance improvements
-by eliminating per packet overhead of allocating and deallocating
-memory. When running the performance benchmarks, I noticed that
-page_pool also had a consistent throughput performance compared to the
-base patch where performance variability was due to accessing free_list
-for getting the next set of pages.
-
-
-Changes in v3
-=============
-
-Addressing reviewer feedback from v2:
-
-- Fix CI null-ptr-deref crash: use max_queue_pairs instead of 
-curr_queue_pairs in virtnet_create_page_pools() to ensure page pools 
-are created for all queues (Jason Wang, Jakub Kicinski)
-- Preserve big_packets mode page->private chaining in page_to_skb() with 
-conditional checks (Jason Wang)
-- Use page_pool_alloc_pages() in xdp_linearize_page() and 
-mergeable_xdp_get_buf() to eliminate xdp_page tracking logic and simplify 
-skb_mark_for_recycle() calls (Jason Wang)
-- Add page_pool_page_is_pp() check in virtnet_put_page() to safely
-  handle both page_pool and non-page_pool pages (Michael S. Tsirkin)
-- Remove unrelated rx_mode_work_enabled changes (Jason Wang)
-- Selftest: use random ephemeral port instead of hardcoded port to avoid conflicts 
-when running tests in parallel (Michael S. Tsirkin)
-- v2 link: https://lore.kernel.org/virtualization/20260128212031.1431746-1-vishs@meta.com/ 
-
-Changes in v2
-=============
-
-Addressing reviewer feedback from v1:
-
-- Add "select PAGE_POOL" to Kconfig (Jason Wang)
-- Move page pool creation from ndo_open to probe for device lifetime
-  management (Xuan Zhuo, Jason Wang)
-- Implement conditional DMA strategy using virtqueue_dma_dev():
-  - When non-NULL: use PP_FLAG_DMA_MAP for page_pool-managed DMA
-    premapping
-  - When NULL (VDUSE): page_pool handles allocation only
-- Use page_pool_get_dma_addr() + virtqueue_add_inbuf_premapped() to
-  preserve DMA premapping optimization from commit 31f3cd4e5756
-  ("virtio-net: rq submits premapped per-buffer") (Jason Wang)
-- Remove dual allocation code paths - page_pool now always used for
-  small/mergeable modes (Jason Wang)
-- Remove unused virtnet_rq_alloc/virtnet_rq_init_one_sg functions
-- Add comprehensive performance data (Michael S. Tsirkin)
-- v1 link:
-  https://lore.kernel.org/virtualization/20260106221924.123856-1-vishs@meta.com/
-
-
-Vishwanath Seshagiri (2):
-  virtio_net: add page_pool support for buffer allocation
-  selftests: virtio_net: add buffer circulation test
-
- drivers/net/Kconfig                           |   1 +
- drivers/net/virtio_net.c                      | 360 ++++++++++--------
- .../drivers/net/virtio_net/basic_features.sh  |  86 +++++
- 3 files changed, 292 insertions(+), 155 deletions(-)
-
+diff --git a/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+index cf8cf816ed48..fa98505c4674 100755
+--- a/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
++++ b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+@@ -6,6 +6,7 @@
+ ALL_TESTS="
+ 	initial_ping_test
+ 	f_mac_test
++	buffer_circulation_test
+ "
+ 
+ source virtio_net_common.sh
+@@ -16,6 +17,8 @@ source "$lib_dir"/../../../net/forwarding/lib.sh
+ h1=${NETIFS[p1]}
+ h2=${NETIFS[p2]}
+ 
++IPERF_SERVER_PID=""
++
+ h1_create()
+ {
+ 	simple_if_init $h1 $H1_IPV4/24 $H1_IPV6/64
+@@ -83,6 +86,84 @@ f_mac_test()
+ 	log_test "$test_name"
+ }
+ 
++buffer_circulation_test()
++{
++	RET=0
++	local test_name="buffer circulation"
++	local tracefs="/sys/kernel/tracing"
++
++	if ! check_command iperf3; then
++		log_test_skip "$test_name" "iperf3 not installed"
++		return 0
++	fi
++
++	setup_cleanup
++	setup_prepare
++
++	ping -c 1 -I "$h1" "$H2_IPV4" >/dev/null
++	if [ $? -ne 0 ]; then
++		check_err 1 "Ping failed"
++		log_test "$test_name"
++		return
++	fi
++
++	local rx_start=$(cat /sys/class/net/"$h2"/statistics/rx_packets)
++	local tx_start=$(cat /sys/class/net/"$h1"/statistics/tx_packets)
++
++	if [ -d "$tracefs/events/page_pool" ]; then
++		echo > "$tracefs/trace"
++		echo 1 > "$tracefs/events/page_pool/enable"
++	fi
++
++	local port=$(shuf -i 49152-65535 -n 1)
++
++	iperf3 -s -1 --bind-dev "$h2" -p "$port" &>/dev/null &
++	IPERF_SERVER_PID=$!
++	sleep 1
++
++	if ! kill -0 "$IPERF_SERVER_PID" 2>/dev/null; then
++		IPERF_SERVER_PID=""
++		if [ -d "$tracefs/events/page_pool" ]; then
++			echo 0 > "$tracefs/events/page_pool/enable"
++		fi
++		check_err 1 "iperf3 server died"
++		log_test "$test_name"
++		return
++	fi
++
++	iperf3 -c "$H2_IPV4" --bind-dev "$h1" -p "$port" -t 5 >/dev/null 2>&1
++	local iperf_ret=$?
++
++	if [ -n "$IPERF_SERVER_PID" ]; then
++		kill "$IPERF_SERVER_PID" 2>/dev/null || true
++		wait "$IPERF_SERVER_PID" 2>/dev/null || true
++		IPERF_SERVER_PID=""
++	fi
++
++	if [ -d "$tracefs/events/page_pool" ]; then
++		echo 0 > "$tracefs/events/page_pool/enable"
++		local trace="$tracefs/trace"
++		local hold=$(grep -c "page_pool_state_hold" "$trace" 2>/dev/null)
++		local release=$(grep -c "page_pool_state_release" "$trace" 2>/dev/null)
++		log_info "page_pool events: hold=${hold:-0}, release=${release:-0}"
++	fi
++
++	local rx_end=$(cat /sys/class/net/"$h2"/statistics/rx_packets)
++	local tx_end=$(cat /sys/class/net/"$h1"/statistics/tx_packets)
++	local rx_delta=$((rx_end - rx_start))
++	local tx_delta=$((tx_end - tx_start))
++
++	log_info "Circulated TX:$tx_delta RX:$rx_delta"
++
++	if [ "$iperf_ret" -ne 0 ]; then
++		check_err 1 "iperf3 failed"
++	elif [ "$rx_delta" -lt 10000 ]; then
++		check_err 1 "Too few packets: $rx_delta"
++	fi
++
++	log_test "$test_name"
++}
++
+ setup_prepare()
+ {
+ 	virtio_device_rebind $h1
+@@ -113,6 +194,11 @@ setup_cleanup()
+ 
+ cleanup()
+ {
++	if [ -n "$IPERF_SERVER_PID" ]; then
++		kill "$IPERF_SERVER_PID" 2>/dev/null || true
++		wait "$IPERF_SERVER_PID" 2>/dev/null || true
++	fi
++
+ 	pre_cleanup
+ 	setup_cleanup
+ }
 -- 
 2.47.3
 
