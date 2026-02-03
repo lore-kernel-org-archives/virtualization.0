@@ -1,143 +1,159 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from fhigh-a2-smtp.messagingengine.com (fhigh-a2-smtp.messagingengine.com [103.168.172.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14D0A3A63F6
-	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 14:13:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0D2B3AA1B9
+	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 14:42:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770128026; cv=none; b=NX1nOA6VatLX1zGu5a5vskddR8s94D7du0PYRRmlC6zUQ9ZLwQqFvmn5G7xiS6P0DxYlD1Qo6Oy1V1pZ37W8m1JLk7KI2oXODolqQz9WPg5JkhQt5krJ6nXWml+54EJSMX9u7wVI4ElNDme/HiF1cJ/Pp51j/lHMnKJeZ1MWp2I=
+	t=1770129728; cv=none; b=XwmD+SW8zdxYJI5fOkHJ8htqm17ZpajfJprDT8MS5Rz40PZJ4JlNDyaqSsR+T38odscB9IoEiboVNHlJ78BZczaMiWnlrpfUNYOx55IeoMLOy4FjLeyNVURkJxt9NWY/PkO9eAdLfIVhbEzzlLGGXSXzSEa/sSs5muiZFS4c1s4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770128026; c=relaxed/simple;
-	bh=CODahucms7FU+ajr6yfoXd+/f3zUSL7qZ8te0PZ0yHU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AO/rVuSMB1E0K12C36hfJrBasLZ4exatMap57puofQFe80+R8bdo82AHAfJthoVBlsd88YtF2A+xfIWb78dozKtsInzKbKo4eeVVgzninqJGRfcVlc/wGxiI4UsB2pXclfW8TEsXpobEWyzbv7bvqeOu7HCseVtBfw9ek5DvauU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BeDAn5Kx; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1770129728; c=relaxed/simple;
+	bh=i/Jjt/aGDnEN50gU8k7zcaGyuMfCVUMe5dEWAXe8AgE=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=F1fWXc58vcCHsPULF4to/pobEAiusT8AEQDFVerUHH9vJJIVCBdscWiHK6b3+g5cR1CLCa2wJe3E+kThYb/T48SXGwtHXX7M+g3nhPFbYrfenoEwp5iTOIbtTK6DXR1GwwhSE1sjPCkpuCRuWiNv1YDoz1rYk5V6SsyC2/af1Yk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=krRW37WA; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=R1eYe8hw; arc=none smtp.client-ip=103.168.172.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BeDAn5Kx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770128024;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HgTtkunK/minAcJLOcxYBdVOCWo3KaWlbKJlMlPjxeM=;
-	b=BeDAn5KxX7pFlcF2+1Fm6CPpVkXe3aQEqFb20aMuIn6DDdlo/2VMaN13x2zIHQHTjnM2qF
-	7/wuQHLMM+5Y7Hewb1KQrgdkTOcS/3+LKwqkKFYKZnWznPNtAjvshPhACX+zwhE7jZwRjm
-	A6pss+yE0OmUHV0NdfWkfw+zXpYr3j8=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-25-MGc8o1CmMJ-jR07leBlUvg-1; Tue, 03 Feb 2026 09:13:41 -0500
-X-MC-Unique: MGc8o1CmMJ-jR07leBlUvg-1
-X-Mimecast-MFC-AGG-ID: MGc8o1CmMJ-jR07leBlUvg_1770128020
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-794e8cc5525so22323207b3.0
-        for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 06:13:41 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770128020; x=1770732820;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=HgTtkunK/minAcJLOcxYBdVOCWo3KaWlbKJlMlPjxeM=;
-        b=SMgAJKl0TGaH4CeqZ0KvmQR4dkArq7dGBRXr3cn5rb33q2tk+xNmd6iedaS3iPoyDX
-         CR6DWZrLqXd4zKRQP+bzdqwYSYYodRQAYVdeRSKy4iuTznYK+Zpe3fumsDiJtvZhHIwW
-         dshd4TMEHvk7DxnWhtr78FkxkQi4fPwBXWWiDYrOaqeCMrvGW2dv/w04eIrEY1kMZh+h
-         ayFxd3YHrDTsjedMYcOjbc8SYA++huTIG18sjGQ95WopOEkzw7L+fcNb617fkXMfzuMH
-         OtMZgWFQzMuiOy4cEDSOkI4g3O2qop4ayGKZpLyixZrg4YKAOJilCBsM+fciNYa8mUoC
-         A94A==
-X-Forwarded-Encrypted: i=1; AJvYcCUZD0mwkhVLGwiCw0S2hX5vXx2xivTvCPu0DghM3vqzn+6i0bTOd3W+EYUEY+FkCl2IB9gcm3ych/nAE28GPw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwaoANvQhLkdXRl6gceCqo1syBh2SN3i3lDs1Brx0t8k1VUfiMT
-	MYp8l2qeQyrjYRelNi9UyCuImObnsh3IxJO60wgvOwm7vJXMfA5yS+QzKXYy1kBZPsHniVkR2B3
-	LuBWuRsrLdFo3+f0Z71z5LmEw+2rwRFPljAC0WTrFqCnEGZnmVRbEtPBu0XHvXZl8leHyfx0PQs
-	YL6pJLdyudR2ekpGOxfHOuRVKnFNuj01bL4KQpS17mG18=
-X-Gm-Gg: AZuq6aK98ICxJLl/9HLha0yOl8JW9v3PLGC6J0psN7ypG0/qCCAFQmWokJitUSipq5z
-	sxS4BV+KeUGPo5NzHG2GQEE5I907ZON5/7FkYmVP/g5DistuY7F3QnYczeIYPXW7SEdrJRp6vc7
-	8uobqegKeDTqA5pnGsjHRnVmZ8wcLpqNKSN1gzJ8FLgV2LKMt/uRLhwWchPsWvadI9TA==
-X-Received: by 2002:a05:690c:7107:b0:794:dac2:89ce with SMTP id 00721157ae682-794dac2a6e0mr59335687b3.21.1770128020455;
-        Tue, 03 Feb 2026 06:13:40 -0800 (PST)
-X-Received: by 2002:a05:690c:7107:b0:794:dac2:89ce with SMTP id
- 00721157ae682-794dac2a6e0mr59335437b3.21.1770128020060; Tue, 03 Feb 2026
- 06:13:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="krRW37WA";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="R1eYe8hw"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 12C8C1400070;
+	Tue,  3 Feb 2026 09:42:05 -0500 (EST)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-04.internal (MEProxy); Tue, 03 Feb 2026 09:42:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1770129725;
+	 x=1770216125; bh=zX+PA3NBROgw9p7re6cEnyYi9JKRb5HYhbsNkOxVVvo=; b=
+	krRW37WAJGcEMMY9RhwOl/4pxiFzO4ElgUraWXjXgCSvzlnIJrS2yZUiNPUNjbYO
+	x4+UYpE4JQfTsf4uJZeZxx4QY7/V80PDMr1LoAlF2Ba2vb7W+oa/LmpiER9XI3aA
+	Yu4rOK/v7QsUkMEUko9AH7mt2TFlNhci2VzNTSemTs/dPJUxKQcZF+2UDsIY0SMG
+	xyIbjcMe11eflojihiX/59A1O0+gOj33SGzQ2d9LfsEt2CxKVbf+DTZ/OM7ifOsp
+	MwXVNMxuzGXlsGiJ6JfJ/Fu/iKrozpPShQ/24jiqw+vpKdB0VRqnEZdLfLYFXNtm
+	32U/CqUFbBGYXCN6Y9nTZA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1770129725; x=
+	1770216125; bh=zX+PA3NBROgw9p7re6cEnyYi9JKRb5HYhbsNkOxVVvo=; b=R
+	1eYe8hwL6hXEcdduB+OtA1xS52tdq4Cr83dLsnhdIsFk+sH6YeUl6GqQkGmxc//A
+	vNzP1QnTvlzilSA6MmdsKvYk3NEPuOutGHymbkstP+kIdObrTVo3DZwMICJdC1xz
+	ZuCzxa3cPGo/B2AJ7U9fef142qXafE2puKKrQ0Q2LP0+eb9o8i3ld5iuyiQXifsr
+	gvJEGTWaFZZWjZuqdBcYtQfCYovqOwNI6LGNWrNlD3ziDJSe8mVqT2EBUKch8BiV
+	sdYWmlNxsoPr05+4myPgzmMFUPt3lDoXAUHqx5HdQDNybINaPHPXVKBBaQtsrOo2
+	DMaJ48s8ex9TY0rR38Gsw==
+X-ME-Sender: <xms:PAmCaThU8x6ebeDHJ0_YozM02A8s1BrEMGmKVJJ3KK3Uq7MjZIP9gA>
+    <xme:PAmCaa3_c9pRgCc71dFn41URqOB5zrv8fy4TXtSTcXvL8iDiMAFUFa5hEPSsNeCRA
+    brmChgQ-n5ivZWwAv_h29YlwSdjii7v7chb2JE3nQR94XEfxRkRpank>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddukedtfeegucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhepvdfhvdekueduveffffetgfdvveefvdelhedvvdegjedvfeehtdeggeevheefleej
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprghrnh
+    gusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepuddtpdhmohguvgepshhmthhpohhu
+    thdprhgtphhtthhopeigihgvhihonhhgjhhisegshihtvggurghntggvrdgtohhmpdhrtg
+    hpthhtoheprghrnhgusehkvghrnhgvlhdrohhrghdprhgtphhtthhopegrnhguvghrshdr
+    rhhogigvlhhlsehlihhnrghrohdrohhrghdprhgtphhtthhopeiguhgrnhiihhhuoheslh
+    hinhhugidrrghlihgsrggsrgdrtghomhdprhgtphhtthhopehvihhrthhurghlihiirght
+    ihhonheslhhishhtshdrlhhinhhugidruggvvhdprhgtphhtthhopegvphgvrhgviihmrg
+    esrhgvughhrghtrdgtohhmpdhrtghpthhtohepjhgrshhofigrnhhgsehrvgguhhgrthdr
+    tghomhdprhgtphhtthhopehmshhtsehrvgguhhgrthdrtghomhdprhgtphhtthhopehmrg
+    hrtghordgtrhhivhgvlhhlrghrihesshhushgvrdgtohhm
+X-ME-Proxy: <xmx:PAmCafGXQPYTtM9el9WigbvYuuHIBehr3-RESzWVQrVcG_uhXzFRBQ>
+    <xmx:PAmCaUhIobTcSTI9iHICZOG86YPuX9JBMagTeCPjO7kFYhQ-kqscYg>
+    <xmx:PAmCacs4d2vYnP99SoPqXd7D9NlOVeCCgWboE1iFvcWI6UZr2ZVgSA>
+    <xmx:PAmCaXsWZqZJsNGBWvfOLa-1pObJc94aHjPOpwL2XGZ8RbKIXE1DNw>
+    <xmx:PQmCaaw-Kj6qNSsTGhQ-sxUGae3gpHnsNM-nN9n1cFh2YOMHaHQQOQXt>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id DC887700065; Tue,  3 Feb 2026 09:42:03 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260202095940.1358613-1-arnd@kernel.org> <20260202095940.1358613-2-arnd@kernel.org>
+X-ThreadId: Ae52e6Y4Oh4g
+Date: Tue, 03 Feb 2026 15:41:32 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Arnd Bergmann" <arnd@kernel.org>, "Jason Wang" <jasowang@redhat.com>,
+ "Xie Yongji" <xieyongji@bytedance.com>,
+ "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
+ "Anders Roxell" <anders.roxell@linaro.org>,
+ "Marco Crivellari" <marco.crivellari@suse.com>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Message-Id: <a4612499-6a67-4d6b-946f-dc038ec2b6fd@app.fastmail.com>
+In-Reply-To: 
+ <CAJaqyWeZes2nUFQNaq5NmXN7127eh+bNFQbB7yX73TuZ0=xRng@mail.gmail.com>
+References: <20260202095940.1358613-1-arnd@kernel.org>
+ <20260202095940.1358613-2-arnd@kernel.org>
  <CAJaqyWeJs4u6G46gEg=-G6o3u6LsgzVC03fTGR=O_qd_HujLuw@mail.gmail.com>
- <30db98bd-8361-46f5-aec1-ffbc4e8574dd@app.fastmail.com> <20260202114412-mutt-send-email-mst@kernel.org>
- <34d3ce77-84b2-476c-a678-e092831041ae@app.fastmail.com> <20260203053142-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260203053142-mutt-send-email-mst@kernel.org>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 3 Feb 2026 15:13:03 +0100
-X-Gm-Features: AZwV_Qj7eSPoSL5T_E-5g00qMHmRpplnLg8urFGIDRYqlBbJpmLqSVY4oDeUZ-o
-Message-ID: <CAJaqyWeZes2nUFQNaq5NmXN7127eh+bNFQbB7yX73TuZ0=xRng@mail.gmail.com>
-Subject: Re: [PATCH 2/2] vduse: fix compat handling for VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Arnd Bergmann <arnd@kernel.org>, Jason Wang <jasowang@redhat.com>, 
-	Xie Yongji <xieyongji@bytedance.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Anders Roxell <anders.roxell@linaro.org>, Marco Crivellari <marco.crivellari@suse.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: jiIXzzkSnz3q9cUSrZovGLjQ7SFj5G0ooQTYashKMJI_1770128020
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+ <30db98bd-8361-46f5-aec1-ffbc4e8574dd@app.fastmail.com>
+ <20260202114412-mutt-send-email-mst@kernel.org>
+ <34d3ce77-84b2-476c-a678-e092831041ae@app.fastmail.com>
+ <20260203053142-mutt-send-email-mst@kernel.org>
+ <CAJaqyWeZes2nUFQNaq5NmXN7127eh+bNFQbB7yX73TuZ0=xRng@mail.gmail.com>
+Subject: Re: [PATCH 2/2] vduse: fix compat handling for
+ VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Feb 3, 2026 at 11:35=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
+On Tue, Feb 3, 2026, at 15:13, Eugenio Perez Martin wrote:
+> On Tue, Feb 3, 2026 at 11:35=E2=80=AFAM Michael S. Tsirkin <mst@redhat=
+.com> wrote:
+>> Along with it or no, surely before the release.
+>> Given 32 on 64 with this apparently has been broken forever,
+>> I will merge this just based on even you did not bother testing compa=
+t, I am
+>> inclined to say I am merging this but not rebasing because
+>> of this.
+>>
+>> Oh and we got lucky this didn't leak kernel stack info.
+>>
+>> Eugenio, note for the future: please help make sure UAPI
+>> structs do not have hidden padding.
+>>
 >
-> On Mon, Feb 02, 2026 at 11:54:17PM +0100, Arnd Bergmann wrote:
-> > On Mon, Feb 2, 2026, at 17:45, Michael S. Tsirkin wrote:
-> > > On Mon, Feb 02, 2026 at 12:59:03PM +0100, Arnd Bergmann wrote:
-> > >
-> > > I think .compat_ioctl would be cleaner frankly. Just look at
-> > > all the ifdefery. And who knows what broken-ness userspace
-> > > comes up with with this approach. Better use the standard approach.
-> >
-> > Sent now.
-> >
-> > I'm not sure it's much better because there is quite a bit of
-> > code duplication, and reducing that would be a larger rework.
+> Sure. I'm trying to find an automatic way to check for this but with
+> no luck :(. Arnd, did you use some tool for this or you just found it
+> by visual inspection? I'm trying pahole and -Wpadded but the output
+> includes a lot of struct not related to uapi.
 >
-> yes but on the flip side, we can put it all inside ifdef CONFIG_COMPAT
-> (which this code did not do, but should IMHO).
->
-> > It may be best to hold off on patch 2 for the coming merge window
-> > since the compat ioctl code has apparently always been broken for
-> > x86 here.
->
-> And it needs testing.
->
-> > I hope we can at least get patch 1/2 merged along with the
-> > new code though, otherwise it would get a lot harder to sort
-> > it out properly, with the v2 struct members overlapping the
-> > old padding fields.
-> >
-> >      Arnd
->
-> Along with it or no, surely before the release.
-> Given 32 on 64 with this apparently has been broken forever,
-> I will merge this just based on even you did not bother testing compat, I=
- am
-> inclined to say I am merging this but not rebasing because
-> of this.
->
-> Oh and we got lucky this didn't leak kernel stack info.
->
-> Eugenio, note for the future: please help make sure UAPI
-> structs do not have hidden padding.
->
+> I guess it is possible to filter it with some clang or awk machinery,
+> but I'm asking in case I avoid developing something already existing.
 
-Sure. I'm trying to find an automatic way to check for this but with
-no luck :(. Arnd, did you use some tool for this or you just found it
-by visual inspection? I'm trying pahole and -Wpadded but the output
-includes a lot of struct not related to uapi.
+I have the patch series, but it's not quite ready for submission.
+In total, I annotated around 10% of the structure definitions
+(500 files) in include/uapi/ to shut up -Wpadded for all the
+existing structures with holes in them.
 
-I guess it is possible to filter it with some clang or awk machinery,
-but I'm asking in case I avoid developing something already existing.
+In the end I turn on the check with
 
-Thanks!
+--- a/usr/include/Makefile
++++ b/usr/include/Makefile
+@@ -6,7 +6,7 @@
+ #
+ # -std=3Dc90 (equivalent to -ansi) catches the violation of those.
+ # We cannot go as far as adding -Wpedantic since it emits too many warn=
+ings.
+-UAPI_CFLAGS :=3D -std=3Dc90 -Werror=3Dimplicit-function-declaration
++UAPI_CFLAGS :=3D -std=3Dc90 -Werror=3Dimplicit-function-declaration -We=
+rror=3Dpadded
+=20
+ # when cross-compiling with a minimal toolchain, use nolibc headers
+ UAPI_CFLAGS +=3D -I$(srctree)/tools/include/nolibc/
 
+which of course warns for all the existing holes. I will continue
+to send fixes for new instances in the meantime, as I'm testing
+linux-next.
+
+      Arnd
