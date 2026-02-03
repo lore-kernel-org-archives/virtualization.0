@@ -1,70 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A4FA29BD80
-	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 10:00:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72E92313526
+	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 10:22:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770112837; cv=none; b=LoRfY5wNPFuLxOObGqM7G90EErWiyt38/f09p79Bqxrwbkve7+P7sfGFd3XgjLNIeR+Bt8qYPhKCsRsFJej8dBKwqJafKxTVw0WSULcwoQVg9XHzguA/n2vML5up05xqC5GSinBJll6qWhBocv1mx2UctlRdq79dnU82daVuKdA=
+	t=1770114165; cv=none; b=gYQAfB3T5MEE7AVuO64GnFmcg0gu4TCabH3ACmUG3WTDefRnvxVUxXtDnKcKKTc/lZ45ZFN5pF9ZAnRCVdjHQA98mEN3yZf0NEgK4nnXxowPqq3Ph1eujrnxIvZHZYSVDBjNfHPNV5eu4Ud8H+j87/i8a5Znn7rUEw6o0hejSS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770112837; c=relaxed/simple;
-	bh=6gC6QwOSU2CEbHxnD2RcW3ic9SaytmxWU004Utl+5dg=;
+	s=arc-20240116; t=1770114165; c=relaxed/simple;
+	bh=prmaXrFKwwio+mOGSzr/9ol8L22BVJeYEEhmds/TAh0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TYDgMxBd50BAF7RWjfkX9lYzwtVXRK+S/iYo1hyzIChAKwC1ewYc2JJho4ZpZftO1XLtbfRJvxj33i9/tNPZ6sy1aijYdnZrWG61U/nsObaymterl/y4gV7q+VwWlvU+ukk/2goDjJ/C1/VN/9/ArqkVHN1AxkANB/X3Ma9jieM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Osg0bVZC; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=i8Rbk9iXzE82f9e6hZ8MTQsH3xSMwK3Jhvv8Kiy9fs1fEg/XwSbh8qqvZQAkJBYXNPYdya6Y4ZinMf2R52EzJS81OgaAOa6JKreeBnJ+NF3TOk3fCBb4W4oAeLLOlqWUIvha3Kt94pgfD/1Dst0S+2qrxD0VmyQMoW/Jfjj9kHw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NrxbbFxn; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Osg0bVZC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NrxbbFxn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770112835;
+	s=mimecast20190719; t=1770114162;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Maoq0nNNPcqKh6aFj2hRGbE9WNaWJtcvwwKWPlQodf8=;
-	b=Osg0bVZC2GfLMFpEzNuMUntEj53h8kPMdqMtWLrEHrtiIcTOQDyycNClNrCLOmpnRh23Pg
-	DGkscIiZoXT/ZP5BmZ/fSXjY20j3F9OkT912OiUMGcdYQ/SrOwfY8OZwNUaFiVfGmayMVk
-	Z9TeZZ0hw7fxX5gynSXbb6f+zn8AQB4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=xh/UmK3MDA/v1xjO80i0eilp6Lnmx07hLEk6LbEtMTs=;
+	b=NrxbbFxniphE3nH+yoxdjG3vTvMfv7ntY7FdMUxPnhcsNas2GsiBNo0Ng20S+2kl5XqIXS
+	hqnlMkZroRrj2GsvdvWo2/StdyyZF7OrTtmaHjaqvGiWJvK+KtnUUSZ/vZlKnHbVD7eJvZ
+	9xKunhTTk2py1egalowjhGyKVwggRvg=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-329-HZ5Gim7VPLG7RKIIrQgUOQ-1; Tue, 03 Feb 2026 05:00:33 -0500
-X-MC-Unique: HZ5Gim7VPLG7RKIIrQgUOQ-1
-X-Mimecast-MFC-AGG-ID: HZ5Gim7VPLG7RKIIrQgUOQ_1770112833
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-480717a8ef9so5800275e9.1
-        for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 02:00:33 -0800 (PST)
+ us-mta-456-kHM-pik3NfGGVsBAf_iMMA-1; Tue, 03 Feb 2026 05:22:41 -0500
+X-MC-Unique: kHM-pik3NfGGVsBAf_iMMA-1
+X-Mimecast-MFC-AGG-ID: kHM-pik3NfGGVsBAf_iMMA_1770114160
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-435db9425ebso5304273f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 02:22:40 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770112832; x=1770717632;
+        d=1e100.net; s=20230601; t=1770114160; x=1770718960;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Maoq0nNNPcqKh6aFj2hRGbE9WNaWJtcvwwKWPlQodf8=;
-        b=aeb2ZAG16ge6uLQavwUqw1jSZ9UK8zDRnFgn/t9qHCYPMRDOJYwLg/AwZnMF7ruqsL
-         AUoLoS3yHJzmrWKYpR4BbI2K0RJGxbcoeoEED0T11YSy0r/U6DquN2iDUd5Fn5xXwAE1
-         Y3rW6+LRvQojS9amtXGUkASgEpws6rKi3TeeifvGPWbwYak4tjNjtfVveDrbesCXWFKE
-         omd0sPTWDv4H8HKeknsyATVZvUi5A5/Bh/VDRbSaNvlnst5GE8oG83YOgIQ5xe5N9LRN
-         H1w1Wj7eS3CKmiCXEN6fYl/cPd8Pr6izAlUDhCQ5WEE/ZGWmtAloD095M5ETnea091GV
-         UVbA==
-X-Forwarded-Encrypted: i=1; AJvYcCVoE4yz9HLgyLzFsLU3duai9i/p4lJhyV4m7DzDq8Q3zsF02jb1HwRfm7AyN6KzcIhQ1p/9zRdkeZlmRbVpCQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwlEFNDLZhk9c+CmCRaZ1Eugnl0IfEvYphtrLc0RPKbZu89mpah
-	ILcOEASjIx90JbHZ+7l8CAsg2k1uQ+91HOez5XbDmE8awBawFPRpz2wXUdzn2gpDyYgzzDrcmP1
-	SxJ/GkleKTxUlM/JxSAwjF53nXjFLdel19/PWnd89egQ5D6XexIvHPK/4TpxFRMEhwtAE2niNYY
-	GI
-X-Gm-Gg: AZuq6aIjDY3tsk4SAqAPXBfBik09kKBA2f/Mn6vszYsVKfdlz4lhokw0qdVR5NO7a1T
-	tucbZZZ8yOuPaTO2TqMZUPxovBqAZqBMYojCulrUrr2IEcLACGBY/3GubL5wABLCSEa+fX/OE4j
-	kcv6GK7z2+jUpBrWolUwBonZ90pn3GwiI0WG2Ji7E+f/AQyQJ9YPFId6MrKWsrvNfWhItThDW9S
-	gUH1xyZTLEiF4cnuMjuDujTeotlLOW2ZGNjWkrDTfZZwo6j6pHHOq6F5F1dWCXTm9enU0/Rb1Ls
-	VVXqH7GqEwQUe0Xhd5ySoqwKAZrxjH3SvuHNxRr82kWTGijEMORqXiCW1I4CgIgvu6/XPl7QncF
-	6p8EbDm4gfVikHWEU6ZvIjnHDAcAWy2zBvA==
-X-Received: by 2002:a05:600c:a00d:b0:47e:e981:78b4 with SMTP id 5b1f17b1804b1-483051478fbmr37344315e9.12.1770112832321;
-        Tue, 03 Feb 2026 02:00:32 -0800 (PST)
-X-Received: by 2002:a05:600c:a00d:b0:47e:e981:78b4 with SMTP id 5b1f17b1804b1-483051478fbmr37343845e9.12.1770112831768;
-        Tue, 03 Feb 2026 02:00:31 -0800 (PST)
+        bh=xh/UmK3MDA/v1xjO80i0eilp6Lnmx07hLEk6LbEtMTs=;
+        b=kaxMKxJOWLUEWgRO+DJmNR+zr1LrYIKH58+TishjBzrWsXLu7Gcn3ah6PnHYaR3xAg
+         1ikbNml8dUBKvmqsh0I1Du/1jnKqKB5sm6MqTnomtInF2Q7PS/ss7M/w1O3NvU0gulAr
+         dRn6NnGwgwxy/ynDnHQ+7jLw/2GJtXDk6rkntBy9p/d5Tbj3Ag6X1YQJGiBe9q9GFuAJ
+         9i3u9KBQOws5N9N2jwsCYgY6he7+l7IB8/cCvqvkSZnn64nWT3iObQCa8BMYWfiJQm6e
+         4GFn/CPvckqEyggYYwmCfaaCifzAIonmPBvimd6OzicD3uRp1KLA/sF4M7DKhvky1P/Q
+         I2uA==
+X-Forwarded-Encrypted: i=1; AJvYcCWsN4djBTweAhnGB9pQB84VzZv7PR6EO87EvEQMjS4gv0KQcOw48aDH/Z7roAOXPqL/ruKE/8TKpJMfRSLryA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwkE9FsSsCcTHVYFyZHXFolywusxNIzdGBjw4dPU2eN5csBHbPf
+	GVdoJdhoO1q1zAT65AAqtIX9WIOrPaepUStg1tnHPDVV7ba24nwqfB+oiiSFRWD4whmmRQHNZ6i
+	YCVZHOEv+JxdTzCpeRWxpZQFCDEuLBZug+PWui7L8xAeFv0ZQ6+EmOPayYb3KnFqk8hvU
+X-Gm-Gg: AZuq6aL0XqHa1rYcF2PH3Wr91NAJP+nPNl/sB/xleCOpHq2CgRs9LKjQflo8hY4kdJE
+	suWG4umg3jkxwiqWICB1aPv1g93A4Hl4ZLcohgTFcdVxmo9f+jGzqPRgsAimLu2tQkgjKt9pmkr
+	6olfLTQbbmSCaLvup/zY2+s2gi1opd6Z97Pjim50LwcD5NJho6rzzLG/+216yI35dCdGXcFkstx
+	EKFJQVB1eKx/l9KWXJDw3H/E+OhyB1dVPSpbBuYplWCOkzEeNVtHj3dY7YpXBKERxbl0/PyxNdb
+	oeFjwpaq8MTYg+EeEHaunXueBEQYNMJsfGuidL9G49qWFysDKBkuKdFfE3N9bTpmkrjyWYNNN9l
+	nDn41X45O0c6w3GEp5+GYWC2DZwuq22PGhQ==
+X-Received: by 2002:a05:6000:40da:b0:435:9bf5:b32c with SMTP id ffacd0b85a97d-435f3ab283amr23460766f8f.29.1770114159582;
+        Tue, 03 Feb 2026 02:22:39 -0800 (PST)
+X-Received: by 2002:a05:6000:40da:b0:435:9bf5:b32c with SMTP id ffacd0b85a97d-435f3ab283amr23460716f8f.29.1770114159007;
+        Tue, 03 Feb 2026 02:22:39 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4830515381esm55676745e9.11.2026.02.03.02.00.30
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435e10ed952sm52718921f8f.10.2026.02.03.02.22.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Feb 2026 02:00:31 -0800 (PST)
-Date: Tue, 3 Feb 2026 05:00:27 -0500
+        Tue, 03 Feb 2026 02:22:37 -0800 (PST)
+Date: Tue, 3 Feb 2026 05:22:35 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Arnd Bergmann <arnd@kernel.org>
 Cc: Jason Wang <jasowang@redhat.com>, Xie Yongji <xieyongji@bytedance.com>,
@@ -74,7 +73,7 @@ Cc: Jason Wang <jasowang@redhat.com>, Xie Yongji <xieyongji@bytedance.com>,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2/2] [v2] vduse: fix compat handling for
  VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
-Message-ID: <20260203045942-mutt-send-email-mst@kernel.org>
+Message-ID: <20260203050216-mutt-send-email-mst@kernel.org>
 References: <20260202224835.559538-1-arnd@kernel.org>
  <20260202224835.559538-2-arnd@kernel.org>
 Precedence: bulk
@@ -85,7 +84,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20260202224835.559538-2-arnd@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: FUGQzRxeL1_XbKmDomQqTEwYsjzJ7TnJ3XzaLxR9z6k_1770112833
+X-Mimecast-MFC-PROC-ID: 8sv9LEPppSHfo1PEm5_YNh-EK4xQLV8C085tpoYW_NY_1770114160
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -106,6 +105,9 @@ On Mon, Feb 02, 2026 at 11:48:08PM +0100, Arnd Bergmann wrote:
 > The code is directly copied from the native ioctl handler, but I
 > did not test this with actual x86-32 userspace, so please review
 > carefully.
+
+More importantly, I'm not applying this until it's tested)
+
 > ---
 >  drivers/vdpa/vdpa_user/vduse_dev.c | 123 ++++++++++++++++++++++++++++-
 >  1 file changed, 122 insertions(+), 1 deletion(-)
@@ -119,7 +121,15 @@ On Mon, Feb 02, 2026 at 11:48:08PM +0100, Arnd Bergmann wrote:
 >  }
 >  
 > +/*
+
+ifndef CONFIG_COMPAT around the structs will make it clearer
+they are only for this purpose.
+
 > + * i386 has different alignment constraints than x86_64,
+
+why i386 specifically? many architectures have CONFIG_COMPAT
+and it looks like all of them will have the issue.
+
 > + * so there are only 3 bytes of padding instead of 7.
 > + */
 > +struct compat_vduse_iotlb_entry {
@@ -128,7 +138,19 @@ On Mon, Feb 02, 2026 at 11:48:08PM +0100, Arnd Bergmann wrote:
 > +	compat_u64 last;
 > +	__u8 perm;
 > +	__u8 padding[__alignof__(compat_u64) - 1];
+
+Was surprised to learn __alignof__ can be used to size
+arrays. This is the first use of this capability in the kernel.
+
+I think the point of all this is that compat_vduse_iotlb_entry
+will be 4 byte aligned now? Very well. But why do we bother
+with specifying the hidden padding? compilers adds exactly
+this amount anyway. Just plan compat_u64 will do the trick.
+
 > +};
+
+
+
 > +#define COMPAT_VDUSE_IOTLB_GET_FD	_IOWR(VDUSE_BASE, 0x10, struct compat_vduse_iotlb_entry)
 > +
 > +struct compat_vduse_vq_info {
@@ -144,15 +166,13 @@ On Mon, Feb 02, 2026 at 11:48:08PM +0100, Arnd Bergmann wrote:
 > +	__u8 ready;
 > +	__u8 padding[__alignof__(compat_u64) - 1];
 > +} __uapi_arch_align;
+
+it's a global variable? I'm not aware of this trick. What is this doing?
+
 > +#define COMPAT_VDUSE_VQ_GET_INFO	_IOWR(VDUSE_BASE, 0x15, struct compat_vduse_vq_info)
 > +
 > +static long vduse_dev_compat_ioctl(struct file *file, unsigned int cmd,
 > +				   unsigned long arg)
-
-
-I think this needs an ifdef, otherwise gcc will warn about
-an unused static function.
-
 > +{
 > +	struct vduse_dev *dev = file->private_data;
 > +	void __user *argp = (void __user *)arg;
@@ -253,6 +273,10 @@ an unused static function.
 >  	.unlocked_ioctl	= vduse_dev_ioctl,
 > -	.compat_ioctl	= compat_ptr_ioctl,
 > +	.compat_ioctl	= PTR_IF(IS_ENABLED(CONFIG_COMPAT), vduse_dev_compat_ioctl),
+
+Too funky IMHO. Everyone uses ifdef around this, let's do the same.
+
+
 >  	.llseek		= noop_llseek,
 >  };
 >  
