@@ -1,270 +1,224 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from MRWPR03CU001.outbound.protection.outlook.com (mail-francesouthazon11011014.outbound.protection.outlook.com [40.107.130.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A40E721CC71
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Feb 2026 16:00:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770134418; cv=none; b=R2AaijsBVWjDNRvYvkw2LQQi1sA6lnw5LQMU4NoyWDenVqJVo8MuAxCYDEzJVUnk2sq0inB0npPnDDHnsiMzv7+ipimHk9yhYFReS/yZY9xPNSt8dFEv84jrubGcGA1YF6YBTpXDOqVRyeg+XeQZpoNLGlMPSgfy0vfBtUdrDk0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770134418; c=relaxed/simple;
-	bh=iazE4s92ZvYTkL4sF3dmjaq7r9G5CAIJHKOQaPUZqUs=;
-	h=Subject:To:Cc:From:Date:In-Reply-To:Message-Id; b=PsX/Yxw7tvcXgaFFEIqkmj3mLpSUnrEfBr/9MNPTxn8sDJfHwwdSfSb7lj+o57uizQ/Iy6eq5EUPD0IF3oHTUaghAdmIAPLf4xypPHfagut+8d7JdeAjqtMUrKv3vYuxFlqOv6TiqLMEz6vfS/36bQj27lQcXrqmogI/6dbhwjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=jTAr864T; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7E4A3BFE4D
+	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 16:11:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.130.14
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770135095; cv=fail; b=h2BTsNcZRHOkd5QDxvg7b2LqMxmXpxtnIOovU0RejEmWoL0DYeudg3WtFMnbfdwqryZ4PWCtHUSRMw0w80r0yv/3s+fpnSWR/KCanP7++R5a+Vay9n/IP+4mpP3jGQZgghF0Agkr1u9aTg9wXxksv7peNRbCKi1jph74PLMHDnI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770135095; c=relaxed/simple;
+	bh=BEk3kud8WH/Gr7UdWfR6sU0wWh6JFyuIniAD6Q058YM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=kScRuGUGTKt27TBw5nCvbtYMjF5QKnqVNOZZZfOQXMVmjA9buaEpRxS7hk/4tbh1JPxrWFuXxnbVjs9Eo4T6qNYbBCUYDoZ2a7/OwLHkxi4tDBqveUSQyxYsHmRYMFU7VI5dGdYMvNxJcr+hn5Fn70bN3r2XN+MZTY3wSUnABN8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com; spf=fail smtp.mailfrom=nokia-bell-labs.com; dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b=q9neB3HA; arc=fail smtp.client-ip=40.107.130.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nokia-bell-labs.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="jTAr864T"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5643981E78
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Feb 2026 16:00:16 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id PGDJHK5WVXm8 for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Feb 2026 16:00:15 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 27DE481E1A
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 27DE481E1A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=jTAr864T
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 27DE481E1A
-	for <virtualization@lists.linux-foundation.org>; Tue,  3 Feb 2026 16:00:14 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by tor.source.kernel.org (Postfix) with ESMTP id A08F360132;
-	Tue,  3 Feb 2026 16:00:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAD80C116D0;
-	Tue,  3 Feb 2026 16:00:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1770134413;
-	bh=iazE4s92ZvYTkL4sF3dmjaq7r9G5CAIJHKOQaPUZqUs=;
-	h=Subject:To:Cc:From:Date:In-Reply-To:From;
-	b=jTAr864TejpcOygyu9a8/2euvWYEJROJkNa8f/3dWVKTYh2N3/rBUMOBoLjbMAksa
-	 2Lsqd/Vt7gfBFeZ4CkBYW3/XXV6tfjAl90y45N9WMJQ0c5plw8mM16dAsebAuC0u2e
-	 2Pxj0f2EKWMDgSt2vM0bJEoSS4+kQsmwHxvjQpB8=
-Subject: Patch "vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint" has been added to the 6.1-stable tree
-To: 1468888505@139.com,20250129210922.121533-1-michael.christie@oracle.com,asias@redhat.com,gregkh@linuxfoundation.org,jasowang@redhat.com,michael.christie@oracle.com,mlombard@redhat.com,mst@redhat.com,nab@linux-iscsi.org,patches@lists.linux.dev,pbonzini@redhat.com,sgarzare@redhat.com,stefanha@redhat.com,virtualization@lists.linux-foundation.org,wh1sper@zju.edu.cn
-Cc: <stable-commits@vger.kernel.org>
-From: <gregkh@linuxfoundation.org>
-Date: Tue, 03 Feb 2026 16:59:10 +0100
-In-Reply-To: <20260202064719.642351-1-1468888505@139.com
-Message-Id: <20260203160012.EAD80C116D0@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b="q9neB3HA"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=bJlFVSRo+wVv2x8YSplT7+jvEBORCONMvT3ZjxmpZZUuTNu/eXu9mramh/Hw/XOMYnGPvGBd2KSmDimPq1UBky0+veUI5hqX4mDhL6QQF/TjspQXoLz8BgtNx95HdqWOY3RXpycoE05zR6FYyHpYtn0SsjF6Sr/0rzQuqCUA5VcE4QUQ0vKiRTYA0TWFvnNrtzj00Dr18Hnh8lBXuioJrDlADq2KmiSDbTbR3nqLrnsqcb0ihw69HNm6+qTfl4EK2a7qoKrssxFjvelzL78N01so+3gyScGhjxJOEWPggmAhLMEvXSv4kWTCKFDsVOdTHPLvyN/1pqk/srKMfZTe0g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=RGH0AU9itcjDXtMpLvn4ygdcu2M3WlM2jhV+vj3MV+0=;
+ b=gl0gdg8M/W6wHQTXr0yXE9TCbB+9InNBojnE4IWz50oBojM7V+S8vI7yYUUGFASDf28miFXJgoAndL5BtZRyy7mj7Y1olC1d6H70qGOPIKnM+aggojZlvyrsP+/SArqL0+FNb2/sW56tlRp/vrDRFGxt8jv2hLhSRJI/LLigrsvZEXEVxdl0mmMR8cMtcAm3uD6az+zv+SY0LF54LyPk3yX711/cBgHSEtZhq6k+k/ZhFYxHprEwOOvkVlPSXvLMvC/X9KwiPYT6o7mOy16+WDfb9J5Xwx42A/1UDMz3re0BQDFv+/EmHf9USDN8yUbABjXgHAQnY3EtDzmB49aiIw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 131.228.2.240) smtp.rcpttodomain=amd.com smtp.mailfrom=nokia-bell-labs.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none
+ header.from=nokia-bell-labs.com; dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia-bell-labs.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RGH0AU9itcjDXtMpLvn4ygdcu2M3WlM2jhV+vj3MV+0=;
+ b=q9neB3HAMEhaB51rPF8zZV+u+lFzERP4F7Y5yTQ+LdcQspeJrqkqmimegO/pM4RSSpylDrCkna7VWBkTT6nhn/Vr4iADIHfT/IVn6+KxEjqaVsoRfS6GceuEBby5H2mAnAkkou29MjwpNhi2XFka6FMbLQt0L5EyOXyu6MLoc4XxTBfkpBgqMs81MMLgdEDd0MK57+o/kIvulBuSiUcNt9/rkwO+/Wb1p3P2PNHoAhog5j2eEcK0vgJeQgPjaXIocYYrQrS/lLCKY87ExpVFKUp8UnIiwy20jF2Z+qYDrKeZBrk1HfXkXOWFbmr+1tBCM7VY82/0IrDNU27pbEUJWQ==
+Received: from AS4PR09CA0006.eurprd09.prod.outlook.com (2603:10a6:20b:5e0::16)
+ by AS8PR07MB7223.eurprd07.prod.outlook.com (2603:10a6:20b:25c::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.10; Tue, 3 Feb
+ 2026 16:11:29 +0000
+Received: from AM1PEPF000252DA.eurprd07.prod.outlook.com
+ (2603:10a6:20b:5e0:cafe::75) by AS4PR09CA0006.outlook.office365.com
+ (2603:10a6:20b:5e0::16) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9587.12 via Frontend Transport; Tue,
+ 3 Feb 2026 16:11:28 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 131.228.2.240)
+ smtp.mailfrom=nokia-bell-labs.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nokia-bell-labs.com;
+Received-SPF: Pass (protection.outlook.com: domain of nokia-bell-labs.com
+ designates 131.228.2.240 as permitted sender)
+ receiver=protection.outlook.com; client-ip=131.228.2.240;
+ helo=fihe3nok0735.emea.nsn-net.net; pr=C
+Received: from fihe3nok0735.emea.nsn-net.net (131.228.2.240) by
+ AM1PEPF000252DA.mail.protection.outlook.com (10.167.16.52) with Microsoft
+ SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.20.9587.10
+ via Frontend Transport; Tue, 3 Feb 2026 16:11:29 +0000
+Received: from sarah.nbl.nsn-rdnet.net (sarah.nbl.nsn-rdnet.net [10.0.73.150])
+	by fihe3nok0735.emea.nsn-net.net (Postfix) with ESMTP id 8E68623738;
+	Tue,  3 Feb 2026 18:11:27 +0200 (EET)
+From: chia-yu.chang@nokia-bell-labs.com
+To: tariqt@nvidia.com,
+	linux-rdma@vger.kernel.org,
+	shaojijie@huawei.com,
+	shenjian15@huawei.com,
+	salil.mehta@huawei.com,
+	mbloch@nvidia.com,
+	saeedm@nvidia.com,
+	leon@kernel.org,
+	eperezma@redhat.com,
+	brett.creeley@amd.com,
+	jasowang@redhat.com,
+	virtualization@lists.linux.dev,
+	mst@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	pabeni@redhat.com,
+	edumazet@google.com,
+	parav@nvidia.com,
+	linux-doc@vger.kernel.org,
+	corbet@lwn.net,
+	horms@kernel.org,
+	dsahern@kernel.org,
+	kuniyu@google.com,
+	bpf@vger.kernel.org,
+	netdev@vger.kernel.org,
+	dave.taht@gmail.com,
+	jhs@mojatatu.com,
+	kuba@kernel.org,
+	stephen@networkplumber.org,
+	xiyou.wangcong@gmail.com,
+	jiri@resnulli.us,
+	davem@davemloft.net,
+	andrew+netdev@lunn.ch,
+	donald.hunter@gmail.com,
+	ast@fiberby.net,
+	liuhangbin@gmail.com,
+	shuah@kernel.org,
+	linux-kselftest@vger.kernel.org,
+	ij@kernel.org,
+	ncardwell@google.com,
+	koen.de_schepper@nokia-bell-labs.com,
+	g.white@cablelabs.com,
+	ingemar.s.johansson@ericsson.com,
+	mirja.kuehlewind@ericsson.com,
+	cheshire@apple.com,
+	rs.ietf@gmx.at,
+	Jason_Livingood@comcast.com,
+	vidhi_goel@apple.com
+Cc: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+Subject: [PATCH v3 net-next 0/3] ECN offload handling for AccECN series
+Date: Tue,  3 Feb 2026 17:11:23 +0100
+Message-Id: <20260203161126.2436-1-chia-yu.chang@nokia-bell-labs.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-
-20250129210922.121533-1-michael.christie@oracle.com>
-Message-ID: <2026020309-supervise-astride-d790@gregkh>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-stable: commit
-X-Patchwork-Hint: ignore 
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM1PEPF000252DA:EE_|AS8PR07MB7223:EE_
+X-MS-Office365-Filtering-Correlation-Id: d3eaa5de-69c4-4c3f-0edf-08de633ee3e8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|82310400026|36860700013|376014|1800799024|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?S3pheWxHQUtkWlpNQzAxc0I2aktJZ0ttV0pESnhzRnNhZGtQclQ3RHFvdUdx?=
+ =?utf-8?B?NDhVRDlBRktFTEFsYjR4NUFhWWgrM0NKYzhwQnlwRzU1QXpoK0tSdFNBZ0tE?=
+ =?utf-8?B?ZnFtdnAvSE9uM3g2T0Vubm1tSXJWZ0E3dWZ2bUlLTm9hT1ptemxHc2ViSG5x?=
+ =?utf-8?B?MW5oc1piOXhWVEttSFpUTXV4T3NsWXMxMFkzV1ZqWHRuRXlyNGpLWWYydjJr?=
+ =?utf-8?B?OGtHNDRENWg1WFJtNTNFZ3ZZejd3Ty9ZVnY5b0dWVTVONHplY0pUY2hhWmQr?=
+ =?utf-8?B?enQ1SEVUbXg4ZHJyMGFVS0FnWGV2blN6RVpiWmVhWGM5SW1lRXI4cXFoelVq?=
+ =?utf-8?B?UmNvcDhvUnNJUEZ0bG9jbkFyZ0x6WDFSblVDTkpTcW5SUVU3K2JpWHZkeG1T?=
+ =?utf-8?B?L2pYenVIaG5NcFlsTHFRTk1BQW13aE9ub3ZzeHdiOTZFbGsxdldCTkRIWW1G?=
+ =?utf-8?B?WFFOWEQyQ1V5Q3VsUW9PRDB5Sk5sdFRwS0FPTUJOSFB1OGoybG01a0tvUW50?=
+ =?utf-8?B?VVE3dzBHNXE0UXFFVitGeFUweS84bFF6YlNDYW9uRTFLbFcwamxrN1dUdU5J?=
+ =?utf-8?B?WjVMdGlnNFZVUFRjaFptVUNFeFZVcmdVQ0NHc3dRcElhM1dwY0cra3E5QzNt?=
+ =?utf-8?B?bEJxSDdxUk5Mc2wreXcvdHBmSlg4VUlCTklkbU1GUHp2ZmlVSjdHb1QrVjkz?=
+ =?utf-8?B?VVl3aG1SeUU0Y29VYk5RS3pHRVZFN2ZpZHMvQjkxTk0xdnlkcjhRbmhXa0JR?=
+ =?utf-8?B?Z0VpekVuelZNQTdFYmgrdWRic0RkVVAzZ3ZyNGw3ZVNaM0JnNXczZXlOWXNl?=
+ =?utf-8?B?dVF6c0pGYVBoOEl6K0cvU3JTaTk4aTMweWtaeFhBa2EyWnBGcjY1bk8rQWNy?=
+ =?utf-8?B?ODc1dXhDaDNsN0U0MHJ0MFpYOVdDQ0NVa1VRMVEremxENHlacGMrT3NJNEgw?=
+ =?utf-8?B?eHlveHpBMzh1TTZ4UHZjbDJoZXMwS0IrZGJPb3RiS3FKN01tSTQvMEc2N296?=
+ =?utf-8?B?L2VGU2Q1ZzNoblJoUm5xZzBQUlZweThTc1Rzdk53S3Y0ZEMrbVRybEtNcU4r?=
+ =?utf-8?B?TE96alNXbElsSG1GNlhlekFQSktiQ29lcm9WejlRRE81cHp5c0ZTSFBkZ0s2?=
+ =?utf-8?B?dUt2bGdER3FFdURYb2ljMWFlcEhWaU94R002ZHFaUXBUMFkwN251UldMUlFp?=
+ =?utf-8?B?VkpwTmdUWWRNT1dPL3c1dml4eG5CNFpJS2tOVmU1c0pSaGxEalFMTmR5RzBq?=
+ =?utf-8?B?SFA1ZzV0Ty9Tc2svNk9pbVRrNDNxNkxvcTdaSndFczFERVFQUlpzNGxjWDNB?=
+ =?utf-8?B?b0JNMnZmU0VFR1c2STBXeEo0SDlIeklrcW5FZG5wcWh1TVpBK044WVB4eWwr?=
+ =?utf-8?B?VTI3M1NxRWppcWJyU0phOUY3N0UrWlRtcFdYbXg4c08yWWxDNGpPdnBCRkRq?=
+ =?utf-8?B?QUI5QW4yMVc5cGk4SENUNzI5NEhjMDZqeGdGZW9aT1lnSk5qeGpLVkx0TFYw?=
+ =?utf-8?B?SnNIdFlCalNIRkEvcHBBQlFWQlJuclROQUl5YXJ6ckY0TkJsWnFtWGhkTThN?=
+ =?utf-8?B?VTlWR3lwbi9ObXAwYTZQcE5YTC9uVmwrUzNpU2RuL2FMTFVFaVRLTmZZMVdI?=
+ =?utf-8?B?RUJTN3RVNGdwNXplWkdZalRpMDJleU0vRmJNWU1HV2ZoMGJONmQ0dU51THNJ?=
+ =?utf-8?B?L3VjS1B0VjFXd29zbGM3LzFwaW81THlZT0hUWDJnNXFBcCtGOWYzcE56M1B6?=
+ =?utf-8?B?ZHhPamtPWS92VnB5YnR4QVlLVmxMY0NsMzlvMVNvdUU1K3Y4WUkvTGRtUXJk?=
+ =?utf-8?B?Sy9NOWNFY1VzaGd0aUdZNEM5M05sMUZrTTNkOWdlUnc0OWVOeHgvQUQvNENX?=
+ =?utf-8?B?QkF0MDNoSXdDWklMdWY5bTJqK0s3LzNSSzFxVWVzTEh6NHZkVVFpNVZRK0cw?=
+ =?utf-8?B?RkdDKzJ3dC9YS0RFT2JBUHg5NHJPK2VjMklWUXVYSmxGTldyaHRPMXN0WDEv?=
+ =?utf-8?B?aGhqQVN2ODdwaTFOYlZ0MzF2cEtkaGNUQUZVU1dtbFd3Skw5NUZ3QlJOWHpv?=
+ =?utf-8?B?ajVQbWdDV3UrMUthS0NqV2lST3htYXZ6RWkyUWFxRVJIME9iOVQzU25QbUZr?=
+ =?utf-8?B?c2pLYTVMWUxrS0JHaUlZelFXem9Xc0krRmd5WVNlSjBGeFluN1hJOElwd0R0?=
+ =?utf-8?B?dHdPdW5VOE9hbmFDYklDNWVmUEZQaHVYdXVtd1oyZWtDcmZWRHZmcUJ0VEhP?=
+ =?utf-8?Q?9HLatZNREWtCO6zR+CEgcO4MH7q5i89IH5Z0CpgcHM=3D?=
+X-Forefront-Antispam-Report:
+	CIP:131.228.2.240;CTRY:FI;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:fihe3nok0735.emea.nsn-net.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(7416014)(82310400026)(36860700013)(376014)(1800799024)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	zyqfy0vtxQzFOvQv8Sgaq27v1GUlpU2u1Cdx6+jarUMKY2YllmE4xNcRswTwsJCqgtzmU1PPpAaWj1YyLHRQXdWDKiZE6kh33+Hry2a/BMI0g8uLbdd+g3nASiQAw5fCy40HeVUnHan8xgvYbhyYB+5YIVprMoqtCJHuwyBs5h+pah00CcgeBPoizIadcr9yUhapuJBIIbI8F1tiOofu4Sn1675f1Cm9LfSh/UQipJDpVZ81EcTXAUOmyQ2phvZrIqGK1RpnGUJ1TKyAlc8j5tJbtniPvJtL55tH4BGfye6B+UmTzKy29pcGpCkc76yNYvwP4w69AgwMa5fXw5Xn6uajp99B/vgAvnkVVF0YskDW3t43JHhZHSR6TVV0lO1m9wicX4JDsaQIjaUPdjIhUkz5ufaIFrIRIUp0UeVY3haZNAjTskAuMBkwGuHNxRrb
+X-OriginatorOrg: nokia-bell-labs.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Feb 2026 16:11:29.5318
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: d3eaa5de-69c4-4c3f-0edf-08de633ee3e8
+X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=5d471751-9675-428d-917b-70f44f9630b0;Ip=[131.228.2.240];Helo=[fihe3nok0735.emea.nsn-net.net]
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-AM1PEPF000252DA.eurprd07.prod.outlook.com
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR07MB7223
 
+From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
 
-This is a note to let you know that I've just added the patch titled
+Hello,
 
-    vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint
+Please find the v3 ECN offload handling for AccECN patch series. It aims
+to avoid potential CWR flag corruption due to RFC3168 ECN offload, because
+this flag is part of ACE signal used for Accurate ECN protocol (RFC9768).
 
-to the 6.1-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+This corresponds to discussions in virtio mailing list:
+https://lore.kernel.org/all/20250814120118.81787-1-chia-yu.chang@nokia-bell-labs.com/
+And it was suggested to clarify documents of SKB_GSO_TCP_ECN and SKB_GSO_TCP_ACCECN first.
 
-The filename of the patch is:
-     vhost-scsi-fix-handling-of-multiple-calls-to-vhost_scsi_set_endpoint.patch
-and it can be found in the queue-6.1 subdirectory.
+Best regards,
+Chia-Yu
 
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From stable+bounces-213026-greg=kroah.com@vger.kernel.org Mon Feb  2 07:47:41 2026
-From: Li hongliang <1468888505@139.com>
-Date: Mon,  2 Feb 2026 14:47:19 +0800
-Subject: vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint
-To: gregkh@linuxfoundation.org, stable@vger.kernel.org, michael.christie@oracle.com
-Cc: patches@lists.linux.dev, linux-kernel@vger.kernel.org, mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com, stefanha@redhat.com, mlombard@redhat.com, asias@redhat.com, nab@linux-iscsi.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, wh1sper@zju.edu.cn, sgarzare@redhat.com
-Message-ID: <20260202064719.642351-1-1468888505@139.com>
-
-From: Mike Christie <michael.christie@oracle.com>
-
-[ Upstream commit 5dd639a1646ef5fe8f4bf270fad47c5c3755b9b6 ]
-
-If vhost_scsi_set_endpoint is called multiple times without a
-vhost_scsi_clear_endpoint between them, we can hit multiple bugs
-found by Haoran Zhang:
-
-1. Use-after-free when no tpgs are found:
-
-This fixes a use after free that occurs when vhost_scsi_set_endpoint is
-called more than once and calls after the first call do not find any
-tpgs to add to the vs_tpg. When vhost_scsi_set_endpoint first finds
-tpgs to add to the vs_tpg array match=true, so we will do:
-
-vhost_vq_set_backend(vq, vs_tpg);
-...
-
-kfree(vs->vs_tpg);
-vs->vs_tpg = vs_tpg;
-
-If vhost_scsi_set_endpoint is called again and no tpgs are found
-match=false so we skip the vhost_vq_set_backend call leaving the
-pointer to the vs_tpg we then free via:
-
-kfree(vs->vs_tpg);
-vs->vs_tpg = vs_tpg;
-
-If a scsi request is then sent we do:
-
-vhost_scsi_handle_vq -> vhost_scsi_get_req -> vhost_vq_get_backend
-
-which sees the vs_tpg we just did a kfree on.
-
-2. Tpg dir removal hang:
-
-This patch fixes an issue where we cannot remove a LIO/target layer
-tpg (and structs above it like the target) dir due to the refcount
-dropping to -1.
-
-The problem is that if vhost_scsi_set_endpoint detects a tpg is already
-in the vs->vs_tpg array or if the tpg has been removed so
-target_depend_item fails, the undepend goto handler will do
-target_undepend_item on all tpgs in the vs_tpg array dropping their
-refcount to 0. At this time vs_tpg contains both the tpgs we have added
-in the current vhost_scsi_set_endpoint call as well as tpgs we added in
-previous calls which are also in vs->vs_tpg.
-
-Later, when vhost_scsi_clear_endpoint runs it will do
-target_undepend_item on all the tpgs in the vs->vs_tpg which will drop
-their refcount to -1. Userspace will then not be able to remove the tpg
-and will hang when it tries to do rmdir on the tpg dir.
-
-3. Tpg leak:
-
-This fixes a bug where we can leak tpgs and cause them to be
-un-removable because the target name is overwritten when
-vhost_scsi_set_endpoint is called multiple times but with different
-target names.
-
-The bug occurs if a user has called VHOST_SCSI_SET_ENDPOINT and setup
-a vhost-scsi device to target/tpg mapping, then calls
-VHOST_SCSI_SET_ENDPOINT again with a new target name that has tpgs we
-haven't seen before (target1 has tpg1 but target2 has tpg2). When this
-happens we don't teardown the old target tpg mapping and just overwrite
-the target name and the vs->vs_tpg array. Later when we do
-vhost_scsi_clear_endpoint, we are passed in either target1 or target2's
-name and we will only match that target's tpgs when we loop over the
-vs->vs_tpg. We will then return from the function without doing
-target_undepend_item on the tpgs.
-
-Because of all these bugs, it looks like being able to call
-vhost_scsi_set_endpoint multiple times was never supported. The major
-user, QEMU, already has checks to prevent this use case. So to fix the
-issues, this patch prevents vhost_scsi_set_endpoint from being called
-if it's already successfully added tpgs. To add, remove or change the
-tpg config or target name, you must do a vhost_scsi_clear_endpoint
-first.
-
-Fixes: 25b98b64e284 ("vhost scsi: alloc cmds per vq instead of session")
-Fixes: 4f7f46d32c98 ("tcm_vhost: Use vq->private_data to indicate if the endpoint is setup")
-Reported-by: Haoran Zhang <wh1sper@zju.edu.cn>
-Closes: https://lore.kernel.org/virtualization/e418a5ee-45ca-4d18-9b5d-6f8b6b1add8e@oracle.com/T/#me6c0041ce376677419b9b2563494172a01487ecb
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Message-Id: <20250129210922.121533-1-michael.christie@oracle.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
-[ Minor conflict resolved. ]
-Signed-off-by: Li hongliang <1468888505@139.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/scsi.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+v3:
+- Update commit messages for clarity (Michael S. Tsirkin <mst@redhat.com>)
+- Update commit title for clarity (Michael S. Tsirkin <mst@redhat.com>)
+- Update cover letter to include discussion in virtio mailing list (Michael S. Tsirkin <mst@redhat.com>)
 
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -1572,14 +1572,19 @@ vhost_scsi_set_endpoint(struct vhost_scs
- 		}
- 	}
- 
-+	if (vs->vs_tpg) {
-+		pr_err("vhost-scsi endpoint already set for %s.\n",
-+		       vs->vs_vhost_wwpn);
-+		ret = -EEXIST;
-+		goto out;
-+	}
-+
- 	len = sizeof(vs_tpg[0]) * VHOST_SCSI_MAX_TARGET;
- 	vs_tpg = kzalloc(len, GFP_KERNEL);
- 	if (!vs_tpg) {
- 		ret = -ENOMEM;
- 		goto out;
- 	}
--	if (vs->vs_tpg)
--		memcpy(vs_tpg, vs->vs_tpg, len);
- 
- 	list_for_each_entry(tpg, &vhost_scsi_list, tv_tpg_list) {
- 		mutex_lock(&tpg->tv_tpg_mutex);
-@@ -1594,11 +1599,6 @@ vhost_scsi_set_endpoint(struct vhost_scs
- 		tv_tport = tpg->tport;
- 
- 		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
--			if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
--				mutex_unlock(&tpg->tv_tpg_mutex);
--				ret = -EEXIST;
--				goto undepend;
--			}
- 			/*
- 			 * In order to ensure individual vhost-scsi configfs
- 			 * groups cannot be removed while in use by vhost ioctl,
-@@ -1643,15 +1643,15 @@ vhost_scsi_set_endpoint(struct vhost_scs
- 		}
- 		ret = 0;
- 	} else {
--		ret = -EEXIST;
-+		ret = -ENODEV;
-+		goto free_tpg;
- 	}
- 
- 	/*
--	 * Act as synchronize_rcu to make sure access to
--	 * old vs->vs_tpg is finished.
-+	 * Act as synchronize_rcu to make sure requests after this point
-+	 * see a fully setup device.
- 	 */
- 	vhost_scsi_flush(vs);
--	kfree(vs->vs_tpg);
- 	vs->vs_tpg = vs_tpg;
- 	goto out;
- 
-@@ -1668,6 +1668,7 @@ undepend:
- 			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
- 		}
- 	}
-+free_tpg:
- 	kfree(vs_tpg);
- out:
- 	mutex_unlock(&vs->dev.mutex);
-@@ -1757,6 +1758,7 @@ vhost_scsi_clear_endpoint(struct vhost_s
- 	vhost_scsi_flush(vs);
- 	kfree(vs->vs_tpg);
- 	vs->vs_tpg = NULL;
-+	memset(vs->vs_vhost_wwpn, 0, sizeof(vs->vs_vhost_wwpn));
- 	WARN_ON(vs->vs_events_nr);
- 	mutex_unlock(&vs->dev.mutex);
- 	mutex_unlock(&vhost_scsi_mutex);
+v2:
+- Replace VIRTIO_NET_HDR_GSO_ECN with VIRTIO_NET_HDR_GSO_ECN_FLAGS
 
+---
+Chia-Yu Chang (3):
+  net: update comments for SKB_GSO_TCP_ECN and SKB_GSO_TCP_ACCECN
+  net: hns3/mls5e: fix CWR handling in drivers to preserve ACE signal
+  virtio_net: add AccECN feature negotiation and correct ECN flag
+    handling
 
-Patches currently in stable-queue which might be from 1468888505@139.com are
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c    |  2 +-
+ .../net/ethernet/mellanox/mlx5/core/en_rx.c    |  4 ++--
+ drivers/net/virtio_net.c                       | 14 +++++++++++---
+ drivers/vdpa/pds/debugfs.c                     |  6 ++++++
+ include/linux/skbuff.h                         | 15 ++++++++++++++-
+ include/linux/virtio_net.h                     | 18 +++++++++++-------
+ include/uapi/linux/virtio_net.h                |  5 +++++
+ 7 files changed, 50 insertions(+), 14 deletions(-)
 
-queue-6.1/vhost-scsi-fix-handling-of-multiple-calls-to-vhost_scsi_set_endpoint.patch
-queue-6.1/fs-ntfs3-initialize-allocated-memory-before-use.patch
-queue-6.1/drm-radeon-delete-radeon_fence_process-in-is_signaled-no-deadlock.patch
-queue-6.1/ksmbd-fix-race-condition-in-rpc-handle-list-access.patch
-queue-6.1/ksmbd-fix-use-after-free-in-ksmbd_session_rpc_open.patch
-queue-6.1/drm-amdgpu-replace-mutex-with-spinlock-for-rlcg-register-access-to-avoid-priority-inversion-in-sriov.patch
-queue-6.1/sctp-linearize-cloned-gso-packets-in-sctp_rcv.patch
+-- 
+2.34.1
+
