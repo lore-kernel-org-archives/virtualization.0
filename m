@@ -1,187 +1,270 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B4652F3621
-	for <virtualization@lists.linux.dev>; Tue,  3 Feb 2026 15:18:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A40E721CC71
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Feb 2026 16:00:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770131894; cv=none; b=HDzcfKzf7bumAjCCEBceyd6yE6phtwoll2Q6uAuISosbAe2J9/780V9n9YJmeRoFCp/9cWeVwfwRyHITyKyEwLftm5DbgtIlGKHe8iYcoaJAb1OKpehUvcwSl4B5TlrHsd1eWOvVS3chZenJE2kd1TlID7Fna+G4btT8SqtNv8Q=
+	t=1770134418; cv=none; b=R2AaijsBVWjDNRvYvkw2LQQi1sA6lnw5LQMU4NoyWDenVqJVo8MuAxCYDEzJVUnk2sq0inB0npPnDDHnsiMzv7+ipimHk9yhYFReS/yZY9xPNSt8dFEv84jrubGcGA1YF6YBTpXDOqVRyeg+XeQZpoNLGlMPSgfy0vfBtUdrDk0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770131894; c=relaxed/simple;
-	bh=huBTCAC0SSikbAdwLz43/1SAs20PtE+f0ox3U9SYL4k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=a1gkOzss3WS3s1K4DAjW0GALP1bIoFH09WN6bpJb16oXPTmHVrGtTaJsFJRdBuh4mgDDQdZdKPp3Eidb8YQvaecTFV8BS2cG7kv5smKUJ6Xo6JiwvLnSOZFN8ojja96BR4V7wwthREd4yXSOO57SRWq+qLh6MX3BB4z2Px0kXtk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ApWdl6w7; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=hjd1vhOG; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1770134418; c=relaxed/simple;
+	bh=iazE4s92ZvYTkL4sF3dmjaq7r9G5CAIJHKOQaPUZqUs=;
+	h=Subject:To:Cc:From:Date:In-Reply-To:Message-Id; b=PsX/Yxw7tvcXgaFFEIqkmj3mLpSUnrEfBr/9MNPTxn8sDJfHwwdSfSb7lj+o57uizQ/Iy6eq5EUPD0IF3oHTUaghAdmIAPLf4xypPHfagut+8d7JdeAjqtMUrKv3vYuxFlqOv6TiqLMEz6vfS/36bQj27lQcXrqmogI/6dbhwjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=jTAr864T; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ApWdl6w7";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="hjd1vhOG"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 613D3mg9277411
-	for <virtualization@lists.linux.dev>; Tue, 3 Feb 2026 15:18:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	XH5EuiNvejIxGNn5Hrr461F6cF6oIwOIg4suguNnfHg=; b=ApWdl6w7gYoO3z8v
-	eMidIeotZYkoy3pUA0QLRed7yVoFp7/y54Y8Y7ZUDY8w2VGTM+tcmiyKp4M3ngtD
-	MnAWKWj2nzH73b/sPy2m4h+gwE8vxR2E/X/Q9zdZ3WOnY9RZSu7oBxq72mYtFc7C
-	YSxfBo+WiwIX/2bktZBXMvQUbn8y2BtgZhCfWJkQpQLELNseeB2ZkApauDZBUVKB
-	eAqMnw4uf2FyB4eCUHLnZ7+xa+pzftEIjnUKYsEUJAAq8r1EoAnNKHZ6j+a+Q7Lc
-	bw4ARNo62UG8j6NmVYNVry3GXYPS+yBLizZEc6DYB70uaYal3sTE9m4yGfZLI94a
-	eNPBZA==
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com [209.85.222.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c32s3b2r5-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 15:18:12 +0000 (GMT)
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-8c70b4b53e4so2512758385a.1
-        for <virtualization@lists.linux.dev>; Tue, 03 Feb 2026 07:18:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1770131892; x=1770736692; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=XH5EuiNvejIxGNn5Hrr461F6cF6oIwOIg4suguNnfHg=;
-        b=hjd1vhOGU+BJigfXnZ3TG+z0tXMytkMxm5kRHcenHG5+LF2h1n1aZJj7VJXyMQ5yoB
-         aM4AQDbJjgckN7/QuzxkrjUtDYqkAyx4V/s5BqDbGZUVQBiOr4NXx9aZ4J9xaZUa2fPw
-         4/f7MsgN0HMyFI1wOkC5XU47Yokv7iPld2YKrFJ8y1yxfxJFrTWfrtK57s//Oz20uMKQ
-         O4kicnbQFNGm/dtxU3FW8/SiptjIrajGnUrP3zrxyzCD+gbnbC/iXs0Ui4BEpUzYs5Lz
-         +7+yzmt4dACcld4b2OxJLhwSB6TfMK2dWLKqr7hEEC4hSCNxV0ebyq//L4FP5bSgF3ya
-         y0cw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770131892; x=1770736692;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=XH5EuiNvejIxGNn5Hrr461F6cF6oIwOIg4suguNnfHg=;
-        b=a5M8kmHrq7As9yT6opmU4e+uAJNFKsvWPR1sf+8x8M5iiKQqeoiA3cKOyXhNTlJ6GN
-         Hfp8ocfgYdp/4nukSZbp3WevllvbKVvM5kNmtNyV9RNU7/QiMOqcMGiQ+WdSD9TPPS97
-         8RmNUjD8GpMUHHX0p3fRA6ocnwIHSfmM5Cm8ggd1esuXPzPR+FhhSGQny82FyBvcNkYH
-         sArWsPt32iivyd3ylEfhqLX3NAon0rG3vKUENJYxawFZypGG9haenFLVOQBXzOzHnJH/
-         V6gcFhuBfjJCsqe8IMMbguPY74cnIroMWN3E1hnBV8RFye+gUf3dyt3S1EqGK/D6oasy
-         AbPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXbSOsXc9aIGodYgZFQqcj7MZz4Rlx1pzFEq4mbEn0ejjqp6rI9dnRPRZAf3uqh4IdJ5oADudvQ2lePHLfagA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxuloPVOxY3DW7SAFeyFfKDCIVPxIMbnjtNYdfEwWS16yxa6dJT
-	RrjlfUHsiOQNoifOxPWcW1hI59Ag6nafMY1dFOQNM60d+tZHeRkixu+8i165y35qh06xYEPSjF/
-	eEFa5kGinHPTATw9gJE0v16H9pfsw8F/+bO4dehJpleY3tvwihIok06dXnLRL7NUMdAfE5Q==
-X-Gm-Gg: AZuq6aL44I9SSZ5EielV8R8lVpEAdeqSIewx8C72DCaiL6o57jAjKxkMnEvRAg0Sdww
-	pPYCUHU/eHilhqx/3bR/bwx8tJBwhhDmZ4whhYlOzmIlr00dpRU30yslQbx8InLJzUsedgVyP/r
-	0QIM8VgCFjhrxNOy5jizrX7eS+qXQxAggW8NA2bZYpDXKGjm4IVDpwqLN11mMJoWvWACOPelh86
-	ROG2mkL3s8+m519uNsNu0R6pRwI1KVfHhPT2rVqWaiQ2PAoWjxR5AYih/+gtmt6thWAxicgBbsL
-	XMG1Vpbz+MJcBF1XLZ1H6iJYUWFXMjiJ95tSS+BPRYYfNoZuRyjaeMtTnRzexqSkbMbdAG1SvOS
-	mzislm9fqW5lZ58GwdIONRHw=
-X-Received: by 2002:a05:620a:20d0:b0:8c9:fb69:e708 with SMTP id af79cd13be357-8c9fb69e75bmr1174801985a.25.1770131891641;
-        Tue, 03 Feb 2026 07:18:11 -0800 (PST)
-X-Received: by 2002:a05:620a:20d0:b0:8c9:fb69:e708 with SMTP id af79cd13be357-8c9fb69e75bmr1174797785a.25.1770131891179;
-        Tue, 03 Feb 2026 07:18:11 -0800 (PST)
-Received: from [172.22.19.48] ([212.136.9.4])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435e10edfccsm50385318f8f.17.2026.02.03.07.18.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Feb 2026 07:18:10 -0800 (PST)
-Message-ID: <5d9645ea-41b8-4904-abbf-3b201183e2fc@oss.qualcomm.com>
-Date: Tue, 3 Feb 2026 16:18:09 +0100
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="jTAr864T"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5643981E78
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Feb 2026 16:00:16 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id PGDJHK5WVXm8 for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Feb 2026 16:00:15 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 27DE481E1A
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 27DE481E1A
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=jTAr864T
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 27DE481E1A
+	for <virtualization@lists.linux-foundation.org>; Tue,  3 Feb 2026 16:00:14 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by tor.source.kernel.org (Postfix) with ESMTP id A08F360132;
+	Tue,  3 Feb 2026 16:00:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAD80C116D0;
+	Tue,  3 Feb 2026 16:00:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1770134413;
+	bh=iazE4s92ZvYTkL4sF3dmjaq7r9G5CAIJHKOQaPUZqUs=;
+	h=Subject:To:Cc:From:Date:In-Reply-To:From;
+	b=jTAr864TejpcOygyu9a8/2euvWYEJROJkNa8f/3dWVKTYh2N3/rBUMOBoLjbMAksa
+	 2Lsqd/Vt7gfBFeZ4CkBYW3/XXV6tfjAl90y45N9WMJQ0c5plw8mM16dAsebAuC0u2e
+	 2Pxj0f2EKWMDgSt2vM0bJEoSS4+kQsmwHxvjQpB8=
+Subject: Patch "vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint" has been added to the 6.1-stable tree
+To: 1468888505@139.com,20250129210922.121533-1-michael.christie@oracle.com,asias@redhat.com,gregkh@linuxfoundation.org,jasowang@redhat.com,michael.christie@oracle.com,mlombard@redhat.com,mst@redhat.com,nab@linux-iscsi.org,patches@lists.linux.dev,pbonzini@redhat.com,sgarzare@redhat.com,stefanha@redhat.com,virtualization@lists.linux-foundation.org,wh1sper@zju.edu.cn
+Cc: <stable-commits@vger.kernel.org>
+From: <gregkh@linuxfoundation.org>
+Date: Tue, 03 Feb 2026 16:59:10 +0100
+In-Reply-To: <20260202064719.642351-1-1468888505@139.com
+Message-Id: <20260203160012.EAD80C116D0@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+
+20250129210922.121533-1-michael.christie@oracle.com>
+Message-ID: <2026020309-supervise-astride-d790@gregkh>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7] can: virtio: Add virtio CAN driver
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Francesco Valla <francesco@valla.it>,
-        Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Vincent Mailhol
- <mailhol@kernel.org>,
-        Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
-        virtualization@lists.linux.dev,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>
-References: <aVwGfOlvRqdv5xj7@fedora> <aWE5duyvXCuwsMAn@bywater>
- <eec1a83b-e36f-47bb-9a5b-6888b42e063a@oss.qualcomm.com>
- <20260203070338-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Harald Mommer <harald.mommer@oss.qualcomm.com>
-In-Reply-To: <20260203070338-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=Zc4Q98VA c=1 sm=1 tr=0 ts=698211b4 cx=c_pps
- a=HLyN3IcIa5EE8TELMZ618Q==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=JgmFLj68GAqNGjo_vmsA:9 a=QEXdDO2ut3YA:10
- a=bTQJ7kPSJx9SKPbeHEYW:22
-X-Proofpoint-ORIG-GUID: 40_VLNTPBH6FePisDzvWMte8PS4qp0cW
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjAzMDEyMiBTYWx0ZWRfX9Duu6LqHen5M
- DY9tQyRQ5xp7qDnLoJJPj4aDkJGccLQsSPsEmKtlD217on0kbCMFCCPfQA2D9PL9HvSs834KMGW
- T33tiUCyfCi1MlqEEWFX9Vd5UPU4ZBKOpVAAnazp3/083EvCkXdW+0erHrIMOcENfzob+T8jSyH
- sEtzZBvTD88EDcBjjbETSRCSx/fz3jgwA6MDvyYyRb2IPXWiK69PgpO3yxcHS33aGuv3X3DX4gi
- L0JinlHDmdq48S6v9AopPs/dMjUymqMUYZTRiU/3Y0eQhKQzzh5ow8BRHvPjgDo2yVVqOdbk6yt
- jvXYYiqMxFQA4S+VVpT0HZPfReFDKY8iO5M2eRlakLH16ED+glqigAAB0+sscTZlSgGwfGkHfyf
- phKiQTf1vutqz+K40OXrhKm5yYj+bFecPKjnWRJDFsaplulX9cq/rEcJZvXRgHMLjhqAEkeGz88
- Sg6LaM83aEnkrMeidHw==
-X-Proofpoint-GUID: 40_VLNTPBH6FePisDzvWMte8PS4qp0cW
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-03_04,2026-02-02_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 suspectscore=0 impostorscore=0 adultscore=0
- phishscore=0 bulkscore=0 lowpriorityscore=0 clxscore=1015 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602030122
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-stable: commit
+X-Patchwork-Hint: ignore 
 
 
+This is a note to let you know that I've just added the patch titled
 
-On 2/3/26 13:05, Michael S. Tsirkin wrote:
-> On Tue, Feb 03, 2026 at 12:55:07PM +0100, Harald Mommer wrote:
->>
->>
->> On 1/9/26 18:23, Francesco Valla wrote:
->>>> +static u8 virtio_can_send_ctrl_msg(struct net_device *ndev, u16 msg_type)
->>>> +{
->>>> +	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
->>>> +	struct virtio_can_priv *priv = netdev_priv(ndev);
->>>> +	struct device *dev = &priv->vdev->dev;
->>>> +	struct virtqueue *vq;
->>>> +	unsigned int len;
->>>> +	int err;
->>>> +
->>>> +	vq = priv->vqs[VIRTIO_CAN_QUEUE_CONTROL];
->>> Nit: consider initializing this above, while declaring it.
->>
->> All those "Nit" regarding initialization cause problems. There is a reason why it was done the way it is.
->>
->> The network people require that the declaration lines are ordered by line length. longest line first. This is called "Reverse Christmas tree". Don't ask me why, this formatting style is what the network people require. Their subsystem, their rules.
->>
->> To initialize the vq you need now already the priv initialized. If now the vq line becomes longer than the priv line you will violate the special formatting requirements of the network subsystem.
->>
->> Solution was: What you see above.
->>
->> Regards
->> Harald
-> 
-> So you reorder it then:
-> 
-> 	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
-> 	struct virtqueue *vq = priv->vqs[VIRTIO_CAN_QUEUE_CONTROL]; // priv not initialized, will be done too late in the next line
-> 	struct virtio_can_priv *priv = netdev_priv(ndev); // you see it?
-> 	struct device *dev = &priv->vdev->dev;
-> 	unsigned int len;
-> 	int err;
-> 
-> 
-> and where is the problem?
+    vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint
 
-The problem is that you use priv here to initialize vq in the line before priv is initialized.
+to the 6.1-stable tree which can be found at:
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
-> 
-> On the flip size, this guarantees we will not forget to initialize.
+The filename of the patch is:
+     vhost-scsi-fix-handling-of-multiple-calls-to-vhost_scsi_set_endpoint.patch
+and it can be found in the queue-6.1 subdirectory.
 
-Static analysis is your friend.
+If you, or anyone else, feels it should not be added to the stable tree,
+please let <stable@vger.kernel.org> know about it.
 
+
+From stable+bounces-213026-greg=kroah.com@vger.kernel.org Mon Feb  2 07:47:41 2026
+From: Li hongliang <1468888505@139.com>
+Date: Mon,  2 Feb 2026 14:47:19 +0800
+Subject: vhost-scsi: Fix handling of multiple calls to vhost_scsi_set_endpoint
+To: gregkh@linuxfoundation.org, stable@vger.kernel.org, michael.christie@oracle.com
+Cc: patches@lists.linux.dev, linux-kernel@vger.kernel.org, mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com, stefanha@redhat.com, mlombard@redhat.com, asias@redhat.com, nab@linux-iscsi.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, wh1sper@zju.edu.cn, sgarzare@redhat.com
+Message-ID: <20260202064719.642351-1-1468888505@139.com>
+
+From: Mike Christie <michael.christie@oracle.com>
+
+[ Upstream commit 5dd639a1646ef5fe8f4bf270fad47c5c3755b9b6 ]
+
+If vhost_scsi_set_endpoint is called multiple times without a
+vhost_scsi_clear_endpoint between them, we can hit multiple bugs
+found by Haoran Zhang:
+
+1. Use-after-free when no tpgs are found:
+
+This fixes a use after free that occurs when vhost_scsi_set_endpoint is
+called more than once and calls after the first call do not find any
+tpgs to add to the vs_tpg. When vhost_scsi_set_endpoint first finds
+tpgs to add to the vs_tpg array match=true, so we will do:
+
+vhost_vq_set_backend(vq, vs_tpg);
+...
+
+kfree(vs->vs_tpg);
+vs->vs_tpg = vs_tpg;
+
+If vhost_scsi_set_endpoint is called again and no tpgs are found
+match=false so we skip the vhost_vq_set_backend call leaving the
+pointer to the vs_tpg we then free via:
+
+kfree(vs->vs_tpg);
+vs->vs_tpg = vs_tpg;
+
+If a scsi request is then sent we do:
+
+vhost_scsi_handle_vq -> vhost_scsi_get_req -> vhost_vq_get_backend
+
+which sees the vs_tpg we just did a kfree on.
+
+2. Tpg dir removal hang:
+
+This patch fixes an issue where we cannot remove a LIO/target layer
+tpg (and structs above it like the target) dir due to the refcount
+dropping to -1.
+
+The problem is that if vhost_scsi_set_endpoint detects a tpg is already
+in the vs->vs_tpg array or if the tpg has been removed so
+target_depend_item fails, the undepend goto handler will do
+target_undepend_item on all tpgs in the vs_tpg array dropping their
+refcount to 0. At this time vs_tpg contains both the tpgs we have added
+in the current vhost_scsi_set_endpoint call as well as tpgs we added in
+previous calls which are also in vs->vs_tpg.
+
+Later, when vhost_scsi_clear_endpoint runs it will do
+target_undepend_item on all the tpgs in the vs->vs_tpg which will drop
+their refcount to -1. Userspace will then not be able to remove the tpg
+and will hang when it tries to do rmdir on the tpg dir.
+
+3. Tpg leak:
+
+This fixes a bug where we can leak tpgs and cause them to be
+un-removable because the target name is overwritten when
+vhost_scsi_set_endpoint is called multiple times but with different
+target names.
+
+The bug occurs if a user has called VHOST_SCSI_SET_ENDPOINT and setup
+a vhost-scsi device to target/tpg mapping, then calls
+VHOST_SCSI_SET_ENDPOINT again with a new target name that has tpgs we
+haven't seen before (target1 has tpg1 but target2 has tpg2). When this
+happens we don't teardown the old target tpg mapping and just overwrite
+the target name and the vs->vs_tpg array. Later when we do
+vhost_scsi_clear_endpoint, we are passed in either target1 or target2's
+name and we will only match that target's tpgs when we loop over the
+vs->vs_tpg. We will then return from the function without doing
+target_undepend_item on the tpgs.
+
+Because of all these bugs, it looks like being able to call
+vhost_scsi_set_endpoint multiple times was never supported. The major
+user, QEMU, already has checks to prevent this use case. So to fix the
+issues, this patch prevents vhost_scsi_set_endpoint from being called
+if it's already successfully added tpgs. To add, remove or change the
+tpg config or target name, you must do a vhost_scsi_clear_endpoint
+first.
+
+Fixes: 25b98b64e284 ("vhost scsi: alloc cmds per vq instead of session")
+Fixes: 4f7f46d32c98 ("tcm_vhost: Use vq->private_data to indicate if the endpoint is setup")
+Reported-by: Haoran Zhang <wh1sper@zju.edu.cn>
+Closes: https://lore.kernel.org/virtualization/e418a5ee-45ca-4d18-9b5d-6f8b6b1add8e@oracle.com/T/#me6c0041ce376677419b9b2563494172a01487ecb
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Message-Id: <20250129210922.121533-1-michael.christie@oracle.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+[ Minor conflict resolved. ]
+Signed-off-by: Li hongliang <1468888505@139.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/vhost/scsi.c |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
+
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1572,14 +1572,19 @@ vhost_scsi_set_endpoint(struct vhost_scs
+ 		}
+ 	}
+ 
++	if (vs->vs_tpg) {
++		pr_err("vhost-scsi endpoint already set for %s.\n",
++		       vs->vs_vhost_wwpn);
++		ret = -EEXIST;
++		goto out;
++	}
++
+ 	len = sizeof(vs_tpg[0]) * VHOST_SCSI_MAX_TARGET;
+ 	vs_tpg = kzalloc(len, GFP_KERNEL);
+ 	if (!vs_tpg) {
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+-	if (vs->vs_tpg)
+-		memcpy(vs_tpg, vs->vs_tpg, len);
+ 
+ 	list_for_each_entry(tpg, &vhost_scsi_list, tv_tpg_list) {
+ 		mutex_lock(&tpg->tv_tpg_mutex);
+@@ -1594,11 +1599,6 @@ vhost_scsi_set_endpoint(struct vhost_scs
+ 		tv_tport = tpg->tport;
+ 
+ 		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
+-			if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
+-				mutex_unlock(&tpg->tv_tpg_mutex);
+-				ret = -EEXIST;
+-				goto undepend;
+-			}
+ 			/*
+ 			 * In order to ensure individual vhost-scsi configfs
+ 			 * groups cannot be removed while in use by vhost ioctl,
+@@ -1643,15 +1643,15 @@ vhost_scsi_set_endpoint(struct vhost_scs
+ 		}
+ 		ret = 0;
+ 	} else {
+-		ret = -EEXIST;
++		ret = -ENODEV;
++		goto free_tpg;
+ 	}
+ 
+ 	/*
+-	 * Act as synchronize_rcu to make sure access to
+-	 * old vs->vs_tpg is finished.
++	 * Act as synchronize_rcu to make sure requests after this point
++	 * see a fully setup device.
+ 	 */
+ 	vhost_scsi_flush(vs);
+-	kfree(vs->vs_tpg);
+ 	vs->vs_tpg = vs_tpg;
+ 	goto out;
+ 
+@@ -1668,6 +1668,7 @@ undepend:
+ 			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
+ 		}
+ 	}
++free_tpg:
+ 	kfree(vs_tpg);
+ out:
+ 	mutex_unlock(&vs->dev.mutex);
+@@ -1757,6 +1758,7 @@ vhost_scsi_clear_endpoint(struct vhost_s
+ 	vhost_scsi_flush(vs);
+ 	kfree(vs->vs_tpg);
+ 	vs->vs_tpg = NULL;
++	memset(vs->vs_vhost_wwpn, 0, sizeof(vs->vs_vhost_wwpn));
+ 	WARN_ON(vs->vs_events_nr);
+ 	mutex_unlock(&vs->dev.mutex);
+ 	mutex_unlock(&vhost_scsi_mutex);
+
+
+Patches currently in stable-queue which might be from 1468888505@139.com are
+
+queue-6.1/vhost-scsi-fix-handling-of-multiple-calls-to-vhost_scsi_set_endpoint.patch
+queue-6.1/fs-ntfs3-initialize-allocated-memory-before-use.patch
+queue-6.1/drm-radeon-delete-radeon_fence_process-in-is_signaled-no-deadlock.patch
+queue-6.1/ksmbd-fix-race-condition-in-rpc-handle-list-access.patch
+queue-6.1/ksmbd-fix-use-after-free-in-ksmbd_session_rpc_open.patch
+queue-6.1/drm-amdgpu-replace-mutex-with-spinlock-for-rlcg-register-access-to-avoid-priority-inversion-in-sriov.patch
+queue-6.1/sctp-linearize-cloned-gso-packets-in-sctp_rcv.patch
