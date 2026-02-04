@@ -1,61 +1,79 @@
-Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011057.outbound.protection.outlook.com [40.107.208.57])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15887330665
-	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 19:36:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.153.30
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770233791; cv=none; b=iIqHNRAasA3fPaaBLk+JR01RQbEJ1/lMY0r+RpLLZO4KV42IzHRjHZFKyrLMp3fO+Q4tIWtoLgNUx8rQlISLL1Q9PL47ENtaa9TODJzAgiuaxdUpx8HN4EJvN0bYqR1Fh/3W280d5/Uxm/SPh1rQ95OTaSgYLVK4jYTrWoeF2rw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770233791; c=relaxed/simple;
-	bh=A8/CMSY4+BQlKvG2X8gIFTx44ZWeFxYPvRTzxvnjUrs=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=X4AvCXmEINjwaQyP7VYLPQbRAr38emifAaXMDIxsdvM7UX/F29qjk2TPa62dMeMQoZtS6IGtAjlceYJwK/UU1wKyz6OJT88QmUijqXooe+3WDgaNpFNxZ5vaFB1j+lygortAHmgIfRSvHHg3kTv3EDwYU6h+gQF9DnYljBuI2Ew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=fKLr2G6V; arc=none smtp.client-ip=67.231.153.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1333366567
+	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 22:40:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.57
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770244805; cv=fail; b=lm8CVrGpC/wu2pf2sQR7jYkik4JhHEg0xZGsbOKSxNCJYJwaHv0QimlAyOfVmA6PhPtFhG17KaVIJ8SRurl97h7ny1HPwlMejyGHyJRAR5a7tb3GVk3UrTb7NKx+wPSt9BLKeHmNY25uEKiVUfMtED5vc64fKo4kvfO43OvzU9E=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770244805; c=relaxed/simple;
+	bh=Qo8w4WkF6/Rq/+yDmINhI8cPltTRCEUOylu+zz6N5c8=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=RFj/VqYnEW0pB5ffd3t0uSoe0oLvriV09QDTopvR0xAfKDzzo0Ls977eNV9BMBOpXimj3KvL7G0yxATZe8wmy8qUH8q/cN3THayiLxwVTj+ZNB/qoirmLDigt1ARqhG6F5mE1zV1YZg/IBcLgkjXLbWoJ/PNYcR2pzPtUmD8d/w=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=uCQI4QV9; arc=fail smtp.client-ip=40.107.208.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="fKLr2G6V"
-Received: from pps.filterd (m0148460.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 614Frev42500263;
-	Wed, 4 Feb 2026 11:36:20 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=s2048-2025-q2; bh=pM7vjKiCC+2dK1kRK4
-	RyYjgcLIFjUQo3O6qotQzIVQw=; b=fKLr2G6Vq1+50XP9Tf+WFhNTIz+xqMlRG4
-	obSIyToPgzPpcJG4XsPn1H6yL/iORy9B7M+cZhfHYXuMoZjBwKo99ruY2r6NjLZQ
-	on/WuD5zuHPEsER84kpHSnUdcaPg0jSwGUhxyCfKVAc+c03znu+U3NYycft33rRk
-	Rc/n7vyenzMLNbTOxQmr5eveEBVM4A/FJeac5AbT+Xl16MYFyVeUr/QOq1MZW/xw
-	r07zmKUPs6vSraGQvm11XdSdSJaGloC9Lvm9hkmjvV6GgnHit7NG4jytakQMDq5h
-	iCF8lA9BZNAKI5a4mw58wT1C1hH1qL+dkbc5cdVDqEX9uZz/58FA==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4c495e2vxh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Wed, 04 Feb 2026 11:36:19 -0800 (PST)
-Received: from localhost (2620:10d:c0a8:1b::30) by mail.thefacebook.com
- (2620:10d:c0a9:6f::237c) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.35; Wed, 4 Feb
- 2026 19:36:18 +0000
-From: Vishwanath Seshagiri <vishs@meta.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?=
-	<eperezma@redhat.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S .
- Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub
- Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, David Wei
-	<dw@davidwei.uk>,
-        Matteo Croce <technoboy85@gmail.com>,
-        Ilias Apalodimas
-	<ilias.apalodimas@linaro.org>,
-        <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
-        <linux-kernel@vger.kernel.org>, <kernel-team@meta.com>
-Subject: [PATCH net-next v4 0/2] virtio_net: add page_pool support
-Date: Wed, 4 Feb 2026 11:36:15 -0800
-Message-ID: <20260204193617.1200752-1-vishs@meta.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="uCQI4QV9"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=gEXcYkWNgEy8FkOk+0OrSXIMGqPZC07kasIXR3c+WPz/EwdFO86emJlGmuVfaEq17ItD48CiLOytEgHoWsD9wn5fRsf9EjkA2JJ/s8XL4lXPxkeeHJzVU+/1Bwy9NU4WnSdaG7UPyStezPfJLTVgMLerkWx2jhTjOXU4PDNwqOfk9fLPm+qn4ZHgB1NXnHN5XpfWPX1tiOKdHPoGH5SpMlTnCOTDgMK9105kqWLIzTC033dqVclZmY7x3VeZF9sZ+8YI/dCwulHaKPY63Ch5ObZkdVuj57tSN0uebo7iqw/1DkRVfkW/c6KJV0T3Hz9N49KSSIukr7wr71mqM+HrmA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fRUTgdKQFp1cA4H1WbqJ/vWdsy1brQtz77q9w3XnoXE=;
+ b=Dyt1S2P57m2zObfjseVk46HHmSt/4atyThy3ghSZUeUvTl1P1XzSAHqiw7Aw8h9+r5ZGi7gjwjLbqDM9ebKecK9/34E0ZnqI7BFKAJ2FAKK7cJ/aJHXF0U0tlvQDZ/y5ulo5G2tzrlm63zLCu8Ba6auT4x/VO2NXZJQnmcxXXnHcdOIv9xhnRDqEwVZHwBWs5vrWJpgPZxGEDCojf2r62k3QnytZHPNK6eNW5DknUFKDhSETMEwOeOfU8TmJuIlyGxFAoO5y1hBiX5LVZk1Hr0AdggyasU1pXjvziOeoCHB8elJsjg0dHtErGjnE7vhJ3UrAwz7N7LleADu8Tj2m+g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.232) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fRUTgdKQFp1cA4H1WbqJ/vWdsy1brQtz77q9w3XnoXE=;
+ b=uCQI4QV9zEK4RCoJbzGuMo+uwqcafbcBikh3VvfSOilGuF1u1LpchfCnNmtElk1t/cUahcAMZl0OeOruGra8aB1JOB3lsZnvGZ+7XtO4YUdtXo1nL7tEezCXcEyXKQHpCJHHAveStZqK2nBUc3z61+/8utXaY7Vy4TlETZer6ZgaWK8SIjS8x4Miso6W6Q6Ammes21nlTApWIuLxox7pfwCSQ1e6rsul8/6qGARVB/FqZn/vkVyVHcYsayVcFjKDnURmYXrthdh42C4e8ExO1B7pn93iY9lmfd6N1/VfJhwdCQh6Wp+zYJPkKdeTLtVBvNglpwSPjO8xmK4t53b0tA==
+Received: from BL6PEPF0001640E.NAMP222.PROD.OUTLOOK.COM
+ (2603:10b6:22e:400:0:1004:0:15) by LV8PR12MB9418.namprd12.prod.outlook.com
+ (2603:10b6:408:202::15) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.16; Wed, 4 Feb
+ 2026 22:39:58 +0000
+Received: from MN1PEPF0000ECD5.namprd02.prod.outlook.com
+ (2a01:111:f403:f902::3) by BL6PEPF0001640E.outlook.office365.com
+ (2603:1036:903:4::a) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9542.16 via Frontend Transport; Wed,
+ 4 Feb 2026 22:39:57 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.232) by
+ MN1PEPF0000ECD5.mail.protection.outlook.com (10.167.242.133) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9587.10 via Frontend Transport; Wed, 4 Feb 2026 22:39:57 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
+ (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 4 Feb
+ 2026 14:39:45 -0800
+Received: from drhqmail203.nvidia.com (10.126.190.182) by
+ drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Wed, 4 Feb 2026 14:39:44 -0800
+Received: from vdi.nvidia.com (10.127.8.13) by mail.nvidia.com
+ (10.126.190.182) with Microsoft SMTP Server id 15.2.2562.20 via Frontend
+ Transport; Wed, 4 Feb 2026 14:39:43 -0800
+From: Daniel Jurgens <danielj@nvidia.com>
+To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
+	<pabeni@redhat.com>
+CC: <virtualization@lists.linux.dev>, <parav@nvidia.com>,
+	<shshitrit@nvidia.com>, <yohadt@nvidia.com>, <xuanzhuo@linux.alibaba.com>,
+	<eperezma@redhat.com>, <jgg@ziepe.ca>, <kevin.tian@intel.com>,
+	<kuba@kernel.org>, <andrew+netdev@lunn.ch>, <edumazet@google.com>, "Daniel
+ Jurgens" <danielj@nvidia.com>
+Subject: [PATCH net-next v19 00/12] virtio_net: Add ethtool flow rules support
+Date: Wed, 4 Feb 2026 16:39:28 -0600
+Message-ID: <20260204223940.39581-1-danielj@nvidia.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -64,151 +82,271 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: Jx82Jgb7LkPRGjNkGpvJNsDDzTy5lhpJ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDE1MCBTYWx0ZWRfX/KUQ9r3NWYpu
- i1lUAu/rjzTpSkY00+DQuZyEC/Px27y9Ncp3ciRwJfcB0b2yvyS5w37Z7Y3cY4IoJW+MFem5Az/
- /lBJRcx0tn8l26HH+B6+10b7YF0zPqMJ/N1QjjDLF1ovym9MdR+15A//AUS13OpluMHHGkw1sZY
- z1S2GKdaUZMCyBXl4wNsYddSo5Of7X09gzF1/uxCSmwpwbIzyYIfhJ/JAOr5WejsKCG1RFL41aA
- JDcMiVtqzolub2674n8qbBnlzlfcVuaYizZ1bedRR7DL4mCtbPCenF1BsVCGryLsr/xbYPu38Ik
- rFf6QvgGvLoX/nD+0A951TkmbhEpcUdFuiDS3BmYKWrx0a+CL5hQACPZ970LddWvt25+SncJ2ls
- U0FrJA4Mp3SEmwsnSEnYaPkmfLR7BDRrFEt2GlAEaYXGz5tmDOY7laVtsEKUd6KM8Q73U9z19NT
- uvJAjzLXwdgLMAjfUlg==
-X-Proofpoint-GUID: Jx82Jgb7LkPRGjNkGpvJNsDDzTy5lhpJ
-X-Authority-Analysis: v=2.4 cv=W441lBWk c=1 sm=1 tr=0 ts=69839fb4 cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
- a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=VabnemYjAAAA:8
- a=aKT7Sdacs6yZc8zp_j0A:9 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-04_06,2026-02-04_01,2025-10-01_01
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MN1PEPF0000ECD5:EE_|LV8PR12MB9418:EE_
+X-MS-Office365-Filtering-Correlation-Id: e94efc41-7453-46a0-381a-08de643e5330
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700013|82310400026|7416014|1800799024|376014|13003099007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?VXCFvPXwO5P2f3yHF+8FVJNTPWHL/NnKKH8k7Nis1VQA5vSk/6suPFCX3ttJ?=
+ =?us-ascii?Q?QA7woZ/DcF6lS2J7ASinr3Aizil3bHXv218ttZuqMgvUcecKLm5iKEON2QKt?=
+ =?us-ascii?Q?i67IwRQuQweJCyBlnPQ4ZpBOfjZTpqij/XLI/wgFbqw+q/GQdKcWmBRmSRVM?=
+ =?us-ascii?Q?7cWRbDFsgb2Cx9S5oIoNv42KDIM4zJ5PPZIWG1KMqkm+iIvuwmOpEDlPUKzN?=
+ =?us-ascii?Q?0zh6hz+vqDtHUoo9DVcVRfHs34udiw5toTbp+XFGoY+ShcWbqiJtgSFRmhsx?=
+ =?us-ascii?Q?XGoGXNOgyudmCy1FaB2vVzynmvxGyggWL3zpYelRz4i/3DV4p0TRRW8IplIQ?=
+ =?us-ascii?Q?ELSufY2VMbCfQKyez1hO7b6Cc4d45L6ey6kLKl7yEGsjZ7QZKNCi4VV3s9oQ?=
+ =?us-ascii?Q?LR1PiFKmuTMSl32iWBlJPa8bXFwlubHfVIi2g37HPGuH0TVlYLM+NTMaXOBA?=
+ =?us-ascii?Q?UW6wEmRKajqzqWJN1BsP+874e7bnVc0cBe9YAiYqJUpKEKvb//TPb/pdvObV?=
+ =?us-ascii?Q?sfvkKwisTzJbXclXDS5s3TXceMb6BvxPnUa+32sj3oYgAjItoCxnTslkGN1t?=
+ =?us-ascii?Q?BCieIxsL7OTSxodIkKygHHY2jzNZRLp20KvccsEChMU0zb6aleNHC1ZBGhpH?=
+ =?us-ascii?Q?RfEfSCITmZZO6Z063eZNzVGnVYOueIWiicsdLQ73yTRszXZeOEEqoULJuJOu?=
+ =?us-ascii?Q?S88nXjF08JapDVhiXFo/sOVTKQ79phdXSYTw04veArZ3Vc4xvRsGQRTmjHGL?=
+ =?us-ascii?Q?t5rfnFD+Zzj+Tw0IcxP9oXl0IUdlTpEhGqxA0li39FoZtiocw4H2YNxVxFI1?=
+ =?us-ascii?Q?KC7tTHno7mKRiB8QrcXMfb0DnyvYTUygTM07ku8JAo6SaNfXewbYN8k8InvK?=
+ =?us-ascii?Q?GW64yoGs2FVAaLj/43uJg2rq2sUnf0JhiUTrRrfW7krRPCt4ftn9IZ8WMUL0?=
+ =?us-ascii?Q?3iWCTQFf/QZPIAIotq40gBpSUG7vJsmlYe5duGdfeR4NzVlSYDDRMxT5BVVK?=
+ =?us-ascii?Q?htXupGQqx0BnkQnMX3wrCdRXc+ncK0I42HgjV7eCPbEGJjlLJ9U0tX6rFxmU?=
+ =?us-ascii?Q?N5r1a9ieJhug1mXmiJ/9NxFbFVC6r5VYdyqMBT2n5uZw+7z4tyXmiUJzulq2?=
+ =?us-ascii?Q?HNQlJep9rmc8sLF+1nOFJ0rgQMWZrPoIkuKk4xyraynRc+4roBOIKMqRmQ7b?=
+ =?us-ascii?Q?xqVTRjHLyEbTnscu2++XQn8DeDLK8oYVpA6spV+B3qiHmb+VCloB0RiYi8m4?=
+ =?us-ascii?Q?hBgU7kx4EXzjwdaFQcKFBkR5UYtwdBMYRGKH+YQv6vYexeKca0Zuv/+R42e+?=
+ =?us-ascii?Q?70cCJrcmHtgQGTVNkQ4FVey0YXo385u5myzewxUQCxpgWeSYwFjqKst/wgZl?=
+ =?us-ascii?Q?4a74dCh/PqPo7FaHvEWXEBjOFNJElvNCNpXAhCXnJINCxe74k2L+VuUF2Od7?=
+ =?us-ascii?Q?5OWCzdYs39ws5qTFLRKutTy8Fi/pKk/F27raMGh2OjPtUgpmiAREY34j2x/q?=
+ =?us-ascii?Q?Iv/0N04/hqVpaEzcIWed6P2XBp2t3XOnKI/ecP+T33MVxQ84GGzDdHhThgDl?=
+ =?us-ascii?Q?BNOXsEGCG8RXA1cceGPPQJgfL5nwSm+OwpXsmpe30WNqPksBK7myhZl/b6pF?=
+ =?us-ascii?Q?Uj5bvOaib4Ipkz4VI3UibkAeScTtJsR4WxuBaGcOfkVjWaAPptwuf4f1sxig?=
+ =?us-ascii?Q?mhG50A=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(7416014)(1800799024)(376014)(13003099007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	8J0hX40UttPhq/VcAkSMpUrDxp9QHCNn/A7TPcawI7ZUtApqTA/NO2AeA5JkRwiLjszatfseTD7c7MhFkuEzJIKKDFoXuRSYnb/7y9wNMiO8AW8wuS4kUjS+8v9oCYVZR72i78bZ/idtiYVQlzvq9bArYy/Ap+SfZXLDtn5Eug/6eOBKw+V87gS2PHMN5ZlVV0UJPqK7fMz9U75dX9qKBzqikos1YptkdTO1Gk1BFuGiFUASXLoL9J3FCe+5LO0A5yRFU8TGgs47oJVgeLGX24st7sVGNraUUGVT+lyqp5dFkXOlIKUU9gkdT5cCwp87E7FlNpDVM+qz8VUuQrxyn2Ud7+H5qPO4b2LwA/s3PWKLsJ5WpDb2rx2L7KOSqMnNRbh37oUD7n5WZeHTZbWDWAGb/AvZ0nfh/dz4g8Xwn+YkIHIxhozEWIcNNi9i9n0p
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Feb 2026 22:39:57.7973
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e94efc41-7453-46a0-381a-08de643e5330
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MN1PEPF0000ECD5.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR12MB9418
 
-Introduce page_pool support in virtio_net driver to enable page
-recycling in RX buffer allocation and avoid repeated page allocator
-calls. This applies to mergeable and small buffer modes.
+This series implements ethtool flow rules support for virtio_net using the
+virtio flow filter (FF) specification. The implementation allows users to
+configure packet filtering rules through ethtool commands, directing
+packets to specific receive queues, or dropping them based on various
+header fields.
 
-Beyond performance improvements, this patch is a prerequisite for
-enabling memory provider-based zero-copy features in virtio_net,
-specifically devmem TCP and io_uring ZCRX, which require drivers to
-use page_pool for buffer management.
+The series starts with infrastructure changes to expose virtio PCI admin
+capabilities and object management APIs. It then creates the virtio_net
+directory structure and implements the flow filter functionality with
+support for:
 
-The implementation preserves the DMA premapping optimization introduced
-in commit 31f3cd4e5756 ("virtio-net: rq submits premapped per-buffer")
-by conditionally using PP_FLAG_DMA_MAP when the virtio backend supports
-standard DMA API (vhost, virtio-pci), and falling back to
-allocation-only mode for backends with custom DMA mechanisms (VDUSE).
+- Layer 2 (Ethernet) flow rules
+- IPv4 and IPv6 flow rules  
+- TCP and UDP flow rules (both IPv4 and IPv6)
+- Rule querying and management operations
 
-================================================================================
-                      VIRTIO-NET PAGE POOL BENCHMARK RESULTS
-================================================================================
+Setting, deleting and viewing flow filters, -1 action is drop, positive
+integers steer to that RQ:
 
-CONFIGURATION
--------------
-- Host: pktgen TX -> tap interface -> vhost-net
-- Guest: virtio-net RX -> XDP_DROP
-- Packet sizes: small buffers - 64; merge receivable 64, 1500
+$ ethtool -u ens9
+4 RX rings available
+Total 0 rules
 
-SMALL PACKETS (64 bytes)
-==================================================
-Queues | Base (pps)  | Page Pool (pps) | Improvement | Base (Gb/s) |PP (Gb/s)
--------|-------------|-----------------|-------------|-------------|----------
-  1Q   |    853,493  |      868,923    |   +1.8%     |    0.44     | 0.44
-  2Q   |  1,655,793  |    1,696,707    |   +2.5%     |    0.85     | 0.87
-  4Q   |  3,143,375  |    3,302,511    |   +5.1%     |    1.61     | 1.69
-  8Q   |  6,082,590  |    6,156,894    |   +1.2%     |    3.11     | 3.15
+$ ethtool -U ens9 flow-type ether src 1c:34:da:4a:33:dd action 0
+Added rule with ID 0
+$ ethtool -U ens9 flow-type udp4 dst-port 5001 action 3
+Added rule with ID 1
+$ ethtool -U ens9 flow-type tcp6 src-ip fc00::2 dst-port 5001 action 2
+Added rule with ID 2
+$ ethtool -U ens9 flow-type ip4 src-ip 192.168.51.101 action 1
+Added rule with ID 3
+$ ethtool -U ens9 flow-type ip6 dst-ip fc00::1 action -1
+Added rule with ID 4
+$ ethtool -U ens9 flow-type ip6 src-ip fc00::2 action -1
+Added rule with ID 5
+$ ethtool -U ens9 delete 4
+$ ethtool -u ens9
+4 RX rings available
+Total 5 rules
 
+Filter: 0
+        Flow Type: Raw Ethernet
+        Src MAC addr: 1C:34:DA:4A:33:DD mask: 00:00:00:00:00:00
+        Dest MAC addr: 00:00:00:00:00:00 mask: FF:FF:FF:FF:FF:FF
+        Ethertype: 0x0 mask: 0xFFFF
+        Action: Direct to queue 0
 
-RECEIVE MERGEABLE (64 bytes)
-======================================================
-Queues | Base (pps)  | Page Pool (pps) | Improvement | Base (Gb/s) |PP (Gb/s)
--------|-------------|-----------------|-------------|-------------|----------
-   1Q  |    766,168  |      814,493    |   +6.3%     |    0.39     | 0.42
-   2Q  |  1,384,871  |    1,670,639    |  +20.6%     |    0.71     | 0.86
-   4Q  |  2,773,081  |    3,080,574    |  +11.1%     |    1.42     | 1.58
-   8Q  |  5,600,615  |    6,043,891    |   +7.9%     |    2.87     | 3.10
+Filter: 1
+        Rule Type: UDP over IPv4
+        Src IP addr: 0.0.0.0 mask: 255.255.255.255
+        Dest IP addr: 0.0.0.0 mask: 255.255.255.255
+        TOS: 0x0 mask: 0xff
+        Src port: 0 mask: 0xffff
+        Dest port: 5001 mask: 0x0
+        Action: Direct to queue 3
 
+Filter: 2
+        Rule Type: TCP over IPv6
+        Src IP addr: fc00::2 mask: ::
+        Dest IP addr: :: mask: ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+        Traffic Class: 0x0 mask: 0xff
+        Src port: 0 mask: 0xffff
+        Dest port: 5001 mask: 0x0
+        Action: Direct to queue 2
 
-RECEIVE MERGEABLE (1500 bytes)
-========================================================
-Queues | Base (pps)  | Page Pool (pps) | Improvement | Base (Gb/s) |PP (Gb/s)
--------|-------------|-----------------|-------------|-------------|----------
-  1Q   |    741,579  |      785,442    |   +5.9%     |    8.90     | 9.43
-  2Q   |  1,310,043  |    1,534,554    |  +17.1%     |   15.72     | 18.41
-  4Q   |  2,748,700  |    2,890,582    |   +5.2%     |   32.98     | 34.69
-  8Q   |  5,348,589  |    5,618,664    |   +5.0%     |   64.18     | 67.42
+Filter: 3
+        Rule Type: Raw IPv4
+        Src IP addr: 192.168.51.101 mask: 0.0.0.0
+        Dest IP addr: 0.0.0.0 mask: 255.255.255.255
+        TOS: 0x0 mask: 0xff
+        Protocol: 0 mask: 0xff
+        L4 bytes: 0x0 mask: 0xffffffff
+        Action: Direct to queue 1
 
-The page_pool implementation showed consistent performance improvements
-by eliminating per packet overhead of allocating and deallocating
-memory. When running the performance benchmarks, I noticed that
-page_pool also had a consistent throughput performance compared to the
-base patch where performance variability was due to accessing free_list
-for getting the next set of pages.
+Filter: 5
+        Rule Type: Raw IPv6
+        Src IP addr: fc00::2 mask: ::
+        Dest IP addr: :: mask: ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+        Traffic Class: 0x0 mask: 0xff
+        Protocol: 0 mask: 0xff
+        L4 bytes: 0x0 mask: 0xffffffff
+        Action: Drop
 
+---
+v2: https://lore.kernel.org/netdev/20250908164046.25051-1-danielj@nvidia.com/
+  - Fix sparse warnings
+  - Fix memory leak on subsequent failure to allocate
+  - Fix some Typos
 
-Changes in v4
-=============
+v3: https://lore.kernel.org/netdev/20250923141920.283862-1-danielj@nvidia.com/
+  - Added admin_ops to virtio_device kdoc.
 
-Addressing reviewer feedback from v3:
+v4:
+  - Fixed double free bug inserting flows
+  - Fixed incorrect protocol field check parsing ip4 headers.
+  - (u8 *) changed to (void *)
+  - Added kdoc comments to UAPI changes.
+  - No longer split up virtio_net.c
+  - Added config op to execute admin commands.
+      - virtio_pci assigns vp_modern_admin_cmd_exec to this callback.
+  - Moved admin command API to new core file virtio_admin_commands.c
 
-- Remove unnecessary !rq->page_pool check in page_to_skb() 
-- Reorder put_xdp_frags() parameters
-- Remove unnecessary xdp_page = NULL initialization in receive_small_xdp()
-- Move big_packets mode check outside the loop in virtnet_create_page_pools()
-  for efficiency
-- Remove unrelated whitespace changes
-- v3 link: https://lore.kernel.org/virtualization/20260203231021.1331392-1-vishs@meta.com/
+v5: 
+  - Fixed compile error
+  - Fixed static analysis warning on () after macro
+  - Added missing fields to kdoc comments
+  - Aligned parameter name between prototype and kdoc
 
-Changes in v3
-=============
+v6:
+  - Fix sparse warning "array of flexible structures" Jakub K/Simon H
+  - Use new variable and validate ff_mask_size before set_cap. MST
 
-Addressing reviewer feedback from v2:
+v7:
+  - Change virtnet_ff_init to return a value. Allow -EOPNOTSUPP. Xuan
+  - Set ff->ff_{caps, mask, actions} NULL in error path. Paolo Abini
+  - Move for (int i removal hung back a patch. Paolo Abini
 
-- Fix CI null-ptr-deref crash: use max_queue_pairs instead of
-curr_queue_pairs in virtnet_create_page_pools() to ensure page pools
-are created for all queues (Jason Wang, Jakub Kicinski)
-- Preserve big_packets mode page->private chaining in page_to_skb() with
-conditional checks (Jason Wang)
-- Use page_pool_alloc_pages() in xdp_linearize_page() and
-mergeable_xdp_get_buf() to eliminate xdp_page tracking logic and simplify
-skb_mark_for_recycle() calls (Jason Wang)
-- Add page_pool_page_is_pp() check in virtnet_put_page() to safely
-  handle both page_pool and non-page_pool pages (Michael S. Tsirkin)
-- Remove unrelated rx_mode_work_enabled changes (Jason Wang)
-- Selftest: use random ephemeral port instead of hardcoded port to avoid conflicts
-when running tests in parallel (Michael S. Tsirkin)
-- v2 link: https://lore.kernel.org/virtualization/20260128212031.1431746-1-vishs@meta.com/
+v8
+  - Removed unused num_classifiers. Jason Wang
+  - Use real_ff_mask_size when setting the selector caps. Jason Wang
 
-Changes in v2
-=============
+v9:
+  - Set err to -ENOMEM after alloc failures in virtnet_ff_init. Simon H
 
-Addressing reviewer feedback from v1:
+v10:
+  - Return -EOPNOTSUPP in virnet_ff_init before allocing any memory.
+    Jason Wang/Paolo Abeni
 
-- Add "select PAGE_POOL" to Kconfig (Jason Wang)
-- Move page pool creation from ndo_open to probe for device lifetime
-  management (Xuan Zhuo, Jason Wang)
-- Implement conditional DMA strategy using virtqueue_dma_dev():
-  - When non-NULL: use PP_FLAG_DMA_MAP for page_pool-managed DMA
-    premapping
-  - When NULL (VDUSE): page_pool handles allocation only
-- Use page_pool_get_dma_addr() + virtqueue_add_inbuf_premapped() to
-  preserve DMA premapping optimization from commit 31f3cd4e5756
-  ("virtio-net: rq submits premapped per-buffer") (Jason Wang)
-- Remove dual allocation code paths - page_pool now always used for
-  small/mergeable modes (Jason Wang)
-- Remove unused virtnet_rq_alloc/virtnet_rq_init_one_sg functions
-- Add comprehensive performance data (Michael S. Tsirkin)
-- v1 link:
-  https://lore.kernel.org/virtualization/20260106221924.123856-1-vishs@meta.com/
+v11:
+  - Return -EINVAL if any resource limit is 0. Simon Horman
+  - Ensure we don't overrun alloced space of ff->ff_mask by moving the
+    real_ff_mask_size > ff_mask_size check into the loop. Simon Horman
 
+v12: Many comments by MST, thanks Michael. Only the most significant
+     listed here:
+  - Fixed leak of key in build_and_insert.
+  - Fixed setting ethhdr proto for IPv6.
+  - Added 2 byte pad to struct virtio_net_ff_cap_data.
+  - Use and set rule_cnt when querying all flows.
+  - Cleanup and reinit in freeze/restore path.
 
-Vishwanath Seshagiri (2):
-  virtio_net: add page_pool support for buffer allocation
-  selftests: virtio_net: add buffer circulation test
+v13:
+  - Add private comment for reserved field in kdoc. Jakub
+  - Serveral comments from MST details in patches. Most significant:
+	- Fixed bug in ip4, check l3_mask vs mask when setting addrs.
+	- Changed ff_mask cap checking to not break on expanded
+	  selector types
+	- Changed virtio_admin_obj_destroy to return void.
+	- Check tos field for ip4.
+	- Don't accept tclass field for ip6.
+	- If ip6 only flow check that l4_proto isn't set.
 
- drivers/net/Kconfig                           |   1 +
- drivers/net/virtio_net.c                      | 351 ++++++++++--------
- .../drivers/net/virtio_net/basic_features.sh  |  86 +++++
- 3 files changed, 287 insertions(+), 151 deletions(-)
+v14:
+  - Handle virtio_ff_init errors in freeze/restore. MST
+  - Don't set proto in parse_ip4/6. The casted struct may not have that
+    field, and the proto field was set explicitly anyway. Simon H/AI.
 
---
-2.47.3
+v15:
+  - In virtnet_restore_up only call virtnet_close in err path if
+    netif_running. AI
+
+v16:
+  - Return 0 from virtnet_restore_up if virtnet_init_ff return not
+    supported. AI
+  - Rebased over removing series to remove delayed refill.
+
+v17:
+  - Properly handle unaligned reads/writes. MST
+  - Fix use after free if init fails during virtnet_restor. AI
+  - Fix memory leak when validating the classifer vs caps fails. AI
+  - Added missing includes. MSTA
+
+v18:
+  - Validate selector cap lengths, instead of just checking they don't
+    exceed a max. AI
+  - Add __count_by attribute to flexible arrays in UAPI definitions.
+    Paolo A.
+
+v19:
+  - Style fixes. AI
+
+Daniel Jurgens (12):
+  virtio_pci: Remove supported_cap size build assert
+  virtio: Add config_op for admin commands
+  virtio: Expose generic device capability operations
+  virtio: Expose object create and destroy API
+  virtio_net: Query and set flow filter caps
+  virtio_net: Create a FF group for ethtool steering
+  virtio_net: Implement layer 2 ethtool flow rules
+  virtio_net: Use existing classifier if possible
+  virtio_net: Implement IPv4 ethtool flow rules
+  virtio_net: Add support for IPv6 ethtool steering
+  virtio_net: Add support for TCP and UDP ethtool rules
+  virtio_net: Add get ethtool flow rules ops
+
+ drivers/net/virtio_net.c               | 1219 +++++++++++++++++++++++-
+ drivers/virtio/Makefile                |    2 +-
+ drivers/virtio/virtio_admin_commands.c |  173 ++++
+ drivers/virtio/virtio_pci_common.h     |    1 -
+ drivers/virtio/virtio_pci_modern.c     |   10 +-
+ include/linux/virtio_admin.h           |  121 +++
+ include/linux/virtio_config.h          |    6 +
+ include/uapi/linux/virtio_net_ff.h     |  155 +++
+ include/uapi/linux/virtio_pci.h        |    6 +-
+ 9 files changed, 1681 insertions(+), 12 deletions(-)
+ create mode 100644 drivers/virtio/virtio_admin_commands.c
+ create mode 100644 include/linux/virtio_admin.h
+ create mode 100644 include/uapi/linux/virtio_net_ff.h
+
+-- 
+2.50.1
 
