@@ -1,260 +1,184 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013001.outbound.protection.outlook.com [40.93.196.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f194.google.com (mail-qk1-f194.google.com [209.85.222.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D86C427A07;
-	Wed,  4 Feb 2026 16:22:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.1
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770222120; cv=fail; b=EOu8d9OhKnTHR59ge+WejlL7zy94vJXaQZgOzKxPfvzZGxMBgMecgGuB53COoN5Ot+KJkYilPVEF4h7KvOYJP+Vra6OiJqV1w0ImbyRa9Qx+QK/8+hSJ8YFXRzdsLPCQXpGxlbZsFy0B7BZThqnNPj3HeiEyQ0iyslYYXRqhcCI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770222120; c=relaxed/simple;
-	bh=gmotv6V6sXj+y5H7bikYziowjusveCVnK5GPT+spOTI=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=qFBdgfjRCNpyt0t2lwt6T322PQbbh7A+tWjD0UUmIVCnv6Ot4SONC3qxkYbfB6DiCUJz58OgCos4MMgJZGySBjeBALbMRNUX7VsYfVceX4xV/foY2GIXu9+EZcozBFKiAtgIdZUzZsDzDLgF+wphy+V06/NJVCMUkHqgAHUTMw8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=dw10h5er; arc=fail smtp.client-ip=40.93.196.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CB8733E350
+	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 16:55:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.194
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770224109; cv=none; b=Zgv2UKs01CJoSVZbzilnxX9DiSbcSSGJF+djXt2SwuUMWs/mWUsPOn7Hmh5KQ2N9wV+Sz3a+XyztPdpTvp3nUKVMqAED0OmIlmAEFEZz4RY1U1hGu1K/pzeR867GYiipstZy5veOEadCiBRa08r/r2XwQ6WGRAFKGHbzVL/gCH4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770224109; c=relaxed/simple;
+	bh=5K5fR+HxBrdqjMKErGIv55w9oITaTZk9Qf+xlROKnSo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fKWJHZDEiN2hFx/4vfyVD0RGCKrpCJ+tjSaBR99+RDhjX+22JKzdMpmWMGn/uF5r8yhFN6uGRfpO5B+WkeVZ9D23XfkjQkPVmPWNDzr8WvjtaSW8keI7PKfQtvmk7uxKhZo1yeLTSWy+pgrW80dsiQi+cAodnBI4pm+t/0G1OLA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=HeGGuWC1; arc=none smtp.client-ip=209.85.222.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="dw10h5er"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=C5K24x3TjAR4QcyEqR9Rr6MyMVRl01zPDe+HfO3GWYGJgYDKeNj6nqjkmmO/0Lv00M0vq/Lz9ZaVO9V2C4SmD6SYyPZOCK7ysY95NNCIVN2jGEV9iXWYtVwnLuLE8Q+eAApn/UQopS1cBJgq+WabGWlAQsOjWt7lRdyid/DQAv3Tjw7xIW+uN4feZAmnJzmjRZEPrw5K9c3k/J5Rkc615kEIVOsM2H1Xmx/5fLRFyPSfD4q1YEhtYpDxMOUDO/fAXIEM/diQBHVeABoWXHRlDYliAPEenk/0zKD/eS8bKGjzzACrNd3YXC9H/rAwO/yhaD04KhTJDytn9YTH0pFVbg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Rm3DWcke8SB4n13gY+v4wuFPjMZQKZyLvLnh5u9elGw=;
- b=JjsuyQEUJY44zfL8tdbXPvM1OjmFBcmj6pCuVYqT4nvz6AeRRyP6kfvnTfyShf2XeSMDbBSgw5bXxAX0Ym0AQ+dG1exE7EC3WWg1zceQ3xu68bxFV/AJKvzle6Fy5gEq3pGDtULjLWP5wlPtyFbR6qcBx/VxIoZXVTm7J+ffSDcq+9v6ulyAaihpXxN48LynUA0ALtlqB7K7xLgcC1zoaLr6sJakNqpPX2bkg7BPuxpwf3vSQx1ffNho+9ln9+nFbbYx84aL2yjRy9zYlm3kXYgmUaPC/IRlZdS/Q+G7nFHlIxOEzCAQpeilp+MP6+j5j7q85L7Jk86RY/Hy2oFgow==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Rm3DWcke8SB4n13gY+v4wuFPjMZQKZyLvLnh5u9elGw=;
- b=dw10h5eruIfdxeozKYB6HqcxBW48A8dWWZ3aZNxwTuOpBhg5hh88qUrHqSuaO6rARjjKaq0arbQVqAbz3odR7ia9zPetdPHuPmlBF4KvfuDyzVIFI1MdOHA7h5ryHPMfJpxF1SRJ/knd3GA8dMbqN5eT9cDG9DkWOiJc8ModDbo=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by MW4PR12MB5601.namprd12.prod.outlook.com (2603:10b6:303:168::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9587.13; Wed, 4 Feb
- 2026 16:21:53 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c%5]) with mapi id 15.20.9587.010; Wed, 4 Feb 2026
- 16:21:53 +0000
-Message-ID: <fb9bf53a-7962-451a-bac2-c61eb52c7a0f@amd.com>
-Date: Wed, 4 Feb 2026 17:21:45 +0100
-User-Agent: Mozilla Thunderbird
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="HeGGuWC1"
+Received: by mail-qk1-f194.google.com with SMTP id af79cd13be357-8c710439535so563069985a.1
+        for <virtualization@lists.linux.dev>; Wed, 04 Feb 2026 08:55:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1770224108; x=1770828908; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=+k5zz356tCtx+TsrSTgNS2LOgl52lZtCniOLQPd/1s0=;
+        b=HeGGuWC1fQBTG0lpEEEr/gWuYCP68dbDZzZembJEiU8IrCCHn/TdHCh3vzu6FNQg3c
+         IBQ+zqqBPrTJPn5kh0xA/hhag/8/BJ+TJqhhTkqOYOcykvkvDm/pvgiROywYe0201VyH
+         e+WxMZygsPXg9s6iDgLpdCvxyJIHPiowgaYPtCebrM6385xc0jSgXSoYYRhrIf/pFteq
+         eg1xiVG8JoS2SZXNwwQ2lrLWYBvqz2tOmv+/mVmgJRE6/CbDy/bXOTKoPC+DIn2hc3m6
+         usGtKMDR9vbQneB6NxFlGHUho+/f4teigcB4XN7oUGHKTJFYXiBLe6KyrBag9MxG2BXn
+         6D5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770224108; x=1770828908;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+k5zz356tCtx+TsrSTgNS2LOgl52lZtCniOLQPd/1s0=;
+        b=I6Id432ISPACUv9Jxf3XYFmVmGk7FCnRCYBbHx//OKIGY4CKxy2gDBgQQ8afekuMnw
+         59nMmRksW9dmIw02JweROBunoBlKqz1ZCvY2uhGjuy3QNnPHk2NqRArqbZ6qFCEtdLIW
+         AgjnIo31n7uZAt9G0shXuIQ/CUe/qIAN38YelpCgNrFLMQFzgzRvfBFKQ1A3LdzmdhOk
+         M+rujRzKcuCrRj/2J9IwdKnqBRFuvOczN0/5J7GCjfy3CXL2Y5wSkHWMh1x9DtXoDYG2
+         eUSzzG0ubdp2P1YNYk1QRtR0zB3hItd+HMtuWE9FPOLIcjB3Y4FZ6LR4g1RtMoozWkFu
+         PZoQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVaVVxFTEP2xdw1K9hV8PL35/biz9/TGdDYsfaYEtiiUFqXXiK5i1Yq6YksTJ2ci7Yy8MLzxbWNmdiSPgq6NQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyf4HmS1bG4wHNpkUX3+dStaOxL5liAIfmX8JlKCNYXMoMSsHrG
+	oVIUBxQDdIKlr7tyUhPEusSKdwy5ZF8dX9gKfEYyL57YjUVWabCzIbmDkDM9/3m/zVM=
+X-Gm-Gg: AZuq6aKKCK1ToSvKEP20L0rTb2bB0Ugd5qwbxB/XXGC1Eb8ueeKbCR/0XBJLdTVY9h5
+	5lx4sxZGcXRM64kDZ2Xqnnav3Li27FD8bqVZKkjWgd4R06vjGT00Ok5Td9qU5hJHXFJ53a9/W2J
+	u5DDWXrghp3sDGshjkCjaJS97e4JhGgzzfRDExMxtalW86Dh6i1eovnvf2oiVMAuIdvh4jo3IWb
+	pfj0gMIH/tArLfq9gxBtvF0jCMeZedmr8CHv2wgrniJlupaVTh8ZdA7WVu2f5nmNJm98+4uDYvk
+	kEZGThKBBujNIJulR70JPk/fbe8PcDqnLPcNAdqv/yyFjgGtX9uJ2TDslxPjbkuZO0JUpj7zkxW
+	yRJlvH52EpFprpE4+dE8M8J0+49g/8zHBivSCGXTmmj80gIy3AXHCDu9eLBZ/zJPMGRD8WELnkP
+	v7tMAoS0vUUqNuptGX4dludQpv//W3mHuWjeTMjssTOwIkLd1kZqWsk2sWNdA8ekgYBMk=
+X-Received: by 2002:a05:620a:4627:b0:8c7:177f:cc17 with SMTP id af79cd13be357-8ca2f9bbb5amr467025085a.46.1770224108469;
+        Wed, 04 Feb 2026 08:55:08 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8ca2fd2cfb4sm226461485a.33.2026.02.04.08.55.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Feb 2026 08:55:07 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1vng9j-0000000HH15-13rk;
+	Wed, 04 Feb 2026 12:55:07 -0400
+Date: Wed, 4 Feb 2026 12:55:07 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>
+Cc: Leon Romanovsky <leon@kernel.org>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Felix Kuehling <Felix.Kuehling@amd.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Ankit Agrawal <ankita@nvidia.com>,
+	Vivek Kasireddy <vivek.kasireddy@intel.com>,
+	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+	iommu@lists.linux.dev, kvm@vger.kernel.org
 Subject: Re: [PATCH v7 7/8] vfio: Permit VFIO to work with pinned importers
-To: Leon Romanovsky <leon@kernel.org>, Sumit Semwal
- <sumit.semwal@linaro.org>, Alex Deucher <alexander.deucher@amd.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Lucas De Marchi <lucas.demarchi@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
- Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- Felix Kuehling <Felix.Kuehling@amd.com>, Alex Williamson <alex@shazbot.org>,
- Ankit Agrawal <ankita@nvidia.com>,
- Vivek Kasireddy <vivek.kasireddy@intel.com>
-Cc: linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
- intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
- iommu@lists.linux.dev, kvm@vger.kernel.org
+Message-ID: <20260204165507.GH2328995@ziepe.ca>
 References: <20260131-dmabuf-revoke-v7-0-463d956bd527@nvidia.com>
  <20260131-dmabuf-revoke-v7-7-463d956bd527@nvidia.com>
-Content-Language: en-US
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <20260131-dmabuf-revoke-v7-7-463d956bd527@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR4P281CA0446.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:c6::12) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
+ <fb9bf53a-7962-451a-bac2-c61eb52c7a0f@amd.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|MW4PR12MB5601:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4cf6377c-c49a-44b6-bc3e-08de640981f5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|7416014|376014|366016|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?L253RXhGZ01YRmxHN3NpNi9CWUY1eW02OFdvUDQ3Ryt1R1p1d3JUOEVxOENu?=
- =?utf-8?B?Z0pzdXJHejRRQUl2Q2Q3aDJ1cm9qY1RtYmwrUmNRUnhqemJmKzZLR0h0TERl?=
- =?utf-8?B?QVVwRnRwQXpSVjBrWngrTVFRTEp1TUdwZWppUXdCVzkwU2J6TVJkVk9wNXR6?=
- =?utf-8?B?ZlZ3UFV6SFd2STZUTFp3SnllOEFmZ2xKTVZHZFZBbURBYTJ2Vjlvc3FyenZh?=
- =?utf-8?B?K2gvSkZXNkdZZE9aV3JjWWlobnhyM0VTcjNVK1VYVXdYVkVRSktMSGJaTVpn?=
- =?utf-8?B?bjlON1dpTm1ZVHkvZXRHMGovRTI4T0JGZkJVOTd3TDdqb2c1MGdhVzNIYVpR?=
- =?utf-8?B?bW1CQWNpU2FjYW1DTFBpQm00MHFUK1BsRXE5bU5DOVFzSDRabjk0VjRRVkQz?=
- =?utf-8?B?WHV2b0NERy9CdUFTT3QzNjZuK0VYdS9FVmhZL0ZMUnMrRGZFUGVBZXhHcEdu?=
- =?utf-8?B?ZzRsWEhBNGNLNFNtYjRPZnlQSEhaMkxOSitVaUJQcjl1N2hnbEIrREhPMHcy?=
- =?utf-8?B?WlBQMmwxUGkyUHNDdnRDKzZsaGg0Qk14WERmSy9qSUdkYnQ2QXhreEJZVGZG?=
- =?utf-8?B?ellQcS9zaTk0T2NpWFNQTlZYRUY5OWxSaUFWbnp1NTdWVlV6T3J4bi9IM2pi?=
- =?utf-8?B?Y1F0QjMzWGVHalFMRkR5V05uQ2IyQTk0QWcxVVE4WmdZZlZPaDZ0OU5pc2Y4?=
- =?utf-8?B?MnZiNkIveTlyS2VzTGRjTHdmaWdydGVKcm00VUpGTEUrNzdja29HblM3SG1M?=
- =?utf-8?B?OTB3bzZqZHRyWTRvc1RWTzl1MGVqQ0ZscXpyOTMrMW85OFV5WXpNSEZNQkM0?=
- =?utf-8?B?MzQzSlRoYTRPUTJwRmpjcGMrbExnc0hnb0pBNG14TUUyampoczVtYzNubXNa?=
- =?utf-8?B?blo5NjdJSHRRcncwS3QzZnB4ak15S2JyZFkvSjF3V1RjdWNIRmhnYVlOd0hu?=
- =?utf-8?B?V1hqRWFwK0JNcEFhOUpQckVuMXBzU05UZGVpRG14NkRHMFhVdDhzZDlHVWhp?=
- =?utf-8?B?YmtGSDBJZWtoZDFKTWZKTnp5Wk5Uc2cvQzdyd1JENUNtcFhEV0JqYWRTdlAy?=
- =?utf-8?B?K3ZVMFQzTXJnNEF2UitZMmZidGRRbXhUQzdEaFZORE1XODc3emJuM3JNcGVp?=
- =?utf-8?B?UTVWY29TODZ4bG9JNmQ3aE9KeVFiZUFIZkhjSUhHWk9sMWVwS295azliM1dR?=
- =?utf-8?B?eFExOVAzbjdoVTRjQ0EzaWRFcnVLb0p2Z3BMNVVwOERCZGRSSFhnejZZVWtr?=
- =?utf-8?B?MktPcWc2UnRBdEwxTUVsMTQzeW5uakhrTGYwZ0E5U0lva3F4ZTJvbUQ4VlZz?=
- =?utf-8?B?Rk1ONTVrZlNSdk5aWHYwWFRhblhZYksranRSSmt4OXFoTmRPODMwdTAvdGt1?=
- =?utf-8?B?OU9Ub3MwWk44VEFKTWcxMU5YcFhsYnZwMVhrY3FPQm44YWMwR1VEMncxeERv?=
- =?utf-8?B?Mld3MmhPcm95eFdxbnc2THJsK1N5bTg1bmZXSnlFWWFDZGswQmI0ZTJOZHB6?=
- =?utf-8?B?WVp1YlJTVjNadC8wb014aHMvVDdxRFNmUXZmckV2TlJOL2JBaklWaDgwL005?=
- =?utf-8?B?SVpZTW8vaFlDUXVUelZBaEZXeExES3ZQVkliZzNlQnVrWDFmc1lsNG82NlFz?=
- =?utf-8?B?L1FDOGg1QlhZQkU1SkRKc2Vxd1pYNGtQVjlYQzUvbTI2NFVWSE9XRTR0V0JJ?=
- =?utf-8?B?R01jMzY2ZmVQZE8yNHh1RTREY0JweVplbkI3NnRZN0RjdXBuVld3MitZVDlH?=
- =?utf-8?B?T1U4Wk5iK1gzRVVRL1ZRRVpmQmcwbkczcnNScU13Njd1NUFxT1V1Rk10OE5w?=
- =?utf-8?B?ZkpvbmNYVWgzOHErWUlXTGRvZm1OVnRBa2QzSFJtWWZNZmQvUUhuNWMyUW1H?=
- =?utf-8?B?VDczdEN4K0dJellIdFkxbFZFaDZKd3lOVE4wcG1SR1FKU1pDWWRsUVhiam5v?=
- =?utf-8?B?SVFpZjZRbVNQdnZKNW81YWtDUTg3ZGdOVXJGR1R4VVFPTTdmNjVKNU5ULzVu?=
- =?utf-8?B?eXNGUFlGb3MyMTlZWDNDUk1lYXRWMllQZlplU0pHOEtYVHNwcCtwOXlkbkV6?=
- =?utf-8?B?RVE4L0s4bFhDK25rekQ1TkR5TCtCbFVTVUdTOGprRE4vRWNvNDAwRnBiNzA0?=
- =?utf-8?B?MmR4TmIvTEk5Ykp0dEV2dzRVUHkxZ2x2YzBkZjJNUVFLaHFKM2hvMnRZeVA2?=
- =?utf-8?B?RGc9PQ==?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?K1NLQ3d1OFloZVRVdTBEUU9zNXZCUXc4RzROMWF1QUM2SzJsMC9MTzZKWTJU?=
- =?utf-8?B?QkVBckVpU2kyeWk2ZVUxZ0NIYU5ZcGk3QnhEOGQ0ZnZGTWdqMWpxRmV3WGZY?=
- =?utf-8?B?c01XckZ0SGN3L29TcVgvSFA3b2k3OVBiUmpFOGsvVXVLU3NnSFc1b0hpNm1N?=
- =?utf-8?B?aXdYcHdVNnhENFRtZEJjSFRvbXRYRDhRTGZSTXMvUG5LZWVxcUplNUxyK2dU?=
- =?utf-8?B?cFFIV3Q5QTlpcnhJNVBDbTFLZE9WNHBYMWxwWlQrZXIrSzR2c1FQN3lsVlor?=
- =?utf-8?B?NnBFaFBEaHFENm42TzZoMUZMQ2JUQWRRci9ZN0JtR2QvL2pkNkVGYUZSM25G?=
- =?utf-8?B?T1lTRXBhNG5jTEVNRDFiaHNXYkpNejBhNkR2ZmV1WVZXSldiQ2owUnNrRmJt?=
- =?utf-8?B?b1ZzcGNDbS9vODlKNE1YMmZnaEZFN0RObzZLN0I5MVR3dDJoOStNcWExdG5R?=
- =?utf-8?B?ZHVPK1o3dUhUeVpDN21jQkxSRzZnMlVVKzBHM2k5ajBrVTRQMzZMZHBPaEg0?=
- =?utf-8?B?K0V1RDV2S21qbW9xbU1JYXJsQlAxMHpYMU04Y0ZQT3FtQVI2cm5OREovTEZ0?=
- =?utf-8?B?Z2JURTg1NG1SK1VZZmRTYS9sYmhrVm9VZDVlbno2VVlUQ05wUUxBTVIxWTQv?=
- =?utf-8?B?b05yUHJWU0pHVjJVY0tKbHNwdm1HVmpWd1BVK0RVd1hvS2l2TGFmZTh5djZt?=
- =?utf-8?B?Zm5yOU1lNlpvMTlKS1lnRkRETGZzMDduMVpmaDJYMXh0MDA3d2I3TkNkS3VR?=
- =?utf-8?B?V2tDd0NVOHJCSnRpVjl2RzNjeDZGZnIzMmZWNUUzQzhqZU5CRHplMjByZ2xD?=
- =?utf-8?B?bmpMbjZlU2NSaW9jSDBBS3NzTTJoNnd4N1dXRERFVWVVTXMzNk1sZDliNm9X?=
- =?utf-8?B?bVlGL3VSNGZzUkpMbEdKUFlYOUpORnV6SUVROWlpRENZeDJ0RU9BRUF3Y2hK?=
- =?utf-8?B?N2RpRjBiMW1QdThBTkZnQVRjMTh2WDY1VDdNa0NaRUxxN3l0TWwvY3hQR01U?=
- =?utf-8?B?NkhPb0hIOHErRm9ibkZFMEVScDBNRVl5SlpBS21mN2kwOWliVDlsUndON21q?=
- =?utf-8?B?c0FOSHN6UHg5OTJpOW9BZ2NRalYrLytCY1h2S1BRUlNDSHpDaW1MVDMxVTlK?=
- =?utf-8?B?YmdGOVZtK1V6a3NuS1VrL1Z3cnFjRWdIUHo3VUhlaXZJU3dKTmdsWFFFckQr?=
- =?utf-8?B?ZVlQSFZhdkRkTFJvQldSN3BDenJKYzk5Rlh3cFprUXA2NlpRdHM4dldLdVIy?=
- =?utf-8?B?bGZCQnVlSU5NYXdzM2pWNGpYUnNFZVlpbTBUckZEdW8vR1R2Rm1jMFZOelJI?=
- =?utf-8?B?aERrMGNsTHlaQno2QWFzN0x0RHUyVDA3Z0pVSTFCM1M0a1BiVmdzRkxzeTI5?=
- =?utf-8?B?TzVNMjdrVlRUZERaSnlXOUhIRDJ2RjNGekcza0pnZllKdm5uRkhlZVlYclZ2?=
- =?utf-8?B?YlBIcnZYMEluRjYwamRORnl0TDJ3czNpWkV4UEpmVjhPMEt1MU80T0t2NUV4?=
- =?utf-8?B?WXFnemwxdGpYVG01N1ZHc0kzM21ENGJsYi9hNTFnMmJrKzVYYkgySUlia0dY?=
- =?utf-8?B?UEczWlRUU2hYYlQ3S3BjMjZvbkV1Q2sxTG5PRk13cE0rN1lGazlUZDhEcXJ5?=
- =?utf-8?B?OGV2dkNCRjVkUXdkVXR2N0ZjT3BPd1NYbGlyQmNYVXZSS0psVExjejhQUUNO?=
- =?utf-8?B?RTkwMzNaUm54SHJldjl0V1VDOUxoSG1yaW5BbHo3M01TNjVxcGJRUXdHMUNQ?=
- =?utf-8?B?d3Qyb2l2QThteHEzWFlyUUtPSHNzWjlYb3hPQ2xqYXo5b2k4WlFuTnRMTndj?=
- =?utf-8?B?QXJVOVlXMkVicCt0eGdLQi8wWSt4M2hwY1dxV1F4UjVEamNIR3JKZVo2MWdr?=
- =?utf-8?B?TDF3RGFJT0JzYmkvL3VkOVZIV0wwNzBXSG9OSUk5QXMwdUtCMDZsbndTWlNW?=
- =?utf-8?B?UTIvZjVMOHJSeFlaNU9FY2RPdFVmWSt0Nm95Y0wzNGk2ZExQUmk1VVhGbEdt?=
- =?utf-8?B?bGJka1pxSXZLWlNRMG1vQjcyRDB6dmtsVEpuYUI5NzFiZjhXREptdmVuaEdX?=
- =?utf-8?B?MGJBcmJBRE5EVHRXWU9Pa0s2T2w2V09GMjZpY1RidW0xa3RhSkw5OFpTREx0?=
- =?utf-8?B?a3ptOFVzRW4yWmExTCtaL2FJby9saTVlbHBteGlzQUY3ZDhlVGZsaDV4Z29B?=
- =?utf-8?B?ZHpONERmWFlDdklUalZueXBLQlBlM2RFanFUY0o1T2ZIdXNNRkhDb0dLUTYv?=
- =?utf-8?B?L2hWaGRWTWFBYnhLTW9CdkRlYmlMVTN1aEM4aUNaWlhOdVA2bFNST3p3dW5v?=
- =?utf-8?Q?Hqox3iWGa+M6LUTCvW?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4cf6377c-c49a-44b6-bc3e-08de640981f5
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Feb 2026 16:21:53.3750
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ggWSSFPIlWl82N4LfQAblC16qbnUgaNii+P4OIVW0JKD8VwkqIetY/sh8TadadM9
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB5601
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <fb9bf53a-7962-451a-bac2-c61eb52c7a0f@amd.com>
 
-On 1/31/26 06:34, Leon Romanovsky wrote:
-> From: Leon Romanovsky <leonro@nvidia.com>
+On Wed, Feb 04, 2026 at 05:21:45PM +0100, Christian König wrote:
+> On 1/31/26 06:34, Leon Romanovsky wrote:
+> > From: Leon Romanovsky <leonro@nvidia.com>
+> > 
+> > Till now VFIO has rejected pinned importers, largely to avoid being used
+> > with the RDMA pinned importer that cannot handle a move_notify() to revoke
+> > access.
+> > 
+> > Using dma_buf_attach_revocable() it can tell the difference between pinned
+> > importers that support the flow described in dma_buf_invalidate_mappings()
+> > and those that don't.
+> > 
+> > Thus permit compatible pinned importers.
+> > 
+> > This is one of two items IOMMUFD requires to remove its private interface
+> > to VFIO's dma-buf.
+> > 
+> > Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> > Reviewed-by: Alex Williamson <alex@shazbot.org>
+> > Reviewed-by: Christian König <christian.koenig@amd.com>
+> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > ---
+> >  drivers/vfio/pci/vfio_pci_dmabuf.c | 15 +++------------
+> >  1 file changed, 3 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > index 78d47e260f34..a5fb80e068ee 100644
+> > --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
+> > @@ -22,16 +22,6 @@ struct vfio_pci_dma_buf {
+> >  	u8 revoked : 1;
+> >  };
+> >  
+> > -static int vfio_pci_dma_buf_pin(struct dma_buf_attachment *attachment)
+> > -{
+> > -	return -EOPNOTSUPP;
+> > -}
+> > -
+> > -static void vfio_pci_dma_buf_unpin(struct dma_buf_attachment *attachment)
+> > -{
+> > -	/* Do nothing */
+> > -}
+> > -
 > 
-> Till now VFIO has rejected pinned importers, largely to avoid being used
-> with the RDMA pinned importer that cannot handle a move_notify() to revoke
-> access.
-> 
-> Using dma_buf_attach_revocable() it can tell the difference between pinned
-> importers that support the flow described in dma_buf_invalidate_mappings()
-> and those that don't.
-> 
-> Thus permit compatible pinned importers.
-> 
-> This is one of two items IOMMUFD requires to remove its private interface
-> to VFIO's dma-buf.
-> 
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Reviewed-by: Alex Williamson <alex@shazbot.org>
-> Reviewed-by: Christian König <christian.koenig@amd.com>
-> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> ---
->  drivers/vfio/pci/vfio_pci_dmabuf.c | 15 +++------------
->  1 file changed, 3 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> index 78d47e260f34..a5fb80e068ee 100644
-> --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
-> +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> @@ -22,16 +22,6 @@ struct vfio_pci_dma_buf {
->  	u8 revoked : 1;
->  };
->  
-> -static int vfio_pci_dma_buf_pin(struct dma_buf_attachment *attachment)
-> -{
-> -	return -EOPNOTSUPP;
-> -}
-> -
-> -static void vfio_pci_dma_buf_unpin(struct dma_buf_attachment *attachment)
-> -{
-> -	/* Do nothing */
-> -}
-> -
+> This chunk here doesn't want to apply to drm-misc-next, my educated
+> guess is that the patch adding those lines is missing in that tree.
 
-This chunk here doesn't want to apply to drm-misc-next, my educated guess is that the patch adding those lines is missing in that tree.
+Yes. It looks like Alex took it to his next tree:
 
-How should we handle that? Patches 1-3 have already been pushed to drm-misc-next and I would rather like to push patches 4-6 through that branch as well.
+commit 61ceaf236115f20f4fdd7cf60f883ada1063349a
+Author: Leon Romanovsky <leon@kernel.org>
+Date:   Wed Jan 21 17:45:02 2026 +0200
 
-I can request a backmerge from the drm-misc-next maintainers, but then we clearly don't get that upstream this week.
+    vfio: Prevent from pinned DMABUF importers to attach to VFIO DMABUF
+    
+    Some pinned importers, such as non-ODP RDMA ones, cannot invalidate their
+    mappings and therefore must be prevented from attaching to this exporter.
+    
+    Fixes: 5d74781ebc86 ("vfio/pci: Add dma-buf export support for MMIO regions")
+    Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+    Reviewed-by: Pranjal Shrivastava <praan@google.com>
+    Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+    Link: https://lore.kernel.org/r/20260121-vfio-add-pin-v1-1-4e04916b17f1@nvidia.com
+    Signed-off-by: Alex Williamson <alex@shazbot.org>
 
-Regards,
-Christian.
+The very best thing would be to pull
+61ceaf236115f20f4fdd7cf60f883ada1063349a which is cleanly based on
+v6.19-rc6 ?
 
->  static int vfio_pci_dma_buf_attach(struct dma_buf *dmabuf,
->  				   struct dma_buf_attachment *attachment)
->  {
-> @@ -43,6 +33,9 @@ static int vfio_pci_dma_buf_attach(struct dma_buf *dmabuf,
->  	if (priv->revoked)
->  		return -ENODEV;
->  
-> +	if (!dma_buf_attach_revocable(attachment))
-> +		return -EOPNOTSUPP;
-> +
->  	return 0;
->  }
->  
-> @@ -107,8 +100,6 @@ static void vfio_pci_dma_buf_release(struct dma_buf *dmabuf)
->  }
->  
->  static const struct dma_buf_ops vfio_pci_dmabuf_ops = {
-> -	.pin = vfio_pci_dma_buf_pin,
-> -	.unpin = vfio_pci_dma_buf_unpin,
->  	.attach = vfio_pci_dma_buf_attach,
->  	.map_dma_buf = vfio_pci_dma_buf_map,
->  	.unmap_dma_buf = vfio_pci_dma_buf_unmap,
-> 
+> How should we handle that? Patches 1-3 have already been pushed to
+> drm-misc-next and I would rather like to push patches 4-6 through
+> that branch as well.
 
+Or we get Alex to take a branch from you for the first 3 and push it?
+
+Jason
