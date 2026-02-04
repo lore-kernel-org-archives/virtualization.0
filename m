@@ -1,161 +1,206 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 711C33A7834;
-	Wed,  4 Feb 2026 17:42:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31BD534B691
+	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 17:56:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770226923; cv=none; b=THcUyAUjHejffvhIg/pTJcFHeqUO39oJ1QfIs+Qx56aBkb69BhokjkhG/TvkddwSUwqPv8bEwMtEXhGM32x8lKlMFi5jN2Yz/xUswc6ODyqXTS077jtmSR5Dfew7zrJd3LiT/lCwsWlyfUMpNR/QSKt86F4IEdVVohevQtf1Zhw=
+	t=1770227762; cv=none; b=Hv4eZBMEKXMX6cteemNbpiZ2qH1nesdhVjOcIlwztfhQgquHNlRl1KmMIvnKBZzHfgSmwZeNnPiFnttUA5ILjAEaEF+/+scYp7kc9cGSbmU7ZuMiZY9V0CrYHxX2qNkWViU2OTPP9Omy5vn4NRlxlEHLqe1LnmFrxZPgKi2aYAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770226923; c=relaxed/simple;
-	bh=p787FwvtGxpTW7O+BZ6Vp7w3LWjZ2nLdxL1PN/deDRo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QgKoU7/kpi8gLctsDnT5NcBgGNPPjhyDz3Io+how6t4ohpNX0jx6bVQ8BefeUyCq0aAea6U5Nfo2BRiagn0PC8G0dl3pPyAinBDtFEirhYSWD1ALV66ISPQWz22A3E37VW/Q+B0lBdms6fEN8cFhxb3aJ1AVqvjAs0g7ASb3MFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y5sNk7Yo; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770227762; c=relaxed/simple;
+	bh=Wrs8v3Ibl/2UVhDWKQ0wbPiQLOnTpSRd8XznyUqhHLY=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=JVU1v5vvK+5rg83wV3rwM152arRbY5tquXhCv2dYXKY5wd4J/xfSkKMEU8ULqSZWhqpeAnOgjhLTUs9E1HSCb2FGhP83810EtRehK43xVHStWkyh3vyDa86TNTlbNdhS29njb0G/Lgrop0NkQ+rFJHsa1hazMdfgYgLwQQ/ey1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=klcfVZaJ; arc=none smtp.client-ip=209.85.128.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y5sNk7Yo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ABA4C116C6;
-	Wed,  4 Feb 2026 17:42:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770226923;
-	bh=p787FwvtGxpTW7O+BZ6Vp7w3LWjZ2nLdxL1PN/deDRo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Y5sNk7YoVaiqLlGkRnVYCRSjbVUtYvArX7zLCO0dq9LARndPLPkwL0xKjxvhVq2pl
-	 pgr4rff3JEaU3JLLY7edp68Rr5VjQNRFRIZw6ETH1AWCgHbDlIgcwwCbRdGpZq90He
-	 UBGguXZpA1L9b22GpsmfUiUI6FVFJHrnHxBSkzjTXt8+gPdExzOi/eNdc/MOnPKf+Q
-	 Aqee+/IUEM/rzCbcV2pID1uVCuOkkwM8e3efDB9obdYx+OCQEmWJ2i50cYE/5zVVM8
-	 c8QctwcWyxr4Q1eq9txWCJRRhfIJWW7V5DaeHqHDoUVdtavrJVOMe40HRuZ2LaARJz
-	 CejQKWN5h2JEg==
-Date: Wed, 4 Feb 2026 19:41:57 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Felix Kuehling <Felix.Kuehling@amd.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Vivek Kasireddy <vivek.kasireddy@intel.com>,
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
-	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
-	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	iommu@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v7 7/8] vfio: Permit VFIO to work with pinned importers
-Message-ID: <20260204174157.GA12201@unreal>
-References: <20260131-dmabuf-revoke-v7-0-463d956bd527@nvidia.com>
- <20260131-dmabuf-revoke-v7-7-463d956bd527@nvidia.com>
- <fb9bf53a-7962-451a-bac2-c61eb52c7a0f@amd.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="klcfVZaJ"
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-7948e902fadso219257b3.1
+        for <virtualization@lists.linux.dev>; Wed, 04 Feb 2026 09:56:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770227761; x=1770832561; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=N/QoYdN54LYW2mp+h4jl0HE9exyW7dgtn+9C6PPxWXs=;
+        b=klcfVZaJpSc3dzi9Mzn309blodjUUbPFI6hxB2I+bkpwoOHtjm6ZzVv12C5zHqJixg
+         RKt7YnRLWB4i8aeMY46kB64S0YZaBsgk3Cc+ZQKPrnlZQOWlqCmeT2mUcLATzDyR37x4
+         6COjwZLKUq/yYR3VuQbvak47y/jE46AUACVxbPjnFvajPXO6NIsUFykR50oVXaoGg/LC
+         qMOdJgeFAHTkX1LPgx7qwqDykQpXdGDMKs8VCqHO59kVqBXapnWYWAVuf064j0WwwrYZ
+         NsZhgJlaVEN+JzXROX2Ni8Ws/8ddRTs5x0BObnMx512pmF9sX461BFkz3M/OjOXoOJpm
+         vdZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770227761; x=1770832561;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=N/QoYdN54LYW2mp+h4jl0HE9exyW7dgtn+9C6PPxWXs=;
+        b=EMZ85gMlPs6DL3wzSsvOWcSNA3ClBXg6TQah+Jxfj8GRuEvBs/i9Bt7TftEb2gC87t
+         XxVJqBGinjConmVczZkFwnT3jdQEAX2jXyXE/BiazdfYVDdz4A/U4HeTPNzXBMjvzu+Q
+         nJhIZmBwL1l5+yq1K5sJg15kd/JrsjcM5wKY51gOs4j7b3DYw/dNsTernvWhBz5KFVUF
+         TCImrcFXNz5xHtBXBwN4Kucy/GqeAjcgOqGmQXBGsbQTSa2f0UmDa79naghOT2rLh9Aq
+         ZCuc4AyV1bXyyAa0kVvQOfNHwWW5AiILmxv3E1scIiJ5wmY6YLNG0A8aWJ7dGeL4iUlz
+         mqoQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVphHGGLBZZc3xsNs0TsqrPMb1bPS7ogXFD4k6Rlst1H8dedxPXUeHWeopic2u2xI/TlsYK0a/dmk+O8fY69g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyaETYLsS0nEIYfNU06Oj98vk4vSvfTij3ge0l78gY74jiW7M7l
+	igBUEaSJ3R1Gt7gBCqttikdBGcKvOQZWkOp9OZkJioJa454XxpBSHxxI
+X-Gm-Gg: AZuq6aIvFJrdayN4JitQY1JzCV3zsh5KNJKL8EqxEpSzv6gaePXKmR/JhxmgLsqT9/a
+	zrSYBgP1z50woVNzlBaM/4Nu6SuEEnpZSIzhQp+yCIA/FcsvSHovOWsBmodaoORSBmTvT8ebKT3
+	m7d70Hgl2izpN+e7J3MOPjnZny6TD2+x72XrMReRfs2LhFfJU2wArFg7/nMzLub6+7qqUz6izV5
+	XizKpoaPR2MbGnRqRgkLmNDwfOgwS/h9GxGeEEcn2Vtfx/X6Ce2nZHGTghDw+hHv5VH2eNfKv5b
+	VrshzRmXRyGuQYyheRaevxK+mXhxybJE00OHhFW98HLpl1rdAqCTxu8mLCd1AWQ1/y9iEgkC1P3
+	6f1Q/WDz7Luj75DcoL27TuCCfFYtH1UyhrpC/bF1FKlyJLxBGSeacpFCtgKPyxQLg4NK6z1Fr4i
+	8EK7HKkU3nl+HGJcdjdXbg7Rx55xm8AJA9IvYWGV3goHswTwH1xjrwHWrGC+0=
+X-Received: by 2002:a05:690c:e3cb:b0:794:fb91:9221 with SMTP id 00721157ae682-794fe7d208cmr36871737b3.56.1770227761009;
+        Wed, 04 Feb 2026 09:56:01 -0800 (PST)
+Received: from gmail.com (21.33.48.34.bc.googleusercontent.com. [34.48.33.21])
+        by smtp.gmail.com with UTF8SMTPSA id 00721157ae682-794feeaefaesm26690287b3.20.2026.02.04.09.56.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Feb 2026 09:56:00 -0800 (PST)
+Date: Wed, 04 Feb 2026 12:55:59 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Jason Wang <jasowang@redhat.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Steffen Trumtrar <s.trumtrar@pengutronix.de>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, 
+ Richard Cochran <richardcochran@gmail.com>, 
+ Andrew Lunn <andrew+netdev@lunn.ch>, 
+ =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
+ virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org
+Message-ID: <willemdebruijn.kernel.302a7f5489992@gmail.com>
+In-Reply-To: <CACGkMEsqobRMhtz3LUuWu3O1njK9jU7oQ65OOyy9vHcZ_QLz4A@mail.gmail.com>
+References: <20260129-v6-7-topic-virtio-net-ptp-v2-0-30a27dc52760@pengutronix.de>
+ <20260129-v6-7-topic-virtio-net-ptp-v2-2-30a27dc52760@pengutronix.de>
+ <willemdebruijn.kernel.37516e24f10fa@gmail.com>
+ <CACGkMEsqobRMhtz3LUuWu3O1njK9jU7oQ65OOyy9vHcZ_QLz4A@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 2/2] virtio-net: support receive timestamp
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <fb9bf53a-7962-451a-bac2-c61eb52c7a0f@amd.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 04, 2026 at 05:21:45PM +0100, Christian König wrote:
-> On 1/31/26 06:34, Leon Romanovsky wrote:
-> > From: Leon Romanovsky <leonro@nvidia.com>
-> > 
-> > Till now VFIO has rejected pinned importers, largely to avoid being used
-> > with the RDMA pinned importer that cannot handle a move_notify() to revoke
-> > access.
-> > 
-> > Using dma_buf_attach_revocable() it can tell the difference between pinned
-> > importers that support the flow described in dma_buf_invalidate_mappings()
-> > and those that don't.
-> > 
-> > Thus permit compatible pinned importers.
-> > 
-> > This is one of two items IOMMUFD requires to remove its private interface
-> > to VFIO's dma-buf.
-> > 
-> > Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> > Reviewed-by: Alex Williamson <alex@shazbot.org>
-> > Reviewed-by: Christian König <christian.koenig@amd.com>
-> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> > ---
-> >  drivers/vfio/pci/vfio_pci_dmabuf.c | 15 +++------------
-> >  1 file changed, 3 insertions(+), 12 deletions(-)
-> > 
-> > diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> > index 78d47e260f34..a5fb80e068ee 100644
-> > --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
-> > +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> > @@ -22,16 +22,6 @@ struct vfio_pci_dma_buf {
-> >  	u8 revoked : 1;
-> >  };
-> >  
-> > -static int vfio_pci_dma_buf_pin(struct dma_buf_attachment *attachment)
-> > -{
-> > -	return -EOPNOTSUPP;
-> > -}
-> > -
-> > -static void vfio_pci_dma_buf_unpin(struct dma_buf_attachment *attachment)
-> > -{
-> > -	/* Do nothing */
-> > -}
-> > -
-> 
-> This chunk here doesn't want to apply to drm-misc-next, my educated guess is that the patch adding those lines is missing in that tree.
-> 
-> How should we handle that? Patches 1-3 have already been pushed to drm-misc-next and I would rather like to push patches 4-6 through that branch as well.
+Jason Wang wrote:
+> On Mon, Feb 2, 2026 at 5:06=E2=80=AFAM Willem de Bruijn
+> <willemdebruijn.kernel@gmail.com> wrote:
+> >
+> > Steffen Trumtrar wrote:
+> > > Add optional hardware rx timestamp offload for virtio-net.
+> > >
+> > > Introduce virtio feature VIRTIO_NET_F_TSTAMP. If negotiated, the
+> > > virtio-net header is expanded with room for a timestamp.
+> > >
+> > > To get and set the hwtstamp the functions ndo_hwtstamp_set/get need=
 
-There is no need for a backmerge; it should go in through the shared
-branch. Alex has created the tag vfio-v6.19-rc8, which is v6.19-rc6 plus
-the VFIO pin patch.
+> > > to be implemented. This allows filtering the packets and only time =
+stamp
+> > > the packets where the filter matches. This way, the timestamping ca=
+n
+> > > be en/disabled at runtime.
+> > >
+> > > Tested:
+> > >   guest: ./timestamping eth0 \
+> > >           SOF_TIMESTAMPING_RAW_HARDWARE \
+> > >           SOF_TIMESTAMPING_RX_HARDWARE
+> > >   host: nc -4 -u 192.168.1.1 319
+> > >
+> > > Signed-off-by: Steffen Trumtrar <s.trumtrar@pengutronix.de>
+> > >
+> > > --
+> > >   Changes to last version:
+> > >   - rework series to use flow filters
+> > >   - add new struct virtio_net_hdr_v1_hash_tunnel_ts
+> > >   - original work done by: Willem de Bruijn <willemb@google.com>
+> > > ---
+> > >  drivers/net/virtio_net.c        | 136 ++++++++++++++++++++++++++++=
+++++++++----
+> > >  include/uapi/linux/virtio_net.h |   9 +++
+> > >  2 files changed, 133 insertions(+), 12 deletions(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index 1bb3aeca66c6e..4e8d9b20c1b34 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -429,6 +429,9 @@ struct virtnet_info {
+> > >       struct virtio_net_rss_config_trailer rss_trailer;
+> > >       u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];
+> > >
+> > > +     /* Device passes time stamps from the driver */
+> > > +     bool has_tstamp;
+> > > +
+> > >       /* Has control virtqueue */
+> > >       bool has_cvq;
+> > >
+> > > @@ -475,6 +478,8 @@ struct virtnet_info {
+> > >
+> > >       struct control_buf *ctrl;
+> > >
+> > > +     struct kernel_hwtstamp_config tstamp_config;
+> > > +
+> > >       /* Ethtool settings */
+> > >       u8 duplex;
+> > >       u32 speed;
+> > > @@ -511,6 +516,7 @@ struct virtio_net_common_hdr {
+> > >               struct virtio_net_hdr_mrg_rxbuf mrg_hdr;
+> > >               struct virtio_net_hdr_v1_hash hash_v1_hdr;
+> > >               struct virtio_net_hdr_v1_hash_tunnel tnl_hdr;
+> > > +             struct virtio_net_hdr_v1_hash_tunnel_ts ts_hdr;
+> >
+> > Jason, Michael: creating a new struct for every field is not very
+> > elegant. Is it time to find a more forward looking approach to
+> > expanding with new fields? Like a TLV, or how netlink structs like
+> > tcp_info are extended with support for legacy users that only use
+> > a truncated struct?
+> =
 
-You need to merge this tag into drm-misc-next. That will ensure that
-Linus, DRM, and VFIO all see the same SHA-1, and that patches 5–6 can be
-applied afterward.
+> I fully agree, we need somebody to work on this.
 
-Thanks
+Great. I'll take a look when I have some time.
 
-> 
-> I can request a backmerge from the drm-misc-next maintainers, but then we clearly don't get that upstream this week.
-> 
-> Regards,
-> Christian.
-> 
-> >  static int vfio_pci_dma_buf_attach(struct dma_buf *dmabuf,
-> >  				   struct dma_buf_attachment *attachment)
-> >  {
-> > @@ -43,6 +33,9 @@ static int vfio_pci_dma_buf_attach(struct dma_buf *dmabuf,
-> >  	if (priv->revoked)
-> >  		return -ENODEV;
-> >  
-> > +	if (!dma_buf_attach_revocable(attachment))
-> > +		return -EOPNOTSUPP;
-> > +
-> >  	return 0;
-> >  }
-> >  
-> > @@ -107,8 +100,6 @@ static void vfio_pci_dma_buf_release(struct dma_buf *dmabuf)
-> >  }
-> >  
-> >  static const struct dma_buf_ops vfio_pci_dmabuf_ops = {
-> > -	.pin = vfio_pci_dma_buf_pin,
-> > -	.unpin = vfio_pci_dma_buf_unpin,
-> >  	.attach = vfio_pci_dma_buf_attach,
-> >  	.map_dma_buf = vfio_pci_dma_buf_map,
-> >  	.unmap_dma_buf = vfio_pci_dma_buf_unmap,
-> > 
-> 
-> 
+The current approach infers struct virtio_net_hdr_$VARIANT size from
+negotiated features:
+
+- virtio_net: virtio_has_feature
+- vhost_net: virtio_features_test_bit
+- tun: tun_vnet_parse_size
+
+Tuntap however also explicitly negotiates length with TUNSETVNETHDRSZ.
+
+If we create a struct virtio_net_hdr_ext that can be continuously
+extended going forward, the host and guest will have to negotiate the
+length they both understand, and agree to the min of the two.
+
+We could use that to implicitly negotiate supported features. E.g.,
+if len is sizeof(virtio_net_hdr_v1_hash_tunnel) then these features
+are supported:
+
+VIRTIO_NET_F_GUEST_UDP_TUNNEL_GSO
+VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO
+VIRTIO_NET_F_HASH_REPORT
+etc.
+
+But that would mean that all features up to the length have to be
+supported, no gaps. I think that is probably not preferable? So then
+they still need to negotiate features, as well as length. Does virtio
+have a mechanism to negotiate not boolean feature enable/disable but
+integers such as struct length?
+
+Else the change will probably be simpler: keep existing negotiation,
+only change the code to once define a struct and keep adding fields.
+Rather than defining new structs with each feature and updating many
+function arguments and variables to switch to the new struct type.
+
+Again, for that see as example struct tcp_info, which is UAPI, but has
+been extended many times.=
