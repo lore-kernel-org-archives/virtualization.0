@@ -1,273 +1,217 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9131E34A77D
-	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 18:53:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.18
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770231221; cv=fail; b=nrpBU5PoiqT3ugq7zXBbyfBRG8fbriQLweVjh1z8kddm6KMHUWsxmzrYkpXkCRnL775niRtz/zqQ3YZH3Lc02srBHQNkEJpkvFPnCuGJPROA4s6FmRrmMBGmrsIxYDIW2Wc7GRHIhVyNLHVbjDar4I/Jc8WSW+W+fQnDNlhHJcA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770231221; c=relaxed/simple;
-	bh=ri5lCNcx+QbKrB9Viv2DVTpf37a7I3bLgxZQ1M3OW5M=;
-	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=LavuAj7WurQ7TbktXDZfFcRklWTduSeBnviduFO2aGLAsDfPJN/nPCtpe+mtH8QuL199aKSQw89B0u1YTorwV7HMDVQYwgivhdUg8lrCUSLvwuHGTCER2kGtxn+BqDTfli6NRc7Ohby9ZaJEN2iRkQY1hg9iPveJBGOXVsqL1g0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=cRHi1102; arc=fail smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74555330665
+	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 19:36:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770233790; cv=none; b=Q/plR3NHAh/N8ejaB+1cKf3GZhoPVZ37G6tJrJ0E5gpRgKDnpt2wLiR+z5YcUgmFzlcPGb0wlgCkzioECBDJW8cos5AMMAFpaQyMbANKLo3rzd8u5WZHIRl9u8IUbFqhc+CRjhNtk+X8BAzxul9F/b6bLXXOKtjd7gYa1E6UB4g=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770233790; c=relaxed/simple;
+	bh=lUcJN1jg+zED3Isc1cH6enOy5dSIioTA0MdAfnTcs98=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=SuuSc+rJ2MMhls7h3LDipRPxUvaNw7hrp0Z8g0vtu46TDzjMyQOEiW546pTEW1VUwzpr6kJtXQ0r10cA/DBzNn2b96KZBbNCqEOgd4EIY1YKqdX6u/BK7IMB4Vm6SbOnC0rTU4tXZEZfI/lK9Qxq3IQa3ZT5O3UgMgiB3KCxsPA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=geFeJUTW; arc=none smtp.client-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cRHi1102"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1770231221; x=1801767221;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=ri5lCNcx+QbKrB9Viv2DVTpf37a7I3bLgxZQ1M3OW5M=;
-  b=cRHi110212f+mHodBKmsLbwXfR4iWFLin1FWTjIyhDqvG2yVZfTCYM8O
-   4KzMboBEAIBkTo5lbn1Uzm6dYOBIzxR25jhcmXerSTVQn5CP5o3QXidfO
-   Ul5k7QWijFJexqslh991k0c2Nh5ihWtL2sIf+ACaGEVv+qdEpTCHEEZL5
-   PMHYT0MIwXGkM1RFaJabSwlJUWR/Wwb4t3oI17+f51U93a/dPlgNcCRMw
-   hQtdILAdCugwDa0anVsx1lH8FrzlFuRvS2QNO7oesZsnY4HMsM78rVlmF
-   l9tndRTGy43//QLIQ3bhXwVZO6aTvhe/YgkB0SVpOYMqptsmvVh37tlJe
-   Q==;
-X-CSE-ConnectionGUID: 56GtGL0bRtGoJ0TIUprUkw==
-X-CSE-MsgGUID: BwNeOwtpSGKaMttTTxgGUQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11691"; a="71461422"
-X-IronPort-AV: E=Sophos;i="6.21,273,1763452800"; 
-   d="scan'208";a="71461422"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2026 10:53:38 -0800
-X-CSE-ConnectionGUID: JY0FS9C3R66jS8MFFwyjhQ==
-X-CSE-MsgGUID: rrAF6u6yQbK4MDng1OY+Kg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,273,1763452800"; 
-   d="scan'208";a="215233174"
-Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
-  by orviesa005.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2026 10:53:38 -0800
-Received: from ORSMSX903.amr.corp.intel.com (10.22.229.25) by
- ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.35; Wed, 4 Feb 2026 10:53:37 -0800
-Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
- ORSMSX903.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.35 via Frontend Transport; Wed, 4 Feb 2026 10:53:37 -0800
-Received: from BL0PR03CU003.outbound.protection.outlook.com (52.101.53.59) by
- edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.35; Wed, 4 Feb 2026 10:53:36 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Vt1sSc7/t3m7S1KCqH6GP9snxE1BQ2MW4y87F4LW9nRIw5yXHdQtX2XDOCDrTJbUS2mQAyswDSF4piLhklw0tOjuV7jV6eCb/vpoCKoH7cYRh6TlkvJvzbWYjaM6OzhqLVxobDVq7J0bRhvr5rqYqQBaibic/mT7mylK/YDoQvzxw07fzADGnD1rWhGVdEkTMZs/9v9Zo4UywG4a1HWcRErnkLROG5jIDpfaKEcUg0HDP/oI9ySh0SyJw0EY4/uWPEl6bGFmTsTgadi74hnev3YYZK/sPLtaj06yjBRJy7BEhgX255HXWogbNeQg6xHhedQwocmvckEkapGlVO87PQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=mcui8+/ic6ABQ/53XHhz/iPU8EcGH00PR/gBFVOIZWs=;
- b=mUddonVdMCPkRW9XQVL934zjgOm0eNjsJhebPO5gXnjKb7KYWYfLtQ0+4U4Y5ck+Oow6RlptMAtNopdTvI7XkRVVthB+lIHWSNIpa2Eyf+p2A6YPjjMw7FZ+tGSG+37aCHoZii8U6FGxT9Z7yqnSUDGozPqFZKgREb2QaOaRlgLqoupdWWVSqSEuhG7TNVCQkhrLzTtzwgVZVsTAklv3SAx71CE5XGzt7n8AxUc9wb5H4+7GjV9EtsTae58fLlr6TdEU8xsj9Dv850GfWeKGsFya9p0meU/BPo2NwKreNVJXNhLoByLZbpgEiIUgT5c9N3h5VcG3601tUcUnv0Dj0w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS0PR11MB7997.namprd11.prod.outlook.com (2603:10b6:8:125::14)
- by DS0PR11MB8163.namprd11.prod.outlook.com (2603:10b6:8:165::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.16; Wed, 4 Feb
- 2026 18:53:33 +0000
-Received: from DS0PR11MB7997.namprd11.prod.outlook.com
- ([fe80::24fa:827f:6c5b:6246]) by DS0PR11MB7997.namprd11.prod.outlook.com
- ([fe80::24fa:827f:6c5b:6246%4]) with mapi id 15.20.9587.010; Wed, 4 Feb 2026
- 18:53:33 +0000
-Message-ID: <722b53a7-7560-4a1b-ab26-73eeed3dffa5@intel.com>
-Date: Wed, 4 Feb 2026 10:53:28 -0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel
- expects so
-Content-Language: en-US
-To: Shashank Balaji <shashank.mahadasyam@sony.com>
-CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
-	<x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Suresh Siddha
-	<suresh.b.siddha@intel.com>, "K. Y. Srinivasan" <kys@microsoft.com>, "Haiyang
- Zhang" <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
-	<decui@microsoft.com>, Long Li <longli@microsoft.com>, Ajay Kaher
-	<ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>, Juergen Gross <jgross@suse.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Ingo Molnar <mingo@elte.hu>,
-	<linux-kernel@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <jailhouse-dev@googlegroups.com>,
-	<kvm@vger.kernel.org>, <xen-devel@lists.xenproject.org>, Rahul Bukte
-	<rahul.bukte@sony.com>, Daniel Palmer <daniel.palmer@sony.com>, Tim Bird
-	<tim.bird@sony.com>, <stable@vger.kernel.org>
-References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
- <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
- <0149c37d-7065-4c72-ab56-4cea1a6c15d0@intel.com>
- <aYMOqXTYMJ_IlEFA@JPC00244420>
-From: Sohil Mehta <sohil.mehta@intel.com>
-In-Reply-To: <aYMOqXTYMJ_IlEFA@JPC00244420>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SJ0PR03CA0064.namprd03.prod.outlook.com
- (2603:10b6:a03:331::9) To DS0PR11MB7997.namprd11.prod.outlook.com
- (2603:10b6:8:125::14)
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="geFeJUTW"
+Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 614H8Jll2662589;
+	Wed, 4 Feb 2026 11:36:21 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=s2048-2025-q2;
+	 bh=iPTUI/xKO457I8R5No/8MzqCrUFsTAdriLc9ADEbvic=; b=geFeJUTWFtm0
+	dlIVGPQ2q7AT+RHnO7e+X19nqoOin9dYVuYggGj2GRDXqR3NDPVcyfFXZSSPX0qZ
+	0DZHFjoLOBV6EizMLGy0brbzyvQa6b6uQoZglshlQgZ44ashZ19e1LcAlTnnckol
+	iQg+M+6pD/1nGb/aCK3GyEs4IZgRtEBqy0PX9dTqvOleXjG+zMs5ak1/3EnVaHKo
+	31QDcFZCA3HFOd1uxgcl6yjRqo8TOCuRhPGn7dyRSSYmPxHIkwe4s5/pG2d5mM/I
+	cWigKrh6LBm4dyUTbEVUvQuZVB9Yr6wrlASwqfLyHLcGztDE5c+KqjNjYJv1I1GL
+	ATTnb17yiQ==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4c4a8g1x13-2
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Wed, 04 Feb 2026 11:36:21 -0800 (PST)
+Received: from localhost (2620:10d:c085:108::150d) by mail.thefacebook.com
+ (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.35; Wed, 4 Feb
+ 2026 19:36:20 +0000
+From: Vishwanath Seshagiri <vishs@meta.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?=
+	<eperezma@redhat.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        "David S .
+ Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, David Wei
+	<dw@davidwei.uk>,
+        Matteo Croce <technoboy85@gmail.com>,
+        Ilias Apalodimas
+	<ilias.apalodimas@linaro.org>,
+        <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
+        <linux-kernel@vger.kernel.org>, <kernel-team@meta.com>
+Subject: [PATCH net-next v4 2/2] selftests: virtio_net: add buffer circulation test
+Date: Wed, 4 Feb 2026 11:36:17 -0800
+Message-ID: <20260204193617.1200752-3-vishs@meta.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260204193617.1200752-1-vishs@meta.com>
+References: <20260204193617.1200752-1-vishs@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR11MB7997:EE_|DS0PR11MB8163:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8057de85-c57d-46e6-3aab-08de641eb22b
-X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|7416014|376014;
-X-Microsoft-Antispam-Message-Info: =?utf-8?B?UHJJcld6MkRoZnpwMWsrRitmYi9pQ1VLRVVRaGJrVHhWNzY1dkdkSDNpTmVH?=
- =?utf-8?B?Z1ZPdzRFOVNobHdkWFd3ZHg1YjRneHdGSWlmMzhwVkh2dUJPMWxJM0NvVlhQ?=
- =?utf-8?B?UGozOWFyQnhuMmk3dmMvQXpBVXhPNVJQbVRtdnpKcGZVY1VHQnpEYlByckJU?=
- =?utf-8?B?c3ZFYVVIZFhjcXlJb05iSk8zcEZJWE1tQ0hFWkgrWjJuSndKeVp1Q3dGTCs3?=
- =?utf-8?B?Y2l4ZmdWZWIrOTE4NnJrYWc0R1VrWWlqR25NbjRnR2xCT0RYeThLdVVxemo4?=
- =?utf-8?B?M2o2R2RNNXlwK2Q0ajdVQnIxak9yanZVWitUeFl0RWhUZFdXaWNzamlkenVH?=
- =?utf-8?B?MHptcEJDYnlneXFTaExiTFg0ZXZKMGlEckhGQlJXN3BRUDVmN0VGUFBuVUkw?=
- =?utf-8?B?QUxDSWZ6bHpDd2grR0NiOUtMcGxWNmY3NWFqb2ZlYW5ZVDdvUWRpLzIzMnl5?=
- =?utf-8?B?YTZFWDR2cXNsUklRNnA2SytSYnVCbGphMDhjUHhCREllM3RwZUZHMDk5MnFp?=
- =?utf-8?B?MHZCa0ZSRTFrd2xTTDd6dzFqSW5iMk95YUdYb3pkTG5wdjVud0JwSXUyMTBP?=
- =?utf-8?B?N1BKTHI0dVVmcjY5ejI3QjZocDdmUk41amcwV1N5YTEweVkzOFVENWhzTzJu?=
- =?utf-8?B?aGJpdEJwb3MrS1pJYWxYM2I1WDI1YmVyTXhWeW0rd1ZGUHU2N21zUnUyL0I3?=
- =?utf-8?B?SG9SZHhBQUdUb0ViRUM0aEZUOUdYNUJhaFV4OXRVeGxXaWVpd1BYdU1vOWsw?=
- =?utf-8?B?cDZHck9nQmNWajU4bnFHRTgvTFYrY2xOVmY4NkNBK0s3a1NRbWw1OGRUMjNi?=
- =?utf-8?B?VC9hdkl3VHdvTlp5MURYSnJUSTYzU3hDNFE5SEpFTjJ3NUR0U2RBTjErakxM?=
- =?utf-8?B?a0R0eDlBVENXT3JDVW9RZ0x4M0JmZm1tSVFZb1owQ3c3QkhmRzFLNHBNb01t?=
- =?utf-8?B?U1kydDN2cEVrMVp1WUJuSXlyZ3N0TmxmYzM4KzFZUDFjV1duMElmZUx2NVlY?=
- =?utf-8?B?Q2FxTW9pY0RMZ3pMZ1RPMU8vY2RpV3ZTY1VVUzVTRzR0QUd3YzRFOGF4Y3Y3?=
- =?utf-8?B?dXg5NUFVczVmMmJvSlVocTVvakJSZkxMRkFockNrRHRveW5QSHo4Zkd5WHdY?=
- =?utf-8?B?RzBoblNNUk50a1NaQjNPck9DeXJEK20ydFZKdmo4RFhmUFRkaVZwS2JZMEVw?=
- =?utf-8?B?ckk3MThub2l2N1BYZmNxdW9oZ0t4ekQ1WGJZSmlyMkpRNUFXQTV3RWowQ0VV?=
- =?utf-8?B?akpDcktKRmdwbGIveW4vQWtJSDMyaU1NZW44TTdVUFpLYjJpaCtydndrcGdq?=
- =?utf-8?B?YitVajM0NXZJR1UzbVUyVDAvOHhKaVFyWHllczNoZkRvbkYrc3htamxXU0sx?=
- =?utf-8?B?eDVVUGtTNEcvbWVtY29hY2R0MkxJYXhINDM2cG1ETXZObXloZVVTY0xPK1Fv?=
- =?utf-8?B?WUI1WkswUUxUZXJmelo4RU1sVFlaMWhVbWVuMnl2ckU5dGtPU2xOV0xHazhJ?=
- =?utf-8?B?SGxORTZPdERZL1dmRGUrL0RUOERrRG5HeGF2bllQWkdEOE1hSU5vd2pBdkJy?=
- =?utf-8?B?UVJSN21PTzVpaWVGTkZ5S2Fva2FkTURmL2hXSjNTZFNWdW8xS1hlb0FLQ3NK?=
- =?utf-8?B?Z080YW9YcGRBWFNqaGpxekk2eTB2SGgxR3ZBZWlLZkNKK2xEYXFjSzdhMGpI?=
- =?utf-8?B?c0xQc2U3TWxxMC9ITmJPelU5bUVFVG1zNWhTcnNOOXFqS1A0R3pYQTVOMkZK?=
- =?utf-8?B?dXlCTUV1YVlaeDZsdWlzTHkrUlBOVFBKZHZmbVRjS0FQSy9iUTNzTUN2ek5a?=
- =?utf-8?B?N2dUbmFFTG5ZQ0EwTzgwTDc2cXFXeUd5endRcUxyMzB4ZVZ1Z0M2M3pFdVVK?=
- =?utf-8?B?NXBkcGNiVkRDZjBpT0RNQlcvUUxaR2xGN2hCWnk3b1RIV3N4dWZ1SEpzT1ZK?=
- =?utf-8?B?cC93TFpsalpoQTR1MWQwV1d0UHNSa2R6M0NoTjdpMFNCekhVbFVlZzMvQWxB?=
- =?utf-8?B?VHVpWWQ5Z0N6b0lxa0VjSDJabEcrVTV2c1hSYWsydmh1L0NjSXpHNDE1Vi9L?=
- =?utf-8?B?dmNBNVJFT2RneHBJVUplSXFlWnNsVkdzZHFCbFZaUFEyY3Btd0Q3QUx3VGVO?=
- =?utf-8?Q?c0QE=3D?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7997.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bVdERVBpWFlabWZ0dzB5Mmt2TzVhNkQwN0Y0Ym01SHdFOC93WTlIeEJuK2Z0?=
- =?utf-8?B?SnFPWnlINjNMTzhoRUN4SVNML3ROSS9LUG54WlNGb2dBcWdpRTlDemZuT0dM?=
- =?utf-8?B?bEQrV2NMYWEzQXgxSHh2NmFDczFYOHJmVzdXVGR6c1o4TkhMbUZmZzd1VWs4?=
- =?utf-8?B?VlNzTWpobFZOTHdDS0xlYjNSeUk1U3F5dXFWNk93RnA1TTZrcmN4ZkoxY0x5?=
- =?utf-8?B?RVYydzIvUmI3Z1dDSFJwTjJwVUJlL0NRV3BqTE5ubyt1YkZrL0gyVGcwSlE5?=
- =?utf-8?B?ZUFmbWRqbUV0M3NUdHNMWGtwSFBHWFM2eDM1Tnl0NmIyMEZKRXdRUit3MjN6?=
- =?utf-8?B?NForbTRjNlRmUmdYRyszUFRVR3o4bTNHWmxqRVM3QzlRdmt5T21GbmpiaVF3?=
- =?utf-8?B?cnI4TlYzdDVCN3V4c3ZldVhNZ0c5eXZkQVNwTGNRNG5HYVk0NWE3R1RFZGFO?=
- =?utf-8?B?b2RxT1lyZkRjY0FtNFNLcHpQQXNsTmxqM3ByWDY2ZDllZzZnWkllWlJoNzR6?=
- =?utf-8?B?K2pyeFpUK25hbVVBZEJ5ZzFIVlZBK2VGVCtLVHhjMFI4Uyt1MlpBS29XN3pB?=
- =?utf-8?B?N1FEckpmbko1TVFCNk41aHRWVTFIWFV5UVBTNWtLTDRvUUNMQnpNamQxTkhs?=
- =?utf-8?B?QWE5RkFscDkyQWVqSjRwV0UrcHpzRDg3aUN1L09DZGdvWEw3UjhQVnhxVDhh?=
- =?utf-8?B?WDNTUVAzdGptNGJRRWNadGorczAxWUZxeFhiaWZaOFZGN1Q2NGlFMk5WMVBF?=
- =?utf-8?B?REJEcGw4TXJUcTgwbG5VdUlJZk1YNThzN1Z2MlVVWCt0cmpoMjRhVVJMTE5u?=
- =?utf-8?B?Z2xPOHJ6cENYK1pEL0tzekU1bnhlRVBvMjAwT1Y4NzhYN2JJazg5YytPVURN?=
- =?utf-8?B?TWNDeCsrUnRabjM0V0JVSjV6Y3I2Zlg3Yzl2cEdlQlNEZS9MRkVVQkdVbUxC?=
- =?utf-8?B?eDFrWGlWcmY3WHdIeXV1SmJuYVA3RC9XSExMQlVuVkNVQUpldngyR3pvV3Rt?=
- =?utf-8?B?NHUwWU5GNWc5ZFZCdGwrWTlwa3VlMW8wK3Z2alhKc3lpRUVSSWoxZVg1bWRW?=
- =?utf-8?B?TFJHN0JLWGg2VFAySFRIMnhiU01FSi84eDVTY05qWnY2cGxybzlXTEVOeFlz?=
- =?utf-8?B?SDFDNGNDSHdPTktuZGZYVG9tSDVZa2NyU1pCRU94Q2tIY0c3MVQ5MEJLTGI0?=
- =?utf-8?B?K1I3RDlXVnhwTEhoU1lJZTlIVTR2YUJBbnRqMEt0NGU5eFZDbWRlcFJsWXN1?=
- =?utf-8?B?Y2t3MEM1TmVPdnYwbnZBQXVUSHUwYnZFS1ZRYVdnemYvT1VYM3diMXYzU053?=
- =?utf-8?B?N3VnQVFDQmxETFh5ZUxkVlhoVkFTQ2F6cjM1VVd4YWdVZmFLSFdCdUg2R1R4?=
- =?utf-8?B?TWJyT1YwOEttZEtDdUZYOXhYRTNKVjFLbU5OYUN3ZnRaUWFTKzZVajNrTFJy?=
- =?utf-8?B?czlpOERyRG9TcWc3dnVtVUJwOGNSLzREMkNZQXhyY0xIQTZhVTFka3NYMDg0?=
- =?utf-8?B?dnNmQmZHeGJkWUZHNk51dXJRRldzMTkwWCtMQWNRYWloV3hjZ3lXbHk4UWo4?=
- =?utf-8?B?cHVlVnlEcitRc2VSVE1Ha0lRR0diK0llZSsyb1NzdzFHOFA0ZVh4emJEckFJ?=
- =?utf-8?B?dGMzVkQ5c0toOWNlRzBrcWV4a0RGUjZ0eFhYdW1mK3M4cFhVazJSUWlUVHZD?=
- =?utf-8?B?b3JJaGlNeXNNcit6cHlZaTVRQ0F4eWJUWTdXYlFWbjU4UGU4Rmp5S2FkalJj?=
- =?utf-8?B?b2VKWFkxZjNSRDdkSTNEME1IV3lGZnRISjlNTUpsV2tmZmVLWUtDZklHajgw?=
- =?utf-8?B?dCtUYWFsdVgvT2s5L2hUaFZyUGVwTjJoOEFLaHNzWmFleC9kWVM2Ri9HdHIy?=
- =?utf-8?B?QW82UTMzVmZFRzhoZzZBL0laZFM2bzRlZzBZWjQwSzV0ZUx3S3ZoMmUwY3R5?=
- =?utf-8?B?dDF4bjBkRXZ5d0lqM3paWTBmbXp3dy9oMGo4Ujk3NEl0WlFwNW9CRGdzT09H?=
- =?utf-8?B?SVBMYnFEbTdacUF4dVNFcmtENUJuNUhZRFZobkJ4UWw2dWMvRXMxN3dURzhZ?=
- =?utf-8?B?R3Z3TkRpN0s4enNSRDlaM3d2STBjQVNWRTZSekhOa3NCZmVYMzZrSDJ1RFRZ?=
- =?utf-8?B?T01nd1ZSN2lrZE42dk9zaUUwQnBCNlN4UnVmNG5Wa1BGbHNSZjVxRi9zZklL?=
- =?utf-8?B?QndIRkV3TkZTOWNibEF3QjZWTTZwVFlzbHlMVHY2UWxPd1FXVlpiSW1lVWVt?=
- =?utf-8?B?eTlncFhOejVOc3lYTEV5Z1RuN3ZQQmc3cmZLeVk4emlrbTJWczBJRHU2Lzdm?=
- =?utf-8?B?eUdJRjZqYVZEaGVxRUMxREhQUDBGeUNBQzJFOGNaa0ZqbHFCRHZyZz09?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8057de85-c57d-46e6-3aab-08de641eb22b
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7997.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Feb 2026 18:53:33.5711
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bn8zWyXjfURZZWpZ8USJ9E9fy+x9qqoK6hkqYi0fqroGsjUFnlJdA2VuDyDV2paTFNxcyZJZDYggHvdx+jLsrw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB8163
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: FSM9xJ4skG2UokK36IoBzWH_hiFMZWaG
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDE1MCBTYWx0ZWRfX18WPQ0843Mzw
+ 3yYBIc3YQXZ2n9qBRU1WQ35Y51CsxHG3Egyozg3UDlo0A+g5fQ+3zIY1eTEJwVWu7MyJ6wOqH7x
+ 9Qo4fCffG2sXuYC28RMv4PX8BbPG7qjE28R7VRzvUb7bZ7l4cMetvy0Tg3RWp9EzzFIgBEpCXaP
+ xCBNP4bDQp3b1rhUj7LXMhziY9lMC4tHr64Hm57bnRTxJzk1t2b6gyAHFZ5Tx3LUCL0y2kvok/o
+ r0HrZvGg0QSMNdKfq2ZWWhsRgG1Z4fn79iZP9sPXj61TEc1dKCrF5rbECQYl2Ihivo9N1I73gcT
+ 0kFE5eKivtSgyBQeFBlw0cUM2hIDXgM9jSf5TCRIUZPT9I0oNf7uFl9/IA1Uu1w/IECNUNgPjyF
+ XIKsGjdT8zyUeo+Gd6URH+JEUgEm3RGgcIhfh2VduWUS6oC5pZP6FZdahuULS6mJiI6icT2Ei9V
+ AU3hBvs0I7KqM2i1U7w==
+X-Proofpoint-ORIG-GUID: FSM9xJ4skG2UokK36IoBzWH_hiFMZWaG
+X-Authority-Analysis: v=2.4 cv=C6/kCAP+ c=1 sm=1 tr=0 ts=69839fb5 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=VabnemYjAAAA:8
+ a=LsufUKy5yQhhIYM6NHsA:9 a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-04_06,2026-02-04_01,2025-10-01_01
 
-On 2/4/2026 1:17 AM, Shashank Balaji wrote:
+Add iperf3-based test to verify RX buffer handling under load.
+Optionally logs page_pool tracepoints when available.
 
-> __x2apic_disable disables x2apic only if boot_cpu_has(X86_FEATURE_APIC)
-> and x2apic is already enabled. 
+Signed-off-by: Vishwanath Seshagiri <vishs@meta.com>
+---
+ .../drivers/net/virtio_net/basic_features.sh  | 86 +++++++++++++++++++
+ 1 file changed, 86 insertions(+)
 
-I meant the X86_FEATURE_X2APIC and not X86_FEATURE_APIC. But, thinking
-about it more, checking that the CPU is really in X2APIC mode by reading
-the MSR is good enough.
-
-> x2apic_enabled also does the same checks,
-> the only difference being, it uses rdmsrq_safe instead of just rdmsrq,
-> which is what __x2apic_disable uses. The safe version is because of
-> Boris' suggestion [1]. If that's applicable here as well, then rdmsrq in
-> __x2apic_disable should be changed to rdmsrq_safe.
-
-I don't know if there is a strong justification for changing to
-rdmsrq_safe() over here. Also, that would be beyond the scope of this
-patch. In general, it's better to avoid such changes unless an actual
-issue pops up.
-
-> 
->> I considered if an error message should be printed along with this. But,
->> I am not sure if it can really be called a firmware issue. It's probably
->> just that newer CPUs might have started defaulting to x2apic on.
->>
->> Can you specify what platform you are encountering this?
-> 
-> 
-> I'm not sure it's the CPU defaulting to x2apic on. As per Section
-> 12.12.5.1 of the Intel SDM:
-> 
-> 	On coming out of reset, the local APIC unit is enabled and is in
-> 	the xAPIC mode: IA32_APIC_BASE[EN]=1 and IA32_APIC_BASE[EXTD]=0.
-> 
-> So, the CPU should be turning on in xapic mode. In fact, when x2apic is
-> disabled in the firmware, this problem doesn't happen.
-> 
-
-It's a bit odd then that the firmware chooses to enable x2apic without
-the OS requesting it.
-
-Linux maintains a concept of X2APIC_ON_LOCKED in x2apic_state which is
-based on the hardware preference to keep the apic in X2APIC mode.
-
-When you have x2apic enabled in firmware, but the system is in XAPIC
-mode, can you read the values in MSR_IA32_ARCH_CAPABILITIES and
-MSR_IA32_XAPIC_DISABLE_STATUS?
-
-XAPIC shouldn't be disabled because you are running in that mode. But,
-it would be good to confirm.
-
-
-> Either way, a pr_warn maybe helpful. How about "x2apic re-enabled by the
-> firmware during resume. Disabling\n"?
-
-I mainly want to make sure the firmware is really at fault before we add
-such a print. But it seems likely now that the firmware messed up.
-
+diff --git a/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+index cf8cf816ed48..fa98505c4674 100755
+--- a/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
++++ b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+@@ -6,6 +6,7 @@
+ ALL_TESTS="
+ 	initial_ping_test
+ 	f_mac_test
++	buffer_circulation_test
+ "
+ 
+ source virtio_net_common.sh
+@@ -16,6 +17,8 @@ source "$lib_dir"/../../../net/forwarding/lib.sh
+ h1=${NETIFS[p1]}
+ h2=${NETIFS[p2]}
+ 
++IPERF_SERVER_PID=""
++
+ h1_create()
+ {
+ 	simple_if_init $h1 $H1_IPV4/24 $H1_IPV6/64
+@@ -83,6 +86,84 @@ f_mac_test()
+ 	log_test "$test_name"
+ }
+ 
++buffer_circulation_test()
++{
++	RET=0
++	local test_name="buffer circulation"
++	local tracefs="/sys/kernel/tracing"
++
++	if ! check_command iperf3; then
++		log_test_skip "$test_name" "iperf3 not installed"
++		return 0
++	fi
++
++	setup_cleanup
++	setup_prepare
++
++	ping -c 1 -I "$h1" "$H2_IPV4" >/dev/null
++	if [ $? -ne 0 ]; then
++		check_err 1 "Ping failed"
++		log_test "$test_name"
++		return
++	fi
++
++	local rx_start=$(cat /sys/class/net/"$h2"/statistics/rx_packets)
++	local tx_start=$(cat /sys/class/net/"$h1"/statistics/tx_packets)
++
++	if [ -d "$tracefs/events/page_pool" ]; then
++		echo > "$tracefs/trace"
++		echo 1 > "$tracefs/events/page_pool/enable"
++	fi
++
++	local port=$(shuf -i 49152-65535 -n 1)
++
++	iperf3 -s -1 --bind-dev "$h2" -p "$port" &>/dev/null &
++	IPERF_SERVER_PID=$!
++	sleep 1
++
++	if ! kill -0 "$IPERF_SERVER_PID" 2>/dev/null; then
++		IPERF_SERVER_PID=""
++		if [ -d "$tracefs/events/page_pool" ]; then
++			echo 0 > "$tracefs/events/page_pool/enable"
++		fi
++		check_err 1 "iperf3 server died"
++		log_test "$test_name"
++		return
++	fi
++
++	iperf3 -c "$H2_IPV4" --bind-dev "$h1" -p "$port" -t 5 >/dev/null 2>&1
++	local iperf_ret=$?
++
++	if [ -n "$IPERF_SERVER_PID" ]; then
++		kill "$IPERF_SERVER_PID" 2>/dev/null || true
++		wait "$IPERF_SERVER_PID" 2>/dev/null || true
++		IPERF_SERVER_PID=""
++	fi
++
++	if [ -d "$tracefs/events/page_pool" ]; then
++		echo 0 > "$tracefs/events/page_pool/enable"
++		local trace="$tracefs/trace"
++		local hold=$(grep -c "page_pool_state_hold" "$trace" 2>/dev/null)
++		local release=$(grep -c "page_pool_state_release" "$trace" 2>/dev/null)
++		log_info "page_pool events: hold=${hold:-0}, release=${release:-0}"
++	fi
++
++	local rx_end=$(cat /sys/class/net/"$h2"/statistics/rx_packets)
++	local tx_end=$(cat /sys/class/net/"$h1"/statistics/tx_packets)
++	local rx_delta=$((rx_end - rx_start))
++	local tx_delta=$((tx_end - tx_start))
++
++	log_info "Circulated TX:$tx_delta RX:$rx_delta"
++
++	if [ "$iperf_ret" -ne 0 ]; then
++		check_err 1 "iperf3 failed"
++	elif [ "$rx_delta" -lt 10000 ]; then
++		check_err 1 "Too few packets: $rx_delta"
++	fi
++
++	log_test "$test_name"
++}
++
+ setup_prepare()
+ {
+ 	virtio_device_rebind $h1
+@@ -113,6 +194,11 @@ setup_cleanup()
+ 
+ cleanup()
+ {
++	if [ -n "$IPERF_SERVER_PID" ]; then
++		kill "$IPERF_SERVER_PID" 2>/dev/null || true
++		wait "$IPERF_SERVER_PID" 2>/dev/null || true
++	fi
++
+ 	pre_cleanup
+ 	setup_cleanup
+ }
+-- 
+2.47.3
 
