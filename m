@@ -1,139 +1,134 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from jpms-ob02.noc.sony.co.jp (jpms-ob02.noc.sony.co.jp [211.125.140.165])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB4CD1D63F0;
-	Wed,  4 Feb 2026 08:56:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23BE33A1E77
+	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 09:17:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.125.140.165
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770195371; cv=none; b=Cn1MpzkQ6aHwO01ZaszC7iQ7QMqWuDpTT8HAXLAmJMYJLDX5SQvs3NxUUpuvAwU0Ju964uFgBtdm18LppXCRD9FiEmfIr2Ogt9++5EKrdkrgxOy3u1X78A54a9JNa0IY314nhy+IS+bnN+cz4OuFKxnUVdxsdpPxfDxT1XCxC8w=
+	t=1770196666; cv=none; b=tdeobr/s9pEsfKlJz/uZXtKH6vV0so/UxgUKvC5wj8+nNqH8bGIvpQGisVfnIkN1HpBpHDDTR9F9dDl4gl8NDPhEhk/z7FE/Xjii7PlNuXv+bQErdMRLYtktIYHTL2vBA558fv/ah9aTTtcix79AVrj9DzM+iOMybTDdI6v4xpM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770195371; c=relaxed/simple;
-	bh=7OhNdyQd9Hj4JZ3WwzaaVRughLWneBid2/id9k15jgM=;
+	s=arc-20240116; t=1770196666; c=relaxed/simple;
+	bh=rTjzOHeWG9eHm33rQDOPGTZZySKoFz1aHEHitCndjIc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tCjnXeO6edTc6IH/YPy/kARgcXI+9G4w48iifL+KDtrObNgPgFjNsueT6esY9kJvd9kXWc8LH5GgxrCzDrGCVYwonG80w+0yJiOBTRwfajCsBf8yh7iD6WZWbQaX1Cbx1FFxu/u4nZUrBRF/6WIf/FjrLOqvL9NvS7Z+zqL94ys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V7pTqA4L; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=h10BqJxe1xVjNI7J4mmAdJT8j767N5d15sbzUBvp1WYUhAZ9v3fSx7C2skkkf0OeZXZzLzMDmF7HKC6hwsxvnYY6kIMxMyqgjQSM/Y5TG7jAcBZfJrER+W0xRw7nsvRF7BKf0EBnttb5WhTq+yd5nz+7DJshhr3Pcelhg+9nnF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com; spf=pass smtp.mailfrom=sony.com; dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b=wGdUrGti; arc=none smtp.client-ip=211.125.140.165
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sony.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V7pTqA4L"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBAFAC4CEF7;
-	Wed,  4 Feb 2026 08:56:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770195371;
-	bh=7OhNdyQd9Hj4JZ3WwzaaVRughLWneBid2/id9k15jgM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=V7pTqA4L9gw8RLNHTPQ3c3PmSmPUJN8CJLkSplhC/tA6rLyNs/ON8PEJ77FghkrYL
-	 7YC7kC+vzUJczQux8gMcjkSltXZByy2k3Y/tn+IZTssRYphrNHoXV/inmhMNPSeTpq
-	 /EElHDk0r2Fud4Ow8YLv+QLv1E77BycSs/6TXoM2dUc9VjGtgSPDYwYm8Ej4MLTHbO
-	 elG6nwpwLEFKKVyCeZfL3VndxYrhjKHWPJEgy+OWK/3jRcIHqHo7MMa8eGJO5MfqPJ
-	 iaudGOxgyj2Q+GiGdIWm2eFONDY0yvSNQsmD2v7LsLyMzax1HMUELlY3ibNKbudFUm
-	 17VPZKFF1DiPg==
-Date: Wed, 4 Feb 2026 09:56:08 +0100
-From: Maxime Ripard <mripard@kernel.org>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, Alex Deucher <alexander.deucher@amd.com>, 
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Gerd Hoffmann <kraxel@redhat.com>, Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Lucas De Marchi <lucas.demarchi@intel.com>, 
-	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>, 
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
-	Robin Murphy <robin.murphy@arm.com>, Felix Kuehling <Felix.Kuehling@amd.com>, 
-	Alex Williamson <alex@shazbot.org>, Ankit Agrawal <ankita@nvidia.com>, 
-	Vivek Kasireddy <vivek.kasireddy@intel.com>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org, 
-	iommu@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v7 0/8] dma-buf: Use revoke mechanism to invalidate
- shared buffers
-Message-ID: <20260204-icy-classic-crayfish-68da6d@houat>
-References: <20260131-dmabuf-revoke-v7-0-463d956bd527@nvidia.com>
- <20260202160425.GO34749@unreal>
- <20260204081630.GA6771@unreal>
+	dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b="wGdUrGti"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=sony.com; s=s1jp; t=1770196666; x=1801732666;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=gSpoUwnGMiw8Hd9rxHOb3HRj7lon6L0Wu64wAWcD0ZA=;
+  b=wGdUrGtij/1vJJHOHvHifJnnQT/Mqo8Mv1OcrGQfdnucIZ2OUraYOxXB
+   i00Wkq7A7tcQ+v8CnaQ1hHWFZKiAYZ6jRO/J/2A9MQWnnxiIdg5okicub
+   m14Sxr9yKkH3D2BNMxCrVGGAOw3WXx2QT92x2mprGiTgtyXyy1eVyK+hV
+   Tc6J8NK4vAL3dy8MMj+qaOTlWK+t3WL4vVnFqsC5FpcIb0aeVQSmkZYXp
+   DOobgdaM+s/Q06ZSXn86C/2ngj7p1OOF8Ne6K5Ze+/zbYAwyCaIm2XzRx
+   6OZ9aoSCMze5TUm9HDUJuvidckZ4JzM0cb8iHzGH7+wZbP4S0eIIT1VMW
+   g==;
+Received: from unknown (HELO jpmta-ob1.noc.sony.co.jp) ([IPv6:2001:cf8:0:6e7::6])
+  by jpms-ob02.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2026 18:17:39 +0900
+X-IronPort-AV: E=Sophos;i="6.21,272,1763391600"; 
+   d="scan'208";a="608110368"
+Received: from unknown (HELO JPC00244420) ([IPv6:2001:cf8:1:573:0:dddd:6b3e:119e])
+  by jpmta-ob1.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2026 18:17:38 +0900
+Date: Wed, 4 Feb 2026 18:17:29 +0900
+From: Shashank Balaji <shashank.mahadasyam@sony.com>
+To: Sohil Mehta <sohil.mehta@intel.com>
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Suresh Siddha <suresh.b.siddha@intel.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Juergen Gross <jgross@suse.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+	jailhouse-dev@googlegroups.com, kvm@vger.kernel.org,
+	xen-devel@lists.xenproject.org, Rahul Bukte <rahul.bukte@sony.com>,
+	Daniel Palmer <daniel.palmer@sony.com>,
+	Tim Bird <tim.bird@sony.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel
+ expects so
+Message-ID: <aYMOqXTYMJ_IlEFA@JPC00244420>
+References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
+ <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
+ <0149c37d-7065-4c72-ab56-4cea1a6c15d0@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha384;
-	protocol="application/pgp-signature"; boundary="md2hsdfsayzd7ozo"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260204081630.GA6771@unreal>
+In-Reply-To: <0149c37d-7065-4c72-ab56-4cea1a6c15d0@intel.com>
+
+Hi Sohil,
+
+On Tue, Feb 03, 2026 at 01:08:39PM -0800, Sohil Mehta wrote:
+> > diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+> > index d93f87f29d03..cc64d61f82cf 100644
+> > --- a/arch/x86/kernel/apic/apic.c
+> > +++ b/arch/x86/kernel/apic/apic.c
+> > @@ -2456,6 +2456,12 @@ static void lapic_resume(void *data)
+> >  	if (x2apic_mode) {
+> >  		__x2apic_enable();
+> >  	} else {
+> > +		/*
+> > +		 * x2apic may have been re-enabled by the
+> > +		 * firmware on resuming from s2ram
+> > +		 */
+> > +		__x2apic_disable();
+> > +
+> 
+> We should likely only disable x2apic on platforms that support it and
+> need the disabling. How about?
+> 
+> ...
+> } else {
+> 	/*
+> 	 *
+> 	 */
+> 	if (x2apic_enabled())
+> 		__x2apic_disable();
+
+__x2apic_disable disables x2apic only if boot_cpu_has(X86_FEATURE_APIC)
+and x2apic is already enabled. x2apic_enabled also does the same checks,
+the only difference being, it uses rdmsrq_safe instead of just rdmsrq,
+which is what __x2apic_disable uses. The safe version is because of
+Boris' suggestion [1]. If that's applicable here as well, then rdmsrq in
+__x2apic_disable should be changed to rdmsrq_safe.
+
+> I considered if an error message should be printed along with this. But,
+> I am not sure if it can really be called a firmware issue. It's probably
+> just that newer CPUs might have started defaulting to x2apic on.
+> 
+> Can you specify what platform you are encountering this?
 
 
---md2hsdfsayzd7ozo
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v7 0/8] dma-buf: Use revoke mechanism to invalidate
- shared buffers
-MIME-Version: 1.0
+I'm not sure it's the CPU defaulting to x2apic on. As per Section
+12.12.5.1 of the Intel SDM:
 
-On Wed, Feb 04, 2026 at 10:16:30AM +0200, Leon Romanovsky wrote:
-> On Mon, Feb 02, 2026 at 06:04:25PM +0200, Leon Romanovsky wrote:
-> > On Sat, Jan 31, 2026 at 07:34:10AM +0200, Leon Romanovsky wrote:
-> > > Changelog:
-> > > v7:
-> >=20
-> > <...>
-> >=20
-> > > Leon Romanovsky (8):
-> > >       dma-buf: Rename .move_notify() callback to a clearer identifier
-> > >       dma-buf: Rename dma_buf_move_notify() to dma_buf_invalidate_map=
-pings()
-> > >       dma-buf: Always build with DMABUF_MOVE_NOTIFY
-> > >       vfio: Wait for dma-buf invalidation to complete
-> > >       dma-buf: Make .invalidate_mapping() truly optional
-> > >       dma-buf: Add dma_buf_attach_revocable()
-> > >       vfio: Permit VFIO to work with pinned importers
-> > >       iommufd: Add dma_buf_pin()
-> > >=20
-> > >  drivers/dma-buf/Kconfig                     | 12 -----
-> > >  drivers/dma-buf/dma-buf.c                   | 69 +++++++++++++++++++=
-+-----
-> > >  drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c | 14 ++---
-> > >  drivers/gpu/drm/amd/amdgpu/amdgpu_object.c  |  2 +-
-> > >  drivers/gpu/drm/amd/amdkfd/Kconfig          |  2 +-
-> > >  drivers/gpu/drm/virtio/virtgpu_prime.c      |  2 +-
-> > >  drivers/gpu/drm/xe/tests/xe_dma_buf.c       |  7 ++-
-> > >  drivers/gpu/drm/xe/xe_bo.c                  |  2 +-
-> > >  drivers/gpu/drm/xe/xe_dma_buf.c             | 14 ++---
-> > >  drivers/infiniband/core/umem_dmabuf.c       | 13 -----
-> > >  drivers/infiniband/hw/mlx5/mr.c             |  2 +-
-> > >  drivers/iommu/iommufd/pages.c               | 11 +++-
-> > >  drivers/iommu/iommufd/selftest.c            |  2 +-
-> > >  drivers/vfio/pci/vfio_pci_dmabuf.c          | 80 +++++++++++++++++++=
-+++-------
-> > >  include/linux/dma-buf.h                     | 17 +++---
-> > >  15 files changed, 153 insertions(+), 96 deletions(-)
-> >=20
-> > Christian,
-> >=20
-> > Given the ongoing discussion around patch v5, I'm a bit unclear on the
-> > current state. Is the series ready for merging, or do you need me to
-> > rework anything further?
->=20
-> Christian,
->=20
-> Let's not miss the merge window for work that is already ready.
+	On coming out of reset, the local APIC unit is enabled and is in
+	the xAPIC mode: IA32_APIC_BASE[EN]=1 and IA32_APIC_BASE[EXTD]=0.
 
-The cutoff date for the merge window was on 25/1, so it was already
-missed by the time you sent your series.
+So, the CPU should be turning on in xapic mode. In fact, when x2apic is
+disabled in the firmware, this problem doesn't happen.
 
-Maxime
+Either way, a pr_warn maybe helpful. How about "x2apic re-enabled by the
+firmware during resume. Disabling\n"?
 
---md2hsdfsayzd7ozo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iJUEABMJAB0WIQTkHFbLp4ejekA/qfgnX84Zoj2+dgUCaYMJowAKCRAnX84Zoj2+
-djVFAX4o65eZLnv9pSuBC/f19F9Wa+5AV3tbnVDyNWy7aEVTPVlpkwyBh3kSx24f
-CiGuWJUBgMDxh0mGTwKw1M4dapaGNtVEhWvE/mj7fWyRzk3l536hontO+fVSQspp
-IjEjywqm8A==
-=TNrj
------END PGP SIGNATURE-----
-
---md2hsdfsayzd7ozo--
+[1] https://lore.kernel.org/all/20150116095927.GA18880@pd.tnic/
