@@ -1,160 +1,244 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3C82F7AD2
-	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 08:40:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B90A939A808
+	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 08:53:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770194422; cv=none; b=SzIrpWA39C+RuTTB5pa7EGBwI/wcv9qvCYrkquhCqkT6cUY0aMZLQ0jKxK1jWbcfcbYBSYG7o1kzuUOFiTcx2ewloQgm3IxdLfkhTdiPkniLsliHZyhnC3ABLGMBNgs5yVGujr/WvJfQ8jy85yOIjHfhfb4EPVpTkjPkqAhxtwU=
+	t=1770195239; cv=none; b=uI7nvLvBUGJoPPnY/E58A3UoWbeICksbpuYIYHTrEVfgOkmURW3UG8HanzHWlncb1IjGHVMKAXImkcDlR38/8wWLryenYK1e1jvmUl7sCOeiTWWA0q6Mg3k3s5VqBhEMQ8cmkm7ExJVgf2fBPXWqpZ7LH2NdQ2+OoB9nuOiYFec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770194422; c=relaxed/simple;
-	bh=3+L6PI4GMuiQHrHIZb7E3cB/vnOAJRDCFkosOULZ/80=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QBsA6CWmDzBTjrxPMv4CdGxJhSsu6Hlhaxd++C1Q4FOmyYup2JJy352SAjqAjJQwEiFeMJltYUPwvDjbS9Q5JOvsOWkVgc31q3v1pkbDRfMYCrbfPmbXS4e6jxSu3d4p2o1QAZAUeydqpnx4h45Sp5VxIM7DX7ncw5vM4z+JWAI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K43YDj8b; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1770195239; c=relaxed/simple;
+	bh=MvCJzaB2WKjkhJiXn8IVOb+h5L62wsMT18XhFArT01M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FWYwLVdvQAYQB1ywHF1vgZsFBvs8uoiSiZoAF/eqWZUOwFmik1Zwo1F3N6Ff6DPw2irh1F/gcHP2N3jW1s4zHBIOqdIn4PJIqcvVRKymqH9C06lOuSNTXtkCIwk18A/gUv3By/ePJN65iWPMwL8zzSWmV6DVWyg6jjtQ4NbkPN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=M5WrxLQZ; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K43YDj8b"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M5WrxLQZ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770194420;
+	s=mimecast20190719; t=1770195237;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=U6IMhKc2VzBHFc6lr2fAv4BQhS3mPy88vUETyFpbphk=;
-	b=K43YDj8bHH1WNZUYAGOlGhuTA5b94i4QpLOPa4jVvbLIoEtcSUqo+odiPmHEU8fWvjc9v3
-	l+ufYBMJdk80nomtIdjQcZZtsuVSlplnes4MllIJxepcEp0nqD2wv+aLDMITxt2hN6lhfi
-	drMyPaNOxwNG+zL00AYZc4scMh4Giv0=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=iw1yhHJiAv53b7DMB9m3leCwsoYzYTVEEz5Jb6pNb4E=;
+	b=M5WrxLQZ1GJzU0ggsEgpWQPr4tWYlzy16BHOUBWmmSMzNI9LtfOH436NvxI950KlkyKKj1
+	xa0KrL2LMUuGtmwIDqbrDWntlxCVQxP3Rz7Amg3uhDK+ZEmET5/sdFm2T9jHLy9PI1m3H7
+	ic4d/vw4ytuhhN79W+kkieyXB1QlMuE=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-373-C-1ZokPtOpeslf2OdLMAOw-1; Wed, 04 Feb 2026 03:40:19 -0500
-X-MC-Unique: C-1ZokPtOpeslf2OdLMAOw-1
-X-Mimecast-MFC-AGG-ID: C-1ZokPtOpeslf2OdLMAOw_1770194418
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4804157a3c9so75006075e9.1
-        for <virtualization@lists.linux.dev>; Wed, 04 Feb 2026 00:40:19 -0800 (PST)
+ us-mta-551-h-qY9GO2NlS4y9SHsal1mA-1; Wed, 04 Feb 2026 03:53:56 -0500
+X-MC-Unique: h-qY9GO2NlS4y9SHsal1mA-1
+X-Mimecast-MFC-AGG-ID: h-qY9GO2NlS4y9SHsal1mA_1770195236
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-794d726efa5so6700607b3.3
+        for <virtualization@lists.linux.dev>; Wed, 04 Feb 2026 00:53:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770194418; x=1770799218;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=U6IMhKc2VzBHFc6lr2fAv4BQhS3mPy88vUETyFpbphk=;
-        b=BMyW4PCOyV3pS6EqfEX+7KXlqym7v7EndaLBm56DksNIqF8Jv5o7dn6DiuEr3YMAZN
-         6oZUeIewYWYoRuX1Y0LDTarj7GpJ69YW9i3gIacYczOyu7xUT8YCAYbyiHEQr0DaeTkj
-         0hm3GdN7PO0X9/HAQCUvl8L0EhcstgvO1p7pmRTflc1Jss5m7XZnt+fQfFBtYqJ+sT6H
-         1Nmz3m+VnPTzsVRcFXjX42qSJJsHTzNsGpjiVufuNJQqS5SjKNAIjqZx8kyUJUTOUqiU
-         wyt3nuwbXGIEgRbdJO2AEp8JmHLkm9uyeOg0kPWIabbuNMA2H/0NCCzko41e+g7OvPmc
-         wDTg==
-X-Gm-Message-State: AOJu0YwYWD3i/af2X0Qgp2D3ywJj6mgRbHwq/JbsMsjf4p4FIj/BksxL
-	gLZmPSXQHbHsfPfmzeh5bAddubFNpH5zx9c3ScwnKbrsdCwjqIBU1RLa4tTJrWBofVWdLxVd9fH
-	YcVx/9ns2xuLAg4e+Jt7IngKJLBiLASk8RkNdBpAre19v8Zu1S1l4pDRr6tOs+ef8ZN8B
-X-Gm-Gg: AZuq6aIzet9ithnr763tHmA+YW//NvCy/flwSXT4+nWm2FXKNowkBRxAI7JTifaVn67
-	DNWuOTmGg8WQxBNj4+YC9II9T1BEM/BcNrqQr6Vovr78yIEX3HHtmMA+ADMHK/mu/YCh3XNdQ1W
-	fQ3+vHDS/eDrlhPWm4/ajZTwlkL6I//WnZDkxgC2uGJ93+8D7krC//nlhW2r0/3MHG14SK+AY/6
-	tB9BW3nJ+wBMaLd4CPHI0DDtmtNuZTnZHT8lKYokFxXbsZ8kKTzuXhVafmBC4zeznV1k4nQypyv
-	2Aurww9mt8aIEpixythJ/Elp5Rb8WGm4KbrPbJ7R13LeZlg9ArVIejFYaj/k3IXtGZXFP7L4JbD
-	4cn/ORHHZK1xA
-X-Received: by 2002:a05:600c:3549:b0:479:2a3c:f31a with SMTP id 5b1f17b1804b1-4830e92cc18mr30995955e9.1.1770194418122;
-        Wed, 04 Feb 2026 00:40:18 -0800 (PST)
-X-Received: by 2002:a05:600c:3549:b0:479:2a3c:f31a with SMTP id 5b1f17b1804b1-4830e92cc18mr30995685e9.1.1770194417736;
-        Wed, 04 Feb 2026 00:40:17 -0800 (PST)
-Received: from [192.168.88.32] ([216.128.11.114])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4830ffc9f3asm14137265e9.19.2026.02.04.00.40.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Feb 2026 00:40:17 -0800 (PST)
-Message-ID: <eb700d8d-81e0-4c56-9cf2-48473404563b@redhat.com>
-Date: Wed, 4 Feb 2026 09:40:15 +0100
+        d=1e100.net; s=20230601; t=1770195236; x=1770800036;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=iw1yhHJiAv53b7DMB9m3leCwsoYzYTVEEz5Jb6pNb4E=;
+        b=AjedGV4xuDBSPX6wjWqxvPdmwLLidXEAOTLtuZGJWVBdiR+ZTk6kqaV8LNzv5Zl/cN
+         LriiJCq0yzInlDrkcXjvTfFEukHWB9kaU7Z+PNpXs0Wufo1Nf4sf8EezeifhKEluK44E
+         wcwqqDxSYnvfZPMbUej7VonZtrwa5Wopvtaivj/q8OEpBElqL3GCtl62ZrjOsur/iYE2
+         xeokdH7kWCYBhUD/n28I4s9uMFKCTrVedV3353oe9dbyT/Nqtv4d7bRPNzGNV26pGM6A
+         epYqHVQwyeQ+Z1WcW1HcwF1PBAEJHp/9KegQNJmYt6zNlSuyYwUj+Z+RBxYug0pp9t3V
+         7KGg==
+X-Forwarded-Encrypted: i=1; AJvYcCVlMpgGRbCPe1sX8mZy/eOJJoqanejbFkhZngRg2+Sy1UFT5zJAEMRHRq1tzw8zRTgPfYvtFrF4M0vZNtkwdQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwKj7TSK5pMPVaBqJ0qAQcVgT7BmQrKbiCmMzI5U2AdowYVsiNS
+	OVVGXN7e+eFCW9Lb6Yng1elj644XOBhvgTWvjZbu5aJ6l349U1DtYcVuEZC3tkIZteP0+RbSjig
+	xY8SrZC9HYu7iOHlwJqsy2HZvF1KajR/CH3Hmplz0V12coO5GnzIH4DmVIBu4ILvQWt2zAaz6hQ
+	wwXi1RcLoeXtAcw2jQovLSw+j2SSXSiirBojjB5YOhCZ0=
+X-Gm-Gg: AZuq6aI1fLwobBmc+W2008nPPangseDAQMhBl4j65OCbRfHeJnU2ducb4rAcpX75yCr
+	zwjYMRkGF5RdhYXpCULjRpZUBQRzC8OYWqaEVsyJvxVSeN8+V1aa+QEUZKQ58AFz/KMMuWdlt6+
+	YT7mEp0K3d/yTmEkaB/6+hgWc6jolk90FIUueXJ2d65SFYyCEMtTXnJ4e30yDDMCYmww==
+X-Received: by 2002:a05:690c:62c7:b0:794:24b8:1a66 with SMTP id 00721157ae682-794fe75fb74mr21579347b3.37.1770195236125;
+        Wed, 04 Feb 2026 00:53:56 -0800 (PST)
+X-Received: by 2002:a05:690c:62c7:b0:794:24b8:1a66 with SMTP id
+ 00721157ae682-794fe75fb74mr21579317b3.37.1770195235758; Wed, 04 Feb 2026
+ 00:53:55 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v17 07/12] virtio_net: Implement layer 2 ethtool
- flow rules
-To: Dan Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org, mst@redhat.com,
- jasowang@redhat.com
-Cc: virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- jgg@ziepe.ca, kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
- edumazet@google.com
-References: <20260202170518.9076-1-danielj@nvidia.com>
- <20260202170518.9076-8-danielj@nvidia.com>
- <90017867-2649-4632-8497-96e2592c73c3@redhat.com>
- <a3aec539-9468-4273-b7fa-6705331c9b92@nvidia.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <a3aec539-9468-4273-b7fa-6705331c9b92@nvidia.com>
+References: <20260128124524.875271-1-eperezma@redhat.com> <20260128124524.875271-2-eperezma@redhat.com>
+ <CACGkMEuDPgkEVzpu0c+oKvOqgaSR5=CnHMe9iZDi_PFQan0m6g@mail.gmail.com>
+ <CAJaqyWf5sC38oT2ZkmfR_MkiYWjLsuyF4Z4opSmgS1nG8BZhgw@mail.gmail.com>
+ <CACGkMEsr_cx-xR85wZ5c=QfegLfG5j0wHTjokEADpgn37gQRJQ@mail.gmail.com>
+ <CAJaqyWcVdMc+xQ=oq4ipu_sGh4uMJGidC8CFYSaa+5ZcwiKZ7g@mail.gmail.com>
+ <CACGkMEuNZzDVccF_yiinJowrfGgWRAR_-ZvOqNmFz=cLVKN-+w@mail.gmail.com>
+ <CAJaqyWfpJxPYKtUcncpbEvn_wi-Rc3VRyLE5f=0Md9HAksr6Dg@mail.gmail.com> <CACGkMEtBerHiU7EpjOqkJQxgCv2f3MsUURD6AF9663DELETsYQ@mail.gmail.com>
+In-Reply-To: <CACGkMEtBerHiU7EpjOqkJQxgCv2f3MsUURD6AF9663DELETsYQ@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 4 Feb 2026 09:53:19 +0100
+X-Gm-Features: AZwV_QhSj6yrtsYhhB1xbQsx8W3ff9PfvxowobyCDAjw0AMDNvLDVdA2W8pXnYY
+Message-ID: <CAJaqyWcq73v_v6OoxWnwkOY5gxHV+kL+4eDDjor_rP=OzrBrvg@mail.gmail.com>
+Subject: Re: [PATCH 1/6] vduse: ensure vq->ready access is smp safe
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xJscnyE2hzlWYcTFoDBp-W4xjnCoYKmIGXQ4JQmqdl4_1770194418
+X-Mimecast-MFC-PROC-ID: Ghlbcdxx3YjhvHqlNJ2HtByHFjmUO2yekadoBtwIDuo_1770195236
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, Feb 4, 2026 at 3:48=E2=80=AFAM Jason Wang <jasowang@redhat.com> wro=
+te:
+>
+> On Tue, Feb 3, 2026 at 6:35=E2=80=AFPM Eugenio Perez Martin <eperezma@red=
+hat.com> wrote:
+> >
+> > On Tue, Feb 3, 2026 at 5:05=E2=80=AFAM Jason Wang <jasowang@redhat.com>=
+ wrote:
+> > >
+> > > On Fri, Jan 30, 2026 at 3:56=E2=80=AFPM Eugenio Perez Martin
+> > > <eperezma@redhat.com> wrote:
+> > > >
+> > > > On Fri, Jan 30, 2026 at 3:18=E2=80=AFAM Jason Wang <jasowang@redhat=
+.com> wrote:
+> > > > >
+> > > > > On Thu, Jan 29, 2026 at 2:21=E2=80=AFPM Eugenio Perez Martin
+> > > > > <eperezma@redhat.com> wrote:
+> > > > > >
+> > > > > > On Thu, Jan 29, 2026 at 2:17=E2=80=AFAM Jason Wang <jasowang@re=
+dhat.com> wrote:
+> > > > > > >
+> > > > > > > On Wed, Jan 28, 2026 at 8:45=E2=80=AFPM Eugenio P=C3=A9rez <e=
+perezma@redhat.com> wrote:
+> > > > > > > >
+> > > > > > > > The vduse_vdpa_set_vq_ready can be called in the lifetime o=
+f the device
+> > > > > > > > well after initial setup, and the device can read it afterw=
+ards.
+> > > > > > > >
+> > > > > > > > Ensure that reads and writes to vq->ready are SMP safe so t=
+hat the
+> > > > > > > > caller can trust that virtqueue kicks and calls behave as e=
+xpected
+> > > > > > > > immediately after the operation returns.
+> > > > > > > >
+> > > > > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > > > > > ---
+> > > > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 34 ++++++++++++++++++=
++++++-------
+> > > > > > > >  1 file changed, 26 insertions(+), 8 deletions(-)
+> > > > > > > >
+> > > > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/v=
+dpa/vdpa_user/vduse_dev.c
+> > > > > > > > index 73d1d517dc6c..a4963aaf9332 100644
+> > > > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > > > > @@ -460,6 +460,24 @@ static __poll_t vduse_dev_poll(struct =
+file *file, poll_table *wait)
+> > > > > > > >         return mask;
+> > > > > > > >  }
+> > > > > > > >
+> > > > > > > > +static bool vduse_vq_get_ready(const struct vduse_virtqueu=
+e *vq)
+> > > > > > > > +{
+> > > > > > > > +       /*
+> > > > > > > > +        * Paired with vduse_vq_set_ready smp_store, as the=
+ driver may modify
+> > > > > > > > +        * it while the VDUSE instance is reading it.
+> > > > > > > > +        */
+> > > > > > > > +       return smp_load_acquire(&vq->ready);
+> > > > > > > > +}
+> > > > > > > > +
+> > > > > > > > +static void vduse_vq_set_ready(struct vduse_virtqueue *vq,=
+ bool ready)
+> > > > > > > > +{
+> > > > > > > > +       /*
+> > > > > > > > +        * Paired with vduse_vq_get_ready smp_load, as the =
+driver may modify
+> > > > > > > > +        * it while the VDUSE instance is reading it.
+> > > > > > > > +        */
+> > > > > > > > +       smp_store_release(&vq->ready, ready);
+> > > > > > >
+> > > > > > > Assuming this is not used in the datapath, I wonder if we can=
+ simply
+> > > > > > > use vq_lock mutex.
+> > > > > > >
+> > > > > >
+> > > > > > The function vduse_vq_set/get_ready are not in the datapath, bu=
+t
+> > > > > > vduse_vq_kick and vduse_vq_signal_irqfd are.  I'm ok if you wan=
+t to
+> > > > > > switch to vq_mutex if you want though, maybe it's even comparab=
+le with
+> > > > > > the cost of the ioctls or eventfd signaling.
+> > > > >
+> > > > > I'd like to use mutex for simplicity.
+> > > > >
+> > > >
+> > > > I cannot move it to a mutex, as we need to take it in the critical
+> > > > sections of the kick_lock and irq_lock spinlocks.
+> > > >
+> > > > I can move it to a spinlock, but it seems more complicated to me. W=
+e
+> > > > need to make sure we always take these kick_lock and irq_lock in th=
+e
+> > > > same order as the ready_lock, to not create deadlocks, and they alw=
+ays
+> > > > protect just the ready boolean. But sure, I'll send the spinlock
+> > > > version for V2.
+> > >
+> > > Thinking about this, I'm not sure I understand the issue.
+> > >
+> > > Maybe you can give me an example of the race.
+> > >
+> >
+> > It's the same issue as you describe with set_group_asid on cpu1 and
+> > dma_map and dma_unmap in cpu1 in this mail [0], but now the functions
+> > are set_vq_ready in the vdpa driver side and VDUSE_VQ_GET_INFO in the
+> > VDUSE instance.
+> >
+> > To me, the barriers should be in the driver and the VDUSE instance,
+> > and the VDUSE instance should use the VDUSE_SET_VQ_READY message to
+> > know when a VQ is ready. But I don't expect all the VDUSE instances to
+> > opt-in for that, so the flow without smp barriers is:
+> >
+> > [cpu0] .set_vq_ready(vq, true)
+> > [cpu1] VDUSE_VQ_GET_INFO(vq)
+> > [cpu1] check vq->ready, and it races with the set_vq_ready from cpu0.
+> >
+>
+> Are there any side effects of this race? I meant the driver can do
+> set_vq_ready() at any time. And there would be message for notifying
+> the usersapce in this series.
+>
 
-Hi,
+Actually I'm moving to a semaphore for the moment. SMP barrier is not enoug=
+h.
 
-On 2/3/26 10:40 PM, Dan Jurgens wrote:
-> On 2/3/26 3:19 AM, Paolo Abeni wrote:
->> Hi,
->>
->> The AI review reported a possible issue that looks valid to me.
->> Reporting the feedback manually because I think only one to the AI
->> remarks is valid, see below.
->>
->> On 2/2/26 6:05 PM, Daniel Jurgens wrote:
->>> +static bool validate_eth_mask(const struct virtnet_ff *ff,
->>> +			      const struct virtio_net_ff_selector *sel,
->>> +			      const struct virtio_net_ff_selector *sel_cap)
->>> +{
->>> +	bool partial_mask = !!(sel_cap->flags & VIRTIO_NET_FF_MASK_F_PARTIAL_MASK);
->>> +	struct ethhdr *cap, *mask;
->>> +	struct ethhdr zeros = {};
->>> +
->>> +	cap = (struct ethhdr *)&sel_cap->mask;
->>> +	mask = (struct ethhdr *)&sel->mask;
->>
->> This function casts sel_cap->mask to struct ethhdr * and accesses fields
->> at offsets 0, 6, and 12. Shouldn't there be validation that
->> sel_cap->length is at least sizeof(struct ethhdr) = 14 bytes?
->>
->> Looking at virtnet_ff_init() at line 6291, it only checks that
->> sel->length <= MAX_SEL_LEN (40 bytes) but doesn't enforce a minimum
->> length for the ETH selector type. If a device provides an ETH selector
->> capability with length < 14 bytes, won't validate_eth_mask() read beyond
->> the allocated mask array?
-> 
-> It won't read beyond the end of the array. When we retrieve the selector
-> caps we make sure the that the size of all the selectors and their data
-> is less than what we allocated. So I don't think this is really a bug.
+The message works for the driver to know that the device vq is ready
+and it can send kicks. But there is a race for the device where it has
+replied to the message but vq->ready is still not true:
 
-[sorry for the latency]
+static void vduse_vdpa_set_vq_ready(struct vdpa_device *vdpa,
+                                        u16 idx, bool ready)
+{
+        [...]
+        r =3D vduse_dev_msg_sync(dev, &msg);
+        // The device could try to call() from here...
 
-I'm possibly lost, but I do see such check for classifier->selectors,
-but I do not see them for ff->ff_mask->selectors, neither in
-get_selector_cap() nor in virtio_admin_cap_get().
+        [...]
+out:
+        // to here
+        vduse_vq_set_ready(vq, ready);
+}
 
-> I'll change the check here to be sel->length !=
-> get_mask_size(sel->type). It'll fail in a clearer way if this is the case.
-> 
->                 if (sel->length > MAX_SEL_LEN ||
->                     test_and_set_bit(sel->type, &sel_types)) {
->                         WARN_ON_ONCE(true);
->                         err = -EINVAL;
->                         goto err_ff_action;
->                 }
+To be honest, I'd prefer to just set ready =3D true at
+vduse_dev_write_iter before returning success to the VDUSE userland.
+This way the synchronization struct is omitted entirely. But let me
+know if you prefer otherwise.
 
-If you mean:
-
-		if (sel->length != get_mask_size(sel->type) ||
-                      test_and_set_bit(sel->type, &sel_types))
-
-LGTM!
-
-Thanks,
-
-Paolo
+Thanks!
 
