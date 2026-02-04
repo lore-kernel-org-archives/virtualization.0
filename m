@@ -1,134 +1,80 @@
-Received: from jpms-ob02.noc.sony.co.jp (jpms-ob02.noc.sony.co.jp [211.125.140.165])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23BE33A1E77
-	for <virtualization@lists.linux.dev>; Wed,  4 Feb 2026 09:17:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.125.140.165
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770196666; cv=none; b=tdeobr/s9pEsfKlJz/uZXtKH6vV0so/UxgUKvC5wj8+nNqH8bGIvpQGisVfnIkN1HpBpHDDTR9F9dDl4gl8NDPhEhk/z7FE/Xjii7PlNuXv+bQErdMRLYtktIYHTL2vBA558fv/ah9aTTtcix79AVrj9DzM+iOMybTDdI6v4xpM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770196666; c=relaxed/simple;
-	bh=rTjzOHeWG9eHm33rQDOPGTZZySKoFz1aHEHitCndjIc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=h10BqJxe1xVjNI7J4mmAdJT8j767N5d15sbzUBvp1WYUhAZ9v3fSx7C2skkkf0OeZXZzLzMDmF7HKC6hwsxvnYY6kIMxMyqgjQSM/Y5TG7jAcBZfJrER+W0xRw7nsvRF7BKf0EBnttb5WhTq+yd5nz+7DJshhr3Pcelhg+9nnF8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com; spf=pass smtp.mailfrom=sony.com; dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b=wGdUrGti; arc=none smtp.client-ip=211.125.140.165
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sony.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b="wGdUrGti"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=sony.com; s=s1jp; t=1770196666; x=1801732666;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=gSpoUwnGMiw8Hd9rxHOb3HRj7lon6L0Wu64wAWcD0ZA=;
-  b=wGdUrGtij/1vJJHOHvHifJnnQT/Mqo8Mv1OcrGQfdnucIZ2OUraYOxXB
-   i00Wkq7A7tcQ+v8CnaQ1hHWFZKiAYZ6jRO/J/2A9MQWnnxiIdg5okicub
-   m14Sxr9yKkH3D2BNMxCrVGGAOw3WXx2QT92x2mprGiTgtyXyy1eVyK+hV
-   Tc6J8NK4vAL3dy8MMj+qaOTlWK+t3WL4vVnFqsC5FpcIb0aeVQSmkZYXp
-   DOobgdaM+s/Q06ZSXn86C/2ngj7p1OOF8Ne6K5Ze+/zbYAwyCaIm2XzRx
-   6OZ9aoSCMze5TUm9HDUJuvidckZ4JzM0cb8iHzGH7+wZbP4S0eIIT1VMW
-   g==;
-Received: from unknown (HELO jpmta-ob1.noc.sony.co.jp) ([IPv6:2001:cf8:0:6e7::6])
-  by jpms-ob02.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2026 18:17:39 +0900
-X-IronPort-AV: E=Sophos;i="6.21,272,1763391600"; 
-   d="scan'208";a="608110368"
-Received: from unknown (HELO JPC00244420) ([IPv6:2001:cf8:1:573:0:dddd:6b3e:119e])
-  by jpmta-ob1.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2026 18:17:38 +0900
-Date: Wed, 4 Feb 2026 18:17:29 +0900
-From: Shashank Balaji <shashank.mahadasyam@sony.com>
-To: Sohil Mehta <sohil.mehta@intel.com>
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Suresh Siddha <suresh.b.siddha@intel.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Juergen Gross <jgross@suse.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-	jailhouse-dev@googlegroups.com, kvm@vger.kernel.org,
-	xen-devel@lists.xenproject.org, Rahul Bukte <rahul.bukte@sony.com>,
-	Daniel Palmer <daniel.palmer@sony.com>,
-	Tim Bird <tim.bird@sony.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel
- expects so
-Message-ID: <aYMOqXTYMJ_IlEFA@JPC00244420>
-References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
- <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
- <0149c37d-7065-4c72-ab56-4cea1a6c15d0@intel.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A82342F49F0
+	for <virtualization@lists.linux-foundation.org>; Wed,  4 Feb 2026 09:21:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770196877; cv=fail; b=P1BlYtLX2hNN9NDJVl4Q6NfBtDruOkMZNmV1euN5ig/wUXqHBNMWWV6rVgjYnOWRm0i6e2mbK3D73A9hyvptjJJ+dM4GnkCOwc36rsrb7qeSgR8WZHxgDLMURzYR3l84lSaKZ4QrVZRZ6Z/LvrxOqCI/FzdCs0gzBUBYPOwxdoI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770196877; c=relaxed/simple;
+	bh=bL5TwZjXmiDlQH5CzuRnxdzusYuhFmXZYQttvOAjxbs=;
+	h=Message-ID:Date:From:To:Subject:MIME-Version:Content-Type; b=YCg9q9jN15Wx1V2FZGx4wL5U1Z+ulVqkknqX+zmmL7zyKrHEjf0+3t+024ZDZzhpajZJ38Jc9IwbD28952KMsgSHY4y6hdmEvkyfkjRPEEUmaRdZSGUN9aj0mv/zkl3AzeiXED36EWaq+mFkg7lzz/aPv8ZRwsKjtA3w1g4UhQk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1FCCF40423
+	for <virtualization@lists.linux-foundation.org>; Wed,  4 Feb 2026 09:21:17 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: 0.444
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 8mzOWlgBDwQk for <virtualization@lists.linux-foundation.org>;
+ Wed,  4 Feb 2026 09:21:16 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=51.77.231.86; helo=mail.stratx.pl; envelope-from=wiktoria.rungel@stratx.pl; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org EA21D4021A
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=stratx.pl
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EA21D4021A
+Received: from mail.stratx.pl (mail.stratx.pl [51.77.231.86])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id EA21D4021A
+	for <virtualization@lists.linux-foundation.org>; Wed,  4 Feb 2026 09:21:15 +0000 (UTC)
+Authentication-Results: factro.pl; arc=none smtp.remote-ip=127.0.0.1
+ARC-Seal: i=1; d=factro.pl; s=default; a=rsa-sha256; cv=none; t=1770196599;
+	b=O+wJz61cRMZJn+B0CnraqszBg+c/lO6FMnMYsP5Jenyf+SDecVivdnvk2lR+4Lx9Uxd8
+	 czvLU4V2n/R/HZcLvZjiSTt5yFRivoVUygz+2RQHMGIsz6UUhdvQEqd4tmJi4gSEHEmp8
+	 DGy73C9MpE4JwIiTgau1a6xWWIUxpZp8Ba+xRCXDep5djFRIwU3KwzQ0psgUshuE/PRuF
+	 gM5p3Rj82VM+VKAnPwDoIBPOwjRkquPP+E89dHJNnTht5Jq+ShkWZYt1bzj98zMUvtOEI
+	 gw4Ys4nDfnQXzJ4l7HCRbGVlGADFDBE1f8gcjfafHvxMF8ydmlGnh+YRXAtKFS+YV0w==
+ARC-Message-Signature: i=1; d=factro.pl; s=default; a=rsa-sha256;
+	c=relaxed/simple; t=1770196599;
+	h=Message-ID:Date:From:Subject:From;
+	bh=bL5TwZjXmiDlQH5CzuRnxdzusYuhFmXZYQttvOAjxbs=;
+	b=MC61cmlrjTCg77u70V+Z9/nysjNbedZ9fJg+vZPd73p1MKETRZnSH6R7fn8Sruzutxpf
+	 wUpnXfinTYk4aBZIgPJtfDkemqivJrnNOtZd+5HiZoqPY0gkMc2JcwLnV7dxeMPERlYIr
+	 n+cNc898JrVKj5w/e/Kj2REGzKr7SFazxzoF7eDJkjvHw7HZq6RtiwizDugowDrGMjg2q
+	 vEahq7hF87HB9bGRJuvMcGSp0yQcwoW9YGghCILF973Cm/1hQUatBZ+JbeHc2dNwaAC+B
+	 n24b1rLjRBIKNqd7V/KLIs5WxWbcGH43nD8s8VUmTuCY0hAAgpxc4dOzdRKK/AylU2Q==
+ARC-Authentication-Results: i=1; factro.pl; arc=none smtp.remote-ip=127.0.0.1
+Received: by mail.stratx.pl (Postfix, from userid 1002)
+	id 6AA9B26A85; Wed,  4 Feb 2026 09:16:05 +0000 (UTC)
+Received: by mail.stratx.pl for <virtualization@lists.linux-foundation.org>; Wed,  4 Feb 2026 09:15:44 GMT
+Message-ID: <20260204074500-0.1.7q.34pja.0.irjbqj2103@stratx.pl>
+Date: Wed,  4 Feb 2026 09:15:44 GMT
+From: "Wiktoria Rungel" <wiktoria.rungel@stratx.pl>
+To: <virtualization@lists.linux-foundation.org>
+Subject: Kandydat do pracy
+X-Mailer: mail.stratx.pl
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0149c37d-7065-4c72-ab56-4cea1a6c15d0@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Sohil,
+Dzie=C5=84 dobry,
 
-On Tue, Feb 03, 2026 at 01:08:39PM -0800, Sohil Mehta wrote:
-> > diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-> > index d93f87f29d03..cc64d61f82cf 100644
-> > --- a/arch/x86/kernel/apic/apic.c
-> > +++ b/arch/x86/kernel/apic/apic.c
-> > @@ -2456,6 +2456,12 @@ static void lapic_resume(void *data)
-> >  	if (x2apic_mode) {
-> >  		__x2apic_enable();
-> >  	} else {
-> > +		/*
-> > +		 * x2apic may have been re-enabled by the
-> > +		 * firmware on resuming from s2ram
-> > +		 */
-> > +		__x2apic_disable();
-> > +
-> 
-> We should likely only disable x2apic on platforms that support it and
-> need the disabling. How about?
-> 
-> ...
-> } else {
-> 	/*
-> 	 *
-> 	 */
-> 	if (x2apic_enabled())
-> 		__x2apic_disable();
+delegujemy sprawdzone osoby ze Wschodu do pracy w firmach produkcyjnych d=
+o prostych prac przy produkcji, na magazynie, przy pakowaniu towaru czy k=
+ontroli jako=C5=9Bci.=20
 
-__x2apic_disable disables x2apic only if boot_cpu_has(X86_FEATURE_APIC)
-and x2apic is already enabled. x2apic_enabled also does the same checks,
-the only difference being, it uses rdmsrq_safe instead of just rdmsrq,
-which is what __x2apic_disable uses. The safe version is because of
-Boris' suggestion [1]. If that's applicable here as well, then rdmsrq in
-__x2apic_disable should be changed to rdmsrq_safe.
+Nasza firma organizuje wszelkie formalno=C5=9Bci oraz zakwaterowanie, co =
+pozwala zmniejszy=C4=87 koszty po Pa=C5=84stwa stronie.
 
-> I considered if an error message should be printed along with this. But,
-> I am not sure if it can really be called a firmware issue. It's probably
-> just that newer CPUs might have started defaulting to x2apic on.
-> 
-> Can you specify what platform you are encountering this?
+Czy mog=C4=99 przedstawi=C4=87 szczeg=C3=B3=C5=82y?
 
 
-I'm not sure it's the CPU defaulting to x2apic on. As per Section
-12.12.5.1 of the Intel SDM:
-
-	On coming out of reset, the local APIC unit is enabled and is in
-	the xAPIC mode: IA32_APIC_BASE[EN]=1 and IA32_APIC_BASE[EXTD]=0.
-
-So, the CPU should be turning on in xapic mode. In fact, when x2apic is
-disabled in the firmware, this problem doesn't happen.
-
-Either way, a pr_warn maybe helpful. How about "x2apic re-enabled by the
-firmware during resume. Disabling\n"?
-
-[1] https://lore.kernel.org/all/20150116095927.GA18880@pd.tnic/
+Pozdrawiam
+Wiktoria Rungel
