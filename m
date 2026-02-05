@@ -1,33 +1,33 @@
-Received: from out-184.mta0.migadu.com (out-184.mta0.migadu.com [91.218.175.184])
+Received: from out-186.mta1.migadu.com (out-186.mta1.migadu.com [95.215.58.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 620153A8FEE
-	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 15:28:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.184
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A85F41C2F6
+	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 15:32:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.186
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770305314; cv=none; b=hTk6gDF7kjVPTzZE+Xun1VGx9W0AwhsOKfAdmP3TKoW3awyMmzH1+NC52MAknmbv+jHc/NuKWyce750gITwj1zKoV/amw+gIWY5XVE6B1BvEZHwB+J3v1RlVu895ONvEzY7+7oxB4VZjRdueFr1CjoB5c0P1w7eaJ2tG6VLKZXU=
+	t=1770305538; cv=none; b=VNNGxOWISJOn/t5mo+yPBMd4PX/ASbUeaYa2nwNVu7NRI5ZcPf7aEQwlKuxc6SgA2l+KD6WjYG9pQU2uQTfY1dKBsmnHe5kAHAqa6sFIjOIIqxsMXBD0mzewpgm4llUN9pFSQX+lWZT/eqK1QVGzXh2iikzQqYZFgsV6AQh4Szg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770305314; c=relaxed/simple;
-	bh=lJ5wO2c6vKdGC7MPNXyr5jt8IpI5g1cswUmXgctwk64=;
+	s=arc-20240116; t=1770305538; c=relaxed/simple;
+	bh=QLm/51FdZsnYSIza+TKpcyW3+DJAsJJ/3Zpgro9LVpw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Wx7XqFLQREpX2Md437AeVK3FOwLMjmItKXfTMdbQAKgOPmqV3cXCdyobCVdiN1VZL5uYeFeukmdazqMkIsFhabOEvUEhwGcyB4+mcG6o9uDuOXlnnjOMAgwnh3DLJnD8KyZJrftGLcT/rvY+wcq9qAyPbze4z97TXPtDNvAWPmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=IEGzDoIL; arc=none smtp.client-ip=91.218.175.184
+	 In-Reply-To:Content-Type; b=GAaKJ552kQPjL6kJRaO8h8uJcDUtJor0Eb4vANGwNrV2P8TonZdXHCzSSMFNTAI0uNoByAybx1gj1fUcrMphUGd3U0sk0jKn/rwjV+PXHVsk8lGuxg/MDeW3Sgj6dHaIlyznFD5xPpBA3yDYH+HlZ4lhf1iMrwEqMb6rXDHY+/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=J4kMAUbZ; arc=none smtp.client-ip=95.215.58.186
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="IEGzDoIL"
-Message-ID: <8f5f7617-7a35-4cb2-97b2-0a73c6d9622c@linux.dev>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="J4kMAUbZ"
+Message-ID: <c985a8ed-37ad-415e-b7b4-18a66b4da3fe@linux.dev>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1770305311;
+	t=1770305536;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/SL5gP8QX8DLMYTu036KBvNCXId/b3s1citx/YK+obQ=;
-	b=IEGzDoILmn6RaziZQkRjyJvvzWlaFO58iWze8rY0jh1kOJLRhJO6HZpFljbyPC+X0L84Av
-	Cj3u8KxpQa88wJ2ZLpjRYTRBp6+7l5b63JFvgtpcdm+Vg8KJhKoywh+RxTy+/vns8wVrSm
-	I/WRZ4sW+DSRbVjCNuvHzj//KzAkgjE=
-Date: Thu, 5 Feb 2026 23:28:14 +0800
+	bh=nZCCu/D+A8/vQSICPy1kzHkrFU4nx4XMWizPhQHWKZE=;
+	b=J4kMAUbZImqUoYGXnypA7JnwOQ6nbWXYNper/s+Ly1cCPQ7RG+AMBp08vyVNz/jHVoomLH
+	peW91wvsv7DEEEi+N86L66kXjHcz1UF+GeftNiAXSBKVuphiyV+y27NFganbyWwBX5e5Xy
+	01KUQfoTLHkARKXBEAIocUoDnlGa78k=
+Date: Thu, 5 Feb 2026 23:31:48 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -36,8 +36,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Subject: Re: [PATCH v4 0/3] targeted TLB sync IPIs for lockless page table
 Content-Language: en-US
-To: "David Hildenbrand (Arm)" <david@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, dave.hansen@intel.com
+To: Dave Hansen <dave.hansen@intel.com>,
+ "David Hildenbrand (Arm)" <david@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>
 Cc: Liam.Howlett@oracle.com, akpm@linux-foundation.org,
  aneesh.kumar@kernel.org, arnd@arndb.de, baohua@kernel.org,
  baolin.wang@linux.alibaba.com, boris.ostrovsky@oracle.com, bp@alien8.de,
@@ -61,69 +62,27 @@ References: <20260202095414.GE2995752@noisy.programming.kicks-ass.net>
  <d6944cd8-d3b7-4b16-ab52-a61e7dc2221c@linux.dev>
  <06d48a52-e4ec-47cd-b3fb-0fccd4dc49f4@kernel.org>
  <3026ad8d-92ad-4683-8c3e-733d4070d033@linux.dev>
- <13205d28-7478-4578-8bf3-ead18b4dc6b0@kernel.org>
+ <64f3a75a-30ff-4bee-833c-be5dba05f72b@intel.com>
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Lance Yang <lance.yang@linux.dev>
-In-Reply-To: <13205d28-7478-4578-8bf3-ead18b4dc6b0@kernel.org>
+In-Reply-To: <64f3a75a-30ff-4bee-833c-be5dba05f72b@intel.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
 
 
-On 2026/2/5 23:05, David Hildenbrand (Arm) wrote:
-> On 2/5/26 16:01, Lance Yang wrote:
->>
->>
->> On 2026/2/5 21:25, David Hildenbrand (Arm) wrote:
->>> On 2/2/26 16:52, Lance Yang wrote:
->>>>
->>>>
->>>>
->>>> Yep, we could replace the IPI with synchronize_rcu() on the sync side:
->>>>
->>>> - Currently: TLB flush → send IPI → wait for walkers to finish
->>>> - With synchronize_rcu(): TLB flush → synchronize_rcu() -> waits for 
->>>> grace period
->>>>
->>>> Lockless walkers (e.g. GUP-fast) use local_irq_disable(); 
->>>> synchronize_rcu() also
->>>> waits for regions with preemption/interrupts disabled, so it should 
->>>> work, IIUC.
->>>>
->>>> And then, the trade-off would be:
->>>> - Read side: zero cost (no per-CPU tracking)
->>>> - Write side: wait for RCU grace period (potentially slower)
->>>>
->>>> For collapse/unshare, that write-side latency might be acceptable :)
->>>>
->>>> @David, what do you think?
->>>
->>> Given that we just fixed the write-side latency from breaking 
->>> Oracle's databases completely, we have to be a bit careful here :)
->>
->> Yep, agreed.
->>
->>>
->>> The thing is: on many x86 configs we don't need *any* TLB flushed or 
->>> RCU syncs.
->>
->> Right. Looks like that is low-hanging fruit. I'll send that out 
->> separately :)
->>
->>>
->>> So "how much slower" are we talking about, especially on bigger/ 
->>> loaded systems?
->>
->> Unfortunately the numbers are pretry bad. On an x86-64 64-core system
->> under high load, each synchronize_rcu() is about *22.9* ms on average ...
->>
+On 2026/2/5 23:09, Dave Hansen wrote:
+> On 2/5/26 07:01, Lance Yang wrote:
 >> So for now, neither approach looks good: tracking on the read side adss
 >> cost to GUP-fast, and syncing on the write side e.g. synchronize_rcu()
 >> is too slow on large systems.
 > 
-> GUP-fast is 3%, right? Any way we can reduce that to 1% and call it 
-> noise? :)
+> Which of the writers truly *need* synchronize_rcu()?
+> 
+> What are they doing with the memory that they can't move forward unless
+> it's quiescent *now*?
 
-Yes, GUP-fast is ~3%. I'll keep trying to do that, but first getting
-the low-hanging fruit done :)
+Without IPIs or synchronize_rcu(), IIUC, we have no way to know if there
+are ongoing concurrent lockless page-table walks — the walkers just disable
+IRQs and walk.
