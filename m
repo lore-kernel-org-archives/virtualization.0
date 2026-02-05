@@ -1,306 +1,160 @@
-Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012058.outbound.protection.outlook.com [40.107.200.58])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB83A33065C
-	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 22:47:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.58
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770331678; cv=fail; b=K6JvSsQBjxp5YJJE0/WnwKD/LlDSuwfzzv0f5TCvp27NvnI+J+5xC9mJaIT1j+XtI9pnxRKfkMcz1xcRzTtN+rm9gz3ZcwgEM1vHYZbLZfUwU1u82JrzUPbNL7v66TFppX2qPjVRFb977ldX7PtexyfeufKDFfVW3c2QvLptIfE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770331678; c=relaxed/simple;
-	bh=5oe1nXGi3E+gGMDVFF3qYsKmk1k27GVgn2xR9ysqahw=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=sNusRSA1GCzebPQojsugeuETIoPyentyBsxcnRhtOqTahWq3Pu5fiS1BAzrH2H66nJpdBOaAYq2YPwx6ZcXd4ZyW5XuYEMMRRFqkfZtOwc62qdoCzouNSlo8IDBuhYiYVbGPEeDL1hJ9dljcYW5K3VrVqSBcACBLzLGulzeGnvQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=ugkmPPz1; arc=fail smtp.client-ip=40.107.200.58
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3A5133A03F;
+	Thu,  5 Feb 2026 22:50:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770331802; cv=none; b=QQxG/EoFXFzlEkEJY7CA8EWotb5cMPHLwLvAUIyRFJsVggNpPWgZQQPlfAooUtG9taaFunwRMM2JZIZpsFuJld26jGfBSFHQbOUeXSJBhFMAgiDF8+x1EwEp87ZDIlO1XuuriCAmbA3ZGEzc+9qvfQDGZPKFu+2Tt8/oEeGPzbI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770331802; c=relaxed/simple;
+	bh=YOPGTx/uNoRGPiTuKSAmlmtOdQ94Syqiy9VQuyFLLX4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=avLc9YCY46omRENo2xczxDt9p0Y1Av3SFos9zlgdJc+b459OnJSUETFaLmvQIoH0IXw1SCI9LOtvn6zu/Ud8mtZIYnHudd4ivHJriymD1xQjAHohsvHkjjWaf2qDYWpy1YULHrUIiINCwghNNk4WQ1njTWZ2AHmk74VwNOVpVW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I/SR602y; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ugkmPPz1"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=FzU/zgH6vNo+83UbrWKDuUBVLlkPjp7GDbbNYEyg9XRrPizCJC0hT34dWHu23UjGZnt8tTlE5K+wGofa/25qoFVJUeSkmMygegOHhcGoylFi+tU9gXJqK4eSPtK71ZBCgD4gQhVRKQIo48dYwJBs9LI90I8ePRSKItYFxEQL9JHtqlWb73/Hsj4Ff7Vnafqk9M0yqfjvjNNVq9ctM2ntKoGXKImD2jrMD8A7FNOM3U/SPWZ7nXFf/2E/NsYJUAhducBB7tXi5XT1xlJSq9CLr0YunvMqgp+GoAhpMyD+aFl/CL1peWMQxWGUGsZrzrulOtIlc9Afqei57Fb8oKQeSA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ohwOjv+NSzMEm5Bz4uQz2APcJHHvtzWsrGQBotNnWkk=;
- b=qLo3PUm6y1szKz7BIJL8UOAuEuZbZAgrTOTq+m4cyZxaOYSmNP5iXRBe07ayk37vgpKmiXSMfcN4GWdrizfdTnPDXLp7YIt8nb2QKqYIkpEi0uTslxg1f6+1v6bW/Voa/MxKa3Vcyx1RUDoCyIG+Uus6i/0yTYyvS5tqhofmGDk2JsWJgBP/FdhfSrhvRvqlLo1NP2MeUC6JbjmawnkJbTasoDZDZuhPD4TE0bvDglI61FTVHFYTb+LUsUCy52aCoXH9k5YI07XC9qbeUsqOyIv6k58uDYm18jc2UH1D3HE3kOmYWHHrdG24eajBCFhzngwzmGUNPLjFnBhOIfmzqw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.233) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ohwOjv+NSzMEm5Bz4uQz2APcJHHvtzWsrGQBotNnWkk=;
- b=ugkmPPz1RO5XjiBbYEyJ5SNMUsELoLHGncTHJ2dHvYfnsZIHud1fiSs4ccvsvOVDfeJeuQMze+oy2cWGDEI0XI1QBk9q9BF6oDByBL9E+nSdByklhoyUdsIvLWx0L6LuPWEY5Bodde2vUqVq/Q8P4hpn2uhF9KoMZG2r838pTyKSU9YLtCDnS13CoygMNXGXa24iZGLRxro4yyl+lA0PaYXQ5ttVgKpNO8atyUR6+TFVPXRm/kk2BoGWM/Js4kxa9frrZGzG2JOFI/7sdtvdEl1uqwFVmvmtv79Qo0OEJLYGi0UQ4FYwqLfI2MKe9IayYUAk4svE3CCI1Q6T/qMl+w==
-Received: from SJ0PR03CA0285.namprd03.prod.outlook.com (2603:10b6:a03:39e::20)
- by DS0PR12MB7852.namprd12.prod.outlook.com (2603:10b6:8:147::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9587.12; Thu, 5 Feb
- 2026 22:47:48 +0000
-Received: from SJ1PEPF00001CE6.namprd03.prod.outlook.com
- (2603:10b6:a03:39e:cafe::e) by SJ0PR03CA0285.outlook.office365.com
- (2603:10b6:a03:39e::20) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9564.16 via Frontend Transport; Thu,
- 5 Feb 2026 22:47:48 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.233) by
- SJ1PEPF00001CE6.mail.protection.outlook.com (10.167.242.22) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9587.10 via Frontend Transport; Thu, 5 Feb 2026 22:47:48 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
- (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Thu, 5 Feb
- 2026 14:47:33 -0800
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.20; Thu, 5 Feb 2026 14:47:33 -0800
-Received: from vdi.nvidia.com (10.127.8.14) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server id 15.2.2562.20 via Frontend
- Transport; Thu, 5 Feb 2026 14:47:31 -0800
-From: Daniel Jurgens <danielj@nvidia.com>
-To: <netdev@vger.kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
-	<pabeni@redhat.com>
-CC: <virtualization@lists.linux.dev>, <parav@nvidia.com>,
-	<shshitrit@nvidia.com>, <yohadt@nvidia.com>, <xuanzhuo@linux.alibaba.com>,
-	<eperezma@redhat.com>, <jgg@ziepe.ca>, <kevin.tian@intel.com>,
-	<kuba@kernel.org>, <andrew+netdev@lunn.ch>, <edumazet@google.com>, "Daniel
- Jurgens" <danielj@nvidia.com>
-Subject: [PATCH net-next v20 12/12] virtio_net: Add get ethtool flow rules ops
-Date: Thu, 5 Feb 2026 16:47:07 -0600
-Message-ID: <20260205224707.16995-13-danielj@nvidia.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260205224707.16995-1-danielj@nvidia.com>
-References: <20260205224707.16995-1-danielj@nvidia.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I/SR602y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FD4CC4CEF7;
+	Thu,  5 Feb 2026 22:49:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770331801;
+	bh=YOPGTx/uNoRGPiTuKSAmlmtOdQ94Syqiy9VQuyFLLX4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=I/SR602yFdV2tzlaJOUFUht6cqmXFbDlNvkdpb8TiBZLqYQtp9nr9sR9trhMk9dFs
+	 uiy5i4ApupvlkMfhZIp6wryR73H+/vV/1JvDQBlQn2TruL+9EZ9lj9dPVV9WmdqyW9
+	 qUabqRNLGg6XhymBVYvETuIGbydf3vqDvcGre4MuuTn46kmJRFLPcvCiixzq6V/nI0
+	 PZ7L+roqY1Z7YgXnngGxQbQYFDDcTIFPsW3CW2yska+ACb5kqVviK+RJQBQhth5uVk
+	 YicdSNkZhtDzkupG4V7xrRO+KKNmWZGjxnaHzyMCjN5rJT+fsfHc7/WiL4GEkZCoc9
+	 xsTai+DaQFGXg==
+Message-ID: <bc489455-bb18-44dc-8518-ae75abda6bec@kernel.org>
+Date: Thu, 5 Feb 2026 23:49:48 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 0/3] targeted TLB sync IPIs for lockless page table
+To: Dave Hansen <dave.hansen@intel.com>, Matthew Wilcox
+ <willy@infradead.org>, Lance Yang <lance.yang@linux.dev>
+Cc: Peter Zijlstra <peterz@infradead.org>, Liam.Howlett@oracle.com,
+ akpm@linux-foundation.org, aneesh.kumar@kernel.org, arnd@arndb.de,
+ baohua@kernel.org, baolin.wang@linux.alibaba.com,
+ boris.ostrovsky@oracle.com, bp@alien8.de, dave.hansen@linux.intel.com,
+ dev.jain@arm.com, hpa@zytor.com, hughd@google.com, ioworker0@gmail.com,
+ jannh@google.com, jgross@suse.com, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, lorenzo.stoakes@oracle.com, mingo@redhat.com,
+ npache@redhat.com, npiggin@gmail.com, pbonzini@redhat.com, riel@surriel.com,
+ ryan.roberts@arm.com, seanjc@google.com, shy828301@gmail.com,
+ tglx@linutronix.de, virtualization@lists.linux.dev, will@kernel.org,
+ x86@kernel.org, ypodemsk@redhat.com, ziy@nvidia.com
+References: <20260202133713.GF1395266@noisy.programming.kicks-ass.net>
+ <540adec9-c483-460a-a682-f2076cf015c2@linux.dev>
+ <20260202150957.GD1282955@noisy.programming.kicks-ass.net>
+ <d6944cd8-d3b7-4b16-ab52-a61e7dc2221c@linux.dev>
+ <06d48a52-e4ec-47cd-b3fb-0fccd4dc49f4@kernel.org>
+ <3026ad8d-92ad-4683-8c3e-733d4070d033@linux.dev>
+ <64f3a75a-30ff-4bee-833c-be5dba05f72b@intel.com>
+ <c985a8ed-37ad-415e-b7b4-18a66b4da3fe@linux.dev>
+ <647cbe2e-a034-4a75-9492-21ea1708eccc@intel.com>
+ <99237729-f2b0-4a7a-8213-65a2f1c57744@linux.dev>
+ <aYTJzft5cuqD9akC@casper.infradead.org>
+ <6a364356-5fea-4a6c-b959-ba3b22ce9c88@kernel.org>
+ <dfdfeac9-5cd5-46fc-a5c1-9ccf9bd3502a@intel.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <dfdfeac9-5cd5-46fc-a5c1-9ccf9bd3502a@intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ1PEPF00001CE6:EE_|DS0PR12MB7852:EE_
-X-MS-Office365-Filtering-Correlation-Id: 647ce77d-1d17-4b82-467a-08de65089601
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|82310400026|1800799024|7416014|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?KNn/G0lAWttOiLjll2+ItJC2jHxRtA8IsYAeH4Db2QUdZU/i1YJ2R3N7r8Dp?=
- =?us-ascii?Q?wd2FJ5UI2bSOgYPSPyzNy34aPTSAdUbN5kZ+rgTKJC1z5bSdNL5HEYVeWiSN?=
- =?us-ascii?Q?OGE+ZXKxzB/anLW6S9/IKELywQIoWgKkEuCu4PwVJ0wegME5THu1WpruEcNO?=
- =?us-ascii?Q?iNgjkjFLRbzc1HlZFS9OTAAJasAo/MpczhNPMi/wYkKgpcupxNRB1pZnU9Bt?=
- =?us-ascii?Q?eeU7bQH40Mu+SxlwW52Ay9PypxPtK1h+1NxnDpXmdI0ZLudPHlO71CxoRf1A?=
- =?us-ascii?Q?nYozN3y87FS1TxAz8/DoHOi0xWff8uLfRnBkF0LTU/+T+kvsRQYPIe4JrQpy?=
- =?us-ascii?Q?OmSNVfL3L/AykUSPHxQoB1Q6gfd3ipxkR/dZ8N0V5o8ZH7QQb2qFqHkKu0+V?=
- =?us-ascii?Q?LsBDq5I7VbF4dM9e9LoDL4XMlr7G7x+oP0CE3OebLrzIsBjKjuJG4rq7gsZM?=
- =?us-ascii?Q?vff8ad5FB3qnfE6s4spB3orwMs5GwVcbk/Dwl45Ok9mM8AEMfNA/pRYzRStF?=
- =?us-ascii?Q?0zFmn2sqZNff/dzsoy75q9GQ6OvQvfTZ1+9cx2FuKZ3PhHmoHHZ/NcAhTOh+?=
- =?us-ascii?Q?niNgmlna4rerd0mhf+hOLFC8RSjrwwCZjm1sxxJ7jVq+DXWb/ME1gzMysQ+q?=
- =?us-ascii?Q?Z4ohH39LRco43Eik8+nDTEmqdEQw4ihZKV5ruyAlwKFU1zThw7jX7H79WaeX?=
- =?us-ascii?Q?LBjXYDvwcpZ6CIg527uzc/idBhmdo01JnsFPytjgNu8R9m5vYj9KjBt0HY92?=
- =?us-ascii?Q?OEfy7iNYOPqNAxJsDAotjpEslTzXJ7d8+eFPlu36I3Y/jAzkvoQfmEx5RkM7?=
- =?us-ascii?Q?0w/dw92dkVSCSlr7NEfd4dUZ94LnYzIEvAR15AS/Jifj9V519uYfvFFEwXsX?=
- =?us-ascii?Q?0iWsJu6lYJwzi+lm7ylxCPihqBr62aGGkbIcGNkQ3ZmnV0j6MV1jEVJV1yKH?=
- =?us-ascii?Q?3NyF9c6IE0cwZLH+fq5kLTdIOkUY3LLgkFKiJzbSrHsYc/zUE9R0mTLy1oyl?=
- =?us-ascii?Q?QL2e/87JWp+byk80XcdouUX4PsNRXfbnnX3GuPncRqDdq68BlAjTR7d/LtdO?=
- =?us-ascii?Q?YLv2Ui1LfLgK/UsGBBwG10q1UN55F5bJXxnbpQDK5I1ShlUGgZ0KzHv/I/JW?=
- =?us-ascii?Q?+L5p4kLVSPFqvFaaobft4kYv43MCzGwNX/HTA4iYGb+FB1VbzOWXpGAm849H?=
- =?us-ascii?Q?mo7kAzIi9nN/yDwij7UYIi6M2hH/o3N7InZ+naWDyLTEsXqZSF5TKouQyTf3?=
- =?us-ascii?Q?K4yJFnH6EJnDf6+2Si7Kg+ozoYN6yXBOW0pG37zJ9dRNeSyGfqcOrV34XGrs?=
- =?us-ascii?Q?k4evCjQ/vmSJ2+9Ozma2wElml9aWKtlhZlukZ1gdwSDfOIgTqvdbDhSoA5uh?=
- =?us-ascii?Q?EVXnKsvvLBOTIq7+ch31mPNhgYCG2L0XsBsEgo/aXQ6TqHo4McWPxCWH37xX?=
- =?us-ascii?Q?kXz2Y/FEDyayEfj+wyX2zCDwZDCJDUfMlIspIeSwf0KlixcWHZak+IV1byrc?=
- =?us-ascii?Q?10aBgvYimCyqDnCW2KqbmS4rNH218A6qP9o/rENy77S3s0oIy8o8EQYx+IqP?=
- =?us-ascii?Q?nIZWdDffKQfGhruugrbhKfme8KAnYKN6E/4vj+Ong8Z6jZrPUX1xNeaJ5ui3?=
- =?us-ascii?Q?j0nEUWhxwjrTrwETcm3HUi8AVMpQXUzqiYk0pDXnHFUNvJmjYTs/l85RKJHP?=
- =?us-ascii?Q?BUSrTw=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	2t2Sbvc80WoPp40xgJFBhd7nmX3uqXTztqdSm8CvUrWdjuMlpwv16Gx/6xajPhvA36OGuLdsmsYaKC2kJM+Zzcnt/N3tdlvuif2Nhmhd2AHMeD80r8vFCO6PL45ROlKipxcWqwmPjPqi/a9oozNPp1ldYRz/UdN0pUASWYujVEAd9JNcy1pBXlmC1NPeBiljh+777dWsMVQiQhBTwFHVHSHRFlXX9M7aFyDZLylaMGKmZr/CZDsrg4Q0+TkVjMdTJFmN8uRVox5NeZT2keN/4vSMCXWi+HudGGAKxlEgpy7LwXNhL2yxjrWjgcpIcSGh66iglf1/IwXw0NjGApUGX8lu/Ol/h/I+pFA9hVFcWzqEPsW9mKUvVErvL0VOtST4LkZY/qARX3CfFDY5CLwPA61/Sg+ZLgjjO7j1Zj8pXHLt8g7Wf3oRaN91buYqnDv1
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Feb 2026 22:47:48.3732
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 647ce77d-1d17-4b82-467a-08de65089601
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SJ1PEPF00001CE6.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7852
 
-- Get total number of rules. There's no user interface for this. It is
-  used to allocate an appropriately sized buffer for getting all the
-  rules.
+On 2/5/26 19:36, Dave Hansen wrote:
+> On 2/5/26 09:06, David Hildenbrand (Arm) wrote:
+>>> But can't we RCU-free the page table?  Why do we need to wait for the
+>>> RCU readers to finish?
+>>
+>> For unsharing hugetlb PMD tables the problem is not the freeing but the
+>> reuse of the PMD table for other purposes in the last remaining user.
+>> It's complicated.
+> 
+> Letting the previously-shared table get released to everything else in
+> the system sounds like a fixable problem. tlb_flush_unshared_tables()
+> talks about this, and it makes sense that once locks get dropped that
+> something else could get mapped in and start using the PMD.
 
-- Get specific rule
-$ ethtool -u ens9 rule 0
-	Filter: 0
-		Rule Type: UDP over IPv4
-		Src IP addr: 0.0.0.0 mask: 255.255.255.255
-		Dest IP addr: 192.168.5.2 mask: 0.0.0.0
-		TOS: 0x0 mask: 0xff
-		Src port: 0 mask: 0xffff
-		Dest port: 4321 mask: 0x0
-		Action: Direct to queue 16
+Yeah, I tried to document that carefully.
 
-- Get all rules:
-$ ethtool -u ens9
-31 RX rings available
-Total 2 rules
+> 
+> The RCU way of fixing that would be to allocate new page table, replace
+> the old one, and RCU-free the old one. Read, Copy, Update. :)
+> 
+> It does temporarily eat up an extra page, and cost an extra copy. But
+> neither of those seems expensive compared to IPI'ing the world.
 
-Filter: 0
-        Rule Type: UDP over IPv4
-        Src IP addr: 0.0.0.0 mask: 255.255.255.255
-        Dest IP addr: 192.168.5.2 mask: 0.0.0.0
-...
+I played with many such ideas, including never reusing a page table 
+again once it was once shared. All turned out rather horrible.
 
-Filter: 1
-        Flow Type: Raw Ethernet
-        Src MAC addr: 00:00:00:00:00:00 mask: FF:FF:FF:FF:FF:FF
-        Dest MAC addr: 08:11:22:33:44:54 mask: 00:00:00:00:00:00
+RCU-way: replacing a shared page table involves updating all processes 
+that share the page table :/ . I think another issue I stumbled into 
+while trying to implement was around failing to allocate memory (but 
+being required to make progress). It all turned to quite some complexity 
+and inefficiency, so I had to give up on that. :)
 
-Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-Reviewed-by: Parav Pandit <parav@nvidia.com>
-Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
-v4: Answered questions about rules_limit overflow with no changes.
+> 
+>> For page table freeing, we only do it if we fail to allocate memory --
+>> if we cannot use RCU IIRC.
+> 
+> But that case is fine to be slow and use synchronize_rcu(). If you're
+> failing to allocate a single page, you're in a way slow path anyway.
+That's true. We could likely do that already and avoid the IPI broadcast 
+there that was once reported to be a problem for RT applications.
 
-v12:
-  - Use and set rule_cnt in virtnet_ethtool_get_all_flows. MST
-  - Leave rc uninitiazed at the top of virtnet_get_rxnfc. MST
----
----
- drivers/net/virtio_net.c | 82 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 82 insertions(+)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 155f0ceab006..24e586ff6b14 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -313,6 +313,13 @@ static int virtnet_ethtool_flow_insert(struct virtnet_ff *ff,
- 				       struct ethtool_rx_flow_spec *fs,
- 				       u16 curr_queue_pairs);
- static int virtnet_ethtool_flow_remove(struct virtnet_ff *ff, int location);
-+static int virtnet_ethtool_get_flow_count(struct virtnet_ff *ff,
-+					  struct ethtool_rxnfc *info);
-+static int virtnet_ethtool_get_flow(struct virtnet_ff *ff,
-+				    struct ethtool_rxnfc *info);
-+static int
-+virtnet_ethtool_get_all_flows(struct virtnet_ff *ff,
-+			      struct ethtool_rxnfc *info, u32 *rule_locs);
- 
- #define VIRTNET_Q_TYPE_RX 0
- #define VIRTNET_Q_TYPE_TX 1
-@@ -5596,6 +5603,28 @@ static u32 virtnet_get_rx_ring_count(struct net_device *dev)
- 	return vi->curr_queue_pairs;
- }
- 
-+static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info, u32 *rule_locs)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	int rc;
-+
-+	switch (info->cmd) {
-+	case ETHTOOL_GRXCLSRLCNT:
-+		rc = virtnet_ethtool_get_flow_count(&vi->ff, info);
-+		break;
-+	case ETHTOOL_GRXCLSRULE:
-+		rc = virtnet_ethtool_get_flow(&vi->ff, info);
-+		break;
-+	case ETHTOOL_GRXCLSRLALL:
-+		rc = virtnet_ethtool_get_all_flows(&vi->ff, info, rule_locs);
-+		break;
-+	default:
-+		rc = -EOPNOTSUPP;
-+	}
-+
-+	return rc;
-+}
-+
- static int virtnet_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
-@@ -5637,6 +5666,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_rxfh_fields = virtnet_get_hashflow,
- 	.set_rxfh_fields = virtnet_set_hashflow,
- 	.get_rx_ring_count = virtnet_get_rx_ring_count,
-+	.get_rxnfc = virtnet_get_rxnfc,
- 	.set_rxnfc = virtnet_set_rxnfc,
- };
- 
-@@ -6568,6 +6598,58 @@ static int virtnet_ethtool_flow_remove(struct virtnet_ff *ff, int location)
- 	return err;
- }
- 
-+static int virtnet_ethtool_get_flow_count(struct virtnet_ff *ff,
-+					  struct ethtool_rxnfc *info)
-+{
-+	if (!ff->ff_supported)
-+		return -EOPNOTSUPP;
-+
-+	info->rule_cnt = ff->ethtool.num_rules;
-+	info->data = le32_to_cpu(ff->ff_caps->rules_limit) | RX_CLS_LOC_SPECIAL;
-+
-+	return 0;
-+}
-+
-+static int virtnet_ethtool_get_flow(struct virtnet_ff *ff,
-+				    struct ethtool_rxnfc *info)
-+{
-+	struct virtnet_ethtool_rule *eth_rule;
-+
-+	if (!ff->ff_supported)
-+		return -EOPNOTSUPP;
-+
-+	eth_rule = xa_load(&ff->ethtool.rules, info->fs.location);
-+	if (!eth_rule)
-+		return -ENOENT;
-+
-+	info->fs = eth_rule->flow_spec;
-+
-+	return 0;
-+}
-+
-+static int
-+virtnet_ethtool_get_all_flows(struct virtnet_ff *ff,
-+			      struct ethtool_rxnfc *info, u32 *rule_locs)
-+{
-+	struct virtnet_ethtool_rule *eth_rule;
-+	unsigned long i = 0;
-+	int idx = 0;
-+
-+	if (!ff->ff_supported)
-+		return -EOPNOTSUPP;
-+
-+	xa_for_each(&ff->ethtool.rules, i, eth_rule) {
-+		if (idx == info->rule_cnt)
-+			return -EMSGSIZE;
-+		rule_locs[idx++] = i;
-+	}
-+
-+	info->data = le32_to_cpu(ff->ff_caps->rules_limit);
-+	info->rule_cnt = idx;
-+
-+	return 0;
-+}
-+
- static size_t get_mask_size(u16 type)
- {
- 	switch (type) {
 -- 
-2.50.1
+Cheers,
 
+David
