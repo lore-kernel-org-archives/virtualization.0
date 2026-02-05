@@ -1,356 +1,123 @@
-Received: from mail2.anonaddy.me (mail2.anonaddy.me [185.70.196.149])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2A39355049
-	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 08:18:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.196.149
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1230635E534;
+	Thu,  5 Feb 2026 09:09:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770279506; cv=none; b=eztqXPFukXihZyX76PBiIhYVL/yEk20I312iM/eZiSYSh/GYnkkCDbaeucYnfn+YcdakCZqFjFH9x8lCgWEpPgmCqgoA5DBeseAIfMQdEyfEZRYTTiZydWzCfrS2eEm2lNowB5MToITbazMGwFYj5yNeFhsIA2A6WVJc1+j9oiw=
+	t=1770282583; cv=none; b=QOAUDSPE2vsHZ7SSEp4hXfMGhuNNy50LGOhHfcVhSmh7OwQDLo5CcUHG86lYDNavazBbNYceL7v0HTIVkVioa5p87Nxj021QuG+dzGfREyTqj4j5J+fieZrZItwaTYVWb6f0tfM4kpYeSV6csg2raeY2bAwRHlujyZB48Vq99s0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770279506; c=relaxed/simple;
-	bh=voxuiANRapyhEKlWRapxmS3AbzE9OhdbsL3mO57YfYc=;
-	h=From:To:Subject:Message-ID:MIME-Version:Date:Content-Type; b=NtQ07viyfPCBkvGvGSG7NN84U9V8CXKDws4aYMCQVRMV7wEtmRT+utyESYc8ReFhDIpZJmg5rbaTxJn0bww0vfS7YjX+pVXw8AXlZJKf3KjeEes+BzMwwcSJ72D6bDc/piUI9h3VYWjxN3Yo4Lg100H7xZirZvU/ltTQp+k2i4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=anonaddy.me; spf=pass smtp.mailfrom=anonaddy.me; dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b=SOMqlCC8; arc=none smtp.client-ip=185.70.196.149
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=anonaddy.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=anonaddy.me
+	s=arc-20240116; t=1770282583; c=relaxed/simple;
+	bh=zl4sbHSqQvdTaC6HnQvBhEdXXeHWBp1tuYx5j590apM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PlhgNj+n6y6eTGzFhkgXgR2WubeEsDGv0SoYo5Zso0+uF8i8nXtyEPAf4VC51bbCWWw4vVCi0cxO6zOGPC8w9BGmBGBXbfeGnfmfIuNF/F7gwYQ1Z1mH8fX781Guaig13SdKgyjO0adLceo7EoqiN8Cmib9/vie0RngFjX+sOjA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t3Do5o/M; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b="SOMqlCC8"
-Received: from mail2.anonaddy.me (mail2.anonaddy.me [127.0.0.1])
-	by mail2.anonaddy.me (Postfix) with ESMTPS id E6C63FA0B4
-	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 08:18:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anonaddy.me; s=default2;
-	t=1770279503;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=voxuiANRapyhEKlWRapxmS3AbzE9OhdbsL3mO57YfYc=;
-	b=SOMqlCC85/jXL2NvGJmhk5vQ42ssC1lSTyqyeXJZAY9OCMJsGtpJxtXLRQ26IBq7y4zG4N
-	H4NUiZNSqoM6S7Gq+ZyYbTOXAtRqbineHaNymIUq6HMh72s7NGoVTwaTmILqUqLQnr1TMI
-	oof/Q8HOA6vaMu2jYnPmFyOkficQETZQtXBzwsFJwkbo3lzO78LR5SMmOvu7eYkB5ppplN
-	dZgDAC9CXTvqGKPoryGTreD69WPqq6CUVfIHJR6CF3YRKoboOiU6KWD0C3odPZ8WaNBxDU
-	MiM5rfApgLOTFrOiBmqC0naD2xW+MYctjQHNadoD7kG6+JaXFC6igL/y80bgcQ==
-From: agpn1b92@anonaddy.me
-To: netdev@vger.kernel.org, virtualization@lists.linux.dev,
- sgarzare@redhat.com
-Subject: [BUG] vsock: poll() not waking on data arrival, causing
- multi-second SSH delays
-Feedback-ID: S:d17f588e-5717-4190-ab1e-7db474f4dce6:anonaddy
-Message-ID: <f3de4a40626d533d6f28a21e73efc9d3@anonaddy.me>
-X-Complaints-To: abuse@help.addy.io
-X-Report-Abuse: abuse@help.addy.io
-X-Report-Abuse-To: abuse@help.addy.io
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t3Do5o/M"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32E74C4CEF7;
+	Thu,  5 Feb 2026 09:09:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770282582;
+	bh=zl4sbHSqQvdTaC6HnQvBhEdXXeHWBp1tuYx5j590apM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=t3Do5o/MafD9ehMBYLDcL6lkwnhLhq7e7CmVmXfx/72tZJIqUv0eb4X4EeXtXm6vR
+	 RW63+1NuIBUrTq/eu2tKZJX7YOLZ4jCHshKJiDziCMI7d2kSZoMljOFXHIhL8er+PL
+	 W0NP4t1bUDCB0r4tjLPDezoShXIZBslt6MlSwgXiNS/TfvuBrka/LlOGHMCiUg0J9B
+	 I9/4K4mDBsgkY5QtcDjK1pxQyBBpl88WhiQ93+9sO1V7VsPbg0yxw4A8X9M0dD8+E7
+	 ny/rIA++tFugaFGRpyADPPMod8asmBnydKD5SndU2jZkxE+f+ci7rQ0voN9C2YD9CD
+	 IoEXJlcdZHU+A==
+Date: Thu, 5 Feb 2026 10:09:40 +0100
+From: Maxime Ripard <mripard@kernel.org>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Leon Romanovsky <leon@kernel.org>, 
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, Sumit Semwal <sumit.semwal@linaro.org>, 
+	Alex Deucher <alexander.deucher@amd.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>, Gurchetan Singh <gurchetansingh@chromium.org>, 
+	Chia-I Wu <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Lucas De Marchi <lucas.demarchi@intel.com>, 
+	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
+	Robin Murphy <robin.murphy@arm.com>, Felix Kuehling <Felix.Kuehling@amd.com>, 
+	Alex Williamson <alex@shazbot.org>, Ankit Agrawal <ankita@nvidia.com>, 
+	Vivek Kasireddy <vivek.kasireddy@intel.com>, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
+	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org, 
+	iommu@lists.linux.dev, kvm@vger.kernel.org
+Subject: Re: [PATCH v7 0/8] dma-buf: Use revoke mechanism to invalidate
+ shared buffers
+Message-ID: <20260205-nocturnal-poetic-chamois-f566ad@houat>
+References: <20260131-dmabuf-revoke-v7-0-463d956bd527@nvidia.com>
+ <20260202160425.GO34749@unreal>
+ <20260204081630.GA6771@unreal>
+ <20260204-icy-classic-crayfish-68da6d@houat>
+ <20260204115212.GG6771@unreal>
+ <20260204-clever-butterfly-of-mastery-0cdc19@houat>
+ <20260204121354.GH6771@unreal>
+ <20260204-bloodhound-of-major-realization-9852ab@houat>
+ <20260204135657.GE2328995@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Thu, 05 Feb 2026 08:18:23 +0000
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha384;
+	protocol="application/pgp-signature"; boundary="tnyg2jepdblvcibb"
+Content-Disposition: inline
+In-Reply-To: <20260204135657.GE2328995@ziepe.ca>
+
+
+--tnyg2jepdblvcibb
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v7 0/8] dma-buf: Use revoke mechanism to invalidate
+ shared buffers
+MIME-Version: 1.0
 
-Hi,
+On Wed, Feb 04, 2026 at 09:56:57AM -0400, Jason Gunthorpe wrote:
+> On Wed, Feb 04, 2026 at 02:44:42PM +0100, Maxime Ripard wrote:
+> > > From what I have seen, subsystems such as netdev, the block layer, an=
+d RDMA continue
+> > > to accept code that is ready for merging, especially when it has been=
+ thoroughly
+> > > reviewed by multiple maintainers across different subsystems.
+> >=20
+> > He said it multiple times, but here's one of such examples:
+> >=20
+> > https://lore.kernel.org/all/CA+55aFwdd30eBsnMLB=3DncExY0-P=3DeAsxkn_O6i=
+r10JUyVSYdhA@mail.gmail.com/
+>=20
+> Woah, nobody is saying to skip linux-next. It is Wednesday, if it
+> lands in the public tree today it will be in linux next probably for a
+> week before a PR is sent. This is a fairly normal thing for many trees
+> in Linux.
+>=20
+> Linus is specifically complaining about people *entirely* skipping
+> linux-next.
+>=20
+> > So, yeah, we can make exceptions. But you should ask and justify for
+> > one, instead of expecting us to pick up a patch submission that was
+> > already late.
+>=20
+> I think Leon is only pointing out that a hard cut off two weeks before
+> the merge window even opens is a DRMism, not a kernel wide convention.
 
-I'm experiencing a bug where SSH sessions over vsock take 2-20+ se=
-conds
-to establish due to poll() not signaling POLLIN when data is availa=
-ble.
-The bug does NOT occur on the first connection after VM boot, but af=
-fects
-all subsequent connections.
+arm-soc has had the same kind of rule since pretty much forever too.
 
-* Summary
+Maxime
 
-- vsock poll() fail=
-s to return POLLIN when data is in the receive buffer
-- sshd-session's pp=
-oll() times out every ~20ms instead of waking on data
-- First SSH connect=
-ion after guest boot works instantly
-- All subsequent connections experie=
-nce 2-20+ second delays
-- Non-PTY commands (ssh -T ... 'echo test') work =
-instantly
-- TCP connections to the same VM work instantly
+--tnyg2jepdblvcibb
+Content-Type: application/pgp-signature; name="signature.asc"
 
-* Environm=
-ent
+-----BEGIN PGP SIGNATURE-----
 
-Host:
-- OS: Arch Linux
-- Kernel: 6.18.2-arch2-1
-- QEMU: syst=
-em package (latest)
+iJUEABMJAB0WIQTkHFbLp4ejekA/qfgnX84Zoj2+dgUCaYReTwAKCRAnX84Zoj2+
+dplgAX9hHIFQbqLK+fxvL0TIdlxKHnC96b/mM0HwLMbHd0IAQvPbbGrZJ2/A2X06
+zK51PYIBgNEjofrl7KBPxkMocbEwYn4jvc85iFf17a3flZDzCXRl//ksV9ObDYVt
+vXboJHIz/Q==
+=MSKg
+-----END PGP SIGNATURE-----
 
-Guest:
-- OS: Debian trixie
-- Kernel: 6.17.13+d=
-eb13-amd64 (also tested on 6.12.57, same issue)
-- OpenSSH: 10.0p2
-
-QE=
-MU command (relevant parts):
- =C2=A0 qemu-system-x86_64 -enable-kvm -smp =
-8 \
- =C2=A0 =C2=A0 -object memory-backend-memfd,id=3Dmem,size=3D20G,share=
-=3Don \
- =C2=A0 =C2=A0 -machine memory-backend=3Dmem \
- =C2=A0 =C2=
-=A0 -device vhost-vsock-pci,guest-cid=3D5 \
- =C2=A0 =C2=A0 ...
-
-Conne=
-ction method: ssh user@vsock/5 (via systemd-ssh-proxy)
-
-* Symptoms
-=
-
-Interactive SSH (PTY) - SLOW:
- =C2=A0 $ time ssh user@vsock/5
- =
-=C2=A0 # Takes 2-20+ seconds before shell prompt appears
-
-Non-interacti=
-ve SSH - FAST:
- =C2=A0 $ time ssh user@vsock/5 'echo test'
- =C2=A0 test=
-
- =C2=A0 real=C2=A0 =C2=A0 0m0.156s
-
-TCP to same VM - FAST:
- =C2=
-=A0 $ time ssh -p 33594 user@127.0.0.1
- =C2=A0 # Instant
-
-* Key obser=
-vation: First connection after boot is fast
-
-After guest reboot:
- =
-=C2=A0 $ ssh user@vsock/5=C2=A0 =C2=A0 =C2=A0 # INSTANT (< 1 second)
- =
-=C2=A0 $ exit
- =C2=A0 $ ssh user@vsock/5=C2=A0 =C2=A0 =C2=A0 # SLOW (2-20=
- seconds)
- =C2=A0 $ ssh user@vsock/5=C2=A0 =C2=A0 =C2=A0 # SLOW
- =C2=
-=A0 ...
-
-This suggests the bug involves state that accumulates or isn't=
- properly
-cleaned up between connections.
-
-** bpftrace evidence
-
-=
-Using syscall tracepoints on guest during slow connection:
-
- =C2=A0 =3D=
-=3D=3D MINIMAL VSOCK DIAGNOSTIC =3D=3D=3D
- =C2=A0 [=C2=A0 =C2=A029 ms] ss=
-hd-session: ppoll() duration=3D19 ms ret=3D1
- =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0^^^ 20ms TIMEOUT pattern detected!
- =C2=A0 [=
-=C2=A0 =C2=A050 ms] sshd-session: ppoll() duration=3D20 ms ret=3D1
- =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0^^^ 20ms TIMEOUT pattern de=
-tected!
- =C2=A0 [=C2=A0 =C2=A070 ms] sshd-session: ppoll() duration=3D18 =
-ms ret=3D1
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0^^^ 20ms TIME=
-OUT pattern detected!
- =C2=A0 ... (continues for ~2 seconds) ...
-
- =
-=C2=A0 [ 5000 ms] --- 5s stats: ppoll=3D455, timeouts=3D103, recv=3D0 (0 by=
-tes) ---
-
- =C2=A0 [19432 ms] sshd: recvmsg() =3D 308 bytes [4 =C2=B5s]=
-
- =C2=A0 [19442 ms] sshd-session: recvmsg() =3D 308 bytes [4 =C2=B5s]
-=
-
-Pattern analysis:
-- ppoll() returns ret=3D1 (1 fd ready) but takes exa=
-ctly ~20ms (timeout)
-- The ready fd is the PTY, NOT the vsock socket
-- =
-recv=3D0 during the timeout phase: vsock data not being read
-- recvmsg() =
-finally succeeds after ~19 seconds
-- When recvmsg() runs, it completes in=
- 4 microseconds (data WAS there)
-
-This proves: data is sitting in the v=
-sock receive buffer, but poll()
-is not returning POLLIN, so sshd doesn't =
-know to read it.
-
-* 30-second summary from bpftrace
-
- =C2=A0 Total =
-ppoll calls: 488
- =C2=A0 Timeouts (20ms pattern): 103
- =C2=A0 Successfu=
-l recvmsg: 6 (984 bytes)
- =C2=A0 Timeout rate: 21%
-
-* Why PTY-specifi=
-c?
-
-PTY sessions require bidirectional traffic:
-1. Server sends shell=
- prompt =E2=86=92 client must receive it
-2. Client sends keypress =
-=E2=86=92 server must receive it
-3. Server sends echo =E2=86=92 client mu=
-st receive it
-
-Each exchange relies on poll() waking on POLLIN. The bug=
- causes poll()
-to miss the wakeup, forcing sshd to wait for its 20ms time=
-out fallback.
-
-Non-PTY commands do request-response-exit quickly before=
- the bug
-manifests significantly.
-
-## Additional context
-
-I previ=
-ously encountered the identical issue on WSL2's Hyper-V vsock
-implementat=
-ion, suggesting this may be a fundamental issue with how
-vsock transports=
- handle poll/wakeup semantics, not specific to virtio.
-
-## Hypothesis=
-
-
-Based on the evidence, this appears to be a lost wakeup race conditio=
-n:
-1. Host sends packet to guest
-2. Packet is enqueued to socket's rx_q=
-ueue
-3. sk_data_ready() is called but poll waiters aren't properly woken=
-
-4. vsock_poll() returns 0 (no POLLIN) despite data being available
-5. =
-ppoll() times out after 20ms, sshd retries
-6. Eventually succeeds through=
- timeout-based retry
-
-The "first connection works" pattern suggests the=
- race involves
-existing state from previous connections - possibly worker=
- threads,
-interrupt handlers, or virtqueue state that isn't properly rese=
-t.
-
-## Reproducer
-
-1. Start QEMU VM with vhost-vsock-pci device
-2=
-. Boot guest, ensure sshd is running
-3. From host: ssh user@vsock/<CID>=
-=C2=A0 # First connection is fast
-4. Exit and reconnect: ssh user@vsock/<=
-CID>=C2=A0 # Now slow
-
-## Request
-
-Could someone familiar with the =
-vsock/virtio poll implementation
-review the wakeup path? Specifically:
-=
-- virtio_transport_recv_pkt() -> sk_data_ready() path
-- vsock_poll() -> p=
-oll_wait() registration timing
-- Any state that persists between connecti=
-ons
-
-Happy to provide additional traces or test patches.
-
-Thanks,=
-
-[Your Name]
-
----
-bpftrace script used (runs on guest):
-
-#!/usr=
-/bin/env bpftrace
-BEGIN {
- =C2=A0 =C2=A0 @start =3D nsecs;
- =C2=A0 =
-=C2=A0 printf("=3D=3D=3D MINIMAL VSOCK DIAGNOSTIC =3D=3D=3D\n");
-}
-trac=
-epoint:syscalls:sys_enter_ppoll {
- =C2=A0 =C2=A0 if (comm =3D=3D "sshd-se=
-ssion" || comm =3D=3D "sshd") {
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 @ppoll_enter=
-[tid] =3D nsecs;
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 @ppoll_count++;
- =C2=
-=A0 =C2=A0 }
-}
-tracepoint:syscalls:sys_exit_ppoll {
- =C2=A0 =C2=A0 if=
- (@ppoll_enter[tid]) {
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 $ms =3D (nsecs - @sta=
-rt) / 1000000;
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 $dur =3D (nsecs - @ppoll_ente=
-r[tid]) / 1000000;
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 if ($dur > 10) {
- =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 printf("[%5lld ms] %s: ppoll() du=
-ration=3D%lld ms ret=3D%d\n",
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0$ms, comm, $dur, args->ret);
- =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if ($dur >=3D 18 && $dur <=3D 25) {
- =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 printf("=C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0^^^ 20ms TIMEOUT pattern detected!\n");=
-
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 @timeout_count+=
-+;
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
- =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 }
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 delete(@ppoll_enter[tid]);
- =
-=C2=A0 =C2=A0 }
-}
-tracepoint:syscalls:sys_exit_recvmsg {
- =C2=A0 =
-=C2=A0 if (comm =3D=3D "sshd-session" || comm =3D=3D "sshd") {
- =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 if (args->ret > 0) {
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 $ms =3D (nsecs - @start) / 1000000;
- =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 printf("[%5lld ms] %s: recvmsg() =3D %lld bytes\n"=
-, $ms,=20
-comm, args->ret);
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 @r=
-ecv_count++;
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 @recv_bytes +=3D =
-args->ret;
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
- =C2=A0 =C2=A0 }
-}
-interv=
-al:s:5 {
- =C2=A0 =C2=A0 printf("\n[%5lld ms] --- 5s stats: ppoll=3D%d, ti=
-meouts=3D%d, recv=3D%d=20
-(%d bytes) ---\n\n",
- =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0(nsecs - @start) / 1000000, @ppoll_count, @timeout_coun=
-t,=20
-@recv_count, @recv_bytes);
-}
-
-
+--tnyg2jepdblvcibb--
