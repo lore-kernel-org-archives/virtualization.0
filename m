@@ -1,160 +1,255 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3A5133A03F;
-	Thu,  5 Feb 2026 22:50:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770331802; cv=none; b=QQxG/EoFXFzlEkEJY7CA8EWotb5cMPHLwLvAUIyRFJsVggNpPWgZQQPlfAooUtG9taaFunwRMM2JZIZpsFuJld26jGfBSFHQbOUeXSJBhFMAgiDF8+x1EwEp87ZDIlO1XuuriCAmbA3ZGEzc+9qvfQDGZPKFu+2Tt8/oEeGPzbI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770331802; c=relaxed/simple;
-	bh=YOPGTx/uNoRGPiTuKSAmlmtOdQ94Syqiy9VQuyFLLX4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=avLc9YCY46omRENo2xczxDt9p0Y1Av3SFos9zlgdJc+b459OnJSUETFaLmvQIoH0IXw1SCI9LOtvn6zu/Ud8mtZIYnHudd4ivHJriymD1xQjAHohsvHkjjWaf2qDYWpy1YULHrUIiINCwghNNk4WQ1njTWZ2AHmk74VwNOVpVW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I/SR602y; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34A0833C1AC
+	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 23:19:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770333554; cv=fail; b=mxs0QIvknebEd1/fdFWzfYctaMkPTbUq1XmVJZTGfkCxgDGuJSHsyWvDdwxkfBJXU92qNn0FR6Bv0GMINGpKWe98F92Siuk4sfoN2srIs2jOchdYNuBB02qegh9+2cQAV3czjpvTMSMXASXYiBRbOWnwZSHEYVDMjw8LxhBUfcQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770333554; c=relaxed/simple;
+	bh=MkXPYVSbwwCL8U4F4DhKWK/BELaYFx9XW3TfLne07fw=;
+	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=CnOJAWApkIYv2726UWYwaG4MwN1QlQ0N09r+KwshOgUET2RCtoCJP4GbSIIxYdPcs35Ctzw79qFk4y25CzVqpkFd4e8AtgDbyQbuxQ3gopzNieV6ZADE7nZgLgQtsRyBIqzUtkGKIGT9qCMjJSXarF5WTbzzA0X4wor+rndPOBU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VEo2yDa8; arc=fail smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I/SR602y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FD4CC4CEF7;
-	Thu,  5 Feb 2026 22:49:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770331801;
-	bh=YOPGTx/uNoRGPiTuKSAmlmtOdQ94Syqiy9VQuyFLLX4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=I/SR602yFdV2tzlaJOUFUht6cqmXFbDlNvkdpb8TiBZLqYQtp9nr9sR9trhMk9dFs
-	 uiy5i4ApupvlkMfhZIp6wryR73H+/vV/1JvDQBlQn2TruL+9EZ9lj9dPVV9WmdqyW9
-	 qUabqRNLGg6XhymBVYvETuIGbydf3vqDvcGre4MuuTn46kmJRFLPcvCiixzq6V/nI0
-	 PZ7L+roqY1Z7YgXnngGxQbQYFDDcTIFPsW3CW2yska+ACb5kqVviK+RJQBQhth5uVk
-	 YicdSNkZhtDzkupG4V7xrRO+KKNmWZGjxnaHzyMCjN5rJT+fsfHc7/WiL4GEkZCoc9
-	 xsTai+DaQFGXg==
-Message-ID: <bc489455-bb18-44dc-8518-ae75abda6bec@kernel.org>
-Date: Thu, 5 Feb 2026 23:49:48 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VEo2yDa8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1770333554; x=1801869554;
+  h=message-id:date:subject:to:cc:references:from:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=MkXPYVSbwwCL8U4F4DhKWK/BELaYFx9XW3TfLne07fw=;
+  b=VEo2yDa8dIPgkrwDaP9vnqhanp89d0bCImBNfYW6GbondU2eOdfAILxE
+   hF5iiuhHS3FIMWbUbqQ5j5PNYg0IUPQXBCiCWeY1fCrJYlwKxM8aea4qu
+   1N1r0nKRlLPyDssZW+EtxoYoyxExy7zCaQRNgQmjPqfmC89Q0uGnwx/Yw
+   z9hWoYhEs3pWwTOFXcupcSmoH/acR7og0+xbTIsVq/ykDlvGRtI4QIblu
+   eo7n/0wuSSLSLNmHQX3TPji8NWzPwVc9FfSH+UFQMB27ascq+V0cQcSEi
+   G4Pf5k5jIs9f8BmuuiFpZoEca5YNHKznPgNGFs3/1qQYypgPiHuVk1CIA
+   w==;
+X-CSE-ConnectionGUID: X8UnZn7uSj6px1bQq2UlQg==
+X-CSE-MsgGUID: +LRx/11MRd2hZCLWEqI/Xw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11692"; a="81859619"
+X-IronPort-AV: E=Sophos;i="6.21,275,1763452800"; 
+   d="scan'208";a="81859619"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2026 15:19:13 -0800
+X-CSE-ConnectionGUID: 4B3CXN0nSWOu0HJ21Cd1cA==
+X-CSE-MsgGUID: SPTKkRioRp2ZtP7ueO3/Fw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,275,1763452800"; 
+   d="scan'208";a="214865519"
+Received: from fmsmsx901.amr.corp.intel.com ([10.18.126.90])
+  by orviesa003.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2026 15:19:12 -0800
+Received: from FMSMSX903.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.35; Thu, 5 Feb 2026 15:19:11 -0800
+Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
+ FMSMSX903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.35 via Frontend Transport; Thu, 5 Feb 2026 15:19:11 -0800
+Received: from CY3PR05CU001.outbound.protection.outlook.com (40.93.201.43) by
+ edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.35; Thu, 5 Feb 2026 15:19:11 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=iQG+ot4HA3wruWJI9B2wcbKcJHZDyeO9YeWGUgUUeDWxJDJIfxkmaSyRn5wMwYWAmn8X+H4cseTdiQNd01DQ76VnXJdi3maCwaKqETu0sJ930RnOw+IVFbdUSV1jzWg/g0BgBjp565x8B8knL2NCgOTXIkAGHbg/XoEQA6nZ32LwuxM3o//ZfjiB72n66JdUYKSUmnrYNP6ZoTLu/iWwJl3P9dxw2/D+FSWUaVLpZQBgv29ETxkJ1JE9nFQe4qm9Ak+VvcK6V01cQFxpME/arTGLKB+A1B4xfdshNr0Rk4HTXyY/YFFIBLQyG+EdYj7+B62mez34JTrwvi8burI/9g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yQXzAbtpax9zPpXJ4r1zmO2CANMeD936wVXls9EZKA0=;
+ b=rS3dTsr2J3ZGc9ZWQjHYGETceZACn12QrFdop1YC0HRbmxvA12xuVaCSR3H/fWsblPRZn0EIQWOP+aiOQn8nm8ime7h83mq0MlGOc75xEDoGDWROVZcAeEEdY6v0kNPOG4f9MHpZoLyHvrI1rEkreD/whZUudkwB8LTtyUXr3FlIbDvlWtqLHcOseoE0FDMzmBYvx7CkVg6nk16fAvXUDsbP2TeSmXVuSUUarp735zJxlIDvsHmoHmCWXjN2HA0eeDDO+pTAwiYI/XyqCImLi8ldUE+n94uU/WVGz3ErArle2TC67raNQrvQleBEqYDzUASaYoqwg99aVM4y9tj9RA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from DS0PR11MB7997.namprd11.prod.outlook.com (2603:10b6:8:125::14)
+ by DM3PPFFCD58DF03.namprd11.prod.outlook.com (2603:10b6:f:fc00::f63) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9587.12; Thu, 5 Feb
+ 2026 23:19:01 +0000
+Received: from DS0PR11MB7997.namprd11.prod.outlook.com
+ ([fe80::24fa:827f:6c5b:6246]) by DS0PR11MB7997.namprd11.prod.outlook.com
+ ([fe80::24fa:827f:6c5b:6246%4]) with mapi id 15.20.9587.010; Thu, 5 Feb 2026
+ 23:19:01 +0000
+Message-ID: <e5ac3272-795b-488c-b767-290fd50f2105@intel.com>
+Date: Thu, 5 Feb 2026 15:18:58 -0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel
+ expects so
+Content-Language: en-US
+To: Shashank Balaji <shashank.mahadasyam@sony.com>
+CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+	<x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Suresh Siddha
+	<suresh.b.siddha@intel.com>, "K. Y. Srinivasan" <kys@microsoft.com>, "Haiyang
+ Zhang" <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
+	<decui@microsoft.com>, Long Li <longli@microsoft.com>, Ajay Kaher
+	<ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Jan Kiszka <jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>, Juergen Gross <jgross@suse.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Ingo Molnar <mingo@elte.hu>,
+	<linux-kernel@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <jailhouse-dev@googlegroups.com>,
+	<kvm@vger.kernel.org>, <xen-devel@lists.xenproject.org>, Rahul Bukte
+	<rahul.bukte@sony.com>, Daniel Palmer <daniel.palmer@sony.com>, Tim Bird
+	<tim.bird@sony.com>, <stable@vger.kernel.org>
+References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
+ <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
+ <0149c37d-7065-4c72-ab56-4cea1a6c15d0@intel.com>
+ <aYMOqXTYMJ_IlEFA@JPC00244420>
+ <722b53a7-7560-4a1b-ab26-73eeed3dffa5@intel.com>
+ <aYQzhRN83rJx6DSb@JPC00244420>
+From: Sohil Mehta <sohil.mehta@intel.com>
+In-Reply-To: <aYQzhRN83rJx6DSb@JPC00244420>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SJ0PR03CA0355.namprd03.prod.outlook.com
+ (2603:10b6:a03:39c::30) To DS0PR11MB7997.namprd11.prod.outlook.com
+ (2603:10b6:8:125::14)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/3] targeted TLB sync IPIs for lockless page table
-To: Dave Hansen <dave.hansen@intel.com>, Matthew Wilcox
- <willy@infradead.org>, Lance Yang <lance.yang@linux.dev>
-Cc: Peter Zijlstra <peterz@infradead.org>, Liam.Howlett@oracle.com,
- akpm@linux-foundation.org, aneesh.kumar@kernel.org, arnd@arndb.de,
- baohua@kernel.org, baolin.wang@linux.alibaba.com,
- boris.ostrovsky@oracle.com, bp@alien8.de, dave.hansen@linux.intel.com,
- dev.jain@arm.com, hpa@zytor.com, hughd@google.com, ioworker0@gmail.com,
- jannh@google.com, jgross@suse.com, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, lorenzo.stoakes@oracle.com, mingo@redhat.com,
- npache@redhat.com, npiggin@gmail.com, pbonzini@redhat.com, riel@surriel.com,
- ryan.roberts@arm.com, seanjc@google.com, shy828301@gmail.com,
- tglx@linutronix.de, virtualization@lists.linux.dev, will@kernel.org,
- x86@kernel.org, ypodemsk@redhat.com, ziy@nvidia.com
-References: <20260202133713.GF1395266@noisy.programming.kicks-ass.net>
- <540adec9-c483-460a-a682-f2076cf015c2@linux.dev>
- <20260202150957.GD1282955@noisy.programming.kicks-ass.net>
- <d6944cd8-d3b7-4b16-ab52-a61e7dc2221c@linux.dev>
- <06d48a52-e4ec-47cd-b3fb-0fccd4dc49f4@kernel.org>
- <3026ad8d-92ad-4683-8c3e-733d4070d033@linux.dev>
- <64f3a75a-30ff-4bee-833c-be5dba05f72b@intel.com>
- <c985a8ed-37ad-415e-b7b4-18a66b4da3fe@linux.dev>
- <647cbe2e-a034-4a75-9492-21ea1708eccc@intel.com>
- <99237729-f2b0-4a7a-8213-65a2f1c57744@linux.dev>
- <aYTJzft5cuqD9akC@casper.infradead.org>
- <6a364356-5fea-4a6c-b959-ba3b22ce9c88@kernel.org>
- <dfdfeac9-5cd5-46fc-a5c1-9ccf9bd3502a@intel.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <dfdfeac9-5cd5-46fc-a5c1-9ccf9bd3502a@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR11MB7997:EE_|DM3PPFFCD58DF03:EE_
+X-MS-Office365-Filtering-Correlation-Id: e7f12305-7a9c-4a40-c694-08de650cf272
+X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|366016|376014|7416014;
+X-Microsoft-Antispam-Message-Info: =?utf-8?B?eW1CdzBVcXJJdzJuZXVEOEUxRlMyYVNPNXdHWlAyN3BTOXZsZFdnMTNmeHB6?=
+ =?utf-8?B?dlJDNmE5TmQrR3VXRkYzalMzU0d6eTBtQWxScFptVXU1NVZGeWVNMUJseXFy?=
+ =?utf-8?B?UThobnJycFhaNFhGSFJHUHZHY25UTDltd3ZNSGRnYVRpZDNCcUR3aHdPTVBQ?=
+ =?utf-8?B?YzliRmdGWXNGV0Q4Z211bWxSL1FDUWloVGVRNXM0cFQzTTJSUUFGYyt6c1p5?=
+ =?utf-8?B?RGdFSnNpdVpBbGhaK1RYbWRjUXE3Vlk3Yk94VjdOc2h2NkxHRzlvckFZc1ha?=
+ =?utf-8?B?cW9jajk0Z1ZkK0Vud2pDYmEwOXNQT1VGT3FMdk9TbzRPc0JRTjJwT1Q0aEFF?=
+ =?utf-8?B?WnFVM2hsOXJZMUZEck9vRVJsUHNHY1VpQWpraVYxeEVPS3RzNXFoV3FsYVdV?=
+ =?utf-8?B?K0NkaUl2R0ZwTy92VFhVQlo0UGF1RVZ0WVY5aHhDU3dvTytVM2tXT2NDWHNt?=
+ =?utf-8?B?VnBUWmJrN1ZkZ2lFQ2NwbVd5WlQwU0sway9GZ2F4MnRiWlF1eFRqa0pseGky?=
+ =?utf-8?B?VzBwOHpPMXc0Q0tkOWdiRko3VG5keVNyRG1HWFE4VXZrUGlFN29rYXA3SDhG?=
+ =?utf-8?B?M0J5TjNucE5KQ1Z0anZIWHkwY29rLyttcVl2Ny9jMkZpN1ZHZ0lsTy9nUVhV?=
+ =?utf-8?B?OXkyOXNKRzFhQjJqSHpVWmNPbktLWmx6OFN6ZjIwUzNuZnZyUjdpUG5UbDNV?=
+ =?utf-8?B?T0pZUXFXbVVvemVNWEZ4UkFjVmp1V3dPc3FudTFNcWVNbXVMYm91THozd1JK?=
+ =?utf-8?B?MDRJNi9yRFBkenEvUStKaEVHMCt5anNkNkhpU1Zwckd3YTdUK2lRcElocWV2?=
+ =?utf-8?B?NHI1MkhuNC9DWVc1L3h5VWRsZC9KaUViWXJtTU5XOGh4akIzekhya0p5Uk9E?=
+ =?utf-8?B?SzNEVWlBM3FnRDFrdDI0ZWpMMWN6SFBmSUZ0bldxZExhVUNJZFpFeTdNbnZF?=
+ =?utf-8?B?RFZJUE1zQWJxdmxmNVYxRkV2S3pVOHFWMFUvd2tNVHpWS3hCWDJZYVBHclZr?=
+ =?utf-8?B?UEU4OUtQaEpLWUFiODdzK1l0akhtS0dyeEptL0NlWlk5cFRHdHJvQnNqVHlZ?=
+ =?utf-8?B?ME02eWxTT1AvY1I3cGFndGdwVjFBMHc0Ty9BRFNoM25taW1uWWRwSTI3b3Bq?=
+ =?utf-8?B?cEVnczRzYmJ6c0YwaXozRlFIUjBuR01GbmRCS21xUHpSdkErdENZeHNEQkFQ?=
+ =?utf-8?B?TnRydWQ2S1Y4VDBaYzVKUlBIcElDbjh3SWhidHBrZkR2RzdITldlbWVEdGph?=
+ =?utf-8?B?K2E3aUx3WGpjVDB1TjBZdWRPMmhrU25JSDR4NFpseWc4QnUzVEMxY3M4U2Z2?=
+ =?utf-8?B?ZzlacExnaGNHUGVRbEdValp0K1dUNzJsWGtXcGxpK1pzd3ZmN0Y1ZDk3QWNB?=
+ =?utf-8?B?VlI3ZHc0QVdlSHByUXBpR05PTkRRNmIvZUdDSHAvYVBCSStJQ3J4ZGxrQTZT?=
+ =?utf-8?B?dHVLb1NjQ1lkSWVSa3VDeHlsVnc0bEk3UVltZlJJV2dPRll4Q01uSjJrdkpS?=
+ =?utf-8?B?RVB6SXIydU1vdEQ5NEU4RCtWNENLTEJja3VvZk5GK01pdjEvVzdUMm9hZnJS?=
+ =?utf-8?B?dWw1dWVlOVV4MkhEWTdoZXJmeUJSNGxDRy8rcDJabzdob3JLWWFjVEl6dzB6?=
+ =?utf-8?B?NWhMbCtrbUFVWFVTRVNQeEd6dktwUUFsN1FaK0JtcC9Kd2x5NnJzN3V1ZnE5?=
+ =?utf-8?B?aUI2M1lmeWNiTUNqVGNaa25OTWxNT2xBMzF6a0p2alJKNmFHYjA3VWtLaFFm?=
+ =?utf-8?B?cUdmZDJrQVZzWEtJNUNLTjRrZlk2b3ZrRmZ5WmxXSHgvOS8wTWRBcnlpSUlo?=
+ =?utf-8?B?K2kwcGxBQktXaG5QZWNPQ08rdjZaVHZWNEVHNkVNRW9uVWpVcmU1ZE5SZkZP?=
+ =?utf-8?B?ZEFOcTBuMktOcnFKTXRMN3JxYW11MlduRTBWZXJWcW90VlhvRzhoVVIrRStL?=
+ =?utf-8?B?WTlLeFdmSklCSWh4ZUlEOFJWY0N3WCtoUGpTeDNZcVpWREs5WXZvZ2Q5SWF4?=
+ =?utf-8?B?K21iWkt6RHdMdThXTGJhSFhMSTVEcFRZSXVWcXVOeGVOR2tIS1REZ2pmWkZI?=
+ =?utf-8?B?bE1zdHRPeWsxbENLbGhOSUdMakhJQlBpWEczMFNzUHYvNGdOM0REandhRWhF?=
+ =?utf-8?Q?w88pHEZmkZqbO9e5hh+xzrzlz?=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7997.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?T1VRZ1hMdmdiYkRSLzFMenIxTEdpdGNLSnZScEZTNHRLNGZVSm5tcFBqNkU3?=
+ =?utf-8?B?N08zemZWaW4zWVJKQVNZUEVEVEplTGl6cktQeU1ISUhPS2dZQzRpUWViTkha?=
+ =?utf-8?B?VHM1M3lkUVBzaDhMbWdjR01CUng2WlRNSXlLU3lxc0NUWlBvMlpTTHFIS283?=
+ =?utf-8?B?aWVMMVRQSzVKY3BwbWpsUzhTMXdqd3FiTjgyNFArdm0yajRKYm5UakF2d2NF?=
+ =?utf-8?B?b2FOOTNZenp4bjZYaTJ4cUIzRU11Y1QwRmRYREVjQlBXeE9YcjZGQU9UOWVY?=
+ =?utf-8?B?N1hMUmZ2a2dpVjRmV2ZqcG9yRnZUSlpsVHErb3lMZkpvT1NscW9Md3NwU1Az?=
+ =?utf-8?B?TkNoWmFOU3Baalp4S1N1b3BWdGU4MjJSVEpCRnRPaFZMZ3ZPRGtFUzJsS0g1?=
+ =?utf-8?B?UXRFK0hwVmdFK1Mxb29FU1p4K3FWRWw2dmhqNVVGSmo2NnlRMm93T3NSRVNL?=
+ =?utf-8?B?MEFwOTI3eFJqaU0wcGdnUyszQ3VtZDNCZUpLSHkrZWZudmF3S3ZxbFUvZmdl?=
+ =?utf-8?B?aUtoNU5xUC81bEZYNHZMeHdaY2Iwdi9uZ0VTcUpNVUpTU0ExU3Q4OGZtcVJt?=
+ =?utf-8?B?STFkZzRBWlZza0gvU2RneWl3YVl1TjdIcVVHTGhsSHUwQ25tVFo2emd6TWQy?=
+ =?utf-8?B?OFNDbENyZHRUTUpqcW9icm5KQmVFY0VXT01jOVdYSEdhandXVURPcGpBd3Vv?=
+ =?utf-8?B?L25MUHVDY3FORFFkeG1FQ1N0V2ZGVzFKSUdiYklKTG0zMXNXVWZ4MU5xZ2RI?=
+ =?utf-8?B?ZnIvR0M3NGVnVm5oN1QxQ1kxYjEwejIxYi9XMU5nZGxPSElqTGh2SU8wKzVO?=
+ =?utf-8?B?aHcrcU9JZlhIa3ZINmdvUGNtTko3N2c3RWFReWJNYml5cXlRbkozRjg1ZzF0?=
+ =?utf-8?B?MHNpdWFkSUtPdXUySkdITkJKK2RzWFRxSUtPUHBKTk0xcDBxVnBjUnFQL3Ew?=
+ =?utf-8?B?UldkblhqTUhxa29Ed2dGRERJQjFOalZGR3dJaUk0Z2RzOVJGNkV0SDhmcGxY?=
+ =?utf-8?B?VGR3NjB6RllobDlEUFgzdWdyRloxQWNOMllEUitQd0xuc1dqWi8xMkllNUp2?=
+ =?utf-8?B?bWI5ZnM0V21yMkJIRDBUcUxiVnlqUzBkWkxoRVF6RVB2eWdDVXZ4Y2FHNkZt?=
+ =?utf-8?B?V1o1VHBwT25LcXphakhNMDQ2WGgvM2FRV3hna0ZXSmtlcmZuNy9BbW42ckZB?=
+ =?utf-8?B?NEQxL1FWem80NE95aWlUNWtjZGhlSlF5OHpOT2tUMXVIK1hiZU53QkUrRVh4?=
+ =?utf-8?B?bnYzVGpKQWN5aGVpY1dSbVljYTlOV3A0eGczeXI4aEZSNUdxVnRXZUVpOXVq?=
+ =?utf-8?B?ZFVjWThuSEFRbmRDTFRmK0EvQnA3QXBXcXhhQXJ5aHJma1dZdjdXUDk3M0Zw?=
+ =?utf-8?B?UnBRcEwvc3VsRktvcDZENkNFYVhxdDFodWUxOHdOV2plNlNXWWp1cUsrYTlx?=
+ =?utf-8?B?WUd0TXZhM3I3Z1NoZFVSaUZEelpmTnYrL0VONjdzc3Vna3R2NnFqZ3hMenE0?=
+ =?utf-8?B?aWFlbE1LWUp2aUlmbnZ4UzB5ZnlidS90anhEQjhVK3B6SGdVSWJQUkNKVnd5?=
+ =?utf-8?B?Y1JhTGNaZVVqOEdnYW5Ha3NPZkFaanpOVkkwOFdsQlhxVVRGVWVxSlVyOGIv?=
+ =?utf-8?B?NndvLzhCNjJCZHM1UUNiWDFvaXJYRDdFcFpVR1k3TkRNRWZsdkdvVytIQ3hv?=
+ =?utf-8?B?RVdpd1dxVEx3SVk2T2llRDB2OUJ5UTV1Y25JckorQXhEcWJ5dWZDd1lPTEx2?=
+ =?utf-8?B?YURCUzV5Ukd5K2ZKRThTY3JkbEJwV1VCdHJjeHdiTDN0YWNScnBRWkJNZXlH?=
+ =?utf-8?B?dFZ1L0p1RGlqZXRMcllpdnpubkNvOFpJVUh5eVU4UEJERlNVRHdOeEFraTRX?=
+ =?utf-8?B?dmtSYzZaNVVXazlmTmFoME81dkZFY0l3M0dPU1hpTS9Yb3FzeVZ6NEZ2NkVq?=
+ =?utf-8?B?K01jUHJUUjc0dFNycllvTURwVFFqc0VvcUxJSjJJRUphNFRteEE2aVl4bDlH?=
+ =?utf-8?B?UWVzc1BhUzhNc2xjQ3JLb1B3ci9nd1paTDdwRWxVT3NVbXdncGpaQTVTcWpP?=
+ =?utf-8?B?UloyVmx6V1JzL09IRVREQTJ4QXhMdmdjaFNMQ1FoSC9mRTFYOTdaZ3FKek03?=
+ =?utf-8?B?OW53cnd2VHY4dHlyNWYrSElOazI5VGJHTDVHWnBtamtyR0NRUVQyZk4zTVQ5?=
+ =?utf-8?B?Nmc0QkJ3SGN6MXd1QnRySkUvSkhDOEs4eW1tVkxBR0FhbUIwZGZTM3hqWWt0?=
+ =?utf-8?B?ZnhIcUNHN2dNcENiMXdPemNiSTl1ZWNDd2dZbkJKZUZsZjdQVkRBTEFSZElu?=
+ =?utf-8?B?UGdOaHcvOVVhdHpsQ21zamNwUEs3VUxXVXk1TDNFOVZNSWU0R3lFUT09?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: e7f12305-7a9c-4a40-c694-08de650cf272
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7997.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Feb 2026 23:19:01.6520
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: dTFCq32cpV+ZjSdGIL/mbp6eMvFEZEVUuO2LFRexjDbt1z7YxIY7ti2eKKNAnK/cdeGLAN2BHKS74lJ7xZivlA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM3PPFFCD58DF03
+X-OriginatorOrg: intel.com
 
-On 2/5/26 19:36, Dave Hansen wrote:
-> On 2/5/26 09:06, David Hildenbrand (Arm) wrote:
->>> But can't we RCU-free the page table?  Why do we need to wait for the
->>> RCU readers to finish?
+On 2/4/2026 10:07 PM, Shashank Balaji wrote:
+> On Wed, Feb 04, 2026 at 10:53:28AM -0800, Sohil Mehta wrote:
+
+>> It's a bit odd then that the firmware chooses to enable x2apic without
+>> the OS requesting it.
+> 
+> Well, the firmware has a setting saying "Enable x2apic", which was
+> enabled. So it did what the setting says
+> 
+
+The expectation would be that firmware would restore to the same state
+before lapic_suspend().
+
+>  
+>>> Either way, a pr_warn maybe helpful. How about "x2apic re-enabled by the
+>>> firmware during resume. Disabling\n"?
 >>
->> For unsharing hugetlb PMD tables the problem is not the freeing but the
->> reuse of the PMD table for other purposes in the last remaining user.
->> It's complicated.
-> 
-> Letting the previously-shared table get released to everything else in
-> the system sounds like a fixable problem. tlb_flush_unshared_tables()
-> talks about this, and it makes sense that once locks get dropped that
-> something else could get mapped in and start using the PMD.
+>> I mainly want to make sure the firmware is really at fault before we add
+>> such a print. But it seems likely now that the firmware messed up.
 
-Yeah, I tried to document that carefully.
+Maybe a warning would be useful to encourage firmware to fix this going
+forward. I don't have a strong preference on the wording, but how about?
 
-> 
-> The RCU way of fixing that would be to allocate new page table, replace
-> the old one, and RCU-free the old one. Read, Copy, Update. :)
-> 
-> It does temporarily eat up an extra page, and cost an extra copy. But
-> neither of those seems expensive compared to IPI'ing the world.
+pr_warn_once("x2apic unexpectedly re-enabled by the firmware during
+resume.\n");
 
-I played with many such ideas, including never reusing a page table 
-again once it was once shared. All turned out rather horrible.
+A few nits:
 
-RCU-way: replacing a shared page table involves updating all processes 
-that share the page table :/ . I think another issue I stumbled into 
-while trying to implement was around failing to allocate memory (but 
-being required to make progress). It all turned to quite some complexity 
-and inefficiency, so I had to give up on that. :)
+For the code comments, you can use more of the line width. Generally, 72
+(perhaps even 80) chars is okay for comments dependent on the code in
+the vicinity.
 
-> 
->> For page table freeing, we only do it if we fail to allocate memory --
->> if we cannot use RCU IIRC.
-> 
-> But that case is fine to be slow and use synchronize_rcu(). If you're
-> failing to allocate a single page, you're in a way slow path anyway.
-That's true. We could likely do that already and avoid the IPI broadcast 
-there that was once reported to be a problem for RT applications.
+The tip tree has slightly unique preferences, such as capitalizing the
+first word of the patch title.
 
--- 
-Cheers,
+Please refer:
+https://www.kernel.org/doc/html/latest/process/maintainer-tip.html#patch-submission-notes
 
-David
+
