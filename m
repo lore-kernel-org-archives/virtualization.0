@@ -1,152 +1,67 @@
-Received: from jpms-ob01.noc.sony.co.jp (jpms-ob01.noc.sony.co.jp [211.125.140.164])
+Received: from outbound.baidu.com (mx24.baidu.com [111.206.215.185])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5FC8334696
-	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 06:07:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.125.140.164
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E434133439D
+	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 06:10:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=111.206.215.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770271632; cv=none; b=dvP0OAYzJ7w7rq9X4a3jtX8H2/FbPQpJwrrzYhNfe1T9NNkcn7brqyZvTKKctz4tHr9bJGKlSV5okZkgu2Wp5ME7PMdk+O0PXUhJ8wqwnPQPm9OPuCvgXUrp2hrz4vaZBiuKGi9I44WC+bV+yEAIzOyDsCNdN16trURJIchv8zs=
+	t=1770271861; cv=none; b=XRh+YgFfbNlYTnDqAx41Ct0tZppVFaFgUPMAVk9F23kQB+XCoSQ7zLt0WfU514D4wy7Zr6iC2ghpF6Tusqo0KVjVynrPhh5kfhGEY/2svE+ZI5e/1VJ5PCZ2Ef1N/Wg2s8D2ciAtaPrEUkxX1cNbVRu25Z+VZJ+psffg9EZx8I4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770271632; c=relaxed/simple;
-	bh=iLAKRWnJ4xFV61YkHX327DOOGbae/giyWkllC2m/aVI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nO7ShXBu/5ePJzH/+xRREevGC780se4RMaHrIMafcog/Yjn5uewH19MaGDTHm1QIRlEKE6gwPCUQca0GP1s31Ic+0Uh+uBq986SGI7jkXoSzMMdKfyuW94WPOp3kjrnuW1YFBSIxDqVp97gd4674p+s/K386Oe0KF0oYPomW8/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com; spf=pass smtp.mailfrom=sony.com; dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b=dRwWNAE0; arc=none smtp.client-ip=211.125.140.164
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sony.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b="dRwWNAE0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=sony.com; s=s1jp; t=1770271631; x=1801807631;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=UBawYbMlXUOKgrz6LV1oJhX/gsrHRCKMioT7xEbWP+c=;
-  b=dRwWNAE0CxDRji7BGut4XNNikBltfHmFM+oMLrN1TGZVR1+NKOe0/Vg8
-   vfPvRJBlwZl6kMouUQ/6TvuSzihRdm/Md8vyaAhmOJS4fvdLc3mkTweTO
-   T5R2utd0+mazyMKfQiFS6OWd5zCpW94BBIEmuF0HwdYk+QJNvbHjHWsFT
-   c/FYi4/F8/tXjGob9DX+cRZzTNJnYdvHXZsuLa4BUm8JoDfzNC0V0XK4a
-   nQ6cnzgt1Sd6xmSvlXmrxpfmHXG75f9uR4jEfBvK23NfyjmoOeqZKaFx1
-   piKIBJWFlmWy6jihPi7qhhA5RKV+sBCfSRps7trAMhjl5NPH8iwNCZb5H
-   w==;
-Received: from unknown (HELO jpmta-ob1.noc.sony.co.jp) ([IPv6:2001:cf8:0:6e7::6])
-  by jpms-ob01.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2026 15:07:03 +0900
-X-IronPort-AV: E=Sophos;i="6.21,274,1763391600"; 
-   d="scan'208";a="608419792"
-Received: from unknown (HELO JPC00244420) ([IPv6:2001:cf8:1:573:0:dddd:6b3e:119e])
-  by jpmta-ob1.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2026 15:07:03 +0900
-Date: Thu, 5 Feb 2026 15:07:01 +0900
-From: Shashank Balaji <shashank.mahadasyam@sony.com>
-To: Sohil Mehta <sohil.mehta@intel.com>
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Suresh Siddha <suresh.b.siddha@intel.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Juergen Gross <jgross@suse.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-	jailhouse-dev@googlegroups.com, kvm@vger.kernel.org,
-	xen-devel@lists.xenproject.org, Rahul Bukte <rahul.bukte@sony.com>,
-	Daniel Palmer <daniel.palmer@sony.com>,
-	Tim Bird <tim.bird@sony.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] x86/x2apic: disable x2apic on resume if the kernel
- expects so
-Message-ID: <aYQzhRN83rJx6DSb@JPC00244420>
-References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
- <20260202-x2apic-fix-v1-1-71c8f488a88b@sony.com>
- <0149c37d-7065-4c72-ab56-4cea1a6c15d0@intel.com>
- <aYMOqXTYMJ_IlEFA@JPC00244420>
- <722b53a7-7560-4a1b-ab26-73eeed3dffa5@intel.com>
+	s=arc-20240116; t=1770271861; c=relaxed/simple;
+	bh=qLlSk4jrWMDSo61nQufqN59pzS6ZTouScPCXY18T6WY=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gMQ83cYJmCva/IJPGxLAP2PLV6Lg9y3JySr3A/DuqtNgQR8ae1uAsLNaK9NxVNx4JOuZ+DtPLlt8msTNrAd6Zge8HBuMeLK/VGqT3vi5Zvl/+powVL44JJmHu4q5QMRAJWb3jPXFQkYQ07zimiOGjw/Aq3xPPjb/7ygSAJOxQss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com; spf=pass smtp.mailfrom=baidu.com; arc=none smtp.client-ip=111.206.215.185
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
+From: lirongqing <lirongqing@baidu.com>
+To: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
+	<mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
+	<airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	<virtualization@lists.linux.dev>, <spice-devel@lists.freedesktop.org>,
+	<dri-devel@lists.freedesktop.org>, <linux-kernel@vger.kernel.org>
+CC: Li RongQing <lirongqing@baidu.com>
+Subject: [PATCH] drm/qxl: optimize idr_preload allocation flags
+Date: Thu, 5 Feb 2026 01:09:06 -0500
+Message-ID: <20260205060906.4059-1-lirongqing@baidu.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <722b53a7-7560-4a1b-ab26-73eeed3dffa5@intel.com>
+Content-Type: text/plain
+X-ClientProxiedBy: bjhj-exc7.internal.baidu.com (172.31.3.17) To
+ bjkjy-exc3.internal.baidu.com (172.31.50.47)
+X-FEAS-Client-IP: 172.31.50.47
+X-FE-Policy-ID: 52:10:53:SYSTEM
 
-On Wed, Feb 04, 2026 at 10:53:28AM -0800, Sohil Mehta wrote:
-> On 2/4/2026 1:17 AM, Shashank Balaji wrote:
-> 
-> > __x2apic_disable disables x2apic only if boot_cpu_has(X86_FEATURE_APIC)
-> > and x2apic is already enabled. 
-> 
-> I meant the X86_FEATURE_X2APIC and not X86_FEATURE_APIC.
+From: Li RongQing <lirongqing@baidu.com>
 
-My bad, I got that wrong. __x2apic_disable checks for X86_FEATURE_APIC,
-while x2apic_enabled checks for X86_FEATURE_X2APIC.
+idr_preload() is called in a sleepable context before acquiring a
+spinlock. Change the allocation flag from GFP_ATOMIC to GFP_KERNEL
+to allow direct reclaim and improve allocation success rate under
+memory pressure.
 
-> But, thinking about it more, checking that the CPU is really in X2APIC mode
-> by reading the MSR is good enough.
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+---
+ drivers/gpu/drm/qxl/qxl_cmd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-But yes, I agree.
+diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
+index 2e3200d..dd61d2a 100644
+--- a/drivers/gpu/drm/qxl/qxl_cmd.c
++++ b/drivers/gpu/drm/qxl/qxl_cmd.c
+@@ -423,7 +423,7 @@ int qxl_surface_id_alloc(struct qxl_device *qdev,
+ 	uint32_t handle;
+ 	int idr_ret;
+ again:
+-	idr_preload(GFP_ATOMIC);
++	idr_preload(GFP_KERNEL);
+ 	spin_lock(&qdev->surf_id_idr_lock);
+ 	idr_ret = idr_alloc(&qdev->surf_id_idr, NULL, 1, 0, GFP_NOWAIT);
+ 	spin_unlock(&qdev->surf_id_idr_lock);
+-- 
+2.9.4
 
-> > x2apic_enabled also does the same checks,
-> > the only difference being, it uses rdmsrq_safe instead of just rdmsrq,
-> > which is what __x2apic_disable uses. The safe version is because of
-> > Boris' suggestion [1]. If that's applicable here as well, then rdmsrq in
-> > __x2apic_disable should be changed to rdmsrq_safe.
-> 
-> I don't know if there is a strong justification for changing to
-> rdmsrq_safe() over here. Also, that would be beyond the scope of this
-> patch. In general, it's better to avoid such changes unless an actual
-> issue pops up.
-
-Makes sense.
-
-> >> I considered if an error message should be printed along with this. But,
-> >> I am not sure if it can really be called a firmware issue. It's probably
-> >> just that newer CPUs might have started defaulting to x2apic on.
-> >>
-> >> Can you specify what platform you are encountering this?
-> > 
-> > 
-> > I'm not sure it's the CPU defaulting to x2apic on. As per Section
-> > 12.12.5.1 of the Intel SDM:
-> > 
-> > 	On coming out of reset, the local APIC unit is enabled and is in
-> > 	the xAPIC mode: IA32_APIC_BASE[EN]=1 and IA32_APIC_BASE[EXTD]=0.
-> > 
-> > So, the CPU should be turning on in xapic mode. In fact, when x2apic is
-> > disabled in the firmware, this problem doesn't happen.
-> > 
-> 
-> It's a bit odd then that the firmware chooses to enable x2apic without
-> the OS requesting it.
-
-Well, the firmware has a setting saying "Enable x2apic", which was
-enabled. So it did what the setting says
-
-> Linux maintains a concept of X2APIC_ON_LOCKED in x2apic_state which is
-> based on the hardware preference to keep the apic in X2APIC mode.
-> 
-> When you have x2apic enabled in firmware, but the system is in XAPIC
-> mode, can you read the values in MSR_IA32_ARCH_CAPABILITIES and
-> MSR_IA32_XAPIC_DISABLE_STATUS?
-> 
-> XAPIC shouldn't be disabled because you are running in that mode. But,
-> it would be good to confirm.
-
-With x2apic enabled by the firmware, and after kernel switches to xapic
-(because no interrupt remapping support), bit 21 (XAPIC_DISABLE_STATUS)
-of MSR_IA32_ARCH_CAPABILITIES is 0, and MSR_IA32_XAPIC_DISABLE_STATUS
-MSR is not available.
- 
-> > Either way, a pr_warn maybe helpful. How about "x2apic re-enabled by the
-> > firmware during resume. Disabling\n"?
-> 
-> I mainly want to make sure the firmware is really at fault before we add
-> such a print. But it seems likely now that the firmware messed up.
