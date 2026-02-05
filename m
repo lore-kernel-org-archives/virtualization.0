@@ -1,51 +1,51 @@
 Received: from mail2.anonaddy.me (mail2.anonaddy.me [185.70.196.149])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D80A23D7D4
-	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 08:02:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2A39355049
+	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 08:18:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.196.149
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770278563; cv=none; b=np+uJLflp/ORyYbFy4oVprkrF4XnTwOj7PXZ68ec8uAQwIMzWw5CC6HFvIXApe0gj7otr4SKiILC9j6LiEYi6+YwPAQhlutIPh8ZiFlaoVnBFcPokagb6+Y8L74ldGYsQoPwnP7MPlLjj4l3sO8zi1HwKXAVKjh5AyfmvqcTlRM=
+	t=1770279506; cv=none; b=eztqXPFukXihZyX76PBiIhYVL/yEk20I312iM/eZiSYSh/GYnkkCDbaeucYnfn+YcdakCZqFjFH9x8lCgWEpPgmCqgoA5DBeseAIfMQdEyfEZRYTTiZydWzCfrS2eEm2lNowB5MToITbazMGwFYj5yNeFhsIA2A6WVJc1+j9oiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770278563; c=relaxed/simple;
-	bh=5AaoRbBNAPkNC4SsGLg3KZJ0Aa//TunCotCzsupFYZ4=;
-	h=From:To:Subject:Message-ID:Cc:MIME-Version:Date:Content-Type; b=Tf6auLHy/1+XIT1AQ1Y4DdSf2QYsnNo8Ayxr/WEg5skgr/TkCx6WIsutrgJe6YbWnoqlI+Es3bMAjtMCHvuFAeP4GXqJFDt65rEWmzeRTLg9L8BR3LqgaYrFPvFySU0eZj3m6iB6FNRhCSDwgR3kSCbnXXA0hO7OeyhZB7CMMho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=anonaddy.me; spf=pass smtp.mailfrom=anonaddy.me; dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b=eC+uxgYt; arc=none smtp.client-ip=185.70.196.149
+	s=arc-20240116; t=1770279506; c=relaxed/simple;
+	bh=voxuiANRapyhEKlWRapxmS3AbzE9OhdbsL3mO57YfYc=;
+	h=From:To:Subject:Message-ID:MIME-Version:Date:Content-Type; b=NtQ07viyfPCBkvGvGSG7NN84U9V8CXKDws4aYMCQVRMV7wEtmRT+utyESYc8ReFhDIpZJmg5rbaTxJn0bww0vfS7YjX+pVXw8AXlZJKf3KjeEes+BzMwwcSJ72D6bDc/piUI9h3VYWjxN3Yo4Lg100H7xZirZvU/ltTQp+k2i4A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=anonaddy.me; spf=pass smtp.mailfrom=anonaddy.me; dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b=SOMqlCC8; arc=none smtp.client-ip=185.70.196.149
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=anonaddy.me
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=anonaddy.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b="eC+uxgYt"
+	dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b="SOMqlCC8"
 Received: from mail2.anonaddy.me (mail2.anonaddy.me [127.0.0.1])
-	by mail2.anonaddy.me (Postfix) with ESMTPS id E890E1001E0
-	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 07:53:32 +0000 (UTC)
+	by mail2.anonaddy.me (Postfix) with ESMTPS id E6C63FA0B4
+	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 08:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anonaddy.me; s=default2;
-	t=1770278013;
+	t=1770279503;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding;
-	bh=apxmgs+L7pLGJzl95x0JK/zDZ8qpoMIhjhbsuOYRGR4=;
-	b=eC+uxgYtNeG69c/XDK47octWLT8xDu71rKSlTTQFlOtFl0deJAevI+bQ0TtcvIdY9D+bjc
-	W6W+F+4RuBdNogzlqfj7Jo/hPhtItTcBoDhf8LOSA/pU7rTdJS3RtOoIBaKfWyOeSddWbs
-	cl4ZhHgFccugCF225K1ui1LoENL8CE+6WVzH2M3FZncEHL8WBotlGW1yXmj6zXpRsvpNkf
-	QCy812Ws0VBinrJhvtAtcYrVLPSzqtRdelE9lV3gh6nv12y8evK3B56kvUYAr+YUgZbw/L
-	pvRrgRIlkq6gVBzT5rC12mabo0OpfL4vd/1jYo/hD//DQEDjx5WNrwvIbwcBTQ==
+	bh=voxuiANRapyhEKlWRapxmS3AbzE9OhdbsL3mO57YfYc=;
+	b=SOMqlCC85/jXL2NvGJmhk5vQ42ssC1lSTyqyeXJZAY9OCMJsGtpJxtXLRQ26IBq7y4zG4N
+	H4NUiZNSqoM6S7Gq+ZyYbTOXAtRqbineHaNymIUq6HMh72s7NGoVTwaTmILqUqLQnr1TMI
+	oof/Q8HOA6vaMu2jYnPmFyOkficQETZQtXBzwsFJwkbo3lzO78LR5SMmOvu7eYkB5ppplN
+	dZgDAC9CXTvqGKPoryGTreD69WPqq6CUVfIHJR6CF3YRKoboOiU6KWD0C3odPZ8WaNBxDU
+	MiM5rfApgLOTFrOiBmqC0naD2xW+MYctjQHNadoD7kG6+JaXFC6igL/y80bgcQ==
 From: agpn1b92@anonaddy.me
-To: virtualization@lists.linux.dev, netdev@vger.kernel.org
+To: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ sgarzare@redhat.com
 Subject: [BUG] vsock: poll() not waking on data arrival, causing
  multi-second SSH delays
 Feedback-ID: S:d17f588e-5717-4190-ab1e-7db474f4dce6:anonaddy
-Message-ID: <b8eaada2e7f6aeb8543f55548d1e491a@anonaddy.me>
+Message-ID: <f3de4a40626d533d6f28a21e73efc9d3@anonaddy.me>
 X-Complaints-To: abuse@help.addy.io
 X-Report-Abuse: abuse@help.addy.io
 X-Report-Abuse-To: abuse@help.addy.io
-Cc: sgarzare@redhat.com
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Thu, 05 Feb 2026 07:53:33 +0000
+Date: Thu, 05 Feb 2026 08:18:23 +0000
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
@@ -90,252 +90,267 @@ eb13-amd64 (also tested on 6.12.57, same issue)
 
 QE=
 MU command (relevant parts):
-  qemu-system-x86_64 -enable-kvm -smp 8 \
-=
-    -object memory-backend-memfd,id=3Dmem,size=3D20G,share=3Don \
-    -ma=
-chine memory-backend=3Dmem \
-    -device vhost-vsock-pci,guest-cid=3D5 \=
+ =C2=A0 qemu-system-x86_64 -enable-kvm -smp =
+8 \
+ =C2=A0 =C2=A0 -object memory-backend-memfd,id=3Dmem,size=3D20G,share=
+=3Don \
+ =C2=A0 =C2=A0 -machine memory-backend=3Dmem \
+ =C2=A0 =C2=
+=A0 -device vhost-vsock-pci,guest-cid=3D5 \
+ =C2=A0 =C2=A0 ...
 
-    ...
-
-Connection method: ssh user@vsock/5 (via systemd-ssh-proxy)=
-
+Conne=
+ction method: ssh user@vsock/5 (via systemd-ssh-proxy)
 
 * Symptoms
+=
 
 Interactive SSH (PTY) - SLOW:
-  $ time ssh user@vso=
-ck/5
-  # Takes 2-20+ seconds before shell prompt appears
+ =C2=A0 $ time ssh user@vsock/5
+ =
+=C2=A0 # Takes 2-20+ seconds before shell prompt appears
 
-Non-interac=
-tive SSH - FAST:
-  $ time ssh user@vsock/5 'echo test'
-  test
-  real =
-   0m0.156s
+Non-interacti=
+ve SSH - FAST:
+ =C2=A0 $ time ssh user@vsock/5 'echo test'
+ =C2=A0 test=
+
+ =C2=A0 real=C2=A0 =C2=A0 0m0.156s
 
 TCP to same VM - FAST:
-  $ time ssh -p 33594 user@127.0.=
-0.1
-  # Instant
+ =C2=
+=A0 $ time ssh -p 33594 user@127.0.0.1
+ =C2=A0 # Instant
 
-* Key observation: First connection after boot is fa=
-st
+* Key obser=
+vation: First connection after boot is fast
 
 After guest reboot:
-  $ ssh user@vsock/5      # INSTANT (< 1 seco=
-nd)
-  $ exit
-  $ ssh user@vsock/5      # SLOW (2-20 seconds)
-  $ ssh =
-user@vsock/5      # SLOW
-  ...
+ =
+=C2=A0 $ ssh user@vsock/5=C2=A0 =C2=A0 =C2=A0 # INSTANT (< 1 second)
+ =
+=C2=A0 $ exit
+ =C2=A0 $ ssh user@vsock/5=C2=A0 =C2=A0 =C2=A0 # SLOW (2-20=
+ seconds)
+ =C2=A0 $ ssh user@vsock/5=C2=A0 =C2=A0 =C2=A0 # SLOW
+ =C2=
+=A0 ...
 
-This suggests the bug involves state =
-that accumulates or isn't properly
+This suggests the bug involves state that accumulates or isn't=
+ properly
 cleaned up between connections.
 
-*=
-* bpftrace evidence
+** bpftrace evidence
 
-Using syscall tracepoints on guest during slow con=
-nection:
+=
+Using syscall tracepoints on guest during slow connection:
 
-  =3D=3D=3D MINIMAL VSOCK DIAGNOSTIC =3D=3D=3D
-  [   29 ms]=
- sshd-session: ppoll() duration=3D19 ms ret=3D1
-             ^^^ 20ms TIM=
-EOUT pattern detected!
-  [   50 ms] sshd-session: ppoll() duration=3D20 m=
-s ret=3D1
-             ^^^ 20ms TIMEOUT pattern detected!
-  [   70 ms] =
-sshd-session: ppoll() duration=3D18 ms ret=3D1
-             ^^^ 20ms TIME=
-OUT pattern detected!
-  ... (continues for ~2 seconds) ...
- =20
-  [ 500=
-0 ms] --- 5s stats: ppoll=3D455, timeouts=3D103, recv=3D0 (0 bytes) ---
+ =C2=A0 =3D=
+=3D=3D MINIMAL VSOCK DIAGNOSTIC =3D=3D=3D
+ =C2=A0 [=C2=A0 =C2=A029 ms] ss=
+hd-session: ppoll() duration=3D19 ms ret=3D1
+ =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0^^^ 20ms TIMEOUT pattern detected!
+ =C2=A0 [=
+=C2=A0 =C2=A050 ms] sshd-session: ppoll() duration=3D20 ms ret=3D1
  =
-=20
-  [19432 ms] sshd: recvmsg() =3D 308 bytes [4 =C2=B5s]
-  [19442 ms] s=
-shd-session: recvmsg() =3D 308 bytes [4 =C2=B5s]
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0^^^ 20ms TIMEOUT pattern de=
+tected!
+ =C2=A0 [=C2=A0 =C2=A070 ms] sshd-session: ppoll() duration=3D18 =
+ms ret=3D1
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0^^^ 20ms TIME=
+OUT pattern detected!
+ =C2=A0 ... (continues for ~2 seconds) ...
+
+ =
+=C2=A0 [ 5000 ms] --- 5s stats: ppoll=3D455, timeouts=3D103, recv=3D0 (0 by=
+tes) ---
+
+ =C2=A0 [19432 ms] sshd: recvmsg() =3D 308 bytes [4 =C2=B5s]=
+
+ =C2=A0 [19442 ms] sshd-session: recvmsg() =3D 308 bytes [4 =C2=B5s]
+=
 
 Pattern analysis:
--=
- ppoll() returns ret=3D1 (1 fd ready) but takes exactly ~20ms (timeout)
--=
- The ready fd is the PTY, NOT the vsock socket
-- recv=3D0 during the time=
-out phase: vsock data not being read
-- recvmsg() finally succeeds after ~=
-19 seconds
-- When recvmsg() runs, it completes in 4 microseconds (data WA=
-S there)
+- ppoll() returns ret=3D1 (1 fd ready) but takes exa=
+ctly ~20ms (timeout)
+- The ready fd is the PTY, NOT the vsock socket
+- =
+recv=3D0 during the timeout phase: vsock data not being read
+- recvmsg() =
+finally succeeds after ~19 seconds
+- When recvmsg() runs, it completes in=
+ 4 microseconds (data WAS there)
 
-This proves: data is sitting in the vsock receive buffer, but=
- poll()
-is not returning POLLIN, so sshd doesn't know to read it.
+This proves: data is sitting in the v=
+sock receive buffer, but poll()
+is not returning POLLIN, so sshd doesn't =
+know to read it.
 
-* =
-30-second summary from bpftrace
+* 30-second summary from bpftrace
 
-  Total ppoll calls: 488
-  Timeouts =
-(20ms pattern): 103
-  Successful recvmsg: 6 (984 bytes)
-  Timeout rate:=
- 21%
+ =C2=A0 Total =
+ppoll calls: 488
+ =C2=A0 Timeouts (20ms pattern): 103
+ =C2=A0 Successfu=
+l recvmsg: 6 (984 bytes)
+ =C2=A0 Timeout rate: 21%
 
-* Why PTY-specific?
+* Why PTY-specifi=
+c?
 
-PTY sessions require bidirectional traff=
-ic:
-1. Server sends shell prompt =E2=86=92 client must receive it
-2. Cl=
-ient sends keypress =E2=86=92 server must receive it
-3. Server sends echo=
- =E2=86=92 client must receive it
+PTY sessions require bidirectional traffic:
+1. Server sends shell=
+ prompt =E2=86=92 client must receive it
+2. Client sends keypress =
+=E2=86=92 server must receive it
+3. Server sends echo =E2=86=92 client mu=
+st receive it
 
-Each exchange relies on poll() wakin=
-g on POLLIN. The bug causes poll()
-to miss the wakeup, forcing sshd to wa=
-it for its 20ms timeout fallback.
+Each exchange relies on poll() waking on POLLIN. The bug=
+ causes poll()
+to miss the wakeup, forcing sshd to wait for its 20ms time=
+out fallback.
 
-Non-PTY commands do request-response=
--exit quickly before the bug
+Non-PTY commands do request-response-exit quickly before=
+ the bug
 manifests significantly.
 
-## Additional =
-context
+## Additional context
 
-I previously encountered the identical issue on WSL2's Hyper-V=
- vsock
-implementation, suggesting this may be a fundamental issue with ho=
-w
-vsock transports handle poll/wakeup semantics, not specific to virtio.=
+I previ=
+ously encountered the identical issue on WSL2's Hyper-V vsock
+implementat=
+ion, suggesting this may be a fundamental issue with how
+vsock transports=
+ handle poll/wakeup semantics, not specific to virtio.
+
+## Hypothesis=
 
 
-## Hypothesis
-
-Based on the evidence, this appears to be a lost w=
-akeup race condition:
+Based on the evidence, this appears to be a lost wakeup race conditio=
+n:
 1. Host sends packet to guest
-2. Packet is enqueu=
-ed to socket's rx_queue
-3. sk_data_ready() is called but poll waiters are=
-n't properly woken
-4. vsock_poll() returns 0 (no POLLIN) despite data bei=
-ng available
-5. ppoll() times out after 20ms, sshd retries
-6. Eventuall=
-y succeeds through timeout-based retry
+2. Packet is enqueued to socket's rx_q=
+ueue
+3. sk_data_ready() is called but poll waiters aren't properly woken=
 
-The "first connection works" pa=
-ttern suggests the race involves
-existing state from previous connections=
- - possibly worker threads,
-interrupt handlers, or virtqueue state that i=
-sn't properly reset.
+4. vsock_poll() returns 0 (no POLLIN) despite data being available
+5. =
+ppoll() times out after 20ms, sshd retries
+6. Eventually succeeds through=
+ timeout-based retry
+
+The "first connection works" pattern suggests the=
+ race involves
+existing state from previous connections - possibly worker=
+ threads,
+interrupt handlers, or virtqueue state that isn't properly rese=
+t.
 
 ## Reproducer
 
-1. Start QEMU VM with vhost-vs=
-ock-pci device
-2. Boot guest, ensure sshd is running
-3. From host: ssh =
-user@vsock/<CID>  # First connection is fast
-4. Exit and reconnect: ssh u=
-ser@vsock/<CID>  # Now slow
+1. Start QEMU VM with vhost-vsock-pci device
+2=
+. Boot guest, ensure sshd is running
+3. From host: ssh user@vsock/<CID>=
+=C2=A0 # First connection is fast
+4. Exit and reconnect: ssh user@vsock/<=
+CID>=C2=A0 # Now slow
 
 ## Request
 
-Could someone familiar wit=
-h the vsock/virtio poll implementation
-review the wakeup path? Specifical=
-ly:
+Could someone familiar with the =
+vsock/virtio poll implementation
+review the wakeup path? Specifically:
+=
 - virtio_transport_recv_pkt() -> sk_data_ready() path
-- vsock_poll(=
-) -> poll_wait() registration timing
-- Any state that persists between co=
-nnections
+- vsock_poll() -> p=
+oll_wait() registration timing
+- Any state that persists between connecti=
+ons
 
 Happy to provide additional traces or test patches.
 
-Tha=
-nks,
+Thanks,=
+
 [Your Name]
 
 ---
 bpftrace script used (runs on guest):
 
-#!=
-/usr/bin/env bpftrace
+#!/usr=
+/bin/env bpftrace
 BEGIN {
-    @start =3D nsecs;
-    printf("=3D=
-=3D=3D MINIMAL VSOCK DIAGNOSTIC =3D=3D=3D\n");
+ =C2=A0 =C2=A0 @start =3D nsecs;
+ =C2=A0 =
+=C2=A0 printf("=3D=3D=3D MINIMAL VSOCK DIAGNOSTIC =3D=3D=3D\n");
 }
-tracepoint:syscalls:sy=
-s_enter_ppoll {
-    if (comm =3D=3D "sshd-session" || comm =3D=3D "sshd")=
- {
-        @ppoll_enter[tid] =3D nsecs;
-        @ppoll_count++;
-    }=
-
+trac=
+epoint:syscalls:sys_enter_ppoll {
+ =C2=A0 =C2=A0 if (comm =3D=3D "sshd-se=
+ssion" || comm =3D=3D "sshd") {
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 @ppoll_enter=
+[tid] =3D nsecs;
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 @ppoll_count++;
+ =C2=
+=A0 =C2=A0 }
 }
 tracepoint:syscalls:sys_exit_ppoll {
-    if (@ppoll_enter[tid]) {=
+ =C2=A0 =C2=A0 if=
+ (@ppoll_enter[tid]) {
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 $ms =3D (nsecs - @sta=
+rt) / 1000000;
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 $dur =3D (nsecs - @ppoll_ente=
+r[tid]) / 1000000;
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 if ($dur > 10) {
+ =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 printf("[%5lld ms] %s: ppoll() du=
+ration=3D%lld ms ret=3D%d\n",
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0$ms, comm, $dur, args->ret);
+ =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if ($dur >=3D 18 && $dur <=3D 25) {
+ =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 printf("=C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0^^^ 20ms TIMEOUT pattern detected!\n");=
 
-        $ms =3D (nsecs - @start) / 1000000;
-        $dur =3D (nsecs - =
-@ppoll_enter[tid]) / 1000000;
-        if ($dur > 10) {
-            prin=
-tf("[%5lld ms] %s: ppoll() duration=3D%lld ms ret=3D%d\n",
-              =
-     $ms, comm, $dur, args->ret);
-            if ($dur >=3D 18 && $dur <=
-=3D 25) {
-                printf("           ^^^ 20ms TIMEOUT pattern det=
-ected!\n");
-                @timeout_count++;
-            }
-        }=
-
-        delete(@ppoll_enter[tid]);
-    }
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 @timeout_count+=
++;
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
+ =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 }
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 delete(@ppoll_enter[tid]);
+ =
+=C2=A0 =C2=A0 }
 }
-tracepoint:syscalls:sys=
-_exit_recvmsg {
-    if (comm =3D=3D "sshd-session" || comm =3D=3D "sshd")=
- {
-        if (args->ret > 0) {
-            $ms =3D (nsecs - @start) / =
-1000000;
-            printf("[%5lld ms] %s: recvmsg() =3D %lld bytes\n", =
-$ms, comm, args-
->ret);
-            @recv_count++;
-            @recv_=
-bytes +=3D args->ret;
-        }
-    }
+tracepoint:syscalls:sys_exit_recvmsg {
+ =C2=A0 =
+=C2=A0 if (comm =3D=3D "sshd-session" || comm =3D=3D "sshd") {
+ =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 if (args->ret > 0) {
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 $ms =3D (nsecs - @start) / 1000000;
+ =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 printf("[%5lld ms] %s: recvmsg() =3D %lld bytes\n"=
+, $ms,=20
+comm, args->ret);
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 @r=
+ecv_count++;
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 @recv_bytes +=3D =
+args->ret;
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 }
+ =C2=A0 =C2=A0 }
 }
-interval:s:5 {
-    printf=
-("\n[%5lld ms] --- 5s stats: ppoll=3D%d, timeouts=3D%d, recv=3D%d (%d bytes=
-)
----\n\n",
-           (nsecs - @start) / 1000000, @ppoll_count, @timeo=
-ut_count,
+interv=
+al:s:5 {
+ =C2=A0 =C2=A0 printf("\n[%5lld ms] --- 5s stats: ppoll=3D%d, ti=
+meouts=3D%d, recv=3D%d=20
+(%d bytes) ---\n\n",
+ =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0(nsecs - @start) / 1000000, @ppoll_count, @timeout_coun=
+t,=20
 @recv_count, @recv_bytes);
 }
-
 
 
