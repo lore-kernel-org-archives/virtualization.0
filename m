@@ -1,320 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE201156677
-	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 04:09:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32690156677
+	for <virtualization@lists.linux.dev>; Thu,  5 Feb 2026 04:12:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770264551; cv=none; b=kmwMAnmcB9EAzFw+CDvSX1R/fJ4lknJJ1lSW3wO3GIZOTEaUDUzaJq1PJPeQTguKsZHOjZHeRGYk01BnNuaiKSqB/x4jWKcpHl+onfZqcAmq227JTtpTGkgoIWVR6DZI81eWhDa5ZNKSPDaMyy3hCBRqg7eJVobiz7fspNjGFMc=
+	t=1770264752; cv=none; b=d38jj9NgydOFBHDSqqBdv+jEHw0Vtg53/ZD50GjaCihL7M4lxBENRW2g6IOYLbXQUahOfqiP5elZivk+MCAzEZU4LM/vyuUHJI1yTq2obbGkFjU+wDbQPr04a8cxfgHKE71053iqa5/BTX53Wz1olfFF7Wzo8AwG3+LT4NWqR9A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770264551; c=relaxed/simple;
-	bh=Jdt4rGaAfRb8vsWzTmDiMMjJ8iIJ1cV3UNfSYlRbKDU=;
+	s=arc-20240116; t=1770264752; c=relaxed/simple;
+	bh=3TYZrhXeLdwlvT3HOHosF3Zz6ave+UyXvM0VGb5I6kU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Nf/iCcBvhxa3dQ7FGqCB/vDmZ50thTu5WGTyE4WId6St1HK4aHyIwj3sp1Rj4nU+vPSZRrMqIYYm9AsXIhXayg8SBI/aabHbnnYzgwmdcp2ZCxpFBcniC7mIcbkTI7sFAEy2JFg4ig9t54NXUK7TYzvW8g5oA8In6nSaXoxC1T8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=d/dXn+m3; arc=none smtp.client-ip=170.10.129.124
+	 To:Cc:Content-Type; b=dy1xyqjXdZjxf8hjMPtUOdXOf3suRbYAE5bapbZCf7fEJoH70mqXcH3shOavFqiWPxHeju1LgXxMlrV0t6b5J4qT5SmOWwpYygdN4dFdYgoqyY47wI29jbAvTI4eSy9BswlILN/RfrPk9FThXeoYzQqddIEsW6yr6i+sfH0+Ujc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Te1rryoe; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d/dXn+m3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Te1rryoe"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770264550;
+	s=mimecast20190719; t=1770264751;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=W7WVw7I421f2Zcw7sXe47WQ3tcv+hyJcDrqMXlYgXEs=;
-	b=d/dXn+m3VhuUb1tsXxNQBLACxBIp7vo6UL3/Wg8W5+rrPKSwA0v9TDFjuQ2df0lh+2Ne8g
-	PF/oBvFvGppowZDPdwyXulVdMdczigJTLGjpA2HseQYLx+8SPhGH0Ktn0p7diXB3g+zmQ+
-	BsLX//TmQWwj2dbE7KnY8r+JV2vZGSY=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Zewgyfu9wLqA2DfawEOVacfHlxdGI5cP4c+2P+5IbE0=;
+	b=Te1rryoeatP0zGcM8aiXssEDuuJZtD5qguichaIf6NoHLagKRLMGgyTCsb+1VCB4K3jeY5
+	L52gnyWHUtHBPIlvdXSfm2B03LafBNL5mNc4p+neAYL1ci9S3pZgbCg13G4QC2Ja6JWx8F
+	UjuL8I8nRAEK5ZF965wuqw809ZHK5xc=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-641-NMUYjjZdNzOwX0gGTQ0DnA-1; Wed, 04 Feb 2026 23:09:09 -0500
-X-MC-Unique: NMUYjjZdNzOwX0gGTQ0DnA-1
-X-Mimecast-MFC-AGG-ID: NMUYjjZdNzOwX0gGTQ0DnA_1770264548
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-c613929d317so316140a12.2
-        for <virtualization@lists.linux.dev>; Wed, 04 Feb 2026 20:09:09 -0800 (PST)
+ us-mta-604-JQQ7qpZVOnCLKNMGwNZVrA-1; Wed, 04 Feb 2026 23:12:30 -0500
+X-MC-Unique: JQQ7qpZVOnCLKNMGwNZVrA-1
+X-Mimecast-MFC-AGG-ID: JQQ7qpZVOnCLKNMGwNZVrA_1770264749
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-34ec823527eso851222a91.2
+        for <virtualization@lists.linux.dev>; Wed, 04 Feb 2026 20:12:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770264548; x=1770869348;
+        d=1e100.net; s=20230601; t=1770264749; x=1770869549;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=W7WVw7I421f2Zcw7sXe47WQ3tcv+hyJcDrqMXlYgXEs=;
-        b=RQwMmq7EZx2Mw8kOTs+VxPO4KEDr/380UhrEBLyn64JUB3XaVgyZc4yJfinWBWWdPD
-         sYNe0zHTWtWw8XSspwNQmrprDNS6jiElCmcMmKXpu7nzn+wgrlhaHyL2hqFJ6ErTeTkI
-         m9+bBW4XOm+lkfhVkmKGKhOae3ZDclNUIuqC1p5373TQ38e1pBZPl66+ngfL+sjqfecx
-         E8itG2CdajaSXI1+McBGNS2aqe5wnSZnt3sEjObDgY+sJIc+MhxmqBTbBL2JM2nyozVS
-         5U1IeKKytODPmNBy8FXQcwmxnd+0GtPREGAwHdZVIOp67f621aoCjpiwIAIe3iWB+cFO
-         noGQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW3eVuPTRkud/73mVdYnMnyLqYKkwkkzlRB7XKCQmsz9YGxfeFSX6GZixOq2golJqITz86jwlw2M4wG6Ob7ug==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzF3VLh2T6bSUe4uHO2ll8976QviVj8x+VeXfEyB9FtCJOjkI2I
-	5chVqIaqo8I6Fpuse1tXe5pGBQP3HXhdv9gAqZJwNSjkRyQ6oq3y8Uw5OmxB1miV15yA3JYfAt2
-	CKKgm2c/FZuVwHwbewsqxT/dsEvKLb67MPuhPs4byR0QoBbXHkEBck+Eb/tlEf8eQryOl3V0Bjq
-	YXPLKZRyW8zzaR8oDXIWu+286fviaF2OSIyN4QWzmXLBY=
-X-Gm-Gg: AZuq6aKVT3NWc3p6KWS8Lsxz7XBtJwYCn28dswwKWd4ydvE4g+Ao0VQb7ivBJBE65C4
-	Wglmeujvq313LpqLSfRegXsXCTjBvEONreXhCLToxtiWIiz5Y5psusySya8IrGRL7bJ2Lv96WWD
-	HG8th1mHB/8K7YTbhA5IKaHovocGDwTmlc35RMTfzwmRUZCrUe7tBPSLnJMJN8IPoWZg==
-X-Received: by 2002:a05:6a20:3d86:b0:344:97a7:8c6a with SMTP id adf61e73a8af0-393723b7450mr5250054637.51.1770264548217;
-        Wed, 04 Feb 2026 20:09:08 -0800 (PST)
-X-Received: by 2002:a05:6a20:3d86:b0:344:97a7:8c6a with SMTP id
- adf61e73a8af0-393723b7450mr5250026637.51.1770264547760; Wed, 04 Feb 2026
- 20:09:07 -0800 (PST)
+        bh=Zewgyfu9wLqA2DfawEOVacfHlxdGI5cP4c+2P+5IbE0=;
+        b=VXJpb44rUd5zwbMWARYzhOshPe9DI2JVWr972qpzQNHbDTgHPRchGAj/B7WlUv+Otl
+         Suj3eDRlHi3jYIs+JkrLhSLC2AduCXlLdvvm/P6SJUhO7Rn3rXDj9oGaBZxk2JMxnfEl
+         Aj7G8kE2cw51IkimB/idCCn4llgmVY+xnkc3SnbBUP8veWqwOrmtBehc1D0ti0fE1DyL
+         FSlchhEAEoYsHTL9vT23uD1IrTT7sL3UbCM9kbp+4tKWA3nw+SKedgcx2/cIQqvcJyeX
+         ncBSm0HO3oL487PFzEEEIq5+ikkyovYVKmJ1sM++9bOnUORjjf7Lw0/TP7KMGsMvq3dY
+         sMUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWp87dXq3EfiYw9e12v/7CedVSVgEvQcxwNCw5IMvngYpOhoDq4Q74l/c8iIIl52FtWIZHBVIWltkKMENqlMw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YylrgQ/KN0xikkK5QIZ108ybqTgPuNm7zhPjCO3ZuTGCu8UO4X7
+	DUvUsBde92+TnVKvx7cbS0vrYvOy5LC6NA/dlZtlaedLzcElmyWtzbV6HHTiWEm72k2s2R+68P7
+	rIUhGZSa5kvoYYYORpCg3rBUPI5hjkYILWEgT7QDTyNdA178auPeyeDfmjgsV2W5Q9CYza3MzCF
+	+Ql1X2vf9JLGM8xAPf0EsVVM8y530iGaxQCMrKa1+E6JE=
+X-Gm-Gg: AZuq6aLHwZ1C9SrQUorYRI4Aq0r72H3Dc5vZidjkerJG2QO24yP/vwfTDNy4lIDxs/9
+	7I4SZpBmORFxCV+yz3he+SwyR/8dFrpbFNgveCa8VEXn09O1wHITjZg+NO4lLrceAC7iaj4LbYV
+	v7xhACMDpu8PiDAsvELI2a2pSMiwxYV8nHAxRWcl5nZtI8LicxMdFmqJksyA+wYq1NTg==
+X-Received: by 2002:a17:90b:584e:b0:354:a065:ec3b with SMTP id 98e67ed59e1d1-354a0662c95mr749306a91.27.1770264748984;
+        Wed, 04 Feb 2026 20:12:28 -0800 (PST)
+X-Received: by 2002:a17:90b:584e:b0:354:a065:ec3b with SMTP id
+ 98e67ed59e1d1-354a0662c95mr749287a91.27.1770264748561; Wed, 04 Feb 2026
+ 20:12:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260128124524.875271-1-eperezma@redhat.com> <20260128124524.875271-6-eperezma@redhat.com>
- <CACGkMEtuAG-uZYJWZcsT1A0+QBCTOnkr7m0dt8MdbTwd5UNyNw@mail.gmail.com>
- <CAJaqyWc8_B82n1a3JaBKKvhkWN=Rs93=kcfCU6e9RfzsPXdF5g@mail.gmail.com>
- <CACGkMEuqbEGXE-6xe_kkPMT_JicieQ=HjNKx9j_o3XG9TCuAKg@mail.gmail.com>
- <CAJaqyWe_CLL4D-8WcTJm==AK=d0DrjSrco+ctaQjSobo5ZPHkg@mail.gmail.com>
- <CACGkMEtXh1xBDemkCCUw_Sow9-1pBU_bo1sN0SUmTQF0XCvvHA@mail.gmail.com>
- <CAJaqyWcJjtiw2VLzybuUAFs3Q4ugvhEPFeDtxN31vjzdvKS8RA@mail.gmail.com>
- <CACGkMEt1XiKEqqYAs5QhLJnUwAE+SU4GzgAe9f34ohmAw8nzLg@mail.gmail.com> <CAJaqyWcuwsnKj6wb1Vc2bXORyTeQhsn7ZLdsbEiU-C8QKKuFYQ@mail.gmail.com>
-In-Reply-To: <CAJaqyWcuwsnKj6wb1Vc2bXORyTeQhsn7ZLdsbEiU-C8QKKuFYQ@mail.gmail.com>
+References: <20260204193617.1200752-1-vishs@meta.com> <20260204193617.1200752-3-vishs@meta.com>
+In-Reply-To: <20260204193617.1200752-3-vishs@meta.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 5 Feb 2026 12:08:55 +0800
-X-Gm-Features: AZwV_QiitQc4_lO24NM3yhSWXKpCSqWvwh2g1CXJg7aXiJMyJnVMJdntCQzXFbs
-Message-ID: <CACGkMEvgQsPUv_zK7=1bpLPhvem_HuS8MRb5uUB0VcB5vBQN4Q@mail.gmail.com>
-Subject: Re: [PATCH 5/6] vduse: add F_QUEUE_READY feature
-To: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 5 Feb 2026 12:12:17 +0800
+X-Gm-Features: AZwV_QizAHLNWkiETUatO6ZkdAJ2xnGs0u3Ghu1W7Yk4-H7oDiMym-wpgKMXGqk
+Message-ID: <CACGkMEtMgNpoSeUUFt10LJZqtTpi1atbPJwpXDf94AyzVKxvqQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v4 2/2] selftests: virtio_net: add buffer
+ circulation test
+To: Vishwanath Seshagiri <vishs@meta.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, 
-	Maxime Coquelin <mcoqueli@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	virtualization@lists.linux.dev
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S . Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	David Wei <dw@davidwei.uk>, Matteo Croce <technoboy85@gmail.com>, 
+	Ilias Apalodimas <ilias.apalodimas@linaro.org>, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	kernel-team@meta.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _Q_V26Tw52vkS7hAdRgO8CmBrbHAqD_eMOXst4zECyw_1770264548
+X-Mimecast-MFC-PROC-ID: -6Df-BeBVB1sbQFvEQflbqNqyKGZZyXCVs5ISpe4iHg_1770264749
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 4, 2026 at 3:35=E2=80=AFPM Eugenio Perez Martin <eperezma@redha=
-t.com> wrote:
+On Thu, Feb 5, 2026 at 3:36=E2=80=AFAM Vishwanath Seshagiri <vishs@meta.com=
+> wrote:
 >
-> On Wed, Feb 4, 2026 at 3:44=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
-rote:
-> >
-> > On Tue, Feb 3, 2026 at 3:28=E2=80=AFPM Eugenio Perez Martin <eperezma@r=
-edhat.com> wrote:
-> > >
-> > > On Tue, Feb 3, 2026 at 5:00=E2=80=AFAM Jason Wang <jasowang@redhat.co=
-m> wrote:
-> > > >
-> > > > On Fri, Jan 30, 2026 at 4:15=E2=80=AFPM Eugenio Perez Martin
-> > > > <eperezma@redhat.com> wrote:
-> > > > >
-> > > > > On Fri, Jan 30, 2026 at 3:17=E2=80=AFAM Jason Wang <jasowang@redh=
-at.com> wrote:
-> > > > > >
-> > > > > > On Thu, Jan 29, 2026 at 2:26=E2=80=AFPM Eugenio Perez Martin
-> > > > > > <eperezma@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Thu, Jan 29, 2026 at 3:12=E2=80=AFAM Jason Wang <jasowang@=
-redhat.com> wrote:
-> > > > > > > >
-> > > > > > > > On Wed, Jan 28, 2026 at 8:45=E2=80=AFPM Eugenio P=C3=A9rez =
-<eperezma@redhat.com> wrote:
-> > > > > > > > >
-> > > > > > > > > Add the VDUSE_F_QUEUE_READY feature flag. This allows the=
- kernel module
-> > > > > > > > > to explicitly signal userspace when a specific virtqueue =
-has been
-> > > > > > > > > enabled.
-> > > > > > > > >
-> > > > > > > > > In scenarios like Live Migration of VirtIO net devices, t=
-he dataplane
-> > > > > > > > > starts after the control virtqueue allowing QEMU to apply=
- configuration
-> > > > > > > > > in the destination device.
-> > > > > > > > >
-> > > > > > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > > > > > > > ---
-> > > > > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 ++++++++++++++++=
-+++++++++++-
-> > > > > > > > >  include/uapi/linux/vduse.h         | 19 ++++++++++++++++=
-+++
-> > > > > > > > >  2 files changed, 46 insertions(+), 1 deletion(-)
-> > > > > > > > >
-> > > > > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers=
-/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > > > index e7da69c2ad71..1d93b540db4d 100644
-> > > > > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > > > @@ -9,6 +9,7 @@
-> > > > > > > > >   */
-> > > > > > > > >
-> > > > > > > > >  #include "linux/virtio_net.h"
-> > > > > > > > > +#include <linux/bits.h>
-> > > > > > > > >  #include <linux/cleanup.h>
-> > > > > > > > >  #include <linux/init.h>
-> > > > > > > > >  #include <linux/module.h>
-> > > > > > > > > @@ -53,7 +54,7 @@
-> > > > > > > > >  #define IRQ_UNBOUND -1
-> > > > > > > > >
-> > > > > > > > >  /* Supported VDUSE features */
-> > > > > > > > > -static const uint64_t vduse_features;
-> > > > > > > > > +static const uint64_t vduse_features =3D BIT_U64(VDUSE_F=
-_QUEUE_READY);
-> > > > > > > > >
-> > > > > > > > >  /*
-> > > > > > > > >   * VDUSE instance have not asked the vduse API version, =
-so assume 0.
-> > > > > > > > > @@ -120,6 +121,7 @@ struct vduse_dev {
-> > > > > > > > >         char *name;
-> > > > > > > > >         struct mutex lock;
-> > > > > > > > >         spinlock_t msg_lock;
-> > > > > > > > > +       u64 vduse_features;
-> > > > > > > > >         u64 msg_unique;
-> > > > > > > > >         u32 msg_timeout;
-> > > > > > > > >         wait_queue_head_t waitq;
-> > > > > > > > > @@ -619,7 +621,30 @@ static void vduse_vdpa_set_vq_ready(=
-struct vdpa_device *vdpa,
-> > > > > > > > >  {
-> > > > > > > > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > > > > > > > >         struct vduse_virtqueue *vq =3D dev->vqs[idx];
-> > > > > > > > > +       struct vduse_dev_msg msg =3D { 0 };
-> > > > > > > > > +       int r;
-> > > > > > > > > +
-> > > > > > > > > +       if (!(dev->vduse_features & BIT_U64(VDUSE_F_QUEUE=
-_READY)))
-> > > > > > > > > +               goto out;
-> > > > > > > > > +
-> > > > > > > > > +       msg.req.type =3D VDUSE_SET_VQ_READY;
-> > > > > > > > > +       msg.req.vq_ready.num =3D idx;
-> > > > > > > > > +       msg.req.vq_ready.ready =3D !!ready;
-> > > > > > > > > +
-> > > > > > > > > +       r =3D vduse_dev_msg_sync(dev, &msg);
-> > > > > > > > >
-> > > > > > > > > +       if (r < 0) {
-> > > > > > > > > +               dev_dbg(&vdpa->dev, "device refuses to se=
-t vq %u ready %u",
-> > > > > > > > > +                       idx, ready);
-> > > > > > > > > +
-> > > > > > > > > +               /* We can't do better than break the devi=
-ce in this case */
-> > > > > > > > > +               spin_lock(&dev->msg_lock);
-> > > > > > > > > +               vduse_dev_broken(dev);
-> > > > > > > >
-> > > > > > > > This has been done by vduse_dev_msg_sync().
-> > > > > > > >
-> > > > > > >
-> > > > > > > This is done by msg_sync() when userland does not reply in a
-> > > > > > > timeframe, but not when userland replies with VDUSE_REQ_RESUL=
-T_FAILED.
-> > > > > > > Should I add a comment?
-> > > > > >
-> > > > > > If this is not specific to Q_READY, I think we need to move it =
-to
-> > > > > > msg_sync() as well.
-> > > > > >
-> > > > >
-> > > > > It's specific to Q_READY for me, as it's the request that returns=
- void
-> > > > > and has no possibility to inform of an error.
-> > > >
-> > > > I may miss something, I mean why consider the failure of Q_READY to=
- be
-> > > > more serious than the failure of other commands (e.g set_status()).
-> > > >
-> > >
-> > > I'm not considering the failure of Q_READY more serious than any othe=
-r
-> > > failure. I'm breaking the device here as I cannot return the error to
-> > > the vDPA driver: This function returns void.
-> >
-> > Yes, and set_status() return void as well.
-> >
-> > void virtio_add_status(struct virtio_device *dev, unsigned int status)
-> > {
-> >         might_sleep();
-> > =3D>      dev->config->set_status(dev, dev->config->get_status(dev) | s=
-tatus);
-> > }
-> >
+> Add iperf3-based test to verify RX buffer handling under load.
+> Optionally logs page_pool tracepoints when available.
 >
-> Yes, I'm not saying all of the other users of vduse_dev_msg_sync don't
-> ignore the return code of the userland VDUSE instance. I'm saying that
-> we have cases where it is not ignored and the driver can react from
-> the error. After a fast look for them:
+> Signed-off-by: Vishwanath Seshagiri <vishs@meta.com>
+> ---
+>  .../drivers/net/virtio_net/basic_features.sh  | 86 +++++++++++++++++++
+>  1 file changed, 86 insertions(+)
 >
-> 1) Case vhost_vdpa -> VHOST_GET_VRING_BASE -> ops->get_vq_state.
-> 2) Case vhost_vdpa -> ops->vduse_vdpa_set_map -> vduse_dev_update_iotlb
+> diff --git a/tools/testing/selftests/drivers/net/virtio_net/basic_feature=
+s.sh b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+> index cf8cf816ed48..fa98505c4674 100755
+> --- a/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+> +++ b/tools/testing/selftests/drivers/net/virtio_net/basic_features.sh
+> @@ -6,6 +6,7 @@
+>  ALL_TESTS=3D"
+>         initial_ping_test
+>         f_mac_test
+> +       buffer_circulation_test
+>  "
 >
-> If the userland VDUSE instance returns an error, -EIO is propagated to
-> vhost_vdpa user, and both can react and continue operating normally.
-> If we break the device, the same two userlands apps see a totally
-> different behavior: The device is totally unusable from that moment.
+>  source virtio_net_common.sh
+> @@ -16,6 +17,8 @@ source "$lib_dir"/../../../net/forwarding/lib.sh
+>  h1=3D${NETIFS[p1]}
+>  h2=3D${NETIFS[p2]}
 >
-> Do we really want to break the device from the moment that VDUSE
-> instance returns an error in these conditions, and do it in an user
-> visible change?
+> +IPERF_SERVER_PID=3D""
+> +
+>  h1_create()
+>  {
+>         simple_if_init $h1 $H1_IPV4/24 $H1_IPV6/64
+> @@ -83,6 +86,84 @@ f_mac_test()
+>         log_test "$test_name"
+>  }
+>
+> +buffer_circulation_test()
+> +{
+> +       RET=3D0
+> +       local test_name=3D"buffer circulation"
+> +       local tracefs=3D"/sys/kernel/tracing"
+> +
+> +       if ! check_command iperf3; then
+> +               log_test_skip "$test_name" "iperf3 not installed"
+> +               return 0
+> +       fi
+> +
+> +       setup_cleanup
+> +       setup_prepare
+> +
+> +       ping -c 1 -I "$h1" "$H2_IPV4" >/dev/null
+> +       if [ $? -ne 0 ]; then
+> +               check_err 1 "Ping failed"
+> +               log_test "$test_name"
+> +               return
+> +       fi
+> +
+> +       local rx_start=3D$(cat /sys/class/net/"$h2"/statistics/rx_packets=
+)
+> +       local tx_start=3D$(cat /sys/class/net/"$h1"/statistics/tx_packets=
+)
+> +
+> +       if [ -d "$tracefs/events/page_pool" ]; then
+> +               echo > "$tracefs/trace"
+> +               echo 1 > "$tracefs/events/page_pool/enable"
+> +       fi
+> +
+> +       local port=3D$(shuf -i 49152-65535 -n 1)
+> +
+> +       iperf3 -s -1 --bind-dev "$h2" -p "$port" &>/dev/null &
+> +       IPERF_SERVER_PID=3D$!
+> +       sleep 1
 
-Ok, I think you worries about that if we do it for set_status() it
-might break userspace. That makes sense.
+Nit:
 
->
-> > >
-> > > We can make the function return a bool or int, and then make
-> > > vhost_vdpa and virtio_vdpa react to that error.  QEMU is already
-> > > prepared for VHOST_VDPA_SET_VRING_ENABLE to return an error, as it is
-> > > an ioctl,
-> >
-> > But we did:
-> >
-> >         case VHOST_VDPA_SET_VRING_ENABLE:
-> >                 if (copy_from_user(&s, argp, sizeof(s)))
-> >                         return -EFAULT;
-> >                 ops->set_vq_ready(vdpa, idx, s.num);
-> >                 return 0;
-> >
-> > So the failure come from copy_from_user()
-> >
->
-> Yes. Let me rewrite it as:
->
-> We can make ops->set_vq_ready return a bool or int, and then make
-> vhost_vdpa react to that error. The driver virtio_vdpa already checks
-> the same by calling get_vq_ready, but there is no equivalent in
-> vhost_vdpa. I can set a comment explaining the two methods for
-> checking the error of the call. QEMU is already prepared for handling
-> the return of an error from VHOST_VDPA_SET_VRING_ENABLE, as the ioctl
-> already returns errors like -EFAULT, and hopefully the rest of the
-> users of VHOST_VDPA_SET_VRING_ENABLE are also prepared.
->
-> > >
-> > > Should I change vdpa_config_ops->set_vq_ready so it can return an
-> > > error, as a prerequisite of this series?
-> >
-> > Or it would be better to leave the breaking of device on
-> > REQ_RESULT_FAILED for future investigation (not blocking this series).
-> >
->
-> I'd say it's the best option, yes. But my vote is to make
-> VHOST_VDPA_SET_VRING_ENABLE more robust actually :).
-
-Ok, I think then it would be better to use a separate patch in this series?
+It's better to use a more robust detecting instead of a sleep 1.
 
 Thanks
-
->
-> > >
-> > > > >
-> > > > > The VDUSE userland instance could reply to other requests with
-> > > > > REQ_RESULT_FAILED and the driver still has capacity to recover fr=
-om
-> > > > > the failure.
-> > > > > If we always break the device on every request fail, we
-> > > > > deny that possibility.
-> > > > >
-> > > >
-> > > > Thanks
-> > > >
-> > >
-> >
-> > Thanks
-> >
->
 
