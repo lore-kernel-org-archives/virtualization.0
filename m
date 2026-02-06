@@ -1,257 +1,232 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5176C1CF8B
-	for <virtualization@lists.linux.dev>; Fri,  6 Feb 2026 00:10:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.9
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770336652; cv=fail; b=oVpskaS+TW4z2d7P1pci5sD1NSWE7IXoKilhQOxFXLU+KX0poobCMCvvsKBJPeuTWEvoYWi6FcY8KzOFXkMJBVX7m6lqgioTzGspoDebRGFMn7QDMc/gf/xtV7OIU9ZHQdc26pvTFrbjRx6bxDqYdoPLQhr2j+h5zSfFfZZs1E8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770336652; c=relaxed/simple;
-	bh=9OyJI9CkTcLM9pD7IGEUobn9FORc2Hu9hDL9can3T7M=;
-	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=KKIH77z+zku5UXeZe/EngJkPDD+6RFbhT29JdWvuNNKjoegzNuGsCPXuaNYdfBNjQbUQZbB7mRWEAd+DSiW0dXNiuKlNvCb6d2h4Z0aaFbFxXkS7lKtC1nw716t9Y/qM7inKYkc9Ip1Ri6XqOzWv9mkevGCnb38j7gecnhgzPuY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bW1FR6DU; arc=fail smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5621013A3F7
+	for <virtualization@lists.linux.dev>; Fri,  6 Feb 2026 00:27:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770337648; cv=none; b=IqYHTLtE1iqervE58hBYq7qGKsvGSxgiPQjjzk3LKY8Zu144qCmEng32bjmQB3aogfpltB1hFrn4NYFEzlNMm/OPpdeFw7wJV++v4UmTKTtp90hMUbFfgnYz4yj/pjb0JE8XRtDyiDBAkZonIHmo3kZwoU9YikcbTcwDBFhHwl8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770337648; c=relaxed/simple;
+	bh=tVj3lVpI4aZ8TTqpaoJEkZkIZWuFzIADrc4Fv61YUk4=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Pc57hCBSRNmLk2r+d6BmrpjSSMXVtK20bEz7/lmKtz8bv8l05CmaHj2zlcT2DyohGEdU5XZuF6GyhFdjqyhHsQCrtXSA2WlwreS/LWu7Xm73ehbPZ51fXiTd8aWV4nt7btredeZxrH3Q9RGRXDoPwiuWz1KNbanE8y5w3BF/K7A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=SeD3739q; arc=none smtp.client-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bW1FR6DU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1770336651; x=1801872651;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=9OyJI9CkTcLM9pD7IGEUobn9FORc2Hu9hDL9can3T7M=;
-  b=bW1FR6DULzteLvmT4qKLQZTL+gtLRWLpnJkhwCSUh7E+blfawhms5Q68
-   nPG3CV3iIpylEZQoTt7ggS7lK1gmBmMUPODkzpGRONWIqcehJZ0SmU7DH
-   1+x7BNeEjXRW1bQ7nF0txJUKFKeMD4ZDK7DvqKBl4lz+xVQX53EoUf9tF
-   +mkiqIacHaMPcwhHk6U4v8SU8xiAH6Xpsj3WISdhh/7InF0UULRjOuaer
-   zq7lEgHkIrqPm1lubGzFtYCH1Afb1JYk38pWqICFeG5sNOmPUEGjGzBpI
-   Tv32sSCnjaZi9Fu0xtaiZrrTsw1tBffrYTl9cZ/Vg2fx5kEenf4V9BPYP
-   A==;
-X-CSE-ConnectionGUID: 4kdn40ghRI+7giFJjl/jEA==
-X-CSE-MsgGUID: zwhxMmsnQDe4hnsxvIOkUw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11692"; a="94194659"
-X-IronPort-AV: E=Sophos;i="6.21,275,1763452800"; 
-   d="scan'208";a="94194659"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2026 16:10:51 -0800
-X-CSE-ConnectionGUID: e34fgxH5S6Oyf8OhpAwzdA==
-X-CSE-MsgGUID: TJjsorqrTOqLM7UGhMRcOw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,275,1763452800"; 
-   d="scan'208";a="210024747"
-Received: from fmsmsx902.amr.corp.intel.com ([10.18.126.91])
-  by fmviesa007.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2026 16:10:51 -0800
-Received: from FMSMSX901.amr.corp.intel.com (10.18.126.90) by
- fmsmsx902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.35; Thu, 5 Feb 2026 16:10:50 -0800
-Received: from fmsedg902.ED.cps.intel.com (10.1.192.144) by
- FMSMSX901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.35 via Frontend Transport; Thu, 5 Feb 2026 16:10:50 -0800
-Received: from CH4PR04CU002.outbound.protection.outlook.com (40.107.201.8) by
- edgegateway.intel.com (192.55.55.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.35; Thu, 5 Feb 2026 16:10:49 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ifX9ItfCr6EgDhWnX6lpgkZn/G43Gva/86q/mqqm93Uv8RM+4OemfPnNd+1vDpX9iHeaDM6J+tYXWu+NbquFaCbSC1Lh6NpdQOd2a4+gqWnAOnXiBFDY9/xqgoBNY47NSlDpqytbZuPYtPCFhJmbEm8fDgx92vEsYGbEX/g9GrA4Wj8cTfTS/QweNyAsMvn5Cy5ziYKXUe/aVkz65GpnWsQHPKzUn9SSKHoo00opcOj94mIjS90NRXw2TywsqjOUegXXWvAiU/MhLpOdgNB4x52KWg+RV8+kxmridE3TkEiCF8SrPL5xvuWdZuUN8Ybf+OJ0CcFCqa2D7ywjJ0WnwA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7THXvKUHsGwmo5ufcvadI3GFDY6RoDMKHVj46gt+3OQ=;
- b=LfPLcPnjVaEl12fYPSp1G4dquK4IFsKABzPYUxs0tIb+ZrsWYWZLyKX3LPUtBZkQ8Va4TsGHQB1TvoCXh5cQxgUb4n3nFJUpKFWMxD71BsB2G15RYSZqt5LgOWEwOvg1Ho6lavXSIkBEsFMv5AFf9cgY2shObF7mNcM4VRFP/vtFN6VDTr26hlK7/3Bw15lCepV5YqaH1OlJDxJMrBN9OPcIYTRKy666RwtOudIJ71QZVMhnmb29wcg82UOZUZx2gAW1qlyoMkBh9R5B3NMHOy59QZfmwsdKN3v4NaeQhAOM/NuPpUd3lDc+7hHdLyYymc6sUNQmj2DKJPupweIYqw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS0PR11MB7997.namprd11.prod.outlook.com (2603:10b6:8:125::14)
- by SN7PR11MB7020.namprd11.prod.outlook.com (2603:10b6:806:2af::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.16; Fri, 6 Feb
- 2026 00:10:40 +0000
-Received: from DS0PR11MB7997.namprd11.prod.outlook.com
- ([fe80::24fa:827f:6c5b:6246]) by DS0PR11MB7997.namprd11.prod.outlook.com
- ([fe80::24fa:827f:6c5b:6246%4]) with mapi id 15.20.9587.010; Fri, 6 Feb 2026
- 00:10:40 +0000
-Message-ID: <ab7f5935-fd5e-4ba5-a97d-5433f241a089@intel.com>
-Date: Thu, 5 Feb 2026 16:10:37 -0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/3] x86/virt: rename x2apic_available to
- x2apic_without_ir_available
-Content-Language: en-US
-To: Shashank Balaji <shashank.mahadasyam@sony.com>, Thomas Gleixner
-	<tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
-	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
-	"H. Peter Anvin" <hpa@zytor.com>, "K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, "Dexuan
- Cui" <decui@microsoft.com>, Long Li <longli@microsoft.com>, Ajay Kaher
-	<ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>, Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>, Juergen Gross <jgross@suse.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>
-CC: <linux-kernel@vger.kernel.org>, <linux-hyperv@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <jailhouse-dev@googlegroups.com>,
-	<kvm@vger.kernel.org>, <xen-devel@lists.xenproject.org>, Rahul Bukte
-	<rahul.bukte@sony.com>, Daniel Palmer <daniel.palmer@sony.com>, Tim Bird
-	<tim.bird@sony.com>
-References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
- <20260202-x2apic-fix-v1-3-71c8f488a88b@sony.com>
-From: Sohil Mehta <sohil.mehta@intel.com>
-In-Reply-To: <20260202-x2apic-fix-v1-3-71c8f488a88b@sony.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: BY1P220CA0003.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:a03:59d::10) To DS0PR11MB7997.namprd11.prod.outlook.com
- (2603:10b6:8:125::14)
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="SeD3739q"
+Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6160Q1rO2205305;
+	Thu, 5 Feb 2026 16:27:17 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=s2048-2025-q2; bh=cKGXC2X/BXA5kwBSPS
+	+rFIN4yR6cEyfWv739MJ0i1j0=; b=SeD3739q1fTOUVsAYeESvCdZetH2SxM//I
+	UH8bx34ueZBp7gizVDUOfX2Ikl0XJ2VfBJD6Ke2DbDK3JyUPYzsVMKJ+Aiemrzso
+	iKqz+sz52Rhau4p5sPxfm2P36Jc5np87qiTe8SY2jkPZemfUHXZQ7MVMNL8iDI2S
+	oP3UgzTZ33RPWUyGlckQ5ZVLhoHgELVsgy/EKNh7h6fQRtWTtk0JV+ZU7LQHyqV3
+	eoBp4Gg7HdH9l7z6+xFcMslQWJUrexBtmqprPYdXsxEm3i5K6/R4jr877kpFWgQx
+	hmroKeC4APRaQAr+Qvg4qeeRQWGmB3wWW7+87huhPXo1qARiPgkA==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4c506gvdch-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Thu, 05 Feb 2026 16:27:16 -0800 (PST)
+Received: from localhost (2620:10d:c085:208::7cb7) by mail.thefacebook.com
+ (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.35; Fri, 6 Feb
+ 2026 00:27:15 +0000
+From: Vishwanath Seshagiri <vishs@meta.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?=
+	<eperezma@redhat.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        "David S .
+ Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, David Wei
+	<dw@davidwei.uk>,
+        Matteo Croce <technoboy85@gmail.com>,
+        Ilias Apalodimas
+	<ilias.apalodimas@linaro.org>,
+        <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
+        <linux-kernel@vger.kernel.org>, <kernel-team@meta.com>
+Subject: [PATCH net-next v5 0/2] virtio_net: add page_pool support
+Date: Thu, 5 Feb 2026 16:27:13 -0800
+Message-ID: <20260206002715.1885869-1-vishs@meta.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR11MB7997:EE_|SN7PR11MB7020:EE_
-X-MS-Office365-Filtering-Correlation-Id: a6e92a19-1470-4faf-bc33-08de65142955
-X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|7416014|1800799024|921020;
-X-Microsoft-Antispam-Message-Info: =?utf-8?B?VlhFNnVXQjM3Tyt4Z29JT0RuV2t4MkxVL3JxL0FETkpzUjdReThHamNOR2lq?=
- =?utf-8?B?ZlBlcjdhNTRMTGJLQmJUOE9SdXdCbGNubWFsc05VcEw4SERlSFExRndBOFZx?=
- =?utf-8?B?MG5mYVVwRTAvQTZFMVFYRi9LNDNHa3ZVUjlDVzF5RTd4RXA4WHpjZFZXdkw2?=
- =?utf-8?B?ckRwemFmM2tuWk1zYU1OUzJkM0dONHN6ZDNFQmM3S3ZvZXpXb3VyOVB2N2Nm?=
- =?utf-8?B?OGJjQURxQjFvNHBvRS9sWk5pb3JDQTc1eVBKTVltZzdzWDBrZENPTDIreVpI?=
- =?utf-8?B?TGJQS0ErU1ZyL2k1WkRTdzNKMXErYmh0SCtYNG5FYW1rRXMzOWM3UUtVWjFY?=
- =?utf-8?B?bG11QWo1VFh5UlBwSUg0Y2xEUHJrNmZ0NVZMZnVBNnpsVGQ3RWR0OXovWG56?=
- =?utf-8?B?MnI3YitNVnB0TTdPaTVNdlJ0MkppOVI4VmxLOWpxZTNEbWNUZGFOVzJJRE1p?=
- =?utf-8?B?cFB4d3dDWE82RXdJd3lYNitGMy9rN21zSTV6a0l2QjBKMDJ2eXFZK3RjVE1t?=
- =?utf-8?B?M01XeklreUFzQU1Eb3pGdFFVbklLOGNXR0J3UGpzbnhDRFVNOEc2QnFVR3lx?=
- =?utf-8?B?YUpMa095alNhdUJvWS9FbE1mRnRWb0hRNXpsenZmUjFvNjlaUWRrRGs3d0cz?=
- =?utf-8?B?KzkzYUNjTnRISkpTTG5UWFE4Z0dLZEdoTy91bDcrTHZqTFBMY3k0cnR0Z2Vm?=
- =?utf-8?B?aWdOZERnb3I4Yi9sSk9KN3VpNTE5emNndzJDek1CbE5DSUFyanNzNE14Um5W?=
- =?utf-8?B?dVc3NTdHM29xK1NiTE84K1AvcDZrb0FsVmZneStnMms2T3JXWGdyUE4zblZa?=
- =?utf-8?B?SG5RK2xzYjdDb3hyWWFZaFkzbyt3Tks2aGhmVzNZUjVoTW5DVjFRT3hycUNa?=
- =?utf-8?B?YnpCTTFQVm1jYTRKVEdTUGt6UzFEeWJmTVA3cm9NTTVIOE1ObU42cElxZ1hY?=
- =?utf-8?B?UHVWZUNJdHpUYk5GbE9vMTZnM1hseTFwZHdINE9qeHVvY2VMeUVZaVB1Zk9Q?=
- =?utf-8?B?VlV4MTEwNzViQmprRmNGOVorbkxKdkN3MGdsbWd4TlJ0UnBTcnBjdkdGaUxK?=
- =?utf-8?B?WGpYaGpBVWhzZHpKTGhNZ1BCUU5vejh0K3VOT2NKRjZEbU10TnlFaUZDaGh3?=
- =?utf-8?B?eGVaUTNTV1BVQ1l5WFFZVTJjY2JveWJKQmM1NHRLSEdPY1NUeUp3UWxaWmxH?=
- =?utf-8?B?eWVSQTE4U0tnWi9JZVoyVHdRWHBoRnppcmZZbGMrU0tFUmt5VUp3cHZHYjU2?=
- =?utf-8?B?RlRucW9sL3o0ZFBIVDJjRFIvU1hjVjRDN0lEVDBMNW1sVC9ST2tkUDMvVkVU?=
- =?utf-8?B?Y29RenA1cDhOSkVkRHN2UUpMZ0ZYTUhxckRNcWYzc21JaGhzSk1oTE9hMGFG?=
- =?utf-8?B?eUx2R0NqUzJXek1aWFVNdm55R0poQXB5RlhONDdSdUlOQW13NzAxRW4wakh6?=
- =?utf-8?B?V1NubEtyQWNCV1FsV0lxUzJyS0pxa2YxTGtwaDVxRElSN0oyWmlNdHBuTmNP?=
- =?utf-8?B?K2VvWTRyZjdVWWhWaytzUG9yUXZyMTdXbXNOVUtGTG9DbE9GV3E4bWdQSHlh?=
- =?utf-8?B?Uis0UUxSNG1iSzB2SFhrODJ6Um85Vmt4YktVQVF0U0dGRTRjR09mb21qRkg4?=
- =?utf-8?B?STFYZ0dERnBIRy8vQ3UxYXRSUmZ2VzNYWXRaaEgxVnpQbWY5RERjVWdvYVpM?=
- =?utf-8?B?YmdBcUg3YzBnYkF5VSsvUFZlSUlhMWxaeXU4c2dRQnpyK3JNaTVmT0xqU0xW?=
- =?utf-8?B?MEZZR1hIKy9mTzkyOEs2VFRLRVNCWEJKSi8vcndEWHVNdi96V080OU8yOHFu?=
- =?utf-8?B?SDhVak5ycVk3YzlFK01uVmFqS2I2SmprSUtCZjk1WWFBR1Nxdnp5RWtyVmJE?=
- =?utf-8?B?QmRRMmxFd2RKSEFPcTBVbHVaTkgvRGMxOWZPakxIQmlsQlRaVkdONk1jWHRk?=
- =?utf-8?B?azVvMytKa2duWTNJMGVzQ1FSZi9PN1drbG9HNE1JVTFvaEpISkFFKzFXaWt0?=
- =?utf-8?B?NHFCSUt0Q2FBZlZ4NGdnN1JKT0NENXpuVzZ0ME9QdHZrUnJ2UnpXcjh3US93?=
- =?utf-8?B?bGR0ZVRacEJJcWx0RjNZbzRWcU5zR3ZGbC9qcVl3cEZNSDVpcU50U1g1WVBO?=
- =?utf-8?B?RForN0JyRGd1Smltd2dWK21KN1NySUZLV0s3NFAyMTFuS0JlL0duM1dUSlJa?=
- =?utf-8?B?Nnc9PQ==?=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7997.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VUVZTC9mbFR6TTh3NXRBckxRU1VGM0N4blo0Rk51dWhUSEx6YUYrRExqd3BD?=
- =?utf-8?B?Zm02RVFSd2tacjJ1c2dVc1pDMHBUNGlpcDhMRjF1ZU1IUFRzUFFxN3V2cUlu?=
- =?utf-8?B?SzMycnlIeDdmL0d2TWdWUC9RdzY0d2dkaFRkWGp6cWpTTDFyR0JwUGVkMEVG?=
- =?utf-8?B?QkJCZ3h6UmNPdlpuMTR5eFQ0M0VVUFZqbXplcytiSWxlcUczYkdjWFdKcUFH?=
- =?utf-8?B?TC9LTFVRa2QxK1cvdmZFR0ZHZ0FlcXR5dWl5NDI2NVRST1VZM1pnMVc1d1BX?=
- =?utf-8?B?dE1XSDAwbWQzSytnQS9kQUFzdnFoWVptN3pjcllPcjA0bmtBbVZxdCtSTFJ6?=
- =?utf-8?B?RkhQSlJSZjZERTZPNGJxTzR4c09sUWl3M1BveVc2N1d6VzhOOFBYSFZzRXpD?=
- =?utf-8?B?M3R3S0huNnpqYnhRODZuN2hxUXhybk9RWG9SVjhTOC9zYUdQU09TY3ZrUXZP?=
- =?utf-8?B?VGNxQnJ6dU1GM2Jld2lsbVRNNVhIUFpqQ0VXZDd1UmtPN00rWktpbm0vZlNI?=
- =?utf-8?B?bW9NQzBGVUV6NW54QkM5TWoraUlqbjJRVFJpSGlhYUtsS1NFTUlucm9hQzN2?=
- =?utf-8?B?RGdKNHVPRzh3UEtVWUdUVHVJWHhoY2luaEU4TkppdlN5UkQxdisvb2dUTXdv?=
- =?utf-8?B?cEFlZ1RONGY2UHhDMlF5S1VuN3RkM3h1K084RlkvWVA0Y0pTcHYzajRTd3RT?=
- =?utf-8?B?RS9sQk5VeTF5MlpoQ0svQVpyMEpRVEV5K1dwaE44Z1IrZi9BdytyTkZ5TTl5?=
- =?utf-8?B?aWNYa1Z2aWgrVnJSYmxoZlhjYjhyQlFSSlRIdTdqYXZielIySmVhYTNTWVBU?=
- =?utf-8?B?WFFtNE40cnRGa09lRUZtUnVBdEhqaDl5bThRaThaTE5tRjFNQy9xVWtqek9L?=
- =?utf-8?B?M1NhWjI2MHBpOHZaY1AwSW9vQUZHekxkVXJRb09TTEplUERqeXk4bUdVL0Jn?=
- =?utf-8?B?eW1xUVRja2ljMTBrRFB5MTR3RnlUcFExNzAvWnJXOXA4NmlHRGl6Q20zYUc1?=
- =?utf-8?B?M0VBdHF5V0Q1c04xaTdjbjNKMzFDYWg1L005QzNsZHVtbWdQQzZzNXlLNE90?=
- =?utf-8?B?T0srMTZhaDloeUNncGJwOWI2elJKbldaUlN0SDZMYmE0b1N2NTE3eElLVU1G?=
- =?utf-8?B?ZFgxcllzRXkrUkIxeFl0UUd6ckZ3cUExbmplandlRklOcjUzeldrZG1EeGhW?=
- =?utf-8?B?QUcvKzhJRk9VSk1lSjMwSmdkRXpGU3VnRGdnbW9lcHVaZzZ6WEhKLzhSTGw3?=
- =?utf-8?B?RlVVTU1wRnlTOS8xaDhhQVlXS1lhUk9zcGdPb1dNcEJNRkJObjBseS95d2pu?=
- =?utf-8?B?elpZMS9YVnFDMnZLOTl2ZkFWeG9UR090bnJ3clZDdTdMU25OR2pjbDJaNjZ5?=
- =?utf-8?B?M1ZrN2JFV2NZNTZyK1dnek1NeGZQU2s5bzk1OFVqaTZHTlRCM1FPMjJsK3Vt?=
- =?utf-8?B?VXV2T1paRW5FZUlielZMajRZY2lmQWpNc1J6NFVtU29tWVZ4aGFxSFloTTJX?=
- =?utf-8?B?UVJRQXdVRTU4bjh1S0RTWTU1R3F2NE9OLytIeWs0OVNMbVFBNk9aTGxKS0Z1?=
- =?utf-8?B?OW5mR3RtY1BtTnNEbFpOM29EWUsvSU94QW1ZQmpRRDBDUVdCNy9kUHYxSWxT?=
- =?utf-8?B?cmw4WmVPNUJDRGpYQTdrZko5TWp5NnltT0lVa05NREIrOVNPYlBnanlSbmw1?=
- =?utf-8?B?bFhkU2VaRURwNjJNMzJKWGViV2J3eUtqSVVyc1pXam9zNEJXUFJ4S3JDbGdP?=
- =?utf-8?B?b3hnZkFqczBUM1FMV2gxcnQzay9aSEtxZUZ5WGdKMVlDaFcvdGZPamdod2Fz?=
- =?utf-8?B?T0k5cUhvNmUwV2lJRGNVMjBUZWNXOWtHQjVFMGc4NG5XSDdxcnNuUm54eC9y?=
- =?utf-8?B?cEQ2SGdWa2Nxbkt2R1hPV3BRd05wbU5Ta0J3RHlGamU5TG0vVkNlUnVSamhr?=
- =?utf-8?B?WW9NdGN5ajRrc2tCbG1McmlXcWVIZVBPNWNjRGs2STJ6ekVSb1JGR0lINS9q?=
- =?utf-8?B?N3FFbFRpU1ZLeU5CbExYRW9jVjF4Z1RpNlVHTENzWVZwVFNjNTNLWjZ0OVRU?=
- =?utf-8?B?UE90a0Evbis2UjM3Q0FLNFhCYTNjSWMzTUNVREtLdUlMRFIzMElabStoU0Mz?=
- =?utf-8?B?MEpRZG1OWFZRZFNvZVZzdW5ZMzNIU3hCa3c2VFM5VFV2NUpFU0U1UUZtZGNF?=
- =?utf-8?B?RjhrOHJtK3VMR0hOTC9sa3piMCs5SjROSmVQS203clJMZWdzdEE4UGtDbjBo?=
- =?utf-8?B?d1pYV3JQcnRpbWVMUWIrYUd2Uys5anhaWXEvOW41ZFd1UkpYNDY1NzhQdUIv?=
- =?utf-8?B?ckZ0d3lwRENrd3pRWXNFZ0dZMkJHZE4rOUFkVXZZcldpYWRvcktWUT09?=
-X-MS-Exchange-CrossTenant-Network-Message-Id: a6e92a19-1470-4faf-bc33-08de65142955
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7997.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Feb 2026 00:10:40.3004
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: JUGgmGf9QRU+aFaMQcEv8IxDJvIIxZD26c3bkJWEENJQC1CmvDRSlkYo+zc8vW5u9q7biPDtTUy+BYVISsZqOg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB7020
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-ORIG-GUID: aWyzu9vMtefQS6sadZuxXAPjbO5fQeMO
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA2MDAwMiBTYWx0ZWRfX+YsmuxyynF5W
+ fWT0yaQlCBXsiJH+HNhGKXGvvNUaofqBGCA0v7iY+MU/xJr5h7cIeuEgT/D+LzXOBnjXpgUDYFm
+ p0EzIgn8vRZOJMk5P+gUFfZpcwS/jcBt6Y1rJMtbXQbZ+q3gt/41KWHSmCPsCcrywqsJZ8xeazw
+ xw+BNmrb3fken608fUHMsfHGA5GIewNoThRoX3IhbryQ6NJLmsZAcP7zNvLlwXIXNeTVsd4+VqF
+ WIwahC3U31QlaWVJL2OOaUKwbkjwFI4+Gh5IW3RxxXBfJ6BpEzXVU0ugL9VGuKUAg4QqR2Pe3DN
+ NsXrK5+0Oo6/9lzVwbAiyv6sI7gNg1XtkF3n8ZrTB1U40ltCPmn6d+hIiw8jAEe3eNn/fjv/XAd
+ JtMj43Qo9wrlsmB1vFu5u0MYowAct20Ey2vFnpB3ET4wm/T8BXEu+gSVcOQEj2km9Dh4cvtF302
+ 03KsAnIWOZXpHwE1OZA==
+X-Proofpoint-GUID: aWyzu9vMtefQS6sadZuxXAPjbO5fQeMO
+X-Authority-Analysis: v=2.4 cv=EZ7FgfmC c=1 sm=1 tr=0 ts=69853564 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
+ a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8 a=VabnemYjAAAA:8
+ a=db6x6iqHiqAGgYmq6KwA:9 a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-05_06,2026-02-05_03,2025-10-01_01
 
-On 2/2/2026 1:51 AM, Shashank Balaji wrote:
-> No functional change.
-> 
-> x86_init.hyper.x2apic_available is used only in try_to_enable_x2apic to check if
-> x2apic needs to be disabled if interrupt remapping support isn't present. But
-> the name x2apic_available doesn't reflect that usage.
-> 
+Introduce page_pool support in virtio_net driver to enable page
+recycling in RX buffer allocation and avoid repeated page allocator
+calls. This applies to mergeable and small buffer modes.
 
-I don't understand the premise of this patch. Shouldn't the variable
-name reflect what is stored rather than how it is used?
+Beyond performance improvements, this patch is a prerequisite for
+enabling memory provider-based zero-copy features in virtio_net,
+specifically devmem TCP and io_uring ZCRX, which require drivers to
+use page_pool for buffer management.
 
-> This is what x2apic_available is set to for various hypervisors:
-> 
-> 	acrn		boot_cpu_has(X86_FEATURE_X2APIC)
-> 	mshyperv	boot_cpu_has(X86_FEATURE_X2APIC)
-> 	xen		boot_cpu_has(X86_FEATURE_X2APIC) or false
-> 	vmware		vmware_legacy_x2apic_available
-> 	kvm		kvm_cpuid_base() != 0
-> 	jailhouse	x2apic_enabled()
-> 	bhyve		true
-> 	default		false
-> 
+The implementation preserves the DMA premapping optimization introduced
+in commit 31f3cd4e5756 ("virtio-net: rq submits premapped per-buffer")
+by conditionally using PP_FLAG_DMA_MAP when the virtio backend supports
+standard DMA API (vhost, virtio-pci), and falling back to
+allocation-only mode for backends with custom DMA mechanisms (VDUSE).
 
-If both interrupt remapping and x2apic are enabled, what would the name
-x2apic_without_ir_available signify?
+================================================================================
+                      VIRTIO-NET PAGE POOL BENCHMARK RESULTS
+================================================================================
 
-A value of "true" would mean x2apic is available without IR. But that
-would be inaccurate for most hypervisors. A value of "false" could be
-interpreted as x2apic is not available, which is also inaccurate.
+CONFIGURATION
+-------------
+- Host: pktgen TX -> tap interface -> vhost-net
+- Guest: virtio-net RX -> XDP_DROP
+- Packet sizes: small buffers - 64; merge receivable 64, 1500
 
-To me, x2apic_available makes more sense than
-x2apic_without_ir_available based on the values being set by the
-hypervisors.
+SMALL PACKETS (64 bytes)
+==================================================
+Queues | Base (pps)  | Page Pool (pps) | Improvement | Base (Gb/s) |PP (Gb/s)
+-------|-------------|-----------------|-------------|-------------|----------
+  1Q   |    853,493  |      868,923    |   +1.8%     |    0.44     | 0.44
+  2Q   |  1,655,793  |    1,696,707    |   +2.5%     |    0.85     | 0.87
+  4Q   |  3,143,375  |    3,302,511    |   +5.1%     |    1.61     | 1.69
+  8Q   |  6,082,590  |    6,156,894    |   +1.2%     |    3.11     | 3.15
 
 
+RECEIVE MERGEABLE (64 bytes)
+======================================================
+Queues | Base (pps)  | Page Pool (pps) | Improvement | Base (Gb/s) |PP (Gb/s)
+-------|-------------|-----------------|-------------|-------------|----------
+   1Q  |    766,168  |      814,493    |   +6.3%     |    0.39     | 0.42
+   2Q  |  1,384,871  |    1,670,639    |  +20.6%     |    0.71     | 0.86
+   4Q  |  2,773,081  |    3,080,574    |  +11.1%     |    1.42     | 1.58
+   8Q  |  5,600,615  |    6,043,891    |   +7.9%     |    2.87     | 3.10
 
-> Bare metal and vmware correctly check if x2apic is available without interrupt
-> remapping. The rest of them check if x2apic is enabled/supported, and kvm just
-> checks if the kernel is running on kvm. The other hypervisors may have to have
-> their checks audited.
-> 
-AFAIU, the value on bare metal is set to false because this is a
-hypervisor specific variable. Perhaps I have misunderstood something?
 
+RECEIVE MERGEABLE (1500 bytes)
+========================================================
+Queues | Base (pps)  | Page Pool (pps) | Improvement | Base (Gb/s) |PP (Gb/s)
+-------|-------------|-----------------|-------------|-------------|----------
+  1Q   |    741,579  |      785,442    |   +5.9%     |    8.90     | 9.43
+  2Q   |  1,310,043  |    1,534,554    |  +17.1%     |   15.72     | 18.41
+  4Q   |  2,748,700  |    2,890,582    |   +5.2%     |   32.98     | 34.69
+  8Q   |  5,348,589  |    5,618,664    |   +5.0%     |   64.18     | 67.42
+
+The page_pool implementation showed consistent performance improvements
+by eliminating per packet overhead of allocating and deallocating
+memory. When running the performance benchmarks, I noticed that
+page_pool also had a consistent throughput performance compared to the
+base patch where performance variability was due to accessing free_list
+for getting the next set of pages.
+
+
+Changes in v5
+=============
+
+Addressing reviewer feedback from v4:
+
+- Add page_pool_frag_offset_add() helper to page_pool API to advance
+  fragment offset when drivers extend buffers to consume unused page
+  space (hole optimization). (Michael S. Tsirkin)
+- Unify big_packets condition checks and added an  explanatory comment 
+  (Michael S. Tsirkin)
+- Add page_pool_dma_sync_for_cpu() calls in receive paths before
+  reading buffer data when using PP_FLAG_DMA_MAP
+  (Michael S. Tsirkin)
+- Remove virtnet_rq_unmap() and free_receive_page_frags() entirely,
+  replacing with page_pool lifecycle management (Jason Wang)
+- Dropped selftests patch from the series
+- v4 link: https://lore.kernel.org/virtualization/20260204193617.1200752-1-vishs@meta.com/ 
+
+Changes in v4
+=============
+
+Addressing reviewer feedback from v3:
+
+- Remove unnecessary !rq->page_pool check in page_to_skb()
+- Reorder put_xdp_frags() parameters
+- Remove unnecessary xdp_page = NULL initialization in receive_small_xdp()
+- Move big_packets mode check outside the loop in virtnet_create_page_pools()
+  for efficiency
+- Remove unrelated whitespace changes
+- v3 link: https://lore.kernel.org/virtualization/20260203231021.1331392-1-vishs@meta.com/
+
+Changes in v3
+=============
+
+Addressing reviewer feedback from v2:
+
+- Fix CI null-ptr-deref crash: use max_queue_pairs instead of
+  curr_queue_pairs in virtnet_create_page_pools() to ensure page pools
+  are created for all queues (Jason Wang, Jakub Kicinski)
+- Preserve big_packets mode page->private chaining in page_to_skb() with
+  conditional checks (Jason Wang)
+- Use page_pool_alloc_pages() in xdp_linearize_page() and
+  mergeable_xdp_get_buf() to eliminate xdp_page tracking logic and simplify
+  skb_mark_for_recycle() calls (Jason Wang)
+- Add page_pool_page_is_pp() check in virtnet_put_page() to safely
+  handle both page_pool and non-page_pool pages (Michael S. Tsirkin)
+- Remove unrelated rx_mode_work_enabled changes (Jason Wang)
+- Selftest: use random ephemeral port instead of hardcoded port to avoid
+  conflicts when running tests in parallel (Michael S. Tsirkin)
+- v2 link: https://lore.kernel.org/virtualization/20260128212031.1431746-1-vishs@meta.com/
+
+Changes in v2
+=============
+
+Addressing reviewer feedback from v1:
+
+- Add "select PAGE_POOL" to Kconfig (Jason Wang)
+- Move page pool creation from ndo_open to probe for device lifetime
+  management (Xuan Zhuo, Jason Wang)
+- Implement conditional DMA strategy using virtqueue_dma_dev():
+  - When non-NULL: use PP_FLAG_DMA_MAP for page_pool-managed DMA
+    premapping
+  - When NULL (VDUSE): page_pool handles allocation only
+- Use page_pool_get_dma_addr() + virtqueue_add_inbuf_premapped() to
+  preserve DMA premapping optimization from commit 31f3cd4e5756
+  ("virtio-net: rq submits premapped per-buffer") (Jason Wang)
+- Remove dual allocation code paths - page_pool now always used for
+  small/mergeable modes (Jason Wang)
+- Remove unused virtnet_rq_alloc/virtnet_rq_init_one_sg functions
+- Add comprehensive performance data (Michael S. Tsirkin)
+- v1 link:
+  https://lore.kernel.org/virtualization/20260106221924.123856-1-vishs@meta.com/
+
+Vishwanath Seshagiri (2):
+  page_pool: add page_pool_frag_offset_add() helper
+  virtio_net: add page_pool support for buffer allocation
+
+ drivers/net/Kconfig             |   1 +
+ drivers/net/virtio_net.c        | 430 ++++++++++++++++----------------
+ include/net/page_pool/helpers.h |  20 ++
+ 3 files changed, 241 insertions(+), 210 deletions(-)
+
+-- 
+2.47.3
 
