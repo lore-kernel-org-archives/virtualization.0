@@ -1,43 +1,49 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B71A222582;
-	Sat,  7 Feb 2026 03:13:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC6EF20C461;
+	Sat,  7 Feb 2026 04:41:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770433990; cv=none; b=rSfjzDiit+oQ5Kc6siMEw8t7ILkQIBYZoeCmw7i3kzdlJBlTuoaXDf6v1g2y+lTBP1qEnV+OcIC6IuDhAy4ptafsGkDU1q5dLTKBO3jNFVxkxnkB0OnSeEI1TwcomGj4CLeXyPX9B2oTbl2wKGIVAMZ92j5fwGSiYb8NvOBdksA=
+	t=1770439301; cv=none; b=X6qofRPYXn/cOomcWXnNZC5j9fflDT4JAWll/da2ifVgOhScxDSkdgk9QxmWkHC5OPyMmcZhifxFwIilE19i2JvvNg4RuDxyltO9WOs+75xuhER0QZVdjJjFqNiQtJ8iCwmRxAZu2ulELShdY/FaFCEZUC5PMNvl3ugItoA5C4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770433990; c=relaxed/simple;
-	bh=jO9T6Wauc6sgCUGQKDfmY5wCuFcBaI3/fiI365rgQYU=;
+	s=arc-20240116; t=1770439301; c=relaxed/simple;
+	bh=Bps4dB7zojge3m+VhMUwtjavry0zUr6oxG+5LcJmDEE=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=u1dErc+sKQUNnv1GC1cdUulBOFMcpVcWhzuN3xZCJDE5VGc0XL0Tt6SLoekgtkXKbbjeT9yKvt3bMSjoKDvgT9FHzkfWrjUsCiFDQpMjUBjgDHF2T/m0i2C0+SmgFZKiiehfOKDZccxAf0sJOytrOznnd5bJS8CMqcQ/6CxEt44=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aiz1CHPB; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=hBkNzs4V2D4j2eGy/CWJNo3tIK/19jcS9C7wCnQDqNb8qm+ax6LH7J60KxfRToUBqpef0Jz4UAuwD+N9C4vbRk8L/EnzPNaOLp9Ij0g30T0SF6qRilQd6jXJxku9gVkCUtqnUm7QyktE/JbJQU8upycwp2iJVz4CUpjH01NRix8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=siAztOuW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aiz1CHPB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E3A6C116C6;
-	Sat,  7 Feb 2026 03:13:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="siAztOuW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F63C116D0;
+	Sat,  7 Feb 2026 04:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770433989;
-	bh=jO9T6Wauc6sgCUGQKDfmY5wCuFcBaI3/fiI365rgQYU=;
+	s=k20201202; t=1770439301;
+	bh=Bps4dB7zojge3m+VhMUwtjavry0zUr6oxG+5LcJmDEE=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=aiz1CHPBvgEHRzoYQ7Hlt+jua/1QQnJo9V88pJWZKQu7kQBAE9j8Pe31BJVth3mmB
-	 l0zBzbPZZA67vkrulASCUX9vvHCkHjo4nqPnuXG2BMrsPAJ2Eb5TXon2JWRaPC3gLN
-	 QQCQLA8ii6k51y/dPPosCAs9BKoNBF4Ah0+TvvEwOh4DTWW9HXg8wGM8ypcglqMmzl
-	 xlVw7PHJE7vZcyCN+oaXQruGMWWISjP8ZrGGrJBwL308bgnNCjL7bGr55+avkFOmtJ
-	 hCkfsZm9E2O5YDMVy2kLxI393dmmkvhAfViXovLWfw6/DJkk+H0eMOoTZ77ym9nyAh
-	 U69GKuF8OybRA==
-Date: Fri, 6 Feb 2026 19:13:08 -0800
+	b=siAztOuW58jinMapwARV9wIQMMQsZefQBj+0ZjDLuYPFX7niS35KxecFdecAwD70m
+	 cEUSg7J1pPWhNgu6CTjKgAhI5XYvlqELBmL8HjWd0wrE8r0nrQ8+NAmfSK6+DMx/5G
+	 x4V+Skn1EMj4ooELVqbc3dCMYtMn9MgrG4wbHoeTYHlUVLDL+/xoetrlV3F/ookI2G
+	 Z7YlvZAg0I4uTTXJN0bOzcGjM6d2B7ITbjE4bOyWSVanYnZrh5Getkw3YO4VvB4lQ0
+	 N2JPCsLcip2y5SYu3pxozwkhUJYrC1lfj8IG9dJM7DfkjDsVtRBr0jw7EyTaKcgYio
+	 TkY61jv2PnhYA==
+Date: Fri, 6 Feb 2026 20:41:40 -0800
 From: Jakub Kicinski <kuba@kernel.org>
-To: Srujana Challa <schalla@marvell.com>
-Cc: <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>,
- <pabeni@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
- <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>, <davem@davemloft.net>,
- <edumazet@google.com>, <ndabilpuram@marvell.com>, <kshankar@marvell.com>
-Subject: Re: [PATCH v2 net-next] virtio_net: Improve RSS key size validation
- and use NETDEV_RSS_KEY_LEN
-Message-ID: <20260206191308.7fdbfef4@kernel.org>
-In-Reply-To: <20260206120154.2548079-1-schalla@marvell.com>
-References: <20260206120154.2548079-1-schalla@marvell.com>
+To: Vishwanath Seshagiri <vishs@meta.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "David S . Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, David Wei
+ <dw@davidwei.uk>, Matteo Croce <technoboy85@gmail.com>, Ilias Apalodimas
+ <ilias.apalodimas@linaro.org>, <netdev@vger.kernel.org>,
+ <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+ <kernel-team@meta.com>
+Subject: Re: [PATCH net-next v5 2/2] virtio_net: add page_pool support for
+ buffer allocation
+Message-ID: <20260206204140.56d85273@kernel.org>
+In-Reply-To: <20260206002715.1885869-3-vishs@meta.com>
+References: <20260206002715.1885869-1-vishs@meta.com>
+	<20260206002715.1885869-3-vishs@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,20 +53,16 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Fri, 6 Feb 2026 17:31:54 +0530 Srujana Challa wrote:
-> Replace hardcoded RSS max key size limit with NETDEV_RSS_KEY_LEN to
-> align with kernel's standard RSS key length. Add validation for RSS
-> key size against spec minimum (40 bytes) and driver maximum. When
-> validation fails, gracefully disable RSS features and continue
-> initialization rather than failing completely.
+On Thu, 5 Feb 2026 16:27:15 -0800 Vishwanath Seshagiri wrote:
+> +	page = page_pool_alloc_frag(rq->page_pool, &offset, len + room, gfp);
+> +	if (unlikely(!page))
+>  		return -ENOMEM;
+>  
+> +	buf = page_address(page) + offset;
 
-Hm, FWIW clang says:
+Please take a look at page_pool_alloc_va()
 
-drivers/net/virtio_net.c:6841:31: warning: result of comparison of constant 256 with expression of type 'u8' (aka 'unsigned char') is always false [-Wtautological-constant-out-of-range-compare]
- 6841 |                 } else if (vi->rss_key_size > VIRTIO_NET_RSS_MAX_KEY_SIZE) {
-      |                            ~~~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Which is kinda annoying because the value was increased in net-next.
-If Machael wants this backported then we need to keep the check
-and follow up in net-next? We could try to cast the u32 away but
-that feels dirty..
+I mean all the way down until you reach page_pool_alloc_netmem()
+and realize the helper you're adding in patch 1 is a solved problem
+-- 
+pw-bot: cr
