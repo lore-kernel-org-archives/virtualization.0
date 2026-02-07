@@ -1,204 +1,152 @@
-Received: from fhigh-b2-smtp.messagingengine.com (fhigh-b2-smtp.messagingengine.com [202.12.124.153])
+Received: from mail2.anonaddy.me (mail2.anonaddy.me [185.70.196.149])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F4922339
-	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 18:20:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D71A23EAB7
+	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 18:56:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.196.149
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770488416; cv=none; b=NMRB9q/VfboEp3L51Kdtg9xZEyGrS0VT+5YgizZuMIv+33E+yOXYFV6Qtvr8gOtcL/R179sHRvQjJjNnAFT4K0Bw33sAb7G8FmAzxQZypRvOtcZ4Rie5/QOyuMfD3/9WpiqD7Sdv3p174HpYqM+4jBrr9TOzMrP1EYLiPdEpMx8=
+	t=1770490618; cv=none; b=DEWlN0YAqxg3Hve4jSXfD2in2FbHUAeOzvq+QO7a3mN/dAVgVmrqhuaoA80gGmaPwEV892U74djd9CNgMRFCF4VHNjS1yXwqlVHemO0IlYImYiZde1BxB2HL9ksMx2ztiA+tIZD6QcWByJS1fBx2m3XXmwlwgaTwENYMdXy2y98=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770488416; c=relaxed/simple;
-	bh=VQ/+d4GtvWgsueFwR/GePFVNJiRwnBr+ARdraOOAr5c=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uqYR9/UisTD6jespdL+2HQVZOyLZJp0oFJsziT8vM+zCR7BM5atqLqNutaVOOuvtNbln8teHxWveEmSvpxddbfbuh2XXYSTwIUqMVl99MmIuwnNM2FDD2w6nncDqDFA3OYZmwVf9SxNa6ERDqL8jmbaIwxopU9cU+dTHa1t7k5U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=likewhatevs.io; spf=pass smtp.mailfrom=likewhatevs.io; dkim=pass (2048-bit key) header.d=likewhatevs.io header.i=@likewhatevs.io header.b=hj+1ZigH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=scnshh+E; arc=none smtp.client-ip=202.12.124.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=likewhatevs.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=likewhatevs.io
+	s=arc-20240116; t=1770490618; c=relaxed/simple;
+	bh=1aAyQJcOKpZDGOatk9b9nQPWTt5XNCehrKz9upPAILg=;
+	h=From:To:Subject:Message-ID:In-Reply-To:References:Cc:MIME-Version:
+	 Date:Content-Type; b=LwaqQOQZECnCQVgpZW/h7G+/lMNW27LykvpGAzd5z+PWKg+htdIo4o3v68q3fETofullVJlXxENpux999kRvGOGjxqSXmE8besl45i5AsOU9qpzGlM81BLUvgSdoqHTeaUvbSQXQJM5UqNWlN5RivS9XnP3p7jMmi1WdVqTyt8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=anonaddy.me; spf=pass smtp.mailfrom=anonaddy.me; dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b=I5C/JwPj; arc=none smtp.client-ip=185.70.196.149
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=anonaddy.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=anonaddy.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=likewhatevs.io header.i=@likewhatevs.io header.b="hj+1ZigH";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="scnshh+E"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 326377A00D0;
-	Sat,  7 Feb 2026 13:20:14 -0500 (EST)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-01.internal (MEProxy); Sat, 07 Feb 2026 13:20:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=likewhatevs.io;
-	 h=cc:cc:content-transfer-encoding:content-type:date:date:from
-	:from:in-reply-to:message-id:mime-version:reply-to:subject
-	:subject:to:to; s=fm2; t=1770488413; x=1770574813; bh=IO9ywlmGfc
-	BO8cnAVToZ1n7BPbwOAGIfRGMDEBBgO1w=; b=hj+1ZigHU81o+NgMkXYIWGF7ac
-	JxJOZbGFRp6ULfRHAASao55TltRLZtYcW9GHH2MludYrrFV7tATV7/7e7ePf2o1z
-	4BsjKpRVnuHFzLsZgMyAMA659mn3gxv1e2LSZZWeFX5esJ5ej0jnkRI0TVB9sW79
-	8zl+RaAmxOZNI+57wjI4eoC/YE/Riu4rZi9iBy0grsndc3EcKasG9YtnEHwj6xzt
-	IYxuQMHJ1Y8tcE39whOiHgrLGyLJybG5C+6UM1/DJpamUcWLvP3W8eCNUTog1pUA
-	1YvMjbJjQFvSD4psvjnC7o7RDqdZBSUvlnh/zqApuLuFqCxSaPvqdHfxGrAg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:feedback-id:feedback-id:from:from
-	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-	1770488413; x=1770574813; bh=IO9ywlmGfcBO8cnAVToZ1n7BPbwOAGIfRGM
-	DEBBgO1w=; b=scnshh+Eyp8vbWpEJZwXyQ42wx9fOMRLdG/Inh/AhATRedpgXqt
-	TplI1PiNZEnH0DBwnu/rgFAY+IJKIG+WOTFHZ5V37/c8Qq3Jqe8v5OYHBjn8ZzoD
-	6UQaSzULcm8GqLl+4VXWvhq8p+/05P1OAB4tdj/i9FwcMU3nI7GGO5PL4BdMr/W6
-	/GO6Ktf4RaVCjPHjouE4zaLqCtcqYTaaX8hmANPgRDnmx5yRzkkje/T+nsZuqXFX
-	grW1MfMECRCpjm6BtA47cSNqFzWi9l5UfUkfT/cLcdxj8sZ2Q1VYc1cMhFsuzGhi
-	FFPSqaJbYJMfsEQA500weji+vwsZEX4+ggg==
-X-ME-Sender: <xms:W4KHaTMiwKZ77nWxK0cjRY_0OfM9c4E8cJA7gUHWhEFDysakuaIjMQ>
-    <xme:W4KHabdEetlCfRR1QHP__0XUWwZyh9iirILazW9OhONVoxULHV_n-IarcdHg_fTHh
-    uUzSPfEm0laaPJepuUIKqgNPVvY9vc2gN_kAy_DgGrt1xPQzYO8w5U>
-X-ME-Received: <xmr:W4KHaU6fRRvaVC2AA6nCDc_ZaEwn2V9cUezqrkTchOS7IYmmT24TrxbnHEKj5jZjAvxqK-3SItW5Kw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduledujeehucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheprfgrthcuufhomhgr
-    rhhuuceophgrthhsoheslhhikhgvfihhrghtvghvshdrihhoqeenucggtffrrghtthgvrh
-    hnpeefveeiveeijefgueettdejleelieefvddtkeekudduveetveeutdehffeiueehuden
-    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehprghtsh
-    hosehlihhkvgifhhgrthgvvhhsrdhiohdpnhgspghrtghpthhtohepuddvpdhmohguvgep
-    shhmthhpohhuthdprhgtphhtthhopegrrhgvihdrghhonhhglhgviheshhhurgifvghird
-    gtohhmpdhrtghpthhtohephhgvrhgsvghrthesghhonhguohhrrdgrphgrnhgrrdhorhhg
-    rdgruhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvghtpdhrtghpth
-    htohepmhhsthesrhgvughhrghtrdgtohhmpdhrtghpthhtohepjhgrshhofigrnhhgsehr
-    vgguhhgrthdrtghomhdprhgtphhtthhopehtjheskhgvrhhnvghlrdhorhhgpdhrtghpth
-    htohepgihurghniihhuhhosehlihhnuhigrdgrlhhisggrsggrrdgtohhmpdhrtghpthht
-    ohepvghpvghrvgiimhgrsehrvgguhhgrthdrtghomhdprhgtphhtthhopehvihhrthhurg
-    hlihiirghtihhonheslhhishhtshdrlhhinhhugidruggvvh
-X-ME-Proxy: <xmx:W4KHadI1JHH2Bey7c4l-btoCiMwH0fV3m__YW9Oun14EW6bW2M3nYQ>
-    <xmx:W4KHaeXd3Z79DGZAKbFUFXV-eLdT6XlVispDxwSXQWL8Yy9uR_oTzg>
-    <xmx:W4KHaZHAWT7FOxBsqgGnyVW0v5KF52nkq7Ugr865wijjbypWt8JbnQ>
-    <xmx:W4KHad6CAxE5JcDe3KW55Zfyb5lOYxQ60rNHATA-ooL38bPRvPJFhg>
-    <xmx:XYKHabyKJEV_eTRBlBauzhDr9DX0WO9d0KD1aj0eQJNc-8aT1RSeri2M>
-Feedback-ID: i7f194913:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 7 Feb 2026 13:20:11 -0500 (EST)
-From: Pat Somaru <patso@likewhatevs.io>
-To: Gonglei <arei.gonglei@huawei.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S . Miller" <davem@davemloft.net>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Tejun Heo <tj@kernel.org>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Pat Somaru <patso@likewhatevs.io>
-Subject: [PATCH] crypto: virtio: Convert from tasklet to BH workqueue
-Date: Sat,  7 Feb 2026 13:20:01 -0500
-Message-ID: <20260207182001.2242836-1-patso@likewhatevs.io>
-X-Mailer: git-send-email 2.52.0
+	dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b="I5C/JwPj"
+Received: from mail2.anonaddy.me (mail2.anonaddy.me [127.0.0.1])
+	by mail2.anonaddy.me (Postfix) with ESMTPS id B987AFB0CF
+	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 18:56:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anonaddy.me; s=default2;
+	t=1770490610;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1aAyQJcOKpZDGOatk9b9nQPWTt5XNCehrKz9upPAILg=;
+	b=I5C/JwPjPPG76p5JQbsx092Ppfn0mw9xwoKtd45pZBUPBHk2kBvaLBXoz4/uicXm9BcKVn
+	5ZW7ZjImdgs9CGeu8yv4VmD8gmislYm6Ju8UGPCo86tERPae0/Wn8sQkVHJ2h+Zofx2Vzz
+	XeotgT26lVOFjrHjQN9tJRe7Czd36TLuf0v806+oyUkluZjEOHJRJ1RPFns0f11WbPFSdJ
+	Gj/Dy/pHAIxnWU3P5IcD93sjeXG753iwnuSPA6pB7BSfvDiwD7zr1TOlDYxvrhhAQ9CEah
+	YHrwhV/AkgxYm5wftr6TpCLpaminVY4g7gtLCyfecEBKkszEi/c1+U9QSicEbQ==
+From: agpn1b92@anonaddy.me
+To: sgarzare@redhat.com
+Subject: Re: [BUG] vsock: poll() not waking on data arrival, causing
+ multi-second SSH delays
+Feedback-ID: R:d17f588e-5717-4190-ab1e-7db474f4dce6:anonaddy
+Message-ID: <e1037ba961431847ebfe4bbba310958f@anonaddy.me>
+In-Reply-To: <aYYTder4-zvgOfV7@sgarzare-redhat>
+References: <f3a801a1a32670294d5d703cad8ab609@anonaddy.me>
+ <aYYTder4-zvgOfV7@sgarzare-redhat>
+X-Complaints-To: abuse@help.addy.io
+X-Report-Abuse: abuse@help.addy.io
+X-Report-Abuse-To: abuse@help.addy.io
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Date: Sat, 07 Feb 2026 18:56:50 +0000
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-The only generic interface to execute asynchronously in the BH context
-is tasklet; however, it's marked deprecated and has some design flaws
-such as the execution code accessing the tasklet item after the
-execution is complete which can lead to subtle use-after-free in certain
-usage scenarios and less-developed flush and cancel mechanisms.
+Hi Stefano and all,
 
-To replace tasklets, BH workqueue support was recently added. A BH
-workqueue behaves similarly to regular workqueues except that the queued
-work items are executed in the BH context.
+Thank you Stefano for your response and skepticism=
+ about whether this was
+a kernel issue - you were absolutely right to que=
+stion it!
 
-Convert virtio_crypto_core.c from tasklet to BH workqueue.
+After extensive debugging with strace on both guest and host=
+, I've
+determined this was NOT a kernel bug at all, but rather an OpenSSH=
+ issue
+specific to vsock connections.
 
-Semantically, this is an equivalent conversion and there shouldn't be
-any user-visible behavior changes. The BH workqueue implementation uses
-the same softirq infrastructure, and performance-critical networking
-conversions have shown no measurable performance impact.
+Root Cause:
+-----------
+Th=
+e 10-20 second delay was caused by OpenSSH's sshd attempting DNS lookups
+=
+on the literal string "UNKNOWN" (the placeholder hostname used for vsock
+=
+connections where no IP address exists). This triggered two 5-second DNS
+=
+timeouts during login recording and audit subsystem operations, totaling
+=
+~10 seconds of delay.
 
-Signed-off-by: Pat Somaru <patso@likewhatevs.io>
----
- Hi, I'm working on converting tasklet usages to the BH WQ API.
+The strace showed:
+ =C2=A0 17:11:14.465 sendmm=
+sg(13, DNS query for "UNKNOWN")
+ =C2=A0 17:11:14.465 poll([{fd=3D13, even=
+ts=3DPOLLIN}], 1, 5000) =3D 0 (Timeout)=20
+<5.005s>
+ =C2=A0 17:11:19.472 =
+sendmmsg(13, DNS query for "UNKNOWN") [RETRY]
+ =C2=A0 17:11:19.472 poll([=
+{fd=3D13, events=3DPOLLIN}], 1, 5000) =3D 0 (Timeout)=20
+<5.005s>
 
- The virtio-crypto driver uses a tasklet per data queue to process
- completed crypto operations in BH context. This converts that tasklet
- to use the BH workqueue infrastructure.
+Why =
+I Initially Thought It Was a Kernel Issue:
+------------------------------=
+----------------
+- bpftrace showed ppoll() timeouts while data appeared t=
+o be queued
+- The pattern looked like a classic lost wakeup race conditio=
+n
 
- This patch was tested by:
-    - Building with allmodconfig: no new warnings (compared to v6.18)
-    - Building with allyesconfig: no new warnings (compared to v6.18)
-    - Booting defconfig kernel via vng and running `uname -a`:
-    Linux virtme-ng 6.18.0-virtme #1 SMP PREEMPT_DYNAMIC 0 x86_64 GNU/Linux
+However, the vsock kernel modules were working perfectly. The delay=
 
- Maintainers can apply this directly to the crypto subsystem tree or ack
- it for the workqueue tree to carry.
+happened in userspace during sshd's session setup, specifically when
+m=
+m_record_login() tried to resolve the peer hostname for logging.
 
- drivers/crypto/virtio/virtio_crypto_common.h |  3 ++-
- drivers/crypto/virtio/virtio_crypto_core.c   | 11 +++++------
- 2 files changed, 7 insertions(+), 7 deletions(-)
+The F=
+ix:
+--------
+OpenSSH 10.1 and 10.2 include fixes to prevent passing "UN=
+KNOWN" to
+subsystems that would attempt DNS resolution:
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/virtio/virtio_crypto_common.h
-index 19c934af3df6..c758a5a37729 100644
---- a/drivers/crypto/virtio/virtio_crypto_common.h
-+++ b/drivers/crypto/virtio/virtio_crypto_common.h
-@@ -11,6 +11,7 @@
- #include <linux/crypto.h>
- #include <linux/spinlock.h>
- #include <linux/interrupt.h>
-+#include <linux/workqueue.h>
- #include <crypto/aead.h>
- #include <crypto/aes.h>
- #include <crypto/engine.h>
-@@ -29,7 +30,7 @@ struct data_queue {
- 	char name[32];
- 
- 	struct crypto_engine *engine;
--	struct tasklet_struct done_task;
-+	struct work_struct done_work;
- };
- 
- struct virtio_crypto {
-diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
-index 3d241446099c..345d1f1ed195 100644
---- a/drivers/crypto/virtio/virtio_crypto_core.c
-+++ b/drivers/crypto/virtio/virtio_crypto_core.c
-@@ -70,9 +70,9 @@ int virtio_crypto_ctrl_vq_request(struct virtio_crypto *vcrypto, struct scatterl
- 	return 0;
- }
- 
--static void virtcrypto_done_task(unsigned long data)
-+static void virtcrypto_done_work(struct work_struct *work)
- {
--	struct data_queue *data_vq = (struct data_queue *)data;
-+	struct data_queue *data_vq = from_work(data_vq, work, done_work);
- 	struct virtqueue *vq = data_vq->vq;
- 	struct virtio_crypto_request *vc_req;
- 	unsigned int len;
-@@ -91,7 +91,7 @@ static void virtcrypto_dataq_callback(struct virtqueue *vq)
- 	struct virtio_crypto *vcrypto = vq->vdev->priv;
- 	struct data_queue *dq = &vcrypto->data_vq[vq->index];
- 
--	tasklet_schedule(&dq->done_task);
-+	queue_work(system_bh_wq, &dq->done_work);
- }
- 
- static int virtcrypto_find_vqs(struct virtio_crypto *vi)
-@@ -145,8 +145,7 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
- 			ret = -ENOMEM;
- 			goto err_engine;
- 		}
--		tasklet_init(&vi->data_vq[i].done_task, virtcrypto_done_task,
--				(unsigned long)&vi->data_vq[i]);
-+		INIT_WORK(&vi->data_vq[i].done_work, virtcrypto_done_work);
- 	}
- 
- 	kfree(vqs_info);
-@@ -497,7 +496,7 @@ static void virtcrypto_remove(struct virtio_device *vdev)
- 	if (virtcrypto_dev_started(vcrypto))
- 		virtcrypto_dev_stop(vcrypto);
- 	for (i = 0; i < vcrypto->max_data_queues; i++)
--		tasklet_kill(&vcrypto->data_vq[i].done_task);
-+		cancel_work_sync(&vcrypto->data_vq[i].done_work);
- 	virtio_reset_device(vdev);
- 	virtcrypto_free_unused_reqs(vcrypto);
- 	virtcrypto_clear_crypto_engines(vcrypto);
--- 
-2.52.0
+- 10.1: Skip=
+ audit logging for UNKNOWN hostnames
+- 10.2: Don't set PAM_RHOST when rem=
+ote host is "UNKNOWN"
+
+References:
+- https://github.com/openssh/opens=
+sh-portable/pull/388
+-=20
+https://gitlab.archlinux.org/archlinux/packagin=
+g/packages/openssh/-/issues/16
+- https://www.openssh.org/releasenotes.htm=
+l
+
+Workaround for older OpenSSH versions:
+Add to /etc/hosts: 127.0.0.=
+1 UNKNOWN
+
+Apologies for the noise on netdev - the vsock kernel impleme=
+ntation is
+working correctly. The misleading symptoms (PTY-specific, ppol=
+l timeouts,
+state between connections) made it appear kernel-related when=
+ it was
+actually sshd's login recording code hitting DNS timeouts.
+
+T=
+hanks again for your help and for maintaining the vsock subsystem!
+
+Bes=
+t regards,
+[Your name - don't forget to update it this time or you'll loo=
+k even=20
+more stupid]
+
 
