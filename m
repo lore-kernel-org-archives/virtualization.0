@@ -1,120 +1,205 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011040.outbound.protection.outlook.com [52.101.52.40])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 951833321D7
-	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 10:37:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770460620; cv=none; b=ZgZRyWrZJx2GtDNybszmpR0NxAY0cvKNXRouZUBKhnLHFsJrI76yZYcE9rRYqHJ1W6VG8yKb+xU1YmBa3cQ57rhanD8DlaQLcAkt6aFDWDHL8Drs6lND3s78GoWmqrFoECxpuyrhrNcoXRwHSQtZhprxcmwMlPYNTuk7XAjrTtY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770460620; c=relaxed/simple;
-	bh=LSToBen3PC7STn5LIO5y4sRfmIQC6eXFBNpCr3/T+cE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=YH7r8SvkuMrEkCa37MUsop1oOBNaa2wrkl1an10C4XSN43YQEb+8delH5OmiiHf14nUz6lmxWN8gIkkC/2KeaIauon+uHWlbtgSuNcHB8RENggHPPi7gEshX/MqBhTCnoJAbYCxNRynlVG8paXt2EZZX13U8tbwKeJGiycHVqk8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Lnk4xgc4; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 307BA34107D
+	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 13:14:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.40
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770470072; cv=fail; b=ar9/xktS0LovwhvNhJlz4drkCSVmCgtB5cs1h4bVHiSS7YaQOvMP0UHixtRU2FtWoWref1g0Cxv9o1RVIXUkmGKVMWgkesrkSm7W2+mYfOA7JjyFToJYToofNCmTNR1F2fbl8hIOggf8BQGt7xsp3Wc3K/RwlvUaAODYjIO+IBg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770470072; c=relaxed/simple;
+	bh=dKFqf5nsrIJcIedPZ1JLQlhiyJU3c0cAyCnlzDms0Xs=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=km2g5Q+uvq8asUDYxhLBPvPdWWuODp3aWF0XlZy0Fiel1hJbjJPjYDKDvHwH7u0rExrePq+xVtfkjKkRjt5YRJeNvVHMyO3SgkFnU7EqcvhcsUMmbCUA5eKGo4uWQ5/baMGEOBW7rTVRYIQDMV0gCtGplKcv2l+QdwjB4GL7SxQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=eC8mA9Xk; arc=fail smtp.client-ip=52.101.52.40
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Lnk4xgc4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770460619;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kh3D9klgXXKO9Bcq7zAYbqELTISjbIQTe+oHD7vW69Q=;
-	b=Lnk4xgc4hE3Od5d2fdV/TXSCL3I7Uo8CgsKTDtjjfLm+QCYihWvH0bW2s8hiH4kJkB0K5P
-	wXYsmZxKux+w9p6fEAQ1bo8yhHIbNPtkp+crx+LUzgOqRBJiXsTwcWAj2e9XLaw3b+Zo+j
-	Be5qf/g30oFNTm8US5rriNbb8H/bUmo=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-478-qFXvsGBROkmGtbeS9hzXMA-1; Sat, 07 Feb 2026 05:36:58 -0500
-X-MC-Unique: qFXvsGBROkmGtbeS9hzXMA-1
-X-Mimecast-MFC-AGG-ID: qFXvsGBROkmGtbeS9hzXMA_1770460617
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-482ef3af991so18397365e9.0
-        for <virtualization@lists.linux.dev>; Sat, 07 Feb 2026 02:36:58 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770460617; x=1771065417;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kh3D9klgXXKO9Bcq7zAYbqELTISjbIQTe+oHD7vW69Q=;
-        b=QMk5bMnddqXgV2Et2MeZ8IbMfYW5emgsj2xDEhCD5RotUQ9hSzZOTC2CoHaLutBsTn
-         cZmOWcto/dMkUTLksb2JMJtsB9W/GigywFowlXaf9A/ZZKvXpndiuWuoMEcuQCp2SD7a
-         r7bYYSKXHWyjp5HiwIc9lV2R0aU2D1xAtJHFkN7OJgnSgMWCk7nGd3Mc/G7juP5NAwWb
-         +AK0xAQ5OsUI0OjZk4CWXIEIWrCQ6jXGNG7oYJ4gwqYXE0IE30DjwiWnauJnjDv6HJsd
-         14musn1QPoOApvm9ahCrMqptLvh00uHTuqT/rVs1s6YluyFZUaWUaO48T2JT9YY14Qft
-         jvQQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXv45OUeP6IEbIouPOPvTuLhUvIpVnU99Vx2NboR+IkaI5Vz5weOU7kbMR0SKyL6IV72a5LJnb8LjA7s9221Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz8lckSSGASMmFCnaYbylyYnvjbc52OFjAc6tn136PWJ+cmjDuf
-	2/xCI/3zwZA9/SR9QQnxRF1tPsm+j7dhE8975K24PJbPGMsE/bNUaxnIr09tnPpcN/s0TysjY7u
-	s0zcvmW0x1I9SkClxAEhlyVPnTmMI5KE54wmNtOhVsx5mYQ1rN4M77uC9pqOMVPKYBX0d
-X-Gm-Gg: AZuq6aJmWghtY8KHmfgkTjMO1Rkbg20f5pj1D6KYNfnNNXIWiZNAT62xAbRnf8HnOis
-	dbgbHR7NOrc0ZYUjRP5JlIQ+ORFpF9He0bI0bsFKPdAH2geNs96gl9QXN3h68B+VNVdTyWgkJXb
-	tqdfvwhd6ekeE0W35O2XOtWcjViyfSpS7Zsx4Bb0VitAmU7k2oOy2JTPujWBzzFWb67UuuVrGzN
-	i/ZFi9d0rkgG8TKJE5Whc1blPn9bbV61fjoVsRJ9PyJGClk9fx0HBhA6YQRgLUfFof9wt21em39
-	jCedx950j76t7lBMRc2xDcMVILfxKVdxMtvuRBa0RE+3j6arcW3lEHctDLq7iAnD7Kr7xE4z8Tz
-	wci8rdUPojt00tJYo5C3ThNnwLpwMqnzBpQ==
-X-Received: by 2002:a05:600c:810c:b0:47e:e59c:67c5 with SMTP id 5b1f17b1804b1-483203ab857mr91768485e9.8.1770460617158;
-        Sat, 07 Feb 2026 02:36:57 -0800 (PST)
-X-Received: by 2002:a05:600c:810c:b0:47e:e59c:67c5 with SMTP id 5b1f17b1804b1-483203ab857mr91768265e9.8.1770460616804;
-        Sat, 07 Feb 2026 02:36:56 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48320719bf4sm107581565e9.10.2026.02.07.02.36.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Feb 2026 02:36:56 -0800 (PST)
-Date: Sat, 7 Feb 2026 05:36:53 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Srujana Challa <schalla@marvell.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev, pabeni@redhat.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, davem@davemloft.net, edumazet@google.com,
-	ndabilpuram@marvell.com, kshankar@marvell.com
-Subject: Re: [PATCH v2 net-next] virtio_net: Improve RSS key size validation
- and use NETDEV_RSS_KEY_LEN
-Message-ID: <20260207052531-mutt-send-email-mst@kernel.org>
-References: <20260206120154.2548079-1-schalla@marvell.com>
- <20260206191308.7fdbfef4@kernel.org>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="eC8mA9Xk"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=csXH/xjuJnKip16c/Z/+DnBzZN+eGX7AW32U8ZYnfLzMyFL0+LQGkF2SC/6/8kX/S2449uaQebx5WBWJx+EONBoYJ0Vg2Go3eR5WaMWOPBf7heiI9pxJ71iVfEkYWP/FunNkLzjnDe2KKvRhulLRCDCou5VYj6zxrUmzBWUp7vPOBhqJD17Ux5AMbR7CGn0snSeb/eELWOqA6T9nl+FTbvX0Is0bTzpIRZXYh8WAFxFvmVJOiz080hOThSyVxExYK9SztlqAkX2gmpVe/3+BY9SIdDdJgr/f0sSMQ/VcefQLH7tdMiVMbLSA6CfcxKwoEO0kJES0qW2tTDioLj7m9w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=HylQ8cJXATijJiK9q6iwJaXSIDv5eIvG6o180Q2L9pY=;
+ b=murcN7MjhmIZjCP6A1X3PcMWG4ThWy4NyuVOE6v4IzgsSX/+1jEZdlstl9e7DjVYe2x5Z9ZZNvVR4Mnw1TNhdRzk7ThqAer9goard2k4P88Gh1ltxUonTAYuOcaW+Y/5/WKL2LDyys4NA6uUifjOg93pimyW9QV4x0gU4swhJS1L5qYuCoF1/7Y1OKycZr5ojanrnLaUUw/htvlZJtp6xjZzBlJXsMTTjiIOVaGeathHf9JW2PD0M8IZgOaYLY4E//kl+U0weALVpjAuzV26P6JAf7jQ+ePh4+aeBDQCHE+PtvnTv3L1dhvR38VQZXfWHEb/xMjCOI+NOYbTWMckuQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HylQ8cJXATijJiK9q6iwJaXSIDv5eIvG6o180Q2L9pY=;
+ b=eC8mA9XkvKhZnuS8/xqNRZnZi/rh8KIvFG8CT9grmhMNRdKd8x2+9ZD4XpJHHcw0kcsDnqXjtlCgiCO628b9xHeFQtXyRaScrkBnjIsuL0ZIOJLZM6gQkv9k8pKGHrWS0Bir3ka1PuTuCi5sK+mt27A3yl3QbhH0utqIs0pTBN6coUpYMTPxZWBPD5XRsAJJqrXBhmTQaFdsXZMyjV6MCwxFdt0Kd4Eu3QJNUMKqliG7CJQiTj1oV8Gy1UjfefrSoKMcy0WskDfy+u2V/4EmJik2kW/VAL/fWC/axxU3LIT6WxqOpt/ylqgmiMeOErAWIstl47wOFzdTkATis4/CrA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from PH8PR12MB6748.namprd12.prod.outlook.com (2603:10b6:510:1c4::5)
+ by DM4PR12MB6496.namprd12.prod.outlook.com (2603:10b6:8:bd::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9587.13; Sat, 7 Feb
+ 2026 13:14:27 +0000
+Received: from PH8PR12MB6748.namprd12.prod.outlook.com
+ ([fe80::a91b:e47b:4f8f:57fe]) by PH8PR12MB6748.namprd12.prod.outlook.com
+ ([fe80::a91b:e47b:4f8f:57fe%6]) with mapi id 15.20.9587.013; Sat, 7 Feb 2026
+ 13:14:27 +0000
+Message-ID: <c96d6b1c-5bad-4e06-905c-10f722c9b9d1@nvidia.com>
+Date: Sat, 7 Feb 2026 07:14:25 -0600
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v20 00/12] virtio_net: Add ethtool flow rules
+ support
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+ virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
+ yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ jgg@ziepe.ca, kevin.tian@intel.com, andrew+netdev@lunn.ch,
+ edumazet@google.com
+References: <20260205224707.16995-1-danielj@nvidia.com>
+ <20260205184328.3b706154@kernel.org>
+ <20260207045848-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Dan Jurgens <danielj@nvidia.com>
+In-Reply-To: <20260207045848-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SA0PR12CA0028.namprd12.prod.outlook.com
+ (2603:10b6:806:6f::33) To PH8PR12MB6748.namprd12.prod.outlook.com
+ (2603:10b6:510:1c4::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260206191308.7fdbfef4@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: A_tJhvHqd6EvWXnAnFSzZa-hOFg9WfldJ0OdQVrwuI4_1770460617
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH8PR12MB6748:EE_|DM4PR12MB6496:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5cfd2d80-4e07-48b9-ae89-08de664ad227
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?QXUwMnpRZm1oR2lIdUJFK2lWSCtTc1pzRjNGcUpqYUdESm9SYXJrN1pISGRa?=
+ =?utf-8?B?dWdNYTArM2krcTl1TU0yODFUYThFMHdJWGorN3BrZ1MrS3NKTHFNa2RXNkVK?=
+ =?utf-8?B?V2NMZWkyQzBzRzdLT3htR3RUU3h4ZGNWVzllR1d5N2JzU1A0TGliUzdVQ0xI?=
+ =?utf-8?B?RG14UUY4NVdCMGdwdXBXVDBOQzBobUNHV0ZYTnUwSk5zSFkvLzAzMHJsVmRK?=
+ =?utf-8?B?eU0vcHkvZHlhYXRjQ0lzZWRMRWtnZkV3d2ExWTM1QXZGVkUvSlpLMDlxT0NZ?=
+ =?utf-8?B?QlY4YUJGSmtwcXdYWUVuS3Uzb1NRM2w3dTJ0WWhCZWxtZ0tyZ21tbGs3bkdN?=
+ =?utf-8?B?bXZCNnNnZFBVa2R4SEU0OHE1MlRCRkVZSVlGUUgyZmZSQ25VWUxMOUpzRGdx?=
+ =?utf-8?B?Qk45dFFXc0lHZ1UwdnpxaWNKbTFqbmJuUUZDK3E1enhwcTRhOHRsZytpd2c4?=
+ =?utf-8?B?R3FJMVlacWJJVlVyVC9SdGpzN1VuWDc5UWlYYlhtdEVsMEZTOVV3Mm90Rm5x?=
+ =?utf-8?B?NFVua2dGeldMVDMvNFp4R0cyZGZURGtiVUFyNHVXM1k0L0hEcU1mS0hnQVMr?=
+ =?utf-8?B?dzZzNFZFNzIyTFF4c0VSSitPR29FT014UlhMNTBydmtkdTZGYU53Ny9DUHlw?=
+ =?utf-8?B?aDNPZ0xGeFlQMFd0YlZ0dFUwVXBYWWpiUm0xNm04aFNpcEJoTGl1L0R5M1Q3?=
+ =?utf-8?B?NEpKazI5UmJpRHJDVnN5bm83Ly9aa3NoRjRBRWEzbE9wb016MmhYTFUrM2l0?=
+ =?utf-8?B?aVpFemtLdVQyOHYyUy9vVnBZRHZFeFZ2ZjhWY1V3SENyOVp0azVzbERSY2Y4?=
+ =?utf-8?B?UG9BUHExY0FjenUzaXF5cXN1MHQraE1CeXBHRldTcVFGYngwdDBCaGhnT2hp?=
+ =?utf-8?B?ZjB1TGRYWmdPN2JyZXRIUi9IREM1ZGwwRjJZS3YrMXE4WlM5d2hVaXZEdkl6?=
+ =?utf-8?B?UWpJeG1NbU9qakNQY0RKZGVaZmNXZWFScTlpR2VhRHd1M21Xem1YVjY3MkhM?=
+ =?utf-8?B?aHpxVkRCcE1HL3I4ZFVnWDEzeXZDbVZ2dmhPVDNtbTF4WXpRQkh4R1BNbTJo?=
+ =?utf-8?B?OVQ3RlFzUWszWWlGNkliVjN2R2UvSTdRQks0M0tiN0pYejRGYUNmaVdrT0F6?=
+ =?utf-8?B?RndDckZ3ZHJSU01XWkU4SFFxREpudnRybEdkSzBNNlI1dklVcFdrS0JQS3pm?=
+ =?utf-8?B?T1BxcjIvcysvL1ZYWEE4UjlLWThxVWR6dDkvSkZjajZVa0NIWGRJNEFVcmd3?=
+ =?utf-8?B?cmY4dFJtVHdST0hiVmhFUXBNeXVBdGhMaEEzczVEU244djRIVXhFenhpNkkv?=
+ =?utf-8?B?THY0UE5QUGtoWVBpZFltdUdOZkp3MkJOQU1jZTd5Vmw4RVhrTXJHVEwyOHI1?=
+ =?utf-8?B?b3E2RnpPb2FQRjFjdVRuWU9QakVVTFUrb0xGWCtYMkdPRmZLaFR3UHhJZW5L?=
+ =?utf-8?B?TkRnSDJtSzVxeDV0MUhhd3hINXliRkJNdmhjZzlESmQrOXR5akJmelZUUk9Q?=
+ =?utf-8?B?MGRSbU1GSldXbVp1SjRzbFJOSFJKL2xJOGZrSEl4MldvbWhWc3UweUdNL3ZO?=
+ =?utf-8?B?STV2cVdlSDZ1K0VXR2RndTJxcWpaV2t4eXorWVpBV0o0K3l0b0ZJUkt2K1NX?=
+ =?utf-8?B?WG5GS1puWkdSa1B2NVVLQS91aUdJYW9XclNDZWwreElXUnljRGxLcGpsQnhC?=
+ =?utf-8?B?a0pDYUZTTXZxUjNYcVBBajA3RTFTQkN3b2xUK05uMEowcWxXQ01zRkQ3VGdj?=
+ =?utf-8?B?VnlCcGdtUFVQK1Nnb280VjFLT05udUNFZElJUldhM1IzRWsvYXZHdHlVb2Jm?=
+ =?utf-8?B?UmVXV0djS052Rk90Ry9FcGtWOHY0MFgwenZTNWQzYnowbjRCdklEd3lFTHBQ?=
+ =?utf-8?B?SmhUYUdTL0d2aVptR0NCaXVVcVJlRmtTZW1CSUVCMCtSOWRwZFBWRFlqWStt?=
+ =?utf-8?B?d1dpWkh5UGZGSmxiOU4xaTZDSnFQallxSWJ3eXJzdnRBbWJLYkZPQ0FUUHBW?=
+ =?utf-8?B?Q2N3N0paYklabW9JdzBqYVMxMlNwcVV0S3R5UEk2YVlqY3VJdzYwUGd2RGVL?=
+ =?utf-8?B?bDNqYy9zVzhhMFhNc3JhVnhQZ3RoWWlYQXU0bjJaWkh4MnZCdW9WaGpwVU9I?=
+ =?utf-8?Q?t5fE=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR12MB6748.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?MDR5ZHJNbzh1SnJEaFlhWE9tOFdRZ3dCcGRRckRvdzhSUFhxUXNiM2I3czBJ?=
+ =?utf-8?B?bXFpZWErS1ZvYXd5OVVaUS9oTThKRVVrK3lJSWt4WFFFYmNENzVkeHg4Y2JD?=
+ =?utf-8?B?TllobjBKZWZ2bG9CVlhaY25GVXJaOFJKbXpOUkhHcWlEMThKcC9MUDVvYU5Y?=
+ =?utf-8?B?bXlFaUJlN1o3SUVHQmx5Vk1rY2Y0ZmlYMXVVTktLWWlSWnczRjVUYUhaL1Jq?=
+ =?utf-8?B?YmNhQkRzTEhCaWFSemtrNG42Q3kvZExCamcwMFg3di9zYVFDR3FNaTA1Q2tv?=
+ =?utf-8?B?ejR6NzdFUjRMNDdaVVlPVy8wZk5vQU52ZUZDcUVPU1lPMlRySU1RYkJkMVVD?=
+ =?utf-8?B?VktPSnZBWEZYMFIvWWR2eDc0aTAxVk9LaCs3Z1NPUG1UZ2JGb2hJbDFqbzdI?=
+ =?utf-8?B?TWlyaTJqdWtCY2dLWUNtSzR6M0tSczlCS1BtcnhsSXp5TklBV1crS3NpTklz?=
+ =?utf-8?B?U1RQZE1sN0h6cEE0ckJKR25ySkZxR0Y2THVoS04vZDMySFQyN2wwc3hLU2dS?=
+ =?utf-8?B?bEJvREZlWnhKOHg5M2NGYno0TkQxU2Rpa203SGRKNDBQbXkyQUZBSHVuWGlT?=
+ =?utf-8?B?MVFmdmNlZlZiVDdYcVJSUnMwTW9keXR6M3ozT3J2LzhGeHY0TkdUUU02OFBt?=
+ =?utf-8?B?cU91WDZYSE96UVRUQldnTkhOK0hUQTh5Q0F4MkM3ak1rODVDM3VpSDN1SGtM?=
+ =?utf-8?B?VEx2cEQ0QmVrTUx4dFc5VjIwNGxvZWJhcTBiWGRJY2dPemNwaE1uVmhjTkxo?=
+ =?utf-8?B?cnZpUmZHWmhXTUhab2N4Y1RLZjhEankzNXFEYnlKWHgzblhQWWtBakxIcmJt?=
+ =?utf-8?B?NE9VSzZOSnZsckw5MTZyNjJTKzBleXlpRVM2Z09MbUpiejJzcmRBYVlMTjU2?=
+ =?utf-8?B?cUlPWFVIamc1Uk9CbHVJSFBCeGZsZ0hwU3Nhc2NSQStCV2NuY2lMSkVoamNJ?=
+ =?utf-8?B?czJwQTVRNzEvMkFtUXI2WW1Qb1BlalFzVitaL0hGRWxKamlNNFRySnA3TDVU?=
+ =?utf-8?B?R083WGg4cjlsVWpkSEUvTTNCZ3hKeU5mQ2JsOE1qTEFmVG00YVFQbjZZSUNZ?=
+ =?utf-8?B?Y0tDUGdKOStmazBmMTFnN0dKVkJxVkc3emFvMWl6ZlFaUEZOcEp4YjFRb2xR?=
+ =?utf-8?B?bmNoc0pOQUJwc1luWUdCZ281TlZTeVB5enBGa08rQnRISDVGYXUxUy9VeTZJ?=
+ =?utf-8?B?R01vaDdDaTJnSFNCRE5RbHJYdFY4c1k1Y0M1MnhKbk5KbXM3bGRMTWcveDJy?=
+ =?utf-8?B?N05IOCtvWTVTeEtpemJ4UVd5WS81TXY1eVRqRVZXcm1nSDU3QzE4ZEVteDls?=
+ =?utf-8?B?dWllSG1vM3lQVDNyTVdEUTA4eUR0OTViNExSSjAxVnYvMWx0bStLQjVpOXh0?=
+ =?utf-8?B?Y05yTkpabmExM3BCdk0vRktjbXVRdmJ6SklZTHJ3RlZoNnFaRG9HRmdMVy96?=
+ =?utf-8?B?SGxFYUYzZjRHeVBkTHZhbGpueExVazk2RzZHdkx2SXJOd3BMNlZPVkhWVjZp?=
+ =?utf-8?B?UThwRkMzVmFPTjUyRFEveGM3MjBUT2V4VjZWWGIrK3QralNGRlExQUNuOUp4?=
+ =?utf-8?B?K2dsd1hVa0VqMkJQTEFJVm84aDNBL2g1T3JUTUFuZThiOE0zZnZSNWp4YlBh?=
+ =?utf-8?B?TnltTkRVVHE2alUxbGtQMUxJV2hkSzRNWml1RHhoUVR5MGdPajVhY0pVdTJL?=
+ =?utf-8?B?d095N0dtcm5naHloancvYStMN3pmNWZNb2VadlV4aUVlM3lXN2NydlFpQjV4?=
+ =?utf-8?B?OGRFYmRER0ZhMWpUbnN5T3RKTjZhdS9GMDlQbXhiK3VQUEhZOXYyVGNwWFJh?=
+ =?utf-8?B?eUN4VEVTU1l1czl5OGprNjdyMFhhMWFsSXlLbWJSRjE3djc1SUdQQXNGc0ZD?=
+ =?utf-8?B?WTlmbzFzWld3WUNoM3EzUWZteEFnWFVvMWM2TUlMUXhYaW9CbWx0bkJkcnUz?=
+ =?utf-8?B?ZXhyd09tbEhLYzlJeDRMNUhmeEV6L3c5UlJMTGtDc1RzVEJxbmdMcUcydjRI?=
+ =?utf-8?B?d2JaNWxHSzB1ZXZrZXRsZFdQLzlvNG8zTTc2aHJIN256WEFxb0x4V1pVV0dz?=
+ =?utf-8?B?L2RYZXNIU0lES09Zb1JiRzRvN3hKNjVwai8rc05kU2ljUFBaUzFCZG4wTGhy?=
+ =?utf-8?B?NFpKa3JRdTgvRDByTytFaEV0RU5tSm5yN0k2T0xFZUV2WFZ6enZMaXFkUmZo?=
+ =?utf-8?B?K1lHWjg3MCsyemdTdGR4L01KWUR6LzdyZ2ErbENrQzlOS1gvZlZpK3lZZlFI?=
+ =?utf-8?B?bjFYQXp2YXlGMFNhL0RDZDhTTjdWSHRaZTcwbFgvT1AvN3JTT3V6Z0lEVDla?=
+ =?utf-8?B?WnQzVlJvYTJHcFl0MEhmS25iY1hhZExmamF6RjlkdG1qT3dEVG9BZz09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5cfd2d80-4e07-48b9-ae89-08de664ad227
+X-MS-Exchange-CrossTenant-AuthSource: PH8PR12MB6748.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Feb 2026 13:14:27.4042
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: roD2tcJgN5DQPtjuRAbi3tfjr6ABOja8gUWXHbhP0tvLUcJC72Sc8fVbzk5m6froq9QYmfEUy7Uu0B7D2Ma/4w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6496
 
-On Fri, Feb 06, 2026 at 07:13:08PM -0800, Jakub Kicinski wrote:
-> On Fri, 6 Feb 2026 17:31:54 +0530 Srujana Challa wrote:
-> > Replace hardcoded RSS max key size limit with NETDEV_RSS_KEY_LEN to
-> > align with kernel's standard RSS key length. Add validation for RSS
-> > key size against spec minimum (40 bytes) and driver maximum. When
-> > validation fails, gracefully disable RSS features and continue
-> > initialization rather than failing completely.
+On 2/7/26 4:01 AM, Michael S. Tsirkin wrote:
+> On Thu, Feb 05, 2026 at 06:43:28PM -0800, Jakub Kicinski wrote:
+>> On Thu, 5 Feb 2026 16:46:55 -0600 Daniel Jurgens wrote:
+>>> This series implements ethtool flow rules support for virtio_net using the
+>>> virtio flow filter (FF) specification. The implementation allows users to
+>>> configure packet filtering rules through ethtool commands, directing
+>>> packets to specific receive queues, or dropping them based on various
+>>> header fields.
+>>
+>> This is a 4th version of this you posted in as many days and it doesn't
+>> even build. Please slow down. Please wait with v21 until after the merge
+>> window. We have enough patches to sift thru still for v7.0.
 > 
-> Hm, FWIW clang says:
+> v20 and no end in sight.
+> Just looking at the amount of pain all this parsing is inflicting
+> makes me worry. And wait until we need to begin worrying about
+> maintaining UAPI stability.
 > 
-> drivers/net/virtio_net.c:6841:31: warning: result of comparison of constant 256 with expression of type 'u8' (aka 'unsigned char') is always false [-Wtautological-constant-out-of-range-compare]
->  6841 |                 } else if (vi->rss_key_size > VIRTIO_NET_RSS_MAX_KEY_SIZE) {
->       |                            ~~~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> Which is kinda annoying because the value was increased in net-next.
-> If Machael wants this backported then we need to keep the check
-> and follow up in net-next? We could try to cast the u32 away but
-> that feels dirty..
+> It would be much nicer if drivers were out of the business of parsing
+> fiddly structures.  Isn't there a way for more code in net core
+> to deal with all this?
 
+MST, you reviewed the spec that defined these data structures. If you
+didn't want the driver to have parse data structures then suggesting
+using the same format as the ethtool flow specs would have been a great
+idea at that point. Or short of that padded and fixed size data
+structures would also made things much cleaner.
 
-for net next we will presumably replace with 
-	BUILD_BUG_ON(type_max(vi->rss_key_size) > NETDEV_RSS_KEY_LEN) 
+I thought this series was close to done, so I was trying to address the
+very non-deterministic AI review comments. It's been generating new
+comments on things that had been there for many revisions, and running
+it locally with the same model never reproduces the comments from the
+online review.
 
-and I think we should get rid of VIRTIO_NET_RSS_MAX_KEY_SIZE while
-we are at it.
-
--- 
-MST
 
