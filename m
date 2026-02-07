@@ -1,205 +1,204 @@
-Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011040.outbound.protection.outlook.com [52.101.52.40])
+Received: from fhigh-b2-smtp.messagingengine.com (fhigh-b2-smtp.messagingengine.com [202.12.124.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 307BA34107D
-	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 13:14:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.40
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770470072; cv=fail; b=ar9/xktS0LovwhvNhJlz4drkCSVmCgtB5cs1h4bVHiSS7YaQOvMP0UHixtRU2FtWoWref1g0Cxv9o1RVIXUkmGKVMWgkesrkSm7W2+mYfOA7JjyFToJYToofNCmTNR1F2fbl8hIOggf8BQGt7xsp3Wc3K/RwlvUaAODYjIO+IBg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770470072; c=relaxed/simple;
-	bh=dKFqf5nsrIJcIedPZ1JLQlhiyJU3c0cAyCnlzDms0Xs=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=km2g5Q+uvq8asUDYxhLBPvPdWWuODp3aWF0XlZy0Fiel1hJbjJPjYDKDvHwH7u0rExrePq+xVtfkjKkRjt5YRJeNvVHMyO3SgkFnU7EqcvhcsUMmbCUA5eKGo4uWQ5/baMGEOBW7rTVRYIQDMV0gCtGplKcv2l+QdwjB4GL7SxQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=eC8mA9Xk; arc=fail smtp.client-ip=52.101.52.40
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F4922339
+	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 18:20:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.153
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770488416; cv=none; b=NMRB9q/VfboEp3L51Kdtg9xZEyGrS0VT+5YgizZuMIv+33E+yOXYFV6Qtvr8gOtcL/R179sHRvQjJjNnAFT4K0Bw33sAb7G8FmAzxQZypRvOtcZ4Rie5/QOyuMfD3/9WpiqD7Sdv3p174HpYqM+4jBrr9TOzMrP1EYLiPdEpMx8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770488416; c=relaxed/simple;
+	bh=VQ/+d4GtvWgsueFwR/GePFVNJiRwnBr+ARdraOOAr5c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uqYR9/UisTD6jespdL+2HQVZOyLZJp0oFJsziT8vM+zCR7BM5atqLqNutaVOOuvtNbln8teHxWveEmSvpxddbfbuh2XXYSTwIUqMVl99MmIuwnNM2FDD2w6nncDqDFA3OYZmwVf9SxNa6ERDqL8jmbaIwxopU9cU+dTHa1t7k5U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=likewhatevs.io; spf=pass smtp.mailfrom=likewhatevs.io; dkim=pass (2048-bit key) header.d=likewhatevs.io header.i=@likewhatevs.io header.b=hj+1ZigH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=scnshh+E; arc=none smtp.client-ip=202.12.124.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=likewhatevs.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=likewhatevs.io
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="eC8mA9Xk"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=csXH/xjuJnKip16c/Z/+DnBzZN+eGX7AW32U8ZYnfLzMyFL0+LQGkF2SC/6/8kX/S2449uaQebx5WBWJx+EONBoYJ0Vg2Go3eR5WaMWOPBf7heiI9pxJ71iVfEkYWP/FunNkLzjnDe2KKvRhulLRCDCou5VYj6zxrUmzBWUp7vPOBhqJD17Ux5AMbR7CGn0snSeb/eELWOqA6T9nl+FTbvX0Is0bTzpIRZXYh8WAFxFvmVJOiz080hOThSyVxExYK9SztlqAkX2gmpVe/3+BY9SIdDdJgr/f0sSMQ/VcefQLH7tdMiVMbLSA6CfcxKwoEO0kJES0qW2tTDioLj7m9w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HylQ8cJXATijJiK9q6iwJaXSIDv5eIvG6o180Q2L9pY=;
- b=murcN7MjhmIZjCP6A1X3PcMWG4ThWy4NyuVOE6v4IzgsSX/+1jEZdlstl9e7DjVYe2x5Z9ZZNvVR4Mnw1TNhdRzk7ThqAer9goard2k4P88Gh1ltxUonTAYuOcaW+Y/5/WKL2LDyys4NA6uUifjOg93pimyW9QV4x0gU4swhJS1L5qYuCoF1/7Y1OKycZr5ojanrnLaUUw/htvlZJtp6xjZzBlJXsMTTjiIOVaGeathHf9JW2PD0M8IZgOaYLY4E//kl+U0weALVpjAuzV26P6JAf7jQ+ePh4+aeBDQCHE+PtvnTv3L1dhvR38VQZXfWHEb/xMjCOI+NOYbTWMckuQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HylQ8cJXATijJiK9q6iwJaXSIDv5eIvG6o180Q2L9pY=;
- b=eC8mA9XkvKhZnuS8/xqNRZnZi/rh8KIvFG8CT9grmhMNRdKd8x2+9ZD4XpJHHcw0kcsDnqXjtlCgiCO628b9xHeFQtXyRaScrkBnjIsuL0ZIOJLZM6gQkv9k8pKGHrWS0Bir3ka1PuTuCi5sK+mt27A3yl3QbhH0utqIs0pTBN6coUpYMTPxZWBPD5XRsAJJqrXBhmTQaFdsXZMyjV6MCwxFdt0Kd4Eu3QJNUMKqliG7CJQiTj1oV8Gy1UjfefrSoKMcy0WskDfy+u2V/4EmJik2kW/VAL/fWC/axxU3LIT6WxqOpt/ylqgmiMeOErAWIstl47wOFzdTkATis4/CrA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from PH8PR12MB6748.namprd12.prod.outlook.com (2603:10b6:510:1c4::5)
- by DM4PR12MB6496.namprd12.prod.outlook.com (2603:10b6:8:bd::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9587.13; Sat, 7 Feb
- 2026 13:14:27 +0000
-Received: from PH8PR12MB6748.namprd12.prod.outlook.com
- ([fe80::a91b:e47b:4f8f:57fe]) by PH8PR12MB6748.namprd12.prod.outlook.com
- ([fe80::a91b:e47b:4f8f:57fe%6]) with mapi id 15.20.9587.013; Sat, 7 Feb 2026
- 13:14:27 +0000
-Message-ID: <c96d6b1c-5bad-4e06-905c-10f722c9b9d1@nvidia.com>
-Date: Sat, 7 Feb 2026 07:14:25 -0600
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v20 00/12] virtio_net: Add ethtool flow rules
- support
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
- virtualization@lists.linux.dev, parav@nvidia.com, shshitrit@nvidia.com,
- yohadt@nvidia.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- jgg@ziepe.ca, kevin.tian@intel.com, andrew+netdev@lunn.ch,
- edumazet@google.com
-References: <20260205224707.16995-1-danielj@nvidia.com>
- <20260205184328.3b706154@kernel.org>
- <20260207045848-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Dan Jurgens <danielj@nvidia.com>
-In-Reply-To: <20260207045848-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SA0PR12CA0028.namprd12.prod.outlook.com
- (2603:10b6:806:6f::33) To PH8PR12MB6748.namprd12.prod.outlook.com
- (2603:10b6:510:1c4::5)
+	dkim=pass (2048-bit key) header.d=likewhatevs.io header.i=@likewhatevs.io header.b="hj+1ZigH";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="scnshh+E"
+Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 326377A00D0;
+	Sat,  7 Feb 2026 13:20:14 -0500 (EST)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-01.internal (MEProxy); Sat, 07 Feb 2026 13:20:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=likewhatevs.io;
+	 h=cc:cc:content-transfer-encoding:content-type:date:date:from
+	:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to; s=fm2; t=1770488413; x=1770574813; bh=IO9ywlmGfc
+	BO8cnAVToZ1n7BPbwOAGIfRGMDEBBgO1w=; b=hj+1ZigHU81o+NgMkXYIWGF7ac
+	JxJOZbGFRp6ULfRHAASao55TltRLZtYcW9GHH2MludYrrFV7tATV7/7e7ePf2o1z
+	4BsjKpRVnuHFzLsZgMyAMA659mn3gxv1e2LSZZWeFX5esJ5ej0jnkRI0TVB9sW79
+	8zl+RaAmxOZNI+57wjI4eoC/YE/Riu4rZi9iBy0grsndc3EcKasG9YtnEHwj6xzt
+	IYxuQMHJ1Y8tcE39whOiHgrLGyLJybG5C+6UM1/DJpamUcWLvP3W8eCNUTog1pUA
+	1YvMjbJjQFvSD4psvjnC7o7RDqdZBSUvlnh/zqApuLuFqCxSaPvqdHfxGrAg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+	1770488413; x=1770574813; bh=IO9ywlmGfcBO8cnAVToZ1n7BPbwOAGIfRGM
+	DEBBgO1w=; b=scnshh+Eyp8vbWpEJZwXyQ42wx9fOMRLdG/Inh/AhATRedpgXqt
+	TplI1PiNZEnH0DBwnu/rgFAY+IJKIG+WOTFHZ5V37/c8Qq3Jqe8v5OYHBjn8ZzoD
+	6UQaSzULcm8GqLl+4VXWvhq8p+/05P1OAB4tdj/i9FwcMU3nI7GGO5PL4BdMr/W6
+	/GO6Ktf4RaVCjPHjouE4zaLqCtcqYTaaX8hmANPgRDnmx5yRzkkje/T+nsZuqXFX
+	grW1MfMECRCpjm6BtA47cSNqFzWi9l5UfUkfT/cLcdxj8sZ2Q1VYc1cMhFsuzGhi
+	FFPSqaJbYJMfsEQA500weji+vwsZEX4+ggg==
+X-ME-Sender: <xms:W4KHaTMiwKZ77nWxK0cjRY_0OfM9c4E8cJA7gUHWhEFDysakuaIjMQ>
+    <xme:W4KHabdEetlCfRR1QHP__0XUWwZyh9iirILazW9OhONVoxULHV_n-IarcdHg_fTHh
+    uUzSPfEm0laaPJepuUIKqgNPVvY9vc2gN_kAy_DgGrt1xPQzYO8w5U>
+X-ME-Received: <xmr:W4KHaU6fRRvaVC2AA6nCDc_ZaEwn2V9cUezqrkTchOS7IYmmT24TrxbnHEKj5jZjAvxqK-3SItW5Kw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdduledujeehucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheprfgrthcuufhomhgr
+    rhhuuceophgrthhsoheslhhikhgvfihhrghtvghvshdrihhoqeenucggtffrrghtthgvrh
+    hnpeefveeiveeijefgueettdejleelieefvddtkeekudduveetveeutdehffeiueehuden
+    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehprghtsh
+    hosehlihhkvgifhhgrthgvvhhsrdhiohdpnhgspghrtghpthhtohepuddvpdhmohguvgep
+    shhmthhpohhuthdprhgtphhtthhopegrrhgvihdrghhonhhglhgviheshhhurgifvghird
+    gtohhmpdhrtghpthhtohephhgvrhgsvghrthesghhonhguohhrrdgrphgrnhgrrdhorhhg
+    rdgruhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvghtpdhrtghpth
+    htohepmhhsthesrhgvughhrghtrdgtohhmpdhrtghpthhtohepjhgrshhofigrnhhgsehr
+    vgguhhgrthdrtghomhdprhgtphhtthhopehtjheskhgvrhhnvghlrdhorhhgpdhrtghpth
+    htohepgihurghniihhuhhosehlihhnuhigrdgrlhhisggrsggrrdgtohhmpdhrtghpthht
+    ohepvghpvghrvgiimhgrsehrvgguhhgrthdrtghomhdprhgtphhtthhopehvihhrthhurg
+    hlihiirghtihhonheslhhishhtshdrlhhinhhugidruggvvh
+X-ME-Proxy: <xmx:W4KHadI1JHH2Bey7c4l-btoCiMwH0fV3m__YW9Oun14EW6bW2M3nYQ>
+    <xmx:W4KHaeXd3Z79DGZAKbFUFXV-eLdT6XlVispDxwSXQWL8Yy9uR_oTzg>
+    <xmx:W4KHaZHAWT7FOxBsqgGnyVW0v5KF52nkq7Ugr865wijjbypWt8JbnQ>
+    <xmx:W4KHad6CAxE5JcDe3KW55Zfyb5lOYxQ60rNHATA-ooL38bPRvPJFhg>
+    <xmx:XYKHabyKJEV_eTRBlBauzhDr9DX0WO9d0KD1aj0eQJNc-8aT1RSeri2M>
+Feedback-ID: i7f194913:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 7 Feb 2026 13:20:11 -0500 (EST)
+From: Pat Somaru <patso@likewhatevs.io>
+To: Gonglei <arei.gonglei@huawei.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	"David S . Miller" <davem@davemloft.net>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Tejun Heo <tj@kernel.org>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-crypto@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Pat Somaru <patso@likewhatevs.io>
+Subject: [PATCH] crypto: virtio: Convert from tasklet to BH workqueue
+Date: Sat,  7 Feb 2026 13:20:01 -0500
+Message-ID: <20260207182001.2242836-1-patso@likewhatevs.io>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH8PR12MB6748:EE_|DM4PR12MB6496:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5cfd2d80-4e07-48b9-ae89-08de664ad227
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?QXUwMnpRZm1oR2lIdUJFK2lWSCtTc1pzRjNGcUpqYUdESm9SYXJrN1pISGRa?=
- =?utf-8?B?dWdNYTArM2krcTl1TU0yODFUYThFMHdJWGorN3BrZ1MrS3NKTHFNa2RXNkVK?=
- =?utf-8?B?V2NMZWkyQzBzRzdLT3htR3RUU3h4ZGNWVzllR1d5N2JzU1A0TGliUzdVQ0xI?=
- =?utf-8?B?RG14UUY4NVdCMGdwdXBXVDBOQzBobUNHV0ZYTnUwSk5zSFkvLzAzMHJsVmRK?=
- =?utf-8?B?eU0vcHkvZHlhYXRjQ0lzZWRMRWtnZkV3d2ExWTM1QXZGVkUvSlpLMDlxT0NZ?=
- =?utf-8?B?QlY4YUJGSmtwcXdYWUVuS3Uzb1NRM2w3dTJ0WWhCZWxtZ0tyZ21tbGs3bkdN?=
- =?utf-8?B?bXZCNnNnZFBVa2R4SEU0OHE1MlRCRkVZSVlGUUgyZmZSQ25VWUxMOUpzRGdx?=
- =?utf-8?B?Qk45dFFXc0lHZ1UwdnpxaWNKbTFqbmJuUUZDK3E1enhwcTRhOHRsZytpd2c4?=
- =?utf-8?B?R3FJMVlacWJJVlVyVC9SdGpzN1VuWDc5UWlYYlhtdEVsMEZTOVV3Mm90Rm5x?=
- =?utf-8?B?NFVua2dGeldMVDMvNFp4R0cyZGZURGtiVUFyNHVXM1k0L0hEcU1mS0hnQVMr?=
- =?utf-8?B?dzZzNFZFNzIyTFF4c0VSSitPR29FT014UlhMNTBydmtkdTZGYU53Ny9DUHlw?=
- =?utf-8?B?aDNPZ0xGeFlQMFd0YlZ0dFUwVXBYWWpiUm0xNm04aFNpcEJoTGl1L0R5M1Q3?=
- =?utf-8?B?NEpKazI5UmJpRHJDVnN5bm83Ly9aa3NoRjRBRWEzbE9wb016MmhYTFUrM2l0?=
- =?utf-8?B?aVpFemtLdVQyOHYyUy9vVnBZRHZFeFZ2ZjhWY1V3SENyOVp0azVzbERSY2Y4?=
- =?utf-8?B?UG9BUHExY0FjenUzaXF5cXN1MHQraE1CeXBHRldTcVFGYngwdDBCaGhnT2hp?=
- =?utf-8?B?ZjB1TGRYWmdPN2JyZXRIUi9IREM1ZGwwRjJZS3YrMXE4WlM5d2hVaXZEdkl6?=
- =?utf-8?B?UWpJeG1NbU9qakNQY0RKZGVaZmNXZWFScTlpR2VhRHd1M21Xem1YVjY3MkhM?=
- =?utf-8?B?aHpxVkRCcE1HL3I4ZFVnWDEzeXZDbVZ2dmhPVDNtbTF4WXpRQkh4R1BNbTJo?=
- =?utf-8?B?OVQ3RlFzUWszWWlGNkliVjN2R2UvSTdRQks0M0tiN0pYejRGYUNmaVdrT0F6?=
- =?utf-8?B?RndDckZ3ZHJSU01XWkU4SFFxREpudnRybEdkSzBNNlI1dklVcFdrS0JQS3pm?=
- =?utf-8?B?T1BxcjIvcysvL1ZYWEE4UjlLWThxVWR6dDkvSkZjajZVa0NIWGRJNEFVcmd3?=
- =?utf-8?B?cmY4dFJtVHdST0hiVmhFUXBNeXVBdGhMaEEzczVEU244djRIVXhFenhpNkkv?=
- =?utf-8?B?THY0UE5QUGtoWVBpZFltdUdOZkp3MkJOQU1jZTd5Vmw4RVhrTXJHVEwyOHI1?=
- =?utf-8?B?b3E2RnpPb2FQRjFjdVRuWU9QakVVTFUrb0xGWCtYMkdPRmZLaFR3UHhJZW5L?=
- =?utf-8?B?TkRnSDJtSzVxeDV0MUhhd3hINXliRkJNdmhjZzlESmQrOXR5akJmelZUUk9Q?=
- =?utf-8?B?MGRSbU1GSldXbVp1SjRzbFJOSFJKL2xJOGZrSEl4MldvbWhWc3UweUdNL3ZO?=
- =?utf-8?B?STV2cVdlSDZ1K0VXR2RndTJxcWpaV2t4eXorWVpBV0o0K3l0b0ZJUkt2K1NX?=
- =?utf-8?B?WG5GS1puWkdSa1B2NVVLQS91aUdJYW9XclNDZWwreElXUnljRGxLcGpsQnhC?=
- =?utf-8?B?a0pDYUZTTXZxUjNYcVBBajA3RTFTQkN3b2xUK05uMEowcWxXQ01zRkQ3VGdj?=
- =?utf-8?B?VnlCcGdtUFVQK1Nnb280VjFLT05udUNFZElJUldhM1IzRWsvYXZHdHlVb2Jm?=
- =?utf-8?B?UmVXV0djS052Rk90Ry9FcGtWOHY0MFgwenZTNWQzYnowbjRCdklEd3lFTHBQ?=
- =?utf-8?B?SmhUYUdTL0d2aVptR0NCaXVVcVJlRmtTZW1CSUVCMCtSOWRwZFBWRFlqWStt?=
- =?utf-8?B?d1dpWkh5UGZGSmxiOU4xaTZDSnFQallxSWJ3eXJzdnRBbWJLYkZPQ0FUUHBW?=
- =?utf-8?B?Q2N3N0paYklabW9JdzBqYVMxMlNwcVV0S3R5UEk2YVlqY3VJdzYwUGd2RGVL?=
- =?utf-8?B?bDNqYy9zVzhhMFhNc3JhVnhQZ3RoWWlYQXU0bjJaWkh4MnZCdW9WaGpwVU9I?=
- =?utf-8?Q?t5fE=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR12MB6748.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?MDR5ZHJNbzh1SnJEaFlhWE9tOFdRZ3dCcGRRckRvdzhSUFhxUXNiM2I3czBJ?=
- =?utf-8?B?bXFpZWErS1ZvYXd5OVVaUS9oTThKRVVrK3lJSWt4WFFFYmNENzVkeHg4Y2JD?=
- =?utf-8?B?TllobjBKZWZ2bG9CVlhaY25GVXJaOFJKbXpOUkhHcWlEMThKcC9MUDVvYU5Y?=
- =?utf-8?B?bXlFaUJlN1o3SUVHQmx5Vk1rY2Y0ZmlYMXVVTktLWWlSWnczRjVUYUhaL1Jq?=
- =?utf-8?B?YmNhQkRzTEhCaWFSemtrNG42Q3kvZExCamcwMFg3di9zYVFDR3FNaTA1Q2tv?=
- =?utf-8?B?ejR6NzdFUjRMNDdaVVlPVy8wZk5vQU52ZUZDcUVPU1lPMlRySU1RYkJkMVVD?=
- =?utf-8?B?VktPSnZBWEZYMFIvWWR2eDc0aTAxVk9LaCs3Z1NPUG1UZ2JGb2hJbDFqbzdI?=
- =?utf-8?B?TWlyaTJqdWtCY2dLWUNtSzR6M0tSczlCS1BtcnhsSXp5TklBV1crS3NpTklz?=
- =?utf-8?B?U1RQZE1sN0h6cEE0ckJKR25ySkZxR0Y2THVoS04vZDMySFQyN2wwc3hLU2dS?=
- =?utf-8?B?bEJvREZlWnhKOHg5M2NGYno0TkQxU2Rpa203SGRKNDBQbXkyQUZBSHVuWGlT?=
- =?utf-8?B?MVFmdmNlZlZiVDdYcVJSUnMwTW9keXR6M3ozT3J2LzhGeHY0TkdUUU02OFBt?=
- =?utf-8?B?cU91WDZYSE96UVRUQldnTkhOK0hUQTh5Q0F4MkM3ak1rODVDM3VpSDN1SGtM?=
- =?utf-8?B?VEx2cEQ0QmVrTUx4dFc5VjIwNGxvZWJhcTBiWGRJY2dPemNwaE1uVmhjTkxo?=
- =?utf-8?B?cnZpUmZHWmhXTUhab2N4Y1RLZjhEankzNXFEYnlKWHgzblhQWWtBakxIcmJt?=
- =?utf-8?B?NE9VSzZOSnZsckw5MTZyNjJTKzBleXlpRVM2Z09MbUpiejJzcmRBYVlMTjU2?=
- =?utf-8?B?cUlPWFVIamc1Uk9CbHVJSFBCeGZsZ0hwU3Nhc2NSQStCV2NuY2lMSkVoamNJ?=
- =?utf-8?B?czJwQTVRNzEvMkFtUXI2WW1Qb1BlalFzVitaL0hGRWxKamlNNFRySnA3TDVU?=
- =?utf-8?B?R083WGg4cjlsVWpkSEUvTTNCZ3hKeU5mQ2JsOE1qTEFmVG00YVFQbjZZSUNZ?=
- =?utf-8?B?Y0tDUGdKOStmazBmMTFnN0dKVkJxVkc3emFvMWl6ZlFaUEZOcEp4YjFRb2xR?=
- =?utf-8?B?bmNoc0pOQUJwc1luWUdCZ281TlZTeVB5enBGa08rQnRISDVGYXUxUy9VeTZJ?=
- =?utf-8?B?R01vaDdDaTJnSFNCRE5RbHJYdFY4c1k1Y0M1MnhKbk5KbXM3bGRMTWcveDJy?=
- =?utf-8?B?N05IOCtvWTVTeEtpemJ4UVd5WS81TXY1eVRqRVZXcm1nSDU3QzE4ZEVteDls?=
- =?utf-8?B?dWllSG1vM3lQVDNyTVdEUTA4eUR0OTViNExSSjAxVnYvMWx0bStLQjVpOXh0?=
- =?utf-8?B?Y05yTkpabmExM3BCdk0vRktjbXVRdmJ6SklZTHJ3RlZoNnFaRG9HRmdMVy96?=
- =?utf-8?B?SGxFYUYzZjRHeVBkTHZhbGpueExVazk2RzZHdkx2SXJOd3BMNlZPVkhWVjZp?=
- =?utf-8?B?UThwRkMzVmFPTjUyRFEveGM3MjBUT2V4VjZWWGIrK3QralNGRlExQUNuOUp4?=
- =?utf-8?B?K2dsd1hVa0VqMkJQTEFJVm84aDNBL2g1T3JUTUFuZThiOE0zZnZSNWp4YlBh?=
- =?utf-8?B?TnltTkRVVHE2alUxbGtQMUxJV2hkSzRNWml1RHhoUVR5MGdPajVhY0pVdTJL?=
- =?utf-8?B?d095N0dtcm5naHloancvYStMN3pmNWZNb2VadlV4aUVlM3lXN2NydlFpQjV4?=
- =?utf-8?B?OGRFYmRER0ZhMWpUbnN5T3RKTjZhdS9GMDlQbXhiK3VQUEhZOXYyVGNwWFJh?=
- =?utf-8?B?eUN4VEVTU1l1czl5OGprNjdyMFhhMWFsSXlLbWJSRjE3djc1SUdQQXNGc0ZD?=
- =?utf-8?B?WTlmbzFzWld3WUNoM3EzUWZteEFnWFVvMWM2TUlMUXhYaW9CbWx0bkJkcnUz?=
- =?utf-8?B?ZXhyd09tbEhLYzlJeDRMNUhmeEV6L3c5UlJMTGtDc1RzVEJxbmdMcUcydjRI?=
- =?utf-8?B?d2JaNWxHSzB1ZXZrZXRsZFdQLzlvNG8zTTc2aHJIN256WEFxb0x4V1pVV0dz?=
- =?utf-8?B?L2RYZXNIU0lES09Zb1JiRzRvN3hKNjVwai8rc05kU2ljUFBaUzFCZG4wTGhy?=
- =?utf-8?B?NFpKa3JRdTgvRDByTytFaEV0RU5tSm5yN0k2T0xFZUV2WFZ6enZMaXFkUmZo?=
- =?utf-8?B?K1lHWjg3MCsyemdTdGR4L01KWUR6LzdyZ2ErbENrQzlOS1gvZlZpK3lZZlFI?=
- =?utf-8?B?bjFYQXp2YXlGMFNhL0RDZDhTTjdWSHRaZTcwbFgvT1AvN3JTT3V6Z0lEVDla?=
- =?utf-8?B?WnQzVlJvYTJHcFl0MEhmS25iY1hhZExmamF6RjlkdG1qT3dEVG9BZz09?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5cfd2d80-4e07-48b9-ae89-08de664ad227
-X-MS-Exchange-CrossTenant-AuthSource: PH8PR12MB6748.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Feb 2026 13:14:27.4042
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: roD2tcJgN5DQPtjuRAbi3tfjr6ABOja8gUWXHbhP0tvLUcJC72Sc8fVbzk5m6froq9QYmfEUy7Uu0B7D2Ma/4w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6496
+Content-Transfer-Encoding: 8bit
 
-On 2/7/26 4:01 AM, Michael S. Tsirkin wrote:
-> On Thu, Feb 05, 2026 at 06:43:28PM -0800, Jakub Kicinski wrote:
->> On Thu, 5 Feb 2026 16:46:55 -0600 Daniel Jurgens wrote:
->>> This series implements ethtool flow rules support for virtio_net using the
->>> virtio flow filter (FF) specification. The implementation allows users to
->>> configure packet filtering rules through ethtool commands, directing
->>> packets to specific receive queues, or dropping them based on various
->>> header fields.
->>
->> This is a 4th version of this you posted in as many days and it doesn't
->> even build. Please slow down. Please wait with v21 until after the merge
->> window. We have enough patches to sift thru still for v7.0.
-> 
-> v20 and no end in sight.
-> Just looking at the amount of pain all this parsing is inflicting
-> makes me worry. And wait until we need to begin worrying about
-> maintaining UAPI stability.
-> 
-> It would be much nicer if drivers were out of the business of parsing
-> fiddly structures.  Isn't there a way for more code in net core
-> to deal with all this?
+The only generic interface to execute asynchronously in the BH context
+is tasklet; however, it's marked deprecated and has some design flaws
+such as the execution code accessing the tasklet item after the
+execution is complete which can lead to subtle use-after-free in certain
+usage scenarios and less-developed flush and cancel mechanisms.
 
-MST, you reviewed the spec that defined these data structures. If you
-didn't want the driver to have parse data structures then suggesting
-using the same format as the ethtool flow specs would have been a great
-idea at that point. Or short of that padded and fixed size data
-structures would also made things much cleaner.
+To replace tasklets, BH workqueue support was recently added. A BH
+workqueue behaves similarly to regular workqueues except that the queued
+work items are executed in the BH context.
 
-I thought this series was close to done, so I was trying to address the
-very non-deterministic AI review comments. It's been generating new
-comments on things that had been there for many revisions, and running
-it locally with the same model never reproduces the comments from the
-online review.
+Convert virtio_crypto_core.c from tasklet to BH workqueue.
 
+Semantically, this is an equivalent conversion and there shouldn't be
+any user-visible behavior changes. The BH workqueue implementation uses
+the same softirq infrastructure, and performance-critical networking
+conversions have shown no measurable performance impact.
+
+Signed-off-by: Pat Somaru <patso@likewhatevs.io>
+---
+ Hi, I'm working on converting tasklet usages to the BH WQ API.
+
+ The virtio-crypto driver uses a tasklet per data queue to process
+ completed crypto operations in BH context. This converts that tasklet
+ to use the BH workqueue infrastructure.
+
+ This patch was tested by:
+    - Building with allmodconfig: no new warnings (compared to v6.18)
+    - Building with allyesconfig: no new warnings (compared to v6.18)
+    - Booting defconfig kernel via vng and running `uname -a`:
+    Linux virtme-ng 6.18.0-virtme #1 SMP PREEMPT_DYNAMIC 0 x86_64 GNU/Linux
+
+ Maintainers can apply this directly to the crypto subsystem tree or ack
+ it for the workqueue tree to carry.
+
+ drivers/crypto/virtio/virtio_crypto_common.h |  3 ++-
+ drivers/crypto/virtio/virtio_crypto_core.c   | 11 +++++------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/virtio/virtio_crypto_common.h
+index 19c934af3df6..c758a5a37729 100644
+--- a/drivers/crypto/virtio/virtio_crypto_common.h
++++ b/drivers/crypto/virtio/virtio_crypto_common.h
+@@ -11,6 +11,7 @@
+ #include <linux/crypto.h>
+ #include <linux/spinlock.h>
+ #include <linux/interrupt.h>
++#include <linux/workqueue.h>
+ #include <crypto/aead.h>
+ #include <crypto/aes.h>
+ #include <crypto/engine.h>
+@@ -29,7 +30,7 @@ struct data_queue {
+ 	char name[32];
+ 
+ 	struct crypto_engine *engine;
+-	struct tasklet_struct done_task;
++	struct work_struct done_work;
+ };
+ 
+ struct virtio_crypto {
+diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
+index 3d241446099c..345d1f1ed195 100644
+--- a/drivers/crypto/virtio/virtio_crypto_core.c
++++ b/drivers/crypto/virtio/virtio_crypto_core.c
+@@ -70,9 +70,9 @@ int virtio_crypto_ctrl_vq_request(struct virtio_crypto *vcrypto, struct scatterl
+ 	return 0;
+ }
+ 
+-static void virtcrypto_done_task(unsigned long data)
++static void virtcrypto_done_work(struct work_struct *work)
+ {
+-	struct data_queue *data_vq = (struct data_queue *)data;
++	struct data_queue *data_vq = from_work(data_vq, work, done_work);
+ 	struct virtqueue *vq = data_vq->vq;
+ 	struct virtio_crypto_request *vc_req;
+ 	unsigned int len;
+@@ -91,7 +91,7 @@ static void virtcrypto_dataq_callback(struct virtqueue *vq)
+ 	struct virtio_crypto *vcrypto = vq->vdev->priv;
+ 	struct data_queue *dq = &vcrypto->data_vq[vq->index];
+ 
+-	tasklet_schedule(&dq->done_task);
++	queue_work(system_bh_wq, &dq->done_work);
+ }
+ 
+ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+@@ -145,8 +145,7 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+ 			ret = -ENOMEM;
+ 			goto err_engine;
+ 		}
+-		tasklet_init(&vi->data_vq[i].done_task, virtcrypto_done_task,
+-				(unsigned long)&vi->data_vq[i]);
++		INIT_WORK(&vi->data_vq[i].done_work, virtcrypto_done_work);
+ 	}
+ 
+ 	kfree(vqs_info);
+@@ -497,7 +496,7 @@ static void virtcrypto_remove(struct virtio_device *vdev)
+ 	if (virtcrypto_dev_started(vcrypto))
+ 		virtcrypto_dev_stop(vcrypto);
+ 	for (i = 0; i < vcrypto->max_data_queues; i++)
+-		tasklet_kill(&vcrypto->data_vq[i].done_task);
++		cancel_work_sync(&vcrypto->data_vq[i].done_work);
+ 	virtio_reset_device(vdev);
+ 	virtcrypto_free_unused_reqs(vcrypto);
+ 	virtcrypto_clear_crypto_engines(vcrypto);
+-- 
+2.52.0
 
