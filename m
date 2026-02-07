@@ -1,152 +1,174 @@
-Received: from mail2.anonaddy.me (mail2.anonaddy.me [185.70.196.149])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D71A23EAB7
-	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 18:56:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.196.149
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E2442E36F1
+	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 21:14:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770490618; cv=none; b=DEWlN0YAqxg3Hve4jSXfD2in2FbHUAeOzvq+QO7a3mN/dAVgVmrqhuaoA80gGmaPwEV892U74djd9CNgMRFCF4VHNjS1yXwqlVHemO0IlYImYiZde1BxB2HL9ksMx2ztiA+tIZD6QcWByJS1fBx2m3XXmwlwgaTwENYMdXy2y98=
+	t=1770498894; cv=none; b=rackBpd7MJW02X87rr2nj5qa7hv6uWtDPB5wdJh8D8pbSv5RpBN4kVZjHeGKPH1pCxP4pY9s4DN3RqH59Y7cItnAMiipWb3jCnTW9femURTJti5AVWke/UFEkNa/fti/A9IoYFSbzRDu22Ki86zLSR2qS+4E45GHSWnqfmqPaWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770490618; c=relaxed/simple;
-	bh=1aAyQJcOKpZDGOatk9b9nQPWTt5XNCehrKz9upPAILg=;
-	h=From:To:Subject:Message-ID:In-Reply-To:References:Cc:MIME-Version:
-	 Date:Content-Type; b=LwaqQOQZECnCQVgpZW/h7G+/lMNW27LykvpGAzd5z+PWKg+htdIo4o3v68q3fETofullVJlXxENpux999kRvGOGjxqSXmE8besl45i5AsOU9qpzGlM81BLUvgSdoqHTeaUvbSQXQJM5UqNWlN5RivS9XnP3p7jMmi1WdVqTyt8w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=anonaddy.me; spf=pass smtp.mailfrom=anonaddy.me; dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b=I5C/JwPj; arc=none smtp.client-ip=185.70.196.149
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=anonaddy.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=anonaddy.me
+	s=arc-20240116; t=1770498894; c=relaxed/simple;
+	bh=yYsqxIDf0jWdw7ugKoIzML4fUYtXXfYz9CZyOBwqbG8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=YEYU43B6ISDDhn5cUI70mTUWBAtRSGNsXqW6WFFn/ey/nuwqmiHQEoKwDZU4Tsysbq47kTBUs4vMKmEJbAcrjxOZWX3akt7Z8+J8ZwcC72McAZ+ym3sSawmc8w01XTCrAsTMbcrjgZMy1EKtYqurOeiQOH00pD0KjV8Mdp91HK0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Oy2taCo3; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=anonaddy.me header.i=@anonaddy.me header.b="I5C/JwPj"
-Received: from mail2.anonaddy.me (mail2.anonaddy.me [127.0.0.1])
-	by mail2.anonaddy.me (Postfix) with ESMTPS id B987AFB0CF
-	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 18:56:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=anonaddy.me; s=default2;
-	t=1770490610;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Oy2taCo3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770498893;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=1aAyQJcOKpZDGOatk9b9nQPWTt5XNCehrKz9upPAILg=;
-	b=I5C/JwPjPPG76p5JQbsx092Ppfn0mw9xwoKtd45pZBUPBHk2kBvaLBXoz4/uicXm9BcKVn
-	5ZW7ZjImdgs9CGeu8yv4VmD8gmislYm6Ju8UGPCo86tERPae0/Wn8sQkVHJ2h+Zofx2Vzz
-	XeotgT26lVOFjrHjQN9tJRe7Czd36TLuf0v806+oyUkluZjEOHJRJ1RPFns0f11WbPFSdJ
-	Gj/Dy/pHAIxnWU3P5IcD93sjeXG753iwnuSPA6pB7BSfvDiwD7zr1TOlDYxvrhhAQ9CEah
-	YHrwhV/AkgxYm5wftr6TpCLpaminVY4g7gtLCyfecEBKkszEi/c1+U9QSicEbQ==
-From: agpn1b92@anonaddy.me
-To: sgarzare@redhat.com
-Subject: Re: [BUG] vsock: poll() not waking on data arrival, causing
- multi-second SSH delays
-Feedback-ID: R:d17f588e-5717-4190-ab1e-7db474f4dce6:anonaddy
-Message-ID: <e1037ba961431847ebfe4bbba310958f@anonaddy.me>
-In-Reply-To: <aYYTder4-zvgOfV7@sgarzare-redhat>
-References: <f3a801a1a32670294d5d703cad8ab609@anonaddy.me>
- <aYYTder4-zvgOfV7@sgarzare-redhat>
-X-Complaints-To: abuse@help.addy.io
-X-Report-Abuse: abuse@help.addy.io
-X-Report-Abuse-To: abuse@help.addy.io
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org
+	bh=7ay7waeK8INh+cINPaekYEvXT+aMvUwQTRSpP1Fkfng=;
+	b=Oy2taCo3F4kTl2qjJF6WUrD/j8sx8NU0L3KlCOy8vfq9nvx8ys6E5aItOWAOAQpFEUvvWF
+	/3XVVSKY6WPFzysCNCgsOvOdr+2s1NljwcSDqDHBa3TmT1H8JrWtN6y9byBcUisNCBDpjb
+	iig1HdxQePbm/bOmGNqZxizbavJcX7s=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-300-Hza78j-wPfuSQNJg1gMeDw-1; Sat, 07 Feb 2026 16:14:50 -0500
+X-MC-Unique: Hza78j-wPfuSQNJg1gMeDw-1
+X-Mimecast-MFC-AGG-ID: Hza78j-wPfuSQNJg1gMeDw_1770498889
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-483129eb5ccso36097285e9.2
+        for <virtualization@lists.linux.dev>; Sat, 07 Feb 2026 13:14:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770498889; x=1771103689;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7ay7waeK8INh+cINPaekYEvXT+aMvUwQTRSpP1Fkfng=;
+        b=MzCNYSSyH69bEUhE3TArAKo7pe8ZNXGYdADs6fU4JRo9aNqAuD7n5WzWttWHu5Aefo
+         MefqUJ+YVTjz2YbN8KAG2NEq3p2ryCokYwpkEIKiXnTFJmRmLPV39gTPpw0qG5RGraVw
+         pgMoVhTUzGI4EUgow0KppOI3Jx9NYqAWVcP+6px2CV2F3+oj6TbMV6z8U7PyZw6rQHsQ
+         /DrLvZSS+tWQ/Vi6w9y1ML8NfFePh/3BjyOqXT2DbgSqQ+W+qb7xA7xgFXPKafn+OGfs
+         T1+ZfTDwcLdbZlV3O9z5t5XDbs8wWfrbG2abUUUxv0RUisalsSnyJYI5IL9qsKV1/O1q
+         81hg==
+X-Forwarded-Encrypted: i=1; AJvYcCXXoRgp9PH0iS9KMtiBY0C7Yw3/5jwuHimuu9xIeXsd1QIAXZsQ8ooZjEmTr1qO6nVsnEDPG3cAxbB728mJWw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxmBJwyoyzZJUScCmTMl6m+WuKcv7mJ7EFO5kAw2Ie9NxTNdkhT
+	5ZxtrBZnu9vmgVARW2zdiwiAVJuHr8Da9w3w8vk71gHXecGPQ0yBusTw00scqmRypF5L2LKHrTW
+	wrCCe/QFWFCFgsCYNR2kGUm23nK4x4Z4IHYBXK7oFrP81KmXvv1pBA2AMNHjXCQ44GOaq
+X-Gm-Gg: AZuq6aJ16fcGHD/bytATQV4JJvn10dFG4CcfS4QW8NVyHxIQmgVNK30uxk38tBYkMAu
+	D+SQPVpHZP0pIX8990DEf47RMuDLTi2k/bTG6CneJerGc//4SGAVdN3SXKuNEs9rRJSvT73nM5/
+	fbI4Qkt8BFq/3bBzHcCaqKi0N1YSVR17FNflRzRl2sQx07rWNV3uyMVlXek/15uSE9JnRq73ebv
+	J/+lRF2JZu3OZNX3isEX1QDsMyiG71XJmiUFmpsLWGHFIINY/NHU2E2eYLmv4eiOFnR5QkCc+k+
+	bxVbzpkAEmAaKOkJD49T+lXiAMhx5YbttQUAjZL86+5b4KHuuImDZXKcC8hANRwDEws4r4aI5gr
+	bUdDvsywvc41DMllmx2bir7C1WE5PLm9B+g==
+X-Received: by 2002:a05:600c:5253:b0:480:20f1:7aa6 with SMTP id 5b1f17b1804b1-4832021b53dmr107226995e9.21.1770498888665;
+        Sat, 07 Feb 2026 13:14:48 -0800 (PST)
+X-Received: by 2002:a05:600c:5253:b0:480:20f1:7aa6 with SMTP id 5b1f17b1804b1-4832021b53dmr107226685e9.21.1770498888085;
+        Sat, 07 Feb 2026 13:14:48 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4832040e91fsm51832075e9.6.2026.02.07.13.14.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Feb 2026 13:14:47 -0800 (PST)
+Date: Sat, 7 Feb 2026 16:14:43 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Dan Jurgens <danielj@nvidia.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+	jasowang@redhat.com, pabeni@redhat.com,
+	virtualization@lists.linux.dev, parav@nvidia.com,
+	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
+	andrew+netdev@lunn.ch, edumazet@google.com
+Subject: Re: [PATCH net-next v20 00/12] virtio_net: Add ethtool flow rules
+ support
+Message-ID: <20260207160509-mutt-send-email-mst@kernel.org>
+References: <20260205224707.16995-1-danielj@nvidia.com>
+ <20260205184328.3b706154@kernel.org>
+ <20260207045848-mutt-send-email-mst@kernel.org>
+ <c96d6b1c-5bad-4e06-905c-10f722c9b9d1@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Sat, 07 Feb 2026 18:56:50 +0000
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <c96d6b1c-5bad-4e06-905c-10f722c9b9d1@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: hje0-GSGDI8zENEf8-uIWoZlDCTYftgDKe1ru5Kqz-Q_1770498889
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Stefano and all,
+On Sat, Feb 07, 2026 at 07:14:25AM -0600, Dan Jurgens wrote:
+> On 2/7/26 4:01 AM, Michael S. Tsirkin wrote:
+> > On Thu, Feb 05, 2026 at 06:43:28PM -0800, Jakub Kicinski wrote:
+> >> On Thu, 5 Feb 2026 16:46:55 -0600 Daniel Jurgens wrote:
+> >>> This series implements ethtool flow rules support for virtio_net using the
+> >>> virtio flow filter (FF) specification. The implementation allows users to
+> >>> configure packet filtering rules through ethtool commands, directing
+> >>> packets to specific receive queues, or dropping them based on various
+> >>> header fields.
+> >>
+> >> This is a 4th version of this you posted in as many days and it doesn't
+> >> even build. Please slow down. Please wait with v21 until after the merge
+> >> window. We have enough patches to sift thru still for v7.0.
+> > 
+> > v20 and no end in sight.
+> > Just looking at the amount of pain all this parsing is inflicting
+> > makes me worry. And wait until we need to begin worrying about
+> > maintaining UAPI stability.
+> > 
+> > It would be much nicer if drivers were out of the business of parsing
+> > fiddly structures.  Isn't there a way for more code in net core
+> > to deal with all this?
+> 
+> MST, you reviewed the spec that defined these data structures. If you
+> didn't want the driver to have parse data structures then suggesting
+> using the same format as the ethtool flow specs would have been a great
+> idea at that point. Or short of that padded and fixed size data
+> structures would also made things much cleaner.
 
-Thank you Stefano for your response and skepticism=
- about whether this was
-a kernel issue - you were absolutely right to que=
-stion it!
+Oh virtio is actually reasonably nice IMHO, and of course
+virtio net has to parse them. But a bunch of issues
+I reported are around parsing uapi/linux/ethtool.h structures.
+There is a ton of code like this:
 
-After extensive debugging with strace on both guest and host=
-, I've
-determined this was NOT a kernel bug at all, but rather an OpenSSH=
- issue
-specific to vsock connections.
 
-Root Cause:
------------
-Th=
-e 10-20 second delay was caused by OpenSSH's sshd attempting DNS lookups
-=
-on the literal string "UNKNOWN" (the placeholder hostname used for vsock
-=
-connections where no IP address exists). This triggered two 5-second DNS
-=
-timeouts during login recording and audit subsystem operations, totaling
-=
-~10 seconds of delay.
++static void parse_ip4(struct iphdr *mask, struct iphdr *key,
++                     const struct ethtool_rx_flow_spec *fs)
++{
++       const struct ethtool_usrip4_spec *l3_mask = &fs->m_u.usr_ip4_spec;
++       const struct ethtool_usrip4_spec *l3_val  = &fs->h_u.usr_ip4_spec;
++
++       if (l3_mask->ip4src) {
++               memcpy(&mask->saddr, &l3_mask->ip4src, sizeof(mask->saddr));
++               memcpy(&key->saddr, &l3_val->ip4src, sizeof(key->saddr));
++       }
++
++       if (l3_mask->ip4dst) {
++               memcpy(&mask->daddr, &l3_mask->ip4dst, sizeof(mask->daddr));
++               memcpy(&key->daddr, &l3_val->ip4dst, sizeof(key->daddr));
++       }
++
++       if (l3_mask->tos) {
++               mask->tos = l3_mask->tos;
++               key->tos = l3_val->tos;
++       }
++}
++
 
-The strace showed:
- =C2=A0 17:11:14.465 sendmm=
-sg(13, DNS query for "UNKNOWN")
- =C2=A0 17:11:14.465 poll([{fd=3D13, even=
-ts=3DPOLLIN}], 1, 5000) =3D 0 (Timeout)=20
-<5.005s>
- =C2=A0 17:11:19.472 =
-sendmmsg(13, DNS query for "UNKNOWN") [RETRY]
- =C2=A0 17:11:19.472 poll([=
-{fd=3D13, events=3DPOLLIN}], 1, 5000) =3D 0 (Timeout)=20
-<5.005s>
+and I just ask, given there's apparently nothing at all here
+that is driver specific, whether it is generally useful
+enough to live in net core?
 
-Why =
-I Initially Thought It Was a Kernel Issue:
-------------------------------=
-----------------
-- bpftrace showed ppoll() timeouts while data appeared t=
-o be queued
-- The pattern looked like a classic lost wakeup race conditio=
-n
 
-However, the vsock kernel modules were working perfectly. The delay=
+> I thought this series was close to done, so I was trying to address the
+> very non-deterministic AI review comments. It's been generating new
+> comments on things that had been there for many revisions, and running
+> it locally with the same model never reproduces the comments from the
+> online review.
 
-happened in userspace during sshd's session setup, specifically when
-m=
-m_record_login() tried to resolve the peer hostname for logging.
+Uncritically posting, or trying to address "ai review" comments is not
+at all a good idea.
 
-The F=
-ix:
---------
-OpenSSH 10.1 and 10.2 include fixes to prevent passing "UN=
-KNOWN" to
-subsystems that would attempt DNS resolution:
 
-- 10.1: Skip=
- audit logging for UNKNOWN hostnames
-- 10.2: Don't set PAM_RHOST when rem=
-ote host is "UNKNOWN"
+A bigger problem is that we are still not done finding bugs in this.
+My thought therefore was to see if we can move more code to
+net core where more *humans* will read it and help find and fix bug.
 
-References:
-- https://github.com/openssh/opens=
-sh-portable/pull/388
--=20
-https://gitlab.archlinux.org/archlinux/packagin=
-g/packages/openssh/-/issues/16
-- https://www.openssh.org/releasenotes.htm=
-l
-
-Workaround for older OpenSSH versions:
-Add to /etc/hosts: 127.0.0.=
-1 UNKNOWN
-
-Apologies for the noise on netdev - the vsock kernel impleme=
-ntation is
-working correctly. The misleading symptoms (PTY-specific, ppol=
-l timeouts,
-state between connections) made it appear kernel-related when=
- it was
-actually sshd's login recording code hitting DNS timeouts.
-
-T=
-hanks again for your help and for maintaining the vsock subsystem!
-
-Bes=
-t regards,
-[Your name - don't forget to update it this time or you'll loo=
-k even=20
-more stupid]
-
+-- 
+MST
 
