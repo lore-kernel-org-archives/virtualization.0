@@ -1,345 +1,106 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B200028002B
-	for <virtualization@lists.linux.dev>; Sun,  8 Feb 2026 14:35:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8904727877F
+	for <virtualization@lists.linux.dev>; Sun,  8 Feb 2026 17:22:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770561316; cv=none; b=Z7IKNXogIQKUYrbb4q+Duv6w0JdB2gU5naIKTmgZTELgvZQqDD59tVJ9O0BFqu6M3B4gnquRpR3ojicwPd62UOczkr8L7cEdDFqxwtV3IlZcHfzPuk2mS164DaN1kEJDlPEycAgQACasa1YM2d1DLT8VhE1/KuzujQhpv8tdOT4=
+	t=1770571362; cv=none; b=cwk7Zv8+RpVfl3O6ZhQJwNwDBHeLRRYiWnzgOBtCQKO75NWaWlBlKw4wW6MeRn35g5aN4OvB8/bAtoJ4SrwJqLfr6NZq3mt9VegozeOWl74tXyqDwwe9cXEJQSJp51FDEodLrNZdkE8gwNnIZKNS4q/ABBiMAgKOAjUhuoYF73U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770561316; c=relaxed/simple;
-	bh=wvoz2yEAU6sAeThW/9Wc+oWaUoQaY677EasHFK7XYpE=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=E1kbk0sZDemiq9D530AdOJhHeVQOyxzj/nL01u9x7zakQazdWCCedfu06hONHk+A6IIAvu+IEa+Wl9cKyp9yq87zMZxt/cSBzy1Fj3PsSq5RGKpXCTmNalKgePMtmq6r5HVy8KL2GQKqLSbZgpeGKXbtutu4ySleBFHIMU9sbOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KmvS7FeB; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1770571362; c=relaxed/simple;
+	bh=JPwZSVWVaVLW3Z6YpXhW5lIznLWTsro9+6GytsHoeZg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=CDUE4nKmQLfw+kqplK9NltoWZK7EGERmilPnWL1p4WAOJV9bAPmtL4HCcQ7cQYmMsHCZtHBBCNxqPw9RGFt3muyKiXFVBs3rRxzUa8JLtkTIckFApPIM0Kmwod9Dg1fEzfVy+ZtN1G7iwQUF7SUCpvtXYbpmMrl7ZbfIUdm2zE4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a1ACnuNW; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KmvS7FeB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a1ACnuNW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770561314;
+	s=mimecast20190719; t=1770571361;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=2jDMLCng9gvJ00q8oAtIVUFVCZC5q7ddA17a+3z9mOs=;
-	b=KmvS7FeBiH8gurKoYVDfAfzWvym9+bq7ziDNWX6LkgI4f21sXP077owGLKO9bNBPNHEJhd
-	PBNqYa1RvIN9N3qzasjebGnALD67+dT7qMmZR2QX1t9KPmzOA2lsDNnrK6js86bthZ93d9
-	ZTn2/51Ja8qIzJ5NmL8KnKz7/T47exM=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-216-Z9xYUGllOWWknLj8Ixf3ug-1; Sun,
- 08 Feb 2026 09:35:11 -0500
-X-MC-Unique: Z9xYUGllOWWknLj8Ixf3ug-1
-X-Mimecast-MFC-AGG-ID: Z9xYUGllOWWknLj8Ixf3ug_1770561310
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6289B1956095;
-	Sun,  8 Feb 2026 14:35:10 +0000 (UTC)
-Received: from S2.redhat.com (unknown [10.72.112.33])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id DFEA918004AD;
-	Sun,  8 Feb 2026 14:35:06 +0000 (UTC)
-From: Cindy Lu <lulu@redhat.com>
-To: lulu@redhat.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [RFC 3/3] vhost/net: add RX netfilter offload path
-Date: Sun,  8 Feb 2026 22:32:24 +0800
-Message-ID: <20260208143441.2177372-4-lulu@redhat.com>
-In-Reply-To: <20260208143441.2177372-1-lulu@redhat.com>
-References: <20260208143441.2177372-1-lulu@redhat.com>
+	bh=6s5bPoEQnlqdP44WdUaieNNRs46yqXjX0mEOzw8uNXw=;
+	b=a1ACnuNWS+E7PG+iybW75z4bBDR4wERNHjOji9muCHuscrgx+w0PFY85eetKVyfsasslog
+	7cU+MsiBO2fMSyCemFS5aKrGCfJ8M5QOQ9M3UsirRrmUvkJL+7/IXbXnwwFkRyugEFnSy0
+	l54SvlIrZTWDHf43qzEx0xH3+we6MtM=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-88-APdYpDO4N4akGZfiPVLkdA-1; Sun, 08 Feb 2026 12:22:40 -0500
+X-MC-Unique: APdYpDO4N4akGZfiPVLkdA-1
+X-Mimecast-MFC-AGG-ID: APdYpDO4N4akGZfiPVLkdA_1770571359
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-47edf8ba319so53915275e9.2
+        for <virtualization@lists.linux.dev>; Sun, 08 Feb 2026 09:22:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770571359; x=1771176159;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=6s5bPoEQnlqdP44WdUaieNNRs46yqXjX0mEOzw8uNXw=;
+        b=iI0LOdaf//Qf6rxKa7vSXD27UewZj0w0hbEaAYl+HXRdhryzKuVVE8IXHYZv0Yrcad
+         ZB5dPj4p6IXTi1NMTeDGcZ8CrJNoZ3blqg/tzCIp1sNwAZSx2x92BvcYdFBXsOHjsqKk
+         Bds3S/a4NerxGKyhIz/WVBJ4PyuDn+sVm8nEFJOFjk5bRB5MoGY5huf4zBohhltvIsjp
+         NE97m7ZALW4IdxWvMFiwfqQi13XvZuHKG9xyrA6MrZB6Ponj1as3zisUsQ31rI4tGsJt
+         7tXNgj7yIruVmYFk7qklNsmlCxAgIBCR2AlFnitm4pQsIDGj3g7FBf9TD7PKA9LbgWlZ
+         hN0g==
+X-Forwarded-Encrypted: i=1; AJvYcCVmQD7pUZ4KvzJKg+TubuYEQhkkmE645UtMPoXdwuOlqGRIUHqmMEGURJXxPC1dL7wjXQTk8ZNBRex/6fFHdw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwO7N31vUStocjM0mTOFIXJYVEU06P8N+QihMye70mWOMIpTCSM
+	mkt+8HVVqup6ZZcLTFEj8SoOG6eidavKs1RnJmLrccXyNDF0rFUsG+v3/SBIry/6nT0GAF1FUaK
+	r/GPt1TVn0znuwVY0tnq0X0b631umXv34mrW4RIUTjpFW6+XnPqXG239UqYYPcAQgQkx/
+X-Gm-Gg: AZuq6aJTIBMo4mZ6fTsJgP4i2du10ZDO4JwLkuBgJ4DqBq9w558KvAwz7HpvtK1GZDI
+	HVMW0Kx4wOir2EXnVX1w1T3bHdLtMlT2U3padGWgYVbic/UNFqW13i9nJ7XepwIFFTnMqGnJ8io
+	sgajVGrRsUd30VgLP2poNgi8W4f+ME66lv2L9FiO/m6E7CA8c/iSGWKjME4dbqLS2R4Wskx05kt
+	LDJMVN+9FRtPCb2UYNTbzQFAZtP9xz4ppqkTH47PUhcxFMlKAAQgxsODKZ2mWD0LHHQE3qONHey
+	bbAJTZZRya6Lq6IjmVDNUDMKQwIMv5NxD52I+T210uL6Pqp+Z6rNiWdp51LVUfPKpo4265MMyR/
+	ySyUQcQkjHMDa5g+kk4E5Pya4mkvNDiUGzA==
+X-Received: by 2002:a05:600c:c4a7:b0:480:f27c:6335 with SMTP id 5b1f17b1804b1-48320236645mr128388785e9.25.1770571358892;
+        Sun, 08 Feb 2026 09:22:38 -0800 (PST)
+X-Received: by 2002:a05:600c:c4a7:b0:480:f27c:6335 with SMTP id 5b1f17b1804b1-48320236645mr128388475e9.25.1770571358429;
+        Sun, 08 Feb 2026 09:22:38 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43629756bc3sm19208702f8f.39.2026.02.08.09.22.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 Feb 2026 09:22:37 -0800 (PST)
+Date: Sun, 8 Feb 2026 12:22:34 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Dan Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
+	virtualization@lists.linux.dev, parav@nvidia.com,
+	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+Subject: Re: [PATCH net-next v20 00/12] virtio_net: Add ethtool flow rules
+ support
+Message-ID: <20260208122211-mutt-send-email-mst@kernel.org>
+References: <20260205224707.16995-1-danielj@nvidia.com>
+ <20260208065456-mutt-send-email-mst@kernel.org>
+ <3512ccd8-650f-4c05-b2dc-1c4588b39c87@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
-X-Mimecast-MFC-PROC-ID: 82TilwuRzFRuaam4fF1zeAhuK6CALaGkvTzDd-KzPdA_1770561310
+In-Reply-To: <3512ccd8-650f-4c05-b2dc-1c4588b39c87@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 5uCla-rCot57NaT6Yjq1eLBtOP1f2jtT770tlo-NVz0_1770571359
 X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Route RX packets through the netfilter socket when configured.
-Key points:
-- Add VHOST_NET_FILTER_MAX_LEN upper bound for filter payload size
-- Introduce vhost_net_filter_request() to send REQUEST to userspace
-- Add handle_rx_filter() fast path for RX when filter is active
-- Hook filter path in handle_rx() when filter_sock is set
+On Sun, Feb 08, 2026 at 07:57:33AM -0600, Dan Jurgens wrote:
+> On 2/8/26 5:55 AM, Michael S. Tsirkin wrote:
+> > On Thu, Feb 05, 2026 at 04:46:55PM -0600, Daniel Jurgens wrote:
+> >> v15:
+> >>   - In virtnet_restore_up only call virtnet_close in err path if
+> >>     netif_running. AI
+> > 
+> > what was this AI specifically?
+> > 
+> 
+> It was the AI review bot, forwarded by Jakub on v16:
 
-Signed-off-by: Cindy Lu <lulu@redhat.com>
----
- drivers/vhost/net.c | 229 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 229 insertions(+)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index f02deff0e53c..aa9a5ed43eae 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -161,6 +161,13 @@ struct vhost_net {
- 
- static unsigned vhost_net_zcopy_mask __read_mostly;
- 
-+/*
-+ * Upper bound for a single packet payload on the filter path.
-+ * Keep this large enough for the largest expected frame plus vnet headers,
-+ * but still bounded to avoid unbounded allocations.
-+ */
-+#define VHOST_NET_FILTER_MAX_LEN (4096 + 65536)
-+
- static void *vhost_net_buf_get_ptr(struct vhost_net_buf *rxq)
- {
- 	if (rxq->tail != rxq->head)
-@@ -1227,6 +1234,222 @@ static long vhost_net_set_filter(struct vhost_net *n, int fd)
- 	return r;
- }
- 
-+/*
-+ * Send a filter REQUEST message to userspace for a single packet.
-+ *
-+ * The caller provides a writable buffer; userspace may inspect the content and
-+ * optionally modify it in place. We only accept the packet if the returned
-+ * length matches the original length, otherwise the packet is dropped.
-+ */
-+static int vhost_net_filter_request(struct vhost_net *n, u16 direction,
-+				    void *buf, u32 *len)
-+{
-+	struct vhost_net_filter_msg msg = {
-+		.type = VHOST_NET_FILTER_MSG_REQUEST,
-+		.direction = direction,
-+		.len = *len,
-+	};
-+	struct msghdr msghdr = { 0 };
-+	struct kvec iov[2] = {
-+		{ .iov_base = &msg, .iov_len = sizeof(msg) },
-+		{ .iov_base = buf, .iov_len = *len },
-+	};
-+	struct socket *sock;
-+	struct file *sock_file = NULL;
-+	int ret;
-+
-+	/*
-+	 * Take a temporary file reference to guard against concurrent
-+	 * filter socket replacement while we send the message.
-+	 */
-+	spin_lock(&n->filter_lock);
-+	sock = n->filter_sock;
-+	if (sock)
-+		sock_file = get_file(sock->file);
-+	spin_unlock(&n->filter_lock);
-+
-+	if (!sock) {
-+		ret = -ENOTCONN;
-+		goto out_put;
-+	}
-+
-+	ret = kernel_sendmsg(sock, &msghdr, iov,
-+			     *len ? 2 : 1, sizeof(msg) + *len);
-+
-+out_put:
-+	if (sock_file)
-+		fput(sock_file);
-+
-+	if (ret < 0)
-+		return ret;
-+	return 0;
-+}
-+
-+/*
-+ * RX fast path when filter offload is active.
-+ *
-+ * This mirrors handle_rx() but routes each RX packet through userspace
-+ * netfilter. Packets are copied into a temporary buffer, sent to the filter
-+ * socket as a REQUEST, and only delivered to the guest if userspace keeps the
-+ * length unchanged. Any truncation or mismatch drops the packet.
-+ */
-+static void handle_rx_filter(struct vhost_net *net, struct socket *sock)
-+{
-+	struct vhost_net_virtqueue *nvq = &net->vqs[VHOST_NET_VQ_RX];
-+	struct vhost_virtqueue *vq = &nvq->vq;
-+	bool in_order = vhost_has_feature(vq, VIRTIO_F_IN_ORDER);
-+	unsigned int count = 0;
-+	unsigned int in, log;
-+	struct vhost_log *vq_log;
-+	struct virtio_net_hdr hdr = {
-+		.flags = 0,
-+		.gso_type = VIRTIO_NET_HDR_GSO_NONE
-+	};
-+	struct msghdr msg = {
-+		.msg_name = NULL,
-+		.msg_namelen = 0,
-+		.msg_control = NULL,
-+		.msg_controllen = 0,
-+		.msg_flags = MSG_DONTWAIT,
-+	};
-+	size_t total_len = 0;
-+	int mergeable;
-+	bool set_num_buffers;
-+	size_t vhost_hlen, sock_hlen;
-+	size_t vhost_len, sock_len;
-+	bool busyloop_intr = false;
-+	struct iov_iter fixup;
-+	__virtio16 num_buffers;
-+	int recv_pkts = 0;
-+	unsigned int ndesc;
-+	void *pkt;
-+
-+	pkt = kvmalloc(VHOST_NET_FILTER_MAX_LEN, GFP_KERNEL | __GFP_NOWARN);
-+	if (!pkt) {
-+		vhost_net_enable_vq(net, vq);
-+		return;
-+	}
-+
-+	vhost_hlen = nvq->vhost_hlen;
-+	sock_hlen = nvq->sock_hlen;
-+
-+	vq_log = unlikely(vhost_has_feature(vq, VHOST_F_LOG_ALL)) ? vq->log : NULL;
-+	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
-+	set_num_buffers = mergeable || vhost_has_feature(vq, VIRTIO_F_VERSION_1);
-+
-+	do {
-+		u32 pkt_len;
-+		int err;
-+		s16 headcount;
-+		struct kvec iov;
-+
-+		sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
-+						      &busyloop_intr, &count);
-+		if (!sock_len)
-+			break;
-+		sock_len += sock_hlen;
-+		if (sock_len > VHOST_NET_FILTER_MAX_LEN) {
-+			/* Consume and drop oversized packet. */
-+			iov.iov_base = pkt;
-+			iov.iov_len = 1;
-+			kernel_recvmsg(sock, &msg, &iov, 1, 1,
-+				       MSG_DONTWAIT | MSG_TRUNC);
-+			continue;
-+		}
-+
-+		vhost_len = sock_len + vhost_hlen;
-+		headcount = get_rx_bufs(nvq, vq->heads + count,
-+					vq->nheads + count, vhost_len, &in,
-+					vq_log, &log,
-+					likely(mergeable) ? UIO_MAXIOV : 1,
-+					&ndesc);
-+		if (unlikely(headcount < 0))
-+			goto out;
-+
-+		if (!headcount) {
-+			if (unlikely(busyloop_intr)) {
-+				vhost_poll_queue(&vq->poll);
-+			} else if (unlikely(vhost_enable_notify(&net->dev, vq))) {
-+				vhost_disable_notify(&net->dev, vq);
-+				continue;
-+			}
-+			goto out;
-+		}
-+
-+		busyloop_intr = false;
-+
-+		if (nvq->rx_ring)
-+			msg.msg_control = vhost_net_buf_consume(&nvq->rxq);
-+
-+		iov.iov_base = pkt;
-+		iov.iov_len = sock_len;
-+		err = kernel_recvmsg(sock, &msg, &iov, 1, sock_len,
-+				     MSG_DONTWAIT | MSG_TRUNC);
-+		if (unlikely(err != sock_len)) {
-+			vhost_discard_vq_desc(vq, headcount, ndesc);
-+			continue;
-+		}
-+
-+		pkt_len = sock_len;
-+		err = vhost_net_filter_request(net, VHOST_NET_FILTER_DIRECTION_TX,
-+					       pkt, &pkt_len);
-+		if (err < 0)
-+			pkt_len = sock_len;
-+		if (pkt_len != sock_len) {
-+			vhost_discard_vq_desc(vq, headcount, ndesc);
-+			continue;
-+		}
-+
-+		iov_iter_init(&msg.msg_iter, ITER_DEST, vq->iov, in, vhost_len);
-+		fixup = msg.msg_iter;
-+		if (unlikely(vhost_hlen))
-+			iov_iter_advance(&msg.msg_iter, vhost_hlen);
-+
-+		if (copy_to_iter(pkt, sock_len, &msg.msg_iter) != sock_len) {
-+			vhost_discard_vq_desc(vq, headcount, ndesc);
-+			goto out;
-+		}
-+
-+		if (unlikely(vhost_hlen)) {
-+			if (copy_to_iter(&hdr, sizeof(hdr),
-+					 &fixup) != sizeof(hdr)) {
-+				vhost_discard_vq_desc(vq, headcount, ndesc);
-+				goto out;
-+			}
-+		} else {
-+			iov_iter_advance(&fixup, sizeof(hdr));
-+		}
-+
-+		num_buffers = cpu_to_vhost16(vq, headcount);
-+		if (likely(set_num_buffers) &&
-+		    copy_to_iter(&num_buffers, sizeof(num_buffers), &fixup) !=
-+			    sizeof(num_buffers)) {
-+			vhost_discard_vq_desc(vq, headcount, ndesc);
-+			goto out;
-+		}
-+
-+		nvq->done_idx += headcount;
-+		count += in_order ? 1 : headcount;
-+		if (nvq->done_idx > VHOST_NET_BATCH) {
-+			vhost_net_signal_used(nvq, count);
-+			count = 0;
-+		}
-+
-+		if (unlikely(vq_log))
-+			vhost_log_write(vq, vq_log, log, vhost_len, vq->iov, in);
-+
-+		total_len += vhost_len;
-+	} while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)));
-+
-+	if (unlikely(busyloop_intr))
-+		vhost_poll_queue(&vq->poll);
-+	else if (!sock_len)
-+		vhost_net_enable_vq(net, vq);
-+
-+out:
-+	vhost_net_signal_used(nvq, count);
-+	kvfree(pkt);
-+}
- /* Expects to be always run from workqueue - which acts as
-  * read-size critical section for our kind of RCU. */
- static void handle_rx(struct vhost_net *net)
-@@ -1281,6 +1504,11 @@ static void handle_rx(struct vhost_net *net)
- 	set_num_buffers = mergeable ||
- 			  vhost_has_feature(vq, VIRTIO_F_VERSION_1);
- 
-+	if (READ_ONCE(net->filter_sock)) {
-+		handle_rx_filter(net, sock);
-+		goto out_unlock;
-+	}
-+
- 	do {
- 		sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
- 						      &busyloop_intr, &count);
-@@ -1383,6 +1611,7 @@ static void handle_rx(struct vhost_net *net)
- 		vhost_net_enable_vq(net, vq);
- out:
- 	vhost_net_signal_used(nvq, count);
-+out_unlock:
- 	mutex_unlock(&vq->mutex);
- }
- 
--- 
-2.52.0
+oh sorry i think i meant to ask about the "style fixes" one.
 
