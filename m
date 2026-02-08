@@ -1,174 +1,160 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E2442E36F1
-	for <virtualization@lists.linux.dev>; Sat,  7 Feb 2026 21:14:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41A3E38DF9
+	for <virtualization@lists.linux.dev>; Sun,  8 Feb 2026 10:09:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770498894; cv=none; b=rackBpd7MJW02X87rr2nj5qa7hv6uWtDPB5wdJh8D8pbSv5RpBN4kVZjHeGKPH1pCxP4pY9s4DN3RqH59Y7cItnAMiipWb3jCnTW9femURTJti5AVWke/UFEkNa/fti/A9IoYFSbzRDu22Ki86zLSR2qS+4E45GHSWnqfmqPaWc=
+	t=1770545347; cv=none; b=JdtMI4OSak4UhcI/6Y0fFo9AezByetTHz/OQPQBvzYP7b+yNxTSrrbNOpFEqLRkvTZ4Py2+6ST36vOCp0JZ9gXPuGkeQYixkgfBK6MjQE6MO3iVBVaekmrzALIEwNpdZFzWktVZ3HyiXVSl0EwXFEl6kEqgHx6yNXx8wPbdPenU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770498894; c=relaxed/simple;
-	bh=yYsqxIDf0jWdw7ugKoIzML4fUYtXXfYz9CZyOBwqbG8=;
+	s=arc-20240116; t=1770545347; c=relaxed/simple;
+	bh=24CNzPhFld1ZXJkgrJO/l4oQ/ugW1VWQRdsWzt3JY9Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=YEYU43B6ISDDhn5cUI70mTUWBAtRSGNsXqW6WFFn/ey/nuwqmiHQEoKwDZU4Tsysbq47kTBUs4vMKmEJbAcrjxOZWX3akt7Z8+J8ZwcC72McAZ+ym3sSawmc8w01XTCrAsTMbcrjgZMy1EKtYqurOeiQOH00pD0KjV8Mdp91HK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Oy2taCo3; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=sy642fqp21xmDTSfUhTt4es/ZRuZ/wRGmacBfocJOXVL/ZLYuS0MgkcOgYiuwls1wcCRBOCXhiPWecy1KuLLm5Tqha46vJ7vHC1fYdGbDpjtdJgjpDkfW/Wa33EjeAAfzfbCIM2nu3qJHQuvDGUAQ6ZZMx5b9pu/DDulLUmNRU4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PgFeFqUb; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Oy2taCo3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PgFeFqUb"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770498893;
+	s=mimecast20190719; t=1770545346;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=7ay7waeK8INh+cINPaekYEvXT+aMvUwQTRSpP1Fkfng=;
-	b=Oy2taCo3F4kTl2qjJF6WUrD/j8sx8NU0L3KlCOy8vfq9nvx8ys6E5aItOWAOAQpFEUvvWF
-	/3XVVSKY6WPFzysCNCgsOvOdr+2s1NljwcSDqDHBa3TmT1H8JrWtN6y9byBcUisNCBDpjb
-	iig1HdxQePbm/bOmGNqZxizbavJcX7s=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=rfuh2plodm8DQ54d7nVZcVI6X16Jjo175gNLcwSIUvA=;
+	b=PgFeFqUbUbRQqhgUGMxuPFXk5fTq9Fe3dkgq6taIoHLHW1usgVimAnv7+k67SfnFNcTpT5
+	yb7yxcLhzs9cVL3LbZbqVCi8LaNPmUq/oTgnnnY4ZdirBZoE1WpuVpyG/+i7oanB2B4KTj
+	JHN8TfNTi2+5Eiy9kxFX2GAFrbbSiV8=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-300-Hza78j-wPfuSQNJg1gMeDw-1; Sat, 07 Feb 2026 16:14:50 -0500
-X-MC-Unique: Hza78j-wPfuSQNJg1gMeDw-1
-X-Mimecast-MFC-AGG-ID: Hza78j-wPfuSQNJg1gMeDw_1770498889
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-483129eb5ccso36097285e9.2
-        for <virtualization@lists.linux.dev>; Sat, 07 Feb 2026 13:14:49 -0800 (PST)
+ us-mta-49-apSBxA2bPNi7gyQ5zSgW7Q-1; Sun, 08 Feb 2026 05:09:02 -0500
+X-MC-Unique: apSBxA2bPNi7gyQ5zSgW7Q-1
+X-Mimecast-MFC-AGG-ID: apSBxA2bPNi7gyQ5zSgW7Q_1770545341
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-4362197d1easo3487904f8f.2
+        for <virtualization@lists.linux.dev>; Sun, 08 Feb 2026 02:09:02 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770498889; x=1771103689;
+        d=1e100.net; s=20230601; t=1770545341; x=1771150141;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=7ay7waeK8INh+cINPaekYEvXT+aMvUwQTRSpP1Fkfng=;
-        b=MzCNYSSyH69bEUhE3TArAKo7pe8ZNXGYdADs6fU4JRo9aNqAuD7n5WzWttWHu5Aefo
-         MefqUJ+YVTjz2YbN8KAG2NEq3p2ryCokYwpkEIKiXnTFJmRmLPV39gTPpw0qG5RGraVw
-         pgMoVhTUzGI4EUgow0KppOI3Jx9NYqAWVcP+6px2CV2F3+oj6TbMV6z8U7PyZw6rQHsQ
-         /DrLvZSS+tWQ/Vi6w9y1ML8NfFePh/3BjyOqXT2DbgSqQ+W+qb7xA7xgFXPKafn+OGfs
-         T1+ZfTDwcLdbZlV3O9z5t5XDbs8wWfrbG2abUUUxv0RUisalsSnyJYI5IL9qsKV1/O1q
-         81hg==
-X-Forwarded-Encrypted: i=1; AJvYcCXXoRgp9PH0iS9KMtiBY0C7Yw3/5jwuHimuu9xIeXsd1QIAXZsQ8ooZjEmTr1qO6nVsnEDPG3cAxbB728mJWw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxmBJwyoyzZJUScCmTMl6m+WuKcv7mJ7EFO5kAw2Ie9NxTNdkhT
-	5ZxtrBZnu9vmgVARW2zdiwiAVJuHr8Da9w3w8vk71gHXecGPQ0yBusTw00scqmRypF5L2LKHrTW
-	wrCCe/QFWFCFgsCYNR2kGUm23nK4x4Z4IHYBXK7oFrP81KmXvv1pBA2AMNHjXCQ44GOaq
-X-Gm-Gg: AZuq6aJ16fcGHD/bytATQV4JJvn10dFG4CcfS4QW8NVyHxIQmgVNK30uxk38tBYkMAu
-	D+SQPVpHZP0pIX8990DEf47RMuDLTi2k/bTG6CneJerGc//4SGAVdN3SXKuNEs9rRJSvT73nM5/
-	fbI4Qkt8BFq/3bBzHcCaqKi0N1YSVR17FNflRzRl2sQx07rWNV3uyMVlXek/15uSE9JnRq73ebv
-	J/+lRF2JZu3OZNX3isEX1QDsMyiG71XJmiUFmpsLWGHFIINY/NHU2E2eYLmv4eiOFnR5QkCc+k+
-	bxVbzpkAEmAaKOkJD49T+lXiAMhx5YbttQUAjZL86+5b4KHuuImDZXKcC8hANRwDEws4r4aI5gr
-	bUdDvsywvc41DMllmx2bir7C1WE5PLm9B+g==
-X-Received: by 2002:a05:600c:5253:b0:480:20f1:7aa6 with SMTP id 5b1f17b1804b1-4832021b53dmr107226995e9.21.1770498888665;
-        Sat, 07 Feb 2026 13:14:48 -0800 (PST)
-X-Received: by 2002:a05:600c:5253:b0:480:20f1:7aa6 with SMTP id 5b1f17b1804b1-4832021b53dmr107226685e9.21.1770498888085;
-        Sat, 07 Feb 2026 13:14:48 -0800 (PST)
+        bh=rfuh2plodm8DQ54d7nVZcVI6X16Jjo175gNLcwSIUvA=;
+        b=sWaxPx+RxIyndX9Klal6IiX5QbqYuwMw10om5deKPSpoDJajQ1poErIPZDqzRVp6is
+         0hJga3U4L7Q+uskDBESHD0oWZeJlw79TFpWa4ASs8CvTFJ6EI3VsIOsb8cWVWZ6VICPz
+         5Ftu1PjSPSL6QRWBwIhHQizKg5tzCkvYpEUUP6hLoxWM1cdoSTT7SKOA51GEX/7NRYsE
+         IZFx3MFg2SiczGyn5HIGKmfzSwPDG6ilqUuszat7PfrLE9hbXE1++l09pketwbc9hpVP
+         K+srnGME33SIPNuRrVXBEDcpIynlL40i1xeR8juYbglFCw4bow1wTkOuiapSD6xSpEez
+         pWsw==
+X-Forwarded-Encrypted: i=1; AJvYcCVQMs+kwxEd4gU2Lk+5e3l+bB9Rxj6pEa68HYGlD3XyNYeWjgi6Woe2VcjOMdl2dyoVZjBFkWAwcpYEvKquKw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwL2DLRqAhNK75ea6Q04puVNUePc/SOCJps+5Kddcj5qX31vz3o
+	gkHx9lgyl4TBGp5U3JixgIMoK8BJYu9Vzx7qUhoQvtxzUCRLUNTei2Av8Jk2526xJG4e3qohzLz
+	KcA2+Dp2k+CdwxKoaikGvnWumDY0G4lrx17i9j2OkkvNlk8jC4+F0jptL+p0HOOy8waDg
+X-Gm-Gg: AZuq6aJfFpeMiTjasS1vWz2D2xLMSKYsWnPkB4FciIoMHFM3cjlsuOFQ+Jf/c8kd5wY
+	nXe4zNMyD46IjeRh7/0mGgeKp2ckXGAQEn1rDLYMTvyLYEjLMFebzB4REJpbfCw2ABJBFQvfeQs
+	o/tvhkAmz6Fr3awr9V4Baaa6Y8M6t0MP3naC8GmP478GLG3qGoLD87TykFkpY6bF6i+FE6CJke1
+	oQIR5+kh4tPAXyWQm0umSpRT7SoCzsTrY3sMfwIOpeCY5IchXYRYEgf7pQVJZijU7GcDNAK+6DQ
+	Nl42rXoEwgCnH86LjRRfxJLrVeFwiWuQgh6Vd+UEwnOj8Ll9gaGddqe0S4uz3FMVU3hkAWQIJz+
+	yaXrm6Cq+BzDdrr3N/Cl+EU7kscjvZQGHxA==
+X-Received: by 2002:a05:6000:2381:b0:436:233c:c7c1 with SMTP id ffacd0b85a97d-4362923780emr13486651f8f.23.1770545340913;
+        Sun, 08 Feb 2026 02:09:00 -0800 (PST)
+X-Received: by 2002:a05:6000:2381:b0:436:233c:c7c1 with SMTP id ffacd0b85a97d-4362923780emr13486609f8f.23.1770545340396;
+        Sun, 08 Feb 2026 02:09:00 -0800 (PST)
 Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4832040e91fsm51832075e9.6.2026.02.07.13.14.45
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4376806626fsm5151675f8f.37.2026.02.08.02.08.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 07 Feb 2026 13:14:47 -0800 (PST)
-Date: Sat, 7 Feb 2026 16:14:43 -0500
+        Sun, 08 Feb 2026 02:08:59 -0800 (PST)
+Date: Sun, 8 Feb 2026 05:08:56 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dan Jurgens <danielj@nvidia.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-	jasowang@redhat.com, pabeni@redhat.com,
+To: Daniel Jurgens <danielj@nvidia.com>
+Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
 	virtualization@lists.linux.dev, parav@nvidia.com,
 	shshitrit@nvidia.com, yohadt@nvidia.com, xuanzhuo@linux.alibaba.com,
 	eperezma@redhat.com, jgg@ziepe.ca, kevin.tian@intel.com,
-	andrew+netdev@lunn.ch, edumazet@google.com
-Subject: Re: [PATCH net-next v20 00/12] virtio_net: Add ethtool flow rules
- support
-Message-ID: <20260207160509-mutt-send-email-mst@kernel.org>
+	kuba@kernel.org, andrew+netdev@lunn.ch, edumazet@google.com
+Subject: Re: [PATCH net-next v20 10/12] virtio_net: Add support for IPv6
+ ethtool steering
+Message-ID: <20260207203120-mutt-send-email-mst@kernel.org>
 References: <20260205224707.16995-1-danielj@nvidia.com>
- <20260205184328.3b706154@kernel.org>
- <20260207045848-mutt-send-email-mst@kernel.org>
- <c96d6b1c-5bad-4e06-905c-10f722c9b9d1@nvidia.com>
+ <20260205224707.16995-11-danielj@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <c96d6b1c-5bad-4e06-905c-10f722c9b9d1@nvidia.com>
+In-Reply-To: <20260205224707.16995-11-danielj@nvidia.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: hje0-GSGDI8zENEf8-uIWoZlDCTYftgDKe1ru5Kqz-Q_1770498889
+X-Mimecast-MFC-PROC-ID: o9GXYXEJBGvJHV6e9vfirl6rJ4cw7fJ53gF2pdSDlZQ_1770545341
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Sat, Feb 07, 2026 at 07:14:25AM -0600, Dan Jurgens wrote:
-> On 2/7/26 4:01 AM, Michael S. Tsirkin wrote:
-> > On Thu, Feb 05, 2026 at 06:43:28PM -0800, Jakub Kicinski wrote:
-> >> On Thu, 5 Feb 2026 16:46:55 -0600 Daniel Jurgens wrote:
-> >>> This series implements ethtool flow rules support for virtio_net using the
-> >>> virtio flow filter (FF) specification. The implementation allows users to
-> >>> configure packet filtering rules through ethtool commands, directing
-> >>> packets to specific receive queues, or dropping them based on various
-> >>> header fields.
-> >>
-> >> This is a 4th version of this you posted in as many days and it doesn't
-> >> even build. Please slow down. Please wait with v21 until after the merge
-> >> window. We have enough patches to sift thru still for v7.0.
-> > 
-> > v20 and no end in sight.
-> > Just looking at the amount of pain all this parsing is inflicting
-> > makes me worry. And wait until we need to begin worrying about
-> > maintaining UAPI stability.
-> > 
-> > It would be much nicer if drivers were out of the business of parsing
-> > fiddly structures.  Isn't there a way for more code in net core
-> > to deal with all this?
-> 
-> MST, you reviewed the spec that defined these data structures. If you
-> didn't want the driver to have parse data structures then suggesting
-> using the same format as the ethtool flow specs would have been a great
-> idea at that point. Or short of that padded and fixed size data
-> structures would also made things much cleaner.
+> @@ -6111,20 +6176,38 @@ static int setup_ip_key_mask(struct virtio_net_ff_selector *selector,
+>  			     u8 *key,
+>  			     const struct ethtool_rx_flow_spec *fs)
+>  {
+> +	struct ipv6hdr *v6_m = (struct ipv6hdr *)&selector->mask;
+>  	struct iphdr *v4_m = (struct iphdr *)&selector->mask;
+> +	struct ipv6hdr *v6_k = (struct ipv6hdr *)key;
+>  	struct iphdr *v4_k = (struct iphdr *)key;
+>  
+> -	selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV4;
+> -	selector->length = sizeof(struct iphdr);
+> +	if (has_ipv6(fs->flow_type)) {
+> +		selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV6;
+> +		selector->length = sizeof(struct ipv6hdr);
+> +
+> +		/* exclude tclass, it's not exposed properly struct ip6hdr */
 
-Oh virtio is actually reasonably nice IMHO, and of course
-virtio net has to parse them. But a bunch of issues
-I reported are around parsing uapi/linux/ethtool.h structures.
-There is a ton of code like this:
+do you mean:
 
++		/* exclude tclass, it's not exposed properly in struct ipv6hdr */
 
-+static void parse_ip4(struct iphdr *mask, struct iphdr *key,
-+                     const struct ethtool_rx_flow_spec *fs)
-+{
-+       const struct ethtool_usrip4_spec *l3_mask = &fs->m_u.usr_ip4_spec;
-+       const struct ethtool_usrip4_spec *l3_val  = &fs->h_u.usr_ip4_spec;
-+
-+       if (l3_mask->ip4src) {
-+               memcpy(&mask->saddr, &l3_mask->ip4src, sizeof(mask->saddr));
-+               memcpy(&key->saddr, &l3_val->ip4src, sizeof(key->saddr));
-+       }
-+
-+       if (l3_mask->ip4dst) {
-+               memcpy(&mask->daddr, &l3_mask->ip4dst, sizeof(mask->daddr));
-+               memcpy(&key->daddr, &l3_val->ip4dst, sizeof(key->daddr));
-+       }
-+
-+       if (l3_mask->tos) {
-+               mask->tos = l3_mask->tos;
-+               key->tos = l3_val->tos;
-+       }
-+}
-+
+?
 
-and I just ask, given there's apparently nothing at all here
-that is driver specific, whether it is generally useful
-enough to live in net core?
+and maybe properly -> directly?
 
-
-> I thought this series was close to done, so I was trying to address the
-> very non-deterministic AI review comments. It's been generating new
-> comments on things that had been there for many revisions, and running
-> it locally with the same model never reproduces the comments from the
-> online review.
-
-Uncritically posting, or trying to address "ai review" comments is not
-at all a good idea.
-
-
-A bigger problem is that we are still not done finding bugs in this.
-My thought therefore was to see if we can move more code to
-net core where more *humans* will read it and help find and fix bug.
-
--- 
-MST
+> +		if (fs->h_u.usr_ip6_spec.l4_4_bytes ||
+> +		    fs->m_u.usr_ip6_spec.l4_4_bytes ||
+> +		    fs->h_u.usr_ip6_spec.tclass ||
+> +		    fs->m_u.usr_ip6_spec.tclass ||
+> +		    fs->h_u.usr_ip6_spec.l4_proto ||
+> +		    fs->m_u.usr_ip6_spec.l4_proto)
+> +			return -EINVAL;
+>  
+> -	if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
+> -	    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4 ||
+> -	    fs->m_u.usr_ip4_spec.l4_4_bytes ||
+> -	    fs->m_u.usr_ip4_spec.ip_ver ||
+> -	    fs->m_u.usr_ip4_spec.proto)
+> -		return -EINVAL;
+> +		parse_ip6(v6_m, v6_k, fs);
+> +	} else {
+> +		selector->type = VIRTIO_NET_FF_MASK_TYPE_IPV4;
+> +		selector->length = sizeof(struct iphdr);
+> +
+> +		if (fs->h_u.usr_ip4_spec.l4_4_bytes ||
+> +		    fs->h_u.usr_ip4_spec.ip_ver != ETH_RX_NFC_IP4 ||
+> +		    fs->m_u.usr_ip4_spec.l4_4_bytes ||
+> +		    fs->m_u.usr_ip4_spec.ip_ver ||
+> +		    fs->m_u.usr_ip4_spec.proto)
+> +			return -EINVAL;
+>  
+> -	parse_ip4(v4_m, v4_k, fs);
+> +		parse_ip4(v4_m, v4_k, fs);
+> +	}
+>  
+>  	return 0;
+>  }
+> @@ -6194,7 +6277,7 @@ static int build_and_insert(struct virtnet_ff *ff,
+>  
+>  	setup_eth_hdr_key_mask(selector, key, fs, num_hdrs);
+>  
+> -	if (has_ipv4(fs->flow_type)) {
+> +	if (has_ipv4(fs->flow_type) || has_ipv6(fs->flow_type)) {
+>  		selector = next_selector(selector);
+>  
+>  		err = setup_ip_key_mask(selector, key + sizeof(struct ethhdr), fs);
+> -- 
+> 2.50.1
 
