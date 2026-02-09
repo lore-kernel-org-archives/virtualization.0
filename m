@@ -1,100 +1,82 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D7E43446CC
-	for <virtualization@lists.linux.dev>; Mon,  9 Feb 2026 10:19:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78AAD3126C1
+	for <virtualization@lists.linux-foundation.org>; Mon,  9 Feb 2026 18:28:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770632398; cv=none; b=rrhp+x7tkg8d6o/UZBYlPRdJymMNFBxd6gAbYrcxxaAH9v+Yt3MInpBghPe99N7Nx1buzgtpeCCobfu9wpfq22oXk1h+rcyBWRkPRHP3QaB/BnYaaGcJrEkdTxqYRRhSzPLnZ515vqXaJcN8K9Rnsg0i7sXe/+er2PdvtjWAW3g=
+	t=1770661697; cv=none; b=uy5Zrry5RGjcPodi4+pEc3RK4tinLNw0OML61e4hZGyuUcYxtT6jFD64dNBUrV5hPDr0KTQiGSREf6Avk3ZSlpg6r7yQ/moxQ+cyN1KGxBRF0Y67ojWroIhr8rDq2YxmBcy0Z51SBZBtUZ7rPxwcCqnScgbsIhUthZCYxg+Z6lw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770632398; c=relaxed/simple;
-	bh=frF/ygmT6BMadE5omuNNyjVPtF9+GASqvwXA/+PB+88=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M0yE49BUgIOAdoyzbiv0l7AJaSQw6uAv3hhQbCr3M+hrHUPubbjgO7FSAURH84q9cm2kfwSaPEVrX8CQun88koUSXgAhdcb+w97MdusyPDwOwCaufSVsZSO0fSh+O3MeKkW2J+vICPG7v06Pr1oSXYrhTAZ+zdBGQWTe6qCCMSM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=fail (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=L7SgNe1H reason="signature verification failed"; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1770661697; c=relaxed/simple;
+	bh=jPLQs3Hdny0FP3l+/5Ri3BVUh5isgpNkxUZ/B/5gKvQ=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=NZYQ9IcWo5c02gfNtxRI11AIOFYVXES0S/vmMHfSUzkNDBRgYD2O9wp8cZOtTTqYweAWys2Q6TGs+VPW/mai6fky5ZsjY93MQ32Fcn7qdJ3M2Wx0Bfugj9pVudb9SoqMKr390+H2f8E492xYLVNpkGjnUSHEys40BPaprSiCpQI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=airn.giize.com header.i=program@airn.giize.com header.b=DX9gbSYo; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="L7SgNe1H"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id ACEAC40E02E5;
-	Mon,  9 Feb 2026 10:19:55 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=fail (4096-bit key)
-	reason="fail (body has been altered)" header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id 4C9Q5WVVx173; Mon,  9 Feb 2026 10:19:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1770632389; bh=qEUrs9aV2UevLern7cWNO8zzbe1KAW/M2x98IuKSaBo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=L7SgNe1HGQWJrNNPxIw1k6KgoWfev2wqz1jZbCcdXa3N+r4Sl/iSwK3+WgzxAFLP8
-	 QDIumwRX6KDqKNsBiOjqrW8IUFJtEx9sgCqb/bAzmbANjrv039vpmzj4gjo9THzeU+
-	 YSeKDxKiC0bvOQQrRgAmB1w4YLy5TCWky0ssa46YJD12Zf3DncxHeqLZnCEyiDvmok
-	 ImdQ26bRkjFZie01PrBcG6QN7TlXcb7KBJhmBUxPdA+piF7m7xZKSZWgb7o4p/oBoW
-	 65Eq70rBCFjVlN2eomT3o1+/ySJUpqMssMZEfzXq/CyGEHZVfOrzEhVna54KL/dc4S
-	 7ZeL+vs8Y7GtRdbrr9C4RHiMxtgKQPEoyMTb//9gb0Y2+3+7wDLh1B9yHuqbWjz+Kr
-	 Yb/Ws3PqB19EwD6aoi/Tt1w25wr/ScLec10clV/Mjn/qpU5jib/sg2vHOJVaaKm4Sh
-	 oDhL5LGnFq1wjriJrXcmG4Vw3VjwohtUAQmP5GMIB5HnkpO6y85vAK8EPWtn6A4K9+
-	 TJ9NGVpHZA3Fht96JrON+2jvKS3NfRstQvYDeF17seJMrMjba69iIQPkiaMVYjiH5s
-	 0ihBjjGUpmtKls4QpuZphm5tynBcgqWNyCG4hiKuLtwqpBtWM+74IOdgKLcwwzTB+v
-	 5v/tPeD19u9TgLlvgaBntID4=
-Received: from zn.tnic (pd95306e3.dip0.t-ipconnect.de [217.83.6.227])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with UTF8SMTPSA id 917DA40E0326;
-	Mon,  9 Feb 2026 10:19:30 +0000 (UTC)
-Date: Mon, 9 Feb 2026 11:19:18 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Juergen Gross <jgross@suse.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	linux-block@vger.kernel.org, Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
-	Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
-Message-ID: <20260209101918.GAaYm0plbeXIBr8p9a@fat_crate.local>
-References: <20260119182632.596369-1-jgross@suse.com>
- <6ee93510-1f43-4cd2-952e-8ed3ce7ba0e5@suse.com>
+	dkim=pass (1024-bit key) header.d=airn.giize.com header.i=program@airn.giize.com header.b="DX9gbSYo"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 12C7341C1F
+	for <virtualization@lists.linux-foundation.org>; Mon,  9 Feb 2026 18:28:17 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -0.907
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id Aw-KFrq9W169 for <virtualization@lists.linux-foundation.org>;
+ Mon,  9 Feb 2026 18:28:16 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=143.20.185.112; helo=mta0.airn.giize.com; envelope-from=program@airn.giize.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org B05A941C18
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=airn.giize.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B05A941C18
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=airn.giize.com header.i=program@airn.giize.com header.a=rsa-sha1 header.s=default header.b=DX9gbSYo
+Received: from mta0.airn.giize.com (mta0.airn.giize.com [143.20.185.112])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B05A941C18
+	for <virtualization@lists.linux-foundation.org>; Mon,  9 Feb 2026 18:28:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed/relaxed; s=default; d=airn.giize.com;
+ h=Reply-To:From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:
+ Content-Transfer-Encoding; i=program@airn.giize.com;
+ bh=LQD0hXllgKXRJZ7cLKh8fnQZqgQ=;
+ b=DX9gbSYomoNnKmJ1AxzmFwV6UAEVuSzAqxzV8Llk69DUpbE6TBlJl1EkBTjvzIVzRpqJpiVRwSa5
+   iuxw3ZhoD6g4+eYQ0lYcBBcJ05LNVF/gf3ui62BTT0ZGdrAqQ9Tvn4UEQvKjNi+RXHGjyc3mZ16W
+   FIw7onnpOwtvAZEkp/A=
+Reply-To: sales@sslootah.cam
+From: S.S. Lootah Trading <program@airn.giize.com>
+To: virtualization@lists.linux-foundation.org
+Subject: RE: Inquiry for Product Information
+Date: 9 Feb 2026 10:28:13 -0800
+Message-ID: <20260209102812.85746FB0E055D605@airn.giize.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <6ee93510-1f43-4cd2-952e-8ed3ce7ba0e5@suse.com>
+Content-Type: text/plain;
+	charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 09, 2026 at 10:11:49AM +0100, Juergen Gross wrote:
-> PING?
->=20
-> Now 3 weeks without any reaction...
+Hi Sir,
+Good day.
 
-J=C3=BCrgen, there are other patchsets that need review too. And we have =
-merge
-window right now so no reviewing anyway.
+We are currently reviewing manufacturers for upcoming projects=20
+and would like to request your latest product catalog or=20
+brochure, including key specifications, pricing details, payment=20
+terms, and estimated delivery timelines.
 
-And you know all that damn well!
+Kindly send the requested information to sales@sslootah.cam at=20
+your earliest convenience.
 
-How about you help us out and you start reviewing x86 patches instead of
-pinging every week?
+Thank you for your time. We look forward to your response.
 
-Thx.
 
---=20
-Regards/Gruss,
-    Boris.
 
-https://people.kernel.org/tglx/notes-about-netiquette
+Best regards,
+
+Mohamed El-Sayed | Head of projects
+S.S. Lootah Trading Building Material Division LLC
+P.O. Box: 33919, Dubai =E2=80=93 UAE
+T +971 4 775 4880
+F +971 4 775 4881
+M +971526792040
+E sales@sslootah.cam
