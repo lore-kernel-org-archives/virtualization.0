@@ -1,996 +1,274 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 761EB2D7DF3
-	for <virtualization@lists.linux.dev>; Mon,  9 Feb 2026 07:23:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 135393385A5
+	for <virtualization@lists.linux.dev>; Mon,  9 Feb 2026 09:11:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770621789; cv=none; b=n1S4Z6iTwZdjj85UiXrr0incS6G6cc7pvQNR8QGuRdFrMDHENuqiv37RT6RgFRi3A2x/R4TW49bQVj0xU6JgWw2GECBVxUG6d9XezApIUF5RcSQM/dfUPd9vDpbOTb2EHnhmbGESJPP24Lqu5oQ6PS9ssZ7COmkSIdu2Ro8i7jQ=
+	t=1770628312; cv=none; b=mMoRn75+AEjswEdQVkayPIzLHYHIWpGr8wOJ4Fzh8Va2Wu0kZAQZQ78yUOW5qgZGjEQ9cQWf8rD14FxfT87kLSRpBvpwNzdG2Ue5mw3kMt6/ze9K5+ys/Rpbv0+4I7lEUvZUQ0RC89UpZSKG71kjPp+hsxjFCCVgTDbFtn+7XDY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770621789; c=relaxed/simple;
-	bh=vIQLA3sS3Q8T657Wn0NL0pbZbcsNnHudQmQtUPiqBqQ=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=B37viox7/MAV+wS29vsCJ+06XqMN4FNepSdrFE4/cAgiEJpm1NYOIw7vJ1RjdEH9UvhZM1atY8QAhMvZ3O7Ls6cDtJjd65UrBDy8WRPASXU3TplwB03/FJ/93AXTvT7iyuQTERd81ywVfszav1vOi7v95mf1SpenrI9NVhifwVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=fYWAIcIN; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1770628312; c=relaxed/simple;
+	bh=6Rf0FYjkPu0tVX2FfB/cW3xLBvBaQoo5kGcbjmkcKgM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=e5sqcremq2En2Vkwu4n7m8PKxvooIZafJ/wemjhoqRqGBO9buUCxUe3jrK1s8121MXuo/5D9OlmuFauhPlBewXcdqDBnzwLU0L9o3I3/7JkR2q0jcDrfozciMrx+ABfUKMP4+7VI530hoqGyPxXZscX2te+LLbigFEYvmQggC+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=dQcKoB48; arc=none smtp.client-ip=209.85.208.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="fYWAIcIN"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1770621784; h=Message-ID:Subject:Date:From:To;
-	bh=uyrZHl4yXGp1b0tNQYO2Yd01r2hjapk+KZmPRyq4nY8=;
-	b=fYWAIcINIIYvERwCLDiK28VCIAoU+7N/5yohPhIuszP8QRSGlSn+PcRHsg1hMGrzRo6IQgfBgV5ovQCjoN4XS6zRZI6BJI8Hx4wE3jv1ZSdYVJ1n9Zd7fr2GzprpZU635ai0JJZ1C9pm1CosP7ts2sOiRtK/L1sOSDWMWnYBF4s=
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Wyp2zp5_1770621783 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 09 Feb 2026 15:23:03 +0800
-Message-ID: <1770621144.341019-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v6] virtio_net: add page_pool support for buffer allocation
-Date: Mon, 9 Feb 2026 15:12:24 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Vishwanath Seshagiri <vishs@meta.com>
-Cc: =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S . Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- David Wei <dw@davidwei.uk>,
- Matteo Croce <technoboy85@gmail.com>,
- Ilias Apalodimas <ilias.apalodimas@linaro.org>,
- netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org,
- kernel-team@meta.com,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>
-References: <20260208175410.1910001-1-vishs@meta.com>
- <1770602432.6451533-1-xuanzhuo@linux.alibaba.com>
- <b97cd16c-e35c-4e74-b258-056ae491aa1b@meta.com>
-In-Reply-To: <b97cd16c-e35c-4e74-b258-056ae491aa1b@meta.com>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="dQcKoB48"
+Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-658cc45847cso6193146a12.0
+        for <virtualization@lists.linux.dev>; Mon, 09 Feb 2026 01:11:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1770628310; x=1771233110; darn=lists.linux.dev;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=6Rf0FYjkPu0tVX2FfB/cW3xLBvBaQoo5kGcbjmkcKgM=;
+        b=dQcKoB48GMon5b9/2tMcmDk1v0F7tsyV/vxI21JIquRUlgsL20vaJk2q38QF3oar0I
+         1NRCNUO+J0GFlZ2Ped2pinHVpOg2q9i1HHhuHwkw3Q6ovSIYMGBprg6mW/S0W1BlQEKY
+         Y4o67DOQuu9yl2zDzLtcTXV/c1AeDLkyiRSxSInA+o7P5VFLrqOCyQofGEAVOihqS2qB
+         hSKNbloMWOGX1Kosf+BXuXA+UY438lIi+cMj+eCWHAJQfdpElFJSxuxgqQ6kqiceE+cy
+         49DFaWfiwBmfW1s2KnpPlYp02NOEBj4PNuXo05pFTdela2lN/yKOWCE0q519qi5LRcKO
+         my9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770628310; x=1771233110;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=6Rf0FYjkPu0tVX2FfB/cW3xLBvBaQoo5kGcbjmkcKgM=;
+        b=KMuVVrLk2EHp7PRy+jVukybUquc/SXK1rsaVAQ7+4eAYubeTSQci1OKLjiRjMZKA9k
+         JXgUvJzjetnbZ2hM7xE8OVJYfAHhl4R6Hbo7GSmLg0bUwkeRW0auANmO1yvM2hf9z+yo
+         xdC8Pez93XKhqtLNS3SVPM5jJWBD5BQDs6VYrK9IUo0kaDvmHTv4LsQj3mHPrlpjL/+v
+         j+YzQZ9BVR0xQeaw1h7V5KZk1POumUcFz6ppFDrm+CgOsXFIqJn8TYMtxKVNlYjXE7mT
+         dTj63q2vZmIgQuNOLs4FeXP9sACQjiqJdgDoxDxBG0LXU/kSgcQChQ8wde0KLsOmrdMG
+         qlPA==
+X-Forwarded-Encrypted: i=1; AJvYcCWV0IVzFPmFatfuzpYwhtOjZExzkag+eDoJyhFOKIAaV+88ctxHR3e8b7/kNgJKxpA9lMr5mNxDpxmYGw8G2Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyXyLI+O5VnFcRG6vrfdl/13gLXxJWQky+ggi2YBv8D8tqegHrY
+	/cbf4JdfagOACfXUMRjaHBz+tbYJKbkOHyqhuHRR+v2Yc80HF+BQ7a31kbEGSN+l5s8=
+X-Gm-Gg: AZuq6aKNPYDfMagEDEbeT6lfw+PLZ5MsuIem1dbIbRcMyZviupUdtCrNJLr4vt5c7HB
+	I2MY25WpNleTxnSwbXocp+lqOEhmqRdW1RF9+99On4TThfMtI2mWWHiKet6h9wrpj1RMb1YDu+w
+	SYw3JtMis98jt6yXJDW0qHF6qAvp19Q9vbumZY7uEcKud6nHTh6AwfApLwefMDRyAuGifwcogzu
+	iEBgbzq2UZ5JfglbQLY3CUtulXg+VMAA82xS8graIFuuKPtzMf8VrnNSkpeFFEvA3iZZJlEEt4N
+	rb6l6X0o7tV2sTgvyerZqwfJwA0lCjET6DpISnVl6Rk1+cpt29inFyncmC6GIpAnE+tpZwsZsyX
+	1Cu+1rplN8z+4ylkBSYdA/agvRtCVB2jNjZVpqM6DQLqq7Bfa2RQPYZrZVCWhbYkKp/8vFbDVvN
+	GKKhzY6JtaJ+vgq6feHwizslyNzxVZPGL5aftscM5BSbsBvwewPj2umd0FT2TzCcJhgHiwOTR/i
+	mZIysWuNAwENYfKSAnRzb2eXEyPPisplaa2rQ==
+X-Received: by 2002:a05:6402:518f:b0:658:bd60:43e2 with SMTP id 4fb4d7f45d1cf-659841692cdmr5396289a12.17.1770628310369;
+        Mon, 09 Feb 2026 01:11:50 -0800 (PST)
+Received: from ?IPV6:2a00:12d0:af5b:2f01:4042:c03:ce4d:a5a1? (2a00-12d0-af5b-2f01-4042-c03-ce4d-a5a1.ip.tng.de. [2a00:12d0:af5b:2f01:4042:c03:ce4d:a5a1])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-659840238fdsm2659958a12.30.2026.02.09.01.11.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 Feb 2026 01:11:49 -0800 (PST)
+Message-ID: <6ee93510-1f43-4cd2-952e-8ed3ce7ba0e5@suse.com>
+Date: Mon, 9 Feb 2026 10:11:49 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
+To: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-block@vger.kernel.org
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
+ Jens Axboe <axboe@kernel.dk>
+References: <20260119182632.596369-1-jgross@suse.com>
+Content-Language: en-US
+From: Juergen Gross <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <20260119182632.596369-1-jgross@suse.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------CRkOi8Dd1YqtQXNyzdN5KBGQ"
 
-On Sun, 8 Feb 2026 18:42:26 -0800, Vishwanath Seshagiri <vishs@meta.com> wrote:
-> On 2/8/26 6:00 PM, Xuan Zhuo wrote:
-> > On Sun, 8 Feb 2026 09:54:10 -0800, Vishwanath Seshagiri <vishs@meta.com> wrote:
-> >> Use page_pool for RX buffer allocation in mergeable and small buffer
-> >> modes to enable page recycling and avoid repeated page allocator calls.
-> >> skb_mark_for_recycle() enables page reuse in the network stack.
-> >>
-> >> Big packets mode is unchanged because it uses page->private for linked
-> >> list chaining of multiple pages per buffer, which conflicts with
-> >> page_pool's internal use of page->private.
-> >>
-> >> Implement conditional DMA premapping using virtqueue_dma_dev():
-> >> - When non-NULL (vhost, virtio-pci): use PP_FLAG_DMA_MAP with page_pool
-> >>    handling DMA mapping, submit via virtqueue_add_inbuf_premapped()
-> >> - When NULL (VDUSE, direct physical): page_pool handles allocation only,
-> >>    submit via virtqueue_add_inbuf_ctx()
-> >>
-> >> This preserves the DMA premapping optimization from commit 31f3cd4e5756b
-> >> ("virtio-net: rq submits premapped per-buffer") while adding page_pool
-> >> support as a prerequisite for future zero-copy features (devmem TCP,
-> >> io_uring ZCRX).
-> >>
-> >> Page pools are created in probe and destroyed in remove (not open/close),
-> >> following existing driver behavior where RX buffers remain in virtqueues
-> >> across interface state changes.
-> >>
-> >> Signed-off-by: Vishwanath Seshagiri <vishs@meta.com>
-> >> ---
-> >> Changes in v6:
-> >> - Drop page_pool_frag_offset_add() helper and switch to page_pool_alloc_va();
-> >>    page_pool_alloc_netmem() already handles internal fragmentation internally
-> >>    (Jakub Kicinski)
-> >> - v5:
-> >>    https://lore.kernel.org/virtualization/20260206002715.1885869-1-vishs@meta.com/
-> >>
-> >> Benchmark results:
-> >>
-> >> Configuration: pktgen TX -> tap -> vhost-net | virtio-net RX -> XDP_DROP
-> >>
-> >> Small packets (64 bytes, mrg_rxbuf=off):
-> >>    1Q:  853,493 -> 868,923 pps  (+1.8%)
-> >>    2Q: 1,655,793 -> 1,696,707 pps (+2.5%)
-> >>    4Q: 3,143,375 -> 3,302,511 pps (+5.1%)
-> >>    8Q: 6,082,590 -> 6,156,894 pps (+1.2%)
-> >>
-> >> Mergeable RX (64 bytes):
-> >>    1Q:   766,168 ->   814,493 pps  (+6.3%)
-> >>    2Q: 1,384,871 -> 1,670,639 pps (+20.6%)
-> >>    4Q: 2,773,081 -> 3,080,574 pps (+11.1%)
-> >>    8Q: 5,600,615 -> 6,043,891 pps  (+7.9%)
-> >>
-> >> Mergeable RX (1500 bytes):
-> >>    1Q:   741,579 ->   785,442 pps  (+5.9%)
-> >>    2Q: 1,310,043 -> 1,534,554 pps (+17.1%)
-> >>    4Q: 2,748,700 -> 2,890,582 pps  (+5.2%)
-> >>    8Q: 5,348,589 -> 5,618,664 pps  (+5.0%)
-> >>
-> >>   drivers/net/Kconfig      |   1 +
-> >>   drivers/net/virtio_net.c | 434 +++++++++++++++++++--------------------
-> >>   2 files changed, 217 insertions(+), 218 deletions(-)
-> >>
-> >> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-> >> index ac12eaf11755..f1e6b6b0a86f 100644
-> >> --- a/drivers/net/Kconfig
-> >> +++ b/drivers/net/Kconfig
-> >> @@ -450,6 +450,7 @@ config VIRTIO_NET
-> >>   	depends on VIRTIO
-> >>   	select NET_FAILOVER
-> >>   	select DIMLIB
-> >> +	select PAGE_POOL
-> >>   	help
-> >>   	  This is the virtual network driver for virtio.  It can be used with
-> >>   	  QEMU based VMMs (like KVM or Xen).  Say Y or M.
-> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >> index db88dcaefb20..5055df56e4a7 100644
-> >> --- a/drivers/net/virtio_net.c
-> >> +++ b/drivers/net/virtio_net.c
-> >> @@ -26,6 +26,7 @@
-> >>   #include <net/netdev_rx_queue.h>
-> >>   #include <net/netdev_queues.h>
-> >>   #include <net/xdp_sock_drv.h>
-> >> +#include <net/page_pool/helpers.h>
-> >>
-> >>   static int napi_weight = NAPI_POLL_WEIGHT;
-> >>   module_param(napi_weight, int, 0444);
-> >> @@ -290,14 +291,6 @@ struct virtnet_interrupt_coalesce {
-> >>   	u32 max_usecs;
-> >>   };
-> >>
-> >> -/* The dma information of pages allocated at a time. */
-> >> -struct virtnet_rq_dma {
-> >> -	dma_addr_t addr;
-> >> -	u32 ref;
-> >> -	u16 len;
-> >> -	u16 need_sync;
-> >> -};
-> >> -
-> >>   /* Internal representation of a send virtqueue */
-> >>   struct send_queue {
-> >>   	/* Virtqueue associated with this send _queue */
-> >> @@ -356,8 +349,10 @@ struct receive_queue {
-> >>   	/* Average packet length for mergeable receive buffers. */
-> >>   	struct ewma_pkt_len mrg_avg_pkt_len;
-> >>
-> >> -	/* Page frag for packet buffer allocation. */
-> >> -	struct page_frag alloc_frag;
-> >> +	struct page_pool *page_pool;
-> >> +
-> >> +	/* True if page_pool handles DMA mapping via PP_FLAG_DMA_MAP */
-> >> +	bool use_page_pool_dma;
-> >>
-> >>   	/* RX: fragments + linear part + virtio header */
-> >>   	struct scatterlist sg[MAX_SKB_FRAGS + 2];
-> >> @@ -370,9 +365,6 @@ struct receive_queue {
-> >>
-> >>   	struct xdp_rxq_info xdp_rxq;
-> >>
-> >> -	/* Record the last dma info to free after new pages is allocated. */
-> >> -	struct virtnet_rq_dma *last_dma;
-> >> -
-> >>   	struct xsk_buff_pool *xsk_pool;
-> >>
-> >>   	/* xdp rxq used by xsk */
-> >> @@ -521,11 +513,13 @@ static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
-> >>   			       struct virtnet_rq_stats *stats);
-> >>   static void virtnet_receive_done(struct virtnet_info *vi, struct receive_queue *rq,
-> >>   				 struct sk_buff *skb, u8 flags);
-> >> -static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
-> >> +static struct sk_buff *virtnet_skb_append_frag(struct receive_queue *rq,
-> >> +					       struct sk_buff *head_skb,
-> >>   					       struct sk_buff *curr_skb,
-> >>   					       struct page *page, void *buf,
-> >>   					       int len, int truesize);
-> >>   static void virtnet_xsk_completed(struct send_queue *sq, int num);
-> >> +static void free_unused_bufs(struct virtnet_info *vi);
-> >>
-> >>   enum virtnet_xmit_type {
-> >>   	VIRTNET_XMIT_TYPE_SKB,
-> >> @@ -706,15 +700,24 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
-> >>   	return p;
-> >>   }
-> >>
-> >> +static void virtnet_put_page(struct receive_queue *rq, struct page *page,
-> >> +			     bool allow_direct)
-> >> +{
-> >> +	if (page_pool_page_is_pp(page))
-> >> +		page_pool_put_page(rq->page_pool, page, -1, allow_direct);
-> >> +	else
-> >> +		put_page(page);
-> >> +}
-> >
-> > Why we need this?
-> > For the caller, we should know which one should be used?
-> >
->
-> This was after some feedback to unify the alloc/free path checks in v4.
-> But you raise a valid point - callers already know the mode via
-> virtnet_no_page_pool(). I can simplify this to just call
-> page_pool_put_page() directly, since virtnet_put_page() is only called
-> from paths that already checked we're using page_pool. Would you prefer
-> that?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------CRkOi8Dd1YqtQXNyzdN5KBGQ
+Content-Type: multipart/mixed; boundary="------------34IehBIppGcxVnrgQ2weG0lj";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-block@vger.kernel.org
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
+ Jens Axboe <axboe@kernel.dk>
+Message-ID: <6ee93510-1f43-4cd2-952e-8ed3ce7ba0e5@suse.com>
+Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
+References: <20260119182632.596369-1-jgross@suse.com>
+In-Reply-To: <20260119182632.596369-1-jgross@suse.com>
 
+--------------34IehBIppGcxVnrgQ2weG0lj
+Content-Type: multipart/mixed; boundary="------------gSU4Siyeh4zHWGT3RiPM5v62"
 
-Based on my understanding, the big mode should directly call the Page API, while
-all other modes should directly call the PP API. Therefore, I believe it's
-better for each mode to directly invoke its respective API.
+--------------gSU4Siyeh4zHWGT3RiPM5v62
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
->
->
-> >
-> >> +
-> >>   static void virtnet_rq_free_buf(struct virtnet_info *vi,
-> >>   				struct receive_queue *rq, void *buf)
-> >>   {
-> >>   	if (vi->mergeable_rx_bufs)
-> >> -		put_page(virt_to_head_page(buf));
-> >> +		virtnet_put_page(rq, virt_to_head_page(buf), false);
-> >>   	else if (vi->big_packets)
-> >>   		give_pages(rq, buf);
-> >>   	else
-> >> -		put_page(virt_to_head_page(buf));
-> >> +		virtnet_put_page(rq, virt_to_head_page(buf), false);
-> >>   }
-> >>
-> >>   static void enable_rx_mode_work(struct virtnet_info *vi)
-> >> @@ -876,10 +879,16 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
-> >>   		skb = virtnet_build_skb(buf, truesize, p - buf, len);
-> >>   		if (unlikely(!skb))
-> >>   			return NULL;
-> >> +		/* Big packets mode chains pages via page->private, which is
-> >> +		 * incompatible with the way page_pool uses page->private.
-> >> +		 * Currently, big packets mode doesn't use page pools.
-> >> +		 */
-> >> +		if (vi->big_packets && !vi->mergeable_rx_bufs) {
-> >> +			page = (struct page *)page->private;
-> >> +			if (page)
-> >> +				give_pages(rq, page);
-> >> +		}
-> >>
-> >> -		page = (struct page *)page->private;
-> >> -		if (page)
-> >> -			give_pages(rq, page);
-> >>   		goto ok;
-> >>   	}
-> >>
-> >> @@ -925,133 +934,18 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
-> >>   	hdr = skb_vnet_common_hdr(skb);
-> >>   	memcpy(hdr, hdr_p, hdr_len);
-> >>   	if (page_to_free)
-> >> -		put_page(page_to_free);
-> >> +		virtnet_put_page(rq, page_to_free, true);
-> >>
-> >>   	return skb;
-> >>   }
-> >>
-> >> -static void virtnet_rq_unmap(struct receive_queue *rq, void *buf, u32 len)
-> >> -{
-> >> -	struct virtnet_info *vi = rq->vq->vdev->priv;
-> >> -	struct page *page = virt_to_head_page(buf);
-> >> -	struct virtnet_rq_dma *dma;
-> >> -	void *head;
-> >> -	int offset;
-> >> -
-> >> -	BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
-> >> -
-> >> -	head = page_address(page);
-> >> -
-> >> -	dma = head;
-> >> -
-> >> -	--dma->ref;
-> >> -
-> >> -	if (dma->need_sync && len) {
-> >> -		offset = buf - (head + sizeof(*dma));
-> >> -
-> >> -		virtqueue_map_sync_single_range_for_cpu(rq->vq, dma->addr,
-> >> -							offset, len,
-> >> -							DMA_FROM_DEVICE);
-> >> -	}
-> >> -
-> >> -	if (dma->ref)
-> >> -		return;
-> >> -
-> >> -	virtqueue_unmap_single_attrs(rq->vq, dma->addr, dma->len,
-> >> -				     DMA_FROM_DEVICE, DMA_ATTR_SKIP_CPU_SYNC);
-> >> -	put_page(page);
-> >> -}
-> >> -
-> >>   static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
-> >>   {
-> >>   	struct virtnet_info *vi = rq->vq->vdev->priv;
-> >> -	void *buf;
-> >>
-> >>   	BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
-> >>
-> >> -	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
-> >> -	if (buf)
-> >> -		virtnet_rq_unmap(rq, buf, *len);
-> >> -
-> >> -	return buf;
-> >> -}
-> >> -
-> >> -static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
-> >> -{
-> >> -	struct virtnet_info *vi = rq->vq->vdev->priv;
-> >> -	struct virtnet_rq_dma *dma;
-> >> -	dma_addr_t addr;
-> >> -	u32 offset;
-> >> -	void *head;
-> >> -
-> >> -	BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
-> >> -
-> >> -	head = page_address(rq->alloc_frag.page);
-> >> -
-> >> -	offset = buf - head;
-> >> -
-> >> -	dma = head;
-> >> -
-> >> -	addr = dma->addr - sizeof(*dma) + offset;
-> >> -
-> >> -	sg_init_table(rq->sg, 1);
-> >> -	sg_fill_dma(rq->sg, addr, len);
-> >> -}
-> >> -
-> >> -static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
-> >> -{
-> >> -	struct page_frag *alloc_frag = &rq->alloc_frag;
-> >> -	struct virtnet_info *vi = rq->vq->vdev->priv;
-> >> -	struct virtnet_rq_dma *dma;
-> >> -	void *buf, *head;
-> >> -	dma_addr_t addr;
-> >> -
-> >> -	BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
-> >> -
-> >> -	head = page_address(alloc_frag->page);
-> >> -
-> >> -	dma = head;
-> >> -
-> >> -	/* new pages */
-> >> -	if (!alloc_frag->offset) {
-> >> -		if (rq->last_dma) {
-> >> -			/* Now, the new page is allocated, the last dma
-> >> -			 * will not be used. So the dma can be unmapped
-> >> -			 * if the ref is 0.
-> >> -			 */
-> >> -			virtnet_rq_unmap(rq, rq->last_dma, 0);
-> >> -			rq->last_dma = NULL;
-> >> -		}
-> >> -
-> >> -		dma->len = alloc_frag->size - sizeof(*dma);
-> >> -
-> >> -		addr = virtqueue_map_single_attrs(rq->vq, dma + 1,
-> >> -						  dma->len, DMA_FROM_DEVICE, 0);
-> >> -		if (virtqueue_map_mapping_error(rq->vq, addr))
-> >> -			return NULL;
-> >> -
-> >> -		dma->addr = addr;
-> >> -		dma->need_sync = virtqueue_map_need_sync(rq->vq, addr);
-> >> -
-> >> -		/* Add a reference to dma to prevent the entire dma from
-> >> -		 * being released during error handling. This reference
-> >> -		 * will be freed after the pages are no longer used.
-> >> -		 */
-> >> -		get_page(alloc_frag->page);
-> >> -		dma->ref = 1;
-> >> -		alloc_frag->offset = sizeof(*dma);
-> >> -
-> >> -		rq->last_dma = dma;
-> >> -	}
-> >> -
-> >> -	++dma->ref;
-> >> -
-> >> -	buf = head + alloc_frag->offset;
-> >> -
-> >> -	get_page(alloc_frag->page);
-> >> -	alloc_frag->offset += size;
-> >> -
-> >> -	return buf;
-> >> +	return virtqueue_get_buf_ctx(rq->vq, len, ctx);
-> >>   }
-> >>
-> >>   static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
-> >> @@ -1067,9 +961,6 @@ static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
-> >>   		return;
-> >>   	}
-> >>
-> >> -	if (!vi->big_packets || vi->mergeable_rx_bufs)
-> >> -		virtnet_rq_unmap(rq, buf, 0);
-> >> -
-> >>   	virtnet_rq_free_buf(vi, rq, buf);
-> >>   }
-> >>
-> >> @@ -1335,7 +1226,7 @@ static int xsk_append_merge_buffer(struct virtnet_info *vi,
-> >>
-> >>   		truesize = len;
-> >>
-> >> -		curr_skb  = virtnet_skb_append_frag(head_skb, curr_skb, page,
-> >> +		curr_skb  = virtnet_skb_append_frag(rq, head_skb, curr_skb, page,
-> >>   						    buf, len, truesize);
-> >>   		if (!curr_skb) {
-> >>   			put_page(page);
-> >> @@ -1771,7 +1662,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
-> >>   	return ret;
-> >>   }
-> >>
-> >> -static void put_xdp_frags(struct xdp_buff *xdp)
-> >> +static void put_xdp_frags(struct receive_queue *rq, struct xdp_buff *xdp)
-> >>   {
-> >>   	struct skb_shared_info *shinfo;
-> >>   	struct page *xdp_page;
-> >> @@ -1781,7 +1672,7 @@ static void put_xdp_frags(struct xdp_buff *xdp)
-> >>   		shinfo = xdp_get_shared_info_from_buff(xdp);
-> >>   		for (i = 0; i < shinfo->nr_frags; i++) {
-> >>   			xdp_page = skb_frag_page(&shinfo->frags[i]);
-> >> -			put_page(xdp_page);
-> >> +			virtnet_put_page(rq, xdp_page, true);
-> >>   		}
-> >>   	}
-> >>   }
-> >> @@ -1873,7 +1764,7 @@ static struct page *xdp_linearize_page(struct net_device *dev,
-> >>   	if (page_off + *len + tailroom > PAGE_SIZE)
-> >>   		return NULL;
-> >>
-> >> -	page = alloc_page(GFP_ATOMIC);
-> >> +	page = page_pool_alloc_pages(rq->page_pool, GFP_ATOMIC);
-> >>   	if (!page)
-> >>   		return NULL;
-> >>
-> >> @@ -1897,7 +1788,7 @@ static struct page *xdp_linearize_page(struct net_device *dev,
-> >>   		off = buf - page_address(p);
-> >>
-> >>   		if (check_mergeable_len(dev, ctx, buflen)) {
-> >> -			put_page(p);
-> >> +			virtnet_put_page(rq, p, true);
-> >>   			goto err_buf;
-> >>   		}
-> >>
-> >> @@ -1905,21 +1796,21 @@ static struct page *xdp_linearize_page(struct net_device *dev,
-> >>   		 * is sending packet larger than the MTU.
-> >>   		 */
-> >>   		if ((page_off + buflen + tailroom) > PAGE_SIZE) {
-> >> -			put_page(p);
-> >> +			virtnet_put_page(rq, p, true);
-> >>   			goto err_buf;
-> >>   		}
-> >>
-> >>   		memcpy(page_address(page) + page_off,
-> >>   		       page_address(p) + off, buflen);
-> >>   		page_off += buflen;
-> >> -		put_page(p);
-> >> +		virtnet_put_page(rq, p, true);
-> >>   	}
-> >>
-> >>   	/* Headroom does not contribute to packet length */
-> >>   	*len = page_off - XDP_PACKET_HEADROOM;
-> >>   	return page;
-> >>   err_buf:
-> >> -	__free_pages(page, 0);
-> >> +	page_pool_put_page(rq->page_pool, page, -1, true);
-> >>   	return NULL;
-> >>   }
-> >>
-> >> @@ -1969,6 +1860,12 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
-> >>   	unsigned int metasize = 0;
-> >>   	u32 act;
-> >>
-> >> +	if (rq->use_page_pool_dma) {
-> >> +		int off = buf - page_address(page);
-> >> +
-> >> +		page_pool_dma_sync_for_cpu(rq->page_pool, page, off, len);
-> >> +	}
-> >> +
-> >>   	if (unlikely(hdr->hdr.gso_type))
-> >>   		goto err_xdp;
-> >>
-> >> @@ -1996,7 +1893,7 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
-> >>   			goto err_xdp;
-> >>
-> >>   		buf = page_address(xdp_page);
-> >> -		put_page(page);
-> >> +		virtnet_put_page(rq, page, true);
-> >>   		page = xdp_page;
-> >>   	}
-> >>
-> >> @@ -2028,13 +1925,15 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
-> >>   	if (metasize)
-> >>   		skb_metadata_set(skb, metasize);
-> >>
-> >> +	skb_mark_for_recycle(skb);
-> >> +
-> >>   	return skb;
-> >>
-> >>   err_xdp:
-> >>   	u64_stats_inc(&stats->xdp_drops);
-> >>   err:
-> >>   	u64_stats_inc(&stats->drops);
-> >> -	put_page(page);
-> >> +	virtnet_put_page(rq, page, true);
-> >>   xdp_xmit:
-> >>   	return NULL;
-> >>   }
-> >> @@ -2056,6 +1955,12 @@ static struct sk_buff *receive_small(struct net_device *dev,
-> >>   	 */
-> >>   	buf -= VIRTNET_RX_PAD + xdp_headroom;
-> >>
-> >> +	if (rq->use_page_pool_dma) {
-> >> +		int offset = buf - page_address(page);
-> >> +
-> >> +		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
-> >> +	}
-> >> +
-> >>   	len -= vi->hdr_len;
-> >>   	u64_stats_add(&stats->bytes, len);
-> >>
-> >> @@ -2082,12 +1987,14 @@ static struct sk_buff *receive_small(struct net_device *dev,
-> >>   	}
-> >>
-> >>   	skb = receive_small_build_skb(vi, xdp_headroom, buf, len);
-> >> -	if (likely(skb))
-> >> +	if (likely(skb)) {
-> >> +		skb_mark_for_recycle(skb);
-> >>   		return skb;
-> >> +	}
-> >>
-> >>   err:
-> >>   	u64_stats_inc(&stats->drops);
-> >> -	put_page(page);
-> >> +	virtnet_put_page(rq, page, true);
-> >>   	return NULL;
-> >>   }
-> >>
-> >> @@ -2142,7 +2049,7 @@ static void mergeable_buf_free(struct receive_queue *rq, int num_buf,
-> >>   		}
-> >>   		u64_stats_add(&stats->bytes, len);
-> >>   		page = virt_to_head_page(buf);
-> >> -		put_page(page);
-> >> +		virtnet_put_page(rq, page, true);
-> >>   	}
-> >>   }
-> >>
-> >> @@ -2253,7 +2160,7 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
-> >>   		offset = buf - page_address(page);
-> >>
-> >>   		if (check_mergeable_len(dev, ctx, len)) {
-> >> -			put_page(page);
-> >> +			virtnet_put_page(rq, page, true);
-> >>   			goto err;
-> >>   		}
-> >>
-> >> @@ -2272,7 +2179,7 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
-> >>   	return 0;
-> >>
-> >>   err:
-> >> -	put_xdp_frags(xdp);
-> >> +	put_xdp_frags(rq, xdp);
-> >>   	return -EINVAL;
-> >>   }
-> >>
-> >> @@ -2337,7 +2244,7 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
-> >>   		if (*len + xdp_room > PAGE_SIZE)
-> >>   			return NULL;
-> >>
-> >> -		xdp_page = alloc_page(GFP_ATOMIC);
-> >> +		xdp_page = page_pool_alloc_pages(rq->page_pool, GFP_ATOMIC);
-> >>   		if (!xdp_page)
-> >>   			return NULL;
-> >>
-> >> @@ -2347,7 +2254,7 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
-> >>
-> >>   	*frame_sz = PAGE_SIZE;
-> >>
-> >> -	put_page(*page);
-> >> +	virtnet_put_page(rq, *page, true);
-> >>
-> >>   	*page = xdp_page;
-> >>
-> >> @@ -2393,6 +2300,8 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
-> >>   		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
-> >>   		if (unlikely(!head_skb))
-> >>   			break;
-> >> +
-> >> +		skb_mark_for_recycle(head_skb);
-> >>   		return head_skb;
-> >>
-> >>   	case XDP_TX:
-> >> @@ -2403,10 +2312,10 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
-> >>   		break;
-> >>   	}
-> >>
-> >> -	put_xdp_frags(&xdp);
-> >> +	put_xdp_frags(rq, &xdp);
-> >>
-> >>   err_xdp:
-> >> -	put_page(page);
-> >> +	virtnet_put_page(rq, page, true);
-> >>   	mergeable_buf_free(rq, num_buf, dev, stats);
-> >>
-> >>   	u64_stats_inc(&stats->xdp_drops);
-> >> @@ -2414,7 +2323,8 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
-> >>   	return NULL;
-> >>   }
-> >>
-> >> -static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
-> >> +static struct sk_buff *virtnet_skb_append_frag(struct receive_queue *rq,
-> >> +					       struct sk_buff *head_skb,
-> >>   					       struct sk_buff *curr_skb,
-> >>   					       struct page *page, void *buf,
-> >>   					       int len, int truesize)
-> >> @@ -2446,7 +2356,7 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
-> >>
-> >>   	offset = buf - page_address(page);
-> >>   	if (skb_can_coalesce(curr_skb, num_skb_frags, page, offset)) {
-> >> -		put_page(page);
-> >> +		virtnet_put_page(rq, page, true);
-> >>   		skb_coalesce_rx_frag(curr_skb, num_skb_frags - 1,
-> >>   				     len, truesize);
-> >>   	} else {
-> >> @@ -2475,6 +2385,10 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
-> >>   	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
-> >>
-> >>   	head_skb = NULL;
-> >> +
-> >> +	if (rq->use_page_pool_dma)
-> >> +		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
-> >> +
-> >>   	u64_stats_add(&stats->bytes, len - vi->hdr_len);
-> >>
-> >>   	if (check_mergeable_len(dev, ctx, len))
-> >> @@ -2499,6 +2413,8 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
-> >>
-> >>   	if (unlikely(!curr_skb))
-> >>   		goto err_skb;
-> >> +
-> >> +	skb_mark_for_recycle(head_skb);
-> >>   	while (--num_buf) {
-> >>   		buf = virtnet_rq_get_buf(rq, &len, &ctx);
-> >>   		if (unlikely(!buf)) {
-> >> @@ -2517,7 +2433,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
-> >>   			goto err_skb;
-> >>
-> >>   		truesize = mergeable_ctx_to_truesize(ctx);
-> >> -		curr_skb  = virtnet_skb_append_frag(head_skb, curr_skb, page,
-> >> +		curr_skb  = virtnet_skb_append_frag(rq, head_skb, curr_skb, page,
-> >>   						    buf, len, truesize);
-> >>   		if (!curr_skb)
-> >>   			goto err_skb;
-> >> @@ -2527,7 +2443,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
-> >>   	return head_skb;
-> >>
-> >>   err_skb:
-> >> -	put_page(page);
-> >> +	virtnet_put_page(rq, page, true);
-> >>   	mergeable_buf_free(rq, num_buf, dev, stats);
-> >>
-> >>   err_buf:
-> >> @@ -2666,32 +2582,41 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
-> >>   static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
-> >>   			     gfp_t gfp)
-> >>   {
-> >> -	char *buf;
-> >>   	unsigned int xdp_headroom = virtnet_get_headroom(vi);
-> >>   	void *ctx = (void *)(unsigned long)xdp_headroom;
-> >> -	int len = vi->hdr_len + VIRTNET_RX_PAD + GOOD_PACKET_LEN + xdp_headroom;
-> >> +	unsigned int len = vi->hdr_len + VIRTNET_RX_PAD + GOOD_PACKET_LEN + xdp_headroom;
-> >> +	struct page *page;
-> >> +	dma_addr_t addr;
-> >> +	char *buf;
-> >>   	int err;
-> >>
-> >>   	len = SKB_DATA_ALIGN(len) +
-> >>   	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> >>
-> >> -	if (unlikely(!skb_page_frag_refill(len, &rq->alloc_frag, gfp)))
-> >> -		return -ENOMEM;
-> >> -
-> >> -	buf = virtnet_rq_alloc(rq, len, gfp);
-> >> +	buf = page_pool_alloc_va(rq->page_pool, &len, gfp);
-> >>   	if (unlikely(!buf))
-> >>   		return -ENOMEM;
-> >>
-> >>   	buf += VIRTNET_RX_PAD + xdp_headroom;
-> >>
-> >> -	virtnet_rq_init_one_sg(rq, buf, vi->hdr_len + GOOD_PACKET_LEN);
-> >> +	if (rq->use_page_pool_dma) {
-> >> +		page = virt_to_head_page(buf);
-> >> +		addr = page_pool_get_dma_addr(page) +
-> >> +		       (buf - (char *)page_address(page));
-> >>
-> >> -	err = virtqueue_add_inbuf_premapped(rq->vq, rq->sg, 1, buf, ctx, gfp);
-> >> -	if (err < 0) {
-> >> -		virtnet_rq_unmap(rq, buf, 0);
-> >> -		put_page(virt_to_head_page(buf));
-> >> +		sg_init_table(rq->sg, 1);
-> >> +		sg_fill_dma(rq->sg, addr, vi->hdr_len + GOOD_PACKET_LEN);
-> >> +		err = virtqueue_add_inbuf_premapped(rq->vq, rq->sg, 1,
-> >> +						    buf, ctx, gfp);
-> >> +	} else {
-> >> +		sg_init_one(rq->sg, buf, vi->hdr_len + GOOD_PACKET_LEN);
-> >> +		err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1,
-> >> +					      buf, ctx, gfp);
-> >>   	}
-> >>
-> >> +	if (err < 0)
-> >> +		page_pool_put_page(rq->page_pool, virt_to_head_page(buf),
-> >> +				   -1, false);
-> >>   	return err;
-> >>   }
-> >>
-> >> @@ -2764,13 +2689,14 @@ static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
-> >>   static int add_recvbuf_mergeable(struct virtnet_info *vi,
-> >>   				 struct receive_queue *rq, gfp_t gfp)
-> >>   {
-> >> -	struct page_frag *alloc_frag = &rq->alloc_frag;
-> >>   	unsigned int headroom = virtnet_get_headroom(vi);
-> >>   	unsigned int tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
-> >>   	unsigned int room = SKB_DATA_ALIGN(headroom + tailroom);
-> >> -	unsigned int len, hole;
-> >> -	void *ctx;
-> >> +	unsigned int len, alloc_len;
-> >> +	struct page *page;
-> >> +	dma_addr_t addr;
-> >>   	char *buf;
-> >> +	void *ctx;
-> >>   	int err;
-> >>
-> >>   	/* Extra tailroom is needed to satisfy XDP's assumption. This
-> >> @@ -2779,39 +2705,36 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
-> >>   	 */
-> >>   	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
-> >>
-> >> -	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
-> >> -		return -ENOMEM;
-> >> -
-> >> -	if (!alloc_frag->offset && len + room + sizeof(struct virtnet_rq_dma) > alloc_frag->size)
-> >> -		len -= sizeof(struct virtnet_rq_dma);
-> >> -
-> >> -	buf = virtnet_rq_alloc(rq, len + room, gfp);
-> >> +	alloc_len = len + room;
-> >> +	buf = page_pool_alloc_va(rq->page_pool, &alloc_len, gfp);
-> >>   	if (unlikely(!buf))
-> >>   		return -ENOMEM;
-> >>
-> >>   	buf += headroom; /* advance address leaving hole at front of pkt */
-> >> -	hole = alloc_frag->size - alloc_frag->offset;
-> >> -	if (hole < len + room) {
-> >> -		/* To avoid internal fragmentation, if there is very likely not
-> >> -		 * enough space for another buffer, add the remaining space to
-> >> -		 * the current buffer.
-> >> -		 * XDP core assumes that frame_size of xdp_buff and the length
-> >> -		 * of the frag are PAGE_SIZE, so we disable the hole mechanism.
-> >> -		 */
-> >> -		if (!headroom)
-> >> -			len += hole;
-> >> -		alloc_frag->offset += hole;
-> >> -	}
-> >>
-> >> -	virtnet_rq_init_one_sg(rq, buf, len);
-> >> +	if (!headroom)
-> >> +		len = alloc_len - room;
-> >>
-> >>   	ctx = mergeable_len_to_ctx(len + room, headroom);
-> >> -	err = virtqueue_add_inbuf_premapped(rq->vq, rq->sg, 1, buf, ctx, gfp);
-> >> -	if (err < 0) {
-> >> -		virtnet_rq_unmap(rq, buf, 0);
-> >> -		put_page(virt_to_head_page(buf));
-> >> +
-> >> +	if (rq->use_page_pool_dma) {
-> >> +		page = virt_to_head_page(buf);
-> >> +		addr = page_pool_get_dma_addr(page) +
-> >> +		       (buf - (char *)page_address(page));
-> >> +
-> >> +		sg_init_table(rq->sg, 1);
-> >> +		sg_fill_dma(rq->sg, addr, len);
-> >> +		err = virtqueue_add_inbuf_premapped(rq->vq, rq->sg, 1,
-> >> +						    buf, ctx, gfp);
-> >> +	} else {
-> >> +		sg_init_one(rq->sg, buf, len);
-> >> +		err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1,
-> >> +					      buf, ctx, gfp);
-> >>   	}
-> >>
-> >> +	if (err < 0)
-> >> +		page_pool_put_page(rq->page_pool, virt_to_head_page(buf),
-> >> +				   -1, false);
-> >>   	return err;
-> >>   }
-> >>
-> >> @@ -3128,7 +3051,10 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
-> >>   		return err;
-> >>
-> >>   	err = xdp_rxq_info_reg_mem_model(&vi->rq[qp_index].xdp_rxq,
-> >> -					 MEM_TYPE_PAGE_SHARED, NULL);
-> >> +					 vi->rq[qp_index].page_pool ?
-> >> +						MEM_TYPE_PAGE_POOL :
-> >> +						MEM_TYPE_PAGE_SHARED,
-> >> +					 vi->rq[qp_index].page_pool);
-> >>   	if (err < 0)
-> >>   		goto err_xdp_reg_mem_model;
-> >>
-> >> @@ -3168,6 +3094,81 @@ static void virtnet_update_settings(struct virtnet_info *vi)
-> >>   		vi->duplex = duplex;
-> >>   }
-> >>
-> >> +static int virtnet_create_page_pools(struct virtnet_info *vi)
-> >> +{
-> >> +	int i, err;
-> >> +
-> >> +	if (!vi->mergeable_rx_bufs && vi->big_packets)
-> >> +		return 0;
-> >> +
-> >> +	for (i = 0; i < vi->max_queue_pairs; i++) {
-> >> +		struct receive_queue *rq = &vi->rq[i];
-> >> +		struct page_pool_params pp_params = { 0 };
-> >> +		struct device *dma_dev;
-> >> +
-> >> +		if (rq->page_pool)
-> >> +			continue;
-> >> +
-> >> +		if (rq->xsk_pool)
-> >> +			continue;
-> >> +
-> >> +		pp_params.order = 0;
-> >> +		pp_params.pool_size = virtqueue_get_vring_size(rq->vq);
-> >> +		pp_params.nid = dev_to_node(vi->vdev->dev.parent);
-> >> +		pp_params.netdev = vi->dev;
-> >> +		pp_params.napi = &rq->napi;
-> >> +
-> >> +		/* Check if backend supports DMA API (e.g., vhost, virtio-pci).
-> >> +		 * If so, use page_pool's DMA mapping for premapped buffers.
-> >> +		 * Otherwise (e.g., VDUSE), page_pool only handles allocation.
-> >> +		 */
-> >> +		dma_dev = virtqueue_dma_dev(rq->vq);
-> >> +		if (dma_dev) {
-> >> +			pp_params.dev = dma_dev;
-> >> +			pp_params.flags = PP_FLAG_DMA_MAP;
-> >> +			pp_params.dma_dir = DMA_FROM_DEVICE;
-> >> +			rq->use_page_pool_dma = true;
-> >> +		} else {
-> >> +			pp_params.dev = vi->vdev->dev.parent;
-> >> +			pp_params.flags = 0;
-> >> +			rq->use_page_pool_dma = false;
-> >
-> > Can the page pool handles dma with vi->vdev->dev.parent?
->
-> No, we cannot use the page_pool DMA with vi->vdev->dev.parent in VDUSE
-> case because VDUSE uses its own address translation. virtqueue_dma_dev()
-> returns NULL, virtio doesn't use standard DMA API at all. Now that I
-> think about it, setting pp_params.dev in this branch is unnecessary
-> since it is never accessed. I can remove it, if you prefer.
+UElORz8NCg0KTm93IDMgd2Vla3Mgd2l0aG91dCBhbnkgcmVhY3Rpb24uLi4NCg0KT24gMTku
+MDEuMjYgMTk6MjYsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+IFdoaWxlIGxvb2tpbmcgYXQg
+cGFyYXZpcnQgY2xlYW51cHMgSSBzdHVtYmxlZCBvdmVyIHNsb3dfZG93bl9pbygpIGFuZA0K
+PiB0aGUgcmVsYXRlZCBSRUFMTFlfU0xPV19JTyBkZWZpbmUuDQo+IA0KPiBEbyBzZXZlcmFs
+IGNsZWFudXBzLCByZXN1bHRpbmcgaW4gYSBkZWxldGlvbiBvZiBSRUFMTFlfU0xPV19JTyBh
+bmQgdGhlDQo+IGlvX2RlbGF5KCkgcGFyYXZpcnQgZnVuY3Rpb24gaG9vay4NCj4gDQo+IFBh
+dGNoIDQgaXMgcmVtb3ZpbmcgdGhlIGNvbmZpZyBvcHRpb25zIGZvciBzZWxlY3RpbmcgdGhl
+IGRlZmF1bHQgZGVsYXkNCj4gbWVjaGFuaXNtIGFuZCBzZXRzIHRoZSBkZWZhdWx0IHRvICJu
+byBkZWxheSIuIFRoaXMgaXMgaW4gcHJlcGFyYXRpb24gb2YNCj4gcmVtb3ZpbmcgdGhlIGlv
+X2RlbGF5KCkgZnVuY3Rpb25hbGl0eSBjb21wbGV0ZWx5LCBhcyBzdWdnZXN0ZWQgYnkgSW5n
+bw0KPiBNb2xuYXIuDQo+IA0KPiBQYXRjaCA1IGlzIGFkZGluZyBhbiBhZGRpdGlvbmFsIGNv
+bmZpZyBvcHRpb24gYWxsb3dpbmcgdG8gYXZvaWQNCj4gYnVpbGRpbmcgaW9fZGVsYXkuYyAo
+ZGVmYXVsdCBpcyBzdGlsbCB0byBidWlsZCBpdCkuDQo+IA0KPiBDaGFuZ2VzIGluIFYyOg0K
+PiAtIHBhdGNoZXMgMiBhbmQgMyBvZiBWMSBoYXZlIGJlZW4gYXBwbGllZA0KPiAtIG5ldyBw
+YXRjaGVzIDQgYW5kIDUNCj4gDQo+IENoYW5nZXMgaW4gVjM6DQo+IC0gcmViYXNlIHRvIHRp
+cC9tYXN0ZXIga2VybmVsIGJyYW5jaA0KPiANCj4gQ2hhbmdlcyBpbiBWNDoNCj4gLSBhZGQg
+cGF0Y2ggMSBhcyBwcmVyZXEgcGF0Y2ggdG8gdGhlIHNlcmllcw0KPiANCj4gSnVlcmdlbiBH
+cm9zcyAoNik6DQo+ICAgIHg4Ni9pcnFmbGFnczogRml4IGJ1aWxkIGZhaWx1cmUNCj4gICAg
+eDg2L3BhcmF2aXJ0OiBSZXBsYWNlIGlvX2RlbGF5KCkgaG9vayB3aXRoIGEgYm9vbA0KPiAg
+ICBibG9jay9mbG9wcHk6IERvbid0IHVzZSBSRUFMTFlfU0xPV19JTyBmb3IgZGVsYXlzDQo+
+ICAgIHg4Ni9pbzogUmVtb3ZlIFJFQUxMWV9TTE9XX0lPIGhhbmRsaW5nDQo+ICAgIHg4Ni9p
+b19kZWxheTogU3dpdGNoIGlvX2RlbGF5KCkgZGVmYXVsdCBtZWNoYW5pc20gdG8gIm5vbmUi
+DQo+ICAgIHg4Ni9pb19kZWxheTogQWRkIGNvbmZpZyBvcHRpb24gZm9yIGNvbnRyb2xsaW5n
+IGJ1aWxkIG9mIGlvX2RlbGF5Lg0KPiANCj4gICBhcmNoL3g4Ni9LY29uZmlnICAgICAgICAg
+ICAgICAgICAgICAgIHwgIDggKysrDQo+ICAgYXJjaC94ODYvS2NvbmZpZy5kZWJ1ZyAgICAg
+ICAgICAgICAgICB8IDMwIC0tLS0tLS0tLS0NCj4gICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9m
+bG9wcHkuaCAgICAgICAgIHwgMzEgKysrKysrKystLQ0KPiAgIGFyY2gveDg2L2luY2x1ZGUv
+YXNtL2lvLmggICAgICAgICAgICAgfCAxOSArKysrLS0tDQo+ICAgYXJjaC94ODYvaW5jbHVk
+ZS9hc20vaXJxZmxhZ3MuaCAgICAgICB8ICA2ICstDQo+ICAgYXJjaC94ODYvaW5jbHVkZS9h
+c20vcGFyYXZpcnQtYmFzZS5oICB8ICA2ICsrDQo+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20v
+cGFyYXZpcnQuaCAgICAgICB8IDExIC0tLS0NCj4gICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9w
+YXJhdmlydF90eXBlcy5oIHwgIDIgLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9NYWtlZmlsZSAg
+ICAgICAgICAgICAgfCAgMyArLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9jcHUvdm13YXJlLmMg
+ICAgICAgICAgfCAgMiArLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9pb19kZWxheS5jICAgICAg
+ICAgICAgfCA4MSArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gICBhcmNoL3g4Ni9r
+ZXJuZWwva3ZtLmMgICAgICAgICAgICAgICAgIHwgIDggKy0tDQo+ICAgYXJjaC94ODYva2Vy
+bmVsL3BhcmF2aXJ0LmMgICAgICAgICAgICB8ICAzICstDQo+ICAgYXJjaC94ODYva2VybmVs
+L3NldHVwLmMgICAgICAgICAgICAgICB8ICA0ICstDQo+ICAgYXJjaC94ODYveGVuL2VubGln
+aHRlbl9wdi5jICAgICAgICAgICB8ICA2ICstDQo+ICAgZHJpdmVycy9ibG9jay9mbG9wcHku
+YyAgICAgICAgICAgICAgICB8ICAyIC0NCj4gICAxNiBmaWxlcyBjaGFuZ2VkLCA2MyBpbnNl
+cnRpb25zKCspLCAxNTkgZGVsZXRpb25zKC0pDQo+IA0KDQo=
+--------------gSU4Siyeh4zHWGT3RiPM5v62
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-If that's the case, then it is indeed a bit troublesome. I don't know if VDUSE
-has a better solution. What I don't like is use_page_pool_dma -- it
-introduces many branches into the code, making it more chaotic. We may need to
-look for a better unified solution.
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-Thanks.
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
->
->
-> >
-> > Thanks.
-> >
-> >> +		}
-> >> +
-> >> +		rq->page_pool = page_pool_create(&pp_params);
-> >> +		if (IS_ERR(rq->page_pool)) {
-> >> +			err = PTR_ERR(rq->page_pool);
-> >> +			rq->page_pool = NULL;
-> >> +			goto err_cleanup;
-> >> +		}
-> >> +	}
-> >> +	return 0;
-> >> +
-> >> +err_cleanup:
-> >> +	while (--i >= 0) {
-> >> +		struct receive_queue *rq = &vi->rq[i];
-> >> +
-> >> +		if (rq->page_pool) {
-> >> +			page_pool_destroy(rq->page_pool);
-> >> +			rq->page_pool = NULL;
-> >> +		}
-> >> +	}
-> >> +	return err;
-> >> +}
-> >> +
-> >> +static void virtnet_destroy_page_pools(struct virtnet_info *vi)
-> >> +{
-> >> +	int i;
-> >> +
-> >> +	for (i = 0; i < vi->max_queue_pairs; i++) {
-> >> +		struct receive_queue *rq = &vi->rq[i];
-> >> +
-> >> +		if (rq->page_pool) {
-> >> +			page_pool_destroy(rq->page_pool);
-> >> +			rq->page_pool = NULL;
-> >> +		}
-> >> +	}
-> >> +}
-> >> +
-> >>   static int virtnet_open(struct net_device *dev)
-> >>   {
-> >>   	struct virtnet_info *vi = netdev_priv(dev);
-> >> @@ -6287,17 +6288,6 @@ static void free_receive_bufs(struct virtnet_info *vi)
-> >>   	rtnl_unlock();
-> >>   }
-> >>
-> >> -static void free_receive_page_frags(struct virtnet_info *vi)
-> >> -{
-> >> -	int i;
-> >> -	for (i = 0; i < vi->max_queue_pairs; i++)
-> >> -		if (vi->rq[i].alloc_frag.page) {
-> >> -			if (vi->rq[i].last_dma)
-> >> -				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
-> >> -			put_page(vi->rq[i].alloc_frag.page);
-> >> -		}
-> >> -}
-> >> -
-> >>   static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
-> >>   {
-> >>   	struct virtnet_info *vi = vq->vdev->priv;
-> >> @@ -6441,10 +6431,8 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> >>   		vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
-> >>   		vi->sq[i].vq = vqs[txq2vq(i)];
-> >>   	}
-> >> -
-> >>   	/* run here: ret == 0. */
-> >>
-> >> -
-> >>   err_find:
-> >>   	kfree(ctx);
-> >>   err_ctx:
-> >> @@ -6945,6 +6933,14 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >>   			goto free;
-> >>   	}
-> >>
-> >> +	/* Create page pools for receive queues.
-> >> +	 * Page pools are created at probe time so they can be used
-> >> +	 * with premapped DMA addresses throughout the device lifetime.
-> >> +	 */
-> >> +	err = virtnet_create_page_pools(vi);
-> >> +	if (err)
-> >> +		goto free_irq_moder;
-> >> +
-> >>   #ifdef CONFIG_SYSFS
-> >>   	if (vi->mergeable_rx_bufs)
-> >>   		dev->sysfs_rx_queue_group = &virtio_net_mrg_rx_group;
-> >> @@ -6958,7 +6954,7 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >>   		vi->failover = net_failover_create(vi->dev);
-> >>   		if (IS_ERR(vi->failover)) {
-> >>   			err = PTR_ERR(vi->failover);
-> >> -			goto free_vqs;
-> >> +			goto free_page_pools;
-> >>   		}
-> >>   	}
-> >>
-> >> @@ -7075,9 +7071,11 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >>   	unregister_netdev(dev);
-> >>   free_failover:
-> >>   	net_failover_destroy(vi->failover);
-> >> -free_vqs:
-> >> +free_page_pools:
-> >> +	virtnet_destroy_page_pools(vi);
-> >> +free_irq_moder:
-> >> +	virtnet_free_irq_moder(vi);
-> >>   	virtio_reset_device(vdev);
-> >> -	free_receive_page_frags(vi);
-> >>   	virtnet_del_vqs(vi);
-> >>   free:
-> >>   	free_netdev(dev);
-> >> @@ -7102,7 +7100,7 @@ static void remove_vq_common(struct virtnet_info *vi)
-> >>
-> >>   	free_receive_bufs(vi);
-> >>
-> >> -	free_receive_page_frags(vi);
-> >> +	virtnet_destroy_page_pools(vi);
-> >>
-> >>   	virtnet_del_vqs(vi);
-> >>   }
-> >> --
-> >> 2.47.3
-> >>
->
+--------------gSU4Siyeh4zHWGT3RiPM5v62--
+
+--------------34IehBIppGcxVnrgQ2weG0lj--
+
+--------------CRkOi8Dd1YqtQXNyzdN5KBGQ
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmmJpNUFAwAAAAAACgkQsN6d1ii/Ey8j
+qQf7Bg+qPPnREAQQ4FK1hd4m2YZs0u9VS/xDnH/zOwWH5hkNgmRIQMvwV3d4YvP1jkhVXNcGzqyt
+mS6tcQVuRNpSrvWmzT1N58G6PZ7MCb003jylOa177f0zVFFrYtaAV03j7X8jlfpca3vMfjFAh4mF
+1bqFtbbiqiWbqV4p8R4XEmEUPICcGinAPRNF/NH90Q6huR90gRaBk+KxOM0P3xIU5lxOfX9IO1yn
+TnSXXFc0fycQ1QYdfQ9m2IaA+RqdvwOYzCdlS0pNV6ma79NEVpt57FqCmxQn3yUUd4xiH1ZXUGiX
+qYWqHU467Y5uoUe0Cx/CwEoazfjVpOvElk0GH00bHA==
+=520A
+-----END PGP SIGNATURE-----
+
+--------------CRkOi8Dd1YqtQXNyzdN5KBGQ--
