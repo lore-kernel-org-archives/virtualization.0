@@ -1,274 +1,100 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 135393385A5
-	for <virtualization@lists.linux.dev>; Mon,  9 Feb 2026 09:11:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D7E43446CC
+	for <virtualization@lists.linux.dev>; Mon,  9 Feb 2026 10:19:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770628312; cv=none; b=mMoRn75+AEjswEdQVkayPIzLHYHIWpGr8wOJ4Fzh8Va2Wu0kZAQZQ78yUOW5qgZGjEQ9cQWf8rD14FxfT87kLSRpBvpwNzdG2Ue5mw3kMt6/ze9K5+ys/Rpbv0+4I7lEUvZUQ0RC89UpZSKG71kjPp+hsxjFCCVgTDbFtn+7XDY=
+	t=1770632398; cv=none; b=rrhp+x7tkg8d6o/UZBYlPRdJymMNFBxd6gAbYrcxxaAH9v+Yt3MInpBghPe99N7Nx1buzgtpeCCobfu9wpfq22oXk1h+rcyBWRkPRHP3QaB/BnYaaGcJrEkdTxqYRRhSzPLnZ515vqXaJcN8K9Rnsg0i7sXe/+er2PdvtjWAW3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770628312; c=relaxed/simple;
-	bh=6Rf0FYjkPu0tVX2FfB/cW3xLBvBaQoo5kGcbjmkcKgM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=e5sqcremq2En2Vkwu4n7m8PKxvooIZafJ/wemjhoqRqGBO9buUCxUe3jrK1s8121MXuo/5D9OlmuFauhPlBewXcdqDBnzwLU0L9o3I3/7JkR2q0jcDrfozciMrx+ABfUKMP4+7VI530hoqGyPxXZscX2te+LLbigFEYvmQggC+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=dQcKoB48; arc=none smtp.client-ip=209.85.208.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1770632398; c=relaxed/simple;
+	bh=frF/ygmT6BMadE5omuNNyjVPtF9+GASqvwXA/+PB+88=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=M0yE49BUgIOAdoyzbiv0l7AJaSQw6uAv3hhQbCr3M+hrHUPubbjgO7FSAURH84q9cm2kfwSaPEVrX8CQun88koUSXgAhdcb+w97MdusyPDwOwCaufSVsZSO0fSh+O3MeKkW2J+vICPG7v06Pr1oSXYrhTAZ+zdBGQWTe6qCCMSM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=fail (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=L7SgNe1H reason="signature verification failed"; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="dQcKoB48"
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-658cc45847cso6193146a12.0
-        for <virtualization@lists.linux.dev>; Mon, 09 Feb 2026 01:11:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1770628310; x=1771233110; darn=lists.linux.dev;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=6Rf0FYjkPu0tVX2FfB/cW3xLBvBaQoo5kGcbjmkcKgM=;
-        b=dQcKoB48GMon5b9/2tMcmDk1v0F7tsyV/vxI21JIquRUlgsL20vaJk2q38QF3oar0I
-         1NRCNUO+J0GFlZ2Ped2pinHVpOg2q9i1HHhuHwkw3Q6ovSIYMGBprg6mW/S0W1BlQEKY
-         Y4o67DOQuu9yl2zDzLtcTXV/c1AeDLkyiRSxSInA+o7P5VFLrqOCyQofGEAVOihqS2qB
-         hSKNbloMWOGX1Kosf+BXuXA+UY438lIi+cMj+eCWHAJQfdpElFJSxuxgqQ6kqiceE+cy
-         49DFaWfiwBmfW1s2KnpPlYp02NOEBj4PNuXo05pFTdela2lN/yKOWCE0q519qi5LRcKO
-         my9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770628310; x=1771233110;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6Rf0FYjkPu0tVX2FfB/cW3xLBvBaQoo5kGcbjmkcKgM=;
-        b=KMuVVrLk2EHp7PRy+jVukybUquc/SXK1rsaVAQ7+4eAYubeTSQci1OKLjiRjMZKA9k
-         JXgUvJzjetnbZ2hM7xE8OVJYfAHhl4R6Hbo7GSmLg0bUwkeRW0auANmO1yvM2hf9z+yo
-         xdC8Pez93XKhqtLNS3SVPM5jJWBD5BQDs6VYrK9IUo0kaDvmHTv4LsQj3mHPrlpjL/+v
-         j+YzQZ9BVR0xQeaw1h7V5KZk1POumUcFz6ppFDrm+CgOsXFIqJn8TYMtxKVNlYjXE7mT
-         dTj63q2vZmIgQuNOLs4FeXP9sACQjiqJdgDoxDxBG0LXU/kSgcQChQ8wde0KLsOmrdMG
-         qlPA==
-X-Forwarded-Encrypted: i=1; AJvYcCWV0IVzFPmFatfuzpYwhtOjZExzkag+eDoJyhFOKIAaV+88ctxHR3e8b7/kNgJKxpA9lMr5mNxDpxmYGw8G2Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyXyLI+O5VnFcRG6vrfdl/13gLXxJWQky+ggi2YBv8D8tqegHrY
-	/cbf4JdfagOACfXUMRjaHBz+tbYJKbkOHyqhuHRR+v2Yc80HF+BQ7a31kbEGSN+l5s8=
-X-Gm-Gg: AZuq6aKNPYDfMagEDEbeT6lfw+PLZ5MsuIem1dbIbRcMyZviupUdtCrNJLr4vt5c7HB
-	I2MY25WpNleTxnSwbXocp+lqOEhmqRdW1RF9+99On4TThfMtI2mWWHiKet6h9wrpj1RMb1YDu+w
-	SYw3JtMis98jt6yXJDW0qHF6qAvp19Q9vbumZY7uEcKud6nHTh6AwfApLwefMDRyAuGifwcogzu
-	iEBgbzq2UZ5JfglbQLY3CUtulXg+VMAA82xS8graIFuuKPtzMf8VrnNSkpeFFEvA3iZZJlEEt4N
-	rb6l6X0o7tV2sTgvyerZqwfJwA0lCjET6DpISnVl6Rk1+cpt29inFyncmC6GIpAnE+tpZwsZsyX
-	1Cu+1rplN8z+4ylkBSYdA/agvRtCVB2jNjZVpqM6DQLqq7Bfa2RQPYZrZVCWhbYkKp/8vFbDVvN
-	GKKhzY6JtaJ+vgq6feHwizslyNzxVZPGL5aftscM5BSbsBvwewPj2umd0FT2TzCcJhgHiwOTR/i
-	mZIysWuNAwENYfKSAnRzb2eXEyPPisplaa2rQ==
-X-Received: by 2002:a05:6402:518f:b0:658:bd60:43e2 with SMTP id 4fb4d7f45d1cf-659841692cdmr5396289a12.17.1770628310369;
-        Mon, 09 Feb 2026 01:11:50 -0800 (PST)
-Received: from ?IPV6:2a00:12d0:af5b:2f01:4042:c03:ce4d:a5a1? (2a00-12d0-af5b-2f01-4042-c03-ce4d-a5a1.ip.tng.de. [2a00:12d0:af5b:2f01:4042:c03:ce4d:a5a1])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-659840238fdsm2659958a12.30.2026.02.09.01.11.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Feb 2026 01:11:49 -0800 (PST)
-Message-ID: <6ee93510-1f43-4cd2-952e-8ed3ce7ba0e5@suse.com>
-Date: Mon, 9 Feb 2026 10:11:49 +0100
+	dkim=fail reason="signature verification failed" (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="L7SgNe1H"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id ACEAC40E02E5;
+	Mon,  9 Feb 2026 10:19:55 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Authentication-Results: mail.alien8.de (amavisd-new); dkim=fail (4096-bit key)
+	reason="fail (body has been altered)" header.d=alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id 4C9Q5WVVx173; Mon,  9 Feb 2026 10:19:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1770632389; bh=qEUrs9aV2UevLern7cWNO8zzbe1KAW/M2x98IuKSaBo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=L7SgNe1HGQWJrNNPxIw1k6KgoWfev2wqz1jZbCcdXa3N+r4Sl/iSwK3+WgzxAFLP8
+	 QDIumwRX6KDqKNsBiOjqrW8IUFJtEx9sgCqb/bAzmbANjrv039vpmzj4gjo9THzeU+
+	 YSeKDxKiC0bvOQQrRgAmB1w4YLy5TCWky0ssa46YJD12Zf3DncxHeqLZnCEyiDvmok
+	 ImdQ26bRkjFZie01PrBcG6QN7TlXcb7KBJhmBUxPdA+piF7m7xZKSZWgb7o4p/oBoW
+	 65Eq70rBCFjVlN2eomT3o1+/ySJUpqMssMZEfzXq/CyGEHZVfOrzEhVna54KL/dc4S
+	 7ZeL+vs8Y7GtRdbrr9C4RHiMxtgKQPEoyMTb//9gb0Y2+3+7wDLh1B9yHuqbWjz+Kr
+	 Yb/Ws3PqB19EwD6aoi/Tt1w25wr/ScLec10clV/Mjn/qpU5jib/sg2vHOJVaaKm4Sh
+	 oDhL5LGnFq1wjriJrXcmG4Vw3VjwohtUAQmP5GMIB5HnkpO6y85vAK8EPWtn6A4K9+
+	 TJ9NGVpHZA3Fht96JrON+2jvKS3NfRstQvYDeF17seJMrMjba69iIQPkiaMVYjiH5s
+	 0ihBjjGUpmtKls4QpuZphm5tynBcgqWNyCG4hiKuLtwqpBtWM+74IOdgKLcwwzTB+v
+	 5v/tPeD19u9TgLlvgaBntID4=
+Received: from zn.tnic (pd95306e3.dip0.t-ipconnect.de [217.83.6.227])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with UTF8SMTPSA id 917DA40E0326;
+	Mon,  9 Feb 2026 10:19:30 +0000 (UTC)
+Date: Mon, 9 Feb 2026 11:19:18 +0100
+From: Borislav Petkov <bp@alien8.de>
+To: Juergen Gross <jgross@suse.com>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	linux-block@vger.kernel.org, Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
+	Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
+Message-ID: <20260209101918.GAaYm0plbeXIBr8p9a@fat_crate.local>
+References: <20260119182632.596369-1-jgross@suse.com>
+ <6ee93510-1f43-4cd2-952e-8ed3ce7ba0e5@suse.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
-To: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-block@vger.kernel.org
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
- Jens Axboe <axboe@kernel.dk>
-References: <20260119182632.596369-1-jgross@suse.com>
-Content-Language: en-US
-From: Juergen Gross <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <20260119182632.596369-1-jgross@suse.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------CRkOi8Dd1YqtQXNyzdN5KBGQ"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------CRkOi8Dd1YqtQXNyzdN5KBGQ
-Content-Type: multipart/mixed; boundary="------------34IehBIppGcxVnrgQ2weG0lj";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-block@vger.kernel.org
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
- Jens Axboe <axboe@kernel.dk>
-Message-ID: <6ee93510-1f43-4cd2-952e-8ed3ce7ba0e5@suse.com>
-Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
-References: <20260119182632.596369-1-jgross@suse.com>
-In-Reply-To: <20260119182632.596369-1-jgross@suse.com>
-
---------------34IehBIppGcxVnrgQ2weG0lj
-Content-Type: multipart/mixed; boundary="------------gSU4Siyeh4zHWGT3RiPM5v62"
-
---------------gSU4Siyeh4zHWGT3RiPM5v62
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
-
-UElORz8NCg0KTm93IDMgd2Vla3Mgd2l0aG91dCBhbnkgcmVhY3Rpb24uLi4NCg0KT24gMTku
-MDEuMjYgMTk6MjYsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+IFdoaWxlIGxvb2tpbmcgYXQg
-cGFyYXZpcnQgY2xlYW51cHMgSSBzdHVtYmxlZCBvdmVyIHNsb3dfZG93bl9pbygpIGFuZA0K
-PiB0aGUgcmVsYXRlZCBSRUFMTFlfU0xPV19JTyBkZWZpbmUuDQo+IA0KPiBEbyBzZXZlcmFs
-IGNsZWFudXBzLCByZXN1bHRpbmcgaW4gYSBkZWxldGlvbiBvZiBSRUFMTFlfU0xPV19JTyBh
-bmQgdGhlDQo+IGlvX2RlbGF5KCkgcGFyYXZpcnQgZnVuY3Rpb24gaG9vay4NCj4gDQo+IFBh
-dGNoIDQgaXMgcmVtb3ZpbmcgdGhlIGNvbmZpZyBvcHRpb25zIGZvciBzZWxlY3RpbmcgdGhl
-IGRlZmF1bHQgZGVsYXkNCj4gbWVjaGFuaXNtIGFuZCBzZXRzIHRoZSBkZWZhdWx0IHRvICJu
-byBkZWxheSIuIFRoaXMgaXMgaW4gcHJlcGFyYXRpb24gb2YNCj4gcmVtb3ZpbmcgdGhlIGlv
-X2RlbGF5KCkgZnVuY3Rpb25hbGl0eSBjb21wbGV0ZWx5LCBhcyBzdWdnZXN0ZWQgYnkgSW5n
-bw0KPiBNb2xuYXIuDQo+IA0KPiBQYXRjaCA1IGlzIGFkZGluZyBhbiBhZGRpdGlvbmFsIGNv
-bmZpZyBvcHRpb24gYWxsb3dpbmcgdG8gYXZvaWQNCj4gYnVpbGRpbmcgaW9fZGVsYXkuYyAo
-ZGVmYXVsdCBpcyBzdGlsbCB0byBidWlsZCBpdCkuDQo+IA0KPiBDaGFuZ2VzIGluIFYyOg0K
-PiAtIHBhdGNoZXMgMiBhbmQgMyBvZiBWMSBoYXZlIGJlZW4gYXBwbGllZA0KPiAtIG5ldyBw
-YXRjaGVzIDQgYW5kIDUNCj4gDQo+IENoYW5nZXMgaW4gVjM6DQo+IC0gcmViYXNlIHRvIHRp
-cC9tYXN0ZXIga2VybmVsIGJyYW5jaA0KPiANCj4gQ2hhbmdlcyBpbiBWNDoNCj4gLSBhZGQg
-cGF0Y2ggMSBhcyBwcmVyZXEgcGF0Y2ggdG8gdGhlIHNlcmllcw0KPiANCj4gSnVlcmdlbiBH
-cm9zcyAoNik6DQo+ICAgIHg4Ni9pcnFmbGFnczogRml4IGJ1aWxkIGZhaWx1cmUNCj4gICAg
-eDg2L3BhcmF2aXJ0OiBSZXBsYWNlIGlvX2RlbGF5KCkgaG9vayB3aXRoIGEgYm9vbA0KPiAg
-ICBibG9jay9mbG9wcHk6IERvbid0IHVzZSBSRUFMTFlfU0xPV19JTyBmb3IgZGVsYXlzDQo+
-ICAgIHg4Ni9pbzogUmVtb3ZlIFJFQUxMWV9TTE9XX0lPIGhhbmRsaW5nDQo+ICAgIHg4Ni9p
-b19kZWxheTogU3dpdGNoIGlvX2RlbGF5KCkgZGVmYXVsdCBtZWNoYW5pc20gdG8gIm5vbmUi
-DQo+ICAgIHg4Ni9pb19kZWxheTogQWRkIGNvbmZpZyBvcHRpb24gZm9yIGNvbnRyb2xsaW5n
-IGJ1aWxkIG9mIGlvX2RlbGF5Lg0KPiANCj4gICBhcmNoL3g4Ni9LY29uZmlnICAgICAgICAg
-ICAgICAgICAgICAgIHwgIDggKysrDQo+ICAgYXJjaC94ODYvS2NvbmZpZy5kZWJ1ZyAgICAg
-ICAgICAgICAgICB8IDMwIC0tLS0tLS0tLS0NCj4gICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9m
-bG9wcHkuaCAgICAgICAgIHwgMzEgKysrKysrKystLQ0KPiAgIGFyY2gveDg2L2luY2x1ZGUv
-YXNtL2lvLmggICAgICAgICAgICAgfCAxOSArKysrLS0tDQo+ICAgYXJjaC94ODYvaW5jbHVk
-ZS9hc20vaXJxZmxhZ3MuaCAgICAgICB8ICA2ICstDQo+ICAgYXJjaC94ODYvaW5jbHVkZS9h
-c20vcGFyYXZpcnQtYmFzZS5oICB8ICA2ICsrDQo+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20v
-cGFyYXZpcnQuaCAgICAgICB8IDExIC0tLS0NCj4gICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9w
-YXJhdmlydF90eXBlcy5oIHwgIDIgLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9NYWtlZmlsZSAg
-ICAgICAgICAgICAgfCAgMyArLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9jcHUvdm13YXJlLmMg
-ICAgICAgICAgfCAgMiArLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9pb19kZWxheS5jICAgICAg
-ICAgICAgfCA4MSArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gICBhcmNoL3g4Ni9r
-ZXJuZWwva3ZtLmMgICAgICAgICAgICAgICAgIHwgIDggKy0tDQo+ICAgYXJjaC94ODYva2Vy
-bmVsL3BhcmF2aXJ0LmMgICAgICAgICAgICB8ICAzICstDQo+ICAgYXJjaC94ODYva2VybmVs
-L3NldHVwLmMgICAgICAgICAgICAgICB8ICA0ICstDQo+ICAgYXJjaC94ODYveGVuL2VubGln
-aHRlbl9wdi5jICAgICAgICAgICB8ICA2ICstDQo+ICAgZHJpdmVycy9ibG9jay9mbG9wcHku
-YyAgICAgICAgICAgICAgICB8ICAyIC0NCj4gICAxNiBmaWxlcyBjaGFuZ2VkLCA2MyBpbnNl
-cnRpb25zKCspLCAxNTkgZGVsZXRpb25zKC0pDQo+IA0KDQo=
---------------gSU4Siyeh4zHWGT3RiPM5v62
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <6ee93510-1f43-4cd2-952e-8ed3ce7ba0e5@suse.com>
 Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+On Mon, Feb 09, 2026 at 10:11:49AM +0100, Juergen Gross wrote:
+> PING?
+>=20
+> Now 3 weeks without any reaction...
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+J=C3=BCrgen, there are other patchsets that need review too. And we have =
+merge
+window right now so no reviewing anyway.
 
---------------gSU4Siyeh4zHWGT3RiPM5v62--
+And you know all that damn well!
 
---------------34IehBIppGcxVnrgQ2weG0lj--
+How about you help us out and you start reviewing x86 patches instead of
+pinging every week?
 
---------------CRkOi8Dd1YqtQXNyzdN5KBGQ
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+Thx.
 
------BEGIN PGP SIGNATURE-----
+--=20
+Regards/Gruss,
+    Boris.
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmmJpNUFAwAAAAAACgkQsN6d1ii/Ey8j
-qQf7Bg+qPPnREAQQ4FK1hd4m2YZs0u9VS/xDnH/zOwWH5hkNgmRIQMvwV3d4YvP1jkhVXNcGzqyt
-mS6tcQVuRNpSrvWmzT1N58G6PZ7MCb003jylOa177f0zVFFrYtaAV03j7X8jlfpca3vMfjFAh4mF
-1bqFtbbiqiWbqV4p8R4XEmEUPICcGinAPRNF/NH90Q6huR90gRaBk+KxOM0P3xIU5lxOfX9IO1yn
-TnSXXFc0fycQ1QYdfQ9m2IaA+RqdvwOYzCdlS0pNV6ma79NEVpt57FqCmxQn3yUUd4xiH1ZXUGiX
-qYWqHU467Y5uoUe0Cx/CwEoazfjVpOvElk0GH00bHA==
-=520A
------END PGP SIGNATURE-----
-
---------------CRkOi8Dd1YqtQXNyzdN5KBGQ--
+https://people.kernel.org/tglx/notes-about-netiquette
