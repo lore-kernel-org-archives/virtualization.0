@@ -1,106 +1,126 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9551D202F70
-	for <virtualization@lists.linux.dev>; Tue, 10 Feb 2026 07:19:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A806F30FF26
+	for <virtualization@lists.linux.dev>; Tue, 10 Feb 2026 08:26:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770707997; cv=none; b=rp5LBLulyVDlRsxvEYcYxY/OvgFWuoEFQg8C7tQa/WHJeVG/icQcNPzLHhFHC4IxsfQ+s2i/1FIG9f7tmUyFBlxfEz2XyJavTIJE5b0e9PKK0EFtRplxqMAACXnATq6RjfI0r327Jao/4lwrUbEjdUiJqNWWlRTp4XyCf14U5Ao=
+	t=1770711968; cv=none; b=mNGsqGwR3a4DxnD57AQqym0DDxsMBIF45JqHDRNoiCo1nBpoeWxmP3hz7aTg0hdMcLgZUYGrP2Az3iG+IsF2Dgfj1D5GPZk1DvmBsfbdVJqYIxJ+bbl6bjIkhbBObVtIdFFb4glUuYFidEf5QH+3RlxVpEx1ILqmA0X2hRc5MJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770707997; c=relaxed/simple;
-	bh=mXytY2lL2wi8cjZeNB2IcAirtUMY2l1nJ77qqr3eRgI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Q0sOz1oxdKhuvXNcptoa4dDfWzg2/yp0TTFv4WLliYkV7HK+ButFC20pqsc+jOGmPopz1LmjY9lkyuPDunbs3Wr0ul9dLsO4h5fGX+bUYFCH0IWOp1iZ1IXewqHMp98wGlEbS79hNKT9iS9ypqN6YDxqMSp/JPwuZgfPj2Z+l2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=cORE1bB6; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1770711968; c=relaxed/simple;
+	bh=5nDw7drIMPUTQOWa+nF4dfAWrqqTko3Vgm5q2FRvKyg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=TvQn27q4ZOz+Yntlw54aPqUCypupmnc4r69mUaP499jhc7TOk5OcdeSMXXzjUbSHTeY43dKOc8L+B6OLGpfAHjPqdbM9RCpDkIFgEBtm4v2oWjzQLTqNtoFW6iV/mQ2z9QFObztuE1ZKkL23fS/TehfXolHHFee/v/XpbTz5wq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PMa5qTrP; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="cORE1bB6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1770707995;
-	bh=mXytY2lL2wi8cjZeNB2IcAirtUMY2l1nJ77qqr3eRgI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=cORE1bB6JiXPP7MxYMEIB9mnMgtmqwgQWX81FlF2vw5eQto+1TUUuWBeugjetaSV8
-	 Hj+Ua2UaDoaOn3wzQBLNmooz3DV7UbKMkaVOSRxOlRZWasCebnpSw3TCi3wavrMIPR
-	 VAF1c/3QFj1yh3vT9Abs/Xzwp/B9+EPUKy3EkSI0xnN/DW0r3RvRro0opIMTKzU4E4
-	 uhPC1u5cw0mgJG1qxpa3eSkS6XE0xImmDJtUcFxDzPlTvUnhr6AmuPM35XvHS2uN1u
-	 0lUvIGnc7IC+qf+frLWojZ/ioO6Fx2k2K1yWxtkXE4ChKnpDTrOx/y6p8Yjiev5gZL
-	 PDXhRtW/OBwxg==
-Received: from [192.168.50.190] (unknown [171.76.81.211])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PMa5qTrP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770711965;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=JyL4BZTjvjcWTrtVObGHvPJLZx5hdEZJdOpMkCffIDg=;
+	b=PMa5qTrPmZge4oJC/L11FNeMFwEcdAyB8IdivctIipQ8wW/t6d1gHozLfA0u9f6omkInyL
+	nQ1+poiSYiATJELvQ0A1APgDB4uMgrSgvaitgrkBXzCrTrAjj1V6gw+szBIeJaizWWTFxU
+	AXexPMnQN5Y7p6bLRP4zbIsB5ft4rjs=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-195-HdDwdz76PMCASwVQiRz8xA-1; Tue,
+ 10 Feb 2026 03:26:02 -0500
+X-MC-Unique: HdDwdz76PMCASwVQiRz8xA-1
+X-Mimecast-MFC-AGG-ID: HdDwdz76PMCASwVQiRz8xA_1770711961
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 36D1717E13A6;
-	Tue, 10 Feb 2026 08:19:49 +0100 (CET)
-Message-ID: <5ed6508c-78ab-4606-b503-9bc54f5cdea9@collabora.com>
-Date: Tue, 10 Feb 2026 12:49:46 +0530
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 18F31195608F;
+	Tue, 10 Feb 2026 08:26:01 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.224.173])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7F1711956056;
+	Tue, 10 Feb 2026 08:25:56 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Cindy Lu <lulu@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Laurent Vivier <lvivier@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Maxime Coquelin <mcoqueli@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Yongji Xie <xieyongji@bytedance.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: [PATCH v2 0/5] Add queue ready message to VDUSE
+Date: Tue, 10 Feb 2026 09:25:49 +0100
+Message-ID: <20260210082554.1582553-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 6/7] drm/ci: uprev IGT
-To: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-Cc: dri-devel@lists.freedesktop.org, daniels@collabora.com,
- helen.fornazier@gmail.com, airlied@gmail.com, simona.vetter@ffwll.ch,
- lumag@kernel.org, robdclark@gmail.com, robin.clark@oss.qualcomm.com,
- guilherme.gallo@collabora.com, sergi.blanch.torne@collabora.com,
- valentine.burley@collabora.com, linux-mediatek@lists.infradead.org,
- linux-amlogic@lists.infradead.org, linux-rockchip@lists.infradead.org,
- amd-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20260127104406.200505-1-vignesh.raman@collabora.com>
- <20260127104406.200505-7-vignesh.raman@collabora.com>
- <zi7frtnecrzyei4fl4nmwmth3icnsyycxxobbrcwovbqfsfq4z@eh25dyfrjkqz>
- <9949e82b-6ec2-4975-939b-d6a709ecf43f@collabora.com>
- <5vxrhiilcsaull2airasmc3pjqazvswrtojozz264i5vk3m6zl@pgkdwq46p4ho>
-Content-Language: en-US
-From: Vignesh Raman <vignesh.raman@collabora.com>
-In-Reply-To: <5vxrhiilcsaull2airasmc3pjqazvswrtojozz264i5vk3m6zl@pgkdwq46p4ho>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Mimecast-MFC-PROC-ID: -fm89d3zL-S5Rd4GFVJ-hGVwGOG99An6ZUTJRHaZbZg_1770711961
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-Hi Dmitry,
+This series introduces a new VDUSE message for VDUSE userland instance
+to detect when a VirtQueue (VQ) is enabled, replacing the polling.
 
-On 27/01/26 19:55, Dmitry Baryshkov wrote:
-> On Tue, Jan 27, 2026 at 06:26:11PM +0530, Vignesh Raman wrote:
->> Hi Dmitry,
->>
->> On 27/01/26 18:01, Dmitry Baryshkov wrote:
->>> On Tue, Jan 27, 2026 at 04:14:01PM +0530, Vignesh Raman wrote:
->>>> Recent IGT [1] seems to be broken on MSM hardware, with many tests
->>>> failing due to the old_primary->index != 0 assertion. Uprev IGT to
->>>> the last known good revision where the tests pass, and update the
->>>> expectation files accordingly.
->>>>
->>>> [1] https://gitlab.freedesktop.org/drm/igt-gpu-tools/-/commit/a909ab05
->>>>
->>>> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
->>>> Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
->>>
->>> It is not clear, which parts here are due to Mesa uprev (yes, there are
->>> some of those) and which are due to the IGT uprev. Please split into two
->>> commits and make sure that Mesa-uprev passes more or less clearly.
->>
->> The mesa uprev and the IGT uprev are already split into two separate
->> commits. The IGT uprev only updates the IGT version in gitlab-ci.yml and
->> xfails.
-> 
-> I think I was not clear enough: Mesa uprev also causes some of the
-> xfails. Those needs to be a part of the Mesa uprev commit.
+VirtIO net devices' dataplane is started after the control virtqueue so
+QEMU can apply the configuration in the destination of a Live Migration.
+Without this feature, the VDUSE instance must poll the VQs to check when
+(and if) a VQ has been enabled.
 
-I have created v2 where the mesa uprev commit also includes the updated 
-xfails. I will send IGT uprev as a separate commit/series.
+This series also implements VDUSE feature flags allowing the VDUSE
+devices to opt-in to the VQ ready message.  Devices that opt-in to this
+feature will receive explicit notifications when a VQ is ready. Devices
+that do not set this flag remain unaffected, ensuring backward
+compatibility without indefinitely incrementing API versions.
 
-https://lore.kernel.org/dri-devel/20260210071138.2256773-1-vignesh.raman@collabora.com/T/#t
+The VDUSE features is a 64 bit bitmap for simplicity, the same way as
+vhost and vhost-net started.  It can be extended as a flexible array of
+bits when we reach so many features, but it seems unlikely at this
+point.
 
-Regards,
-Vignesh
+Error cases tested:
+* Call VDUSE_GET_FEATURES without get the API VERSION (so API == 0) and
+  with API VERSION set to 1 with VDUSE_SET_API_VERSION (-EINVAL returned
+  from VDUSE_GET_FEATURES ioctl).
+* Try to create a device with config->features different than 0 without
+  fetch the api version (so API == 0) and with API_VERSION set to 1
+  (-EINVAL returned from VDUSE_CREATE_DEV ioctl).
+* Test regular initialization of single queue devices with V2 with and
+  without VDUSE_F_QUEUE_READY set in device->config.
+* Test expected behavior when VDUSE userland instance returns
+  VDUSE_REQ_RESULT_FAILED from VDUSE_SET_VQ_READY message.
+* Repeat all the tests with multiqueue devices, by reverting
+  56e71885b0349 ("vduse: Temporarily fail if control queue feature requested").
 
-> 
-> 
+This series depends on
+https://lore.kernel.org/lkml/20260119143306.1818855-1-eperezma@redhat.com/
+
+v2:
+* Fix comment of vduse_dev_request.vq_ready
+* Set vq_ready before sending the message to the VDUSE userland
+  instance, avoiding the need for SMP sync after receiving the message.
+* Return -EINVAL if control ioctl called with version < 2, so userland
+  visible reply is kept (Jason).
+
+Eugenio Pérez (5):
+  vduse: store control device pointer
+  vduse: Add API v2 definition
+  vduse: add VDUSE_GET_FEATURES ioctl
+  vduse: advertise API V2 support
+  vduse: add F_QUEUE_READY feature
+
+ drivers/vdpa/vdpa_user/vduse_dev.c | 66 +++++++++++++++++++++++++++---
+ include/uapi/linux/vduse.h         | 29 ++++++++++++-
+ 2 files changed, 88 insertions(+), 7 deletions(-)
+
+--
+2.53.0
 
