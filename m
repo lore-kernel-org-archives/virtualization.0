@@ -1,66 +1,66 @@
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CE85248176
-	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 21:20:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A4AA2749E6
+	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 21:22:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770931240; cv=none; b=fUsx2e43e5I5ni7BDzOLDk8BZ+4HzFLs7bwMdJFxOv1a6Ng30jac2hYXa4n/b8cvlCCpbpwSpneTwUHHSftJ5QIjr5hp8BkpdFl8aiHk0k4zu+TFBSTr8ei3f7WQgFizdGnuv1VlWQYeq1mdJW/+hLxYsnEzV+yX5h+mpRdJwmc=
+	t=1770931333; cv=none; b=A7n8S23kfZNXmSS5fpFSFxNn/aU9P0GHLJqAau2izxe2Zh8BZtNX94twnEnthukGzOqRfzvWsiTOJzyWBhIcvxDSfJn6bpfbEpgMcv6XKUZY+Cg89OpO/xDVZ5vWk6MHb9qdjVx+m2lzZE/elu2wJWeui5qsW5XbNN+ZQfn+MBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770931240; c=relaxed/simple;
-	bh=hhvIY42ZejyjgeuhGD0cdgJZcMf17AiRbGuBQYVvt5o=;
+	s=arc-20240116; t=1770931333; c=relaxed/simple;
+	bh=tnKhqaHrt/YHjDCTUT88krYBL9XB89h2wRCDDULlcLE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IT2ZJ4CjKmxcerf47xMnpv5H/XJ8bay/LRBWKpj6evSdGWjMtnxZGHACawkOJ5ickyH2rNEpeu49tIAppfjwaWBwpffg74HiIPKt3bUQQ9awRNrH2aVx1myqUHvmDIF9Z67jyJr0Q4BXIHWk3IvSolZpjUT9Y3w2Z0hECET2oOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kKcrHBKu; arc=none smtp.client-ip=74.125.82.181
+	 In-Reply-To:Content-Type; b=g/IXPHB3PiXfbdGyzwMAC6n7VhgJ1pSgLkLzZcvrIuaVVdPkgVDon/WOosRUBGMyx65Ni3irkKObsuVIO7FRUk4VPEEkKOuDW4ooakXIMD6cyouOqNQ8ej8Jwt4gP1qQcSBM2yW1O3164CU/QsiZPuzBr+9qGmh0BkN+KDLeUUI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=irBsvtyy; arc=none smtp.client-ip=74.125.82.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kKcrHBKu"
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2b785801c93so684947eec.0
-        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 13:20:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="irBsvtyy"
+Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-1271195d2a7so600649c88.0
+        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 13:22:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770931239; x=1771536039; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1770931332; x=1771536132; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=m+vxOwDndj4zObe1CvOSxWnI7S8T1aXhKqAzJ6Mv/p0=;
-        b=kKcrHBKuJ3VB44cXhO4jznBMec9ZtZ5n/psGhauAQTd/JjjuxZGFUDpD+faIlaFMwn
-         fCu3m0EnFLMOY78Mp8o7Gp50EdCFZXASq2leAN6OAwKg8jBccixCRgKqLL6Ys+6Rrxl7
-         yyf0pNQq/iVLzliOIFkVFqLIBxMlX9J+Bf/faQtUdF9mxz2JGZeQbZIWGcefUc8ltrBb
-         XaW8yXbmwX85G/rq2TsnK5D4ovXA6uPPweDKStdKtXpB/3+AaulXd4/wcvRzOpRA0k5x
-         8gVpcR+zcnPvFmpnpdOqA9965i0Kq0xvHj3aSvrE5iLWYhSTJwV6LlJc1c98eBCTG8+h
-         GGNA==
+        bh=R1no2tHnWUokc2knFQltcsvUs2YRSdVUtSLFMCjUwtQ=;
+        b=irBsvtyynQWPHZjsosnMn7e+HLsqFuLFu/ZeJgnLNk5c8eeX+ulAbNnD0gPk30N/l1
+         qjZqtaz7PXPGsWpLjr9QJYadj7eLukTcHtufxU6CUv3Y7jQQEAofeFUGqYVasTYHZtY3
+         4yTVDbxS8FzJy8xFcSDPmbp+VbCmY1osndCi2vhKiTJoPJ2LxKYPs5uSicCVAuTD+CK+
+         i6VNKyhyxEEfdETrc1Yzq1Qa5SYkPWuG7SbiTlbYrPRQKxXnm0SIZ0QYxqjne+q/CLCG
+         WhIQakNTB0Rj2RUxMZgxlvCSl/kvajnl7cQ+ppPlxUwalcBYMD3E3wUfiZ7MAfOvmj5B
+         +jVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770931239; x=1771536039;
+        d=1e100.net; s=20230601; t=1770931332; x=1771536132;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=m+vxOwDndj4zObe1CvOSxWnI7S8T1aXhKqAzJ6Mv/p0=;
-        b=kgp0+UY3ahkBETtmiMkTsBX4Nrru/ZZ6+5ZeOaeB78okhSWxJl2wV+SeVrbgls4y+2
-         3SiA4+z4Qxfrwbll7wTVTMSkKlnHKIqJGLSWlEsga7KEVrtSG+PWjny4dXMqu0NLlim6
-         Xpeld1dO/207bHTe+3Ruv8X5/bOXZMOlpgLu9WVUic9nDjOYmQl9DoamjxN54tUhdJu+
-         sVWAWTu3pE7XXhvHsixT5/tTi3N6/4d4A7N6GsLog+eNr6r1wvepKUoX0RhMQRFwuTEb
-         aEosZowLwEOArWN9ZedzCBckJNZnD5UJlhqiIeFe9H44ysk+fj8xhxB2Nkn7rNrtAi7I
-         mjHg==
-X-Forwarded-Encrypted: i=1; AJvYcCXOSuNyCc/9F0wAZABB1zlDXX0AlPpHIEPthG6sDEYYRk/hReclM20e30SK9nhtjGTre6ziMp1mRJF1mlaRzQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YylOWLvpUrqoht/AANp/X6+6Zv20X2Kk3kqYXMggIGbcFO5ns7e
-	kdZf/yzK6j9LE58nH8yi4gZvJyAKBuDWvTXznefJrCWjJm1QEtjvJtJe
-X-Gm-Gg: AZuq6aIIUzYwi2wmmhfjyGTbeozmbcOvSSGXqf34cPC42gVMDOpFXUwHD6r/9lvEjKF
-	uJ3820nKaOS++Iy1IFB51T1cpbbl/JjsT65EPHdHi/dhdyZS5/8AVhU6NtLIBq+zFyOgwpZtuy/
-	iphi+7QPBTLCDg8kJOCcGm4Vvh74sg21HH1eB4LVe4XdT2PMPcaVr/S+Gtpr0l21cvCj+VOfB+7
-	sz1IbAm/OvSoXGH4Xk9Lt6iiB3KVflJtcHT621BU6eBhTQWL3Vq6EvI4AocBxx6cPwqVEOe+ZOy
-	xY1ynO1cJ0V3gKeMSooCZ/WnlysILLv25Mk2B9l+YCqxz/MXcraEJKYSve/ps0x1h53QjV3PzEC
-	4n2cvWYtxm24jgj0VX40dpHMM5l0G/KmIHNnKPesP4OxHuNwzsVWDgAG45c0sRr64Nj1+QQwAA5
-	eplVyB6e4G6vzqYlOFbKfyHPF6shfunSpdiISavYIo8Iw=
-X-Received: by 2002:a05:7022:250f:b0:11b:9386:a3bf with SMTP id a92af1059eb24-1273985be5cmr198075c88.42.1770931238369;
-        Thu, 12 Feb 2026 13:20:38 -0800 (PST)
+        bh=R1no2tHnWUokc2knFQltcsvUs2YRSdVUtSLFMCjUwtQ=;
+        b=UosUdbqxuVyRoSPBU2Jk1BI/gyTRMrFLZTnqK38iOgi5h4vqP7I2N1+eScCQnyzmlt
+         LYSAwuUPp/OuZWgbn9Q8yRAyN/1iumZwZ5BQRpIWQrfdK3V1tp0DtgLAnWXrrA15Ko4y
+         +rGqc57UzRHjTjAR3RmJnWabJFtJCXezBzrjSgTyFqXL2WlA10lKZZQNYk4oXk7FbDx8
+         xcACv9qTnpKH1gp+57byGNkD97Gmgc9hERZ0Lz+XzPirerRKTOxYW9hMwe1XM2kJxoHy
+         rZgDmmS6WshB+MxRaMT+GKbKpaqtgP4FVGx3lPNXcJQYYrXjQruNa0hpnPjXgbbG4Ws3
+         NxhA==
+X-Forwarded-Encrypted: i=1; AJvYcCU1KIdpYGKGxOXl+pQt/2AClVDYcuFEUcqiCk+BE8if9C2f9zsgE4Df/EFiXKaWEtFnTsmbSFcemH+LSRKsSg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx8uYx1ant7mlelzKD1RBWpmWSq6v/x3xkSA5ZjSoRw9LsrvZGU
+	6le6YdciwsGPhlw4sv58zggcbvY9HO0lKeu1nPMnP3U0nqfYudJ3Gnhw
+X-Gm-Gg: AZuq6aKc8n+q+dbIwfpSOKilmDBqnh+atDctpR0qjSdgOM0LeLi0rAWBhE/hjqprpuZ
+	OZt6ywY8kTKmWRKHgQFXABkRrZUkQfqkg7g/0xm0obeRaNWsOpwzPfAqQ0jIbQFuU0yZXNm6H/l
+	BvAfyX9NUkDFKKb8WY4CfFCpBY2cWruGNXFhygbSz+xHv4Hq46/o1MNk11hFXtG3GKyszL+/hyk
+	EKzQq4DLnuvZfk2pcM8wo8GhHtbU+b6d+bKM7XJX+rroltlQyUG18o20Ov4V4WXux0DtTAvcQEm
+	cKF3be2Vn52SlV1we7sB4kRWx/8WGobznf8KV5Nl/aPiz0HaWqaoDLB82xEsqBufyaKr6wttSxM
+	mV0FHpDDJ49BDd8OCoSE4VZww/hBIThe9RoAzSq92E87nG82yflZEfKYNxX2zGEKdRZT/5Z09/I
+	+yqpQwE7oDMGm7i0ituHx6Yq07ijsTtZ/y
+X-Received: by 2002:a05:7022:4395:b0:11d:f440:b758 with SMTP id a92af1059eb24-12739829f69mr179121c88.25.1770931331418;
+        Thu, 12 Feb 2026 13:22:11 -0800 (PST)
 Received: from [192.168.4.196] ([73.222.117.172])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1272a6942ccsm6165153c88.3.2026.02.12.13.20.36
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1272a6fe357sm5577294c88.16.2026.02.12.13.22.09
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 Feb 2026 13:20:38 -0800 (PST)
-Message-ID: <ba761a76-78e1-4215-a95c-290f9ca8cb55@gmail.com>
-Date: Thu, 12 Feb 2026 13:20:35 -0800
+        Thu, 12 Feb 2026 13:22:11 -0800 (PST)
+Message-ID: <3bf72620-88ac-4c56-b3ec-0fcfa53c14c8@gmail.com>
+Date: Thu, 12 Feb 2026 13:22:09 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,48 +68,32 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] mm: move pgscan and pgsteal to node stats
-To: Michal Hocko <mhocko@suse.com>
+Subject: Re: [PATCH 0/2] improve per-node allocation and reclaim visibility
+To: Matthew Wilcox <willy@infradead.org>
 Cc: linux-mm@kvack.org, apopple@nvidia.com, akpm@linux-foundation.org,
  axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
  david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
  jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
  Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
  lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
- rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
- rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
- surenb@google.com, virtualization@lists.linux.dev, vbabka@suse.cz,
- weixugc@google.com, xuanzhuo@linux.alibaba.com,
+ mhocko@suse.com, rppt@kernel.org, muchun.song@linux.dev,
+ zhengqi.arch@bytedance.com, rakie.kim@sk.com, roman.gushchin@linux.dev,
+ shakeel.butt@linux.dev, surenb@google.com, virtualization@lists.linux.dev,
+ vbabka@suse.cz, weixugc@google.com, xuanzhuo@linux.alibaba.com,
  ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
  kernel-team@meta.com
 References: <20260212045109.255391-1-inwardvessel@gmail.com>
- <20260212045109.255391-3-inwardvessel@gmail.com> <aY2BVsYlPa4QMbUC@tiehlicka>
+ <aY1dusLPzP2AHP6f@casper.infradead.org>
 Content-Language: en-US
 From: JP Kobryn <inwardvessel@gmail.com>
-In-Reply-To: <aY2BVsYlPa4QMbUC@tiehlicka>
+In-Reply-To: <aY1dusLPzP2AHP6f@casper.infradead.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2/11/26 11:29 PM, Michal Hocko wrote:
-> On Wed 11-02-26 20:51:09, JP Kobryn wrote:
->> It would be useful to narrow down reclaim to specific nodes.
->>
->> Provide per-node reclaim visibility by changing the pgscan and pgsteal
->> stats from global vm_event_item's to node_stat_item's. Note this change has
->> the side effect of now tracking these stats on a per-memcg basis.
+On 2/11/26 8:57 PM, Matthew Wilcox wrote:
+> On Wed, Feb 11, 2026 at 08:51:07PM -0800, JP Kobryn wrote:
+>> We sometimes find ourselves in situations where reclaim kicks in, yet there
 > 
-> The changelog could have been more clear about the actual changes as
-> this is not overly clear for untrained eyes. The most important parts
-> are that /proc/vmstat will preserve reclaim stats with slightly
-> different counters ordering (shouldn't break userspace much^W), per-node
-> stats will be now newly displayed in /proc/zoneinfo - this is presumably
-> the primary motivation to have a better insight of per-node reclaim
-> activity, and memcg stats will now show their share of the global memory
-> reclaim.
-> 
-> Have I missed anything?
+> who is we?  you haven't indicated any affiliation in your tags.
 
-That's accurate. Plus aside from reading /proc/zoneinfo they will also
-be in /sys/devices/system/node/nodeN/vmstat. I see I could have been
-more explicit about this. Let me make additions to the changelog in v2.
-Thanks for taking a look.
+Meta. Is there a preferred way of indicating this?
