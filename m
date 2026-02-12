@@ -1,300 +1,133 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com [209.85.161.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8D0F1B4223
-	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 15:24:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 984B624CEEA
+	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 18:08:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770909852; cv=none; b=eZkABls5BfnwlfUxG2kyyZN8p7nDMdw6ZB5n0QJ9csJO2qUYK4ClERhOihtCT/+VhZ/TO+O6AlW+NOS/zaUAiZfGOLzKKfd8TK3zjTkxsjyIZol7HezALAEdJ/fImVnFXdUoOs1D13bKVCIq/gZCPYESC0YSwaSfpjSD9i+fEL4=
+	t=1770919714; cv=none; b=X6t7LZBDShMLZHtiI0DPksqNturrD71x52nfUyar+ptfsWLlZzk16hjvmUS1pME01KKym3J+cTkuYHuuqAS9BldsxRsnUINLv5QIQlvH5Xj5e7S6Sm2Ovl9/8+ftmt4Qx0GOmdqk0dZfxgg6sKcUjrg89UysUnUtByipgKH6lGg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770909852; c=relaxed/simple;
-	bh=Zfbdjm3hLdSMHssQVniemRNbLholv/Lc92T/ow8RZKU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Eb25c9yGc4L4jVYWken01JTQ2UobCooT2eQifYXdqN8OhiJpPTx8Avi6/dsBWx1RG4rCfxCnZjV51w/D5z3+MRs5d+hrOAbbcVaZ/cTmtVKO998psATLCmmUolwaxFbbiSgKOVdhCGbk34pkc/uVEULN5WxRi8SDY6e/+eVTzsI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Lytg6Qp9; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=4C9R0cYy; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Lytg6Qp9; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=4C9R0cYy; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Lytg6Qp9";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="4C9R0cYy";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Lytg6Qp9";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="4C9R0cYy"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 20D905BDB6;
-	Thu, 12 Feb 2026 15:24:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1770909849; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=F4SLcQ4z8GXHuyKxamRQrFsRBxtsMZ9MpcvRbYRiuiA=;
-	b=Lytg6Qp9fMZWWfA68K6rS0nZ9tB6WIjlKhzihmPwAsKyRLUNufE6+vXl258+/L/nuGNOZH
-	78aldcGJAIFPKUG+7Uzj0Ta7yUYceS0fiVjxX08JE3G+X3v5v4TYJyB9HGfq1t0BZzeM7Z
-	k029c8F0mBtir5mOsrgONpZSDT7CRx0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1770909849;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=F4SLcQ4z8GXHuyKxamRQrFsRBxtsMZ9MpcvRbYRiuiA=;
-	b=4C9R0cYywZzIR65rDSkiadbU1IYj33vAQw5u6/iQ6GolOz2eyv2lEEopqBUzsY14vfU//u
-	6xMMLyDPayt0OMDA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1770909849; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=F4SLcQ4z8GXHuyKxamRQrFsRBxtsMZ9MpcvRbYRiuiA=;
-	b=Lytg6Qp9fMZWWfA68K6rS0nZ9tB6WIjlKhzihmPwAsKyRLUNufE6+vXl258+/L/nuGNOZH
-	78aldcGJAIFPKUG+7Uzj0Ta7yUYceS0fiVjxX08JE3G+X3v5v4TYJyB9HGfq1t0BZzeM7Z
-	k029c8F0mBtir5mOsrgONpZSDT7CRx0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1770909849;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=F4SLcQ4z8GXHuyKxamRQrFsRBxtsMZ9MpcvRbYRiuiA=;
-	b=4C9R0cYywZzIR65rDSkiadbU1IYj33vAQw5u6/iQ6GolOz2eyv2lEEopqBUzsY14vfU//u
-	6xMMLyDPayt0OMDA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B9C533EA62;
-	Thu, 12 Feb 2026 15:24:08 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id fhAMLZjwjWkeMQAAD6G6ig
-	(envelope-from <vbabka@suse.cz>); Thu, 12 Feb 2026 15:24:08 +0000
-Message-ID: <96b63efb-551f-4dd5-b4a2-ac67da577431@suse.cz>
-Date: Thu, 12 Feb 2026 16:24:08 +0100
+	s=arc-20240116; t=1770919714; c=relaxed/simple;
+	bh=HImPkHp9naq2C+tRBNg/2m46FyeyuAohNvDbp2boAm8=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=ZXMo5JUvpn/b5uns4zumhdScgGbwPeNe1J9nDiTWpvsVDbOY+tOt8kIUSI7d7wGefZIZa1ANQdwvt8eQ0oFiFYpFaapv1FTf47MABWa/j4QPi/eItO8MB+Wk++2hhAaSDkkmWd/d7+oZF7XthIF2HzCh1sY6Kwqp4MdxPJA2SIk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-66308f16ea0so1047064eaf.0
+        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 10:08:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770919712; x=1771524512;
+        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Yvycq04pVPWUL32pOjxUaG+/MLmhhHqjiM5kRuuTJYM=;
+        b=SqkSwD7MhruvehWPLnTHhwCguI7T4B8DnQsodvVu7t/j/9+QAJ7sVcmFDCEjoaxGl+
+         hwHVWUQFJsREiAvwfIEZFkaaqLzE8GEXXB0XalgkuoN0js70HIkMX2un1iaBV32+BQGm
+         RSoE3VihSnoh45NXSLX1pj2BycwPlOJLoWph6IHPS0V+ggdXMgWcs7opjw79bGP6JT4u
+         BtW4c0kkiU/7xnvGuI0vxEYgmJ6BE2I3hCSL6pewNzE3VOjFg6IGiQFXg7HuEv01OEW1
+         2D9b3ZSQC02jLWXdkwTRqQeqVuj6AiHxGantaFXRa1k4TG8i+elFCy4Tj4uL+bnrafX5
+         QncA==
+X-Forwarded-Encrypted: i=1; AJvYcCUDw5+0dbvzq2kXBjoGFyMwAjzHApy5RU6CEooYBkjl0iwrDYKDLMQCutsI2RxVG1J2VWb4J545KtY6IwWkJg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxCULLgGVk1stRWZpQ72IUWNWWXyoXze0PZArWaQO4jVHGpRKoh
+	owi91THeLW+qD8/ELuDbYT6S6LASMeLWBPE3RKRqhxeVYWYQ22j/L44SI73yT7qWxASDVzqpaqO
+	JvmOnSUE1KiKgoXFsbBKYvB3UrQfPblY2RSS0ki1hjXuuyo0AXvUW2t9PHAY=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] mm/mempolicy: track page allocations per mempolicy
-Content-Language: en-US
-To: JP Kobryn <inwardvessel@gmail.com>, linux-mm@kvack.org
-Cc: apopple@nvidia.com, akpm@linux-foundation.org, axelrasmussen@google.com,
- byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
- eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
- hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
- linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
- matthew.brost@intel.com, mst@redhat.com, mhocko@suse.com, rppt@kernel.org,
- muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
- roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
- virtualization@lists.linux.dev, weixugc@google.com,
- xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com,
- yuanchu@google.com, ziy@nvidia.com, kernel-team@meta.com
-References: <20260212045109.255391-1-inwardvessel@gmail.com>
- <20260212045109.255391-2-inwardvessel@gmail.com>
-From: Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; keydata=
- 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
- m6M14QORSWTLRg==
-In-Reply-To: <20260212045109.255391-2-inwardvessel@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.80
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_TLS_ALL(0.00)[];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[33];
-	TAGGED_RCPT(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLqz6np1um3hmda3durc78h1b5)];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[nvidia.com,linux-foundation.org,google.com,sk.com,vger.kernel.org,kernel.org,redhat.com,gourry.net,cmpxchg.org,gmail.com,oracle.com,intel.com,suse.com,linux.dev,bytedance.com,lists.linux.dev,linux.alibaba.com,meta.com];
-	FREEMAIL_TO(0.00)[gmail.com,kvack.org];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.cz:mid]
-X-Spam-Level: 
-X-Spam-Flag: NO
+X-Received: by 2002:a05:6820:198d:b0:65d:3c7:b57 with SMTP id
+ 006d021491bc7-676ee27c2f4mr142899eaf.34.1770919712604; Thu, 12 Feb 2026
+ 10:08:32 -0800 (PST)
+Date: Thu, 12 Feb 2026 10:08:32 -0800
+In-Reply-To: <20260212045109.255391-1-inwardvessel@gmail.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <698e1720.a70a0220.2c38d7.009c.GAE@google.com>
+Subject: [syzbot ci] Re: improve per-node allocation and reclaim visibility
+From: syzbot ci <syzbot+ciaf452181ab05b97e@syzkaller.appspotmail.com>
+To: akpm@linux-foundation.org, apopple@nvidia.com, axelrasmussen@google.com, 
+	byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org, 
+	eperezma@redhat.com, gourry@gourry.net, hannes@cmpxchg.org, 
+	inwardvessel@gmail.com, jasowang@redhat.com, joshua.hahnjy@gmail.com, 
+	kernel-team@meta.com, liam.howlett@oracle.com, linux-kernel@vger.kernel.org, 
+	linux-mm@kvack.org, lorenzo.stoakes@oracle.com, matthew.brost@intel.com, 
+	mhocko@suse.com, mst@redhat.com, muchun.song@linux.dev, rakie.kim@sk.com, 
+	roman.gushchin@linux.dev, rppt@kernel.org, shakeel.butt@linux.dev, 
+	surenb@google.com, vbabka@suse.cz, virtualization@lists.linux.dev, 
+	weixugc@google.com, xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com, 
+	yuanchu@google.com, zhengqi.arch@bytedance.com, ziy@nvidia.com
+Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 2/12/26 05:51, JP Kobryn wrote:
-> It would be useful to see a breakdown of allocations to understand which
-> NUMA policies are driving them. For example, when investigating memory
-> pressure, having policy-specific counts could show that allocations were
-> bound to the affected node (via MPOL_BIND).
-> 
-> Add per-policy page allocation counters as new node stat items. These
-> counters can provide correlation between a mempolicy and pressure on a
-> given node.
-> 
-> Signed-off-by: JP Kobryn <inwardvessel@gmail.com>
-> Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
+syzbot ci has tested the following series
 
-Are the numa_{hit,miss,etc.} counters insufficient? Could they be extended
-in a way that would capture any missing important details? A counter per
-policy type seems exhaustive, but then on one hand it might be not important
-to distinguish beetween some of them, and on the other hand it doesn't track
-the nodemask anyway.
+[v1] improve per-node allocation and reclaim visibility
+https://lore.kernel.org/all/20260212045109.255391-1-inwardvessel@gmail.com
+* [PATCH 1/2] mm/mempolicy: track page allocations per mempolicy
+* [PATCH 2/2] mm: move pgscan and pgsteal to node stats
 
-> ---
->  include/linux/mmzone.h |  9 +++++++++
->  mm/mempolicy.c         | 30 ++++++++++++++++++++++++++++--
->  mm/vmstat.c            |  9 +++++++++
->  3 files changed, 46 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-> index fc5d6c88d2f0..762609d5f0af 100644
-> --- a/include/linux/mmzone.h
-> +++ b/include/linux/mmzone.h
-> @@ -255,6 +255,15 @@ enum node_stat_item {
->  	PGDEMOTE_DIRECT,
->  	PGDEMOTE_KHUGEPAGED,
->  	PGDEMOTE_PROACTIVE,
-> +#ifdef CONFIG_NUMA
-> +	PGALLOC_MPOL_DEFAULT,
-> +	PGALLOC_MPOL_PREFERRED,
-> +	PGALLOC_MPOL_BIND,
-> +	PGALLOC_MPOL_INTERLEAVE,
-> +	PGALLOC_MPOL_LOCAL,
-> +	PGALLOC_MPOL_PREFERRED_MANY,
-> +	PGALLOC_MPOL_WEIGHTED_INTERLEAVE,
-> +#endif
->  #ifdef CONFIG_HUGETLB_PAGE
->  	NR_HUGETLB,
->  #endif
-> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-> index 68a98ba57882..3c64784af761 100644
-> --- a/mm/mempolicy.c
-> +++ b/mm/mempolicy.c
-> @@ -217,6 +217,21 @@ static void reduce_interleave_weights(unsigned int *bw, u8 *new_iw)
->  		new_iw[nid] /= iw_gcd;
->  }
->  
-> +#define CHECK_MPOL_NODE_STAT_OFFSET(mpol) \
-> +	BUILD_BUG_ON(PGALLOC_##mpol - mpol != PGALLOC_MPOL_DEFAULT)
-> +
-> +static enum node_stat_item mpol_node_stat(unsigned short mode)
-> +{
-> +	CHECK_MPOL_NODE_STAT_OFFSET(MPOL_PREFERRED);
-> +	CHECK_MPOL_NODE_STAT_OFFSET(MPOL_BIND);
-> +	CHECK_MPOL_NODE_STAT_OFFSET(MPOL_INTERLEAVE);
-> +	CHECK_MPOL_NODE_STAT_OFFSET(MPOL_LOCAL);
-> +	CHECK_MPOL_NODE_STAT_OFFSET(MPOL_PREFERRED_MANY);
-> +	CHECK_MPOL_NODE_STAT_OFFSET(MPOL_WEIGHTED_INTERLEAVE);
-> +
-> +	return PGALLOC_MPOL_DEFAULT + mode;
-> +}
-> +
->  int mempolicy_set_node_perf(unsigned int node, struct access_coordinate *coords)
->  {
->  	struct weighted_interleave_state *new_wi_state, *old_wi_state = NULL;
-> @@ -2446,8 +2461,14 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
->  
->  	nodemask = policy_nodemask(gfp, pol, ilx, &nid);
->  
-> -	if (pol->mode == MPOL_PREFERRED_MANY)
-> -		return alloc_pages_preferred_many(gfp, order, nid, nodemask);
-> +	if (pol->mode == MPOL_PREFERRED_MANY) {
-> +		page = alloc_pages_preferred_many(gfp, order, nid, nodemask);
-> +		if (page)
-> +			__mod_node_page_state(page_pgdat(page),
-> +					mpol_node_stat(MPOL_PREFERRED_MANY), 1 << order);
-> +
-> +		return page;
-> +	}
->  
->  	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) &&
->  	    /* filter "hugepage" allocation, unless from alloc_pages() */
-> @@ -2472,6 +2493,9 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
->  			page = __alloc_frozen_pages_noprof(
->  				gfp | __GFP_THISNODE | __GFP_NORETRY, order,
->  				nid, NULL);
-> +			if (page)
-> +				__mod_node_page_state(page_pgdat(page),
-> +						mpol_node_stat(pol->mode), 1 << order);
->  			if (page || !(gfp & __GFP_DIRECT_RECLAIM))
->  				return page;
->  			/*
-> @@ -2484,6 +2508,8 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
->  	}
->  
->  	page = __alloc_frozen_pages_noprof(gfp, order, nid, nodemask);
-> +	if (page)
-> +		__mod_node_page_state(page_pgdat(page), mpol_node_stat(pol->mode), 1 << order);
->  
->  	if (unlikely(pol->mode == MPOL_INTERLEAVE ||
->  		     pol->mode == MPOL_WEIGHTED_INTERLEAVE) && page) {
-> diff --git a/mm/vmstat.c b/mm/vmstat.c
-> index 65de88cdf40e..74e0ddde1e93 100644
-> --- a/mm/vmstat.c
-> +++ b/mm/vmstat.c
-> @@ -1291,6 +1291,15 @@ const char * const vmstat_text[] = {
->  	[I(PGDEMOTE_DIRECT)]			= "pgdemote_direct",
->  	[I(PGDEMOTE_KHUGEPAGED)]		= "pgdemote_khugepaged",
->  	[I(PGDEMOTE_PROACTIVE)]			= "pgdemote_proactive",
-> +#ifdef CONFIG_NUMA
-> +	[I(PGALLOC_MPOL_DEFAULT)]		= "pgalloc_mpol_default",
-> +	[I(PGALLOC_MPOL_PREFERRED)]		= "pgalloc_mpol_preferred",
-> +	[I(PGALLOC_MPOL_BIND)]			= "pgalloc_mpol_bind",
-> +	[I(PGALLOC_MPOL_INTERLEAVE)]		= "pgalloc_mpol_interleave",
-> +	[I(PGALLOC_MPOL_LOCAL)]			= "pgalloc_mpol_local",
-> +	[I(PGALLOC_MPOL_PREFERRED_MANY)]	= "pgalloc_mpol_preferred_many",
-> +	[I(PGALLOC_MPOL_WEIGHTED_INTERLEAVE)]	= "pgalloc_mpol_weighted_interleave",
-> +#endif
->  #ifdef CONFIG_HUGETLB_PAGE
->  	[I(NR_HUGETLB)]				= "nr_hugetlb",
->  #endif
+and found the following issue:
+WARNING in __mod_node_page_state
 
+Full report is available here:
+https://ci.syzbot.org/series/4ec12ede-3298-43a3-ab6b-79d47759672e
+
+***
+
+WARNING in __mod_node_page_state
+
+tree:      mm-new
+URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/akpm/mm.git
+base:      72a46cdd4ef13690beb8c5a2f6a2023fd7ef2eb4
+arch:      amd64
+compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+config:    https://ci.syzbot.org/builds/0f678e4c-a4ba-4f17-8ed7-8ae99e56a463/config
+
+------------[ cut here ]------------
+IS_ENABLED(CONFIG_PREEMPT_COUNT) && __lockdep_enabled && (preempt_count() == 0 && this_cpu_read(hardirqs_enabled))
+WARNING: mm/vmstat.c:396 at __mod_node_page_state+0x126/0x170, CPU#0: kthreadd/2
+Modules linked in:
+CPU: 0 UID: 0 PID: 2 Comm: kthreadd Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
+RIP: 0010:__mod_node_page_state+0x126/0x170
+Code: 5c 41 5d 41 5e 41 5f 5d c3 cc cc cc cc cc 48 89 df 4c 89 e6 44 89 fa e8 68 00 00 00 31 db eb cc 90 0f 0b 90 e9 3e ff ff ff 90 <0f> 0b 90 eb 80 48 c7 c7 e0 c6 64 8e 4c 89 f6 e8 66 3c d3 02 e9 28
+RSP: 0000:ffffc900000773d0 EFLAGS: 00010202
+RAX: 0000000000000001 RBX: 0000000000000001 RCX: 0000000000000000
+RDX: 0000000000000001 RSI: 000000000000003d RDI: ffff88815fffb380
+RBP: dffffc0000000000 R08: ffffffff8fef2977 R09: 1ffffffff1fde52e
+R10: dffffc0000000000 R11: fffffbfff1fde52f R12: ffff88815fffb380
+R13: ffffffff92f50f00 R14: 000000000000003d R15: 000000000000003d
+FS:  0000000000000000(0000) GS:ffff88818e0f0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffff88823ffff000 CR3: 000000000e346000 CR4: 00000000000006f0
+Call Trace:
+ <TASK>
+ alloc_pages_mpol+0x407/0x740
+ alloc_pages_noprof+0xa8/0x190
+ get_free_pages_noprof+0xf/0x80
+ __kasan_populate_vmalloc+0x38/0x1d0
+ alloc_vmap_area+0xd21/0x1460
+ __get_vm_area_node+0x1f8/0x300
+ __vmalloc_node_range_noprof+0x372/0x1730
+ __vmalloc_node_noprof+0xc2/0x100
+ dup_task_struct+0x228/0x9a0
+ copy_process+0x508/0x3980
+ kernel_clone+0x248/0x870
+ kernel_thread+0x13f/0x1b0
+ kthreadd+0x4f9/0x6f0
+ ret_from_fork+0x51b/0xa40
+ ret_from_fork_asm+0x1a/0x30
+ </TASK>
+
+
+***
+
+If these findings have caused you to resend the series or submit a
+separate fix, please add the following tag to your commit message:
+  Tested-by: syzbot@syzkaller.appspotmail.com
+
+---
+This report is generated by a bot. It may contain errors.
+syzbot ci engineers can be reached at syzkaller@googlegroups.com.
