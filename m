@@ -1,85 +1,79 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f67.google.com (mail-wr1-f67.google.com [209.85.221.67])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F26A81632DD
-	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 07:08:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83BB2882B2
+	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 07:29:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.67
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770880116; cv=none; b=jFc05TK2WsZduwe8809yTzH4rX3OBGc3dTk27E95qN+najvnA6uatn+pGnLoA070M/GeLurc4rOeGm3XI0W++9uG2PEQ+Ue9muV0qh3xq0x54ltPIWcTipDSSerGEmtWYLiHUiLCEfxg6I+YKmhDKUpw6yM78Q/2LdeJYhWBxDQ=
+	t=1770881371; cv=none; b=i8fZmvtDGIOoSzpLPtvX97gtXtB/PPHWl9e+b/Rzyt/lXAa4pOgHIGDdw+WPQvbW74dGANy84g8JpmpMwjXIw5QRfut1WtQzIfmkl4aSi/NLuPV+JKFG7Ig5mUQNynEKxRiNoTizHYNZY2GxmlRb2+J9f6B7Mh1YRzy2rwszphA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770880116; c=relaxed/simple;
-	bh=CjcgXdxP+xjqkyXNcKDlN8l9OSb+idOpSc3Nc4bhWQU=;
+	s=arc-20240116; t=1770881371; c=relaxed/simple;
+	bh=OXnMiWI0fnYRPjEEH6nfYgcL2OAEUU7y990o6OqVNjc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=RSS92IHo+I64m7g3ZJ7dyRh56zuuNH0B4F5sh7jm/5Lfc5VOuSUyb1Ao1TaNg9WgMJ550hfCU0ebEMX1RIARou1SkYwnahq+1Qt+tZQ8ug65xE2h4X/jyABCgU2zyn/jeEjF9amlXIlUBCxyO4JVs0HnNT0fCu7B47o29+ScQA4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cscbGRzT; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=TdGaUwRv0wNfzkrw2J61tF4+/17QAMqjkyVGBkybcDW8rBot4PLRvtVgkloNb6EX3fr8QG3IyyWT0YGW2q7e70oShTHd2u+ev1Ofqf/acvn+woH+ePEWa5K8d8BRlMSHC8sVdFl+76HudLZxrUxFW21z+OzPws67PFLfXY9LnOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=G/1hajsh; arc=none smtp.client-ip=209.85.221.67
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cscbGRzT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770880114;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6szOd8jTk+em3arREJHLemha25ur2Z/Igpvrny3vPyo=;
-	b=cscbGRzTHbm3WBXYvK291fCVCbKX1D65rU+nO9t2zvug7TGRuZVqCkD47BpVwty9YOyxRj
-	36z1Ft1lAdK2+rXsQrbjHg4rL+5iNdqgld/7cNsZTNFnBo81WvpRdLwfyzqXkljx2UzwPF
-	IxRjpmEbhC+beED+TPnzRf0830oELVI=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-657-oWwZRESsOnCpq0JT0FsADg-1; Thu, 12 Feb 2026 02:08:30 -0500
-X-MC-Unique: oWwZRESsOnCpq0JT0FsADg-1
-X-Mimecast-MFC-AGG-ID: oWwZRESsOnCpq0JT0FsADg_1770880110
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-480717a8ef9so14937035e9.1
-        for <virtualization@lists.linux.dev>; Wed, 11 Feb 2026 23:08:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="G/1hajsh"
+Received: by mail-wr1-f67.google.com with SMTP id ffacd0b85a97d-4362197d174so1858741f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 11 Feb 2026 23:29:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1770881368; x=1771486168; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=587vbBvDprUYK6+gAj7UCfYA0MqK2wMUAauQ0TnCSkk=;
+        b=G/1hajshktMKrbvv/y8j3Y12v5U5sp9+WkjspoG3IZyf0D1texpCMClpbdejuc5lOf
+         agwLGs7XLY2Y4den0P6vDzFGAhPoyXcZP6A5JAQfXQmPJ+H6aK/vH23AlL+yb77LP4GM
+         Ueinfdi6UzcBy0aiqr8kpet1B8U91rQI/CVRzpPEe4VSUhidVaohjd4yIKQBT2leCuQ9
+         nLtFWKXizi91b1vdCexfyxV7H13p/+U9G4GxzKJAObVVJjkGpuQR+AJOtipCtzI+cj3F
+         ba3VFrdlBDQpjcVubZ/hKhtlgGVvOM+cZOQHsvW6UDxrrXxSbOf/A9Gg6+KfkxIFmynI
+         sFJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770880109; x=1771484909;
+        d=1e100.net; s=20230601; t=1770881368; x=1771486168;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6szOd8jTk+em3arREJHLemha25ur2Z/Igpvrny3vPyo=;
-        b=hCWCNK0e20XZWbr3rDT9wPEcysMK8y3ZH6IoN601TBSrgX/NM5WSVWnlUQv1WBPrI1
-         xfUx4Y4KufsbKKsU8e/vKD1LnImnNl5Dz4i6I/Z3bNXZBl1VDPbhsoJ5i9ze03xRL0oB
-         ciHfTzwW1oL3/mDfMr1DGZxHeksvtxsB7OLVuXgkcKFrVlBdlN0o2z0CUuOV2KG3Ye7M
-         IXjLcsCgfPBpiEC8L3bB0YvWb4aF6F436fsC/889zJ5fgQF0WGspBjny1V4EqKGJnhfJ
-         tThLmx8uaMQsVlNQGy+uujnGLAu0dTQOA9VadZKEnIKXnZ1HIK7gJDwXvoSCZXhw9skp
-         +r3A==
-X-Forwarded-Encrypted: i=1; AJvYcCXcGPGAll6hX9V/L8rK4ynVkX8WdkP2QXwkpUQ2CDUoKnH0fygI8QxnaMlvbIlIEqb2JqsSAZo1ExZHV3gmpg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxdDzBSp/N6k9FqL3u7/upsHSyf3u6b2dI5UQDRwB0RrJ9wCvAi
-	4vfxiz3CoPUdM2GxUv+FiFCWmMtCWQzWJiOUYa2eMej+Srif1IB5KpayfrWc/gcRaneCai42Onv
-	WkEPikJ+lwgZMtqzrq9hZ2hHO/hed9I1xBKDpMzNteWbzRde27zO/f5kPwsrTJg+H/Jpd
-X-Gm-Gg: AZuq6aIe8xp1e5KJPum5ladcIAXRNIlz3o+SxkE9jbCdG/nghKtwBQfMgN2KOusKZjN
-	/UCd5Co4wL2zsEe0fGHwzEPbEn89qZvNGXxNbQM+zqNYWz+ByUnKbxJ9mkVr3rMrSVhkjK+sYR7
-	dkc5FDf5jLNmBU9tMe1sAwZqbqqxgLqlIHCSr9IHJZQNsR0y+nmituK2Y9JW/0XJHd9vtK6G//U
-	K5xypbkBJxolWbTGGFBY7RmSnC8KY51qlOVmQJt/CFDegrZ0XN+qHQWVG6K3WoONUZvuZjogH15
-	vZ4Dv332Nw1JNulDXPAhRvEYnGa6UQS2UJq1hErTdEa1KH3x1BEAj6Xzsrvk6PHnaV8HLaFqDXz
-	xJsp6i3EDBVsfVTEVw7DEy/3kWoglJClqFalhoPZgdfkYzQ==
-X-Received: by 2002:a05:600c:4e4f:b0:47d:333d:99c with SMTP id 5b1f17b1804b1-483660425a9mr18452105e9.18.1770880109529;
-        Wed, 11 Feb 2026 23:08:29 -0800 (PST)
-X-Received: by 2002:a05:600c:4e4f:b0:47d:333d:99c with SMTP id 5b1f17b1804b1-483660425a9mr18451585e9.18.1770880109005;
-        Wed, 11 Feb 2026 23:08:29 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4835d989165sm119619155e9.2.2026.02.11.23.08.25
+        bh=587vbBvDprUYK6+gAj7UCfYA0MqK2wMUAauQ0TnCSkk=;
+        b=Uah8YN076qMKWEkc4eaP6PA5Me7X9+Ixkx7bKMQSb3n3t5IxCxsgWqbADxtaY0MrUc
+         nFKbjqPfkqRMenX9FUJtEozvM2pzUp1u1HwhGHkZ+Fv4W6Z+rtx+8Mc6I6kScu25jdFR
+         JHAGD6UjrH7Asgdks6CzH3GiPQYIjK6TOV7NVy2lUy1NQAfHfv78Gt0dj1SHd6NiQcBi
+         5mEX9p9AdkDAyqdofpMP8qPx1FXWbX6PWDoE3IY+XqSBNp/hnULJHrnyp7XcLlkKa8bL
+         fp7gknCUOFrzb3qRJS3aTPxBDOIVNDwxhUrpXBX9zV6zo6Sax+JJN6Vl6XApNAY58Nfh
+         RTJA==
+X-Forwarded-Encrypted: i=1; AJvYcCWkF6EcHMTRAGpTEMQmV97RrnIqhZWG7wRXO+PlnYt5KY9j5rEUwvjelvwmvybfyqxkw2/jx9IlctVPVResOA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx2u6GLb6ylOMnaXNZ72C9UARx4bvMsxWuaS98KQdmce1UctkRB
+	nI8i1AEDRB0qDtSOqz0H5iOhARgm04Rg6sSrYzwKQVk0F293ze0XKLwlz5wY4mZxRoc=
+X-Gm-Gg: AZuq6aJWRXvnHVEoi96TjIS/+RqphifYM7ioTkcmXs/+7+a70UyJ+5VMOiPO0B5RvZV
+	+J5UnJ7n3rehF9jvBh9QmmqBVaVIqImxhBYjBYkFJzjje385v+OV1aYILaaDrZbjejDUmIpnGWr
+	d4oOU/AVbc7m+ney3V1xng/9RCe1SkNSOIgPlVCz9LN+Im4oHXS+vSsaAx6kwamyEsbyrEWXvM5
+	hlnmrU/l6tGcrNplmyzuEgOaF/VlGlV77R52OjcfbP1OiFZSikdbNrH89El/YBybHDPwTY21gsh
+	oq8qN3Ex66vrjLevliB0jzCl1RTD9iGhHdtOjn+pDu3U3PwkxNvV1MUe1eWT7axiQZAD4ivauSR
+	D547VVQ9IYjgUyHffOjUGUFv4CIRJifWvF0AdyBdTfuA7a3InX/dZDdMiXOGETQWvgaNTY7gyN3
+	ftcUISH3rmH18tBDjA/iPid0xcb34AhzBh3WM6
+X-Received: by 2002:a05:600c:3f06:b0:477:73e9:dc17 with SMTP id 5b1f17b1804b1-4836717f09fmr15988475e9.35.1770881368188;
+        Wed, 11 Feb 2026 23:29:28 -0800 (PST)
+Received: from localhost (109-81-87-131.rct.o2.cz. [109.81.87.131])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4835b9768c9sm69077875e9.2.2026.02.11.23.29.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Feb 2026 23:08:28 -0800 (PST)
-Date: Thu, 12 Feb 2026 02:08:24 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
+        Wed, 11 Feb 2026 23:29:27 -0800 (PST)
+Date: Thu, 12 Feb 2026 08:29:26 +0100
+From: Michal Hocko <mhocko@suse.com>
 To: JP Kobryn <inwardvessel@gmail.com>
 Cc: linux-mm@kvack.org, apopple@nvidia.com, akpm@linux-foundation.org,
 	axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
 	david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
 	jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
 	Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
-	lorenzo.stoakes@oracle.com, matthew.brost@intel.com,
-	mhocko@suse.com, rppt@kernel.org, muchun.song@linux.dev,
-	zhengqi.arch@bytedance.com, rakie.kim@sk.com,
-	roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
-	virtualization@lists.linux.dev, vbabka@suse.cz, weixugc@google.com,
-	xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com,
-	yuanchu@google.com, ziy@nvidia.com, kernel-team@meta.com
+	lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
+	rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
+	rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+	surenb@google.com, virtualization@lists.linux.dev, vbabka@suse.cz,
+	weixugc@google.com, xuanzhuo@linux.alibaba.com,
+	ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+	kernel-team@meta.com
 Subject: Re: [PATCH 2/2] mm: move pgscan and pgsteal to node stats
-Message-ID: <20260212020724-mutt-send-email-mst@kernel.org>
+Message-ID: <aY2BVsYlPa4QMbUC@tiehlicka>
 References: <20260212045109.255391-1-inwardvessel@gmail.com>
  <20260212045109.255391-3-inwardvessel@gmail.com>
 Precedence: bulk
@@ -88,25 +82,30 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260212045109.255391-3-inwardvessel@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6Z0xA4JK6w-r-KUqLw75-37EKGuDo8L6NY8BlS7bw7A_1770880110
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260212045109.255391-3-inwardvessel@gmail.com>
 
-On Wed, Feb 11, 2026 at 08:51:09PM -0800, JP Kobryn wrote:
+On Wed 11-02-26 20:51:09, JP Kobryn wrote:
 > It would be useful to narrow down reclaim to specific nodes.
 > 
 > Provide per-node reclaim visibility by changing the pgscan and pgsteal
 > stats from global vm_event_item's to node_stat_item's. Note this change has
 > the side effect of now tracking these stats on a per-memcg basis.
-> 
+
+The changelog could have been more clear about the actual changes as
+this is not overly clear for untrained eyes. The most important parts
+are that /proc/vmstat will preserve reclaim stats with slightly
+different counters ordering (shouldn't break userspace much^W), per-node
+stats will be now newly displayed in /proc/zoneinfo - this is presumably
+the primary motivation to have a better insight of per-node reclaim
+activity, and memcg stats will now show their share of the global memory
+reclaim.
+
+Have I missed anything?
+
 > Signed-off-by: JP Kobryn <inwardvessel@gmail.com>
 > Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
-
-virtio_balloon changes
-
 > ---
 >  drivers/virtio/virtio_balloon.c |  8 ++++----
 >  include/linux/mmzone.h          | 12 +++++++++++
@@ -379,4 +378,8 @@ virtio_balloon changes
 >  	[I(PGSCAN_ZONE_RECLAIM_SUCCESS)]	= "zone_reclaim_success",
 > -- 
 > 2.47.3
+> 
 
+-- 
+Michal Hocko
+SUSE Labs
