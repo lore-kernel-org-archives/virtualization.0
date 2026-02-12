@@ -1,65 +1,65 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE94629DB65
-	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 08:23:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 560B32DAFAC
+	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 09:05:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770884605; cv=none; b=anNZsF3Yc/JceJiiPeLfx8btKAiuUVu4IWC22/zkmiyJOs/5q0s2lHVYYMHWOp/oMyctndemegTZ753UgaQjUT4hvAAbHxxAOGQmKD0K1GHUGmyMMnIfzN/NXleuaYLkaxcZhHQUuUkJlGsD1WCBVy2YjPQ9d8Erq/E5jSwXuV8=
+	t=1770887135; cv=none; b=KQAsQ79T8aUJIxhcVYxRMZLuTMUjfRiXcYTLlD8QkrFe4EVWrFSoDJi5ttT+YNStCtBaNlm9D8iFr59M5cLSeafcYVID9PsU0wWUdedU8HLk88ZHy/PSOWq9W/EEFgeSqci/+MNXzpvWg4/KMctuZXFgH7Gjz4opfJuGvHDgjrE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770884605; c=relaxed/simple;
-	bh=z/pXn8TXnuxrOSg9k5jd/qAQHE6dn68ko2jnlgTPVzo=;
+	s=arc-20240116; t=1770887135; c=relaxed/simple;
+	bh=NxCby+UbuF6E2+yAmhTFRmEhCH2V6hYnjP6N74iQ0gw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mvmAU43qNHoIuH8FsUUV02ul7NnJhJwGrPycLRWJONN7f9aW7TdJ1s20BXOCLTfyeufo6/DaPnnbpM+HHakigmsSa8wYyatibCE+DkCgt75Eg54nPY4s7SQJ9rDoQV0RX/fVxqrRNT/0pXE3bGnEFaw3ICftD9Oq8B42iAS6/K8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iniHlXKs; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=qadeckNixgqhaIvZd8VGl2zQg7l/PAyBSAC6sXPUfBRl0fkdTuvD2PIrA1f7eiVFBgDMVwysF6Q5MGplQ/iOgk4o5kfSPLJbLhvOUVTxDGjPTREl6dkv0ehcNL6nBuB/WoRvPJ+okNDd+BxBLwu7kk70EXJWcCXqnnPVqupJoDo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y4mHAOS1; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iniHlXKs"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y4mHAOS1"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770884602;
+	s=mimecast20190719; t=1770887133;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6OC/VGwjjgLBAUhRxMjswL1yQl5rJUyEJP54DHWNIoA=;
-	b=iniHlXKsTOijpsa9bV30qWQc6zC49EfA6fiKxkZ7dWUuWfMFtYsLh88vxuc9SUOFP7iQ9w
-	LpKPCq1pIj3uJGz2Hcd2a4xov7AnY7jgpUZJhHSPqkPUVWez2WELOwTjm/TrRFykM4Xb4r
-	Dmgiay4FeuV7eprFQVs+h3HpULxDG84=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=7wEwaCwGZ52LqEpV15ca7d15zS+bfhs/HOeedEvJKgQ=;
+	b=Y4mHAOS14hSKmOhij/uuoAV06Qhp5+alOyDOwzYfRHOyleWzF2mHdom1cdwrdactC1lrTl
+	6aG9MGcYOXTYwdxYv+2ZJP1XObbfLq5PUZHbPt21bW1wtj9DVzUkiLh4Eg/urTEbZpSQ+o
+	FFlwOJwYnliVXenyb5VkfjugMdxxhQI=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-152-f4ZJ_QHLO3u83lBm3MMKsA-1; Thu, 12 Feb 2026 03:23:21 -0500
-X-MC-Unique: f4ZJ_QHLO3u83lBm3MMKsA-1
-X-Mimecast-MFC-AGG-ID: f4ZJ_QHLO3u83lBm3MMKsA_1770884601
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-794d80fea59so116985677b3.1
-        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 00:23:21 -0800 (PST)
+ us-mta-426-W-fvOOKAPO6Ll63Zs_kucg-1; Thu, 12 Feb 2026 04:05:32 -0500
+X-MC-Unique: W-fvOOKAPO6Ll63Zs_kucg-1
+X-Mimecast-MFC-AGG-ID: W-fvOOKAPO6Ll63Zs_kucg_1770887131
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-7962e684413so92329837b3.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 01:05:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770884601; x=1771489401;
+        d=1e100.net; s=20230601; t=1770887131; x=1771491931;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=6OC/VGwjjgLBAUhRxMjswL1yQl5rJUyEJP54DHWNIoA=;
-        b=B4xmCiBm0QTlyiPgUg6ftzWnsdSE6n+yso2eAdhk/pso9y2GOTMNVW/d4V9yIiCYkk
-         WlzSW4Pnsv0FXTLJoihtYxAaWujJ69c6s/ZLcMDPVS1qj90J8aTCUPojiyecWR9PD+43
-         +SL9vC6BpQ/aiRPzrbf9tQcbAmTMNKfmCkIyDuzBWFH2L+VtZBQFPQqdT/tvJ1b3ZUqb
-         UkII+CbHlgg1FHdCqWlib99f/vM6y36bqlzxHqTud9s2hyAFPnLHkhdOglq6+rNVNMYb
-         waMGsSloPAHTZea1FApVLbB4hTxdKdnqPvbYaj+yo6tpzFbrbk8HSO/3vF0oP5P3FKKb
-         k7VQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXtUaLGlUixWmXquFCeyC8jWBobDHdeb8xa8eOrpund6HCL1JFnDKObUzV7qfIQK4Q75ZUb6itGU52xykYzSQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxiNfvvUoyTew8nVmr9a04h/tnthliml66XqcVy0j2lAG9Extdy
-	NaQ6Se0X17vQmr4x/J2KEJVOGTSxGgiYGnneu9atiCyj0x5sFJS3EZUK2HZ5KZF7vMarl7WC/fr
-	fskR+jQzdUe8e6W936IJL8qNyCvCAFEDiU1N7yoJmlU9JRi+kJUI45rk8i4HjRqTXTuUZEOsNmO
-	vZ2rBvzrgfCRboVzRYCWUIVcbI/vxsLcKwVpHtXOjeO/I=
-X-Gm-Gg: AZuq6aLR9pN3Ddznq7hcYCDVmSSb9/FHe3dqp5LK0EmCnKjIE90tqoQ1OBaDP4il1k4
-	vNbw7OHK1CzsumU2n6sF3uAv62uWVfMQYqGPjMPcMdzgiIVw9awzFHUkQJrG5HqWEjU2dglUnsE
-	Fu8NjPc8x6d9tMGVfcKGAnWPj0dfY/nCg0Nzlrdr04rQ/BN5kI/1M5AywmqbA1jN2aw+9lQ7gRP
-	A+4PQ==
-X-Received: by 2002:a05:690c:39c:b0:796:3753:5373 with SMTP id 00721157ae682-797375d1b40mr21002237b3.29.1770884600903;
-        Thu, 12 Feb 2026 00:23:20 -0800 (PST)
-X-Received: by 2002:a05:690c:39c:b0:796:3753:5373 with SMTP id
- 00721157ae682-797375d1b40mr21002097b3.29.1770884600522; Thu, 12 Feb 2026
- 00:23:20 -0800 (PST)
+        bh=7wEwaCwGZ52LqEpV15ca7d15zS+bfhs/HOeedEvJKgQ=;
+        b=QQLF1qsWbnQCepobisIIkyLPqWgACFLuZ2ZrN5th42AYg0cxHERnnEnvrAUIz4sXa+
+         sNW8Krwb9PDfQNav6fvFXWTU/c2CEtKNXAHJM2Tc+YcDCKrQDTaioLOGd57Xusb8YuXO
+         qydAL0J+GIvJBXeua299azcxjo9FZMTbVJ6/AJGf90kDw6GWaEFtNP8fAwTWaZ6GbTDE
+         nVD/kdojGTFJrHBAqGs5WL9YB5oqajdkgyWnhSYF5vWyOWIf7+pk4FfFu6m+s/1aYdWK
+         Yg/FtL717WqmJP5h1qQrStZM1cl6EX+/OggLUFnuH6AEo5Lsvel5RNHs4VS4uvZRIyl0
+         1s6A==
+X-Forwarded-Encrypted: i=1; AJvYcCWcQs7tZBC3mp0MUZx8MQRe9kFtvFuPehTU9WU13fVLuLN3/D+Nxvn82Nkk9the+xhINmpGDqGOxR29ElTJJw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz8B+mOhoMVQw+f88QwiwA9S4bgqkjm2MPoEPfC5St751V04vOv
+	L9kj4+w3uM9Rw0kRh3XBPTS24yKFibYDCblJOHDotoMtfoc52k1uTn/0sKlxrDREqCf5brvX2jO
+	wQ3M38DwD1J6GxE3FKTEtDzGbPH5Zd09nBQxYXnyfpv0oViszNAB2FQNPCXqJqz1jqabEEQrTXY
+	hsFa5341zouj48zXKKdeAh9a4UfBQjZJXdOgpXux3gEzc=
+X-Gm-Gg: AZuq6aKwhcFVIPSXbLxrlEgHM+LsvbPiOpp3MymSvNKLuBRJ9nxYuUEMjD7jfaoV7DU
+	uLo8eOuoPrgjHiHQWMmhyZnCHJj9a7c89dBvYY6fQAHRcPpjigfXF6MwN7CID95zAq1YFAzlicj
+	CGe6Qh3SmPoYUP/vwscCdA35EKj8vQ+0mxoEdcgnYtCulWL6h5ngwZafYy0Ryx1+fTvW2Zcqz1O
+	g4aEQ==
+X-Received: by 2002:a05:690c:e365:b0:795:1d73:4d7d with SMTP id 00721157ae682-79737691a0cmr20579647b3.12.1770887131580;
+        Thu, 12 Feb 2026 01:05:31 -0800 (PST)
+X-Received: by 2002:a05:690c:e365:b0:795:1d73:4d7d with SMTP id
+ 00721157ae682-79737691a0cmr20579487b3.12.1770887131242; Thu, 12 Feb 2026
+ 01:05:31 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,9 +70,9 @@ References: <20260210082554.1582553-1-eperezma@redhat.com> <20260210082554.15825
  <CACGkMEtmnV5xJ6crnfTr5Nk8tZe437OgqB22yTOJ+nnrb0LcPg@mail.gmail.com>
 In-Reply-To: <CACGkMEtmnV5xJ6crnfTr5Nk8tZe437OgqB22yTOJ+nnrb0LcPg@mail.gmail.com>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 12 Feb 2026 09:22:44 +0100
-X-Gm-Features: AZwV_QidFIQEqbTPMW6NftMAyJ1L5qm_EtYmJNy8mcpLNnnNdZNNfJJ6NGkHi8k
-Message-ID: <CAJaqyWdN7xdu_=mUzE3GGBtTeW5g6O0YwWnV_UmX+g2+FNDkZA@mail.gmail.com>
+Date: Thu, 12 Feb 2026 10:04:55 +0100
+X-Gm-Features: AZwV_Qham5ruEKqBvjXNPkm-DVoIIdHOBygfH1jG8HzeF-KQYxfL2BVOuzWlBzk
+Message-ID: <CAJaqyWdfcoOwif9XuAXOzAV4eq7HJzixV0JZ6a0FULQmY7bwkQ@mail.gmail.com>
 Subject: Re: [PATCH v2 3/5] vduse: add VDUSE_GET_FEATURES ioctl
 To: Jason Wang <jasowang@redhat.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
@@ -80,7 +80,7 @@ Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, Laurent 
 	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>, 
 	Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eV3lHO5pJfCXmGvMjGGN8pc16V64-iaX2u0crun4Ugc_1770884601
+X-Mimecast-MFC-PROC-ID: 8449GSmoMP0lWFbPMnUyte_8CxX5nBnEFMYsGlUT47o_1770887131
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -190,14 +190,35 @@ ned int cmd,
 >
 > Nit: Should we document " /* if VDUSE_API_VERSION >=3D 2 */
 >
+
+(I forgot to reply to this one) sure, I'll add the comment for the next ver=
+sion.
+
+Thanks!
+
 > But I have an open question, is this better to just introduce a
 > VDUSE_SET_FEATURES then we can do negotiation to avoid bumping API
 > versions?
 >
-
-How do you know if you can call VDUSE_GET_FEATURES and
-VDUSE_SET_FEATURES then? vduse_ioctl does not even return -ENOIOCMD
-but -EINVAL if you call the equivalent of VDUSE_GET_FEATURES on
-current Linux master. Or should the VDUSE instance assume that if the
-ioctl returns -EINVAL the kernel does not support them?
+> Thanks
+>
+> > +       __u32 reserved[9];
+> >         __u32 config_size;
+> >         __u8 config[];
+> >  };
+> > @@ -67,6 +69,9 @@ struct vduse_dev_config {
+> >   */
+> >  #define VDUSE_DESTROY_DEV      _IOW(VDUSE_BASE, 0x03, char[VDUSE_NAME_=
+MAX])
+> >
+> > +/* Get the VDUSE supported features */
+> > +#define VDUSE_GET_FEATURES     _IOR(VDUSE_BASE, 0x04, __u64)
+> > +
+> >  /* The ioctls for VDUSE device (/dev/vduse/$NAME) */
+> >
+> >  /**
+> > --
+> > 2.53.0
+> >
+>
 
