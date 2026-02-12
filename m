@@ -1,133 +1,114 @@
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com [209.85.161.71])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 984B624CEEA
-	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 18:08:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B77312EA15C
+	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 20:59:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770919714; cv=none; b=X6t7LZBDShMLZHtiI0DPksqNturrD71x52nfUyar+ptfsWLlZzk16hjvmUS1pME01KKym3J+cTkuYHuuqAS9BldsxRsnUINLv5QIQlvH5Xj5e7S6Sm2Ovl9/8+ftmt4Qx0GOmdqk0dZfxgg6sKcUjrg89UysUnUtByipgKH6lGg=
+	t=1770929965; cv=none; b=eHMcwCTAkoDl+4PCKb6ijowSNHLYktYzSVN7PRHDor/ex1iNch6/8pOIvhX8Qw3F0oLMnehH/VUWjuunVDNkbruLJKEWmOuG9MTZr67AL/ytA2d4jV4XaW3eLPJEAQwzQ4m+1JECeJfq/bDx4GbITc93NQ1UBRzQa9xl8dWD2Lo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770919714; c=relaxed/simple;
-	bh=HImPkHp9naq2C+tRBNg/2m46FyeyuAohNvDbp2boAm8=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=ZXMo5JUvpn/b5uns4zumhdScgGbwPeNe1J9nDiTWpvsVDbOY+tOt8kIUSI7d7wGefZIZa1ANQdwvt8eQ0oFiFYpFaapv1FTf47MABWa/j4QPi/eItO8MB+Wk++2hhAaSDkkmWd/d7+oZF7XthIF2HzCh1sY6Kwqp4MdxPJA2SIk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-66308f16ea0so1047064eaf.0
-        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 10:08:33 -0800 (PST)
+	s=arc-20240116; t=1770929965; c=relaxed/simple;
+	bh=ziWt0RFFJB//dguhCOZsTWBS7bikbzN56Hn8z31e0xA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lwVtn9Sunnds/fmGYPeE7NQSyQuX2yDPaVXUNikyUMk88uMBDQGdkRRaLBGv1Dwg5FDj+DLzY2V5DmiHl4zyltmwhOUqy51AfEQke+NhWuXa5yHhr25EPSLdQz9s4TNumYZ8aJB1i0m4A12rzeAWCBEc5bdvlYyDi57lRoRdiQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ELdF3tjb; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ELdF3tjb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770929963;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=tjHShH1itfWbTnxfitY+x2Nc4ZzHnojh1ZRl24kqzEs=;
+	b=ELdF3tjbaFg/J34l0wBgj/rb7jg424aaQT4Sab3oGEypd+LPwEAhHc8KhW/Xq5YvfPozr4
+	wI6N/VS0AnWwrf3147NDKIci1G1Hvg6KdMu+P8SdSIp2eECtpkNFYQTafCItFbkX4LveH/
+	bgzoDrZ3y5fhQYy9Xc9y71l3SinClpw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-400-MnbU44I7OSWizFnKt14jew-1; Thu, 12 Feb 2026 15:59:20 -0500
+X-MC-Unique: MnbU44I7OSWizFnKt14jew-1
+X-Mimecast-MFC-AGG-ID: MnbU44I7OSWizFnKt14jew_1770929960
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-48070c21420so17409445e9.0
+        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 12:59:20 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770919712; x=1771524512;
-        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Yvycq04pVPWUL32pOjxUaG+/MLmhhHqjiM5kRuuTJYM=;
-        b=SqkSwD7MhruvehWPLnTHhwCguI7T4B8DnQsodvVu7t/j/9+QAJ7sVcmFDCEjoaxGl+
-         hwHVWUQFJsREiAvwfIEZFkaaqLzE8GEXXB0XalgkuoN0js70HIkMX2un1iaBV32+BQGm
-         RSoE3VihSnoh45NXSLX1pj2BycwPlOJLoWph6IHPS0V+ggdXMgWcs7opjw79bGP6JT4u
-         BtW4c0kkiU/7xnvGuI0vxEYgmJ6BE2I3hCSL6pewNzE3VOjFg6IGiQFXg7HuEv01OEW1
-         2D9b3ZSQC02jLWXdkwTRqQeqVuj6AiHxGantaFXRa1k4TG8i+elFCy4Tj4uL+bnrafX5
-         QncA==
-X-Forwarded-Encrypted: i=1; AJvYcCUDw5+0dbvzq2kXBjoGFyMwAjzHApy5RU6CEooYBkjl0iwrDYKDLMQCutsI2RxVG1J2VWb4J545KtY6IwWkJg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxCULLgGVk1stRWZpQ72IUWNWWXyoXze0PZArWaQO4jVHGpRKoh
-	owi91THeLW+qD8/ELuDbYT6S6LASMeLWBPE3RKRqhxeVYWYQ22j/L44SI73yT7qWxASDVzqpaqO
-	JvmOnSUE1KiKgoXFsbBKYvB3UrQfPblY2RSS0ki1hjXuuyo0AXvUW2t9PHAY=
+        d=1e100.net; s=20230601; t=1770929960; x=1771534760;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tjHShH1itfWbTnxfitY+x2Nc4ZzHnojh1ZRl24kqzEs=;
+        b=KXtj6hB75s8+DXRSSF4p/H65JaTpIUtbT3l7eiTbrL8HNcz2wN9p1cqqVGGbMNwrzr
+         JB5lXbKNyoIqArAj7mKoU9WK9rHjPh09LaHczgawKHlRcwGGWgtuYO2VbLuJ7L6fMClp
+         YGHAvOi9S5CcM/6xOm6iguCD7n1Ns83sxw5Th5RL8r+xwpFkiY1UgrZvDjSttHkwOn3c
+         lIxZTi0b8zh0qSeZvg/l7uKa1b2wkNi5q2sqIYAuAAhYMXuHz0d7LlE9Gp9eoy435kx9
+         lh4LEDvTQDYzgpkC4/hwydttva2IU3JkrLnxgNUYEXi6HFz9CqnfVU4k2VuPpaXCv/ss
+         9FnQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXDE6ch4M3hnB8hxnPqKT/+qIjXXfKtkeJs1UBeHBU+IF3ocREfGXqdmYINoiXqOcTm/T/VMAPS6pPVxN9vng==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyo6tWm4COMd7z5J7V/G8Dr+l5ewGeb8EPg03XRQnhrmwBoDrdV
+	badTH4DiC2EUk8AiRuRw7GiKsozCOW9hm8Ji2Ze42EhZquwpU183BbnnXLC3qy3Tb3adtmiy+4Y
+	Xmp2y2VjMBYmWY46FjAFlrzW91rgI/SMgs2t2tp06L0wPimI6rUqoa7Ic5Bg4NhZzLVZ5
+X-Gm-Gg: AZuq6aI3ViJd5C8JFeZe+9GJJu5QiSUC/b86Pfv6EdWyBkr8jtDMy0+EqlenwR/6zk4
+	Gmg9l8Pg5vja6tBBtFIn2pTDVN/d72kkvn/ui1pOOJ8po/ugIXTB7Emi+6jljjTwm7IzmVSD3So
+	MB9USIADc10lZam6plGkCo2gyqNky0+zDLedyM2wyq6uL80PQgKiZkugF/d5b8ELCmMtwMbU3t1
+	G0magB2VVpwTNUoMoGJC8XV0XDnZAW3t593QBzdSERYWrox5WuTj5RdiAFIqm0rX9D/upFCgXuV
+	g6LolUuTftG07dPU2GH9u1uqkTh76VptdZFDyhJshjzhnE3SfaucQGkxUiflY6K2BF7WpEPYoTY
+	GZAvvecNvbwa4x+B+SnoUsKCX52x+3M8WOla0kj5zoycR5nyGVD3b6A8g+Q==
+X-Received: by 2002:a05:600c:81e:b0:477:9a61:fd06 with SMTP id 5b1f17b1804b1-48365fe67abmr42250495e9.8.1770929959677;
+        Thu, 12 Feb 2026 12:59:19 -0800 (PST)
+X-Received: by 2002:a05:600c:81e:b0:477:9a61:fd06 with SMTP id 5b1f17b1804b1-48365fe67abmr42250385e9.8.1770929959261;
+        Thu, 12 Feb 2026 12:59:19 -0800 (PST)
+Received: from stex1 (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4834d930902sm189202405e9.15.2026.02.12.12.59.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Feb 2026 12:59:18 -0800 (PST)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: netdev@vger.kernel.org
+Cc: Eric Dumazet <edumazet@google.com>,
+	linux-kernel@vger.kernel.org,
+	Bobby Eshleman <bobbyeshleman@meta.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	virtualization@lists.linux.dev,
+	Paolo Abeni <pabeni@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>
+Subject: [PATCH net 0/2] vsock: fix child netns mode initialization and restriction
+Date: Thu, 12 Feb 2026 21:59:14 +0100
+Message-ID: <20260212205916.97533-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:198d:b0:65d:3c7:b57 with SMTP id
- 006d021491bc7-676ee27c2f4mr142899eaf.34.1770919712604; Thu, 12 Feb 2026
- 10:08:32 -0800 (PST)
-Date: Thu, 12 Feb 2026 10:08:32 -0800
-In-Reply-To: <20260212045109.255391-1-inwardvessel@gmail.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <698e1720.a70a0220.2c38d7.009c.GAE@google.com>
-Subject: [syzbot ci] Re: improve per-node allocation and reclaim visibility
-From: syzbot ci <syzbot+ciaf452181ab05b97e@syzkaller.appspotmail.com>
-To: akpm@linux-foundation.org, apopple@nvidia.com, axelrasmussen@google.com, 
-	byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org, 
-	eperezma@redhat.com, gourry@gourry.net, hannes@cmpxchg.org, 
-	inwardvessel@gmail.com, jasowang@redhat.com, joshua.hahnjy@gmail.com, 
-	kernel-team@meta.com, liam.howlett@oracle.com, linux-kernel@vger.kernel.org, 
-	linux-mm@kvack.org, lorenzo.stoakes@oracle.com, matthew.brost@intel.com, 
-	mhocko@suse.com, mst@redhat.com, muchun.song@linux.dev, rakie.kim@sk.com, 
-	roman.gushchin@linux.dev, rppt@kernel.org, shakeel.butt@linux.dev, 
-	surenb@google.com, vbabka@suse.cz, virtualization@lists.linux.dev, 
-	weixugc@google.com, xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com, 
-	yuanchu@google.com, zhengqi.arch@bytedance.com, ziy@nvidia.com
-Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ONalRsCIbvdU2MQ4-zMgcxQNYTxTJlIctSidZkObmYU_1770929960
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-syzbot ci has tested the following series
+This series fixes two issues in the vsock network namespace support
+recently introduced by commit eafb64f40ca4 ("vsock: add netns to vsock
+core").
 
-[v1] improve per-node allocation and reclaim visibility
-https://lore.kernel.org/all/20260212045109.255391-1-inwardvessel@gmail.com
-* [PATCH 1/2] mm/mempolicy: track page allocations per mempolicy
-* [PATCH 2/2] mm: move pgscan and pgsteal to node stats
+Patch 1 fixes `child_ns_mode` being always hardcoded to "global" for new
+namespaces, breaking propagation of the "local" mode through nested
+namespaces.
 
-and found the following issue:
-WARNING in __mod_node_page_state
+Patch 2 prevents a "local" namespace from switching `child_ns_mode` to
+"global", which would allow nested namespaces to escape vsock isolation
+and access global CIDs.
 
-Full report is available here:
-https://ci.syzbot.org/series/4ec12ede-3298-43a3-ab6b-79d47759672e
+Stefano Garzarella (2):
+  vsock: fix child netns mode initialization
+  vsock: prevent child netns mode switch from local to global
 
-***
+ net/vmw_vsock/af_vsock.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-WARNING in __mod_node_page_state
+-- 
+2.53.0
 
-tree:      mm-new
-URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/akpm/mm.git
-base:      72a46cdd4ef13690beb8c5a2f6a2023fd7ef2eb4
-arch:      amd64
-compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-config:    https://ci.syzbot.org/builds/0f678e4c-a4ba-4f17-8ed7-8ae99e56a463/config
-
-------------[ cut here ]------------
-IS_ENABLED(CONFIG_PREEMPT_COUNT) && __lockdep_enabled && (preempt_count() == 0 && this_cpu_read(hardirqs_enabled))
-WARNING: mm/vmstat.c:396 at __mod_node_page_state+0x126/0x170, CPU#0: kthreadd/2
-Modules linked in:
-CPU: 0 UID: 0 PID: 2 Comm: kthreadd Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-RIP: 0010:__mod_node_page_state+0x126/0x170
-Code: 5c 41 5d 41 5e 41 5f 5d c3 cc cc cc cc cc 48 89 df 4c 89 e6 44 89 fa e8 68 00 00 00 31 db eb cc 90 0f 0b 90 e9 3e ff ff ff 90 <0f> 0b 90 eb 80 48 c7 c7 e0 c6 64 8e 4c 89 f6 e8 66 3c d3 02 e9 28
-RSP: 0000:ffffc900000773d0 EFLAGS: 00010202
-RAX: 0000000000000001 RBX: 0000000000000001 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: 000000000000003d RDI: ffff88815fffb380
-RBP: dffffc0000000000 R08: ffffffff8fef2977 R09: 1ffffffff1fde52e
-R10: dffffc0000000000 R11: fffffbfff1fde52f R12: ffff88815fffb380
-R13: ffffffff92f50f00 R14: 000000000000003d R15: 000000000000003d
-FS:  0000000000000000(0000) GS:ffff88818e0f0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff88823ffff000 CR3: 000000000e346000 CR4: 00000000000006f0
-Call Trace:
- <TASK>
- alloc_pages_mpol+0x407/0x740
- alloc_pages_noprof+0xa8/0x190
- get_free_pages_noprof+0xf/0x80
- __kasan_populate_vmalloc+0x38/0x1d0
- alloc_vmap_area+0xd21/0x1460
- __get_vm_area_node+0x1f8/0x300
- __vmalloc_node_range_noprof+0x372/0x1730
- __vmalloc_node_noprof+0xc2/0x100
- dup_task_struct+0x228/0x9a0
- copy_process+0x508/0x3980
- kernel_clone+0x248/0x870
- kernel_thread+0x13f/0x1b0
- kthreadd+0x4f9/0x6f0
- ret_from_fork+0x51b/0xa40
- ret_from_fork_asm+0x1a/0x30
- </TASK>
-
-
-***
-
-If these findings have caused you to resend the series or submit a
-separate fix, please add the following tag to your commit message:
-  Tested-by: syzbot@syzkaller.appspotmail.com
-
----
-This report is generated by a bot. It may contain errors.
-syzbot ci engineers can be reached at syzkaller@googlegroups.com.
