@@ -1,224 +1,154 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 560B32DAFAC
-	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 09:05:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6373631A552
+	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 13:03:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770887135; cv=none; b=KQAsQ79T8aUJIxhcVYxRMZLuTMUjfRiXcYTLlD8QkrFe4EVWrFSoDJi5ttT+YNStCtBaNlm9D8iFr59M5cLSeafcYVID9PsU0wWUdedU8HLk88ZHy/PSOWq9W/EEFgeSqci/+MNXzpvWg4/KMctuZXFgH7Gjz4opfJuGvHDgjrE=
+	t=1770901438; cv=none; b=bVkJ5PzW3nO0T8s7hS282E1U32YN1BBShwo1w5p6JbLcI77VQYlfmlbNZfO15d8ndBsCUahogObp+S/EvC95B+sQHsKqMmM3YkZ9qaOK9dGStimHz6Mv4/fuzfPL2AYyzmXJq0a0TcGRS59KAhTXFZd5Z64JP2Drb6gTbICQZeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770887135; c=relaxed/simple;
-	bh=NxCby+UbuF6E2+yAmhTFRmEhCH2V6hYnjP6N74iQ0gw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qadeckNixgqhaIvZd8VGl2zQg7l/PAyBSAC6sXPUfBRl0fkdTuvD2PIrA1f7eiVFBgDMVwysF6Q5MGplQ/iOgk4o5kfSPLJbLhvOUVTxDGjPTREl6dkv0ehcNL6nBuB/WoRvPJ+okNDd+BxBLwu7kk70EXJWcCXqnnPVqupJoDo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y4mHAOS1; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1770901438; c=relaxed/simple;
+	bh=EfLS4ZM7f5cRpk+TAS+xqWJ3cF3htCYIH5HHvc3mNg8=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=H/6GhZL4V70+yD2ihaXeLuX5VZHOoE/AR7BX9DGrxhdzOAtCeKs1xQVyOu/0rOM1RUmKlQCBdQbztxVhc5z3My01Y7zljKSeFtV+YEBOGhpm76h/QqW+xJVjSqNnYEBufh/tNHsSnAWc9tGGv6yyZkynQYXoYscgHCy4OFNGExU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=i3LvwHf6; arc=none smtp.client-ip=67.231.148.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y4mHAOS1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770887133;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7wEwaCwGZ52LqEpV15ca7d15zS+bfhs/HOeedEvJKgQ=;
-	b=Y4mHAOS14hSKmOhij/uuoAV06Qhp5+alOyDOwzYfRHOyleWzF2mHdom1cdwrdactC1lrTl
-	6aG9MGcYOXTYwdxYv+2ZJP1XObbfLq5PUZHbPt21bW1wtj9DVzUkiLh4Eg/urTEbZpSQ+o
-	FFlwOJwYnliVXenyb5VkfjugMdxxhQI=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-426-W-fvOOKAPO6Ll63Zs_kucg-1; Thu, 12 Feb 2026 04:05:32 -0500
-X-MC-Unique: W-fvOOKAPO6Ll63Zs_kucg-1
-X-Mimecast-MFC-AGG-ID: W-fvOOKAPO6Ll63Zs_kucg_1770887131
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-7962e684413so92329837b3.1
-        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 01:05:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770887131; x=1771491931;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=7wEwaCwGZ52LqEpV15ca7d15zS+bfhs/HOeedEvJKgQ=;
-        b=QQLF1qsWbnQCepobisIIkyLPqWgACFLuZ2ZrN5th42AYg0cxHERnnEnvrAUIz4sXa+
-         sNW8Krwb9PDfQNav6fvFXWTU/c2CEtKNXAHJM2Tc+YcDCKrQDTaioLOGd57Xusb8YuXO
-         qydAL0J+GIvJBXeua299azcxjo9FZMTbVJ6/AJGf90kDw6GWaEFtNP8fAwTWaZ6GbTDE
-         nVD/kdojGTFJrHBAqGs5WL9YB5oqajdkgyWnhSYF5vWyOWIf7+pk4FfFu6m+s/1aYdWK
-         Yg/FtL717WqmJP5h1qQrStZM1cl6EX+/OggLUFnuH6AEo5Lsvel5RNHs4VS4uvZRIyl0
-         1s6A==
-X-Forwarded-Encrypted: i=1; AJvYcCWcQs7tZBC3mp0MUZx8MQRe9kFtvFuPehTU9WU13fVLuLN3/D+Nxvn82Nkk9the+xhINmpGDqGOxR29ElTJJw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz8B+mOhoMVQw+f88QwiwA9S4bgqkjm2MPoEPfC5St751V04vOv
-	L9kj4+w3uM9Rw0kRh3XBPTS24yKFibYDCblJOHDotoMtfoc52k1uTn/0sKlxrDREqCf5brvX2jO
-	wQ3M38DwD1J6GxE3FKTEtDzGbPH5Zd09nBQxYXnyfpv0oViszNAB2FQNPCXqJqz1jqabEEQrTXY
-	hsFa5341zouj48zXKKdeAh9a4UfBQjZJXdOgpXux3gEzc=
-X-Gm-Gg: AZuq6aKwhcFVIPSXbLxrlEgHM+LsvbPiOpp3MymSvNKLuBRJ9nxYuUEMjD7jfaoV7DU
-	uLo8eOuoPrgjHiHQWMmhyZnCHJj9a7c89dBvYY6fQAHRcPpjigfXF6MwN7CID95zAq1YFAzlicj
-	CGe6Qh3SmPoYUP/vwscCdA35EKj8vQ+0mxoEdcgnYtCulWL6h5ngwZafYy0Ryx1+fTvW2Zcqz1O
-	g4aEQ==
-X-Received: by 2002:a05:690c:e365:b0:795:1d73:4d7d with SMTP id 00721157ae682-79737691a0cmr20579647b3.12.1770887131580;
-        Thu, 12 Feb 2026 01:05:31 -0800 (PST)
-X-Received: by 2002:a05:690c:e365:b0:795:1d73:4d7d with SMTP id
- 00721157ae682-79737691a0cmr20579487b3.12.1770887131242; Thu, 12 Feb 2026
- 01:05:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="i3LvwHf6"
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+	by mx0a-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61BLNov01274001;
+	Thu, 12 Feb 2026 05:03:47 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pfpt0220; bh=3woJmYNsewlYdtCBXzd3+ry
+	fIzxYexwDJcAg74rOJn8=; b=i3LvwHf6wYw6jl5b6Yde8kQAwhKEnnlgOcqAMIY
+	DEoUr1AeQvGnC/EO+4PbGC6vEQOuQhcqYPrBg6fds8Nv11fXBKTwadJ49Eqox4Q5
+	KVZ1qwV6X+05kk2lbDX6xZlzCfp5rwMQZSjOsNvs6st53hP7MH+ZORwKKc4Icc/a
+	5Kra8TTjAWtbN4zCEbk9lL+gq+zaFEsC22JnTUz6N6enx152YH2fZPy5jZgAe7Hn
+	wCAr/WVPhM2h3hXI+L0HNI2eUx6XqoaoaXQeAQQ7543qpHXmxDtELAgMkyPDpVel
+	h4ER4f0adJD19qjQ7wxiI6EuzYbH4X7/PFMNDkaLCSsYBrg==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 4c89g1nrk1-2
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Feb 2026 05:03:47 -0800 (PST)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Thu, 12 Feb 2026 05:04:03 -0800
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
+ Transport; Thu, 12 Feb 2026 05:04:03 -0800
+Received: from localhost.localdomain (unknown [10.28.36.175])
+	by maili.marvell.com (Postfix) with ESMTP id B563D3F703F;
+	Thu, 12 Feb 2026 05:03:41 -0800 (PST)
+From: Srujana Challa <schalla@marvell.com>
+To: <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>
+CC: <pabeni@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
+        <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
+        <davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
+        <ndabilpuram@marvell.com>, <kshankar@marvell.com>,
+        <schalla@marvell.com>, <stable@vger.kernel.org>
+Subject: [PATCH v3,net] virtio_net: Improve RSS key size validation
+Date: Thu, 12 Feb 2026 18:33:40 +0530
+Message-ID: <20260212130340.3540415-1-schalla@marvell.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260210082554.1582553-1-eperezma@redhat.com> <20260210082554.1582553-4-eperezma@redhat.com>
- <CACGkMEtmnV5xJ6crnfTr5Nk8tZe437OgqB22yTOJ+nnrb0LcPg@mail.gmail.com>
-In-Reply-To: <CACGkMEtmnV5xJ6crnfTr5Nk8tZe437OgqB22yTOJ+nnrb0LcPg@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 12 Feb 2026 10:04:55 +0100
-X-Gm-Features: AZwV_Qham5ruEKqBvjXNPkm-DVoIIdHOBygfH1jG8HzeF-KQYxfL2BVOuzWlBzk
-Message-ID: <CAJaqyWdfcoOwif9XuAXOzAV4eq7HJzixV0JZ6a0FULQmY7bwkQ@mail.gmail.com>
-Subject: Re: [PATCH v2 3/5] vduse: add VDUSE_GET_FEATURES ioctl
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 8449GSmoMP0lWFbPMnUyte_8CxX5nBnEFMYsGlUT47o_1770887131
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Authority-Analysis: v=2.4 cv=ELgLElZC c=1 sm=1 tr=0 ts=698dcfb3 cx=c_pps
+ a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
+ a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
+ a=GgsMoib0sEa3-_RKJdDe:22 a=VwQbUJbxAAAA:8 a=M5GUcnROAAAA:8
+ a=l6LeGXZaLw7GYeYAWxUA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEyMDA5NyBTYWx0ZWRfX0WbwK2tyd1wJ
+ /Xuk35zeYc1CIyV+/Eh4bE8ceuV7hKDGM7jQZVO1PK5zhEqewcsvMIIzjJEOQEYQt94O0l+Rutg
+ j+U+v4bqH8XQwYaq1bstvRK/8LeTRZmtVtvfWYzM6pWBL+lK8iRySiGui9IWunEMwKPBsBvC9sb
+ a26RZJIetcUznrDKAvxvioZJG+dALKX4nuD5aRIdFQYzmWiFwrd6tp4Sow3DTbEXKUlarAkFV9j
+ gRO4nETAAnKuSdQu/t1uKXwy+yKwg0gXuaK/xMuirqlOmT1rL92nbkf7EsPqZ7wXqKgalMV9/0c
+ tTeZLEfiAxzGMiMc8PCL0Xab+/i9uFBeljEp+1VPBlBrsrCgfB1ICNbq/usgpDgmY/c/uNNSRIS
+ 8f4mRRxKZAFM0AcAN8+swOwMuXafA8+rtJhw8Gy6JrzDy7uk+vhVUBt2qHG8NOpRJ2tovAmplmy
+ DmwsXN0nFk+BIPqqvuA==
+X-Proofpoint-GUID: 076p7Qdxk9CoPxQLKMlhn7xdMoetfR5V
+X-Proofpoint-ORIG-GUID: 076p7Qdxk9CoPxQLKMlhn7xdMoetfR5V
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-12_03,2026-02-12_02,2025-10-01_01
 
-On Thu, Feb 12, 2026 at 9:07=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Tue, Feb 10, 2026 at 4:26=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redh=
-at.com> wrote:
-> >
-> > Add an ioctl to allow VDUSE instances to query the available features
-> > supported by the kernel module.
-> >
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > ---
-> > A simple u64 bitmap is used for feature flags. While a flexible array
-> > could support indefinite expansion, 64 bits is sufficient for the
-> > foreseeable future and simplifies the implementation.
-> >
-> > Also, dev_dbg is used for logging rather than dev_err as these can be
-> > triggered from userspace.
-> > ---
-> > v2:
-> > * return -EINVAL if ioctl called with version < 2, so userland visible
-> >   reply is kept (Jason).
-> > ---
-> >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 ++++++++++++++++++++++++++++
-> >  include/uapi/linux/vduse.h         |  7 ++++++-
-> >  2 files changed, 34 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
-r/vduse_dev.c
-> > index d1da7c15d98b..7458cbaed4c7 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -52,6 +52,9 @@
-> >
-> >  #define IRQ_UNBOUND -1
-> >
-> > +/* Supported VDUSE features */
-> > +static const uint64_t vduse_features;
-> > +
-> >  /*
-> >   * VDUSE instance have not asked the vduse API version, so assume 0.
-> >   *
-> > @@ -1947,6 +1950,19 @@ static bool vduse_validate_config(struct vduse_d=
-ev_config *config,
-> >                          sizeof(config->reserved)))
-> >                 return false;
-> >
-> > +       if (api_version < VDUSE_API_VERSION_2) {
-> > +               if (config->vduse_features) {
-> > +                       dev_dbg(vduse_ctrl_dev,
-> > +                               "config->vduse_features with version %l=
-lu",
-> > +                               api_version);
-> > +                       return false;
-> > +               }
-> > +       } else {
-> > +               if (config->vduse_features & ~vduse_features)
-> > +                       return false;
-> > +       }
-> > +
-> > +
-> >         if (api_version < VDUSE_API_VERSION_1 &&
-> >             (config->ngroups || config->nas))
-> >                 return false;
-> > @@ -2207,6 +2223,18 @@ static long vduse_ioctl(struct file *file, unsig=
-ned int cmd,
-> >                 ret =3D vduse_destroy_dev(name);
-> >                 break;
-> >         }
-> > +       case VDUSE_GET_FEATURES:
-> > +               if (control->api_version < VDUSE_API_VERSION_2) {
-> > +                       dev_dbg(vduse_ctrl_dev,
-> > +                               "VDUSE_GET_FEATURES ioctl with version =
-%llu",
-> > +                               control->api_version);
-> > +                       ret =3D -EINVAL;
-> > +                       break;
-> > +               }
-> > +
-> > +               ret =3D put_user(vduse_features, (u64 __user *)argp);
-> > +               break;
-> > +
-> >         default:
-> >                 ret =3D -EINVAL;
-> >                 break;
-> > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
-> > index 27832d46084c..8898d9daa777 100644
-> > --- a/include/uapi/linux/vduse.h
-> > +++ b/include/uapi/linux/vduse.h
-> > @@ -37,6 +37,7 @@
-> >   * @vq_align: the allocation alignment of virtqueue's metadata
-> >   * @ngroups: number of vq groups that VDUSE device declares
-> >   * @nas: number of address spaces that VDUSE device declares
-> > + * @vduse_features: VDUSE features
-> >   * @reserved: for future use, needs to be initialized to zero
-> >   * @config_size: the size of the configuration space
-> >   * @config: the buffer of the configuration space
-> > @@ -53,7 +54,8 @@ struct vduse_dev_config {
-> >         __u32 vq_align;
-> >         __u32 ngroups; /* if VDUSE_API_VERSION >=3D 1 */
-> >         __u32 nas; /* if VDUSE_API_VERSION >=3D 1 */
-> > -       __u32 reserved[11];
-> > +       __u64 vduse_features;
->
-> Nit: Should we document " /* if VDUSE_API_VERSION >=3D 2 */
->
+Replace hardcoded RSS max key size limit with a type based definition.
+Add validation for RSS key size against spec minimum (40 bytes). When
+validation fails, gracefully disable RSS features and continue
+initialization rather than failing completely.
 
-(I forgot to reply to this one) sure, I'll add the comment for the next ver=
-sion.
+Cc: stable@vger.kernel.org
+Fixes: 3f7d9c1964fc ("virtio_net: Add hash_key_length check")
+Signed-off-by: Srujana Challa <schalla@marvell.com>
 
-Thanks!
+v3:
+- Moved RSS key validation checks to virtnet_validate.
+- Add fixes: tag and CC -stable
+---
+ drivers/net/virtio_net.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-> But I have an open question, is this better to just introduce a
-> VDUSE_SET_FEATURES then we can do negotiation to avoid bumping API
-> versions?
->
-> Thanks
->
-> > +       __u32 reserved[9];
-> >         __u32 config_size;
-> >         __u8 config[];
-> >  };
-> > @@ -67,6 +69,9 @@ struct vduse_dev_config {
-> >   */
-> >  #define VDUSE_DESTROY_DEV      _IOW(VDUSE_BASE, 0x03, char[VDUSE_NAME_=
-MAX])
-> >
-> > +/* Get the VDUSE supported features */
-> > +#define VDUSE_GET_FEATURES     _IOR(VDUSE_BASE, 0x04, __u64)
-> > +
-> >  /* The ioctls for VDUSE device (/dev/vduse/$NAME) */
-> >
-> >  /**
-> > --
-> > 2.53.0
-> >
->
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index db88dcaefb20..e61cea50dcab 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -381,7 +381,9 @@ struct receive_queue {
+ 	struct xdp_buff **xsk_buffs;
+ };
+ 
+-#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
++#define VIRTIO_NET_RSS_MAX_KEY_SIZE \
++	(type_max(((struct virtio_net_config *)0)->rss_max_key_size) + 1)
++#define VIRTIO_NET_RSS_MIN_KEY_SIZE 40
+ 
+ /* Control VQ buffers: protected by the rtnl lock */
+ struct control_buf {
+@@ -6627,6 +6629,24 @@ static int virtnet_validate(struct virtio_device *vdev)
+ 		__virtio_clear_bit(vdev, VIRTIO_NET_F_STANDBY);
+ 	}
+ 
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS) ||
++	    virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT)) {
++		u8 key_sz = virtio_cread8(vdev,
++					  offsetof(struct virtio_net_config,
++						   rss_max_key_size));
++		/* Spec requires at least 40 bytes */
++		if (key_sz < VIRTIO_NET_RSS_MIN_KEY_SIZE) {
++			dev_warn(&vdev->dev,
++				 "rss_max_key_size=%u is less than spec minimum %u, disabling RSS\n",
++				 key_sz, VIRTIO_NET_RSS_MIN_KEY_SIZE);
++			if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
++				__virtio_clear_bit(vdev, VIRTIO_NET_F_RSS);
++			if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT))
++				__virtio_clear_bit(vdev,
++						   VIRTIO_NET_F_HASH_REPORT);
++		}
++	}
++
+ 	return 0;
+ }
+ 
+@@ -6839,13 +6859,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (vi->has_rss || vi->has_rss_hash_report) {
+ 		vi->rss_key_size =
+ 			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+-		if (vi->rss_key_size > VIRTIO_NET_RSS_MAX_KEY_SIZE) {
+-			dev_err(&vdev->dev, "rss_max_key_size=%u exceeds the limit %u.\n",
+-				vi->rss_key_size, VIRTIO_NET_RSS_MAX_KEY_SIZE);
+-			err = -EINVAL;
+-			goto free;
+-		}
+-
+ 		vi->rss_hash_types_supported =
+ 		    virtio_cread32(vdev, offsetof(struct virtio_net_config, supported_hash_types));
+ 		vi->rss_hash_types_supported &=
+-- 
+2.25.1
 
