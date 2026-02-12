@@ -1,150 +1,115 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48A6B30B500
-	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 20:59:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CE85248176
+	for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 21:20:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770929972; cv=none; b=L8eDW3unK2Jy4EM/avxknr5F5O6J+W5IukaklFGX+O27ZDEQF/xPOCZP/IFIR+NZTZpftomynUwiESHBELhbVmGmnyHAfX9sGa6y/Yeu0Hfu3/4wbQgvtZPAxEkHvnnWYJvPHFD2LSCcBl1RTSo5uDIrJPkFm7PozaD6J/YABJM=
+	t=1770931240; cv=none; b=fUsx2e43e5I5ni7BDzOLDk8BZ+4HzFLs7bwMdJFxOv1a6Ng30jac2hYXa4n/b8cvlCCpbpwSpneTwUHHSftJ5QIjr5hp8BkpdFl8aiHk0k4zu+TFBSTr8ei3f7WQgFizdGnuv1VlWQYeq1mdJW/+hLxYsnEzV+yX5h+mpRdJwmc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770929972; c=relaxed/simple;
-	bh=2HJhD4jwEiQd+Sw0gop1LZRkZ9dv9Da9YU2irp8nJI0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=WlZl/hUaGz/EP8qmwL+yoc2XrWCdGd+vB/nQJw6WIisEpvfxHTWnAGR0VKen8SX5Zaa/+oLe2mvDvj1aUwwMSk6hk24oZYq97+vp0FuLJLrwL2zO8Y3W64vkd5+Pxptxiju/1cJf6UArj/bJhPwaegCpXYCcCdI4BZUmVdN1dlI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YsZViGfX; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1770931240; c=relaxed/simple;
+	bh=hhvIY42ZejyjgeuhGD0cdgJZcMf17AiRbGuBQYVvt5o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IT2ZJ4CjKmxcerf47xMnpv5H/XJ8bay/LRBWKpj6evSdGWjMtnxZGHACawkOJ5ickyH2rNEpeu49tIAppfjwaWBwpffg74HiIPKt3bUQQ9awRNrH2aVx1myqUHvmDIF9Z67jyJr0Q4BXIHWk3IvSolZpjUT9Y3w2Z0hECET2oOw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kKcrHBKu; arc=none smtp.client-ip=74.125.82.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YsZViGfX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770929970;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EDtloKc54TB42uRGUdYvHpL+cAu7dip36yXl2Un1+Yk=;
-	b=YsZViGfXVECs+n31N8/VdOk7ddC5Jp0QW6MkNnUD1b5dwbifzUCdkmcVfNofUQ/YRBgBG+
-	YxswpsB4YxPDK5zCzxQ3nK/1uV+yZRPb0Wy/3nSI6htCN0Zj9m5eIG0h4LsHiQCZqWDqaH
-	2fGUdq0LnH5MTlsOXidS0nE4bxjbSyA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-300-mAXDoNGeNgWCe-vuu-IeVQ-1; Thu, 12 Feb 2026 15:59:29 -0500
-X-MC-Unique: mAXDoNGeNgWCe-vuu-IeVQ-1
-X-Mimecast-MFC-AGG-ID: mAXDoNGeNgWCe-vuu-IeVQ_1770929968
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4806fa4a180so1747295e9.2
-        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 12:59:29 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kKcrHBKu"
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2b785801c93so684947eec.0
+        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 13:20:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770931239; x=1771536039; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=m+vxOwDndj4zObe1CvOSxWnI7S8T1aXhKqAzJ6Mv/p0=;
+        b=kKcrHBKuJ3VB44cXhO4jznBMec9ZtZ5n/psGhauAQTd/JjjuxZGFUDpD+faIlaFMwn
+         fCu3m0EnFLMOY78Mp8o7Gp50EdCFZXASq2leAN6OAwKg8jBccixCRgKqLL6Ys+6Rrxl7
+         yyf0pNQq/iVLzliOIFkVFqLIBxMlX9J+Bf/faQtUdF9mxz2JGZeQbZIWGcefUc8ltrBb
+         XaW8yXbmwX85G/rq2TsnK5D4ovXA6uPPweDKStdKtXpB/3+AaulXd4/wcvRzOpRA0k5x
+         8gVpcR+zcnPvFmpnpdOqA9965i0Kq0xvHj3aSvrE5iLWYhSTJwV6LlJc1c98eBCTG8+h
+         GGNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770929968; x=1771534768;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=EDtloKc54TB42uRGUdYvHpL+cAu7dip36yXl2Un1+Yk=;
-        b=OOQ/OGvWemqV7MI5cBT6anQ5ipNy+lWbVAJGwj0DMMHpXIH8ZFb3buOgnIbHGYK9jo
-         Rz+pKFUw6o1Cl13PDx7X7WsYTirMDsIAMmJ9hezqSFYOIYktgXObFqZjvWaWC/CZg4v9
-         oR3tQHVQSo5kCWeRlWYkxOokfMzxyfqy9llbBg6X6PiQJ/TPk77LloX3Adrd1wx/OQyn
-         awUG0CzFd0hXWHfDsFz+MWwX8TyOBuFi4SI+oNJy2MFd0H4XnNWX7+7wIU6/IDremc6l
-         k5zsMpruMXY7RersB+ZHhIM0td9W/IHKWqDUJweQQUcMvY8xzZOneB0hKW+1qMr1QFbU
-         RR7w==
-X-Forwarded-Encrypted: i=1; AJvYcCUb+ax0cG8WBeVUxUYUNSAKfUp7cC1fEKWW4OzcCRm7uBv6sj4T5R7zPSXSHrO8tWnMhRUUul7/HPxjxj00vw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw8T+lCQjCw6FOC/ipFOLAFuTksjTT1YqS1bnBEyCpEzK2Ymaj0
-	KXw4PJOYvm80aeR76OMIGRm7pHw36/FSIbjgQ9fZwHLKV8ZH7yuuR1BPWr5Vi2F0DwMgrLShSAN
-	zjoedqica6tnThm0lJz8Vrtw2Ux4gRZbK3aYtrwadr3GGuVcSE/SKNoXWmdXIvPW6bo/H
-X-Gm-Gg: AZuq6aLCgma6JIp9/Dz1AAJJSHcW9/YCsYeFMwTeHzGhim6UZL9eQ8ZlFq+N62TEAMb
-	BWvCM2c+9+czAXKcN1QI58XBx1NUMY6wlV1KrdyyGcKao4vEGJK7Yr06WZ5eD8wwTT6sCMo8SFz
-	ojdZmdogFTte1SuX2xLmOEa4JFCFhr0CWqm0S5MXD8FYHBu4gXi9DXOE0zxGmZgGIIBpifxjPtf
-	vn9U+yeh2Zr/oSFulZSAONAzuMOK8wjSW2c9AYdTaWI9277QTEeUh6WzxGFUarHQTCf4o+XVUsh
-	Xlj3+ryhipVUBHTiY6hwsx2Qfa5lKuwjkLltf3xiYu2BkhEu2h8ddlykfrjjvyUjpSNrQX5kKlB
-	GopFbaD5JdQrJVCCPpaUh+gI1ld2SJ1PNkQ1ixEExDeZEvQDCRCDl+9QzYA==
-X-Received: by 2002:a05:600c:444d:b0:480:1b65:b741 with SMTP id 5b1f17b1804b1-48370e305e6mr6147325e9.15.1770929967917;
-        Thu, 12 Feb 2026 12:59:27 -0800 (PST)
-X-Received: by 2002:a05:600c:444d:b0:480:1b65:b741 with SMTP id 5b1f17b1804b1-48370e305e6mr6146965e9.15.1770929967362;
-        Thu, 12 Feb 2026 12:59:27 -0800 (PST)
-Received: from stex1 (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483709fdd39sm5618975e9.0.2026.02.12.12.59.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Feb 2026 12:59:26 -0800 (PST)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: netdev@vger.kernel.org
-Cc: Eric Dumazet <edumazet@google.com>,
-	linux-kernel@vger.kernel.org,
-	Bobby Eshleman <bobbyeshleman@meta.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	virtualization@lists.linux.dev,
-	Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>
-Subject: [PATCH net 2/2] vsock: prevent child netns mode switch from local to global
-Date: Thu, 12 Feb 2026 21:59:16 +0100
-Message-ID: <20260212205916.97533-3-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260212205916.97533-1-sgarzare@redhat.com>
-References: <20260212205916.97533-1-sgarzare@redhat.com>
+        d=1e100.net; s=20230601; t=1770931239; x=1771536039;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=m+vxOwDndj4zObe1CvOSxWnI7S8T1aXhKqAzJ6Mv/p0=;
+        b=kgp0+UY3ahkBETtmiMkTsBX4Nrru/ZZ6+5ZeOaeB78okhSWxJl2wV+SeVrbgls4y+2
+         3SiA4+z4Qxfrwbll7wTVTMSkKlnHKIqJGLSWlEsga7KEVrtSG+PWjny4dXMqu0NLlim6
+         Xpeld1dO/207bHTe+3Ruv8X5/bOXZMOlpgLu9WVUic9nDjOYmQl9DoamjxN54tUhdJu+
+         sVWAWTu3pE7XXhvHsixT5/tTi3N6/4d4A7N6GsLog+eNr6r1wvepKUoX0RhMQRFwuTEb
+         aEosZowLwEOArWN9ZedzCBckJNZnD5UJlhqiIeFe9H44ysk+fj8xhxB2Nkn7rNrtAi7I
+         mjHg==
+X-Forwarded-Encrypted: i=1; AJvYcCXOSuNyCc/9F0wAZABB1zlDXX0AlPpHIEPthG6sDEYYRk/hReclM20e30SK9nhtjGTre6ziMp1mRJF1mlaRzQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YylOWLvpUrqoht/AANp/X6+6Zv20X2Kk3kqYXMggIGbcFO5ns7e
+	kdZf/yzK6j9LE58nH8yi4gZvJyAKBuDWvTXznefJrCWjJm1QEtjvJtJe
+X-Gm-Gg: AZuq6aIIUzYwi2wmmhfjyGTbeozmbcOvSSGXqf34cPC42gVMDOpFXUwHD6r/9lvEjKF
+	uJ3820nKaOS++Iy1IFB51T1cpbbl/JjsT65EPHdHi/dhdyZS5/8AVhU6NtLIBq+zFyOgwpZtuy/
+	iphi+7QPBTLCDg8kJOCcGm4Vvh74sg21HH1eB4LVe4XdT2PMPcaVr/S+Gtpr0l21cvCj+VOfB+7
+	sz1IbAm/OvSoXGH4Xk9Lt6iiB3KVflJtcHT621BU6eBhTQWL3Vq6EvI4AocBxx6cPwqVEOe+ZOy
+	xY1ynO1cJ0V3gKeMSooCZ/WnlysILLv25Mk2B9l+YCqxz/MXcraEJKYSve/ps0x1h53QjV3PzEC
+	4n2cvWYtxm24jgj0VX40dpHMM5l0G/KmIHNnKPesP4OxHuNwzsVWDgAG45c0sRr64Nj1+QQwAA5
+	eplVyB6e4G6vzqYlOFbKfyHPF6shfunSpdiISavYIo8Iw=
+X-Received: by 2002:a05:7022:250f:b0:11b:9386:a3bf with SMTP id a92af1059eb24-1273985be5cmr198075c88.42.1770931238369;
+        Thu, 12 Feb 2026 13:20:38 -0800 (PST)
+Received: from [192.168.4.196] ([73.222.117.172])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1272a6942ccsm6165153c88.3.2026.02.12.13.20.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 Feb 2026 13:20:38 -0800 (PST)
+Message-ID: <ba761a76-78e1-4215-a95c-290f9ca8cb55@gmail.com>
+Date: Thu, 12 Feb 2026 13:20:35 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: pm1W29Pc72UrT91XYN_RFMiEZzoi9GMMctrdZzn_T50_1770929968
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] mm: move pgscan and pgsteal to node stats
+To: Michal Hocko <mhocko@suse.com>
+Cc: linux-mm@kvack.org, apopple@nvidia.com, akpm@linux-foundation.org,
+ axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
+ david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
+ jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
+ Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
+ lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
+ rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
+ rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+ surenb@google.com, virtualization@lists.linux.dev, vbabka@suse.cz,
+ weixugc@google.com, xuanzhuo@linux.alibaba.com,
+ ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+ kernel-team@meta.com
+References: <20260212045109.255391-1-inwardvessel@gmail.com>
+ <20260212045109.255391-3-inwardvessel@gmail.com> <aY2BVsYlPa4QMbUC@tiehlicka>
+Content-Language: en-US
+From: JP Kobryn <inwardvessel@gmail.com>
+In-Reply-To: <aY2BVsYlPa4QMbUC@tiehlicka>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+On 2/11/26 11:29 PM, Michal Hocko wrote:
+> On Wed 11-02-26 20:51:09, JP Kobryn wrote:
+>> It would be useful to narrow down reclaim to specific nodes.
+>>
+>> Provide per-node reclaim visibility by changing the pgscan and pgsteal
+>> stats from global vm_event_item's to node_stat_item's. Note this change has
+>> the side effect of now tracking these stats on a per-memcg basis.
+> 
+> The changelog could have been more clear about the actual changes as
+> this is not overly clear for untrained eyes. The most important parts
+> are that /proc/vmstat will preserve reclaim stats with slightly
+> different counters ordering (shouldn't break userspace much^W), per-node
+> stats will be now newly displayed in /proc/zoneinfo - this is presumably
+> the primary motivation to have a better insight of per-node reclaim
+> activity, and memcg stats will now show their share of the global memory
+> reclaim.
+> 
+> Have I missed anything?
 
-A "local" namespace can change its `child_ns_mode` sysctl to "global",
-allowing nested namespaces to access global CIDs. This can be exploited
-by an unprivileged user who gained CAP_NET_ADMIN through a user
-namespace.
-
-Prevent this by rejecting writes that attempt to set `child_ns_mode` to
-"global" when the current namespace's mode is "local".
-
-Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
-Cc: bobbyeshleman@meta.com
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- net/vmw_vsock/af_vsock.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
-
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 3b629b4a0359..9880756d9eff 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -95,8 +95,9 @@
-  *     the namespace's own ns_mode.
-  *
-  *   Changing child_ns_mode only affects newly created namespaces, not the
-- *   current namespace or existing children. At namespace creation, ns_mode
-- *   is inherited from the parent's child_ns_mode.
-+ *   current namespace or existing children. A "local" namespace cannot set
-+ *   child_ns_mode to "global". At namespace creation, ns_mode is inherited
-+ *   from the parent's child_ns_mode.
-  *
-  *   The init_net mode is "global" and cannot be modified.
-  *
-@@ -2844,8 +2845,16 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
- 	if (ret)
- 		return ret;
- 
--	if (write)
-+	if (write) {
-+		/* Prevent a "local" namespace from escalating to "global",
-+		 * which would give nested namespaces access to global CIDs.
-+		 */
-+		if (vsock_net_mode(net) == VSOCK_NET_MODE_LOCAL &&
-+		    new_mode == VSOCK_NET_MODE_GLOBAL)
-+			return -EPERM;
-+
- 		vsock_net_set_child_mode(net, new_mode);
-+	}
- 
- 	return 0;
- }
--- 
-2.53.0
-
+That's accurate. Plus aside from reading /proc/zoneinfo they will also
+be in /sys/devices/system/node/nodeN/vmstat. I see I could have been
+more explicit about this. Let me make additions to the changelog in v2.
+Thanks for taking a look.
