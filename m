@@ -1,213 +1,260 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC0CE349B06
-	for <virtualization@lists.linux.dev>; Fri, 13 Feb 2026 08:54:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49694319601
+	for <virtualization@lists.linux.dev>; Fri, 13 Feb 2026 10:04:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770972883; cv=none; b=pEw1UNCX6SlMx8r1vX8O754hQjo98hXxeyxHZCCLupG65feaQOGG3zxOPz+lk7e26HhFt0v8YvnYwqQgwivfOCiYNJy40IGfBYApkyswcBnyO1OjZn2m+aBh0x59aZXfFHHcbnn1+Ze82VcfMHg8cK9JJHroEHSZh1sFvme/R4I=
+	t=1770977056; cv=none; b=Hd1W78H1ryptt8cnC5Vm3CGC0vNVvi+56CiQ/CnJ/tW46i4mMtx/UMKo4hWZrciOPJ6PSExQ0/dePjYYQy5xFeZFGvb8qZzkjFZufQTOaqu0cNIyzFxKQibDOG1JM/7UnyOBXUSP9f5iixk+ly1gsFt1KwhjAS9Zng4MBpvEJ8g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770972883; c=relaxed/simple;
-	bh=Ip80v8ViLNhww3jlM3R/iW+RY8DMW0dd3u84/CuaVmI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=s0AJc1mZdorzt5wTLN2EHqmI9B9WS+v0D7xufyKc8qZ8jCjh160GooAnPVFnfr09Pv9Kgcloy/K92Qj29wb0PaieA0YXpPGkfx08rxX3L1Be282iKrpDoZ3+5LUqa1QhEU2YpYfDFyQSr1Cp8l8xxr1W7l2A2bXMPvOYeLgtL68=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=CFdSP8lZ; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=mDiFuDQx; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=FgV8zFMa; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=U+0RTVn2; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1770977056; c=relaxed/simple;
+	bh=C953rTc1lmFvOuDMDuD8oay8gPLdtKZ6vlmgWR9M7Yo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=QkC9g59X69aXCa0RFzh3bM6OFbDreoHEv29UJSHKrzI2Z9CnV9wDcepfcN7nkXBZyQDyqtsthwwHBLy3u6Yas2D0MvaT3G0X5Pxsg/Jth4JUKLbuLsuEO8GFGMkTvYOMzLDCm3XaF1+6aZLiVURqDQZJ69ETx6oSJxRTjbxpGv4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hIV+8YIR; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="CFdSP8lZ";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="mDiFuDQx";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="FgV8zFMa";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="U+0RTVn2"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id DF6633E6D4;
-	Fri, 13 Feb 2026 08:54:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1770972880; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=R8IMx2PRe6DO7hTr/0m0nRiXAWYpDypxsMIyjb6YLgs=;
-	b=CFdSP8lZ1U/Ohf629Fb0N7KS7TBjNuJMRkLKlv62bktH3YUZXsIzesF+YF2QpiykquXnB1
-	v3QasxYb4MJkKft3eLYByNj8reZ1AvHh4Qhji2he/aJ8WI2Csuygk51lUEqzzcMzrRkRm4
-	srR775WqDmVLvOWQjwPPCpeCZAPzHiA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1770972880;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=R8IMx2PRe6DO7hTr/0m0nRiXAWYpDypxsMIyjb6YLgs=;
-	b=mDiFuDQxjJQZxli8cIVx2MERCTx+wRdZXox8cc1b9dSxjf3LOEQ4A3m0bTMvuW3kGPahj+
-	A+y7ZY+y8H61K2DQ==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1770972879; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=R8IMx2PRe6DO7hTr/0m0nRiXAWYpDypxsMIyjb6YLgs=;
-	b=FgV8zFMauwUnsS7NGZXy8kaOpJHOwGvBU8huqcbOK2wRjLQI0eAADnfN4zCt4QX9SHWyHd
-	ZBWH2bKA7oqhYRCxV6jGvwJF3xFGTr96YuJpyu4QKf4bgkj2ZJwnDcEgrcjXUXZMQHUQbP
-	zAVSiYy+aOIJVLqswlbgjO4b4WCp9mg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1770972879;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=R8IMx2PRe6DO7hTr/0m0nRiXAWYpDypxsMIyjb6YLgs=;
-	b=U+0RTVn2D2ptoWrYQB70sZ/KeJtHoVdJuz/aVR9oJCn1CNoLJXAdFQGQvNELjNex8L5Oj0
-	8KsqOLBO0blm6nBw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9B56A3EA62;
-	Fri, 13 Feb 2026 08:54:39 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id NE+XJc/mjmkHOQAAD6G6ig
-	(envelope-from <vbabka@suse.cz>); Fri, 13 Feb 2026 08:54:39 +0000
-Message-ID: <d52066f1-c83e-4406-adca-5a403adb4f44@suse.cz>
-Date: Fri, 13 Feb 2026 09:54:39 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hIV+8YIR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770977054;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OFaUQt8o2cm+tVon4w+y5pAdNpZ4dm7KtAjjkPonwIQ=;
+	b=hIV+8YIRju4MNphC4755+TR+tcsNAwnWn5L9bnKt1Cxm98mLiKZTAVHnGcJrLW3aKSmCz3
+	LncmKyHJFLRL0vxLdSr2J77Me3iuk+j971+/V9kp5Qbyt84sKgDkuaf1Z0DZiOAnObZYQM
+	Vxc6Vc/MNQ1dzy5AqyD5WWSh/3RGCac=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-503-NRFb_v9tMMGdhQ0lKyVk0Q-1; Fri, 13 Feb 2026 05:04:12 -0500
+X-MC-Unique: NRFb_v9tMMGdhQ0lKyVk0Q-1
+X-Mimecast-MFC-AGG-ID: NRFb_v9tMMGdhQ0lKyVk0Q_1770977051
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-435991d4a3aso451667f8f.1
+        for <virtualization@lists.linux.dev>; Fri, 13 Feb 2026 02:04:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770977051; x=1771581851;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=OFaUQt8o2cm+tVon4w+y5pAdNpZ4dm7KtAjjkPonwIQ=;
+        b=Xu0MxnaNb4ETAS5EPhcyT4iMg47nQikIsfEDp1ySgHbLuqFvS6TDdyzJzHt2qt9Lgx
+         MZK7y/xcy3IKZYf3T4OLZXNBylHKfwJZOkHP102PzhXk3iAPXjg4/yZDKMfmo2Pu1qXl
+         2hLBFQo/5vAlWlIoeH7zHBmwJ+cS5qZpjX3D7w+j4G72Loa8YUEl67YcNMsgT8PhsGA6
+         tkg5MwO/y+Vt7TfCTBE/iJavV/TZ8IAbV37/H0PSHKoYkX9bVysyot7GLsF4Duoy3gmR
+         yPGuGoLIfhDksnLNG4BfP8eNaArL21OifGcY2LuiEdonV2qLZ/fRFUK2EMqLZke3S/ru
+         /FhA==
+X-Forwarded-Encrypted: i=1; AJvYcCXJfOr6DGj3KgHDE4MaA9nO8nkRWK1tBOQFRwo/ts7+bmqgSRfsp4LiJlFVEJNrob6A2AKeGxq6tODEq+ItSg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxn81sFLF+wLBxUUa97MdUkWfHubjuJQi6+Su0YHkvmRGTZRz0l
+	qT0I6BwsDbAY7cvsIhvDphoZaq8KnUwcQpKmke8c7C9/mVNKm7gLcmUBGShQFAy7ZNXMJvhF9qF
+	nitAp40RAxQzTEeOJHcxS0s+2THq7lvSEy4Pi3NRmBCEbTAKdwAxSM2ERzxOB70ZzkRmA
+X-Gm-Gg: AZuq6aIwNwPVINiCo+kmN8aQKG8XaFLG09+tPTwdmhr0FVaap0M7a089lP1IPfTlsDl
+	PzuwCRXv1utx0AuypdsShZaNwRIIUSV9vD7FU0SfoI6N372WPoMhME82wWtSTGvBKbG7+0y35HG
+	TsRZkm3Lb+dM1oB69CLI4Gr5R1DFH+1l0sIjw06y8RfvuSL7Z2FbPCGpWVlfj4Uqy0PrEom12g+
+	FP2lTxQshB/bkJRoUgtypAYIICrCICowbrBNhQDVLKsX/TM2MgUn6RrR0l4XFGDwHKJlOrgEKvq
+	VG1/bdbK2qIxvKlew+K+e7E5Nw5V9zb9UsozbiF7aGhdLYkaeRYG9N6Dd9rKxZyH73xHZayN3rB
+	DGJiZ41PcFsxDK4sZrVq215ofprP6b7kCoabvTbW4xMZAMg==
+X-Received: by 2002:a05:6000:1843:b0:436:3707:2bf3 with SMTP id ffacd0b85a97d-437978dcf68mr2620805f8f.24.1770977051013;
+        Fri, 13 Feb 2026 02:04:11 -0800 (PST)
+X-Received: by 2002:a05:6000:1843:b0:436:3707:2bf3 with SMTP id ffacd0b85a97d-437978dcf68mr2620741f8f.24.1770977050414;
+        Fri, 13 Feb 2026 02:04:10 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43796abe3b3sm5319158f8f.18.2026.02.13.02.04.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Feb 2026 02:04:09 -0800 (PST)
+Date: Fri, 13 Feb 2026 05:04:07 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Jason Wang <jasowang@redhat.com>, Xie Yongji <xieyongji@bytedance.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] [v2] vduse: fix compat handling for
+ VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
+Message-ID: <20260213050338-mutt-send-email-mst@kernel.org>
+References: <20260202224835.559538-1-arnd@kernel.org>
+ <20260202224835.559538-2-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] mm/mempolicy: track page allocations per mempolicy
-Content-Language: en-US
-To: JP Kobryn <inwardvessel@gmail.com>, linux-mm@kvack.org
-Cc: apopple@nvidia.com, akpm@linux-foundation.org, axelrasmussen@google.com,
- byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
- eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
- hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
- linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
- matthew.brost@intel.com, mst@redhat.com, mhocko@suse.com, rppt@kernel.org,
- muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
- roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
- virtualization@lists.linux.dev, weixugc@google.com,
- xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com,
- yuanchu@google.com, ziy@nvidia.com, kernel-team@meta.com
-References: <20260212045109.255391-1-inwardvessel@gmail.com>
- <20260212045109.255391-2-inwardvessel@gmail.com>
- <96b63efb-551f-4dd5-b4a2-ac67da577431@suse.cz>
- <b5927ae8-3108-4d65-bee9-be306fb697b4@gmail.com>
-From: Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; keydata=
- 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
- m6M14QORSWTLRg==
-In-Reply-To: <b5927ae8-3108-4d65-bee9-be306fb697b4@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.80
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_TLS_ALL(0.00)[];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[33];
-	TAGGED_RCPT(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLqz6np1um3hmda3durc78h1b5)];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[nvidia.com,linux-foundation.org,google.com,sk.com,vger.kernel.org,kernel.org,redhat.com,gourry.net,cmpxchg.org,gmail.com,oracle.com,intel.com,suse.com,linux.dev,bytedance.com,lists.linux.dev,linux.alibaba.com,meta.com];
-	FREEMAIL_TO(0.00)[gmail.com,kvack.org];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.cz:mid]
-X-Spam-Level: 
-X-Spam-Flag: NO
+In-Reply-To: <20260202224835.559538-2-arnd@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: a-51tRNSMgqqJUNMZuP9fjxdBWYj6QDnXhTRM8Ba6z8_1770977051
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 2/12/26 22:25, JP Kobryn wrote:
-> On 2/12/26 7:24 AM, Vlastimil Babka wrote:
->> On 2/12/26 05:51, JP Kobryn wrote:
->>> It would be useful to see a breakdown of allocations to understand which
->>> NUMA policies are driving them. For example, when investigating memory
->>> pressure, having policy-specific counts could show that allocations were
->>> bound to the affected node (via MPOL_BIND).
->>>
->>> Add per-policy page allocation counters as new node stat items. These
->>> counters can provide correlation between a mempolicy and pressure on a
->>> given node.
->>>
->>> Signed-off-by: JP Kobryn <inwardvessel@gmail.com>
->>> Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
->> 
->> Are the numa_{hit,miss,etc.} counters insufficient? Could they be extended
->> in a way that would capture any missing important details? A counter per
->> policy type seems exhaustive, but then on one hand it might be not important
->> to distinguish beetween some of them, and on the other hand it doesn't track
->> the nodemask anyway.
+On Mon, Feb 02, 2026 at 11:48:08PM +0100, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> The two patches of the series should complement each other. When
-> investigating memory pressure, we could identify the affected nodes
-> (patch 2). Then we can cross-reference the policy-specific stats to find
-> any correlation (this patch).
+> These two ioctls are incompatible on 32-bit x86 userspace, because
+> the data structures are shorter than they are on 64-bit.
 > 
-> I think extending numa_* counters would call for more permutations to
-> account for the numa stat per policy. I think distinguishing between
-> MPOL_DEFAULT and MPOL_BIND is meaningful, for example. Am I
+> Add a proper .compat_ioctl handler for x86 that reads the structures
+> with the smaller padding before calling the internal handlers.
+> 
+> Fixes: ad146355bfad ("vduse: Support querying information of IOVA regions")
+> Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Are there other useful examples or would it be enough to add e.g. a
-numa_bind counter to the numa_hit/miss/etc?
-What I'm trying to say the level of detail you are trying to add to the
-always-on counters seems like more suitable for tracepoints. The counters
-should be limited to what's known to be useful and not "everything we are
-able to track and possibly could need one day".
 
-> understanding your question?
+So patch 1 is in going upstream but I am still waiting for v3 of patch
+1.
+
+> ---
+> The code is directly copied from the native ioctl handler, but I
+> did not test this with actual x86-32 userspace, so please review
+> carefully.
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 123 ++++++++++++++++++++++++++++-
+>  1 file changed, 122 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index 405d59610f76..3ada167ac260 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -1618,6 +1618,127 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>  	return ret;
+>  }
+>  
+> +/*
+> + * i386 has different alignment constraints than x86_64,
+> + * so there are only 3 bytes of padding instead of 7.
+> + */
+> +struct compat_vduse_iotlb_entry {
+> +	compat_u64 offset;
+> +	compat_u64 start;
+> +	compat_u64 last;
+> +	__u8 perm;
+> +	__u8 padding[__alignof__(compat_u64) - 1];
+> +};
+> +#define COMPAT_VDUSE_IOTLB_GET_FD	_IOWR(VDUSE_BASE, 0x10, struct compat_vduse_iotlb_entry)
+> +
+> +struct compat_vduse_vq_info {
+> +	__u32 index;
+> +	__u32 num;
+> +	compat_u64 desc_addr;
+> +	compat_u64 driver_addr;
+> +	compat_u64 device_addr;
+> +	union {
+> +		struct vduse_vq_state_split split;
+> +		struct vduse_vq_state_packed packed;
+> +	};
+> +	__u8 ready;
+> +	__u8 padding[__alignof__(compat_u64) - 1];
+> +} __uapi_arch_align;
+> +#define COMPAT_VDUSE_VQ_GET_INFO	_IOWR(VDUSE_BASE, 0x15, struct compat_vduse_vq_info)
+> +
+> +static long vduse_dev_compat_ioctl(struct file *file, unsigned int cmd,
+> +				   unsigned long arg)
+> +{
+> +	struct vduse_dev *dev = file->private_data;
+> +	void __user *argp = (void __user *)arg;
+> +	int ret;
+> +
+> +	if (!IS_ENABLED(CONFIG_X86_64))
+> +		return vduse_dev_ioctl(file, cmd,
+> +				       (unsigned long)compat_ptr(arg));
+> +
+> +	if (unlikely(dev->broken))
+> +		return -EPERM;
+> +
+> +	switch (cmd) {
+> +	case COMPAT_VDUSE_IOTLB_GET_FD: {
+> +		struct vduse_iotlb_entry_v2 entry = {0};
+> +		struct file *f = NULL;
+> +
+> +		ret = -EFAULT;
+> +		if (copy_from_user(&entry, argp, _IOC_SIZE(cmd)))
+> +			break;
+> +
+> +		ret = vduse_dev_iotlb_entry(dev, &entry, &f, NULL);
+> +		if (ret)
+> +			break;
+> +
+> +		ret = -EINVAL;
+> +		if (!f)
+> +			break;
+> +
+> +		ret = copy_to_user(argp, &entry, _IOC_SIZE(cmd));
+> +		if (ret) {
+> +			ret = -EFAULT;
+> +			fput(f);
+> +			break;
+> +		}
+> +		ret = receive_fd(f, NULL, perm_to_file_flags(entry.perm));
+> +		fput(f);
+> +		break;
+> +	}
+> +	case COMPAT_VDUSE_VQ_GET_INFO: {
+> +		struct vduse_vq_info vq_info = {};
+> +		struct vduse_virtqueue *vq;
+> +		u32 index;
+> +
+> +		ret = -EFAULT;
+> +		if (copy_from_user(&vq_info, argp,
+> +				   sizeof(struct compat_vduse_vq_info)))
+> +			break;
+> +
+> +		ret = -EINVAL;
+> +		if (vq_info.index >= dev->vq_num)
+> +			break;
+> +
+> +		index = array_index_nospec(vq_info.index, dev->vq_num);
+> +		vq = dev->vqs[index];
+> +		vq_info.desc_addr = vq->desc_addr;
+> +		vq_info.driver_addr = vq->driver_addr;
+> +		vq_info.device_addr = vq->device_addr;
+> +		vq_info.num = vq->num;
+> +
+> +		if (dev->driver_features & BIT_ULL(VIRTIO_F_RING_PACKED)) {
+> +			vq_info.packed.last_avail_counter =
+> +				vq->state.packed.last_avail_counter;
+> +			vq_info.packed.last_avail_idx =
+> +				vq->state.packed.last_avail_idx;
+> +			vq_info.packed.last_used_counter =
+> +				vq->state.packed.last_used_counter;
+> +			vq_info.packed.last_used_idx =
+> +				vq->state.packed.last_used_idx;
+> +		} else
+> +			vq_info.split.avail_index =
+> +				vq->state.split.avail_index;
+> +
+> +		vq_info.ready = vq->ready;
+> +
+> +		ret = -EFAULT;
+> +		if (copy_to_user(argp, &vq_info,
+> +		    sizeof(struct compat_vduse_vq_info)))
+> +			break;
+> +
+> +		ret = 0;
+> +		break;
+> +	}
+> +	default:
+> +		ret = -ENOIOCTLCMD;
+> +		break;
+> +	}
+> +
+> +	return vduse_dev_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
+> +}
+> +
+>  static int vduse_dev_release(struct inode *inode, struct file *file)
+>  {
+>  	struct vduse_dev *dev = file->private_data;
+> @@ -1678,7 +1799,7 @@ static const struct file_operations vduse_dev_fops = {
+>  	.write_iter	= vduse_dev_write_iter,
+>  	.poll		= vduse_dev_poll,
+>  	.unlocked_ioctl	= vduse_dev_ioctl,
+> -	.compat_ioctl	= compat_ptr_ioctl,
+> +	.compat_ioctl	= PTR_IF(IS_ENABLED(CONFIG_COMPAT), vduse_dev_compat_ioctl),
+>  	.llseek		= noop_llseek,
+>  };
+>  
+> -- 
+> 2.39.5
 
