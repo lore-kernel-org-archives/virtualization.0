@@ -1,242 +1,218 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27DA534BA4B
-	for <virtualization@lists.linux-foundation.org>; Fri, 13 Feb 2026 10:06:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4644E194A60;
+	Fri, 13 Feb 2026 15:40:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770977175; cv=none; b=h6G4xoqCXp49krmvofvanCq/YZjBi+XhvEKVxAyh3WJlsRHF5+vEsi7yBVK2yq/8XDW87vDgA4MxLhOc2hG9IA7eN5Oi+NG/crk6n5g56FOV25GE3pG/80L1+ZBQmIDQvQTSQXMx6np7vI51sMGzAuNyIR/cqIGhTPxT6JOBI4E=
+	t=1770997257; cv=none; b=DxpbxWSDC3ZVCkwoDwxxGgK/i23lyJa+7Cgd779UUKU3sl8npI3pYpmp4TfJO2Wz3de46Bgo6cX9dCXdZex4wR/OkAv9ZHAYFK4Vl52me7r+YbrkvDt1Jv6+W8D65jPtyqQptFiKAOrozqeH7uHIlai9gJIds/nTIemK8UX6vmw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770977175; c=relaxed/simple;
-	bh=6mIELK5nNn7Xh+eT/MgDDxWv5iQfYKBRmUxr3AG1+lQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=Aud0tjJqn+6NoJ4PUHJKBPb1a+B9v8sfrcvOgpX14VNaHzBvyYFqTZNen3obfRsDSBvvc9unQm+zM5ke+I17Z+BaYUFfXlw6RcPn4/ymzRr6/xUYR9HAfr2RKxSjlfyjUSLPh8ffUWynbFnF0T8jN2RPjW94Y0XDEjxBUH3RmVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XKFPq7fR; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1770997257; c=relaxed/simple;
+	bh=plNiWAmAz/3wmy/voy09XFl5s2ajo4x9ohqdbJJ4rkk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=KXuXe34I6nuUpwwqKIkEu01VwdqdDyCsWiTA0GNc6RI+kFZ1sOxOwO7WRa5lbVEAmdNVjcMIXgFO5NjXhTgwy0M0Kb9pjAtDJE2QJHTF/kR7s1q9MEz+SRAuC/Cre/LfKcmuhIaoXAVDXhA+0Cn5F358CA3E0gVmvgLO0C0ooNQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B6BmWvTQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XKFPq7fR"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BC872608DA
-	for <virtualization@lists.linux-foundation.org>; Fri, 13 Feb 2026 10:06:13 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.795
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id yhAFKpqsBV-z for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Feb 2026 10:06:12 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 43BC1607AD
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 43BC1607AD
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XKFPq7fR
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 43BC1607AD
-	for <virtualization@lists.linux-foundation.org>; Fri, 13 Feb 2026 10:06:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770977170;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=r1LQlvU779hukNCrleE0cgnZ7I3RlCxW4V1fZnT6UB4=;
-	b=XKFPq7fRQ923zeAAUUyNSbvdGIe7x17zQFMJp1txiuSdv4hjzLC0QJ0CxSkADx80ULnhlS
-	yaviPOBvi9mo1AVmQ4b1QF1/jup9nQbPOj+xisGY+VizW48aABMaVMByeZ4qR3/WKvvpAj
-	0YmqhRfoIlkQO5eYZJM7SdSzNufaDQM=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-508-jazoAGPNPOmCsyYW_st6sg-1; Fri, 13 Feb 2026 05:06:09 -0500
-X-MC-Unique: jazoAGPNPOmCsyYW_st6sg-1
-X-Mimecast-MFC-AGG-ID: jazoAGPNPOmCsyYW_st6sg_1770977168
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-482eec44485so6261445e9.3
-        for <virtualization@lists.linux-foundation.org>; Fri, 13 Feb 2026 02:06:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770977167; x=1771581967;
-        h=content-transfer-encoding:content-disposition:mime-version
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=r1LQlvU779hukNCrleE0cgnZ7I3RlCxW4V1fZnT6UB4=;
-        b=rrKjH23DRDnH9EqFvpMt+iG6sLEL1EGZhT+k4nmSh7Tfb/I6iPLdwhMAABqKEmc7sL
-         FjTwNTpkpqbv763kkulCfxHri3UTNpLQYfjCPQBEDXPdFOa2US0cViWiJ3kTUAk/hT+R
-         lJK/6bew5QGhaXwZWjy1TvVS0aMdonKayTNN98otEWM+V1i4Bne64veYnOENS9YBVB01
-         LU9nKgqivXSIk80kzj5v4zBcANKXuzAjbVHLXDMv7d88Y9LKT+K/SaRkmNqOamAAfwOI
-         VIafJn3Jf1vSnbybpw6jYQ8LoORO7ZNsXlMUOhNvNtqdTpraKH9cl9HG2nKiaKR/v2c6
-         YaHg==
-X-Forwarded-Encrypted: i=1; AJvYcCWPdd/MHXXkxn/Xh7jyrMk8faYm5pSLewc4cmHD+kuQR4VDwhzZrlgceocxAR5F4pt/PXRBxTtTKAqih2bDMA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwrUhY6zIDjbgGBRnDO85ado8hOhhdN9ghcL/0Ktl0K0ShUbM+M
-	SI2gnvzklQsMoN/hOG7VGSDF7KZ8TP9LSiNMcoMkZ0MjieTWSWFAuWYS6Fs3/3QkK3O+M/+ptl0
-	LCJ7sm/foSqtmUd7IOKuOpVldVWybWhB1cqP4GU3BClsYwg6qZ1OwnL52l6olAWM2UoKsjL5H6J
-	bb1cJHRnrrh/A73VM=
-X-Gm-Gg: AZuq6aLqxJxBgBjL23KI6g2dpBWmqha6gWS4fmbB5fkzze9nHRzlWkYerZ0gadoeF1x
-	Xmko+yzl4J523tOP12f5+lbJrXJrgGaSv2nZyhDM10AH1XcD4g81CPezFamrEiSu1mPoxX+oojR
-	51H0YVmequLNKPdLQXLbFhLuOUaK4ZkmYCSdVpAE5ar5LVvtA3UtoOE1KRWF09rWPQHdfy+OVLL
-	BvQBQIz71qWI1KvgfvpAW4jF8KGm9DvJd7r8l0jSMN4FoiWVxjUNgs7TkiRNCXoBP2oawxSQ1yG
-	VQQ2WJbV/7n5i2qrBOLMFo4T7jLuwgyTJsxM8t0GN4MR/HGJF1Ko1ppc20utHUfMzeRQkbuRkOb
-	uib/3JzxUzIqPOsOcKYQwG7s9k72KTicL9oKZzAW50131Cw==
-X-Received: by 2002:a05:600c:4704:b0:483:3380:ca11 with SMTP id 5b1f17b1804b1-48373a74dccmr18964855e9.33.1770977167369;
-        Fri, 13 Feb 2026 02:06:07 -0800 (PST)
-X-Received: by 2002:a05:600c:4704:b0:483:3380:ca11 with SMTP id 5b1f17b1804b1-48373a74dccmr18964275e9.33.1770977166842;
-        Fri, 13 Feb 2026 02:06:06 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48371a21cbesm20921345e9.5.2026.02.13.02.06.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Feb 2026 02:06:06 -0800 (PST)
-Date: Fri, 13 Feb 2026 05:06:02 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de,
-	bartosz.golaszewski@oss.qualcomm.com, bp@alien8.de,
-	eperezma@redhat.com, jasowang@redhat.com, jon@nutanix.com,
-	kshankar@marvell.com, leiyang@redhat.com, lulu@redhat.com,
-	maobibo@loongson.cn, mst@redhat.com, m.szyprowski@samsung.com,
-	seanjc@google.com, sgarzare@redhat.com, stable@vger.kernel.org,
-	thomas.weissschuh@linutronix.de, viresh.kumar@linaro.org,
-	xiyou.wangcong@gmail.com, zhangdongchuan@eswincomputing.com
-Subject: [GIT PULL] virtio,vhost,vdpa: features, fixes
-Message-ID: <20260213050602-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B6BmWvTQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B89F5C116C6;
+	Fri, 13 Feb 2026 15:40:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770997256;
+	bh=plNiWAmAz/3wmy/voy09XFl5s2ajo4x9ohqdbJJ4rkk=;
+	h=From:To:Cc:Subject:Date:From;
+	b=B6BmWvTQ6oxLkwDShHEjZ2I+cSALEKZsB+bepUC5KDJ1Booym1hYfPqW+dAQ+LLXE
+	 qBUwQQI+Ie2Rh4Erw7jweNllv3rxWEhouQzBXTiy4F53k8KFmk2o3mlzfbNEfRU5Rg
+	 wDJcmVEJFm0qeYyT6f7bEV0b4G6qcEu/XD9o+GwZo9kWgSwtMYtJmPmAD4Xgx3/JPH
+	 Q8heP8zdKkRWpbZxFf5MGGsy9eUQteDN3djxoLddmQdbsPw/j7UBJthj80KPy5SE50
+	 O3qeUuygXc1r3PwHjFWFNJ3pabsAtPHNw9ATuvuB8bYhM2wcvQ8x14IuZdF+iMN+qE
+	 BoyvOF+krRuEg==
+From: Arnd Bergmann <arnd@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xie Yongji <xieyongji@bytedance.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Marco Crivellari <marco.crivellari@suse.com>,
+	Anders Roxell <anders.roxell@linaro.org>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] [v3] vduse: fix compat handling for VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
+Date: Fri, 13 Feb 2026 16:40:46 +0100
+Message-Id: <20260213154051.4172275-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: oVIKHlB2zvK9ghyh5-8_qSj4Rcnc3HcVQrCrAZdKQ5A_1770977168
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The following changes since commit d8ee3cfdc89b75dc059dc21c27bef2c1440f67eb:
+From: Arnd Bergmann <arnd@arndb.de>
 
-  vhost/vsock: improve RCU read sections around vhost_vsock_get() (2025-12-24 08:02:57 -0500)
+These two ioctls are incompatible on 32-bit x86 userspace, because
+the data structures are shorter than they are on 64-bit.
 
-are available in the Git repository at:
+Add a proper .compat_ioctl handler for x86 that reads the structures
+with the smaller padding before calling the internal handlers. On
+all other architectures, CONFIG_COMPAT_FOR_U64_ALIGNMENT is disabled
+and no special handling is required.
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+Fixes: ad146355bfad ("vduse: Support querying information of IOVA regions")
+Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+Acked-by: Eugenio Pérez <eperezma@redhat.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+v3 changes:
+ - check CONFIG_COMPAT_FOR_U64_ALIGNMENT in preprocessor
+v2 changes:
+ - split compat handler into separate function
+---
+ drivers/vdpa/vdpa_user/vduse_dev.c | 123 ++++++++++++++++++++++++++++-
+ 1 file changed, 122 insertions(+), 1 deletion(-)
 
-for you to fetch changes up to ebcff9dacaf2c1418f8bc927388186d7d3674603:
-
-  vduse: avoid adding implicit padding (2026-02-09 12:21:32 -0500)
-
-----------------------------------------------------------------
-virtio,vhost,vdpa: features, fixes
-
-- in order support in virtio core
-- multiple address space support in vduse
-- fixes, cleanups all over the place, notably
-  - dma alignment fixes for non cache coherent systems
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Arnd Bergmann (1):
-      vduse: avoid adding implicit padding
-
-Bibo Mao (3):
-      crypto: virtio: Add spinlock protection with virtqueue notification
-      crypto: virtio: Remove duplicated virtqueue_kick in virtio_crypto_skcipher_crypt_req
-      crypto: virtio: Replace package id with numa node id
-
-Cindy Lu (3):
-      vdpa/mlx5: update mlx_features with driver state check
-      vdpa/mlx5: reuse common function for MAC address updates
-      vdpa/mlx5: update MAC address handling in mlx5_vdpa_set_attr()
-
-Eugenio Pérez (13):
-      vhost: move vdpa group bound check to vhost_vdpa
-      vduse: add v1 API definition
-      vduse: add vq group support
-      vduse: return internal vq group struct as map token
-      vdpa: document set_group_asid thread safety
-      vhost: forbid change vq groups ASID if DRIVER_OK is set
-      vduse: refactor vdpa_dev_add for goto err handling
-      vduse: remove unused vaddr parameter of vduse_domain_free_coherent
-      vduse: take out allocations from vduse_dev_alloc_coherent
-      vduse: merge tree search logic of IOTLB_GET_FD and IOTLB_GET_INFO ioctls
-      vduse: add vq group asid support
-      vduse: bump version number
-      Documentation: Add documentation for VDUSE Address Space IDs
-
-Jason Wang (19):
-      virtio_ring: rename virtqueue_reinit_xxx to virtqueue_reset_xxx()
-      virtio_ring: switch to use vring_virtqueue in virtqueue_poll variants
-      virtio_ring: unify logic of virtqueue_poll() and more_used()
-      virtio_ring: switch to use vring_virtqueue for virtqueue resize variants
-      virtio_ring: switch to use vring_virtqueue for virtqueue_kick_prepare variants
-      virtio_ring: switch to use vring_virtqueue for virtqueue_add variants
-      virtio: switch to use vring_virtqueue for virtqueue_get variants
-      virtio_ring: switch to use vring_virtqueue for enable_cb_prepare variants
-      virtio_ring: use vring_virtqueue for enable_cb_delayed variants
-      virtio_ring: switch to use vring_virtqueue for disable_cb variants
-      virtio_ring: switch to use vring_virtqueue for detach_unused_buf variants
-      virtio_ring: switch to use unsigned int for virtqueue_poll_packed()
-      virtio_ring: introduce virtqueue ops
-      virtio_ring: determine descriptor flags at one time
-      virtio_ring: factor out core logic of buffer detaching
-      virtio_ring: factor out core logic for updating last_used_idx
-      virtio_ring: factor out split indirect detaching logic
-      virtio_ring: factor out split detaching logic
-      virtio_ring: add in order support
-
-Jon Kohler (1):
-      vhost: use "checked" versions of get_user() and put_user()
-
-Kommula Shiva Shankar (1):
-      vhost: fix caching attributes of MMIO regions by setting them explicitly
-
-Michael S. Tsirkin (16):
-      dma-mapping: add __dma_from_device_group_begin()/end()
-      docs: dma-api: document __dma_from_device_group_begin()/end()
-      dma-mapping: add DMA_ATTR_CPU_CACHE_CLEAN
-      docs: dma-api: document DMA_ATTR_CPU_CACHE_CLEAN
-      dma-debug: track cache clean flag in entries
-      virtio: add virtqueue_add_inbuf_cache_clean API
-      vsock/virtio: fix DMA alignment for event_list
-      vsock/virtio: use virtqueue_add_inbuf_cache_clean for events
-      virtio_input: fix DMA alignment for evts
-      virtio_scsi: fix DMA cacheline issues for events
-      virtio-rng: fix DMA alignment for data buffer
-      virtio_input: use virtqueue_add_inbuf_cache_clean for events
-      vsock/virtio: reorder fields to reduce padding
-      gpio: virtio: fix DMA alignment
-      gpio: virtio: reorder fields to reduce struct padding
-      checkpatch: special-case cacheline group macros
-
-Thomas Weißschuh (1):
-      virtio: uapi: avoid usage of libc types
-
-zhangdongchuan@eswincomputing.com (1):
-      virtio_ring: code cleanup in detach_buf_split
-
- Documentation/core-api/dma-api-howto.rst           |   52 +
- Documentation/core-api/dma-attributes.rst          |    9 +
- Documentation/userspace-api/vduse.rst              |   53 +
- drivers/char/hw_random/virtio-rng.c                |    3 +
- drivers/crypto/virtio/virtio_crypto_common.h       |    2 +-
- drivers/crypto/virtio/virtio_crypto_core.c         |    5 +
- .../crypto/virtio/virtio_crypto_skcipher_algs.c    |    2 -
- drivers/gpio/gpio-virtio.c                         |   15 +-
- drivers/scsi/virtio_scsi.c                         |   17 +-
- drivers/vdpa/mlx5/net/mlx5_vnet.c                  |  156 +--
- drivers/vdpa/vdpa_sim/vdpa_sim.c                   |    6 -
- drivers/vdpa/vdpa_user/iova_domain.c               |   27 +-
- drivers/vdpa/vdpa_user/iova_domain.h               |    8 +-
- drivers/vdpa/vdpa_user/vduse_dev.c                 |  524 +++++++---
- drivers/vhost/vdpa.c                               |    5 +-
- drivers/vhost/vhost.c                              |    8 +-
- drivers/virtio/virtio_input.c                      |    5 +-
- drivers/virtio/virtio_ring.c                       | 1010 +++++++++++++++-----
- include/linux/dma-mapping.h                        |   20 +
- include/linux/vdpa.h                               |    4 +-
- include/linux/virtio.h                             |   11 +-
- include/uapi/linux/vduse.h                         |   85 +-
- include/uapi/linux/virtio_ring.h                   |    5 +-
- kernel/dma/debug.c                                 |   28 +-
- net/vmw_vsock/virtio_transport.c                   |   19 +-
- scripts/checkpatch.pl                              |    4 +-
- 26 files changed, 1567 insertions(+), 516 deletions(-)
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index 405d59610f76..e0f5a7397221 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -1618,6 +1618,127 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_COMPAT_FOR_U64_ALIGNMENT
++/*
++ * i386 has different alignment constraints than x86_64,
++ * so there are only 3 bytes of padding instead of 7.
++ */
++struct compat_vduse_iotlb_entry {
++	compat_u64 offset;
++	compat_u64 start;
++	compat_u64 last;
++	__u8 perm;
++	__u8 padding[3];
++};
++#define COMPAT_VDUSE_IOTLB_GET_FD	_IOWR(VDUSE_BASE, 0x10, struct compat_vduse_iotlb_entry)
++
++struct compat_vduse_vq_info {
++	__u32 index;
++	__u32 num;
++	compat_u64 desc_addr;
++	compat_u64 driver_addr;
++	compat_u64 device_addr;
++	union {
++		struct vduse_vq_state_split split;
++		struct vduse_vq_state_packed packed;
++	};
++	__u8 ready;
++	__u8 padding[3];
++} __uapi_arch_align;
++#define COMPAT_VDUSE_VQ_GET_INFO	_IOWR(VDUSE_BASE, 0x15, struct compat_vduse_vq_info)
++
++static long vduse_dev_compat_ioctl(struct file *file, unsigned int cmd,
++				   unsigned long arg)
++{
++	struct vduse_dev *dev = file->private_data;
++	void __user *argp = (void __user *)arg;
++	int ret;
++
++	if (unlikely(dev->broken))
++		return -EPERM;
++
++	switch (cmd) {
++	case COMPAT_VDUSE_IOTLB_GET_FD: {
++		struct vduse_iotlb_entry_v2 entry = {0};
++		struct file *f = NULL;
++
++		ret = -EFAULT;
++		if (copy_from_user(&entry, argp, _IOC_SIZE(cmd)))
++			break;
++
++		ret = vduse_dev_iotlb_entry(dev, &entry, &f, NULL);
++		if (ret)
++			break;
++
++		ret = -EINVAL;
++		if (!f)
++			break;
++
++		ret = copy_to_user(argp, &entry, _IOC_SIZE(cmd));
++		if (ret) {
++			ret = -EFAULT;
++			fput(f);
++			break;
++		}
++		ret = receive_fd(f, NULL, perm_to_file_flags(entry.perm));
++		fput(f);
++		break;
++	}
++	case COMPAT_VDUSE_VQ_GET_INFO: {
++		struct vduse_vq_info vq_info = {};
++		struct vduse_virtqueue *vq;
++		u32 index;
++
++		ret = -EFAULT;
++		if (copy_from_user(&vq_info, argp,
++				   sizeof(struct compat_vduse_vq_info)))
++			break;
++
++		ret = -EINVAL;
++		if (vq_info.index >= dev->vq_num)
++			break;
++
++		index = array_index_nospec(vq_info.index, dev->vq_num);
++		vq = dev->vqs[index];
++		vq_info.desc_addr = vq->desc_addr;
++		vq_info.driver_addr = vq->driver_addr;
++		vq_info.device_addr = vq->device_addr;
++		vq_info.num = vq->num;
++
++		if (dev->driver_features & BIT_ULL(VIRTIO_F_RING_PACKED)) {
++			vq_info.packed.last_avail_counter =
++				vq->state.packed.last_avail_counter;
++			vq_info.packed.last_avail_idx =
++				vq->state.packed.last_avail_idx;
++			vq_info.packed.last_used_counter =
++				vq->state.packed.last_used_counter;
++			vq_info.packed.last_used_idx =
++				vq->state.packed.last_used_idx;
++		} else
++			vq_info.split.avail_index =
++				vq->state.split.avail_index;
++
++		vq_info.ready = vq->ready;
++
++		ret = -EFAULT;
++		if (copy_to_user(argp, &vq_info,
++		    sizeof(struct compat_vduse_vq_info)))
++			break;
++
++		ret = 0;
++		break;
++	}
++	default:
++		ret = -ENOIOCTLCMD;
++		break;
++	}
++
++	return vduse_dev_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
++}
++#else
++#define vduse_dev_compat_ioctl compat_ptr_ioctl
++#endif
++
+ static int vduse_dev_release(struct inode *inode, struct file *file)
+ {
+ 	struct vduse_dev *dev = file->private_data;
+@@ -1678,7 +1799,7 @@ static const struct file_operations vduse_dev_fops = {
+ 	.write_iter	= vduse_dev_write_iter,
+ 	.poll		= vduse_dev_poll,
+ 	.unlocked_ioctl	= vduse_dev_ioctl,
+-	.compat_ioctl	= compat_ptr_ioctl,
++	.compat_ioctl	= vduse_dev_compat_ioctl,
+ 	.llseek		= noop_llseek,
+ };
+ 
+-- 
+2.39.5
 
