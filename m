@@ -1,305 +1,213 @@
-Received: from jpms-ob01.noc.sony.co.jp (jpms-ob01.noc.sony.co.jp [211.125.140.164])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57819284682
-	for <virtualization@lists.linux.dev>; Fri, 13 Feb 2026 07:40:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.125.140.164
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC0CE349B06
+	for <virtualization@lists.linux.dev>; Fri, 13 Feb 2026 08:54:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770968413; cv=none; b=UkcYbhtKWJOS9MzW9ctKvDO9k3DhGoSZ72BUdqDOewLr13Z4M2Prr8AqX9nmKLDnOqJGrI3HfOEokMu8asX0DQSLA8tP68GTHdDFnxH6J4ZMhY5x4Y4nVc9LYBAandSiqKxyexWlB9pi6QPMevImleQoi57hnmgjnnKNY6qgb98=
+	t=1770972883; cv=none; b=pEw1UNCX6SlMx8r1vX8O754hQjo98hXxeyxHZCCLupG65feaQOGG3zxOPz+lk7e26HhFt0v8YvnYwqQgwivfOCiYNJy40IGfBYApkyswcBnyO1OjZn2m+aBh0x59aZXfFHHcbnn1+Ze82VcfMHg8cK9JJHroEHSZh1sFvme/R4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770968413; c=relaxed/simple;
-	bh=fE+S91KknX0BLbc1Itp/YHqez4OEwJVurApYsMOHRl0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jloHgfYE60nsVgj9mhP/eUmm1D6h56SL3RbBrVY471tvCNCXTArw0hGnXpomkUqXTi+cu+dnaY+J4aHCFDUzA+GsvWy9bAuCl+wUn6mLTgpR6MUvpbtiEXwKnz3YB6BH/in0WINxDC8P5uqFVfZGhsa5QQD8m+KDUBzRk10gW5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com; spf=pass smtp.mailfrom=sony.com; dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b=cghj0gST; arc=none smtp.client-ip=211.125.140.164
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sony.com
+	s=arc-20240116; t=1770972883; c=relaxed/simple;
+	bh=Ip80v8ViLNhww3jlM3R/iW+RY8DMW0dd3u84/CuaVmI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=s0AJc1mZdorzt5wTLN2EHqmI9B9WS+v0D7xufyKc8qZ8jCjh160GooAnPVFnfr09Pv9Kgcloy/K92Qj29wb0PaieA0YXpPGkfx08rxX3L1Be282iKrpDoZ3+5LUqa1QhEU2YpYfDFyQSr1Cp8l8xxr1W7l2A2bXMPvOYeLgtL68=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=CFdSP8lZ; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=mDiFuDQx; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=FgV8zFMa; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=U+0RTVn2; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b="cghj0gST"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=sony.com; s=s1jp; t=1770968411; x=1802504411;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Pzfx5lLFbK5d4r8P3rsCdaD/raTj07tQWAB1fg3LiRQ=;
-  b=cghj0gSTGfA9nPG4Er23cSoBLsjxRpxcAstqNZQYhfG5ofT4aJCII3LS
-   kPCWNCrApyI1XlFnjdnzh6c5SLdBqiCG2iLy31yD8s+IUvLWcPg4mw+QQ
-   sdGgJAaEYlVS64XEymbhP5jV8X5rE45HKOzbrocC+vsyWkJvjXxcfAcDK
-   7dqSL091WLJD+2g6HKkTZ0utZcMP54mlYvtapTMRFH5s0/raIunQt/fFE
-   300Au2WvSNdSLqaf+ZW+cNDIRJhSm8xlEDcoa2bfVwRzZKry2r89apNcd
-   tGDBa6VVi9hp7UWjgIze/gV5QC2NkC1hpm+yzRN6knOGYp6S7GVmUlgRF
-   g==;
-Received: from unknown (HELO jpmta-ob02.noc.sony.co.jp) ([IPv6:2001:cf8:0:6e7::7])
-  by jpms-ob01.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2026 16:40:04 +0900
-X-IronPort-AV: E=Sophos;i="6.21,288,1763391600"; 
-   d="scan'208";a="581327796"
-Received: from unknown (HELO JPC00244420) ([IPv6:2001:cf8:1:573:0:dddd:6b3e:119e])
-  by jpmta-ob02.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2026 16:40:03 +0900
-Date: Fri, 13 Feb 2026 16:39:59 +0900
-From: Shashank Balaji <shashank.mahadasyam@sony.com>
-To: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Suresh Siddha <suresh.b.siddha@intel.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Juergen Gross <jgross@suse.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-	jailhouse-dev@googlegroups.com, kvm@vger.kernel.org,
-	xen-devel@lists.xenproject.org, Rahul Bukte <rahul.bukte@sony.com>,
-	Daniel Palmer <daniel.palmer@sony.com>,
-	Tim Bird <tim.bird@sony.com>, Sohil Mehta <sohil.mehta@intel.com>
-Subject: Re: [PATCH 3/3] x86/virt: rename x2apic_available to
- x2apic_without_ir_available
-Message-ID: <aY7VTwfJDREcrwJy@JPC00244420>
-References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
- <20260202-x2apic-fix-v1-3-71c8f488a88b@sony.com>
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="CFdSP8lZ";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="mDiFuDQx";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="FgV8zFMa";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="U+0RTVn2"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id DF6633E6D4;
+	Fri, 13 Feb 2026 08:54:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1770972880; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=R8IMx2PRe6DO7hTr/0m0nRiXAWYpDypxsMIyjb6YLgs=;
+	b=CFdSP8lZ1U/Ohf629Fb0N7KS7TBjNuJMRkLKlv62bktH3YUZXsIzesF+YF2QpiykquXnB1
+	v3QasxYb4MJkKft3eLYByNj8reZ1AvHh4Qhji2he/aJ8WI2Csuygk51lUEqzzcMzrRkRm4
+	srR775WqDmVLvOWQjwPPCpeCZAPzHiA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1770972880;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=R8IMx2PRe6DO7hTr/0m0nRiXAWYpDypxsMIyjb6YLgs=;
+	b=mDiFuDQxjJQZxli8cIVx2MERCTx+wRdZXox8cc1b9dSxjf3LOEQ4A3m0bTMvuW3kGPahj+
+	A+y7ZY+y8H61K2DQ==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1770972879; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=R8IMx2PRe6DO7hTr/0m0nRiXAWYpDypxsMIyjb6YLgs=;
+	b=FgV8zFMauwUnsS7NGZXy8kaOpJHOwGvBU8huqcbOK2wRjLQI0eAADnfN4zCt4QX9SHWyHd
+	ZBWH2bKA7oqhYRCxV6jGvwJF3xFGTr96YuJpyu4QKf4bgkj2ZJwnDcEgrcjXUXZMQHUQbP
+	zAVSiYy+aOIJVLqswlbgjO4b4WCp9mg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1770972879;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=R8IMx2PRe6DO7hTr/0m0nRiXAWYpDypxsMIyjb6YLgs=;
+	b=U+0RTVn2D2ptoWrYQB70sZ/KeJtHoVdJuz/aVR9oJCn1CNoLJXAdFQGQvNELjNex8L5Oj0
+	8KsqOLBO0blm6nBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9B56A3EA62;
+	Fri, 13 Feb 2026 08:54:39 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id NE+XJc/mjmkHOQAAD6G6ig
+	(envelope-from <vbabka@suse.cz>); Fri, 13 Feb 2026 08:54:39 +0000
+Message-ID: <d52066f1-c83e-4406-adca-5a403adb4f44@suse.cz>
+Date: Fri, 13 Feb 2026 09:54:39 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260202-x2apic-fix-v1-3-71c8f488a88b@sony.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] mm/mempolicy: track page allocations per mempolicy
+Content-Language: en-US
+To: JP Kobryn <inwardvessel@gmail.com>, linux-mm@kvack.org
+Cc: apopple@nvidia.com, akpm@linux-foundation.org, axelrasmussen@google.com,
+ byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
+ eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
+ hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
+ linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
+ matthew.brost@intel.com, mst@redhat.com, mhocko@suse.com, rppt@kernel.org,
+ muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
+ roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
+ virtualization@lists.linux.dev, weixugc@google.com,
+ xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com,
+ yuanchu@google.com, ziy@nvidia.com, kernel-team@meta.com
+References: <20260212045109.255391-1-inwardvessel@gmail.com>
+ <20260212045109.255391-2-inwardvessel@gmail.com>
+ <96b63efb-551f-4dd5-b4a2-ac67da577431@suse.cz>
+ <b5927ae8-3108-4d65-bee9-be306fb697b4@gmail.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Autocrypt: addr=vbabka@suse.cz; keydata=
+ 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
+ m6M14QORSWTLRg==
+In-Reply-To: <b5927ae8-3108-4d65-bee9-be306fb697b4@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.80
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	MIME_TRACE(0.00)[0:+];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[33];
+	TAGGED_RCPT(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLqz6np1um3hmda3durc78h1b5)];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[nvidia.com,linux-foundation.org,google.com,sk.com,vger.kernel.org,kernel.org,redhat.com,gourry.net,cmpxchg.org,gmail.com,oracle.com,intel.com,suse.com,linux.dev,bytedance.com,lists.linux.dev,linux.alibaba.com,meta.com];
+	FREEMAIL_TO(0.00)[gmail.com,kvack.org];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.cz:mid]
+X-Spam-Level: 
+X-Spam-Flag: NO
 
-Hi x86 and virt folks,
+On 2/12/26 22:25, JP Kobryn wrote:
+> On 2/12/26 7:24 AM, Vlastimil Babka wrote:
+>> On 2/12/26 05:51, JP Kobryn wrote:
+>>> It would be useful to see a breakdown of allocations to understand which
+>>> NUMA policies are driving them. For example, when investigating memory
+>>> pressure, having policy-specific counts could show that allocations were
+>>> bound to the affected node (via MPOL_BIND).
+>>>
+>>> Add per-policy page allocation counters as new node stat items. These
+>>> counters can provide correlation between a mempolicy and pressure on a
+>>> given node.
+>>>
+>>> Signed-off-by: JP Kobryn <inwardvessel@gmail.com>
+>>> Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
+>> 
+>> Are the numa_{hit,miss,etc.} counters insufficient? Could they be extended
+>> in a way that would capture any missing important details? A counter per
+>> policy type seems exhaustive, but then on one hand it might be not important
+>> to distinguish beetween some of them, and on the other hand it doesn't track
+>> the nodemask anyway.
+> 
+> The two patches of the series should complement each other. When
+> investigating memory pressure, we could identify the affected nodes
+> (patch 2). Then we can cross-reference the policy-specific stats to find
+> any correlation (this patch).
+> 
+> I think extending numa_* counters would call for more permutations to
+> account for the numa stat per policy. I think distinguishing between
+> MPOL_DEFAULT and MPOL_BIND is meaningful, for example. Am I
 
-I'd like some feedback on this patch. I realise that just updating the
-name to x2apic_without_ir_available() with no indication in the code
-suggesting that the hypervisor implementations may not be answering the
-question "is x2apic availalble without IR?" is bad.
+Are there other useful examples or would it be enough to add e.g. a
+numa_bind counter to the numa_hit/miss/etc?
+What I'm trying to say the level of detail you are trying to add to the
+always-on counters seems like more suitable for tracepoints. The counters
+should be limited to what's known to be useful and not "everything we are
+able to track and possibly could need one day".
 
-I suppose the options are:
+> understanding your question?
 
-1. Check seven hypervisor's x2apic_available() implementation to see if
-the "x2apic_without_ir_available" semantic matches, and then do the
-renaming
-
-	Problem is, I don't know enough about the hypervisors to check
-	the implementations. Some help from the virt folks would be
-	great!
-
-2. Add TODOs on the hypervisor implementations, hoping they'll be
-audited in the future
-
-	There's a chance the TODOs will just sit there rotting. It's
-	ugly, even I don't like it
-
-So how do we proceed?
-
-On Mon, Feb 02, 2026 at 06:51:04PM +0900, Shashank Balaji wrote:
-> No functional change.
-> 
-> x86_init.hyper.x2apic_available is used only in try_to_enable_x2apic to check if
-> x2apic needs to be disabled if interrupt remapping support isn't present. But
-> the name x2apic_available doesn't reflect that usage.
-> 
-> This is what x2apic_available is set to for various hypervisors:
-> 
-> 	acrn		boot_cpu_has(X86_FEATURE_X2APIC)
-> 	mshyperv	boot_cpu_has(X86_FEATURE_X2APIC)
-> 	xen		boot_cpu_has(X86_FEATURE_X2APIC) or false
-> 	vmware		vmware_legacy_x2apic_available
-> 	kvm		kvm_cpuid_base() != 0
-> 	jailhouse	x2apic_enabled()
-> 	bhyve		true
-> 	default		false
-> 
-> Bare metal and vmware correctly check if x2apic is available without interrupt
-> remapping. The rest of them check if x2apic is enabled/supported, and kvm just
-> checks if the kernel is running on kvm. The other hypervisors may have to have
-> their checks audited.
-> 
-> Also fix the backwards pr_info message printed on disabling x2apic because of
-> lack of irq remapping support.
-> 
-> Compile tested with all the hypervisor guest support enabled.
-> 
-> Co-developed-by: Rahul Bukte <rahul.bukte@sony.com>
-> Signed-off-by: Rahul Bukte <rahul.bukte@sony.com>
-> Signed-off-by: Shashank Balaji <shashank.mahadasyam@sony.com>
-> ---
->  arch/x86/include/asm/x86_init.h |  4 ++--
->  arch/x86/kernel/apic/apic.c     |  4 ++--
->  arch/x86/kernel/cpu/acrn.c      |  2 +-
->  arch/x86/kernel/cpu/bhyve.c     |  2 +-
->  arch/x86/kernel/cpu/mshyperv.c  |  2 +-
->  arch/x86/kernel/cpu/vmware.c    |  2 +-
->  arch/x86/kernel/jailhouse.c     |  2 +-
->  arch/x86/kernel/kvm.c           |  2 +-
->  arch/x86/kernel/x86_init.c      | 12 ++++++------
->  arch/x86/xen/enlighten_hvm.c    |  4 ++--
->  10 files changed, 18 insertions(+), 18 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
-> index 6c8a6ead84f6..b270d9eed755 100644
-> --- a/arch/x86/include/asm/x86_init.h
-> +++ b/arch/x86/include/asm/x86_init.h
-> @@ -116,7 +116,7 @@ struct x86_init_pci {
->   * struct x86_hyper_init - x86 hypervisor init functions
->   * @init_platform:		platform setup
->   * @guest_late_init:		guest late init
-> - * @x2apic_available:		X2APIC detection
-> + * @x2apic_without_ir_available: is x2apic available without irq remap?
->   * @msi_ext_dest_id:		MSI supports 15-bit APIC IDs
->   * @init_mem_mapping:		setup early mappings during init_mem_mapping()
->   * @init_after_bootmem:		guest init after boot allocator is finished
-> @@ -124,7 +124,7 @@ struct x86_init_pci {
->  struct x86_hyper_init {
->  	void (*init_platform)(void);
->  	void (*guest_late_init)(void);
-> -	bool (*x2apic_available)(void);
-> +	bool (*x2apic_without_ir_available)(void);
->  	bool (*msi_ext_dest_id)(void);
->  	void (*init_mem_mapping)(void);
->  	void (*init_after_bootmem)(void);
-> diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-> index cc64d61f82cf..8820b631f8a2 100644
-> --- a/arch/x86/kernel/apic/apic.c
-> +++ b/arch/x86/kernel/apic/apic.c
-> @@ -1836,8 +1836,8 @@ static __init void try_to_enable_x2apic(int remap_mode)
->  		 * Using X2APIC without IR is not architecturally supported
->  		 * on bare metal but may be supported in guests.
->  		 */
-> -		if (!x86_init.hyper.x2apic_available()) {
-> -			pr_info("x2apic: IRQ remapping doesn't support X2APIC mode\n");
-> +		if (!x86_init.hyper.x2apic_without_ir_available()) {
-> +			pr_info("x2apic: Not supported without IRQ remapping\n");
->  			x2apic_disable();
->  			return;
->  		}
-> diff --git a/arch/x86/kernel/cpu/acrn.c b/arch/x86/kernel/cpu/acrn.c
-> index 2c5b51aad91a..9204b98d4786 100644
-> --- a/arch/x86/kernel/cpu/acrn.c
-> +++ b/arch/x86/kernel/cpu/acrn.c
-> @@ -77,5 +77,5 @@ const __initconst struct hypervisor_x86 x86_hyper_acrn = {
->  	.detect                 = acrn_detect,
->  	.type			= X86_HYPER_ACRN,
->  	.init.init_platform     = acrn_init_platform,
-> -	.init.x2apic_available  = acrn_x2apic_available,
-> +	.init.x2apic_without_ir_available = acrn_x2apic_available,
->  };
-> diff --git a/arch/x86/kernel/cpu/bhyve.c b/arch/x86/kernel/cpu/bhyve.c
-> index f1a8ca3dd1ed..91a90a7459ce 100644
-> --- a/arch/x86/kernel/cpu/bhyve.c
-> +++ b/arch/x86/kernel/cpu/bhyve.c
-> @@ -61,6 +61,6 @@ const struct hypervisor_x86 x86_hyper_bhyve __refconst = {
->  	.name			= "Bhyve",
->  	.detect			= bhyve_detect,
->  	.init.init_platform	= x86_init_noop,
-> -	.init.x2apic_available	= bhyve_x2apic_available,
-> +	.init.x2apic_without_ir_available = bhyve_x2apic_available,
->  	.init.msi_ext_dest_id	= bhyve_ext_dest_id,
->  };
-> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-> index 579fb2c64cfd..61458855094a 100644
-> --- a/arch/x86/kernel/cpu/mshyperv.c
-> +++ b/arch/x86/kernel/cpu/mshyperv.c
-> @@ -760,7 +760,7 @@ const __initconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
->  	.name			= "Microsoft Hyper-V",
->  	.detect			= ms_hyperv_platform,
->  	.type			= X86_HYPER_MS_HYPERV,
-> -	.init.x2apic_available	= ms_hyperv_x2apic_available,
-> +	.init.x2apic_without_ir_available = ms_hyperv_x2apic_available,
->  	.init.msi_ext_dest_id	= ms_hyperv_msi_ext_dest_id,
->  	.init.init_platform	= ms_hyperv_init_platform,
->  	.init.guest_late_init	= ms_hyperv_late_init,
-> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-> index cb3f900c46fc..46d325818797 100644
-> --- a/arch/x86/kernel/cpu/vmware.c
-> +++ b/arch/x86/kernel/cpu/vmware.c
-> @@ -585,7 +585,7 @@ const __initconst struct hypervisor_x86 x86_hyper_vmware = {
->  	.detect				= vmware_platform,
->  	.type				= X86_HYPER_VMWARE,
->  	.init.init_platform		= vmware_platform_setup,
-> -	.init.x2apic_available		= vmware_legacy_x2apic_available,
-> +	.init.x2apic_without_ir_available = vmware_legacy_x2apic_available,
->  #ifdef CONFIG_AMD_MEM_ENCRYPT
->  	.runtime.sev_es_hcall_prepare	= vmware_sev_es_hcall_prepare,
->  	.runtime.sev_es_hcall_finish	= vmware_sev_es_hcall_finish,
-> diff --git a/arch/x86/kernel/jailhouse.c b/arch/x86/kernel/jailhouse.c
-> index 9e9a591a5fec..84a0bbe15989 100644
-> --- a/arch/x86/kernel/jailhouse.c
-> +++ b/arch/x86/kernel/jailhouse.c
-> @@ -291,6 +291,6 @@ const struct hypervisor_x86 x86_hyper_jailhouse __refconst = {
->  	.name			= "Jailhouse",
->  	.detect			= jailhouse_detect,
->  	.init.init_platform	= jailhouse_init_platform,
-> -	.init.x2apic_available	= jailhouse_x2apic_available,
-> +	.init.x2apic_without_ir_available = jailhouse_x2apic_available,
->  	.ignore_nopv		= true,
->  };
-> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-> index 37dc8465e0f5..709eba87d58e 100644
-> --- a/arch/x86/kernel/kvm.c
-> +++ b/arch/x86/kernel/kvm.c
-> @@ -1042,7 +1042,7 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
->  	.detect				= kvm_detect,
->  	.type				= X86_HYPER_KVM,
->  	.init.guest_late_init		= kvm_guest_init,
-> -	.init.x2apic_available		= kvm_para_available,
-> +	.init.x2apic_without_ir_available = kvm_para_available,
->  	.init.msi_ext_dest_id		= kvm_msi_ext_dest_id,
->  	.init.init_platform		= kvm_init_platform,
->  #if defined(CONFIG_AMD_MEM_ENCRYPT)
-> diff --git a/arch/x86/kernel/x86_init.c b/arch/x86/kernel/x86_init.c
-> index ebefb77c37bb..9ddf8c901ac6 100644
-> --- a/arch/x86/kernel/x86_init.c
-> +++ b/arch/x86/kernel/x86_init.c
-> @@ -112,12 +112,12 @@ struct x86_init_ops x86_init __initdata = {
->  	},
->  
->  	.hyper = {
-> -		.init_platform		= x86_init_noop,
-> -		.guest_late_init	= x86_init_noop,
-> -		.x2apic_available	= bool_x86_init_noop,
-> -		.msi_ext_dest_id	= bool_x86_init_noop,
-> -		.init_mem_mapping	= x86_init_noop,
-> -		.init_after_bootmem	= x86_init_noop,
-> +		.init_platform			= x86_init_noop,
-> +		.guest_late_init		= x86_init_noop,
-> +		.x2apic_without_ir_available	= bool_x86_init_noop,
-> +		.msi_ext_dest_id		= bool_x86_init_noop,
-> +		.init_mem_mapping		= x86_init_noop,
-> +		.init_after_bootmem		= x86_init_noop,
->  	},
->  
->  	.acpi = {
-> diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
-> index fe57ff85d004..42f3d21f313d 100644
-> --- a/arch/x86/xen/enlighten_hvm.c
-> +++ b/arch/x86/xen/enlighten_hvm.c
-> @@ -311,7 +311,7 @@ static uint32_t __init xen_platform_hvm(void)
->  		 * detect PVH and panic there.
->  		 */
->  		h->init_platform = x86_init_noop;
-> -		h->x2apic_available = bool_x86_init_noop;
-> +		h->x2apic_without_ir_available = bool_x86_init_noop;
->  		h->init_mem_mapping = x86_init_noop;
->  		h->init_after_bootmem = x86_init_noop;
->  		h->guest_late_init = xen_hvm_guest_late_init;
-> @@ -325,7 +325,7 @@ struct hypervisor_x86 x86_hyper_xen_hvm __initdata = {
->  	.detect                 = xen_platform_hvm,
->  	.type			= X86_HYPER_XEN_HVM,
->  	.init.init_platform     = xen_hvm_guest_init,
-> -	.init.x2apic_available  = xen_x2apic_available,
-> +	.init.x2apic_without_ir_available = xen_x2apic_available,
->  	.init.init_mem_mapping	= xen_hvm_init_mem_mapping,
->  	.init.guest_late_init	= xen_hvm_guest_late_init,
->  	.init.msi_ext_dest_id   = msi_ext_dest_id,
-> 
-> -- 
-> 2.43.0
-> 
