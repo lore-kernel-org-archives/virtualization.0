@@ -1,242 +1,305 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from jpms-ob01.noc.sony.co.jp (jpms-ob01.noc.sony.co.jp [211.125.140.164])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A48F301000
-	for <virtualization@lists.linux.dev>; Fri, 13 Feb 2026 07:39:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57819284682
+	for <virtualization@lists.linux.dev>; Fri, 13 Feb 2026 07:40:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.125.140.164
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770968385; cv=none; b=J7uFTpAvjWGudd3jtWGaapF+XO1NMfTiEaylV2CEqHTfn2RoGT0eAbSRPWAvYcxv1UPPxJd/I0gwChzF/RqORJLjQPKGEtWhQkuRWoemt4WEfoHzNosFujM3apfCffNos06LHFkzMotLR+sri1yODh6f4MOwRdtvsGImhyZ+4ew=
+	t=1770968413; cv=none; b=UkcYbhtKWJOS9MzW9ctKvDO9k3DhGoSZ72BUdqDOewLr13Z4M2Prr8AqX9nmKLDnOqJGrI3HfOEokMu8asX0DQSLA8tP68GTHdDFnxH6J4ZMhY5x4Y4nVc9LYBAandSiqKxyexWlB9pi6QPMevImleQoi57hnmgjnnKNY6qgb98=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770968385; c=relaxed/simple;
-	bh=dIYWFBVG7P/Dz/QaqzMh9qEVBG2n5v4y43vlt3bjaEg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IXwDInXIKXmf4Mf4skHyeh4hX2Xrro07mq3CqKCH1tgOKtJzhPZc6jpog35ya0xh56JWd+EQiTah8BlZrxFUQdQKye6n4rNAf+T0C+TJ3yRtZet2cbTohX5jZK5hVXaazY4C2TYgMLGcm96nldGrbzF8ISd6C2+iECdKgoG7bwo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bqrYCAzU; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1770968413; c=relaxed/simple;
+	bh=fE+S91KknX0BLbc1Itp/YHqez4OEwJVurApYsMOHRl0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jloHgfYE60nsVgj9mhP/eUmm1D6h56SL3RbBrVY471tvCNCXTArw0hGnXpomkUqXTi+cu+dnaY+J4aHCFDUzA+GsvWy9bAuCl+wUn6mLTgpR6MUvpbtiEXwKnz3YB6BH/in0WINxDC8P5uqFVfZGhsa5QQD8m+KDUBzRk10gW5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com; spf=pass smtp.mailfrom=sony.com; dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b=cghj0gST; arc=none smtp.client-ip=211.125.140.164
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sony.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sony.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bqrYCAzU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1770968381;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oJ4KuHQ6XsjU8YX9srQm8FvyrAZmX2HORsaGPjhIo3I=;
-	b=bqrYCAzUixgelNw80LgenAdBG6g0hGwmG6y6joyLoDuQQPmZd3IUFYAHo4n3UanlBievQm
-	nI0RC8duakYn55iXu8E02XgKrXS5c78VGxay5DZJHpQ11Cn2hTopnoI1YGoTV0o93+/eln
-	6Z6quQ0TaxxqBXdKNJnWpN9U7rHKyco=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-107-2DvwOZD0N4GrHLjSSRjfng-1; Fri, 13 Feb 2026 02:39:39 -0500
-X-MC-Unique: 2DvwOZD0N4GrHLjSSRjfng-1
-X-Mimecast-MFC-AGG-ID: 2DvwOZD0N4GrHLjSSRjfng_1770968379
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-7949310b90cso17192197b3.2
-        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 23:39:39 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770968379; x=1771573179;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=oJ4KuHQ6XsjU8YX9srQm8FvyrAZmX2HORsaGPjhIo3I=;
-        b=pIazIAdvIANWmqkTt9DhVqS57oEiOHWNzc5auQANYPy+ZJ79Gm7IH3IdX97kfXn2SG
-         PN0H6Y9XXu80FkjlvZ/E0rBOPsNvQbqEmFkrBOFAR+tkbzsciZM1MOWVz3F7ZLRICuy9
-         ZpVqdO461vBopRwyKvr24POK+/qQNOS2NRyqsA4GPEWQ/6MV5w678qltqb9Z9pt+qoRY
-         Z3i3NWpl5CPfBLJVQT3aHyzmkQCQBBBOGlm2bhGg6y4L9XTsL899WABbBy1Zjf4/ojJL
-         0oGhCQcQeIkDerEWxgActrRnxXFQxIaYTDvobghh5tvh3T6AzdqQ8KxuvFcu/xVCWTeZ
-         xrkg==
-X-Forwarded-Encrypted: i=1; AJvYcCVoUpxB9qlY6oTUaxvMHu3KmLje6pj+tatmY1o+Q+tCTJBNj5AJjOpsm20RkBwk9WMSDF3b+ET+FfukN9sWfQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzu8bwaB1L9VgBYNvs/B4wfaZ1+15qcoUaR3wqO4TOvy2TNaBY6
-	X48QiyzoVqmLa6A6dMOqfTuyEpAJXd/fDjgFeFEpRuq8nB8h2TQcN/X5pXFD39l4U4/4ybcgDfe
-	etq2iWVCtERy9TYg4YhmSALtGBVPeA2bIlgJn8INr5h8eEEImhbPBXGJTwPt5O1L7g+Yxl50zNB
-	PYxN3dscDuLvQBjX/q2OFqO3XuL6mP4hFra/XVlm0BNVI=
-X-Gm-Gg: AZuq6aKL5JBIYhmW+NwhVJ4touxtQzajV8kSDZwXHd8o6wCcuJFF+sK7Rpq3+/l6IT8
-	FNTW8kCwB6PzRm0xXnSsOU6zxo7kR1/syOOg73UjHRJyShbDl6fo1oKV0/FJzTjEF4wR3TBOwVJ
-	R08aasFdzvYI6ex9r6DiS9rT7QOtCWkGONXvlWRLi6GWUioGXdk/PupXUDX2K5T4PBlo41dmljh
-	K6+SQ==
-X-Received: by 2002:a05:690c:6612:b0:792:7c6e:35fa with SMTP id 00721157ae682-797a0ce7accmr7374167b3.37.1770968379119;
-        Thu, 12 Feb 2026 23:39:39 -0800 (PST)
-X-Received: by 2002:a05:690c:6612:b0:792:7c6e:35fa with SMTP id
- 00721157ae682-797a0ce7accmr7374037b3.37.1770968378753; Thu, 12 Feb 2026
- 23:39:38 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=sony.com header.i=@sony.com header.b="cghj0gST"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=sony.com; s=s1jp; t=1770968411; x=1802504411;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Pzfx5lLFbK5d4r8P3rsCdaD/raTj07tQWAB1fg3LiRQ=;
+  b=cghj0gSTGfA9nPG4Er23cSoBLsjxRpxcAstqNZQYhfG5ofT4aJCII3LS
+   kPCWNCrApyI1XlFnjdnzh6c5SLdBqiCG2iLy31yD8s+IUvLWcPg4mw+QQ
+   sdGgJAaEYlVS64XEymbhP5jV8X5rE45HKOzbrocC+vsyWkJvjXxcfAcDK
+   7dqSL091WLJD+2g6HKkTZ0utZcMP54mlYvtapTMRFH5s0/raIunQt/fFE
+   300Au2WvSNdSLqaf+ZW+cNDIRJhSm8xlEDcoa2bfVwRzZKry2r89apNcd
+   tGDBa6VVi9hp7UWjgIze/gV5QC2NkC1hpm+yzRN6knOGYp6S7GVmUlgRF
+   g==;
+Received: from unknown (HELO jpmta-ob02.noc.sony.co.jp) ([IPv6:2001:cf8:0:6e7::7])
+  by jpms-ob01.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2026 16:40:04 +0900
+X-IronPort-AV: E=Sophos;i="6.21,288,1763391600"; 
+   d="scan'208";a="581327796"
+Received: from unknown (HELO JPC00244420) ([IPv6:2001:cf8:1:573:0:dddd:6b3e:119e])
+  by jpmta-ob02.noc.sony.co.jp with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2026 16:40:03 +0900
+Date: Fri, 13 Feb 2026 16:39:59 +0900
+From: Shashank Balaji <shashank.mahadasyam@sony.com>
+To: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Suresh Siddha <suresh.b.siddha@intel.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Juergen Gross <jgross@suse.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+	jailhouse-dev@googlegroups.com, kvm@vger.kernel.org,
+	xen-devel@lists.xenproject.org, Rahul Bukte <rahul.bukte@sony.com>,
+	Daniel Palmer <daniel.palmer@sony.com>,
+	Tim Bird <tim.bird@sony.com>, Sohil Mehta <sohil.mehta@intel.com>
+Subject: Re: [PATCH 3/3] x86/virt: rename x2apic_available to
+ x2apic_without_ir_available
+Message-ID: <aY7VTwfJDREcrwJy@JPC00244420>
+References: <20260202-x2apic-fix-v1-0-71c8f488a88b@sony.com>
+ <20260202-x2apic-fix-v1-3-71c8f488a88b@sony.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260210082554.1582553-1-eperezma@redhat.com> <20260210082554.1582553-4-eperezma@redhat.com>
- <CACGkMEtmnV5xJ6crnfTr5Nk8tZe437OgqB22yTOJ+nnrb0LcPg@mail.gmail.com>
- <CAJaqyWdN7xdu_=mUzE3GGBtTeW5g6O0YwWnV_UmX+g2+FNDkZA@mail.gmail.com> <CACGkMEuY0f1xjxc4n6QzKfUa-LFrM-X_xtOpTwm5SWjfVvikHA@mail.gmail.com>
-In-Reply-To: <CACGkMEuY0f1xjxc4n6QzKfUa-LFrM-X_xtOpTwm5SWjfVvikHA@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Fri, 13 Feb 2026 08:39:02 +0100
-X-Gm-Features: AZwV_Qj2-VdyZvDQlJpMAGnIMkGb-tEb4wqxTP5Vgj-DUADdBv_Ps8ld4UL1-SI
-Message-ID: <CAJaqyWe4V77K7R+d_HvSR_2j+sXqemr+zcLUOf7BPu1hT1-ztA@mail.gmail.com>
-Subject: Re: [PATCH v2 3/5] vduse: add VDUSE_GET_FEATURES ioctl
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
-	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>, 
-	Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: v7_v9IzCruepWRInixneVIKGHThRPhkUSG1Z2k7ApjQ_1770968379
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260202-x2apic-fix-v1-3-71c8f488a88b@sony.com>
 
-On Fri, Feb 13, 2026 at 2:25=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Thu, Feb 12, 2026 at 4:23=E2=80=AFPM Eugenio Perez Martin
-> <eperezma@redhat.com> wrote:
-> >
-> > On Thu, Feb 12, 2026 at 9:07=E2=80=AFAM Jason Wang <jasowang@redhat.com=
-> wrote:
-> > >
-> > > On Tue, Feb 10, 2026 at 4:26=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@=
-redhat.com> wrote:
-> > > >
-> > > > Add an ioctl to allow VDUSE instances to query the available featur=
-es
-> > > > supported by the kernel module.
-> > > >
-> > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > > ---
-> > > > A simple u64 bitmap is used for feature flags. While a flexible arr=
-ay
-> > > > could support indefinite expansion, 64 bits is sufficient for the
-> > > > foreseeable future and simplifies the implementation.
-> > > >
-> > > > Also, dev_dbg is used for logging rather than dev_err as these can =
-be
-> > > > triggered from userspace.
-> > > > ---
-> > > > v2:
-> > > > * return -EINVAL if ioctl called with version < 2, so userland visi=
-ble
-> > > >   reply is kept (Jason).
-> > > > ---
-> > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 ++++++++++++++++++++++++++=
-++
-> > > >  include/uapi/linux/vduse.h         |  7 ++++++-
-> > > >  2 files changed, 34 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa=
-_user/vduse_dev.c
-> > > > index d1da7c15d98b..7458cbaed4c7 100644
-> > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > @@ -52,6 +52,9 @@
-> > > >
-> > > >  #define IRQ_UNBOUND -1
-> > > >
-> > > > +/* Supported VDUSE features */
-> > > > +static const uint64_t vduse_features;
-> > > > +
-> > > >  /*
-> > > >   * VDUSE instance have not asked the vduse API version, so assume =
-0.
-> > > >   *
-> > > > @@ -1947,6 +1950,19 @@ static bool vduse_validate_config(struct vdu=
-se_dev_config *config,
-> > > >                          sizeof(config->reserved)))
-> > > >                 return false;
-> > > >
-> > > > +       if (api_version < VDUSE_API_VERSION_2) {
-> > > > +               if (config->vduse_features) {
-> > > > +                       dev_dbg(vduse_ctrl_dev,
-> > > > +                               "config->vduse_features with versio=
-n %llu",
-> > > > +                               api_version);
-> > > > +                       return false;
-> > > > +               }
-> > > > +       } else {
-> > > > +               if (config->vduse_features & ~vduse_features)
-> > > > +                       return false;
-> > > > +       }
-> > > > +
-> > > > +
-> > > >         if (api_version < VDUSE_API_VERSION_1 &&
-> > > >             (config->ngroups || config->nas))
-> > > >                 return false;
-> > > > @@ -2207,6 +2223,18 @@ static long vduse_ioctl(struct file *file, u=
-nsigned int cmd,
-> > > >                 ret =3D vduse_destroy_dev(name);
-> > > >                 break;
-> > > >         }
-> > > > +       case VDUSE_GET_FEATURES:
-> > > > +               if (control->api_version < VDUSE_API_VERSION_2) {
-> > > > +                       dev_dbg(vduse_ctrl_dev,
-> > > > +                               "VDUSE_GET_FEATURES ioctl with vers=
-ion %llu",
-> > > > +                               control->api_version);
-> > > > +                       ret =3D -EINVAL;
-> > > > +                       break;
-> > > > +               }
-> > > > +
-> > > > +               ret =3D put_user(vduse_features, (u64 __user *)argp=
-);
-> > > > +               break;
-> > > > +
-> > > >         default:
-> > > >                 ret =3D -EINVAL;
-> > > >                 break;
-> > > > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.=
-h
-> > > > index 27832d46084c..8898d9daa777 100644
-> > > > --- a/include/uapi/linux/vduse.h
-> > > > +++ b/include/uapi/linux/vduse.h
-> > > > @@ -37,6 +37,7 @@
-> > > >   * @vq_align: the allocation alignment of virtqueue's metadata
-> > > >   * @ngroups: number of vq groups that VDUSE device declares
-> > > >   * @nas: number of address spaces that VDUSE device declares
-> > > > + * @vduse_features: VDUSE features
-> > > >   * @reserved: for future use, needs to be initialized to zero
-> > > >   * @config_size: the size of the configuration space
-> > > >   * @config: the buffer of the configuration space
-> > > > @@ -53,7 +54,8 @@ struct vduse_dev_config {
-> > > >         __u32 vq_align;
-> > > >         __u32 ngroups; /* if VDUSE_API_VERSION >=3D 1 */
-> > > >         __u32 nas; /* if VDUSE_API_VERSION >=3D 1 */
-> > > > -       __u32 reserved[11];
-> > > > +       __u64 vduse_features;
-> > >
-> > > Nit: Should we document " /* if VDUSE_API_VERSION >=3D 2 */
-> > >
-> > > But I have an open question, is this better to just introduce a
-> > > VDUSE_SET_FEATURES then we can do negotiation to avoid bumping API
-> > > versions?
-> > >
-> >
-> > How do you know if you can call VDUSE_GET_FEATURES and
-> > VDUSE_SET_FEATURES then? vduse_ioctl does not even return -ENOIOCMD
-> > but -EINVAL if you call the equivalent of VDUSE_GET_FEATURES on
-> > current Linux master. Or should the VDUSE instance assume that if the
-> > ioctl returns -EINVAL the kernel does not support them?
->
-> If we go that way, yes.
->
+Hi x86 and virt folks,
 
-I'm ok with doing the change. Kind of, I still think that increasing
-the API version is way cleaner, so no ioctl returns any error in
-regular initialization. But python's style "ask forgiveness not
-permission" is also ok for me.
+I'd like some feedback on this patch. I realise that just updating the
+name to x2apic_without_ir_available() with no indication in the code
+suggesting that the hypervisor implementations may not be answering the
+question "is x2apic availalble without IR?" is bad.
 
-But I'm really missing the motivation of it. What's the problem with
-the increase of the version that you are trying to solve here?
+I suppose the options are:
 
-Can we make a rule to know when to increase the version, and when it
-is not needed and it is ok for ioctls to just return -EINVAL or
--ENOIOCTLCMD, so future series can hit the right behavior from earlier
-versions?
+1. Check seven hypervisor's x2apic_available() implementation to see if
+the "x2apic_without_ir_available" semantic matches, and then do the
+renaming
 
-From your comment I extract that we don't need to increase the API
-version number if we just add ioctls commands to the device, like
-probing if an ioctl exists. Also, we don't need to increase the
-version if we can tell if a member in vduse_dev_config is known to
-exist because a previous ioctl (or feature flag) succeeded.
+	Problem is, I don't know enough about the hypervisors to check
+	the implementations. Some help from the virt folks would be
+	great!
 
-Am I missing something?
+2. Add TODOs on the hypervisor implementations, hoping they'll be
+audited in the future
 
+	There's a chance the TODOs will just sit there rotting. It's
+	ugly, even I don't like it
+
+So how do we proceed?
+
+On Mon, Feb 02, 2026 at 06:51:04PM +0900, Shashank Balaji wrote:
+> No functional change.
+> 
+> x86_init.hyper.x2apic_available is used only in try_to_enable_x2apic to check if
+> x2apic needs to be disabled if interrupt remapping support isn't present. But
+> the name x2apic_available doesn't reflect that usage.
+> 
+> This is what x2apic_available is set to for various hypervisors:
+> 
+> 	acrn		boot_cpu_has(X86_FEATURE_X2APIC)
+> 	mshyperv	boot_cpu_has(X86_FEATURE_X2APIC)
+> 	xen		boot_cpu_has(X86_FEATURE_X2APIC) or false
+> 	vmware		vmware_legacy_x2apic_available
+> 	kvm		kvm_cpuid_base() != 0
+> 	jailhouse	x2apic_enabled()
+> 	bhyve		true
+> 	default		false
+> 
+> Bare metal and vmware correctly check if x2apic is available without interrupt
+> remapping. The rest of them check if x2apic is enabled/supported, and kvm just
+> checks if the kernel is running on kvm. The other hypervisors may have to have
+> their checks audited.
+> 
+> Also fix the backwards pr_info message printed on disabling x2apic because of
+> lack of irq remapping support.
+> 
+> Compile tested with all the hypervisor guest support enabled.
+> 
+> Co-developed-by: Rahul Bukte <rahul.bukte@sony.com>
+> Signed-off-by: Rahul Bukte <rahul.bukte@sony.com>
+> Signed-off-by: Shashank Balaji <shashank.mahadasyam@sony.com>
+> ---
+>  arch/x86/include/asm/x86_init.h |  4 ++--
+>  arch/x86/kernel/apic/apic.c     |  4 ++--
+>  arch/x86/kernel/cpu/acrn.c      |  2 +-
+>  arch/x86/kernel/cpu/bhyve.c     |  2 +-
+>  arch/x86/kernel/cpu/mshyperv.c  |  2 +-
+>  arch/x86/kernel/cpu/vmware.c    |  2 +-
+>  arch/x86/kernel/jailhouse.c     |  2 +-
+>  arch/x86/kernel/kvm.c           |  2 +-
+>  arch/x86/kernel/x86_init.c      | 12 ++++++------
+>  arch/x86/xen/enlighten_hvm.c    |  4 ++--
+>  10 files changed, 18 insertions(+), 18 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
+> index 6c8a6ead84f6..b270d9eed755 100644
+> --- a/arch/x86/include/asm/x86_init.h
+> +++ b/arch/x86/include/asm/x86_init.h
+> @@ -116,7 +116,7 @@ struct x86_init_pci {
+>   * struct x86_hyper_init - x86 hypervisor init functions
+>   * @init_platform:		platform setup
+>   * @guest_late_init:		guest late init
+> - * @x2apic_available:		X2APIC detection
+> + * @x2apic_without_ir_available: is x2apic available without irq remap?
+>   * @msi_ext_dest_id:		MSI supports 15-bit APIC IDs
+>   * @init_mem_mapping:		setup early mappings during init_mem_mapping()
+>   * @init_after_bootmem:		guest init after boot allocator is finished
+> @@ -124,7 +124,7 @@ struct x86_init_pci {
+>  struct x86_hyper_init {
+>  	void (*init_platform)(void);
+>  	void (*guest_late_init)(void);
+> -	bool (*x2apic_available)(void);
+> +	bool (*x2apic_without_ir_available)(void);
+>  	bool (*msi_ext_dest_id)(void);
+>  	void (*init_mem_mapping)(void);
+>  	void (*init_after_bootmem)(void);
+> diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+> index cc64d61f82cf..8820b631f8a2 100644
+> --- a/arch/x86/kernel/apic/apic.c
+> +++ b/arch/x86/kernel/apic/apic.c
+> @@ -1836,8 +1836,8 @@ static __init void try_to_enable_x2apic(int remap_mode)
+>  		 * Using X2APIC without IR is not architecturally supported
+>  		 * on bare metal but may be supported in guests.
+>  		 */
+> -		if (!x86_init.hyper.x2apic_available()) {
+> -			pr_info("x2apic: IRQ remapping doesn't support X2APIC mode\n");
+> +		if (!x86_init.hyper.x2apic_without_ir_available()) {
+> +			pr_info("x2apic: Not supported without IRQ remapping\n");
+>  			x2apic_disable();
+>  			return;
+>  		}
+> diff --git a/arch/x86/kernel/cpu/acrn.c b/arch/x86/kernel/cpu/acrn.c
+> index 2c5b51aad91a..9204b98d4786 100644
+> --- a/arch/x86/kernel/cpu/acrn.c
+> +++ b/arch/x86/kernel/cpu/acrn.c
+> @@ -77,5 +77,5 @@ const __initconst struct hypervisor_x86 x86_hyper_acrn = {
+>  	.detect                 = acrn_detect,
+>  	.type			= X86_HYPER_ACRN,
+>  	.init.init_platform     = acrn_init_platform,
+> -	.init.x2apic_available  = acrn_x2apic_available,
+> +	.init.x2apic_without_ir_available = acrn_x2apic_available,
+>  };
+> diff --git a/arch/x86/kernel/cpu/bhyve.c b/arch/x86/kernel/cpu/bhyve.c
+> index f1a8ca3dd1ed..91a90a7459ce 100644
+> --- a/arch/x86/kernel/cpu/bhyve.c
+> +++ b/arch/x86/kernel/cpu/bhyve.c
+> @@ -61,6 +61,6 @@ const struct hypervisor_x86 x86_hyper_bhyve __refconst = {
+>  	.name			= "Bhyve",
+>  	.detect			= bhyve_detect,
+>  	.init.init_platform	= x86_init_noop,
+> -	.init.x2apic_available	= bhyve_x2apic_available,
+> +	.init.x2apic_without_ir_available = bhyve_x2apic_available,
+>  	.init.msi_ext_dest_id	= bhyve_ext_dest_id,
+>  };
+> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+> index 579fb2c64cfd..61458855094a 100644
+> --- a/arch/x86/kernel/cpu/mshyperv.c
+> +++ b/arch/x86/kernel/cpu/mshyperv.c
+> @@ -760,7 +760,7 @@ const __initconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
+>  	.name			= "Microsoft Hyper-V",
+>  	.detect			= ms_hyperv_platform,
+>  	.type			= X86_HYPER_MS_HYPERV,
+> -	.init.x2apic_available	= ms_hyperv_x2apic_available,
+> +	.init.x2apic_without_ir_available = ms_hyperv_x2apic_available,
+>  	.init.msi_ext_dest_id	= ms_hyperv_msi_ext_dest_id,
+>  	.init.init_platform	= ms_hyperv_init_platform,
+>  	.init.guest_late_init	= ms_hyperv_late_init,
+> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+> index cb3f900c46fc..46d325818797 100644
+> --- a/arch/x86/kernel/cpu/vmware.c
+> +++ b/arch/x86/kernel/cpu/vmware.c
+> @@ -585,7 +585,7 @@ const __initconst struct hypervisor_x86 x86_hyper_vmware = {
+>  	.detect				= vmware_platform,
+>  	.type				= X86_HYPER_VMWARE,
+>  	.init.init_platform		= vmware_platform_setup,
+> -	.init.x2apic_available		= vmware_legacy_x2apic_available,
+> +	.init.x2apic_without_ir_available = vmware_legacy_x2apic_available,
+>  #ifdef CONFIG_AMD_MEM_ENCRYPT
+>  	.runtime.sev_es_hcall_prepare	= vmware_sev_es_hcall_prepare,
+>  	.runtime.sev_es_hcall_finish	= vmware_sev_es_hcall_finish,
+> diff --git a/arch/x86/kernel/jailhouse.c b/arch/x86/kernel/jailhouse.c
+> index 9e9a591a5fec..84a0bbe15989 100644
+> --- a/arch/x86/kernel/jailhouse.c
+> +++ b/arch/x86/kernel/jailhouse.c
+> @@ -291,6 +291,6 @@ const struct hypervisor_x86 x86_hyper_jailhouse __refconst = {
+>  	.name			= "Jailhouse",
+>  	.detect			= jailhouse_detect,
+>  	.init.init_platform	= jailhouse_init_platform,
+> -	.init.x2apic_available	= jailhouse_x2apic_available,
+> +	.init.x2apic_without_ir_available = jailhouse_x2apic_available,
+>  	.ignore_nopv		= true,
+>  };
+> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+> index 37dc8465e0f5..709eba87d58e 100644
+> --- a/arch/x86/kernel/kvm.c
+> +++ b/arch/x86/kernel/kvm.c
+> @@ -1042,7 +1042,7 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
+>  	.detect				= kvm_detect,
+>  	.type				= X86_HYPER_KVM,
+>  	.init.guest_late_init		= kvm_guest_init,
+> -	.init.x2apic_available		= kvm_para_available,
+> +	.init.x2apic_without_ir_available = kvm_para_available,
+>  	.init.msi_ext_dest_id		= kvm_msi_ext_dest_id,
+>  	.init.init_platform		= kvm_init_platform,
+>  #if defined(CONFIG_AMD_MEM_ENCRYPT)
+> diff --git a/arch/x86/kernel/x86_init.c b/arch/x86/kernel/x86_init.c
+> index ebefb77c37bb..9ddf8c901ac6 100644
+> --- a/arch/x86/kernel/x86_init.c
+> +++ b/arch/x86/kernel/x86_init.c
+> @@ -112,12 +112,12 @@ struct x86_init_ops x86_init __initdata = {
+>  	},
+>  
+>  	.hyper = {
+> -		.init_platform		= x86_init_noop,
+> -		.guest_late_init	= x86_init_noop,
+> -		.x2apic_available	= bool_x86_init_noop,
+> -		.msi_ext_dest_id	= bool_x86_init_noop,
+> -		.init_mem_mapping	= x86_init_noop,
+> -		.init_after_bootmem	= x86_init_noop,
+> +		.init_platform			= x86_init_noop,
+> +		.guest_late_init		= x86_init_noop,
+> +		.x2apic_without_ir_available	= bool_x86_init_noop,
+> +		.msi_ext_dest_id		= bool_x86_init_noop,
+> +		.init_mem_mapping		= x86_init_noop,
+> +		.init_after_bootmem		= x86_init_noop,
+>  	},
+>  
+>  	.acpi = {
+> diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
+> index fe57ff85d004..42f3d21f313d 100644
+> --- a/arch/x86/xen/enlighten_hvm.c
+> +++ b/arch/x86/xen/enlighten_hvm.c
+> @@ -311,7 +311,7 @@ static uint32_t __init xen_platform_hvm(void)
+>  		 * detect PVH and panic there.
+>  		 */
+>  		h->init_platform = x86_init_noop;
+> -		h->x2apic_available = bool_x86_init_noop;
+> +		h->x2apic_without_ir_available = bool_x86_init_noop;
+>  		h->init_mem_mapping = x86_init_noop;
+>  		h->init_after_bootmem = x86_init_noop;
+>  		h->guest_late_init = xen_hvm_guest_late_init;
+> @@ -325,7 +325,7 @@ struct hypervisor_x86 x86_hyper_xen_hvm __initdata = {
+>  	.detect                 = xen_platform_hvm,
+>  	.type			= X86_HYPER_XEN_HVM,
+>  	.init.init_platform     = xen_hvm_guest_init,
+> -	.init.x2apic_available  = xen_x2apic_available,
+> +	.init.x2apic_without_ir_available = xen_x2apic_available,
+>  	.init.init_mem_mapping	= xen_hvm_init_mem_mapping,
+>  	.init.guest_late_init	= xen_hvm_guest_late_init,
+>  	.init.msi_ext_dest_id   = msi_ext_dest_id,
+> 
+> -- 
+> 2.43.0
+> 
