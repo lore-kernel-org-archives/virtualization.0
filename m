@@ -1,144 +1,213 @@
-Received: from mail-yx1-f42.google.com (mail-yx1-f42.google.com [74.125.224.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF60A2F872
-	for <virtualization@lists.linux.dev>; Fri, 13 Feb 2026 01:19:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7329E571
+	for <virtualization@lists.linux.dev>; Fri, 13 Feb 2026 01:25:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770945574; cv=none; b=RQbuxD2MjrIRkbONjCWuKU0xqCx7KnXXiNGe77QLfve9E/4IvBvSTcLBmZujl2PbXvT7LUZ7o5NQz+Iv23FcZOZfQ++yLJgHP81Xcsb/u/r0DLO74Sb6H4acVEpmZlyw2J5axSmS9gXdrCGfqWi9xlG7+tTRVb8RuJ+I1ZPzsOM=
+	t=1770945941; cv=none; b=mWHAR50t9NlLiegOROWoo20bL524/UFuyJ/RTLeE2aDVW2vO19FBlz8pH/fX3pflZwyfz6LJApfVutNCPMPsLP6mGFlbUe7r6YCLOGmdDC0WmSV3HcCoVPbADHRA0KS+ZgsqzOVR2SITZ3Wr0KaZx5c1aaO4X5FhMTkqHgeuRG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770945574; c=relaxed/simple;
-	bh=pOqP7VM+mApaVUNM4EB88815+w4SRLILG/EjieeLe+4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CgPoZAVnjpKYFIULmWnkrnsktA4yIwgPH9/a4cHD4amPPaUDfG1x8M7uDggpgiCifbN7g/hd4qLNLE6z0RfMOxrM7Usux9rK//nu7w6IFBG2YyykQTKCX2jlXHWEmb0VFRHn6/OVfWqLc2K2PjzJPGT6G17tPcqs8+Q0OIsgqFk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gI8roOd/; arc=none smtp.client-ip=74.125.224.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1770945941; c=relaxed/simple;
+	bh=EFWM/dFpcIWaoaUyk33pZi1eZ1MGGBGCL6ud8An2Xjg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KVcJCoO4tphNUGHTHpb1q/UJa4aqn8NxmMj5OTDJbJYVrINwiUV2nvsMY71SjHIB8NKgg8YOV97WEHgwUUsgNBqwGis4D8fL6Dsw5DVNtr1/KK9AuzmO2wRGpcZS3uNrFk0nFOzYXHH/NDnCoI4O+RY9bZbFeVIpXVe7LDq5JkE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Bk00g1Ij; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gI8roOd/"
-Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-649dbff9727so371678d50.3
-        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 17:19:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770945573; x=1771550373; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=DdSR/hkZOakiS24NkJpFojfOy/j7sfQd+s+nYYhJiVE=;
-        b=gI8roOd/cNU4VYnxxa01KWAtR11oB720GM4uif3syKg8DhqD4nVlVpa/caTZnM3TxO
-         wAWU4zwq09xBKURrEULV6R/ZlhziQHEqN0CXgDpyVvhDqkSIkv5Iqfz4X3eceHkmORie
-         fGHCWDgE966rmpXCJMq7f9R8Ep43LMBK0uYTC1B378+Shy6vpBgoeZ3omJg0Q5u7pC0G
-         q1cKYkTyvskDHxGisl8gygydhJAItg60Q3mCTQMIuuxeP8DIii26NG+x9eaAXMTGUowm
-         bA0rMsWoPs9q9/9qjrINqlEc+Vm2F5pfKvNzcsvKqBcL3ssbKtCAqQuDt9oA0qiTOrQU
-         goJw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bk00g1Ij"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1770945938;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=o/Onfykzz8t8jduaSYZmQxEjOiuSb0xpRozlsO9aYG8=;
+	b=Bk00g1IjJ4eJRayV+2kXYkiKrjyzMnK8uG8SJO0dHc6PXQGck98CIo8fdTYB8jeweA4hDY
+	Km4hTSTm6OBk1LPegXUb7CnqYfESODzSlI72XlIrCITQVxzIt4G5armNFuWkj93dCqzwuZ
+	VCNgIPnfuunQdvRcrzqYcN1k86fvUWk=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-59-b3yAFWWaPquE22f43y9HxQ-1; Thu, 12 Feb 2026 20:25:37 -0500
+X-MC-Unique: b3yAFWWaPquE22f43y9HxQ-1
+X-Mimecast-MFC-AGG-ID: b3yAFWWaPquE22f43y9HxQ_1770945936
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2a7701b6353so5720345ad.3
+        for <virtualization@lists.linux.dev>; Thu, 12 Feb 2026 17:25:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770945573; x=1771550373;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=DdSR/hkZOakiS24NkJpFojfOy/j7sfQd+s+nYYhJiVE=;
-        b=sLKvyKW5f0sFJvQbus+pCEnlR2Me9uIHGEJ2MY7TzGFczrVaPhfVqq19TruZLEOlKG
-         IqTEij/8OJoN+2/O2o/azJdvIVZZHK7DKgkNTE5Mp0lETZYRGciIAi1GGRu5NiE03Qzt
-         P8aFdnizGV0GE1kf2ApIE8a66BIEGqdx4Rk+mrWSl9PBvjFdT+D6v27dCVxJQEThZSYl
-         KMKYWRhv3QpJdCejg8vNgsAqM7lPHSs6S3wbIekgWjgxPEwU8+mDz/2OYN+rU6xbMVyV
-         YtpXYe1N6F1giSrFqyhBE/bmqXjFVVdj5wCjHpad3yiIvsRURrLnlvoG0XkU8MJnMqu/
-         Sjbg==
-X-Forwarded-Encrypted: i=1; AJvYcCXkvBdqhEqcuO/cDPw077+p5EB5qbbEPA/1THXa1oMunpBdpsp+LECs1tHYR4Mn9VNPQDoAan39iiKe7rrClQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyO+9tYeCE1QqeuuwZOWd4hU87omhm5sqCLBubiNQu+dBaoHRmh
-	PIqg09mmGOkR/GDqgymJn7WYz6ZV3jvr+cOH0sVMxpfilaDbHCA1DYC3
-X-Gm-Gg: AZuq6aLWKgjjsC45QdPoYv7xpmBOS5JcXBBNaIWKEInzIXZucezvt1tLPXpwd9BdXGx
-	4v/Whhm4Kih7tZW4TWJ+z5+2A1wgVirjx+qs8K0iZkCaDCfRynPR7qkL1tvDe1rQc/72MrOmqra
-	EKjDBMccKXu/zxcoNvs57nu5HzYKd11lnEa7mt26NVJ43Lcd7zgFK6uTCSqVAu4IglqxqfBdzPZ
-	PzX0hJRZv43uro0F9beQ/A0pd+ieo/QemuCdivFfubR26eE0H66/KWkLNdQ44GoJeP++iLON4Jt
-	K1UNuDULUnO3PjI92q+BPpwMEFk9dNbcP5JrKaMSQOhDM5A2cVDd6vIG749heV4Ccuo8HVH5Ses
-	5GB4RLRNLXKqhg1dt3Q0klEDuzwp3GBihu4qAVBfravVYCrLXNEVOmZFLOieNN+5dSRp4HunaNX
-	ZiXvPKm+aYTzYmGFUxLUapHk/gmjqmTAnp+Oyy9WNkleGRvnY=
-X-Received: by 2002:a05:690e:4304:b0:64a:d1bd:8c65 with SMTP id 956f58d0204a3-64c19b63848mr65513d50.95.1770945572751;
-        Thu, 12 Feb 2026 17:19:32 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:4a::])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-64afc95acabsm6061484d50.13.2026.02.12.17.19.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Feb 2026 17:19:32 -0800 (PST)
-Date: Thu, 12 Feb 2026 17:19:31 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-	linux-kernel@vger.kernel.org,
-	Bobby Eshleman <bobbyeshleman@meta.com>,
-	Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
-	Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH net 2/2] vsock: prevent child netns mode switch from
- local to global
-Message-ID: <aY58I15Csp1CU8xI@devvm11784.nha0.facebook.com>
-References: <20260212205916.97533-1-sgarzare@redhat.com>
- <20260212205916.97533-3-sgarzare@redhat.com>
+        d=1e100.net; s=20230601; t=1770945936; x=1771550736;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=o/Onfykzz8t8jduaSYZmQxEjOiuSb0xpRozlsO9aYG8=;
+        b=ryzEQuOAZegeNu7ecgGbuci8pUGrX5JyFC3wzJGYfS6RAARPviLQvUdWlldSRoaBr5
+         nrNh07dFUOruNYlwPrVTGx3kpQz4tDIFZo2IuHOZFBorXo5g4a/609psbJ6L4uz5l9Gq
+         fqkfvq8XJ+uI+3E27Y/+Wpt9cs2evIqRG+CDwsBhX1s1KUhuNdlviAVNrNne/2RHOjAx
+         cHlgXMlLSuO7xwtZ78DLbiLGF5cqk+bIDdhqUpoxJMaL42wS4uBJwFsFALOlEsK4agmJ
+         7ahGCVvioW1dgkd8tnlWssbXsxE2NiW9ivNRFSiXNTyXa8b8lkNOLMV9oB456Ud0iEJB
+         i+KQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXisfCZs8b7xHGkppvPEh0ndcDWCpbiWysCbjrHNpP97r8hsXJmWHpJRE9V6W7fMuU0IvPGupDyNd8wcl1VYQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz/gkAsyDjADsB9qL5eNJhc8lpozKZlvZpDZnrlcvYXr/9g12Qd
+	PehdUTRmiV0+eZ2D4Ct3+xz013ZWzkTa2dsJPtycvkyA6zBK6eMw7KQxWvJbap0lLW8FLgtadVm
+	Ys7xbHBPcC8ttMuaGaAxMsmlXBcVcUCfRvrHA5OBIfU9F3sLRutXBkPAO1V61YNseU+FKd26Ju2
+	VzLyaWwCq4aAXAeabCpcJE0m1lVX/pELgQROGMFAtlAiQ=
+X-Gm-Gg: AZuq6aK+mZoUvSeiLsLR9P3CR+TEYf+BtwIvGCy0LHuEw4VLEY4/c+2C9/0AzYjyV36
+	ShoI+Elb+h2Nkt9WgQEz7aq5Xqaob7boiYovUjvvy8U79oH1IKCzFNvxR6PDjqty4mnd2kdTTrN
+	6wCItulL00vj4GKA/n859rsoXWBzh4XjS02WfnFc7crNUqxQmDQzwaTv1JEBzpdRyAt+WyM5RuN
+	LukVOQ=
+X-Received: by 2002:a17:902:d591:b0:2a9:484c:ff2f with SMTP id d9443c01a7336-2ab505057e3mr2448435ad.23.1770945936408;
+        Thu, 12 Feb 2026 17:25:36 -0800 (PST)
+X-Received: by 2002:a17:902:d591:b0:2a9:484c:ff2f with SMTP id
+ d9443c01a7336-2ab505057e3mr2448215ad.23.1770945935909; Thu, 12 Feb 2026
+ 17:25:35 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260212205916.97533-3-sgarzare@redhat.com>
+References: <20260210082554.1582553-1-eperezma@redhat.com> <20260210082554.1582553-4-eperezma@redhat.com>
+ <CACGkMEtmnV5xJ6crnfTr5Nk8tZe437OgqB22yTOJ+nnrb0LcPg@mail.gmail.com> <CAJaqyWdN7xdu_=mUzE3GGBtTeW5g6O0YwWnV_UmX+g2+FNDkZA@mail.gmail.com>
+In-Reply-To: <CAJaqyWdN7xdu_=mUzE3GGBtTeW5g6O0YwWnV_UmX+g2+FNDkZA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 13 Feb 2026 09:25:24 +0800
+X-Gm-Features: AZwV_Qg6VDlz7khbdH4Qir7vO7KV7wiHsmwb49abeSnLC8AVnawyH_ouiNhqtPg
+Message-ID: <CACGkMEuY0f1xjxc4n6QzKfUa-LFrM-X_xtOpTwm5SWjfVvikHA@mail.gmail.com>
+Subject: Re: [PATCH v2 3/5] vduse: add VDUSE_GET_FEATURES ioctl
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: C8CjSDfmD-G_qA7KbsySVSDw1YOKnevvdnrc6OiMLig_1770945936
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 12, 2026 at 09:59:16PM +0100, Stefano Garzarella wrote:
-> From: Stefano Garzarella <sgarzare@redhat.com>
-> 
-> A "local" namespace can change its `child_ns_mode` sysctl to "global",
-> allowing nested namespaces to access global CIDs. This can be exploited
-> by an unprivileged user who gained CAP_NET_ADMIN through a user
-> namespace.
-> 
-> Prevent this by rejecting writes that attempt to set `child_ns_mode` to
-> "global" when the current namespace's mode is "local".
-> 
-> Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
-> Cc: bobbyeshleman@meta.com
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  net/vmw_vsock/af_vsock.c | 15 ++++++++++++---
->  1 file changed, 12 insertions(+), 3 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 3b629b4a0359..9880756d9eff 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -95,8 +95,9 @@
->   *     the namespace's own ns_mode.
->   *
->   *   Changing child_ns_mode only affects newly created namespaces, not the
-> - *   current namespace or existing children. At namespace creation, ns_mode
-> - *   is inherited from the parent's child_ns_mode.
-> + *   current namespace or existing children. A "local" namespace cannot set
-> + *   child_ns_mode to "global". At namespace creation, ns_mode is inherited
-> + *   from the parent's child_ns_mode.
->   *
->   *   The init_net mode is "global" and cannot be modified.
->   *
-> @@ -2844,8 +2845,16 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
->  	if (ret)
->  		return ret;
->  
-> -	if (write)
-> +	if (write) {
-> +		/* Prevent a "local" namespace from escalating to "global",
-> +		 * which would give nested namespaces access to global CIDs.
-> +		 */
-> +		if (vsock_net_mode(net) == VSOCK_NET_MODE_LOCAL &&
-> +		    new_mode == VSOCK_NET_MODE_GLOBAL)
-> +			return -EPERM;
-> +
->  		vsock_net_set_child_mode(net, new_mode);
-> +	}
->  
->  	return 0;
->  }
-> -- 
-> 2.53.0
-> 
+On Thu, Feb 12, 2026 at 4:23=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Thu, Feb 12, 2026 at 9:07=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Tue, Feb 10, 2026 at 4:26=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@re=
+dhat.com> wrote:
+> > >
+> > > Add an ioctl to allow VDUSE instances to query the available features
+> > > supported by the kernel module.
+> > >
+> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > ---
+> > > A simple u64 bitmap is used for feature flags. While a flexible array
+> > > could support indefinite expansion, 64 bits is sufficient for the
+> > > foreseeable future and simplifies the implementation.
+> > >
+> > > Also, dev_dbg is used for logging rather than dev_err as these can be
+> > > triggered from userspace.
+> > > ---
+> > > v2:
+> > > * return -EINVAL if ioctl called with version < 2, so userland visibl=
+e
+> > >   reply is kept (Jason).
+> > > ---
+> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 ++++++++++++++++++++++++++++
+> > >  include/uapi/linux/vduse.h         |  7 ++++++-
+> > >  2 files changed, 34 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_u=
+ser/vduse_dev.c
+> > > index d1da7c15d98b..7458cbaed4c7 100644
+> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > @@ -52,6 +52,9 @@
+> > >
+> > >  #define IRQ_UNBOUND -1
+> > >
+> > > +/* Supported VDUSE features */
+> > > +static const uint64_t vduse_features;
+> > > +
+> > >  /*
+> > >   * VDUSE instance have not asked the vduse API version, so assume 0.
+> > >   *
+> > > @@ -1947,6 +1950,19 @@ static bool vduse_validate_config(struct vduse=
+_dev_config *config,
+> > >                          sizeof(config->reserved)))
+> > >                 return false;
+> > >
+> > > +       if (api_version < VDUSE_API_VERSION_2) {
+> > > +               if (config->vduse_features) {
+> > > +                       dev_dbg(vduse_ctrl_dev,
+> > > +                               "config->vduse_features with version =
+%llu",
+> > > +                               api_version);
+> > > +                       return false;
+> > > +               }
+> > > +       } else {
+> > > +               if (config->vduse_features & ~vduse_features)
+> > > +                       return false;
+> > > +       }
+> > > +
+> > > +
+> > >         if (api_version < VDUSE_API_VERSION_1 &&
+> > >             (config->ngroups || config->nas))
+> > >                 return false;
+> > > @@ -2207,6 +2223,18 @@ static long vduse_ioctl(struct file *file, uns=
+igned int cmd,
+> > >                 ret =3D vduse_destroy_dev(name);
+> > >                 break;
+> > >         }
+> > > +       case VDUSE_GET_FEATURES:
+> > > +               if (control->api_version < VDUSE_API_VERSION_2) {
+> > > +                       dev_dbg(vduse_ctrl_dev,
+> > > +                               "VDUSE_GET_FEATURES ioctl with versio=
+n %llu",
+> > > +                               control->api_version);
+> > > +                       ret =3D -EINVAL;
+> > > +                       break;
+> > > +               }
+> > > +
+> > > +               ret =3D put_user(vduse_features, (u64 __user *)argp);
+> > > +               break;
+> > > +
+> > >         default:
+> > >                 ret =3D -EINVAL;
+> > >                 break;
+> > > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> > > index 27832d46084c..8898d9daa777 100644
+> > > --- a/include/uapi/linux/vduse.h
+> > > +++ b/include/uapi/linux/vduse.h
+> > > @@ -37,6 +37,7 @@
+> > >   * @vq_align: the allocation alignment of virtqueue's metadata
+> > >   * @ngroups: number of vq groups that VDUSE device declares
+> > >   * @nas: number of address spaces that VDUSE device declares
+> > > + * @vduse_features: VDUSE features
+> > >   * @reserved: for future use, needs to be initialized to zero
+> > >   * @config_size: the size of the configuration space
+> > >   * @config: the buffer of the configuration space
+> > > @@ -53,7 +54,8 @@ struct vduse_dev_config {
+> > >         __u32 vq_align;
+> > >         __u32 ngroups; /* if VDUSE_API_VERSION >=3D 1 */
+> > >         __u32 nas; /* if VDUSE_API_VERSION >=3D 1 */
+> > > -       __u32 reserved[11];
+> > > +       __u64 vduse_features;
+> >
+> > Nit: Should we document " /* if VDUSE_API_VERSION >=3D 2 */
+> >
+> > But I have an open question, is this better to just introduce a
+> > VDUSE_SET_FEATURES then we can do negotiation to avoid bumping API
+> > versions?
+> >
+>
+> How do you know if you can call VDUSE_GET_FEATURES and
+> VDUSE_SET_FEATURES then? vduse_ioctl does not even return -ENOIOCMD
+> but -EINVAL if you call the equivalent of VDUSE_GET_FEATURES on
+> current Linux master. Or should the VDUSE instance assume that if the
+> ioctl returns -EINVAL the kernel does not support them?
 
-Thanks for the fix!
+If we go that way, yes.
 
-Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
+Thanks
+
+>
+
