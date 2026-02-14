@@ -1,195 +1,155 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BAB42D979F;
-	Sat, 14 Feb 2026 21:26:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 202D9284880
+	for <virtualization@lists.linux.dev>; Sat, 14 Feb 2026 23:49:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771104372; cv=none; b=kBCMFnIrbzh059ldHyhH4bvymeyezmfKp3+IRFk2kTffJWuE5vwR8YTapFRVS+PbdtdxVT5Ups22ZJOCSlLQOutpqJSfks2e/CYVxfQmCfNwsIiue7RWqNFkBWR8mrnDc9PlvaHZFQFLguGO1jUEJdbVKe6lxbBcY9WcY5aFows=
+	t=1771112991; cv=none; b=Yml9HsllNTbTLY0dG2Z8rKRy/WvH1PX2MxVjaTSNKgICZySJKzN+HkQTr5hLF1RnhQhivrFxcSkMA1EqaN4DIfbBXLL10N8EdCirgOK3IvpgUag8/scADHpJyE4r9jgZJ4eLOPmloTBVcUkUYnpEQgHtVRSDf7Alg9j05ICoHA4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771104372; c=relaxed/simple;
-	bh=CXvypTIeB7bqrpF4E6BA7S6xZwcRORKDoYScrPumZ/E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=moceIzbVgSh5HGWtKjyTUfXgU88Zn3n+ZorGXNJ5uYm0Jk6U+UZmhr1gfJqxwEl3An6xzQF0ZYGoafZBn1+3WlrQU76Kl6pgxq53jNZkUl8aFiM03Uq4kBrU1Leevcp3PeSDWq2MDJNRfgEOAWoh3osj3pLhda/EzBv44wQ5mhU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l877/3MD; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771112991; c=relaxed/simple;
+	bh=0teZB9CPEF5sbUbIUadXWlFPJ6ba1v4ykNaYGomwB0A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=UPTlQibvsxEkmlAfD6Ny1nbctD2E/pevs4KP7B+fJWfo4shhGWE4THMfp6e8daUdbEW5ausbjnwY2D/xRADKjR6onU0NiH9OT5fmbW+VJ6GRRVqfBQbp1gdTQpM6/nHvx2gmjTLH1Uzfw7iamfIQwJM8kEhp+fouTsm1o3eVz+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UCSwp0pa; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l877/3MD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23864C2BC86;
-	Sat, 14 Feb 2026 21:26:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771104372;
-	bh=CXvypTIeB7bqrpF4E6BA7S6xZwcRORKDoYScrPumZ/E=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=l877/3MDoFO7OLo5HKiA+sEvvLapOziVDBJop/1aa0hGx1SskHE4P/1E1LnZH9ak2
-	 s9yubiX6U2v61Vc5YP4Tbr9d/JBXifVAMYN727H86qo/cNd5x4gBK3jRT5VlUbCJ3R
-	 WCX/Iyn37yRurOgbMGBpOxFZEivj3JOW8rK7CFOJsYjJZuHvVFn0t0ypbz3rptmZm2
-	 6GC33xJ7iCKDX96jNRqpRoynTDf/YWqztaZ9h+gBu3P4IqdeiLKRXcD6mfQkKoRyy8
-	 sZxTo1Zw28ZOjHBQfCoRHQ0HDMr6USXXgRWWO0a6Lgm4hY29Iyo+BRmSR1QcozSvnX
-	 dJEODxQuJs4vg==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Bobby Eshleman <bobbyeshleman@meta.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Sasha Levin <sashal@kernel.org>,
-	vishnu.dasa@broadcom.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-5.10] vmw_vsock: bypass false-positive Wnonnull warning with gcc-16
-Date: Sat, 14 Feb 2026 16:23:13 -0500
-Message-ID: <20260214212452.782265-48-sashal@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260214212452.782265-1-sashal@kernel.org>
-References: <20260214212452.782265-1-sashal@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UCSwp0pa"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1771112989;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oa/MMBMnbn+u985OU8+Ei4K9m3xtsJNKiEfMcHtZPG4=;
+	b=UCSwp0pan/TKJosNZiXpVaj96v1p/09BOyWqUSwG58Lf9nVKI+MR864lhl5Ae6a0F/5+J6
+	G7CWgt0EfYgjoz2PV8zdzd8w61H3I639H9vysiiEUesh2BS+yEGax1ZXE12moqfyU6it7J
+	Edqg9xfKlGwCQSGk5Il9NBwKOWQVli8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-633-zN10DED1Ng-66AaJMIExOg-1; Sat, 14 Feb 2026 18:49:48 -0500
+X-MC-Unique: zN10DED1Ng-66AaJMIExOg-1
+X-Mimecast-MFC-AGG-ID: zN10DED1Ng-66AaJMIExOg_1771112987
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4837c597cd5so3774135e9.3
+        for <virtualization@lists.linux.dev>; Sat, 14 Feb 2026 15:49:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771112986; x=1771717786;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=oa/MMBMnbn+u985OU8+Ei4K9m3xtsJNKiEfMcHtZPG4=;
+        b=jo4ezAy8MVe1D6HXxsf/mISa5h0Qb0jYNH920zqFFGRY1jKNo9WmGXUkm0Hcqqn+kR
+         FjT5Ii2LKeb8e7n9sZyA3CZrOUDLZdZFfzebBgucdD630RfCQHm6cvEv17V8h2cU08eI
+         rowcrfNZL/otSu9TP7D67UjUq4Q6lHGgHLosQ7WC9UaOjtzAoVEs0PR3/nsIxjt0QxVB
+         VHxe72CBobz1JiCrcL3hx3V7NmCTBSsficNXcwHcnJRv4v5xfrC/4J4kRJ5cO55uK89J
+         g9FfagzVQqFfgunyZMYOzY01c/fIlOeC48R95vKBiTWQcGUAWAFeCD7WnTULgoJrv+bG
+         iiow==
+X-Forwarded-Encrypted: i=1; AJvYcCXi7kVAyIr7V0UKIfV+F18OTfruYqZTaNtUJ6aMrNcuYGTFdJ9iJlbmAPxLPPhqZSW9R0k1TTeA1GTjKkemNw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwwpHJRIhNDheBz7QM6rpu65Z6vV3JOrLWStUhSHaXvkT7QOmCc
+	2374XBWQQlgcEKQl49WbHfe+AzJqXuUx6fBEr+1YWv4IFZ6U+dSK2C/HTl+OGGC7v/XJK8ab0F9
+	2Bpf30w4aqsaxWHuc99iTVy+mi3os66MDHw+feJPqbVx+vgi+Lyq2N01fmCnCcvB2UUwkA/4mR5
+	kl
+X-Gm-Gg: AZuq6aLJysAhLrFD6nI3AntPNlOkgMbFUXhh6r9kw/ILJ5nsvigdcYdGpaPEELOV9Lj
+	vMCdkaO5O3RmXhrPJUpp37/6M/FxXIwoVbKzSgDsHHliHg9uldjjdFR/eZkLj9ukzHiSlZHe8xC
+	1bXXNV4w989F6PgJMDhkmTLes6vyXlHEaDWe6BwPxorDf3SCQ0vPJiAQrGwXKXQCo8wMruDP21d
+	GrVuSSJDkEnKsRTpCv3AHUu1/tysLfXdPUj8qUCtGS+KKXki4lthmDcARIAJSYPYcdxXzuIOqEh
+	ENlsSPOaoHyW2ed9nwe96UxetVafk4K+JX1oc9aHm4Z213VgP1GtsCUYxxgbA4P7sx9mqn8puGL
+	NQQLCnM6BcL2lUjkJMKmbgIrwavHoCJ7tw0litHSwh6hImw==
+X-Received: by 2002:a05:600c:818c:b0:47b:e2a9:2bd7 with SMTP id 5b1f17b1804b1-48373a5d230mr97085745e9.19.1771112986581;
+        Sat, 14 Feb 2026 15:49:46 -0800 (PST)
+X-Received: by 2002:a05:600c:818c:b0:47b:e2a9:2bd7 with SMTP id 5b1f17b1804b1-48373a5d230mr97085445e9.19.1771112986103;
+        Sat, 14 Feb 2026 15:49:46 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43796a6b563sm16099143f8f.12.2026.02.14.15.49.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 Feb 2026 15:49:45 -0800 (PST)
+Date: Sat, 14 Feb 2026 18:49:42 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Simon Schippers <simon.schippers@tu-dortmund.de>
+Cc: Jason Wang <jasowang@redhat.com>, willemdebruijn.kernel@gmail.com,
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
+	leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v7 3/9] tun/tap: add ptr_ring consume helper
+ with netdev queue wakeup
+Message-ID: <20260214184851-mutt-send-email-mst@kernel.org>
+References: <CACGkMEsJtE3RehWQ8BaDL2HdFPK=iW+ZaEAN1TekAMWwor5tjQ@mail.gmail.com>
+ <197573a1-df52-4928-adb9-55a7a4f78839@tu-dortmund.de>
+ <CACGkMEveEXky_rTrvRrfi7qix12GG91GfyqnwB6Tu-dnjqAm9A@mail.gmail.com>
+ <0c776172-2f02-47fc-babf-2871adca42cb@tu-dortmund.de>
+ <CACGkMEte=LwvkxPh-tesJHLVYQV1YZF4is1Yamokhkzaf5GOWw@mail.gmail.com>
+ <205aa139-975d-4092-aa04-a2c570ae43a6@tu-dortmund.de>
+ <CACGkMEtRikexX=cJz8zmuvW7mcO7uCFdG7AoHQLOezrsb5nbgQ@mail.gmail.com>
+ <59529fd2-2a08-4a89-a853-27198b76f842@tu-dortmund.de>
+ <20260214131703-mutt-send-email-mst@kernel.org>
+ <1ab166aa-8e9c-4742-a80a-c2fa806218db@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.19
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1ab166aa-8e9c-4742-a80a-c2fa806218db@tu-dortmund.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 2jLWNHRI7ZfN9eJe8HDBZisuF13bdtSrKbso9mS5pr4_1771112987
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Sat, Feb 14, 2026 at 08:51:53PM +0100, Simon Schippers wrote:
+> On 2/14/26 19:18, Michael S. Tsirkin wrote:
+> > On Sat, Feb 14, 2026 at 06:13:14PM +0100, Simon Schippers wrote:
+> > 
+> > ...
+> > 
+> >> Patched: Waking on __ptr_ring_produce_created_space() is too early. The
+> >>          stop/wake cycle occurs too frequently which slows down
+> >>          performance as can be seen for TAP.
+> >>
+> >> Wake on empty variant: Waking on __ptr_ring_empty() is (slightly) too
+> >>                        late. The consumer starves because the producer
+> >>                        first has to produce packets again. This slows
+> >>                        down performance aswell as can be seen for TAP
+> >> 		       and TAP+vhost-net (both down ~30-40Kpps).
+> >>
+> >> I think something inbetween should be used.
+> >> The wake should be done as late as possible to have as few
+> >> NET_TX_SOFTIRQs as possible but early enough that there are still
+> >> consumable packets remaining to not starve the consumer.
+> >>
+> >> However, I can not think of a proper way to implement this right now.
+> >>
+> >> Thanks!
+> > 
+> > What is the difficulty?
+> 
+> There is no way to tell how many entries are currently in the ring.
+> 
+> > 
+> > Your patches check __ptr_ring_consume_created_space(..., 1).
+> 
+> Yes, and this returns if either 0 space or a batch size space was
+> created.
+> (In the current implementation it would be false or true, but as
+> discussed earlier this can be changed.)
+> 
+> > 
+> > How about __ptr_ring_consume_created_space(..., 8) then? 16?
+> > 
+> 
+> This would return how much space the last 8/16 consume operations
+> created. But in tap_ring_consume() we only consume a single entry.
+> 
+> Maybe we could avoid __ptr_ring_consume_created_space with this:
+> 1. Wait for the queue to stop with netif_tx_queue_stopped()
+> 2. Then count the numbers of consumes we did after the queue stopped
+> 3. Wake the queue if count >= threshold with threshold >= ring->batch
+> 
+> I would say that such a threshold could be something like ring->size/2.
 
-[ Upstream commit e25dbf561e03c0c5e36228e3b8b784392819ce85 ]
-
-The gcc-16.0.1 snapshot produces a false-positive warning that turns
-into a build failure with CONFIG_WERROR:
-
-In file included from arch/x86/include/asm/string.h:6,
-                 from net/vmw_vsock/vmci_transport.c:10:
-In function 'vmci_transport_packet_init',
-    inlined from '__vmci_transport_send_control_pkt.constprop' at net/vmw_vsock/vmci_transport.c:198:2:
-arch/x86/include/asm/string_32.h:150:25: error: argument 2 null where non-null expected because argument 3 is nonzero [-Werror=nonnull]
-  150 | #define memcpy(t, f, n) __builtin_memcpy(t, f, n)
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
-net/vmw_vsock/vmci_transport.c:164:17: note: in expansion of macro 'memcpy'
-  164 |                 memcpy(&pkt->u.wait, wait, sizeof(pkt->u.wait));
-      |                 ^~~~~~
-arch/x86/include/asm/string_32.h:150:25: note: in a call to built-in function '__builtin_memcpy'
-net/vmw_vsock/vmci_transport.c:164:17: note: in expansion of macro 'memcpy'
-  164 |                 memcpy(&pkt->u.wait, wait, sizeof(pkt->u.wait));
-      |                 ^~~~~~
-
-This seems relatively harmless, and it so far the only instance of this
-warning I have found. The __vmci_transport_send_control_pkt function
-is called either with wait=NULL or with one of the type values that
-pass 'wait' into memcpy() here, but not from the same caller.
-
-Replacing the memcpy with a struct assignment is otherwise the same
-but avoids the warning.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Bryan Tan <bryan-bt.tan@broadcom.com>
-Link: https://patch.msgid.link/20260203163406.2636463-1-arnd@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
-
-LLM Generated explanations, may be completely bogus:
-
-## Analysis
-
-### Commit Message Analysis
-
-This commit addresses a **false-positive compiler warning** with
-gcc-16.0.1 that becomes a **build failure** when `CONFIG_WERROR` is
-enabled. The fix replaces a `memcpy()` call with a direct struct
-assignment, which is semantically equivalent but avoids triggering the
-`-Wnonnull` warning.
-
-### Code Change Analysis
-
-The change is extremely minimal — a single line change:
-```c
-- memcpy(&pkt->u.wait, wait, sizeof(pkt->u.wait));
-+ pkt->u.wait = *wait;
-```
-
-This is a purely mechanical transformation. A struct assignment and a
-`memcpy` of the same struct size produce identical behavior. The
-compiler generates equivalent code. The only difference is that the
-struct assignment form doesn't trigger gcc-16's `-Wnonnull` analysis,
-which was producing a false positive by analyzing the `memcpy` call
-without considering that the `wait` parameter is only NULL for packet
-types that don't reach this code path.
-
-### Classification: Build Fix
-
-This is a **build fix** — one of the explicitly allowed categories for
-stable backports. With `CONFIG_WERROR` enabled (which is the default in
-many distribution kernel configs and increasingly common), this warning
-becomes a hard build error. Users building with gcc-16 and
-`CONFIG_WERROR` would be unable to compile the kernel.
-
-### Risk Assessment
-
-- **Risk: Extremely low.** The change is a 1:1 semantic equivalent.
-  `pkt->u.wait = *wait` does exactly what `memcpy(&pkt->u.wait, wait,
-  sizeof(pkt->u.wait))` does — it copies the struct contents. There is
-  zero behavioral change.
-- **Scope: One line in one file.** Maximally contained.
-- **Testing: Well-reviewed.** Has three `Reviewed-by` tags from relevant
-  maintainers (Bobby Eshleman, Stefano Garzarella, Bryan Tan).
-
-### Dependency Check
-
-This commit has no dependencies on other patches. The code being
-modified (`vmci_transport_packet_init`) has existed for a long time in
-the stable trees.
-
-### User Impact
-
-- Users building the kernel with gcc-16 and `CONFIG_WERROR` will hit a
-  build failure without this fix.
-- gcc-16 is a snapshot/development compiler now, but will become the
-  standard gcc version in distributions. As distributions adopt gcc-16,
-  this will become a real issue for stable kernel users.
-- Build fixes are critical for the usability of stable kernels.
-
-### Stability Assessment
-
-- The change is trivially correct — struct assignment and memcpy of a
-  struct are equivalent.
-- Multiple experienced reviewers have confirmed correctness.
-- Zero risk of runtime regression.
-
-### Conclusion
-
-This is a textbook stable backport candidate: a minimal, zero-risk build
-fix that prevents compilation failure with newer compiler versions. It
-falls squarely into the "build fixes that prevent compilation" exception
-category. The change is semantically identical to the original code and
-has been well-reviewed.
-
-**YES**
-
- net/vmw_vsock/vmci_transport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 7eccd6708d664..aca3132689cf1 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -161,7 +161,7 @@ vmci_transport_packet_init(struct vmci_transport_packet *pkt,
- 
- 	case VMCI_TRANSPORT_PACKET_TYPE_WAITING_READ:
- 	case VMCI_TRANSPORT_PACKET_TYPE_WAITING_WRITE:
--		memcpy(&pkt->u.wait, wait, sizeof(pkt->u.wait));
-+		pkt->u.wait = *wait;
- 		break;
- 
- 	case VMCI_TRANSPORT_PACKET_TYPE_REQUEST2:
--- 
-2.51.0
+OK
 
