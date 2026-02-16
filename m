@@ -1,35 +1,66 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f194.google.com (mail-dy1-f194.google.com [74.125.82.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB8833090D4;
-	Mon, 16 Feb 2026 13:28:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECB172D73AE
+	for <virtualization@lists.linux.dev>; Mon, 16 Feb 2026 17:50:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771248487; cv=none; b=FDrGzbhhuBh4jOqnc/ILTDdIpj8VxEm9gJ1aSN7HZXhRtDRR9UyRsvdtzaK7dsfsbTkWaoNqc2u1vjJhgH5tusiM6hXopRdf5MRy/oC8qon6iN/ewcbUfKl+8waTJfEz7ZdTztTFKxC69+wixJT6UWUn0WDxEBQOEm3pRD3OSdc=
+	t=1771264233; cv=none; b=fKzZQqzX4cAFpT7b8R4OpuGyB/5yQ9qdU7MFAllY2vrzKbj//iBqQCenvo/AQGejfCRwkQWVUSAKGFG3fYjuDe6eJVtcSkgrcb1KZ37e2Cy55uKOflfJvMOhMTHRdlaVRoQ5udrV/UkOxYn48bqua7icxXdY1rJHH6gSGVb8It4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771248487; c=relaxed/simple;
-	bh=Q9GxoeGeSHdPBrcOB/A8/Eud4D4QnZYsPLmlsC6CaP4=;
+	s=arc-20240116; t=1771264233; c=relaxed/simple;
+	bh=Ec4ypCO7FiJJB+yavcc9YDym7HBY5xKLTV2mp01Hofw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kJv00oEx8AukVs+ktKfzSDmCpafeR2woFcG/E1YM/WqJyLShE80UV+IJT60uPVD8aT5kwrrSGo4kr3P6sYSwK9xZXtkxG2eOQQhyeQHS+rgIIx3FEVGSjzAHRf0Uxkxp60rFSe/b2E4oSijB2pDc9McC3YaD838Y5GbMD8tDmzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=C67w/Z7q; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	 In-Reply-To:Content-Type; b=KiY7l2pqVCJn52Jxyk6IFwR+hRfWOZ9kh2MJaEPlpkBaNJCIrlADd9rgN/58Or2iXKJQQ+lL3sI/0WD8slBtr+WgQ57E6M0b4pj8L5/lkllklE+lNmZiLOIwp1xjC4f471TTNRDmjasy5/60Eo3YjNzFsooNOT4FbZJRxfRas0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dklPlSZd; arc=none smtp.client-ip=74.125.82.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="C67w/Z7q"
-Received: from [192.168.178.143] (p5dc880d2.dip0.t-ipconnect.de [93.200.128.210])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.1.16/8.18.1.16) with ESMTPSA id 61GDRpGP020196
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 16 Feb 2026 14:27:52 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1771248474;
-	bh=Q9GxoeGeSHdPBrcOB/A8/Eud4D4QnZYsPLmlsC6CaP4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=C67w/Z7qMrbkC06uTiYSuP7lOPFQJHlSiWcmVkYQxlSaJw+kJYzE0R+FTXvuuPMh4
-	 ooBZw1Na0/BFVt3mGEh1d1C9yaJXCQjykXBbuJ/FrPgsiXK9T8mT/WsUNEN9ho6bKw
-	 I+ta05lMo0ykF/rECo7IifwDNanOol6gh42YCvlU=
-Message-ID: <4aeb991b-26e9-4a2e-81a2-85e3ecd6a8a5@tu-dortmund.de>
-Date: Mon, 16 Feb 2026 14:27:51 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dklPlSZd"
+Received: by mail-dy1-f194.google.com with SMTP id 5a478bee46e88-2ba9d13f10eso6085552eec.0
+        for <virtualization@lists.linux.dev>; Mon, 16 Feb 2026 09:50:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771264231; x=1771869031; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=zv95Lg9oAGKyC92FTr/4yJbiWOBA02orWovY9nKn8Ws=;
+        b=dklPlSZdwPcLcgZYuq1cEhhWr1tzJSTdpWY3LVYD4+9v1Stv++uWNsQxVVssEy+sRr
+         U/zNddL8irjmNXDe2iBPjh3qV1ibAoBHB6xnrHxv5EOVlEZxlz0ua2awg3zOHmt/eoSq
+         dQ9FkbgRzSUGHsgBD+W02KoF72z9+Rzfci2ZfqflUROFgdQuqPzPTMk3FNfkkMIyYNW7
+         eLMJYp8CdbuvadtInRG6bQWc8oqajQRT1xoaRCMvhApRxbjTI4rtOH2mFq175HjxbbKI
+         VZvl39WucCCA9Aig8SaZpmlhDTtHHsajXL4mNVZ0QJo3DgrjEHmA+OhlW29G/Yh+ul4n
+         jRwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771264231; x=1771869031;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zv95Lg9oAGKyC92FTr/4yJbiWOBA02orWovY9nKn8Ws=;
+        b=PObaq9XBZ3NVXqpuxxYLen+IlAJ1dSI8Cth3ohW/g1gus7Gd807+HChbkZHdyXT5yc
+         HSG2xY2AwIBs01GuD3+gRwP/p9nICDcpueoVrF5arNbtphkYLTxlfbpJl5sp9pOSJV8T
+         O8oGIFbBlvcNoKMicsYRcdkoTG0UeB8GFL3EW/+HDvez9uhtVoiCuhqJpsLCNgV/4++1
+         +V8UsLcC89ygnyqUTQ9E4FkiFEyNjC4i7wqDtfu6s6BY+f0ij5Q3ErdxmV5iX9sNHARf
+         RDH2ZWhFFbxjsX2MTMPOxxpSN1VwN1aaem6eAvemalLl55AvZ2ksjUBhHjkpPuyVfxG6
+         X+LA==
+X-Forwarded-Encrypted: i=1; AJvYcCXUF00d+Dswa2WxSRFcm/xH/QXz43a5Jba3V4u2zxwehwhotQ7riyrGiPlqHLZa8hNd814zzzLmxwKdjLUsDw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyngajhmuYJVr5ZeB7ufpIITwV0a+8aQASLBY7hfxdyGI+5zpkz
+	GQhS1GXXstNemeYwehBTX3uDvVVsTGPvaNytbcimFOGfteUYJfnVTkM0
+X-Gm-Gg: AZuq6aKYMM9GRIGixL5Iuu0sAhO3T/NpMr8NOr+ebnywnXAHCU13wJPE79tphG0ASuj
+	6OIVr1Ue33adCQIFC2NwCD6Jq345mL7FrrIH0TzQRZbOP5u5d4IZpU7CNI+baYPd0JN0XI1ovmg
+	aX8Fu1s7yWHM0Ar/LXw0D9v2V7D0/s2dZLgLLL4pFJ5tfpiG7DZk9UJAFjPWbKQYpagu/wy1ZEl
+	ZGwUwtTM4khd/QjgENBOkPR7uZhUyA+kGCx3F5T1ke7wVtyuxqQyuES2ounXQOiOK7kwo9gOeiN
+	A/Y6t7CDleGLmX7AH/0JSXbUyigP6/CWLcainPDvj9YAjEQhz6dbOKLkfttjxrOOJT39qDNpghf
+	d9y07agSmYflDmUF/9+1poknTZuiRj2IpY5TMsiafFl+8wpLnf62k3L0n2g7ggUvR6eiMjq6wSO
+	cudxCMuIB8bcStzirCdlVxCOsbZgN2/8/QXhGEqyGgdM8=
+X-Received: by 2002:a05:7300:23d3:b0:2ba:7606:ace0 with SMTP id 5a478bee46e88-2babc5356bdmr5353650eec.25.1771264230825;
+        Mon, 16 Feb 2026 09:50:30 -0800 (PST)
+Received: from [192.168.4.196] ([73.222.117.172])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bacb66c24esm10455308eec.27.2026.02.16.09.50.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 16 Feb 2026 09:50:30 -0800 (PST)
+Message-ID: <3fe7c5dd-b184-4421-a21c-bafce6aa7b09@gmail.com>
+Date: Mon, 16 Feb 2026 09:50:26 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,116 +68,57 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v7 3/9] tun/tap: add ptr_ring consume helper with
- netdev queue wakeup
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, willemdebruijn.kernel@gmail.com,
-        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
-        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <CACGkMEsJtE3RehWQ8BaDL2HdFPK=iW+ZaEAN1TekAMWwor5tjQ@mail.gmail.com>
- <197573a1-df52-4928-adb9-55a7a4f78839@tu-dortmund.de>
- <CACGkMEveEXky_rTrvRrfi7qix12GG91GfyqnwB6Tu-dnjqAm9A@mail.gmail.com>
- <0c776172-2f02-47fc-babf-2871adca42cb@tu-dortmund.de>
- <CACGkMEte=LwvkxPh-tesJHLVYQV1YZF4is1Yamokhkzaf5GOWw@mail.gmail.com>
- <205aa139-975d-4092-aa04-a2c570ae43a6@tu-dortmund.de>
- <CACGkMEtRikexX=cJz8zmuvW7mcO7uCFdG7AoHQLOezrsb5nbgQ@mail.gmail.com>
- <59529fd2-2a08-4a89-a853-27198b76f842@tu-dortmund.de>
- <20260214131703-mutt-send-email-mst@kernel.org>
- <1ab166aa-8e9c-4742-a80a-c2fa806218db@tu-dortmund.de>
- <20260215053411-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 1/2] mm/mempolicy: track page allocations per mempolicy
+To: Michal Hocko <mhocko@suse.com>
+Cc: linux-mm@kvack.org, apopple@nvidia.com, akpm@linux-foundation.org,
+ axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
+ david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
+ jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
+ Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
+ lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
+ rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
+ rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+ surenb@google.com, virtualization@lists.linux.dev, vbabka@suse.cz,
+ weixugc@google.com, xuanzhuo@linux.alibaba.com,
+ ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+ kernel-team@meta.com
+References: <20260212045109.255391-1-inwardvessel@gmail.com>
+ <20260212045109.255391-2-inwardvessel@gmail.com> <aY2BcIHIARSwwQpo@tiehlicka>
+ <eca7a8f9-173d-4cb0-93b3-df082b8d0c08@gmail.com> <aZLUm95Y-dKkdBWI@tiehlicka>
 Content-Language: en-US
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-In-Reply-To: <20260215053411-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+From: "JP Kobryn (Meta)" <inwardvessel@gmail.com>
+In-Reply-To: <aZLUm95Y-dKkdBWI@tiehlicka>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2/15/26 11:38, Michael S. Tsirkin wrote:
-> On Sat, Feb 14, 2026 at 08:51:53PM +0100, Simon Schippers wrote:
->> On 2/14/26 19:18, Michael S. Tsirkin wrote:
->>> On Sat, Feb 14, 2026 at 06:13:14PM +0100, Simon Schippers wrote:
->>>
->>> ...
->>>
->>>> Patched: Waking on __ptr_ring_produce_created_space() is too early. The
->>>>          stop/wake cycle occurs too frequently which slows down
->>>>          performance as can be seen for TAP.
+On 2/16/26 12:26 AM, Michal Hocko wrote:
+> On Thu 12-02-26 13:22:56, JP Kobryn wrote:
+>> On 2/11/26 11:29 PM, Michal Hocko wrote:
+>>> On Wed 11-02-26 20:51:08, JP Kobryn wrote:
+>>>> It would be useful to see a breakdown of allocations to understand which
+>>>> NUMA policies are driving them. For example, when investigating memory
+>>>> pressure, having policy-specific counts could show that allocations were
+>>>> bound to the affected node (via MPOL_BIND).
 >>>>
->>>> Wake on empty variant: Waking on __ptr_ring_empty() is (slightly) too
->>>>                        late. The consumer starves because the producer
->>>>                        first has to produce packets again. This slows
->>>>                        down performance aswell as can be seen for TAP
->>>> 		       and TAP+vhost-net (both down ~30-40Kpps).
->>>>
->>>> I think something inbetween should be used.
->>>> The wake should be done as late as possible to have as few
->>>> NET_TX_SOFTIRQs as possible but early enough that there are still
->>>> consumable packets remaining to not starve the consumer.
->>>>
->>>> However, I can not think of a proper way to implement this right now.
->>>>
->>>> Thanks!
+>>>> Add per-policy page allocation counters as new node stat items. These
+>>>> counters can provide correlation between a mempolicy and pressure on a
+>>>> given node.
 >>>
->>> What is the difficulty?
+>>> Could you be more specific how exactly do you plan to use those
+>>> counters?
 >>
->> There is no way to tell how many entries are currently in the ring.
->>
->>>
->>> Your patches check __ptr_ring_consume_created_space(..., 1).
->>
->> Yes, and this returns if either 0 space or a batch size space was
->> created.
->> (In the current implementation it would be false or true, but as
->> discussed earlier this can be changed.)
->>
->>>
->>> How about __ptr_ring_consume_created_space(..., 8) then? 16?
->>>
->>
->> This would return how much space the last 8/16 consume operations
->> created. But in tap_ring_consume() we only consume a single entry.
->>
->> Maybe we could avoid __ptr_ring_consume_created_space with this:
->> 1. Wait for the queue to stop with netif_tx_queue_stopped()
->> 2. Then count the numbers of consumes we did after the queue stopped
->> 3. Wake the queue if count >= threshold with threshold >= ring->batch
->>
->> I would say that such a threshold could be something like ring->size/2.
+>> Yes. Patch 2 allows us to find which nodes are undergoing reclaim. Once
+>> we identify the affected node(s), the new mpol counters (this patch)
+>> allow us correlate the pressure to the mempolicy driving it.
 > 
+> I would appreciate somehow more specificity. You are adding counters
+> that are not really easy to drop once they are in. Sure we have
+> precedence of dropping some counters in the past so this is not as hard
+> as usual userspace APIs but still...
 > 
-> To add to what i wrote, size/2 means:
-> leave half a ring for consumer, half a ring for producer.
-> 
-> If one of the two is more bursty, we might want a different
-> balance. Offhand, the kernel is less bursty and userspace is
-> more bursty.
-> 
-> So it's an interesting question but size/2 is a good start.
-> 
+> How exactly do you tolerate mempolicy allocations to specific nodes?
+> While MPOL_MBIND is quite straightforward others are less so.
 
-I implemented this (I can post the implementation if you want)
-and I got:
-- 1216Kpps for TAP --> worse performance than stock (1293 Kpps) and
-  also worse performance than wake on empty (1248 Kpps)
-- 1408Kpps for TAP+vhost-net --> pretty much same performance as
-  stock (1411 Kpps)
-
-I also tried 7/8 for producer, 1/8 for consumer the results did not
-really get better: 
-- 1227Kpps for TAP --> worse performance than stock (1293 Kpps) and
-  also worse performance than wake on empty (1248 Kpps); better
-  performance than 1/2
-- 1350Kpps for TAP+vhost-net --> worse performance than everything
-
-
-So my theory of using something inbetween did not hold up here.
-Judging from my benchmarking the best solution would be to use:
-- Wake on empty for TAP --> 1248Kpps (1293 Kpps stock, 3% worse)
-- Wake on __ptr_ring_consume_created_space() for TAP+vhost-net
-  --> 1410Kpps (1411 Kpps stock, 0% worse)
-
-This would also keep the implementation simple.
-
+The design does account for this regardless of the policy. In the call
+to __mod_node_page_state(), I'm using page_pgdat(page) so the stat is
+attributed to the node where the page actually landed.
