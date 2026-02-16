@@ -1,120 +1,82 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E7241367;
-	Sun, 15 Feb 2026 15:03:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A26E82E54BD;
+	Mon, 16 Feb 2026 06:00:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771167824; cv=none; b=iYBeXPoWlTXC5XcDYZh57Zjv9rNTBBIqHNwspGIM/vHsPkezJU/M+xJXMp+cbsePBErUbCXI1oTFHTzJlJRzIRfqif5eF9AhC36ep3C1/xPXKqUPP2qUhldbuQyA1mIV/SXM2YtR0UqvpEGCguVWKThtQR+HVa46hs9cTjqFBIk=
+	t=1771221604; cv=none; b=NBv7TWrW3ggDCNBcWTHrjySbxGUXpzQRsyyzVNsmglnohHPYQICBlR24DDRMaMwHs7kYBl0eImuYV6Q42PId1pgFu6ZHp95rqAf5GI+azc4DLIq9PEx/9uOzNSsPfCelzCSrvoUPhMV84jxlhKsMDiP51fDuUdRxXjpJUkLmpB4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771167824; c=relaxed/simple;
-	bh=6/fOJZ/cgkSRg2NZ2eWT52wyEMPTPVKBORw2726c6CA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YE1hzwjbMPZ1A5BPSydhs9+9c5cwcOyVH0jl04d5djyglWNhEWWGQween1uprqBmD2BmMBABeQ/P6mf1ikcDSZGUE8WTtERBUQppPanhSF7Ezq6w8xy0VYk1y9NrhVH/HnIYnVTkeJDG4t9M3w7zLsT1/7Bw8X5MN1AJxTcDVyY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NpBcA46R; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771221604; c=relaxed/simple;
+	bh=ID5vsTRHJCtPVtdLDDHcMffe+pjgiAq0I7cSsReAjBs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ky5y1Qr+Z+LGFurBawaFwqfKUoQFm1xn3kN6K5ds8twWv/U2hWNX3hGNiTkeSxz+2O3lPL629E7j9CVYCftrxu+WpE2pmS1A2ZTB8OaYstwHHrBXn+Qlv3wv64b76XiYxB/1DzEoYfTAAw2WOMGLz6tlZcQU2PoVfGts5ajKoMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=uUpYpdAu; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NpBcA46R"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44325C2BC86;
-	Sun, 15 Feb 2026 15:03:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771167824;
-	bh=6/fOJZ/cgkSRg2NZ2eWT52wyEMPTPVKBORw2726c6CA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=NpBcA46R4yaO3SQkkiivOLR7fuU/jO/8H4VR3VzkuOgUtJ4MJ3AcwfG6Dukr6M+5M
-	 aGtrQaGZn/Dlby4FmeGX2O7fH0g5oFcX9TPK4Nhfh2BbYIhJ9MjTNbiMexJBoEyD1p
-	 lvl6jJfQq6R//xZnYnKnPSTdJNrggPKGZdY5HIi5fgYYAvz4VbkaPK5kgMK8C4s2H3
-	 LG/nuWU/xUPXd5glnAFO/yaJstFKnfcksCK0OHwuJ5X6GnThXcLL7BGvucgEeoxlrD
-	 HUksz3cBXENOlFFHzbKAlJuiuaE/J0+rTdgzoc+lhi3klMh/AwvX3i4fYsGbEye5sC
-	 gFybXtHDwSY+A==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Kommula Shiva Shankar <kshankar@marvell.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Jason Gunthorpe <jgg@nvidia.com>,
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="uUpYpdAu"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:In-Reply-To:References;
+	bh=pflK6B412llDfkQ/DPrbLYZjydPbH1WoooExKw8J/0M=; b=uUpYpdAuWLGdg1pE6JYvQo3AHZ
+	kGGga1Cp1J0LULlBLqEB1A8lyAMbcX+drysQJff8MTbP/L/5PNJl0PWJor1i/S8OaDCG429WQ45KL
+	8Sc/4HQN1s/BuazEftmDaH1XGkrY2GRJMB73jwe1/IhJJ9h+ARQrjRbLoE0nCoInsZMjkHrGojN8c
+	raBR6ZQ8ricql1vCk5bDKYb+zOm9x/wfEykqBdl3OK6uRQVeRHnUEFYw6ZCYtrIqOa0ZUmYRpoChJ
+	2KoTQVIWKzbh79HzE7iAvBRBbCF2vqhsM4segoThyAh4E3YKaGKy43P9wPNjvudNvF7YTN9wqpL0y
+	ImzoKg2A==;
+Received: from [50.53.43.113] (helo=bombadil.infradead.org)
+	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vrreJ-000000060Dv-0eb5;
+	Mon, 16 Feb 2026 06:00:00 +0000
+From: Randy Dunlap <rdunlap@infradead.org>
+To: linux-sound@vger.kernel.org
+Cc: Randy Dunlap <rdunlap@infradead.org>,
+	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
+	Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
-	Sasha Levin <sashal@kernel.org>,
-	kvm@vger.kernel.org,
 	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-6.6] vhost: fix caching attributes of MMIO regions by setting them explicitly
-Date: Sun, 15 Feb 2026 10:03:24 -0500
-Message-ID: <20260215150333.2150455-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260215150333.2150455-1-sashal@kernel.org>
-References: <20260215150333.2150455-1-sashal@kernel.org>
+	Jaroslav Kysela <perex@perex.cz>,
+	Takashi Iwai <tiwai@suse.com>
+Subject: [PATCH] ALSA: virtio: drop an extaneous kernel-doc comment
+Date: Sun, 15 Feb 2026 21:59:56 -0800
+Message-ID: <20260216055956.2784399-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.19
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Kommula Shiva Shankar <kshankar@marvell.com>
+Drop a kernel-doc struct comment since the struct member was removed.
+This eliminates a kernel-doc warning when make W=1 is used.
 
-[ Upstream commit 5145b277309f3818e2db507f525d19ac3b910922 ]
+virtio_pcm.h:65: warning: Excess struct member 'msg_last_enqueued'
+ description in 'virtio_pcm_substream'
 
-Explicitly set non-cached caching attributes for MMIO regions.
-Default write-back mode can cause CPU to cache device memory,
-causing invalid reads and unpredictable behavior.
-
-Invalid read and write issues were observed on ARM64 when mapping the
-notification area to userspace via mmap.
-
-Signed-off-by: Kommula Shiva Shankar <kshankar@marvell.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Message-Id: <20260102065703.656255-1-kshankar@marvell.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fe981e67568c ("ALSA: virtio: use ack callback")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 ---
+Cc: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Cc: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: linux-sound@vger.kernel.org
 
-LLM Generated explanations, may be completely bogus:
+ sound/virtio/virtio_pcm.h |    1 -
+ 1 file changed, 1 deletion(-)
 
-The mmap functionality has been there since `ddd89d0a059d8` which
-introduced doorbell mapping. This fix would apply to all stable trees
-that have this function.
-
-### Summary
-
-This is a textbook stable kernel fix:
-
-1. **Obviously correct**: MMIO must be mapped non-cacheable; this is a
-   fundamental hardware requirement. Every other MMIO mmap in the kernel
-   uses `pgprot_noncached()` or similar.
-2. **Fixes a real bug**: Invalid reads/writes on ARM64 — this causes
-   device malfunction and potential data corruption.
-3. **Small and contained**: Single line addition, no side effects.
-4. **No new features**: Just corrects existing mmap behavior to follow
-   hardware requirements.
-5. **Low risk**: `pgprot_noncached()` is the standard, well-understood
-   kernel API for this exact purpose.
-6. **High-quality review**: Three expert maintainers
-   reviewed/acked/committed.
-7. **Self-contained**: No dependencies on other commits.
-
-**YES**
-
- drivers/vhost/vdpa.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 05a481e4c385a..b0179e8567aba 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -1527,6 +1527,7 @@ static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
- 	if (vma->vm_end - vma->vm_start != notify.size)
- 		return -ENOTSUPP;
- 
-+	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
- 	vm_flags_set(vma, VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP);
- 	vma->vm_ops = &vhost_vdpa_vm_ops;
- 	return 0;
--- 
-2.51.0
-
+--- linux-next-20251210.orig/sound/virtio/virtio_pcm.h
++++ linux-next-20251210/sound/virtio/virtio_pcm.h
+@@ -37,7 +37,6 @@ struct virtio_pcm_msg;
+  *             the device side at resume.
+  * @msgs: Allocated I/O messages.
+  * @nmsgs: Number of allocated I/O messages.
+- * @msg_last_enqueued: Index of the last I/O message added to the virtqueue.
+  * @msg_count: Number of pending I/O messages in the virtqueue.
+  * @msg_empty: Notify when msg_count is zero.
+  */
