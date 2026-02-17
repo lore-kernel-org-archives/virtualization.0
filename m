@@ -1,89 +1,158 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05FF636B06B;
-	Tue, 17 Feb 2026 13:34:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AA5136C5B2
+	for <virtualization@lists.linux.dev>; Tue, 17 Feb 2026 15:08:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771335275; cv=none; b=XomvRduNJaQV/gHtlg8BnzN6cDEfXU94qARDIV+QsAki4v7+fdQ/EgiPTbiI14+weQsRNRx066FsTXGxsa+qiJ2SY59hvlV/dSv2jwywoWuioCDy7FFH4GseqqMZKdsWG/tvtrDEGUmABuKwz3DJQa4zD3pnIOPFn/IXiNCaf1w=
+	t=1771340926; cv=none; b=pIVK6wk2s671ZpehF7QUayKw/Yc7PqfjmSimOXN1gt1svYhAcUBEWwVQNswTxqhtvemK/GvSo9Gvk6+rl5r953FK9z6LUKpCM6e2tBbQNrd6/pM/0qXQwVWCo+pymRCjXZNi+kC015xnUtyIHwAYnXndsSKYMNZThm5XbVoR2YU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771335275; c=relaxed/simple;
-	bh=5Ve2lFhJ0cDQLZhhoB8VGy9HpsXLE/NXmcWc43kIado=;
+	s=arc-20240116; t=1771340926; c=relaxed/simple;
+	bh=FATg9XsSiPlYwAbae8L/USKuKRBil6Mn8gqbYCmEG2I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OQHiBT5ehS98fCljY6XGIQ/JJLiurL2j4nbOhyZk0tsj2jt/xeBAHBPjCHhq7vdMPqu5/DHQcyC1KIcAuUTs4E5+lHt4wRckg+qjLrmjiYeAo/CZ2VIz+71Am9gUyPTHu1wQlFV9+gNioITP0Cpsy0db9A3PtbwMSTA7uE/qM9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z9hIeX24; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type:Content-Disposition; b=fa+2Jn+HIC2KmOqvFvrlqrULnCCeHsin7AkIMz3H7PAEjXxFoupa6vxqRVkNjoEmQ3gEzkKRjH8QpPDUz5TbKCZrVGT3LinJVB7ZtASiy1Xn5QcgZlG8muh/Wd6V87f6eawTnxoM+wR2L1Ful0IRPPvYnQMh74N5bymB2JcuRfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DvIR4Xa2; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z9hIeX24"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38DEAC19423;
-	Tue, 17 Feb 2026 13:34:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771335274;
-	bh=5Ve2lFhJ0cDQLZhhoB8VGy9HpsXLE/NXmcWc43kIado=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Z9hIeX24hquUJ4wdZrCAVMv/v+w7DswfB9yd2z01qBeU9SwSfFcRLINuYxFLbTbWy
-	 nCaHOAy2bOHsxsSLnW36or7B1egpaZTiFbaplu1tu9fczmu8yYgPRzu0HEQQjipBKj
-	 wF7yVRXjtqgUQEAKhMvSCNQYs0EgfDfTt4ZgnPiQ253vkvearAzcMUCmugprktCoY4
-	 15q3WwfNIPyVkj8jz85EqiJL+k1gvJaO43mU0XhZYY+dC/maR+PBJXZAnxCGK+V3Yq
-	 go65AH1Vp25BN4+5W6xdN9xTmNgn8I6z9KxJG8Ld2oDvMIelDF5KLf34AawQ3xnki3
-	 M3MQrm9ffvLfw==
-Date: Tue, 17 Feb 2026 15:34:31 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc: David Airlie <airlied@gmail.com>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Alex Deucher <alexander.deucher@amd.com>,
-	Simona Vetter <simona@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Felix Kuehling <Felix.Kuehling@amd.com>,
-	Alex Williamson <alex@shazbot.org>,
-	Ankit Agrawal <ankita@nvidia.com>,
-	Vivek Kasireddy <vivek.kasireddy@intel.com>,
-	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
-	amd-gfx@lists.freedesktop.org, virtualization@lists.linux.dev,
-	intel-xe@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	iommu@lists.linux.dev, kvm@vger.kernel.org
-Subject: Re: [PATCH v7 0/8] dma-buf: Use revoke mechanism to invalidate
- shared buffers
-Message-ID: <20260217133431.GN12989@unreal>
-References: <20260131-dmabuf-revoke-v7-0-463d956bd527@nvidia.com>
- <20260217080206.GJ12989@unreal>
- <0aa8147c-254d-4a1c-89ee-9dc4d4b6b022@amd.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DvIR4Xa2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1771340924;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jEc67c+eucBHPlMa8Z8GafQvzyfH5CJQ48/ZIvcQG9w=;
+	b=DvIR4Xa2UBXNvZfVQYJO07QOSLpI6nzQAapaS1fU15OuzIAfjiO4nNnvkQ6k7M3na8OvtE
+	Gsmoz+aeWuYw61WjPynjf9B1ULdyKHHC2Gove/VsGa66uOWcWYqoDtEu0WWALRiV/50hN4
+	o0Eo+ulmiga0gZrJMnav3w914Zfbukg=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-399-ea060KvtMzqxFixLu5c3gA-1; Tue, 17 Feb 2026 10:08:42 -0500
+X-MC-Unique: ea060KvtMzqxFixLu5c3gA-1
+X-Mimecast-MFC-AGG-ID: ea060KvtMzqxFixLu5c3gA_1771340921
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4806cfffca6so50580915e9.2
+        for <virtualization@lists.linux.dev>; Tue, 17 Feb 2026 07:08:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771340921; x=1771945721;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jEc67c+eucBHPlMa8Z8GafQvzyfH5CJQ48/ZIvcQG9w=;
+        b=Yhhxy7akpGWOwZ8U7J4ManT/qXUzdub1SqfVQ2v+rAHLrV/+Z/Nz33kxqVrItYwQfJ
+         AFypkcCh0awLYgk7tG39kK3teHF7zTBr85wlC4Qg1fjZkJstPqKbBn//06no1vpzZveq
+         UBRQcWzv8RDaUkkzKm64g/miRFXTnBGenwieUhWfrwcHdvq4Ob4UZC2DuhB5ATlxwFE8
+         YkHauaOHlYfIde+6Whjea7IDb8dSoWcqxJ/ymCfh44Yy25skv3iEuCbzYWXa4AMeZOTq
+         IixgZb+L/BWyWmf4jbCY1r23wX2vbqW2HurfW4LgGFbaaxRRetP9nlACKfWg/xzzwtL4
+         Rxtw==
+X-Forwarded-Encrypted: i=1; AJvYcCWgGmVKpxy1NXCnzeLQlifaEnX6bjLuVw8twQEtWvFCnup1zBQZHcPF/AnzWVHLBbr9OfD3bjTaO0hoJAridw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzqwekWw70XtgEMZaFJnvVHN5QhdhW3cyDsjkofgWONbVPcW/58
+	K2kQuIJSx8wJOZj7niRxuV/LOczmCAADzxBfVgKq9uUTCkwLQsjosQWmFW+WVC74SHHDRFzxHCa
+	RTldu3vCm1Bhhm/q8aLDKjvrC2jT0pJPkvQc51yj8cVQiq4WOyTG9LhtYNtCO714m7wWd
+X-Gm-Gg: AZuq6aLgfp9J/ENaENiI94eL5aEvcMUU/pEWzbSeqNIP9vOlfYzi3RoFqRl3OU5OoW0
+	UwWB2OrxBMV+AgiNWfWf1/lA1jZxjNwwl46hqu2LoDMv4GyC4TvDOmF/iN5npy8zgZsLctQIvZA
+	VUDNlIMsBjrQ14CU0qVst6BidMbt80GYN6+NrRNThQkTnjiVxQsLGlIVvPct3NuavgTYY+W45fY
+	mDOaDmXxnvdcsLkITk4iJK6mvIWr7efVzw2shW4H6b105IDeko9+bkySiy0DRZwJpzXo9an75V9
+	PYaBaoW8gYnsqSGQWDlnVonPfVBZLCABmE39G3mDGElSfb8uq+W8rxmsjm/NXl3rA9B5MvCG+pj
+	34MQ0s1z/sThh3EG1SkgwXc3xzmjgrjdGbcxOp0nqnhjW+QfzCT6n7gLc0uGNlol0DBuXj3U=
+X-Received: by 2002:a05:600c:1c1c:b0:477:7b16:5fb1 with SMTP id 5b1f17b1804b1-483739ff8damr256414575e9.7.1771340920691;
+        Tue, 17 Feb 2026 07:08:40 -0800 (PST)
+X-Received: by 2002:a05:600c:1c1c:b0:477:7b16:5fb1 with SMTP id 5b1f17b1804b1-483739ff8damr256413865e9.7.1771340920135;
+        Tue, 17 Feb 2026 07:08:40 -0800 (PST)
+Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4837b64b08bsm102571985e9.6.2026.02.17.07.08.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Feb 2026 07:08:39 -0800 (PST)
+Date: Tue, 17 Feb 2026 16:08:33 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>, 
+	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Daan De Meyer <daan.j.demeyer@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Shuah Khan <shuah@kernel.org>, Long Li <longli@microsoft.com>, 
+	Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	netdev@vger.kernel.org, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, berrange@redhat.com, Sargun Dhillon <sargun@sargun.me>, 
+	linux-doc@vger.kernel.org, Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH net-next v16 01/12] vsock: add netns to vsock core
+Message-ID: <aZNNBc390y6V09qO@sgarzare-redhat>
+References: <20260121-vsock-vmtest-v16-0-2859a7512097@meta.com>
+ <20260121-vsock-vmtest-v16-1-2859a7512097@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <20260121-vsock-vmtest-v16-1-2859a7512097@meta.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: IObCewGOxyMiBzn18q0D9D_y86XwDVa6-_gMFiR2UAk_1771340921
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <0aa8147c-254d-4a1c-89ee-9dc4d4b6b022@amd.com>
 
-On Tue, Feb 17, 2026 at 10:52:25AM +0100, Christian König wrote:
-> On 2/17/26 09:02, Leon Romanovsky wrote:
-> > On Sat, Jan 31, 2026 at 07:34:10AM +0200, Leon Romanovsky wrote:
-> >> Changelog:
-> >> v7:
-> >>  * Fixed messed VFIO patch due to rebase.
-> > 
-> > <...>
-> > 
-> > Christian,
-> > 
-> > What should be my next step? Should I resubmit it?
-> 
-> No, the patches are fine as they are. I'm just waiting for the backmerge of upstream to apply them.
+Hi,
 
-Thanks
+On Wed, Jan 21, 2026 at 02:11:41PM -0800, Bobby Eshleman wrote:
+>From: Bobby Eshleman <bobbyeshleman@meta.com>
+>
+>Add netns logic to vsock core. Additionally, modify transport hook
+>prototypes to be used by later transport-specific patches (e.g.,
+>*_seqpacket_allow()).
+>
+>Namespaces are supported primarily by changing socket lookup functions
+>(e.g., vsock_find_connected_socket()) to take into account the socket
+>namespace and the namespace mode before considering a candidate socket a
+>"match".
+>
+>This patch also introduces the sysctl /proc/sys/net/vsock/ns_mode to
+>report the mode and /proc/sys/net/vsock/child_ns_mode to set the mode
+>for new namespaces.
+
+talking about this new feature with Daan (in CC) we were discussing a 
+possible change to `child_ns_mode`.
+
+Currently, if two or more administrator processes in the same namespace 
+set `child_ns_mode`, they compete. Obviously, after unshare()/clone(), 
+the process can always access `ns_mode` to check if everything went well 
+and eventually retry.
+
+Daan suggested a more conservative approach, allowing `child_ns_mode` to 
+be written only once (a bit like we did in the old version when the 
+child could change the mode only once). This way, most users who want 
+isolation write `local` in `child_ns_mode` at startup in the init_ns. At 
+that point the user  and can be sure that no other process (including 
+administrators, e.g., container managers) can change it, so all new 
+namespaces will have `local` mode.
+
+I think we should support this option in some way, because it seems to 
+simplify the user space in most common cases (ensure isolation). I see 
+few options for doing this:
+
+1. Change the behavior of `child_ns_mode` to be written only once, but 
+this would limit other possible use cases where `child_ns_mode` can be 
+changed more than once (I don't know if Bobby had any in mind).
+
+2. Add a new sysctl `child_ns_mode_lockin` (or something similar), which 
+can only be written once with a mode (local or global). A write on this 
+will also locks `child_ns_mode`, of course.
+
+3. Add a new `local-locked` mode, reusing the same sysctl.
+
+
+If we go for 1, maybe we can do it in 7.0, or not?
+
+2 and 3, on the other hand, may have to wait until the next release.
+
+What do you think? Any comments?
+
+Thanks,
+Stefano
+
