@@ -1,417 +1,324 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+Received: from mail-yx1-f50.google.com (mail-yx1-f50.google.com [74.125.224.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2233833FE30
-	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 15:49:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D7ADC2EA
+	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 16:15:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771429752; cv=none; b=i25bWLrHvnWJ8rNBIQfsDO5Bdz4JHBHOGZwjPTQtLdGE59D+HYLy/Oi/T43kgemoPCBcgWPQ7e+yozhQC+743IUdYu1nU7p/fsOhbZ9TgSq9dYknFvlOW8obwyxfBDssGNaS93ihn2s3fX4fyK4h4izpqXBDmyt+xw7+RPQ7fxU=
+	t=1771431345; cv=none; b=mgaI92B5GyU+pyDX7edX0xO0KC8DGwim8M8/l4uhSfaYELl9BSBZpOURAIYFaHVxMCT9EhFjn33HfeM2Tb7q6SybXOMshD+9TGxICVoJFcoEXSsJZS5zLjDg6e1H/ZvtTMvQo+F4zf0YCrIRMVejDZ5cIjixOeHfBQZBmIDwvt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771429752; c=relaxed/simple;
-	bh=j+UjPWKKgJn/JE+1V8JVxp5elgoIVNdOyz4ET4jIQOE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=m8pKf+9ROj2nEUsOHGRgHcolO8AxjhZF326dSH34ffiE9/7zZdsKYrH5UM3f5Ankw/LULkUJuWU1BU8m40e3p80FRhSj8KURJ4DHlZZ18ZjHMZL7ySfFe7JSa+hBim+LZQUd+2Rp6T30/fA2DHYoY8Xr1Z5pHMkkvOEXlu7Q3js=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=TddBZB2Y; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1771431345; c=relaxed/simple;
+	bh=M8x3Eta6dsHBZmEiqBxFrizv2ZeW28diPeGIt7lnfCA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=f8VZ8qsgNbmUgT4KivZHqJ9b7ACAbkTX0DcyUCjvwB42+lInjUU1VpfzniGI88smuln8GosjNoFuGCaYuUfAQPIbg9FukQ/oSg2j6XcJzeY1NTRS2QVJMD6MHLl1GGnkkIbELW6qi1RQGD/ThWeEGtOPnkEC2U4dFMgnEgoQbKo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PsVzepUm; arc=none smtp.client-ip=74.125.224.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="TddBZB2Y"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-65a43a512b0so6319215a12.3
-        for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 07:49:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PsVzepUm"
+Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-649278a69c5so4985998d50.3
+        for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 08:15:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1771429748; x=1772034548; darn=lists.linux.dev;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=j+UjPWKKgJn/JE+1V8JVxp5elgoIVNdOyz4ET4jIQOE=;
-        b=TddBZB2YswUnoI0WiVKCh3uw9PEc7h91VZp2fx22QnewDOYMyj04gn7fgCpNUgX+Vw
-         LbYEyRPCquWCDMuP1WPa2ZQ84KStNCf0kW7Pw5OuTr2nP4MVhjYPYnvp/n0sQyQ1C+S0
-         1Sho9OL98nu2bmcx+gg+qf0I9xLdTQ2lgF7JRrBps/m2OFw42sHq2Wor90e1+wfwnFBd
-         wDMpeYPtbQZPD8Z7uWbsPmWe3VACsy8GDtfiVneABhZkWrxDsH/+pGo6gH9RqzqO42eg
-         /u1e+khjPnMpbf0kNKQ5ipKMEbsakbtHI/1f9fkkkYqtbt/AjkAvAQmEwRNy6XeiW+eD
-         3O2w==
+        d=gmail.com; s=20230601; t=1771431341; x=1772036141; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2QPsjXZQUdipsGNcNiU7XkuEdRr5aKeXHMLyIc5cKOk=;
+        b=PsVzepUmtrfxR9MXKRtjKK3T1F0u4upgqDmmXjNwF5etdFwBCcjsYqHjnmmmorWAdy
+         ViaUMthsi8l/bBlm5bHlo0oedbf5X30BbmrqftgOxI3ttUscrAudX0K7zCBIMOT9zd53
+         gSBV66Iq69TZWFayHF3e+ixTMviGh4eq6ax9jv4C9f0x3xU0Xmi/GkTr0C9FinclJt1V
+         GT233m3SUR3bKRgJgivKPeDu21ZX3C99JIJYNYBzKNebH8m0V6VmFrZMZiRSsrkN+OBs
+         v6T/PLmZHBikmSdRVe0Ai3ngt5Nm8uWTnj+53qr2XAd4MNCTsmdzhE9JgzopPQ9sUVO2
+         KpTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771429748; x=1772034548;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=j+UjPWKKgJn/JE+1V8JVxp5elgoIVNdOyz4ET4jIQOE=;
-        b=YC5PcSyLj7rVltYyFNnpPEVWmYrXz6wSUIXnDx4G5L8Zig/t6ZdfpXHpsFh9yRie5C
-         h+2cuGpXEP6H3KvkynuJ4Z6rs3A69jiQuI+31+TVyNwg0o+Wd0ZGdRaYf7Q24jQPBXen
-         dc4FiN+m7D3zjk+2iLfv4T9spCSgnX+ByFvgAHZ7B3wJ/VZDfdxKsGDFCmkjvDWoCvXk
-         zlvKEBG00IN4ONDDR7XPqNNODThNwUAQtq4CMKf7k9kNf+EAtj3rzpISImNvQklX6vdf
-         C8ETfPF/Cazj8TUeLAvfCXLSlFhTsKSXFeh7ZSZx65FiRUbY/A71FwfjAdUqeWm23TiT
-         wB5g==
-X-Forwarded-Encrypted: i=1; AJvYcCVGL8YGigPc89cMBrgapOdKTGBl9bAezLV10QasS6iBqbPMzNX2tqp2XljWIPPKRQ1pdaty4mocct97xDx23Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxu/IIzUoPSw4Br5TtjFn22Y62b/cd3hseVT87Pabh9mfu3qiVw
-	ZXVjbLA6p7f9VG+/3r+/bt+dMYb5ftJDAmYMelnvGtsiALA1iHC20td7YGwhaeNudPE=
-X-Gm-Gg: AZuq6aJqcVglxUcsfyLtNVhE65AeLM7l8NcxWD7jdJcdl2moQ6AHTe6W0A/JZajESDa
-	b4hf7ieDbtMBFGZTQzwxiGX5/uGae6nm3W7818w+xxink2JrWtLa6Ehc1T3+pSSTrDBxRXrKPZR
-	Gq2cv3d1Il30mujczIBpj6hwkrjUux1jAg6hTAQE5W8mjZzDx+YJ7VOYaHsNtg/xnZULqpOznYE
-	cc+05ms66tpzTj3720PqxHrOphbW8lSygn/+AG8zmXxRo+emNxx0pTq/nV9MFE4eOTqjHTdO5/G
-	bn8+FbZrMy1bnmgdKAwAvAyjegiFty8jxoJNJsBH2TWZtntIW6yeWjNzfxFaqVheBV1/cwEXtCs
-	axryIJy66MXs2bQJ76qeiGePrSxhzOsQTp44mSA1oLtuzgvTfRO1kFWsKXp5jcfb/TKUgm24nXm
-	RYKz7K0Z+04CLra4h+fP9pKMxKrL1ooUzoQY1KN8rOI+SlkgA4fLU1RjFHHbspkIBXFM8OmdJ90
-	85Cl8Ia01J7fGIZE9XBSqFrhIZf864Je+k662SN3zXpSvn86w==
-X-Received: by 2002:a17:906:9f92:b0:b8f:87a9:27b1 with SMTP id a640c23a62f3a-b903daa5c44mr139053066b.3.1771429748258;
-        Wed, 18 Feb 2026 07:49:08 -0800 (PST)
-Received: from ?IPV6:2a00:12d0:af5b:2f01:4042:c03:ce4d:a5a1? (2a00-12d0-af5b-2f01-4042-c03-ce4d-a5a1.ip.tng.de. [2a00:12d0:af5b:2f01:4042:c03:ce4d:a5a1])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8fc73f7c24sm474045166b.30.2026.02.18.07.49.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Feb 2026 07:49:07 -0800 (PST)
-Message-ID: <563413ad-35f0-4c95-9de9-ae196b6b8233@suse.com>
-Date: Wed, 18 Feb 2026 16:49:07 +0100
+        d=1e100.net; s=20230601; t=1771431341; x=1772036141;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2QPsjXZQUdipsGNcNiU7XkuEdRr5aKeXHMLyIc5cKOk=;
+        b=qr4ANY3zjxKpohgzrXaDFKoWGv22R4xLwPuOTXqNuc8P1/ZSaBlLuQlNGYHUSPbG1K
+         5Olrle//0NfKSiFvGhlt4IO66kVeeIYMu3cQURsXO1Bdgz2qxqfHHuypyfwgRdZ1G/ji
+         dMmOiDmStR0uyOgNR53VXkf2obbftVs2yNoM8+2VwQ/M+yor7izykQy1YsT/ZwRneU80
+         lpC/finmyS3fXoqhvo3YAmcNpu7Q+JTsyEdyc2LHaLAHEZ5JgUmv+K4/JvFfR2QLXVUG
+         qyaROQu8G6OhywLw8/vwWU6pbBxhVWHS9zO4XZBJlR7i8v50RY/JMn2tMa1PM+ElNOtW
+         On9g==
+X-Forwarded-Encrypted: i=1; AJvYcCXbJRWx4RElPQbArRq8vV/E9sqaryzrL9klAyD8zbASlUtGUQg8uhSc6Z1YES+4x3zOM5jQwzpocN1x6e7aDA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyJq8njxmRUzCpLeaMcbzKW3mEVpszImS88osj9KQ7pBPmbAm4y
+	/JjrcH9VKVGrQLSPrnA3lMjOzOngtrQcfp0T0q9U444CQFIMYLkT93VC
+X-Gm-Gg: AZuq6aLXaEJzmwEz2fLKu+/h2CJRPk0yCncYDZXN2PH3xNDaTjfuo0M5NQjFOOf2i5J
+	1Fk9GsyjcowItw5kHD5pfHNODzt1ZeXRkRZmY+tUseT5+wG9SqGvCBSQj6Akv442q2aar9oTWiT
+	sMJ6+RifxWWRyvVIQqMo5iuCaXd8SCEg0nULCT61NoZ/DfJz742QEkBjHiTHcwdiVSN2eroGWNF
+	RjK0AUQO1sUvPUqWByLwA6pVIT4dGM1nNNnp4Ak462SrP/A0y0CaVHROG7n81Q5HLL23uRNr+7f
+	bR+W2WS7miA4haE0daqlzwNuapoEUZpiDvoVuZSGDXpgcp2HlX/+DLDOWuKQyrEdEWYKM+Tatrp
+	G27/VDaydituk1YB5JGGnrYmb6hnj7PX+bn90PoDAPzHUTxmXaz19kd7L6hwToWlnWy0HNqQdXX
+	+ZvjxF++OvzO0xAN+crQdJPmeEJS/sfuXUxjFa3wMwkzNHk4I=
+X-Received: by 2002:a53:de11:0:b0:649:3897:ba21 with SMTP id 956f58d0204a3-64c14d381f8mr13378167d50.52.1771431341018;
+        Wed, 18 Feb 2026 08:15:41 -0800 (PST)
+Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:55::])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-64c22ea3ddfsm5898507d50.8.2026.02.18.08.15.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Feb 2026 08:15:40 -0800 (PST)
+Date: Wed, 18 Feb 2026 08:15:38 -0800
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Shuah Khan <shuah@kernel.org>,
+	Bobby Eshleman <bobbyeshleman@meta.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	Daan De Meyer <daan.j.demeyer@gmail.com>
+Subject: Re: [PATCH net] vsock: lock down child_ns_mode as write-once
+Message-ID: <aZXlqv5ukWymz/NI@devvm11784.nha0.facebook.com>
+References: <20260217-vsock-ns-write-once-v1-1-a1fb30f289a9@meta.com>
+ <aZV6HRAIsf_rNRM2@sgarzare-redhat>
+ <aZWUmbiH11Eh3Y4v@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 16/16] x86/paravirt: Use alternatives for MSR access
- with paravirt
-To: kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, virtualization@lists.linux.dev
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>
-References: <20260218082133.400602-17-jgross@suse.com>
- <202602182111.84MpXRx4-lkp@intel.com>
-Content-Language: en-US
-From: Juergen Gross <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <202602182111.84MpXRx4-lkp@intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------HDQmVIRMei8a33Z3QI2SOzjP"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aZWUmbiH11Eh3Y4v@sgarzare-redhat>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------HDQmVIRMei8a33Z3QI2SOzjP
-Content-Type: multipart/mixed; boundary="------------3yo30GlghRZuJN0fx0irCSGO";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, virtualization@lists.linux.dev
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
- Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>
-Message-ID: <563413ad-35f0-4c95-9de9-ae196b6b8233@suse.com>
-Subject: Re: [PATCH v3 16/16] x86/paravirt: Use alternatives for MSR access
- with paravirt
-References: <20260218082133.400602-17-jgross@suse.com>
- <202602182111.84MpXRx4-lkp@intel.com>
-In-Reply-To: <202602182111.84MpXRx4-lkp@intel.com>
+On Wed, Feb 18, 2026 at 11:43:42AM +0100, Stefano Garzarella wrote:
+> On Wed, Feb 18, 2026 at 11:02:02AM +0100, Stefano Garzarella wrote:
+> > On Tue, Feb 17, 2026 at 05:45:10PM -0800, Bobby Eshleman wrote:
+> > > From: Bobby Eshleman <bobbyeshleman@meta.com>
+> > > 
+> > > To improve the security posture of vsock namespacing, this patch locks
+> > > down the vsock child_ns_mode sysctl setting with a write-once policy.
+> > > The user may write to child_ns_mode only once in each namespace, making
+> > > changes to either local or global mode be irreversible.
+> > > 
+> > > This avoids security breaches where a process in a local namespace may
+> > > attempt to jailbreak into the global vsock ns space by setting
+> > > child_ns_mode to "global", creating a new namespace, and accessing the
+> > > global space through the new namespace.
+> > 
+> > Commit 6a997f38bdf8 ("vsock: prevent child netns mode switch from local
+> > to global") should avoid exactly that, so I don't get this. Can you
+> > elaborate more how this can happen without this patch?
+> > 
+> > I think here we should talk more about what we described in
+> > https://lore.kernel.org/netdev/aZNNBc390y6V09qO@sgarzare-redhat/ which
+> > is that two administrator processes could compete in setting
+> > `child_ns_mode` and end up creating a namespace with an `ns_mode`
+> > different from the one set in `child_ns_mode`. But I would also explain
+> > that this can still be detected by the process by looking at `ns_mode`
+> > and trying again.  With this patch, we avoid this and allow the
+> > namespace manager to set it once and be sure that it cannot be changed
+> > again.
 
---------------3yo30GlghRZuJN0fx0irCSGO
-Content-Type: multipart/mixed; boundary="------------SqDYeFWLSJtjwZQryUehYPcu"
+Oh that's right, I lost track of the original intent when writing this.
 
---------------SqDYeFWLSJtjwZQryUehYPcu
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+> > 
+> > > 
+> > > Additionally, fix the test functions that this change would otherwise
+> > > break by adding "global-parent" and "local-parent" namespaces and using
+> > > them as intermediaries to spawn namespaces in the given modes. This
+> > > avoids the need to change "child_ns_mode" in the init_ns. nsenter must
+> > > be used because ip netns unshares the mount namespace so nested "ip
+> > > netns add" breaks exec calls from the init ns.
+> > 
+> > I'm not sure what the policy is in netdev, but I would prefer to have
+> > selftest changes in another patch (I think earlier in the series so as
+> > not to break the bisection), in order to simplify backporting (e.g. in
+> > CentOS Stream, to keep the backport small, I didn't backport the dozens
+> > of patches for selftest that we did previously).
 
-T24gMTguMDIuMjYgMTQ6NDksIGtlcm5lbCB0ZXN0IHJvYm90IHdyb3RlOg0KPiBIaSBKdWVy
-Z2VuLA0KPiANCj4ga2VybmVsIHRlc3Qgcm9ib3Qgbm90aWNlZCB0aGUgZm9sbG93aW5nIGJ1
-aWxkIGVycm9yczoNCj4gDQo+IFthdXRvIGJ1aWxkIHRlc3QgRVJST1Igb24gbGludXMvbWFz
-dGVyXQ0KPiBbYWxzbyBidWlsZCB0ZXN0IEVSUk9SIG9uIG5leHQtMjAyNjAyMTddDQo+IFtj
-YW5ub3QgYXBwbHkgdG8gdGlwL3g4Ni9jb3JlIGt2bS9xdWV1ZSBrdm0vbmV4dCBrdm0vbGlu
-dXgtbmV4dCB0aXAveDg2L3RkeCB2Ni4xOV0NCj4gW0lmIHlvdXIgcGF0Y2ggaXMgYXBwbGll
-ZCB0byB0aGUgd3JvbmcgZ2l0IHRyZWUsIGtpbmRseSBkcm9wIHVzIGEgbm90ZS4NCj4gQW5k
-IHdoZW4gc3VibWl0dGluZyBwYXRjaCwgd2Ugc3VnZ2VzdCB0byB1c2UgJy0tYmFzZScgYXMg
-ZG9jdW1lbnRlZCBpbg0KPiBodHRwczovL2dpdC1zY20uY29tL2RvY3MvZ2l0LWZvcm1hdC1w
-YXRjaCNfYmFzZV90cmVlX2luZm9ybWF0aW9uXQ0KPiANCj4gdXJsOiAgICBodHRwczovL2dp
-dGh1Yi5jb20vaW50ZWwtbGFiLWxrcC9saW51eC9jb21taXRzL0p1ZXJnZW4tR3Jvc3MveDg2
-LWFsdGVybmF0aXZlLVN1cHBvcnQtYWx0X3JlcGxhY2VfY2FsbC13aXRoLWluc3RydWN0aW9u
-cy1hZnRlci1jYWxsLzIwMjYwMjE4LTE2MzAzMQ0KPiBiYXNlOiAgIGxpbnVzL21hc3Rlcg0K
-PiBwYXRjaCBsaW5rOiAgICBodHRwczovL2xvcmUua2VybmVsLm9yZy9yLzIwMjYwMjE4MDgy
-MTMzLjQwMDYwMi0xNy1qZ3Jvc3MlNDBzdXNlLmNvbQ0KPiBwYXRjaCBzdWJqZWN0OiBbUEFU
-Q0ggdjMgMTYvMTZdIHg4Ni9wYXJhdmlydDogVXNlIGFsdGVybmF0aXZlcyBmb3IgTVNSIGFj
-Y2VzcyB3aXRoIHBhcmF2aXJ0DQo+IGNvbmZpZzogeDg2XzY0LXJhbmRjb25maWctMDAxLTIw
-MjYwMjE4IChodHRwczovL2Rvd25sb2FkLjAxLm9yZy8wZGF5LWNpL2FyY2hpdmUvMjAyNjAy
-MTgvMjAyNjAyMTgyMTExLjg0TXBYUng0LWxrcEBpbnRlbC5jb20vY29uZmlnKQ0KPiBjb21w
-aWxlcjogY2xhbmcgdmVyc2lvbiAyMC4xLjggKGh0dHBzOi8vZ2l0aHViLmNvbS9sbHZtL2xs
-dm0tcHJvamVjdCA4N2YwMjI3Y2I2MDE0N2EyNmExZWViNGZiMDZlM2I1MDVlOWM3MjYxKQ0K
-PiByZXByb2R1Y2UgKHRoaXMgaXMgYSBXPTEgYnVpbGQpOiAoaHR0cHM6Ly9kb3dubG9hZC4w
-MS5vcmcvMGRheS1jaS9hcmNoaXZlLzIwMjYwMjE4LzIwMjYwMjE4MjExMS44NE1wWFJ4NC1s
-a3BAaW50ZWwuY29tL3JlcHJvZHVjZSkNCj4gDQo+IElmIHlvdSBmaXggdGhlIGlzc3VlIGlu
-IGEgc2VwYXJhdGUgcGF0Y2gvY29tbWl0IChpLmUuIG5vdCBqdXN0IGEgbmV3IHZlcnNpb24g
-b2YNCj4gdGhlIHNhbWUgcGF0Y2gvY29tbWl0KSwga2luZGx5IGFkZCBmb2xsb3dpbmcgdGFn
-cw0KPiB8IFJlcG9ydGVkLWJ5OiBrZXJuZWwgdGVzdCByb2JvdCA8bGtwQGludGVsLmNvbT4N
-Cj4gfCBDbG9zZXM6IGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL29lLWtidWlsZC1hbGwvMjAy
-NjAyMTgyMTExLjg0TXBYUng0LWxrcEBpbnRlbC5jb20vDQo+IA0KPiBBbGwgZXJyb3JzIChu
-ZXcgb25lcyBwcmVmaXhlZCBieSA+Pik6DQo+IA0KPiAgICAgSW4gZmlsZSBpbmNsdWRlZCBm
-cm9tIGFyY2gveDg2L2tlcm5lbC9hc20tb2Zmc2V0cy5jOjk6DQo+ICAgICBJbiBmaWxlIGlu
-Y2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9jcnlwdG8uaDoxODoNCj4gICAgIEluIGZpbGUg
-aW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L3NsYWIuaDoxNzoNCj4gICAgIEluIGZpbGUg
-aW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L2dmcC5oOjc6DQo+ICAgICBJbiBmaWxlIGlu
-Y2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9tbXpvbmUuaDoyMjoNCj4gICAgIEluIGZpbGUg
-aW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L21tX3R5cGVzLmg6MTY6DQo+ICAgICBJbiBm
-aWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC91cHJvYmVzLmg6MTg6DQo+ICAgICBJ
-biBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC90aW1lci5oOjY6DQo+ICAgICBJ
-biBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9rdGltZS5oOjI1Og0KPiAgICAg
-SW4gZmlsZSBpbmNsdWRlZCBmcm9tIGluY2x1ZGUvbGludXgvamlmZmllcy5oOjEwOg0KPiAg
-ICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGluY2x1ZGUvbGludXgvdGltZS5oOjYwOg0KPiAg
-ICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGluY2x1ZGUvbGludXgvdGltZTMyLmg6MTM6DQo+
-ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC90aW1leC5oOjY3Og0K
-PiAgICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGFyY2gveDg2L2luY2x1ZGUvYXNtL3RpbWV4
-Lmg6NjoNCj4gICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBhcmNoL3g4Ni9pbmNsdWRlL2Fz
-bS90c2MuaDoxMToNCj4gICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBhcmNoL3g4Ni9pbmNs
-dWRlL2FzbS9tc3IuaDozMDA6DQo+Pj4gYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQt
-bXNyLmg6MTE0OjIzOiBlcnJvcjogdW5zdXBwb3J0ZWQgaW5saW5lIGFzbTogaW5wdXQgd2l0
-aCB0eXBlICd1NjQnIChha2EgJ3Vuc2lnbmVkIGxvbmcgbG9uZycpIG1hdGNoaW5nIG91dHB1
-dCB3aXRoIHR5cGUgJ2ludCcNCj4gICAgICAgMTE0IHwgICAgICAgICAgICAgICAgIFBWX1dS
-TVNSX0NPTlNUKG1zciwgdmFsLCBFWF9UWVBFX1dSTVNSLCB3cml0ZV9tc3IsIGVycik7DQo+
-ICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF5+fiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICB+fn4NCj4gICAgIGFyY2gveDg2L2luY2x1ZGUv
-YXNtL3BhcmF2aXJ0LW1zci5oOjkxOjE2OiBub3RlOiBleHBhbmRlZCBmcm9tIG1hY3JvICdQ
-Vl9XUk1TUl9DT05TVCcNCj4gICAgICAgIDg5IHwgICAgICAgICAgICAgICAgIDogW2Vycl0g
-Ij1hIiAoX19lcnIpLCAiPWQiIChyZHgpLCBBU01fQ0FMTF9DT05TVFJBSU5UICAgXA0KPiAg
-ICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB+fn5+fg0KPiAgICAg
-ICAgOTAgfCAgICAgICAgICAgICAgICAgOiBwYXJhdmlydF9wdHIocHZfb3BzX21zciwgX19m
-dW5jKSwgICAgICAgICAgICAgICAgICAgICBcDQo+ICAgICAgICA5MSB8ICAgICAgICAgICAg
-ICAgICAgIFt2YWxdICIwIiAoX192YWwpLCAiMSIgKChfX3ZhbCkgPj4gMzIpLCAgICAgICAg
-ICAgICAgIFwNCj4gICAgICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBe
-fn5+fg0KPiAgICAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQtbXNyLmg6MTE2OjIx
-OiBlcnJvcjogdW5zdXBwb3J0ZWQgaW5saW5lIGFzbTogaW5wdXQgd2l0aCB0eXBlICd1NjQn
-IChha2EgJ3Vuc2lnbmVkIGxvbmcgbG9uZycpIG1hdGNoaW5nIG91dHB1dCB3aXRoIHR5cGUg
-J2ludCcNCj4gICAgICAgMTE2IHwgICAgICAgICAgICAgICAgIFBWX1dSTVNSX1ZBUihtc3Is
-IHZhbCwgRVhfVFlQRV9XUk1TUiwgd3JpdGVfbXNyLCBlcnIpOw0KPiAgICAgICAgICAgfCAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXn5+ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIH5+fg0KPiAgICAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQtbXNy
-Lmg6NzM6MTA6IG5vdGU6IGV4cGFuZGVkIGZyb20gbWFjcm8gJ1BWX1dSTVNSX1ZBUicNCj4g
-ICAgICAgIDcxIHwgICAgICAgICAgICAgICAgIDogW2Vycl0gIj1hIiAoX19lcnIpLCAiPWQi
-IChyZHgpLCBBU01fQ0FMTF9DT05TVFJBSU5UICAgXA0KPiAgICAgICAgICAgfCAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICB+fn5+fg0KPiAgICAgICAgNzIgfCAgICAgICAgICAg
-ICAgICAgOiBwYXJhdmlydF9wdHIocHZfb3BzX21zciwgX19mdW5jKSwgICAgICAgICAgICAg
-ICAgICAgICBcDQo+ICAgICAgICA3MyB8ICAgICAgICAgICAgICAgICAgICIwIiAoX192YWwp
-LCAiMSIgKChfX3ZhbCkgPj4gMzIpLCAiYyIgKF9fbXNyKSAgICAgICAgIFwNCj4gICAgICAg
-ICAgIHwgICAgICAgICAgICAgICAgICAgICAgICBefn5+fg0KPiAgICAgYXJjaC94ODYvaW5j
-bHVkZS9hc20vcGFyYXZpcnQtbXNyLmg6MTM2OjIzOiBlcnJvcjogdW5zdXBwb3J0ZWQgaW5s
-aW5lIGFzbTogaW5wdXQgd2l0aCB0eXBlICd1NjQnIChha2EgJ3Vuc2lnbmVkIGxvbmcgbG9u
-ZycpIG1hdGNoaW5nIG91dHB1dCB3aXRoIHR5cGUgJ2ludCcNCj4gICAgICAgMTM2IHwgICAg
-ICAgICAgICAgICAgIFBWX1dSTVNSX0NPTlNUKG1zciwgdmFsLCBFWF9UWVBFX1dSTVNSX1NB
-RkUsIHdyaXRlX21zcl9zYWZlLCBlcnIpOw0KPiAgICAgICAgICAgfCAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICBefn4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIH5+fg0KPiAgICAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQtbXNy
-Lmg6OTE6MTY6IG5vdGU6IGV4cGFuZGVkIGZyb20gbWFjcm8gJ1BWX1dSTVNSX0NPTlNUJw0K
-PiAgICAgICAgODkgfCAgICAgICAgICAgICAgICAgOiBbZXJyXSAiPWEiIChfX2VyciksICI9
-ZCIgKHJkeCksIEFTTV9DQUxMX0NPTlNUUkFJTlQgICBcDQo+ICAgICAgICAgICB8ICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIH5+fn5+DQo+ICAgICAgICA5MCB8ICAgICAgICAg
-ICAgICAgICA6IHBhcmF2aXJ0X3B0cihwdl9vcHNfbXNyLCBfX2Z1bmMpLCAgICAgICAgICAg
-ICAgICAgICAgIFwNCj4gICAgICAgIDkxIHwgICAgICAgICAgICAgICAgICAgW3ZhbF0gIjAi
-IChfX3ZhbCksICIxIiAoKF9fdmFsKSA+PiAzMiksICAgICAgICAgICAgICAgXA0KPiAgICAg
-ICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF5+fn5+DQo+ICAgICBhcmNo
-L3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC1tc3IuaDoxMzg6MjE6IGVycm9yOiB1bnN1cHBv
-cnRlZCBpbmxpbmUgYXNtOiBpbnB1dCB3aXRoIHR5cGUgJ3U2NCcgKGFrYSAndW5zaWduZWQg
-bG9uZyBsb25nJykgbWF0Y2hpbmcgb3V0cHV0IHdpdGggdHlwZSAnaW50Jw0KPiAgICAgICAx
-MzggfCAgICAgICAgICAgICAgICAgUFZfV1JNU1JfVkFSKG1zciwgdmFsLCBFWF9UWVBFX1dS
-TVNSX1NBRkUsIHdyaXRlX21zcl9zYWZlLCBlcnIpOw0KPiAgICAgICAgICAgfCAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgXn5+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICB+fn4NCj4gICAgIGFyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0
-LW1zci5oOjczOjEwOiBub3RlOiBleHBhbmRlZCBmcm9tIG1hY3JvICdQVl9XUk1TUl9WQVIn
-DQo+ICAgICAgICA3MSB8ICAgICAgICAgICAgICAgICA6IFtlcnJdICI9YSIgKF9fZXJyKSwg
-Ij1kIiAocmR4KSwgQVNNX0NBTExfQ09OU1RSQUlOVCAgIFwNCj4gICAgICAgICAgIHwgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgfn5+fn4NCj4gICAgICAgIDcyIHwgICAgICAg
-ICAgICAgICAgIDogcGFyYXZpcnRfcHRyKHB2X29wc19tc3IsIF9fZnVuYyksICAgICAgICAg
-ICAgICAgICAgICAgXA0KPiAgICAgICAgNzMgfCAgICAgICAgICAgICAgICAgICAiMCIgKF9f
-dmFsKSwgIjEiICgoX192YWwpID4+IDMyKSwgImMiIChfX21zcikgICAgICAgICBcDQo+ICAg
-ICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgXn5+fn4NCj4gICAgIEluIGZpbGUg
-aW5jbHVkZWQgZnJvbSBhcmNoL3g4Ni9rZXJuZWwvYXNtLW9mZnNldHMuYzoxMDoNCj4gICAg
-IEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2NyeXB0by9hcmlhLmg6MjI6DQo+ICAg
-ICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9tb2R1bGUuaDoyMDoNCj4g
-ICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L2VsZi5oOjY6DQo+ICAg
-ICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gYXJjaC94ODYvaW5jbHVkZS9hc20vZWxmLmg6MTA6
-DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gYXJjaC94ODYvaW5jbHVkZS9hc20vaWEz
-Mi5oOjc6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9jb21w
-YXQuaDoxNzoNCj4gICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L2Zz
-Lmg6NToNCj4gICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L2ZzL3N1
-cGVyLmg6NToNCj4gICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L2Zz
-L3N1cGVyX3R5cGVzLmg6MTM6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVk
-ZS9saW51eC9wZXJjcHUtcndzZW0uaDo3Og0KPiAgICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9t
-IGluY2x1ZGUvbGludXgvcmN1d2FpdC5oOjY6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZy
-b20gaW5jbHVkZS9saW51eC9zY2hlZC9zaWduYWwuaDo2Og0KPiAgICAgaW5jbHVkZS9saW51
-eC9zaWduYWwuaDo5ODoxMTogd2FybmluZzogYXJyYXkgaW5kZXggMyBpcyBwYXN0IHRoZSBl
-bmQgb2YgdGhlIGFycmF5ICh0aGF0IGhhcyB0eXBlICd1bnNpZ25lZCBsb25nWzFdJykgWy1X
-YXJyYXktYm91bmRzXQ0KPiAgICAgICAgOTggfCAgICAgICAgICAgICAgICAgcmV0dXJuIChz
-ZXQtPnNpZ1szXSB8IHNldC0+c2lnWzJdIHwNCj4gICAgICAgICAgIHwgICAgICAgICAgICAg
-ICAgICAgICAgICAgXiAgICAgICAgfg0KPiAgICAgYXJjaC94ODYvaW5jbHVkZS9hc20vc2ln
-bmFsLmg6MjQ6Mjogbm90ZTogYXJyYXkgJ3NpZycgZGVjbGFyZWQgaGVyZQ0KPiAgICAgICAg
-MjQgfCAgICAgICAgIHVuc2lnbmVkIGxvbmcgc2lnW19OU0lHX1dPUkRTXTsNCj4gICAgICAg
-ICAgIHwgICAgICAgICBeDQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gYXJjaC94ODYv
-a2VybmVsL2FzbS1vZmZzZXRzLmM6MTA6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20g
-aW5jbHVkZS9jcnlwdG8vYXJpYS5oOjIyOg0KPiAgICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9t
-IGluY2x1ZGUvbGludXgvbW9kdWxlLmg6MjA6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZy
-b20gaW5jbHVkZS9saW51eC9lbGYuaDo2Og0KPiAgICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9t
-IGFyY2gveDg2L2luY2x1ZGUvYXNtL2VsZi5oOjEwOg0KPiAgICAgSW4gZmlsZSBpbmNsdWRl
-ZCBmcm9tIGFyY2gveDg2L2luY2x1ZGUvYXNtL2lhMzIuaDo3Og0KPiAgICAgSW4gZmlsZSBp
-bmNsdWRlZCBmcm9tIGluY2x1ZGUvbGludXgvY29tcGF0Lmg6MTc6DQo+ICAgICBJbiBmaWxl
-IGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9mcy5oOjU6DQo+ICAgICBJbiBmaWxlIGlu
-Y2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9mcy9zdXBlci5oOjU6DQo+ICAgICBJbiBmaWxl
-IGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9mcy9zdXBlcl90eXBlcy5oOjEzOg0KPiAg
-ICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGluY2x1ZGUvbGludXgvcGVyY3B1LXJ3c2VtLmg6
-NzoNCj4gICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L3JjdXdhaXQu
-aDo2Og0KPiAgICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGluY2x1ZGUvbGludXgvc2NoZWQv
-c2lnbmFsLmg6NjoNCj4gICAgIGluY2x1ZGUvbGludXgvc2lnbmFsLmg6OTg6MjU6IHdhcm5p
-bmc6IGFycmF5IGluZGV4IDIgaXMgcGFzdCB0aGUgZW5kIG9mIHRoZSBhcnJheSAodGhhdCBo
-YXMgdHlwZSAndW5zaWduZWQgbG9uZ1sxXScpIFstV2FycmF5LWJvdW5kc10NCj4gICAgICAg
-IDk4IHwgICAgICAgICAgICAgICAgIHJldHVybiAoc2V0LT5zaWdbM10gfCBzZXQtPnNpZ1sy
-XSB8DQo+ICAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgXiAgICAgICAgfg0KPiAgICAgYXJjaC94ODYvaW5jbHVkZS9hc20vc2lnbmFsLmg6MjQ6
-Mjogbm90ZTogYXJyYXkgJ3NpZycgZGVjbGFyZWQgaGVyZQ0KPiAgICAgICAgMjQgfCAgICAg
-ICAgIHVuc2lnbmVkIGxvbmcgc2lnW19OU0lHX1dPUkRTXTsNCj4gICAgICAgICAgIHwgICAg
-ICAgICBeDQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gYXJjaC94ODYva2VybmVsL2Fz
-bS1vZmZzZXRzLmM6MTA6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9j
-cnlwdG8vYXJpYS5oOjIyOg0KPiAgICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGluY2x1ZGUv
-bGludXgvbW9kdWxlLmg6MjA6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVk
-ZS9saW51eC9lbGYuaDo2Og0KPiAgICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGFyY2gveDg2
-L2luY2x1ZGUvYXNtL2VsZi5oOjEwOg0KPiAgICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGFy
-Y2gveDg2L2luY2x1ZGUvYXNtL2lhMzIuaDo3Og0KPiAgICAgSW4gZmlsZSBpbmNsdWRlZCBm
-cm9tIGluY2x1ZGUvbGludXgvY29tcGF0Lmg6MTc6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVk
-IGZyb20gaW5jbHVkZS9saW51eC9mcy5oOjU6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZy
-b20gaW5jbHVkZS9saW51eC9mcy9zdXBlci5oOjU6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVk
-IGZyb20gaW5jbHVkZS9saW51eC9mcy9zdXBlcl90eXBlcy5oOjEzOg0KPiAgICAgSW4gZmls
-ZSBpbmNsdWRlZCBmcm9tIGluY2x1ZGUvbGludXgvcGVyY3B1LXJ3c2VtLmg6NzoNCj4gICAg
-IEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L3JjdXdhaXQuaDo2Og0KPiAg
-ICAgSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGluY2x1ZGUvbGludXgvc2NoZWQvc2lnbmFsLmg6
-NjoNCj4gICAgIGluY2x1ZGUvbGludXgvc2lnbmFsLmg6OTk6NDogd2FybmluZzogYXJyYXkg
-aW5kZXggMSBpcyBwYXN0IHRoZSBlbmQgb2YgdGhlIGFycmF5ICh0aGF0IGhhcyB0eXBlICd1
-bnNpZ25lZCBsb25nWzFdJykgWy1XYXJyYXktYm91bmRzXQ0KPiAgICAgICAgOTkgfCAgICAg
-ICAgICAgICAgICAgICAgICAgICBzZXQtPnNpZ1sxXSB8IHNldC0+c2lnWzBdKSA9PSAwOw0K
-PiAgICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICBeICAgICAgICB+DQo+ICAg
-ICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9zaWduYWwuaDoyNDoyOiBub3RlOiBhcnJheSAnc2ln
-JyBkZWNsYXJlZCBoZXJlDQo+ICAgICAgICAyNCB8ICAgICAgICAgdW5zaWduZWQgbG9uZyBz
-aWdbX05TSUdfV09SRFNdOw0KPiAgICAgICAgICAgfCAgICAgICAgIF4NCj4gICAgIEluIGZp
-bGUgaW5jbHVkZWQgZnJvbSBhcmNoL3g4Ni9rZXJuZWwvYXNtLW9mZnNldHMuYzoxMDoNCj4g
-ICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2NyeXB0by9hcmlhLmg6MjI6DQo+
-ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9tb2R1bGUuaDoyMDoN
-Cj4gICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4L2VsZi5oOjY6DQo+
-ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gYXJjaC94ODYvaW5jbHVkZS9hc20vZWxmLmg6
-MTA6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gYXJjaC94ODYvaW5jbHVkZS9hc20v
-aWEzMi5oOjc6DQo+ICAgICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gaW5jbHVkZS9saW51eC9j
-b21wYXQuaDoxNzoNCj4gICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRlL2xpbnV4
-L2ZzLmg6NToNCj4gDQo+IA0KPiB2aW0gKzExNCBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJh
-dmlydC1tc3IuaA0KPiANCj4gICAgIDEwOAkNCj4gICAgIDEwOQlzdGF0aWMgX19hbHdheXNf
-aW5saW5lIHZvaWQgd3JpdGVfbXNyKHUzMiBtc3IsIHU2NCB2YWwpDQo+ICAgICAxMTAJew0K
-PiAgICAgMTExCQlpbnQgZXJyOw0KPiAgICAgMTEyCQ0KPiAgICAgMTEzCQlpZiAoX19idWls
-dGluX2NvbnN0YW50X3AobXNyKSkNCj4gICA+IDExNAkJCVBWX1dSTVNSX0NPTlNUKG1zciwg
-dmFsLCBFWF9UWVBFX1dSTVNSLCB3cml0ZV9tc3IsIGVycik7DQo+ICAgICAxMTUJCWVsc2UN
-Cj4gICAgIDExNgkJCVBWX1dSTVNSX1ZBUihtc3IsIHZhbCwgRVhfVFlQRV9XUk1TUiwgd3Jp
-dGVfbXNyLCBlcnIpOw0KPiAgICAgMTE3CX0NCj4gICAgIDExOAkNCj4gDQoNCldpbGwgYmUg
-Zml4ZWQgaW4gVjQuDQoNCg0KSnVlcmdlbg0K
---------------SqDYeFWLSJtjwZQryUehYPcu
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+Sounds good! I wasn't sure if breakage so tightly coupled should be in
+the same patch or not, I'm happy to split it up to ease backporting.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+> > 
+> > Obviously, if it's not possible and breaks the bisection, I can safely
+> > skip these changes during the backport.
+> > 
+> > > 
+> > > Test run:
+> > > 
+> > > 1..25
+> > > ok 1 vm_server_host_client
+> > > ok 2 vm_client_host_server
+> > > ok 3 vm_loopback
+> > > ok 4 ns_host_vsock_ns_mode_ok
+> > > ok 5 ns_host_vsock_child_ns_mode_ok
+> > > ok 6 ns_global_same_cid_fails
+> > > ok 7 ns_local_same_cid_ok
+> > > ok 8 ns_global_local_same_cid_ok
+> > > ok 9 ns_local_global_same_cid_ok
+> > > ok 10 ns_diff_global_host_connect_to_global_vm_ok
+> > > ok 11 ns_diff_global_host_connect_to_local_vm_fails
+> > > ok 12 ns_diff_global_vm_connect_to_global_host_ok
+> > > ok 13 ns_diff_global_vm_connect_to_local_host_fails
+> > > ok 14 ns_diff_local_host_connect_to_local_vm_fails
+> > > ok 15 ns_diff_local_vm_connect_to_local_host_fails
+> > > ok 16 ns_diff_global_to_local_loopback_local_fails
+> > > ok 17 ns_diff_local_to_global_loopback_fails
+> > > ok 18 ns_diff_local_to_local_loopback_fails
+> > > ok 19 ns_diff_global_to_global_loopback_ok
+> > > ok 20 ns_same_local_loopback_ok
+> > > ok 21 ns_same_local_host_connect_to_local_vm_ok
+> > > ok 22 ns_same_local_vm_connect_to_local_host_ok
+> > > ok 23 ns_delete_vm_ok
+> > > ok 24 ns_delete_host_ok
+> > > ok 25 ns_delete_both_ok
+> > > SUMMARY: PASS=25 SKIP=0 FAIL=0
+> > 
+> > IMO this can be removed from the commit message, doesn't add much value
+> > other than say that all test passes.
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+sgtm!
 
---------------SqDYeFWLSJtjwZQryUehYPcu--
+> > 
+> > > 
+> > > Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
+> > > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+> > > Suggested-by: Daan De Meyer <daan.j.demeyer@gmail.com>
+> > > Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+> > > ---
+> > > include/net/af_vsock.h                  |  6 +++++-
+> > > include/net/netns/vsock.h               |  1 +
+> > > net/vmw_vsock/af_vsock.c                | 10 ++++++----
+> > > tools/testing/selftests/vsock/vmtest.sh | 35
+> > > +++++++++++++++------------------
+> > > 4 files changed, 28 insertions(+), 24 deletions(-)
+> > > 
+> > > diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+> > > index d3ff48a2fbe0..c7de33039907 100644
+> > > --- a/include/net/af_vsock.h
+> > > +++ b/include/net/af_vsock.h
+> > > @@ -276,10 +276,14 @@ static inline bool vsock_net_mode_global(struct vsock_sock *vsk)
+> > > 	return vsock_net_mode(sock_net(sk_vsock(vsk))) == VSOCK_NET_MODE_GLOBAL;
+> > > }
+> > > 
+> > > -static inline void vsock_net_set_child_mode(struct net *net,
+> > > +static inline bool vsock_net_set_child_mode(struct net *net,
+> > > 					    enum vsock_net_mode mode)
+> > > {
+> > > +	if (xchg(&net->vsock.child_ns_mode_locked, 1))
+> > > +		return false;
+> > > +
+> > > 	WRITE_ONCE(net->vsock.child_ns_mode, mode);
+> > > +	return true;
+> > > }
+> > > 
+> > > static inline enum vsock_net_mode vsock_net_child_mode(struct net *net)
+> > > diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
+> > > index b34d69a22fa8..8c855fff8039 100644
+> > > --- a/include/net/netns/vsock.h
+> > > +++ b/include/net/netns/vsock.h
+> > > @@ -17,5 +17,6 @@ struct netns_vsock {
+> > > 
+> > > 	enum vsock_net_mode mode;
+> > > 	enum vsock_net_mode child_ns_mode;
+> > > +	int child_ns_mode_locked;
+> > > };
+> > > #endif /* __NET_NET_NAMESPACE_VSOCK_H */
+> > > diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> > > index 9880756d9eff..35e097f4fde8 100644
+> > > --- a/net/vmw_vsock/af_vsock.c
+> > > +++ b/net/vmw_vsock/af_vsock.c
+> > > @@ -90,14 +90,15 @@
+> > > *
+> > > *   - /proc/sys/net/vsock/ns_mode (read-only) reports the current namespace's
+> > > *     mode, which is set at namespace creation and immutable thereafter.
+> > > - *   - /proc/sys/net/vsock/child_ns_mode (writable) controls what mode future
+> > > + *   - /proc/sys/net/vsock/child_ns_mode (write-once) controls what mode future
+> > > *     child namespaces will inherit when created. The initial value matches
+> > > *     the namespace's own ns_mode.
+> > > *
+> > > *   Changing child_ns_mode only affects newly created namespaces, not the
+> > > *   current namespace or existing children. A "local" namespace cannot set
+> > > - *   child_ns_mode to "global". At namespace creation, ns_mode is inherited
+> > > - *   from the parent's child_ns_mode.
+> > > + *   child_ns_mode to "global". child_ns_mode is write-once, so that it may
+> > > + *   be configured and locked down by a namespace manager. At namespace
+> > > + *   creation, ns_mode is inherited from the parent's child_ns_mode.
+> > 
+> > We just merged commit a07c33c6f2fc ("vsock: document namespace mode
+> > sysctls") in the net tree, so we should update also
+> > Documentation/admin-guide/sysctl/net.rst
 
---------------3yo30GlghRZuJN0fx0irCSGO--
+Indeed.
 
---------------HDQmVIRMei8a33Z3QI2SOzjP
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+> > 
+> > > *
+> > > *   The init_net mode is "global" and cannot be modified.
+> > 
+> > Maybe we should also emphasise in the documentation and in the commit
+> > description that `child_ns_mode` in `init_net` also is write-once, so
+> > writing `local` to that one by the init process (e.g. systemd),
+> > essentially will make all the new namespaces in `local` mode. This could
+> > be useful for container/namespace managers.
+> > 
 
------BEGIN PGP SIGNATURE-----
+Sounds good.
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmmV33MFAwAAAAAACgkQsN6d1ii/Ey9K
-mwf9FUNIAdbAJqYIlwNiwdM8PRgDQ7Omvkt0FEq+NdmFGxRATaL2y3CzhAViHENKM9U3ILpzxswj
-YaVyq2PE6cADlQ220lO9OYOoof724qmpby3owgf2oQKykdcJToi0y3pZQ3xcrX8ZC2x5ai5grZBH
-FFKRMCnCMf7El1T45lPBH+JZXHUBdzsDFD+QpvnLgoohWX7ybv6nRlvqGS5ByoZyGwcm7jXmZ0sV
-9sD7hG2OXX5eqiFMUK3vAgkgUcbCPK0NaEYGJKJNiKOBcwTla6q61NOzFNmkwY+iRQSfsgDW4TWf
-gge+0zeYu0TRDKxVPPbL3OKuCLn4kJtvym701bi/4w==
-=yUzy
------END PGP SIGNATURE-----
+> > > *
+> > > @@ -2853,7 +2854,8 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
+> > > 		    new_mode == VSOCK_NET_MODE_GLOBAL)
+> > > 			return -EPERM;
+> > > 
+> > > -		vsock_net_set_child_mode(net, new_mode);
+> > > +		if (!vsock_net_set_child_mode(net, new_mode))
+> > > +			return -EPERM;
+> > 
+> > So, if `child_ns_mode` is set to `local` but locked, writing `local`
+> > again will return -EPERM, is this really what we want?
+> > 
+> > I'm not sure if we can relax it a bit, but then we may race between
+> > reader and writer, so maybe it's fine like it is in this patch, but we
+> > should document better that any writes (even same value) after the first
+> > one will return -EPERM.
+> 
+> I think we can try in this way:
+> 
+> static inline bool vsock_net_set_child_mode(struct net *net,
+> 					    enum vsock_net_mode mode)
+> {
+> 	int new_locked = mode + 1;
+> 	int old_locked = 0;
+> 
+> 	if (try_cmpxchg(&net->vsock.child_ns_mode_locked,
+> 			&old_locked, new_locked)) {
+> 		WRITE_ONCE(net->vsock.child_ns_mode, mode);
+> 		return true;
+> 	}
+> 
+> 	return old_locked == new_locked;
+> }
+> 
+> With a comment like this near child_ns_mode_locked in struct netns_vsock:
+> /* 0 = unlocked
+>  * 1 = locked to GLOBAL (VSOCK_NET_MODE_GLOBAL + 1)
+>  * 2 = locked to LOCAL  (VSOCK_NET_MODE_LOCAL + 1)
+>  */
 
---------------HDQmVIRMei8a33Z3QI2SOzjP--
+This looks good to me. Will change.
+
+> 
+> While writing that, I thought that we can even remove `child_ns_mode_locked`
+> and use a single variable where encode the value and the state, but maybe
+> it's an unnecessary extra complexity.
+> 
+> Stefano
+> 
+> > 
+> > About that, should we return something different, like -EBUSY ?
+> > Not a strong opinion, just to differentiate with the other check before.
+> > 
+> > Thanks,
+> > Stefano
+> 
+
+Differentiating with -EBUSY sounds useful. Will add that and document.
+
+Best,
+Bobby
