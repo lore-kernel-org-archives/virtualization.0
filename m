@@ -1,274 +1,396 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A531325737
-	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 08:23:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AAA82EDD7E;
+	Wed, 18 Feb 2026 08:54:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771402990; cv=none; b=Il8FXMS+DROHTisbEw9tp5Fp0SRZiGfFZ0SqYNI3Cg5NrduBhQENenROv2psxOeECmWSi9h4bkhYe4uAW3DtEH68UfJwueP56qhu/nJvRaRgKrN15KvT2Rq+d909aUcYoMvGc92VVtsJ+zYwrHeLSTyzRmK3RZrzscYehQs1wno=
+	t=1771404855; cv=none; b=afpTDbtyi7fsMr3yvzg+jdtySbZweIauMHwDfKId9fH3OfMnEn8JD3xrLgjlMxe5Zh4TTJyhdMX+TJ2psGi5LZtIcEMi4YcZ8hl3ZmqwDzeeAcaH6bzGEsc1CkNo/Lx+N7aju/9KBmk3n9FbN7Ghfhwux323fKLgbrfENBonfa0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771402990; c=relaxed/simple;
-	bh=Ot4PNxUFzIwoKnTatv7ye6FF/TVvcJCXB0xwh1Qz5Jk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XzTZohj3/HLAyiO1IYrotpqqIKD81rShB0uZQvu/NeSpry3b+nxU1O4GyOERbwd3Wa2FmlOJ2yXq/67XRpoHIgttUmmGX4N3V3pGeqSyHnzDM8gyik//aWMl0zoiU6U/ZkIAHmS1aP/iEVyfpE3W5OA6Gt548G+J7jeK7vxfCig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=X7upQcRT; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=CGE44mxe; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1771404855; c=relaxed/simple;
+	bh=NzP0MR2kPO9mU0PSMbTdrpE4tzr54+64hxffDSJbW08=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TE/ZUcPtva6xA4c0EOeUqKZe49Fq6U7sD/OhSWMr1NNwSwnfnlkQP+GZft9PJsdMUvC9iLGpiPUEtiE62CL8lKlPuDGCC27Y5zckSuXVReczDfz85lcl5jL1VtDGCveFMTtvokJ7GqgkkRtMyxNZKFfwQDT3R4SPZvtCZE/eJ3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LBYr8ziz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="X7upQcRT";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="CGE44mxe"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id EE3C05BCC1;
-	Wed, 18 Feb 2026 08:23:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1771402986; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=S8jho+zlG5EN/mDK/c/sWwn6/KFWEz8mriNXZHbZrEw=;
-	b=X7upQcRTozwHMWJEPVy5jKO64wSkdGzqa25aFB+7A+KVxZ0Z6zCNiK/gbrg74prKtbPvED
-	/rQtphDrNr7M+xmCzETAQPRURnMZxrANY/hShAICywPNS5hMiSce67HWa0j5YFMYOkQONH
-	kHDmAOlJob19icajKRNWrYtiHf6vfI8=
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1771402985; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=S8jho+zlG5EN/mDK/c/sWwn6/KFWEz8mriNXZHbZrEw=;
-	b=CGE44mxebtCqDguBT5i7VYpU+M90yJTZpQK5ZqUUc/kPDsymDWzF8Eqf/E5FOjnvY+2RPJ
-	P2ruQwkJbFxY/TfGoH9CMmGA+zTVR6Xcf8U/KbEZwhKa0RLYITrse1V0RepU8qsrl4akkJ
-	QqrcTDergu8dM5d1A+knoJF/OoV/k/M=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9D67F3EA65;
-	Wed, 18 Feb 2026 08:23:05 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id B81EJel2lWlLHwAAD6G6ig
-	(envelope-from <jgross@suse.com>); Wed, 18 Feb 2026 08:23:05 +0000
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	virtualization@lists.linux.dev
-Cc: Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>
-Subject: [PATCH v3 16/16] x86/paravirt: Use alternatives for MSR access with paravirt
-Date: Wed, 18 Feb 2026 09:21:33 +0100
-Message-ID: <20260218082133.400602-17-jgross@suse.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260218082133.400602-1-jgross@suse.com>
-References: <20260218082133.400602-1-jgross@suse.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LBYr8ziz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E87FC19421;
+	Wed, 18 Feb 2026 08:54:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1771404855;
+	bh=NzP0MR2kPO9mU0PSMbTdrpE4tzr54+64hxffDSJbW08=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=LBYr8zizRKDU1LDOo3wX+e3577+cQP0F0uNTuat2mD0CCjT4GiiZrd35s3JqR0Hbq
+	 WDBTufxDYWf9rCqCXmRdHyiBW7EbyOeZNj0g5C+cjhUHEzCUE39+ub5Q03HuL4VWlp
+	 0Bxd51qM5zXQE0D8sHuP4TObd0tccIuGMNiBCSxiH0BV8IGCrmklGMXP7IJKIN5r9L
+	 jLEd2zwCvBXLlVGRuj7iW5Ir1SH/A8xSVNpSqrkpsN1T4y/7I5MeDXMU26JRbtaVlf
+	 vGvAt6Z9Ovn+dColQThBTr37hOAJXqrIZA3bP6q3qnCXGG5AAbBRHnIHQNeWr8iyDC
+	 PlolPFoO4v6bA==
+Message-ID: <10434f89-fe2a-4cfc-9b29-1cd2ed2bbb7e@kernel.org>
+Date: Wed, 18 Feb 2026 09:54:06 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_HAS_DN(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[12];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:mid,suse.com:email];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:mid,suse.com:email,imap1.dmz-prg2.suse.org:helo];
-	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
-	RCVD_TLS_ALL(0.00)[]
-X-Spam-Flag: NO
-X-Spam-Score: -6.80
-X-Spam-Level: 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] mm: move pgscan and pgsteal to node stats
+Content-Language: en-US
+To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>, linux-mm@kvack.org,
+ mst@redhat.com, mhocko@suse.com, vbabka@suse.cz
+Cc: apopple@nvidia.com, akpm@linux-foundation.org, axelrasmussen@google.com,
+ byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
+ eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
+ hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
+ linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
+ matthew.brost@intel.com, rppt@kernel.org, muchun.song@linux.dev,
+ zhengqi.arch@bytedance.com, rakie.kim@sk.com, roman.gushchin@linux.dev,
+ shakeel.butt@linux.dev, surenb@google.com, virtualization@lists.linux.dev,
+ weixugc@google.com, xuanzhuo@linux.alibaba.com,
+ ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+ kernel-team@meta.com
+References: <20260218032941.225439-1-jp.kobryn@linux.dev>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+In-Reply-To: <20260218032941.225439-1-jp.kobryn@linux.dev>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-When not running as Xen PV guest, patch in the optimal MSR instructions
-via alternative and use direct calls otherwise.
+On 2/18/26 04:29, JP Kobryn (Meta) wrote:
+> From: JP Kobryn <jp.kobryn@linux.dev>
+> 
+> There are situations where reclaim kicks in on a system with free memory.
+> One possible cause is a NUMA imbalance scenario where one or more nodes are
+> under pressure. It would help if we could easily identify such nodes.
+> 
+> Move the pgscan and pgsteal counters from vm_event_item to node_stat_item
+> to provide per-node reclaim visibility. With these counters as node stats,
+> the values are now displayed in the per-node section of /proc/zoneinfo,
+> which allows for quick identification of the affected nodes.
+> 
+> /proc/vmstat continues to report the same counters, aggregated across all
+> nodes. But the ordering of these items within the readout changes as they
+> move from the vm events section to the node stats section.
+> 
+> Memcg accounting of these counters is preserved. The relocated counters
+> remain visible in memory.stat alongside the existing aggregate pgscan and
+> pgsteal counters.
+> 
+> However, this change affects how the global counters are accumulated.
+> Previously, the global event count update was gated on !cgroup_reclaim(),
+> excluding memcg-based reclaim from /proc/vmstat. Now that
+> mod_lruvec_state() is being used to update the counters, the global
+> counters will include all reclaim. This is consistent with how pgdemote
+> counters are already tracked.
 
-This will especially have positive effects for performance when not
-running as a Xen PV guest with paravirtualization enabled, as there
-will be no call overhead for MSR access functions any longer.
+Hm so that leaves PGREFILL (scanned in the active list) the odd one out,
+right? Not being per-node and gated on !cgroup_reclaim() for global stats.
+Should we change it too for full consistency?
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V3:
-- new patch
----
- arch/x86/include/asm/paravirt-msr.h   | 101 ++++++++++++++++++++++----
- arch/x86/include/asm/paravirt_types.h |   1 +
- 2 files changed, 86 insertions(+), 16 deletions(-)
-
-diff --git a/arch/x86/include/asm/paravirt-msr.h b/arch/x86/include/asm/paravirt-msr.h
-index 4ce690b05600..122a7525ae17 100644
---- a/arch/x86/include/asm/paravirt-msr.h
-+++ b/arch/x86/include/asm/paravirt-msr.h
-@@ -27,33 +27,103 @@ extern struct pv_msr_ops pv_ops_msr;
- #define PV_CALLEE_SAVE_REGS_MSR_THUNK(func)		\
- 	__PV_CALLEE_SAVE_REGS_THUNK(func, ".text", MSR)
- 
-+#define ASM_CLRERR	"xor %[err],%[err]\n"
-+
-+#define PV_RDMSR_VAR(__msr, __val, __type, __func, __err)		\
-+	asm volatile(							\
-+		"1:\n"							\
-+		ALTERNATIVE_2(PARAVIRT_CALL,				\
-+			RDMSR_AND_SAVE_RESULT ASM_CLRERR, X86_FEATURE_ALWAYS, \
-+			ALT_CALL_INSTR, ALT_XEN_CALL)			\
-+		"2:\n"							\
-+		_ASM_EXTABLE_TYPE_REG(1b, 2b, __type, %[err])		\
-+		: [err] "=d" (__err), [val] "=a" (__val),		\
-+		  ASM_CALL_CONSTRAINT					\
-+		: paravirt_ptr(pv_ops_msr, __func), "c" (__msr)		\
-+		: "cc")
-+
-+#define PV_RDMSR_CONST(__msr, __val, __type, __func, __err)		\
-+	asm volatile(							\
-+		"1:\n"							\
-+		ALTERNATIVE_3(PARAVIRT_CALL,				\
-+			RDMSR_AND_SAVE_RESULT ASM_CLRERR, X86_FEATURE_ALWAYS, \
-+			ASM_RDMSR_IMM ASM_CLRERR, X86_FEATURE_MSR_IMM,	\
-+			ALT_CALL_INSTR, ALT_XEN_CALL)			\
-+		"2:\n"							\
-+		_ASM_EXTABLE_TYPE_REG(1b, 2b, __type, %[err])		\
-+		: [err] "=d" (__err), [val] "=a" (__val),		\
-+		  ASM_CALL_CONSTRAINT					\
-+		: paravirt_ptr(pv_ops_msr, __func),			\
-+		  "c" (__msr), [msr] "i" (__msr)			\
-+		: "cc")
-+
-+#define PV_WRMSR_VAR(__msr, __val, __type, __func, __err)		\
-+({									\
-+	unsigned long rdx = rdx;					\
-+	asm volatile(							\
-+		"1:\n"							\
-+		ALTERNATIVE_3(PARAVIRT_CALL,				\
-+			"wrmsr;" ASM_CLRERR, X86_FEATURE_ALWAYS,	\
-+			ASM_WRMSRNS ASM_CLRERR, X86_FEATURE_WRMSRNS,	\
-+			ALT_CALL_INSTR, ALT_XEN_CALL)			\
-+		"2:\n"							\
-+		_ASM_EXTABLE_TYPE_REG(1b, 2b, __type, %[err])		\
-+		: [err] "=a" (__err), "=d" (rdx), ASM_CALL_CONSTRAINT	\
-+		: paravirt_ptr(pv_ops_msr, __func),			\
-+		  "0" (__val), "1" ((__val) >> 32), "c" (__msr)		\
-+		: "memory", "cc");					\
-+})
-+
-+#define PV_WRMSR_CONST(__msr, __val, __type, __func, __err)		\
-+({									\
-+	unsigned long rdx = rdx;					\
-+	asm volatile(							\
-+		"1:\n"							\
-+		ALTERNATIVE_4(PARAVIRT_CALL,				\
-+			"wrmsr;" ASM_CLRERR, X86_FEATURE_ALWAYS,	\
-+			ASM_WRMSRNS ASM_CLRERR, X86_FEATURE_WRMSRNS,	\
-+			ASM_WRMSRNS_IMM ASM_CLRERR, X86_FEATURE_MSR_IMM,\
-+			ALT_CALL_INSTR, ALT_XEN_CALL)			\
-+		"2:\n"							\
-+		_ASM_EXTABLE_TYPE_REG(1b, 2b, __type, %[err])		\
-+		: [err] "=a" (__err), "=d" (rdx), ASM_CALL_CONSTRAINT	\
-+		: paravirt_ptr(pv_ops_msr, __func),			\
-+		  [val] "0" (__val), "1" ((__val) >> 32),		\
-+		  "c" (__msr), [msr] "i" (__msr)			\
-+		: "memory", "cc");					\
-+})
-+
- static __always_inline u64 read_msr(u32 msr)
- {
- 	u64 val;
-+	int err;
- 
--	asm volatile(PARAVIRT_CALL
--		     : "=a" (val), ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, read_msr), "c" (msr)
--		     : "rdx");
-+	if (__builtin_constant_p(msr))
-+		PV_RDMSR_CONST(msr, val, EX_TYPE_RDMSR, read_msr, err);
-+	else
-+		PV_RDMSR_VAR(msr, val, EX_TYPE_RDMSR, read_msr, err);
- 
- 	return val;
- }
- 
- static __always_inline void write_msr(u32 msr, u64 val)
- {
--	asm volatile(PARAVIRT_CALL
--		     : ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, write_msr), "c" (msr), "a" (val)
--		     : "memory", "rdx");
-+	int err;
-+
-+	if (__builtin_constant_p(msr))
-+		PV_WRMSR_CONST(msr, val, EX_TYPE_WRMSR, write_msr, err);
-+	else
-+		PV_WRMSR_VAR(msr, val, EX_TYPE_WRMSR, write_msr, err);
- }
- 
- static __always_inline int read_msr_safe(u32 msr, u64 *val)
- {
- 	int err;
- 
--	asm volatile(PARAVIRT_CALL
--		     : [err] "=d" (err), "=a" (*val), ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, read_msr_safe), "c" (msr));
-+	if (__builtin_constant_p(msr))
-+		PV_RDMSR_CONST(msr, *val, EX_TYPE_RDMSR_SAFE, read_msr_safe, err);
-+	else
-+		PV_RDMSR_VAR(msr, *val, EX_TYPE_RDMSR_SAFE, read_msr_safe, err);
- 
- 	return err ? -EIO : 0;
- }
-@@ -62,11 +132,10 @@ static __always_inline int write_msr_safe(u32 msr, u64 val)
- {
- 	int err;
- 
--	asm volatile(PARAVIRT_CALL
--		     : [err] "=a" (err), ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, write_msr_safe),
--			"c" (msr), "a" (val)
--		     : "memory", "rdx");
-+	if (__builtin_constant_p(msr))
-+		PV_WRMSR_CONST(msr, val, EX_TYPE_WRMSR_SAFE, write_msr_safe, err);
-+	else
-+		PV_WRMSR_VAR(msr, val, EX_TYPE_WRMSR_SAFE, write_msr_safe, err);
- 
- 	return err ? -EIO : 0;
- }
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 999a5abe54ed..bdaecc54c6ee 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -451,6 +451,7 @@ extern struct paravirt_patch_template pv_ops;
- #endif	/* __ASSEMBLER__ */
- 
- #define ALT_NOT_XEN	ALT_NOT(X86_FEATURE_XENPV)
-+#define ALT_XEN_CALL	ALT_DIRECT_CALL(X86_FEATURE_XENPV)
- 
- #ifdef CONFIG_X86_32
- /* save and restore all caller-save registers, except return value */
--- 
-2.53.0
+> Finally, the virtio_balloon driver is updated to use
+> global_node_page_state() to fetch the counters, as they are no longer
+> accessible through the vm_events array.
+> 
+> Signed-off-by: JP Kobryn <jp.kobryn@linux.dev>
+> Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
+> ---
+>  drivers/virtio/virtio_balloon.c |  8 ++---
+>  include/linux/mmzone.h          | 12 ++++++++
+>  include/linux/vm_event_item.h   | 12 --------
+>  mm/memcontrol.c                 | 52 +++++++++++++++++++++++----------
+>  mm/vmscan.c                     | 32 ++++++++------------
+>  mm/vmstat.c                     | 24 +++++++--------
+>  6 files changed, 76 insertions(+), 64 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 4e549abe59ff..ab945532ceef 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -369,13 +369,13 @@ static inline unsigned int update_balloon_vm_stats(struct virtio_balloon *vb)
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_ALLOC_STALL, stall);
+>  
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_ASYNC_SCAN,
+> -		    pages_to_bytes(events[PGSCAN_KSWAPD]));
+> +		    pages_to_bytes(global_node_page_state(PGSCAN_KSWAPD)));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRECT_SCAN,
+> -		    pages_to_bytes(events[PGSCAN_DIRECT]));
+> +		    pages_to_bytes(global_node_page_state(PGSCAN_DIRECT)));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_ASYNC_RECLAIM,
+> -		    pages_to_bytes(events[PGSTEAL_KSWAPD]));
+> +		    pages_to_bytes(global_node_page_state(PGSTEAL_KSWAPD)));
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRECT_RECLAIM,
+> -		    pages_to_bytes(events[PGSTEAL_DIRECT]));
+> +		    pages_to_bytes(global_node_page_state(PGSTEAL_DIRECT)));
+>  
+>  #ifdef CONFIG_HUGETLB_PAGE
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGALLOC,
+> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+> index 3e51190a55e4..1aa9c7aec889 100644
+> --- a/include/linux/mmzone.h
+> +++ b/include/linux/mmzone.h
+> @@ -255,6 +255,18 @@ enum node_stat_item {
+>  	PGDEMOTE_DIRECT,
+>  	PGDEMOTE_KHUGEPAGED,
+>  	PGDEMOTE_PROACTIVE,
+> +	PGSTEAL_KSWAPD,
+> +	PGSTEAL_DIRECT,
+> +	PGSTEAL_KHUGEPAGED,
+> +	PGSTEAL_PROACTIVE,
+> +	PGSTEAL_ANON,
+> +	PGSTEAL_FILE,
+> +	PGSCAN_KSWAPD,
+> +	PGSCAN_DIRECT,
+> +	PGSCAN_KHUGEPAGED,
+> +	PGSCAN_PROACTIVE,
+> +	PGSCAN_ANON,
+> +	PGSCAN_FILE,
+>  #ifdef CONFIG_HUGETLB_PAGE
+>  	NR_HUGETLB,
+>  #endif
+> diff --git a/include/linux/vm_event_item.h b/include/linux/vm_event_item.h
+> index 22a139f82d75..1fa3b3ad0ff9 100644
+> --- a/include/linux/vm_event_item.h
+> +++ b/include/linux/vm_event_item.h
+> @@ -40,19 +40,7 @@ enum vm_event_item { PGPGIN, PGPGOUT, PSWPIN, PSWPOUT,
+>  		PGLAZYFREED,
+>  		PGREFILL,
+>  		PGREUSE,
+> -		PGSTEAL_KSWAPD,
+> -		PGSTEAL_DIRECT,
+> -		PGSTEAL_KHUGEPAGED,
+> -		PGSTEAL_PROACTIVE,
+> -		PGSCAN_KSWAPD,
+> -		PGSCAN_DIRECT,
+> -		PGSCAN_KHUGEPAGED,
+> -		PGSCAN_PROACTIVE,
+>  		PGSCAN_DIRECT_THROTTLE,
+> -		PGSCAN_ANON,
+> -		PGSCAN_FILE,
+> -		PGSTEAL_ANON,
+> -		PGSTEAL_FILE,
+>  #ifdef CONFIG_NUMA
+>  		PGSCAN_ZONE_RECLAIM_SUCCESS,
+>  		PGSCAN_ZONE_RECLAIM_FAILED,
+> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> index 007413a53b45..e89e77457701 100644
+> --- a/mm/memcontrol.c
+> +++ b/mm/memcontrol.c
+> @@ -328,6 +328,18 @@ static const unsigned int memcg_node_stat_items[] = {
+>  	PGDEMOTE_DIRECT,
+>  	PGDEMOTE_KHUGEPAGED,
+>  	PGDEMOTE_PROACTIVE,
+> +	PGSTEAL_KSWAPD,
+> +	PGSTEAL_DIRECT,
+> +	PGSTEAL_KHUGEPAGED,
+> +	PGSTEAL_PROACTIVE,
+> +	PGSTEAL_ANON,
+> +	PGSTEAL_FILE,
+> +	PGSCAN_KSWAPD,
+> +	PGSCAN_DIRECT,
+> +	PGSCAN_KHUGEPAGED,
+> +	PGSCAN_PROACTIVE,
+> +	PGSCAN_ANON,
+> +	PGSCAN_FILE,
+>  #ifdef CONFIG_HUGETLB_PAGE
+>  	NR_HUGETLB,
+>  #endif
+> @@ -441,14 +453,6 @@ static const unsigned int memcg_vm_event_stat[] = {
+>  #endif
+>  	PSWPIN,
+>  	PSWPOUT,
+> -	PGSCAN_KSWAPD,
+> -	PGSCAN_DIRECT,
+> -	PGSCAN_KHUGEPAGED,
+> -	PGSCAN_PROACTIVE,
+> -	PGSTEAL_KSWAPD,
+> -	PGSTEAL_DIRECT,
+> -	PGSTEAL_KHUGEPAGED,
+> -	PGSTEAL_PROACTIVE,
+>  	PGFAULT,
+>  	PGMAJFAULT,
+>  	PGREFILL,
+> @@ -1382,6 +1386,14 @@ static const struct memory_stat memory_stats[] = {
+>  	{ "pgdemote_direct",		PGDEMOTE_DIRECT		},
+>  	{ "pgdemote_khugepaged",	PGDEMOTE_KHUGEPAGED	},
+>  	{ "pgdemote_proactive",		PGDEMOTE_PROACTIVE	},
+> +	{ "pgsteal_kswapd",		PGSTEAL_KSWAPD		},
+> +	{ "pgsteal_direct",		PGSTEAL_DIRECT		},
+> +	{ "pgsteal_khugepaged",		PGSTEAL_KHUGEPAGED	},
+> +	{ "pgsteal_proactive",		PGSTEAL_PROACTIVE	},
+> +	{ "pgscan_kswapd",		PGSCAN_KSWAPD		},
+> +	{ "pgscan_direct",		PGSCAN_DIRECT		},
+> +	{ "pgscan_khugepaged",		PGSCAN_KHUGEPAGED	},
+> +	{ "pgscan_proactive",		PGSCAN_PROACTIVE	},
+>  #ifdef CONFIG_NUMA_BALANCING
+>  	{ "pgpromote_success",		PGPROMOTE_SUCCESS	},
+>  #endif
+> @@ -1425,6 +1437,14 @@ static int memcg_page_state_output_unit(int item)
+>  	case PGDEMOTE_DIRECT:
+>  	case PGDEMOTE_KHUGEPAGED:
+>  	case PGDEMOTE_PROACTIVE:
+> +	case PGSTEAL_KSWAPD:
+> +	case PGSTEAL_DIRECT:
+> +	case PGSTEAL_KHUGEPAGED:
+> +	case PGSTEAL_PROACTIVE:
+> +	case PGSCAN_KSWAPD:
+> +	case PGSCAN_DIRECT:
+> +	case PGSCAN_KHUGEPAGED:
+> +	case PGSCAN_PROACTIVE:
+>  #ifdef CONFIG_NUMA_BALANCING
+>  	case PGPROMOTE_SUCCESS:
+>  #endif
+> @@ -1496,15 +1516,15 @@ static void memcg_stat_format(struct mem_cgroup *memcg, struct seq_buf *s)
+>  
+>  	/* Accumulated memory events */
+>  	seq_buf_printf(s, "pgscan %lu\n",
+> -		       memcg_events(memcg, PGSCAN_KSWAPD) +
+> -		       memcg_events(memcg, PGSCAN_DIRECT) +
+> -		       memcg_events(memcg, PGSCAN_PROACTIVE) +
+> -		       memcg_events(memcg, PGSCAN_KHUGEPAGED));
+> +		       memcg_page_state(memcg, PGSCAN_KSWAPD) +
+> +		       memcg_page_state(memcg, PGSCAN_DIRECT) +
+> +		       memcg_page_state(memcg, PGSCAN_PROACTIVE) +
+> +		       memcg_page_state(memcg, PGSCAN_KHUGEPAGED));
+>  	seq_buf_printf(s, "pgsteal %lu\n",
+> -		       memcg_events(memcg, PGSTEAL_KSWAPD) +
+> -		       memcg_events(memcg, PGSTEAL_DIRECT) +
+> -		       memcg_events(memcg, PGSTEAL_PROACTIVE) +
+> -		       memcg_events(memcg, PGSTEAL_KHUGEPAGED));
+> +		       memcg_page_state(memcg, PGSTEAL_KSWAPD) +
+> +		       memcg_page_state(memcg, PGSTEAL_DIRECT) +
+> +		       memcg_page_state(memcg, PGSTEAL_PROACTIVE) +
+> +		       memcg_page_state(memcg, PGSTEAL_KHUGEPAGED));
+>  
+>  	for (i = 0; i < ARRAY_SIZE(memcg_vm_event_stat); i++) {
+>  #ifdef CONFIG_MEMCG_V1
+> diff --git a/mm/vmscan.c b/mm/vmscan.c
+> index 44e4fcd6463c..dd6d87340941 100644
+> --- a/mm/vmscan.c
+> +++ b/mm/vmscan.c
+> @@ -1984,7 +1984,7 @@ static unsigned long shrink_inactive_list(unsigned long nr_to_scan,
+>  	unsigned long nr_taken;
+>  	struct reclaim_stat stat;
+>  	bool file = is_file_lru(lru);
+> -	enum vm_event_item item;
+> +	enum node_stat_item item;
+>  	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
+>  	bool stalled = false;
+>  
+> @@ -2010,10 +2010,8 @@ static unsigned long shrink_inactive_list(unsigned long nr_to_scan,
+>  
+>  	__mod_node_page_state(pgdat, NR_ISOLATED_ANON + file, nr_taken);
+>  	item = PGSCAN_KSWAPD + reclaimer_offset(sc);
+> -	if (!cgroup_reclaim(sc))
+> -		__count_vm_events(item, nr_scanned);
+> -	count_memcg_events(lruvec_memcg(lruvec), item, nr_scanned);
+> -	__count_vm_events(PGSCAN_ANON + file, nr_scanned);
+> +	mod_lruvec_state(lruvec, item, nr_scanned);
+> +	mod_lruvec_state(lruvec, PGSCAN_ANON + file, nr_scanned);
+>  
+>  	spin_unlock_irq(&lruvec->lru_lock);
+>  
+> @@ -2030,10 +2028,8 @@ static unsigned long shrink_inactive_list(unsigned long nr_to_scan,
+>  					stat.nr_demoted);
+>  	__mod_node_page_state(pgdat, NR_ISOLATED_ANON + file, -nr_taken);
+>  	item = PGSTEAL_KSWAPD + reclaimer_offset(sc);
+> -	if (!cgroup_reclaim(sc))
+> -		__count_vm_events(item, nr_reclaimed);
+> -	count_memcg_events(lruvec_memcg(lruvec), item, nr_reclaimed);
+> -	__count_vm_events(PGSTEAL_ANON + file, nr_reclaimed);
+> +	mod_lruvec_state(lruvec, item, nr_reclaimed);
+> +	mod_lruvec_state(lruvec, PGSTEAL_ANON + file, nr_reclaimed);
+>  
+>  	lru_note_cost_unlock_irq(lruvec, file, stat.nr_pageout,
+>  					nr_scanned - nr_reclaimed);
+> @@ -4542,7 +4538,7 @@ static int scan_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
+>  {
+>  	int i;
+>  	int gen;
+> -	enum vm_event_item item;
+> +	enum node_stat_item item;
+>  	int sorted = 0;
+>  	int scanned = 0;
+>  	int isolated = 0;
+> @@ -4601,13 +4597,11 @@ static int scan_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
+>  	}
+>  
+>  	item = PGSCAN_KSWAPD + reclaimer_offset(sc);
+> -	if (!cgroup_reclaim(sc)) {
+> -		__count_vm_events(item, isolated);
+> +	if (!cgroup_reclaim(sc))
+>  		__count_vm_events(PGREFILL, sorted);
+> -	}
+> -	count_memcg_events(memcg, item, isolated);
+> +	mod_lruvec_state(lruvec, item, isolated);
+>  	count_memcg_events(memcg, PGREFILL, sorted);
+> -	__count_vm_events(PGSCAN_ANON + type, isolated);
+> +	mod_lruvec_state(lruvec, PGSCAN_ANON + type, isolated);
+>  	trace_mm_vmscan_lru_isolate(sc->reclaim_idx, sc->order, scan_batch,
+>  				scanned, skipped, isolated,
+>  				type ? LRU_INACTIVE_FILE : LRU_INACTIVE_ANON);
+> @@ -4692,7 +4686,7 @@ static int evict_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
+>  	LIST_HEAD(clean);
+>  	struct folio *folio;
+>  	struct folio *next;
+> -	enum vm_event_item item;
+> +	enum node_stat_item item;
+>  	struct reclaim_stat stat;
+>  	struct lru_gen_mm_walk *walk;
+>  	bool skip_retry = false;
+> @@ -4756,10 +4750,8 @@ static int evict_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
+>  					stat.nr_demoted);
+>  
+>  	item = PGSTEAL_KSWAPD + reclaimer_offset(sc);
+> -	if (!cgroup_reclaim(sc))
+> -		__count_vm_events(item, reclaimed);
+> -	count_memcg_events(memcg, item, reclaimed);
+> -	__count_vm_events(PGSTEAL_ANON + type, reclaimed);
+> +	mod_lruvec_state(lruvec, item, reclaimed);
+> +	mod_lruvec_state(lruvec, PGSTEAL_ANON + type, reclaimed);
+>  
+>  	spin_unlock_irq(&lruvec->lru_lock);
+>  
+> diff --git a/mm/vmstat.c b/mm/vmstat.c
+> index 99270713e0c1..d952c1e763e6 100644
+> --- a/mm/vmstat.c
+> +++ b/mm/vmstat.c
+> @@ -1276,6 +1276,18 @@ const char * const vmstat_text[] = {
+>  	[I(PGDEMOTE_DIRECT)]			= "pgdemote_direct",
+>  	[I(PGDEMOTE_KHUGEPAGED)]		= "pgdemote_khugepaged",
+>  	[I(PGDEMOTE_PROACTIVE)]			= "pgdemote_proactive",
+> +	[I(PGSTEAL_KSWAPD)]			= "pgsteal_kswapd",
+> +	[I(PGSTEAL_DIRECT)]			= "pgsteal_direct",
+> +	[I(PGSTEAL_KHUGEPAGED)]			= "pgsteal_khugepaged",
+> +	[I(PGSTEAL_PROACTIVE)]			= "pgsteal_proactive",
+> +	[I(PGSTEAL_ANON)]			= "pgsteal_anon",
+> +	[I(PGSTEAL_FILE)]			= "pgsteal_file",
+> +	[I(PGSCAN_KSWAPD)]			= "pgscan_kswapd",
+> +	[I(PGSCAN_DIRECT)]			= "pgscan_direct",
+> +	[I(PGSCAN_KHUGEPAGED)]			= "pgscan_khugepaged",
+> +	[I(PGSCAN_PROACTIVE)]			= "pgscan_proactive",
+> +	[I(PGSCAN_ANON)]			= "pgscan_anon",
+> +	[I(PGSCAN_FILE)]			= "pgscan_file",
+>  #ifdef CONFIG_HUGETLB_PAGE
+>  	[I(NR_HUGETLB)]				= "nr_hugetlb",
+>  #endif
+> @@ -1320,19 +1332,7 @@ const char * const vmstat_text[] = {
+>  
+>  	[I(PGREFILL)]				= "pgrefill",
+>  	[I(PGREUSE)]				= "pgreuse",
+> -	[I(PGSTEAL_KSWAPD)]			= "pgsteal_kswapd",
+> -	[I(PGSTEAL_DIRECT)]			= "pgsteal_direct",
+> -	[I(PGSTEAL_KHUGEPAGED)]			= "pgsteal_khugepaged",
+> -	[I(PGSTEAL_PROACTIVE)]			= "pgsteal_proactive",
+> -	[I(PGSCAN_KSWAPD)]			= "pgscan_kswapd",
+> -	[I(PGSCAN_DIRECT)]			= "pgscan_direct",
+> -	[I(PGSCAN_KHUGEPAGED)]			= "pgscan_khugepaged",
+> -	[I(PGSCAN_PROACTIVE)]			= "pgscan_proactive",
+>  	[I(PGSCAN_DIRECT_THROTTLE)]		= "pgscan_direct_throttle",
+> -	[I(PGSCAN_ANON)]			= "pgscan_anon",
+> -	[I(PGSCAN_FILE)]			= "pgscan_file",
+> -	[I(PGSTEAL_ANON)]			= "pgsteal_anon",
+> -	[I(PGSTEAL_FILE)]			= "pgsteal_file",
+>  
+>  #ifdef CONFIG_NUMA
+>  	[I(PGSCAN_ZONE_RECLAIM_SUCCESS)]	= "zone_reclaim_success",
 
