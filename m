@@ -1,298 +1,408 @@
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-174.mta1.migadu.com (out-174.mta1.migadu.com [95.215.58.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35C9C1F1513
-	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 01:45:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A957B238C29
+	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 03:30:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771379119; cv=none; b=Jjlf0ysxFx0P3/kMxKZDlE61e16MSbCdC9Vn2vy27czIcuyZBXxn22nytJmpzjQWVLqWzP/PDK1edeNxs3A1MSNA+CkbEdm9Uca8/qA9vQw7Jfb9RZkMhhicTCXvQO8Kl3f6vFQ47H8kAdBrQlVnyhFGprMk5VP5bFybMFWEMvQ=
+	t=1771385419; cv=none; b=inTz3Yop3bR9gmyBW5tMNorYm5Vw9BY2J//Ax7WFoiQdKzlQCGkqsoxzUld/r531tLT06FGgNIhI7OkUHU83HpXys0cErMCKa2ZR1zBOmlyXBeADvQKz+CzRu+iyrs4sK6ta7xXiv+iWXDQo0jf1081/bvP3m6tf1XzPaxgwOU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771379119; c=relaxed/simple;
-	bh=3AT9Jcju4MsV/M4OfDSUtW23PxNc6ImHVjzXYS6HH4U=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=eMn9F0OKJgBDJnO7oYKOu2EmKdjrUXp/fP4l6FcfOtMnCqwTjeq8DB72upQ307tiJbf2WI0BWuTZj1N8oDIKArE+aJ578gndO6bi/aZrgOpbD5ZKqWuVGUxvAfFNFOKhmTipop9wmF9Or22ztGEP9j0CXERNmK0nkItfYswb6VM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kbWMQswL; arc=none smtp.client-ip=209.85.128.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1771385419; c=relaxed/simple;
+	bh=KplPoVauAQ6rEDpdWCiWhpyZf1XTwhANeZ8xF52NrYE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dlhvMKExkoxrcSFJbcM1gID3OF6PbFvAkOK32AmwRYopX/L/431m8jVoxN9fNxflQrqlnHAHYVW2O+Zyaqzv5iWaxDZUSYPwzoKE5Ux7Rk4brOqo9D18gODcEGodaAx4NrADRXXtwCw4dOT37O9MhofntNjjZmpBYGmHV0//7fk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Jrq0gOsK; arc=none smtp.client-ip=95.215.58.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kbWMQswL"
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-78fc4425b6bso42303797b3.1
-        for <virtualization@lists.linux.dev>; Tue, 17 Feb 2026 17:45:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771379116; x=1771983916; darn=lists.linux.dev;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=NJw3RoD55rqXpHAojvOHyDwhmqotW0ZND3DwuoSWa18=;
-        b=kbWMQswL7uh6JqOtsjd32MvY5LiZMbkbusFuDBzCgNVQBVGkleNNK7DBMJF6z7/tT/
-         5yYF7NZz/NheJAOpVFHEvAtgXkU832Zy5FtpZQYCWXY9JVej4eJAwu3B4agSohLkcU9E
-         MHfOJCFamWC6lrL8IE+BRLIAi9r4jk1/55/jSAjgShxv+XFMUsU8FirvF1D09v9L8Bwl
-         KUGGKzsU/LPnzxoUAMoXL0UET0Q5DqFtpuzT8DFs4Q7Iun70xZcQYPlYV8y3PJfLJOVF
-         gDUsoFMPxYk+aOrKuIczY8EWVOAHim2dugbqxLjurwWULnFJB4VuzBmyOFVIzU2R3NmX
-         OUNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771379116; x=1771983916;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NJw3RoD55rqXpHAojvOHyDwhmqotW0ZND3DwuoSWa18=;
-        b=bEdWPI6lEXa+t//6HkmSwDkd938+pv3zTYQWnXytg0ChNqV8iJXjzEvUKsw6luHjRW
-         ATZ5jxkrp26jauGSd6uMX/sjftuNGgKhsAvPpZbIi78eUmTgHXSsPPAYhxjtAvCys/Rr
-         iJy038dCUJ5WXKCMTB4AhGzJ3iFupw2NWF04V2HlGj7MtihD+vXgjpScB22Ho5SiS6le
-         Ohi4pbYNVrvNcSDD3Rjp1YBYr3t9RkUggglR3QyxEs2lNdCbbKhPi03jxxekayNC/1/r
-         ITcoFumZAGBATYqAHIobhBUY5UO7rJfbC+nbC17saw9JlVtfWMikG9DDcvppRrKqFOUh
-         AAtg==
-X-Gm-Message-State: AOJu0YwY+alMBaJcYj1JtIsCG6FCNRrR7F/Yk1VEBbujKA8cDDCtFgmf
-	mpKWEBsdK0ZxE/fsuRvTtvu6bkY/yRVVE+3rvLjcNlGl8f1Bu1RKNg78
-X-Gm-Gg: AZuq6aJOS8NOmeMUzoeWjDLrLFX/xcEkdHPnfCI/g8Xt85TX1ZmTtCZVI+it/kZGDoF
-	T7TLKKOvxlIZ2MzGR9TTTZJ/hPcry6T2hjcEw4/kKwopfn8KaiTt1xvXPTkkr3/2Y1lQ2FMRbof
-	7binRYzwgRCfiEKOcRpRO+X6PoPUuNrkbr9fZS53WsMYrphV48yoIj2toGddn18n6nJ12IP8U5i
-	Ij04cH/Hr4ZJEAuifsWf9iOCi03U3yWfqQBdEB4gthZD9C6MzDgFjKIAqyE7RTWxg9oJ3aM3Cif
-	DIQCeQGOU6HETbfavw7LbiKbrDnn3ttVI5nkuLOboO6OJyLG6uObS2LF81t+aZ//MI48zizFFhw
-	qaneUw6AFVyNbEfnjQfJAXLUZEYt/FFcrr8SYtl7vQ+qCPLiPaCMaz3q7irkVSmT7rBQnCwyvSf
-	zoEI2AMBuJ5byLLowMv1/qIw==
-X-Received: by 2002:a05:690c:87:b0:792:7236:9708 with SMTP id 00721157ae682-797f71e85acmr2766167b3.20.1771379116125;
-        Tue, 17 Feb 2026 17:45:16 -0800 (PST)
-Received: from localhost ([2a03:2880:25ff:71::])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-7966c18ffc5sm116481207b3.18.2026.02.17.17.45.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Feb 2026 17:45:15 -0800 (PST)
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Date: Tue, 17 Feb 2026 17:45:10 -0800
-Subject: [PATCH net] vsock: lock down child_ns_mode as write-once
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Jrq0gOsK"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1771385405;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=L5t+e5t3oxdKISWupQuCST4KoCBelUuwuQ5Pkuo3xyo=;
+	b=Jrq0gOsKzBS10vHv78f67TIrGtYc/D/fIJukaMnm1jVGTFetp1VDZhY/b5fMdYzqFCCJ/m
+	wno7Bf4SkuMbmqRKRuQtTLxJFOKz1cYL6jGGqwLNNtcEdjpTsWOiIlVkk/a8OPOUhL1rw8
+	8dIYrFMf2I2yos0dX2/qI0XmXD6Oyyk=
+From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+To: linux-mm@kvack.org,
+	mst@redhat.com,
+	mhocko@suse.com,
+	vbabka@suse.cz
+Cc: apopple@nvidia.com,
+	akpm@linux-foundation.org,
+	axelrasmussen@google.com,
+	byungchul@sk.com,
+	cgroups@vger.kernel.org,
+	david@kernel.org,
+	eperezma@redhat.com,
+	gourry@gourry.net,
+	jasowang@redhat.com,
+	hannes@cmpxchg.org,
+	joshua.hahnjy@gmail.com,
+	Liam.Howlett@oracle.com,
+	linux-kernel@vger.kernel.org,
+	lorenzo.stoakes@oracle.com,
+	matthew.brost@intel.com,
+	rppt@kernel.org,
+	muchun.song@linux.dev,
+	zhengqi.arch@bytedance.com,
+	rakie.kim@sk.com,
+	roman.gushchin@linux.dev,
+	shakeel.butt@linux.dev,
+	surenb@google.com,
+	virtualization@lists.linux.dev,
+	weixugc@google.com,
+	xuanzhuo@linux.alibaba.com,
+	ying.huang@linux.alibaba.com,
+	yuanchu@google.com,
+	ziy@nvidia.com,
+	kernel-team@meta.com
+Subject: [PATCH v2] mm: move pgscan and pgsteal to node stats
+Date: Tue, 17 Feb 2026 19:29:41 -0800
+Message-ID: <20260218032941.225439-1-jp.kobryn@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260217-vsock-ns-write-once-v1-1-a1fb30f289a9@meta.com>
-X-B4-Tracking: v=1; b=H4sIAKUZlWkC/x3MUQqDMAwG4KuE/9lA7cSVXmXsQWq2hUE6GtGBe
- HfB7wDfDpem4si0o8mqrtWQqe8I5TPZW1hnZEIMcQyxv/PqtXzZnLemi3C1IpzSbZjHNEiYIjr
- Cr8lL/9f6gMmC53Gcz98HGmoAAAA=
-X-Change-ID: 20260217-vsock-ns-write-once-8834d684e0a2
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, 
- Shuah Khan <shuah@kernel.org>, Bobby Eshleman <bobbyeshleman@meta.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, Daan De Meyer <daan.j.demeyer@gmail.com>
-X-Mailer: b4 0.14.3
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-From: Bobby Eshleman <bobbyeshleman@meta.com>
+From: JP Kobryn <jp.kobryn@linux.dev>
 
-To improve the security posture of vsock namespacing, this patch locks
-down the vsock child_ns_mode sysctl setting with a write-once policy.
-The user may write to child_ns_mode only once in each namespace, making
-changes to either local or global mode be irreversible.
+There are situations where reclaim kicks in on a system with free memory.
+One possible cause is a NUMA imbalance scenario where one or more nodes are
+under pressure. It would help if we could easily identify such nodes.
 
-This avoids security breaches where a process in a local namespace may
-attempt to jailbreak into the global vsock ns space by setting
-child_ns_mode to "global", creating a new namespace, and accessing the
-global space through the new namespace.
+Move the pgscan and pgsteal counters from vm_event_item to node_stat_item
+to provide per-node reclaim visibility. With these counters as node stats,
+the values are now displayed in the per-node section of /proc/zoneinfo,
+which allows for quick identification of the affected nodes.
 
-Additionally, fix the test functions that this change would otherwise
-break by adding "global-parent" and "local-parent" namespaces and using
-them as intermediaries to spawn namespaces in the given modes. This
-avoids the need to change "child_ns_mode" in the init_ns. nsenter must
-be used because ip netns unshares the mount namespace so nested "ip
-netns add" breaks exec calls from the init ns.
+/proc/vmstat continues to report the same counters, aggregated across all
+nodes. But the ordering of these items within the readout changes as they
+move from the vm events section to the node stats section.
 
-Test run:
+Memcg accounting of these counters is preserved. The relocated counters
+remain visible in memory.stat alongside the existing aggregate pgscan and
+pgsteal counters.
 
-1..25
-ok 1 vm_server_host_client
-ok 2 vm_client_host_server
-ok 3 vm_loopback
-ok 4 ns_host_vsock_ns_mode_ok
-ok 5 ns_host_vsock_child_ns_mode_ok
-ok 6 ns_global_same_cid_fails
-ok 7 ns_local_same_cid_ok
-ok 8 ns_global_local_same_cid_ok
-ok 9 ns_local_global_same_cid_ok
-ok 10 ns_diff_global_host_connect_to_global_vm_ok
-ok 11 ns_diff_global_host_connect_to_local_vm_fails
-ok 12 ns_diff_global_vm_connect_to_global_host_ok
-ok 13 ns_diff_global_vm_connect_to_local_host_fails
-ok 14 ns_diff_local_host_connect_to_local_vm_fails
-ok 15 ns_diff_local_vm_connect_to_local_host_fails
-ok 16 ns_diff_global_to_local_loopback_local_fails
-ok 17 ns_diff_local_to_global_loopback_fails
-ok 18 ns_diff_local_to_local_loopback_fails
-ok 19 ns_diff_global_to_global_loopback_ok
-ok 20 ns_same_local_loopback_ok
-ok 21 ns_same_local_host_connect_to_local_vm_ok
-ok 22 ns_same_local_vm_connect_to_local_host_ok
-ok 23 ns_delete_vm_ok
-ok 24 ns_delete_host_ok
-ok 25 ns_delete_both_ok
-SUMMARY: PASS=25 SKIP=0 FAIL=0
+However, this change affects how the global counters are accumulated.
+Previously, the global event count update was gated on !cgroup_reclaim(),
+excluding memcg-based reclaim from /proc/vmstat. Now that
+mod_lruvec_state() is being used to update the counters, the global
+counters will include all reclaim. This is consistent with how pgdemote
+counters are already tracked.
 
-Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
-Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
-Suggested-by: Daan De Meyer <daan.j.demeyer@gmail.com>
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Finally, the virtio_balloon driver is updated to use
+global_node_page_state() to fetch the counters, as they are no longer
+accessible through the vm_events array.
+
+Signed-off-by: JP Kobryn <jp.kobryn@linux.dev>
+Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
 ---
- include/net/af_vsock.h                  |  6 +++++-
- include/net/netns/vsock.h               |  1 +
- net/vmw_vsock/af_vsock.c                | 10 ++++++----
- tools/testing/selftests/vsock/vmtest.sh | 35 +++++++++++++++------------------
- 4 files changed, 28 insertions(+), 24 deletions(-)
+ drivers/virtio/virtio_balloon.c |  8 ++---
+ include/linux/mmzone.h          | 12 ++++++++
+ include/linux/vm_event_item.h   | 12 --------
+ mm/memcontrol.c                 | 52 +++++++++++++++++++++++----------
+ mm/vmscan.c                     | 32 ++++++++------------
+ mm/vmstat.c                     | 24 +++++++--------
+ 6 files changed, 76 insertions(+), 64 deletions(-)
 
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index d3ff48a2fbe0..c7de33039907 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -276,10 +276,14 @@ static inline bool vsock_net_mode_global(struct vsock_sock *vsk)
- 	return vsock_net_mode(sock_net(sk_vsock(vsk))) == VSOCK_NET_MODE_GLOBAL;
- }
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 4e549abe59ff..ab945532ceef 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -369,13 +369,13 @@ static inline unsigned int update_balloon_vm_stats(struct virtio_balloon *vb)
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_ALLOC_STALL, stall);
  
--static inline void vsock_net_set_child_mode(struct net *net,
-+static inline bool vsock_net_set_child_mode(struct net *net,
- 					    enum vsock_net_mode mode)
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_ASYNC_SCAN,
+-		    pages_to_bytes(events[PGSCAN_KSWAPD]));
++		    pages_to_bytes(global_node_page_state(PGSCAN_KSWAPD)));
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRECT_SCAN,
+-		    pages_to_bytes(events[PGSCAN_DIRECT]));
++		    pages_to_bytes(global_node_page_state(PGSCAN_DIRECT)));
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_ASYNC_RECLAIM,
+-		    pages_to_bytes(events[PGSTEAL_KSWAPD]));
++		    pages_to_bytes(global_node_page_state(PGSTEAL_KSWAPD)));
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRECT_RECLAIM,
+-		    pages_to_bytes(events[PGSTEAL_DIRECT]));
++		    pages_to_bytes(global_node_page_state(PGSTEAL_DIRECT)));
+ 
+ #ifdef CONFIG_HUGETLB_PAGE
+ 	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGALLOC,
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index 3e51190a55e4..1aa9c7aec889 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -255,6 +255,18 @@ enum node_stat_item {
+ 	PGDEMOTE_DIRECT,
+ 	PGDEMOTE_KHUGEPAGED,
+ 	PGDEMOTE_PROACTIVE,
++	PGSTEAL_KSWAPD,
++	PGSTEAL_DIRECT,
++	PGSTEAL_KHUGEPAGED,
++	PGSTEAL_PROACTIVE,
++	PGSTEAL_ANON,
++	PGSTEAL_FILE,
++	PGSCAN_KSWAPD,
++	PGSCAN_DIRECT,
++	PGSCAN_KHUGEPAGED,
++	PGSCAN_PROACTIVE,
++	PGSCAN_ANON,
++	PGSCAN_FILE,
+ #ifdef CONFIG_HUGETLB_PAGE
+ 	NR_HUGETLB,
+ #endif
+diff --git a/include/linux/vm_event_item.h b/include/linux/vm_event_item.h
+index 22a139f82d75..1fa3b3ad0ff9 100644
+--- a/include/linux/vm_event_item.h
++++ b/include/linux/vm_event_item.h
+@@ -40,19 +40,7 @@ enum vm_event_item { PGPGIN, PGPGOUT, PSWPIN, PSWPOUT,
+ 		PGLAZYFREED,
+ 		PGREFILL,
+ 		PGREUSE,
+-		PGSTEAL_KSWAPD,
+-		PGSTEAL_DIRECT,
+-		PGSTEAL_KHUGEPAGED,
+-		PGSTEAL_PROACTIVE,
+-		PGSCAN_KSWAPD,
+-		PGSCAN_DIRECT,
+-		PGSCAN_KHUGEPAGED,
+-		PGSCAN_PROACTIVE,
+ 		PGSCAN_DIRECT_THROTTLE,
+-		PGSCAN_ANON,
+-		PGSCAN_FILE,
+-		PGSTEAL_ANON,
+-		PGSTEAL_FILE,
+ #ifdef CONFIG_NUMA
+ 		PGSCAN_ZONE_RECLAIM_SUCCESS,
+ 		PGSCAN_ZONE_RECLAIM_FAILED,
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index 007413a53b45..e89e77457701 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -328,6 +328,18 @@ static const unsigned int memcg_node_stat_items[] = {
+ 	PGDEMOTE_DIRECT,
+ 	PGDEMOTE_KHUGEPAGED,
+ 	PGDEMOTE_PROACTIVE,
++	PGSTEAL_KSWAPD,
++	PGSTEAL_DIRECT,
++	PGSTEAL_KHUGEPAGED,
++	PGSTEAL_PROACTIVE,
++	PGSTEAL_ANON,
++	PGSTEAL_FILE,
++	PGSCAN_KSWAPD,
++	PGSCAN_DIRECT,
++	PGSCAN_KHUGEPAGED,
++	PGSCAN_PROACTIVE,
++	PGSCAN_ANON,
++	PGSCAN_FILE,
+ #ifdef CONFIG_HUGETLB_PAGE
+ 	NR_HUGETLB,
+ #endif
+@@ -441,14 +453,6 @@ static const unsigned int memcg_vm_event_stat[] = {
+ #endif
+ 	PSWPIN,
+ 	PSWPOUT,
+-	PGSCAN_KSWAPD,
+-	PGSCAN_DIRECT,
+-	PGSCAN_KHUGEPAGED,
+-	PGSCAN_PROACTIVE,
+-	PGSTEAL_KSWAPD,
+-	PGSTEAL_DIRECT,
+-	PGSTEAL_KHUGEPAGED,
+-	PGSTEAL_PROACTIVE,
+ 	PGFAULT,
+ 	PGMAJFAULT,
+ 	PGREFILL,
+@@ -1382,6 +1386,14 @@ static const struct memory_stat memory_stats[] = {
+ 	{ "pgdemote_direct",		PGDEMOTE_DIRECT		},
+ 	{ "pgdemote_khugepaged",	PGDEMOTE_KHUGEPAGED	},
+ 	{ "pgdemote_proactive",		PGDEMOTE_PROACTIVE	},
++	{ "pgsteal_kswapd",		PGSTEAL_KSWAPD		},
++	{ "pgsteal_direct",		PGSTEAL_DIRECT		},
++	{ "pgsteal_khugepaged",		PGSTEAL_KHUGEPAGED	},
++	{ "pgsteal_proactive",		PGSTEAL_PROACTIVE	},
++	{ "pgscan_kswapd",		PGSCAN_KSWAPD		},
++	{ "pgscan_direct",		PGSCAN_DIRECT		},
++	{ "pgscan_khugepaged",		PGSCAN_KHUGEPAGED	},
++	{ "pgscan_proactive",		PGSCAN_PROACTIVE	},
+ #ifdef CONFIG_NUMA_BALANCING
+ 	{ "pgpromote_success",		PGPROMOTE_SUCCESS	},
+ #endif
+@@ -1425,6 +1437,14 @@ static int memcg_page_state_output_unit(int item)
+ 	case PGDEMOTE_DIRECT:
+ 	case PGDEMOTE_KHUGEPAGED:
+ 	case PGDEMOTE_PROACTIVE:
++	case PGSTEAL_KSWAPD:
++	case PGSTEAL_DIRECT:
++	case PGSTEAL_KHUGEPAGED:
++	case PGSTEAL_PROACTIVE:
++	case PGSCAN_KSWAPD:
++	case PGSCAN_DIRECT:
++	case PGSCAN_KHUGEPAGED:
++	case PGSCAN_PROACTIVE:
+ #ifdef CONFIG_NUMA_BALANCING
+ 	case PGPROMOTE_SUCCESS:
+ #endif
+@@ -1496,15 +1516,15 @@ static void memcg_stat_format(struct mem_cgroup *memcg, struct seq_buf *s)
+ 
+ 	/* Accumulated memory events */
+ 	seq_buf_printf(s, "pgscan %lu\n",
+-		       memcg_events(memcg, PGSCAN_KSWAPD) +
+-		       memcg_events(memcg, PGSCAN_DIRECT) +
+-		       memcg_events(memcg, PGSCAN_PROACTIVE) +
+-		       memcg_events(memcg, PGSCAN_KHUGEPAGED));
++		       memcg_page_state(memcg, PGSCAN_KSWAPD) +
++		       memcg_page_state(memcg, PGSCAN_DIRECT) +
++		       memcg_page_state(memcg, PGSCAN_PROACTIVE) +
++		       memcg_page_state(memcg, PGSCAN_KHUGEPAGED));
+ 	seq_buf_printf(s, "pgsteal %lu\n",
+-		       memcg_events(memcg, PGSTEAL_KSWAPD) +
+-		       memcg_events(memcg, PGSTEAL_DIRECT) +
+-		       memcg_events(memcg, PGSTEAL_PROACTIVE) +
+-		       memcg_events(memcg, PGSTEAL_KHUGEPAGED));
++		       memcg_page_state(memcg, PGSTEAL_KSWAPD) +
++		       memcg_page_state(memcg, PGSTEAL_DIRECT) +
++		       memcg_page_state(memcg, PGSTEAL_PROACTIVE) +
++		       memcg_page_state(memcg, PGSTEAL_KHUGEPAGED));
+ 
+ 	for (i = 0; i < ARRAY_SIZE(memcg_vm_event_stat); i++) {
+ #ifdef CONFIG_MEMCG_V1
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 44e4fcd6463c..dd6d87340941 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -1984,7 +1984,7 @@ static unsigned long shrink_inactive_list(unsigned long nr_to_scan,
+ 	unsigned long nr_taken;
+ 	struct reclaim_stat stat;
+ 	bool file = is_file_lru(lru);
+-	enum vm_event_item item;
++	enum node_stat_item item;
+ 	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
+ 	bool stalled = false;
+ 
+@@ -2010,10 +2010,8 @@ static unsigned long shrink_inactive_list(unsigned long nr_to_scan,
+ 
+ 	__mod_node_page_state(pgdat, NR_ISOLATED_ANON + file, nr_taken);
+ 	item = PGSCAN_KSWAPD + reclaimer_offset(sc);
+-	if (!cgroup_reclaim(sc))
+-		__count_vm_events(item, nr_scanned);
+-	count_memcg_events(lruvec_memcg(lruvec), item, nr_scanned);
+-	__count_vm_events(PGSCAN_ANON + file, nr_scanned);
++	mod_lruvec_state(lruvec, item, nr_scanned);
++	mod_lruvec_state(lruvec, PGSCAN_ANON + file, nr_scanned);
+ 
+ 	spin_unlock_irq(&lruvec->lru_lock);
+ 
+@@ -2030,10 +2028,8 @@ static unsigned long shrink_inactive_list(unsigned long nr_to_scan,
+ 					stat.nr_demoted);
+ 	__mod_node_page_state(pgdat, NR_ISOLATED_ANON + file, -nr_taken);
+ 	item = PGSTEAL_KSWAPD + reclaimer_offset(sc);
+-	if (!cgroup_reclaim(sc))
+-		__count_vm_events(item, nr_reclaimed);
+-	count_memcg_events(lruvec_memcg(lruvec), item, nr_reclaimed);
+-	__count_vm_events(PGSTEAL_ANON + file, nr_reclaimed);
++	mod_lruvec_state(lruvec, item, nr_reclaimed);
++	mod_lruvec_state(lruvec, PGSTEAL_ANON + file, nr_reclaimed);
+ 
+ 	lru_note_cost_unlock_irq(lruvec, file, stat.nr_pageout,
+ 					nr_scanned - nr_reclaimed);
+@@ -4542,7 +4538,7 @@ static int scan_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
  {
-+	if (xchg(&net->vsock.child_ns_mode_locked, 1))
-+		return false;
-+
- 	WRITE_ONCE(net->vsock.child_ns_mode, mode);
-+	return true;
- }
- 
- static inline enum vsock_net_mode vsock_net_child_mode(struct net *net)
-diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
-index b34d69a22fa8..8c855fff8039 100644
---- a/include/net/netns/vsock.h
-+++ b/include/net/netns/vsock.h
-@@ -17,5 +17,6 @@ struct netns_vsock {
- 
- 	enum vsock_net_mode mode;
- 	enum vsock_net_mode child_ns_mode;
-+	int child_ns_mode_locked;
- };
- #endif /* __NET_NET_NAMESPACE_VSOCK_H */
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 9880756d9eff..35e097f4fde8 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -90,14 +90,15 @@
-  *
-  *   - /proc/sys/net/vsock/ns_mode (read-only) reports the current namespace's
-  *     mode, which is set at namespace creation and immutable thereafter.
-- *   - /proc/sys/net/vsock/child_ns_mode (writable) controls what mode future
-+ *   - /proc/sys/net/vsock/child_ns_mode (write-once) controls what mode future
-  *     child namespaces will inherit when created. The initial value matches
-  *     the namespace's own ns_mode.
-  *
-  *   Changing child_ns_mode only affects newly created namespaces, not the
-  *   current namespace or existing children. A "local" namespace cannot set
-- *   child_ns_mode to "global". At namespace creation, ns_mode is inherited
-- *   from the parent's child_ns_mode.
-+ *   child_ns_mode to "global". child_ns_mode is write-once, so that it may
-+ *   be configured and locked down by a namespace manager. At namespace
-+ *   creation, ns_mode is inherited from the parent's child_ns_mode.
-  *
-  *   The init_net mode is "global" and cannot be modified.
-  *
-@@ -2853,7 +2854,8 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
- 		    new_mode == VSOCK_NET_MODE_GLOBAL)
- 			return -EPERM;
- 
--		vsock_net_set_child_mode(net, new_mode);
-+		if (!vsock_net_set_child_mode(net, new_mode))
-+			return -EPERM;
+ 	int i;
+ 	int gen;
+-	enum vm_event_item item;
++	enum node_stat_item item;
+ 	int sorted = 0;
+ 	int scanned = 0;
+ 	int isolated = 0;
+@@ -4601,13 +4597,11 @@ static int scan_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
  	}
  
- 	return 0;
-diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
-index dc8dbe74a6d0..e1e78b295e41 100755
---- a/tools/testing/selftests/vsock/vmtest.sh
-+++ b/tools/testing/selftests/vsock/vmtest.sh
-@@ -210,16 +210,17 @@ check_result() {
- }
+ 	item = PGSCAN_KSWAPD + reclaimer_offset(sc);
+-	if (!cgroup_reclaim(sc)) {
+-		__count_vm_events(item, isolated);
++	if (!cgroup_reclaim(sc))
+ 		__count_vm_events(PGREFILL, sorted);
+-	}
+-	count_memcg_events(memcg, item, isolated);
++	mod_lruvec_state(lruvec, item, isolated);
+ 	count_memcg_events(memcg, PGREFILL, sorted);
+-	__count_vm_events(PGSCAN_ANON + type, isolated);
++	mod_lruvec_state(lruvec, PGSCAN_ANON + type, isolated);
+ 	trace_mm_vmscan_lru_isolate(sc->reclaim_idx, sc->order, scan_batch,
+ 				scanned, skipped, isolated,
+ 				type ? LRU_INACTIVE_FILE : LRU_INACTIVE_ANON);
+@@ -4692,7 +4686,7 @@ static int evict_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
+ 	LIST_HEAD(clean);
+ 	struct folio *folio;
+ 	struct folio *next;
+-	enum vm_event_item item;
++	enum node_stat_item item;
+ 	struct reclaim_stat stat;
+ 	struct lru_gen_mm_walk *walk;
+ 	bool skip_retry = false;
+@@ -4756,10 +4750,8 @@ static int evict_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
+ 					stat.nr_demoted);
  
- add_namespaces() {
--	local orig_mode
--	orig_mode=$(cat /proc/sys/net/vsock/child_ns_mode)
-+	ip netns add "global-parent" 2>/dev/null
-+	echo "global" | ip netns exec "global-parent" \
-+		tee /proc/sys/net/vsock/child_ns_mode &>/dev/null
-+	ip netns add "local-parent" 2>/dev/null
-+	echo "local" | ip netns exec "local-parent" \
-+		tee /proc/sys/net/vsock/child_ns_mode &>/dev/null
+ 	item = PGSTEAL_KSWAPD + reclaimer_offset(sc);
+-	if (!cgroup_reclaim(sc))
+-		__count_vm_events(item, reclaimed);
+-	count_memcg_events(memcg, item, reclaimed);
+-	__count_vm_events(PGSTEAL_ANON + type, reclaimed);
++	mod_lruvec_state(lruvec, item, reclaimed);
++	mod_lruvec_state(lruvec, PGSTEAL_ANON + type, reclaimed);
  
--	for mode in "${NS_MODES[@]}"; do
--		echo "${mode}" > /proc/sys/net/vsock/child_ns_mode
--		ip netns add "${mode}0" 2>/dev/null
--		ip netns add "${mode}1" 2>/dev/null
--	done
--
--	echo "${orig_mode}" > /proc/sys/net/vsock/child_ns_mode
-+	nsenter --net=/var/run/netns/global-parent ip netns add "global0" 2>/dev/null
-+	nsenter --net=/var/run/netns/global-parent ip netns add "global1" 2>/dev/null
-+	nsenter --net=/var/run/netns/local-parent ip netns add "local0" 2>/dev/null
-+	nsenter --net=/var/run/netns/local-parent ip netns add "local1" 2>/dev/null
- }
+ 	spin_unlock_irq(&lruvec->lru_lock);
  
- init_namespaces() {
-@@ -237,6 +238,8 @@ del_namespaces() {
- 		log_host "removed ns ${mode}0"
- 		log_host "removed ns ${mode}1"
- 	done
-+	ip netns del "global-parent" &>/dev/null
-+	ip netns del "local-parent" &>/dev/null
- }
+diff --git a/mm/vmstat.c b/mm/vmstat.c
+index 99270713e0c1..d952c1e763e6 100644
+--- a/mm/vmstat.c
++++ b/mm/vmstat.c
+@@ -1276,6 +1276,18 @@ const char * const vmstat_text[] = {
+ 	[I(PGDEMOTE_DIRECT)]			= "pgdemote_direct",
+ 	[I(PGDEMOTE_KHUGEPAGED)]		= "pgdemote_khugepaged",
+ 	[I(PGDEMOTE_PROACTIVE)]			= "pgdemote_proactive",
++	[I(PGSTEAL_KSWAPD)]			= "pgsteal_kswapd",
++	[I(PGSTEAL_DIRECT)]			= "pgsteal_direct",
++	[I(PGSTEAL_KHUGEPAGED)]			= "pgsteal_khugepaged",
++	[I(PGSTEAL_PROACTIVE)]			= "pgsteal_proactive",
++	[I(PGSTEAL_ANON)]			= "pgsteal_anon",
++	[I(PGSTEAL_FILE)]			= "pgsteal_file",
++	[I(PGSCAN_KSWAPD)]			= "pgscan_kswapd",
++	[I(PGSCAN_DIRECT)]			= "pgscan_direct",
++	[I(PGSCAN_KHUGEPAGED)]			= "pgscan_khugepaged",
++	[I(PGSCAN_PROACTIVE)]			= "pgscan_proactive",
++	[I(PGSCAN_ANON)]			= "pgscan_anon",
++	[I(PGSCAN_FILE)]			= "pgscan_file",
+ #ifdef CONFIG_HUGETLB_PAGE
+ 	[I(NR_HUGETLB)]				= "nr_hugetlb",
+ #endif
+@@ -1320,19 +1332,7 @@ const char * const vmstat_text[] = {
  
- vm_ssh() {
-@@ -287,7 +290,7 @@ check_args() {
- }
+ 	[I(PGREFILL)]				= "pgrefill",
+ 	[I(PGREUSE)]				= "pgreuse",
+-	[I(PGSTEAL_KSWAPD)]			= "pgsteal_kswapd",
+-	[I(PGSTEAL_DIRECT)]			= "pgsteal_direct",
+-	[I(PGSTEAL_KHUGEPAGED)]			= "pgsteal_khugepaged",
+-	[I(PGSTEAL_PROACTIVE)]			= "pgsteal_proactive",
+-	[I(PGSCAN_KSWAPD)]			= "pgscan_kswapd",
+-	[I(PGSCAN_DIRECT)]			= "pgscan_direct",
+-	[I(PGSCAN_KHUGEPAGED)]			= "pgscan_khugepaged",
+-	[I(PGSCAN_PROACTIVE)]			= "pgscan_proactive",
+ 	[I(PGSCAN_DIRECT_THROTTLE)]		= "pgscan_direct_throttle",
+-	[I(PGSCAN_ANON)]			= "pgscan_anon",
+-	[I(PGSCAN_FILE)]			= "pgscan_file",
+-	[I(PGSTEAL_ANON)]			= "pgsteal_anon",
+-	[I(PGSTEAL_FILE)]			= "pgsteal_file",
  
- check_deps() {
--	for dep in vng ${QEMU} busybox pkill ssh ss socat; do
-+	for dep in vng ${QEMU} busybox pkill ssh ss socat nsenter; do
- 		if [[ ! -x $(command -v "${dep}") ]]; then
- 			echo -e "skip:    dependency ${dep} not found!\n"
- 			exit "${KSFT_SKIP}"
-@@ -1231,12 +1234,8 @@ test_ns_local_same_cid_ok() {
- }
- 
- test_ns_host_vsock_child_ns_mode_ok() {
--	local orig_mode
--	local rc
--
--	orig_mode=$(cat /proc/sys/net/vsock/child_ns_mode)
-+	local rc="${KSFT_PASS}"
- 
--	rc="${KSFT_PASS}"
- 	for mode in "${NS_MODES[@]}"; do
- 		local ns="${mode}0"
- 
-@@ -1246,15 +1245,13 @@ test_ns_host_vsock_child_ns_mode_ok() {
- 			continue
- 		fi
- 
--		if ! echo "${mode}" > /proc/sys/net/vsock/child_ns_mode; then
--			log_host "child_ns_mode should be writable to ${mode}"
-+		if ! echo "${mode}" | ip netns exec "${ns}" \
-+			tee /proc/sys/net/vsock/child_ns_mode &>/dev/null; then
- 			rc="${KSFT_FAIL}"
- 			continue
- 		fi
- 	done
- 
--	echo "${orig_mode}" > /proc/sys/net/vsock/child_ns_mode
--
- 	return "${rc}"
- }
- 
-
----
-base-commit: 77c5e3fdd2793f478e6fdae55c9ea85b21d06f8f
-change-id: 20260217-vsock-ns-write-once-8834d684e0a2
-
-Best regards,
+ #ifdef CONFIG_NUMA
+ 	[I(PGSCAN_ZONE_RECLAIM_SUCCESS)]	= "zone_reclaim_success",
 -- 
-Bobby Eshleman <bobbyeshleman@meta.com>
+2.47.3
 
