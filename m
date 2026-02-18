@@ -1,127 +1,108 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFF03348463
-	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 19:37:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7952D346E5F
+	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 19:53:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771443437; cv=none; b=crOMrcAIG8jdbGkjcZ84RvgkkGWPC3UF9krftLefwh1akZVXrKTef2S55GD4EAueNecNpi6jEGvv1eeTo58GM+XYd7EIRCUeT9K5BZn6clcy3HkBzbgi7k5VNuXBUasaih34GqZiEkXRQAib2eCZH3RmpAZhWiOyFWm6tnZ2Txo=
+	t=1771444412; cv=none; b=Ls39FYqHhLWdyOCmTZ175xLItMF/6hubQfK4+0q4o+4BsLv+Jzlk7cKNI2OTEWxrlCxEnmAbUgg9kUpTpzmVqrbyR+SuQLGhlYV4+5dO7eKQKaO2wKHqbaiCI2J/BDScaLpTHup7DsoDx1avcL1LlQyrtgdHXvVz3DMBm37O5xM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771443437; c=relaxed/simple;
-	bh=vBUAyAbacjfaRDxMQvWcGcFT+qxiW9zxnAxYnB8luFk=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=aDdmjrHcFBfh4oz1CR9+nyQ1dPjHtJls8MlBy9Mc1aUS0a9SrdsZph2soZbXlPKejTrGk3Qw/eWM4psaEZOl/Rg3R67P3HCuaQXmizP2ejaGepE6E/epLW/MWCMFisKnCfy1HTzR/F/f12oN7vgzJ01PZUExwzVFzoxqmQy5dsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P1vUOWHf; arc=none smtp.client-ip=209.85.219.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1771444412; c=relaxed/simple;
+	bh=G60IxpbYhanmXgFlCPIUDQdnvr93vQ+OEcTO0tgAS/o=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=UZ2ju+ocKraYWy3gGQ83GXdo2lB4zyZuO5Q9aRsVtXXbXM1sNdp8MTQ0t7FPfR9sVAzilpv+cUmpwMz8ilDIXqpi4sXQ2zWYSY44It6q2Ie1K92rL+n9z0NiKyJxuszxGY7gYyCegv+xIZqK8Ouzj5N+PC6WlsF64w/lAu79cYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=V/H6/jAe; arc=none smtp.client-ip=91.218.175.183
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P1vUOWHf"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-89577f866d6so2980366d6.0
-        for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 11:37:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771443435; x=1772048235; darn=lists.linux.dev;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wD8Ttwe5Tegj8OFrv2Q7m/YBq2wmzpAVQJC0WJWjYy8=;
-        b=P1vUOWHfUabi1XDP9wgTdh4cO4pgbt8ThRz4IE22lOkejNQowO0xkTI0GmrbwGgb9X
-         WbFXEwYNQxlvbf9npt8oIRmpVCQSiNuuGPD8E7wj9n0O+yVRAduaCOsFCaJ2WtfBTKhT
-         GKNa2uj/Fl/3YCQZQMZmR1EcJKL5KthuEOzkA2l5HchB95qK7TgVb7mzrZIvhmzotrTw
-         LmbEEG9SwnqmHyjpK047BACNUvcsnP+Z4D6uMHnyY8AUVUgCVMDNAmWDDw1vX0mXFxoV
-         eWvarh+mv/Pjhv5/LWDslbKlnXEvs+ZFetJTN7nFIT6BJf9AHaugWohSCNckgOw9hGXw
-         2oqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771443435; x=1772048235;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wD8Ttwe5Tegj8OFrv2Q7m/YBq2wmzpAVQJC0WJWjYy8=;
-        b=XBB98RyEnB9jqizrob8JzM/mh+9wZnyAW3bz79HX0Qt2ipx87A6VdZjlklNHgKnQ1c
-         HKh94eJsGRW7+BC3m42JPvLkLCSRHoZcr/w/2mYJfZLuQHH6fQ3RUlgjLh+Hr0UGoD7D
-         lRMMAsYhmwYA0mChYH1lp/AFXerbXD0HpRIXk0fpMcGkkwEGjc3ZVbIuvsbDygmmwd9N
-         VG/ji8bcyOQsbNWHppJZgsv3HXrTIN+I3cUPd4D3a1CZe1ehdFHThWRiNd3Rw54bHl5C
-         gh8I6h3Z+m4pu/Awtzkl+v8t07FrhRXKwStHMnQo0pGW3A/SU1ahajDo1W5lS29EbW6I
-         bdIw==
-X-Gm-Message-State: AOJu0YyOT17pAa9ErLPa3fAWH+I3ZR4m8GrY4Aop2HBfNQRhJJCyoRno
-	uFfl9E9wqSAL6by1UHOoK6xiggXow61EVqv+d7keoBSxMdr1WuH/uEHWYMsANg==
-X-Gm-Gg: AZuq6aJWYBx2Mgmy2d+1+LUIkXv28yVd58CzQmdaJRyGPLrTOZsA/W4OigZQ9Iwl4Zy
-	KMB5TPFnXpYTH1Zhi665l2FcIDe7l9gpB6jbtZ/PegABOlNzfFg/b/UFoyuKhNVph+65KefV8Lu
-	WDxDLrikkjlsoCcG9w3tI2KbKZRE51iUHD33x6TqSJ0NTnTDeYqxx0CATW/CkfbZ7tDFHTudrGc
-	X1WCOeDnTKiiU9vvyV1gVEmaqE2DlDddW8U9uD4E66x2qv7EGdqRHfgiPey92Kn6KaGWGaC3PQW
-	IksKW/Ke3bzCU8jESohfolOme460BOjrlUS4TeSafOlhCBmimDMo8+JZ2vgTvlBwug26CK7ZZ9T
-	AIXCVeQkV16JIXVYdC0E7gVNfdwMzM3BG3XQCGgbMbfTJxTH2gHj9/nkzs0CplUfrUHR/DbFI8K
-	gNnh0qqSrqIMVl5YhZAT2s0g==
-X-Received: by 2002:a53:b118:0:b0:63f:b605:b7f2 with SMTP id 956f58d0204a3-64c557eae43mr2160180d50.10.1771438271298;
-        Wed, 18 Feb 2026 10:11:11 -0800 (PST)
-Received: from localhost ([2a03:2880:25ff:49::])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-64c22fb1d22sm6051799d50.17.2026.02.18.10.11.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Feb 2026 10:11:11 -0800 (PST)
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Subject: [PATCH net v2 0/3] vsock: add write-once semantics to
- child_ns_mode
-Date: Wed, 18 Feb 2026 10:10:35 -0800
-Message-Id: <20260218-vsock-ns-write-once-v2-0-19e4c50d509a@meta.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="V/H6/jAe"
+Message-ID: <2397f4cd-367b-421c-b4f0-9c023f6cd546@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1771444398;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SdnOU1vGQA1zKpk8kTMZsw9c7ygfqJl1OhsRupZBpf4=;
+	b=V/H6/jAeNBwT5tg4U5BLn/eRMm0dPifz25S3hPq141ITU5c0PWXjdPTF9DGOYil3JLG5j+
+	Zg9OGti2fviCFqs+oDIJ0JIwa/ctAUUTxVZyVwbNDChuLvtnfkczZH1sVIHbZIdXvkl8y9
+	O45YbBEP+0PZLGANix+9dkY2yESN61w=
+Date: Wed, 18 Feb 2026 11:53:09 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: [PATCH v2] mm: move pgscan and pgsteal to node stats
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+To: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, linux-mm@kvack.org,
+ mst@redhat.com, mhocko@suse.com, vbabka@suse.cz
+Cc: apopple@nvidia.com, akpm@linux-foundation.org, axelrasmussen@google.com,
+ byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
+ eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
+ hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
+ linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
+ matthew.brost@intel.com, rppt@kernel.org, muchun.song@linux.dev,
+ zhengqi.arch@bytedance.com, rakie.kim@sk.com, roman.gushchin@linux.dev,
+ shakeel.butt@linux.dev, surenb@google.com, virtualization@lists.linux.dev,
+ weixugc@google.com, xuanzhuo@linux.alibaba.com,
+ ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+ kernel-team@meta.com
+References: <20260218032941.225439-1-jp.kobryn@linux.dev>
+ <10434f89-fe2a-4cfc-9b29-1cd2ed2bbb7e@kernel.org>
+ <fbcd6770-f555-443c-b5f2-fe5e73722118@linux.dev>
+Content-Language: en-US
+In-Reply-To: <fbcd6770-f555-443c-b5f2-fe5e73722118@linux.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAJwAlmkC/33NQQqDMBBA0auEWTsliWKjq96juEjjWIdiIklIW
- 8S7F3KArj+8f0CiyJRgFAdEKpw4eBiFbgS41fonIc8wCtBS91KrK5YU3At9wnfkTBi8IzSm7eb
- edCSthkbAHmnhT1Xv4CnD1AhYOeUQv/VUVE1/0aJQoVXLo5WLNoMdbhtle3Fhg+k8zx//dlzIu
- gAAAA==
-X-Change-ID: 20260217-vsock-ns-write-once-8834d684e0a2
-To: Stefano Garzarella <sgarzare@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, 
- Shuah Khan <shuah@kernel.org>, Bobby Eshleman <bobbyeshleman@meta.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, 
- Daan De Meyer <daan.j.demeyer@gmail.com>
-X-Mailer: b4 0.14.3
+X-Migadu-Flow: FLOW_OUT
 
-Two administrator processes may race when setting child_ns_mode: one
-sets it to "local" and creates a namespace, but another changes it to
-"global" in between. The first process ends up with a namespace in the
-wrong mode. Make child_ns_mode write-once so that a namespace manager
-can set it once, check the value, and be guaranteed it won't change
-before creating its namespaces. Writing a different value after the
-first write returns -EBUSY.
+On 2/18/26 10:02 AM, JP Kobryn (Meta) wrote:
+> On 2/18/26 12:54 AM, Vlastimil Babka (SUSE) wrote:
+>> On 2/18/26 04:29, JP Kobryn (Meta) wrote:
+>>> From: JP Kobryn <jp.kobryn@linux.dev>
+>>>
+>>> There are situations where reclaim kicks in on a system with free 
+>>> memory.
+>>> One possible cause is a NUMA imbalance scenario where one or more 
+>>> nodes are
+>>> under pressure. It would help if we could easily identify such nodes.
+>>>
+>>> Move the pgscan and pgsteal counters from vm_event_item to 
+>>> node_stat_item
+>>> to provide per-node reclaim visibility. With these counters as node 
+>>> stats,
+>>> the values are now displayed in the per-node section of /proc/zoneinfo,
+>>> which allows for quick identification of the affected nodes.
+>>>
+>>> /proc/vmstat continues to report the same counters, aggregated across 
+>>> all
+>>> nodes. But the ordering of these items within the readout changes as 
+>>> they
+>>> move from the vm events section to the node stats section.
+>>>
+>>> Memcg accounting of these counters is preserved. The relocated counters
+>>> remain visible in memory.stat alongside the existing aggregate pgscan 
+>>> and
+>>> pgsteal counters.
+>>>
+>>> However, this change affects how the global counters are accumulated.
+>>> Previously, the global event count update was gated on ! 
+>>> cgroup_reclaim(),
+>>> excluding memcg-based reclaim from /proc/vmstat. Now that
+>>> mod_lruvec_state() is being used to update the counters, the global
+>>> counters will include all reclaim. This is consistent with how pgdemote
+>>> counters are already tracked.
+>>
+>> Hm so that leaves PGREFILL (scanned in the active list) the odd one out,
+>> right? Not being per-node and gated on !cgroup_reclaim() for global 
+>> stats.
+>> Should we change it too for full consistency?
+> 
+> I'm fine with adding coverage for the active list side as well. For
+> completeness, I could also include PGDEACTIVATE.
 
-One patch for the implementation, one for docs, and one for tests.
-
----
-Changes in v2:
-- break docs, tests, and implementation into separate patches
-- clarify commit message
-- only use child_ns_mode, do not add additional child_ns_mode_locked
-  variable
-- add documentation to Documentation/
-- Link to v1: https://lore.kernel.org/r/20260217-vsock-ns-write-once-v1-1-a1fb30f289a9@meta.com
-
----
-Bobby Eshleman (3):
-      selftests/vsock: change tests to respect write-once child ns mode
-      vsock: lock down child_ns_mode as write-once
-      vsock: document write-once behavior of the child_ns_mode sysctl
-
- Documentation/admin-guide/sysctl/net.rst | 10 ++++++---
- include/net/af_vsock.h                   | 20 +++++++++++++++---
- include/net/netns/vsock.h                |  9 +++++++-
- net/vmw_vsock/af_vsock.c                 | 15 +++++++++-----
- tools/testing/selftests/vsock/vmtest.sh  | 35 +++++++++++++++-----------------
- 5 files changed, 58 insertions(+), 31 deletions(-)
----
-base-commit: ccd8e87748ad083047d6c8544c5809b7f96cc8df
-change-id: 20260217-vsock-ns-write-once-8834d684e0a2
-
-Best regards,
--- 
-Bobby Eshleman <bobbyeshleman@meta.com>
-
+Actually, I see PGDEACTIVATE is not gated so I'll leave that one out.
+I'll send v3 and include PGREFILL.
