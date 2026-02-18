@@ -1,72 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f65.google.com (mail-wm1-f65.google.com [209.85.128.65])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 439272E54B6
-	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 06:45:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D11919F13F
+	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 07:57:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771397103; cv=none; b=kCuRMG9d5o2DMdrZMCgr61IxlOPNp2nh4MYqQ5l/Qw+/eNaQMAcDvVdDYqaR9qSWK6dmE5uJDiTe3H/J86bx8TDz/W6Ii7LhhbTsOTJsOzy5/gNwtzgtHq/1EcXXRT2mgoQQcnG9Ubmjk13JDWqct8Bl17tXv/TBL7YRh+NJPpU=
+	t=1771401449; cv=none; b=O1GUw84//KqBk2gQWKuorUazwN38zukVhLZOc5FkwOtLh+sH3Dqq0RyhzAFBhSe7LzdSTqmEfIm4AMDVbu3qi/mxVz6j6kcaeM8ElvfacNqpMd301JOj5h+a85wn7VgUiBNv5rXmYqKSKdPfFClsd5jiLcqPlzUlDBK03aQxBlw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771397103; c=relaxed/simple;
-	bh=uIFvW/tdxU2IK4oQA5xdsfDEeogLeemYi28HxJ14e/Y=;
+	s=arc-20240116; t=1771401449; c=relaxed/simple;
+	bh=xRwv3Pynanc0OBLrGgLwhdalOmAbzXRJptJPxfJSc2E=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=pROykVa57VKu4WOBo2XaBDsO540RwXTHytMEOY4yTE6Tj+nESzWKeX5PqpFlt8X/8xTlRt4AUIBrhmApsr1H4KkWZ77uovSqWuG10H02xPduvlgKdgE4fSsZzHyDfUzDU0xx9F+obr4BdgOMGoszOrt7jpCJ/GlMQsaguYTj0kE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J/JI3JwW; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZbIxYzYHLgVmMyw7R0lH/yShaL9Vr9dcXsPp6hYl+ggGUYbcIbzc0pcK8bYNIZdyTmcIbrI9ms82Q6t1wZN2UhJBhVFurXtR2hl0t4n8aIY06mUMRLpG+6Ka2rj3LAdO2OiASIKHlpzdqsEFpcwGDrZRx4kVmVWs/w1ff+Mlpts=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=RwLP2jw2; arc=none smtp.client-ip=209.85.128.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J/JI3JwW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1771397100;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DNQksyfa6tqPomkXx5S7dqKmFWnls++hbDRwu1vUoII=;
-	b=J/JI3JwW94DTsmWVn96+um3PYnZqf81EsbYt3v8W9ptDA4ZIECVtXYtg4IIVc2hj3SFpgl
-	KbzjcYwFnA0+8ABhVpudMGbLCjB1HjzMWHOREefEJoW6wYUlyKsuBkL0Fi+DUQozcSLieN
-	M8gubbwyxz0DqrzP+Ltg0jk3zgrdjNQ=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-513-at3mEVNAPyKUrgdnoZ3QIw-1; Wed, 18 Feb 2026 01:44:58 -0500
-X-MC-Unique: at3mEVNAPyKUrgdnoZ3QIw-1
-X-Mimecast-MFC-AGG-ID: at3mEVNAPyKUrgdnoZ3QIw_1771397097
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43635708e98so3217180f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 17 Feb 2026 22:44:58 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="RwLP2jw2"
+Received: by mail-wm1-f65.google.com with SMTP id 5b1f17b1804b1-48069a48629so47096165e9.0
+        for <virtualization@lists.linux.dev>; Tue, 17 Feb 2026 23:57:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1771401446; x=1772006246; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=fpno25uXms+t+fmEpT7TLhoJyOfpWVBIuL5TX2/ER8Y=;
+        b=RwLP2jw2wvK0QwU94mLKH9z48xiOweptcUlKb3v1Ib7iIDprOGuqtTIoMchKsToHv0
+         Z11MkQvljC79u5Dr6rqMfjtJJMT4C2CR3UvgSe63qXOoIZ04A/X4kN3NYgg3i9tUpa6X
+         Ixz94rtzqr/hLenMI3HXBqBy7bGefdOR2e7Q/4tVL7kQ9GpGQZazt5TljFHfhnukNLZ+
+         38YMv72E7KzchowboZ7CAkhJ0lrucJyzuQ5Nr8XVAIpVnpV80e0BkGU0W14i8vbM+Sdf
+         ys6lFR38S6HcSu/giYWOp1VjbrGA8Bda71nEsmV6j7xbjwN6K25ZVSQ0YPYInhvOfyDu
+         MkdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771397097; x=1772001897;
+        d=1e100.net; s=20230601; t=1771401446; x=1772006246;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=DNQksyfa6tqPomkXx5S7dqKmFWnls++hbDRwu1vUoII=;
-        b=wGuMmcIoThs10mFHMXg+DG84W9oJ1x3gjTpKMZmHmwn+Z0zYuLAdBrmf3mXHISbRyc
-         W46GhxB5yjW0jD+Xye0ZSceYS+nzxTnOGEUI67wHaALVrVaWDsl+W7taTK5Emw5CSKNZ
-         t5vERKFdaLjlTpeMytrp/fPag77W/GfdXRbrN9Wu7yHA6nrKzMi77AWfL5uR6d6wtGmD
-         ONC32IL3Axq1R+ExJiQecaZittURMEsuS8baK6GPEO3M1g90C+8OYifd+kbwpz1VaYgR
-         kXvKWrRlcnuaRA4E6CMsNwCENUd+8POYwO68zQTjHVE4m33Zz/kO0V1MOEOzuY+jDDpI
-         E6VQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUmFxRxl5gEoRS4jqIPqn2rV1AClAiNGMMMGnPWbJix+I/gWBI/lxoZotTO4SsicWcstclihj9XF1TtCyMA4A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzKWW7CLFYV2601CXgcdH3EWT+bb+nUxB2Cz5suWjhDNEhvIYuO
-	JozVMqPH44Adb4JhHXWPuuvDLo+039DRbMBPbVVk96DVmU2DGalyUqhZgL9+CdhmTjDhNMnR4CP
-	hxq+FFvqEg2lrRvq1R7U9Gw3UeurSN96InoZJbG8Zqatp3V8gv0JILmQNwmkKal5hq/oL
-X-Gm-Gg: AZuq6aK627thhnTABHTkDph1rFFioiVfL8Q3mtcykinrVJoXgfyH2trBvrOMk5NDbT5
-	u6U5B0tBG+e6ggX4sgm6DvGfIiSRQYLMNCBFnA/VH4lVRuHpx1R8suQkfkper3Z6xTVYtvYYj+R
-	PcmMiMRFR9z3YmlWiGjVdfyEcfJhMVUYJuJgEN3Fm+5gbXses3mfwGxdZ5jmzzOE5B/vDtPufEd
-	wQ9u6ZkKcx8bblTGfyozrxFeIEZPq374nH0/w+zlFJAi+Ti6AKkmEbp8uzLbDFjvDXs5oxIoV8O
-	Wi9KmQ74hBxdbsCs6hAnuFjxg0mGKIL5ksNI19hR88Pc2kAE2c7dk1DDfdEesciExtGl75u3+QT
-	jtABu4k23FmtsOmMZcF2zHTX20x1s9rAtoT1qP1nrGyE1Mw==
-X-Received: by 2002:a05:6000:248a:b0:436:38a4:2423 with SMTP id ffacd0b85a97d-4379db66905mr24077961f8f.22.1771397097261;
-        Tue, 17 Feb 2026 22:44:57 -0800 (PST)
-X-Received: by 2002:a05:6000:248a:b0:436:38a4:2423 with SMTP id ffacd0b85a97d-4379db66905mr24077906f8f.22.1771397096669;
-        Tue, 17 Feb 2026 22:44:56 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-34-155.inter.net.il. [80.230.34.155])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43796a5b2d1sm42700412f8f.4.2026.02.17.22.44.53
+        bh=fpno25uXms+t+fmEpT7TLhoJyOfpWVBIuL5TX2/ER8Y=;
+        b=wCg13ZOPFhs8bHWvlbgpYrrDdopZ1PGkUzbsb4SRIrnBbAar9sipH8pIVc1x9rA4qO
+         EgBtNaOgrv6Qg08708j1PHo28O4QqF6jCEJukks+/8iNyjWTTG19UlWReIo2vz9XpaKP
+         IQ1tUfDgnnl/M4CP+RtTlxciFxk9gDqqrJ58OUk70ALu1/Ca5fESkkk69JS/uY9MU505
+         E4/jaO9QvHeenXIqaybmjfsxYv/n5Bt6hMqCy0YKB74KV22OXSGisH226jdjH2rVKzPY
+         ecHH8vCLpVGlzaAfatFInOcclHlJ09YNZ+FwGNTg8d4Us9L2RK7Ng3ijpAvKqTcNXdtL
+         EpFA==
+X-Forwarded-Encrypted: i=1; AJvYcCWlUS6Kec8a/QK4V3fjYxcNxH1YDJFqlXwnLCKflTlkngKzbIz//g3jLN1sKaRPomiHJjZOwvBOAZfOH99SMg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzM1ivU2LR1Hjb6QYs1f3R7M+iEXZNVamJ8gb9NPhsSh5po2p1d
+	UoWY1uNScF9t+JbP58evl5+PnYlfVV+hBRRLk91Vsp7oUttlSW9uPJjcCbiTAe+N+u8=
+X-Gm-Gg: AZuq6aIJVjZvky+tF/LZUcfJVAJJZTIZwBtDHHRgpjDDj9ATxyg8Ogsb0kodgXO+Nbx
+	Yg4Rj3LRWpLm5wepvnYZf/YC8n4YSQclFTLW2AC7n+F8G+ivkyfcpEZ2vezQ6egBzuUsPTPHP3R
+	82AgyyRbB5nIUawNfp2mDrek70K27LwrjB+s7D/q2aTh9w9V/5vY0c7eWqevsRRJSwS/PQbDY05
+	cj33lQga0rVtZSJGuTDDrUaPe7H/NCyDYvSRDd3kLNtiZTX8hzeZAvS2vrhX900uZMchwYAwOLd
+	KeHg4Pa+XFckjN/ndTltvztMHBZN7tSwd2g8BkAWxf7DjwS2KmfuLN6g4noBtQV2E3xfCNE5yV8
+	M8zFC2Wr70j0FOLGRzVUrqtUBvm1NzqKFqy73VP0UkW7CiVrXDQCqG38L7/UwNKYgUWXPb0aqiK
+	4JWR/cdVKwzVQnrfT/kQenV5Z/mXx/lc1zBYTi
+X-Received: by 2002:a05:600c:4f44:b0:480:4b59:932e with SMTP id 5b1f17b1804b1-48373a0a0c2mr261425485e9.11.1771401445651;
+        Tue, 17 Feb 2026 23:57:25 -0800 (PST)
+Received: from localhost (109-81-87-131.rct.o2.cz. [109.81.87.131])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4836aa0847asm639059985e9.3.2026.02.17.23.57.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Feb 2026 22:44:56 -0800 (PST)
-Date: Wed, 18 Feb 2026 01:44:51 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
+        Tue, 17 Feb 2026 23:57:25 -0800 (PST)
+Date: Wed, 18 Feb 2026 08:57:24 +0100
+From: Michal Hocko <mhocko@suse.com>
 To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-Cc: linux-mm@kvack.org, mhocko@suse.com, vbabka@suse.cz, apopple@nvidia.com,
+Cc: linux-mm@kvack.org, mst@redhat.com, vbabka@suse.cz, apopple@nvidia.com,
 	akpm@linux-foundation.org, axelrasmussen@google.com,
 	byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
 	eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
@@ -80,7 +74,7 @@ Cc: linux-mm@kvack.org, mhocko@suse.com, vbabka@suse.cz, apopple@nvidia.com,
 	ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
 	kernel-team@meta.com
 Subject: Re: [PATCH v2] mm: move pgscan and pgsteal to node stats
-Message-ID: <20260218014442-mutt-send-email-mst@kernel.org>
+Message-ID: <aZVw5AN85m_bO1ed@tiehlicka>
 References: <20260218032941.225439-1-jp.kobryn@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -88,14 +82,11 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260218032941.225439-1-jp.kobryn@linux.dev>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: SQ3AchVBBlQkuuJUspsx2tfF0qNUVV_kn8fH2GYIEEU_1771397097
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260218032941.225439-1-jp.kobryn@linux.dev>
 
-On Tue, Feb 17, 2026 at 07:29:41PM -0800, JP Kobryn (Meta) wrote:
+On Tue 17-02-26 19:29:41, JP Kobryn (Meta) wrote:
 > From: JP Kobryn <jp.kobryn@linux.dev>
 > 
 > There are situations where reclaim kicks in on a system with free memory.
@@ -129,10 +120,8 @@ On Tue, Feb 17, 2026 at 07:29:41PM -0800, JP Kobryn (Meta) wrote:
 > Signed-off-by: JP Kobryn <jp.kobryn@linux.dev>
 > Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
 
-
-balloon changed:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Thanks!
 
 > ---
 >  drivers/virtio/virtio_balloon.c |  8 ++---
@@ -437,3 +426,6 @@ Acked-by: Michael S. Tsirkin <mst@redhat.com>
 > -- 
 > 2.47.3
 
+-- 
+Michal Hocko
+SUSE Labs
