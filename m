@@ -1,108 +1,202 @@
-Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7952D346E5F
-	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 19:53:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90F7C311972;
+	Wed, 18 Feb 2026 20:54:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771444412; cv=none; b=Ls39FYqHhLWdyOCmTZ175xLItMF/6hubQfK4+0q4o+4BsLv+Jzlk7cKNI2OTEWxrlCxEnmAbUgg9kUpTpzmVqrbyR+SuQLGhlYV4+5dO7eKQKaO2wKHqbaiCI2J/BDScaLpTHup7DsoDx1avcL1LlQyrtgdHXvVz3DMBm37O5xM=
+	t=1771448068; cv=none; b=ncPZ/rHvdYeTZRBFxOwTvpx27XA3zGr2keHzdsGTjA2R0pRkvqOqHAxBbPb74sS4uDgyRUmoPgOusjxKymSseNX2Nd71aPrlcuiTyEGxYyeuGek3OrP3MdW8LMFJCcsu52/aqkGm7ok27EuUBKIqxVwhXUicJ5H5c+r9Pv4tShs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771444412; c=relaxed/simple;
-	bh=G60IxpbYhanmXgFlCPIUDQdnvr93vQ+OEcTO0tgAS/o=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=UZ2ju+ocKraYWy3gGQ83GXdo2lB4zyZuO5Q9aRsVtXXbXM1sNdp8MTQ0t7FPfR9sVAzilpv+cUmpwMz8ilDIXqpi4sXQ2zWYSY44It6q2Ie1K92rL+n9z0NiKyJxuszxGY7gYyCegv+xIZqK8Ouzj5N+PC6WlsF64w/lAu79cYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=V/H6/jAe; arc=none smtp.client-ip=91.218.175.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1771448068; c=relaxed/simple;
+	bh=NSU5ZxTFZs+vcgV4zbWJc+O5FYAL+ah44/3CcMJAvog=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=gqTZ67EqJez29qjgD/5vjDRnfUV1OwSWAViUi1rDblC0tuTFq9ue3HvW3jp2LZ9U/syV/XZw7usESVUoYb0pmJL9e10Ju8qFdKn3StvGqFzH3kfh1IL/9Ezd1sTaJmCno41cQ2QFPzgfrBgd1GWTFU91l93vyd5BYIIMMynrqkI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=txRKTC99; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="V/H6/jAe"
-Message-ID: <2397f4cd-367b-421c-b4f0-9c023f6cd546@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1771444398;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SdnOU1vGQA1zKpk8kTMZsw9c7ygfqJl1OhsRupZBpf4=;
-	b=V/H6/jAeNBwT5tg4U5BLn/eRMm0dPifz25S3hPq141ITU5c0PWXjdPTF9DGOYil3JLG5j+
-	Zg9OGti2fviCFqs+oDIJ0JIwa/ctAUUTxVZyVwbNDChuLvtnfkczZH1sVIHbZIdXvkl8y9
-	O45YbBEP+0PZLGANix+9dkY2yESN61w=
-Date: Wed, 18 Feb 2026 11:53:09 -0800
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="txRKTC99"
+Received: from ehlo.thunderbird.net (c-76-133-66-138.hsd1.ca.comcast.net [76.133.66.138])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 61IKbu3I2307125
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Wed, 18 Feb 2026 12:37:56 -0800
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 61IKbu3I2307125
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2026012301; t=1771447078;
+	bh=/4gUyx2Ogqc4pykP2NXlf3ww6HtU65MDbCy+ciTKta0=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=txRKTC99yxQoQhaycyi7tJEOgs9h1U2j5kNLU2/1fwUwtmdQCUwUeEffkAabj72/F
+	 ukff8fZVPMHYRTwmPLaZZGgZSRPefZOtaglDoqq/xRMxcmW0y0HbctJr8LQsjWYLQK
+	 O6BowOLQ73YDd32xR02o7iliOviwQfGShMkbSfNL1NNO3hDb124q5coP7LtTukCrv8
+	 eFIsqBvQBtd8mP5roCm/HLGwm3E5AbDDDTSL/htD5wmZD5oyabOgyU4N/H2+l29yfi
+	 tegGzouqXoi0lCfrG4Cfb4XcWEQvgvnEJNiY8Xg+H/e8oJU5xeLp+CxABvSA1teX2D
+	 ggrrWY1MeeKrQ==
+Date: Wed, 18 Feb 2026 12:37:50 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
+        x86@kernel.org, linux-coco@lists.linux.dev, kvm@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+        llvm@lists.linux.dev
+CC: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Kiryl Shutsemau <kas@kernel.org>,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+        Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        xen-devel@lists.xenproject.org, Ajay Kaher <ajay.kaher@broadcom.com>,
+        Alexey Makhalov <alexey.makhalov@broadcom.com>,
+        Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, Xin Li <xin@zytor.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+        Bill Wendling <morbo@google.com>,
+        Justin Stitt <justinstitt@google.com>,
+        Josh Poimboeuf <jpoimboe@kernel.org>, andy.cooper@citrix.com
+Subject: Re: [PATCH v3 00/16] x86/msr: Inline rdmsr/wrmsr instructions
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20260218082133.400602-1-jgross@suse.com>
+References: <20260218082133.400602-1-jgross@suse.com>
+Message-ID: <3D1FE2A7-F237-4232-9E39-6AFC75F3A4F0@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v2] mm: move pgscan and pgsteal to node stats
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-To: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, linux-mm@kvack.org,
- mst@redhat.com, mhocko@suse.com, vbabka@suse.cz
-Cc: apopple@nvidia.com, akpm@linux-foundation.org, axelrasmussen@google.com,
- byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
- eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
- hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
- linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
- matthew.brost@intel.com, rppt@kernel.org, muchun.song@linux.dev,
- zhengqi.arch@bytedance.com, rakie.kim@sk.com, roman.gushchin@linux.dev,
- shakeel.butt@linux.dev, surenb@google.com, virtualization@lists.linux.dev,
- weixugc@google.com, xuanzhuo@linux.alibaba.com,
- ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
- kernel-team@meta.com
-References: <20260218032941.225439-1-jp.kobryn@linux.dev>
- <10434f89-fe2a-4cfc-9b29-1cd2ed2bbb7e@kernel.org>
- <fbcd6770-f555-443c-b5f2-fe5e73722118@linux.dev>
-Content-Language: en-US
-In-Reply-To: <fbcd6770-f555-443c-b5f2-fe5e73722118@linux.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 2/18/26 10:02 AM, JP Kobryn (Meta) wrote:
-> On 2/18/26 12:54 AM, Vlastimil Babka (SUSE) wrote:
->> On 2/18/26 04:29, JP Kobryn (Meta) wrote:
->>> From: JP Kobryn <jp.kobryn@linux.dev>
->>>
->>> There are situations where reclaim kicks in on a system with free 
->>> memory.
->>> One possible cause is a NUMA imbalance scenario where one or more 
->>> nodes are
->>> under pressure. It would help if we could easily identify such nodes.
->>>
->>> Move the pgscan and pgsteal counters from vm_event_item to 
->>> node_stat_item
->>> to provide per-node reclaim visibility. With these counters as node 
->>> stats,
->>> the values are now displayed in the per-node section of /proc/zoneinfo,
->>> which allows for quick identification of the affected nodes.
->>>
->>> /proc/vmstat continues to report the same counters, aggregated across 
->>> all
->>> nodes. But the ordering of these items within the readout changes as 
->>> they
->>> move from the vm events section to the node stats section.
->>>
->>> Memcg accounting of these counters is preserved. The relocated counters
->>> remain visible in memory.stat alongside the existing aggregate pgscan 
->>> and
->>> pgsteal counters.
->>>
->>> However, this change affects how the global counters are accumulated.
->>> Previously, the global event count update was gated on ! 
->>> cgroup_reclaim(),
->>> excluding memcg-based reclaim from /proc/vmstat. Now that
->>> mod_lruvec_state() is being used to update the counters, the global
->>> counters will include all reclaim. This is consistent with how pgdemote
->>> counters are already tracked.
->>
->> Hm so that leaves PGREFILL (scanned in the active list) the odd one out,
->> right? Not being per-node and gated on !cgroup_reclaim() for global 
->> stats.
->> Should we change it too for full consistency?
-> 
-> I'm fine with adding coverage for the active list side as well. For
-> completeness, I could also include PGDEACTIVATE.
+On February 18, 2026 12:21:17 AM PST, Juergen Gross <jgross@suse=2Ecom> wro=
+te:
+>When building a kernel with CONFIG_PARAVIRT_XXL the paravirt
+>infrastructure will always use functions for reading or writing MSRs,
+>even when running on bare metal=2E
+>
+>Switch to inline RDMSR/WRMSR instructions in this case, reducing the
+>paravirt overhead=2E
+>
+>The first patch is a prerequisite fix for alternative patching=2E Its
+>is needed due to the initial indirect call needs to be padded with
+>NOPs in some cases with the following patches=2E
+>
+>In order to make this less intrusive, some further reorganization of
+>the MSR access helpers is done in the patches 1-6=2E
+>
+>The next 4 patches are converting the non-paravirt case to use direct
+>inlining of the MSR access instructions, including the WRMSRNS
+>instruction and the immediate variants of RDMSR and WRMSR if possible=2E
+>
+>Patches 11-13 are some further preparations for making the real switch
+>to directly patch in the native MSR instructions easier=2E
+>
+>Patch 14 is switching the paravirt MSR function interface from normal
+>call ABI to one more similar to the native MSR instructions=2E
+>
+>Patch 15 is a little cleanup patch=2E
+>
+>Patch 16 is the final step for patching in the native MSR instructions
+>when not running as a Xen PV guest=2E
+>
+>This series has been tested to work with Xen PV and on bare metal=2E
+>
+>Note that there is more room for improvement=2E This series is sent out
+>to get a first impression how the code will basically look like=2E
 
-Actually, I see PGDEACTIVATE is not gated so I'll leave that one out.
-I'll send v3 and include PGREFILL.
+Does that mean you are considering this patchset an RFC? If so, you should=
+ put that in the subject header=2E=20
+
+>Right now the same problem is solved differently for the paravirt and
+>the non-paravirt cases=2E In case this is not desired, there are two
+>possibilities to merge the two implementations=2E Both solutions have
+>the common idea to have rather similar code for paravirt and
+>non-paravirt variants, but just use a different main macro for
+>generating the respective code=2E For making the code of both possible
+>scenarios more similar, the following variants are possible:
+>
+>1=2E Remove the micro-optimizations of the non-paravirt case, making
+>   it similar to the paravirt code in my series=2E This has the
+>   advantage of being more simple, but might have a very small
+>   negative performance impact (probably not really detectable)=2E
+>
+>2=2E Add the same micro-optimizations to the paravirt case, requiring
+>   to enhance paravirt patching to support a to be patched indirect
+>   call in the middle of the initial code snipplet=2E
+>
+>In both cases the native MSR function variants would no longer be
+>usable in the paravirt case, but this would mostly affect Xen, as it
+>would need to open code the WRMSR/RDMSR instructions to be used
+>instead the native_*msr*() functions=2E
+>
+>Changes since V2:
+>- switch back to the paravirt approach
+>
+>Changes since V1:
+>- Use Xin Li's approach for inlining
+>- Several new patches
+>
+>Juergen Gross (16):
+>  x86/alternative: Support alt_replace_call() with instructions after
+>    call
+>  coco/tdx: Rename MSR access helpers
+>  x86/sev: Replace call of native_wrmsr() with native_wrmsrq()
+>  KVM: x86: Remove the KVM private read_msr() function
+>  x86/msr: Minimize usage of native_*() msr access functions
+>  x86/msr: Move MSR trace calls one function level up
+>  x86/opcode: Add immediate form MSR instructions
+>  x86/extable: Add support for immediate form MSR instructions
+>  x86/msr: Use the alternatives mechanism for WRMSR
+>  x86/msr: Use the alternatives mechanism for RDMSR
+>  x86/alternatives: Add ALTERNATIVE_4()
+>  x86/paravirt: Split off MSR related hooks into new header
+>  x86/paravirt: Prepare support of MSR instruction interfaces
+>  x86/paravirt: Switch MSR access pv_ops functions to instruction
+>    interfaces
+>  x86/msr: Reduce number of low level MSR access helpers
+>  x86/paravirt: Use alternatives for MSR access with paravirt
+>
+> arch/x86/coco/sev/internal=2Eh              |   7 +-
+> arch/x86/coco/tdx/tdx=2Ec                   |   8 +-
+> arch/x86/hyperv/ivm=2Ec                     |   2 +-
+> arch/x86/include/asm/alternative=2Eh        |   6 +
+> arch/x86/include/asm/fred=2Eh               |   2 +-
+> arch/x86/include/asm/kvm_host=2Eh           |  10 -
+> arch/x86/include/asm/msr=2Eh                | 345 ++++++++++++++++------
+> arch/x86/include/asm/paravirt-msr=2Eh       | 148 ++++++++++
+> arch/x86/include/asm/paravirt=2Eh           |  67 -----
+> arch/x86/include/asm/paravirt_types=2Eh     |  57 ++--
+> arch/x86/include/asm/qspinlock_paravirt=2Eh |   4 +-
+> arch/x86/kernel/alternative=2Ec             |   5 +-
+> arch/x86/kernel/cpu/mshyperv=2Ec            |   7 +-
+> arch/x86/kernel/kvmclock=2Ec                |   2 +-
+> arch/x86/kernel/paravirt=2Ec                |  42 ++-
+> arch/x86/kvm/svm/svm=2Ec                    |  16 +-
+> arch/x86/kvm/vmx/tdx=2Ec                    |   2 +-
+> arch/x86/kvm/vmx/vmx=2Ec                    |   8 +-
+> arch/x86/lib/x86-opcode-map=2Etxt           |   5 +-
+> arch/x86/mm/extable=2Ec                     |  35 ++-
+> arch/x86/xen/enlighten_pv=2Ec               |  52 +++-
+> arch/x86/xen/pmu=2Ec                        |   4 +-
+> tools/arch/x86/lib/x86-opcode-map=2Etxt     |   5 +-
+> tools/objtool/check=2Ec                     |   1 +
+> 24 files changed, 576 insertions(+), 264 deletions(-)
+> create mode 100644 arch/x86/include/asm/paravirt-msr=2Eh
+>
+
+Could you clarify *on the high design level* what "go back to the paravirt=
+ approach" means, and the motivation for that?
+
+Note that for Xen *most* MSRs fall in one of two categories: those that ar=
+e dropped entirely and those that are just passed straight on to the hardwa=
+re=2E
+
+I don't know if anyone cares about optimizing PV Xen anymore, but at least=
+ in theory Xen can un-paravirtualize most sites=2E
