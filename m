@@ -1,396 +1,272 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AAA82EDD7E;
-	Wed, 18 Feb 2026 08:54:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CDB6314B78
+	for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 10:02:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771404855; cv=none; b=afpTDbtyi7fsMr3yvzg+jdtySbZweIauMHwDfKId9fH3OfMnEn8JD3xrLgjlMxe5Zh4TTJyhdMX+TJ2psGi5LZtIcEMi4YcZ8hl3ZmqwDzeeAcaH6bzGEsc1CkNo/Lx+N7aju/9KBmk3n9FbN7Ghfhwux323fKLgbrfENBonfa0=
+	t=1771408933; cv=none; b=fVEJ89ekmAjwKZH86ZwbZZcT0bEblTLPFO5xYkFk7B37GAE074ymV270d8LbC8TcoBndzqSlDplduvA2I/kECU/mm9QHtwEfL7SkOyXNd05KcOjzr7igSPxj8F1XBvQjN8FfBlpcbsIkSXo71doo0A1D3YMnUmDzOVakYXIqcyc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771404855; c=relaxed/simple;
-	bh=NzP0MR2kPO9mU0PSMbTdrpE4tzr54+64hxffDSJbW08=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TE/ZUcPtva6xA4c0EOeUqKZe49Fq6U7sD/OhSWMr1NNwSwnfnlkQP+GZft9PJsdMUvC9iLGpiPUEtiE62CL8lKlPuDGCC27Y5zckSuXVReczDfz85lcl5jL1VtDGCveFMTtvokJ7GqgkkRtMyxNZKFfwQDT3R4SPZvtCZE/eJ3w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LBYr8ziz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771408933; c=relaxed/simple;
+	bh=a339kBkybaGy7z7bYIn3mQ6IO2hh0pPgRs7EW/56fR8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=g9wgcfuE268nLCE9OYP8P4zx7VQECwc1xvAYvS68srBZUOcfG5BBuf6skeFEJ0D+zppMR5kJJhSybjBt79pEAEJV/Vt0lMS4XucVquKPEdKe25sN8X4xh8XetLEeXU5v1IM3d90WpbdvBDU4k4Kjo2sA0ReayxWhqTac8I+cUqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C2gJ/J42; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LBYr8ziz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E87FC19421;
-	Wed, 18 Feb 2026 08:54:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771404855;
-	bh=NzP0MR2kPO9mU0PSMbTdrpE4tzr54+64hxffDSJbW08=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=LBYr8zizRKDU1LDOo3wX+e3577+cQP0F0uNTuat2mD0CCjT4GiiZrd35s3JqR0Hbq
-	 WDBTufxDYWf9rCqCXmRdHyiBW7EbyOeZNj0g5C+cjhUHEzCUE39+ub5Q03HuL4VWlp
-	 0Bxd51qM5zXQE0D8sHuP4TObd0tccIuGMNiBCSxiH0BV8IGCrmklGMXP7IJKIN5r9L
-	 jLEd2zwCvBXLlVGRuj7iW5Ir1SH/A8xSVNpSqrkpsN1T4y/7I5MeDXMU26JRbtaVlf
-	 vGvAt6Z9Ovn+dColQThBTr37hOAJXqrIZA3bP6q3qnCXGG5AAbBRHnIHQNeWr8iyDC
-	 PlolPFoO4v6bA==
-Message-ID: <10434f89-fe2a-4cfc-9b29-1cd2ed2bbb7e@kernel.org>
-Date: Wed, 18 Feb 2026 09:54:06 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C2gJ/J42"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1771408929;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eK3uR170viBUHbHogyb7PZrSIT9cVl8hPawQihOLUtk=;
+	b=C2gJ/J42kkY2rKHkmDM6Aps3LUjvuLH2wvOzyO7V9zHWJk8ejHW67hCqGfkaDsCMd6zmYs
+	lEC49+MNB8+VVW3BX2P5WGNDKd+Tcv3uNcCHFh5VaLFGmluAeHEQRffhjf1zsXdKhTercQ
+	qdQiUkFGgI/LByjxJ28FcHXyLn0CrZ0=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-424-Tc6DAfy5O8asKjF12IRJ6w-1; Wed, 18 Feb 2026 05:02:08 -0500
+X-MC-Unique: Tc6DAfy5O8asKjF12IRJ6w-1
+X-Mimecast-MFC-AGG-ID: Tc6DAfy5O8asKjF12IRJ6w_1771408927
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4836fbfa35cso31103375e9.1
+        for <virtualization@lists.linux.dev>; Wed, 18 Feb 2026 02:02:07 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771408926; x=1772013726;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eK3uR170viBUHbHogyb7PZrSIT9cVl8hPawQihOLUtk=;
+        b=GqnyyCrDTPhbi18PennIv1/3OsLygjbmTMh7+bu/bIhLPZF0bZkpoHeaZ3NvX861If
+         tBgv1I8a61WgVna8tFE5PWUdl8vwH9LlbZQ4G2g5RHddXknnC/IPIwOLAHT8jhr369cu
+         vVWLSlaMmirxYJyi98IjejoUeOyZ06J9f7YjgPliN48upIquRpNxc5RKMqHLAonZOr55
+         Tp48icFlQf/qTE+CEG7Xkv5a//8hCZDQrP6V93WrFY7JCBVTIh3x9DWK7guY4P0jm8sT
+         pMUIJEnqPjQxWzyEOuRAycVh2F1r9x2+l3bA2zRjdGz5F1qYnhz6jjmaDHtw8OtGs81I
+         SlHw==
+X-Forwarded-Encrypted: i=1; AJvYcCV2oQkK/Nbh7GsssmKw06yY3gcuKZ1rFSDAC36k6P07LBHbu7L5uq/0FDKn57K3KbV2AB3ynND0QZVDFP8JHg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwoV3IPXO3mbxms0JmRDUg4FBN81s+0xzBTYIvt7/h8chlcCZem
+	AuVlhzVu9yqqiM3zJ/JggVERcBxfESic8an9L7MAHZcJRIDtlsizPRJhYyq4eI+Q1i/h1gWDrJG
+	87po1CYupqHylH2lKOSa7TjJXKZ9UQEnifWlRgs7FjkTlUbi91zXd9HcHDQWXnjvsXXXpbhDtPz
+	x0
+X-Gm-Gg: AZuq6aLNqAoRLMKrWYlEo6fmfLOZks5mysAAeoOd0X/SGpTIZMUGqOk3bfEDuIWD8S3
+	6ZDAydhCj+OhFolhuCb398RBODMHsdTVJrghAJiLoUa+IV3tA/JL5/nis9XQewX7wfLBCIYdKL5
+	VCzia299yobgCmlAw7PPbWiR9pcx/eKnRayzurqt/6Cr47iZBrK3/zLrcfM9szy3b8j2JcGwz70
+	RT+5SspXvkKxYnqj9BP0Qid6CxZI0k7AWmTxszyADhiYPENpG8pOrZfZN7nAWpB6BbO5YCXSXLa
+	PDenvxIUfE9mWN85QsXIVFeAcLmDUWeAIThdCfFyZUpwMzPcrtYAzbJyCaVK6wAM7gsFXPHtrOg
+	V5FLLxTGGLUpELDmnuvQ/1+pME7yW61WAb6897fUIBlfht26XQTSc+foQkCw3i6ejYGlPFV4=
+X-Received: by 2002:a05:600c:8b70:b0:47e:e2eb:bc22 with SMTP id 5b1f17b1804b1-48398a4b762mr22553605e9.5.1771408926006;
+        Wed, 18 Feb 2026 02:02:06 -0800 (PST)
+X-Received: by 2002:a05:600c:8b70:b0:47e:e2eb:bc22 with SMTP id 5b1f17b1804b1-48398a4b762mr22553005e9.5.1771408925365;
+        Wed, 18 Feb 2026 02:02:05 -0800 (PST)
+Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483970ce7d2sm34659975e9.0.2026.02.18.02.02.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Feb 2026 02:02:04 -0800 (PST)
+Date: Wed, 18 Feb 2026 11:02:02 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	Bobby Eshleman <bobbyeshleman@meta.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	Daan De Meyer <daan.j.demeyer@gmail.com>
+Subject: Re: [PATCH net] vsock: lock down child_ns_mode as write-once
+Message-ID: <aZV6HRAIsf_rNRM2@sgarzare-redhat>
+References: <20260217-vsock-ns-write-once-v1-1-a1fb30f289a9@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] mm: move pgscan and pgsteal to node stats
-Content-Language: en-US
-To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>, linux-mm@kvack.org,
- mst@redhat.com, mhocko@suse.com, vbabka@suse.cz
-Cc: apopple@nvidia.com, akpm@linux-foundation.org, axelrasmussen@google.com,
- byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
- eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
- hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
- linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
- matthew.brost@intel.com, rppt@kernel.org, muchun.song@linux.dev,
- zhengqi.arch@bytedance.com, rakie.kim@sk.com, roman.gushchin@linux.dev,
- shakeel.butt@linux.dev, surenb@google.com, virtualization@lists.linux.dev,
- weixugc@google.com, xuanzhuo@linux.alibaba.com,
- ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
- kernel-team@meta.com
-References: <20260218032941.225439-1-jp.kobryn@linux.dev>
-From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
-In-Reply-To: <20260218032941.225439-1-jp.kobryn@linux.dev>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20260217-vsock-ns-write-once-v1-1-a1fb30f289a9@meta.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: lx1Lere6_sq80e2IGRRbGJKM7BP6nvl_kc8LxeQYAa8_1771408927
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 2/18/26 04:29, JP Kobryn (Meta) wrote:
-> From: JP Kobryn <jp.kobryn@linux.dev>
-> 
-> There are situations where reclaim kicks in on a system with free memory.
-> One possible cause is a NUMA imbalance scenario where one or more nodes are
-> under pressure. It would help if we could easily identify such nodes.
-> 
-> Move the pgscan and pgsteal counters from vm_event_item to node_stat_item
-> to provide per-node reclaim visibility. With these counters as node stats,
-> the values are now displayed in the per-node section of /proc/zoneinfo,
-> which allows for quick identification of the affected nodes.
-> 
-> /proc/vmstat continues to report the same counters, aggregated across all
-> nodes. But the ordering of these items within the readout changes as they
-> move from the vm events section to the node stats section.
-> 
-> Memcg accounting of these counters is preserved. The relocated counters
-> remain visible in memory.stat alongside the existing aggregate pgscan and
-> pgsteal counters.
-> 
-> However, this change affects how the global counters are accumulated.
-> Previously, the global event count update was gated on !cgroup_reclaim(),
-> excluding memcg-based reclaim from /proc/vmstat. Now that
-> mod_lruvec_state() is being used to update the counters, the global
-> counters will include all reclaim. This is consistent with how pgdemote
-> counters are already tracked.
+On Tue, Feb 17, 2026 at 05:45:10PM -0800, Bobby Eshleman wrote:
+>From: Bobby Eshleman <bobbyeshleman@meta.com>
+>
+>To improve the security posture of vsock namespacing, this patch locks
+>down the vsock child_ns_mode sysctl setting with a write-once policy.
+>The user may write to child_ns_mode only once in each namespace, making
+>changes to either local or global mode be irreversible.
+>
+>This avoids security breaches where a process in a local namespace may
+>attempt to jailbreak into the global vsock ns space by setting
+>child_ns_mode to "global", creating a new namespace, and accessing the
+>global space through the new namespace.
 
-Hm so that leaves PGREFILL (scanned in the active list) the odd one out,
-right? Not being per-node and gated on !cgroup_reclaim() for global stats.
-Should we change it too for full consistency?
+Commit 6a997f38bdf8 ("vsock: prevent child netns mode switch from local 
+to global") should avoid exactly that, so I don't get this. Can you 
+elaborate more how this can happen without this patch?
 
-> Finally, the virtio_balloon driver is updated to use
-> global_node_page_state() to fetch the counters, as they are no longer
-> accessible through the vm_events array.
-> 
-> Signed-off-by: JP Kobryn <jp.kobryn@linux.dev>
-> Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
-> ---
->  drivers/virtio/virtio_balloon.c |  8 ++---
->  include/linux/mmzone.h          | 12 ++++++++
->  include/linux/vm_event_item.h   | 12 --------
->  mm/memcontrol.c                 | 52 +++++++++++++++++++++++----------
->  mm/vmscan.c                     | 32 ++++++++------------
->  mm/vmstat.c                     | 24 +++++++--------
->  6 files changed, 76 insertions(+), 64 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 4e549abe59ff..ab945532ceef 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -369,13 +369,13 @@ static inline unsigned int update_balloon_vm_stats(struct virtio_balloon *vb)
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_ALLOC_STALL, stall);
->  
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_ASYNC_SCAN,
-> -		    pages_to_bytes(events[PGSCAN_KSWAPD]));
-> +		    pages_to_bytes(global_node_page_state(PGSCAN_KSWAPD)));
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRECT_SCAN,
-> -		    pages_to_bytes(events[PGSCAN_DIRECT]));
-> +		    pages_to_bytes(global_node_page_state(PGSCAN_DIRECT)));
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_ASYNC_RECLAIM,
-> -		    pages_to_bytes(events[PGSTEAL_KSWAPD]));
-> +		    pages_to_bytes(global_node_page_state(PGSTEAL_KSWAPD)));
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRECT_RECLAIM,
-> -		    pages_to_bytes(events[PGSTEAL_DIRECT]));
-> +		    pages_to_bytes(global_node_page_state(PGSTEAL_DIRECT)));
->  
->  #ifdef CONFIG_HUGETLB_PAGE
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_HTLB_PGALLOC,
-> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-> index 3e51190a55e4..1aa9c7aec889 100644
-> --- a/include/linux/mmzone.h
-> +++ b/include/linux/mmzone.h
-> @@ -255,6 +255,18 @@ enum node_stat_item {
->  	PGDEMOTE_DIRECT,
->  	PGDEMOTE_KHUGEPAGED,
->  	PGDEMOTE_PROACTIVE,
-> +	PGSTEAL_KSWAPD,
-> +	PGSTEAL_DIRECT,
-> +	PGSTEAL_KHUGEPAGED,
-> +	PGSTEAL_PROACTIVE,
-> +	PGSTEAL_ANON,
-> +	PGSTEAL_FILE,
-> +	PGSCAN_KSWAPD,
-> +	PGSCAN_DIRECT,
-> +	PGSCAN_KHUGEPAGED,
-> +	PGSCAN_PROACTIVE,
-> +	PGSCAN_ANON,
-> +	PGSCAN_FILE,
->  #ifdef CONFIG_HUGETLB_PAGE
->  	NR_HUGETLB,
->  #endif
-> diff --git a/include/linux/vm_event_item.h b/include/linux/vm_event_item.h
-> index 22a139f82d75..1fa3b3ad0ff9 100644
-> --- a/include/linux/vm_event_item.h
-> +++ b/include/linux/vm_event_item.h
-> @@ -40,19 +40,7 @@ enum vm_event_item { PGPGIN, PGPGOUT, PSWPIN, PSWPOUT,
->  		PGLAZYFREED,
->  		PGREFILL,
->  		PGREUSE,
-> -		PGSTEAL_KSWAPD,
-> -		PGSTEAL_DIRECT,
-> -		PGSTEAL_KHUGEPAGED,
-> -		PGSTEAL_PROACTIVE,
-> -		PGSCAN_KSWAPD,
-> -		PGSCAN_DIRECT,
-> -		PGSCAN_KHUGEPAGED,
-> -		PGSCAN_PROACTIVE,
->  		PGSCAN_DIRECT_THROTTLE,
-> -		PGSCAN_ANON,
-> -		PGSCAN_FILE,
-> -		PGSTEAL_ANON,
-> -		PGSTEAL_FILE,
->  #ifdef CONFIG_NUMA
->  		PGSCAN_ZONE_RECLAIM_SUCCESS,
->  		PGSCAN_ZONE_RECLAIM_FAILED,
-> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-> index 007413a53b45..e89e77457701 100644
-> --- a/mm/memcontrol.c
-> +++ b/mm/memcontrol.c
-> @@ -328,6 +328,18 @@ static const unsigned int memcg_node_stat_items[] = {
->  	PGDEMOTE_DIRECT,
->  	PGDEMOTE_KHUGEPAGED,
->  	PGDEMOTE_PROACTIVE,
-> +	PGSTEAL_KSWAPD,
-> +	PGSTEAL_DIRECT,
-> +	PGSTEAL_KHUGEPAGED,
-> +	PGSTEAL_PROACTIVE,
-> +	PGSTEAL_ANON,
-> +	PGSTEAL_FILE,
-> +	PGSCAN_KSWAPD,
-> +	PGSCAN_DIRECT,
-> +	PGSCAN_KHUGEPAGED,
-> +	PGSCAN_PROACTIVE,
-> +	PGSCAN_ANON,
-> +	PGSCAN_FILE,
->  #ifdef CONFIG_HUGETLB_PAGE
->  	NR_HUGETLB,
->  #endif
-> @@ -441,14 +453,6 @@ static const unsigned int memcg_vm_event_stat[] = {
->  #endif
->  	PSWPIN,
->  	PSWPOUT,
-> -	PGSCAN_KSWAPD,
-> -	PGSCAN_DIRECT,
-> -	PGSCAN_KHUGEPAGED,
-> -	PGSCAN_PROACTIVE,
-> -	PGSTEAL_KSWAPD,
-> -	PGSTEAL_DIRECT,
-> -	PGSTEAL_KHUGEPAGED,
-> -	PGSTEAL_PROACTIVE,
->  	PGFAULT,
->  	PGMAJFAULT,
->  	PGREFILL,
-> @@ -1382,6 +1386,14 @@ static const struct memory_stat memory_stats[] = {
->  	{ "pgdemote_direct",		PGDEMOTE_DIRECT		},
->  	{ "pgdemote_khugepaged",	PGDEMOTE_KHUGEPAGED	},
->  	{ "pgdemote_proactive",		PGDEMOTE_PROACTIVE	},
-> +	{ "pgsteal_kswapd",		PGSTEAL_KSWAPD		},
-> +	{ "pgsteal_direct",		PGSTEAL_DIRECT		},
-> +	{ "pgsteal_khugepaged",		PGSTEAL_KHUGEPAGED	},
-> +	{ "pgsteal_proactive",		PGSTEAL_PROACTIVE	},
-> +	{ "pgscan_kswapd",		PGSCAN_KSWAPD		},
-> +	{ "pgscan_direct",		PGSCAN_DIRECT		},
-> +	{ "pgscan_khugepaged",		PGSCAN_KHUGEPAGED	},
-> +	{ "pgscan_proactive",		PGSCAN_PROACTIVE	},
->  #ifdef CONFIG_NUMA_BALANCING
->  	{ "pgpromote_success",		PGPROMOTE_SUCCESS	},
->  #endif
-> @@ -1425,6 +1437,14 @@ static int memcg_page_state_output_unit(int item)
->  	case PGDEMOTE_DIRECT:
->  	case PGDEMOTE_KHUGEPAGED:
->  	case PGDEMOTE_PROACTIVE:
-> +	case PGSTEAL_KSWAPD:
-> +	case PGSTEAL_DIRECT:
-> +	case PGSTEAL_KHUGEPAGED:
-> +	case PGSTEAL_PROACTIVE:
-> +	case PGSCAN_KSWAPD:
-> +	case PGSCAN_DIRECT:
-> +	case PGSCAN_KHUGEPAGED:
-> +	case PGSCAN_PROACTIVE:
->  #ifdef CONFIG_NUMA_BALANCING
->  	case PGPROMOTE_SUCCESS:
->  #endif
-> @@ -1496,15 +1516,15 @@ static void memcg_stat_format(struct mem_cgroup *memcg, struct seq_buf *s)
->  
->  	/* Accumulated memory events */
->  	seq_buf_printf(s, "pgscan %lu\n",
-> -		       memcg_events(memcg, PGSCAN_KSWAPD) +
-> -		       memcg_events(memcg, PGSCAN_DIRECT) +
-> -		       memcg_events(memcg, PGSCAN_PROACTIVE) +
-> -		       memcg_events(memcg, PGSCAN_KHUGEPAGED));
-> +		       memcg_page_state(memcg, PGSCAN_KSWAPD) +
-> +		       memcg_page_state(memcg, PGSCAN_DIRECT) +
-> +		       memcg_page_state(memcg, PGSCAN_PROACTIVE) +
-> +		       memcg_page_state(memcg, PGSCAN_KHUGEPAGED));
->  	seq_buf_printf(s, "pgsteal %lu\n",
-> -		       memcg_events(memcg, PGSTEAL_KSWAPD) +
-> -		       memcg_events(memcg, PGSTEAL_DIRECT) +
-> -		       memcg_events(memcg, PGSTEAL_PROACTIVE) +
-> -		       memcg_events(memcg, PGSTEAL_KHUGEPAGED));
-> +		       memcg_page_state(memcg, PGSTEAL_KSWAPD) +
-> +		       memcg_page_state(memcg, PGSTEAL_DIRECT) +
-> +		       memcg_page_state(memcg, PGSTEAL_PROACTIVE) +
-> +		       memcg_page_state(memcg, PGSTEAL_KHUGEPAGED));
->  
->  	for (i = 0; i < ARRAY_SIZE(memcg_vm_event_stat); i++) {
->  #ifdef CONFIG_MEMCG_V1
-> diff --git a/mm/vmscan.c b/mm/vmscan.c
-> index 44e4fcd6463c..dd6d87340941 100644
-> --- a/mm/vmscan.c
-> +++ b/mm/vmscan.c
-> @@ -1984,7 +1984,7 @@ static unsigned long shrink_inactive_list(unsigned long nr_to_scan,
->  	unsigned long nr_taken;
->  	struct reclaim_stat stat;
->  	bool file = is_file_lru(lru);
-> -	enum vm_event_item item;
-> +	enum node_stat_item item;
->  	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
->  	bool stalled = false;
->  
-> @@ -2010,10 +2010,8 @@ static unsigned long shrink_inactive_list(unsigned long nr_to_scan,
->  
->  	__mod_node_page_state(pgdat, NR_ISOLATED_ANON + file, nr_taken);
->  	item = PGSCAN_KSWAPD + reclaimer_offset(sc);
-> -	if (!cgroup_reclaim(sc))
-> -		__count_vm_events(item, nr_scanned);
-> -	count_memcg_events(lruvec_memcg(lruvec), item, nr_scanned);
-> -	__count_vm_events(PGSCAN_ANON + file, nr_scanned);
-> +	mod_lruvec_state(lruvec, item, nr_scanned);
-> +	mod_lruvec_state(lruvec, PGSCAN_ANON + file, nr_scanned);
->  
->  	spin_unlock_irq(&lruvec->lru_lock);
->  
-> @@ -2030,10 +2028,8 @@ static unsigned long shrink_inactive_list(unsigned long nr_to_scan,
->  					stat.nr_demoted);
->  	__mod_node_page_state(pgdat, NR_ISOLATED_ANON + file, -nr_taken);
->  	item = PGSTEAL_KSWAPD + reclaimer_offset(sc);
-> -	if (!cgroup_reclaim(sc))
-> -		__count_vm_events(item, nr_reclaimed);
-> -	count_memcg_events(lruvec_memcg(lruvec), item, nr_reclaimed);
-> -	__count_vm_events(PGSTEAL_ANON + file, nr_reclaimed);
-> +	mod_lruvec_state(lruvec, item, nr_reclaimed);
-> +	mod_lruvec_state(lruvec, PGSTEAL_ANON + file, nr_reclaimed);
->  
->  	lru_note_cost_unlock_irq(lruvec, file, stat.nr_pageout,
->  					nr_scanned - nr_reclaimed);
-> @@ -4542,7 +4538,7 @@ static int scan_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
->  {
->  	int i;
->  	int gen;
-> -	enum vm_event_item item;
-> +	enum node_stat_item item;
->  	int sorted = 0;
->  	int scanned = 0;
->  	int isolated = 0;
-> @@ -4601,13 +4597,11 @@ static int scan_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
->  	}
->  
->  	item = PGSCAN_KSWAPD + reclaimer_offset(sc);
-> -	if (!cgroup_reclaim(sc)) {
-> -		__count_vm_events(item, isolated);
-> +	if (!cgroup_reclaim(sc))
->  		__count_vm_events(PGREFILL, sorted);
-> -	}
-> -	count_memcg_events(memcg, item, isolated);
-> +	mod_lruvec_state(lruvec, item, isolated);
->  	count_memcg_events(memcg, PGREFILL, sorted);
-> -	__count_vm_events(PGSCAN_ANON + type, isolated);
-> +	mod_lruvec_state(lruvec, PGSCAN_ANON + type, isolated);
->  	trace_mm_vmscan_lru_isolate(sc->reclaim_idx, sc->order, scan_batch,
->  				scanned, skipped, isolated,
->  				type ? LRU_INACTIVE_FILE : LRU_INACTIVE_ANON);
-> @@ -4692,7 +4686,7 @@ static int evict_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
->  	LIST_HEAD(clean);
->  	struct folio *folio;
->  	struct folio *next;
-> -	enum vm_event_item item;
-> +	enum node_stat_item item;
->  	struct reclaim_stat stat;
->  	struct lru_gen_mm_walk *walk;
->  	bool skip_retry = false;
-> @@ -4756,10 +4750,8 @@ static int evict_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
->  					stat.nr_demoted);
->  
->  	item = PGSTEAL_KSWAPD + reclaimer_offset(sc);
-> -	if (!cgroup_reclaim(sc))
-> -		__count_vm_events(item, reclaimed);
-> -	count_memcg_events(memcg, item, reclaimed);
-> -	__count_vm_events(PGSTEAL_ANON + type, reclaimed);
-> +	mod_lruvec_state(lruvec, item, reclaimed);
-> +	mod_lruvec_state(lruvec, PGSTEAL_ANON + type, reclaimed);
->  
->  	spin_unlock_irq(&lruvec->lru_lock);
->  
-> diff --git a/mm/vmstat.c b/mm/vmstat.c
-> index 99270713e0c1..d952c1e763e6 100644
-> --- a/mm/vmstat.c
-> +++ b/mm/vmstat.c
-> @@ -1276,6 +1276,18 @@ const char * const vmstat_text[] = {
->  	[I(PGDEMOTE_DIRECT)]			= "pgdemote_direct",
->  	[I(PGDEMOTE_KHUGEPAGED)]		= "pgdemote_khugepaged",
->  	[I(PGDEMOTE_PROACTIVE)]			= "pgdemote_proactive",
-> +	[I(PGSTEAL_KSWAPD)]			= "pgsteal_kswapd",
-> +	[I(PGSTEAL_DIRECT)]			= "pgsteal_direct",
-> +	[I(PGSTEAL_KHUGEPAGED)]			= "pgsteal_khugepaged",
-> +	[I(PGSTEAL_PROACTIVE)]			= "pgsteal_proactive",
-> +	[I(PGSTEAL_ANON)]			= "pgsteal_anon",
-> +	[I(PGSTEAL_FILE)]			= "pgsteal_file",
-> +	[I(PGSCAN_KSWAPD)]			= "pgscan_kswapd",
-> +	[I(PGSCAN_DIRECT)]			= "pgscan_direct",
-> +	[I(PGSCAN_KHUGEPAGED)]			= "pgscan_khugepaged",
-> +	[I(PGSCAN_PROACTIVE)]			= "pgscan_proactive",
-> +	[I(PGSCAN_ANON)]			= "pgscan_anon",
-> +	[I(PGSCAN_FILE)]			= "pgscan_file",
->  #ifdef CONFIG_HUGETLB_PAGE
->  	[I(NR_HUGETLB)]				= "nr_hugetlb",
->  #endif
-> @@ -1320,19 +1332,7 @@ const char * const vmstat_text[] = {
->  
->  	[I(PGREFILL)]				= "pgrefill",
->  	[I(PGREUSE)]				= "pgreuse",
-> -	[I(PGSTEAL_KSWAPD)]			= "pgsteal_kswapd",
-> -	[I(PGSTEAL_DIRECT)]			= "pgsteal_direct",
-> -	[I(PGSTEAL_KHUGEPAGED)]			= "pgsteal_khugepaged",
-> -	[I(PGSTEAL_PROACTIVE)]			= "pgsteal_proactive",
-> -	[I(PGSCAN_KSWAPD)]			= "pgscan_kswapd",
-> -	[I(PGSCAN_DIRECT)]			= "pgscan_direct",
-> -	[I(PGSCAN_KHUGEPAGED)]			= "pgscan_khugepaged",
-> -	[I(PGSCAN_PROACTIVE)]			= "pgscan_proactive",
->  	[I(PGSCAN_DIRECT_THROTTLE)]		= "pgscan_direct_throttle",
-> -	[I(PGSCAN_ANON)]			= "pgscan_anon",
-> -	[I(PGSCAN_FILE)]			= "pgscan_file",
-> -	[I(PGSTEAL_ANON)]			= "pgsteal_anon",
-> -	[I(PGSTEAL_FILE)]			= "pgsteal_file",
->  
->  #ifdef CONFIG_NUMA
->  	[I(PGSCAN_ZONE_RECLAIM_SUCCESS)]	= "zone_reclaim_success",
+I think here we should talk more about what we described in 
+https://lore.kernel.org/netdev/aZNNBc390y6V09qO@sgarzare-redhat/ which 
+is that two administrator processes could compete in setting 
+`child_ns_mode` and end up creating a namespace with an `ns_mode` 
+different from the one set in `child_ns_mode`. But I would also explain 
+that this can still be detected by the process by looking at `ns_mode` 
+and trying again.  With this patch, we avoid this and allow the 
+namespace manager to set it once and be sure that it cannot be changed 
+again.
+
+>
+>Additionally, fix the test functions that this change would otherwise
+>break by adding "global-parent" and "local-parent" namespaces and using
+>them as intermediaries to spawn namespaces in the given modes. This
+>avoids the need to change "child_ns_mode" in the init_ns. nsenter must
+>be used because ip netns unshares the mount namespace so nested "ip
+>netns add" breaks exec calls from the init ns.
+
+I'm not sure what the policy is in netdev, but I would prefer to have 
+selftest changes in another patch (I think earlier in the series so as 
+not to break the bisection), in order to simplify backporting (e.g. in 
+CentOS Stream, to keep the backport small, I didn't backport the dozens 
+of patches for selftest that we did previously).
+
+Obviously, if it's not possible and breaks the bisection, I can safely 
+skip these changes during the backport.
+
+>
+>Test run:
+>
+>1..25
+>ok 1 vm_server_host_client
+>ok 2 vm_client_host_server
+>ok 3 vm_loopback
+>ok 4 ns_host_vsock_ns_mode_ok
+>ok 5 ns_host_vsock_child_ns_mode_ok
+>ok 6 ns_global_same_cid_fails
+>ok 7 ns_local_same_cid_ok
+>ok 8 ns_global_local_same_cid_ok
+>ok 9 ns_local_global_same_cid_ok
+>ok 10 ns_diff_global_host_connect_to_global_vm_ok
+>ok 11 ns_diff_global_host_connect_to_local_vm_fails
+>ok 12 ns_diff_global_vm_connect_to_global_host_ok
+>ok 13 ns_diff_global_vm_connect_to_local_host_fails
+>ok 14 ns_diff_local_host_connect_to_local_vm_fails
+>ok 15 ns_diff_local_vm_connect_to_local_host_fails
+>ok 16 ns_diff_global_to_local_loopback_local_fails
+>ok 17 ns_diff_local_to_global_loopback_fails
+>ok 18 ns_diff_local_to_local_loopback_fails
+>ok 19 ns_diff_global_to_global_loopback_ok
+>ok 20 ns_same_local_loopback_ok
+>ok 21 ns_same_local_host_connect_to_local_vm_ok
+>ok 22 ns_same_local_vm_connect_to_local_host_ok
+>ok 23 ns_delete_vm_ok
+>ok 24 ns_delete_host_ok
+>ok 25 ns_delete_both_ok
+>SUMMARY: PASS=25 SKIP=0 FAIL=0
+
+IMO this can be removed from the commit message, doesn't add much value 
+other than say that all test passes.
+
+>
+>Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
+>Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+>Suggested-by: Daan De Meyer <daan.j.demeyer@gmail.com>
+>Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+>---
+> include/net/af_vsock.h                  |  6 +++++-
+> include/net/netns/vsock.h               |  1 +
+> net/vmw_vsock/af_vsock.c                | 10 ++++++----
+> tools/testing/selftests/vsock/vmtest.sh | 35 
+> +++++++++++++++------------------
+> 4 files changed, 28 insertions(+), 24 deletions(-)
+>
+>diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+>index d3ff48a2fbe0..c7de33039907 100644
+>--- a/include/net/af_vsock.h
+>+++ b/include/net/af_vsock.h
+>@@ -276,10 +276,14 @@ static inline bool vsock_net_mode_global(struct vsock_sock *vsk)
+> 	return vsock_net_mode(sock_net(sk_vsock(vsk))) == VSOCK_NET_MODE_GLOBAL;
+> }
+>
+>-static inline void vsock_net_set_child_mode(struct net *net,
+>+static inline bool vsock_net_set_child_mode(struct net *net,
+> 					    enum vsock_net_mode mode)
+> {
+>+	if (xchg(&net->vsock.child_ns_mode_locked, 1))
+>+		return false;
+>+
+> 	WRITE_ONCE(net->vsock.child_ns_mode, mode);
+>+	return true;
+> }
+>
+> static inline enum vsock_net_mode vsock_net_child_mode(struct net *net)
+>diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
+>index b34d69a22fa8..8c855fff8039 100644
+>--- a/include/net/netns/vsock.h
+>+++ b/include/net/netns/vsock.h
+>@@ -17,5 +17,6 @@ struct netns_vsock {
+>
+> 	enum vsock_net_mode mode;
+> 	enum vsock_net_mode child_ns_mode;
+>+	int child_ns_mode_locked;
+> };
+> #endif /* __NET_NET_NAMESPACE_VSOCK_H */
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index 9880756d9eff..35e097f4fde8 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -90,14 +90,15 @@
+>  *
+>  *   - /proc/sys/net/vsock/ns_mode (read-only) reports the current namespace's
+>  *     mode, which is set at namespace creation and immutable thereafter.
+>- *   - /proc/sys/net/vsock/child_ns_mode (writable) controls what mode future
+>+ *   - /proc/sys/net/vsock/child_ns_mode (write-once) controls what mode future
+>  *     child namespaces will inherit when created. The initial value matches
+>  *     the namespace's own ns_mode.
+>  *
+>  *   Changing child_ns_mode only affects newly created namespaces, not the
+>  *   current namespace or existing children. A "local" namespace cannot set
+>- *   child_ns_mode to "global". At namespace creation, ns_mode is inherited
+>- *   from the parent's child_ns_mode.
+>+ *   child_ns_mode to "global". child_ns_mode is write-once, so that it may
+>+ *   be configured and locked down by a namespace manager. At namespace
+>+ *   creation, ns_mode is inherited from the parent's child_ns_mode.
+
+We just merged commit a07c33c6f2fc ("vsock: document namespace mode 
+sysctls") in the net tree, so we should update also 
+Documentation/admin-guide/sysctl/net.rst
+
+>  *
+>  *   The init_net mode is "global" and cannot be modified.
+
+Maybe we should also emphasise in the documentation and in the commit 
+description that `child_ns_mode` in `init_net` also is write-once, so
+writing `local` to that one by the init process (e.g. systemd), 
+essentially will make all the new namespaces in `local` mode. This could 
+be useful for container/namespace managers.
+
+>  *
+>@@ -2853,7 +2854,8 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
+> 		    new_mode == VSOCK_NET_MODE_GLOBAL)
+> 			return -EPERM;
+>
+>-		vsock_net_set_child_mode(net, new_mode);
+>+		if (!vsock_net_set_child_mode(net, new_mode))
+>+			return -EPERM;
+
+So, if `child_ns_mode` is set to `local` but locked, writing `local` 
+again will return -EPERM, is this really what we want?
+
+I'm not sure if we can relax it a bit, but then we may race between 
+reader and writer, so maybe it's fine like it is in this patch, but we 
+should document better that any writes (even same value) after the first 
+one will return -EPERM.
+
+About that, should we return something different, like -EBUSY ?
+Not a strong opinion, just to differentiate with the other check before.
+
+Thanks,
+Stefano
 
