@@ -1,69 +1,84 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f196.google.com (mail-yw1-f196.google.com [209.85.128.196])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465532C0F8C;
-	Thu, 19 Feb 2026 13:10:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 290A433D4F9
+	for <virtualization@lists.linux.dev>; Thu, 19 Feb 2026 16:06:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771506649; cv=none; b=VJUM2hg0EC46s0zYbCleKr8zMGAJycXkH1Nm3ZUZhhKHzNoAaL5l8JX1NpGIfr1exKdUfi2qsfTl/FLUqTETKWejUfR4zwX0Et0Yn/snEEOXMZCLoQD0Uim08S2t+fgkxuo3Xzb7DSkqhR42DRBWSGlhthHbcpDm1Fw6NSEGqbM=
+	t=1771517168; cv=none; b=PzZlEiHwBo9BZ9N8CuCnxrF0BfZTA/Vd7EXNQqsBZ808gtvXbgSsDGfU8gARtU5Zh0MoYUkm2ktu1EtmY7rGxWk2TMrDhBx+zrPaFxFoq6wV6i+PAbtC2J7yX0hVvqnP4p6iBbcd0P+SFSNYdg8eLtOtAdJNnMtezGo2Xwdas/w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771506649; c=relaxed/simple;
-	bh=+ASt9RW3S8U9bMhrhcg5P9CXnzpEpApS+qGIkng/w1I=;
+	s=arc-20240116; t=1771517168; c=relaxed/simple;
+	bh=4yMC99NeJMMCPXT8o7FBF9zbcjvh5tyBVPAtjWfERlY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YD2f3O6wKMinpMkh0n497CEM1LGG6evPTkKX8La8as/yTiSnY+piJCNj+g5tK6SD3DnpffQZsulqV0bri3ErQhYtLdB1gWWX8oSmbSzeiXp8sU2Y4fOfS+qbb2NMlKv3ktzWxnxH4zytLx7BcFfPLBXqWYBAwDz43avoY2Kvkg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Td0ZmKSF; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Q3s3/kn10Jmd+RiQ5a7rtTPdFGZEm2jzAdAZILkbR0ekj0Oo6iQxSX/9sc9ejtAmMmtQwAJ+VTHt1d70zmgyn7nDvCLYAeE3QfofsIYCeWYgb7JPwGBo+TfW05DjW4dYc1RFLlQ3wfCBBRvhHSUhn+SSNLW9RgYET8hCm/l3cPg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D/1QTYBO; arc=none smtp.client-ip=209.85.128.196
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Td0ZmKSF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1771506646; x=1803042646;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=+ASt9RW3S8U9bMhrhcg5P9CXnzpEpApS+qGIkng/w1I=;
-  b=Td0ZmKSFaTMTgHddpbHIgqBNS7fgWM2bVuUZMWgS4dFAdLupdfTTpN88
-   JnTsfuouRNL0m4Nb3a21y3V9DJyWmq361QPaDxckXea+ThOq1rc7FMtHO
-   VmMcoUd2AreTa0NRay8d/OBHrAR/61o5G2nkRnJI9/oCuF4Pz+IO69Zl+
-   cC2doY+MAJo6PWBM0RHLqkIQOZGjjLftMKl0OFMUTreJHgsAe/kMDFr4S
-   h3nHmltdf+uOW42bVKgPcq+EX5VjPRKI6FWBgORP0V/OtIpbL7kJ5bBXz
-   UJpd2g4t/VDgSWEFiFMhe3EYdQLM0DNQtvpBA8/Wa2VBZwSe/DDdtoD4N
-   Q==;
-X-CSE-ConnectionGUID: /g2aoqsaTY2h0NafRaGY+g==
-X-CSE-MsgGUID: Brwpaid5QUqCXPqHS6vMPQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11706"; a="82914203"
-X-IronPort-AV: E=Sophos;i="6.21,300,1763452800"; 
-   d="scan'208";a="82914203"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2026 05:10:45 -0800
-X-CSE-ConnectionGUID: NHFBFnBWR4uJA67vO80HYg==
-X-CSE-MsgGUID: jVog3KgkTsunK42T2C/5Ig==
-X-ExtLoop1: 1
-Received: from igk-lkp-server01.igk.intel.com (HELO e5404a91d123) ([10.211.93.152])
-  by fmviesa003.fm.intel.com with ESMTP; 19 Feb 2026 05:10:39 -0800
-Received: from kbuild by e5404a91d123 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vt3ng-000000003yL-3aSU;
-	Thu, 19 Feb 2026 13:10:36 +0000
-Date: Thu, 19 Feb 2026 14:10:08 +0100
-From: kernel test robot <lkp@intel.com>
-To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>, linux-mm@kvack.org,
-	mst@redhat.com, mhocko@suse.com, vbabka@suse.cz
-Cc: oe-kbuild-all@lists.linux.dev, apopple@nvidia.com,
-	akpm@linux-foundation.org, axelrasmussen@google.com,
-	byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
-	eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
-	hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
-	Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
-	lorenzo.stoakes@oracle.com, matthew.brost@intel.com,
-	rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
-	rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
-	surenb@google.com, virtualization@lists.linux.dev,
-	weixugc@google.com, xuanzhuo@linux.alibaba.com,
-	ying.huang@linux.alibaba.com
-Subject: Re: [PATCH v3] mm: move pgscan, pgsteal, pgrefill to node stats
-Message-ID: <202602191417.23zH3uja-lkp@intel.com>
-References: <20260218222652.108411-1-jp.kobryn@linux.dev>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D/1QTYBO"
+Received: by mail-yw1-f196.google.com with SMTP id 00721157ae682-797d509a2f5so12779957b3.2
+        for <virtualization@lists.linux.dev>; Thu, 19 Feb 2026 08:06:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771517166; x=1772121966; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=pJXEV0fGE0delcXeFKX2uACQoYyrpadO3o4R7qcFW9g=;
+        b=D/1QTYBOj7d4+90Sgv9t260vLZrULwAQJxcpAWcXlpksnPKJOKyRaKSGTg0l26NMd5
+         X8FD0Fs0czEZliMWZtUGfdy7x+5ej3k/3lDPb6xQxJPgM6cZFCTD4DdcCV+x928crmYZ
+         ixcUgoODVs/K7CAByPHuDND1saJN3a9ZKcmfXksHM3uaMJ7BZYeQbz5BlX/zDzFvKXl5
+         Cpt5zv87KcHBfi2akxxJhOUyHlLhWc8ONu2/KOAj3zcSHyc3MU5D5VWBfHTlNtGZH9gg
+         WcvcQ5CfM1HQYPabFKpOxqPQBJmedvJw6ePh2uDOJyyuf6Pw25JGzZhBAH3DpHWDcgbJ
+         S6rQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771517166; x=1772121966;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=pJXEV0fGE0delcXeFKX2uACQoYyrpadO3o4R7qcFW9g=;
+        b=dEqlxuOroVCFmREj2GCFvEQ1f3tlfUfcLGNdiZIONoy2DocZUIKxa4RjwQS0pTL/8l
+         ryHNcwgrqqTP/BIL+wUsJRGZufmfjea2omzPerOyNteQZgpPC2Bt6WMIMeKL9LsAF2uV
+         8oEdVg3ULNyqbx9GT72mp3VYK3m5+pK+0E+wW0ruDYGTbxXqJPqSkpdSAE9WLJIBJ7pq
+         kdnn0VwoUpkEXYg3XCQ3QfDh5jdXh3XeFANUCch4a/G5VBvUIWEw6SjdbQ7dITS1PeUu
+         X4lErMfYQGgIdX2VjK8NpzFRRQkpk3sLwU4TUA+yFXcRq2zIy/iXtwMX2qL4UEQ+Mk1g
+         qzNA==
+X-Forwarded-Encrypted: i=1; AJvYcCV55e54lc+spLkq7Q9SxHU6dpzgTVsExIuFc6FWH2HWyQKRnKtNivfWgB2Idczs4CibPRdOK5wMhOgWmcjZjQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxs2y7P5Q+o0TQrNW16Uo3cutaOY59ZV41iC1UBQAFUS+jOEFSJ
+	+cKsY8HxPqFSuwSuC01sAOjhdytBK+m15COfpMU8JC4lsqon2t6E+4Gd
+X-Gm-Gg: AZuq6aIHIDVVF4SMH2U27p/qfprt9g4U6Iondwmq61TRXYOxiYA9hZlAIgXU5TPaARu
+	hrP6V/WUITXolGN8lDicW1z5OGAemQyD3Ye1YHDfhzw1JZ7TK77Kv1SK84q2mnjc0yX4n/eMUej
+	Ti5Od2xEtgMnvrnu13NWjY5e8IV0AV7GvxS6oOvnqix/YW31MPkI13x2zBdqReUs3KBghuCDvXz
+	iZmOM0wiW/oO5z2bMGp4K9c9bQFmHMGF+qL3XVJj96z7dFNGVhpjiOnP7jSj0zWglA2EFQaK7fQ
+	A/HUuAUdVRbM59FsfZsyg9sn+YVdrf1nppOvEzspNtFC85z/ReepiAygpDeyqTCpLyFZc/ZLG/P
+	xdaIROJTYvQUwbdAE0a/qnR5gKorU8Fm/OkN/KJIpN9sKQi4qOlCLrxje0fvZ99GwIAwbu09j8l
+	KNq+pByp6cvBUv52nM2zppDD5wgA2dq0trdCRtghIMGLnDfMI=
+X-Received: by 2002:a05:690c:6c86:b0:795:c78:b633 with SMTP id 00721157ae682-797f73f4d48mr49916427b3.62.1771517165867;
+        Thu, 19 Feb 2026 08:06:05 -0800 (PST)
+Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:56::])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-7966c18b464sm135320017b3.13.2026.02.19.08.06.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Feb 2026 08:06:05 -0800 (PST)
+Date: Thu, 19 Feb 2026 08:06:04 -0800
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Shuah Khan <shuah@kernel.org>,
+	Bobby Eshleman <bobbyeshleman@meta.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: Re: [PATCH net v2 3/3] vsock: document write-once behavior of the
+ child_ns_mode sysctl
+Message-ID: <aZc07N4BFw0hhnoZ@devvm11784.nha0.facebook.com>
+References: <20260218-vsock-ns-write-once-v2-0-19e4c50d509a@meta.com>
+ <20260218-vsock-ns-write-once-v2-3-19e4c50d509a@meta.com>
+ <aZbN8fXtCkhItSV8@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -72,119 +87,78 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260218222652.108411-1-jp.kobryn@linux.dev>
+In-Reply-To: <aZbN8fXtCkhItSV8@sgarzare-redhat>
 
-Hi JP,
+On Thu, Feb 19, 2026 at 11:36:40AM +0100, Stefano Garzarella wrote:
+> On Wed, Feb 18, 2026 at 10:10:38AM -0800, Bobby Eshleman wrote:
+> > From: Bobby Eshleman <bobbyeshleman@meta.com>
+> > 
+> > Update the vsock child_ns_mode documentation to include the new the
+> 
+> nit: s/the new the/the new
+> 
+> > write-once semantics of setting child_ns_mode. The semantics are
+> > implemented in a different patch in this series.
+> 
+> s/different/preceding ?
+> 
+> IMO this can be squashed with the previous patch, but not sure netdev policy
+> about that. Not a strong opinion, it's fine also in this way.
+> 
+> > 
+> > Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+> > ---
+> > Documentation/admin-guide/sysctl/net.rst | 10 +++++++---
+> > 1 file changed, 7 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
+> > index c10530624f1e..976a176fb451 100644
+> > --- a/Documentation/admin-guide/sysctl/net.rst
+> > +++ b/Documentation/admin-guide/sysctl/net.rst
+> > @@ -581,9 +581,9 @@ The init_net mode is always ``global``.
+> > child_ns_mode
+> > -------------
+> > 
+> > -Controls what mode newly created child namespaces will inherit. At namespace
+> > -creation, ``ns_mode`` is inherited from the parent's ``child_ns_mode``. The
+> > -initial value matches the namespace's own ``ns_mode``.
+> > +Write-once. Controls what mode newly created child namespaces will inherit. At
+> > +namespace creation, ``ns_mode`` is inherited from the parent's
+> > +``child_ns_mode``. The initial value matches the namespace's own ``ns_mode``.
+> > 
+> > Values:
+> > 
+> > @@ -594,6 +594,10 @@ Values:
+> > 	  their sockets will only be able to connect within their own
+> > 	  namespace.
+> > 
+> > +``child_ns_mode`` can only be written once per namespace. Writing the same
+> > +value that is already set succeeds. Writing a different value after the first
+> > +write returns ``-EBUSY``.
+> 
+> nit: instead of saying that it can only be written once, we could say that
+> the first write locks the value, to be closer to the actual behavior,
+> something like this:
+> 
+>   The first write to ``child_ns_mode`` locks its value. Subsequent
+>   writes of the same value succeed, but writing a different value
+>   returns ``-EBUSY``.
+> 
+> 
+> Thanks,
+> Stefano
 
-kernel test robot noticed the following build warnings:
+Sounds good! I agree that is more clear. I'll also remove the change
+above that adds "Write-once" at the beginning of the paragraph, since
+this clause does a better job explaining how it actually works.
 
-[auto build test WARNING on akpm-mm/mm-everything]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/JP-Kobryn-Meta/mm-move-pgscan-pgsteal-pgrefill-to-node-stats/20260219-063016
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
-patch link:    https://lore.kernel.org/r/20260218222652.108411-1-jp.kobryn%40linux.dev
-patch subject: [PATCH v3] mm: move pgscan, pgsteal, pgrefill to node stats
-config: x86_64-rhel-9.4 (https://download.01.org/0day-ci/archive/20260219/202602191417.23zH3uja-lkp@intel.com/config)
-compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260219/202602191417.23zH3uja-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202602191417.23zH3uja-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   mm/vmscan.c: In function 'scan_folios':
->> mm/vmscan.c:4542:28: warning: unused variable 'memcg' [-Wunused-variable]
-    4542 |         struct mem_cgroup *memcg = lruvec_memcg(lruvec);
-         |                            ^~~~~
-
-
-vim +/memcg +4542 mm/vmscan.c
-
-ac35a490237446 Yu Zhao        2022-09-18  4527  
-af827e0904899f Koichiro Den   2025-05-31  4528  static int scan_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
-af827e0904899f Koichiro Den   2025-05-31  4529  		       struct scan_control *sc, int type, int tier,
-af827e0904899f Koichiro Den   2025-05-31  4530  		       struct list_head *list)
-ac35a490237446 Yu Zhao        2022-09-18  4531  {
-669281ee7ef731 Kalesh Singh   2023-08-01  4532  	int i;
-669281ee7ef731 Kalesh Singh   2023-08-01  4533  	int gen;
-b0e9e710c6bb5a JP Kobryn      2026-02-18  4534  	enum node_stat_item item;
-ac35a490237446 Yu Zhao        2022-09-18  4535  	int sorted = 0;
-ac35a490237446 Yu Zhao        2022-09-18  4536  	int scanned = 0;
-ac35a490237446 Yu Zhao        2022-09-18  4537  	int isolated = 0;
-8c2214fc9a470a Jaewon Kim     2023-10-03  4538  	int skipped = 0;
-49d921b471c513 Chen Ridong    2025-12-04  4539  	int scan_batch = min(nr_to_scan, MAX_LRU_BATCH);
-49d921b471c513 Chen Ridong    2025-12-04  4540  	int remaining = scan_batch;
-391655fe08d1f9 Yu Zhao        2022-12-21  4541  	struct lru_gen_folio *lrugen = &lruvec->lrugen;
-ac35a490237446 Yu Zhao        2022-09-18 @4542  	struct mem_cgroup *memcg = lruvec_memcg(lruvec);
-ac35a490237446 Yu Zhao        2022-09-18  4543  
-ac35a490237446 Yu Zhao        2022-09-18  4544  	VM_WARN_ON_ONCE(!list_empty(list));
-ac35a490237446 Yu Zhao        2022-09-18  4545  
-ac35a490237446 Yu Zhao        2022-09-18  4546  	if (get_nr_gens(lruvec, type) == MIN_NR_GENS)
-ac35a490237446 Yu Zhao        2022-09-18  4547  		return 0;
-ac35a490237446 Yu Zhao        2022-09-18  4548  
-ac35a490237446 Yu Zhao        2022-09-18  4549  	gen = lru_gen_from_seq(lrugen->min_seq[type]);
-ac35a490237446 Yu Zhao        2022-09-18  4550  
-669281ee7ef731 Kalesh Singh   2023-08-01  4551  	for (i = MAX_NR_ZONES; i > 0; i--) {
-ac35a490237446 Yu Zhao        2022-09-18  4552  		LIST_HEAD(moved);
-8c2214fc9a470a Jaewon Kim     2023-10-03  4553  		int skipped_zone = 0;
-669281ee7ef731 Kalesh Singh   2023-08-01  4554  		int zone = (sc->reclaim_idx + i) % MAX_NR_ZONES;
-6df1b2212950aa Yu Zhao        2022-12-21  4555  		struct list_head *head = &lrugen->folios[gen][type][zone];
-ac35a490237446 Yu Zhao        2022-09-18  4556  
-ac35a490237446 Yu Zhao        2022-09-18  4557  		while (!list_empty(head)) {
-ac35a490237446 Yu Zhao        2022-09-18  4558  			struct folio *folio = lru_to_folio(head);
-ac35a490237446 Yu Zhao        2022-09-18  4559  			int delta = folio_nr_pages(folio);
-ac35a490237446 Yu Zhao        2022-09-18  4560  
-ac35a490237446 Yu Zhao        2022-09-18  4561  			VM_WARN_ON_ONCE_FOLIO(folio_test_unevictable(folio), folio);
-ac35a490237446 Yu Zhao        2022-09-18  4562  			VM_WARN_ON_ONCE_FOLIO(folio_test_active(folio), folio);
-ac35a490237446 Yu Zhao        2022-09-18  4563  			VM_WARN_ON_ONCE_FOLIO(folio_is_file_lru(folio) != type, folio);
-ac35a490237446 Yu Zhao        2022-09-18  4564  			VM_WARN_ON_ONCE_FOLIO(folio_zonenum(folio) != zone, folio);
-ac35a490237446 Yu Zhao        2022-09-18  4565  
-ac35a490237446 Yu Zhao        2022-09-18  4566  			scanned += delta;
-ac35a490237446 Yu Zhao        2022-09-18  4567  
-669281ee7ef731 Kalesh Singh   2023-08-01  4568  			if (sort_folio(lruvec, folio, sc, tier))
-ac35a490237446 Yu Zhao        2022-09-18  4569  				sorted += delta;
-ac35a490237446 Yu Zhao        2022-09-18  4570  			else if (isolate_folio(lruvec, folio, sc)) {
-ac35a490237446 Yu Zhao        2022-09-18  4571  				list_add(&folio->lru, list);
-ac35a490237446 Yu Zhao        2022-09-18  4572  				isolated += delta;
-ac35a490237446 Yu Zhao        2022-09-18  4573  			} else {
-ac35a490237446 Yu Zhao        2022-09-18  4574  				list_move(&folio->lru, &moved);
-8c2214fc9a470a Jaewon Kim     2023-10-03  4575  				skipped_zone += delta;
-ac35a490237446 Yu Zhao        2022-09-18  4576  			}
-ac35a490237446 Yu Zhao        2022-09-18  4577  
-8c2214fc9a470a Jaewon Kim     2023-10-03  4578  			if (!--remaining || max(isolated, skipped_zone) >= MIN_LRU_BATCH)
-ac35a490237446 Yu Zhao        2022-09-18  4579  				break;
-ac35a490237446 Yu Zhao        2022-09-18  4580  		}
-ac35a490237446 Yu Zhao        2022-09-18  4581  
-8c2214fc9a470a Jaewon Kim     2023-10-03  4582  		if (skipped_zone) {
-ac35a490237446 Yu Zhao        2022-09-18  4583  			list_splice(&moved, head);
-8c2214fc9a470a Jaewon Kim     2023-10-03  4584  			__count_zid_vm_events(PGSCAN_SKIP, zone, skipped_zone);
-8c2214fc9a470a Jaewon Kim     2023-10-03  4585  			skipped += skipped_zone;
-ac35a490237446 Yu Zhao        2022-09-18  4586  		}
-ac35a490237446 Yu Zhao        2022-09-18  4587  
-ac35a490237446 Yu Zhao        2022-09-18  4588  		if (!remaining || isolated >= MIN_LRU_BATCH)
-ac35a490237446 Yu Zhao        2022-09-18  4589  			break;
-ac35a490237446 Yu Zhao        2022-09-18  4590  	}
-ac35a490237446 Yu Zhao        2022-09-18  4591  
-e452872b40e3f1 Hao Jia        2025-03-18  4592  	item = PGSCAN_KSWAPD + reclaimer_offset(sc);
-b0e9e710c6bb5a JP Kobryn      2026-02-18  4593  	mod_lruvec_state(lruvec, item, isolated);
-b0e9e710c6bb5a JP Kobryn      2026-02-18  4594  	mod_lruvec_state(lruvec, PGREFILL, sorted);
-b0e9e710c6bb5a JP Kobryn      2026-02-18  4595  	mod_lruvec_state(lruvec, PGSCAN_ANON + type, isolated);
-49d921b471c513 Chen Ridong    2025-12-04  4596  	trace_mm_vmscan_lru_isolate(sc->reclaim_idx, sc->order, scan_batch,
-8c2214fc9a470a Jaewon Kim     2023-10-03  4597  				scanned, skipped, isolated,
-8c2214fc9a470a Jaewon Kim     2023-10-03  4598  				type ? LRU_INACTIVE_FILE : LRU_INACTIVE_ANON);
-1bc542c6a0d144 Zeng Jingxiang 2024-10-26  4599  	if (type == LRU_GEN_FILE)
-1bc542c6a0d144 Zeng Jingxiang 2024-10-26  4600  		sc->nr.file_taken += isolated;
-ac35a490237446 Yu Zhao        2022-09-18  4601  	/*
-e9d4e1ee788097 Yu Zhao        2022-12-21  4602  	 * There might not be eligible folios due to reclaim_idx. Check the
-e9d4e1ee788097 Yu Zhao        2022-12-21  4603  	 * remaining to prevent livelock if it's not making progress.
-ac35a490237446 Yu Zhao        2022-09-18  4604  	 */
-ac35a490237446 Yu Zhao        2022-09-18  4605  	return isolated || !remaining ? scanned : 0;
-ac35a490237446 Yu Zhao        2022-09-18  4606  }
-ac35a490237446 Yu Zhao        2022-09-18  4607  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+> 
+> > +
+> > Changing ``child_ns_mode`` only affects namespaces created after the change;
+> > it does not modify the current namespace or any existing children.
+> > 
+> > 
+> > -- 
+> > 2.47.3
+> > 
+> 
