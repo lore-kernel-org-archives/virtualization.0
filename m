@@ -1,190 +1,201 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D3D523BD06;
-	Thu, 19 Feb 2026 10:02:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DE33329C7B
+	for <virtualization@lists.linux.dev>; Thu, 19 Feb 2026 10:35:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771495357; cv=none; b=njOSXpTGd4cU1EYWAzpb1hrqoE9Z/DnmOkhEoiycxaOBPDBxhhAY2hhWKp97h9JUBlCoYAqkVBDaOO5KovCKdwSJ1AzvRyH6ZFa3rg9zk7d3gH9cuh60vK8EDJhyLlupUDEA0ib4mj6KAkkqoz4jdK6KmoC74x8KhqP0p62OACo=
+	t=1771497329; cv=none; b=SxQNjsVB1iqbIOO5xubQyoXYhWRDtBScOoV8PE5YVrxqh2WPudp+1zhxrUt672UI5ZNLhNJy7O2+g284VPv8Zn1yo59CdhT4N4oGjcoDtp0XM9isLSH3pekU8s3MdkCj3W0sBPEkN1txYKJokUtdpM1SRS8a1uzHZdcDOrEcnKw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771495357; c=relaxed/simple;
-	bh=ZIySGTOKZjo5uD6GuM1RfNj9BJy2RdMmuIZWaUktJ4o=;
+	s=arc-20240116; t=1771497329; c=relaxed/simple;
+	bh=JzgTJfCZThD8ADnrrzOcTouopRq3PU+mfSlCjHNTIqg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TTFQXlccd24IOqbVQLrCduW6ls9AbMvUW3GHD3rmzLDzxMOhBFwG3O/Vg6mvS+NpHMpJMO86VcLrr0D5JahxYHB1guZpy2E2hpFj/jj/eVuOI4kdu9/cllHsNpzNAabvOOYL+mmODRPD/Vs3D0oRihs+sSnvKhi5uX99KW6+/94=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jm1ivfsG; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=JRakLHDcvAUPcwllG1uV7xMeX4FveL9GCulQ6h06Wuy/PuPzO9n/m9VD0WlHglJo36gZv/57KTnHmJMj9llsgZVYQ4p5z7/WbKJ5ONz1g+sK30fWA9Pz7fs7HKgb01Fx8c1j4nBoqHJiWk0vOKeqhw+p8wyeqDOLujBD4ard3lw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OnG8/tQg; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jm1ivfsG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1771495355; x=1803031355;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ZIySGTOKZjo5uD6GuM1RfNj9BJy2RdMmuIZWaUktJ4o=;
-  b=jm1ivfsGgwGyRwBP0Gv1Zu9z+SgJ/DNs/61hQlJ+SSHswBuljQFW8Xxi
-   TIUTxchPMVES9wIkzVH/Nh/2m5hn7TwgrFvguIUNh9T3H/ur1iraPCJW1
-   K92sn77/XwHo7nDPO2H/lEhoY2HOITNe4zS3jbZIscMalGKkI3DtyL2HA
-   ty4B8p/dv2WAIMSH2vSDdTAZDU6Rgm6tD0+Qw+vsE0qDazyVCWdRIzEN3
-   pgsuiYNstIcQEi5Z9tBY57tQcY3PIm13xJ5tuAsq3VKjHfZkADnIL/ABj
-   IXNakEGNWavoxW9VZA/xLqhU+fdJ5ILHMQeE6v40V2qM0iRR9dXuZXbJk
-   w==;
-X-CSE-ConnectionGUID: 4/+s16xPT7OjI0D49WcDBA==
-X-CSE-MsgGUID: QY1eF/R9TBu2fj29DmSZwA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11705"; a="82902067"
-X-IronPort-AV: E=Sophos;i="6.21,299,1763452800"; 
-   d="scan'208";a="82902067"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2026 02:02:34 -0800
-X-CSE-ConnectionGUID: yVQKBcOHQKa5qE7QL6FLVA==
-X-CSE-MsgGUID: /33pId8jSpWDFgIe5csG+Q==
-X-ExtLoop1: 1
-Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by fmviesa003.fm.intel.com with ESMTP; 19 Feb 2026 02:02:28 -0800
-Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vt0rZ-0000000136e-37xd;
-	Thu, 19 Feb 2026 10:02:25 +0000
-Date: Thu, 19 Feb 2026 18:02:17 +0800
-From: kernel test robot <lkp@intel.com>
-To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>, linux-mm@kvack.org,
-	mst@redhat.com, mhocko@suse.com, vbabka@suse.cz
-Cc: oe-kbuild-all@lists.linux.dev, apopple@nvidia.com,
-	akpm@linux-foundation.org, axelrasmussen@google.com,
-	byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
-	eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
-	hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
-	Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
-	lorenzo.stoakes@oracle.com, matthew.brost@intel.com,
-	rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
-	rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
-	surenb@google.com, virtualization@lists.linux.dev,
-	weixugc@google.com, xuanzhuo@linux.alibaba.com,
-	ying.huang@linux.alibaba.com
-Subject: Re: [PATCH v3] mm: move pgscan, pgsteal, pgrefill to node stats
-Message-ID: <202602191719.7nkLTJOP-lkp@intel.com>
-References: <20260218222652.108411-1-jp.kobryn@linux.dev>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OnG8/tQg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1771497326;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3F3zYoVrT9qjM5rAq+b6pbd+/hnAt//GBzSEVJjvXTQ=;
+	b=OnG8/tQggtNY3Lr8AVEqC7zh+Z9YSUah4pY0sWAoRIIuSTRkvgs6IF4gZ0p/eAp0HPkIJl
+	AylTvKx/xPsLLPhd6v+kEDs83ueNQjuD48QiNLTnnCJ5RsSp1alM34hMg5nOA4tXb9SQ5D
+	xXCtUegkUnaM24GQp9g9qfKoIwXmhYk=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-315-up0aySlzOZyjE0U2XchKDA-1; Thu, 19 Feb 2026 05:35:24 -0500
+X-MC-Unique: up0aySlzOZyjE0U2XchKDA-1
+X-Mimecast-MFC-AGG-ID: up0aySlzOZyjE0U2XchKDA_1771497324
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43635708e98so487624f8f.2
+        for <virtualization@lists.linux.dev>; Thu, 19 Feb 2026 02:35:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771497323; x=1772102123;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3F3zYoVrT9qjM5rAq+b6pbd+/hnAt//GBzSEVJjvXTQ=;
+        b=XHazhLG7H02i/VX7btmAZCjz6FIJeGXgdwsbyeVMRfQPKBoeKw5Zo3Z0VmWyJvzhV0
+         yMjKswHSoBd0HQXCNIGBtNqUkQvO9xLIXrsxFXT4ULeN+K1NsqcxootaNN/fcwRlHQhy
+         1h3ikm19Oe/dotl5jVSDaOru7ZbJ1IQcenVlElSzgGn5suCi2GJqjMjmXxUPfDcNXkwa
+         JjgvkZCEAxrU5iepw60MgYAjg+QJRtsCMw3teB45L9k3uyKpicP49sPgMO1FGoiWEftM
+         oaHa3AZTHKbIm9l99M5fvJb8KqxKBVuB1EEtuz3zHNsShD+eZzV16c5YKXWDOEXw6rD1
+         L5Lg==
+X-Forwarded-Encrypted: i=1; AJvYcCXTW4DUkjJjMwGT+QOrk2QvRJ8aKk5y5V68Au7Ml6efOT4N+QPEvIQjBBeBgzqI0vo7d8MqMwoWglCYK+qQ8g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxjz4Kgte2JMeneIIURTHu9MYuqzCfogZ4Hvn5L9P//5hsqpPIa
+	f7q3tpJaR5ckfa7QihSFxPDV0nFSY0W2ouMe68+owQGLJDZQ/820ZpOvcHYo12J3aHNNk37fONd
+	WdWLa/Ri/F7/RkLwZsFv/Iu/V/JUQ+mVsff9gAddHQLkm8mumhkHu2FfosREcYx/ZNKfR
+X-Gm-Gg: AZuq6aIIOmqAqm3zxFcxFzM6gJCK32DWq6xccGXK8SwbIxXvmBfP+eyc4v2FF1HfNFn
+	EGOK+MS7Bkztkizy2z7oCNdSy95fk+5bjB+JN3TLUhh4wvxn0swJSgBNA5vKX4FY8gav908yOgX
+	7L1Hgk/+WLjkSGzdhpRHC+1aPORJq6Lx2U13y71laHrIJpxU0I8awRGk/Fg3LVxjCbuDU/8S1fB
+	ffnZ9mYaVKrNhu5FnrpRZPW8OejSSghfxVQHD9+ctSQjNcdHYwnxUdOfKU/rwk6vpBqCbaF5Kpi
+	zYrhiqGJ/J9nBoiMdftroxDFbYBRPSLWQvdX7njHSJEG8D+ehTx6zpI2jmdWGrXDU/2J6eQrHGh
+	KcigFOgdFg3F8k0vWPGQcGfzHOV9BnOH2LvcXO4xqOAhPQh6Lig3KUKR9SwVXhReFO53H4ns=
+X-Received: by 2002:a05:600c:4eca:b0:483:6d4a:7e6d with SMTP id 5b1f17b1804b1-48379be60camr248733915e9.30.1771497323451;
+        Thu, 19 Feb 2026 02:35:23 -0800 (PST)
+X-Received: by 2002:a05:600c:4eca:b0:483:6d4a:7e6d with SMTP id 5b1f17b1804b1-48379be60camr248733415e9.30.1771497322976;
+        Thu, 19 Feb 2026 02:35:22 -0800 (PST)
+Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4839f96967bsm19658265e9.3.2026.02.19.02.35.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Feb 2026 02:35:21 -0800 (PST)
+Date: Thu, 19 Feb 2026 11:35:19 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+	Bobby Eshleman <bobbyeshleman@meta.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org
+Subject: Re: [PATCH net v2 1/3] selftests/vsock: change tests to respect
+ write-once child ns mode
+Message-ID: <aZbNwPMSd6ridmBn@sgarzare-redhat>
+References: <20260218-vsock-ns-write-once-v2-0-19e4c50d509a@meta.com>
+ <20260218-vsock-ns-write-once-v2-1-19e4c50d509a@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20260218-vsock-ns-write-once-v2-1-19e4c50d509a@meta.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: aPxVhnsBJTTwUZmkDKaasb5mJP4zVDFCmFT7Rys1SU0_1771497324
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20260218222652.108411-1-jp.kobryn@linux.dev>
 
-Hi JP,
+On Wed, Feb 18, 2026 at 10:10:36AM -0800, Bobby Eshleman wrote:
+>From: Bobby Eshleman <bobbyeshleman@meta.com>
+>
+>The child_ns_mode sysctl parameter becomes write-once in a future patch
+>in this series, which breaks existing tests. This patch updates the
+>tests to respect this new policy. No additional tests are added.
+>
+>Add "global-parent" and "local-parent" namespaces as intermediaries to
+>spawn namespaces in the given modes. This avoids the need to change
+>"child_ns_mode" in the init_ns. nsenter must be used because ip netns
+>unshares the mount namespace so nested "ip netns add" breaks exec calls
+>from the init ns. Adds nsenter to the deps check.
+>
+>Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+>---
+> tools/testing/selftests/vsock/vmtest.sh | 35 +++++++++++++++------------------
+> 1 file changed, 16 insertions(+), 19 deletions(-)
 
-kernel test robot noticed the following build warnings:
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-[auto build test WARNING on akpm-mm/mm-everything]
+>
+>diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+>index dc8dbe74a6d0..e1e78b295e41 100755
+>--- a/tools/testing/selftests/vsock/vmtest.sh
+>+++ b/tools/testing/selftests/vsock/vmtest.sh
+>@@ -210,16 +210,17 @@ check_result() {
+> }
+>
+> add_namespaces() {
+>-	local orig_mode
+>-	orig_mode=$(cat /proc/sys/net/vsock/child_ns_mode)
+>+	ip netns add "global-parent" 2>/dev/null
+>+	echo "global" | ip netns exec "global-parent" \
+>+		tee /proc/sys/net/vsock/child_ns_mode &>/dev/null
+>+	ip netns add "local-parent" 2>/dev/null
+>+	echo "local" | ip netns exec "local-parent" \
+>+		tee /proc/sys/net/vsock/child_ns_mode &>/dev/null
+>
+>-	for mode in "${NS_MODES[@]}"; do
+>-		echo "${mode}" > /proc/sys/net/vsock/child_ns_mode
+>-		ip netns add "${mode}0" 2>/dev/null
+>-		ip netns add "${mode}1" 2>/dev/null
+>-	done
+>-
+>-	echo "${orig_mode}" > /proc/sys/net/vsock/child_ns_mode
+>+	nsenter --net=/var/run/netns/global-parent ip netns add "global0" 2>/dev/null
+>+	nsenter --net=/var/run/netns/global-parent ip netns add "global1" 2>/dev/null
+>+	nsenter --net=/var/run/netns/local-parent ip netns add "local0" 2>/dev/null
+>+	nsenter --net=/var/run/netns/local-parent ip netns add "local1" 2>/dev/null
+> }
+>
+> init_namespaces() {
+>@@ -237,6 +238,8 @@ del_namespaces() {
+> 		log_host "removed ns ${mode}0"
+> 		log_host "removed ns ${mode}1"
+> 	done
+>+	ip netns del "global-parent" &>/dev/null
+>+	ip netns del "local-parent" &>/dev/null
+> }
+>
+> vm_ssh() {
+>@@ -287,7 +290,7 @@ check_args() {
+> }
+>
+> check_deps() {
+>-	for dep in vng ${QEMU} busybox pkill ssh ss socat; do
+>+	for dep in vng ${QEMU} busybox pkill ssh ss socat nsenter; do
+> 		if [[ ! -x $(command -v "${dep}") ]]; then
+> 			echo -e "skip:    dependency ${dep} not found!\n"
+> 			exit "${KSFT_SKIP}"
+>@@ -1231,12 +1234,8 @@ test_ns_local_same_cid_ok() {
+> }
+>
+> test_ns_host_vsock_child_ns_mode_ok() {
+>-	local orig_mode
+>-	local rc
+>-
+>-	orig_mode=$(cat /proc/sys/net/vsock/child_ns_mode)
+>+	local rc="${KSFT_PASS}"
+>
+>-	rc="${KSFT_PASS}"
+> 	for mode in "${NS_MODES[@]}"; do
+> 		local ns="${mode}0"
+>
+>@@ -1246,15 +1245,13 @@ test_ns_host_vsock_child_ns_mode_ok() {
+> 			continue
+> 		fi
+>
+>-		if ! echo "${mode}" > /proc/sys/net/vsock/child_ns_mode; then
+>-			log_host "child_ns_mode should be writable to ${mode}"
+>+		if ! echo "${mode}" | ip netns exec "${ns}" \
+>+			tee /proc/sys/net/vsock/child_ns_mode &>/dev/null; then
+> 			rc="${KSFT_FAIL}"
+> 			continue
+> 		fi
+> 	done
+>
+>-	echo "${orig_mode}" > /proc/sys/net/vsock/child_ns_mode
+>-
+> 	return "${rc}"
+> }
+>
+>
+>-- 
+>2.47.3
+>
 
-url:    https://github.com/intel-lab-lkp/linux/commits/JP-Kobryn-Meta/mm-move-pgscan-pgsteal-pgrefill-to-node-stats/20260219-063016
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
-patch link:    https://lore.kernel.org/r/20260218222652.108411-1-jp.kobryn%40linux.dev
-patch subject: [PATCH v3] mm: move pgscan, pgsteal, pgrefill to node stats
-config: m68k-allmodconfig (https://download.01.org/0day-ci/archive/20260219/202602191719.7nkLTJOP-lkp@intel.com/config)
-compiler: m68k-linux-gcc (GCC) 15.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260219/202602191719.7nkLTJOP-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202602191719.7nkLTJOP-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   mm/vmscan.c: In function 'scan_folios':
->> mm/vmscan.c:4542:28: warning: unused variable 'memcg' [-Wunused-variable]
-    4542 |         struct mem_cgroup *memcg = lruvec_memcg(lruvec);
-         |                            ^~~~~
-
-
-vim +/memcg +4542 mm/vmscan.c
-
-ac35a490237446 Yu Zhao        2022-09-18  4527  
-af827e0904899f Koichiro Den   2025-05-31  4528  static int scan_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
-af827e0904899f Koichiro Den   2025-05-31  4529  		       struct scan_control *sc, int type, int tier,
-af827e0904899f Koichiro Den   2025-05-31  4530  		       struct list_head *list)
-ac35a490237446 Yu Zhao        2022-09-18  4531  {
-669281ee7ef731 Kalesh Singh   2023-08-01  4532  	int i;
-669281ee7ef731 Kalesh Singh   2023-08-01  4533  	int gen;
-b0e9e710c6bb5a JP Kobryn      2026-02-18  4534  	enum node_stat_item item;
-ac35a490237446 Yu Zhao        2022-09-18  4535  	int sorted = 0;
-ac35a490237446 Yu Zhao        2022-09-18  4536  	int scanned = 0;
-ac35a490237446 Yu Zhao        2022-09-18  4537  	int isolated = 0;
-8c2214fc9a470a Jaewon Kim     2023-10-03  4538  	int skipped = 0;
-49d921b471c513 Chen Ridong    2025-12-04  4539  	int scan_batch = min(nr_to_scan, MAX_LRU_BATCH);
-49d921b471c513 Chen Ridong    2025-12-04  4540  	int remaining = scan_batch;
-391655fe08d1f9 Yu Zhao        2022-12-21  4541  	struct lru_gen_folio *lrugen = &lruvec->lrugen;
-ac35a490237446 Yu Zhao        2022-09-18 @4542  	struct mem_cgroup *memcg = lruvec_memcg(lruvec);
-ac35a490237446 Yu Zhao        2022-09-18  4543  
-ac35a490237446 Yu Zhao        2022-09-18  4544  	VM_WARN_ON_ONCE(!list_empty(list));
-ac35a490237446 Yu Zhao        2022-09-18  4545  
-ac35a490237446 Yu Zhao        2022-09-18  4546  	if (get_nr_gens(lruvec, type) == MIN_NR_GENS)
-ac35a490237446 Yu Zhao        2022-09-18  4547  		return 0;
-ac35a490237446 Yu Zhao        2022-09-18  4548  
-ac35a490237446 Yu Zhao        2022-09-18  4549  	gen = lru_gen_from_seq(lrugen->min_seq[type]);
-ac35a490237446 Yu Zhao        2022-09-18  4550  
-669281ee7ef731 Kalesh Singh   2023-08-01  4551  	for (i = MAX_NR_ZONES; i > 0; i--) {
-ac35a490237446 Yu Zhao        2022-09-18  4552  		LIST_HEAD(moved);
-8c2214fc9a470a Jaewon Kim     2023-10-03  4553  		int skipped_zone = 0;
-669281ee7ef731 Kalesh Singh   2023-08-01  4554  		int zone = (sc->reclaim_idx + i) % MAX_NR_ZONES;
-6df1b2212950aa Yu Zhao        2022-12-21  4555  		struct list_head *head = &lrugen->folios[gen][type][zone];
-ac35a490237446 Yu Zhao        2022-09-18  4556  
-ac35a490237446 Yu Zhao        2022-09-18  4557  		while (!list_empty(head)) {
-ac35a490237446 Yu Zhao        2022-09-18  4558  			struct folio *folio = lru_to_folio(head);
-ac35a490237446 Yu Zhao        2022-09-18  4559  			int delta = folio_nr_pages(folio);
-ac35a490237446 Yu Zhao        2022-09-18  4560  
-ac35a490237446 Yu Zhao        2022-09-18  4561  			VM_WARN_ON_ONCE_FOLIO(folio_test_unevictable(folio), folio);
-ac35a490237446 Yu Zhao        2022-09-18  4562  			VM_WARN_ON_ONCE_FOLIO(folio_test_active(folio), folio);
-ac35a490237446 Yu Zhao        2022-09-18  4563  			VM_WARN_ON_ONCE_FOLIO(folio_is_file_lru(folio) != type, folio);
-ac35a490237446 Yu Zhao        2022-09-18  4564  			VM_WARN_ON_ONCE_FOLIO(folio_zonenum(folio) != zone, folio);
-ac35a490237446 Yu Zhao        2022-09-18  4565  
-ac35a490237446 Yu Zhao        2022-09-18  4566  			scanned += delta;
-ac35a490237446 Yu Zhao        2022-09-18  4567  
-669281ee7ef731 Kalesh Singh   2023-08-01  4568  			if (sort_folio(lruvec, folio, sc, tier))
-ac35a490237446 Yu Zhao        2022-09-18  4569  				sorted += delta;
-ac35a490237446 Yu Zhao        2022-09-18  4570  			else if (isolate_folio(lruvec, folio, sc)) {
-ac35a490237446 Yu Zhao        2022-09-18  4571  				list_add(&folio->lru, list);
-ac35a490237446 Yu Zhao        2022-09-18  4572  				isolated += delta;
-ac35a490237446 Yu Zhao        2022-09-18  4573  			} else {
-ac35a490237446 Yu Zhao        2022-09-18  4574  				list_move(&folio->lru, &moved);
-8c2214fc9a470a Jaewon Kim     2023-10-03  4575  				skipped_zone += delta;
-ac35a490237446 Yu Zhao        2022-09-18  4576  			}
-ac35a490237446 Yu Zhao        2022-09-18  4577  
-8c2214fc9a470a Jaewon Kim     2023-10-03  4578  			if (!--remaining || max(isolated, skipped_zone) >= MIN_LRU_BATCH)
-ac35a490237446 Yu Zhao        2022-09-18  4579  				break;
-ac35a490237446 Yu Zhao        2022-09-18  4580  		}
-ac35a490237446 Yu Zhao        2022-09-18  4581  
-8c2214fc9a470a Jaewon Kim     2023-10-03  4582  		if (skipped_zone) {
-ac35a490237446 Yu Zhao        2022-09-18  4583  			list_splice(&moved, head);
-8c2214fc9a470a Jaewon Kim     2023-10-03  4584  			__count_zid_vm_events(PGSCAN_SKIP, zone, skipped_zone);
-8c2214fc9a470a Jaewon Kim     2023-10-03  4585  			skipped += skipped_zone;
-ac35a490237446 Yu Zhao        2022-09-18  4586  		}
-ac35a490237446 Yu Zhao        2022-09-18  4587  
-ac35a490237446 Yu Zhao        2022-09-18  4588  		if (!remaining || isolated >= MIN_LRU_BATCH)
-ac35a490237446 Yu Zhao        2022-09-18  4589  			break;
-ac35a490237446 Yu Zhao        2022-09-18  4590  	}
-ac35a490237446 Yu Zhao        2022-09-18  4591  
-e452872b40e3f1 Hao Jia        2025-03-18  4592  	item = PGSCAN_KSWAPD + reclaimer_offset(sc);
-b0e9e710c6bb5a JP Kobryn      2026-02-18  4593  	mod_lruvec_state(lruvec, item, isolated);
-b0e9e710c6bb5a JP Kobryn      2026-02-18  4594  	mod_lruvec_state(lruvec, PGREFILL, sorted);
-b0e9e710c6bb5a JP Kobryn      2026-02-18  4595  	mod_lruvec_state(lruvec, PGSCAN_ANON + type, isolated);
-49d921b471c513 Chen Ridong    2025-12-04  4596  	trace_mm_vmscan_lru_isolate(sc->reclaim_idx, sc->order, scan_batch,
-8c2214fc9a470a Jaewon Kim     2023-10-03  4597  				scanned, skipped, isolated,
-8c2214fc9a470a Jaewon Kim     2023-10-03  4598  				type ? LRU_INACTIVE_FILE : LRU_INACTIVE_ANON);
-1bc542c6a0d144 Zeng Jingxiang 2024-10-26  4599  	if (type == LRU_GEN_FILE)
-1bc542c6a0d144 Zeng Jingxiang 2024-10-26  4600  		sc->nr.file_taken += isolated;
-ac35a490237446 Yu Zhao        2022-09-18  4601  	/*
-e9d4e1ee788097 Yu Zhao        2022-12-21  4602  	 * There might not be eligible folios due to reclaim_idx. Check the
-e9d4e1ee788097 Yu Zhao        2022-12-21  4603  	 * remaining to prevent livelock if it's not making progress.
-ac35a490237446 Yu Zhao        2022-09-18  4604  	 */
-ac35a490237446 Yu Zhao        2022-09-18  4605  	return isolated || !remaining ? scanned : 0;
-ac35a490237446 Yu Zhao        2022-09-18  4606  }
-ac35a490237446 Yu Zhao        2022-09-18  4607  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
