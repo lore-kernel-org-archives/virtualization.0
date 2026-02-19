@@ -1,161 +1,190 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A84531BCB7
-	for <virtualization@lists.linux.dev>; Thu, 19 Feb 2026 10:36:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465532C0F8C;
+	Thu, 19 Feb 2026 13:10:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771497408; cv=none; b=ETLBD5NUe+s+Fpe+AkBnByTWbeyWfugOkbeJR0QiF3Y0uewUn3/ibwDcFTWGTF4dSdsIDNiUwz6y5yzSH3mPnSWbgUsz3f11SmyBitPLp+35kru/bsLw/AmvLOmCU9m/+PNvMu3slJM+c3mOSu/HEcSDszwVMBHMhZk9f0SsRv0=
+	t=1771506649; cv=none; b=VJUM2hg0EC46s0zYbCleKr8zMGAJycXkH1Nm3ZUZhhKHzNoAaL5l8JX1NpGIfr1exKdUfi2qsfTl/FLUqTETKWejUfR4zwX0Et0Yn/snEEOXMZCLoQD0Uim08S2t+fgkxuo3Xzb7DSkqhR42DRBWSGlhthHbcpDm1Fw6NSEGqbM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771497408; c=relaxed/simple;
-	bh=oqw0KlNKIPYnEI20309wgxqKSge7eobGKUbr1LdjuGY=;
+	s=arc-20240116; t=1771506649; c=relaxed/simple;
+	bh=+ASt9RW3S8U9bMhrhcg5P9CXnzpEpApS+qGIkng/w1I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=SmCVzoMnZ7bQKZ1CoqjIN5JR9qtqEZPd7CRX4dZkgGUCaSdNXDX7MEY7MBzv4OwgO5dIin1pzA8sTAC29Zq5GM6819qe8U46QM7q3F7BW9u8kypKEhj8tp9S2IyHR8jaXhYXFjmA9YXqyCFELBU/KEJ1J7Gwwsu5DAp9lHnYxPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IMvTI7vh; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=YD2f3O6wKMinpMkh0n497CEM1LGG6evPTkKX8La8as/yTiSnY+piJCNj+g5tK6SD3DnpffQZsulqV0bri3ErQhYtLdB1gWWX8oSmbSzeiXp8sU2Y4fOfS+qbb2NMlKv3ktzWxnxH4zytLx7BcFfPLBXqWYBAwDz43avoY2Kvkg4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Td0ZmKSF; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IMvTI7vh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1771497406;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0HuCXThfRUEeEl7yH4RijL3+g7m+evVIDET2wFtyGPA=;
-	b=IMvTI7vhk3vuRkMM2kkV41ium5VGv7PT9IoyOLKQfO/Eu8PZ5TdwKuDhseOAlr5k5vvo12
-	b1/S3HPV55lD4FePO7TyemdOfj4e8w2Y1lh3/O1oE2Zxw0PoCyKtTEzgcH7w49ej97W6oF
-	WOjlcHbTBcQNG0DsJ2XQeW5Kr6iENdE=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-475-U82G59PkPEmzTo9h9CRU8Q-1; Thu, 19 Feb 2026 05:36:45 -0500
-X-MC-Unique: U82G59PkPEmzTo9h9CRU8Q-1
-X-Mimecast-MFC-AGG-ID: U82G59PkPEmzTo9h9CRU8Q_1771497404
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-48372facfedso12901185e9.0
-        for <virtualization@lists.linux.dev>; Thu, 19 Feb 2026 02:36:44 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771497404; x=1772102204;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0HuCXThfRUEeEl7yH4RijL3+g7m+evVIDET2wFtyGPA=;
-        b=q2uF7yXdmsujoSZXTKp6WTA1jLzY9GMYWjw5fdq1NH81lNTupHNNdFvBlcrQEycKjz
-         wxHcTzRImkoDOcT/dz7FajzmvcB35WEisRD6Su78FnZJd7Sa5u4n945pR+y6RfGhTrzg
-         aYyHWuOZYmZbzs/3H8HLEWJ0KpTRYnm5CfyFuPP3O1I4i4nWW79EyuyNMcn2b7fFfqK1
-         NPBpQZPo7T8+lOWvK5p3RiDnPD8q2na1aqvSDRvhnWH4GSa56wgC0JDjqm7gd9D9PDv/
-         HQakDwLfwUm624eEstZEtt3Lb/b0PpzZ721CjRbCTaq96rZvdRIh1y5N4FHB15HzqcJ4
-         pJhw==
-X-Forwarded-Encrypted: i=1; AJvYcCVE/f4UisuqbEa04CD4gp278szEwWOoBB+KKcDh+rSInt4xOuy6DJ8KzsadrXtxmkFGycYaZmDzkDVIFXwigA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyXws3ZaqwTyxF0M3Pk/pRjcRdntcec7GGeE4+SmtnPoEapapGj
-	BnPPuMDE6gdM0bvxQJHcC+cX7MuhuVxJ+MKgdlutxuAn4T9emCCKLM+iVWYuuEOwB9vHT2ttl87
-	CZek02FaXo6XOsLIKWrMsfIbW6o1O9v5OLttYYsLXzKrqP2WeQixeAXAV6EW8tL2PGSyC
-X-Gm-Gg: AZuq6aIo4kuJ5Htrzshus4IK5Qx1fbt74RbMnnYmFFX0SXrKhBll5XZeIA86tMSg0/R
-	bemVj7gpsg8kaFG2rRzS3DdAvEu4yV+0uqmbIQaYwH6ne72NNdvSVGGa5IPQHu16xskJRUr7hGg
-	dNm2ZfJJS9F5gJWUzlTHpWesqIBbAZlQadIvwQorAwhyDQVoETvrle4RMCpPf47bQdv8/N6fNOm
-	dbs5wHCTJsvVIM+sqNURQle/R5J/ugS1EWYJci14yJSMXaF6KU4E4MiLXnOn9YK5sbBKizJAIRT
-	MSZXWD1JzWfrf+2NTg4kSZqxqdmu1+teQDYwYCy3and9cDUCUnC5SEeJUH2C4ywUhn1K0c1uTkZ
-	qs8Ui9vPPSzxhR/XXN9SKBJetn2e32yrog24geGOiARymD1Q73zJYVHS4InRx1T7w98NC1Sw=
-X-Received: by 2002:a05:600c:214b:b0:47e:e051:79ee with SMTP id 5b1f17b1804b1-4839fe90522mr18467495e9.3.1771497403788;
-        Thu, 19 Feb 2026 02:36:43 -0800 (PST)
-X-Received: by 2002:a05:600c:214b:b0:47e:e051:79ee with SMTP id 5b1f17b1804b1-4839fe90522mr18467255e9.3.1771497403315;
-        Thu, 19 Feb 2026 02:36:43 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4839f99067dsm17354955e9.29.2026.02.19.02.36.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Feb 2026 02:36:42 -0800 (PST)
-Date: Thu, 19 Feb 2026 11:36:40 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Shuah Khan <shuah@kernel.org>, 
-	Bobby Eshleman <bobbyeshleman@meta.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	kvm@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH net v2 3/3] vsock: document write-once behavior of the
- child_ns_mode sysctl
-Message-ID: <aZbN8fXtCkhItSV8@sgarzare-redhat>
-References: <20260218-vsock-ns-write-once-v2-0-19e4c50d509a@meta.com>
- <20260218-vsock-ns-write-once-v2-3-19e4c50d509a@meta.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Td0ZmKSF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1771506646; x=1803042646;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=+ASt9RW3S8U9bMhrhcg5P9CXnzpEpApS+qGIkng/w1I=;
+  b=Td0ZmKSFaTMTgHddpbHIgqBNS7fgWM2bVuUZMWgS4dFAdLupdfTTpN88
+   JnTsfuouRNL0m4Nb3a21y3V9DJyWmq361QPaDxckXea+ThOq1rc7FMtHO
+   VmMcoUd2AreTa0NRay8d/OBHrAR/61o5G2nkRnJI9/oCuF4Pz+IO69Zl+
+   cC2doY+MAJo6PWBM0RHLqkIQOZGjjLftMKl0OFMUTreJHgsAe/kMDFr4S
+   h3nHmltdf+uOW42bVKgPcq+EX5VjPRKI6FWBgORP0V/OtIpbL7kJ5bBXz
+   UJpd2g4t/VDgSWEFiFMhe3EYdQLM0DNQtvpBA8/Wa2VBZwSe/DDdtoD4N
+   Q==;
+X-CSE-ConnectionGUID: /g2aoqsaTY2h0NafRaGY+g==
+X-CSE-MsgGUID: Brwpaid5QUqCXPqHS6vMPQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11706"; a="82914203"
+X-IronPort-AV: E=Sophos;i="6.21,300,1763452800"; 
+   d="scan'208";a="82914203"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2026 05:10:45 -0800
+X-CSE-ConnectionGUID: NHFBFnBWR4uJA67vO80HYg==
+X-CSE-MsgGUID: jVog3KgkTsunK42T2C/5Ig==
+X-ExtLoop1: 1
+Received: from igk-lkp-server01.igk.intel.com (HELO e5404a91d123) ([10.211.93.152])
+  by fmviesa003.fm.intel.com with ESMTP; 19 Feb 2026 05:10:39 -0800
+Received: from kbuild by e5404a91d123 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vt3ng-000000003yL-3aSU;
+	Thu, 19 Feb 2026 13:10:36 +0000
+Date: Thu, 19 Feb 2026 14:10:08 +0100
+From: kernel test robot <lkp@intel.com>
+To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>, linux-mm@kvack.org,
+	mst@redhat.com, mhocko@suse.com, vbabka@suse.cz
+Cc: oe-kbuild-all@lists.linux.dev, apopple@nvidia.com,
+	akpm@linux-foundation.org, axelrasmussen@google.com,
+	byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
+	eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
+	hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
+	Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
+	lorenzo.stoakes@oracle.com, matthew.brost@intel.com,
+	rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
+	rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+	surenb@google.com, virtualization@lists.linux.dev,
+	weixugc@google.com, xuanzhuo@linux.alibaba.com,
+	ying.huang@linux.alibaba.com
+Subject: Re: [PATCH v3] mm: move pgscan, pgsteal, pgrefill to node stats
+Message-ID: <202602191417.23zH3uja-lkp@intel.com>
+References: <20260218222652.108411-1-jp.kobryn@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260218-vsock-ns-write-once-v2-3-19e4c50d509a@meta.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _p-jAe2FxxRG6xsqv70zhPCfYcyESbLVOkvC9J0Fkk8_1771497404
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260218222652.108411-1-jp.kobryn@linux.dev>
 
-On Wed, Feb 18, 2026 at 10:10:38AM -0800, Bobby Eshleman wrote:
->From: Bobby Eshleman <bobbyeshleman@meta.com>
->
->Update the vsock child_ns_mode documentation to include the new the
+Hi JP,
 
-nit: s/the new the/the new
+kernel test robot noticed the following build warnings:
 
->write-once semantics of setting child_ns_mode. The semantics are
->implemented in a different patch in this series.
+[auto build test WARNING on akpm-mm/mm-everything]
 
-s/different/preceding ?
+url:    https://github.com/intel-lab-lkp/linux/commits/JP-Kobryn-Meta/mm-move-pgscan-pgsteal-pgrefill-to-node-stats/20260219-063016
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
+patch link:    https://lore.kernel.org/r/20260218222652.108411-1-jp.kobryn%40linux.dev
+patch subject: [PATCH v3] mm: move pgscan, pgsteal, pgrefill to node stats
+config: x86_64-rhel-9.4 (https://download.01.org/0day-ci/archive/20260219/202602191417.23zH3uja-lkp@intel.com/config)
+compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260219/202602191417.23zH3uja-lkp@intel.com/reproduce)
 
-IMO this can be squashed with the previous patch, but not sure netdev 
-policy about that. Not a strong opinion, it's fine also in this way.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202602191417.23zH3uja-lkp@intel.com/
 
->
->Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
->---
-> Documentation/admin-guide/sysctl/net.rst | 10 +++++++---
-> 1 file changed, 7 insertions(+), 3 deletions(-)
->
->diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
->index c10530624f1e..976a176fb451 100644
->--- a/Documentation/admin-guide/sysctl/net.rst
->+++ b/Documentation/admin-guide/sysctl/net.rst
->@@ -581,9 +581,9 @@ The init_net mode is always ``global``.
-> child_ns_mode
-> -------------
->
->-Controls what mode newly created child namespaces will inherit. At namespace
->-creation, ``ns_mode`` is inherited from the parent's ``child_ns_mode``. The
->-initial value matches the namespace's own ``ns_mode``.
->+Write-once. Controls what mode newly created child namespaces will inherit. At
->+namespace creation, ``ns_mode`` is inherited from the parent's
->+``child_ns_mode``. The initial value matches the namespace's own ``ns_mode``.
->
-> Values:
->
->@@ -594,6 +594,10 @@ Values:
-> 	  their sockets will only be able to connect within their own
-> 	  namespace.
->
->+``child_ns_mode`` can only be written once per namespace. Writing the same
->+value that is already set succeeds. Writing a different value after the first
->+write returns ``-EBUSY``.
+All warnings (new ones prefixed by >>):
 
-nit: instead of saying that it can only be written once, we could say 
-that the first write locks the value, to be closer to the actual 
-behavior, something like this: 
-
-   The first write to ``child_ns_mode`` locks its value. Subsequent
-   writes of the same value succeed, but writing a different value
-   returns ``-EBUSY``.
+   mm/vmscan.c: In function 'scan_folios':
+>> mm/vmscan.c:4542:28: warning: unused variable 'memcg' [-Wunused-variable]
+    4542 |         struct mem_cgroup *memcg = lruvec_memcg(lruvec);
+         |                            ^~~~~
 
 
-Thanks,
-Stefano
+vim +/memcg +4542 mm/vmscan.c
 
->+
-> Changing ``child_ns_mode`` only affects namespaces created after the change;
-> it does not modify the current namespace or any existing children.
->
->
->-- 
->2.47.3
->
+ac35a490237446 Yu Zhao        2022-09-18  4527  
+af827e0904899f Koichiro Den   2025-05-31  4528  static int scan_folios(unsigned long nr_to_scan, struct lruvec *lruvec,
+af827e0904899f Koichiro Den   2025-05-31  4529  		       struct scan_control *sc, int type, int tier,
+af827e0904899f Koichiro Den   2025-05-31  4530  		       struct list_head *list)
+ac35a490237446 Yu Zhao        2022-09-18  4531  {
+669281ee7ef731 Kalesh Singh   2023-08-01  4532  	int i;
+669281ee7ef731 Kalesh Singh   2023-08-01  4533  	int gen;
+b0e9e710c6bb5a JP Kobryn      2026-02-18  4534  	enum node_stat_item item;
+ac35a490237446 Yu Zhao        2022-09-18  4535  	int sorted = 0;
+ac35a490237446 Yu Zhao        2022-09-18  4536  	int scanned = 0;
+ac35a490237446 Yu Zhao        2022-09-18  4537  	int isolated = 0;
+8c2214fc9a470a Jaewon Kim     2023-10-03  4538  	int skipped = 0;
+49d921b471c513 Chen Ridong    2025-12-04  4539  	int scan_batch = min(nr_to_scan, MAX_LRU_BATCH);
+49d921b471c513 Chen Ridong    2025-12-04  4540  	int remaining = scan_batch;
+391655fe08d1f9 Yu Zhao        2022-12-21  4541  	struct lru_gen_folio *lrugen = &lruvec->lrugen;
+ac35a490237446 Yu Zhao        2022-09-18 @4542  	struct mem_cgroup *memcg = lruvec_memcg(lruvec);
+ac35a490237446 Yu Zhao        2022-09-18  4543  
+ac35a490237446 Yu Zhao        2022-09-18  4544  	VM_WARN_ON_ONCE(!list_empty(list));
+ac35a490237446 Yu Zhao        2022-09-18  4545  
+ac35a490237446 Yu Zhao        2022-09-18  4546  	if (get_nr_gens(lruvec, type) == MIN_NR_GENS)
+ac35a490237446 Yu Zhao        2022-09-18  4547  		return 0;
+ac35a490237446 Yu Zhao        2022-09-18  4548  
+ac35a490237446 Yu Zhao        2022-09-18  4549  	gen = lru_gen_from_seq(lrugen->min_seq[type]);
+ac35a490237446 Yu Zhao        2022-09-18  4550  
+669281ee7ef731 Kalesh Singh   2023-08-01  4551  	for (i = MAX_NR_ZONES; i > 0; i--) {
+ac35a490237446 Yu Zhao        2022-09-18  4552  		LIST_HEAD(moved);
+8c2214fc9a470a Jaewon Kim     2023-10-03  4553  		int skipped_zone = 0;
+669281ee7ef731 Kalesh Singh   2023-08-01  4554  		int zone = (sc->reclaim_idx + i) % MAX_NR_ZONES;
+6df1b2212950aa Yu Zhao        2022-12-21  4555  		struct list_head *head = &lrugen->folios[gen][type][zone];
+ac35a490237446 Yu Zhao        2022-09-18  4556  
+ac35a490237446 Yu Zhao        2022-09-18  4557  		while (!list_empty(head)) {
+ac35a490237446 Yu Zhao        2022-09-18  4558  			struct folio *folio = lru_to_folio(head);
+ac35a490237446 Yu Zhao        2022-09-18  4559  			int delta = folio_nr_pages(folio);
+ac35a490237446 Yu Zhao        2022-09-18  4560  
+ac35a490237446 Yu Zhao        2022-09-18  4561  			VM_WARN_ON_ONCE_FOLIO(folio_test_unevictable(folio), folio);
+ac35a490237446 Yu Zhao        2022-09-18  4562  			VM_WARN_ON_ONCE_FOLIO(folio_test_active(folio), folio);
+ac35a490237446 Yu Zhao        2022-09-18  4563  			VM_WARN_ON_ONCE_FOLIO(folio_is_file_lru(folio) != type, folio);
+ac35a490237446 Yu Zhao        2022-09-18  4564  			VM_WARN_ON_ONCE_FOLIO(folio_zonenum(folio) != zone, folio);
+ac35a490237446 Yu Zhao        2022-09-18  4565  
+ac35a490237446 Yu Zhao        2022-09-18  4566  			scanned += delta;
+ac35a490237446 Yu Zhao        2022-09-18  4567  
+669281ee7ef731 Kalesh Singh   2023-08-01  4568  			if (sort_folio(lruvec, folio, sc, tier))
+ac35a490237446 Yu Zhao        2022-09-18  4569  				sorted += delta;
+ac35a490237446 Yu Zhao        2022-09-18  4570  			else if (isolate_folio(lruvec, folio, sc)) {
+ac35a490237446 Yu Zhao        2022-09-18  4571  				list_add(&folio->lru, list);
+ac35a490237446 Yu Zhao        2022-09-18  4572  				isolated += delta;
+ac35a490237446 Yu Zhao        2022-09-18  4573  			} else {
+ac35a490237446 Yu Zhao        2022-09-18  4574  				list_move(&folio->lru, &moved);
+8c2214fc9a470a Jaewon Kim     2023-10-03  4575  				skipped_zone += delta;
+ac35a490237446 Yu Zhao        2022-09-18  4576  			}
+ac35a490237446 Yu Zhao        2022-09-18  4577  
+8c2214fc9a470a Jaewon Kim     2023-10-03  4578  			if (!--remaining || max(isolated, skipped_zone) >= MIN_LRU_BATCH)
+ac35a490237446 Yu Zhao        2022-09-18  4579  				break;
+ac35a490237446 Yu Zhao        2022-09-18  4580  		}
+ac35a490237446 Yu Zhao        2022-09-18  4581  
+8c2214fc9a470a Jaewon Kim     2023-10-03  4582  		if (skipped_zone) {
+ac35a490237446 Yu Zhao        2022-09-18  4583  			list_splice(&moved, head);
+8c2214fc9a470a Jaewon Kim     2023-10-03  4584  			__count_zid_vm_events(PGSCAN_SKIP, zone, skipped_zone);
+8c2214fc9a470a Jaewon Kim     2023-10-03  4585  			skipped += skipped_zone;
+ac35a490237446 Yu Zhao        2022-09-18  4586  		}
+ac35a490237446 Yu Zhao        2022-09-18  4587  
+ac35a490237446 Yu Zhao        2022-09-18  4588  		if (!remaining || isolated >= MIN_LRU_BATCH)
+ac35a490237446 Yu Zhao        2022-09-18  4589  			break;
+ac35a490237446 Yu Zhao        2022-09-18  4590  	}
+ac35a490237446 Yu Zhao        2022-09-18  4591  
+e452872b40e3f1 Hao Jia        2025-03-18  4592  	item = PGSCAN_KSWAPD + reclaimer_offset(sc);
+b0e9e710c6bb5a JP Kobryn      2026-02-18  4593  	mod_lruvec_state(lruvec, item, isolated);
+b0e9e710c6bb5a JP Kobryn      2026-02-18  4594  	mod_lruvec_state(lruvec, PGREFILL, sorted);
+b0e9e710c6bb5a JP Kobryn      2026-02-18  4595  	mod_lruvec_state(lruvec, PGSCAN_ANON + type, isolated);
+49d921b471c513 Chen Ridong    2025-12-04  4596  	trace_mm_vmscan_lru_isolate(sc->reclaim_idx, sc->order, scan_batch,
+8c2214fc9a470a Jaewon Kim     2023-10-03  4597  				scanned, skipped, isolated,
+8c2214fc9a470a Jaewon Kim     2023-10-03  4598  				type ? LRU_INACTIVE_FILE : LRU_INACTIVE_ANON);
+1bc542c6a0d144 Zeng Jingxiang 2024-10-26  4599  	if (type == LRU_GEN_FILE)
+1bc542c6a0d144 Zeng Jingxiang 2024-10-26  4600  		sc->nr.file_taken += isolated;
+ac35a490237446 Yu Zhao        2022-09-18  4601  	/*
+e9d4e1ee788097 Yu Zhao        2022-12-21  4602  	 * There might not be eligible folios due to reclaim_idx. Check the
+e9d4e1ee788097 Yu Zhao        2022-12-21  4603  	 * remaining to prevent livelock if it's not making progress.
+ac35a490237446 Yu Zhao        2022-09-18  4604  	 */
+ac35a490237446 Yu Zhao        2022-09-18  4605  	return isolated || !remaining ? scanned : 0;
+ac35a490237446 Yu Zhao        2022-09-18  4606  }
+ac35a490237446 Yu Zhao        2022-09-18  4607  
 
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
