@@ -1,201 +1,140 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93F0F330B2D
-	for <virtualization@lists.linux.dev>; Mon, 23 Feb 2026 17:37:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FA398248B
+	for <virtualization@lists.linux.dev>; Mon, 23 Feb 2026 18:55:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771868258; cv=none; b=TCwL+R+4x6IJd+6+hXiKGgStqEg9UhWjr7gUTRLP6/ahqhO7hqxPOKi2+50tK/vZEV/ecZ8uYMrtj+YKuci9dEBb8+dARvxYL9v75ZqpNUJDkNaoVCBHOiEiHcXj4JMXdEhVHAOOFx9NL3qR1M/Pldz7GieySkhvLVUihy1SxEo=
+	t=1771872902; cv=none; b=EqepL9WcgcdiGhVmGq/+Vf0L6jdvlVbdeAAc93yKS5/NfnrVDXi9QyjrQrvTzIEFkJZeNKb2SoDJtNnK9r2AjVP4Viku9T1ybdVmLfZCoZaXYn6935GdS2hv41Xnr9YNiYFJalaFg5T80zvjl4/6H5vmZPd/5Fc8/0K1jA2iMSI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771868258; c=relaxed/simple;
-	bh=bNE1C/ycXlu3DoYv5hPAJ1NqqZt7vvoqqFWzSQqVdcM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=o5gUJ1SSgoB6Qxpt/Ml5l5Bfw0gEaHC+HC15YZb/aVykbXMdtTYoHrGsKxoaTobxv64M1xIBV2NTpgoDNfH0m+gvANVYSu1xN2ySqkeE3pXgJpIe5vwP11aU9JwPMGHxKE4rk1XN8FhKUJF3nNoOVHkXqWC3qHaO+SK9sxkXh1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C0eUKT1o; arc=none smtp.client-ip=209.85.128.44
+	s=arc-20240116; t=1771872902; c=relaxed/simple;
+	bh=nctdjUKXo0u5+zaaCcHY+q1p5NNU/Ba/iOXcHcHJhqE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YKSj+ORn8ULbrpnAGUAG7vga82zFqEZQeGtX1eYP5AEjv/lzUit5qpKonz5oPlsuHx5C1fxPZQKW3QucgxNxczmB+9DyOkVMzdxND0mxxnx7NWtdnNQDVvtkE09LavFdEiah6IxVUq8bZZrY0oc8nxGTum2p2jT7EKFo2PO0t4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gQ5hqCjG; arc=none smtp.client-ip=209.85.128.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C0eUKT1o"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4837907f535so41510835e9.3
-        for <virtualization@lists.linux.dev>; Mon, 23 Feb 2026 09:37:36 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gQ5hqCjG"
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-7982c3b7dfcso24755257b3.0
+        for <virtualization@lists.linux.dev>; Mon, 23 Feb 2026 10:55:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771868255; x=1772473055; darn=lists.linux.dev;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=aqudQbT7/MPE0BjTOSVNKoEUnhB2WCPkvdNMz5SxcQI=;
-        b=C0eUKT1o/+9CO3lokzbq1kvYCuL1RMK2n5wmPhWHGm+z/15s738nBm5enWDLNVlzq/
-         m1lKJPBONN/u2ILNHxRMEJ/LOhYilRLAXMNP6NMGFlPJw+C/D2pA/XSSIcXzq9xeD6ik
-         6fYpMcQMz1KqERCnRBatjSjp0sZBOusVxGLralBxvo4VfGcVyxIHgsW659ml4bi/QGxW
-         g98M7B8tc94jKmrqPsKMoT4rRvJvj+oet5SCHbpGjivYATZ7PEdL/yMi8ZQA5mwfJoZ/
-         JlXWcMfqR86QARHDajjesJLV6ysCJTzqinvZuBRWTDFZ6byMmH3kXscMzBgXg5v/k9TW
-         KEBg==
+        d=gmail.com; s=20230601; t=1771872900; x=1772477700; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Vud3sOYkGGFigTsBFe48YuQKgz6ijM9yPc/XUomBSLw=;
+        b=gQ5hqCjGf8y1mnv9JNme5zgvdH2w+RKvwKhb5Q+xZRDBDn5l6BxBLQFfO0V2jaVhef
+         2ciMHCO8xa/5pGwJ3W3n6tIQxg/7XdXBKbsU2kBVhD0hIqkAi4b8QYgP4HFwD0uDZ29S
+         yT8ITOE87L0S8MMix9ykc899oz+kID+DJ6/Z7QLphrLWsLaSJikDx84kojuGfhGbwe0K
+         dwnnVm4g776eN82chvyFnZPZDWPPWoXELQM6J7LsFBhfE4Q74C7tH8b3d+Clhlop+2fm
+         rdZqAE08T8FwFJsCbR1hnkz1iQa+XjKRihp5AuOoqjpQulP1pneSIPY7GLQliYslls+o
+         0jtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771868255; x=1772473055;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aqudQbT7/MPE0BjTOSVNKoEUnhB2WCPkvdNMz5SxcQI=;
-        b=OaJ5BJz6zsoN510E6a8xbpVlUdEPp7K8rXX+aJmkIIoihb8Wqt3DKLiZvEYS9hp+L1
-         c5gQRLeHXUjpyJV9Of69/jo9y3jSWHxK1Wb+O3taCl2z3wZ1qJZ9JwtY6O/QZAAC4+Kt
-         MJu33mObxcnCMoGwqRqrVFuUBZHzOpIJKfa48yFolkQB/frf0uS6kC/XlGDfds6Sh38t
-         ZC6GY5UxiysoeBwqaYdO2xY+GtVT313fIMxeR0GbleTrn49Hhlu2ZoNLspbtKJ635psM
-         ERzvr1Y/5FCToaEKZWxctZdwvNnLSwYr4uehrDcewfyq/hqdK8LN+/N8nS0RjD1WhAoK
-         9nsw==
-X-Forwarded-Encrypted: i=1; AJvYcCXeUuAv4KeGjEPDxtnIuUCZqx+peNfUUcup+NIi+0fRTqTCStCGtlIaD8bh/XXCwH+mjb3KgcM2YYSNnSmghw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzNM4FAIzc6UwL00+EM04rBYO+rvKolrpNwAPMrfhVje0X4ArPy
-	pfGmOR3YaXQUcN5RUJmFbeChW2yVWXUIN9maquqf98f+9VvP3sPTKahA
-X-Gm-Gg: AZuq6aKujPK0CJeHLEyHmhxLwPpiyrR891SQBad3TG4M60MAIoWh6oSggeZKXnzfBmb
-	FjQRk7RZ+9p9ZSJUWmePRDiPoWMmiMBgAJWEJqej2eDYb1Qbcg8njZS6KX/imWJfi9B0znv63ra
-	ROmujeTPm5pqtCFdQ2nFs3xSz5vIk8jwplnaXipXhlPi1ERP2Q9rqf+73cFvFShKVy78++OBPg5
-	bF4ysZ6TuBvGlhvjIv/6y3rvYmQA7omw6cDr85T0r9X6jiRbDcn7DuHTMACQ9xvS1s14ycgbXAY
-	/nV/9+NhFvKnJVV1t2Hg/dmeQ0rGtzeLt2uqedbaIG4y5z1qB/8vmrNdN2oMdZqYDK+mVhPix2/
-	CFdIfdZKhIgV3GaPBWWoo4NDnojrj/SeiUvK5uhElY4J1kealU3EAl5z6BA/xByD6ClyOvLkBaX
-	ua7msZE7SEafRNU+Wnqzb7+A==
-X-Received: by 2002:a05:600c:1c04:b0:480:1b65:b741 with SMTP id 5b1f17b1804b1-483a95cfc62mr177427845e9.15.1771868254679;
-        Mon, 23 Feb 2026 09:37:34 -0800 (PST)
-Received: from localhost ([89.150.43.23])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43970d3ff27sm22403922f8f.22.2026.02.23.09.37.33
+        d=1e100.net; s=20230601; t=1771872900; x=1772477700;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Vud3sOYkGGFigTsBFe48YuQKgz6ijM9yPc/XUomBSLw=;
+        b=ozGlRrUx38N2ETS3p5kyVj1n8J9T9q/zi+QBRe09i0u3n6epMyR3U6NFHXTwA3KZce
+         FqNzeGLABjPSf1Z2llpM0OvjBeiZiZpoW+v7VvFeJRa35RKE1pFy6mjR3YmDj5YPZFGN
+         cgnSLHzy1dAbo97gASvSyfmrbKipmvez2XG5ugZ7Mh0eUc8vbTlJue+3pFfZ9LMyPEeA
+         9QNARcUnKJmRfESFdaBIlcKwasTviWz9SWAEyvbel+sXq+EC//jshvAGpNIXDJNiAe5L
+         AjzPTqGDj0xE+LWVe5Y0U87OE6e+21Al6yXC8+1AcprSLuqOrDTSeMn5526tW/CjQy9h
+         I3Qg==
+X-Gm-Message-State: AOJu0YyB66t9QofN7OFrc01Z76mQK+ENu6xiCVecZ8dguEQ1hOPFHpZq
+	Ae3e6G7OhEuzacj37Be6htyZeeaNR6UzZvpK4Bx2aGG8E3gxkyWIUNcF
+X-Gm-Gg: ATEYQzzKEsPI/XAbx9gL3Mu/6pNjKInaLGvqahUc7VeHqkdyDXURQci0kViP8C+tbAr
+	GPC26Sa/5ZXgRaAB4n+LyqvHBaXAIFCNMy18CJ5S6ECXnYvqyWNTpExL7rsktg4tJadJlbcCing
+	bUpNRsceLm2RJCA3xO4/OLZ5BQCWdwlJ3X9EL3597VKt/edJJipPFEvqcmwW+BVHydJ8tNPKXmc
+	nL+d0hWuBCq4DjLjS0B3jPFoLWUbLjCCRqfVbt83sJN/CEGGIwWdarRlJpUnhvTOBWNuhZ+8qNQ
+	HMJCaSo6EITMp0APuNFUI6XidNElkI3/uCF5LezCLR3w1me8ypBURZWKpauec/pv7jaNFNGSciU
+	JmeEo64sRoohMWv7ITqQQZ/Pz6Der7DxLdK2PPfrCFFbbnKUu4SSHD2mAz5SZsgTSNvUO5bQBSf
+	H0tx6BHBmAluOqzvUTvvs9dA8wzA9bHapFtZz/52s/kPltgjDGHkhlfTl2lA==
+X-Received: by 2002:a05:690c:c244:b0:796:4626:7425 with SMTP id 00721157ae682-7982914a1ccmr83072927b3.49.1771872900476;
+        Mon, 23 Feb 2026 10:55:00 -0800 (PST)
+Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:72::])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-7982dd88efcsm34856507b3.24.2026.02.23.10.54.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Feb 2026 09:37:34 -0800 (PST)
-From: Filip Hejsek <filip.hejsek@gmail.com>
-Date: Mon, 23 Feb 2026 18:37:02 +0100
-Subject: [PATCH RESEND] virtio_console: read size from config space during
- device init
+        Mon, 23 Feb 2026 10:55:00 -0800 (PST)
+Date: Mon, 23 Feb 2026 10:54:58 -0800
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	stable <stable@kernel.org>
+Subject: Re: [PATCH net] vsock: Use container_of() to get net namespace in
+ sysctl handlers
+Message-ID: <aZyigkExZEUc1bYE@devvm11784.nha0.facebook.com>
+References: <2026022318-rearview-gallery-ae13@gregkh>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260223-virtio-console-fix-v1-1-0cf08303b428@gmail.com>
-To: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, 
- linux-kernel@vger.kernel.org
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1771868253; l=4024;
- i=filip.hejsek@gmail.com; s=20250912; h=from:subject:message-id;
- bh=bNE1C/ycXlu3DoYv5hPAJ1NqqZt7vvoqqFWzSQqVdcM=;
- b=lp8kdQlCCgnQtMa8C7vRgUSI7TnDds3ZVs1AdbQIEpUq7q8dq5pICepK/m8EZrIJcX+yltyxE
- qtFxaw1slVjDu0yGmY4YkfAYnKKgKX5mpzIzt4fYvV2AlYITn7VdZWx
-X-Developer-Key: i=filip.hejsek@gmail.com; a=ed25519;
- pk=nakB8gEK3oi+Q/5dBTMCy/LgZL47NP60z1jeDR6O/WU=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2026022318-rearview-gallery-ae13@gregkh>
 
-Previously, the size was only read upon receiving the config interrupt.
-This interrupt is sent when the size changes. However, we also need to
-read the initial size.
+On Mon, Feb 23, 2026 at 06:32:18PM +0100, Greg Kroah-Hartman wrote:
+> current->nsproxy is should not be accessed directly as syzbot has found
+> that it could be NULL at times, causing crashes.  Fix up the af_vsock
+> sysctl handlers to use container_of() to deal with the current net
+> namespace instead of attempting to rely on current.
+> 
+> This is the same type of change done in commit 7f5611cbc487 ("rds:
+> sysctl: rds_tcp_{rcv,snd}buf: avoid using current->nsproxy")
+> 
+> Cc: Stefano Garzarella <sgarzare@redhat.com>
+> Cc: stable <stable@kernel.org>
+> Assisted-by: gkh_clanker_2000
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+> 
+> Note, this is compile-tested only.  Some of my scripts found this when
+> looking for places that are missing fixes that were applied to other
+> parts of the kernel.  I think the af_vsock code uses namespaces, but as
+> I don't know the network stack at all I figured I would let you all
+> review it to tell me how wrong I got this change and all is fine with
+> the original code.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+>  net/vmw_vsock/af_vsock.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 9880756d9eff..f4062c6a1944 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -2825,7 +2825,7 @@ static int vsock_net_mode_string(const struct ctl_table *table, int write,
+>  	if (write)
+>  		return -EPERM;
+>  
+> -	net = current->nsproxy->net_ns;
+> +	net = container_of(table->data, struct net, vsock.mode);
+>  
+>  	return __vsock_net_mode_string(table, write, buffer, lenp, ppos,
+>  				       vsock_net_mode(net), NULL);
+> @@ -2838,7 +2838,7 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
+>  	struct net *net;
+>  	int ret;
+>  
+> -	net = current->nsproxy->net_ns;
+> +	net = container_of(table->data, struct net, vsock.child_ns_mode);
+>  
+>  	ret = __vsock_net_mode_string(table, write, buffer, lenp, ppos,
+>  				      vsock_net_child_mode(net), &new_mode);
+> -- 
+> 2.53.0
+> 
 
-Also make sure to only read the size from config if F_SIZE is enabled.
+Thanks Greg. LGTM, and passed all tests on my test setup.
 
-Fixes: 9778829cffd4 ("virtio: console: Store each console's size in the console structure")
-Signed-off-by: Filip Hejsek <filip.hejsek@gmail.com>
----
-This is a resend of [1], which hasn't received any response.
+I can't say if nsproxy can be null here in particular but better safe
+than sorry.
 
-I found this bug while developing patches for QEMU that add virtio
-console resize support. If you want to test this, you can get my QEMU
-patches from [2]. You will need to disable multiport
-using `-device virtio-serial,max_ports=1`.
-
-[1]: https://lore.kernel.org/all/20251224-virtio-console-fix-v1-1-69d0349692dc@gmail.com/
-[2]: https://lore.kernel.org/all/20250921-console-resize-v5-0-89e3c6727060@gmail.com/
-
-I'll also repeat my questions from the previous submission here. These are
-things that confused me when I was trying to understand the surrounding code,
-but should in no way prevent merging this patch.
-
-  - Why does use_multiport use __virtio_test_bit instead of
-    virtio_has_feature?
-
-  - The VIRTIO_CONSOLE_RESIZE handler sets irq_requested to 1, which I
-    think makes no sense?
----
- drivers/char/virtio_console.c | 52 ++++++++++++++++++++++++++-----------------
- 1 file changed, 31 insertions(+), 21 deletions(-)
-
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 088182e54d..c355f6d392 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1771,32 +1771,40 @@ static void config_intr(struct virtio_device *vdev)
- 		schedule_work(&portdev->config_work);
- }
- 
--static void config_work_handler(struct work_struct *work)
-+static void update_size_from_config(struct ports_device *portdev)
- {
--	struct ports_device *portdev;
-+	struct virtio_device *vdev;
-+	struct port *port;
-+	u16 rows, cols;
- 
--	portdev = container_of(work, struct ports_device, config_work);
--	if (!use_multiport(portdev)) {
--		struct virtio_device *vdev;
--		struct port *port;
--		u16 rows, cols;
-+	vdev = portdev->vdev;
- 
--		vdev = portdev->vdev;
--		virtio_cread(vdev, struct virtio_console_config, cols, &cols);
--		virtio_cread(vdev, struct virtio_console_config, rows, &rows);
-+	/*
-+	 * We'll use this way of resizing only for legacy support.
-+	 * For multiport devices, use control messages to indicate
-+	 * console size changes so that it can be done per-port.
-+	 *
-+	 * Don't test F_SIZE at all if we're rproc: not a valid feature.
-+	 */
-+	if (is_rproc_serial(vdev) ||
-+	    use_multiport(portdev) ||
-+	    !virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE))
-+		return;
- 
--		port = find_port_by_id(portdev, 0);
--		set_console_size(port, rows, cols);
-+	virtio_cread(vdev, struct virtio_console_config, cols, &cols);
-+	virtio_cread(vdev, struct virtio_console_config, rows, &rows);
- 
--		/*
--		 * We'll use this way of resizing only for legacy
--		 * support.  For newer userspace
--		 * (VIRTIO_CONSOLE_F_MULTPORT+), use control messages
--		 * to indicate console size changes so that it can be
--		 * done per-port.
--		 */
--		resize_console(port);
--	}
-+	port = find_port_by_id(portdev, 0);
-+	set_console_size(port, rows, cols);
-+	resize_console(port);
-+}
-+
-+static void config_work_handler(struct work_struct *work)
-+{
-+	struct ports_device *portdev;
-+
-+	portdev = container_of(work, struct ports_device, config_work);
-+	update_size_from_config(portdev);
- }
- 
- static int init_vqs(struct ports_device *portdev)
-@@ -2054,6 +2062,8 @@ static int virtcons_probe(struct virtio_device *vdev)
- 	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
- 			   VIRTIO_CONSOLE_DEVICE_READY, 1);
- 
-+	update_size_from_config(portdev);
-+
- 	return 0;
- 
- free_chrdev:
-
----
-base-commit: b927546677c876e26eba308550207c2ddf812a43
-change-id: 20251224-virtio-console-fix-3d46980ef569
-
-Best regards,
--- 
-Filip Hejsek <filip.hejsek@gmail.com>
-
+Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
