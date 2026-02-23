@@ -1,140 +1,212 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010012.outbound.protection.outlook.com [52.101.201.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FA398248B
-	for <virtualization@lists.linux.dev>; Mon, 23 Feb 2026 18:55:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771872902; cv=none; b=EqepL9WcgcdiGhVmGq/+Vf0L6jdvlVbdeAAc93yKS5/NfnrVDXi9QyjrQrvTzIEFkJZeNKb2SoDJtNnK9r2AjVP4Viku9T1ybdVmLfZCoZaXYn6935GdS2hv41Xnr9YNiYFJalaFg5T80zvjl4/6H5vmZPd/5Fc8/0K1jA2iMSI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771872902; c=relaxed/simple;
-	bh=nctdjUKXo0u5+zaaCcHY+q1p5NNU/Ba/iOXcHcHJhqE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YKSj+ORn8ULbrpnAGUAG7vga82zFqEZQeGtX1eYP5AEjv/lzUit5qpKonz5oPlsuHx5C1fxPZQKW3QucgxNxczmB+9DyOkVMzdxND0mxxnx7NWtdnNQDVvtkE09LavFdEiah6IxVUq8bZZrY0oc8nxGTum2p2jT7EKFo2PO0t4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gQ5hqCjG; arc=none smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB9F34029C;
+	Mon, 23 Feb 2026 18:55:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.12
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771872930; cv=fail; b=lK8AluxhZJk9C11VqJNkV8puu1OFYhY5EWFGJ5nMAYqg5yQbTo61ODYpoRz8TTh4SJEJ+nA16PYjz6HsSksH5vholadCiVUAR41lhkt1CSDs+/3l8IoPi6lfA9HPc3LMEwWZ8m9VRxK+fPWtzr9u4MF/E4Y4Pb6dtPHR4KqNmhI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771872930; c=relaxed/simple;
+	bh=TPzQYY1oHGAVZTC61vkYdJ8XEs9PVyNU/taxEmbdzxk=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=mx0B4NFP2hzU00upCixCEyKQm/naRY6baSsd633AfB3kRUNqxgxTHKFZfRQW25DQUYZUubM9uy1nKGf2JQL6Hpk2ma7c3Mi3d7c7XTD35awt2It74P5Ui3MoVLoHSFPOTUGtKF3iug7DBDkslRC/1A7j15M5ddZhkVIx+U9Mrx8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=VDtByfQ5; arc=fail smtp.client-ip=52.101.201.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gQ5hqCjG"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-7982c3b7dfcso24755257b3.0
-        for <virtualization@lists.linux.dev>; Mon, 23 Feb 2026 10:55:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771872900; x=1772477700; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Vud3sOYkGGFigTsBFe48YuQKgz6ijM9yPc/XUomBSLw=;
-        b=gQ5hqCjGf8y1mnv9JNme5zgvdH2w+RKvwKhb5Q+xZRDBDn5l6BxBLQFfO0V2jaVhef
-         2ciMHCO8xa/5pGwJ3W3n6tIQxg/7XdXBKbsU2kBVhD0hIqkAi4b8QYgP4HFwD0uDZ29S
-         yT8ITOE87L0S8MMix9ykc899oz+kID+DJ6/Z7QLphrLWsLaSJikDx84kojuGfhGbwe0K
-         dwnnVm4g776eN82chvyFnZPZDWPPWoXELQM6J7LsFBhfE4Q74C7tH8b3d+Clhlop+2fm
-         rdZqAE08T8FwFJsCbR1hnkz1iQa+XjKRihp5AuOoqjpQulP1pneSIPY7GLQliYslls+o
-         0jtw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771872900; x=1772477700;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Vud3sOYkGGFigTsBFe48YuQKgz6ijM9yPc/XUomBSLw=;
-        b=ozGlRrUx38N2ETS3p5kyVj1n8J9T9q/zi+QBRe09i0u3n6epMyR3U6NFHXTwA3KZce
-         FqNzeGLABjPSf1Z2llpM0OvjBeiZiZpoW+v7VvFeJRa35RKE1pFy6mjR3YmDj5YPZFGN
-         cgnSLHzy1dAbo97gASvSyfmrbKipmvez2XG5ugZ7Mh0eUc8vbTlJue+3pFfZ9LMyPEeA
-         9QNARcUnKJmRfESFdaBIlcKwasTviWz9SWAEyvbel+sXq+EC//jshvAGpNIXDJNiAe5L
-         AjzPTqGDj0xE+LWVe5Y0U87OE6e+21Al6yXC8+1AcprSLuqOrDTSeMn5526tW/CjQy9h
-         I3Qg==
-X-Gm-Message-State: AOJu0YyB66t9QofN7OFrc01Z76mQK+ENu6xiCVecZ8dguEQ1hOPFHpZq
-	Ae3e6G7OhEuzacj37Be6htyZeeaNR6UzZvpK4Bx2aGG8E3gxkyWIUNcF
-X-Gm-Gg: ATEYQzzKEsPI/XAbx9gL3Mu/6pNjKInaLGvqahUc7VeHqkdyDXURQci0kViP8C+tbAr
-	GPC26Sa/5ZXgRaAB4n+LyqvHBaXAIFCNMy18CJ5S6ECXnYvqyWNTpExL7rsktg4tJadJlbcCing
-	bUpNRsceLm2RJCA3xO4/OLZ5BQCWdwlJ3X9EL3597VKt/edJJipPFEvqcmwW+BVHydJ8tNPKXmc
-	nL+d0hWuBCq4DjLjS0B3jPFoLWUbLjCCRqfVbt83sJN/CEGGIwWdarRlJpUnhvTOBWNuhZ+8qNQ
-	HMJCaSo6EITMp0APuNFUI6XidNElkI3/uCF5LezCLR3w1me8ypBURZWKpauec/pv7jaNFNGSciU
-	JmeEo64sRoohMWv7ITqQQZ/Pz6Der7DxLdK2PPfrCFFbbnKUu4SSHD2mAz5SZsgTSNvUO5bQBSf
-	H0tx6BHBmAluOqzvUTvvs9dA8wzA9bHapFtZz/52s/kPltgjDGHkhlfTl2lA==
-X-Received: by 2002:a05:690c:c244:b0:796:4626:7425 with SMTP id 00721157ae682-7982914a1ccmr83072927b3.49.1771872900476;
-        Mon, 23 Feb 2026 10:55:00 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:72::])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-7982dd88efcsm34856507b3.24.2026.02.23.10.54.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Feb 2026 10:55:00 -0800 (PST)
-Date: Mon, 23 Feb 2026 10:54:58 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	stable <stable@kernel.org>
-Subject: Re: [PATCH net] vsock: Use container_of() to get net namespace in
- sysctl handlers
-Message-ID: <aZyigkExZEUc1bYE@devvm11784.nha0.facebook.com>
-References: <2026022318-rearview-gallery-ae13@gregkh>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="VDtByfQ5"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=qLEUgMAY/40RlERrALzkofi7ptL0LDMRFIaS+jtQfdyuLtKITU9+owunKYLpp5eTGWOjCF61T3Wl0ji+fDmBQIVa01/sQGzvjo5J5WuW8SVBLwyQdMQCs6jz54LQ1IlpJj+hRzoVmSQClYcX4UjZhXv1m0jSdjMz2YJTZ/Gf8jxL/jv4xsCY7JWvqaocgyG/lKgwEh9tOd10UFOUO6az6FjLvtctNCRKnjXPCVGahJMeHCNN6jCV8gXL5RwhEyh2RPn5GQDpNivFWo+JnxS7YR3XttIv9YuLvjlWNw21t7ce1WxoMq5/crTC/hQaQJv/ObMSS6d46DqIfvtx2+fDkw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=DqAlS8ysd7uOxEsRC9UtYzJTEFDeb/jaM/XAifxOe9E=;
+ b=B2LRoVi2faExkbjx8c8f2nZtTehqE4l7lzwMA5HhVOvztAyIQcQvLJ48YjK3UAcsQKMMaZ0aNBzFec4x+L6v7ut8NU5oyYH68LFoNPM+LW36Yj59oMnTxpxHym/GCFnbzHqfD4St9alSbrmvfTHudCRtykyA6y8IS4dd1Qg7cn84XfaCXjXxhs4O2i2PxIPZzHapsfeAmDEVKWVOTU5iz30KEjxvz3TZdqFanI+NcxpTU8y8LPKcnyifkRApYDsy4xSqvHD36LXmlXqyVXZB4S43KUOn/zIuNykQNnEDvbWZUfxwfExQfEBU79gmWdvcEKftzllQGNVdByIYcJ1qYA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DqAlS8ysd7uOxEsRC9UtYzJTEFDeb/jaM/XAifxOe9E=;
+ b=VDtByfQ50CIIaNuH3mLgJ34Z+NqRF/en2oozyRUhe9mA0ux+hvzoNhGcjwNzsUTXdzzCsL0Lhc4RqPTUrLct/LKNFBcfUBwf7Jjjpa0ApMrhQRWCr1JnTwhmmD3O6nsKAvKCF+ykHeogWekace/Uj8ySeNLreQx0ZnG0JUf8HEU=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
+ by BY5PR12MB4180.namprd12.prod.outlook.com (2603:10b6:a03:213::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9632.21; Mon, 23 Feb
+ 2026 18:55:25 +0000
+Received: from PH7PR12MB5685.namprd12.prod.outlook.com
+ ([fe80::ce69:cfae:774d:a65c]) by PH7PR12MB5685.namprd12.prod.outlook.com
+ ([fe80::ce69:cfae:774d:a65c%5]) with mapi id 15.20.9632.017; Mon, 23 Feb 2026
+ 18:55:25 +0000
+Message-ID: <90088594-5835-4f4f-9e69-aaee67109aa1@amd.com>
+Date: Mon, 23 Feb 2026 19:55:15 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 0/8] dma-buf: Use revoke mechanism to invalidate shared
+ buffers
+To: Leon Romanovsky <leon@kernel.org>
+Cc: David Airlie <airlied@gmail.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ Alex Deucher <alexander.deucher@amd.com>, Simona Vetter <simona@ffwll.ch>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Lucas De Marchi <lucas.demarchi@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ Kevin Tian <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>,
+ Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+ Felix Kuehling <Felix.Kuehling@amd.com>, Alex Williamson <alex@shazbot.org>,
+ Ankit Agrawal <ankita@nvidia.com>,
+ Vivek Kasireddy <vivek.kasireddy@intel.com>, linux-media@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+ linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+ virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
+ linux-rdma@vger.kernel.org, iommu@lists.linux.dev, kvm@vger.kernel.org
+References: <20260131-dmabuf-revoke-v7-0-463d956bd527@nvidia.com>
+ <20260217080206.GJ12989@unreal>
+ <0aa8147c-254d-4a1c-89ee-9dc4d4b6b022@amd.com>
+ <20260217133431.GN12989@unreal>
+Content-Language: en-US
+From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+In-Reply-To: <20260217133431.GN12989@unreal>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: BN9PR03CA0227.namprd03.prod.outlook.com
+ (2603:10b6:408:f8::22) To PH7PR12MB5685.namprd12.prod.outlook.com
+ (2603:10b6:510:13c::22)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2026022318-rearview-gallery-ae13@gregkh>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|BY5PR12MB4180:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1b769b87-150b-436f-204d-08de730d1a8e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7416014;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?L2JLMWlJa2krMndvUldFaGtYUUJBUkFXN2lGU3JvTEZ6OTVIbG0vdm1VZkZH?=
+ =?utf-8?B?YmM4N3M3NzZNNlM2azBwYnNubEJiWlIyL20rTVpjMUNTTFVBck95WGltejFJ?=
+ =?utf-8?B?cDREYmowemNWZVFPSHU1cFZ0cER0U1VqNVBoaG1MamtSa3pXWHlTcExtTTdY?=
+ =?utf-8?B?WTIxbWd6ZllwSndIS3hkWWl5WGxlVnpRRkt0SEF1L0RXU1FueUQxV1NlTnpZ?=
+ =?utf-8?B?N01VblVhbHpTUFFHTC8vVlJtazZGS2JqaW5qRU9VcnM2bmhDSkpZaTVFZkVo?=
+ =?utf-8?B?aUxJQ0lhNTIrb01sb0lzeDU4Nk1NVSt6czFiQUhPeWRHSjhLSDRkSUo5RlQx?=
+ =?utf-8?B?NkswMzg0Zjcya0g5NWpFRUJoOEIxMDNZaDh3TG02ZnZHVmh1ZWJnRVFBa0FM?=
+ =?utf-8?B?QkV3TVAxQjllTEJXUHdmY1duby9ic2t1UVk5bnJ0RmcyQmRJL0hEY09Mb3M3?=
+ =?utf-8?B?bFhQaCtyemxlZlErbmJzRDVBRm1PVVR5MVFtQmlUKzVWK0xFOVQ2ajExZ1Rl?=
+ =?utf-8?B?eW1FWHZNK0pOVDJZNTYrM1pVd2h0Tit6U291T0dDYnpHOVRIQ3F0OTBPdVZY?=
+ =?utf-8?B?ZHp4MzhmWlV1RGl3OURtcEhNWXNRY0NUVENqdGFKQ0ZYN0ZjY1o4Zjk1SCtF?=
+ =?utf-8?B?bjRXZFIrREtMMWF1Z0cxV3QrTXFONnFQaU85MzBDV1JIRTIxZE10R0pjSVo1?=
+ =?utf-8?B?ZnhnZUNKNXpoZUt1dnpieGJHOVBTRjRxZHRGWDFGUjErR2M0REhMTGhSTnpS?=
+ =?utf-8?B?LzlvNlFPYU5RVEZGRnVYWk0vdjlNYUFVOW85blhXM01TWUtmeWoxeldVaWZa?=
+ =?utf-8?B?N0ZscGs5RG5SQ2RxeVlNZ1BjZDBMeVd1R1dGR2ZFMWFOMEhDYkw3a2swdXJh?=
+ =?utf-8?B?Ym0ybnRORGdLcy9VM0hZSUI2RkFKY3hRcXRLOFZUTVJ4ekdoSnRIcVczK0RW?=
+ =?utf-8?B?MVFJeFhiZjVBL1dHbHB5eEMwcXVqS3ZXM1dKVmhUemZxdlBSQU5GMVZORjZV?=
+ =?utf-8?B?aUxuVzJpWU4vRlFSRFd3U3RaTTV2VEpWcUxXTHFNeEdOUmlhQ0IxQ1haMUxh?=
+ =?utf-8?B?bThhaTQxTDh1cXJ6SWtmUmRpZnMrcGpPMStSM1NpbVdWNjhkaytTOWJydW9I?=
+ =?utf-8?B?TVBaOXpjSzlORE1yK2ZRVkljZlhMZTlCOFhJZ2RwUG43d3Faa282eEtnSWEr?=
+ =?utf-8?B?d29xWmZuT0hDQ2hESVpHKzY2aEcycnVucEV6cFJwYmxacmhwZFVNakIzNjE0?=
+ =?utf-8?B?TlkxNnpTejR3bFpaUk83NUhUSm1PMzdteGFSZzJJQUxLZHVZNGFjcXBPZ05x?=
+ =?utf-8?B?cXlncVppd0pGLy9xMXR6UitlMFJxVkg2SUNsNitZb0FTbmNhM1NTSVRsenZH?=
+ =?utf-8?B?S1NhNTR1OWkxaEU0YUh5V3dHK2I2MTFRcUhHZ2llVy9Mcmwxd29yNUlrSTNF?=
+ =?utf-8?B?cGNYNFFIeVNtQ2FVVjBpL1U0eFYvVmhJbkszQ0RMcWVieTlwR1NzU0lGL2ty?=
+ =?utf-8?B?clU2cERLSWJDNUZUV0FIald1VjFISldaNm01Lzh0KzE5SlF3RlFzZjJNdFpU?=
+ =?utf-8?B?SFF5OU0rb2VMd1B1bW9MSXV0czZsTXVDdThuUDNyVGZvUDM4UUZrS0REOGtn?=
+ =?utf-8?B?c05Xam1yeUVQc3JNVkJWMUhyWDFtbXB6anFQcTNUcmk0Z05DeGhVWFBWQ2lY?=
+ =?utf-8?B?Uk0yL0s4SjRTVVhDNXdMTUJJNXNudFp5c2dnVC9EclJwTmtBNE9GOGhOcUpU?=
+ =?utf-8?B?YWlNSGtDNlhjaXRVamxWSUhFY2NsQStGYlI4M3RJOGZxRFQzdUp3bGpubjlw?=
+ =?utf-8?B?dUdubzh2eWNBNHo3OGptVkVBZjRrUWxnby90MzBEMzBkeVBlb2IzTDc1cTlF?=
+ =?utf-8?B?S3crRjJ1RC9jTEMvRnFpM3c3clM2RzBEV1NKWXdSY1o0VFIzMTVVd3B0VlJt?=
+ =?utf-8?B?SXUrTFlvZHU0QXB1UTVXamhqdnFQVWtKc1NkYVQzUUxlbDVqM3M2TllXWHhD?=
+ =?utf-8?B?OUpBQUozbG5QWENWUFduUG1OVERLcGk0TytLeW95UmxmQS9tSkxFK3pxN1N5?=
+ =?utf-8?B?RzcyTzN0cGVZNlNYTkw2ei94UWpTN3oxZzV4L1BtUW8yRWx5blYwbVBEL0R5?=
+ =?utf-8?Q?jSmw=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?QnYyVmFIVmtaM3IwenFKbUVrTy9hZVZHRmUrWm1CbWlLM2xQc3pRWHVoTkJZ?=
+ =?utf-8?B?b3A1Lzk0dHN4dFk1SE5ueVVwOGNXUjhJdWJQcGlQSzR2R2YzdWUveFBPdEJC?=
+ =?utf-8?B?YXZ5dlR1WUprbVpVM3JGdTJUR1kzRWVRSmdLR3FRNkZtcnRUVEdMMmkvdy9Z?=
+ =?utf-8?B?ZUtjd0JBd1JnUkp1ZWtibnJGNFplRzJPem1SVlNxWUx5SXk1RWxIdjh0L0oy?=
+ =?utf-8?B?TXhTOHEvbGt0QTE1V3krNTBMcmFpZ2FyNjNrVTkxeWd2clNEUkY2d3Q3Z1Fl?=
+ =?utf-8?B?M0V0MG9ubWVoRE05VmsxNjdXU1VCMTBNeS8zMVk5TUZVb2JMemtYYzJXeUR0?=
+ =?utf-8?B?Y0ZqdXZ0Q1FrU2tjV3RYNFFDZy9CZUtkbGI0eFR2V3JBWW85RzBTcVdoWGJs?=
+ =?utf-8?B?WnFidWNveEdqRnVRT3pRWHBUK1N1b2FFLzIra3FLTisyWThtUkkxaGRXTHE4?=
+ =?utf-8?B?SFAveE1EZkV5VVkzSVEydFhTV2twT3pZRXNtK0dWSnV0S0NPY2ZUTmx2K01N?=
+ =?utf-8?B?STRSNHdxSGZsTkkwVmNpd3gvM1lsRkhybm0ySjJraENiaE5LcTRSSHBNUkx3?=
+ =?utf-8?B?QjJQRXJTZWlha2lHelNlNlY1dnJGYUpQNGo3cUpINm5kOVg2SWdFQVVuWGt0?=
+ =?utf-8?B?ZG0zbFhrTzMrbzM4cU1LN2I2amt6U2JCRkYxN2lnZGgySHVGVi82NXZDNHVk?=
+ =?utf-8?B?cXIvMGFqK3RyT0NqdVlXaWtCUVdrT2J5TzhLRCs4OEIvaDlDMzBDR2J6bFI1?=
+ =?utf-8?B?cGg2V0c1MmU4dWtQeGkrdXpTVVNlVjNaZDRVREpsUTd5NjQ3QWZYOUwzS2tZ?=
+ =?utf-8?B?SmJHQkY5MTRUTGpRTkFUS1FPbXBJRitNd0t2M3FRNksyVmQ3SE00b3VJVE05?=
+ =?utf-8?B?ekFnVGwzV3dhZ1VHVEJNWEQxNGVCZ3ZMZWg4aloraUpwWWpxRzh1SGFZT1Za?=
+ =?utf-8?B?TTR1RjN5cjk0YlVoV25vS1NPWTVCK3dMV2xVOEh2NjBrTkthUmdaK2NMcDNL?=
+ =?utf-8?B?bFpmSWxTOFhhSGNzWUhPUzE0eUkvYVg5UDlNc0N0cHByUVVESklXSGRNSEFX?=
+ =?utf-8?B?MFMvcENzcHRwcmo2Ynl3amp2K2RqMXBlZitTRVErM1JmdXNrREpGejV3WDRF?=
+ =?utf-8?B?NEd3Y2dqRWM5Uk93RG85UzF6UVY4VlUwOE1JckcrS2VEV0dMVzFSOHNIYlFa?=
+ =?utf-8?B?Z2JnQWs2UFFyRjFEWWtXT2tLcVZLQjUrdUc0aW4vdUJnNURkK3ZtZ01uVXBj?=
+ =?utf-8?B?ZHhiUzZTU3J1V2FLZWRldnhzTXlISUsvc2J5WW14WDI2dzVzaUJJUkF4dGNU?=
+ =?utf-8?B?Z2hGVWk4a2FwZ3VUNUdMMStMVWQ5UktDZGd4YW9URG9qOUsxUWhHVHNzbGQw?=
+ =?utf-8?B?NFErMFJPNmM3Mmd0S1lwMHU0MStPZTl2WkN4ejhra2lrYjhWM1dzYURtTU9O?=
+ =?utf-8?B?d2ZqN3VLU2Q4M3R2cVBZcTZJbXBRY2Y5UmgyR000YkJ1cUNpZmY5NmlxYjNP?=
+ =?utf-8?B?WlhxN2ZkK29wcUp3bjNNMzlmZHFLZTZndjRMKzdMTVdOUGtYb21EZW8xNVdQ?=
+ =?utf-8?B?TU9qc3E2UGtOY3l2V3QzdDhDbmg0QWJIY0xGdDd4TE8rQ2d0VnVoYnRKYzFH?=
+ =?utf-8?B?eFdNUmM2a1VndkFOREhLWnhkSkQ0cHNxNkY2dlVMRDVvRmRySFgvS1hSbDZL?=
+ =?utf-8?B?UGYxcnFvb2FmT1UvYktZN3VOS2ozc25mTTQrMTFkbDNSV2VLLzY1alR1Z1NM?=
+ =?utf-8?B?dkpwaVUyWmFNNGVXNlVPV2h5eitreWJRL1VPS1ZaNWRnTmdCaHJjM3RCZ2Rl?=
+ =?utf-8?B?eDdtQjkwL0Ixa0JjRzNDSlZLRTNWSTFHUkY0VCtLTndmMmxQN28xS3RTazJF?=
+ =?utf-8?B?V2FsSVFEVnphTm91Qjh0RWxBUHEvMzB3OVVKd0FSQjlyQ2pPNEhhQ05lNEtr?=
+ =?utf-8?B?d2R2SnhsbVBiUVBHWmpXWkxQeTVGRkJYekZLUWdwRUdRUTVDRWJXcktEWlZD?=
+ =?utf-8?B?ckRocExVbjZVOFg5Mm9sbzU0cTFlK0ZEUkNLbnFna3ROUHl6Z2JEU2JGRmly?=
+ =?utf-8?B?T0R0aXZ0UURuajVWNEdmSHR5TlRMc3ZxeDhkUmtuVlNRN0luc1lNQTZKM0hk?=
+ =?utf-8?B?WkNJaHZ6Q3h5RGZIT1h3M016UVdRYWp0WSsrcmF6dTFEeEJDY2RuaktVQXk0?=
+ =?utf-8?B?SUZPWGdYRGJoditIYklLK1cxMDRCcStWMXFLd1hMclY4akZaZ293SG5saCs5?=
+ =?utf-8?B?UGpRZk9oSDRFb1N2dTZabDFPTW5FS1lBcjVpQ0NvU1UzRDVHR2ZUMTE5clM5?=
+ =?utf-8?Q?6gqaHa53dF6szCc9mJ?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1b769b87-150b-436f-204d-08de730d1a8e
+X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Feb 2026 18:55:25.4288
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: PJQv6CNac1CI6BT0foePYvZC0CyOPYywTmPo6WH+uJkWaJEtGZCdkVhDAeDoa4dg
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4180
 
-On Mon, Feb 23, 2026 at 06:32:18PM +0100, Greg Kroah-Hartman wrote:
-> current->nsproxy is should not be accessed directly as syzbot has found
-> that it could be NULL at times, causing crashes.  Fix up the af_vsock
-> sysctl handlers to use container_of() to deal with the current net
-> namespace instead of attempting to rely on current.
-> 
-> This is the same type of change done in commit 7f5611cbc487 ("rds:
-> sysctl: rds_tcp_{rcv,snd}buf: avoid using current->nsproxy")
-> 
-> Cc: Stefano Garzarella <sgarzare@redhat.com>
-> Cc: stable <stable@kernel.org>
-> Assisted-by: gkh_clanker_2000
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
-> 
-> Note, this is compile-tested only.  Some of my scripts found this when
-> looking for places that are missing fixes that were applied to other
-> parts of the kernel.  I think the af_vsock code uses namespaces, but as
-> I don't know the network stack at all I figured I would let you all
-> review it to tell me how wrong I got this change and all is fine with
-> the original code.
-> 
-> thanks,
-> 
-> greg k-h
-> 
->  net/vmw_vsock/af_vsock.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 9880756d9eff..f4062c6a1944 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -2825,7 +2825,7 @@ static int vsock_net_mode_string(const struct ctl_table *table, int write,
->  	if (write)
->  		return -EPERM;
->  
-> -	net = current->nsproxy->net_ns;
-> +	net = container_of(table->data, struct net, vsock.mode);
->  
->  	return __vsock_net_mode_string(table, write, buffer, lenp, ppos,
->  				       vsock_net_mode(net), NULL);
-> @@ -2838,7 +2838,7 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
->  	struct net *net;
->  	int ret;
->  
-> -	net = current->nsproxy->net_ns;
-> +	net = container_of(table->data, struct net, vsock.child_ns_mode);
->  
->  	ret = __vsock_net_mode_string(table, write, buffer, lenp, ppos,
->  				      vsock_net_child_mode(net), &new_mode);
-> -- 
-> 2.53.0
-> 
+On 2/17/26 14:34, Leon Romanovsky wrote:
+> On Tue, Feb 17, 2026 at 10:52:25AM +0100, Christian König wrote:
+>> On 2/17/26 09:02, Leon Romanovsky wrote:
+>>> On Sat, Jan 31, 2026 at 07:34:10AM +0200, Leon Romanovsky wrote:
+>>>> Changelog:
+>>>> v7:
+>>>>  * Fixed messed VFIO patch due to rebase.
+>>>
+>>> <...>
+>>>
+>>> Christian,
+>>>
+>>> What should be my next step? Should I resubmit it?
+>>
+>> No, the patches are fine as they are. I'm just waiting for the backmerge of upstream to apply them.
 
-Thanks Greg. LGTM, and passed all tests on my test setup.
+And pushed to drm-misc-next.
 
-I can't say if nsproxy can be null here in particular but better safe
-than sorry.
+There was a minor merge conflict in patch #5. I think I fixed it up correctly, but only compile tested the result.
 
-Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
+Would probably be good time to now test drm-misc-next if you have some userspace test cases.
+
+Regards,
+Christian.
+
+> 
+> Thanks
+
