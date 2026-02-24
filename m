@@ -1,46 +1,46 @@
 Received: from mx0a-0016f401.pphosted.com (mx0a-0016f401.pphosted.com [67.231.148.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 293E81607A4;
-	Tue, 24 Feb 2026 05:13:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DBA32494D8
+	for <virtualization@lists.linux.dev>; Tue, 24 Feb 2026 06:59:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.148.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771910017; cv=none; b=dhIIetL9hL47COdjVCoo03vF+B5qkImYM3VrMjsnoRj5+sxXxxiIWCU6Y4wC2e3ERs1bRnbc94eAyvjcmYK7Sx1dYE9c+PblaQHhpwngvexlI6tWzn63H92nP8VpzvjRrRod2j/XwR5L1yUv1Oqp2zE6VLKyRqSO+qD4+FOuxk4=
+	t=1771916346; cv=none; b=knPKHzdHQTvGnBS2YTDv7uAncCFfjcO/Jkbrh/lnklUQ0s/RMdyPVMP6f/BhWpGafcbYWcTGxeAgsklfGe3mXPQTtz18UK9umhGUyuhwzyiS76NM/9VO9XWK+lrRT5PzCR5KMjT9DqVpdeGQNLjk8ILKBJ3oizX1swsfpu5UFCw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771910017; c=relaxed/simple;
-	bh=J3Z45TFc8/iUFPhe7JBqb6mewr1IvDu0lwyrWmiCk24=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=MzfNCvDVP4Aut8n9p4Vdn06H07qI2eViGGyzv62W3UrARdZSwoIlgCWdUxpIbVYdw+sJXcyyD452UanG2lOM0ed4XIox25GWtFx5MJycehsP1QCm/sga3AShPaKmd23q8PqmsnoDJUTRUpNXy5f1UoeAHpHD50vxiAGNHW5tSYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=HZfxlm7h; arc=none smtp.client-ip=67.231.148.174
+	s=arc-20240116; t=1771916346; c=relaxed/simple;
+	bh=LxTpxGjFOLgQ4UinMepwBEnlsey/4K6eELiU5PJobRU=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=aAgj+LQT0clZ5Hv+IswCArJPR2EDRHRDcN1n0RYKyH84AWDN2VnYXc1EU1kbq0TDSo09y9hnriIpAyMq3Cl7PgPOTt3/BUVPmqesvBfJuEfwTzVk02QAFvrJSlpMi1tfflhKKfHJ5hpGDE/S9T1oho1XDJa3535NTIpp86HUVrg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=fEo76op3; arc=none smtp.client-ip=67.231.148.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="HZfxlm7h"
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="fEo76op3"
 Received: from pps.filterd (m0431384.ppops.net [127.0.0.1])
-	by mx0a-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61NEpT8m1503389;
-	Mon, 23 Feb 2026 20:52:55 -0800
+	by mx0a-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61NH2Fj04000896;
+	Mon, 23 Feb 2026 22:58:57 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
 	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pfpt0220; bh=kEKfqNeAM2sDPck+EYSB9j5
-	92HYqcFpZpunmGD4OmR8=; b=HZfxlm7huhTpMce6I7xxTiicNi+YeIWfUFX9++b
-	NEUSv43SmWuN4knHhsnkL4uneE884Sqp0sO5D4SCnikFYWFX3QqeAHHXTU5FFhJB
-	5GCh922/APuWm0K3eFyiZgp7tsZnMf19Rl9awgoi+qwwGfC7qVPS1N/0T6AENNrl
-	DpL14OwmNvhV7cxB4rIKR8LyOgRD+IhHnpXGUalYIXROZ8bUfgOl4L0jo4hQt0aU
-	7ZiRzXTawExPJT4ZNX1OmiYfCxw9g6JPHDnpjTZJxCmoKnsrlhhwHNCQix3gOCUE
-	fDNzb/BPlMMJebQwmoWRzO5nZB8AW5MOu5bQJB4Ey0clLyg==
+	:mime-version:subject:to; s=pfpt0220; bh=mm24KuT2fmx2hrfvUXBSiYq
+	VxHkvsEBvxcbVNmOiJBY=; b=fEo76op3LoAy3+E/XPGTK+jwUyqxYaMNU0DU4sd
+	xwJJS+gnqmMO85JwY+xk+nOz8ZzmKJjFuVGVUjYRKMB31v07ZbAFTW7LJ+EheHe/
+	oZuK5MMdmEsMloRFpLbk0WnVxc8qiQhi58mYsRlddXdzm1WDhto4F4S1ZBo+4TqY
+	hIJ+PVQhXHys6NwYu41wix9C0tSjP8HhzNHwNugRVoCfLpKTbDY1jOgs+olZVJxq
+	+Thm8UUhBdoXTte909Ie5Ndnjb9MrHeJwmkj2HzggAE2jImKsLROe4Hz1K29wLXp
+	p3CSJg2j819JrXDTqHj7gc4KUP68KBJxBa1nJ4L1hiKUjWw==
 Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
-	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 4cg1ubbtk6-1
+	by mx0a-0016f401.pphosted.com (PPS) with ESMTPS id 4cg1ubc1uc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Feb 2026 20:52:55 -0800 (PST)
+	Mon, 23 Feb 2026 22:58:57 -0800 (PST)
 Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
  DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Mon, 23 Feb 2026 20:52:53 -0800
+ 15.2.1544.25; Mon, 23 Feb 2026 22:58:55 -0800
 Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
  (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
- Transport; Mon, 23 Feb 2026 20:52:53 -0800
+ Transport; Mon, 23 Feb 2026 22:58:55 -0800
 Received: from localhost.localdomain (unknown [10.28.36.175])
-	by maili.marvell.com (Postfix) with ESMTP id 3E0273F70C4;
-	Mon, 23 Feb 2026 20:52:50 -0800 (PST)
+	by maili.marvell.com (Postfix) with ESMTP id EF88E3F7099;
+	Mon, 23 Feb 2026 22:58:51 -0800 (PST)
 From: Srujana Challa <schalla@marvell.com>
 To: <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>
 CC: <pabeni@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
@@ -49,8 +49,8 @@ CC: <pabeni@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
         <ndabilpuram@marvell.com>, <kshankar@marvell.com>,
         <schalla@marvell.com>, <stable@vger.kernel.org>
 Subject: [PATCH net,v4,1/2] virtio_net: Improve RSS key size validation and use NETDEV_RSS_KEY_LEN
-Date: Tue, 24 Feb 2026 10:22:48 +0530
-Message-ID: <20260224045249.933178-1-schalla@marvell.com>
+Date: Tue, 24 Feb 2026 12:28:49 +0530
+Message-ID: <20260224065850.962826-1-schalla@marvell.com>
 X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -60,21 +60,21 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Authority-Analysis: v=2.4 cv=P7Y3RyAu c=1 sm=1 tr=0 ts=699d2ea7 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=P7Y3RyAu c=1 sm=1 tr=0 ts=699d4c31 cx=c_pps
  a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
  a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
  a=TtqV-g6YmW1Jfm2GSLaY:22 a=VwQbUJbxAAAA:8 a=M5GUcnROAAAA:8
  a=WvS6aQ_piSL3sVsHHQ4A:9 a=OBjm3rFKGHvpk9ecZwUJ:22
-X-Proofpoint-ORIG-GUID: zri5ZNkkPnbjVj6E_0jTIhWJb2r3Is--
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI0MDAzOCBTYWx0ZWRfXypwqFyEcXtCI
- qImKS2tuOS1rMV/GbP7RiaDrjHuuNaxp9T0UvPBNaP2OVtlpk9KexK4A3J01pgikdLPRBJqNL6P
- xJFUkLOXHtyR5OcJt5aZjWTuVCvCHbE7vX8/iMOo5Ewc8a+kFvQu5TD2X0Z4DeYKjzYqwJ1BUbl
- KHCKUL6j8DoYRULfAoTCbP12xHawdjCLkkYMFzxHYDSR44bYGjmLPArTcWNj8+ACdUiumQh8zOx
- KY/7KE2cog5oowZM+TgG2xPNuQ5wZoFlXl/7R9B5KY+ehbo3/i8ohXy3tWIgx5VZKsguNg/QaCN
- EjYef43KKHXWaZeWT6PKyqrxRp008apMTfd3/FlUZDYT1HnYFKRbygPArOvvRbbdytwpxXOvkto
- 6UquCvq4rQPWTyn6DSwRoeV/zBOCSA3YwKtu9x9MW84m1hJ0gywRc9Zyk7/JaMk00YVeBTuNnAJ
- XY+8yWUcBCAhQH/9Rng==
-X-Proofpoint-GUID: zri5ZNkkPnbjVj6E_0jTIhWJb2r3Is--
+X-Proofpoint-ORIG-GUID: uztwNaE6MCp58ax8j9QgAiceMV2JoZpz
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI0MDA1OCBTYWx0ZWRfX5zilU5IpiVTV
+ lJX4feZXosV4VywYWlVUHkWq4R4TeFBmzYGEJbqYSr+2mZusFr0a6d5/djGr+dgm+a+mwvqolCp
+ 9p/JKQR7kwM3u4SAiQZ2SpvyUDEl015Uz+BUtSq0bsOZzG+HPV2abou5ekhiALova1/pDJLap2A
+ J6GB/gXa3mS7ZBx5Pip54k7SZExaA3zTxByDoRxijABmcVv2S0FOeqSM/kFOJMK9iTBXdE8FbIN
+ aU4ti1CqbZ3iDl2YBh8QXXMnwaOd3iikKLw5hIYVHfTLDpOHgpVyQ/fX2aGWvUYf2r0s+pUqSWZ
+ 0s7vY+AVTgbV/T6vc3FQKRl3duhsgTY5XB2Yn6pbqy/08DHXrrvxVDigyCm4l5gjjL5nPODgu+5
+ JjD8umW7PyGISqrLsNYEz2n4RbyA2Wj4qae0VXznzeQPaJfgxdpRagrfNe6c2wTMw/bCwQmmRNT
+ P+ePSmmYd8edojMZ6cA==
+X-Proofpoint-GUID: uztwNaE6MCp58ax8j9QgAiceMV2JoZpz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-23_06,2026-02-23_03,2025-10-01_01
@@ -94,7 +94,6 @@ v3:
 - Add fixes: tag and CC -stable
 v4:
 - Use NETDEV_RSS_KEY_LEN instead of type_max for the maximum rss key size.
-
 ---
  drivers/net/virtio_net.c | 34 ++++++++++++++++++++++++----------
  1 file changed, 24 insertions(+), 10 deletions(-)
