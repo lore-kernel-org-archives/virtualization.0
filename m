@@ -1,118 +1,116 @@
-Received: from mail-yx1-f44.google.com (mail-yx1-f44.google.com [74.125.224.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F2B42135D7
-	for <virtualization@lists.linux.dev>; Tue, 24 Feb 2026 00:24:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C856913C918
+	for <virtualization@lists.linux.dev>; Tue, 24 Feb 2026 04:53:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771892653; cv=none; b=QG4dy2m2nkvHp7qGS4w89Mu2hgK+19XDRR9H/4KGbkRBYsZYnNUQneo4DaF4DN1h1ri8yE6WdcIHsD8BKlUy94Hy4SNmzkmuvT4BUtDMPyRmbwyZq6RyeH+hhjGxnC94I0x09sWYji/1+NxuPuKUE+xo5GKtvWlVLMUH4yTnbhQ=
+	t=1771908803; cv=none; b=dKFpsB8uRaIN6uunR7YZVPJ+CrSLhlg3MmkY/A0hdZiagAIECSFXJ0yJezbbsjuaHbBr13h1jyMVGSa+ajBQYeTmK3cuRAXwsoqN2k5B7aMBAcSgaNqBCvl3vixftSNG+EF5v/AbKke9os2mfY0D0jURNbonxm3EYSuMQijb1rU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771892653; c=relaxed/simple;
-	bh=jKHWyDAu0xJvzI3WO6+meQgDEHUikzp88qy14INmcPk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sj3f1MQ0BQFxc83pyinSHOOVEV2AORNvFOACs3J2b52ZKJnBuH5p6WnLhX5QIAEQBlH/nFi2L+RADBXorNgR4UFb1+0vA21e9uGoH7h7ABl/OyTiXa9AMe8xSccd0SK4DDxMhVAY43C4TwKssW98W/tJIQXWmAhywk7DM8xAZtk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=St4TNmq1; arc=none smtp.client-ip=74.125.224.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1771908803; c=relaxed/simple;
+	bh=QHFf1OU6ES7xnOCXlMFAgJ/dg74jYKJ37lAfBLRVn98=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=jcRJFs9kkOmYg+pqAPQSNNpSbYgNwzO020rlMrr3gqzGi6zVRllgKBRBvF3Ab5iAJ+WcDlE+XLNOgPhEsuKhhEq+70v5ZjT+3o4gI9hl/GV0NKF2KOVujjeMdcfn9Clb9YhSLwQ9vumjAHlTZFImu1J3PN8v8g7Ep+PxHngsJLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=UYPFOMxr; arc=none smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="St4TNmq1"
-Received: by mail-yx1-f44.google.com with SMTP id 956f58d0204a3-64c9707fc11so743119d50.2
-        for <virtualization@lists.linux.dev>; Mon, 23 Feb 2026 16:24:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771892650; x=1772497450; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=u1akxnV01TuuqkqVdn8oJReBwARp0bMrNePNSdt98A4=;
-        b=St4TNmq1itbhTCzd3dyMBsiye9YQECX5snsTKhh4/vVYTfWUPYOETIu5T/Z8Dq1uIt
-         Sq2lhpf6UFqU9RoLZh0ZkQwZ/f3DDOClGIRuD/0zyHbKblPkQnkPY6BYdS+4dFa4yRJH
-         /VYVfPbd43L5SHNF6hqBbIyvO58LKSuN4THWvoYglJ9wWWfklf6CKq2R6pB6mFmFRgPl
-         f/e2vcHstpGatBP7sWYgj/j6ORdrgCCw9KfKwTRClQpHVJM2JTEMSkkbc73b4VpuPygf
-         iUcYqr6G2zMLtoU57rP3/u70SKlQ6xgpW6ok7SNgJfJgS+ZZfjX4uSM2YokNHTRsk4hN
-         8yKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771892650; x=1772497450;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=u1akxnV01TuuqkqVdn8oJReBwARp0bMrNePNSdt98A4=;
-        b=Tu7a8D1zezsCq5Tyq7kZUyIwosmHkcrApEo+Hazru6jgxoDCiCZ9dcoG8KNXNLNnVl
-         jv7/w98egKvFHJdGiSGEru8LJ292eToDJPkTXGF4fwgLsPE2vQ8NFtHN5hBTlO+H/pSV
-         +D6FjnsvLYXDAFVGsyLEiCn2vk/G7f25H3HE7w545tmjcFNY7gxyGGO23KT3uDt01BpD
-         DhgBP0czS9cVTtson+mIku6k1zEY/xnxKaOGoHudGMhHCSbdd2QXoYpoaEoMl/ThnxrZ
-         a09t73WWRzOeW9EIMKmPuU57qixVFBTAqOTg13PReqTwWANJOq4WZWo2p9exTE/Y6njd
-         ltCg==
-X-Gm-Message-State: AOJu0Yy2WE7F4bAsbx1nSDPBB2vJG+NsQaFRr5iTxgqCjSltAeqd0ELP
-	49nZiZbgr/BLXn+z0v3LG+qj6g6qBgHbJJd0vaNC5loDM4QZ/rX7i3pX
-X-Gm-Gg: ATEYQzxvyAqTUgRxLkWN5UHesNvHzqedDa7ayBvWGr+9D+pANAnoZWMt7GHTwPcHWsM
-	tU/ptyJjXqaTkmYQIJhoyhGv2OxiBaJh+4yLw6ZM2c1Fx2b6ewEmy1O0987owGaBmX8GzmD+VG+
-	4xAA/99SZIYwRHOAEvMP+/KmZaHLUyDvzupFKHxvB47Qp9zlR08JY4Y19akXYr3gikMxBdPzR19
-	9dTs+FekWaMnh/zM3nFuVRr2nWsXMqc9+pMNNeT6wY+lrG+mlVqWdMpDceT8p1Qk6iAp4TBCW+1
-	ryTzz+gviP7wcrRYYU+WAME+PDJuDblGbLRA8i7s8lS0nq/gKypfhlrTH0oml1ckLd/QIEhCPUU
-	OM+6VDsleFhjP3GzRwr4tjvjAyxeWxbMNiQbtVOL4Bx9BSkfac/7Xd0hCUjjDsrP8U/BJ+Bu5AY
-	egNcgCVrCCFprSnn7bsFpgo1z/pcHyqZadusxhZr4zy8ePGgQ=
-X-Received: by 2002:a05:690e:4149:b0:649:4906:770a with SMTP id 956f58d0204a3-64c788d2821mr7812527d50.8.1771892650119;
-        Mon, 23 Feb 2026 16:24:10 -0800 (PST)
-Received: from devvm11784.nha0.facebook.com ([2a03:2880:25ff:41::])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-64c7a35d839sm3891935d50.13.2026.02.23.16.24.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Feb 2026 16:24:09 -0800 (PST)
-Date: Mon, 23 Feb 2026 16:24:07 -0800
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Shuah Khan <shuah@kernel.org>,
-	Bobby Eshleman <bobbyeshleman@meta.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
-	kuniyu@google.com, ncardwell@google.com,
-	Daan De Meyer <daan.j.demeyer@gmail.com>
-Subject: Re: [PATCH net v3 2/3] vsock: lock down child_ns_mode as write-once
-Message-ID: <aZzvp52L4smGF7cM@devvm11784.nha0.facebook.com>
-References: <20260223-vsock-ns-write-once-v3-0-c0cde6959923@meta.com>
- <20260223-vsock-ns-write-once-v3-2-c0cde6959923@meta.com>
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="UYPFOMxr"
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61NHAEf92086643;
+	Mon, 23 Feb 2026 20:52:59 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=t
+	P+0XX82xmHWBkwIZfYhvrX4L2scW1Js6Fybb7XMtuc=; b=UYPFOMxrHK3ZBlFeE
+	yZxJiXVGLmkqjCPxr/XQHi2oU0YnpmWBNe1XmYYljvUlBNTQ7+NzSRYfQeO2tEvz
+	MqzVC7dpHnoHbrwxZk3h2U1EMmPYaRSUEyrfF4nzODtCd2Upwt1Ear88+BMASrjU
+	KWDR6i2zNJU5yg6CYtUCU0uMIKIPWkoiGBT7RGOUQYK6gLvv469mWG/fE8CmD39h
+	wLGlJJlz0AwLxfV+pI1lQNYMN/MCUv2dScGiz/PrvanRDMET872lrsPD2Aa4U0DS
+	qzKMyiTv3tXyENvaK4Why8l4dmIWtKpC4JlxySGo+8vb1EGGyixtVrRKglPuFlq9
+	seAPg==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4cfd3gvyaj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 23 Feb 2026 20:52:59 -0800 (PST)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Mon, 23 Feb 2026 20:52:57 -0800
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
+ Transport; Mon, 23 Feb 2026 20:52:57 -0800
+Received: from localhost.localdomain (unknown [10.28.36.175])
+	by maili.marvell.com (Postfix) with ESMTP id 913163F70CF;
+	Mon, 23 Feb 2026 20:52:54 -0800 (PST)
+From: Srujana Challa <schalla@marvell.com>
+To: <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>
+CC: <pabeni@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
+        <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
+        <davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
+        <ndabilpuram@marvell.com>, <kshankar@marvell.com>,
+        <schalla@marvell.com>
+Subject: [PATCH net-next,2/2] virtio_net: replace RSS key size max check with BUILD_BUG_ON
+Date: Tue, 24 Feb 2026 10:22:49 +0530
+Message-ID: <20260224045249.933178-2-schalla@marvell.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20260224045249.933178-1-schalla@marvell.com>
+References: <20260224045249.933178-1-schalla@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260223-vsock-ns-write-once-v3-2-c0cde6959923@meta.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-ORIG-GUID: JX3T82BzDMseqW1046oOTANVoAhCDXwS
+X-Proofpoint-GUID: JX3T82BzDMseqW1046oOTANVoAhCDXwS
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI0MDAzOCBTYWx0ZWRfX2oyqKzfDXfZO
+ Q3h5HzrpnxGj+MYfziexYoLwmahKyHcl38WNN89Gozg+Ap+GXb8DpTRDusfMz/IAN4gMIm75s10
+ rdMa0U5JXNaYP3upnE+JVfYCSyXKVbf3Zp0W5Wwfs+HmV27i6Tmge3ZKqBm5Uwf8AxniIYM/PyH
+ ibotz97y7wVPyn8bqc4bW4WWJmOjojAxGDPQMxa/qhWXMwUxQ10nfoR1rsT5GzALjS8aN4AKv4B
+ YoKGLAMsb+UUDjbnmSENX6QpDUIHXo82UgVBcPuVUO/3Jo4duQCZjDsY7xDk6uuBcdJnTE2mKk7
+ irLpFMjAkxb7+WLvV4mgc67Xib2SUvOPvcmKrIopUkUyvYYifJQt0lujCJWV6kqniM48dapFzLW
+ nX9uNYv0TigFla4Mxk0Ft63QvSpfo5nZ5Jj/+NRL8ecl1lx/TZQtfOjLslwm2QOyED8pvTUEpkH
+ 84AQFBc+ZRYcGq1akIw==
+X-Authority-Analysis: v=2.4 cv=H5XWAuYi c=1 sm=1 tr=0 ts=699d2eab cx=c_pps
+ a=gIfcoYsirJbf48DBMSPrZA==:117 a=gIfcoYsirJbf48DBMSPrZA==:17
+ a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
+ a=QXcCYyLzdtTjyudCfB6f:22 a=M5GUcnROAAAA:8 a=BwTn4DStoJ9Fkl0ccMAA:9
+ a=OBjm3rFKGHvpk9ecZwUJ:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-23_06,2026-02-23_03,2025-10-01_01
 
-On Mon, Feb 23, 2026 at 02:38:33PM -0800, Bobby Eshleman wrote:
-> From: Bobby Eshleman <bobbyeshleman@meta.com>
-> 
-> Two administrator processes may race when setting child_ns_mode as one
-> process sets child_ns_mode to "local" and then creates a namespace, but
-> another process changes child_ns_mode to "global" between the write and
-> the namespace creation. The first process ends up with a namespace in
-> "global" mode instead of "local". While this can be detected after the
-> fact by reading ns_mode and retrying, it is fragile and error-prone.
-> 
-> Make child_ns_mode write-once so that a namespace manager can set it
-> once and be sure it won't change. Writing a different value after the
-> first write returns -EBUSY. This applies to all namespaces, including
-> init_net, where an init process can write "local" to lock all future
-> namespaces into local mode.
-> 
-> Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
-> Suggested-by: Daan De Meyer <daan.j.demeyer@gmail.com>
-> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-> Co-developed-by: Stefano Garzarella <sgarzare@redhat.com>
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Since NETDEV_RSS_KEY_LEN was increased to 256 in net-next, use
+BUILD_BUG_ON to enforce the limit at compile time and remove the
+redundant runtime max check.
 
-Stefano, I wasn't sure if you wanted the Co-developed-by and S-o-b on
-this iteration, but I added it just in case. Please let me know, if that
-wasn't what you intended.
+Signed-off-by: Srujana Challa <schalla@marvell.com>
+---
+ drivers/net/virtio_net.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-Best,
-Bobby
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index eeefe8abc122..3092d5d9d3e4 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -6639,13 +6639,7 @@ static int virtnet_validate(struct virtio_device *vdev)
+ 			__virtio_clear_bit(vdev, VIRTIO_NET_F_RSS);
+ 			__virtio_clear_bit(vdev, VIRTIO_NET_F_HASH_REPORT);
+ 		}
+-		if (key_sz > NETDEV_RSS_KEY_LEN) {
+-			dev_warn(&vdev->dev,
+-				 "rss_max_key_size=%u exceeds driver limit %u, disabling RSS\n",
+-				 key_sz, NETDEV_RSS_KEY_LEN);
+-			__virtio_clear_bit(vdev, VIRTIO_NET_F_RSS);
+-			__virtio_clear_bit(vdev, VIRTIO_NET_F_HASH_REPORT);
+-		}
++		BUILD_BUG_ON(type_max(vi->rss_key_size) >= NETDEV_RSS_KEY_LEN);
+ 	}
+ 
+ 	return 0;
+-- 
+2.25.1
+
