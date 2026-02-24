@@ -1,132 +1,159 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E032536EABA
-	for <virtualization@lists.linux.dev>; Tue, 24 Feb 2026 09:53:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17409372B58
+	for <virtualization@lists.linux.dev>; Tue, 24 Feb 2026 09:55:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771926838; cv=none; b=QJwVy5x1kh8jJH8QvvPLIYtWFsiJoCblvxS1MF/lA42XDPT4jqwUy57+/gVSqTkzGOQqOWk0EB0kjbLCkFOdN6K5DbvkMYQljByVKENDzdRE7ZqxQuKXES50XfGshhWWDVzDZhXLEo2YYhN+cTiHil1eEGO4tRpuAWU9L+g3Mv0=
+	t=1771926914; cv=none; b=Pf4ktWzz5FVt5Q5cTDCBpQeh21SoyL/jhMpg/g9RiMbipcb7KpV+6Q/vw6/w3ViUSG19mlqbJ1QYzTxcjTFmwZYLwpbifbVBCMR5/7wN5N8WLWe2J+cUrTi4eQXLf4UGeOqKxSPEtnmjJCbYuo4Ih1n8SnCoGsWJExN8oIw90mk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771926838; c=relaxed/simple;
-	bh=upPFwJGKGCxD1WBcT+EBWkQA383jKER81hlsysUwWlc=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Kn0O+toSJTSMnbztXCcCPS7+AeXaFjYZb/UZN32oPfp5TCwyFIVvegSKQDfXXrQEwbRwnQJSm4lBu/3ZTsVCvx9XM9+BlmJ8RXpv+YlsHccHGJZ2BqP9edHjeYXUkPlaeYTACjIV/l8HBzq/3/hSo/57/ooa2Om4GlO47rqIyGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=PtyKLt91; arc=none smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1771926914; c=relaxed/simple;
+	bh=ELCHW2MDcGHyAOjCI5TzQdz1gK18QvxlUMKh2Jmx5xU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=HWCk6neAcjzx8nHCgA7zJpRzIH8C6hbnG4YjETvEBHYOZpi7s64mK0Pg3gvvTw+7q8SUf5t0AdreCZryw8gWzaCH7wdvFXNJgHLuSs1Mqvpg9WZC+0z27LEwBJisw36LxWYT6TI7J3Am0CDFGQqMELM4lObz/pIgh+pumq5lKiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AyAkQQOP; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="PtyKLt91"
-Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61O8kUPF2124077;
-	Tue, 24 Feb 2026 01:53:48 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pfpt0220; bh=q
-	hRjdyx9tPRx3iudGSEYOaLlVSA5Mepbuevj8/N7MFc=; b=PtyKLt915cSvSrLjK
-	Yel2/uwnNCVR/D63LkqY+7if/YO+hAnjpvzlyoYQYIQ97za0xYbfMSFUd7R1t8IC
-	k0W+JIzM/L4zGoxBAraTa5gwLYN6qQQddl83pocKSK9Lwht0gjJVuEvduB/oKDnz
-	dWQm3i2I/tliLDEXqj9DKbg4andH4v4EpLxWU7BTQEfuQW/UJD+EGqzlnTcXIXsg
-	7Q0AHPDimt/YHa2SOnEjb74TqlC+WiOU3urYnvFj7HkU8UH3OC1yRI/5klT6xAdE
-	Ja/z2N/KRt56MOuLfae41e50liFMTa0FAiWjbU/FVZi8Y9HvVojmkRuM7XnAvsi6
-	BMmKQ==
-Received: from dc5-exch05.marvell.com ([199.233.59.128])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4cfd3gwk1c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Feb 2026 01:53:47 -0800 (PST)
-Received: from DC5-EXCH05.marvell.com (10.69.176.209) by
- DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Tue, 24 Feb 2026 01:52:34 -0800
-Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH05.marvell.com
- (10.69.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
- Transport; Tue, 24 Feb 2026 01:52:34 -0800
-Received: from localhost.localdomain (unknown [10.28.36.175])
-	by maili.marvell.com (Postfix) with ESMTP id BB50C3F70B6;
-	Tue, 24 Feb 2026 01:52:31 -0800 (PST)
-From: Srujana Challa <schalla@marvell.com>
-To: <virtualization@lists.linux.dev>
-CC: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
-        <eperezma@redhat.com>, <linmq006@gmail.com>, <phasta@kernel.org>,
-        <ndabilpuram@marvell.com>, <kshankar@marvell.com>,
-        <vattunuru@marvell.com>, <schalla@marvell.com>
-Subject: [PATCH 1/4] vdpa/octeon_ep: Fix PF->VF mailbox data address calculation
-Date: Tue, 24 Feb 2026 15:22:23 +0530
-Message-ID: <20260224095226.1001151-2-schalla@marvell.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20260224095226.1001151-1-schalla@marvell.com>
-References: <20260224095226.1001151-1-schalla@marvell.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AyAkQQOP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1771926912;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=drtPn3RRebLcYs+RKWbzRzgsO6cnVFeivrQ9r6WAvBs=;
+	b=AyAkQQOPNyyoiijCIBWIjsOTvrVtWffr/mFXzw+sAvW6dUsab+zS9xLFcaEeoG5QTJhxZ3
+	kDhB2FfW66oYW1xK4QDHBqaXA6WolO9PWhEmiUl5sBITqafafiinq2qkwd8Cl0qz2TsNKh
+	HCWaQnyVqcoLDKLW3LFjm0xAw7tOyK0=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-296-6Bz221baOP-RoVsaxzjlpg-1; Tue, 24 Feb 2026 04:55:04 -0500
+X-MC-Unique: 6Bz221baOP-RoVsaxzjlpg-1
+X-Mimecast-MFC-AGG-ID: 6Bz221baOP-RoVsaxzjlpg_1771926904
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-4398ad5d81dso134286f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 24 Feb 2026 01:55:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771926903; x=1772531703;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=drtPn3RRebLcYs+RKWbzRzgsO6cnVFeivrQ9r6WAvBs=;
+        b=bj95CFKyTXLTTMLEzgCV1mcBrFwQheRbBTwqAqWw/0X2Ohu7eNoBa2OapzQh54RTXF
+         xpgWuhrtFbGY08v/52NdCRPGBcegNxj8c0oU+oijYFj/btX6UuahBhhro1IP5ibiDHEu
+         tSdHEklajYnADI0M5wC22mmKb0/ueAx1HbzaG58Y513mxGxUv8CLpYh7g6h53lzWpUTz
+         Yz4TEbXtifLAC4nAXH4+vvhHFq0GhzP4PGzO5exIqElBUVjBSjmdGbyQfjs7wEZr6E8O
+         iUXTV3SlzbtRGy2mj1BYhMumwYNgHjjAUBRrMzFZtxCAFpXYwa9ErmIO9GydzP0ecszp
+         wewA==
+X-Gm-Message-State: AOJu0YwBR/a0N5FcOLPaLN7g+YwvRmmRD0GSS3p1xV1iBXkBV92ppQRc
+	9HajrCYodaFU7GPUL4GEmGBiqYCdaRKExB8vuTiwsXOfsciV93XVYYWS+sQecM0ZNZ4AqniFL1U
+	t4T64M1d0d1wzMwNVDtVAuG2MXd+ZLRLfypxTzZqGQJ/Y/2g0bul1LYpKcxQ/9i32nIo8xB2PCY
+	Xa
+X-Gm-Gg: ATEYQzxyuokeb7MwCDk7QUNomf2EOB4Yr4HEwGnG6ChFr/I9Ep9wNeaIoWsKe+yV/rI
+	oHhwam8ZVjQmjNV6LrkNGo+53IuBrOW0AftXpIvR+KiYRmP5wjoyajAAbg0y6DGH5C/afaZHpDn
+	HBlRQZJXo7GrUzv+BE95SDsxAZyG4qg5Rql70TuSfs5R4VIjZ6GXj5kfOb6eGtGt2z8Lsyazp5y
+	wQTYrMjuFCzU8Nu4QCHW66MdYCRocDKpJA8c0v6obRv9s2xINDBCJtZ2Vh1o7UTVdx83e911kDq
+	6jhMOhjZffSJ8FR9l2hP8dR9VP3mqNBj4XuOu7ANexDkxoWFkRN8Jeijc8vxr1haitF2n3hhHVB
+	98fmsKMbOTbZgBiGkjoaIBli+GaEFpx3NBc7sN+KSslIGYDuxGONcWa6/+nSN7q65V6fgaaQ=
+X-Received: by 2002:a05:6000:2011:b0:437:6dac:458a with SMTP id ffacd0b85a97d-4396f18f82bmr19853120f8f.57.1771926903203;
+        Tue, 24 Feb 2026 01:55:03 -0800 (PST)
+X-Received: by 2002:a05:6000:2011:b0:437:6dac:458a with SMTP id ffacd0b85a97d-4396f18f82bmr19853090f8f.57.1771926902713;
+        Tue, 24 Feb 2026 01:55:02 -0800 (PST)
+Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43970c09897sm26032093f8f.17.2026.02.24.01.55.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Feb 2026 01:55:02 -0800 (PST)
+Date: Tue, 24 Feb 2026 10:54:58 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable <stable@kernel.org>
+Subject: Re: [PATCH net] vsock: Use container_of() to get net namespace in
+ sysctl handlers
+Message-ID: <aZ1oTufA5JkTBl35@sgarzare-redhat>
+References: <2026022318-rearview-gallery-ae13@gregkh>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: yyNR2Co90Amw4TT8fyHY7rCleFYAOnPD
-X-Proofpoint-GUID: yyNR2Co90Amw4TT8fyHY7rCleFYAOnPD
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI0MDA4MiBTYWx0ZWRfX+Oa7z3sJPXV3
- SJ+dxkZ/F5pwqMLbdCrEXLZDwwqnX6L8T8bZVS7nvAFbwsWunlZJG2t86hrlfwws4CWB1b8RSOQ
- NfjOsKtRixHooGLFMNeHHJAVZVOiA3KWaIE6K3m50+8qWo3BKbGrGrqEQKZCJ3gydTbsh66pyls
- SQxFAGvZTbbgN9+OYkCf0aB8wBFmhP17WfuQ11sqS+Hnb3z5ZWy0vzXXwZHoJ8pLXlM6MOZutzY
- 9WxiTqbKaqAtYxOOQfas6naIXjzPjZ28O64ulssscYXmLmDku7LvzPDlMvdxlU2Uc58FP0RGHlz
- RMFaBHNWB84sP50RPOfMEs5s+4EmA6TXctMMSrb9W0wwZLDbGtStSivxGV4QRR9/Xa+zrZNQUoZ
- 4fCbT5WzxDq9Lg3XNq6GduQQ56RXYqSYRKwNDrDGjZuUuoXk5RYsR8TVi70aK+F5zo0nsfyXOc/
- Fcz1inZbRvgdNYm3fgQ==
-X-Authority-Analysis: v=2.4 cv=H5XWAuYi c=1 sm=1 tr=0 ts=699d752b cx=c_pps
- a=rEv8fa4AjpPjGxpoe8rlIQ==:117 a=rEv8fa4AjpPjGxpoe8rlIQ==:17
- a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
- a=QXcCYyLzdtTjyudCfB6f:22 a=M5GUcnROAAAA:8 a=XbkK2ErJkp5ICG_XLMEA:9
- a=OBjm3rFKGHvpk9ecZwUJ:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-24_01,2026-02-23_03,2025-10-01_01
+In-Reply-To: <2026022318-rearview-gallery-ae13@gregkh>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: VXNvKKPaM2gqtCoAOr4eIdAu7t5qHfan38lkTc94JLQ_1771926904
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-The mailbox address was computed assuming 1 ring per VF. Read the
-actual rings-per-VF from OCTEP_EPF_RINFO and use it when calculating
-OCTEP_PF_MBOX_DATA offsets, fixing VF initialization when rings
-per VF > 1.
+On Mon, Feb 23, 2026 at 06:32:18PM +0100, Greg Kroah-Hartman wrote:
+>current->nsproxy is should not be accessed directly as syzbot has found
+                   ^
+nit: "is" can be removed
 
-Fixes: 8b6c724cdab8 ("virtio: vdpa: vDPA driver for Marvell OCTEON DPU devices")
-Signed-off-by: Srujana Challa <schalla@marvell.com>
----
- drivers/vdpa/octeon_ep/octep_vdpa_main.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+>that it could be NULL at times, causing crashes.  Fix up the af_vsock
+>sysctl handlers to use container_of() to deal with the current net
+>namespace instead of attempting to rely on current.
+>
+>This is the same type of change done in commit 7f5611cbc487 ("rds:
+>sysctl: rds_tcp_{rcv,snd}buf: avoid using current->nsproxy")
+>
+>Cc: Stefano Garzarella <sgarzare@redhat.com>
+>Cc: stable <stable@kernel.org>
 
-diff --git a/drivers/vdpa/octeon_ep/octep_vdpa_main.c b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-index 31a02e7fd7f2..9946480ee704 100644
---- a/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-+++ b/drivers/vdpa/octeon_ep/octep_vdpa_main.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /* Copyright (C) 2024 Marvell. */
- 
-+#include <linux/bitfield.h>
- #include <linux/interrupt.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
- #include <linux/module.h>
-@@ -722,6 +723,8 @@ static int octep_sriov_enable(struct pci_dev *pdev, int num_vfs)
- 	bool done = false;
- 	int index = 0;
- 	int ret, i;
-+	u8 rpvf;
-+	u64 val;
- 
- 	ret = pci_enable_sriov(pdev, num_vfs);
- 	if (ret)
-@@ -741,9 +744,11 @@ static int octep_sriov_enable(struct pci_dev *pdev, int num_vfs)
- 		}
- 	}
- 
-+	val = readq(addr + OCTEP_EPF_RINFO(0));
-+	rpvf = FIELD_GET(GENMASK_ULL(35, 32), val);
- 	if (done) {
- 		for (i = 0; i < pf->enabled_vfs; i++)
--			writeq(OCTEP_DEV_READY_SIGNATURE, addr + OCTEP_PF_MBOX_DATA(i));
-+			writeq(OCTEP_DEV_READY_SIGNATURE, addr + OCTEP_PF_MBOX_DATA(i * rpvf));
- 	}
- 
- 	return num_vfs;
--- 
-2.25.1
+I'm not sure this is stable material since these changes landed in the 
+latest merge window (v7.0-rc1), but yeah, you know better than me, so 
+there could be a reason.
+
+If needed, maybe we can also add:
+
+Fixes: eafb64f40ca4 ("vsock: add netns to vsock core")
+
+>Assisted-by: gkh_clanker_2000
+>Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>---
+>
+>Note, this is compile-tested only.  Some of my scripts found this when
+>looking for places that are missing fixes that were applied to other
+>parts of the kernel.  I think the af_vsock code uses namespaces, but as
+>I don't know the network stack at all I figured I would let you all
+>review it to tell me how wrong I got this change and all is fine with
+>the original code.
+
+Thanks! LGTM and tests are fine!
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
+>
+>thanks,
+>
+>greg k-h
+>
+> net/vmw_vsock/af_vsock.c | 4 ++--
+> 1 file changed, 2 insertions(+), 2 deletions(-)
+>
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index 9880756d9eff..f4062c6a1944 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -2825,7 +2825,7 @@ static int vsock_net_mode_string(const struct ctl_table *table, int write,
+> 	if (write)
+> 		return -EPERM;
+>
+>-	net = current->nsproxy->net_ns;
+>+	net = container_of(table->data, struct net, vsock.mode);
+>
+> 	return __vsock_net_mode_string(table, write, buffer, lenp, ppos,
+> 				       vsock_net_mode(net), NULL);
+>@@ -2838,7 +2838,7 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
+> 	struct net *net;
+> 	int ret;
+>
+>-	net = current->nsproxy->net_ns;
+>+	net = container_of(table->data, struct net, vsock.child_ns_mode);
+>
+> 	ret = __vsock_net_mode_string(table, write, buffer, lenp, ppos,
+> 				      vsock_net_child_mode(net), &new_mode);
+>-- 
+>2.53.0
+>
 
