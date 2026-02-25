@@ -1,142 +1,117 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FE9F363C64
-	for <virtualization@lists.linux.dev>; Wed, 25 Feb 2026 14:52:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D6A22E0B5C
+	for <virtualization@lists.linux.dev>; Wed, 25 Feb 2026 20:11:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772031176; cv=none; b=us05m98vQbAOZ3unrsv+cLK5FiGUv25S/nc9bL9xMoYBfivjL0zMfP83Fm37nYW5wEuCylSDoxHxbt+tSd773jcliJk5BmjGO6tUunWSM7IppBiKdvt5JLNfr/ZggYbPHJaq0IBwJDp6qMCwnqjBuuhKsdf3TZqN3GeD0sk8AVo=
+	t=1772050295; cv=none; b=JHemi9XO+830gbdqLAlJqrGoVpMi4zxqWXESDeEYCiOrGU+NDMiK7bXUnDFfkB1mgkPigdPO++3sv5CIqB8y8yyZ6gsDXTH/FJwQEux2At1VcM1gC3cKa4QBnF0uDhVfLWdJetBsmWgs6R5XuHQtzx1P3isjPKf7fxFLg+aglXo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772031176; c=relaxed/simple;
-	bh=AIGu6G9iujcEAVsIP5DLMzpj29TirlF/QSjLuL8Lcj4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=AIOxnyD0/WChx8GK6iuqmJj+7eaSMGT0/r+nscrkfpT3Fa9POXyMIctV/Xcl17miJrut0I0nTSOACskvhmAX3soV9tBk4QeUkrlbBuakEahsutsbDIkyypAsTbFo1khlqV36aJJSCUlVFW9i2bdSsllTTUF3Z92oy0qCgJuD1Lo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H5TkkB2l; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1772050295; c=relaxed/simple;
+	bh=xb240UHeJZUpSheryUetfPnHX+Or5u1jl7cIe9qLxno=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=U2j/FtbDkKnScuyYChduNBxW640DRVDFFK2mX0hAobpDLQRrpb3BqMBLMZpb2thMuJ5faMp2fuptUyq1vUNtQG/ieqawodPKnHByWGDzdLCb0IEcyQcdmTldJqsZV5ncnK6Tis0CTHyxnbiALVsp08hfQVaTerpIHRkY6zl1BSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=HJevmgPW; arc=none smtp.client-ip=209.85.214.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H5TkkB2l"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772031174;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=D10QZ+digOC1iXeyNRdDRk2hXA+8zGrZxyj1PPT8Oxo=;
-	b=H5TkkB2l529advuG8Z8SlaTymmEGwiuDGK6xr2W1VlEWWe+ZtkPGRQj40XXQQihPure3aa
-	bD8na2nVQHlY7FgDZKK715C3qUgiQp215wbZAE+bEjDyeNffDkhqUr/+1glsnJDLxIYkEG
-	65ZAgYOtEb8E3ArjtOZgWndqLBW9Lgc=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-128-i6k9BuGVOKCHCEo4omQ-9A-1; Wed, 25 Feb 2026 09:52:53 -0500
-X-MC-Unique: i6k9BuGVOKCHCEo4omQ-9A-1
-X-Mimecast-MFC-AGG-ID: i6k9BuGVOKCHCEo4omQ-9A_1772031172
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-48372facfedso15057405e9.0
-        for <virtualization@lists.linux.dev>; Wed, 25 Feb 2026 06:52:52 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HJevmgPW"
+Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-2adb085735bso324695ad.1
+        for <virtualization@lists.linux.dev>; Wed, 25 Feb 2026 12:11:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1772050293; x=1772655093; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=l12W4BbMOvS46dH8NvG0bfSFtU9wMtIxMN8ZzhevNqI=;
+        b=HJevmgPWi6eJ9XtDZ4+aF60m2iVvvLm675eeCX+FFaOcUSQSdEfEK5Q3TQjsIx1V+b
+         7CvqV00LJLHdPJ027WlFc1/aMt9/5Of+tVC8D3+fs8zI6pYSwotgmYnnad65I7QflSiz
+         JUU/17rRGD8g84mjhwMN5yYZC0OZj5BfuFyCqvM2ESeO0KK1Kv8+QfK4ImB8ZEQ8dRgz
+         lwH76EUmkra7+UK01+px2/AVY3eEXPjNJaNLkavB3ljdHPO/aN5kod7L8zDedfGjq7+w
+         xMk5Ozm4HGK21gYdjPPe159J62CXyR1yGmVOCnVpI0KPTw2WKIL6edk1e3kuKAAoLVV8
+         Ym9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772031172; x=1772635972;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=D10QZ+digOC1iXeyNRdDRk2hXA+8zGrZxyj1PPT8Oxo=;
-        b=PcwJeRRMBZC6Kz4unrPv8nQm3olRmwJ5lF2HV7QSgimwSKgtRcdqQbO8AuZ8t9jiaW
-         fJ8VHD9Yg152aYGfp/uQaqZl5jzcsDxUwEou2pmvbAzfMbCzgDCPWPUomJdN+74wl229
-         n/KqKtYEMSTaNtNqZMmZmoRQ3zm7+sY5x38c068tpI73FoV65R1biTkyDPTQAcoSJ0ru
-         eNHSNL6uEq4Lbb0KG7toZxC04Fnga7zPb7BxqwBrM6NLfEv3rNx+ahLzr9yYW5NwDsVl
-         gXV4BCAQiSbRx4C/2RdDewSX8akBPsopaOsgKKu9BkwgMETKJPwrHeGNCEpKwaabXUWP
-         s3yw==
-X-Forwarded-Encrypted: i=1; AJvYcCWvHlXsbaGLjiaEfAhUt1wL4toLoSDczpNZ4/tac1tp3JYa7Lci45IEgE3fM2TcABsFa+zfHagOzQ60Zv/2Xw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy6PSHWI3w60dug5fXiwA/LWrqpJWXbEj2/K17qvO1a24+IFtC5
-	wBgzTjNtkRZg9hE6aBNenW4eQbGy+/qe31iiWDfhdww3SRDqmzORjk7HRtAr/UqtNdPFElttohA
-	jaNAJlokZL4M2459F1ujJEfFLKkwwhNMbG9EAZjjvakW32kXTIDogg/k5vWUK9Qi2R9cy
-X-Gm-Gg: ATEYQzwFKREA3gU4j/aHmC3ZrQ2IpoxhvzsI1F0HXJwciKs7IJx//VAIb0kpq030D5m
-	povIDa9X9k1qxdTvkVtTDO37w6fhPMy8sQJuEnZ2W1TOLttAZWgBkLjw/CNJBWq/eHlC772xMQW
-	297xjJUSgZ/7B4lGOzL9oL8vfr/wFDFWRTSh9nY1e3uremNKVM+U5rp/Kur/opuErYDR/vIJePE
-	7qm/+t8lBCG/s+m/PJhTaKj7NMb9GmqsKViGpg5TxyNE0cww7KKMO5vUZwAnRl5/mS7rabArWCC
-	bhJDZxmH+FSHCLspIpVgmyv+pLpnzZDl/fvlhuqxxe76rJJYsdzZuifpcnGe/jQQ50erHeoVQSW
-	9pNUM+5YzRIb8SuAv4uY1EPJz4Au+4G2F611mPy2MySvPxQ==
-X-Received: by 2002:a05:600c:548a:b0:483:a352:b4e4 with SMTP id 5b1f17b1804b1-483bd73638emr69858175e9.6.1772031171666;
-        Wed, 25 Feb 2026 06:52:51 -0800 (PST)
-X-Received: by 2002:a05:600c:548a:b0:483:a352:b4e4 with SMTP id 5b1f17b1804b1-483bd73638emr69857745e9.6.1772031171191;
-        Wed, 25 Feb 2026 06:52:51 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483bd6f19d6sm76376655e9.2.2026.02.25.06.52.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Feb 2026 06:52:50 -0800 (PST)
-Date: Wed, 25 Feb 2026 09:52:47 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Srujana Challa <schalla@marvell.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev, pabeni@redhat.com,
-	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, ndabilpuram@marvell.com, kshankar@marvell.com
-Subject: Re: [PATCH net-next,2/2] virtio_net: replace RSS key size max check
- with BUILD_BUG_ON
-Message-ID: <20260225095100-mutt-send-email-mst@kernel.org>
-References: <20260224065850.962826-1-schalla@marvell.com>
- <20260224065850.962826-2-schalla@marvell.com>
- <20260225145027.29d666ac@pumpkin>
+        d=1e100.net; s=20230601; t=1772050293; x=1772655093;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=l12W4BbMOvS46dH8NvG0bfSFtU9wMtIxMN8ZzhevNqI=;
+        b=bH90Qmr495Z5P8ztpcgmFLj5l4wNgD0LIkcd46G4oYbVKsaavG1rdC+Gd15EEDNzMM
+         qKHK37nh1ZL2EoGFIeJ9mFB1KTBWY4bMixOGaMJcOrt9d2Obcy9zWCsdVb/PGtiBk1qF
+         R97w7C0vWhl0RE/p7SG8MJ9n9AFyCouP5BbhrrrFFghrynqJZr3dDbJtSUu6tjZ1knvp
+         cZ2+HimtYrYVyFq89tRxntB4TaLruaf13Kd0FbxhSoHaPGrG1cB+4rNt36MP5/x33O0m
+         vlTgH4abZ8dtLKXySnHhB/F4PxNz1TiCGOLvyODWsHPD8pvykHyCX42A+YMKK15/VoJN
+         cR5g==
+X-Forwarded-Encrypted: i=1; AJvYcCU4yn91vNkbwVSq62rWdSpRSnc/X0oPNmgbj3Vbz/ASCek24hSjlki5wEYhEdU0FFTOWyyZGTuV3SViq5g/MQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwIs6Ex9wimm3ICIciNkjkqyj6FOTzGW7+dcxxG9+Da1U/yQNFl
+	GNHf/3lNQI4rF8pKd0Vk7DFt57Jgqil5rF/NPW96OMvVv59cWxuw1mLYP5lTLD/mk7/2ES2Jq14
+	S3dmMKg==
+X-Received: from pghq22.prod.google.com ([2002:a63:e216:0:b0:c6e:700a:2902])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:72a3:b0:371:53a7:a4aa
+ with SMTP id adf61e73a8af0-39545ebb5a6mr14949603637.29.1772050292456; Wed, 25
+ Feb 2026 12:11:32 -0800 (PST)
+Date: Wed, 25 Feb 2026 12:11:30 -0800
+In-Reply-To: <20260202074557.16544-4-lance.yang@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20260225145027.29d666ac@pumpkin>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 7reICG7wb_HVfinM3DNLg3tzkS6-Al5AVhAWJ2aHs8k_1772031172
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Mime-Version: 1.0
+References: <20260202074557.16544-1-lance.yang@linux.dev> <20260202074557.16544-4-lance.yang@linux.dev>
+Message-ID: <aZ9Xcgxa0_ouGr31@google.com>
+Subject: Re: [PATCH v4 3/3] x86/tlb: add architecture-specific TLB IPI
+ optimization support
+From: Sean Christopherson <seanjc@google.com>
+To: Lance Yang <lance.yang@linux.dev>
+Cc: akpm@linux-foundation.org, david@kernel.org, dave.hansen@intel.com, 
+	dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com, 
+	will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com, 
+	peterz@infradead.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
+	x86@kernel.org, hpa@zytor.com, arnd@arndb.de, lorenzo.stoakes@oracle.com, 
+	ziy@nvidia.com, baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, 
+	npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org, 
+	shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com, 
+	pbonzini@redhat.com, boris.ostrovsky@oracle.com, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
+	linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	ioworker0@gmail.com
+Content-Type: text/plain; charset="us-ascii"
 
-On Wed, Feb 25, 2026 at 02:50:27PM +0000, David Laight wrote:
-> On Tue, 24 Feb 2026 12:28:50 +0530
-> Srujana Challa <schalla@marvell.com> wrote:
-> 
-> > Since NETDEV_RSS_KEY_LEN was increased to 256 in net-next, use
-> > BUILD_BUG_ON to enforce the limit at compile time and remove the
-> > redundant runtime max check.
-> > 
-> > Signed-off-by: Srujana Challa <schalla@marvell.com>
-> > ---
-> >  drivers/net/virtio_net.c | 8 +-------
-> >  1 file changed, 1 insertion(+), 7 deletions(-)
-> > 
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index eeefe8abc122..768ad5523dfa 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -6639,13 +6639,7 @@ static int virtnet_validate(struct virtio_device *vdev)
-> >  			__virtio_clear_bit(vdev, VIRTIO_NET_F_RSS);
-> >  			__virtio_clear_bit(vdev, VIRTIO_NET_F_HASH_REPORT);
-> >  		}
-> > -		if (key_sz > NETDEV_RSS_KEY_LEN) {
-> > -			dev_warn(&vdev->dev,
-> > -				 "rss_max_key_size=%u exceeds driver limit %u, disabling RSS\n",
-> > -				 key_sz, NETDEV_RSS_KEY_LEN);
-> > -			__virtio_clear_bit(vdev, VIRTIO_NET_F_RSS);
-> > -			__virtio_clear_bit(vdev, VIRTIO_NET_F_HASH_REPORT);
-> > -		}
-> > +		BUILD_BUG_ON(type_max(key_sz) >= NETDEV_RSS_KEY_LEN);
-> 
-> type_max is horrid.
-> I did read the later discussion (but it has fallen out of my brain)
-> but isn't that check broken and/or backwards anyway?
+On Mon, Feb 02, 2026, Lance Yang wrote:
+> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+> index 37dc8465e0f5..6a5e47ee4eb6 100644
+> --- a/arch/x86/kernel/kvm.c
+> +++ b/arch/x86/kernel/kvm.c
+> @@ -856,6 +856,12 @@ static void __init kvm_guest_init(void)
+>  #ifdef CONFIG_SMP
+>  	if (pv_tlb_flush_supported()) {
+>  		pv_ops.mmu.flush_tlb_multi = kvm_flush_tlb_multi;
+> +		/*
+> +		 * KVM's flush implementation calls native_flush_tlb_multi(),
+> +		 * which sends real IPIs when INVLPGB is not available.
 
-it is just trying to say "i check at build time that hardware
-key size will never exceed NETDEV_RSS_KEY_LEN just because it's not
-large enough".
+Not on all (virtual) CPUs.  The entire point of KVM's PV TLB flush is to elide
+the IPIs.  If a vCPU was scheduled out by the host, the guest sets a flag and
+relies on the host to flush the TLB on behalf of the guest prior to the next
+VM-Enter.
 
-> I'd also question why you are using u8 for a local (I didn't find this
-> version of the file), it will generate worse code that [unsigned] int.
+	for_each_cpu(cpu, flushmask) {
+		/*
+		 * The local vCPU is never preempted, so we do not explicitly
+		 * skip check for local vCPU - it will never be cleared from
+		 * flushmask.
+		 */
+		src = &per_cpu(steal_time, cpu);
+		state = READ_ONCE(src->preempted);
+		if ((state & KVM_VCPU_PREEMPTED)) {
+			if (try_cmpxchg(&src->preempted, &state,
+					state | KVM_VCPU_FLUSH_TLB))
+				__cpumask_clear_cpu(cpu, flushmask);  <=== removes CPU from the IPI set
+		}
+	}
 
-that's hardware format. but yes it should be config->max_key_size or
-whatever it is.
+	native_flush_tlb_multi(flushmask, info);
 
-> 	David
-> 
-> >  	}
-> >  
-> >  	return 0;
-
+> +		if (!cpu_feature_enabled(X86_FEATURE_INVLPGB))
+> +			pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast = true;
+>  		pr_info("KVM setup pv remote TLB flush\n");
+>  	}
