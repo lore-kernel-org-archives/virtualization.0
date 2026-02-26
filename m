@@ -1,120 +1,106 @@
-Received: from out-173.mta0.migadu.com (out-173.mta0.migadu.com [91.218.175.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B5E73314DC
-	for <virtualization@lists.linux.dev>; Thu, 26 Feb 2026 11:38:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5892737C0FB
+	for <virtualization@lists.linux.dev>; Thu, 26 Feb 2026 11:55:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772105907; cv=none; b=eRmR5qeBGQx7vSdv/89lOZFEDHRR3Ftvqx3noq0UX1rdZQ5qKMlVGecJQq0AgsowpCDxjyR3YosX5ypTx+6zYk8DKMVLXkKnrJjo3PAhzT/FWekVVfajD5Dvw7YwLWwZKiWyipZLCul6f0l5gPJr1lxPE/3+MMeOen+6MG7w/5Q=
+	t=1772106961; cv=none; b=sGIrg1L9NvEMc0lD5RWZa8BTLrnw3giciVeGuLjve9bnOew96t3ik0UCB+8YBT2D+oOQsmXy1prsgguSHppUDMv/trZPbMLCsxK9P3XytSvbHMl0DyKOf+xSSaTZ/N2WbMlq5f6kk79OmeF/4TD2wI0UkoC2G5bmbxOWdZ5TqCs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772105907; c=relaxed/simple;
-	bh=kiZlvDtHTgwzoMQDveqxFFIRufbDKOxBRz+/jwOuhnM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DZSK1nD+crSU0+btUNDZWWmG0Ij4ptNGVXYJXmh9NJaIp+Fr/H22h29b6mEKZEVJnc/SRRzsYr+ntIWG3uajFiTWk17lD33Kk9Ha4VgFABq2Umwd8KVEzzCAml4o9O/R2F/E66Sb75IUQKI/F7c63CEE5nBIKUO95wi+xcvHL98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=lJPkmtZ5; arc=none smtp.client-ip=91.218.175.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1772106961; c=relaxed/simple;
+	bh=w7vvFL90iWOJwmFthiIqX1DVDr47xxTizqrwF6xi2fE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=szMUZomyujOdE/HCflvuhwrRiLQNW85b0R6DWAX06UJJoSHmjFYn88lkibM1e6eaKSEe2yLRhc81U5BNB6N/yIKSNY7ZOeeLIR/m/9QW+6h0rGT0rYHjurWEYSu4Q228pBXQdCxO5gfJdmXpPyB4sy8AQ7fiLFtuZLFTLYeMH9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=dHkMKXWj; arc=none smtp.client-ip=209.85.216.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="lJPkmtZ5"
-Message-ID: <e3cdcbfa-525d-4e0d-885a-8f7d69a7ee3d@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1772105904;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oVaH2AoHyrpbqPRn9gALiYtw4uFm/ie/8+RysyrQGzU=;
-	b=lJPkmtZ530h0RaT4fu91t/bNwWMNVEIXdYTEi99XumvWDHNOWee3IjKoAVImZWm7XhGvax
-	qFCbJBGfyInnEuhW3QlCU4zoZFi8xwNvrt/aByDnCLNcPJIwuToPOKUcbglYKAHVqf4PSY
-	9Koo9hEPLX0q59Rbu+eHXWAkrNeJw84=
-Date: Thu, 26 Feb 2026 19:37:57 +0800
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="dHkMKXWj"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-356337f058aso320673a91.2
+        for <virtualization@lists.linux.dev>; Thu, 26 Feb 2026 03:55:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1772106957; x=1772711757; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=G5RGwY3a59FVAlUmYvzH4CPVvQ3Lh3N8X70H6FVGhvY=;
+        b=dHkMKXWjaXC8nEyRjVyMsxnuwlTSvRBi18rnkVQ21lTuLmML5eqopQQAkj/zxm/jDw
+         /LmnlCqkzWUyR87hniF9BXrdbcCqDG/pWtGdc3YVUC6viV+prPKICEAIC6E0VDwUlsJk
+         Z1HVp5KsecJtJtRrT4nyZ8AKkYyBVrIA8FfwT6ESQaxLjjQiPQIXNa9RnpLpxhdCLIGG
+         FSjU5PVAo5S3PLZBPpmjz+4VKXTz8OiPW3NkLRGWpfTjMbMqm47ETG+EH8lvMAesLOK9
+         qVC0F4ZcIakd0H9qzTtgoawGfpHw0sLRaB3gLk0m5wEbD0WHRE2Q9aqi1/hUOYMvRNEY
+         Q/bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772106957; x=1772711757;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=G5RGwY3a59FVAlUmYvzH4CPVvQ3Lh3N8X70H6FVGhvY=;
+        b=kZFkcBVoT/PdZws6gPR4TI2fDRX/eBs+OiabESZl8l6qNDm4PB8RZUkQ9S/8GFd4cV
+         ZOxy+DoE2BwH6mkvRsiUd7jquW2DZO361FcY2tzYlLjzUlHk5td8wpSpNka7geLDtEeZ
+         nQwqorNICQTu0PzyBTjMK0nI48diLP8qCZ8e6htoxd7beTJ9HbE4gjQxc2HyZG9rCC8a
+         3Qiiq8qtH4MhtCPUtVbCVqeSuswSvhC+PtlFTSN+li2yP2bHiym+HGBR19+DEHLfDttG
+         YbkLp5WXXFxNeYh3tEjb7bxH0wHiJV75rMmol+xpJRObaT2j3ukHIGD/gR+oKP6ounYU
+         mcZQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVu3enp54+9a/EckVnIpu8BPC5hULzHRVKh3XVMdB8tlxL1vDxVcEC33kIbTtFxcWbYFzcRfnBQx85oEW+Pjw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw9asz9pH37xIzdT949NepTP2HQgSU/y4Zny0yLr3uU1WJ7Ws00
+	3Y5Qi8vFjsSpzQpVD6pn/Vuh6cd7wt3bDQ3hLRDn2CZqTGImFUvvyMSTBzy51IIGS04=
+X-Gm-Gg: ATEYQzxn9JZgtR2bcAW+6z3SNI3IrZlTQRTApORndPcyUksaeFOlBX0zHjHd3Dd9TYM
+	Zd1jb+33WBe7DDGzHBRvBTlPmN5MJw+qMTI4XUWClQA1W7owdeVm884RnLpC6Gg9KT1UZx5Nd4I
+	d8npWxCOyv6lAIQovPx6QxD3dP6BmzhW3Ia5FfV6M/TkrkMo1PUfTM/AZifWeCtFIJvKN6k1/12
+	hQyHm/pDpslwoDdxk9gzI0o3pgDAXYlojf2lpJm+co4X3BpPcwgdwEoYOgrzYUEMApiWq1txcXc
+	xaGTkr2KVJc39xwaqa9RRnSsa8E0xlRdZzi3GlQF6+3tQYPoBbPszvwqZTAcqbUhAWnHoNNl7We
+	rizGLIfibqDshpnw7cZwJZI1Itai80lyDJh2ECplztdiJ2y1l47AqBRy7EQmPMs8mf8j3vFClzA
+	dV7YVqySKuSJSpn7XewxYOF+rl6ySsJrNJ+SOxLF1rGhRNqe1ZCUrlAwgLU43kknpOslA=
+X-Received: by 2002:a17:90b:3e50:b0:34a:b4a2:f0bf with SMTP id 98e67ed59e1d1-358ae8a5315mr17289805a91.16.1772106956626;
+        Thu, 26 Feb 2026 03:55:56 -0800 (PST)
+Received: from tianci-mac.bytedance.net ([61.213.176.5])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359130712bcsm2390815a91.7.2026.02.26.03.55.54
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 26 Feb 2026 03:55:56 -0800 (PST)
+From: Zhang Tianci <zhangtianci.1997@bytedance.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	marco.crivellari@suse.com,
+	anders.roxell@linaro.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Zhang Tianci <zhangtianci.1997@bytedance.com>
+Subject: [PATCH v4 0/2] vduse: Fix race in vduse_dev_msg_sync and vduse_dev_read_iter
+Date: Thu, 26 Feb 2026 19:55:48 +0800
+Message-ID: <20260226115550.1814-1-zhangtianci.1997@bytedance.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v4 3/3] x86/tlb: add architecture-specific TLB IPI
- optimization support
-Content-Language: en-US
-To: Sean Christopherson <seanjc@google.com>
-Cc: akpm@linux-foundation.org, david@kernel.org, dave.hansen@intel.com,
- dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com,
- will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
- peterz@infradead.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
- x86@kernel.org, hpa@zytor.com, arnd@arndb.de, lorenzo.stoakes@oracle.com,
- ziy@nvidia.com, baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
- npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com,
- baohua@kernel.org, shy828301@gmail.com, riel@surriel.com, jannh@google.com,
- jgross@suse.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, ioworker0@gmail.com
-References: <20260202074557.16544-1-lance.yang@linux.dev>
- <20260202074557.16544-4-lance.yang@linux.dev> <aZ9Xcgxa0_ouGr31@google.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Lance Yang <lance.yang@linux.dev>
-In-Reply-To: <aZ9Xcgxa0_ouGr31@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Transfer-Encoding: 8bit
+
+Changes in v4:
+ - Simplify code.                                 [Jason]
+ - Add comment for rolling back.                  [Jason]
+ - Link to v3: https://lore.kernel.org/lkml/20260202072655.95143-1-zhangtianci.1997@bytedance.com/
+
+Changes in v3:
+ - Add first patch.
+ - Link to v2: https://lore.kernel.org/lkml/20260202031212.26871-1-zhangtianci.1997@bytedance.com/
+
+Changes in v2:
+ - Rewrite commit message.                        [Michael]
+ - Add Fixes tag and cc stable email list.        [Eugenio]
+ - Rewrite one comment.                           [Michael]
+ - Link to v1: https://lore.kernel.org/lkml/20260130081524.81271-1-zhangtianci.1997@bytedance.com/
 
 
+Zhang Tianci (2):
+  vduse: Requeue failed read to send_list head
+  vduse: Fix race in vduse_dev_msg_sync and vduse_dev_read_iter
 
-On 2026/2/26 04:11, Sean Christopherson wrote:
-> On Mon, Feb 02, 2026, Lance Yang wrote:
->> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
->> index 37dc8465e0f5..6a5e47ee4eb6 100644
->> --- a/arch/x86/kernel/kvm.c
->> +++ b/arch/x86/kernel/kvm.c
->> @@ -856,6 +856,12 @@ static void __init kvm_guest_init(void)
->>   #ifdef CONFIG_SMP
->>   	if (pv_tlb_flush_supported()) {
->>   		pv_ops.mmu.flush_tlb_multi = kvm_flush_tlb_multi;
->> +		/*
->> +		 * KVM's flush implementation calls native_flush_tlb_multi(),
->> +		 * which sends real IPIs when INVLPGB is not available.
-> 
-> Not on all (virtual) CPUs.  The entire point of KVM's PV TLB flush is to elide
-> the IPIs.  If a vCPU was scheduled out by the host, the guest sets a flag and
-> relies on the host to flush the TLB on behalf of the guest prior to the next
-> VM-Enter.
+ drivers/vdpa/vdpa_user/vduse_dev.c | 43 +++++++++++++++++++++++-------
+ 1 file changed, 33 insertions(+), 10 deletions(-)
 
-Ah, I see. Thanks for the correction!
-
-KVM only sends IPIs to running vCPUs; preempted ones are left out of the 
-mask
-and flushed on VM-Enter. So the old comment was wrong ...
-
-IIUC, we still set the flag to true because only running vCPUs can be in a
-software/lockless walk, and they all get the IPI, so the flush is enough.
-
-Does that match what you had in mind?
-
-
-Thanks,
-Lance
-
-> 
-> 	for_each_cpu(cpu, flushmask) {
-> 		/*
-> 		 * The local vCPU is never preempted, so we do not explicitly
-> 		 * skip check for local vCPU - it will never be cleared from
-> 		 * flushmask.
-> 		 */
-> 		src = &per_cpu(steal_time, cpu);
-> 		state = READ_ONCE(src->preempted);
-> 		if ((state & KVM_VCPU_PREEMPTED)) {
-> 			if (try_cmpxchg(&src->preempted, &state,
-> 					state | KVM_VCPU_FLUSH_TLB))
-> 				__cpumask_clear_cpu(cpu, flushmask);  <=== removes CPU from the IPI set
-> 		}
-> 	}
-> 
-> 	native_flush_tlb_multi(flushmask, info);
-> 
->> +		if (!cpu_feature_enabled(X86_FEATURE_INVLPGB))
->> +			pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast = true;
->>   		pr_info("KVM setup pv remote TLB flush\n");
->>   	}
+-- 
+2.39.5
 
