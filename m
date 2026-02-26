@@ -1,57 +1,35 @@
-Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F293815DF;
-	Thu, 26 Feb 2026 02:58:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772074685; cv=pass; b=D/OBiR8e3qUTsCE6bv6Xge/ROhu2RjjasgQphlI3nLyrVuVoQwpqMvMTwUKzSuV5CxMxJnKvuSYO3s8qvfNBV3xYQCatHqg+3yOxo52gSO7fAznXpMbS/5i16gdgKcS4fbohZPT5E3KRsulz7V62IkYMV9dVLu3o0dQE9hiTHX0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772074685; c=relaxed/simple;
-	bh=eVpgaiBDEYmba0hqSGqHQNqluD5rnt1oRmsHZ330I00=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Vf33CsMYq3+TeIAFgPJOu3+N3JcJEVXZ6/CxkSnxJ9E5O6DXCAhG26h3aVvsgSSo+iuBrrTswP0Dm/pMgZqMwuI6Hwn3bL6rrr+7SndKvkI3Zdppzh2lhwwPihNwjery/dR3/U5z4eaNHC3dnvUxYj2nvyotVONoX+tuw4bl2fU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=EuzQAdEW; arc=pass smtp.client-ip=136.143.188.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 616E13815D1;
+	Thu, 26 Feb 2026 03:10:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772075411; cv=none; b=UqqQfZWa5Kv2YNkFX0ANJc0rb9V/+VptN074XPXXdVdDt2Kg8LTJRUJaU/uoHbvTgeVWSsffiPDc4OSy59dXaZ+O476TNfidbUUiOlMRSMZfKpf0SuSoGWQSzLM/fbicPN+gRx3d70CcqCL7QS6oi1wToUFOpzEMFJFSmzIGlfY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772075411; c=relaxed/simple;
+	bh=9y2X9NVB2pzNbHqipUSWuvBc3Db8CLsGCSON2WIFajY=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=rRys8hJk5TCSsCHttzHvdq2Eqo/SGuZQg4qyS2x4G8hg2d9yFP4bGpkZTGztbWcG9taB3qLuoqtyhKjQ1W87kjwf2OqWlDd5k18EOPfYhpz7THjTTW3QPLkQY6Qnm5FAB7NSNrfkh5k9cC+utp9wCfhgoM6h3BWqS20AFNozmHE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E1o9nfNY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="EuzQAdEW"
-ARC-Seal: i=1; a=rsa-sha256; t=1772074667; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=QWIL+eIQjcosYxbebQaCHtCc8qCSVvBPDOqwJQYq30OV6oucvIiPxYLbus7+kMF9S0Tw64Cz5+ffZxkHeKNFM5IbACNi/sxKa0Hnxa/Qz3qJrdwGtTefStIHuyFfcGwDVTvKFYRBsmQgWQxqor2P4zDlBWu974ULWluzx2zI5rQ=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1772074667; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=oFwoQ+E7tMKE0RtYZZOdoKWdlkJ/ai0zXONzCJDDN3w=; 
-	b=gP+j7lr/Lu4+MXNAXyYVEnCX6At6hpOY88ga8QtQUkdcmafD97oB/0wgdUKZgfgm1Y72DYzzVWqBHn6j2BE8lf6zq8LJjr17n+EmeNGUPfoMXdKq662/tFEOYFpJUtMKh0f9mKsFX/p+NI0sYUsGUwiVvihEPKWRP9qi6gcwXAI=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=linux.beauty;
-	spf=pass  smtp.mailfrom=me@linux.beauty;
-	dmarc=pass header.from=<me@linux.beauty>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1772074667;
-	s=zmail; d=linux.beauty; i=me@linux.beauty;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=oFwoQ+E7tMKE0RtYZZOdoKWdlkJ/ai0zXONzCJDDN3w=;
-	b=EuzQAdEWmvz5IK3WEoAMl8JaNB/8pGwe76h6EPlDK+6CSu3wzvgw6hz0e18Te/av
-	dXjeHAX+KCJt1UyayYiGa/xVaeUVTypJgw5TQ4t1bOHdFwub7rdHjH5z4SJNXgkEF3b
-	aCIoHF+F8WLBGMn1mrfYNd7u94Py+OTEA2sgHTtg=
-Received: by mx.zohomail.com with SMTPS id 1772074666061797.0908931346248;
-	Wed, 25 Feb 2026 18:57:46 -0800 (PST)
-From: Li Chen <me@linux.beauty>
-To: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Vishal Verma <vishal.l.verma@intel.com>,
-	Dave Jiang <dave.jiang@intel.com>,
-	Ira Weiny <ira.weiny@intel.com>,
-	virtualization@lists.linux.dev,
-	nvdimm@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Cc: Li Chen <me@linux.beauty>
-Subject: [PATCH v3 5/5] nvdimm: virtio_pmem: drain requests in freeze
-Date: Thu, 26 Feb 2026 10:57:10 +0800
-Message-ID: <20260226025712.2236279-6-me@linux.beauty>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260226025712.2236279-1-me@linux.beauty>
-References: <20260226025712.2236279-1-me@linux.beauty>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E1o9nfNY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44A1BC116D0;
+	Thu, 26 Feb 2026 03:10:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772075411;
+	bh=9y2X9NVB2pzNbHqipUSWuvBc3Db8CLsGCSON2WIFajY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=E1o9nfNY/PTQpqpoatO6E+pJhQtgGIQLyuATHXq3LkNjNlriGSRosF9go3QgxGZgm
+	 KvrlEQu1zZ1jkV2cLLE8uV1PbQ7ebnh2Snu8xC5kHPn+GqcRt5Wi0qipLZOZwC7PeJ
+	 X28k5oMgTmoHKoPPRSeE57f3q+FsegUaB7QbyN9UpBbOHwFFSHMWroKp8wVV9rSR4i
+	 6a+H0kwrASdxM81xO6kErhIoia/Rmolkuyk/tSixPMx71mQFocquXIpVrhA8RFF8Za
+	 e38Zt0LeFkOhMJfFegSttE/AvdXMOSwtXJEnPFXvCkZBJDnCBzwF1JLICyr08igRyn
+	 JUzg83WemC0JQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FEC0380A94B;
+	Thu, 26 Feb 2026 03:10:17 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -59,39 +37,42 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+Subject: Re: [PATCH net] vsock: Use container_of() to get net namespace in
+ sysctl
+ handlers
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <177207541604.1014739.11994521335982441841.git-patchwork-notify@kernel.org>
+Date: Thu, 26 Feb 2026 03:10:16 +0000
+References: <2026022318-rearview-gallery-ae13@gregkh>
+In-Reply-To: <2026022318-rearview-gallery-ae13@gregkh>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, sgarzare@redhat.com, stable@kernel.org
 
-virtio_pmem_freeze() deletes virtqueues and resets the device without
-waking threads waiting for a virtqueue descriptor or a host completion.
+Hello:
 
-Mark the request virtqueue broken and drain outstanding requests under
-pmem_lock before teardown so waiters can make progress and return -EIO.
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Signed-off-by: Li Chen <me@linux.beauty>
----
-v2->v3:
-- No change.
+On Mon, 23 Feb 2026 18:32:18 +0100 you wrote:
+> current->nsproxy is should not be accessed directly as syzbot has found
+> that it could be NULL at times, causing crashes.  Fix up the af_vsock
+> sysctl handlers to use container_of() to deal with the current net
+> namespace instead of attempting to rely on current.
+> 
+> This is the same type of change done in commit 7f5611cbc487 ("rds:
+> sysctl: rds_tcp_{rcv,snd}buf: avoid using current->nsproxy")
+> 
+> [...]
 
- drivers/nvdimm/virtio_pmem.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Here is the summary with links:
+  - [net] vsock: Use container_of() to get net namespace in sysctl handlers
+    https://git.kernel.org/netdev/net/c/5cc619583c7e
 
-diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
-index c5caf11a479a..663a60686fbd 100644
---- a/drivers/nvdimm/virtio_pmem.c
-+++ b/drivers/nvdimm/virtio_pmem.c
-@@ -153,6 +153,13 @@ static void virtio_pmem_remove(struct virtio_device *vdev)
- 
- static int virtio_pmem_freeze(struct virtio_device *vdev)
- {
-+	struct virtio_pmem *vpmem = vdev->priv;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&vpmem->pmem_lock, flags);
-+	virtio_pmem_mark_broken_and_drain(vpmem);
-+	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
-+
- 	vdev->config->del_vqs(vdev);
- 	virtio_reset_device(vdev);
- 
+You are awesome, thank you!
 -- 
-2.52.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
