@@ -1,179 +1,140 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EFF140B6DD
-	for <virtualization@lists.linux.dev>; Fri, 27 Feb 2026 15:13:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1DD431B131;
+	Fri, 27 Feb 2026 20:44:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772205223; cv=none; b=ggX8AZVToGFXFHj5FojCht/oSPUzLPboPj9f3WHQJdxRH8CdJD4bkyvLWeM0JzXfqUWuLpzW0FXW5hjsLidYCz38zI1x6YRMY/0jiIxB1rSbJ+GjyVc3UE4EnAYnO9NRiT1uBu+arMbrZED+NxbZE0WK5tLBU76fRw61rIh8W6I=
+	t=1772225052; cv=none; b=Hcskgky182Qid/C35hFvyoUYdi3Y4nzAd52MUJWjxDf/Ho7ZRqJqlCgY0CCe+rREWw2BfHCnjI+V8VcdGMk4qYpSg15WwtKcM4iVwYHo6zi2okYY42YxXCNJDTt8bJ/yYKyI7n1AfYvnGIRix/8XVSu5LXudxAEMZ+UhyPME/uM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772205223; c=relaxed/simple;
-	bh=+pvLKOyDJeDYk8Ks51ufw2eQlUL8GJXsRvfZQAUcAhA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=f0HRrp1Mj7b968Cnr4Gt9xRJ89iRjagDqXscZ0FUUZF+ZNvH2CLFD7q0tqKV/3wOSAhGPVRgvY5vTeE6AeJpSMAEz0buumlWIvKCPXY+z7Y0ORdnf/aLkI8dwRkQ+IJ8GO6aT30BEc+lyiqevXYPjGV5JKe6l+hFwLflEnqYYck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hTfj1t+s; arc=none smtp.client-ip=209.85.210.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772225052; c=relaxed/simple;
+	bh=RlLz8Nf4AkH8nV2nxyW0Rxk/9bF52X89NSCa8ZhU4q8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=o4i0foNHWS5N/i5wvvmjmpv3b3AmzEEYfsOuhPBa5Q0+W2COxlVFMv8kkNkftjeFNdUAA9qvsG+iEj8pz6aeskcuKE/dsCcN7KvDzNtgGaT0foULH2M7AgiHphfJxl/UadJnZVm5NOEWAXfzX8kP09VKleHhXW63y77bKtCkGd8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oOAuOjkU; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hTfj1t+s"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-827270d50d4so2261261b3a.3
-        for <virtualization@lists.linux.dev>; Fri, 27 Feb 2026 07:13:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772205222; x=1772810022; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wORT1SbE27ZIkrMMuUayvBmlw/YCk/ngCJoGzWhKHPo=;
-        b=hTfj1t+sCBpRwDana4reRrkl/WKxAWl2crtITAbhVhBPFfb61rKafXezwuS7/5wPXx
-         ywYJOVknxQ5LW5gJ5y7jkgqqijQM68BHi32KS4SOShuiIg+b2H5HH8t8pCBHZwD7PY8V
-         DgLkPb4h35ZgUbejgQm/KTaOCBn3H3tViUC5gLcBxNcF5NW57f34iZ6/7gNSSM4zCfwc
-         56G4BmO4HkNLy5lHHOccAa2NF+cmxmtFpqBpMWreckqS3sNlqZqV/NUVhe7pR5rklQnw
-         ddg/PjLRh40h1gMqInCTTQ6cKj7S7nbyvZtPnVE4laAguSm6IiYCIGTj8Gm2awpWCz3z
-         kiwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772205222; x=1772810022;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wORT1SbE27ZIkrMMuUayvBmlw/YCk/ngCJoGzWhKHPo=;
-        b=PzkvPczrLx5lzJ+fV0uUUPlH13lt3TR9kTBGjpf/yJ0LhC5MN1/cU9xIp7x/WvZTuf
-         oULyyi5Jj86PeYL4QF7WK8L4Se6nwOFJVuydC6xNSakR13ajKzxgBi2LTpsQA9W6F8XQ
-         f5diZ4SC/YCs8uuSHujGUPnHfDpRvuAZ1GYZOOiDNDGgU/l/5ZawKuJfQ9XZT0qLbqf4
-         Hno7PrncvUWpefrH44WoFaMMRlm4YjVNoljvkZUyX8zhkl+t/S4R6tUaoDiWO4r25nVA
-         mopu1F5pfpUJKvZsn+/9E0pi7zQUlrRbI0O9/J3Tk5Jcre2ib091eJrsOWUCAfJlAsL2
-         tUhQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWp5vuoaNWOHcfvtrAdKlhvV5qjmqVzAoqXI+vAkF5NZQjBK0ZYxosPb3lMvWq6jWtaBr1UjpkG75rQ2zZomg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwrGPu5DcVScIzuJx3q9lk2p30GB+Vnlc4FkJjtkR8ul5oYI1tF
-	czGKeC6ot9blzor7c9zv8x8/zLz69ylJ73agZBu7xyH4e3ielZyPBwuK
-X-Gm-Gg: ATEYQzxlC2Xg2YO3PdSNWdHqyMfv/XBWlvykAWBRdCCrdgxM8lrlAA4aE4j3SXicDgN
-	1qnX0va02RbedxYjVsSyzYYk5mIEJJOvIc3boSf29Phdvn6C1qbfIVt9fMB0Z1kGOhnm6ybwt8c
-	6whc8hvZyd2xjenOb0OSQmxTgBDe3FFmcnWjLlKkT8DDN/Qz+n9yvBVA4dvCzNN32ZBIqDBG011
-	PVd17rqWMiiuSICEUo7oWI4qfFcSV1eiZQF26M86sZ/Yfbbgi2vi+PylEsjBZxYYK93SqOenqAg
-	Q9luHEZfJgOOfzycuPTB83fpTf53JJB+RM6re3IWpVy999i0X+Z2hhK7rckiNvPvvmmZuDpgWPi
-	svt84M+ngTaf8ewu+4V5E25oUxwgq5Ehpd8aLmqMiLfAPyrvb4FDsfebIZ5D3PAnLav/UqjE9yO
-	E1JvT8EXtTA1SpxPmfM2LKXAmCsf2Tq3w3RAsdZEql5sSgk4PsCA==
-X-Received: by 2002:a05:6a20:d809:b0:38e:9acd:97d0 with SMTP id adf61e73a8af0-395c3ae8562mr3787342637.34.1772205221514;
-        Fri, 27 Feb 2026 07:13:41 -0800 (PST)
-Received: from minh.192.168.1.1 ([2001:ee0:4f0f:b1d0:1fac:b09d:ba7c:fa17])
-        by smtp.googlemail.com with ESMTPSA id 41be03b00d2f7-c70fa638dbcsm5034868a12.14.2026.02.27.07.13.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Feb 2026 07:13:41 -0800 (PST)
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Bui Quang Minh <minhquangbui99@gmail.com>
-Subject: [PATCH net-next] virtio-net: xsk: Support wakeup on RX side
-Date: Fri, 27 Feb 2026 22:09:49 +0700
-Message-ID: <20260227150949.13089-1-minhquangbui99@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oOAuOjkU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AC9FC116C6;
+	Fri, 27 Feb 2026 20:44:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772225052;
+	bh=RlLz8Nf4AkH8nV2nxyW0Rxk/9bF52X89NSCa8ZhU4q8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=oOAuOjkUW7IMZGQo1i21CTSIVY4JFqKbBBVzBQHEfOB6DW4g3pTxKqT0HrN3xBcST
+	 I4yLuWrb/S+kyiwhNBguxN0eQmLjX3Z/9TNeSMmlOAe/9CT2SN+BGGPsFkpm78GRAW
+	 wRVFvUOsebWDu+QoYzJqdD5JWZ+35Lix/699e/L9UhApjIJEeWpTbgRc07cXtoVUx2
+	 hgH4I1XJ86b2WoKkXKQOLU203ANhQzMxQU9ktGQFvP0tVqpyPonzdfBMbQnZtsnVW3
+	 G4B64tPdKNSB/D3YARx208WO6SfNSzQ4NWEpyFscgTKv/F5QL4mVmkqe1OTvWIaRih
+	 f0rswjD7njamg==
+Message-ID: <dc86d6ea-ec74-4071-ae88-1fd8c3313ee8@kernel.org>
+Date: Fri, 27 Feb 2026 21:44:05 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 0/4] Allow order zero pages in page reporting
+To: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>,
+ akpm@linux-foundation.org
+Cc: mst@redhat.com, kys@microsoft.com, haiyangz@microsoft.com,
+ wei.liu@kernel.org, decui@microsoft.com, longli@microsoft.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ lorenzo.stoakes@oracle.com, Liam.Howlett@oracle.com, vbabka@suse.cz,
+ rppt@kernel.org, surenb@google.com, mhocko@suse.com, jackmanb@google.com,
+ hannes@cmpxchg.org, ziy@nvidia.com, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org
+References: <20260227140655.360696-1-yuvraj.sakshith@oss.qualcomm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260227140655.360696-1-yuvraj.sakshith@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-When XDP_USE_NEED_WAKEUP is used and the fill ring is empty so no buffer
-is allocated on RX side, allow RX NAPI to be descheduled. This avoids
-wasting CPU cycles on polling. Users will be notified and they need to
-make a wakeup call after refilling the ring.
+On 2/27/26 15:06, Yuvraj Sakshith wrote:
+> Today, page reporting sets page_reporting_order in two ways:
+> 
+> (1) page_reporting.page_reporting_order cmdline parameter
+> (2) Driver can pass order while registering itself.
+> 
+> In both cases, order zero is ignored by free page reporting
+> because it is used to set page_reporting_order to a default
+> value, like MAX_PAGE_ORDER.
+> 
+> In some cases we might want page_reporting_order to be zero.
+> 
+> For instance, when virtio-balloon runs inside a guest with
+> tiny memory (say, 16MB), it might not be able to find a order 1 page
+> (or in the worst case order MAX_PAGE_ORDER page) after some uptime.
+> Page reporting should be able to return order zero pages back for
+> optimal memory relinquishment.
+> 
+> This patch changes the default fallback value from '0' to '-1' in
+> all possible clients of free page reporting (hv_balloon and
+> virtio-balloon) together with allowing '0' as a valid order in
+> page_reporting_register().
+> 
+> Changes in v1:
+> - Introduce PAGE_REPORTING_DEFAULT_ORDER macro (initially set to 0).
+> - Make use of new macro in drivers (hv_balloon and virtio-balloon)
+> 	working with page reporting.
+> - Change PAGE_REPORTING_DEFAULT_ORDER to -1 as zero is a valid
+> 	page order that can be requested.
+> 
+> Yuvraj Sakshith (3):
+>   mm/page_reporting: Allow zero page_reporting_order
+>   hv_balloon: Change default page reporting order
+>   virtio_balloon: Set pr_dev.order to new default
 
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
----
- drivers/net/virtio_net.c | 38 ++++++++++++++++++++++++++++++--------
- 1 file changed, 30 insertions(+), 8 deletions(-)
+These look like old stats :)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index db88dcaefb20..494acc904b2c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1454,8 +1454,19 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
- 	xsk_buffs = rq->xsk_buffs;
- 
- 	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
--	if (!num)
-+	if (!num) {
-+		if (xsk_uses_need_wakeup(pool)) {
-+			xsk_set_rx_need_wakeup(pool);
-+			/* Return 0 instead of -ENOMEM so that NAPI is
-+			 * descheduled.
-+			 */
-+			return 0;
-+		}
-+
- 		return -ENOMEM;
-+	} else {
-+		xsk_clear_rx_need_wakeup(pool);
-+	}
- 
- 	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
- 
-@@ -1588,20 +1599,21 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
- 	return sent;
- }
- 
--static void xsk_wakeup(struct send_queue *sq)
-+static void xsk_wakeup(struct napi_struct *napi, struct virtqueue *vq)
- {
--	if (napi_if_scheduled_mark_missed(&sq->napi))
-+	if (napi_if_scheduled_mark_missed(napi))
- 		return;
- 
- 	local_bh_disable();
--	virtqueue_napi_schedule(&sq->napi, sq->vq);
-+	virtqueue_napi_schedule(napi, vq);
- 	local_bh_enable();
- }
- 
- static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	struct send_queue *sq;
-+	struct napi_struct *napi;
-+	struct virtqueue *vq;
- 
- 	if (!netif_running(dev))
- 		return -ENETDOWN;
-@@ -1609,9 +1621,19 @@ static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
- 	if (qid >= vi->curr_queue_pairs)
- 		return -EINVAL;
- 
--	sq = &vi->sq[qid];
-+	if (flag == XDP_WAKEUP_TX) {
-+		struct send_queue *sq = &vi->sq[qid];
-+
-+		napi = &sq->napi;
-+		vq = sq->vq;
-+	} else {
-+		struct receive_queue *rq = &vi->rq[qid];
-+
-+		napi = &rq->napi;
-+		vq = rq->vq;
-+	}
- 
--	xsk_wakeup(sq);
-+	xsk_wakeup(napi, vq);
- 	return 0;
- }
- 
-@@ -1623,7 +1645,7 @@ static void virtnet_xsk_completed(struct send_queue *sq, int num)
- 	 * wakeup the tx napi to consume the xsk tx queue, because the tx
- 	 * interrupt may not be triggered.
- 	 */
--	xsk_wakeup(sq);
-+	xsk_wakeup(&sq->napi, sq->vq);
- }
- 
- static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
 -- 
-2.43.0
+Cheers,
 
+David
