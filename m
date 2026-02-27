@@ -1,145 +1,94 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mail-08.mail-europe.com (mail-08.mail-europe.com [57.129.93.249])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D594146AF35
-	for <virtualization@lists.linux.dev>; Thu, 26 Feb 2026 20:43:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 947C239526C
+	for <virtualization@lists.linux.dev>; Fri, 27 Feb 2026 10:35:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.129.93.249
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772138636; cv=none; b=fBshcdn0bZcN1JiOtIw2gqZpHR1DmsfPIvrurSlVL6tXgJU2ySQ+pwz1nrcOWPJOd/AxIS8dO+MdMKzVSofZU559Q76s7C2BDJGJE+jtNtxbw1GtMDJvoim8/Pk1dtFzyspL1MaWibCd7QRFPLDc5UnAHWbKdC7uvIIpPygct38=
+	t=1772188551; cv=none; b=sbDCwhNwT2/QxXPLqx+jxOW49pa65TjijwmLWP0Wu8+l1jDXT26J//d3O5ez2mAwT/pKIrJM6yFWI84kXObvE6V7WXiD3pmoMf/WQs2gTY8qodV1D7pJidiHw9HegsEL6peJ0lb4M1SgE14h2DULWWYWwubCCAG53CE/q6XjWiY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772138636; c=relaxed/simple;
-	bh=Y7JfbH+ztCrlYdAyB618i6lDAzmJpIuBqLu1FWi92u8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hUlzS4XgCUkSlw6RckvdagtM1FhXUIVNHuJP86ZSspXrRHMoTmUfX6lMwkjruBvMml5EDRzLWjBs0CUKk7nVoxS1TrsW/PfIxlfbkDq1WnRMA6dng2X5M4fDj3JK3RXQYvMtG31kRgZpXNpJSssABH11o2i+oRFjGKqAqGYAw8s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QNJfoq2B; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1772188551; c=relaxed/simple;
+	bh=zG3OrvZdKNn6zh6V73uN0Cvr/55X+qZzOfFvV/Y+h+I=;
+	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=ZjTgBbGz/6iBl0f+G6gtniCCxXOeNSlB/wNe88fpL7Py740F6n1B9Mf4Pev9W1E8Rwl9vsbl47aehAMtIo47q3yTmspNZWZsUidcSORzdtWhDj1pqpP1WyeCIskwW3/95PGvVpU+bJLR1htpBfa2L0ALwOBNJy+ma6M9YC3kPgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me; spf=pass smtp.mailfrom=pm.me; dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b=OVqSr9gi; arc=none smtp.client-ip=57.129.93.249
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QNJfoq2B"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61QExECj2347002;
-	Thu, 26 Feb 2026 20:43:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=L/pl8e0Ab6W8Nh9zOWFA+VaDN8oP4VGd2DbfLEsY3
-	/s=; b=QNJfoq2BAPC/xpNGoIYyeu8rkfeof2kXkOZnmJg7nILqdRvcMZZnshNUg
-	uuNxrrjzdZr0P4iAVpwcEWoWc5ARb7sBjnh5U5/K1vA2k8Viy34UykjpyhwVsTAm
-	k/qG0lGr90enqkiywk9+qTaRyAehMV2TefcwpXdtmfNkygtBMMfQxkkVJX+xTGin
-	lAVt5F1KIHikxjp6NN6FddnFk9IwXqM2FymSJ732ZE3UlJh0UVXtvYC6KtIROp1Y
-	blerymq9DLl59dJEp0ccv504O3A/Z1b+YSpLdtFgc1H59S6ltlm1xWVeg1cxveCe
-	rTgGRQHwe5x1WC/SnG20NDUUHrOpg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ch858xd77-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Feb 2026 20:43:51 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 61QIYgsm030414;
-	Thu, 26 Feb 2026 20:43:50 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cfrhknxrd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Feb 2026 20:43:49 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 61QKhjiJ30146976
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 26 Feb 2026 20:43:46 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E14E02004B;
-	Thu, 26 Feb 2026 20:43:45 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B5E3720040;
-	Thu, 26 Feb 2026 20:43:45 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Thu, 26 Feb 2026 20:43:45 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56370)
-	id 9E837E0BEB; Thu, 26 Feb 2026 21:43:45 +0100 (CET)
-From: Joshua Daley <jdaley@linux.ibm.com>
-To: linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-        jdaley@linux.ibm.com, mst@redhat.com, jasowang@redhat.com,
-        pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
-        James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
-        mjrosato@linux.ibm.com, farman@linux.ibm.com, frankja@linux.ibm.com
-Subject: [PATCH 0/1] scsi: virtio_scsi: move INIT_WORK calls to virtscsi_init
-Date: Thu, 26 Feb 2026 21:43:44 +0100
-Message-ID: <20260226204345.1904786-1-jdaley@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="OVqSr9gi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1772188539; x=1772447739;
+	bh=P7jRVG2awdtnvkNGRL41RAX3AeTjovXVV6WiqUibkXM=;
+	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=OVqSr9giXOZRihXEvaHWLKLVUo7MrFxZvQwupf+D8/vgEjx32PDF3HaIH4tulTVwd
+	 jhbPsShyp2xT3Pc/ULjAg2L9D6/wr76klRF1QuKr44BT2ZC6Qwfz6mVPGabysF7w3a
+	 xlau8Tt58NLYKvlA2VTZVcynDMNdOG+ueFQBNZEBBYignvDAmp7S6/aof4kauoh2uE
+	 ymnNJ7sTO56eSbdchAH7Afi69BLSVaq1eu9/plifZMiP0r1Mx8bmUSTjCZE1DOgeMS
+	 JaFo3LM5KeAIepLozX2EoQEPouFwuiuKsd9fpXb3bmiotsiBsfuzl5rDFU3wbNgvpk
+	 fpCB7hYTRIukQ==
+Date: Fri, 27 Feb 2026 10:35:32 +0000
+To: Thomas Zimmermann <tzimmermann@suse.de>
+From: Hardik Phalet <hardik.phalet@pm.me>
+Cc: Hardik Phalet <hardik.phalet@gmail.com>, David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Dmitry Osipenko <dmitry.osipenko@collabora.com>, Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Simona Vetter <simona@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, Hardik Phalet <hardik.phalet@pm.me>
+Subject: [PATCH] drm/virtio: Open-code drm_simple_encoder_init()
+Message-ID: <20260227103515.413685-1-hardik.phalet@pm.me>
+Feedback-ID: 166659585:user:proton
+X-Pm-Message-ID: 5e66828b35d0172477757075c415afd9d65f4af3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI2MDE4NCBTYWx0ZWRfXxrzJtN95SkO9
- vz7GgFHlWCYYYwOeV82TDDxVCv6gt29NyBeZF/DlPb7Ouu1HIBJ9x6rsc/Smi5Czhbow1HxZD6w
- hCZ/aXUKY3zNXLqxuB04WBibSun8FR5ALzDigpFxN9gqNSvFuqsPhX4tEbUUZdjBV735/uSZn0F
- WimnVmKSkIfU+OPowxX1+JHDwm+Tq86H3wIr3L3sNUidMMjq3BY7yFfCoy8Pw/6B6SeOIwlHzlQ
- KZd1UVrYnOcIMPag9mQtTm7XHXmCuSPi7zpkpS8ew81jPq+z/Ay2IHs9z7R5eSi83B5MqMvAciX
- pjbzlvHyo6DGFfao2VPvRdX9yAz1vZrO4QFEkULyqdUirXDZXVXf+E1IoirrRhuWO2/xRVZLYW2
- a5v53ybkP6I3bwT2ZYF7pfaw5NYpMnEPM1gL+pJ9XaZZEOIGfm0sbOJDbIO9FaF42i6BbyjFkLr
- dwNHXoX7y3vGPVnfcMw==
-X-Proofpoint-GUID: ThtvA5rGUu0M2tlVNBEYvJ9GZb2jLnuZ
-X-Authority-Analysis: v=2.4 cv=S4HUAYsP c=1 sm=1 tr=0 ts=69a0b087 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=HzLeVaNsDn8A:10 a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22
- a=GgsMoib0sEa3-_RKJdDe:22 a=QsrBqZypJrsHG3eT-GAA:9
-X-Proofpoint-ORIG-GUID: ThtvA5rGUu0M2tlVNBEYvJ9GZb2jLnuZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-26_02,2026-02-26_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 clxscore=1015 impostorscore=0 malwarescore=0 bulkscore=0
- phishscore=0 adultscore=0 lowpriorityscore=0 spamscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602260184
 
-This patch avoids a kernel warning that may occur if a virtio_scsi
-controller is detached immediately following a disk detach. See the
-commit message for details. The following are instructions to
-produce the warning (without the proposed patch).
+drm_simple_encoder_init() is a thin wrapper around drm_encoder_init()
+that only provides a minimal drm_encoder_funcs instance with
+.destroy =3D drm_encoder_cleanup.
 
-Timing matters--if all event work items call INIT_WORK before they are
-flushed by cancel_work_sync, then the warning will not occur.
+Inline the helper in virtgpu_display.c and provide a local
+drm_encoder_funcs instance instead. This removes the unnecessary
+indirection and prepares for the eventual removal of
+drm_simple_encoder_init().
 
-The warning will occur consistently if a sleep is added in
-virtscsi_kick_event before the INIT_WORK call, like so:
+No functional changes intended.
 
-#include <linux/delay.h>
+Signed-off-by: Hardik Phalet <hardik.phalet@pm.me>
+---
+ drivers/gpu/drm/virtio/virtgpu_display.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-static int virtscsi_kick_event(struct virtio_scsi *vscsi,
-			       struct virtio_scsi_event_node *event_node)
-{
-    int err;
-    struct scatterlist sg;
-    unsigned long flags;
-
- -> msleep(1000);
-    INIT_WORK(&event_node->work, virtscsi_handle_event);
-=09
-    ...
-}
-
-Then, just detach a disk and its controller in quick succession:
-
-virsh detach-device --domain <domain> disk.xml; \
-virsh detach-device --domain <domain> controller.xml
-
-where disk.xml and controller.xml are text files containing the XML
-of the disk and controller.
-
-Or, with the libvirt python module:
-
-domain.detachDevice(str(disk_xml))
-domain.detachDevice(str(controller_xml))
-
-Joshua Daley (1):
-  scsi: virtio_scsi: move INIT_WORK calls to virtscsi_init
-
- drivers/scsi/virtio_scsi.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/vir=
+tio/virtgpu_display.c
+index f1dae9569805..8bd6cdc6c16e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -232,6 +232,10 @@ static enum drm_mode_status virtio_gpu_conn_mode_valid=
+(struct drm_connector *con
+ =09return MODE_BAD;
+ }
+=20
++static const struct drm_encoder_funcs virtio_gpu_enc_cleanup_funcs =3D {
++=09.destroy =3D drm_encoder_cleanup
++};
++
+ static const struct drm_encoder_helper_funcs virtio_gpu_enc_helper_funcs =
+=3D {
+ =09.mode_set   =3D virtio_gpu_enc_mode_set,
+ =09.enable     =3D virtio_gpu_enc_enable,
+@@ -306,7 +310,8 @@ static int vgdev_output_init(struct virtio_gpu_device *=
+vgdev, int index)
+ =09if (vgdev->has_edid)
+ =09=09drm_connector_attach_edid_property(connector);
+=20
+-=09drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_VIRTUAL);
++=09drm_encoder_init(dev, encoder, &virtio_gpu_enc_cleanup_funcs,
++=09=09=09 DRM_MODE_ENCODER_VIRTUAL, NULL);
+ =09drm_encoder_helper_add(encoder, &virtio_gpu_enc_helper_funcs);
+ =09encoder->possible_crtcs =3D 1 << index;
+=20
 --=20
-2.34.1
+2.53.0
+
 
