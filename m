@@ -1,180 +1,168 @@
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4560733F363
-	for <virtualization@lists.linux.dev>; Sat, 28 Feb 2026 03:49:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772250589; cv=pass; b=WLqAYeyKXx2IwbX0T7nLXn2CA7Osdv2PVV9qOuLB2tl7g//F5pqTQoZQGQMI/vM9Ta7nyeatklVL5fqs56URJ/D6M6ufElTEOyjpgnL0WHwQQIVmjGXJlRUlmm4D6PJVSewz2yNBwbNaK2RI9QV+mo/x2l0Jgs+EMP0yScUmVBE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772250589; c=relaxed/simple;
-	bh=EZa1kh9CK62/JXDCFyKF5ToCVB0A/vBhHQIAYBb+sew=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A9L5K0JBszMjrSSFfAmEoaDqgGL4RzdV+2KyrcmFKdfdGJLQgTsvvuQeJYxdoU1RspTd8xsXPzj+S3hZzw5kOv1DiHx8Rb/mgEoFc8v+cS1XFxlkd/hdVkDQqowHwkxqvSmMFjoo2qE51HE3TvcnL6qu9VxPHtVSJTqbpSKJJJc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RJbtUAfn; arc=pass smtp.client-ip=209.85.208.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DB9E824A3
+	for <virtualization@lists.linux.dev>; Sat, 28 Feb 2026 05:03:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772255024; cv=none; b=WzEkOwlm9zQJQx2Upqf44Tivvd5aK27aMQLH2ZwXr1jcalQU60hC5Fhox8rYzpROXueBRgOfLiX09r7rI8IYzrkZwx+Sbe7ZutQb14DFDtDU9ZDOwWtZky9PrKqqXaplOtaeIeDxvNFvQHE5hw+tZJlgx13/dCywNB29TbHV4aQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772255024; c=relaxed/simple;
+	bh=WZGn9t6Nnd4BlPrgobIshCbzAK0yZTeNkprJ1mTTlpw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PCt0Qk0KAV8rZO/AEDUWROHRMT/NJR0dV3TJgpD7RMHNAj0nWZjCS1yEyW5JHxC5Pk26Vsw1WWtwREYUItWZBqWaaCp2Yuk30GauGbKfEn40aEhW4Igtmsvjb01sZZj66IiUowngSjEwt5j/ws7aBAh+uh9+6NCqqMSskN6O0m0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G5/wU54d; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RJbtUAfn"
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-38700168abaso37808511fa.3
-        for <virtualization@lists.linux.dev>; Fri, 27 Feb 2026 19:49:46 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772250585; cv=none;
-        d=google.com; s=arc-20240605;
-        b=DxG9rKh/g8Yc+WDbEPD0lBjYwKjIghnPlfjFhjbsbP8g+k8pW4fju/cEGd/FFTqONH
-         zyfrObmUhuUSDM7/jXlSzsb8l7BtYkzPNxwTL59H+/zoNG/9grlbEFPCmN8Ht+nM1fWC
-         oknSWDI6VTbbbunWXB1MYxJ9PXK8/mLXUpb4fHASz/kwH/3Lsd667wkvqtlfUUK5FlUQ
-         KhKMO1rPpFA8r3N7+9lNc+sujrCLA1woLK9pGiLv6NQ7ULsn/98qRioHg78mckoh0/Np
-         w7NG8eBMJs9lS3CBtk7eRUQmigNjEh8n5DilgVu/AK27WAKzglX/BFohzc0Xtsuc6jAk
-         PbYA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=h+azeatVE+bg9NQS0j4OQgTTv+mlTqhdyDYGxIesJN4=;
-        fh=76CTS/3S7n3iUgl5o4WFxAkaJvy8wIwSylwDLtTyvtI=;
-        b=CgzjWK+pd8IUSxHddGDn1GeXX8QVcCRcgi33HTuVGNmFAGc61F4+DxeTEXJITGSxSu
-         J26rFzKkeYve1ehlheS7s1hHJa+QQnosMtCfnnTS1wRyb+zu7DJcszHZ7Wy015nMHfYH
-         OWKGA+142WOV0ZJlhNZhBBgTDnEo5ckMrtucdqqlCQwkyXbGmf+3XmCHiU7bl+yLqmHB
-         QExfWjiv0BVtfGHxAaA78TYFT1GtWF+hNfjHSsaPePe9T7GQugDQA6gM3ctI1BWL4zUA
-         nhKPgWzcOTWWjly2tmOXH5VqNjyjc/QlR5FmH3V32oc6YyrCwCLm7MjKdr45HFdh9GgX
-         M0Qg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G5/wU54d"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2aaecf9c325so18369125ad.1
+        for <virtualization@lists.linux.dev>; Fri, 27 Feb 2026 21:03:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772250585; x=1772855385; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=h+azeatVE+bg9NQS0j4OQgTTv+mlTqhdyDYGxIesJN4=;
-        b=RJbtUAfnLAu1ykAM3Dvj9Vmxy1yc/uuTfm+6HpgNLpg8HZegC7Xp63uA7gfKB7vNTk
-         9jyF+gJiYL9d1XrAfH0cdng5VboDmhFZNIZBCK4jxuMD+U9RWoQIhrsjAwjw2cog1FPj
-         4ZKdDDJvYyJ5x8wCwrCWuOP0y4+9sKmao/DOEuQdX/UJ56JWbZf20r30IUEvKL6vBNcL
-         SOhoDlzz/1sEe2jia1WQ6UBmTVAiiL/+tMUOAuCuS03fkjnl5inXOXVbBzd2TuSugH4p
-         FM283hbOeESYRmsIlLbzoV4j4tqUkIyymNYbbyPOQAmNxmcSwO/7NDpbG/wZGo9F5pwZ
-         2Xbw==
+        d=gmail.com; s=20230601; t=1772255023; x=1772859823; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=riNYAikMZikDJOkTEd8N59a4JFCUVwaQB1blSZtd5Jg=;
+        b=G5/wU54dCENmehH4JfU0j8wMNFSyvyJPGi5w0f+xjEo8s3UAbiKtugDbjR4GCqwETw
+         +JGPmFyVqN/7iogkX8g11lxGF7crW9cehvuRlUN7ey2J8nQhBLYxD7rXQlIIUxm8TX5H
+         X/v3II6Mns+CEwPx9Jr0LwPxQIhOMCTS134uE1SY4myMQX1wfmvgSeRjZJBXvolMp0aO
+         DzaRneiLfsPfqzkXeNHS70nWsugYLTOBYnaqv6Fv92d4FVN4c38J8s7hCa7fnsf0MvaR
+         dGGr8zdJmwbOp2JoaU8W6egmmNxggeNEtogkEEzjJ6iS4boXGAG2y4RJBqrNTaDKrD6m
+         Cv+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772250585; x=1772855385;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=h+azeatVE+bg9NQS0j4OQgTTv+mlTqhdyDYGxIesJN4=;
-        b=dgmSbKnJgWdC/v8xaX7sgYMUHiKvJ8FrYAUcaCuQqC+nccpJ/XEKqwhF9xqZsoGEDX
-         6FznuS+duEF1bZ4nioJXGFsrqmx6zwNOlecHa1RG7kOZbnVZ5V4jgQ5YbmZNpq2u4cIA
-         bSRN5toqHVyx6jAUv78HMGqRqLjro6q2tt1PUFmWkNEciu//A9ggOX+PHCMoqa72NIiv
-         U/4e1TXgf1ctUcylHTzTdEdg2g+MUhJDsQzPLGGHGy3BL/KBKTyUCtC5vTjPyGRRXpPo
-         W1r9ROjcaHBEKhOBFdPFjygVOaA6Dcu5to/YeW3WOKUOuqHW2xaCVCo7JB0NHqG+taDK
-         OUYg==
-X-Forwarded-Encrypted: i=1; AJvYcCXSIk1w3qKigs9osFECCA8apRLSRYoJsBmSc0/KJHcytKFU/lm6tvPbPyOmgzlTngBAU/feNJ4woxXGi2Y6OA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwtIVVW1d1XTKpIsHy9Joqn+O3YDMWPQ1kr0dXO6eraoSMhLHeR
-	UM755SEbQyW6pDOMux8JEOC/tRLpospc8YfyL70/8CAH8cbeHwJa95Ik7jKhkI/sqvs5vQRoRLB
-	P2CDUoc34E/iJLBWu4iCMqd9OHzWl78k=
-X-Gm-Gg: ATEYQzyQp2mCaCBHhRNP622X1qrDsBjJl+bpwc17MMTmTS0Hrg6oaxAM7dfmLwSpgu/
-	jjpY1oxWV9UdjrWt8zISV8mqXjBoUsR5WWd0M5k/3BncVU8SHqb9FDRSorxlYP30u/2KdywUAR2
-	4DjTluMxbof0FQP5RgeWB3FuvmeoQxamEToNXGMjtXivdnNSlap8YvYP/wo8xpGAVown7z5VfXk
-	hq1pf55R8VUCJdcJiPvqYRavw65nQIfGiZochd5K2S0Mm2TbpK1ZXBcsN0KHhqAL+G8ib8N+EIP
-	oHWMWYMD
-X-Received: by 2002:a05:651c:110e:b0:383:1d66:c204 with SMTP id
- 38308e7fff4ca-389ff36cf14mr26540711fa.38.1772250584982; Fri, 27 Feb 2026
- 19:49:44 -0800 (PST)
+        d=1e100.net; s=20230601; t=1772255023; x=1772859823;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=riNYAikMZikDJOkTEd8N59a4JFCUVwaQB1blSZtd5Jg=;
+        b=fjxzKkd239M/GqCzIYnxyGq+7Em76qGS8dNB2tVGjtHDKjIb8O3t5VQCntlUF/1uGu
+         bPBzjqQozPyB/wPxGuqcXYdv1LwdqGRoBhg2TQ5/NAvej4v9yk27n6jryMxO0KGYGFRT
+         ihY1WfZLvMapDVpZi6gBtyH82olrFrJtpvXyzrlE4Te4QNbAi+GFxJukpU35oxNxu3Mf
+         TuPUZhSIxHUWf0VeLW07usEKexFItTY476BhvKkgQ8kR/b9AFvtnPTkymlxSCfvhX/gi
+         ow9n1MAEDkuEF4URQ82zGS41V+n4fGtUYgQxxXbesVfeM18UFC8gfuydeKR4GZjfhYNq
+         C8Lw==
+X-Forwarded-Encrypted: i=1; AJvYcCWCze4t1wVxNYGxQSOJMjE+1QyZ2ptUFjlJbJGcqpJ9RYHsMKhHWZ8tjN3uoKvKvktbz4/eXpfk+RJiksS5bQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwaLxkkUfBUFUDnh8ZWGvfaCVf19nM0LvRjGlOji93UOrkJtFfk
+	VHoUV0Yzh+rkqFsWxCNZJ47CmhXwa4ejVUIJUqI2OUWOojabAzUMXolz
+X-Gm-Gg: ATEYQzzdHHTPhGutAFh3jHA/R0UtIa/exMWagdR3Nu8oHlRyt9mJD5w4n38oulTGgv/
+	/f1xxIOV5Ge/06do0LT9pA5p06QxRtNFlluPy6cwdGDIs3V/l4XLzjXDDumVqWQA1T2yaJjUImk
+	v5Xq0wn2u/ElJ/x7p8dk+d2lVjT43Vqfu4zmIX8es6PyAwtnKh7U4kppc9yfQihKyQMEptEKkN4
+	J3FFKVwocTKByLTmIlimBhSKqMCUcuXa84O6+wTm+vlEvPQQfQO0A8sFLhOdAEfiEC8DEoE5spH
+	k75Ts1kS//nNHJ8Nsbstb9C1RF2acj3CrfiV+3ubSmP9qdlqrVL66iafNK555EZqay6ad9W9G6g
+	djObXWFSuRKouhda8itVOLjbwECNp5q95rCCyPcmWAPu+ZJFC5gK+xT8KHzaebyGrMtCflAWH8A
+	dWqAnDAve099Bm813PXNOh1CgZj5g6h9xbEBCokokJ5Am8aM54bUwBfjdvV2eMaRKYTXsRfcbVL
+	z82rg==
+X-Received: by 2002:a17:903:1a03:b0:2aa:e3d1:1430 with SMTP id d9443c01a7336-2ae2bbd72fbmr53761865ad.23.1772255022668;
+        Fri, 27 Feb 2026 21:03:42 -0800 (PST)
+Received: from ?IPV6:2001:ee0:4f0f:b1d0:aab1:76d6:d5d9:2ab0? ([2001:ee0:4f0f:b1d0:aab1:76d6:d5d9:2ab0])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ae3d1b2c51sm4794775ad.19.2026.02.27.21.03.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 27 Feb 2026 21:03:42 -0800 (PST)
+Message-ID: <43b3b8dc-bc99-497a-a845-a9697c126d3f@gmail.com>
+Date: Sat, 28 Feb 2026 12:03:31 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260227150949.13089-1-minhquangbui99@gmail.com>
-In-Reply-To: <20260227150949.13089-1-minhquangbui99@gmail.com>
-From: Jason Xing <kerneljasonxing@gmail.com>
-Date: Sat, 28 Feb 2026 11:49:07 +0800
-X-Gm-Features: AaiRm51f6hsgSdx76tSMlynHg4HKsjuSluFAz0ck0AkuBIp6rEBeo71YUrgL5A8
-Message-ID: <CAL+tcoBdEQ0jhRCqpC8zoc+yLBYdYvLgBzF5Ov2284a87UM-UQ@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net-next] virtio-net: xsk: Support wakeup on RX side
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To: Jason Xing <kerneljasonxing@gmail.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20260227150949.13089-1-minhquangbui99@gmail.com>
+ <CAL+tcoBdEQ0jhRCqpC8zoc+yLBYdYvLgBzF5Ov2284a87UM-UQ@mail.gmail.com>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <CAL+tcoBdEQ0jhRCqpC8zoc+yLBYdYvLgBzF5Ov2284a87UM-UQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hi Bui,
+Hi Jason,
 
-On Fri, Feb 27, 2026 at 11:20=E2=80=AFPM Bui Quang Minh
-<minhquangbui99@gmail.com> wrote:
+On 2/28/26 10:49, Jason Xing wrote:
+> Hi Bui,
 >
-> When XDP_USE_NEED_WAKEUP is used and the fill ring is empty so no buffer
-> is allocated on RX side, allow RX NAPI to be descheduled. This avoids
-> wasting CPU cycles on polling. Users will be notified and they need to
-> make a wakeup call after refilling the ring.
->
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
->  drivers/net/virtio_net.c | 38 ++++++++++++++++++++++++++++++--------
->  1 file changed, 30 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index db88dcaefb20..494acc904b2c 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1454,8 +1454,19 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_=
-info *vi, struct receive_queue
->         xsk_buffs =3D rq->xsk_buffs;
->
->         num =3D xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
-> -       if (!num)
-> +       if (!num) {
-> +               if (xsk_uses_need_wakeup(pool)) {
-> +                       xsk_set_rx_need_wakeup(pool);
-> +                       /* Return 0 instead of -ENOMEM so that NAPI is
-> +                        * descheduled.
-> +                        */
-> +                       return 0;
-> +               }
-> +
->                 return -ENOMEM;
-> +       } else {
-> +               xsk_clear_rx_need_wakeup(pool);
-> +       }
->
->         len =3D xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
->
-> @@ -1588,20 +1599,21 @@ static bool virtnet_xsk_xmit(struct send_queue *s=
-q, struct xsk_buff_pool *pool,
->         return sent;
->  }
->
-> -static void xsk_wakeup(struct send_queue *sq)
-> +static void xsk_wakeup(struct napi_struct *napi, struct virtqueue *vq)
->  {
-> -       if (napi_if_scheduled_mark_missed(&sq->napi))
-> +       if (napi_if_scheduled_mark_missed(napi))
->                 return;
->
->         local_bh_disable();
-> -       virtqueue_napi_schedule(&sq->napi, sq->vq);
-> +       virtqueue_napi_schedule(napi, vq);
->         local_bh_enable();
->  }
->
->  static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
->  {
->         struct virtnet_info *vi =3D netdev_priv(dev);
-> -       struct send_queue *sq;
-> +       struct napi_struct *napi;
-> +       struct virtqueue *vq;
->
->         if (!netif_running(dev))
->                 return -ENETDOWN;
-> @@ -1609,9 +1621,19 @@ static int virtnet_xsk_wakeup(struct net_device *d=
-ev, u32 qid, u32 flag)
->         if (qid >=3D vi->curr_queue_pairs)
->                 return -EINVAL;
->
-> -       sq =3D &vi->sq[qid];
-> +       if (flag =3D=3D XDP_WAKEUP_TX) {
+> On Fri, Feb 27, 2026 at 11:20 PM Bui Quang Minh
+> <minhquangbui99@gmail.com> wrote:
+>> When XDP_USE_NEED_WAKEUP is used and the fill ring is empty so no buffer
+>> is allocated on RX side, allow RX NAPI to be descheduled. This avoids
+>> wasting CPU cycles on polling. Users will be notified and they need to
+>> make a wakeup call after refilling the ring.
+>>
+>> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+>> ---
+>>   drivers/net/virtio_net.c | 38 ++++++++++++++++++++++++++++++--------
+>>   1 file changed, 30 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index db88dcaefb20..494acc904b2c 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -1454,8 +1454,19 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
+>>          xsk_buffs = rq->xsk_buffs;
+>>
+>>          num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
+>> -       if (!num)
+>> +       if (!num) {
+>> +               if (xsk_uses_need_wakeup(pool)) {
+>> +                       xsk_set_rx_need_wakeup(pool);
+>> +                       /* Return 0 instead of -ENOMEM so that NAPI is
+>> +                        * descheduled.
+>> +                        */
+>> +                       return 0;
+>> +               }
+>> +
+>>                  return -ENOMEM;
+>> +       } else {
+>> +               xsk_clear_rx_need_wakeup(pool);
+>> +       }
+>>
+>>          len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
+>>
+>> @@ -1588,20 +1599,21 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
+>>          return sent;
+>>   }
+>>
+>> -static void xsk_wakeup(struct send_queue *sq)
+>> +static void xsk_wakeup(struct napi_struct *napi, struct virtqueue *vq)
+>>   {
+>> -       if (napi_if_scheduled_mark_missed(&sq->napi))
+>> +       if (napi_if_scheduled_mark_missed(napi))
+>>                  return;
+>>
+>>          local_bh_disable();
+>> -       virtqueue_napi_schedule(&sq->napi, sq->vq);
+>> +       virtqueue_napi_schedule(napi, vq);
+>>          local_bh_enable();
+>>   }
+>>
+>>   static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
+>>   {
+>>          struct virtnet_info *vi = netdev_priv(dev);
+>> -       struct send_queue *sq;
+>> +       struct napi_struct *napi;
+>> +       struct virtqueue *vq;
+>>
+>>          if (!netif_running(dev))
+>>                  return -ENETDOWN;
+>> @@ -1609,9 +1621,19 @@ static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
+>>          if (qid >= vi->curr_queue_pairs)
+>>                  return -EINVAL;
+>>
+>> -       sq = &vi->sq[qid];
+>> +       if (flag == XDP_WAKEUP_TX) {
+> Better use &?
 
-Better use &?
+Sorry, I don't get your point. Can you elaborate more?
 
 Thanks,
-Jason
+Quang Minh.
