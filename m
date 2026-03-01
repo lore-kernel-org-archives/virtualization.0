@@ -1,40 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9675E22126C;
-	Sun,  1 Mar 2026 01:17:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DA552727EB;
+	Sun,  1 Mar 2026 01:24:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772327839; cv=none; b=mLEOdhL1QZqGU6hhmtoDojqMpwAHXys7RD1DOkrK44AVDbE9e1LkPnKNlTzjgeL6A1LzAET6JNCuGrLEWa6AWWqOo+k39a2ve7qzddc1eSfXcKjDbb6xJFjhFh9GSSJdIXmj4LfPoplH6hVwsq5A92C+sZ9a4Eg7koVCitEPipU=
+	t=1772328268; cv=none; b=RzGJLwVlq/ZGlWjU9D5GxEBollLDc3zTIzA0JFkUHUzVNyKW2LPm+uIwvG+USR7BanH9VMMHqXEEbCur9sfZk23cVhU32owCUl+SVftvV3yZUyPTuk597BW5BXHW89Q3bQhDCERkIgY+sO2ygGiZa3coCBhP6J9RLknksXWkKhs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772327839; c=relaxed/simple;
-	bh=SmYZNoL83ueWHvcHP6d0xtIzCplL/2b4jmkDJ43bvnE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=H79vkVJlBHCRETORV+u/UAG/5whWClOJMwvN1DtrnNc94QQeu+E0A4sW3C67dVde1uc/B535CSS/dORj4KmVwLE+uAfNaA1pLT32MLpWscSKq6kuH/2Wxoh5kE134hSOIr1bugj4r180HxouWU/oajsK0LGPBL0aZwinAc92pNg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VB3ZHnTC; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772328268; c=relaxed/simple;
+	bh=+EpTsiIDLOTkOz8FIxLoBwropfh+AtzT1wl/19xrRTE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lltBOGSRgjrimevve9QaQCtbAyTab2wCHJ5JM8q/+5bsT2UVNmJWuowncorbEbmSmJ82W5dOBuwJDzLaQwoaNr+zipO5TY4Wd0hJ1MTuE7DovnIRnvgew3/+F1lvwXt4aAxcYl7jrarp99g8vbRBYKhqDkJG2VEykAAAnMOhdb4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DxLYbShh; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VB3ZHnTC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE1F4C2BC86;
-	Sun,  1 Mar 2026 01:17:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DxLYbShh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD04FC19421;
+	Sun,  1 Mar 2026 01:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772327839;
-	bh=SmYZNoL83ueWHvcHP6d0xtIzCplL/2b4jmkDJ43bvnE=;
+	s=k20201202; t=1772328268;
+	bh=+EpTsiIDLOTkOz8FIxLoBwropfh+AtzT1wl/19xrRTE=;
 	h=From:To:Cc:Subject:Date:From;
-	b=VB3ZHnTCEYW7jO/HRvxq/N3i6WmBJTn/G8YSBxNay3G2tHMyjYUVxlXmY3zX4fVPP
-	 MLJdTfZJ/dlvwVOPoUp4QmDo8qgzULwdDKc2tSni8mPjY6IiotZulnsVeh8g0jwr5k
-	 FQJh87zOXYgf1lcOLzvRuKkt1i7EtNnh52dlVFXSKfplBz1+KNWtydiQUs61BgSqfi
-	 5U6KixFTab+XJ0rW7ewOeeC4WQK1D8pJOvDqcztDD2i0ELce0Yy3r4Y9SJtvB+y3Ok
-	 DX1rsVoDHSmIKuCPyQ3zofrsIiEgaZtnX6V62Z/NXj1fLvfV9O0ZtuzxaljaMZHtLV
-	 S4m2waJ4o/+Kg==
+	b=DxLYbShhYnDfIwlRj4Nybvp7ZWNI6Z6tU5r5EQQDK3+aPc51nH2f2VILgesq4p8a+
+	 mx3arr3nf3lg0Lsz3Ypyggkhne2fX7xf6DKcbFaHZF/JXwWUwHhMgU7bzFbiLFMNqA
+	 2ooYE++QfdOpksvFoy/r8i6/fUzwMWteUrq5Ykc7fnmxpY+CV4aQn+vP46JT7Kc19/
+	 qxGW++q8ORzls5KQgTTsxXiFXlWR9aXullfaxAqqNsBQsZTx1ECUT4fQ7maXET8tEN
+	 pjt7Nm6Ox3u2UP2ZBUtbkB0SnP0FhyFABsqlxs4xRTHsoevjiZ3iIA5pPs27ZSq4di
+	 yVR0YIbOxMWFQ==
 From: Sasha Levin <sashal@kernel.org>
 To: stable@vger.kernel.org,
-	maobibo@loongson.cn
+	eperezma@redhat.com
 Cc: Jason Wang <jasowang@redhat.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	virtualization@lists.linux.dev,
-	linux-crypto@vger.kernel.org
-Subject: FAILED: Patch "crypto: virtio: Remove duplicated virtqueue_kick in virtio_crypto_skcipher_crypt_req" failed to apply to 6.18-stable tree
-Date: Sat, 28 Feb 2026 20:17:17 -0500
-Message-ID: <20260301011717.1671186-1-sashal@kernel.org>
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: FAILED: Patch "vhost: move vdpa group bound check to vhost_vdpa" failed to apply to 6.12-stable tree
+Date: Sat, 28 Feb 2026 20:24:26 -0500
+Message-ID: <20260301012426.1681292-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -44,9 +45,10 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
 X-stable: review
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The patch below does not apply to the 6.18-stable tree.
+The patch below does not apply to the 6.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,41 +58,76 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From a389d431053935366b88a8fbf271f1a564b9a44e Mon Sep 17 00:00:00 2001
-From: Bibo Mao <maobibo@loongson.cn>
-Date: Tue, 13 Jan 2026 11:05:55 +0800
-Subject: [PATCH] crypto: virtio: Remove duplicated virtqueue_kick in
- virtio_crypto_skcipher_crypt_req
+From cd025c1e876b4e262e71398236a1550486a73ede Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Date: Mon, 19 Jan 2026 15:32:54 +0100
+Subject: [PATCH] vhost: move vdpa group bound check to vhost_vdpa
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-With function virtio_crypto_skcipher_crypt_req(), there is already
-virtqueue_kick() call with spinlock held in function
-__virtio_crypto_skcipher_do_req(). Remove duplicated virtqueue_kick()
-function call here.
+Remove duplication by consolidating these here.  This reduces the
+posibility of a parent driver missing them.
 
-Fixes: d79b5d0bbf2e ("crypto: virtio - support crypto engine framework")
+While we're at it, fix a bug in vdpa_sim where a valid ASID can be
+assigned to a group equal to ngroups, causing an out of bound write.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+Fixes: bda324fd037a ("vdpasim: control virtqueue support")
 Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Message-Id: <20260113030556.3522533-3-maobibo@loongson.cn>
+Message-Id: <20260119143306.1818855-2-eperezma@redhat.com>
 ---
- drivers/crypto/virtio/virtio_crypto_skcipher_algs.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 ---
+ drivers/vdpa/vdpa_sim/vdpa_sim.c  | 6 ------
+ drivers/vhost/vdpa.c              | 2 +-
+ 3 files changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-index 1b3fb21a2a7de..11053d1786d4d 100644
---- a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-@@ -541,8 +541,6 @@ int virtio_crypto_skcipher_crypt_req(
- 	if (ret < 0)
- 		return ret;
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index ddaa1366704bb..44062e9d68f00 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -3640,9 +3640,6 @@ static int mlx5_set_group_asid(struct vdpa_device *vdev, u32 group,
+ 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+ 	int err = 0;
  
--	virtqueue_kick(data_vq->vq);
+-	if (group >= MLX5_VDPA_NUMVQ_GROUPS)
+-		return -EINVAL;
 -
- 	return 0;
- }
+ 	mvdev->mres.group2asid[group] = asid;
  
+ 	mutex_lock(&mvdev->mres.lock);
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index c1c6431950e1b..df9c7ddc5d782 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -606,12 +606,6 @@ static int vdpasim_set_group_asid(struct vdpa_device *vdpa, unsigned int group,
+ 	struct vhost_iotlb *iommu;
+ 	int i;
+ 
+-	if (group > vdpasim->dev_attr.ngroups)
+-		return -EINVAL;
+-
+-	if (asid >= vdpasim->dev_attr.nas)
+-		return -EINVAL;
+-
+ 	iommu = &vdpasim->iommu[asid];
+ 
+ 	mutex_lock(&vdpasim->mutex);
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 05a481e4c385a..9d25b735b43dd 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -680,7 +680,7 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 	case VHOST_VDPA_SET_GROUP_ASID:
+ 		if (copy_from_user(&s, argp, sizeof(s)))
+ 			return -EFAULT;
+-		if (s.num >= vdpa->nas)
++		if (idx >= vdpa->ngroups || s.num >= vdpa->nas)
+ 			return -EINVAL;
+ 		if (!ops->set_group_asid)
+ 			return -EOPNOTSUPP;
 -- 
 2.51.0
 
