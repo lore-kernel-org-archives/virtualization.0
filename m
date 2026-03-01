@@ -1,99 +1,194 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2E582F3C37;
-	Sun,  1 Mar 2026 02:02:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772330563; cv=none; b=S2qArL87z0oKTgw8ujLZ0ruGDNHCcj10fwiJYDFnHjDEk96ftrVe/BA0wI7RPsNTnJkL7Di7vqoWSOZ4py+EUH9yqmNka7PCCgyygnjYheedSQIrGMuq4guAkV9iQeTaAqnGRy1quFXfECsOQ8Udbp9TclkvJpD8CUMER+z3ILo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772330563; c=relaxed/simple;
-	bh=LDxGwsraqImVTWWZcy0nwDq6ZA8+w5j/0XYs9b1qwGI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tHZtUzeF0omm6hCjOY8+75g38xf1R7Jtp/Ff+nxTuw3yIiT4uzUfJPuutJLMFOSK5vQoMtY/nj6LbzdQhn+JSiY5yjGnD9jzt/yohGFz0ZqxU6TmUjFfXpn+Ikp1ik6MnDMrt+lNhUJ9MhIP0D9xkVS1c6+yoDwDm+UQcwJ/ohM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dD/fye6M; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8787A13D53C
+	for <virtualization@lists.linux.dev>; Sun,  1 Mar 2026 06:43:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.145.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772347426; cv=fail; b=I1GCSackuBMjtJuihDddPD+nUbcrzeJHFm38bETBODXDqDgPuElcQ04CQnDkSCXwEj2Xr8C/6eVuSDiIqq8MhBOPwSrwPf8NR1ium0VdywefU4JilXOixhCCAg/bgDBHv4ukVFVLIcYEutN0AlvKQ1CfVTHfQMyQqa50MWv/BWM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772347426; c=relaxed/simple;
+	bh=ObOh/B7zyetICib2trK2R5xDtTQgbot6DeckTumkvE0=;
+	h=Message-ID:Date:From:Subject:To:Cc:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=oiZv6phM1fZtIUnoBHyIt4nVk01SfezldzsJb/3DdtVB3BWQLR4lfA0jhel9TJPs0GIH5sS9LvQhZfKUiW1ZS2Yfv+UhEghhs3wap0yIxMLF3CK89wzOdDO8P/5mkE7uwemZYacfPz4LzRos3Morrc1/MeED1qhUjDjnMM+b/js=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=DNhH2Ag2; arc=fail smtp.client-ip=67.231.145.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dD/fye6M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24BE0C19421;
-	Sun,  1 Mar 2026 02:02:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772330562;
-	bh=LDxGwsraqImVTWWZcy0nwDq6ZA8+w5j/0XYs9b1qwGI=;
-	h=From:To:Cc:Subject:Date:From;
-	b=dD/fye6MUkgwLDcP5rzekp3+3MdJuqat1AL3fmepNoCBRUAKu7bV9FWSrztAFRmC+
-	 azCg/wMQDPDizXAulAChRIK4fi9iqtz+Gg7iq9Qq+YSIk6FGrR7PbIEf0fxKUvnjXu
-	 zfe2Yf8RTJ3vLdyGMVg1POGBxw2AMNd/fx2LMc0QiEXQ97wFmf047QgnB/Qk0UmTgN
-	 2DXP+DH+kteTxVvRxc2jTJUNsvfSaKcYsqxpwf776nOJsCfdNmkWgIlOTzEYyWi2oZ
-	 b9RJDa/cHH86zd0+Cazh9Tz4bcTRSLJpGyhLrbGbm1e5MloPYnbb3goQ2940WsM8y9
-	 GSAwndj9Ccmwg==
-From: Sasha Levin <sashal@kernel.org>
-To: stable@vger.kernel.org,
-	maobibo@loongson.cn
-Cc: Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-crypto@vger.kernel.org
-Subject: FAILED: Patch "crypto: virtio: Remove duplicated virtqueue_kick in virtio_crypto_skcipher_crypt_req" failed to apply to 5.10-stable tree
-Date: Sat, 28 Feb 2026 21:02:40 -0500
-Message-ID: <20260301020241.1730575-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="DNhH2Ag2"
+Received: from pps.filterd (m0109333.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61SB1MwW2152321;
+	Sat, 28 Feb 2026 22:43:35 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=s2048-2025-q2;
+	 bh=1yKZSsGu6UgQkUI6Mf2vAKE6eo9h+wE/9xXoJ71y70Y=; b=DNhH2Ag2fb2R
+	2kfnOG5+WOaxJdeScsi2K8lItiZ7K2n0PC67tQRgFF3r5vUOFEtfRaRrkvVqMHp3
+	z/ahPh8jDxw8tkYFCScm5oEhs6Z1sJCyMcyRt7/FdY/2xje7EbJdm7eLreHY4OUv
+	d0QV5belh+k5utLt9KSo7aXSoZJv5kKyICooqLv4DDCAsdghfDbnZQ4Z1TaNyHDW
+	Ht6V7lKvmL6he39cEYGztJqc0TAohNm0iVl8xcQnKUaYVWXjrFQt9JF6Zw8fj+kX
+	TyShLBubZCdhPuvv2bubG5irMubTsIMZXPXFAYkDLUNrvwHqkMHDj9mchWmvjdHk
+	q+kmJljdJQ==
+Received: from ch4pr04cu002.outbound.protection.outlook.com (mail-northcentralusazon11013033.outbound.protection.outlook.com [40.107.201.33])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4ckw8xw31w-2
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Sat, 28 Feb 2026 22:43:35 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=r1ZTNyDd9CmdE2HyVq9kROi828ypVWwO1Y7p8c8lEpuJZiOx5OI+RRP82aktWfPxABgxOc2Knd6oAMngYpUGg8WrESPUeNXC0voUgXnjV/VdZJP/m2Hb8yHa8Trzqmod4M2Qa8iNGFEJHZLmInyL4ofyTGg2Z95FlLFrnLC8GdWMP82ZuR8aNp1NLhUsAQjeAqLSP3J+H9FlX55U/wwzzh9GUBvNxQiwM3kCKGDEJ/nftWgUX9e0sSbStFws17LjIInmg5oU2ZSuCayFeJFf0O9FGeLmjwxK97SzqnSEKunWHWkam1GBzTCtbNYH8nUUYfZucMp4ECGX6hjyoeg4TA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=1yKZSsGu6UgQkUI6Mf2vAKE6eo9h+wE/9xXoJ71y70Y=;
+ b=R/BplCX7Ax3b+QZz3mI3lbNVMqxQaLP5CDlit0UKQdhr4MkCBuoHC914fjh8Eb2bvorCiw6a/c3cplWAQqS2THJ3kcmaDzs2UGsy9UVbmZl0+R2Pn+KpMsmB6sUgW10VcqAGQ3GyyQybFcQ4yQMyvWlhuLWO0J2q93btSDmXBDcroM+W/W7YYIFaYrzBS3YsP1x5oBQgGryQhpNx8GCGbgo0QzrRtvS0NJl3MQEdpzzVHknvYuMejTzyV7veRL8uVACZ69kgCP2qXMUhddnl/rZZEufnPlPWwfYxsPXVVgG2uv6nuDU8BIOhmiCF6Ee197QYj/hdd2ZxwUkqJVdJ4Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=meta.com; dmarc=pass action=none header.from=meta.com;
+ dkim=pass header.d=meta.com; arc=none
+Received: from DM6PR15MB3893.namprd15.prod.outlook.com (2603:10b6:5:2b6::17)
+ by SA1PR15MB5095.namprd15.prod.outlook.com (2603:10b6:806:1de::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9632.17; Sun, 1 Mar
+ 2026 06:43:32 +0000
+Received: from DM6PR15MB3893.namprd15.prod.outlook.com
+ ([fe80::12c7:cfea:e8a3:9667]) by DM6PR15MB3893.namprd15.prod.outlook.com
+ ([fe80::12c7:cfea:e8a3:9667%4]) with mapi id 15.20.9632.017; Sun, 1 Mar 2026
+ 06:43:32 +0000
+Message-ID: <e824c5a3-cfe0-4d11-958f-c3ec82d11d37@meta.com>
+Date: Sun, 1 Mar 2026 12:13:19 +0530
+User-Agent: Mozilla Thunderbird
+From: Vishwanath Seshagiri <vishs@meta.com>
+Subject: Re: [PATCH net-next v8] virtio_net: add page_pool support for buffer
+ allocation
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        "David S . Miller"
+ <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, David Wei <dw@davidwei.uk>,
+        Matteo Croce <technoboy85@gmail.com>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>, netdev@vger.kernel.org,
+        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+        kernel-team@meta.com
+References: <20260228134122.631580-1-vishs@meta.com>
+ <20260228135423-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+In-Reply-To: <20260228135423-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MA5P287CA0149.INDP287.PROD.OUTLOOK.COM
+ (2603:1096:a01:1d7::19) To DM6PR15MB3893.namprd15.prod.outlook.com
+ (2603:10b6:5:2b6::17)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Patchwork-Hint: ignore
-X-stable: review
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6PR15MB3893:EE_|SA1PR15MB5095:EE_
+X-MS-Office365-Filtering-Correlation-Id: 64ada1b4-cc3c-444a-2a8f-08de775ddafa
+X-LD-Processed: 8ae927fe-1255-47a7-a2af-5f3a069daaa2,ExtAddr
+X-FB-Source: Internal
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|366016|7416014;
+X-Microsoft-Antispam-Message-Info:
+ tJ6ZZX4vtOGVgSM+yM/e+b4ojWq9eF68fBNJSREbAugVGZ8wqm3ofJeayGl1BPYjCSlzhhrj1NqUqko8O0NcLMq6u0oorMSBBH9ElizFz2/bNjvoKN8Nw7rhvlfMG1Pha+ZjCT4vW/tcibhs9UFWyGB4Va2Idjxo2PlCHOYgwoM1+6yEV/9MJXh7cwHqLAq/HjeXcAv/P2K6Nv/l/ckFb4YpGFfPr7//+D/4u6WtJkGMFOQ02YnYSuWE3CWVkic9MQ6V5PNWep0jUareBgBI1kBu0r1KCsjDlR+/goPYgseURtHZuVGT1Gh3396dbRSRfSxboXa+MF82Wfa2cYo+5/NGVj9gkgj+yZaBuvxAKxL7kcZkQxDDIunuqjZZLayU9n+ibewru7BkuvaZJB9NqduO776p6zIuKotGL01DNt0Hhl5wh2U+08iag87BnePI2IxQX/bj4ALjAnd/NqPskkIVt0EmNaovGDr00XncGhKJDVzJ4jOQxddD6uyjE9dTkzsGdFbj5eKLxc2vaTGiclWJhEz36j3+b6BXc1yrFNSA44Uf9y1iFO6XhzqCfryIyJ5/28mFV0savsq/CY8F82j/E+gFe49Icqwiy4qKxC3w8RqJQC4i8NPd3ehMT+Jamq+DTmFZD08/0krp2aK9A23N0nQP5UQlHaeGBrAXDUVlR6SxKyD15Gsz5R4wnIJC6gHHyaSnWAcqxbB5Le2PSuIFJoRZ7Dvp6Ze7XiT2zXA=
+X-Forefront-Antispam-Report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR15MB3893.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(7416014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+ =?utf-8?B?VGVvcjFxRHlUY0JMWnhVckRHRGQxbno0ZFdDQ05FcGd6MFM1M2xyRklVdlJX?=
+ =?utf-8?B?YlFvSzBUVlN4MFFVSStXL2taME1VMWt5UGkyNC85TWx2YW1YTldBOGhCY0F0?=
+ =?utf-8?B?SHJETU5NNXcvVFg2Z2doeGVTdDBwT3BjQUJLQ2xHS0xEMzJHUkhWV3FrRGlI?=
+ =?utf-8?B?QllLbjJNcHd1VGRFc09PTDh6RCs2aG5aYlU2c3VtUXJJcGh1L0FuQTJWOXBh?=
+ =?utf-8?B?eVZ5WFlWTnBMeWNxblYwNjJ5dzVzTlc1akl2anl6VnlNcmY1MG5WK0JyMUVE?=
+ =?utf-8?B?bS9Md3RWZFRKSWs4dnNKRFhJOFFBS2VET3hGcG5FbEJtWDIwRitNb3lzLzlP?=
+ =?utf-8?B?Tkc5Zm95aGc2cFk3dlcxS0ZlVFVVaE5GSkVyU1pGU3JEMDJ1NzdWazh6QTlh?=
+ =?utf-8?B?MHQ3bkFnK1VKeEZKUithNGtFNjVVNy9aQlV2eDZjVFlNenhYVXNSMzVyRXBK?=
+ =?utf-8?B?b0dEY3hibTN0OUM3VkxUK000SUdPVkxSZ0hlN2ZraE41c1NJNm1wSXVuU2U1?=
+ =?utf-8?B?c0F6SUFOejdMbUVOeUFZZnlBUVhNWVRnZmc2RU5RV1lDUmlEVTNRZW94d0sz?=
+ =?utf-8?B?aWwrWEhjR1grSW5Qblh3WXJiMDQxK1F6eHlIaHh6TDlPRDA1NXB4SFdZcmZQ?=
+ =?utf-8?B?YlFIaDIyRG1lNXQ3VnNzamNyZTM1c0dHdDdBUVIyWGxmNGJjc0lNUUt4blFL?=
+ =?utf-8?B?K3J1NkZuM0kvUy9NVHM0ajhvNjRKOWRBQ2FnSzJ0a3RIdEpIaG9JRjRNNnlh?=
+ =?utf-8?B?VHcyR0ovd2Q0Mmw3dnA5WDVhQzFDOUZpWERBeDE2bFI0amxkbzREajUzeEti?=
+ =?utf-8?B?UHYyZnA5UHBTU214UjRDNWtQNTFiZ2VNbDFLQUViUGVvVWpmQzBqK28vL1p3?=
+ =?utf-8?B?ZlpUQlFQb0QxTENmczdUY0JvbUhhTlpteXJLS1ZVVEJock9YR2hzZEFYNjNs?=
+ =?utf-8?B?RlRxalN6VlU2cVJaWkxmNEJOTm1OVzZmamhvVXJuRlpJT3E1V2c2MGVPRk10?=
+ =?utf-8?B?a09Bd0tmOEZNMnRWSEZsTXlMOWFwSlVCWVF1bjFGUUhLcGRzTGhTMGRmMjNL?=
+ =?utf-8?B?MEh5aU0rN1FJMUplY2d4THQySnpncnpmVzFRTDdzelJSVW1YWHo5dm1HMG1O?=
+ =?utf-8?B?RlJQbWJaRlpETWR6TFFRTEltSW5BSVlnVHNDei9HcEc1SE9NZ2I1cDh3cHhP?=
+ =?utf-8?B?My9EUEJDaVk0KzRZNzUyWXJaT1FCbzdVZVZGaEhFVTkzeDV1eEtVcVlKeW5l?=
+ =?utf-8?B?NmMvVjFyY1l3Q1RNNWQ0b2IvdUlMSmNNaVUyQ2E3dENGOHhhSXU5a3IvUlNH?=
+ =?utf-8?B?THhpaGN4QmNmaWVvUjQzbjNsQmJhRTJQM0hxenZmOVR4MzIrNUVvREw1cm8w?=
+ =?utf-8?B?eGxVWENTK1VncCtqaXBFY0JVaGE1S3pEc0thUVpJYWdhR21NN1RDR0lia1pr?=
+ =?utf-8?B?bEZPcjNXcjBGUWlDRjk0U21sMFhkZFRMSWdzYi9tK1JPZlE2Z0FtQkRtOWtn?=
+ =?utf-8?B?Z2hFUnZFNXdIeVc0TzJ4NmZVdXVGdU9lTW40Smc0TzA0V2xzdHRnclFLOEQ1?=
+ =?utf-8?B?dzVGb3JScE1xcm03NWJBV0dDbjV3bFhmM2daakFYYU84MTdmamVsZ2tmYkg5?=
+ =?utf-8?B?bVRPS3RTcDBlR0lzRGNiMlhncHljRVBOaENNcUV2ckdnTzBNNldVOFEzREdx?=
+ =?utf-8?B?S1RpdXpPK2EvdVh0SjBGdmNXU2lFbG1YWElyOENTTDg0aHVKOGg3K0N1WjM0?=
+ =?utf-8?B?dXprdVJ1eG5xOHdSRWpKcENRRkJCNEIyUjVYdFBuZ1BOV29qZjR2VU1UQjdD?=
+ =?utf-8?B?a3ZTV25mUVRvNjdkdjg0Z3lKczFZMkFnQmpOWGgxNEZ3OUsvd0lhbXBJRVhI?=
+ =?utf-8?B?aXA0ckpaZkR1dUJXSFY5Y084Rkw5RzRUaTNoNDdEZVNTdVNhVmthcGxydTZa?=
+ =?utf-8?B?OFl0NVp4bTE1bHBGb1FDczBKMkNUL3E2ZDFETTU2WnE3SGxLbkQ5SGZaT1p2?=
+ =?utf-8?B?MEVDYjBzU2xkTkpBUmIxUVpsK2EzaG9zUjVKaHYxd2JWV3R1WWEvUGl5aFVW?=
+ =?utf-8?B?VlhCWXl2UnNDdnhjY3FsRnNCZUgzZkJUYTlJUkR5dXZJMThDZnI2Ykd0U3R0?=
+ =?utf-8?B?SjhIL1FNOGJHUWNGRUg0bGxDbkRkMEw3T3FCTDR0UXZwcXBCMzI0NVZ3eU5w?=
+ =?utf-8?B?dk5LWXlFdHppSlZhM3daZUpWenpHUnoxcjFoMm1rM25LUURzS2M3S2NUVVhx?=
+ =?utf-8?B?V3g0SXF1TDVRS1NESlloWXZtR2laQVpXVTJ2VkNNajBydjZlcUR4c3BCZVg1?=
+ =?utf-8?Q?K6s2XMfSAzLtk49u4m?=
+X-OriginatorOrg: meta.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 64ada1b4-cc3c-444a-2a8f-08de775ddafa
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR15MB3893.namprd15.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Mar 2026 06:43:32.7023
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: v5ercHV31Lkrxn1CHYHJpVQ8NHluMzDlExKrEpQRzQK05Pe1jfvqq9NjjBb29Gtu
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR15MB5095
+X-Proofpoint-ORIG-GUID: pV_b3cfkCMBTkaab3Bav9IWBbWBOGBFM
+X-Proofpoint-GUID: pV_b3cfkCMBTkaab3Bav9IWBbWBOGBFM
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAxMDA1NyBTYWx0ZWRfX7eb5aYPjp3T9
+ ppVBUVe9M8UaWVdsF66bl/HOzL4avYhNU5Y1AIiNHwrFrks6wWBNldf3TjN7S0Y3PtxsOEKQ9s7
+ 69/x82XT3Id1Q70O04mC483SoiZNp4OeFAydSTgqOIaAgCvzTJUxLuVEGz+Kxr5wiRl94/UNftz
+ ARqlAS04fQTUnNm80VnVKzvpXUBeYDRROw1jFa2etDQa+qBXjkx8ssFfNxIUDmOIn0jG0aSt7u/
+ zUQaL2reYdodukEATsLpyQ22N/AvNqIlRZ6+e5cDCIepPqODyOlz7LXh6k+6Qd21biUTfRnKgLl
+ 3aMYfj8Ejm9+TL1pm7PrT7wA26uKv59sGY/Cdk0jvoONorHAq1c/aSuW1OQG6ow26P+FzedV8wr
+ y+NKasLAfpeZBPIr0eWFXuerq8qA68CVC9uz/DpyQPPUAZVabpprZ8zhetyBNvnpoM6liMGf90X
+ sKV39RJMDNYE1VEBhnQ==
+X-Authority-Analysis: v=2.4 cv=FPEWBuos c=1 sm=1 tr=0 ts=69a3e017 cx=c_pps
+ a=H8U4Gh8omvmqDI9iB/RWMg==:117 a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19
+ a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19
+ a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22 a=tpM8CJlwf7uhpglF1g9U:22
+ a=FUluw0iEB13zHwshHtwA:9 a=0bXxn9q0MV6snEgNplNhOjQmxlI=:19 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-01_01,2026-02-27_03,2025-10-01_01
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On 3/1/26 12:39 AM, Michael S. Tsirkin wrote:
+> On Sat, Feb 28, 2026 at 05:41:22AM -0800, Vishwanath Seshagiri wrote:
+>> @@ -2446,7 +2349,7 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
+>>   
+>>   	offset = buf - page_address(page);
+>>   	if (skb_can_coalesce(curr_skb, num_skb_frags, page, offset)) {
+>> -		put_page(page);
+>> +		page_pool_put_page(rq->page_pool, page, -1, true);
+>>   		skb_coalesce_rx_frag(curr_skb, num_skb_frags - 1,
+>>   				     len, truesize);
+>>   	} else {
+> 
+> This part seems wrong to me: can this not be called from
+> xsk_append_merge_buffer?  Because that one seems to still allocate with
+> napi_alloc_frag.
+> 
 
-Thanks,
-Sasha
+Ack. will fix this in v9.
 
------------------- original commit in Linus's tree ------------------
-
-From a389d431053935366b88a8fbf271f1a564b9a44e Mon Sep 17 00:00:00 2001
-From: Bibo Mao <maobibo@loongson.cn>
-Date: Tue, 13 Jan 2026 11:05:55 +0800
-Subject: [PATCH] crypto: virtio: Remove duplicated virtqueue_kick in
- virtio_crypto_skcipher_crypt_req
-
-With function virtio_crypto_skcipher_crypt_req(), there is already
-virtqueue_kick() call with spinlock held in function
-__virtio_crypto_skcipher_do_req(). Remove duplicated virtqueue_kick()
-function call here.
-
-Fixes: d79b5d0bbf2e ("crypto: virtio - support crypto engine framework")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Message-Id: <20260113030556.3522533-3-maobibo@loongson.cn>
----
- drivers/crypto/virtio/virtio_crypto_skcipher_algs.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-index 1b3fb21a2a7de..11053d1786d4d 100644
---- a/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_skcipher_algs.c
-@@ -541,8 +541,6 @@ int virtio_crypto_skcipher_crypt_req(
- 	if (ret < 0)
- 		return ret;
- 
--	virtqueue_kick(data_vq->vq);
--
- 	return 0;
- }
- 
--- 
-2.51.0
-
-
-
+> 
+> 
+> 
 
