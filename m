@@ -1,194 +1,113 @@
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+Received: from out-180.mta1.migadu.com (out-180.mta1.migadu.com [95.215.58.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8787A13D53C
-	for <virtualization@lists.linux.dev>; Sun,  1 Mar 2026 06:43:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=67.231.145.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772347426; cv=fail; b=I1GCSackuBMjtJuihDddPD+nUbcrzeJHFm38bETBODXDqDgPuElcQ04CQnDkSCXwEj2Xr8C/6eVuSDiIqq8MhBOPwSrwPf8NR1ium0VdywefU4JilXOixhCCAg/bgDBHv4ukVFVLIcYEutN0AlvKQ1CfVTHfQMyQqa50MWv/BWM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772347426; c=relaxed/simple;
-	bh=ObOh/B7zyetICib2trK2R5xDtTQgbot6DeckTumkvE0=;
-	h=Message-ID:Date:From:Subject:To:Cc:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=oiZv6phM1fZtIUnoBHyIt4nVk01SfezldzsJb/3DdtVB3BWQLR4lfA0jhel9TJPs0GIH5sS9LvQhZfKUiW1ZS2Yfv+UhEghhs3wap0yIxMLF3CK89wzOdDO8P/5mkE7uwemZYacfPz4LzRos3Morrc1/MeED1qhUjDjnMM+b/js=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=DNhH2Ag2; arc=fail smtp.client-ip=67.231.145.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C0A628C035
+	for <virtualization@lists.linux.dev>; Sun,  1 Mar 2026 06:56:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.180
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772348199; cv=none; b=mV12/g85r259+jxfThsgYKwY1Tu3HASecNq2+LBMq6GDOGSBFNu1NoAPM9UcBxTmBomC7ED92O7y6ImNXJObdwuKUF5dwp23gt/eH7PlM9pEEdzwmgp/alsxVrcrwe/4zYUuAik35mne/cCpkAj3FwkVILpYOQGtPQATsr48kRo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772348199; c=relaxed/simple;
+	bh=o0y8DPmKyC9GpuR11MxEd1qNG1QYCLpqHggdKsZ9lak=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cw0k0D/xbfl3R2EMV1V291VS+cZWBzDtk/uYgHPK26wFMU6PdGfrkC0g+/6oZG+CQbCqKCP86YEdjNier9LkHXLq+FIX/ixWKbguG8Ae3Tf6m+kqeUfwFLvfDt5D0MDTNHaKU96oN1i/NFmfnAmtLPkM4p6EHAYBjTV27IzUPVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=EMKrQY7W; arc=none smtp.client-ip=95.215.58.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="DNhH2Ag2"
-Received: from pps.filterd (m0109333.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61SB1MwW2152321;
-	Sat, 28 Feb 2026 22:43:35 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=s2048-2025-q2;
-	 bh=1yKZSsGu6UgQkUI6Mf2vAKE6eo9h+wE/9xXoJ71y70Y=; b=DNhH2Ag2fb2R
-	2kfnOG5+WOaxJdeScsi2K8lItiZ7K2n0PC67tQRgFF3r5vUOFEtfRaRrkvVqMHp3
-	z/ahPh8jDxw8tkYFCScm5oEhs6Z1sJCyMcyRt7/FdY/2xje7EbJdm7eLreHY4OUv
-	d0QV5belh+k5utLt9KSo7aXSoZJv5kKyICooqLv4DDCAsdghfDbnZQ4Z1TaNyHDW
-	Ht6V7lKvmL6he39cEYGztJqc0TAohNm0iVl8xcQnKUaYVWXjrFQt9JF6Zw8fj+kX
-	TyShLBubZCdhPuvv2bubG5irMubTsIMZXPXFAYkDLUNrvwHqkMHDj9mchWmvjdHk
-	q+kmJljdJQ==
-Received: from ch4pr04cu002.outbound.protection.outlook.com (mail-northcentralusazon11013033.outbound.protection.outlook.com [40.107.201.33])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4ckw8xw31w-2
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Sat, 28 Feb 2026 22:43:35 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=r1ZTNyDd9CmdE2HyVq9kROi828ypVWwO1Y7p8c8lEpuJZiOx5OI+RRP82aktWfPxABgxOc2Knd6oAMngYpUGg8WrESPUeNXC0voUgXnjV/VdZJP/m2Hb8yHa8Trzqmod4M2Qa8iNGFEJHZLmInyL4ofyTGg2Z95FlLFrnLC8GdWMP82ZuR8aNp1NLhUsAQjeAqLSP3J+H9FlX55U/wwzzh9GUBvNxQiwM3kCKGDEJ/nftWgUX9e0sSbStFws17LjIInmg5oU2ZSuCayFeJFf0O9FGeLmjwxK97SzqnSEKunWHWkam1GBzTCtbNYH8nUUYfZucMp4ECGX6hjyoeg4TA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1yKZSsGu6UgQkUI6Mf2vAKE6eo9h+wE/9xXoJ71y70Y=;
- b=R/BplCX7Ax3b+QZz3mI3lbNVMqxQaLP5CDlit0UKQdhr4MkCBuoHC914fjh8Eb2bvorCiw6a/c3cplWAQqS2THJ3kcmaDzs2UGsy9UVbmZl0+R2Pn+KpMsmB6sUgW10VcqAGQ3GyyQybFcQ4yQMyvWlhuLWO0J2q93btSDmXBDcroM+W/W7YYIFaYrzBS3YsP1x5oBQgGryQhpNx8GCGbgo0QzrRtvS0NJl3MQEdpzzVHknvYuMejTzyV7veRL8uVACZ69kgCP2qXMUhddnl/rZZEufnPlPWwfYxsPXVVgG2uv6nuDU8BIOhmiCF6Ee197QYj/hdd2ZxwUkqJVdJ4Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=meta.com; dmarc=pass action=none header.from=meta.com;
- dkim=pass header.d=meta.com; arc=none
-Received: from DM6PR15MB3893.namprd15.prod.outlook.com (2603:10b6:5:2b6::17)
- by SA1PR15MB5095.namprd15.prod.outlook.com (2603:10b6:806:1de::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9632.17; Sun, 1 Mar
- 2026 06:43:32 +0000
-Received: from DM6PR15MB3893.namprd15.prod.outlook.com
- ([fe80::12c7:cfea:e8a3:9667]) by DM6PR15MB3893.namprd15.prod.outlook.com
- ([fe80::12c7:cfea:e8a3:9667%4]) with mapi id 15.20.9632.017; Sun, 1 Mar 2026
- 06:43:32 +0000
-Message-ID: <e824c5a3-cfe0-4d11-958f-c3ec82d11d37@meta.com>
-Date: Sun, 1 Mar 2026 12:13:19 +0530
-User-Agent: Mozilla Thunderbird
-From: Vishwanath Seshagiri <vishs@meta.com>
-Subject: Re: [PATCH net-next v8] virtio_net: add page_pool support for buffer
- allocation
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S . Miller"
- <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, David Wei <dw@davidwei.uk>,
-        Matteo Croce <technoboy85@gmail.com>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>, netdev@vger.kernel.org,
-        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-        kernel-team@meta.com
-References: <20260228134122.631580-1-vishs@meta.com>
- <20260228135423-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-In-Reply-To: <20260228135423-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MA5P287CA0149.INDP287.PROD.OUTLOOK.COM
- (2603:1096:a01:1d7::19) To DM6PR15MB3893.namprd15.prod.outlook.com
- (2603:10b6:5:2b6::17)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="EMKrQY7W"
+Message-ID: <7454cd72-3816-4a05-89f1-ded8b99acb41@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1772348185;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7jVbiQXIQMX/1B8+z3NiDZcVvND9uVKdGlGO2tuqfdM=;
+	b=EMKrQY7WRXO8kYWzx1xdMTU5rEVlMVp9IHizMuBLddZGHk9vGaaiFIPCtNKy/esjK1Fdcn
+	0f4AVHD0lMvSwDLyupaQdautjy8Z5F5qRfp4hQHxi2VKY2kFJD6nVSIzo6ArC2A9XtumQ+
+	DuHdDT4XyvQvlIfnfHqthTSkSmlZAzA=
+Date: Sun, 1 Mar 2026 14:56:14 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6PR15MB3893:EE_|SA1PR15MB5095:EE_
-X-MS-Office365-Filtering-Correlation-Id: 64ada1b4-cc3c-444a-2a8f-08de775ddafa
-X-LD-Processed: 8ae927fe-1255-47a7-a2af-5f3a069daaa2,ExtAddr
-X-FB-Source: Internal
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|366016|7416014;
-X-Microsoft-Antispam-Message-Info:
- tJ6ZZX4vtOGVgSM+yM/e+b4ojWq9eF68fBNJSREbAugVGZ8wqm3ofJeayGl1BPYjCSlzhhrj1NqUqko8O0NcLMq6u0oorMSBBH9ElizFz2/bNjvoKN8Nw7rhvlfMG1Pha+ZjCT4vW/tcibhs9UFWyGB4Va2Idjxo2PlCHOYgwoM1+6yEV/9MJXh7cwHqLAq/HjeXcAv/P2K6Nv/l/ckFb4YpGFfPr7//+D/4u6WtJkGMFOQ02YnYSuWE3CWVkic9MQ6V5PNWep0jUareBgBI1kBu0r1KCsjDlR+/goPYgseURtHZuVGT1Gh3396dbRSRfSxboXa+MF82Wfa2cYo+5/NGVj9gkgj+yZaBuvxAKxL7kcZkQxDDIunuqjZZLayU9n+ibewru7BkuvaZJB9NqduO776p6zIuKotGL01DNt0Hhl5wh2U+08iag87BnePI2IxQX/bj4ALjAnd/NqPskkIVt0EmNaovGDr00XncGhKJDVzJ4jOQxddD6uyjE9dTkzsGdFbj5eKLxc2vaTGiclWJhEz36j3+b6BXc1yrFNSA44Uf9y1iFO6XhzqCfryIyJ5/28mFV0savsq/CY8F82j/E+gFe49Icqwiy4qKxC3w8RqJQC4i8NPd3ehMT+Jamq+DTmFZD08/0krp2aK9A23N0nQP5UQlHaeGBrAXDUVlR6SxKyD15Gsz5R4wnIJC6gHHyaSnWAcqxbB5Le2PSuIFJoRZ7Dvp6Ze7XiT2zXA=
-X-Forefront-Antispam-Report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR15MB3893.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(7416014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
- =?utf-8?B?VGVvcjFxRHlUY0JMWnhVckRHRGQxbno0ZFdDQ05FcGd6MFM1M2xyRklVdlJX?=
- =?utf-8?B?YlFvSzBUVlN4MFFVSStXL2taME1VMWt5UGkyNC85TWx2YW1YTldBOGhCY0F0?=
- =?utf-8?B?SHJETU5NNXcvVFg2Z2doeGVTdDBwT3BjQUJLQ2xHS0xEMzJHUkhWV3FrRGlI?=
- =?utf-8?B?QllLbjJNcHd1VGRFc09PTDh6RCs2aG5aYlU2c3VtUXJJcGh1L0FuQTJWOXBh?=
- =?utf-8?B?eVZ5WFlWTnBMeWNxblYwNjJ5dzVzTlc1akl2anl6VnlNcmY1MG5WK0JyMUVE?=
- =?utf-8?B?bS9Md3RWZFRKSWs4dnNKRFhJOFFBS2VET3hGcG5FbEJtWDIwRitNb3lzLzlP?=
- =?utf-8?B?Tkc5Zm95aGc2cFk3dlcxS0ZlVFVVaE5GSkVyU1pGU3JEMDJ1NzdWazh6QTlh?=
- =?utf-8?B?MHQ3bkFnK1VKeEZKUithNGtFNjVVNy9aQlV2eDZjVFlNenhYVXNSMzVyRXBK?=
- =?utf-8?B?b0dEY3hibTN0OUM3VkxUK000SUdPVkxSZ0hlN2ZraE41c1NJNm1wSXVuU2U1?=
- =?utf-8?B?c0F6SUFOejdMbUVOeUFZZnlBUVhNWVRnZmc2RU5RV1lDUmlEVTNRZW94d0sz?=
- =?utf-8?B?aWwrWEhjR1grSW5Qblh3WXJiMDQxK1F6eHlIaHh6TDlPRDA1NXB4SFdZcmZQ?=
- =?utf-8?B?YlFIaDIyRG1lNXQ3VnNzamNyZTM1c0dHdDdBUVIyWGxmNGJjc0lNUUt4blFL?=
- =?utf-8?B?K3J1NkZuM0kvUy9NVHM0ajhvNjRKOWRBQ2FnSzJ0a3RIdEpIaG9JRjRNNnlh?=
- =?utf-8?B?VHcyR0ovd2Q0Mmw3dnA5WDVhQzFDOUZpWERBeDE2bFI0amxkbzREajUzeEti?=
- =?utf-8?B?UHYyZnA5UHBTU214UjRDNWtQNTFiZ2VNbDFLQUViUGVvVWpmQzBqK28vL1p3?=
- =?utf-8?B?ZlpUQlFQb0QxTENmczdUY0JvbUhhTlpteXJLS1ZVVEJock9YR2hzZEFYNjNs?=
- =?utf-8?B?RlRxalN6VlU2cVJaWkxmNEJOTm1OVzZmamhvVXJuRlpJT3E1V2c2MGVPRk10?=
- =?utf-8?B?a09Bd0tmOEZNMnRWSEZsTXlMOWFwSlVCWVF1bjFGUUhLcGRzTGhTMGRmMjNL?=
- =?utf-8?B?MEh5aU0rN1FJMUplY2d4THQySnpncnpmVzFRTDdzelJSVW1YWHo5dm1HMG1O?=
- =?utf-8?B?RlJQbWJaRlpETWR6TFFRTEltSW5BSVlnVHNDei9HcEc1SE9NZ2I1cDh3cHhP?=
- =?utf-8?B?My9EUEJDaVk0KzRZNzUyWXJaT1FCbzdVZVZGaEhFVTkzeDV1eEtVcVlKeW5l?=
- =?utf-8?B?NmMvVjFyY1l3Q1RNNWQ0b2IvdUlMSmNNaVUyQ2E3dENGOHhhSXU5a3IvUlNH?=
- =?utf-8?B?THhpaGN4QmNmaWVvUjQzbjNsQmJhRTJQM0hxenZmOVR4MzIrNUVvREw1cm8w?=
- =?utf-8?B?eGxVWENTK1VncCtqaXBFY0JVaGE1S3pEc0thUVpJYWdhR21NN1RDR0lia1pr?=
- =?utf-8?B?bEZPcjNXcjBGUWlDRjk0U21sMFhkZFRMSWdzYi9tK1JPZlE2Z0FtQkRtOWtn?=
- =?utf-8?B?Z2hFUnZFNXdIeVc0TzJ4NmZVdXVGdU9lTW40Smc0TzA0V2xzdHRnclFLOEQ1?=
- =?utf-8?B?dzVGb3JScE1xcm03NWJBV0dDbjV3bFhmM2daakFYYU84MTdmamVsZ2tmYkg5?=
- =?utf-8?B?bVRPS3RTcDBlR0lzRGNiMlhncHljRVBOaENNcUV2ckdnTzBNNldVOFEzREdx?=
- =?utf-8?B?S1RpdXpPK2EvdVh0SjBGdmNXU2lFbG1YWElyOENTTDg0aHVKOGg3K0N1WjM0?=
- =?utf-8?B?dXprdVJ1eG5xOHdSRWpKcENRRkJCNEIyUjVYdFBuZ1BOV29qZjR2VU1UQjdD?=
- =?utf-8?B?a3ZTV25mUVRvNjdkdjg0Z3lKczFZMkFnQmpOWGgxNEZ3OUsvd0lhbXBJRVhI?=
- =?utf-8?B?aXA0ckpaZkR1dUJXSFY5Y084Rkw5RzRUaTNoNDdEZVNTdVNhVmthcGxydTZa?=
- =?utf-8?B?OFl0NVp4bTE1bHBGb1FDczBKMkNUL3E2ZDFETTU2WnE3SGxLbkQ5SGZaT1p2?=
- =?utf-8?B?MEVDYjBzU2xkTkpBUmIxUVpsK2EzaG9zUjVKaHYxd2JWV3R1WWEvUGl5aFVW?=
- =?utf-8?B?VlhCWXl2UnNDdnhjY3FsRnNCZUgzZkJUYTlJUkR5dXZJMThDZnI2Ykd0U3R0?=
- =?utf-8?B?SjhIL1FNOGJHUWNGRUg0bGxDbkRkMEw3T3FCTDR0UXZwcXBCMzI0NVZ3eU5w?=
- =?utf-8?B?dk5LWXlFdHppSlZhM3daZUpWenpHUnoxcjFoMm1rM25LUURzS2M3S2NUVVhx?=
- =?utf-8?B?V3g0SXF1TDVRS1NESlloWXZtR2laQVpXVTJ2VkNNajBydjZlcUR4c3BCZVg1?=
- =?utf-8?Q?K6s2XMfSAzLtk49u4m?=
-X-OriginatorOrg: meta.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 64ada1b4-cc3c-444a-2a8f-08de775ddafa
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR15MB3893.namprd15.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Mar 2026 06:43:32.7023
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: v5ercHV31Lkrxn1CHYHJpVQ8NHluMzDlExKrEpQRzQK05Pe1jfvqq9NjjBb29Gtu
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR15MB5095
-X-Proofpoint-ORIG-GUID: pV_b3cfkCMBTkaab3Bav9IWBbWBOGBFM
-X-Proofpoint-GUID: pV_b3cfkCMBTkaab3Bav9IWBbWBOGBFM
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAxMDA1NyBTYWx0ZWRfX7eb5aYPjp3T9
- ppVBUVe9M8UaWVdsF66bl/HOzL4avYhNU5Y1AIiNHwrFrks6wWBNldf3TjN7S0Y3PtxsOEKQ9s7
- 69/x82XT3Id1Q70O04mC483SoiZNp4OeFAydSTgqOIaAgCvzTJUxLuVEGz+Kxr5wiRl94/UNftz
- ARqlAS04fQTUnNm80VnVKzvpXUBeYDRROw1jFa2etDQa+qBXjkx8ssFfNxIUDmOIn0jG0aSt7u/
- zUQaL2reYdodukEATsLpyQ22N/AvNqIlRZ6+e5cDCIepPqODyOlz7LXh6k+6Qd21biUTfRnKgLl
- 3aMYfj8Ejm9+TL1pm7PrT7wA26uKv59sGY/Cdk0jvoONorHAq1c/aSuW1OQG6ow26P+FzedV8wr
- y+NKasLAfpeZBPIr0eWFXuerq8qA68CVC9uz/DpyQPPUAZVabpprZ8zhetyBNvnpoM6liMGf90X
- sKV39RJMDNYE1VEBhnQ==
-X-Authority-Analysis: v=2.4 cv=FPEWBuos c=1 sm=1 tr=0 ts=69a3e017 cx=c_pps
- a=H8U4Gh8omvmqDI9iB/RWMg==:117 a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19
- a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19
- a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10
- a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22 a=tpM8CJlwf7uhpglF1g9U:22
- a=FUluw0iEB13zHwshHtwA:9 a=0bXxn9q0MV6snEgNplNhOjQmxlI=:19 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-01_01,2026-02-27_03,2025-10-01_01
+Subject: Re: [PATCH v4 3/3] x86/tlb: add architecture-specific TLB IPI
+ optimization support
+Content-Language: en-US
+To: Sean Christopherson <seanjc@google.com>
+Cc: akpm@linux-foundation.org, david@kernel.org, dave.hansen@intel.com,
+ dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com,
+ will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
+ peterz@infradead.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+ x86@kernel.org, hpa@zytor.com, arnd@arndb.de, lorenzo.stoakes@oracle.com,
+ ziy@nvidia.com, baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
+ npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com,
+ baohua@kernel.org, shy828301@gmail.com, riel@surriel.com, jannh@google.com,
+ jgross@suse.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, ioworker0@gmail.com
+References: <20260202074557.16544-1-lance.yang@linux.dev>
+ <20260202074557.16544-4-lance.yang@linux.dev> <aZ9Xcgxa0_ouGr31@google.com>
+ <e3cdcbfa-525d-4e0d-885a-8f7d69a7ee3d@linux.dev>
+ <aaCP95l-m8ISXF78@google.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Lance Yang <lance.yang@linux.dev>
+In-Reply-To: <aaCP95l-m8ISXF78@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-On 3/1/26 12:39 AM, Michael S. Tsirkin wrote:
-> On Sat, Feb 28, 2026 at 05:41:22AM -0800, Vishwanath Seshagiri wrote:
->> @@ -2446,7 +2349,7 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
->>   
->>   	offset = buf - page_address(page);
->>   	if (skb_can_coalesce(curr_skb, num_skb_frags, page, offset)) {
->> -		put_page(page);
->> +		page_pool_put_page(rq->page_pool, page, -1, true);
->>   		skb_coalesce_rx_frag(curr_skb, num_skb_frags - 1,
->>   				     len, truesize);
->>   	} else {
-> 
-> This part seems wrong to me: can this not be called from
-> xsk_append_merge_buffer?  Because that one seems to still allocate with
-> napi_alloc_frag.
-> 
 
-Ack. will fix this in v9.
 
+On 2026/2/27 02:24, Sean Christopherson wrote:
+> On Thu, Feb 26, 2026, Lance Yang wrote:
+>> On 2026/2/26 04:11, Sean Christopherson wrote:
+>>> On Mon, Feb 02, 2026, Lance Yang wrote:
+>>>> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+>>>> index 37dc8465e0f5..6a5e47ee4eb6 100644
+>>>> --- a/arch/x86/kernel/kvm.c
+>>>> +++ b/arch/x86/kernel/kvm.c
+>>>> @@ -856,6 +856,12 @@ static void __init kvm_guest_init(void)
+>>>>    #ifdef CONFIG_SMP
+>>>>    	if (pv_tlb_flush_supported()) {
+>>>>    		pv_ops.mmu.flush_tlb_multi = kvm_flush_tlb_multi;
+>>>> +		/*
+>>>> +		 * KVM's flush implementation calls native_flush_tlb_multi(),
+>>>> +		 * which sends real IPIs when INVLPGB is not available.
+>>>
+>>> Not on all (virtual) CPUs.  The entire point of KVM's PV TLB flush is to elide
+>>> the IPIs.  If a vCPU was scheduled out by the host, the guest sets a flag and
+>>> relies on the host to flush the TLB on behalf of the guest prior to the next
+>>> VM-Enter.
+>>
+>> Ah, I see. Thanks for the correction!
+>>
+>> KVM only sends IPIs to running vCPUs; preempted ones are left out of the mask
+>> and flushed on VM-Enter. So the old comment was wrong ...
+>>
+>> IIUC, we still set the flag to true because only running vCPUs can be in a
+>> software/lockless walk, and they all get the IPI, so the flush is enough.
+>>
+>> Does that match what you had in mind?
 > 
-> 
-> 
+> No, because from the guest kernel's perspective, the vCPU is running.  The kernel
+> can't make any assumptions about what code the vCPU was executing when the vCPU
+> was preempted by the host scheduler, i.e. it's entirely possible the vCPU is in
+> a software/lockless walk.
 
+Thanks a lot for setting me straight!
+
+So any PV that has its own things and doesn't call
+native_flush_tlb_multi() directly cannot be trusted to provide the IPI
+guarantees we need.
+
+So we should only set the flag for the native path, which truly calls
+native_flush_tlb_multi() directly.
+
+
+Have a great weekend,
+Lance
