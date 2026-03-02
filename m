@@ -1,180 +1,130 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45B8A423A66
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 16:42:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 966EE425CC1
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 17:55:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772469740; cv=none; b=dYiYA4YGdiahhC/M/pQpYL+4xJzzBNTC9Wa7jZkUck3qga1FpqjQFUZv3pToPe9K+4jvKKFNifNDPenZYKNxS3oRoIRJWhPFC5ybZa/SveCjllvYTNYgcQkPDN3MFFsjO1wz8lI1JhXcjFGwVTUEwtR0CLJgL/+muFVy89AXIUg=
+	t=1772474135; cv=none; b=rQBhLbUS21VlzP+Yc8I0BMtBpTHdhFg2yr24kVNzqBdY1cEOn8VvyUSPoIbAndBHx6uglK55JgqrfrvY/RGpsmrUXTtE0FoN4+7VLlCF60IJDkA1BYJOY+VeSV9MwTTgFKszIEjWkcC6xr7HN/s2dA3O/3+grnYaZHs6oOQMdkg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772469740; c=relaxed/simple;
-	bh=VFASPJvhciehL7F+IA6+SdXs77TNKb/sys4Vs9JnaxA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TPQP7vrTkW86hJ33RKbXUUlYQz0PBzwJlphO6hxfvSAABNfzzLtNuDloNCUfZ7Nk0W3+KnBTaHFmxIpjDyHtrtPM6H+Qyp6HrREigfOW4sLplJpI4KXdivd3RvhsS6P0CsO9+AZrhm+mwr43W4QEeffkN+Qj7hn99QBjhdMUxOM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BTP+edzq; arc=none smtp.client-ip=209.85.210.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BTP+edzq"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-82735a41985so2754457b3a.2
-        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 08:42:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772469738; x=1773074538; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=IZaKRJcz+mujuLo0S8DFt3UkN8fu6YsunVoMPBDL58A=;
-        b=BTP+edzqNuAJ56D8FUMAGhv0welxsyJukL3zPhrKfyVMwNRbb/i4Gb/CC4+rd9/INr
-         29YWkd2zPGCP+m0DFC4HURWy9SQDuhxC8uOY8+OSxK63PXnS+FnV3DBMppjwROnnV3Qy
-         kfg2NwwB5WKYycGlvE2V1BmVM1GOWySkQ6bPFgAeNCG66E2E21JZdKrf4R56OY387IO7
-         0iiR2Sa9vJXu3vj606676/qmSWsBVniPzOilPlUgndrEWum4eu3bStRY63J9g5moeN0A
-         ffUdEj14ZKta88aTdgx8J76dzP0t7s2a5sEaOYL4sIUTfIb6k3fcwaUadieUA403VlNF
-         cXkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772469738; x=1773074538;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=IZaKRJcz+mujuLo0S8DFt3UkN8fu6YsunVoMPBDL58A=;
-        b=KTPpEWg7oDQQlKbjIJgphob0iw7SSfrACCk/zxwqLqHfgVuYUrD3j1y6+PCyw+Wn1s
-         1ZggKspBhFXI+WXWuyK4Ao2DxC9q6zycBoUW4TsCohGzRT7SIjTAO+oJ82C/+8/5HpK+
-         Iuw7zRZA18/zNtSizjAtkeMx9V7+chmgKLpXajqzQMNdiYqAiQSpfodi39i1hP/u39OL
-         FBWruV9KM+9obdqmSyzXgb73yXhFaPbr49V+LEj/znfdmwL8jkIauDZgW2fkQEQ9yKys
-         hSnEcCEqgM06mgIGj0BUn4nkoXqpzfo+D/ClulqNYATw2/SFVB0HeqJydg+UNlC2/DIW
-         9KQA==
-X-Forwarded-Encrypted: i=1; AJvYcCXoB9rgCQ/Tzw8Do9u5FCzildQsqqM3+7YaCC5ulcgeLhtL2sAfinvoqIj2xG7Wb7GGaO5Gmjjhw6y4nIIs+Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw5w2TlWsYWa2rqBB6DHr0czDt5meU74sdbkVkVVxutjkmLbxbJ
-	o0sZz9P2IJ+neIp18Bq2NnD5ZvkhFMRN72FNCLG2DFIcduFaXGbKWXte
-X-Gm-Gg: ATEYQzwKqKwZarCxWgbdNL7iXAN5szPOx2sG6+qAKNnIGpaUMuM2L/KSxz+9zrgYqLl
-	swH0RxWNVhjGqmT3lZbd64jNRfSh1stEDLrJl4T+xiqFMjwHDFutXX973HBgkqcjOpKVaD7EgOM
-	TekUNkpRbWUzMHuBK2gI0DkBV887qc+WVwgzuieIBjbgVdEwRf2WPIn1SFI2sjXknIjHHkuWKyf
-	dYxdQ7f8oJJ478nxtB3zber+RyTwSgNzB9RHhUa1Woh7jMwHp2NiiUHXcxRSxeqwxO5FiOg2xcB
-	sRbK9YOYthlkEpzlvhSCGC9F28XH3QaPqCrv12xo3Q1FKYczrGFb/huqCyMxbPqFUGqekAJafBS
-	dwoJ8A8I/8XZkkme+vqS90rmiTuDghnKXAc2h9PvsLQEiJ6oKQUURKoOvpiE61jf9k7XPMuOUoS
-	V1OG/4VVIhPrscgeL+vZQ=
-X-Received: by 2002:a05:6a20:a10d:b0:38d:efcb:2e84 with SMTP id adf61e73a8af0-395c3a86fb2mr12074081637.32.1772469737400;
-        Mon, 02 Mar 2026 08:42:17 -0800 (PST)
-Received: from minh.192.168.1.1 ([2a09:bac1:31c0:8::246:f5])
-        by smtp.googlemail.com with ESMTPSA id 41be03b00d2f7-c70fa801849sm12681295a12.20.2026.03.02.08.42.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Mar 2026 08:42:15 -0800 (PST)
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-To: netdev@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Bui Quang Minh <minhquangbui99@gmail.com>
-Subject: [PATCH net-next v2] virtio-net: xsk: Support wakeup on RX side
-Date: Mon,  2 Mar 2026 23:41:58 +0700
-Message-ID: <20260302164158.4394-1-minhquangbui99@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	s=arc-20240116; t=1772474135; c=relaxed/simple;
+	bh=peR5Zc8Y4ObVAhfCSybvnP/nGrD+OkxEkgiCzbx1kUY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fmvqYw4CO9yS12/SWh/tMGjPHktI2xR4LqsVzU4saySoDfMy7ZWsK7aKrx3nVoeOVALs82FP76O59bJNZ2W1nZUheesF7BUsMk4m2Faa+rJhkcku+IXhPGzK1rAyKnRPcqLBemnAt0EiAJa9QgmFK7nanH6oWCOt3J+DwASq+Yw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <mkl@pengutronix.de>)
+	id 1vx7UI-0000h1-Lh; Mon, 02 Mar 2026 18:55:22 +0100
+Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <mkl@pengutronix.de>)
+	id 1vx7UE-003Q09-1S;
+	Mon, 02 Mar 2026 18:55:19 +0100
+Received: from pengutronix.de (p4ffb2dc6.dip0.t-ipconnect.de [79.251.45.198])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	(Authenticated sender: mkl-all@blackshift.org)
+	by smtp.blackshift.org (Postfix) with ESMTPSA id 6BD1B4F5684;
+	Mon, 02 Mar 2026 17:55:19 +0000 (UTC)
+Date: Mon, 2 Mar 2026 18:55:19 +0100
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Cc: Vincent Mailhol <mailhol@kernel.org>, 
+	Harald Mommer <harald.mommer@oss.qualcomm.com>, 
+	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	linux-can@vger.kernel.org, virtualization@lists.linux.dev, 
+	Wolfgang Grandegger <wg@grandegger.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, francesco@valla.it
+Subject: Re: [PATCH v10] can: virtio: Add virtio CAN driver
+Message-ID: <20260302-idealistic-puffin-of-valor-b23733-mkl@pengutronix.de>
+X-AI: stop_reason: "refusal"
+References: <aZRB7Reu/D6HvRcb@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="7ctag23wbpxqdtfo"
+Content-Disposition: inline
+In-Reply-To: <aZRB7Reu/D6HvRcb@fedora>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: virtualization@lists.linux.dev
 
-When XDP_USE_NEED_WAKEUP is used and the fill ring is empty so no buffer
-is allocated on RX side, allow RX NAPI to be descheduled. This avoids
-wasting CPU cycles on polling. Users will be notified and they need to
-make a wakeup call after refilling the ring.
 
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
----
-Changes in v2:
-- Fix the flag check in virtnet_xsk_wakeup
-- Link to v1: https://lore.kernel.org/netdev/20260227150949.13089-1-minhquangbui99@gmail.com/
----
- drivers/net/virtio_net.c | 35 +++++++++++++++++++++++++++--------
- 1 file changed, 27 insertions(+), 8 deletions(-)
+--7ctag23wbpxqdtfo
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v10] can: virtio: Add virtio CAN driver
+MIME-Version: 1.0
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index db88dcaefb20..3614002fc87c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1454,8 +1454,19 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
- 	xsk_buffs = rq->xsk_buffs;
- 
- 	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
--	if (!num)
-+	if (!num) {
-+		if (xsk_uses_need_wakeup(pool)) {
-+			xsk_set_rx_need_wakeup(pool);
-+			/* Return 0 instead of -ENOMEM so that NAPI is
-+			 * descheduled.
-+			 */
-+			return 0;
-+		}
-+
- 		return -ENOMEM;
-+	} else {
-+		xsk_clear_rx_need_wakeup(pool);
-+	}
- 
- 	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
- 
-@@ -1588,20 +1599,19 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
- 	return sent;
- }
- 
--static void xsk_wakeup(struct send_queue *sq)
-+static void xsk_wakeup(struct napi_struct *napi, struct virtqueue *vq)
- {
--	if (napi_if_scheduled_mark_missed(&sq->napi))
-+	if (napi_if_scheduled_mark_missed(napi))
- 		return;
- 
- 	local_bh_disable();
--	virtqueue_napi_schedule(&sq->napi, sq->vq);
-+	virtqueue_napi_schedule(napi, vq);
- 	local_bh_enable();
- }
- 
- static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	struct send_queue *sq;
- 
- 	if (!netif_running(dev))
- 		return -ENETDOWN;
-@@ -1609,9 +1619,18 @@ static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
- 	if (qid >= vi->curr_queue_pairs)
- 		return -EINVAL;
- 
--	sq = &vi->sq[qid];
-+	if (flag & XDP_WAKEUP_TX) {
-+		struct send_queue *sq = &vi->sq[qid];
-+
-+		xsk_wakeup(&sq->napi, sq->vq);
-+	}
-+
-+	if (flag & XDP_WAKEUP_RX) {
-+		struct receive_queue *rq = &vi->rq[qid];
-+
-+		xsk_wakeup(&rq->napi, rq->vq);
-+	}
- 
--	xsk_wakeup(sq);
- 	return 0;
- }
- 
-@@ -1623,7 +1642,7 @@ static void virtnet_xsk_completed(struct send_queue *sq, int num)
- 	 * wakeup the tx napi to consume the xsk tx queue, because the tx
- 	 * interrupt may not be triggered.
- 	 */
--	xsk_wakeup(sq);
-+	xsk_wakeup(&sq->napi, sq->vq);
- }
- 
- static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
--- 
-2.43.0
+On 17.02.2026 11:24:45, Matias Ezequiel Vara Larsen wrote:
+> +static void virtio_can_start(struct net_device *ndev)
+> +{
+> +	struct virtio_can_priv *priv =3D netdev_priv(ndev);
+> +	u8 result;
+> +
+> +	result =3D virtio_can_send_ctrl_msg(ndev, VIRTIO_CAN_SET_CTRL_MODE_STAR=
+T);
+> +	if (result !=3D VIRTIO_CAN_RESULT_OK)
+> +		netdev_err(ndev, "CAN controller start failed\n");
 
+propagate the error value and evaluate it in the caller
+
+[...]
+
+> +static void virtio_can_stop(struct net_device *ndev)
+> +{
+> +	struct virtio_can_priv *priv =3D netdev_priv(ndev);
+> +	struct device *dev =3D &priv->vdev->dev;
+> +	u8 result;
+> +
+> +	result =3D virtio_can_send_ctrl_msg(ndev, VIRTIO_CAN_SET_CTRL_MODE_STOP=
+);
+> +	if (result !=3D VIRTIO_CAN_RESULT_OK)
+> +		dev_err(dev, "CAN controller stop failed\n");
+
+propagate the error value and evaluate it in the caller
+
+> +
+> +	priv->busoff_pending =3D false;
+> +	priv->can.state =3D CAN_STATE_STOPPED;
+> +
+> +	/* Switch carrier off if device was connected to the bus */
+> +	if (netif_carrier_ok(ndev))
+> +		netif_carrier_off(ndev);
+> +}
+
+regards,
+Marc
+
+--
+Pengutronix e.K.                 | Marc Kleine-Budde          |
+Embedded Linux                   | https://www.pengutronix.de |
+Vertretung N=C3=BCrnberg              | Phone: +49-5121-206917-129 |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-9   |
+
+--7ctag23wbpxqdtfo
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQSl+MghEFFAdY3pYJLMOmT6rpmt0gUCaaXPBAAKCRDMOmT6rpmt
+0sNKAQDbTjYRHJWn25iPrwKX+WuFCeZM8bwBGFpoul6nh9Za/AD+NP2ZTRereYFv
+vtQKECmg5LxIRzUYoXi14AnYJ7aoNwM=
+=x/53
+-----END PGP SIGNATURE-----
+
+--7ctag23wbpxqdtfo--
