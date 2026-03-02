@@ -1,113 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1211140FDA9;
-	Mon,  2 Mar 2026 15:00:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17DD9387597
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 15:12:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772463623; cv=none; b=bnOaekhnvmjoaCxkJ8W8sZgNJ2dxyct60KPDRqMaejH3z8FsJBbUc0LOZ2QHklOUgFjyLLnwfb2w7Ui5N0PaAzyd5o7CGuqrOyAmA/kgsyO+fR6EsPefxZHGi4aNhMyCUS8MmgkkFLLv++q95HYt98kM05J3CbrCZsg4gI1YiHE=
+	t=1772464340; cv=none; b=BphspHPi3w1VhJDwugEVtkJnjBa0U0LE59dY6bxbTO+rRWrW1EAo8aRfAYJgjUbQmsaZZI7/eSOxlQeYwQjAtNuhaMEFw2AmtMdBSWNlGutnE4AY8dxoKeTfuF2e4vnl0fu/F/wF8zZo2ZE/5owEaEXFnycoY9Nij2PiLx/LVOw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772463623; c=relaxed/simple;
-	bh=FJrfEomTCPEbX6pYpVuRyP6uRh1ciBrKEA6HVw8rwRM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QThZ7tQTR0XzfHQSsL8CgivBa7TlC7XYhKbpXxNkf0rAuh2NCjcFHGQg5kIurWshdiPnQeQeOlmImDmori4kX4AbGHOK2D1mfAmyEFC3zJN9njJmZVpipp3p4dktE13+QnkjXHTdEfz29k0gIBmMqoibqwv/api/fR+6Xtqr850=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pjqz1Pt7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772464340; c=relaxed/simple;
+	bh=op0liavrrZXpHIYFE8b5murCMpJBWBYITF7jRogwVXU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=owgrppls7IyWfBpEKSR678IRptjglei0L5wrPYqIQh5fqpwEAPtraOU2GyRjZEV5hQf0bf2rfeetS1KJCAdNKAebCC4Q4g/zN94DdCQLvY4E20WxqQQi4OizMxL7PRLZCo1RyP9djtVJ5W2J7kDB38R7Xbk4GwajmI+gBc2vars=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PblpajQg; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pjqz1Pt7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56B8BC2BC86;
-	Mon,  2 Mar 2026 15:00:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772463622;
-	bh=FJrfEomTCPEbX6pYpVuRyP6uRh1ciBrKEA6HVw8rwRM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=pjqz1Pt7KOQNJWbPfUWTxKlJ6WG9y3JkvBJ4JiRh6boUz8fOfN8tjPI61CyR9A+uy
-	 G4IGFfo72Cs5pQs78PAdkM63S8AaY2SM7xWvgGMaTKPB7ILa+6lW5P3Z3+D4BDCHbf
-	 FkwA97dJVEPf68XPURr+PBk5+OXUtcHh50d1h0QOG/zLkypHQx0vvUlxXHbV3ikYj3
-	 81k1YeAT7FzR3TXZpZgQ3UEZ6oJWRsi64pgMsCdjk+Zi+XBARDoPos1X2c+i1AUAex
-	 5V1CU7nrgbQkGmK9ta/mSL5+DDe+apFefPYr/GDAgXnqSWNk6N8dV3Zw1MFjhHhmPC
-	 67UUFjiPoiYkQ==
-Message-ID: <6ad9abab-3241-4f5b-9116-7f4bd880b117@kernel.org>
-Date: Mon, 2 Mar 2026 16:00:14 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PblpajQg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1772464338;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RF0n2SJ1RvllNep2fFvHq0JPMVeIU4OKpnJDj8ItlsE=;
+	b=PblpajQgsZ/jY4gZ0pl6X+2keNeiW7LebN6X4vdrjMFx91WBrJNYXK1Lq0aB2yB7gY634E
+	BZpVcldh7vpyvyvbX0Xh9fuKhbmrB4f0wLkWEkRKPMiyC5IENt2GeWGQeh2lWz+XsmDt05
+	qNLuOg+7xwW+M3Sk+axVmka+N5NugKQ=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-494-Sb9cnF4VNxOxG0w7na0K-g-1; Mon, 02 Mar 2026 10:12:16 -0500
+X-MC-Unique: Sb9cnF4VNxOxG0w7na0K-g-1
+X-Mimecast-MFC-AGG-ID: Sb9cnF4VNxOxG0w7na0K-g_1772464335
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4836e35292cso38730695e9.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 07:12:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772464335; x=1773069135;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=RF0n2SJ1RvllNep2fFvHq0JPMVeIU4OKpnJDj8ItlsE=;
+        b=qAvdb23CqJV9YyOQFCO0wibJLjcft0UPtqJktG/sZ3yyHnwtK6eKqMyvcyE6S7mJKW
+         W7srEJYg8fiW0HKKdkpjanby/jrsSnF8/8Z7hQedyCQWWwwE7y6pTd4k0IiG5sz+Gsap
+         ScbHfFEmSUzOSFOlMm4a3ioIOahVGZQggJjtGRsaDN3g3QLr/0JrYXk0WOuzuSriOe2e
+         CN+GXylFDf5irMT+HYPKxqV5V9FUAdFrDhWzBaiDO7WHgb1aw9altMHHaP2oEgZJbsgm
+         cEm+RVyv8zzYwBFIVYCJpt973lEgPoeu90s/2o+rOZY+hhE9Z6O6k4e4o33k6ux3e2hp
+         x9Ig==
+X-Forwarded-Encrypted: i=1; AJvYcCVB6hJAd4IudcYdMbuIlL7S+6Dl3UQX9BwFqeSQUuk1tnjB20rVPjJB+zPUpQdvwOUk0pCU+aqi3P9wM6PXyA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzBIbPsHtc2djbOVwvp2IYffRE+bUuCeCholcaGcj3hv8CeA3o5
+	Ot5KsQjibERfhTsHrkFO0lJzTW7Zw5VgRhQJw6g8n0rDzvXKxfPyPDQXhmCTHBzNBX2hvbU5u/y
+	M+ap59Xuaccoa3fA5EeQr2S9Q7WaPHe5Q7vsoA8tG1YqGIHwID/3m74tAIEH7mTNV5qPn
+X-Gm-Gg: ATEYQzy4gtHixrcHb2aF4xZ2V9bYWSWHwx+fYtDrAfhzp+SdJlSSwMT6TtLNhh5uHFO
+	NVSAA+M+xVhoEQku7QMzbThgeVqmg1SD8bEig+DvooYUXM4htJYDvtSaBCftyCGDlByL8xOGpuu
+	6E0o8CsINx11v5bxhuFDYmLN/5uckbkHH5SrjDN+DKYiF3x5l84d/Zm4ejacBgT8nXN2N6t9I0h
+	PWpGWf8VJc2KGv8gaULeKCkHeTfyTEhfwQKoO9j/2gJYiPcM2IA6P3KksHFypGNFl94SpYhYzUR
+	Pt/ujvh/Y5IqQOzYWSKFZOpVALCFJZmPBeZlOjWNxqRfmJU1cmwL832B6F+ucHjJG92y/8htlDs
+	dICq1bu4J6wBdqjxFR9zAWge9mfI2hVh65xkDtnYX0TTlHg==
+X-Received: by 2002:a05:600c:8106:b0:46f:c55a:5a8d with SMTP id 5b1f17b1804b1-483c9bb6559mr206067795e9.4.1772464335151;
+        Mon, 02 Mar 2026 07:12:15 -0800 (PST)
+X-Received: by 2002:a05:600c:8106:b0:46f:c55a:5a8d with SMTP id 5b1f17b1804b1-483c9bb6559mr206067215e9.4.1772464334575;
+        Mon, 02 Mar 2026 07:12:14 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483bd765604sm360962425e9.15.2026.03.02.07.12.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Mar 2026 07:12:13 -0800 (PST)
+Date: Mon, 2 Mar 2026 10:12:11 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: linux-kernel@vger.kernel.org, ShuangYu <shuangyu@yunyoo.cc>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH RFC] vhost: fix vhost_get_avail_idx for a non empty ring
+Message-ID: <20260302101125-mutt-send-email-mst@kernel.org>
+References: <559b04ae6ce52973c535dc47e461638b7f4c3d63.1772441455.git.mst@redhat.com>
+ <aaWTjPXDqhMZlwLr@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/4] hv_balloon: set unspecified page reporting order
-To: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>,
- akpm@linux-foundation.org, mst@redhat.com, jasowang@redhat.com,
- kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
- decui@microsoft.com
-Cc: linux-mm@kvack.org, virtualization@lists.linux.dev,
- linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, lorenzo.stoakes@oracle.com,
- Liam.Howlett@oracle.com, vbabka@suse.cz, rppt@kernel.org, surenb@google.com,
- mhocko@suse.com, jackmanb@google.com, hannes@cmpxchg.org, ziy@nvidia.com
-References: <20260302111757.2191056-1-yuvraj.sakshith@oss.qualcomm.com>
- <20260302111757.2191056-4-yuvraj.sakshith@oss.qualcomm.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20260302111757.2191056-4-yuvraj.sakshith@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <aaWTjPXDqhMZlwLr@sgarzare-redhat>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: i5dynXSyW1A-imDRjw-Jm-QlGvZWMBqpLeGSqBKCDqc_1772464335
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 3/2/26 12:17, Yuvraj Sakshith wrote:
-> Explicitly mention page reporting order to be set to
-> default value using PAGE_REPORTING_ORDER_UNSPECIFIED fallback
-> value.
+On Mon, Mar 02, 2026 at 03:30:53PM +0100, Stefano Garzarella wrote:
+> On Mon, Mar 02, 2026 at 03:51:49AM -0500, Michael S. Tsirkin wrote:
+> > vhost_get_avail_idx is supposed to report whether it has updated
+> > vq->avail_idx. Instead, it returns whether all entries have been
+> > consumed, which is usually the same. But not always - in
+> > drivers/vhost/net.c and when mergeable buffers have been enabled, the
+> > driver checks whether the combined entries are big enough to store an
+> > incoming packet. If not, the driver re-enables notifications with
+> > available entries still in the ring. The incorrect return value from
+> > vhost_get_avail_idx propagates through vhost_enable_notify and causes
+> > the host to livelock if the guest is not making progress, as vhost will
+> > immediately disable notifications and retry using the available entries.
 > 
-> Signed-off-by: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>
-> ---
+> Here I'd add something like this just to make it clear the full picture,
+> because I spent quite some time to understand how it was related to the
+> Fixes tag (which I agree is the right one to use).
+> 
+>   This goes back to commit d3bb267bbdcb ("vhost: cache avail index in
+>   vhost_enable_notify()") which changed vhost_enable_notify() to compare
+>   the freshly read avail index against vq->last_avail_idx instead of the
+>   previously cached vq->avail_idx. Commit 7ad472397667 ("vhost: move
+>   smp_rmb() into vhost_get_avail_idx()") then carried over the same
+>   comparison when refactoring vhost_enable_notify() to call the unified
+>   vhost_get_avail_idx().
 
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+Indeed.
 
--- 
-Cheers,
+> > 
+> > The obvious fix is to make vhost_get_avail_idx do what the comment
+> > says it does and report whether new entries have been added.
+> > 
+> > Reported-by: ShuangYu <shuangyu@yunyoo.cc>
+> > Fixes: d3bb267bbdcb ("vhost: cache avail index in vhost_enable_notify()")
+> > Cc: Stefano Garzarella <sgarzare@redhat.com>
+> > Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> > 
+> > Lightly tested, posting early to simplify testing for the reporter.
+> 
+> Tested with vhost-vsock and I didn't see any issue.
+> 
+> Thanks!
+> 
+> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> 
+> > 
+> > drivers/vhost/vhost.c | 11 +++++++----
+> > 1 file changed, 7 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index 2f2c45d20883..db329a6f6145 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -1522,6 +1522,7 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+> > static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
+> > {
+> > 	__virtio16 idx;
+> > +	u16 avail_idx;
+> > 	int r;
+> > 
+> > 	r = vhost_get_avail(vq, idx, &vq->avail->idx);
+> > @@ -1532,17 +1533,19 @@ static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
+> > 	}
+> > 
+> > 	/* Check it isn't doing very strange thing with available indexes */
+> > -	vq->avail_idx = vhost16_to_cpu(vq, idx);
+> > -	if (unlikely((u16)(vq->avail_idx - vq->last_avail_idx) > vq->num)) {
+> > +	avail_idx = vhost16_to_cpu(vq, idx);
+> > +	if (unlikely((u16)(avail_idx - vq->last_avail_idx) > vq->num)) {
+> > 		vq_err(vq, "Invalid available index change from %u to %u",
+> > -		       vq->last_avail_idx, vq->avail_idx);
+> > +		       vq->last_avail_idx, avail_idx);
+> > 		return -EINVAL;
+> > 	}
+> > 
+> > 	/* We're done if there is nothing new */
+> > -	if (vq->avail_idx == vq->last_avail_idx)
+> > +	if (avail_idx == vq->avail_idx)
+> > 		return 0;
+> > 
+> > +	vq->avail_idx = avail_idx;
+> > +
+> > 	/*
+> > 	 * We updated vq->avail_idx so we need a memory barrier between
+> > 	 * the index read above and the caller reading avail ring entries.
+> > -- 
+> > MST
+> > 
 
-David
