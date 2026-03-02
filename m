@@ -1,188 +1,133 @@
-Received: from pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.245.243.92])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4B83411603
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 15:48:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.245.243.92
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69531430BB2
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 15:52:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772466525; cv=none; b=N91g1/Eroo37AvDeQpwfkp5FDZCeiasqay4op19KQBGxBRr/IELcbzglEG1ULBHnNAOWQykJRPwqVTuTuXTucs56znHzkRavct1bu+KviofUJ/X2CoCGhws7PdBcStdxmHIh8w6kGGenffPJdTpFOIxIAGyPT9IHXEKMb8og6xg=
+	t=1772466742; cv=none; b=toQbKJ1zxX84i9Lm/EtdLhBTBk4YUfG2dYX2mij9L2y8Cmq/fOvoibE60XhJBiCcf43Fcin2SG5C3u92P/oVPijfydka2nVNw1NxJepbvZ7Y2DQFndU0m9R54M+vqgGvQ7XTCu1P06cU1cMP8tpJQIEjrB3/adtYR/MggK/8tXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772466525; c=relaxed/simple;
-	bh=8EQMj4FmOrOw4J9iY2p0liDTdDrXYJ6nkvLeacokY2Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=qJHGSsfwwGyAkM2uy+4lNpZw1ykkfazKXFJIV+ZWfMr6+Dc7Krn3L+ZM8sCJoBED6gNxQO+LwdEUQDwI6hDLquvMWwFpJg0n2+lbCTAD+59WEBtj0i0BPlwdnMZrmRQ1ObgJXrVvbLd+/NUM1bQIQr0IrnJX4qPBp+Pq9fECc/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=inwvzoRc; arc=none smtp.client-ip=44.245.243.92
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+	s=arc-20240116; t=1772466742; c=relaxed/simple;
+	bh=hpnlOqrcE6XKQCbvfZC/Jw2+6G9P7VjT8fcJZ6bj9hQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=SywYqKa9VqN0qVfSicVNpparDSrIkqttMiGSmAUyNlLegt47HwLl7SHoNle7cBznB82HJK1PT2IYKnUfRKoauBUXb+puboE2yd/vmV1wcHZqrP5n8d7iUFee0HaL//yT1kwBGauD7llA2GcKCyX9UwfoA6X8VihtrgXdOHjoI/M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WQb+rTsN; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="inwvzoRc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1772466523; x=1804002523;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=8EQMj4FmOrOw4J9iY2p0liDTdDrXYJ6nkvLeacokY2Y=;
-  b=inwvzoRc6qOZ9KCqu7QEuNNsO1COVlkmal8KFqHRLfiknlqY1dCPZyEx
-   3APnC2EPHd69lv86QjA/2aTbSuMCFT0FOxHF56rpIe4DEFAMSUBDJy4FV
-   Y0rWBK8L8EnOiIvblWak3Dy6d+jK7RIt6SlGRskPAMOqHqNXYXKBSFI2f
-   k61g1Dk/iwq8RrKooK/AQCt/4T9FTZnLKCa2xSbRjxPOF4NF0rpgsgskr
-   cVOWw7RQ7FQE0TwbNYMPCTcEv5Dr5T1/4wK1uDB5h7/xqWkIAhXBmOnnL
-   xEePJUGvM44JYUTO/cAID47rX+cCtc57cueBc4G+h4uukfejgw+9kW8gz
-   A==;
-X-CSE-ConnectionGUID: wrPx9B80SO+qSMCxotxE0Q==
-X-CSE-MsgGUID: G+phJaZHQpK6pXjaSzrRrQ==
-X-IronPort-AV: E=Sophos;i="6.21,320,1763424000"; 
-   d="scan'208";a="13639279"
-Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
-  by internal-pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2026 15:48:39 +0000
-Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.111:21011]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.26.67:2525] with esmtp (Farcaster)
- id c892480c-87df-4e06-bb74-5f135ad59b16; Mon, 2 Mar 2026 15:48:38 +0000 (UTC)
-X-Farcaster-Flow-ID: c892480c-87df-4e06-bb74-5f135ad59b16
-Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
- EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Mon, 2 Mar 2026 15:48:38 +0000
-Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
- (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Mon, 2 Mar 2026
- 15:48:35 +0000
-Message-ID: <17d63837-6028-475a-90df-6966329a0fc2@amazon.com>
-Date: Mon, 2 Mar 2026 16:48:33 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WQb+rTsN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1772466739;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CH9mL5pbMrwDtlONtIMgJdUZf3F53m9y7sOyrOwP3i8=;
+	b=WQb+rTsNIkM0kdKzWL51AjDhHiqlgTw6kMhf4scEGvDoR9Lczz1dnvqlHZHYE/vl/GOwrw
+	njEuXH4hT6QApaZJjzLiuaV+xa9D/f2owtK5dOE4a0WEY/oxM/bdni7fACrSkrcHaEU2tc
+	UEEwtqfkTUtUvpLXpiXbrUC5QVoc5AQ=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-304-2MRANZhVN_ONOtuVqmSMTg-1; Mon, 02 Mar 2026 10:52:18 -0500
+X-MC-Unique: 2MRANZhVN_ONOtuVqmSMTg-1
+X-Mimecast-MFC-AGG-ID: 2MRANZhVN_ONOtuVqmSMTg_1772466737
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4806b12ad3fso38537415e9.0
+        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 07:52:17 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772466737; x=1773071537;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CH9mL5pbMrwDtlONtIMgJdUZf3F53m9y7sOyrOwP3i8=;
+        b=ULfIsQejS5/YDxIlLL3GSofs4QlQdjBHtnBbHeuV56EnvQk7tzbs9hHF5BLw4ZWkhi
+         +dvURdWLpcFMk2vbnCAogBnLI2Jz1ibua0+4P6wUtrulOp/GS8HFIcXJPXqMaL7fVcx0
+         wHkelENyqf4AXxwfKZopCfiw4G6hq3+9wCwUDdeQWI7ws6s23MK7vs9pIlcuWAixlkWr
+         HZ2N4YIZb7EWt1oEVGYmJsTAdpNhKt21K2kzkQCn6RsitmWk/QUHkDtBLcqwBfc7AeUk
+         5pPkt8++gfcNMTOxI1NiN9HNTbU0kgE5H204XMG4X8lIG0Fd0UcU94Z17Bwk/trzhLgw
+         4zVQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWHILyiPA3I+jfRG7ePYaWyFV0SBtruZhPUSLhQlETH46mfH7gX7xstS17II4/LuPiG0+yoDbufWW2jMP5Adg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxc0X7DXIrFxieTAoDwkbhVWGgJUcza64Syt95gFF85TW/7vmQC
+	Cg9YE6SbdWEIl618Qt2GYFVzoAJmeIPOR6dg5RM90S/WVbmti3VpxVmA6aIqEnTBKovg1RAf5WJ
+	0PW+Cm3m2ST5AU3LjIwhGrRqxkrusYHdkEf0MlrtUEN8VcjLAlabWTwYSXGJhQomjlKcw
+X-Gm-Gg: ATEYQzy3Vas7QNoB9ArAHOE5xaHbBVFAUanRkLFRgAv0une1CfSonBXZNT6EdCmvUpg
+	VI5eXqCXQLjjkgj/O09w8wpqAli2+/Oi058Hw4AwfBPRYcx/0qWGCcLOMgYsPU8GmkEEUdyXnEZ
+	IeAzIfYbSO1ldURZY5mK2iIsvUzFKpCKBmZ8GrDaYJbnTJ+oOPbKpE5P4QDFkz8ujltpwZvlQNz
+	rjoH3xqhuPBoDKHPo9p5vTatGatyqbg1hxyyoLW98srFSAzfOcvddvHEUJ9gBH/k0Ni4dv7KRC/
+	R7y9Hd7z+qlxQeSHrWptxh4FQEpN1P8QMT4mwYoqMm348Q+bmGCyOnFzVzD9JrgXsRI9QKH2b0Z
+	UK4y1SJjs56bncMg=
+X-Received: by 2002:a05:600c:64c7:b0:477:9cdb:e337 with SMTP id 5b1f17b1804b1-483c9bc55a1mr224120385e9.7.1772466736849;
+        Mon, 02 Mar 2026 07:52:16 -0800 (PST)
+X-Received: by 2002:a05:600c:64c7:b0:477:9cdb:e337 with SMTP id 5b1f17b1804b1-483c9bc55a1mr224120045e9.7.1772466736375;
+        Mon, 02 Mar 2026 07:52:16 -0800 (PST)
+Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483bd7030b9sm336188245e9.4.2026.03.02.07.52.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Mar 2026 07:52:15 -0800 (PST)
+Date: Mon, 2 Mar 2026 16:52:13 +0100
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+To: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: Vincent Mailhol <mailhol@kernel.org>,
+	Harald Mommer <harald.mommer@oss.qualcomm.com>,
+	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	Wolfgang Grandegger <wg@grandegger.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>, francesco@valla.it
+Subject: Re: [PATCH v10] can: virtio: Add virtio CAN driver
+Message-ID: <aaWyLWmqx0KCJvwI@fedora>
+References: <aZRB7Reu/D6HvRcb@fedora>
+ <20260302-mighty-wondrous-seagull-75085c-mkl@pengutronix.de>
+ <20260302-condor-of-nonconcrete-infinity-d3ddbb-mkl@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vsock: Enable H2G override
-To: Stefano Garzarella <sgarzare@redhat.com>, Bryan Tan
-	<bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, Broadcom
- internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-CC: <virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
-	<netdev@vger.kernel.org>, <kvm@vger.kernel.org>, <eperezma@redhat.com>, Jason
- Wang <jasowang@redhat.com>, <mst@redhat.com>, Stefan Hajnoczi
-	<stefanha@redhat.com>, <nh-open-source@amazon.com>
-References: <20260302104138.77555-1-graf@amazon.com>
- <aaVrsXMmULivV4Se@sgarzare-redhat> <aaV80wWlpjEtYCQJ@sgarzare-redhat>
-Content-Language: en-US
-From: Alexander Graf <graf@amazon.com>
-In-Reply-To: <aaV80wWlpjEtYCQJ@sgarzare-redhat>
-X-ClientProxiedBy: EX19D038UWB002.ant.amazon.com (10.13.139.185) To
- EX19D020UWC004.ant.amazon.com (10.13.138.149)
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: base64
+In-Reply-To: <20260302-condor-of-nonconcrete-infinity-d3ddbb-mkl@pengutronix.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: le6GNBtlJ6zGnWmGBHjZ-kl0OwhLYlUd1xFaxy4nbW0_1772466737
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Ck9uIDAyLjAzLjI2IDEzOjA2LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gQ0NpbmcgQnJ5
-YW4sIFZpc2hudSwgYW5kIEJyb2FkY29tIGxpc3QuCj4KPiBPbiBNb24sIE1hciAwMiwgMjAyNiBh
-dCAxMjo0NzowNVBNICswMTAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+Cj4+IFBsZWFz
-ZSB0YXJnZXQgbmV0LW5leHQgdHJlZSBmb3IgdGhpcyBuZXcgZmVhdHVyZS4KPj4KPj4gT24gTW9u
-LCBNYXIgMDIsIDIwMjYgYXQgMTA6NDE6MzhBTSArMDAwMCwgQWxleGFuZGVyIEdyYWYgd3JvdGU6
-Cj4+PiBWc29jayBtYWludGFpbnMgYSBzaW5nbGUgQ0lEIG51bWJlciBzcGFjZSB3aGljaCBjYW4g
-YmUgdXNlZCB0bwo+Pj4gY29tbXVuaWNhdGUgdG8gdGhlIGhvc3QgKEcySCkgb3IgdG8gYSBjaGls
-ZC1WTSAoSDJHKS4gVGhlIGN1cnJlbnQgbG9naWMKPj4+IHRyaXZpYWxseSBhc3N1bWVzIHRoYXQg
-RzJIIGlzIG9ubHkgcmVsZXZhbnQgZm9yIENJRCA8PSAyIGJlY2F1c2UgdGhlc2UKPj4+IHRhcmdl
-dCB0aGUgaHlwZXJ2aXNvci7CoCBIb3dldmVyLCBpbiBlbnZpcm9ubWVudHMgbGlrZSBOaXRybyAK
-Pj4+IEVuY2xhdmVzLCBhbgo+Pj4gaW5zdGFuY2UgdGhhdCBob3N0cyB2aG9zdF92c29jayBwb3dl
-cmVkIFZNcyBtYXkgc3RpbGwgd2FudCB0byAKPj4+IGNvbW11bmljYXRlCj4+PiB0byBFbmNsYXZl
-cyB0aGF0IGFyZSByZWFjaGFibGUgYXQgaGlnaGVyIENJRHMgdGhyb3VnaCB2aXJ0aW8tdnNvY2st
-cGNpLgo+Pj4KPj4+IFRoYXQgbWVhbnMgdGhhdCBmb3IgQ0lEID4gMiwgd2UgcmVhbGx5IHdhbnQg
-YW4gb3ZlcmxheS4gQnkgZGVmYXVsdCwgYWxsCj4+PiBDSURzIGFyZSBvd25lZCBieSB0aGUgaHlw
-ZXJ2aXNvci4gQnV0IGlmIHZob3N0IHJlZ2lzdGVycyBhIENJRCwgaXQgCj4+PiB0YWtlcwo+Pj4g
-cHJlY2VkZW5jZS7CoCBJbXBsZW1lbnQgdGhhdCBsb2dpYy4gVmhvc3QgYWxyZWFkeSBrbm93cyB3
-aGljaCBDSURzIGl0Cj4+PiBzdXBwb3J0cyBhbnl3YXkuCj4+Pgo+Pj4gV2l0aCB0aGlzIGxvZ2lj
-LCBJIGNhbiBydW4gYSBOaXRybyBFbmNsYXZlIGFzIHdlbGwgYXMgYSBuZXN0ZWQgVk0gd2l0aAo+
-Pj4gdmhvc3QtdnNvY2sgc3VwcG9ydCBpbiBwYXJhbGxlbCwgd2l0aCB0aGUgcGFyZW50IGluc3Rh
-bmNlIGFibGUgdG8KPj4+IGNvbW11bmljYXRlIHRvIGJvdGggc2ltdWx0YW5lb3VzbHkuCj4+Cj4+
-IEkgaG9uZXN0bHkgZG9uJ3QgdW5kZXJzdGFuZCB3aHkgVk1BRERSX0ZMQUdfVE9fSE9TVCAoYWRk
-ZWQgCj4+IHNwZWNpZmljYWxseSBmb3IgTml0cm8gSUlSQykgaXNuJ3QgZW5vdWdoIGZvciB0aGlz
-IHNjZW5hcmlvIGFuZCB3ZSAKPj4gaGF2ZSB0byBhZGQgdGhpcyBjaGFuZ2UuwqAgQ2FuIHlvdSBl
-bGFib3JhdGUgYSBiaXQgbW9yZSBhYm91dCB0aGUgCj4+IHJlbGF0aW9uc2hpcCBiZXR3ZWVuIHRo
-aXMgY2hhbmdlIGFuZCBWTUFERFJfRkxBR19UT19IT1NUIHdlIGFkZGVkPyAKCgpUaGUgbWFpbiBw
-cm9ibGVtIEkgaGF2ZSB3aXRoIFZNQUREUl9GTEFHX1RPX0hPU1QgZm9yIGNvbm5lY3QoKSBpcyB0
-aGF0IAppdCBwdW50cyB0aGUgY29tcGxleGl0eSB0byB0aGUgdXNlci4gSW5zdGVhZCBvZiBhIHNp
-bmdsZSBDSUQgYWRkcmVzcyAKc3BhY2UsIHlvdSBub3cgZWZmZWN0aXZlbHkgY3JlYXRlIDIgc3Bh
-Y2VzOiBPbmUgZm9yIFRPX0hPU1QgKG5lZWRzIGEgCmZsYWcpIGFuZCBvbmUgZm9yIFRPX0dVRVNU
-IChubyBmbGFnKS4gQnV0IGV2ZXJ5IHVzZXIgc3BhY2UgdG9vbCBuZWVkcyB0byAKbGVhcm4gYWJv
-dXQgdGhpcyBmbGFnLiBUaGF0IG1heSB3b3JrIGZvciBzdXBlciBzcGVjaWFsLWNhc2UgCmFwcGxp
-Y2F0aW9ucy4gQnV0IHByb3BhZ2F0aW5nIHRoYXQgYWxsIHRoZSB3YXkgaW50byBzb2NhdCwgaXBl
-cmYsIGV0YyAKZXRjPyBJdCdzIGp1c3QgY3JlYXRpbmcgZnJpY3Rpb24uCgpJTUhPIHRoZSBtb3N0
-IG5hdHVyYWwgZXhwZXJpZW5jZSBpcyB0byBoYXZlIGEgc2luZ2xlIENJRCBzcGFjZSwgCnBvdGVu
-dGlhbGx5IG1hbnVhbGx5IHNlZ21lbnRlZCBieSBsYXVuY2hpbmcgVk1zIG9mIG9uZSBraW5kIHdp
-dGhpbiBhIApjZXJ0YWluIHJhbmdlLgoKQXQgdGhlIGVuZCBvZiB0aGUgZGF5LCB0aGUgaG9zdCB2
-cyBndWVzdCBwcm9ibGVtIGlzIHN1cGVyIHNpbWlsYXIgdG8gYSAKcm91dGluZyB0YWJsZS4KCgo+
-Pgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IEFsZXhhbmRlciBHcmFmIDxncmFmQGFtYXpvbi5jb20+
-Cj4+PiAtLS0KPj4+IGRyaXZlcnMvdmhvc3QvdnNvY2suY8KgwqDCoCB8IDExICsrKysrKysrKysr
-Cj4+PiBpbmNsdWRlL25ldC9hZl92c29jay5owqDCoCB8wqAgMyArKysKPj4+IG5ldC92bXdfdnNv
-Y2svYWZfdnNvY2suYyB8wqAgMyArKysKPj4+IDMgZmlsZXMgY2hhbmdlZCwgMTcgaW5zZXJ0aW9u
-cygrKQo+Pj4KPj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMgYi9kcml2ZXJz
-L3Zob3N0L3Zzb2NrLmMKPj4+IGluZGV4IDA1NGY3YTcxOGY1MC4uMjIzZGE4MTdlMzA1IDEwMDY0
-NAo+Pj4gLS0tIGEvZHJpdmVycy92aG9zdC92c29jay5jCj4+PiArKysgYi9kcml2ZXJzL3Zob3N0
-L3Zzb2NrLmMKPj4+IEBAIC05MSw2ICs5MSwxNiBAQCBzdGF0aWMgc3RydWN0IHZob3N0X3Zzb2Nr
-ICp2aG9zdF92c29ja19nZXQodTMyIAo+Pj4gZ3Vlc3RfY2lkLCBzdHJ1Y3QgbmV0ICpuZXQpCj4+
-PiDCoMKgwqDCoHJldHVybiBOVUxMOwo+Pj4gfQo+Pj4KPj4+ICtzdGF0aWMgYm9vbCB2aG9zdF90
-cmFuc3BvcnRfaGFzX2NpZCh1MzIgY2lkKQo+Pj4gK3sKPj4+ICvCoMKgwqAgYm9vbCBmb3VuZDsK
-Pj4+ICsKPj4+ICvCoMKgwqAgcmN1X3JlYWRfbG9jaygpOwo+Pj4gK8KgwqDCoCBmb3VuZCA9IHZo
-b3N0X3Zzb2NrX2dldChjaWQpICE9IE5VTEw7Cj4+Cj4+IFdlIHJlY2VudGx5IGFkZGVkIG5hbWVz
-cGFjZXMgc3VwcG9ydCB0aGF0IGNoYW5nZWQgdmhvc3RfdnNvY2tfZ2V0KCkgCj4+IHBhcmFtcy4g
-VGhpcyBpcyBhbHNvIGluIG5ldCB0cmVlIG5vdyBhbmQgaW4gTGludXMnIHRyZWUsIHNvIG5vdCBz
-dXJlIAo+PiB3aGVyZSB0aGlzIHBhdGNoIGlzIGJhc2VkLCBidXQgdGhpcyBuZWVkcyB0byBiZSBy
-ZWJhc2VkIHNpbmNlIGl0IGlzIAo+PiBub3QgYnVpbGRpbmc6Cj4+Cj4+IC4uL2RyaXZlcnMvdmhv
-c3QvdnNvY2suYzogSW4gZnVuY3Rpb24g4oCYdmhvc3RfdHJhbnNwb3J0X2hhc19jaWTigJk6Cj4+
-IC4uL2RyaXZlcnMvdmhvc3QvdnNvY2suYzo5OToxNzogZXJyb3I6IHRvbyBmZXcgYXJndW1lbnRz
-IHRvIGZ1bmN0aW9uIAo+PiDigJh2aG9zdF92c29ja19nZXTigJk7IGV4cGVjdGVkIDIsIGhhdmUg
-MQo+PiDCoCA5OSB8wqDCoMKgwqDCoMKgwqDCoCBmb3VuZCA9IHZob3N0X3Zzb2NrX2dldChjaWQp
-ICE9IE5VTEw7Cj4+IMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBe
-fn5+fn5+fn5+fn5+fn4KPj4gLi4vZHJpdmVycy92aG9zdC92c29jay5jOjc0OjI4OiBub3RlOiBk
-ZWNsYXJlZCBoZXJlCj4+IMKgIDc0IHwgc3RhdGljIHN0cnVjdCB2aG9zdF92c29jayAqdmhvc3Rf
-dnNvY2tfZ2V0KHUzMiBndWVzdF9jaWQsIAo+PiBzdHJ1Y3QgbmV0ICpuZXQpCj4+IMKgwqDCoMKg
-IHwKCgpEJ29oLiBTb3JyeSwgSSBidWlsdCB0aGlzIG9uIDYuMTkgYW5kIG9ubHkgcmVhbGl6ZWQg
-YWZ0ZXIgdGhlIHNlbmQgdGhhdCAKbmFtZXNwYWNlIHN1cHBvcnQgZ290IGluLiBXaWxsIGZpeCB1
-cCBmb3IgdjIuCgoKPj4KPj4+ICvCoMKgwqAgcmN1X3JlYWRfdW5sb2NrKCk7Cj4+PiArwqDCoMKg
-IHJldHVybiBmb3VuZDsKPj4+ICt9Cj4+PiArCj4+PiBzdGF0aWMgdm9pZAo+Pj4gdmhvc3RfdHJh
-bnNwb3J0X2RvX3NlbmRfcGt0KHN0cnVjdCB2aG9zdF92c29jayAqdnNvY2ssCj4+PiDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4+PiBA
-QCAtNDI0LDYgKzQzNCw3IEBAIHN0YXRpYyBzdHJ1Y3QgdmlydGlvX3RyYW5zcG9ydCB2aG9zdF90
-cmFuc3BvcnQgPSB7Cj4+PiDCoMKgwqDCoMKgwqDCoCAubW9kdWxlwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgID0gVEhJU19NT0RVTEUsCj4+Pgo+Pj4gwqDCoMKgwqDCoMKgwqAg
-LmdldF9sb2NhbF9jaWTCoMKgwqDCoMKgwqDCoMKgwqDCoMKgID0gdmhvc3RfdHJhbnNwb3J0X2dl
-dF9sb2NhbF9jaWQsCj4+PiArwqDCoMKgwqDCoMKgwqAgLmhhc19jaWTCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgID0gdmhvc3RfdHJhbnNwb3J0X2hhc19jaWQsCj4+Pgo+Pj4gwqDC
-oMKgwqDCoMKgwqAgLmluaXTCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-ID0gdmlydGlvX3RyYW5zcG9ydF9kb19zb2NrZXRfaW5pdCwKPj4+IMKgwqDCoMKgwqDCoMKgIC5k
-ZXN0cnVjdMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgID0gdmlydGlvX3RyYW5zcG9y
-dF9kZXN0cnVjdCwKPj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL25ldC9hZl92c29jay5oIGIvaW5j
-bHVkZS9uZXQvYWZfdnNvY2suaAo+Pj4gaW5kZXggNTMzZDhlNzVmN2JiLi40Y2RjYjcyZjk3NjUg
-MTAwNjQ0Cj4+PiAtLS0gYS9pbmNsdWRlL25ldC9hZl92c29jay5oCj4+PiArKysgYi9pbmNsdWRl
-L25ldC9hZl92c29jay5oCj4+PiBAQCAtMTc5LDYgKzE3OSw5IEBAIHN0cnVjdCB2c29ja190cmFu
-c3BvcnQgewo+Pj4gwqDCoMKgwqAvKiBBZGRyZXNzaW5nLiAqLwo+Pj4gwqDCoMKgwqB1MzIgKCpn
-ZXRfbG9jYWxfY2lkKSh2b2lkKTsKPj4+Cj4+PiArwqDCoMKgIC8qIENoZWNrIGlmIHRoaXMgdHJh
-bnNwb3J0IHNlcnZlcyBhIHNwZWNpZmljIHJlbW90ZSBDSUQuICovCj4+PiArwqDCoMKgIGJvb2wg
-KCpoYXNfY2lkKSh1MzIgY2lkKTsKPj4KPj4gV2hhdCBhYm91dCAiaGFzX3JlbW90ZV9jaWQiID8K
-Pj4KPj4+ICsKPj4+IMKgwqDCoMKgLyogUmVhZCBhIHNpbmdsZSBza2IgKi8KPj4+IMKgwqDCoMKg
-aW50ICgqcmVhZF9za2IpKHN0cnVjdCB2c29ja19zb2NrICosIHNrYl9yZWFkX2FjdG9yX3QpOwo+
-Pj4KPj4+IGRpZmYgLS1naXQgYS9uZXQvdm13X3Zzb2NrL2FmX3Zzb2NrLmMgYi9uZXQvdm13X3Zz
-b2NrL2FmX3Zzb2NrLmMKPj4+IGluZGV4IDJmN2Q5NGQ2ODJjYi4uOGIzNGIyNjRiMjQ2IDEwMDY0
-NAo+Pj4gLS0tIGEvbmV0L3Ztd192c29jay9hZl92c29jay5jCj4+PiArKysgYi9uZXQvdm13X3Zz
-b2NrL2FmX3Zzb2NrLmMKPj4+IEBAIC01ODQsNiArNTg0LDkgQEAgaW50IHZzb2NrX2Fzc2lnbl90
-cmFuc3BvcnQoc3RydWN0IHZzb2NrX3NvY2sgCj4+PiAqdnNrLCBzdHJ1Y3QgdnNvY2tfc29jayAq
-cHNrKQo+Pj4gwqDCoMKgwqDCoMKgwqAgZWxzZSBpZiAocmVtb3RlX2NpZCA8PSBWTUFERFJfQ0lE
-X0hPU1QgfHwgIXRyYW5zcG9ydF9oMmcgfHwKPj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAo
-cmVtb3RlX2ZsYWdzICYgVk1BRERSX0ZMQUdfVE9fSE9TVCkpCj4+PiDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgIG5ld190cmFuc3BvcnQgPSB0cmFuc3BvcnRfZzJoOwo+Pj4gK8KgwqDCoMKgwqDCoMKg
-IGVsc2UgaWYgKHRyYW5zcG9ydF9oMmctPmhhc19jaWQgJiYKPj4+ICvCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgIXRyYW5zcG9ydF9oMmctPmhhc19jaWQocmVtb3RlX2NpZCkpCj4+PiArwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCBuZXdfdHJhbnNwb3J0ID0gdHJhbnNwb3J0X2cyaDsKPj4KPj4gV2Ug
-c2hvdWxkIHVwZGF0ZSB0aGUgY29tbWVudCBvbiB0b3Agb2YgdGhpcyBmdWN0aW9uLCBhbmQgbWF5
-YmUgYWxzbyAKPj4gdHJ5IHRvIHN1cHBvcnQgdGhlIG90aGVyIEgyRyB0cmFuc3BvcnQgKGkuZS4g
-Vk1DSSkuCj4+Cj4+IEBCcnlhbiBAVmlzaG51IGNhbiB0aGUgbmV3IGhhc19jaWQoKS9oYXNfcmVt
-b3RlX2NpZCgpIGJlIHN1cHBvcnRlZCBieSAKPj4gVk1DSSB0b28/Cj4KPiBPb3BzLCBJIGZvcmdv
-dCB0byBDQyB0aGVtLCBub3cgdGhleSBzaG91bGQgYmUgaW4gY29weS4KCgpBY2suIEkgY2FuIGFs
-c28gdGFrZSBhIHF1aWNrIGxvb2sgaWYgaXQncyB0cml2aWFsIHRvIGFkZC4KCgpBbGV4CgoKCgoK
-QW1hem9uIFdlYiBTZXJ2aWNlcyBEZXZlbG9wbWVudCBDZW50ZXIgR2VybWFueSBHbWJIClRhbWFy
-YS1EYW56LVN0ci4gMTMKMTAyNDMgQmVybGluCkdlc2NoYWVmdHNmdWVocnVuZzogQ2hyaXN0b2Yg
-SGVsbG1pcywgQW5kcmVhcyBTdGllZ2VyCkVpbmdldHJhZ2VuIGFtIEFtdHNnZXJpY2h0IENoYXJs
-b3R0ZW5idXJnIHVudGVyIEhSQiAyNTc3NjQgQgpTaXR6OiBCZXJsaW4KVXN0LUlEOiBERSAzNjUg
-NTM4IDU5Nwo=
+On Mon, Mar 02, 2026 at 02:23:42PM +0100, Marc Kleine-Budde wrote:
+> On 02.03.2026 11:30:34, Marc Kleine-Budde wrote:
+> > > +static int virtio_can_open(struct net_device *ndev)
+> > > +{
+> > > +	virtio_can_start(ndev);
+> > > +
+> > > +	netif_start_queue(ndev);
+> > > +
+> > > +	return 0;
+> > > +}
+> >
+> > Is open_candev() missing? The CAN framework requires drivers to call
+> > open_candev() in their ndo_open handler. open_candev() validates that
+> > bittiming has been configured (returns -EINVAL if bitrate is 0), checks
+> > CAN FD data bitrate requirements, and manages carrier state. Without this
+> > call, can the device be brought up without configuring bitrate? The driver
+> > does call close_candev() in virtio_can_close(), showing awareness of the
+> > CAN lifecycle. Every other CAN driver in the kernel calls open_candev() in
+> > its open function.
+> 
+> This is true for physical CAN devices, so let's clarify things for
+> virtio.
+> 
+> As far as I can see, there's no interface to get/set the bit timing/bit
+> rate from the guest, right?
+> 
+AFAIU there is not such a interface.
+
+> You can set bittiming.bitrate to CAN_BITRATE_UNKNOWN, remove the
+> netif_carrier handling from virtio_can_start() and use open_candev().
+> 
+Will do. Thanks!
+
+Matias
 
