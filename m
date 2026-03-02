@@ -1,206 +1,154 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4B5434E74F;
-	Mon,  2 Mar 2026 08:09:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8213B38B7D5
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 08:51:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772438962; cv=none; b=ZFsaAUv8lHfJpNO8iqiCu8s9IzimB4xbu0KV9QgzmKgmj8hWA9UBM346gFBfv5Y4Mt8fZDYm8HNn7KR6ECq6AnrhMcEin3EIcauk+VWr5sH4gQXpYC01lf4dhg9m7mJtHA+i60rU6RNja7pYRn+LAs783OaZjQzWAOj/d+1YCa0=
+	t=1772441517; cv=none; b=M1tQsaQqRrVFhX8LwMlM+D6spyZKeFC5NSnksLlF8ki7yDF480ZKyclCr4zdV6beVYhggXo/TjLQcV42+LWRQRev3EBp2VfYzxT8V/vXga8XhIdTHmJXjMUTg5/qYQ3fO+mismAG5LwMcK8UheLbRNwb/ZQqEdm2qItBJtKMnJI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772438962; c=relaxed/simple;
-	bh=FqBCPiof80sYQVn6PUFltJWkTioFCV7WXdE9UKQ7PRc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kyVs6ebqXCE05FH3QKxohTQTjeNb4TkcEILyUdG1JUIXcH7CYlRZYSjaLrGsTQsQSrziVsMaVRgdB1KfKLvYYXBcYhFImwXqEe1eJjtBT68MFqB65zRsyh/qscNxIbSAr3Pzm2NzVGymYR3aMh/QHqAg4ND3AvZteIPBjUBi+hA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TF6xmoM1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772441517; c=relaxed/simple;
+	bh=ejoxH+LGsx0lf40D7kcEz2BR8ZKftH4l7JfUa0+NqoQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=HvxsmcZ1r1nfces47KqEwWOAZOamQ9nKpZ8ApRxCfqLiyEbOjtW4DG66wued64Gf61v5nurdwtR8kwsGYIp20Or7ZHnp2e+SHvc02E6hPJ5TMgLMfMY3vUyNYGj/ctf8EkXPMg2AFPXqlvmD+NtYNTgzh5+26FJqCuXO0fe60HY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bp9Obh7n; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TF6xmoM1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35630C19423;
-	Mon,  2 Mar 2026 08:09:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772438962;
-	bh=FqBCPiof80sYQVn6PUFltJWkTioFCV7WXdE9UKQ7PRc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=TF6xmoM1xb1BmDnHJGEYYK4djC4sZPGpc5YK/nAz7HzJ1voYUouiCetVuo4MDwIpB
-	 6zABBzdYxHDeL41uNqVAX1tuBhYFK91ibtgQRO3fwM1RvwD5iMZYlIFEuIDv2pkz/u
-	 UfmnJhWi16+xkmfzi4Mr6GzFG0kCrcEryF3fjlWJ94GUjDYfn+xqfI4lLa6y9wv3l2
-	 CDygaFMQ4D+7OXNntYjczvYmpenkTHXU7sBr1ZEaL3BTj5QsLgUPSPuPc0ohEzyIF8
-	 Y6Fv8UYd+pvl01YZ4KQwdKLNNBRMW0+MN0Wc1pYz4LP9dyabdnwudPjvSu3mkYbDAu
-	 mI4cxujLVJIAA==
-Message-ID: <a0133403-8ce3-45a4-987f-96fb7421f920@kernel.org>
-Date: Mon, 2 Mar 2026 09:09:13 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bp9Obh7n"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1772441514;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=Z9WT3KJPKaJS7kZ732QoTptenX1xk5GVKXR5OHJOtrk=;
+	b=bp9Obh7nfrHbjYjVYv0f970o+ITLfuFKNDREhM4a2PiM4zMEC2sJWNn6/GDcV+Xx6GRPH6
+	UY8mCi5PZoSYAG3TXEt6YqN1hId5G5ZvCfJ2BxesIN2OCWMQcoCc6LpV8UBpco1K4K8gUs
+	anpl0QXLZmjlcWX13YpDl2konnofQt4=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-495-NBzwS75oMyqbGJT3wK39eg-1; Mon, 02 Mar 2026 03:51:53 -0500
+X-MC-Unique: NBzwS75oMyqbGJT3wK39eg-1
+X-Mimecast-MFC-AGG-ID: NBzwS75oMyqbGJT3wK39eg_1772441512
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4836fbfa35cso20714135e9.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 00:51:53 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772441512; x=1773046312;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Z9WT3KJPKaJS7kZ732QoTptenX1xk5GVKXR5OHJOtrk=;
+        b=fOwSCbvY5YPWKt1HeAW4ThvTd3rZmeUvfIDhoTp7StuSkuU4j0o1KxlPnXhqN0o1hD
+         N9LZLXW+rwWwAsKjXwHXtLTkr60eTwJxzK/sRNTfeUoVz26GMmDLwrmCvbU0YVflVpRE
+         ES6cteby5hfU8azakTe9Wm3N8RqZNa3ohk36tzNVz+AiPMYIk5xL4uSFifm3eCLn5xdb
+         WWHiv/fxos47cG12aW0jC6ZABHCQGE8NiQ3SeeINgJuZxsw/YQF+GO8ZB80XXFqD2W3D
+         nqHtvVT9RBBI0OfcXK/p9rxtaVkIeXoO2Ldzw2fqlI6CPSgGrtLJwSlihNS1ml8Ary6c
+         kLIw==
+X-Forwarded-Encrypted: i=1; AJvYcCUgHIFamuKVIlVmT2CEPjgxdt33Mz7CkemdtDX9vMfN/c08/ozCQBnjlhOerhEX3g18K/T+kzpTyPv4jAM+wA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyn7V9GmI7fCRc9Ethdw74TXcO+JZ+JFWXDZGHan0WlZQR3utax
+	w10iLQcnos+BQ1+z9sSOwU+Sfr7IaqI3zsI78CROnJ7K95iO2CMCEc6X2pt3GkgiFKxmgQoYk4A
+	8ltklbxz4Gh6bK1S4xbVMGuQ4dK2aKk7bE8FdSYtmiCZpzF8JaiWsdjeNfbDF89u4/6lb
+X-Gm-Gg: ATEYQzyLNSUkNcFDQc/eukT4R2kPLEBrMdsfJtzGBJRHjnzRnqWbyNfsqu4pcsm1iL0
+	XXl4KZX+Vxz3PgnGrB7OzUwQ7xW0DQQRNIJrlISIf15BguVS9VEAdx8HJzvmCAnu4FQIOIq3zWK
+	ADMhC/OIsbVgWO3+PRE8fEQA5nRuqHe0E8Ss/Y6RkwOYhbQ6TIUi9U6h9NIbgqZP4AGlI7X+PYU
+	t9p4Gh6Ub26rrZW9KNoe2rtQX7ev/hjK1Y6TVameKVnWfpyrHvfsk29oXLZ6nWo2LXw/4mLNcWm
+	Ib3fu3nweRkDnYx4NrbmDjNYgQqTCUKQYumH7uuKwrxODbFcby5sSTJP47cu1nMjQ1b+gJDRGKE
+	8X07/ol2QAXiFB6oj7B6plIVumBu1odYugpOz3kin6OMYvA==
+X-Received: by 2002:a05:600c:4fc8:b0:483:6f37:1b51 with SMTP id 5b1f17b1804b1-483c9bedb07mr228267905e9.23.1772441512160;
+        Mon, 02 Mar 2026 00:51:52 -0800 (PST)
+X-Received: by 2002:a05:600c:4fc8:b0:483:6f37:1b51 with SMTP id 5b1f17b1804b1-483c9bedb07mr228267415e9.23.1772441511572;
+        Mon, 02 Mar 2026 00:51:51 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483bfcbd781sm233836855e9.8.2026.03.02.00.51.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Mar 2026 00:51:51 -0800 (PST)
+Date: Mon, 2 Mar 2026 03:51:49 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: ShuangYu <shuangyu@yunyoo.cc>, Stefano Garzarella <sgarzare@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: [PATCH RFC] vhost: fix vhost_get_avail_idx for a non empty ring
+Message-ID: <559b04ae6ce52973c535dc47e461638b7f4c3d63.1772441455.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 4/4] page_reporting: change
- PAGE_REPORTING_DEFAULT_ORDER to -1
-To: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>,
- Michael Kelley <mhklinux@outlook.com>
-Cc: "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
- "mst@redhat.com" <mst@redhat.com>, "kys@microsoft.com" <kys@microsoft.com>,
- "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
- "wei.liu@kernel.org" <wei.liu@kernel.org>,
- "decui@microsoft.com" <decui@microsoft.com>,
- "longli@microsoft.com" <longli@microsoft.com>,
- "jasowang@redhat.com" <jasowang@redhat.com>,
- "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
- "eperezma@redhat.com" <eperezma@redhat.com>,
- "lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>,
- "Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>,
- "vbabka@suse.cz" <vbabka@suse.cz>, "rppt@kernel.org" <rppt@kernel.org>,
- "surenb@google.com" <surenb@google.com>, "mhocko@suse.com"
- <mhocko@suse.com>, "jackmanb@google.com" <jackmanb@google.com>,
- "hannes@cmpxchg.org" <hannes@cmpxchg.org>, "ziy@nvidia.com"
- <ziy@nvidia.com>, "linux-hyperv@vger.kernel.org"
- <linux-hyperv@vger.kernel.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "linux-mm@kvack.org" <linux-mm@kvack.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20260227140655.360696-1-yuvraj.sakshith@oss.qualcomm.com>
- <20260227140655.360696-5-yuvraj.sakshith@oss.qualcomm.com>
- <c618e7a4-42c1-4438-9bc2-9c41450a81a2@kernel.org>
- <aaUE7M9QkfnYh12e@hu-ysakshit-lv.qualcomm.com>
- <SN6PR02MB4157D37B3D254251F0135B04D47EA@SN6PR02MB4157.namprd02.prod.outlook.com>
- <b1390b24-eaef-40e0-a16b-77c27decb77e@kernel.org>
- <aaVDiwEPl5t2UPX4@hu-ysakshit-lv.qualcomm.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
- ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
- AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
- 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
- g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
- ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
- 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
- /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
- jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
- DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
- HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
- 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
- LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
- 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
- VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
- /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
- iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
- 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
- zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
- azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
- FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
- sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
- 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
- EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
- IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
- 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
- Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
- sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
- yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
- 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
- r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
- 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
- CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
- qIws/H2t
-In-Reply-To: <aaVDiwEPl5t2UPX4@hu-ysakshit-lv.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ON5yrNjBwUz-vUr4WED3MKSVMJ_4KMCJEhbhYY0wMRs_1772441512
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 3/2/26 09:00, Yuvraj Sakshith wrote:
-> On Mon, Mar 02, 2026 at 08:42:57AM +0100, David Hildenbrand (Arm) wrote:
->> On 3/2/26 06:25, Michael Kelley wrote:
->>> From: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com> Sent: Sunday, March 1, 2026 7:33 PM
->>>
->>> I don't think what you propose is correct. The purpose of testing
->>> page_reporting_order for -1 is to see if a page reporting order has
->>> been specified on the kernel boot line. If it has been specified, then
->>> the page reporting order specified in the call to page_reporting_register()
->>> [either a specific value or the default] is ignored and the kernel boot
->>> line value prevails. But if page_reporting_order is -1 here, then
->>> no kernel boot line value was specified, and the value passed to
->>> page_reporting_register() should prevail.
->>>
->>> With this in mind, substituting PAGE_REPORTING_DEFAULT_ORDER
->>> for the -1 in the test doesn’t exactly make sense to me. The -1 in the
->>> test doesn't have quite the same meaning as the -1 for
->>> PAGE_REPORTING_DEFAULT_ORDER. You could even use -2 for
->>> the initial value of page_reporting_order, and here in the test, in
->>> order to make that distinction obvious. Or use a separate symbolic
->>> name like PAGE_REPORTING_ORDER_NOT_SET.
->>
-> Option 1:
-> 
-> if (page_reporting_order == PAGE_REPORTING_DEFAULT_ORDER) {
->         if (page_reporting_order != PAGE_REPORTING_DEFAULT_ORDER
->                 && prdev->order <= MAX_PAGE_ORDER) {
->                 page_reporting_order = prdev->order;
->         } else {
->                 page_reporting_order = pageblock_order;
->         }
-> }
-> 
-> Option 2:
-> 
-> if (page_reporting_order == PAGE_REPORTING_ORDER_NOT_SET) {
->         if (page_reporting_order != PAGE_REPORTING_DEFAULT_ORDER
->                 && prdev->order <= MAX_PAGE_ORDER) {
->                 page_reporting_order = prdev->order;
->         } else {
->                 page_reporting_order = pageblock_order;
->         }
-> }
-> 
-> 
->> I don't really see a difference between "PAGE_REPORTING_DEFAULT_ORDER"
->> and "PAGE_REPORTING_ORDER_NOT_SET" that would warrant a split and adding
->> confusion for the page-reporting drivers.
->>
->> In both cases, we want "no special requirement, just use the default".
->> Maybe we can use a better name to express that.
-> 
-> Agreed.
-> 
-> If we were to read this code without context, wouldn't it be confusing as to
-> why PAGE_REPORTING_DEFAULT_ORDER is being checked in the first place?
+vhost_get_avail_idx is supposed to report whether it has updated
+vq->avail_idx. Instead, it returns whether all entries have been
+consumed, which is usually the same. But not always - in
+drivers/vhost/net.c and when mergeable buffers have been enabled, the
+driver checks whether the combined entries are big enough to store an
+incoming packet. If not, the driver re-enables notifications with
+available entries still in the ring. The incorrect return value from
+vhost_get_avail_idx propagates through vhost_enable_notify and causes
+the host to livelock if the guest is not making progress, as vhost will
+immediately disable notifications and retry using the available entries.
 
-I proposed in one of the last mail that
-"PAGE_REPORTING_USE_DEFAULT_ORDER" could be clearer, stating that it's
-not really an order just yet. Maybe just using
-PAGE_REPORTING_ORDER_UNSET might be clearer.
+The obvious fix is to make vhost_get_avail_idx do what the comment
+says it does and report whether new entries have been added.
 
-> 
-> Option 1 checks if page_reporting_order is equal to PAGE_REPORTING_DEFAULT_ORDER
-> and then immediately checks if its not equal to it. Which is a bit confusing..
+Reported-by: ShuangYu <shuangyu@yunyoo.cc>
+Fixes: d3bb267bbdcb ("vhost: cache avail index in vhost_enable_notify()")
+Cc: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
+Lightly tested, posting early to simplify testing for the reporter.
 
-Because it's wrong? :) We're not supposed to check page_reporting_order
-a second time. Assume we
-s/PAGE_REPORTING_ORDER/PAGE_REPORTING_ORDER_UNSET/ and actually check
-prdev->order:
+ drivers/vhost/vhost.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-if (page_reporting_order == PAGE_REPORTING_ORDER_UNSET) {
-	if (prdev->order != PAGE_REPORTING_ORDER_UNSET &&
-	    prdev->order <= MAX_PAGE_ORDER) {
-		page_reporting_order = prdev->order;
-	} else {
-		page_reporting_order = pageblock_order;
-	}
-}
-
-
-
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 2f2c45d20883..db329a6f6145 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1522,6 +1522,7 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+ static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
+ {
+ 	__virtio16 idx;
++	u16 avail_idx;
+ 	int r;
+ 
+ 	r = vhost_get_avail(vq, idx, &vq->avail->idx);
+@@ -1532,17 +1533,19 @@ static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
+ 	}
+ 
+ 	/* Check it isn't doing very strange thing with available indexes */
+-	vq->avail_idx = vhost16_to_cpu(vq, idx);
+-	if (unlikely((u16)(vq->avail_idx - vq->last_avail_idx) > vq->num)) {
++	avail_idx = vhost16_to_cpu(vq, idx);
++	if (unlikely((u16)(avail_idx - vq->last_avail_idx) > vq->num)) {
+ 		vq_err(vq, "Invalid available index change from %u to %u",
+-		       vq->last_avail_idx, vq->avail_idx);
++		       vq->last_avail_idx, avail_idx);
+ 		return -EINVAL;
+ 	}
+ 
+ 	/* We're done if there is nothing new */
+-	if (vq->avail_idx == vq->last_avail_idx)
++	if (avail_idx == vq->avail_idx)
+ 		return 0;
+ 
++	vq->avail_idx = avail_idx;
++
+ 	/*
+ 	 * We updated vq->avail_idx so we need a memory barrier between
+ 	 * the index read above and the caller reading avail ring entries.
 -- 
-Cheers,
+MST
 
-David
