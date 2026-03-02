@@ -1,297 +1,218 @@
-Received: from lf-2-32.ptr.blmpb.com (lf-2-32.ptr.blmpb.com [101.36.218.32])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC18C25A2A2
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 01:58:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.36.218.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4AD93C2E
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 03:33:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772416728; cv=none; b=hSqG+Vtsqp+OXm3Jug08izSVEASQziAug4Em0ejfgRaq5DVXEC1md8kP8l/ll9qKrv4/qXWAncY9FZGy5W+QCcbCPb5xH/WBBfWp39DX5t1mF5bfb8MTUIcAUkMVMm2z6ydlTzXjjMx8MXCsEIGAjvVHNrfQn0iQ/zCgLPwJSiQ=
+	t=1772422393; cv=none; b=RM+PA+2pEIrXAeAiKVaA80W7kBb7xJws+jsvVIrXJW9afs+3xY8DBFB3Smk6UlJ3hpnY/9j1WYVNvX/ha4hPbxMsmokxkmNzzOxS0MoFH2PFCBFfbFrgVpsJZVE6XrJD1SAmvS+EONfwyj4gtvYTPjtkxpxX/VcX36JvWuao67c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772416728; c=relaxed/simple;
-	bh=Adqf0zh2hayDMj7FF1I0bgPXD9fxuN4yMCe2P+dI7vg=;
-	h=Subject:Mime-Version:In-Reply-To:From:References:Content-Type:
-	 Date:Message-Id:To:Cc; b=AFhOBHn+SkSzuAdBLGcdtaYLLPIXKv2vVAE/4/AHqVceS2XSUltM/NU3tSVvPzgVLwGjaMVD8oVGYTPPhS+2L+wqpRKR5jDrCIszNkPmU0TnumRpxyaFB0zqV/eaNhrhV6f43HCqunGHS0PrSag49N+GHrQElIZUnrwrWZVGHFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=yunyoo.cc; spf=pass smtp.mailfrom=yunyoo.cc; dkim=pass (2048-bit key) header.d=yunyoo-cc.20200929.dkim.larksuite.com header.i=@yunyoo-cc.20200929.dkim.larksuite.com header.b=oI3Hh2kl; arc=none smtp.client-ip=101.36.218.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=yunyoo.cc
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yunyoo.cc
+	s=arc-20240116; t=1772422393; c=relaxed/simple;
+	bh=ZD54bpaedeQlQDnPkWoaBA11dzBkKlX+EIkM9p3PkGQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gGiJek2968o0d/ckoyjnI2irP5ER+0ZaELEwLEQk+wQU+wLxWbVZl9oHSfM6tcWNfcyj8anr1wlWW7iGAywdKmIWNDBwjMbaX1Cz01elA9afDzx5+1UDA9rO8NE5HiA4Te9NJ91jWpsG9MGr73s79hT872B1qsdQLf8hImJka7c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=p1jvc/02; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=YpHYvLcx; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yunyoo-cc.20200929.dkim.larksuite.com header.i=@yunyoo-cc.20200929.dkim.larksuite.com header.b="oI3Hh2kl"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=s1; d=yunyoo-cc.20200929.dkim.larksuite.com; t=1772416673;
-  h=from:subject:mime-version:from:date:message-id:subject:to:cc:
- reply-to:content-type:mime-version:in-reply-to:message-id;
- bh=Adqf0zh2hayDMj7FF1I0bgPXD9fxuN4yMCe2P+dI7vg=;
- b=oI3Hh2klncXn9VySxG53E47EvKfmKXi9QnSgDZHHPb5WzOPD1vg4yPWwsfGHF5AQGo/YAY
- MiFugChHTtB5rqzURRdMydjiLAtCe47Y/BlQ4O6nXTMw7auoRS1MbJH90UWaVRHFSReFry
- xTzHl8VgLR8Bs8plZSViFJnbQCgOQqjamL2CJdUKYHI3C/8nNJmye1xK0CEwAqYexKlyKn
- iLXUp8bE1i4jLQrmJP9JCDlUysHXP6mOe7aGon5SK2E5vV7ICDIDWLmiq4zMrFLM47mEBD
- KeIEFCgm5nZcJvE3ZAUFKvu8MWJE/97MFvOu9/PzkKZ//Dki1eo77tGUDQ4S4A==
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [BUG] vhost_net: livelock in handle_rx() when GRO packet exceeds virtqueue capacity
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="p1jvc/02";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="YpHYvLcx"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 621NQhe72049380
+	for <virtualization@lists.linux.dev>; Mon, 2 Mar 2026 03:33:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	b2OsP/70Er+mWuJ/nMEuOkdDfzSNUXpTeUeLCE0ADeA=; b=p1jvc/02W+FH5Xdq
+	6BXKsYmuduBiGT62XYdrCYV5pr3T7r0I4bnRwxuhoS8gyVGBBJU57j82RtPEaHg5
+	KsQUlmEJIGtcq+aYtAlCoccZ+fJCeQmHLybFqGMLG4mdnF/xlWmLcfwI5+R5QCrf
+	pERzMyIgZrwqkVrAGpLfLWBDtF9Vlb6zUAKYb+NoBdKNTDcJlHB4r841HLJbVr5i
+	XyjAxSwzCCn2jwdUF0k08vXG/jdFUPpZdQ32uBYKA3qJBWrFi2rtHHYDJcwxApwB
+	jBmjGTu/3u04iGQugyTTRJES4X0WeRyfLUvftB9IxYjAJx18hdyh1zzxL8GdN0Fr
+	Vqp5HA==
+Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ckshkurs2-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 03:33:04 +0000 (GMT)
+Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-463a075e177so21548271b6e.2
+        for <virtualization@lists.linux.dev>; Sun, 01 Mar 2026 19:33:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1772422384; x=1773027184; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=b2OsP/70Er+mWuJ/nMEuOkdDfzSNUXpTeUeLCE0ADeA=;
+        b=YpHYvLcxME7Xn5sJRsko/vh0DY0P7ID2U4qrLIICZ1Dbsp7TSrqNqW4JoK/iurUrB3
+         VdpCGgXGEbhFLfPf3U4ILpa5hNYWaE0E1nn+rCI/Nj82R/d+S1XtptmB2NsH9s5VMWRt
+         8tOlKdmvb71Jk0OlYK5qbPK2ESs+g3DIKKaIog1U+milOC1AaNJs5Q4iUbT6V3F1TM5a
+         F5ldaGza5UP3zy+ZYJdnNNgzt2Gt0N4flTsCXtgTwSMNr/pacRVa1tah0ZUHh8YX/roD
+         3nBHl72eNyNSMMgT0cpATHcyHWn77H+k7VVphTw9x/UyPklnA0OlT/pGxT9kUZYBSmHs
+         s4zQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772422384; x=1773027184;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=b2OsP/70Er+mWuJ/nMEuOkdDfzSNUXpTeUeLCE0ADeA=;
+        b=H1QM1h+m8oDqtN5RVzRngXfs+2KUhvpEV/PxaZ0qqaand/CGlnEeczJfNZ2vO5+PJd
+         sSiH+ekrOm+S9mg1a/s7oyuxdidSUoHa6m3X78DdjK10b/ftBTjq9NZ7AjnqJsPqiytD
+         4H5E2P79Re6Q9Uk3ot/omjybjFaOEMrwWnSiVArIuyQDIcBZlX2jYfs1E04p/kbedF6J
+         BfSxLTX6OAmdppgdBxtCKUlSZmV/qPoCB0JjN0oAV3JsSHhHoI2xbOVe8d8TVmsauNdr
+         GEDSVxgIj9/cQjC2oLNDb+0zvl0OpQPlaZGYzg4pSWLmS9+2yNDkYbvUsvFUHk2L216C
+         bAjw==
+X-Forwarded-Encrypted: i=1; AJvYcCX5NzqdUIIw0Fs0+v4CcISLPN/eLbnSrzjF8P8Halkpc1gJj6Quu8V52arFy6T0LQr5xOg4B74hSiVBv54XNg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxwQ80Z4ELmC2eRzAtpyXRh3QPTU4XAAF9xWhKGivRSNhB3uq3f
+	gVL+tLIz73FbER5JCyJuJC7YUcMnLL7hPrpV+L7Y1vLIH6tUXegXIpJ6zwglGWyis1rkJCLbhWg
+	ZOwA+GjsvjLh/TvKPwFKVmsHdrsToO+uWT5X3rNmRrrTDkbFAOdvg4sTxXb15MxW0ilDabw==
+X-Gm-Gg: ATEYQzxZxaAT4xONYsSP/QC+eipuGErfMNUgd9WOEqUhMxAd9A+B85/4ncXX/LAPGX9
+	C8Z165t/ummMXIWwr8cB/Sarktvag3SmvKOGqbJT9E+dIeNZ9V48utzpE7TBSK8blH+kvWJWFIB
+	gXo6abvmxNQrEJNCD8fcgvzDS3dXbQDdxOK+tNRd8AuAYsIE0kLGbroTWIepXkF/J+AMgeyOoqm
+	BomFH23pqZXD0DdZBpjS9MdTm+f6IZakgFiDcMTuTuswcCkL5Y/OAXGibmU183I6Sy4xoGw/21L
+	8YaYuHcSB1knKqpctkksMvBiAg7R/CaBXCzOdDG15gcUlo/O51GlBFJVcKBeGQjJVpshSyIf5U2
+	2kGm7XZdZ0B7cA6lsNJFTNKAJpzN+hFDhuHFAdFYBIrkOQFyeKMAjU1Yb58VnfdMag7MaC5P6dH
+	aUsUfK
+X-Received: by 2002:a05:6808:5183:b0:45c:9927:3f33 with SMTP id 5614622812f47-464becb4a3amr4969467b6e.19.1772422384244;
+        Sun, 01 Mar 2026 19:33:04 -0800 (PST)
+X-Received: by 2002:a05:6808:5183:b0:45c:9927:3f33 with SMTP id 5614622812f47-464becb4a3amr4969443b6e.19.1772422383785;
+        Sun, 01 Mar 2026 19:33:03 -0800 (PST)
+Received: from hu-ysakshit-lv.qualcomm.com (Global_NAT1.qualcomm.com. [129.46.96.20])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4160cf9b240sm10950856fac.8.2026.03.01.19.33.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 01 Mar 2026 19:33:03 -0800 (PST)
+Date: Sun, 1 Mar 2026 19:33:00 -0800
+From: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: akpm@linux-foundation.org, mst@redhat.com, kys@microsoft.com,
+        haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
+        longli@microsoft.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+        eperezma@redhat.com, lorenzo.stoakes@oracle.com,
+        Liam.Howlett@oracle.com, vbabka@suse.cz, rppt@kernel.org,
+        surenb@google.com, mhocko@suse.com, jackmanb@google.com,
+        hannes@cmpxchg.org, ziy@nvidia.com, linux-hyperv@vger.kernel.org,
+        virtualization@lists.linux.dev, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 4/4] page_reporting: change
+ PAGE_REPORTING_DEFAULT_ORDER to -1
+Message-ID: <aaUE7M9QkfnYh12e@hu-ysakshit-lv.qualcomm.com>
+References: <20260227140655.360696-1-yuvraj.sakshith@oss.qualcomm.com>
+ <20260227140655.360696-5-yuvraj.sakshith@oss.qualcomm.com>
+ <c618e7a4-42c1-4438-9bc2-9c41450a81a2@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-In-Reply-To: <20260301194456-mutt-send-email-mst@kernel.org>
-X-Lms-Return-Path: <lba+169a4eea0+f1f625+lists.linux.dev+shuangyu@yunyoo.cc>
-From: "ShuangYu" <shuangyu@yunyoo.cc>
-References: <9ac0a071e79e9da8128523ddeba19085f4f8c9aa.decbd9ef.1293.41c3.bf27.48cdc12b9ce6@larksuite.com> <20260301190906-mutt-send-email-mst@kernel.org> <20260301193655-mutt-send-email-mst@kernel.org>
-	<20260301194456-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 02 Mar 2026 01:57:51 +0000
-Message-Id: <9ac0a071e79e9da8128523ddeba19085f4f8c9aa.8ae4e890.449b.4397.8e81.d58ff010ba07@larksuite.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "jasowang@redhat.com" <jasowang@redhat.com>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <c618e7a4-42c1-4438-9bc2-9c41450a81a2@kernel.org>
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAyMDAyOSBTYWx0ZWRfXyEa2Zsw+YCiS
+ 3FY8SLNh2GlVxxAZwiDJMmuxoFEbfadmX4db4yExjYFfKX6/fMqcka1jjKxiyiyuISXxHbABg1+
+ ZqmySVa9++unvAZnbJXi6CGqYvmhZHgpGJLp/hbSxv17Yxqegc5+x8SdTmqll1/NLA7fpFnDFRl
+ pQQINF/Faf+m9zTHp1MrwDsS0/VOAjwsMteMxYJ6KbgTXyjf+oDgnqpG3BpMFAHepqhlXtxbF9Y
+ LShboAWUTFi0yqvIoJHt2z4khL/6r9AzYGG9ed0FXLOCoEHincRGwSzVPcqJGEyYN8y3R0WBUdd
+ J1Ia1V0QDH/8B6kN2eIAxOQW4zYco6kjUDkzHk7tlgG+fPc2VY7fhWx7UAm/AowttoBail6XRpj
+ meV9wqEPPZveWHv2UzcbYgIGAt//672NGINsA3It9STqbW7JRPMjyCN7vE7D/Uh1pSQgDiCFfT1
+ Y8IaUOlA5r06QgNDAJg==
+X-Proofpoint-ORIG-GUID: lO7ZWMNow60QXX4dZsAzpBJGg22Dccit
+X-Authority-Analysis: v=2.4 cv=EvbfbCcA c=1 sm=1 tr=0 ts=69a504f0 cx=c_pps
+ a=4ztaESFFfuz8Af0l9swBwA==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22
+ a=EUspDBNiAAAA:8 a=JqjX9IW5vOmFWWUa66MA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=TPnrazJqx2CeVZ-ItzZ-:22
+X-Proofpoint-GUID: lO7ZWMNow60QXX4dZsAzpBJGg22Dccit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-02_01,2026-02-27_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 bulkscore=0 spamscore=0 lowpriorityscore=0 priorityscore=1501
+ malwarescore=0 adultscore=0 impostorscore=0 clxscore=1015 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603020029
 
+On Fri, Feb 27, 2026 at 09:50:15PM +0100, David Hildenbrand (Arm) wrote:
+> On 2/27/26 15:06, Yuvraj Sakshith wrote:
+> > PAGE_REPORTING_DEFAULT_ORDER is now set to zero. This means,
+> > pages of order zero cannot be reported to a client/driver -- as zero
+> > is used to signal a fallback to MAX_PAGE_ORDER.
+> > 
+> > Change PAGE_REPORTING_DEFAULT_ORDER to (-1),
+> > so that zero can be used as a valid order with which pages can
+> > be reported.
+> > 
+> > Signed-off-by: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>
+> > ---
+> >  include/linux/page_reporting.h | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
+> > index a7e3e30f2..3eb3e26d8 100644
+> > --- a/include/linux/page_reporting.h
+> > +++ b/include/linux/page_reporting.h
+> > @@ -7,7 +7,7 @@
+> >  
+> >  /* This value should always be a power of 2, see page_reporting_cycle() */
+> >  #define PAGE_REPORTING_CAPACITY		32
+> > -#define PAGE_REPORTING_DEFAULT_ORDER	0
+> > +#define PAGE_REPORTING_DEFAULT_ORDER	(-1)
+> 
+> No need for the ().
+> 
+> Wondering whether we now also want to do in this patch:
+> 
+> 
+> diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+> index f0042d5743af..d432aadf9d07 100644
+> --- a/mm/page_reporting.c
+> +++ b/mm/page_reporting.c
+> @@ -11,8 +11,7 @@
+>  #include "page_reporting.h"
+>  #include "internal.h"
+> 
+> -/* Initialize to an unsupported value */
+> -unsigned int page_reporting_order = -1;
+> +unsigned int page_reporting_order = PAGE_REPORTING_DEFAULT_ORDER;
+> 
+>  static int page_order_update_notify(const char *val, const struct
+> kernel_param *kp)
+>  {
+> @@ -369,7 +368,7 @@ int page_reporting_register(struct
+> page_reporting_dev_info *prdev)
+>          * pageblock_order.
+>          */
+> 
+> -       if (page_reporting_order == -1) {
+> +       if (page_reporting_order == PAGE_REPORTING_DEFAULT_ORDER) {
+> 
+> 
 
-> From: "Michael S. Tsirkin"<mst@redhat.com>
-> Date:=C2=A0 Mon, Mar 2, 2026, 08:45
-> Subject:=C2=A0 Re: [BUG] vhost_net: livelock in handle_rx() when GRO pack=
-et exceeds virtqueue capacity
-> To: "ShuangYu"<shuangyu@yunyoo.cc>
-> Cc: "jasowang@redhat.com"<jasowang@redhat.com>, "virtualization@lists.lin=
-ux.dev"<virtualization@lists.linux.dev>, "netdev@vger.kernel.org"<netdev@vg=
-er.kernel.org>, "linux-kernel@vger.kernel.org"<linux-kernel@vger.kernel.org=
->, "kvm@vger.kernel.org"<kvm@vger.kernel.org>
-> On Sun, Mar 01, 2026 at 07:39:30PM -0500, Michael S. Tsirkin wrote:
-> > On Sun, Mar 01, 2026 at 07:10:06PM -0500, Michael S. Tsirkin wrote:
-> > > On Sun, Mar 01, 2026 at 10:36:39PM +0000, ShuangYu wrote:
-> > > > Hi,
-> > > >=C2=A0
-> > > > We have hit a severe livelock in vhost_net on 6.18.x. The vhost
-> > > > kernel thread spins at 100% CPU indefinitely in handle_rx(), and
-> > > > QEMU becomes unkillable (stuck in D state).
-> > > > [This is a text/plain messages]
-> > > >=C2=A0
-> > > > Environment
-> > > > -----------
-> > > > =C2=A0 Kernel:=C2=A0 6.18.10-1.el8.elrepo.x86_64
-> > > > =C2=A0 QEMU: =C2=A0=C2=A0 7.2.19
-> > > > =C2=A0 Virtio:=C2=A0 VIRTIO_F_IN_ORDER is negotiated
-> > > > =C2=A0 Backend: vhost (kernel)
-> > > >=C2=A0
-> > > > Symptoms
-> > > > --------
-> > > > =C2=A0 - vhost-<pid> kernel thread at 100% CPU (R state, never yiel=
-ds)
-> > > > =C2=A0 - QEMU stuck in D state at vhost_dev_flush() after receiving=
- SIGTERM
-> > > > =C2=A0 - kill -9 has no effect on the QEMU process
-> > > > =C2=A0 - libvirt management plane deadlocks ("cannot acquire state =
-change lock")
-> > > >=C2=A0
-> > > > Root Cause
-> > > > ----------
-> > > > The livelock is triggered when a GRO-merged packet on the host TAP
-> > > > interface (e.g., ~60KB) exceeds the remaining free capacity of the
-> > > > guest's RX virtqueue (e.g., ~40KB of available buffers).
-> > > >=C2=A0
-> > > > The loop in handle_rx() (drivers/vhost/net.c) proceeds as follows:
-> > > >=C2=A0
-> > > > =C2=A0 1. get_rx_bufs() calls vhost_get_vq_desc_n() to fetch descri=
-ptors.
-> > > > =C2=A0=C2=A0=C2=A0 It advances vq->last_avail_idx and vq->next_avai=
-l_head as it
-> > > > =C2=A0=C2=A0=C2=A0 consumes buffers, but runs out before satisfying=
- datalen.
-> > > >=C2=A0
-> > > > =C2=A0 2. get_rx_bufs() jumps to err: and calls
-> > > > =C2=A0=C2=A0=C2=A0 vhost_discard_vq_desc(vq, headcount, n), which r=
-olls back
-> > > > =C2=A0=C2=A0=C2=A0 vq->last_avail_idx and vq->next_avail_head.
-> > > >=C2=A0
-> > > > =C2=A0=C2=A0=C2=A0 Critically, vq->avail_idx (the cached copy of th=
-e guest's
-> > > > =C2=A0=C2=A0=C2=A0 avail->idx) is NOT rolled back. This is correct =
-behavior in
-> > > > =C2=A0=C2=A0=C2=A0 isolation, but creates a persistent mismatch:
-> > > >=C2=A0
-> > > > =C2=A0=C2=A0 =C2=A0=C2=A0 vq->avail_idx =C2=A0 =C2=A0=C2=A0 =3D 108=
-=C2=A0 (cached, unchanged)
-> > > > =C2=A0=C2=A0 =C2=A0=C2=A0 vq->last_avail_idx =3D 104=C2=A0 (rolled =
-back)
-> > > >=C2=A0
-> > > > =C2=A0 3. handle_rx() sees headcount =3D=3D 0 and calls vhost_enabl=
-e_notify().
-> > > > =C2=A0=C2=A0=C2=A0 Inside, vhost_get_avail_idx() finds:
-> > > >=C2=A0
-> > > > =C2=A0=C2=A0 =C2=A0=C2=A0 vq->avail_idx (108) !=3D vq->last_avail_i=
-dx (104)
-> > > >=C2=A0
-> > > > =C2=A0=C2=A0=C2=A0 It returns 1 (true), indicating "new buffers ava=
-ilable."
-> > > > =C2=A0=C2=A0=C2=A0 But these are the SAME buffers that were just di=
-scarded.
-> > > >=C2=A0
-> > > > =C2=A0 4. handle_rx() hits `continue`, restarting the loop.
-> > > >=C2=A0
-> > > > =C2=A0 5. In the next iteration, vhost_get_vq_desc_n() checks:
-> > > >=C2=A0
-> > > > =C2=A0=C2=A0 =C2=A0=C2=A0 if (vq->avail_idx =3D=3D vq->last_avail_i=
-dx)
-> > > >=C2=A0
-> > > > =C2=A0=C2=A0=C2=A0 This is FALSE (108 !=3D 104), so it skips re-rea=
-ding the guest's
-> > > > =C2=A0=C2=A0=C2=A0 actual avail->idx and directly fetches the same =
-descriptors.
-> > > >=C2=A0
-> > > > =C2=A0 6. The exact same sequence repeats: fetch -> too small -> di=
-scard
-> > > > =C2=A0=C2=A0=C2=A0 -> rollback -> "new buffers!" -> continue. Indef=
-initely.
-> > > >=C2=A0
-> > > > This appears to be a regression introduced by the VIRTIO_F_IN_ORDER
-> > > > support, which added vhost_get_vq_desc_n() with the cached avail_id=
-x
-> > > > short-circuit check, and the two-argument vhost_discard_vq_desc()
-> > > > with next_avail_head rollback. The mismatch between the rollback
-> > > > scope (last_avail_idx, next_avail_head) and the check scope
-> > > > (avail_idx vs last_avail_idx) was not present before this change.
-> > > >=C2=A0
-> > > > bpftrace Evidence
-> > > > -----------------
-> > > > During the 100% CPU lockup, we traced:
-> > > >=C2=A0
-> > > > =C2=A0 @get_rx_ret[0]: =C2=A0 =C2=A0=C2=A0 4468052 =C2=A0 // get_rx=
-_bufs() returns 0 every time
-> > > > =C2=A0 @peek_ret[60366]: =C2=A0=C2=A0 4385533 =C2=A0 // same 60KB p=
-acket seen every iteration
-> > > > =C2=A0 @sock_err[recvmsg]: =C2=A0 =C2=A0 =C2=A0=C2=A0 0 =C2=A0 // t=
-un_recvmsg() is never reached
-> > > >=C2=A0
-> > > > vhost_get_vq_desc_n() was observed iterating over the exact same 11
-> > > > descriptor addresses millions of times per second.
-> > > >=C2=A0
-> > > > Workaround
-> > > > ----------
-> > > > Either of the following avoids the livelock:
-> > > >=C2=A0
-> > > > =C2=A0 - Disable GRO/GSO on the TAP interface:
-> > > > =C2=A0=C2=A0 =C2=A0 ethtool -K <tap> gro off gso off
-> > > >=C2=A0
-> > > > =C2=A0 - Switch from kernel vhost to userspace QEMU backend:
-> > > > =C2=A0=C2=A0 =C2=A0 <driver name=3D'qemu'/> in libvirt XML
-> > > >=C2=A0
-> > > > Bisect
-> > > > ------
-> > > > We have not yet completed a full git bisect, but the issue does not
-> > > > occur on 6.17.x kernels which lack the VIRTIO_F_IN_ORDER vhost
-> > > > support. We will follow up with a Fixes: tag if we can identify the
-> > > > exact commit.
-> > > >=C2=A0
-> > > > Suggested Fix Direction
-> > > > -----------------------
-> > > > In handle_rx(), when get_rx_bufs() returns 0 (headcount =3D=3D 0) d=
-ue to
-> > > > insufficient buffers (not because the queue is truly empty), the co=
-de
-> > > > should break out of the loop rather than relying on
-> > > > vhost_enable_notify() to make that determination. For example, when
-> > > > get_rx_bufs() returns r =3D=3D 0 with datalen still > 0, this indic=
-ates a
-> > > > "packet too large" condition, not a "queue empty" condition, and
-> > > > should be handled differently.
-> > > >=C2=A0
-> > > > Thanks,
-> > > > ShuangYu
-> > >=C2=A0
-> > > Hmm. On a hunch, does the following help? completely untested,
-> > > it is night here, sorry.
-> > >=C2=A0
-> > >=C2=A0
-> > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > index 2f2c45d20883..aafae15d5156 100644
-> > > --- a/drivers/vhost/vhost.c
-> > > +++ b/drivers/vhost/vhost.c
-> > > @@ -1522,6 +1522,7 @@ static void vhost_dev_unlock_vqs(struct vhost_d=
-ev *d)
-> > > =C2=A0static inline int vhost_get_avail_idx(struct vhost_virtqueue *v=
-q)
-> > > =C2=A0{
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__virtio16 idx;
-> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0u16 avail_idx;
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0int r;
-> > > =C2=A0
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0r =3D vhost_get_avail(vq, idx, &vq-=
->avail->idx);
-> > > @@ -1532,17 +1533,19 @@ static inline int vhost_get_avail_idx(struct =
-vhost_virtqueue *vq)
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}
-> > > =C2=A0
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0/* Check it isn't doing very strang=
-e thing with available indexes */
-> > > - =C2=A0 =C2=A0 =C2=A0 =C2=A0vq->avail_idx =3D vhost16_to_cpu(vq, idx=
-);
-> > > - =C2=A0 =C2=A0 =C2=A0 =C2=A0if (unlikely((u16)(vq->avail_idx - vq->l=
-ast_avail_idx) > vq->num)) {
-> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0avail_idx =3D vhost16_to_cpu(vq, idx);
-> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0if (unlikely((u16)(avail_idx - vq->last_=
-avail_idx) > vq->num)) {
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0vq_err(=
-vq, "Invalid available index change from %u to %u",
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 vq->last_avail_idx, vq->avail_idx);
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return =
--EINVAL;
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}
-> > > =C2=A0
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0/* We're done if there is nothing n=
-ew */
-> > > - =C2=A0 =C2=A0 =C2=A0 =C2=A0if (vq->avail_idx =3D=3D vq->last_avail_=
-idx)
-> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0if (avail_idx =3D=3D vq->avail_idx)
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return =
-0;
-> > > =C2=A0
-> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0vq->avail_idx =3D=3D avail_idx;
-> > > +
-> >=C2=A0
-> > meaning=C2=A0
-> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 vq->avail_idx =3D avail_idx;=C2=A0
-> > of course
-> >=C2=A0
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0/*
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 * We updated vq->avail_idx so we n=
-eed a memory barrier between
-> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 * the index read above and the cal=
-ler reading avail ring entries.
->=C2=A0
->=C2=A0
-> and the change this is fixing was done in d3bb267bbdcba199568f1325743d9d5=
-01dea0560
->=C2=A0
-> --=C2=A0
-> MST
->=C2=A0
+Sure. Now that I think of it, don’t you think the first nested if() will
+always be false? and can be compressed down to just one if()?
 
-Thank you for the quick fix and for identifying the root commit.
-
-I've reviewed the patch and I believe the logic is correct =E2=80=94 changi=
-ng
-the "nothing new" check in vhost_get_avail_idx() from comparing
-against vq->last_avail_idx to comparing against the cached
-vq->avail_idx makes it immune to the rollback done by
-vhost_discard_vq_desc(), which is exactly what breaks the loop.
-
-One minor nit: the vq_err message on the sanity check path still
-references vq->avail_idx before it has been updated:
-
-=C2=A0=C2=A0 =C2=A0 =C2=A0=C2=A0 vq_err(vq, "Invalid available index change=
- from %u to %u",
-- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 vq->last_avail_idx, vq->a=
-vail_idx);
-+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 vq->last_avail_idx, avail=
-_idx);
-
-
-Since this issue was found in production, I need some time to prepare a tes=
-t setup to verify the patch
+-       if (page_reporting_order == PAGE_REPORTING_DEFAULT_ORDER) {
+-               if (prdev->order != PAGE_REPORTING_DEFAULT_ORDER &&
+-                       prdev->order <= MAX_PAGE_ORDER)
+-                       page_reporting_order = prdev->order;
+-               else
+-                       page_reporting_order = pageblock_order;
+-       }
++       page_reporting_order = pageblock_order;
++
++       if (prdev->order != PAGE_REPORTING_DEFAULT_ORDER &&
++               prdev->order <= MAX_PAGE_ORDER)
++               page_reporting_order = prdev->order;
 
 Thanks,
-ShuangYu
+Yuvraj
+
+> 
+> (and wondering whether we should have called it
+> PAGE_REPORTING_USE_DEFAULT_ORDER to make it clearer that it is not an
+> actual order. Leaving that up to you :) )
+> 
+> -- 
+> Cheers,
+> 
+> David
