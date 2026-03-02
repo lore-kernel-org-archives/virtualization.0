@@ -1,287 +1,180 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE51B387372
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 16:26:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45B8A423A66
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 16:42:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772468774; cv=none; b=khyTCAp82UAb9A3/VFwdbkb0jksfYrpCOh4dp1veoyRN8JveqZ3yq/XXdBQUN4g5LQanrt6vrgcIWRqT7Bjsqs6wVCOT2QWqaXzI7RAqOSWhRvP/iMS1WGawA6SzubzA8vO4wiT0GUHOfShbCBsPGDuE4LSDaJRiKq7s8bxAB1U=
+	t=1772469740; cv=none; b=dYiYA4YGdiahhC/M/pQpYL+4xJzzBNTC9Wa7jZkUck3qga1FpqjQFUZv3pToPe9K+4jvKKFNifNDPenZYKNxS3oRoIRJWhPFC5ybZa/SveCjllvYTNYgcQkPDN3MFFsjO1wz8lI1JhXcjFGwVTUEwtR0CLJgL/+muFVy89AXIUg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772468774; c=relaxed/simple;
-	bh=VUukFPCECqC7eKh/jyhbn/43A15nBMbp1SbN479gtOA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=EhVa47y782dlYFdJi0KKlC7+4GYhmayusK1ly6tCB8Q8w/cD37raUUuOrh83M2yNpC+6yfPga+mlUBWaIcban2IMw/GFNLqg9c0nH0YCh9h5sL+RqlvTU6oAZrq8sJ8Ht0ne6i0ga1x74p8Xd/pvjx7A0M21u6AbynZtmRenNvw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eIotqif5; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1772469740; c=relaxed/simple;
+	bh=VFASPJvhciehL7F+IA6+SdXs77TNKb/sys4Vs9JnaxA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TPQP7vrTkW86hJ33RKbXUUlYQz0PBzwJlphO6hxfvSAABNfzzLtNuDloNCUfZ7Nk0W3+KnBTaHFmxIpjDyHtrtPM6H+Qyp6HrREigfOW4sLplJpI4KXdivd3RvhsS6P0CsO9+AZrhm+mwr43W4QEeffkN+Qj7hn99QBjhdMUxOM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BTP+edzq; arc=none smtp.client-ip=209.85.210.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eIotqif5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772468772;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vg8IbmZ7D530z7Jvag10aXKFjAkHqDPNjDI453xyigM=;
-	b=eIotqif5Nqzf7KpCMKh63y75XArVrVNn+SRw16u6ENxoWpavWiARfrkyLHpEg7/GqxLn0L
-	ext9wyt2hNyRX0vnGmWaF7wcbBoUTdvOyV7n+EL5uNAUB6HKYMtoxQsQJeVRwo9k6BEvyY
-	n5gbQpJBy9NRr/bsSPPZXBSavcBxw8U=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-459-ExJ2Tb_6O_SiGsS4snk9Pg-1; Mon, 02 Mar 2026 11:26:10 -0500
-X-MC-Unique: ExJ2Tb_6O_SiGsS4snk9Pg-1
-X-Mimecast-MFC-AGG-ID: ExJ2Tb_6O_SiGsS4snk9Pg_1772468770
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4837a71903aso28435065e9.1
-        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 08:26:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BTP+edzq"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-82735a41985so2754457b3a.2
+        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 08:42:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772469738; x=1773074538; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=IZaKRJcz+mujuLo0S8DFt3UkN8fu6YsunVoMPBDL58A=;
+        b=BTP+edzqNuAJ56D8FUMAGhv0welxsyJukL3zPhrKfyVMwNRbb/i4Gb/CC4+rd9/INr
+         29YWkd2zPGCP+m0DFC4HURWy9SQDuhxC8uOY8+OSxK63PXnS+FnV3DBMppjwROnnV3Qy
+         kfg2NwwB5WKYycGlvE2V1BmVM1GOWySkQ6bPFgAeNCG66E2E21JZdKrf4R56OY387IO7
+         0iiR2Sa9vJXu3vj606676/qmSWsBVniPzOilPlUgndrEWum4eu3bStRY63J9g5moeN0A
+         ffUdEj14ZKta88aTdgx8J76dzP0t7s2a5sEaOYL4sIUTfIb6k3fcwaUadieUA403VlNF
+         cXkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772468769; x=1773073569;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vg8IbmZ7D530z7Jvag10aXKFjAkHqDPNjDI453xyigM=;
-        b=icNBFgmMzkA2wRRr+8A20nbRGJVsj2VUVts4cUFZSQ4EFJdphZL82AU0hZfoePXSSC
-         GYBeQhjNaUX3PqtIxOpJRllaeGa+JuOw11/vUr+EkZpxD/j1CCJ8G+BpM+jOSPDlr6Xt
-         BnKeCm2inmayzf/CgFA6OEFJa4UnHxZPAOC61tKWmkgzrmC0OmhcYfhmRhv31sviW1eW
-         F7kKZZ4PrqWMWn6dL0XkPuUnBeNPtwPWfbf5ghNc9oYgA/a70kaMkzIQ0LKEImDP+zzR
-         /7RbpuTp+YsxFDrtkXO34u+u4S0yRYQDbkcF5OD2xdfdanO8m+koyMjVXCEOGvtFkFI3
-         wSAg==
-X-Forwarded-Encrypted: i=1; AJvYcCWBPu4seuZ84/o6owDKkxXNvzYzIQRguko0ClnfKpfa9ZxqVMOe/ER0NkiOzjkNE+BAQofhLgOBprAYOWyNUA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzTEJ7vnDr3OqusfLG4SVG/hf3JSXME4MIRKcZG3seV6ZekNb92
-	3cXqM8+d7dJbXoh1aIV+ihngHwAEcqLadHL+XAVBD32nktnVdZEn46+X8nQgWbhyMpwf1jPbmVy
-	AbzR9HeVBhAaWDqlsXbuH2GN28y38NjqAOIITJ9HTkcDggieLNmoAxdqbK1+4l0qTLcDX
-X-Gm-Gg: ATEYQzwM0EAY0T8tkORUl/Gi13S07+B72xGHdgjic3dU1VfQv9yYC03OeAFtKR89ffs
-	+jMV3skl6YsHxm5oKTZau7DqxWrzB+H70IlVarIAURerqATAFmiRfCfSaOqPlJzkL/2RK7Zv+FQ
-	8QzPjhnHK4N//pI/Ov7lOBKUakPh5sMIXtqvvG7VGlbyALK18TE6qSMx6d09s3yXU0MIyB/k23C
-	s/Fb0drKLveqnM6TK2sV5M1Qaq77vyYjLThIx/psO3VSH7zSkmAoIfXkq+UycS6WlxqqPcrHAGm
-	TxClh6ncJxjr4qgUImTTPAaO2xahRtlPs7Ar5FRfuwL9oJNWiyIwWXAryAbY+ad829tpxhVWRvW
-	xZbLM22weWjjIr8nzwv3UPiOeSkVghYAHXIM+XlBHu4HWFz1xGiAD5Q881f+eZeO1fMkRm1g=
-X-Received: by 2002:a05:600c:6095:b0:47e:e952:86c9 with SMTP id 5b1f17b1804b1-483c9b7ac8bmr235315895e9.0.1772468769459;
-        Mon, 02 Mar 2026 08:26:09 -0800 (PST)
-X-Received: by 2002:a05:600c:6095:b0:47e:e952:86c9 with SMTP id 5b1f17b1804b1-483c9b7ac8bmr235315315e9.0.1772468768929;
-        Mon, 02 Mar 2026 08:26:08 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483bfb87030sm134278895e9.10.2026.03.02.08.26.07
+        d=1e100.net; s=20230601; t=1772469738; x=1773074538;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IZaKRJcz+mujuLo0S8DFt3UkN8fu6YsunVoMPBDL58A=;
+        b=KTPpEWg7oDQQlKbjIJgphob0iw7SSfrACCk/zxwqLqHfgVuYUrD3j1y6+PCyw+Wn1s
+         1ZggKspBhFXI+WXWuyK4Ao2DxC9q6zycBoUW4TsCohGzRT7SIjTAO+oJ82C/+8/5HpK+
+         Iuw7zRZA18/zNtSizjAtkeMx9V7+chmgKLpXajqzQMNdiYqAiQSpfodi39i1hP/u39OL
+         FBWruV9KM+9obdqmSyzXgb73yXhFaPbr49V+LEj/znfdmwL8jkIauDZgW2fkQEQ9yKys
+         hSnEcCEqgM06mgIGj0BUn4nkoXqpzfo+D/ClulqNYATw2/SFVB0HeqJydg+UNlC2/DIW
+         9KQA==
+X-Forwarded-Encrypted: i=1; AJvYcCXoB9rgCQ/Tzw8Do9u5FCzildQsqqM3+7YaCC5ulcgeLhtL2sAfinvoqIj2xG7Wb7GGaO5Gmjjhw6y4nIIs+Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw5w2TlWsYWa2rqBB6DHr0czDt5meU74sdbkVkVVxutjkmLbxbJ
+	o0sZz9P2IJ+neIp18Bq2NnD5ZvkhFMRN72FNCLG2DFIcduFaXGbKWXte
+X-Gm-Gg: ATEYQzwKqKwZarCxWgbdNL7iXAN5szPOx2sG6+qAKNnIGpaUMuM2L/KSxz+9zrgYqLl
+	swH0RxWNVhjGqmT3lZbd64jNRfSh1stEDLrJl4T+xiqFMjwHDFutXX973HBgkqcjOpKVaD7EgOM
+	TekUNkpRbWUzMHuBK2gI0DkBV887qc+WVwgzuieIBjbgVdEwRf2WPIn1SFI2sjXknIjHHkuWKyf
+	dYxdQ7f8oJJ478nxtB3zber+RyTwSgNzB9RHhUa1Woh7jMwHp2NiiUHXcxRSxeqwxO5FiOg2xcB
+	sRbK9YOYthlkEpzlvhSCGC9F28XH3QaPqCrv12xo3Q1FKYczrGFb/huqCyMxbPqFUGqekAJafBS
+	dwoJ8A8I/8XZkkme+vqS90rmiTuDghnKXAc2h9PvsLQEiJ6oKQUURKoOvpiE61jf9k7XPMuOUoS
+	V1OG/4VVIhPrscgeL+vZQ=
+X-Received: by 2002:a05:6a20:a10d:b0:38d:efcb:2e84 with SMTP id adf61e73a8af0-395c3a86fb2mr12074081637.32.1772469737400;
+        Mon, 02 Mar 2026 08:42:17 -0800 (PST)
+Received: from minh.192.168.1.1 ([2a09:bac1:31c0:8::246:f5])
+        by smtp.googlemail.com with ESMTPSA id 41be03b00d2f7-c70fa801849sm12681295a12.20.2026.03.02.08.42.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Mar 2026 08:26:08 -0800 (PST)
-Date: Mon, 2 Mar 2026 17:25:49 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Alexander Graf <graf@amazon.com>
-Cc: Bryan Tan <bryan-bt.tan@broadcom.com>, 
-	Vishnu Dasa <vishnu.dasa@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, eperezma@redhat.com, 
-	Jason Wang <jasowang@redhat.com>, mst@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>, 
-	nh-open-source@amazon.com
-Subject: Re: [PATCH] vsock: Enable H2G override
-Message-ID: <aaW2FgoaXIJEymyR@sgarzare-redhat>
-References: <20260302104138.77555-1-graf@amazon.com>
- <aaVrsXMmULivV4Se@sgarzare-redhat>
- <aaV80wWlpjEtYCQJ@sgarzare-redhat>
- <17d63837-6028-475a-90df-6966329a0fc2@amazon.com>
+        Mon, 02 Mar 2026 08:42:15 -0800 (PST)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH net-next v2] virtio-net: xsk: Support wakeup on RX side
+Date: Mon,  2 Mar 2026 23:41:58 +0700
+Message-ID: <20260302164158.4394-1-minhquangbui99@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <17d63837-6028-475a-90df-6966329a0fc2@amazon.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: o6Jqsqbj6bVRaEt0UxmZ-eIF94VWwTHfQZ1O_wuFWz0_1772468770
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Mon, Mar 02, 2026 at 04:48:33PM +0100, Alexander Graf wrote:
->
->On 02.03.26 13:06, Stefano Garzarella wrote:
->>CCing Bryan, Vishnu, and Broadcom list.
->>
->>On Mon, Mar 02, 2026 at 12:47:05PM +0100, Stefano Garzarella wrote:
->>>
->>>Please target net-next tree for this new feature.
->>>
->>>On Mon, Mar 02, 2026 at 10:41:38AM +0000, Alexander Graf wrote:
->>>>Vsock maintains a single CID number space which can be used to
->>>>communicate to the host (G2H) or to a child-VM (H2G). The current logic
->>>>trivially assumes that G2H is only relevant for CID <= 2 because these
->>>>target the hypervisor.  However, in environments like Nitro 
->>>>Enclaves, an
->>>>instance that hosts vhost_vsock powered VMs may still want to 
->>>>communicate
->>>>to Enclaves that are reachable at higher CIDs through virtio-vsock-pci.
->>>>
->>>>That means that for CID > 2, we really want an overlay. By default, all
->>>>CIDs are owned by the hypervisor. But if vhost registers a CID, 
->>>>it takes
->>>>precedence.  Implement that logic. Vhost already knows which CIDs it
->>>>supports anyway.
->>>>
->>>>With this logic, I can run a Nitro Enclave as well as a nested VM with
->>>>vhost-vsock support in parallel, with the parent instance able to
->>>>communicate to both simultaneously.
->>>
->>>I honestly don't understand why VMADDR_FLAG_TO_HOST (added 
->>>specifically for Nitro IIRC) isn't enough for this scenario and we 
->>>have to add this change.  Can you elaborate a bit more about the 
->>>relationship between this change and VMADDR_FLAG_TO_HOST we added?
->
->
->The main problem I have with VMADDR_FLAG_TO_HOST for connect() is that 
->it punts the complexity to the user. Instead of a single CID address 
->space, you now effectively create 2 spaces: One for TO_HOST (needs a 
->flag) and one for TO_GUEST (no flag). But every user space tool needs 
->to learn about this flag. That may work for super special-case 
->applications. But propagating that all the way into socat, iperf, etc 
->etc? It's just creating friction.
+When XDP_USE_NEED_WAKEUP is used and the fill ring is empty so no buffer
+is allocated on RX side, allow RX NAPI to be descheduled. This avoids
+wasting CPU cycles on polling. Users will be notified and they need to
+make a wakeup call after refilling the ring.
 
-Okay, I would like to have this (or part of it) in the commit message to 
-better explain why we want this change.
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+---
+Changes in v2:
+- Fix the flag check in virtnet_xsk_wakeup
+- Link to v1: https://lore.kernel.org/netdev/20260227150949.13089-1-minhquangbui99@gmail.com/
+---
+ drivers/net/virtio_net.c | 35 +++++++++++++++++++++++++++--------
+ 1 file changed, 27 insertions(+), 8 deletions(-)
 
->
->IMHO the most natural experience is to have a single CID space, 
->potentially manually segmented by launching VMs of one kind within a 
->certain range.
-
-I see, but at this point, should the kernel set VMADDR_FLAG_TO_HOST in 
-the remote address if that path is taken "automagically" ?
-
-So in that way the user space can have a way to understand if it's 
-talking with a nested guest or a sibling guest.
-
-
-That said, I'm concerned about the scenario where an application does 
-not even consider communicating with a sibling VM.
-
-Until now, it knew that by not setting that flag, it could only talk to 
-nested VMs, so if there was no VM with that CID, the connection simply 
-failed. Whereas from this patch onwards, if the device in the host 
-supports sibling VMs and there is a VM with that CID, the application 
-finds itself talking to a sibling VM instead of a nested one, without 
-having any idea.
-
-Should we make this feature opt-in in some way, such as sockopt or 
-sysctl? (I understand that there is the previous problem, but honestly, 
-it seems like a significant change to the behavior of AF_VSOCK).
-
->
->At the end of the day, the host vs guest problem is super similar to a 
->routing table.
-
-Yeah, but the point of AF_VSOCK is precisely to avoid complexities such 
-as routing tables as much as possible; otherwise, AF_INET is already 
-there and ready to be used. In theory, we only want communication 
-between host and guest.
-
->
->
->>>
->>>>
->>>>Signed-off-by: Alexander Graf <graf@amazon.com>
->>>>---
->>>>drivers/vhost/vsock.c    | 11 +++++++++++
->>>>include/net/af_vsock.h   |  3 +++
->>>>net/vmw_vsock/af_vsock.c |  3 +++
->>>>3 files changed, 17 insertions(+)
->>>>
->>>>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->>>>index 054f7a718f50..223da817e305 100644
->>>>--- a/drivers/vhost/vsock.c
->>>>+++ b/drivers/vhost/vsock.c
->>>>@@ -91,6 +91,16 @@ static struct vhost_vsock 
->>>>*vhost_vsock_get(u32 guest_cid, struct net *net)
->>>>    return NULL;
->>>>}
->>>>
->>>>+static bool vhost_transport_has_cid(u32 cid)
->>>>+{
->>>>+    bool found;
->>>>+
->>>>+    rcu_read_lock();
->>>>+    found = vhost_vsock_get(cid) != NULL;
->>>
->>>We recently added namespaces support that changed 
->>>vhost_vsock_get() params. This is also in net tree now and in 
->>>Linus' tree, so not sure where this patch is based, but this needs 
->>>to be rebased since it is not building:
->>>
->>>../drivers/vhost/vsock.c: In function ‘vhost_transport_has_cid’:
->>>../drivers/vhost/vsock.c:99:17: error: too few arguments to 
->>>function ‘vhost_vsock_get’; expected 2, have 1
->>>  99 |         found = vhost_vsock_get(cid) != NULL;
->>>     |                 ^~~~~~~~~~~~~~~
->>>../drivers/vhost/vsock.c:74:28: note: declared here
->>>  74 | static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, 
->>>struct net *net)
->>>     |
->
->
->D'oh. Sorry, I built this on 6.19 and only realized after the send 
->that namespace support got in. Will fix up for v2.
-
-Thanks.
-
->
->
->>>
->>>>+    rcu_read_unlock();
->>>>+    return found;
->>>>+}
->>>>+
->>>>static void
->>>>vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
->>>>                struct vhost_virtqueue *vq)
->>>>@@ -424,6 +434,7 @@ static struct virtio_transport vhost_transport = {
->>>>        .module                   = THIS_MODULE,
->>>>
->>>>        .get_local_cid            = vhost_transport_get_local_cid,
->>>>+        .has_cid                  = vhost_transport_has_cid,
->>>>
->>>>        .init                     = virtio_transport_do_socket_init,
->>>>        .destruct                 = virtio_transport_destruct,
->>>>diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->>>>index 533d8e75f7bb..4cdcb72f9765 100644
->>>>--- a/include/net/af_vsock.h
->>>>+++ b/include/net/af_vsock.h
->>>>@@ -179,6 +179,9 @@ struct vsock_transport {
->>>>    /* Addressing. */
->>>>    u32 (*get_local_cid)(void);
->>>>
->>>>+    /* Check if this transport serves a specific remote CID. */
->>>>+    bool (*has_cid)(u32 cid);
->>>
->>>What about "has_remote_cid" ?
->>>
->>>>+
->>>>    /* Read a single skb */
->>>>    int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
->>>>
->>>>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->>>>index 2f7d94d682cb..8b34b264b246 100644
->>>>--- a/net/vmw_vsock/af_vsock.c
->>>>+++ b/net/vmw_vsock/af_vsock.c
->>>>@@ -584,6 +584,9 @@ int vsock_assign_transport(struct vsock_sock 
->>>>*vsk, struct vsock_sock *psk)
->>>>        else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g ||
->>>>             (remote_flags & VMADDR_FLAG_TO_HOST))
->>>>            new_transport = transport_g2h;
->>>>+        else if (transport_h2g->has_cid &&
->>>>+             !transport_h2g->has_cid(remote_cid))
->>>>+            new_transport = transport_g2h;
->>>
->>>We should update the comment on top of this fuction, and maybe 
->>>also try to support the other H2G transport (i.e. VMCI).
->>>
->>>@Bryan @Vishnu can the new has_cid()/has_remote_cid() be supported 
->>>by VMCI too?
->>
->>Oops, I forgot to CC them, now they should be in copy.
->
->
->Ack. I can also take a quick look if it's trivial to add.
-
-Great, thanks for that!
-
-Stefano
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index db88dcaefb20..3614002fc87c 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1454,8 +1454,19 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
+ 	xsk_buffs = rq->xsk_buffs;
+ 
+ 	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
+-	if (!num)
++	if (!num) {
++		if (xsk_uses_need_wakeup(pool)) {
++			xsk_set_rx_need_wakeup(pool);
++			/* Return 0 instead of -ENOMEM so that NAPI is
++			 * descheduled.
++			 */
++			return 0;
++		}
++
+ 		return -ENOMEM;
++	} else {
++		xsk_clear_rx_need_wakeup(pool);
++	}
+ 
+ 	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
+ 
+@@ -1588,20 +1599,19 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
+ 	return sent;
+ }
+ 
+-static void xsk_wakeup(struct send_queue *sq)
++static void xsk_wakeup(struct napi_struct *napi, struct virtqueue *vq)
+ {
+-	if (napi_if_scheduled_mark_missed(&sq->napi))
++	if (napi_if_scheduled_mark_missed(napi))
+ 		return;
+ 
+ 	local_bh_disable();
+-	virtqueue_napi_schedule(&sq->napi, sq->vq);
++	virtqueue_napi_schedule(napi, vq);
+ 	local_bh_enable();
+ }
+ 
+ static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+-	struct send_queue *sq;
+ 
+ 	if (!netif_running(dev))
+ 		return -ENETDOWN;
+@@ -1609,9 +1619,18 @@ static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
+ 	if (qid >= vi->curr_queue_pairs)
+ 		return -EINVAL;
+ 
+-	sq = &vi->sq[qid];
++	if (flag & XDP_WAKEUP_TX) {
++		struct send_queue *sq = &vi->sq[qid];
++
++		xsk_wakeup(&sq->napi, sq->vq);
++	}
++
++	if (flag & XDP_WAKEUP_RX) {
++		struct receive_queue *rq = &vi->rq[qid];
++
++		xsk_wakeup(&rq->napi, rq->vq);
++	}
+ 
+-	xsk_wakeup(sq);
+ 	return 0;
+ }
+ 
+@@ -1623,7 +1642,7 @@ static void virtnet_xsk_completed(struct send_queue *sq, int num)
+ 	 * wakeup the tx napi to consume the xsk tx queue, because the tx
+ 	 * interrupt may not be triggered.
+ 	 */
+-	xsk_wakeup(sq);
++	xsk_wakeup(&sq->napi, sq->vq);
+ }
+ 
+ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+-- 
+2.43.0
 
