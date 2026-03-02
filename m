@@ -1,361 +1,164 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.245.243.92])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 922621FC0EA
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 10:30:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDCE32D248D
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 10:41:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.245.243.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772447446; cv=none; b=si7yxwAaYywuRCWoYHjS/d7TMEngX6ZGF8ViKeAh7sVdte5HWmADwLZb1BFTxuLkP/VsO+IIlgsitcjUArZP1i3p6tnTPpzJ5mKdQt7UXjuI78o2Renzqf6YdyJaKem8w9I1/v5TjUoy6YPK/4ydDhCsRrbqddsjTHZvYoOQ7S4=
+	t=1772448109; cv=none; b=HKFmgGKu5hNRCh07iOSKTahL1FHD0l07WQN4C2xkxLW1+MfTAgVNK6d6Ax77I8P8zoCURw9hyF0No+8bfyKKHdF7/hJwT5puY19Jpc1Fn1+/VwWlV3lPd6w/prxZVWsYA8A/8FtO0AXYC5oNJ3bTSR6j70f3sgJzM+XyMTaRO2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772447446; c=relaxed/simple;
-	bh=qaBmA7uDnoVSe3freHiGPaE9bjj5uIDf5KhUCrnEqIY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=e0Xrz3jR+x14Y/yw/Ue/+AM2+TSXKbBoODs+yVvKM3F514GBdjrXaF6JalMQxwAPdSG9tvabLglPnzb6ptZ6ZnLnM4tT3hOlU6BEd0hdnsFS4uGkCR/GZlaTfPxns2GH246KYNRg4VgEBhW9pEA02/HhUFy3kKZUGKzjrBVGNjc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1vx0Xs-0004II-0q; Mon, 02 Mar 2026 11:30:36 +0100
-Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1vx0Xp-003Mbd-1Q;
-	Mon, 02 Mar 2026 11:30:34 +0100
-Received: from pengutronix.de (p4ffb2dc6.dip0.t-ipconnect.de [79.251.45.198])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	(Authenticated sender: mkl-all@blackshift.org)
-	by smtp.blackshift.org (Postfix) with ESMTPSA id 6CAA54F5086;
-	Mon, 02 Mar 2026 10:30:34 +0000 (UTC)
-Date: Mon, 2 Mar 2026 11:30:34 +0100
-From: Marc Kleine-Budde <mkl@pengutronix.de>
-To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Cc: Vincent Mailhol <mailhol@kernel.org>, 
-	Harald Mommer <harald.mommer@oss.qualcomm.com>, 
-	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	linux-can@vger.kernel.org, virtualization@lists.linux.dev, 
-	Wolfgang Grandegger <wg@grandegger.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, francesco@valla.it
-Subject: Re: [PATCH v10] can: virtio: Add virtio CAN driver
-Message-ID: <20260302-mighty-wondrous-seagull-75085c-mkl@pengutronix.de>
-X-AI: stop_reason: "refusal"
-References: <aZRB7Reu/D6HvRcb@fedora>
+	s=arc-20240116; t=1772448109; c=relaxed/simple;
+	bh=tssolyZ/YJCfV3/umAHfzNxVcIF+e27Ql8ibnVvdcIQ=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=j7iU7Z8ebOfDWwTrlF8Ocd7kGxeq7yf75I178FFnosZ3I+Kppyw9ihCyo95V7SUnaZkaciAEHnqliZGAQkbLV2gbeIvgQO7wFU9g/5756YrfU369UaNZ8se2TyWoab9a1KrhLdUH5AIqiHRI+Rwn7NfJbyOt07YPTFhPbD1S7bc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=hfCFGuyd; arc=none smtp.client-ip=44.245.243.92
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="hfCFGuyd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1772448107; x=1803984107;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=TCNz9HmwgZYgQfhhE1VoK/ya6x9J13TYyDFYQ1fU77U=;
+  b=hfCFGuydtwSydaRnlGcTEAEc9PjJ6ZF+AJzRhmfh5Q065/LntOcRXdXk
+   ArJ7u+P1QjFmY5SydQarm5S+lkcZprbZQIH4u1e5Ov9jri5dT3lN1IBJ+
+   exj5AyeBtumj3ktJeiTv2IASPkwK3qz6PGQJgAoeDVQQH2Bu3bQnvhpvT
+   mHKtWhDnjyQSBAiQ2ARmnho3dGsWzbNs91dlaD6tNJ7WQvonF6z0SU1CI
+   Ittz5XSpOzrvXcCWe6U/m19pjLKp/eqtmrgEt0MLDTT9UcRee6ypiS4O7
+   LSQyqzxVhiMIzTaVVchdBrSUjHVuXqCnCARreDKewQgfABXstU4LHjC9x
+   w==;
+X-CSE-ConnectionGUID: ZM/7z7dpRBet+6eK5lCQmw==
+X-CSE-MsgGUID: EFzeNHdLR3eeejuf50Cq2Q==
+X-IronPort-AV: E=Sophos;i="6.21,319,1763424000"; 
+   d="scan'208";a="13621734"
+Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
+  by internal-pdx-out-001.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2026 10:41:45 +0000
+Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.48:14150]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.51.143:2525] with esmtp (Farcaster)
+ id ea3ba174-8803-4d35-8e59-505ad1c706ad; Mon, 2 Mar 2026 10:41:45 +0000 (UTC)
+X-Farcaster-Flow-ID: ea3ba174-8803-4d35-8e59-505ad1c706ad
+Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
+ EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
+ Mon, 2 Mar 2026 10:41:42 +0000
+Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
+ EX19D020UWC004.ant.amazon.com (10.13.138.149) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
+ Mon, 2 Mar 2026 10:41:40 +0000
+From: Alexander Graf <graf@amazon.com>
+To: <virtualization@lists.linux.dev>
+CC: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<kvm@vger.kernel.org>, <eperezma@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, <mst@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+	<nh-open-source@amazon.com>
+Subject: [PATCH] vsock: Enable H2G override
+Date: Mon, 2 Mar 2026 10:41:38 +0000
+Message-ID: <20260302104138.77555-1-graf@amazon.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ngzzyx3mmxaqkupc"
-Content-Disposition: inline
-In-Reply-To: <aZRB7Reu/D6HvRcb@fedora>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: virtualization@lists.linux.dev
+X-ClientProxiedBy: EX19D037UWB002.ant.amazon.com (10.13.138.121) To
+ EX19D020UWC004.ant.amazon.com (10.13.138.149)
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Vsock maintains a single CID number space which can be used to
+communicate to the host (G2H) or to a child-VM (H2G). The current logic
+trivially assumes that G2H is only relevant for CID <= 2 because these
+target the hypervisor.  However, in environments like Nitro Enclaves, an
+instance that hosts vhost_vsock powered VMs may still want to communicate
+to Enclaves that are reachable at higher CIDs through virtio-vsock-pci.
+
+That means that for CID > 2, we really want an overlay. By default, all
+CIDs are owned by the hypervisor. But if vhost registers a CID, it takes
+precedence.  Implement that logic. Vhost already knows which CIDs it
+supports anyway.
+
+With this logic, I can run a Nitro Enclave as well as a nested VM with
+vhost-vsock support in parallel, with the parent instance able to
+communicate to both simultaneously.
+
+Signed-off-by: Alexander Graf <graf@amazon.com>
+---
+ drivers/vhost/vsock.c    | 11 +++++++++++
+ include/net/af_vsock.h   |  3 +++
+ net/vmw_vsock/af_vsock.c |  3 +++
+ 3 files changed, 17 insertions(+)
+
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 054f7a718f50..223da817e305 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -91,6 +91,16 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
+ 	return NULL;
+ }
+ 
++static bool vhost_transport_has_cid(u32 cid)
++{
++	bool found;
++
++	rcu_read_lock();
++	found = vhost_vsock_get(cid) != NULL;
++	rcu_read_unlock();
++	return found;
++}
++
+ static void
+ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 			    struct vhost_virtqueue *vq)
+@@ -424,6 +434,7 @@ static struct virtio_transport vhost_transport = {
+ 		.module                   = THIS_MODULE,
+ 
+ 		.get_local_cid            = vhost_transport_get_local_cid,
++		.has_cid                  = vhost_transport_has_cid,
+ 
+ 		.init                     = virtio_transport_do_socket_init,
+ 		.destruct                 = virtio_transport_destruct,
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 533d8e75f7bb..4cdcb72f9765 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -179,6 +179,9 @@ struct vsock_transport {
+ 	/* Addressing. */
+ 	u32 (*get_local_cid)(void);
+ 
++	/* Check if this transport serves a specific remote CID. */
++	bool (*has_cid)(u32 cid);
++
+ 	/* Read a single skb */
+ 	int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
+ 
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 2f7d94d682cb..8b34b264b246 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -584,6 +584,9 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+ 		else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g ||
+ 			 (remote_flags & VMADDR_FLAG_TO_HOST))
+ 			new_transport = transport_g2h;
++		else if (transport_h2g->has_cid &&
++			 !transport_h2g->has_cid(remote_cid))
++			new_transport = transport_g2h;
+ 		else
+ 			new_transport = transport_h2g;
+ 		break;
+-- 
+2.47.1
 
 
---ngzzyx3mmxaqkupc
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v10] can: virtio: Add virtio CAN driver
-MIME-Version: 1.0
 
-The nipa/ai-review bot found these problems:
 
-| https://netdev-ai.bots.linux.dev/ai-review.html?id=3De2753951-0455-4ce7-a=
-d95-3da80456b40e
+Amazon Web Services Development Center Germany GmbH
+Tamara-Danz-Str. 13
+10243 Berlin
+Geschaeftsfuehrung: Christof Hellmis, Andreas Stieger
+Eingetragen am Amtsgericht Charlottenburg unter HRB 257764 B
+Sitz: Berlin
+Ust-ID: DE 365 538 597
 
-commit bab72ffd354779765bf84bc17cc185e0662d3717
-Author: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-
-can: virtio: Add virtio CAN driver
-
-This commit adds a new virtio CAN driver implementing a complete CAN bus
-interface over Virtio transport, supporting both CAN Classic and CAN-FD
-frames.
-
-> diff --git a/drivers/net/can/Kconfig b/drivers/net/can/Kconfig
-> index e15e320db476..ec941f3c25f6 100644
-> --- a/drivers/net/can/Kconfig
-> +++ b/drivers/net/can/Kconfig
-> @@ -234,6 +234,18 @@ config CAN_XILINXCAN
->  	  Xilinx CAN driver. This driver supports both soft AXI CAN IP and
->  	  Zynq CANPS IP.
->
-> +config CAN_VIRTIO_CAN
-> +	depends on VIRTIO
-> +	tristate "Virtio CAN device support"
-
-The CAN_VIRTIO_CAN config entry is placed after CAN_XILINXCAN, breaking
-the alphabetical ordering maintained by all other config entries in this
-file. Since V comes before X alphabetically, should CAN_VIRTIO_CAN be
-placed between CAN_TI_HECC and CAN_XILINXCAN? The Makefile entry is
-correctly ordered (virtio_can.o appears before xilinx_can.o), which makes
-this inconsistency more evident.
-
-> +	default n
-> +	help
-> +	  Say Y here if you want to support for Virtio CAN.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called virtio-can.
-> +
-> +	  If unsure, say N.
-> +
-
-[ ... ]
-
-> diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
-> new file mode 100644
-> index 000000000000..8d60336b3ebe
-> --- /dev/null
-> +++ b/drivers/net/can/virtio_can.c
-> @@ -0,0 +1,934 @@
-
-[ ... ]
-
-> +static int virtio_can_alloc_tx_idx(struct virtio_can_priv *priv)
-> +{
-> +	int tx_idx;
-> +
-> +	tx_idx =3D ida_alloc_max(&priv->tx_putidx_ida,
-> +			 priv->can.echo_skb_max - 1, GFP_KERNEL);
-
-Is GFP_KERNEL safe here? This function is called from
-virtio_can_start_xmit(), which is the ndo_start_xmit callback. This
-callback can be invoked from softirq context with BH disabled, where
-sleeping is not allowed. Should this use GFP_ATOMIC to match the calling
-context?
-
-> +	if (tx_idx >=3D 0)
-> +		atomic_inc(&priv->tx_inflight);
-> +
-> +	return tx_idx;
-> +}
-
-[ ... ]
-
-> +static int virtio_can_open(struct net_device *ndev)
-> +{
-> +	virtio_can_start(ndev);
-> +
-> +	netif_start_queue(ndev);
-> +
-> +	return 0;
-> +}
-
-Is open_candev() missing? The CAN framework requires drivers to call
-open_candev() in their ndo_open handler. open_candev() validates that
-bittiming has been configured (returns -EINVAL if bitrate is 0), checks
-CAN FD data bitrate requirements, and manages carrier state. Without this
-call, can the device be brought up without configuring bitrate? The driver
-does call close_candev() in virtio_can_close(), showing awareness of the
-CAN lifecycle. Every other CAN driver in the kernel calls open_candev() in
-its open function.
-
-[ ... ]
-
-> +static netdev_tx_t virtio_can_start_xmit(struct sk_buff *skb,
-> +					 struct net_device *dev)
-> +{
-
-[ ... ]
-
-> +	can_tx_msg =3D kzalloc(sizeof(*can_tx_msg) + cf->len, GFP_ATOMIC);
-> +	if (!can_tx_msg) {
-> +		dev->stats.tx_dropped++;
-> +		goto kick; /* No way to return NET_XMIT_DROP here */
-> +	}
-
-Does this leak the skb? When can_dev_dropped_skb() returns false (valid
-frame, skb not consumed) and kzalloc() for can_tx_msg fails, the code
-jumps to 'kick' without freeing the skb. The skb is still owned by the
-caller at this point. Should kfree_skb(skb) be called before goto kick?
-
-> +
-> +	can_tx_msg->tx_out.msg_type =3D cpu_to_le16(VIRTIO_CAN_TX);
-> +	can_flags =3D 0;
-
-[ ... ]
-
-> +	putidx =3D virtio_can_alloc_tx_idx(priv);
-> +
-> +	if (unlikely(putidx < 0)) {
-> +		/* -ENOMEM or -ENOSPC here. -ENOSPC should not be possible as
-> +		 * tx_inflight >=3D can.echo_skb_max is checked in flow control
-> +		 */
-> +		WARN_ON_ONCE(putidx =3D=3D -ENOSPC);
-> +		kfree(can_tx_msg);
-> +		dev->stats.tx_dropped++;
-> +		goto kick; /* No way to return NET_XMIT_DROP here */
-> +	}
-
-Does this also leak the skb? When ida_alloc_max() returns -ENOMEM,
-can_tx_msg is correctly freed but the skb is not. can_put_echo_skb() has
-not been called yet at this point, so the skb is still owned by
-virtio_can_start_xmit. Should kfree_skb(skb) be called before goto kick?
-
-> +
-> +	can_tx_msg->putidx =3D (unsigned int)putidx;
-> +
-> +	/* Push loopback echo. Will be looped back on TX interrupt/TX NAPI */
-> +	can_put_echo_skb(skb, dev, can_tx_msg->putidx, 0);
-
-[ ... ]
-
-> +static void virtio_can_populate_rx_vq(struct virtio_device *vdev)
-> +{
-> +	struct virtio_can_priv *priv =3D vdev->priv;
-> +	struct virtqueue *vq =3D priv->vqs[VIRTIO_CAN_QUEUE_RX];
-> +	struct virtio_can_rx *buf =3D priv->rpkt;
-> +	unsigned int buf_size =3D priv->rpkt_len;
-> +	int num_elements =3D vq->num_free;
-> +	unsigned int idx;
-> +	int ret;
-> +
-> +	for (idx =3D 0; idx < num_elements; idx++) {
-> +		ret =3D virtio_can_add_inbuf(vq, buf, buf_size);
-> +		if (ret < 0) {
-> +			dev_dbg(&vdev->dev, "rpkt fill: ret=3D%d, idx=3D%u, size=3D%u\n",
-> +				ret, idx, buf_size);
-> +			break;
-> +		}
-> +		buf +=3D buf_size;
-> +	}
-
-Does this cause an out-of-bounds memory access? 'buf' is declared as
-'struct virtio_can_rx *' and 'buf_size' equals 'priv->rpkt_len'
-(sizeof(struct virtio_can_rx) + CAN[FD]_MAX_DLEN). The expression
-'buf +=3D buf_size' advances by buf_size * sizeof(struct virtio_can_rx)
-bytes instead of the intended buf_size bytes, because C pointer arithmetic
-scales by the pointed-to type size.
-
-For CAN classic (rpkt_len=3D24, sizeof(struct virtio_can_rx)=3D16), this
-advances 384 bytes per iteration instead of 24. The allocation in
-virtio_can_probe only provides rpkt_len bytes per element, so doesn't the
-second and all subsequent loop iterations pass out-of-bounds pointers to
-the virtqueue as RX buffers? When the device writes to these buffers, can
-this corrupt adjacent kernel memory?
-
-virtio_can_probe():
-    priv->rpkt =3D devm_kzalloc(&vdev->dev, priv->rpkt_len *
-                                priv->vqs[VIRTIO_CAN_QUEUE_RX]->num_free,
-                                GFP_KERNEL);
-
-Should a 'char *' or 'u8 *' pointer be used for the byte-level iteration
-instead, e.g. 'u8 *p =3D (u8 *)priv->rpkt; ... p +=3D buf_size;' and pass '=
-p'
-to virtio_can_add_inbuf?
-
-> +
-> +	if (!ret)
-
-Does this use an uninitialized variable? The variable 'ret' is declared as
-'int ret;' without initialization. If vq->num_free equals 0, the for loop
-body never executes, and 'ret' is read uninitialized here. Should this be
-initialized to 0?
-
-> +		virtqueue_kick(vq);
-> +
-> +	dev_dbg(&vdev->dev, "%u rpkt added\n", idx);
-> +}
-
-[ ... ]
-
-> +/* Function must not be called before virtio_can_find_vqs() has been run=
- */
-> +static void virtio_can_del_vq(struct virtio_device *vdev)
-> +{
-> +	struct virtio_can_priv *priv =3D vdev->priv;
-> +	int q;
-> +
-> +	/* Reset the device */
-> +	if (vdev->config->reset)
-> +		vdev->config->reset(vdev);
-
-Should this use virtio_reset_device() instead? When
-CONFIG_VIRTIO_HARDEN_NOTIFICATION is enabled, virtio_reset_device() calls
-virtio_break_device() to mark all virtqueues as broken and
-virtio_synchronize_cbs() to wait for in-flight callbacks to complete
-before performing the actual reset. Calling config->reset directly skips
-these hardening steps, meaning virtqueue callbacks may still be executing
-when del_vqs destroys the queues. All other virtio network drivers
-(virtio_net.c, caif_virtio.c, mac80211_hwsim.c) use virtio_reset_device().
-The NULL check is also unnecessary as this op is always present in virtio
-devices.
-
-> +
-> +	/* From here we have dead silence from the device side so no locks
-> +	 * are needed to protect against device side events.
-> +	 */
-> +
-> +	for (q =3D 0; q < VIRTIO_CAN_QUEUE_COUNT; q++)
-> +		while (virtqueue_detach_unused_buf(priv->vqs[q]))
-> +			;
-> +
-> +	if (vdev->config->del_vqs)
-> +		vdev->config->del_vqs(vdev);
-> +}
-> +
-> +static void virtio_can_remove(struct virtio_device *vdev)
-> +{
-> +	struct virtio_can_priv *priv =3D vdev->priv;
-> +	struct net_device *dev =3D priv->dev;
-> +
-> +	unregister_candev(dev);
-> +
-> +	virtio_can_del_vq(vdev);
-
-Are napi_disable() calls missing here? The probe function enables both NAPI
-instances:
-
-virtio_can_probe():
-    napi_enable(&priv->napi);
-    napi_enable(&priv->napi_tx);
-
-And virtio_can_freeze() correctly disables them:
-
-virtio_can_freeze():
-    napi_disable(&priv->napi);
-    napi_disable(&priv->napi_tx);
-
-But virtio_can_remove() never disables NAPI. The ndo_stop callback
-(virtio_can_close) intentionally leaves NAPI active per its comment.
-Can the NAPI poll callbacks (virtio_can_rx_poll, virtio_can_tx_poll)
-execute concurrently with virtio_can_del_vq() deleting virtqueues and
-virtio_can_free_candev() freeing the net_device? Should napi_disable() be
-called for both instances before unregister_candev()?
-
-> +
-> +	virtio_can_free_candev(dev);
-> +}
-
-[ ... ]
---
-Pengutronix e.K.                 | Marc Kleine-Budde          |
-Embedded Linux                   | https://www.pengutronix.de |
-Vertretung N=C3=BCrnberg              | Phone: +49-5121-206917-129 |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-9   |
-
---ngzzyx3mmxaqkupc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSl+MghEFFAdY3pYJLMOmT6rpmt0gUCaaVmxwAKCRDMOmT6rpmt
-0rmiAP4x0A2XuA4cUy5pOygQM0TfZdeawi9jFWxLp+yn93gISgD+Mt/kZ7s0qbw8
-WsjBdHFiNCiPCexi+t/dg5v62AX/AQQ=
-=JBHm
------END PGP SIGNATURE-----
-
---ngzzyx3mmxaqkupc--
