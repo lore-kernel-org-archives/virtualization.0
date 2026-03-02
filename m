@@ -1,175 +1,124 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 960C13FD155
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 14:31:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DB0A3E714D;
+	Mon,  2 Mar 2026 14:57:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772461868; cv=none; b=ENyZ9DzphGhR/42crq2gAfl/IIFqrJD9RKIJ51QGkvYZS51Q4eNdUgaEBd4OEoN4IFNAIKYb+yxn2Fpu6wDLlBYAHz7vnDrORKlbEYbOGaSvzhJvbfmN7WibQ5gjVNYZIx6k2vZssOuSF2OoT7rFy8maYYdFzJLsLsnIAPx9CKE=
+	t=1772463441; cv=none; b=X5pUokxZNDAwaEngPB97zf1P+eDH5UWXUK1Nflgbwkv+KG2c0a0ph7XNVXQaP7ypeBuDMZycS1z+rtZQdxaYqVEPmX22rmwExwvHPRx1EtZ68KLSaqoYtC7B1fPBwIS52E4ySPX+Aha3UYoyDEaeu2T6CNvJ+xWzzT1Ngwez7yw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772461868; c=relaxed/simple;
-	bh=tu6vW5JzAvAhrtnD0Orm8DgWyEhTriU4R1yaRjCyZQc=;
+	s=arc-20240116; t=1772463441; c=relaxed/simple;
+	bh=AXvtUVp1dqbd31BiNo7WZp/bdARrTW0igKEmAv50fNg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=fUn53fPQ0HDXccIqagfT+SEyftRvMrBLJmxSi9vRJQtOLNSV+zi0YuJ6c4kw0meNOlEispP1Iz2ql1QbrPy4xGtdbJFEx8lYYHwv0n8n5FBAwU2uhDRUzFZidbxU60AL9SAIYbsAYkGnFmWagIsR26GvurHyET068Syxtk6zBuc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FVBnDYoI; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KLlEnClSx3jAVszcqA8+1W2BYvu78ZiezJz6mecAyhNz3LGwqtw/nRmyL6jFDWXNzDBBJGG99nmH0Fcru29bHlU+QMJzY6vF9CTCzdS53HU/05IE06nyM7HxSCP2hsLJSJ6nRQ1eroPBB9Qnhw1yZ03IXfgjEBCLv9wJeqxPMQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ikqD6uAl; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FVBnDYoI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772461866;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SKZvtx1jQH7FuclJfSavk4MXL11q6SiX0sIanHFtIBI=;
-	b=FVBnDYoI0mG4fJ1PiSRkrp9KBk41qSpqh/k1jJXJCS3TSh/LW5snZokuVZGLaTZnpMPbL/
-	tOO2WYSuUNuuRQlk8vqGA5R4enhYsf2u9coeRIxVySrTOmtDKvOj/ku8WdJ/MfKf9xMUZj
-	FeczdhEX7m0JIkNm44/558ItMK0Y1oM=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-685-RLUlIwASO56svVWYQ2wUKw-1; Mon, 02 Mar 2026 09:31:03 -0500
-X-MC-Unique: RLUlIwASO56svVWYQ2wUKw-1
-X-Mimecast-MFC-AGG-ID: RLUlIwASO56svVWYQ2wUKw_1772461862
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4837246211bso58352875e9.0
-        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 06:31:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772461862; x=1773066662;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SKZvtx1jQH7FuclJfSavk4MXL11q6SiX0sIanHFtIBI=;
-        b=WTu88jRRL2NA4AXtlCgBACLKn7N+Toh6usBJsbDubI7xZwDQDpfLzPAZVIVfPQag4x
-         8pJDgfR4iWZX8NOvhHckAhUhMh/TfHKC6M/tI/rlFIVtuVsmqb014Za9GqHtXZEFX+MX
-         CudlcO4Qx/580mcAt5AK228cAERpCS0zyfNDWmJDQJ5us38pb/9hZEvcJS/VU8ayJoN7
-         jnDbd6Ba6E2xKR9VSO5NfFL/sB+V+6LyaV9f3MzuJMVSKdAhu3MjI5iqQMV5ijYGDWuE
-         tQrRAqMg6l0vd3aUpq5BgpUMS/vy2jkn13aeDKw01/Rm1c2/+H1M5XgmWkFYh7YahqWY
-         /yCg==
-X-Forwarded-Encrypted: i=1; AJvYcCW+iTag+JbqFkRgdsM7FT8ODIlKH3GwuE9u1O/5EXPRlHZlhFJtTGJWyS+bygNTro+vWKOT9rGhW2vdY2UhCA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyO+A3H4AHKDvqfmmZdoqzmOnAOsivW+tSkt3IMpFtEfSNBWKfL
-	ycebVToBMyIlj1mhq03Ja0gQGDR2eFerf28UbfAbjdFg3xDvZC16kuD4cQ8o01yow+oCFlLdMUv
-	nU687VwpbswFZorECFbxsThmTT7WUuCv1r5Zp8Qu7SvWRSNxT8iJFvcS94LbxhrhVxTfP
-X-Gm-Gg: ATEYQzzYoxz/bQguziY9sdSVcmDFOctIs7F0sLOjcE7/7CUXgqv0037ah77+I5148kC
-	/M1/ibtQMIfx8GEvm9Tcr5ODr+GCQTgnnqfOiD3bQT3cSdAYMwnSphhKiYXFxofGyE7ZQbuwZmw
-	pGEWki9hxF9/FRQ0jVTV0qFCRZQnXZFX5Sxhp4uDYA+yZFQSRHi1r6FSzi5oElbcmx2A0+WxWDj
-	+odNJ255YBDgnAI0yt4txVvq1Uye4Gp5SN4FWfRhPG432D//C+WOLYgt6aCGP4VC/ILIZ+KI97O
-	C2H+rdD0UeuD64ML7mgSMM62Ucq51cX9c3HO0ZBg+WawqzhVZWqMcvjRbR66qWzNacvzO5UOSY+
-	ae3hzj2mVLVA5fH2iA+IFktcob4tw1PIjOCSGQV97XwpiGzQSZ3XT7QYWk+Bk2rSE7rqngug=
-X-Received: by 2002:a05:600c:64c7:b0:47d:73a4:45a7 with SMTP id 5b1f17b1804b1-483c9c19a6emr218449395e9.24.1772461862149;
-        Mon, 02 Mar 2026 06:31:02 -0800 (PST)
-X-Received: by 2002:a05:600c:64c7:b0:47d:73a4:45a7 with SMTP id 5b1f17b1804b1-483c9c19a6emr218448515e9.24.1772461861478;
-        Mon, 02 Mar 2026 06:31:01 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483bfcb318fsm206220415e9.6.2026.03.02.06.30.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Mar 2026 06:31:00 -0800 (PST)
-Date: Mon, 2 Mar 2026 15:30:53 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, ShuangYu <shuangyu@yunyoo.cc>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org
-Subject: Re: [PATCH RFC] vhost: fix vhost_get_avail_idx for a non empty ring
-Message-ID: <aaWTjPXDqhMZlwLr@sgarzare-redhat>
-References: <559b04ae6ce52973c535dc47e461638b7f4c3d63.1772441455.git.mst@redhat.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ikqD6uAl"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=51FG2UnZd5khg0RiqyUJE+vDT2282n/46yWgskAeolw=; b=ikqD6uAloCgZUSOvOS1RgqjF4j
+	0XIj9O9goT/8xRogpP2thUUsSIS6z6JWEPcQH9XZaVqqzGvygD4VsIpoHCr1qyKzC26ftB59EfJj4
+	ZGmXp93LBinORiESM14NyWGh/7+QsJnxk+EgUkkCTpW8LcSlBacpm/5Tz9r8d3yMTeKHR7p/EvZPa
+	LnsXDLD9suCcGnHP3/FwMEA8mhNGTTsBheT81VAn3/XPP0Sabalo7OY2Zq9wiCkH5hfCZ0iaMIIAN
+	booolOQAPvKEaMjwKIc5sHw7R58mGIjeizpynkcC6PUcaiHg89lm4LO7xxSozE8eKTfj2NL0VoMs2
+	DvbBhhPQ==;
+Received: from 2001-1c00-8d85-5700-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:5700:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vx4hZ-00000009dtZ-23cs;
+	Mon, 02 Mar 2026 14:56:53 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 06C34300B40; Mon, 02 Mar 2026 15:56:53 +0100 (CET)
+Date: Mon, 2 Mar 2026 15:56:52 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Lance Yang <lance.yang@linux.dev>
+Cc: akpm@linux-foundation.org, david@kernel.org, dave.hansen@intel.com,
+	dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com,
+	will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
+	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
+	hpa@zytor.com, arnd@arndb.de, lorenzo.stoakes@oracle.com,
+	ziy@nvidia.com, baolin.wang@linux.alibaba.com,
+	Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com,
+	dev.jain@arm.com, baohua@kernel.org, shy828301@gmail.com,
+	riel@surriel.com, jannh@google.com, jgross@suse.com,
+	seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, ioworker0@gmail.com
+Subject: Re: [PATCH v5 2/2] x86/tlb: skip redundant sync IPIs for native TLB
+ flush
+Message-ID: <20260302145652.GH1395266@noisy.programming.kicks-ass.net>
+References: <20260302063048.9479-1-lance.yang@linux.dev>
+ <20260302063048.9479-3-lance.yang@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <559b04ae6ce52973c535dc47e461638b7f4c3d63.1772441455.git.mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: QyKWZVnaXvJeuEvZKI8_OX6LLNkSy8WA7nwiusQzF_Y_1772461862
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260302063048.9479-3-lance.yang@linux.dev>
 
-On Mon, Mar 02, 2026 at 03:51:49AM -0500, Michael S. Tsirkin wrote:
->vhost_get_avail_idx is supposed to report whether it has updated
->vq->avail_idx. Instead, it returns whether all entries have been
->consumed, which is usually the same. But not always - in
->drivers/vhost/net.c and when mergeable buffers have been enabled, the
->driver checks whether the combined entries are big enough to store an
->incoming packet. If not, the driver re-enables notifications with
->available entries still in the ring. The incorrect return value from
->vhost_get_avail_idx propagates through vhost_enable_notify and causes
->the host to livelock if the guest is not making progress, as vhost will
->immediately disable notifications and retry using the available entries.
+On Mon, Mar 02, 2026 at 02:30:36PM +0800, Lance Yang wrote:
 
-Here I'd add something like this just to make it clear the full picture, 
-because I spent quite some time to understand how it was related to the 
-Fixes tag (which I agree is the right one to use).
 
-   This goes back to commit d3bb267bbdcb ("vhost: cache avail index in
-   vhost_enable_notify()") which changed vhost_enable_notify() to compare
-   the freshly read avail index against vq->last_avail_idx instead of the
-   previously cached vq->avail_idx. Commit 7ad472397667 ("vhost: move
-   smp_rmb() into vhost_get_avail_idx()") then carried over the same
-   comparison when refactoring vhost_enable_notify() to call the unified
-   vhost_get_avail_idx().
+> @@ -221,3 +222,18 @@ NOKPROBE_SYMBOL(native_load_idt);
+>  
+>  EXPORT_SYMBOL(pv_ops);
+>  EXPORT_SYMBOL_GPL(pv_info);
+> +
+> +void __init native_pv_tlb_init(void)
+> +{
+> +	/*
+> +	 * If PV backend already set the property, respect it.
+> +	 * Otherwise, check if native TLB flush sends real IPIs to all target
+> +	 * CPUs (i.e., not using INVLPGB broadcast invalidation).
+> +	 */
+> +	if (pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast)
+> +		return;
+> +
+> +	if (pv_ops.mmu.flush_tlb_multi == native_flush_tlb_multi &&
+> +	    !cpu_feature_enabled(X86_FEATURE_INVLPGB))
+> +		pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast = true;
+> +}
 
->
->The obvious fix is to make vhost_get_avail_idx do what the comment
->says it does and report whether new entries have been added.
->
->Reported-by: ShuangYu <shuangyu@yunyoo.cc>
->Fixes: d3bb267bbdcb ("vhost: cache avail index in vhost_enable_notify()")
->Cc: Stefano Garzarella <sgarzare@redhat.com>
->Cc: Stefan Hajnoczi <stefanha@redhat.com>
->Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->---
->
->Lightly tested, posting early to simplify testing for the reporter.
+How about making this a static_branch instead?
 
-Tested with vhost-vsock and I didn't see any issue.
+> diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
+> index 866ea78ba156..87ef7147eac8 100644
+> --- a/arch/x86/include/asm/tlb.h
+> +++ b/arch/x86/include/asm/tlb.h
+> @@ -5,10 +5,23 @@
+>  #define tlb_flush tlb_flush
+>  static inline void tlb_flush(struct mmu_gather *tlb);
+>  
+> +#define tlb_table_flush_implies_ipi_broadcast tlb_table_flush_implies_ipi_broadcast
+> +static inline bool tlb_table_flush_implies_ipi_broadcast(void);
+> +
+>  #include <asm-generic/tlb.h>
+>  #include <linux/kernel.h>
+>  #include <vdso/bits.h>
+>  #include <vdso/page.h>
+> +#include <asm/paravirt.h>
+> +
+> +static inline bool tlb_table_flush_implies_ipi_broadcast(void)
+> +{
+> +#ifdef CONFIG_PARAVIRT
+> +	return pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast;
+> +#else
+> +	return !cpu_feature_enabled(X86_FEATURE_INVLPGB);
+> +#endif
+> +}
 
-Thanks!
+Then this turns into:
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+static inline bool tlb_table_flush_implies_ipi_broadcast(void)
+{
+	return static_branch_likely(&tlb_ipi_broadcast_key);
+}
 
->
-> drivers/vhost/vhost.c | 11 +++++++----
-> 1 file changed, 7 insertions(+), 4 deletions(-)
->
->diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->index 2f2c45d20883..db329a6f6145 100644
->--- a/drivers/vhost/vhost.c
->+++ b/drivers/vhost/vhost.c
->@@ -1522,6 +1522,7 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
-> static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
-> {
-> 	__virtio16 idx;
->+	u16 avail_idx;
-> 	int r;
->
-> 	r = vhost_get_avail(vq, idx, &vq->avail->idx);
->@@ -1532,17 +1533,19 @@ static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
-> 	}
->
-> 	/* Check it isn't doing very strange thing with available indexes */
->-	vq->avail_idx = vhost16_to_cpu(vq, idx);
->-	if (unlikely((u16)(vq->avail_idx - vq->last_avail_idx) > vq->num)) {
->+	avail_idx = vhost16_to_cpu(vq, idx);
->+	if (unlikely((u16)(avail_idx - vq->last_avail_idx) > vq->num)) {
-> 		vq_err(vq, "Invalid available index change from %u to %u",
->-		       vq->last_avail_idx, vq->avail_idx);
->+		       vq->last_avail_idx, avail_idx);
-> 		return -EINVAL;
-> 	}
->
-> 	/* We're done if there is nothing new */
->-	if (vq->avail_idx == vq->last_avail_idx)
->+	if (avail_idx == vq->avail_idx)
-> 		return 0;
->
->+	vq->avail_idx = avail_idx;
->+
-> 	/*
-> 	 * We updated vq->avail_idx so we need a memory barrier between
-> 	 * the index read above and the caller reading avail ring entries.
->-- 
->MST
->
 
