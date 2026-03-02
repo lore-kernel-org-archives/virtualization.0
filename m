@@ -1,170 +1,311 @@
-Received: from pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.155.198.111])
+Received: from pdx-out-015.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-015.esa.us-west-2.outbound.mail-perimeter.amazon.com [50.112.246.219])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C07375AB9
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 19:04:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.155.198.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD3923803D1
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 19:49:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=50.112.246.219
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772478277; cv=none; b=gJGtMXOmGAPCeKPwRYK0m6iegNZ9GRopKJKN1hxrwwZeXatyPIZhdqoFuD+D3zgCCxqKwFII6DpI9t2aCL0djWZmJixAHiPDJJ+G7D1FEI7MvcN1WXT/xgZznn6rKvTOvRZGyrrG0UbrnC0zuudKSnveBwC/r0UukLIvXr0bqL4=
+	t=1772480978; cv=none; b=Fu850XBoXhASwzKmgd7lSEr9FCLs3vJRXrzGcnArRkFZH/NlG7OdKTw/lQwOUhaZoU96Zw91Iwre/1AltJQeKqdE9ZBmEj82iTAopk4AGOq6kLtNth1USgly+sKqgAdA6AMC9BOhQ6HVzuySP2nLwqh+gofpDSnhpcSlf2L2xjg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772478277; c=relaxed/simple;
-	bh=LUQ9tY/9PUB2akCA2g4Nqja3pQ0wkFh1CmjA/J2R78o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=E+2PRz1fEG+GdkpUgHbBpEHV2iSM7YgXP7fIfpAsPHkrZK4Z83ZMsHrxbmmaaD0xgiQETVmckYd3AI4EMw0TS5Ebsm8+r1ze1dl4u2JVqvaRBmrIQpTU0sbHpkC2GZaArw2ndYdUT/WQT7rJawM9BphWqevz3F9UdGdQ12vTamY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=Mpm9WO8s; arc=none smtp.client-ip=35.155.198.111
+	s=arc-20240116; t=1772480978; c=relaxed/simple;
+	bh=WiSxv/TKMJU5DJahutbbNGS7VSVb7/CJDR9Kcst96Sk=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=eNWTdbHkMLtPmwby2vul8LJ5DWS28iA4r25wdrFig6i88XLdP+drOtrPYqkxJvPDUUO+geNTjN3VXXLJD4GIxGNxBXgD2C0YBfS/gnWWFNV1r5rcB3bexkNrdfxvwCgGCRbqtEVitM1Wo6MY7e/hBPyO3vjdyETmQDJLNmFDAdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=P3H4PuwK; arc=none smtp.client-ip=50.112.246.219
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="Mpm9WO8s"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="P3H4PuwK"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1772478270; x=1804014270;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=LUQ9tY/9PUB2akCA2g4Nqja3pQ0wkFh1CmjA/J2R78o=;
-  b=Mpm9WO8swXMYRuUpcdwbbUAjSOvDTcgPe/55Z+bTW74nv+Nvhp2kLfqY
-   2/DZkmy4YSpOe/6mc0Nvy5vu+HgZCynxucb95w9tgZ8Kxp1p62Khi+H4w
-   DYkfwhW1b/iOiKx2MqKyU2SoGrrx4HbJrQYaG/qRir1Lu9p3CuC65+dkq
-   ELPrZmWURL9ZHvaU2tqexEl6H3ARdRCCfpp4W0pKSZ6wWfE7i4iyQfWkq
-   Em7Fs79Otx31/IZdcaIrQ3xwYZ9m+lHQQqVUcPWRX26KWVF+OBJXHOmXf
-   KySPBlF6ykx4Q18dHcjUAxT9WFQXg1uI+PDB18ObL+o35CerlwgpsC4pf
-   g==;
-X-CSE-ConnectionGUID: Zn+U0SiqSyGcwU0I3DWOgA==
-X-CSE-MsgGUID: NdVVQds4TIiZdCBU2E3yBQ==
+  t=1772480974; x=1804016974;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=2hIWN0XMNcMveKwVAeKjx3iKzKG8zDmeJiQxa0otfT8=;
+  b=P3H4PuwKjQ9Ty2zJYbqyxy4lertppQvNyr42VnTa9qabKWAxW4OOGZp3
+   7dGT0p1MH5cgA2QgRcobWNtSBHIsiyjJVJHMncbckEnzapMts8goULQX5
+   pUzL+WVn4pTYyOIj8hucExs5qEnbc6q4HypwhIeUWhQOcR3LgWYA8C7Jd
+   RuBb6qbZpz7RNUjzzg1Iwkn4UaxPxUBwTF68mq0Q5ja1qMd8KJrrJBl91
+   AytBo7fYfyJ9PZlaZKrsjoj7tp/oMUULm/l4AF3wRR/gJ+UaDK+v6rf+a
+   oBekhd48cpE+LGBolKuaOqNHbNI5yI4E9Tk8w4WpgjzCSjjS/SEA12giJ
+   w==;
+X-CSE-ConnectionGUID: GwA4xchQSZWOh81XFpmjWQ==
+X-CSE-MsgGUID: MTqTqpAfRN2ZuaUAtz3iag==
 X-IronPort-AV: E=Sophos;i="6.21,320,1763424000"; 
-   d="scan'208";a="14003273"
-Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
-  by internal-pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2026 19:04:28 +0000
-Received: from EX19MTAUWC002.ant.amazon.com [205.251.233.111:11495]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.34.39:2525] with esmtp (Farcaster)
- id 6f655c0e-cf62-4b26-ba13-5634a37d9366; Mon, 2 Mar 2026 19:04:27 +0000 (UTC)
-X-Farcaster-Flow-ID: 6f655c0e-cf62-4b26-ba13-5634a37d9366
+   d="scan'208";a="13949663"
+Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
+  by internal-pdx-out-015.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2026 19:49:31 +0000
+Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.48:5148]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.6.153:2525] with esmtp (Farcaster)
+ id e8d4cbcd-eda0-47f0-9474-e04710febe93; Mon, 2 Mar 2026 19:49:31 +0000 (UTC)
+X-Farcaster-Flow-ID: e8d4cbcd-eda0-47f0-9474-e04710febe93
 Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
- EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
+ EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Mon, 2 Mar 2026 19:04:27 +0000
-Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
- (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Mon, 2 Mar 2026
- 19:04:24 +0000
-Message-ID: <27dcad4e-d658-4b6b-93b2-44c64fcbeb11@amazon.com>
-Date: Mon, 2 Mar 2026 20:04:22 +0100
+ Mon, 2 Mar 2026 19:49:30 +0000
+Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
+ EX19D020UWC004.ant.amazon.com (10.13.138.149) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
+ Mon, 2 Mar 2026 19:49:27 +0000
+From: Alexander Graf <graf@amazon.com>
+To: <virtualization@lists.linux.dev>
+CC: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<kvm@vger.kernel.org>, <eperezma@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, <mst@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+	<bcm-kernel-feedback-list@broadcom.com>, Arnd Bergmann <arnd@arndb.de>, "Greg
+ Kroah-Hartman" <gregkh@linuxfoundation.org>, Jonathan Corbet
+	<corbet@lwn.net>, Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa
+	<vishnu.dasa@broadcom.com>, <nh-open-source@amazon.com>
+Subject: [PATCH v2] vsock: add G2H fallback for CIDs not owned by H2G transport
+Date: Mon, 2 Mar 2026 19:49:26 +0000
+Message-ID: <20260302194926.90378-1-graf@amazon.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vsock: Enable H2G override
-To: Stefano Garzarella <sgarzare@redhat.com>
-CC: Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa
-	<vishnu.dasa@broadcom.com>, Broadcom internal kernel review list
-	<bcm-kernel-feedback-list@broadcom.com>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<kvm@vger.kernel.org>, <eperezma@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, <mst@redhat.com>, Stefan Hajnoczi
-	<stefanha@redhat.com>, <nh-open-source@amazon.com>
-References: <20260302104138.77555-1-graf@amazon.com>
- <aaVrsXMmULivV4Se@sgarzare-redhat> <aaV80wWlpjEtYCQJ@sgarzare-redhat>
- <17d63837-6028-475a-90df-6966329a0fc2@amazon.com>
- <aaW2FgoaXIJEymyR@sgarzare-redhat>
-Content-Language: en-US
-From: Alexander Graf <graf@amazon.com>
-In-Reply-To: <aaW2FgoaXIJEymyR@sgarzare-redhat>
-X-ClientProxiedBy: EX19D044UWA003.ant.amazon.com (10.13.139.43) To
+X-ClientProxiedBy: EX19D040UWB002.ant.amazon.com (10.13.138.89) To
  EX19D020UWC004.ant.amazon.com (10.13.138.149)
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Ck9uIDAyLjAzLjI2IDE3OjI1LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gT24gTW9uLCBN
-YXIgMDIsIDIwMjYgYXQgMDQ6NDg6MzNQTSArMDEwMCwgQWxleGFuZGVyIEdyYWYgd3JvdGU6Cj4+
-Cj4+IE9uIDAyLjAzLjI2IDEzOjA2LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+PiBDQ2lu
-ZyBCcnlhbiwgVmlzaG51LCBhbmQgQnJvYWRjb20gbGlzdC4KPj4+Cj4+PiBPbiBNb24sIE1hciAw
-MiwgMjAyNiBhdCAxMjo0NzowNVBNICswMTAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+
-Pj4KPj4+PiBQbGVhc2UgdGFyZ2V0IG5ldC1uZXh0IHRyZWUgZm9yIHRoaXMgbmV3IGZlYXR1cmUu
-Cj4+Pj4KPj4+PiBPbiBNb24sIE1hciAwMiwgMjAyNiBhdCAxMDo0MTozOEFNICswMDAwLCBBbGV4
-YW5kZXIgR3JhZiB3cm90ZToKPj4+Pj4gVnNvY2sgbWFpbnRhaW5zIGEgc2luZ2xlIENJRCBudW1i
-ZXIgc3BhY2Ugd2hpY2ggY2FuIGJlIHVzZWQgdG8KPj4+Pj4gY29tbXVuaWNhdGUgdG8gdGhlIGhv
-c3QgKEcySCkgb3IgdG8gYSBjaGlsZC1WTSAoSDJHKS4gVGhlIGN1cnJlbnQgCj4+Pj4+IGxvZ2lj
-Cj4+Pj4+IHRyaXZpYWxseSBhc3N1bWVzIHRoYXQgRzJIIGlzIG9ubHkgcmVsZXZhbnQgZm9yIENJ
-RCA8PSAyIGJlY2F1c2UgCj4+Pj4+IHRoZXNlCj4+Pj4+IHRhcmdldCB0aGUgaHlwZXJ2aXNvci7C
-oCBIb3dldmVyLCBpbiBlbnZpcm9ubWVudHMgbGlrZSBOaXRybyAKPj4+Pj4gRW5jbGF2ZXMsIGFu
-Cj4+Pj4+IGluc3RhbmNlIHRoYXQgaG9zdHMgdmhvc3RfdnNvY2sgcG93ZXJlZCBWTXMgbWF5IHN0
-aWxsIHdhbnQgdG8gCj4+Pj4+IGNvbW11bmljYXRlCj4+Pj4+IHRvIEVuY2xhdmVzIHRoYXQgYXJl
-IHJlYWNoYWJsZSBhdCBoaWdoZXIgQ0lEcyB0aHJvdWdoIAo+Pj4+PiB2aXJ0aW8tdnNvY2stcGNp
-Lgo+Pj4+Pgo+Pj4+PiBUaGF0IG1lYW5zIHRoYXQgZm9yIENJRCA+IDIsIHdlIHJlYWxseSB3YW50
-IGFuIG92ZXJsYXkuIEJ5IAo+Pj4+PiBkZWZhdWx0LCBhbGwKPj4+Pj4gQ0lEcyBhcmUgb3duZWQg
-YnkgdGhlIGh5cGVydmlzb3IuIEJ1dCBpZiB2aG9zdCByZWdpc3RlcnMgYSBDSUQsIGl0IAo+Pj4+
-PiB0YWtlcwo+Pj4+PiBwcmVjZWRlbmNlLsKgIEltcGxlbWVudCB0aGF0IGxvZ2ljLiBWaG9zdCBh
-bHJlYWR5IGtub3dzIHdoaWNoIENJRHMgaXQKPj4+Pj4gc3VwcG9ydHMgYW55d2F5Lgo+Pj4+Pgo+
-Pj4+PiBXaXRoIHRoaXMgbG9naWMsIEkgY2FuIHJ1biBhIE5pdHJvIEVuY2xhdmUgYXMgd2VsbCBh
-cyBhIG5lc3RlZCBWTSAKPj4+Pj4gd2l0aAo+Pj4+PiB2aG9zdC12c29jayBzdXBwb3J0IGluIHBh
-cmFsbGVsLCB3aXRoIHRoZSBwYXJlbnQgaW5zdGFuY2UgYWJsZSB0bwo+Pj4+PiBjb21tdW5pY2F0
-ZSB0byBib3RoIHNpbXVsdGFuZW91c2x5Lgo+Pj4+Cj4+Pj4gSSBob25lc3RseSBkb24ndCB1bmRl
-cnN0YW5kIHdoeSBWTUFERFJfRkxBR19UT19IT1NUIChhZGRlZCAKPj4+PiBzcGVjaWZpY2FsbHkg
-Zm9yIE5pdHJvIElJUkMpIGlzbid0IGVub3VnaCBmb3IgdGhpcyBzY2VuYXJpbyBhbmQgd2UgCj4+
-Pj4gaGF2ZSB0byBhZGQgdGhpcyBjaGFuZ2UuwqAgQ2FuIHlvdSBlbGFib3JhdGUgYSBiaXQgbW9y
-ZSBhYm91dCB0aGUgCj4+Pj4gcmVsYXRpb25zaGlwIGJldHdlZW4gdGhpcyBjaGFuZ2UgYW5kIFZN
-QUREUl9GTEFHX1RPX0hPU1Qgd2UgYWRkZWQ/Cj4+Cj4+Cj4+IFRoZSBtYWluIHByb2JsZW0gSSBo
-YXZlIHdpdGggVk1BRERSX0ZMQUdfVE9fSE9TVCBmb3IgY29ubmVjdCgpIGlzIAo+PiB0aGF0IGl0
-IHB1bnRzIHRoZSBjb21wbGV4aXR5IHRvIHRoZSB1c2VyLiBJbnN0ZWFkIG9mIGEgc2luZ2xlIENJ
-RCAKPj4gYWRkcmVzcyBzcGFjZSwgeW91IG5vdyBlZmZlY3RpdmVseSBjcmVhdGUgMiBzcGFjZXM6
-IE9uZSBmb3IgVE9fSE9TVCAKPj4gKG5lZWRzIGEgZmxhZykgYW5kIG9uZSBmb3IgVE9fR1VFU1Qg
-KG5vIGZsYWcpLiBCdXQgZXZlcnkgdXNlciBzcGFjZSAKPj4gdG9vbCBuZWVkcyB0byBsZWFybiBh
-Ym91dCB0aGlzIGZsYWcuIFRoYXQgbWF5IHdvcmsgZm9yIHN1cGVyIAo+PiBzcGVjaWFsLWNhc2Ug
-YXBwbGljYXRpb25zLiBCdXQgcHJvcGFnYXRpbmcgdGhhdCBhbGwgdGhlIHdheSBpbnRvIAo+PiBz
-b2NhdCwgaXBlcmYsIGV0YyBldGM/IEl0J3MganVzdCBjcmVhdGluZyBmcmljdGlvbi4KPgo+IE9r
-YXksIEkgd291bGQgbGlrZSB0byBoYXZlIHRoaXMgKG9yIHBhcnQgb2YgaXQpIGluIHRoZSBjb21t
-aXQgbWVzc2FnZSAKPiB0byBiZXR0ZXIgZXhwbGFpbiB3aHkgd2Ugd2FudCB0aGlzIGNoYW5nZS4K
-Pgo+Pgo+PiBJTUhPIHRoZSBtb3N0IG5hdHVyYWwgZXhwZXJpZW5jZSBpcyB0byBoYXZlIGEgc2lu
-Z2xlIENJRCBzcGFjZSwgCj4+IHBvdGVudGlhbGx5IG1hbnVhbGx5IHNlZ21lbnRlZCBieSBsYXVu
-Y2hpbmcgVk1zIG9mIG9uZSBraW5kIHdpdGhpbiBhIAo+PiBjZXJ0YWluIHJhbmdlLgo+Cj4gSSBz
-ZWUsIGJ1dCBhdCB0aGlzIHBvaW50LCBzaG91bGQgdGhlIGtlcm5lbCBzZXQgVk1BRERSX0ZMQUdf
-VE9fSE9TVCBpbiAKPiB0aGUgcmVtb3RlIGFkZHJlc3MgaWYgdGhhdCBwYXRoIGlzIHRha2VuICJh
-dXRvbWFnaWNhbGx5IiA/Cj4KPiBTbyBpbiB0aGF0IHdheSB0aGUgdXNlciBzcGFjZSBjYW4gaGF2
-ZSBhIHdheSB0byB1bmRlcnN0YW5kIGlmIGl0J3MgCj4gdGFsa2luZyB3aXRoIGEgbmVzdGVkIGd1
-ZXN0IG9yIGEgc2libGluZyBndWVzdC4KPgo+Cj4gVGhhdCBzYWlkLCBJJ20gY29uY2VybmVkIGFi
-b3V0IHRoZSBzY2VuYXJpbyB3aGVyZSBhbiBhcHBsaWNhdGlvbiBkb2VzIAo+IG5vdCBldmVuIGNv
-bnNpZGVyIGNvbW11bmljYXRpbmcgd2l0aCBhIHNpYmxpbmcgVk0uCgoKSWYgdGhhdCdzIHJlYWxs
-eSBhIHJlYWxpc3RpYyBjb25jZXJuLCB0aGVuIHdlIHNob3VsZCBhZGQgYSAKVk1BRERSX0ZMQUdf
-VE9fR1VFU1QgdGhhdCB0aGUgYXBwbGljYXRpb24gY2FuIHNldC4gRGVmYXVsdCBiZWhhdmlvciBv
-ZiAKYW4gYXBwbGljYXRpb24gdGhhdCBwcm92aWRlcyBubyBmbGFncyBpcyAicm91dGUgdG8gd2hh
-dGV2ZXIgeW91IGNhbiAKZmluZCI6IElmIHZob3N0IGlzIGxvYWRlZCwgaXQgcm91dGVzIHRvIHZo
-b3N0LiBJZiBhIHZzb2NrIGJhY2tlbmQgZHJpdmVyIAppcyBsb2FkZWQsIGl0IHJvdXRlcyB0aGVy
-ZS4gQnV0IHRoZSBhcHBsaWNhdGlvbiBoYXMgbm8gc2F5IGluIHdoZXJlIGl0IApnb2VzOiBJdCdz
-IHB1cmVseSBhIHN5c3RlbSBjb25maWd1cmF0aW9uIHRoaW5nLgoKCj4gVW50aWwgbm93LCBpdCBr
-bmV3IHRoYXQgYnkgbm90IHNldHRpbmcgdGhhdCBmbGFnLCBpdCBjb3VsZCBvbmx5IHRhbGsgCj4g
-dG8gbmVzdGVkIFZNcywgc28gaWYgdGhlcmUgd2FzIG5vIFZNIHdpdGggdGhhdCBDSUQsIHRoZSBj
-b25uZWN0aW9uIAo+IHNpbXBseSBmYWlsZWQuIFdoZXJlYXMgZnJvbSB0aGlzIHBhdGNoIG9ud2Fy
-ZHMsIGlmIHRoZSBkZXZpY2UgaW4gdGhlIAo+IGhvc3Qgc3VwcG9ydHMgc2libGluZyBWTXMgYW5k
-IHRoZXJlIGlzIGEgVk0gd2l0aCB0aGF0IENJRCwgdGhlIAo+IGFwcGxpY2F0aW9uIGZpbmRzIGl0
-c2VsZiB0YWxraW5nIHRvIGEgc2libGluZyBWTSBpbnN0ZWFkIG9mIGEgbmVzdGVkIAo+IG9uZSwg
-d2l0aG91dCBoYXZpbmcgYW55IGlkZWEuCgoKSSdkIHNheSBhbiBhcHBsaWNhdGlvbiB0aGF0IGF0
-dGVtcHRzIHRvIHRhbGsgdG8gYSBDSUQgdGhhdCBpdCBkb2VzIG5vdyAKa25vdyB3aGV0aGVyIGl0
-J3Mgdmhvc3Qgcm91dGVkIG9yIG5vdCBpcyBydW5uaW5nIGludG8gInVuZGVmaW5lZCIgCnRlcnJp
-dG9yeS4gSWYgeW91IHJtbW9kIHRoZSB2aG9zdCBkcml2ZXIsIGl0IHdvdWxkIGFsc28gdGFsayB0
-byB0aGUgCmh5cGVydmlzb3IgcHJvdmlkZWQgdnNvY2suCgoKPiBTaG91bGQgd2UgbWFrZSB0aGlz
-IGZlYXR1cmUgb3B0LWluIGluIHNvbWUgd2F5LCBzdWNoIGFzIHNvY2tvcHQgb3IgCj4gc3lzY3Rs
-PyAoSSB1bmRlcnN0YW5kIHRoYXQgdGhlcmUgaXMgdGhlIHByZXZpb3VzIHByb2JsZW0sIGJ1dCAK
-PiBob25lc3RseSwgaXQgc2VlbXMgbGlrZSBhIHNpZ25pZmljYW50IGNoYW5nZSB0byB0aGUgYmVo
-YXZpb3Igb2YgCj4gQUZfVlNPQ0spLgoKCldlIGNhbiBjcmVhdGUgYSBzeXNjdGwgdG8gZW5hYmxl
-IGJlaGF2aW9yIHdpdGggZGVmYXVsdD1vbi4gQnV0IEknbSAKYWdhaW5zdCBtYWtpbmcgdGhlIGN1
-bWJlcnNvbWUgZG9lcy1ub3Qtd29yay1vdXQtb2YtdGhlLWJveCBleHBlcmllbmNlIAp0aGUgZGVm
-YXVsdC4gV2lsbCBpbmNsdWRlIGl0IGluIHYyLgoKCj4KPj4KPj4gQXQgdGhlIGVuZCBvZiB0aGUg
-ZGF5LCB0aGUgaG9zdCB2cyBndWVzdCBwcm9ibGVtIGlzIHN1cGVyIHNpbWlsYXIgdG8gCj4+IGEg
-cm91dGluZyB0YWJsZS4KPgo+IFllYWgsIGJ1dCB0aGUgcG9pbnQgb2YgQUZfVlNPQ0sgaXMgcHJl
-Y2lzZWx5IHRvIGF2b2lkIGNvbXBsZXhpdGllcyAKPiBzdWNoIGFzIHJvdXRpbmcgdGFibGVzIGFz
-IG11Y2ggYXMgcG9zc2libGU7IG90aGVyd2lzZSwgQUZfSU5FVCBpcyAKPiBhbHJlYWR5IHRoZXJl
-IGFuZCByZWFkeSB0byBiZSB1c2VkLiBJbiB0aGVvcnksIHdlIG9ubHkgd2FudCAKPiBjb21tdW5p
-Y2F0aW9uIGJldHdlZW4gaG9zdCBhbmQgZ3Vlc3QuCgoKWWVzLCBidXQgbmVzdGluZyBpcyBhIHRo
-aW5nIGFuZCBub2JvZHkgdGhvdWdodCBhYm91dCBpdCA6KS4gSW4gCnJldHJvc3BlY3QsIGl0IHdv
-dWxkIGhhdmUgYmVlbiB0byBhbm5vdGF0ZSB0aGUgQ0lEIHdpdGggdGhlIGRpcmVjdGlvbjogCkg1
-IGdvZXMgdG8gQ0lENSBvbiBob3N0IGFuZCBHNSBnb2VzIHRvIENJRDUgb24gZ3Vlc3QuIEJ1dCBJ
-IHNlZSBubyAKY2hhbmNlIHRvIGNoYW5nZSB0aGF0IGJ5IG5vdy4KCgpBbGV4CgoKCgpBbWF6b24g
-V2ViIFNlcnZpY2VzIERldmVsb3BtZW50IENlbnRlciBHZXJtYW55IEdtYkgKVGFtYXJhLURhbnot
-U3RyLiAxMwoxMDI0MyBCZXJsaW4KR2VzY2hhZWZ0c2Z1ZWhydW5nOiBDaHJpc3RvZiBIZWxsbWlz
-LCBBbmRyZWFzIFN0aWVnZXIKRWluZ2V0cmFnZW4gYW0gQW10c2dlcmljaHQgQ2hhcmxvdHRlbmJ1
-cmcgdW50ZXIgSFJCIDI1Nzc2NCBCClNpdHo6IEJlcmxpbgpVc3QtSUQ6IERFIDM2NSA1MzggNTk3
-Cg==
+Vsock maintains a single CID number space which can be used to
+communicate to the host (G2H) or to a child-VM (H2G). The current logic
+assumes that G2H is only relevant for CID <= 2 because these target the
+hypervisor. However, in environments like Nitro Enclaves, an instance
+that hosts vhost_vsock powered VMs may still want to communicate to
+Enclaves that are reachable at higher CIDs through virtio-vsock-pci.
+
+Vsock introduced VMADDR_FLAG_TO_HOST to allow user space applications
+to clearly express a desire to talk to the host instead of a guest via
+the passed target CID. However, users may not actually know which one
+they want to talk to and the application ecosystem has not picked up a
+way for users to specify that desire.
+
+Instead, make it easy for users and introduce a G2H fallback mechanism:
+when user space attempts to connect to a CID and the H2G transport
+(vhost-vsock / VMCI) does not own it, automatically route the connection
+through the G2H transport. This provides a single unified CID address
+space where vhost-registered CIDs go to nested VMs and all other CIDs
+are routed to the hypervisor.
+
+To give user space at least a hint that the kernel applied this logic,
+automatically set the VMADDR_FLAG_TO_HOST on the remote address so it
+can determine the path taken via getpeername().
+
+To force the system back into old behavior, provide a sysctl
+(net.vsock.g2h_fallback, defaults to 1).
+
+Signed-off-by: Alexander Graf <graf@amazon.com>
+
+---
+
+v1 -> v2:
+
+  - Rebase on 7.0, include namespace support
+  - Add net.vsock.g2h_fallback sysctl
+  - Rework description
+  - Set VMADDR_FLAG_TO_HOST automatically
+  - Add VMCI support
+  - Update vsock_assign_transport() comment
+---
+ Documentation/admin-guide/sysctl/net.rst | 22 ++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_context.c     |  1 +
+ drivers/vhost/vsock.c                    | 13 +++++++++++++
+ include/linux/vmw_vmci_api.h             |  1 +
+ include/net/af_vsock.h                   |  3 +++
+ net/vmw_vsock/af_vsock.c                 | 20 +++++++++++++++++++-
+ net/vmw_vsock/vmci_transport.c           |  6 ++++++
+ 7 files changed, 65 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
+index 3b2ad61995d4..cc364baa9021 100644
+--- a/Documentation/admin-guide/sysctl/net.rst
++++ b/Documentation/admin-guide/sysctl/net.rst
+@@ -602,3 +602,25 @@ it does not modify the current namespace or any existing children.
+ 
+ A namespace with ``ns_mode`` set to ``local`` cannot change
+ ``child_ns_mode`` to ``global`` (returns ``-EPERM``).
++
++g2h_fallback
++------------
++
++Controls whether connections to CIDs not owned by the host-to-guest (H2G)
++transport automatically fall back to the guest-to-host (G2H) transport.
++
++When enabled, if a connect targets a CID that the H2G transport (e.g.
++vhost-vsock) does not serve, the connection is routed via the G2H transport
++(e.g. virtio-vsock) instead. This allows a host running both nested VMs
++(via vhost-vsock) and sibling VMs reachable through the hypervisor (e.g.
++Nitro Enclaves) to address both using a single CID space, without requiring
++applications to set ``VMADDR_FLAG_TO_HOST``.
++
++When the fallback is taken, ``VMADDR_FLAG_TO_HOST`` is automatically set on
++the remote address so that userspace can determine the path via
++``getpeername()``.
++
++Values:
++
++	- 0 - Connections to CIDs < 3 get handled by G2H, others by H2G.
++	- 1 - Connections to CIDs not owned by H2G fall back to G2H. (default)
+diff --git a/drivers/misc/vmw_vmci/vmci_context.c b/drivers/misc/vmw_vmci/vmci_context.c
+index 19ca00feed6e..577296784df5 100644
+--- a/drivers/misc/vmw_vmci/vmci_context.c
++++ b/drivers/misc/vmw_vmci/vmci_context.c
+@@ -364,6 +364,7 @@ bool vmci_ctx_exists(u32 cid)
+ 	rcu_read_unlock();
+ 	return exists;
+ }
++EXPORT_SYMBOL_GPL(vmci_ctx_exists);
+ 
+ /*
+  * Retrieves VMCI context corresponding to the given cid.
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 054f7a718f50..319e3a690108 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -91,6 +91,18 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
+ 	return NULL;
+ }
+ 
++static bool vhost_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
++{
++	struct sock *sk = sk_vsock(vsk);
++	struct net *net = sock_net(sk);
++	bool found;
++
++	rcu_read_lock();
++	found = vhost_vsock_get(cid, net) != NULL;
++	rcu_read_unlock();
++	return found;
++}
++
+ static void
+ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 			    struct vhost_virtqueue *vq)
+@@ -424,6 +436,7 @@ static struct virtio_transport vhost_transport = {
+ 		.module                   = THIS_MODULE,
+ 
+ 		.get_local_cid            = vhost_transport_get_local_cid,
++		.has_remote_cid           = vhost_transport_has_remote_cid,
+ 
+ 		.init                     = virtio_transport_do_socket_init,
+ 		.destruct                 = virtio_transport_destruct,
+diff --git a/include/linux/vmw_vmci_api.h b/include/linux/vmw_vmci_api.h
+index 41764a684423..c412d17c572f 100644
+--- a/include/linux/vmw_vmci_api.h
++++ b/include/linux/vmw_vmci_api.h
+@@ -37,6 +37,7 @@ int vmci_doorbell_create(struct vmci_handle *handle, u32 flags,
+ int vmci_doorbell_destroy(struct vmci_handle handle);
+ u32 vmci_get_context_id(void);
+ bool vmci_is_context_owner(u32 context_id, kuid_t uid);
++bool vmci_ctx_exists(u32 cid);
+ int vmci_register_vsock_callback(vmci_vsock_cb callback);
+ 
+ int vmci_event_subscribe(u32 event,
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 533d8e75f7bb..0aeb25642827 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -179,6 +179,9 @@ struct vsock_transport {
+ 	/* Addressing. */
+ 	u32 (*get_local_cid)(void);
+ 
++	/* Check if this transport serves a specific remote CID. */
++	bool (*has_remote_cid)(struct vsock_sock *vsk, u32 remote_cid);
++
+ 	/* Read a single skb */
+ 	int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
+ 
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 2f7d94d682cb..b41bc734d6c0 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -210,6 +210,8 @@ static const struct vsock_transport *transport_dgram;
+ static const struct vsock_transport *transport_local;
+ static DEFINE_MUTEX(vsock_register_mutex);
+ 
++static int vsock_g2h_fallback = 1;
++
+ /**** UTILS ****/
+ 
+ /* Each bound VSocket is stored in the bind hash table and each connected
+@@ -547,7 +549,8 @@ static void vsock_deassign_transport(struct vsock_sock *vsk)
+  *    g2h is not loaded, will use local transport;
+  *  - remote CID <= VMADDR_CID_HOST or h2g is not loaded or remote flags field
+  *    includes VMADDR_FLAG_TO_HOST flag value, will use guest->host transport;
+- *  - remote CID > VMADDR_CID_HOST will use host->guest transport;
++ *  - remote CID > VMADDR_CID_HOST will use host->guest transport if h2g has
++ *    registered that CID, otherwise will use guest->host transport (overlay);
+  */
+ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+ {
+@@ -584,6 +587,12 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+ 		else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g ||
+ 			 (remote_flags & VMADDR_FLAG_TO_HOST))
+ 			new_transport = transport_g2h;
++		else if (vsock_g2h_fallback &&
++			 transport_h2g->has_remote_cid &&
++			 !transport_h2g->has_remote_cid(vsk, remote_cid)) {
++			vsk->remote_addr.svm_flags |= VMADDR_FLAG_TO_HOST;
++			new_transport = transport_g2h;
++		}
+ 		else
+ 			new_transport = transport_h2g;
+ 		break;
+@@ -2879,6 +2888,15 @@ static struct ctl_table vsock_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= vsock_net_child_mode_string
+ 	},
++	{
++		.procname	= "g2h_fallback",
++		.data		= &vsock_g2h_fallback,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE,
++	},
+ };
+ 
+ static int __net_init vsock_sysctl_register(struct net *net)
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 4296ca1183f1..de3dff52c566 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -2045,6 +2045,11 @@ static u32 vmci_transport_get_local_cid(void)
+ 	return vmci_get_context_id();
+ }
+ 
++static bool vmci_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
++{
++	return vmci_ctx_exists(cid);
++}
++
+ static struct vsock_transport vmci_transport = {
+ 	.module = THIS_MODULE,
+ 	.init = vmci_transport_socket_init,
+@@ -2074,6 +2079,7 @@ static struct vsock_transport vmci_transport = {
+ 	.notify_send_post_enqueue = vmci_transport_notify_send_post_enqueue,
+ 	.shutdown = vmci_transport_shutdown,
+ 	.get_local_cid = vmci_transport_get_local_cid,
++	.has_remote_cid = vmci_transport_has_remote_cid,
+ };
+ 
+ static bool vmci_check_transport(struct vsock_sock *vsk)
+-- 
+2.47.1
+
+
+
+
+Amazon Web Services Development Center Germany GmbH
+Tamara-Danz-Str. 13
+10243 Berlin
+Geschaeftsfuehrung: Christof Hellmis, Andreas Stieger
+Eingetragen am Amtsgericht Charlottenburg unter HRB 257764 B
+Sitz: Berlin
+Ust-ID: DE 365 538 597
 
