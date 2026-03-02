@@ -1,260 +1,297 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from lf-2-32.ptr.blmpb.com (lf-2-32.ptr.blmpb.com [101.36.218.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE7DF1CF8B
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 00:45:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC18C25A2A2
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 01:58:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.36.218.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772412324; cv=none; b=luoMGMwNOQ+TcmppQuoOz+r+VKOGV1S20tntq/KOJx13v28X9nHBtV1WYgGNBUvG9IjwpOimb8zBzTortJtpIG/Q7cVUE5t50/oCMFz/jG1dyUPP0pQEvaNNtafzmTGps4aTROWJapTTotPS3BZrEgtDSDySbn6X80+Em71tT7k=
+	t=1772416728; cv=none; b=hSqG+Vtsqp+OXm3Jug08izSVEASQziAug4Em0ejfgRaq5DVXEC1md8kP8l/ll9qKrv4/qXWAncY9FZGy5W+QCcbCPb5xH/WBBfWp39DX5t1mF5bfb8MTUIcAUkMVMm2z6ydlTzXjjMx8MXCsEIGAjvVHNrfQn0iQ/zCgLPwJSiQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772412324; c=relaxed/simple;
-	bh=4u5xVp5TnwLZTh7dIRHY4bKsceG8AE3TAWJalgr5Ac4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=F+9ov6UDBCpureO65f8Uik9HmaYllPERPZJCLlJB2SsnJE1QqbfteGVsKAHfT5g5Br0QBLLDtVFIVQHdywQe0k6V2mxFn8xHx3eku2OrgfChhwy6Py+GT8szMItzNNArD4szV5v1+tI0GnOppqeDl8ld2al6NMO5HlYgADvUMM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SyV5ti1Q; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1772416728; c=relaxed/simple;
+	bh=Adqf0zh2hayDMj7FF1I0bgPXD9fxuN4yMCe2P+dI7vg=;
+	h=Subject:Mime-Version:In-Reply-To:From:References:Content-Type:
+	 Date:Message-Id:To:Cc; b=AFhOBHn+SkSzuAdBLGcdtaYLLPIXKv2vVAE/4/AHqVceS2XSUltM/NU3tSVvPzgVLwGjaMVD8oVGYTPPhS+2L+wqpRKR5jDrCIszNkPmU0TnumRpxyaFB0zqV/eaNhrhV6f43HCqunGHS0PrSag49N+GHrQElIZUnrwrWZVGHFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=yunyoo.cc; spf=pass smtp.mailfrom=yunyoo.cc; dkim=pass (2048-bit key) header.d=yunyoo-cc.20200929.dkim.larksuite.com header.i=@yunyoo-cc.20200929.dkim.larksuite.com header.b=oI3Hh2kl; arc=none smtp.client-ip=101.36.218.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=yunyoo.cc
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yunyoo.cc
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SyV5ti1Q"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772412320;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vv0k8lngNVzpQy1IMYA5foV0UbEwsl2jdcB0vqaVFDY=;
-	b=SyV5ti1QjsTUlpL77JFKvFZnRgaNtChECGgFK6laDeVA1FpL9p/ELxK1D3+FYH3Qxr12sM
-	p1wTGM6L/JOt+8BWXcLob5qB/mYDOLMI7NsFjNh+GSJHvrp1h5iAMCpHHEPduDDbzdoXrb
-	nY7hqa1GPtQehqmH01oLIqMiS5xnrdg=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-358-DDUCJomqNimZ624XPZflGg-1; Sun, 01 Mar 2026 19:45:19 -0500
-X-MC-Unique: DDUCJomqNimZ624XPZflGg-1
-X-Mimecast-MFC-AGG-ID: DDUCJomqNimZ624XPZflGg_1772412318
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4836bf1a920so41495695e9.3
-        for <virtualization@lists.linux.dev>; Sun, 01 Mar 2026 16:45:19 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772412318; x=1773017118;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vv0k8lngNVzpQy1IMYA5foV0UbEwsl2jdcB0vqaVFDY=;
-        b=ksAmCnX2SsllxyUlokL5DGiwjO8b/eTFE9BL4CXTxgu/6iKOfe2CQaApCLPWaDmauP
-         0zpdJd9QQajY3MDNpWTuvOWMJiGkMYmQJtbopdIbHqB/91y2Pq7LT5GjglbA1D8rpfav
-         H/6Ow4iUOoxpUSE9EH5aroSAeIdBRVW393r2h19sMbL8q/stFe1hU5D+BIRTL63/745q
-         4Jubo4dR9tSjWxj0QXxihpIqtpIc1DCLy65Gb+kqSqSZX0bPL2YA2Ga1/h1/XccwLvE0
-         qg3pHcwD2p6IxtTrkOIA16wJpqV3qjj1aQSxR6qDXwtdFQeTPwfTcBtl4Gx36ERBFEYP
-         JydA==
-X-Forwarded-Encrypted: i=1; AJvYcCUSwiQhIhZ7O3a29IrxccbrvKLHsXaI6Nf8TClUR0tTo9El9Z/PPb1PkPDa9CXKI1WORQIQ6VsR19X+6rgCKw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzdLmBQ4/n0hML9b78aO6iVNDHzWhtUP3Z+oGGfERZHbf1Ddo36
-	0TNAYvPZ3ZvMHnolX+yLPYtIFwRRTYqUoW1//hEOeMn9hG1bC3m4YfSOq+74TrmyYXC1ceTjZ+K
-	FGje6GR8oYMhRhExpgNrbCKky2iIrs7a+ORqgpwyTzNSYhgpz1+1+R/w9vK3PX4laJ2rB
-X-Gm-Gg: ATEYQzxq2kgMaGIA+h2n4JpJn/OS0QpT7prx90Z04r06ptR1VnLL3jiFmQxzqnXKOij
-	2w+S8q+hr/6HHIIe4594VmAJOhGeBulsRhZva+IMMFsbkWToGqZU5ZZOA/e6OiffDd578MqggOF
-	APzTiFtWqNwcAQg9D91LRn1/4GomwvUjlKUA3xj3PvwmVxCC2V7rlx9IDKIo5NAXaiGPBettwFo
-	7GzxYpLT5f4kyQ5H0mPOEpEofn+lclj7V3JgqAW7SPtrZRMaHXGmVTkvFzW5NQwpO9n3p2cOjdi
-	atmV2D8qaRPUoVn6LtJzB1W/WPTR4dBZKy0VfrJNKuidQsa87cj1UCVZ3LMZb1s4yS4i4E47FD+
-	og4uuOmtj5CKBW7ICGUPRlIrJ2KxQhFaUO15KUdrB4dzuyQ==
-X-Received: by 2002:a05:600c:530c:b0:483:afbb:a077 with SMTP id 5b1f17b1804b1-483c9b971a3mr177121075e9.1.1772412318360;
-        Sun, 01 Mar 2026 16:45:18 -0800 (PST)
-X-Received: by 2002:a05:600c:530c:b0:483:afbb:a077 with SMTP id 5b1f17b1804b1-483c9b971a3mr177120815e9.1.1772412317848;
-        Sun, 01 Mar 2026 16:45:17 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483bd6f2f88sm357274885e9.2.2026.03.01.16.45.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Mar 2026 16:45:17 -0800 (PST)
-Date: Sun, 1 Mar 2026 19:45:15 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: ShuangYu <shuangyu@yunyoo.cc>
-Cc: "jasowang@redhat.com" <jasowang@redhat.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>
-Subject: Re: [BUG] vhost_net: livelock in handle_rx() when GRO packet exceeds
- virtqueue capacity
-Message-ID: <20260301194456-mutt-send-email-mst@kernel.org>
-References: <9ac0a071e79e9da8128523ddeba19085f4f8c9aa.decbd9ef.1293.41c3.bf27.48cdc12b9ce6@larksuite.com>
- <20260301190906-mutt-send-email-mst@kernel.org>
- <20260301193655-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=yunyoo-cc.20200929.dkim.larksuite.com header.i=@yunyoo-cc.20200929.dkim.larksuite.com header.b="oI3Hh2kl"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=s1; d=yunyoo-cc.20200929.dkim.larksuite.com; t=1772416673;
+  h=from:subject:mime-version:from:date:message-id:subject:to:cc:
+ reply-to:content-type:mime-version:in-reply-to:message-id;
+ bh=Adqf0zh2hayDMj7FF1I0bgPXD9fxuN4yMCe2P+dI7vg=;
+ b=oI3Hh2klncXn9VySxG53E47EvKfmKXi9QnSgDZHHPb5WzOPD1vg4yPWwsfGHF5AQGo/YAY
+ MiFugChHTtB5rqzURRdMydjiLAtCe47Y/BlQ4O6nXTMw7auoRS1MbJH90UWaVRHFSReFry
+ xTzHl8VgLR8Bs8plZSViFJnbQCgOQqjamL2CJdUKYHI3C/8nNJmye1xK0CEwAqYexKlyKn
+ iLXUp8bE1i4jLQrmJP9JCDlUysHXP6mOe7aGon5SK2E5vV7ICDIDWLmiq4zMrFLM47mEBD
+ KeIEFCgm5nZcJvE3ZAUFKvu8MWJE/97MFvOu9/PzkKZ//Dki1eo77tGUDQ4S4A==
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [BUG] vhost_net: livelock in handle_rx() when GRO packet exceeds virtqueue capacity
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20260301193655-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: cI8gXcSvq0PXhLs_V0SGDcXY3lBSFAPefF4wxUpJ_IY_1772412318
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-
-On Sun, Mar 01, 2026 at 07:39:30PM -0500, Michael S. Tsirkin wrote:
-> On Sun, Mar 01, 2026 at 07:10:06PM -0500, Michael S. Tsirkin wrote:
-> > On Sun, Mar 01, 2026 at 10:36:39PM +0000, ShuangYu wrote:
-> > > Hi,
-> > > 
-> > > We have hit a severe livelock in vhost_net on 6.18.x. The vhost
-> > > kernel thread spins at 100% CPU indefinitely in handle_rx(), and
-> > > QEMU becomes unkillable (stuck in D state).
-> > > [This is a text/plain messages]
-> > > 
-> > > Environment
-> > > -----------
-> > >   Kernel:  6.18.10-1.el8.elrepo.x86_64
-> > >   QEMU:    7.2.19
-> > >   Virtio:  VIRTIO_F_IN_ORDER is negotiated
-> > >   Backend: vhost (kernel)
-> > > 
-> > > Symptoms
-> > > --------
-> > >   - vhost-<pid> kernel thread at 100% CPU (R state, never yields)
-> > >   - QEMU stuck in D state at vhost_dev_flush() after receiving SIGTERM
-> > >   - kill -9 has no effect on the QEMU process
-> > >   - libvirt management plane deadlocks ("cannot acquire state change lock")
-> > > 
-> > > Root Cause
-> > > ----------
-> > > The livelock is triggered when a GRO-merged packet on the host TAP
-> > > interface (e.g., ~60KB) exceeds the remaining free capacity of the
-> > > guest's RX virtqueue (e.g., ~40KB of available buffers).
-> > > 
-> > > The loop in handle_rx() (drivers/vhost/net.c) proceeds as follows:
-> > > 
-> > >   1. get_rx_bufs() calls vhost_get_vq_desc_n() to fetch descriptors.
-> > >     It advances vq->last_avail_idx and vq->next_avail_head as it
-> > >     consumes buffers, but runs out before satisfying datalen.
-> > > 
-> > >   2. get_rx_bufs() jumps to err: and calls
-> > >     vhost_discard_vq_desc(vq, headcount, n), which rolls back
-> > >     vq->last_avail_idx and vq->next_avail_head.
-> > > 
-> > >     Critically, vq->avail_idx (the cached copy of the guest's
-> > >     avail->idx) is NOT rolled back. This is correct behavior in
-> > >     isolation, but creates a persistent mismatch:
-> > > 
-> > >       vq->avail_idx      = 108  (cached, unchanged)
-> > >       vq->last_avail_idx = 104  (rolled back)
-> > > 
-> > >   3. handle_rx() sees headcount == 0 and calls vhost_enable_notify().
-> > >     Inside, vhost_get_avail_idx() finds:
-> > > 
-> > >       vq->avail_idx (108) != vq->last_avail_idx (104)
-> > > 
-> > >     It returns 1 (true), indicating "new buffers available."
-> > >     But these are the SAME buffers that were just discarded.
-> > > 
-> > >   4. handle_rx() hits `continue`, restarting the loop.
-> > > 
-> > >   5. In the next iteration, vhost_get_vq_desc_n() checks:
-> > > 
-> > >       if (vq->avail_idx == vq->last_avail_idx)
-> > > 
-> > >     This is FALSE (108 != 104), so it skips re-reading the guest's
-> > >     actual avail->idx and directly fetches the same descriptors.
-> > > 
-> > >   6. The exact same sequence repeats: fetch -> too small -> discard
-> > >     -> rollback -> "new buffers!" -> continue. Indefinitely.
-> > > 
-> > > This appears to be a regression introduced by the VIRTIO_F_IN_ORDER
-> > > support, which added vhost_get_vq_desc_n() with the cached avail_idx
-> > > short-circuit check, and the two-argument vhost_discard_vq_desc()
-> > > with next_avail_head rollback. The mismatch between the rollback
-> > > scope (last_avail_idx, next_avail_head) and the check scope
-> > > (avail_idx vs last_avail_idx) was not present before this change.
-> > > 
-> > > bpftrace Evidence
-> > > -----------------
-> > > During the 100% CPU lockup, we traced:
-> > > 
-> > >   @get_rx_ret[0]:      4468052   // get_rx_bufs() returns 0 every time
-> > >   @peek_ret[60366]:    4385533   // same 60KB packet seen every iteration
-> > >   @sock_err[recvmsg]:        0   // tun_recvmsg() is never reached
-> > > 
-> > > vhost_get_vq_desc_n() was observed iterating over the exact same 11
-> > > descriptor addresses millions of times per second.
-> > > 
-> > > Workaround
-> > > ----------
-> > > Either of the following avoids the livelock:
-> > > 
-> > >   - Disable GRO/GSO on the TAP interface:
-> > >      ethtool -K <tap> gro off gso off
-> > > 
-> > >   - Switch from kernel vhost to userspace QEMU backend:
-> > >      <driver name='qemu'/> in libvirt XML
-> > > 
-> > > Bisect
-> > > ------
-> > > We have not yet completed a full git bisect, but the issue does not
-> > > occur on 6.17.x kernels which lack the VIRTIO_F_IN_ORDER vhost
-> > > support. We will follow up with a Fixes: tag if we can identify the
-> > > exact commit.
-> > > 
-> > > Suggested Fix Direction
-> > > -----------------------
-> > > In handle_rx(), when get_rx_bufs() returns 0 (headcount == 0) due to
-> > > insufficient buffers (not because the queue is truly empty), the code
-> > > should break out of the loop rather than relying on
-> > > vhost_enable_notify() to make that determination. For example, when
-> > > get_rx_bufs() returns r == 0 with datalen still > 0, this indicates a
-> > > "packet too large" condition, not a "queue empty" condition, and
-> > > should be handled differently.
-> > > 
-> > > Thanks,
-> > > ShuangYu
-> > 
-> > Hmm. On a hunch, does the following help? completely untested,
-> > it is night here, sorry.
-> > 
-> > 
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index 2f2c45d20883..aafae15d5156 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -1522,6 +1522,7 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
-> >  static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
-> >  {
-> >  	__virtio16 idx;
-> > +	u16 avail_idx;
-> >  	int r;
-> >  
-> >  	r = vhost_get_avail(vq, idx, &vq->avail->idx);
-> > @@ -1532,17 +1533,19 @@ static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq)
-> >  	}
-> >  
-> >  	/* Check it isn't doing very strange thing with available indexes */
-> > -	vq->avail_idx = vhost16_to_cpu(vq, idx);
-> > -	if (unlikely((u16)(vq->avail_idx - vq->last_avail_idx) > vq->num)) {
-> > +	avail_idx = vhost16_to_cpu(vq, idx);
-> > +	if (unlikely((u16)(avail_idx - vq->last_avail_idx) > vq->num)) {
-> >  		vq_err(vq, "Invalid available index change from %u to %u",
-> >  		       vq->last_avail_idx, vq->avail_idx);
-> >  		return -EINVAL;
-> >  	}
-> >  
-> >  	/* We're done if there is nothing new */
-> > -	if (vq->avail_idx == vq->last_avail_idx)
-> > +	if (avail_idx == vq->avail_idx)
-> >  		return 0;
-> >  
-> > +	vq->avail_idx == avail_idx;
-> > +
-> 
-> meaning 
-> 	vq->avail_idx = avail_idx; 
-> of course
-> 
-> >  	/*
-> >  	 * We updated vq->avail_idx so we need a memory barrier between
-> >  	 * the index read above and the caller reading avail ring entries.
+Mime-Version: 1.0
+In-Reply-To: <20260301194456-mutt-send-email-mst@kernel.org>
+X-Lms-Return-Path: <lba+169a4eea0+f1f625+lists.linux.dev+shuangyu@yunyoo.cc>
+From: "ShuangYu" <shuangyu@yunyoo.cc>
+References: <9ac0a071e79e9da8128523ddeba19085f4f8c9aa.decbd9ef.1293.41c3.bf27.48cdc12b9ce6@larksuite.com> <20260301190906-mutt-send-email-mst@kernel.org> <20260301193655-mutt-send-email-mst@kernel.org>
+	<20260301194456-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 02 Mar 2026 01:57:51 +0000
+Message-Id: <9ac0a071e79e9da8128523ddeba19085f4f8c9aa.8ae4e890.449b.4397.8e81.d58ff010ba07@larksuite.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "jasowang@redhat.com" <jasowang@redhat.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>
 
 
-and the change this is fixing was done in d3bb267bbdcba199568f1325743d9d501dea0560
+> From: "Michael S. Tsirkin"<mst@redhat.com>
+> Date:=C2=A0 Mon, Mar 2, 2026, 08:45
+> Subject:=C2=A0 Re: [BUG] vhost_net: livelock in handle_rx() when GRO pack=
+et exceeds virtqueue capacity
+> To: "ShuangYu"<shuangyu@yunyoo.cc>
+> Cc: "jasowang@redhat.com"<jasowang@redhat.com>, "virtualization@lists.lin=
+ux.dev"<virtualization@lists.linux.dev>, "netdev@vger.kernel.org"<netdev@vg=
+er.kernel.org>, "linux-kernel@vger.kernel.org"<linux-kernel@vger.kernel.org=
+>, "kvm@vger.kernel.org"<kvm@vger.kernel.org>
+> On Sun, Mar 01, 2026 at 07:39:30PM -0500, Michael S. Tsirkin wrote:
+> > On Sun, Mar 01, 2026 at 07:10:06PM -0500, Michael S. Tsirkin wrote:
+> > > On Sun, Mar 01, 2026 at 10:36:39PM +0000, ShuangYu wrote:
+> > > > Hi,
+> > > >=C2=A0
+> > > > We have hit a severe livelock in vhost_net on 6.18.x. The vhost
+> > > > kernel thread spins at 100% CPU indefinitely in handle_rx(), and
+> > > > QEMU becomes unkillable (stuck in D state).
+> > > > [This is a text/plain messages]
+> > > >=C2=A0
+> > > > Environment
+> > > > -----------
+> > > > =C2=A0 Kernel:=C2=A0 6.18.10-1.el8.elrepo.x86_64
+> > > > =C2=A0 QEMU: =C2=A0=C2=A0 7.2.19
+> > > > =C2=A0 Virtio:=C2=A0 VIRTIO_F_IN_ORDER is negotiated
+> > > > =C2=A0 Backend: vhost (kernel)
+> > > >=C2=A0
+> > > > Symptoms
+> > > > --------
+> > > > =C2=A0 - vhost-<pid> kernel thread at 100% CPU (R state, never yiel=
+ds)
+> > > > =C2=A0 - QEMU stuck in D state at vhost_dev_flush() after receiving=
+ SIGTERM
+> > > > =C2=A0 - kill -9 has no effect on the QEMU process
+> > > > =C2=A0 - libvirt management plane deadlocks ("cannot acquire state =
+change lock")
+> > > >=C2=A0
+> > > > Root Cause
+> > > > ----------
+> > > > The livelock is triggered when a GRO-merged packet on the host TAP
+> > > > interface (e.g., ~60KB) exceeds the remaining free capacity of the
+> > > > guest's RX virtqueue (e.g., ~40KB of available buffers).
+> > > >=C2=A0
+> > > > The loop in handle_rx() (drivers/vhost/net.c) proceeds as follows:
+> > > >=C2=A0
+> > > > =C2=A0 1. get_rx_bufs() calls vhost_get_vq_desc_n() to fetch descri=
+ptors.
+> > > > =C2=A0=C2=A0=C2=A0 It advances vq->last_avail_idx and vq->next_avai=
+l_head as it
+> > > > =C2=A0=C2=A0=C2=A0 consumes buffers, but runs out before satisfying=
+ datalen.
+> > > >=C2=A0
+> > > > =C2=A0 2. get_rx_bufs() jumps to err: and calls
+> > > > =C2=A0=C2=A0=C2=A0 vhost_discard_vq_desc(vq, headcount, n), which r=
+olls back
+> > > > =C2=A0=C2=A0=C2=A0 vq->last_avail_idx and vq->next_avail_head.
+> > > >=C2=A0
+> > > > =C2=A0=C2=A0=C2=A0 Critically, vq->avail_idx (the cached copy of th=
+e guest's
+> > > > =C2=A0=C2=A0=C2=A0 avail->idx) is NOT rolled back. This is correct =
+behavior in
+> > > > =C2=A0=C2=A0=C2=A0 isolation, but creates a persistent mismatch:
+> > > >=C2=A0
+> > > > =C2=A0=C2=A0 =C2=A0=C2=A0 vq->avail_idx =C2=A0 =C2=A0=C2=A0 =3D 108=
+=C2=A0 (cached, unchanged)
+> > > > =C2=A0=C2=A0 =C2=A0=C2=A0 vq->last_avail_idx =3D 104=C2=A0 (rolled =
+back)
+> > > >=C2=A0
+> > > > =C2=A0 3. handle_rx() sees headcount =3D=3D 0 and calls vhost_enabl=
+e_notify().
+> > > > =C2=A0=C2=A0=C2=A0 Inside, vhost_get_avail_idx() finds:
+> > > >=C2=A0
+> > > > =C2=A0=C2=A0 =C2=A0=C2=A0 vq->avail_idx (108) !=3D vq->last_avail_i=
+dx (104)
+> > > >=C2=A0
+> > > > =C2=A0=C2=A0=C2=A0 It returns 1 (true), indicating "new buffers ava=
+ilable."
+> > > > =C2=A0=C2=A0=C2=A0 But these are the SAME buffers that were just di=
+scarded.
+> > > >=C2=A0
+> > > > =C2=A0 4. handle_rx() hits `continue`, restarting the loop.
+> > > >=C2=A0
+> > > > =C2=A0 5. In the next iteration, vhost_get_vq_desc_n() checks:
+> > > >=C2=A0
+> > > > =C2=A0=C2=A0 =C2=A0=C2=A0 if (vq->avail_idx =3D=3D vq->last_avail_i=
+dx)
+> > > >=C2=A0
+> > > > =C2=A0=C2=A0=C2=A0 This is FALSE (108 !=3D 104), so it skips re-rea=
+ding the guest's
+> > > > =C2=A0=C2=A0=C2=A0 actual avail->idx and directly fetches the same =
+descriptors.
+> > > >=C2=A0
+> > > > =C2=A0 6. The exact same sequence repeats: fetch -> too small -> di=
+scard
+> > > > =C2=A0=C2=A0=C2=A0 -> rollback -> "new buffers!" -> continue. Indef=
+initely.
+> > > >=C2=A0
+> > > > This appears to be a regression introduced by the VIRTIO_F_IN_ORDER
+> > > > support, which added vhost_get_vq_desc_n() with the cached avail_id=
+x
+> > > > short-circuit check, and the two-argument vhost_discard_vq_desc()
+> > > > with next_avail_head rollback. The mismatch between the rollback
+> > > > scope (last_avail_idx, next_avail_head) and the check scope
+> > > > (avail_idx vs last_avail_idx) was not present before this change.
+> > > >=C2=A0
+> > > > bpftrace Evidence
+> > > > -----------------
+> > > > During the 100% CPU lockup, we traced:
+> > > >=C2=A0
+> > > > =C2=A0 @get_rx_ret[0]: =C2=A0 =C2=A0=C2=A0 4468052 =C2=A0 // get_rx=
+_bufs() returns 0 every time
+> > > > =C2=A0 @peek_ret[60366]: =C2=A0=C2=A0 4385533 =C2=A0 // same 60KB p=
+acket seen every iteration
+> > > > =C2=A0 @sock_err[recvmsg]: =C2=A0 =C2=A0 =C2=A0=C2=A0 0 =C2=A0 // t=
+un_recvmsg() is never reached
+> > > >=C2=A0
+> > > > vhost_get_vq_desc_n() was observed iterating over the exact same 11
+> > > > descriptor addresses millions of times per second.
+> > > >=C2=A0
+> > > > Workaround
+> > > > ----------
+> > > > Either of the following avoids the livelock:
+> > > >=C2=A0
+> > > > =C2=A0 - Disable GRO/GSO on the TAP interface:
+> > > > =C2=A0=C2=A0 =C2=A0 ethtool -K <tap> gro off gso off
+> > > >=C2=A0
+> > > > =C2=A0 - Switch from kernel vhost to userspace QEMU backend:
+> > > > =C2=A0=C2=A0 =C2=A0 <driver name=3D'qemu'/> in libvirt XML
+> > > >=C2=A0
+> > > > Bisect
+> > > > ------
+> > > > We have not yet completed a full git bisect, but the issue does not
+> > > > occur on 6.17.x kernels which lack the VIRTIO_F_IN_ORDER vhost
+> > > > support. We will follow up with a Fixes: tag if we can identify the
+> > > > exact commit.
+> > > >=C2=A0
+> > > > Suggested Fix Direction
+> > > > -----------------------
+> > > > In handle_rx(), when get_rx_bufs() returns 0 (headcount =3D=3D 0) d=
+ue to
+> > > > insufficient buffers (not because the queue is truly empty), the co=
+de
+> > > > should break out of the loop rather than relying on
+> > > > vhost_enable_notify() to make that determination. For example, when
+> > > > get_rx_bufs() returns r =3D=3D 0 with datalen still > 0, this indic=
+ates a
+> > > > "packet too large" condition, not a "queue empty" condition, and
+> > > > should be handled differently.
+> > > >=C2=A0
+> > > > Thanks,
+> > > > ShuangYu
+> > >=C2=A0
+> > > Hmm. On a hunch, does the following help? completely untested,
+> > > it is night here, sorry.
+> > >=C2=A0
+> > >=C2=A0
+> > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > > index 2f2c45d20883..aafae15d5156 100644
+> > > --- a/drivers/vhost/vhost.c
+> > > +++ b/drivers/vhost/vhost.c
+> > > @@ -1522,6 +1522,7 @@ static void vhost_dev_unlock_vqs(struct vhost_d=
+ev *d)
+> > > =C2=A0static inline int vhost_get_avail_idx(struct vhost_virtqueue *v=
+q)
+> > > =C2=A0{
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0__virtio16 idx;
+> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0u16 avail_idx;
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0int r;
+> > > =C2=A0
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0r =3D vhost_get_avail(vq, idx, &vq-=
+>avail->idx);
+> > > @@ -1532,17 +1533,19 @@ static inline int vhost_get_avail_idx(struct =
+vhost_virtqueue *vq)
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}
+> > > =C2=A0
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0/* Check it isn't doing very strang=
+e thing with available indexes */
+> > > - =C2=A0 =C2=A0 =C2=A0 =C2=A0vq->avail_idx =3D vhost16_to_cpu(vq, idx=
+);
+> > > - =C2=A0 =C2=A0 =C2=A0 =C2=A0if (unlikely((u16)(vq->avail_idx - vq->l=
+ast_avail_idx) > vq->num)) {
+> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0avail_idx =3D vhost16_to_cpu(vq, idx);
+> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0if (unlikely((u16)(avail_idx - vq->last_=
+avail_idx) > vq->num)) {
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0vq_err(=
+vq, "Invalid available index change from %u to %u",
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 vq->last_avail_idx, vq->avail_idx);
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return =
+-EINVAL;
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}
+> > > =C2=A0
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0/* We're done if there is nothing n=
+ew */
+> > > - =C2=A0 =C2=A0 =C2=A0 =C2=A0if (vq->avail_idx =3D=3D vq->last_avail_=
+idx)
+> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0if (avail_idx =3D=3D vq->avail_idx)
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return =
+0;
+> > > =C2=A0
+> > > + =C2=A0 =C2=A0 =C2=A0 =C2=A0vq->avail_idx =3D=3D avail_idx;
+> > > +
+> >=C2=A0
+> > meaning=C2=A0
+> > =C2=A0 =C2=A0 =C2=A0 =C2=A0 vq->avail_idx =3D avail_idx;=C2=A0
+> > of course
+> >=C2=A0
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0/*
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 * We updated vq->avail_idx so we n=
+eed a memory barrier between
+> > > =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 * the index read above and the cal=
+ler reading avail ring entries.
+>=C2=A0
+>=C2=A0
+> and the change this is fixing was done in d3bb267bbdcba199568f1325743d9d5=
+01dea0560
+>=C2=A0
+> --=C2=A0
+> MST
+>=C2=A0
 
--- 
-MST
+Thank you for the quick fix and for identifying the root commit.
 
+I've reviewed the patch and I believe the logic is correct =E2=80=94 changi=
+ng
+the "nothing new" check in vhost_get_avail_idx() from comparing
+against vq->last_avail_idx to comparing against the cached
+vq->avail_idx makes it immune to the rollback done by
+vhost_discard_vq_desc(), which is exactly what breaks the loop.
+
+One minor nit: the vq_err message on the sanity check path still
+references vq->avail_idx before it has been updated:
+
+=C2=A0=C2=A0 =C2=A0 =C2=A0=C2=A0 vq_err(vq, "Invalid available index change=
+ from %u to %u",
+- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 vq->last_avail_idx, vq->a=
+vail_idx);
++ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 vq->last_avail_idx, avail=
+_idx);
+
+
+Since this issue was found in production, I need some time to prepare a tes=
+t setup to verify the patch
+
+Thanks,
+ShuangYu
