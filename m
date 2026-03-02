@@ -1,198 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.155.198.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F7953563EB
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 18:53:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C07375AB9
+	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 19:04:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.155.198.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772477599; cv=none; b=fxl+GhIswqVhpcTvy5Zyv4hdlwtarFv/ly1GJdl6/hGYegwkUfAmX0tsNeItXLuQDFtGkbAk/Jo6eokJQoFTbwotQZXGTw8rw41gqTaitJxWk3bCHrqfeatv2C3IBczJbO2hcfopfgrLvfDGMzmU9CV1bXaukInD934+EOknP8g=
+	t=1772478277; cv=none; b=gJGtMXOmGAPCeKPwRYK0m6iegNZ9GRopKJKN1hxrwwZeXatyPIZhdqoFuD+D3zgCCxqKwFII6DpI9t2aCL0djWZmJixAHiPDJJ+G7D1FEI7MvcN1WXT/xgZznn6rKvTOvRZGyrrG0UbrnC0zuudKSnveBwC/r0UukLIvXr0bqL4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772477599; c=relaxed/simple;
-	bh=rGb+d3eXV4/WG6UZVYz2+NJz33h47kbcneDn0cpgFpE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=LMspKxVCDs8Gd/wwSQPsy5s1Nz/IsrSVAtGedZ2fWyWznoOyDSy1OI+jmBLdw2M2Hg6oZCLxK3eKGXU0OfsG20BfLK7N7M3bEyg/abCSRqhHgnFl3Oagc4RM0XGST7U6DWeU7sYCSvwfhZBAk7IpqYUv+uX0G2BzfTkMHsXkTSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JYlpcGOy; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1772478277; c=relaxed/simple;
+	bh=LUQ9tY/9PUB2akCA2g4Nqja3pQ0wkFh1CmjA/J2R78o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=E+2PRz1fEG+GdkpUgHbBpEHV2iSM7YgXP7fIfpAsPHkrZK4Z83ZMsHrxbmmaaD0xgiQETVmckYd3AI4EMw0TS5Ebsm8+r1ze1dl4u2JVqvaRBmrIQpTU0sbHpkC2GZaArw2ndYdUT/WQT7rJawM9BphWqevz3F9UdGdQ12vTamY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=Mpm9WO8s; arc=none smtp.client-ip=35.155.198.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JYlpcGOy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772477597;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=X5Qbo2pQOAmuJWNlaaVNuPWK+hvBjNdcsVen+Csw5XQ=;
-	b=JYlpcGOyeRpIsWxi0m2HIWClmnVyTt9Vd+wF8ceZVvBsXfqVRVJAoEG8iWS823muYPHjPN
-	FKaKvc2mFPQkztd78nRgVW5JBQdX4nL28BiFjsJgjL6yajw83i1W8l8AKhHiE447if9B43
-	3PCR4LJfdBpTIxSjGEZ+M/JLnfB5apQ=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-612-LeJ8Y87XN9S74vco-PKfgw-1; Mon, 02 Mar 2026 13:53:13 -0500
-X-MC-Unique: LeJ8Y87XN9S74vco-PKfgw-1
-X-Mimecast-MFC-AGG-ID: LeJ8Y87XN9S74vco-PKfgw_1772477592
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4836cf00787so53812055e9.1
-        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 10:53:13 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772477592; x=1773082392;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=X5Qbo2pQOAmuJWNlaaVNuPWK+hvBjNdcsVen+Csw5XQ=;
-        b=HRnzZNBAg8qjwDZguvJhD4C0vBctlbvsp7Zx62gZ8YrtJNwav2hpQCB3ucHTZMD3am
-         WF9hkIeHAomyvWLhvVW4o2yQD9KsgI9bqItebOQHZYXnJnJp/xzgJzIP7hy15i01q6XT
-         LpPzQdFGXr5U5dTMSuvz09xUfGXc+t6hp4yGafS3kRZuGkcfNNPipojOSgv/JFKGxTin
-         ybMKwqVum33rCdtIGVNHqjB65gXWhW6xig7HWxiVtMhZLocGZ8QhpjjiUSIDHI5YSkXZ
-         iFmhnuZanQoGKeA4qtX7IxpGAA18WkDcs5gEhl5uUZWK3SdJQJ/9oFMLR1UfgKc8kFPv
-         n3Iw==
-X-Forwarded-Encrypted: i=1; AJvYcCVtxaneBIYK+vUw2fVHlRcoreAS8uWn0bo523Tc7BoAqqCL65No/Jb2Pm2xHKY65+dTVi9SCYoK2j6mE7E+Mg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzcLzmMZu9kSroqBNKrJh+fCYpXitALLUfGtf69zY93nMybJQRq
-	yyBxtuUx6KULHcqmTfQsukCSGepjdBtcKj3nWgJFR5PoK2ynccL1q7bF6YuW/3qm3UevqltyeqW
-	mNVHEzr+Wf/PO9pKV3gd5kkcBdWfC99UIZql36xE4FmeAafjevBdukxkrYIYrU7YWpU+k
-X-Gm-Gg: ATEYQzxePmZGcCCrPMamJW0X+M1/MiFJRZSWtRuqoJ2CrDqS0IArYKL1SGMEEYU0I5/
-	45ePJm0jdoUPRlszo2B2VXF5zUO2LNDMtq0/ChYmCiu93J+r/hUlD6FEY7BZHgXSlgIflbEtZVs
-	rfVQNpAJZvs6xGdmjXmQNs0XuK1CG4/OeAFRFoyCoPEAWFjfLhN56/94DVxVqGa6D23lLlSZQej
-	BiMTFEGUTNZl6CoEbNRFs8IT0uk5+KXMxzHY/gcnxQt40UYG3vCfjiWtCBKGeBBvbnJtyjDkU5M
-	A/0cJVPG+hb271SCskF/TMFxZnhc3DfRKZV2lzjT1SxfIW6DQdx3kWX2wkJHAymVJFOW2W4zhAe
-	uiMvjzSs2RcLfzum1c/3vQYnaZW39Jmw0tNexFlhMadqd7w==
-X-Received: by 2002:a05:600c:820c:b0:479:13e9:3d64 with SMTP id 5b1f17b1804b1-483c9937b2dmr210988995e9.15.1772477592332;
-        Mon, 02 Mar 2026 10:53:12 -0800 (PST)
-X-Received: by 2002:a05:600c:820c:b0:479:13e9:3d64 with SMTP id 5b1f17b1804b1-483c9937b2dmr210988605e9.15.1772477591814;
-        Mon, 02 Mar 2026 10:53:11 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483c3b44207sm315022535e9.7.2026.03.02.10.53.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Mar 2026 10:53:11 -0800 (PST)
-Date: Mon, 2 Mar 2026 13:53:08 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v2] virtio-net: xsk: Support wakeup on RX side
-Message-ID: <20260302135032-mutt-send-email-mst@kernel.org>
-References: <20260302164158.4394-1-minhquangbui99@gmail.com>
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="Mpm9WO8s"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1772478270; x=1804014270;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=LUQ9tY/9PUB2akCA2g4Nqja3pQ0wkFh1CmjA/J2R78o=;
+  b=Mpm9WO8swXMYRuUpcdwbbUAjSOvDTcgPe/55Z+bTW74nv+Nvhp2kLfqY
+   2/DZkmy4YSpOe/6mc0Nvy5vu+HgZCynxucb95w9tgZ8Kxp1p62Khi+H4w
+   DYkfwhW1b/iOiKx2MqKyU2SoGrrx4HbJrQYaG/qRir1Lu9p3CuC65+dkq
+   ELPrZmWURL9ZHvaU2tqexEl6H3ARdRCCfpp4W0pKSZ6wWfE7i4iyQfWkq
+   Em7Fs79Otx31/IZdcaIrQ3xwYZ9m+lHQQqVUcPWRX26KWVF+OBJXHOmXf
+   KySPBlF6ykx4Q18dHcjUAxT9WFQXg1uI+PDB18ObL+o35CerlwgpsC4pf
+   g==;
+X-CSE-ConnectionGUID: Zn+U0SiqSyGcwU0I3DWOgA==
+X-CSE-MsgGUID: NdVVQds4TIiZdCBU2E3yBQ==
+X-IronPort-AV: E=Sophos;i="6.21,320,1763424000"; 
+   d="scan'208";a="14003273"
+Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
+  by internal-pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2026 19:04:28 +0000
+Received: from EX19MTAUWC002.ant.amazon.com [205.251.233.111:11495]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.34.39:2525] with esmtp (Farcaster)
+ id 6f655c0e-cf62-4b26-ba13-5634a37d9366; Mon, 2 Mar 2026 19:04:27 +0000 (UTC)
+X-Farcaster-Flow-ID: 6f655c0e-cf62-4b26-ba13-5634a37d9366
+Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
+ EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
+ Mon, 2 Mar 2026 19:04:27 +0000
+Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
+ (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Mon, 2 Mar 2026
+ 19:04:24 +0000
+Message-ID: <27dcad4e-d658-4b6b-93b2-44c64fcbeb11@amazon.com>
+Date: Mon, 2 Mar 2026 20:04:22 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260302164158.4394-1-minhquangbui99@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: YKvlMbU4Az5FGin9OQRxOCpLLr8wvpHYZ7JL2Xpv9Bs_1772477592
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vsock: Enable H2G override
+To: Stefano Garzarella <sgarzare@redhat.com>
+CC: Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa
+	<vishnu.dasa@broadcom.com>, Broadcom internal kernel review list
+	<bcm-kernel-feedback-list@broadcom.com>, <virtualization@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<kvm@vger.kernel.org>, <eperezma@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, <mst@redhat.com>, Stefan Hajnoczi
+	<stefanha@redhat.com>, <nh-open-source@amazon.com>
+References: <20260302104138.77555-1-graf@amazon.com>
+ <aaVrsXMmULivV4Se@sgarzare-redhat> <aaV80wWlpjEtYCQJ@sgarzare-redhat>
+ <17d63837-6028-475a-90df-6966329a0fc2@amazon.com>
+ <aaW2FgoaXIJEymyR@sgarzare-redhat>
+Content-Language: en-US
+From: Alexander Graf <graf@amazon.com>
+In-Reply-To: <aaW2FgoaXIJEymyR@sgarzare-redhat>
+X-ClientProxiedBy: EX19D044UWA003.ant.amazon.com (10.13.139.43) To
+ EX19D020UWC004.ant.amazon.com (10.13.138.149)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 
-On Mon, Mar 02, 2026 at 11:41:58PM +0700, Bui Quang Minh wrote:
-> When XDP_USE_NEED_WAKEUP is used and the fill ring is empty so no buffer
-> is allocated on RX side, allow RX NAPI to be descheduled. This avoids
-> wasting CPU cycles on polling. Users will be notified and they need to
-> make a wakeup call after refilling the ring.
-> 
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> ---
-> Changes in v2:
-> - Fix the flag check in virtnet_xsk_wakeup
-> - Link to v1: https://lore.kernel.org/netdev/20260227150949.13089-1-minhquangbui99@gmail.com/
-> ---
->  drivers/net/virtio_net.c | 35 +++++++++++++++++++++++++++--------
->  1 file changed, 27 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index db88dcaefb20..3614002fc87c 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1454,8 +1454,19 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
->  	xsk_buffs = rq->xsk_buffs;
->  
->  	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
-> -	if (!num)
-> +	if (!num) {
-> +		if (xsk_uses_need_wakeup(pool)) {
-> +			xsk_set_rx_need_wakeup(pool);
-> +			/* Return 0 instead of -ENOMEM so that NAPI is
-> +			 * descheduled.
-> +			 */
-> +			return 0;
-
-With this change, try_fill_recv() can return true even though zero RX
-buffers were posted in need_wakeup mode, which contradicts its
-documentation ("Returns false if we couldn't fill entirely (OOM)").
-
-Methinks we need to at least update the comment near try_fill_recv.
-
-
-
-> +		}
-> +
->  		return -ENOMEM;
-> +	} else {
-> +		xsk_clear_rx_need_wakeup(pool);
-> +	}
->  
->  	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
->  
-> @@ -1588,20 +1599,19 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
->  	return sent;
->  }
->  
-> -static void xsk_wakeup(struct send_queue *sq)
-> +static void xsk_wakeup(struct napi_struct *napi, struct virtqueue *vq)
->  {
-> -	if (napi_if_scheduled_mark_missed(&sq->napi))
-> +	if (napi_if_scheduled_mark_missed(napi))
->  		return;
->  
->  	local_bh_disable();
-> -	virtqueue_napi_schedule(&sq->napi, sq->vq);
-> +	virtqueue_napi_schedule(napi, vq);
->  	local_bh_enable();
->  }
->  
->  static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
-> -	struct send_queue *sq;
->  
->  	if (!netif_running(dev))
->  		return -ENETDOWN;
-> @@ -1609,9 +1619,18 @@ static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
->  	if (qid >= vi->curr_queue_pairs)
->  		return -EINVAL;
->  
-> -	sq = &vi->sq[qid];
-> +	if (flag & XDP_WAKEUP_TX) {
-> +		struct send_queue *sq = &vi->sq[qid];
-> +
-> +		xsk_wakeup(&sq->napi, sq->vq);
-> +	}
-> +
-> +	if (flag & XDP_WAKEUP_RX) {
-> +		struct receive_queue *rq = &vi->rq[qid];
-> +
-> +		xsk_wakeup(&rq->napi, rq->vq);
-> +	}
->  
-> -	xsk_wakeup(sq);
->  	return 0;
->  }
->  
-> @@ -1623,7 +1642,7 @@ static void virtnet_xsk_completed(struct send_queue *sq, int num)
->  	 * wakeup the tx napi to consume the xsk tx queue, because the tx
->  	 * interrupt may not be triggered.
->  	 */
-> -	xsk_wakeup(sq);
-> +	xsk_wakeup(&sq->napi, sq->vq);
->  }
->  
->  static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
-> -- 
-> 2.43.0
+Ck9uIDAyLjAzLjI2IDE3OjI1LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gT24gTW9uLCBN
+YXIgMDIsIDIwMjYgYXQgMDQ6NDg6MzNQTSArMDEwMCwgQWxleGFuZGVyIEdyYWYgd3JvdGU6Cj4+
+Cj4+IE9uIDAyLjAzLjI2IDEzOjA2LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+PiBDQ2lu
+ZyBCcnlhbiwgVmlzaG51LCBhbmQgQnJvYWRjb20gbGlzdC4KPj4+Cj4+PiBPbiBNb24sIE1hciAw
+MiwgMjAyNiBhdCAxMjo0NzowNVBNICswMTAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+
+Pj4KPj4+PiBQbGVhc2UgdGFyZ2V0IG5ldC1uZXh0IHRyZWUgZm9yIHRoaXMgbmV3IGZlYXR1cmUu
+Cj4+Pj4KPj4+PiBPbiBNb24sIE1hciAwMiwgMjAyNiBhdCAxMDo0MTozOEFNICswMDAwLCBBbGV4
+YW5kZXIgR3JhZiB3cm90ZToKPj4+Pj4gVnNvY2sgbWFpbnRhaW5zIGEgc2luZ2xlIENJRCBudW1i
+ZXIgc3BhY2Ugd2hpY2ggY2FuIGJlIHVzZWQgdG8KPj4+Pj4gY29tbXVuaWNhdGUgdG8gdGhlIGhv
+c3QgKEcySCkgb3IgdG8gYSBjaGlsZC1WTSAoSDJHKS4gVGhlIGN1cnJlbnQgCj4+Pj4+IGxvZ2lj
+Cj4+Pj4+IHRyaXZpYWxseSBhc3N1bWVzIHRoYXQgRzJIIGlzIG9ubHkgcmVsZXZhbnQgZm9yIENJ
+RCA8PSAyIGJlY2F1c2UgCj4+Pj4+IHRoZXNlCj4+Pj4+IHRhcmdldCB0aGUgaHlwZXJ2aXNvci7C
+oCBIb3dldmVyLCBpbiBlbnZpcm9ubWVudHMgbGlrZSBOaXRybyAKPj4+Pj4gRW5jbGF2ZXMsIGFu
+Cj4+Pj4+IGluc3RhbmNlIHRoYXQgaG9zdHMgdmhvc3RfdnNvY2sgcG93ZXJlZCBWTXMgbWF5IHN0
+aWxsIHdhbnQgdG8gCj4+Pj4+IGNvbW11bmljYXRlCj4+Pj4+IHRvIEVuY2xhdmVzIHRoYXQgYXJl
+IHJlYWNoYWJsZSBhdCBoaWdoZXIgQ0lEcyB0aHJvdWdoIAo+Pj4+PiB2aXJ0aW8tdnNvY2stcGNp
+Lgo+Pj4+Pgo+Pj4+PiBUaGF0IG1lYW5zIHRoYXQgZm9yIENJRCA+IDIsIHdlIHJlYWxseSB3YW50
+IGFuIG92ZXJsYXkuIEJ5IAo+Pj4+PiBkZWZhdWx0LCBhbGwKPj4+Pj4gQ0lEcyBhcmUgb3duZWQg
+YnkgdGhlIGh5cGVydmlzb3IuIEJ1dCBpZiB2aG9zdCByZWdpc3RlcnMgYSBDSUQsIGl0IAo+Pj4+
+PiB0YWtlcwo+Pj4+PiBwcmVjZWRlbmNlLsKgIEltcGxlbWVudCB0aGF0IGxvZ2ljLiBWaG9zdCBh
+bHJlYWR5IGtub3dzIHdoaWNoIENJRHMgaXQKPj4+Pj4gc3VwcG9ydHMgYW55d2F5Lgo+Pj4+Pgo+
+Pj4+PiBXaXRoIHRoaXMgbG9naWMsIEkgY2FuIHJ1biBhIE5pdHJvIEVuY2xhdmUgYXMgd2VsbCBh
+cyBhIG5lc3RlZCBWTSAKPj4+Pj4gd2l0aAo+Pj4+PiB2aG9zdC12c29jayBzdXBwb3J0IGluIHBh
+cmFsbGVsLCB3aXRoIHRoZSBwYXJlbnQgaW5zdGFuY2UgYWJsZSB0bwo+Pj4+PiBjb21tdW5pY2F0
+ZSB0byBib3RoIHNpbXVsdGFuZW91c2x5Lgo+Pj4+Cj4+Pj4gSSBob25lc3RseSBkb24ndCB1bmRl
+cnN0YW5kIHdoeSBWTUFERFJfRkxBR19UT19IT1NUIChhZGRlZCAKPj4+PiBzcGVjaWZpY2FsbHkg
+Zm9yIE5pdHJvIElJUkMpIGlzbid0IGVub3VnaCBmb3IgdGhpcyBzY2VuYXJpbyBhbmQgd2UgCj4+
+Pj4gaGF2ZSB0byBhZGQgdGhpcyBjaGFuZ2UuwqAgQ2FuIHlvdSBlbGFib3JhdGUgYSBiaXQgbW9y
+ZSBhYm91dCB0aGUgCj4+Pj4gcmVsYXRpb25zaGlwIGJldHdlZW4gdGhpcyBjaGFuZ2UgYW5kIFZN
+QUREUl9GTEFHX1RPX0hPU1Qgd2UgYWRkZWQ/Cj4+Cj4+Cj4+IFRoZSBtYWluIHByb2JsZW0gSSBo
+YXZlIHdpdGggVk1BRERSX0ZMQUdfVE9fSE9TVCBmb3IgY29ubmVjdCgpIGlzIAo+PiB0aGF0IGl0
+IHB1bnRzIHRoZSBjb21wbGV4aXR5IHRvIHRoZSB1c2VyLiBJbnN0ZWFkIG9mIGEgc2luZ2xlIENJ
+RCAKPj4gYWRkcmVzcyBzcGFjZSwgeW91IG5vdyBlZmZlY3RpdmVseSBjcmVhdGUgMiBzcGFjZXM6
+IE9uZSBmb3IgVE9fSE9TVCAKPj4gKG5lZWRzIGEgZmxhZykgYW5kIG9uZSBmb3IgVE9fR1VFU1Qg
+KG5vIGZsYWcpLiBCdXQgZXZlcnkgdXNlciBzcGFjZSAKPj4gdG9vbCBuZWVkcyB0byBsZWFybiBh
+Ym91dCB0aGlzIGZsYWcuIFRoYXQgbWF5IHdvcmsgZm9yIHN1cGVyIAo+PiBzcGVjaWFsLWNhc2Ug
+YXBwbGljYXRpb25zLiBCdXQgcHJvcGFnYXRpbmcgdGhhdCBhbGwgdGhlIHdheSBpbnRvIAo+PiBz
+b2NhdCwgaXBlcmYsIGV0YyBldGM/IEl0J3MganVzdCBjcmVhdGluZyBmcmljdGlvbi4KPgo+IE9r
+YXksIEkgd291bGQgbGlrZSB0byBoYXZlIHRoaXMgKG9yIHBhcnQgb2YgaXQpIGluIHRoZSBjb21t
+aXQgbWVzc2FnZSAKPiB0byBiZXR0ZXIgZXhwbGFpbiB3aHkgd2Ugd2FudCB0aGlzIGNoYW5nZS4K
+Pgo+Pgo+PiBJTUhPIHRoZSBtb3N0IG5hdHVyYWwgZXhwZXJpZW5jZSBpcyB0byBoYXZlIGEgc2lu
+Z2xlIENJRCBzcGFjZSwgCj4+IHBvdGVudGlhbGx5IG1hbnVhbGx5IHNlZ21lbnRlZCBieSBsYXVu
+Y2hpbmcgVk1zIG9mIG9uZSBraW5kIHdpdGhpbiBhIAo+PiBjZXJ0YWluIHJhbmdlLgo+Cj4gSSBz
+ZWUsIGJ1dCBhdCB0aGlzIHBvaW50LCBzaG91bGQgdGhlIGtlcm5lbCBzZXQgVk1BRERSX0ZMQUdf
+VE9fSE9TVCBpbiAKPiB0aGUgcmVtb3RlIGFkZHJlc3MgaWYgdGhhdCBwYXRoIGlzIHRha2VuICJh
+dXRvbWFnaWNhbGx5IiA/Cj4KPiBTbyBpbiB0aGF0IHdheSB0aGUgdXNlciBzcGFjZSBjYW4gaGF2
+ZSBhIHdheSB0byB1bmRlcnN0YW5kIGlmIGl0J3MgCj4gdGFsa2luZyB3aXRoIGEgbmVzdGVkIGd1
+ZXN0IG9yIGEgc2libGluZyBndWVzdC4KPgo+Cj4gVGhhdCBzYWlkLCBJJ20gY29uY2VybmVkIGFi
+b3V0IHRoZSBzY2VuYXJpbyB3aGVyZSBhbiBhcHBsaWNhdGlvbiBkb2VzIAo+IG5vdCBldmVuIGNv
+bnNpZGVyIGNvbW11bmljYXRpbmcgd2l0aCBhIHNpYmxpbmcgVk0uCgoKSWYgdGhhdCdzIHJlYWxs
+eSBhIHJlYWxpc3RpYyBjb25jZXJuLCB0aGVuIHdlIHNob3VsZCBhZGQgYSAKVk1BRERSX0ZMQUdf
+VE9fR1VFU1QgdGhhdCB0aGUgYXBwbGljYXRpb24gY2FuIHNldC4gRGVmYXVsdCBiZWhhdmlvciBv
+ZiAKYW4gYXBwbGljYXRpb24gdGhhdCBwcm92aWRlcyBubyBmbGFncyBpcyAicm91dGUgdG8gd2hh
+dGV2ZXIgeW91IGNhbiAKZmluZCI6IElmIHZob3N0IGlzIGxvYWRlZCwgaXQgcm91dGVzIHRvIHZo
+b3N0LiBJZiBhIHZzb2NrIGJhY2tlbmQgZHJpdmVyIAppcyBsb2FkZWQsIGl0IHJvdXRlcyB0aGVy
+ZS4gQnV0IHRoZSBhcHBsaWNhdGlvbiBoYXMgbm8gc2F5IGluIHdoZXJlIGl0IApnb2VzOiBJdCdz
+IHB1cmVseSBhIHN5c3RlbSBjb25maWd1cmF0aW9uIHRoaW5nLgoKCj4gVW50aWwgbm93LCBpdCBr
+bmV3IHRoYXQgYnkgbm90IHNldHRpbmcgdGhhdCBmbGFnLCBpdCBjb3VsZCBvbmx5IHRhbGsgCj4g
+dG8gbmVzdGVkIFZNcywgc28gaWYgdGhlcmUgd2FzIG5vIFZNIHdpdGggdGhhdCBDSUQsIHRoZSBj
+b25uZWN0aW9uIAo+IHNpbXBseSBmYWlsZWQuIFdoZXJlYXMgZnJvbSB0aGlzIHBhdGNoIG9ud2Fy
+ZHMsIGlmIHRoZSBkZXZpY2UgaW4gdGhlIAo+IGhvc3Qgc3VwcG9ydHMgc2libGluZyBWTXMgYW5k
+IHRoZXJlIGlzIGEgVk0gd2l0aCB0aGF0IENJRCwgdGhlIAo+IGFwcGxpY2F0aW9uIGZpbmRzIGl0
+c2VsZiB0YWxraW5nIHRvIGEgc2libGluZyBWTSBpbnN0ZWFkIG9mIGEgbmVzdGVkIAo+IG9uZSwg
+d2l0aG91dCBoYXZpbmcgYW55IGlkZWEuCgoKSSdkIHNheSBhbiBhcHBsaWNhdGlvbiB0aGF0IGF0
+dGVtcHRzIHRvIHRhbGsgdG8gYSBDSUQgdGhhdCBpdCBkb2VzIG5vdyAKa25vdyB3aGV0aGVyIGl0
+J3Mgdmhvc3Qgcm91dGVkIG9yIG5vdCBpcyBydW5uaW5nIGludG8gInVuZGVmaW5lZCIgCnRlcnJp
+dG9yeS4gSWYgeW91IHJtbW9kIHRoZSB2aG9zdCBkcml2ZXIsIGl0IHdvdWxkIGFsc28gdGFsayB0
+byB0aGUgCmh5cGVydmlzb3IgcHJvdmlkZWQgdnNvY2suCgoKPiBTaG91bGQgd2UgbWFrZSB0aGlz
+IGZlYXR1cmUgb3B0LWluIGluIHNvbWUgd2F5LCBzdWNoIGFzIHNvY2tvcHQgb3IgCj4gc3lzY3Rs
+PyAoSSB1bmRlcnN0YW5kIHRoYXQgdGhlcmUgaXMgdGhlIHByZXZpb3VzIHByb2JsZW0sIGJ1dCAK
+PiBob25lc3RseSwgaXQgc2VlbXMgbGlrZSBhIHNpZ25pZmljYW50IGNoYW5nZSB0byB0aGUgYmVo
+YXZpb3Igb2YgCj4gQUZfVlNPQ0spLgoKCldlIGNhbiBjcmVhdGUgYSBzeXNjdGwgdG8gZW5hYmxl
+IGJlaGF2aW9yIHdpdGggZGVmYXVsdD1vbi4gQnV0IEknbSAKYWdhaW5zdCBtYWtpbmcgdGhlIGN1
+bWJlcnNvbWUgZG9lcy1ub3Qtd29yay1vdXQtb2YtdGhlLWJveCBleHBlcmllbmNlIAp0aGUgZGVm
+YXVsdC4gV2lsbCBpbmNsdWRlIGl0IGluIHYyLgoKCj4KPj4KPj4gQXQgdGhlIGVuZCBvZiB0aGUg
+ZGF5LCB0aGUgaG9zdCB2cyBndWVzdCBwcm9ibGVtIGlzIHN1cGVyIHNpbWlsYXIgdG8gCj4+IGEg
+cm91dGluZyB0YWJsZS4KPgo+IFllYWgsIGJ1dCB0aGUgcG9pbnQgb2YgQUZfVlNPQ0sgaXMgcHJl
+Y2lzZWx5IHRvIGF2b2lkIGNvbXBsZXhpdGllcyAKPiBzdWNoIGFzIHJvdXRpbmcgdGFibGVzIGFz
+IG11Y2ggYXMgcG9zc2libGU7IG90aGVyd2lzZSwgQUZfSU5FVCBpcyAKPiBhbHJlYWR5IHRoZXJl
+IGFuZCByZWFkeSB0byBiZSB1c2VkLiBJbiB0aGVvcnksIHdlIG9ubHkgd2FudCAKPiBjb21tdW5p
+Y2F0aW9uIGJldHdlZW4gaG9zdCBhbmQgZ3Vlc3QuCgoKWWVzLCBidXQgbmVzdGluZyBpcyBhIHRo
+aW5nIGFuZCBub2JvZHkgdGhvdWdodCBhYm91dCBpdCA6KS4gSW4gCnJldHJvc3BlY3QsIGl0IHdv
+dWxkIGhhdmUgYmVlbiB0byBhbm5vdGF0ZSB0aGUgQ0lEIHdpdGggdGhlIGRpcmVjdGlvbjogCkg1
+IGdvZXMgdG8gQ0lENSBvbiBob3N0IGFuZCBHNSBnb2VzIHRvIENJRDUgb24gZ3Vlc3QuIEJ1dCBJ
+IHNlZSBubyAKY2hhbmNlIHRvIGNoYW5nZSB0aGF0IGJ5IG5vdy4KCgpBbGV4CgoKCgpBbWF6b24g
+V2ViIFNlcnZpY2VzIERldmVsb3BtZW50IENlbnRlciBHZXJtYW55IEdtYkgKVGFtYXJhLURhbnot
+U3RyLiAxMwoxMDI0MyBCZXJsaW4KR2VzY2hhZWZ0c2Z1ZWhydW5nOiBDaHJpc3RvZiBIZWxsbWlz
+LCBBbmRyZWFzIFN0aWVnZXIKRWluZ2V0cmFnZW4gYW0gQW10c2dlcmljaHQgQ2hhcmxvdHRlbmJ1
+cmcgdW50ZXIgSFJCIDI1Nzc2NCBCClNpdHo6IEJlcmxpbgpVc3QtSUQ6IERFIDM2NSA1MzggNTk3
+Cg==
 
