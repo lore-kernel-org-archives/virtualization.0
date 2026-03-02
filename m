@@ -1,243 +1,182 @@
-Received: from out-188.mta1.migadu.com (out-188.mta1.migadu.com [95.215.58.188])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8338E2E2663
-	for <virtualization@lists.linux.dev>; Mon,  2 Mar 2026 06:31:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16F48383C8D;
+	Mon,  2 Mar 2026 07:43:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772433101; cv=none; b=QvicFR8guAlldJ+vhsMhFQJS/1KNBlzIqNmgUmswYB4R20Rl+sbcaTJnbYkZM4HiuoC6UBLXZD+xeMGFGCM9F8TPVtP/CEdaj0D110IFe6C+t2oAfBox1Z9DhZ7BPcd2cH8h44du6U+LhkTOMr+8tQ1sYBjVC3PMVWJ5xjbW3JA=
+	t=1772437387; cv=none; b=hn0NJVYe1fraH2M3ZFJ8JTR0gTrNSjWwvEu81NMqLAbShZdeE5eKPdgkzB4hIouDpXYJohilJmiYIXVJhuhaVya0u+hvtRBzhs3xVivXpX5pVgtt1liWf9m9TA6X2brqFnwEtROYIH1oFIT5v3zlZzUb631deExyAul/QgE61ng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772433101; c=relaxed/simple;
-	bh=yLsmO5W7JC5aPbOrAz3xMPpUYPJanHjXdS4qc/nKvXo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=g1lsVZDdzrfXED1WJ9s3GMfEbVvbLtWI3MSUlXHBF2MbexlhLAV5jnPAzNW5UuITZmP09Ykf4SiadRRKJu2Xv5/v8gDj+9T/3LYKZvdDB1yzrkx5piQLfDXffu3IRI+0L1xKhOrg+mOlPErvan+ZkbVZBhKBfW5J5m8/ilu+ePE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=YibaaDZz; arc=none smtp.client-ip=95.215.58.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1772437387; c=relaxed/simple;
+	bh=h4vd67w0fuuMwxwBTUXPN4v+6iOyEsPXL80rum2E98Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MumWsqy0UZZXtOrDGQcJYEhAFBEITc+5XzoWpVGMGVpXb5PkFM6C7I9yXX5yEb+iWljHTFGOh2dc9IGP0NYXuQTxojKfPKSYqWOzCqw51eETkV0envT0z0rZlEMC4wVV+CsQnbmZkwRjIVK1nx/DFM6MUP0rm4lw6c+DLAChsmw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=udKdOqVG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="YibaaDZz"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1772433097;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=I8gx42IHYEQCTDsiOiivkLZbaQbWhY24E85Lk6w39Tk=;
-	b=YibaaDZzBLg3a/3Lzh5+odGfgFy4rKCclMUZCLJe8oVE/bwTQq5eeGRW2n/iATLhzlFuh5
-	X0ieBE+2QbmggG/hWHCuLDq7DvHNaU84T2oUFsxdeTGqgWB5DpcfOGmuitzwpJz9A6mSNO
-	KMYpAP3NT27u9rnisSuI3b0J57v1rSU=
-From: Lance Yang <lance.yang@linux.dev>
-To: akpm@linux-foundation.org
-Cc: peterz@infradead.org,
-	david@kernel.org,
-	dave.hansen@intel.com,
-	dave.hansen@linux.intel.com,
-	ypodemsk@redhat.com,
-	hughd@google.com,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	x86@kernel.org,
-	hpa@zytor.com,
-	arnd@arndb.de,
-	lorenzo.stoakes@oracle.com,
-	ziy@nvidia.com,
-	baolin.wang@linux.alibaba.com,
-	Liam.Howlett@oracle.com,
-	npache@redhat.com,
-	ryan.roberts@arm.com,
-	dev.jain@arm.com,
-	baohua@kernel.org,
-	shy828301@gmail.com,
-	riel@surriel.com,
-	jannh@google.com,
-	jgross@suse.com,
-	seanjc@google.com,
-	pbonzini@redhat.com,
-	boris.ostrovsky@oracle.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	ioworker0@gmail.com,
-	Lance Yang <lance.yang@linux.dev>
-Subject: [PATCH v5 2/2] x86/tlb: skip redundant sync IPIs for native TLB flush
-Date: Mon,  2 Mar 2026 14:30:36 +0800
-Message-ID: <20260302063048.9479-3-lance.yang@linux.dev>
-In-Reply-To: <20260302063048.9479-1-lance.yang@linux.dev>
-References: <20260302063048.9479-1-lance.yang@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="udKdOqVG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 631A3C2BC9E;
+	Mon,  2 Mar 2026 07:43:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772437386;
+	bh=h4vd67w0fuuMwxwBTUXPN4v+6iOyEsPXL80rum2E98Y=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=udKdOqVGE7twa4wsV/WME0ZgmzBxDsuJltPh8za6s3sw3PeFVrz927G6vaA2WVq2W
+	 iZctCtcQFJ5OEae7twJ3AQpNQ3OjUEKiN5ZTNaP6JTn2neCDx8OLoFmhjyXXeRBE4c
+	 txUnSJ2LsLSsQRD3e/rqS25lU30zGAWPqjaJ9QkLpyJLGwIjtUEKk0eIiyJtNzTeZZ
+	 0WbV6hp0l+9NmOWL4s5grW3/whTzbJItTI8N13QihXflt7V5mW16iJfcp5DyJAoyG+
+	 6kX1RTZuz/MiC1DtwgNA1s67dRIy4qrgXiyPd52Jkt/5Ji+3PN99LuMi1xRJ5wP5O7
+	 AmsGeB1Xgng4Q==
+Message-ID: <b1390b24-eaef-40e0-a16b-77c27decb77e@kernel.org>
+Date: Mon, 2 Mar 2026 08:42:57 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 4/4] page_reporting: change
+ PAGE_REPORTING_DEFAULT_ORDER to -1
+To: Michael Kelley <mhklinux@outlook.com>,
+ Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>
+Cc: "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+ "mst@redhat.com" <mst@redhat.com>, "kys@microsoft.com" <kys@microsoft.com>,
+ "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
+ "wei.liu@kernel.org" <wei.liu@kernel.org>,
+ "decui@microsoft.com" <decui@microsoft.com>,
+ "longli@microsoft.com" <longli@microsoft.com>,
+ "jasowang@redhat.com" <jasowang@redhat.com>,
+ "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+ "eperezma@redhat.com" <eperezma@redhat.com>,
+ "lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>,
+ "Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>,
+ "vbabka@suse.cz" <vbabka@suse.cz>, "rppt@kernel.org" <rppt@kernel.org>,
+ "surenb@google.com" <surenb@google.com>, "mhocko@suse.com"
+ <mhocko@suse.com>, "jackmanb@google.com" <jackmanb@google.com>,
+ "hannes@cmpxchg.org" <hannes@cmpxchg.org>, "ziy@nvidia.com"
+ <ziy@nvidia.com>, "linux-hyperv@vger.kernel.org"
+ <linux-hyperv@vger.kernel.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "linux-mm@kvack.org" <linux-mm@kvack.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20260227140655.360696-1-yuvraj.sakshith@oss.qualcomm.com>
+ <20260227140655.360696-5-yuvraj.sakshith@oss.qualcomm.com>
+ <c618e7a4-42c1-4438-9bc2-9c41450a81a2@kernel.org>
+ <aaUE7M9QkfnYh12e@hu-ysakshit-lv.qualcomm.com>
+ <SN6PR02MB4157D37B3D254251F0135B04D47EA@SN6PR02MB4157.namprd02.prod.outlook.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <SN6PR02MB4157D37B3D254251F0135B04D47EA@SN6PR02MB4157.namprd02.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-From: Lance Yang <lance.yang@linux.dev>
+On 3/2/26 06:25, Michael Kelley wrote:
+> From: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com> Sent: Sunday, March 1, 2026 7:33 PM
+>>
+>> On Fri, Feb 27, 2026 at 09:50:15PM +0100, David Hildenbrand (Arm) wrote:
+>>>
+>>> No need for the ().
+>>>
+>>> Wondering whether we now also want to do in this patch:
+>>>
+>>>
+>>> diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+>>> index f0042d5743af..d432aadf9d07 100644
+>>> --- a/mm/page_reporting.c
+>>> +++ b/mm/page_reporting.c
+>>> @@ -11,8 +11,7 @@
+>>>  #include "page_reporting.h"
+>>>  #include "internal.h"
+>>>
+>>> -/* Initialize to an unsupported value */
+>>> -unsigned int page_reporting_order = -1;
+>>> +unsigned int page_reporting_order = PAGE_REPORTING_DEFAULT_ORDER;
+>>>
+>>>  static int page_order_update_notify(const char *val, const struct
+>>> kernel_param *kp)
+>>>  {
+>>> @@ -369,7 +368,7 @@ int page_reporting_register(struct
+>>> page_reporting_dev_info *prdev)
+>>>          * pageblock_order.
+>>>          */
+>>>
+>>> -       if (page_reporting_order == -1) {
+>>> +       if (page_reporting_order == PAGE_REPORTING_DEFAULT_ORDER) {
+>>>
+>>>
+>>
+>> Sure. Now that I think of it, don’t you think the first nested if() will
+>> always be false? and can be compressed down to just one if()?
+> 
+> I don't think what you propose is correct. The purpose of testing
+> page_reporting_order for -1 is to see if a page reporting order has
+> been specified on the kernel boot line. If it has been specified, then
+> the page reporting order specified in the call to page_reporting_register()
+> [either a specific value or the default] is ignored and the kernel boot
+> line value prevails. But if page_reporting_order is -1 here, then
+> no kernel boot line value was specified, and the value passed to
+> page_reporting_register() should prevail.
+> 
+> With this in mind, substituting PAGE_REPORTING_DEFAULT_ORDER
+> for the -1 in the test doesn’t exactly make sense to me. The -1 in the
+> test doesn't have quite the same meaning as the -1 for
+> PAGE_REPORTING_DEFAULT_ORDER. You could even use -2 for
+> the initial value of page_reporting_order, and here in the test, in
+> order to make that distinction obvious. Or use a separate symbolic
+> name like PAGE_REPORTING_ORDER_NOT_SET.
 
-Enable the optimization introduced in the previous patch for x86.
+I don't really see a difference between "PAGE_REPORTING_DEFAULT_ORDER"
+and "PAGE_REPORTING_ORDER_NOT_SET" that would warrant a split and adding
+confusion for the page-reporting drivers.
 
-Add pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast to track whether
-flush_tlb_multi() sends real IPIs. Initialize it once in
-native_pv_tlb_init() during boot.
+In both cases, we want "no special requirement, just use the default".
+Maybe we can use a better name to express that.
 
-On CONFIG_PARAVIRT systems, tlb_table_flush_implies_ipi_broadcast() reads
-the pv_ops property. On non-PARAVIRT, it directly checks for INVLPGB.
-
-PV backends (KVM, Xen, Hyper-V) typically have their own implementations
-and don't call native_flush_tlb_multi() directly, so they cannot be trusted
-to provide the IPI guarantees we need. They keep the property false.
-
-Two-step plan as David suggested[1]:
-
-Step 1 (this patch): Skip redundant sync when we're 100% certain the TLB
-flush sent IPIs. INVLPGB is excluded because when supported, we cannot
-guarantee IPIs were sent, keeping it clean and simple.
-
-Step 2 (future work): Send targeted IPIs only to CPUs actually doing
-software/lockless page table walks, benefiting all architectures.
-
-Regarding Step 2, it obviously only applies to setups where Step 1 does
-not apply: like x86 with INVLPGB or arm64.
-
-[1] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
-
-Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
-Signed-off-by: Lance Yang <lance.yang@linux.dev>
----
- arch/x86/include/asm/paravirt_types.h |  5 +++++
- arch/x86/include/asm/smp.h            |  7 +++++++
- arch/x86/include/asm/tlb.h            | 20 +++++++++++++++++++-
- arch/x86/kernel/paravirt.c            | 16 ++++++++++++++++
- arch/x86/kernel/smpboot.c             |  1 +
- 5 files changed, 48 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 9bcf6bce88f6..ec01268f2e3e 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -112,6 +112,11 @@ struct pv_mmu_ops {
- 	void (*flush_tlb_multi)(const struct cpumask *cpus,
- 				const struct flush_tlb_info *info);
- 
-+	/*
-+	 * True if flush_tlb_multi() sends real IPIs to all target CPUs.
-+	 */
-+	bool flush_tlb_multi_implies_ipi_broadcast;
-+
- 	/* Hook for intercepting the destruction of an mm_struct. */
- 	void (*exit_mmap)(struct mm_struct *mm);
- 	void (*notify_page_enc_status_changed)(unsigned long pfn, int npages, bool enc);
-diff --git a/arch/x86/include/asm/smp.h b/arch/x86/include/asm/smp.h
-index 84951572ab81..4ac175414ac1 100644
---- a/arch/x86/include/asm/smp.h
-+++ b/arch/x86/include/asm/smp.h
-@@ -105,6 +105,13 @@ void native_smp_prepare_boot_cpu(void);
- void smp_prepare_cpus_common(void);
- void native_smp_prepare_cpus(unsigned int max_cpus);
- void native_smp_cpus_done(unsigned int max_cpus);
-+
-+#ifdef CONFIG_PARAVIRT
-+void __init native_pv_tlb_init(void);
-+#else
-+static inline void native_pv_tlb_init(void) { }
-+#endif
-+
- int common_cpu_up(unsigned int cpunum, struct task_struct *tidle);
- int native_kick_ap(unsigned int cpu, struct task_struct *tidle);
- int native_cpu_disable(void);
-diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
-index 866ea78ba156..87ef7147eac8 100644
---- a/arch/x86/include/asm/tlb.h
-+++ b/arch/x86/include/asm/tlb.h
-@@ -5,10 +5,23 @@
- #define tlb_flush tlb_flush
- static inline void tlb_flush(struct mmu_gather *tlb);
- 
-+#define tlb_table_flush_implies_ipi_broadcast tlb_table_flush_implies_ipi_broadcast
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void);
-+
- #include <asm-generic/tlb.h>
- #include <linux/kernel.h>
- #include <vdso/bits.h>
- #include <vdso/page.h>
-+#include <asm/paravirt.h>
-+
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void)
-+{
-+#ifdef CONFIG_PARAVIRT
-+	return pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast;
-+#else
-+	return !cpu_feature_enabled(X86_FEATURE_INVLPGB);
-+#endif
-+}
- 
- static inline void tlb_flush(struct mmu_gather *tlb)
- {
-@@ -20,7 +33,12 @@ static inline void tlb_flush(struct mmu_gather *tlb)
- 		end = tlb->end;
- 	}
- 
--	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
-+	/*
-+	 * Pass both freed_tables and unshared_tables so that lazy-TLB CPUs
-+	 * also receive IPIs during unsharing page tables.
-+	 */
-+	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
-+			   tlb->freed_tables || tlb->unshared_tables);
- }
- 
- static inline void invlpg(unsigned long addr)
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index a6ed52cae003..b681b8319295 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -154,6 +154,7 @@ struct paravirt_patch_template pv_ops = {
- 	.mmu.flush_tlb_kernel	= native_flush_tlb_global,
- 	.mmu.flush_tlb_one_user	= native_flush_tlb_one_user,
- 	.mmu.flush_tlb_multi	= native_flush_tlb_multi,
-+	.mmu.flush_tlb_multi_implies_ipi_broadcast = false,
- 
- 	.mmu.exit_mmap		= paravirt_nop,
- 	.mmu.notify_page_enc_status_changed	= paravirt_nop,
-@@ -221,3 +222,18 @@ NOKPROBE_SYMBOL(native_load_idt);
- 
- EXPORT_SYMBOL(pv_ops);
- EXPORT_SYMBOL_GPL(pv_info);
-+
-+void __init native_pv_tlb_init(void)
-+{
-+	/*
-+	 * If PV backend already set the property, respect it.
-+	 * Otherwise, check if native TLB flush sends real IPIs to all target
-+	 * CPUs (i.e., not using INVLPGB broadcast invalidation).
-+	 */
-+	if (pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast)
-+		return;
-+
-+	if (pv_ops.mmu.flush_tlb_multi == native_flush_tlb_multi &&
-+	    !cpu_feature_enabled(X86_FEATURE_INVLPGB))
-+		pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast = true;
-+}
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 5cd6950ab672..3cdb04162843 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1167,6 +1167,7 @@ void __init native_smp_prepare_boot_cpu(void)
- 		switch_gdt_and_percpu_base(me);
- 
- 	native_pv_lock_init();
-+	native_pv_tlb_init();
- }
- 
- void __init native_smp_cpus_done(unsigned int max_cpus)
 -- 
-2.49.0
+Cheers,
 
+David
