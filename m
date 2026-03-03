@@ -1,195 +1,147 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazolkn19013084.outbound.protection.outlook.com [52.103.14.84])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDBD63BD622
-	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 16:57:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.14.84
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772557083; cv=fail; b=X9+Vxn+oo8hdir7FIPL/aQTtFDfeon6ziX/5pSTp4cgbvrkV9dFdZaO6ueqNvdN12Z6tI+y3U2bwey32LzjiJnj6X7UPo00RkjDbnaJIKwFU/fyCoc8toVQRMphQsI52zo2fZwRU6073S9uW0j/UbxWN9tuRre6lMDl7j+csyBc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772557083; c=relaxed/simple;
-	bh=h5hVWdLkN/gJKs7MkYTteg6Rn5JWUM1465J+wOPwKfE=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Oc1SYKm+Jb5R++opSWeETPysAGxKuAPvxgqyxbHBhDsNpIcLykpxyCxAW8RYbgmMHyUfOOnAtDi5h9FcJD2ywVe4b5HFSd4NP33bNCSjN7MgRR8KIHka6py28CYEVa0hpqAMmVFc/9CnSFvFDZFVe38J0+jWGtU63T0FNkAzhBI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=uFvWBDyS; arc=fail smtp.client-ip=52.103.14.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 707E1351C00
+	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 17:43:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772559784; cv=none; b=OgtdP1qlvxFu8XXKRPGqz16cB2YLZ/PEe7bkphnEZFsiarVCFEODK3uZ3USQs2UQtxznGix3EaBBsHLlO/9F9w6ddFSoFlBR8r0gDg307ZIQ9P5OKOd1CJeCK5bGd4Z9YB/NUXJbq0cE60zcg3Apgu5ZdboePa7C2xchkxmKN3c=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772559784; c=relaxed/simple;
+	bh=dZp04g6uiiOvyjSK+U2cIgCRjRltYcNDmLHe1BhbY4U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZJVH4fgN6qBcfsQhCwF1LShaXAjhGygjEI2EUlLNoLitxt+J7lSWw5mW+ugCh+aumMTT+hvt95TgBtDdMwfapw3YDd+0hk1zEplO7+4zsDPpopeLX2holDvMtINlxcnbSW6lUqfdgK+7Dbj4hfF4W46+KRDOzTkKqilaVD7ZLyY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AmmOc0AS; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="uFvWBDyS"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=RijlYDcKboulr6WUcZ2m8c2/saT6AIdmGoX1QzhzvJFH754Iwdc1013ZKoxTOVssEmMTBJkaI5KUy3ZnCGOKjpWl/gnlKIUFxE0f8DiU0O8vNaLKiD+UVOEPWKYONsjZojyrvkMhnRF4vkr7ICPZ4CTvimWVLnMjiWIzzS69i9KfyefOMOuEdRqKBhQeVkcSoFIYXQmP6ISnYIM2SfNEEqvj8Pj5sYp3VyWvJGpxr8EXlk/ywrvAz0BEFwKqgbIrTi8j8YeY+K2O8W0i6kBtUEHXjui9hGvUS/E9VMhrOSA7uTb6qKEUQMH4ngNNHA3Grkt4T90Sg9IFQO2wCkQNRQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JG9rfJlMZT8S83bAaUsLcoD/DWlKr+ATNtHb+SznTX4=;
- b=eB6oQwWCSG0oBDHu6p6PnQ0g33RT+CkVV/7HW8q7VuBm3JTdsl7l594q1QP+eUv0CAIbyJIPO6viHGtKannaWDoq4E1znBOS9d//uhK5S8qKyBrKzkyrVA0EQVugXXLTntX6BmgIfB51Kd78OPVGAWg3QM2e7q0yChfe93NCU0KX+YpECNITw1oScCBwov/P+vdily7LllLDoPEy62u0HrTLd0FAGNZKlV77Nzhvgg0jn1bMvYkCL6MLj4akpp/jqoy7lWaUOVE7T4DMpl+2a/N3uPhs2lBl5kgzUd6Jlq/Yd9D8FNPkieOi6teZXV76Ycpehhbei+mGD9NbYsaKRQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JG9rfJlMZT8S83bAaUsLcoD/DWlKr+ATNtHb+SznTX4=;
- b=uFvWBDySnm06TVz8QGBgpe/mxLqJ1n6DDhxv8ukqOHLz6CCsz0P0vw3xHKBAOyJzhUGyCnPEMznErTpozUcnYh2rGh9ZLNhWlbEmm1S+hY2mQZHpCRnsaHba8VCXasi8WHmET7N+C0rf7NI+op3YC23EySXwQfq9EUPdUXV7otSAxBBzEoeKKWH/PHa6y3r8P2q80x20DPP42RSSXRI3xrEpQl2TCqD3d7lC8TyptPYJDA1GkfjF78yU4M3K1k/OPrKNEfMcIYFIf2a4weFFfu+0x8hJ/pmi0xW5gJWctR7fL7PZJ0YGS05PXegwR0oRaNnVt/wyQNGDYqIS6/2sqA==
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
- by BN0PR02MB7933.namprd02.prod.outlook.com (2603:10b6:408:161::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9632.21; Tue, 3 Mar
- 2026 16:57:56 +0000
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::900:1ccf:2b1e:52b6]) by SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::900:1ccf:2b1e:52b6%6]) with mapi id 15.20.9654.022; Tue, 3 Mar 2026
- 16:57:54 +0000
-From: Michael Kelley <mhklinux@outlook.com>
-To: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>, "mst@redhat.com"
-	<mst@redhat.com>, "david@kernel.org" <david@kernel.org>
-CC: "kys@microsoft.com" <kys@microsoft.com>, "haiyangz@microsoft.com"
-	<haiyangz@microsoft.com>, "wei.liu@kernel.org" <wei.liu@kernel.org>,
-	"decui@microsoft.com" <decui@microsoft.com>, "longli@microsoft.com"
-	<longli@microsoft.com>, "jasowang@redhat.com" <jasowang@redhat.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"eperezma@redhat.com" <eperezma@redhat.com>, "akpm@linux-foundation.org"
-	<akpm@linux-foundation.org>, "lorenzo.stoakes@oracle.com"
-	<lorenzo.stoakes@oracle.com>, "Liam.Howlett@oracle.com"
-	<Liam.Howlett@oracle.com>, "vbabka@suse.cz" <vbabka@suse.cz>,
-	"rppt@kernel.org" <rppt@kernel.org>, "surenb@google.com" <surenb@google.com>,
-	"mhocko@suse.com" <mhocko@suse.com>, "jackmanb@google.com"
-	<jackmanb@google.com>, "hannes@cmpxchg.org" <hannes@cmpxchg.org>,
-	"ziy@nvidia.com" <ziy@nvidia.com>, "linux-hyperv@vger.kernel.org"
-	<linux-hyperv@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: RE: [PATCH v4 0/5] Allow order zero pages in page reporting
-Thread-Topic: [PATCH v4 0/5] Allow order zero pages in page reporting
-Thread-Index: AQImoy4NKM/f8j6ZuV279tn+xxicRbUJFwew
-Date: Tue, 3 Mar 2026 16:57:53 +0000
-Message-ID:
- <SN6PR02MB4157423B85EF905F9845FD03D47FA@SN6PR02MB4157.namprd02.prod.outlook.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AmmOc0AS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1772559782;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DXyJq2jhL63XCeCGf/kk+0S1SsVNcL/cSZ0UgVWv13U=;
+	b=AmmOc0ASHu3IL8AxnBmapiwFNGgP3QdktMUR/RMHNJHpX5UOnm5zqjdPXfgBqj9ygOnnGd
+	q96mk4cZrWQCvRB7jmpDrKKeJbvv1S7w9pmm5AtQarIOQ+MPCXE3Ys7sRlbENCxogqDH7E
+	ay2dJ/hz7+Ulxc68QqoWIeoLoKlO3mI=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-576-o14O49wLOqu0lq_3tI-nLA-1; Tue, 03 Mar 2026 12:43:00 -0500
+X-MC-Unique: o14O49wLOqu0lq_3tI-nLA-1
+X-Mimecast-MFC-AGG-ID: o14O49wLOqu0lq_3tI-nLA_1772559779
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-439c4c1056fso284045f8f.0
+        for <virtualization@lists.linux.dev>; Tue, 03 Mar 2026 09:43:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772559779; x=1773164579;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DXyJq2jhL63XCeCGf/kk+0S1SsVNcL/cSZ0UgVWv13U=;
+        b=OO4y8/WJqk831ZoJFj6NsFja4Mhf7fWnIKc5YgYnTWe9BQcz8KIIPz7Nz8vfQogziz
+         YAGH+cX3BTkDfwI305UyH7gLQKnuRKnTtC/3frqkdR8liOoX1Xte4HLGAOj/U+pchhhC
+         OD7Qrv3IvM3NLdsz1c+A33h8ehIzamJ7fYYCxaUK9HDxn49UI4SU12GsrK+4vAnRcXFb
+         LNXLtH4odO7rBl4AkfW5+BbZtRKaC+dc/bq7CjYH31Z6I52aafOqhrgJfgHCAX37wILa
+         8QXXa0a5sAD6ngtxXm6FkGrQkU1fPn3jMvcBrNy0oG+iIBrNqVyy9AFpQyKR1AIzNKWC
+         7PXQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWiMfLXJ/J3Ba5EDxJeX/1Qq0zf8gbW1e7xK38dLIk1/GyBJKx1d6dlfKb71Gbcz9Jci7Cq4zgrrZ7q0kc4NQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyaUFQWkitIitma2mHRivJcajXfZuO7icTwsfDGpg1PTwi2q79L
+	O4qF489RrV3AF21Q5lVfu1RAhnrGusaNJG0+r0+LM2PPFg5XXHYAAQQUhmpcoXpLbHrYyeJSst/
+	ksz2ooMpZHWtA9otBJrjgHbsTm//SoVxVwV9+7GZWGmZUbQ+4+fHRaJsAURBDVFoFvgSF
+X-Gm-Gg: ATEYQzyqNcsvFuTog1V8LiI8jppCxKn5EeaE4ngcSVjtq1XJJ0ax8whFzRfVbSm0TB6
+	hiL86dbyoU9tkXFK9R+8DcyFnX0q3aJBRx8tiGpNWOg7uX1l2f6AMjkl7uuUmjKvAckEpjo3SRd
+	T0HxseQBgPuIZcCpcUT6u7rZ+67bV7S08dprJqh13tEPu8ZeouIe38FUHKCEizu5r6QrxKZIhp1
+	26gSrj2qprV3yyvc622e1Ftr8oAgtxNsD6Yviy3rNbxFQ8Otpq8cu2wTnqQQojv2w/5dVHK5ya3
+	eT5bflaHX3e6WDrXHQAlyvqOToagTDMDrf+k6FLJm0B8tYYeL0Jo+BCnG7ClCzam/9F9Fa9vM6X
+	npMCHByMmgwNsTxZ+cNjlDBM+3XsYczaF29c/HKwghitLMw==
+X-Received: by 2002:a05:6000:2902:b0:439:b265:6c61 with SMTP id ffacd0b85a97d-439b2656dd5mr17085007f8f.12.1772559779106;
+        Tue, 03 Mar 2026 09:42:59 -0800 (PST)
+X-Received: by 2002:a05:6000:2902:b0:439:b265:6c61 with SMTP id ffacd0b85a97d-439b2656dd5mr17084962f8f.12.1772559778587;
+        Tue, 03 Mar 2026 09:42:58 -0800 (PST)
+Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439ba2a5970sm13000276f8f.33.2026.03.03.09.42.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Mar 2026 09:42:58 -0800 (PST)
+Date: Tue, 3 Mar 2026 12:42:54 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>
+Cc: david@kernel.org, kys@microsoft.com, haiyangz@microsoft.com,
+	wei.liu@kernel.org, decui@microsoft.com, longli@microsoft.com,
+	jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, akpm@linux-foundation.org,
+	lorenzo.stoakes@oracle.com, Liam.Howlett@oracle.com, vbabka@suse.cz,
+	rppt@kernel.org, surenb@google.com, mhocko@suse.com,
+	jackmanb@google.com, hannes@cmpxchg.org, ziy@nvidia.com,
+	linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-mm@kvack.org
+Subject: Re: [PATCH v4 0/5] Allow order zero pages in page reporting
+Message-ID: <20260303124236-mutt-send-email-mst@kernel.org>
 References: <20260303113032.3008371-1-yuvraj.sakshith@oss.qualcomm.com>
-In-Reply-To: <20260303113032.3008371-1-yuvraj.sakshith@oss.qualcomm.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|BN0PR02MB7933:EE_
-x-ms-office365-filtering-correlation-id: 4490d53e-0c07-4bf9-ad1e-08de79460321
-x-ms-exchange-slblob-mailprops:
- znQPCv1HvwXZ5XHxNrJCjRnjimRBgM6SLqlfA4kpzLUbq6TAgUu4uyifTbl8Yf/exr6vu3Zg1fYnwnhihDimIM6KeTB/ZWLD8HTdC9B6tUvvpFDDk9RSWujsNCTKkjngpXgFNnIIfIqob1HEXDIiDe6i0KOe5Qtg51NopKMlpkv4S/ALLt2BpSAioFNAkKjWaplmff8O0utC+m8JRI4QojoV3GlZJZ9kX85ckN1168eU5KbilERfGsbk2VjxcE0TXL6dC0eGm1OJKRM7coBq/4U11ukiJz/yRl0tBstD0qf6GZ1ZW281jmUD8peR0I7hGu2lFd1fqWqBMqGQyTPDWCCmqr+49q7foMgJ/gxXHT84KbI1uLlHj9723OP5AJHmmcAQf79lQOtDB2Hg1PuFrjfYv2IwND0uV9JRAdrwTzHFKIbAVtGDduR6OYYmQJGMvns0n1xAE3APVaDhL1JfqaenvbbEPTfLRolQFoddtLYE7mOiAYOdePc1w7eBVzJ3yChW1rH75uL0JZi5/dgrLPaBeKvQ7AIMq+4awFeMylpdjNjefobuxQnHOmKia/QjvqaLSpw+k5wsyWXIQhjIw/WKXiY7FMTFiFQGggAzRVf83ORxKUdrQOrH7SJNx+8jbUTbd+PB2uSC/dXAwXCHRUjR4tiiNczakYE/RRjQJBHuLH4ij3KrPNfXHTAlvZdeWNNxBz5YJxLnxRrhgANlRhS7L2xNgeUs7jDD0/hiNk4Z6+CdDrbbKUMCEdfMmTmRamfWqJyWc6g=
-x-microsoft-antispam:
- BCL:0;ARA:14566002|19110799012|31061999003|13091999003|461199028|8062599012|51005399006|8060799015|41001999006|15080799012|40105399003|440099028|3412199025|102099032|12091999003;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?awFHTAqoezPLM/zx08zM9PWgwa31S+NlsjRXnQpRPszy3dTSx3myVL8w2uKV?=
- =?us-ascii?Q?/WRg3/RyXN9Uvb5tEwz/kvGeuaM4ktENmkPYhvlXkxxOjZJ0I/jWAhDW4TZ/?=
- =?us-ascii?Q?gLX+hgy02AXdPcscTUPdUUVwCh96u9VvkLzdxcGJRYt2U7MGCBe9XctetSAE?=
- =?us-ascii?Q?KoOXKPz7tAnva4PHqrKqpxuKe+1vXqYXfqyIOQ/ujvnPyFJgPODt/PVzU64B?=
- =?us-ascii?Q?vESgtigEqN9JtOy0p+MXWi+/btF4v9lWPFAtfwwagoY30kQkYpGH9KNf061N?=
- =?us-ascii?Q?MtTv798jwX7Pgh/iCJzXdzTsxn4pKAKUQATHYj4i2PQ3LxRprcJGwzR5Kce7?=
- =?us-ascii?Q?a9Y4ewAhlGoKhe1syXpySF5x5Q2aJg0fLFJXvc5WRmQpDJOkkb5HhoVl5fA7?=
- =?us-ascii?Q?pMM3ynReAkWtQl/fa0NSiGQZag/b3IlNUrjB+H6cd/+kMIRXEb4HpfGzVPCX?=
- =?us-ascii?Q?FzgUjZCPuI0bKL08c4VENHls14IYSeCJKUGEbNsM8dxBPvkZtLg9gEW2rR/U?=
- =?us-ascii?Q?AfyNadW48o5hRHcCEE0PI+LIyM5n/p/Q7ocqLi0OMpnugTxNwhw8whO+jBVJ?=
- =?us-ascii?Q?EeVBn7T0tjYU8iDtbm+sciLa4+oJBlAxk1JHDHJ4xFa0D/jJSbEvo34w7Cz0?=
- =?us-ascii?Q?IM9TmtcjBtd4HRHFXduK/0QuWunsH/taPs91hfvhLxHRQ5BLPKwks40LMMKW?=
- =?us-ascii?Q?n481N0LQIt8bmz7g32XwdWBMBb29XExJahyvsGMG5tiuqCtTAZENeExBnojr?=
- =?us-ascii?Q?Gz2Q27Pc/xyQRf+5TpsaomVTbpuSCA9636GMD7F/gxDkNJg0FjTxxdqkLVvz?=
- =?us-ascii?Q?gk3Ijb9yhlIAvA+nt4QMRUk+LJro/KyLpSmzxHIkETLGi2wEuOpdT2ShqSS2?=
- =?us-ascii?Q?WyyJweelV/spLY2ZCtREj8wj/5Px9JAvP6y/MFNkt8E0xWW9hp/WmLtvNKfx?=
- =?us-ascii?Q?0T4MEyT/M/ak2rVX9R50S+uiA79K24nwHekO09f6S2ZEjkUqnAlSC1VgCBJR?=
- =?us-ascii?Q?+elc?=
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?jRXK+zu2cYd6BtkOT9FeUMGT9C0UEikTLmOZnlQedgKzsvvZS+fcndSi+VUP?=
- =?us-ascii?Q?AT6gKKtzJB5hhMPrY0mDwCHP5D4uTgjBmQuNda4dkZpsBRSKX8tJmRY7gLo/?=
- =?us-ascii?Q?cCcX8UEtbiLXlzH3lRXhsbsY3arqiGPeb6V2QgNQiE+WvjT39rjoxA+sz7P+?=
- =?us-ascii?Q?cXzx9HepVGuRH5PjLaH8QDO4NUcbh71drFRkrEmgP+bIOFAQtbWbq0KfX4j8?=
- =?us-ascii?Q?zpv4pibjxyzWWmMaF9ogHtNBeBlm33jBif5s0YtJrjvIJHG/Khd7D4yELiBp?=
- =?us-ascii?Q?eoARt+xQgdhVkGseEwLs6+qkFgJvQKm3LACz4AK/CCRAOGeK0NaqGC/g3Rsr?=
- =?us-ascii?Q?bR8d5LksNvcB0YE32wIa+IfjCOEXES0q16HDPXHAWQ3mJwzusIjqqF+B4QCd?=
- =?us-ascii?Q?ShgzD835kbglteqhjK7s8cA/hpMich8n8dalxVlkcAl+DagxcDzxa3275ZwF?=
- =?us-ascii?Q?I6Z+KJB7/AjCow+wY1YNQHUO2TDd25Xi10CMYW1E5Zwx14JgHlcQG5OLshQR?=
- =?us-ascii?Q?MkI8HfsFoAv4Q8ZbT4JmoXKJciQAnSvPylHSLlEB9GdWY2PSemVt9p0Md5gr?=
- =?us-ascii?Q?S/SlBa48o+9GT8WwgKsQ5ok4kpt6yIwfLVMIYkBON5zesN4YzKYZJehupoRS?=
- =?us-ascii?Q?vJq0HA/tiPIu83f+lEjDFu4K2fNnFV8vWDe4BZRy3IlFxs9a9dsir2E8R45Q?=
- =?us-ascii?Q?Ny4olqoRgvvRRsLcwkbS7qEo77FQJGHao9mC+wTT4EZ3Qv9rpwH4C6LGqwGw?=
- =?us-ascii?Q?GI/FCHpNFoHVU9A1BYwgC11/uGOMBOa6qcU5xRhV4LhUulNzg2ZMx/mCSlX+?=
- =?us-ascii?Q?X8FSQmsSnG6efqLW+64oazkr2QaG+zQtyCXO14t1f4Hr9L3ytnDiuu5WHEIU?=
- =?us-ascii?Q?G/TNKzMJLgAayBFCnH4J844h2+YZEJA1DL4eQYxuHq2qqd1Kt5np6r0yoHmg?=
- =?us-ascii?Q?kZyBasUccpdVj9ncV8skD9+Aej8syQ7kBJn01S6n93/wIdRSIZ6clnJ857YL?=
- =?us-ascii?Q?J6xkDnl++iJy7vbGYRpWpyAM2ecAvhZWb5pKwM7Z+CD+nuicDxyWM9dmgqZ+?=
- =?us-ascii?Q?5B9uQ6nZKzNBxTi1avBYX/2Fq4xcoWoclc7FD8RjpUUfO0rhgPXpKuLdYTnE?=
- =?us-ascii?Q?R3hbAKbOs5XqTEev5T03NKLt/v4T+QP7t4xYFEUwlRHCerkQJVeCr+91mKqZ?=
- =?us-ascii?Q?z/t0Q+4cHf8a++pm8U/t4K1kV0uIbx2Ozv9544uylVjFXbQanKwL6pl7wZ+C?=
- =?us-ascii?Q?1dyWRIeSsgCGGI1Y3dwfAoKhoqFdOgzWhi0m3RAHR0kmnqiIzqo/vI8GQDSE?=
- =?us-ascii?Q?FYha4p0mYGgJPh0fuDwN6+bDsfECFQ4QaYPYisM7q76Bjzv9VG7ETrFYUO0C?=
- =?us-ascii?Q?fIEUiYA=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4490d53e-0c07-4bf9-ad1e-08de79460321
-X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Mar 2026 16:57:54.0340
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR02MB7933
+In-Reply-To: <20260303113032.3008371-1-yuvraj.sakshith@oss.qualcomm.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: khVq35BfRp2RuJQj9wBc3TGv3jQ2c74RIFU-h7k883g_1772559779
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-From: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com> Sent: Tuesday, Mar=
-ch 3, 2026 3:30 AM
->=20
+On Tue, Mar 03, 2026 at 03:30:27AM -0800, Yuvraj Sakshith wrote:
 > Today, page reporting sets page_reporting_order in two ways:
->=20
+> 
 > (1) page_reporting.page_reporting_order cmdline parameter
 > (2) Driver can pass order while registering itself.
->=20
+> 
 > In both cases, order zero is ignored by free page reporting
 > because it is used to set page_reporting_order to a default
 > value, like MAX_PAGE_ORDER.
->=20
+> 
 > In some cases we might want page_reporting_order to be zero.
->=20
+> 
 > For instance, when virtio-balloon runs inside a guest with
 > tiny memory (say, 16MB), it might not be able to find a order 1 page
 > (or in the worst case order MAX_PAGE_ORDER page) after some uptime.
 > Page reporting should be able to return order zero pages back for
 > optimal memory relinquishment.
->=20
+> 
 > This patch changes the default fallback value from '0' to '-1' in
 > all possible clients of free page reporting (hv_balloon and
 > virtio-balloon) together with allowing '0' as a valid order in
 > page_reporting_register().
->=20
+
+virtio change is a technicality, so
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+
 > Changes in v1:
 > - Introduce PAGE_REPORTING_DEFAULT_ORDER macro (initially set to 0).
 > - Make use of new macro in drivers (hv_balloon and virtio-balloon)
 >         working with page reporting.
 > - Change PAGE_REPORTING_DEFAULT_ORDER to -1 as zero is a valid
 >         page order that can be requested.
->=20
+> 
 > Changes in v2:
 > - Better naming. Replace PAGE_REPORTING_DEFAULT_ORDER with
 >         PAGE_REPORTING_ORDER_UNSPECIFIED. This takes care of
 >         the situation where page reporting order is not specified
 >         in the commandline.
 > - Minor commit message changes.
->=20
+> 
 > Changes in v3:
 > - Setting page_reporting_order's initial value to
 > 	PAGE_REPORTING_ORDER_UNSPECIFIED moved to
 > 	PATCH #5.
->=20
+> 
 > Changes in v4:
 > - Move PAGE_REPORTING_ORDER_UNSPECIFIED's usage with
 > 	page_reporting_order to patch #5.
->=20
+> 
 > Yuvraj Sakshith (5):
 >   mm/page_reporting: add PAGE_REPORTING_ORDER_UNSPECIFIED
 >   virtio_balloon: set unspecified page reporting order
@@ -197,18 +149,13 @@ ch 3, 2026 3:30 AM
 >   mm/page_reporting: change PAGE_REPORTING_ORDER_UNSPECIFIED to -1
 >   mm/page_reporting: change page_reporting_order to
 >     PAGE_REPORTING_ORDER_UNSPECIFIED
->=20
+> 
 >  drivers/hv/hv_balloon.c         | 2 +-
 >  drivers/virtio/virtio_balloon.c | 2 ++
 >  include/linux/page_reporting.h  | 1 +
 >  mm/page_reporting.c             | 7 ++++---
 >  4 files changed, 8 insertions(+), 4 deletions(-)
->=20
-> --
+> 
+> -- 
 > 2.34.1
->=20
-
-For the entire series,
-
-Reviewed-by: Michael Kelley <mhklinux@outlook.com>
 
