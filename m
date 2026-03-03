@@ -1,170 +1,268 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D22C2848BB
-	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 07:19:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C28DE285C8B
+	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 07:20:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772522362; cv=none; b=AgT41YUC2/l1fLvKyy8rh0UtS1wnDT+t3blaXfijY9u91YzTzAb4TRkvc8Y6IFNSIMFRjLrfreCdbVOqUodgekKr/TOZWRopB8QzsGt4Cq3U4NR3ZvokRxKjqmVF6kBMiclXs/9PVjaG9wvCldDio4z8BvQCLAjM4YBsxsdFlPY=
+	t=1772522440; cv=none; b=pmHl8O9K6NZh3O/OEDRB0NwdAbGLosbYgHTz2zMFlAHkIalzbYkeJ8teoCCGTk6LGjwTuJ9LkvJHK6f3DaJrRlNOFVlT1gj1rUG5jHaVMRhNGWv6x/SPhcp/JVK3UBI6fBDUf+c07SQZqU+szigPFVFscffPnzCi544GPBSukkk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772522362; c=relaxed/simple;
-	bh=Doad24DQs+44GbcO0UUBHSHOY52WSKB2PaJUheAOQlA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=HQONTMlnPjSlaLnv6GoMxivIUUyddqD1OJQBgKji1WH6Zd13tDJz9wnBlfGfUZgsvzx/pFY02hc0F16r9LZB2SQASOoczfJn7/mIT8+bnqyEbjgOZDZNLGU7wln+ZPj7ia8Vf775b2htWuYhPLCbB+5h4fiYw0Ws4SBbJsXZljU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N0y0JJdo; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1772522440; c=relaxed/simple;
+	bh=n6i24Y3ToeCOxwi/6iUNfrvz5MfKb3LdGsMrdc0ydPM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tr5UzGfRRUetrnKrZsiM9b9AnumxQTJpLOvQQgdLKCTjBztIc5A96y504nDJHndgZW8Opy+A33Le3a/e50OAcUDOJd0bF7qwizs4uQKaOYLcwE6XnADu1mjVylSbkUlIoDjoUHZb284sKwDwuZA/a90dF2VX1I5UbG6A8EiFMqw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EDTzaEL0; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N0y0JJdo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EDTzaEL0"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772522360;
+	s=mimecast20190719; t=1772522437;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=RxiMbhEuqFZk0pVPwSev6kKmkvJmnoI+zy4WDYfo0AQ=;
-	b=N0y0JJdo3FPwrxx3bNG8hHNYC55Y6876rGHM4Iffdind40EvUOo97hw9B5w925UKFj9gll
-	zc05LWC9P59h1y1a60Mix51kdmwYtfZcv+dGlu+hopYD5iy1X/Ye5QXUid7U+l9GmKrL02
-	VE2BzHQgV/2nSfPZnzixqqN9du4ZRxM=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=14+ydao3f/G23UqxiCS9Cg9nGpfr5ZtAKSKcbUtHG2I=;
+	b=EDTzaEL0weUqR1T2BPLgkdr4Nvn0gHplSSLHh7wKaoDv6GpbUYbNf1kPqS5d0mMKm63OJO
+	1NDZorT+NO9kvi1AIVeH6LBE9ofaLO1NyclraU+1AS65HaxDdVLyi+7EHuQHKDCtBaGZ4u
+	9eyha+9XTYORHv7ZgyDCLeFjM1tyCqs=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-507-TMwaXEBCM22vC2Q8H4Y56Q-1; Tue, 03 Mar 2026 02:19:19 -0500
-X-MC-Unique: TMwaXEBCM22vC2Q8H4Y56Q-1
-X-Mimecast-MFC-AGG-ID: TMwaXEBCM22vC2Q8H4Y56Q_1772522358
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-439aa1d898cso2374812f8f.2
-        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 23:19:18 -0800 (PST)
+ us-mta-427-Q9xPJhdROy6cHcir80QitA-1; Tue, 03 Mar 2026 02:20:36 -0500
+X-MC-Unique: Q9xPJhdROy6cHcir80QitA-1
+X-Mimecast-MFC-AGG-ID: Q9xPJhdROy6cHcir80QitA_1772522436
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3568090851aso31633070a91.1
+        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 23:20:36 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772522358; x=1773127158;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RxiMbhEuqFZk0pVPwSev6kKmkvJmnoI+zy4WDYfo0AQ=;
-        b=ZgUa8TgdrobFacQ5n8BJbkc7VfG6XBzg3NlC6gB0Dd8sUdsbmXtjfJLLG+kxZTo47d
-         /eK1rn6Sy1jNBBFLKRkesfoD0C5J7lEwU9npXvE9O1YoxMeu7dF1NwFkYebtCQrSEvjw
-         VrqUh7caYPzSub4b/6aUFvRN0XfSujQDgGCO9/0HaRKQUjDpkmSJ2sOFqgXcErAUkcrr
-         7Ewq7h7dJrpdczOcsqxutUyfMwcg+JTUZjxWzLoDnoUMyv9DnNKKt04N2LbVmJm2W1NJ
-         tkeCbU+M3af1Ifutrj5RJnXAp9f5Nc9Z7DwuZnFBmY0qcBezl8lt4K0+Zl4mkrTyiG7Z
-         xTQA==
-X-Forwarded-Encrypted: i=1; AJvYcCXfS8B/J81zRudxb7PNXITalIm29W9/z++8k+SYYvPyU65ca51JDxceLqAc+og0lrt0wnLipB7XFa7EyNWUcA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxFw45MoSYjFQgVJFwEvSC/V92LigSbBiCGObUHZS3gNEJmCZWm
-	d711UP7YC0m3xbZHhjHvOkzWCMxgWc9D4M/k3bmcQEFZiKtGO2HQAW4qL5a8ENwaRnu2oWzznCz
-	ZUxW66FNLSELGDazyOJZ000Ryzl/DEm5nUUEzbwEbGTWo+eiPtFrGzOrg3kz38x5/iHAR
-X-Gm-Gg: ATEYQzwJfkYDhic+aEp8cKjP5suxJ4/M1aNioaP4tcsy94MpyJ5EC9Tmo6FDoGuqsfM
-	M9yjr+/YuhiyUy9Wa+kq+w5KKgSG1KcVTNphUd735HSK0As8eKJK/Kf39BX4nAFpkoUQYjIDWOq
-	COlhf57y4gB7WAnqe8Oe0S/LuR+BOpgFq5FIsYp224UllBfwOlX84Dpc+vn0E1WIE0VEq3LdpPp
-	gUesbxVFjoAFfmyStcnCx+W38NyTrOsJARRnxu0tji7PjoVXQJSp4scL2g5xh2z7RMbmgYULoWB
-	ONSkbP1bbasEnyWB6tmTq9RF0MzTFFYYHFRiZGxms7BypsyPKP2ij9o1hzWHQ6TaLkCgWkqckG/
-	b62YQyFBMibBefBm8s0cmLevWyQI2Cf8k/CrZxuzOhXnWSA==
-X-Received: by 2002:a05:600c:46c4:b0:483:7783:537b with SMTP id 5b1f17b1804b1-483c9c0f34cmr256504635e9.24.1772522357668;
-        Mon, 02 Mar 2026 23:19:17 -0800 (PST)
-X-Received: by 2002:a05:600c:46c4:b0:483:7783:537b with SMTP id 5b1f17b1804b1-483c9c0f34cmr256504245e9.24.1772522357187;
-        Mon, 02 Mar 2026 23:19:17 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-485126563ddsm15274465e9.3.2026.03.02.23.19.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Mar 2026 23:19:16 -0800 (PST)
-Date: Tue, 3 Mar 2026 02:19:13 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alexander Graf <graf@amazon.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, kvm@vger.kernel.org, eperezma@redhat.com,
-	Jason Wang <jasowang@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>, nh-open-source@amazon.com
-Subject: Re: [PATCH] vsock: Enable H2G override
-Message-ID: <20260303021723-mutt-send-email-mst@kernel.org>
-References: <20260302104138.77555-1-graf@amazon.com>
- <aaVrsXMmULivV4Se@sgarzare-redhat>
- <aaV80wWlpjEtYCQJ@sgarzare-redhat>
- <17d63837-6028-475a-90df-6966329a0fc2@amazon.com>
- <20260302145121-mutt-send-email-mst@kernel.org>
- <079fcb93-cd01-45db-9ff7-d6cafd8fb7d5@amazon.com>
+        d=1e100.net; s=20230601; t=1772522435; x=1773127235;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=14+ydao3f/G23UqxiCS9Cg9nGpfr5ZtAKSKcbUtHG2I=;
+        b=u1yeuvIldwfH9DdvAnu9De0DRuq+tGK7JeX3hmMpVbY1ah8DnXQKqoGmvc/w4z22sm
+         acoL+VF+TQfebEbmhV4xYgRTStPG2BYJtWX5tK3JT7QBrLJ8lMtPKa7pSMKYqntlfD4y
+         WOKN2mxvBXv33nvXFOyZvx75Abbf33xMJfjFut3YTGj28NwoqdWX2zaDrWfzW4GaZ0jH
+         0RwJCJkotM1taUKojrVbFC0tqRpm8zQdb2ir4Bo7r7i2qiwox88nl7HyQUUPxpBVTePC
+         ahUle2tq6VnEPs+LXLDj3MRhgwvxSHs5YUihO5+oxI1Op0jraQb+4ywcR/iM4Gg2T9Sa
+         ybKQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUmiEUbrN4jx/Qa4iu5KHVn7Qots+Rt9gqj1ZtLgs9Y7jjsrWzbB3vi5sw0Iw4Qxh10AXopP7rZ5C4nrdKb1g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywg5tcEubvWUn42C26VTiDt+hCcQorQcJuvuS9AMOyrN2XDcUW+
+	cUcuZVLHtLtkJitaJrNBmyOEIBRNjRpb+0DCF8lAehyCp/TQx828fo1Zxu/ucRFDL5G1u++rNlR
+	ZtgbHY0CgMTp+PiFO3JgS4n9fJV9k4lipnFWsqj9mU3DFPJVdHdUTRwCiE2d5juRlxuBSV3VhLj
+	lxqJx8rPNSZVEKbeycJp4v884oTzqKj18+ncmdxxh0jq4=
+X-Gm-Gg: ATEYQzy38J2ujNP6RSazxudbLGCw+0mf1RsvGHdciMVTc9zhNFJ7VEmCcgBafOsA4WZ
+	C761Nu7yoW3EvPb73NP5a0IC+L+gozgw3sz1xGIs8NR6gaV74Z3UCS7/ebcmOvHxLcNMoHqOwUE
+	uU2kDR5uTYBXiiqaZcseb9MciTC4QEUfXfWQwdu/gr0vOk8KboYEq7JnPHzHO1VSIJJQKd0xqPz
+	ncQbGkd
+X-Received: by 2002:a17:90a:e18f:b0:356:8719:f516 with SMTP id 98e67ed59e1d1-35965ceaf7dmr13943450a91.24.1772522435522;
+        Mon, 02 Mar 2026 23:20:35 -0800 (PST)
+X-Received: by 2002:a17:90a:e18f:b0:356:8719:f516 with SMTP id
+ 98e67ed59e1d1-35965ceaf7dmr13943418a91.24.1772522435015; Mon, 02 Mar 2026
+ 23:20:35 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <079fcb93-cd01-45db-9ff7-d6cafd8fb7d5@amazon.com>
+References: <20260210082554.1582553-1-eperezma@redhat.com> <20260210082554.1582553-4-eperezma@redhat.com>
+ <CACGkMEtmnV5xJ6crnfTr5Nk8tZe437OgqB22yTOJ+nnrb0LcPg@mail.gmail.com>
+ <CAJaqyWdN7xdu_=mUzE3GGBtTeW5g6O0YwWnV_UmX+g2+FNDkZA@mail.gmail.com>
+ <CACGkMEuY0f1xjxc4n6QzKfUa-LFrM-X_xtOpTwm5SWjfVvikHA@mail.gmail.com> <CAJaqyWe4V77K7R+d_HvSR_2j+sXqemr+zcLUOf7BPu1hT1-ztA@mail.gmail.com>
+In-Reply-To: <CAJaqyWe4V77K7R+d_HvSR_2j+sXqemr+zcLUOf7BPu1hT1-ztA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 3 Mar 2026 15:20:22 +0800
+X-Gm-Features: AaiRm51LLj3Genwd6PoRk26KHkgRqGJ09gL5MwiBySVF8FeNeBQbzkvRlOhzFkg
+Message-ID: <CACGkMEuADgAONQ6-RF6N9HWouTaVDztUVCW2q-KdLNwDEWfuKg@mail.gmail.com>
+Subject: Re: [PATCH v2 3/5] vduse: add VDUSE_GET_FEATURES ioctl
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, Laurent Vivier <lvivier@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>, 
+	linux-kernel@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>, 
+	Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5L2RM2goP0326k1UevikaB1PUCGTLxU2AxIb-Az9o_o_1772522358
+X-Mimecast-MFC-PROC-ID: ioS5802vRFELVJF_LvCYktfkDjE7OWi_AvKrOn4s5Hc_1772522436
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 03, 2026 at 07:51:32AM +0100, Alexander Graf wrote:
-> 
-> On 02.03.26 20:52, Michael S. Tsirkin wrote:
-> > On Mon, Mar 02, 2026 at 04:48:33PM +0100, Alexander Graf wrote:
-> > > On 02.03.26 13:06, Stefano Garzarella wrote:
-> > > > CCing Bryan, Vishnu, and Broadcom list.
-> > > > 
-> > > > On Mon, Mar 02, 2026 at 12:47:05PM +0100, Stefano Garzarella wrote:
-> > > > > Please target net-next tree for this new feature.
-> > > > > 
-> > > > > On Mon, Mar 02, 2026 at 10:41:38AM +0000, Alexander Graf wrote:
-> > > > > > Vsock maintains a single CID number space which can be used to
-> > > > > > communicate to the host (G2H) or to a child-VM (H2G). The current logic
-> > > > > > trivially assumes that G2H is only relevant for CID <= 2 because these
-> > > > > > target the hypervisor.  However, in environments like Nitro
-> > > > > > Enclaves, an
-> > > > > > instance that hosts vhost_vsock powered VMs may still want to
-> > > > > > communicate
-> > > > > > to Enclaves that are reachable at higher CIDs through virtio-vsock-pci.
-> > > > > > 
-> > > > > > That means that for CID > 2, we really want an overlay. By default, all
-> > > > > > CIDs are owned by the hypervisor. But if vhost registers a CID,
-> > > > > > it takes
-> > > > > > precedence.  Implement that logic. Vhost already knows which CIDs it
-> > > > > > supports anyway.
-> > > > > > 
-> > > > > > With this logic, I can run a Nitro Enclave as well as a nested VM with
-> > > > > > vhost-vsock support in parallel, with the parent instance able to
-> > > > > > communicate to both simultaneously.
-> > > > > I honestly don't understand why VMADDR_FLAG_TO_HOST (added
-> > > > > specifically for Nitro IIRC) isn't enough for this scenario and we
-> > > > > have to add this change.  Can you elaborate a bit more about the
-> > > > > relationship between this change and VMADDR_FLAG_TO_HOST we added?
-> > > 
-> > > The main problem I have with VMADDR_FLAG_TO_HOST for connect() is that it
-> > > punts the complexity to the user. Instead of a single CID address space, you
-> > > now effectively create 2 spaces: One for TO_HOST (needs a flag) and one for
-> > > TO_GUEST (no flag). But every user space tool needs to learn about this
-> > > flag. That may work for super special-case applications. But propagating
-> > > that all the way into socat, iperf, etc etc? It's just creating friction.
-> > > 
-> > > IMHO the most natural experience is to have a single CID space, potentially
-> > > manually segmented by launching VMs of one kind within a certain range.
-> > > 
-> > > At the end of the day, the host vs guest problem is super similar to a
-> > > routing table.
-> > If this is what's desired, some bits could be stolen from the CID
-> > to specify the destination type. Would that address the issue?
-> > Just a thought.
-> 
-> 
-> If we had thought of this from the beginning, yes. But now that everyone
-> thinks CID (guest) == CID (host), I believe this is no longer feasible.
-> 
-> 
-> Alex
+On Fri, Feb 13, 2026 at 3:39=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Fri, Feb 13, 2026 at 2:25=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Thu, Feb 12, 2026 at 4:23=E2=80=AFPM Eugenio Perez Martin
+> > <eperezma@redhat.com> wrote:
+> > >
+> > > On Thu, Feb 12, 2026 at 9:07=E2=80=AFAM Jason Wang <jasowang@redhat.c=
+om> wrote:
+> > > >
+> > > > On Tue, Feb 10, 2026 at 4:26=E2=80=AFPM Eugenio P=C3=A9rez <eperezm=
+a@redhat.com> wrote:
+> > > > >
+> > > > > Add an ioctl to allow VDUSE instances to query the available feat=
+ures
+> > > > > supported by the kernel module.
+> > > > >
+> > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > > ---
+> > > > > A simple u64 bitmap is used for feature flags. While a flexible a=
+rray
+> > > > > could support indefinite expansion, 64 bits is sufficient for the
+> > > > > foreseeable future and simplifies the implementation.
+> > > > >
+> > > > > Also, dev_dbg is used for logging rather than dev_err as these ca=
+n be
+> > > > > triggered from userspace.
+> > > > > ---
+> > > > > v2:
+> > > > > * return -EINVAL if ioctl called with version < 2, so userland vi=
+sible
+> > > > >   reply is kept (Jason).
+> > > > > ---
+> > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 ++++++++++++++++++++++++=
+++++
+> > > > >  include/uapi/linux/vduse.h         |  7 ++++++-
+> > > > >  2 files changed, 34 insertions(+), 1 deletion(-)
+> > > > >
+> > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vd=
+pa_user/vduse_dev.c
+> > > > > index d1da7c15d98b..7458cbaed4c7 100644
+> > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > @@ -52,6 +52,9 @@
+> > > > >
+> > > > >  #define IRQ_UNBOUND -1
+> > > > >
+> > > > > +/* Supported VDUSE features */
+> > > > > +static const uint64_t vduse_features;
+> > > > > +
+> > > > >  /*
+> > > > >   * VDUSE instance have not asked the vduse API version, so assum=
+e 0.
+> > > > >   *
+> > > > > @@ -1947,6 +1950,19 @@ static bool vduse_validate_config(struct v=
+duse_dev_config *config,
+> > > > >                          sizeof(config->reserved)))
+> > > > >                 return false;
+> > > > >
+> > > > > +       if (api_version < VDUSE_API_VERSION_2) {
+> > > > > +               if (config->vduse_features) {
+> > > > > +                       dev_dbg(vduse_ctrl_dev,
+> > > > > +                               "config->vduse_features with vers=
+ion %llu",
+> > > > > +                               api_version);
+> > > > > +                       return false;
+> > > > > +               }
+> > > > > +       } else {
+> > > > > +               if (config->vduse_features & ~vduse_features)
+> > > > > +                       return false;
+> > > > > +       }
+> > > > > +
+> > > > > +
+> > > > >         if (api_version < VDUSE_API_VERSION_1 &&
+> > > > >             (config->ngroups || config->nas))
+> > > > >                 return false;
+> > > > > @@ -2207,6 +2223,18 @@ static long vduse_ioctl(struct file *file,=
+ unsigned int cmd,
+> > > > >                 ret =3D vduse_destroy_dev(name);
+> > > > >                 break;
+> > > > >         }
+> > > > > +       case VDUSE_GET_FEATURES:
+> > > > > +               if (control->api_version < VDUSE_API_VERSION_2) {
+> > > > > +                       dev_dbg(vduse_ctrl_dev,
+> > > > > +                               "VDUSE_GET_FEATURES ioctl with ve=
+rsion %llu",
+> > > > > +                               control->api_version);
+> > > > > +                       ret =3D -EINVAL;
+> > > > > +                       break;
+> > > > > +               }
+> > > > > +
+> > > > > +               ret =3D put_user(vduse_features, (u64 __user *)ar=
+gp);
+> > > > > +               break;
+> > > > > +
+> > > > >         default:
+> > > > >                 ret =3D -EINVAL;
+> > > > >                 break;
+> > > > > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vdus=
+e.h
+> > > > > index 27832d46084c..8898d9daa777 100644
+> > > > > --- a/include/uapi/linux/vduse.h
+> > > > > +++ b/include/uapi/linux/vduse.h
+> > > > > @@ -37,6 +37,7 @@
+> > > > >   * @vq_align: the allocation alignment of virtqueue's metadata
+> > > > >   * @ngroups: number of vq groups that VDUSE device declares
+> > > > >   * @nas: number of address spaces that VDUSE device declares
+> > > > > + * @vduse_features: VDUSE features
+> > > > >   * @reserved: for future use, needs to be initialized to zero
+> > > > >   * @config_size: the size of the configuration space
+> > > > >   * @config: the buffer of the configuration space
+> > > > > @@ -53,7 +54,8 @@ struct vduse_dev_config {
+> > > > >         __u32 vq_align;
+> > > > >         __u32 ngroups; /* if VDUSE_API_VERSION >=3D 1 */
+> > > > >         __u32 nas; /* if VDUSE_API_VERSION >=3D 1 */
+> > > > > -       __u32 reserved[11];
+> > > > > +       __u64 vduse_features;
+> > > >
+> > > > Nit: Should we document " /* if VDUSE_API_VERSION >=3D 2 */
+> > > >
+> > > > But I have an open question, is this better to just introduce a
+> > > > VDUSE_SET_FEATURES then we can do negotiation to avoid bumping API
+> > > > versions?
+> > > >
+> > >
+> > > How do you know if you can call VDUSE_GET_FEATURES and
+> > > VDUSE_SET_FEATURES then? vduse_ioctl does not even return -ENOIOCMD
+> > > but -EINVAL if you call the equivalent of VDUSE_GET_FEATURES on
+> > > current Linux master. Or should the VDUSE instance assume that if the
+> > > ioctl returns -EINVAL the kernel does not support them?
+> >
+> > If we go that way, yes.
+> >
+>
+> I'm ok with doing the change. Kind of, I still think that increasing
+> the API version is way cleaner, so no ioctl returns any error in
+> regular initialization. But python's style "ask forgiveness not
+> permission" is also ok for me.
+>
+> But I'm really missing the motivation of it. What's the problem with
+> the increase of the version that you are trying to solve here?
 
+For example, if a feature is simply added via a new ioctl. I think we
+don't need to bump the version. An example is the umem reg/dereg.
+VDUSE starts from this choice so I think we should stick to that.
 
-I don't really insist, but just to point out that if we wanted to, we
-could map multiple CIDs to host. Anyway.
+I think a better time to bump the version are
 
+1) an ioctl is expected to behave differently
+2) new ioctls are mutually exclusive with one(s) of the existing ioctls
+3) new initialization protocol
 
-> 
-> 
-> 
-> Amazon Web Services Development Center Germany GmbH
-> Tamara-Danz-Str. 13
-> 10243 Berlin
-> Geschaeftsfuehrung: Christof Hellmis, Andreas Stieger
-> Eingetragen am Amtsgericht Charlottenburg unter HRB 257764 B
-> Sitz: Berlin
-> Ust-ID: DE 365 538 597
+etc.
+
+>
+> Can we make a rule to know when to increase the version, and when it
+> is not needed and it is ok for ioctls to just return -EINVAL or
+> -ENOIOCTLCMD, so future series can hit the right behavior from earlier
+> versions?
+
+See above.
+
+>
+> From your comment I extract that we don't need to increase the API
+> version number if we just add ioctls commands to the device, like
+> probing if an ioctl exists. Also, we don't need to increase the
+> version if we can tell if a member in vduse_dev_config is known to
+> exist because a previous ioctl (or feature flag) succeeded.
+>
+> Am I missing something?
+
+I might be wrong, just some thoughts. Please correct me if I was wrong.
+
+Thanks
+
+>
 
