@@ -1,347 +1,183 @@
-Received: from pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.83.148.184])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A875F3932DE
-	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 21:43:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.83.148.184
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A225C38228B
+	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 21:45:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772574219; cv=none; b=f4tOga+0Av7l73MPQT7kMk/WPk9matcfu9iOenivNn4bsI4uZOTeJnsk6oL427iGizpPJl2Q9YuHSgzrrvytGv4KZ2Vz4W3uH0oG5K8+p/IkgOZKO3L4dHNoaO/jLW+YPIcfuVVktwl3Y90gFHT/4TgTcKZbHrr/exnIypWA1FQ=
+	t=1772574327; cv=none; b=QfrJsznYbkUp7DpMqgQ+bLHihnzHGGB2y5RPyFj1VHgRtFfq8nrzpJsxy90DSeGBvC1vFodyCtwjevj+VZ6C79CL/SiBrMe6XD1WAfcuxbAPOfPPo5zByHj38OgG+t6K2Dr4Y2/AmKk4LZInZ11pCehftugyTkz2ksoPRRnx0/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772574219; c=relaxed/simple;
-	bh=PzZ/ezFzbZYsh4eEucGwJNBE0sfci7zr4IfTd9AZZQE=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=F5bhQI8Ms23ITNH79NFdoe6GJyBTHtxrJTK/JvrPoIhuWpJh+AsGdxhEmjofHCl41BvazdYDnJnsebU4F7XyLvRPNdy9VgMUUnR1vrbR2ZLn+qhT6Si/r8WJxmt9toXNv65l7XLo7GXImcNVyownkDKthwn2VKJgLpTDmwyJeLg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=XHqT1+OR; arc=none smtp.client-ip=35.83.148.184
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+	s=arc-20240116; t=1772574327; c=relaxed/simple;
+	bh=akBhoEbue+savF20VufnHcTBz7Ya6Se5TJcza/g/BAE=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=VEgUPL/qablUM3Q6yawp/GFpsv5mdGJordXIkEm7IeZf4XSDV82IqB5Rr/MpKFQOC432Djzu4il3nbceSdmZhfM4wGiPwMwGr3wgneUpKN+0FQyDk104mft1H04C2x3bdEFy+Jz+qM3P/0K1n78Clpove46JzEzwMZds3q+s9ik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BY11qorQ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="XHqT1+OR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1772574217; x=1804110217;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=D3ckCkYROGkaxEpbd7UYWDIIPso4ExOTEY90wAeHS5w=;
-  b=XHqT1+ORnUOur3z6+04PMzUDUbSkS5lfcTpvXEKBnmSMxLCkutPALExF
-   OMyDmsnJK1T/leAvD7gZ6/prh551t6iZiE5bAgJIUa3WTo+KXXfYgo5m9
-   e6rBLP2Sw2D5pTfezv+eGcgVfx9WrkdbWbA1oFxLcLWsvRUMprHQzTNzm
-   33zmZNnLLHgeMeCSOHt/g1VvXwFe6tvjp7N3yPV10ng/MVxy9w5jmNAe9
-   yv+0PzgB+yRfUgjOa4JiHiFza+Lo/fslAJMOH+PTGYtjpT9/ONyTdgmC9
-   0WuNEHka9Rnn7ZkUASpC8LLVOm6ucNbtp7n+va/TR8vd38Ukc8ABGubgr
-   A==;
-X-CSE-ConnectionGUID: LacM7+auRcGIgU+IqM8cXg==
-X-CSE-MsgGUID: 7PkRHH6xQZySyQkP+cWsLA==
-X-IronPort-AV: E=Sophos;i="6.21,322,1763424000"; 
-   d="scan'208";a="14011449"
-Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
-  by internal-pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2026 21:43:35 +0000
-Received: from EX19MTAUWC002.ant.amazon.com [205.251.233.111:17624]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.52.102:2525] with esmtp (Farcaster)
- id a9b15450-ae14-40c5-b4b8-c776a92886c5; Tue, 3 Mar 2026 21:43:34 +0000 (UTC)
-X-Farcaster-Flow-ID: a9b15450-ae14-40c5-b4b8-c776a92886c5
-Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
- EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Tue, 3 Mar 2026 21:43:34 +0000
-Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
- EX19D020UWC004.ant.amazon.com (10.13.138.149) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Tue, 3 Mar 2026 21:43:31 +0000
-From: Alexander Graf <graf@amazon.com>
-To: <virtualization@lists.linux.dev>
-CC: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<kvm@vger.kernel.org>, <eperezma@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, <mst@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
-	<bcm-kernel-feedback-list@broadcom.com>, Arnd Bergmann <arnd@arndb.de>, "Greg
- Kroah-Hartman" <gregkh@linuxfoundation.org>, Jonathan Corbet
-	<corbet@lwn.net>, Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa
-	<vishnu.dasa@broadcom.com>, <nh-open-source@amazon.com>,
-	<syzbot@syzkaller.appspotmail.com>
-Subject: [PATCH v3] vsock: add G2H fallback for CIDs not owned by H2G transport
-Date: Tue, 3 Mar 2026 21:43:29 +0000
-Message-ID: <20260303214329.71711-1-graf@amazon.com>
-X-Mailer: git-send-email 2.47.1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BY11qorQ"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 623HvHhW1952726;
+	Tue, 3 Mar 2026 21:45:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=63eIU8
+	o8Q7zAMTxVx3xYRedmz9y574WSPae7H346HCM=; b=BY11qorQGBqvZs5k4vD2En
+	tRl7IEHnINPRqT9FviaypGmY3KPSGQ2L35RKkzCaTCcNiv2IBex1EcXey5rSTSxE
+	upPxoBkZUQcHswL0K7squqgLBUj6HrI5iq4FRNeU50wf7b/soDt19FiXvWZzSATn
+	wnPi2PK1BSwfMl1TbkK3aLfY03ktz6ynv+WY5q73VWgJePBEaKXeqtEmKYH85WKZ
+	oWkFk5Ig35geKGz7BnqZN5IWP+loAKdnx13o3uDxWUOk2rhNiA97JbaiIteplAES
+	UyBTa73aK373LVBqhaA/EMIogPEGKVdzASJSKU2hRkjXB3epJ9HNU2T0MdMoKDnA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4cksrj50js-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Mar 2026 21:45:24 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 623II2Ws016397;
+	Tue, 3 Mar 2026 21:45:23 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4cmbpn45dp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Mar 2026 21:45:23 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 623LjMUg18285140
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 3 Mar 2026 21:45:22 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 397935805A;
+	Tue,  3 Mar 2026 21:45:22 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 44C865803F;
+	Tue,  3 Mar 2026 21:45:21 +0000 (GMT)
+Received: from li-479af74c-31f9-11b2-a85c-e4ddee11713b.ibm.com (unknown [9.61.97.94])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  3 Mar 2026 21:45:21 +0000 (GMT)
+Message-ID: <77b2b44d7101d55151c8e9852ce41783205ed987.camel@linux.ibm.com>
+Subject: Re: [PATCH 1/1] scsi: virtio_scsi: move INIT_WORK calls to
+ virtscsi_init
+From: Eric Farman <farman@linux.ibm.com>
+To: Joshua Daley <jdaley@linux.ibm.com>, linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+        mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com,
+        stefanha@redhat.com, eperezma@redhat.com,
+        James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
+        mjrosato@linux.ibm.com, frankja@linux.ibm.com
+Date: Tue, 03 Mar 2026 16:45:20 -0500
+In-Reply-To: <20260226204345.1904786-2-jdaley@linux.ibm.com>
+References: <20260226204345.1904786-1-jdaley@linux.ibm.com>
+	 <20260226204345.1904786-2-jdaley@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.3 (3.58.3-1.fc43) 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-ClientProxiedBy: EX19D036UWC003.ant.amazon.com (10.13.139.214) To
- EX19D020UWC004.ant.amazon.com (10.13.138.149)
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Rp/I7SmK c=1 sm=1 tr=0 ts=69a75674 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=OoLDd18DN7KcugGRceQA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAzMDE3OCBTYWx0ZWRfX9UV+9tKVerIM
+ k10Vj2ibRJ8eww0ccLke/e0k0hZswnhSv7Dtw/F/rqVEjA3f+LOI5SnCldZe+nTAq+cWReKtMb4
+ KjrpWkPpznsGS5fNGk1yXarMN+lnSUpjegM1kHo8lJQSn88KaWaJQwj45fTtEZnKb7W5DBc/SPI
+ PNlXp1X2DAGnLx0YDgn1OgLyZT/fsqKJPGRsv4g41cFePt4/Vt/R+Z++kU47TjEem0nPamikORv
+ kKgSLqSIksZW2awxqAVxqbSHZiYdZVhj8sST8ttrduRR6xrExTVxUEynL1+dtSCEpAl28As7Emq
+ ZvdvKRTV7GgeHAyPXJ3R0yIr0NDsh6Ukqzxu3c4c/TCLOzzas6ZT+HxGWP+qBaJ1jGoQOhvh5sz
+ ddIds/XKb9rf2Wdf9mHv97lwz0Fp1nIcyPlTTXxdGR4PpnDT994XcDDhncWyu8hE8KELMsHv3kz
+ HcZentz7j5rknyj+1Hg==
+X-Proofpoint-GUID: M9-a5C4YNMae_nxfA-v5ZeCBMvDe9zWq
+X-Proofpoint-ORIG-GUID: M9-a5C4YNMae_nxfA-v5ZeCBMvDe9zWq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-03_03,2026-03-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 priorityscore=1501 spamscore=0 phishscore=0 adultscore=0
+ bulkscore=0 clxscore=1011 impostorscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603030178
 
-When no H2G transport is loaded, vsock currently routes all CIDs to the
-G2H transport (commit 65b422d9b61b, "vsock: forward all packets to the
-host when no H2G is registered"). Extend that existing behavior: when
-an H2G transport is loaded but does not claim a given CID, the
-connection falls back to G2H in the same way.
+On Thu, 2026-02-26 at 21:43 +0100, Joshua Daley wrote:
+> The last step of virtscsi_handle_event is to call virtscsi_kick_event,
+> which calls INIT_WORK on it's own work item. INIT_WORK resets the
+> work item's data bits to 0.
+>=20
+> If this occurs while the work item is being flushed by
+> cancel_work_sync, then kernel/workqueue.c/work_offqd_enable triggers a
+> kernel warning, as it expects the "disable" bit to be 1:
+>=20
+> [   21.450115] workqueue: work disable count underflowed
+> [   21.450117] WARNING: CPU: 1 PID: 56 at kernel/workqueue.c:4328 enable_=
+work+0x10a/0x120
+> ...
+> [   21.450171] Call Trace:
+> [   21.450173]  [<000003db2e5bdc3e>] enable_work+0x10e/0x120
+> [   21.450176] ([<000003db2e5bdc3a>] enable_work+0x10a/0x120)
+> [   21.450178]  [<000003db2e5bdd86>] cancel_work_sync+0x86/0xa0
+> [   21.450181]  [<000003daae97d9e4>] virtscsi_remove+0xb4/0xd0 [virtio_sc=
+si]
+> [   21.450184]  [<000003db2ef3b5ca>] virtio_dev_remove+0x6a/0xd0
+> [   21.450186]  [<000003db2ef9106c>] device_release_driver_internal+0x1ac=
+/0x260
+> [   21.450190]  [<000003db2ef8edc8>] bus_remove_device+0xf8/0x190
+> [   21.450192]  [<000003db2ef88d72>] device_del+0x142/0x340
+> [   21.450194]  [<000003db2ef88fa0>] device_unregister+0x30/0xa0
+> [   21.450196]  [<000003db2ef3b2fa>] unregister_virtio_device+0x2a/0x40
+>=20
+> This warning may occur if a controller is detached immediately
+> following a disk detach.
+>=20
+> Move the INIT_WORK call to prevent this. Don't re-init event list
+> work items in virtscsi_kick_event, init them only once in
+> virtscsi_init instead.
+>=20
+> Signed-off-by: Joshua Daley <jdaley@linux.ibm.com>
 
-This matters in environments like Nitro Enclaves, where an instance may
-run nested VMs via vhost-vsock (H2G) while also needing to reach sibling
-enclaves at higher CIDs through virtio-vsock-pci (G2H). With the old
-code, any CID > 2 was unconditionally routed to H2G when vhost was
-loaded, making those enclaves unreachable without setting
-VMADDR_FLAG_TO_HOST explicitly on every connect.
+The fact that the INIT_WORK points to virtscsi_handle_event(), which itself=
+ calls
+virtscsi_kick_event() and re-inits the workqueue struct today, does seem od=
+d. Moving this to _init,
+as part of the _probe() process, seems correct to me. One nit below, but FW=
+IW:
 
-Requiring every application to set VMADDR_FLAG_TO_HOST creates friction:
-tools like socat, iperf, and others would all need to learn about it.
-The flag was introduced 6 years ago and I am still not aware of any tool
-that supports it. Even if there was support, it would be cumbersome to
-use. The most natural experience is a single CID address space where H2G
-only wins for CIDs it actually owns, and everything else falls through to
-G2H, extending the behavior that already exists when H2G is absent.
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Tested-by: Eric Farman <farman@linux.ibm.com>
 
-To give user space at least a hint that the kernel applied this logic,
-automatically set the VMADDR_FLAG_TO_HOST on the remote address so it
-can determine the path taken via getpeername().
+> ---
+>  drivers/scsi/virtio_scsi.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index 0ed8558dad72..173092931df6 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -242,7 +242,6 @@ static int virtscsi_kick_event(struct virtio_scsi *vs=
+csi,
 
-Add a per-network namespace sysctl net.vsock.g2h_fallback (default 1).
-At 0 it forces strict routing: H2G always wins for CID > VMADDR_CID_HOST,
-or ENODEV if H2G is not loaded.
+Just before this hunk is a prototype for virtscsi_handle_event(), since it =
+was previously used in
+this function but defined afterwards. I suspect it can be removed now?
 
-Signed-off-by: Alexander Graf <graf@amazon.com>
-Tested-by: syzbot@syzkaller.appspotmail.com
-
----
-
-v1 -> v2:
-
-  - Rebase on 7.0, include namespace support
-  - Add net.vsock.g2h_fallback sysctl
-  - Rework description
-  - Set VMADDR_FLAG_TO_HOST automatically
-  - Add VMCI support
-  - Update vsock_assign_transport() comment
-
-v2 -> v3:
-
-  - Use has_remote_cid() on G2H transport to gate the fallback. This is
-    used by VMCI to indicate that it never takes G2H CIDs > 2.
-  - Move g2h_fallback into struct netns_vsock to enable namespaces
-    and fix syzbot warning
-  - Gate the !transport_h2g case on g2h_fallback as well, folding the
-    pre-existing no-H2G fallback into the new logic
-  - Remove has_remote_cid() from VMCI again. Instead implement it in
-    virtio.
----
- Documentation/admin-guide/sysctl/net.rst | 28 +++++++++++++++++++
- drivers/vhost/vsock.c                    | 13 +++++++++
- include/net/af_vsock.h                   |  9 +++++++
- include/net/netns/vsock.h                |  2 ++
- net/vmw_vsock/af_vsock.c                 | 34 ++++++++++++++++++++----
- net/vmw_vsock/virtio_transport.c         |  7 +++++
- 6 files changed, 88 insertions(+), 5 deletions(-)
-
-diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
-index 3b2ad61995d4..98b9eaa9cb9e 100644
---- a/Documentation/admin-guide/sysctl/net.rst
-+++ b/Documentation/admin-guide/sysctl/net.rst
-@@ -602,3 +602,31 @@ it does not modify the current namespace or any existing children.
- 
- A namespace with ``ns_mode`` set to ``local`` cannot change
- ``child_ns_mode`` to ``global`` (returns ``-EPERM``).
-+
-+g2h_fallback
-+------------
-+
-+Controls whether connections to CIDs not owned by the host-to-guest (H2G)
-+transport automatically fall back to the guest-to-host (G2H) transport.
-+
-+When enabled, if a connect targets a CID that the H2G transport (e.g.
-+vhost-vsock) does not serve, or if no H2G transport is loaded at all, the
-+connection is routed via the G2H transport (e.g. virtio-vsock) instead. This
-+allows a host running both nested VMs (via vhost-vsock) and sibling VMs
-+reachable through the hypervisor (e.g. Nitro Enclaves) to address both using
-+a single CID space, without requiring applications to set
-+``VMADDR_FLAG_TO_HOST``.
-+
-+When the fallback is taken, ``VMADDR_FLAG_TO_HOST`` is automatically set on
-+the remote address so that userspace can determine the path via
-+``getpeername()``.
-+
-+Note: With this sysctl enabled, user space that attempts to talk to a guest
-+CID which is not implemented by vhost will create host vsock traffic.
-+Environments that rely on H2G-only isolation should set it to 0.
-+
-+Values:
-+
-+	- 0 - Connections to CIDs <= 2 or with VMADDR_FLAG_TO_HOST use G2H;
-+	  all others use H2G (or fail with ENODEV if H2G is not loaded).
-+	- 1 - Connections to CIDs not owned by H2G fall back to G2H. (default)
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 054f7a718f50..319e3a690108 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -91,6 +91,18 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
- 	return NULL;
- }
- 
-+static bool vhost_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
-+{
-+	struct sock *sk = sk_vsock(vsk);
-+	struct net *net = sock_net(sk);
-+	bool found;
-+
-+	rcu_read_lock();
-+	found = vhost_vsock_get(cid, net) != NULL;
-+	rcu_read_unlock();
-+	return found;
-+}
-+
- static void
- vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
- 			    struct vhost_virtqueue *vq)
-@@ -424,6 +436,7 @@ static struct virtio_transport vhost_transport = {
- 		.module                   = THIS_MODULE,
- 
- 		.get_local_cid            = vhost_transport_get_local_cid,
-+		.has_remote_cid           = vhost_transport_has_remote_cid,
- 
- 		.init                     = virtio_transport_do_socket_init,
- 		.destruct                 = virtio_transport_destruct,
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index 533d8e75f7bb..4e40063adab4 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -179,6 +179,15 @@ struct vsock_transport {
- 	/* Addressing. */
- 	u32 (*get_local_cid)(void);
- 
-+	/* Check if this transport serves a specific remote CID.
-+	 * For H2G transports: return true if the CID belongs to a registered
-+	 * guest. If not implemented, all CIDs > VMADDR_CID_HOST go to H2G.
-+	 * For G2H transports: return true if the transport can reach arbitrary
-+	 * CIDs via the hypervisor (i.e. supports the fallback overlay). VMCI
-+	 * does not implement this as it only serves CIDs 0 and 2.
-+	 */
-+	bool (*has_remote_cid)(struct vsock_sock *vsk, u32 remote_cid);
-+
- 	/* Read a single skb */
- 	int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
- 
-diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
-index dc8cbe45f406..7f84aad92f57 100644
---- a/include/net/netns/vsock.h
-+++ b/include/net/netns/vsock.h
-@@ -20,5 +20,7 @@ struct netns_vsock {
- 
- 	/* 0 = unlocked, 1 = locked to global, 2 = locked to local */
- 	int child_ns_mode_locked;
-+
-+	int g2h_fallback;
- };
- #endif /* __NET_NET_NAMESPACE_VSOCK_H */
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 2f7d94d682cb..0cdc3df9b63c 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -545,9 +545,13 @@ static void vsock_deassign_transport(struct vsock_sock *vsk)
-  * The vsk->remote_addr is used to decide which transport to use:
-  *  - remote CID == VMADDR_CID_LOCAL or g2h->local_cid or VMADDR_CID_HOST if
-  *    g2h is not loaded, will use local transport;
-- *  - remote CID <= VMADDR_CID_HOST or h2g is not loaded or remote flags field
-- *    includes VMADDR_FLAG_TO_HOST flag value, will use guest->host transport;
-- *  - remote CID > VMADDR_CID_HOST will use host->guest transport;
-+ *  - remote CID <= VMADDR_CID_HOST or remote flags field includes
-+ *    VMADDR_FLAG_TO_HOST, will use guest->host transport;
-+ *  - remote CID > VMADDR_CID_HOST and h2g is loaded and h2g claims that CID,
-+ *    will use host->guest transport;
-+ *  - h2g not loaded or h2g does not claim that CID and g2h claims the CID via
-+ *    has_remote_cid, will use guest->host transport (when g2h_fallback=1)
-+ *  - anything else goes to h2g or returns -ENODEV if no h2g is available
-  */
- int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- {
-@@ -581,10 +585,19 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- 	case SOCK_SEQPACKET:
- 		if (vsock_use_local_transport(remote_cid))
- 			new_transport = transport_local;
--		else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g ||
-+		else if (remote_cid <= VMADDR_CID_HOST ||
- 			 (remote_flags & VMADDR_FLAG_TO_HOST))
- 			new_transport = transport_g2h;
--		else
-+		else if (transport_h2g &&
-+			 (!transport_h2g->has_remote_cid ||
-+			  transport_h2g->has_remote_cid(vsk, remote_cid)))
-+			new_transport = transport_h2g;
-+		else if (sock_net(sk)->vsock.g2h_fallback &&
-+			 transport_g2h && transport_g2h->has_remote_cid &&
-+			 transport_g2h->has_remote_cid(vsk, remote_cid)) {
-+			vsk->remote_addr.svm_flags |= VMADDR_FLAG_TO_HOST;
-+			new_transport = transport_g2h;
-+		} else
- 			new_transport = transport_h2g;
- 		break;
- 	default:
-@@ -2879,6 +2892,15 @@ static struct ctl_table vsock_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= vsock_net_child_mode_string
- 	},
-+	{
-+		.procname	= "g2h_fallback",
-+		.data		= &init_net.vsock.g2h_fallback,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= SYSCTL_ZERO,
-+		.extra2		= SYSCTL_ONE,
-+	},
- };
- 
- static int __net_init vsock_sysctl_register(struct net *net)
-@@ -2894,6 +2916,7 @@ static int __net_init vsock_sysctl_register(struct net *net)
- 
- 		table[0].data = &net->vsock.mode;
- 		table[1].data = &net->vsock.child_ns_mode;
-+		table[2].data = &net->vsock.g2h_fallback;
- 	}
- 
- 	net->vsock.sysctl_hdr = register_net_sysctl_sz(net, "net/vsock", table,
-@@ -2928,6 +2951,7 @@ static void vsock_net_init(struct net *net)
- 		net->vsock.mode = vsock_net_child_mode(current->nsproxy->net_ns);
- 
- 	net->vsock.child_ns_mode = net->vsock.mode;
-+	net->vsock.g2h_fallback = 1;
- }
- 
- static __net_init int vsock_sysctl_init_net(struct net *net)
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index 77fe5b7b066c..57f2d6ec3ffc 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -547,11 +547,18 @@ bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
- static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk,
- 					     u32 remote_cid);
- 
-+static bool virtio_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
-+{
-+	/* The CID could be implemented by the host. Always assume it is. */
-+	return true;
-+}
-+
- static struct virtio_transport virtio_transport = {
- 	.transport = {
- 		.module                   = THIS_MODULE,
- 
- 		.get_local_cid            = virtio_transport_get_local_cid,
-+		.has_remote_cid           = virtio_transport_has_remote_cid,
- 
- 		.init                     = virtio_transport_do_socket_init,
- 		.destruct                 = virtio_transport_destruct,
--- 
-2.47.1
-
-
-
-
-Amazon Web Services Development Center Germany GmbH
-Tamara-Danz-Str. 13
-10243 Berlin
-Geschaeftsfuehrung: Christof Hellmis, Andreas Stieger
-Eingetragen am Amtsgericht Charlottenburg unter HRB 257764 B
-Sitz: Berlin
-Ust-ID: DE 365 538 597
-
+>  	struct scatterlist sg;
+>  	unsigned long flags;
+> =20
+> -	INIT_WORK(&event_node->work, virtscsi_handle_event);
+>  	sg_init_one(&sg, event_node->event, sizeof(struct virtio_scsi_event));
+> =20
+>  	spin_lock_irqsave(&vscsi->event_vq.vq_lock, flags);
+> @@ -898,6 +897,11 @@ static int virtscsi_init(struct virtio_device *vdev,
+>  	virtscsi_config_set(vdev, cdb_size, VIRTIO_SCSI_CDB_SIZE);
+>  	virtscsi_config_set(vdev, sense_size, VIRTIO_SCSI_SENSE_SIZE);
+> =20
+> +	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG)) {
+> +		for (i =3D 0; i < VIRTIO_SCSI_EVENT_LEN; i++)
+> +			INIT_WORK(&vscsi->event_list[i].work, virtscsi_handle_event);
+> +	}
+> +
+>  	err =3D 0;
+> =20
+>  out:
