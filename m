@@ -1,172 +1,281 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9811F2E6CAB
-	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 08:52:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAD652C21F0
+	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 09:11:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772527967; cv=none; b=mM1O+w4JA2R1gODPMBECusy3WNy1c0kEEjH2V0YGxVRp4gXTF3gXfvqO467UrYefnBnbbv1VVRGxDTlwN7BKtb2oyj9Xf8F5j5CNazs88WQLcGc7DaDC42N98LjtS/X+U33niA9Qq1H2vmmNQfdVe0hTqfzjaCMOtx+AN/U31qA=
+	t=1772529087; cv=none; b=f+HQQTqfwPiFr9s0YVymolGRs47I7GlcsJE2Hia8Z+07Pel8TaDahjlWlS+tbyB9/tjbTqJlFk1LS3UUta9x6QIlmSZzNi50R0pEneqVrh/lRZZca6L/GcYrZryEJpBnnBvcxjZnEx98VAB6jSs2TEt0dzgtQ0urv01inFuDBu4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772527967; c=relaxed/simple;
-	bh=NHydjAt4Cze7NsxZrmEKQXTvB1FSPhoQ8O+U5sJeXiU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ULb5xZkkBCjKHdgm9vIpeg4HB9A1b5jVvYZUwwbnC3E/ccUZgYBkI1cCVjvtdFEr5OQCf16UN7SBjhQtTEt4UTBShwFsG9aU4rw8Np4obpsJTYs0OpypTx7uboq2Z3me48Z4CuQetxQp95KGM5GaWGOrdd4kyyDzsvp4apqkRdY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=m8LCE5/G; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=g/46QsTi; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1772529087; c=relaxed/simple;
+	bh=N7SOyaIUOsm7bAK7nYazlnDpLAKZSobncGpLE5zx/f0=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=MTYfj1/moztnJtcJ8W/LkYYEu5iw2l18GOxWfIZ9MqjBUwi8dafr2KkK9RuareKITNsNveXDwhmpgoHRB+vCLpCfqpJpGKF37Z406Hm05vBWtvmlVkSw0vV0et3BMRuNRZyg9U51RlRcln6F/PnaNO1PG25qgStsyVedNjGq9U4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=OjMG7Bsb; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="m8LCE5/G";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="g/46QsTi"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6237Fjp53614687
-	for <virtualization@lists.linux.dev>; Tue, 3 Mar 2026 08:52:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=YNCoDF0Cx477EaFoLRXf9AP4
-	5l0gNVgmAcjZgp84zKw=; b=m8LCE5/GG26H7daYOSgbqY8Xg4ZNKzApJqvYus6K
-	SdQMGPTDn5gNm/wBRQKC3x9wD9ZrYTDIDJFWA9iK1r5vHasFbIS9dYc9+LqN7Nx1
-	kUHGHzp3AaFc+C3DQJuxvftRVKKz7+8UnR3sJlRyXv/510mKsSihs/k3RzbQG9ER
-	Bo/rTLuUWmKs3i2rjIHmPmw8CbT6iiyqlVXMq3fXTkNd4KcA2YDYqIAN9PS8VQ7q
-	NCJT7OQT7lIuMPOWHe9bkJ1raNCq8FSxRq91AWiA7t17uDOcmYqRVFgNg4i7mkQq
-	Mb1OwaTxGfvhD0zBjEegsk/B02RZO05M1dwqQhOEIir8Bg==
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4cnu3n8afp-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Tue, 03 Mar 2026 08:52:44 +0000 (GMT)
-Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-4639e1fedcbso61244873b6e.3
-        for <virtualization@lists.linux.dev>; Tue, 03 Mar 2026 00:52:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1772527964; x=1773132764; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YNCoDF0Cx477EaFoLRXf9AP45l0gNVgmAcjZgp84zKw=;
-        b=g/46QsTiP/Dkljnx55NoivtX7AK74SBG9iXDT6IJPDFmEy3LPV8SPYba1kUi6ZtwLU
-         z5y2PWehynTvkh488+qrdv/geK55QMOVXLfWHCcNRYr7T/i7UOcXOKw4vBb+ylr+LOk0
-         hhU5CAfdV8hL0qYFh0b21KpXKayO+yQrM0GyJ3yZY5E5ylwvxZNzcgbFFkAzipWaRFYw
-         Kpt4C2x3oGwf1/nzLK02zZx32wxDfbtlZbvFVsqzmsqCMpbnwfKfR+PTOOq7mYI/PJ0F
-         3eV+TN0TFzk/noW6owDm/922XUi05IF9yVAgBQt0MDoeGYC6Zgw0Z/6DJtbYPUa+IOl8
-         sDQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772527964; x=1773132764;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YNCoDF0Cx477EaFoLRXf9AP45l0gNVgmAcjZgp84zKw=;
-        b=lCpJtQQSqEfIng0PTFKoRlupbDBWhnx85xJXL9/+s23/ZOphcsHhZFPC29ZwSlKTwZ
-         5R/v0joR5S30wn1XsJgDRj4oieS4wUv83lyWwMp7kf2uMJ9T/YwCU/8bY5rH/Oj+17lR
-         715DE3iK7thoyFSdn4w3WQjS2C8v6IhkZV4LK7rmZDTVb63iPBQi1EKGpdhKDlpzbbi7
-         eYiHew+eNZ60XPo5siy0T8Bxs51Wvb3jpNIqlPRf8pmy1Ck/1WmVVmUG2ieA4bwJcmjq
-         NqgO8HWUNQKkcxjD5D1/TfYzqPLXvsXtvX91dp+QVw4TlsWcfBdKAAGsQPT4ezTu78W9
-         28vw==
-X-Forwarded-Encrypted: i=1; AJvYcCVu1YHpuUHX2Ngv0g5BzsVNQpnoCx9xOVBw7E6oX4n4c/hfz6xGbVwoLQM6Hg7pvkLbXTm8gpK9avaxs1HVJw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxG4ShIJsIx1ZdyUwA1tlWybp5tK4cAus/7gsTpc9DzOf0xzd6w
-	KMHgbZpzCLL6zeD2reli2394z5eIMw0vLNYXdKllJ+VZzCjhEZ2GyBExOinJuX1aQgm7B8jMeGs
-	z5TR9o4US7sIgxUczIaumSE9HterQKaCTi3VMxXg3xo+/ze/NEH/qgQdJgqWNIKw0TtAbaptD8N
-	qFHA==
-X-Gm-Gg: ATEYQzwmJ4fs9qMMcsAxN4sUQF8ASUvKbA9S42O/t14Q1OvHeJZKyE4bnaC9XCkPeaH
-	67wIiATqfBOsVNupJPDgA5jFUS8MEE6Zud8sPMSS8qpoOg36f+cvy00hL3VSdirFdV2XxHyQZKA
-	JUPaXp53V1YU10q8DBea/nA32hANir29hLO2njgfpAF+O1xhwl2/LUloylrqKBB/BGAAKtgY0tv
-	of4fMMJ67owNxR9d6UsQGEIJLtIFTjHEErbkTspZ0Z/nlrz2tAs/8XxghX61UA4DfXmt+YV2990
-	5qCMxFxYL3j5Dq0rNIEcZy7RAqtkXxdqK5TGC6SKP3fXSaj6eCtfisS4aMq5g1EZepfwOa2Ofws
-	J4oAbnah0NJaJ6ab2Xs/o8JUdB8UPsloM6HE64ZSkSFocnAnaBtHtwQtHF3XVIrj+VIGEXM5HUh
-	lKkHyo
-X-Received: by 2002:a05:6808:c412:b0:45e:e174:d07e with SMTP id 5614622812f47-464bec22949mr7968575b6e.3.1772527963985;
-        Tue, 03 Mar 2026 00:52:43 -0800 (PST)
-X-Received: by 2002:a05:6808:c412:b0:45e:e174:d07e with SMTP id 5614622812f47-464bec22949mr7968567b6e.3.1772527963596;
-        Tue, 03 Mar 2026 00:52:43 -0800 (PST)
-Received: from hu-ysakshit-lv.qualcomm.com (Global_NAT1.qualcomm.com. [129.46.96.20])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-464bb59be78sm9432983b6e.13.2026.03.03.00.52.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Mar 2026 00:52:43 -0800 (PST)
-Date: Tue, 3 Mar 2026 00:52:40 -0800
-From: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: akpm@linux-foundation.org, mst@redhat.com, jasowang@redhat.com,
-        kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
-        decui@microsoft.com, linux-mm@kvack.org,
-        virtualization@lists.linux.dev, linux-hyperv@vger.kernel.org,
-        linux-kernel@vger.kernel.org, xuanzhuo@linux.alibaba.com,
-        eperezma@redhat.com, lorenzo.stoakes@oracle.com,
-        Liam.Howlett@oracle.com, vbabka@suse.cz, rppt@kernel.org,
-        surenb@google.com, mhocko@suse.com, jackmanb@google.com,
-        hannes@cmpxchg.org, ziy@nvidia.com
-Subject: Re: [PATCH v2 1/4] mm/page_reporting: add
- PAGE_REPORTING_ORDER_UNSPECIFIED
-Message-ID: <aaahWAWkXTS1lae+@hu-ysakshit-lv.qualcomm.com>
-References: <20260302111757.2191056-1-yuvraj.sakshith@oss.qualcomm.com>
- <20260302111757.2191056-2-yuvraj.sakshith@oss.qualcomm.com>
- <2f14572e-e02b-4bc5-abd2-7814c24f7905@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="OjMG7Bsb"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1772529082; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=D1gM7kdl6gyn4o0hTcULotM2mOKx+BpDApMrZ/EeYew=;
+	b=OjMG7BsbvfLfnCEav52KvcPNANo4Hf5RoBUtO1LzzSKcGHopGbFNTw0Q2kf65O8wQOfj8MoC6kSiOR2ZDHiFXeSQ+PUmY3CQLa+qNcuG7l8Ow8I+/9LyQAxQkXotC4R0+p+BhioNbWGo9QRRpLRSRj140DZEOIKW8PM9VVw9NpI=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0X-9LDCP_1772529081 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 03 Mar 2026 17:11:21 +0800
+Message-ID: <1772528953.3431165-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net v7 1/2] virtio-net: correct hdr_len handling for VIRTIO_NET_F_GUEST_HDRLEN
+Date: Tue, 3 Mar 2026 17:09:13 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Alvaro Karsz <alvaro.karsz@solid-run.com>,
+ virtualization@lists.linux.dev
+References: <20260302090413.86471-1-xuanzhuo@linux.alibaba.com>
+ <20260302090413.86471-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtnOKxJVY2qrbFsTwR9c=e34HU7z6Mdhyj3kPGf867F-g@mail.gmail.com>
+In-Reply-To: <CACGkMEtnOKxJVY2qrbFsTwR9c=e34HU7z6Mdhyj3kPGf867F-g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2f14572e-e02b-4bc5-abd2-7814c24f7905@kernel.org>
-X-Authority-Analysis: v=2.4 cv=JaexbEKV c=1 sm=1 tr=0 ts=69a6a15c cx=c_pps
- a=4ztaESFFfuz8Af0l9swBwA==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
- a=kj9zAlcOel0A:10 a=Yq5XynenixoA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=gowsoOTTUOVcmtlkKump:22
- a=oZke_92Gw2P4qifsOy8A:9 a=CjuIK1q_8ugA:10 a=TPnrazJqx2CeVZ-ItzZ-:22
-X-Proofpoint-ORIG-GUID: xMUCSEr7U93NxfVzAohUDrTSdB-W9l3-
-X-Proofpoint-GUID: xMUCSEr7U93NxfVzAohUDrTSdB-W9l3-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAzMDA2NSBTYWx0ZWRfX/jSZBToQh/rs
- Ol16dkaIx//TXoew4Ou26XsvZeZxgHSJMyac+AXkceLfMMWBun/pB/bftImB4ZyfwrL0cxxdYgv
- KWJpiPjaW6DGK2Cz/rIN8tSAZUGQ400a3+zr6coiSLKTsIP3HFVA9DzzxUYKBlL4qNIQrJRwBtb
- iZtrRSha1wUniihzgk9/LIs/25MDUHQYaWB6L0sR2mdnmpLSA6CFWQzbhdZE3VvWVIsb/vPdj6T
- OZNMgatYYGSQzVk4WwxTt3j9BiAqcuAJdqNkydiE+r6oC3PPR1ZxX6MFONEHG5AsErHMX1TQQwq
- OXLenIHS/tYVyXnzTs0BZlDTYvfadkWVYu5lM1WomMUwWvKPKvrltMZsTs7Q5Co1su5ExiXIeV+
- jR8+1482Qugxlmi9nRXFT/SfvnsweXky2XjB7fD8jF/uq4SYXqtzHoWpq0jc29sAsr466Uq+K8l
- qOGCjHEQeCFSL11Lm8A==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-02_05,2026-03-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 suspectscore=0 impostorscore=0 malwarescore=0
- lowpriorityscore=0 adultscore=0 bulkscore=0 priorityscore=1501 phishscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2602130000
- definitions=main-2603030065
 
-On Mon, Mar 02, 2026 at 03:57:50PM +0100, David Hildenbrand (Arm) wrote:
-> >  /* Initialize to an unsupported value */
-> > -unsigned int page_reporting_order = -1;
-> > +unsigned int page_reporting_order = PAGE_REPORTING_ORDER_UNSPECIFIED;
-> >  
-> >  static int page_order_update_notify(const char *val, const struct kernel_param *kp)
+On Tue, 3 Mar 2026 11:15:16 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Mon, Mar 2, 2026 at 5:04=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.=
+com> wrote:
+> >
+> > The commit be50da3e9d4a ("net: virtio_net: implement exact header length
+> > guest feature") introduces support for the VIRTIO_NET_F_GUEST_HDRLEN
+> > feature in virtio-net.
+> >
+> > This feature requires virtio-net to set hdr_len to the actual header
+> > length of the packet when transmitting, the number of
+> > bytes from the start of the packet to the beginning of the
+> > transport-layer payload.
+> >
+> > However, in practice, hdr_len was being set using skb_headlen(skb),
+> > which is clearly incorrect. This commit fixes that issue.
+> >
+> > Fixes: be50da3e9d4a ("net: virtio_net: implement exact header length gu=
+est feature")
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  drivers/net/tun_vnet.h     |  2 +-
+> >  drivers/net/virtio_net.c   |  8 +++--
+> >  include/linux/virtio_net.h | 61 ++++++++++++++++++++++++++++++--------
+> >  3 files changed, 56 insertions(+), 15 deletions(-)
+> >
+> > diff --git a/drivers/net/tun_vnet.h b/drivers/net/tun_vnet.h
+> > index a5f93b6c4482..fa5cab9d3e55 100644
+> > --- a/drivers/net/tun_vnet.h
+> > +++ b/drivers/net/tun_vnet.h
+> > @@ -244,7 +244,7 @@ tun_vnet_hdr_tnl_from_skb(unsigned int flags,
+> >
+> >         if (virtio_net_hdr_tnl_from_skb(skb, tnl_hdr, has_tnl_offload,
+> >                                         tun_vnet_is_little_endian(flags=
+),
+> > -                                       vlan_hlen, true)) {
+> > +                                       vlan_hlen, true, false)) {
+> >                 struct virtio_net_hdr_v1 *hdr =3D &tnl_hdr->hash_hdr.hd=
+r;
+> >                 struct skb_shared_info *sinfo =3D skb_shinfo(skb);
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 72d6a9c6a5a2..1800058c8072 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -3265,9 +3265,13 @@ static int xmit_skb(struct send_queue *sq, struc=
+t sk_buff *skb, bool orphan)
+> >         const unsigned char *dest =3D ((struct ethhdr *)skb->data)->h_d=
+est;
+> >         struct virtnet_info *vi =3D sq->vq->vdev->priv;
+> >         struct virtio_net_hdr_v1_hash_tunnel *hdr;
+> > -       int num_sg;
+> >         unsigned hdr_len =3D vi->hdr_len;
+> > +       bool feature_hdrlen;
+> >         bool can_push;
+> > +       int num_sg;
+>
+> nit: the change to num_sg seems to be unnecessary.
+>
+> > +
+> > +       feature_hdrlen =3D virtio_has_feature(vi->vdev,
+> > +                                           VIRTIO_NET_F_GUEST_HDRLEN);
+> >
+> >         pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
+> >
+> > @@ -3288,7 +3292,7 @@ static int xmit_skb(struct send_queue *sq, struct=
+ sk_buff *skb, bool orphan)
+> >
+> >         if (virtio_net_hdr_tnl_from_skb(skb, hdr, vi->tx_tnl,
+> >                                         virtio_is_little_endian(vi->vde=
+v), 0,
+> > -                                       false))
+> > +                                       false, feature_hdrlen))
+> >                 return -EPROTO;
+> >
+> >         if (vi->mergeable_rx_bufs)
+> > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > index 75dabb763c65..d31c9af1f3d6 100644
+> > --- a/include/linux/virtio_net.h
+> > +++ b/include/linux/virtio_net.h
+> > @@ -207,20 +207,40 @@ static inline int virtio_net_hdr_to_skb(struct sk=
+_buff *skb,
+> >         return __virtio_net_hdr_to_skb(skb, hdr, little_endian, hdr->gs=
+o_type);
+> >  }
+> >
+> > -static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+> > -                                         struct virtio_net_hdr *hdr,
+> > -                                         bool little_endian,
+> > -                                         bool has_data_valid,
+> > -                                         int vlan_hlen)
+> > +static inline void virtio_net_set_hdrlen(const struct sk_buff *skb,
+> > +                                        struct virtio_net_hdr *hdr,
+> > +                                        bool little_endian,
+> > +                                        bool feature_hdrlen)
+> > +{
+> > +       u16 hdr_len;
+> > +
+> > +       if (feature_hdrlen) {
+> > +               hdr_len =3D skb_transport_offset(skb);
+> > +
+> > +               if (hdr->gso_type =3D=3D VIRTIO_NET_HDR_GSO_UDP_L4)
+> > +                       hdr_len +=3D sizeof(struct udphdr);
+> > +               else
+> > +                       hdr_len +=3D tcp_hdrlen(skb);
+> > +       } else {
+> > +               /* This is a hint as to how much should be linear. */
+> > +               hdr_len =3D skb_headlen(skb);
+> > +       }
+> > +
+> > +       hdr->hdr_len =3D __cpu_to_virtio16(little_endian, hdr_len);
+> > +}
+> > +
+> > +static inline int __virtio_net_hdr_from_skb(const struct sk_buff *skb,
+> > +                                           struct virtio_net_hdr *hdr,
+> > +                                           bool little_endian,
+> > +                                           bool has_data_valid,
+> > +                                           bool feature_hdrlen,
+> > +                                           int vlan_hlen)
 > >  {
-> > @@ -25,12 +25,7 @@ static int page_order_update_notify(const char *val, const struct kernel_param *
-> >  
-> >  static const struct kernel_param_ops page_reporting_param_ops = {
-> >  	.set = &page_order_update_notify,
-> > -	/*
-> > -	 * For the get op, use param_get_int instead of param_get_uint.
-> > -	 * This is to make sure that when unset the initialized value of
-> > -	 * -1 is shown correctly
-> > -	 */
-> > -	.get = &param_get_int,
-> > +	.get = &param_get_uint,
-> >  };
-> 
-> I think the change to page_reporting_order (and param_get_int) should
-> come after patch #4.
-> 
-> Otherwise, you temporarily change the semantics of
-> page_reporting_param_ops() etc.
-> 
-> So you should perform the page_reporting_order changes either in patch
-> #4 or in a new patch #5.
-> 
-> Apart from that LGTM.
-> 
-> -- 
-> Cheers,
-> 
-> David
+> >         memset(hdr, 0, sizeof(*hdr));   /* no info leak */
+> >
+> >         if (skb_is_gso(skb)) {
+> >                 struct skb_shared_info *sinfo =3D skb_shinfo(skb);
+> >
+> > -               /* This is a hint as to how much should be linear. */
+> > -               hdr->hdr_len =3D __cpu_to_virtio16(little_endian,
+> > -                                                skb_headlen(skb));
+> >                 hdr->gso_size =3D __cpu_to_virtio16(little_endian,
+> >                                                   sinfo->gso_size);
+> >                 if (sinfo->gso_type & SKB_GSO_TCPV4)
+> > @@ -231,6 +251,10 @@ static inline int virtio_net_hdr_from_skb(const st=
+ruct sk_buff *skb,
+> >                         hdr->gso_type =3D VIRTIO_NET_HDR_GSO_UDP_L4;
+> >                 else
+> >                         return -EINVAL;
+> > +
+> > +               virtio_net_set_hdrlen(skb, hdr, little_endian,
+> > +                                     feature_hdrlen);
+> > +
+> >                 if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+> >                         hdr->gso_type |=3D VIRTIO_NET_HDR_GSO_ECN;
+> >         } else
+> > @@ -250,6 +274,16 @@ static inline int virtio_net_hdr_from_skb(const st=
+ruct sk_buff *skb,
+> >         return 0;
+> >  }
+> >
+> > +static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+> > +                                         struct virtio_net_hdr *hdr,
+> > +                                         bool little_endian,
+> > +                                         bool has_data_valid,
+> > +                                         int vlan_hlen)
+> > +{
+> > +       return __virtio_net_hdr_from_skb(skb, hdr, little_endian,
+> > +                                        has_data_valid, false, vlan_hl=
+en);
+> > +}
+> > +
+> >  static inline unsigned int virtio_l3min(bool is_ipv6)
+> >  {
+> >         return is_ipv6 ? sizeof(struct ipv6hdr) : sizeof(struct iphdr);
+> > @@ -385,7 +419,8 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *s=
+kb,
+> >                             bool tnl_hdr_negotiated,
+> >                             bool little_endian,
+> >                             int vlan_hlen,
+> > -                           bool has_data_valid)
+> > +                           bool has_data_valid,
+> > +                           bool feature_hdrlen)
+> >  {
+> >         struct virtio_net_hdr *hdr =3D (struct virtio_net_hdr *)vhdr;
+> >         unsigned int inner_nh, outer_th;
+> > @@ -395,8 +430,9 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *s=
+kb,
+> >         tnl_gso_type =3D skb_shinfo(skb)->gso_type & (SKB_GSO_UDP_TUNNE=
+L |
+> >                                                     SKB_GSO_UDP_TUNNEL_=
+CSUM);
+> >         if (!tnl_gso_type)
+> > -               return virtio_net_hdr_from_skb(skb, hdr, little_endian,
+> > -                                              has_data_valid, vlan_hle=
+n);
+> > +               return __virtio_net_hdr_from_skb(skb, hdr, little_endia=
+n,
+> > +                                                has_data_valid,
+> > +                                                feature_hdrlen, vlan_h=
+len);
+> >
+> >         /* Tunnel support not negotiated but skb ask for it. */
+> >         if (!tnl_hdr_negotiated)
+> > @@ -409,7 +445,8 @@ virtio_net_hdr_tnl_from_skb(const struct sk_buff *s=
+kb,
+> >
+> >         /* Let the basic parsing deal with plain GSO features. */
+> >         skb_shinfo(skb)->gso_type &=3D ~tnl_gso_type;
+> > -       ret =3D virtio_net_hdr_from_skb(skb, hdr, true, false, vlan_hle=
+n);
+> > +       ret =3D __virtio_net_hdr_from_skb(skb, hdr, true, false,
+> > +                                       feature_hdrlen, vlan_hlen);
+>
+> This seems to be incorrect as tnl_gso_type is masked so
+> __virtio_net_hdr_from_skb() can only see UDP packet for tunnel gso
+> packet?
 
-Sounds good. Ill add a #5.
+Yes, moving to next patch maybe more suitable.
 
-Thanks,
-Yuvraj
+>
+> (And it seems to be fixed in next patch, could we simply squash them)
+
+As the issues fixed originate from different commits.
+This separation makes it easier to selectively revert to
+previous versions.
+
+Thanks.
+
+>
+> Thanks
+>
+>
+> >         skb_shinfo(skb)->gso_type |=3D tnl_gso_type;
+> >         if (ret)
+> >                 return ret;
+> > --
+> > 2.32.0.3.g01195cf9f
+> >
+>
