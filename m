@@ -1,381 +1,186 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 299EF3B3C06
-	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 10:51:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 321AC47D922
+	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 11:30:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772535111; cv=none; b=LSNHVrRimvUd/10UoTAOjX/7aTZe8Xf6LVwYVU0aoK91cLvp1mKG/8KeLcdOMFBIKzjZaFojDbl2kMY47OX1oj2dmjUrdR6NJL2oAt8moezvZn7t6iR90evZ5V08+ZYiKAZkEqsiiUnuUVnO/PSB3SfM3LvsqPheUPHlinywvEY=
+	t=1772537439; cv=none; b=MjcHngyQRoPN0HfdEYZsDdNG9yAafPaCUNGu/1B4WV60yZvEmaTUAuFGG5m3vC8B7WtzQchgrR1V6fF5xoLpNcs4vrjMUd+RJvuXgPzi3NIvk76u9pUto42fjsuA7G6AgZGE1TSH2V9vuf8oomZ1MYNUAh6FCdJYOwvCNK1zfYs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772535111; c=relaxed/simple;
-	bh=iNegheUQ4yytt42xazgr/vIzK/LatucDDcf4srd+/CQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=X3vvUwu9r3qyJcXuXNrbhATn9YCtrLH6EdDr+Bp+4gq+2JVlFGat2cZxazQB5WOB9/eT5x1uYFuubsl+jthcLC9tdnCxNA7ur7H8JLchv1yoeYvZDLoqkO0Gwt7A9MBkKADLBOhV7vIz+MSmu4PYdekuJGFqzg+2guzypecMkXE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IIDFMe13; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1772537439; c=relaxed/simple;
+	bh=4D/io3APDupQGYCj9CFWT+uOecdkhDM/9ideWpjC7z0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=rtGQVU32v0f8UjMjBkn1Ung9OV+Ft6FLdFwyR2GWSuAHW0I4oBGksLTmj9ktSLsANXJPIMLeDl2QOo9uimEDJBzXS25DMMLsD/VyzVvnHLZzQ+903F3H4yE+7jjX4kmGazGN60+CgI0nEt/HwoQ89l1rxdVVMhMGMe3B+/yiQD8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=Ya2HduJ1; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=BRdOcefL; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IIDFMe13"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772535104;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EgBz8jSCO6lbHX7AOT6aN5P38wb0NhaeInhzuStHCTY=;
-	b=IIDFMe13QRiVqc8WI9xYbdJSTWEFuAm0VoD2y0PXzi5qjrrb9rCuKE/y0IKVC1zJhKk/nU
-	Z5bH1Xa/2ta4u+l31dnsb4jyAz0THWlVx3sI6uHW9Hkhtw5XTZZ2PXiU74T37Stvm1wY6m
-	ybA2ASBxtOYWvTvh4xlV+h9EbVlQD90=
-Received: from mail-yx1-f71.google.com (mail-yx1-f71.google.com
- [74.125.224.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-576-FYohnyj-PCebM7vuqAE2cA-1; Tue, 03 Mar 2026 05:51:43 -0500
-X-MC-Unique: FYohnyj-PCebM7vuqAE2cA-1
-X-Mimecast-MFC-AGG-ID: FYohnyj-PCebM7vuqAE2cA_1772535103
-Received: by mail-yx1-f71.google.com with SMTP id 956f58d0204a3-649deef077eso7175075d50.1
-        for <virtualization@lists.linux.dev>; Tue, 03 Mar 2026 02:51:43 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="Ya2HduJ1";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="BRdOcefL"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6239moHq2307603
+	for <virtualization@lists.linux.dev>; Tue, 3 Mar 2026 11:30:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=qcppdkim1; bh=2jhEbYgGPpM9YgBi8KcAq9k2DT/kIdh5p+L
+	NtRMjpwI=; b=Ya2HduJ196mEDx2M2W52dArVnBH9Llb1RLVi1QopdD9NKEKc02r
+	dePOX4zFt3VO4YNGCZTkUH0ZtfyH8eQa1+YaoQ26BmFgHZmRqz0Il1BKoRwNPoVe
+	G9sTv/gB+Bvejl+JXB7K+rqzWPb2ObULyTGyr4wLDAAhIzlJ63e2ikhoFbFs6WxM
+	z4iiNVroxrU58YliLMLbttjy+YU+6IKiLLiQ5aVI87Efy1sz1HFKNuEoHrxZAkCE
+	eNK7sUAey7UP0rojdxuF/ETuISVLyz56JBs23+s4UkK5wOpgRdl9ebBQPoEDF5fZ
+	PCl+nwdoeVGIuhVhrHAKjGlB9nw3wH+yDbA==
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com [209.85.210.72])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4cnvtu8dwa-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Tue, 03 Mar 2026 11:30:35 +0000 (GMT)
+Received: by mail-ot1-f72.google.com with SMTP id 46e09a7af769-7d4c1b2651fso28947325a34.3
+        for <virtualization@lists.linux.dev>; Tue, 03 Mar 2026 03:30:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1772537435; x=1773142235; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2jhEbYgGPpM9YgBi8KcAq9k2DT/kIdh5p+LNtRMjpwI=;
+        b=BRdOcefL/xqa0fP2VK6uyZodSPDWqJZlYZ3A2X+QA2y5KdPwXM7SZsyGWLYGfnH1qX
+         FuQ+ngHdlpDVX5R0oPYD7KKjTj2TvncBGF04yCZ0GcmeWebSJFE6nExpHGOSd4sLH1P1
+         5Pwfz9Df8Um7ZXky5zQPt/Q9A+NJ9WlGdH2Er416sCJ8BpmUCp+u2XTQ+h4avT5ylLDy
+         XZwfezpUgQv+giCydxORYN/7RPhr6Rb5Kz24Si2sroLle1sQ8B/5Hh09rk5fYulWENc5
+         731kMseWK+lUv6y3s4EQ28N7omfNuxa40GxRCDhWl6d1mS4WwXSxclZvQVqFvLxvyvW9
+         9b0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772535103; x=1773139903;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=EgBz8jSCO6lbHX7AOT6aN5P38wb0NhaeInhzuStHCTY=;
-        b=OKEfsrdz4kbDr2e5UH1uqWIw9WzSsuQsOggvw+JXzyRAspTfPVbMb5dSSVZkiyybG1
-         UhXZPH896lvfKxizS9EfBgmmi0vgLpOxenLgZnFZDo83G7MZbHRBCOFp6j8VCkf45mkT
-         Dohv9+Uo6XINUMD04tsN3ay76ysNu2lsF6Vs0FG9lbuvq1GUDe7gpDVMxcS9vtSIi7ev
-         VI0hJL+0U6W7nrgsfXHUknk4HS9AzdJ1jAFAuqWcVUn2KkH4hTIdMZft6nCdEjMtn1qY
-         Xpfb/+PrFvRq1KuVOVtJw9owCOJH6btktEhAz2wMKD/NGvl9/1IqFLwirtOsjnXYLdPY
-         i8uw==
-X-Forwarded-Encrypted: i=1; AJvYcCXx8Q/ZVV5tbEYS8b5gUZ+bougOAP5RK59at/b4Gg4QQokmQevOWU1Wq6zQ8ED/M/yr3dAX0OaubLa5wTbvbg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyC7cum9NpyrNfEBSfuoJSIXfqHt88X8TCWK3h+hH+Nv7EfMtvr
-	M2/7MJ5NhXCUikU0SnNYz9E7o2vy4qxEYWQ8Kl2lpUT8y9jZ5UUe+OD3I5Xl26BO89tsVeB/vre
-	k33PiSBP/rGgNoXnNQaKHo0jZvjvNoNDnroe83ISkx7SUf6Tu4zg0GuW+0VB6w9b6Jdj37UcSEc
-	sUxH5v1WVI0S1Qvd6V6hXGylydRrDBQdFBRVKn5mSIXA8=
-X-Gm-Gg: ATEYQzyXIuxL/1EJG0iPTNaC4eT7wz9ZO+uXOgtybPhCOCCG+V0SMhxm2UF1R/Vxw7i
-	WDA/ntDEHxVgnIMe7mXu961jH9+Myf7/bEiH4rKjGyDI/LikOP1p8v9O/zGtr5qxP2PrRaZ7Eho
-	tjcMZFrwVCP+5+1GmEH9yDxWtLceaVqMwwlIPlcIoIJ0/N1Y51DAvQtVe6334FL/Mf/lDAXocWi
-	LG1Bw==
-X-Received: by 2002:a53:c406:0:b0:64c:9fe1:38d4 with SMTP id 956f58d0204a3-64cc2375305mr10037507d50.84.1772535102914;
-        Tue, 03 Mar 2026 02:51:42 -0800 (PST)
-X-Received: by 2002:a53:c406:0:b0:64c:9fe1:38d4 with SMTP id
- 956f58d0204a3-64cc2375305mr10037501d50.84.1772535102434; Tue, 03 Mar 2026
- 02:51:42 -0800 (PST)
+        d=1e100.net; s=20230601; t=1772537435; x=1773142235;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2jhEbYgGPpM9YgBi8KcAq9k2DT/kIdh5p+LNtRMjpwI=;
+        b=EygW8qOoqsY+v6+aoCwRo6lMesp8XgvFVC2XcnfsRRYkqgLfASLr1cbAHZkS3nKDcM
+         mrpTBNyZ1wYs4BAzAeNSPY+z9JGWhuhgAMYSxEn1SzP0alEoSQBjmGdk2FTbEepMjNJg
+         7gZFUZDHO5C5i+vxlUzYIr7VHer//InIaqEzOr9NM8HprrgfjqnCNoNpFFfzOgMDJBW7
+         Ddmyrd+ZKNL5gLsNZnDdcMP3UQzyyAngagmrWuSV/nBX5F92VS7Z939r9j73CdQpSkme
+         qL9aveEPSppTvwm+Z993fyavr4+dEHvSoQBtoggiNuc017Tl7qhZNuqg48NVniKddy+4
+         jxTQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVDMLsbwygSOvkp31oppZFczn35W5bH3q0MFmx6khN3tV2UPQe6Y8hX6EC0xHFgVx6ejGbbSI5UQhvFFg8vaw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YysjnbJKW7hJTGixL2urSnKzx+ln4HqtqBGwTdW09eCu/2pJiLW
+	Mryh4S99ed4n7vHwqj8mMXHegB8HZJENgJuVyLiNDq5sVOyMmxkljnNPvWjMHglrGvAVLniNSVc
+	geUDaznQwuWru1Cuxb9HsBzG+lhWCvwGKhObKXeL/Ib8ONayNhxtOKB8d1ZuOk5KdsbhQRQ==
+X-Gm-Gg: ATEYQzyvbQoBY33tVhDy1ciVUA5cZLoYgdk0TqZXkCOsg4vVPNyWp8pd+XSo4pxqxHJ
+	QmB8QUK0sjjdfeddJCQotxCZum+s85sa9jfbjo9KdsCI0w/dghs4+i8ezZqbW640zc3UfzUz6X7
+	fFve6MUtkXpBqvflAlg0UjWDxYokWQVMR3SbqblG1fv7oKSLZUC96JNLvCf5+NnMBV0SkZ+W3KU
+	E9ncuYUQeU2MnZOnihTfnplb1aNi3V+K+tSa7K+bTfakyeKaxnVrUTBNL935yQ3WCgwfaIv2QAz
+	ZxkrqXtjO/VsP1cjP60/aK+m1oABH24WT+xVhJnDGDn0z6Wb4YH3ne5SUaSMszM7U9/O1ngBrpr
+	wlk2+opFJaqxtQBDE3PFCQoKcGWW9YSLLHIz7zoFCa8cdHvA5+qDzxhPHxsaWsyRcVFc86i/hXP
+	f8B2Ky
+X-Received: by 2002:a05:6830:6186:b0:7c7:5770:d2bd with SMTP id 46e09a7af769-7d591b3881emr11120269a34.12.1772537435251;
+        Tue, 03 Mar 2026 03:30:35 -0800 (PST)
+X-Received: by 2002:a05:6830:6186:b0:7c7:5770:d2bd with SMTP id 46e09a7af769-7d591b3881emr11120249a34.12.1772537434819;
+        Tue, 03 Mar 2026 03:30:34 -0800 (PST)
+Received: from hu-ysakshit-lv.qualcomm.com (Global_NAT1.qualcomm.com. [129.46.96.20])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7d59785d8d5sm9311790a34.17.2026.03.03.03.30.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Mar 2026 03:30:34 -0800 (PST)
+From: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>
+To: mst@redhat.com, david@kernel.org
+Cc: kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+        decui@microsoft.com, longli@microsoft.com, jasowang@redhat.com,
+        xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+        akpm@linux-foundation.org, lorenzo.stoakes@oracle.com,
+        Liam.Howlett@oracle.com, vbabka@suse.cz, rppt@kernel.org,
+        surenb@google.com, mhocko@suse.com, jackmanb@google.com,
+        hannes@cmpxchg.org, ziy@nvidia.com, linux-hyperv@vger.kernel.org,
+        linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+        linux-mm@kvack.org
+Subject: [PATCH v4 0/5] Allow order zero pages in page reporting
+Date: Tue,  3 Mar 2026 03:30:27 -0800
+Message-Id: <20260303113032.3008371-1-yuvraj.sakshith@oss.qualcomm.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260211120158.2501592-1-eperezma@redhat.com> <CACGkMEtizCT+4WUXaROEvnWgKoFVqv9iRfLk-3HduRnsKfthqQ@mail.gmail.com>
-In-Reply-To: <CACGkMEtizCT+4WUXaROEvnWgKoFVqv9iRfLk-3HduRnsKfthqQ@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 3 Mar 2026 11:51:06 +0100
-X-Gm-Features: AaiRm5174Vg6VpqBAkiBm_EgRAdGTqvdjei6w4h-QWdih0tXzyjOPuNzK6AGnAk
-Message-ID: <CAJaqyWczXRDAWAtgR5Z2=A-ZRr=vWJw3Vm40VV0zTNjFCzECNg@mail.gmail.com>
-Subject: Re: [PATCH] vduse: Add suspend
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	Laurent Vivier <lvivier@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Cindy Lu <lulu@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 9c8Z9b0bp12ErsNHF1520REeFCjQOYWJ3UcPjC4FmzE_1772535103
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-GUID: GRxl2yC2Y807wKdvHflUzzjT8KHv8uzu
+X-Proofpoint-ORIG-GUID: GRxl2yC2Y807wKdvHflUzzjT8KHv8uzu
+X-Authority-Analysis: v=2.4 cv=A75h/qWG c=1 sm=1 tr=0 ts=69a6c65b cx=c_pps
+ a=+3WqYijBVYhDct2f5Fivkw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
+ a=Yq5XynenixoA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22 a=HYTG7BDJ-qdBC1FqdxkA:9
+ a=eYe2g0i6gJ5uXG_o6N4q:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzAzMDA4OSBTYWx0ZWRfXyNdcAsJ06B/A
+ VFn68u4svRKLYojNyo2ESkXQ3SsCxcijYd6oUBI0k9AeSQwLOdcIVUOk7Zh1c+04YpUNesHjLtz
+ IJBw3spOGTy6vtkc9J1VF7xsSw+hQgQRRIoIokYM/RQO/4H1NyWX81ir4sv2sVndRzQ2B6ImPwZ
+ 7IMoPxk8SVbJi29LAQvw3qW/Q6dnL1Z5pek0tI2BEE/PTOvyq9ZgKAo+ms5S1cYQIE+AByBm6UV
+ FJ59p5hum7XNEb6EUOzjVZKR1a7EBaq9IuhCvcWZD1BXI7ZCOvDGaMJQOuE2CvVSP2tcZ/Jfask
+ PfA6qh9xOBZ9iCdafOnzfi+lruXED7aBm7Fm2l1nYmZUwBWm1iaxQEa5RzUvIeeqYM2xyEQN6L1
+ eX2fF3TR9J8Pzz8Tf5KxkEe7Z/4T9Z09S67RCA54MYgjghmf78pBjwQ4CRYSgkzBQArisCSiROA
+ 02vUVhyWeWjVKMLZm9Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-02_05,2026-03-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
+ adultscore=0 clxscore=1015 bulkscore=0 malwarescore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2602130000 definitions=main-2603030089
 
-On Tue, Mar 3, 2026 at 8:26=E2=80=AFAM Jason Wang <jasowang@redhat.com> wro=
-te:
->
-> On Wed, Feb 11, 2026 at 8:02=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@redh=
-at.com> wrote:
-> >
-> > Implement suspend operation for vduse devices, so vhost-vdpa will offer
-> > that backend feature and userspace can effectively suspend the device.
-> >
-> > This is a must before get virtqueue indexes (base) for live migration,
-> > since the device could modify them after userland gets them.
-> >
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > ---
-> > This series depends on
-> > https://lore.kernel.org/lkml/20260210082554.1582553-1-eperezma@redhat.c=
-om
-> > ---
-> >  drivers/vdpa/vdpa_user/vduse_dev.c | 86 +++++++++++++++++++++++++++++-
-> >  include/uapi/linux/vduse.h         |  4 ++
-> >  2 files changed, 88 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_use=
-r/vduse_dev.c
-> > index 59d9c4718d86..bdcc114e2710 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -54,7 +54,8 @@
-> >  #define IRQ_UNBOUND -1
-> >
-> >  /* Supported VDUSE features */
-> > -static const uint64_t vduse_features =3D BIT_U64(VDUSE_F_QUEUE_READY);
-> > +static const uint64_t vduse_features =3D BIT_U64(VDUSE_F_QUEUE_READY) =
-|
-> > +                                      BIT_U64(VDUSE_F_SUSPEND);
-> >
-> >  /*
-> >   * VDUSE instance have not asked the vduse API version, so assume 0.
-> > @@ -85,6 +86,7 @@ struct vduse_virtqueue {
-> >         int irq_effective_cpu;
-> >         struct cpumask irq_affinity;
-> >         struct kobject kobj;
-> > +       struct vduse_dev *dev;
-> >  };
-> >
-> >  struct vduse_dev;
-> > @@ -134,6 +136,7 @@ struct vduse_dev {
-> >         int minor;
-> >         bool broken;
-> >         bool connected;
-> > +       bool suspended;
-> >         u64 api_version;
-> >         u64 device_features;
-> >         u64 driver_features;
-> > @@ -480,6 +483,7 @@ static void vduse_dev_reset(struct vduse_dev *dev)
-> >
-> >         down_write(&dev->rwsem);
-> >
-> > +       dev->suspended =3D false;
-> >         dev->status =3D 0;
-> >         dev->driver_features =3D 0;
-> >         dev->generation++;
-> > @@ -559,6 +563,10 @@ static void vduse_vdpa_kick_vq(struct vdpa_device =
-*vdpa, u16 idx)
-> >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> >         struct vduse_virtqueue *vq =3D dev->vqs[idx];
-> >
-> > +       guard(rwsem_read)(&vq->dev->rwsem);
-> > +       if (vq->dev->suspended)
-> > +               return;
-> > +
-> >         if (!eventfd_signal_allowed()) {
-> >                 schedule_work(&vq->kick);
-> >                 return;
-> > @@ -896,6 +904,27 @@ static int vduse_vdpa_set_map(struct vdpa_device *=
-vdpa,
-> >         return 0;
-> >  }
-> >
-> > +static int vduse_vdpa_suspend(struct vdpa_device *vdpa)
-> > +{
-> > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > +       struct vduse_dev_msg msg =3D { 0 };
-> > +       int ret;
-> > +
-> > +       msg.req.type =3D VDUSE_SUSPEND;
-> > +
-> > +       ret =3D vduse_dev_msg_sync(dev, &msg);
-> > +       if (ret =3D=3D 0) {
-> > +               scoped_guard(rwsem_write, &dev->rwsem)
-> > +                       dev->suspended =3D true;
-> > +
-> > +               cancel_work_sync(&dev->inject);
-> > +               for (u32 i =3D 0; i < dev->vq_num; i++)
-> > +                       cancel_work_sync(&dev->vqs[i]->inject);
->
-> Should we cancel those before msy sync?
->
+Today, page reporting sets page_reporting_order in two ways:
 
-The only condition is that the driver must not see interrupts from the
-moment the ioctl returns.
+(1) page_reporting.page_reporting_order cmdline parameter
+(2) Driver can pass order while registering itself.
 
-Also, disabling it before the msg returns would add complexity because
-it needs to be reenabled & call the driver if it falis. Or am I
-missing something it adds?
+In both cases, order zero is ignored by free page reporting
+because it is used to set page_reporting_order to a default
+value, like MAX_PAGE_ORDER.
 
-TBH this is more of a hardening than something the VDUSE driver should
-do. We could even move to the vdpa core.
+In some cases we might want page_reporting_order to be zero.
 
-> > +       }
-> > +
-> > +       return ret;
-> > +}
-> > +
-> >  static void vduse_vdpa_free(struct vdpa_device *vdpa)
-> >  {
-> >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > @@ -937,6 +966,41 @@ static const struct vdpa_config_ops vduse_vdpa_con=
-fig_ops =3D {
-> >         .free                   =3D vduse_vdpa_free,
-> >  };
-> >
-> > +static const struct vdpa_config_ops vduse_vdpa_config_ops_with_suspend=
- =3D {
-> > +       .set_vq_address         =3D vduse_vdpa_set_vq_address,
-> > +       .kick_vq                =3D vduse_vdpa_kick_vq,
-> > +       .set_vq_cb              =3D vduse_vdpa_set_vq_cb,
-> > +       .set_vq_num             =3D vduse_vdpa_set_vq_num,
-> > +       .get_vq_size            =3D vduse_vdpa_get_vq_size,
-> > +       .get_vq_group           =3D vduse_get_vq_group,
-> > +       .set_vq_ready           =3D vduse_vdpa_set_vq_ready,
-> > +       .get_vq_ready           =3D vduse_vdpa_get_vq_ready,
-> > +       .set_vq_state           =3D vduse_vdpa_set_vq_state,
-> > +       .get_vq_state           =3D vduse_vdpa_get_vq_state,
-> > +       .get_vq_align           =3D vduse_vdpa_get_vq_align,
-> > +       .get_device_features    =3D vduse_vdpa_get_device_features,
-> > +       .set_driver_features    =3D vduse_vdpa_set_driver_features,
-> > +       .get_driver_features    =3D vduse_vdpa_get_driver_features,
-> > +       .set_config_cb          =3D vduse_vdpa_set_config_cb,
-> > +       .get_vq_num_max         =3D vduse_vdpa_get_vq_num_max,
-> > +       .get_device_id          =3D vduse_vdpa_get_device_id,
-> > +       .get_vendor_id          =3D vduse_vdpa_get_vendor_id,
-> > +       .get_status             =3D vduse_vdpa_get_status,
-> > +       .set_status             =3D vduse_vdpa_set_status,
-> > +       .get_config_size        =3D vduse_vdpa_get_config_size,
-> > +       .get_config             =3D vduse_vdpa_get_config,
-> > +       .set_config             =3D vduse_vdpa_set_config,
-> > +       .get_generation         =3D vduse_vdpa_get_generation,
-> > +       .set_vq_affinity        =3D vduse_vdpa_set_vq_affinity,
-> > +       .get_vq_affinity        =3D vduse_vdpa_get_vq_affinity,
-> > +       .reset                  =3D vduse_vdpa_reset,
-> > +       .set_map                =3D vduse_vdpa_set_map,
-> > +       .set_group_asid         =3D vduse_set_group_asid,
-> > +       .get_vq_map             =3D vduse_get_vq_map,
-> > +       .suspend                =3D vduse_vdpa_suspend,
->
-> We can have a
->
-> if (suspend_is_supported)
->         ...
->
-> to avoid having a new set of config ops?
->
+For instance, when virtio-balloon runs inside a guest with
+tiny memory (say, 16MB), it might not be able to find a order 1 page
+(or in the worst case order MAX_PAGE_ORDER page) after some uptime.
+Page reporting should be able to return order zero pages back for
+optimal memory relinquishment.
 
-It complicates the code of vhost_vdpa in my opinion.
+This patch changes the default fallback value from '0' to '-1' in
+all possible clients of free page reporting (hv_balloon and
+virtio-balloon) together with allowing '0' as a valid order in
+page_reporting_register().
 
-Currently, it is:
-if (ops->suspend)
+Changes in v1:
+- Introduce PAGE_REPORTING_DEFAULT_ORDER macro (initially set to 0).
+- Make use of new macro in drivers (hv_balloon and virtio-balloon)
+        working with page reporting.
+- Change PAGE_REPORTING_DEFAULT_ORDER to -1 as zero is a valid
+        page order that can be requested.
 
-And that would move to something like:
-if (ops->suspend) {
-  if (ops->suspend_is_supported && !ops->suspend_is_supported(dev)) {
-    return; // CANNOT SUSPEND
-  }
+Changes in v2:
+- Better naming. Replace PAGE_REPORTING_DEFAULT_ORDER with
+        PAGE_REPORTING_ORDER_UNSPECIFIED. This takes care of
+        the situation where page reporting order is not specified
+        in the commandline.
+- Minor commit message changes.
 
-  ops->suspend(dev)
-}
+Changes in v3:
+- Setting page_reporting_order's initial value to
+	PAGE_REPORTING_ORDER_UNSPECIFIED moved to
+	PATCH #5.
 
-Another option I considered is to follow mlx5's approach and have one
-set of ops per device. But I think duplicating the vdpa_ops in the
-data section is the cleanest approach. Let me know if you think we
-should go with suspend_is_supported callback instead.
+Changes in v4:
+- Move PAGE_REPORTING_ORDER_UNSPECIFIED's usage with
+	page_reporting_order to patch #5.
 
-> > +       .free                   =3D vduse_vdpa_free,
-> > +};
-> > +
-> >  static void vduse_dev_sync_single_for_device(union virtio_map token,
-> >                                              dma_addr_t dma_addr, size_=
-t size,
-> >                                              enum dma_data_direction di=
-r)
-> > @@ -1148,6 +1212,10 @@ static void vduse_dev_irq_inject(struct work_str=
-uct *work)
-> >  {
-> >         struct vduse_dev *dev =3D container_of(work, struct vduse_dev, =
-inject);
-> >
-> > +       guard(rwsem_read)(&dev->rwsem);
-> > +       if (dev->suspended)
-> > +               return;
->
-> Device can still modify memory, so I wonder how much this can help.
->
+Yuvraj Sakshith (5):
+  mm/page_reporting: add PAGE_REPORTING_ORDER_UNSPECIFIED
+  virtio_balloon: set unspecified page reporting order
+  hv_balloon: set unspecified page reporting order
+  mm/page_reporting: change PAGE_REPORTING_ORDER_UNSPECIFIED to -1
+  mm/page_reporting: change page_reporting_order to
+    PAGE_REPORTING_ORDER_UNSPECIFIED
 
-Do you prefer me to remove this guard?
+ drivers/hv/hv_balloon.c         | 2 +-
+ drivers/virtio/virtio_balloon.c | 2 ++
+ include/linux/page_reporting.h  | 1 +
+ mm/page_reporting.c             | 7 ++++---
+ 4 files changed, 8 insertions(+), 4 deletions(-)
 
-> > +
-> >         spin_lock_bh(&dev->irq_lock);
-> >         if (dev->config_cb.callback)
-> >                 dev->config_cb.callback(dev->config_cb.private);
-> > @@ -1159,6 +1227,10 @@ static void vduse_vq_irq_inject(struct work_stru=
-ct *work)
-> >         struct vduse_virtqueue *vq =3D container_of(work,
-> >                                         struct vduse_virtqueue, inject)=
-;
-> >
-> > +       guard(rwsem_read)(&vq->dev->rwsem);
-> > +       if (vq->dev->suspended)
-> > +               return;
-> > +
-> >         spin_lock_bh(&vq->irq_lock);
-> >         if (vq->ready && vq->cb.callback)
-> >                 vq->cb.callback(vq->cb.private);
-> > @@ -1189,6 +1261,9 @@ static int vduse_dev_queue_irq_work(struct vduse_=
-dev *dev,
-> >         int ret =3D -EINVAL;
-> >
-> >         down_read(&dev->rwsem);
-> > +       if (dev->suspended)
-> > +               return ret;
-> > +
-> >         if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
-> >                 goto unlock;
-> >
-> > @@ -1839,6 +1914,7 @@ static int vduse_dev_init_vqs(struct vduse_dev *d=
-ev, u32 vq_align, u32 vq_num)
-> >                 }
-> >
-> >                 dev->vqs[i]->index =3D i;
-> > +               dev->vqs[i]->dev =3D dev;
-> >                 dev->vqs[i]->irq_effective_cpu =3D IRQ_UNBOUND;
-> >                 INIT_WORK(&dev->vqs[i]->inject, vduse_vq_irq_inject);
-> >                 INIT_WORK(&dev->vqs[i]->kick, vduse_vq_kick_work);
-> > @@ -2311,12 +2387,18 @@ static struct vduse_mgmt_dev *vduse_mgmt;
-> >  static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name=
-)
-> >  {
-> >         struct vduse_vdpa *vdev;
-> > +       const struct vdpa_config_ops *ops;
-> >
-> >         if (dev->vdev)
-> >                 return -EEXIST;
-> >
-> > +       if (dev->vduse_features & BIT_U64(VDUSE_F_SUSPEND))
-> > +               ops =3D &vduse_vdpa_config_ops_with_suspend;
-> > +       else
-> > +               ops =3D &vduse_vdpa_config_ops;
-> > +
-> >         vdev =3D vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
-> > -                                &vduse_vdpa_config_ops, &vduse_map_ops=
-,
-> > +                                ops, &vduse_map_ops,
-> >                                  dev->ngroups, dev->nas, name, true);
-> >         if (IS_ERR(vdev))
-> >                 return PTR_ERR(vdev);
-> > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
-> > index d39734cef6d3..95b93bc6bac5 100644
-> > --- a/include/uapi/linux/vduse.h
-> > +++ b/include/uapi/linux/vduse.h
-> > @@ -21,6 +21,9 @@
-> >  /* The VDUSE instance expects a request for vq ready */
-> >  #define VDUSE_F_QUEUE_READY    0
-> >
-> > +/* The VDUSE instance expects a request for suspend */
-> > +#define VDUSE_F_SUSPEND                1
-> > +
-> >  /*
-> >   * Get the version of VDUSE API that kernel supported (VDUSE_API_VERSI=
-ON).
-> >   * This is used for future extension.
-> > @@ -338,6 +341,7 @@ enum vduse_req_type {
-> >         VDUSE_UPDATE_IOTLB,
-> >         VDUSE_SET_VQ_GROUP_ASID,
-> >         VDUSE_SET_VQ_READY,
-> > +       VDUSE_SUSPEND,
-> >  };
-> >
-> >  /**
-> > --
-> > 2.53.0
-> >
->
-> Thanks
->
+-- 
+2.34.1
 
