@@ -1,233 +1,347 @@
-Received: from pdx-out-003.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-003.esa.us-west-2.outbound.mail-perimeter.amazon.com [44.246.68.102])
+Received: from pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.83.148.184])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CC4B2C0296
-	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 21:05:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.246.68.102
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A875F3932DE
+	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 21:43:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.83.148.184
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772571954; cv=none; b=LZLcNQEVl1STNjyNqW9Y8Yvk9DkI2BMlemRyr39eOKhThHZ8OGaOdNEyLG0Rfq5T2vIrp4xOaxqIc4m3ORKkaKLFoaVvwNUKOYAhgXKxysVgMTPwLa9RYa6vEZ0bDmL89HigJGGiQE4/WefTLjQavva9DMf/3g809zJUt5OlqbI=
+	t=1772574219; cv=none; b=f4tOga+0Av7l73MPQT7kMk/WPk9matcfu9iOenivNn4bsI4uZOTeJnsk6oL427iGizpPJl2Q9YuHSgzrrvytGv4KZ2Vz4W3uH0oG5K8+p/IkgOZKO3L4dHNoaO/jLW+YPIcfuVVktwl3Y90gFHT/4TgTcKZbHrr/exnIypWA1FQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772571954; c=relaxed/simple;
-	bh=xSbybZUSlysUSHT/3Zoqg8wWSZ0OyPjl8uxepV0vRFk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=FJPcld+qFUAiQ+DFy7e4SAbZhRjzM53N/ZZo9+reIo3PWtmQ8dk4GcvdaeJkTZZyiI0Sp15lt4Uiu7nLU/j2d0pD7ZhILACUY5svsU9SybfslpMAF8mHLHVtnuT0GD2xnUQIB6ruwbhGG11a1V8ihbOnQI13mkrcNXWJUi9fNww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=IHz/bVEM; arc=none smtp.client-ip=44.246.68.102
+	s=arc-20240116; t=1772574219; c=relaxed/simple;
+	bh=PzZ/ezFzbZYsh4eEucGwJNBE0sfci7zr4IfTd9AZZQE=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=F5bhQI8Ms23ITNH79NFdoe6GJyBTHtxrJTK/JvrPoIhuWpJh+AsGdxhEmjofHCl41BvazdYDnJnsebU4F7XyLvRPNdy9VgMUUnR1vrbR2ZLn+qhT6Si/r8WJxmt9toXNv65l7XLo7GXImcNVyownkDKthwn2VKJgLpTDmwyJeLg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=XHqT1+OR; arc=none smtp.client-ip=35.83.148.184
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="IHz/bVEM"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="XHqT1+OR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1772571953; x=1804107953;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=xSbybZUSlysUSHT/3Zoqg8wWSZ0OyPjl8uxepV0vRFk=;
-  b=IHz/bVEMc2ZUTfNVdR8T1z+l69kxMrtd4vR6gLri4lNu9KLP+ApxY25w
-   BIUfjRcMpd9VLhGOGrvRfHFV5mrd5QNlvoN65RkXCvIMbY72tcOrNv1vY
-   +yy3NPuqMMGMKtXh590+C/AttM4SItOFrwhHh6BzBkEveuiSz+uYZnNvY
-   kx4OyGx4uxmlbdN7m6TZoPmyZ7w5f6muLALyn7h1xlpNtT1xIPe2Aquqz
-   B6qsL5lVkmGIyjeWhuUwHYuaOzRXD2Px3FTIR5dLXytGxINPCjKZD0LGb
-   JUv2sudjduDFMosoRnRWz1zmSHz5abkGO3atIK6b8Dv3FQUMk0VzS3ftI
+  t=1772574217; x=1804110217;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=D3ckCkYROGkaxEpbd7UYWDIIPso4ExOTEY90wAeHS5w=;
+  b=XHqT1+ORnUOur3z6+04PMzUDUbSkS5lfcTpvXEKBnmSMxLCkutPALExF
+   OMyDmsnJK1T/leAvD7gZ6/prh551t6iZiE5bAgJIUa3WTo+KXXfYgo5m9
+   e6rBLP2Sw2D5pTfezv+eGcgVfx9WrkdbWbA1oFxLcLWsvRUMprHQzTNzm
+   33zmZNnLLHgeMeCSOHt/g1VvXwFe6tvjp7N3yPV10ng/MVxy9w5jmNAe9
+   yv+0PzgB+yRfUgjOa4JiHiFza+Lo/fslAJMOH+PTGYtjpT9/ONyTdgmC9
+   0WuNEHka9Rnn7ZkUASpC8LLVOm6ucNbtp7n+va/TR8vd38Ukc8ABGubgr
    A==;
-X-CSE-ConnectionGUID: f4/R8bIuT3CV3Iy8xZkJqQ==
-X-CSE-MsgGUID: qKzmmgJcQrSyEsgYO9rftA==
+X-CSE-ConnectionGUID: LacM7+auRcGIgU+IqM8cXg==
+X-CSE-MsgGUID: 7PkRHH6xQZySyQkP+cWsLA==
 X-IronPort-AV: E=Sophos;i="6.21,322,1763424000"; 
-   d="scan'208";a="14239868"
-Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
-  by internal-pdx-out-003.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2026 21:05:50 +0000
-Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.178:7726]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.61.162:2525] with esmtp (Farcaster)
- id f77dbcf8-6c44-4c35-925d-643b3f86c8e1; Tue, 3 Mar 2026 21:05:50 +0000 (UTC)
-X-Farcaster-Flow-ID: f77dbcf8-6c44-4c35-925d-643b3f86c8e1
+   d="scan'208";a="14011449"
+Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
+  by internal-pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2026 21:43:35 +0000
+Received: from EX19MTAUWC002.ant.amazon.com [205.251.233.111:17624]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.52.102:2525] with esmtp (Farcaster)
+ id a9b15450-ae14-40c5-b4b8-c776a92886c5; Tue, 3 Mar 2026 21:43:34 +0000 (UTC)
+X-Farcaster-Flow-ID: a9b15450-ae14-40c5-b4b8-c776a92886c5
 Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
- EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Tue, 3 Mar 2026 21:05:50 +0000
-Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
- (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Tue, 3 Mar 2026
- 21:05:47 +0000
-Message-ID: <737f2d0a-bc82-4510-9804-10146e8d4546@amazon.com>
-Date: Tue, 3 Mar 2026 22:05:44 +0100
+ Tue, 3 Mar 2026 21:43:34 +0000
+Received: from ip-10-253-83-51.amazon.com (172.19.99.218) by
+ EX19D020UWC004.ant.amazon.com (10.13.138.149) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
+ Tue, 3 Mar 2026 21:43:31 +0000
+From: Alexander Graf <graf@amazon.com>
+To: <virtualization@lists.linux.dev>
+CC: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<kvm@vger.kernel.org>, <eperezma@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, <mst@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+	<bcm-kernel-feedback-list@broadcom.com>, Arnd Bergmann <arnd@arndb.de>, "Greg
+ Kroah-Hartman" <gregkh@linuxfoundation.org>, Jonathan Corbet
+	<corbet@lwn.net>, Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa
+	<vishnu.dasa@broadcom.com>, <nh-open-source@amazon.com>,
+	<syzbot@syzkaller.appspotmail.com>
+Subject: [PATCH v3] vsock: add G2H fallback for CIDs not owned by H2G transport
+Date: Tue, 3 Mar 2026 21:43:29 +0000
+Message-ID: <20260303214329.71711-1-graf@amazon.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vsock: Enable H2G override
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Bryan Tan <bryan-bt.tan@broadcom.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, "Broadcom
- internal kernel review list" <bcm-kernel-feedback-list@broadcom.com>,
-	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
-	<netdev@vger.kernel.org>, <kvm@vger.kernel.org>, <eperezma@redhat.com>, Jason
- Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
-	<nh-open-source@amazon.com>
-References: <20260302104138.77555-1-graf@amazon.com>
- <aaVrsXMmULivV4Se@sgarzare-redhat> <aaV80wWlpjEtYCQJ@sgarzare-redhat>
- <17d63837-6028-475a-90df-6966329a0fc2@amazon.com>
- <aaW2FgoaXIJEymyR@sgarzare-redhat>
- <27dcad4e-d658-4b6b-93b2-44c64fcbeb11@amazon.com>
- <aaaqLbRNmoRHNTkh@sgarzare-redhat>
- <CAOuBmuaQwxKDJoirwtRwEP=690JcRX3Efk6z=udiOHsGr8u6ag@mail.gmail.com>
- <cc4093e8-31c8-4a14-80f9-034852cf54f7@amazon.com>
- <20260303155040-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Alexander Graf <graf@amazon.com>
-In-Reply-To: <20260303155040-mutt-send-email-mst@kernel.org>
 X-ClientProxiedBy: EX19D036UWC003.ant.amazon.com (10.13.139.214) To
  EX19D020UWC004.ant.amazon.com (10.13.138.149)
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-Ck9uIDAzLjAzLjI2IDIxOjUyLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24gVHVlLCBN
-YXIgMDMsIDIwMjYgYXQgMDk6NDc6MjZQTSArMDEwMCwgQWxleGFuZGVyIEdyYWYgd3JvdGU6Cj4+
-IE9uIDAzLjAzLjI2IDE1OjE3LCBCcnlhbiBUYW4gd3JvdGU6Cj4+PiBPbiBUdWUsIE1hciAzLCAy
-MDI2IGF0IDk6NDnigK9BTSBTdGVmYW5vIEdhcnphcmVsbGEgPHNnYXJ6YXJlQHJlZGhhdC5jb20+
-IHdyb3RlOgo+Pj4+IE9uIE1vbiwgTWFyIDAyLCAyMDI2IGF0IDA4OjA0OjIyUE0gKzAxMDAsIEFs
-ZXhhbmRlciBHcmFmIHdyb3RlOgo+Pj4+PiBPbiAwMi4wMy4yNiAxNzoyNSwgU3RlZmFubyBHYXJ6
-YXJlbGxhIHdyb3RlOgo+Pj4+Pj4gT24gTW9uLCBNYXIgMDIsIDIwMjYgYXQgMDQ6NDg6MzNQTSAr
-MDEwMCwgQWxleGFuZGVyIEdyYWYgd3JvdGU6Cj4+Pj4+Pj4gT24gMDIuMDMuMjYgMTM6MDYsIFN0
-ZWZhbm8gR2FyemFyZWxsYSB3cm90ZToKPj4+Pj4+Pj4gQ0NpbmcgQnJ5YW4sIFZpc2hudSwgYW5k
-IEJyb2FkY29tIGxpc3QuCj4+Pj4+Pj4+Cj4+Pj4+Pj4+IE9uIE1vbiwgTWFyIDAyLCAyMDI2IGF0
-IDEyOjQ3OjA1UE0gKzAxMDAsIFN0ZWZhbm8gR2FyemFyZWxsYSB3cm90ZToKPj4+Pj4+Pj4+IFBs
-ZWFzZSB0YXJnZXQgbmV0LW5leHQgdHJlZSBmb3IgdGhpcyBuZXcgZmVhdHVyZS4KPj4+Pj4+Pj4+
-Cj4+Pj4+Pj4+PiBPbiBNb24sIE1hciAwMiwgMjAyNiBhdCAxMDo0MTozOEFNICswMDAwLCBBbGV4
-YW5kZXIgR3JhZiB3cm90ZToKPj4+Pj4+Pj4+PiBWc29jayBtYWludGFpbnMgYSBzaW5nbGUgQ0lE
-IG51bWJlciBzcGFjZSB3aGljaCBjYW4gYmUgdXNlZCB0bwo+Pj4+Pj4+Pj4+IGNvbW11bmljYXRl
-IHRvIHRoZSBob3N0IChHMkgpIG9yIHRvIGEgY2hpbGQtVk0gKEgyRykuIFRoZQo+Pj4+Pj4+Pj4+
-IGN1cnJlbnQgbG9naWMKPj4+Pj4+Pj4+PiB0cml2aWFsbHkgYXNzdW1lcyB0aGF0IEcySCBpcyBv
-bmx5IHJlbGV2YW50IGZvciBDSUQgPD0gMgo+Pj4+Pj4+Pj4+IGJlY2F1c2UgdGhlc2UKPj4+Pj4+
-Pj4+PiB0YXJnZXQgdGhlIGh5cGVydmlzb3IuICBIb3dldmVyLCBpbiBlbnZpcm9ubWVudHMgbGlr
-ZSBOaXRybwo+Pj4+Pj4+Pj4+IEVuY2xhdmVzLCBhbgo+Pj4+Pj4+Pj4+IGluc3RhbmNlIHRoYXQg
-aG9zdHMgdmhvc3RfdnNvY2sgcG93ZXJlZCBWTXMgbWF5IHN0aWxsIHdhbnQKPj4+Pj4+Pj4+PiB0
-byBjb21tdW5pY2F0ZQo+Pj4+Pj4+Pj4+IHRvIEVuY2xhdmVzIHRoYXQgYXJlIHJlYWNoYWJsZSBh
-dCBoaWdoZXIgQ0lEcyB0aHJvdWdoCj4+Pj4+Pj4+Pj4gdmlydGlvLXZzb2NrLXBjaS4KPj4+Pj4+
-Pj4+Pgo+Pj4+Pj4+Pj4+IFRoYXQgbWVhbnMgdGhhdCBmb3IgQ0lEID4gMiwgd2UgcmVhbGx5IHdh
-bnQgYW4gb3ZlcmxheS4gQnkKPj4+Pj4+Pj4+PiBkZWZhdWx0LCBhbGwKPj4+Pj4+Pj4+PiBDSURz
-IGFyZSBvd25lZCBieSB0aGUgaHlwZXJ2aXNvci4gQnV0IGlmIHZob3N0IHJlZ2lzdGVycyBhCj4+
-Pj4+Pj4+Pj4gQ0lELCBpdCB0YWtlcwo+Pj4+Pj4+Pj4+IHByZWNlZGVuY2UuICBJbXBsZW1lbnQg
-dGhhdCBsb2dpYy4gVmhvc3QgYWxyZWFkeSBrbm93cyB3aGljaCBDSURzIGl0Cj4+Pj4+Pj4+Pj4g
-c3VwcG9ydHMgYW55d2F5Lgo+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4gV2l0aCB0aGlzIGxvZ2ljLCBJ
-IGNhbiBydW4gYSBOaXRybyBFbmNsYXZlIGFzIHdlbGwgYXMgYQo+Pj4+Pj4+Pj4+IG5lc3RlZCBW
-TSB3aXRoCj4+Pj4+Pj4+Pj4gdmhvc3QtdnNvY2sgc3VwcG9ydCBpbiBwYXJhbGxlbCwgd2l0aCB0
-aGUgcGFyZW50IGluc3RhbmNlIGFibGUgdG8KPj4+Pj4+Pj4+PiBjb21tdW5pY2F0ZSB0byBib3Ro
-IHNpbXVsdGFuZW91c2x5Lgo+Pj4+Pj4+Pj4gSSBob25lc3RseSBkb24ndCB1bmRlcnN0YW5kIHdo
-eSBWTUFERFJfRkxBR19UT19IT1NUIChhZGRlZAo+Pj4+Pj4+Pj4gc3BlY2lmaWNhbGx5IGZvciBO
-aXRybyBJSVJDKSBpc24ndCBlbm91Z2ggZm9yIHRoaXMgc2NlbmFyaW8KPj4+Pj4+Pj4+IGFuZCB3
-ZSBoYXZlIHRvIGFkZCB0aGlzIGNoYW5nZS4gIENhbiB5b3UgZWxhYm9yYXRlIGEgYml0IG1vcmUK
-Pj4+Pj4+Pj4+IGFib3V0IHRoZSByZWxhdGlvbnNoaXAgYmV0d2VlbiB0aGlzIGNoYW5nZSBhbmQK
-Pj4+Pj4+Pj4+IFZNQUREUl9GTEFHX1RPX0hPU1Qgd2UgYWRkZWQ/Cj4+Pj4+Pj4gVGhlIG1haW4g
-cHJvYmxlbSBJIGhhdmUgd2l0aCBWTUFERFJfRkxBR19UT19IT1NUIGZvciBjb25uZWN0KCkgaXMK
-Pj4+Pj4+PiB0aGF0IGl0IHB1bnRzIHRoZSBjb21wbGV4aXR5IHRvIHRoZSB1c2VyLiBJbnN0ZWFk
-IG9mIGEgc2luZ2xlIENJRAo+Pj4+Pj4+IGFkZHJlc3Mgc3BhY2UsIHlvdSBub3cgZWZmZWN0aXZl
-bHkgY3JlYXRlIDIgc3BhY2VzOiBPbmUgZm9yCj4+Pj4+Pj4gVE9fSE9TVCAobmVlZHMgYSBmbGFn
-KSBhbmQgb25lIGZvciBUT19HVUVTVCAobm8gZmxhZykuIEJ1dCBldmVyeQo+Pj4+Pj4+IHVzZXIg
-c3BhY2UgdG9vbCBuZWVkcyB0byBsZWFybiBhYm91dCB0aGlzIGZsYWcuIFRoYXQgbWF5IHdvcmsg
-Zm9yCj4+Pj4+Pj4gc3VwZXIgc3BlY2lhbC1jYXNlIGFwcGxpY2F0aW9ucy4gQnV0IHByb3BhZ2F0
-aW5nIHRoYXQgYWxsIHRoZSB3YXkKPj4+Pj4+PiBpbnRvIHNvY2F0LCBpcGVyZiwgZXRjIGV0Yz8g
-SXQncyBqdXN0IGNyZWF0aW5nIGZyaWN0aW9uLgo+Pj4+Pj4gT2theSwgSSB3b3VsZCBsaWtlIHRv
-IGhhdmUgdGhpcyAob3IgcGFydCBvZiBpdCkgaW4gdGhlIGNvbW1pdAo+Pj4+Pj4gbWVzc2FnZSB0
-byBiZXR0ZXIgZXhwbGFpbiB3aHkgd2Ugd2FudCB0aGlzIGNoYW5nZS4KPj4+Pj4+Cj4+Pj4+Pj4g
-SU1ITyB0aGUgbW9zdCBuYXR1cmFsIGV4cGVyaWVuY2UgaXMgdG8gaGF2ZSBhIHNpbmdsZSBDSUQg
-c3BhY2UsCj4+Pj4+Pj4gcG90ZW50aWFsbHkgbWFudWFsbHkgc2VnbWVudGVkIGJ5IGxhdW5jaGlu
-ZyBWTXMgb2Ygb25lIGtpbmQgd2l0aGluCj4+Pj4+Pj4gYSBjZXJ0YWluIHJhbmdlLgo+Pj4+Pj4g
-SSBzZWUsIGJ1dCBhdCB0aGlzIHBvaW50LCBzaG91bGQgdGhlIGtlcm5lbCBzZXQgVk1BRERSX0ZM
-QUdfVE9fSE9TVAo+Pj4+Pj4gaW4gdGhlIHJlbW90ZSBhZGRyZXNzIGlmIHRoYXQgcGF0aCBpcyB0
-YWtlbiAiYXV0b21hZ2ljYWxseSIgPwo+Pj4+Pj4KPj4+Pj4+IFNvIGluIHRoYXQgd2F5IHRoZSB1
-c2VyIHNwYWNlIGNhbiBoYXZlIGEgd2F5IHRvIHVuZGVyc3RhbmQgaWYgaXQncwo+Pj4+Pj4gdGFs
-a2luZyB3aXRoIGEgbmVzdGVkIGd1ZXN0IG9yIGEgc2libGluZyBndWVzdC4KPj4+Pj4+Cj4+Pj4+
-Pgo+Pj4+Pj4gVGhhdCBzYWlkLCBJJ20gY29uY2VybmVkIGFib3V0IHRoZSBzY2VuYXJpbyB3aGVy
-ZSBhbiBhcHBsaWNhdGlvbgo+Pj4+Pj4gZG9lcyBub3QgZXZlbiBjb25zaWRlciBjb21tdW5pY2F0
-aW5nIHdpdGggYSBzaWJsaW5nIFZNLgo+Pj4+PiBJZiB0aGF0J3MgcmVhbGx5IGEgcmVhbGlzdGlj
-IGNvbmNlcm4sIHRoZW4gd2Ugc2hvdWxkIGFkZCBhCj4+Pj4+IFZNQUREUl9GTEFHX1RPX0dVRVNU
-IHRoYXQgdGhlIGFwcGxpY2F0aW9uIGNhbiBzZXQuIERlZmF1bHQgYmVoYXZpb3Igb2YKPj4+Pj4g
-YW4gYXBwbGljYXRpb24gdGhhdCBwcm92aWRlcyBubyBmbGFncyBpcyAicm91dGUgdG8gd2hhdGV2
-ZXIgeW91IGNhbgo+Pj4+PiBmaW5kIjogSWYgdmhvc3QgaXMgbG9hZGVkLCBpdCByb3V0ZXMgdG8g
-dmhvc3QuIElmIGEgdnNvY2sgYmFja2VuZAo+Pj4+IG1tbSwgd2UgaGF2ZSBhbHdheXMgZG9jdW1l
-bnRlZCB0aGlzIHNpbXBsZSBiZWhhdmlvcjoKPj4+PiAtIENJRCA9IDIgdGFsa3MgdG8gdGhlIGhv
-c3QKPj4+PiAtIENJRCA+PSAzIHRhbGtzIHRvIHRoZSBndWVzdAo+Pj4+Cj4+Pj4gTm93IHdlIGFy
-ZSBjaGFuZ2luZyB0aGlzIGJ5IGFkZGluZyBmYWxsYmFjay4gSSBkb24ndCB0aGluayB3ZSBzaG91
-bGQKPj4+PiBjaGFuZ2UgdGhlIGRlZmF1bHQgYmVoYXZpb3IsIGJ1dCByYXRoZXIgcHJvdmlkZSBu
-ZXcgd2F5cyB0byBlbmFibGUgdGhpcwo+Pj4+IG5ldyBiZWhhdmlvci4KPj4+Pgo+Pj4+IEkgZmlu
-ZCBpdCBzdHJhbmdlIHRoYXQgYW4gYXBwbGljYXRpb24gcnVubmluZyBvbiBMaW51eCA3LjAgaGFz
-IGEgZGVmYXVsdAo+Pj4+IGJlaGF2aW9yIHdoZXJlIHVzaW5nIENJRD00MiBhbHdheXMgdGFsa3Mg
-dG8gYSBuZXN0ZWQgVk0sIGJ1dCBzdGFydGluZwo+Pj4+IHdpdGggTGludXggNy4xLCBpdCBhbHNv
-IHN0YXJ0cyB0YWxraW5nIHRvIGEgc2libGluZyBWTS4KPj4+Pgo+Pj4+PiBkcml2ZXIgaXMgbG9h
-ZGVkLCBpdCByb3V0ZXMgdGhlcmUuIEJ1dCB0aGUgYXBwbGljYXRpb24gaGFzIG5vIHNheSBpbgo+
-Pj4+PiB3aGVyZSBpdCBnb2VzOiBJdCdzIHB1cmVseSBhIHN5c3RlbSBjb25maWd1cmF0aW9uIHRo
-aW5nLgo+Pj4+IFRoaXMgaXMgdHJ1ZSBmb3IgY29tcGxleCB0aGluZ3MgbGlrZSBJUCwgYnV0IGZv
-ciBWU09DSyB3ZSBoYXZlIGFsd2F5cwo+Pj4+IHdhbnRlZCB0byBrZWVwIHRoZSBkZWZhdWx0IGJl
-aGF2aW9yIHZlcnkgc2ltcGxlIChhcyB3cml0dGVuIGFib3ZlKS4KPj4+PiBFdmVyeXRoaW5nIGVs
-c2UgbXVzdCBiZSBleHBsaWNpdGx5IGVuYWJsZWQgSU1ITy4KPj4+Pgo+Pj4+Pj4gVW50aWwgbm93
-LCBpdCBrbmV3IHRoYXQgYnkgbm90IHNldHRpbmcgdGhhdCBmbGFnLCBpdCBjb3VsZCBvbmx5IHRh
-bGsKPj4+Pj4+IHRvIG5lc3RlZCBWTXMsIHNvIGlmIHRoZXJlIHdhcyBubyBWTSB3aXRoIHRoYXQg
-Q0lELCB0aGUgY29ubmVjdGlvbgo+Pj4+Pj4gc2ltcGx5IGZhaWxlZC4gV2hlcmVhcyBmcm9tIHRo
-aXMgcGF0Y2ggb253YXJkcywgaWYgdGhlIGRldmljZSBpbiB0aGUKPj4+Pj4+IGhvc3Qgc3VwcG9y
-dHMgc2libGluZyBWTXMgYW5kIHRoZXJlIGlzIGEgVk0gd2l0aCB0aGF0IENJRCwgdGhlCj4+Pj4+
-PiBhcHBsaWNhdGlvbiBmaW5kcyBpdHNlbGYgdGFsa2luZyB0byBhIHNpYmxpbmcgVk0gaW5zdGVh
-ZCBvZiBhIG5lc3RlZAo+Pj4+Pj4gb25lLCB3aXRob3V0IGhhdmluZyBhbnkgaWRlYS4KPj4+Pj4g
-SSdkIHNheSBhbiBhcHBsaWNhdGlvbiB0aGF0IGF0dGVtcHRzIHRvIHRhbGsgdG8gYSBDSUQgdGhh
-dCBpdCBkb2VzIG5vdwo+Pj4+PiBrbm93IHdoZXRoZXIgaXQncyB2aG9zdCByb3V0ZWQgb3Igbm90
-IGlzIHJ1bm5pbmcgaW50byAidW5kZWZpbmVkIgo+Pj4+PiB0ZXJyaXRvcnkuIElmIHlvdSBybW1v
-ZCB0aGUgdmhvc3QgZHJpdmVyLCBpdCB3b3VsZCBhbHNvIHRhbGsgdG8gdGhlCj4+Pj4+IGh5cGVy
-dmlzb3IgcHJvdmlkZWQgdnNvY2suCj4+Pj4gT2gsIEkgbWlzc2VkIHRoYXQuIEFuZCBJIGFsc28g
-Zml4ZWQgdGhhdCBiZWhhdmlvdXIgd2l0aCBjb21taXQKPj4+PiA2NWI0MjJkOWI2MWIgKCJ2c29j
-azogZm9yd2FyZCBhbGwgcGFja2V0cyB0byB0aGUgaG9zdCB3aGVuIG5vIEgyRyBpcwo+Pj4+IHJl
-Z2lzdGVyZWQiKSBhZnRlciBJIGltcGxlbWVudGVkIHRoZSBtdWx0aS10cmFuc3BvcnQgc3VwcG9y
-dC4KPj4+Pgo+Pj4+IG1tbSwgdGhpcyBjb3VsZCBjaGFuZ2UgbXkgcG9zaXRpb24gOy0pIChhbHRo
-b3VnaCwgdG8gYmUgaG9uZXN0LCBJIGRvbid0Cj4+Pj4gdW5kZXJzdGFuZCB3aHkgaXQgd2FzIGxp
-a2UgdGhhdCBpbiB0aGUgZmlyc3QgcGxhY2UsIGJ1dCB0aGF0J3MgaG93IGl0IGlzCj4+Pj4gbm93
-KS4KPj4+Pgo+Pj4+IFBsZWFzZSBkb2N1bWVudCBhbHNvIHRoaXMgaW4gdGhlIG5ldyBjb21taXQg
-bWVzc2FnZSwgaXMgYSBnb29kIHBvaW50Lgo+Pj4+IEFsdGhvdWdoIHdoZW4gSDJHIGlzIGxvYWRl
-ZCwgd2UgYmVoYXZlIGRpZmZlcmVudGx5LiBIb3dldmVyLCBpdCBpcyB0cnVlCj4+Pj4gdGhhdCBz
-eXNjdGwgaGVscHMgdXMgc3RhbmRhcmRpemUgdGhpcyBiZWhhdmlvci4KPj4+Pgo+Pj4+IEkgZG9u
-J3Qga25vdyB3aGV0aGVyIHRvIHNlZSBpdCBhcyBhIHJlZ3Jlc3Npb24gb3Igbm90Lgo+Pj4+Cj4+
-Pj4+PiBTaG91bGQgd2UgbWFrZSB0aGlzIGZlYXR1cmUgb3B0LWluIGluIHNvbWUgd2F5LCBzdWNo
-IGFzIHNvY2tvcHQgb3IKPj4+Pj4+IHN5c2N0bD8gKEkgdW5kZXJzdGFuZCB0aGF0IHRoZXJlIGlz
-IHRoZSBwcmV2aW91cyBwcm9ibGVtLCBidXQKPj4+Pj4+IGhvbmVzdGx5LCBpdCBzZWVtcyBsaWtl
-IGEgc2lnbmlmaWNhbnQgY2hhbmdlIHRvIHRoZSBiZWhhdmlvciBvZgo+Pj4+Pj4gQUZfVlNPQ0sp
-Lgo+Pj4+PiBXZSBjYW4gY3JlYXRlIGEgc3lzY3RsIHRvIGVuYWJsZSBiZWhhdmlvciB3aXRoIGRl
-ZmF1bHQ9b24uIEJ1dCBJJ20KPj4+Pj4gYWdhaW5zdCBtYWtpbmcgdGhlIGN1bWJlcnNvbWUgZG9l
-cy1ub3Qtd29yay1vdXQtb2YtdGhlLWJveCBleHBlcmllbmNlCj4+Pj4+IHRoZSBkZWZhdWx0LiBX
-aWxsIGluY2x1ZGUgaXQgaW4gdjIuCj4+Pj4gVGhlIG9wcG9zaXRlIHBvaW50IG9mIHZpZXcgaXMg
-dGhhdCB3ZSB3b3VsZCBub3Qgd2FudCB0byBoYXZlIGRpZmZlcmVudAo+Pj4+IGRlZmF1bHQgYmVo
-YXZpb3IgYmV0d2VlbiA3LjAgYW5kIDcuMSB3aGVuIEgyRyBpcyBsb2FkZWQuCj4+PiAgIEZyb20g
-YSBWTUNJIHBlcnNwZWN0aXZlLCB3ZSBvbmx5IGFsbG93IGNvbW11bmljYXRpb24gZnJvbSBndWVz
-dCB0bwo+Pj4gaG9zdCBDSURzIDAgYW5kIDIuIFdpdGggaGFzX3JlbW90ZV9jaWQgaW1wbGVtZW50
-ZWQgZm9yIFZNQ0ksIHdlIGVuZAo+Pj4gdXAgYXR0ZW1wdGluZyBndWVzdCB0byBndWVzdCBjb21t
-dW5pY2F0aW9uLiBBcyBtZW50aW9uZWQgdGhpcyBkb2VzCj4+PiBhbHJlYWR5IGhhcHBlbiBpZiB0
-aGVyZSBpc24ndCBhbiBIMkcgdHJhbnNwb3J0IHJlZ2lzdGVyZWQsIHNvIHdlCj4+PiBzaG91bGQg
-YmUgaGFuZGxpbmcgdGhpcyBhbnl3YXlzLiBCdXQgSSdtIG5vdCB0b28gZm9uZCBvZiB0aGUgY2hh
-bmdlCj4+PiBpbiBiZWhhdmlvdXIgZm9yIHdoZW4gSDJHIGlzIHByZXNlbnQsIHNvIGluIHRoZSB2
-ZXJ5IGxlYXN0IEknZAo+Pj4gcHJlZmVyIGlmIGhhc19yZW1vdGVfY2lkIGlzIG5vdCBpbXBsZW1l
-bnRlZCBmb3IgVk1DSS4gT3IgcGVyaGFwcwo+Pj4gaWYgdGhlcmUgd2FzIGEgd2F5IGZvciBHMkgg
-dHJhbnNwb3J0IHRvIGV4cGxpY2l0bHkgbm90ZSB0aGF0IGl0Cj4+PiBzdXBwb3J0cyBDSURzIHRo
-YXQgYXJlIGdyZWF0ZXIgdGhhbiAyPyAgV2l0aCB0aGlzLCBpdCB3b3VsZCBiZQo+Pj4gZWFzaWVy
-IHRvIHNlZSB0aGlzIHBhdGNoIGFzIHByZXNlcnZpbmcgdGhlIGRlZmF1bHQgYmVoYXZpb3VyIGZv
-cgo+Pj4gc29tZSB0cmFuc3BvcnRzIGFuZCBmaXhpbmcgYSBidWcgZm9yIG90aGVycy4KPj4KPj4g
-SSB1bmRlcnN0YW5kIHdoYXQgeW91IHdhbnQsIGJ1dCBiZXdhcmUgdGhhdCBpdCdzIGFjdHVhbGx5
-IGEgY2hhbmdlIGluCj4+IGJlaGF2aW9yLiBUb2RheSwgd2hldGhlciBMaW51eCB3aWxsIHNlbmQg
-dnNvY2sgY29ubmVjdHMgdG8gVk1DSSBkZXBlbmRzIG9uCj4+IHdoZXRoZXIgdGhlIHZob3N0IGtl
-cm5lbCBtb2R1bGUgaXMgbG9hZGVkOiBJZiBpdCdzIGxvYWRlZCwgeW91IGRvbid0IHNlZSB0aGUK
-Pj4gY29ubmVjdCBhdHRlbXB0LiBJZiBpdCdzIG5vdCBsb2FkZWQsIHRoZSBjb25uZWN0IHdpbGwg
-Y29tZSB0aHJvdWdoIHRvIFZNQ0kuCj4+Cj4+IEkgYWdyZWUgdGhhdCBpdCBtYWtlcyBzZW5zZSB0
-byBsaW1pdCBWTUNJIHRvIG9ubHkgZXZlciBzZWUgY29ubmVjdHMgdG8gPD0gMgo+PiBjb25zaXN0
-ZW50bHkuIEJ1dCBhcyBJIHNhaWQgYWJvdmUsIGl0J3MgYWN0dWFsbHkgYSBjaGFuZ2UgaW4gYmVo
-YXZpb3IuCj4+Cj4+Cj4+IEFsZXgKPj4KPiBJIHRoaW5rIGl0IHdhcyB1bmludGVudGlvbmFsLCBi
-dXQgaWYgeW91IHJlYWxseSB0aGluayBwZW9wbGUgd2FudCBhCj4gc3BlY2lhbCBtb2R1bGUgdGhh
-dCBjaGFuZ2VzIGtlcm5lbCdzIGJlaGF2aW91ciBvbiBsb2FkLCB3ZSBjYW4gY2VydGFpbmx5Cj4g
-ZG8gdGhhdC4gQnV0IGFueSBoYWNrIGxpa2UgdGhpcyB3aWxsIG5vdCBiZSBuYW1lc3BhY2Ugc2Fm
-ZS4KCgpObywgSSB0aGluayBhbnkgYmVoYXZpb3IgdGhhdCBjaGFuZ2VzIGJhc2VkIG9uIHdoZXRo
-ZXIgYSB2aG9zdCBrZXJuZWwgCm1vZHVsZSBpcyBsb2FkZWQgaXMgYnJva2VuIGJ5IGRlc2lnbiA6
-KS4gSSdsbCBtYWtlIGl0IGNvbnNpc3RlbnQgaW4gdjMuIApKdXN0IHdhbnRlZCB0byBtYWtlIHN1
-cmUgdGhhdCB3ZSdyZSBvbiB0aGUgc2FtZSBwYWdlIHRoYXQgaXQncyBub3QgIlZNQ0kgCmlzIG5v
-dCBhZmZlY3RlZCBieSB0aGlzIi4gSXQgYWxzbyBoYXMgdGhlIHNhbWUgaW5jb25zaXN0ZW5jeSB0
-b2RheS4KCgpBbGV4CgoKCgpBbWF6b24gV2ViIFNlcnZpY2VzIERldmVsb3BtZW50IENlbnRlciBH
-ZXJtYW55IEdtYkgKVGFtYXJhLURhbnotU3RyLiAxMwoxMDI0MyBCZXJsaW4KR2VzY2hhZWZ0c2Z1
-ZWhydW5nOiBDaHJpc3RvZiBIZWxsbWlzLCBBbmRyZWFzIFN0aWVnZXIKRWluZ2V0cmFnZW4gYW0g
-QW10c2dlcmljaHQgQ2hhcmxvdHRlbmJ1cmcgdW50ZXIgSFJCIDI1Nzc2NCBCClNpdHo6IEJlcmxp
-bgpVc3QtSUQ6IERFIDM2NSA1MzggNTk3Cg==
+When no H2G transport is loaded, vsock currently routes all CIDs to the
+G2H transport (commit 65b422d9b61b, "vsock: forward all packets to the
+host when no H2G is registered"). Extend that existing behavior: when
+an H2G transport is loaded but does not claim a given CID, the
+connection falls back to G2H in the same way.
+
+This matters in environments like Nitro Enclaves, where an instance may
+run nested VMs via vhost-vsock (H2G) while also needing to reach sibling
+enclaves at higher CIDs through virtio-vsock-pci (G2H). With the old
+code, any CID > 2 was unconditionally routed to H2G when vhost was
+loaded, making those enclaves unreachable without setting
+VMADDR_FLAG_TO_HOST explicitly on every connect.
+
+Requiring every application to set VMADDR_FLAG_TO_HOST creates friction:
+tools like socat, iperf, and others would all need to learn about it.
+The flag was introduced 6 years ago and I am still not aware of any tool
+that supports it. Even if there was support, it would be cumbersome to
+use. The most natural experience is a single CID address space where H2G
+only wins for CIDs it actually owns, and everything else falls through to
+G2H, extending the behavior that already exists when H2G is absent.
+
+To give user space at least a hint that the kernel applied this logic,
+automatically set the VMADDR_FLAG_TO_HOST on the remote address so it
+can determine the path taken via getpeername().
+
+Add a per-network namespace sysctl net.vsock.g2h_fallback (default 1).
+At 0 it forces strict routing: H2G always wins for CID > VMADDR_CID_HOST,
+or ENODEV if H2G is not loaded.
+
+Signed-off-by: Alexander Graf <graf@amazon.com>
+Tested-by: syzbot@syzkaller.appspotmail.com
+
+---
+
+v1 -> v2:
+
+  - Rebase on 7.0, include namespace support
+  - Add net.vsock.g2h_fallback sysctl
+  - Rework description
+  - Set VMADDR_FLAG_TO_HOST automatically
+  - Add VMCI support
+  - Update vsock_assign_transport() comment
+
+v2 -> v3:
+
+  - Use has_remote_cid() on G2H transport to gate the fallback. This is
+    used by VMCI to indicate that it never takes G2H CIDs > 2.
+  - Move g2h_fallback into struct netns_vsock to enable namespaces
+    and fix syzbot warning
+  - Gate the !transport_h2g case on g2h_fallback as well, folding the
+    pre-existing no-H2G fallback into the new logic
+  - Remove has_remote_cid() from VMCI again. Instead implement it in
+    virtio.
+---
+ Documentation/admin-guide/sysctl/net.rst | 28 +++++++++++++++++++
+ drivers/vhost/vsock.c                    | 13 +++++++++
+ include/net/af_vsock.h                   |  9 +++++++
+ include/net/netns/vsock.h                |  2 ++
+ net/vmw_vsock/af_vsock.c                 | 34 ++++++++++++++++++++----
+ net/vmw_vsock/virtio_transport.c         |  7 +++++
+ 6 files changed, 88 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
+index 3b2ad61995d4..98b9eaa9cb9e 100644
+--- a/Documentation/admin-guide/sysctl/net.rst
++++ b/Documentation/admin-guide/sysctl/net.rst
+@@ -602,3 +602,31 @@ it does not modify the current namespace or any existing children.
+ 
+ A namespace with ``ns_mode`` set to ``local`` cannot change
+ ``child_ns_mode`` to ``global`` (returns ``-EPERM``).
++
++g2h_fallback
++------------
++
++Controls whether connections to CIDs not owned by the host-to-guest (H2G)
++transport automatically fall back to the guest-to-host (G2H) transport.
++
++When enabled, if a connect targets a CID that the H2G transport (e.g.
++vhost-vsock) does not serve, or if no H2G transport is loaded at all, the
++connection is routed via the G2H transport (e.g. virtio-vsock) instead. This
++allows a host running both nested VMs (via vhost-vsock) and sibling VMs
++reachable through the hypervisor (e.g. Nitro Enclaves) to address both using
++a single CID space, without requiring applications to set
++``VMADDR_FLAG_TO_HOST``.
++
++When the fallback is taken, ``VMADDR_FLAG_TO_HOST`` is automatically set on
++the remote address so that userspace can determine the path via
++``getpeername()``.
++
++Note: With this sysctl enabled, user space that attempts to talk to a guest
++CID which is not implemented by vhost will create host vsock traffic.
++Environments that rely on H2G-only isolation should set it to 0.
++
++Values:
++
++	- 0 - Connections to CIDs <= 2 or with VMADDR_FLAG_TO_HOST use G2H;
++	  all others use H2G (or fail with ENODEV if H2G is not loaded).
++	- 1 - Connections to CIDs not owned by H2G fall back to G2H. (default)
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 054f7a718f50..319e3a690108 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -91,6 +91,18 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
+ 	return NULL;
+ }
+ 
++static bool vhost_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
++{
++	struct sock *sk = sk_vsock(vsk);
++	struct net *net = sock_net(sk);
++	bool found;
++
++	rcu_read_lock();
++	found = vhost_vsock_get(cid, net) != NULL;
++	rcu_read_unlock();
++	return found;
++}
++
+ static void
+ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 			    struct vhost_virtqueue *vq)
+@@ -424,6 +436,7 @@ static struct virtio_transport vhost_transport = {
+ 		.module                   = THIS_MODULE,
+ 
+ 		.get_local_cid            = vhost_transport_get_local_cid,
++		.has_remote_cid           = vhost_transport_has_remote_cid,
+ 
+ 		.init                     = virtio_transport_do_socket_init,
+ 		.destruct                 = virtio_transport_destruct,
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 533d8e75f7bb..4e40063adab4 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -179,6 +179,15 @@ struct vsock_transport {
+ 	/* Addressing. */
+ 	u32 (*get_local_cid)(void);
+ 
++	/* Check if this transport serves a specific remote CID.
++	 * For H2G transports: return true if the CID belongs to a registered
++	 * guest. If not implemented, all CIDs > VMADDR_CID_HOST go to H2G.
++	 * For G2H transports: return true if the transport can reach arbitrary
++	 * CIDs via the hypervisor (i.e. supports the fallback overlay). VMCI
++	 * does not implement this as it only serves CIDs 0 and 2.
++	 */
++	bool (*has_remote_cid)(struct vsock_sock *vsk, u32 remote_cid);
++
+ 	/* Read a single skb */
+ 	int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
+ 
+diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
+index dc8cbe45f406..7f84aad92f57 100644
+--- a/include/net/netns/vsock.h
++++ b/include/net/netns/vsock.h
+@@ -20,5 +20,7 @@ struct netns_vsock {
+ 
+ 	/* 0 = unlocked, 1 = locked to global, 2 = locked to local */
+ 	int child_ns_mode_locked;
++
++	int g2h_fallback;
+ };
+ #endif /* __NET_NET_NAMESPACE_VSOCK_H */
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 2f7d94d682cb..0cdc3df9b63c 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -545,9 +545,13 @@ static void vsock_deassign_transport(struct vsock_sock *vsk)
+  * The vsk->remote_addr is used to decide which transport to use:
+  *  - remote CID == VMADDR_CID_LOCAL or g2h->local_cid or VMADDR_CID_HOST if
+  *    g2h is not loaded, will use local transport;
+- *  - remote CID <= VMADDR_CID_HOST or h2g is not loaded or remote flags field
+- *    includes VMADDR_FLAG_TO_HOST flag value, will use guest->host transport;
+- *  - remote CID > VMADDR_CID_HOST will use host->guest transport;
++ *  - remote CID <= VMADDR_CID_HOST or remote flags field includes
++ *    VMADDR_FLAG_TO_HOST, will use guest->host transport;
++ *  - remote CID > VMADDR_CID_HOST and h2g is loaded and h2g claims that CID,
++ *    will use host->guest transport;
++ *  - h2g not loaded or h2g does not claim that CID and g2h claims the CID via
++ *    has_remote_cid, will use guest->host transport (when g2h_fallback=1)
++ *  - anything else goes to h2g or returns -ENODEV if no h2g is available
+  */
+ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+ {
+@@ -581,10 +585,19 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+ 	case SOCK_SEQPACKET:
+ 		if (vsock_use_local_transport(remote_cid))
+ 			new_transport = transport_local;
+-		else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g ||
++		else if (remote_cid <= VMADDR_CID_HOST ||
+ 			 (remote_flags & VMADDR_FLAG_TO_HOST))
+ 			new_transport = transport_g2h;
+-		else
++		else if (transport_h2g &&
++			 (!transport_h2g->has_remote_cid ||
++			  transport_h2g->has_remote_cid(vsk, remote_cid)))
++			new_transport = transport_h2g;
++		else if (sock_net(sk)->vsock.g2h_fallback &&
++			 transport_g2h && transport_g2h->has_remote_cid &&
++			 transport_g2h->has_remote_cid(vsk, remote_cid)) {
++			vsk->remote_addr.svm_flags |= VMADDR_FLAG_TO_HOST;
++			new_transport = transport_g2h;
++		} else
+ 			new_transport = transport_h2g;
+ 		break;
+ 	default:
+@@ -2879,6 +2892,15 @@ static struct ctl_table vsock_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= vsock_net_child_mode_string
+ 	},
++	{
++		.procname	= "g2h_fallback",
++		.data		= &init_net.vsock.g2h_fallback,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE,
++	},
+ };
+ 
+ static int __net_init vsock_sysctl_register(struct net *net)
+@@ -2894,6 +2916,7 @@ static int __net_init vsock_sysctl_register(struct net *net)
+ 
+ 		table[0].data = &net->vsock.mode;
+ 		table[1].data = &net->vsock.child_ns_mode;
++		table[2].data = &net->vsock.g2h_fallback;
+ 	}
+ 
+ 	net->vsock.sysctl_hdr = register_net_sysctl_sz(net, "net/vsock", table,
+@@ -2928,6 +2951,7 @@ static void vsock_net_init(struct net *net)
+ 		net->vsock.mode = vsock_net_child_mode(current->nsproxy->net_ns);
+ 
+ 	net->vsock.child_ns_mode = net->vsock.mode;
++	net->vsock.g2h_fallback = 1;
+ }
+ 
+ static __net_init int vsock_sysctl_init_net(struct net *net)
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 77fe5b7b066c..57f2d6ec3ffc 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -547,11 +547,18 @@ bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
+ static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk,
+ 					     u32 remote_cid);
+ 
++static bool virtio_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
++{
++	/* The CID could be implemented by the host. Always assume it is. */
++	return true;
++}
++
+ static struct virtio_transport virtio_transport = {
+ 	.transport = {
+ 		.module                   = THIS_MODULE,
+ 
+ 		.get_local_cid            = virtio_transport_get_local_cid,
++		.has_remote_cid           = virtio_transport_has_remote_cid,
+ 
+ 		.init                     = virtio_transport_do_socket_init,
+ 		.destruct                 = virtio_transport_destruct,
+-- 
+2.47.1
+
+
+
+
+Amazon Web Services Development Center Germany GmbH
+Tamara-Danz-Str. 13
+10243 Berlin
+Geschaeftsfuehrung: Christof Hellmis, Andreas Stieger
+Eingetragen am Amtsgericht Charlottenburg unter HRB 257764 B
+Sitz: Berlin
+Ust-ID: DE 365 538 597
 
