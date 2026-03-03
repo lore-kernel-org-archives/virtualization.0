@@ -1,105 +1,131 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from pdx-out-015.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-015.esa.us-west-2.outbound.mail-perimeter.amazon.com [50.112.246.219])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED76D16CD33
-	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 06:47:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E11572E6116
+	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 06:51:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=50.112.246.219
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772520442; cv=none; b=lz6FZYY3W62+u2Onk/JntjMt3wDg5jZuuG7U11klD7YXZPWbeTz4bDDBf053zf1dS4m92FVW/+6swx8xdf7SDq+TARG3UQsfoFnIKqDLRz+YSrBqJYxXbeXdODhv1AChrqhFzgdXeKmfyvA48FnGkhhRmLYIhZzkwyL+Q9xryUg=
+	t=1772520703; cv=none; b=SZg2wKd3I4tQBqzVzxisTC0WpoZ7/Lfol3n0E/a02RSGyx3pbj6FeAx10+k8SbIDh1OTZRXar9kYvmvpOKwl1XWlaoaWbYMRiGfr8KvnKqTSA+CwjLyli/hkRHXouvUvQngHvrBUv3HDMhLCTe48K8HPfbxFMYiwvSSGHEJ4MOQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772520442; c=relaxed/simple;
-	bh=jTsk5S/1xtP/Z4v1QHmNXso1IIFMkqhMifKA1YMoKu8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=L9/wcSP11fHy++xr5fA31Ti6/CaF9j8ubprIhCyO9nLbXKTZGSD0dwav3dtGNCMl76gGMjI52H/Rsb6cqGd1AGYwc/bNvKmZ0Za0n6CflaiwjrLSm7MiA+OJIk61AFDFx0vQpkS+vpkjQsSRlpnGUQioDEkzM00ZCQ90ssYtm64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I4ggjYGn; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1772520703; c=relaxed/simple;
+	bh=XniAB7Nu709JmC3nBjM4MCHchvHwFSyw2Pkh2vpiQh4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=gIO9dzohG6cLw+CeyzeGpj9zbpkywHjAx2W0pzTy6TQ5vkSLEPGCJaezbyGYvneRhDcxT3s4CrizucRmE4ZXIpjorBOLfoh7Uw/1hU1uIRlapjhX6CFIb/4D0W5I/1F4/gvIHxZf0FTqgyjbiC9YkMn7V283N5Vz23fY+ik9PQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=FRy0N1mN; arc=none smtp.client-ip=50.112.246.219
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I4ggjYGn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772520440;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jTsk5S/1xtP/Z4v1QHmNXso1IIFMkqhMifKA1YMoKu8=;
-	b=I4ggjYGnPK80gRLD4RutQxbQqfBgi7axjlkKw14NMjKxYBxVxwn282W3s/j6WuVUPRFPZK
-	AWmEaVyZ+1+PQsuAg8YPS9yKzpEw/gl2cAINkH4DLWjGf6F/Y0L8eIfdjq6R4+kUPs5Z+S
-	HhJix4Jei82iVmx9HnDS9LjZPVtSS48=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-625-JkT6gBlGNlGYzSNRdChssA-1; Tue, 03 Mar 2026 01:47:18 -0500
-X-MC-Unique: JkT6gBlGNlGYzSNRdChssA-1
-X-Mimecast-MFC-AGG-ID: JkT6gBlGNlGYzSNRdChssA_1772520438
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-3598733bec0so12808460a91.2
-        for <virtualization@lists.linux.dev>; Mon, 02 Mar 2026 22:47:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772520437; x=1773125237;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=jTsk5S/1xtP/Z4v1QHmNXso1IIFMkqhMifKA1YMoKu8=;
-        b=u8WJxzTTNNsu4skCWMWArj3NaXWwJMSxmip+dZG1h+KTEiOBrq/k7It82yR4vyx6rs
-         42OZ0bJag2w218w5SGaUk38EvjToGm0a/Zjs9sygCMU4+gBoFs75hjOIP8Hhx+DsbLaZ
-         Vu4xWUsegcIGypmMw50uFWx4PBAzU5GxtRMmYENOp/FfV50+TtPNqQ4rzRe3mpS+m6Az
-         fN+N3yqOzM4ig+2ppZQQ66AScX/9DIUSTVmp7pc4iBPxEuz3h3dpNT9NTvIxth8bS0Y2
-         UKbbAN2ordOHxiutJTXZ26b8VRzR5Ui2WDM7wSPbEI87uacxjgvAeaKbHOQ0RDo4eFP4
-         Yseg==
-X-Forwarded-Encrypted: i=1; AJvYcCWyC13OUdq9GoB5CCVrqHLYUOl77iEfW/WSSrqFR7vIqpi5AK0kroVdDDY6RlszbmY4Y5EF27OYBYjpCSlZAA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx4AWlBXlX8i7uZkz/ztGvj0GcEqa58FuwH268+Xy1MeBo4T+6V
-	VpsfrFALajYmyI2WKAunKCt1qlkAF0jWLtHqShVbWxTKv4cZ8WulFu0v6OG2I/OH0LLPr3pZf6O
-	fgXGqRc/EHnC+ddH1QV6wQ86k5oug40xTFCJSfBBYkzntFp7cSnJ129nEG9PsIbVwfSZ5yZBk/x
-	NRfD9407Qwhsbf6PWiJWowlWR7OjBQLh5BkqmvimAwCUg=
-X-Gm-Gg: ATEYQzxK74emoV3NvK261gpMOBNNeZ83pQlqo4o5V75nP9WhzCWGcGwvfSvxozcUAEk
-	2dwteIXCSygLoOSWJwzp56Ahf4RvMAUu47lytoCOfifeZViI6d8s+7ZNMaV4dj6cxZ1JDR1aS1C
-	vcQsYhQCtPYwetQmY4bVIvPFXTB4enmDCNezxISETAroaU5Pwh4qFJ8LBHmmfXX4GLtyyC53IJt
-	w4Uwqvz
-X-Received: by 2002:a17:90a:dfce:b0:356:3cfd:3ee1 with SMTP id 98e67ed59e1d1-35965ceae6emr13314994a91.23.1772520437651;
-        Mon, 02 Mar 2026 22:47:17 -0800 (PST)
-X-Received: by 2002:a17:90a:dfce:b0:356:3cfd:3ee1 with SMTP id
- 98e67ed59e1d1-35965ceae6emr13314963a91.23.1772520437210; Mon, 02 Mar 2026
- 22:47:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="FRy0N1mN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1772520701; x=1804056701;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=XniAB7Nu709JmC3nBjM4MCHchvHwFSyw2Pkh2vpiQh4=;
+  b=FRy0N1mN9IQlHCfZL48e0GyMHPisKTAMQDa8iyT1/hndNgM399h+4db+
+   m+jCLoVcI5k5RvKXhMxf0brFBwn+RawrkVsPCezNrvstzNC68x/B34Pjl
+   HZOXKePv/wJP8Uxsxb6p3Y/NNE69CL6oIsJOzDdZqif4mwS6aKGFlydBo
+   Y4oDjYpHaI4+5u/TVU+4ZBy37iVvVYZ4r1dsUq40CM62Hx2xnvR/M+MDz
+   ofGSbUhUTY9Z7LxOs62QS/0FKsHQIr4ZnDxtVpMj3bhcGTMhGoSOJDMuC
+   VWoyR+uBl1bAstgepozcJs1tbZoCP0P3T+Ub2goIdo+GQLE0G9ZWnv/Go
+   w==;
+X-CSE-ConnectionGUID: eQgtqNMKRxua6d485tgN7g==
+X-CSE-MsgGUID: FQ/v0esXRzGnf2LAgztaKg==
+X-IronPort-AV: E=Sophos;i="6.21,321,1763424000"; 
+   d="scan'208";a="13992458"
+Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
+  by internal-pdx-out-015.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Mar 2026 06:51:38 +0000
+Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.178:26483]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.6.153:2525] with esmtp (Farcaster)
+ id b0c919eb-dfcb-4f13-89bc-ffc689a1743c; Tue, 3 Mar 2026 06:51:38 +0000 (UTC)
+X-Farcaster-Flow-ID: b0c919eb-dfcb-4f13-89bc-ffc689a1743c
+Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
+ EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
+ Tue, 3 Mar 2026 06:51:38 +0000
+Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
+ (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Tue, 3 Mar 2026
+ 06:51:34 +0000
+Message-ID: <079fcb93-cd01-45db-9ff7-d6cafd8fb7d5@amazon.com>
+Date: Tue, 3 Mar 2026 07:51:32 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260226152924.38790-1-evg28bur@yandex.ru>
-In-Reply-To: <20260226152924.38790-1-evg28bur@yandex.ru>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 3 Mar 2026 14:47:05 +0800
-X-Gm-Features: AaiRm53kGlh2Awdy28xoiAuCbe7shyoxelpKNPYu-3mpDcUBtvJikJBhEZg_LaM
-Message-ID: <CACGkMEtt39WgBDgAGFG9pSJe4t-vRL-0EELA3zs1dEZ7euu0bg@mail.gmail.com>
-Subject: Re: [PATCH] vdpa/ifcvf: handle dev_set_name() failure in ifcvf_vdpa_dev_add()
-To: Evgenii Burenchev <evg28bur@yandex.ru>
-Cc: stable@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	lingshan.zhu@kernel.org, mst@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, lvc-project@linuxtesting.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: EWplnsjlPlqb3TdcEoW4kjIaCDe_Ykyk6SD9XfSLIQ4_1772520438
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vsock: Enable H2G override
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: Stefano Garzarella <sgarzare@redhat.com>, Bryan Tan
+	<bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, Broadcom
+ internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
+	<netdev@vger.kernel.org>, <kvm@vger.kernel.org>, <eperezma@redhat.com>, Jason
+ Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+	<nh-open-source@amazon.com>
+References: <20260302104138.77555-1-graf@amazon.com>
+ <aaVrsXMmULivV4Se@sgarzare-redhat> <aaV80wWlpjEtYCQJ@sgarzare-redhat>
+ <17d63837-6028-475a-90df-6966329a0fc2@amazon.com>
+ <20260302145121-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Alexander Graf <graf@amazon.com>
+In-Reply-To: <20260302145121-mutt-send-email-mst@kernel.org>
+X-ClientProxiedBy: EX19D046UWB002.ant.amazon.com (10.13.139.181) To
+ EX19D020UWC004.ant.amazon.com (10.13.138.149)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 
-On Thu, Feb 26, 2026 at 11:36=E2=80=AFPM Evgenii Burenchev <evg28bur@yandex=
-.ru> wrote:
->
-> dev_set_name() may fail and return an error, but its return value
-> is currently ignored and overwritten by _vdpa_register_device().
->
-> Abort device creation if dev_set_name() fails and release the
-> device reference to avoid continuing with an improperly initialized
-> struct device.
->
-> Found by Linux Verification Center (linuxtesting.org) with SVACE.
->
-> Signed-off-by: Evgenii Burenchev <evg28bur@yandex.ru>
-> ---
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-Thanks
+Ck9uIDAyLjAzLjI2IDIwOjUyLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24gTW9uLCBN
+YXIgMDIsIDIwMjYgYXQgMDQ6NDg6MzNQTSArMDEwMCwgQWxleGFuZGVyIEdyYWYgd3JvdGU6Cj4+
+IE9uIDAyLjAzLjI2IDEzOjA2LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+PiBDQ2luZyBC
+cnlhbiwgVmlzaG51LCBhbmQgQnJvYWRjb20gbGlzdC4KPj4+Cj4+PiBPbiBNb24sIE1hciAwMiwg
+MjAyNiBhdCAxMjo0NzowNVBNICswMTAwLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4+Pj4g
+UGxlYXNlIHRhcmdldCBuZXQtbmV4dCB0cmVlIGZvciB0aGlzIG5ldyBmZWF0dXJlLgo+Pj4+Cj4+
+Pj4gT24gTW9uLCBNYXIgMDIsIDIwMjYgYXQgMTA6NDE6MzhBTSArMDAwMCwgQWxleGFuZGVyIEdy
+YWYgd3JvdGU6Cj4+Pj4+IFZzb2NrIG1haW50YWlucyBhIHNpbmdsZSBDSUQgbnVtYmVyIHNwYWNl
+IHdoaWNoIGNhbiBiZSB1c2VkIHRvCj4+Pj4+IGNvbW11bmljYXRlIHRvIHRoZSBob3N0IChHMkgp
+IG9yIHRvIGEgY2hpbGQtVk0gKEgyRykuIFRoZSBjdXJyZW50IGxvZ2ljCj4+Pj4+IHRyaXZpYWxs
+eSBhc3N1bWVzIHRoYXQgRzJIIGlzIG9ubHkgcmVsZXZhbnQgZm9yIENJRCA8PSAyIGJlY2F1c2Ug
+dGhlc2UKPj4+Pj4gdGFyZ2V0IHRoZSBoeXBlcnZpc29yLiAgSG93ZXZlciwgaW4gZW52aXJvbm1l
+bnRzIGxpa2UgTml0cm8KPj4+Pj4gRW5jbGF2ZXMsIGFuCj4+Pj4+IGluc3RhbmNlIHRoYXQgaG9z
+dHMgdmhvc3RfdnNvY2sgcG93ZXJlZCBWTXMgbWF5IHN0aWxsIHdhbnQgdG8KPj4+Pj4gY29tbXVu
+aWNhdGUKPj4+Pj4gdG8gRW5jbGF2ZXMgdGhhdCBhcmUgcmVhY2hhYmxlIGF0IGhpZ2hlciBDSURz
+IHRocm91Z2ggdmlydGlvLXZzb2NrLXBjaS4KPj4+Pj4KPj4+Pj4gVGhhdCBtZWFucyB0aGF0IGZv
+ciBDSUQgPiAyLCB3ZSByZWFsbHkgd2FudCBhbiBvdmVybGF5LiBCeSBkZWZhdWx0LCBhbGwKPj4+
+Pj4gQ0lEcyBhcmUgb3duZWQgYnkgdGhlIGh5cGVydmlzb3IuIEJ1dCBpZiB2aG9zdCByZWdpc3Rl
+cnMgYSBDSUQsCj4+Pj4+IGl0IHRha2VzCj4+Pj4+IHByZWNlZGVuY2UuICBJbXBsZW1lbnQgdGhh
+dCBsb2dpYy4gVmhvc3QgYWxyZWFkeSBrbm93cyB3aGljaCBDSURzIGl0Cj4+Pj4+IHN1cHBvcnRz
+IGFueXdheS4KPj4+Pj4KPj4+Pj4gV2l0aCB0aGlzIGxvZ2ljLCBJIGNhbiBydW4gYSBOaXRybyBF
+bmNsYXZlIGFzIHdlbGwgYXMgYSBuZXN0ZWQgVk0gd2l0aAo+Pj4+PiB2aG9zdC12c29jayBzdXBw
+b3J0IGluIHBhcmFsbGVsLCB3aXRoIHRoZSBwYXJlbnQgaW5zdGFuY2UgYWJsZSB0bwo+Pj4+PiBj
+b21tdW5pY2F0ZSB0byBib3RoIHNpbXVsdGFuZW91c2x5Lgo+Pj4+IEkgaG9uZXN0bHkgZG9uJ3Qg
+dW5kZXJzdGFuZCB3aHkgVk1BRERSX0ZMQUdfVE9fSE9TVCAoYWRkZWQKPj4+PiBzcGVjaWZpY2Fs
+bHkgZm9yIE5pdHJvIElJUkMpIGlzbid0IGVub3VnaCBmb3IgdGhpcyBzY2VuYXJpbyBhbmQgd2UK
+Pj4+PiBoYXZlIHRvIGFkZCB0aGlzIGNoYW5nZS4gIENhbiB5b3UgZWxhYm9yYXRlIGEgYml0IG1v
+cmUgYWJvdXQgdGhlCj4+Pj4gcmVsYXRpb25zaGlwIGJldHdlZW4gdGhpcyBjaGFuZ2UgYW5kIFZN
+QUREUl9GTEFHX1RPX0hPU1Qgd2UgYWRkZWQ/Cj4+Cj4+IFRoZSBtYWluIHByb2JsZW0gSSBoYXZl
+IHdpdGggVk1BRERSX0ZMQUdfVE9fSE9TVCBmb3IgY29ubmVjdCgpIGlzIHRoYXQgaXQKPj4gcHVu
+dHMgdGhlIGNvbXBsZXhpdHkgdG8gdGhlIHVzZXIuIEluc3RlYWQgb2YgYSBzaW5nbGUgQ0lEIGFk
+ZHJlc3Mgc3BhY2UsIHlvdQo+PiBub3cgZWZmZWN0aXZlbHkgY3JlYXRlIDIgc3BhY2VzOiBPbmUg
+Zm9yIFRPX0hPU1QgKG5lZWRzIGEgZmxhZykgYW5kIG9uZSBmb3IKPj4gVE9fR1VFU1QgKG5vIGZs
+YWcpLiBCdXQgZXZlcnkgdXNlciBzcGFjZSB0b29sIG5lZWRzIHRvIGxlYXJuIGFib3V0IHRoaXMK
+Pj4gZmxhZy4gVGhhdCBtYXkgd29yayBmb3Igc3VwZXIgc3BlY2lhbC1jYXNlIGFwcGxpY2F0aW9u
+cy4gQnV0IHByb3BhZ2F0aW5nCj4+IHRoYXQgYWxsIHRoZSB3YXkgaW50byBzb2NhdCwgaXBlcmYs
+IGV0YyBldGM/IEl0J3MganVzdCBjcmVhdGluZyBmcmljdGlvbi4KPj4KPj4gSU1ITyB0aGUgbW9z
+dCBuYXR1cmFsIGV4cGVyaWVuY2UgaXMgdG8gaGF2ZSBhIHNpbmdsZSBDSUQgc3BhY2UsIHBvdGVu
+dGlhbGx5Cj4+IG1hbnVhbGx5IHNlZ21lbnRlZCBieSBsYXVuY2hpbmcgVk1zIG9mIG9uZSBraW5k
+IHdpdGhpbiBhIGNlcnRhaW4gcmFuZ2UuCj4+Cj4+IEF0IHRoZSBlbmQgb2YgdGhlIGRheSwgdGhl
+IGhvc3QgdnMgZ3Vlc3QgcHJvYmxlbSBpcyBzdXBlciBzaW1pbGFyIHRvIGEKPj4gcm91dGluZyB0
+YWJsZS4KPiBJZiB0aGlzIGlzIHdoYXQncyBkZXNpcmVkLCBzb21lIGJpdHMgY291bGQgYmUgc3Rv
+bGVuIGZyb20gdGhlIENJRAo+IHRvIHNwZWNpZnkgdGhlIGRlc3RpbmF0aW9uIHR5cGUuIFdvdWxk
+IHRoYXQgYWRkcmVzcyB0aGUgaXNzdWU/Cj4gSnVzdCBhIHRob3VnaHQuCgoKSWYgd2UgaGFkIHRo
+b3VnaHQgb2YgdGhpcyBmcm9tIHRoZSBiZWdpbm5pbmcsIHllcy4gQnV0IG5vdyB0aGF0IGV2ZXJ5
+b25lIAp0aGlua3MgQ0lEIChndWVzdCkgPT0gQ0lEIChob3N0KSwgSSBiZWxpZXZlIHRoaXMgaXMg
+bm8gbG9uZ2VyIGZlYXNpYmxlLgoKCkFsZXgKCgoKCkFtYXpvbiBXZWIgU2VydmljZXMgRGV2ZWxv
+cG1lbnQgQ2VudGVyIEdlcm1hbnkgR21iSApUYW1hcmEtRGFuei1TdHIuIDEzCjEwMjQzIEJlcmxp
+bgpHZXNjaGFlZnRzZnVlaHJ1bmc6IENocmlzdG9mIEhlbGxtaXMsIEFuZHJlYXMgU3RpZWdlcgpF
+aW5nZXRyYWdlbiBhbSBBbXRzZ2VyaWNodCBDaGFybG90dGVuYnVyZyB1bnRlciBIUkIgMjU3NzY0
+IEIKU2l0ejogQmVybGluClVzdC1JRDogREUgMzY1IDUzOCA1OTcK
 
