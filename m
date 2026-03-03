@@ -1,67 +1,33 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AF7335B138
-	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 14:45:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 966973CF66C;
+	Tue,  3 Mar 2026 14:57:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772549102; cv=none; b=euWUjse3mmG/IRkVrKaPxcpiNS64AxPfP8SYpBHsQP38iQymI2INVQwmiiNBuM2CvvivJuURAjsHd+mNLNrxO7xMmcrucbVa7gkSequ+TYmEWnX8C8ab2efVs55MGOlKgCFoi+PKBOvzkQkdYChKZ2oGPDBik1hP2xj7M6hmlSU=
+	t=1772549843; cv=none; b=WeUUpPsXhheOBcodhGLf2uzbBiz6yHHUqgYc+w9Wf4rYcsC6MYSyG4XQpxiJOMf22VE7HejdLXTgSlKarM4kM1ryGXvppDq4m0bs9auLq0bJi+JvSif4ER4hBJ1sklYGOdwJS4IcTt58Fc2cmlFka4Bcb54x99+RwPD5ZpcXVaw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772549102; c=relaxed/simple;
-	bh=et+NHrUN6S65x0cES6jWebxf6MM1u7PmMvpuO/NJb1s=;
+	s=arc-20240116; t=1772549843; c=relaxed/simple;
+	bh=ZZ+qmiecneAZ4xQmAmygqxuLBiEj4PedcYMuL50QNXA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rG8sON0dHF6P4FJ2oiO6tAjcDdqAWl1Syrc6e2nDFC5UPo5vhvFinOtQzZNLiXs6CIGM6iYGUC88F6K8y7Vf7mQ+avBfRg2ZzULgq+abqboB5EryzHP9jzXn07uQF06JTmTsHAz3DkYyEFFD2W9GRcVO4XfSVleInkNbLle2A9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fT/o2jy+; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=TaRh+qw8loo8nm2kON7wrZVofUztnU8WcW35drJpAcAi2NCGfVtYVEFal0Qi2ybNEPFlPyUI36t8aocDfaEoOn+5jRwQ93uM9l327Mm0VqxkHGvPFX9xMzZ262Y2rn5MudDHtNhOdCLk+AVDggUX2s61iNT/8/o6VaOW2T6KRTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aj8aPiYm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fT/o2jy+"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-3598581ed7bso1003508a91.2
-        for <virtualization@lists.linux.dev>; Tue, 03 Mar 2026 06:45:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772549101; x=1773153901; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=DJlXz4Gm3Iulh7PKjxbOyaJJ98URo0iEgHacDLY1vjg=;
-        b=fT/o2jy+dx8Vyixq4JULqGJSVRiNeq61frbC15Kr2U3p+bKIBNpQaWTltG28NyKa2f
-         xCprNFsl4bKlhyCs8uM2290+Ks8p9hIf4NnN8p0CDE5QHRrabFYEbuwqfgrIHZ2tByG0
-         J5ayhqWasauvENOtcaW090f7g27HOqrHRSh/MXCtu2QdkFBMfkY74VS7PFQ8+79/+mFS
-         CPq+tu/u+IgOMV6my2+hBDT71X4pBBln0+RzBSfIhuYqh4CUpRIRD9x/jEi5+3T8pFTX
-         gX7QPtpfRfLGASZmRztfYmHWJbzXnEgXLAf3O5D44L/GUUjhRpxygVzJ/5MJcEod9nnh
-         SfCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772549101; x=1773153901;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=DJlXz4Gm3Iulh7PKjxbOyaJJ98URo0iEgHacDLY1vjg=;
-        b=I7U9dmazhYXL6f8IQF8PFRyo2YVrLvuZ/EuAIAlgkDPDwypCXfsYgmCV0vJJxtXUPT
-         EzosG2beah6S3x7ho5d7sLjM6+vbWStZGC8NzwV7OiPcG6U9XKt01YYpLIiU52WH1w2A
-         P/BOY9ym079kgeTiMF/GxPOomDom++t7hVYMqggpbGQCd3Lt8dEat1invNb+SY4Wid+i
-         P0s+rlXXmg3U+fpO7dyJa57Hiyi2BvDsJDKrk0yW9uv9kkJN6/dCfFyvoY+BTS0lbKjG
-         DsPFb2oSB7+nNR3LeYYxgCpT5sEi3ltPAa9vnxzM+STNw8PxxJrMkxd3bXABf6hO7cHZ
-         EdYw==
-X-Forwarded-Encrypted: i=1; AJvYcCX63qHvtG9GHONYA3cbBPBGhe5E376Iyt+rEeaYFm2D6htSw0CkkOVTIVTYGjPHiGd0VjE5iK9PeekblhmrSw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YweBhv7b6mBTAmgEoGNqRHBP8vbXSyJsIV1S1ItDyieHQ65t8gK
-	Bli+GWLO/yUBWRBgNsY8/r3Dkf7dnjz9pHIIp0f35Or2fM/mPxDgjnOW
-X-Gm-Gg: ATEYQzzFXVs5BfTC2R7Tlczh71KnyOBSWDXAMLUBuuU0cOuC6Ex8wHIG78ssc+4k//u
-	UDjfRdiFDIi4WS1rZzxm1oainWaUnJgK4Bq84XV0s17o05xDKBQxElwxasrRvcmtay+mgwDpGFy
-	tHm+Cfu1Ze0VN3DdQ9a54m6QZoIJUyNl1Ij7Y8u4dLBgofrp7RxIYgm3aUwFUM56XfGUgBcT1Rj
-	GXr3L7J1oop/hN//EUX9bpYdaJ95E6yUKMDeJk8jceJcs6f5KDnXHuWNtnkGy5Rblk5mUyEWEHT
-	qSZIAR1sFZx9w3xbSs2RtJPW54dEmcipKdg9+Rq0XmwiZTrsDZPkRiH3uKGXs+MAmodeHOYuqEB
-	0eQuWV/h0w3vqpfpZAr7bP+ZLI9btSZ3WcyrGkFJshrQ7Trvs/I+MfgWXtMXV3yaCdnlNTXRtAe
-	FrNwfdeg9cKVgTXtfF5zpuvTxZt6aBPMrOwlYc5xRUPXdn+m0nwukR6gugjFR4qpEbq+6uUkxeK
-	GkTTA==
-X-Received: by 2002:a17:90b:51cc:b0:359:7906:d998 with SMTP id 98e67ed59e1d1-3597906df0bmr11388993a91.18.1772549100406;
-        Tue, 03 Mar 2026 06:45:00 -0800 (PST)
-Received: from ?IPV6:2001:ee0:4f0f:b1d0:3f07:f8d8:f49b:c576? ([2001:ee0:4f0f:b1d0:3f07:f8d8:f49b:c576])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2adfb6a03fbsm226689635ad.43.2026.03.03.06.44.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Mar 2026 06:45:00 -0800 (PST)
-Message-ID: <935c773d-e6d5-4445-b5e3-ed8daf60001c@gmail.com>
-Date: Tue, 3 Mar 2026 21:44:53 +0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aj8aPiYm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D16C7C116C6;
+	Tue,  3 Mar 2026 14:57:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772549843;
+	bh=ZZ+qmiecneAZ4xQmAmygqxuLBiEj4PedcYMuL50QNXA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=aj8aPiYmKukdRQi6O7Ps1KrQTuP9LNpCm0E+O1TzYfd/9YDeJBJH3G7GRSQVG5ewX
+	 vkRKhZgyakeaiEN9r/eN78cI/Souq4jGJ+Ui7URFynaSn4ycqasn4AxKMc4t1m8/cd
+	 kuNXW6vyuvyGwTVORsjgBDjHIE4A/+FxPKeliCuyGyjcWpXzJjUu8sK8obBw0Pod85
+	 wOyDHBrMnRgzHCGSI3vaJqSFEBHDv9NxjdXDx5LA7YHiuZZPaKRr7MpHGWX3vR/9x9
+	 fl7jkcGygkreaZlZo81cr7GCVlwZt33I7heip/fTmjlvqgk7pp1rIb6PuK0SA/MUzE
+	 EpRu1xyur2sEQ==
+Message-ID: <bd7214a6-fd17-4d8c-9849-5f1a55caa2bd@kernel.org>
+Date: Tue, 3 Mar 2026 15:57:14 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -69,131 +35,118 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2] virtio-net: xsk: Support wakeup on RX side
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <20260302164158.4394-1-minhquangbui99@gmail.com>
- <20260302135032-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v4 1/5] mm/page_reporting: add
+ PAGE_REPORTING_ORDER_UNSPECIFIED
+To: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>, mst@redhat.com
+Cc: kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org,
+ decui@microsoft.com, longli@microsoft.com, jasowang@redhat.com,
+ xuanzhuo@linux.alibaba.com, eperezma@redhat.com, akpm@linux-foundation.org,
+ lorenzo.stoakes@oracle.com, Liam.Howlett@oracle.com, vbabka@suse.cz,
+ rppt@kernel.org, surenb@google.com, mhocko@suse.com, jackmanb@google.com,
+ hannes@cmpxchg.org, ziy@nvidia.com, linux-hyperv@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-mm@kvack.org
+References: <20260303113032.3008371-1-yuvraj.sakshith@oss.qualcomm.com>
+ <20260303113032.3008371-2-yuvraj.sakshith@oss.qualcomm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
-From: Bui Quang Minh <minhquangbui99@gmail.com>
-In-Reply-To: <20260302135032-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260303113032.3008371-2-yuvraj.sakshith@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 3/3/26 01:53, Michael S. Tsirkin wrote:
-> On Mon, Mar 02, 2026 at 11:41:58PM +0700, Bui Quang Minh wrote:
->> When XDP_USE_NEED_WAKEUP is used and the fill ring is empty so no buffer
->> is allocated on RX side, allow RX NAPI to be descheduled. This avoids
->> wasting CPU cycles on polling. Users will be notified and they need to
->> make a wakeup call after refilling the ring.
->>
->> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
->> ---
->> Changes in v2:
->> - Fix the flag check in virtnet_xsk_wakeup
->> - Link to v1: https://lore.kernel.org/netdev/20260227150949.13089-1-minhquangbui99@gmail.com/
->> ---
->>   drivers/net/virtio_net.c | 35 +++++++++++++++++++++++++++--------
->>   1 file changed, 27 insertions(+), 8 deletions(-)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index db88dcaefb20..3614002fc87c 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -1454,8 +1454,19 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
->>   	xsk_buffs = rq->xsk_buffs;
->>   
->>   	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
->> -	if (!num)
->> +	if (!num) {
->> +		if (xsk_uses_need_wakeup(pool)) {
->> +			xsk_set_rx_need_wakeup(pool);
->> +			/* Return 0 instead of -ENOMEM so that NAPI is
->> +			 * descheduled.
->> +			 */
->> +			return 0;
-> With this change, try_fill_recv() can return true even though zero RX
-> buffers were posted in need_wakeup mode, which contradicts its
-> documentation ("Returns false if we couldn't fill entirely (OOM)").
->
-> Methinks we need to at least update the comment near try_fill_recv.
+On 3/3/26 12:30, Yuvraj Sakshith wrote:
+> Drivers can pass order of pages to be reported while
+> registering itself. Today, this is a magic number, 0.
+> 
+> Label this with PAGE_REPORTING_ORDER_UNSPECIFIED and
+> check for it when the driver is being registered.
+> 
+> This macro will be used in relevant drivers next.
+> 
+> Signed-off-by: Yuvraj Sakshith <yuvraj.sakshith@oss.qualcomm.com>
+> ---
+>  include/linux/page_reporting.h | 1 +
+>  mm/page_reporting.c            | 3 ++-
+>  2 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
+> index fe648dfa3..d1886c657 100644
+> --- a/include/linux/page_reporting.h
+> +++ b/include/linux/page_reporting.h
+> @@ -7,6 +7,7 @@
+>  
+>  /* This value should always be a power of 2, see page_reporting_cycle() */
+>  #define PAGE_REPORTING_CAPACITY		32
+> +#define PAGE_REPORTING_ORDER_UNSPECIFIED	0
+>  
+>  struct page_reporting_dev_info {
+>  	/* function that alters pages to make them "reported" */
+> diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+> index e4c428e61..a97ee07cb 100644
+> --- a/mm/page_reporting.c
+> +++ b/mm/page_reporting.c
+> @@ -370,7 +370,8 @@ int page_reporting_register(struct page_reporting_dev_info *prdev)
+>  	 */
+>  
+>  	if (page_reporting_order == -1) {
+> -		if (prdev->order > 0 && prdev->order <= MAX_PAGE_ORDER)
+> +		if (prdev->order != PAGE_REPORTING_ORDER_UNSPECIFIED &&
+> +			prdev->order <= MAX_PAGE_ORDER)
 
-I'll update the comment of try_fill_recv function.
+Nit:
 
-Thanks,
-Quang Minh.
+	if (prdev->order != PAGE_REPORTING_ORDER_UNSPECIFIED &&
+	    prdev->order <= MAX_PAGE_ORDER)
 
->
->
->
->> +		}
->> +
->>   		return -ENOMEM;
->> +	} else {
->> +		xsk_clear_rx_need_wakeup(pool);
->> +	}
->>   
->>   	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
->>   
->> @@ -1588,20 +1599,19 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
->>   	return sent;
->>   }
->>   
->> -static void xsk_wakeup(struct send_queue *sq)
->> +static void xsk_wakeup(struct napi_struct *napi, struct virtqueue *vq)
->>   {
->> -	if (napi_if_scheduled_mark_missed(&sq->napi))
->> +	if (napi_if_scheduled_mark_missed(napi))
->>   		return;
->>   
->>   	local_bh_disable();
->> -	virtqueue_napi_schedule(&sq->napi, sq->vq);
->> +	virtqueue_napi_schedule(napi, vq);
->>   	local_bh_enable();
->>   }
->>   
->>   static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
->>   {
->>   	struct virtnet_info *vi = netdev_priv(dev);
->> -	struct send_queue *sq;
->>   
->>   	if (!netif_running(dev))
->>   		return -ENETDOWN;
->> @@ -1609,9 +1619,18 @@ static int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag)
->>   	if (qid >= vi->curr_queue_pairs)
->>   		return -EINVAL;
->>   
->> -	sq = &vi->sq[qid];
->> +	if (flag & XDP_WAKEUP_TX) {
->> +		struct send_queue *sq = &vi->sq[qid];
->> +
->> +		xsk_wakeup(&sq->napi, sq->vq);
->> +	}
->> +
->> +	if (flag & XDP_WAKEUP_RX) {
->> +		struct receive_queue *rq = &vi->rq[qid];
->> +
->> +		xsk_wakeup(&rq->napi, rq->vq);
->> +	}
->>   
->> -	xsk_wakeup(sq);
->>   	return 0;
->>   }
->>   
->> @@ -1623,7 +1642,7 @@ static void virtnet_xsk_completed(struct send_queue *sq, int num)
->>   	 * wakeup the tx napi to consume the xsk tx queue, because the tx
->>   	 * interrupt may not be triggered.
->>   	 */
->> -	xsk_wakeup(sq);
->> +	xsk_wakeup(&sq->napi, sq->vq);
->>   }
->>   
->>   static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
->> -- 
->> 2.43.0
+	    ^ aligned here
 
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+
+-- 
+Cheers,
+
+David
