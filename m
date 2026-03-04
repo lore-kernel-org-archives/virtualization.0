@@ -1,421 +1,181 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79ED03B4E9E
-	for <virtualization@lists.linux.dev>; Wed,  4 Mar 2026 17:26:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5628634D4EB
+	for <virtualization@lists.linux.dev>; Wed,  4 Mar 2026 17:59:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772645189; cv=none; b=GNeJEFhKdPxVVtqyoth6GkjqYQSsZNuOfk8hlp83uVd3WYK5CP8PSxgpNA0UfOBHUpsivHHFrCxVFw6LfRTGUw9kz7I/22amT7MXkwp/itJStDcp5j5KHf04amgH7y0B+8ni2Xv/LAsbtxHb2O6xWRthGDxoJFDv7NPzlQEdp3s=
+	t=1772647148; cv=none; b=qbWMXy7tKBbNvtYazFipUu1aRG4q7FLddU14p9KZyBJoYqpW0YNfCSsAdaAYXN1l9F/zj4mFi2mHoks/ka4n0R8V7frDbv1zHtYF/2nJpWktsVIk+5QfoIsG0YHFmQyfrQe8tz8S8xe/Rtv/AIMsznvYZG5VzcQpXPh4T4a1iZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772645189; c=relaxed/simple;
-	bh=wxfzCjlPbqtpzxBhJEG0z4XAx/4LsMgepxfFOOGEjkQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=awHqL5ZFEX5g1qP5xB16sfAulZc4BMt24Qf+Yptt0SzKcm1VmWEKqlQsvGppUwkf2K/JLpcIMErwH86gbzebnTG4zjFvkMBQdMm2QbEes2VsVP+FBsyLarjs8CFya5YNo+vL3bSmFIi0OHfmzQ40LpQQHoZvRnIWL+XzFzMXqKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=d0Hap17k; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1772647148; c=relaxed/simple;
+	bh=/CV0BOByGYSuzWxUSGsbDoPh7GMERLO9A3GhGMQraAA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TUX4RX27KNln7MxRSKPBr/ICIvQiyePjRYjbmpxfZU5Td19VtNTtlvf6NoZlvEolNng7nsMkVzy8TMW04FhwnzlBCHLObIbrRPBh41gvZGNzLCWZ3wapnKsie2F2LOEdiGPM8+Cs08oDJi1bgnf6qpdeNuJJa1ZnAhRrpjiq4m8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TfFFDlt+; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d0Hap17k"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772645183;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=85kgFNh7a8akSjl1hmjKjQyP7rsitUvp+G+d7OlEtL4=;
-	b=d0Hap17kBjddFbYgQqUnrwSmdDVUsDwq74bb4sZuMR+6NM+Y4rP8+hLRjhQ3Cio0LXxDJX
-	3F0zEld7Pq35ohl+Q+I4w77M17Jf9pl5Pdg9VzP0a2RnZDKMaYiARasAAXNYjV0xdjiWZj
-	ryceQYfrI8wAAOrVAiO8ggi3U49UeLE=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-627-75zQ5VQaPjijiSW6UBaZSQ-1; Wed, 04 Mar 2026 12:26:22 -0500
-X-MC-Unique: 75zQ5VQaPjijiSW6UBaZSQ-1
-X-Mimecast-MFC-AGG-ID: 75zQ5VQaPjijiSW6UBaZSQ_1772645181
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-439ae2cba40so3041886f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 04 Mar 2026 09:26:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772645181; x=1773249981;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=85kgFNh7a8akSjl1hmjKjQyP7rsitUvp+G+d7OlEtL4=;
-        b=hJZIQdm5OCoyzPkOlITbXakmpz7j+wnCyS/kxHh2iuovRvSwPntA6x+rUmDcFqid3S
-         9/+JIFfMVgwPYGN2i3jUAlDzDdRqYK6bt3MM/mUe9XnEWpXF7Vx30zfmXokNh2ZxoQxJ
-         IpiHMqnck0ZuvFWUUwGzVA3mYxLGSZxFe3KWXGESd0HuRJSViCfzVfbFasHI5Ob3VNoZ
-         QPrhEIGNUQTSpYbMrTSUIXwSUlm829O6ihkFkkPhUyp7XxYUCt5rS/WKWkC+qDVhYCV1
-         9UrtDLUBku0GLrZkdgTs4qQ43OxDHeUxGhX8mOZp1wm8CeFdM+0NdBzoD7fcL223DLEM
-         GkBA==
-X-Gm-Message-State: AOJu0YzrFZ7LYcQvcooy70P1GXCq78IcBxBUF4DX8kbpxGub8Z9aYsxa
-	w0X0NsYW/TDL4sXztNjockdHQnIR75VzLevcfpCENkGB6yGvT8jhPqeHHymDP1FydRpJ2j8nT6p
-	YRLad/vX4KyFb/EGjk+jB0NwcP8jI9O6H+ouQ5AVAtti7hR3TBl5PiwK/QHBYM+4D7HZj
-X-Gm-Gg: ATEYQzyiOTDLrkmCyqj+iPb9x12MZeBH7IZBjxzd8gSj+LagjaGxbBqLvzCbTOfZ0rA
-	JArwd9H30vWdhk+TWKDeY4iYIZNr1d8nDkw2o/a1oOe4zvtAvTG47Kz36xDQUQVvB/cdT9jmKuj
-	qdNfUJH7BIyjSiAdMjrLr+7/Hb5+na6iODJdNX/iOAwpk1Pb1H1ec+4ON7o/HN1F1/rvq58JsVn
-	hukNAaS2JuhDS3VXu/l36mc/7Hez4/Xh4p/zZRys4AFpyTj8cbVuuahEPSlYfWS4ZC+ls0am/RX
-	/sK4XxCWRAvEXO+EWDu/cmVK+1yvAwZCwG1R/ZlDjah3jroaGsY37mv2y7r/8O9i4xnFjE4/A0Z
-	CaWO16bGoV/TUiiCdOfAZbvmpmYFCNBbRg13dTJQEtA63HxSKSP1JNmyr+Cyc+d9Bi0Qc7zs=
-X-Received: by 2002:a05:6000:1a87:b0:439:c6d9:7fc with SMTP id ffacd0b85a97d-439c7fc619bmr5459657f8f.25.1772645180640;
-        Wed, 04 Mar 2026 09:26:20 -0800 (PST)
-X-Received: by 2002:a05:6000:1a87:b0:439:c6d9:7fc with SMTP id ffacd0b85a97d-439c7fc619bmr5459580f8f.25.1772645180001;
-        Wed, 04 Mar 2026 09:26:20 -0800 (PST)
-Received: from sgarzare-redhat (host-82-53-134-58.retail.telecomitalia.it. [82.53.134.58])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439b59723fesm26176557f8f.38.2026.03.04.09.26.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Mar 2026 09:26:19 -0800 (PST)
-Date: Wed, 4 Mar 2026 18:26:16 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Alexander Graf <graf@amazon.com>, mst@redhat.com, pabeni@redhat.com, 
-	kuba@kernel.org
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, kvm@vger.kernel.org, eperezma@redhat.com, 
-	Jason Wang <jasowang@redhat.com>, mst@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>, 
-	bcm-kernel-feedback-list@broadcom.com, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jonathan Corbet <corbet@lwn.net>, 
-	Bryan Tan <bryan-bt.tan@broadcom.com>, Vishnu Dasa <vishnu.dasa@broadcom.com>, 
-	nh-open-source@amazon.com, syzbot@syzkaller.appspotmail.com
-Subject: Re: [PATCH v3] vsock: add G2H fallback for CIDs not owned by H2G
- transport
-Message-ID: <aahRzq5vS76rPI28@sgarzare-redhat>
-References: <20260303214329.71711-1-graf@amazon.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TfFFDlt+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1772647147; x=1804183147;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=/CV0BOByGYSuzWxUSGsbDoPh7GMERLO9A3GhGMQraAA=;
+  b=TfFFDlt+ktPtJPYbnHQAIXQ84kp2yY2hS/HiCzyulJjsBQg45nM90WDl
+   Z015yoiq2g0jGw3+Ny1e/rROus99L/u7CftrvLuMWjU3DRGjQ+fq6H7ln
+   x0owd7dmqU3557I3TqNa8whIEzU+jcPh9t1GaEFAnBNIDEw3Vm7wJiHDa
+   pSRMl8YFc8oxVvUoSG/5W041iH+636zpMqwuFoyXte2HuMUwFzLGJQVmR
+   cXcYtgyAF8ey7WjIaATod0byIm+zgxI/uRNE6Vd9WLciYQZDgJ3WBUMmE
+   0Yfg7hGVr0Y2Sd/faN9vRm7A0HHYYBIfDoP9AX07o8MnElA3kWZ5ngo6B
+   A==;
+X-CSE-ConnectionGUID: OJcm9KBSSnatV7erXGzz2w==
+X-CSE-MsgGUID: 8k/eHhZqSxaYPZi8D9jTbg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11719"; a="73787454"
+X-IronPort-AV: E=Sophos;i="6.21,324,1763452800"; 
+   d="scan'208";a="73787454"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Mar 2026 09:59:07 -0800
+X-CSE-ConnectionGUID: 4TQsiUvKR6SROeOWGs/bKg==
+X-CSE-MsgGUID: m6KG54ICSbu6tHecqNx0sQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,324,1763452800"; 
+   d="scan'208";a="214537504"
+Received: from aschende-mobl.amr.corp.intel.com (HELO [10.125.108.205]) ([10.125.108.205])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Mar 2026 09:59:05 -0800
+Message-ID: <7dc30fbf-17c0-47db-8457-24b531cd0071@intel.com>
+Date: Wed, 4 Mar 2026 09:59:11 -0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260303214329.71711-1-graf@amazon.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: GNeyTa-8JBNFHRyHU1TXMPsROLGH2xCQotPd2DpxPF0_1772645181
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 2/2] x86/tlb: skip redundant sync IPIs for native TLB
+ flush
+To: Lance Yang <lance.yang@linux.dev>, akpm@linux-foundation.org
+Cc: peterz@infradead.org, david@kernel.org, dave.hansen@linux.intel.com,
+ ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
+ mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
+ arnd@arndb.de, lorenzo.stoakes@oracle.com, ziy@nvidia.com,
+ baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
+ ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
+ shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
+ seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, ioworker0@gmail.com
+References: <20260304021046.18550-1-lance.yang@linux.dev>
+ <20260304021046.18550-3-lance.yang@linux.dev>
+Content-Language: en-US
+From: Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20260304021046.18550-3-lance.yang@linux.dev>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
+On 3/3/26 18:10, Lance Yang wrote:
+...
+> +	if (pv_ops.mmu.flush_tlb_multi == native_flush_tlb_multi &&
+> +	    !cpu_feature_enabled(X86_FEATURE_INVLPGB)) {
+> +		pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast = true;
+> +		static_branch_enable(&tlb_ipi_broadcast_key);
+> +	}
+> +}
+...
+> +#ifndef CONFIG_PARAVIRT
+> +void __init native_pv_tlb_init(void)
+> +{
+> +	/*
+> +	 * For non-PARAVIRT builds, check if native TLB flush sends real IPIs
+> +	 * (i.e., not using INVLPGB broadcast invalidation).
+> +	 */
+> +	if (!cpu_feature_enabled(X86_FEATURE_INVLPGB))
+> +		static_branch_enable(&tlb_ipi_broadcast_key);
+> +}
+> +#endif
 
-nit: `net-next` tag...
+I really despise duplicated logic. The X86_FEATURE_INVLPGB check is
+small, but it is duplicated. You're also setting the static branch in a
+*bunch* of different places.
 
-On Tue, Mar 03, 2026 at 09:43:29PM +0000, Alexander Graf wrote:
->When no H2G transport is loaded, vsock currently routes all CIDs to the
->G2H transport (commit 65b422d9b61b, "vsock: forward all packets to the
->host when no H2G is registered"). Extend that existing behavior: when
->an H2G transport is loaded but does not claim a given CID, the
->connection falls back to G2H in the same way.
->
->This matters in environments like Nitro Enclaves, where an instance may
->run nested VMs via vhost-vsock (H2G) while also needing to reach sibling
->enclaves at higher CIDs through virtio-vsock-pci (G2H). With the old
->code, any CID > 2 was unconditionally routed to H2G when vhost was
->loaded, making those enclaves unreachable without setting
->VMADDR_FLAG_TO_HOST explicitly on every connect.
->
->Requiring every application to set VMADDR_FLAG_TO_HOST creates friction:
->tools like socat, iperf, and others would all need to learn about it.
->The flag was introduced 6 years ago and I am still not aware of any tool
->that supports it. Even if there was support, it would be cumbersome to
->use. The most natural experience is a single CID address space where H2G
->only wins for CIDs it actually owns, and everything else falls through to
->G2H, extending the behavior that already exists when H2G is absent.
->
->To give user space at least a hint that the kernel applied this logic,
->automatically set the VMADDR_FLAG_TO_HOST on the remote address so it
->can determine the path taken via getpeername().
->
->Add a per-network namespace sysctl net.vsock.g2h_fallback (default 1).
->At 0 it forces strict routing: H2G always wins for CID > VMADDR_CID_HOST,
->or ENODEV if H2G is not loaded.
->
->Signed-off-by: Alexander Graf <graf@amazon.com>
->Tested-by: syzbot@syzkaller.appspotmail.com
->
->---
->
->v1 -> v2:
->
->  - Rebase on 7.0, include namespace support
->  - Add net.vsock.g2h_fallback sysctl
->  - Rework description
->  - Set VMADDR_FLAG_TO_HOST automatically
->  - Add VMCI support
->  - Update vsock_assign_transport() comment
->
->v2 -> v3:
->
->  - Use has_remote_cid() on G2H transport to gate the fallback. This is
->    used by VMCI to indicate that it never takes G2H CIDs > 2.
->  - Move g2h_fallback into struct netns_vsock to enable namespaces
->    and fix syzbot warning
->  - Gate the !transport_h2g case on g2h_fallback as well, folding the
->    pre-existing no-H2G fallback into the new logic
->  - Remove has_remote_cid() from VMCI again. Instead implement it in
->    virtio.
->---
-> Documentation/admin-guide/sysctl/net.rst | 28 +++++++++++++++++++
-> drivers/vhost/vsock.c                    | 13 +++++++++
-> include/net/af_vsock.h                   |  9 +++++++
-> include/net/netns/vsock.h                |  2 ++
-> net/vmw_vsock/af_vsock.c                 | 34 ++++++++++++++++++++----
-> net/vmw_vsock/virtio_transport.c         |  7 +++++
-> 6 files changed, 88 insertions(+), 5 deletions(-)
+Can this be arranged so that the PV code just tells the core code that
+it is compatible with flush_tlb_multi_implies_ipi_broadcast?
 
-Checkpatch reports something:
+void __init bool is_pv_ok(void)
+{
+	/* This check is super sketchy an unexplained: */
+	if (pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast)
+		return true;
 
-     $ ./scripts/checkpatch.pl --strict -g master..HEAD --codespell
-     ERROR: Please use git commit description style 'commit <12+ chars of sha1> ("<title line>")' - ie: 'commit 65b422d9b61b ("vsock: forward all packets to the host when no H2G is registered")'
-     #9:
-     G2H transport (commit 65b422d9b61b, "vsock: forward all packets to the
+	if (pv_ops.mmu.flush_tlb_multi != native_flush_tlb_multi)
+		return false;
 
-     CHECK: Comparison to NULL could be written "vhost_vsock_get"
-     #131: FILE: drivers/vhost/vsock.c:101:
-     +	found = vhost_vsock_get(cid, net) != NULL;
+	pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast = true;
 
-     CHECK: Unbalanced braces around else statement
-     #186: FILE: net/vmw_vsock/af_vsock.c:600:
-     +		} else
+	return true;
+}
 
-     WARNING: The commit message has 'syzkaller', perhaps it also needs a 'Fixes:' tag?
+void __init tlb_init(void)
+{
+	if (!is_pv_ok())
+		return;
 
-     total: 1 errors, 1 warnings, 2 checks, 162 lines checked
+	if (cpu_feature_enabled(X86_FEATURE_INVLPGB))
+		return;
+		
+	static_branch_enable(&tlb_ipi_broadcast_key);
+}
 
-     NOTE: For some of the reported defects, checkpatch may be able to
-           mechanically convert to the typical style using --fix or --fix-inplace.
+Isn't that like a billion times more readable? It has one
+X86_FEATURE_INVLPGB check and one static_branch_enable() point and no
+#ifdeffery other than defining a stub is_pv_ok().
 
-     Commit 728a7b66be31 ("vsock: add G2H fallback for CIDs not owned by H2G transport") has style problems, please review.
-
-     NOTE: If any of the errors are false positives, please report
-           them to the maintainer, see CHECKPATCH in MAINTAINERS.
-
-
-Not strong opinion on them, maybe the ERROR one fixed could help some
-tools.
-
-Also from https://patchwork.kernel.org/project/netdevbpf/patch/20260303214329.71711-1-graf@amazon.com/
-it seems several maintainers (especially from net) are missing.
-
->
->diff --git a/Documentation/admin-guide/sysctl/net.rst b/Documentation/admin-guide/sysctl/net.rst
->index 3b2ad61995d4..98b9eaa9cb9e 100644
->--- a/Documentation/admin-guide/sysctl/net.rst
->+++ b/Documentation/admin-guide/sysctl/net.rst
->@@ -602,3 +602,31 @@ it does not modify the current namespace or any existing children.
->
-> A namespace with ``ns_mode`` set to ``local`` cannot change
-> ``child_ns_mode`` to ``global`` (returns ``-EPERM``).
->+
->+g2h_fallback
->+------------
->+
->+Controls whether connections to CIDs not owned by the host-to-guest (H2G)
->+transport automatically fall back to the guest-to-host (G2H) transport.
->+
->+When enabled, if a connect targets a CID that the H2G transport (e.g.
->+vhost-vsock) does not serve, or if no H2G transport is loaded at all, the
->+connection is routed via the G2H transport (e.g. virtio-vsock) instead. This
->+allows a host running both nested VMs (via vhost-vsock) and sibling VMs
->+reachable through the hypervisor (e.g. Nitro Enclaves) to address both using
->+a single CID space, without requiring applications to set
->+``VMADDR_FLAG_TO_HOST``.
->+
->+When the fallback is taken, ``VMADDR_FLAG_TO_HOST`` is automatically set on
->+the remote address so that userspace can determine the path via
->+``getpeername()``.
->+
->+Note: With this sysctl enabled, user space that attempts to talk to a guest
->+CID which is not implemented by vhost will create host vsock traffic.
-
-nit: IMO we should avoid to use `vhost` here but be a bit more generic
-using H2G.
-
->+Environments that rely on H2G-only isolation should set it to 0.
->+
->+Values:
->+
->+	- 0 - Connections to CIDs <= 2 or with VMADDR_FLAG_TO_HOST use G2H;
->+	  all others use H2G (or fail with ENODEV if H2G is not loaded).
->+	- 1 - Connections to CIDs not owned by H2G fall back to G2H. (default)
->diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->index 054f7a718f50..319e3a690108 100644
->--- a/drivers/vhost/vsock.c
->+++ b/drivers/vhost/vsock.c
->@@ -91,6 +91,18 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid, struct net *net)
-> 	return NULL;
-> }
->
->+static bool vhost_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
->+{
->+	struct sock *sk = sk_vsock(vsk);
->+	struct net *net = sock_net(sk);
->+	bool found;
->+
->+	rcu_read_lock();
->+	found = vhost_vsock_get(cid, net) != NULL;
->+	rcu_read_unlock();
->+	return found;
->+}
->+
-> static void
-> vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
-> 			    struct vhost_virtqueue *vq)
->@@ -424,6 +436,7 @@ static struct virtio_transport vhost_transport = {
-> 		.module                   = THIS_MODULE,
->
-> 		.get_local_cid            = vhost_transport_get_local_cid,
->+		.has_remote_cid           = vhost_transport_has_remote_cid,
->
-> 		.init                     = virtio_transport_do_socket_init,
-> 		.destruct                 = virtio_transport_destruct,
->diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->index 533d8e75f7bb..4e40063adab4 100644
->--- a/include/net/af_vsock.h
->+++ b/include/net/af_vsock.h
->@@ -179,6 +179,15 @@ struct vsock_transport {
-> 	/* Addressing. */
-> 	u32 (*get_local_cid)(void);
->
->+	/* Check if this transport serves a specific remote CID.
->+	 * For H2G transports: return true if the CID belongs to a registered
->+	 * guest. If not implemented, all CIDs > VMADDR_CID_HOST go to H2G.
->+	 * For G2H transports: return true if the transport can reach arbitrary
->+	 * CIDs via the hypervisor (i.e. supports the fallback overlay). VMCI
->+	 * does not implement this as it only serves CIDs 0 and 2.
->+	 */
->+	bool (*has_remote_cid)(struct vsock_sock *vsk, u32 remote_cid);
->+
-> 	/* Read a single skb */
-> 	int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
->
->diff --git a/include/net/netns/vsock.h b/include/net/netns/vsock.h
->index dc8cbe45f406..7f84aad92f57 100644
->--- a/include/net/netns/vsock.h
->+++ b/include/net/netns/vsock.h
->@@ -20,5 +20,7 @@ struct netns_vsock {
->
-> 	/* 0 = unlocked, 1 = locked to global, 2 = locked to local */
-> 	int child_ns_mode_locked;
->+
->+	int g2h_fallback;
-> };
-> #endif /* __NET_NET_NAMESPACE_VSOCK_H */
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 2f7d94d682cb..0cdc3df9b63c 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -545,9 +545,13 @@ static void vsock_deassign_transport(struct vsock_sock *vsk)
->  * The vsk->remote_addr is used to decide which transport to use:
->  *  - remote CID == VMADDR_CID_LOCAL or g2h->local_cid or VMADDR_CID_HOST if
->  *    g2h is not loaded, will use local transport;
->- *  - remote CID <= VMADDR_CID_HOST or h2g is not loaded or remote flags field
->- *    includes VMADDR_FLAG_TO_HOST flag value, will use guest->host transport;
->- *  - remote CID > VMADDR_CID_HOST will use host->guest transport;
->+ *  - remote CID <= VMADDR_CID_HOST or remote flags field includes
->+ *    VMADDR_FLAG_TO_HOST, will use guest->host transport;
->+ *  - remote CID > VMADDR_CID_HOST and h2g is loaded and h2g claims that CID,
->+ *    will use host->guest transport;
->+ *  - h2g not loaded or h2g does not claim that CID and g2h claims the CID via
->+ *    has_remote_cid, will use guest->host transport (when g2h_fallback=1)
->+ *  - anything else goes to h2g or returns -ENODEV if no h2g is available
->  */
-> int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
-> {
->@@ -581,10 +585,19 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
-> 	case SOCK_SEQPACKET:
-> 		if (vsock_use_local_transport(remote_cid))
-> 			new_transport = transport_local;
->-		else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g ||
->+		else if (remote_cid <= VMADDR_CID_HOST ||
-> 			 (remote_flags & VMADDR_FLAG_TO_HOST))
-> 			new_transport = transport_g2h;
->-		else
->+		else if (transport_h2g &&
->+			 (!transport_h2g->has_remote_cid ||
->+			  transport_h2g->has_remote_cid(vsk, remote_cid)))
->+			new_transport = transport_h2g;
->+		else if (sock_net(sk)->vsock.g2h_fallback &&
->+			 transport_g2h && transport_g2h->has_remote_cid &&
->+			 transport_g2h->has_remote_cid(vsk, remote_cid)) {
->+			vsk->remote_addr.svm_flags |= VMADDR_FLAG_TO_HOST;
->+			new_transport = transport_g2h;
->+		} else
-> 			new_transport = transport_h2g;
-> 		break;
-> 	default:
->@@ -2879,6 +2892,15 @@ static struct ctl_table vsock_table[] = {
-> 		.mode		= 0644,
-> 		.proc_handler	= vsock_net_child_mode_string
-> 	},
->+	{
->+		.procname	= "g2h_fallback",
->+		.data		= &init_net.vsock.g2h_fallback,
->+		.maxlen		= sizeof(int),
->+		.mode		= 0644,
->+		.proc_handler	= proc_dointvec_minmax,
->+		.extra1		= SYSCTL_ZERO,
->+		.extra2		= SYSCTL_ONE,
->+	},
-> };
->
-> static int __net_init vsock_sysctl_register(struct net *net)
->@@ -2894,6 +2916,7 @@ static int __net_init vsock_sysctl_register(struct net *net)
->
-> 		table[0].data = &net->vsock.mode;
-> 		table[1].data = &net->vsock.child_ns_mode;
->+		table[2].data = &net->vsock.g2h_fallback;
-> 	}
->
-> 	net->vsock.sysctl_hdr = register_net_sysctl_sz(net, "net/vsock", table,
->@@ -2928,6 +2951,7 @@ static void vsock_net_init(struct net *net)
-> 		net->vsock.mode = vsock_net_child_mode(current->nsproxy->net_ns);
->
-> 	net->vsock.child_ns_mode = net->vsock.mode;
->+	net->vsock.g2h_fallback = 1;
-
-@Michael @Paolo @Jakub
-I don't know what the sysctl policy is in general in net or virtio.
-Is this fine or should we inherit this from the parent and set the
-default only for init_ns?
-
-The rest LGTM.
-
-Thanks,
-Stefano
-
-> }
->
-> static __net_init int vsock_sysctl_init_net(struct net *net)
->diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->index 77fe5b7b066c..57f2d6ec3ffc 100644
->--- a/net/vmw_vsock/virtio_transport.c
->+++ b/net/vmw_vsock/virtio_transport.c
->@@ -547,11 +547,18 @@ bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
-> static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk,
-> 					     u32 remote_cid);
->
->+static bool virtio_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
->+{
->+	/* The CID could be implemented by the host. Always assume it is. */
->+	return true;
->+}
->+
-> static struct virtio_transport virtio_transport = {
-> 	.transport = {
-> 		.module                   = THIS_MODULE,
->
-> 		.get_local_cid            = virtio_transport_get_local_cid,
->+		.has_remote_cid           = virtio_transport_has_remote_cid,
->
-> 		.init                     = virtio_transport_do_socket_init,
-> 		.destruct                 = virtio_transport_destruct,
->-- 
->2.47.1
->
->
->
->
->Amazon Web Services Development Center Germany GmbH
->Tamara-Danz-Str. 13
->10243 Berlin
->Geschaeftsfuehrung: Christof Hellmis, Andreas Stieger
->Eingetragen am Amtsgericht Charlottenburg unter HRB 257764 B
->Sitz: Berlin
->Ust-ID: DE 365 538 597
->
->
-
+BTW, why is there even an early return for the case where
+flush_tlb_multi_implies_ipi_broadcast is already set? Isn't this
+decision made once on the boot CPU and then never touched again? Do any
+PV instances actually set the bit?
