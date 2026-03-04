@@ -1,164 +1,421 @@
-Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2854B366DB0
-	for <virtualization@lists.linux.dev>; Wed,  4 Mar 2026 03:35:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 770B5327C13
+	for <virtualization@lists.linux.dev>; Wed,  4 Mar 2026 05:52:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772595310; cv=none; b=cI/9UYseQ/mROYvBREHlTnSu4/tcIhwNfk7tzBNit1EyhZNfpB7wRHgKim9QDP7ImtAY45Oe3eaoFn0OWoE2Y+oUuyRExh6HQ5Gxc8M/iO1vy3Tedrwc2Eb7RAjgcLCCXBY1IuYoLx/NGrrXDnDdQTKCctX7vCs1T8HB/zAceSc=
+	t=1772603538; cv=none; b=YgCNJnNQQ/8LQLRvfnFTGaaCCFY80+Ein2o0puyWjDY9NI0WhQZ6mUH/PwbzxcAI9N7zzRtDbsD/O/3k3SmQARnC0a7vUEpuF3wVaBe16QzyQ53LMPPJ+T6OxaJ8+onAE/Ev7UkYAxurLONu3VoqZjpkglCuGEcdWuoL6JVOJ1Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772595310; c=relaxed/simple;
-	bh=XLiJ2nD8DJIVsSYbftRzQJ/qqbqmFgul82tptWrTWOA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FLYgtUtzgQw/Cy6q3zLT5Q8xAcePEW+vJ0VwrnJwlqgD+zdGma6Ov6s+6otTpNvAuE9U6XbzTsiCSKSLnsmVPw+sb4OstljY9QZgnxjLWPuOK6SbbO5j86SyRVHfyYR95v0KX23Y3vqaBlyvPNRkGSI7sn2EI4pCbbe9PyhJ79o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=QHE4RM62; arc=none smtp.client-ip=209.85.210.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1772603538; c=relaxed/simple;
+	bh=FAZ5w62IEfZLoy2/FFNOfug77S1eAM7B8tmSGFLONmw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nWTOgWrM/j70EocoKFu1j3KT/WJH+hbmPGzSfekLmt5kdXX1yGTOJH1P2VDrTJzWuozj65UTg+Bv4uSE8uewslFlS2+uhOX91mZby/7ykGX28Ib6FjjronqdYS6ZSNym0Kp0YHo5gRRkPfrmN2/xRpiEhI5Pg3wACHQgYS90CjY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=itaNyn4R; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="QHE4RM62"
-Received: by mail-ot1-f42.google.com with SMTP id 46e09a7af769-7d4c383f2fcso4377079a34.0
-        for <virtualization@lists.linux.dev>; Tue, 03 Mar 2026 19:35:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1772595307; x=1773200107; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=NrE0zI+7ilR1NedBJHHio8t27882PDymrHrpls6UPoo=;
-        b=QHE4RM62ShmC9lkYBjI9BTR61WUA9T4Vs0ivgp/Wt9OxDzDmewU11m8TnHYRqeKNik
-         qTU3GSlU+AOMYC6oZoW1fwF/WSipxsmrzao959qmDvz3IrjtLyP8C9NfKOSEnuvAGdIA
-         PF8UhVYUZQoMy/RSmrgeZHYmkxqghuzD7bc3hAtlqgz3+QwYcvwogaIr3j8U0BktD89/
-         NccLyWS40wcykSXmvE5hyZ0yYpmm71Np4XoFq0dPZ+7DOB/4vJW7t2XiqLMGS075pLs8
-         RAzKhuriSCjvqOqd64AXiES81pF1x5KuNybaAyvnsVPRQAxs04zQFpPReNbYc641VK0Z
-         +31A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="itaNyn4R"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1772603535;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NnBWREkxyMd12W2Xs3U3MOTgXJ4tDspEjdFaS5YpAec=;
+	b=itaNyn4Rfeej6FKnljDiHOYgVePjCEKhMFaB6bYyvhzq9TPqLLgzaOa6LmjsLP0z9avkaz
+	TNr/KPU1UoqYVhVSKJMl9sagbGrQFtawAv4V0sXuzhkRYH1YQCvBk6ML8pjqVVXWIe2SeC
+	faSf9U17/Ua0CwOJtYtIimEuaVPkGWc=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-148-mb1FjDKaN2mlhs64UL56yA-1; Wed, 04 Mar 2026 00:52:14 -0500
+X-MC-Unique: mb1FjDKaN2mlhs64UL56yA-1
+X-Mimecast-MFC-AGG-ID: mb1FjDKaN2mlhs64UL56yA_1772603533
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-354c0234c1fso5340872a91.2
+        for <virtualization@lists.linux.dev>; Tue, 03 Mar 2026 21:52:13 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772595307; x=1773200107;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=NrE0zI+7ilR1NedBJHHio8t27882PDymrHrpls6UPoo=;
-        b=ez766WbGIEyCwrSFnkCHl0DJc6Qk5fSlzwSW4UpbWX7lmyeitFDvZRt05qUGe9r3nw
-         IAMR3KpuG1Acl0bvHtaYscThxJgLkU3tccxv4C4Wtrnmm8luTe6+wdSnYCIRdn0do+b+
-         QqcHmtk9Y7jqvJWVWhK3eO0o5HFfKzwftK98+2HOPOLTAwsBZPMgFd4jbCqPfEyzOJDD
-         xOOw42F0GAmK11SELv6GPqHZHKDnjGqtBGuaB7Wum0XhBREjHbAaY6hc5sVZfRr0ClUi
-         f8nywGmileDvRYv2sDBoqu3g5CLtF8HWQ/V/waBGtn7mAubkxIdBrsfTW27jdx3k1M2I
-         15AA==
-X-Forwarded-Encrypted: i=1; AJvYcCUY8+VRqzNX/Ent5Mw6Ji7iuP6W4ikqAFoZwxSlHAoz9OLX4mvkuIt9xsi0vvTRSly9D2acsCCd0VwrB8+sEw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzHtU8TuUDd04/6Nd3aMV+MKmWmtHv4a4pGsXFYVg6R+4rHMa0c
-	A4uuv1mxRLRvW1/ZiqBQ1TkM85+zReXmKBvXhbxIuEilQ8qXhKz21PDmwrQojTJOk34=
-X-Gm-Gg: ATEYQzw7BEFoXHbHK58yxCAWKjmDiWSc0YOuZtkzFzbvYkpcYbhTrpmNCJG/RxZ2IjD
-	huIBz5y0+t95+RF+W5qLCkdZFeYNX3csmtVPpiQ3KiFIvNC6Aulx+56P4Bvzx1MAq3NBO+RkR/H
-	fG4O0wKE3gcC5TYAZ4kKDbZa9G1BNblqQKHoBaWJiGCsOVHqwl5tD4fgVRCzn0ssvJ+hcEm44Ti
-	/hTvajWZMnARHOXc3KqDJluh/FFwZwWE9wbyPJkG0Qy3DAtLJ0HUBpIWXV4EGpBfoP6PfkE9iRo
-	DBEIbC37OHs+j3jly+ZiXaXZkPL4RLWijhY6kDJqcvASb07P8aP0N/A+cpUo5rOxboJxuIbUaRY
-	rzJAZT/qOCQZFRiXsOafdPqNFXPGAJ74PzAfoEwJHAM54fMUhhVOAh0gr75fn0P3ih/lEMWru0D
-	LjYVuMP4FON6fzblwj7nReYu0P0F/4g2qDj7pbqhRPnm/HQwUXtuNOBRMTJhVHJYF4OnivCfDhK
-	KGRveUxLw==
-X-Received: by 2002:a05:6830:6185:b0:7c7:6977:17cb with SMTP id 46e09a7af769-7d6d139f788mr450044a34.21.1772595307034;
-        Tue, 03 Mar 2026 19:35:07 -0800 (PST)
-Received: from [192.168.1.150] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7d586653f6asm15202012a34.19.2026.03.03.19.35.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Mar 2026 19:35:06 -0800 (PST)
-Message-ID: <e96e851a-9050-4d8c-b1e5-bc3b5d91a84c@kernel.dk>
-Date: Tue, 3 Mar 2026 20:35:01 -0700
+        d=1e100.net; s=20230601; t=1772603533; x=1773208333;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=NnBWREkxyMd12W2Xs3U3MOTgXJ4tDspEjdFaS5YpAec=;
+        b=lz6E0mV4QvjCcfF0DtE7WG6ABPxQLEec51sRieGPdbMzBQfVkYGM7KfBlhu4UT9ghd
+         OZoBGsDjVFWZp6YchZEfcKtLNz0uAIyjeEga9tCdM0fgnWqLxz+kCI1EbK2BC2anhaBM
+         jMQPVwd8VgWgDFTqvgdCjM6agIqTLcQ63QxAphhati+BJ3PptpqAAwqn7lYlCDP/p0ax
+         WVokRrEfZR29Ug+9W5en5enhRbmZeyssLu3RfVgPtlH9M+OEnvYFi4/KEuBn48SXGEzW
+         2JP5cw15PiiyDk6qi0Kqu+e6wIHMBjCGLAe1lgFJcU6VKXS44rsvjILsWP94CSrrUjZB
+         Vatw==
+X-Forwarded-Encrypted: i=1; AJvYcCWgMyuKl9MvQAZTyBoeDNzB1NClgKqFNZJklVJJiEtsYsp+2nR/iX7SeIKPVRSRhtxJJ5rIC32y7f7GQKTSlA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw1AdqDju+BfcBgAVOt2ygU05U65/wI1QRdgPFbAnvkUh8x6HvV
+	0J0gd9dUfIH4EqnXTaPfz1jW+2PZ5xPdH3dPyX2AgZrhqImq5ezJcyWKlvIEMx2hDPYa0hLI1y9
+	FgY+sbtRPspRrNf/9uS/m/VLmFY7yHGUiEChH86HJxdaBSdlvWPwAzAI+FkhGxT9UtF2HsRCERj
+	XKj3xYWp38kZbn0AYfIspGscd/s3ip9S4VxgEMGrCiFAk=
+X-Gm-Gg: ATEYQzzUgEGyj1vf3wTC/V3D8DupCJHwU3RzmX6YyJgRWfvRI3Fc3TrHucH/IQ4dFfn
+	c6OW9az4inKvdaamrb1JKWXeVULJpC311lfZ/bM/5qqx6C/c+0BCI0TznFIR3BT+dtNQnLHXqMC
+	rENSoeOtXhN+gVxbJGGQD1uCiNSrcvPI9FKQdWXpNI7uZqrO/nDkRppivxL49pHFW4SWVK0h04J
+	VeSVxY=
+X-Received: by 2002:a17:90a:c2cc:b0:358:d80e:3831 with SMTP id 98e67ed59e1d1-359a69a28bdmr1129149a91.3.1772603532800;
+        Tue, 03 Mar 2026 21:52:12 -0800 (PST)
+X-Received: by 2002:a17:90a:c2cc:b0:358:d80e:3831 with SMTP id
+ 98e67ed59e1d1-359a69a28bdmr1129119a91.3.1772603532302; Tue, 03 Mar 2026
+ 21:52:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/8] mm: globalize rest_of_page() macro
-To: Yury Norov <ynorov@nvidia.com>, Sean Christopherson <seanjc@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin"
- <mst@redhat.com>, Theodore Ts'o <tytso@mit.edu>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexander Duyck <alexanderduyck@fb.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Alexandra Winter <wintera@linux.ibm.com>,
- Andreas Dilger <adilger.kernel@dilger.ca>,
- Andrew Lunn <andrew+netdev@lunn.ch>, Anna Schumaker <anna@kernel.org>,
- Anton Yakovlev <anton.yakovlev@opensynergy.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Aswin Karuvally <aswin@linux.ibm.com>, Borislav Petkov <bp@alien8.de>,
- Carlos Maiolino <cem@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
- Chao Yu <chao@kernel.org>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Christian Brauner <brauner@kernel.org>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, David Airlie <airlied@gmail.com>,
- Dominique Martinet <asmadeus@codewreck.org>,
- Dongsheng Yang <dongsheng.yang@linux.dev>, Eric Dumazet
- <edumazet@google.com>, Eric Van Hensbergen <ericvh@kernel.org>,
- Heiko Carstens <hca@linux.ibm.com>, Herbert Xu
- <herbert@gondor.apana.org.au>, Ingo Molnar <mingo@redhat.com>,
- Jaegeuk Kim <jaegeuk@kernel.org>, Jani Nikula <jani.nikula@linux.intel.com>,
- Janosch Frank <frankja@linux.ibm.com>, Jaroslav Kysela <perex@perex.cz>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Latchesar Ionkov <lucho@ionkov.net>, Linus Walleij <linusw@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>, Mark Brown <broonie@kernel.org>,
- Michael Ellerman <mpe@ellerman.id.au>, Miklos Szeredi <miklos@szeredi.hu>,
- Namhyung Kim <namhyung@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Paolo Abeni <pabeni@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Paul Walmsley <pjw@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Simona Vetter <simona@ffwll.ch>,
- Takashi Iwai <tiwai@suse.com>, Thomas Gleixner <tglx@kernel.org>,
- Trond Myklebust <trondmy@kernel.org>, Tvrtko Ursulin <tursulin@ursulin.net>,
- Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
- Yury Norov <yury.norov@gmail.com>, Zheng Gu <cengku@gmail.com>,
- linux-kernel@vger.kernel.org, x86@kernel.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, kvm@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-block@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- dm-devel@lists.linux.dev, netdev@vger.kernel.org, linux-spi@vger.kernel.org,
- linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-fsdevel@vger.kernel.org, linux-xfs@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-crypto@vger.kernel.org, linux-mm@kvack.org,
- linux-perf-users@vger.kernel.org, v9fs@lists.linux.dev,
- virtualization@lists.linux.dev, linux-sound@vger.kernel.org
-References: <20260304012717.201797-1-ynorov@nvidia.com>
- <20260303182845.250bb2de@kernel.org>
- <f8d86743-6231-414d-a5e8-65e867123fea@kernel.dk>
- <aaedwFwXh9QXS3Ju@google.com> <aaen2pGs0UeiJqz1@yury>
-Content-Language: en-US
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <aaen2pGs0UeiJqz1@yury>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20260211120158.2501592-1-eperezma@redhat.com> <CACGkMEtizCT+4WUXaROEvnWgKoFVqv9iRfLk-3HduRnsKfthqQ@mail.gmail.com>
+ <CAJaqyWczXRDAWAtgR5Z2=A-ZRr=vWJw3Vm40VV0zTNjFCzECNg@mail.gmail.com>
+In-Reply-To: <CAJaqyWczXRDAWAtgR5Z2=A-ZRr=vWJw3Vm40VV0zTNjFCzECNg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 4 Mar 2026 13:52:00 +0800
+X-Gm-Features: AaiRm502LCX1HPBdV_wG_-NySxzMBCbjR4_mqDfjJJ3U4CKP1GWQkS0nP6-zyQc
+Message-ID: <CACGkMEvsTfamC+_-KXQ=eJWhvO0TztOo5jgX7eugCLGosVwCUQ@mail.gmail.com>
+Subject: Re: [PATCH] vduse: Add suspend
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	Laurent Vivier <lvivier@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Maxime Coquelin <mcoqueli@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: PHzkHS1tniT5DVyYIxSQg6PFCxfMcDOwqaodkwUwBrg_1772603533
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 3/3/26 8:32 PM, Yury Norov wrote:
-> My motivation is that it helps to simplify constructions like this:
-> 
-> -               loff_t cmp_len = min(PAGE_SIZE - offset_in_page(srcoff),
-> -                                    PAGE_SIZE - offset_in_page(dstoff));
-> +               loff_t cmp_len = min(rest_of_page(srcoff), rest_of_page(dstoff));
-> 
-> Or this:
-> 
-> -               if (folio_test_highmem(dst_folio) &&
-> -                   chunk > PAGE_SIZE - offset_in_page(dst_off))
-> -                       chunk = PAGE_SIZE - offset_in_page(dst_off);
-> -               if (folio_test_highmem(src_folio) &&
-> -                   chunk > PAGE_SIZE - offset_in_page(src_off))
-> -                       chunk = PAGE_SIZE - offset_in_page(src_off);
-> +               if (folio_test_highmem(dst_folio) && chunk > rest_of_page(dst_off))
-> +                       chunk = rest_of_page(dst_off);
-> +               if (folio_test_highmem(src_folio) && chunk > rest_of_page(src_off))
-> +                       chunk = rest_of_page(src_off);
-> 
-> To a point where I don't have to use my brains to decode them. I agree
-> it's an easy math. It's just too bulky to my (and 9p guys too) taste.
+On Tue, Mar 3, 2026 at 6:51=E2=80=AFPM Eugenio Perez Martin <eperezma@redha=
+t.com> wrote:
+>
+> On Tue, Mar 3, 2026 at 8:26=E2=80=AFAM Jason Wang <jasowang@redhat.com> w=
+rote:
+> >
+> > On Wed, Feb 11, 2026 at 8:02=E2=80=AFPM Eugenio P=C3=A9rez <eperezma@re=
+dhat.com> wrote:
+> > >
+> > > Implement suspend operation for vduse devices, so vhost-vdpa will off=
+er
+> > > that backend feature and userspace can effectively suspend the device=
+.
+> > >
+> > > This is a must before get virtqueue indexes (base) for live migration=
+,
+> > > since the device could modify them after userland gets them.
+> > >
+> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > ---
+> > > This series depends on
+> > > https://lore.kernel.org/lkml/20260210082554.1582553-1-eperezma@redhat=
+.com
+> > > ---
+> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 86 ++++++++++++++++++++++++++++=
++-
+> > >  include/uapi/linux/vduse.h         |  4 ++
+> > >  2 files changed, 88 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_u=
+ser/vduse_dev.c
+> > > index 59d9c4718d86..bdcc114e2710 100644
+> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > @@ -54,7 +54,8 @@
+> > >  #define IRQ_UNBOUND -1
+> > >
+> > >  /* Supported VDUSE features */
+> > > -static const uint64_t vduse_features =3D BIT_U64(VDUSE_F_QUEUE_READY=
+);
+> > > +static const uint64_t vduse_features =3D BIT_U64(VDUSE_F_QUEUE_READY=
+) |
+> > > +                                      BIT_U64(VDUSE_F_SUSPEND);
+> > >
+> > >  /*
+> > >   * VDUSE instance have not asked the vduse API version, so assume 0.
+> > > @@ -85,6 +86,7 @@ struct vduse_virtqueue {
+> > >         int irq_effective_cpu;
+> > >         struct cpumask irq_affinity;
+> > >         struct kobject kobj;
+> > > +       struct vduse_dev *dev;
+> > >  };
+> > >
+> > >  struct vduse_dev;
+> > > @@ -134,6 +136,7 @@ struct vduse_dev {
+> > >         int minor;
+> > >         bool broken;
+> > >         bool connected;
+> > > +       bool suspended;
+> > >         u64 api_version;
+> > >         u64 device_features;
+> > >         u64 driver_features;
+> > > @@ -480,6 +483,7 @@ static void vduse_dev_reset(struct vduse_dev *dev=
+)
+> > >
+> > >         down_write(&dev->rwsem);
+> > >
+> > > +       dev->suspended =3D false;
+> > >         dev->status =3D 0;
+> > >         dev->driver_features =3D 0;
+> > >         dev->generation++;
+> > > @@ -559,6 +563,10 @@ static void vduse_vdpa_kick_vq(struct vdpa_devic=
+e *vdpa, u16 idx)
+> > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > >         struct vduse_virtqueue *vq =3D dev->vqs[idx];
+> > >
+> > > +       guard(rwsem_read)(&vq->dev->rwsem);
+> > > +       if (vq->dev->suspended)
+> > > +               return;
+> > > +
+> > >         if (!eventfd_signal_allowed()) {
+> > >                 schedule_work(&vq->kick);
+> > >                 return;
+> > > @@ -896,6 +904,27 @@ static int vduse_vdpa_set_map(struct vdpa_device=
+ *vdpa,
+> > >         return 0;
+> > >  }
+> > >
+> > > +static int vduse_vdpa_suspend(struct vdpa_device *vdpa)
+> > > +{
+> > > +       struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > +       struct vduse_dev_msg msg =3D { 0 };
+> > > +       int ret;
+> > > +
+> > > +       msg.req.type =3D VDUSE_SUSPEND;
+> > > +
+> > > +       ret =3D vduse_dev_msg_sync(dev, &msg);
+> > > +       if (ret =3D=3D 0) {
+> > > +               scoped_guard(rwsem_write, &dev->rwsem)
+> > > +                       dev->suspended =3D true;
+> > > +
+> > > +               cancel_work_sync(&dev->inject);
+> > > +               for (u32 i =3D 0; i < dev->vq_num; i++)
+> > > +                       cancel_work_sync(&dev->vqs[i]->inject);
+> >
+> > Should we cancel those before msy sync?
+> >
+>
+> The only condition is that the driver must not see interrupts from the
+> moment the ioctl returns.
 
-The thing is, now I have to go lookup what on earth rest_of_page() does,
-whereas PAGE_SIZE - offset_in_page(page) is immediately obvious. It's a
-classic case of "oh let's add this helper to simplify things" which
-really just makes it worse, because now you have to jump to the
-definition of rest_of_page().
+I think you meant "vduse_vdpa_suspend returns" here.
 
-IOW, just no.
+>
+> Also, disabling it before the msg returns would add complexity because
+> it needs to be reenabled & call the driver if it falis. Or am I
+> missing something it adds?
 
--- 
-Jens Axboe
+I think not but I have another question:
+
+1) I don't see resume, any reason for that
+2) assuming we need to support resume, do we need to record pending
+interrupt otherwise we may lose interrupt after resuming
+
+>
+> TBH this is more of a hardening than something the VDUSE driver should
+> do. We could even move to the vdpa core.
+>
+> > > +       }
+> > > +
+> > > +       return ret;
+> > > +}
+> > > +
+> > >  static void vduse_vdpa_free(struct vdpa_device *vdpa)
+> > >  {
+> > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > @@ -937,6 +966,41 @@ static const struct vdpa_config_ops vduse_vdpa_c=
+onfig_ops =3D {
+> > >         .free                   =3D vduse_vdpa_free,
+> > >  };
+> > >
+> > > +static const struct vdpa_config_ops vduse_vdpa_config_ops_with_suspe=
+nd =3D {
+> > > +       .set_vq_address         =3D vduse_vdpa_set_vq_address,
+> > > +       .kick_vq                =3D vduse_vdpa_kick_vq,
+> > > +       .set_vq_cb              =3D vduse_vdpa_set_vq_cb,
+> > > +       .set_vq_num             =3D vduse_vdpa_set_vq_num,
+> > > +       .get_vq_size            =3D vduse_vdpa_get_vq_size,
+> > > +       .get_vq_group           =3D vduse_get_vq_group,
+> > > +       .set_vq_ready           =3D vduse_vdpa_set_vq_ready,
+> > > +       .get_vq_ready           =3D vduse_vdpa_get_vq_ready,
+> > > +       .set_vq_state           =3D vduse_vdpa_set_vq_state,
+> > > +       .get_vq_state           =3D vduse_vdpa_get_vq_state,
+> > > +       .get_vq_align           =3D vduse_vdpa_get_vq_align,
+> > > +       .get_device_features    =3D vduse_vdpa_get_device_features,
+> > > +       .set_driver_features    =3D vduse_vdpa_set_driver_features,
+> > > +       .get_driver_features    =3D vduse_vdpa_get_driver_features,
+> > > +       .set_config_cb          =3D vduse_vdpa_set_config_cb,
+> > > +       .get_vq_num_max         =3D vduse_vdpa_get_vq_num_max,
+> > > +       .get_device_id          =3D vduse_vdpa_get_device_id,
+> > > +       .get_vendor_id          =3D vduse_vdpa_get_vendor_id,
+> > > +       .get_status             =3D vduse_vdpa_get_status,
+> > > +       .set_status             =3D vduse_vdpa_set_status,
+> > > +       .get_config_size        =3D vduse_vdpa_get_config_size,
+> > > +       .get_config             =3D vduse_vdpa_get_config,
+> > > +       .set_config             =3D vduse_vdpa_set_config,
+> > > +       .get_generation         =3D vduse_vdpa_get_generation,
+> > > +       .set_vq_affinity        =3D vduse_vdpa_set_vq_affinity,
+> > > +       .get_vq_affinity        =3D vduse_vdpa_get_vq_affinity,
+> > > +       .reset                  =3D vduse_vdpa_reset,
+> > > +       .set_map                =3D vduse_vdpa_set_map,
+> > > +       .set_group_asid         =3D vduse_set_group_asid,
+> > > +       .get_vq_map             =3D vduse_get_vq_map,
+> > > +       .suspend                =3D vduse_vdpa_suspend,
+> >
+> > We can have a
+> >
+> > if (suspend_is_supported)
+> >         ...
+> >
+> > to avoid having a new set of config ops?
+> >
+>
+> It complicates the code of vhost_vdpa in my opinion.
+>
+> Currently, it is:
+> if (ops->suspend)
+
+Okay, I see the problem which is:
+
+static bool vhost_vdpa_can_suspend(const struct vhost_vdpa *v)
+{
+        struct vdpa_device *vdpa =3D v->vdpa;
+        const struct vdpa_config_ops *ops =3D vdpa->config;
+
+        return ops->suspend;
+}
+
+>
+> And that would move to something like:
+> if (ops->suspend) {
+>   if (ops->suspend_is_supported && !ops->suspend_is_supported(dev)) {
+>     return; // CANNOT SUSPEND
+>   }
+>
+>   ops->suspend(dev)
+> }
+>
+> Another option I considered is to follow mlx5's approach and have one
+> set of ops per device. But I think duplicating the vdpa_ops in the
+> data section is the cleanest approach. Let me know if you think we
+> should go with suspend_is_supported callback instead.
+
+I think there's no need then.
+
+>
+> > > +       .free                   =3D vduse_vdpa_free,
+> > > +};
+> > > +
+> > >  static void vduse_dev_sync_single_for_device(union virtio_map token,
+> > >                                              dma_addr_t dma_addr, siz=
+e_t size,
+> > >                                              enum dma_data_direction =
+dir)
+> > > @@ -1148,6 +1212,10 @@ static void vduse_dev_irq_inject(struct work_s=
+truct *work)
+> > >  {
+> > >         struct vduse_dev *dev =3D container_of(work, struct vduse_dev=
+, inject);
+> > >
+> > > +       guard(rwsem_read)(&dev->rwsem);
+> > > +       if (dev->suspended)
+> > > +               return;
+> >
+> > Device can still modify memory, so I wonder how much this can help.
+> >
+>
+> Do you prefer me to remove this guard?
+
+Nope, I misread the code, it should be fine.
+
+Thanks
+
+>
+> > > +
+> > >         spin_lock_bh(&dev->irq_lock);
+> > >         if (dev->config_cb.callback)
+> > >                 dev->config_cb.callback(dev->config_cb.private);
+> > > @@ -1159,6 +1227,10 @@ static void vduse_vq_irq_inject(struct work_st=
+ruct *work)
+> > >         struct vduse_virtqueue *vq =3D container_of(work,
+> > >                                         struct vduse_virtqueue, injec=
+t);
+> > >
+> > > +       guard(rwsem_read)(&vq->dev->rwsem);
+> > > +       if (vq->dev->suspended)
+> > > +               return;
+> > > +
+> > >         spin_lock_bh(&vq->irq_lock);
+> > >         if (vq->ready && vq->cb.callback)
+> > >                 vq->cb.callback(vq->cb.private);
+> > > @@ -1189,6 +1261,9 @@ static int vduse_dev_queue_irq_work(struct vdus=
+e_dev *dev,
+> > >         int ret =3D -EINVAL;
+> > >
+> > >         down_read(&dev->rwsem);
+> > > +       if (dev->suspended)
+> > > +               return ret;
+> > > +
+> > >         if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
+> > >                 goto unlock;
+> > >
+> > > @@ -1839,6 +1914,7 @@ static int vduse_dev_init_vqs(struct vduse_dev =
+*dev, u32 vq_align, u32 vq_num)
+> > >                 }
+> > >
+> > >                 dev->vqs[i]->index =3D i;
+> > > +               dev->vqs[i]->dev =3D dev;
+> > >                 dev->vqs[i]->irq_effective_cpu =3D IRQ_UNBOUND;
+> > >                 INIT_WORK(&dev->vqs[i]->inject, vduse_vq_irq_inject);
+> > >                 INIT_WORK(&dev->vqs[i]->kick, vduse_vq_kick_work);
+> > > @@ -2311,12 +2387,18 @@ static struct vduse_mgmt_dev *vduse_mgmt;
+> > >  static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *na=
+me)
+> > >  {
+> > >         struct vduse_vdpa *vdev;
+> > > +       const struct vdpa_config_ops *ops;
+> > >
+> > >         if (dev->vdev)
+> > >                 return -EEXIST;
+> > >
+> > > +       if (dev->vduse_features & BIT_U64(VDUSE_F_SUSPEND))
+> > > +               ops =3D &vduse_vdpa_config_ops_with_suspend;
+> > > +       else
+> > > +               ops =3D &vduse_vdpa_config_ops;
+> > > +
+> > >         vdev =3D vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
+> > > -                                &vduse_vdpa_config_ops, &vduse_map_o=
+ps,
+> > > +                                ops, &vduse_map_ops,
+> > >                                  dev->ngroups, dev->nas, name, true);
+> > >         if (IS_ERR(vdev))
+> > >                 return PTR_ERR(vdev);
+> > > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> > > index d39734cef6d3..95b93bc6bac5 100644
+> > > --- a/include/uapi/linux/vduse.h
+> > > +++ b/include/uapi/linux/vduse.h
+> > > @@ -21,6 +21,9 @@
+> > >  /* The VDUSE instance expects a request for vq ready */
+> > >  #define VDUSE_F_QUEUE_READY    0
+> > >
+> > > +/* The VDUSE instance expects a request for suspend */
+> > > +#define VDUSE_F_SUSPEND                1
+> > > +
+> > >  /*
+> > >   * Get the version of VDUSE API that kernel supported (VDUSE_API_VER=
+SION).
+> > >   * This is used for future extension.
+> > > @@ -338,6 +341,7 @@ enum vduse_req_type {
+> > >         VDUSE_UPDATE_IOTLB,
+> > >         VDUSE_SET_VQ_GROUP_ASID,
+> > >         VDUSE_SET_VQ_READY,
+> > > +       VDUSE_SUSPEND,
+> > >  };
+> > >
+> > >  /**
+> > > --
+> > > 2.53.0
+> > >
+> >
+> > Thanks
+> >
+>
+
