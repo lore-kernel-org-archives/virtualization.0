@@ -1,283 +1,187 @@
-Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010021.outbound.protection.outlook.com [52.101.193.21])
+Received: from out-170.mta0.migadu.com (out-170.mta0.migadu.com [91.218.175.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27807330D54;
-	Wed,  4 Mar 2026 01:27:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.21
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772587676; cv=fail; b=QnBw1XOT24w9AUt3TwuDTjsyTp8QqK9BclUjlF5BCepdEvOjhqXTWVd/o+IjVi/JigZzDGdaNEtYNVK+SwJCi1+qSc3JPYUEsG81TRnYSw29sPmwW0e53+BtVUfeIpSdjurNSanBYgGQi3ojmwoJ2Suk7mN2FpKuFF+r5qT2LrY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772587676; c=relaxed/simple;
-	bh=dacBUh9K0QdXUvNywbAyvPt5HJ99IaNmZU28a1tpGFQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=EXtiF39PKPjrM1UemEJiCkxWDgS6lNQlNejHMM3DYH+pPHUiCavpshqJezWzmihbo9F3j15foxVSiSQ9OnQE59iG6Im+xMSvJYKwR1W33VLYOnulPCbXu9IDwWpQMrpqFqVdDgtcd5Kl6j9omv+wNW8zLLsB6327zmXx/syrzmk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=maidt9YU; arc=fail smtp.client-ip=52.101.193.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09A44272E56
+	for <virtualization@lists.linux.dev>; Wed,  4 Mar 2026 02:11:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772590283; cv=none; b=f4uEdxB9BFJCMsxR2M1nxxTjKAuHBTgvMjxIImaPvLbTaDXEZfe0Nky8LIABKoJDZn/EmDjk3E6cAPPyA975BePdNH3QzoGOvIB3ojUKi69a3rZeXsKwq13K8KIhyNyMI9p9AJL1HfOVivEmUEIFwAXwPa4yDqN4aGfEzVplv+w=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772590283; c=relaxed/simple;
+	bh=v0z5IM5DkjLk1Ued7sa2Hjlo1gS/yjWo8+q3na/hsVE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=D3QIOM8mC/yMilMr/ugDYIJEzZByvgz2CMBOZLSHSAUWCe5lJdyvh0t9fTT0oQ11Kf5PoH4PAFJ6lpEV5jp2LvLQCIwWUvtRsnjcjvxZBfdKiFVRMIPBa+qE8S5m/IFacz+3mbKR+cqzk2O1RmW+WESfWozLHWM6+yPp93MdTqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=TfoAoGf+; arc=none smtp.client-ip=91.218.175.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="maidt9YU"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=p7IyXyBnfC59bhh/QDlC4xjm8gnxI/aVjCQ8NWjD+TQ/phVsvcvuW+NLBwz88oegj1uUlu3Eo3WVXfBEPFYLVctAff3OGVKs6Xv8Wggf01j3o0MSOeSxHA5GJqJjudqqXN/2oDkFpLWG7rNbgythWaGJW701F+WT+MDBwzxmlu9SXw/oaP0PeGTAWeV9kaOO841TnqajI5htVvdPBVcphxbO0+fCcLLs3ACa6zPrI8LdN0/pSUTyF6rkpr0iKAmaNhVLW3qunh4s7ITlNquQXbSIEekdoDCyuvRtVfUJe+oVe99SGOdiQIwubQe36N7K0Itb8+4Q5Sa+OhGYRxeCXg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=SMCVXE/QqXcN89uo56glYVb2KUIcE1svTHLTUm91N2M=;
- b=w+esDmCCph9thTxJi6D9QEtzrUzS5rQDHMVxzz6TS7qPP7AfnGlXihVXA05VntXiv4B6vEmeBEDvccO27e4Ko2dC7bs65ACkzY3wPreezzZgngCi9P8sE/duNHHHgFmmJN9NBZsU0Us9uaLpK0fJZ3mT/4xh4/TBtjrO2R3aQOUNEn7ml8MMFvfkHLLP3AVkyhgcLytd9ojZ31UtxREx6DQU0dataSsAq3aoeyhGOxQFcMtKumoym/0xXP8VzElidNH1V2VsQqfhnizX85t/USGwEFg+FsJhWpfu+cj7+GVZy9VnGvbC3Ym8VvzmSwj3kSb6OPoRbdlrpNeO3pp4+w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SMCVXE/QqXcN89uo56glYVb2KUIcE1svTHLTUm91N2M=;
- b=maidt9YUEg9SE1s2e15IkLkTmsj5XGLJ0eWvmZLG17QCRfvRHNiGN9W3S5yzM2gLA3ZwjtK0HMjZkNSiN9sN7bTS9l2uk3KeXEbIqBn3LZ9aPcH2V7tMnIv7aSCbInGtrtlF2wl2hQtVVFRA0iLD8deJv7DgLNRD88+Qtd+yFA1TrYXYHfU+Y/QQCMYfQ8QTzb+CCv4rUUsIG1ZLmGNhWtC5E+8P0TBA208y90uayInBW54MyAATkCPSzlbHYLLHap/J/tssthm9awMpbHFDACRlatTjRTT4e7jAMrCvGEqGDgfcCtwSioUqVWfEw6oStZDZTh77KMsRBqjrVmO03A==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from PH0PR12MB8800.namprd12.prod.outlook.com (2603:10b6:510:26f::12)
- by IA1PR12MB6651.namprd12.prod.outlook.com (2603:10b6:208:3a0::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9654.22; Wed, 4 Mar
- 2026 01:27:38 +0000
-Received: from PH0PR12MB8800.namprd12.prod.outlook.com
- ([fe80::f79d:ddc5:2ad7:762d]) by PH0PR12MB8800.namprd12.prod.outlook.com
- ([fe80::f79d:ddc5:2ad7:762d%4]) with mapi id 15.20.9654.022; Wed, 4 Mar 2026
- 01:27:38 +0000
-From: Yury Norov <ynorov@nvidia.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	"Theodore Ts'o" <tytso@mit.edu>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Duyck <alexanderduyck@fb.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Andreas Dilger <adilger.kernel@dilger.ca>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Anna Schumaker <anna@kernel.org>,
-	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Aswin Karuvally <aswin@linux.ibm.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Carlos Maiolino <cem@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Chao Yu <chao@kernel.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Christian Brauner <brauner@kernel.org>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Airlie <airlied@gmail.com>,
-	Dominique Martinet <asmadeus@codewreck.org>,
-	Dongsheng Yang <dongsheng.yang@linux.dev>,
-	Eric Dumazet <edumazet@google.com>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Ingo Molnar <mingo@redhat.com>,
-	Jaegeuk Kim <jaegeuk@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Jaroslav Kysela <perex@perex.cz>,
-	Jens Axboe <axboe@kernel.dk>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Latchesar Ionkov <lucho@ionkov.net>,
-	Linus Walleij <linusw@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Mark Brown <broonie@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Paul Walmsley <pjw@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Simona Vetter <simona@ffwll.ch>,
-	Takashi Iwai <tiwai@suse.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Trond Myklebust <trondmy@kernel.org>,
-	Tvrtko Ursulin <tursulin@ursulin.net>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Yury Norov <yury.norov@gmail.com>,
-	Zheng Gu <cengku@gmail.com>
-Cc: Yury Norov <ynorov@nvidia.com>,
-	linux-kernel@vger.kernel.org,
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="TfoAoGf+"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1772590269;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=7JM7KJg1oz9+GC4H9JC1/W5RywkkP5XIUmh+2MLnGSo=;
+	b=TfoAoGf+iMnRCMxJ8U+btPdh+IIPPGxbuJdCC7Bd8LNMgByq7FyGFJ8m239RpK7m8U7Er9
+	ze4BIS3oQfjHrS/KLKbCq2w6tPQJZEG8QeCJFAm2gU8TVjN1SsvRtH/Oi+tGbYzvdufzn6
+	WMUcrLp1nIb5jDKxp24nvmO9DVyhCd0=
+From: Lance Yang <lance.yang@linux.dev>
+To: akpm@linux-foundation.org
+Cc: peterz@infradead.org,
+	david@kernel.org,
+	dave.hansen@intel.com,
+	dave.hansen@linux.intel.com,
+	ypodemsk@redhat.com,
+	hughd@google.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
 	x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-block@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org,
-	dm-devel@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-spi@vger.kernel.org,
-	linux-ext4@vger.kernel.org,
-	linux-f2fs-devel@lists.sourceforge.net,
-	linux-fsdevel@vger.kernel.org,
-	linux-xfs@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	linux-crypto@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-perf-users@vger.kernel.org,
-	v9fs@lists.linux.dev,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	lorenzo.stoakes@oracle.com,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	Liam.Howlett@oracle.com,
+	npache@redhat.com,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	shy828301@gmail.com,
+	riel@surriel.com,
+	jannh@google.com,
+	jgross@suse.com,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	boris.ostrovsky@oracle.com,
 	virtualization@lists.linux.dev,
-	linux-sound@vger.kernel.org
-Subject: [PATCH 8/8] arch: use rest_of_page() macro where appropriate
-Date: Tue,  3 Mar 2026 20:27:16 -0500
-Message-ID: <20260304012717.201797-9-ynorov@nvidia.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260304012717.201797-1-ynorov@nvidia.com>
-References: <20260304012717.201797-1-ynorov@nvidia.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BN0PR04CA0111.namprd04.prod.outlook.com
- (2603:10b6:408:ec::26) To PH0PR12MB8800.namprd12.prod.outlook.com
- (2603:10b6:510:26f::12)
+	kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	ioworker0@gmail.com
+Subject: [PATCH v6 0/2] skip redundant sync IPIs when TLB flush sent them
+Date: Wed,  4 Mar 2026 10:10:42 +0800
+Message-ID: <20260304021046.18550-1-lance.yang@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR12MB8800:EE_|IA1PR12MB6651:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2609bae3-d7b5-4d6c-cdad-08de798d38be
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|10070799003|376014|7416014|921020;
-X-Microsoft-Antispam-Message-Info:
-	xtr88SI7Q4AcFK/iCkO/xPPWk0+R3vDrTpAEkNkbZ8qomfK3bAqE3XXgk3WCNroUewaQ35DD4OpAJK1mIhUjhWYvBFTqoeATTFnLAmqOp15cQE84BTc+8CnbiKwRE0wOPvR4+P9wrFVo6jX1SM5uRem1u/Gq0/uFWMPPtwK4pVRqQ6TaZagPbb9tU2AbyJI96CdJV+D/9u2lDuLkmio5k8PimILuLSWNRKkjzizNdjFIBx5FcpjDsKEPd36qCC8fgQ8K5WsoA4hd5dyEORYzDfvI2oH/zoDgA0hctTSJSGry0uzr+8AI9tV8nUZjlMsrDCf2UMGeEBPxCmE01gt5eH7odkBaAXu3EvlsN6LtmIu5GU5fD4aHKyOhJRiFYkfo3RM9lHPrff6Rd/B1e0mihJxDWgodSpZDp2Bpzx+5nG3mrD3EQJBDgDvfDixNyRZ+D2aSppWErIY/rwuO20KAcDloK2pH91Uj1qnwopT2ICDEqyTmNOvm+Gnr6DBGgKdRRa6zeWiOM/aYM9V6u0Pp7f4YTFLa/5PvZfCBhkWFIQy0buCigXXjKYExH4rTtmmMH+bAOCnV8nCxPP4RNKGZRMZGwhL9BYG4V4IVzgQ/aZ3+XTJFWe/5uwHcrp5qPa1zQTsFD/7c32RWrSRS12+/v+bw81rbNRTnOAvEZy5XDi1Eenxd3W6HyH5I09MHMhmlW1TOC/u2untYVG3C00LNI6+bNraN5Rg/0lUN9gfUQLS/TQXgz9Ud6SR48QdzfL6/4dmZN94g9vM+nkmTSClPgw==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB8800.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(10070799003)(376014)(7416014)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?jZT52MDM+eEm2ajfhuGGg1je2uDA86dzD5RM7cWtaSUcZsmLo3p4LUo+VZgH?=
- =?us-ascii?Q?CcFY4fZq73cONvgI/up9p5BMyftLSMlvV00Vm3N2XA2UaJorXSvVHlN6e9rG?=
- =?us-ascii?Q?+BS2M5jomKURFg3P4QGjVyE9mdjFeF/n4cBQznI+N8UtjPZtlqzw/pXI8KHJ?=
- =?us-ascii?Q?Jx8Li/Gt32NxfUzyb0Re2KRK2EpLasBGScpnd5rc93/stq2s6BEU/S9JEtQK?=
- =?us-ascii?Q?0J2Ig3D27nnZt1DlT36YFV/Z+bGIN1t7oc+eMYIJpkmGuytatGb6NtHeW9Qc?=
- =?us-ascii?Q?otPJ6O82PeDiCAbVWKAIGs3yRNs/jU7k0xlBn6jLHxH7TFNKFK5kVghg523j?=
- =?us-ascii?Q?oX4r5I9M2ZnolMGZb1AZcCOyJZe+YZOBWqTA8i6z72KvugdAVo9VtSpTTxLS?=
- =?us-ascii?Q?BiAlthrnV8VTo2+a4EracIh+n+0e5ma3dxFtYhg41j2oJp5krPwgvyFpYE1q?=
- =?us-ascii?Q?gMgzWOMwd+/EjN7Jmg97D8iRFNCImOLvjk/FwATm86gkRu7Fpj/L2qJLcp8f?=
- =?us-ascii?Q?9OirouLpKCmoGuAycTa4DutOGkyJXTl0yb5aiFywqakzGWYOCiK8p8fOjzVw?=
- =?us-ascii?Q?iJmYDNPuAuXYA6ifAnDtnyXjSYpku7Vd4oCULY+YgrnR+mD8jN8oUbTsfxDJ?=
- =?us-ascii?Q?70dcbbGaemRAcZ3oDRNwmkIIMM3OmgbkVbyPt0V4HT8ZIOCAN8xFEF4p6cGO?=
- =?us-ascii?Q?eW9Ix7e20XVgZMGLl7Rf4bR0GJbrbrvHzK5p6O8K530TWx2RmTkMKKovm9d6?=
- =?us-ascii?Q?hRiCXlxG9Mwxk8xdLTLIgXKCd2DteHO+ouNXq8Vy/6bTe2q9lFY/nozPKuSj?=
- =?us-ascii?Q?3XiTDROtScMtG+K/Sx8p0yHfEDmN8m4+AcFQDS5z0pUFiNGUNxzyWTdSlqXp?=
- =?us-ascii?Q?NCH3PO6j9oS5Rz6N9b7La609E0iQ+8jqEkej5ry+SuPdbJtjfWcZsxcpbA2l?=
- =?us-ascii?Q?PKq1KNKu5R4L67Dt5dzmNkYIj1t5aezZMVNdaTUYopF69DGNpu6XCnMIdzmx?=
- =?us-ascii?Q?YuclF7I1XJRth9WYwy50lhD7wU0Yx7UkWn0srKPJcBh6COcsxslET61mBVZY?=
- =?us-ascii?Q?hiRG2fLtJQw5l3Y7iLDndQBLijJWAeuWbrOFhTMeYQiOJsLuZD34AcS4n6I9?=
- =?us-ascii?Q?CSKMBYHwj3GQ1sjrBRQcLTs5r/rAu524+LplcySqtzj31wxZWNEsSGDhkhWq?=
- =?us-ascii?Q?gUHEJGESGgSe7ricmXWRJu/bL0g555G+7khTbaBSErtMHZO8cp4BPDMjlF8Y?=
- =?us-ascii?Q?AJh3p8vJq0AxIeaJW7+CEweIQWdGYANN2l/oBAA/seklaYQhht7LMXx47aEv?=
- =?us-ascii?Q?fe7x/gjpSQ6qh0sxrjjga5a2bxc/M1BYS1G0gpwCM7jIEl3r3Woh6Np/SssN?=
- =?us-ascii?Q?0bRjcJjYMdGY8VfCjp2wtkZgxg75kLzeHKTUkw1jiUTz+zJxIFneVF9ZOBS5?=
- =?us-ascii?Q?TZdcNGY9VNNZdRgyvbi61Lu/TOCIf+vn3O9hJ4SQzqE+XF2Fyvbf4qvfYGAj?=
- =?us-ascii?Q?TC+KI43yWW7FPkdnVxH0fYofJDaG+Z7428TtImGS7j10tIa2cscZjOsPhgHW?=
- =?us-ascii?Q?7r7El9t92QBbstiWTNULLaGH0t1N2FN8XcT0xQ8t4xk5O7IeK/48IZ6YiYqg?=
- =?us-ascii?Q?Nb04R/5oI4l0W1ht89mqdstkVexYsc2UQ1BQEX0A1uDg7sXC0xuBvZQ4yOKh?=
- =?us-ascii?Q?5ceyzxrZLiFnpOfqTHF2HzrtUnQDhu2Xj+OZwNZcxC1k777PWjJy30XAifgM?=
- =?us-ascii?Q?XXCFrLmaSRas1lUilO2bKMt1CtRSz/X7urTZvi79BSv9E/gD9ePe?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2609bae3-d7b5-4d6c-cdad-08de798d38be
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB8800.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Mar 2026 01:27:38.4368
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: CXt8e378FJ0B3MzdzzWaWK9oK5KIDe3bPOTtrn+uSqUA2hwKB8rT9SRgsjZlbcdaW7oWw1Rhh0hszU/hvHkVeg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6651
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-Switch arch code to using the macro. No functional changes intended.
+Hi all,
 
-Signed-off-by: Yury Norov <ynorov@nvidia.com>
----
- arch/arm64/kernel/patching.c     | 4 +---
- arch/powerpc/lib/code-patching.c | 6 +++---
- arch/riscv/kernel/sbi.c          | 4 ++--
- 3 files changed, 6 insertions(+), 8 deletions(-)
+When page table operations require synchronization with software/lockless
+walkers, they call tlb_remove_table_sync_{one,rcu}() after flushing the
+TLB (tlb->freed_tables or tlb->unshared_tables).
 
-diff --git a/arch/arm64/kernel/patching.c b/arch/arm64/kernel/patching.c
-index 1041bc67a3ee..4c3a4401719b 100644
---- a/arch/arm64/kernel/patching.c
-+++ b/arch/arm64/kernel/patching.c
-@@ -116,9 +116,7 @@ static void *__text_poke(text_poke_f func, void *addr, void *src, size_t len)
- 
- 	while (patched < len) {
- 		ptr = addr + patched;
--		size = min_t(size_t, PAGE_SIZE - offset_in_page(ptr),
--			     len - patched);
--
-+		size = min_t(size_t, rest_of_page(ptr), len - patched);
- 		waddr = patch_map(ptr, FIX_TEXT_POKE0);
- 		func(waddr, src, patched, size);
- 		patch_unmap(FIX_TEXT_POKE0);
-diff --git a/arch/powerpc/lib/code-patching.c b/arch/powerpc/lib/code-patching.c
-index f84e0337cc02..186a9cb79ee3 100644
---- a/arch/powerpc/lib/code-patching.c
-+++ b/arch/powerpc/lib/code-patching.c
-@@ -463,7 +463,7 @@ static int __patch_instructions(u32 *patch_addr, u32 *code, size_t len, bool rep
- 
- /*
-  * A page is mapped and instructions that fit the page are patched.
-- * Assumes 'len' to be (PAGE_SIZE - offset_in_page(addr)) or below.
-+ * Assumes 'len' to be rest_of_page(addr) or below.
-  */
- static int __do_patch_instructions_mm(u32 *addr, u32 *code, size_t len, bool repeat_instr)
- {
-@@ -514,7 +514,7 @@ static int __do_patch_instructions_mm(u32 *addr, u32 *code, size_t len, bool rep
- 
- /*
-  * A page is mapped and instructions that fit the page are patched.
-- * Assumes 'len' to be (PAGE_SIZE - offset_in_page(addr)) or below.
-+ * Assumes 'len' to be rest_of_page(addr) or below.
-  */
- static int __do_patch_instructions(u32 *addr, u32 *code, size_t len, bool repeat_instr)
- {
-@@ -554,7 +554,7 @@ int patch_instructions(u32 *addr, u32 *code, size_t len, bool repeat_instr)
- 		size_t plen;
- 		int err;
- 
--		plen = min_t(size_t, PAGE_SIZE - offset_in_page(addr), len);
-+		plen = min_t(size_t, rest_of_page(addr), len);
- 
- 		local_irq_save(flags);
- 		if (mm_patch_enabled())
-diff --git a/arch/riscv/kernel/sbi.c b/arch/riscv/kernel/sbi.c
-index c443337056ab..9a2f656f776f 100644
---- a/arch/riscv/kernel/sbi.c
-+++ b/arch/riscv/kernel/sbi.c
-@@ -602,7 +602,7 @@ int sbi_debug_console_write(const char *bytes, unsigned int num_bytes)
- 	else
- 		base_addr = __pa(bytes);
- 	if (PAGE_SIZE < (offset_in_page(bytes) + num_bytes))
--		num_bytes = PAGE_SIZE - offset_in_page(bytes);
-+		num_bytes = rest_of_page(bytes);
- 
- 	if (IS_ENABLED(CONFIG_32BIT))
- 		ret = sbi_ecall(SBI_EXT_DBCN, SBI_EXT_DBCN_CONSOLE_WRITE,
-@@ -631,7 +631,7 @@ int sbi_debug_console_read(char *bytes, unsigned int num_bytes)
- 	else
- 		base_addr = __pa(bytes);
- 	if (PAGE_SIZE < (offset_in_page(bytes) + num_bytes))
--		num_bytes = PAGE_SIZE - offset_in_page(bytes);
-+		num_bytes = rest_of_page(bytes);
- 
- 	if (IS_ENABLED(CONFIG_32BIT))
- 		ret = sbi_ecall(SBI_EXT_DBCN, SBI_EXT_DBCN_CONSOLE_READ,
+On architectures where the TLB flush already sends IPIs to all target CPUs,
+the subsequent sync IPI broadcast is redundant. This is not only costly on
+large systems where it disrupts all CPUs even for single-process page table
+operations, but has also been reported to hurt RT workloads[1].
+
+This series introduces tlb_table_flush_implies_ipi_broadcast() to check if
+the prior TLB flush already provided the necessary synchronization. When
+true, the sync calls can early-return.
+
+A few cases rely on this synchronization:
+
+1) hugetlb PMD unshare[2]: The problem is not the freeing but the reuse
+   of the PMD table for other purposes in the last remaining user after
+   unsharing.
+
+2) khugepaged collapse[3]: Ensure no concurrent GUP-fast before collapsing
+   and (possibly) freeing the page table / re-depositing it.
+
+Two-step plan as David suggested[4]:
+
+Step 1 (this series): Skip redundant sync when we're 100% certain the TLB
+flush sent IPIs. INVLPGB is excluded because when supported, we cannot
+guarantee IPIs were sent, keeping it clean and simple.
+
+Step 2 (future work): Send targeted IPIs only to CPUs actually doing
+software/lockless page table walks, benefiting all architectures.
+
+Regarding Step 2, it obviously only applies to setups where Step 1 does not
+apply: like x86 with INVLPGB or arm64. Step 2 work is ongoing; early
+attempts showed ~3% GUP-fast overhead. Reducing the overhead requires more
+work and tuning; it will be submitted separately once ready.
+
+David Hildenbrand did the initial implementation. I built on his work and
+relied on off-list discussions to push it further - thanks a lot David!
+
+[1] https://lore.kernel.org/linux-mm/1b27a3fa-359a-43d0-bdeb-c31341749367@kernel.org/
+[2] https://lore.kernel.org/linux-mm/6a364356-5fea-4a6c-b959-ba3b22ce9c88@kernel.org/
+[3] https://lore.kernel.org/linux-mm/2cb4503d-3a3f-4f6c-8038-7b3d1c74b3c2@kernel.org/
+[4] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+
+v5 -> v6:
+- Use static_branch to eliminating the branch overhead (per Peter)
+- https://lore.kernel.org/linux-mm/20260302063048.9479-1-lance.yang@linux.dev/
+
+v4 -> v5:
+- Drop per-CPU tracking (active_lockless_pt_walk_mm) from this series;
+  defer to Step 2 as it adds ~3% GUP-fast overhead
+- Keep pv_ops property false for PV backends like KVM: preempted vCPUs
+  cannot be assumed safe（per Sean)
+  https://lore.kernel.org/linux-mm/aaCP95l-m8ISXF78@google.com/
+- https://lore.kernel.org/linux-mm/20260202074557.16544-1-lance.yang@linux.dev/ 
+
+v3 -> v4:
+- Rework based on David's two-step direction and per-CPU idea:
+  1) Targeted IPIs: per-CPU variable when entering/leaving lockless page
+     table walk; tlb_remove_table_sync_mm() IPIs only those CPUs.
+  2) On x86, pv_mmu_ops property set at init to skip the extra sync when
+     flush_tlb_multi() already sends IPIs.
+  https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+- https://lore.kernel.org/linux-mm/20260106120303.38124-1-lance.yang@linux.dev/
+
+v2 -> v3:
+- Complete rewrite: use dynamic IPI tracking instead of static checks
+  (per Dave Hansen, thanks!)
+- Track IPIs via mmu_gather: native_flush_tlb_multi() sets flag when
+  actually sending IPIs
+- Motivation for skipping redundant IPIs explained by David:
+  https://lore.kernel.org/linux-mm/1b27a3fa-359a-43d0-bdeb-c31341749367@kernel.org/
+- https://lore.kernel.org/linux-mm/20251229145245.85452-1-lance.yang@linux.dev/
+
+v1 -> v2:
+- Fix cover letter encoding to resolve send-email issues. Apologies for
+  any email flood caused by the failed send attempts :(
+
+RFC -> v1:
+- Use a callback function in pv_mmu_ops instead of comparing function
+  pointers (per David)
+- Embed the check directly in tlb_remove_table_sync_one() instead of
+  requiring every caller to check explicitly (per David)
+- Move tlb_table_flush_implies_ipi_broadcast() outside of
+  CONFIG_MMU_GATHER_RCU_TABLE_FREE to fix build error on architectures
+  that don't enable this config.
+  https://lore.kernel.org/oe-kbuild-all/202512142156.cShiu6PU-lkp@intel.com/
+- https://lore.kernel.org/linux-mm/20251213080038.10917-1-lance.yang@linux.dev/
+
+Lance Yang (2):
+  mm/mmu_gather: prepare to skip redundant sync IPIs
+  x86/tlb: skip redundant sync IPIs for native TLB flush
+
+ arch/x86/include/asm/paravirt_types.h |  5 +++++
+ arch/x86/include/asm/smp.h            |  3 +++
+ arch/x86/include/asm/tlb.h            | 16 +++++++++++++++-
+ arch/x86/include/asm/tlbflush.h       |  3 +++
+ arch/x86/kernel/paravirt.c            | 20 ++++++++++++++++++++
+ arch/x86/kernel/smpboot.c             |  1 +
+ arch/x86/mm/tlb.c                     | 14 ++++++++++++++
+ include/asm-generic/tlb.h             | 17 +++++++++++++++++
+ mm/mmu_gather.c                       | 15 +++++++++++++++
+ 9 files changed, 93 insertions(+), 1 deletion(-)
+
 -- 
-2.43.0
+2.49.0
 
