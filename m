@@ -1,157 +1,254 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010021.outbound.protection.outlook.com [52.101.193.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19451372EEF
-	for <virtualization@lists.linux.dev>; Tue,  3 Mar 2026 23:51:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A363309EFF;
+	Wed,  4 Mar 2026 01:27:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.21
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772581919; cv=pass; b=oA0jDSM7SH+reAitAS2d76iyIGSiOk+jZyBumQ7ZdBG+oI9oBLf8lhPrDlijDOFoKVBGoXy4na1wVZljj4L182hMtUnSqITRV8kDOdoGHLLD0adLbVB09Zde6sq5XaVm4vKHk/o34HDyzSFpLH9cwJJkovGTtoBdEtDlcGf5IBU=
+	t=1772587648; cv=fail; b=auu8VU7OFlubjkwUUcN0U61u5DgXVkD8Lhq0rrQAzGLdORP+lzIWGne1PSEHe+5KpnTUrXmhF3qf9Q3TEnZoWRZOiKb0qfqs4X11KYoxvzDg18wg+rAfWD/j93PRcF+5RA6ErpPJ5hsgPzMAcINP3CRhM/4YMJdpDflTbv74r70=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772581919; c=relaxed/simple;
-	bh=aLUgPCew+HGAcZyC6poHY+NyEUkIlPepyMaaElTqvHE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CD6nB7W2DT2pwLBd1x79sJrSa+0M2ya8oxCoKKaQGMnsiKjPjEZxQXhCSbaTGhoBVVy1UW1kRm+S7v1MsrPMC44LXyGZ2zhJkgejk/kYdEecSDJzT6XEoD+pCx5FKMV6osxSYfwjKrbqBK6qqirFUdNVGjtz5/W/xM8FsoXomU8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=ZhZDh+nh; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1772587648; c=relaxed/simple;
+	bh=If+alELQRxoZYh2+j+me3+yl43ZvUq195jzSNB/UyVM=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=ZkL+LDoSd81pzLm/z9jDsmB1gcMlNCkhCommAgfkXWTkgBzRRN/2yW8SrArZ0QP1ctrcBbozSmVN5kvLDff4McR1hOgAlxm8jMWptKYzj8LaO7QSs5aHSkaTknSgPYx2wK60ksS3G+bVwlVpcVx7BqkQ0QurD27T+FbMsbbWOmI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=T1x3dr5b; arc=fail smtp.client-ip=52.101.193.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="ZhZDh+nh"
-ARC-Seal: i=1; a=rsa-sha256; t=1772581904; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=Q80XbsvtuVAQsmFPuoq/6zr+/oK7Kf9YFQSawVzzJqOIK0/QQlx3lAoqQS2VsfjazsCpgQUxFpBtxyRY46IIqQICgk/kfW799LU9+fk+aNjoaO+CVMaxLzQFNgoChFeZRaRPihen87XxzPKLcn2o3UVcZJajPCrG5aD9FBorjG0=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1772581904; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=XVXWwjOao24+lehwACLHpjLtJk6m5zyKvGu/1VnP2Ro=; 
-	b=jR5xnu+5iOu/s/rye5FtNmyVb/NCoYoC7vJsXzdMn0uhwcsc3X4WCJwvOh+EvJp0tNy85+Z4XHPCxVyAeTdmdUirnRJuuTzvQgQvxljmfUv2D4N4/0+33wCAoDR/xqT1kGaENe8bALQCqagHhazZ9BQ+GkzDbEwwauY7iu4wkkI=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1772581904;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=XVXWwjOao24+lehwACLHpjLtJk6m5zyKvGu/1VnP2Ro=;
-	b=ZhZDh+nhogEqNukm2fVZGCwX3nh7S1ezt/6mSsyl5dCyaZutN0+wyC2x5wmjC7ms
-	4ysVKXgL5JaSsEPeJGGHvq8MoBgrou8/AhRzZcgLcvWfl42QxP3EMkO8cM8HhMPnH+6
-	326gw+Pla8ttc6dB7Q2GhUKJiPePcj48/gZRyFcU=
-Received: by mx.zohomail.com with SMTPS id 1772581903106480.1003236269638;
-	Tue, 3 Mar 2026 15:51:43 -0800 (PST)
-Message-ID: <7f9c5d89-68a7-4c52-b214-56197cd5ad9c@collabora.com>
-Date: Wed, 4 Mar 2026 02:51:32 +0300
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="T1x3dr5b"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Rm/VnHnpDPQIQYcS+jZghbeqSPlJONh/rihh8kOsTQWeaBwcMzwMS6LqH824SpR6XQmLXCKB6IJ5fAW5CucBjmY1Q/T6mPOLIuSIlhiUtCYHdnmdu8ZsCncnXuqkuiCzACJRfGGIHrU/z2tUx1TQ3gA+6GzB007lzRcNyeKrhy7gjSxHdET7tQM0oitkY9X0irmdTAuUbWgTBql53P92zRBFsRJwOcf792R7lKiN2z2YWOgT9+GuSZnKxVW5ionNW28amrx2Jie6dIhY+V8CcfrgUXM2hBlJi2JbLedarCNbHobtoWNQLmFSiaWNlZtItvHDf4fXu9uWU2ijzhsMsA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=qRSvKdolX3cJvMiUv+2Pa5U4bClslgETVtpoYDq3wrk=;
+ b=rA9wVEHd1De4y7fGlzc10SS9PTIqUmoAQ0UqdOKk02GVwAgy5I7aeA9crrkpiozGuAPreaeqdfUKvWc71Lm4z1eRYIFbFeaaK7S8nAvMJyRpvFDGWA+k+LsfJJJ54GMTrtfSfD5vb1QkFKktBJuyYrSnvpQIQ2lMNsEZ5tilKkZhRSedVcz2+pvLuxCbccj89m16Ki+XF8GAU9BgxegM2ciy8a5VuNUeVGaaBk7jEko+EOUZZhN8uQfqi8feTxs6o+0yO68KNlVQFFU52xX8WbfATPMSWMUOQ98oTxY5o5P3vOQu4ll98eFErPd2onGevRjA7C4PUh5x7OnPw2BK4Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qRSvKdolX3cJvMiUv+2Pa5U4bClslgETVtpoYDq3wrk=;
+ b=T1x3dr5bl7RHDFLPNxCv5Er6PT7PKmd1nW7DArldd5hr+qqrMi9gybc9TRxgccBUO0PKGieAeUnN6vVeFYc+s0iFUqYO94F68sabpuZfom4W+MZFjvbhRnFojnOPBA3jQOmQ0l2OKh/QRWrRdC2UB+Xw/56QDaC4E3opyqU2BuAX7wxs186698bPb3d4IUveRSNLjajFHV0EO+aScaF3sJw+JMsNfYPEIcwmJwRMuirU+cjCuycd6YZFRFHCpi4xReJFBz7yWpPQTZ7OIbPyTuGnkt72/u/tCv9uc2qGttEDMBEsblz7KWSKPSr3E8k5PY/yRF/r2sDuGv37uZpuNA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from PH0PR12MB8800.namprd12.prod.outlook.com (2603:10b6:510:26f::12)
+ by IA1PR12MB6651.namprd12.prod.outlook.com (2603:10b6:208:3a0::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9654.22; Wed, 4 Mar
+ 2026 01:27:21 +0000
+Received: from PH0PR12MB8800.namprd12.prod.outlook.com
+ ([fe80::f79d:ddc5:2ad7:762d]) by PH0PR12MB8800.namprd12.prod.outlook.com
+ ([fe80::f79d:ddc5:2ad7:762d%4]) with mapi id 15.20.9654.022; Wed, 4 Mar 2026
+ 01:27:20 +0000
+From: Yury Norov <ynorov@nvidia.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	"Theodore Ts'o" <tytso@mit.edu>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexander Duyck <alexanderduyck@fb.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Andreas Dilger <adilger.kernel@dilger.ca>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Anna Schumaker <anna@kernel.org>,
+	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Aswin Karuvally <aswin@linux.ibm.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Carlos Maiolino <cem@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Chao Yu <chao@kernel.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Christian Brauner <brauner@kernel.org>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	David Airlie <airlied@gmail.com>,
+	Dominique Martinet <asmadeus@codewreck.org>,
+	Dongsheng Yang <dongsheng.yang@linux.dev>,
+	Eric Dumazet <edumazet@google.com>,
+	Eric Van Hensbergen <ericvh@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Ingo Molnar <mingo@redhat.com>,
+	Jaegeuk Kim <jaegeuk@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Jaroslav Kysela <perex@perex.cz>,
+	Jens Axboe <axboe@kernel.dk>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Latchesar Ionkov <lucho@ionkov.net>,
+	Linus Walleij <linusw@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mark Brown <broonie@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Miklos Szeredi <miklos@szeredi.hu>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Paul Walmsley <pjw@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Takashi Iwai <tiwai@suse.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Trond Myklebust <trondmy@kernel.org>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Yury Norov <yury.norov@gmail.com>,
+	Zheng Gu <cengku@gmail.com>
+Cc: Yury Norov <ynorov@nvidia.com>,
+	linux-kernel@vger.kernel.org,
+	x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	kvm@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-block@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	dm-devel@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	linux-ext4@vger.kernel.org,
+	linux-f2fs-devel@lists.sourceforge.net,
+	linux-fsdevel@vger.kernel.org,
+	linux-xfs@vger.kernel.org,
+	linux-nfs@vger.kernel.org,
+	linux-crypto@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-perf-users@vger.kernel.org,
+	v9fs@lists.linux.dev,
+	virtualization@lists.linux.dev,
+	linux-sound@vger.kernel.org
+Subject: [PATCH 0/8] mm: globalize rest_of_page() macro
+Date: Tue,  3 Mar 2026 20:27:08 -0500
+Message-ID: <20260304012717.201797-1-ynorov@nvidia.com>
+X-Mailer: git-send-email 2.43.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BN0PR04CA0194.namprd04.prod.outlook.com
+ (2603:10b6:408:e9::19) To PH0PR12MB8800.namprd12.prod.outlook.com
+ (2603:10b6:510:26f::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtio: Open-code drm_simple_encoder_init()
-To: Thomas Zimmermann <tzimmermann@suse.de>,
- Hardik Phalet <hardik.phalet@pm.me>
-Cc: Hardik Phalet <hardik.phalet@gmail.com>, David Airlie
- <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Simona Vetter <simona@ffwll.ch>,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20260227103515.413685-1-hardik.phalet@pm.me>
- <5cdb4e34-7964-4456-9311-eac8b3d37371@suse.de>
- <4fa6bc36-3507-4171-8955-29c90db9254b@collabora.com>
- <cf8cb929-2339-46a9-8b76-e76778787b9d@suse.de>
- <e008ca24-83ee-427e-b2a2-8f93e390b199@collabora.com>
- <83824dfb-dbde-4466-bb5d-3fb4348dca6e@suse.de>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Content-Language: en-US
-In-Reply-To: <83824dfb-dbde-4466-bb5d-3fb4348dca6e@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR12MB8800:EE_|IA1PR12MB6651:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4e6ed4ea-07d7-47d3-22ea-08de798d2de2
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|10070799003|376014|7416014|921020;
+X-Microsoft-Antispam-Message-Info:
+	EJSb5AO6p5oAuFPpEYmGGSPtTg65RgEQhbQzAgFRFsoY+L4pkN3PI53L9q4qk/lDqSuTSprt8Q6a2rBdmBzd3xiGIhBYQWn72TwJi1O5TC2/gxxzhYqzMxi5OpoZSrm8e4Tr8Us456TttKhQZ2v4cJb2flYpxK/JBKqkpdmukliE3Ov4LQyCwLes2VNF6PNcdpd/ZSE+jZPDw+P1qb/9/+QGZ2khiFPO8jxf9iNDqi3uNMVGfddvQWLPZJd5lFbXzEjdPh43dOX3W2ysr7Gb7PNw066wkrMa8MX/U7jusY7A1Y0N78iZBNQhAX15Iesk7y59SQ8PlindxQ/rLCko8GysTd3NE8I3R62ddu9e/LlitOWkNjPp5XUis7sCrDZ4CcPLP9rU3siYy8C3yqhOXEo+bCwq8h7suPVbgRQVtF3cCUIJkvjPTZr5FM9H7Vh31W5hjBGpjxjMZeINBzZ/iv8TjcDfIEfGesCyzZYawS7hV4bAL0PzvuuaZ7C1172bv1ezc7a9MMHq/+096Aqy7tKFGq4JdM2q/MraGfS2j7ZHFdezZWJJqpp+tkH4sZ3sTyLC7R24A7Kip0PGh47V9Ti+TGExBXVeIFDFmAm9ScPjIc5pF4Q7XZTyT9v0sTbtFK1Fl6Oo1OANjeMWfNJvN7ZsYdSRGgaDohrru36CxclHRkbsPDlQHetn1NHziKEtO5tJzEz+KtkF7AM3t8OIi8SnqQ4i9OiH744/4H3BVm8gQsvaXGbqiz/kSl7NRsvFJWk/xm8sNYKaJKMiKKBY6lIi8rWMq4uLJufj3E0A98g=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB8800.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(10070799003)(376014)(7416014)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?5S/xGfJhxq7PH6zLNWYwhusHSMrvUYH0Un9YPofehcsuyq37tlRoAbcoKgE7?=
+ =?us-ascii?Q?B3FhdSpJu0cWLnk51jwgWmrAmlTj0cTI5MFhy8NwE4yTHRMtNPYIzm8lSJJL?=
+ =?us-ascii?Q?PEBdmpf9rEczOCoN30GBnabffRCF/cUrmwNJRkMpps7xBOVMVIHxLtJ6CpW5?=
+ =?us-ascii?Q?Uj9SaoeprEjwZEcEh0FI+MngV8ki2BD57VWzzMZ+9uiYhLDjQguHH/Bv6FbR?=
+ =?us-ascii?Q?cyE14m8n0pbMGsPUmYIx1bWfUVJoXj5qWr4Zs2IUXQiWYFdHJGfohr8Y/E7J?=
+ =?us-ascii?Q?AVfuDfjp3OfMDcg/cYNHS8OelMiIlaOpT7Lnc9br07JRkZ3eNuxftu0oOzYh?=
+ =?us-ascii?Q?emdBx82p+SBinByHoPw0aPrCNGNHOHwMXerHd2CtGcetK2pS52xKukAx3Kpr?=
+ =?us-ascii?Q?4Uzh5OG42/7t5HMbpxQVnbPUPOPDCt2BbfvYZk9J+ZCxN3pIK68sUdbrHMt1?=
+ =?us-ascii?Q?wcO373zT5EBT4+EyJbZ9s6o28DNWwL0Q1aOFsYrqdJ0o8Tq6dVxP5XIvEHMC?=
+ =?us-ascii?Q?+An9Wuz6fiaFTLL1IMm3PGoRAndk+z/xnK7AjkJA7dlSZzi2On0ltyL6LM7Q?=
+ =?us-ascii?Q?eAKZDuxwbS5W1OamhrKEZ8agZCYB0NcazrVK+Xm3NJIv2qRAm86mjz+BXZNQ?=
+ =?us-ascii?Q?vt5tUuKc71XXuXlJnb7hCso6myekDc19VP5UWKSpzWX52FVDiwrOUAhNW1JH?=
+ =?us-ascii?Q?/N+KSGG1fa8We+fQleRZaA/mc1zx7PZq0L7wkk2Z0NWbI9AkGtFMhBYE492S?=
+ =?us-ascii?Q?j6qeC0H1TsTVV3/6CHeY4psAL39btt6IshskvcJjGUWK3wZAlck8lVNyzrHa?=
+ =?us-ascii?Q?djTtvnCsVCvXS/oXrznc3xQhMBisJsfct9fgBcG9z7cxo/B2pLrgr9OH3wD4?=
+ =?us-ascii?Q?kZDfdx8XFrRDNwbsFeIj2m6mleQowKWLzsfP0h6zyY/5JfNcwdpz8i6vx8bl?=
+ =?us-ascii?Q?ccnno5iLoF5u1gF0+Vxmr9wvOhIkBvMFPOQwtuab7iL5AO6is8ZkKs3PHmf6?=
+ =?us-ascii?Q?0lRc0StRnN4/60EJf0H2xSZADkbRvqIlDX7Ia1WlPG5oCQyTOs+wIdQANf2/?=
+ =?us-ascii?Q?vxSmcYVNYb9goJhgIwQ55CJxrdFQzD2NPO3uSlramK4zfulzHkPoq0f+uNBf?=
+ =?us-ascii?Q?dYMAgeKeoRauP5i2ZDaAB4m4y39PJ4NQesQIwA6LtlURhumee4zQH198wLVD?=
+ =?us-ascii?Q?qO2YsxM9F++y7+EVywl26hq+LgFz2VsjIQvEeB0K7GoJU20nwwua8V4DL0nb?=
+ =?us-ascii?Q?/qQ+FM3hs7iaGcrUYE1u/epwv6ZgzzbyVP+bisUxXNKF1QXfHwziARbPl98r?=
+ =?us-ascii?Q?HjBcy0kSELG2X9GdAsG6yg0fHm1xX/4eWrTBC4pl6YTbU95z0+QnEV1oUNa9?=
+ =?us-ascii?Q?US8FEu5GnOV5tO5kX/t7QgbYRsEWGRz7eUUaVj6GtY2KZV1+mM23T0RYz/4x?=
+ =?us-ascii?Q?GBJV5W6KTd2I6QMtaG3jGsJvDwN/vLDYUDsFzjstqbQ0r6WSS1fNiVRJoa+S?=
+ =?us-ascii?Q?P0lRAxTRScIbX28G1wPUyhHi34Kk0Xhb+9FUX7pssSt54Z8Vccc02HAw5dJb?=
+ =?us-ascii?Q?Llgn7iVV5Wco/3up56kFUcmvXHf6lSPsGrdBlIE/Ylf5kCFX52O7ZQhqG/Hv?=
+ =?us-ascii?Q?4kKCXEF9I2/ufZ5K5Ww9jBvduETWekINb6+A1YbtW5cuzzqiu9ddeTB4APz/?=
+ =?us-ascii?Q?6maz++AVh+e84Yxx4MeGqvZ5f73onH73V1vl1cpjDChSSB+ujkmJHEGIvyew?=
+ =?us-ascii?Q?vHi1dyWLH/GNctIyBHTNffTLNGdaMs/dZGi+dRrjaBdlkgv7JeSB?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4e6ed4ea-07d7-47d3-22ea-08de798d2de2
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB8800.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Mar 2026 01:27:20.3880
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: /+Lmm+XVjZYyMMKaXXXS817iT5VoaRx4GbjtH3sXBl09zO/C4kzjI8NuzoQ2rOW9d6TUbJNSeZvIbtW2k70y9w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6651
 
-On 3/2/26 18:40, Thomas Zimmermann wrote:
-> 
-> 
-> Am 02.03.26 um 16:31 schrieb Dmitry Osipenko:
->> On 3/2/26 17:15, Thomas Zimmermann wrote:
->>> Hi
->>>
->>> Am 02.03.26 um 14:57 schrieb Dmitry Osipenko:
->>>> On 3/2/26 16:48, Thomas Zimmermann wrote:
->>>>> Hi
->>>>>
->>>>> Am 27.02.26 um 11:35 schrieb Hardik Phalet:
->>>>>> drm_simple_encoder_init() is a thin wrapper around drm_encoder_init()
->>>>>> that only provides a minimal drm_encoder_funcs instance with
->>>>>> .destroy = drm_encoder_cleanup.
->>>>>>
->>>>>> Inline the helper in virtgpu_display.c and provide a local
->>>>>> drm_encoder_funcs instance instead. This removes the unnecessary
->>>>>> indirection and prepares for the eventual removal of
->>>>>> drm_simple_encoder_init().
->>>>>>
->>>>>> No functional changes intended.
->>>>>>
->>>>>> Signed-off-by: Hardik Phalet <hardik.phalet@pm.me>
->>>>>> ---
->>>>>>     drivers/gpu/drm/virtio/virtgpu_display.c | 7 ++++++-
->>>>>>     1 file changed, 6 insertions(+), 1 deletion(-)
->>>>>>
->>>>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/
->>>>>> drm/virtio/virtgpu_display.c
->>>>>> index f1dae9569805..8bd6cdc6c16e 100644
->>>>>> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
->>>>>> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
->>>>>> @@ -232,6 +232,10 @@ static enum drm_mode_status
->>>>>> virtio_gpu_conn_mode_valid(struct drm_connector *con
->>>>>>         return MODE_BAD;
->>>>>>     }
->>>>>>     +static const struct drm_encoder_funcs
->>>>>> virtio_gpu_enc_cleanup_funcs = {
->>>>>> +    .destroy = drm_encoder_cleanup
->>>>>> +};
->>>>>> +
->>>>>>     static const struct drm_encoder_helper_funcs
->>>>>> virtio_gpu_enc_helper_funcs = {
->>>>>>         .mode_set   = virtio_gpu_enc_mode_set,
->>>>>>         .enable     = virtio_gpu_enc_enable,
->>>>>> @@ -306,7 +310,8 @@ static int vgdev_output_init(struct
->>>>>> virtio_gpu_device *vgdev, int index)
->>>>>>         if (vgdev->has_edid)
->>>>>>             drm_connector_attach_edid_property(connector);
->>>>>>     -    drm_simple_encoder_init(dev, encoder,
->>>>>> DRM_MODE_ENCODER_VIRTUAL);
->>>>>> +    drm_encoder_init(dev, encoder, &virtio_gpu_enc_cleanup_funcs,
->>>>>> +             DRM_MODE_ENCODER_VIRTUAL, NULL);
->>>>> This looks correct, but you should also remove the include statement
->>>>> at [1]
->>>>>
->>>>> [1] https://elixir.bootlin.com/linux/v6.19/source/drivers/gpu/drm/
->>>>> virtio/virtgpu_display.c#L35
->>>> The patch adds more lines than removes. What's wrong with
->>>> drm_simple_encoder_init() and why it needs to be removed eventually?
->>> I added it myself a few years ago in an attempt to save some lines of
->>> code. That was a mistake. It's a helper without any purpose. Helpers
->>> should do something.
->> It saves few lines and makes code easier to read. Don't see value in
->> removal of the helper.
-> 
-> All it does is to set a default cleanup function. But that's not even
-> clear from the helper's name.
-> 
-> If we really want a default cleanup, we should call
-> drm_encoder_cleanup() as a default at [1]. Drivers could then just leave
-> out the encoder funcs entirely.
-> 
-> [1] https://elixir.bootlin.com/linux/v6.19/source/drivers/gpu/drm/
-> drm_mode_config.c#L530
+The net/9p networking driver has a handy macro to calculate the
+amount of bytes from a given pointer to the end of page. Move it
+to core/mm, and apply tree-wide. No functional changes intended.
 
-There are a lot of drivers using drm_simple_encoder_init() in kernel.
-What problem the default cleanup function creates? If none, to me the
-drm_simple_encoder_init() serves its purpose, improving the drivers'
-code. I won't object much if you'll insist on merging the patch, but so
-far it looks like a very bikeshed change without a clear explanation of
-the solved problem.
+This series was originally introduced as a single patch #07/12 in:
+
+https://lore.kernel.org/all/20260219181407.290201-1-ynorov@nvidia.com/
+
+Split it for better granularity and submit separately.
+
+Yury Norov (8):
+  mm: add rest_of_page() macro
+  fs: use rest_of_page() macro where appropriate
+  net: use rest_of_page() macro where appropriate
+  core: use rest_of_page() macro where appropriate
+  spi: use rest_of_page() macro where appropriate
+  KVM: use rest_of_page() macro where appropriate
+  drivers: ALSA: use rest_of_page() macro where appropriate
+  arch: use rest_of_page() macro where appropriate
+
+ arch/arm64/kernel/patching.c                |  4 +---
+ arch/powerpc/lib/code-patching.c            |  6 +++---
+ arch/riscv/kernel/sbi.c                     |  4 ++--
+ arch/s390/kvm/gaccess.c                     |  6 +++---
+ arch/x86/kvm/emulate.c                      |  4 ++--
+ drivers/block/null_blk/main.c               |  6 ++----
+ drivers/gpu/drm/i915/gt/shmem_utils.c       |  5 ++---
+ drivers/md/dm-pcache/backing_dev.h          |  2 +-
+ drivers/net/ethernet/meta/fbnic/fbnic_tlv.c |  6 +++---
+ drivers/s390/net/qeth_core_main.c           |  6 ++----
+ drivers/spi/spi-pl022.c                     |  3 +--
+ drivers/spi/spi.c                           |  4 +---
+ fs/ext4/verity.c                            |  3 +--
+ fs/f2fs/verity.c                            |  6 ++----
+ fs/fuse/dev.c                               |  4 ++--
+ fs/iomap/buffered-io.c                      |  2 +-
+ fs/nfs/pagelist.c                           |  2 +-
+ fs/remap_range.c                            |  3 +--
+ fs/xfs/scrub/xfile.c                        |  3 +--
+ include/crypto/scatterwalk.h                |  2 +-
+ include/linux/highmem.h                     | 24 +++++++++------------
+ include/linux/iomap.h                       |  2 +-
+ include/linux/iov_iter.h                    |  3 +--
+ include/linux/mm.h                          |  2 ++
+ kernel/events/ring_buffer.c                 |  2 +-
+ lib/bitmap-str.c                            |  2 +-
+ lib/iov_iter.c                              |  5 ++---
+ net/9p/trans_virtio.c                       |  6 ------
+ sound/virtio/virtio_pcm_msg.c               |  4 ++--
+ 29 files changed, 53 insertions(+), 78 deletions(-)
 
 -- 
-Best regards,
-Dmitry
+2.43.0
+
