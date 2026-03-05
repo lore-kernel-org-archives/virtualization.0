@@ -1,260 +1,163 @@
-Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
+Received: from out30-72.freemail.mail.aliyun.com (out30-72.freemail.mail.aliyun.com [115.124.30.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 703BA36C0B2
-	for <virtualization@lists.linux.dev>; Thu,  5 Mar 2026 09:16:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8257A3793D4
+	for <virtualization@lists.linux.dev>; Thu,  5 Mar 2026 09:29:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772702191; cv=none; b=pmLzD4CVC6owNQY8Dmax++rnZObRZtxnexNG6Wy/2n3TVI/sVUzutCuMBfaTjmGNISKvzFIB/R8xntGuO3odwlzj0ImFNQYbhYvzQte5aIM8zZWXvJb80u+NjJIoA9RyaxBpZhifUQhauiB5lLL5F7Og7YGTXAS4d0lEuZesXlc=
+	t=1772702980; cv=none; b=tAJQEoFfVNv4hsOmbsZM9VFyAnyPhNW6rRpPSzHRUHYGQkU1Df93rfI/e00WUpLWReVS7w080oDwxGk/1ogASIrnTRJukBJhryNGg+g6uSo/SjJLZF8aZULDsTEynGmQLuonvcLSIklaPsLDTtzX8gZX1Qwa7pCbkulXekRfU5M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772702191; c=relaxed/simple;
-	bh=UMnrDwdAX1GIWTBc+oDF/W1dnRUB+o0y/Pccvdlj3XA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GaNbnOeKpVY05Q4wNyOQKPEKZErgwuv9yNfNEAKOR6YhXHgD50lyy5Up0BOFulV6EpJnohDZb6VSlffcPiWn1JlLOr/v1rYD/Grv+EPkHCYWC9mxLDjdyWpMoNVQQ8WtGfh2QrjROP+cgEot6UygcjLEb7izzCGEg1lZALKFW/U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=vYTlFh5P; arc=none smtp.client-ip=91.218.175.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1772702980; c=relaxed/simple;
+	bh=zTDZ8kfQPrbB0DwwRLC6SMAHDISXJDdLmvgRU0iGQpM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NwQsD8vJJZ9gz1bbmV0gVjotaq7ztMN9hWm5xJbkFmRXVDOu1VWwXJoZu2muyDefU9xGaK24ui9wb/eb2OXnrpmhcjsIJiat7jpdBmNLHuMgQpaSBmsfPHNpWKftaD3TdXXNKBXJFM5RvwThJyx+PuwpcP4DUxbKlbGx9ZscJQ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com; spf=pass smtp.mailfrom=aliyun.com; dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b=X7+E2t1x; arc=none smtp.client-ip=115.124.30.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliyun.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="vYTlFh5P"
-Message-ID: <5f0aea3d-3189-4712-a6e4-aaf70af3d830@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1772702188;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fzXNnVl41rhrnz38phC4X7315ncIjw8uI7oB1uumDrY=;
-	b=vYTlFh5P4RnXap2bKi5iM3bSYos1avkWrWoyZ6S9ovnLXURX6Ng1OmFgRSMpye96k1cbwW
-	V1trl4Jl8R5kqscSzYNlyJ7l2iGMGX+aMJdR4/9OGfmBJnSnUmIPVuQ11NwJTaUGC8xEWM
-	A2pGtpUi3RscntX+HprODuj4hL30rkk=
-Date: Thu, 5 Mar 2026 17:16:12 +0800
+	dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="X7+E2t1x"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=aliyun.com; s=s1024;
+	t=1772702973; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=SgvdD1R0tMl7mcgnz93Z5XXziMuids5zQlWpyTXglVM=;
+	b=X7+E2t1xzar9QhsX0jZ9Ts8Au3iVvkwcqMslv0QEXuNi5sE/h0lpnTvEYKPmyvI+UJebrVY+VqyRKz3ytQ2eDSHBnvhnxy4ojANZpYoaqDoMkGFrFZ66PKtJSv3eI0/z0v7ddq+Qi0pY2YE8YhLLv5itPbmJ4yKOT8E1K9tXeko=
+Received: from localhost.localdomain(mailfrom:wdhh6@aliyun.com fp:SMTPD_---0X-IC4HT_1772702969 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 05 Mar 2026 17:29:32 +0800
+From: Chaohai Chen <wdhh6@aliyun.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Chaohai Chen <wdhh6@aliyun.com>
+Subject: [PATCH] virtio_ring: Fix data races in split virtqueue used ring accesses
+Date: Thu,  5 Mar 2026 17:29:27 +0800
+Message-ID: <20260305092927.3866089-1-wdhh6@aliyun.com>
+X-Mailer: git-send-email 2.43.7
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v6 2/2] x86/tlb: skip redundant sync IPIs for native TLB
- flush
-Content-Language: en-US
-To: Dave Hansen <dave.hansen@intel.com>
-Cc: peterz@infradead.org, david@kernel.org, dave.hansen@linux.intel.com,
- ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
- aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
- arnd@arndb.de, lorenzo.stoakes@oracle.com, ziy@nvidia.com,
- baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
- ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
- akpm@linux-foundation.org, shy828301@gmail.com, riel@surriel.com,
- jannh@google.com, jgross@suse.com, seanjc@google.com, pbonzini@redhat.com,
- boris.ostrovsky@oracle.com, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, ioworker0@gmail.com
-References: <20260304021046.18550-1-lance.yang@linux.dev>
- <20260304021046.18550-3-lance.yang@linux.dev>
- <7dc30fbf-17c0-47db-8457-24b531cd0071@intel.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Lance Yang <lance.yang@linux.dev>
-In-Reply-To: <7dc30fbf-17c0-47db-8457-24b531cd0071@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Transfer-Encoding: 8bit
 
-Hi Dave,
+KCSAN detected multiple data races when accessing the split virtqueue's
+used ring, which is shared memory concurrently accessed by both the CPU
+and the virtio device (hypervisor).
 
-Thanks for taking time to review!
+The races occur when reading the following fields without proper atomic
+operations:
+- vring.used->idx
+- vring.used->flags
+- vring.used->ring[].id
+- vring.used->ring[].len
 
-On 2026/3/5 01:59, Dave Hansen wrote:
-> On 3/3/26 18:10, Lance Yang wrote:
-> ...
->> +	if (pv_ops.mmu.flush_tlb_multi == native_flush_tlb_multi &&
->> +	    !cpu_feature_enabled(X86_FEATURE_INVLPGB)) {
->> +		pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast = true;
->> +		static_branch_enable(&tlb_ipi_broadcast_key);
->> +	}
->> +}
-> ...
->> +#ifndef CONFIG_PARAVIRT
->> +void __init native_pv_tlb_init(void)
->> +{
->> +	/*
->> +	 * For non-PARAVIRT builds, check if native TLB flush sends real IPIs
->> +	 * (i.e., not using INVLPGB broadcast invalidation).
->> +	 */
->> +	if (!cpu_feature_enabled(X86_FEATURE_INVLPGB))
->> +		static_branch_enable(&tlb_ipi_broadcast_key);
->> +}
->> +#endif
-> 
-> I really despise duplicated logic. The X86_FEATURE_INVLPGB check is
-> small, but it is duplicated. You're also setting the static branch in a
-> *bunch* of different places.
+These fields reside in DMA-shared memory and can be modified by the
+virtio device at any time. Without READ_ONCE(), the compiler may perform
+unsafe optimizations such as value caching or load tearing.
 
-Sorry for the mess :(
+Example KCSAN report:
 
-> Can this be arranged so that the PV code just tells the core code that
-> it is compatible with flush_tlb_multi_implies_ipi_broadcast?
+[  109.277250] ==================================================================
+[  109.283600] BUG: KCSAN: data-race in virtqueue_enable_cb_delayed_split+0x10f/0x170
 
-Yeah, much much better and cleaner!
+[  109.295263] race at unknown origin, with read to 0xffff8b2a92ef2042 of 2 bytes by interrupt on cpu 1:
+[  109.306934]  virtqueue_enable_cb_delayed_split+0x10f/0x170
+[  109.312880]  virtqueue_enable_cb_delayed+0x3b/0x70
+[  109.318852]  start_xmit+0x315/0x860 [virtio_net]
+[  109.324532]  dev_hard_start_xmit+0x85/0x380
+[  109.329993]  sch_direct_xmit+0xd3/0x680
+[  109.335360]  __dev_xmit_skb+0x4ee/0xcc0
+[  109.340568]  __dev_queue_xmit+0x560/0xe00
+[  109.345701]  ip_finish_output2+0x49a/0x9b0
+[  109.350743]  __ip_finish_output+0x131/0x250
+[  109.355789]  ip_finish_output+0x28/0x180
+[  109.360712]  ip_output+0xa0/0x1c0
+[  109.365479]  __ip_queue_xmit+0x68d/0x9e0
+[  109.370156]  ip_queue_xmit+0x33/0x40
+[  109.374783]  __tcp_transmit_skb+0x1703/0x1970
+[  109.379467]  __tcp_send_ack.part.0+0x1bb/0x320
+...
+[  109.499585]  do_idle+0x7a/0xe0
+[  109.502979]  cpu_startup_entry+0x25/0x30
+[  109.506481]  start_secondary+0x116/0x150
+[  109.509930]  common_startup_64+0x13e/0x141
 
-> void __init bool is_pv_ok(void)
-> {
-> 	/* This check is super sketchy an unexplained: */
-> 	if (pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast)
-> 		return true;
-> 
-> 	if (pv_ops.mmu.flush_tlb_multi != native_flush_tlb_multi)
-> 		return false;
-> 
-> 	pv_ops.mmu.flush_tlb_multi_implies_ipi_broadcast = true;
-> 
-> 	return true;
-> }
-> 
-> void __init tlb_init(void)
-> {
-> 	if (!is_pv_ok())
-> 		return;
-> 
-> 	if (cpu_feature_enabled(X86_FEATURE_INVLPGB))
-> 		return;
-> 		
-> 	static_branch_enable(&tlb_ipi_broadcast_key);
-> }
-> 
-> Isn't that like a billion times more readable? It has one
-> X86_FEATURE_INVLPGB check and one static_branch_enable() point and no
-> #ifdeffery other than defining a stub is_pv_ok().
+[  109.516626] value changed: 0x0029 -> 0x002a
 
-Yep, absolutely ;) Will rework it for v7 as you suggested.
+Fix these races by wrapping all reads from the used ring with READ_ONCE()
+to ensure:
+1. The compiler always loads values from memory (no caching)
+2. Loads are atomic (no load tearing)
+3. The concurrent access intent is documented for KCSAN and developers
 
-> BTW, why is there even an early return for the case where
-> flush_tlb_multi_implies_ipi_broadcast is already set? Isn't this
-> decision made once on the boot CPU and then never touched again? Do any
-> PV instances actually set the bit?
+The changes affect the following functions:
+- virtqueue_kick_prepare_split(): used->flags and avail event
+- virtqueue_get_buf_ctx_split(): used->ring[].id and used->ring[].len
+- virtqueue_get_buf_ctx_split_in_order(): used->ring[].id and
+used->ring[].len
+- virtqueue_enable_cb_delayed_split(): used->idx
 
-Good point. No PV backend sets it today, so we don't need that check or
-even the property. I'll drop them. If a PV backend ever needs to
-indicate it sends real IPIs, we can add the property back then.
-
-Does the following look reasonable?
-
----8<---
-diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
-index 866ea78ba156..74292abe8852 100644
---- a/arch/x86/include/asm/tlb.h
-+++ b/arch/x86/include/asm/tlb.h
-@@ -5,11 +5,19 @@
-  #define tlb_flush tlb_flush
-  static inline void tlb_flush(struct mmu_gather *tlb);
-
-+#define tlb_table_flush_implies_ipi_broadcast 
-tlb_table_flush_implies_ipi_broadcast
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void);
-+
-  #include <asm-generic/tlb.h>
-  #include <linux/kernel.h>
-  #include <vdso/bits.h>
-  #include <vdso/page.h>
-
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void)
-+{
-+	return static_branch_likely(&tlb_ipi_broadcast_key);
-+}
-+
-  static inline void tlb_flush(struct mmu_gather *tlb)
-  {
-  	unsigned long start = 0UL, end = TLB_FLUSH_ALL;
-@@ -20,7 +28,12 @@ static inline void tlb_flush(struct mmu_gather *tlb)
-  		end = tlb->end;
-  	}
-
--	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
-+	/*
-+	 * Pass both freed_tables and unshared_tables so that lazy-TLB CPUs
-+	 * also receive IPIs during unsharing page tables.
-+	 */
-+	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
-+			   tlb->freed_tables || tlb->unshared_tables);
-  }
-
-  static inline void invlpg(unsigned long addr)
-diff --git a/arch/x86/include/asm/tlbflush.h 
-b/arch/x86/include/asm/tlbflush.h
-index 5a3cdc439e38..d086454eb760 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -5,6 +5,7 @@
-  #include <linux/mm_types.h>
-  #include <linux/mmu_notifier.h>
-  #include <linux/sched.h>
-+#include <linux/jump_label.h>
-
-  #include <asm/barrier.h>
-  #include <asm/processor.h>
-@@ -15,9 +16,35 @@
-  #include <asm/pti.h>
-  #include <asm/processor-flags.h>
-  #include <asm/pgtable.h>
-+#include <asm/paravirt.h>
-
-  DECLARE_PER_CPU(u64, tlbstate_untag_mask);
-
-+DECLARE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
-+
-+#ifdef CONFIG_PARAVIRT
-+static inline bool __init pv_tlb_is_native(void)
-+{
-+	return pv_ops.mmu.flush_tlb_multi == native_flush_tlb_multi;
-+}
-+#else
-+static inline bool __init pv_tlb_is_native(void)
-+{
-+	return true;
-+}
-+#endif
-+
-+static inline void __init native_pv_tlb_init(void)
-+{
-+	if (!pv_tlb_is_native())
-+		return;
-+
-+	if (cpu_feature_enabled(X86_FEATURE_INVLPGB))
-+		return;
-+
-+	static_branch_enable(&tlb_ipi_broadcast_key);
-+}
-+
-  void __flush_tlb_all(void);
-
-  #define TLB_FLUSH_ALL	-1UL
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 5cd6950ab672..3cdb04162843 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1167,6 +1167,7 @@ void __init native_smp_prepare_boot_cpu(void)
-  		switch_gdt_and_percpu_base(me);
-
-  	native_pv_lock_init();
-+	native_pv_tlb_init();
-  }
-
-  void __init native_smp_cpus_done(unsigned int max_cpus)
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 621e09d049cb..43e60cca38f1 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -26,6 +26,8 @@
-
-  #include "mm_internal.h"
-
-+DEFINE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
-+
-  #ifdef CONFIG_PARAVIRT
-  # define STATIC_NOPV
-  #else
+Signed-off-by: Chaohai Chen <wdhh6@aliyun.com>
 ---
+ drivers/virtio/virtio_ring.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 335692d41617..a792a3f05837 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -810,10 +810,10 @@ static bool virtqueue_kick_prepare_split(struct vring_virtqueue *vq)
+ 
+ 	if (vq->event) {
+ 		needs_kick = vring_need_event(virtio16_to_cpu(vq->vq.vdev,
+-					vring_avail_event(&vq->split.vring)),
++					READ_ONCE(vring_avail_event(&vq->split.vring))),
+ 					      new, old);
+ 	} else {
+-		needs_kick = !(vq->split.vring.used->flags &
++		needs_kick = !(READ_ONCE(vq->split.vring.used->flags) &
+ 					cpu_to_virtio16(vq->vq.vdev,
+ 						VRING_USED_F_NO_NOTIFY));
+ 	}
+@@ -940,9 +940,9 @@ static void *virtqueue_get_buf_ctx_split(struct vring_virtqueue *vq,
+ 
+ 	last_used = (vq->last_used_idx & (vq->split.vring.num - 1));
+ 	i = virtio32_to_cpu(vq->vq.vdev,
+-			vq->split.vring.used->ring[last_used].id);
++			READ_ONCE(vq->split.vring.used->ring[last_used].id));
+ 	*len = virtio32_to_cpu(vq->vq.vdev,
+-			vq->split.vring.used->ring[last_used].len);
++			READ_ONCE(vq->split.vring.used->ring[last_used].len));
+ 
+ 	if (unlikely(i >= vq->split.vring.num)) {
+ 		BAD_RING(vq, "id %u out of range\n", i);
+@@ -1004,9 +1004,9 @@ static void *virtqueue_get_buf_ctx_split_in_order(struct vring_virtqueue *vq,
+ 		virtio_rmb(vq->weak_barriers);
+ 
+ 		vq->batch_last.id = virtio32_to_cpu(vq->vq.vdev,
+-				    vq->split.vring.used->ring[last_used_idx].id);
++				    READ_ONCE(vq->split.vring.used->ring[last_used_idx].id));
+ 		vq->batch_last.len = virtio32_to_cpu(vq->vq.vdev,
+-				     vq->split.vring.used->ring[last_used_idx].len);
++				     READ_ONCE(vq->split.vring.used->ring[last_used_idx].len));
+ 	}
+ 
+ 	if (vq->batch_last.id == last_used) {
+@@ -1112,8 +1112,9 @@ static bool virtqueue_enable_cb_delayed_split(struct vring_virtqueue *vq)
+ 			&vring_used_event(&vq->split.vring),
+ 			cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx + bufs));
+ 
+-	if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev, vq->split.vring.used->idx)
+-					- vq->last_used_idx) > bufs)) {
++	if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev,
++				READ_ONCE(vq->split.vring.used->idx))
++				- vq->last_used_idx) > bufs)) {
+ 		END_USE(vq);
+ 		return false;
+ 	}
+-- 
+2.43.7
 
-Thanks,
-Lance
