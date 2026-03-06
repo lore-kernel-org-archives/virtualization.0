@@ -1,1363 +1,734 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com [209.85.160.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B136312837
-	for <virtualization@lists.linux.dev>; Thu,  5 Mar 2026 20:23:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B571A3148A8
+	for <virtualization@lists.linux.dev>; Fri,  6 Mar 2026 01:51:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772742199; cv=none; b=mWCV60wgh+klgUBHnotFZFkl3QBIDMh8T1sCb/Qkllxbmk+UbU8BtrZUnHxcBk2r7p3TkjAyb3DJLP7mVUjhUFa58OkG0e2las8lYOsddQiBFzi4or0CTniSis95QXp+wvy1sppxkYNKxPUCSJ2rnlhca76XaFszXLEvGQ2obM8=
+	t=1772761869; cv=none; b=PNi8tcSagWUbs+s8HmdfJADoz14Tqha9SCg9T23MxO+Vr+47lXqFeVE3gt+V39DBs6fC6zDaaS86NNFuislyvWdAzPVjMSNNrmbDIgzpf6XEbZ1CvEDMDeoqDrOOmjsPIrnUJ+01Yxnun7ajGbQUCqOinBGDbMISg4reJguZ1Yg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772742199; c=relaxed/simple;
-	bh=iwZHFAtVu0ZnzJZoLO9+9hZuUL2KleVmXqDUHvycnvQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=NQJQsF4+0kXIS7ZSVFUrbHdm/0ozFKn8OGu8lYUhbGaBKYVTqHK5h+VKIRJ5kyFrBrrxLYfx+TdVUDGMBsEhw8N3Odtj0HCyg1QT1wph3X7Crd3bQFqdTHjPuEjIZT6/M9/j5Ods1KhRPeLCvGBdTIcA5hZDDt9lxJJu3GiD7vM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gwHj9kxv; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1772761869; c=relaxed/simple;
+	bh=Z9tuv80Wd+Z17aBWjfBPCZL5x2tayG5z4hbZl6oUNtQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=RN5Yjl9T0rCEXLWYHUOzNq0/WKaOlNaP80fft9n7eY6cYzPwTVzN2iCCYQqel9ClcLRstyAFPw6iWHSgPQ8QMYgS+INLjOLaQ292yMqNI5Cngo2JZNQnSmmgdQP7at/CbVC8C2uzezMTvWbynr2GzcuViC+R6CbRIe8uBTelnxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q6uSTR2S; arc=none smtp.client-ip=209.85.160.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gwHj9kxv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1772742195;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VbsmeAitR/KI8CMjPRbbi03M/zrPU07D5M5EXOp16Gw=;
-	b=gwHj9kxvx+vtNzZd7yRZ73vnvJR0x0yfvh/3X9yco22hzorslRLd6Iby6WwteBTt5NHUct
-	lNQQZRjw8UQIo3+pVLZFHRwwpEYkJnRrSw2v0nYVzzs6T0OUSpPJ0iYOKNlkWRliC7EWVf
-	4G9Q3UBx/mEQ2EWjd2GweG7sog9SIdQ=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-178-z4eI5IYwN4iyAe6bdefbcA-1; Thu, 05 Mar 2026 15:23:12 -0500
-X-MC-Unique: z4eI5IYwN4iyAe6bdefbcA-1
-X-Mimecast-MFC-AGG-ID: z4eI5IYwN4iyAe6bdefbcA_1772742191
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-439ca4b3d0bso1335057f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 05 Mar 2026 12:23:11 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q6uSTR2S"
+Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-40427db1300so2781603fac.0
+        for <virtualization@lists.linux.dev>; Thu, 05 Mar 2026 17:51:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772761864; x=1773366664; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=F0rsOoswj5eD7nQPQpmkp6jfLbhrwTpwHV3qnnV31B8=;
+        b=Q6uSTR2SUC4yp+W8RzJtiU/hZzVWbBMWGjMRN0wyCjs9/PB/Z5LT5YmNZ3FJMSUbXh
+         VhIlOL9Sba0u9qTB76NdJ6Pb0ov/NIaOQguQGSkj5PLlFUF9+Ru6Yhfw/hXe1c9fCsWh
+         13LUHjvUweUDH3IkUG9J3G8W+Rl3FICwMcQs6SeUycol9J8sfETpQ2IB3cHUSFzBlxbU
+         iy56r5sr7cIiC/T5xI+i0dPqk9UyEmK4aKJhodDq6QpaEz6UoM3ppt78d44+b7SYdkv1
+         bA3/SmEK//fAG5hX86gd3XDJ9g46/wmZWOLWn9F4qi0Kw3PH8w7vBHHqk7sx9JL+XztI
+         Hj2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772742191; x=1773346991;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=VbsmeAitR/KI8CMjPRbbi03M/zrPU07D5M5EXOp16Gw=;
-        b=B14aX86yY2eaMXhWVEhO6SlFr/VCWx6ZZnkg0t20kpprWunEYNDYskj4OdtfQPiiE3
-         4TEhm553l3eJjUAwHd/Tptx7Yk1A0MW4yOWmJQELyGJgQeaPdIeograRSdEz6HAEQxku
-         xYj9QJW3VmsDtm6qdNGuKaVY0m0eKjDjYi/OzbEpWQgbDd+D5wlRdEjpyKx7aZIAKy/L
-         gR/CDJ1fdXBuBbVqetyE/oPup5eFG1fmTjDMNv6AY6HEqLdJTk257g87cJbjZHSIkP88
-         zVSGOquWeR2qwj0bGt+RTBHetN/nnl+d0dhmm3NRrsJdp/fezeIkVz74bPbJdscVy2Em
-         2qMQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXUT9oH9HZEyTOQlxbFc+ogy6XhMPTpSCqiiT2rUVsAUjfDLkGAJLKcmSxtMk0Tu9m2MRpj/a1DLvJrzzUJwQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyX1ypjCH0eiKV7CX0/V+wAdPeG4jsfufZEc/4rXMqn0DvW+Mke
-	zkvccN3mphUrH+/7BHWUikjDy6HZh6AZUJHKDoqshZJYTcpwtH3bXTyWD4pIeg01WcQm73OeXUM
-	ccByiH5EKBkgW0mj0Ih7TBRhJ3hRO/hPAEFBTUYZOnAS6AZCI7gPARFNKbL36qxykgiM5
-X-Gm-Gg: ATEYQzzfNEFIIRRVtvwk48GnpAQcESleu4nEVOlHfaDKccp1njlY22OcZ1XfZs1CuBC
-	UZAdGPc0Tkkj1X5VYCAx+0Qeroy+6+HqYwSA6KidzOAWKA3AD+FZdySwe+Rpghogr1F8miafHfQ
-	NjGrCJfxs/3mTFxYVy4qKJf+utobdLNVAa+dKYjhmlMpM91KKs9W0M7umZ5wCwcBzbXWQDJuZrU
-	EaWXoT9dw0CFv1wYFlHxY2892fQlTetZLFMUzEQWL9GYKjF1nAmc7OsuN4IT4FGaNl3hEBT0/mO
-	crVbNZou5CVJIsk0oR1k6pmw6qMAKuNF+K1VWi359E6ZxDbFR1JkmXeoTeNLSIwrKuC4/pLB6aW
-	86fqH5GXB94/Jj7M=
-X-Received: by 2002:a05:6000:2404:b0:439:85bf:2366 with SMTP id ffacd0b85a97d-439c7ffc8cemr13152905f8f.52.1772742190424;
-        Thu, 05 Mar 2026 12:23:10 -0800 (PST)
-X-Received: by 2002:a05:6000:2404:b0:439:85bf:2366 with SMTP id ffacd0b85a97d-439c7ffc8cemr13152849f8f.52.1772742189737;
-        Thu, 05 Mar 2026 12:23:09 -0800 (PST)
-Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439b55d15besm40486187f8f.30.2026.03.05.12.23.08
+        d=1e100.net; s=20230601; t=1772761864; x=1773366664;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=F0rsOoswj5eD7nQPQpmkp6jfLbhrwTpwHV3qnnV31B8=;
+        b=MpyXAnWQbdMnVKWe35+EnquQbf8LrSqvjOrPqDrcinbBykxEzKTUCA3QsC2R+kpuUA
+         12A3MO5DY5oWFs9yKD2zKpIiCEz7N4ykkv1I1pbp7mcdamKLogV9AS/CyDpZIK4nxS8b
+         ZKvis6APqpl1jY2Vv0XfyeRmqKJaofn7NPfbd8DV1N4jK1/vB6kVrztE0teYuITdHTDA
+         QUqKIk99hcgAYcbT//7xFoer1l+jvhRbqaon4TwD+k7l4+xI1P28oPFSYvjl7lnLkQEr
+         0sx/gvQMg+6n8Sc7t+eJfBrUk0T6j46WWHJ/WvId0GbAINPJmW11bfQMYx7SX+/vq05A
+         pf7g==
+X-Forwarded-Encrypted: i=1; AJvYcCVONrT5ootQMJHCvUE3+wl4V0BPHyTwRU3IVryKMDpGTM+jve2aKkvTo8vifxjAXFJAATGMmMDS4CXuMKuUqg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwU608pPWOiJndVA5pBUz55J6f8FH8oBVdmlJZbkYxRsNtJqqDo
+	STedGeWey7OOdg8IVqsTF3UMJjh1bw5lX75ivOrvmrO5Eolwt7mm8UoM
+X-Gm-Gg: ATEYQzzd3N8hoKfVSsgPsa/RWWWS6qp3FNlhIF/TWAuRdEUpiC65gqbtHzDZ6CHdy5a
+	TA29tSbG90bcGsQkNQHN5da/skoetz888YmY8pxoBN0kGmGerCC3EzFzrI8PCpdxzpBGTq/MDvs
+	3djJo4K8yn0JF65yw4sb242XCw8/qsbUxrbeRUngj7nw5aBORs+85jz9xkHVNx1Y97ViRAo8Lme
+	x9zYPD5rn49xyNitESGJOvy6oVsX91bFGDtWpMM0b6BLHEatX7+Ao+IEuryhb4Y4ebwUG6rEAEu
+	8CiHubu2Gu9rvbo8YlR6JNxViAnmS5Oedt/0RJsnEDiBjquKniQHeJmJCJ1745HjAvt+UGT+saU
+	01HSjw0H3jhgtJa/yLXaHvZ4LqIsvCBNgRrXlx0zU5561siewvlH0/EbLtPpsr7m6Hy9Q4olGDk
+	8J0tUjmUJFF6bZ+bqHS93685ifodSbTJJwDZmyOg12HSpZzD7aM4gmxXta7hU=
+X-Received: by 2002:a05:6820:162a:b0:679:9873:5e7e with SMTP id 006d021491bc7-67b9bd1af62mr408389eaf.42.1772761863366;
+        Thu, 05 Mar 2026 17:51:03 -0800 (PST)
+Received: from frodo (c-98-38-17-99.hsd1.co.comcast.net. [98.38.17.99])
+        by smtp.googlemail.com with ESMTPSA id 006d021491bc7-67b9cc1a627sm115245eaf.6.2026.03.05.17.50.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Mar 2026 12:23:09 -0800 (PST)
-Date: Thu, 5 Mar 2026 21:23:07 +0100
-From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-To: Harald Mommer <harald.mommer@oss.qualcomm.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol@kernel.org>,
-	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>,
+        Thu, 05 Mar 2026 17:50:58 -0800 (PST)
+From: Jim Cromie <jim.cromie@gmail.com>
+To: linux-kernel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	amd-gfx@lists.freedesktop.org,
+	intel-gvt-dev@lists.freedesktop.org,
+	intel-gfx@lists.freedesktop.org
+Cc: Jim Cromie <jim.cromie@gmail.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-can@vger.kernel.org,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
 	virtualization@lists.linux.dev,
-	Stefano Garzarella <sgarzare@redhat.com>, francesco@valla.it
-Subject: Re: [PATCH v12] can: virtio: Add virtio CAN driver
-Message-ID: <aanmK/G+5IJo7d5x@fedora>
-References: <aamtKD0F2rnuvtPM@fedora>
- <f8a22b6f-42e0-4dab-8af0-fea7af651169@oss.qualcomm.com>
- <aank6z/zU5NDLXSX@fedora>
+	linux-media@vger.kernel.org,
+	linaro-mm-sig@lists.linaro.org
+Subject: [RFC PATCH 2/7] virtio: use pr_debug_ratelimited to avoid flooding
+Date: Thu,  5 Mar 2026 18:50:05 -0700
+Message-ID: <20260306015022.1940986-3-jim.cromie@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260306015022.1940986-1-jim.cromie@gmail.com>
+References: <20260306015022.1940986-1-jim.cromie@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aank6z/zU5NDLXSX@fedora>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 8Doe2rzVpRPNUqKWOZZ_D13JmzJQKLpw24A7Millvig_1772742191
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, Mar 05, 2026 at 09:17:47PM +0100, Matias Ezequiel Vara Larsen wrote:
-> On Thu, Mar 05, 2026 at 07:36:32PM +0100, Harald Mommer wrote:
-> > 
-> > 
-> > On 3/5/26 17:19, Matias Ezequiel Vara Larsen wrote:
-> > > Add virtio CAN driver based on Virtio 1.4 specification (see
-> > > https://github.com/oasis-tcs/virtio-spec/tree/virtio-1.4). The driver
-> > > implements a complete CAN bus interface over Virtio transport,
-> > > supporting both CAN Classic and CAN-FD Ids. In term of frames, it
-> > > supports classic and CAN FD. RTR frames are only supported with classic
-> > > CAN.
-> > > 
-> > > Usage:
-> > > - "ip link set up can0" - start controller
-> > > - "ip link set down can0" - stop controller
-> > > - "candump can0" - receive frames
-> > > - "cansend can0 123#DEADBEEF" - send frames
-> > > 
-> > > Signed-off-by: Harald Mommer <harald.mommer@oss.qualcomm.com>
-> > > Co-developed-by: Harald Mommer <harald.mommer@oss.qualcomm.com>
-> > > Signed-off-by: Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>
-> > > Co-developed-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> > > Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> > > Cc: Damir Shaikhutdinov <Damir.Shaikhutdinov@opensynergy.com>
-> > > Reviewed-by: Francesco Valla <francesco@valla.it>
-> > > Tested-by: Francesco Valla <francesco@valla.it>
-> > > Signed-off-by: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-> > > ---
-> > > V12:
-> > > - check return value in virtio_can_start()
-> > > - use devm_krealloc() in virtio_can_restore() to re-allocate rpkt
-> > > - remove access to cf->len and replace it with len
-> > > - use __counted_by_le()
-> > > - free tx buffers during virtio_can_del_vq()
-> > > - add reinit_completion() for ctrl msgs
-> > > 
-> > > V11:
-> > > * Set CAN_VIRTIO_CAN config before CAN_XILINXCAN
-> > > * Use GFP_ATOMIC in virtio_can_alloc_tx_idx()
-> > > * Use open_candev() and set bittiming.bitrate to CAN_BITRATE_UNKNOWN and
-> > >   data_bittiming.bitrate to CAN_BITRATE_UNKNOWN
-> > > * Fix leak of skb by adding kfree_skb(skb)
-> > > * Fix out-of-bounds in virtio_can_populate_rx_vq()
-> > > * Initialize `ret`
-> > > * Use virtio_reset_device()
-> > > * Add napi_disable() in virtio_can_remove()
-> > > * Propagate error in virtio_can_start() and virtio_can_stop()
-> > > 
-> > > V10:
-> > > * Follow Reverse Christmas Tree convention
-> > > 
-> > > V9:
-> > > * Remove unnecessary comments
-> > > * Update maintainer list
-> > > 
-> > > V8:
-> > > * Address nits
-> > > 
-> > > V7:
-> > > * Address nits
-> > > * Remove unnecessary comments
-> > > * Remove io_callbacks[]
-> > > * Use guard() syntax
-> > > * Remove kicking for each inbuf
-> > > * replace sdu_len with rpkt_len
-> > > * Use devm_kzalloc()
-> > > * Use scoped_guard() to protect virtqueue_add_sgs() and virtqueue_kicks() for
-> > >   tx queue
-> > > * Tested with vhost-device-can
-> > >   (see https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-can) and
-> > >   Qemu (942b0d3) with [1]. A reviewer observed that the device stops to work
-> > >   after flooding from host. This issue is still present.
-> > > 
-> > > [1]
-> > > https://lore.kernel.org/qemu-devel/20251031155617.1223248-1-mvaralar@redhat.com/
-> > > 
-> > > V6:
-> > > * Address nits
-> > > * Check for error during register_virtio_can()
-> > > * Remove virtio_device_ready()
-> > > * Allocate virtio_can_rx rpkt[] at probe
-> > > * Define virtio_can_control struct
-> > > * Return VIRTIO_CAN_RESULT_NOT_OK after unlocking
-> > > * Define sdu[] as a flex array for both tx and rx. For rx, use
-> > >   VIRTIO_CAN_F_CAN_FD to figure out the max len for sdu
-> > > * Fix statistics in virtio_can_read_tx_queue() and
-> > >   how we indicate error to the user when getting
-> > >   VIRTIO_CAN_RESULT_NOT_OK
-> > > * Fix syntax of virtio_find_vqs()
-> > > * Drop tx_list
-> > > * Fix values of VIRTIO_CAN_F_LATE_TX_ACK and VIRTIO_CAN_F_RTR_FRAMES
-> > > * Tested with vhost-device-can
-> > >   (see
-> > >   https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-can)
-> > >   and qemu (see
-> > >   https://github.com/virtualopensystems/qemu/tree/vhu-can-rfc) 
-> > > 
-> > > V5:
-> > > * Re-base on top of linux-next (next-20240103)
-> > > * Tested with https://github.com/OpenSynergy/qemu/tree/virtio-can-spec-rfc-v3
-> > > 
-> > > RFC V4:
-> > > * Apply reverse Christmas tree style
-> > > * Add member *classic_dlc to RX and TX CAN frames
-> > > * Fix race causing a NETDEV_TX_BUSY return
-> > > ---
-> > >  MAINTAINERS                     |   9 +
-> > >  drivers/net/can/Kconfig         |  12 +
-> > >  drivers/net/can/Makefile        |   1 +
-> > >  drivers/net/can/virtio_can.c    | 986 ++++++++++++++++++++++++++++++++
-> > >  include/uapi/linux/virtio_can.h |  78 +++
-> > >  5 files changed, 1086 insertions(+)
-> > >  create mode 100644 drivers/net/can/virtio_can.c
-> > >  create mode 100644 include/uapi/linux/virtio_can.h
-> > > 
-> > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > index 80cd3498c293..f295a904c93e 100644
-> > > --- a/MAINTAINERS
-> > > +++ b/MAINTAINERS
-> > > @@ -27068,6 +27068,15 @@ F:	drivers/scsi/virtio_scsi.c
-> > >  F:	include/uapi/linux/virtio_blk.h
-> > >  F:	include/uapi/linux/virtio_scsi.h
-> > >  
-> > > +VIRTIO CAN DRIVER
-> > > +M:	"Harald Mommer" <harald.mommer@oss.qualcomm.com>
-> > > +M:	"Matias Ezequiel Vara Larsen" <mvaralar@redhat.com>
-> > > +L:	virtualization@lists.linux.dev
-> > > +L:	linux-can@vger.kernel.org
-> > > +S:	Maintained
-> > > +F:	drivers/net/can/virtio_can.c
-> > > +F:	include/uapi/linux/virtio_can.h
-> > > +
-> > >  VIRTIO CONSOLE DRIVER
-> > >  M:	Amit Shah <amit@kernel.org>
-> > >  L:	virtualization@lists.linux.dev
-> > > diff --git a/drivers/net/can/Kconfig b/drivers/net/can/Kconfig
-> > > index d43d56694667..f33ae46d9766 100644
-> > > --- a/drivers/net/can/Kconfig
-> > > +++ b/drivers/net/can/Kconfig
-> > > @@ -209,6 +209,18 @@ config CAN_TI_HECC
-> > >  	  Driver for TI HECC (High End CAN Controller) module found on many
-> > >  	  TI devices. The device specifications are available from www.ti.com
-> > >  
-> > > +config CAN_VIRTIO_CAN
-> > > +	depends on VIRTIO
-> > > +	tristate "Virtio CAN device support"
-> > > +	default n
-> > > +	help
-> > > +	  Say Y here if you want to support for Virtio CAN.
-> > > +
-> > > +	  To compile this driver as a module, choose M here: the
-> > > +	  module will be called virtio-can.
-> > > +
-> > > +	  If unsure, say N.
-> > > +
-> > >  config CAN_XILINXCAN
-> > >  	tristate "Xilinx CAN"
-> > >  	depends on ARCH_ZYNQ || ARM64 || MICROBLAZE || COMPILE_TEST
-> > > diff --git a/drivers/net/can/Makefile b/drivers/net/can/Makefile
-> > > index 56138d8ddfd2..2ddea733ed5d 100644
-> > > --- a/drivers/net/can/Makefile
-> > > +++ b/drivers/net/can/Makefile
-> > > @@ -32,6 +32,7 @@ obj-$(CONFIG_CAN_PEAK_PCIEFD)	+= peak_canfd/
-> > >  obj-$(CONFIG_CAN_SJA1000)	+= sja1000/
-> > >  obj-$(CONFIG_CAN_SUN4I)		+= sun4i_can.o
-> > >  obj-$(CONFIG_CAN_TI_HECC)	+= ti_hecc.o
-> > > +obj-$(CONFIG_CAN_VIRTIO_CAN)	+= virtio_can.o
-> > >  obj-$(CONFIG_CAN_XILINXCAN)	+= xilinx_can.o
-> > >  
-> > >  subdir-ccflags-$(CONFIG_CAN_DEBUG_DEVICES) += -DDEBUG
-> > > diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
-> > > new file mode 100644
-> > > index 000000000000..f27e603524c9
-> > > --- /dev/null
-> > > +++ b/drivers/net/can/virtio_can.c
-> > > @@ -0,0 +1,986 @@
-> > > +// SPDX-License-Identifier: GPL-2.0-only
-> > > +/*
-> > > + * CAN bus driver for the Virtio CAN controller
-> > > + *
-> > > + * Copyright (C) 2021-2023 OpenSynergy GmbH
-> > > + * Copyright Red Hat, Inc. 2025
-> > > + */
-> > > +
-> > > +#include <linux/atomic.h>
-> > > +#include <linux/idr.h>
-> > > +#include <linux/interrupt.h>
-> > > +#include <linux/io.h>
-> > > +#include <linux/kernel.h>
-> > > +#include <linux/module.h>
-> > > +#include <linux/mutex.h>
-> > > +#include <linux/netdevice.h>
-> > > +#include <linux/stddef.h>
-> > > +#include <linux/can/dev.h>
-> > > +#include <linux/virtio.h>
-> > > +#include <linux/virtio_ring.h>
-> > > +#include <linux/virtio_can.h>
-> > > +
-> > > +/* CAN device queues */
-> > > +#define VIRTIO_CAN_QUEUE_TX 0
-> > > +#define VIRTIO_CAN_QUEUE_RX 1
-> > > +#define VIRTIO_CAN_QUEUE_CONTROL 2
-> > > +#define VIRTIO_CAN_QUEUE_COUNT 3
-> > > +
-> > > +#define CAN_KNOWN_FLAGS \
-> > > +	(VIRTIO_CAN_FLAGS_EXTENDED |\
-> > > +	 VIRTIO_CAN_FLAGS_FD |\
-> > > +	 VIRTIO_CAN_FLAGS_RTR)
-> > > +
-> > > +/* Max. number of in flight TX messages */
-> > > +#define VIRTIO_CAN_ECHO_SKB_MAX 128
-> > > +
-> > > +struct virtio_can_tx {
-> > > +	unsigned int putidx;
-> > > +	struct virtio_can_tx_in tx_in;
-> > > +	/* Keep virtio_can_tx_out at the end of the structure due to flex array */
-> > > +	struct virtio_can_tx_out tx_out;
-> > > +};
-> > > +
-> > > +struct virtio_can_control {
-> > > +	struct virtio_can_control_out cpkt_out;
-> > > +	struct virtio_can_control_in cpkt_in;
-> > > +};
-> > > +
-> > > +/* virtio_can private data structure */
-> > > +struct virtio_can_priv {
-> > > +	struct can_priv can;	/* must be the first member */
-> > > +	/* NAPI for RX messages */
-> > > +	struct napi_struct napi;
-> > > +	/* NAPI for TX messages */
-> > > +	struct napi_struct napi_tx;
-> > > +	/* The network device we're associated with */
-> > > +	struct net_device *dev;
-> > > +	/* The virtio device we're associated with */
-> > > +	struct virtio_device *vdev;
-> > > +	/* The virtqueues */
-> > > +	struct virtqueue *vqs[VIRTIO_CAN_QUEUE_COUNT];
-> > > +	/* Lock for TX operations */
-> > > +	spinlock_t tx_lock;
-> > > +	/* Control queue lock */
-> > > +	struct mutex ctrl_lock;
-> > > +	/* Wait for control queue processing without polling */
-> > > +	struct completion ctrl_done;
-> > > +	/* Array of receive queue messages */
-> > > +	struct virtio_can_rx *rpkt;
-> > > +	struct virtio_can_control can_ctr_msg;
-> > > +	/* Data to get and maintain the putidx for local TX echo */
-> > > +	struct ida tx_putidx_ida;
-> > > +	/* In flight TX messages */
-> > > +	atomic_t tx_inflight;
-> > > +	/* Packet length */
-> > > +	int rpkt_len;
-> > > +	/* BusOff pending. Reset after successful indication to upper layer */
-> > > +	bool busoff_pending;
-> > > +};
-> > > +
-> > > +static void virtqueue_napi_schedule(struct napi_struct *napi,
-> > > +				    struct virtqueue *vq)
-> > > +{
-> > > +	if (napi_schedule_prep(napi)) {
-> > > +		virtqueue_disable_cb(vq);
-> > > +		__napi_schedule(napi);
-> > > +	}
-> > > +}
-> > > +
-> > > +static void virtqueue_napi_complete(struct napi_struct *napi,
-> > > +				    struct virtqueue *vq, int processed)
-> > > +{
-> > > +	int opaque;
-> > > +
-> > > +	opaque = virtqueue_enable_cb_prepare(vq);
-> > > +	if (napi_complete_done(napi, processed)) {
-> > > +		if (unlikely(virtqueue_poll(vq, opaque)))
-> > > +			virtqueue_napi_schedule(napi, vq);
-> > > +	} else {
-> > > +		virtqueue_disable_cb(vq);
-> > > +	}
-> > > +}
-> > > +
-> > > +static void virtio_can_free_candev(struct net_device *ndev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = netdev_priv(ndev);
-> > > +
-> > > +	ida_destroy(&priv->tx_putidx_ida);
-> > > +	free_candev(ndev);
-> > > +}
-> > > +
-> > > +static int virtio_can_alloc_tx_idx(struct virtio_can_priv *priv)
-> > > +{
-> > > +	int tx_idx;
-> > > +
-> > > +	tx_idx = ida_alloc_max(&priv->tx_putidx_ida,
-> > > +			       priv->can.echo_skb_max - 1, GFP_ATOMIC);
-> > > +	if (tx_idx >= 0)
-> > > +		atomic_inc(&priv->tx_inflight);
-> > > +
-> > > +	return tx_idx;
-> > > +}
-> > > +
-> > > +static void virtio_can_free_tx_idx(struct virtio_can_priv *priv,
-> > > +				   unsigned int idx)
-> > > +{
-> > > +	ida_free(&priv->tx_putidx_ida, idx);
-> > > +	atomic_dec(&priv->tx_inflight);
-> > > +}
-> > > +
-> > > +/* Create a scatter-gather list representing our input buffer and put
-> > > + * it in the queue.
-> > > + *
-> > > + * Callers should take appropriate locks.
-> > > + */
-> > > +static int virtio_can_add_inbuf(struct virtqueue *vq, void *buf,
-> > > +				unsigned int size)
-> > > +{
-> > > +	struct scatterlist sg[1];
-> > > +	int ret;
-> > > +
-> > > +	sg_init_one(sg, buf, size);
-> > > +
-> > > +	ret = virtqueue_add_inbuf(vq, sg, 1, buf, GFP_ATOMIC);
-> > > +
-> > > +	return ret;
-> > > +}
-> > > +
-> > > +/* Send a control message with message type either
-> > > + *
-> > > + * - VIRTIO_CAN_SET_CTRL_MODE_START or
-> > > + * - VIRTIO_CAN_SET_CTRL_MODE_STOP.
-> > > + *
-> > > + */
-> > > +static u8 virtio_can_send_ctrl_msg(struct net_device *ndev, u16 msg_type)
-> > > +{
-> > > +	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
-> > > +	struct virtio_can_priv *priv = netdev_priv(ndev);
-> > > +	struct virtqueue *vq = priv->vqs[VIRTIO_CAN_QUEUE_CONTROL];
-> > > +	struct device *dev = &priv->vdev->dev;
-> > > +	unsigned int len;
-> > > +	int err;
-> > > +
-> > > +	guard(mutex)(&priv->ctrl_lock);
-> > > +
-> > > +	priv->can_ctr_msg.cpkt_out.msg_type = cpu_to_le16(msg_type);
-> > > +	sg_init_one(&sg_out, &priv->can_ctr_msg.cpkt_out,
-> > > +		    sizeof(priv->can_ctr_msg.cpkt_out));
-> > > +	sg_init_one(&sg_in, &priv->can_ctr_msg.cpkt_in, sizeof(priv->can_ctr_msg.cpkt_in));
-> > > +
-> > > +	reinit_completion(&priv->ctrl_done);
-> > > +
-> > > +	err = virtqueue_add_sgs(vq, sgs, 1u, 1u, priv, GFP_ATOMIC);
-> > > +	if (err != 0) {
-> > > +		dev_err(dev, "%s(): virtqueue_add_sgs() failed\n", __func__);
-> > > +		return VIRTIO_CAN_RESULT_NOT_OK;
-> > > +	}
-> > > +
-> > > +	if (!virtqueue_kick(vq)) {
-> > > +		dev_err(dev, "%s(): Kick failed\n", __func__);
-> > > +		return VIRTIO_CAN_RESULT_NOT_OK;
-> > > +	}
-> > > +
-> > > +	while (!virtqueue_get_buf(vq, &len) && !virtqueue_is_broken(vq))
-> > > +		wait_for_completion(&priv->ctrl_done);
-> > > +
-> > > +	return priv->can_ctr_msg.cpkt_in.result;
-> > > +}
-> > > +
-> > > +static int virtio_can_start(struct net_device *ndev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = netdev_priv(ndev);
-> > > +	u8 result;
-> > > +
-> > > +	result = virtio_can_send_ctrl_msg(ndev, VIRTIO_CAN_SET_CTRL_MODE_START);
-> > > +	if (result != VIRTIO_CAN_RESULT_OK) {
-> > > +		netdev_err(ndev, "CAN controller start failed\n");
-> > > +		return -EIO;
-> > > +	}
-> > > +
-> > > +	priv->busoff_pending = false;
-> > > +	priv->can.state = CAN_STATE_ERROR_ACTIVE;
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static int virtio_can_set_mode(struct net_device *dev, enum can_mode mode)
-> > > +{
-> > > +	int err;
-> > > +
-> > > +	switch (mode) {
-> > > +	case CAN_MODE_START:
-> > > +		err = virtio_can_start(dev);
-> > > +		if (err)
-> > > +			return err;
-> > > +		netif_wake_queue(dev);
-> > > +		break;
-> > > +	default:
-> > > +		return -EOPNOTSUPP;
-> > > +	}
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static int virtio_can_open(struct net_device *ndev)
-> > > +{
-> > > +	int err;
-> > > +
-> > > +	err = open_candev(ndev);
-> > > +	if (err)
-> > > +		return err;
-> > > +
-> > > +	err = virtio_can_start(ndev);
-> > > +	if (err) {
-> > > +		close_candev(ndev);
-> > > +		return err;
-> > > +	}
-> > > +
-> > > +	netif_start_queue(ndev);
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static int virtio_can_stop(struct net_device *ndev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = netdev_priv(ndev);
-> > > +	struct device *dev = &priv->vdev->dev;
-> > > +	u8 result;
-> > > +
-> > > +	result = virtio_can_send_ctrl_msg(ndev, VIRTIO_CAN_SET_CTRL_MODE_STOP);
-> > > +	if (result != VIRTIO_CAN_RESULT_OK) {
-> > > +		dev_err(dev, "CAN controller stop failed\n");
-> > > +		return -EIO;
-> > > +	}
-> > > +
-> > > +	priv->busoff_pending = false;
-> > > +	priv->can.state = CAN_STATE_STOPPED;
-> > > +
-> > > +	/* Switch carrier off if device was connected to the bus */
-> > > +	if (netif_carrier_ok(ndev))
-> > > +		netif_carrier_off(ndev);
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static int virtio_can_close(struct net_device *dev)
-> > > +{
-> > > +	int err;
-> > > +
-> > > +	netif_stop_queue(dev);
-> > > +	/* Keep RX napi active to allow dropping of pending RX CAN messages,
-> > > +	 * keep TX napi active to allow processing of cancelled CAN messages
-> > > +	 */
-> > > +	err = virtio_can_stop(dev);
-> > > +	close_candev(dev);
-> > > +
-> > > +	return err;
-> > > +}
-> > > +
-> > > +static netdev_tx_t virtio_can_start_xmit(struct sk_buff *skb,
-> > > +					 struct net_device *dev)
-> > > +{
-> > > +	struct scatterlist sg_out, sg_in, *sgs[2] = { &sg_out, &sg_in };
-> > > +	const unsigned int hdr_size = sizeof(struct virtio_can_tx_out);
-> > > +	struct canfd_frame *cf = (struct canfd_frame *)skb->data;
-> > > +	struct virtio_can_priv *priv = netdev_priv(dev);
-> > > +	struct virtqueue *vq = priv->vqs[VIRTIO_CAN_QUEUE_TX];
-> > > +	netdev_tx_t xmit_ret = NETDEV_TX_OK;
-> > > +	struct virtio_can_tx *can_tx_msg;
-> > > +	u32 can_flags;
-> > > +	int putidx;
-> > > +	int err;
-> > > +
-> > > +	if (can_dev_dropped_skb(dev, skb))
-> > > +		goto kick; /* No way to return NET_XMIT_DROP here */
-> > > +
-> > > +	/* No local check for CAN_RTR_FLAG or FD frame against negotiated
-> > > +	 * features. The device will reject those anyway if not supported.
-> > > +	 */
-> > > +
-> > > +	can_tx_msg = kzalloc(sizeof(*can_tx_msg) + cf->len, GFP_ATOMIC);
-> > > +	if (!can_tx_msg) {
-> > > +		kfree_skb(skb);
-> > > +		dev->stats.tx_dropped++;
-> > > +		goto kick; /* No way to return NET_XMIT_DROP here */
-> > > +	}
-> > > +
-> > > +	can_tx_msg->tx_out.msg_type = cpu_to_le16(VIRTIO_CAN_TX);
-> > > +	can_flags = 0;
-> > > +
-> > > +	if (cf->can_id & CAN_EFF_FLAG) {
-> > > +		can_flags |= VIRTIO_CAN_FLAGS_EXTENDED;
-> > > +		can_tx_msg->tx_out.can_id = cpu_to_le32(cf->can_id & CAN_EFF_MASK);
-> > > +	} else {
-> > > +		can_tx_msg->tx_out.can_id = cpu_to_le32(cf->can_id & CAN_SFF_MASK);
-> > > +	}
-> > > +	if (cf->can_id & CAN_RTR_FLAG)
-> > > +		can_flags |= VIRTIO_CAN_FLAGS_RTR;
-> > > +	else
-> > > +		memcpy(can_tx_msg->tx_out.sdu, cf->data, cf->len);
-> > > +	if (can_is_canfd_skb(skb))
-> > > +		can_flags |= VIRTIO_CAN_FLAGS_FD;
-> > > +
-> > > +	can_tx_msg->tx_out.flags = cpu_to_le32(can_flags);
-> > > +	can_tx_msg->tx_out.length = cpu_to_le16(cf->len);
-> > > +
-> > > +	sg_init_one(&sg_out, &can_tx_msg->tx_out, hdr_size + cf->len);
-> > > +	sg_init_one(&sg_in, &can_tx_msg->tx_in, sizeof(can_tx_msg->tx_in));
-> > > +
-> > > +	putidx = virtio_can_alloc_tx_idx(priv);
-> > > +
-> > > +	if (unlikely(putidx < 0)) {
-> > > +		/* -ENOMEM or -ENOSPC here. -ENOSPC should not be possible as
-> > > +		 * tx_inflight >= can.echo_skb_max is checked in flow control
-> > > +		 */
-> > > +		WARN_ON_ONCE(putidx == -ENOSPC);
-> > > +		kfree(can_tx_msg);
-> > > +		kfree_skb(skb);
-> > > +		dev->stats.tx_dropped++;
-> > > +		goto kick; /* No way to return NET_XMIT_DROP here */
-> > > +	}
-> > > +
-> > > +	can_tx_msg->putidx = (unsigned int)putidx;
-> > > +
-> > > +	/* Push loopback echo. Will be looped back on TX interrupt/TX NAPI */
-> > > +	can_put_echo_skb(skb, dev, can_tx_msg->putidx, 0);
-> > > +
-> > > +	/* Protect queue and list operations */
-> > > +	scoped_guard(spinlock_irqsave, &priv->tx_lock)
-> > > +		err = virtqueue_add_sgs(vq, sgs, 1u, 1u, can_tx_msg, GFP_ATOMIC);
-> > > +
-> > > +	if (unlikely(err)) {
-> > > +		can_free_echo_skb(dev, can_tx_msg->putidx, NULL);
-> > > +		virtio_can_free_tx_idx(priv, can_tx_msg->putidx);
-> > > +		netif_stop_queue(dev);
-> > > +		kfree(can_tx_msg);
-> > > +		/* Expected never to be seen */
-> > > +		netdev_warn(dev, "TX: Stop queue, err = %d\n", err);
-> > > +		xmit_ret = NETDEV_TX_BUSY;
-> > > +		goto kick;
-> > > +	}
-> > > +
-> > > +	/* Normal flow control: stop queue when no transmission slots left */
-> > > +	if (atomic_read(&priv->tx_inflight) >= priv->can.echo_skb_max ||
-> > > +	    vq->num_free == 0 || (vq->num_free < ARRAY_SIZE(sgs) &&
-> > > +	    !virtio_has_feature(vq->vdev, VIRTIO_RING_F_INDIRECT_DESC))) {
-> > > +		netif_stop_queue(dev);
-> > > +		netdev_dbg(dev, "TX: Normal stop queue\n");
-> > > +	}
-> > > +
-> > > +kick:
-> > > +	if (netif_queue_stopped(dev) || !netdev_xmit_more()) {
-> > > +		scoped_guard(spinlock_irqsave, &priv->tx_lock) {
-> > > +			if (!virtqueue_kick(vq))
-> > > +				netdev_err(dev, "%s(): Kick failed\n", __func__);
-> > > +		}
-> > > +	}
-> > > +
-> > > +	return xmit_ret;
-> > > +}
-> > > +
-> > > +static const struct net_device_ops virtio_can_netdev_ops = {
-> > > +	.ndo_open = virtio_can_open,
-> > > +	.ndo_stop = virtio_can_close,
-> > > +	.ndo_start_xmit = virtio_can_start_xmit,
-> > > +};
-> > > +
-> > > +static int register_virtio_can_dev(struct net_device *dev)
-> > > +{
-> > > +	dev->flags |= IFF_ECHO;	/* we support local echo */
-> > > +	dev->netdev_ops = &virtio_can_netdev_ops;
-> > > +
-> > > +	return register_candev(dev);
-> > > +}
-> > > +
-> > > +static int virtio_can_read_tx_queue(struct virtqueue *vq)
-> > > +{
-> > > +	struct virtio_can_priv *can_priv = vq->vdev->priv;
-> > > +	struct net_device *dev = can_priv->dev;
-> > > +	struct virtio_can_tx *can_tx_msg;
-> > > +	struct net_device_stats *stats;
-> > > +	unsigned int len;
-> > > +	u8 result;
-> > > +
-> > > +	stats = &dev->stats;
-> > > +
-> > > +	scoped_guard(spinlock_irqsave, &can_priv->tx_lock)
-> > > +		can_tx_msg = virtqueue_get_buf(vq, &len);
-> > > +
-> > > +	if (!can_tx_msg)
-> > > +		return 0;
-> > > +
-> > > +	if (unlikely(len < sizeof(struct virtio_can_tx_in))) {
-> > > +		netdev_err(dev, "TX ACK: Device sent no result code\n");
-> > > +		result = VIRTIO_CAN_RESULT_NOT_OK; /* Keep things going */
-> > > +	} else {
-> > > +		result = can_tx_msg->tx_in.result;
-> > > +	}
-> > > +
-> > > +	if (can_priv->can.state < CAN_STATE_BUS_OFF) {
-> > > +		if (result != VIRTIO_CAN_RESULT_OK) {
-> > > +			struct can_frame *skb_cf;
-> > > +			struct sk_buff *skb = alloc_can_err_skb(dev, &skb_cf);
-> > > +
-> > > +			if (skb) {
-> > > +				skb_cf->can_id |= CAN_ERR_CRTL;
-> > > +				skb_cf->data[1] |= CAN_ERR_CRTL_UNSPEC;
-> > > +				netif_rx(skb);
-> > > +			}
-> > > +			netdev_warn(dev, "TX ACK: Result = %u\n", result);
-> > > +			can_free_echo_skb(dev, can_tx_msg->putidx, NULL);
-> > > +			stats->tx_dropped++;
-> > > +		} else {
-> > > +			stats->tx_bytes += can_get_echo_skb(dev, can_tx_msg->putidx,
-> > > +				NULL);
-> > > +			stats->tx_packets++;
-> > > +		}
-> > > +	} else {
-> > > +		netdev_dbg(dev, "TX ACK: Controller inactive, drop echo\n");
-> > > +		can_free_echo_skb(dev, can_tx_msg->putidx, NULL);
-> > > +		stats->tx_dropped++;
-> > > +	}
-> > > +
-> > > +	virtio_can_free_tx_idx(can_priv, can_tx_msg->putidx);
-> > > +
-> > > +	/* Flow control */
-> > > +	if (netif_queue_stopped(dev)) {
-> > > +		netdev_dbg(dev, "TX ACK: Wake up stopped queue\n");
-> > > +		netif_wake_queue(dev);
-> > > +	}
-> > > +
-> > > +	kfree(can_tx_msg);
-> > > +
-> > > +	return 1; /* Queue was not empty so there may be more data */
-> > > +}
-> > > +
-> > > +static int virtio_can_tx_poll(struct napi_struct *napi, int quota)
-> > > +{
-> > > +	struct net_device *dev = napi->dev;
-> > > +	struct virtio_can_priv *priv = netdev_priv(dev);
-> > > +	struct virtqueue *vq = priv->vqs[VIRTIO_CAN_QUEUE_TX];
-> > > +	int work_done = 0;
-> > > +
-> > > +	while (work_done < quota && virtio_can_read_tx_queue(vq) != 0)
-> > > +		work_done++;
-> > > +
-> > > +	if (work_done < quota)
-> > > +		virtqueue_napi_complete(napi, vq, work_done);
-> > > +
-> > > +	return work_done;
-> > > +}
-> > > +
-> > > +static void virtio_can_tx_intr(struct virtqueue *vq)
-> > > +{
-> > > +	struct virtio_can_priv *can_priv = vq->vdev->priv;
-> > > +
-> > > +	virtqueue_disable_cb(vq);
-> > > +	napi_schedule(&can_priv->napi_tx);
-> > > +}
-> > > +
-> > > +/* This function is the NAPI RX poll function and NAPI guarantees that this
-> > > + * function is not invoked simultaneously on multiple processors.
-> > > + * Read a RX message from the used queue and sends it to the upper layer.
-> > > + */
-> > > +static int virtio_can_read_rx_queue(struct virtqueue *vq)
-> > > +{
-> > > +	const unsigned int header_size = sizeof(struct virtio_can_rx);
-> > > +	struct virtio_can_priv *priv = vq->vdev->priv;
-> > > +	struct net_device *dev = priv->dev;
-> > > +	struct net_device_stats *stats;
-> > > +	struct virtio_can_rx *can_rx;
-> > > +	unsigned int transport_len;
-> > > +	struct canfd_frame *cf;
-> > > +	struct sk_buff *skb;
-> > > +	unsigned int len;
-> > > +	u32 can_flags;
-> > > +	u16 msg_type;
-> > > +	u32 can_id;
-> > > +	int ret;
-> > > +
-> > > +	stats = &dev->stats;
-> > > +
-> > > +	can_rx = virtqueue_get_buf(vq, &transport_len);
-> > > +	if (!can_rx)
-> > > +		return 0; /* No more data */
-> > > +
-> > > +	if (transport_len < header_size) {
-> > > +		netdev_warn(dev, "RX: Message too small\n");
-> > > +		goto putback;
-> > > +	}
-> > > +
-> > > +	if (priv->can.state >= CAN_STATE_ERROR_PASSIVE) {
-> > > +		netdev_dbg(dev, "%s(): Controller not active\n", __func__);
-> > > +		goto putback;
-> > > +	}
-> > > +
-> > > +	msg_type = le16_to_cpu(can_rx->msg_type);
-> > > +	if (msg_type != VIRTIO_CAN_RX) {
-> > > +		netdev_warn(dev, "RX: Got unknown msg_type %04x\n", msg_type);
-> > > +		goto putback;
-> > > +	}
-> > > +
-> > > +	len = le16_to_cpu(can_rx->length);
-> > > +	can_flags = le32_to_cpu(can_rx->flags);
-> > > +	can_id = le32_to_cpu(can_rx->can_id);
-> > > +
-> > > +	if (can_flags & ~CAN_KNOWN_FLAGS) {
-> > > +		stats->rx_dropped++;
-> > > +		netdev_warn(dev, "RX: CAN Id 0x%08x: Invalid flags 0x%x\n",
-> > > +			    can_id, can_flags);
-> > > +		goto putback;
-> > > +	}
-> > > +
-> > > +	if (can_flags & VIRTIO_CAN_FLAGS_EXTENDED) {
-> > > +		can_id &= CAN_EFF_MASK;
-> > > +		can_id |= CAN_EFF_FLAG;
-> > > +	} else {
-> > > +		can_id &= CAN_SFF_MASK;
-> > > +	}
-> > > +
-> > > +	if (can_flags & VIRTIO_CAN_FLAGS_RTR) {
-> > > +		if (!virtio_has_feature(vq->vdev, VIRTIO_CAN_F_RTR_FRAMES)) {
-> > > +			stats->rx_dropped++;
-> > > +			netdev_warn(dev, "RX: CAN Id 0x%08x: RTR not negotiated\n",
-> > > +				    can_id);
-> > > +			goto putback;
-> > > +		}
-> > > +		if (can_flags & VIRTIO_CAN_FLAGS_FD) {
-> > > +			stats->rx_dropped++;
-> > > +			netdev_warn(dev, "RX: CAN Id 0x%08x: RTR with FD not possible\n",
-> > > +				    can_id);
-> > > +			goto putback;
-> > > +		}
-> > > +
-> > > +		if (len > 0xF) {
-> > > +			stats->rx_dropped++;
-> > > +			netdev_warn(dev, "RX: CAN Id 0x%08x: RTR with DLC > 0xF\n",
-> > > +				    can_id);
-> > > +			goto putback;
-> > > +		}
-> > > +
-> > > +		if (len > 0x8)
-> > > +			len = 0x8;
-> > > +
-> > > +		can_id |= CAN_RTR_FLAG;
-> > > +	}
-> > > +
-> > > +	if (transport_len < header_size + len) {
-> > > +		netdev_warn(dev, "RX: Message too small for payload\n");
-> > > +		goto putback;
-> > > +	}
-> > > +
-> > > +	if (can_flags & VIRTIO_CAN_FLAGS_FD) {
-> > > +		if (!virtio_has_feature(vq->vdev, VIRTIO_CAN_F_CAN_FD)) {
-> > > +			stats->rx_dropped++;
-> > > +			netdev_warn(dev, "RX: CAN Id 0x%08x: FD not negotiated\n",
-> > > +				    can_id);
-> > > +			goto putback;
-> > > +		}
-> > > +
-> > > +		if (len > CANFD_MAX_DLEN)
-> > > +			len = CANFD_MAX_DLEN;
-> > > +
-> > > +		skb = alloc_canfd_skb(priv->dev, &cf);
-> > > +	} else {
-> > > +		if (!virtio_has_feature(vq->vdev, VIRTIO_CAN_F_CAN_CLASSIC)) {
-> > > +			stats->rx_dropped++;
-> > > +			netdev_warn(dev, "RX: CAN Id 0x%08x: classic not negotiated\n",
-> > > +				    can_id);
-> > > +			goto putback;
-> > > +		}
-> > > +
-> > > +		if (len > CAN_MAX_DLEN)
-> > > +			len = CAN_MAX_DLEN;
-> > > +
-> > > +		skb = alloc_can_skb(priv->dev, (struct can_frame **)&cf);
-> > > +	}
-> > > +	if (!skb) {
-> > > +		stats->rx_dropped++;
-> > > +		netdev_warn(dev, "RX: No skb available\n");
-> > > +		goto putback;
-> > > +	}
-> > > +
-> > > +	cf->can_id = can_id;
-> > > +	cf->len = len;
-> > > +	if (!(can_flags & VIRTIO_CAN_FLAGS_RTR)) {
-> > > +		/* RTR frames have a DLC but no payload */
-> > > +		memcpy(cf->data, can_rx->sdu, len);
-> > > +	}
-> > > +
-> > > +	if (netif_receive_skb(skb) == NET_RX_SUCCESS) {
-> > > +		stats->rx_packets++;
-> > > +		if (!(can_flags & VIRTIO_CAN_FLAGS_RTR))
-> > > +			stats->rx_bytes += len;
-> > > +	}
-> > > +
-> > > +putback:
-> > > +	/* Put processed RX buffer back into avail queue */
-> > > +	ret = virtio_can_add_inbuf(vq, can_rx,
-> > > +				   priv->rpkt_len);
-> > > +	if (!ret)
-> > > +		virtqueue_kick(vq);
-> > > +	return 1; /* Queue was not empty so there may be more data */
-> > > +}
-> > > +
-> > > +static int virtio_can_handle_busoff(struct net_device *dev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = netdev_priv(dev);
-> > > +	struct can_frame *cf;
-> > > +	struct sk_buff *skb;
-> > > +
-> > > +	if (!priv->busoff_pending)
-> > > +		return 0;
-> > > +
-> > > +	if (priv->can.state < CAN_STATE_BUS_OFF) {
-> > > +		netdev_dbg(dev, "entered error bus off state\n");
-> > > +
-> > > +		/* bus-off state */
-> > > +		priv->can.state = CAN_STATE_BUS_OFF;
-> > > +		priv->can.can_stats.bus_off++;
-> > > +		can_bus_off(dev);
-> > > +	}
-> > > +
-> > > +	/* propagate the error condition to the CAN stack */
-> > > +	skb = alloc_can_err_skb(dev, &cf);
-> > > +	if (unlikely(!skb))
-> > > +		return 0;
-> > > +
-> > > +	/* bus-off state */
-> > > +	cf->can_id |= CAN_ERR_BUSOFF;
-> > > +
-> > > +	/* Ensure that the BusOff indication does not get lost */
-> > > +	if (netif_receive_skb(skb) == NET_RX_SUCCESS)
-> > > +		priv->busoff_pending = false;
-> > > +
-> > > +	return 1;
-> > > +}
-> > > +
-> > > +static int virtio_can_rx_poll(struct napi_struct *napi, int quota)
-> > > +{
-> > > +	struct net_device *dev = napi->dev;
-> > > +	struct virtio_can_priv *priv = netdev_priv(dev);
-> > > +	struct virtqueue *vq = priv->vqs[VIRTIO_CAN_QUEUE_RX];
-> > > +	int work_done = 0;
-> > > +
-> > > +	work_done += virtio_can_handle_busoff(dev);
-> > > +
-> > > +	while (work_done < quota && virtio_can_read_rx_queue(vq) != 0)
-> > > +		work_done++;
-> > > +
-> > > +	if (work_done < quota)
-> > > +		virtqueue_napi_complete(napi, vq, work_done);
-> > > +
-> > > +	return work_done;
-> > > +}
-> > > +
-> > > +static void virtio_can_rx_intr(struct virtqueue *vq)
-> > > +{
-> > > +	struct virtio_can_priv *can_priv = vq->vdev->priv;
-> > > +
-> > > +	virtqueue_disable_cb(vq);
-> > > +	napi_schedule(&can_priv->napi);
-> > > +}
-> > > +
-> > > +static void virtio_can_control_intr(struct virtqueue *vq)
-> > > +{
-> > > +	struct virtio_can_priv *can_priv = vq->vdev->priv;
-> > > +
-> > > +	complete(&can_priv->ctrl_done);
-> > > +}
-> > > +
-> > > +static void virtio_can_config_changed(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_can_priv *can_priv = vdev->priv;
-> > > +	u16 status;
-> > > +
-> > > +	status = virtio_cread16(vdev, offsetof(struct virtio_can_config,
-> > > +					       status));
-> > > +
-> > > +	if (!(status & VIRTIO_CAN_S_CTRL_BUSOFF))
-> > > +		return;
-> > > +
-> > > +	if (!can_priv->busoff_pending &&
-> > > +	    can_priv->can.state < CAN_STATE_BUS_OFF) {
-> > > +		can_priv->busoff_pending = true;
-> > > +		napi_schedule(&can_priv->napi);
-> > > +	}
-> > > +}
-> > > +
-> > > +static void virtio_can_populate_rx_vq(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = vdev->priv;
-> > > +	struct virtqueue *vq = priv->vqs[VIRTIO_CAN_QUEUE_RX];
-> > > +	unsigned int buf_size = priv->rpkt_len;
-> > > +	int num_elements = vq->num_free;
-> > > +	u8 *buf = (u8 *)priv->rpkt;
-> > > +	unsigned int idx;
-> > > +	int ret = 0;
-> > > +
-> > > +	for (idx = 0; idx < num_elements; idx++) {
-> > > +		ret = virtio_can_add_inbuf(vq, buf, buf_size);
-> > > +		if (ret < 0) {
-> > > +			dev_dbg(&vdev->dev, "rpkt fill: ret=%d, idx=%u, size=%u\n",
-> > > +				ret, idx, buf_size);
-> > > +			break;
-> > > +		}
-> > > +		buf += buf_size;
-> > > +	}
-> > > +
-> > > +	if (!ret)
-> > > +		virtqueue_kick(vq);
-> > > +
-> > > +	dev_dbg(&vdev->dev, "%u rpkt added\n", idx);
-> > > +}
-> > > +
-> > > +static int virtio_can_find_vqs(struct virtio_can_priv *priv)
-> > > +{
-> > > +	struct virtqueue_info vqs_info[] = {
-> > > +		{ "can-tx", virtio_can_tx_intr },
-> > > +		{ "can-rx", virtio_can_rx_intr },
-> > > +		{ "can-state-ctrl", virtio_can_control_intr },
-> > > +	};
-> > > +
-> > > +	/* Find the queues. */
-> > > +	return virtio_find_vqs(priv->vdev, VIRTIO_CAN_QUEUE_COUNT, priv->vqs,
-> > > +			       vqs_info, NULL);
-> > > +}
-> > > +
-> > > +/* Function must not be called before virtio_can_find_vqs() has been run */
-> > > +static void virtio_can_del_vq(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = vdev->priv;
-> > > +	struct virtqueue *vq = priv->vqs[VIRTIO_CAN_QUEUE_TX];
-> > > +	struct virtio_can_tx *can_tx_msg;
-> > > +	int q;
-> > > +
-> > > +	/* Reset the device */
-> > > +	virtio_reset_device(vdev);
-> > > +
-> > > +	/* From here we have dead silence from the device side so no locks
-> > > +	 * are needed to protect against device side events.
-> > > +	 */
-> > > +
-> > > +	/* Free pending TX buffers which were allocated in virtio_can_start_xmit() */
-> > > +	while ((can_tx_msg = virtqueue_detach_unused_buf(vq))) {
-> > > +		can_free_echo_skb(priv->dev, can_tx_msg->putidx, NULL);
-> > > +		virtio_can_free_tx_idx(priv, can_tx_msg->putidx);
-> > > +		kfree(can_tx_msg);
-> > > +	}
-> > > +
-> > > +	/* RX and control queue buffers are managed elsewhere, just detach */
-> > > +	for (q = VIRTIO_CAN_QUEUE_RX; q < VIRTIO_CAN_QUEUE_COUNT; q++)
-> > > +		while (virtqueue_detach_unused_buf(priv->vqs[q]))
-> > > +			;
-> > > +
-> > > +	if (vdev->config->del_vqs)
-> > > +		vdev->config->del_vqs(vdev);
-> > > +}
-> > > +
-> > > +static void virtio_can_remove(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = vdev->priv;
-> > > +	struct net_device *dev = priv->dev;
-> > > +
-> > > +	napi_disable(&priv->napi);
-> > > +	napi_disable(&priv->napi_tx);
-> > > +
-> > > +	unregister_candev(dev);
-> > > +
-> > > +	virtio_can_del_vq(vdev);
-> > > +
-> > > +	virtio_can_free_candev(dev);
-> > > +}
-> > > +
-> > > +static int virtio_can_validate(struct virtio_device *vdev)
-> > > +{
-> > > +	/* CAN needs always access to the config space.
-> > > +	 * Check that the driver can access the config space
-> > > +	 */
-> > > +	if (!vdev->config->get) {
-> > > +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> > > +			__func__);
-> > > +		return -EINVAL;
-> > > +	}
-> > > +
-> > > +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> > > +		dev_err(&vdev->dev,
-> > > +			"device does not comply with spec version 1.x\n");
-> > > +		return -EINVAL;
-> > > +	}
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static int virtio_can_probe(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_can_priv *priv;
-> > > +	struct net_device *dev;
-> > > +	size_t size;
-> > > +	int err;
-> > > +
-> > > +	dev = alloc_candev(sizeof(struct virtio_can_priv),
-> > > +			   VIRTIO_CAN_ECHO_SKB_MAX);
-> > > +	if (!dev)
-> > > +		return -ENOMEM;
-> > > +
-> > > +	priv = netdev_priv(dev);
-> > > +
-> > > +	ida_init(&priv->tx_putidx_ida);
-> > > +
-> > > +	netif_napi_add(dev, &priv->napi, virtio_can_rx_poll);
-> > > +	netif_napi_add(dev, &priv->napi_tx, virtio_can_tx_poll);
-> > > +
-> > > +	SET_NETDEV_DEV(dev, &vdev->dev);
-> > > +
-> > > +	priv->dev = dev;
-> > > +	priv->vdev = vdev;
-> > > +	vdev->priv = priv;
-> > > +
-> > > +	priv->can.do_set_mode = virtio_can_set_mode;
-> > > +	priv->can.bittiming.bitrate = CAN_BITRATE_UNKNOWN;
-> > > +	/* Set Virtio CAN supported operations */
-> > > +	priv->can.ctrlmode_supported = CAN_CTRLMODE_BERR_REPORTING;
-> > > +	if (virtio_has_feature(vdev, VIRTIO_CAN_F_CAN_FD)) {
-> > > +		priv->can.fd.data_bittiming.bitrate = CAN_BITRATE_UNKNOWN;
-> > > +		err = can_set_static_ctrlmode(dev, CAN_CTRLMODE_FD);
-> > > +		if (err != 0)
-> > > +			goto on_failure;
-> > > +	}
-> > > +
-> > > +	/* Initialize virtqueues */
-> > > +	err = virtio_can_find_vqs(priv);
-> > > +	if (err != 0)
-> > > +		goto on_failure;
-> > > +
-> > > +	spin_lock_init(&priv->tx_lock);
-> > > +	mutex_init(&priv->ctrl_lock);
-> > > +
-> > > +	init_completion(&priv->ctrl_done);
-> > > +
-> > > +	priv->rpkt_len = sizeof(struct virtio_can_rx);
-> > > +
-> > > +	if (virtio_has_feature(vdev, VIRTIO_CAN_F_CAN_FD))
-> > > +		priv->rpkt_len += CANFD_MAX_DLEN;
-> > > +	else
-> > > +		priv->rpkt_len += CAN_MAX_DLEN;
-> > > +
-> > > +	size = priv->rpkt_len * priv->vqs[VIRTIO_CAN_QUEUE_RX]->num_free;
-> > > +	priv->rpkt = devm_kzalloc(&vdev->dev, size, GFP_KERNEL);
-> > > +	if (!priv->rpkt) {
-> > > +		virtio_can_del_vq(vdev);
-> > > +		err = -ENOMEM;
-> > > +		goto on_failure;
-> > > +	}
-> > > +	virtio_can_populate_rx_vq(vdev);
-> > > +
-> > > +	err = register_virtio_can_dev(dev);
-> > > +	if (err) {
-> > > +		virtio_can_del_vq(vdev);
-> > > +		goto on_failure;
-> > > +	}
-> > > +
-> > > +	napi_enable(&priv->napi);
-> > > +	napi_enable(&priv->napi_tx);
-> > > +
-> > > +	return 0;
-> > > +
-> > > +on_failure:
-> > > +	virtio_can_free_candev(dev);
-> > > +	return err;
-> > > +}
-> > > +
-> > > +static int __maybe_unused virtio_can_freeze(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = vdev->priv;
-> > > +	struct net_device *ndev = priv->dev;
-> > > +
-> > > +	napi_disable(&priv->napi);
-> > > +	napi_disable(&priv->napi_tx);
-> > > +
-> > > +	if (netif_running(ndev)) {
-> > > +		int err;
-> > > +
-> > > +		netif_stop_queue(ndev);
-> > > +		netif_device_detach(ndev);
-> > > +		err = virtio_can_stop(ndev);
-> > > +		if (err)
-> > > +			return err;
-> > > +	}
-> > > +
-> > > +	priv->can.state = CAN_STATE_SLEEPING;
-> > > +
-> > > +	virtio_can_del_vq(vdev);
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static int __maybe_unused virtio_can_restore(struct virtio_device *vdev)
-> > > +{
-> > > +	struct virtio_can_priv *priv = vdev->priv;
-> > > +	struct net_device *ndev = priv->dev;
-> > > +	size_t size;
-> > > +	int err;
-> > > +
-> > > +	err = virtio_can_find_vqs(priv);
-> > > +	if (err != 0)
-> > > +		return err;
-> > > +
-> > > +	size = priv->rpkt_len * priv->vqs[VIRTIO_CAN_QUEUE_RX]->num_free;
-> > > +	priv->rpkt = devm_krealloc(&vdev->dev, priv->rpkt, size, GFP_KERNEL | __GFP_ZERO);
-> > > +	if (!priv->rpkt) {
-> > > +		virtio_can_del_vq(vdev);
-> > > +		return -ENOMEM;
-> > > +	}
-> > > +	virtio_can_populate_rx_vq(vdev);
-> > > +
-> > > +	priv->can.state = CAN_STATE_ERROR_ACTIVE;
-> > 
-> > Is it ok that 
-> >   priv->can.state remains CAN_STATE_ERROR_ACTIVE when there is an error below? 
-> >   May be that the state change comes too early now as there is now a new possible error case below which previously was not there.
-> > 
-> > > +
-> > > +	if (netif_running(ndev)) {
-> > > +		err = virtio_can_start(ndev);
-> > > +		if (err)
-> > > +			return err;
-> > 
-> > Jumping between virtio_can_freeze() and virtio_can_restore() it may be that the queues also should be rolled back in the error case by virtio_can_del_vq() so that we have the same internal state as we had before virtio_can_restore() was called.
-> > 
-> 
-> Good catch. I think I need to add virtio_can_del_vq(vdev) when
-> virtio_can_start() fails.
-> 
-> 
+When I test dynamic-debug's static-key toggling performance in a
+virtme-ng session, it is too easy to create an enormous flood of
+printks to the console.
 
-And also letting virtio_can_start() to set CAN_STATE_ERROR_ACTIVE.
+  #> echo +p > /proc/dynamic_debug/control
+  #> echo -p > /proc/dynamic_debug/control
 
-Matias
+Now theres no "good reason" to shoot your own foot, but this is also
+easy to fix, by ratelimiting the sources of the flood.  I don't think
+theres a loss of utility to virtio.
 
-> 
-> > Yesterday looking into the AI's review comments I thought first returning an error was enough to handle this, than I was not sure any more that this was enough but that it may be necessary to roll back some things done before the error occurred. Could be that I'm wrong here getting headache for nothing but in the moment I believe some rollback is missing.
-> > 
-> > > +		netif_device_attach(ndev);
-> > > +		netif_start_queue(ndev);
-> > > +	}
-> > > +
-> > > +	napi_enable(&priv->napi);
-> > > +	napi_enable(&priv->napi_tx);
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static struct virtio_device_id virtio_can_id_table[] = {
-> > > +	{ VIRTIO_ID_CAN, VIRTIO_DEV_ANY_ID },
-> > > +	{ 0 },
-> > > +};
-> > > +
-> > > +static unsigned int features[] = {
-> > > +	VIRTIO_CAN_F_CAN_CLASSIC,
-> > > +	VIRTIO_CAN_F_CAN_FD,
-> > > +	VIRTIO_CAN_F_LATE_TX_ACK,
-> > > +	VIRTIO_CAN_F_RTR_FRAMES,
-> > > +};
-> > > +
-> > > +static struct virtio_driver virtio_can_driver = {
-> > > +	.feature_table = features,
-> > > +	.feature_table_size = ARRAY_SIZE(features),
-> > > +	.driver.name = KBUILD_MODNAME,
-> > > +	.driver.owner = THIS_MODULE,
-> > > +	.id_table = virtio_can_id_table,
-> > > +	.validate = virtio_can_validate,
-> > > +	.probe = virtio_can_probe,
-> > > +	.remove = virtio_can_remove,
-> > > +	.config_changed = virtio_can_config_changed,
-> > > +#ifdef CONFIG_PM_SLEEP
-> > > +	.freeze = virtio_can_freeze,
-> > > +	.restore = virtio_can_restore,
-> > > +#endif
-> > > +};
-> > > +
-> > > +module_virtio_driver(virtio_can_driver);
-> > > +MODULE_DEVICE_TABLE(virtio, virtio_can_id_table);
-> > > +
-> > > +MODULE_AUTHOR("OpenSynergy GmbH");
-> > > +MODULE_LICENSE("GPL");
-> > > +MODULE_DESCRIPTION("CAN bus driver for Virtio CAN controller");
-> > > diff --git a/include/uapi/linux/virtio_can.h b/include/uapi/linux/virtio_can.h
-> > > new file mode 100644
-> > > index 000000000000..08d7e3e78776
-> > > --- /dev/null
-> > > +++ b/include/uapi/linux/virtio_can.h
-> > > @@ -0,0 +1,78 @@
-> > > +/* SPDX-License-Identifier: BSD-3-Clause */
-> > > +/*
-> > > + * Copyright (C) 2021-2023 OpenSynergy GmbH
-> > > + * Copyright Red Hat, Inc. 2025
-> > > + */
-> > > +#ifndef _LINUX_VIRTIO_VIRTIO_CAN_H
-> > > +#define _LINUX_VIRTIO_VIRTIO_CAN_H
-> > > +
-> > > +#include <linux/types.h>
-> > > +#include <linux/virtio_types.h>
-> > > +#include <linux/virtio_ids.h>
-> > > +#include <linux/virtio_config.h>
-> > > +
-> > > +/* Feature bit numbers */
-> > > +#define VIRTIO_CAN_F_CAN_CLASSIC        0
-> > > +#define VIRTIO_CAN_F_CAN_FD             1
-> > > +#define VIRTIO_CAN_F_RTR_FRAMES         2
-> > > +#define VIRTIO_CAN_F_LATE_TX_ACK        3
-> > > +
-> > > +/* CAN Result Types */
-> > > +#define VIRTIO_CAN_RESULT_OK            0
-> > > +#define VIRTIO_CAN_RESULT_NOT_OK        1
-> > > +
-> > > +/* CAN flags to determine type of CAN Id */
-> > > +#define VIRTIO_CAN_FLAGS_EXTENDED       0x8000
-> > > +#define VIRTIO_CAN_FLAGS_FD             0x4000
-> > > +#define VIRTIO_CAN_FLAGS_RTR            0x2000
-> > > +
-> > > +#define VIRTIO_CAN_MAX_DLEN    64 // this is like CANFD_MAX_DLEN
-> > > +
-> > > +struct virtio_can_config {
-> > > +#define VIRTIO_CAN_S_CTRL_BUSOFF (1u << 0) /* Controller BusOff */
-> > > +	/* CAN controller status */
-> > > +	__le16 status;
-> > > +};
-> > > +
-> > > +/* TX queue message types */
-> > > +struct virtio_can_tx_out {
-> > > +#define VIRTIO_CAN_TX                   0x0001
-> > > +	__le16 msg_type;
-> > > +	__le16 length; /* 0..8 CC, 0..64 CAN-FD, 0..2048 CAN-XL, 12 bits */
-> > > +	__u8 reserved_classic_dlc; /* If CAN classic length = 8 then DLC can be 8..15 */
-> > > +	__u8 padding;
-> > > +	__le16 reserved_xl_priority; /* May be needed for CAN XL priority */
-> > > +	__le32 flags;
-> > > +	__le32 can_id;
-> > > +	__u8 sdu[] __counted_by_le(length);
-> > > +};
-> > > +
-> > > +struct virtio_can_tx_in {
-> > > +	__u8 result;
-> > > +};
-> > > +
-> > > +/* RX queue message types */
-> > > +struct virtio_can_rx {
-> > > +#define VIRTIO_CAN_RX                   0x0101
-> > > +	__le16 msg_type;
-> > > +	__le16 length; /* 0..8 CC, 0..64 CAN-FD, 0..2048 CAN-XL, 12 bits */
-> > > +	__u8 reserved_classic_dlc; /* If CAN classic length = 8 then DLC can be 8..15 */
-> > > +	__u8 padding;
-> > > +	__le16 reserved_xl_priority; /* May be needed for CAN XL priority */
-> > > +	__le32 flags;
-> > > +	__le32 can_id;
-> > > +	__u8 sdu[] __counted_by_le(length);
-> > > +};
-> > > +
-> > > +/* Control queue message types */
-> > > +struct virtio_can_control_out {
-> > > +#define VIRTIO_CAN_SET_CTRL_MODE_START  0x0201
-> > > +#define VIRTIO_CAN_SET_CTRL_MODE_STOP   0x0202
-> > > +	__le16 msg_type;
-> > > +};
-> > > +
-> > > +struct virtio_can_control_in {
-> > > +	__u8 result;
-> > > +};
-> > > +
-> > > +#endif /* #ifndef _LINUX_VIRTIO_VIRTIO_CAN_H */
-> > 
+Example console output is below the snip.  For this test-case,
+ratelimiting suppresses >900k callbacks.  It also allows this simple
+load test for the static-key toggling performance in a following patch.
+
+Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+---
+
+root@drm-misc-fixes-2026-02-26-80-g9a2f253ad689:/home/jimc/projects/lx/wk-D/b0-dd# ddcmdq -p
+[  619.868567] dyndbg: query 0: "-p" mod:*
+Delta-CAL (IPI): 71
+
+- above is a noop baseline.
+
+root@drm-misc-fixes-2026-02-26-80-g9a2f253ad689:/home/jimc/projects/lx/wk-D/b0-dd# ddcmdq +p
+[  648.876520] dyndbg: query 0: "+p" mod:*
+[  648.878263] dyndbg: match on module: led_class
+[  648.878350] dyndbg: match on module: probe
+[  648.878474] dyndbg: match on module: pci
+[  648.878636] dyndbg: match on module: pci_driver
+[  648.878743] dyndbg: match on module: irq
+[  648.878845] dyndbg: match on module: setup_bus
+[  648.879032] dyndbg: match on module: pcieportdrv
+[  648.879139] dyndbg: match on module: bwctrl
+[  648.879197] dyndbg: match on module: aspm
+[  648.879241] dyndbg: match on module: slot
+[  648.879328] dyndbg: match on module: pci_acpi
+[  648.879431] dyndbg: match on module: quirks
+[  648.879521] dyndbg: match on module: pci_hotplug
+[  648.879576] dyndbg: match on module: vgaarb
+[  648.879710] dyndbg: match on module: backlight
+[  648.879826] dyndbg: match on module: fb
+[  648.879900] dyndbg: match on module: tables
+[  648.880012] dyndbg: match on module: acpi
+[  648.880977] dyndbg: match on module: ac
+[  648.881021] dyndbg: match on module: button
+[  648.881097] dyndbg: match on module: fan
+[  648.881196] dyndbg: match on module: video
+[  648.881295] dyndbg: match on module: processor
+[  648.881558] dyndbg: match on module: thermal_lib
+[  648.881671] dyndbg: match on module: thermal
+[  648.881784] dyndbg: match on module: srat
+[  648.881860] dyndbg: match on module: battery
+[  648.881938] dyndbg: match on module: acpi_x86
+[  648.882088] dyndbg: match on module: pnp
+[  648.882219] dyndbg: match on module: dmaengine
+[  648.882351] dyndbg: match on module: virt_dma
+[  648.882429] dyndbg: match on module: acpi_dma
+[  648.882518] dyndbg: match on module: dw_dmac_core
+[  648.882619] dyndbg: match on module: virtio_ring
+[  648.882833] dyndbg: match on module: tty_io
+[  648.882835] virtqueue_get_buf_ctx_split: 852672 callbacks suppressed
+[  648.882836] No more buffers in queue
+[  648.882837] virtqueue_add_split: 4962 callbacks suppressed
+[  648.882838] Added buffer head 0 to 00000000531af360
+[  648.882842] No more buffers in queue
+[  648.882843] No more buffers in queue
+[  648.882843] No more buffers in queue
+[  648.882844] No more buffers in queue
+[  648.882844] No more buffers in queue
+[  648.882845] No more buffers in queue
+[  648.882845] No more buffers in queue
+[  648.882846] No more buffers in queue
+[  648.882846] No more buffers in queue
+[  648.882857] Added buffer head 0 to 00000000531af360
+[  648.882869] Added buffer head 0 to 00000000531af360
+[  648.882874] vring_interrupt: 88637 callbacks suppressed
+[  648.882876] virtqueue interrupt with no work for 00000000e20c0e9d
+[  648.882882] Added buffer head 0 to 00000000531af360
+[  648.882899] Added buffer head 0 to 00000000531af360
+[  648.882909] Added buffer head 0 to 00000000531af360
+[  648.882919] Added buffer head 0 to 00000000531af360
+[  648.882930] Added buffer head 0 to 00000000531af360
+[  648.882941] Added buffer head 0 to 00000000531af360
+[  648.882951] Added buffer head 0 to 00000000531af360
+[  648.883860] virtqueue interrupt with no work for 00000000531af360
+[  648.883920] virtqueue interrupt with no work for 0000000088284d45
+[  648.883980] virtqueue interrupt with no work for 000000006b8c4aa3
+[  648.884033] virtqueue interrupt with no work for 00000000f205a9b7
+[  648.884085] virtqueue interrupt with no work for 0000000021930e68
+[  648.884138] virtqueue interrupt with no work for 0000000081dad94c
+[  648.884190] virtqueue interrupt with no work for 0000000097d16d2d
+[  648.884243] virtqueue interrupt with no work for 00000000b4539010
+[  648.884296] virtqueue interrupt with no work for 00000000ac870038
+[  648.884418] dyndbg: match on module: tty_jobctrl
+[  648.884476] dyndbg: match on module: vt_ioctl
+[  648.884528] dyndbg: match on module: serial_base
+[  648.884625] dyndbg: match on module: 8250
+[  648.884698] dyndbg: match on module: 8250_base
+[  648.884795] dyndbg: match on module: 8250_exar
+[  648.884856] dyndbg: match on module: 8250_pci
+[  648.884962] dyndbg: match on module: 8250_pericom
+[  648.885014] dyndbg: match on module: virtio_console
+[  648.885091] dyndbg: match on module: iommu
+[  648.885132] dyndbg: match on module: init
+[  648.885174] dyndbg: match on module: ppr
+[  648.885216] dyndbg: match on module: iommu
+[  648.885256] dyndbg: match on module: dmar
+[  648.885334] dyndbg: match on module: iommu
+[  648.885419] dyndbg: match on module: virtio_iommu
+[  648.885481] dyndbg: match on module: drm
+[  648.885577] dyndbg: match on module: ttm
+[  648.885651] dyndbg: match on module: component
+[  648.885756] dyndbg: match on module: core
+[  648.885979] dyndbg: match on module: bus
+[  648.886081] dyndbg: match on module: dd
+[  648.886238] dyndbg: match on module: syscore
+[  648.886339] dyndbg: match on module: class
+[  648.886429] dyndbg: match on module: platform
+[  648.886519] dyndbg: match on module: faux
+[  648.886567] dyndbg: match on module: main
+[  648.886664] dyndbg: match on module: wakeup
+[  648.886765] dyndbg: match on module: firmware_class
+[  648.886925] dyndbg: match on module: regmap
+[  648.886971] dyndbg: match on module: regcache
+[  648.887089] dyndbg: match on module: regcache_flat
+[  648.887142] dyndbg: match on module: regmap_debugfs
+[  648.887195] dyndbg: match on module: mei
+[  648.887914] dyndbg: match on module: mei_me
+[  648.888149] dyndbg: match on module: dax
+[  648.888267] dyndbg: match on module: dma_buf
+[  648.888322] dyndbg: match on module: scsi_mod
+[  648.888413] dyndbg: match on module: virtio_scsi
+[  648.888486] dyndbg: match on module: libata
+[  648.888736] dyndbg: match on module: ahci
+[  648.888816] dyndbg: match on module: libahci
+[  648.888895] dyndbg: match on module: ata_piix
+[  648.888960] dyndbg: match on module: pata_amd
+[  648.889050] dyndbg: match on module: pata_oldpiix
+[  648.889124] dyndbg: match on module: pata_sch
+[  648.889172] dyndbg: match on module: mdio_bus
+[  648.889229] dyndbg: match on module: libphy
+[  648.889303] dyndbg: match on module: realtek
+[  648.889395] dyndbg: match on module: fwnode_mdio
+[  648.889468] dyndbg: match on module: virtio_net
+[  648.889697] dyndbg: match on module: pcmcia_core
+[  648.889848] dyndbg: match on module: pcmcia
+[  648.890263] dyndbg: match on module: pci_quirks
+[  648.890322] dyndbg: match on module: i8042
+[  648.890355] dyndbg: match on module: libps2
+[  648.890441] dyndbg: match on module: input_core
+[  648.890546] dyndbg: match on module: ff_memless
+[  648.890670] dyndbg: match on module: atkbd
+[  648.890724] dyndbg: match on module: psmouse
+[  648.890981] dyndbg: match on module: rtc_core
+[  648.891135] dyndbg: match on module: rtc_cmos
+[  648.891242] dyndbg: match on module: i2c_boardinfo
+[  648.891303] dyndbg: match on module: i2c_core
+[  648.891519] dyndbg: match on module: i2c_smbus
+[  648.891624] dyndbg: match on module: i2c_i801
+[  648.891757] dyndbg: match on module: pps_core
+[  648.891925] dyndbg: match on module: power_supply
+[  648.892085] dyndbg: match on module: hwmon
+[  648.892129] dyndbg: match on module: thermal_sys
+[  648.892260] dyndbg: match on module: therm_throt
+[  648.892315] dyndbg: match on module: md_mod
+[  648.892570] dyndbg: match on module: dm_mod
+[  648.892696] dyndbg: match on module: sysfs
+[  648.892741] dyndbg: match on module: dmi_scan
+[  648.892787] dyndbg: match on module: qemu_fw_cfg
+[  648.892889] dyndbg: match on module: esrt
+[  648.892935] dyndbg: match on module: mailbox
+[  648.893006] dyndbg: match on module: pcc
+[  648.893051] dyndbg: match on module: nvmem_core
+[  648.893103] dyndbg: match on module: snd
+[  648.893191] dyndbg: match on module: snd_timer
+[  648.893249] dyndbg: match on module: snd_pcm
+[  648.893356] dyndbg: match on module: snd_seq
+[  648.893514] dyndbg: match on module: snd_intel8x0
+[  648.893572] dyndbg: match on module: snd_ac97_codec
+[  648.893667] dyndbg: match on module: snd_hda_core
+[  648.893867] dyndbg: match on module: snd_intel_dspcfg
+[  648.894017] dyndbg: match on module: snd_intel_sdw_acpi
+[  648.894131] dyndbg: match on module: snd_hda_codec
+[  648.894336] dyndbg: match on module: snd_hda_codec_realtek_lib
+[  648.894479] dyndbg: match on module: snd_hda_codec_alc269
+[  648.894585] dyndbg: match on module: snd_hda_scodec_component
+[  648.894655] dyndbg: match on module: snd_hda_codec_generic
+[  648.894775] dyndbg: match on module: snd_hda_intel
+[  648.894939] dyndbg: match on module: sock
+[  648.894987] dyndbg: match on module: dev
+[  648.895119] dyndbg: match on module: sch_api
+[  648.895174] dyndbg: match on module: route
+[  648.895215] dyndbg: match on module: ip_fragment
+[  648.895264] dyndbg: match on module: ip_output
+[  648.895313] dyndbg: match on module: tcp
+[  648.895350] dyndbg: match on module: tcp_input
+[  648.895468] dyndbg: match on module: tcp_output
+[  648.895575] dyndbg: match on module: tcp_timer
+[  648.895634] dyndbg: match on module: tcp_ipv4
+[  648.895687] dyndbg: match on module: tcp_cong
+[  648.895743] dyndbg: match on module: tcp_fastopen
+[  648.895796] dyndbg: match on module: tcp_recovery
+[  648.895854] dyndbg: match on module: udp
+[  648.895951] dyndbg: match on module: arp
+[  648.895994] dyndbg: match on module: icmp
+[  648.896096] dyndbg: match on module: devinet
+[  648.896151] dyndbg: match on module: fib_trie
+[  648.896250] dyndbg: match on module: ping
+[  648.896409] dyndbg: match on module: sysctl_net_ipv4
+[  648.896505] dyndbg: match on module: ipconfig
+[  648.896567] dyndbg: match on module: tcp_cubic
+[  648.896625] dyndbg: match on module: ip6_checksum
+[  648.896718] dyndbg: match on module: sysctl_net
+[  648.896832] dyndbg: match on module: i386
+[  648.896886] dyndbg: match on module: mmconfig_shared
+[  648.896944] dyndbg: match on module: fixup
+[  648.897029] dyndbg: match on module: acpi
+[  648.897087] dyndbg: match on module: irq
+[  648.897185] dyndbg: match on module: decompress
+[  648.897253] dyndbg: match on module: kobject
+[  648.897366] dyndbg: match on module: kobject_uevent
+[  648.897478] dyndbg: applied queued updates to 1900 sites in total
+[  648.897586] applying 1879 queued jump_labels
+[  648.898378] virtqueue callback for 00000000b8493952 (000000004941ab6e)
+[  648.898493] virtio_fs_send_req: opcode 5 unique 0x45a0 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.898493] virtio_fs_send_req: opcode 5 unique 0x459e nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.898582] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.898752] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.898905] virtio_fs_send_req: opcode 5 unique 0x45a2 nodeid 0x2f2 in.len 40 out.len 4095 queue_id 1
+[  648.898912] virtio_fs_send_req: opcode 5 unique 0x45a4 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.899066] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.899183] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.899276] virtio_fs_send_req: opcode 5 unique 0x45a6 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.899281] virtio_fs_send_req: opcode 5 unique 0x45a8 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.899413] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.899528] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.899608] virtio_fs_send_req: opcode 5 unique 0x45ac nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.899608] virtio_fs_send_req: opcode 5 unique 0x45aa nodeid 0x2f2 in.len 40 out.len 4095 queue_id 1
+[  648.899711] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.899850] virtqueue callback for 00000000531af360 (00000000df837aee)
+[  648.899957] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.899989] virtio_fs_send_req: opcode 5 unique 0x45ae nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.899992] virtio_fs_send_req: opcode 5 unique 0x45b0 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.900080] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.900084] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.900520] virtio_fs_send_req: opcode 5 unique 0x45b2 nodeid 0x2f2 in.len 40 out.len 4095 queue_id 1
+[  648.900557] virtio_fs_send_req: opcode 5 unique 0x45b4 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.900725] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.901958] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.902056] virtio_fs_send_req: opcode 5 unique 0x45b6 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.902069] virtio_fs_send_req: opcode 14 unique 0x45b8 nodeid 0x245 in.len 48 out.len 16 queue_id 1
+[  648.902292] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.902409] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.902506] virtio_fs_send_req: opcode 5 unique 0x45ba nodeid 0x2f2 in.len 40 out.len 4095 queue_id 1
+[  648.902507] overlayfs: open(00000000cc553079[bin/grep/l], 0100040) -> (00000000ebc0a9b2, 01100040)
+[  648.902707] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.902793] virtio_fs_send_req: opcode 5 unique 0x45bc nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.902861] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.903071] virtio_fs_send_req: opcode 14 unique 0x45be nodeid 0x28 in.len 48 out.len 16 queue_id 1
+[  648.903072] virtio_fs_send_req: opcode 5 unique 0x45c0 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.903325] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.903329] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.903546] overlayfs: open(0000000044db1ed7[lib64/ld-linux-x86-64.so.2/l], 0100040) -> (00000000ce7f73a3, 01100040)
+[  648.903629] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.903800] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.903896] virtio_fs_send_req: opcode 5 unique 0x45c2 nodeid 0x2f2 in.len 40 out.len 4095 queue_id 1
+[  648.903921] virtio_fs_send_req: opcode 14 unique 0x45c4 nodeid 0x2b in.len 48 out.len 16 queue_id 1
+[  648.904123] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.904252] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.904382] overlayfs: open(0000000044db1ed7[/ld.so.cache/l], 0100000) -> (00000000a546e0ec, 01100000)
+[  648.904421] virtio_fs_send_req: opcode 5 unique 0x45c6 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.904521] virtio_fs_send_req: opcode 25 unique 0x45c8 nodeid 0x2b in.len 64 out.len 0 queue_id 1
+[  648.904698] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.904849] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.904982] virtio_fs_send_req: opcode 5 unique 0x45ca nodeid 0x2f2 in.len 40 out.len 4095 queue_id 1
+[  648.905003] virtio_fs_send_req: opcode 5 unique 0x45cc nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.905214] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.905333] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.905469] virtio_fs_send_req: opcode 14 unique 0x45ce nodeid 0x2f3 in.len 48 out.len 16 queue_id 1
+[  648.905476] virtio_fs_send_req: opcode 5 unique 0x45d0 nodeid 0x4b in.len 40 out.len 4095 queue_id 1
+[  648.905672] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.905803] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.905910] overlayfs: open(00000000b23a5ecd[bin/gawk/l], 0100040) -> (0000000042a63553, 01100040)
+[  648.905918] virtio_fs_send_req: opcode 14 unique 0x45d2 nodeid 0x4c in.len 48 out.len 16 queue_id 1
+[  648.906095] virtio_fs_send_req: opcode 5 unique 0x45d4 nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.906255] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.906359] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.906486] overlayfs: open(0000000044db1ed7[lib64/libpcre2-8.so.0.15.0/l], 0100000) -> (00000000761f1272, 01100000)
+[  648.906498] virtio_fs_send_req: opcode 14 unique 0x45d6 nodeid 0x28 in.len 48 out.len 16 queue_id 1
+[  648.906653] virtio_fs_send_req: opcode 25 unique 0x45d8 nodeid 0x4c in.len 64 out.len 0 queue_id 1
+[  648.906842] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.906929] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.907050] overlayfs: open(000000001dc27c49[lib64/ld-linux-x86-64.so.2/l], 0100040) -> (00000000cb9765b4, 01100040)
+[  648.907060] virtio_fs_send_req: opcode 5 unique 0x45da nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.907329] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.907428] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.907453] virtio_fs_send_req: opcode 14 unique 0x45dc nodeid 0x2b in.len 48 out.len 16 queue_id 1
+[  648.907633] virtio_fs_send_req: opcode 14 unique 0x45de nodeid 0x30 in.len 48 out.len 16 queue_id 1
+[  648.907709] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.907848] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.907943] overlayfs: open(0000000044db1ed7[lib64/libc.so.6/l], 0100000) -> (000000003b97b39b, 01100000)
+[  648.907943] overlayfs: open(000000001dc27c49[/ld.so.cache/l], 0100000) -> (00000000fce78bd3, 01100000)
+[  648.908091] virtio_fs_send_req: opcode 25 unique 0x45e0 nodeid 0x30 in.len 64 out.len 0 queue_id 1
+[  648.908169] virtio_fs_send_req: opcode 25 unique 0x45e2 nodeid 0x2b in.len 64 out.len 0 queue_id 1
+[  648.908341] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.908447] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.908581] virtio_fs_send_req: opcode 5 unique 0x45e4 nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.908724] virtio_fs_send_req: opcode 18 unique 0x45e6 nodeid 0x2b in.len 64 out.len 0 queue_id 1
+[  648.908776] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.908895] virtio_fs_send_req: opcode 14 unique 0x45e8 nodeid 0x2a7 in.len 48 out.len 16 queue_id 1
+[  648.908956] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.909155] virtio_fs_send_req: opcode 5 unique 0x45ea nodeid 0x2f4 in.len 40 out.len 4095 queue_id 1
+[  648.909156] overlayfs: open(0000000044db1ed7[locale/locale-archive/l], 0100000) -> (00000000a546e0ec, 01100000)
+[  648.909346] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.909427] virtio_fs_send_req: opcode 25 unique 0x45ec nodeid 0x2a7 in.len 64 out.len 0 queue_id 1
+[  648.909506] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.909725] virtio_fs_send_req: opcode 14 unique 0x45ee nodeid 0x2f5 in.len 48 out.len 16 queue_id 1
+[  648.909764] virtio_fs_send_req: opcode 14 unique 0x45f0 nodeid 0x2a9 in.len 48 out.len 16 queue_id 1
+[  648.910023] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.910119] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.910240] overlayfs: open(0000000044db1ed7[gconv/gconv-modules.cache/l], 0100000) -> (0000000046b528d3, 01100000)
+[  648.910245] overlayfs: open(000000001dc27c49[lib64/libreadline.so.8.3/l], 0100000) -> (000000006c3dd911, 01100000)
+[  648.910382] virtio_fs_send_req: opcode 25 unique 0x45f2 nodeid 0x2a9 in.len 64 out.len 0 queue_id 1
+[  648.910515] virtio_fs_send_req: opcode 25 unique 0x45f4 nodeid 0x2f5 in.len 64 out.len 0 queue_id 1
+[  648.910662] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.910775] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.910915] virtio_fs_send_req: opcode 5 unique 0x45f6 nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.910930] virtio_fs_send_req: opcode 14 unique 0x45f8 nodeid 0x2b2 in.len 48 out.len 16 queue_id 1
+[  648.911124] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.911233] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.911331] overlayfs: open(0000000044db1ed7[locale/locale.alias/l], 0100000) -> (000000001b94a7b7, 01100000)
+[  648.911332] virtio_fs_send_req: opcode 5 unique 0x45fa nodeid 0x2f6 in.len 40 out.len 4095 queue_id 1
+[  648.911483] virtio_fs_send_req: opcode 25 unique 0x45fc nodeid 0x2b2 in.len 64 out.len 0 queue_id 1
+[  648.911664] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.911757] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.911865] virtio_fs_send_req: opcode 18 unique 0x45fe nodeid 0x2b2 in.len 64 out.len 0 queue_id 1
+[  648.911870] virtio_fs_send_req: opcode 14 unique 0x4600 nodeid 0x2f7 in.len 48 out.len 16 queue_id 1
+[  648.912086] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.912188] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.912284] overlayfs: open(000000001dc27c49[lib64/libmpfr.so.6.2.2/l], 0100000) -> (00000000dd259cff, 01100000)
+[  648.912289] virtio_fs_send_req: opcode 18 unique 0x4602 nodeid 0x28 in.len 64 out.len 0 queue_id 1
+[  648.912456] virtio_fs_send_req: opcode 25 unique 0x4604 nodeid 0x2f7 in.len 64 out.len 0 queue_id 1
+[  648.912515] virtio_fs_send_req: opcode 18 unique 0x4606 nodeid 0x2a9 in.len 64 out.len 0 queue_id 1
+[  648.912599] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.912603] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.912924] virtio_fs_send_req: opcode 18 unique 0x4608 nodeid 0x4c in.len 64 out.len 0 queue_id 1
+[  648.912943] virtio_fs_send_req: opcode 5 unique 0x460a nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.913017] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.913020] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.913078] virtio_fs_send_req: opcode 18 unique 0x460c nodeid 0x30 in.len 64 out.len 0 queue_id 1
+[  648.913298] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.913356] virtio_fs_send_req: opcode 18 unique 0x460e nodeid 0x2a7 in.len 64 out.len 0 queue_id 1
+[  648.913463] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.913537] virtio_fs_send_req: opcode 18 unique 0x4610 nodeid 0x245 in.len 64 out.len 0 queue_id 1
+[  648.913877] virtio_fs_send_req: opcode 5 unique 0x4612 nodeid 0x2f8 in.len 40 out.len 4095 queue_id 1
+[  648.913927] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.914084] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.914219] virtio_fs_send_req: opcode 14 unique 0x4614 nodeid 0x2f9 in.len 48 out.len 16 queue_id 1
+[  648.914388] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.914488] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.914586] overlayfs: open(000000001dc27c49[lib64/libgmp.so.10.5.0/l], 0100000) -> (00000000c480dc70, 01100000)
+[  648.914746] virtio_fs_send_req: opcode 25 unique 0x4616 nodeid 0x2f9 in.len 64 out.len 0 queue_id 1
+[  648.914898] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.914993] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.915130] virtio_fs_send_req: opcode 5 unique 0x4618 nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.915297] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.915391] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.915500] virtio_fs_send_req: opcode 14 unique 0x461a nodeid 0x42 in.len 48 out.len 16 queue_id 1
+[  648.915676] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.915772] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.915873] overlayfs: open(000000001dc27c49[lib64/libm.so.6/l], 0100000) -> (00000000aab89989, 01100000)
+[  648.916022] virtio_fs_send_req: opcode 25 unique 0x461c nodeid 0x42 in.len 64 out.len 0 queue_id 1
+[  648.916184] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.916282] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.916386] virtio_fs_send_req: opcode 5 unique 0x461e nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.916559] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.916656] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.916756] virtio_fs_send_req: opcode 14 unique 0x4620 nodeid 0x30 in.len 48 out.len 16 queue_id 1
+[  648.916947] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.917045] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.917171] overlayfs: open(000000001dc27c49[lib64/libc.so.6/l], 0100000) -> (00000000065b2aff, 01100000)
+[  648.917339] virtio_fs_send_req: opcode 25 unique 0x4622 nodeid 0x30 in.len 64 out.len 0 queue_id 1
+[  648.917498] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.917596] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.917710] virtio_fs_send_req: opcode 5 unique 0x4624 nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.917901] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.917998] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.918105] virtio_fs_send_req: opcode 5 unique 0x4626 nodeid 0x1ed in.len 40 out.len 4095 queue_id 1
+[  648.918283] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.918380] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.918489] virtio_fs_send_req: opcode 14 unique 0x4628 nodeid 0x1ee in.len 48 out.len 16 queue_id 1
+[  648.918682] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.918780] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.918881] overlayfs: open(000000001dc27c49[lib64/libtinfo.so.6.5/l], 0100000) -> (0000000057c26190, 01100000)
+[  648.919054] virtio_fs_send_req: opcode 25 unique 0x462a nodeid 0x1ee in.len 64 out.len 0 queue_id 1
+[  648.919219] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.919318] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.919997] virtio_fs_send_req: opcode 18 unique 0x462c nodeid 0x2b in.len 64 out.len 0 queue_id 1
+[  648.920159] virtio_fs_send_req: opcode 14 unique 0x462e nodeid 0x2a7 in.len 48 out.len 16 queue_id 1
+[  648.920169] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.920368] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.920492] overlayfs: open(000000001dc27c49[locale/locale-archive/l], 0100000) -> (00000000fce78bd3, 01100000)
+[  648.920627] virtio_fs_send_req: opcode 25 unique 0x4630 nodeid 0x2a7 in.len 64 out.len 0 queue_id 1
+[  648.920772] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.920871] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.921036] virtio_fs_send_req: opcode 14 unique 0x4632 nodeid 0x2a9 in.len 48 out.len 16 queue_id 1
+[  648.921211] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.921308] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.921400] overlayfs: open(000000001dc27c49[gconv/gconv-modules.cache/l], 0100000) -> (00000000d54e120f, 01100000)
+[  648.921523] virtio_fs_send_req: opcode 25 unique 0x4634 nodeid 0x2a9 in.len 64 out.len 0 queue_id 1
+[  648.921666] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.921770] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.921832] virtqueue callback for 00000000531af360 (00000000df837aee)
+[  648.922226] virtio_fs_send_req: opcode 18 unique 0x4636 nodeid 0x28 in.len 64 out.len 0 queue_id 1
+[  648.922326] virtio_fs_send_req: opcode 18 unique 0x4638 nodeid 0x2a9 in.len 64 out.len 0 queue_id 1
+[  648.922400] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.922416] virtio_fs_send_req: opcode 18 unique 0x463a nodeid 0x2f5 in.len 64 out.len 0 queue_id 1
+[  648.922482] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.922564] virtio_fs_send_req: opcode 18 unique 0x463c nodeid 0x2f7 in.len 64 out.len 0 queue_id 1
+[  648.922690] virtio_fs_send_req: opcode 18 unique 0x463e nodeid 0x2f9 in.len 64 out.len 0 queue_id 1
+[  648.922762] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.922780] virtio_fs_send_req: opcode 18 unique 0x4640 nodeid 0x42 in.len 64 out.len 0 queue_id 1
+[  648.922847] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.922929] virtio_fs_send_req: opcode 18 unique 0x4642 nodeid 0x30 in.len 64 out.len 0 queue_id 1
+[  648.923060] virtio_fs_send_req: opcode 18 unique 0x4644 nodeid 0x1ee in.len 64 out.len 0 queue_id 1
+[  648.923126] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.923166] virtio_fs_send_req: opcode 18 unique 0x4646 nodeid 0x2a7 in.len 64 out.len 0 queue_id 1
+[  648.923228] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.923311] virtio_fs_send_req: opcode 18 unique 0x4648 nodeid 0x2f3 in.len 64 out.len 0 queue_id 1
+[  648.923487] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.923557] virtiofs virtio0: virtio_fs_vq_done requests.0
+
+Delta-CAL (IPI): 6007
+- this number is before the insert-sort, final number is better.
+
+[  648.926990] virtio_fs_send_req: opcode 14 unique 0x464a nodeid 0xae in.len 48 out.len 16 queue_id 1
+[  648.927221] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.927312] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.927409] overlayfs: open(00000000ae2b3a37[/machine-id/l], 0100000) -> (00000000ebc0a9b2, 01100000)
+[  648.927537] virtio_fs_send_req: opcode 25 unique 0x464c nodeid 0xae in.len 64 out.len 0 queue_id 1
+[  648.927709] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.927798] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.927888] virtio_fs_send_req: opcode 18 unique 0x464e nodeid 0xae in.len 64 out.len 0 queue_id 1
+[  648.928052] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.928135] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.928914] virtqueue callback for 00000000b8493952 (000000004941ab6e)
+[  648.929008] virtio_fs_send_req: opcode 5 unique 0x4650 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.929175] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.929246] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.929318] virtio_fs_send_req: opcode 5 unique 0x4652 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.929467] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.929535] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.929604] virtio_fs_send_req: opcode 5 unique 0x4654 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.929751] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.929824] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.929899] virtio_fs_send_req: opcode 5 unique 0x4656 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.930043] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.930110] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.930188] virtio_fs_send_req: opcode 5 unique 0x4658 nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.930331] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.930399] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.930503] virtio_fs_send_req: opcode 5 unique 0x465a nodeid 0x23 in.len 40 out.len 4095 queue_id 1
+[  648.930648] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.930717] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.930795] virtio_fs_send_req: opcode 14 unique 0x465c nodeid 0x204 in.len 48 out.len 16 queue_id 1
+[  648.930976] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.931046] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.931132] overlayfs: open(00000000b23a5ecd[bin/sed/l], 0100040) -> (0000000074755de1, 01100040)
+[  648.931288] virtio_fs_send_req: opcode 5 unique 0x465e nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.931448] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.931517] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.931600] virtio_fs_send_req: opcode 14 unique 0x4660 nodeid 0x28 in.len 48 out.len 16 queue_id 1
+[  648.931751] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.931826] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.931906] overlayfs: open(00000000fea37e0c[lib64/ld-linux-x86-64.so.2/l], 0100040) -> (00000000ebc0a9b2, 01100040)
+[  648.932282] virtio_fs_send_req: opcode 14 unique 0x4662 nodeid 0x2b in.len 48 out.len 16 queue_id 1
+[  648.932437] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.932508] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.932593] overlayfs: open(00000000fea37e0c[/ld.so.cache/l], 0100000) -> (00000000a546e0ec, 01100000)
+[  648.932710] virtio_fs_send_req: opcode 25 unique 0x4664 nodeid 0x2b in.len 64 out.len 0 queue_id 1
+[  648.932868] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.932945] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.933038] virtio_fs_send_req: opcode 5 unique 0x4666 nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.933203] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.933285] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.933377] virtio_fs_send_req: opcode 5 unique 0x4668 nodeid 0x2c in.len 40 out.len 4095 queue_id 1
+[  648.933528] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.933606] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.933695] virtio_fs_send_req: opcode 14 unique 0x466a nodeid 0x2d in.len 48 out.len 16 queue_id 1
+[  648.933850] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.933924] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.934031] overlayfs: open(00000000fea37e0c[lib64/libacl.so.1.1.2302/l], 0100000) -> (000000003b97b39b, 01100000)
+[  648.934194] virtio_fs_send_req: opcode 25 unique 0x466c nodeid 0x2d in.len 64 out.len 0 queue_id 1
+[  648.934349] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.934427] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.934513] virtio_fs_send_req: opcode 5 unique 0x466e nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.934668] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.934745] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.934835] virtio_fs_send_req: opcode 14 unique 0x4670 nodeid 0x41 in.len 48 out.len 16 queue_id 1
+[  648.934991] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.935069] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.935152] overlayfs: open(00000000fea37e0c[lib64/libselinux.so.1/l], 0100000) -> (00000000761f1272, 01100000)
+[  648.935308] virtio_fs_send_req: opcode 25 unique 0x4672 nodeid 0x41 in.len 64 out.len 0 queue_id 1
+[  648.935462] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.935540] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.935650] virtio_fs_send_req: opcode 5 unique 0x4674 nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.935800] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.935899] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.935994] virtio_fs_send_req: opcode 14 unique 0x4676 nodeid 0x30 in.len 48 out.len 16 queue_id 1
+[  648.936148] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.936226] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.936316] overlayfs: open(00000000fea37e0c[lib64/libc.so.6/l], 0100000) -> (0000000046b528d3, 01100000)
+[  648.936448] virtio_fs_send_req: opcode 25 unique 0x4678 nodeid 0x30 in.len 64 out.len 0 queue_id 1
+[  648.936612] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.936691] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.936784] virtio_fs_send_req: opcode 5 unique 0x467a nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.936943] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.937022] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.937125] virtio_fs_send_req: opcode 5 unique 0x467c nodeid 0x43 in.len 40 out.len 4095 queue_id 1
+[  648.937274] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.937353] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.937447] virtio_fs_send_req: opcode 14 unique 0x467e nodeid 0x44 in.len 48 out.len 16 queue_id 1
+[  648.937604] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.937683] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.937769] overlayfs: open(00000000fea37e0c[lib64/libattr.so.1.1.2502/l], 0100000) -> (00000000ce7f73a3, 01100000)
+[  648.937964] virtio_fs_send_req: opcode 25 unique 0x4680 nodeid 0x44 in.len 64 out.len 0 queue_id 1
+[  648.938148] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.938229] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.938329] virtio_fs_send_req: opcode 5 unique 0x4682 nodeid 0x26 in.len 40 out.len 4095 queue_id 1
+[  648.938499] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.938577] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.938669] virtio_fs_send_req: opcode 5 unique 0x4684 nodeid 0x4b in.len 40 out.len 4095 queue_id 1
+[  648.938831] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.938914] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.939013] virtio_fs_send_req: opcode 14 unique 0x4686 nodeid 0x4c in.len 48 out.len 16 queue_id 1
+[  648.939192] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.939272] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.939361] overlayfs: open(00000000fea37e0c[lib64/libpcre2-8.so.0.15.0/l], 0100000) -> (000000001b94a7b7, 01100000)
+[  648.939502] virtio_fs_send_req: opcode 25 unique 0x4688 nodeid 0x4c in.len 64 out.len 0 queue_id 1
+[  648.939654] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.939734] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.940088] virtio_fs_send_req: opcode 18 unique 0x468a nodeid 0x2b in.len 64 out.len 0 queue_id 1
+[  648.940214] virtio_fs_send_req: opcode 1 unique 0x468c nodeid 0x1 in.len 48 out.len 128 queue_id 1
+[  648.940273] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.940394] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.940552] virtio_fs_send_req: opcode 14 unique 0x468e nodeid 0x2a7 in.len 48 out.len 16 queue_id 1
+[  648.940730] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.940819] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.940910] overlayfs: open(00000000fea37e0c[locale/locale-archive/l], 0100000) -> (00000000a546e0ec, 01100000)
+[  648.941042] virtio_fs_send_req: opcode 25 unique 0x4690 nodeid 0x2a7 in.len 64 out.len 0 queue_id 1
+[  648.941215] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.941295] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.941413] virtio_fs_send_req: opcode 14 unique 0x4692 nodeid 0x2a9 in.len 48 out.len 16 queue_id 1
+[  648.941577] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.941654] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.941735] overlayfs: open(00000000fea37e0c[gconv/gconv-modules.cache/l], 0100000) -> (000000007d5f2653, 01100000)
+[  648.941867] virtio_fs_send_req: opcode 25 unique 0x4694 nodeid 0x2a9 in.len 64 out.len 0 queue_id 1
+[  648.942022] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.942105] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.942374] virtio_fs_send_req: opcode 18 unique 0x4696 nodeid 0x28 in.len 64 out.len 0 queue_id 1
+[  648.942487] virtio_fs_send_req: opcode 18 unique 0x4698 nodeid 0x2a9 in.len 64 out.len 0 queue_id 1
+[  648.942559] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.942599] virtio_fs_send_req: opcode 18 unique 0x469a nodeid 0x2d in.len 64 out.len 0 queue_id 1
+[  648.942660] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.942757] virtio_fs_send_req: opcode 18 unique 0x469c nodeid 0x41 in.len 64 out.len 0 queue_id 1
+[  648.942912] virtio_fs_send_req: opcode 18 unique 0x469e nodeid 0x30 in.len 64 out.len 0 queue_id 1
+[  648.942973] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.943020] virtio_fs_send_req: opcode 18 unique 0x46a0 nodeid 0x44 in.len 64 out.len 0 queue_id 1
+[  648.943084] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.943247] virtio_fs_send_req: opcode 18 unique 0x46a2 nodeid 0x4c in.len 64 out.len 0 queue_id 1
+[  648.943318] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.943353] virtio_fs_send_req: opcode 18 unique 0x46a4 nodeid 0x2a7 in.len 64 out.len 0 queue_id 1
+[  648.943417] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.943514] virtio_fs_send_req: opcode 18 unique 0x46a6 nodeid 0x204 in.len 64 out.len 0 queue_id 1
+[  648.943698] virtqueue callback for 00000000ffb9412a (00000000c5ce06f7)
+[  648.943776] virtiofs virtio0: virtio_fs_vq_done requests.0
+[  648.948394] uart_wait_until_sent(0), jiffies=4295316070, expire=4295316142...
+root@drm-misc-fixes-2026-02-26-80-g9a2f253ad689:/home/jimc/projects/lx/wk-D/b0-dd#
+---
+ drivers/virtio/virtio_ring.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 335692d41617..99f9e547d264 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -759,7 +759,7 @@ static inline int virtqueue_add_split(struct vring_virtqueue *vq,
+ 						vq->split.avail_idx_shadow);
+ 	vq->num_added++;
+ 
+-	pr_debug("Added buffer head %i to %p\n", head, vq);
++	pr_debug_ratelimited("Added buffer head %i to %p\n", head, vq);
+ 	END_USE(vq);
+ 
+ 	/* This is very unlikely, but theoretically possible.  Kick
+@@ -930,7 +930,7 @@ static void *virtqueue_get_buf_ctx_split(struct vring_virtqueue *vq,
+ 	}
+ 
+ 	if (!more_used_split(vq)) {
+-		pr_debug("No more buffers in queue\n");
++		pr_debug_ratelimited("No more buffers in queue\n");
+ 		END_USE(vq);
+ 		return NULL;
+ 	}
+@@ -1595,7 +1595,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 
+ 	vq->num_added += 1;
+ 
+-	pr_debug("Added buffer head %i to %p\n", head, vq);
++	pr_debug_ratelimited("Added buffer head %i to %p\n", head, vq);
+ 	END_USE(vq);
+ 
+ 	return 0;
+@@ -1744,7 +1744,7 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
+ 	vq->packed.vring.desc[head].flags = head_flags;
+ 	vq->num_added += descs_used;
+ 
+-	pr_debug("Added buffer head %i to %p\n", head, vq);
++	pr_debug_ratelimited("Added buffer head %i to %p\n", head, vq);
+ 	END_USE(vq);
+ 
+ 	return 0;
+@@ -1902,7 +1902,7 @@ static inline int virtqueue_add_packed_in_order(struct vring_virtqueue *vq,
+ 	vq->packed.vring.desc[head].flags = head_flags;
+ 	vq->num_added += total_sg;
+ 
+-	pr_debug("Added buffer head %i to %p\n", head, vq);
++	pr_debug_ratelimited("Added buffer head %i to %p\n", head, vq);
+ 	END_USE(vq);
+ 
+ 	return 0;
+@@ -3231,7 +3231,7 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+ 	if (!more_used(vq)) {
+-		pr_debug("virtqueue interrupt with no work for %p\n", vq);
++		pr_debug_ratelimited("virtqueue interrupt with no work for %p\n", vq);
+ 		return IRQ_NONE;
+ 	}
+ 
+-- 
+2.53.0
 
