@@ -1,105 +1,126 @@
-Received: from out30-85.freemail.mail.aliyun.com (out30-85.freemail.mail.aliyun.com [115.124.30.85])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B79832E68F
-	for <virtualization@lists.linux.dev>; Fri,  6 Mar 2026 02:24:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.85
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7373718DF80;
+	Fri,  6 Mar 2026 05:49:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772763898; cv=none; b=lunBjwNO1ILWPmsjrgMc7EihXdV38u/uVFs5MKNfS/HdTt5yU1t3yzX0rR7bXYgkkv6jrBJ16jZXBPMa1INtb816N4cYYXIewdS2D9uFjd+GGNhJ50JkODDY6ffZgSbveXTPdBAkJnB+haZ5TaCRafCydajusiU4umnLVQmcczo=
+	t=1772776144; cv=none; b=rvHfsE2SZnETqRhur9zmxBScij+dyscL1bs8MqM2HPgHQ4YrrXPf8uYIqzEDUzCKKLxlf0X0C9Gd68atUnttpnsnHZcFxlJmW3+qvVDi0mLDHHkMv2r2vosVdlwfnznk8z1yTYQ1+lpbcSOnC7kJbMd3M1gKGRESZqLSpQl0aUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772763898; c=relaxed/simple;
-	bh=pNRDtgleKcw+UtWajJqjN55JZKTysDSBC3+6j5JAobw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OmTHHoAL7Xnf2fVtLgHqIpeRRHdvDhjsk4slWYFALv+6J8I2Do7W7E1flGJbIgPo14lZG3SzPGKsUh8JimbG9SVH45qpcEObxm3Mg2F7+vzPqs+bGKQoHpzrPqfwdHhFO5tXNO+2gp+yuqUr7yWrN7Rmu3rdi8LfIBkjTomkRgc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com; spf=pass smtp.mailfrom=aliyun.com; dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b=Kd5tK3Cg; arc=none smtp.client-ip=115.124.30.85
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliyun.com
+	s=arc-20240116; t=1772776144; c=relaxed/simple;
+	bh=jPdfD/G0MG2lwKeKWtrGbHHeFrPWH33eiStwxKz6vzo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cNvc2kMvcA8jH4h35a49VNjQY3Z9Wjg2yPWcgOpIS9uSB3ktkZ+j0QprZuNS6LMAJ5OP5hmxTKqij+DwBdHLNU7OSdC7+cacw/5WpK1D0YWUeWrU0CgCVcumGu0QuHB2rxDEWLhUm+CKjxRaBM1w7NXYpHZ5Nmtff035obCoIMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QFe0CrBg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="Kd5tK3Cg"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=aliyun.com; s=s1024;
-	t=1772763895; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=uKETZvpPzQ2piKVIuIchcLQYmMkl2Hf/rKze2mfXRfg=;
-	b=Kd5tK3CgFxbDKzOune5dn6Fl/IYMJd4vTW3XhDzbdojols0HMRiAbNLqC+nqjXQyqGFcDtCiD1kjESQnqA2eSA/z1yXGpggTfZbec8HD2FfT13xx3JALMjn5uxBCxjtK69KnAfRpxwccqWFDovCSJNLWcXdxy1RYJ1lVFqicEi8=
-Received: from localhost.localdomain(mailfrom:wdhh6@aliyun.com fp:SMTPD_---0X-Lau.N_1772763890 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 06 Mar 2026 10:24:54 +0800
-From: Chaohai Chen <wdhh6@aliyun.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com
-Cc: virtualization@lists.linux.dev,
-	Chaohai Chen <wdhh6@aliyun.com>
-Subject: [PATCH v2] virtio_ring: Fix data races in virtqueue_enable_cb_delayed_split()
-Date: Fri,  6 Mar 2026 10:24:48 +0800
-Message-ID: <20260306022448.216131-1-wdhh6@aliyun.com>
-X-Mailer: git-send-email 2.43.7
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QFe0CrBg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78BCC4CEF7;
+	Fri,  6 Mar 2026 05:49:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772776144;
+	bh=jPdfD/G0MG2lwKeKWtrGbHHeFrPWH33eiStwxKz6vzo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=QFe0CrBgB8yTKa1Rt8s6xDZks1gWZbdUVP1qxdAMHP40BR2ggZ9IYdYM3ag1Z9F8H
+	 ycY9ZRcFgHSQpVkWYiV/sZJaUF+Tpu/JiVU236+ZsSblhx0KU3mXUIHb3jte4lh4j2
+	 OW/6+bvA79gDGdAeXgsEHdJidEXy2llW8QY8DnraUEOMN3FkofSVqJAa5SuFHOGRyP
+	 5Qzi5m9qenIn5sNyJbSKZUFW5VVW0PhA5DWlMLHA6GCdreZd/MOUStoYeMWxegGzqY
+	 yFaOeb4QtFATmwnrfptZ6S0ijamrAPwVWyks1yL4RPn9s0iVsTfRb9eGDk2dywD06p
+	 y9ulfBtO11NLw==
+Message-ID: <7efde2b5-3b72-4858-9db0-22493d446301@kernel.org>
+Date: Fri, 6 Mar 2026 06:48:58 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups, RCU
+ stalls, timeout
+To: Thomas Gleixner <tglx@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+Cc: Matthieu Baerts <matttbe@kernel.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
+ rcu@vger.kernel.org, MPTCP Linux <mptcp@lists.linux.dev>,
+ Linux Kernel <linux-kernel@vger.kernel.org>,
+ Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+ "Paul E. McKenney" <paulmck@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, "luto@kernel.org"
+ <luto@kernel.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?= <MKoutny@suse.com>,
+ Waiman Long <longman@redhat.com>
+References: <b24ffcb3-09d5-4e48-9070-0b69bc654281@kernel.org>
+ <7f3e74d7-67dc-48d7-99d2-0b87f671651b@kernel.org>
+ <863a5291-a636-47d0-891c-bb0524d2e134@kernel.org>
+ <20260302114636.GL606826@noisy.programming.kicks-ass.net>
+ <717310d8-6274-4b7f-8a19-561c45f5f565@kernel.org>
+ <a2b573b4-af61-4b84-a7d1-012ed6bb23c9@kernel.org>
+ <ba067933-bf3b-476d-a0bb-53eda56996ca@kernel.org> <87zf4m2qvo.ffs@tglx>
+ <47cba228-bba7-4e58-a69d-ea41f8de6602@kernel.org> <87tsuu2i59.ffs@tglx>
+Content-Language: en-US
+From: Jiri Slaby <jirislaby@kernel.org>
+Autocrypt: addr=jirislaby@kernel.org; keydata=
+ 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
+In-Reply-To: <87tsuu2i59.ffs@tglx>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Add READ_ONCE when fetching vq->split.vring.used->idx
-without synchronization.
+On 05. 03. 26, 20:25, Thomas Gleixner wrote:
+> Is there simple way to reproduce?
 
-KCSAN detected data races when accessing the split virtqueue's
-used ring, which is shared memory concurrently accessed by both the CPU
-and the virtio device (hypervisor).
+Unfortunately not at all. To date, I even cannot reproduce locally, it 
+reproduces exclusively in opensuse build service (and github CI as per 
+Matthieu's report). I have a project in there with packages which fail 
+more often than others:
+   https://build.opensuse.org/project/monitor/home:jirislaby:softlockup
+But it's all green ATM.
 
-Example KCSAN report:
+Builds of Go 1.24 and tests of rust 1.90 fail the most. The former even 
+takes only ~ 8 minutes, so it's not that intensive build at all. So the 
+reasons are unknown to me. At least, Go apparently uses threads for 
+building (unlike gcc/clang with forks/processes). Dunno about rust.
 
-[  109.277250] ==================================================================
-[  109.283600] BUG: KCSAN: data-race in virtqueue_enable_cb_delayed_split+0x10f/0x170
-
-[  109.295263] race at unknown origin, with read to 0xffff8b2a92ef2042 of 2 bytes by interrupt on cpu 1:
-[  109.306934]  virtqueue_enable_cb_delayed_split+0x10f/0x170
-[  109.312880]  virtqueue_enable_cb_delayed+0x3b/0x70
-[  109.318852]  start_xmit+0x315/0x860 [virtio_net]
-[  109.324532]  dev_hard_start_xmit+0x85/0x380
-[  109.329993]  sch_direct_xmit+0xd3/0x680
-[  109.335360]  __dev_xmit_skb+0x4ee/0xcc0
-[  109.340568]  __dev_queue_xmit+0x560/0xe00
-[  109.345701]  ip_finish_output2+0x49a/0x9b0
-[  109.350743]  __ip_finish_output+0x131/0x250
-[  109.355789]  ip_finish_output+0x28/0x180
-[  109.360712]  ip_output+0xa0/0x1c0
-[  109.365479]  __ip_queue_xmit+0x68d/0x9e0
-[  109.370156]  ip_queue_xmit+0x33/0x40
-[  109.374783]  __tcp_transmit_skb+0x1703/0x1970
-[  109.379467]  __tcp_send_ack.part.0+0x1bb/0x320
-...
-[  109.499585]  do_idle+0x7a/0xe0
-[  109.502979]  cpu_startup_entry+0x25/0x30
-[  109.506481]  start_secondary+0x116/0x150
-[  109.509930]  common_startup_64+0x13e/0x141
-
-[  109.516626] value changed: 0x0029 -> 0x002a
-================================================================================
-
-Signed-off-by: Chaohai Chen <wdhh6@aliyun.com>
----
- drivers/virtio/virtio_ring.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 335692d41617..ceb026161639 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1112,8 +1112,9 @@ static bool virtqueue_enable_cb_delayed_split(struct vring_virtqueue *vq)
- 			&vring_used_event(&vq->split.vring),
- 			cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx + bufs));
- 
--	if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev, vq->split.vring.used->idx)
--					- vq->last_used_idx) > bufs)) {
-+	if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev,
-+				READ_ONCE(vq->split.vring.used->idx))
-+				- vq->last_used_idx) > bufs)) {
- 		END_USE(vq);
- 		return false;
- 	}
+thanks,
 -- 
-2.43.7
-
+js
+suse labs
