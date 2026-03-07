@@ -1,193 +1,135 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 967AB3A5E6B;
-	Sat,  7 Mar 2026 19:58:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7D8536A022;
+	Sat,  7 Mar 2026 22:29:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772913495; cv=none; b=KeVvanEpBflSdouWrbt84Zc7queABwg3bPQkNOoMUseRfFCaG2RpJhUPnia9Am7fCYpn0x+CV3O2cOC3O/VghQKfFVwe5o+7wahEUL6h8F/u6adHQNKiM9YE2/URG7ni/Vxz8BoW4oj5pg4vNDM1vghFqGMX08wfwTUy+lhEmi4=
+	t=1772922581; cv=none; b=PGwboNYyJXAZ3N14GVFYbeUo84KQs/uUl1vLcol2p4VjzdGt6/XOyAgoKWCwmFm2VeyILXxsG7zqzAYJg250jSzO0IcKOMnWIayIM/8sgvqI/R2pYcSVjshTq3tl9yMEQSandviXRjNvHHOt5h09iqnHYUJ2PwYfIscNOOCCDn4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772913495; c=relaxed/simple;
-	bh=6EfkCLhJg+AlZw6TkaO6d/504vUAp5tN3HoH1lQUwjY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BWiMbkXaemjwX+JT15yA6H3ogAD2OvrOB3WE32F4yRWwBLih2aLnSNdesAZsBMCs3h/c2kw7Uz+R4z3X4BPNRsmagSVO5+INEbnqDOJWMjaKWDb2oFIEsKwq7Nqp1h397sszBvE/8wvm8MRRMOdm/HbmQSpLy0fH+bcSsrp6Bz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MXdxDGOy; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1772922581; c=relaxed/simple;
+	bh=86FT+jrr9lGMW3QHw5UUhDZPyggZzHYm9O0FiRH+WkU=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=biE7RJcSz8blcX0IbLbaLesFsKomQQd+0HtN2AGdxKz1OtLUHbHxsbKAaXK5I18PrIWnUQ6rS+saykRXQ3eq3bYUoHl0AhFnwDkSAsVqlgQaNUxwc+gm5dtKe6VqNRKwv/OTaTbTcLfn9TXeToL3l0dbdGpQNDh+OJOBDlew5SE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gPlKjvtQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MXdxDGOy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1772913494; x=1804449494;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=6EfkCLhJg+AlZw6TkaO6d/504vUAp5tN3HoH1lQUwjY=;
-  b=MXdxDGOyDZOvGWmfnN6+XCR7wkzT+E+dYMqsY1zLzix+mE0uTzTMw4yx
-   kr8F/GXZi4JhXmc12GRHRXRgAT9K2yzpBB5MGfWQNpEVNk9S/M6SjBULE
-   943RqL6x/VwMyW1wM5t9uOHIW+SnZ2B4SVWzl1NVpMUXWYLFje0c76EVA
-   coB7yB+ewuNMXFLMd0o0qWMeMp0wU/V/QHxgjJqbj4IiGAmwTXnF9xIfB
-   Q0B1Xlflc/4eGn1ffpCgjpFqJT30boPQn/KQrwAFFsS0Dx6Z/lisXd1YQ
-   o7PBBV/1cs9/Bm0M9Nd7CL9mrr7+xzsChCabHVYWgJwsTyxaeND8n7PEz
-   A==;
-X-CSE-ConnectionGUID: IP5k5tAqS5aVrJCjswEZ2A==
-X-CSE-MsgGUID: co92LIuaR3OY3ap5gXQOXA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11722"; a="74038497"
-X-IronPort-AV: E=Sophos;i="6.23,107,1770624000"; 
-   d="scan'208";a="74038497"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2026 11:58:13 -0800
-X-CSE-ConnectionGUID: Wlk16Iu4Q/eU4k+9d912cQ==
-X-CSE-MsgGUID: /0+ldayrS5+1d6aZKJqv6g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,107,1770624000"; 
-   d="scan'208";a="218552919"
-Received: from lkp-server01.sh.intel.com (HELO 058beb05654c) ([10.239.97.150])
-  by orviesa010.jf.intel.com with ESMTP; 07 Mar 2026 11:58:05 -0800
-Received: from kbuild by 058beb05654c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vyxmj-000000002b5-2cTQ;
-	Sat, 07 Mar 2026 19:58:01 +0000
-Date: Sun, 8 Mar 2026 03:57:41 +0800
-From: kernel test robot <lkp@intel.com>
-To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>, linux-mm@kvack.org,
-	akpm@linux-foundation.org, mhocko@suse.com, vbabka@suse.cz
-Cc: oe-kbuild-all@lists.linux.dev, apopple@nvidia.com,
-	axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
-	david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
-	jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
-	Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
-	lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
-	rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
-	rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
-	surenb@google.com, virtualization@lists.linux.dev,
-	weixugc@google.com, xuanzhuo@linux.alibaba.com,
-	ying.huang@linux.alibaba.com
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-Message-ID: <202603080349.ya7tIjgk-lkp@intel.com>
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gPlKjvtQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99543C2BC87;
+	Sat,  7 Mar 2026 22:29:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772922581;
+	bh=86FT+jrr9lGMW3QHw5UUhDZPyggZzHYm9O0FiRH+WkU=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=gPlKjvtQ5cF+gE/3W0nLutAk5CKaszMueR5skxzq/VMBn5QO/gCsJVXZ0UIWABUyM
+	 ABMXz/bXvcP25SRqoPk+yAZak0P2Txk8pUVnQC/3TIAOlNokLvwrPypJ0ZnlXQBPtI
+	 281Nmu2q8wdMiHjc8NM4FZ3B5+COBSN8OxZoUmQ2rPj4RHjevT0QhutpmVjFKbsRja
+	 Isl+/hDXMez1W6w5Zo6PSZohvesCgb4tPbygO3lMfc7BNxI2jJ3elX4fxvtye8gjW8
+	 BDJJUB+ht/tAEy7Fad/DMR8U3gbgPQvVrlfF8UvFCdX3Yqp+ZyS8WaSG0dyNHV6bUE
+	 PHtBGVseM+TYQ==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>, Matthieu Baerts <matttbe@kernel.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+ <sgarzare@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
+ rcu@vger.kernel.org, MPTCP Linux <mptcp@lists.linux.dev>, Linux Kernel
+ <linux-kernel@vger.kernel.org>, Shinichiro Kawasaki
+ <shinichiro.kawasaki@wdc.com>, "Paul E. McKenney" <paulmck@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, "luto@kernel.org"
+ <luto@kernel.org>, Michal =?utf-8?Q?Koutn=C3=BD?= <MKoutny@suse.com>,
+ Waiman Long
+ <longman@redhat.com>, Marco Elver <elver@google.com>
+Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups,
+ RCU stalls, timeout
+In-Reply-To: <87ldg42eu7.ffs@tglx>
+References: <863a5291-a636-47d0-891c-bb0524d2e134@kernel.org>
+ <20260302114636.GL606826@noisy.programming.kicks-ass.net>
+ <717310d8-6274-4b7f-8a19-561c45f5f565@kernel.org>
+ <a2b573b4-af61-4b84-a7d1-012ed6bb23c9@kernel.org>
+ <ba067933-bf3b-476d-a0bb-53eda56996ca@kernel.org> <87zf4m2qvo.ffs@tglx>
+ <47cba228-bba7-4e58-a69d-ea41f8de6602@kernel.org> <87tsuu2i59.ffs@tglx>
+ <7efde2b5-3b72-4858-9db0-22493d446301@kernel.org> <87qzpx2sck.ffs@tglx>
+ <20260306152458.GT606826@noisy.programming.kicks-ass.net>
+ <87ldg42eu7.ffs@tglx>
+Date: Sat, 07 Mar 2026 23:29:37 +0100
+Message-ID: <87h5qr2rzi.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260307045520.247998-1-jp.kobryn@linux.dev>
+Content-Type: text/plain
 
-Hi JP,
+On Sat, Mar 07 2026 at 10:01, Thomas Gleixner wrote:
+> I gave up staring at it yesterday as my brain started to melt. Let me
+> try again.
 
-kernel test robot noticed the following build errors:
+[Un]Surprisingly a rested and awake brain works way better.
 
-[auto build test ERROR on akpm-mm/mm-everything]
+The good news is that I actually found a nasty brown paperbag bug in
+mm_cid_schedout() while going through all of this with a fine comb:
 
-url:    https://github.com/intel-lab-lkp/linux/commits/JP-Kobryn-Meta/mm-mempolicy-track-page-allocations-per-mempolicy/20260307-125642
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
-patch link:    https://lore.kernel.org/r/20260307045520.247998-1-jp.kobryn%40linux.dev
-patch subject: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-config: arm64-randconfig-001-20260307 (https://download.01.org/0day-ci/archive/20260308/202603080349.ya7tIjgk-lkp@intel.com/config)
-compiler: aarch64-linux-gcc (GCC) 8.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260308/202603080349.ya7tIjgk-lkp@intel.com/reproduce)
+     cid = cid_from_transit_cid(...);
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202603080349.ya7tIjgk-lkp@intel.com/
+     That preserves the MM_CID_ONCPU bit, which makes mm_drop_cid()
+     clear bit 0x40000000 + CID. That is obviously way outside of the
+     bitmap. So the actual CID bit is not cleared and the clear just
+     corrupts some other piece of memory.
 
-All error/warnings (new ones prefixed by >>):
+     I just retried with all the K*SAN muck enabled which should catch
+     that out of bounds access, but it never triggered and I haven't
+     seen syzbot reports to that effect either.
 
-   mm/mempolicy.c: In function 'mpol_count_numa_alloc':
->> mm/mempolicy.c:2489:10: error: implicit declaration of function 'mem_cgroup_from_task'; did you mean 'perf_cgroup_from_task'? [-Werror=implicit-function-declaration]
-     memcg = mem_cgroup_from_task(current);
-             ^~~~~~~~~~~~~~~~~~~~
-             perf_cgroup_from_task
->> mm/mempolicy.c:2489:8: warning: assignment to 'struct mem_cgroup *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
-     memcg = mem_cgroup_from_task(current);
-           ^
-   cc1: some warnings being treated as errors
+     Fix for that is below.
 
+The bad news is that I couldn't come up with a scenario yet where this
+bug leads to the outcome observed by Jiri and Matthieu, because the not
+dropped CID bit in the bitmap is by chance cleaned up on the next
+schedule in on that CPU due to the ONCPU bit still being set.
 
-vim +2489 mm/mempolicy.c
+I'll look at it more tomorrow in the hope that this rested brain
+approach works out again.
 
-  2429	
-  2430	/*
-  2431	 * Count a mempolicy allocation. Stats are tracked per-node and per-cgroup.
-  2432	 * The following numa_{hit/miss/foreign} pattern is used:
-  2433	 *
-  2434	 *   hit
-  2435	 *     - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
-  2436	 *     - for other policies, allocation succeeded on intended node
-  2437	 *     - counted on the node of the allocation
-  2438	 *   miss
-  2439	 *     - allocation intended for other node, but happened on this one
-  2440	 *     - counted on other node
-  2441	 *   foreign
-  2442	 *     - allocation intended on this node, but happened on other node
-  2443	 *     - counted on this node
-  2444	 */
-  2445	static void mpol_count_numa_alloc(struct mempolicy *pol, int intended_nid,
-  2446					  struct page *page, unsigned int order)
-  2447	{
-  2448		int actual_nid = page_to_nid(page);
-  2449		long nr_pages = 1L << order;
-  2450		enum node_stat_item hit_idx;
-  2451		struct mem_cgroup *memcg;
-  2452		struct lruvec *lruvec;
-  2453		bool is_hit;
-  2454	
-  2455		if (!root_mem_cgroup || mem_cgroup_disabled())
-  2456			return;
-  2457	
-  2458		/*
-  2459		 * Start with hit then use +1 or +2 later on to change to miss or
-  2460		 * foreign respectively if needed.
-  2461		 */
-  2462		switch (pol->mode) {
-  2463		case MPOL_PREFERRED:
-  2464			hit_idx = NUMA_MPOL_PREFERRED_HIT;
-  2465			break;
-  2466		case MPOL_PREFERRED_MANY:
-  2467			hit_idx = NUMA_MPOL_PREFERRED_MANY_HIT;
-  2468			break;
-  2469		case MPOL_BIND:
-  2470			hit_idx = NUMA_MPOL_BIND_HIT;
-  2471			break;
-  2472		case MPOL_INTERLEAVE:
-  2473			hit_idx = NUMA_MPOL_INTERLEAVE_HIT;
-  2474			break;
-  2475		case MPOL_WEIGHTED_INTERLEAVE:
-  2476			hit_idx = NUMA_MPOL_WEIGHTED_INTERLEAVE_HIT;
-  2477			break;
-  2478		default:
-  2479			hit_idx = NUMA_MPOL_LOCAL_HIT;
-  2480			break;
-  2481		}
-  2482	
-  2483		if (pol->mode == MPOL_BIND || pol->mode == MPOL_PREFERRED_MANY)
-  2484			is_hit = node_isset(actual_nid, pol->nodes);
-  2485		else
-  2486			is_hit = (actual_nid == intended_nid);
-  2487	
-  2488		rcu_read_lock();
-> 2489		memcg = mem_cgroup_from_task(current);
-  2490	
-  2491		if (is_hit) {
-  2492			lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
-  2493			mod_lruvec_state(lruvec, hit_idx, nr_pages);
-  2494		} else {
-  2495			/* account for miss on the fallback node */
-  2496			lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
-  2497			mod_lruvec_state(lruvec, hit_idx + 1, nr_pages);
-  2498	
-  2499			/* account for foreign on the intended node */
-  2500			lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(intended_nid));
-  2501			mod_lruvec_state(lruvec, hit_idx + 2, nr_pages);
-  2502		}
-  2503	
-  2504		rcu_read_unlock();
-  2505	}
-  2506	
+Thanks,
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+        tglx
+---
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -3809,7 +3809,8 @@ static __always_inline bool cid_on_task(
+ 
+ static __always_inline void mm_drop_cid(struct mm_struct *mm, unsigned int cid)
+ {
+-	clear_bit(cid, mm_cidmask(mm));
++	if (!WARN_ON_ONCE(cid >= num_possible_cpus()))
++		clear_bit(cid, mm_cidmask(mm));
+ }
+ 
+ static __always_inline void mm_unset_cid_on_task(struct task_struct *t)
+@@ -3978,7 +3979,13 @@ static __always_inline void mm_cid_sched
+ 		return;
+ 
+ 	mode = READ_ONCE(mm->mm_cid.mode);
++
++	/*
++	 * Needs to clear both TRANSIT and ONCPU to make the range comparison
++	 * and mm_drop_cid() work correctly.
++	 */
+ 	cid = cid_from_transit_cid(prev->mm_cid.cid);
++	cid = cpu_cid_to_cid(cid);
+ 
+ 	/*
+ 	 * If transition mode is done, transfer ownership when the CID is
+@@ -3994,6 +4001,11 @@ static __always_inline void mm_cid_sched
+ 	} else {
+ 		mm_drop_cid(mm, cid);
+ 		prev->mm_cid.cid = MM_CID_UNSET;
++		/*
++		 * Invalidate the per CPU CID so that the next mm_cid_schedin()
++		 * can't observe MM_CID_ONCPU on the per CPU CID.
++		 */
++		mm_cid_update_pcpu_cid(mm, 0);
+ 	}
+ }
+ 
