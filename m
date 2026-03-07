@@ -1,35 +1,47 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail-m16.yeah.net (mail-m16.yeah.net [1.95.21.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 609B733290F;
-	Sat,  7 Mar 2026 01:50:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 738292874FE
+	for <virtualization@lists.linux.dev>; Sat,  7 Mar 2026 03:52:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=1.95.21.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772848211; cv=none; b=cdJDf1EI44fuqgkyPrRJ6rP8gRL6/f30quU5VuIAQfF6uWOaNsGARmygPVTxjWGkQhLnDnpV9yH/FijRZvIj82JRr06SjqkhvSEj2bV9ZPHJ2GQ9ewxkPpBbB5+w0uiAv/0kuYHBoS40ofzRBVh03YBFb6t4YpamH7ou7v3EqiE=
+	t=1772855562; cv=none; b=IOY6hovxl6CD4ryxRB3Er8zLjXc5A9knElcK/OaToDaOeM2o8bNscs/Q7Sq/PbwZzdIqz/uDp8Es2tvs8IDw5TJt0UDxGtwpgOABTfLEhB6450PzeRHnn40E/A31nvhOz5EecHewnTLB/vj+jtEgrV1rJXZgW2GVn7YyvTK6qrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772848211; c=relaxed/simple;
-	bh=q+dkVaegM7HQrWVqo1Eiye5rYBXeYQR7vy8Zkngxqkg=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=cxabbncAbq769IczK0qLPpER7UKoMghnuRmnBbJYELL0CniotADZ6yy26v73ZKHqE+2h7no46Of78nyO3MadPl/VOevSrhqKwXv87si7R70zCQR/RNcRn6drXTsj0dm1QWgE3Fv0ra74xxNBEPEshSP7gOaiI4zz0CS4Pqz7738=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rebDNblq; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772855562; c=relaxed/simple;
+	bh=2VKjOBAvdDuHyTYpQp4+fH3E0GVniSmbG/grWeTNYbQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pb595xKNtRLaOdy4ER2xFIy5JvUqi68voJiqy5FPyVYDIQYhXWzq/uEgADAIx7IbCXzfi9xSyTePlsBtkIu10/LuIVHmf0SJ84Puv8+XSy5R6BxKpY7TCFQLCRrMOGc1BUgXdk96FgQa/Eba6del6VIApm5ch0O2OsOPMJR0kG0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yeah.net; spf=pass smtp.mailfrom=yeah.net; dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b=bASu/eQk; arc=none smtp.client-ip=1.95.21.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yeah.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yeah.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rebDNblq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2941C4CEF7;
-	Sat,  7 Mar 2026 01:50:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772848210;
-	bh=q+dkVaegM7HQrWVqo1Eiye5rYBXeYQR7vy8Zkngxqkg=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=rebDNblqkSpmDqaJrvO/VjQ7jWujgkmK9Jt5O3sQgpctyMpVSUGwkSAJS64x8pyu4
-	 Kr9f1NUGrRobNEenzjpC9wTrIRgu+D1UtW2V5I1Rtmw0tS/e01wqMBHbS1/eQ3Pr5N
-	 ntzXpJbEKJrl20tpzXrvBqeV5W76ngB8FqbnY9YvmwI7qumIjMJD9HQPZ+4f3arr/7
-	 vke9JyIYb3e9xlSaDXC5cPsE1CW5+5Q+vUgbm9nMxFNwRXPC5WfaYIx/R0sz66yoZ8
-	 3L5576ewgCOC/lI/N26Yf+DrCIbDbnoqDupe2sub19kdbkIl4I7oRz/Si/c36PTevJ
-	 FnqOnakoRYzHw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 02CD03808200;
-	Sat,  7 Mar 2026 01:50:11 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b="bASu/eQk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yeah.net;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=Y9
+	FgILjFxFmSSdvhtpxbCtpywPbYSocA+aWvpBBe7Rk=; b=bASu/eQkGl/8rQYpBI
+	YVg51DJUWaN8XRRs4aE/UVCMXIV1OHmWs1zCoFZPNEejjZdUCcdQax2/nLEAffCs
+	WtEYv6oFEZ8QoT7P1j4Q2SMKUX6dgFhE4YNaJXqnQYsxXo23g55UVlJMhvFJo3Xc
+	CugXBhm+57LkYHs5njeSTk2xU=
+Received: from localhost.net (unknown [])
+	by gzsmtp3 (Coremail) with UTF8SMTPA id M88vCgD3f6vioKtpEUwtAg--.60202S2;
+	Sat, 07 Mar 2026 11:52:03 +0800 (CST)
+From: xietangxin <xietangxin@yeah.net>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	xietangxin <xietangxin@yeah.net>
+Subject: [PATCH] virtio_net: Fix UAF on dst_ops when IFF_XMIT_DST_RELEASE is cleared and napi_tx is false
+Date: Sat,  7 Mar 2026 11:51:10 +0800
+Message-ID: <20260307035110.7121-1-xietangxin@yeah.net>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,43 +49,88 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v3] virtio-net: xsk: Support wakeup on RX side
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177284820957.121768.10885517697110084054.git-patchwork-notify@kernel.org>
-Date: Sat, 07 Mar 2026 01:50:09 +0000
-References: <20260304154317.7506-1-minhquangbui99@gmail.com>
-In-Reply-To: <20260304154317.7506-1-minhquangbui99@gmail.com>
-To: Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: netdev@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- kerneljasonxing@gmail.com
+X-CM-TRANSID:M88vCgD3f6vioKtpEUwtAg--.60202S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxArW3XF43AFy5Jw1kArW3GFg_yoW5WF4fpF
+	4YkrW5Zr4vqry7Aa95Xw4kWry8Zan5J3y3Grs0gw1a9398CFy5tr1IvryUtFWDCFs5Z347
+	Zr4Fvr17KrZ0vFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07Utu4UUUUUU=
+X-CM-SenderInfo: x0lh3tpqj0x0o61htxgoqh3/1tbiNAOl2WmroOOxQwAA34
 
-Hello:
+A UAF issue occurs when the virtio_net driver is configured with napi_tx=N
+and the device's IFF_XMIT_DST_RELEASE flag is cleared
+(e.g., during the configuration of tc route filter rules).
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+When IFF_XMIT_DST_RELEASE is removed from the net_device, the network stack
+expects the driver to hold the reference to skb->dst until the packet
+is fully transmitted and freed. In virtio_net with napi_tx=N,
+skbs may remain in the virtio transmit ring for an extended period.
 
-On Wed,  4 Mar 2026 22:43:17 +0700 you wrote:
-> When XDP_USE_NEED_WAKEUP is used and the fill ring is empty so no buffer
-> is allocated on RX side, allow RX NAPI to be descheduled. This avoids
-> wasting CPU cycles on polling. Users will be notified and they need to
-> make a wakeup call after refilling the ring.
-> 
-> Reviewed-by: Jason Xing <kerneljasonxing@gmail.com>
-> Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-> 
-> [...]
+If the network namespace is destroyed while these skbs are still pending,
+the corresponding dst_ops structure has freed. When a subsequent packet
+is transmitted, free_old_xmit() is triggered to clean up old skbs.
+It then calls dst_release() on the skb associated with the stale dst_entry.
+Since the dst_ops (referenced by the dst_entry) has already been freed,
+a UAF kernel paging request occurs.
 
-Here is the summary with links:
-  - [net-next,v3] virtio-net: xsk: Support wakeup on RX side
-    https://git.kernel.org/netdev/net-next/c/e3f8800aa243
+fix it by adds skb_dst_drop(skb) in start_xmit to explicitly release
+the dst reference before the skb is queued in virtio_net.
 
-You are awesome, thank you!
+Call Trace:
+ Unable to handle kernel paging request at virtual address ffff80007e150000
+ CPU: 2 UID: 0 PID: 6236 Comm: ping Kdump: loaded Not tainted 7.0.0-rc1+ #6 PREEMPT
+  ...
+  percpu_counter_add_batch+0x3c/0x158 lib/percpu_counter.c:98 (P)
+  dst_release+0xe0/0x110  net/core/dst.c:177
+  skb_release_head_state+0xe8/0x108 net/core/skbuff.c:1177
+  sk_skb_reason_drop+0x54/0x2d8 net/core/skbuff.c:1255
+  dev_kfree_skb_any_reason+0x64/0x78 net/core/dev.c:3469
+  napi_consume_skb+0x1c4/0x3a0 net/core/skbuff.c:1527
+  __free_old_xmit+0x164/0x230  drivers/net/virtio_net.c:611 [virtio_net]
+  free_old_xmit drivers/net/virtio_net.c:1081 [virtio_net]
+  start_xmit+0x7c/0x530 drivers/net/virtio_net.c:3329 [virtio_net]
+  ...
+
+Reproduction Steps:
+NETDEV="enp3s0"
+
+config_qdisc_route_filter() {
+    tc qdisc del dev $NETDEV root
+    tc qdisc add dev $NETDEV root handle 1: prio
+    tc filter add dev $NETDEV parent 1:0 protocol ip prio 100 route to 100 flowid 1:1
+    ip route add 192.168.1.100/32 dev $NETDEV realm 100
+}
+
+test_ns() {
+    ip netns add testns
+    ip link set $NETDEV netns testns
+    ip netns exec testns ifconfig $NETDEV  10.0.32.46/24
+    ip netns exec testns ping -c 1 10.0.32.1
+    ip netns del testns
+}
+
+config_qdisc_route_filter
+
+test_ns
+sleep 2
+test_ns
+
+Signed-off-by: xietangxin <xietangxin@yeah.net>
+---
+ drivers/net/virtio_net.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 72d6a9c6a..5b13a61b3 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3351,6 +3351,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	/* Don't wait up for transmitted skbs to be freed. */
+ 	if (!use_napi) {
+ 		skb_orphan(skb);
++		skb_dst_drop(skb);
+ 		nf_reset_ct(skb);
+ 	}
+ 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.43.0
 
