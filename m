@@ -1,75 +1,77 @@
-Received: from mail-pj1-f97.google.com (mail-pj1-f97.google.com [209.85.216.97])
+Received: from mail-qk1-f226.google.com (mail-qk1-f226.google.com [209.85.222.226])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FD0C2765ED
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94FA81CAA6C
 	for <virtualization@lists.linux.dev>; Sat,  7 Mar 2026 01:06:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.97
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.226
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772845612; cv=none; b=In/Ef118HdStCT3cf4PktiZRpRlERbgbtP4x94oDGcPNU2wFz66TSSaXE3E3zJU/7bJS2y1PHj9gvcUdah3vJrGwPKyMdxnXbzELID57UK74D1ts7LQDJfqrOkWRgufJMO/DSRGoyAM6ZTuT7zyp1mfc+ULyCTSyJLytt/Nuhv4=
+	t=1772845613; cv=none; b=ZWK59lSH89egXFsP8DX89aC//RCchK1uVbpg9sql12mWgLgezyJmm5+O7B/8pbSK1agQAMjbfvVjTVlZs07qAp0zTVy1jtaNw0xJikD1B7LOaADmhOk45/1JB1X0RwFPYfHbFGKKMl0GEAyYUBpAnb8j4G6G3LQZKXkjuss5H50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772845612; c=relaxed/simple;
-	bh=wocwMBtmqdX0JKhTFqmK3JOtLY3emCOw7nguFyk44ZQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=S+2Ca7mtfrnhIjqnlRh1RQDTUwIDXFRIzM5S0dPRgb6VAyT8F9vEUPdNohXBp2XwVcxZ4FLZ6PvTjCxJ2IhbqbYp2zfbm+X45lcYTNxp5ZVrmSDWc7DS/RmM1FkAGZAe59kfqeWPihsV9+XcLMMmkqwbEfC8RYkRVFRb8ZX4dqo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=WjfYDInQ; arc=none smtp.client-ip=209.85.216.97
+	s=arc-20240116; t=1772845613; c=relaxed/simple;
+	bh=WqcoyHAfK4LJ4JbVa9jm080V6YhsNdvVNFhOv9s8H8g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=frrDaCOc5R/4MWEeb2YFFKPKfOmK1QEkdIO1nC4OFBJ0iqL0c+rC4PQ6Msg4FToMv1/S16SaffG0DxnU8J/BEE8lOiu8UaRvBleN/nk7U/LXcLFTk/rv22rNn8YFW8l+3ajMrjEQhh8zdhXybIDTESD7pIj7Gcwlk9ATdAOf51A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=Zl1GlyiQ; arc=none smtp.client-ip=209.85.222.226
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="WjfYDInQ"
-Received: by mail-pj1-f97.google.com with SMTP id 98e67ed59e1d1-35982fd8910so2870006a91.1
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Zl1GlyiQ"
+Received: by mail-qk1-f226.google.com with SMTP id af79cd13be357-8cd723eb846so70212485a.0
         for <virtualization@lists.linux.dev>; Fri, 06 Mar 2026 17:06:51 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772845611; x=1773450411;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=uKwzPlEBkrVJivPlO0kAq6WzLFvPFMNSILdYW8SSrFg=;
-        b=HYI5CLKSAVPmAe8kDYDUyQofLA8LT3D0dsgO9FQWef+a1vlK7vbkfwwQM5scV3YR06
-         c+/z1YaqsD8lDrCc7RyYj9JuF7oHD7iJjUidzq4OXkYie6hMAII8lkuYZaG39ZK4yJXM
-         QHpxodOjxrtAUTLI8ZJXmorqa08ZHxiQx5NnF57NiKHpChSwj+giwtbWAxvzCOYs3lwi
-         DadFnxi1ryfokyzTBBaqq+CCIacwh5Ti80b5Z8VGNv7qiVriIAxmMVFfSXiCrl2bizR9
-         oXXsWM/A5YhpNvQ/epYhlig7zgH7gJUoq2FhXsrtSQKI3AbV7F4ECyWL6FHuspZEUOEW
-         fTCw==
-X-Forwarded-Encrypted: i=1; AJvYcCWjEBPu3Ls4YSjuttRKDfM5w0XtgjxT+G8HRU+JUJmj1JdcwBAvm0t1Kfer8ttaZF6ffU362NTTXMW/ROXuJA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx0HQNcHqXu5jJIqIt/ztj+ImaoMGHCeG6j/Jyy+8CR44nDeEbj
-	Dzo6tiKSFpkvzdwTnAY2qUpIupBEGJgyGuaT8vGi1CKASnLyKic4BIsJjBJ0l0m/f1YevlvYZd1
-	ClWim0SVlf0IZGH8GG/6pvZfmzkVJtqQwyjOsOesiAHwESqe15+OeHf6Ywt4UyYqRSuRCP8h9su
-	TJWES4H3JRCN605s3ut94Nj4ly6dYf3dtPwJmBk+FvC9qPPt5IrBFRzFhYwMOC3QojFkihw3WZm
-	GV/0yH83Rw2dfwbak720NjqjA==
-X-Gm-Gg: ATEYQzwYDNRhedR5GzV2fyM/faCPopeD8vBYXfWZyNXRb9FgUzx8H1OcpSSyDfFCS6i
-	0yR2SXXI5FZsDz9TFWP0dseu7DSxunJh23oWptrPjuKxyzO9LGmMj1poIwrWJi7AVIVse3rJvZI
-	4wVqu96Slf/JUCkLycXgNl9LabmvsAAmYd6gndutcy6ulhFP5PrJuBTFE1U0TP6UGyuxq/5BBjB
-	XqELe0AdBcKiaAGrIrnR73t1e9FPus4PB37XPmjvOwQFTGzpBFSh4gOFgFjuOu/egVYj/DpRZ9R
-	3TTsx6xL4SRBk8s57eWAP0SUCPNu+hHo+h+m+63bYtPNagk5ntA3KQ6iKNbjDbi4WWPBHiGo/oM
-	jtTpFGmzYugl55COm8agAk7pYbDxu+oE3UhElHW4/l2A8cJbuynSqZn44a1LYy0v4CIHwetgJQR
-	9/StV1rUxbGLsytw2hHo+HrsmfNigch3CjDiHWFJDoQ0MjCZYIuB4tWM24SFsX
-X-Received: by 2002:a17:90a:fc45:b0:359:bb5e:95ea with SMTP id 98e67ed59e1d1-359be24ec75mr3600460a91.11.1772845611023;
-        Fri, 06 Mar 2026 17:06:51 -0800 (PST)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-29.dlp.protect.broadcom.com. [144.49.247.29])
-        by smtp-relay.gmail.com with ESMTPS id 98e67ed59e1d1-359c0040592sm360797a91.2.2026.03.06.17.06.50
+        d=1e100.net; s=20230601; t=1772845610; x=1773450410;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:dkim-signature:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=b2kd6mc3vO4n+WElMpRdy7mOjUgRYFPVOH3tEWHzajY=;
+        b=eBiu79+92laykJTDEJC1Hia+cU1ln1rSjAhFWuVXkRI0s4LwR94AYyoUTL6L3OCD/l
+         +YDV6vvpPrRHO+t0mMohUzdFXXhtUDLvzUC9j6Jk6rEbrYUU7qrIY898u6A3yuncRkOx
+         3ZZo+MJWdc+jfDunYMacVCGcowgNXI/JPhwaE5ugI7PBI9161a+zPseFs3Z5qYkillsU
+         7y2Eewl3yNwzOAPN07xp6p3+deeJFqMewywS5SJrEfd3YgykvWh6p9rErn6jcPkL9WrO
+         aNBoXlSuXedwq93Zk/aTckJHNqjTcAjlm2Qa7HPnf/+ah+5T7hKQngIDRJymd3K02aJA
+         Rd4g==
+X-Forwarded-Encrypted: i=1; AJvYcCW2/I45mtX7MQRx+IDEdEJKSD2GCR5NdPBwfTlW6rHyE9H7Y3/hLwnU8V97Jroih7X9iPFSn88IWejiNHrbog==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx27RWN83kA00kJ4U1ykJvClaByOFEXj4TY865iyz1HESi6DOHz
+	Jf2PIBL7+O+Sbnx7WlmgjgPsk7HYDLgUup/Q/m6zlSqxPIYe0TFrVtNjlGTidMJjkqg5pouWWhs
+	NBUHiD/x1MK4ImxWJQrEtFSJ9c/iLsxxy6iUyp/i6ZzzOt1/KAL0MlNTUmMz8M4SUYWmlXlZYBi
+	njFu0h4t7v9BFUYNYD0N/nE6ZDFiyOKxfqokuqJGxQbNIRrCtB3hq0YuNgTWfQPydIEml89G4n1
+	FEoN2J2icxfo+xFcG/bsI14hA==
+X-Gm-Gg: ATEYQzyt1WFXSI8WikfJSbx6rG9Gb6jEoSXcDBHRZOqwZGd1wKWxq3WrGkdCaPwOEyl
+	BQglZDsmm8iDTfRMKutldALcWrcSxVZ83z9BJK42PXIQZSCfa+vrHJz+t2HnYWslIo3Iw0di9SP
+	mZs2sbRih/BIwvogYPeaZtPgODcaNw3FBEQB7Dsldz4FCOVbs4HMw2eVvHh0FkS9bxu7Jo0HKlV
+	6Fsz+URUNEVX5nl7kNWvT43rH7dnzPsb+H/V5GHBT9np6SkNwG64zGqRyNnNYqpRNnd4ZeY2pyL
+	ssi/B6gi2wG/nKFcOzZ+4nOeBTfG/8z63kzHsgR3D+fEtsi7oQ9qcQLTnmVxoGImUKWhofD4S8x
+	uKH3/lGFTGBEQ8vURPQyk8IVz/HvKlWsSVgtvg3U807dzIt8yF1bp9hO892qSxTeO07PsyabUhn
+	1cW8RkWPAXizr9kuW/+6HGOK1DMz2ufjTuwVTtNm1x1gxYlRrvL0m0hpgHDzo0LK4=
+X-Received: by 2002:a05:620a:288e:b0:8c6:c983:dddb with SMTP id af79cd13be357-8cd632bee0cmr902539885a.0.1772845610200;
+        Fri, 06 Mar 2026 17:06:50 -0800 (PST)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-117.dlp.protect.broadcom.com. [144.49.247.117])
+        by smtp-relay.gmail.com with ESMTPS id af79cd13be357-8cd77600ba8sm4947085a.3.2026.03.06.17.06.49
         for <virtualization@lists.linux.dev>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 06 Mar 2026 17:06:51 -0800 (PST)
+        Fri, 06 Mar 2026 17:06:50 -0800 (PST)
 X-Relaying-Domain: broadcom.com
 X-CFilter-Loop: Reflected
-Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-2bdf6fe90a9so8855969eec.1
+Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-2bdd327d970so4623380eec.1
         for <virtualization@lists.linux.dev>; Fri, 06 Mar 2026 17:06:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=broadcom.com; s=google; t=1772845609; x=1773450409; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=uKwzPlEBkrVJivPlO0kAq6WzLFvPFMNSILdYW8SSrFg=;
-        b=WjfYDInQtgXaERMxCk+Bsp+0vRtbDlAHZtdZFFURywO2tFZsx/hD7cdUuCv8U81DdK
-         ikkPWa8omUV8gTpTSVNJ67OuycbxvBvyj6IyXxRWzXHC6vSEslvpJ/XnTGxQTH5LGYp6
-         B0QwbBrY28L0WdjYt3xNORutgL5erxJaaWshg=
-X-Forwarded-Encrypted: i=1; AJvYcCWQcCeuq4srLtHD2Rb4OISTaib+lmtLu0KgTqeX6T0Uv/xDuZsEB1pFH+fjk1hY6YmU7KUR+C7ATzwRpJBkqw==@lists.linux.dev
-X-Received: by 2002:a05:693c:3101:b0:2be:aa:9a4a with SMTP id 5a478bee46e88-2be4dd62c65mr1466898eec.0.1772845607427;
-        Fri, 06 Mar 2026 17:06:47 -0800 (PST)
-X-Received: by 2002:a05:693c:3101:b0:2be:aa:9a4a with SMTP id 5a478bee46e88-2be4dd62c65mr1466860eec.0.1772845605215;
-        Fri, 06 Mar 2026 17:06:45 -0800 (PST)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=b2kd6mc3vO4n+WElMpRdy7mOjUgRYFPVOH3tEWHzajY=;
+        b=Zl1GlyiQjXPiouDiWriR2aS9cyEc/lb9ECwDpevmlNc44bEev5LIahXotSozpXuhav
+         Byk4ySvu74kceUaw2np3abzawWN2CywRjNsKnnnW8XpFfUVeOCIOxh8H/H8icNRCPMsa
+         fHyy/VPg30SmOlQwSFw1zP2UuMHhRPxAHKzWM=
+X-Forwarded-Encrypted: i=1; AJvYcCWtJdmAKDczsUL2gQs0O4L7QOIxBEn3MLTPGjYANHmWSChwC0vixowHUz0I7glHfEpvEl905v+lXrLmyk+M6w==@lists.linux.dev
+X-Received: by 2002:a05:7300:5711:b0:2b8:68cd:a7b1 with SMTP id 5a478bee46e88-2be3da5e890mr2609663eec.0.1772845608900;
+        Fri, 06 Mar 2026 17:06:48 -0800 (PST)
+X-Received: by 2002:a05:7300:5711:b0:2b8:68cd:a7b1 with SMTP id 5a478bee46e88-2be3da5e890mr2609656eec.0.1772845608258;
+        Fri, 06 Mar 2026 17:06:48 -0800 (PST)
 Received: from amakhalov-build-vm.. ([192.19.161.250])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be4f80cc1dsm2237336eec.3.2026.03.06.17.06.44
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2be4f80cc1dsm2237336eec.3.2026.03.06.17.06.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Mar 2026 17:06:44 -0800 (PST)
+        Fri, 06 Mar 2026 17:06:47 -0800 (PST)
 From: Alexey Makhalov <alexey.makhalov@broadcom.com>
 To: x86@kernel.org,
 	virtualization@lists.linux.dev,
@@ -87,10 +89,12 @@ Cc: ajay.kaher@broadcom.com,
 	rick.p.edgecombe@intel.com,
 	linux-coco@lists.linux.dev,
 	Alexey Makhalov <alexey.makhalov@broadcom.com>
-Subject: [PATCH 0/4] x86/vmware: Hypercall refactoring and improved guest support
-Date: Sat,  7 Mar 2026 00:42:34 +0000
-Message-ID: <20260307004238.1181299-1-alexey.makhalov@broadcom.com>
+Subject: [PATCH 2/4] x86/vmware: Log kmsg dump on panic
+Date: Sat,  7 Mar 2026 00:42:36 +0000
+Message-ID: <20260307004238.1181299-3-alexey.makhalov@broadcom.com>
 X-Mailer: git-send-email 2.43.7
+In-Reply-To: <20260307004238.1181299-1-alexey.makhalov@broadcom.com>
+References: <20260307004238.1181299-1-alexey.makhalov@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -100,60 +104,190 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-This series improves VMware guest support on x86 by refactoring the
-hypercall infrastructure and adding better crash diagnostics, along
-with encrypted guest support for the steal time clock.
+Improve debugability of VMware Linux guests by dumping
+kernel messages during a panic to VM log file (vmware.log).
 
-The first patch introduces a common vmware_hypercall() backend selected
-via static calls. It consolidates the existing hypercall mechanisms
-(backdoor, VMCALL/VMMCALL, and TDX) behind a single interface and
-selects the optimal implementation at boot. This reduces duplication
-and simplifies future extensions.
+Co-developed-by: Bo Gan <bo.gan@broadcom.com>
+Signed-off-by: Bo Gan <bo.gan@broadcom.com>
+Signed-off-by: Alexey Makhalov <alexey.makhalov@broadcom.com>
+---
+ arch/x86/include/asm/vmware.h |   1 +
+ arch/x86/kernel/cpu/vmware.c  | 132 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 133 insertions(+)
 
-Building on top of the new hypercall infrastructure, the next two
-patches improve post-mortem debugging of VMware guests. They export
-panic information to the hypervisor by dumping kernel messages to the
-VM vmware.log on the host and explicitly reporting guest crash event
-to the hypervisor.
-
-The final patch adds support for encrypted guests by ensuring that the
-shared memory used for the steal time clock is mapped as decrypted
-before being shared with the hypervisor. This enables steal time
-accounting to function correctly when guest memory encryption is
-enabled.
-
-Patch overview:
-
-1. x86/vmware: Introduce common vmware_hypercall
-
-   * Consolidate hypercall implementations behind a common API
-   * Select backend via static_call at boot
-
-2. x86/vmware: Log kmsg dump on panic
-
-   * Register a kmsg dumper
-   * Export panic logs to the host
-
-3. x86/vmware: Report guest crash to the hypervisor
-
-   * Register a panic notifier
-   * Notify the hypervisor about guest crashes
-
-4. x86/vmware: Support steal time clock for encrypted guests
-
-   * Mark shared steal time memory as decrypted early in boot
-
-
-Alexey Makhalov (4):
-  x86/vmware: Introduce common vmware_hypercall()
-  x86/vmware: Log kmsg dump on panic
-  x86/vmware: Report guest crash to the hypervisor
-  x86/vmware: Support steal time clock for encrypted guests
-
- arch/x86/include/asm/vmware.h | 276 ++++++++------------
- arch/x86/kernel/cpu/vmware.c  | 470 +++++++++++++++++++++++++---------
- 2 files changed, 463 insertions(+), 283 deletions(-)
-
+diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
+index 6a084e088b30..c23164503e54 100644
+--- a/arch/x86/include/asm/vmware.h
++++ b/arch/x86/include/asm/vmware.h
+@@ -93,6 +93,7 @@
+ #define VMWARE_HYPERVISOR_MAGIC		0x564d5868U
+ 
+ #define VMWARE_CMD_GETVERSION		10
++#define VMWARE_CMD_MESSAGE		30
+ #define VMWARE_CMD_GETHZ		45
+ #define VMWARE_CMD_GETVCPU_INFO		68
+ #define VMWARE_CMD_STEALCLOCK		91
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 93acd3414e37..d9753b1aba58 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -30,6 +30,7 @@
+ #include <linux/reboot.h>
+ #include <linux/static_call.h>
+ #include <linux/sched/cputime.h>
++#include <linux/kmsg_dump.h>
+ #include <asm/div64.h>
+ #include <asm/x86_init.h>
+ #include <asm/hypervisor.h>
+@@ -211,6 +212,13 @@ static unsigned long vmware_get_tsc_khz(void)
+ 	return vmware_tsc_khz;
+ }
+ 
++static void kmsg_dumper_vmware_log(struct kmsg_dumper *dumper,
++				   struct kmsg_dump_detail *detail);
++
++static struct kmsg_dumper kmsg_dumper = {
++	.dump = kmsg_dumper_vmware_log
++};
++
+ #ifdef CONFIG_PARAVIRT
+ static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
+ static bool vmw_sched_clock __initdata = true;
+@@ -535,6 +543,8 @@ static void __init vmware_platform_setup(void)
+ #endif
+ 
+ 	vmware_set_capabilities();
++
++	kmsg_dump_register(&kmsg_dumper);
+ }
+ 
+ static u8 __init get_hypercall_mode(void)
+@@ -630,3 +640,125 @@ const __initconst struct hypervisor_x86 x86_hyper_vmware = {
+ 	.runtime.sev_es_hcall_finish	= vmware_sev_es_hcall_finish,
+ #endif
+ };
++
++#define VMWARE_HB_CMD_MESSAGE	0
++#define MESSAGE_STATUS_SUCCESS	(0x01 << 16)
++#define MESSAGE_STATUS_CPT	(0x10 << 16)
++#define MESSAGE_STATUS_HB	(0x80 << 16)
++
++#define RPCI_PROTOCOL_NUM	0x49435052 /* 'RPCI' */
++#define GUESTMSG_FLAG_COOKIE	0x80000000
++
++#define MESSAGE_TYPE_OPEN	(0 << 16)
++#define MESSAGE_TYPE_SENDSIZE	(1 << 16)
++#define MESSAGE_TYPE_SEND	(2 << 16)
++#define MESSAGE_TYPE_CLOSE	(6 << 16)
++
++struct vmw_msg {
++	u32 id;
++	u32 cookie_high;
++	u32 cookie_low;
++};
++
++static int
++vmware_log_open(struct vmw_msg *msg)
++{
++	u32 info;
++
++	vmware_hypercall6(VMWARE_CMD_MESSAGE | MESSAGE_TYPE_OPEN,
++			  RPCI_PROTOCOL_NUM | GUESTMSG_FLAG_COOKIE,
++			  0, &info, &msg->id, &msg->cookie_high,
++			  &msg->cookie_low);
++
++	if ((info & MESSAGE_STATUS_SUCCESS) == 0)
++		return 1;
++
++	msg->id &= 0xffff0000UL;
++	return 0;
++}
++
++static int
++vmware_log_close(struct vmw_msg *msg)
++{
++	u32 info;
++
++	vmware_hypercall5(VMWARE_CMD_MESSAGE | MESSAGE_TYPE_CLOSE, 0, msg->id,
++			  msg->cookie_high, msg->cookie_low, &info);
++
++	if ((info & MESSAGE_STATUS_SUCCESS) == 0)
++		return 1;
++	return 0;
++}
++
++static int
++vmware_log_send(struct vmw_msg *msg, const char *string)
++{
++	u32 info;
++	u32 len = strlen(string);
++
++retry:
++	vmware_hypercall5(VMWARE_CMD_MESSAGE | MESSAGE_TYPE_SENDSIZE, len,
++			  msg->id, msg->cookie_high, msg->cookie_low, &info);
++
++	if (!(info & MESSAGE_STATUS_SUCCESS))
++		return 1;
++
++	/* HB port can't access encrypted memory. */
++	if (!cc_platform_has(CC_ATTR_MEM_ENCRYPT) && (info & MESSAGE_STATUS_HB)) {
++		vmware_hypercall_hb_out(
++			VMWARE_HB_CMD_MESSAGE | MESSAGE_STATUS_SUCCESS,
++			len, msg->id, (uintptr_t) string, msg->cookie_low,
++			msg->cookie_high, &info);
++	} else {
++		do {
++			u32 word;
++			size_t s = min_t(u32, len, sizeof(word));
++
++			memcpy(&word, string, s);
++			len -= s;
++			string += s;
++
++			vmware_hypercall5(VMWARE_CMD_MESSAGE | MESSAGE_TYPE_SEND,
++					  word, msg->id, msg->cookie_high,
++					  msg->cookie_low, &info);
++		} while (len && (info & MESSAGE_STATUS_SUCCESS));
++	}
++
++	if ((info & MESSAGE_STATUS_SUCCESS) == 0) {
++		if (info & MESSAGE_STATUS_CPT)
++			/* A checkpoint occurred. Retry. */
++			goto retry;
++		return 1;
++	}
++	return 0;
++}
++STACK_FRAME_NON_STANDARD(vmware_log_send);
++
++/**
++ * kmsg_dumper_vmware_log - dumps kmsg to vmware.log file on the host
++ */
++static void kmsg_dumper_vmware_log(struct kmsg_dumper *dumper,
++				   struct kmsg_dump_detail *detail)
++{
++	struct vmw_msg msg;
++	struct kmsg_dump_iter iter;
++	static char line[1024];
++	size_t len = 0;
++
++	/* Line prefix to send to VM log file. */
++	line[0] = 'l';
++	line[1] = 'o';
++	line[2] = 'g';
++	line[3] = ' ';
++
++	kmsg_dump_rewind(&iter);
++	while (kmsg_dump_get_line(&iter, true, line + 4, sizeof(line) - 4,
++				  &len)) {
++		line[len + 4] = '\0';
++		if (vmware_log_open(&msg))
++			return;
++		if (vmware_log_send(&msg, line))
++			return;
++		vmware_log_close(&msg);
++	}
++}
 -- 
 2.43.7
 
