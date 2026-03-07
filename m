@@ -1,168 +1,193 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EED3A3126B9;
-	Sat,  7 Mar 2026 16:50:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 967AB3A5E6B;
+	Sat,  7 Mar 2026 19:58:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772902217; cv=none; b=fgpBCxCIFyPw1UY4CcSY9qMz308RgtYrjNh/wTcvBqUFOu0EJbXsQHkFuZHDrkoRuTDz9JF9IYNXlBRozHbqZYSBaaLvnLTg3JUjbwkGOggbilm8jy5dQjdSlde6e/JpeF8ly4v3QL/ThCzdesgZnf/HwLmcmcPxwZDwxl25P2Y=
+	t=1772913495; cv=none; b=KeVvanEpBflSdouWrbt84Zc7queABwg3bPQkNOoMUseRfFCaG2RpJhUPnia9Am7fCYpn0x+CV3O2cOC3O/VghQKfFVwe5o+7wahEUL6h8F/u6adHQNKiM9YE2/URG7ni/Vxz8BoW4oj5pg4vNDM1vghFqGMX08wfwTUy+lhEmi4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772902217; c=relaxed/simple;
-	bh=+np5iOOqktMdnsPjtJMq7wRZ0OVJ8pTuP3tHO2f6YKk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Gf8tbWqCupdgV8fbRSkzQNUJmbfsPVT2NbO2ZVKKd6XEQSZglC1xCfwoneVZVPEynSjiS+3uPJM+q6BHrcsTA79QPxZWmOi0Sg3IQ2pjPa2F7tyytWPSVUQKO5ISaXNiP+gkLamEXLLhT/h8W2h6pEv2mzIHhLWGza49vRxgRZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VHoxlU8I; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772913495; c=relaxed/simple;
+	bh=6EfkCLhJg+AlZw6TkaO6d/504vUAp5tN3HoH1lQUwjY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BWiMbkXaemjwX+JT15yA6H3ogAD2OvrOB3WE32F4yRWwBLih2aLnSNdesAZsBMCs3h/c2kw7Uz+R4z3X4BPNRsmagSVO5+INEbnqDOJWMjaKWDb2oFIEsKwq7Nqp1h397sszBvE/8wvm8MRRMOdm/HbmQSpLy0fH+bcSsrp6Bz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MXdxDGOy; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VHoxlU8I"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36265C2BC87;
-	Sat,  7 Mar 2026 16:50:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772902216;
-	bh=+np5iOOqktMdnsPjtJMq7wRZ0OVJ8pTuP3tHO2f6YKk=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=VHoxlU8IHwNFA65SC7u7n6bKu5lC9mOMaZXCHE+abZN2Niba6YHRs9isYcsV45tB3
-	 ZyQ6VS0AkW20MqNLYjLmG/7+hMSWUVdezHFRW0SuUwTueH942Zcn6j/TUZ8XmIUYS3
-	 7kkt0PGgeeFNNFxJs7L9CLTkVjNbSf3CF52h1AhmS0ZB3afa2BXJM4D5qU2hn8Mplj
-	 AKhNHbDUMbYHu4w/Md11wytq1qksjJoNW6rwAMpVXffWKJAbwA5gLbauKxrz7KVCiM
-	 qgj0IN6PKz+EXd06qzgQvUVoda2gJmZ8I10cQ95CYutdM7tZQJq4+qiEJETLbAPzZP
-	 Zp9PUsrj4Vfjg==
-From: Leon Romanovsky <leon@kernel.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Leon Romanovsky <leon@kernel.org>
-Cc: iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-rdma@vger.kernel.org
-Subject: [PATCH 2/3] dma-mapping: Clarify valid conditions for CPU cache line overlap
-Date: Sat,  7 Mar 2026 18:49:56 +0200
-Message-ID: <20260307-dma-debug-overlap-v1-2-c034c38872af@nvidia.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260307-dma-debug-overlap-v1-0-c034c38872af@nvidia.com>
-References: <20260307-dma-debug-overlap-v1-0-c034c38872af@nvidia.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MXdxDGOy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1772913494; x=1804449494;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=6EfkCLhJg+AlZw6TkaO6d/504vUAp5tN3HoH1lQUwjY=;
+  b=MXdxDGOyDZOvGWmfnN6+XCR7wkzT+E+dYMqsY1zLzix+mE0uTzTMw4yx
+   kr8F/GXZi4JhXmc12GRHRXRgAT9K2yzpBB5MGfWQNpEVNk9S/M6SjBULE
+   943RqL6x/VwMyW1wM5t9uOHIW+SnZ2B4SVWzl1NVpMUXWYLFje0c76EVA
+   coB7yB+ewuNMXFLMd0o0qWMeMp0wU/V/QHxgjJqbj4IiGAmwTXnF9xIfB
+   Q0B1Xlflc/4eGn1ffpCgjpFqJT30boPQn/KQrwAFFsS0Dx6Z/lisXd1YQ
+   o7PBBV/1cs9/Bm0M9Nd7CL9mrr7+xzsChCabHVYWgJwsTyxaeND8n7PEz
+   A==;
+X-CSE-ConnectionGUID: IP5k5tAqS5aVrJCjswEZ2A==
+X-CSE-MsgGUID: co92LIuaR3OY3ap5gXQOXA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11722"; a="74038497"
+X-IronPort-AV: E=Sophos;i="6.23,107,1770624000"; 
+   d="scan'208";a="74038497"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Mar 2026 11:58:13 -0800
+X-CSE-ConnectionGUID: Wlk16Iu4Q/eU4k+9d912cQ==
+X-CSE-MsgGUID: /0+ldayrS5+1d6aZKJqv6g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,107,1770624000"; 
+   d="scan'208";a="218552919"
+Received: from lkp-server01.sh.intel.com (HELO 058beb05654c) ([10.239.97.150])
+  by orviesa010.jf.intel.com with ESMTP; 07 Mar 2026 11:58:05 -0800
+Received: from kbuild by 058beb05654c with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vyxmj-000000002b5-2cTQ;
+	Sat, 07 Mar 2026 19:58:01 +0000
+Date: Sun, 8 Mar 2026 03:57:41 +0800
+From: kernel test robot <lkp@intel.com>
+To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>, linux-mm@kvack.org,
+	akpm@linux-foundation.org, mhocko@suse.com, vbabka@suse.cz
+Cc: oe-kbuild-all@lists.linux.dev, apopple@nvidia.com,
+	axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
+	david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
+	jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
+	Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
+	lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
+	rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
+	rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+	surenb@google.com, virtualization@lists.linux.dev,
+	weixugc@google.com, xuanzhuo@linux.alibaba.com,
+	ying.huang@linux.alibaba.com
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+Message-ID: <202603080349.ya7tIjgk-lkp@intel.com>
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Mailer: b4 0.15-dev-18f8f
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260307045520.247998-1-jp.kobryn@linux.dev>
 
-From: Leon Romanovsky <leonro@nvidia.com>
+Hi JP,
 
-Rename the DMA_ATTR_CPU_CACHE_CLEAN attribute to reflect that it allows
-CPU cache overlaps to exist, and document a slightly different but still
-valid use case involving overlapping CPU cache lines.
+kernel test robot noticed the following build errors:
 
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
----
- Documentation/core-api/dma-attributes.rst | 26 ++++++++++++++++++--------
- drivers/virtio/virtio_ring.c              |  4 ++--
- include/linux/dma-mapping.h               |  8 ++++----
- kernel/dma/debug.c                        |  2 +-
- 4 files changed, 25 insertions(+), 15 deletions(-)
+[auto build test ERROR on akpm-mm/mm-everything]
 
-diff --git a/Documentation/core-api/dma-attributes.rst b/Documentation/core-api/dma-attributes.rst
-index 1d7bfad73b1c7..6b73d92c62721 100644
---- a/Documentation/core-api/dma-attributes.rst
-+++ b/Documentation/core-api/dma-attributes.rst
-@@ -149,11 +149,21 @@ For architectures that require cache flushing for DMA coherence
- DMA_ATTR_MMIO will not perform any cache flushing. The address
- provided must never be mapped cacheable into the CPU.
- 
--DMA_ATTR_CPU_CACHE_CLEAN
--------------------------
--
--This attribute indicates the CPU will not dirty any cacheline overlapping this
--DMA_FROM_DEVICE/DMA_BIDIRECTIONAL buffer while it is mapped. This allows
--multiple small buffers to safely share a cacheline without risk of data
--corruption, suppressing DMA debug warnings about overlapping mappings.
--All mappings sharing a cacheline should have this attribute.
-+DMA_ATTR_CPU_CACHE_OVERLAP
-+--------------------------
-+
-+This attribute indicates that CPU cache lines may overlap for buffers mapped
-+with DMA_FROM_DEVICE or DMA_BIDIRECTIONAL.
-+
-+Such overlap may occur when callers map multiple small buffers that reside
-+within the same cache line. In this case, callers must guarantee that the CPU
-+will not dirty these cache lines after the mappings are established. When this
-+condition is met, multiple buffers can safely share a cache line without risking
-+data corruption.
-+
-+Another valid use case is on systems that are CPU-coherent and do not use
-+SWIOTLB, where the caller can guarantee that no cache maintenance operations
-+(such as flushes) will be performed that could overwrite shared cache lines.
-+
-+All mappings that share a cache line must set this attribute to suppress DMA
-+debug warnings about overlapping mappings.
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 335692d41617a..bf51ae9a39169 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2912,7 +2912,7 @@ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
-  * @data: the token identifying the buffer.
-  * @gfp: how to do memory allocations (if necessary).
-  *
-- * Same as virtqueue_add_inbuf but passes DMA_ATTR_CPU_CACHE_CLEAN to indicate
-+ * Same as virtqueue_add_inbuf but passes DMA_ATTR_CPU_CACHE_OVERLAP to indicate
-  * that the CPU will not dirty any cacheline overlapping this buffer while it
-  * is available, and to suppress overlapping cacheline warnings in DMA debug
-  * builds.
-@@ -2928,7 +2928,7 @@ int virtqueue_add_inbuf_cache_clean(struct virtqueue *vq,
- 				    gfp_t gfp)
- {
- 	return virtqueue_add(vq, &sg, num, 0, 1, data, NULL, false, gfp,
--			     DMA_ATTR_CPU_CACHE_CLEAN);
-+			     DMA_ATTR_CPU_CACHE_OVERLAP);
- }
- EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_cache_clean);
- 
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index 29973baa05816..45efede1a6cce 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -80,11 +80,11 @@
- #define DMA_ATTR_MMIO		(1UL << 10)
- 
- /*
-- * DMA_ATTR_CPU_CACHE_CLEAN: Indicates the CPU will not dirty any cacheline
-- * overlapping this buffer while it is mapped for DMA. All mappings sharing
-- * a cacheline must have this attribute for this to be considered safe.
-+ * DMA_ATTR_CPU_CACHE_OVERLAP: Indicates the CPU cache line can be overlapped.
-+ * All mappings sharing a cacheline must have this attribute for this
-+ * to be considered safe.
-  */
--#define DMA_ATTR_CPU_CACHE_CLEAN	(1UL << 11)
-+#define DMA_ATTR_CPU_CACHE_OVERLAP	(1UL << 11)
- 
- /*
-  * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index be207be749968..603be342063f1 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -601,7 +601,7 @@ static void add_dma_entry(struct dma_debug_entry *entry, unsigned long attrs)
- 	unsigned long flags;
- 	int rc;
- 
--	entry->is_cache_clean = !!(attrs & DMA_ATTR_CPU_CACHE_CLEAN);
-+	entry->is_cache_clean = attrs & DMA_ATTR_CPU_CACHE_OVERLAP;
- 
- 	bucket = get_hash_bucket(entry, &flags);
- 	hash_bucket_add(bucket, entry);
+url:    https://github.com/intel-lab-lkp/linux/commits/JP-Kobryn-Meta/mm-mempolicy-track-page-allocations-per-mempolicy/20260307-125642
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm.git mm-everything
+patch link:    https://lore.kernel.org/r/20260307045520.247998-1-jp.kobryn%40linux.dev
+patch subject: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+config: arm64-randconfig-001-20260307 (https://download.01.org/0day-ci/archive/20260308/202603080349.ya7tIjgk-lkp@intel.com/config)
+compiler: aarch64-linux-gcc (GCC) 8.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260308/202603080349.ya7tIjgk-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603080349.ya7tIjgk-lkp@intel.com/
+
+All error/warnings (new ones prefixed by >>):
+
+   mm/mempolicy.c: In function 'mpol_count_numa_alloc':
+>> mm/mempolicy.c:2489:10: error: implicit declaration of function 'mem_cgroup_from_task'; did you mean 'perf_cgroup_from_task'? [-Werror=implicit-function-declaration]
+     memcg = mem_cgroup_from_task(current);
+             ^~~~~~~~~~~~~~~~~~~~
+             perf_cgroup_from_task
+>> mm/mempolicy.c:2489:8: warning: assignment to 'struct mem_cgroup *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
+     memcg = mem_cgroup_from_task(current);
+           ^
+   cc1: some warnings being treated as errors
+
+
+vim +2489 mm/mempolicy.c
+
+  2429	
+  2430	/*
+  2431	 * Count a mempolicy allocation. Stats are tracked per-node and per-cgroup.
+  2432	 * The following numa_{hit/miss/foreign} pattern is used:
+  2433	 *
+  2434	 *   hit
+  2435	 *     - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
+  2436	 *     - for other policies, allocation succeeded on intended node
+  2437	 *     - counted on the node of the allocation
+  2438	 *   miss
+  2439	 *     - allocation intended for other node, but happened on this one
+  2440	 *     - counted on other node
+  2441	 *   foreign
+  2442	 *     - allocation intended on this node, but happened on other node
+  2443	 *     - counted on this node
+  2444	 */
+  2445	static void mpol_count_numa_alloc(struct mempolicy *pol, int intended_nid,
+  2446					  struct page *page, unsigned int order)
+  2447	{
+  2448		int actual_nid = page_to_nid(page);
+  2449		long nr_pages = 1L << order;
+  2450		enum node_stat_item hit_idx;
+  2451		struct mem_cgroup *memcg;
+  2452		struct lruvec *lruvec;
+  2453		bool is_hit;
+  2454	
+  2455		if (!root_mem_cgroup || mem_cgroup_disabled())
+  2456			return;
+  2457	
+  2458		/*
+  2459		 * Start with hit then use +1 or +2 later on to change to miss or
+  2460		 * foreign respectively if needed.
+  2461		 */
+  2462		switch (pol->mode) {
+  2463		case MPOL_PREFERRED:
+  2464			hit_idx = NUMA_MPOL_PREFERRED_HIT;
+  2465			break;
+  2466		case MPOL_PREFERRED_MANY:
+  2467			hit_idx = NUMA_MPOL_PREFERRED_MANY_HIT;
+  2468			break;
+  2469		case MPOL_BIND:
+  2470			hit_idx = NUMA_MPOL_BIND_HIT;
+  2471			break;
+  2472		case MPOL_INTERLEAVE:
+  2473			hit_idx = NUMA_MPOL_INTERLEAVE_HIT;
+  2474			break;
+  2475		case MPOL_WEIGHTED_INTERLEAVE:
+  2476			hit_idx = NUMA_MPOL_WEIGHTED_INTERLEAVE_HIT;
+  2477			break;
+  2478		default:
+  2479			hit_idx = NUMA_MPOL_LOCAL_HIT;
+  2480			break;
+  2481		}
+  2482	
+  2483		if (pol->mode == MPOL_BIND || pol->mode == MPOL_PREFERRED_MANY)
+  2484			is_hit = node_isset(actual_nid, pol->nodes);
+  2485		else
+  2486			is_hit = (actual_nid == intended_nid);
+  2487	
+  2488		rcu_read_lock();
+> 2489		memcg = mem_cgroup_from_task(current);
+  2490	
+  2491		if (is_hit) {
+  2492			lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
+  2493			mod_lruvec_state(lruvec, hit_idx, nr_pages);
+  2494		} else {
+  2495			/* account for miss on the fallback node */
+  2496			lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
+  2497			mod_lruvec_state(lruvec, hit_idx + 1, nr_pages);
+  2498	
+  2499			/* account for foreign on the intended node */
+  2500			lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(intended_nid));
+  2501			mod_lruvec_state(lruvec, hit_idx + 2, nr_pages);
+  2502		}
+  2503	
+  2504		rcu_read_unlock();
+  2505	}
+  2506	
 
 -- 
-2.53.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
