@@ -1,139 +1,114 @@
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1D6738F941
-	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 12:30:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70BE33ACF02
+	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 13:20:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773059436; cv=none; b=jv148BLSsiIfOzphA3iWcVApl20KcnkFeKSfOUbfVJRb16sx14espEuDoDVxxAesbn2SFequ+9l85hwV3jprjbSkIEJV08yn34/7KKhw20tmjb4ivDTd08bFtyMOH0SmWuzcG0SLx2ubwM/EemoHmlvH0NCA3/Jfc7fT8jiashw=
+	t=1773062441; cv=none; b=lBVVD2nvg8Atp4jhz29MF4WbtDlXazOzS39iEPj2mly43/f9u+oHI4y22xJP09u7d9OYu5x6L9Gw730dU9no2lqt3ladUeTbm2l0+NRg0k5vuEm8+EbPk+itWg5dKtbN6bnTXtYhlTsFAzxj5o1hKsGjNPuWqLi8DySi3AK9L/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773059436; c=relaxed/simple;
-	bh=Atjx7GL+YNwbnYSuuJvvyi/2Xx/LTpvi9huTzoYuERw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=TnYQtVOfDLSlYDcAQ8T7Jdh29GUPF6++kitWOKy+462QUEwLVzSlz37tmuoYI1+b50omfla4IXzyHykzGTy/fBF4WL1bsQr53CuJOlHaOKcNpVWNpnLzY+XlAExFOeV4xrXBHXH1bly3gEWzxPUl07ZGUe/2qgDJEaEEPC7S568=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=ZHEYuoVE; arc=none smtp.client-ip=210.118.77.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1773062441; c=relaxed/simple;
+	bh=j2vrFZdiKMAYuLt1g2IsWM44uA/l0EgALyShPIZleAs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GMXjdIIlBTuBm2CDGDYEc+9gvYleKLGjvg5T8k+oXQAE/+YSn9JNH3R7EuKnwQjGS4uwefuV82oJJy6hmHQPgpqB6UqCgOT6TcXDsUh9xsumc7UruCtZ8wctqIufMjvHYAPDTavUVwtSJPIJsELiEjGrYABGo2enIq4LSJnrvAI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=B47Bb1zO; arc=none smtp.client-ip=209.85.219.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="ZHEYuoVE"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20260309123026euoutp01d650bc7d889443c84d7e0aea4e76434f~bLCeKzAi33021430214euoutp01C
-	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 12:30:26 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20260309123026euoutp01d650bc7d889443c84d7e0aea4e76434f~bLCeKzAi33021430214euoutp01C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1773059426;
-	bh=gp98JWQznNkZR98zt3gnsF+GVRheVa4QaSz8tPoGX4A=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=ZHEYuoVENPNznd0xqoljK61UHKR3Hw36bx/GKYTBnu1Us7nFDI8Up96iFqiq8oROY
-	 pfLEU5iHAKMwbW1m8NX8yv5QNOoIrcakV5Aaa9smsGUU2cMxFu1/e51fxPC6K3YijR
-	 v7YhHKq3PlBrYH8w3DotscIKEAjnxh+MXlMzpaBk=
-Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20260309123026eucas1p218b4b7e463c3f96e1a48eca954009827~bLCd364Di0084200842eucas1p2W;
-	Mon,  9 Mar 2026 12:30:26 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20260309123025eusmtip2240c0ac5f812e2669c819f74be51bf3c~bLCdK_wth2997829978eusmtip2R;
-	Mon,  9 Mar 2026 12:30:25 +0000 (GMT)
-Message-ID: <c1d058f3-f864-4ed7-9f7a-683d6f4bf1ce@samsung.com>
-Date: Mon, 9 Mar 2026 13:30:24 +0100
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="B47Bb1zO"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-899a9f445cbso142506676d6.0
+        for <virtualization@lists.linux.dev>; Mon, 09 Mar 2026 06:20:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1773062439; x=1773667239; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=yNhIcDXSP15bQbG0gfsf887zPsyic2zzORmBXzBTWec=;
+        b=B47Bb1zOH+3gI8wFg3egKC69JIF4Ef+HC6J/jDOzvgtj4LT0dXWnzjdqJUv0FR++H4
+         A1Q2XpVUH1SSnNSmRQP5+C0r1dlfH2fEfsdGgbDEt1tLyfJ+6o6LaaWNROtuptuhWaCa
+         1QVAXrQqYVdyCatOlLrYT/mu/ZUr+L6oVu+B5xj7x7u60uFwN9kVdhkeXvdMDX9IiM1t
+         wT2FwxG1IuOivH9AHb2eQwFqorvtXjwE3YIuqKjldAQcLodY5esF17KItxuGkGwLrpEV
+         GUCX3dqojWrPmAJ+dqagQCcMEin2vp5DJURTXCAvJ856eN4f/dbZTw9ujlbBmLS8SZyU
+         2YGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773062439; x=1773667239;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yNhIcDXSP15bQbG0gfsf887zPsyic2zzORmBXzBTWec=;
+        b=gJst/Bvgei2/Knj15b5hmnd8IluK99fLQ8uDi3WqO93cTpSrreWRVx6HJrb82HrL1L
+         1S1dVTUMJa6jiCODp7yMW02W0JtWz0adaeJgPU7RA5vX+mpgH71ZAj/IMPEl1temXPKW
+         xZFs+26/z9c4+RlXvp+RPBHzNPquwk5YK4SPIwH4+CgLCoNMbCH96olXin4iWSjhMymF
+         aAavPxSCzSCYGJ0g/LVxdqsgiJoMbF6g31M78D9V9660V25bL7vpuIHg+g1UaxqfCHkA
+         wetJ7f2Jp9USqaCAy1leNCGriCV1ifRWcCMttWlTXQhmVXEUytLBV9BzDQrpg7runcvE
+         i/OQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUar9QCmROuoygnzFE6bTJZxVbCNhrSJolppuNGI5MYmE+YILWTftmENlKAy9+7OuUjTWcTV8dpBWF0EjrR9A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyrmv+nKL5SDlOeC28k3IIhIQFfvbjfZFH9SaR/gotT8CQaeWs5
+	/gtDjHGrzrr84FhUSF/wkM4BkFmoMYg5pScHXX2gxsysnO1+ghs/qT6jM0zriTx5TiA=
+X-Gm-Gg: ATEYQzwk9rDRGdjfXtr+wzPlDBXwuqJ6eiN8eA0vqlIU7icNNAJWGrS0mCPnqUwzO9H
+	2dXLu86NdgNHtSv6DIxLQyLo5v+W5zbTaKeiaFBfo3vzOJ2SYA5UfmIYwCQ+oqaUSSrh8Ysvd9O
+	8b6D+r2iA0XIlHQfK+EPPmYlnPrRWjY+/2hQfV7ySsvF+/U4o+aCtrwF2FiSPKmbZyLDr8gOmXI
+	1oeGWJOjXMNZ3pEpNR4WSj796cRX7jV/tVcp/nXU8HlQvsExHhG5IEvvnN/F6vcHihFRdVfPPC+
+	pugOjoImdAqt6mq/36ysHxfo9ClVQK92KR2gBT1AEhrx1YroGkBTMkd5X90kGiGdoJhwOXpuUIQ
+	gB5b8WvJwVlWuMYKnS/lukt/slkA7iqZv3rcJZcUtPuwvTPoC8HtiKqBeMqij0jynQe/PLRS+E+
+	tqa6mTI67Ht1yXNdQgum/XVPb7gjkoNqA8tYidbKnW6HuNcefTJEJ8M0dOIkOeR4FcN7hsET+WQ
+	lSi3KXD
+X-Received: by 2002:ad4:5f05:0:b0:89a:77:42d1 with SMTP id 6a1803df08f44-89a30c2c07dmr163990476d6.66.1773062439445;
+        Mon, 09 Mar 2026 06:20:39 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-89a3140f7ebsm74752146d6.6.2026.03.09.06.20.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Mar 2026 06:20:38 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1vzaXG-0000000G7pH-11Zd;
+	Mon, 09 Mar 2026 10:20:38 -0300
+Date: Mon, 9 Mar 2026 10:20:38 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Leon Romanovsky <leon@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-rdma@vger.kernel.org
+Subject: Re: [PATCH 2/3] dma-mapping: Clarify valid conditions for CPU cache
+ line overlap
+Message-ID: <20260309132038.GL1687929@ziepe.ca>
+References: <20260307-dma-debug-overlap-v1-0-c034c38872af@nvidia.com>
+ <20260307-dma-debug-overlap-v1-2-c034c38872af@nvidia.com>
+ <20260308181920.GH1687929@ziepe.ca>
+ <20260308184902.GR12611@unreal>
+ <20260308230916.GI1687929@ziepe.ca>
+ <CGME20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07@eucas1p2.samsung.com>
+ <20260309090342.GS12611@unreal>
+ <c1d058f3-f864-4ed7-9f7a-683d6f4bf1ce@samsung.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Betterbird (Windows)
-Subject: Re: [PATCH 2/3] dma-mapping: Clarify valid conditions for CPU cache
- line overlap
-To: Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Robin Murphy <robin.murphy@arm.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>, Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet
-	<corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Jason Wang
-	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-rdma@vger.kernel.org
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <20260309090342.GS12611@unreal>
-Content-Transfer-Encoding: 7bit
-X-CMS-MailID: 20260309123026eucas1p218b4b7e463c3f96e1a48eca954009827
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07
-X-EPHeader: CA
-X-CMS-RootMailID: 20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07
-References: <20260307-dma-debug-overlap-v1-0-c034c38872af@nvidia.com>
-	<20260307-dma-debug-overlap-v1-2-c034c38872af@nvidia.com>
-	<20260308181920.GH1687929@ziepe.ca> <20260308184902.GR12611@unreal>
-	<20260308230916.GI1687929@ziepe.ca>
-	<CGME20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07@eucas1p2.samsung.com>
-	<20260309090342.GS12611@unreal>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c1d058f3-f864-4ed7-9f7a-683d6f4bf1ce@samsung.com>
 
-On 09.03.2026 10:03, Leon Romanovsky wrote:
-> On Sun, Mar 08, 2026 at 08:09:16PM -0300, Jason Gunthorpe wrote:
->> On Sun, Mar 08, 2026 at 08:49:02PM +0200, Leon Romanovsky wrote:
->>> On Sun, Mar 08, 2026 at 03:19:20PM -0300, Jason Gunthorpe wrote:
->>>> On Sat, Mar 07, 2026 at 06:49:56PM +0200, Leon Romanovsky wrote:
->>>>
->>>>> -This attribute indicates the CPU will not dirty any cacheline overlapping this
->>>>> -DMA_FROM_DEVICE/DMA_BIDIRECTIONAL buffer while it is mapped. This allows
->>>>> -multiple small buffers to safely share a cacheline without risk of data
->>>>> -corruption, suppressing DMA debug warnings about overlapping mappings.
->>>>> -All mappings sharing a cacheline should have this attribute.
->>>>> +DMA_ATTR_CPU_CACHE_OVERLAP
->>>> This is a very specific and well defined use case that allows some cache
->>>> flushing behaviors to work only under the promise that the CPU doesn't
->>>> touch the memory to cause cache inconsistencies.
->>>>
->>>>> +Another valid use case is on systems that are CPU-coherent and do not use
->>>>> +SWIOTLB, where the caller can guarantee that no cache maintenance operations
->>>>> +(such as flushes) will be performed that could overwrite shared cache lines.
->>>> This is something completely unrelated.
->>> I disagree. The situation is equivalent in that callers guarantee the
->>> CPU cache will not be overwritten.
->> The RDMA callers do no such thing, they just don't work at all if
->> there is non-coherence in the mapping which is why it is not a bug.
->>
->> virtio looks like it does actually keep the caches clean for different
->> mappings (and probably also in practice forced coherent as well given
->> qemu is coherent with the VM and VFIO doesn't allow non-coherent DMA
->> devices)
->>
->>>> What I would really like is a new DMA_ATTR_REQUIRE_COHERENT which
->>>> fails any mappings requests that would use any SWIOTLB or cache
->>>> flushing.
->>> You are proposing something orthogonal that operates at a different layer
->>> (DMA mapping). However, for DMA debugging, your new attribute will be
->>> equivalent to DMA_ATTR_CPU_CACHE_OVERLAP.
->> DMA_ATTR is a dma mapping flag, if you want some weird dma debugging
->> flag it should be called DMA_ATTR_DEBUGGING_IGNORE_CACHELINES with
->> some kind of statement at the user why it is OK.
-> And this is the issue: the existing DMA_ATTR_CPU_CACHE_CLEAN is essentially
-> a debug-oriented attribute. The upper layers are already handled through
-> __dma_from_device_group_begin()/end(), which pad cache lines on
-> non-coherent systems.
->
-> Marek,
->
-> What do you see as the right path forward here? RDMA has a legitimate use
-> case where CPU cache lines may overlap. The underlying reason differs from
-> VirtIO, but the outcome is the same. Should I keep the current name? Should
-> we rename it to the proposed DMA_ATTR_CPU_CACHE_OVERLAP or
-> DMA_ATTR_DEBUGGING_IGNORE_CACHELINES? Should we introduce a new
-> DMA_ATTR_REQUIRE_COHERENT attribute instead? Or do you have another
-> recommendation?
+On Mon, Mar 09, 2026 at 01:30:24PM +0100, Marek Szyprowski wrote:
 
-My question here is if RDMA works on any non-coherent DMA systems? If 
-not then it should fail early (during init or probe?) to avoid potential 
-data corruption and new DMA attributes won't help it. On the other hand, 
-theDMA_ATTR_CPU_CACHE_OVERLAP attribute is a bit more descriptive to me 
-than DMA_ATTR_CPU_CACHE_CLEAN, but this indeed looks like a separate 
-issue from the RDMA case.
+> My question here is if RDMA works on any non-coherent DMA systems? 
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+The in kernel components do work, like storage, nvme over fabrics, netdev.
 
+The user API (uverbs) does not work at all, and has never worked.
+
+I think DRM has similar issues too where most of their DMA API usage
+is OK but some places where they interact win pin_user_pages() have
+the same issues as RDMA.
+
+This is why I'd like a new attribute DMA_ATTR_REQUIRE_COHERENCE that
+these special cases can use to fail instead of data corrupt.
+
+Jason
