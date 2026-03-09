@@ -1,167 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11CD33A7834;
-	Mon,  9 Mar 2026 12:23:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1D6738F941
+	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 12:30:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773059034; cv=none; b=QMn8snAqNI07Dc9XNo8ZkSa6+7I2bQ/F/T7m1h+0dTqICjGDzoXkogVt725+pp2roW5LNCzapvmcynufTj7ZnbaDzpX44f8YKHU1JVjVX4JeKrbp/xyb9iFfq09GwBmuzArvexptrCVCBNxaooVv/mk56y81yzZ9qsqnnU2Cuh0=
+	t=1773059436; cv=none; b=jv148BLSsiIfOzphA3iWcVApl20KcnkFeKSfOUbfVJRb16sx14espEuDoDVxxAesbn2SFequ+9l85hwV3jprjbSkIEJV08yn34/7KKhw20tmjb4ivDTd08bFtyMOH0SmWuzcG0SLx2ubwM/EemoHmlvH0NCA3/Jfc7fT8jiashw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773059034; c=relaxed/simple;
-	bh=Py+g6qnSgfEWX6Iy57JwP3p1Ze1RcHqTVF7eH+A0Jhk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qxnc78KH1VCZkM4/Qr2YTqTyik039zIQwnnXXxnjo9guFlrsw3Jq6lgZOQyoz2j8t/feVFdnNn1N3XreOau6QHugJaWdjbVR9kwACJ7h/pPU463AJmAoCvwGVyXoP3sfsGjTRaqjSOYTvr1/gwJnwKPTBmv/vsP5+EmkOk/yD4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PvW4+5jG; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773059436; c=relaxed/simple;
+	bh=Atjx7GL+YNwbnYSuuJvvyi/2Xx/LTpvi9huTzoYuERw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=TnYQtVOfDLSlYDcAQ8T7Jdh29GUPF6++kitWOKy+462QUEwLVzSlz37tmuoYI1+b50omfla4IXzyHykzGTy/fBF4WL1bsQr53CuJOlHaOKcNpVWNpnLzY+XlAExFOeV4xrXBHXH1bly3gEWzxPUl07ZGUe/2qgDJEaEEPC7S568=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=ZHEYuoVE; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PvW4+5jG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11CD8C2BC9E;
-	Mon,  9 Mar 2026 12:23:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773059033;
-	bh=Py+g6qnSgfEWX6Iy57JwP3p1Ze1RcHqTVF7eH+A0Jhk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=PvW4+5jGrvqEwqTJgwKyHWnHCD4CDRJ/u0vWGwgMRhHQYFXpnPbSqrG+0BB/qCigK
-	 0rjDo7Wbe/D/FtdJEth+OLeRQNISEeO9zfkJDjL0iFSQ+MjzesPDa+YhQCM7uRjj8M
-	 bYI3GGrKrQhaLcBsA1wbHipEKP6czfMaWYy1dFu9rs7SgNLeHk6pmbyiiQatCeYSK+
-	 nVBxHPOid2BywQf1QS/xk8+7vM5bjB36WH+hi+GGkOaR1/M1TneLJI/yLTeiaEe9kR
-	 505lQlqcTSIio85UBYbLQL7OSLtFP1syJxfq+LY8AKNvuB5it3nCV0QLaqS+6X+15c
-	 KXgvvhib5oFeg==
-Message-ID: <0ae4d678-5676-4523-bae3-5ad73b526e27@kernel.org>
-Date: Mon, 9 Mar 2026 13:23:45 +0100
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="ZHEYuoVE"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20260309123026euoutp01d650bc7d889443c84d7e0aea4e76434f~bLCeKzAi33021430214euoutp01C
+	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 12:30:26 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20260309123026euoutp01d650bc7d889443c84d7e0aea4e76434f~bLCeKzAi33021430214euoutp01C
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1773059426;
+	bh=gp98JWQznNkZR98zt3gnsF+GVRheVa4QaSz8tPoGX4A=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=ZHEYuoVENPNznd0xqoljK61UHKR3Hw36bx/GKYTBnu1Us7nFDI8Up96iFqiq8oROY
+	 pfLEU5iHAKMwbW1m8NX8yv5QNOoIrcakV5Aaa9smsGUU2cMxFu1/e51fxPC6K3YijR
+	 v7YhHKq3PlBrYH8w3DotscIKEAjnxh+MXlMzpaBk=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20260309123026eucas1p218b4b7e463c3f96e1a48eca954009827~bLCd364Di0084200842eucas1p2W;
+	Mon,  9 Mar 2026 12:30:26 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20260309123025eusmtip2240c0ac5f812e2669c819f74be51bf3c~bLCdK_wth2997829978eusmtip2R;
+	Mon,  9 Mar 2026 12:30:25 +0000 (GMT)
+Message-ID: <c1d058f3-f864-4ed7-9f7a-683d6f4bf1ce@samsung.com>
+Date: Mon, 9 Mar 2026 13:30:24 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird Beta
-Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups, RCU
- stalls, timeout
-Content-Language: en-GB, fr-BE
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jirislaby@kernel.org>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
- rcu@vger.kernel.org, MPTCP Linux <mptcp@lists.linux.dev>,
- Linux Kernel <linux-kernel@vger.kernel.org>,
- Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
- "Paul E. McKenney" <paulmck@kernel.org>,
- Dave Hansen <dave.hansen@linux.intel.com>, luto@kernel.org,
- =?UTF-8?Q?Michal_Koutn=C3=BD?= <MKoutny@suse.com>,
- Waiman Long <longman@redhat.com>, Marco Elver <elver@google.com>
-References: <863a5291-a636-47d0-891c-bb0524d2e134@kernel.org>
- <20260302114636.GL606826@noisy.programming.kicks-ass.net>
- <717310d8-6274-4b7f-8a19-561c45f5f565@kernel.org>
- <a2b573b4-af61-4b84-a7d1-012ed6bb23c9@kernel.org>
- <ba067933-bf3b-476d-a0bb-53eda56996ca@kernel.org> <87zf4m2qvo.ffs@tglx>
- <47cba228-bba7-4e58-a69d-ea41f8de6602@kernel.org> <87tsuu2i59.ffs@tglx>
- <7efde2b5-3b72-4858-9db0-22493d446301@kernel.org> <87qzpx2sck.ffs@tglx>
- <20260306152458.GT606826@noisy.programming.kicks-ass.net>
- <87ldg42eu7.ffs@tglx> <87h5qr2rzi.ffs@tglx> <87eclu3coa.ffs@tglx>
- <87v7f61cnl.ffs@tglx> <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org>
- <87pl5ds88r.ffs@tglx>
-From: Matthieu Baerts <matttbe@kernel.org>
-Autocrypt: addr=matttbe@kernel.org; keydata=
- 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
- lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
-Organization: NGI0 Core
-In-Reply-To: <87pl5ds88r.ffs@tglx>
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Betterbird (Windows)
+Subject: Re: [PATCH 2/3] dma-mapping: Clarify valid conditions for CPU cache
+ line overlap
+To: Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Robin Murphy <robin.murphy@arm.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet
+	<corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Jason Wang
+	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-rdma@vger.kernel.org
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <20260309090342.GS12611@unreal>
 Content-Transfer-Encoding: 7bit
+X-CMS-MailID: 20260309123026eucas1p218b4b7e463c3f96e1a48eca954009827
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07
+X-EPHeader: CA
+X-CMS-RootMailID: 20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07
+References: <20260307-dma-debug-overlap-v1-0-c034c38872af@nvidia.com>
+	<20260307-dma-debug-overlap-v1-2-c034c38872af@nvidia.com>
+	<20260308181920.GH1687929@ziepe.ca> <20260308184902.GR12611@unreal>
+	<20260308230916.GI1687929@ziepe.ca>
+	<CGME20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07@eucas1p2.samsung.com>
+	<20260309090342.GS12611@unreal>
 
-Hi Thomas,
-
-On 09/03/2026 09:43, Thomas Gleixner wrote:
-> On Sun, Mar 08 2026 at 18:23, Matthieu Baerts wrote:
->> 08 Mar 2026 17:58:26 Thomas Gleixner <tglx@kernel.org>:
->>> So I'm back to square one. I go and do what I should have done in the
->>> first place. Write a debug patch with trace_printks and let the people
->>> who can actually trigger the problem run with it.
+On 09.03.2026 10:03, Leon Romanovsky wrote:
+> On Sun, Mar 08, 2026 at 08:09:16PM -0300, Jason Gunthorpe wrote:
+>> On Sun, Mar 08, 2026 at 08:49:02PM +0200, Leon Romanovsky wrote:
+>>> On Sun, Mar 08, 2026 at 03:19:20PM -0300, Jason Gunthorpe wrote:
+>>>> On Sat, Mar 07, 2026 at 06:49:56PM +0200, Leon Romanovsky wrote:
+>>>>
+>>>>> -This attribute indicates the CPU will not dirty any cacheline overlapping this
+>>>>> -DMA_FROM_DEVICE/DMA_BIDIRECTIONAL buffer while it is mapped. This allows
+>>>>> -multiple small buffers to safely share a cacheline without risk of data
+>>>>> -corruption, suppressing DMA debug warnings about overlapping mappings.
+>>>>> -All mappings sharing a cacheline should have this attribute.
+>>>>> +DMA_ATTR_CPU_CACHE_OVERLAP
+>>>> This is a very specific and well defined use case that allows some cache
+>>>> flushing behaviors to work only under the promise that the CPU doesn't
+>>>> touch the memory to cause cache inconsistencies.
+>>>>
+>>>>> +Another valid use case is on systems that are CPU-coherent and do not use
+>>>>> +SWIOTLB, where the caller can guarantee that no cache maintenance operations
+>>>>> +(such as flushes) will be performed that could overwrite shared cache lines.
+>>>> This is something completely unrelated.
+>>> I disagree. The situation is equivalent in that callers guarantee the
+>>> CPU cache will not be overwritten.
+>> The RDMA callers do no such thing, they just don't work at all if
+>> there is non-coherence in the mapping which is why it is not a bug.
 >>
->> Happy to test such debug patches!
-> 
-> See below.
-> 
-> Enable the tracepoints either on the kernel command line:
-> 
->     trace_event=sched_switch,mmcid:*
-> 
-> or before starting the test case:
-> 
->     echo 1 >/sys/kernel/tracing/events/sched/sched_switch/enable
->     echo 1 >/sys/kernel/tracing/events/mmcid/enable
-> 
-> I added a 50ms timeout into mm_cid_get() which freezes the trace and
-> emits a warning. If you enable panic_on_warn and ftrace_dump_on_oops,
-> then it dumps the trace buffer once it hits the warning.
-> 
-> Either kernel command line:
-> 
->    panic_on_warn ftrace_dump_on_oops
-> 
-> or
-> 
->   echo 1 >/proc/sys/kernel/panic_on_warn
->   echo 1 >/proc/sys/kernel/ftrace_dump_on_oops
-> 
-> That should provide enough information to decode this mystery.
+>> virtio looks like it does actually keep the caches clean for different
+>> mappings (and probably also in practice forced coherent as well given
+>> qemu is coherent with the VM and VFIO doesn't allow non-coherent DMA
+>> devices)
+>>
+>>>> What I would really like is a new DMA_ATTR_REQUIRE_COHERENT which
+>>>> fails any mappings requests that would use any SWIOTLB or cache
+>>>> flushing.
+>>> You are proposing something orthogonal that operates at a different layer
+>>> (DMA mapping). However, for DMA debugging, your new attribute will be
+>>> equivalent to DMA_ATTR_CPU_CACHE_OVERLAP.
+>> DMA_ATTR is a dma mapping flag, if you want some weird dma debugging
+>> flag it should be called DMA_ATTR_DEBUGGING_IGNORE_CACHELINES with
+>> some kind of statement at the user why it is OK.
+> And this is the issue: the existing DMA_ATTR_CPU_CACHE_CLEAN is essentially
+> a debug-oriented attribute. The upper layers are already handled through
+> __dma_from_device_group_begin()/end(), which pad cache lines on
+> non-coherent systems.
+>
+> Marek,
+>
+> What do you see as the right path forward here? RDMA has a legitimate use
+> case where CPU cache lines may overlap. The underlying reason differs from
+> VirtIO, but the outcome is the same. Should I keep the current name? Should
+> we rename it to the proposed DMA_ATTR_CPU_CACHE_OVERLAP or
+> DMA_ATTR_DEBUGGING_IGNORE_CACHELINES? Should we introduce a new
+> DMA_ATTR_REQUIRE_COHERENT attribute instead? Or do you have another
+> recommendation?
 
-Thank you for the debug patch and the clear instructions. I managed to
-reproduce the issue with the extra debug. The ouput is available here:
+My question here is if RDMA works on any non-coherent DMA systems? If 
+not then it should fail early (during init or probe?) to avoid potential 
+data corruption and new DMA attributes won't help it. On the other hand, 
+theDMA_ATTR_CPU_CACHE_OVERLAP attribute is a bit more descriptive to me 
+than DMA_ATTR_CPU_CACHE_CLEAN, but this indeed looks like a separate 
+issue from the RDMA case.
 
-  https://github.com/user-attachments/files/25841808/issue-617-debug.txt.gz
-
-Just in case, the kernel config file that was used:
-
-
-https://github.com/user-attachments/files/25841873/issue-617-debug.config.gz
-
-Please tell me if it is an issue to download these files from GitHub.
-The output file has 10k+ lines.
-
-Cheers,
-Matt
+Best regards
 -- 
-Sponsored by the NGI0 Core fund.
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
