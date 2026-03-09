@@ -1,31 +1,31 @@
-Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
+Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DEB619D89E
-	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 23:35:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4307393DCF
+	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 23:43:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773099335; cv=none; b=NwEFyvLfMdTbGAmimeZQmRhRiO/q7xL23hQ0rhFZRLx/4YXOVUM/VSrNpwOOwv9MkE+ky59bipWvQqBZz1dVIIu8B9mfOMQXjFJ0L0saLH487LZ5dTibL5AU7WuYzKZ6D3RUkXpDDf3fjucOPEu8n+E45cOhXz02Qwka8ocBCnM=
+	t=1773099829; cv=none; b=LEOK8C36bVBb4FQKnRDmY6bP1Rn1hFSjNkSR8aqLN3SSvnAFfW/BWGzZgnv30XjBM6CZonpsgMN2p9kr6Tf2OEg7legN5HZwGb613nXj5DU9aF+lG9JaYmMQI2kjP27zXk9ZWlwBdAwn/W9LneB/DTnxC4qXBZ7bMQUYfOQD3jc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773099335; c=relaxed/simple;
-	bh=zMEoXbLZtSeJr2yyf9QZjwCg9OaWQPefxXUxT5OVjfc=;
+	s=arc-20240116; t=1773099829; c=relaxed/simple;
+	bh=3MHOsSOC8s2umrtXNLmRUJoH3s6oflpR1jzzDK7EsA0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UycfO0WkI4IKmjcEbkZOTAhvUQojJCSmwXc1T9Nf9V9Z06xGiMphdIR7teyb4a3KWYkmEjvGSiyrwZz7SbXlzpE27Wf+inWZam+XTQSOS3eetRtbPxbmqhZ6z+CteG6N5rYW9Wa+XGTrsK3MnloqAZKdq04v87F7i94v/2Xx0+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=VTcCMmh0; arc=none smtp.client-ip=91.218.175.182
+	 Content-Type:Content-Disposition:In-Reply-To; b=k70+k9t/UgF/iEgp/ZvcseJpgZZaNvx9wZ9ApOO/uxrujTPBsZae2qoRn4KnE18Cs7IRYWI137kwBbPvEWYsGX+L9mjq2hFA5y+w2xEL5CcjMGS+2paDb+OGLphaKntTyImj6y7xtJ2N+uB5iDAqakarsFWzCWsnF1DN7Cmip5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=nlLDsKr2; arc=none smtp.client-ip=91.218.175.185
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="VTcCMmh0"
-Date: Mon, 9 Mar 2026 16:35:22 -0700
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="nlLDsKr2"
+Date: Mon, 9 Mar 2026 16:43:26 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773099329;
+	t=1773099815;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qcUZHIoP/8rVVvTMfjJZuqQNgHOSfG8EEoqKfNdISjo=;
-	b=VTcCMmh01vAkOgpbdITzQKUfGBwJyxxIUHL9dTLptYFWWKdUefCRn8yKynWdEQISF3sh9Y
-	u2C/Kh8xkLnJuT+K+Zsi2qHDmUNbs8XNMxiO2jbYtz7I+d9IlVeq8GmfQN9LqFRWoLDYKu
-	aWf9StgOUuywlW4g8ai+CM4I5wXtq4g=
+	bh=/iFELzGhWdH/eNtU4E6wcj10oGbw7AuRjfLOotw9uPs=;
+	b=nlLDsKr23aZgU6oEj+eh7RNxKM/IBMFZieSL0bHjkbDfQ1ibcGB5RsexzpkRRgx0zyPbH3
+	TjvFim1kvYAq+v1OB8H3VD7aPn1YRCwHyIo8HbS1X/Ua8oML4fUNu61irhyDVhfkurqZey
+	fYpzyx+nDJrHQsJPCkWxBlj95E2LwCE=
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Shakeel Butt <shakeel.butt@linux.dev>
 To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
@@ -39,7 +39,7 @@ Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@suse.com,
 	virtualization@lists.linux.dev, weixugc@google.com, xuanzhuo@linux.alibaba.com, 
 	ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com, kernel-team@meta.com
 Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-Message-ID: <aa9Yq5zWBu9lCu_4@linux.dev>
+Message-ID: <aa9aDGwk8YteaEob@linux.dev>
 References: <20260307045520.247998-1-jp.kobryn@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -78,51 +78,26 @@ On Fri, Mar 06, 2026 at 08:55:20PM -0800, JP Kobryn (Meta) wrote:
 > in /proc/vmstat.
 > 
 > Signed-off-by: JP Kobryn (Meta) <jp.kobryn@linux.dev>
-> ---
-> v2:
->   - Replaced single per-policy total counter (PGALLOC_MPOL_*) with
->     hit/miss/foreign triplet per policy
->   - Changed from global node stats to per-memcg per-node tracking
-> 
-> v1:
-> https://lore.kernel.org/linux-mm/20260212045109.255391-2-inwardvessel@gmail.com/
-> 
->  include/linux/mmzone.h | 20 ++++++++++
->  mm/memcontrol.c        | 60 ++++++++++++++++++++++++++++
->  mm/mempolicy.c         | 90 ++++++++++++++++++++++++++++++++++++++++--
->  mm/vmstat.c            | 20 ++++++++++
->  4 files changed, 187 insertions(+), 3 deletions(-)
-> 
-> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-> index 7bd0134c241c..c0517cbcb0e2 100644
-> --- a/include/linux/mmzone.h
-> +++ b/include/linux/mmzone.h
-> @@ -323,6 +323,26 @@ enum node_stat_item {
->  	PGSCAN_ANON,
->  	PGSCAN_FILE,
->  	PGREFILL,
-> +#ifdef CONFIG_NUMA
-> +	NUMA_MPOL_LOCAL_HIT,
-> +	NUMA_MPOL_LOCAL_MISS,
-> +	NUMA_MPOL_LOCAL_FOREIGN,
-> +	NUMA_MPOL_PREFERRED_HIT,
-> +	NUMA_MPOL_PREFERRED_MISS,
-> +	NUMA_MPOL_PREFERRED_FOREIGN,
-> +	NUMA_MPOL_PREFERRED_MANY_HIT,
-> +	NUMA_MPOL_PREFERRED_MANY_MISS,
-> +	NUMA_MPOL_PREFERRED_MANY_FOREIGN,
-> +	NUMA_MPOL_BIND_HIT,
-> +	NUMA_MPOL_BIND_MISS,
-> +	NUMA_MPOL_BIND_FOREIGN,
-> +	NUMA_MPOL_INTERLEAVE_HIT,
-> +	NUMA_MPOL_INTERLEAVE_MISS,
-> +	NUMA_MPOL_INTERLEAVE_FOREIGN,
-> +	NUMA_MPOL_WEIGHTED_INTERLEAVE_HIT,
-> +	NUMA_MPOL_WEIGHTED_INTERLEAVE_MISS,
-> +	NUMA_MPOL_WEIGHTED_INTERLEAVE_FOREIGN,
-> +#endif
 
-I have not looked into what these metrics mean but these are too many, at least
-for the memcg. For the memcg, there is significant memory cost for each metric
-added to memcg.
+[...]
 
+> +
+> +	rcu_read_lock();
+> +	memcg = mem_cgroup_from_task(current);
+> +
+> +	if (is_hit) {
+> +		lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
+> +		mod_lruvec_state(lruvec, hit_idx, nr_pages);
+> +	} else {
+> +		/* account for miss on the fallback node */
+> +		lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
+> +		mod_lruvec_state(lruvec, hit_idx + 1, nr_pages);
+> +
+> +		/* account for foreign on the intended node */
+> +		lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(intended_nid));
+> +		mod_lruvec_state(lruvec, hit_idx + 2, nr_pages);
+> +	}
+
+This seems like monotonic increasing metrics and I think you don't care about
+their absolute value but rather rate of change. Any reason this can not be
+achieved through tracepoints and BPF combination?
