@@ -1,169 +1,95 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out-177.mta0.migadu.com (out-177.mta0.migadu.com [91.218.175.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E988525B305
-	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 03:06:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A678A28751B
+	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 03:31:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773025589; cv=none; b=cI5khBVAm+t+M1QZ4QfNEcGNwR2uKS4j359ssNWTAthiO+eRRVHMJGvXs5ygwPMzsi1qyTyD5P5c9GgvGZMzn2IK+5OQY1ITybh5f5qUl7KA6GGmObw161pfNSEhKPJkn5DkPQ4+yVWzYJcTDMABrf3UgKRnEuQ1NRUKxHequmw=
+	t=1773027072; cv=none; b=eS398C1ope/AuWqxIORjbRCKbHpHhtldHv+CG8RjQaFhmRcf+FbLYG6b5IjEkx2k2vmqIhydOCu15/lhwbyqOMg0Kk60BFa+wILvn2vSZh6A7vK19UttOOrfB1/8SqXenr1qIAeoqAgje5WvcquGnkWv3CTDr/ucQgmHYlNHpiA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773025589; c=relaxed/simple;
-	bh=fUiQIVH8sTCLCOgI16xmsLuCD8Ao5+AeST8T2f5zir4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XsJwPGCVQf7HL5Z3M9Dp3CWjT7+WX9LeB+64lvy2vqenHNorquD76HhS6fw5BdWRhY34n21hV9RRoY5Ss6ItJ2HgORgMNHRO/T9ucpezDbs6AxcrTqcN2fX7H6YyG5gdqtNUqthWCUkoxNwD2v09ei6ASwkZ2up/B6gQ+96Udqw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OAUL70IB; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1773027072; c=relaxed/simple;
+	bh=Cq7pOWkgy5Xl5CZLed48itED/PWHe5kSVrGncmLnpYE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tdWDnxEx/xHwJDDDPf9u8Uz1hPsxUEqAegtnoXpKIhPm+rQi8giPblbgoEvfR8FFSxJ7pHNn9kt+m9K54OQcw4A6/A6t9P0AxUVdJ5ep71lvELXsydUnT2wMR/4JlB2ESXG0nsJsundzz/y+Puffte3ukM+LtSNuM6Rhx92n50U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=I1WPgWyD; arc=none smtp.client-ip=91.218.175.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OAUL70IB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773025587;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="I1WPgWyD"
+Message-ID: <c64681a1-2069-421c-9e62-bb63e4ce261a@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773027058;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=KsFocuVC05O13EcJevQPNOGiCSFao1PbcBM41J57c1g=;
-	b=OAUL70IB7bNLB4bwp3PCroYZaGQdJxiZkNL9Wdh0NF7w/xyl3Mws8hklmKniyUDyHi/i+0
-	tA5CYchqYj8Nt/xYGXDVuGQMb0+qabMFTDA26nAfaiO75wmNwSPOUA75FICjeGybI5kvgk
-	P1wtSMmx516uyUJWOBXZhStVpN3IMRs=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-682-8AJ8a2l5Mw6oU0uT44baqg-1; Sun,
- 08 Mar 2026 23:06:23 -0400
-X-MC-Unique: 8AJ8a2l5Mw6oU0uT44baqg-1
-X-Mimecast-MFC-AGG-ID: 8AJ8a2l5Mw6oU0uT44baqg_1773025582
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C58A81800365;
-	Mon,  9 Mar 2026 03:06:21 +0000 (UTC)
-Received: from localhost (unknown [10.44.32.11])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 582A21800351;
-	Mon,  9 Mar 2026 03:06:19 +0000 (UTC)
-Date: Mon, 9 Mar 2026 11:06:17 +0800
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Joshua Daley <jdaley@linux.ibm.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, mst@redhat.com, jasowang@redhat.com,
-	pbonzini@redhat.com, eperezma@redhat.com,
-	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
-	mjrosato@linux.ibm.com, farman@linux.ibm.com, frankja@linux.ibm.com
-Subject: Re: [PATCH 1/1] scsi: virtio_scsi: move INIT_WORK calls to
- virtscsi_init
-Message-ID: <20260309030617.GB8611@fedora>
-References: <20260226204345.1904786-1-jdaley@linux.ibm.com>
- <20260226204345.1904786-2-jdaley@linux.ibm.com>
+	bh=MGRzB9NB7RnJy1AFfNjO4UdJlA1IIFldq9U5XbxXvLE=;
+	b=I1WPgWyDe1PpSkWi58Zt5V7YwT8hbeXPtsYCQU2giIVSqguWg0dr5EDnvQX68WY0JDajo9
+	tmo9uHiI36ZHcYV17iiu58tmXfGiZvnz/M6Mgeww97WrWDnV7hmN4VjOCNQ1+WVMItxj8U
+	hawDYa8Qn46vurq+8oinWUsny/0xQRQ=
+Date: Sun, 8 Mar 2026 20:30:47 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="Yyy1S4WiXsAqigun"
-Content-Disposition: inline
-In-Reply-To: <20260226204345.1904786-2-jdaley@linux.ibm.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+To: Usama Arif <usama.arif@linux.dev>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@suse.com,
+ vbabka@suse.cz, apopple@nvidia.com, axelrasmussen@google.com,
+ byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
+ eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
+ hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
+ linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
+ matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org,
+ muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
+ roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
+ virtualization@lists.linux.dev, weixugc@google.com,
+ xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com,
+ yuanchu@google.com, ziy@nvidia.com, kernel-team@meta.com
+References: <20260308192438.1363382-1-usama.arif@linux.dev>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+In-Reply-To: <20260308192438.1363382-1-usama.arif@linux.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
+On 3/8/26 12:24 PM, Usama Arif wrote:
+> On Fri,  6 Mar 2026 20:55:20 -0800 "JP Kobryn (Meta)" <jp.kobryn@linux.dev> wrote:
+[...]
+>> +static void mpol_count_numa_alloc(struct mempolicy *pol, int intended_nid,
+>> +				  struct page *page, unsigned int order)
+>> +{
+>> +	int actual_nid = page_to_nid(page);
+>> +	long nr_pages = 1L << order;
+>> +	enum node_stat_item hit_idx;
+>> +	struct mem_cgroup *memcg;
+>> +	struct lruvec *lruvec;
+>> +	bool is_hit;
+>> +
+>> +	if (!root_mem_cgroup || mem_cgroup_disabled())
+>> +		return;
+> 
+> Hello JP!
+> 
+> The stats are exposed via /proc/vmstat and are guarded by CONFIG_NUMA, not
+> CONFIG_MEMCG. Early returning overhere would make it inaccuate. Does
+> it make sense to use mod_node_page_state if memcg is not available,
+> so that these global counters work regardless of cgroup configuration.
+>
 
---Yyy1S4WiXsAqigun
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Good call. I can instead do:
 
-On Thu, Feb 26, 2026 at 09:43:45PM +0100, Joshua Daley wrote:
-> The last step of virtscsi_handle_event is to call virtscsi_kick_event,
-> which calls INIT_WORK on it's own work item. INIT_WORK resets the
-> work item's data bits to 0.
->=20
-> If this occurs while the work item is being flushed by
-> cancel_work_sync, then kernel/workqueue.c/work_offqd_enable triggers a
-> kernel warning, as it expects the "disable" bit to be 1:
->=20
-> [   21.450115] workqueue: work disable count underflowed
-> [   21.450117] WARNING: CPU: 1 PID: 56 at kernel/workqueue.c:4328 enable_=
-work+0x10a/0x120
-> ...
-> [   21.450171] Call Trace:
-> [   21.450173]  [<000003db2e5bdc3e>] enable_work+0x10e/0x120
-> [   21.450176] ([<000003db2e5bdc3a>] enable_work+0x10a/0x120)
-> [   21.450178]  [<000003db2e5bdd86>] cancel_work_sync+0x86/0xa0
-> [   21.450181]  [<000003daae97d9e4>] virtscsi_remove+0xb4/0xd0 [virtio_sc=
-si]
-> [   21.450184]  [<000003db2ef3b5ca>] virtio_dev_remove+0x6a/0xd0
-> [   21.450186]  [<000003db2ef9106c>] device_release_driver_internal+0x1ac=
-/0x260
-> [   21.450190]  [<000003db2ef8edc8>] bus_remove_device+0xf8/0x190
-> [   21.450192]  [<000003db2ef88d72>] device_del+0x142/0x340
-> [   21.450194]  [<000003db2ef88fa0>] device_unregister+0x30/0xa0
-> [   21.450196]  [<000003db2ef3b2fa>] unregister_virtio_device+0x2a/0x40
->=20
-> This warning may occur if a controller is detached immediately
-> following a disk detach.
->=20
-> Move the INIT_WORK call to prevent this. Don't re-init event list
-> work items in virtscsi_kick_event, init them only once in
-> virtscsi_init instead.
->=20
-> Signed-off-by: Joshua Daley <jdaley@linux.ibm.com>
-> ---
->  drivers/scsi/virtio_scsi.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> index 0ed8558dad72..173092931df6 100644
-> --- a/drivers/scsi/virtio_scsi.c
-> +++ b/drivers/scsi/virtio_scsi.c
-> @@ -242,7 +242,6 @@ static int virtscsi_kick_event(struct virtio_scsi *vs=
-csi,
->  	struct scatterlist sg;
->  	unsigned long flags;
-> =20
-> -	INIT_WORK(&event_node->work, virtscsi_handle_event);
->  	sg_init_one(&sg, event_node->event, sizeof(struct virtio_scsi_event));
-> =20
->  	spin_lock_irqsave(&vscsi->event_vq.vq_lock, flags);
-> @@ -898,6 +897,11 @@ static int virtscsi_init(struct virtio_device *vdev,
->  	virtscsi_config_set(vdev, cdb_size, VIRTIO_SCSI_CDB_SIZE);
->  	virtscsi_config_set(vdev, sense_size, VIRTIO_SCSI_SENSE_SIZE);
-> =20
-> +	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG)) {
-> +		for (i =3D 0; i < VIRTIO_SCSI_EVENT_LEN; i++)
-> +			INIT_WORK(&vscsi->event_list[i].work, virtscsi_handle_event);
-> +	}
+if (!mem_cgroup_disabled() && root_mem_cgroup) {
+	struct mem_cgroup *memcg;
+	struct lruvec *lruvec;
+	/* use lruvec for updating stats */
+} else {
+	/* use node for updating stats */
+}
 
-The eventq should be populated unconditionally so that non-hotplug
-events are processed even when F_HOTPLUG is not negotiated. For example,
-LUN capacity changes are reported via the VIRTIO_SCSI_T_PARAM_CHANGE
-event. LUN capacity changes depend on F_CHANGE, not F_HOTPLUG.
-
-There is a related bug here: the other if (virtio_has_feature(vdev,
-VIRTIO_SCSI_F_HOTPLUG)) conditionals in this file need to be revisited
-so that LUN capacity changes are reported even when F_HOTPLUG is not
-negotiated. You can test this bug with QEMU's -device
-virtio-scsi-pci,hotplug=3Doff parameter and the 'block_resize' QEMU
-monitor command.
-
-Do you want to write a patch or do you want me to send a follow-up?
-
-Thanks,
-Stefan
-
---Yyy1S4WiXsAqigun
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmmuOSkACgkQnKSrs4Gr
-c8g21ggArHvq8wqVdLA0LaVFvCNBlinO4udjWi3bYhTRrCxfLMr6kJiGfctP9eEB
-Ej5+/GplYZyCHgAOjPS2Fl6j54aAinx4HvyHxOeOjKlsTMyEAWBeq/9a9Q29dz50
-abWinzJ+qHbvligRWo0KhHeOiAi9y/d6+0txpfVY9SyezEOhZS/hNdE4tOWGlbaZ
-e3GCOKLc153YV7qJv1ENYzlDPRuPAHlPFbznbP3nijgs3f9dg/mCtFs8o04Ky1fx
-pu6aEtnTVDyqSkRHgDwhT3swapPfRd8NZoBlwXaeU3uw3yAy7mY9SES1gD1cuqSa
-hbkZAPQSOOKAFLWgwtxAs9lZi8nIQg==
-=RjTn
------END PGP SIGNATURE-----
-
---Yyy1S4WiXsAqigun--
-
+This should also take care of the bot warning on mem_cgroup_from_task()
+not being available.
