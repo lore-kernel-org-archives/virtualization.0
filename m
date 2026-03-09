@@ -1,124 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail-m16.yeah.net (mail-m16.yeah.net [220.197.32.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE5973E47B;
-	Mon,  9 Mar 2026 09:03:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13EF021FF23
+	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 11:36:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.32.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773047026; cv=none; b=SWR3brc0yBoX4tOHuxuUe1e6PqdUuh96l260Y6oA6oIarvUAMZUVof8o1eflR90B8VbnL/CtB41ayKH9vhd8T+1NLEvGSC4v9VKewZMzV9a7W+TL8BX/r4MSyMjL7jWi21iY4lslsAwhVLGOnb6DebIzAywaw+q+sYFeD7ze85E=
+	t=1773056189; cv=none; b=WlSfusat+Fsnm//0yRcEV3cY66nTb7+dEPqbQjEbnAKruWq6+nv2c5/Bm9dVS+WmfmOeeGoo4MZ6fsoqovYFH8zICI+By2GhuymAAObtWej+aXQBlbJrX6ZbXCQxPfSuG8vf6ilUMoFIQAFG4SyE7tVQVQk0hf8+UUtLQKV/ECc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773047026; c=relaxed/simple;
-	bh=kSDROP9IQjvBUSAyPonTwVkd0K8lsZ7gTLjiEtj28Ko=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZXD1qblP5+E3ZnUdkgNU3KV7IV+HxCKoqEhH6A3HSOHhG2Q/TgLseCBpaCD51ZhseaKWGwILoF8b/U142IHt+gEMwSOJxmaTvbmkRcTwgLgrvHTxeQizR91D7Q6cMva5MoLpKTMP1KlwkKGjaz9nyKwrE7Ht33jZ211NYXBDOjc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RFBfbL1e; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773056189; c=relaxed/simple;
+	bh=5wcvCYm4HHzLJw2WvxFlYjuoO1klr3Nn61CGh1huo1o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dGqTkuqtNgzY43FWgnB9N/yXgdkhswWfdPp27Kc7FCHsMsUFJUZn/L35tcVo7YJaF29R+sK4X+amljlas1+nLc8ix9FOXApHchaa3JTh4YpmK2eibCK5+di6N3zW+JLUYCRILqOGeYQ9h8+uS3QFANE2ARnWaW0nkD2Kw/FmdFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yeah.net; spf=pass smtp.mailfrom=yeah.net; dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b=ReNa8CA9; arc=none smtp.client-ip=220.197.32.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yeah.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yeah.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RFBfbL1e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3E98C2BCB1;
-	Mon,  9 Mar 2026 09:03:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773047026;
-	bh=kSDROP9IQjvBUSAyPonTwVkd0K8lsZ7gTLjiEtj28Ko=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=RFBfbL1eN4cFAmF5H1JfgbhSnAUKt069jyxJtD6j98AZOuEhgvvTlHkHniae5dGvN
-	 /QPZvCjn2IuAfw/q0YF0SGcs50q2FJj1eK2RhpwgpNwUNfFaYUdBbW0I0m1wHir3Lt
-	 M8s6XKTl+UCfp0nYfFnIxKKgM6CpnElK7TDMDSlWjx69g1GxtepXLquAZsbkk1kzTp
-	 pDljsgSteA22r7FtTxpnrVzlG9bsl4+TnTh78EkVdCuuuM3F5w00GWOU1rZrTw7nkY
-	 50kOUyofYTO/xOdkuR+rv3w2eTw0IISvUTO7zxdAFYYRZijowOtm4fGc2G3K3cD3Ec
-	 CLm7coZ05l3OA==
-Date: Mon, 9 Mar 2026 11:03:42 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>,
-	Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Robin Murphy <robin.murphy@arm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-rdma@vger.kernel.org
-Subject: Re: [PATCH 2/3] dma-mapping: Clarify valid conditions for CPU cache
- line overlap
-Message-ID: <20260309090342.GS12611@unreal>
-References: <20260307-dma-debug-overlap-v1-0-c034c38872af@nvidia.com>
- <20260307-dma-debug-overlap-v1-2-c034c38872af@nvidia.com>
- <20260308181920.GH1687929@ziepe.ca>
- <20260308184902.GR12611@unreal>
- <20260308230916.GI1687929@ziepe.ca>
+	dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b="ReNa8CA9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yeah.net;
+	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
+	Content-Type; bh=QDbKOGxN4PHx6EtTLUjCVghLu0chB+6hYRk0Dgw70a4=;
+	b=ReNa8CA9Dyp39tOul0dfqS43vql9OB0zurpitLuBZxebO8nlL85/1fWqcRJ5nE
+	S/wlDABtWT3zTPjerccbf81L7KscRiPRXRuHDnIc5rg86gY0XNaKYH8D4E36SeuM
+	BGLaSxwUUKk817t7tfEH8MBVxCsmQL8YKG0MDbJ4HC5E0=
+Received: from [7.247.167.131] (unknown [])
+	by gzsmtp1 (Coremail) with UTF8SMTPA id Mc8vCgD3_7SWsK5pgQ5iAg--.2659S2;
+	Mon, 09 Mar 2026 19:35:51 +0800 (CST)
+Message-ID: <4b8a6182-da50-4edb-a34a-b75ed784f1e2@yeah.net>
+Date: Mon, 9 Mar 2026 19:35:48 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260308230916.GI1687929@ziepe.ca>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio_net: Fix UAF on dst_ops when IFF_XMIT_DST_RELEASE
+ is cleared and napi_tx is false
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+ "David S . Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20260307035110.7121-1-xietangxin@yeah.net>
+ <CACGkMEtBS3M6P9xFM-kfPHyjwHgvCrfHM5H1242AQPi54ETqEw@mail.gmail.com>
+From: xietangxin <xietangxin@yeah.net>
+In-Reply-To: <CACGkMEtBS3M6P9xFM-kfPHyjwHgvCrfHM5H1242AQPi54ETqEw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:Mc8vCgD3_7SWsK5pgQ5iAg--.2659S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxXw4rXFy8Zw4DGryxJFWkJFb_yoW5uFy5pr
+	4rKayYqF4kJ3yxAFsaqw4kGryjvan5Jr43Grs5Wr13C3s8uFy5Jr4I9rWUua98uFs5Z342
+	qw4Fgry2gryqyFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jOKsUUUUUU=
+X-CM-SenderInfo: x0lh3tpqj0x0o61htxgoqh3/1tbiNhdXi2musJew3gAA3z
 
-On Sun, Mar 08, 2026 at 08:09:16PM -0300, Jason Gunthorpe wrote:
-> On Sun, Mar 08, 2026 at 08:49:02PM +0200, Leon Romanovsky wrote:
-> > On Sun, Mar 08, 2026 at 03:19:20PM -0300, Jason Gunthorpe wrote:
-> > > On Sat, Mar 07, 2026 at 06:49:56PM +0200, Leon Romanovsky wrote:
-> > > 
-> > > > -This attribute indicates the CPU will not dirty any cacheline overlapping this
-> > > > -DMA_FROM_DEVICE/DMA_BIDIRECTIONAL buffer while it is mapped. This allows
-> > > > -multiple small buffers to safely share a cacheline without risk of data
-> > > > -corruption, suppressing DMA debug warnings about overlapping mappings.
-> > > > -All mappings sharing a cacheline should have this attribute.
-> > > > +DMA_ATTR_CPU_CACHE_OVERLAP
-> > > 
-> > > This is a very specific and well defined use case that allows some cache
-> > > flushing behaviors to work only under the promise that the CPU doesn't
-> > > touch the memory to cause cache inconsistencies.
-> > > 
-> > > > +Another valid use case is on systems that are CPU-coherent and do not use
-> > > > +SWIOTLB, where the caller can guarantee that no cache maintenance operations
-> > > > +(such as flushes) will be performed that could overwrite shared cache lines.
-> > > 
-> > > This is something completely unrelated. 
-> > 
-> > I disagree. The situation is equivalent in that callers guarantee the
-> > CPU cache will not be overwritten.
+
+
+On 3/9/2026 11:42 AM, Jason Wang wrote:
+> On Sat, Mar 7, 2026 at 11:53 AM xietangxin <xietangxin@yeah.net> wrote:
+>>
+>> A UAF issue occurs when the virtio_net driver is configured with napi_tx=N
+>> and the device's IFF_XMIT_DST_RELEASE flag is cleared
+>> (e.g., during the configuration of tc route filter rules).
+>>
+>> When IFF_XMIT_DST_RELEASE is removed from the net_device, the network stack
+>> expects the driver to hold the reference to skb->dst until the packet
+>> is fully transmitted and freed. In virtio_net with napi_tx=N,
+>> skbs may remain in the virtio transmit ring for an extended period.
+>>
+>> If the network namespace is destroyed while these skbs are still pending,
+>> the corresponding dst_ops structure has freed. When a subsequent packet
+>> is transmitted, free_old_xmit() is triggered to clean up old skbs.
+>> It then calls dst_release() on the skb associated with the stale dst_entry.
+>> Since the dst_ops (referenced by the dst_entry) has already been freed,
+>> a UAF kernel paging request occurs.
+>>
+>> fix it by adds skb_dst_drop(skb) in start_xmit to explicitly release
+>> the dst reference before the skb is queued in virtio_net.
+>>
+>> Call Trace:
+>>  Unable to handle kernel paging request at virtual address ffff80007e150000
+>>  CPU: 2 UID: 0 PID: 6236 Comm: ping Kdump: loaded Not tainted 7.0.0-rc1+ #6 PREEMPT
+>>   ...
+>>   percpu_counter_add_batch+0x3c/0x158 lib/percpu_counter.c:98 (P)
+>>   dst_release+0xe0/0x110  net/core/dst.c:177
+>>   skb_release_head_state+0xe8/0x108 net/core/skbuff.c:1177
+>>   sk_skb_reason_drop+0x54/0x2d8 net/core/skbuff.c:1255
+>>   dev_kfree_skb_any_reason+0x64/0x78 net/core/dev.c:3469
+>>   napi_consume_skb+0x1c4/0x3a0 net/core/skbuff.c:1527
+>>   __free_old_xmit+0x164/0x230  drivers/net/virtio_net.c:611 [virtio_net]
+>>   free_old_xmit drivers/net/virtio_net.c:1081 [virtio_net]
+>>   start_xmit+0x7c/0x530 drivers/net/virtio_net.c:3329 [virtio_net]
+>>   ...
+>>
+>> Reproduction Steps:
+>> NETDEV="enp3s0"
+>>
+>> config_qdisc_route_filter() {
+>>     tc qdisc del dev $NETDEV root
+>>     tc qdisc add dev $NETDEV root handle 1: prio
+>>     tc filter add dev $NETDEV parent 1:0 protocol ip prio 100 route to 100 flowid 1:1
+>>     ip route add 192.168.1.100/32 dev $NETDEV realm 100
+>> }
+>>
+>> test_ns() {
+>>     ip netns add testns
+>>     ip link set $NETDEV netns testns
+>>     ip netns exec testns ifconfig $NETDEV  10.0.32.46/24
+>>     ip netns exec testns ping -c 1 10.0.32.1
+>>     ip netns del testns
+>> }
+>>
+>> config_qdisc_route_filter
+>>
+>> test_ns
+>> sleep 2
+>> test_ns
+>>
+>> Signed-off-by: xietangxin <xietangxin@yeah.net>
+>> ---
 > 
-> The RDMA callers do no such thing, they just don't work at all if
-> there is non-coherence in the mapping which is why it is not a bug.
+> This is needed for stable I think.
 > 
-> virtio looks like it does actually keep the caches clean for different
-> mappings (and probably also in practice forced coherent as well given
-> qemu is coherent with the VM and VFIO doesn't allow non-coherent DMA
-> devices)
+> And do we need to fix tun_net_xmit() as well?
 > 
-> > > What I would really like is a new DMA_ATTR_REQUIRE_COHERENT which
-> > > fails any mappings requests that would use any SWIOTLB or cache
-> > > flushing.
-> > 
-> > You are proposing something orthogonal that operates at a different layer
-> > (DMA mapping). However, for DMA debugging, your new attribute will be
-> > equivalent to DMA_ATTR_CPU_CACHE_OVERLAP.
-> 
-> DMA_ATTR is a dma mapping flag, if you want some weird dma debugging
-> flag it should be called DMA_ATTR_DEBUGGING_IGNORE_CACHELINES with
-> some kind of statement at the user why it is OK.
+> Thanks
+Hi Jason,
 
-And this is the issue: the existing DMA_ATTR_CPU_CACHE_CLEAN is essentially
-a debug-oriented attribute. The upper layers are already handled through
-__dma_from_device_group_begin()/end(), which pad cache lines on
-non-coherent systems.
+I have analyzed the tun driver and concluded that it don't suffer from this UAF issue.
 
-Marek,
+The netns containing a tun interface cannot be destroyed until all processes
+holding the tun file descriptor have exited. When the file descriptor is closed,
+tun_chr_close() is called, which immediately free all skbs in the tx_ring.
+This happens before cleanup_net() destroys the dst_ops. Therefore, no skbs referencing freeed dst_ops.
+Unlike virtio_net, where skbs can remain in the TX queue even if the ns is deleted.
 
-What do you see as the right path forward here? RDMA has a legitimate use
-case where CPU cache lines may overlap. The underlying reason differs from
-VirtIO, but the outcome is the same. Should I keep the current name? Should
-we rename it to the proposed DMA_ATTR_CPU_CACHE_OVERLAP or
-DMA_ATTR_DEBUGGING_IGNORE_CACHELINES? Should we introduce a new
-DMA_ATTR_REQUIRE_COHERENT attribute instead? Or do you have another
-recommendation?
+I believe the fix is only necessary for virtio_net. What do you think?
 
-Thanks
+Best regards,
 
-> 
-> Jason
+Tangxin Xie
+
