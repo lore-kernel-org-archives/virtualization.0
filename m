@@ -1,162 +1,383 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11116355050
-	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 06:19:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB9F23093C3;
+	Mon,  9 Mar 2026 08:43:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773037185; cv=none; b=Odo6PkRRSqQHaDZPYYc6V278WrsscjbjCa1S/aRQaQ6/QGTm8rEHdnX6LtrF10/rs2Wu/6BcqmMCAbTBPdy+hqb87gXxM+/9fVS7Dg2W7hqrMMb9Fok+q9vKzorgAzFNbs/SyUp4mJ/UZrHXp1fGAdQh4++oPv31hx14uW1hK7k=
+	t=1773045832; cv=none; b=AAmuIBCuhISA+E+TDEaikBoadfVqzmIg4/IPNVMHTwswa43TWd6B23wY5mOrDIpqAPY+YsQFeGlXmnHAixEyS1xdk1G4SUeC53LlsZ9Ks7xmddaw9Cjs99liwKYJEw9CL/+f+l9pNg/UcT0RDzCpMxSbj4E5q7XCuXa3zcUDhe0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773037185; c=relaxed/simple;
-	bh=97nMirBjm0UVO/etDPBF9Dov9vOkpZNRytLiCpNLDIQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=n52+ogSvDKdmsdQkZySpasLjsy2+gWYdTcvPLKJz2meOa9vmglU1JN9s+wdr9lobSkj+tX+C/b15ZDIyew+UB1yZHR5k3v5//dBG7XfK0NZuZ2X9dU763EhduDqRU3lkibwoIwrDS9+YQ1at9+0mVS1S3yrdoLntDTzOnemU9EU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TqpReeip; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773045832; c=relaxed/simple;
+	bh=R0Tj8WHPpvIY04QiJfIurzlhzjfV000u26yyDgGvweo=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=ns9l44uiBiNooKuBXvbOtWpf2QAsUGZLfWOsXnSW9RZcFATx7B8tSsDjWMBv+3IohYv9HaJ6vgtKX7AnUEp276Y1GzTRyw3XFd/xkV8MipYHMlUG4aygOZtVJsXT+amKiPVJpfJ83vCnfhNjQI6ZrZigvWOf4ed1JT58+BbDudY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LvJhrhdh; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TqpReeip"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2ad21f437eeso81042665ad.0
-        for <virtualization@lists.linux.dev>; Sun, 08 Mar 2026 23:19:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773037183; x=1773641983; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=mM4k0a0lc5DlaYtJAS2n9qKrU0qPtvvuNJREMuZIIAc=;
-        b=TqpReeipFZ9EVLtI0KHcevK+k/8staHih13gDY1fgr6f2Y7SUBz7WgNSssXtLEdRqr
-         gA8q8d8PF9Acmm94hO3FL5LEb95XwXRxdCos1hmmIYuPvoezpCXL3jc9UpWyXiSZImqv
-         VS+tHvRmN5EfiRd5nXc6K6R7SNNKb/QCkcUT14Srzei1EUkE6fxBstv62NXoakZnA9xb
-         /j0TQHU+wRAxkc3zOrwFVwnXcRYkwI84guOAR39YwIhA6KLWRKpN4iE0G1iJpozrKREL
-         V5NG7XNM7o4bJvj6AihKEedgu0RVq4iWrsgKIeo7clFp0b0vv/0GYALZLn0hJoDGRG58
-         LlVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773037183; x=1773641983;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=mM4k0a0lc5DlaYtJAS2n9qKrU0qPtvvuNJREMuZIIAc=;
-        b=ubnqTRvgU9tktvDiRX/wOmmxtHxajVIkN1lqCdfhK1aWHLsRnvVloMo9XJzLjYnAHf
-         QNNId4DHHTqSK8t3QGRIBjy4OtLmbMw68fhM9NxviWSx5GnhQl6SxnanSzssovZ402RJ
-         1PMqOZOw6Lz0itW9onEUHI9u9dta3o7A0FsKcgUSYbSlqIoi4mdIviGLNkABIjV+/+hh
-         O8oyT6UuzTKt7T13oZWGgNWOPd+MAytReyxevsvufr5/NuG3OMTq1J2ROpaC4HpQoZ5U
-         rA0xqrYAXmuww7Im2xoxAOXSSx8qSDqpZe92e3dh1AiQG4jMzbA9wI0rKYCTTir6lv+R
-         EaJg==
-X-Forwarded-Encrypted: i=1; AJvYcCUKzaLPO9rseHUM68S22zZXVgTmG3q7aEeK/NhkJECwOWb3x2Z3w40bYZOTW9raetZ37jOiNepzTTizVskxwg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzDw/r7I0JMQeTcyZP9QsNdtXQ4dkZuR+bv5biyZxq7eNfUpv0S
-	cU61E8Er9lxYbCkjm7hIrREwJoSH65OVJWxY6/UffgtT+dB0+KdLuHlp
-X-Gm-Gg: ATEYQzzEynBMAuzxdHjTMToQ44E+OFfAq8s35Ocykj2MRmn0eUl8hQDKogq1zm+dyXQ
-	8npCYy1T3engIHCzFeAZZ9clWN8e9Bn7TeuwHDeUiMXKtqqhpMHmZDkut4jPG5p6qd76sjqFqT/
-	VFX/sbqQh4euGbw+3It+CCkXmMv1q1CxtSHE5pTR7YxBD82e/2kpfQol+U9WgJrwCsES6mCE5Ps
-	fANKo4OqenYYnKBH5hpAdZVksnjraGOCkwyNA7jBaBAh6eFcAGig7Ie+JFmeoFmBjhNTLYCkghu
-	tVa27iKZqYSodkGQijQchxvqtlYjNT8+2uF7YGSi0F51EonH1aV7S9AEwyt/s2AMkDDcDAn3GQc
-	WhFjYOex3cdVX5gDKjiYmmC0aYEBoUdxnvPx8qh2dbRu9jaLuMiT8NjWE86ecDq7DViaLb+JGQm
-	1nBMSoCU6ZYL+l8fVF3Fn1yKf5mgnZVwHWUQOwzSNqtUJQ
-X-Received: by 2002:a17:902:e88c:b0:2ae:4ad5:b76c with SMTP id d9443c01a7336-2ae82974b26mr98769165ad.10.1773037183356;
-        Sun, 08 Mar 2026 23:19:43 -0700 (PDT)
-Received: from [172.20.149.24] ([222.151.198.97])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ae83f783dbsm103991205ad.42.2026.03.08.23.19.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 08 Mar 2026 23:19:42 -0700 (PDT)
-Message-ID: <d6161d2e-066e-4d85-bc5a-0129a5f116b8@gmail.com>
-Date: Mon, 9 Mar 2026 15:19:39 +0900
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LvJhrhdh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B812EC4CEF7;
+	Mon,  9 Mar 2026 08:43:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773045832;
+	bh=R0Tj8WHPpvIY04QiJfIurzlhzjfV000u26yyDgGvweo=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=LvJhrhdhbQozIAuWAlqXW3bj0cWo8FxnOWgkdMke7eRZtRR20Tv8o5cECmuZmGYK+
+	 dBqhRaiCqlkEO0AdOUsxXmyF4MqENquSuSHBmz2RU47VGIJdubddTYCV9qRakBnbje
+	 O5unNYzBed62xZ5MFgbrtjoTo28MBcjxmyBaGbRFpwxHRYoVzlpO3sSOS8ggVcqOFq
+	 HbmwYbvG57oSLBYDozAq6nXOliqgesdIs76MP+Pa/lkgzIW3gkLP7SsXzNAn8IT0FP
+	 Rwr0N9MBjMJld+itIy9r6hlCbW/vmJHmxt5o5a088yXOn46IJZ0xMCwU1Mzza1obzD
+	 X5xgE1A2esdCQ==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Matthieu Baerts <matttbe@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Jiri Slaby
+ <jirislaby@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano
+ Garzarella <sgarzare@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
+ rcu@vger.kernel.org, MPTCP Linux <mptcp@lists.linux.dev>, Linux Kernel
+ <linux-kernel@vger.kernel.org>, Shinichiro Kawasaki
+ <shinichiro.kawasaki@wdc.com>, "Paul E. McKenney" <paulmck@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, luto@kernel.org, Michal
+ =?utf-8?Q?Koutn=C3=BD?=
+ <MKoutny@suse.com>, Waiman Long <longman@redhat.com>, Marco Elver
+ <elver@google.com>
+Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups,
+ RCU stalls, timeout
+In-Reply-To: <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org>
+References: <863a5291-a636-47d0-891c-bb0524d2e134@kernel.org>
+ <20260302114636.GL606826@noisy.programming.kicks-ass.net>
+ <717310d8-6274-4b7f-8a19-561c45f5f565@kernel.org>
+ <a2b573b4-af61-4b84-a7d1-012ed6bb23c9@kernel.org>
+ <ba067933-bf3b-476d-a0bb-53eda56996ca@kernel.org> <87zf4m2qvo.ffs@tglx>
+ <47cba228-bba7-4e58-a69d-ea41f8de6602@kernel.org> <87tsuu2i59.ffs@tglx>
+ <7efde2b5-3b72-4858-9db0-22493d446301@kernel.org> <87qzpx2sck.ffs@tglx>
+ <20260306152458.GT606826@noisy.programming.kicks-ass.net>
+ <87ldg42eu7.ffs@tglx> <87h5qr2rzi.ffs@tglx> <87eclu3coa.ffs@tglx>
+ <87v7f61cnl.ffs@tglx> <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org>
+Date: Mon, 09 Mar 2026 09:43:48 +0100
+Message-ID: <87pl5ds88r.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio: add num_vf callback to virtio_bus
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- virtualization@lists.linux.dev
-References: <20260309023353.652650-1-yui.washidu@gmail.com>
- <CACGkMEu+fd91yCwmSPNj0fTXw5v3ZON7F4kL_PVUz6TbG-iT4g@mail.gmail.com>
-Content-Language: en-US
-From: Yui Washizu <yui.washidu@gmail.com>
-In-Reply-To: <CACGkMEu+fd91yCwmSPNj0fTXw5v3ZON7F4kL_PVUz6TbG-iT4g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
-
-On 3/9/2026 12:33 PM, Jason Wang wrote:
-> On Mon, Mar 9, 2026 at 10:37 AM Yui Washizu <yui.washidu@gmail.com> wrote:
->> Recent QEMU versions added support for virtio SR-IOV emulation,
->> allowing virtio devices to expose SR-IOV VFs to the guest.
->> However, virtio_bus does not implement the num_vf callback of bus_type,
->> causing dev_num_vf() to return 0 for virtio devices even when
->> SR-IOV VFs are active.
->>
->> net/core/rtnetlink.c calls dev_num_vf(dev->dev.parent) to populate
->> IFLA_NUM_VF and IFLA_VFINFO_LIST
-> Patch looks good but,
+On Sun, Mar 08 2026 at 18:23, Matthieu Baerts wrote:
+> 08 Mar 2026 17:58:26 Thomas Gleixner <tglx@kernel.org>:
+>> So I'm back to square one. I go and do what I should have done in the
+>> first place. Write a debug patch with trace_printks and let the people
+>> who can actually trigger the problem run with it.
 >
-> If I understand correctly, ndo_get_vf_config is needed for
-> IFLA_VFINFO_LIST but not implemeted in this patch?
+> Happy to test such debug patches!
 
-Thank you for your comment.
+See below.
 
-I submitted this patch because I confirmed
-that "ip link show" returns the correct VF IDs with this implementation.
+Enable the tracepoints either on the kernel command line:
 
-In the current implementation,
-I believe there is no information that would need to be referenced 
-through IFLA_VFINFO_LIST.
-Therefore, I did not include ndo_get_vf_config in this patch,
-as it did not seem essential at this stage.
+    trace_event=sched_switch,mmcid:*
 
-Would it be better to implement IFLA_VFINFO_LIST support together with this?
+or before starting the test case:
 
-Regards,
+    echo 1 >/sys/kernel/tracing/events/sched/sched_switch/enable
+    echo 1 >/sys/kernel/tracing/events/mmcid/enable
 
+I added a 50ms timeout into mm_cid_get() which freezes the trace and
+emits a warning. If you enable panic_on_warn and ftrace_dump_on_oops,
+then it dumps the trace buffer once it hits the warning.
 
->> in RTM_GETLINK responses.  For a
->> virtio-net device, dev.parent points to the virtio_device, whose bus
->> is virtio_bus.  Without num_vf, SR-IOV VF information is silently
->> omitted from tools that rely on rtnetlink, such as 'ip link show'.
->>
->> Add a num_vf callback that delegates to dev_num_vf(dev->parent),
->> which in turn reaches the underlying transport (pci_bus_type for
->> virtio-pci) where the actual VF count is tracked.  Non-PCI transports
->> are unaffected as dev_num_vf() returns 0 when no num_vf callback is
->> present.
->>
->> Signed-off-by: Yui Washizu <yui.washidu@gmail.com>
->> ---
->>   drivers/virtio/virtio.c | 9 +++++++++
->>   1 file changed, 9 insertions(+)
->>
->> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->> index 5bdc6b82b30b..299fa83be1d5 100644
->> --- a/drivers/virtio/virtio.c
->> +++ b/drivers/virtio/virtio.c
->> @@ -435,6 +435,14 @@ static void virtio_dev_shutdown(struct device *_d)
->>          dev->config->reset(dev);
->>   }
->>
->> +static int virtio_dev_num_vf(struct device *dev)
->> +{
->> +       struct virtio_device *vdev = dev_to_virtio(dev);
->> +
->> +       return dev_num_vf(vdev->dev.parent);
->> +}
->> +
->> +
->>   static const struct bus_type virtio_bus = {
->>          .name  = "virtio",
->>          .match = virtio_dev_match,
->> @@ -444,6 +452,7 @@ static const struct bus_type virtio_bus = {
->>          .remove = virtio_dev_remove,
->>          .irq_get_affinity = virtio_irq_get_affinity,
->>          .shutdown = virtio_dev_shutdown,
->> +       .num_vf = virtio_dev_num_vf,
->>   };
->>
->>   int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
->> --
->> 2.47.3
->>
-> Thanks
->
+Either kernel command line:
+
+   panic_on_warn ftrace_dump_on_oops
+
+or
+
+  echo 1 >/proc/sys/kernel/panic_on_warn
+  echo 1 >/proc/sys/kernel/ftrace_dump_on_oops
+
+That should provide enough information to decode this mystery.
+
+Thanks,
+
+        tglx
+---
+ include/trace/events/mmcid.h |  138 +++++++++++++++++++++++++++++++++++++++++++
+ kernel/sched/core.c          |   10 +++
+ kernel/sched/sched.h         |   20 +++++-
+ 3 files changed, 165 insertions(+), 3 deletions(-)
+
+--- /dev/null
++++ b/include/trace/events/mmcid.h
+@@ -0,0 +1,138 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#undef TRACE_SYSTEM
++#define TRACE_SYSTEM mmcid
++
++#if !defined(_TRACE_MMCID_H) || defined(TRACE_HEADER_MULTI_READ)
++#define _TRACE_MMCID_H
++
++#include <linux/sched.h>
++#include <linux/tracepoint.h>
++
++DECLARE_EVENT_CLASS(mmcid_class,
++
++	TP_PROTO(struct mm_struct *mm, unsigned int cid),
++
++	TP_ARGS(mm, cid),
++
++	TP_STRUCT__entry(
++		__field( void *,	mm	)
++		__field( unsigned int,	cid	)
++	),
++
++	TP_fast_assign(
++		__entry->mm	= mm;
++		__entry->cid	= cid;
++	),
++
++	TP_printk("mm=%p cid=%08x", __entry->mm, __entry->cid)
++);
++
++DEFINE_EVENT(mmcid_class, mmcid_getcid,
++
++	TP_PROTO(struct mm_struct *mm, unsigned int cid),
++
++	TP_ARGS(mm, cid)
++);
++
++DEFINE_EVENT(mmcid_class, mmcid_putcid,
++
++	TP_PROTO(struct mm_struct *mm, unsigned int cid),
++
++	TP_ARGS(mm, cid)
++);
++
++DECLARE_EVENT_CLASS(mmcid_task_class,
++
++	TP_PROTO(struct task_struct *t, struct mm_struct *mm, unsigned int cid),
++
++	TP_ARGS(t, mm, cid),
++
++	TP_STRUCT__entry(
++		__field( void *,	t	)
++		__field( void *,	mm	)
++		__field( unsigned int,	cid	)
++	),
++
++	TP_fast_assign(
++		__entry->t	= t;
++		__entry->mm	= mm;
++		__entry->cid	= cid;
++	),
++
++	TP_printk("t=%p mm=%p cid=%08x", __entry->t, __entry->mm, __entry->cid)
++);
++
++DEFINE_EVENT(mmcid_task_class, mmcid_task_update,
++
++	TP_PROTO(struct task_struct *t, struct mm_struct *mm, unsigned int cid),
++
++	TP_ARGS(t, mm, cid)
++);
++
++DECLARE_EVENT_CLASS(mmcid_cpu_class,
++
++	TP_PROTO(unsigned int cpu, struct mm_struct *mm, unsigned int cid),
++
++	TP_ARGS(cpu, mm, cid),
++
++	TP_STRUCT__entry(
++		__field( unsigned int,	cpu	)
++		__field( void *,	mm	)
++		__field( unsigned int,	cid	)
++	),
++
++	TP_fast_assign(
++		__entry->cpu	= cpu;
++		__entry->mm	= mm;
++		__entry->cid	= cid;
++	),
++
++	TP_printk("cpu=%u mm=%p cid=%08x", __entry->cpu, __entry->mm, __entry->cid)
++);
++
++DEFINE_EVENT(mmcid_cpu_class, mmcid_cpu_update,
++
++	TP_PROTO(unsigned int cpu, struct mm_struct *mm, unsigned int cid),
++
++	TP_ARGS(cpu, mm, cid)
++);
++
++DECLARE_EVENT_CLASS(mmcid_user_class,
++
++	TP_PROTO(struct task_struct *t, struct mm_struct *mm),
++
++	TP_ARGS(t, mm),
++
++	TP_STRUCT__entry(
++		__field( void *,	t	)
++		__field( void *,	mm	)
++		__field( unsigned int,	users	)
++	),
++
++	TP_fast_assign(
++		__entry->t	= t;
++		__entry->mm	= mm;
++		__entry->users	= mm->mm_cid.users;
++	),
++
++	TP_printk("t=%p mm=%p users=%u", __entry->t, __entry->mm, __entry->users)
++);
++
++DEFINE_EVENT(mmcid_user_class, mmcid_user_add,
++
++	TP_PROTO(struct task_struct *t, struct mm_struct *mm),
++
++	TP_ARGS(t, mm)
++);
++
++DEFINE_EVENT(mmcid_user_class, mmcid_user_del,
++
++	TP_PROTO(struct task_struct *t, struct mm_struct *mm),
++
++	     TP_ARGS(t, mm)
++);
++
++#endif
++
++/* This part must be outside protection */
++#include <trace/define_trace.h>
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -86,6 +86,7 @@
+ #include <linux/sched/rseq_api.h>
+ #include <trace/events/sched.h>
+ #include <trace/events/ipi.h>
++#include <trace/events/mmcid.h>
+ #undef CREATE_TRACE_POINTS
+ 
+ #include "sched.h"
+@@ -10569,7 +10570,9 @@ static inline void mm_cid_transit_to_tas
+ 		unsigned int cid = cpu_cid_to_cid(t->mm_cid.cid);
+ 
+ 		t->mm_cid.cid = cid_to_transit_cid(cid);
++		trace_mmcid_task_update(t, t->mm, t->mm_cid.cid);
+ 		pcp->cid = t->mm_cid.cid;
++		trace_mmcid_cpu_update(task_cpu(t), t->mm, pcp->cid);
+ 	}
+ }
+ 
+@@ -10602,7 +10605,9 @@ static void mm_cid_fixup_cpus_to_tasks(s
+ 			if (!cid_in_transit(cid)) {
+ 				cid = cid_to_transit_cid(cid);
+ 				rq->curr->mm_cid.cid = cid;
++				trace_mmcid_task_update(rq->curr, rq->curr->mm, cid);
+ 				pcp->cid = cid;
++				trace_mmcid_cpu_update(cpu, mm, cid);
+ 			}
+ 		}
+ 	}
+@@ -10613,7 +10618,9 @@ static inline void mm_cid_transit_to_cpu
+ {
+ 	if (cid_on_task(t->mm_cid.cid)) {
+ 		t->mm_cid.cid = cid_to_transit_cid(t->mm_cid.cid);
++		trace_mmcid_task_update(t, t->mm, t->mm_cid.cid);
+ 		pcp->cid = t->mm_cid.cid;
++		trace_mmcid_cpu_update(task_cpu(t), t->mm, pcp->cid);
+ 	}
+ }
+ 
+@@ -10685,6 +10692,7 @@ static bool sched_mm_cid_add_user(struct
+ {
+ 	t->mm_cid.active = 1;
+ 	mm->mm_cid.users++;
++	trace_mmcid_user_add(t, mm);
+ 	return mm_update_max_cids(mm);
+ }
+ 
+@@ -10727,6 +10735,7 @@ void sched_mm_cid_fork(struct task_struc
+ 	} else {
+ 		mm_cid_fixup_cpus_to_tasks(mm);
+ 		t->mm_cid.cid = mm_get_cid(mm);
++		trace_mmcid_task_update(t, t->mm, t->mm_cid.cid);
+ 	}
+ }
+ 
+@@ -10739,6 +10748,7 @@ static bool sched_mm_cid_remove_user(str
+ 		mm_unset_cid_on_task(t);
+ 	}
+ 	t->mm->mm_cid.users--;
++	trace_mmcid_user_del(t, t->mm);
+ 	return mm_update_max_cids(t->mm);
+ }
+ 
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -75,6 +75,7 @@
+ #include <linux/delayacct.h>
+ #include <linux/mmu_context.h>
+ 
++#include <trace/events/mmcid.h>
+ #include <trace/events/power.h>
+ #include <trace/events/sched.h>
+ 
+@@ -3809,6 +3810,7 @@ static __always_inline bool cid_on_task(
+ 
+ static __always_inline void mm_drop_cid(struct mm_struct *mm, unsigned int cid)
+ {
++	trace_mmcid_putcid(mm, cid);
+ 	clear_bit(cid, mm_cidmask(mm));
+ }
+ 
+@@ -3817,6 +3819,7 @@ static __always_inline void mm_unset_cid
+ 	unsigned int cid = t->mm_cid.cid;
+ 
+ 	t->mm_cid.cid = MM_CID_UNSET;
++	trace_mmcid_task_update(t, t->mm, t->mm_cid.cid);
+ 	if (cid_on_task(cid))
+ 		mm_drop_cid(t->mm, cid);
+ }
+@@ -3838,6 +3841,7 @@ static inline unsigned int __mm_get_cid(
+ 		return MM_CID_UNSET;
+ 	if (test_and_set_bit(cid, mm_cidmask(mm)))
+ 		return MM_CID_UNSET;
++	trace_mmcid_getcid(mm, cid);
+ 	return cid;
+ }
+ 
+@@ -3845,9 +3849,17 @@ static inline unsigned int mm_get_cid(st
+ {
+ 	unsigned int cid = __mm_get_cid(mm, READ_ONCE(mm->mm_cid.max_cids));
+ 
+-	while (cid == MM_CID_UNSET) {
+-		cpu_relax();
+-		cid = __mm_get_cid(mm, num_possible_cpus());
++	if (cid == MM_CID_UNSET) {
++		ktime_t t0 = ktime_get();
++
++		while (cid == MM_CID_UNSET) {
++			cpu_relax();
++			cid = __mm_get_cid(mm, num_possible_cpus());
++			if (ktime_get() - t0 > 50 * NSEC_PER_MSEC) {
++				tracing_off();
++				WARN_ON_ONCE(1);
++			}
++		}
+ 	}
+ 	return cid;
+ }
+@@ -3874,6 +3886,7 @@ static inline unsigned int mm_cid_conver
+ static __always_inline void mm_cid_update_task_cid(struct task_struct *t, unsigned int cid)
+ {
+ 	if (t->mm_cid.cid != cid) {
++		trace_mmcid_task_update(t, t->mm, cid);
+ 		t->mm_cid.cid = cid;
+ 		rseq_sched_set_ids_changed(t);
+ 	}
+@@ -3881,6 +3894,7 @@ static __always_inline void mm_cid_updat
+ 
+ static __always_inline void mm_cid_update_pcpu_cid(struct mm_struct *mm, unsigned int cid)
+ {
++	trace_mmcid_cpu_update(smp_processor_id(), mm, cid);
+ 	__this_cpu_write(mm->mm_cid.pcpu->cid, cid);
+ }
+ 
