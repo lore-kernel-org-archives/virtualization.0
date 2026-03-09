@@ -1,383 +1,124 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB9F23093C3;
-	Mon,  9 Mar 2026 08:43:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE5973E47B;
+	Mon,  9 Mar 2026 09:03:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773045832; cv=none; b=AAmuIBCuhISA+E+TDEaikBoadfVqzmIg4/IPNVMHTwswa43TWd6B23wY5mOrDIpqAPY+YsQFeGlXmnHAixEyS1xdk1G4SUeC53LlsZ9Ks7xmddaw9Cjs99liwKYJEw9CL/+f+l9pNg/UcT0RDzCpMxSbj4E5q7XCuXa3zcUDhe0=
+	t=1773047026; cv=none; b=SWR3brc0yBoX4tOHuxuUe1e6PqdUuh96l260Y6oA6oIarvUAMZUVof8o1eflR90B8VbnL/CtB41ayKH9vhd8T+1NLEvGSC4v9VKewZMzV9a7W+TL8BX/r4MSyMjL7jWi21iY4lslsAwhVLGOnb6DebIzAywaw+q+sYFeD7ze85E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773045832; c=relaxed/simple;
-	bh=R0Tj8WHPpvIY04QiJfIurzlhzjfV000u26yyDgGvweo=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=ns9l44uiBiNooKuBXvbOtWpf2QAsUGZLfWOsXnSW9RZcFATx7B8tSsDjWMBv+3IohYv9HaJ6vgtKX7AnUEp276Y1GzTRyw3XFd/xkV8MipYHMlUG4aygOZtVJsXT+amKiPVJpfJ83vCnfhNjQI6ZrZigvWOf4ed1JT58+BbDudY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LvJhrhdh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773047026; c=relaxed/simple;
+	bh=kSDROP9IQjvBUSAyPonTwVkd0K8lsZ7gTLjiEtj28Ko=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZXD1qblP5+E3ZnUdkgNU3KV7IV+HxCKoqEhH6A3HSOHhG2Q/TgLseCBpaCD51ZhseaKWGwILoF8b/U142IHt+gEMwSOJxmaTvbmkRcTwgLgrvHTxeQizR91D7Q6cMva5MoLpKTMP1KlwkKGjaz9nyKwrE7Ht33jZ211NYXBDOjc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RFBfbL1e; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LvJhrhdh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B812EC4CEF7;
-	Mon,  9 Mar 2026 08:43:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RFBfbL1e"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3E98C2BCB1;
+	Mon,  9 Mar 2026 09:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773045832;
-	bh=R0Tj8WHPpvIY04QiJfIurzlhzjfV000u26yyDgGvweo=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=LvJhrhdhbQozIAuWAlqXW3bj0cWo8FxnOWgkdMke7eRZtRR20Tv8o5cECmuZmGYK+
-	 dBqhRaiCqlkEO0AdOUsxXmyF4MqENquSuSHBmz2RU47VGIJdubddTYCV9qRakBnbje
-	 O5unNYzBed62xZ5MFgbrtjoTo28MBcjxmyBaGbRFpwxHRYoVzlpO3sSOS8ggVcqOFq
-	 HbmwYbvG57oSLBYDozAq6nXOliqgesdIs76MP+Pa/lkgzIW3gkLP7SsXzNAn8IT0FP
-	 Rwr0N9MBjMJld+itIy9r6hlCbW/vmJHmxt5o5a088yXOn46IJZ0xMCwU1Mzza1obzD
-	 X5xgE1A2esdCQ==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Matthieu Baerts <matttbe@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Jiri Slaby
- <jirislaby@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano
- Garzarella <sgarzare@redhat.com>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
- rcu@vger.kernel.org, MPTCP Linux <mptcp@lists.linux.dev>, Linux Kernel
- <linux-kernel@vger.kernel.org>, Shinichiro Kawasaki
- <shinichiro.kawasaki@wdc.com>, "Paul E. McKenney" <paulmck@kernel.org>,
- Dave Hansen <dave.hansen@linux.intel.com>, luto@kernel.org, Michal
- =?utf-8?Q?Koutn=C3=BD?=
- <MKoutny@suse.com>, Waiman Long <longman@redhat.com>, Marco Elver
- <elver@google.com>
-Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups,
- RCU stalls, timeout
-In-Reply-To: <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org>
-References: <863a5291-a636-47d0-891c-bb0524d2e134@kernel.org>
- <20260302114636.GL606826@noisy.programming.kicks-ass.net>
- <717310d8-6274-4b7f-8a19-561c45f5f565@kernel.org>
- <a2b573b4-af61-4b84-a7d1-012ed6bb23c9@kernel.org>
- <ba067933-bf3b-476d-a0bb-53eda56996ca@kernel.org> <87zf4m2qvo.ffs@tglx>
- <47cba228-bba7-4e58-a69d-ea41f8de6602@kernel.org> <87tsuu2i59.ffs@tglx>
- <7efde2b5-3b72-4858-9db0-22493d446301@kernel.org> <87qzpx2sck.ffs@tglx>
- <20260306152458.GT606826@noisy.programming.kicks-ass.net>
- <87ldg42eu7.ffs@tglx> <87h5qr2rzi.ffs@tglx> <87eclu3coa.ffs@tglx>
- <87v7f61cnl.ffs@tglx> <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org>
-Date: Mon, 09 Mar 2026 09:43:48 +0100
-Message-ID: <87pl5ds88r.ffs@tglx>
+	s=k20201202; t=1773047026;
+	bh=kSDROP9IQjvBUSAyPonTwVkd0K8lsZ7gTLjiEtj28Ko=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=RFBfbL1eN4cFAmF5H1JfgbhSnAUKt069jyxJtD6j98AZOuEhgvvTlHkHniae5dGvN
+	 /QPZvCjn2IuAfw/q0YF0SGcs50q2FJj1eK2RhpwgpNwUNfFaYUdBbW0I0m1wHir3Lt
+	 M8s6XKTl+UCfp0nYfFnIxKKgM6CpnElK7TDMDSlWjx69g1GxtepXLquAZsbkk1kzTp
+	 pDljsgSteA22r7FtTxpnrVzlG9bsl4+TnTh78EkVdCuuuM3F5w00GWOU1rZrTw7nkY
+	 50kOUyofYTO/xOdkuR+rv3w2eTw0IISvUTO7zxdAFYYRZijowOtm4fGc2G3K3cD3Ec
+	 CLm7coZ05l3OA==
+Date: Mon, 9 Mar 2026 11:03:42 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Jason Gunthorpe <jgg@ziepe.ca>,
+	Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Robin Murphy <robin.murphy@arm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-rdma@vger.kernel.org
+Subject: Re: [PATCH 2/3] dma-mapping: Clarify valid conditions for CPU cache
+ line overlap
+Message-ID: <20260309090342.GS12611@unreal>
+References: <20260307-dma-debug-overlap-v1-0-c034c38872af@nvidia.com>
+ <20260307-dma-debug-overlap-v1-2-c034c38872af@nvidia.com>
+ <20260308181920.GH1687929@ziepe.ca>
+ <20260308184902.GR12611@unreal>
+ <20260308230916.GI1687929@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260308230916.GI1687929@ziepe.ca>
 
-On Sun, Mar 08 2026 at 18:23, Matthieu Baerts wrote:
-> 08 Mar 2026 17:58:26 Thomas Gleixner <tglx@kernel.org>:
->> So I'm back to square one. I go and do what I should have done in the
->> first place. Write a debug patch with trace_printks and let the people
->> who can actually trigger the problem run with it.
->
-> Happy to test such debug patches!
+On Sun, Mar 08, 2026 at 08:09:16PM -0300, Jason Gunthorpe wrote:
+> On Sun, Mar 08, 2026 at 08:49:02PM +0200, Leon Romanovsky wrote:
+> > On Sun, Mar 08, 2026 at 03:19:20PM -0300, Jason Gunthorpe wrote:
+> > > On Sat, Mar 07, 2026 at 06:49:56PM +0200, Leon Romanovsky wrote:
+> > > 
+> > > > -This attribute indicates the CPU will not dirty any cacheline overlapping this
+> > > > -DMA_FROM_DEVICE/DMA_BIDIRECTIONAL buffer while it is mapped. This allows
+> > > > -multiple small buffers to safely share a cacheline without risk of data
+> > > > -corruption, suppressing DMA debug warnings about overlapping mappings.
+> > > > -All mappings sharing a cacheline should have this attribute.
+> > > > +DMA_ATTR_CPU_CACHE_OVERLAP
+> > > 
+> > > This is a very specific and well defined use case that allows some cache
+> > > flushing behaviors to work only under the promise that the CPU doesn't
+> > > touch the memory to cause cache inconsistencies.
+> > > 
+> > > > +Another valid use case is on systems that are CPU-coherent and do not use
+> > > > +SWIOTLB, where the caller can guarantee that no cache maintenance operations
+> > > > +(such as flushes) will be performed that could overwrite shared cache lines.
+> > > 
+> > > This is something completely unrelated. 
+> > 
+> > I disagree. The situation is equivalent in that callers guarantee the
+> > CPU cache will not be overwritten.
+> 
+> The RDMA callers do no such thing, they just don't work at all if
+> there is non-coherence in the mapping which is why it is not a bug.
+> 
+> virtio looks like it does actually keep the caches clean for different
+> mappings (and probably also in practice forced coherent as well given
+> qemu is coherent with the VM and VFIO doesn't allow non-coherent DMA
+> devices)
+> 
+> > > What I would really like is a new DMA_ATTR_REQUIRE_COHERENT which
+> > > fails any mappings requests that would use any SWIOTLB or cache
+> > > flushing.
+> > 
+> > You are proposing something orthogonal that operates at a different layer
+> > (DMA mapping). However, for DMA debugging, your new attribute will be
+> > equivalent to DMA_ATTR_CPU_CACHE_OVERLAP.
+> 
+> DMA_ATTR is a dma mapping flag, if you want some weird dma debugging
+> flag it should be called DMA_ATTR_DEBUGGING_IGNORE_CACHELINES with
+> some kind of statement at the user why it is OK.
 
-See below.
+And this is the issue: the existing DMA_ATTR_CPU_CACHE_CLEAN is essentially
+a debug-oriented attribute. The upper layers are already handled through
+__dma_from_device_group_begin()/end(), which pad cache lines on
+non-coherent systems.
 
-Enable the tracepoints either on the kernel command line:
+Marek,
 
-    trace_event=sched_switch,mmcid:*
+What do you see as the right path forward here? RDMA has a legitimate use
+case where CPU cache lines may overlap. The underlying reason differs from
+VirtIO, but the outcome is the same. Should I keep the current name? Should
+we rename it to the proposed DMA_ATTR_CPU_CACHE_OVERLAP or
+DMA_ATTR_DEBUGGING_IGNORE_CACHELINES? Should we introduce a new
+DMA_ATTR_REQUIRE_COHERENT attribute instead? Or do you have another
+recommendation?
 
-or before starting the test case:
+Thanks
 
-    echo 1 >/sys/kernel/tracing/events/sched/sched_switch/enable
-    echo 1 >/sys/kernel/tracing/events/mmcid/enable
-
-I added a 50ms timeout into mm_cid_get() which freezes the trace and
-emits a warning. If you enable panic_on_warn and ftrace_dump_on_oops,
-then it dumps the trace buffer once it hits the warning.
-
-Either kernel command line:
-
-   panic_on_warn ftrace_dump_on_oops
-
-or
-
-  echo 1 >/proc/sys/kernel/panic_on_warn
-  echo 1 >/proc/sys/kernel/ftrace_dump_on_oops
-
-That should provide enough information to decode this mystery.
-
-Thanks,
-
-        tglx
----
- include/trace/events/mmcid.h |  138 +++++++++++++++++++++++++++++++++++++++++++
- kernel/sched/core.c          |   10 +++
- kernel/sched/sched.h         |   20 +++++-
- 3 files changed, 165 insertions(+), 3 deletions(-)
-
---- /dev/null
-+++ b/include/trace/events/mmcid.h
-@@ -0,0 +1,138 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#undef TRACE_SYSTEM
-+#define TRACE_SYSTEM mmcid
-+
-+#if !defined(_TRACE_MMCID_H) || defined(TRACE_HEADER_MULTI_READ)
-+#define _TRACE_MMCID_H
-+
-+#include <linux/sched.h>
-+#include <linux/tracepoint.h>
-+
-+DECLARE_EVENT_CLASS(mmcid_class,
-+
-+	TP_PROTO(struct mm_struct *mm, unsigned int cid),
-+
-+	TP_ARGS(mm, cid),
-+
-+	TP_STRUCT__entry(
-+		__field( void *,	mm	)
-+		__field( unsigned int,	cid	)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->mm	= mm;
-+		__entry->cid	= cid;
-+	),
-+
-+	TP_printk("mm=%p cid=%08x", __entry->mm, __entry->cid)
-+);
-+
-+DEFINE_EVENT(mmcid_class, mmcid_getcid,
-+
-+	TP_PROTO(struct mm_struct *mm, unsigned int cid),
-+
-+	TP_ARGS(mm, cid)
-+);
-+
-+DEFINE_EVENT(mmcid_class, mmcid_putcid,
-+
-+	TP_PROTO(struct mm_struct *mm, unsigned int cid),
-+
-+	TP_ARGS(mm, cid)
-+);
-+
-+DECLARE_EVENT_CLASS(mmcid_task_class,
-+
-+	TP_PROTO(struct task_struct *t, struct mm_struct *mm, unsigned int cid),
-+
-+	TP_ARGS(t, mm, cid),
-+
-+	TP_STRUCT__entry(
-+		__field( void *,	t	)
-+		__field( void *,	mm	)
-+		__field( unsigned int,	cid	)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->t	= t;
-+		__entry->mm	= mm;
-+		__entry->cid	= cid;
-+	),
-+
-+	TP_printk("t=%p mm=%p cid=%08x", __entry->t, __entry->mm, __entry->cid)
-+);
-+
-+DEFINE_EVENT(mmcid_task_class, mmcid_task_update,
-+
-+	TP_PROTO(struct task_struct *t, struct mm_struct *mm, unsigned int cid),
-+
-+	TP_ARGS(t, mm, cid)
-+);
-+
-+DECLARE_EVENT_CLASS(mmcid_cpu_class,
-+
-+	TP_PROTO(unsigned int cpu, struct mm_struct *mm, unsigned int cid),
-+
-+	TP_ARGS(cpu, mm, cid),
-+
-+	TP_STRUCT__entry(
-+		__field( unsigned int,	cpu	)
-+		__field( void *,	mm	)
-+		__field( unsigned int,	cid	)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->cpu	= cpu;
-+		__entry->mm	= mm;
-+		__entry->cid	= cid;
-+	),
-+
-+	TP_printk("cpu=%u mm=%p cid=%08x", __entry->cpu, __entry->mm, __entry->cid)
-+);
-+
-+DEFINE_EVENT(mmcid_cpu_class, mmcid_cpu_update,
-+
-+	TP_PROTO(unsigned int cpu, struct mm_struct *mm, unsigned int cid),
-+
-+	TP_ARGS(cpu, mm, cid)
-+);
-+
-+DECLARE_EVENT_CLASS(mmcid_user_class,
-+
-+	TP_PROTO(struct task_struct *t, struct mm_struct *mm),
-+
-+	TP_ARGS(t, mm),
-+
-+	TP_STRUCT__entry(
-+		__field( void *,	t	)
-+		__field( void *,	mm	)
-+		__field( unsigned int,	users	)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->t	= t;
-+		__entry->mm	= mm;
-+		__entry->users	= mm->mm_cid.users;
-+	),
-+
-+	TP_printk("t=%p mm=%p users=%u", __entry->t, __entry->mm, __entry->users)
-+);
-+
-+DEFINE_EVENT(mmcid_user_class, mmcid_user_add,
-+
-+	TP_PROTO(struct task_struct *t, struct mm_struct *mm),
-+
-+	TP_ARGS(t, mm)
-+);
-+
-+DEFINE_EVENT(mmcid_user_class, mmcid_user_del,
-+
-+	TP_PROTO(struct task_struct *t, struct mm_struct *mm),
-+
-+	     TP_ARGS(t, mm)
-+);
-+
-+#endif
-+
-+/* This part must be outside protection */
-+#include <trace/define_trace.h>
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -86,6 +86,7 @@
- #include <linux/sched/rseq_api.h>
- #include <trace/events/sched.h>
- #include <trace/events/ipi.h>
-+#include <trace/events/mmcid.h>
- #undef CREATE_TRACE_POINTS
- 
- #include "sched.h"
-@@ -10569,7 +10570,9 @@ static inline void mm_cid_transit_to_tas
- 		unsigned int cid = cpu_cid_to_cid(t->mm_cid.cid);
- 
- 		t->mm_cid.cid = cid_to_transit_cid(cid);
-+		trace_mmcid_task_update(t, t->mm, t->mm_cid.cid);
- 		pcp->cid = t->mm_cid.cid;
-+		trace_mmcid_cpu_update(task_cpu(t), t->mm, pcp->cid);
- 	}
- }
- 
-@@ -10602,7 +10605,9 @@ static void mm_cid_fixup_cpus_to_tasks(s
- 			if (!cid_in_transit(cid)) {
- 				cid = cid_to_transit_cid(cid);
- 				rq->curr->mm_cid.cid = cid;
-+				trace_mmcid_task_update(rq->curr, rq->curr->mm, cid);
- 				pcp->cid = cid;
-+				trace_mmcid_cpu_update(cpu, mm, cid);
- 			}
- 		}
- 	}
-@@ -10613,7 +10618,9 @@ static inline void mm_cid_transit_to_cpu
- {
- 	if (cid_on_task(t->mm_cid.cid)) {
- 		t->mm_cid.cid = cid_to_transit_cid(t->mm_cid.cid);
-+		trace_mmcid_task_update(t, t->mm, t->mm_cid.cid);
- 		pcp->cid = t->mm_cid.cid;
-+		trace_mmcid_cpu_update(task_cpu(t), t->mm, pcp->cid);
- 	}
- }
- 
-@@ -10685,6 +10692,7 @@ static bool sched_mm_cid_add_user(struct
- {
- 	t->mm_cid.active = 1;
- 	mm->mm_cid.users++;
-+	trace_mmcid_user_add(t, mm);
- 	return mm_update_max_cids(mm);
- }
- 
-@@ -10727,6 +10735,7 @@ void sched_mm_cid_fork(struct task_struc
- 	} else {
- 		mm_cid_fixup_cpus_to_tasks(mm);
- 		t->mm_cid.cid = mm_get_cid(mm);
-+		trace_mmcid_task_update(t, t->mm, t->mm_cid.cid);
- 	}
- }
- 
-@@ -10739,6 +10748,7 @@ static bool sched_mm_cid_remove_user(str
- 		mm_unset_cid_on_task(t);
- 	}
- 	t->mm->mm_cid.users--;
-+	trace_mmcid_user_del(t, t->mm);
- 	return mm_update_max_cids(t->mm);
- }
- 
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -75,6 +75,7 @@
- #include <linux/delayacct.h>
- #include <linux/mmu_context.h>
- 
-+#include <trace/events/mmcid.h>
- #include <trace/events/power.h>
- #include <trace/events/sched.h>
- 
-@@ -3809,6 +3810,7 @@ static __always_inline bool cid_on_task(
- 
- static __always_inline void mm_drop_cid(struct mm_struct *mm, unsigned int cid)
- {
-+	trace_mmcid_putcid(mm, cid);
- 	clear_bit(cid, mm_cidmask(mm));
- }
- 
-@@ -3817,6 +3819,7 @@ static __always_inline void mm_unset_cid
- 	unsigned int cid = t->mm_cid.cid;
- 
- 	t->mm_cid.cid = MM_CID_UNSET;
-+	trace_mmcid_task_update(t, t->mm, t->mm_cid.cid);
- 	if (cid_on_task(cid))
- 		mm_drop_cid(t->mm, cid);
- }
-@@ -3838,6 +3841,7 @@ static inline unsigned int __mm_get_cid(
- 		return MM_CID_UNSET;
- 	if (test_and_set_bit(cid, mm_cidmask(mm)))
- 		return MM_CID_UNSET;
-+	trace_mmcid_getcid(mm, cid);
- 	return cid;
- }
- 
-@@ -3845,9 +3849,17 @@ static inline unsigned int mm_get_cid(st
- {
- 	unsigned int cid = __mm_get_cid(mm, READ_ONCE(mm->mm_cid.max_cids));
- 
--	while (cid == MM_CID_UNSET) {
--		cpu_relax();
--		cid = __mm_get_cid(mm, num_possible_cpus());
-+	if (cid == MM_CID_UNSET) {
-+		ktime_t t0 = ktime_get();
-+
-+		while (cid == MM_CID_UNSET) {
-+			cpu_relax();
-+			cid = __mm_get_cid(mm, num_possible_cpus());
-+			if (ktime_get() - t0 > 50 * NSEC_PER_MSEC) {
-+				tracing_off();
-+				WARN_ON_ONCE(1);
-+			}
-+		}
- 	}
- 	return cid;
- }
-@@ -3874,6 +3886,7 @@ static inline unsigned int mm_cid_conver
- static __always_inline void mm_cid_update_task_cid(struct task_struct *t, unsigned int cid)
- {
- 	if (t->mm_cid.cid != cid) {
-+		trace_mmcid_task_update(t, t->mm, cid);
- 		t->mm_cid.cid = cid;
- 		rseq_sched_set_ids_changed(t);
- 	}
-@@ -3881,6 +3894,7 @@ static __always_inline void mm_cid_updat
- 
- static __always_inline void mm_cid_update_pcpu_cid(struct mm_struct *mm, unsigned int cid)
- {
-+	trace_mmcid_cpu_update(smp_processor_id(), mm, cid);
- 	__this_cpu_write(mm->mm_cid.pcpu->cid, cid);
- }
- 
+> 
+> Jason
