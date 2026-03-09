@@ -1,76 +1,72 @@
-Received: from out-170.mta1.migadu.com (out-170.mta1.migadu.com [95.215.58.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5294A1FC7FB
-	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 02:08:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98B73175A63
+	for <virtualization@lists.linux.dev>; Mon,  9 Mar 2026 02:37:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773022088; cv=none; b=K89DFqIAMB4aPloWbkU2AcgM/DujKTfxJcSdhTZc3HLDc3ie7Aj1BUbQVhhqKzYWIX1oYZay9EDA4hNmZX4jy3Zg1I4HY//T9UKWUxDFrSR/O/+pSrW5QmHVcbJi9eY3crm2MNDQyzVFrKbsjSyWjzaapDlSI/UPYe7Km7Aepj8=
+	t=1773023841; cv=none; b=MmgAPXCD4COYoamcjrGYJl/um8fV7GMRau6zgQ+3Ry1yiOLpNd7n2P2V3uc2N4Aasn57/7Xoj+OF87cp6ktxw3of7wyvU/nk/6Dc5CvZ+9+Yud44L+DdXrzM9yjy673PXM3S6cKObMNvJsfSnF9xEzog5PxHj45YJEs36rGUIzQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773022088; c=relaxed/simple;
-	bh=ZR90e5K53gOxxa+behLy7mdghiYB5g01Qsg1VLXFRFE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pGVv5cEt/l09XtDYsPodItvgysBEMvbSyyFHqcdbhQlV0TK6PPOhf8iarO4Zx1wHi1BpnJYvEhDcBO4tC+Yw6e4+3i7X6rTVnJcQ4qShvyitZtWXKOCAMIZxOaj9/y7BrbQFnM7ynV+RLSIWahkZD0T0Lf4yJaSlOiU2tkfc7BM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=OPBlw3bs; arc=none smtp.client-ip=95.215.58.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773023841; c=relaxed/simple;
+	bh=+1UZMO/aE/eI5LAevtVrXz4Qhcrg8GjpwhgRa7j2f0Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MH0TJESZQ5SH6Zga8YvPK+nQspwZZBFUYaQGi1uJ11Pq7moq7MB0zpbPWvLinr/Hw/ZVzVoabZUvEDSpNp7dJ7t64hmpU0zbcdYpiB2HsVtvhBM+f7WZ6OLO36XMi+bq3oR4/0EqOj/NYT8r1TnZXiczZFDhvcKhc1Farw3tBus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SHJpJjwE; arc=none smtp.client-ip=209.85.215.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="OPBlw3bs"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773022084;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jRrnNQfohi2smOuuXp+6eVAaybcvsU0A5HfE+uuiZn8=;
-	b=OPBlw3bshdShj+LXx1jxf/i2sidyMs6K6INVu1Eqq69zxGcgpHB0ot3trKQIKuJYqYuDy5
-	ehFk/TYtADr5xYatCpUPN2uup5u1nXZixCunYhTa48RdE6Gt9gC5kkOk40vh19xVbehXM5
-	dK+HBRY90Wr2TpYlX4ERA2ynUvzhrxY=
-From: Lance Yang <lance.yang@linux.dev>
-To: akpm@linux-foundation.org
-Cc: peterz@infradead.org,
-	david@kernel.org,
-	dave.hansen@intel.com,
-	dave.hansen@linux.intel.com,
-	ypodemsk@redhat.com,
-	hughd@google.com,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	x86@kernel.org,
-	hpa@zytor.com,
-	arnd@arndb.de,
-	lorenzo.stoakes@oracle.com,
-	ziy@nvidia.com,
-	baolin.wang@linux.alibaba.com,
-	Liam.Howlett@oracle.com,
-	npache@redhat.com,
-	ryan.roberts@arm.com,
-	dev.jain@arm.com,
-	baohua@kernel.org,
-	shy828301@gmail.com,
-	riel@surriel.com,
-	jannh@google.com,
-	jgross@suse.com,
-	seanjc@google.com,
-	pbonzini@redhat.com,
-	boris.ostrovsky@oracle.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	ioworker0@gmail.com,
-	Lance Yang <lance.yang@linux.dev>
-Subject: [PATCH v7 2/2] x86/tlb: skip redundant sync IPIs for native TLB flush
-Date: Mon,  9 Mar 2026 10:07:11 +0800
-Message-ID: <20260309020711.20831-3-lance.yang@linux.dev>
-In-Reply-To: <20260309020711.20831-1-lance.yang@linux.dev>
-References: <20260309020711.20831-1-lance.yang@linux.dev>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SHJpJjwE"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c736261ee8dso2543444a12.1
+        for <virtualization@lists.linux.dev>; Sun, 08 Mar 2026 19:37:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773023840; x=1773628640; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=G0ssvXDM+adMhEQm37I24yReQK8B//4NTlRkvkcGiMI=;
+        b=SHJpJjwEMRKAowV82Lxd2u4FPQTVXqckkdn5scgwibu2LxXAq2sPDUUgiLvqPcaYkx
+         vkgphKBrH4IiJ+/3K0BuSmh0C2L/6qUaERXqcXMd1qe6zJJa2e1AKtXJBw/9EjC3acDm
+         uQrQkB5lMudsoTPd3Xl32YHBOiv58mDE411c1XWXJprMOsTZ9OvvXV3JIar9lxAGkazy
+         c66sVDdoObW6dOMN4QrlluLoKmXbtgn1C+6Nk1fBgXvGJLDC0KAcoN3e5l3pmRLaoMWU
+         ZrP0qWMNlm5CInP7M+9cBt0vzmjtzlRi0j2jhIqm3cS7nzPDDUq8r2QvYP/FaWeir9g9
+         LqjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773023840; x=1773628640;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=G0ssvXDM+adMhEQm37I24yReQK8B//4NTlRkvkcGiMI=;
+        b=B86cQS0hHvAmxDAeaErTqivHaA36AJUKeSqaQHiRmkNSUpPSl2ZYCSIjVuTZ5UaFVS
+         KVS/+UfIuPsdYloavsjCPvewjmx6iSmoXqyWCw/RoNV4mlZu/TlYgFDjopWnXkzsXmOa
+         gjW2vHjfB83mCewTK+38vgnJnkJiR8RC+v3ME2wEuLPZ/kcyxpqsWF1vxKQxU3YV79oW
+         n2Wll1xMIRznCW6hRImJC9fStB3K2ckp6RVmJHetp4Pu87/KS52kzCWppEcOQBKtMToG
+         1FDlPhFdRKLIX9X97VRCmDFsz0gOQiUVg0dbMeXr9sfmk9XaYXTvlyy7pMVkHO2lhFuP
+         OE/Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVvs9ro5kFqSwPAfAMbyW8gDYvM3hPFZ9MMX9HAcgfEF6Kzfc+d4KxZ2MtGA/ifInfUpm7JxGoOnrbW4PbDKA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxl++qRR5kLALPOe2FI2nXszQKXUoChPSCmYzLU2VqVolf3rJe9
+	CtiKUnF03l9Q9BOQr7Z4X8gg/BLqC7ZaLvAZc1oBk4JuVDSUnrQuzmCT
+X-Gm-Gg: ATEYQzyS7eQDZDbOQ/Q2O9c5faiXVmwq4TepNDD059hp0edfBjzWFBuLtdpVFboqoRN
+	mSBGlQ2uAjmgJb3hOd5MR8V9+mSoZgUz766dwje+WG3t0i5RoEvymXd7INj07R0tNRyG434niCz
+	W09fnrUrvFUePJomNuIdYUCQu1UeqGRqMSRmo9TJIFeGmc7rEtzNGvvrzbXby9k5cXKlk8owya+
+	hmAUzGot/n8uN8w9lIf92YuWlYhqokQUFdQ52WushwVxgFzuDHiluJLgppQKdKOyDCnM4QAhTQV
+	i3p5BAvvRz50xV26OrYRXBvzAnR07iGO92a5lT13rTM2DvvjY5cUOG/ErMiisVlMQn2U0LEaJco
+	bhEh3YZeticZb1DZIeei2VQp1flxclFhKktF5imtpxsGtdaGeQaEHoKKsqz15su5ysq+Jt8Jk5c
+	U/Q5otAeHKzGeN8bxsd36LLj37uPjaZAz4HBy+u7jUx/Y42Yjo3+lAMWlSk2OCfI4=
+X-Received: by 2002:a17:90b:2ccb:b0:355:35b0:8b83 with SMTP id 98e67ed59e1d1-359be38ffdemr8097666a91.33.1773023839894;
+        Sun, 08 Mar 2026 19:37:19 -0700 (PDT)
+Received: from ywashizu-z4g4.kern.oss.ntt.co.jp ([222.151.198.97])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359bcbb13b7sm3485485a91.10.2026.03.08.19.37.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 Mar 2026 19:37:19 -0700 (PDT)
+From: Yui Washizu <yui.washidu@gmail.com>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com
+Cc: Yui Washizu <yui.washidu@gmail.com>,
+	virtualization@lists.linux.dev
+Subject: [PATCH] virtio: add num_vf callback to virtio_bus
+Date: Mon,  9 Mar 2026 11:33:51 +0900
+Message-ID: <20260309023353.652650-1-yui.washidu@gmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -78,145 +74,57 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-From: Lance Yang <lance.yang@linux.dev>
+Recent QEMU versions added support for virtio SR-IOV emulation,
+allowing virtio devices to expose SR-IOV VFs to the guest.
+However, virtio_bus does not implement the num_vf callback of bus_type,
+causing dev_num_vf() to return 0 for virtio devices even when
+SR-IOV VFs are active.
 
-Enable the optimization introduced in the previous patch for x86.
+net/core/rtnetlink.c calls dev_num_vf(dev->dev.parent) to populate
+IFLA_NUM_VF and IFLA_VFINFO_LIST in RTM_GETLINK responses.  For a
+virtio-net device, dev.parent points to the virtio_device, whose bus
+is virtio_bus.  Without num_vf, SR-IOV VF information is silently
+omitted from tools that rely on rtnetlink, such as 'ip link show'.
 
-native_pv_tlb_init() checks whether native_flush_tlb_multi() is in use.
-On CONFIG_PARAVIRT systems, it checks pv_ops; on non-PARAVIRT, native
-flush is always in use.
+Add a num_vf callback that delegates to dev_num_vf(dev->parent),
+which in turn reaches the underlying transport (pci_bus_type for
+virtio-pci) where the actual VF count is tracked.  Non-PCI transports
+are unaffected as dev_num_vf() returns 0 when no num_vf callback is
+present.
 
-It decides once at boot whether to enable the optimization: if using
-native TLB flush and INVLPGB is not supported, we know IPIs were sent
-and can skip the redundant sync. The decision is fixed via a static
-key as Peter suggested[1].
-
-PV backends (KVM, Xen, Hyper-V) typically have their own implementations
-and don't call native_flush_tlb_multi() directly, so they cannot be trusted
-to provide the IPI guarantees we need.
-
-Two-step plan as David suggested[2]:
-
-Step 1 (this patch): Skip redundant sync when we're 100% certain the TLB
-flush sent IPIs. INVLPGB is excluded because when supported, we cannot
-guarantee IPIs were sent, keeping it clean and simple.
-
-Step 2 (future work): Send targeted IPIs only to CPUs actually doing
-software/lockless page table walks, benefiting all architectures.
-
-Regarding Step 2, it obviously only applies to setups where Step 1 does
-not apply: like x86 with INVLPGB or arm64.
-
-[1] https://lore.kernel.org/linux-mm/20260302145652.GH1395266@noisy.programming.kicks-ass.net/
-[2] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
-
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
-Signed-off-by: Lance Yang <lance.yang@linux.dev>
+Signed-off-by: Yui Washizu <yui.washidu@gmail.com>
 ---
- arch/x86/include/asm/tlb.h      | 17 ++++++++++++++++-
- arch/x86/include/asm/tlbflush.h |  2 ++
- arch/x86/kernel/smpboot.c       |  1 +
- arch/x86/mm/tlb.c               | 15 +++++++++++++++
- 4 files changed, 34 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
-index 866ea78ba156..99de622d3856 100644
---- a/arch/x86/include/asm/tlb.h
-+++ b/arch/x86/include/asm/tlb.h
-@@ -5,11 +5,21 @@
- #define tlb_flush tlb_flush
- static inline void tlb_flush(struct mmu_gather *tlb);
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 5bdc6b82b30b..299fa83be1d5 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -435,6 +435,14 @@ static void virtio_dev_shutdown(struct device *_d)
+ 	dev->config->reset(dev);
+ }
  
-+#define tlb_table_flush_implies_ipi_broadcast tlb_table_flush_implies_ipi_broadcast
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void);
-+
- #include <asm-generic/tlb.h>
- #include <linux/kernel.h>
- #include <vdso/bits.h>
- #include <vdso/page.h>
- 
-+DECLARE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
-+
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void)
++static int virtio_dev_num_vf(struct device *dev)
 +{
-+	return static_branch_likely(&tlb_ipi_broadcast_key);
++	struct virtio_device *vdev = dev_to_virtio(dev);
++
++	return dev_num_vf(vdev->dev.parent);
 +}
 +
- static inline void tlb_flush(struct mmu_gather *tlb)
- {
- 	unsigned long start = 0UL, end = TLB_FLUSH_ALL;
-@@ -20,7 +30,12 @@ static inline void tlb_flush(struct mmu_gather *tlb)
- 		end = tlb->end;
- 	}
- 
--	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
-+	/*
-+	 * Pass both freed_tables and unshared_tables so that lazy-TLB CPUs
-+	 * also receive IPIs during unsharing page tables.
-+	 */
-+	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
-+			   tlb->freed_tables || tlb->unshared_tables);
- }
- 
- static inline void invlpg(unsigned long addr)
-diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-index 5a3cdc439e38..8ba853154b46 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -18,6 +18,8 @@
- 
- DECLARE_PER_CPU(u64, tlbstate_untag_mask);
- 
-+void __init native_pv_tlb_init(void);
 +
- void __flush_tlb_all(void);
+ static const struct bus_type virtio_bus = {
+ 	.name  = "virtio",
+ 	.match = virtio_dev_match,
+@@ -444,6 +452,7 @@ static const struct bus_type virtio_bus = {
+ 	.remove = virtio_dev_remove,
+ 	.irq_get_affinity = virtio_irq_get_affinity,
+ 	.shutdown = virtio_dev_shutdown,
++	.num_vf = virtio_dev_num_vf,
+ };
  
- #define TLB_FLUSH_ALL	-1UL
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 5cd6950ab672..3cdb04162843 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1167,6 +1167,7 @@ void __init native_smp_prepare_boot_cpu(void)
- 		switch_gdt_and_percpu_base(me);
- 
- 	native_pv_lock_init();
-+	native_pv_tlb_init();
- }
- 
- void __init native_smp_cpus_done(unsigned int max_cpus)
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 621e09d049cb..8f5585ebaf09 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -26,6 +26,8 @@
- 
- #include "mm_internal.h"
- 
-+DEFINE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
-+
- #ifdef CONFIG_PARAVIRT
- # define STATIC_NOPV
- #else
-@@ -1834,3 +1836,16 @@ static int __init create_tlb_single_page_flush_ceiling(void)
- 	return 0;
- }
- late_initcall(create_tlb_single_page_flush_ceiling);
-+
-+void __init native_pv_tlb_init(void)
-+{
-+#ifdef CONFIG_PARAVIRT
-+	if (pv_ops.mmu.flush_tlb_multi != native_flush_tlb_multi)
-+		return;
-+#endif
-+
-+	if (cpu_feature_enabled(X86_FEATURE_INVLPGB))
-+		return;
-+
-+	static_branch_enable(&tlb_ipi_broadcast_key);
-+}
+ int __register_virtio_driver(struct virtio_driver *driver, struct module *owner)
 -- 
-2.49.0
+2.47.3
 
