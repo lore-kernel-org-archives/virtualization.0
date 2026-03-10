@@ -1,144 +1,141 @@
-Received: from pdx-out-008.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-008.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.42.203.116])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70AC03806C1
-	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 11:07:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.42.203.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCFA8387343;
+	Tue, 10 Mar 2026 11:24:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773140861; cv=none; b=AQYuiD3uNzaS9XNSKXvI2DIjrS6jxer/Dwv6iW3kiWciZsyxYCGSy/KLVbzuBCpnPes3RzUEjQsTIt1VVxeh8q6fsAZbtIWpA+ecLSaAd0wzm0gG3QEYW/spp7th2aRFdbbpmJDfg7dbvmWadpUyWAcnIxSk43QlgOoh/Mhhn/8=
+	t=1773141850; cv=none; b=glNg8H3J0CGa1KYYywjEMpBnfB1XhNlPtHjK322Kedquf4M98kfp0NjiJYSc+N3hDcPVqlNvK7Jw47BfDEZhQ2//Ujfx7DS6NJHTFJobz0n6yjflOZrbjtpY8ctmZsJ54x1lyBnSF/PXT91Lc9vEZnCToMKKj0Fuw5nKDBGgrBA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773140861; c=relaxed/simple;
-	bh=pLArxNf9/4MXpQ5+ElSNDUiKKfXBjfNaMPEiUl84KKI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=CbJFCzQkLvY/Vyl2njKw7Rnb8BKumlVRdp737/KTV2zUhk2fgV8kyyH0AUFMIO5LDdF4XjZg5Z+kTHvWX1Y/F/RDBVYLiLGXhkFFLa6WaY2VYc3OvABTDDfFK+Ycx0tS9hWfeGcM6qu7Swwk2Xq4MSfS9B71fDHIYMxGgrX7aJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=eRXd1+ST; arc=none smtp.client-ip=52.42.203.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+	s=arc-20240116; t=1773141850; c=relaxed/simple;
+	bh=U5+O6eb/a/OOX6fvPyffxWd4zi4YXOFBkLe1u2WC2+s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NxKVp9Eg9+OBacfF307yFDTK1LYyLVtUa5koT5pryQmmEyYuq7YZVSc8DutT05EHb75LiUd5jMmR0N/kkOaxsaAQAZ30PAmvMiiElYILt17qhI6XHD1l12XxtRv9JRTSUA6dKqwAMe2eqwRe3MqLYXg145EDiydHBvTK2igHqTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RH9zcyrJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="eRXd1+ST"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1773140860; x=1804676860;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=pLArxNf9/4MXpQ5+ElSNDUiKKfXBjfNaMPEiUl84KKI=;
-  b=eRXd1+STZ5k59cLB5o1+Dc951TJy0yePX6dzQnY/XI2BCcezKm12auGf
-   AIOGqkvN241D3y5ghpjruWLLqp7zX16kAnpYnGHQJXLjy+NntBb3+N+JI
-   L6m/GoagDnZNkH0m27+2QKg0YyR/vs+ha3izVhCT2N/SRlDKrm1owk9e1
-   w/n/oudxAEfghBPV8CCRgIngz/HZxPcVZIbk0XzD9hByFHbGrNmL8M7gb
-   s7FZ6wVRrODkKwuEgWUwpe5B/vHYuWZuMHRLFbxL/9MhcvfZrh3trPkMf
-   jM9ixbWC+fB0p/X7NRvhq9WYEVG5Vdsm5ddnmDHrQtCSsWsg75U06EIht
-   w==;
-X-CSE-ConnectionGUID: FqRddif1QKWeHiPdIPpCnQ==
-X-CSE-MsgGUID: oMiUQHQCQaeLSvv9w3uicQ==
-X-IronPort-AV: E=Sophos;i="6.23,112,1770595200"; 
-   d="scan'208";a="14700786"
-Received: from ip-10-5-6-203.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.6.203])
-  by internal-pdx-out-008.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2026 11:07:37 +0000
-Received: from EX19MTAUWA001.ant.amazon.com [205.251.233.182:2123]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.31.3:2525] with esmtp (Farcaster)
- id 9969de31-71d8-490a-bcac-5948bb110c2c; Tue, 10 Mar 2026 11:07:37 +0000 (UTC)
-X-Farcaster-Flow-ID: 9969de31-71d8-490a-bcac-5948bb110c2c
-Received: from EX19D020UWC004.ant.amazon.com (10.13.138.149) by
- EX19MTAUWA001.ant.amazon.com (10.250.64.204) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
- Tue, 10 Mar 2026 11:07:37 +0000
-Received: from [0.0.0.0] (172.19.99.218) by EX19D020UWC004.ant.amazon.com
- (10.13.138.149) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Tue, 10 Mar 2026
- 11:07:32 +0000
-Message-ID: <79351c96-3b8c-4ebb-82c7-7f18ac88bd68@amazon.com>
-Date: Tue, 10 Mar 2026 12:07:30 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RH9zcyrJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58195C2BC86;
+	Tue, 10 Mar 2026 11:24:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773141850;
+	bh=U5+O6eb/a/OOX6fvPyffxWd4zi4YXOFBkLe1u2WC2+s=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=RH9zcyrJ2JDGdkmy8/GQ01j+DnKslHM6yRx4sWhVUA+pBVRBAsRoYi/Fdcv0ERfav
+	 X+9ZTPpR+H9251Em/rFrTQc+BFA7aATqGW+py5/PXNqoElZ+3ZdcIfA16LVRMn0b+p
+	 0gkO1EoEXz93nNtfXB6rPv8h6z7g8wwxJ5s3EdV8P75rlQN2NtMDtR8UXk1/wzc9ZU
+	 X1bXh5P6LEVAqpLv/80iBLKM38+UzoZsOO2PH4+tmExCrG7vZt1/SSM8dSrS711uZ4
+	 BkWiUvXVXUcdqxdHEP6evhRUvF7kLQllBbuKoLQaQFNJ6z6ne1B+R7k28gnnLtLOHO
+	 uVgU5Zaf5gzGQ==
+Message-ID: <4cad1b9a-e157-427b-9896-cf54cf6fba36@kernel.org>
+Date: Tue, 10 Mar 2026 12:24:02 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [net-next, v4] vsock: add G2H fallback for CIDs not owned by H2G
- transport
-To: Paolo Abeni <pabeni@redhat.com>
-CC: <vishnu.dasa@broadcom.com>, <stefanha@redhat.com>,
-	<virtualization@lists.linux.dev>, <kvm@vger.kernel.org>,
-	<bcm-kernel-feedback-list@broadcom.com>, <arnd@arndb.de>,
-	<netdev@vger.kernel.org>, <eperezma@redhat.com>,
-	<gregkh@linuxfoundation.org>, <mst@redhat.com>, <jasowang@redhat.com>,
-	<corbet@lwn.net>, <nh-open-source@amazon.com>, <bryan-bt.tan@broadcom.com>,
-	<syzbot@syzkaller.appspotmail.com>, <sgarzare@redhat.com>,
-	<linux-kernel@vger.kernel.org>
-References: <20260304230027.59857-1-graf@amazon.com>
- <20260310091843.101237-1-pabeni@redhat.com>
- <ef3435b1-5d86-4137-903f-bddeca3deb91@redhat.com>
-Content-Language: en-US
-From: Alexander Graf <graf@amazon.com>
-In-Reply-To: <ef3435b1-5d86-4137-903f-bddeca3deb91@redhat.com>
-X-ClientProxiedBy: EX19D046UWB004.ant.amazon.com (10.13.139.164) To
- EX19D020UWC004.ant.amazon.com (10.13.138.149)
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: base64
+User-Agent: Mozilla Thunderbird Beta
+Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups, RCU
+ stalls, timeout
+Content-Language: fr
+To: Thomas Gleixner <tglx@kernel.org>, Jiri Slaby <jirislaby@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
+ rcu@vger.kernel.org, MPTCP Linux <mptcp@lists.linux.dev>,
+ Linux Kernel <linux-kernel@vger.kernel.org>,
+ Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+ "Paul E. McKenney" <paulmck@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, luto@kernel.org,
+ =?UTF-8?Q?Michal_Koutn=C3=BD?= <MKoutny@suse.com>,
+ Waiman Long <longman@redhat.com>, Marco Elver <elver@google.com>
+References: <863a5291-a636-47d0-891c-bb0524d2e134@kernel.org>
+ <717310d8-6274-4b7f-8a19-561c45f5f565@kernel.org>
+ <a2b573b4-af61-4b84-a7d1-012ed6bb23c9@kernel.org>
+ <ba067933-bf3b-476d-a0bb-53eda56996ca@kernel.org> <87zf4m2qvo.ffs@tglx>
+ <47cba228-bba7-4e58-a69d-ea41f8de6602@kernel.org> <87tsuu2i59.ffs@tglx>
+ <7efde2b5-3b72-4858-9db0-22493d446301@kernel.org> <87qzpx2sck.ffs@tglx>
+ <20260306152458.GT606826@noisy.programming.kicks-ass.net>
+ <87ldg42eu7.ffs@tglx> <87h5qr2rzi.ffs@tglx> <87eclu3coa.ffs@tglx>
+ <87v7f61cnl.ffs@tglx> <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org>
+ <87pl5ds88r.ffs@tglx> <0ae4d678-5676-4523-bae3-5ad73b526e27@kernel.org>
+ <87eclsrtqg.ffs@tglx> <e846cb5f-65c4-4a9b-9f9b-593e4af526d8@kernel.org>
+ <76e2b909-98db-49de-a8eb-f6f0a192f630@kernel.org> <878qc0rofr.ffs@tglx>
+ <874imorobw.ffs@tglx>
+From: Matthieu Baerts <matttbe@kernel.org>
+Autocrypt: addr=matttbe@kernel.org; keydata=
+ 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
+ lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
+Organization: NGI0 Core
+In-Reply-To: <874imorobw.ffs@tglx>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Ck9uIDEwLjAzLjI2IDEwOjI2LCBQYW9sbyBBYmVuaSB3cm90ZToKPiBIaSwKPgo+IE9uIDMvMTAv
-MjYgMTA6MTggQU0sIFBhb2xvIEFiZW5pIHdyb3RlOgo+PiBUaGlzIGlzIGFuIEFJLWdlbmVyYXRl
-ZCByZXZpZXcgb2YgeW91ciBwYXRjaC4gVGhlIGh1bWFuIHNlbmRpbmcgdGhpcwo+PiBlbWFpbCBo
-YXMgY29uc2lkZXJlZCB0aGUgQUkgcmV2aWV3IHZhbGlkLCBvciBhdCBsZWFzdCBwbGF1c2libGUu
-Cj4+Cj4+IEZvciBsb2NhbCByZXByb2R1Y3Rpb24gc3RlcHMgc2VlIGh0dHBzOi8vbmV0ZGV2LWFp
-LmJvdHMubGludXguZGV2L2FpLWxvY2FsLmh0bWwKPj4gLS0tCj4+PiBAQCAtNTgxLDExICs1ODUs
-MjEgQEAgaW50IHZzb2NrX2Fzc2lnbl90cmFuc3BvcnQoc3RydWN0IHZzb2NrX3NvY2sgKnZzaywg
-c3RydWN0IHZzb2NrX3NvY2sgKnBzaykKPj4+ICAgICAgIGNhc2UgU09DS19TRVFQQUNLRVQ6Cj4+
-PiAgICAgICAgICAgICAgIGlmICh2c29ja191c2VfbG9jYWxfdHJhbnNwb3J0KHJlbW90ZV9jaWQp
-KQo+Pj4gICAgICAgICAgICAgICAgICAgICAgIG5ld190cmFuc3BvcnQgPSB0cmFuc3BvcnRfbG9j
-YWw7Cj4+PiAtICAgICAgICAgICAgZWxzZSBpZiAocmVtb3RlX2NpZCA8PSBWTUFERFJfQ0lEX0hP
-U1QgfHwgIXRyYW5zcG9ydF9oMmcgfHwKPj4+ICsgICAgICAgICAgICBlbHNlIGlmIChyZW1vdGVf
-Y2lkIDw9IFZNQUREUl9DSURfSE9TVCB8fAo+Pj4gICAgICAgICAgICAgICAgICAgICAgICAocmVt
-b3RlX2ZsYWdzICYgVk1BRERSX0ZMQUdfVE9fSE9TVCkpCj4+PiAgICAgICAgICAgICAgICAgICAg
-ICAgbmV3X3RyYW5zcG9ydCA9IHRyYW5zcG9ydF9nMmg7Cj4+PiAtICAgICAgICAgICAgZWxzZQo+
-Pj4gKyAgICAgICAgICAgIGVsc2UgaWYgKHRyYW5zcG9ydF9oMmcgJiYKPj4+ICsgICAgICAgICAg
-ICAgICAgICAgICAoIXRyYW5zcG9ydF9oMmctPmhhc19yZW1vdGVfY2lkIHx8Cj4+PiArICAgICAg
-ICAgICAgICAgICAgICAgIHRyYW5zcG9ydF9oMmctPmhhc19yZW1vdGVfY2lkKHZzaywgcmVtb3Rl
-X2NpZCkpKQo+Pj4gKyAgICAgICAgICAgICAgICAgICAgbmV3X3RyYW5zcG9ydCA9IHRyYW5zcG9y
-dF9oMmc7Cj4+PiArICAgICAgICAgICAgZWxzZSBpZiAoc29ja19uZXQoc2spLT52c29jay5nMmhf
-ZmFsbGJhY2sgJiYKPj4+ICsgICAgICAgICAgICAgICAgICAgICB0cmFuc3BvcnRfZzJoICYmIHRy
-YW5zcG9ydF9nMmgtPmhhc19yZW1vdGVfY2lkICYmCj4+PiArICAgICAgICAgICAgICAgICAgICAg
-dHJhbnNwb3J0X2cyaC0+aGFzX3JlbW90ZV9jaWQodnNrLCByZW1vdGVfY2lkKSkgewo+Pj4gKyAg
-ICAgICAgICAgICAgICAgICAgdnNrLT5yZW1vdGVfYWRkci5zdm1fZmxhZ3MgfD0gVk1BRERSX0ZM
-QUdfVE9fSE9TVDsKPj4+ICsgICAgICAgICAgICAgICAgICAgIG5ld190cmFuc3BvcnQgPSB0cmFu
-c3BvcnRfZzJoOwo+Pj4gKyAgICAgICAgICAgIH0gZWxzZSB7Cj4+PiAgICAgICAgICAgICAgICAg
-ICAgICAgbmV3X3RyYW5zcG9ydCA9IHRyYW5zcG9ydF9oMmc7Cj4+PiArICAgICAgICAgICAgfQo+
-Pj4gICAgICAgICAgICAgICBicmVhazsKPj4gVGhlIG9sZCBjb2RlIGhhZCBgIXRyYW5zcG9ydF9o
-MmdgIGluIHRoZSBzZWNvbmQgZWxzZS1pZiBjb25kaXRpb24gYXQgbGluZQo+PiAtNTgzLCB3aGlj
-aCByb3V0ZWQgYWxsIENJRCA+IFZNQUREUl9DSURfSE9TVCB0cmFmZmljIHRvIHRyYW5zcG9ydF9n
-Mmggd2hlbgo+PiBubyBIMkcgdHJhbnNwb3J0IHdhcyBsb2FkZWQuIFRoZSBuZXcgY29kZSByZW1v
-dmVzIHRoaXMgY2hlY2suCj4+Cj4+IFdoZW4gdHJhbnNwb3J0X2gyZyBpcyBOVUxMIChubyBIMkcg
-dHJhbnNwb3J0IGxvYWRlZCkgYW5kIHRoZSBHMkggdHJhbnNwb3J0Cj4+IGRvZXMgbm90IGltcGxl
-bWVudCBoYXNfcmVtb3RlX2NpZCAoYXMgaXMgdGhlIGNhc2UgZm9yIFZNQ0kgYW5kIEh5cGVyLVYK
-Pj4gdHJhbnNwb3J0cyksIHdoYXQgaGFwcGVucz8KPj4KPj4gVGhlIEcySCBmYWxsYmFjayBicmFu
-Y2ggYXQgbGluZSArNTk2IHJlcXVpcmVzCj4+IGB0cmFuc3BvcnRfZzJoLT5oYXNfcmVtb3RlX2Np
-ZGAgdG8gYmUgbm9uLU5VTEwuIElmIGl0J3MgTlVMTCwgdGhlCj4+IHNob3J0LWNpcmN1aXQgZXZh
-bHVhdGlvbiBza2lwcyB0aGlzIGJyYW5jaCBhbmQgZXhlY3V0ZXMgdGhlIGZpbmFsIGVsc2UgYXQK
-Pj4gbGluZSArNjAxLCBzZXR0aW5nIGBuZXdfdHJhbnNwb3J0ID0gdHJhbnNwb3J0X2gyZ2AgKHdo
-aWNoIGlzIE5VTEwpLAo+PiB1bHRpbWF0ZWx5IHJldHVybmluZyAtRU5PREVWLgo+Pgo+PiBUaGUg
-Y29tbWl0IG1lc3NhZ2UgZXhwbGljaXRseSBzdGF0ZXMgdGhlIGludGVudCB0byBwcmVzZXJ2ZSB0
-aGUgZXhpc3RpbmcKPj4gbm8tSDJHIGZhbGxiYWNrIGJlaGF2aW9yLiBEb2VzIHRoaXMgaW1wbGVt
-ZW50YXRpb24gYnJlYWsgaXQgZm9yIEcySAo+PiB0cmFuc3BvcnRzIHRoYXQgZG8gbm90IGltcGxl
-bWVudCB0aGUgbmV3IG9wdGlvbmFsIGhhc19yZW1vdGVfY2lkIGNhbGxiYWNrPwo+Pgo+PiBUaGlz
-IGFmZmVjdHMgVk1DSSBhbmQgSHlwZXItViBlbnZpcm9ubWVudHM6IHdoZW4gbm8gSDJHIHRyYW5z
-cG9ydCBpcwo+PiBsb2FkZWQsIENJRCA+IDIgY29ubmVjdGlvbnMgdGhhdCBwcmV2aW91c2x5IGZl
-bGwgYmFjayB0byBHMkggbm93IGdldAo+PiBFTk9ERVYuCj4gT3RoZXIgY29tbWVudHMgZnJvbSBB
-SSBsb29rZWQgbGlrZSBuaXQgcGlja2luZyB0byBtZSwgYnV0IHRoZSBhYm92ZSBvbmUKPiBsb29r
-cyByZWxldmFudC4gSSBmb3J3YXJkZWQgdmVyYmF0aW0gYWxsIHRoZSBmZWVkYmFjayBmb3IgY29t
-cGxldGVuZXNzLgoKClllcywgdGhpcyBpcyBvbiBwdXJwb3NlLiBJbnN0ZWFkIG9mIGhhdmluZyBi
-aS1tb2RhbGl0eSBiYXNlZCBvbiB3aGV0aGVyIAp0aGUgdmhvc3RfdnNvY2sga2VybmVsIG1vZHVs
-ZSBpcyBsb2FkZWQsIHdlIG5vdyBjbGVhcmx5IGRlZmluZSB0aGF0IHdpdGggCnRoZSBzeXNjdGwg
-b2ZmLCB5b3UgZ2V0IHRoZSBzYW1lIG1vZGUgdGhhdCAidmhvc3RfdnNvY2sgaXMgbG9hZGVkIiBn
-YXZlIAp5b3UgYmVmb3JlLiBUaGUgb2RkYmFsbCBjYXNlIG9mICJ2aG9zdF92c29jayBpcyBub3Qg
-bG9hZGVkIiB0aGF0IG1lYW50IApldmVyeXRoaW5nIGdvZXMgdG8gdGhlIEcySCB0cmFuc3BvcnQg
-YW5kIGNvbmZ1c2VkIHVzZXJzIGlzIHJlYWxseSBub3QgCndvcnRoIGtlZXBpbmcgSU1ITy4gSXQn
-cyByZXBsYWNlZCBieSB0aGUgYXV0by1mYWxsYmFjayBsb2dpYy4KCkJyb2FkY29tIGFsc28gbWVu
-dGlvbmVkIHRoYXQgRzJIIGZvciBDSUQgPiAyIGRvZXMgbm90IGV4aXN0LiBJSVVDIApIeXBlci1W
-IGFsc28gZG9lcyBub3Qgc3VwcG9ydCBDSUQgPiAyLgoKCkFsZXgKCgoKCkFtYXpvbiBXZWIgU2Vy
-dmljZXMgRGV2ZWxvcG1lbnQgQ2VudGVyIEdlcm1hbnkgR21iSApUYW1hcmEtRGFuei1TdHIuIDEz
-CjEwMjQzIEJlcmxpbgpHZXNjaGFlZnRzZnVlaHJ1bmc6IENocmlzdG9mIEhlbGxtaXMsIEFuZHJl
-YXMgU3RpZWdlcgpFaW5nZXRyYWdlbiBhbSBBbXRzZ2VyaWNodCBDaGFybG90dGVuYnVyZyB1bnRl
-ciBIUkIgMjU3NzY0IEIKU2l0ejogQmVybGluClVzdC1JRDogREUgMzY1IDUzOCA1OTcK
+Hi Thomas,
+
+On 10/03/2026 11:06, Thomas Gleixner wrote:
+> On Tue, Mar 10 2026 at 11:03, Thomas Gleixner wrote:
+>> On Tue, Mar 10 2026 at 10:00, Jiri Slaby wrote:
+>> Yes. There is an issue. Peter and me just discovered that as well, but
+>> in the case at hand it can't be the problem. The missing task is on the
+>> CPU which means it must be visible in the thread list and task list.
+> 
+> The updated debug patch fixes this fork problem and adds more tracing to
+> it.
+
+Thank you for this new patch, and for continuing to look at this!
+
+> Mathieu, can you give it another spin please?
+
+Just did. Output is available there:
+
+  https://github.com/user-attachments/files/25867817/issue-617-debug-20260310.txt.gz
+
+Only 7.7k lines this time.
+
+Cheers,
+Matt
+-- 
+Sponsored by the NGI0 Core fund.
 
