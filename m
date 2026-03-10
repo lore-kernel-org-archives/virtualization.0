@@ -1,88 +1,118 @@
-Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D48B2FFF90
-	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 14:53:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.185
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F1852FCC0E;
+	Tue, 10 Mar 2026 14:56:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773154409; cv=none; b=Q2+R1SA9BOAiOo3+XWDQEoMG5jVL6+bFANCtzMXZLlPYFymn1jkxEPBTgMGBI78kOl0YJ/XAAd2Hoss2UpigdgZF0qLoJRPVFzwX3rRA0SCTzO566zAirpM0nCLOCB6voNyvZUqetHzDCXboneWCXMfms+WiNFLwfOCHTujtL2k=
+	t=1773154587; cv=none; b=AHStr4HmYSQqIVIQqfFgKU2InmU1O47noC0MaLLyp6PJ2rgvmQXzFizsat1vUpy8R74C6WpDPm+qdBrNEhFvuHZJuasi0z4YEM/2o2WD57euZ7hDrMeJ81AE8S51dngwRNhfC6C24gyfhPDf1u2dG8leq44mh+iKaf5I4BzVW8Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773154409; c=relaxed/simple;
-	bh=TQArFFuZ9Y53LLXX2TEj4wDeBHlqJ/OFTLRPSNL9Vbs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FjbtkbjLQd6T7wXRLomD05hZNJD0UmBq3UV88z5Tk4ZIhUdjzmuSAonA22kHnxYatPmfc6Ink5zc0926YZPMcFu0Gup8I6R+AVAW/9TVrPqdiMVEvwu2M9vy1vLhZmaGAHiCvbkVTrZ3wznNuDXtzxymMjUQmR+9du8k1oiVSis=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=RJ70MCfZ; arc=none smtp.client-ip=91.218.175.185
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773154587; c=relaxed/simple;
+	bh=fE0Z/ubIZkvllDHDQoyXm3PyilLIY5Tu3AO0WZjDsTc=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=EZZD1Jg5ddu5gn8ISD3MpuPwymKvwjPw23tu2Uu3ksmRlPEoTYFdBpw6XW1Gfj/6+wSOYGzWSWQGLVDnoU4WC40kw0HcLvctezMmcSCi4/9BoSqExh1PjoMuhuZhqFq78lRWaRVh/riYXNsmn0W7DwZeWyVW+MAG6+BltNWrvms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BmYJxjF5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="RJ70MCfZ"
-Date: Tue, 10 Mar 2026 07:53:17 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773154405;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=TwC6pQbU5gHuxh3zkLyr8F7z5S+cv/um/MQ7GFUg3ck=;
-	b=RJ70MCfZUZ8oim853NhKIczs7H6wsAeJGmYw6yKIRMGVS7S/HlKGVccsLjpNf1rv3CDO2+
-	MY/mrrZY1AH4PArNfzP67Y4oEkykaWnYAGNufGH5bp4JkvMeIYW25inkycGAXGc1plCYvY
-	l3mPcmnI4yj1EuXY7C8AidiZzdkAz4g=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Shakeel Butt <shakeel.butt@linux.dev>
-To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@suse.com, 
-	vbabka@suse.cz, apopple@nvidia.com, axelrasmussen@google.com, byungchul@sk.com, 
-	cgroups@vger.kernel.org, david@kernel.org, eperezma@redhat.com, gourry@gourry.net, 
-	jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com, 
-	Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com, 
-	matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org, muchun.song@linux.dev, 
-	zhengqi.arch@bytedance.com, rakie.kim@sk.com, roman.gushchin@linux.dev, surenb@google.com, 
-	virtualization@lists.linux.dev, weixugc@google.com, xuanzhuo@linux.alibaba.com, 
-	ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com, kernel-team@meta.com
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-Message-ID: <abAmMjkZZLN9LXXM@linux.dev>
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
- <aa9aDGwk8YteaEob@linux.dev>
- <dcf2e654-ad2f-4390-9b62-078e664158de@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BmYJxjF5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C9FAC19423;
+	Tue, 10 Mar 2026 14:56:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773154587;
+	bh=fE0Z/ubIZkvllDHDQoyXm3PyilLIY5Tu3AO0WZjDsTc=;
+	h=From:Subject:Date:To:Cc:From;
+	b=BmYJxjF5a9dvOp3Ha8UOY28eN9Ls8Tj2k9Ht30d/cMSVQDuueoydi7eHYyhEKug0P
+	 7Nlx16fAGAVjuUcYJ2TifdA8RZUEW1WVE9bwxzk6xsX+LpY8pVoI4vRK7LSwKi5txn
+	 TXEzAkjKCCygTWwTUJXDiJ1W7J4iNz/l+AwgclQGa3Y15wLxiZd+BOIdUxRV70lpku
+	 Yb+xcr51PtPS54Gt5fizFsM4bBka1qsrUKeauVLz/PqrHs9sj2wVpJAkDrkRlREcW4
+	 KDGuvIRo5jnylDD0rRfqsWWjU9OfzKITpIrGYVmZLMxWkcDeykF04Ooym+xGP7OcEp
+	 HXaeEl2lsisxg==
+From: Christian Brauner <brauner@kernel.org>
+Subject: [PATCH v2 0/2] kthread, exit: clean up kernel thread exit paths
+Date: Tue, 10 Mar 2026 15:56:08 +0100
+Message-Id: <20260310-work-kernel-exit-v2-0-30711759d87b@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dcf2e654-ad2f-4390-9b62-078e664158de@linux.dev>
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAgxsGkC/yWMWw6CMBQFt0Lut5fUkuBjK8aPthykosXcViQh7
+ N1WP+fkzKwUIR6RztVKgtlHP4UMeleRG0y4gX2XmbTSrWpUy59JRh4hAQ/G4hNrHPvuBO202VP
+ WXoLeL7/k5frn+LZ3uFQ65WFNBFsxwQ1lepqYIPV8qBWLa2jbvtE5QPyWAAAA
+X-Change-ID: 20260306-work-kernel-exit-2e8fd9e2c2a1
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-modules@vger.kernel.org, 
+ linux-nfs@vger.kernel.org, bpf@vger.kernel.org, kunit-dev@googlegroups.com, 
+ linux-doc@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+ netfs@lists.linux.dev, io-uring@vger.kernel.org, audit@vger.kernel.org, 
+ rcu@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-mm@kvack.org, 
+ linux-security-module@vger.kernel.org, 
+ Christian Loehle <christian.loehle@arm.com>, linux-fsdevel@vger.kernel.org, 
+ Christian Brauner <brauner@kernel.org>
+X-Mailer: b4 0.15-dev-9fd7c
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3309; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=fE0Z/ubIZkvllDHDQoyXm3PyilLIY5Tu3AO0WZjDsTc=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWRuMBTr7bhhNqNZgWf+LzYHk0VPGot/7yk3qp6qVMf86
+ r3sWbafHaUsDGJcDLJiiiwO7Sbhcst5KjYbZWrAzGFlAhnCwMUpABOZtoyRof32OmMzK1MvFp3i
+ RLOjK2rOFX5Z+v3AGxeDj8ltGz5br2Fk2COsfshHNk+cZf2uoIUP/xl9bjn/zH4H6x9zpi1CQW+
+ KGQA=
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-On Mon, Mar 09, 2026 at 09:17:43PM -0700, JP Kobryn (Meta) wrote:
-> On 3/9/26 4:43 PM, Shakeel Butt wrote:
-> > On Fri, Mar 06, 2026 at 08:55:20PM -0800, JP Kobryn (Meta) wrote:
-[...]
-> > 
-> > This seems like monotonic increasing metrics and I think you don't care about
-> > their absolute value but rather rate of change. Any reason this can not be
-> > achieved through tracepoints and BPF combination?
-> 
-> We have the per-node reclaim stats (pg{steal,scan,refill}) in
-> nodeN/vmstat and memory.numa_stat now. The new stats in this patch would
-> be collected from the same source. They were meant to be used together,
-> so it seemed like a reasonable location. I think the advantage over
-> tracepoints is we get the observability on from the start and it would
-> be simple to extend existing programs that already read stats from the
-> cgroup dir files.
+In 28aaa9c39945 ("kthread: consolidate kthread exit paths to prevent
+use-after-free") we folded kthread_exit() into do_exit() to fix a UAF
+bug but left kthread_exit() around as an alias. Remove it.
 
-Convenience is not really justifying the cost of adding 18 counters,
-particularly in memcg. We can argue about adding just in system level metrics
-but not for memcg.
+While at it, rename do_exit() to task_exit() to communicate that is not
+just a private api.
 
-counter_cost = nr_cpus * nr_nodes * nr_memcg * 16 (struct lruvec_stats_percpu)
+Signed-off-by: Christian Brauner <brauner@kernel.org>
+---
+Christian Brauner (2):
+      kthread: remove kthread_exit()
+      tree-wide: rename do_exit() to task_exit()
 
-On a typical prod machine, we can see 1000s of memcg, 100s of cpus and couple of
-numa nodes. So, a single counter's cost can range from 200KiB to MiBs. This does
-not seem like a cost we should force everyone to pay.
+ Documentation/accounting/taskstats-struct.rst                |  2 +-
+ Documentation/locking/robust-futexes.rst                     |  8 ++++----
+ Documentation/trace/kprobes.rst                              |  2 +-
+ fs/cachefiles/namei.c                                        |  2 +-
+ include/linux/kernel.h                                       |  2 +-
+ include/linux/kthread.h                                      |  1 -
+ include/linux/module.h                                       |  2 +-
+ include/linux/sunrpc/svc.h                                   |  2 +-
+ io_uring/io-wq.c                                             |  2 +-
+ io_uring/sqpoll.c                                            |  2 +-
+ kernel/acct.c                                                |  2 +-
+ kernel/auditsc.c                                             |  4 ++--
+ kernel/bpf/verifier.c                                        |  2 +-
+ kernel/exit.c                                                | 10 +++++-----
+ kernel/futex/futex.h                                         |  2 +-
+ kernel/futex/pi.c                                            |  2 +-
+ kernel/futex/syscalls.c                                      |  2 +-
+ kernel/kthread.c                                             |  8 ++++----
+ kernel/locking/rwsem.c                                       |  2 +-
+ kernel/module/main.c                                         |  2 +-
+ kernel/pid_namespace.c                                       |  2 +-
+ kernel/rcu/tasks.h                                           | 12 ++++++------
+ kernel/reboot.c                                              |  6 +++---
+ kernel/seccomp.c                                             |  8 ++++----
+ kernel/signal.c                                              |  4 ++--
+ kernel/time/posix-timers.c                                   |  2 +-
+ kernel/umh.c                                                 |  2 +-
+ kernel/vhost_task.c                                          |  2 +-
+ lib/kunit/try-catch.c                                        |  2 +-
+ mm/hugetlb.c                                                 |  2 +-
+ security/tomoyo/gc.c                                         |  2 +-
+ tools/objtool/noreturns.h                                    |  3 +--
+ tools/testing/selftests/bpf/prog_tests/tracing_failure.c     |  2 +-
+ tools/testing/selftests/bpf/progs/tracing_failure.c          |  2 +-
+ .../selftests/ftrace/test.d/dynevent/fprobe_syntax_errors.tc |  2 +-
+ .../selftests/ftrace/test.d/kprobe/kprobe_multiprobe.tc      |  2 +-
+ .../selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc   |  2 +-
+ 37 files changed, 58 insertions(+), 60 deletions(-)
+---
+base-commit: 1f318b96cc84d7c2ab792fcc0bfd42a7ca890681
+change-id: 20260306-work-kernel-exit-2e8fd9e2c2a1
 
-If you really want these per-memcg and assuming these metrics are updated in
-non-performance critical path, we can try to decouple these and other reclaim
-related stats from rstat infra. That would at least reduce nr_cpus factor in the
-above equation to 1. Though we will need to actually evaluate the performance
-for the change before committing to it.
