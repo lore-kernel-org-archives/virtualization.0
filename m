@@ -1,115 +1,125 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9582B3D47C9
-	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 12:34:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F81240DFD6;
+	Tue, 10 Mar 2026 13:41:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773146049; cv=none; b=IWIP6upJnXVx22Mn9y2lm9X6XpvzQxXAl9+0j71BN0CuSm19PTF1GESc+u5IN+wXPsesvmXyTeH8UnOQ3mR0XHUZTJwUWn8Jq02mcQS5RMYLVYVDtkjvYNtoJNGILpMrw3V1Tc/U5mTBxh6GVvsuYU8ci7b3bhx9ayBaP9WyCOw=
+	t=1773150065; cv=none; b=KsS5L+hvZJTb6W+ulKfG2vRe7TCdEQ+Nycw5iWKPLW5ems6GYGYMfvJ9zKApaKce5DNDPJl9PZwST1gjDCS0nCc8ZxL54zfrY6E+q167b7WZd9lVuKm7IunkZt1L0bGF4FBsEl2dngxXauV1qnFh4ubb915e9A4YRR+nfxZKmeI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773146049; c=relaxed/simple;
-	bh=cHUF2XHSTidsSmxJD0bQdgzaHWB25qEwufJ2YTbQfJQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fUc8/4YIrW/k+I5aDam//IGp5pCWsxA2/ljnzMLm/jy1OzWcIDtB8/BEpMIA7EKCAJtd7k4QNcXL5W8ALrn/NFGGbGdizDIQWfxWE6C9lzmRU6PpJZKjWXj1wt2hudj/unRajO0DhZNMpqZRIc8ywcJRaHEL7XscFGswLa/EuGA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=IOdW10L6; arc=none smtp.client-ip=209.85.222.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1773150065; c=relaxed/simple;
+	bh=qbgnKzVcS1o1VStyI7L/zkZ6zpEX5bZzA1ksRGojxGI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=lER1xhtH0ndXi2kMeqpbilf29L6F6wJf7Q1XO51AhXbj1sCRPkiS2x10NqbM2N56iRdWAwRMAuyCjjqKd9A0JQklGMjql2CQ6WcbAtrpsnz5UX+kSCo59UIDlpBlyEjg9uHXWavCV0FX9RF19BQ5WZps3MLxJ+WByOjudYSmsSI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vEWdewDM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="IOdW10L6"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-8cd8d97aa2eso238095585a.3
-        for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 05:34:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1773146046; x=1773750846; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JidrQO5YBoJChSM6WSALz7pLZEnTQpjujRwwjFND6W8=;
-        b=IOdW10L6hWu47yCEy2eykc5Q8E68BolXMY0P3zd1J74lwWui55YtbeLgd67eMUsHTh
-         IYk3YcUMUoStHPg0SZLNudeVqSUc74wxdS1sksZGUefejcpLnO5ACbghnmttF1QgMWzX
-         nqqXN57BEyPZJDTw+l44JYzmytOEjainwTsPsMbq+TTX6mnEZr6hRtZ2yvgAbsfXbq4f
-         GHp0QGk54mPC32NzwyOL26qcVGT1EZ3877I9dzj4rQoZTfZ84RMWX+CX9ZLVdzdv/EZC
-         I3Cm9IKuQsHtPm/Y88IH8uQcIUasBpCioySdIKDawUcjAKw+9aATG/UokvUQsj2jzONS
-         bNvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773146046; x=1773750846;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JidrQO5YBoJChSM6WSALz7pLZEnTQpjujRwwjFND6W8=;
-        b=t5R31IQxQCtOYtzOHpeVqulEJye25alDd5EQc6+xvNx4rpRPeyxd4/XkUqZ9yEnc2T
-         EzB0mmw2svA5XDKAT6bEK6Tm8McJqrwhNDhUIIMhUju5ZstC6JRxXZ6NdWDtNCQkCA1K
-         no4F1zDo6Ap1R4JoFRrsEXRVWWhTmStCNrzf/iytuQYHFMWZ1LlsptOzxF9hUiBi1J9A
-         x8HCE2ArwyU32EbTM7H1QAjQIWQaLQ+9yo04JtJZzikIOJ4aHqzjqyCvRlupw/PCFNNG
-         IEemFGOTaXdmv0/I2k8niikmJrJbWt/0O2XsFsahY2aSyD5ymqWxuFwJQNENg3pJ8ebE
-         pHUw==
-X-Forwarded-Encrypted: i=1; AJvYcCXfm+oGp/IbASn4/T3uzZi5IXpY0zOxGNoqKVJv8hbpsk+Xvxw4u4PltPzaCLQa+bPhOY0TlaHzS1BLQPvgVg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx+9BWeq8gHlLGdu2NjCBxXLo/6hiLj7cVLgb/KhNpRcdiq7JUt
-	r3JHqB0lO6O8ymXIGB/gcC6mBsAaWpm1yErz+rZJM5UVxmVnTnQGgOmu+/cvvfy3g5w=
-X-Gm-Gg: ATEYQzzI6fEaxXE6GYb7z2Rw7kJbeoSaHKDI+/ZvYEmkj+a21qQZY35iJ4rbCUf6G5h
-	OsyoK5Sx7jIOPhv6gXJCuUwlq8Fwx1RWXRrWYcZsNEZyRi1DUD5VL77knNp28+coroI0moMtboU
-	Trmq1vfXptfjTAAf3ujymFJ8smoQzSUF4RSgFqGl518+g3tor73iOsufaswtPQHpmZEsQA7bstx
-	EnRwvK7VqtjZyKQj3ozb38bgHTemEnbAJZcaHi7bQfQmI6qcjQdL2ak0rzIJ0bll1D9cK542/2P
-	gRgXY0RaY49D4aLjh0q/RN98ZN570wv6Ct5+SYpz6EOWlFiOHsVeOVPoMrySZd7bOkPcPQFoegG
-	xRvFzSj0a3zure/9bCZ2jo71LsVP5AYJ9vA7iD6SgELLQGGYl+HTcpRxf2h+77jhsnwLzfwxcbx
-	pmPuC2+cas9lt3aSxXuzj1Hckk6VplwQlGLsmttxSQ+W3ZNWy6IwEAaFUQf9V+EQnWDjqrq9u6b
-	WvYKiXI
-X-Received: by 2002:a05:620a:4004:b0:8cd:9365:f27f with SMTP id af79cd13be357-8cd9365fb75mr416301385a.51.1773146046495;
-        Tue, 10 Mar 2026 05:34:06 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cd827a1ebbsm505561785a.8.2026.03.10.05.34.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 05:34:05 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1vzwHl-00000005N1Z-0e7z;
-	Tue, 10 Mar 2026 09:34:05 -0300
-Date: Tue, 10 Mar 2026 09:34:05 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Leon Romanovsky <leon@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-rdma@vger.kernel.org
-Subject: Re: [PATCH 2/3] dma-mapping: Clarify valid conditions for CPU cache
- line overlap
-Message-ID: <20260310123405.GR1687929@ziepe.ca>
-References: <20260307-dma-debug-overlap-v1-2-c034c38872af@nvidia.com>
- <20260308181920.GH1687929@ziepe.ca>
- <20260308184902.GR12611@unreal>
- <20260308230916.GI1687929@ziepe.ca>
- <CGME20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07@eucas1p2.samsung.com>
- <20260309090342.GS12611@unreal>
- <c1d058f3-f864-4ed7-9f7a-683d6f4bf1ce@samsung.com>
- <20260309150502.GX12611@unreal>
- <20260309151356.GN1687929@ziepe.ca>
- <aaebc5b6-2805-46d3-a68e-549c26a3ef03@samsung.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vEWdewDM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3A1FC19423;
+	Tue, 10 Mar 2026 13:41:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773150065;
+	bh=qbgnKzVcS1o1VStyI7L/zkZ6zpEX5bZzA1ksRGojxGI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=vEWdewDMen/xIHS5TiUjI92QmfH3h0hi+05LmgExXH6fgoZhCKNaUs/s7Ak7BU6Fo
+	 VjJCB/a6bYO8OaghG603XHNma/JCzcNwsz4PCywUpD+/+bB5EyCouSmP8UcEcsLrvY
+	 STRA7ZfTim97BM/x+8kp5BMYmzrKaNKHoBI1baduz1Kw7iH9UlB38GoCXT5MfAjQ1J
+	 R1w4os3N3R8uQl11+5aK/2AJhNRWumCXV25nvW+HUugCEKpRnuAu+Hf+uUFelJlBT0
+	 IKD44jyMLQVNIT5UaSuvnxI5TZKAPykFFDTB5CY1q6PM4eB8b5cHv5Afx4czqDTaOq
+	 IuIZR4qCk5jsA==
+Message-ID: <a5cabf68-df88-4a5e-8075-bb10debc44f7@kernel.org>
+Date: Tue, 10 Mar 2026 14:40:57 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aaebc5b6-2805-46d3-a68e-549c26a3ef03@samsung.com>
+User-Agent: Mozilla Thunderbird Beta
+Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups, RCU
+ stalls, timeout
+Content-Language: fr
+To: Thomas Gleixner <tglx@kernel.org>, Peter Zijlstra <peterz@infradead.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
+ rcu@vger.kernel.org, MPTCP Linux <mptcp@lists.linux.dev>,
+ Linux Kernel <linux-kernel@vger.kernel.org>,
+ Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+ "Paul E. McKenney" <paulmck@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, luto@kernel.org,
+ =?UTF-8?Q?Michal_Koutn=C3=BD?= <MKoutny@suse.com>,
+ Waiman Long <longman@redhat.com>, Marco Elver <elver@google.com>
+References: <87v7f61cnl.ffs@tglx>
+ <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org> <87pl5ds88r.ffs@tglx>
+ <0ae4d678-5676-4523-bae3-5ad73b526e27@kernel.org> <87eclsrtqg.ffs@tglx>
+ <e846cb5f-65c4-4a9b-9f9b-593e4af526d8@kernel.org>
+ <76e2b909-98db-49de-a8eb-f6f0a192f630@kernel.org> <878qc0rofr.ffs@tglx>
+ <874imorobw.ffs@tglx> <4cad1b9a-e157-427b-9896-cf54cf6fba36@kernel.org>
+ <20260310115433.GV1282955@noisy.programming.kicks-ass.net>
+ <87y0jzrhqn.ffs@tglx>
+From: Matthieu Baerts <matttbe@kernel.org>
+Autocrypt: addr=matttbe@kernel.org; keydata=
+ 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
+ lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
+Organization: NGI0 Core
+In-Reply-To: <87y0jzrhqn.ffs@tglx>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Mar 10, 2026 at 10:45:38AM +0100, Marek Szyprowski wrote:
-> Jason is right. Indeed the rdma/uverbs case needs some extension to 
-> ensure that the coherent mapping is used, what is not possible now. This 
-> however doesn't mean that the DMA_ATTR_CPU_CACHE_OVERLAP is not needed 
-> for that use case too. I'm open to accept both. The only question I have 
-> is which name should we use? We already have DMA_ATTR_CPU_CACHE_CLEAN, 
-> while DMA_ATTR_CPU_CACHE_OVERLAP and 
-> DMA_ATTR_DEBUGGING_IGNORE_CACHELINES were proposed here. The last seems 
-> to be most descriptive.
+On 10/03/2026 13:28, Thomas Gleixner wrote:
 
-If we do DMA_ATTR_REQUIRE_COHERENCE then I imagine it would internally
-also set DMA_ATTR_DEBUGGING_IGNORE_CACHELINES, but I'd prefer that
-detail not leak into the callers.
+(...)
 
-Jason
+> I've updated the debug patch and removed the @users conditionals so it
+> keeps searching. So it should find that magic 73.
+
+It looks like it does, thank you! I just tried this new debug patch, and
+I managed to boot 100 times without issues, while before I was getting
+it after max 20 attempts. I left the test running to boot up to 1000
+times, just in case.
+
+Cheers,
+Matt
+-- 
+Sponsored by the NGI0 Core fund.
+
