@@ -1,118 +1,139 @@
-Received: from out-171.mta0.migadu.com (out-171.mta0.migadu.com [91.218.175.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8A5027A462
-	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 04:18:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 312AE23B62C
+	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 05:01:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773116288; cv=none; b=ufcvmJz5PX3dbCpufSXws5Hj2nSvtHRBgpYsUo8LelSaU1v18W2jtlybY8M95w9wo4J0aqS3/sW/U/eydPV/uM95JjdwmaNyXXAmIjUOSVk2V6B0qx3FB8gsNaUIsHxLFcwZXwcYobP5V3/6pBfDgHkFgGTE9QQzxDbfXRHBD/8=
+	t=1773118913; cv=none; b=RCr/QCv0VBfswOeDHxL6I1V0aRiY5B/RBexMFF6sWAPhNvywDb1o8pkeoyAZiQTGseuzQqBvSOMKyEPWzw3B+wAs3yMY+nOoxyMyPHg3zN8vASj4wnIHXemPKiCvr98jOpLTvJPfb5R5ItBWlcRJS3N7Gn9Lf+65/YLQN/t9I+U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773116288; c=relaxed/simple;
-	bh=PahFcLGm0qrHP5eACh398npBTmRxC9eQ1+VlQ3Eq6ug=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FdUyCudbkwjSvqob0tNdhxts8Y3Wsy8Uk46trbywwE0xXnvrqiRU3rJfD0MJfed/GNBo/cq00tn22RZs1n2hVFB1Q1cwIJMhzglL7bu9TxrECKicAARRI/3gz7Q2zdA1u2VHrP22FXiGpTygNsxaEpXL+R1NQH5OMY+BlzmHBmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=iuDSOn1y; arc=none smtp.client-ip=91.218.175.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773118913; c=relaxed/simple;
+	bh=R3jMW8ZmkBtM32pcjgP9kGqpFKjlYsyUvI6+VjdQ3I0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mwgLdyRD4vs8rvJYMWn+hOBl94pFMSDgiQa6U3sSRTe+uhkviZMf8q/73FRo2V/5b5s6yG/EivF/c/TTX7lxIe4hbfhwl9fyox9rJT1ZpeQ8e97FzwzO/ZbYcBVEL0lyi3Zi2reJJcX7kN336E2U2DFuC1dpHIKJgReMZRuvWq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=WUves7Dd; arc=none smtp.client-ip=209.85.215.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="iuDSOn1y"
-Message-ID: <dcf2e654-ad2f-4390-9b62-078e664158de@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773116274;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yt6x+E9G8bhHLBAbORSNHeQ7FRJQ5mKhDBf43c4KJEA=;
-	b=iuDSOn1y6V1DqIsON7tHkFy5Nf6ZsyQnerFcze7MRHwWzGLSBLAtvA3+rhb7NBNX/FrEBH
-	xJO2vvJRVh8zuVZ3005BQ9IZ80iwWYC+IphE4MgFYEZdsFDyZGxWu4fXAhG7RORtkV4/OG
-	JR3oBF9lm1h1HGlqIu4kV0DLpC5Gr3w=
-Date: Mon, 9 Mar 2026 21:17:43 -0700
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="WUves7Dd"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c7388fb61adso1901920a12.3
+        for <virtualization@lists.linux.dev>; Mon, 09 Mar 2026 22:01:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1773118911; x=1773723711; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=kbT9TM6XMNn8MYcYe10K1UH44o/w1pSutn1XPvv9QwQ=;
+        b=WUves7DdIIR2edCL2aTx+kFsSu90rMxpG1r+gZZpZJNFQJQcCAMgVmpUuiaOfz1+aC
+         m3VQvC7eN4YtfnAKr1DM72UBBytfLdElo0KqcfVzm1znjwrx/E6TpJ4VIC38EnjMa0hS
+         xavuExv5KZeBm7AhwFVwyrxbztivXL6JRerWpaMd2Apec0d/8uR92F95HhABon7PyYwM
+         ngWRPesYWFJlTUePZzWfu04WDb7fRs/yhnUqbqf3/n+EuZj3K0qxvFL9hvZs6mJL8Ezj
+         U7dUZDyTe3mrW0v3a01z1hHtkbWk8ec/4jtHfe6b96o7Z7Is/qHcEMp9vTeq7NyG4LOs
+         Lkqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773118911; x=1773723711;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kbT9TM6XMNn8MYcYe10K1UH44o/w1pSutn1XPvv9QwQ=;
+        b=UV09nEM8I6v5iH2MUMSV5Vl9+w+FhMLVor+4JkakzAgT91KEouEI4kH6KnNFkBAGa8
+         qFuMfpNHcmOr8XN5aMWhNZz6vJcHQwUcxrSqeTEqL/zqsP6bdG47Mk5BNfLa21DjghSs
+         IIdsmHzJJ6FtqH+el4pR3YvvOmZOMtthpQfkFrcM3qPE9+ngb8NOX1gmEq8qKSVV8jnz
+         GtSCm8wPZ/DgoU2DaMLyAvPG56QYBHQBhG+wh3Wf7upxGTWSRq4JMzTMPehWUpN4ddUe
+         XT09soVXE/IGT4eAfB94K3FlID4ck/5h9gfhH+Uh3TJjaaaLow6d1X6zav4eu8/rjf4R
+         vgYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXafJ0tFq2hV7uEzavnv4nfoIC60+eMBwj3HsAH/pUib6/BqyB6Cq9CPY2L0kl+u7YqgL/dvChv9BE0E/86Dg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwC761Qt/q4bOunVwFUEtyYhLTm1H5cCcSSvGuPAEvT7u63I6Gd
+	/uXKarph4tiGsVmUcEo4UIY7cC3ffL77fpHLsk6HhbmFNgOXgfJEhIy7uIXH+I4vx8w=
+X-Gm-Gg: ATEYQzxXAh0rEKEEgdsxpYa+7CBevmF9SQWQ6i43/qwfA2Jk7yDDohg1oAR1D1BKvpb
+	ffw28AZQDUwU0bLn29YTfPRuPUwO32HN7xnRz67ndQK61Dkiruy78flYX0bT9WpmYXcpYbQtQwy
+	78o7FSEGB+HVsUAC+53vOBf2r8ynrVaew8rLW9d8bI8/H19KimgX74TYrEZP2F5MT4QabQlkASt
+	D0WYesy3oNXO26smLloIqd1VoJ7ArE31aud7JvGaWHPbSsYdwa3fcD0p8AlOXL+nqLBjEZFBsxH
+	XFU6L8SudPja1kqnULAqwv4tfaA4ZkWlZ6AUXI+CqhwappFyeARP4kSBRgg6rgKFpL1NT9gStFU
+	87aEJ5Q96hmMLRUPwRpb2sox+TC460KCc0lAxHwY4ZZlYr6ErVzzWoIIE/fJrOF4IPKnd9CdZZn
+	4KwcaQpDDPJWk97peVOh83jSVN
+X-Received: by 2002:a17:902:f68a:b0:2ae:7f24:27ec with SMTP id d9443c01a7336-2ae82512971mr142991985ad.47.1773118911306;
+        Mon, 09 Mar 2026 22:01:51 -0700 (PDT)
+Received: from localhost ([122.172.81.200])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aea3d26565sm11358025ad.2.2026.03.09.22.01.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Mar 2026 22:01:50 -0700 (PDT)
+Date: Tue, 10 Mar 2026 10:31:48 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Rosen Penev <rosenp@gmail.com>
+Cc: linux-gpio@vger.kernel.org, 
+	"Enrico Weigelt, metux IT consult" <info@metux.net>, linux-hardening@vger.kernel.org, gustavoars@kernel.org, 
+	Viresh Kumar <vireshk@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, "open list:VIRTIO GPIO DRIVER" <virtualization@lists.linux.dev>, 
+	open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] gpio: virtio: remove one kcalloc
+Message-ID: <sdcvb4g2d5optcout5f2qvvdvnb2g6o76tlc2dkf5zl7p2mc6j@52ejlit6fnoj>
+References: <20260310020057.340550-1-rosenp@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-To: Shakeel Butt <shakeel.butt@linux.dev>
-Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@suse.com,
- vbabka@suse.cz, apopple@nvidia.com, axelrasmussen@google.com,
- byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
- eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
- hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
- linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
- matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org,
- muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
- roman.gushchin@linux.dev, surenb@google.com, virtualization@lists.linux.dev,
- weixugc@google.com, xuanzhuo@linux.alibaba.com,
- ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
- kernel-team@meta.com
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
- <aa9aDGwk8YteaEob@linux.dev>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-In-Reply-To: <aa9aDGwk8YteaEob@linux.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260310020057.340550-1-rosenp@gmail.com>
 
-On 3/9/26 4:43 PM, Shakeel Butt wrote:
-> On Fri, Mar 06, 2026 at 08:55:20PM -0800, JP Kobryn (Meta) wrote:
->> When investigating pressure on a NUMA node, there is no straightforward way
->> to determine which policies are driving allocations to it.
->>
->> Add per-policy page allocation counters as new node stat items. These
->> counters track allocations to nodes and also whether the allocations were
->> intentional or fallbacks.
->>
->> The new stats follow the existing numa hit/miss/foreign style and have the
->> following meanings:
->>
->>    hit
->>      - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
->>      - for other policies, allocation succeeded on intended node
->>      - counted on the node of the allocation
->>    miss
->>      - allocation intended for other node, but happened on this one
->>      - counted on other node
->>    foreign
->>      - allocation intended on this node, but happened on other node
->>      - counted on this node
->>
->> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
->> in /proc/vmstat.
->>
->> Signed-off-by: JP Kobryn (Meta) <jp.kobryn@linux.dev>
+On 09-03-26, 19:00, Rosen Penev wrote:
+> A flexible array member can be used to combine allocations.
 > 
-> [...]
+> Signed-off-by: Rosen Penev <rosenp@gmail.com>
+> ---
+>  drivers/gpio/gpio-virtio.c | 10 +++-------
+>  1 file changed, 3 insertions(+), 7 deletions(-)
 > 
->> +
->> +	rcu_read_lock();
->> +	memcg = mem_cgroup_from_task(current);
->> +
->> +	if (is_hit) {
->> +		lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
->> +		mod_lruvec_state(lruvec, hit_idx, nr_pages);
->> +	} else {
->> +		/* account for miss on the fallback node */
->> +		lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
->> +		mod_lruvec_state(lruvec, hit_idx + 1, nr_pages);
->> +
->> +		/* account for foreign on the intended node */
->> +		lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(intended_nid));
->> +		mod_lruvec_state(lruvec, hit_idx + 2, nr_pages);
->> +	}
-> 
-> This seems like monotonic increasing metrics and I think you don't care about
-> their absolute value but rather rate of change. Any reason this can not be
-> achieved through tracepoints and BPF combination?
+> diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
+> index ed6e0e90fa8a..876a34ed739d 100644
+> --- a/drivers/gpio/gpio-virtio.c
+> +++ b/drivers/gpio/gpio-virtio.c
+> @@ -52,7 +52,6 @@ struct virtio_gpio {
+>  	struct virtio_device *vdev;
+>  	struct mutex lock; /* Protects virtqueue operation */
+>  	struct gpio_chip gc;
+> -	struct virtio_gpio_line *lines;
+>  	struct virtqueue *request_vq;
+>  
+>  	/* irq support */
+> @@ -60,6 +59,7 @@ struct virtio_gpio {
+>  	struct mutex irq_lock; /* Protects irq operation */
+>  	raw_spinlock_t eventq_lock; /* Protects queuing of the buffer */
+>  	struct vgpio_irq_line *irq_lines;
+> +	struct virtio_gpio_line lines[];
 
-We have the per-node reclaim stats (pg{steal,scan,refill}) in
-nodeN/vmstat and memory.numa_stat now. The new stats in this patch would
-be collected from the same source. They were meant to be used together,
-so it seemed like a reasonable location. I think the advantage over
-tracepoints is we get the observability on from the start and it would
-be simple to extend existing programs that already read stats from the
-cgroup dir files.
+Add a blank line before this to separate this out from irq-support
+entries.
+
+>  };
+>  
+>  static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
+> @@ -541,10 +541,6 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
+>  	u16 ngpio;
+>  	int ret, i;
+>  
+> -	vgpio = devm_kzalloc(dev, sizeof(*vgpio), GFP_KERNEL);
+> -	if (!vgpio)
+> -		return -ENOMEM;
+> -
+>  	/* Read configuration */
+>  	gpio_names_size =
+>  		virtio_cread32(vdev, offsetof(struct virtio_gpio_config,
+> @@ -556,8 +552,8 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	vgpio->lines = devm_kcalloc(dev, ngpio, sizeof(*vgpio->lines), GFP_KERNEL);
+> -	if (!vgpio->lines)
+> +	vgpio = devm_kzalloc(dev, struct_size(vgpio, lines, ngpio), GFP_KERNEL);
+> +	if (!vgpio)
+>  		return -ENOMEM;
+>  
+>  	for (i = 0; i < ngpio; i++) {
+
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+
+-- 
+viresh
