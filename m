@@ -1,97 +1,86 @@
-Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AE503CFF69
-	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 17:02:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C54C2DF6E9;
+	Tue, 10 Mar 2026 18:27:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773162151; cv=none; b=iJWpdfCvUvfer9MfV87Of4adHTuCxDGw/wvOsRH8TPzh8R8+OhxJPPp7Uywvip6P5VeDjl/zYaidMjFHrqZhSvm3j0yTd5XI+ZVaascnnBCU4nukDFhHRLyQdAVf3NrUKo8uWGDcIEMJkYNjPbRYfzMjnJOyctla9X2MVwnxkZY=
+	t=1773167253; cv=none; b=D43G3AEtlabI3ZhO2mr0FqdoBmGWtWXvE29rUn8KbuuwznZ2zm4FxK1O3/+2P9Qklx73zgNWOB9gkbFdsc7fvzGEtzPkS7roGDPr95wxwO5linz6cDpI0c24XbRqLskbx8/6zItHHu6ViukRsdeEKy260JVGZ0i0kNSMx1kPa0k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773162151; c=relaxed/simple;
-	bh=UXdqamY6AIu9HPttzy2Zdui/eIc+rJ7wz+7z84q9oug=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HhW+eCwLJMGr5eWvZxwQgitDs+qPC/3fGaxgDKyVq+c7WPKm4r6UBu92WQMmGqCD7GjyTJl68IjtYQf593/y7VTxXHHnL5wPsB4X9Mwn9Y+w1TThPLFKNv2icHTrzWFSsK/oxuvTkaEt1zdwNDENRvDleZMxpc+Y66m4tQnRRCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=E5bgoUQu; arc=none smtp.client-ip=91.218.175.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773167253; c=relaxed/simple;
+	bh=b24i4Z7BOygflKMZx7uFLoKgYs5ql97e8Cw/DSK5PpU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VuooqpI7lyfYXbmsYhBLqdxe9ueF6rPcUtT+4Oh3iyEVCpWdOWbFcug+q9pyskwN4namUBEwS2SkjG4uf3RyICZE40bn63QOkKWTdRjAqjadNjytZ4+0r6ovc5SeM5Tecknf0q6QDjFnMFt2XZ0hYgCGFlenHi5GciMh69HY0ZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cjP9L89o; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="E5bgoUQu"
-Message-ID: <35272f7a-4c1e-48f8-8e99-82bf3baffab3@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773162135;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0LKshKUK3KitIMjNACXgO7TTkRiyZPtXq9EyeTBs6so=;
-	b=E5bgoUQuw0+On5E2PJ89wAn5VJKu0l4SF5t/wicRslH5R9CgJYBndevL6URwlolo5gSWRA
-	Rc/KugVqwjM2d90Y46q784Bkmf8xfQ3zQpYtXtd6nTtBR9SZPM+vh4LPJc3yEA8/OJ97D/
-	64B0uIZzJgoLagIttfjTn+QWj07uYtA=
-Date: Tue, 10 Mar 2026 10:01:53 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cjP9L89o"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAE21C19423;
+	Tue, 10 Mar 2026 18:27:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773167253;
+	bh=b24i4Z7BOygflKMZx7uFLoKgYs5ql97e8Cw/DSK5PpU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=cjP9L89oo/rf1PhzqMFJD5061e4hV9ZaUTXw3ELzcaUq0DMluStl5wilTATAQ95Eg
+	 ufLRCmEi0plTC30bei3B4LSeDZP5R0q2t2CGcOoAJNOpYCfVMFlU5guy4td5xVVgsT
+	 5H4B3zZCjnTluzNPJs85YDXUsyLPM6876e381FFIxUOMvTpfyP897krPDo2KlCA2Z9
+	 Vb4MHNCtsSiNdqrpXaPRUkFt7BLixAmFnD4D3P3hgXUe7rjHlk7vRAzOd+2c55Y/b4
+	 soJZKZLhYz4g/Qm/kLxJOgpU4Q2Aux2zKSuYW2z7b5a9vCeol3wY5NiiT/Rt7+7qwy
+	 n7CAxR2i1Oi/Q==
+Date: Tue, 10 Mar 2026 20:27:29 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-rdma@vger.kernel.org
+Subject: Re: [PATCH 2/3] dma-mapping: Clarify valid conditions for CPU cache
+ line overlap
+Message-ID: <20260310182729.GG12611@unreal>
+References: <20260308181920.GH1687929@ziepe.ca>
+ <20260308184902.GR12611@unreal>
+ <20260308230916.GI1687929@ziepe.ca>
+ <CGME20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07@eucas1p2.samsung.com>
+ <20260309090342.GS12611@unreal>
+ <c1d058f3-f864-4ed7-9f7a-683d6f4bf1ce@samsung.com>
+ <20260309150502.GX12611@unreal>
+ <20260309151356.GN1687929@ziepe.ca>
+ <aaebc5b6-2805-46d3-a68e-549c26a3ef03@samsung.com>
+ <20260310123405.GR1687929@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-To: Shakeel Butt <shakeel.butt@linux.dev>
-Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@suse.com,
- vbabka@suse.cz, apopple@nvidia.com, axelrasmussen@google.com,
- byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
- eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
- hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
- linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
- matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org,
- muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
- roman.gushchin@linux.dev, surenb@google.com, virtualization@lists.linux.dev,
- weixugc@google.com, xuanzhuo@linux.alibaba.com,
- ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
- kernel-team@meta.com
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
- <aa9aDGwk8YteaEob@linux.dev> <dcf2e654-ad2f-4390-9b62-078e664158de@linux.dev>
- <abAmMjkZZLN9LXXM@linux.dev>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-In-Reply-To: <abAmMjkZZLN9LXXM@linux.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260310123405.GR1687929@ziepe.ca>
 
-On 3/10/26 7:53 AM, Shakeel Butt wrote:
-> On Mon, Mar 09, 2026 at 09:17:43PM -0700, JP Kobryn (Meta) wrote:
->> On 3/9/26 4:43 PM, Shakeel Butt wrote:
->>> On Fri, Mar 06, 2026 at 08:55:20PM -0800, JP Kobryn (Meta) wrote:
-> [...]
->>>
->>> This seems like monotonic increasing metrics and I think you don't care about
->>> their absolute value but rather rate of change. Any reason this can not be
->>> achieved through tracepoints and BPF combination?
->>
->> We have the per-node reclaim stats (pg{steal,scan,refill}) in
->> nodeN/vmstat and memory.numa_stat now. The new stats in this patch would
->> be collected from the same source. They were meant to be used together,
->> so it seemed like a reasonable location. I think the advantage over
->> tracepoints is we get the observability on from the start and it would
->> be simple to extend existing programs that already read stats from the
->> cgroup dir files.
+On Tue, Mar 10, 2026 at 09:34:05AM -0300, Jason Gunthorpe wrote:
+> On Tue, Mar 10, 2026 at 10:45:38AM +0100, Marek Szyprowski wrote:
+> > Jason is right. Indeed the rdma/uverbs case needs some extension to 
+> > ensure that the coherent mapping is used, what is not possible now. This 
+> > however doesn't mean that the DMA_ATTR_CPU_CACHE_OVERLAP is not needed 
+> > for that use case too. I'm open to accept both. The only question I have 
+> > is which name should we use? We already have DMA_ATTR_CPU_CACHE_CLEAN, 
+> > while DMA_ATTR_CPU_CACHE_OVERLAP and 
+> > DMA_ATTR_DEBUGGING_IGNORE_CACHELINES were proposed here. The last seems 
+> > to be most descriptive.
 > 
-> Convenience is not really justifying the cost of adding 18 counters,
-> particularly in memcg. We can argue about adding just in system level metrics
-> but not for memcg.
-> 
-> counter_cost = nr_cpus * nr_nodes * nr_memcg * 16 (struct lruvec_stats_percpu)
-> 
-> On a typical prod machine, we can see 1000s of memcg, 100s of cpus and couple of
-> numa nodes. So, a single counter's cost can range from 200KiB to MiBs. This does
-> not seem like a cost we should force everyone to pay.
-> 
-> If you really want these per-memcg and assuming these metrics are updated in
-> non-performance critical path, we can try to decouple these and other reclaim
-> related stats from rstat infra. That would at least reduce nr_cpus factor in the
-> above equation to 1. Though we will need to actually evaluate the performance
-> for the change before committing to it.
+> If we do DMA_ATTR_REQUIRE_COHERENCE then I imagine it would internally
+> also set DMA_ATTR_DEBUGGING_IGNORE_CACHELINES, but I'd prefer that
+> detail not leak into the callers.
 
-I could trade off the per-cgroup granularity and change these stats to
-become global per-node stats.
+Yes, this is how I implemented in my v2, which I didn't send yet :).
+
+Thanks
+
+> 
+> Jason
