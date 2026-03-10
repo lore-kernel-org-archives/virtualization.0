@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58F2D2C0F6D;
-	Tue, 10 Mar 2026 08:56:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69416436377;
+	Tue, 10 Mar 2026 09:00:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773132994; cv=none; b=rVoiTJ+yEF9qxLCLsRFIbb4dCphFMEQ3Z6S6sR0WfcDT027Eev1CrdQI9m4jg/zCvJnfs7qOrGwPAI4n3B216t44gX5q7L7rWYdQfUA0VuggfqAtUsZ4gSxg9SaA7DmF7yhgAxgU7nA3JH6sUWqGZ4/szDqmsBqbzyMnX43uqmA=
+	t=1773133207; cv=none; b=ROjDj0avosEosB3WKwYsQyu+Ih7IOhw6rc63/k/nd0grxd+agCgUPxlemDyuRs/2uLoS2gBi+NoiGmaOL8flccjXeFs/rbDF1Wk7fw75i+AIHFQdWKgb3rrjszWH8NRreZF/M0Kc6u2UEfDj3s6Z3NYAfoGAJHZJFIbESbUzqo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773132994; c=relaxed/simple;
-	bh=7pQUu9kECLpzyIbdDr9fFWBQhtlqgFlpxbVNSMxyHFA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iQyWcqzZjxcL5S7X7fK+uILIFcso033Lz0pQCbT9mnFKV5tLofLNryy9vLfYSsO2AR4t44g+kO11tJcTa6i8XM6ehbXdfWujWvf5il/7CsjCsMQ6dlnAK6eI9mbMVEdZU/v/Q46xOk+P4zOhIoljaJMAFYgt7uhwilIv84iTOUg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cxly0X/9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773133207; c=relaxed/simple;
+	bh=bx403b/zRrbKVsyudjpDKxSmcDF0O3Ag34b2nfgC1jQ=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=MXMUyk6v+2w1+sE2hHCU6LUzYUyzndqBQqqlmDlvw9VoP9Y4Br+PlOBmvVpckSx+Hm7Sj3FGx++bGoc0ankCZskcfpTwgli+vQPhJy7wVNbBJTNct9RX8SAQ0orFDRPjY3l9Aqkxn5tWvimoR+w7OKuwfp5cAVjgQb+IK8GEU0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UjfYJGaT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cxly0X/9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8250EC19423;
-	Tue, 10 Mar 2026 08:56:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UjfYJGaT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C31BFC19423;
+	Tue, 10 Mar 2026 09:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773132994;
-	bh=7pQUu9kECLpzyIbdDr9fFWBQhtlqgFlpxbVNSMxyHFA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=cxly0X/9bGB51a7ILz9MCTqx/dG+E0ukLQExeJx5vUr62UuNrzDOU4y0NsU42mvvm
-	 rGWvs1KXf+2tFDKmbfEE6vlFNWyKkjEdPO16xLLT1akh0+jM9BwCNZ/nkl9a5EgU9C
-	 nbz52rZnTSp5f7gMWJPL+gAFZVKZIb5/woOQw7h73WA6DNRvCmWdW2OHFu9Fk8iEVw
-	 MEa/MbrbO0FEHDRuHocKWLzH0ctbq6B73kaoE+y09eB4WtzoeXhTa/9crV1IKL4biF
-	 12C91WMsTAZHj1ylWru1uc0pBRhZy4oNNUSoKHH1XasD/XuK0txd/BgWlOfkyIcrV0
-	 KYzrnB6RWC0qw==
-Message-ID: <e846cb5f-65c4-4a9b-9f9b-593e4af526d8@kernel.org>
-Date: Tue, 10 Mar 2026 09:56:28 +0100
+	s=k20201202; t=1773133207;
+	bh=bx403b/zRrbKVsyudjpDKxSmcDF0O3Ag34b2nfgC1jQ=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
+	b=UjfYJGaT36r5iqwTQs5p/a4GzNj9rwUkkMg9ynEkOW22RR+2pXqpRDNFEyLcYuaF/
+	 96fHUBIMf3gtm3BZhPLQk94N703UupLqiwGnPynyLS0HPDe2sdy3W4UhfgtCggHBPF
+	 f0qyIp+JCu5L0hrYwwUqjRp9hnVEVYTImlvXiWeyvG3PR8Hfl5URW5a79xJINbE3u6
+	 aKWWEKvRcwj+IO20svoSOEkoz2wvmoT0YU9B+WUig8a6ZKJy2Oxh9+7kwskYH/etNl
+	 aljrMsFN3suDlT+Bj+TmBWx9oXxXiyH4mnyjDDzPutK5sav2NMnckpXFBBclhSLKyI
+	 BORFHt/xUq/OA==
+Message-ID: <76e2b909-98db-49de-a8eb-f6f0a192f630@kernel.org>
+Date: Tue, 10 Mar 2026 10:00:01 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,6 +37,7 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups, RCU
  stalls, timeout
+From: Jiri Slaby <jirislaby@kernel.org>
 To: Thomas Gleixner <tglx@kernel.org>, Matthieu Baerts <matttbe@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>,
  Stefan Hajnoczi <stefanha@redhat.com>,
@@ -60,9 +61,8 @@ References: <863a5291-a636-47d0-891c-bb0524d2e134@kernel.org>
  <87ldg42eu7.ffs@tglx> <87h5qr2rzi.ffs@tglx> <87eclu3coa.ffs@tglx>
  <87v7f61cnl.ffs@tglx> <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org>
  <87pl5ds88r.ffs@tglx> <0ae4d678-5676-4523-bae3-5ad73b526e27@kernel.org>
- <87eclsrtqg.ffs@tglx>
+ <87eclsrtqg.ffs@tglx> <e846cb5f-65c4-4a9b-9f9b-593e4af526d8@kernel.org>
 Content-Language: en-US
-From: Jiri Slaby <jirislaby@kernel.org>
 Autocrypt: addr=jirislaby@kernel.org; keydata=
  xsFNBE6S54YBEACzzjLwDUbU5elY4GTg/NdotjA0jyyJtYI86wdKraekbNE0bC4zV+ryvH4j
  rrcDwGs6tFVrAHvdHeIdI07s1iIx5R/ndcHwt4fvI8CL5PzPmn5J+h0WERR5rFprRh6axhOk
@@ -105,21 +105,27 @@ Autocrypt: addr=jirislaby@kernel.org; keydata=
  f/bIWIr0cqQmqQ33FgRhrG1+Xml6UXyJ2jExmlO8JljuOGeXYh6ZkIEyzqzffzBLXZCujlYQ
  DFXpyMNVJ2ZwPmX2mWEoYuaBU0JN7wM+/zWgOf2zRwhEuD3A2cO2PxoiIfyUEfB9SSmffaK/
  S4xXoB6wvGENZ85Hg37C7WDNdaAt6Xh2uQIly5grkgvWppkNy4ZHxE+jeNsU7tg=
-In-Reply-To: <87eclsrtqg.ffs@tglx>
+In-Reply-To: <e846cb5f-65c4-4a9b-9f9b-593e4af526d8@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Thomas,
+On 10. 03. 26, 9:56, Jiri Slaby wrote:
+> Thomas,
+> 
+> On 10. 03. 26, 9:09, Thomas Gleixner wrote:
+>>     2) task is not longer in the task list w/o going through do_exit()
+> 
+> After a quick look (I have to run now, so I could be completely wrong): 
+> what about the task is not in the list *yet*. You use RCU -> 
+> for_each_process_thread(), so there could be a race with attach_pid() 
+> protected by tasklist_lock.
 
-On 10. 03. 26, 9:09, Thomas Gleixner wrote:
->     2) task is not longer in the task list w/o going through do_exit()
+Not attach_pid(), that's irrelevant here.
 
-After a quick look (I have to run now, so I could be completely wrong): 
-what about the task is not in the list *yet*. You use RCU -> 
-for_each_process_thread(), so there could be a race with attach_pid() 
-protected by tasklist_lock.
+But one line below in copy_process(): list_add_tail().
 
-thanks,
+> thanks,
 -- 
 js
 suse labs
+
