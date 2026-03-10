@@ -1,145 +1,97 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B69B3B775C;
-	Tue, 10 Mar 2026 15:51:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AE503CFF69
+	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 17:02:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773157906; cv=none; b=dGupVZOZV/QRZxbcy5/6AkIJVhh3x1emQUfo0MvDqg3sHHhvbFgQ0odTBJ4Sy/xGFcgqRd/9JY2CsewPtqfNLZ0dJqNq3F9KGDZE1wgR7jk8yBY0q6OEBnIzXv9t0pQH5TQwqwOuUsph+7D0wnozJAG6Lx+6O0hWn6MLw2iv3rM=
+	t=1773162151; cv=none; b=iJWpdfCvUvfer9MfV87Of4adHTuCxDGw/wvOsRH8TPzh8R8+OhxJPPp7Uywvip6P5VeDjl/zYaidMjFHrqZhSvm3j0yTd5XI+ZVaascnnBCU4nukDFhHRLyQdAVf3NrUKo8uWGDcIEMJkYNjPbRYfzMjnJOyctla9X2MVwnxkZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773157906; c=relaxed/simple;
-	bh=hrMCPiD1kSuFSsYwv40IBpKagD47pviVhBH4RjPYoYo=;
+	s=arc-20240116; t=1773162151; c=relaxed/simple;
+	bh=UXdqamY6AIu9HPttzy2Zdui/eIc+rJ7wz+7z84q9oug=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=foOv6E78n4tv5Ek53WcRN/C79Cst6ab45yd/VHtfYcEYZ3DNtZ0A+IzEeD6ZfA04oyFCkXm9sYCNlB9sHFpZLL0D1h/mAOOne5sgUcKeoN6ouwX9n8cxsFuMkIWbfmb05f/NmpIoFtWFsBd5hPvLB7FzjWdGFCLj8wBnBoqMxTU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XHama83q; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=HhW+eCwLJMGr5eWvZxwQgitDs+qPC/3fGaxgDKyVq+c7WPKm4r6UBu92WQMmGqCD7GjyTJl68IjtYQf593/y7VTxXHHnL5wPsB4X9Mwn9Y+w1TThPLFKNv2icHTrzWFSsK/oxuvTkaEt1zdwNDENRvDleZMxpc+Y66m4tQnRRCI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=E5bgoUQu; arc=none smtp.client-ip=91.218.175.183
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XHama83q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47990C19423;
-	Tue, 10 Mar 2026 15:51:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773157905;
-	bh=hrMCPiD1kSuFSsYwv40IBpKagD47pviVhBH4RjPYoYo=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=XHama83qMsDpQzGN0ZbqxayU2oExcsKwBAM3hr9sLfso+2dxx0XcYdqezwNt2gQxJ
-	 8a8rgTTnjX1ddbgxmNqi/QKwwCIyQ0NLtbqPr6Ut89IodjyBvvBINR9U543EAIt2oC
-	 zSlyTSshyhTbMO+UFReA9wP+FwAMkKBQdEtKeu0dQtRvzXmFXxoP87VYtx6/taK7V1
-	 fRqFQg0IhKfzVFxUuOzPNyGZ7Bt2QKFszfOaw0VzLJQB8tAsuLXlejsgmtck5k9MgC
-	 3+mjn9WWhUFXg8FKtzI8RujpB7U1ofUuoIVNZZ27P3D2i0zDvQk1OMQgdjuT+ZLGaW
-	 8ZwbIXKLHUUjQ==
-Message-ID: <19d9b245-3307-4d6a-8e42-895fbd167887@kernel.org>
-Date: Tue, 10 Mar 2026 16:51:38 +0100
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="E5bgoUQu"
+Message-ID: <35272f7a-4c1e-48f8-8e99-82bf3baffab3@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773162135;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0LKshKUK3KitIMjNACXgO7TTkRiyZPtXq9EyeTBs6so=;
+	b=E5bgoUQuw0+On5E2PJ89wAn5VJKu0l4SF5t/wicRslH5R9CgJYBndevL6URwlolo5gSWRA
+	Rc/KugVqwjM2d90Y46q784Bkmf8xfQ3zQpYtXtd6nTtBR9SZPM+vh4LPJc3yEA8/OJ97D/
+	64B0uIZzJgoLagIttfjTn+QWj07uYtA=
+Date: Tue, 10 Mar 2026 10:01:53 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird Beta
-Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups, RCU
- stalls, timeout
-Content-Language: fr
-To: Thomas Gleixner <tglx@kernel.org>, Peter Zijlstra <peterz@infradead.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
- rcu@vger.kernel.org, MPTCP Linux <mptcp@lists.linux.dev>,
- Linux Kernel <linux-kernel@vger.kernel.org>,
- Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
- "Paul E. McKenney" <paulmck@kernel.org>,
- Dave Hansen <dave.hansen@linux.intel.com>, luto@kernel.org,
- =?UTF-8?Q?Michal_Koutn=C3=BD?= <MKoutny@suse.com>,
- Waiman Long <longman@redhat.com>, Marco Elver <elver@google.com>
-References: <87v7f61cnl.ffs@tglx>
- <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org> <87pl5ds88r.ffs@tglx>
- <0ae4d678-5676-4523-bae3-5ad73b526e27@kernel.org> <87eclsrtqg.ffs@tglx>
- <e846cb5f-65c4-4a9b-9f9b-593e4af526d8@kernel.org>
- <76e2b909-98db-49de-a8eb-f6f0a192f630@kernel.org> <878qc0rofr.ffs@tglx>
- <874imorobw.ffs@tglx> <4cad1b9a-e157-427b-9896-cf54cf6fba36@kernel.org>
- <20260310115433.GV1282955@noisy.programming.kicks-ass.net>
- <87y0jzrhqn.ffs@tglx> <a5cabf68-df88-4a5e-8075-bb10debc44f7@kernel.org>
- <87v7f3re2w.ffs@tglx>
-From: Matthieu Baerts <matttbe@kernel.org>
-Autocrypt: addr=matttbe@kernel.org; keydata=
- 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
- lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
-Organization: NGI0 Core
-In-Reply-To: <87v7f3re2w.ffs@tglx>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+To: Shakeel Butt <shakeel.butt@linux.dev>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@suse.com,
+ vbabka@suse.cz, apopple@nvidia.com, axelrasmussen@google.com,
+ byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
+ eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
+ hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
+ linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
+ matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org,
+ muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
+ roman.gushchin@linux.dev, surenb@google.com, virtualization@lists.linux.dev,
+ weixugc@google.com, xuanzhuo@linux.alibaba.com,
+ ying.huang@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+ kernel-team@meta.com
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+ <aa9aDGwk8YteaEob@linux.dev> <dcf2e654-ad2f-4390-9b62-078e664158de@linux.dev>
+ <abAmMjkZZLN9LXXM@linux.dev>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+In-Reply-To: <abAmMjkZZLN9LXXM@linux.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-On 10/03/2026 14:47, Thomas Gleixner wrote:
-> On Tue, Mar 10 2026 at 14:40, Matthieu Baerts wrote:
->> On 10/03/2026 13:28, Thomas Gleixner wrote:
+On 3/10/26 7:53 AM, Shakeel Butt wrote:
+> On Mon, Mar 09, 2026 at 09:17:43PM -0700, JP Kobryn (Meta) wrote:
+>> On 3/9/26 4:43 PM, Shakeel Butt wrote:
+>>> On Fri, Mar 06, 2026 at 08:55:20PM -0800, JP Kobryn (Meta) wrote:
+> [...]
+>>>
+>>> This seems like monotonic increasing metrics and I think you don't care about
+>>> their absolute value but rather rate of change. Any reason this can not be
+>>> achieved through tracepoints and BPF combination?
 >>
->> (...)
->>
->>> I've updated the debug patch and removed the @users conditionals so it
->>> keeps searching. So it should find that magic 73.
->>
->> It looks like it does, thank you! I just tried this new debug patch, and
->> I managed to boot 100 times without issues, while before I was getting
->> it after max 20 attempts. I left the test running to boot up to 1000
->> times, just in case.
+>> We have the per-node reclaim stats (pg{steal,scan,refill}) in
+>> nodeN/vmstat and memory.numa_stat now. The new stats in this patch would
+>> be collected from the same source. They were meant to be used together,
+>> so it seemed like a reasonable location. I think the advantage over
+>> tracepoints is we get the observability on from the start and it would
+>> be simple to extend existing programs that already read stats from the
+>> cgroup dir files.
 > 
-> Now that I actually understood the problem, I was able to write a
-> reproducer which triggers the issue 100% reliable.
+> Convenience is not really justifying the cost of adding 18 counters,
+> particularly in memcg. We can argue about adding just in system level metrics
+> but not for memcg.
 > 
-> The debug patch does cure it and it does the right thing. I have a
-> better version of that in testing right now which avoid all that flaky
-> accounting and especially in the vfork() case the full tasklist walk.
-> I'll send out a complete patch series with changelogs etc. later.
+> counter_cost = nr_cpus * nr_nodes * nr_memcg * 16 (struct lruvec_stats_percpu)
+> 
+> On a typical prod machine, we can see 1000s of memcg, 100s of cpus and couple of
+> numa nodes. So, a single counter's cost can range from 200KiB to MiBs. This does
+> not seem like a cost we should force everyone to pay.
+> 
+> If you really want these per-memcg and assuming these metrics are updated in
+> non-performance critical path, we can try to decouple these and other reclaim
+> related stats from rstat infra. That would at least reduce nr_cpus factor in the
+> above equation to 1. Though we will need to actually evaluate the performance
+> for the change before committing to it.
 
-Great, thank you!
-
-Note that my 1000 boot iteration finished without errors.
-
-> Thanks a lot for your patience and invaluable help. Very appreciated!
-
-My pleasure! Thank you for your support, and for maintaining so many
-important pieces in the Linux kernel!
-
-Cheers,
-Matt
--- 
-Sponsored by the NGI0 Core fund.
-
+I could trade off the per-cgroup granularity and change these stats to
+become global per-node stats.
