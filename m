@@ -1,157 +1,154 @@
-Received: from mail-m16.yeah.net (mail-m16.yeah.net [1.95.21.14])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E6F2264A97
-	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 06:37:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=1.95.21.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7598429DB6A;
+	Tue, 10 Mar 2026 08:09:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773124627; cv=none; b=ZI1HjQTCb/SmGG25f1bvSoYYY+879WAv/XldfQOqHqNzKjK+mHmySD4sgz2bdWo9Gf/mBya8/FkdbERl+0DznIDWMqZ9xZeikiSU4C4lgLh8SBwdoNgDuL4RY2rWH1kN1w/l9Xs6QcjODCn16qVorQPMD7nZs8bfXDlYgXv9wRc=
+	t=1773130171; cv=none; b=PbRHtEGfJ2myOKvbTUMg88V3fjDVV5JfsjT87/bJFvZbHph0SJGH/clfTz/uu0DBzkEGgY/7j3bdfCBipZc6V0aIsSloNyWtLLwkJlaRIhB3kCbr2EggaOHqQCb9p0VucF5Kk+E+R+Lyvr4PR6ocfoT9XM+TDypcXrjekwEx/AU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773124627; c=relaxed/simple;
-	bh=XsmaA0lgW9uGpln6K/yqwvcGtYGkgY1f8puoczaMf3A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JAQcUgtfeIHkH2HwSyerxBORWxG1u9+hqXUxT//2N8nHk8Cze2IN1CWp6J8N67dOQbsd63A28B63hwYY6aSPbd7behJQbbTOdxSOHKmsE3/SjTIS3x9RA+/L7neH1x7ZWnkuitZ9rW1d2n5s5YlN7RB6xfi9NL3umTV3SC7J/Ts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yeah.net; spf=pass smtp.mailfrom=yeah.net; dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b=Ul5dS0B1; arc=none smtp.client-ip=1.95.21.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yeah.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yeah.net
+	s=arc-20240116; t=1773130171; c=relaxed/simple;
+	bh=fyxdW4yZLM/QBT6DaWDRFhNx2Iad5yVhiTbU7gZmarY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=hKPPGuOkwl5sbBYAJj9pyL3IZvGdP78cZOuc7k9Y2fVJzhat2m+1r8s1HyDoRBxp19VM3UaQBAYj4EGpksgfLVEeC9ZEAs/uDZkQCFdeBH99xCHnpfrHfb1SLRGj2KEP+3G+KrI5QEOIMWP/M0qpm0QeOGl9rK5FRExGNKTJnFE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DPcgR2N3; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b="Ul5dS0B1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yeah.net;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
-	Content-Type; bh=dwKmeyTuqCGuHp07HiwP0COMuXzDZ1A+iREkHHcf93g=;
-	b=Ul5dS0B1DJyDlSJCXsWy5jb2LC02eklxf4xV92fU+Or7WdswrQMD1ScrrG5yr4
-	ECiwekzGu7oaL2WSXwP7p97AIh2eh+e0ppd5MbTLlbdbS1YiyXnscld5SrPnO533
-	ndO1ywy7lwzOu7LQxC00a+ldnMKYX7ICDhog7M6aovbXA=
-Received: from [7.247.167.131] (unknown [])
-	by gzsmtp2 (Coremail) with UTF8SMTPA id Ms8vCgDnDbDsu69pr6x0Ag--.32698S2;
-	Tue, 10 Mar 2026 14:36:29 +0800 (CST)
-Message-ID: <c15082f2-2cd1-435a-afb8-463af08b69f5@yeah.net>
-Date: Tue, 10 Mar 2026 14:36:27 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DPcgR2N3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C851C19423;
+	Tue, 10 Mar 2026 08:09:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773130171;
+	bh=fyxdW4yZLM/QBT6DaWDRFhNx2Iad5yVhiTbU7gZmarY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=DPcgR2N3EvgQXwzVDlz+dYXRb6mNgvI1kcNVEMg3KV2JK5PRyKpKjep+FrbCzCGkw
+	 tBE6iwa3A1diNd8s0ZynTe2bTIX+8EoQaAOXv06f6S2Ts2F0q0G3E2I3G0A9qeOCqW
+	 emhs9Je2mce98Pt6Mm2qK9yt7ZtyykdOAfUxWDbcthoHCjflfMblBjmN6l76XhWHce
+	 oSmHNtnVBOsPt/EJ0ZlBXXIVei4xdrawuEUgqBuBGBLlvW8oHexHRgtLhynKhOxfvY
+	 RoWxe42pFKDJpnZDNsEZiIpM64az4odfksXIRfSUeL5HVYcNm6CzZAhO0n2KKyo4Ps
+	 EAk+LR5Gb5baw==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Matthieu Baerts <matttbe@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Jiri Slaby
+ <jirislaby@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano
+ Garzarella <sgarzare@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, Netdev <netdev@vger.kernel.org>,
+ rcu@vger.kernel.org, MPTCP Linux <mptcp@lists.linux.dev>, Linux Kernel
+ <linux-kernel@vger.kernel.org>, Shinichiro Kawasaki
+ <shinichiro.kawasaki@wdc.com>, "Paul E. McKenney" <paulmck@kernel.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, luto@kernel.org, Michal
+ =?utf-8?Q?Koutn=C3=BD?=
+ <MKoutny@suse.com>, Waiman Long <longman@redhat.com>, Marco Elver
+ <elver@google.com>
+Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups,
+ RCU stalls, timeout
+In-Reply-To: <0ae4d678-5676-4523-bae3-5ad73b526e27@kernel.org>
+References: <863a5291-a636-47d0-891c-bb0524d2e134@kernel.org>
+ <20260302114636.GL606826@noisy.programming.kicks-ass.net>
+ <717310d8-6274-4b7f-8a19-561c45f5f565@kernel.org>
+ <a2b573b4-af61-4b84-a7d1-012ed6bb23c9@kernel.org>
+ <ba067933-bf3b-476d-a0bb-53eda56996ca@kernel.org> <87zf4m2qvo.ffs@tglx>
+ <47cba228-bba7-4e58-a69d-ea41f8de6602@kernel.org> <87tsuu2i59.ffs@tglx>
+ <7efde2b5-3b72-4858-9db0-22493d446301@kernel.org> <87qzpx2sck.ffs@tglx>
+ <20260306152458.GT606826@noisy.programming.kicks-ass.net>
+ <87ldg42eu7.ffs@tglx> <87h5qr2rzi.ffs@tglx> <87eclu3coa.ffs@tglx>
+ <87v7f61cnl.ffs@tglx> <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org>
+ <87pl5ds88r.ffs@tglx> <0ae4d678-5676-4523-bae3-5ad73b526e27@kernel.org>
+Date: Tue, 10 Mar 2026 09:09:27 +0100
+Message-ID: <87eclsrtqg.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_net: Fix UAF on dst_ops when IFF_XMIT_DST_RELEASE
- is cleared and napi_tx is false
-To: Eric Dumazet <edumazet@google.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <20260307035110.7121-1-xietangxin@yeah.net>
- <CANn89i+Km-6ixX=mQEZSf_vAbYo4ECge8-jY8s3vLXJ87D63sA@mail.gmail.com>
-From: xietangxin <xietangxin@yeah.net>
-In-Reply-To: <CANn89i+Km-6ixX=mQEZSf_vAbYo4ECge8-jY8s3vLXJ87D63sA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:Ms8vCgDnDbDsu69pr6x0Ag--.32698S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxXw4rXFy8Zw4DGryxJFWkJFb_yoWrJF1xpr
-	4FyFW5Xr4Utr17Aan3XF4DWryYvan3Gw43Grs0gr4fCrZ8uF15JF129ryjgFWDZrs5uryj
-	vw4Fvr12gr90vFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jOKsUUUUUU=
-X-CM-SenderInfo: x0lh3tpqj0x0o61htxgoqh3/1tbiIg1wpGmvu+3A5AAA3P
+Content-Type: text/plain
 
+Matthieu!
 
+On Mon, Mar 09 2026 at 13:23, Matthieu Baerts wrote:
+> On 09/03/2026 09:43, Thomas Gleixner wrote:
+>> That should provide enough information to decode this mystery.
 
-On 3/7/2026 12:15 PM, Eric Dumazet wrote:
-> On Sat, Mar 7, 2026 at 4:52 AM xietangxin <xietangxin@yeah.net> wrote:
->>
->> A UAF issue occurs when the virtio_net driver is configured with napi_tx=N
->> and the device's IFF_XMIT_DST_RELEASE flag is cleared
->> (e.g., during the configuration of tc route filter rules).
->>
->> When IFF_XMIT_DST_RELEASE is removed from the net_device, the network stack
->> expects the driver to hold the reference to skb->dst until the packet
->> is fully transmitted and freed. In virtio_net with napi_tx=N,
->> skbs may remain in the virtio transmit ring for an extended period.
->>
->> If the network namespace is destroyed while these skbs are still pending,
->> the corresponding dst_ops structure has freed. When a subsequent packet
->> is transmitted, free_old_xmit() is triggered to clean up old skbs.
->> It then calls dst_release() on the skb associated with the stale dst_entry.
->> Since the dst_ops (referenced by the dst_entry) has already been freed,
->> a UAF kernel paging request occurs.
->>
->> fix it by adds skb_dst_drop(skb) in start_xmit to explicitly release
->> the dst reference before the skb is queued in virtio_net.
->>
->> Call Trace:
->>  Unable to handle kernel paging request at virtual address ffff80007e150000
->>  CPU: 2 UID: 0 PID: 6236 Comm: ping Kdump: loaded Not tainted 7.0.0-rc1+ #6 PREEMPT
->>   ...
->>   percpu_counter_add_batch+0x3c/0x158 lib/percpu_counter.c:98 (P)
->>   dst_release+0xe0/0x110  net/core/dst.c:177
->>   skb_release_head_state+0xe8/0x108 net/core/skbuff.c:1177
->>   sk_skb_reason_drop+0x54/0x2d8 net/core/skbuff.c:1255
->>   dev_kfree_skb_any_reason+0x64/0x78 net/core/dev.c:3469
->>   napi_consume_skb+0x1c4/0x3a0 net/core/skbuff.c:1527
->>   __free_old_xmit+0x164/0x230  drivers/net/virtio_net.c:611 [virtio_net]
->>   free_old_xmit drivers/net/virtio_net.c:1081 [virtio_net]
->>   start_xmit+0x7c/0x530 drivers/net/virtio_net.c:3329 [virtio_net]
->>   ...
->>
->> Reproduction Steps:
->> NETDEV="enp3s0"
->>
->> config_qdisc_route_filter() {
->>     tc qdisc del dev $NETDEV root
->>     tc qdisc add dev $NETDEV root handle 1: prio
->>     tc filter add dev $NETDEV parent 1:0 protocol ip prio 100 route to 100 flowid 1:1
->>     ip route add 192.168.1.100/32 dev $NETDEV realm 100
->> }
->>
->> test_ns() {
->>     ip netns add testns
->>     ip link set $NETDEV netns testns
->>     ip netns exec testns ifconfig $NETDEV  10.0.32.46/24
->>     ip netns exec testns ping -c 1 10.0.32.1
->>     ip netns del testns
->> }
->>
->> config_qdisc_route_filter
->>
->> test_ns
->> sleep 2
->> test_ns
->>
->> Signed-off-by: xietangxin <xietangxin@yeah.net>
->> ---
->>  drivers/net/virtio_net.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 72d6a9c6a..5b13a61b3 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -3351,6 +3351,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->>         /* Don't wait up for transmitted skbs to be freed. */
->>         if (!use_napi) {
->>                 skb_orphan(skb);
->> +               skb_dst_drop(skb);
->>                 nf_reset_ct(skb);
->>         }
-> 
-> This probably could skb_release_head_state() at this point.
-> 
-> Thanks.
-Hi Eric,
+That was wishful thinking, but at least it narrows down the search space.
 
-Thanks for the suggestion.
+> Thank you for the debug patch and the clear instructions. I managed to
+> reproduce the issue with the extra debug. The ouput is available here:
+>
+>   https://github.com/user-attachments/files/25841808/issue-617-debug.txt.gz
 
-I have verified that calling skb_release_head_state() in the virtio_net
-does indeed fix the UAF issue.
+Thank you for testing. So what I can see from the trace is:
 
-However, skb_release_head_state() is currently a non-exported symbol.
-Since virtio_net can be built as a module, using it would require exporting.
-Given that this issue currently only affects virtio_net,
-I am concerned whether exporting such a core internal function is appropriate.
+[    2.101917] virtme-n-68        3d..1. 703536us : mmcid_user_add: t=00000000e4425b1d mm=00000000a22be644 users=3
+[    2.102057] virtme-n-68        3d..1. 703537us : mmcid_getcid: mm=00000000a22be644 cid=00000002
+[    2.102195] virtme-n-68        3d..2. 703548us : sched_switch: prev_comm=virtme-ng-init prev_pid=68 prev_prio=120 prev_state=D ==> next_comm=swapper/3 next_pid=0 next_prio=120
 
-Best regards,
+This one creates the third thread related to the mm and schedules
+out. The new thread schedules in a moment later:
 
-Tangxin Xie
+[    2.102828]   <idle>-0         2d..2. 703565us : sched_switch: prev_comm=swapper/2 prev_pid=0 prev_prio=120 prev_state=R ==> next_comm=virtme-ng-init next_pid=69 next_prio=120
+[    2.103039]   <idle>-0         2d..2. 703567us : mmcid_cpu_update: cpu=2 mm=00000000a22be644 cid=00000002
+
+[    2.104283]   <idle>-0         0d..2. 703642us : sched_switch: prev_comm=swapper/0 prev_pid=0 prev_prio=120 prev_state=R ==> next_comm=virtme-ng-init next_pid=1 next_prio=120
+[    2.104493]   <idle>-0         0d..2. 703643us : mmcid_cpu_update: cpu=0 mm=00000000a22be644 cid=00000000
+
+virtme-n-1 owns CID 0 and after scheduled in it creates the 4th thread,
+which is still in the CID space (0..3)
+
+[    2.104616] virtme-n-1         0d..1. 703690us : mmcid_user_add: t=0000000031a5ee91 mm=00000000a22be644 users=4
+
+Unsurprisingly this assignes CID 3:
+
+[    2.104757] virtme-n-1         0d..1. 703691us : mmcid_getcid: mm=00000000a22be644 cid=00000003
+
+And the newly created task schedules in on CPU3:
+
+[    2.104880]   <idle>-0         3d..2. 703708us : sched_switch: prev_comm=swapper/3 prev_pid=0 prev_prio=120 prev_state=R ==> next_comm=virtme-ng-init next_pid=70 next_prio=120
+[    2.105091]   <idle>-0         3d..2. 703708us : mmcid_cpu_update: cpu=3 mm=00000000a22be644 cid=00000003
+
+Now n-1 continues and creates the 5th thread:
+
+[    2.105227] virtme-n-1         0d..1. 703730us : mmcid_user_add: t=00000000f2e4a8c8 mm=00000000a22be644 users=5
+
+which makes it switch to per CPU ownership mode. Then it continues to go
+through the tasks in mm_cid_do_fixup_tasks_to_cpus() and fixes up:
+
+[    2.105368] virtme-n-1         0d..1. 703730us : mmcid_task_update: t=00000000c923c125 mm=00000000a22be644 cid=20000000
+[    2.105509] virtme-n-1         0d..1. 703731us : mmcid_cpu_update: cpu=0 mm=00000000a22be644 cid=20000000
+
+Itself to be in TRANSIT mode
+
+[    2.105632] virtme-n-1         0d..2. 703731us : mmcid_task_update: t=00000000478c5e8d mm=00000000a22be644 cid=80000000
+[    2.105773] virtme-n-1         0d..2. 703731us : mmcid_putcid: mm=00000000a22be644 cid=00000001
+
+Drops the CID of one task which is not on a CPU
+
+[    2.105896] virtme-n-1         0d..2. 703731us : mmcid_task_update: t=0000000031a5ee91 mm=00000000a22be644 cid=20000003
+[    2.106037] virtme-n-1         0d..2. 703731us : mmcid_cpu_update: cpu=3 mm=00000000a22be644 cid=20000003
+
+and puts the third one correctly into TRANSIT mode
+
+[    2.106174] virtme-n-69        2d..2. 703736us : sched_switch: prev_comm=virtme-ng-init prev_pid=69 prev_prio=120 prev_state=S ==> next_comm=swapper/2 next_pid=0 next_prio=120
+
+Here the one which owns CID 2 schedules out without notice, which is
+just wrong as the above should have already moved it over to TRANSIT
+mode. Why didn't that happen?
+
+So the only circumstances where mm_cid_do_fixup_tasks_to_cpus() fails to
+do that are:
+
+   1) task->mm != mm.
+
+or
+
+   2) task is not longer in the task list w/o going through do_exit()
+
+How the heck is either one of them possible?
+
+Just for the record. The picture Jiri decoded from the VM crash dump is
+exactly the same. One task is not listed.
+
+Confused
+
+        tglx
+
 
