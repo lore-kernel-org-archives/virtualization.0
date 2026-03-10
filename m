@@ -1,246 +1,154 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C52A43CEED
-	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 09:19:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE4C643901F
+	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 09:27:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773134344; cv=none; b=UXigSw5Zfdola3/CjABoF8wYJk9Ls9MzegLgvt8UJj/vAnjM0cSqU1QtYFxxqpxSSqT2ZQDeKaBSEeX3n4hyjP+xM8MR9u2FE9Xv8iCGX9bnWfp5Vsc0bj1YtvjlMPZsJxAeuJHWSnyUHLN25zFnWxzXxnDVkvQT07faljvYf0c=
+	t=1773134828; cv=none; b=l6cEoYxkPrI2U4ilbnXgzz05cSn1T32diMx9uLG08lGrDGuBWTYzk0KmIIeZYDgvrn0QtnMme2dyzD7fhG8rLW1nW5AklVtaLKamBl+O+ymFKqBBgagLeH//SdBXTWUHesszl85mS1h4MYNARnZuyxM4NAKOtdIe4R2zfIKP944=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773134344; c=relaxed/simple;
-	bh=8aiS45woyLbPObmU1neW/MDCFCbBy8+g/pFz7YT9EuE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=L/s0NIB4IFXFuXwMtyp+53tDGi6x6YMfe13uWnzzXRYGJWwkMLU8PcsnEP/QO8w+nTZzwkT119Cv1EIlbN+CkOGZfo36wr4YNt65Wxd11mlWy9L19Za2zF+R1RRFDT9+t4lgMwOuJMEBxR95GndA2i2udaGNWPy1gxvrv0o68PQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=At+kjgto; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1773134828; c=relaxed/simple;
+	bh=prO5jcc8QDr/hEZyY6kj9FvhTx8zB5lagn1VGqip1d4=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=r9LMECK3L2LupLFV/+MlTupNvoc43V8HmfOgeBHaECioqAKIby9rcl63WzQOTzcNbsHoTM4zTHWGNMb1LLbk7kzqbF2S88+zdtq2NEwz1ByOuKXP9M4Ul8JtBbxyZrtEBPInRdCsquiDJk+mtK9CFFpJEvFXIMVDn7YNR/bKmrI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PAQHJC8w; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="At+kjgto"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PAQHJC8w"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773134341;
+	s=mimecast20190719; t=1773134824;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=iirFqLObvN+6/ZXe/vgKHSudbfwueXERpHlMHRXe7vo=;
-	b=At+kjgto0HcxdrzRzw1dqjlokt/fRTkEe6KhQ2My9gk79RioQLHyacBS/71EsGjO6TemVw
-	DHg+Xvzg6b7ZCCOO8WGXO8iTB2nPVr4lPVnNWg/qrEoLhVzfgU4tngd6pBw8LhLgWhMUbP
-	/zn1D2JuZFEglsVpiQtDYwF+cSlT/q0=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-588-ljluigEEMzmIyrWzyiiH2w-1; Tue,
- 10 Mar 2026 05:18:58 -0400
-X-MC-Unique: ljluigEEMzmIyrWzyiiH2w-1
-X-Mimecast-MFC-AGG-ID: ljluigEEMzmIyrWzyiiH2w_1773134336
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8828C1956094;
-	Tue, 10 Mar 2026 09:18:55 +0000 (UTC)
-Received: from gerbillo.redhat.com (unknown [10.45.225.133])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3C2B530001A2;
-	Tue, 10 Mar 2026 09:18:49 +0000 (UTC)
-From: Paolo Abeni <pabeni@redhat.com>
-To: graf@amazon.com
-Cc: vishnu.dasa@broadcom.com,
-	stefanha@redhat.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	bcm-kernel-feedback-list@broadcom.com,
-	arnd@arndb.de,
-	netdev@vger.kernel.org,
-	eperezma@redhat.com,
-	gregkh@linuxfoundation.org,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	corbet@lwn.net,
-	nh-open-source@amazon.com,
-	bryan-bt.tan@broadcom.com,
-	syzbot@syzkaller.appspotmail.com,
-	sgarzare@redhat.com,
-	linux-kernel@vger.kernel.org
-Subject: Re: [net-next,v4] vsock: add G2H fallback for CIDs not owned by H2G transport
-Date: Tue, 10 Mar 2026 10:18:43 +0100
-Message-ID: <20260310091843.101237-1-pabeni@redhat.com>
-In-Reply-To: <20260304230027.59857-1-graf@amazon.com>
-References: <20260304230027.59857-1-graf@amazon.com>
+	bh=z1KrvmYp6lBxwgMqOHTT+joFxW786mg3MVzokkCHO1s=;
+	b=PAQHJC8w4eTou2l1ukkNrTDkjeDjF3nCM5pAzEu8AyzS10yZPtD2ufwRuhHTltiG1lxllJ
+	bjT779OpdoYjrAKm9dkvEyrh5dOuCiJZgxiqmpu2kK5P5kVb37zHk0xPz/qHSIf7wTjuvC
+	Elp3D5NzH/VXK+m5ZtnLZLSlXRqsj1Q=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-63-pBLG9_uhO6SajfdtEAeelA-1; Tue, 10 Mar 2026 05:27:03 -0400
+X-MC-Unique: pBLG9_uhO6SajfdtEAeelA-1
+X-Mimecast-MFC-AGG-ID: pBLG9_uhO6SajfdtEAeelA_1773134822
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-439da07c5bfso3171234f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 02:27:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773134822; x=1773739622;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:from:subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=z1KrvmYp6lBxwgMqOHTT+joFxW786mg3MVzokkCHO1s=;
+        b=bMQTQWJj6j8FK4aYGu2Z4AFhZH+FBbK5YBrYcIM/cPM5FZMb0nBrjxQUL50TRiaVnR
+         UEGugu5CS0yh6pHZ9eDckiuVgkKcmMSoD1icxYgUEHfU9PZ37nnCX0Y062khXMzgZ+by
+         7gKDKy5B2DLG/qefcXoFSCV42KCJWfVcKHs/U/Irirbb1ta6UGT3LLZPKLaEZvRXvgCb
+         4wzExYfqINxrvC1lCEYjSx4ylCNn/3CZuN8vW0SVoohRdAaCNbFsR7SHNc1Rar76kVOk
+         C+rnAoElQG4eh+1dUQN1MKtNULOcntHFXxScwNej50CpN5mfIurDffDsKQhQ+d/T8zFb
+         aVBQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW3fcbJMKUkIrZFxiwuKmAgii1IlVC+V9O/bavYGwcPEOwexdzGpBYGPCvhhNzMAA3HZBf0nSctbKeAUdlVeA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YydQP85qydooVkMqlzhss/YbKpuTKpMr4rOhu4UII4ZCIb7IJd6
+	oIUlCpQAsPo8IJ/iyRNSGq+q0S2Z0Rh8wYWGjPkxfFhEmBU95U/I2aq6UgdX+W2vkBEgbP/cf66
+	qviuPDxduC00dEQ+3lSKlaqGz57z4/A//HxZT9eSbZyyfVsZ1ZI2r2Ia+hKcNPTL54PjJ
+X-Gm-Gg: ATEYQzxEsfZHFWf1BC4G3OM0VYyUqcq3Isltg1xphrITXRX7lpVftDsvpf6Qvn74uWf
+	bkJ1I09UB28FrRyYx2O2cigaSmVizTsE2GFZQ28uFErnTDe0ETAweGHKWhAf2C7Lg/JXlIuZDCK
+	uq+2RGXU7nloq5jGVJs0CTo/VTgXXe8khy/qo1HKF4yjUYTF6i8pYKFGRl/65MyhILcQBsULSLM
+	rwivewUl/BXgHLtCL6jaZRGIYJ49R/vQTHeMSKcSfe0Po4k1Osd0BIvDFHnKg/XO65KVXtVM1UP
+	IOVk5NVV5MmN79+8uvFKXPAj0x9dD+4BIL3Xbx2JYMhlaKbqvZgLpcp/mI0DLRQ38BvACOFCFSe
+	gjqXRc8meAvswb14sp6IxKMgtrMGFUSkdNMiCAVm/xtZ7H6iW2LMChKnW
+X-Received: by 2002:a05:600c:5490:b0:485:35ee:f836 with SMTP id 5b1f17b1804b1-48535eefa3emr126931025e9.2.1773134822147;
+        Tue, 10 Mar 2026 02:27:02 -0700 (PDT)
+X-Received: by 2002:a05:600c:5490:b0:485:35ee:f836 with SMTP id 5b1f17b1804b1-48535eefa3emr126930725e9.2.1773134821691;
+        Tue, 10 Mar 2026 02:27:01 -0700 (PDT)
+Received: from [192.168.88.32] ([150.228.25.224])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48541a8f610sm103923765e9.7.2026.03.10.02.27.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 Mar 2026 02:27:01 -0700 (PDT)
+Message-ID: <ef3435b1-5d86-4137-903f-bddeca3deb91@redhat.com>
+Date: Tue, 10 Mar 2026 10:26:59 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
-X-Mimecast-MFC-PROC-ID: uXsLlNUKLN8mXBt195wYhLQCiIQPotX8oLLnnEoOUQM_1773134336
+User-Agent: Mozilla Thunderbird
+Subject: Re: [net-next,v4] vsock: add G2H fallback for CIDs not owned by H2G
+ transport
+From: Paolo Abeni <pabeni@redhat.com>
+To: graf@amazon.com
+Cc: vishnu.dasa@broadcom.com, stefanha@redhat.com,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ bcm-kernel-feedback-list@broadcom.com, arnd@arndb.de,
+ netdev@vger.kernel.org, eperezma@redhat.com, gregkh@linuxfoundation.org,
+ mst@redhat.com, jasowang@redhat.com, corbet@lwn.net,
+ nh-open-source@amazon.com, bryan-bt.tan@broadcom.com,
+ syzbot@syzkaller.appspotmail.com, sgarzare@redhat.com,
+ linux-kernel@vger.kernel.org
+References: <20260304230027.59857-1-graf@amazon.com>
+ <20260310091843.101237-1-pabeni@redhat.com>
+In-Reply-To: <20260310091843.101237-1-pabeni@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: K2S7jGzZEfWA0-hD2vGGQIUQMxSCMHkY0TN3ZaCSyk0_1773134822
 X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-This is an AI-generated review of your patch. The human sending this
-email has considered the AI review valid, or at least plausible.
+Hi,
 
-For local reproduction steps see https://netdev-ai.bots.linux.dev/ai-local.html
----
-vsock: add G2H fallback for CIDs not owned by H2G transport
+On 3/10/26 10:18 AM, Paolo Abeni wrote:
+> This is an AI-generated review of your patch. The human sending this
+> email has considered the AI review valid, or at least plausible.
+> 
+> For local reproduction steps see https://netdev-ai.bots.linux.dev/ai-local.html
+> ---
+>> @@ -581,11 +585,21 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+>>  	case SOCK_SEQPACKET:
+>>  		if (vsock_use_local_transport(remote_cid))
+>>  			new_transport = transport_local;
+>> -		else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g ||
+>> +		else if (remote_cid <= VMADDR_CID_HOST ||
+>>  			 (remote_flags & VMADDR_FLAG_TO_HOST))
+>>  			new_transport = transport_g2h;
+>> -		else
+>> +		else if (transport_h2g &&
+>> +			 (!transport_h2g->has_remote_cid ||
+>> +			  transport_h2g->has_remote_cid(vsk, remote_cid)))
+>> +			new_transport = transport_h2g;
+>> +		else if (sock_net(sk)->vsock.g2h_fallback &&
+>> +			 transport_g2h && transport_g2h->has_remote_cid &&
+>> +			 transport_g2h->has_remote_cid(vsk, remote_cid)) {
+>> +			vsk->remote_addr.svm_flags |= VMADDR_FLAG_TO_HOST;
+>> +			new_transport = transport_g2h;
+>> +		} else {
+>>  			new_transport = transport_h2g;
+>> +		}
+>>  		break;
+> 
+> The old code had `!transport_h2g` in the second else-if condition at line
+> -583, which routed all CID > VMADDR_CID_HOST traffic to transport_g2h when
+> no H2G transport was loaded. The new code removes this check.
+> 
+> When transport_h2g is NULL (no H2G transport loaded) and the G2H transport
+> does not implement has_remote_cid (as is the case for VMCI and Hyper-V
+> transports), what happens?
+> 
+> The G2H fallback branch at line +596 requires
+> `transport_g2h->has_remote_cid` to be non-NULL. If it's NULL, the
+> short-circuit evaluation skips this branch and executes the final else at
+> line +601, setting `new_transport = transport_h2g` (which is NULL),
+> ultimately returning -ENODEV.
+> 
+> The commit message explicitly states the intent to preserve the existing
+> no-H2G fallback behavior. Does this implementation break it for G2H
+> transports that do not implement the new optional has_remote_cid callback?
+> 
+> This affects VMCI and Hyper-V environments: when no H2G transport is
+> loaded, CID > 2 connections that previously fell back to G2H now get
+> ENODEV.
+Other comments from AI looked like nit picking to me, but the above one
+looks relevant. I forwarded verbatim all the feedback for completeness.
 
-This commit enables G2H transport fallback for CIDs not claimed by the
-H2G transport in environments like Nitro Enclaves. It adds a per-netns
-sysctl net.vsock.g2h_fallback (default 1) and a has_remote_cid callback
-for transports to declare CID ownership.
-
-> The flag was introduced 6 years ago and I am still not aware of any tool
-
-This isn't a bug, but the timing is slightly inaccurate.
-VMADDR_FLAG_TO_HOST was introduced in commit caaf95e0f23f on 2020-12-14.
-As of March 2026, this is approximately 5 years and 3 months, not 6
-years.
-
-> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-> index 533d8e75f7bb..4e40063adab4 100644
-> --- a/include/net/af_vsock.h
-> +++ b/include/net/af_vsock.h
-> @@ -179,6 +179,15 @@ struct vsock_transport {
->  	/* Addressing. */
->  	u32 (*get_local_cid)(void);
->
-> +	/* Check if this transport serves a specific remote CID.
-> +	 * For H2G transports: return true if the CID belongs to a registered
-> +	 * guest. If not implemented, all CIDs > VMADDR_CID_HOST go to H2G.
-> +	 * For G2H transports: return true if the transport can reach arbitrary
-> +	 * CIDs via the hypervisor (i.e. supports the fallback overlay). VMCI
-> +	 * does not implement this as it only serves CIDs 0 and 2.
-> +	 */
-> +	bool (*has_remote_cid)(struct vsock_sock *vsk, u32 remote_cid);
-> +
-
-The G2H transport description doesn't mention a critical consequence: G2H
-transports that do not implement has_remote_cid (like hyperv_transport)
-will never receive fallback traffic even with g2h_fallback=1, because the
-fallback branch in vsock_assign_transport() requires
-transport_g2h->has_remote_cid to be non-NULL. Should the comment clarify
-this requirement for G2H transports to participate in fallback?
-
-[ ... ]
-
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index f0ab2f13e9db..cc4b225250b9 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -545,9 +545,13 @@ static void vsock_deassign_transport(struct vsock_sock *vsk)
->   * The vsk->remote_addr is used to decide which transport to use:
->   *  - remote CID == VMADDR_CID_LOCAL or g2h->local_cid or VMADDR_CID_HOST if
->   *    g2h is not loaded, will use local transport;
-> - *  - remote CID <= VMADDR_CID_HOST or h2g is not loaded or remote flags field
-> - *    includes VMADDR_FLAG_TO_HOST flag value, will use guest->host transport;
-> - *  - remote CID > VMADDR_CID_HOST will use host->guest transport;
-> + *  - remote CID <= VMADDR_CID_HOST or remote flags field includes
-> + *    VMADDR_FLAG_TO_HOST, will use guest->host transport;
-> + *  - remote CID > VMADDR_CID_HOST and h2g is loaded and h2g claims that CID,
-> + *    will use host->guest transport;
-> + *  - h2g not loaded or h2g does not claim that CID and g2h claims the CID via
-> + *    has_remote_cid, will use guest->host transport (when g2h_fallback=1)
-> + *  - anything else goes to h2g or returns -ENODEV if no h2g is available
->   */
->  int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
->  {
-
-The commit message states this patch extends the existing behavior: "When
-no H2G transport is loaded, vsock currently routes all CIDs to the G2H
-transport...Extend that existing behavior: when an H2G transport is loaded
-but does not claim a given CID, the connection falls back to G2H in the
-same way."
-
-Does this accurately describe what the patch does?
-
-> @@ -581,11 +585,21 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
->  	case SOCK_SEQPACKET:
->  		if (vsock_use_local_transport(remote_cid))
->  			new_transport = transport_local;
-> -		else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g ||
-> +		else if (remote_cid <= VMADDR_CID_HOST ||
->  			 (remote_flags & VMADDR_FLAG_TO_HOST))
->  			new_transport = transport_g2h;
-> -		else
-> +		else if (transport_h2g &&
-> +			 (!transport_h2g->has_remote_cid ||
-> +			  transport_h2g->has_remote_cid(vsk, remote_cid)))
-> +			new_transport = transport_h2g;
-> +		else if (sock_net(sk)->vsock.g2h_fallback &&
-> +			 transport_g2h && transport_g2h->has_remote_cid &&
-> +			 transport_g2h->has_remote_cid(vsk, remote_cid)) {
-> +			vsk->remote_addr.svm_flags |= VMADDR_FLAG_TO_HOST;
-> +			new_transport = transport_g2h;
-> +		} else {
->  			new_transport = transport_h2g;
-> +		}
->  		break;
-
-The old code had `!transport_h2g` in the second else-if condition at line
--583, which routed all CID > VMADDR_CID_HOST traffic to transport_g2h when
-no H2G transport was loaded. The new code removes this check.
-
-When transport_h2g is NULL (no H2G transport loaded) and the G2H transport
-does not implement has_remote_cid (as is the case for VMCI and Hyper-V
-transports), what happens?
-
-The G2H fallback branch at line +596 requires
-`transport_g2h->has_remote_cid` to be non-NULL. If it's NULL, the
-short-circuit evaluation skips this branch and executes the final else at
-line +601, setting `new_transport = transport_h2g` (which is NULL),
-ultimately returning -ENODEV.
-
-The commit message explicitly states the intent to preserve the existing
-no-H2G fallback behavior. Does this implementation break it for G2H
-transports that do not implement the new optional has_remote_cid callback?
-
-This affects VMCI and Hyper-V environments: when no H2G transport is
-loaded, CID > 2 connections that previously fell back to G2H now get
-ENODEV.
-
-[ ... ]
-
-> @@ -2928,6 +2952,7 @@ static void vsock_net_init(struct net *net)
->  		net->vsock.mode = vsock_net_child_mode(current->nsproxy->net_ns);
->
->  	net->vsock.child_ns_mode = net->vsock.mode;
-> +	net->vsock.g2h_fallback = 1;
->  }
-
-Stefano Garzarella raised a question in v3 about the sysctl inheritance
-policy for g2h_fallback: should it inherit from the parent namespace or
-always default to 1 in all namespaces?
-
-He cc'd net maintainers (Michael, Paolo, Jakub) for guidance:
-https://lore.kernel.org/all/aahRzq5vS76rPI28@sgarzare-redhat/
-
-The current code always defaults to 1 for all namespaces (including child
-namespaces), which differs from how ns_mode is handled (which inherits
-from parent). Was there a resolution to this question?
-
-[ ... ]
-
-> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-> index 77fe5b7b066c..57f2d6ec3ffc 100644
-> --- a/net/vmw_vsock/virtio_transport.c
-> +++ b/net/vmw_vsock/virtio_transport.c
-> @@ -547,11 +547,18 @@ bool virtio_transport_stream_allow(struct vsock_sock *vsk, u32 cid, u32 port)
->  static bool virtio_transport_seqpacket_allow(struct vsock_sock *vsk,
->  					     u32 remote_cid);
->
-> +static bool virtio_transport_has_remote_cid(struct vsock_sock *vsk, u32 cid)
-> +{
-> +	/* The CID could be implemented by the host. Always assume it is. */
-> +	return true;
-> +}
-> +
-
-The comment says "always assume it is" implemented by the host. Is this a
-verifiable fact or a design choice?
-
-The guest cannot know what CIDs the host or hypervisor can reach, so this
-is a reasonable design choice. However, it also means all unclaimed CIDs
-fall back to G2H when virtio is the G2H transport, which could silently
-create host vsock traffic for typos or invalid CIDs.
+/P
 
