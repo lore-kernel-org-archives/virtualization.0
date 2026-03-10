@@ -1,105 +1,92 @@
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87AD532F770
-	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 09:45:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0F1144A725;
+	Tue, 10 Mar 2026 10:03:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773135943; cv=none; b=CXFCo2WiNrsWzIscXYHB49sZnP837viZDIsQv3zehfpOW4Ku7yF/wwigCzM23pLidKkH9jmalHPzo/6j4ghWatpTDSvWw840D5EaX0XADHTkpUGEnzqAv3f0ldTX2oDBVB063FXhlcRd5OBeTdSbIOPCtD9H2l8B8/hUTsxPAio=
+	t=1773137037; cv=none; b=RzBaQlOdEkD/Lmw6kqdlfzESy5bvt0A6lnEJFF+WiQaJjnuQgBWgHx4fSJxdpIH40NDZZrmgEl1K4cUQWKqNklWbLsP/zvO15zftFqVfI3WpXj7UBesUsRI9x2+rVeChyzsTxz4+KaWUzHYu5bEpea7iJO8G4l1anSSAGomhnTU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773135943; c=relaxed/simple;
-	bh=ZLvezuR8s0+OWVqfo92KUk4UlTJ6DqfgkS4fGtPZbTw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=prFcjs1kDZxsM/IAwnjUA3JUu+Ti5cXLg/pPedD4C6KQWaLQRjPrTVkzfVbGssQhwxVhsACFjorNr/8KdU30OqOW652IHkCH2dnzksU45lU1BfUZTAtT4uiiZdYt+QTmUtt/iehK3RGk3Su619weB76foKVa8qopqXtrZ8hiT8w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=DUa33BIc; arc=none smtp.client-ip=210.118.77.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1773137037; c=relaxed/simple;
+	bh=/u2WQp5fcyZioDQPVTsvawNu/rZDRBfSQ4FJERE46Es=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=Pp9ugbw31IDHQaWWYxt2gh2yPAQhcA9Q0KNjwW87qIQSDt5SlHbd3zWv58fODzfN9+ouQib34UQMvudzqeOrZXgOWTOhYa/dn0k5/nb2pPI/Ss+Ynwg8zXeGjtWj+aEIsR0NyrVe2XAq+jOKWiEcRiDWjNzxk5t/QFMKxyYJ30Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ps7jYfJl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="DUa33BIc"
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20260310094539euoutp0278c8057537d992724529c50976f6f766~bcb4ocUCf0692606926euoutp02Q
-	for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 09:45:39 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20260310094539euoutp0278c8057537d992724529c50976f6f766~bcb4ocUCf0692606926euoutp02Q
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1773135939;
-	bh=g4Z4ok96NWqzBgjOcLsFlXJfC/4zjtxkfiYjt2twx7A=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=DUa33BIcjnjYaDcrUwR4b3y4tN6gJrXkmaBcwcJ4p2c4tZGQM9R38aSaC2a0O/Bbo
-	 0xa64kwxr8dc0Yov8gz0+bhz5Z3p5QxpyUFH3txM4dysJYcWw+sParNspVxK2j8cYf
-	 dHSDbRa7PdBI1Opg2OUQSyeLHuC0MQYAqRPXhB3s=
-Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20260310094539eucas1p15d2320cc87bfb317f5be51b359fb08c6~bcb4brfjb0410104101eucas1p1p;
-	Tue, 10 Mar 2026 09:45:39 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20260310094538eusmtip17998daf8f2a16ee4d9b5c8cb775d1e36~bcb3virLM2940529405eusmtip1i;
-	Tue, 10 Mar 2026 09:45:38 +0000 (GMT)
-Message-ID: <aaebc5b6-2805-46d3-a68e-549c26a3ef03@samsung.com>
-Date: Tue, 10 Mar 2026 10:45:38 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ps7jYfJl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42CC8C2BCB9;
+	Tue, 10 Mar 2026 10:03:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773137037;
+	bh=/u2WQp5fcyZioDQPVTsvawNu/rZDRBfSQ4FJERE46Es=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=ps7jYfJlkO/135q6uJIpCJxv8N3QQmQQZYf8wqQ0nHQnGTWPOidr2ZoiCVPRdlXjq
+	 HeiaG2cjDw2cOvwj3sMh6BXEEVSacKzshS2e78bko9EHKCN3cCiKFiJUpKkifGgA+r
+	 qy4iFh+ssIkJyjTCkQY7wYUl3VJdGiHvY0PXSqReVlmmEbyESpIY2776zLCyIvE050
+	 yb+pvEdZmZ4wGzHM5Vy+LgopgO8sS1TdW0ORurwHemCzQkTH1WiF2Df4lCM9t1YSCc
+	 pXfryUmV6x0lw84L9A29rv6SCcE8QaqWoN2I8uymA91DAlxCY+t7fZQfObs7WHhn0o
+	 XDVzFVlWaFr/w==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Jiri Slaby <jirislaby@kernel.org>, Matthieu Baerts <matttbe@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Stefan Hajnoczi
+ <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev, Netdev
+ <netdev@vger.kernel.org>, rcu@vger.kernel.org, MPTCP Linux
+ <mptcp@lists.linux.dev>, Linux Kernel <linux-kernel@vger.kernel.org>,
+ Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "Paul E. McKenney"
+ <paulmck@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>,
+ luto@kernel.org, Michal =?utf-8?Q?Koutn=C3=BD?= <MKoutny@suse.com>, Waiman
+ Long
+ <longman@redhat.com>, Marco Elver <elver@google.com>
+Subject: Re: Stalls when starting a VSOCK listening socket: soft lockups,
+ RCU stalls, timeout
+In-Reply-To: <76e2b909-98db-49de-a8eb-f6f0a192f630@kernel.org>
+References: <863a5291-a636-47d0-891c-bb0524d2e134@kernel.org>
+ <20260302114636.GL606826@noisy.programming.kicks-ass.net>
+ <717310d8-6274-4b7f-8a19-561c45f5f565@kernel.org>
+ <a2b573b4-af61-4b84-a7d1-012ed6bb23c9@kernel.org>
+ <ba067933-bf3b-476d-a0bb-53eda56996ca@kernel.org> <87zf4m2qvo.ffs@tglx>
+ <47cba228-bba7-4e58-a69d-ea41f8de6602@kernel.org> <87tsuu2i59.ffs@tglx>
+ <7efde2b5-3b72-4858-9db0-22493d446301@kernel.org> <87qzpx2sck.ffs@tglx>
+ <20260306152458.GT606826@noisy.programming.kicks-ass.net>
+ <87ldg42eu7.ffs@tglx> <87h5qr2rzi.ffs@tglx> <87eclu3coa.ffs@tglx>
+ <87v7f61cnl.ffs@tglx> <57c1e171-9520-4288-9e2d-10a72a499968@kernel.org>
+ <87pl5ds88r.ffs@tglx> <0ae4d678-5676-4523-bae3-5ad73b526e27@kernel.org>
+ <87eclsrtqg.ffs@tglx> <e846cb5f-65c4-4a9b-9f9b-593e4af526d8@kernel.org>
+ <76e2b909-98db-49de-a8eb-f6f0a192f630@kernel.org>
+Date: Tue, 10 Mar 2026 11:03:52 +0100
+Message-ID: <878qc0rofr.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Betterbird (Windows)
-Subject: Re: [PATCH 2/3] dma-mapping: Clarify valid conditions for CPU cache
- line overlap
-To: Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>, Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet
-	<corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Jason Wang
-	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-rdma@vger.kernel.org
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <20260309151356.GN1687929@ziepe.ca>
-Content-Transfer-Encoding: 7bit
-X-CMS-MailID: 20260310094539eucas1p15d2320cc87bfb317f5be51b359fb08c6
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07
-X-EPHeader: CA
-X-CMS-RootMailID: 20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07
-References: <20260307-dma-debug-overlap-v1-0-c034c38872af@nvidia.com>
-	<20260307-dma-debug-overlap-v1-2-c034c38872af@nvidia.com>
-	<20260308181920.GH1687929@ziepe.ca> <20260308184902.GR12611@unreal>
-	<20260308230916.GI1687929@ziepe.ca>
-	<CGME20260309090352eucas1p283a75c78cac495b5ad87df74c79aab07@eucas1p2.samsung.com>
-	<20260309090342.GS12611@unreal>
-	<c1d058f3-f864-4ed7-9f7a-683d6f4bf1ce@samsung.com>
-	<20260309150502.GX12611@unreal> <20260309151356.GN1687929@ziepe.ca>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 09.03.2026 16:13, Jason Gunthorpe wrote:
-> On Mon, Mar 09, 2026 at 05:05:02PM +0200, Leon Romanovsky wrote:
->> Regarding failure on unsupported systems, I have tried more than once to
->> make the RDMA fail when the device is known to take the SWIOTLB path
->> in RDMA and cannot operate correctly, but each attempt was met with a
->> cold reception:
->> https://lore.kernel.org/all/d18c454636bf3cfdba9b66b7cc794d713eadc4a5.1719909395.git.leon@kernel.org/
-> I think alot of that is the APIs used there. It is hard to determine
-> if SWIOTLB is possible or coherent is possible, I've also hit these
-> things in VFIO and gave up.
+On Tue, Mar 10 2026 at 10:00, Jiri Slaby wrote:
+> On 10. 03. 26, 9:56, Jiri Slaby wrote:
+>> Thomas,
+>>=20
+>> On 10. 03. 26, 9:09, Thomas Gleixner wrote:
+>>> =C2=A0=C2=A0=C2=A0 2) task is not longer in the task list w/o going thr=
+ough do_exit()
+>>=20
+>> After a quick look (I have to run now, so I could be completely wrong):=
+=20
+>> what about the task is not in the list *yet*. You use RCU ->=20
+>> for_each_process_thread(), so there could be a race with attach_pid()=20
+>> protected by tasklist_lock.
 >
-> However, DMA_ATTR_REQUIRE_COHERENCE can be done properly and not leak
-> alot of dangerous APIs to drivers (beyond itself).
+> Not attach_pid(), that's irrelevant here.
 >
-> It is also more important now with CC systems, I think.
+> But one line below in copy_process(): list_add_tail().
 
-Jason is right. Indeed the rdma/uverbs case needs some extension to 
-ensure that the coherent mapping is used, what is not possible now. This 
-however doesn't mean that the DMA_ATTR_CPU_CACHE_OVERLAP is not needed 
-for that use case too. I'm open to accept both. The only question I have 
-is which name should we use? We already have DMA_ATTR_CPU_CACHE_CLEAN, 
-while DMA_ATTR_CPU_CACHE_OVERLAP and 
-DMA_ATTR_DEBUGGING_IGNORE_CACHELINES were proposed here. The last seems 
-to be most descriptive.
+Yes. There is an issue. Peter and me just discovered that as well, but
+in the case at hand it can't be the problem. The missing task is on the
+CPU which means it must be visible in the thread list and task list.
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Thanks,
 
+        tglx
