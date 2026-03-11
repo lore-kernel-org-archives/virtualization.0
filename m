@@ -1,101 +1,153 @@
-Received: from out30-82.freemail.mail.aliyun.com (out30-82.freemail.mail.aliyun.com [115.124.30.82])
+Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6803A3E277A
-	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 17:05:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.82
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CC033E5591
+	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 17:32:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773248726; cv=none; b=TMEww4NE0igCLLA1Ta5VBZ84gvtZkgXdiaz2+2v0+SP/cp3ZsZgUo3cdUpLMHJXhGczNm8h2Oh30tJVtswnwVTNscUleWGx8CAO6o14kb1tVDkyqNztggKQSpWvEkAH8jiHOZ6RcImU0+rUMnkMBxXuQnZ2xxuDBc4H7P+V67Vk=
+	t=1773250335; cv=none; b=POIXVNTaAs52R8XiDoan7/YQRA5j4oRLWpc3n+0Mw9dJWywKKbi5MFxNLNVU7BTyt7U2lI3ilqJXWxQLZCaVpFQwmBV6Et+3yzaA/pgAHKvTzGiEtxJGqjWZ16y6nAkoARlB69MuJK+k27Lu4D9OmPVxnMRkDeDUwTkR2GrkdgQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773248726; c=relaxed/simple;
-	bh=UHfPGlXOkIhZWFADnlgDabVhJDp6lbGQJiFVdlDuLv8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ETn/UXmfghaDqGxxX6s7VY8FgJPP+xT8vgaC/myiD71tib4kObY4dxbM+q84TU9e+89Votf6iTqGziUjG6z5sfk6BBCFWVSSDwZ0YmrVbtECNQ8UpHjIWs7C0vBbAIaWrTo1JWqwBep8jHRb7j2jHH7W2A0T9II6yzJ+dygy4FE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com; spf=pass smtp.mailfrom=aliyun.com; dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b=dqprPInU; arc=none smtp.client-ip=115.124.30.82
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliyun.com
+	s=arc-20240116; t=1773250335; c=relaxed/simple;
+	bh=eMXALHP7X2YfG/Fchz9hrRxbckSdspy+ZVInY/xaFuA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=c5ZU6Zvzk6RLcurgyICdADi5K2u7AtbpiUi6pEUsgrU6Ze2HHS7dDvIlx2twheZDRdPQz2wI14qJQUK0BPgIfQmgG2MZweSpylXTuT91uxcerPQM8QqV6UQsBYBd1OGE1szgVztTrPLZexJZrdaDnF55fiZXd0grPmy/tl+BaMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=usFHXj3w; arc=none smtp.client-ip=91.218.175.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="dqprPInU"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=aliyun.com; s=s1024;
-	t=1773248721; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=RX2KjuqG9/5Rq4fV6jDCN9d+9wFl//SxRwTZyUcJRfo=;
-	b=dqprPInUK1vAJl1IqIa1W4P3HfIemY+mh5ydlGB8qYwKA0JW+1rw3MuWX98ognzVjxEUEnP+9jHaicYjkfzo6X0yqJvBkzWmHgc1fy2FiCT+G89Yr0sylqnaVwD9vCiG5hwARfEwZ7yvTnNDkspbUCoNGFgmsS3rXzrn6huUN8A=
-Received: from VM-32-11-ubuntu..(mailfrom:wdhh6@aliyun.com fp:SMTPD_---0X-kyQl7_1773248716 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 12 Mar 2026 01:05:21 +0800
-From: Chaohai Chen <wdhh6@aliyun.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Chaohai Chen <wdhh6@aliyun.com>
-Subject: [PATCH v3] virtio_ring: Fix KCSAN warnings in virtqueue_enable_cb_delayed_split()
-Date: Thu, 12 Mar 2026 01:05:10 +0800
-Message-ID: <20260311170510.288840-1-wdhh6@aliyun.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="usFHXj3w"
+Message-ID: <a26df89c-5504-445d-a639-ffd2d12efaf5@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773250318;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vyM17D46yinvuYWaZAzccGihacHtVbtTSHoTyuFgaKc=;
+	b=usFHXj3w2AqXsJ1LOeGv31v5R1ETaH6/W/uYTGsa7F+xPjIgKyARdhZOrkYilhGHFs7aLY
+	FM5REEnhV2QC9XKTI0PNHZnhd3aPQ9YOxkViH3/x/z/lZQarLQkOIxJBcumL6qqwh4i9bR
+	tOTWYERaHxlalspfyH7cH1wJ2iLp7iY=
+Date: Wed, 11 Mar 2026 10:31:48 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+To: "Huang, Ying" <ying.huang@linux.alibaba.com>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@suse.com,
+ vbabka@suse.cz, apopple@nvidia.com, axelrasmussen@google.com,
+ byungchul@sk.com, cgroups@vger.kernel.org, david@kernel.org,
+ eperezma@redhat.com, gourry@gourry.net, jasowang@redhat.com,
+ hannes@cmpxchg.org, joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
+ linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
+ matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org,
+ muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
+ roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
+ virtualization@lists.linux.dev, weixugc@google.com,
+ xuanzhuo@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+ kernel-team@meta.com
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+ <87seabu8np.fsf@DESKTOP-5N7EMDA>
+ <977dc43d-622c-411d-99a6-4204fa26c21e@linux.dev>
+ <87cy1boyzd.fsf@DESKTOP-5N7EMDA>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+In-Reply-To: <87cy1boyzd.fsf@DESKTOP-5N7EMDA>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-KCSAN warns as follow:
+On 3/10/26 7:56 PM, Huang, Ying wrote:
+> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+> 
+>> On 3/7/26 4:27 AM, Huang, Ying wrote:
+>>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+>>>
+>>>> When investigating pressure on a NUMA node, there is no straightforward way
+>>>> to determine which policies are driving allocations to it.
+>>>>
+>>>> Add per-policy page allocation counters as new node stat items. These
+>>>> counters track allocations to nodes and also whether the allocations were
+>>>> intentional or fallbacks.
+>>>>
+>>>> The new stats follow the existing numa hit/miss/foreign style and have the
+>>>> following meanings:
+>>>>
+>>>>     hit
+>>>>       - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
+>>>>       - for other policies, allocation succeeded on intended node
+>>>>       - counted on the node of the allocation
+>>>>     miss
+>>>>       - allocation intended for other node, but happened on this one
+>>>>       - counted on other node
+>>>>     foreign
+>>>>       - allocation intended on this node, but happened on other node
+>>>>       - counted on this node
+>>>>
+>>>> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
+>>>> in /proc/vmstat.
+>>> IMHO, it may be better to describe your workflow as an example to
+>>> use
+>>> the newly added statistics.  That can describe why we need them.  For
+>>> example, what you have described in
+>>> https://lore.kernel.org/linux-mm/9ae80317-f005-474c-9da1-95462138f3c6@gmail.com/
+>>>
+>>>> 1) Pressure/OOMs reported while system-wide memory is free.
+>>>> 2) Check per-node pgscan/pgsteal stats (provided by patch 2) to narrow
+>>>> down node(s) under pressure. They become available in
+>>>> /sys/devices/system/node/nodeN/vmstat.
+>>>> 3) Check per-policy allocation counters (this patch) on that node to
+>>>> find what policy was driving it. Same readout at nodeN/vmstat.
+>>>> 4) Now use /proc/*/numa_maps to identify tasks using the policy.
+>>>
+>>
+>> Good call. I'll add a workflow adapted for the current approach in
+>> the next revision. I included it in another response in this thread, but
+>> I'll repeat here because it will make it easier to answer your question
+>> below.
+>>
+>> 1) Pressure/OOMs reported while system-wide memory is free.
+>> 2) Check /proc/zoneinfo or per-node stats in .../nodeN/vmstat to narrow
+>>     down node(s) under pressure.
+>> 3) Check per-policy hit/miss/foreign counters (added by this patch) on
+>>     node(s) to see what policy is driving allocations there (intentional
+>>     vs fallback).
+>> 4) Use /proc/*/numa_maps to identify tasks using the policy.
+>>
+>>> One question.  If we have to search /proc/*/numa_maps, why can't we
+>>> find all necessary information via /proc/*/numa_maps?  For example,
+>>> which VMA uses the most pages on the node?  Which policy is used in the
+>>> VMA? ...
+>>>
+>>
+>> There's a gap in the flow of information if we go straight from a node
+>> in question to numa_maps. Without step 3 above, we can't distinguish
+>> whether pages landed there intentionally, as a fallback, or were
+>> migrated sometime after the allocation. These new counters track the
+>> results of allocations at the time they happen, preserving that
+>> information regardless of what may happen later on.
+> 
+> Sorry for late reply.
+> 
+> IMHO, step 3) doesn't add much to the flow.  It only counts allocation,
+> not migration, freeing, etc.
 
-[  109.277250] ==================================================================
-[  109.283600] BUG: KCSAN: data-race in virtqueue_enable_cb_delayed_split+0x10f/0x170
+This logic would undermine other existing stats.
 
-[  109.295263] race at unknown origin, with read to 0xffff8b2a92ef2042 of 2 bytes by interrupt on cpu 1:
-[  109.306934]  virtqueue_enable_cb_delayed_split+0x10f/0x170
-[  109.312880]  virtqueue_enable_cb_delayed+0x3b/0x70
-[  109.318852]  start_xmit+0x315/0x860 [virtio_net]
-[  109.324532]  dev_hard_start_xmit+0x85/0x380
-[  109.329993]  sch_direct_xmit+0xd3/0x680
-[  109.335360]  __dev_xmit_skb+0x4ee/0xcc0
-[  109.340568]  __dev_queue_xmit+0x560/0xe00
-[  109.345701]  ip_finish_output2+0x49a/0x9b0
-[  109.350743]  __ip_finish_output+0x131/0x250
-[  109.355789]  ip_finish_output+0x28/0x180
-[  109.360712]  ip_output+0xa0/0x1c0
-[  109.365479]  __ip_queue_xmit+0x68d/0x9e0
-[  109.370156]  ip_queue_xmit+0x33/0x40
-[  109.374783]  __tcp_transmit_skb+0x1703/0x1970
-[  109.379467]  __tcp_send_ack.part.0+0x1bb/0x320
-...
-[  109.499585]  do_idle+0x7a/0xe0
-[  109.502979]  cpu_startup_entry+0x25/0x30
-[  109.506481]  start_secondary+0x116/0x150
-[  109.509930]  common_startup_64+0x13e/0x141
+> I'm afraid that it may be misleading.  For
+> example, if a lot of pages have been allocated with a mempolicy, then
+> these pages are freed.  /proc/*/numa_maps are more useful stats for the
+> goal.
 
-[  109.516626] value changed: 0x0029 -> 0x002a
-================================================================================
+numa_maps only show live snapshots with no attribution. Even if we
+tracked them over time, there's no way to determine if the allocations
+exist as a result of a policy decision.
 
-Add READ_ONCE() to fix the warning.
+> To get all necessary information, I think that more thorough
+> tracing is necessary.
 
-Signed-off-by: Chaohai Chen <wdhh6@aliyun.com>
----
- drivers/virtio/virtio_ring.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 335692d41617..ceb026161639 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1112,8 +1112,9 @@ static bool virtqueue_enable_cb_delayed_split(struct vring_virtqueue *vq)
- 			&vring_used_event(&vq->split.vring),
- 			cpu_to_virtio16(vq->vq.vdev, vq->last_used_idx + bufs));
- 
--	if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev, vq->split.vring.used->idx)
--					- vq->last_used_idx) > bufs)) {
-+	if (unlikely((u16)(virtio16_to_cpu(vq->vq.vdev,
-+				READ_ONCE(vq->split.vring.used->idx))
-+				- vq->last_used_idx) > bufs)) {
- 		END_USE(vq);
- 		return false;
- 	}
--- 
-2.43.0
-
+Tracking other sources of pages on a node (migration, etc) is
+beyond the goal of this patch.
