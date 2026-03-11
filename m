@@ -1,274 +1,119 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E1C03C73EA
-	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 09:16:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 998FD3D3CF9
+	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 10:47:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773220575; cv=none; b=h98MqaRZi4zvqJntsVNpWzBQsVNCtQ5h0tz0scf2f+9O1YFKxDcs9aluI3vphT9NANr3wpI1RZkkkO9sObcFFvoy4jXH//5ZHS6Rd6yc/oAuE8kk+CuaRy7uaCGRglo2D3IknN+SK6bpmH8KsTLGd9/DUlADzKquAvZ1JKafWzc=
+	t=1773226062; cv=none; b=ryWpbuFERLwj58Vl1+IK/SBP+dng6EIvMv2dbQ7wHwE7hqvI/XvnQtG8PBFTlyJQ2+x9gOolXiLx7pNnRym87rXUc0Hc3vOmpOVZmXluKd92VlvRWz67prxHnwvfZ89BImI++Czq52OarSuFF2X+Rtm60ocU5k1Jgxfm2tkU5cI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773220575; c=relaxed/simple;
-	bh=gmX47k16PCFMCXn0UmTzlCzGKMZSBXrDm/8qKo1TTnA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FHgqFL6bPrGMQ3m0RsbbGKJNWdgeC0ExeO3zD80hl+mF/Acw3yoB74AbRlWK9WWVdqPtq48OudW8g1a3DQfNeNj95VfY7A51Za6xsCgRK8xVdyn5OT2LxF0Bp3xN1c+NnCi74lpH9Mtpx1F9NrG50wLEZcCe83viAh7wbQFWxhM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=B83Lvkhm; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1773226062; c=relaxed/simple;
+	bh=zRCIOZXGAulewyBbqGE0TlQlTPqeFeIDTbPGyy24MV0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=M/Kvey38hxllltljXfUMcc0Q0tWF+/5PyKrN9phktKQxGWnHkG3ATtbdm6KS0CpsAme7GrSDTLiT9fBCVdIL57ALELxUEsO1pj0IgxmWrCUGRlRMNdO7Et2C3DSFDYEl0Y2ARDIs2wdfyOtsmkSOaIdm1vxK5oWecDvWPZ648R4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aU3dKPp2; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="B83Lvkhm"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-661d20c9787so6180140a12.0
-        for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 02:16:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aU3dKPp2"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-482f454be5bso9529155e9.0
+        for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 03:47:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1773220565; x=1773825365; darn=lists.linux.dev;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=gmX47k16PCFMCXn0UmTzlCzGKMZSBXrDm/8qKo1TTnA=;
-        b=B83LvkhmXrnwrA9B4bbLjoBpjCTrThSRQAX/GdmQFji9iqvVoeUfjvIYbtUz5aI7Ne
-         I/mRZGItmmLhdv2Bvklimu+2mSGYl6w9QsoN45tWkeoJAEn05I+6B2/fjQSsLJuDgDyJ
-         RKerR/m8FZ2PYdWu73xnX48BG7qL04Eu/wsC0gEP2jO5bTo7SXUpCBhScFw/wE1GpcIl
-         kdEO7+R3CN142PyKTS+zVynebzlaoakc4CravVLA6QUDD2Noa0iFV//JZ7KzGIACXixJ
-         XFFTQlBCujHUBTH4NZ0dF9jLyAEYgTHeftHcJ/BaHTLVsEBThdktxMFeaA+FnnvPfVT+
-         BfFA==
+        d=gmail.com; s=20230601; t=1773226059; x=1773830859; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=us9WYwCiTBLLsk5cVeG22xmuXfkRkjPu0Kbcd1njBZs=;
+        b=aU3dKPp2duUrQNET//pjg1VpIJAQ80/CnZsrv0pqjZnHUubIKgP54x0UOCa94ozCHI
+         7Ja2CgYBv/SGayR1wmgXqHaAV7TJGJ/GmBZ5fW8uQZzGc9GXWbmpcltqPs0w11qp3ldj
+         iof30vpQnpWDL/Zv3sY1ACmip5ibGqXtdNrDFYI2fgOKLO9yu/DHoWS7FssrSJADuUvO
+         vL7HrzKIIujN2H6gUF4bgZGBnDWuzHemrsILKMsX5PVuULH4Q89/0IEIYUUc2sqAoHTr
+         7IN6DvcsmRFSOp/0YcIaraV3xJpbTR1572BcItKgbJcgqCfhPTMc7A1UZ20JI7QlbAW1
+         o+kw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773220565; x=1773825365;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gmX47k16PCFMCXn0UmTzlCzGKMZSBXrDm/8qKo1TTnA=;
-        b=LU8+YpvzmvoG49rc02XqAjsrRqiB++yvqdFybrZuU8uGe+6SrpRA5qrCx2hiO63r/w
-         Mkb2NwypX1HT9AfWGxx4W4GRisuMtZVV7DEO24CXOu+2td041y8NARfq64y5evcYtoan
-         0PzLVspovSvpY+jbhch8CAlTMvvW/YGHOYmse6muQdEilur+6p9eFHyP3MkvLYgyl36l
-         t5T3rcJXmzqD9XdwlSkTdkmhRot30sp2BhLGT/ZIaDiYjdHD8LMIUKt0QCTJ1uCjVAfo
-         a/I/ui4F9LnzZFvkj/LDCl4est7YdC/Iu+cvuORWYiekbDnHWhZEXmkW3nXPJ1bw0qFg
-         PcDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUApj9QAVujbV2tMjf3eQYqo/HvODgf7kVAhgDRjggIwTPKRNTRV5dlmLFQP/GiPUlqSIQpaAYwYyrwh3zPlQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz8hVPwBPNvwFNF2Y53Q9wWgL6EA9hxd9rHOJSw0QahgXCbDrCz
-	h3lwNkGj87nd6ipbxcCLnRdHIQyF3Ce4ANrDxVRaqziNLh8Qr048s02LnnH+yI+oHrM=
-X-Gm-Gg: ATEYQzx1Dwu1g2XQYsYKQyyGsCJam6JNiPWb6W+Qn2HgyiKWQuh8/A6YfobwmlIlX7H
-	iKZT23hmeEQuVPoVI1C9gS45tCJqTuD6Qy7T5+bFwpBN3nz8yApTGV1AZyEWSUI3LhWlRtnEP9K
-	gt0uFyAVS8YhcSDM8idThSik/8X7nBSn/1pP59SDJULCrnWfAyWXZqD66vbTl0p8hnhSQJxSiB8
-	kOyklwSgxGer/TuQZjQefCN2VTN5UCxg++cBw47WQV79H4l3Ywqz5haBHYXkI9278ATp8i+VdSq
-	cVmCTyahxyS5uVkoGoKN5E7MIwv6LEEX38KqsbTO3hy22YJANcHbUe70qm0DacdjZ5TH0lLplTx
-	ZZHxclLQVQzTFqujJliShNIemn4lmbm/7crgup8bYsm07DcPJoI3IS6pQxCbkkTg9D6huuvLZlj
-	BU97UXVubACDLWMzlmHxrKS00zjv8yqfq4Env2dh90pxHw0er2RQN98SfMWMyv/ue+NbMCjvNBh
-	VABs/ZNcp2QGBqsQMwWl4OsCWWCWgm66+bh5GBamzYRk2a0A5P/yvQsGuJKoosK
-X-Received: by 2002:a17:906:fd84:b0:b94:1913:77fc with SMTP id a640c23a62f3a-b972e5f420emr107546366b.30.1773220565380;
-        Wed, 11 Mar 2026 02:16:05 -0700 (PDT)
-Received: from ?IPV6:2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112? (2a00-12d0-af5d-ad01-5d3f-14e6-9bcb-5112.ip.tng.de. [2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b972de092dcsm40225866b.4.2026.03.11.02.16.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Mar 2026 02:16:04 -0700 (PDT)
-Message-ID: <12b42fb2-092b-4ffc-9c5c-fd0bb7252bd3@suse.com>
-Date: Wed, 11 Mar 2026 10:16:04 +0100
+        d=1e100.net; s=20230601; t=1773226059; x=1773830859;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=us9WYwCiTBLLsk5cVeG22xmuXfkRkjPu0Kbcd1njBZs=;
+        b=wppcCamzLvZEdio5ecuQND80LvmRFHmI8Q9J7sddfLEm/h4rTOEtSZLH9kFMnIymTs
+         g15vOA49gfM3v9O5lW57LhdKRGyeMVqU6A4NmtdMYcSWD/odtm/w6TBpqYwu/BrUs1iA
+         aAf9y9Y/Goqy5SiJbAuhWobCKpVdt3/MFeMEvhm279QmqbW84G8vnYk3O1PAcOzSr8Ja
+         4D+O4RJpfhVs0tJ7KT7eQjJmcNq4CxVmlMAQClQl7xGXVb8kIlRjeWZs/Pg0bJ/ihlbe
+         45L133CoR2pUmqTxda4JWqodziXdMTYNatxRh45k+oje5spF5onOT8Tk629Crcxdyh7f
+         izCw==
+X-Forwarded-Encrypted: i=1; AJvYcCVS9PGTEkuFdlUw/KDk5HYJsMhx+2YgbqfDEOPdybDLBwaZkMgb2PwNyFJP84vJude4njgy3Sjwd4xt9BgSag==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyvh/rmYrz/XC3iiTQId7B/U+35KAILje4L7ZSqEflySUcWtPgE
+	VSYKvFn5SEOkhzQFr8EBW3gjw5IpIvveT3bP6LQT/YWvuZwpveG9kkq1
+X-Gm-Gg: ATEYQzxRdZsiRqThOfOS+Z3oDcY0xivRyojibC/Y+CKpc1tltAa8xKB3fk8zHOBhEVm
+	n7pXbvS9QeDwTGMgx02iJLuCZfBZjvB2mUbODTyxiPQTpelkQ4olLY8ReHFGCVYo2dIJIZwQVqV
+	+SYvRpBlaP4DiStv5kWY6nZyJ1A+GwhImAD74NY2IOZ097uroieZsk2JYswNyQ3jaksS9UmUnZk
+	3oOuwO2dv1S4RpR09CbiR7icJRb6cN0tiQjAZenKtZ0c1aPvrle6zLR1trapf/A50ZCI2BoCnZb
+	bimi6tbic66BFAT6mKq7VT0eC74mex3/1sqTZcJueGzu5Y0CoBYGCXttL0GGjcQxXIIx+XkVFAB
+	Y32T0f5LkOQAd7C/R6jM5KoJo7WtBJ/29YhdTEwnFct6nwYgPoFfNBFstJbmtBMXmNLhLlQSQfU
+	/7Qfru2dpo+Pf3Egz5k2Lw4N0m7lEjZJrHnIi5VXc7PQylYSnJ7wHFMuAICEQou5Sm4SyPmOpZ8
+	LE=
+X-Received: by 2002:a05:600c:5298:b0:479:13e9:3d64 with SMTP id 5b1f17b1804b1-4854b291dc2mr30148705e9.15.1773226058755;
+        Wed, 11 Mar 2026 03:47:38 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439f820a2f1sm5725154f8f.30.2026.03.11.03.47.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Mar 2026 03:47:38 -0700 (PDT)
+Date: Wed, 11 Mar 2026 10:47:36 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+ linux-kernel@vger.kernel.org, linux-modules@vger.kernel.org,
+ linux-nfs@vger.kernel.org, bpf@vger.kernel.org, kunit-dev@googlegroups.com,
+ linux-doc@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ netfs@lists.linux.dev, io-uring@vger.kernel.org, audit@vger.kernel.org,
+ rcu@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-mm@kvack.org,
+ linux-security-module@vger.kernel.org, Christian Loehle
+ <christian.loehle@arm.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] kthread: remove kthread_exit()
+Message-ID: <20260311104736.51b53405@pumpkin>
+In-Reply-To: <20260310-work-kernel-exit-v2-1-30711759d87b@kernel.org>
+References: <20260310-work-kernel-exit-v2-0-30711759d87b@kernel.org>
+	<20260310-work-kernel-exit-v2-1-30711759d87b@kernel.org>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
-To: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-block@vger.kernel.org
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
- Jens Axboe <axboe@kernel.dk>
-References: <20260119182632.596369-1-jgross@suse.com>
-Content-Language: en-US
-From: Juergen Gross <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <20260119182632.596369-1-jgross@suse.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------ly91FhzTvqqnaaaUYBZhau5n"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------ly91FhzTvqqnaaaUYBZhau5n
-Content-Type: multipart/mixed; boundary="------------4QPs0Tl0IvPk0NeNwm0fH0rQ";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-block@vger.kernel.org
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, Denis Efremov <efremov@linux.com>,
- Jens Axboe <axboe@kernel.dk>
-Message-ID: <12b42fb2-092b-4ffc-9c5c-fd0bb7252bd3@suse.com>
-Subject: Re: [PATCH v4 0/6] x86: Cleanups around slow_down_io()
-References: <20260119182632.596369-1-jgross@suse.com>
-In-Reply-To: <20260119182632.596369-1-jgross@suse.com>
+On Tue, 10 Mar 2026 15:56:09 +0100
+Christian Brauner <brauner@kernel.org> wrote:
 
---------------4QPs0Tl0IvPk0NeNwm0fH0rQ
-Content-Type: multipart/mixed; boundary="------------ykCYmYZPmbNUyjW9yglZ6jAJ"
+> In 28aaa9c39945 ("kthread: consolidate kthread exit paths to prevent use-after-free")
+> we folded kthread_exit() into do_exit() when we fixed a nasty UAF bug.
+> We left kthread_exit() around as an alias to do_exit(). Remove it
+> completely.
+...
+> -#define module_put_and_kthread_exit(code) kthread_exit(code)
+> +#define module_put_and_kthread_exit(code) do_exit(code)
 
---------------ykCYmYZPmbNUyjW9yglZ6jAJ
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+I'm intrigued...
+How does that actually know to do the module_put()?
+(I know it does one - otherwise my driver wouldn't unload.)
 
-T24gMTkuMDEuMjYgMTk6MjYsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+IFdoaWxlIGxvb2tp
-bmcgYXQgcGFyYXZpcnQgY2xlYW51cHMgSSBzdHVtYmxlZCBvdmVyIHNsb3dfZG93bl9pbygp
-IGFuZA0KPiB0aGUgcmVsYXRlZCBSRUFMTFlfU0xPV19JTyBkZWZpbmUuDQo+IA0KPiBEbyBz
-ZXZlcmFsIGNsZWFudXBzLCByZXN1bHRpbmcgaW4gYSBkZWxldGlvbiBvZiBSRUFMTFlfU0xP
-V19JTyBhbmQgdGhlDQo+IGlvX2RlbGF5KCkgcGFyYXZpcnQgZnVuY3Rpb24gaG9vay4NCj4g
-DQo+IFBhdGNoIDQgaXMgcmVtb3ZpbmcgdGhlIGNvbmZpZyBvcHRpb25zIGZvciBzZWxlY3Rp
-bmcgdGhlIGRlZmF1bHQgZGVsYXkNCj4gbWVjaGFuaXNtIGFuZCBzZXRzIHRoZSBkZWZhdWx0
-IHRvICJubyBkZWxheSIuIFRoaXMgaXMgaW4gcHJlcGFyYXRpb24gb2YNCj4gcmVtb3Zpbmcg
-dGhlIGlvX2RlbGF5KCkgZnVuY3Rpb25hbGl0eSBjb21wbGV0ZWx5LCBhcyBzdWdnZXN0ZWQg
-YnkgSW5nbw0KPiBNb2xuYXIuDQo+IA0KPiBQYXRjaCA1IGlzIGFkZGluZyBhbiBhZGRpdGlv
-bmFsIGNvbmZpZyBvcHRpb24gYWxsb3dpbmcgdG8gYXZvaWQNCj4gYnVpbGRpbmcgaW9fZGVs
-YXkuYyAoZGVmYXVsdCBpcyBzdGlsbCB0byBidWlsZCBpdCkuDQo+IA0KPiBDaGFuZ2VzIGlu
-IFYyOg0KPiAtIHBhdGNoZXMgMiBhbmQgMyBvZiBWMSBoYXZlIGJlZW4gYXBwbGllZA0KPiAt
-IG5ldyBwYXRjaGVzIDQgYW5kIDUNCj4gDQo+IENoYW5nZXMgaW4gVjM6DQo+IC0gcmViYXNl
-IHRvIHRpcC9tYXN0ZXIga2VybmVsIGJyYW5jaA0KPiANCj4gQ2hhbmdlcyBpbiBWNDoNCj4g
-LSBhZGQgcGF0Y2ggMSBhcyBwcmVyZXEgcGF0Y2ggdG8gdGhlIHNlcmllcw0KPiANCj4gSnVl
-cmdlbiBHcm9zcyAoNik6DQo+ICAgIHg4Ni9pcnFmbGFnczogRml4IGJ1aWxkIGZhaWx1cmUN
-Cj4gICAgeDg2L3BhcmF2aXJ0OiBSZXBsYWNlIGlvX2RlbGF5KCkgaG9vayB3aXRoIGEgYm9v
-bA0KPiAgICBibG9jay9mbG9wcHk6IERvbid0IHVzZSBSRUFMTFlfU0xPV19JTyBmb3IgZGVs
-YXlzDQo+ICAgIHg4Ni9pbzogUmVtb3ZlIFJFQUxMWV9TTE9XX0lPIGhhbmRsaW5nDQo+ICAg
-IHg4Ni9pb19kZWxheTogU3dpdGNoIGlvX2RlbGF5KCkgZGVmYXVsdCBtZWNoYW5pc20gdG8g
-Im5vbmUiDQo+ICAgIHg4Ni9pb19kZWxheTogQWRkIGNvbmZpZyBvcHRpb24gZm9yIGNvbnRy
-b2xsaW5nIGJ1aWxkIG9mIGlvX2RlbGF5Lg0KPiANCj4gICBhcmNoL3g4Ni9LY29uZmlnICAg
-ICAgICAgICAgICAgICAgICAgIHwgIDggKysrDQo+ICAgYXJjaC94ODYvS2NvbmZpZy5kZWJ1
-ZyAgICAgICAgICAgICAgICB8IDMwIC0tLS0tLS0tLS0NCj4gICBhcmNoL3g4Ni9pbmNsdWRl
-L2FzbS9mbG9wcHkuaCAgICAgICAgIHwgMzEgKysrKysrKystLQ0KPiAgIGFyY2gveDg2L2lu
-Y2x1ZGUvYXNtL2lvLmggICAgICAgICAgICAgfCAxOSArKysrLS0tDQo+ICAgYXJjaC94ODYv
-aW5jbHVkZS9hc20vaXJxZmxhZ3MuaCAgICAgICB8ICA2ICstDQo+ICAgYXJjaC94ODYvaW5j
-bHVkZS9hc20vcGFyYXZpcnQtYmFzZS5oICB8ICA2ICsrDQo+ICAgYXJjaC94ODYvaW5jbHVk
-ZS9hc20vcGFyYXZpcnQuaCAgICAgICB8IDExIC0tLS0NCj4gICBhcmNoL3g4Ni9pbmNsdWRl
-L2FzbS9wYXJhdmlydF90eXBlcy5oIHwgIDIgLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9NYWtl
-ZmlsZSAgICAgICAgICAgICAgfCAgMyArLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9jcHUvdm13
-YXJlLmMgICAgICAgICAgfCAgMiArLQ0KPiAgIGFyY2gveDg2L2tlcm5lbC9pb19kZWxheS5j
-ICAgICAgICAgICAgfCA4MSArLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gICBhcmNo
-L3g4Ni9rZXJuZWwva3ZtLmMgICAgICAgICAgICAgICAgIHwgIDggKy0tDQo+ICAgYXJjaC94
-ODYva2VybmVsL3BhcmF2aXJ0LmMgICAgICAgICAgICB8ICAzICstDQo+ICAgYXJjaC94ODYv
-a2VybmVsL3NldHVwLmMgICAgICAgICAgICAgICB8ICA0ICstDQo+ICAgYXJjaC94ODYveGVu
-L2VubGlnaHRlbl9wdi5jICAgICAgICAgICB8ICA2ICstDQo+ICAgZHJpdmVycy9ibG9jay9m
-bG9wcHkuYyAgICAgICAgICAgICAgICB8ICAyIC0NCj4gICAxNiBmaWxlcyBjaGFuZ2VkLCA2
-MyBpbnNlcnRpb25zKCspLCAxNTkgZGVsZXRpb25zKC0pDQo+IA0KDQpBbnkgY29tbWVudHM/
-DQoNCg0KSnVlcmdlbg0K
---------------ykCYmYZPmbNUyjW9yglZ6jAJ
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+The corresponding try_module_get(THIS_MODULE) is done before the
+kthread_run() (and has to be 'put' if that fails).
+So there is an explicit 'get' but an implicit 'put'.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+While a loadable module that creates a kthread usually needs to give
+the kthread a reference to its module and then have that reference
+released as the kthread exits, I can imagine cases where that isn't true.
+(Or broken code that just hopes the module won't be unloaded just
+as the kthread exits.)
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+It actually makes me think that module_put_and_exit() ought to have
+a 'module' parameter.
+Or, perhaps, kthread_create() should have the module parameter and
+hold a reference to that module until it exits.
 
---------------ykCYmYZPmbNUyjW9yglZ6jAJ--
-
---------------4QPs0Tl0IvPk0NeNwm0fH0rQ--
-
---------------ly91FhzTvqqnaaaUYBZhau5n
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmmxMtQFAwAAAAAACgkQsN6d1ii/Ey8A
-eQf8CHdFysN8bD+Zo0Oxso2E1yhRpRH1owAFupCVGF3BUqTaDASBcCuvsG9/Ki0F45119ijMsBjw
-TFDm/0+5boYGwCqHqvHsFCMdMaYRmVqFecdT+YS0Y1P8gY6ss0Gss8aOnF3DBJWGJ/9uxlToJYSt
-Iskf/Ngli/nA6twrtqlX4PqF/9uX5QpAERj607WFkQ7ObvTNpZAyejlnTJPxR2yrb9d9mrrm4LHt
-7LOvBn+R2GCJhztJ9ROE7yBNFNjwyUu63vPCc3wShFdxXqjKXiuOvlC87MCbfL6crZr1nRX//HDj
-Vj9OPYJkGm0vldthYiLXqEmDUTp7IhKoXgrM9Ks6jg==
-=uMUn
------END PGP SIGNATURE-----
-
---------------ly91FhzTvqqnaaaUYBZhau5n--
+	David
