@@ -1,138 +1,112 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from out30-71.freemail.mail.aliyun.com (out30-71.freemail.mail.aliyun.com [115.124.30.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 030281A9FA0
-	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 02:58:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F8302F616B
+	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 03:20:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773197883; cv=none; b=CW81Bg/VwcLJA5k+Puw0lW6gwrODcmzDI+xFPUeuZxpo1xeQZtL9vrj0rYDuL/0wGVMKXQNdn/KcMKwwT5SnVReObOGXD5fFpJ4IxdvnimF72/HtqwGefEXue8J8jHRWWmLyIMzepK3mf6JcyNO3WS/sC21Any0iuLjbBuVY5NE=
+	t=1773199211; cv=none; b=ZEVhXiIOlA1mCgQkKoOPiWF0Y8QA9N4WddtTknRL9Zh7QaqgjieYFIFBTv/Z1//jFdl/cbohmh1iWRaolLRZrkWmcrM/dSFUFFLxvcMpgBI1fZNzdJJsriAcSGLo+EpHWvL869Mb/fMVxFp8b2/kL97B+AEiuk3rsEBsAWJYwzw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773197883; c=relaxed/simple;
-	bh=vl21MbKWHSssbLSFKCDtGoRXg4pvqpBMdC6BYftVXI4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=YLa4qOnqcV2JI/r5oD3bQmV8FuOvVNqUT40uUxE7cIL418mgOxC5dFAcM30O9ZEU7wu7+DtX46I423LkbOzgfC1ocPL0+kWIssQoKR5F4P4YRFPnU/wp6bKMSHacn2E7gqWWDhBbAHVQKdjs+UMxsCwsi/Z/Wzwdhw6tAY5RvhE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JInCquuA; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1773199211; c=relaxed/simple;
+	bh=nb/Yf3FNbqaQwk/mdsPKERX8YO4lqQotDGHFGRd+LQE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pXH5iNh3vbk0P+oPY/hoavs+E4QDJRr293qFU0vRWFT9pCEzVU6kSrcA3mcE/qNo1RYkvKeN2Igwxj+6gJVeaVZqXSEhca16QITTtsEdrQVUqdsxGNmn0mNvAgy1l7qaykucyZkJyZHgdYPAt2TZfygMyquUhHZ33uFsljc8new=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com; spf=pass smtp.mailfrom=aliyun.com; dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b=u39a1NKG; arc=none smtp.client-ip=115.124.30.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliyun.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JInCquuA"
+	dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="u39a1NKG"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1773197878; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
-	bh=KCqCXWA7676dPICIruRpxokb7vPTtkgULujt8gpuiuM=;
-	b=JInCquuAyYVo6WrsPz3G/U10+FE07lbCkddBVH7ON/DYwbq3DhJfFmn8Y1rTWOnqxFcKR+I1t+rz7LNIk1ymZttqz4o1ln4A+zy0YhzN9gSEC96PCbw1ZwthiEgWVCwqIafCbpoxxxY9QdhZS7JAvX1QY+iZIhRNe2Q+Xk8ICws=
-Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0X-iF9Lj_1773197800 cluster:ay36)
+	d=aliyun.com; s=s1024;
+	t=1773199207; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=EfJ5n2c9DbB4LYKvdv51Z+iKfoqFlsFVqspAs7le1d0=;
+	b=u39a1NKGlmy4iKQyyHdmIbx1OB/UlteQGTmoznvKWaaYuAcE80dDZzEP2ys8V7Ub8vJTmG4wDggKAUFVnGLpiUjXvgMIP8skznq4iI+9htHbAhO+LzQdcS63v6TedHqW1cCyIfc0Bc4yeFf9mKJ2CTrf1QtRnHJz+9S7GghLrOQ=
+Received: from wdhh66@aliyun.com(mailfrom:wdhh6@aliyun.com fp:SMTPD_---0X-iG1N-_1773199201 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 11 Mar 2026 10:57:56 +0800
-From: "Huang, Ying" <ying.huang@linux.alibaba.com>
-To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-Cc: linux-mm@kvack.org,  akpm@linux-foundation.org,  mhocko@suse.com,
-  vbabka@suse.cz,  apopple@nvidia.com,  axelrasmussen@google.com,
-  byungchul@sk.com,  cgroups@vger.kernel.org,  david@kernel.org,
-  eperezma@redhat.com,  gourry@gourry.net,  jasowang@redhat.com,
-  hannes@cmpxchg.org,  joshua.hahnjy@gmail.com,  Liam.Howlett@oracle.com,
-  linux-kernel@vger.kernel.org,  lorenzo.stoakes@oracle.com,
-  matthew.brost@intel.com,  mst@redhat.com,  rppt@kernel.org,
-  muchun.song@linux.dev,  zhengqi.arch@bytedance.com,  rakie.kim@sk.com,
-  roman.gushchin@linux.dev,  shakeel.butt@linux.dev,  surenb@google.com,
-  virtualization@lists.linux.dev,  weixugc@google.com,
-  xuanzhuo@linux.alibaba.com,  yuanchu@google.com,  ziy@nvidia.com,
-  kernel-team@meta.com
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-In-Reply-To: <977dc43d-622c-411d-99a6-4204fa26c21e@linux.dev> (JP Kobryn's
-	message of "Sun, 8 Mar 2026 21:31:27 -0700")
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
-	<87seabu8np.fsf@DESKTOP-5N7EMDA>
-	<977dc43d-622c-411d-99a6-4204fa26c21e@linux.dev>
-Date: Wed, 11 Mar 2026 10:56:38 +0800
-Message-ID: <87cy1boyzd.fsf@DESKTOP-5N7EMDA>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+          Wed, 11 Mar 2026 11:20:06 +0800
+Date: Wed, 11 Mar 2026 11:20:01 +0800
+From: Chaohai Chen <wdhh6@aliyun.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH v2] virtio_ring: Fix data races in
+ virtqueue_enable_cb_delayed_split()
+Message-ID: <abDfYT4OFzvxrUzL@wdhh66@aliyun.com>
+References: <20260306022448.216131-1-wdhh6@aliyun.com>
+ <20260306045629-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260306045629-mutt-send-email-mst@kernel.org>
 
-"JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
-
-> On 3/7/26 4:27 AM, Huang, Ying wrote:
->> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
->> 
->>> When investigating pressure on a NUMA node, there is no straightforward way
->>> to determine which policies are driving allocations to it.
->>>
->>> Add per-policy page allocation counters as new node stat items. These
->>> counters track allocations to nodes and also whether the allocations were
->>> intentional or fallbacks.
->>>
->>> The new stats follow the existing numa hit/miss/foreign style and have the
->>> following meanings:
->>>
->>>    hit
->>>      - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
->>>      - for other policies, allocation succeeded on intended node
->>>      - counted on the node of the allocation
->>>    miss
->>>      - allocation intended for other node, but happened on this one
->>>      - counted on other node
->>>    foreign
->>>      - allocation intended on this node, but happened on other node
->>>      - counted on this node
->>>
->>> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
->>> in /proc/vmstat.
->> IMHO, it may be better to describe your workflow as an example to
->> use
->> the newly added statistics.  That can describe why we need them.  For
->> example, what you have described in
->> https://lore.kernel.org/linux-mm/9ae80317-f005-474c-9da1-95462138f3c6@gmail.com/
->> 
->>> 1) Pressure/OOMs reported while system-wide memory is free.
->>> 2) Check per-node pgscan/pgsteal stats (provided by patch 2) to narrow
->>> down node(s) under pressure. They become available in
->>> /sys/devices/system/node/nodeN/vmstat.
->>> 3) Check per-policy allocation counters (this patch) on that node to
->>> find what policy was driving it. Same readout at nodeN/vmstat.
->>> 4) Now use /proc/*/numa_maps to identify tasks using the policy.
->> 
->
-> Good call. I'll add a workflow adapted for the current approach in
-> the next revision. I included it in another response in this thread, but
-> I'll repeat here because it will make it easier to answer your question
-> below.
->
-> 1) Pressure/OOMs reported while system-wide memory is free.
-> 2) Check /proc/zoneinfo or per-node stats in .../nodeN/vmstat to narrow
->    down node(s) under pressure.
-> 3) Check per-policy hit/miss/foreign counters (added by this patch) on
->    node(s) to see what policy is driving allocations there (intentional
->    vs fallback).
-> 4) Use /proc/*/numa_maps to identify tasks using the policy.
->
->> One question.  If we have to search /proc/*/numa_maps, why can't we
->> find all necessary information via /proc/*/numa_maps?  For example,
->> which VMA uses the most pages on the node?  Which policy is used in the
->> VMA? ...
->> 
->
-> There's a gap in the flow of information if we go straight from a node
-> in question to numa_maps. Without step 3 above, we can't distinguish
-> whether pages landed there intentionally, as a fallback, or were
-> migrated sometime after the allocation. These new counters track the
-> results of allocations at the time they happen, preserving that
-> information regardless of what may happen later on.
-
-Sorry for late reply.
-
-IMHO, step 3) doesn't add much to the flow.  It only counts allocation,
-not migration, freeing, etc.  I'm afraid that it may be misleading.  For
-example, if a lot of pages have been allocated with a mempolicy, then
-these pages are freed.  /proc/*/numa_maps are more useful stats for the
-goal.  To get all necessary information, I think that more thorough
-tracing is necessary.
-
----
-Best Regards,
-Huang, Ying
+On Fri, Mar 06, 2026 at 05:04:11AM -0500, Michael S. Tsirkin wrote:
+> here's how I would put it:
+> 
+> KCSAN reports .....
+> this is because ....
+> 
+> 
+> This is not a real issue, because ....
+> To disable the KCSAN warning, use READ_ONCE to read vq->split.vring.used->idx.
+> 
+> 
+> 
+> 
+> On Fri, Mar 06, 2026 at 10:24:48AM +0800, Chaohai Chen wrote:
+> > Add READ_ONCE when fetching vq->split.vring.used->idx
+> > without synchronization.
+> 
+> it's with synchronization, of course
+> 
+> > KCSAN detected
+> 
+> detected -> incorrectly reported
+> 
+> > data races when accessing the split virtqueue's
+> > used ring, which is shared memory concurrently accessed by both the CPU
+> > and the virtio device (hypervisor).
+> > 
+> > Example KCSAN report:
+> > 
+> > [  109.277250] ==================================================================
+> > [  109.283600] BUG: KCSAN: data-race in virtqueue_enable_cb_delayed_split+0x10f/0x170
+> > 
+> > [  109.295263] race at unknown origin, with read to 0xffff8b2a92ef2042 of 2 bytes by interrupt on cpu 1:
+> > [  109.306934]  virtqueue_enable_cb_delayed_split+0x10f/0x170
+> > [  109.312880]  virtqueue_enable_cb_delayed+0x3b/0x70
+> > [  109.318852]  start_xmit+0x315/0x860 [virtio_net]
+> > [  109.324532]  dev_hard_start_xmit+0x85/0x380
+> > [  109.329993]  sch_direct_xmit+0xd3/0x680
+> > [  109.335360]  __dev_xmit_skb+0x4ee/0xcc0
+> > [  109.340568]  __dev_queue_xmit+0x560/0xe00
+> > [  109.345701]  ip_finish_output2+0x49a/0x9b0
+> > [  109.350743]  __ip_finish_output+0x131/0x250
+> > [  109.355789]  ip_finish_output+0x28/0x180
+> > [  109.360712]  ip_output+0xa0/0x1c0
+> > [  109.365479]  __ip_queue_xmit+0x68d/0x9e0
+> > [  109.370156]  ip_queue_xmit+0x33/0x40
+> > [  109.374783]  __tcp_transmit_skb+0x1703/0x1970
+> > [  109.379467]  __tcp_send_ack.part.0+0x1bb/0x320
+> > ...
+> > [  109.499585]  do_idle+0x7a/0xe0
+> > [  109.502979]  cpu_startup_entry+0x25/0x30
+> > [  109.506481]  start_secondary+0x116/0x150
+> > [  109.509930]  common_startup_64+0x13e/0x141
+> > 
+> > [  109.516626] value changed: 0x0029 -> 0x002a
+> > ================================================================================
+> > 
+> > Signed-off-by: Chaohai Chen <wdhh6@aliyun.com>
+> 
+> 
+> 
+> I'd like to see code size before/after compared, and included in
+> the log. Does this make the compiler's work much harder?
+> 
+I found the code size is the same. And virtio_store_mb() can do sync.
+Perhaps we don't need to modify the code here, but rather fix KCSAN.
