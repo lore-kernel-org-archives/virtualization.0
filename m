@@ -1,120 +1,133 @@
-Received: from relay.hostedemail.com (smtprelay0012.hostedemail.com [216.40.44.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8DF41DFFD;
-	Wed, 11 Mar 2026 00:11:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2CFE2DCF58
+	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 02:55:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773187883; cv=none; b=Jkmx1HxUrc+EX6VqfPVuPQNEuk+BGuw55ofIcIFxAEnm2dR5Gni6Ad4LvGd0jk4bmZ6dmJh9Bsj9kmNPq7aIHCg5Ge2FyhVPAkaWc/IgeGxNUFG4OC704INkCtiMSEn+I5qLfS+tKSWuRJTfoFBFxOETt6/NGs2qhjlQIlpZQdk=
+	t=1773197761; cv=none; b=YQfIIrpzMURbPZbMnhGX8p2eXpFhX8FQqPXx7WCY0YRMjEECVaJIvkVeJdHHM90fQqoX6g07a3VW3oy9adaWYRyY199PWx7QD3D71hnGPhbQdcg0x7zvDXMVl0hT5+abXOSB9D4p49K+Z8vALQoKPZ2F/M0u7TaJQNnj2FDleGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773187883; c=relaxed/simple;
-	bh=smzvbB4nmsoWyjvlw6IqwQZpGTU4rmIBF86uCfM5iSI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SmUm9jo7ZT3NkwbN2klZSK/2wCmwA5BcZQRuVxbKCwEGt/M44WknJWu6wwojKlwxnWMG//vPoazMhzywKZjdvKnLKtsXZWifKx4ER01bzmMCcKjmN0GWu9U9GJ1vm+jkXSYLMo28L2AsCrDNIcmA3Jbz3qoKadacWf7hlvS14jY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf20.hostedemail.com (a10.router.float.18 [10.200.18.1])
-	by unirelay02.hostedemail.com (Postfix) with ESMTP id 7BCB113A961;
-	Wed, 11 Mar 2026 00:02:10 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf20.hostedemail.com (Postfix) with ESMTPA id 85BFC20027;
-	Wed, 11 Mar 2026 00:02:06 +0000 (UTC)
-Date: Tue, 10 Mar 2026 20:02:17 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Christian Brauner <brauner@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
- linux-kernel@vger.kernel.org, linux-modules@vger.kernel.org,
- linux-nfs@vger.kernel.org, bpf@vger.kernel.org, kunit-dev@googlegroups.com,
- linux-doc@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- netfs@lists.linux.dev, io-uring@vger.kernel.org, audit@vger.kernel.org,
- rcu@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-mm@kvack.org,
- linux-security-module@vger.kernel.org, Christian Loehle
- <christian.loehle@arm.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] tree-wide: rename do_exit() to task_exit()
-Message-ID: <20260310200217.451cf37e@gandalf.local.home>
-In-Reply-To: <20260310-work-kernel-exit-v2-2-30711759d87b@kernel.org>
-References: <20260310-work-kernel-exit-v2-0-30711759d87b@kernel.org>
-	<20260310-work-kernel-exit-v2-2-30711759d87b@kernel.org>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1773197761; c=relaxed/simple;
+	bh=hyjfQXklLqkW/i7CefJGecdgWhNnoQXJHNE3mTmlTlQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=f+xAvcCtlDJDg84mwEp4FBLu7LsmSoA0z0vxu4N1vWplR5zugB5ZI6mYdCuQf/+mGM/fVMRkZHTRpUS3rdxt4xElf0r0wGMExtLEo1Ze7QFBZ6f+mvxtFU2+ttrgjKj/g5acaCW3wIt5mV0Mi4iHZZ/SHNxzqRYyNsaDDFg68zs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iuu0YS9+; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iuu0YS9+"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-35691a231a7so8507177a91.3
+        for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 19:55:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773197759; x=1773802559; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8c6OjZm0+U7pnN7pJa7FIN5Z/TewF/LGu73XtmiIMW0=;
+        b=iuu0YS9+0H9uY1BBs3QWZNsEQ4hGrPisMVx5ehTgFVi3ndlrL7COGTsINvmq5ip9vy
+         0eDxYKtwRovFN9e65E8hrSMEv5nv96GpL9Jq5Uz1mXBIOmkLgDp5f0RwCPgYCAZXis1P
+         dv7+bTQB2x46E6Lpmq/Nwf3j2VNPdesc0TG05gKAOKR39XIyxwVUwokwDbdFtT4tZFZn
+         rXWCbL6fSpH0uuE9yT2gIoWRs0O1eJt1FCXfVlPbOzXMK2zSDOkLmJsGJ34r7u6V8+KX
+         WufvvHfgZTsltpELCUp+N0+vsc1K7F4a6qa7s7xxHIG7J+cs6swKo2yJ00qYBeI/mnMv
+         yhLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773197759; x=1773802559;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8c6OjZm0+U7pnN7pJa7FIN5Z/TewF/LGu73XtmiIMW0=;
+        b=KnKJWKpWyhclrPdtfoEeWbEyYeAQlMETgyG45/0026i4zmAUgbSqMKfVRispr2oOHB
+         xC7viqWtst8Bzs72X6DsdBEWkGNhZr79UVfwvrVgwoCYZUkDcRZ7TKFnWZ5io8inB1zD
+         3uDGdga0yFcJzcxTVja2uQ9BF4lBTU6XLDWeyYIU67KuYH6p7oMp/moAWieNc8Ofrl/s
+         NQrAlI6k/ml4djNqbIQwEdU62rSg3zGtBva1g4cQEht937hePfXgOj3He39xhplnMgB6
+         FXwl1SD5WI0ny/ayDfjdhD8yGJmtmkUb9ShF9J4P5z7nMux89c/hO29PJgbRDELmFYJf
+         6tSA==
+X-Forwarded-Encrypted: i=1; AJvYcCWRh7OYzdbly3oOzaka4AYPLPAVc/dpIOHNJD3xwE5PLUHyESNB5nuhOgEX7UVK7z7iDdYcAaFjHhhGoU2+VQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YySnYcSLm8ZZ4d+r08elv+tRfWkatO9wbzdOtZBXjs4yChkNt0l
+	b+ly/arMYZNxFIdzaNY54zzPO1bwY7HuQ3O0dX+3k8jllHU3pTuCnHpkF1raKTdw
+X-Gm-Gg: ATEYQzyAd9PpaqAEOP5GObq4NrPkbSmhH2ZjmzDDBM5uAlxENBDGndZSTWZhcY3Er6o
+	9lqImA0dTLsePXoRk8O5L/hqUHDWswi3W3IBTzIGrGEkLSQQYqFhOND4jkW0rXfotavZZ2tI2mT
+	oT43fggoMjMc+53X/+zPIMyT3+X4CPcZs5AqU0tBc1WUTDMI+wXE34/vNX2/UiP8GPY30Qv8V2h
+	Q3OIxa1306ATEDIx4MfgRp+2BYnWLDGOChqU32c1Hl3cC4I8BiHODg1c+M6SQM112oFMG4M9YDX
+	aSNrwo4FPrfPp39HypXp23KGb4HJYRxTAqCmUv4AgTHve445zmlF97DqNw+yKFAsA8JzH7UjhQB
+	OyXZnIi645uDEw5OeHOGt8YMmj2F0GLixlvIh6clfIkOTv+ZQ5gN6zNaMBeAs8Wu1yD77UnXAd1
+	p3iievDbd3eiwUkBjE7U3aXJn/LKUemQ+00t71VE9TIsJZXbBEfRL3hA==
+X-Received: by 2002:a17:90b:3f45:b0:359:8d70:c4e6 with SMTP id 98e67ed59e1d1-35a012866b4mr885260a91.1.1773197759236;
+        Tue, 10 Mar 2026 19:55:59 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:56f5::8bd])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35a02ba23adsm475448a91.0.2026.03.10.19.55.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2026 19:55:58 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-gpio@vger.kernel.org
+Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>,
+	Viresh Kumar <vireshk@kernel.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	virtualization@lists.linux.dev (open list:VIRTIO GPIO DRIVER),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCHv2] gpio: virtio: remove one kcalloc
+Date: Tue, 10 Mar 2026 19:55:41 -0700
+Message-ID: <20260311025541.53814-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Stat-Signature: 5bg3rrg18jbru7uwkfxn1hbh397psca6
-X-Rspamd-Server: rspamout01
-X-Rspamd-Queue-Id: 85BFC20027
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX18LHCHZ+vV3JFPf+Z89JvS/nvAKMsv+FAI=
-X-HE-Tag: 1773187326-98008
-X-HE-Meta: U2FsdGVkX1/3tMWPLwyG4JCc4wkqvh9SiSPSlhJp6Tv4W/fwSwUFhWXG3UBrBxSzLq3p72eu37Xu4WWh77aTVVkk97xFw9hCg2Tn+gfwvdW114asIqtfy8xHhNrVuERS2G/65ce3/BsvZjC5d8Vnvs35vga+tnTJklfjQ+UttgL5bwbjp5oOgQNdAzx3oibQ4Mzt0N8V0YHeM+nhQRgwSGhlB1291Y2eHefZmXFBYTpQLIIP1XDBd9pac8iHtBZirKQZfE9I0NK+xzIHdGI0aui4vMm56FkppnHJDf/mUfgi8cC8UEAJB61JKAsSDfwj7R599Re8N4CNbTJgYcDwKo1gfVDZt4y9
+Content-Transfer-Encoding: 8bit
 
-On Tue, 10 Mar 2026 15:56:10 +0100
-Christian Brauner <brauner@kernel.org> wrote:
+A flexible array member can be used to combine allocations.
 
-> diff --git a/tools/testing/selftests/bpf/progs/tracing_failure.c b/tools/testing/selftests/bpf/progs/tracing_failure.c
-> index 65e485c4468c..5144f4cc5787 100644
-> --- a/tools/testing/selftests/bpf/progs/tracing_failure.c
-> +++ b/tools/testing/selftests/bpf/progs/tracing_failure.c
-> @@ -25,7 +25,7 @@ int BPF_PROG(tracing_deny)
->  	return 0;
->  }
->  
-> -SEC("?fexit/do_exit")
-> +SEC("?fexit/task_exit")
->  int BPF_PROG(fexit_noreturns)
->  {
->  	return 0;
-> diff --git a/tools/testing/selftests/ftrace/test.d/dynevent/fprobe_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/dynevent/fprobe_syntax_errors.tc
-> index fee479295e2f..7e00d8ecd110 100644
-> --- a/tools/testing/selftests/ftrace/test.d/dynevent/fprobe_syntax_errors.tc
-> +++ b/tools/testing/selftests/ftrace/test.d/dynevent/fprobe_syntax_errors.tc
-> @@ -82,7 +82,7 @@ check_error 'f vfs_read arg1=^'			# NO_ARG_BODY
->  # multiprobe errors
->  if grep -q "Create/append/" README && grep -q "imm-value" README; then
->  echo "f:fprobes/testevent $FUNCTION_FORK" > dynamic_events
-> -check_error '^f:fprobes/testevent do_exit%return'	# DIFF_PROBE_TYPE
-> +check_error '^f:fprobes/testevent task_exit%return'	# DIFF_PROBE_TYPE
->  
->  # Explicitly use printf "%s" to not interpret \1
->  printf "%s" "f:fprobes/testevent $FUNCTION_FORK abcd=\\1" > dynamic_events
-> diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_multiprobe.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_multiprobe.tc
-> index f0d5b7777ed7..a95e3824690a 100644
-> --- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_multiprobe.tc
-> +++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_multiprobe.tc
-> @@ -5,7 +5,7 @@
->  
->  # Choose 2 symbols for target
->  SYM1=$FUNCTION_FORK
-> -SYM2=do_exit
-> +SYM2=task_exit
->  EVENT_NAME=kprobes/testevent
->  
->  DEF1="p:$EVENT_NAME $SYM1"
-> diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-> index 8f1c58f0c239..b55ea3c05cfa 100644
-> --- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-> +++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_syntax_errors.tc
-> @@ -87,7 +87,7 @@ esac
->  # multiprobe errors
->  if grep -q "Create/append/" README && grep -q "imm-value" README; then
->  echo "p:kprobes/testevent $FUNCTION_FORK" > kprobe_events
-> -check_error '^r:kprobes/testevent do_exit'	# DIFF_PROBE_TYPE
-> +check_error '^r:kprobes/testevent task_exit'	# DIFF_PROBE_TYPE
->  
->  # Explicitly use printf "%s" to not interpret \1
->  printf "%s" "p:kprobes/testevent $FUNCTION_FORK abcd=\\1" > kprobe_events
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+ v2: add space in struct
+ drivers/gpio/gpio-virtio.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-These tests need to pass on old kernels too. So we can't just do a
-"s/do_exit/task_exit/" conversion. It needs to test for task_exit first,
-and if not found, fallback to do_exit.
+diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
+index ed6e0e90fa8a..db66590ea5d3 100644
+--- a/drivers/gpio/gpio-virtio.c
++++ b/drivers/gpio/gpio-virtio.c
+@@ -52,7 +52,6 @@ struct virtio_gpio {
+ 	struct virtio_device *vdev;
+ 	struct mutex lock; /* Protects virtqueue operation */
+ 	struct gpio_chip gc;
+-	struct virtio_gpio_line *lines;
+ 	struct virtqueue *request_vq;
 
-See how we handled the _do_fork() > kernel_clone() rename:
+ 	/* irq support */
+@@ -60,6 +59,8 @@ struct virtio_gpio {
+ 	struct mutex irq_lock; /* Protects irq operation */
+ 	raw_spinlock_t eventq_lock; /* Protects queuing of the buffer */
+ 	struct vgpio_irq_line *irq_lines;
++
++	struct virtio_gpio_line lines[];
+ };
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/testing/selftests/ftrace/test.d/functions#n182
+ static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
+@@ -541,10 +542,6 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
+ 	u16 ngpio;
+ 	int ret, i;
 
--- Steve
+-	vgpio = devm_kzalloc(dev, sizeof(*vgpio), GFP_KERNEL);
+-	if (!vgpio)
+-		return -ENOMEM;
+-
+ 	/* Read configuration */
+ 	gpio_names_size =
+ 		virtio_cread32(vdev, offsetof(struct virtio_gpio_config,
+@@ -556,8 +553,8 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
+ 		return -EINVAL;
+ 	}
+
+-	vgpio->lines = devm_kcalloc(dev, ngpio, sizeof(*vgpio->lines), GFP_KERNEL);
+-	if (!vgpio->lines)
++	vgpio = devm_kzalloc(dev, struct_size(vgpio, lines, ngpio), GFP_KERNEL);
++	if (!vgpio)
+ 		return -ENOMEM;
+
+ 	for (i = 0; i < ngpio; i++) {
+--
+2.53.0
+
