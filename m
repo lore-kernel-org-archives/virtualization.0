@@ -1,133 +1,138 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2CFE2DCF58
-	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 02:55:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 030281A9FA0
+	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 02:58:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773197761; cv=none; b=YQfIIrpzMURbPZbMnhGX8p2eXpFhX8FQqPXx7WCY0YRMjEECVaJIvkVeJdHHM90fQqoX6g07a3VW3oy9adaWYRyY199PWx7QD3D71hnGPhbQdcg0x7zvDXMVl0hT5+abXOSB9D4p49K+Z8vALQoKPZ2F/M0u7TaJQNnj2FDleGo=
+	t=1773197883; cv=none; b=CW81Bg/VwcLJA5k+Puw0lW6gwrODcmzDI+xFPUeuZxpo1xeQZtL9vrj0rYDuL/0wGVMKXQNdn/KcMKwwT5SnVReObOGXD5fFpJ4IxdvnimF72/HtqwGefEXue8J8jHRWWmLyIMzepK3mf6JcyNO3WS/sC21Any0iuLjbBuVY5NE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773197761; c=relaxed/simple;
-	bh=hyjfQXklLqkW/i7CefJGecdgWhNnoQXJHNE3mTmlTlQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=f+xAvcCtlDJDg84mwEp4FBLu7LsmSoA0z0vxu4N1vWplR5zugB5ZI6mYdCuQf/+mGM/fVMRkZHTRpUS3rdxt4xElf0r0wGMExtLEo1Ze7QFBZ6f+mvxtFU2+ttrgjKj/g5acaCW3wIt5mV0Mi4iHZZ/SHNxzqRYyNsaDDFg68zs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iuu0YS9+; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773197883; c=relaxed/simple;
+	bh=vl21MbKWHSssbLSFKCDtGoRXg4pvqpBMdC6BYftVXI4=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=YLa4qOnqcV2JI/r5oD3bQmV8FuOvVNqUT40uUxE7cIL418mgOxC5dFAcM30O9ZEU7wu7+DtX46I423LkbOzgfC1ocPL0+kWIssQoKR5F4P4YRFPnU/wp6bKMSHacn2E7gqWWDhBbAHVQKdjs+UMxsCwsi/Z/Wzwdhw6tAY5RvhE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JInCquuA; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iuu0YS9+"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-35691a231a7so8507177a91.3
-        for <virtualization@lists.linux.dev>; Tue, 10 Mar 2026 19:55:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773197759; x=1773802559; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=8c6OjZm0+U7pnN7pJa7FIN5Z/TewF/LGu73XtmiIMW0=;
-        b=iuu0YS9+0H9uY1BBs3QWZNsEQ4hGrPisMVx5ehTgFVi3ndlrL7COGTsINvmq5ip9vy
-         0eDxYKtwRovFN9e65E8hrSMEv5nv96GpL9Jq5Uz1mXBIOmkLgDp5f0RwCPgYCAZXis1P
-         dv7+bTQB2x46E6Lpmq/Nwf3j2VNPdesc0TG05gKAOKR39XIyxwVUwokwDbdFtT4tZFZn
-         rXWCbL6fSpH0uuE9yT2gIoWRs0O1eJt1FCXfVlPbOzXMK2zSDOkLmJsGJ34r7u6V8+KX
-         WufvvHfgZTsltpELCUp+N0+vsc1K7F4a6qa7s7xxHIG7J+cs6swKo2yJ00qYBeI/mnMv
-         yhLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773197759; x=1773802559;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8c6OjZm0+U7pnN7pJa7FIN5Z/TewF/LGu73XtmiIMW0=;
-        b=KnKJWKpWyhclrPdtfoEeWbEyYeAQlMETgyG45/0026i4zmAUgbSqMKfVRispr2oOHB
-         xC7viqWtst8Bzs72X6DsdBEWkGNhZr79UVfwvrVgwoCYZUkDcRZ7TKFnWZ5io8inB1zD
-         3uDGdga0yFcJzcxTVja2uQ9BF4lBTU6XLDWeyYIU67KuYH6p7oMp/moAWieNc8Ofrl/s
-         NQrAlI6k/ml4djNqbIQwEdU62rSg3zGtBva1g4cQEht937hePfXgOj3He39xhplnMgB6
-         FXwl1SD5WI0ny/ayDfjdhD8yGJmtmkUb9ShF9J4P5z7nMux89c/hO29PJgbRDELmFYJf
-         6tSA==
-X-Forwarded-Encrypted: i=1; AJvYcCWRh7OYzdbly3oOzaka4AYPLPAVc/dpIOHNJD3xwE5PLUHyESNB5nuhOgEX7UVK7z7iDdYcAaFjHhhGoU2+VQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YySnYcSLm8ZZ4d+r08elv+tRfWkatO9wbzdOtZBXjs4yChkNt0l
-	b+ly/arMYZNxFIdzaNY54zzPO1bwY7HuQ3O0dX+3k8jllHU3pTuCnHpkF1raKTdw
-X-Gm-Gg: ATEYQzyAd9PpaqAEOP5GObq4NrPkbSmhH2ZjmzDDBM5uAlxENBDGndZSTWZhcY3Er6o
-	9lqImA0dTLsePXoRk8O5L/hqUHDWswi3W3IBTzIGrGEkLSQQYqFhOND4jkW0rXfotavZZ2tI2mT
-	oT43fggoMjMc+53X/+zPIMyT3+X4CPcZs5AqU0tBc1WUTDMI+wXE34/vNX2/UiP8GPY30Qv8V2h
-	Q3OIxa1306ATEDIx4MfgRp+2BYnWLDGOChqU32c1Hl3cC4I8BiHODg1c+M6SQM112oFMG4M9YDX
-	aSNrwo4FPrfPp39HypXp23KGb4HJYRxTAqCmUv4AgTHve445zmlF97DqNw+yKFAsA8JzH7UjhQB
-	OyXZnIi645uDEw5OeHOGt8YMmj2F0GLixlvIh6clfIkOTv+ZQ5gN6zNaMBeAs8Wu1yD77UnXAd1
-	p3iievDbd3eiwUkBjE7U3aXJn/LKUemQ+00t71VE9TIsJZXbBEfRL3hA==
-X-Received: by 2002:a17:90b:3f45:b0:359:8d70:c4e6 with SMTP id 98e67ed59e1d1-35a012866b4mr885260a91.1.1773197759236;
-        Tue, 10 Mar 2026 19:55:59 -0700 (PDT)
-Received: from ryzen ([2601:644:8000:56f5::8bd])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35a02ba23adsm475448a91.0.2026.03.10.19.55.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 19:55:58 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-gpio@vger.kernel.org
-Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>,
-	Viresh Kumar <vireshk@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	virtualization@lists.linux.dev (open list:VIRTIO GPIO DRIVER),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCHv2] gpio: virtio: remove one kcalloc
-Date: Tue, 10 Mar 2026 19:55:41 -0700
-Message-ID: <20260311025541.53814-1-rosenp@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JInCquuA"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1773197878; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
+	bh=KCqCXWA7676dPICIruRpxokb7vPTtkgULujt8gpuiuM=;
+	b=JInCquuAyYVo6WrsPz3G/U10+FE07lbCkddBVH7ON/DYwbq3DhJfFmn8Y1rTWOnqxFcKR+I1t+rz7LNIk1ymZttqz4o1ln4A+zy0YhzN9gSEC96PCbw1ZwthiEgWVCwqIafCbpoxxxY9QdhZS7JAvX1QY+iZIhRNe2Q+Xk8ICws=
+Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0X-iF9Lj_1773197800 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 11 Mar 2026 10:57:56 +0800
+From: "Huang, Ying" <ying.huang@linux.alibaba.com>
+To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+Cc: linux-mm@kvack.org,  akpm@linux-foundation.org,  mhocko@suse.com,
+  vbabka@suse.cz,  apopple@nvidia.com,  axelrasmussen@google.com,
+  byungchul@sk.com,  cgroups@vger.kernel.org,  david@kernel.org,
+  eperezma@redhat.com,  gourry@gourry.net,  jasowang@redhat.com,
+  hannes@cmpxchg.org,  joshua.hahnjy@gmail.com,  Liam.Howlett@oracle.com,
+  linux-kernel@vger.kernel.org,  lorenzo.stoakes@oracle.com,
+  matthew.brost@intel.com,  mst@redhat.com,  rppt@kernel.org,
+  muchun.song@linux.dev,  zhengqi.arch@bytedance.com,  rakie.kim@sk.com,
+  roman.gushchin@linux.dev,  shakeel.butt@linux.dev,  surenb@google.com,
+  virtualization@lists.linux.dev,  weixugc@google.com,
+  xuanzhuo@linux.alibaba.com,  yuanchu@google.com,  ziy@nvidia.com,
+  kernel-team@meta.com
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+In-Reply-To: <977dc43d-622c-411d-99a6-4204fa26c21e@linux.dev> (JP Kobryn's
+	message of "Sun, 8 Mar 2026 21:31:27 -0700")
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+	<87seabu8np.fsf@DESKTOP-5N7EMDA>
+	<977dc43d-622c-411d-99a6-4204fa26c21e@linux.dev>
+Date: Wed, 11 Mar 2026 10:56:38 +0800
+Message-ID: <87cy1boyzd.fsf@DESKTOP-5N7EMDA>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ascii
 
-A flexible array member can be used to combine allocations.
+"JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
 
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+> On 3/7/26 4:27 AM, Huang, Ying wrote:
+>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+>> 
+>>> When investigating pressure on a NUMA node, there is no straightforward way
+>>> to determine which policies are driving allocations to it.
+>>>
+>>> Add per-policy page allocation counters as new node stat items. These
+>>> counters track allocations to nodes and also whether the allocations were
+>>> intentional or fallbacks.
+>>>
+>>> The new stats follow the existing numa hit/miss/foreign style and have the
+>>> following meanings:
+>>>
+>>>    hit
+>>>      - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
+>>>      - for other policies, allocation succeeded on intended node
+>>>      - counted on the node of the allocation
+>>>    miss
+>>>      - allocation intended for other node, but happened on this one
+>>>      - counted on other node
+>>>    foreign
+>>>      - allocation intended on this node, but happened on other node
+>>>      - counted on this node
+>>>
+>>> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
+>>> in /proc/vmstat.
+>> IMHO, it may be better to describe your workflow as an example to
+>> use
+>> the newly added statistics.  That can describe why we need them.  For
+>> example, what you have described in
+>> https://lore.kernel.org/linux-mm/9ae80317-f005-474c-9da1-95462138f3c6@gmail.com/
+>> 
+>>> 1) Pressure/OOMs reported while system-wide memory is free.
+>>> 2) Check per-node pgscan/pgsteal stats (provided by patch 2) to narrow
+>>> down node(s) under pressure. They become available in
+>>> /sys/devices/system/node/nodeN/vmstat.
+>>> 3) Check per-policy allocation counters (this patch) on that node to
+>>> find what policy was driving it. Same readout at nodeN/vmstat.
+>>> 4) Now use /proc/*/numa_maps to identify tasks using the policy.
+>> 
+>
+> Good call. I'll add a workflow adapted for the current approach in
+> the next revision. I included it in another response in this thread, but
+> I'll repeat here because it will make it easier to answer your question
+> below.
+>
+> 1) Pressure/OOMs reported while system-wide memory is free.
+> 2) Check /proc/zoneinfo or per-node stats in .../nodeN/vmstat to narrow
+>    down node(s) under pressure.
+> 3) Check per-policy hit/miss/foreign counters (added by this patch) on
+>    node(s) to see what policy is driving allocations there (intentional
+>    vs fallback).
+> 4) Use /proc/*/numa_maps to identify tasks using the policy.
+>
+>> One question.  If we have to search /proc/*/numa_maps, why can't we
+>> find all necessary information via /proc/*/numa_maps?  For example,
+>> which VMA uses the most pages on the node?  Which policy is used in the
+>> VMA? ...
+>> 
+>
+> There's a gap in the flow of information if we go straight from a node
+> in question to numa_maps. Without step 3 above, we can't distinguish
+> whether pages landed there intentionally, as a fallback, or were
+> migrated sometime after the allocation. These new counters track the
+> results of allocations at the time they happen, preserving that
+> information regardless of what may happen later on.
+
+Sorry for late reply.
+
+IMHO, step 3) doesn't add much to the flow.  It only counts allocation,
+not migration, freeing, etc.  I'm afraid that it may be misleading.  For
+example, if a lot of pages have been allocated with a mempolicy, then
+these pages are freed.  /proc/*/numa_maps are more useful stats for the
+goal.  To get all necessary information, I think that more thorough
+tracing is necessary.
+
 ---
- v2: add space in struct
- drivers/gpio/gpio-virtio.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-index ed6e0e90fa8a..db66590ea5d3 100644
---- a/drivers/gpio/gpio-virtio.c
-+++ b/drivers/gpio/gpio-virtio.c
-@@ -52,7 +52,6 @@ struct virtio_gpio {
- 	struct virtio_device *vdev;
- 	struct mutex lock; /* Protects virtqueue operation */
- 	struct gpio_chip gc;
--	struct virtio_gpio_line *lines;
- 	struct virtqueue *request_vq;
-
- 	/* irq support */
-@@ -60,6 +59,8 @@ struct virtio_gpio {
- 	struct mutex irq_lock; /* Protects irq operation */
- 	raw_spinlock_t eventq_lock; /* Protects queuing of the buffer */
- 	struct vgpio_irq_line *irq_lines;
-+
-+	struct virtio_gpio_line lines[];
- };
-
- static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
-@@ -541,10 +542,6 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 	u16 ngpio;
- 	int ret, i;
-
--	vgpio = devm_kzalloc(dev, sizeof(*vgpio), GFP_KERNEL);
--	if (!vgpio)
--		return -ENOMEM;
--
- 	/* Read configuration */
- 	gpio_names_size =
- 		virtio_cread32(vdev, offsetof(struct virtio_gpio_config,
-@@ -556,8 +553,8 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 		return -EINVAL;
- 	}
-
--	vgpio->lines = devm_kcalloc(dev, ngpio, sizeof(*vgpio->lines), GFP_KERNEL);
--	if (!vgpio->lines)
-+	vgpio = devm_kzalloc(dev, struct_size(vgpio, lines, ngpio), GFP_KERNEL);
-+	if (!vgpio)
- 		return -ENOMEM;
-
- 	for (i = 0; i < ngpio; i++) {
---
-2.53.0
-
+Best Regards,
+Huang, Ying
