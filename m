@@ -1,112 +1,144 @@
-Received: from out30-71.freemail.mail.aliyun.com (out30-71.freemail.mail.aliyun.com [115.124.30.71])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F8302F616B
-	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 03:20:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F9E3374184
+	for <virtualization@lists.linux.dev>; Wed, 11 Mar 2026 06:40:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773199211; cv=none; b=ZEVhXiIOlA1mCgQkKoOPiWF0Y8QA9N4WddtTknRL9Zh7QaqgjieYFIFBTv/Z1//jFdl/cbohmh1iWRaolLRZrkWmcrM/dSFUFFLxvcMpgBI1fZNzdJJsriAcSGLo+EpHWvL869Mb/fMVxFp8b2/kL97B+AEiuk3rsEBsAWJYwzw=
+	t=1773211213; cv=none; b=VVlAq2GpsrQaiEoeHeTw97NVZ63uUn2m3hJ3cLzz0shEV7CIKWdXaAbhmz+F7SZ4zLT8+RdWUa8dJxQGP/ohWQogYEh0AAFV0Wbq3rfC8Qo5wAOve1b3ddqBweiB5iXvR5yie3TbdEDpBQouMRUiaAkHPLGkIWt7I3UTlfPumLc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773199211; c=relaxed/simple;
-	bh=nb/Yf3FNbqaQwk/mdsPKERX8YO4lqQotDGHFGRd+LQE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pXH5iNh3vbk0P+oPY/hoavs+E4QDJRr293qFU0vRWFT9pCEzVU6kSrcA3mcE/qNo1RYkvKeN2Igwxj+6gJVeaVZqXSEhca16QITTtsEdrQVUqdsxGNmn0mNvAgy1l7qaykucyZkJyZHgdYPAt2TZfygMyquUhHZ33uFsljc8new=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com; spf=pass smtp.mailfrom=aliyun.com; dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b=u39a1NKG; arc=none smtp.client-ip=115.124.30.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=aliyun.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliyun.com
+	s=arc-20240116; t=1773211213; c=relaxed/simple;
+	bh=ZsjOez3Qway2mYAXvu5QL0vJ5UlYJAMwXZdy+YBKfwI=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=eUVQ33TFJDkTdB73O0SOizURvigpZXKKUi0WRABoNdrxHJZwYKsP1lw9WSp8IMD1MduHdhXKf+jqrOtEHjFA3HQG7XiKk1UyG4ES+3f7Fdty66Q9ZtoNDaduohEHusncsZ6AZnoJdxKTDcwh88mGwoU4htdRKlmSwoges6LCiRA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=CcDeQUvO; arc=none smtp.client-ip=115.124.30.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=aliyun.com header.i=@aliyun.com header.b="u39a1NKG"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="CcDeQUvO"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=aliyun.com; s=s1024;
-	t=1773199207; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=EfJ5n2c9DbB4LYKvdv51Z+iKfoqFlsFVqspAs7le1d0=;
-	b=u39a1NKGlmy4iKQyyHdmIbx1OB/UlteQGTmoznvKWaaYuAcE80dDZzEP2ys8V7Ub8vJTmG4wDggKAUFVnGLpiUjXvgMIP8skznq4iI+9htHbAhO+LzQdcS63v6TedHqW1cCyIfc0Bc4yeFf9mKJ2CTrf1QtRnHJz+9S7GghLrOQ=
-Received: from wdhh66@aliyun.com(mailfrom:wdhh6@aliyun.com fp:SMTPD_---0X-iG1N-_1773199201 cluster:ay36)
+	d=linux.alibaba.com; s=default;
+	t=1773211199; h=Message-ID:Subject:Date:From:To;
+	bh=uofCL946arayV1G7q+ZDv8qxg7fecoCepNUKFyCvd9k=;
+	b=CcDeQUvOoiO/qsIQY4OOzMORYnbW6zhv5FTSWVtwgUuOEkMlDmg4Cpy+nWcVFYrMvkmMad4v5cPENgwoq0Kz+pPcR9B4MbKwVMPME3gpCgiH1gYiWT1YhjiD88vTB/BMCBLGNgzqBMYKLKPcXgEgnRYkxKNxngQk2tLI14byGKU=
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0X-irTwk_1773211198 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 11 Mar 2026 11:20:06 +0800
-Date: Wed, 11 Mar 2026 11:20:01 +0800
-From: Chaohai Chen <wdhh6@aliyun.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v2] virtio_ring: Fix data races in
- virtqueue_enable_cb_delayed_split()
-Message-ID: <abDfYT4OFzvxrUzL@wdhh66@aliyun.com>
-References: <20260306022448.216131-1-wdhh6@aliyun.com>
- <20260306045629-mutt-send-email-mst@kernel.org>
+          Wed, 11 Mar 2026 14:39:59 +0800
+Message-ID: <1773210927.2628298-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net v8 2/2] virtio-net: correct hdr_len handling for tunnel gso
+Date: Wed, 11 Mar 2026 14:35:27 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Jason Wang <jasowang@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Alvaro Karsz <alvaro.karsz@solid-run.com>,
+ virtualization@lists.linux.dev,
+ netdev@vger.kernel.org
+References: <20260305031938.24518-1-xuanzhuo@linux.alibaba.com>
+ <20260305031938.24518-3-xuanzhuo@linux.alibaba.com>
+ <cf62a942-e1e8-4b37-837a-b0bd76297656@redhat.com>
+In-Reply-To: <cf62a942-e1e8-4b37-837a-b0bd76297656@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260306045629-mutt-send-email-mst@kernel.org>
 
-On Fri, Mar 06, 2026 at 05:04:11AM -0500, Michael S. Tsirkin wrote:
-> here's how I would put it:
-> 
-> KCSAN reports .....
-> this is because ....
-> 
-> 
-> This is not a real issue, because ....
-> To disable the KCSAN warning, use READ_ONCE to read vq->split.vring.used->idx.
-> 
-> 
-> 
-> 
-> On Fri, Mar 06, 2026 at 10:24:48AM +0800, Chaohai Chen wrote:
-> > Add READ_ONCE when fetching vq->split.vring.used->idx
-> > without synchronization.
-> 
-> it's with synchronization, of course
-> 
-> > KCSAN detected
-> 
-> detected -> incorrectly reported
-> 
-> > data races when accessing the split virtqueue's
-> > used ring, which is shared memory concurrently accessed by both the CPU
-> > and the virtio device (hypervisor).
-> > 
-> > Example KCSAN report:
-> > 
-> > [  109.277250] ==================================================================
-> > [  109.283600] BUG: KCSAN: data-race in virtqueue_enable_cb_delayed_split+0x10f/0x170
-> > 
-> > [  109.295263] race at unknown origin, with read to 0xffff8b2a92ef2042 of 2 bytes by interrupt on cpu 1:
-> > [  109.306934]  virtqueue_enable_cb_delayed_split+0x10f/0x170
-> > [  109.312880]  virtqueue_enable_cb_delayed+0x3b/0x70
-> > [  109.318852]  start_xmit+0x315/0x860 [virtio_net]
-> > [  109.324532]  dev_hard_start_xmit+0x85/0x380
-> > [  109.329993]  sch_direct_xmit+0xd3/0x680
-> > [  109.335360]  __dev_xmit_skb+0x4ee/0xcc0
-> > [  109.340568]  __dev_queue_xmit+0x560/0xe00
-> > [  109.345701]  ip_finish_output2+0x49a/0x9b0
-> > [  109.350743]  __ip_finish_output+0x131/0x250
-> > [  109.355789]  ip_finish_output+0x28/0x180
-> > [  109.360712]  ip_output+0xa0/0x1c0
-> > [  109.365479]  __ip_queue_xmit+0x68d/0x9e0
-> > [  109.370156]  ip_queue_xmit+0x33/0x40
-> > [  109.374783]  __tcp_transmit_skb+0x1703/0x1970
-> > [  109.379467]  __tcp_send_ack.part.0+0x1bb/0x320
-> > ...
-> > [  109.499585]  do_idle+0x7a/0xe0
-> > [  109.502979]  cpu_startup_entry+0x25/0x30
-> > [  109.506481]  start_secondary+0x116/0x150
-> > [  109.509930]  common_startup_64+0x13e/0x141
-> > 
-> > [  109.516626] value changed: 0x0029 -> 0x002a
-> > ================================================================================
-> > 
-> > Signed-off-by: Chaohai Chen <wdhh6@aliyun.com>
-> 
-> 
-> 
-> I'd like to see code size before/after compared, and included in
-> the log. Does this make the compiler's work much harder?
-> 
-I found the code size is the same. And virtio_store_mb() can do sync.
-Perhaps we don't need to modify the code here, but rather fix KCSAN.
+On Tue, 10 Mar 2026 11:05:33 +0100, Paolo Abeni <pabeni@redhat.com> wrote:
+> On 3/5/26 4:19 AM, Xuan Zhuo wrote:
+> > The commit a2fb4bc4e2a6a03 ("net: implement virtio helpers to handle UDP
+> > GSO tunneling.") introduces support for the UDP GSO tunnel feature in
+> > virtio-net.
+> >
+> > The virtio spec says:
+> >
+> >     If the \field{gso_type} has the VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV4 bit or
+> >     VIRTIO_NET_HDR_GSO_UDP_TUNNEL_IPV6 bit set, \field{hdr_len} accounts for
+> >     all the headers up to and including the inner transport.
+> >
+> > The commit did not update the hdr_len to include the inner transport.
+> >
+> > I observed that the "hdr_len" is 116 for this packet:
+> >
+> >     17:36:18.241105 52:55:00:d1:27:0a > 2e:2c:df:46:a9:e1, ethertype IPv4 (0x0800), length 2912: (tos 0x0, ttl 64, id 45197, offset 0, flags [none], proto UDP (17), length 2898)
+> >         192.168.122.100.50613 > 192.168.122.1.4789: [bad udp cksum 0x8106 -> 0x26a0!] VXLAN, flags [I] (0x08), vni 1
+> >     fa:c3:ba:82:05:ee > ce:85:0c:31:77:e5, ethertype IPv4 (0x0800), length 2862: (tos 0x0, ttl 64, id 14678, offset 0, flags [DF], proto TCP (6), length 2848)
+> >         192.168.3.1.49880 > 192.168.3.2.9898: Flags [P.], cksum 0x9266 (incorrect -> 0xaa20), seq 515667:518463, ack 1, win 64, options [nop,nop,TS val 2990048824 ecr 2798801412], length 2796
+> >
+> > 116 = 14(mac) + 20(ip) + 8(udp) + 8(vxlan) + 14(inner mac) + 20(inner ip) + 32(innner tcp)
+> >
+> > Fixes: a2fb4bc4e2a6a03 ("net: implement virtio helpers to handle UDP GSO tunneling.")
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  include/linux/virtio_net.h | 31 ++++++++++++++++++++-----------
+> >  1 file changed, 20 insertions(+), 11 deletions(-)
+> >
+> > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > index 23f42bb8ece0..906157779955 100644
+> > --- a/include/linux/virtio_net.h
+> > +++ b/include/linux/virtio_net.h
+> > @@ -209,18 +209,29 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+> >
+> >  static inline void virtio_net_set_hdrlen(const struct sk_buff *skb,
+> >  					 struct virtio_net_hdr *hdr,
+> > +					 struct skb_shared_info *sinfo,
+> >  					 bool little_endian,
+> >  					 bool feature_hdrlen)
+> >  {
+> >  	u16 hdr_len;
+> >
+> >  	if (feature_hdrlen) {
+> > -		hdr_len = skb_transport_offset(skb);
+> > -
+> > -		if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
+> > -			hdr_len += sizeof(struct udphdr);
+> > -		else
+> > -			hdr_len += tcp_hdrlen(skb);
+> > +		if (sinfo->gso_type & (SKB_GSO_UDP_TUNNEL |
+> > +				       SKB_GSO_UDP_TUNNEL_CSUM)) {
+> > +			hdr_len = skb_inner_transport_offset(skb);
+> > +
+> > +			if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
+> > +				hdr_len += sizeof(struct udphdr);
+> > +			else
+> > +				hdr_len += inner_tcp_hdrlen(skb);
+> > +		} else {
+> > +			hdr_len = skb_transport_offset(skb);
+> > +
+> > +			if (hdr->gso_type == VIRTIO_NET_HDR_GSO_UDP_L4)
+> > +				hdr_len += sizeof(struct udphdr);
+> > +			else
+> > +				hdr_len += tcp_hdrlen(skb);
+> > +		}
+>
+> I already mentioned the following a couple of times, with no replies...
+> perhaps the 3rd attempt will be more successful.
+>
+> I think it's a bad adding tunnel specific check here. It sounds like
+> layering violation. Instead you could have tunnel-specific variant, say
+> virtio_net_set_tnl_hdrlen(), and use it in virtio_net_hdr_tnl_from_skb().
+>
+> Or you could try what i suggested in:
+>
+> https://lore.kernel.org/netdev/CAF6piCLkv6kFqoq7OQfJ=Su9AVHSQ9J7DzaumOSf5xuf9w-kyA@mail.gmail.com/#t
+
+I saw your suggestions, though I didn't reply directly. I proceeded to adjust
+the code based on my understanding of your feedback, but it appears my
+understanding was incorrect. After re-reading your suggestions, I think
+virtio_net_hdr_from_skb does not need to be changed. Instead, within
+virtio_net_hdr_tnl_from_skb, we should directly call the device header length
+function based on whether the feature is negotiated.
+
+Thanks.
+
+>
+> Thanks,
+>
+> Paolo
+>
