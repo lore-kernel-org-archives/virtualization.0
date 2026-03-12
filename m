@@ -1,159 +1,387 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C10E3B0ACD
-	for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 13:17:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.182
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773321453; cv=pass; b=GIUATRv2pQEyiU5h3xYRxvbKt82Iw55umWVK+6cGNEh9dXEVV1taMOqbxUKGlClVFNPZlcku4ETP3wyrFDOGHiqoARazcY7l2O8fcE3Le8mNqToaxcEdnjqzMeToCFhXdOv8RgDkqvk7Ihs7PiB+JrV2J3V3zlpVr5KzE88bSNU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773321453; c=relaxed/simple;
-	bh=2CVfKLzEaWzJ6SOlRajph962S9thoJpcyvo/tNIs4cw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AJCfzow78n3N3G7RR3KtTVglcwZNGMaWDgIAHn1W3HD0cAPy046YHQxdRFNd7NCd5izZrgYV4MKD017XOUiw2TvSnDajchHXR0T54lgFNtZ6gzeN9DC8GgQsHBLZIW+zr4jMcLHx5pbcV8ptse8oDYEvxWvZGWUfWJFSVenPztM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=dKJiWCJM; arc=pass smtp.client-ip=209.85.222.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4992C1E1C02;
+	Thu, 12 Mar 2026 13:40:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773322825; cv=none; b=KTyhN4cyBemcH3sTbqH30PO5wuP/bG/+RN2VkW+RrNmPRZ38buvccYl4d7XUmjzEb5/1F3dD8F8nmiA8Fw2zj1oSJPqSZHavjitPT9ROLrs+2/R/J8cHO54IJGkHtDdjUjpZnlcTPDMPf2RGUryI81ofJs5Fg1J75jxC4Pa1NsI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773322825; c=relaxed/simple;
+	bh=bJ/FJZ5A5ABznD3gU1iqfOJTIvGzpAFjUy3xCqCvego=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=k7H5pUGpxmmzUDZWgeYq3ofepMJUSWVVgTfGTlL2Z9oVp0ZfMZkVq8l+7BNutbEKBYeSIPr2UiLwu958l0kkXsUDjEeQeyAPAl5xEvYwdiTOXLKZJkCfhkTy4AWddhtfLWtCWjzOtAzo3cS/uPyfdFdPHgo6sg9ycNlgfgWtm9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U9s93MWZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dKJiWCJM"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8cd8a189f44so100356585a.0
-        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 06:17:29 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773321449; cv=none;
-        d=google.com; s=arc-20240605;
-        b=JsjmqPD4PjGH6ha2wEphLY14myQIpCFTsIaKvgwRUBz0Ake5IP787PastLPtzRawOj
-         Vczb8yne4z1y2U9uoxgYlG9l3DSMomyckxZHkFQMLCy58EFwM9lvgKJub+hSSxNycCFN
-         fpAZByv5XtZIlFelYhJfBhH7up7vQs3/itBPxodNC1gyui6wb2SFSX8ao79gw+7nbrGI
-         0OG/EBtzz8IOfO4gT3by1UgAlu2TfRxGJiLwllG2Ig0RqamRpw6SKYFUJ5mstaJtdPLW
-         Bxykhf6fC4nNcVaYdKeTl9wNmQakmZ2FxiUSpVn7TtKniGJ1TW8dTyOPFz468PrLNp75
-         Ug1A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=FPswTUN7MLesfdnks6XcGWJl+3PmdW/bBkNaMAxhxH8=;
-        fh=/dEILo11ys2R+PGQD26SfK/XMUbgYAXduTW/1SSeUU4=;
-        b=kss6OMc9PnIzW3iIQkIM1gqMCXLaLqeksPbG8cikjZI2pChk0uyNogRmA8zz0RORyj
-         XD86Jkxi8j/smkc+mWuNo773TFZFFGOdHRNyH+bwtMyiIc4JzjKmjOeKugmhrjxfaZ4H
-         XzH2f9msakYsD9XRn200oPePTDZTAfrF0fRPeZxJaRhHsXND7OsPaEP9zssrIKY5D0O9
-         MjvBoir1yAmgj+IttU9vD+2VvjrIjdhS7p3zpFAA8pMQu9I02WF3PXWxKgc7LIF3xwzV
-         9JgAvaMJTgrhS8pUsc6zqAeoe4o5za9Rl4krsqekWQq5rBrABAUnvf3r4yaLZl0MSvLU
-         M1hg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1773321449; x=1773926249; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FPswTUN7MLesfdnks6XcGWJl+3PmdW/bBkNaMAxhxH8=;
-        b=dKJiWCJM3j0B+YYqQaOS0mQpTN+iWUWI9uaCZmGudwsGqbHDubTI7xLoAPqaDkwcdv
-         GG8aWDF2y+/ibvrWqq4yWHfFl7GX5oBX+apuvtgEEOdDmMUidz9Ig+mcK/Kda3+GZnAD
-         gEQQb9u8TjGXa+6tNaEFzB3sLqsSrXx2I8SHlLbXEoIvhpaVlVY6SSP8/nboj35KOnuQ
-         CVE9XtnAozWtS+jnoxLPLqeseT+dGf1vt9Ubow4564dhpCdsydeAXSbz2mVYUY9esRJZ
-         aa681yU+rYOo+gzUR1zNTSSyP0wf1QedqjQwgamzwlkQGtJtYm3FZ3PvaLIU/QVBXuA0
-         WEGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773321449; x=1773926249;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=FPswTUN7MLesfdnks6XcGWJl+3PmdW/bBkNaMAxhxH8=;
-        b=lS1uMk8j7rYC+yyWOHCpYkzG36z5YHWRF/zKztbWP4McV0KUkZ5fTZtf3/YkXAaFEe
-         HaYceVdfuZnXOv3PSLabLfddqBdGeR94mrxfonPlu9YKkIYJiD6yAjXbHUh0DrEHGtlR
-         HnooVo6KvWendc4SSy0bzsLlmw3EwZ7PvU9S+qbAxgq8Q5TdyvpBVx4/GZo3F48aSra6
-         OWAiTQA5TjCttJP4s75p/xapPzVapw0AkyEwhAqZHsZuyrij+31I1ZG0/AHfs9JKIPNM
-         6n6FjPRu8mLpOwEi542/V4JuKJbbqlzan+dWSzPaL/pRXV4YsIv4LhVrK4cp0k942edb
-         Twhg==
-X-Forwarded-Encrypted: i=1; AJvYcCW81GpTIBMgUVTCgnnEwv0mg+oJ1fMFktJqyHF0v3xpl2cyhbsoxJmBW5EfUp8nO2ksZKsWnnlsWW6KVOEUTg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx3J2ipaeXAk+LuKq0fV6CiYiaZvrTs6e5Q6LeyFErHmGAiayS5
-	UfvpeLmjUTvjJZWIiN5n26GD9Yk6Bpp1zYjAWYsP4kp5crswd329cIPN6j/KBImK85f+w9xsA86
-	fPy2xiyfE9wMCexdkYXoYijNPNjbHuQ6tmypBQJ9C
-X-Gm-Gg: ATEYQzx8tfdWIPDPK2o33JPRgzMr2neFZmhhASpJZOl9k13XlmKIthvRZD38NhQggFe
-	1TNDa/ZUj03VlKtFDXk01NLNe31eivEn4OO/Gq6s6MPvim/AXed3e9dcymsJDITBh2rPoddL0r4
-	1I327xLRAT+KrE+M3iHGWkOQERrjRGm8uZT778X1I+/MxIglQOlMtRMrMi0FHLpGtKd/zif4X4N
-	tBQ3X7BIOiSw3JSa//Wljp19Zp6UEywgUhp48ZNiRVJpZMZHO2RoKfn3uCgRZ8a8cVhnbSwwsmF
-	gKzGS+E3
-X-Received: by 2002:a05:622a:20a:b0:509:1ee2:69e4 with SMTP id
- d75a77b69052e-50939f83b2emr83671071cf.11.1773321448260; Thu, 12 Mar 2026
- 06:17:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U9s93MWZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88B60C19424;
+	Thu, 12 Mar 2026 13:40:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773322824;
+	bh=bJ/FJZ5A5ABznD3gU1iqfOJTIvGzpAFjUy3xCqCvego=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=U9s93MWZmg2ZJqu5UyKbC/QKGTnuHMlQIllu9gvx5i8Ds1oVAvP1sUye2GcPkEHmf
+	 sdv4AdCYhTAttzvKMQOTckfuOsc7NCtUmd2vPli1EZ8kAXxpDyDHQ3wv8vgxBsoHlw
+	 2FGJ6Q/ue+w5wmLeXlSsj23uVV+VtxyYulHyIHWCgj+5hO+YDjQ/sgvTCSyUhYSQab
+	 Zxs8BpJ/D8alLYqcmtFp8XW74D/gM3A4ItededFvePFk4JOtQsEZSd3OZnIgPlQQTS
+	 fhQGXPa+zKGkx7FxrFphRZX5/8AdU9qqBTx3WQgLoN65wqPdpXHvDnDeOQtJ26DGyR
+	 KA/EuXdToFQBg==
+Message-ID: <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
+Date: Thu, 12 Mar 2026 14:40:16 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de> <20260312130639.138988-4-simon.schippers@tu-dortmund.de>
-In-Reply-To: <20260312130639.138988-4-simon.schippers@tu-dortmund.de>
-From: Eric Dumazet <edumazet@google.com>
-Date: Thu, 12 Mar 2026 14:17:16 +0100
-X-Gm-Features: AaiRm50cn_rRH55eJvQqDxobMz7O5_lfuBZOF6UtHjJez3Nx18K8yQR7QqLR9ME
-Message-ID: <CANn89i+tWCtSAAH5i=FDDqRe0jm3XZS-_Ce3kHvZQpkedRqoFQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v8 3/4] ptr_ring: move free-space check into
- separate helper
-To: Simon Schippers <simon.schippers@tu-dortmund.de>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com, 
-	andrew+netdev@lunn.ch, davem@davemloft.net, kuba@kernel.org, 
-	pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com, leiyang@redhat.com, 
-	stephen@networkplumber.org, jon@nutanix.com, tim.gebauer@tu-dortmund.de, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+Content-Language: en-US
+To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>, linux-mm@kvack.org,
+ akpm@linux-foundation.org, mhocko@suse.com
+Cc: apopple@nvidia.com, axelrasmussen@google.com, byungchul@sk.com,
+ cgroups@vger.kernel.org, david@kernel.org, eperezma@redhat.com,
+ gourry@gourry.net, jasowang@redhat.com, hannes@cmpxchg.org,
+ joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
+ linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
+ matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org,
+ muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
+ roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
+ virtualization@lists.linux.dev, weixugc@google.com,
+ xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com,
+ yuanchu@google.com, ziy@nvidia.com, kernel-team@meta.com
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+In-Reply-To: <20260307045520.247998-1-jp.kobryn@linux.dev>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Mar 12, 2026 at 2:06=E2=80=AFPM Simon Schippers
-<simon.schippers@tu-dortmund.de> wrote:
->
-> This patch moves the check for available free space for a new entry into
-> a separate function. As a result, __ptr_ring_produce() remains logically
-> unchanged, while the new helper allows callers to determine in advance
-> whether subsequent __ptr_ring_produce() calls will succeed. This
-> information can, for example, be used to temporarily stop producing until
-> __ptr_ring_peek() indicates that space is available again.
->
-> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+On 3/7/26 05:55, JP Kobryn (Meta) wrote:
+> When investigating pressure on a NUMA node, there is no straightforward way
+> to determine which policies are driving allocations to it.
+> 
+> Add per-policy page allocation counters as new node stat items. These
+> counters track allocations to nodes and also whether the allocations were
+> intentional or fallbacks.
+> 
+> The new stats follow the existing numa hit/miss/foreign style and have the
+> following meanings:
+> 
+>   hit
+>     - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
+>     - for other policies, allocation succeeded on intended node
+>     - counted on the node of the allocation
+>   miss
+>     - allocation intended for other node, but happened on this one
+>     - counted on other node
+>   foreign
+>     - allocation intended on this node, but happened on other node
+>     - counted on this node
+> 
+> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
+> in /proc/vmstat.
+> 
+> Signed-off-by: JP Kobryn (Meta) <jp.kobryn@linux.dev>
+
+I think I've been on of the folks on previous versions arguing against the
+many counters, and one of the arguments was it they can't tell the full
+story anyway (compared to e.g. tracing), but I don't think adding even more
+counters is the right solution. Seems like a number of other people
+responding to the thread are providing similar feedback.
+
+For example I'm still not sure how it would help me if I knew the
+hits/misses were due to a preferred vs preferred_many policy, or interleave
+vs weithed interleave?
+
 > ---
->  include/linux/ptr_ring.h | 14 ++++++++++++--
->  1 file changed, 12 insertions(+), 2 deletions(-)
->
-> diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-> index 534531807d95..a5a3fa4916d3 100644
-> --- a/include/linux/ptr_ring.h
-> +++ b/include/linux/ptr_ring.h
-> @@ -96,6 +96,14 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r=
-)
->         return ret;
+> v2:
+>   - Replaced single per-policy total counter (PGALLOC_MPOL_*) with
+>     hit/miss/foreign triplet per policy
+>   - Changed from global node stats to per-memcg per-node tracking
+> 
+> v1:
+> https://lore.kernel.org/linux-mm/20260212045109.255391-2-inwardvessel@gmail.com/
+> 
+>  include/linux/mmzone.h | 20 ++++++++++
+>  mm/memcontrol.c        | 60 ++++++++++++++++++++++++++++
+>  mm/mempolicy.c         | 90 ++++++++++++++++++++++++++++++++++++++++--
+>  mm/vmstat.c            | 20 ++++++++++
+>  4 files changed, 187 insertions(+), 3 deletions(-)
+> 
+> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+> index 7bd0134c241c..c0517cbcb0e2 100644
+> --- a/include/linux/mmzone.h
+> +++ b/include/linux/mmzone.h
+> @@ -323,6 +323,26 @@ enum node_stat_item {
+>  	PGSCAN_ANON,
+>  	PGSCAN_FILE,
+>  	PGREFILL,
+> +#ifdef CONFIG_NUMA
+> +	NUMA_MPOL_LOCAL_HIT,
+> +	NUMA_MPOL_LOCAL_MISS,
+> +	NUMA_MPOL_LOCAL_FOREIGN,
+> +	NUMA_MPOL_PREFERRED_HIT,
+> +	NUMA_MPOL_PREFERRED_MISS,
+> +	NUMA_MPOL_PREFERRED_FOREIGN,
+> +	NUMA_MPOL_PREFERRED_MANY_HIT,
+> +	NUMA_MPOL_PREFERRED_MANY_MISS,
+> +	NUMA_MPOL_PREFERRED_MANY_FOREIGN,
+> +	NUMA_MPOL_BIND_HIT,
+> +	NUMA_MPOL_BIND_MISS,
+> +	NUMA_MPOL_BIND_FOREIGN,
+> +	NUMA_MPOL_INTERLEAVE_HIT,
+> +	NUMA_MPOL_INTERLEAVE_MISS,
+> +	NUMA_MPOL_INTERLEAVE_FOREIGN,
+> +	NUMA_MPOL_WEIGHTED_INTERLEAVE_HIT,
+> +	NUMA_MPOL_WEIGHTED_INTERLEAVE_MISS,
+> +	NUMA_MPOL_WEIGHTED_INTERLEAVE_FOREIGN,
+> +#endif
+>  #ifdef CONFIG_HUGETLB_PAGE
+>  	NR_HUGETLB,
+>  #endif
+> diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+> index 982231a078f2..4d29f723a2de 100644
+> --- a/mm/memcontrol.c
+> +++ b/mm/memcontrol.c
+> @@ -420,6 +420,26 @@ static const unsigned int memcg_node_stat_items[] = {
+>  	PGSCAN_ANON,
+>  	PGSCAN_FILE,
+>  	PGREFILL,
+> +#ifdef CONFIG_NUMA
+> +	NUMA_MPOL_LOCAL_HIT,
+> +	NUMA_MPOL_LOCAL_MISS,
+> +	NUMA_MPOL_LOCAL_FOREIGN,
+> +	NUMA_MPOL_PREFERRED_HIT,
+> +	NUMA_MPOL_PREFERRED_MISS,
+> +	NUMA_MPOL_PREFERRED_FOREIGN,
+> +	NUMA_MPOL_PREFERRED_MANY_HIT,
+> +	NUMA_MPOL_PREFERRED_MANY_MISS,
+> +	NUMA_MPOL_PREFERRED_MANY_FOREIGN,
+> +	NUMA_MPOL_BIND_HIT,
+> +	NUMA_MPOL_BIND_MISS,
+> +	NUMA_MPOL_BIND_FOREIGN,
+> +	NUMA_MPOL_INTERLEAVE_HIT,
+> +	NUMA_MPOL_INTERLEAVE_MISS,
+> +	NUMA_MPOL_INTERLEAVE_FOREIGN,
+> +	NUMA_MPOL_WEIGHTED_INTERLEAVE_HIT,
+> +	NUMA_MPOL_WEIGHTED_INTERLEAVE_MISS,
+> +	NUMA_MPOL_WEIGHTED_INTERLEAVE_FOREIGN,
+> +#endif
+>  #ifdef CONFIG_HUGETLB_PAGE
+>  	NR_HUGETLB,
+>  #endif
+> @@ -1591,6 +1611,26 @@ static const struct memory_stat memory_stats[] = {
+>  #ifdef CONFIG_NUMA_BALANCING
+>  	{ "pgpromote_success",		PGPROMOTE_SUCCESS	},
+>  #endif
+> +#ifdef CONFIG_NUMA
+> +	{ "numa_mpol_local_hit",		NUMA_MPOL_LOCAL_HIT		},
+> +	{ "numa_mpol_local_miss",		NUMA_MPOL_LOCAL_MISS		},
+> +	{ "numa_mpol_local_foreign",		NUMA_MPOL_LOCAL_FOREIGN		},
+> +	{ "numa_mpol_preferred_hit",		NUMA_MPOL_PREFERRED_HIT		},
+> +	{ "numa_mpol_preferred_miss",		NUMA_MPOL_PREFERRED_MISS	},
+> +	{ "numa_mpol_preferred_foreign",	NUMA_MPOL_PREFERRED_FOREIGN	},
+> +	{ "numa_mpol_preferred_many_hit",	NUMA_MPOL_PREFERRED_MANY_HIT	},
+> +	{ "numa_mpol_preferred_many_miss",	NUMA_MPOL_PREFERRED_MANY_MISS	},
+> +	{ "numa_mpol_preferred_many_foreign",	NUMA_MPOL_PREFERRED_MANY_FOREIGN },
+> +	{ "numa_mpol_bind_hit",			NUMA_MPOL_BIND_HIT		},
+> +	{ "numa_mpol_bind_miss",		NUMA_MPOL_BIND_MISS		},
+> +	{ "numa_mpol_bind_foreign",		NUMA_MPOL_BIND_FOREIGN		},
+> +	{ "numa_mpol_interleave_hit",		NUMA_MPOL_INTERLEAVE_HIT	},
+> +	{ "numa_mpol_interleave_miss",		NUMA_MPOL_INTERLEAVE_MISS	},
+> +	{ "numa_mpol_interleave_foreign",	NUMA_MPOL_INTERLEAVE_FOREIGN	},
+> +	{ "numa_mpol_weighted_interleave_hit",	NUMA_MPOL_WEIGHTED_INTERLEAVE_HIT },
+> +	{ "numa_mpol_weighted_interleave_miss",	NUMA_MPOL_WEIGHTED_INTERLEAVE_MISS },
+> +	{ "numa_mpol_weighted_interleave_foreign", NUMA_MPOL_WEIGHTED_INTERLEAVE_FOREIGN },
+> +#endif
+>  };
+>  
+>  /* The actual unit of the state item, not the same as the output unit */
+> @@ -1642,6 +1682,26 @@ static int memcg_page_state_output_unit(int item)
+>  	case PGREFILL:
+>  #ifdef CONFIG_NUMA_BALANCING
+>  	case PGPROMOTE_SUCCESS:
+> +#endif
+> +#ifdef CONFIG_NUMA
+> +	case NUMA_MPOL_LOCAL_HIT:
+> +	case NUMA_MPOL_LOCAL_MISS:
+> +	case NUMA_MPOL_LOCAL_FOREIGN:
+> +	case NUMA_MPOL_PREFERRED_HIT:
+> +	case NUMA_MPOL_PREFERRED_MISS:
+> +	case NUMA_MPOL_PREFERRED_FOREIGN:
+> +	case NUMA_MPOL_PREFERRED_MANY_HIT:
+> +	case NUMA_MPOL_PREFERRED_MANY_MISS:
+> +	case NUMA_MPOL_PREFERRED_MANY_FOREIGN:
+> +	case NUMA_MPOL_BIND_HIT:
+> +	case NUMA_MPOL_BIND_MISS:
+> +	case NUMA_MPOL_BIND_FOREIGN:
+> +	case NUMA_MPOL_INTERLEAVE_HIT:
+> +	case NUMA_MPOL_INTERLEAVE_MISS:
+> +	case NUMA_MPOL_INTERLEAVE_FOREIGN:
+> +	case NUMA_MPOL_WEIGHTED_INTERLEAVE_HIT:
+> +	case NUMA_MPOL_WEIGHTED_INTERLEAVE_MISS:
+> +	case NUMA_MPOL_WEIGHTED_INTERLEAVE_FOREIGN:
+>  #endif
+>  		return 1;
+>  	default:
+> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+> index 0e5175f1c767..2417de75098d 100644
+> --- a/mm/mempolicy.c
+> +++ b/mm/mempolicy.c
+> @@ -117,6 +117,7 @@
+>  #include <asm/tlb.h>
+>  #include <linux/uaccess.h>
+>  #include <linux/memory.h>
+> +#include <linux/memcontrol.h>
+>  
+>  #include "internal.h"
+>  
+> @@ -2426,6 +2427,83 @@ static struct page *alloc_pages_preferred_many(gfp_t gfp, unsigned int order,
+>  	return page;
 >  }
->
-> +static inline int __ptr_ring_produce_peek(struct ptr_ring *r)
+>  
+> +/*
+> + * Count a mempolicy allocation. Stats are tracked per-node and per-cgroup.
+> + * The following numa_{hit/miss/foreign} pattern is used:
+> + *
+> + *   hit
+> + *     - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
+> + *     - for other policies, allocation succeeded on intended node
+> + *     - counted on the node of the allocation
+> + *   miss
+> + *     - allocation intended for other node, but happened on this one
+> + *     - counted on other node
+> + *   foreign
+> + *     - allocation intended on this node, but happened on other node
+> + *     - counted on this node
+> + */
+> +static void mpol_count_numa_alloc(struct mempolicy *pol, int intended_nid,
+> +				  struct page *page, unsigned int order)
 > +{
-> +       if (unlikely(!r->size) || r->queue[r->producer])
+> +	int actual_nid = page_to_nid(page);
+> +	long nr_pages = 1L << order;
+> +	enum node_stat_item hit_idx;
+> +	struct mem_cgroup *memcg;
+> +	struct lruvec *lruvec;
+> +	bool is_hit;
+> +
+> +	if (!root_mem_cgroup || mem_cgroup_disabled())
+> +		return;
+> +
+> +	/*
+> +	 * Start with hit then use +1 or +2 later on to change to miss or
+> +	 * foreign respectively if needed.
+> +	 */
+> +	switch (pol->mode) {
+> +	case MPOL_PREFERRED:
+> +		hit_idx = NUMA_MPOL_PREFERRED_HIT;
+> +		break;
+> +	case MPOL_PREFERRED_MANY:
+> +		hit_idx = NUMA_MPOL_PREFERRED_MANY_HIT;
+> +		break;
+> +	case MPOL_BIND:
+> +		hit_idx = NUMA_MPOL_BIND_HIT;
+> +		break;
+> +	case MPOL_INTERLEAVE:
+> +		hit_idx = NUMA_MPOL_INTERLEAVE_HIT;
+> +		break;
+> +	case MPOL_WEIGHTED_INTERLEAVE:
+> +		hit_idx = NUMA_MPOL_WEIGHTED_INTERLEAVE_HIT;
+> +		break;
+> +	default:
+> +		hit_idx = NUMA_MPOL_LOCAL_HIT;
+> +		break;
+> +	}
+> +
+> +	if (pol->mode == MPOL_BIND || pol->mode == MPOL_PREFERRED_MANY)
+> +		is_hit = node_isset(actual_nid, pol->nodes);
+> +	else
+> +		is_hit = (actual_nid == intended_nid);
+> +
+> +	rcu_read_lock();
+> +	memcg = mem_cgroup_from_task(current);
+> +
+> +	if (is_hit) {
+> +		lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
+> +		mod_lruvec_state(lruvec, hit_idx, nr_pages);
+> +	} else {
+> +		/* account for miss on the fallback node */
+> +		lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(actual_nid));
+> +		mod_lruvec_state(lruvec, hit_idx + 1, nr_pages);
+> +
+> +		/* account for foreign on the intended node */
+> +		lruvec = mem_cgroup_lruvec(memcg, NODE_DATA(intended_nid));
+> +		mod_lruvec_state(lruvec, hit_idx + 2, nr_pages);
+> +	}
+> +
+> +	rcu_read_unlock();
+> +}
+> +
+>  /**
+>   * alloc_pages_mpol - Allocate pages according to NUMA mempolicy.
+>   * @gfp: GFP flags.
+> @@ -2444,8 +2522,10 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
+>  
+>  	nodemask = policy_nodemask(gfp, pol, ilx, &nid);
+>  
+> -	if (pol->mode == MPOL_PREFERRED_MANY)
+> -		return alloc_pages_preferred_many(gfp, order, nid, nodemask);
+> +	if (pol->mode == MPOL_PREFERRED_MANY) {
+> +		page = alloc_pages_preferred_many(gfp, order, nid, nodemask);
+> +		goto out;
+> +	}
+>  
+>  	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) &&
+>  	    /* filter "hugepage" allocation, unless from alloc_pages() */
+> @@ -2471,7 +2551,7 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
+>  				gfp | __GFP_THISNODE | __GFP_NORETRY, order,
+>  				nid, NULL);
+>  			if (page || !(gfp & __GFP_DIRECT_RECLAIM))
+> -				return page;
+> +				goto out;
+>  			/*
+>  			 * If hugepage allocations are configured to always
+>  			 * synchronous compact or the vma has been madvised
+> @@ -2494,6 +2574,10 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
+>  		}
+>  	}
+>  
+> +out:
+> +	if (page)
+> +		mpol_count_numa_alloc(pol, nid, page, order);
+> +
+>  	return page;
+>  }
+>  
+> diff --git a/mm/vmstat.c b/mm/vmstat.c
+> index b33097ab9bc8..d9f745831624 100644
+> --- a/mm/vmstat.c
+> +++ b/mm/vmstat.c
+> @@ -1291,6 +1291,26 @@ const char * const vmstat_text[] = {
+>  	[I(PGSCAN_ANON)]			= "pgscan_anon",
+>  	[I(PGSCAN_FILE)]			= "pgscan_file",
+>  	[I(PGREFILL)]				= "pgrefill",
+> +#ifdef CONFIG_NUMA
+> +	[I(NUMA_MPOL_LOCAL_HIT)]		= "numa_mpol_local_hit",
+> +	[I(NUMA_MPOL_LOCAL_MISS)]		= "numa_mpol_local_miss",
+> +	[I(NUMA_MPOL_LOCAL_FOREIGN)]		= "numa_mpol_local_foreign",
+> +	[I(NUMA_MPOL_PREFERRED_HIT)]		= "numa_mpol_preferred_hit",
+> +	[I(NUMA_MPOL_PREFERRED_MISS)]		= "numa_mpol_preferred_miss",
+> +	[I(NUMA_MPOL_PREFERRED_FOREIGN)]	= "numa_mpol_preferred_foreign",
+> +	[I(NUMA_MPOL_PREFERRED_MANY_HIT)]	= "numa_mpol_preferred_many_hit",
+> +	[I(NUMA_MPOL_PREFERRED_MANY_MISS)]	= "numa_mpol_preferred_many_miss",
+> +	[I(NUMA_MPOL_PREFERRED_MANY_FOREIGN)]	= "numa_mpol_preferred_many_foreign",
+> +	[I(NUMA_MPOL_BIND_HIT)]			= "numa_mpol_bind_hit",
+> +	[I(NUMA_MPOL_BIND_MISS)]		= "numa_mpol_bind_miss",
+> +	[I(NUMA_MPOL_BIND_FOREIGN)]		= "numa_mpol_bind_foreign",
+> +	[I(NUMA_MPOL_INTERLEAVE_HIT)]		= "numa_mpol_interleave_hit",
+> +	[I(NUMA_MPOL_INTERLEAVE_MISS)]		= "numa_mpol_interleave_miss",
+> +	[I(NUMA_MPOL_INTERLEAVE_FOREIGN)]	= "numa_mpol_interleave_foreign",
+> +	[I(NUMA_MPOL_WEIGHTED_INTERLEAVE_HIT)]	= "numa_mpol_weighted_interleave_hit",
+> +	[I(NUMA_MPOL_WEIGHTED_INTERLEAVE_MISS)]	= "numa_mpol_weighted_interleave_miss",
+> +	[I(NUMA_MPOL_WEIGHTED_INTERLEAVE_FOREIGN)] = "numa_mpol_weighted_interleave_foreign",
+> +#endif
+>  #ifdef CONFIG_HUGETLB_PAGE
+>  	[I(NR_HUGETLB)]				= "nr_hugetlb",
+>  #endif
 
-I think this should be
-
-       if (unlikely(!r->size) || READ_ONCE(r->queue[r->producer]))
-
-And of course:
-
-@@ -194,7 +194,7 @@ static inline void *__ptr_ring_peek(struct ptr_ring *r)
- static inline bool __ptr_ring_empty(struct ptr_ring *r)
- {
-        if (likely(r->size))
--               return !r->queue[READ_ONCE(r->consumer_head)];
-+               return !READ_ONCE(r->queue[READ_ONCE(r->consumer_head)]);
-        return true;
- }
-
-@@ -256,7 +256,7 @@ static inline void __ptr_ring_zero_tail(struct
-ptr_ring *r, int consumer_head)
-         * besides the first one until we write out all entries.
-         */
-        while (likely(head > r->consumer_tail))
--               r->queue[--head] =3D NULL;
-+               WRITE_ONCE(r->queue[--head], NULL);
-
-        r->consumer_tail =3D consumer_head;
- }
-
-
-Presumably we should fix this in net tree first.
