@@ -1,142 +1,123 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com [209.85.167.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BFC22E9EB5
-	for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 19:37:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773344257; cv=none; b=oN1lgMgEuIdlFb4ipZrp2/zFVkIBbqfObrhpj+6MliNPQgLPGGTtydxrEfGahyU51XqdHiKJG2oCeu2KW3sk0aqbcKWkMLrn1salkEOgPGEY6MPWiw9Yo9pRLEYhfUfPRFFfJF29N5Eg96IcceM7Tjy25lvg4rz9XD/wrMitgVE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773344257; c=relaxed/simple;
-	bh=gXp1sqo04e6LO5/4Vkl6NRi4x49bKddvQgyl58yMMsg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ER0htYwMYZilqoIROs/5aN8+JU8WioTT1yaecNitdqdsvyr7xE4k+TDth+RNAc2nMCtXdvG8qdRPK3EZt6cWEO2OEsdcUP5f5pRa8UCRozZ63uUx+ArUZQ1sBzivWPXGWSKrxlHYVO6RnF4t2Nve9SBCREB+22yDtFg8h+osI0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FDUoqEyq; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8817C3F54A2
+	for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 21:42:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773351774; cv=pass; b=EA6e4KVtUZuYyQRtA9ylg4dMW2ulgZdrV/t9GbiDe2VdBUAelolIgLWiQi5Lqwb4If7MghA7WaSXpRURDwN32HMZbeiVDDwBQhWZXrc8LSTdpRbHU1ibSDPI7VEHqOLINEqxxVX62L51DCaiTXGh1mwqtzsqwEk2z9y0OLqfeKs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773351774; c=relaxed/simple;
+	bh=E/0Q1PrTA27sEodrUrpVDvKc4d/yoWXHBz9v8xXtnes=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=nlwJg+UquO60NgkBP2hy6rEA5RlKxka+AYVwqMncitl4KEm+d7ZJ5P/CR9yfWFvM8DMp/dslrIY9/eSERPGl695lRfklxIODlAdlvwR0hMQWk4D/DhZj/IoLyLqHsRw7MH1Ze+PIfWET7MghsBudDT6jpw8ta6dH0ARr5Z/z67U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kgG7C+dX; arc=pass smtp.client-ip=209.85.167.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FDUoqEyq"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2aea68839a5so11341895ad.1
-        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 12:37:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kgG7C+dX"
+Received: by mail-oi1-f176.google.com with SMTP id 5614622812f47-46701f2077cso2129725b6e.0
+        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 14:42:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773351772; cv=none;
+        d=google.com; s=arc-20240605;
+        b=M8nW4D04dt0WrV8NW4Nt80rsRbmFAifTBYwZFIkiymxxWquiiooXGo5b9SbiqESTUH
+         +KqlXBMZnUGLG5MQPcAojc4d1dop2ZCTwbgBZSD7aub0OStLitlQ/sCubw/1YkG99rxL
+         KtzSlzoDPX1G7deMhaFoUdGEPGYOk7uJ1wAiPwDZ0q+0VRvQqR+YNqMWdGCn7bmFcz3S
+         qGlWvXAZuqoQTJlHruF+Dg8zJnEM1bsXaln0OCHADG0yoxLwE2XOfN3wceIqTBGrIKrk
+         4SRHjYcWSrUf9CKClvQ1QZJyiihZ10aipw9Om1O3PJc9bhvvd7a6q+NTUxIx1HO/Laqz
+         N9KQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=/xoeXzzp8XgrtrV67WeyyhcRmlvHOjFX0f3SI3cL0Js=;
+        fh=y8lVMgusNXAmR4P598sLa/NdOpr64KpfzBZmUVkivew=;
+        b=TavXJUxaHxH5cAPkpWylGoR55jlzPjadzoPS0C8rnVPDTFmrxxRF0eI3n7Ho1i7/XU
+         GICd62wWF8g3ptErnE5l3vBvgrkGySoBkjv68OJtqynMHl9lcAX2VyLfLETdU1aQZ/h9
+         9+3OYq/XA9tU77tkCP6xYvztuzJUVcON+wXPcI/2iB750BF5fZQWIxyvoh4zfnJPP73s
+         GXnEy2sx7v/sHESEy2HQTVYycTYuuj88GViaFHZ93ItkfPQWphTC2A4lHBb7kxoNdWZY
+         Ta1q4opln/2lg6gx02cS0tcex0r+a5x1l9NWtnZPwdP6YfJjCwSLpK1G0yqCR6i8oDeF
+         IQaw==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773344255; x=1773949055; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=RzzRjNz0vk0FkgwQahTz097bKivrpMU+EtTeSnfZdlM=;
-        b=FDUoqEyqhCaVe4DTciP4HO/3wksinv26WFI5wjizeUNBKvguY/U1kXx6PjjLxVMg8e
-         85JALUv53CJbD30lKwdW77Kpi5L/Yel6ZJt548fL+gGZeFmtDAaMeM8gNLD72HH/Ljos
-         kJph5lSIW8RWUhsKOtP60Zuj3eF7HQaQKR2QwjIHFkJ9hFAEsC4f6L73tQkE5XJSdA4E
-         DFM/7K95PeZSYZlmdXybYG1uEa1wL0w7cErShK0pU8z/nrE985zYAmFBXzXfRnlNwsx0
-         1IGdxhxUcs93RPiJsvRKfaMFIvedZXNlhmjdbVI16JoVL+NqeqLgsr+egQDZR1MzR4SO
-         yAMA==
+        d=gmail.com; s=20230601; t=1773351772; x=1773956572; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=/xoeXzzp8XgrtrV67WeyyhcRmlvHOjFX0f3SI3cL0Js=;
+        b=kgG7C+dXNKBAOMj062U4RUnvKPO81GkUE4gUapASS4HYa0HbewAIdgSIX22635H7QY
+         V8GrPxZgps8EMWgONkQM2STmeVlb6faZ+nVFWsUPE9/BKThnCw+jXQ/urUL8lufE0eYj
+         /iI/dagjhFHMRBILSl6zvayhZ4OISh1fRbBK7n9QY/nbBnFqXeHMM+4+nmoID1Z4bPea
+         6Y7qVQrizV9XuX6eOX/l5n2TDXCoXOhdfUk/b4QngbJJ2dliX54tNoRBItqviPX5tKv9
+         6Vj2HmkapOG4aDmdCkPTBUtqqzEvBFysmb13hqTCOoqS252ZNWmhWtuYlL0YEr2MiZAy
+         af0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773344255; x=1773949055;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RzzRjNz0vk0FkgwQahTz097bKivrpMU+EtTeSnfZdlM=;
-        b=k4MyRy1aRXh+WTDRpUs2PKk3dF8j4sYOLuS1rDH8au4BxcEqm8cWjO3ZoyejRE2LnB
-         mTOgdYk56rVRexBT7+Vlly1n1R3WBDKTeuMiCWINcBT4lZS4CCUy6beVDea198r167sw
-         x3F7dCh7MKLoevAGkxaGoTsJdpFhnU2/9lMPmbGuxMMRzMLayjTu4sfNi2m2QuB4NykB
-         qeP53zSrAoL/mocYZ2vN18764y/ok6jRqzW5z8O2QYWsyYGSQ7uZ5/qQsez+fPnJBCSE
-         jrIZE1HIvDQppqS5Igz2UnBtnyZ1FozkpTIEasLTqQRXQr9lqUZGuqOrwaBHt3uXqN7G
-         TS0Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWY+jicgyrQ/9/5RJxxgqaT79flMMfIg0TxC73Uo8cUpZFIXcOQTNB+JffWAphJ93usLx0MTdVb3u6s9YVWTg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxNjKA4vxGytRD/s66siljCgsfwH/9E3pKHDEx94daN3l/JV+3u
-	tOJ69VHWZPdLNtV6yJx0/3jJ2wwDUaSsoEE1bzv28R1eZNi2tWxsSrHA
-X-Gm-Gg: ATEYQzznCM03n6e2ki/fuh7fOyClRzjtfPfLQEi3CN3DMurIgyP0wsZJGu7zAswi0t2
-	k9AZ1ieeh4kwPxQVV/enSaBO4jzaV4zuXd43PBexkxwcbPrADcEUgNYQxr5WZ+Iv5paKjUClBHl
-	v1LmzvPj/xf8Iu7DuisHpZV+/muLdgJ7lGm/MBgkIl+B8pnycPhOarTkDpbryQjAIcGtEHrdOJo
-	n8Xvuuh0iH85CDAyHUjtMbG90fVKEm5kUZBj80b4q5Umq11cLMucRCwYhBlbM2VLbMwwT16gymT
-	3mSVEzyXB5/mOscdYykd+wCXk1FZNCQwpSrkLvifIoz7WUoNs85Sd+SPbavkF6HARuJ+BIL3P02
-	z2Df2MTOqFq0xaxxVT7ZfgCn+hJrOjyg4zlipQ8jVWgjCR70rMwARgi0ieiHILNgWmQn7I4Jxgi
-	uGyyBYcFo5JLI+KchL+O78pVK5I9Wvrso0ZGaWIiV7yNZk34x3O8XbAg==
-X-Received: by 2002:a17:902:ecc2:b0:2ae:3ae3:432c with SMTP id d9443c01a7336-2aeba46a7d0mr41568145ad.10.1773344255388;
-        Thu, 12 Mar 2026 12:37:35 -0700 (PDT)
-Received: from ryzen ([2601:644:8000:56f5::8bd])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aeae34de20sm62461975ad.60.2026.03.12.12.37.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Mar 2026 12:37:34 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-gpio@vger.kernel.org
-Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>,
-	Viresh Kumar <vireshk@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Kees Cook <kees@kernel.org>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	virtualization@lists.linux.dev (open list:VIRTIO GPIO DRIVER),
-	linux-kernel@vger.kernel.org (open list),
-	linux-hardening@vger.kernel.org (open list:KERNEL HARDENING (not covered by other areas):Keyword:\b__counted_by(_le|_be)?\b)
-Subject: [PATCHv3] gpio: virtio: remove one kcalloc
-Date: Thu, 12 Mar 2026 12:37:17 -0700
-Message-ID: <20260312193717.12221-1-rosenp@gmail.com>
-X-Mailer: git-send-email 2.53.0
+        d=1e100.net; s=20230601; t=1773351772; x=1773956572;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=/xoeXzzp8XgrtrV67WeyyhcRmlvHOjFX0f3SI3cL0Js=;
+        b=LeqH+ksD3A6c5R9SesyzmJRQ//bCHQqeE3j7knZhnlrgk/UyrBrS7MlQMxD3VOxjsP
+         EoqOMjFMnE5NymWLkZxEMmRp0GkQzsbxN6T8Q+hoPFsJi3INTUewaR3bglLjiFuhjY7D
+         xfQXLz34PpLzczeUbBAvFDLu03Tb26kX2IzopPSvjwqFvGil3bmm3i0m8c7j+Efi93wo
+         iKkAjZNyP0tftHeOwnUC1565an2NX23O7PiY1uzbXRvfqu+Dwsv/uT+hJISQ2QlrzKEj
+         ooVKKVZkq7WiTVQjVeU7/bVjlN3A6F6JkRlh8pkFHU8h/9itHtPUJn6uETjTUJHL60tf
+         U7kg==
+X-Forwarded-Encrypted: i=1; AJvYcCWZ688qqYdmHpWb4H1rAQsBvL6sEHOXBZj09uKJ+nky3T/+kaRpL+UfIjF01KsG7Zw6nkZ2bCjGrar1eAPEvw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwMDkkNZcHBpIDhWr6IimXmrtdesy8HzdsWngV/jQSntryGXlH7
+	9dWWLj+h7GMtnLpd/k/7HjqMX4oV5hcEuR/x84b9yZODk7ctRQMOzYDuz0RRIi82p7Vz6q2WgG7
+	tXi71jZRVghI/xQXkLvQ070RM4rJrv9I=
+X-Gm-Gg: ATEYQzxObHDuGvzDybfW1KhTax3jvxiys3oqP1kOJOuf8keZWDsQTjtAIF8MqM7+IxE
+	lP5pPObiyXc4TLKMaOZ83JIkbtSnHcUEae+UWnB25CpPyjAuWXS8lkaXDA7/V8cW9+xbLYi4sa0
+	0a7OTnAeLiKAuxKOAWLZHHMUhroJ7ZQJk/qZ9ruDAuGDdlnO6yA9beZP7Mxw4B0ZcKwPO/y0W8I
+	98csmUOhnsgV0ewXacolhw4FcSosHg8YfH4DhSFvfOXz2b7MIlU3nvSVW91rZKSHZ9odaTo5JMu
+	PAKN45hlLxSEMp3SO9YBQp3fHOfaRZLQ2V6074eETvcImgP/Cv0us2SqzKn3iAlyi6D/qgI8Cny
+	/VqfI
+X-Received: by 2002:a05:6808:2223:b0:467:f85:d81c with SMTP id
+ 5614622812f47-46743205855mr2575481b6e.20.1773351772310; Thu, 12 Mar 2026
+ 14:42:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: John S <xaum.io@gmail.com>
+Date: Thu, 12 Mar 2026 22:42:39 +0100
+X-Gm-Features: AaiRm503XZ0ng5s11KqSPzO0zG44I8_tVkyXYuPbiZepavVF2j5k0SiHkDwNk9E
+Message-ID: <CAAZVx9_Tq6afZJb-4pNKCwmB7xw=NZVCR8aSXM5N9+BbDdmTtg@mail.gmail.com>
+Subject: [PATCH] virtio: add kernel-doc for map and vmap members
+To: mst@redhat.com, jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-A flexible array member can be used to combine allocations.
+Document the map and vmap members of struct virtio_device that were
+added without kernel-doc descriptions.
 
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+This fixes the following warnings when building with W=1:
+
+  include/linux/virtio.h: struct member 'map' not described in 'virtio_device'
+  include/linux/virtio.h: struct member 'vmap' not described in 'virtio_device'
+
+Signed-off-by: Kit Dallege <xaum.io@gmail.com>
 ---
- v3: add counting field for __counted_by.
- v2: add space in struct
- drivers/gpio/gpio-virtio.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ include/linux/virtio.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-index ed6e0e90fa8a..57d0eb532c3c 100644
---- a/drivers/gpio/gpio-virtio.c
-+++ b/drivers/gpio/gpio-virtio.c
-@@ -52,7 +52,6 @@ struct virtio_gpio {
- 	struct virtio_device *vdev;
- 	struct mutex lock; /* Protects virtqueue operation */
- 	struct gpio_chip gc;
--	struct virtio_gpio_line *lines;
- 	struct virtqueue *request_vq;
-
- 	/* irq support */
-@@ -60,6 +59,9 @@ struct virtio_gpio {
- 	struct mutex irq_lock; /* Protects irq operation */
- 	raw_spinlock_t eventq_lock; /* Protects queuing of the buffer */
- 	struct vgpio_irq_line *irq_lines;
-+
-+	u16 ngpio;
-+	struct virtio_gpio_line lines[] __counted_by(ngpio);
- };
-
- static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
-@@ -541,10 +543,6 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 	u16 ngpio;
- 	int ret, i;
-
--	vgpio = devm_kzalloc(dev, sizeof(*vgpio), GFP_KERNEL);
--	if (!vgpio)
--		return -ENOMEM;
--
- 	/* Read configuration */
- 	gpio_names_size =
- 		virtio_cread32(vdev, offsetof(struct virtio_gpio_config,
-@@ -556,10 +554,12 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 		return -EINVAL;
- 	}
-
--	vgpio->lines = devm_kcalloc(dev, ngpio, sizeof(*vgpio->lines), GFP_KERNEL);
--	if (!vgpio->lines)
-+	vgpio = devm_kzalloc(dev, struct_size(vgpio, lines, ngpio), GFP_KERNEL);
-+	if (!vgpio)
- 		return -ENOMEM;
-
-+	vgpio->ngpio = ngpio;
-+
- 	for (i = 0; i < ngpio; i++) {
- 		mutex_init(&vgpio->lines[i].lock);
- 		init_completion(&vgpio->lines[i].completion);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 3386a4a8d06b..fc7940298d4b 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -157,10 +157,12 @@ struct virtio_device_admin_cmd {
+  * @id: the device type identification (used to match it with a driver).
+  * @config: the configuration ops for this device.
+  * @vringh_config: configuration ops for host vrings.
++ * @map: the mapping ops for this device.
+  * @vqs: the list of virtqueues for this device.
+  * @features: the 64 lower features supported by both driver and device.
+  * @features_array: the full features space supported by both driver and
+  *                 device.
+  * @priv: private pointer for the driver's use.
++ * @vmap: mapping token passed to the mapping operations.
+  * @debugfs_dir: debugfs directory entry.
+  * @debugfs_filter_features: features to be filtered set by debugfs.
+  */
 --
 2.53.0
-
