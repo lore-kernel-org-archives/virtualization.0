@@ -1,122 +1,102 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD6BD2F6920
-	for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 12:34:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E1B12DA759;
+	Thu, 12 Mar 2026 13:07:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773318880; cv=none; b=eSNv8isXBJGJuUoTLEnjSRxhSadYxIguQ7EHpapLok6Wk5pkMJ/tyFw0sJx6pAb+1l/h2117EYMFQdPCxfHJkWQZsrogRm3oHpJpPzUIEaeQhUvMKG6RiRx/K9Sl7AXZG0wGT7JKH7nivv/TxfSZm7Sh6bTFZ454STRC8jXnr0I=
+	t=1773320824; cv=none; b=Po+Ng28YjlYI/SI/PDieKJdBsd9m5MxVOix+i0ALDGQPLDtB0zKMzTr5jeVrZaXZ1EOZO8Q93Bi9Ghwo3czx5LjZp+GaF6rTl2Dkhwo9CMYsarWK4XFMNMIZN580PUo/olO/n9z9xKudJkKOITK5EcJNECGIDrMJJSCOyaQcM2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773318880; c=relaxed/simple;
-	bh=APBW+HdbDJGC0qi66ebGpgzi6a/5pJAPmLFyIpoPoUs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=h4dZQFz3XRnrwxZwbTuF6HbMOeIwqyvyARh1DaYk7J4g23j7KqL90iziVea51af7XKb2xeJoLCD9OEJs3PVycwG2Hn8hYkUTrzzDzEnCZcV/SstIZ33AHhPkWBztFSz0nlEs5TQqTA+STMbKGUNj0+YCq4Vu0gILSbeptwRxvKY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=nczf3MON; arc=none smtp.client-ip=209.85.222.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1773320824; c=relaxed/simple;
+	bh=i6EXM/dz88Cyoq8LtFGDSx5xkGpNbJe1oE+QY2KW7uQ=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=kIdteaW01wp483ckPHMF65skwTqUzJIvXNHUmUr0T1iHqAAQ97HfyI4i/TdGzTkWBZdKYdj+zOioGu4RsO6u7+j42EB30TnVXoASAfWNypRbFASyz9WPDcLRMf+ynKsF3whOIkKIsYpoJCkKNWrl2lXGsb0Y65g7eEMedbCVlLQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=L7Fn6Usr; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="nczf3MON"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-8cd75abd09dso113316985a.0
-        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 05:34:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1773318878; x=1773923678; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ULg7grqreMOX2MMOX7z3yI5zs+73GrCTo1UP0N+hYkE=;
-        b=nczf3MONJUWYbuFuVaB7tcr9RLMJRoTGRIJkYGUyXK0ybNQHWNhRg0+/s0iG6pnFoc
-         ttAeS329vXEIK5as1pnyZW2y2RVtyG4/dgaAt2bD3FyqMnns4ZUmjXEHuJ0LEduoEO9f
-         uG8Vfzbdt3T1Uhg7H5+nPaIOgVy0HRwP7S92A2/O+x+DnBx66pH8fzqdjS845WlTHcZ3
-         ghfsalJA0n3/TOZP3+k9Z5sKEc75t6W1zeQfhKa+zrwh4cmUUxHyFEho5+FgOrUvf6Tw
-         zHlobmFUy2xZqeKWImlj2bs/CUl511geCguJd/ZRWa67D33I5E0SUp/s5F0KAjJKMS6M
-         zowg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773318878; x=1773923678;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ULg7grqreMOX2MMOX7z3yI5zs+73GrCTo1UP0N+hYkE=;
-        b=c+ox3xh8ZwQgeZxRbO2/Ul6oSQrhZ8NU8uojGiJHLIupaJEaz+Cka9iGqSPFBIyvRN
-         +aLkJzfYW0zyBxMH5TuQWjhmYnNu0Z+1rVBIR0Go6mbb0TihVxaNYK1t6pYe8khxYIfE
-         2x3WuHRKEcaqs/lx8/VUgwFaXZaTNoR4sS7V/bJskT5sjN3rOwSSENHreaK8pgPu4se1
-         WpzX7Th6vzEnbsRRJERzw8cPExvkwtV1H3ZKs9PLcbU+iy5gJ9LG5B5sSUDden3rZXEl
-         i9Wd7r+DgUkVm6LTQxttCpDz3l5PZkPN4GwhAdy7OdAmHOt1xCPHkEB0FJSnzB71X5AG
-         A+Zg==
-X-Forwarded-Encrypted: i=1; AJvYcCU3tAJJVmf5hq67Lm5I09hq0lxialCIvz1SkAsI94iFuWv+aGe2YO4xK8in7kYf2FgTqkh6d0kAyPIS5AZPuA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwjPrLo/7OxpLpH/d1PvHw36mPV/ByzTSBF7vgNLCQZE7YiqCjg
-	T+xOMuSIZ2ThMqU2lvYmJIIvZPw61/4oaw34V/0okMFwc/igeLq1PqNkEZn7i1WJmYQ=
-X-Gm-Gg: ATEYQzxpu28Gku0vJ/6GEhmFNwi60bD/O1w13cu7Rh2L76Kp9LwWy/CEbUDvmlsGuX6
-	T4WvoiBoS0uyRsdLWEGtPF/3P4T69bR7h3PxzEqzeSjVBYLvs/Ze7yk1vMqQXBMWAMFj17hTatA
-	bqQj/2jC6CdldvNG1Uq14aZmXDszb1Mgwpy1s7Mh+J+TUcLFX/jE7xhwTZt34DiIJPYtxkN16Wz
-	r9G/9LcbHlsYvgIivLHI/yOoJINBooyMGWbcLaJS+wbuagoJh1VfIjGafL0Kt1cfsSdRKPLWdAJ
-	NYgKDag4p/gOj/k/GA/5GBZ+k0iDb3nYxAWjDEnWDwPRqAXs5l+dvs8SJwKY49QEYx215XfPqWE
-	zbu4QxDEgQFfTmaNUu3ck8bU7R08GcEluK1GzmLO34TsdjX6+sKi/pUSchAE3YI/IugpLsfoLCc
-	CwQ3GkBBvdMS2DyaOyt57zoY1RuUWre1pAfTtUAFXvHijPBC66/F5tJ7JyGa7pBR8HhmYDkuJjL
-	2HW7stz
-X-Received: by 2002:a05:620a:46a8:b0:8cd:8938:eff9 with SMTP id af79cd13be357-8cda1936a90mr737651285a.1.1773318877767;
-        Thu, 12 Mar 2026 05:34:37 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-112-119.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.112.119])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cda21346a0sm323887785a.34.2026.03.12.05.34.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Mar 2026 05:34:36 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1w0fFL-00000006ezF-1zix;
-	Thu, 12 Mar 2026 09:34:35 -0300
-Date: Thu, 12 Mar 2026 09:34:35 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>, iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-rdma@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v2 7/8] RDMA/umem: Tell DMA mapping that UMEM requires
- coherency
-Message-ID: <20260312123435.GH1469476@ziepe.ca>
-References: <20260311-dma-debug-overlap-v2-0-e00bc2ca346d@nvidia.com>
- <20260311-dma-debug-overlap-v2-7-e00bc2ca346d@nvidia.com>
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="L7Fn6Usr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1773320812;
+	bh=i6EXM/dz88Cyoq8LtFGDSx5xkGpNbJe1oE+QY2KW7uQ=;
+	h=From:To:Subject:Date:In-Reply-To:References;
+	b=L7Fn6Usr6CqpQSJg+sTfOg+35BhQICdFNJsUxwLeYojj09WsbqE+QES+PyTLa3XFu
+	 FxS04Bhek6fbU8EeHr7JE5aXHsrDYgmS7DMPN3pylLsP+mmqheDPHhH+upjzAsxHlu
+	 Hu27Gl+oOCiNAmlpvvsN7rxBct8aXBLITJeT4+sg=
+Received: from simon-Latitude-5450.fritz.box ([129.217.186.105])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 62CD6mql014094
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 12 Mar 2026 14:06:51 +0100 (CET)
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
+        eperezma@redhat.com, leiyang@redhat.com, stephen@networkplumber.org,
+        jon@nutanix.com, tim.gebauer@tu-dortmund.de,
+        simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+Subject: [PATCH net-next v8 3/4] ptr_ring: move free-space check into separate helper
+Date: Thu, 12 Mar 2026 14:06:38 +0100
+Message-ID: <20260312130639.138988-4-simon.schippers@tu-dortmund.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260311-dma-debug-overlap-v2-7-e00bc2ca346d@nvidia.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 11, 2026 at 09:08:50PM +0200, Leon Romanovsky wrote:
-> From: Leon Romanovsky <leonro@nvidia.com>
-> 
-> The RDMA subsystem exposes DMA regions through the verbs interface, which
-> assumes a coherent system. Use the DMA_ATTR_REQUIRE_COHERENCE attribute to
-> ensure coherency and avoid taking the SWIOTLB path.
+This patch moves the check for available free space for a new entry into
+a separate function. As a result, __ptr_ring_produce() remains logically
+unchanged, while the new helper allows callers to determine in advance
+whether subsequent __ptr_ring_produce() calls will succeed. This
+information can, for example, be used to temporarily stop producing until
+__ptr_ring_peek() indicates that space is available again.
 
-Lets elaborate a bit more so people understand why verbs is like
-this:
+Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+---
+ include/linux/ptr_ring.h | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-The RDMA verbs programming model is like HMM and assumes concurrent DMA and
-CPU access to userspace memory in a process. The HW device and
-programming model has so-called "one-sided" operations which are
-initiated over the network by a remote CPU without notification or
-involvement of the local CPU. These include things like ATOMIC
-compare/swap, READ, and WRITE. Using these operations a remote CPU can
-traverse data structures, form locks, and so on without awareness of
-the host CPU. Having SWIOTLB substitute the memory or the DMA be cache
-incoherent completely breaks these use cases.
+diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
+index 534531807d95..a5a3fa4916d3 100644
+--- a/include/linux/ptr_ring.h
++++ b/include/linux/ptr_ring.h
+@@ -96,6 +96,14 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
+ 	return ret;
+ }
+ 
++static inline int __ptr_ring_produce_peek(struct ptr_ring *r)
++{
++	if (unlikely(!r->size) || r->queue[r->producer])
++		return -ENOSPC;
++
++	return 0;
++}
++
+ /* Note: callers invoking this in a loop must use a compiler barrier,
+  * for example cpu_relax(). Callers must hold producer_lock.
+  * Callers are responsible for making sure pointer that is being queued
+@@ -103,8 +111,10 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
+  */
+ static inline int __ptr_ring_produce(struct ptr_ring *r, void *ptr)
+ {
+-	if (unlikely(!r->size) || r->queue[r->producer])
+-		return -ENOSPC;
++	int p = __ptr_ring_produce_peek(r);
++
++	if (p)
++		return p;
+ 
+ 	/* Make sure the pointer we are storing points to a valid data. */
+ 	/* Pairs with the dependency ordering in __ptr_ring_consume. */
+-- 
+2.43.0
 
-RDMA in-kernel is OK with incoherence because none of the kernel use
-cases make use of one-sided operations that would cause problems.
-
-Jason
