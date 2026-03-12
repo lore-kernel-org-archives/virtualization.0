@@ -1,77 +1,76 @@
-Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com [209.85.167.176])
+Received: from mail-oa1-f44.google.com (mail-oa1-f44.google.com [209.85.160.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8817C3F54A2
-	for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 21:42:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 530683B8BBD
+	for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 21:58:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.44
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773351774; cv=pass; b=EA6e4KVtUZuYyQRtA9ylg4dMW2ulgZdrV/t9GbiDe2VdBUAelolIgLWiQi5Lqwb4If7MghA7WaSXpRURDwN32HMZbeiVDDwBQhWZXrc8LSTdpRbHU1ibSDPI7VEHqOLINEqxxVX62L51DCaiTXGh1mwqtzsqwEk2z9y0OLqfeKs=
+	t=1773352722; cv=pass; b=AGbWP1Amz178JPYB7VmSYPK8ZeKlBXNsiaNQsyC9PgTzhxWDFgqvmL0p/weTTN9/mrJloLLJV+dPiHEDIQBj1yWonpqh/S/NaHzJTp8LoARbE7zCtx4A/bP08p8G9KnBnAs0pyQc9QTSm4DddLEBEihrwZTmFkBVQA4IY/iFEKo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773351774; c=relaxed/simple;
-	bh=E/0Q1PrTA27sEodrUrpVDvKc4d/yoWXHBz9v8xXtnes=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=nlwJg+UquO60NgkBP2hy6rEA5RlKxka+AYVwqMncitl4KEm+d7ZJ5P/CR9yfWFvM8DMp/dslrIY9/eSERPGl695lRfklxIODlAdlvwR0hMQWk4D/DhZj/IoLyLqHsRw7MH1Ze+PIfWET7MghsBudDT6jpw8ta6dH0ARr5Z/z67U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kgG7C+dX; arc=pass smtp.client-ip=209.85.167.176
+	s=arc-20240116; t=1773352722; c=relaxed/simple;
+	bh=/UXbidtDU54/5v7kkzH9PAfgESqYtiigH9Z7woqu25w=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=g5Ql/OJKlbVh4PXDYMs/RwVvDgtDK8lYclBCFNsX2PIV+KbbkComLq3DI2XUKKAbkJ45sGyBEbTl62kvpGb8KlJepDwIG35BbZQiGtIFICINlxa3TI0xoQ1X+e/6edZXI0ySzJS6sFDo7WjRzBH+oZOURQFetCKeL5PnysbIZyA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ShTG2viZ; arc=pass smtp.client-ip=209.85.160.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kgG7C+dX"
-Received: by mail-oi1-f176.google.com with SMTP id 5614622812f47-46701f2077cso2129725b6e.0
-        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 14:42:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773351772; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ShTG2viZ"
+Received: by mail-oa1-f44.google.com with SMTP id 586e51a60fabf-415b23dd6e5so584595fac.3
+        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 14:58:40 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773352719; cv=none;
         d=google.com; s=arc-20240605;
-        b=M8nW4D04dt0WrV8NW4Nt80rsRbmFAifTBYwZFIkiymxxWquiiooXGo5b9SbiqESTUH
-         +KqlXBMZnUGLG5MQPcAojc4d1dop2ZCTwbgBZSD7aub0OStLitlQ/sCubw/1YkG99rxL
-         KtzSlzoDPX1G7deMhaFoUdGEPGYOk7uJ1wAiPwDZ0q+0VRvQqR+YNqMWdGCn7bmFcz3S
-         qGlWvXAZuqoQTJlHruF+Dg8zJnEM1bsXaln0OCHADG0yoxLwE2XOfN3wceIqTBGrIKrk
-         4SRHjYcWSrUf9CKClvQ1QZJyiihZ10aipw9Om1O3PJc9bhvvd7a6q+NTUxIx1HO/Laqz
-         N9KQ==
+        b=FnHLVxJpOVPCpbIyRmraKmYKwGx3tFZnvMIr/JXV38tkAJqM5bJLwn4x+H0bzqf6+5
+         6Nxnl90ZSG80CWLFe0YQFR/zYG+KQFGlUdN1ZeJTpN5a+0hKCdbuhnSBXkH8kI6pF3IH
+         apT60ls8ptEe58MdDQWzhCGoI2X63B40TrjLCDrAzZ2gerZteWmomNSQuxQP3RFp+Usw
+         Za7L4QO1IHFpnzOFBwbOaYRW4wWJfBzo8nSy5V5rlR//fnNFgzEfUtp7gfxPE1P1IMOy
+         ed/AgA56o/At7zRBW6gpY9882qQuKNkJXTogFrRlb1QuRTCmJnjtD/Ln/gLCIY/2A1FG
+         ODDw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=/xoeXzzp8XgrtrV67WeyyhcRmlvHOjFX0f3SI3cL0Js=;
-        fh=y8lVMgusNXAmR4P598sLa/NdOpr64KpfzBZmUVkivew=;
-        b=TavXJUxaHxH5cAPkpWylGoR55jlzPjadzoPS0C8rnVPDTFmrxxRF0eI3n7Ho1i7/XU
-         GICd62wWF8g3ptErnE5l3vBvgrkGySoBkjv68OJtqynMHl9lcAX2VyLfLETdU1aQZ/h9
-         9+3OYq/XA9tU77tkCP6xYvztuzJUVcON+wXPcI/2iB750BF5fZQWIxyvoh4zfnJPP73s
-         GXnEy2sx7v/sHESEy2HQTVYycTYuuj88GViaFHZ93ItkfPQWphTC2A4lHBb7kxoNdWZY
-         Ta1q4opln/2lg6gx02cS0tcex0r+a5x1l9NWtnZPwdP6YfJjCwSLpK1G0yqCR6i8oDeF
-         IQaw==;
+        bh=FqP84TGmgvyTgfJsFq+pkxpoA3lD0KYlwSD57EbzY8Y=;
+        fh=wNQiHWOysDz7A/mtBhYaH6/0ku2xB2e1l/43WnipFm4=;
+        b=gRtW+IK9+Eu+GUcQtiil6oLHJM6T3shUF/KGGJYHDf6KtoEHnwwTjfxc09auLOKrhe
+         TbplnlAKQhM4QzDACLAlEN0I5bLRCd/HBq6cvy/Y892FbekT59EWp8j/QcGeFT2Leg/B
+         LmwXmvIeJf9jFpSCp+WnYA4B8tlIHdQK7PZo1gMQx8/hTdtLevPpvIAfmbS1+msVp8/H
+         1tO89JHH77tRi1Y1puNZ0BtOWP+GquUb310aaOyZ+VPfGQ4O3/8WukhuNjjjCk28Omm8
+         uHFYjOQAb530tHho8Zu14Mi3bfDEzca1sozxfxfBh0iAyr9iyv7ZVfzyh/s71W4wsuHC
+         Oelw==;
         darn=lists.linux.dev
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773351772; x=1773956572; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1773352719; x=1773957519; darn=lists.linux.dev;
         h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=/xoeXzzp8XgrtrV67WeyyhcRmlvHOjFX0f3SI3cL0Js=;
-        b=kgG7C+dXNKBAOMj062U4RUnvKPO81GkUE4gUapASS4HYa0HbewAIdgSIX22635H7QY
-         V8GrPxZgps8EMWgONkQM2STmeVlb6faZ+nVFWsUPE9/BKThnCw+jXQ/urUL8lufE0eYj
-         /iI/dagjhFHMRBILSl6zvayhZ4OISh1fRbBK7n9QY/nbBnFqXeHMM+4+nmoID1Z4bPea
-         6Y7qVQrizV9XuX6eOX/l5n2TDXCoXOhdfUk/b4QngbJJ2dliX54tNoRBItqviPX5tKv9
-         6Vj2HmkapOG4aDmdCkPTBUtqqzEvBFysmb13hqTCOoqS252ZNWmhWtuYlL0YEr2MiZAy
-         af0A==
+        bh=FqP84TGmgvyTgfJsFq+pkxpoA3lD0KYlwSD57EbzY8Y=;
+        b=ShTG2viZdj57J1lvTmDlA7+/Isht/T9RHNra0uFmGzL8yaZczqtpgPaNUoJ7cWoG8h
+         eodZ4nM0zbLWYP/aBLq2H0TaPwE9K7AGr61PxPUXq/LjfPeV8yHP0JSPG/755RbGQSn3
+         6/R4vVmzg43r+AC85WOtjTSKJr7nSgyp+VHyBqhNZ+t2dkvyZ2lk/VBhib38+mF73y+6
+         qEdNN6IHiLjaSJgsuCq+//llm9c6QV8682M2afC7eBVn5iVt0OEJKAt8/51gFQOYRJYw
+         NARj5PMhJBHL3oWTgodvxn096T8Vt439zUpktdkH1UA+e5A1cWEcfOcIq6rIYbGz+Ynl
+         Q9Ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773351772; x=1773956572;
+        d=1e100.net; s=20251104; t=1773352719; x=1773957519;
         h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/xoeXzzp8XgrtrV67WeyyhcRmlvHOjFX0f3SI3cL0Js=;
-        b=LeqH+ksD3A6c5R9SesyzmJRQ//bCHQqeE3j7knZhnlrgk/UyrBrS7MlQMxD3VOxjsP
-         EoqOMjFMnE5NymWLkZxEMmRp0GkQzsbxN6T8Q+hoPFsJi3INTUewaR3bglLjiFuhjY7D
-         xfQXLz34PpLzczeUbBAvFDLu03Tb26kX2IzopPSvjwqFvGil3bmm3i0m8c7j+Efi93wo
-         iKkAjZNyP0tftHeOwnUC1565an2NX23O7PiY1uzbXRvfqu+Dwsv/uT+hJISQ2QlrzKEj
-         ooVKKVZkq7WiTVQjVeU7/bVjlN3A6F6JkRlh8pkFHU8h/9itHtPUJn6uETjTUJHL60tf
-         U7kg==
-X-Forwarded-Encrypted: i=1; AJvYcCWZ688qqYdmHpWb4H1rAQsBvL6sEHOXBZj09uKJ+nky3T/+kaRpL+UfIjF01KsG7Zw6nkZ2bCjGrar1eAPEvw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwMDkkNZcHBpIDhWr6IimXmrtdesy8HzdsWngV/jQSntryGXlH7
-	9dWWLj+h7GMtnLpd/k/7HjqMX4oV5hcEuR/x84b9yZODk7ctRQMOzYDuz0RRIi82p7Vz6q2WgG7
-	tXi71jZRVghI/xQXkLvQ070RM4rJrv9I=
-X-Gm-Gg: ATEYQzxObHDuGvzDybfW1KhTax3jvxiys3oqP1kOJOuf8keZWDsQTjtAIF8MqM7+IxE
-	lP5pPObiyXc4TLKMaOZ83JIkbtSnHcUEae+UWnB25CpPyjAuWXS8lkaXDA7/V8cW9+xbLYi4sa0
-	0a7OTnAeLiKAuxKOAWLZHHMUhroJ7ZQJk/qZ9ruDAuGDdlnO6yA9beZP7Mxw4B0ZcKwPO/y0W8I
-	98csmUOhnsgV0ewXacolhw4FcSosHg8YfH4DhSFvfOXz2b7MIlU3nvSVW91rZKSHZ9odaTo5JMu
-	PAKN45hlLxSEMp3SO9YBQp3fHOfaRZLQ2V6074eETvcImgP/Cv0us2SqzKn3iAlyi6D/qgI8Cny
-	/VqfI
-X-Received: by 2002:a05:6808:2223:b0:467:f85:d81c with SMTP id
- 5614622812f47-46743205855mr2575481b6e.20.1773351772310; Thu, 12 Mar 2026
- 14:42:52 -0700 (PDT)
+        bh=FqP84TGmgvyTgfJsFq+pkxpoA3lD0KYlwSD57EbzY8Y=;
+        b=DPImewMZiv1aI5gletOOUWmx+5olOvOZ9b0xLZjmPZnf3X8EEKA+a9AK9/xVotAjfB
+         krRY9/LWrP9nM5SjHZr4mxaIPElF4RY56Vp+Gw+ltdIe/3UJ8fRc0dtn1WXHxf3Tp7wX
+         OxtcQa9wK0BQYjdM/Y97Xk03M6B7KdKnJNPIQ1aYEzGDUX3jAFFNyKqXBIhT80/OpnhC
+         TMvj5ld0WP3tv1mcoS3uc9QB1DXxbB1DylYwcjYUpBiEfWnTy9KIbkW6GgTJaPrEseyx
+         Eo6HbxK26m8c3dVddQba9QtGH3Rwo3ZojHbdMVgNh4ysRQbFUps9saffA8zB0/vCAHZZ
+         4/lA==
+X-Forwarded-Encrypted: i=1; AJvYcCVB3iklrZMePLBbHu/BGLlXxjoziQm3tQ8osyt0CKLUDcR+6kDGxu9ZGrqY0fz2/g5ff5q8vNQ0R4+pvS+ahg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzuAwOy+7LJH4tY4R8CIGqx0QXdcp/kziQHCGtt/zrhb7tqO0rP
+	QMaj+ABgCBnhrLWWygBRCs+Cw2OzrxtgixZz01eUim1xSXbjwmwF4uj2dTFgtPiyifRl2tg256R
+	+kRPbkt5BReGv9bn4fDDZQI9DzjOydTw=
+X-Gm-Gg: ATEYQzxG2aoVfbfIoDYIunyYYX41lZE+wNPGH6GQDiOo5J2Jhcv4ghc6iaK5frfcVxp
+	oHbxeS8kMa7jpOsvZ1/FFtJZeB800RcNRRi31NLUELHZy0FILPFpjVK10/6ttzIBk6T6NjlxfcY
+	t1aj1DQnYHzJKijKQYq7MjfO1TCoFCFS4l1/hQ/xBwh3/RbzS2nVy69KVnJc8A7+RxEYjxUjuQx
+	IZ2/9nKjDLYzgW4C+jCVhtURCTjALV/dFg9fhLULWE6VTXiYAqZmlak8w7rLzbrQw3Y7D5AHYkS
+	c8m40Op+W/yX7dLarZdyWPbKAbtISHKJ2J/eSHqw9G1jlqlVpb+pFDCHZ2ANfV+ksjd4IA==
+X-Received: by 2002:a05:6871:582b:b0:417:5cf7:48f6 with SMTP id
+ 586e51a60fabf-417b9059c22mr617649fac.3.1773352719154; Thu, 12 Mar 2026
+ 14:58:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,45 +78,116 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 From: John S <xaum.io@gmail.com>
-Date: Thu, 12 Mar 2026 22:42:39 +0100
-X-Gm-Features: AaiRm503XZ0ng5s11KqSPzO0zG44I8_tVkyXYuPbiZepavVF2j5k0SiHkDwNk9E
-Message-ID: <CAAZVx9_Tq6afZJb-4pNKCwmB7xw=NZVCR8aSXM5N9+BbDdmTtg@mail.gmail.com>
-Subject: [PATCH] virtio: add kernel-doc for map and vmap members
+Date: Thu, 12 Mar 2026 22:58:26 +0100
+X-Gm-Features: AaiRm53jG2HdeSoWg3E3eUPDX7LBFweqaGa9oOaMogvds1ztn67HqyTh2Ab3FCg
+Message-ID: <CAAZVx999y-DvB7Dp2ekoHk6s8aqqScd2gKSY4ySGAK6NNXeH5g@mail.gmail.com>
+Subject: [PATCH] virtio: document the map API in the driver writing guide
 To: mst@redhat.com, jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, corbet@lwn.net, 
+	skhan@linuxfoundation.org, virtualization@lists.linux.dev, 
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-Document the map and vmap members of struct virtio_device that were
-added without kernel-doc descriptions.
+Add a new "Buffer mapping" section to the virtio driver writing guide
+documenting the virtio map API (struct virtio_map_ops). This API was
+introduced in commit bee8c7c24b73 ("virtio: introduce map ops in virtio
+core") to allow transports and devices that do not perform DMA (such
+as VDUSE) to provide their own buffer mapping logic instead of abusing
+the DMA API.
 
-This fixes the following warnings when building with W=1:
-
-  include/linux/virtio.h: struct member 'map' not described in 'virtio_device'
-  include/linux/virtio.h: struct member 'vmap' not described in 'virtio_device'
+The new section explains when and why custom map ops are used, documents
+the virtio_map_ops structure and the union virtio_map token, and
+references the driver-facing mapping helpers with their kernel-doc.
 
 Signed-off-by: Kit Dallege <xaum.io@gmail.com>
 ---
- include/linux/virtio.h | 2 ++
- 1 file changed, 2 insertions(+)
+ .../virtio/writing_virtio_drivers.rst         | 72 +++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 3386a4a8d06b..fc7940298d4b 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -157,10 +157,12 @@ struct virtio_device_admin_cmd {
-  * @id: the device type identification (used to match it with a driver).
-  * @config: the configuration ops for this device.
-  * @vringh_config: configuration ops for host vrings.
-+ * @map: the mapping ops for this device.
-  * @vqs: the list of virtqueues for this device.
-  * @features: the 64 lower features supported by both driver and device.
-  * @features_array: the full features space supported by both driver and
-  *                 device.
-  * @priv: private pointer for the driver's use.
-+ * @vmap: mapping token passed to the mapping operations.
-  * @debugfs_dir: debugfs directory entry.
-  * @debugfs_filter_features: features to be filtered set by debugfs.
-  */
+diff --git a/Documentation/driver-api/virtio/writing_virtio_drivers.rst
+b/Documentation/driver-api/virtio/writing_virtio_drivers.rst
+index e5de6f5d061a..a3fcbf91ffe0 100644
+--- a/Documentation/driver-api/virtio/writing_virtio_drivers.rst
++++ b/Documentation/driver-api/virtio/writing_virtio_drivers.rst
+@@ -187,6 +187,78 @@ certain scenarios. The way to disable callbacks
+reliably is to reset the
+ device or the virtqueue (virtio_reset_device()).
+
+
++Buffer mapping
++==============
++
++Virtio devices need to map buffers so they can be accessed by the device.
++Historically, virtio relied exclusively on the kernel DMA API for this,
++which works well for hardware devices that perform real DMA. However, some
++virtio backends (such as VDUSE, a user-space vDPA device) do not perform
++DMA at all and previously had to abuse the DMA API with custom
++``dma_ops`` to make things work.
++
++The virtio map API, introduced via ``struct virtio_map_ops``, solves
++this by allowing transports and devices to provide their own mapping
++logic. When a device supplies custom map ops, those are used instead of
++the DMA API. When no custom ops are provided, the standard DMA API path
++is used as before, so existing drivers require no changes.
++
++Map operations
++--------------
++
++A transport or device that needs custom mapping implements
++``struct virtio_map_ops`` and assigns it to the ``map`` field of
++``struct virtio_device``. The ``vmap`` field carries opaque mapping
++metadata (a ``union virtio_map``) that is passed through to every map
++operation:
++
++.. kernel-doc:: include/linux/virtio_config.h
++    :identifiers: struct virtio_map_ops
++
++The ``union virtio_map`` holds the mapping token -- for DMA-capable
++devices this is a ``struct device *`` pointer, while for devices like
++VDUSE it can be a pointer to their own mapping context (e.g. an IOVA
++domain):
++
++.. kernel-doc:: include/linux/virtio.h
++    :identifiers: union virtio_map
++
++Driver-facing helpers
++---------------------
++
++Most virtio drivers do not need to call the map API directly -- the
++virtqueue helpers (``virtqueue_add_inbuf()``, ``virtqueue_add_outbuf()``,
++etc.) handle mapping internally. However, drivers that perform their own
++pre-mapping or need coherent allocations can use the following helpers:
++
++.. kernel-doc:: drivers/virtio/virtio_ring.c
++    :identifiers: virtqueue_map_single_attrs
++
++.. kernel-doc:: drivers/virtio/virtio_ring.c
++    :identifiers: virtqueue_unmap_single_attrs
++
++.. kernel-doc:: drivers/virtio/virtio_ring.c
++    :identifiers: virtqueue_map_page_attrs
++
++.. kernel-doc:: drivers/virtio/virtio_ring.c
++    :identifiers: virtqueue_unmap_page_attrs
++
++.. kernel-doc:: drivers/virtio/virtio_ring.c
++    :identifiers: virtqueue_map_alloc_coherent
++
++.. kernel-doc:: drivers/virtio/virtio_ring.c
++    :identifiers: virtqueue_map_free_coherent
++
++.. kernel-doc:: drivers/virtio/virtio_ring.c
++    :identifiers: virtqueue_map_mapping_error
++
++.. kernel-doc:: drivers/virtio/virtio_ring.c
++    :identifiers: virtqueue_map_need_sync
++
++After mapping a buffer, always check the returned address with
++``virtqueue_map_mapping_error()`` before using it.
++
++
+ References
+ ==========
+
 --
 2.53.0
