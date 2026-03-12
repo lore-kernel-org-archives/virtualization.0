@@ -1,29 +1,29 @@
-Received: from mail-m16.yeah.net (mail-m16.yeah.net [220.197.32.17])
+Received: from mail-m16.yeah.net (mail-m16.yeah.net [1.95.21.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78FD937418D
-	for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 02:49:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.32.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ADFA261B9C
+	for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 02:55:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=1.95.21.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773283794; cv=none; b=eLhYGlXjgHQP5fV08l9a036nUw29/1vuHg7IVuaf0z52k9mdtgQ8RK0pS32RQKom30ZaMCN49MW377okSJ5tPeP2fcy39PMq/IX7PnUxrXa/8WF6kTio8MMQkHGuFgSsXonx1OxYVNhDbv9vm4tHxwsptawRxyVDDihnVTsa6Ew=
+	t=1773284142; cv=none; b=dq6xwCQvExrsogMEV/0MguxSxDyYZ5ChAVgvnI1STzFfTjZVjc8BGo5WgxqFpWXlpqjelGLD3nVtSBwUoCgsfhcatC+wsAtRYjiF2yYPzUA1I34L/woTM3+SqAFqm3Ak0QDCF2v2FqveC9nVUAL/2j2/b7PHBOTyeS5jekL6zL4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773283794; c=relaxed/simple;
+	s=arc-20240116; t=1773284142; c=relaxed/simple;
 	bh=Sj2VafoHdghFpP7ZB8Sh+tcZLjL2iv1MRtN2nGUsvqw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mFjYDCdiMxA6jlBMRV5qW88F48CzI/tOhEVgR6LfOePAKnfqyOvjkvJHl9PRuSMOjLHRLzwRnfiZ5HCex8QuXe1MF5wZL23qOA5TbYX06kG6JrCQ5o0shnibDD5fIrZJItSLzsJYEIiM62Nt7ZDTdTvIe12XOP5xNptXEzt98bw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yeah.net; spf=pass smtp.mailfrom=yeah.net; dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b=TUT0okli; arc=none smtp.client-ip=220.197.32.17
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XO/ruJ9cUt2pkxaOFrHUlUXnjtSp9g7VPU3RFszmeIkKQGozAl0KEE4AiSwQvLno+VsrMM4NPY46ceL46th3K3Vo34MJJZ9UqrTFylH//Xoa3jy7WncsMV6sSL1KB6LeuBIKzo6oFHZ9vH49MpIXjPm3XVlRXAs8Ke1GioZkRhk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yeah.net; spf=pass smtp.mailfrom=yeah.net; dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b=Fn7ECnfm; arc=none smtp.client-ip=1.95.21.16
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yeah.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yeah.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b="TUT0okli"
+	dkim=pass (1024-bit key) header.d=yeah.net header.i=@yeah.net header.b="Fn7ECnfm"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yeah.net;
 	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=d1
-	OVm4u4vH8CiwTDihtBaUsbRQCL/Ky+yu0LSJVg9j8=; b=TUT0okligA7qFX3T6g
-	yMZL/W8hyngnWTJtIAXUuu3HsPQXUt8BHCCfFy4bHGIk1s5JNUzvb3fWjtnGljLU
-	sPHtlpwBUVfSWKKskQpirN3Rs/3mJ5YLPkF5mMBjexVKpEdzjpOTfc/AP3eb1H1V
-	rftWEqcIp0Hmsn2Ws0Nl9BcT0=
+	OVm4u4vH8CiwTDihtBaUsbRQCL/Ky+yu0LSJVg9j8=; b=Fn7ECnfmVm+fQluGQz
+	Gw/qdCilTmAMVL8ix5ZxYBGrpHZy1mhqknMhZVGcbfOLkXRVPNvxgyDm3qrahUal
+	z/USE6fLtGYsbB8IxfwXSCs3hF/vX/zqYys7SwJ6iCSzpenZRUYgJzlw7SHlUCpa
+	dII5iZijK8TaZJ646VH2vgLPc=
 Received: from localhost.net (unknown [])
-	by gzsmtp3 (Coremail) with UTF8SMTPA id M88vCgD3F7CmKbJphzd7Ag--.15484S2;
-	Thu, 12 Mar 2026 10:49:11 +0800 (CST)
+	by gzsmtp3 (Coremail) with UTF8SMTPA id M88vCgBHv3gJK7JpMEd7Ag--.41375S2;
+	Thu, 12 Mar 2026 10:55:06 +0800 (CST)
 From: xietangxin <xietangxin@yeah.net>
 To: "Michael S . Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
@@ -40,8 +40,8 @@ Cc: netdev@vger.kernel.org,
 	stable@vger.kernel.org,
 	xietangxin <xietangxin@yeah.net>
 Subject: [PATCH net v2] virtio_net: Fix UAF on dst_ops when IFF_XMIT_DST_RELEASE is cleared and napi_tx is false
-Date: Thu, 12 Mar 2026 10:49:02 +0800
-Message-ID: <20260312024902.15627-1-xietangxin@yeah.net>
+Date: Thu, 12 Mar 2026 10:54:06 +0800
+Message-ID: <20260312025406.15641-1-xietangxin@yeah.net>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -50,12 +50,12 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:M88vCgD3F7CmKbJphzd7Ag--.15484S2
+X-CM-TRANSID:M88vCgBHv3gJK7JpMEd7Ag--.41375S2
 X-Coremail-Antispam: 1Uf129KBjvJXoWxArW3XF43AFy5Jw1kArW3GFg_yoW5CFW5pF
 	4YyrW5Xr4vqry7Aa93Xw4kWry8Zan5J343Grs0gw13u398CFy5Kr1I934jqFWDCFs5Z347
 	ZrsYvr1UKrZ0vFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
 	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j8Ma8UUUUU=
-X-CM-SenderInfo: x0lh3tpqj0x0o61htxgoqh3/1tbiNwd6rmmyKae8gAAA3N
+X-CM-SenderInfo: x0lh3tpqj0x0o61htxgoqh3/1tbiNwvTCGmyKwvClgAA3I
 
 A UAF issue occurs when the virtio_net driver is configured with napi_tx=N
 and the device's IFF_XMIT_DST_RELEASE flag is cleared
