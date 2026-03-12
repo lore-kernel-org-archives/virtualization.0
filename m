@@ -1,108 +1,134 @@
-Received: from out-181.mta1.migadu.com (out-181.mta1.migadu.com [95.215.58.181])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A663E36165B
-	for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 16:14:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CFA21E7660;
+	Thu, 12 Mar 2026 16:46:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773332051; cv=none; b=pjSCMsdKtC8gQ4Q/CZo38+t2R2edemnxDpGsQhdmMaIoT91JMmeDjv8Vzirc4c2enh3jEMV+vvmYSI89Nan9R8KkqykdRpdSPI26dG1qkA3ExAyhv0budZSY68t+hPdU7kpg8+pbY2fjd+YmYKAG5Ka95AhFD2egutPV3KVAymQ=
+	t=1773333986; cv=none; b=GncL6VaYdQ98lNyHMwIJetvIhZpO5qKvv35UlOeynqGda5JMYLk4DIW05Vc85GPDhYjAWRVZbzLrNo4GqgQSxiZAVOPPgTQHEFZPK4yzy+P1mna40mUVHYhiw4q1MaxsSsCFZJTyQNsIEq5UZI9oia9CAvWrCzJGLsZ6/BDj6IM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773332051; c=relaxed/simple;
-	bh=N242Oa9HbfjsGekgxcB30/llk72j44THFCUkPd6F8NM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GrWDzJarBziVCuRh/DP+9LxWip9mgdfhAXfzk+AtkPca7egFmsuONzwwLgojt4gSG5aDcqKSSzShueROCDhpnM5YOulJTWu8pMCNV5Tl6Po97sU8yYNpFHF1ykAjl1SIgbN3IM7lHplWWD1LwYRW4kCy8sWEnyhZxkTsOFv3h7s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=foV+uUBl; arc=none smtp.client-ip=95.215.58.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773333986; c=relaxed/simple;
+	bh=g4W57IAgppszhhmuom1c6GdIWffwgLTuE6LrTOJwXps=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NoL3ElGlesLX4iw57wPIJhpWE5BJVmQbbBeVhvtZ7Fj+pGzcTZNVQCqmZsMU1joIUod6YJZ8ES3uiaVykKIqjniU7pEwmMkTpS5t6Qh8zKcvvDNC5Magkjd7hU+AUL5xawmcZcZJnBZJ9xUkiYcgNByQv99hMVJCoVKUKsAiBJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AZmu8XZn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="foV+uUBl"
-Message-ID: <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773332047;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8S9kpSbMrF1j0QA2GDOXqTycEozhSapelcYr5ulLYWk=;
-	b=foV+uUBlJDuw7ebXJrD2UQy+HMDbOyN1uiGoY/VhPevytnn5dXWRnRSayiOqBIlKU0menO
-	48Tcq8P4hlTuSKLvFiNOlHu7YIe1SaoY4Q6TeSKOWGkYQrSs/j2yy1QuQu9eswLlXmMmf0
-	tev69CksT9lwmShZNQ3xpJHFGmHYk4Y=
-Date: Thu, 12 Mar 2026 09:13:49 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AZmu8XZn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E9EC4CEF7;
+	Thu, 12 Mar 2026 16:46:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773333985;
+	bh=g4W57IAgppszhhmuom1c6GdIWffwgLTuE6LrTOJwXps=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=AZmu8XZnuXQA+Zlr+DGheTwhpLckrEO2t6JNHpcxW0vx7U575iAJy32RP6EXBhWw6
+	 eBEt4hHQC6MmOaapPF0E0vmRmScasxsxx+W1xSJCpjsIJb5Rxt9yi+poJlX1dA9KHR
+	 doFbcFgH+JNRk8+fY7aFKcFVBKHMLTKw8lW75K7b2L8zlLxtABKvR0f2TNL7Fc7kuM
+	 n5diM3RZ+ujPHLJoj6PqBRojByoKgqXep+yXPg2a5K8Eb8QXHhr7WqRwTdcaLIbzx8
+	 7hiitACIX5AqL902Vp5+AQyG4SquimpfkKuxsVAi/vLG5ezGXH0PJvYL+F3BkyVjOk
+	 BbhQwqQ69ra8A==
+Date: Thu, 12 Mar 2026 18:46:22 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>, iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-rdma@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH v2 4/8] dma-mapping: Introduce DMA require coherency
+ attribute
+Message-ID: <20260312164622.GZ12611@unreal>
+References: <20260311-dma-debug-overlap-v2-0-e00bc2ca346d@nvidia.com>
+ <20260311-dma-debug-overlap-v2-4-e00bc2ca346d@nvidia.com>
+ <20260312121937.GD1469476@ziepe.ca>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-To: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, linux-mm@kvack.org,
- akpm@linux-foundation.org, mhocko@suse.com
-Cc: apopple@nvidia.com, axelrasmussen@google.com, byungchul@sk.com,
- cgroups@vger.kernel.org, david@kernel.org, eperezma@redhat.com,
- gourry@gourry.net, jasowang@redhat.com, hannes@cmpxchg.org,
- joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
- linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
- matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org,
- muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
- roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
- virtualization@lists.linux.dev, weixugc@google.com,
- xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com,
- yuanchu@google.com, ziy@nvidia.com, kernel-team@meta.com
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
- <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-In-Reply-To: <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260312121937.GD1469476@ziepe.ca>
 
-On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
-> On 3/7/26 05:55, JP Kobryn (Meta) wrote:
->> When investigating pressure on a NUMA node, there is no straightforward way
->> to determine which policies are driving allocations to it.
->>
->> Add per-policy page allocation counters as new node stat items. These
->> counters track allocations to nodes and also whether the allocations were
->> intentional or fallbacks.
->>
->> The new stats follow the existing numa hit/miss/foreign style and have the
->> following meanings:
->>
->>    hit
->>      - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
->>      - for other policies, allocation succeeded on intended node
->>      - counted on the node of the allocation
->>    miss
->>      - allocation intended for other node, but happened on this one
->>      - counted on other node
->>    foreign
->>      - allocation intended on this node, but happened on other node
->>      - counted on this node
->>
->> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
->> in /proc/vmstat.
->>
->> Signed-off-by: JP Kobryn (Meta) <jp.kobryn@linux.dev>
+On Thu, Mar 12, 2026 at 09:19:37AM -0300, Jason Gunthorpe wrote:
+> On Wed, Mar 11, 2026 at 09:08:47PM +0200, Leon Romanovsky wrote:
+> > From: Leon Romanovsky <leonro@nvidia.com>
+> > 
+> > The mapping buffers which carry this attribute require DMA coherent system.
+> > This means that they can't take SWIOTLB path, can perform CPU cache overlap
+> > and doesn't perform cache flushing.
+> > 
+> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > ---
+> >  Documentation/core-api/dma-attributes.rst | 12 ++++++++++++
+> >  include/linux/dma-mapping.h               |  7 +++++++
+> >  include/trace/events/dma.h                |  3 ++-
+> >  kernel/dma/debug.c                        |  3 ++-
+> >  kernel/dma/mapping.c                      |  6 ++++++
+> >  5 files changed, 29 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/Documentation/core-api/dma-attributes.rst b/Documentation/core-api/dma-attributes.rst
+> > index 48cfe86cc06d7..69d094f144c70 100644
+> > --- a/Documentation/core-api/dma-attributes.rst
+> > +++ b/Documentation/core-api/dma-attributes.rst
+> > @@ -163,3 +163,15 @@ data corruption.
+> >  
+> >  All mappings that share a cache line must set this attribute to suppress DMA
+> >  debug warnings about overlapping mappings.
+> > +
+> > +DMA_ATTR_REQUIRE_COHERENT
+> > +-------------------------
+> > +
+> > +The mapping buffers which carry this attribute require DMA coherent system. This means
+> > +that they can't take SWIOTLB path, can perform CPU cache overlap and doesn't perform
+> > +cache flushing.
 > 
-> I think I've been on of the folks on previous versions arguing against the
-> many counters, and one of the arguments was it they can't tell the full
-> story anyway (compared to e.g. tracing), but I don't think adding even more
-> counters is the right solution. Seems like a number of other people
-> responding to the thread are providing similar feedback.
+> DMA mapping requests with the DMA_ATTR_REQUIRE_COHERENT fail on any
+> system where SWIOTLB or cache management is required. This should only
+> be used to support uAPI designs that require continuous HW DMA
+> coherence with userspace processes, for example RDMA and DRM. At a
+> minimum the memory being mapped must be userspace memory from
+> pin_user_pages() or similar.
 > 
-> For example I'm still not sure how it would help me if I knew the
-> hits/misses were due to a preferred vs preferred_many policy, or interleave
-> vs weithed interleave?
+> Drivers should consider using dma_mmap_pages() instead of this
+> interface when building their uAPIs, when possible.
 > 
+> It must never be used in an in-kernel driver that only works with
+> kernal memory.
+> 
+> > @@ -164,6 +164,9 @@ dma_addr_t dma_map_phys(struct device *dev, phys_addr_t phys, size_t size,
+> >  	if (WARN_ON_ONCE(!dev->dma_mask))
+> >  		return DMA_MAPPING_ERROR;
+> >  
+> > +	if (!dev_is_dma_coherent(dev) && (attrs & DMA_ATTR_REQUIRE_COHERENT))
+> > +		return DMA_MAPPING_ERROR;
+> 
+> This doesn't capture enough conditions.. is_swiotlb_force_bounce(),
+> dma_kmalloc_needs_bounce(), dma_capable(), etc all need to be blocked
+> too
 
-How about I change from per-policy hit/miss/foreign triplets to a single
-aggregated policy triplet (i.e. just 3 new counters which account for
-all policies)? They would follow the same hit/miss/foreign semantics
-already proposed (visible in quoted text above). This would still
-provide the otherwise missing signal of whether policy-driven
-allocations to a node are intentional or fallback.
+These checks exist in dma_direct_map_phys() and here is the common check
+between direct and IOMMU modes.
 
-Note that I am also planning on moving the stats off of the memcg so the
-3 new counters will be global per-node in response to similar feedback.
+Thanks
+
+> 
+> So check it inside swiotlb_map() too, and maybe shift the above
+> into the existing branches:
+> 
+>         if (!dev_is_dma_coherent(dev) &&
+>             !(attrs & (DMA_ATTR_SKIP_CPU_SYNC | DMA_ATTR_MMIO)))
+>                 arch_sync_dma_for_device(phys, size, dir);
+> 
+> Jason
